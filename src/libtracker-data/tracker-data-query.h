@@ -27,7 +27,7 @@
 #include <glib.h>
 
 #include <libtracker-common/tracker-config.h>
-#include <libtracker-common/tracker-field.h>
+#include <libtracker-common/tracker-property.h>
 #include <libtracker-common/tracker-language.h>
 #include <libtracker-common/tracker-ontology.h>
 
@@ -52,7 +52,7 @@ gchar *              tracker_data_query_unparsed_metadata     (TrackerClass     
 							       guint32              service_id);
 gchar **             tracker_data_query_metadata_field_values (TrackerClass      *service_def,
 							       guint32              service_id,
-							       TrackerField        *field_def);
+							       TrackerProperty        *field_def);
 
 /* Using path */
 gboolean             tracker_data_query_service_exists        (TrackerClass      *service,

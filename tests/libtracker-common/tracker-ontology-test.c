@@ -25,7 +25,7 @@
 #include <glib.h>
 
 #include <libtracker-common/tracker-class.h>
-#include <libtracker-common/tracker-field.h>
+#include <libtracker-common/tracker-property.h>
 #include <libtracker-common/tracker-ontology.h>
 
 #include <tracker-test-helpers.h>
@@ -82,24 +82,24 @@ array_to_list (char **array)
 	return list;
 }
 
-static TrackerField *
+static TrackerProperty *
 create_field_definition (const gchar *id,
 			 const gchar *name,
-			 TrackerFieldType data_type,
+			 TrackerPropertyType data_type,
 			 const gchar *field_name,
 			 gboolean multiple_values,
 			 GSList *child_ids)
 {
-	TrackerField *field;
+	TrackerProperty *field;
 
-	field = tracker_field_new ();
+	field = tracker_property_new ();
 
-	tracker_field_set_id (field, id);
-	tracker_field_set_name (field, name);
-	tracker_field_set_data_type (field, data_type);
-	tracker_field_set_field_name (field, field_name);
-	tracker_field_set_multiple_values (field, multiple_values);
-	tracker_field_set_child_ids (field, child_ids);
+	tracker_property_set_id (field, id);
+	tracker_property_set_name (field, name);
+	tracker_property_set_data_type (field, data_type);
+	tracker_property_set_field_name (field, field_name);
+	tracker_property_set_multiple_values (field, multiple_values);
+	tracker_property_set_child_ids (field, child_ids);
 
 	return field;
 }
@@ -141,7 +141,7 @@ tracker_services_general_setup (void)
 {
 	TrackerClass *service, *parent_service, *other_service;
 	TrackerClass *conv_service, *gaim_service, *gossip_service, *new_gaim_service;
-	TrackerField *field_title;
+	TrackerProperty *field_title;
 	GSList *mimes, *mime_prefixes;
 	gchar *m[] = {"application/rtf", "text/joke", "test/1", NULL};
 	gchar *mp[] = {"images/", "video/", "other.mimes.", NULL};
@@ -156,7 +156,7 @@ tracker_services_general_setup (void)
 
 	field_title = create_field_definition ("0",
 					       "App.Title",
-					       TRACKER_FIELD_TYPE_INDEX,
+					       TRACKER_PROPERTY_TYPE_INDEX,
 					       "Title",
 					       TRUE,
 					       NULL);
@@ -322,7 +322,7 @@ test_has_metadata (void)
 static void
 test_field_in_ontology (void)
 {
-	TrackerField *field;
+	TrackerProperty *field;
 
 	field = tracker_ontology_get_field_by_name ("App.Title");
 	g_assert (field);

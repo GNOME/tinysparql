@@ -164,7 +164,7 @@ tracker_ontology_init (void)
 	 * when inserting metadata types in the DB, so the enum class needs to be
 	 * created beforehand.
 	 */
-	field_type_enum_class = g_type_class_ref (TRACKER_TYPE_FIELD_TYPE);
+	field_type_enum_class = g_type_class_ref (TRACKER_TYPE_PROPERTY_TYPE);
 
 	initialized = TRUE;
 }
@@ -456,11 +456,11 @@ tracker_ontology_get_field_names_registered (const gchar *service_str)
 	fields = g_hash_table_get_values (field_names);
 
 	for (l = fields; l; l = l->next) {
-		TrackerField *field;
+		TrackerProperty *field;
 		const gchar  *name;
 
 		field = l->data;
-		name = tracker_field_get_name (field);
+		name = tracker_property_get_name (field);
 
 		if (service_str == NULL ||
 		    (prefix && g_str_has_prefix (name, prefix)) ||
@@ -666,22 +666,22 @@ tracker_ontology_service_get_show_files (const gchar *service_str)
 
 /* Field mechanics */
 void
-tracker_ontology_field_add (TrackerField *field)
+tracker_ontology_field_add (TrackerProperty *field)
 {
 	const gchar *name;
 
-	g_return_if_fail (TRACKER_IS_FIELD (field));
+	g_return_if_fail (TRACKER_IS_PROPERTY (field));
 
-	name = tracker_field_get_name (field);
+	name = tracker_property_get_name (field);
 	g_return_if_fail (name != NULL);
 
 	g_hash_table_insert (field_names,
-			     /* g_utf8_collate_key (tracker_field_get_name (field), -1), */
+			     /* g_utf8_collate_key (tracker_property_get_name (field), -1), */
 			     g_strdup (name),
 			     g_object_ref (field));
 }
 
-TrackerField *
+TrackerProperty *
 tracker_ontology_get_field_by_name (const gchar *name)
 {
 	g_return_val_if_fail (name != NULL, NULL);
@@ -689,10 +689,10 @@ tracker_ontology_get_field_by_name (const gchar *name)
 	return g_hash_table_lookup (field_names, name);
 }
 
-TrackerField *
+TrackerProperty *
 tracker_ontology_get_field_by_id (gint id)
 {
-	TrackerField *field = NULL;
+	TrackerProperty *field = NULL;
 	GList	     *values;
 	GList	     *l;
 
@@ -701,7 +701,7 @@ tracker_ontology_get_field_by_id (gint id)
 	values = g_hash_table_get_values (field_names);
 
 	for (l = values; l && !field; l = l->next) {
-		if (atoi (tracker_field_get_id (l->data)) == id) {
+		if (atoi (tracker_property_get_id (l->data)) == id) {
 			field = l->data;
 		}
 	}
@@ -712,17 +712,17 @@ tracker_ontology_get_field_by_id (gint id)
 }
 
 gchar *
-tracker_ontology_get_field_name_by_service_name (TrackerField *field,
+tracker_ontology_get_field_name_by_service_name (TrackerProperty *field,
 						 const gchar  *service_str)
 {
 	const gchar *field_name;
 	const gchar *meta_name;
 	gint	     key_field;
 
-	g_return_val_if_fail (TRACKER_IS_FIELD (field), NULL);
+	g_return_val_if_fail (TRACKER_IS_PROPERTY (field), NULL);
 	g_return_val_if_fail (service_str != NULL, NULL);
 
-	meta_name = tracker_field_get_name (field);
+	meta_name = tracker_property_get_name (field);
 	key_field = tracker_ontology_service_get_key_metadata (service_str,
 							       meta_name);
 
@@ -731,8 +731,8 @@ tracker_ontology_get_field_name_by_service_name (TrackerField *field,
 
 	}
 
-	/* TODO do it using field_name in TrackerField! */
-	field_name = tracker_field_get_field_name (field);
+	/* TODO do it using field_name in TrackerProperty! */
+	field_name = tracker_property_get_field_name (field);
 	if (field_name) {
 		return g_strdup (field_name);
 	} else {
@@ -744,17 +744,17 @@ tracker_ontology_get_field_name_by_service_name (TrackerField *field,
  * Field data
  */
 gchar *
-tracker_ontology_field_get_display_name (TrackerField *field)
+tracker_ontology_field_get_display_name (TrackerProperty *field)
 {
-	TrackerFieldType type;
+	TrackerPropertyType type;
 
-	g_return_val_if_fail (TRACKER_IS_FIELD (field), NULL);
+	g_return_val_if_fail (TRACKER_IS_PROPERTY (field), NULL);
 
-	type = tracker_field_get_data_type (field);
+	type = tracker_property_get_data_type (field);
 
-	if (type == TRACKER_FIELD_TYPE_INDEX ||
-	    type == TRACKER_FIELD_TYPE_STRING ||
-	    type == TRACKER_FIELD_TYPE_DOUBLE) {
+	if (type == TRACKER_PROPERTY_TYPE_INDEX ||
+	    type == TRACKER_PROPERTY_TYPE_STRING ||
+	    type == TRACKER_PROPERTY_TYPE_DOUBLE) {
 		return g_strdup ("MetaDataDisplay");
 	}
 
@@ -764,14 +764,14 @@ tracker_ontology_field_get_display_name (TrackerField *field)
 const gchar *
 tracker_ontology_field_get_id (const gchar *name)
 {
-	TrackerField *field;
+	TrackerProperty *field;
 
 	g_return_val_if_fail (name != NULL, NULL);
 
 	field = tracker_ontology_get_field_by_name (name);
 
 	if (field) {
-		return tracker_field_get_id (field);
+		return tracker_property_get_id (field);
 	}
 
 	return NULL;
@@ -781,8 +781,8 @@ gboolean
 tracker_ontology_field_is_child_of (const gchar *field_str_child,
 				    const gchar *field_str_parent)
 {
-	TrackerField *field_child;
-	TrackerField *field_parent;
+	TrackerProperty *field_child;
+	TrackerProperty *field_parent;
 	const GSList *l;
 
 	g_return_val_if_fail (field_str_child != NULL, FALSE);
@@ -800,12 +800,12 @@ tracker_ontology_field_is_child_of (const gchar *field_str_child,
 		return FALSE;
 	}
 
-	for (l = tracker_field_get_child_ids (field_parent); l; l = l->next) {
+	for (l = tracker_property_get_child_ids (field_parent); l; l = l->next) {
 		if (!l->data) {
 			return FALSE;
 		}
 
-		if (strcmp (tracker_field_get_id (field_child), l->data) == 0) {
+		if (strcmp (tracker_property_get_id (field_child), l->data) == 0) {
 			return TRUE;
 		}
 	}
@@ -816,12 +816,12 @@ tracker_ontology_field_is_child_of (const gchar *field_str_child,
 const gchar *
 tracker_ontology_get_field_name_by_id (gint id)
 {
-	TrackerField *field;
+	TrackerProperty *field;
 
 	field = tracker_ontology_get_field_by_id (id);
 
 	if (field) {
-		return tracker_field_get_name (field);
+		return tracker_property_get_name (field);
 	}
 	
 	return NULL;

@@ -28,7 +28,7 @@
 
 #include <glib/gstdio.h>
 
-#include <libtracker-common/tracker-field.h>
+#include <libtracker-common/tracker-property.h>
 #include <libtracker-common/tracker-file-utils.h>
 #include <libtracker-common/tracker-nfs-lock.h>
 #include <libtracker-common/tracker-ontology.h>
@@ -274,7 +274,7 @@ load_metadata_file (TrackerDBInterface *iface,
 	GError        *error = NULL;
 	gchar	      *service_file, *str_id;
 	gchar	     **groups, **keys;
-	TrackerField  *def;
+	TrackerProperty  *def;
 	gint	       id, i, j;
 
 	g_message ("Loading metadata file '%s'", filename);
@@ -305,7 +305,7 @@ load_metadata_file (TrackerDBInterface *iface,
 								NULL);
 			id = tracker_db_interface_sqlite_get_last_insert_id (TRACKER_DB_INTERFACE_SQLITE (iface));
 		} else {
-			id = atoi (tracker_field_get_id (def));
+			id = atoi (tracker_property_get_id (def));
 			g_error ("Duplicated metadata description %s", groups[i]);
 		}
 
@@ -334,7 +334,7 @@ load_metadata_file (TrackerDBInterface *iface,
 			} else if (strcasecmp (keys[j], "DataType") == 0) {
 				GEnumValue *enum_value;
 
-				enum_value = g_enum_get_value_by_nick (g_type_class_peek (TRACKER_TYPE_FIELD_TYPE), new_value);
+				enum_value = g_enum_get_value_by_nick (g_type_class_peek (TRACKER_TYPE_PROPERTY_TYPE), new_value);
 
 				if (enum_value) {
 					tracker_db_interface_execute_query (iface, NULL,
@@ -728,16 +728,16 @@ load_prepared_queries (void)
 	return TRUE;
 }
 
-static TrackerField *
+static TrackerProperty *
 db_row_to_field_def (TrackerDBResultSet *result_set)
 {
-	TrackerField	 *field_def;
-	TrackerFieldType  field_type;
+	TrackerProperty	 *field_def;
+	TrackerPropertyType  field_type;
 	gchar		 *id_str, *field_name, *name;
 	gint		  weight, id;
 	gboolean	  embedded, multiple_values, delimited, filtered, store_metadata;
 
-	field_def = tracker_field_new ();
+	field_def = tracker_property_new ();
 
 	tracker_db_result_set_get (result_set,
 				   0, &id,
@@ -754,16 +754,16 @@ db_row_to_field_def (TrackerDBResultSet *result_set)
 
 	id_str = tracker_gint_to_string (id);
 
-	tracker_field_set_id (field_def, id_str);
-	tracker_field_set_name (field_def, name);
-	tracker_field_set_data_type (field_def, field_type);
-	tracker_field_set_field_name (field_def, field_name);
-	tracker_field_set_weight (field_def, weight);
-	tracker_field_set_embedded (field_def, embedded);
-	tracker_field_set_multiple_values (field_def, multiple_values);
-	tracker_field_set_delimited (field_def, delimited);
-	tracker_field_set_filtered (field_def, filtered);
-	tracker_field_set_store_metadata (field_def, store_metadata);
+	tracker_property_set_id (field_def, id_str);
+	tracker_property_set_name (field_def, name);
+	tracker_property_set_data_type (field_def, field_type);
+	tracker_property_set_field_name (field_def, field_name);
+	tracker_property_set_weight (field_def, weight);
+	tracker_property_set_embedded (field_def, embedded);
+	tracker_property_set_multiple_values (field_def, multiple_values);
+	tracker_property_set_delimited (field_def, delimited);
+	tracker_property_set_filtered (field_def, filtered);
+	tracker_property_set_store_metadata (field_def, store_metadata);
 
 	g_free (id_str);
 	g_free (field_name);
@@ -1391,7 +1391,7 @@ db_get_static_data (TrackerDBInterface *iface)
 
 		while (valid) {
 			TrackerDBResultSet *result_set2;
-			TrackerField	   *def;
+			TrackerProperty	   *def;
 			GSList		   *child_ids = NULL;
 
 			def = db_row_to_field_def (result_set);
@@ -1399,7 +1399,7 @@ db_get_static_data (TrackerDBInterface *iface)
 			result_set2 = tracker_db_interface_execute_procedure (iface,
 									      NULL,
 									      "GetMetadataAliases",
-									      tracker_field_get_id (def),
+									      tracker_property_get_id (def),
 									      NULL);
 
 			if (result_set2) {
@@ -1413,7 +1413,7 @@ db_get_static_data (TrackerDBInterface *iface)
 					valid = tracker_db_result_set_iter_next (result_set2);
 				}
 
-				tracker_field_set_child_ids (def, child_ids);
+				tracker_property_set_child_ids (def, child_ids);
 				g_object_unref (result_set2);
 
 				g_slist_foreach (child_ids, (GFunc) g_free, NULL);

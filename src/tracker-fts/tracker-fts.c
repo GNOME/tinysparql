@@ -317,7 +317,7 @@ db_metadata_get (TrackerDBInterface *iface,
 		 const gchar        *id, 
 		 const gchar        *key)
 {
-	TrackerField *def;
+	TrackerProperty *def;
 	const gchar  *proc = NULL;
 
 	g_return_val_if_fail (TRACKER_IS_DB_INTERFACE (iface), NULL);
@@ -331,29 +331,29 @@ db_metadata_get (TrackerDBInterface *iface,
 		return NULL;
 	}
 
-	switch (tracker_field_get_data_type (def)) {
-	case TRACKER_FIELD_TYPE_INDEX:
-	case TRACKER_FIELD_TYPE_STRING:
-	case TRACKER_FIELD_TYPE_DOUBLE:
+	switch (tracker_property_get_data_type (def)) {
+	case TRACKER_PROPERTY_TYPE_INDEX:
+	case TRACKER_PROPERTY_TYPE_STRING:
+	case TRACKER_PROPERTY_TYPE_DOUBLE:
 		proc = "GetMetadata";
 		break;
 
-	case TRACKER_FIELD_TYPE_INTEGER:
-	case TRACKER_FIELD_TYPE_DATE:
+	case TRACKER_PROPERTY_TYPE_INTEGER:
+	case TRACKER_PROPERTY_TYPE_DATE:
 		proc = "GetMetadataNumeric";
 		break;
 
-	case TRACKER_FIELD_TYPE_FULLTEXT:
+	case TRACKER_PROPERTY_TYPE_FULLTEXT:
 		proc = "GetContents";
 		break;
 
-	case TRACKER_FIELD_TYPE_KEYWORD:
+	case TRACKER_PROPERTY_TYPE_KEYWORD:
 		proc = "GetMetadataKeyword";
 		break;
 		
 	default:
 		g_warning ("Metadata could not be retrieved as type:%d is not supported", 
-			   tracker_field_get_data_type (def)); 
+			   tracker_property_get_data_type (def)); 
 		return NULL;
 	}
 
@@ -361,7 +361,7 @@ db_metadata_get (TrackerDBInterface *iface,
 						       NULL, 
 				     		       proc, 
 				     		       id, 
-				     		       tracker_field_get_id (def),
+				     		       tracker_property_get_id (def),
 				     		       NULL);
 }
 
@@ -397,11 +397,11 @@ get_metadata_weight (int id)
 {
   if (id == 0) return 1;
 
-  TrackerField *field = tracker_ontology_get_field_by_id (id);
+  TrackerProperty *field = tracker_ontology_get_field_by_id (id);
   
   if (!field) return 1;
 
-  return tracker_field_get_weight (field);
+  return tracker_property_get_weight (field);
 
 }
 

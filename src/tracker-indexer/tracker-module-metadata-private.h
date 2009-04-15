@@ -28,10 +28,10 @@
 
 G_BEGIN_DECLS
 
-typedef void (* TrackerModuleMetadataForeach) (TrackerField *field,
+typedef void (* TrackerModuleMetadataForeach) (TrackerProperty *field,
 					       gpointer      value,
 					       gpointer      user_data);
-typedef gboolean (* TrackerModuleMetadataRemove) (TrackerField *field,
+typedef gboolean (* TrackerModuleMetadataRemove) (TrackerProperty *field,
 						  gpointer      value,
 						  gpointer      user_data);
 

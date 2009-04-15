@@ -1115,7 +1115,7 @@ add_directory (TrackerIndexer *indexer,
 }
 
 static void
-index_metadata_item (TrackerField	 *field,
+index_metadata_item (TrackerProperty	 *field,
 		     const gchar	 *value,
 		     MetadataForeachData *data)
 {
@@ -1130,18 +1130,18 @@ index_metadata_item (TrackerField	 *field,
 						      data->language,
 						      tracker_config_get_max_word_length (data->config),
 						      tracker_config_get_min_word_length (data->config),
-						      tracker_field_get_filtered (field),
-						      tracker_field_get_filtered (field),
-						      tracker_field_get_delimited (field));
+						      tracker_property_get_filtered (field),
+						      tracker_property_get_filtered (field),
+						      tracker_property_get_delimited (field));
 
 	if (!parsed_value) {
 		return;
 	}
 
 	if (data->add) {
-		score = tracker_field_get_weight (field);
+		score = tracker_property_get_weight (field);
 	} else {
-		score = -1 * tracker_field_get_weight (field);
+		score = -1 * tracker_property_get_weight (field);
 	}
 
 	arr = g_strsplit (parsed_value, " ", -1);
@@ -1167,7 +1167,7 @@ index_metadata_item (TrackerField	 *field,
 }
 
 static void
-index_metadata_foreach (TrackerField *field,
+index_metadata_foreach (TrackerProperty *field,
 			gpointer      value,
 			gpointer      user_data)
 {
@@ -1186,7 +1186,7 @@ index_metadata_foreach (TrackerField *field,
 		tracker_throttle (data->config, throttle * 100);
 	}
 
-	if (!tracker_field_get_multiple_values (field)) {
+	if (!tracker_property_get_multiple_values (field)) {
 		index_metadata_item (field, value, data);
 	} else {
 		GList *list;
@@ -1504,20 +1504,20 @@ get_service_for_file (TrackerModuleFile    *file,
 }
 
 static gboolean
-remove_existing_non_emb_metadata (TrackerField *field,
+remove_existing_non_emb_metadata (TrackerProperty *field,
 				  gpointer      value,
 				  gpointer      user_data)
 {
 	TrackerDataMetadata *old_metadata = (TrackerDataMetadata *) user_data;
 	const gchar *name;
 
-	if (tracker_field_get_embedded (field)) {
+	if (tracker_property_get_embedded (field)) {
 		return FALSE;
 	}
 
-	name = tracker_field_get_name (field);
+	name = tracker_property_get_name (field);
 
-	if (tracker_field_get_multiple_values (field)) {
+	if (tracker_property_get_multiple_values (field)) {
 		return (tracker_data_metadata_lookup_values (old_metadata, name) != NULL);
 	} else {
 		return (tracker_data_metadata_lookup (old_metadata, name) != NULL);
@@ -1724,13 +1724,13 @@ item_add_or_update (TrackerIndexer        *indexer,
 
 
 static gboolean 
-filter_invalid_after_move_properties (TrackerField *field,
+filter_invalid_after_move_properties (TrackerProperty *field,
 				      gpointer value,
 				      gpointer user_data) 
 {
 	const gchar *name;
 
-	name = tracker_field_get_name (field);
+	name = tracker_property_get_name (field);
 
 	if (g_strcmp0 (name, METADATA_FILE_NAME_DELIMITED) == 0 ||
 	    g_strcmp0 (name, METADATA_FILE_NAME) == 0 ||
@@ -2198,7 +2198,7 @@ handle_metadata_add (TrackerIndexer *indexer,
 		     GError	   **error)
 {
 	TrackerClass *service;
-	TrackerField   *field;
+	TrackerProperty   *field;
 	guint           service_id, i, j;
 	gchar         **set_values;
 	gchar          *joined, *dirname = NULL, *basename = NULL;
@@ -2231,7 +2231,7 @@ handle_metadata_add (TrackerIndexer *indexer,
 
 	len = g_strv_length (values);
 
-	if (!tracker_field_get_multiple_values (field) && len > 1) {
+	if (!tracker_property_get_multiple_values (field) && len > 1) {
 		g_set_error (error,
 			     g_quark_from_string (TRACKER_INDEXER_ERROR),
 			     TRACKER_INDEXER_ERROR_CODE,
@@ -2262,26 +2262,26 @@ handle_metadata_add (TrackerIndexer *indexer,
 	old_contents = tracker_data_query_metadata_field_values (service,
 						       service_id,
 						       field);
-	if (!tracker_field_get_multiple_values (field) && old_contents) {
+	if (!tracker_property_get_multiple_values (field) && old_contents) {
 		/* Remove old value from DB and index */
 		len = g_strv_length (old_contents);
 
 		if (old_contents && len > 1) {
 			g_critical ("Seems to be multiple values in field:'%s' that doesn allow that",
-				    tracker_field_get_name (field));
+				    tracker_property_get_name (field));
 		} else if (old_contents && len == 1) {
-			if (tracker_field_get_filtered (field)) {
+			if (tracker_property_get_filtered (field)) {
 				unindex_text_with_parsing (indexer,
 							   service_id,
 							   tracker_class_get_id (service),
 							   old_contents[0],
-							   tracker_field_get_weight (field));
+							   tracker_property_get_weight (field));
 			} else {
 				unindex_text_no_parsing (indexer,
 							 service_id,
 							 tracker_class_get_id (service),
 							 old_contents[0],
-							 tracker_field_get_weight (field));
+							 tracker_property_get_weight (field));
 			}
 			tracker_data_update_delete_metadata (service, service_id, field, old_contents[0]);
 		}
@@ -2293,10 +2293,10 @@ handle_metadata_add (TrackerIndexer *indexer,
 		g_debug ("Setting metadata: service_type '%s' id '%d' field '%s' value '%s'",
 			 tracker_class_get_name (service),
 			 service_id,
-			 tracker_field_get_name (field),
+			 tracker_property_get_name (field),
 			 values[i]);
 
-		if (tracker_field_get_multiple_values (field) 
+		if (tracker_property_get_multiple_values (field) 
 		    && (tracker_string_in_string_list (values[i], old_contents) > -1) ) {
 			continue;
 		}
@@ -2306,18 +2306,18 @@ handle_metadata_add (TrackerIndexer *indexer,
 	}
 
 	joined = g_strjoinv (" ", set_values);
-	if (tracker_field_get_filtered (field)) {
+	if (tracker_property_get_filtered (field)) {
 		index_text_no_parsing (indexer,
 				       service_id,
 				       tracker_class_get_id (service),
 				       joined,
-				       tracker_field_get_weight (field));
+				       tracker_property_get_weight (field));
 	} else {
 		index_text_with_parsing (indexer,
 					 service_id,
 					 tracker_class_get_id (service),
 					 joined,
-					 tracker_field_get_weight (field));
+					 tracker_property_get_weight (field));
 	}
 
 	if (old_contents) {

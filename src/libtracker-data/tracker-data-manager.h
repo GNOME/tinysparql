@@ -27,7 +27,7 @@
 #include <glib.h>
 
 #include <libtracker-common/tracker-config.h>
-#include <libtracker-common/tracker-field.h>
+#include <libtracker-common/tracker-property.h>
 #include <libtracker-common/tracker-language.h>
 #include <libtracker-common/tracker-ontology.h>
 

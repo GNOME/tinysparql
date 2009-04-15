@@ -91,10 +91,10 @@ tracker_file_utils_LDADD =						\
 # 	$(PANGO_LIBS)							\
 # 	$(GLIB2_LIBS)							
 #
-# tracker_field_SOURCES = 						\
+# tracker_property_SOURCES = 						\
 # 	tracker-field-test.c 
 #
-# tracker_field_LDADD =							\
+# tracker_property_LDADD =							\
 # 	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
 # 	$(top_builddir)/tests/common/libtracker-testcommon.la 		\
 # 	$(GMODULE_LIBS)							\

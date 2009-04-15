@@ -56,10 +56,10 @@ tracker_module_metadata_init (TrackerModuleMetadata *metadata)
 }
 
 static void
-free_metadata (TrackerField *field,
+free_metadata (TrackerProperty *field,
 	       gpointer      data)
 {
-	if (tracker_field_get_multiple_values (field)) {
+	if (tracker_property_get_multiple_values (field)) {
 		GList *list;
 
 		list = (GList *) data;
@@ -75,9 +75,9 @@ remove_metadata_foreach (gpointer key,
 			 gpointer value,
 			 gpointer user_data)
 {
-	TrackerField *field;
+	TrackerProperty *field;
 
-	field = (TrackerField *) key;
+	field = (TrackerProperty *) key;
 	free_metadata (field, value);
 
 	return TRUE;
@@ -104,12 +104,12 @@ tracker_module_metadata_lookup (TrackerModuleMetadata *metadata,
 				const gchar           *field_name,
 				gboolean              *multiple_values)
 {
-	TrackerField *field;
+	TrackerProperty *field;
 
 	field = tracker_ontology_get_field_by_name (field_name);
 
 	if (multiple_values) {
-		*multiple_values = tracker_field_get_multiple_values (field);
+		*multiple_values = tracker_property_get_multiple_values (field);
 	}
 
 	return g_hash_table_lookup (metadata->table, field);
@@ -126,7 +126,7 @@ void
 tracker_module_metadata_clear_field (TrackerModuleMetadata *metadata,
 				     const gchar           *field_name)
 {
-	TrackerField *field;
+	TrackerProperty *field;
 
 	gpointer data;
 
@@ -167,7 +167,7 @@ tracker_module_metadata_add_take_string (TrackerModuleMetadata *metadata,
 					 const gchar           *field_name,
 					 gchar                 *value)
 {
-	TrackerField *field;
+	TrackerProperty *field;
 	gpointer data;
 
 	g_return_val_if_fail (metadata != NULL, FALSE);
@@ -184,7 +184,7 @@ tracker_module_metadata_add_take_string (TrackerModuleMetadata *metadata,
 		return FALSE;
 	}
 
-	if (tracker_field_get_multiple_values (field)) {
+	if (tracker_property_get_multiple_values (field)) {
 		GList *list;
 
 		list = g_hash_table_lookup (metadata->table, field);
@@ -378,14 +378,14 @@ get_hash_table_foreach (gpointer key,
 			gpointer value,
 			gpointer user_data)
 {
-	TrackerField *field;
+	TrackerProperty *field;
 	GHashTable *table;
 
-	field = TRACKER_FIELD (key);
+	field = TRACKER_PROPERTY (key);
 	table = user_data;
 
 	g_hash_table_insert (table,
-			     (gpointer) tracker_field_get_name (field),
+			     (gpointer) tracker_property_get_name (field),
 			     value);
 }
 

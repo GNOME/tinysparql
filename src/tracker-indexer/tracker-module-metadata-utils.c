@@ -303,7 +303,7 @@ extractor_context_kill (ExtractorContext *context)
 
 static void
 metadata_utils_add_embedded_data (TrackerModuleMetadata *metadata,
-                                  TrackerField          *field,
+                                  TrackerProperty          *field,
                                   const gchar           *value)
 {
         gchar *utf_value;
@@ -317,9 +317,9 @@ metadata_utils_add_embedded_data (TrackerModuleMetadata *metadata,
         if (utf_value) {
                 const gchar *name;
 
-                name = tracker_field_get_name (field);
+                name = tracker_property_get_name (field);
 
-                if (tracker_field_get_data_type (field) == TRACKER_FIELD_TYPE_DATE) {
+                if (tracker_property_get_data_type (field) == TRACKER_PROPERTY_TYPE_DATE) {
                         gchar *time_str;
 
                         /* Dates come in ISO 8601 format, we handle them as time_t */
@@ -340,7 +340,7 @@ metadata_utils_get_embedded_foreach (gpointer key,
                                      gpointer user_data)
 {
         TrackerModuleMetadata *metadata;
-        TrackerField *field;
+        TrackerProperty *field;
         gchar *key_str;
         gchar *value_str;
 
@@ -358,7 +358,7 @@ metadata_utils_get_embedded_foreach (gpointer key,
                 return;
         }
         
-        if (tracker_field_get_multiple_values (field)) {
+        if (tracker_property_get_multiple_values (field)) {
                 GStrv strv;
                 guint i;
                 

@@ -33,7 +33,7 @@ G_BEGIN_DECLS
 #define __LIBTRACKER_COMMON_INSIDE__
 
 #include "tracker-config.h"
-#include "tracker-field.h"
+#include "tracker-property.h"
 #include "tracker-file-utils.h"
 #include "tracker-hal.h"
 #include "tracker-language.h"

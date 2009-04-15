@@ -383,17 +383,17 @@ set_metadata (const gchar *key,
 
 /* TODO URI branch: path -> uri */
 static void
-foreach_in_metadata_set_metadata (TrackerField *field,
+foreach_in_metadata_set_metadata (TrackerProperty *field,
 				  gpointer      value,
 				  gpointer      user_data)
 {
-	if (!tracker_field_get_multiple_values (field)) {
-		set_metadata (tracker_field_get_name (field), value, user_data);
+	if (!tracker_property_get_multiple_values (field)) {
+		set_metadata (tracker_property_get_name (field), value, user_data);
 	} else {
 		GList *l;
 
 		for (l = value; l; l = l->next) {
-			set_metadata (tracker_field_get_name (field), l->data, user_data);
+			set_metadata (tracker_property_get_name (field), l->data, user_data);
 		}
 	}
 

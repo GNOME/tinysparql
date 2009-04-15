@@ -24,17 +24,17 @@
 
 #include <glib.h>
 
-#include "tracker-field.h"
+#include "tracker-property.h"
 
-#define GET_PRIV(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_FIELD, TrackerFieldPriv))
+#define GET_PRIV(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_PROPERTY, TrackerPropertyPriv))
 
-typedef struct _TrackerFieldPriv TrackerFieldPriv;
+typedef struct _TrackerPropertyPriv TrackerPropertyPriv;
 
-struct _TrackerFieldPriv {
+struct _TrackerPropertyPriv {
 	gchar	      *id;
 	gchar	      *name;
 
-	TrackerFieldType  data_type;
+	TrackerPropertyType  data_type;
 	gchar	      *field_name;
 	gint	       weight;
 	gboolean       embedded;
@@ -46,12 +46,12 @@ struct _TrackerFieldPriv {
 	GSList	      *child_ids;
 };
 
-static void field_finalize     (GObject      *object);
-static void field_get_property (GObject      *object,
+static void property_finalize     (GObject      *object);
+static void property_get_property (GObject      *object,
 				guint	      param_id,
 				GValue	     *value,
 				GParamSpec   *pspec);
-static void field_set_property (GObject      *object,
+static void property_set_property (GObject      *object,
 				guint	      param_id,
 				const GValue *value,
 				GParamSpec   *pspec);
@@ -72,61 +72,61 @@ enum {
 };
 
 GType
-tracker_field_type_get_type (void)
+tracker_property_type_get_type (void)
 {
 	static GType etype = 0;
 
 	if (etype == 0) {
 		static const GEnumValue values[] = {
-			{ TRACKER_FIELD_TYPE_KEYWORD,
-			  "TRACKER_FIELD_TYPE_KEYWORD",
+			{ TRACKER_PROPERTY_TYPE_KEYWORD,
+			  "TRACKER_PROPERTY_TYPE_KEYWORD",
 			  "keyword" },
-			{ TRACKER_FIELD_TYPE_INDEX,
-			  "TRACKER_FIELD_TYPE_INDEX",
+			{ TRACKER_PROPERTY_TYPE_INDEX,
+			  "TRACKER_PROPERTY_TYPE_INDEX",
 			  "index" },
-			{ TRACKER_FIELD_TYPE_FULLTEXT,
-			  "TRACKER_FIELD_TYPE_FULLTEXT",
+			{ TRACKER_PROPERTY_TYPE_FULLTEXT,
+			  "TRACKER_PROPERTY_TYPE_FULLTEXT",
 			  "fulltext" },
-			{ TRACKER_FIELD_TYPE_STRING,
-			  "TRACKER_FIELD_TYPE_STRING",
+			{ TRACKER_PROPERTY_TYPE_STRING,
+			  "TRACKER_PROPERTY_TYPE_STRING",
 			  "string" },
-			{ TRACKER_FIELD_TYPE_INTEGER,
-			  "TRACKER_FIELD_TYPE_INTEGER",
+			{ TRACKER_PROPERTY_TYPE_INTEGER,
+			  "TRACKER_PROPERTY_TYPE_INTEGER",
 			  "integer" },
-			{ TRACKER_FIELD_TYPE_DOUBLE,
-			  "TRACKER_FIELD_TYPE_DOUBLE",
+			{ TRACKER_PROPERTY_TYPE_DOUBLE,
+			  "TRACKER_PROPERTY_TYPE_DOUBLE",
 			  "double" },
-			{ TRACKER_FIELD_TYPE_DATE,
-			  "TRACKER_FIELD_TYPE_DATE",
+			{ TRACKER_PROPERTY_TYPE_DATE,
+			  "TRACKER_PROPERTY_TYPE_DATE",
 			  "date" },
-			{ TRACKER_FIELD_TYPE_BLOB,
-			  "TRACKER_FIELD_TYPE_BLOB",
+			{ TRACKER_PROPERTY_TYPE_BLOB,
+			  "TRACKER_PROPERTY_TYPE_BLOB",
 			  "blob" },
-			{ TRACKER_FIELD_TYPE_STRUCT,
-			  "TRACKER_FIELD_TYPE_STRUCT",
+			{ TRACKER_PROPERTY_TYPE_STRUCT,
+			  "TRACKER_PROPERTY_TYPE_STRUCT",
 			  "struct" },
-			{ TRACKER_FIELD_TYPE_LINK,
-			  "TRACKER_FIELD_TYPE_LINK",
+			{ TRACKER_PROPERTY_TYPE_LINK,
+			  "TRACKER_PROPERTY_TYPE_LINK",
 			  "link" },
 			{ 0, NULL, NULL }
 		};
 
-		etype = g_enum_register_static ("TrackerFieldType", values);
+		etype = g_enum_register_static ("TrackerPropertyType", values);
 	}
 
 	return etype;
 }
 
-G_DEFINE_TYPE (TrackerField, tracker_field, G_TYPE_OBJECT);
+G_DEFINE_TYPE (TrackerProperty, tracker_property, G_TYPE_OBJECT);
 
 const gchar *
-tracker_field_type_to_string (TrackerFieldType fieldtype)
+tracker_property_type_to_string (TrackerPropertyType fieldtype)
 {
 	GType	    type;
 	GEnumClass *enum_class;
 	GEnumValue *enum_value;
 
-	type = tracker_field_type_get_type ();
+	type = tracker_property_type_get_type ();
 	enum_class = G_ENUM_CLASS (g_type_class_peek (type));
 	enum_value = g_enum_get_value (enum_class, fieldtype);
 
@@ -138,13 +138,13 @@ tracker_field_type_to_string (TrackerFieldType fieldtype)
 }
 
 static void
-tracker_field_class_init (TrackerFieldClass *klass)
+tracker_property_class_init (TrackerPropertyClass *klass)
 {
 	GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
-	object_class->finalize	   = field_finalize;
-	object_class->get_property = field_get_property;
-	object_class->set_property = field_set_property;
+	object_class->finalize	   = property_finalize;
+	object_class->get_property = property_get_property;
+	object_class->set_property = property_set_property;
 
 	g_object_class_install_property (object_class,
 					 PROP_ID,
@@ -165,8 +165,8 @@ tracker_field_class_init (TrackerFieldClass *klass)
 					 g_param_spec_enum ("data-type",
 							    "data-type",
 							    "Field data type",
-							    tracker_field_type_get_type (),
-							    TRACKER_FIELD_TYPE_INDEX,
+							    tracker_property_type_get_type (),
+							    TRACKER_PROPERTY_TYPE_INDEX,
 							    G_PARAM_READWRITE));
 	g_object_class_install_property (object_class,
 					 PROP_FIELD_NAME,
@@ -227,18 +227,18 @@ tracker_field_class_init (TrackerFieldClass *klass)
 							       "Child ids",
 							       G_PARAM_READWRITE));
 
-	g_type_class_add_private (object_class, sizeof (TrackerFieldPriv));
+	g_type_class_add_private (object_class, sizeof (TrackerPropertyPriv));
 }
 
 static void
-tracker_field_init (TrackerField *field)
+tracker_property_init (TrackerProperty *field)
 {
 }
 
 static void
-field_finalize (GObject *object)
+property_finalize (GObject *object)
 {
-	TrackerFieldPriv *priv;
+	TrackerPropertyPriv *priv;
 
 	priv = GET_PRIV (object);
 
@@ -252,16 +252,16 @@ field_finalize (GObject *object)
 	g_slist_foreach (priv->child_ids, (GFunc) g_free, NULL);
 	g_slist_free (priv->child_ids);
 
-	(G_OBJECT_CLASS (tracker_field_parent_class)->finalize) (object);
+	(G_OBJECT_CLASS (tracker_property_parent_class)->finalize) (object);
 }
 
 static void
-field_get_property (GObject    *object,
+property_get_property (GObject    *object,
 		    guint	param_id,
 		    GValue     *value,
 		    GParamSpec *pspec)
 {
-	TrackerFieldPriv *priv;
+	TrackerPropertyPriv *priv;
 
 	priv = GET_PRIV (object);
 
@@ -306,54 +306,54 @@ field_get_property (GObject    *object,
 }
 
 static void
-field_set_property (GObject	 *object,
+property_set_property (GObject	 *object,
 		    guint	  param_id,
 		    const GValue *value,
 		    GParamSpec	 *pspec)
 {
 	switch (param_id) {
 	case PROP_ID:
-		tracker_field_set_id (TRACKER_FIELD (object),
+		tracker_property_set_id (TRACKER_PROPERTY (object),
 				      g_value_get_string (value));
 		break;
 	case PROP_NAME:
-		tracker_field_set_name (TRACKER_FIELD (object),
+		tracker_property_set_name (TRACKER_PROPERTY (object),
 					g_value_get_string (value));
 		break;
 	case PROP_DATA_TYPE:
-		tracker_field_set_data_type (TRACKER_FIELD (object),
+		tracker_property_set_data_type (TRACKER_PROPERTY (object),
 					     g_value_get_enum (value));
 		break;
 	case PROP_FIELD_NAME:
-		tracker_field_set_field_name (TRACKER_FIELD (object),
+		tracker_property_set_field_name (TRACKER_PROPERTY (object),
 					      g_value_get_string (value));
 		break;
 	case PROP_WEIGHT:
-		tracker_field_set_weight (TRACKER_FIELD (object),
+		tracker_property_set_weight (TRACKER_PROPERTY (object),
 					  g_value_get_int (value));
 		break;
 	case PROP_EMBEDDED:
-		tracker_field_set_embedded (TRACKER_FIELD (object),
+		tracker_property_set_embedded (TRACKER_PROPERTY (object),
 					    g_value_get_boolean (value));
 		break;
 	case PROP_MULTIPLE_VALUES:
-		tracker_field_set_multiple_values (TRACKER_FIELD (object),
+		tracker_property_set_multiple_values (TRACKER_PROPERTY (object),
 						   g_value_get_boolean (value));
 		break;
 	case PROP_DELIMITED:
-		tracker_field_set_delimited (TRACKER_FIELD (object),
+		tracker_property_set_delimited (TRACKER_PROPERTY (object),
 					     g_value_get_boolean (value));
 		break;
 	case PROP_FILTERED:
-		tracker_field_set_filtered (TRACKER_FIELD (object),
+		tracker_property_set_filtered (TRACKER_PROPERTY (object),
 					    g_value_get_boolean (value));
 		break;
 	case PROP_STORE_METADATA:
-		tracker_field_set_store_metadata (TRACKER_FIELD (object),
+		tracker_property_set_store_metadata (TRACKER_PROPERTY (object),
 						  g_value_get_boolean (value));
 		break;
 	case PROP_CHILD_IDS:
-		tracker_field_set_child_ids (TRACKER_FIELD (object),
+		tracker_property_set_child_ids (TRACKER_PROPERTY (object),
 					     g_value_get_pointer (value));
 		break;
 	default:
@@ -363,7 +363,7 @@ field_set_property (GObject	 *object,
 }
 
 static gboolean
-field_int_validate (TrackerField *field,
+field_int_validate (TrackerProperty *field,
 		    const gchar   *property,
 		    gint	    value)
 {
@@ -387,28 +387,28 @@ field_int_validate (TrackerField *field,
 }
 
 /**
- * tracker_field_new:
+ * tracker_property_new:
  *
- * Creates a new #TrackerField instance.
+ * Creates a new #TrackerProperty instance.
  *
- * Returns: The newly created #TrackerField
+ * Returns: The newly created #TrackerProperty
  **/
-TrackerField *
-tracker_field_new (void)
+TrackerProperty *
+tracker_property_new (void)
 {
-	TrackerField *field;
+	TrackerProperty *field;
 
-	field = g_object_new (TRACKER_TYPE_FIELD, NULL);
+	field = g_object_new (TRACKER_TYPE_PROPERTY, NULL);
 
 	return field;
 }
 
 const gchar *
-tracker_field_get_id (TrackerField *field)
+tracker_property_get_id (TrackerProperty *field)
 {
-	TrackerFieldPriv *priv;
+	TrackerPropertyPriv *priv;
 
-	g_return_val_if_fail (TRACKER_IS_FIELD (field), NULL);
+	g_return_val_if_fail (TRACKER_IS_PROPERTY (field), NULL);
 
 	priv = GET_PRIV (field);
 
@@ -416,23 +416,23 @@ tracker_field_get_id (TrackerField *field)
 }
 
 const gchar *
-tracker_field_get_name (TrackerField *field)
+tracker_property_get_name (TrackerProperty *field)
 {
-	TrackerFieldPriv *priv;
+	TrackerPropertyPriv *priv;
 
-	g_return_val_if_fail (TRACKER_IS_FIELD (field), NULL);
+	g_return_val_if_fail (TRACKER_IS_PROPERTY (field), NULL);
 
 	priv = GET_PRIV (field);
 
 	return priv->name;
 }
 
-TrackerFieldType
-tracker_field_get_data_type (TrackerField *field)
+TrackerPropertyType
+tracker_property_get_data_type (TrackerProperty *field)
 {
-	TrackerFieldPriv *priv;
+	TrackerPropertyPriv *priv;
 
-	g_return_val_if_fail (TRACKER_IS_FIELD (field), TRACKER_FIELD_TYPE_STRING); //FIXME
+	g_return_val_if_fail (TRACKER_IS_PROPERTY (field), TRACKER_PROPERTY_TYPE_STRING); //FIXME
 
 	priv = GET_PRIV (field);
 
@@ -440,11 +440,11 @@ tracker_field_get_data_type (TrackerField *field)
 }
 
 const gchar *
-tracker_field_get_field_name (TrackerField *field)
+tracker_property_get_field_name (TrackerProperty *field)
 {
-	TrackerFieldPriv *priv;
+	TrackerPropertyPriv *priv;
 
-	g_return_val_if_fail (TRACKER_IS_FIELD (field), NULL);
+	g_return_val_if_fail (TRACKER_IS_PROPERTY (field), NULL);
 
 	priv = GET_PRIV (field);
 
@@ -452,11 +452,11 @@ tracker_field_get_field_name (TrackerField *field)
 }
 
 gint
-tracker_field_get_weight (TrackerField *field)
+tracker_property_get_weight (TrackerProperty *field)
 {
-	TrackerFieldPriv *priv;
+	TrackerPropertyPriv *priv;
 
-	g_return_val_if_fail (TRACKER_IS_FIELD (field), -1);
+	g_return_val_if_fail (TRACKER_IS_PROPERTY (field), -1);
 
 	priv = GET_PRIV (field);
 
@@ -465,11 +465,11 @@ tracker_field_get_weight (TrackerField *field)
 
 
 gboolean
-tracker_field_get_embedded (TrackerField *field)
+tracker_property_get_embedded (TrackerProperty *field)
 {
-	TrackerFieldPriv *priv;
+	TrackerPropertyPriv *priv;
 
-	g_return_val_if_fail (TRACKER_IS_FIELD (field), FALSE);
+	g_return_val_if_fail (TRACKER_IS_PROPERTY (field), FALSE);
 
 	priv = GET_PRIV (field);
 
@@ -478,11 +478,11 @@ tracker_field_get_embedded (TrackerField *field)
 
 
 gboolean
-tracker_field_get_multiple_values (TrackerField *field)
+tracker_property_get_multiple_values (TrackerProperty *field)
 {
-	TrackerFieldPriv *priv;
+	TrackerPropertyPriv *priv;
 
-	g_return_val_if_fail (TRACKER_IS_FIELD (field), FALSE);
+	g_return_val_if_fail (TRACKER_IS_PROPERTY (field), FALSE);
 
 	priv = GET_PRIV (field);
 
@@ -490,11 +490,11 @@ tracker_field_get_multiple_values (TrackerField *field)
 }
 
 gboolean
-tracker_field_get_delimited (TrackerField *field)
+tracker_property_get_delimited (TrackerProperty *field)
 {
-	TrackerFieldPriv *priv;
+	TrackerPropertyPriv *priv;
 
-	g_return_val_if_fail (TRACKER_IS_FIELD (field), FALSE);
+	g_return_val_if_fail (TRACKER_IS_PROPERTY (field), FALSE);
 
 	priv = GET_PRIV (field);
 
@@ -502,11 +502,11 @@ tracker_field_get_delimited (TrackerField *field)
 }
 
 gboolean
-tracker_field_get_filtered (TrackerField *field)
+tracker_property_get_filtered (TrackerProperty *field)
 {
-	TrackerFieldPriv *priv;
+	TrackerPropertyPriv *priv;
 
-	g_return_val_if_fail (TRACKER_IS_FIELD (field), FALSE);
+	g_return_val_if_fail (TRACKER_IS_PROPERTY (field), FALSE);
 
 	priv = GET_PRIV (field);
 
@@ -514,11 +514,11 @@ tracker_field_get_filtered (TrackerField *field)
 }
 
 gboolean
-tracker_field_get_store_metadata (TrackerField *field)
+tracker_property_get_store_metadata (TrackerProperty *field)
 {
-	TrackerFieldPriv *priv;
+	TrackerPropertyPriv *priv;
 
-	g_return_val_if_fail (TRACKER_IS_FIELD (field), FALSE);
+	g_return_val_if_fail (TRACKER_IS_PROPERTY (field), FALSE);
 
 	priv = GET_PRIV (field);
 
@@ -527,11 +527,11 @@ tracker_field_get_store_metadata (TrackerField *field)
 
 
 const GSList *
-tracker_field_get_child_ids (TrackerField *field)
+tracker_property_get_child_ids (TrackerProperty *field)
 {
-	TrackerFieldPriv *priv;
+	TrackerPropertyPriv *priv;
 
-	g_return_val_if_fail (TRACKER_IS_FIELD (field), NULL);
+	g_return_val_if_fail (TRACKER_IS_PROPERTY (field), NULL);
 
 	priv = GET_PRIV (field);
 
@@ -540,12 +540,12 @@ tracker_field_get_child_ids (TrackerField *field)
 
 
 void
-tracker_field_set_id (TrackerField *field,
+tracker_property_set_id (TrackerProperty *field,
 		      const gchar  *value)
 {
-	TrackerFieldPriv *priv;
+	TrackerPropertyPriv *priv;
 
-	g_return_if_fail (TRACKER_IS_FIELD (field));
+	g_return_if_fail (TRACKER_IS_PROPERTY (field));
 
 	priv = GET_PRIV (field);
 
@@ -561,12 +561,12 @@ tracker_field_set_id (TrackerField *field,
 }
 
 void
-tracker_field_set_name (TrackerField *field,
+tracker_property_set_name (TrackerProperty *field,
 			const gchar  *value)
 {
-	TrackerFieldPriv *priv;
+	TrackerPropertyPriv *priv;
 
-	g_return_if_fail (TRACKER_IS_FIELD (field));
+	g_return_if_fail (TRACKER_IS_PROPERTY (field));
 
 	priv = GET_PRIV (field);
 
@@ -582,12 +582,12 @@ tracker_field_set_name (TrackerField *field,
 }
 
 void
-tracker_field_set_data_type (TrackerField     *field,
-			     TrackerFieldType  value)
+tracker_property_set_data_type (TrackerProperty     *field,
+			     TrackerPropertyType  value)
 {
-	TrackerFieldPriv *priv;
+	TrackerPropertyPriv *priv;
 
-	g_return_if_fail (TRACKER_IS_FIELD (field));
+	g_return_if_fail (TRACKER_IS_PROPERTY (field));
 
 	priv = GET_PRIV (field);
 
@@ -596,12 +596,12 @@ tracker_field_set_data_type (TrackerField     *field,
 }
 
 void
-tracker_field_set_field_name (TrackerField *field,
+tracker_property_set_field_name (TrackerProperty *field,
 			      const gchar    *value)
 {
-	TrackerFieldPriv *priv;
+	TrackerPropertyPriv *priv;
 
-	g_return_if_fail (TRACKER_IS_FIELD (field));
+	g_return_if_fail (TRACKER_IS_PROPERTY (field));
 
 	priv = GET_PRIV (field);
 
@@ -617,11 +617,11 @@ tracker_field_set_field_name (TrackerField *field,
 }
 
 void
-tracker_field_set_weight (TrackerField *field,
+tracker_property_set_weight (TrackerProperty *field,
 			  gint		value)
 {
-	TrackerFieldPriv *priv;
-	g_return_if_fail (TRACKER_IS_FIELD (field));
+	TrackerPropertyPriv *priv;
+	g_return_if_fail (TRACKER_IS_PROPERTY (field));
 
 	if (!field_int_validate (field, "weight", value)) {
 		return;
@@ -634,12 +634,12 @@ tracker_field_set_weight (TrackerField *field,
 }
 
 void
-tracker_field_set_embedded (TrackerField *field,
+tracker_property_set_embedded (TrackerProperty *field,
 			    gboolean	  value)
 {
-	TrackerFieldPriv *priv;
+	TrackerPropertyPriv *priv;
 
-	g_return_if_fail (TRACKER_IS_FIELD (field));
+	g_return_if_fail (TRACKER_IS_PROPERTY (field));
 
 	priv = GET_PRIV (field);
 
@@ -648,12 +648,12 @@ tracker_field_set_embedded (TrackerField *field,
 }
 
 void
-tracker_field_set_multiple_values (TrackerField *field,
+tracker_property_set_multiple_values (TrackerProperty *field,
 				   gboolean	 value)
 {
-	TrackerFieldPriv *priv;
+	TrackerPropertyPriv *priv;
 
-	g_return_if_fail (TRACKER_IS_FIELD (field));
+	g_return_if_fail (TRACKER_IS_PROPERTY (field));
 
 	priv = GET_PRIV (field);
 
@@ -662,12 +662,12 @@ tracker_field_set_multiple_values (TrackerField *field,
 }
 
 void
-tracker_field_set_delimited (TrackerField *field,
+tracker_property_set_delimited (TrackerProperty *field,
 			     gboolean	   value)
 {
-	TrackerFieldPriv *priv;
+	TrackerPropertyPriv *priv;
 
-	g_return_if_fail (TRACKER_IS_FIELD (field));
+	g_return_if_fail (TRACKER_IS_PROPERTY (field));
 
 	priv = GET_PRIV (field);
 
@@ -676,12 +676,12 @@ tracker_field_set_delimited (TrackerField *field,
 }
 
 void
-tracker_field_set_filtered (TrackerField *field,
+tracker_property_set_filtered (TrackerProperty *field,
 			    gboolean	  value)
 {
-	TrackerFieldPriv *priv;
+	TrackerPropertyPriv *priv;
 
-	g_return_if_fail (TRACKER_IS_FIELD (field));
+	g_return_if_fail (TRACKER_IS_PROPERTY (field));
 
 	priv = GET_PRIV (field);
 
@@ -690,12 +690,12 @@ tracker_field_set_filtered (TrackerField *field,
 }
 
 void
-tracker_field_set_store_metadata (TrackerField *field,
+tracker_property_set_store_metadata (TrackerProperty *field,
 				  gboolean	value)
 {
-	TrackerFieldPriv *priv;
+	TrackerPropertyPriv *priv;
 
-	g_return_if_fail (TRACKER_IS_FIELD (field));
+	g_return_if_fail (TRACKER_IS_PROPERTY (field));
 
 	priv = GET_PRIV (field);
 
@@ -704,12 +704,12 @@ tracker_field_set_store_metadata (TrackerField *field,
 }
 
 void
-tracker_field_set_child_ids (TrackerField *field,
+tracker_property_set_child_ids (TrackerProperty *field,
 			     const GSList *value)
 {
-	TrackerFieldPriv *priv;
+	TrackerPropertyPriv *priv;
 
-	g_return_if_fail (TRACKER_IS_FIELD (field));
+	g_return_if_fail (TRACKER_IS_PROPERTY (field));
 
 	priv = GET_PRIV (field);
 
@@ -736,12 +736,12 @@ tracker_field_set_child_ids (TrackerField *field,
 }
 
 void
-tracker_field_append_child_id (TrackerField *field,
+tracker_property_append_child_id (TrackerProperty *field,
 			       const gchar  *value)
 {
-	TrackerFieldPriv *priv;
+	TrackerPropertyPriv *priv;
 
-	g_return_if_fail (TRACKER_IS_FIELD (field));
+	g_return_if_fail (TRACKER_IS_PROPERTY (field));
 
 	priv = GET_PRIV (field);
 

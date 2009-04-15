@@ -161,7 +161,7 @@ consume_triple_optimizer (void                   *user_data,
 }
 
 static void
-foreach_in_metadata (TrackerField *field, 
+foreach_in_metadata (TrackerProperty *field, 
 		     gpointer      value, 
 		     gpointer      user_data)
 {
@@ -185,7 +185,7 @@ foreach_in_metadata (TrackerField *field,
 	statement->subject = (void *) raptor_new_uri (about_uri);
 	statement->subject_type = RAPTOR_IDENTIFIER_TYPE_RESOURCE;
 
-	statement->predicate = (void *) raptor_new_uri ((unsigned char *) tracker_field_get_name (field));
+	statement->predicate = (void *) raptor_new_uri ((unsigned char *) tracker_property_get_name (field));
 	statement->predicate_type = RAPTOR_IDENTIFIER_TYPE_RESOURCE;
 
 	statement->object = (unsigned char *) g_strdup (value);
@@ -234,7 +234,7 @@ tracker_turtle_open (const gchar *turtle_file)
 void
 tracker_turtle_add_triple (TurtleFile   *turtle,
 			   const gchar  *uri,
-			   TrackerField *property,
+			   TrackerProperty *property,
 			   const gchar  *value)
 {
 #ifdef HAVE_RAPTOR

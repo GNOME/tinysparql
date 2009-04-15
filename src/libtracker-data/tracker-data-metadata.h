@@ -28,10 +28,10 @@
 
 typedef struct TrackerDataMetadata TrackerDataMetadata;
 
-typedef void (* TrackerDataMetadataForeach) (TrackerField *field,
+typedef void (* TrackerDataMetadataForeach) (TrackerProperty *field,
 					     gpointer      value,
 					     gpointer      user_data);
-typedef gboolean (* TrackerDataMetadataRemove) (TrackerField *field,
+typedef gboolean (* TrackerDataMetadataRemove) (TrackerProperty *field,
 						gpointer      value,
 						gpointer      user_data);
 

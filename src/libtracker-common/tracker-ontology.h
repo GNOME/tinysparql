@@ -24,7 +24,7 @@
 
 #include <glib-object.h>
 
-#include "tracker-field.h"
+#include "tracker-property.h"
 #include "tracker-class.h"
 
 G_BEGIN_DECLS
@@ -69,14 +69,14 @@ gboolean	tracker_ontology_service_get_show_files		(const gchar	*service_str);
 const gchar *	tracker_ontology_get_field_name_by_id 	        (gint id);
 
 /* Field mechanics */
-void		tracker_ontology_field_add			(TrackerField	*field);
-TrackerField *	tracker_ontology_get_field_by_name		(const gchar	*name);
-TrackerField *	tracker_ontology_get_field_by_id		(gint		 id);
-gchar *		tracker_ontology_get_field_name_by_service_name (TrackerField	*field,
+void		tracker_ontology_field_add			(TrackerProperty	*field);
+TrackerProperty *	tracker_ontology_get_field_by_name		(const gchar	*name);
+TrackerProperty *	tracker_ontology_get_field_by_id		(gint		 id);
+gchar *		tracker_ontology_get_field_name_by_service_name (TrackerProperty	*field,
 								 const gchar	*service_str);
 
 /* Field data */
-gchar *		tracker_ontology_field_get_display_name		(TrackerField	*field);
+gchar *		tracker_ontology_field_get_display_name		(TrackerProperty	*field);
 const gchar *	tracker_ontology_field_get_id			(const gchar	*name);
 gboolean	tracker_ontology_field_is_child_of		(const gchar	*child,
 								 const gchar	*parent);

@@ -71,7 +71,7 @@ void        tracker_turtle_shutdown      (void);
 TurtleFile *tracker_turtle_open          (const gchar          *turtle_file);
 void        tracker_turtle_add_triple    (TurtleFile           *turtle,
 					  const gchar          *uri,
-					  TrackerField         *property,
+					  TrackerProperty         *property,
 					  const gchar          *value);
 void        tracker_turtle_close         (TurtleFile           *turtle);
 

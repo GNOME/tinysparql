@@ -48,7 +48,7 @@ static void
 extended_result_set_to_turtle (TrackerDBResultSet  *result_set,
 			       TurtleFile          *turtle_file)
 {
-	TrackerField *field;
+	TrackerProperty *field;
 	gboolean valid = TRUE;
 
 	while (valid) {
@@ -74,7 +74,7 @@ extended_result_set_to_turtle (TrackerDBResultSet  *result_set,
 		}
 
 		g_debug ("Inserting in turtle <%s, %s, %s>",
-			 uri, tracker_field_get_name (field), str);
+			 uri, tracker_property_get_name (field), str);
 		tracker_turtle_add_triple (turtle_file, uri, field, str);
 
 		g_free (str);

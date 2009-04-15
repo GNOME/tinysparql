@@ -56,11 +56,11 @@ remove_metadata_foreach (gpointer key,
 			 gpointer value,
 			 gpointer user_data)
 {
-	TrackerField *field;
+	TrackerProperty *field;
 
-	field = (TrackerField *) key;
+	field = (TrackerProperty *) key;
 
-	if (tracker_field_get_multiple_values (field)) {
+	if (tracker_property_get_multiple_values (field)) {
 		GList *list;
 
 		list = (GList *) value;
@@ -105,7 +105,7 @@ tracker_data_metadata_insert (TrackerDataMetadata *metadata,
 			      const gchar	  *field_name,
 			      const gchar         *value)
 {
-	TrackerField *field;
+	TrackerProperty *field;
 	gchar *old_value;
 
 	g_return_if_fail (metadata != NULL);
@@ -114,8 +114,8 @@ tracker_data_metadata_insert (TrackerDataMetadata *metadata,
 
 	field = tracker_ontology_get_field_by_name (field_name);
 
-	g_return_if_fail (TRACKER_IS_FIELD (field));
-	g_return_if_fail (tracker_field_get_multiple_values (field) == FALSE);
+	g_return_if_fail (TRACKER_IS_PROPERTY (field));
+	g_return_if_fail (tracker_property_get_multiple_values (field) == FALSE);
 
 	old_value = g_hash_table_lookup (metadata->table, field);
 	g_free (old_value);
@@ -144,7 +144,7 @@ tracker_data_metadata_insert_values (TrackerDataMetadata *metadata,
 				     const gchar         *field_name,
 				     const GList	 *list)
 {
-	TrackerField *field;
+	TrackerProperty *field;
 	GList        *old_values, *copy;
 
 	g_return_if_fail (metadata != NULL);
@@ -161,8 +161,8 @@ tracker_data_metadata_insert_values (TrackerDataMetadata *metadata,
 		return;
 	}
 
-	g_return_if_fail (TRACKER_IS_FIELD (field));
-	g_return_if_fail (tracker_field_get_multiple_values (field) == TRUE);
+	g_return_if_fail (TRACKER_IS_PROPERTY (field));
+	g_return_if_fail (tracker_property_get_multiple_values (field) == TRUE);
 
 	copy = tracker_glist_copy_with_string_data ((GList *)list);
 
@@ -193,15 +193,15 @@ G_CONST_RETURN gchar *
 tracker_data_metadata_lookup (TrackerDataMetadata *metadata,
 			      const gchar	  *field_name)
 {
-	TrackerField *field;
+	TrackerProperty *field;
 
 	g_return_val_if_fail (metadata != NULL, NULL);
 	g_return_val_if_fail (field_name != NULL, NULL);
 
 	field = tracker_ontology_get_field_by_name (field_name);
 
-	g_return_val_if_fail (TRACKER_IS_FIELD (field), NULL);
-	g_return_val_if_fail (tracker_field_get_multiple_values (field) == FALSE, NULL);
+	g_return_val_if_fail (TRACKER_IS_PROPERTY (field), NULL);
+	g_return_val_if_fail (tracker_property_get_multiple_values (field) == FALSE, NULL);
 
 	return g_hash_table_lookup (metadata->table, field);
 }
@@ -222,15 +222,15 @@ G_CONST_RETURN GList *
 tracker_data_metadata_lookup_values (TrackerDataMetadata *metadata,
 				     const gchar         *field_name)
 {
-	TrackerField *field;
+	TrackerProperty *field;
 
 	g_return_val_if_fail (metadata != NULL, NULL);
 	g_return_val_if_fail (field_name != NULL, NULL);
 
 	field = tracker_ontology_get_field_by_name (field_name);
 
-	g_return_val_if_fail (TRACKER_IS_FIELD (field), NULL);
-	g_return_val_if_fail (tracker_field_get_multiple_values (field) == TRUE, NULL);
+	g_return_val_if_fail (TRACKER_IS_PROPERTY (field), NULL);
+	g_return_val_if_fail (tracker_property_get_multiple_values (field) == TRUE, NULL);
 
 	return g_hash_table_lookup (metadata->table, field);
 }

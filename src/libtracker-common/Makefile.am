@@ -38,7 +38,6 @@ libtracker_common_la_SOURCES =	 			\
 	tracker-class.c					\
 	tracker-config.c 				\
 	tracker-dbus.c	 				\
-	tracker-field.c					\
 	tracker-file-utils.c				\
 	tracker-ioprio.c				\
 	tracker-language.c				\
@@ -48,6 +47,7 @@ libtracker_common_la_SOURCES =	 			\
 	tracker-nfs-lock.c				\
 	tracker-ontology.c				\
 	tracker-parser.c				\
+	tracker-property.c				\
 	tracker-type-utils.c				\
 	tracker-utils.c					\
 	tracker-thumbnailer.c				\
@@ -67,12 +67,12 @@ libtracker_commoninclude_HEADERS =			\
 	tracker-class.h					\
 	tracker-common.h				\
 	tracker-config.h				\
-	tracker-field.h					\
 	tracker-file-utils.h				\
 	tracker-language.h				\
 	tracker-module-config.h				\
 	tracker-ontology.h				\
 	tracker-parser.h				\
+	tracker-property.h				\
 	tracker-type-utils.h				\
 	tracker-utils.h
 

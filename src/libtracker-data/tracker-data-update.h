@@ -62,14 +62,14 @@ void     tracker_data_update_delete_service_all         (const gchar *rdf_type);
 /* Metadata */
 void     tracker_data_update_set_metadata               (TrackerClass      *service,
 							 guint32              service_id,
-							 TrackerField        *field,
+							 TrackerProperty        *field,
 							 const gchar         *value,
 							 const gchar         *parsed_value);
 void     tracker_data_update_delete_all_metadata        (TrackerClass      *service,
 							 guint32              service_id);
 void     tracker_data_update_delete_metadata            (TrackerClass      *service,
 							 guint32              service_id,
-							 TrackerField        *field,
+							 TrackerProperty        *field,
 							 const gchar         *value);
 
 /* Contents */

@@ -321,7 +321,7 @@ tracker_data_update_delete_all_metadata (TrackerClass *service,
 void
 tracker_data_update_set_metadata (TrackerClass *service,
 				  guint32	  service_id,
-				  TrackerField	 *field,
+				  TrackerProperty	 *field,
 				  const gchar	 *value,
 				  const gchar	 *parsed_value)
 {
@@ -338,53 +338,53 @@ tracker_data_update_set_metadata (TrackerClass *service,
 	iface = tracker_db_manager_get_db_interface_by_type (tracker_class_get_name (service),
 							     TRACKER_DB_CONTENT_TYPE_METADATA);
 
-	switch (tracker_field_get_data_type (field)) {
-	case TRACKER_FIELD_TYPE_KEYWORD:
+	switch (tracker_property_get_data_type (field)) {
+	case TRACKER_PROPERTY_TYPE_KEYWORD:
 		tracker_db_interface_execute_procedure (iface, NULL,
 							"SetMetadataKeyword",
 							id_str,
-							tracker_field_get_id (field),
+							tracker_property_get_id (field),
 							value,
 							NULL);
 		break;
 
-	case TRACKER_FIELD_TYPE_INDEX:
-	case TRACKER_FIELD_TYPE_STRING:
-	case TRACKER_FIELD_TYPE_DOUBLE:
+	case TRACKER_PROPERTY_TYPE_INDEX:
+	case TRACKER_PROPERTY_TYPE_STRING:
+	case TRACKER_PROPERTY_TYPE_DOUBLE:
 		tracker_db_interface_execute_procedure (iface, NULL,
 							"SetMetadata",
 							id_str,
-							tracker_field_get_id (field),
+							tracker_property_get_id (field),
 							parsed_value,
 							value,
 							value,
 							NULL);
 		break;
 
-	case TRACKER_FIELD_TYPE_INTEGER:
-	case TRACKER_FIELD_TYPE_DATE:
+	case TRACKER_PROPERTY_TYPE_INTEGER:
+	case TRACKER_PROPERTY_TYPE_DATE:
 		tracker_db_interface_execute_procedure (iface, NULL,
 							"SetMetadataNumeric",
 							id_str,
-							tracker_field_get_id (field),
+							tracker_property_get_id (field),
 							value,
 							NULL);
 		break;
 
-	case TRACKER_FIELD_TYPE_FULLTEXT:
+	case TRACKER_PROPERTY_TYPE_FULLTEXT:
 		tracker_data_update_set_content (service, service_id, value);
 		break;
 
-	case TRACKER_FIELD_TYPE_BLOB:
-	case TRACKER_FIELD_TYPE_STRUCT:
-	case TRACKER_FIELD_TYPE_LINK:
+	case TRACKER_PROPERTY_TYPE_BLOB:
+	case TRACKER_PROPERTY_TYPE_STRUCT:
+	case TRACKER_PROPERTY_TYPE_LINK:
 		/* not handled */
 	default:
 		break;
 	}
 
 	metadata_key = tracker_ontology_service_get_key_metadata (tracker_class_get_name (service),
-								  tracker_field_get_name (field));
+								  tracker_property_get_name (field));
 	if (metadata_key > 0) {
 		gchar *val;
 
@@ -396,8 +396,8 @@ tracker_data_update_set_metadata (TrackerClass *service,
 						    val,
 						    service_id);
 		g_free (val);
-	} else if (tracker_field_get_data_type (field) == TRACKER_FIELD_TYPE_DATE &&
-		   (strcmp (tracker_field_get_name (field), "File:Modified") == 0)) {
+	} else if (tracker_property_get_data_type (field) == TRACKER_PROPERTY_TYPE_DATE &&
+		   (strcmp (tracker_property_get_name (field), "File:Modified") == 0)) {
 		/* Handle mtime */
 		tracker_db_interface_execute_query (iface, NULL,
 						    "update Services set IndexTime = '%s' where ID = %d",
@@ -406,7 +406,7 @@ tracker_data_update_set_metadata (TrackerClass *service,
 	}
 
 	collate_key = tracker_ontology_service_get_key_collate (tracker_class_get_name (service),
-								tracker_field_get_name (field));
+								tracker_property_get_name (field));
 	if (collate_key > 0) {
 		gchar *val;
 		
@@ -427,7 +427,7 @@ tracker_data_update_set_metadata (TrackerClass *service,
 void
 tracker_data_update_delete_metadata (TrackerClass *service,
 				     guint32	     service_id,
-				     TrackerField   *field,
+				     TrackerProperty   *field,
 				     const gchar    *value)
 {
 	TrackerDBInterface *iface;
@@ -438,58 +438,58 @@ tracker_data_update_delete_metadata (TrackerClass *service,
 	iface = tracker_db_manager_get_db_interface_by_type (tracker_class_get_name (service),
 							     TRACKER_DB_CONTENT_TYPE_METADATA);
 
-	switch (tracker_field_get_data_type (field)) {
-	case TRACKER_FIELD_TYPE_KEYWORD:
+	switch (tracker_property_get_data_type (field)) {
+	case TRACKER_PROPERTY_TYPE_KEYWORD:
 		if (!value) {
 			g_debug ("Trying to remove keyword field with no specific value");
 			tracker_db_interface_execute_procedure (iface, NULL,
 								"DeleteMetadataKeyword",
 								id_str,
-								tracker_field_get_id (field),
+								tracker_property_get_id (field),
 								NULL);
 		} else {
 			tracker_db_interface_execute_procedure (iface, NULL,
 								"DeleteMetadataKeywordValue",
 								id_str,
-								tracker_field_get_id (field),
+								tracker_property_get_id (field),
 								value,
 								NULL);
 		}
 		break;
 
-	case TRACKER_FIELD_TYPE_INDEX:
-	case TRACKER_FIELD_TYPE_STRING:
-	case TRACKER_FIELD_TYPE_DOUBLE:
+	case TRACKER_PROPERTY_TYPE_INDEX:
+	case TRACKER_PROPERTY_TYPE_STRING:
+	case TRACKER_PROPERTY_TYPE_DOUBLE:
 		tracker_db_interface_execute_procedure (iface, NULL,
 							"DeleteMetadata",
 							id_str,
-							tracker_field_get_id (field),
+							tracker_property_get_id (field),
 							NULL);
 		break;
 
-	case TRACKER_FIELD_TYPE_INTEGER:
-	case TRACKER_FIELD_TYPE_DATE:
+	case TRACKER_PROPERTY_TYPE_INTEGER:
+	case TRACKER_PROPERTY_TYPE_DATE:
 		tracker_db_interface_execute_procedure (iface, NULL,
 							"DeleteMetadataNumeric",
 							id_str,
-							tracker_field_get_id (field),
+							tracker_property_get_id (field),
 							NULL);
 		break;
 
-	case TRACKER_FIELD_TYPE_FULLTEXT:
+	case TRACKER_PROPERTY_TYPE_FULLTEXT:
 		tracker_data_update_delete_content (service, service_id);
 		break;
 
-	case TRACKER_FIELD_TYPE_BLOB:
-	case TRACKER_FIELD_TYPE_STRUCT:
-	case TRACKER_FIELD_TYPE_LINK:
+	case TRACKER_PROPERTY_TYPE_BLOB:
+	case TRACKER_PROPERTY_TYPE_STRUCT:
+	case TRACKER_PROPERTY_TYPE_LINK:
 		/* not handled */
 	default:
 		break;
 	}
 
 	metadata_key = tracker_ontology_service_get_key_metadata (tracker_class_get_name (service),
-								  tracker_field_get_name (field));
+								  tracker_property_get_name (field));
 	if (metadata_key > 0) {
 		tracker_db_interface_execute_query (iface, NULL,
 						    "update Services set KeyMetadata%d = '%s' where id = %d",
@@ -505,7 +505,7 @@ tracker_data_update_set_content (TrackerClass *service,
 				  const gchar   *text)
 {
 	TrackerDBInterface *iface;
-	TrackerField *field;
+	TrackerProperty *field;
 	gchar *id_str;
 
 	id_str = tracker_guint32_to_string (service_id);
@@ -516,7 +516,7 @@ tracker_data_update_set_content (TrackerClass *service,
 	tracker_db_interface_execute_procedure (iface, NULL,
 						"SaveServiceContents",
 						id_str,
-						tracker_field_get_id (field),
+						tracker_property_get_id (field),
 						text,
 						NULL);
 	g_free (id_str);
@@ -527,7 +527,7 @@ tracker_data_update_delete_content (TrackerClass *service,
 				     guint32	    service_id)
 {
 	TrackerDBInterface *iface;
-	TrackerField *field;
+	TrackerProperty *field;
 	gchar *service_id_str;
 
 	service_id_str = tracker_guint32_to_string (service_id);
@@ -539,7 +539,7 @@ tracker_data_update_delete_content (TrackerClass *service,
 	tracker_db_interface_execute_procedure (iface, NULL,
 						"DeleteContent",
 						service_id_str,
-						tracker_field_get_id (field),
+						tracker_property_get_id (field),
 						NULL);
 
 	g_free (service_id_str);
@@ -609,7 +609,7 @@ tracker_data_update_delete_service_all (const gchar *rdf_type)
 }
 
 static void
-set_metadata (TrackerField *field, 
+set_metadata (TrackerProperty *field, 
 	      gpointer value, 
 	      ForeachInMetadataInfo *info)
 {
@@ -628,15 +628,15 @@ set_metadata (TrackerField *field,
 						      info->language,
 						      tracker_config_get_max_word_length (info->config),
 						      tracker_config_get_min_word_length (info->config),
-						      tracker_field_get_filtered (field),
-						      tracker_field_get_filtered (field),
-						      tracker_field_get_delimited (field));
+						      tracker_property_get_filtered (field),
+						      tracker_property_get_filtered (field),
+						      tracker_property_get_delimited (field));
 
 	if (!parsed_value) {
 		return;
 	}
 
-	score = tracker_field_get_weight (field);
+	score = tracker_property_get_weight (field);
 
 	arr = g_strsplit (parsed_value, " ", -1);
 	service_id = tracker_class_get_id (info->service);
@@ -661,7 +661,7 @@ foreach_in_metadata_set_metadata (gpointer   predicate,
 				  gpointer   value,
 				  gpointer   user_data)
 {
-	TrackerField *field;
+	TrackerProperty *field;
 	ForeachInMetadataInfo *info;
 	gint throttle;
 
@@ -677,7 +677,7 @@ foreach_in_metadata_set_metadata (gpointer   predicate,
 		tracker_throttle (info->config, throttle * 100);
 	}
 
-	if (!tracker_field_get_multiple_values (field)) {
+	if (!tracker_property_get_multiple_values (field)) {
 		set_metadata (field, value, user_data);
 	} else {
 		GList *list;
