@@ -21,7 +21,12 @@
 
 /* The indexer works as a state machine, there are 3 different queues:
  *
- * * The files queue: the highest priority one, individual files are
+ * * The update queue: the highest priority one, turtle files waiting for
+ *   import and single statements waiting for insertion or deleation are
+ *   taken one by one in order to be processed, when this queue is
+ *   empty, a single token from the next queue is processed.
+ *
+ * * The files queue: second highest priority, individual files are
  *   stored here, waiting for metadata extraction, etc... files are
  *   taken one by one in order to be processed, when this queue is
  *   empty, a single token from the next queue is processed.
@@ -64,10 +69,9 @@
 #include <libtracker-common/tracker-utils.h>
 #include <libtracker-common/tracker-thumbnailer.h>
 
-#include <libtracker-db/tracker-db-manager.h>
 #include <libtracker-db/tracker-db-index-manager.h>
-#include <libtracker-db/tracker-db-interface-sqlite.h>
 
+#include <libtracker-data/tracker-data-manager.h>
 #include <libtracker-data/tracker-data-query.h>
 #include <libtracker-data/tracker-data-update.h>
 #include <libtracker-data/tracker-data-search.h>
@@ -95,20 +99,30 @@
 #define TRACKER_INDEXER_ERROR	    "tracker-indexer-error-domain"
 #define TRACKER_INDEXER_ERROR_CODE  0
 
-/* Properties that change in move event */
-#define METADATA_FILE_NAME_DELIMITED "File:NameDelimited"
-#define METADATA_FILE_EXT	     "File:Ext"
-#define METADATA_FILE_PATH	     "File:Path"
-#define METADATA_FILE_NAME	     "File:Name"
-#define METADATA_FILE_MIMETYPE       "File:Mime"
+#define NIE_PREFIX TRACKER_NIE_PREFIX
+#define RDF_PREFIX TRACKER_RDF_PREFIX
+#define RDF_TYPE RDF_PREFIX "type"
+#define TRACKER_PREFIX TRACKER_TRACKER_PREFIX
+
+#define NIE_PLAIN_TEXT_CONTENT NIE_PREFIX "plainTextContent"
+#define NIE_MIME_TYPE NIE_PREFIX "mimeType"
+
+#define TRACKER_DATASOURCE TRACKER_PREFIX "Volume"
+#define NIE_DATASOURCE_P NIE_PREFIX "dataSource"
+
+#define NFO_PREFIX TRACKER_NFO_PREFIX
+#define NFO_FILE_NAME NFO_PREFIX "fileName"
+#define NIE_PLAIN_TEXT_CONTENT NIE_PREFIX "plainTextContent"
+#define NIE_MIME_TYPE NIE_PREFIX "mimeType"
+
 
 typedef struct PathInfo PathInfo;
 typedef struct MetadataForeachData MetadataForeachData;
 typedef struct MetadataRequest MetadataRequest;
-typedef struct UpdateWordsForeachData UpdateWordsForeachData;
 typedef enum TrackerIndexerState TrackerIndexerState;
 
 struct TrackerIndexerPrivate {
+	GQueue *import_queue;
 	GQueue *dir_queue;
 	GQueue *file_queue;
 	GQueue *modules_queue;
@@ -119,14 +133,7 @@ struct TrackerIndexerPrivate {
 
 	gchar *db_dir;
 
-	TrackerDBIndex *file_index;
-	TrackerDBIndex *email_index;
-
-	TrackerDBInterface *file_metadata;
-	TrackerDBInterface *file_contents;
-	TrackerDBInterface *email_metadata;
-	TrackerDBInterface *email_contents;
-	TrackerDBInterface *common;
+	TrackerDBIndex *resources_index;
 
 	TrackerConfig *config;
 	TrackerLanguage *language;
@@ -151,6 +158,8 @@ struct TrackerIndexerPrivate {
 	guint in_process : 1;
 	guint interrupted : 1;
 
+	gboolean turtle_import_in_progress;
+
 	guint state;
 };
 
@@ -168,12 +177,8 @@ struct MetadataForeachData {
 	TrackerConfig *config;
 	TrackerClass *service;
 	gboolean add;
+	const gchar *uri;
 	guint32 id;
-};
-
-struct UpdateWordsForeachData {
-	guint32 service_id;
-	guint32 service_type_id;
 };
 
 enum TrackerIndexerState {
@@ -208,15 +213,13 @@ static void	state_check	       (TrackerIndexer	    *indexer);
 
 static void     item_remove            (TrackerIndexer      *indexer,
 					PathInfo	    *info,
-					const gchar         *dirname,
-					const gchar         *basename);
+					const gchar         *uri);
 static void     check_finished         (TrackerIndexer      *indexer,
 					gboolean             interrupted);
 
 static gboolean item_process           (TrackerIndexer      *indexer,
 					PathInfo            *info,
-					const gchar         *dirname,
-					const gchar         *basename);
+					const gchar         *uri);
 
 
 static guint signals[LAST_SIGNAL] = { 0, };
@@ -276,11 +279,7 @@ start_transaction (TrackerIndexer *indexer)
 
 	indexer->private->in_transaction = TRUE;
 
-	tracker_db_interface_start_transaction (indexer->private->file_contents);
-	tracker_db_interface_start_transaction (indexer->private->email_contents);
-	tracker_db_interface_start_transaction (indexer->private->file_metadata);
-	tracker_db_interface_start_transaction (indexer->private->email_metadata);
-	tracker_db_interface_start_transaction (indexer->private->common);
+	tracker_data_begin_transaction ();
 }
 
 static void
@@ -290,11 +289,7 @@ stop_transaction (TrackerIndexer *indexer)
 		return;
 	}
 
-	tracker_db_interface_end_transaction (indexer->private->common);
-	tracker_db_interface_end_transaction (indexer->private->email_metadata);
-	tracker_db_interface_end_transaction (indexer->private->file_metadata);
-	tracker_db_interface_end_transaction (indexer->private->email_contents);
-	tracker_db_interface_end_transaction (indexer->private->file_contents);
+	tracker_data_commit_transaction ();
 
 	indexer->private->in_transaction = FALSE;
 
@@ -362,8 +357,7 @@ flush_data (TrackerIndexer *indexer)
 		stop_transaction (indexer);
 	}
 
-	tracker_db_index_flush (indexer->private->file_index);
-	tracker_db_index_flush (indexer->private->email_index);
+	tracker_db_index_flush (indexer->private->resources_index);
 
 	if ((indexer->private->state & TRACKER_INDEXER_STATE_STOPPED) == 0) {
 		signal_status (indexer, "flush");
@@ -420,7 +414,6 @@ schedule_flush (TrackerIndexer *indexer,
 							    (GSourceFunc) flush_data,
 							    indexer);
 }
-
 
 void 
 tracker_indexer_transaction_commit (TrackerIndexer *indexer)
@@ -499,8 +492,7 @@ index_flushing_notify_cb (GObject        *object,
 	state = indexer->private->state;
 
 	if ((state & TRACKER_INDEXER_STATE_STOPPED) != 0 &&
-	    !tracker_db_index_get_flushing (indexer->private->file_index) &&
-	    !tracker_db_index_get_flushing (indexer->private->email_index)) {
+	    !tracker_db_index_get_flushing (indexer->private->resources_index)) {
 		/* The indexer has been already stopped and all indices are flushed */
 		check_finished (indexer, indexer->private->interrupted);
 	}
@@ -511,8 +503,7 @@ index_overloaded_notify_cb (GObject        *object,
 			    GParamSpec     *pspec,
 			    TrackerIndexer *indexer)
 {
-	if (tracker_db_index_get_overloaded (indexer->private->file_index) ||
-	    tracker_db_index_get_overloaded (indexer->private->email_index)) {
+	if (tracker_db_index_get_overloaded (indexer->private->resources_index)) {
 		g_debug ("Index overloaded, stopping indexer to let it process items");
 		state_set_flags (indexer, TRACKER_INDEXER_STATE_INDEX_OVERLOADED);
 	} else {
@@ -630,21 +621,13 @@ tracker_indexer_finalize (GObject *object)
 	g_object_unref (priv->language);
 	g_object_unref (priv->config);
 
-	g_signal_handlers_disconnect_by_func (priv->file_index,
+	g_signal_handlers_disconnect_by_func (priv->resources_index,
 					      index_flushing_notify_cb,
 					      object);
-	g_signal_handlers_disconnect_by_func (priv->file_index,
+	g_signal_handlers_disconnect_by_func (priv->resources_index,
 					      index_overloaded_notify_cb,
 					      object);
-	g_object_unref (priv->file_index);
-
-	g_signal_handlers_disconnect_by_func (priv->email_index,
-					      index_flushing_notify_cb,
-					      object);
-	g_signal_handlers_disconnect_by_func (priv->email_index,
-					      index_overloaded_notify_cb,
-					      object);
-	g_object_unref (priv->email_index);
+	g_object_unref (priv->resources_index);
 
 	g_free (priv->db_dir);
 
@@ -661,6 +644,9 @@ tracker_indexer_finalize (GObject *object)
 
 	g_queue_foreach (priv->file_queue, (GFunc) path_info_free, NULL);
 	g_queue_free (priv->file_queue);
+
+	g_queue_foreach (priv->import_queue, (GFunc) g_free, NULL);
+	g_queue_free (priv->import_queue);
 
 	if (priv->volume_monitor) {
 		g_signal_handlers_disconnect_by_func (priv->volume_monitor,
@@ -816,8 +802,7 @@ check_started (TrackerIndexer *indexer)
 	indexer->private->timer = g_timer_new ();
 
 	/* Open indexes */
-	tracker_db_index_open (indexer->private->file_index);
-	tracker_db_index_open (indexer->private->email_index);
+	tracker_db_index_open (indexer->private->resources_index);
 
 	g_signal_emit (indexer, signals[STARTED], 0);
 }
@@ -841,8 +826,7 @@ check_finished (TrackerIndexer *indexer,
 	}
 
 	/* Close indexes */
-	tracker_db_index_close (indexer->private->file_index);
-	tracker_db_index_close (indexer->private->email_index);
+	tracker_db_index_close (indexer->private->resources_index);
 
 	/* Print out how long it took us */
 	str = tracker_seconds_to_string (seconds_elapsed, FALSE);
@@ -879,8 +863,7 @@ check_stopped (TrackerIndexer *indexer,
 		/* If the indexer is stopped and the indices aren't
 		 * being flushed, then it's ready for finishing right away
 		 */
-		if (!tracker_db_index_get_flushing (indexer->private->file_index) &&
-		    !tracker_db_index_get_flushing (indexer->private->email_index)) {
+		if (!tracker_db_index_get_flushing (indexer->private->resources_index)) {
 			check_finished (indexer, interrupted);
 		}
 	}
@@ -978,9 +961,9 @@ tracker_indexer_init (TrackerIndexer *indexer)
 	priv->items_processed = 0;
 	priv->in_transaction = FALSE;
 
+	priv->import_queue = g_queue_new ();
 	priv->dir_queue = g_queue_new ();
 	priv->file_queue = g_queue_new ();
-
 	priv->modules_queue = g_queue_new ();
 	priv->config = tracker_config_new ();
 
@@ -1003,36 +986,15 @@ tracker_indexer_init (TrackerIndexer *indexer)
 	tracker_indexer_load_modules (indexer);
 
 	/* Set up indexer */
-	lindex = tracker_db_index_manager_get_index (TRACKER_DB_INDEX_FILE);
-	priv->file_index = g_object_ref (lindex);
+	lindex = tracker_db_index_manager_get_index (TRACKER_DB_INDEX_RESOURCES);
+	priv->resources_index = g_object_ref (lindex);
 
-	g_signal_connect (priv->file_index, "notify::flushing",
+	g_signal_connect (priv->resources_index, "notify::flushing",
 			  G_CALLBACK (index_flushing_notify_cb), indexer);
-	g_signal_connect (priv->file_index, "notify::overloaded",
+	g_signal_connect (priv->resources_index, "notify::overloaded",
 			  G_CALLBACK (index_overloaded_notify_cb), indexer);
-	g_signal_connect (priv->file_index, "error-received",
+	g_signal_connect (priv->resources_index, "error-received",
 			  G_CALLBACK (index_error_received_cb), indexer);
-
-	lindex = tracker_db_index_manager_get_index (TRACKER_DB_INDEX_EMAIL);
-	priv->email_index = g_object_ref (lindex);
-
-	g_signal_connect (priv->email_index, "notify::flushing",
-			  G_CALLBACK (index_flushing_notify_cb), indexer);
-	g_signal_connect (priv->email_index, "notify::overloaded",
-			  G_CALLBACK (index_overloaded_notify_cb), indexer);
-	g_signal_connect (priv->email_index, "error-received",
-			  G_CALLBACK (index_error_received_cb), indexer);
-
-	/* Set up databases, these pointers are mostly used to
-	 * start/stop transactions, since TrackerDBManager treats
-	 * interfaces as singletons, it's safe to just ask it
-	 * again for an interface.
-	 */
-	priv->common = tracker_db_manager_get_db_interface (TRACKER_DB_COMMON);
-	priv->file_metadata = tracker_db_manager_get_db_interface (TRACKER_DB_FILE_METADATA);
-	priv->file_contents = tracker_db_manager_get_db_interface (TRACKER_DB_FILE_CONTENTS);
-	priv->email_metadata = tracker_db_manager_get_db_interface (TRACKER_DB_EMAIL_METADATA);
-	priv->email_contents = tracker_db_manager_get_db_interface (TRACKER_DB_EMAIL_CONTENTS);
 
 	/* Set up volume monitor */
 	priv->volume_monitor = g_volume_monitor_get ();
@@ -1041,6 +1003,17 @@ tracker_indexer_init (TrackerIndexer *indexer)
 
 	/* Set up idle handler to process files/directories */
 	state_check (indexer);
+}
+
+static void
+add_turtle_file (TrackerIndexer *indexer,
+                 const gchar    *file)
+{
+	g_queue_push_tail (indexer->private->import_queue,
+		g_strdup (file));
+
+	/* Make sure we are still running */
+	check_started (indexer);
 }
 
 static void
@@ -1064,66 +1037,15 @@ add_directory (TrackerIndexer *indexer,
 }
 
 static void
-index_metadata_item (TrackerProperty	 *field,
-		     const gchar	 *value,
-		     MetadataForeachData *data)
-{
-	TrackerDBIndex *lindex;
-	gchar *parsed_value;
-	gchar **arr;
-	gint service_id;
-	gint i;
-	gint score;
-
-	parsed_value = tracker_parser_text_to_string (value,
-						      data->language,
-						      tracker_config_get_max_word_length (data->config),
-						      tracker_config_get_min_word_length (data->config),
-						      tracker_property_get_filtered (field),
-						      tracker_property_get_filtered (field),
-						      tracker_property_get_delimited (field));
-
-	if (!parsed_value) {
-		return;
-	}
-
-	if (data->add) {
-		score = tracker_property_get_weight (field);
-	} else {
-		score = -1 * tracker_property_get_weight (field);
-	}
-
-	arr = g_strsplit (parsed_value, " ", -1);
-	service_id = tracker_class_get_id (data->service);
-	lindex = tracker_db_index_manager_get_index_by_service_id (service_id);
-
-	for (i = 0; arr[i]; i++) {
-		tracker_db_index_add_word (lindex,
-					   arr[i],
-					   data->id,
-					   tracker_class_get_id (data->service),
-					   score);
-	}
-
-	if (data->add) {
-		tracker_data_update_set_metadata (data->service, data->id, field, (gchar *) value, parsed_value);
-	} else {
-		tracker_data_update_delete_metadata (data->service, data->id, field, (gchar *)value);
-	}
-
-	g_strfreev (arr);
-	g_free (parsed_value);
-}
-
-static void
-index_metadata_foreach (TrackerProperty *field,
-			gpointer      value,
+index_metadata_foreach (const gchar  *subject,
+			const gchar  *predicate,
+			const gchar  *object,
 			gpointer      user_data)
 {
 	MetadataForeachData *data;
 	gint throttle;
 
-	if (!value) {
+	if (!object) {
 		return;
 	}
 
@@ -1135,31 +1057,24 @@ index_metadata_foreach (TrackerProperty *field,
 		tracker_throttle (data->config, throttle * 100);
 	}
 
-	if (!tracker_property_get_multiple_values (field)) {
-		index_metadata_item (field, value, data);
+	if (data->add) {
+		tracker_data_insert_statement (subject, predicate, object);
 	} else {
-		GList *list;
-
-		list = value;
-
-		while (list) {
-			index_metadata_item (field, list->data, data);
-			list = list->next;
-		}
+		tracker_data_delete_statement (subject, predicate, object);
 	}
 }
 
 static void
 index_metadata (TrackerIndexer	      *indexer,
+		const gchar	      *uri,
 		guint32		       id,
-		TrackerClass	      *service,
 		TrackerModuleMetadata *metadata)
 {
 	MetadataForeachData data;
 
 	data.language = indexer->private->language;
 	data.config = indexer->private->config;
-	data.service = service;
+	data.uri = uri;
 	data.id = id;
 	data.add = TRUE;
 
@@ -1169,404 +1084,103 @@ index_metadata (TrackerIndexer	      *indexer,
 }
 
 static void
-unindex_metadata (TrackerIndexer      *indexer,
-		  guint32	       id,
-		  TrackerClass      *service,
-		  TrackerDataMetadata *metadata)
-{
-	MetadataForeachData data;
-
-	data.language = indexer->private->language;
-	data.config = indexer->private->config;
-	data.service = service;
-	data.id = id;
-	data.add = FALSE;
-
-	tracker_data_metadata_foreach (metadata, index_metadata_foreach, &data);
-
-	schedule_flush (indexer, FALSE);
-}
-
-
-static void
-send_text_to_index (TrackerIndexer *indexer,
-		    gint	    service_id,
-		    gint	    service_type,
-		    const gchar    *text,
-		    gboolean	    full_parsing,
-		    gint	    weight_factor)
-{
-	TrackerDBIndex *lindex;
-	GHashTable     *parsed;
-	GHashTableIter	iter;
-	gpointer	key, value;
-
-	if (!text) {
-		return;
-	}
-
-	if (full_parsing) {
-		parsed = tracker_parser_text (NULL,
-					      text,
-					      weight_factor,
-					      indexer->private->language,
-					      tracker_config_get_max_words_to_index (indexer->private->config),
-					      tracker_config_get_max_word_length (indexer->private->config),
-					      tracker_config_get_min_word_length (indexer->private->config),
-					      tracker_config_get_enable_stemmer (indexer->private->config),
-					      FALSE);
-	} else {
-		/* We dont know the exact property weight.
-		   Big value works.
-		 */
-		parsed = tracker_parser_text_fast (NULL,
-						   text,
-						   weight_factor);
-	}
-
-	g_hash_table_iter_init (&iter, parsed);
-
-	lindex = tracker_db_index_manager_get_index_by_service_id (service_type);
-
-	while (g_hash_table_iter_next (&iter, &key, &value)) {
-		tracker_db_index_add_word (lindex,
-					   key,
-					   service_id,
-					   service_type,
-					   GPOINTER_TO_INT (value));
-	}
-
-	g_hash_table_unref (parsed);
-}
-
-static void
-index_text_with_parsing (TrackerIndexer *indexer,
-			 gint		 service_id,
-			 gint		 service_type_id,
-			 const gchar	*content,
-			 gint		 weight_factor)
-{
-	send_text_to_index (indexer,
-			    service_id,
-			    service_type_id,
-			    content,
-			    TRUE,
-			    weight_factor);
-}
-
-static void
-unindex_text_with_parsing (TrackerIndexer *indexer,
-			   gint		   service_id,
-			   gint		   service_type_id,
-			   const gchar	  *content,
-			   gint		   weight_factor)
-{
-	send_text_to_index (indexer,
-			    service_id,
-			    service_type_id,
-			    content,
-			    TRUE,
-			    weight_factor * -1);
-}
-
-static void
-index_text_no_parsing (TrackerIndexer *indexer,
-		       gint	       service_id,
-		       gint	       service_type_id,
-		       const gchar    *content,
-		       gchar	       weight_factor)
-{
-	send_text_to_index (indexer,
-			    service_id,
-			    service_type_id,
-			    content,
-			    FALSE,
-			    weight_factor);
-}
-
-static void
-unindex_text_no_parsing (TrackerIndexer *indexer,
-			 gint		 service_id,
-			 gint		 service_type_id,
-			 const gchar	*content,
-			 gint		 weight_factor)
-{
-	send_text_to_index (indexer,
-			    service_id,
-			    service_type_id,
-			    content,
-			    FALSE,
-			    weight_factor * -1);
-}
-
-static void
-update_word_foreach (gpointer key,
-		     gpointer value,
-		     gpointer user_data)
-{
-	TrackerDBIndex	       *lindex;
-	UpdateWordsForeachData *data;
-	gchar		       *word;
-	gint			score;
-
-	word = key;
-	score = GPOINTER_TO_INT (value);
-
-	data = user_data;
-
-	lindex = tracker_db_index_manager_get_index_by_service_id (data->service_type_id);
-
-	tracker_db_index_add_word (lindex,
-				   word,
-				   data->service_id,
-				   data->service_type_id,
-				   score);
-}
-
-static void
-update_words_no_parsing (TrackerIndexer *indexer,
-			 gint		 service_id,
-			 gint		 service_type_id,
-			 GHashTable	*words)
-{
-	UpdateWordsForeachData user_data;
-
-	user_data.service_id = service_id;
-	user_data.service_type_id = service_type_id;
-
-	g_hash_table_foreach (words, update_word_foreach, &user_data);
-}
-
-static void
-merge_word_table (gpointer key,
-		  gpointer value,
-		  gpointer user_data)
-{
-	GHashTable *new_table;
-	gpointer    k;
-	gpointer    v;
-	gchar	   *word;
-	gint	    new_score;
-
-	word = key;
-	new_score = GPOINTER_TO_INT (value);
-	new_table = user_data;
-
-	if (g_hash_table_lookup_extended (new_table, word, &k, &v)) {
-		gint old_score;
-		gint calculated_score;
-
-		old_score = GPOINTER_TO_INT (v);
-		calculated_score = old_score - new_score;
-
-		if (calculated_score != 0) {
-			g_hash_table_insert (new_table,
-					     g_strdup (word),
-					     GINT_TO_POINTER (calculated_score));
-		} else {
-			/* The word is the same in old and new text */
-			g_hash_table_remove (new_table, word);
-		}
-	} else {
-		g_hash_table_insert (new_table,
-				     g_strdup (word),
-				     GINT_TO_POINTER (0 - new_score));
-	}
-}
-
-static void
 item_update_content (TrackerIndexer *indexer,
-		     TrackerClass *service,
+		     const gchar    *uri,
 		     guint32	     id,
 		     const gchar    *old_text,
 		     const gchar    *new_text)
 {
-	GHashTable *old_words;
-	GHashTable *new_words;
-
 	if (!old_text && !new_text) {
 		return;
 	}
 
-	/* Service has/had full text */
-	old_words = tracker_parser_text (NULL,
-					 old_text,
-					 1,
-					 indexer->private->language,
-					 tracker_config_get_max_words_to_index (indexer->private->config),
-					 tracker_config_get_max_word_length (indexer->private->config),
-					 tracker_config_get_min_word_length (indexer->private->config),
-					 tracker_config_get_enable_stemmer (indexer->private->config),
-					 FALSE);
-
-	new_words = tracker_parser_text (NULL,
-					 new_text,
-					 1,
-					 indexer->private->language,
-					 tracker_config_get_max_words_to_index (indexer->private->config),
-					 tracker_config_get_max_word_length (indexer->private->config),
-					 tracker_config_get_min_word_length (indexer->private->config),
-					 tracker_config_get_enable_stemmer (indexer->private->config),
-					 FALSE);
-
-	/* Merge the score of the words from one and
-	 * other file new_table contains the words
-	 * with the updated scores
-	 */
-	g_hash_table_foreach (old_words, merge_word_table, new_words);
-
-	update_words_no_parsing (indexer,
-				 id,
-				 tracker_class_get_id (service),
-				 new_words);
-
 	/* Remove old text and set new one in the db */
 	if (old_text) {
-		tracker_data_update_delete_content (service, id);
+		tracker_data_delete_statement (uri, NIE_PLAIN_TEXT_CONTENT, old_text);
 	}
 
 	if (new_text) {
-		tracker_data_update_set_content (service, id, new_text);
+		tracker_data_insert_statement (uri, NIE_PLAIN_TEXT_CONTENT, new_text);
 	}
-
-	g_hash_table_unref (old_words);
-	g_hash_table_unref (new_words);
-}
-
-static TrackerClass *
-get_service_for_file (TrackerModuleFile    *file,
-		      TrackerIndexerModule *module)
-{
-	const gchar *service_type;
-
-	service_type = tracker_module_file_get_service_type (file);
-
-	if (!service_type) {
-		service_type = tracker_module_config_get_index_service (module->name);
-	}
-
-	if (!service_type) {
-		return NULL;
-	}
-
-	return tracker_ontology_get_service_by_name (service_type);
-}
-
-static gboolean
-remove_existing_non_emb_metadata (TrackerProperty *field,
-				  gpointer      value,
-				  gpointer      user_data)
-{
-	TrackerDataMetadata *old_metadata = (TrackerDataMetadata *) user_data;
-	const gchar *name;
-
-	if (tracker_property_get_embedded (field)) {
-		return FALSE;
-	}
-
-	name = tracker_property_get_name (field);
-
-	if (tracker_property_get_multiple_values (field)) {
-		return (tracker_data_metadata_lookup_values (old_metadata, name) != NULL);
-	} else {
-		return (tracker_data_metadata_lookup (old_metadata, name) != NULL);
-	}
-}
-
-static void
-remove_stale_children (TrackerIndexer *indexer,
-		       TrackerClass *service,
-		       PathInfo       *parent_info,
-		       const gchar    *path)
-{
-	TrackerDBInterface *iface;
-	gchar **children;
-	PathInfo *info;
-	gint i;
-
-	iface = tracker_db_manager_get_db_interface_by_type (tracker_class_get_name (service),
-							     TRACKER_DB_CONTENT_TYPE_METADATA);
-
-	children = tracker_data_search_files_get (iface, path);
-
-	for (i = 0; children[i]; i++) {
-		GFile *file;
-
-		file = g_file_new_for_path (children[i]);
-
-		if (!g_file_query_exists (file, NULL)) {
-			/* File doesn't exist, check for deletion */
-			info = path_info_new (parent_info->module, file, NULL, TRUE);
-			add_file (indexer, info);
-		}
-
-		g_object_unref (file);
-	}
-
-	g_strfreev (children);
 }
 
 static void
 generate_item_thumbnail (TrackerIndexer        *indexer,
-			 const gchar           *dirname,
-			 const gchar           *basename,
-			 TrackerModuleMetadata *metadata)
+			 const gchar           *uri)
 {
-	const gchar *path, *mime_type;
+	gchar *mime_type;
 
-	path = tracker_module_metadata_lookup (metadata, METADATA_FILE_NAME_DELIMITED, FALSE);
-	mime_type = tracker_module_metadata_lookup (metadata, METADATA_FILE_MIMETYPE, FALSE);
+	mime_type = tracker_data_query_property_value (uri, NIE_MIME_TYPE);
 
-	if (path && path[0] == G_DIR_SEPARATOR && mime_type &&
-	    tracker_config_get_enable_thumbnails (indexer->private->config)) {
-		GFile *file;
-		gchar *uri;
-
-		file = g_file_new_for_path (path);
-		uri = g_file_get_uri (file);
-
+	if (mime_type && tracker_config_get_enable_thumbnails (indexer->private->config)) {
 		tracker_thumbnailer_queue_file (uri, mime_type);
+	}
 
-		g_object_unref (file);
-		g_free (uri);
+	g_free (mime_type);
+}
+
+static void
+item_add_to_datasource (TrackerIndexer *indexer,
+			const gchar *uri,
+			TrackerModuleFile *module_file,
+			TrackerModuleMetadata *metadata)
+{
+	GFile *file;
+	const gchar *removable_device_udi;
+
+	file = tracker_module_file_get_file (module_file);
+	removable_device_udi = tracker_hal_get_volume_udi_for_file (indexer->private->hal, 
+								    file);
+
+	if (removable_device_udi) {
+		gchar *removable_device_urn;
+
+		removable_device_urn = g_strdup_printf (TRACKER_DATASOURCE_URN_PREFIX "%s", 
+						        removable_device_udi);
+
+		if (!tracker_data_query_resource_exists (removable_device_urn, NULL, NULL)) {
+			tracker_data_insert_statement (removable_device_urn, 
+						       RDF_TYPE, TRACKER_DATASOURCE);
+		}
+
+		tracker_module_metadata_add_string (metadata, uri, NIE_DATASOURCE_P,
+		                                    removable_device_urn);
+
+		g_free (removable_device_urn);
+	} else {
+		if (!tracker_data_query_resource_exists (TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN, NULL, NULL)) {
+			tracker_data_insert_statement (TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN, 
+						       RDF_TYPE, TRACKER_DATASOURCE);
+		}
+
+		tracker_module_metadata_add_string (metadata, uri, NIE_DATASOURCE_P,
+						    TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN);
 	}
 }
 
 static void
 item_add_or_update (TrackerIndexer        *indexer,
 		    PathInfo              *info,
-		    const gchar           *dirname,
-		    const gchar           *basename,
+		    const gchar           *uri,
 		    TrackerModuleMetadata *metadata,
 		    const gchar           *text)
 {
-	TrackerClass *service;
 	guint32 id;
 	gchar *mount_point = NULL;
-	gchar *service_path;
 
-	service = get_service_for_file (info->module_file, info->module);
-
-	if (!service) {
-		return;
-	}
-
-	if (tracker_data_query_service_exists (service, dirname, basename, &id, NULL)) {
-		TrackerDataMetadata *old_metadata_emb, *old_metadata_non_emb;
+	if (tracker_data_query_resource_exists (uri, &id, NULL)) {
 		gchar *old_text;
 
 		if (tracker_module_file_get_flags (info->module_file) & TRACKER_FILE_CONTENTS_STATIC) {
 			/* According to the module, the metadata can't change for this item */
-			g_debug ("Not updating static item '%s/%s'",
-				 dirname,
-				 basename);
+			g_debug ("Not updating static item '%s'",
+				 uri);
 			return;
 		}
 
 		/* Update case */
-		g_debug ("Updating item '%s/%s'", 
-			 dirname, 
-			 basename);
+		g_debug ("Updating item '%s'", 
+			 uri);
 
 		/* "metadata" (new metadata) contains embedded props and can contain
 		 * non-embedded properties with default values! Dont overwrite those 
@@ -1577,358 +1191,180 @@ item_add_or_update (TrackerIndexer        *indexer,
 		 *    properties that already have value.
 		 * 3) Save the remain new metadata.
 		 */
-		old_metadata_emb = tracker_data_query_metadata (service, id, TRUE);
-		old_metadata_non_emb = tracker_data_query_metadata (service, id, FALSE);
+		tracker_data_delete_resource_description (uri);
 
-		unindex_metadata (indexer, id, service, old_metadata_emb);
-
-		tracker_module_metadata_foreach_remove (metadata,
-							remove_existing_non_emb_metadata,
-							old_metadata_non_emb);
-
-		index_metadata (indexer, id, service, metadata);
+		index_metadata (indexer, uri, id, metadata);
 
 		/* Take the old text -> the new one, calculate
 		 * difference and add the words.
 		 */
-		old_text = tracker_data_query_content (service, id);
+		old_text = tracker_data_query_property_value (uri, NIE_PLAIN_TEXT_CONTENT);
 
-		item_update_content (indexer, service, id, old_text, text);
-
-		if (strcmp (tracker_class_get_name (service), "Folders") == 0) {
-			gchar *path;
-
-			/* Remove no longer existing children, this is necessary in case
-			 * there were files added/removed in a directory between tracker
-			 * executions
-			 */
-
-			path = g_build_path (G_DIR_SEPARATOR_S, dirname, basename, NULL);
-			remove_stale_children (indexer, service, info, path);
-			g_free (path);
-		}
-
+		item_update_content (indexer, uri, id, old_text, text);
 		g_free (old_text);
-		tracker_data_metadata_free (old_metadata_emb);
-		tracker_data_metadata_free (old_metadata_non_emb);
 	} else {
-		GHashTable *data;
-
-		g_debug ("Adding item '%s/%s'",
-			 dirname,
-			 basename);
+		g_debug ("Adding item '%s'", 
+			 uri);
 
 		/* Service wasn't previously indexed */
-		id = tracker_data_update_get_new_service_id (indexer->private->common);
-		data = tracker_module_metadata_get_hash_table (metadata);
+		id = tracker_data_insert_resource (uri);
 
-		tracker_data_update_create_service (service,
-						    id,
-						    dirname,
-						    basename,
-						    data);
+		index_metadata (indexer, uri, id, metadata);
 
-		index_metadata (indexer, id, service, metadata);
+		item_add_to_datasource (indexer, uri, info->module_file, metadata);
 
 		if (text) {
-			/* Save in the index */
-			index_text_with_parsing (indexer,
-						 id,
-						 tracker_class_get_id (service),
-						 text,
-						 1);
-
 			/* Save in the DB */
-			tracker_data_update_set_content (service, id, text);
+			tracker_data_insert_statement (uri, NIE_PLAIN_TEXT_CONTENT, text);
 		}
-
-		g_hash_table_destroy (data);
 	}
 
-	generate_item_thumbnail (indexer, dirname, basename, metadata);
-
-	/* TODO: URI branch path -> uri */
-
-	service_path = g_build_path (G_DIR_SEPARATOR_S, 
-				     dirname, 
-				     basename, 
-				     NULL);
+	generate_item_thumbnail (indexer, uri);
 
 #ifdef HAVE_HAL
-	if (tracker_hal_path_is_on_removable_device (indexer->private->hal,
-						     service_path, 
-						     &mount_point,
-						     NULL)) {
+	if (tracker_hal_uri_is_on_removable_device (indexer->private->hal,
+						    uri, 
+						    &mount_point,
+						    NULL)) {
 
 		tracker_removable_device_add_metadata (indexer, 
 						       mount_point, 
-						       service_path, 
-						       tracker_class_get_name (service),
+						       uri, 
 						       metadata);
 	}
 #endif
 	g_free (mount_point);
-	g_free (service_path);
-}
-
-
-static gboolean 
-filter_invalid_after_move_properties (TrackerProperty *field,
-				      gpointer value,
-				      gpointer user_data) 
-{
-	const gchar *name;
-
-	name = tracker_property_get_name (field);
-
-	if (g_strcmp0 (name, METADATA_FILE_NAME_DELIMITED) == 0 ||
-	    g_strcmp0 (name, METADATA_FILE_NAME) == 0 ||
-	    g_strcmp0 (name, METADATA_FILE_PATH) == 0 ||
-	    g_strcmp0 (name, METADATA_FILE_EXT) == 0) {
-		return FALSE;
-	}
-
-	return TRUE;
 }
 
 static void
-update_moved_item_thumbnail (TrackerIndexer      *indexer,
-			     TrackerDataMetadata *old_metadata,
-			     GFile               *file,
-			     GFile               *source_file)
+update_file_uri_recursively (const gchar *source_uri,
+			     const gchar *uri)
 {
-	gchar *uri, *source_uri;
-	const gchar *mime_type;
+	gchar *mime_type, *sparql;
+	TrackerDBResultSet *result_set;
+	GError *error = NULL;
 
-	if (!old_metadata) {
-		gchar *path;
+	g_debug ("Moving item from '%s' to '%s'",
+		 source_uri,
+		 uri);
 
-		path = g_file_get_path (file);
-		g_message ("Could not get mime type to remove thumbnail for:'%s'", path);
-		g_free (path);
-
-		return;
-	}
-
-	/* TODO URI branch: this is a URI conversion */
-	uri = g_file_get_uri (file);
-	source_uri = g_file_get_uri (source_file);
-
-	mime_type = tracker_data_metadata_lookup (old_metadata, "File:Mime");
-	tracker_thumbnailer_move (source_uri, mime_type, uri);
-
-	g_free (source_uri);
-	g_free (uri);
-}
-
-static void
-update_moved_item_removable_device (TrackerIndexer *indexer,
-				    TrackerClass *service,
-				    GFile          *file,
-				    GFile          *source_file)
-{
-	const gchar *service_name;
-	gchar *path, *source_path;
-	gchar *mount_point = NULL;
-
-	service_name = tracker_class_get_name (service);
-	path = g_file_get_path (file);
-	source_path = g_file_get_path (source_file);
-
-#ifdef HAVE_HAL
-	if (tracker_hal_path_is_on_removable_device (indexer->private->hal,
-						     source_path,
-						     &mount_point,
-						     NULL) ) {
-
-		if (tracker_hal_path_is_on_removable_device (indexer->private->hal,
-						     path,
-						     NULL,
-						     NULL) ) {
-
-			tracker_removable_device_add_move (indexer,
-							   mount_point,
-							   source_path,
-							   path,
-							   service_name);
-
-		} else {
-			tracker_removable_device_add_removal (indexer,
-							      mount_point,
-							      source_path,
-							      service_name);
-		}
-	}
-#endif
-	g_free (mount_point);
-	g_free (source_path);
-	g_free (path);
-}
-
-static void
-update_moved_item_index (TrackerIndexer      *indexer,
-			 TrackerClass      *service,
-			 TrackerDataMetadata *old_metadata,
-			 guint32              service_id,
-			 GFile               *file,
-			 GFile               *source_file)
-{
-	TrackerModuleMetadata *new_metadata;
-	gchar *path, *new_path, *new_name;
-	const gchar *ext;
-
-	path = g_file_get_path (file);
-
-	/*
-	 *  Update what changes in move event (Path related properties)
-	 */
-	tracker_data_metadata_foreach_remove (old_metadata,
-					      filter_invalid_after_move_properties,
-					      NULL);
-
-	unindex_metadata (indexer, service_id, service, old_metadata);
-
-	new_metadata = tracker_module_metadata_new ();
-
-	tracker_file_get_path_and_name (path, &new_path, &new_name);
-
-	tracker_module_metadata_add_string (new_metadata, METADATA_FILE_PATH, new_path);
-	tracker_module_metadata_add_string (new_metadata, METADATA_FILE_NAME, new_name);
-	tracker_module_metadata_add_string (new_metadata, METADATA_FILE_NAME_DELIMITED, path);
-
-	ext = strrchr (path, '.');
-	if (ext) {
-		ext++;
-		tracker_module_metadata_add_string (new_metadata, METADATA_FILE_EXT, ext);
-	}
-
-	index_metadata (indexer, service_id, service, new_metadata);
-
-	g_object_unref (new_metadata);
-	g_free (new_path);
-	g_free (new_name);
-	g_free (path);
-}
-
-static gboolean
-item_move (TrackerIndexer  *indexer,
-	   PathInfo	   *info,
-	   const gchar	   *dirname,
-	   const gchar	   *basename)
-{
-	TrackerClass *service;
-	TrackerDataMetadata *old_metadata;
-	gchar *path, *source_path;
-	guint32 service_id;
-	GHashTable *children = NULL;
-
-	service = get_service_for_file (info->module_file, info->module);
-
-	if (!service) {
-		return FALSE;
-	}
-
-	path = g_file_get_path (info->file);
-	source_path = g_file_get_path (info->source_file);
-
-	g_debug ("Moving item from '%s' to '%s'", source_path, path);
-
-	/* Get 'source' ID */
-	if (!tracker_data_query_service_exists (service,
-						dirname,
-						basename,
-						&service_id,
-						NULL)) {
-		gchar *dest_dirname, *dest_basename;
-		gboolean res;
-
-		g_message ("Source file '%s' not found in database to move, indexing '%s' from scratch", source_path, path);
-
-		tracker_file_get_path_and_name (path, &dest_dirname, &dest_basename);
-		res = item_process (indexer, info, dest_dirname, dest_basename);
-
-		g_free (dest_dirname);
-		g_free (dest_basename);
-		g_free (path);
-		g_free (source_path);
-
-		return res;
-	}
-
-	if (info->recurse && strcmp (tracker_class_get_name (service), "Folders") == 0) {
-		children = tracker_data_query_service_children (service, source_path);
-	}
-
-	/* Get mime type in order to move thumbnail from thumbnailerd */
-	old_metadata = tracker_data_query_metadata (service, service_id, TRUE);
-
-	if (!tracker_data_update_move_service (service, source_path, path)) {
-		gchar *dest_dirname, *dest_basename;
-
+	if (!tracker_data_update_resource_uri (source_uri, uri)) {
 		/* Move operation failed, which means the dest path
 		 * corresponded to an indexed file, remove any info
 		 * related to it.
 		 */
 
-		g_message ("Destination file '%s' already existed in database, removing", path);
+		g_message ("Destination file '%s' already existed in database, removing", uri);
 
-		tracker_file_get_path_and_name (path, &dest_dirname, &dest_basename);
-		item_remove (indexer, info, dest_dirname, dest_basename);
+		tracker_data_delete_resource (uri);
 
-		g_free (dest_dirname);
-		g_free (dest_basename);
-
-		if (!tracker_data_update_move_service (service, source_path, path)) {
+		if (!tracker_data_update_resource_uri (source_uri, uri)) {
 			/* It failed again, no point in trying anymore */
-			g_free (path);
-			g_free (source_path);
 
-			if (old_metadata) {
-				tracker_data_metadata_free (old_metadata);
+			return;
+		}
+	}
+
+	/* Get mime type in order to move thumbnail from thumbnailerd */
+	mime_type = tracker_data_query_property_value (uri, NIE_MIME_TYPE);
+
+	if (mime_type) {
+		tracker_thumbnailer_move (source_uri, mime_type, uri);
+		g_free (mime_type);
+	} else {
+		g_message ("Could not get mime type to remove thumbnail for:'%s'",
+			   uri);
+	}
+
+	sparql = g_strdup_printf ("SELECT ?child WHERE { ?child nfo:belongsToContainer <%s> }", uri);
+	result_set = tracker_data_query_sparql (sparql, &error);
+	g_free (sparql);
+	if (result_set) {
+		do {
+			gchar *child_source_uri, *child_uri;
+
+			tracker_db_result_set_get (result_set, 0, &child_source_uri, -1);
+			if (!g_str_has_prefix (child_source_uri, source_uri)) {
+				g_warning ("Child URI '%s' does not start with parent URI '%s'",
+				           child_source_uri,
+				           source_uri);
+				continue;
 			}
+			child_uri = g_strdup_printf ("%s%s", uri, child_source_uri + strlen (source_uri));
 
-			return FALSE;
+			update_file_uri_recursively (child_source_uri, child_uri);
+
+			g_free (child_source_uri);
+			g_free (child_uri);
+		} while (tracker_db_result_set_iter_next (result_set));
+		g_object_unref (result_set);
+	}
+}
+
+static gboolean
+item_move (TrackerIndexer  *indexer,
+	   PathInfo	   *info,
+	   const gchar	   *source_uri)
+{
+	guint32 service_id;
+	gchar *uri, *old_filename;
+	GFileInfo *file_info;
+	gchar *mount_point = NULL;
+
+	uri = g_file_get_uri (info->file);
+
+	/* Get 'source' ID */
+	if (!tracker_data_query_resource_exists (source_uri,
+					       &service_id,
+					       NULL)) {
+		gboolean res;
+
+		g_message ("Source file '%s' not found in database to move, indexing '%s' from scratch", source_uri, uri);
+
+		res = item_process (indexer, info, uri);
+
+		g_free (uri);
+
+		return res;
+	}
+
+	update_file_uri_recursively (source_uri, uri);
+
+#ifdef HAVE_HAL
+	if (tracker_hal_uri_is_on_removable_device (indexer->private->hal,
+						    source_uri, 
+						    &mount_point,
+						    NULL) ) {
+		if (tracker_hal_uri_is_on_removable_device (indexer->private->hal,
+							    uri, 
+							    NULL,
+							    NULL) ) {
+
+			tracker_removable_device_add_move (indexer, 
+							   mount_point, 
+							   source_uri, 
+							   uri);
+		} else {
+			tracker_removable_device_add_removal (indexer, 
+							      mount_point, 
+							      source_uri);
 		}
+
+		g_free (mount_point);
 	}
+#endif
 
-	/* Update item being moved */
-	update_moved_item_thumbnail (indexer, old_metadata, info->file, info->source_file);
-	update_moved_item_removable_device (indexer, service, info->file, info->source_file);
-	update_moved_item_index (indexer, service, old_metadata, service_id, info->file, info->source_file);
+	file_info = g_file_query_info (info->file,
+					G_FILE_ATTRIBUTE_STANDARD_DISPLAY_NAME,
+					G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
+					NULL, NULL);
 
-	if (children) {
-		GHashTableIter iter;
-		gpointer key, value;
+	old_filename = tracker_data_query_property_value (uri, NFO_FILE_NAME);
+	tracker_data_delete_statement (uri, NFO_FILE_NAME, old_filename);
+	tracker_data_insert_statement (uri, NFO_FILE_NAME, g_file_info_get_display_name (file_info));
 
-		g_hash_table_iter_init (&iter, children);
-
-		/* Queue children to be moved */
-		while (g_hash_table_iter_next (&iter, &key, &value)) {
-			PathInfo *child_info;
-			const gchar *child_name;
-			GFile *child_file, *child_source_file;
-
-			child_name = (const gchar *) value;
-
-			child_file = g_file_get_child (info->file, child_name);
-			child_source_file = g_file_get_child (info->source_file, child_name);
-
-			child_info = path_info_new (info->module, child_file, child_source_file, TRUE);
-			add_file (indexer, child_info);
-
-			g_object_unref (child_file);
-			g_object_unref (child_source_file);
-		}
-
-		g_hash_table_destroy (children);
-	}
-
-	if (old_metadata) {
-		tracker_data_metadata_free (old_metadata);
-	}
-
-	g_free (source_path);
-	g_free (path);
+	g_free (uri);
+	g_object_unref (file_info);
 
 	return TRUE;
 }
@@ -1937,133 +1373,81 @@ item_move (TrackerIndexer  *indexer,
 static void
 item_remove (TrackerIndexer *indexer,
 	     PathInfo	    *info,
-	     const gchar    *dirname,
-	     const gchar    *basename)
+	     const gchar    *uri)
 {
-	TrackerClass *service;
-	TrackerDataMetadata *data_metadata;
 	gchar *content;
-	gchar *metadata;
-	gchar *path;
 	gchar *mount_point = NULL;
 	const gchar *service_type;
-	guint service_id, service_type_id;
+	gchar *mime_type;
+	guint service_id;
 
-	g_debug ("Removing item: '%s/%s' (no metadata was given by module)", 
-		 dirname, 
-		 basename);
+	g_debug ("Removing item: '%s' (no metadata was given by module)", 
+		 uri);
 
-	/* The file is not anymore in the filesystem. Obtain
-	 * the service type from the DB.
-	 */
-	service_type_id = tracker_data_query_service_type_id (dirname, basename);
+	service_type = tracker_module_config_get_index_service (info->module->name);
 
-	if (service_type_id == 0) {
-		/* File didn't exist, nothing to delete */
-		return;
+	if (!service_type || !service_type[0]) {
+		/* The file is not anymore in the filesystem. Obtain
+		 * the service type from the DB.
+		 */
+		if (!tracker_data_query_resource_exists (uri, NULL, NULL)) {
+			/* File didn't exist, nothing to delete */
+			return;
+		}
 	}
 
-	service_type = tracker_ontology_get_service_by_id (service_type_id);
-	service = tracker_ontology_get_service_by_name (service_type);
-
-	tracker_data_query_service_exists (service, dirname, basename, &service_id, NULL);
+	tracker_data_query_resource_exists (uri, &service_id, NULL);
 
 	if (service_id < 1) {
 		g_debug ("  File does not exist anyway "
-			 "(dirname:'%s', basename:'%s')",
-			 dirname, basename);
+			 "(uri:'%s')",
+			 uri);
 		return;
 	}
 
-	/* This is needed in a few places. */
-	path = g_build_path (G_DIR_SEPARATOR_S, dirname, basename, NULL);
-
 	/* Get mime type and remove thumbnail from thumbnailerd */
-	data_metadata = tracker_data_query_metadata (service, service_id, TRUE);
+	mime_type = tracker_data_query_property_value (uri, NIE_MIME_TYPE);
 
-	if (data_metadata) {
-		GFile *file;
-		const gchar *mime_type;
-		gchar *uri;
-
-		/* TODO URI branch: this is a URI conversion */
-		file = g_file_new_for_path (path);
-		uri = g_file_get_uri (file);
-		g_object_unref (file);
-		
-		mime_type = tracker_data_metadata_lookup (data_metadata, "File:Mime");
+	if (mime_type) {
 		tracker_thumbnailer_remove (uri, mime_type);
 
-		tracker_data_metadata_free (data_metadata);
-		g_free (uri);
+		g_free (mime_type);
 	} else {
 		g_message ("Could not get mime type to remove thumbnail for:'%s'",
-			   path);
+			   uri);
 	}
-
-	tracker_data_update_delete_content (service, service_id);
 
 	/* Get content, unindex the words and delete the contents */
-	content = tracker_data_query_content (service, service_id);
+	content = tracker_data_query_property_value (uri, NIE_PLAIN_TEXT_CONTENT);
 	if (content) {
-		unindex_text_with_parsing (indexer,
-					   service_id,
-					   service_type_id,
-					   content,
-					   1000);
+		tracker_data_delete_statement (uri, NIE_PLAIN_TEXT_CONTENT, content);
 		g_free (content);
-		tracker_data_update_delete_content (service, service_id);
 	}
-
-	/* Get metadata from DB to remove it from the index */
-	metadata = tracker_data_query_parsed_metadata (service,
-						       service_id);
-	unindex_text_no_parsing (indexer,
-				 service_id,
-				 service_type_id,
-				 metadata,
-				 1000);
-	g_free (metadata);
-
-	/* The weight depends on metadata, but a number high enough
-	 * force deletion.
-	 */
-	metadata = tracker_data_query_unparsed_metadata (service,
-							 service_id);
-	unindex_text_with_parsing (indexer,
-				   service_id,
-				   service_type_id,
-				   metadata,
-				   1000);
-	g_free (metadata);
 
 	/* Delete service */
-	tracker_data_update_delete_service (service, service_id);
-	tracker_data_update_delete_all_metadata (service, service_id);
+	tracker_data_delete_resource (uri);
 
+	/* TODO
 	if (info->recurse && strcmp (service_type, "Folders") == 0) {
-		tracker_data_update_delete_service_recursively (service, path);
-	}
+		tracker_data_update_delete_service_recursively (uri);
+	}*/
 
-	if (tracker_hal_path_is_on_removable_device (indexer->private->hal,
-						     path, 
-						     &mount_point,
-						     NULL)) {
+	if (tracker_hal_uri_is_on_removable_device (indexer->private->hal,
+						    uri, 
+						    &mount_point,
+						    NULL)) {
 
-		tracker_removable_device_add_removal (indexer, mount_point, 
-						      path,
-						      tracker_class_get_name (service));
+		tracker_removable_device_add_removal (indexer, mount_point, uri);
 	}
 
 	g_free (mount_point);
-	g_free (path);
+
 }
 
 static gboolean
 item_process (TrackerIndexer *indexer,
 	      PathInfo       *info,
-	      const gchar    *dirname,
-	      const gchar    *basename)
+	      const gchar    *uri)
 {
 	TrackerModuleMetadata *metadata;
 	gchar *text;
@@ -2088,12 +1472,12 @@ item_process (TrackerIndexer *indexer,
 			return FALSE;
 		}
 
-		item_add_or_update (indexer, info, dirname, basename, metadata, text);
+		item_add_or_update (indexer, info, uri, metadata, text);
 
 		g_object_unref (metadata);
 		g_free (text);
 	} else {
-		item_remove (indexer, info, dirname, basename);
+		item_remove (indexer, info, uri);
 	}
 
 	return TRUE;
@@ -2105,17 +1489,13 @@ item_process (TrackerIndexer *indexer,
  */
 static gboolean
 handle_metadata_add (TrackerIndexer *indexer,
-		     const gchar    *service_type,
 		     const gchar    *uri,
 		     const gchar    *property,
 		     GStrv	     values,
 		     GError	   **error)
 {
-	TrackerClass *service;
 	TrackerProperty   *field;
 	guint           service_id, i, j;
-	gchar         **set_values;
-	gchar          *joined, *dirname = NULL, *basename = NULL;
 	gchar         **old_contents;
 	gint            len;
 
@@ -2123,17 +1503,7 @@ handle_metadata_add (TrackerIndexer *indexer,
 
 	check_started (indexer);
 
-	service = tracker_ontology_get_service_by_name (service_type);
-	if (!service) {
-		g_set_error (error,
-			     g_quark_from_string (TRACKER_INDEXER_ERROR),
-			     TRACKER_INDEXER_ERROR_CODE,
-			     "Unknown service type: '%s'",
-			     service_type);
-		return FALSE;
-	}
-
-	field = tracker_ontology_get_field_by_name (property);
+	field = tracker_ontology_get_property_by_uri (property);
 	if (!field) {
 		g_set_error (error,
 			     g_quark_from_string (TRACKER_INDEXER_ERROR),
@@ -2155,15 +1525,9 @@ handle_metadata_add (TrackerIndexer *indexer,
 		return FALSE;
 	}
 
-	tracker_file_get_path_and_name (uri, &dirname, &basename);
-
-	tracker_data_query_service_exists (service,
-				  dirname,
-				  basename,
-				  &service_id,
-				  NULL);
-	g_free (dirname);
-	g_free (basename);
+	tracker_data_query_resource_exists (uri,
+					  &service_id,
+					  NULL);
 
 	if (service_id < 1) {
 		g_set_error (error,
@@ -2173,9 +1537,7 @@ handle_metadata_add (TrackerIndexer *indexer,
 		return FALSE;
 	}
 
-	old_contents = tracker_data_query_metadata_field_values (service,
-						       service_id,
-						       field);
+	old_contents = tracker_data_query_property_values (uri, tracker_property_get_uri (field));
 	if (!tracker_property_get_multiple_values (field) && old_contents) {
 		/* Remove old value from DB and index */
 		len = g_strv_length (old_contents);
@@ -2184,28 +1546,12 @@ handle_metadata_add (TrackerIndexer *indexer,
 			g_critical ("Seems to be multiple values in field:'%s' that doesn allow that",
 				    tracker_property_get_name (field));
 		} else if (old_contents && len == 1) {
-			if (tracker_property_get_filtered (field)) {
-				unindex_text_with_parsing (indexer,
-							   service_id,
-							   tracker_class_get_id (service),
-							   old_contents[0],
-							   tracker_property_get_weight (field));
-			} else {
-				unindex_text_no_parsing (indexer,
-							 service_id,
-							 tracker_class_get_id (service),
-							 old_contents[0],
-							 tracker_property_get_weight (field));
-			}
-			tracker_data_update_delete_metadata (service, service_id, field, old_contents[0]);
+			tracker_data_delete_statement (uri, tracker_property_get_uri (field), old_contents[0]);
 		}
 	}
 
-	set_values = g_new0 (gchar *, g_strv_length (values) + 1);
-
 	for (i = 0, j = 0; values[i] != NULL; i++) {
-		g_debug ("Setting metadata: service_type '%s' id '%d' field '%s' value '%s'",
-			 tracker_class_get_name (service),
+		g_debug ("Setting metadata: id '%d' field '%s' value '%s'",
 			 service_id,
 			 tracker_property_get_name (field),
 			 values[i]);
@@ -2215,61 +1561,30 @@ handle_metadata_add (TrackerIndexer *indexer,
 			continue;
 		}
 
-		tracker_data_update_set_metadata (service, service_id, field, values[i], NULL);
-		set_values [++j] = values[i];
-	}
-
-	joined = g_strjoinv (" ", set_values);
-	if (tracker_property_get_filtered (field)) {
-		index_text_no_parsing (indexer,
-				       service_id,
-				       tracker_class_get_id (service),
-				       joined,
-				       tracker_property_get_weight (field));
-	} else {
-		index_text_with_parsing (indexer,
-					 service_id,
-					 tracker_class_get_id (service),
-					 joined,
-					 tracker_property_get_weight (field));
+		tracker_data_insert_statement (uri, tracker_property_get_uri (field), values[i]);
 	}
 
 	if (old_contents) {
 		g_strfreev (old_contents);
 	}
 
-	/* Not g_strfreev because. It contains the pointers of "values"! */
-	g_free (set_values);
-	g_free (joined);
-
 	return TRUE;
 }
 
 static gboolean
 should_change_index_for_file (TrackerIndexer *indexer,
-			      PathInfo        *info,
-			      const gchar	  *dirname,
-			      const gchar	  *basename)
+			      PathInfo       *info,
+			      const gchar    *uri)
 {
-	TrackerClass *service;
-	gchar *path;
-	guint64 current_mtime;
-	time_t db_mtime;
-
-	service = get_service_for_file (info->module_file, info->module);
-
-	if (!service) {
-		return TRUE;
-	}
+	GFileInfo *file_info;
+	time_t mtime;
 
 	/* Check the file/directory exists. If it doesn't we
 	 * definitely want to index it.
 	 */
-	if (!tracker_data_query_service_exists (service,
-						dirname,
-						basename,
-						NULL,
-						&db_mtime)) {
+	if (!tracker_data_query_resource_exists (uri,
+					       NULL,
+					       &mtime)) {
 		return TRUE;
 	}
 
@@ -2279,25 +1594,19 @@ should_change_index_for_file (TrackerIndexer *indexer,
 	 * the database. If it does, then we can ignore any files
 	 * immediately in this parent directory.
 	 */
-	path = g_file_get_path (info->file);
-	current_mtime = tracker_file_get_mtime (path);
-
-	/* NOTE: We return TRUE here because we want to update the DB
-	 * about this file, not because we want to index it.
-	 */
-	if (current_mtime == 0) {
-		g_free (path);
+	file_info = g_file_query_info (info->file, "standard::*", G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS, NULL, NULL);
+	if (!file_info) {
+		/* NOTE: We return TRUE here because we want to update the DB
+		 * about this file, not because we want to index it.
+		 */
 		return TRUE;
 	}
 
-	if (current_mtime == db_mtime) {
-		g_message ("'%s' is already up to date in DB, not (re)indexing", path);
-		g_free (path);
+	if (g_file_info_get_attribute_uint64 (file_info, G_FILE_ATTRIBUTE_TIME_MODIFIED) == mtime) {
+		g_message ("%s: is already up to date in DB, not (re)indexing", uri);
 
 		return FALSE;
 	}
-
-	g_free (path);
 
 	return TRUE;
 }
@@ -2306,7 +1615,7 @@ static gboolean
 process_file (TrackerIndexer *indexer,
 	      PathInfo	     *info)
 {
-	gchar *uri, *dirname, *basename;
+	gchar *uri;
 	gboolean inc_counters = FALSE;
 
 	/* Note: If info->source_file is set, the PathInfo is for a
@@ -2334,39 +1643,12 @@ process_file (TrackerIndexer *indexer,
 		return TRUE;
 	}
 
-	tracker_file_get_path_and_name (uri, &dirname, &basename);
-	g_free (uri);
-
-	/*
-	 * FIRST:
-	 * ======
-	 * We don't check if we should index files for MOVE events.
-	 *
-	 * SECOND:
-	 * =======
-	 * Here we do a quick check to see if this is an email URI or
-	 * not. For emails we don't check if we should index them, we
-	 * always do since it is ONLY summary files we index and we
-	 * need to look at them to know if anything changed anyway.
-	 * The only improvement we could have here is an mtime check.
-	 * This is yet to do.
-	 *
-	 * The info->file->path is the REAL location. The dirname and
-	 * basename which are returned by the module are combined to
-	 * look like:
-	 *
-	 *   email://1192717939.16218.20@petunia/INBOX;uid=1
-	 *
-	 * We simply check the dirname[0] to make sure it isn't an
-	 * email based dirname.
-	 */
-	if (G_LIKELY (!info->source_file) && dirname[0] == G_DIR_SEPARATOR) {
-		if (!should_change_index_for_file (indexer, info, dirname, basename)) {
+	/* We don't check if we should index files for MOVE events */
+	if (G_LIKELY (!info->source_file)) {
+		if (!should_change_index_for_file (indexer, info, uri)) {
 			indexer->private->items_processed++;
 
-			g_free (dirname);
-			g_free (basename);
-
+			g_free (uri);
 			return TRUE;
 		}
 	}
@@ -2379,11 +1661,11 @@ process_file (TrackerIndexer *indexer,
 	 * a service and set the metadata.
 	 */
 	if (G_UNLIKELY (info->source_file)) {
-		if (item_move (indexer, info, dirname, basename)) {
+		if (item_move (indexer, info, uri)) {
 			inc_counters = TRUE;
 		}
 	} else {
-		if (item_process (indexer, info, dirname, basename)) {
+		if (item_process (indexer, info, uri)) {
 			inc_counters = TRUE;
 		}
 	}
@@ -2394,8 +1676,7 @@ process_file (TrackerIndexer *indexer,
 		indexer->private->items_to_index++;
 	}
 
-	g_free (dirname);
-	g_free (basename);
+	g_free (uri);
 
 	if (!tracker_module_file_is_cancelled (info->module_file) &&
 	    TRACKER_IS_MODULE_ITERATABLE (info->module_file)) {
@@ -2409,48 +1690,44 @@ static void
 process_directory (TrackerIndexer *indexer,
 		   PathInfo       *info)
 {
-	gchar *path;
-	const gchar *name;
-	GDir *dir;
+	char *path;
+	GFileEnumerator *enumerator;
+	GFileInfo *file_info;
 
 	path = g_file_get_path (info->file);
-
-	/* FIXME: Use gio to iterate the directory */
 	g_debug ("Processing directory:'%s'", path);
+	g_free (path);
 
-	dir = g_dir_open (path, 0, NULL);
+	enumerator = g_file_enumerate_children (info->file, "standard::*", 0, NULL, NULL);
 
-	if (!dir) {
-		g_free (path);
+	if (!enumerator) {
 		return;
 	}
 
-	while ((name = g_dir_read_name (dir)) != NULL) {
+	while ((file_info = g_file_enumerator_next_file (enumerator, NULL, NULL)) != NULL) {
 		PathInfo *new_info;
 		GFile *child;
-		gchar *child_path;
 
-		if (name[0] == '.') {
+		if (g_file_info_get_is_hidden (file_info)) {
+			g_object_unref (file_info);
 			continue;
 		}
 
-		child = g_file_get_child (info->file, name);
-		child_path = g_file_get_path (child);
+		child = g_file_get_child (info->file, g_file_info_get_name (file_info));
 
 		new_info = path_info_new (info->module, child, NULL, FALSE);
 		add_file (indexer, new_info);
 
-		if (info->recurse && g_file_test (child_path, G_FILE_TEST_IS_DIR)) {
-			new_info = path_info_new (info->module, child, NULL, TRUE);
+		if (info->recurse && g_file_info_get_file_type (file_info) == G_FILE_TYPE_DIRECTORY) {
+			new_info = path_info_new (info->module, child, NULL, FALSE);
 			add_directory (indexer, new_info);
 		}
 
 		g_object_unref (child);
-		g_free (child_path);
+		g_object_unref (file_info);
 	}
 
-	g_dir_close (dir);
-	g_free (path);
+	g_object_unref (enumerator);
 }
 
 static void
@@ -2500,8 +1777,8 @@ process_module (TrackerIndexer *indexer,
 	process_module_emit_signals (indexer, module_name);
 
 	for (d = dirs; d; d = d->next) {
-		PathInfo *info;
 		GFile *file;
+		PathInfo *info;
 
 		file = g_file_new_for_path (d->data);
 		info = path_info_new (module, file, NULL, TRUE);
@@ -2513,11 +1790,51 @@ process_module (TrackerIndexer *indexer,
 	g_list_free (dirs);
 }
 
+static void
+process_turtle_file_part (TrackerIndexer *indexer)
+{
+	int i;
+
+	/* process 100 statements at once before returning to main loop */
+
+	i = 0;
+
+	while (tracker_turtle_reader_next ()) {
+		/* insert statement */
+		tracker_data_insert_statement (
+			tracker_turtle_reader_get_subject (),
+			tracker_turtle_reader_get_predicate (),
+			tracker_turtle_reader_get_object ());
+
+		indexer->private->items_processed++;
+		indexer->private->items_to_index++;
+		i++;
+		if (i >= 100) {
+			/* return to main loop */
+			return;
+		}
+	}
+
+	indexer->private->turtle_import_in_progress = FALSE;
+}
+
+static void
+process_turtle_file (TrackerIndexer *indexer,
+                     const gchar    *file)
+{
+	indexer->private->turtle_import_in_progress = TRUE;
+
+	tracker_turtle_reader_init (file, NULL);
+
+	process_turtle_file_part (indexer);
+}
+
 static gboolean
 process_func (gpointer data)
 {
 	TrackerIndexer *indexer;
 	PathInfo *path;
+	gchar *file;
 
 	indexer = TRACKER_INDEXER (data);
 
@@ -2527,7 +1844,13 @@ process_func (gpointer data)
 		start_transaction (indexer);
 	}
 
-	if ((path = g_queue_peek_head (indexer->private->file_queue)) != NULL) {
+	if (indexer->private->turtle_import_in_progress) {
+		process_turtle_file_part (indexer);
+	} else if ((file = g_queue_pop_head (indexer->private->import_queue)) != NULL) {
+		/* Import file */
+		process_turtle_file (indexer, file);
+		g_free (file);
+	} else if ((path = g_queue_peek_head (indexer->private->file_queue)) != NULL) {
 		/* Process file */
 		if (process_file (indexer, path)) {
 			indexer->private->subelements_processed = 0;
@@ -2746,13 +2069,11 @@ tracker_indexer_set_running (TrackerIndexer *indexer,
 	if (running && (state & TRACKER_INDEXER_STATE_PAUSED)) {
 		state_unset_flags (indexer, TRACKER_INDEXER_STATE_PAUSED);
 
-		tracker_db_index_set_paused (indexer->private->file_index, FALSE);
-		tracker_db_index_set_paused (indexer->private->email_index, FALSE);
+		tracker_db_index_set_paused (indexer->private->resources_index, FALSE);
 	} else if (!running && !(state & TRACKER_INDEXER_STATE_PAUSED)) {
 		state_set_flags (indexer, TRACKER_INDEXER_STATE_PAUSED);
 
-		tracker_db_index_set_paused (indexer->private->file_index, TRUE);
-		tracker_db_index_set_paused (indexer->private->email_index, TRUE);
+		tracker_db_index_set_paused (indexer->private->resources_index, TRUE);
 	}
 }
 
@@ -2896,6 +2217,30 @@ tracker_indexer_process_modules (TrackerIndexer  *indexer,
 }
 
 void
+tracker_indexer_turtle_add (TrackerIndexer *indexer,
+			    const gchar    *file,
+			    DBusGMethodInvocation *context,
+			    GError **error)
+{
+	guint request_id;
+
+	request_id = tracker_dbus_get_next_request_id ();
+
+	tracker_dbus_async_return_if_fail (TRACKER_IS_INDEXER (indexer), context);
+	tracker_dbus_async_return_if_fail (file != NULL, context);
+
+	tracker_dbus_request_new (request_id,
+				  "DBus request to check TTL file %s",
+				  file);
+
+	add_turtle_file (indexer, file);
+
+	dbus_g_method_return (context);
+	tracker_dbus_request_success (request_id);
+}
+
+
+void
 tracker_indexer_files_check (TrackerIndexer *indexer,
 			     const gchar *module_name,
 			     GStrv files,
@@ -2930,8 +2275,8 @@ tracker_indexer_files_check (TrackerIndexer *indexer,
 
 	/* Add files to the queue */
 	for (i = 0; files[i]; i++) {
-		PathInfo *info;
 		GFile *file;
+		PathInfo *info;
 
 		file = g_file_new_for_path (files[i]);
 		info = path_info_new (module, file, NULL, TRUE);
@@ -3046,7 +2391,7 @@ tracker_indexer_volume_update_state (TrackerIndexer         *indexer,
 				     DBusGMethodInvocation  *context,
 				     GError                **error)
 {
-	guint request_id;
+	guint  request_id;
 
 	request_id = tracker_dbus_get_next_request_id ();
 
@@ -3067,7 +2412,11 @@ tracker_indexer_volume_update_state (TrackerIndexer         *indexer,
 		tracker_data_update_disable_volume (volume_uuid);
 	}
 
+	/* tracker_turtle_process_ttl will be spinning the mainloop, therefore 
+	   we can already return the DBus method */
+
 	dbus_g_method_return (context);
+
 	tracker_dbus_request_success (request_id);
 
 	/* tracker_turtle_process_ttl will be spinning the mainloop, therefore
@@ -3076,6 +2425,71 @@ tracker_indexer_volume_update_state (TrackerIndexer         *indexer,
 	if (enabled) {
 		tracker_removable_device_load (indexer, path);
 	}
+
+}
+
+void
+tracker_indexer_insert_statement (TrackerIndexer	     *indexer,
+			          const gchar	     *subject,
+			          const gchar	     *predicate,
+			          const gchar	     *object,
+			          DBusGMethodInvocation  *context,
+			          GError		    **error)
+{
+	guint	request_id;
+
+	request_id = tracker_dbus_get_next_request_id ();
+
+	tracker_dbus_async_return_if_fail (TRACKER_IS_INDEXER (indexer), context);
+	tracker_dbus_async_return_if_fail (subject != NULL, context);
+	tracker_dbus_async_return_if_fail (predicate != NULL, context);
+	tracker_dbus_async_return_if_fail (object != NULL, context);
+
+	tracker_dbus_request_new (request_id,
+				  "DBus request to insert statement: "
+				  "'%s' '%s' '%s'",
+				  subject,
+				  predicate,
+				  object);
+
+	schedule_flush (indexer, TRUE);
+
+	tracker_data_insert_statement (subject, predicate, object);
+
+	dbus_g_method_return (context);
+	tracker_dbus_request_success (request_id);
+}
+
+void
+tracker_indexer_delete_statement (TrackerIndexer	     *indexer,
+			          const gchar	     *subject,
+			          const gchar	     *predicate,
+			          const gchar	     *object,
+			          DBusGMethodInvocation  *context,
+			          GError		    **error)
+{
+	guint	request_id;
+
+	request_id = tracker_dbus_get_next_request_id ();
+
+	tracker_dbus_async_return_if_fail (TRACKER_IS_INDEXER (indexer), context);
+	tracker_dbus_async_return_if_fail (subject != NULL, context);
+	tracker_dbus_async_return_if_fail (predicate != NULL, context);
+	tracker_dbus_async_return_if_fail (object != NULL, context);
+
+	tracker_dbus_request_new (request_id,
+				  "DBus request to delete statement: "
+				  "'%s' '%s' '%s'",
+				  subject,
+				  predicate,
+				  object);
+
+	schedule_flush (indexer, TRUE);
+
+	tracker_data_delete_statement (subject, predicate, object);
+
+	dbus_g_method_return (context);
+	tracker_dbus_request_success (request_id);
 }
 
 static void
@@ -3089,7 +2503,6 @@ restore_backup_cb (const gchar *subject,
 	GError *error = NULL;
 
 	handle_metadata_add (indexer,
-			     "Files",
 			     subject,
 			     predicate,
 			     (GStrv) values,

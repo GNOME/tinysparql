@@ -55,10 +55,8 @@ struct TrackerSearchClass {
 GType	       tracker_search_get_type		(void);
 TrackerSearch *tracker_search_new		(TrackerConfig		*config,
 						 TrackerLanguage	*language,
-						 TrackerDBIndex		*file_index,
-						 TrackerDBIndex		*email_index);
+						 TrackerDBIndex		*resources_index);
 void	       tracker_search_get_snippet	(TrackerSearch		*object,
-						 const gchar		*service,
 						 const gchar		*id,
 						 const gchar		*search_text,
 						 DBusGMethodInvocation	*context,

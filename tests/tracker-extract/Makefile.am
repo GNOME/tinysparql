@@ -1,27 +1,27 @@
 include $(top_srcdir)/Makefile.decl
 
-modulesdir = $(libdir)/tracker/extract-modules
+modulesdir = $(libdir)/tracker-$(TRACKER_API_VERSION)/extract-modules
 
 noinst_PROGRAMS = $(TEST_PROGS)
 
-TEST_PROGS += 								\
-	test-tracker-extract-mp3					\
-	test-tracker-extract-png
+# TEST_PROGS += 								\
+# 	test-tracker-extract-mp3					\
+# 	test-tracker-extract-png
 
-if HAVE_GSTREAMER
-TEST_PROGS += 								\
-	test-tracker-extract-gstreamer
-endif
+# if HAVE_GSTREAMER
+# TEST_PROGS += 								\
+# 	test-tracker-extract-gstreamer
+# endif
 
-if HAVE_LIBJPEG
-TEST_PROGS += 								\
-	test-tracker-extract-jpeg
-endif
+# if HAVE_LIBJPEG
+# TEST_PROGS += 								\
+# 	test-tracker-extract-jpeg
+# endif
 
-if HAVE_LIBTIFF
-TEST_PROGS +=								\
-	test-tracker-extract-tiff
-endif
+# if HAVE_LIBTIFF
+# TEST_PROGS +=								\
+# 	test-tracker-extract-tiff
+# endif
 
 INCLUDES = 								\
 	-DG_LOG_DOMAIN=\"Tracker\"					\

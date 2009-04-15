@@ -89,7 +89,6 @@ int
 main (int argc, char **argv)
 {
 	TrackerClient	*client;
-	ServiceType	 type;
 	GFile           *file;
 	gchar           *summary;
 	gchar           *path;
@@ -159,6 +158,8 @@ main (int argc, char **argv)
 		return EXIT_FAILURE;
 	}
 
+	/* TODO: Port to SPARQL */
+#if 0
 	if (!service) {
 		g_print (_("Defaulting to 'files' service"));
 		g_print ("\n");
@@ -175,8 +176,6 @@ main (int argc, char **argv)
 
 	count = g_strv_length (uris);
 
-	/* TODO: Port to SPARQL */
-#if 0
 	if (count > 1 && metadata != NULL) {
 		gchar     **strv;
 		GPtrArray  *results;

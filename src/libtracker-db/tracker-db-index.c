@@ -733,13 +733,7 @@ indexer_update_word (const gchar *word,
 						   (old_hit_count - center - 1) * sizeof (TrackerDBIndexItem));
 					old_hit_count--;
 				} else {
-					guint32 service_type;
-
-					service_type =
-						tracker_db_index_item_get_service_type (&previous_hits[center]);
-					previous_hits[center].amalgamated =
-						tracker_db_index_item_calc_amalgamated (service_type,
-											score);
+					previous_hits[center].score = score;
 				}
 
 				edited = TRUE;
@@ -1226,7 +1220,6 @@ void
 tracker_db_index_add_word (TrackerDBIndex *indez,
 			   const gchar	  *word,
 			   guint32	   service_id,
-			   gint		   service_type,
 			   gint		   weight)
 {
 	TrackerDBIndexPrivate *priv;
@@ -1247,7 +1240,7 @@ tracker_db_index_add_word (TrackerDBIndex *indez,
 	}
 
 	elem.id = service_id;
-	elem.amalgamated = tracker_db_index_item_calc_amalgamated (service_type, weight);
+	elem.score = weight;
 
 	array = g_hash_table_lookup (priv->cur_cache, word);
 
@@ -1267,15 +1260,11 @@ tracker_db_index_add_word (TrackerDBIndex *indez,
 		current = &g_array_index (array, TrackerDBIndexItem, i);
 
 		if (current->id == service_id) {
-			guint32 serv_type;
-
 			/* The word was already found in the same
 			 * service_id (file), modify score
 			 */
 			new_score = tracker_db_index_item_get_score (current) + weight;
-
-			serv_type = tracker_db_index_item_get_service_type (current);
-			current->amalgamated = tracker_db_index_item_calc_amalgamated (serv_type, new_score);
+			current->score = new_score;
 
 			return;
 		}
@@ -1308,3 +1297,4 @@ tracker_db_index_get_overloaded (TrackerDBIndex *indez)
 
 	return priv->overloaded;
 }
+

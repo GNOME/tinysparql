@@ -35,13 +35,10 @@
 
 #include <gmime/gmime.h>
 
+#include <libtracker-common/tracker-ontology.h>
+
 #include <libtracker-data/tracker-data-update.h>
 #include <libtracker-data/tracker-data-manager.h>
-
-/* This is okay, we run in-process of the indexer: we can access its symbols */
-#include <tracker-indexer/tracker-module.h>
-#include <tracker-indexer/tracker-push.h>
-#include <tracker-indexer/tracker-module-metadata-private.h>
 
 #include "tracker-evolution-indexer.h"
 
@@ -57,14 +54,29 @@
 
 /* Based on data/services/email.metadata */
 
-#define METADATA_EMAIL_RECIPIENT     "Email:Recipient"
-#define METADATA_EMAIL_DATE	     "Email:Date"
-#define METADATA_EMAIL_SENDER	     "Email:Sender"
-#define METADATA_EMAIL_SUBJECT	     "Email:Subject"
-#define METADATA_EMAIL_SENT_TO	     "Email:SentTo"
-#define METADATA_EMAIL_CC	     "Email:CC"
-#define METADATA_EMAIL_TEXT	     "Email:Body"
-#define METADATA_EMAIL_TAG	     "User:Keywords"
+#define METADATA_EMAIL			       TRACKER_NMO_PREFIX "Email"
+#define METADATA_MAILBOXDATA_OBJECT	       TRACKER_NMO_PREFIX "MailboxDataObject"
+
+#define METADATA_EMAIL_RECIPIENT	       TRACKER_NMO_PREFIX "to"
+#define METADATA_EMAIL_DATE		       TRACKER_NMO_PREFIX "receivedDate"
+#define METADATA_EMAIL_SENDER		       TRACKER_NMO_PREFIX "sender"
+#define METADATA_EMAIL_SUBJECT		       TRACKER_NMO_PREFIX "subject"
+#define METADATA_EMAIL_SENT_TO		       TRACKER_NMO_PREFIX "recipient"
+#define METADATA_EMAIL_CC		       TRACKER_NMO_PREFIX "cc"
+#if 0
+#define METADATA_EMAIL_TEXT		       TRACKER_NMO_PREFIX "Body" 
+#endif
+
+#define NIE_DATASOURCE 			       TRACKER_NIE_PREFIX "DataSource"
+#define NIE_DATASOURCE_P 		       TRACKER_NIE_PREFIX "dataSource"
+
+#define RDF_TYPE 			       TRACKER_RDF_PREFIX "type"
+
+#define METADATA_EMAIL_MESSAGE_HEADER	       TRACKER_NMO_PREFIX "messageHeader"
+#define METADATA_EMAIL_MESSAGE_HEADER_NAME     TRACKER_NMO_PREFIX "headerName"
+#define METADATA_EMAIL_MESSAGE_HEADER_VALUE    TRACKER_NMO_PREFIX "headerValue"
+
+#define DATASOURCE_URN			       "urn:nepomuk:datasource:1cb1eb90-1241-11de-8c30-0800200c9a66"
 
 G_DEFINE_TYPE (TrackerEvolutionIndexer, tracker_evolution_indexer, G_TYPE_OBJECT)
 
@@ -181,22 +193,14 @@ extract_mime_parts (GMimeObject *object,
 		subject = g_strdup_printf ("%s/%s", message_subject, 
 					   filename);
 
-		metadata = tracker_module_metadata_new ();
+		tracker_data_insert_statement (subject, 
+					       "File:Path", 
+					       filename);
 
-		tracker_module_metadata_add_string (metadata, 
-						    "File:Path", 
-						    subject);
+		tracker_data_insert_statement (subject, 
+					       "File:Name", 
+					       filename);
 
-		tracker_module_metadata_add_string (metadata, 
-						    "File:Name", 
-						    filename);
-
-		data = tracker_module_metadata_get_hash_table (metadata);
-
-		tracker_data_update_replace_service (subject, "EvolutionEmails", data);
-
-		g_hash_table_destroy (data);
-		g_object_unref (metadata);
 		g_free (subject);
 	}
 }
@@ -248,10 +252,20 @@ perform_set (TrackerEvolutionIndexer *object,
 	     const GStrv values)
 {
 	guint i = 0;
-	TrackerModuleMetadata *metadata;
-	GHashTable *data;
 
-	metadata = tracker_module_metadata_new ();
+	if (!tracker_data_query_resource_exists (DATASOURCE_URN, NULL, NULL)) {
+		tracker_data_insert_statement (DATASOURCE_URN, RDF_TYPE,
+					       NIE_DATASOURCE);
+	}
+
+	tracker_data_insert_statement (subject, RDF_TYPE,
+		                       METADATA_EMAIL);
+
+	tracker_data_insert_statement (subject, RDF_TYPE,
+		                       METADATA_MAILBOXDATA_OBJECT);
+
+	tracker_data_insert_statement (subject, NIE_DATASOURCE_P,
+		                       DATASOURCE_URN);
 
 	while (predicates [i] != NULL && values[i] != NULL) {
 
@@ -337,9 +351,9 @@ perform_set (TrackerEvolutionIndexer *object,
 				} else
 					text = orig_text;
 
-				tracker_module_metadata_add_string (metadata, 
-								    METADATA_EMAIL_TEXT, 
-								    text);
+				tracker_data_insert_statement (subject, 
+							       METADATA_EMAIL_TEXT, 
+							       text);
 
 				g_free (text);
 				g_free (encoding);
@@ -357,7 +371,7 @@ perform_set (TrackerEvolutionIndexer *object,
 			if (!values[i] || strlen (values[i]) < 1)
 				goto cont;
 
-			key = g_strdup (values[i]);
+			key = g_strdup_printf ("X-Evolution-UserTag-%s", (values[i]));
 
 			value = strchr (key, '=');
 
@@ -366,45 +380,52 @@ perform_set (TrackerEvolutionIndexer *object,
 				value++;
 			}
 
-			/* TODO: what about value? The format of Evolution is
-			 * key=value, so we can store a value too here. Is this 
-			 * something Nepomuk can someday save us with? */
+			tracker_data_insert_statement (":1", RDF_TYPE,
+			                               METADATA_EMAIL_MESSAGE_HEADER);
 
-			tracker_module_metadata_add_string (metadata, 
-							    METADATA_EMAIL_TAG, 
-							    key);
+			tracker_data_insert_statement (":1", 
+			                               METADATA_EMAIL_MESSAGE_HEADER_NAME,
+			                               key);
+
+			tracker_data_insert_statement (":1", 
+			                               METADATA_EMAIL_MESSAGE_HEADER_VALUE,
+			                               value);
+
+			tracker_data_insert_statement (subject, 
+			                               METADATA_EMAIL_MESSAGE_HEADER, 
+			                                ":1");
 
 			g_free (key);
 		}
 
 		if (g_strcmp0 (predicates[i], TRACKER_EVOLUTION_PREDICATE_SUBJECT) == 0) {
-			tracker_module_metadata_add_string (metadata, 
-							    METADATA_EMAIL_SUBJECT, 
-							    values[i]);
+			tracker_data_insert_statement (subject,
+						       METADATA_EMAIL_SUBJECT, 
+						       values[i]);
 		}
 
 		if (g_strcmp0 (predicates[i], TRACKER_EVOLUTION_PREDICATE_SENT) == 0) {
-			tracker_module_metadata_add_string (metadata, 
-							    METADATA_EMAIL_DATE, 
-							    values[i]);
+			tracker_data_insert_statement (subject,
+						       METADATA_EMAIL_DATE, 
+						       values[i]);
 		}
 
 		if (g_strcmp0 (predicates[i], TRACKER_EVOLUTION_PREDICATE_FROM) == 0) {
-			tracker_module_metadata_add_string (metadata, 
-							    METADATA_EMAIL_SENDER, 
-							    values[i]);
+			tracker_data_insert_statement (subject,
+						       METADATA_EMAIL_SENDER, 
+						       values[i]);
 		}
 
 		if (g_strcmp0 (predicates[i], TRACKER_EVOLUTION_PREDICATE_TO) == 0) {
-			tracker_module_metadata_add_string (metadata, 
-							    METADATA_EMAIL_SENT_TO, 
-							    values[i]);
+			tracker_data_insert_statement (subject,
+						       METADATA_EMAIL_SENT_TO, 
+						       values[i]);
 		}
 
 		if (g_strcmp0 (predicates[i], TRACKER_EVOLUTION_PREDICATE_CC) == 0) {
-			tracker_module_metadata_add_string (metadata, 
-							    METADATA_EMAIL_CC, 
-							    values[i]);
+			tracker_data_insert_statement (subject,
+						       METADATA_EMAIL_CC, 
+						       values[i]);
 		}
 
 		cont:
@@ -412,25 +433,26 @@ perform_set (TrackerEvolutionIndexer *object,
 		i++;
 	}
 
-	data = tracker_module_metadata_get_hash_table (metadata);
-
-	tracker_data_update_replace_service (subject, "EvolutionEmails", data);
-
-	g_hash_table_destroy (data);
-	g_object_unref (metadata);
 }
 
 static void 
 perform_unset (TrackerEvolutionIndexer *object, 
 	       const gchar *subject)
 {
-	tracker_data_update_delete_service_by_path (subject, "EvolutionEmails"); 
+	tracker_data_delete_resource (subject); 
 }
 
 static void
 perform_cleanup (TrackerEvolutionIndexer *object)
 {
-	tracker_data_update_delete_service_all ("EvolutionEmails");
+	GError *error = NULL;
+
+	tracker_data_update_sparql ("DELETE { ?s ?p ?o } WHERE { ?s nie:dataSource <" DATASOURCE_URN "> }", &error);
+
+	if (error) {
+		g_warning ("%s", error->message);
+		g_error_free (error);
+	}
 }
 
 static void

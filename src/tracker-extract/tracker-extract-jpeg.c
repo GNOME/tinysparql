@@ -39,12 +39,24 @@
 
 #include <jpeglib.h>
 
-#include <libtracker-common/tracker-type-utils.h>
 #include <libtracker-common/tracker-file-utils.h>
+#include <libtracker-common/tracker-ontology.h>
+#include <libtracker-common/tracker-statement-list.h>
+#include <libtracker-common/tracker-type-utils.h>
+#include <libtracker-common/tracker-utils.h>
 
 #include "tracker-main.h"
 #include "tracker-xmp.h"
 #include "tracker-iptc.h"
+
+#define NMM_PREFIX TRACKER_NMM_PREFIX
+#define NFO_PREFIX TRACKER_NFO_PREFIX
+#define NIE_PREFIX TRACKER_NIE_PREFIX
+#define DC_PREFIX TRACKER_DC_PREFIX
+#define NCO_PREFIX TRACKER_NCO_PREFIX
+
+#define RDF_PREFIX TRACKER_RDF_PREFIX
+#define RDF_TYPE RDF_PREFIX "type"
 
 #ifdef HAVE_EXEMPI
 #define XMP_NAMESPACE	     "http://ns.adobe.com/xap/1.0/\x00"
@@ -63,7 +75,7 @@
 #endif /* HAVE_LIBIPTCDATA */
 
 static void extract_jpeg (const gchar *filename,
-			  GHashTable  *metadata);
+			  GPtrArray   *metadata);
 
 static TrackerExtractData data[] = {
 	{ "image/jpeg", extract_jpeg },
@@ -101,17 +113,17 @@ static gchar *fix_exposure_time (const gchar *et);
 static gchar *fix_orientation   (const gchar *orientation);
 
 static TagType tags[] = {
-	{ EXIF_TAG_PIXEL_Y_DIMENSION, "Image:Height", NULL },
-	{ EXIF_TAG_PIXEL_X_DIMENSION, "Image:Width", NULL },
-	{ EXIF_TAG_RELATED_IMAGE_WIDTH, "Image:Width", NULL },
-	{ EXIF_TAG_DOCUMENT_NAME, "Image:Title", NULL },
+	{ EXIF_TAG_PIXEL_Y_DIMENSION, NFO_PREFIX "height", NULL },
+	{ EXIF_TAG_PIXEL_X_DIMENSION, NFO_PREFIX "width", NULL },
+	{ EXIF_TAG_RELATED_IMAGE_WIDTH, NFO_PREFIX "width", NULL },
+	{ EXIF_TAG_DOCUMENT_NAME, NIE_PREFIX "title", NULL },
 	/* { -1, "Image:Album", NULL }, */
-	{ EXIF_TAG_DATE_TIME, "Image:Date", date_to_iso8601 },
-	{ EXIF_TAG_DATE_TIME_ORIGINAL, "Image:Date", date_to_iso8601 },
+	{ EXIF_TAG_DATE_TIME, NIE_PREFIX "contentCreated", date_to_iso8601 },
+	{ EXIF_TAG_DATE_TIME_ORIGINAL, NIE_PREFIX "contentCreated", date_to_iso8601 },
 	/* { -1, "Image:Keywords", NULL }, */
-	{ EXIF_TAG_ARTIST, "Image:Creator", NULL },
-	{ EXIF_TAG_USER_COMMENT, "Image:Comments", NULL },
-	{ EXIF_TAG_IMAGE_DESCRIPTION, "Image:Description", NULL },
+	{ EXIF_TAG_ARTIST, NCO_PREFIX "creator", NULL },
+	{ EXIF_TAG_USER_COMMENT, NIE_PREFIX "comment", NULL },
+	{ EXIF_TAG_IMAGE_DESCRIPTION, NIE_PREFIX "description", NULL },
 	{ EXIF_TAG_SOFTWARE, "Image:Software", NULL },
 	{ EXIF_TAG_MAKE, "Image:CameraMake", NULL },
 	{ EXIF_TAG_MODEL, "Image:CameraModel", NULL },
@@ -124,7 +136,7 @@ static TagType tags[] = {
 	{ EXIF_TAG_ISO_SPEED_RATINGS, "Image:ISOSpeed", NULL },
 	{ EXIF_TAG_METERING_MODE, "Image:MeteringMode", NULL },
 	{ EXIF_TAG_WHITE_BALANCE, "Image:WhiteBalance", NULL },
-	{ EXIF_TAG_COPYRIGHT, "File:Copyright", NULL },
+	{ EXIF_TAG_COPYRIGHT, NIE_PREFIX "copyright", NULL },
 	{ -1, NULL, NULL }
 };
 
@@ -232,7 +244,8 @@ fix_orientation (const gchar *orientation)
 static void
 read_exif (const unsigned char *buffer,
 	   size_t		len,
-	   GHashTable	       *metadata)
+	   const gchar         *uri,
+	   GPtrArray	       *metadata)
 {
 	ExifData *exif;
 	TagType  *p;
@@ -240,29 +253,32 @@ read_exif (const unsigned char *buffer,
 	exif = exif_data_new_from_data ((unsigned char *) buffer, len);
 
 	for (p = tags; p->name; ++p) {
-		ExifEntry *entry;
-
-		entry = exif_data_get_entry (exif, p->tag);
+		ExifEntry *entry = exif_data_get_entry (exif, p->tag);
 
 		if (entry) {
 			gchar buffer[1024];
+			gchar *what_i_need;
 
 			exif_entry_get_value (entry, buffer, 1024);
 
 			if (p->post) {
-				gchar *str;
-
-				str = (*p->post) (buffer);
-
-				g_hash_table_insert (metadata,
-						     g_strdup (p->name),
-						     tracker_escape_metadata (str));
-				g_free (str);
+				what_i_need = (*p->post) (buffer);
 			} else {
-				g_hash_table_insert (metadata,
-						     g_strdup (p->name),
-						     tracker_escape_metadata (buffer));
+				what_i_need = buffer;
 			}
+
+			if (p->tag == EXIF_TAG_ARTIST) {
+				gchar *canonical_uri = tracker_uri_printf_escaped ("urn:artist:%s", what_i_need);
+				tracker_statement_list_insert (metadata, canonical_uri, RDF_TYPE, NCO_PREFIX "Contact");
+				tracker_statement_list_insert (metadata, canonical_uri, NCO_PREFIX "fullname", what_i_need);
+				tracker_statement_list_insert (metadata, uri, p->name, canonical_uri);
+				g_free (canonical_uri);
+			} else {
+				tracker_statement_list_insert (metadata, uri, p->name, what_i_need);
+			}
+
+			if (p->post)
+				g_free (what_i_need);
 		}
 	}
 	
@@ -273,14 +289,17 @@ read_exif (const unsigned char *buffer,
 
 
 static void
-extract_jpeg (const gchar *filename,
-	      GHashTable  *metadata)
+extract_jpeg (const gchar *uri,
+	      GPtrArray   *metadata)
 {
 	struct jpeg_decompress_struct  cinfo;
 	struct tej_error_mgr	       tejerr;
 	struct jpeg_marker_struct     *marker;
 	FILE			      *f;
 	goffset                        size;
+	gchar                         *filename;
+
+	filename = g_filename_from_uri (uri, NULL, NULL);
 
 	size = tracker_file_get_size (filename);
 
@@ -297,6 +316,10 @@ extract_jpeg (const gchar *filename,
 		gsize  offset;
 		gsize  sublen;
 #endif /* HAVE_LIBEXIF */
+
+		tracker_statement_list_insert (metadata, uri, 
+		                          RDF_TYPE, 
+		                          NFO_PREFIX "Image");
 
 		cinfo.err = jpeg_std_error (&tejerr.jpeg);
 		tejerr.jpeg.error_exit = tracker_extract_jpeg_error_exit;
@@ -330,10 +353,10 @@ extract_jpeg (const gchar *filename,
 			case JPEG_COM:
 				len = marker->data_length;
 				str = g_strndup ((gchar*) marker->data, len);
-				
-				g_hash_table_insert (metadata,
-						     g_strdup ("Image:Comments"),
-						     tracker_escape_metadata (str));
+
+				tracker_statement_list_insert (metadata, uri,
+							  NIE_PREFIX "comment",
+							  str);
 				g_free (str);
 				break;
 				
@@ -344,7 +367,7 @@ extract_jpeg (const gchar *filename,
 #ifdef HAVE_LIBEXIF
 				if (strncmp ("Exif", (gchar*) (marker->data), 5) == 0) {
 					read_exif ((unsigned char*) marker->data,
-						   marker->data_length,
+						   marker->data_length, uri,
 						   metadata);
 				}
 #endif /* HAVE_LIBEXIF */
@@ -354,7 +377,7 @@ extract_jpeg (const gchar *filename,
 				if (strncmp (XMP_NAMESPACE, str, XMP_NAMESPACE_LENGTH) == 0) {
 					tracker_read_xmp (str + XMP_NAMESPACE_LENGTH,
 							  len - XMP_NAMESPACE_LENGTH,
-							  metadata);
+							  uri, metadata);
 				}
 #endif /* HAVE_EXEMPI */
 				break;
@@ -367,7 +390,7 @@ extract_jpeg (const gchar *filename,
 					if (offset>0) {
 						tracker_read_iptc (str + offset,
 								   sublen,
-								   metadata);
+								   uri, metadata);
 					}
 				}
 #endif /* HAVE_LIBIPTCDATA */
@@ -381,32 +404,18 @@ extract_jpeg (const gchar *filename,
 		}
 
 		/* We want native size to have priority over EXIF, XMP etc */
-		g_hash_table_insert (metadata,
-				     g_strdup ("Image:Width"),
-				     tracker_escape_metadata_printf ("%u", cinfo.image_width));
-		g_hash_table_insert (metadata,
-				     g_strdup ("Image:Height"),
-				     tracker_escape_metadata_printf ("%u", cinfo.image_height));
+		tracker_statement_list_insert_with_int (metadata, uri,
+						   NFO_PREFIX "width",
+						   cinfo.image_width);
+		tracker_statement_list_insert_with_int (metadata, uri,
+						   NFO_PREFIX "height",
+						    cinfo.image_height);
 
-		/* Check that we have the minimum data. FIXME We should not need to do this */
-
-		if (!g_hash_table_lookup (metadata, "Image:Date")) {
-			gchar *date;
-			guint64 mtime;
-
-			mtime = tracker_file_get_mtime (filename);
-			date = tracker_date_to_string ((time_t) mtime);
-
-			g_hash_table_insert (metadata,
-					     g_strdup ("Image:Date"),
-					     tracker_escape_metadata (date));
-			g_free (date);
-		}
-
-		jpeg_destroy_decompress (&cinfo);
-	fail:
+fail:
 		tracker_file_close (f, FALSE);
 	}
+
+	g_free (filename);
 }
 
 TrackerExtractData *

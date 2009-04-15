@@ -45,6 +45,11 @@ gchar *  tracker_seconds_to_string	    (gdouble	    seconds_elapsed,
 void	 tracker_throttle		    (TrackerConfig *config,
 					     gint	    multiplier);
 
+
+gchar* tracker_uri_vprintf_escaped (const gchar *format,
+                                    va_list      args);
+gchar* tracker_uri_printf_escaped (const gchar *format, ...);
+
 /* Temporary: Just here until we upgrade to GLib 2.18. */
 G_CONST_RETURN gchar *tracker_dngettext     (const gchar *domain,
 					     const gchar *msgid,

@@ -55,7 +55,6 @@ struct TrackerModuleFileClass {
         GObjectClass parent_class;
 
         void (* initialize) (TrackerModuleFile *file);
-        G_CONST_RETURN gchar * (* get_service_type) (TrackerModuleFile *file);
         gchar * (* get_uri) (TrackerModuleFile *file);
         gchar * (* get_text) (TrackerModuleFile *file);
         TrackerModuleMetadata * (* get_metadata) (TrackerModuleFile *file);

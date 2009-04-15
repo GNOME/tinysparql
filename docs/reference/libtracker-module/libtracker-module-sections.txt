@@ -25,7 +25,6 @@ tracker_module_iteratable_get_count
 <TITLE>Metadata Object</TITLE>
 TrackerModuleMetadata
 tracker_module_metadata_new
-tracker_module_metadata_clear_field
 tracker_module_metadata_add_take_string
 tracker_module_metadata_add_string
 tracker_module_metadata_add_int

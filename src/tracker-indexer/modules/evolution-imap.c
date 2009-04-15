@@ -25,7 +25,8 @@
 
 #include <gconf/gconf-client.h>
 
-#include <libtracker-data/tracker-data-metadata.h>
+#include <libtracker-common/tracker-common.h>
+#include <libtracker-common/tracker-ontology.h>
 
 #include <tracker-indexer/tracker-module-file.h>
 #include <tracker-indexer/tracker-module-iteratable.h>
@@ -33,12 +34,11 @@
 #include "evolution-imap.h"
 #include "evolution-common.h"
 
-#define METADATA_EMAIL_RECIPIENT     "Email:Recipient"
-#define METADATA_EMAIL_DATE	     "Email:Date"
-#define METADATA_EMAIL_SENDER	     "Email:Sender"
-#define METADATA_EMAIL_SUBJECT	     "Email:Subject"
-#define METADATA_EMAIL_SENT_TO	     "Email:SentTo"
-#define METADATA_EMAIL_CC	     "Email:CC"
+#define RDF_PREFIX TRACKER_RDF_PREFIX
+#define RDF_TYPE RDF_PREFIX "type"
+
+#define NMO_PREFIX TRACKER_NMO_PREFIX
+
 
 #define MODULE_IMPLEMENT_INTERFACE(TYPE_IFACE, iface_init) \
 { \
@@ -70,7 +70,6 @@ static GHashTable *accounts = NULL;
 static void          tracker_evolution_imap_file_finalize         (GObject *object);
 
 static void          tracker_evolution_imap_file_initialize       (TrackerModuleFile *file);
-static const gchar * tracker_evolution_imap_file_get_service_type (TrackerModuleFile *file);
 static gchar *       tracker_evolution_imap_file_get_uri          (TrackerModuleFile *file);
 static gchar *       tracker_evolution_imap_file_get_text         (TrackerModuleFile *file);
 static TrackerModuleMetadata *
@@ -97,7 +96,6 @@ tracker_evolution_imap_file_class_init (TrackerEvolutionImapFileClass *klass)
         object_class->finalize = tracker_evolution_imap_file_finalize;
 
         file_class->initialize = tracker_evolution_imap_file_initialize;
-        file_class->get_service_type = tracker_evolution_imap_file_get_service_type;
         file_class->get_uri = tracker_evolution_imap_file_get_uri;
         file_class->get_text = tracker_evolution_imap_file_get_text;
         file_class->get_metadata = tracker_evolution_imap_file_get_metadata;
@@ -519,19 +517,6 @@ tracker_evolution_imap_file_initialize (TrackerModuleFile *file)
         ensure_imap_accounts ();
 }
 
-static const gchar *
-tracker_evolution_imap_file_get_service_type (TrackerModuleFile *file)
-{
-        TrackerEvolutionImapFile *self;
-
-        self = TRACKER_EVOLUTION_IMAP_FILE (file);
-
-        if (self->current_mime_part) {
-                return "EvolutionAttachments";
-        }
-
-        return "EvolutionEmails";
-}
 
 static gchar *
 get_message_path (TrackerModuleFile *file,
@@ -879,7 +864,7 @@ get_message_metadata (TrackerModuleFile *file)
 {
         TrackerEvolutionImapFile *self;
 	TrackerModuleMetadata *metadata = NULL;
-	gchar *subject, *from, *to, *cc;
+	gchar *subject, *from, *to, *cc, *uri;
 	gint32 i, count, flags;
 	time_t t;
 	GList *list, *l;
@@ -919,16 +904,20 @@ get_message_metadata (TrackerModuleFile *file)
 	}
 
 	if (!deleted && subject && from) {
+		uri = tracker_module_file_get_uri (file);
+
 		metadata = tracker_module_metadata_new ();
 
-		tracker_module_metadata_add_date (metadata, METADATA_EMAIL_DATE, t);
-		tracker_module_metadata_add_string (metadata, METADATA_EMAIL_SENDER, from);
-		tracker_module_metadata_add_string (metadata, METADATA_EMAIL_SUBJECT, subject);
+		tracker_module_metadata_add_string (metadata, uri, RDF_TYPE, NMO_PREFIX "Email");
+
+		tracker_module_metadata_add_date (metadata, uri, METADATA_EMAIL_DATE, t);
+		tracker_module_metadata_add_string (metadata, uri, METADATA_EMAIL_SENDER, from);
+		tracker_module_metadata_add_string (metadata, uri, METADATA_EMAIL_SUBJECT, subject);
 
 		list = get_recipient_list (to);
 
 		for (l = list; l; l = l->next) {
-			tracker_module_metadata_add_string (metadata, METADATA_EMAIL_SENT_TO, l->data);
+			tracker_module_metadata_add_string (metadata, uri, METADATA_EMAIL_SENT_TO, l->data);
 			g_free (l->data);
 		}
 
@@ -937,11 +926,13 @@ get_message_metadata (TrackerModuleFile *file)
 		list = get_recipient_list (cc);
 
 		for (l = list; l; l = l->next) {
-			tracker_module_metadata_add_string (metadata, METADATA_EMAIL_CC, l->data);
+			tracker_module_metadata_add_string (metadata, uri, METADATA_EMAIL_CC, l->data);
 			g_free (l->data);
 		}
 
 		g_list_free (list);
+
+		g_free (uri);
 	}
 
 	g_free (subject);
@@ -1026,7 +1017,7 @@ get_attachment_metadata (TrackerModuleFile *file,
 	GMimeStream *stream;
 	GMimeDataWrapper *wrapper;
 	GMimePartEncodingType encoding;
-	gchar *path, *name;
+	gchar *path, *name, *tmp, *uri;
 
 	if (!get_attachment_info (mime_file, &name, &encoding)) {
 		return NULL;
@@ -1048,7 +1039,25 @@ get_attachment_metadata (TrackerModuleFile *file,
 	}
 
 	wrapper = g_mime_data_wrapper_new_with_stream (stream, encoding);
-	metadata = evolution_common_get_wrapper_metadata (wrapper);
+
+	tmp = tracker_module_file_get_uri (file);
+
+	metadata = tracker_module_metadata_new ();
+
+	/* TODO: we should add 1.1, 1.2, 1.3 as mime-spec per attachment to the 
+	 * URI. Else we don't have a valid URI. Also note that Evolution just
+	 * doesn't support this anyway. (So adding it to the URI and trying to
+	 * index Evolution's attachments is a bit pointless. We can't start/make
+	 * Evolution opening the specific attachment anyway */
+
+	uri = g_strdup_printf ("%s#%s", tmp, mime_file);
+
+	tracker_module_metadata_add_string (metadata, uri, RDF_TYPE, NMO_PREFIX "Attachment");
+
+	evolution_common_get_wrapper_metadata (wrapper, metadata, uri);
+
+	g_free (uri);
+	g_free (tmp);
 
 	g_object_unref (wrapper);
 	g_object_unref (stream);
@@ -1061,9 +1070,9 @@ get_attachment_metadata (TrackerModuleFile *file,
 static TrackerModuleMetadata *
 tracker_evolution_imap_file_get_metadata (TrackerModuleFile *file)
 {
-        TrackerEvolutionImapFile *self;
+	TrackerEvolutionImapFile *self;
 
-        self = TRACKER_EVOLUTION_IMAP_FILE (file);
+	self = TRACKER_EVOLUTION_IMAP_FILE (file);
 
 	if (self->cur_message > self->n_messages) {
 		return NULL;
@@ -1072,8 +1081,8 @@ tracker_evolution_imap_file_get_metadata (TrackerModuleFile *file)
 	if (self->current_mime_part) {
 		return get_attachment_metadata (file, self->current_mime_part->data);
 	} else {
-                return get_message_metadata (file);
-        }
+		return get_message_metadata (file);
+	}
 }
 
 static TrackerModuleFlags

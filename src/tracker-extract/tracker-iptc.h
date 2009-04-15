@@ -6,6 +6,7 @@
 
 void tracker_read_iptc (const unsigned char *buffer,
 			size_t		    len,
-			GHashTable	   *metadata);
+			const gchar        *uri,
+			GPtrArray	   *metadata);
 
 #endif

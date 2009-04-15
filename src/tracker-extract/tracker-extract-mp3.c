@@ -40,11 +40,12 @@
 #endif /* G_OS_WIN32 */
 
 #include <libtracker-common/tracker-file-utils.h>
+#include <libtracker-common/tracker-statement-list.h>
+#include <libtracker-common/tracker-ontology.h>
 #include <libtracker-common/tracker-utils.h>
 
 #include "tracker-main.h"
 #include "tracker-extract-albumart.h"
-#include "tracker-escape.h"
 
 /* FIXME The max file read is not a good idea as basic 
  * id3 are the _last_ 128 bits of the file. We should
@@ -56,9 +57,21 @@
 #define MAX_FRAMES_SCAN   1024 * 3
 #define VBR_THRESHOLD     64
 
+#define NMM_PREFIX TRACKER_NMM_PREFIX
+#define NFO_PREFIX TRACKER_NFO_PREFIX
+#define NIE_PREFIX TRACKER_NIE_PREFIX
+#define DC_PREFIX TRACKER_DC_PREFIX
+#define NCO_PREFIX TRACKER_NCO_PREFIX
+
+#define RDF_PREFIX TRACKER_RDF_PREFIX
+#define RDF_TYPE RDF_PREFIX "type"
+
 typedef struct {
 	const gchar *text;
 	const gchar *type;
+	const gchar *urn;
+	const gchar *rdf_type;
+	const gchar *predicate;
 } Matches;
 
 typedef struct {
@@ -93,7 +106,7 @@ enum {
 };
 
 static void extract_mp3 (const gchar *filename,
-			 GHashTable  *metadata);
+			 GPtrArray  *metadata);
 
 static const char *const genre_names[] = {
 	"Blues",
@@ -287,12 +300,12 @@ static TrackerExtractData extract_data[] = {
 
 /* Convert from UCS-2 to UTF-8 checking the BOM.*/
 static gchar *
-ucs2_to_utf8 (const gchar *data, guint len) 
+ucs2_to_utf8(const gchar *data, guint len)
 {
-        gchar    *encoding = NULL;
-        guint16   c;
-	gboolean  be;
-        gchar    *utf8 = NULL;
+        const gchar   *encoding = NULL;
+        guint16  c;
+	gboolean be;
+        gchar   *utf8 = NULL;
 
         memcpy (&c, data, 2);
 
@@ -460,7 +473,8 @@ static gboolean
 mp3_parse_header (const gchar *data,
 		  size_t       size,
 		  size_t       seek_pos,
-		  GHashTable  *metadata)
+		  const gchar *uri,
+		  GPtrArray  *metadata)
 {
 	guint header;
 	gchar mpeg_ver = 0;
@@ -487,32 +501,32 @@ mp3_parse_header (const gchar *data,
 		    mpeg_ver = MPEG_ERR;
 		    break;
 	    case 0x1000:
-		    g_hash_table_insert (metadata,
-					 g_strdup ("Audio:Codec"),
-					 g_strdup ("MPEG"));
-		    g_hash_table_insert (metadata,
-					 g_strdup ("Audio:CodecVersion"),
-					 g_strdup ("2"));
+		    tracker_statement_list_insert (metadata, uri,
+					 NFO_PREFIX "codec",
+					 "MPEG");
+		    tracker_statement_list_insert (metadata, uri,
+					 "Audio:CodecVersion",
+					 "2");
 		    mpeg_ver = MPEG_V2;
 		    spfp8 = 72;
 		    break;
 	    case 0x1800:
-		    g_hash_table_insert (metadata,
-					 g_strdup ("Audio:Codec"),
-					 g_strdup ("MPEG"));
-		    g_hash_table_insert (metadata,
-					 g_strdup ("Audio:CodecVersion"),
-					 g_strdup ("1"));
+		    tracker_statement_list_insert (metadata, uri,
+					 NFO_PREFIX "codec",
+					 "MPEG");
+		    tracker_statement_list_insert (metadata, uri,
+					 "Audio:CodecVersion",
+					 "1");
 		    mpeg_ver = MPEG_V1;
 		    spfp8 = 144;
 		    break;
 	    case 0:
-		    g_hash_table_insert (metadata,
-					 g_strdup ("Audio:Codec"),
-					 g_strdup ("MPEG"));
-		    g_hash_table_insert (metadata,
-					 g_strdup ("Audio:CodecVersion"),
-					 g_strdup ("2.5"));
+		    tracker_statement_list_insert (metadata, uri,
+					 NFO_PREFIX "codec",
+					 "MPEG");
+		    tracker_statement_list_insert (metadata, uri,
+					 "Audio:CodecVersion",
+					 "2.5");
 		    mpeg_ver = MPEG_V25;
 		    spfp8 = 72;
 		    break;
@@ -553,14 +567,14 @@ mp3_parse_header (const gchar *data,
 	
 	if ((header & ch_mask) == ch_mask) {
 		ch = 1;
-		g_hash_table_insert (metadata,
-				     g_strdup ("Audio:Channels"),
-				     g_strdup ("1"));
+		tracker_statement_list_insert (metadata, uri,
+				     NFO_PREFIX "channels",
+				     "1");
 	} else {
-		ch = 2; /* stereo non stereo select */
-		g_hash_table_insert (metadata,
-				     g_strdup ("Audio:Channels"),
-				     g_strdup ("2"));
+		ch=2; /*stereo non stereo select*/
+		tracker_statement_list_insert (metadata, uri,
+				     NFO_PREFIX "channels",
+				     "2");
 	}
 	
 	/* We assume mpeg version, layer and channels are constant in frames */
@@ -574,11 +588,13 @@ mp3_parse_header (const gchar *data,
 		}
 
 		sample_rate = freq_table[(header & freq_mask) >> 18][mpeg_ver - 1];
-		if (sample_rate < 0) {
-			/* Error in header */
+		/* Whoever wrote this check: it's pointless, sample_rate is a uint,
+		 so it can't ever be < 0. Hence commenting it out (pvanhoof)
+		 if (sample_rate < 0) {
+			* Error in header *
 			frames--;
 			return FALSE;
-		}
+		}*/
 
 		frame_size = spfp8 * bitrate / (sample_rate ? sample_rate : 1) + padsize*((header & pad_mask) >> 17);
 		avg_bps += bitrate / 1000;
@@ -620,15 +636,15 @@ mp3_parse_header (const gchar *data,
 		length = 1152 * frames / (sample_rate ? sample_rate : 0xFFFFFFFF);
 	}
 
-	g_hash_table_insert (metadata,
-			     g_strdup ("Audio:Duration"),
-			     tracker_escape_metadata_printf ("%d", length));
-	g_hash_table_insert (metadata,
-			     g_strdup ("Audio:Samplerate"),
-			     tracker_escape_metadata_printf ("%d", sample_rate));
-	g_hash_table_insert (metadata,
-			     g_strdup ("Audio:Bitrate"),
-			     tracker_escape_metadata_printf ("%d", avg_bps*1000));
+	tracker_statement_list_insert_with_int (metadata, uri,
+			     NMM_PREFIX "length",
+			     length);
+	tracker_statement_list_insert_with_int (metadata, uri,
+			     NFO_PREFIX "sampleRate",
+			     sample_rate);
+	tracker_statement_list_insert_with_int (metadata, uri,
+			     NFO_PREFIX "averageBitrate",
+			     avg_bps*1000);
 
 	return TRUE;
 }
@@ -636,7 +652,8 @@ mp3_parse_header (const gchar *data,
 static void
 mp3_parse (const gchar *data,
 	   size_t       size,
-	   GHashTable  *metadata,
+	   const gchar *uri,
+	   GPtrArray  *metadata,
 	   file_data   *filedata)
 {
 	guint header;
@@ -653,7 +670,7 @@ mp3_parse (const gchar *data,
 
 		if ((header & sync_mask) == sync_mask) {
 			/* Found header sync */
-			if (mp3_parse_header (data, size, pos, metadata)) {
+			if (mp3_parse_header (data,size,pos,uri,metadata)) {
 				return;
 			}
 		}
@@ -666,31 +683,32 @@ mp3_parse (const gchar *data,
 static void
 get_id3v24_tags (const gchar *data,
 		 size_t       size,
-		 GHashTable  *metadata,
+		 const gchar *uri,
+		 GPtrArray  *metadata,
 		 file_data   *filedata)
 {
 	guint pos = 0;
 	Matches tmap[] = {
-		{"TCOP", "File:Copyright"},
-		{"TDRC", "Audio:ReleaseDate"},
-		{"TCON", "Audio:Genre"},
-		{"TIT1", "Audio:Genre"},
-		{"TENC", "DC:Publishers"},
-		{"TEXT", "Audio:Lyrics"},
-		{"TPE1", "Audio:Artist"},
-		{"TPE2", "Audio:Artist"},
-		{"TPE3", "Audio:Performer"},
-		/*	{"TOPE", "Audio:Artist"}, We dont' want the original artist for now */
-		{"TPUB", "DC:Publishers"},
-		{"TOAL", "Audio:Album"},
-		{"TALB", "Audio:Album"},
-		{"TLAN", "File:Language"},
-		{"TIT2", "Audio:Title"},
-		{"TIT3", "Audio:Comment"},
-		{"TDRL", "Audio:ReleaseDate"},
-		{"TRCK", "Audio:TrackNo"},
-		{"PCNT", "Audio:PlayCount"},
-		{NULL, 0},
+		{"TCOP", NIE_PREFIX "copyright", NULL, NULL, NULL},
+		{"TDRC", NIE_PREFIX "contentCreated", NULL, NULL, NULL},
+		{"TCON", NFO_PREFIX "genre", NULL, NULL, NULL},
+		{"TIT1", NFO_PREFIX "genre", NULL, NULL, NULL},
+		{"TENC", NCO_PREFIX "publisher", "publisher", NMM_PREFIX "Artist", NMM_PREFIX "artistName"},
+		{"TEXT", NIE_PREFIX "plainTextContent", FALSE},
+		{"TPE1", NMM_PREFIX "performer", "artist", NMM_PREFIX "Artist", NMM_PREFIX "artistName"},
+		{"TPE2", NMM_PREFIX "performer", "artist", NMM_PREFIX "Artist", NMM_PREFIX "artistName"},
+		{"TPE3", NMM_PREFIX "performer", "artist", NMM_PREFIX "Artist", NMM_PREFIX "artistName"},
+		/*	{"TOPE", NID3_LEAD_ARTIST}, We dont' want the original artist for now */
+		{"TPUB", NCO_PREFIX "publisher", "publisher", NMM_PREFIX "Artist", NMM_PREFIX "artistName"},
+		{"TOAL", NIE_PREFIX "title", NULL, NULL, NULL},
+		{"TALB", NIE_PREFIX "title" , NULL, NULL, NULL},
+		{"TLAN", NIE_PREFIX "language", NULL, NULL, NULL},
+		{"TIT2", NIE_PREFIX "title", NULL, NULL, NULL},
+		{"TIT3", NIE_PREFIX "comment", NULL, NULL, NULL},
+		{"TDRL", NIE_PREFIX "contentCreated", NULL, NULL, NULL},
+		{"TRCK", NMM_PREFIX "trackNumber", NULL, NULL, NULL},
+		/* TODO Nepomukify {"PCNT", "Audio:PlayCount"}, */
+		{NULL, 0, NULL, NULL, NULL},
 	};
 
 	while (pos < size) {
@@ -800,11 +818,19 @@ get_id3v24_tags (const gchar *data,
 						if (strcasecmp (word, "unknown") == 0) {
 							break;
 						}
-					}					
+					}
 
-					g_hash_table_insert (metadata,
-							     g_strdup (tmap[i].type),
-							     tracker_escape_metadata (word));
+					if (tmap[i].urn) {
+						gchar *canonical_uri = tmap[i].urn[0]!=':'?tracker_uri_printf_escaped ("urn:%s:%s", tmap[i].urn, word):g_strdup(tmap[i].urn);
+						tracker_statement_list_insert (metadata, canonical_uri, RDF_TYPE, tmap[i].rdf_type);
+						tracker_statement_list_insert (metadata, canonical_uri, tmap[i].predicate, word);
+						tracker_statement_list_insert (metadata, uri, tmap[i].type, canonical_uri);
+						g_free (canonical_uri);
+					} else {
+						tracker_statement_list_insert (metadata, uri,
+									  tmap[i].type,
+									  word);
+					}
 				}
 
 				g_free (word);
@@ -872,9 +898,9 @@ get_id3v24_tags (const gchar *data,
 			}
 
 			if (!tracker_is_empty_string (word)) {
-				g_hash_table_insert (metadata,
-						     g_strdup ("Audio:Comment"),
-						     tracker_escape_metadata (word));
+				tracker_statement_list_insert (metadata, uri,
+						     NIE_PREFIX "comment",
+						     word);
 			}
 
 			g_free (word);
@@ -912,30 +938,31 @@ get_id3v24_tags (const gchar *data,
 static void
 get_id3v23_tags (const gchar *data,
 		 size_t       size,
-		 GHashTable  *metadata,
+		 const gchar *uri,
+		 GPtrArray  *metadata,
 		 file_data   *filedata)
 {
 	guint	pos = 0;
 	Matches tmap[] = {
-		{"TCOP", "File:Copyright"},
-		{"TDAT", "Audio:ReleaseDate"},
-		{"TCON", "Audio:Genre"},
-		{"TIT1", "Audio:Genre"},
-		{"TENC", "DC:Publishers"},
-		{"TEXT", "Audio:Lyrics"},
-		{"TPE1", "Audio:Artist"},
-		{"TPE2", "Audio:Artist"},
-		{"TPE3", "Audio:Performer"},
-		/*	{"TOPE", "Audio:Artist"}, We don't want the original artist for now */
-		{"TPUB", "DC:Publishers"},
-		{"TOAL", "Audio:Album"},
-		{"TALB", "Audio:Album"},
-		{"TLAN", "File:Language"},
-		{"TIT2", "Audio:Title"},
-		{"TYER", "Audio:ReleaseDate"},
-		{"TRCK", "Audio:TrackNo"},
-		{"PCNT", "Audio:PlayCount"},
-		{NULL, 0},
+		{"TCOP", NIE_PREFIX "copyright", NULL, NULL, NULL},
+		{"TDAT", NIE_PREFIX "contentCreated", NULL, NULL, NULL},
+		{"TCON", NFO_PREFIX "genre", NULL, NULL, NULL},
+		{"TIT1", NFO_PREFIX "genre", NULL, NULL, NULL},
+		{"TENC", NCO_PREFIX "publisher", "publisher", NMM_PREFIX "Artist", NMM_PREFIX "artistName"},
+		{"TEXT", NIE_PREFIX "plainTextContent", NULL, NULL, NULL},
+		{"TPE1", NMM_PREFIX "performer", "artist", NMM_PREFIX "Artist", NMM_PREFIX "artistName"},
+		{"TPE2", NMM_PREFIX "performer", "artist", NMM_PREFIX "Artist", NMM_PREFIX "artistName"},
+		{"TPE3", NMM_PREFIX "performer", "artist", NMM_PREFIX "Artist", NMM_PREFIX "artistName"},
+		/*	{"TOPE", NID3_LEAD_ARTIST}, We don't want the original artist for now */
+		{"TPUB", NCO_PREFIX "publisher", "publisher", NMM_PREFIX "Artist", NMM_PREFIX "artistName"},
+		{"TOAL", NIE_PREFIX "title", NULL, NULL, NULL},
+		{"TALB", NIE_PREFIX "title", NULL, NULL, NULL},
+		{"TLAN", NIE_PREFIX "language", NULL, NULL, NULL},
+		{"TIT2", NIE_PREFIX "title", NULL, NULL, NULL},
+		{"TYER", NIE_PREFIX "contentCreated", NULL, NULL, NULL},
+		{"TRCK", NMM_PREFIX "trackNumber", NULL, NULL, NULL},
+		/* TODO Nepomukify {"PCNT", "Audio:PlayCount"}, */
+		{NULL, 0, NULL, NULL, NULL},
 	};
 
 	while (pos < size) {
@@ -1038,9 +1065,17 @@ get_id3v23_tags (const gchar *data,
 						}
 					}
 
-					g_hash_table_insert (metadata,
-							     g_strdup (tmap[i].type),
-							     tracker_escape_metadata (word));
+					if (tmap[i].urn) {
+						gchar *canonical_uri = tmap[i].urn[0]!=':'?tracker_uri_printf_escaped ("urn:%s:%s", tmap[i].urn, word):g_strdup(tmap[i].urn);
+						tracker_statement_list_insert (metadata, canonical_uri, RDF_TYPE, tmap[i].rdf_type);
+						tracker_statement_list_insert (metadata, canonical_uri, tmap[i].predicate, word);
+						tracker_statement_list_insert (metadata, uri, tmap[i].type, canonical_uri);
+						g_free (canonical_uri);
+					} else {
+						tracker_statement_list_insert (metadata, uri,
+									  tmap[i].type,
+									  word);
+					}
 				}
 
 				g_free (word);
@@ -1099,9 +1134,9 @@ get_id3v23_tags (const gchar *data,
 			}
 
 			if (!tracker_is_empty_string (word)) {
-				g_hash_table_insert (metadata,
-						     g_strdup ("Audio:Comment"),
-						     tracker_escape_metadata (word));
+				tracker_statement_list_insert (metadata, uri,
+						     NIE_PREFIX "comment",
+						     word);
 			}
 
 			g_free (word);
@@ -1137,37 +1172,38 @@ get_id3v23_tags (const gchar *data,
 
 static void
 get_id3v20_tags (const gchar *data,
-		 size_t	      size,
-		 GHashTable  *metadata,
+		size_t	     size,
+		const gchar *uri,
+		GPtrArray  *metadata,
 		 file_data   *filedata)
 {
 	guint	pos = 0;
 	Matches tmap[] = {
-		{"TAL", "Audio:Album"},
-		{"TT1", "Audio:Artist"},
-		{"TT2", "Audio:Title"},
-		{"TT3", "Audio:Title"},
-		{"TXT", "Audio:Comment"},
-		{"TPB", "DC:Publishers"},
-		{"WAF", "DC:Location"},
-		{"WAR", "DC:Location"},
-		{"WAS", "DC:Location"},
-		{"WAF", "DC:Location"},
-		{"WCM", "File:License"},
-		{"TYE", "Audio:ReleaseDate"},
-		{"TLA", "File:Lanuguage"},
-		{"TP1", "Audio:Artist"},
-		{"TP2", "Audio:Artist"},
-		{"TP3", "Audio:Performer"},
-		{"TEN", "Audio:Performer"},
-		{"TCO", "Audio:Genre"},
-		{"TCR", "File:Copyright"},
-		{"SLT", "Audio:Lyrics"},
-		{"TOA", "Audio:Artist"},
-		{"TOT", "Audio:Album"},
-		{"TOL", "Audio:Artist"},
-		{"COM", "Audio:Comment"},
-		{ NULL, 0},
+		{"TAL", NIE_PREFIX "musicAlbum", "album", NMM_PREFIX "MusicAlbum", NMM_PREFIX "albumTitle"},
+		{"TT1", NMM_PREFIX "performer", "artist", NMM_PREFIX "Artist", NMM_PREFIX "artistName"},
+		{"TT2", NIE_PREFIX "title", NULL, NULL, NULL},
+		{"TT3", NIE_PREFIX "title", NULL, NULL, NULL},
+		{"TXT", NIE_PREFIX "comment", NULL, NULL, NULL},
+		{"TPB", NCO_PREFIX "publisher", "publisher", NMM_PREFIX "Artist", NMM_PREFIX "artistName"},
+		/* TODO {"WAF", "DC:Location", NULL, NULL, NULL},
+		   TODO {"WAR", "DC:Location", NULL, NULL, NULL},
+		   TODO {"WAS", "DC:Location", NULL, NULL, NULL},
+		   TODO {"WAF", "DC:Location", NULL, NULL, NULL}, */
+		{"WCM", NIE_PREFIX "license", NULL, NULL, NULL},
+		{"TYE", NIE_PREFIX "contentCreated"},
+		{"TLA", NIE_PREFIX "language", NULL, NULL, NULL},
+		{"TP1", NMM_PREFIX "performer", "artist", NMM_PREFIX "Artist", NMM_PREFIX "artistName"},
+		{"TP2", NMM_PREFIX "performer", "artist", NMM_PREFIX "Artist", NMM_PREFIX "artistName"},
+		{"TP3", NMM_PREFIX "performer", "artist", NMM_PREFIX "Artist", NMM_PREFIX "artistName"},
+		{"TEN", NMM_PREFIX "performer", "artist", NMM_PREFIX "Artist", NMM_PREFIX "artistName"},
+		{"TCO", NMM_PREFIX "genre", NULL, NULL, NULL},
+		{"TCR", NIE_PREFIX "copyright", NULL, NULL, NULL},
+		{"SLT", NIE_PREFIX "plainTextContent"}, /* Lyrics */
+		{"TOA", NMM_PREFIX "performer", "artist", NMM_PREFIX "Artist", NMM_PREFIX "artistName"},
+		{"TOT", NIE_PREFIX "title", NULL, NULL, NULL},
+		{"TOL", NMM_PREFIX "performer", "artist", NMM_PREFIX "Artist", NMM_PREFIX "artistName"},
+		{"COM", NIE_PREFIX "comment", NULL, NULL, NULL},
+		{ NULL, 0, NULL, NULL, NULL},
 	};
 
 	while (pos < size) {
@@ -1245,15 +1281,23 @@ get_id3v20_tags (const gchar *data,
 							g_free (word);
 							word = g_strdup (genre_names[genre]);
 						}
-						
-						if (strcasecmp (word, "unknown") == 0) {
+
+						if (strcasecmp (word, "unknown")==0) {
 							break;
 						}
-					}	
-					
-					g_hash_table_insert (metadata,
-							     g_strdup (tmap[i].type),
-							     tracker_escape_metadata (word));
+					}
+
+					if (tmap[i].urn) {
+						gchar *canonical_uri = tmap[i].urn[0]!=':'?tracker_uri_printf_escaped ("urn:%s:%s", tmap[i].urn, word):g_strdup(tmap[i].urn);
+						tracker_statement_list_insert (metadata, canonical_uri, RDF_TYPE, tmap[i].rdf_type);
+						tracker_statement_list_insert (metadata, canonical_uri, tmap[i].predicate, word);
+						tracker_statement_list_insert (metadata, uri, tmap[i].type, canonical_uri);
+						g_free (canonical_uri);
+					} else {
+						tracker_statement_list_insert (metadata, uri,
+									  tmap[i].type,
+									  word);
+					}
 				} else {
 					g_free (word);
 				}
@@ -1289,7 +1333,8 @@ get_id3v20_tags (const gchar *data,
 static void
 parse_id3v24 (const gchar *data,
 	      size_t       size,
-	      GHashTable  *metadata,
+	      const gchar *uri,
+	      GPtrArray  *metadata,
 	      file_data   *filedata,
 	      size_t      *offset_delta)
 {
@@ -1340,10 +1385,10 @@ parse_id3v24 (const gchar *data,
 		gchar  *body;
 
 		un_unsync (&data[pos], tsize, (unsigned char **)&body, &unsync_size);
-		get_id3v24_tags (body, unsync_size, metadata, filedata);
+		get_id3v24_tags (body, unsync_size, uri, metadata, filedata);
 		g_free (body);
 	} else {
-		get_id3v24_tags (&data[pos], tsize, metadata, filedata);
+		get_id3v24_tags (&data[pos], tsize, uri, metadata, filedata);
 	}
 
 	*offset_delta = tsize + 10;
@@ -1352,7 +1397,8 @@ parse_id3v24 (const gchar *data,
 static void
 parse_id3v23 (const gchar *data,
 	      size_t       size,
-	      GHashTable  *metadata,
+	      const gchar *uri,
+	      GPtrArray  *metadata,
 	      file_data   *filedata,
 	      size_t      *offset_delta)
 {
@@ -1413,10 +1459,10 @@ parse_id3v23 (const gchar *data,
 		gchar  *body;
 
 		un_unsync (&data[pos], tsize, (unsigned char **)&body, &unsync_size);
-		get_id3v23_tags (body, unsync_size, metadata, filedata);
+		get_id3v23_tags (body, unsync_size, uri, metadata, filedata);
 		g_free (body);
 	} else {
-		get_id3v23_tags (&data[pos], tsize, metadata, filedata);
+		get_id3v23_tags (&data[pos], tsize, uri, metadata, filedata);
 	}
 
 	*offset_delta = tsize + 10;
@@ -1425,7 +1471,8 @@ parse_id3v23 (const gchar *data,
 static void
 parse_id3v20 (const gchar *data,
 	      size_t	      size,
-	      GHashTable  *metadata,
+	      const gchar *uri,
+	      GPtrArray  *metadata,
 	      file_data   *filedata,
 	      size_t      *offset_delta)
 {
@@ -1458,10 +1505,10 @@ parse_id3v20 (const gchar *data,
 		gchar  *body;
 
 		un_unsync (&data[pos], tsize, (unsigned char **)&body, &unsync_size);
-		get_id3v20_tags (body, unsync_size, metadata, filedata);
+		get_id3v20_tags (body, unsync_size, uri, metadata, filedata);
 		g_free (body);
 	} else {
-		get_id3v20_tags (&data[pos], tsize, metadata, filedata);
+		get_id3v20_tags (&data[pos], tsize, uri, metadata, filedata);
 	}
 
 	*offset_delta = tsize + 10;
@@ -1470,7 +1517,8 @@ parse_id3v20 (const gchar *data,
 static void
 parse_id3v2 (const gchar *data,
 	     size_t	     size,
-	     GHashTable  *metadata,
+	     const gchar *uri,
+	     GPtrArray  *metadata,
 	     file_data   *filedata)
 {
 	gboolean done = FALSE;
@@ -1478,9 +1526,9 @@ parse_id3v2 (const gchar *data,
 
 	do {
 		size_t offset_delta = 0;
-		parse_id3v24 (data+offset, size-offset, metadata, filedata, &offset_delta);
-		parse_id3v23 (data+offset, size-offset, metadata, filedata, &offset_delta);
-		parse_id3v20 (data+offset, size-offset, metadata, filedata, &offset_delta);		
+		parse_id3v24 (data+offset, size-offset, uri, metadata, filedata, &offset_delta);
+		parse_id3v23 (data+offset, size-offset, uri, metadata, filedata, &offset_delta);
+		parse_id3v20 (data+offset, size-offset, uri, metadata, filedata, &offset_delta);		
 
 		if (offset_delta == 0) {
 			done = TRUE;
@@ -1493,9 +1541,10 @@ parse_id3v2 (const gchar *data,
 }
 
 static void
-extract_mp3 (const gchar *filename,
-	     GHashTable  *metadata)
+extract_mp3 (const gchar *uri,
+	     GPtrArray  *metadata)
 {
+	gchar       *filename;
 	int	     fd;
 	void	    *buffer;
 	goffset      size;
@@ -1514,9 +1563,12 @@ extract_mp3 (const gchar *filename,
 	filedata.albumartdata = NULL;
 	filedata.albumartsize = 0;
 
+	filename = g_filename_from_uri (uri, NULL, NULL);
+
 	size = tracker_file_get_size (filename);
 
 	if (size == 0 || size > MAX_FILE_READ) {
+		g_free (filename);
 		return;
 	}
 
@@ -1553,6 +1605,7 @@ extract_mp3 (const gchar *filename,
 	close (fd);
 
 	if (buffer == NULL || buffer == (void*) -1) {
+		g_free (filename);
 		return;
 	}
 
@@ -1560,46 +1613,54 @@ extract_mp3 (const gchar *filename,
 		/* Do nothing? */
 	}
 
+	tracker_statement_list_insert (metadata, uri, 
+	                          RDF_TYPE, 
+	                          NMM_PREFIX "MusicPiece");
+
 	if (!tracker_is_empty_string (info.title)) {
-		g_hash_table_insert (metadata,
-				     g_strdup ("Audio:Title"),
-				     tracker_escape_metadata (info.title));
+		tracker_statement_list_insert (metadata, uri,
+				     NIE_PREFIX "title",
+				     info.title);
 	}
 
 	if (!tracker_is_empty_string (info.artist)) {
-		g_hash_table_insert (metadata,
-				     g_strdup ("Audio:Artist"),
-				     tracker_escape_metadata (info.artist));
+		gchar *canonical_uri = tracker_uri_printf_escaped ("urn:artist:%s", info.artist);
+		tracker_statement_list_insert (metadata, canonical_uri, RDF_TYPE, NMM_PREFIX "Artist");
+		tracker_statement_list_insert (metadata, canonical_uri, NMM_PREFIX "artistName", info.artist);
+		tracker_statement_list_insert (metadata, uri, NMM_PREFIX "performer", canonical_uri);
+		g_free (canonical_uri);
 	}
 
 	if (!tracker_is_empty_string (info.album)) {
-		g_hash_table_insert (metadata,
-				     g_strdup ("Audio:Album"),
-				     tracker_escape_metadata (info.album));
+		gchar *canonical_uri = tracker_uri_printf_escaped ("urn:album:%s", info.album);
+		tracker_statement_list_insert (metadata, canonical_uri, RDF_TYPE, NMM_PREFIX "MusicAlbum");
+		tracker_statement_list_insert (metadata, canonical_uri, NMM_PREFIX "albumTitle", info.album);
+		tracker_statement_list_insert (metadata, uri, NMM_PREFIX "musicAlbum", canonical_uri);
+		g_free (canonical_uri);
 	}
 
 	if (!tracker_is_empty_string (info.year)) {
-		g_hash_table_insert (metadata,
-				     g_strdup ("Audio:ReleaseDate"),
-				     tracker_escape_metadata (info.year));
+		tracker_statement_list_insert (metadata, uri,
+				     NIE_PREFIX "contentCreated",
+				     info.year);
 	}
 
 	if (!tracker_is_empty_string (info.genre)) {
-		g_hash_table_insert (metadata,
-				     g_strdup ("Audio:Genre"),
-				     tracker_escape_metadata (info.genre));
+		tracker_statement_list_insert (metadata, uri,
+				     NFO_PREFIX "genre",
+				     info.genre);
 	}
 
 	if (!tracker_is_empty_string (info.comment)) {
-		g_hash_table_insert (metadata,
-				     g_strdup ("Audio:Comment"),
-				     tracker_escape_metadata (info.comment));
+		tracker_statement_list_insert (metadata, uri,
+				     NIE_PREFIX "comment",
+				     info.comment);
 	}
 
 	if (!tracker_is_empty_string (info.trackno)) {
-		g_hash_table_insert (metadata,
-				     g_strdup ("Audio:TrackNo"),
-				     tracker_escape_metadata (info.trackno));		
+		tracker_statement_list_insert (metadata, uri,
+				     NMM_PREFIX "trackNumber",
+				     info.trackno);
 	}
 
 	g_free (info.title);
@@ -1611,22 +1672,21 @@ extract_mp3 (const gchar *filename,
 	g_free (info.genre);
 
 	/* Get other embedded tags */
-	parse_id3v2 (buffer, size, metadata, &filedata);
+	parse_id3v2 (buffer, size, uri, metadata, &filedata);
 
 	/* Get mp3 stream info */
-	mp3_parse (buffer, size, metadata, &filedata);
+	mp3_parse (buffer, size, uri, metadata, &filedata);
 
+	/* TODO */
 #ifdef HAVE_GDKPIXBUF
 	tracker_process_albumart (filedata.albumartdata, filedata.albumartsize,
-				  /* g_hash_table_lookup (metadata, "Audio:Artist") */ NULL,
-				  g_hash_table_lookup (metadata, "Audio:Album"),
-				  g_hash_table_lookup (metadata, "Audio:AlbumTrackCount"),
+				  /* tracker_statement_list_find (metadata, NMM_PREFIX "performer") */ NULL,
+				  tracker_statement_list_find (metadata, uri, NIE_PREFIX "title"), "-1",
 				  filename);
 #else
 	tracker_process_albumart (NULL, 0,
-				  /* g_hash_table_lookup (metadata, "Audio:Artist") */ NULL,
-				  g_hash_table_lookup (metadata, "Audio:Album"),
-				  g_hash_table_lookup (metadata, "Audio:AlbumTrackCount"),
+				  /* tracker_statement_list_find (metadata, NMM_PREFIX "performer") */ NULL,
+				  tracker_statement_list_find (metadata, uri, NIE_PREFIX "title"), "-1",
 				  filename);
 
 #endif /* HAVE_GDKPIXBUF */
@@ -1635,27 +1695,10 @@ extract_mp3 (const gchar *filename,
 		g_free (filedata.albumartdata);
 	}
 
-	/* Check that we have the minimum data. FIXME We should not need to do this */
-	if (!g_hash_table_lookup (metadata, "Audio:Title")) {
-		gchar  *basename = g_filename_display_basename (filename);
-		gchar **parts    = g_strsplit (basename, ".", -1);
-		gchar  *title    = g_strdup (parts[0]);
-		
-		g_strfreev (parts);
-		g_free (basename);
-		
-		title = g_strdelimit (title, "_", ' ');
-		
-		g_hash_table_insert (metadata,
-				     g_strdup ("Audio:Title"),
-				     tracker_escape_metadata (title));
-
-		g_free (title);
-	}
-
 #ifndef G_OS_WIN32
 	munmap (buffer, size);
 #endif
+	g_free (filename);
 }
 
 TrackerExtractData *

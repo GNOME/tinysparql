@@ -24,8 +24,9 @@
 
 #include <glib-object.h>
 
-#include "tracker-property.h"
 #include "tracker-class.h"
+#include "tracker-namespace.h"
+#include "tracker-property.h"
 
 G_BEGIN_DECLS
 
@@ -33,53 +34,46 @@ G_BEGIN_DECLS
 #error "only <libtracker-common/tracker-common.h> must be included directly."
 #endif
 
+/* Core ontologies */
+#define TRACKER_RDF_PREFIX	"http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+#define TRACKER_RDFS_PREFIX	"http://www.w3.org/2000/01/rdf-schema#"
+#define TRACKER_XSD_PREFIX      "http://www.w3.org/2001/XMLSchema#"
+#define TRACKER_TRACKER_PREFIX	"http://www.tracker-project.org/ontologies/tracker#"
+#define TRACKER_DC_PREFIX	"http://dublincore.org/2008/01/14/dcterms.rdf#"
+#define TRACKER_MAEMO_PREFIX	"http://maemo.org/ontologies/tracker#"
+
+/* Our Nepomuk selection */
+#define TRACKER_NRL_PREFIX	"http://www.semanticdesktop.org/ontologies/2007/08/15/nrl#"
+#define TRACKER_NMO_PREFIX	"http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#"
+#define TRACKER_NIE_PREFIX	"http://www.semanticdesktop.org/ontologies/2007/01/19/nie#"
+#define TRACKER_NCO_PREFIX	"http://www.semanticdesktop.org/ontologies/2007/03/22/nco#"
+#define TRACKER_NAO_PREFIX	"http://www.semanticdesktop.org/ontologies/2007/08/15/nao#"
+#define TRACKER_NID3_PREFIX	"http://www.semanticdesktop.org/ontologies/2007/05/10/nid3#"
+#define TRACKER_NFO_PREFIX	"http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#"
+
+/* Temporary */
+#define TRACKER_NMM_PREFIX	"http://www.tracker-project.org/temp/nmm#"
+
+#define TRACKER_DATASOURCE_URN_PREFIX "urn:nepomuk:datasource:"
+#define TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN TRACKER_DATASOURCE_URN_PREFIX "9291a450-1d49-11de-8c30-0800200c9a66"
+
 void		tracker_ontology_init				(void);
 void		tracker_ontology_shutdown			(void);
 
 /* Service mechanics */
-void		tracker_ontology_service_add			(TrackerClass *service,
-								 GSList		*mimes,
-								 GSList		*mime_prefixes);
-TrackerClass *tracker_ontology_get_service_by_name		(const gchar	*service_str);
-G_CONST_RETURN gchar *
-                tracker_ontology_get_service_by_id		(gint		 id);
-G_CONST_RETURN gchar *
-                tracker_ontology_get_service_by_mime		(const gchar	*mime);
-gint		tracker_ontology_get_service_id_by_name		(const gchar	*service_str);
-TrackerDBType	tracker_ontology_get_service_db_by_name		(const gchar	*service_str);
-gchar *		tracker_ontology_get_service_parent		(const gchar	*service_str);
-gchar *		tracker_ontology_get_service_parent_by_id	(gint		 id);
-gint		tracker_ontology_get_service_parent_id_by_id	(gint		 id);
-GSList *	tracker_ontology_get_service_names_registered	(void);
-GSList *	tracker_ontology_get_field_names_registered	(const gchar	*service_str);
-GArray *        tracker_ontology_get_subcategory_ids            (const gchar    *service_str);
+void		tracker_ontology_add_class			(TrackerClass *service);
+TrackerClass *tracker_ontology_get_class_by_uri		(const gchar	*service_uri);
 
-/* Service data */
-gboolean	tracker_ontology_service_is_valid		(const gchar	*service_str);
-gboolean	tracker_ontology_service_has_embedded		(const gchar	*service_str);
-gboolean	tracker_ontology_service_has_metadata		(const gchar	*service_str);
-gboolean	tracker_ontology_service_has_thumbnails		(const gchar	*service_str);
-gboolean	tracker_ontology_service_has_text		(const gchar	*service_str);
-gint		tracker_ontology_service_get_key_metadata	(const gchar	*service_str,
-								 const gchar	*meta_name);
-gint		tracker_ontology_service_get_key_collate	(const gchar	*service_str,
-								 const gchar	*meta_name);
-gboolean	tracker_ontology_service_get_show_directories	(const gchar	*service_str);
-gboolean	tracker_ontology_service_get_show_files		(const gchar	*service_str);
-const gchar *	tracker_ontology_get_field_name_by_id 	        (gint id);
+TrackerNamespace **tracker_ontology_get_namespaces               (void);
+TrackerClass  **tracker_ontology_get_classes                    (void);
+TrackerProperty **tracker_ontology_get_properties               (void);
 
 /* Field mechanics */
-void		tracker_ontology_field_add			(TrackerProperty	*field);
-TrackerProperty *	tracker_ontology_get_field_by_name		(const gchar	*name);
-TrackerProperty *	tracker_ontology_get_field_by_id		(gint		 id);
-gchar *		tracker_ontology_get_field_name_by_service_name (TrackerProperty	*field,
-								 const gchar	*service_str);
+void		tracker_ontology_add_property			(TrackerProperty	*field);
+TrackerProperty *	tracker_ontology_get_property_by_uri		(const gchar	*uri);
 
-/* Field data */
-gchar *		tracker_ontology_field_get_display_name		(TrackerProperty	*field);
-const gchar *	tracker_ontology_field_get_id			(const gchar	*name);
-gboolean	tracker_ontology_field_is_child_of		(const gchar	*child,
-								 const gchar	*parent);
+void		tracker_ontology_add_namespace			(TrackerNamespace	*namespace_);
+TrackerNamespace *tracker_ontology_get_namespace_by_uri		(const gchar	*namespace_uri);
 
 G_END_DECLS
 

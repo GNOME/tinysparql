@@ -24,9 +24,12 @@
 
 #include <gio/gio.h>
 
+#include <libtracker-common/tracker-thumbnailer.h>
+#include <libtracker-common/tracker-utils.h>
+#include <libtracker-common/tracker-type-utils.h>
 #include <libtracker-db/tracker-db-manager.h>
 #include <libtracker-data/tracker-data-update.h>
-#include <libtracker-common/tracker-thumbnailer.h>
+#include <libtracker-data/tracker-data-query.h>
 
 #include "tracker-volume-cleanup.h"
 
@@ -34,6 +37,7 @@
  * sessions).
  */
 #define SECONDS_PER_DAY (60 * 60 * 24)
+#define THREE_DAYS_OF_SECONDS (SECONDS_PER_DAY * 3)
 
 typedef struct {
 	guint timeout_id;
@@ -60,56 +64,58 @@ check_for_volumes_to_cleanup (gpointer user_data)
 {
 	TrackerDBInterface *iface;
 	TrackerDBResultSet *result_set;
+	gchar *query;
+	time_t three_days_ago;
+	gchar *three_days_ago_as_string;
+
+	three_days_ago = (time (NULL) - THREE_DAYS_OF_SECONDS);
+	three_days_ago_as_string = tracker_date_to_string (three_days_ago);
 
 	g_message ("Checking for stale volumes in the database...");
 
-	iface = tracker_db_manager_get_db_interface (TRACKER_DB_COMMON);
+	iface = tracker_db_manager_get_db_interface ();
 
-	/* The stored statements of volume management have the "every
-	 * one that is older than three days since their last unmount
-	 * time" logic embedded in the SQL statements. Take a look at
-	 * sqlite-stored-procs.sql.
-	 */
-	result_set = 
-		tracker_db_interface_execute_procedure (iface, NULL,
-							"GetVolumesToClean",
-							NULL);
-	
+	query = g_strdup_printf ("SELECT ?o ?m WHERE { "
+				   "?o a tracker:Volume ; "
+				   "tracker:mountPoint ?m ; "
+				   "tracker:unmountDate ?z ; "
+				   "tracker:isMounted false . "
+				 "FILTER (?z < \"%s\") }",
+				 three_days_ago_as_string);
+
+	result_set = tracker_data_query_sparql (query, NULL);
+
 	if (result_set) {
 		gboolean is_valid = TRUE;
 
 		while (is_valid) {
 			GValue       value = { 0, };
-			const gchar *mount_point_path;
-			gint         volume_id;
+			const gchar *mount_point_uri;
+			const gchar *volume_uri;
 
-			_tracker_db_result_set_get_value (result_set, 0, &value);
+			_tracker_db_result_set_get_value (result_set, 1, &value);
 
-			mount_point_path = g_value_get_string (&value);
+			mount_point_uri = g_value_get_string (&value);
 
-			/* Add cleanup items here */
-			if (mount_point_path) {
-				GFile *file;
-				gchar *mount_point_uri;
+			/* mount_point_uri is indeed different than volume_uri,
+			 * volume_uri is the datasource URN built using the UDI,
+			 * mount_point_uri is like <file:///media/USBStick> */
 
-				file = g_file_new_for_path (mount_point_path);
-				mount_point_uri = g_file_get_uri (file);
-
+			if (mount_point_uri) {
 				g_message ("  Cleaning up volumes with mount point:'%s'", 
 					   mount_point_uri);
-				tracker_thumbnailer_cleanup (mount_point_uri);
 
-				g_free (mount_point_uri);
-				g_object_unref (file);
+				/* Add cleanup items here */
+				tracker_thumbnailer_cleanup (mount_point_uri);
 			}
 
 			g_value_unset (&value);
 
 			/* Reset volume date */
-			_tracker_db_result_set_get_value (result_set, 1, &value);
+			_tracker_db_result_set_get_value (result_set, 0, &value);
 
-			volume_id = g_value_get_int (&value); 
-			tracker_data_update_reset_volume (volume_id);
+			volume_uri = g_value_get_string (&value); 
+			tracker_data_update_reset_volume (volume_uri);
 
 			g_value_unset (&value);
 
@@ -120,6 +126,9 @@ check_for_volumes_to_cleanup (gpointer user_data)
 	} else {
 		g_message ("  No volumes to clean up");
 	}
+
+	g_free (three_days_ago_as_string);
+	g_free (query);
 
 	return TRUE;
 }

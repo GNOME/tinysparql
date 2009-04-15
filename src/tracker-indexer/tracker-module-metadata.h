@@ -47,29 +47,33 @@ GType                  tracker_module_metadata_get_type         (void) G_GNUC_CO
 
 TrackerModuleMetadata *tracker_module_metadata_new              (void);
 
-void                   tracker_module_metadata_clear_field      (TrackerModuleMetadata *metadata,
-								 const gchar           *field_name);
-
 gboolean               tracker_module_metadata_add_take_string  (TrackerModuleMetadata *metadata,
-								 const gchar           *field_name,
+								 const gchar           *subject,
+								 const gchar           *predicate,
 								 gchar                 *value);
 void                   tracker_module_metadata_add_string       (TrackerModuleMetadata *metadata,
-								 const gchar           *field_name,
+								 const gchar           *subject,
+								 const gchar           *predicate,
 								 const gchar           *value);
 void                   tracker_module_metadata_add_int          (TrackerModuleMetadata *metadata,
-								 const gchar           *field_name,
+								 const gchar           *subject,
+								 const gchar           *predicate,
 								 gint                   value);
 void                   tracker_module_metadata_add_uint         (TrackerModuleMetadata *metadata,
-								 const gchar           *field_name,
+								 const gchar           *subject,
+								 const gchar           *predicate,
 								 guint                  value);
 void                   tracker_module_metadata_add_double       (TrackerModuleMetadata *metadata,
-								 const gchar           *field_name,
+								 const gchar           *subject,
+								 const gchar           *predicate,
 								 gdouble                value);
 void                   tracker_module_metadata_add_float        (TrackerModuleMetadata *metadata,
-								 const gchar           *field_name,
+								 const gchar           *subject,
+								 const gchar           *predicate,
 								 gfloat                 value);
 void                   tracker_module_metadata_add_date         (TrackerModuleMetadata *metadata,
-								 const gchar           *field_name,
+								 const gchar           *subject,
+								 const gchar           *predicate,
 								 time_t                 value);
 
 G_END_DECLS

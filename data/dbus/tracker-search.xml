@@ -10,8 +10,7 @@
       -->
     <method name="GetSnippet">
       <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
-      <arg type="s" name="service" direction="in" />
-      <arg type="s" name="id" direction="in" />
+      <arg type="s" name="uri" direction="in" />
       <arg type="s" name="search_text" direction="in" />
       <arg type="s" name="result" direction="out" />
     </method>

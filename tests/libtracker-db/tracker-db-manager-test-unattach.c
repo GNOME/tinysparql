@@ -37,7 +37,7 @@ test_creation_common_db ()
 static void
 test_creation_cache_db ()
 {
-	test_assert_tables_in_db (TRACKER_DB_CACHE, "SELECT * FROM FilePending");
+	test_assert_tables_in_db (TRACKER_DB_CACHE, "SELECT * FROM SearchResults1");
 }
 
 static void
@@ -81,7 +81,6 @@ main (int argc, char **argv) {
 
 	g_test_add_func ("/libtracker-db/tracker-db-manager/unattach/common_db_tables",
 			test_creation_common_db);
-
 
 	g_test_add_func ("/libtracker-db/tracker-db-manager/unattach/cache_db_tables",
 			test_creation_cache_db);

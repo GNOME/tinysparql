@@ -35,12 +35,21 @@
 #include <glib/gstdio.h>
 
 #include <libtracker-common/tracker-file-utils.h>
+#include <libtracker-common/tracker-statement-list.h>
+#include <libtracker-common/tracker-ontology.h>
 
 #include "tracker-main.h"
-#include "tracker-escape.h"
 
-static void extract_abw (const gchar *filename,
-			 GHashTable  *metadata);
+
+#define NIE_PREFIX TRACKER_NIE_PREFIX
+#define NFO_PREFIX TRACKER_NFO_PREFIX
+#define NCO_PREFIX TRACKER_NCO_PREFIX
+
+#define RDF_PREFIX TRACKER_RDF_PREFIX
+#define RDF_TYPE RDF_PREFIX "type"
+
+static void extract_abw (const gchar *uri,
+			 GPtrArray   *metadata);
 
 static TrackerExtractData data[] = {
 	{ "application/x-abiword", extract_abw },
@@ -48,12 +57,15 @@ static TrackerExtractData data[] = {
 };
 
 static void
-extract_abw (const gchar *filename,
-	     GHashTable  *metadata)
+extract_abw (const gchar *uri,
+	     GPtrArray   *metadata)
 {
 	FILE *f;
+	gchar *filename;
 
+	filename = g_filename_from_uri (uri, NULL, NULL);
 	f = tracker_file_open (filename, "r", TRUE);
+	g_free (filename);
 
 	if (f) {
 		gchar  *line;
@@ -63,34 +75,46 @@ extract_abw (const gchar *filename,
 		line = NULL;
 		length = 0;
 
+		tracker_statement_list_insert (metadata, uri, 
+		                          RDF_TYPE, 
+		                          NFO_PREFIX "Document");
+
 		while ((read_char = getline (&line, &length, f)) != -1) {
 			if (g_str_has_suffix (line, "</m>\n")) {
 				line[read_char - 5] = '\0';
 			}
 			if (g_str_has_prefix (line, "<m key=\"dc.title\">")) {
-				g_hash_table_insert (metadata,
-						     g_strdup ("Doc:Title"),
-						     tracker_escape_metadata (line + 18));
+				tracker_statement_list_insert (metadata, uri,
+							  NIE_PREFIX "title",
+							  line + 18);
 			}
 			else if (g_str_has_prefix (line, "<m key=\"dc.subject\">")) {
-				g_hash_table_insert (metadata,
-						     g_strdup ("Doc:Subject"),
-						     tracker_escape_metadata (line + 20));
+				tracker_statement_list_insert (metadata, uri,
+							  NIE_PREFIX "subject",
+							  line + 20);
 			}
 			else if (g_str_has_prefix (line, "<m key=\"dc.creator\">")) {
-				g_hash_table_insert (metadata,
-						     g_strdup ("Doc:Author"),
-						     tracker_escape_metadata (line + 20));
+				tracker_statement_list_insert (metadata, uri,
+							  NCO_PREFIX "creator",
+							  line + 20);
 			}
 			else if (g_str_has_prefix (line, "<m key=\"abiword.keywords\">")) {
-				g_hash_table_insert (metadata,
-						     g_strdup ("Doc:Keywords"),
-						     tracker_escape_metadata (line + 26));
+				gchar *keywords = g_strdup (line + 26);
+				char *lasts, *keyw;
+
+				for (keyw = strtok_r (keywords, ",; ", &lasts); keyw; 
+				     keyw = strtok_r (NULL, ",; ", &lasts)) {
+					tracker_statement_list_insert (metadata,
+							  uri, NIE_PREFIX "keyword",
+							  (const gchar*) keyw);
+				}
+
+				g_free (keywords);
 			}
 			else if (g_str_has_prefix (line, "<m key=\"dc.description\">")) {
-				g_hash_table_insert (metadata,
-						     g_strdup ("Doc:Comments"),
-						     tracker_escape_metadata (line + 24));
+				tracker_statement_list_insert (metadata, uri,
+							  NIE_PREFIX "comment",
+							  line + 24);
 			}
 
 			g_free (line);

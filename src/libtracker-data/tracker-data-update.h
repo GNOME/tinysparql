@@ -28,62 +28,38 @@
 
 #include <libtracker-db/tracker-db-interface.h>
 
-#include "tracker-data-metadata.h"
-
 G_BEGIN_DECLS
 
-guint32  tracker_data_update_get_new_service_id         (TrackerDBInterface  *iface);
-
 /* Services  */
-gboolean tracker_data_update_create_service             (TrackerClass      *service,
-							 guint32              service_id,
-							 const gchar         *dirname,
-							 const gchar         *basename,
-							 GHashTable          *metadata);
-void     tracker_data_update_delete_service             (TrackerClass      *service,
-							 guint32              service_id);
-void     tracker_data_update_delete_service_recursively (TrackerClass      *service,
-							 const gchar         *service_path);
-gboolean tracker_data_update_move_service               (TrackerClass      *service,
-							 const gchar         *from,
-							 const gchar         *to);
-
+guint32  tracker_data_insert_resource                   (const gchar         *uri);
+void     tracker_data_delete_resource                   (const gchar         *uri);
+gboolean tracker_data_update_resource_uri               (const gchar         *old_uri,
+							 const gchar         *new_uri);
 /* Turtle importing */
-void     tracker_data_update_replace_service            (const gchar         *path,
-							 const gchar         *rdf_type,
+void     tracker_data_update_replace_service            (const gchar         *uri,
 							 GHashTable          *metadata);
-void     tracker_data_update_delete_service_by_path     (const gchar         *path,
-							 const gchar         *rdf_type);
-void     tracker_data_update_delete_service_all         (const gchar *rdf_type);
-
 
 /* Metadata */
-void     tracker_data_update_set_metadata               (TrackerClass      *service,
-							 guint32              service_id,
-							 TrackerProperty        *field,
-							 const gchar         *value,
-							 const gchar         *parsed_value);
-void     tracker_data_update_delete_all_metadata        (TrackerClass      *service,
-							 guint32              service_id);
-void     tracker_data_update_delete_metadata            (TrackerClass      *service,
-							 guint32              service_id,
-							 TrackerProperty        *field,
-							 const gchar         *value);
+void     tracker_data_delete_resource_description       (const gchar         *uri);
+void     tracker_data_delete_statement			(const gchar	     *subject,
+							 const gchar         *predicate,
+							 const gchar         *object);
 
-/* Contents */
-void     tracker_data_update_set_content                (TrackerClass      *service,
-							 guint32              service_id,
-							 const gchar         *text);
-void     tracker_data_update_delete_content             (TrackerClass      *service,
-							 guint32              service_id);
+void     tracker_data_insert_statement			(const gchar	     *subject,
+							 const gchar         *predicate,
+							 const gchar         *object);
+void     tracker_data_begin_transaction			(void);
+void     tracker_data_commit_transaction		(void);
 
+void     tracker_data_update_sparql			(const gchar       *update,
+							 GError	          **error);
 
 /* Volume handling */
 void tracker_data_update_enable_volume                  (const gchar         *udi,
                                                          const gchar         *mount_path);
 void tracker_data_update_disable_volume                 (const gchar         *udi);
 void tracker_data_update_disable_all_volumes            (void);
-void tracker_data_update_reset_volume                   (guint32              volume_id);
+void tracker_data_update_reset_volume                   (const gchar         *uri);
 
 G_END_DECLS
 

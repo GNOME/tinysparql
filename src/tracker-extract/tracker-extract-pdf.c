@@ -26,14 +26,25 @@
 
 #include <glib.h>
 
+#include <libtracker-common/tracker-statement-list.h>
+
 #include "tracker-main.h"
 #include "tracker-xmp.h"
 
+#include <libtracker-common/tracker-ontology.h>
+#include <libtracker-common/tracker-type-utils.h>
 #include <libtracker-common/tracker-utils.h>
 #include <libtracker-common/tracker-type-utils.h>
 
-static void extract_pdf (const gchar *filename,
-			 GHashTable  *metadata);
+#define NIE_PREFIX TRACKER_NIE_PREFIX
+#define NFO_PREFIX TRACKER_NFO_PREFIX
+#define NCO_PREFIX TRACKER_NCO_PREFIX
+
+#define RDF_PREFIX TRACKER_RDF_PREFIX
+#define RDF_TYPE RDF_PREFIX "type"
+
+static void extract_pdf (const gchar *uri,
+			 GPtrArray   *metadata);
 
 static TrackerExtractData data[] = {
 	{ "application/pdf", extract_pdf },
@@ -41,11 +52,10 @@ static TrackerExtractData data[] = {
 };
 
 static void
-extract_pdf (const gchar *filename,
-	     GHashTable  *metadata)
+extract_pdf (const gchar *uri,
+	     GPtrArray  *metadata)
 {
 	PopplerDocument *document;
-	gchar		*tmp;
 	gchar		*title		= NULL;
 	gchar		*author		= NULL;
 	gchar		*subject	= NULL;
@@ -53,16 +63,20 @@ extract_pdf (const gchar *filename,
 	gchar		*metadata_xml	= NULL;
 	GTime		 creation_date;
 	GError		*error		= NULL;
+	gchar           *filename = g_filename_from_uri (uri, NULL, NULL);
 
 	g_type_init ();
 
-	tmp = g_strconcat ("file://", filename, NULL);
-	document = poppler_document_new_from_file (tmp, NULL, &error);
-	g_free (tmp);
+	document = poppler_document_new_from_file (filename, NULL, &error);
 
 	if (document == NULL || error) {
+		g_free (filename);
 		return;
 	}
+
+	tracker_statement_list_insert (metadata, uri, 
+	                          RDF_TYPE, 
+	                          NFO_PREFIX "Document");
 
 	g_object_get (document,
 		      "title", &title,
@@ -78,38 +92,48 @@ extract_pdf (const gchar *filename,
 	}
 
 	if (!tracker_is_empty_string (title)) {
-		g_hash_table_insert (metadata,
-				     g_strdup ("Doc:Title"),
-				     tracker_escape_metadata (title));
+		tracker_statement_list_insert (metadata, uri,
+					  NIE_PREFIX "title",
+					  title);
 	}
 	if (!tracker_is_empty_string (author)) {
-		g_hash_table_insert (metadata,
-				     g_strdup ("Doc:Author"),
-				     tracker_escape_metadata (author));
+
+		tracker_statement_list_insert (metadata, ":", RDF_TYPE, NCO_PREFIX "Contact");
+		tracker_statement_list_insert (metadata, ":", NCO_PREFIX "fullname", author);
+		tracker_statement_list_insert (metadata, uri, NCO_PREFIX "creator", ":");
+
 	}
 	if (!tracker_is_empty_string (subject)) {
-		g_hash_table_insert (metadata,
-				     g_strdup ("Doc:Subject"),
-				     tracker_escape_metadata (subject));
+		tracker_statement_list_insert (metadata, uri,
+					  NIE_PREFIX "subject",
+					  subject);
 	}
+
 	if (!tracker_is_empty_string (keywords)) {
-		g_hash_table_insert (metadata,
-				     g_strdup ("Doc:Keywords"),
-				     tracker_escape_metadata (keywords));
+		char *lasts, *keyw;
+
+		for (keyw = strtok_r (keywords, ",;", &lasts); keyw; 
+		     keyw = strtok_r (NULL, ",;", &lasts)) {
+			tracker_statement_list_insert (metadata,
+					  uri, NIE_PREFIX "keyword",
+					  (const gchar*) keyw);
+		}
 	}
 
 	if (creation_date > 0) {
-		g_hash_table_insert (metadata,
-				     g_strdup ("Doc:Created"),
-				     tracker_date_to_string ((time_t) creation_date));
+		gchar *date_string = tracker_date_to_string ((time_t) creation_date);
+		tracker_statement_list_insert (metadata, uri,
+				          NIE_PREFIX "created",
+				          date_string);
+		g_free (date_string);
 	}
 
-	g_hash_table_insert (metadata,
-			     g_strdup ("Doc:PageCount"),
-			     tracker_escape_metadata_printf ("%d", poppler_document_get_n_pages (document)));
+	tracker_statement_list_insert_with_int (metadata, uri,
+					   NFO_PREFIX "pageCount",
+					   poppler_document_get_n_pages (document));
 
 	if ( metadata_xml ) {
-		tracker_read_xmp (metadata_xml, strlen (metadata_xml), metadata);
+		tracker_read_xmp (metadata_xml, strlen (metadata_xml), uri, metadata);
 	}
 
 	g_free (title);
@@ -119,6 +143,7 @@ extract_pdf (const gchar *filename,
 	g_free (metadata_xml);
 
 	g_object_unref (document);
+	g_free (filename);
 }
 
 TrackerExtractData *

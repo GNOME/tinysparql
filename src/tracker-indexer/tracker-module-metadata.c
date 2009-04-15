@@ -20,12 +20,21 @@
  */
 
 #include <glib.h>
+#include <time.h>
 #include <libtracker-common/tracker-type-utils.h>
 #include "tracker-module-metadata-private.h"
 
+typedef struct _Statement Statement;
+
+struct _Statement {
+	gchar *subject;
+	gchar *predicate;
+	gchar *object;
+};
+
 struct TrackerModuleMetadata {
 	GObject parent_instance;
-	GHashTable *table;
+	GArray *statements;
 };
 
 struct TrackerModuleMetadataClass {
@@ -49,100 +58,29 @@ tracker_module_metadata_class_init (TrackerModuleMetadataClass *klass)
 static void
 tracker_module_metadata_init (TrackerModuleMetadata *metadata)
 {
-	metadata->table = g_hash_table_new_full (g_direct_hash,
-						 g_direct_equal,
-						 (GDestroyNotify) g_object_unref,
-						 NULL);
-}
-
-static void
-free_metadata (TrackerProperty *field,
-	       gpointer      data)
-{
-	if (tracker_property_get_multiple_values (field)) {
-		GList *list;
-
-		list = (GList *) data;
-		g_list_foreach (list, (GFunc) g_free, NULL);
-		g_list_free (list);
-	} else {
-		g_free (data);
-	}
-}
-
-static gboolean
-remove_metadata_foreach (gpointer key,
-			 gpointer value,
-			 gpointer user_data)
-{
-	TrackerProperty *field;
-
-	field = (TrackerProperty *) key;
-	free_metadata (field, value);
-
-	return TRUE;
+	metadata->statements = g_array_new (FALSE, TRUE, sizeof (Statement));
 }
 
 static void
 tracker_module_metadata_finalize (GObject *object)
 {
 	TrackerModuleMetadata *metadata;
+	gint i;
 
 	metadata = TRACKER_MODULE_METADATA (object);
 
-	g_hash_table_foreach_remove (metadata->table,
-				     remove_metadata_foreach,
-				     NULL);
+	for (i = 0; i < metadata->statements->len; i++) {
+		Statement *stmt;
 
-	g_hash_table_destroy (metadata->table);
+		stmt = &g_array_index (metadata->statements, Statement, i);
+		g_free (stmt->subject);
+		g_free (stmt->predicate);
+		g_free (stmt->object);
+	}
+
+	g_array_free (metadata->statements, TRUE);
 
 	G_OBJECT_CLASS (tracker_module_metadata_parent_class)->finalize (object);
-}
-
-gconstpointer
-tracker_module_metadata_lookup (TrackerModuleMetadata *metadata,
-				const gchar           *field_name,
-				gboolean              *multiple_values)
-{
-	TrackerProperty *field;
-
-	field = tracker_ontology_get_field_by_name (field_name);
-
-	if (multiple_values) {
-		*multiple_values = tracker_property_get_multiple_values (field);
-	}
-
-	return g_hash_table_lookup (metadata->table, field);
-}
-
-/**
- * tracker_module_metadata_clear_field:
- * @metadata: A #TrackerModuleMetadata
- * @field_name: Field name for the metadata to clear
- *
- * Clears any content for the given field name.
- **/
-void
-tracker_module_metadata_clear_field (TrackerModuleMetadata *metadata,
-				     const gchar           *field_name)
-{
-	TrackerProperty *field;
-
-	gpointer data;
-
-	field = tracker_ontology_get_field_by_name (field_name);
-
-	if (!field) {
-		g_warning ("Field name '%s' isn't described in the ontology", field_name);
-		return;
-	}
-
-	data = g_hash_table_lookup (metadata->table, field);
-
-	if (data) {
-		free_metadata (field, data);
-		g_hash_table_remove (metadata->table, field);
-	}
 }
 
 /**
@@ -164,41 +102,25 @@ tracker_module_metadata_clear_field (TrackerModuleMetadata *metadata,
  **/
 gboolean
 tracker_module_metadata_add_take_string (TrackerModuleMetadata *metadata,
-					 const gchar           *field_name,
+					 const gchar           *subject,
+					 const gchar           *predicate,
 					 gchar                 *value)
 {
-	TrackerProperty *field;
-	gpointer data;
+	Statement stmt;
 
 	g_return_val_if_fail (metadata != NULL, FALSE);
-	g_return_val_if_fail (field_name != NULL, FALSE);
+	g_return_val_if_fail (subject != NULL, FALSE);
+	g_return_val_if_fail (predicate != NULL, FALSE);
 
 	if (!value) {
 		return FALSE;
 	}
 
-	field = tracker_ontology_get_field_by_name (field_name);
+	stmt.subject = g_strdup (subject);
+	stmt.predicate = g_strdup (predicate);
+	stmt.object = value;
 
-	if (!field) {
-		g_warning ("Field name '%s' isn't described in the ontology", field_name);
-		return FALSE;
-	}
-
-	if (tracker_property_get_multiple_values (field)) {
-		GList *list;
-
-		list = g_hash_table_lookup (metadata->table, field);
-		list = g_list_prepend (list, value);
-		data = list;
-	} else {
-		data = g_hash_table_lookup (metadata->table, field);
-		g_free (data);
-		data = value;
-	}
-
-	g_hash_table_replace (metadata->table,
-			      g_object_ref (field),
-			      data);
+	g_array_append_val (metadata->statements, stmt);
 
 	return TRUE;
 }
@@ -214,14 +136,15 @@ tracker_module_metadata_add_take_string (TrackerModuleMetadata *metadata,
  **/
 void
 tracker_module_metadata_add_string (TrackerModuleMetadata *metadata,
-				    const gchar           *field_name,
+				    const gchar           *subject,
+				    const gchar           *predicate,
 				    const gchar           *value)
 {
 	gchar *str;
 
 	str = g_strdup (value);
 
-	if (!tracker_module_metadata_add_take_string (metadata, field_name, str)) {
+	if (!tracker_module_metadata_add_take_string (metadata, subject, predicate, str)) {
 		g_free (str);
 	}
 }
@@ -237,14 +160,15 @@ tracker_module_metadata_add_string (TrackerModuleMetadata *metadata,
  **/
 void
 tracker_module_metadata_add_int (TrackerModuleMetadata *metadata,
-				 const gchar           *field_name,
+				 const gchar           *subject,
+				 const gchar           *predicate,
 				 gint                   value)
 {
 	gchar *str;
 
 	str = tracker_gint_to_string (value);
 
-	if (!tracker_module_metadata_add_take_string (metadata, field_name, str)) {
+	if (!tracker_module_metadata_add_take_string (metadata, subject, predicate, str)) {
 		g_free (str);
 	}
 }
@@ -260,14 +184,15 @@ tracker_module_metadata_add_int (TrackerModuleMetadata *metadata,
  **/
 void
 tracker_module_metadata_add_uint (TrackerModuleMetadata *metadata,
-				  const gchar           *field_name,
+				  const gchar           *subject,
+				  const gchar           *predicate,
 				  guint                  value)
 {
 	gchar *str;
 
 	str = tracker_guint_to_string (value);
 
-	if (!tracker_module_metadata_add_take_string (metadata, field_name, str)) {
+	if (!tracker_module_metadata_add_take_string (metadata, subject, predicate, str)) {
 		g_free (str);
 	}
 }
@@ -283,14 +208,15 @@ tracker_module_metadata_add_uint (TrackerModuleMetadata *metadata,
  **/
 void
 tracker_module_metadata_add_double (TrackerModuleMetadata *metadata,
-				    const gchar           *field_name,
+				    const gchar           *subject,
+				    const gchar           *predicate,
 				    gdouble                value)
 {
 	gchar *str;
 
 	str = g_strdup_printf ("%f", value);
 
-	if (!tracker_module_metadata_add_take_string (metadata, field_name, str)) {
+	if (!tracker_module_metadata_add_take_string (metadata, subject, predicate, str)) {
 		g_free (str);
 	}
 }
@@ -306,14 +232,15 @@ tracker_module_metadata_add_double (TrackerModuleMetadata *metadata,
  **/
 void
 tracker_module_metadata_add_float (TrackerModuleMetadata *metadata,
-				   const gchar           *field_name,
+				   const gchar           *subject,
+				   const gchar           *predicate,
 				   gfloat                 value)
 {
 	gchar *str;
 
 	str = g_strdup_printf ("%f", value);
 
-	if (!tracker_module_metadata_add_take_string (metadata, field_name, str)) {
+	if (!tracker_module_metadata_add_take_string (metadata, subject, predicate, str)) {
 		g_free (str);
 	}
 }
@@ -329,18 +256,23 @@ tracker_module_metadata_add_float (TrackerModuleMetadata *metadata,
  **/
 void
 tracker_module_metadata_add_date (TrackerModuleMetadata *metadata,
-				  const gchar           *field_name,
+				  const gchar           *subject,
+				  const gchar           *predicate,
 				  time_t                 value)
 {
+	struct tm t;
 	gchar *str;
 
-	if (sizeof (time_t) == 8) {
-		str = g_strdup_printf ("%" G_GINT64_FORMAT, (gint64) value);
-	} else {
-		str = g_strdup_printf ("%d", (gint32) value);
-	}
+	gmtime_r (&value, &t);
+	str = g_strdup_printf ("%04d-%02d-%02dT%02d:%02d:%02d",
+	                       t.tm_year + 1900,
+	                       t.tm_mon + 1,
+	                       t.tm_mday,
+	                       t.tm_hour,
+	                       t.tm_min,
+	                       t.tm_sec);
 
-	if (!tracker_module_metadata_add_take_string (metadata, field_name, str)) {
+	if (!tracker_module_metadata_add_take_string (metadata, subject, predicate, str)) {
 		g_free (str);
 	}
 }
@@ -358,46 +290,14 @@ tracker_module_metadata_foreach (TrackerModuleMetadata        *metadata,
 				 TrackerModuleMetadataForeach  func,
 				 gpointer		       user_data)
 {
-	g_hash_table_foreach (metadata->table,
-			      (GHFunc) func,
-			      user_data);
-}
+	gint i;
 
-void
-tracker_module_metadata_foreach_remove (TrackerModuleMetadata       *metadata,
-					TrackerModuleMetadataRemove  func,
-					gpointer                     user_data)
-{
-	g_hash_table_foreach_remove (metadata->table,
-				     (GHRFunc) func,
-				     user_data);
-}
+	for (i = 0; i < metadata->statements->len; i++) {
+		Statement *stmt;
 
-static void
-get_hash_table_foreach (gpointer key,
-			gpointer value,
-			gpointer user_data)
-{
-	TrackerProperty *field;
-	GHashTable *table;
-
-	field = TRACKER_PROPERTY (key);
-	table = user_data;
-
-	g_hash_table_insert (table,
-			     (gpointer) tracker_property_get_name (field),
-			     value);
-}
-
-GHashTable *
-tracker_module_metadata_get_hash_table (TrackerModuleMetadata *metadata)
-{
-	GHashTable *table;
-
-	table = g_hash_table_new (g_str_hash, g_str_equal);
-	g_hash_table_foreach (metadata->table, (GHFunc) get_hash_table_foreach, table);
-
-	return table;
+		stmt = &g_array_index (metadata->statements, Statement, i);
+		func (stmt->subject, stmt->predicate, stmt->object, user_data);
+	}
 }
 
 /**

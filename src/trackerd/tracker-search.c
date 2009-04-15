@@ -30,6 +30,7 @@
 #include <libtracker-common/tracker-ontology.h>
 #include <libtracker-common/tracker-parser.h>
 #include <libtracker-common/tracker-utils.h>
+#include <libtracker-common/tracker-type-utils.h>
 
 #include <libtracker-db/tracker-db-dbus.h>
 #include <libtracker-db/tracker-db-index.h>
@@ -51,13 +52,13 @@
 typedef struct {
 	TrackerConfig	   *config;
 	TrackerLanguage    *language;
-	TrackerDBIndex	   *file_index;
-	TrackerDBIndex	   *email_index;
+	TrackerDBIndex	   *resources_index;
 } TrackerSearchPrivate;
 
 static void tracker_search_finalize (GObject *object);
 
 G_DEFINE_TYPE(TrackerSearch, tracker_search, G_TYPE_OBJECT)
+
 
 static void
 tracker_search_class_init (TrackerSearchClass *klass)
@@ -83,8 +84,7 @@ tracker_search_finalize (GObject *object)
 
 	priv = TRACKER_SEARCH_GET_PRIVATE (object);
 
-	g_object_unref (priv->email_index);
-	g_object_unref (priv->file_index);
+	g_object_unref (priv->resources_index);
 	g_object_unref (priv->language);
 	g_object_unref (priv->config);
 
@@ -94,16 +94,14 @@ tracker_search_finalize (GObject *object)
 TrackerSearch *
 tracker_search_new (TrackerConfig   *config,
 		    TrackerLanguage *language,
-		    TrackerDBIndex  *file_index,
-		    TrackerDBIndex  *email_index)
+		    TrackerDBIndex  *resources_index)
 {
 	TrackerSearch	     *object;
 	TrackerSearchPrivate *priv;
 
 	g_return_val_if_fail (TRACKER_IS_CONFIG (config), NULL);
 	g_return_val_if_fail (TRACKER_IS_LANGUAGE (language), NULL);
-	g_return_val_if_fail (TRACKER_IS_DB_INDEX (file_index), NULL);
-	g_return_val_if_fail (TRACKER_IS_DB_INDEX (email_index), NULL);
+	g_return_val_if_fail (TRACKER_IS_DB_INDEX (resources_index), NULL);
 
 	object = g_object_new (TRACKER_TYPE_SEARCH, NULL);
 
@@ -111,15 +109,12 @@ tracker_search_new (TrackerConfig   *config,
 
 	priv->config = g_object_ref (config);
 	priv->language = g_object_ref (language);
-	priv->file_index = g_object_ref (file_index);
-	priv->email_index = g_object_ref (email_index);
+	priv->resources_index = g_object_ref (resources_index);
 
 	return object;
 }
 
-/*
- * Functions
- */
+
 static const gchar *
 search_utf8_p_from_offset_skipping_decomp (const gchar *str,
 					   gint		offset)
@@ -400,8 +395,7 @@ search_get_snippet (const gchar  *text,
 
 void
 tracker_search_get_snippet (TrackerSearch	   *object,
-			    const gchar		   *service,
-			    const gchar		   *id,
+			    const gchar		   *uri,
 			    const gchar		   *search_text,
 			    DBusGMethodInvocation  *context,
 			    GError		  **error)
@@ -411,31 +405,18 @@ tracker_search_get_snippet (TrackerSearch	   *object,
 	GError		   *actual_error = NULL;
 	guint		    request_id;
 	gchar		   *snippet = NULL;
-	gchar		   *service_id;
+	guint32		    resource_id;
 
 	request_id = tracker_dbus_get_next_request_id ();
 
-	tracker_dbus_async_return_if_fail (service != NULL, context);
-	tracker_dbus_async_return_if_fail (id != NULL, context);
+	tracker_dbus_async_return_if_fail (uri != NULL, context);
 	tracker_dbus_async_return_if_fail (search_text != NULL, context);
 
 	tracker_dbus_request_new (request_id,
 				  "DBus request to get snippet, "
-				  "service:'%s', search text:'%s', id:'%s'",
-				  service,
+				  "search text:'%s', id:'%s'",
 				  search_text,
-				  id);
-
-	if (!tracker_ontology_service_is_valid (service)) {
-		g_set_error (&actual_error,
-			     TRACKER_DBUS_ERROR,
-			     0,
-			     "Service '%s' is invalid or has not been implemented yet",
-			     service);
-		dbus_g_method_return_error (context, actual_error);
-		g_error_free (actual_error);
-		return;
-	}
+				  uri);
 
 	if (tracker_is_empty_string (search_text)) {
 		g_set_error (&actual_error,
@@ -447,25 +428,26 @@ tracker_search_get_snippet (TrackerSearch	   *object,
 		return;
 	}
 
-	iface = tracker_db_manager_get_db_interface_by_service (service);
+	iface = tracker_db_manager_get_db_interface ();
 
-	service_id = tracker_data_query_file_id_as_string (service, id);
-	if (!service_id) {
+	resource_id = tracker_data_query_resource_id (uri);
+	if (!resource_id) {
 		g_set_error (&actual_error,
 			     TRACKER_DBUS_ERROR,
 			     0,
 			     "Service URI '%s' not found",
-			     id);
+			     uri);
 		dbus_g_method_return_error (context, actual_error);
 		g_error_free (actual_error);
 		return;
 	}
 
+	/* TODO: Port to SPARQL */
+#if 0
 	result_set = tracker_data_manager_exec_proc (iface,
 					   "GetAllContents",
-					   service_id,
+					   tracker_guint_to_string (resource_id),
 					   NULL);
-	g_free (service_id);
 
 	if (result_set) {
 		TrackerSearchPrivate  *priv;
@@ -488,6 +470,7 @@ tracker_search_get_snippet (TrackerSearch	   *object,
 		g_free (text);
 		g_object_unref (result_set);
 	}
+#endif
 
 	/* Sanity check snippet, using NULL will crash */
 	if (!snippet || !g_utf8_validate (snippet, -1, NULL) ) {
@@ -525,16 +508,9 @@ tracker_search_suggest (TrackerSearch	       *object,
 
 	priv = TRACKER_SEARCH_GET_PRIVATE (object);
 
-	/* First we try the file index */
-	value = tracker_db_index_get_suggestion (priv->file_index,
+	value = tracker_db_index_get_suggestion (priv->resources_index,
 						 search_text,
 						 max_dist);
-	if (!value) {
-		/* Second we try the email index */
-		value = tracker_db_index_get_suggestion (priv->email_index,
-							 search_text,
-							 max_dist);
-	}
 
 	if (!value) {
 		g_set_error (&actual_error,

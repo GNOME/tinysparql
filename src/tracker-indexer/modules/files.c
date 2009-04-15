@@ -57,7 +57,6 @@ struct TrackerRegularFileClass {
 
 static GType                   tracker_regular_file_get_type         (void) G_GNUC_CONST;
 
-static const gchar *           tracker_regular_file_get_service_type (TrackerModuleFile *file);
 static gchar *                 tracker_regular_file_get_text         (TrackerModuleFile *file);
 static TrackerModuleMetadata * tracker_regular_file_get_metadata     (TrackerModuleFile *file);
 static void                    tracker_regular_file_cancel           (TrackerModuleFile *file);
@@ -71,7 +70,6 @@ tracker_regular_file_class_init (TrackerRegularFileClass *klass)
 {
         TrackerModuleFileClass *file_class = TRACKER_MODULE_FILE_CLASS (klass);
 
-        file_class->get_service_type = tracker_regular_file_get_service_type;
         file_class->get_text = tracker_regular_file_get_text;
         file_class->get_metadata = tracker_regular_file_get_metadata;
 	file_class->cancel = tracker_regular_file_cancel;
@@ -87,29 +85,6 @@ tracker_regular_file_init (TrackerRegularFile *file)
 {
 }
 
-static const gchar *
-tracker_regular_file_get_service_type (TrackerModuleFile *file)
-{
-        GFile *f;
-	const gchar *service_type;
-	gchar *mime_type, *path;
-
-        f = tracker_module_file_get_file (file);
-
-	if (!g_file_query_exists (f, NULL)) {
-		return NULL;
-	}
-
-	path = g_file_get_path (f);
-
-	mime_type = tracker_file_get_mime_type (path);
-	service_type = tracker_ontology_get_service_by_mime (mime_type);
-
-	g_free (mime_type);
-        g_free (path);
-
-	return service_type;
-}
 
 #ifdef ENABLE_FILE_EXCLUDE_CHECKING
 

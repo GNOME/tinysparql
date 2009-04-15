@@ -29,22 +29,17 @@ typedef struct {
 	/* Service ID number of the document */
 	guint32 id;
 
-	/* Amalgamation of service_type and score of the word in the
-	 * document's metadata.
+	/* Score of the word in the document's metadata.
 	 */
-	gint	amalgamated;
+	gint	score;
 } TrackerDBIndexItem;
 
 typedef struct {
 	guint32 service_id;	 /* Service ID of the document */
-	guint32 service_type_id; /* Service type ID of the document */
 	guint32 score;		 /* Ranking score */
 } TrackerDBIndexItemRank;
 
-guint32 tracker_db_index_item_calc_amalgamated (gint		    service_type,
-						gint		    score);
-guint8	tracker_db_index_item_get_service_type (TrackerDBIndexItem *details);
-gint16	tracker_db_index_item_get_score        (TrackerDBIndexItem *details);
+gint	tracker_db_index_item_get_score        (TrackerDBIndexItem *details);
 guint32 tracker_db_index_item_get_id	       (TrackerDBIndexItem *details);
 
 G_END_DECLS

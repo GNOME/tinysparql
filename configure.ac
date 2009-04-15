@@ -1350,7 +1350,7 @@ AC_CONFIG_FILES([
 	data/libtracker-gtk.pc
 	data/Makefile
 	data/modules/Makefile
-	data/services/Makefile
+	data/ontologies/Makefile
 	data/tracker.pc
 	data/tracker-module-1.0.pc
 	docs/Makefile
@@ -1397,9 +1397,6 @@ AC_CONFIG_FILES([
 	tests/libtracker-common/Makefile
 	tests/libtracker-db/Makefile
 	tests/Makefile
-	tests/scripts/dummy_data_start.sh
-	tests/scripts/dummy_data_stop.sh
-	tests/scripts/Makefile
 	tests/tracker-indexer/Makefile
 	tests/tracker-extract/Makefile
 	utils/Makefile

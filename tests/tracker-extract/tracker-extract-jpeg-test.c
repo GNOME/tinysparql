@@ -65,10 +65,11 @@ main (int argc, char **argv) {
 	g_test_add_data_func ("/tracker-extract/tracker-extract-jpeg/exif_tags",
 			      data, test_tracker_extract_jpeg_exif_tags);
 
+	/*
 	if (g_test_perf()) {
 		g_test_add_data_func ("/tracker-extract/tracker-extract-jpeg/performance",
 				      data, test_tracker_extract_jpeg_performance);
-	}
+	}*/
 
 #endif
 

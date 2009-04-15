@@ -47,6 +47,8 @@ trackerd_SOURCES =							\
 	tracker-marshal-main.c						\
 	tracker-monitor.c						\
 	tracker-monitor.h						\
+	tracker-resources.c						\
+	tracker-resources.h						\
 	tracker-search.c						\
 	tracker-search.h						\
 	tracker-status.c						\
@@ -102,6 +104,7 @@ marshal_sources =                                         		\
 dbus_sources = 								\
 	tracker-backup-glue.h						\
 	tracker-daemon-glue.h						\
+	tracker-resources-glue.h					\
 	tracker-search-glue.h						\
 	tracker-indexer-client.h
 

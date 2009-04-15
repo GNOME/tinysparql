@@ -617,10 +617,13 @@ shutdown_databases (void)
 
 	private = g_static_private_get (&private_key);
 
+	/* TODO port backup support */
+#if 0
 	/* If we are reindexing, save the user metadata  */
 	if (private->reindex_on_shutdown) {
 		tracker_data_backup_save (private->ttl_backup_file, NULL);
 	}
+#endif
 	/* Reset integrity status as threads have closed cleanly */
 	tracker_data_manager_set_db_option_int ("IntegrityCheck", 0);
 }
@@ -657,8 +660,7 @@ get_ttl_backup_filename (void)
 static void
 backup_user_metadata (TrackerConfig *config, TrackerLanguage *language)
 {
-	TrackerDBIndex		   *file_index;
-	TrackerDBIndex		   *email_index;
+	TrackerDBIndex		   *index;
 	gboolean                    is_first_time_index;
 
 	g_message ("Saving metadata in %s", get_ttl_backup_filename ());
@@ -666,33 +668,24 @@ backup_user_metadata (TrackerConfig *config, TrackerLanguage *language)
 	/*
 	 *  Init the DB stack to get the user metadata
 	 */
-	tracker_db_manager_init (0, &is_first_time_index, TRUE);
-
+	tracker_data_manager_init (config, language, 0, 0, NULL, &is_first_time_index);
+	
 	/*
 	 * If some database is missing or the dbs dont exists, we dont need
 	 * to backup anything.
 	 */
 	if (is_first_time_index) {
-		tracker_db_manager_shutdown ();
+		tracker_data_manager_shutdown ();
 		return;
 	}
-	
-	tracker_db_index_manager_init (0,
-				       tracker_config_get_min_bucket_count (config),
-				       tracker_config_get_max_bucket_count (config));
-	
-	file_index = tracker_db_index_manager_get_index (TRACKER_DB_INDEX_FILE);
-	email_index = tracker_db_index_manager_get_index (TRACKER_DB_INDEX_EMAIL);
-	
-	tracker_data_manager_init (config, language, file_index, email_index);
+
+	index = tracker_db_index_manager_get_index (TRACKER_DB_INDEX_RESOURCES);
 	
 	/* Actual save of the metadata */
 	tracker_data_backup_save (get_ttl_backup_filename (), NULL);
 	
 	/* Shutdown the DB stack */
 	tracker_data_manager_shutdown ();
-	tracker_db_index_manager_shutdown ();
-	tracker_db_manager_shutdown ();
 }
 
 /*
@@ -833,8 +826,7 @@ main (gint argc, gchar *argv[])
 	TrackerConfig		   *config;
 	TrackerLanguage		   *language;
 	TrackerHal		   *hal;
-	TrackerDBIndex		   *file_index;
-	TrackerDBIndex		   *email_index;
+	TrackerDBIndex		   *resources_index;
 	TrackerRunningLevel	    runtime_level;
 	TrackerDBManagerFlags	    flags = 0;
 	TrackerDBIndexManagerFlags  index_flags = 0;
@@ -981,7 +973,8 @@ main (gint argc, gchar *argv[])
 	index_flags |= TRACKER_DB_INDEX_MANAGER_READONLY;
 
 	if (force_reindex) {
-		backup_user_metadata (config, language);
+		/* TODO port backup support
+		backup_user_metadata (config, language); */
 
 		flags |= TRACKER_DB_MANAGER_FORCE_REINDEX;
 		index_flags |= TRACKER_DB_INDEX_MANAGER_FORCE_REINDEX;
@@ -991,14 +984,9 @@ main (gint argc, gchar *argv[])
 		flags |= TRACKER_DB_MANAGER_LOW_MEMORY_MODE;
 	}
 
-	tracker_db_manager_init (flags, &is_first_time_index, TRUE);
-	tracker_status_set_is_first_time_index (is_first_time_index);
+	tracker_data_manager_init (config, language, flags, index_flags, NULL, &is_first_time_index);
 
-	if (!tracker_db_index_manager_init (index_flags,
-					    tracker_config_get_min_bucket_count (config),
-					    tracker_config_get_max_bucket_count (config))) {
-		return EXIT_FAILURE;
-	}
+	tracker_status_set_is_first_time_index (is_first_time_index);
 
 	/*
 	 * Check instances running
@@ -1024,16 +1012,13 @@ main (gint argc, gchar *argv[])
 		return EXIT_FAILURE;
 	}
 
-	file_index = tracker_db_index_manager_get_index (TRACKER_DB_INDEX_FILE);
-	email_index = tracker_db_index_manager_get_index (TRACKER_DB_INDEX_EMAIL);
+	resources_index = tracker_db_index_manager_get_index (TRACKER_DB_INDEX_RESOURCES);
 
-	if (!TRACKER_IS_DB_INDEX (file_index) ||
-	    !TRACKER_IS_DB_INDEX (email_index)) {
-		g_critical ("Could not create indexer for all indexes (file, email)");
+	if (!TRACKER_IS_DB_INDEX (resources_index)) {
+		g_critical ("Could not create indexer for resource index");
 		return EXIT_FAILURE;
 	}
 
-	tracker_data_manager_init (config, language, file_index, email_index);
 	tracker_volume_cleanup_init ();
 
 #ifdef HAVE_HAL
@@ -1050,8 +1035,7 @@ main (gint argc, gchar *argv[])
 	/* Make Tracker available for introspection */
 	if (!tracker_dbus_register_objects (config,
 					    language,
-					    file_index,
-					    email_index,
+					    resources_index,
 					    private->processor)) {
 		return EXIT_FAILURE;
 	}
@@ -1123,8 +1107,6 @@ main (gint argc, gchar *argv[])
 
 	tracker_volume_cleanup_shutdown ();
 	tracker_dbus_shutdown ();
-	tracker_db_manager_shutdown ();
-	tracker_db_index_manager_shutdown ();
 	tracker_data_manager_shutdown ();
 	tracker_module_config_shutdown ();
 	tracker_nfs_lock_shutdown ();

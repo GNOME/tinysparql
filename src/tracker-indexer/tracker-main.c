@@ -46,9 +46,9 @@
 #include <libtracker-db/tracker-db-manager.h>
 #include <libtracker-db/tracker-db-index-manager.h>
 
+#include <libtracker-data/tracker-data-manager.h>
 #include <libtracker-data/tracker-data-update.h>
 #include <libtracker-data/tracker-turtle.h>
-#include <libtracker-data/tracker-data-manager.h>
 
 #include "tracker-dbus.h"
 #include "tracker-indexer.h"
@@ -289,8 +289,7 @@ main (gint argc, gchar *argv[])
 	GOptionContext *context;
 	GError *error = NULL;
 	gchar *filename;
-	TrackerDBIndex *file_index;
-	TrackerDBIndex *email_index;
+	gboolean		    is_first_time_index;
 
 	g_type_init ();
 
@@ -363,10 +362,7 @@ main (gint argc, gchar *argv[])
 		flags |= TRACKER_DB_MANAGER_LOW_MEMORY_MODE;
 	}
 
-	tracker_db_manager_init (flags, NULL, FALSE);
-	if (!tracker_db_index_manager_init (0,
-					    tracker_config_get_min_bucket_count (config),
-					    tracker_config_get_max_bucket_count (config))) {
+	if (!tracker_data_manager_init (config, language, flags, 0, NULL, &is_first_time_index)) {
 		return EXIT_FAILURE;
 	}
 
@@ -417,11 +413,6 @@ main (gint argc, gchar *argv[])
                 tracker_indexer_process_modules (indexer, modules);
         }
 
-	file_index = tracker_db_index_manager_get_index (TRACKER_DB_INDEX_FILE);
-	email_index = tracker_db_index_manager_get_index (TRACKER_DB_INDEX_EMAIL);
-
-	tracker_data_manager_init (config, language, file_index, email_index);
-
 	tracker_push_init (config, indexer);
 
 	tracker_turtle_init ();
@@ -445,14 +436,11 @@ main (gint argc, gchar *argv[])
 	g_object_unref (config);
 	g_object_unref (language);
 
-	tracker_data_manager_shutdown ();
-
 	tracker_push_shutdown ();
 
 	tracker_thumbnailer_shutdown ();
 	tracker_dbus_shutdown ();
-	tracker_db_index_manager_shutdown ();
-	tracker_db_manager_shutdown ();
+	tracker_data_manager_shutdown ();
 	tracker_module_config_shutdown ();
 	tracker_log_shutdown ();
 

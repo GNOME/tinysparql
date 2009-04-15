@@ -19,12 +19,12 @@ libs = 									\
 	$(GCOV_LIBS)							\
 	$(GLIB2_LIBS)
 
-bin_PROGRAMS = 								\
-	tracker-search 							\
-	tracker-stats							\
-	tracker-tag							\
-	tracker-status							\
-	tracker-info							\
+bin_PROGRAMS = 							\
+	tracker-search 						\
+	tracker-stats						\
+	tracker-tag						\
+	tracker-status						\
+	tracker-info						\
 	tracker-processes
 
 tracker_search_SOURCES = tracker-search.c

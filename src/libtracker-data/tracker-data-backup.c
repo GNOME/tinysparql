@@ -44,7 +44,7 @@ static void
 extended_result_set_to_turtle (TrackerDBResultSet  *result_set,
 			       TurtleFile          *turtle_file)
 {
-	TrackerProperty *field;
+	TrackerProperty *field = NULL;
 	gboolean valid = TRUE;
 
 	while (valid) {
@@ -58,7 +58,10 @@ extended_result_set_to_turtle (TrackerDBResultSet  *result_set,
 					   3, &str,
 					   -1);
 
-		field = tracker_ontology_get_field_by_id (metadata_id);
+		/* TODO */
+#if 0
+		field = tracker_ontology_get_property_by_id (metadata_id);
+#endif
 
 		if (!field) {
 			g_critical ("Field id %d in database but not in tracker-ontology",
@@ -117,8 +120,11 @@ tracker_data_backup_save (const gchar  *turtle_filename,
 
 	g_message ("Saving metadata backup in turtle file");
 
+	/* TODO */
+#if 0
 	service = tracker_ontology_get_service_by_name ("Files");
 	data = tracker_data_query_backup_metadata (service);
+#endif
 
 	if (data) {
 		extended_result_set_to_turtle (data, turtle_file);

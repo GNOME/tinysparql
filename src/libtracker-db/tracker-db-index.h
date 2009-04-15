@@ -89,11 +89,9 @@ TrackerDBIndexItem *tracker_db_index_get_word_hits   (TrackerDBIndex *index,
 void		    tracker_db_index_add_word	     (TrackerDBIndex *index,
 						      const gchar    *word,
 						      guint32	      service_id,
-						      gint	      service_type,
 						      gint	      weight);
 gboolean            tracker_db_index_get_flushing    (TrackerDBIndex *indez);
 gboolean            tracker_db_index_get_overloaded  (TrackerDBIndex *indez);
-
 
 G_END_DECLS
 

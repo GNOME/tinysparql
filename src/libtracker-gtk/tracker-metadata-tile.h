@@ -50,10 +50,12 @@ GType	   tracker_metadata_tile_get_type  (void);
 
 GtkWidget* tracker_metadata_tile_new	   (void);
 
+#if 0
 void	   tracker_metadata_tile_set_uri (TrackerMetadataTile		*tile,
 					  const gchar			*uri,
 					  ServiceType			service_type,
 					  const gchar			*type,
 					  GdkPixbuf			*icon);
+#endif
 
 #endif /* TRACKER_METADATA_TILE_H */

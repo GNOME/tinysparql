@@ -42,35 +42,43 @@
 #include "tracker-extract-client.h"
 #include "tracker-dbus.h"
 
-#define METADATA_FILE_NAME_DELIMITED "File:NameDelimited"
-#define METADATA_FILE_EXT            "File:Ext"
-#define METADATA_FILE_PATH           "File:Path"
-#define METADATA_FILE_NAME           "File:Name"
-#define METADATA_FILE_LINK           "File:Link"
-#define METADATA_FILE_MIMETYPE       "File:Mime"
-#define METADATA_FILE_SIZE           "File:Size"
-#define METADATA_FILE_MODIFIED       "File:Modified"
-#define METADATA_FILE_ACCESSED       "File:Accessed"
+#define THUMBNAIL_RETRIEVAL_ENABLED
+#define HAVE_HILDON_THUMBNAIL
 
-#undef  TRY_LOCALE_TO_UTF8_CONVERSION
-#define TEXT_MAX_SIZE                1048576  /* bytes */
-#define TEXT_CHECK_SIZE              65535    /* bytes */
+#define RDF_PREFIX TRACKER_RDF_PREFIX
+#define RDF_TYPE RDF_PREFIX "type"
+
+#define NIE_PREFIX TRACKER_NIE_PREFIX
+#define NIE_MIME_TYPE NIE_PREFIX "mimeType"
+
+#define NFO_PREFIX TRACKER_NFO_PREFIX
+#define NFO_BELONGS_TO_CONTAINER NFO_PREFIX "belongsToContainer"
+#define NFO_FILE_DATA_OBJECT NFO_PREFIX "FileDataObject"
+#define NFO_FILE_LAST_ACCESSED NFO_PREFIX "fileLastAccessed"
+#define NFO_FILE_LAST_MODIFIED NFO_PREFIX "fileLastModified"
+#define NFO_FILE_NAME NFO_PREFIX "fileName"
+#define NFO_FILE_SIZE NFO_PREFIX "fileSize"
+#define NFO_FOLDER NFO_PREFIX "Folder"
+
+#undef	TRY_LOCALE_TO_UTF8_CONVERSION
+#define TEXT_MAX_SIZE		     1048576  /* bytes */
+#define TEXT_CHECK_SIZE		     65535    /* bytes */
 
 #define TEXT_EXTRACTION_TIMEOUT      10
 
 typedef struct {
-        GPid pid;
-        guint stdout_watch_id;
-        GIOChannel *stdin_channel;
-        GIOChannel *stdout_channel;
-        GMainLoop  *data_incoming_loop;
-        gpointer data;
+	GPid pid;
+	guint stdout_watch_id;
+	GIOChannel *stdin_channel;
+	GIOChannel *stdout_channel;
+	GMainLoop  *data_incoming_loop;
+	gpointer data;
 } ProcessContext;
 
 typedef struct {
-        GHashTable *metadata;
-        GMainLoop *main_loop;
-        GPid pid;
+	TrackerModuleMetadata *metadata;
+	GMainLoop *main_loop;
+	GPid pid;
 } ExtractorContext;
 
 static GPid extractor_pid = 0;
@@ -115,351 +123,328 @@ extractor_changed_availability_cb (const gchar *name,
 static DBusGProxy *
 get_dbus_extract_proxy (void)
 {
-        static DBusGProxy *proxy = NULL;
-        DBusGConnection *connection;
-        GError *error = NULL;
+	static DBusGProxy *proxy = NULL;
+	DBusGConnection *connection;
+	GError *error = NULL;
 
-        /* FIXME: Not perfect, we leak */
-        if (G_LIKELY (proxy)) {
-                return proxy;
-        }
+	/* FIXME: Not perfect, we leak */
+	if (G_LIKELY (proxy)) {
+		return proxy;
+	}
 
-        connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
+	connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
 
-        if (!connection) {
-                g_critical ("Could not connect to the DBus session bus, %s",
-                            error ? error->message : "no error given.");
-                g_clear_error (&error);
-                return FALSE;
-        }
+	if (!connection) {
+		g_critical ("Could not connect to the DBus session bus, %s",
+			    error ? error->message : "no error given.");
+		g_clear_error (&error);
+		return FALSE;
+	}
 
-        /* Get proxy for Service / Path / Interface of the indexer */
-        proxy = dbus_g_proxy_new_for_name (connection,
-                                           "org.freedesktop.Tracker.Extract",
-                                           "/org/freedesktop/Tracker/Extract",
-                                           "org.freedesktop.Tracker.Extract");
+	/* Get proxy for Service / Path / Interface of the indexer */
+	proxy = dbus_g_proxy_new_for_name (connection,
+					   "org.freedesktop.Tracker.Extract",
+					   "/org/freedesktop/Tracker/Extract",
+					   "org.freedesktop.Tracker.Extract");
 
-        if (!proxy) {
-                g_critical ("Could not create a DBusGProxy to the extract service");
-        }
+	if (!proxy) {
+		g_critical ("Could not create a DBusGProxy to the extract service");
+	}
 
 	tracker_dbus_add_name_monitor ("org.freedesktop.Tracker.Extract",
 				       extractor_changed_availability_cb,
 				       NULL, NULL);
-        return proxy;
+	return proxy;
 }
 
 static void
 process_context_destroy (ProcessContext *context)
 {
-        if (context->stdin_channel) {
-                g_io_channel_shutdown (context->stdin_channel, FALSE, NULL);
-                g_io_channel_unref (context->stdin_channel);
-                context->stdin_channel = NULL;
-        }
+	if (context->stdin_channel) {
+		g_io_channel_shutdown (context->stdin_channel, FALSE, NULL);
+		g_io_channel_unref (context->stdin_channel);
+		context->stdin_channel = NULL;
+	}
 
-        if (context->stdout_watch_id != 0) {
-                g_source_remove (context->stdout_watch_id);
-                context->stdout_watch_id = 0;
-        }
+	if (context->stdout_watch_id != 0) {
+		g_source_remove (context->stdout_watch_id);
+		context->stdout_watch_id = 0;
+	}
 
-        if (context->stdout_channel) {
-                g_io_channel_shutdown (context->stdout_channel, FALSE, NULL);
-                g_io_channel_unref (context->stdout_channel);
-                context->stdout_channel = NULL;
-        }
+	if (context->stdout_channel) {
+		g_io_channel_shutdown (context->stdout_channel, FALSE, NULL);
+		g_io_channel_unref (context->stdout_channel);
+		context->stdout_channel = NULL;
+	}
 
-        if (context->data_incoming_loop) {
-                if (g_main_loop_is_running (context->data_incoming_loop)) {
-                        g_main_loop_quit (context->data_incoming_loop);
-                }
+	if (context->data_incoming_loop) {
+		if (g_main_loop_is_running (context->data_incoming_loop)) {
+			g_main_loop_quit (context->data_incoming_loop);
+		}
 
-                g_main_loop_unref (context->data_incoming_loop);
-                context->data_incoming_loop = NULL;
-        }
+		g_main_loop_unref (context->data_incoming_loop);
+		context->data_incoming_loop = NULL;
+	}
 
-        if (context->pid != 0) {
-                g_spawn_close_pid (context->pid);
-                context->pid = 0;
-        }
+	if (context->pid != 0) {
+		g_spawn_close_pid (context->pid);
+		context->pid = 0;
+	}
 
-        g_free (context);
+	g_free (context);
 }
 
 static void
 process_context_kill (ProcessContext *context)
 {
-        g_message ("Attempting to kill text filter with SIGKILL");
+	g_message ("Attempting to kill text filter with SIGKILL");
 
-        if (kill (context->pid, SIGKILL) == -1) {
-                const gchar *str = g_strerror (errno);
+	if (kill (context->pid, SIGKILL) == -1) {
+		const gchar *str = g_strerror (errno);
 
-                g_message ("  Could not kill process %d, %s",
-                           context->pid,
-                           str ? str : "no error given");
-        } else {
-                g_message ("  Killed process %d", context->pid);
-        }
+		g_message ("  Could not kill process %d, %s",
+			   context->pid,
+			   str ? str : "no error given");
+	} else {
+		g_message ("  Killed process %d", context->pid);
+	}
 }
 
 static void
-process_context_child_watch_cb (GPid     pid,
-                                gint     status,
-                                gpointer user_data)
+process_context_child_watch_cb (GPid	 pid,
+				gint	 status,
+				gpointer user_data)
 {
-        ProcessContext *context;
+	ProcessContext *context;
 
-        g_debug ("Process '%d' exited with code %d",
-                 pid,
-                 status);
+	g_debug ("Process '%d' exited with code %d",
+		 pid,
+		 status);
 
-        context = (ProcessContext *) user_data;
-        process_context_destroy (context);
+	context = (ProcessContext *) user_data;
+	process_context_destroy (context);
 }
 
 static ProcessContext *
 process_context_create (const gchar **argv,
-                        GIOFunc       stdout_watch_func)
+			GIOFunc       stdout_watch_func)
 {
-        ProcessContext *context;
-        GIOChannel *stdin_channel, *stdout_channel;
-        GIOFlags flags;
-        GPid pid;
+	ProcessContext *context;
+	GIOChannel *stdin_channel, *stdout_channel;
+	GIOFlags flags;
+	GPid pid;
 
-        if (!tracker_spawn_async_with_channels (argv,
-                                                TEXT_EXTRACTION_TIMEOUT,
-                                                &pid,
-                                                &stdin_channel,
-                                                &stdout_channel,
-                                                NULL)) {
-                return NULL;
-        }
+	if (!tracker_spawn_async_with_channels (argv,
+						TEXT_EXTRACTION_TIMEOUT,
+						&pid,
+						&stdin_channel,
+						&stdout_channel,
+						NULL)) {
+		return NULL;
+	}
 
-        g_debug ("Process '%d' spawned for command:'%s'",
-                 pid,
-                 argv[0]);
+	g_debug ("Process '%d' spawned for command:'%s'",
+		 pid,
+		 argv[0]);
 
-        context = g_new0 (ProcessContext, 1);
-        context->pid = pid;
-        context->stdin_channel = stdin_channel;
-        context->stdout_channel = stdout_channel;
-        context->data_incoming_loop = g_main_loop_new (NULL, FALSE);
-        context->stdout_watch_id = g_io_add_watch (stdout_channel,
-                                                   G_IO_IN | G_IO_PRI | G_IO_ERR | G_IO_HUP,
-                                                   stdout_watch_func,
-                                                   context);
+	context = g_new0 (ProcessContext, 1);
+	context->pid = pid;
+	context->stdin_channel = stdin_channel;
+	context->stdout_channel = stdout_channel;
+	context->data_incoming_loop = g_main_loop_new (NULL, FALSE);
+	context->stdout_watch_id = g_io_add_watch (stdout_channel,
+						   G_IO_IN | G_IO_PRI | G_IO_ERR | G_IO_HUP,
+						   stdout_watch_func,
+						   context);
 
-        flags = g_io_channel_get_flags (context->stdout_channel);
-        flags |= G_IO_FLAG_NONBLOCK;
+	flags = g_io_channel_get_flags (context->stdout_channel);
+	flags |= G_IO_FLAG_NONBLOCK;
 
-        g_io_channel_set_flags (context->stdout_channel, flags, NULL);
+	g_io_channel_set_flags (context->stdout_channel, flags, NULL);
 
-        g_child_watch_add (context->pid, process_context_child_watch_cb, context);
+	g_child_watch_add (context->pid, process_context_child_watch_cb, context);
 
-        return context;
+	return context;
 }
 
 static ExtractorContext *
 extractor_context_create (TrackerModuleMetadata *metadata)
 {
-        ExtractorContext *context;
+	ExtractorContext *context;
 
 	if (G_UNLIKELY (extractor_pid == 0)) {
 		/* Ensure we have a PID to kill if anything goes wrong */
 		extractor_pid = get_extractor_pid ();
 	}
 
-        context = g_slice_new0 (ExtractorContext);
-        context->main_loop = g_main_loop_new (NULL, FALSE);
-        context->metadata = g_object_ref (metadata);
-        context->pid = extractor_pid;
+	context = g_slice_new0 (ExtractorContext);
+	context->main_loop = g_main_loop_new (NULL, FALSE);
+	context->metadata = g_object_ref (metadata);
+	context->pid = extractor_pid;
 
-        return context;
+	return context;
 }
 
 static void
 extractor_context_destroy (ExtractorContext *context)
 {
-        g_object_unref (context->metadata);
-        g_main_loop_unref (context->main_loop);
-        g_slice_free (ExtractorContext, context);
+	g_object_unref (context->metadata);
+	g_main_loop_unref (context->main_loop);
+	g_slice_free (ExtractorContext, context);
 }
 
 static void
 extractor_context_kill (ExtractorContext *context)
 {
-        g_message ("Attempting to kill tracker-extract with SIGKILL");
+	g_message ("Attempting to kill tracker-extract with SIGKILL");
 
-        if (kill (context->pid, SIGKILL) == -1) {
-                const gchar *str = g_strerror (errno);
+	if (kill (context->pid, SIGKILL) == -1) {
+		const gchar *str = g_strerror (errno);
 
-                g_message ("  Could not kill process %d, %s",
-                           context->pid,
-                           str ? str : "no error given");
-        } else {
-                g_message ("  Killed process %d", context->pid);
-        }
+		g_message ("  Could not kill process %d, %s",
+			   context->pid,
+			   str ? str : "no error given");
+	} else {
+		g_message ("  Killed process %d", context->pid);
+	}
 }
 
 static void
 metadata_utils_add_embedded_data (TrackerModuleMetadata *metadata,
-                                  TrackerProperty          *field,
-                                  const gchar           *value)
+				  const gchar           *uri,
+				  TrackerProperty       *field,
+				  const gchar           *value)
 {
-        gchar *utf_value;
+	gchar *utf_value;
 
-        if (!g_utf8_validate (value, -1, NULL)) {
-                utf_value = g_locale_to_utf8 (value, -1, NULL, NULL, NULL);
-        } else {
-                utf_value = g_strdup (value);
-        }
+	if (!g_utf8_validate (value, -1, NULL)) {
+		utf_value = g_locale_to_utf8 (value, -1, NULL, NULL, NULL);
+	} else {
+		utf_value = g_strdup (value);
+	}
 
-        if (utf_value) {
-                const gchar *name;
+	if (utf_value) {
+		const gchar *predicate;
 
-                name = tracker_property_get_name (field);
+		predicate = tracker_property_get_uri (field);
 
-                if (tracker_property_get_data_type (field) == TRACKER_PROPERTY_TYPE_DATE) {
-                        gchar *time_str;
+		tracker_module_metadata_add_string (metadata, uri, predicate, utf_value);
 
-                        /* Dates come in ISO 8601 format, we handle them as time_t */
-                        time_str = tracker_date_to_time_string (utf_value);
-                        tracker_module_metadata_add_string (metadata, name, time_str);
-                        g_free (time_str);
-                } else {
-                        tracker_module_metadata_add_string (metadata, name, utf_value);
-                }
-
-                g_free (utf_value);
-        }
+		g_free (utf_value);
+	}
 }
 
 static void
-metadata_utils_get_embedded_foreach (gpointer key,
-                                     gpointer value,
-                                     gpointer user_data)
+metadata_utils_get_embedded_foreach (TrackerModuleMetadata *metadata,
+                                     const gchar           *uri,
+                                     const gchar           *key,
+                                     const gchar           *value)
 {
-        TrackerModuleMetadata *metadata;
-        TrackerProperty *field;
-        gchar *key_str;
-        gchar *value_str;
-
-        metadata = user_data;
-        key_str = key;
-        value_str = value;
-        
-        if (!key || !value) {
-                return;
-        }
-        
-        field = tracker_ontology_get_field_by_name (key_str);
-        if (!field) {
-                g_warning ("Field name '%s' isn't described in the ontology", key_str);
-                return;
-        }
-        
-        if (tracker_property_get_multiple_values (field)) {
-                GStrv strv;
-                guint i;
-                
-                strv = g_strsplit (value_str, "|", -1);
-                
-                for (i = 0; strv[i]; i++) {
-                        metadata_utils_add_embedded_data (metadata, field, strv[i]);
-                }
-                
-                g_strfreev (strv);
-        } else {
-                metadata_utils_add_embedded_data (metadata, field, value_str);
-        }
+	TrackerProperty *field;
+	
+	if (!key || !value) {
+		return;
+	}
+	
+	field = tracker_ontology_get_property_by_uri (key);
+	if (!field) {
+		g_warning ("Field name '%s' isn't described in the ontology", key);
+		return;
+	}
+	
+	metadata_utils_add_embedded_data (metadata, uri, field, value);
 }
 
 static void
 get_metadata_async_cb (DBusGProxy *proxy,
-                       GHashTable *values,
-                       GError     *error,
-                       gpointer    user_data)
+		       GPtrArray  *statements,
+		       GError     *error,
+		       gpointer    user_data)
 {
-        ExtractorContext *context;
-        gboolean should_kill = TRUE;
+	ExtractorContext *context;
+	gint i;
 
-        context = (ExtractorContext *) user_data;
+	gboolean should_kill = TRUE;
 
-        if (error) {
-                switch (error->code) {
-                case DBUS_GERROR_FAILED:
-                case DBUS_GERROR_NO_MEMORY:
-                case DBUS_GERROR_NO_REPLY:
-                case DBUS_GERROR_IO_ERROR:
-                case DBUS_GERROR_LIMITS_EXCEEDED:
-                case DBUS_GERROR_TIMEOUT:
-                case DBUS_GERROR_DISCONNECTED:
-                case DBUS_GERROR_TIMED_OUT:
-                case DBUS_GERROR_REMOTE_EXCEPTION:
-                        break;
+	context = (ExtractorContext *) user_data;
 
-                default:
-                        should_kill = FALSE;
-                        break;
-                }
+	if (error) {
+		switch (error->code) {
+		case DBUS_GERROR_FAILED:
+		case DBUS_GERROR_NO_MEMORY:
+		case DBUS_GERROR_NO_REPLY:
+		case DBUS_GERROR_IO_ERROR:
+		case DBUS_GERROR_LIMITS_EXCEEDED:
+		case DBUS_GERROR_TIMEOUT:
+		case DBUS_GERROR_DISCONNECTED:
+		case DBUS_GERROR_TIMED_OUT:
+		case DBUS_GERROR_REMOTE_EXCEPTION:
+			break;
 
-                g_message ("Couldn't extract metadata, %s",
-                           error->message);
+		default:
+			should_kill = FALSE;
+			break;
+		}
 
-                g_clear_error (&error);
+		g_message ("Couldn't extract metadata, %s",
+			   error->message);
 
-                if (should_kill) {
-                        extractor_context_kill (context);
-                }
-        } else if (values) {
-                g_hash_table_foreach (values,
-                                      metadata_utils_get_embedded_foreach,
-                                      context->metadata);
+		g_clear_error (&error);
 
-                g_hash_table_destroy (values);
-        }
+		if (should_kill) {
+			extractor_context_kill (context);
+		}
+	} else if (statements) {
+		for (i = 0; i < statements->len; i++) {
+			GValueArray *statement;
+			const gchar *subject;
+			const gchar *predicate;
+			const gchar *object;
 
-        g_main_loop_quit (context->main_loop);
+			statement = statements->pdata[i];
+			subject = g_value_get_string (&statement->values[0]);
+			predicate = g_value_get_string (&statement->values[1]);
+			object = g_value_get_string (&statement->values[2]);
+
+			metadata_utils_get_embedded_foreach (context->metadata, subject, predicate, object);
+
+			g_value_array_free (statement);
+		}
+
+		g_ptr_array_free (statements, TRUE);
+	}
+
+	g_main_loop_quit (context->main_loop);
 }
 
 static void
-metadata_utils_get_embedded (GFile                 *file,
-                             const char            *mime_type,
-                             TrackerModuleMetadata *metadata)
+metadata_utils_get_embedded (GFile		 *file,
+			     const char	    *mime_type,
+			     TrackerModuleMetadata *metadata)
 {
-        ExtractorContext *context;
-        const gchar *service_type;
-        gchar *path;
+	ExtractorContext *context;
+	gchar *uri;
 
-        service_type = tracker_ontology_get_service_by_mime (mime_type);
-        if (!service_type) {
-                return;
-        }
-
-        if (!tracker_ontology_service_has_metadata (service_type)) {
-                return;
-        }
-
-        context = extractor_context_create (metadata);
+	context = extractor_context_create (metadata);
 
 	if (!context) {
 		return;
 	}
 
 	g_object_set_data (G_OBJECT (file), "extractor-context", context);
-        path = g_file_get_path (file);
+	uri = g_file_get_uri (file);
 
-        org_freedesktop_Tracker_Extract_get_metadata_async (get_dbus_extract_proxy (),
-                                                            path,
-                                                            mime_type,
-                                                            get_metadata_async_cb,
-                                                            context);
+	org_freedesktop_Tracker_Extract_get_metadata_async (get_dbus_extract_proxy (),
+							    uri,
+							    mime_type,
+							    get_metadata_async_cb,
+							    context);
 
-        g_main_loop_run (context->main_loop);
+	g_main_loop_run (context->main_loop);
 
-        g_object_set_data (G_OBJECT (file), "extractor-context", NULL);
-        extractor_context_destroy (context);
-        g_free (path);
+	g_object_set_data (G_OBJECT (file), "extractor-context", NULL);
+	extractor_context_destroy (context);
+	g_free (uri);
 }
 
 static gboolean
@@ -568,9 +553,8 @@ get_file_in_locale (GString *s)
 #endif /* TRY_LOCALE_TO_UTF8_CONVERSION */
 
 static gchar *
-get_file_content (const gchar *path)
+get_file_content (GFile *file)
 {
-	GFile		 *file;
 	GFileInputStream *stream;
 	GError		 *error = NULL;
 	GString		 *s;
@@ -582,8 +566,9 @@ get_file_content (const gchar *path)
 	gboolean	  has_more_data;
 	gboolean	  has_reached_max;
 	gboolean	  is_utf8;
+	gchar		 *path;
 
-	file = g_file_new_for_path (path);
+	path = g_file_get_path (file);
 	stream = g_file_read (file, NULL, &error);
 
 	if (error) {
@@ -591,7 +576,7 @@ get_file_content (const gchar *path)
 			   path,
 			   error->message);
 		g_error_free (error);
-		g_object_unref (file);
+		g_free (path);
 
 		return NULL;
 	}
@@ -692,7 +677,7 @@ get_file_content (const gchar *path)
 		g_error_free (error);
 		g_string_free (s, TRUE);
 		g_object_unref (stream);
-		g_object_unref (file);
+		g_free (path);
 
 		return NULL;
 	}
@@ -724,12 +709,13 @@ get_file_content (const gchar *path)
 #endif	/* TRY_LOCALE_TO_UTF8_CONVERSION */
 
 	g_object_unref (stream);
-	g_object_unref (file);
 
 	if (s->len < 1) {
 		g_string_free (s, TRUE);
 		s = NULL;
 	}
+
+	g_free (path);
 
 	return s ? g_string_free (s, FALSE) : NULL;
 }
@@ -803,25 +789,19 @@ get_file_content_by_filter (GFile       *file,
 gchar *
 tracker_module_metadata_utils_get_text (GFile *file)
 {
-	const gchar *service_type;
-	gchar *path, *mime_type, *text;
+	gchar *mime_type, *text;
 
-	path = g_file_get_path (file);
-
-	mime_type = tracker_file_get_mime_type (path);
-	service_type = tracker_ontology_get_service_by_mime (mime_type);
+	mime_type = tracker_file_get_mime_type (file);
 
 	/* No need to filter text based files - index them directly */
-	if (service_type &&
-	    (strcmp (service_type, "Text") == 0 ||
-	     strcmp (service_type, "Development") == 0)) {
-		text = get_file_content (path);
+
+	if (g_str_has_prefix (mime_type, "text/")) {
+		text = get_file_content (file);
 	} else {
 		text = get_file_content_by_filter (file, mime_type);
 	}
 
 	g_free (mime_type);
-	g_free (path);
 
 	return text;
 }
@@ -839,62 +819,49 @@ TrackerModuleMetadata *
 tracker_module_metadata_utils_get_data (GFile *file)
 {
 	TrackerModuleMetadata *metadata;
-	struct stat st;
-	const gchar *ext;
-	gchar *path, *mime_type;
-	gchar *dirname, *basename, *path_delimited;
+	gchar *mime_type, *uri;
+	GFileInfo *file_info;
+	guint64 time_;
+	GFile *parent;
+	gchar *parent_uri;
 
-	path = g_file_get_path (file);
-
-	if (g_lstat (path, &st) < 0) {
-		g_free (path);
+	file_info = g_file_query_info (file, "standard::*,time::*", G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS, NULL, NULL);
+	if (!file_info) {
 		return NULL;
 	}
 
 	metadata = tracker_module_metadata_new ();
-	ext = strrchr (path, '.');
 
-	if (ext) {
-		ext++;
-		tracker_module_metadata_add_string (metadata, METADATA_FILE_EXT, ext);
+	uri = g_file_get_uri (file);
+
+	mime_type = tracker_file_get_mime_type (file);
+
+	tracker_module_metadata_add_string (metadata, uri, RDF_TYPE, NFO_FILE_DATA_OBJECT);
+	if (g_file_info_get_file_type (file_info) == G_FILE_TYPE_DIRECTORY) {
+		tracker_module_metadata_add_string (metadata, uri, RDF_TYPE, NFO_FOLDER);
 	}
 
-	mime_type = tracker_file_get_mime_type (path);
-
-	dirname = g_path_get_dirname (path);
-	basename = g_filename_display_basename (path);
-	path_delimited = g_filename_to_utf8 (path, -1, NULL, NULL, NULL);
-
-	tracker_module_metadata_add_string (metadata, METADATA_FILE_NAME, basename);
-	tracker_module_metadata_add_string (metadata, METADATA_FILE_PATH, dirname);
-	tracker_module_metadata_add_string (metadata, METADATA_FILE_NAME_DELIMITED, path_delimited);
-	tracker_module_metadata_add_string (metadata, METADATA_FILE_MIMETYPE, mime_type);
-
-	g_free (path_delimited);
-	g_free (basename);
-	g_free (dirname);
-
-	if (S_ISLNK (st.st_mode)) {
-		gchar *link_path;
-		gchar *link_path_delimited;
-
-		link_path = g_file_read_link (path, NULL);
-		link_path_delimited = g_filename_to_utf8 (link_path, -1, NULL, NULL, NULL);
-
-		tracker_module_metadata_add_string (metadata, METADATA_FILE_LINK, link_path_delimited);
-
-		g_free (link_path_delimited);
-		g_free (link_path);
+	parent = g_file_get_parent (file);
+	if (parent) {
+		parent_uri = g_file_get_uri (parent);
+		tracker_module_metadata_add_string (metadata, uri, NFO_BELONGS_TO_CONTAINER, parent_uri);
+		g_free (parent_uri);
+		g_object_unref (parent);
 	}
 
-	tracker_module_metadata_add_uint (metadata, METADATA_FILE_SIZE, st.st_size);
-	tracker_module_metadata_add_date (metadata, METADATA_FILE_MODIFIED, st.st_mtime);
-	tracker_module_metadata_add_date (metadata, METADATA_FILE_ACCESSED, st.st_atime);
+	tracker_module_metadata_add_string (metadata, uri, NFO_FILE_NAME, g_file_info_get_display_name (file_info));
+	tracker_module_metadata_add_string (metadata, uri, NIE_MIME_TYPE, mime_type);
+
+	tracker_module_metadata_add_uint (metadata, uri, NFO_FILE_SIZE, g_file_info_get_size (file_info));
+	time_ = g_file_info_get_attribute_uint64 (file_info, G_FILE_ATTRIBUTE_TIME_MODIFIED);
+	tracker_module_metadata_add_date (metadata, uri, NFO_FILE_LAST_MODIFIED, time_);
+	time_ = g_file_info_get_attribute_uint64 (file_info, G_FILE_ATTRIBUTE_TIME_ACCESS);
+	tracker_module_metadata_add_date (metadata, uri, NFO_FILE_LAST_ACCESSED, time_);
 
 	metadata_utils_get_embedded (file, mime_type, metadata);
 
 	g_free (mime_type);
-	g_free (path);
+	g_free (uri);
 
 	return metadata;
 }

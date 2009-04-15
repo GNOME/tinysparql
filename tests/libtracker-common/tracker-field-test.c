@@ -1,5 +1,5 @@
 #include <glib.h>
-#include <libtracker-common/tracker-property.h>
+#include <libtracker-common/tracker-field.h>
 #include <tracker-test-helpers.h>
 
 static void
@@ -44,7 +44,7 @@ test_type_to_string ()
 	result = tracker_property_type_to_string (type);
 	g_assert (tracker_test_helpers_cmpstr_equal (result, "struct"));
 
-	type =	TRACKER_PROPERTY_TYPE_LINK;
+	type =	TRACKER_PROPERTY_TYPE_RESOURCE;
 	result = tracker_property_type_to_string (type);
 	g_assert (tracker_test_helpers_cmpstr_equal (result, "link"));
 

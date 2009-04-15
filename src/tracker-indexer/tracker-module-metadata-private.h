@@ -28,26 +28,18 @@
 
 G_BEGIN_DECLS
 
-typedef void (* TrackerModuleMetadataForeach) (TrackerProperty *field,
-					       gpointer      value,
+typedef void (* TrackerModuleMetadataForeach) (const gchar     *subject,
+					       const gchar     *predicate,
+					       const gchar     *object,
 					       gpointer      user_data);
-typedef gboolean (* TrackerModuleMetadataRemove) (TrackerProperty *field,
-						  gpointer      value,
+typedef gboolean (* TrackerModuleMetadataRemove) (const gchar     *subject,
+						  const gchar     *predicate,
+						  const gchar     *object,
 						  gpointer      user_data);
-
-gconstpointer          tracker_module_metadata_lookup         (TrackerModuleMetadata        *metadata,
-							       const gchar                  *field_name,
-							       gboolean                     *multiple_values);
 
 void		       tracker_module_metadata_foreach        (TrackerModuleMetadata        *metadata,
 							       TrackerModuleMetadataForeach  func,
 							       gpointer	                     user_data);
-
-void		       tracker_module_metadata_foreach_remove (TrackerModuleMetadata        *metadata,
-							       TrackerModuleMetadataRemove   func,
-							       gpointer	                     user_data);
-
-GHashTable *           tracker_module_metadata_get_hash_table (TrackerModuleMetadata        *metadata);
 
 
 G_END_DECLS

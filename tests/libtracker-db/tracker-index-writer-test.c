@@ -42,7 +42,7 @@ insert_in_index (TrackerDBIndex *index,
 	pieces = g_strsplit (text, " ", -1);
 
 	for (i = 0; pieces[i] != NULL; i++) {
-		tracker_db_index_add_word (index, pieces[i], service_id, 1, 1);
+		tracker_db_index_add_word (index, pieces[i], service_id, 1);
 	}
 
 	g_strfreev (pieces);
@@ -61,7 +61,7 @@ remove_in_index (TrackerDBIndex *index,
 	pieces = g_strsplit (text, " ", -1);
 
 	for (i = 0; pieces[i] != NULL; i++) {
-		tracker_db_index_add_word (index, pieces[i], service_id, 1, -1);
+		tracker_db_index_add_word (index, pieces[i], service_id, -1);
 	}
 
 	g_strfreev (pieces);
@@ -132,7 +132,7 @@ test_add_one_word (void)
 	g_remove (indexname);
 	index = tracker_db_index_new (indexname, MIN_BUCKET_COUNT, MAX_BUCKET_COUNT, FALSE);
 
-	tracker_db_index_add_word (index, "word1", 1, 1, 1);
+	tracker_db_index_add_word (index, "word1", 1, 1);
 	tracker_db_index_flush (index);
 	g_object_unref (index);
 
@@ -155,7 +155,7 @@ test_add_n_words (void)
 
 	for ( i = 0; i < 20; i++) {
 		word = g_strdup_printf ("word%d", i);
-		tracker_db_index_add_word (index, word, 1, 1, 1);
+		tracker_db_index_add_word (index, word, 1, 1);
 		g_free (word);
 	}
 
@@ -178,7 +178,7 @@ test_add_word_n_times (void)
 	index = tracker_db_index_new (indexname, MIN_BUCKET_COUNT, MAX_BUCKET_COUNT, FALSE);
 
 	for ( i = 0; i < 20; i++) {
-		tracker_db_index_add_word (index, "test-word", i, 1, 1);
+		tracker_db_index_add_word (index, "test-word", i, 1);
 	}
 
 	tracker_db_index_flush (index);
@@ -201,7 +201,7 @@ test_add_word_multiple_occurrences (void)
 	index = tracker_db_index_new (indexname, MIN_BUCKET_COUNT, MAX_BUCKET_COUNT, FALSE);
 
 	for ( i = 0; i < 20; i++) {
-		tracker_db_index_add_word (index, "test-word", 1, 1, 1);
+		tracker_db_index_add_word (index, "test-word", 1, 1);
 	}
 
 	tracker_db_index_flush (index);

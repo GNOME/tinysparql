@@ -32,15 +32,16 @@ G_BEGIN_DECLS
 
 #define __LIBTRACKER_COMMON_INSIDE__
 
+#include "tracker-class.h"
 #include "tracker-config.h"
-#include "tracker-property.h"
 #include "tracker-file-utils.h"
 #include "tracker-hal.h"
 #include "tracker-language.h"
 #include "tracker-module-config.h"
+#include "tracker-namespace.h"
 #include "tracker-ontology.h"
 #include "tracker-parser.h"
-#include "tracker-class.h"
+#include "tracker-property.h"
 #include "tracker-type-utils.h"
 #include "tracker-utils.h"
 

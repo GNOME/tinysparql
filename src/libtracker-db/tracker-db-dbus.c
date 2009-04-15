@@ -303,7 +303,7 @@ tracker_dbus_query_result_columns_to_strv (TrackerDBResultSet *result_set,
 			g_value_init (&transform, G_TYPE_STRING);
 			
 			_tracker_db_result_set_get_value (result_set, i, &value);
-			if (g_value_transform (&value, &transform)) {
+			if (G_IS_VALUE (&value) && g_value_transform (&value, &transform)) {
 				if (row_counter == 0) {
 					strv[i] = g_value_dup_string (&transform);
 				} else {
@@ -323,8 +323,10 @@ tracker_dbus_query_result_columns_to_strv (TrackerDBResultSet *result_set,
 					}
 					
 				}
+				g_value_unset (&value);
+			} else if (row_counter == 0) {
+				strv[i] = g_strdup ("");
 			}
-			g_value_unset (&value);
 			g_value_unset (&transform);
 		}
 
@@ -439,7 +441,7 @@ tracker_dbus_query_result_to_ptr_array (TrackerDBResultSet *result_set)
 
 			_tracker_db_result_set_get_value (result_set, i, &value);
 
-			if (g_value_transform (&value, &transform)) {
+			if (G_IS_VALUE (&value) && g_value_transform (&value, &transform)) {
 				str = g_value_dup_string (&transform);
 			}
 
@@ -449,7 +451,9 @@ tracker_dbus_query_result_to_ptr_array (TrackerDBResultSet *result_set)
 
 			list = g_slist_prepend (list, (gchar*) str);
 
-			g_value_unset (&value);
+			if (G_IS_VALUE (&value)) {
+				g_value_unset (&value);
+			}
 			g_value_unset (&transform);
 		}
 

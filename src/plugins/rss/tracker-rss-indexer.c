@@ -20,7 +20,7 @@
  * Authors:
  *  Philip Van Hoof <philip@codeminded.be>
  */
-
+ 
 #include "config.h"
 
 #include <string.h>
@@ -34,6 +34,8 @@
 #include <stdio.h>
 
 #include <gmime/gmime.h>
+
+#include <libtracker-common/tracker-ontology.h>
 
 #include <libtracker-data/tracker-data-update.h>
 #include <libtracker-data/tracker-data-manager.h>
@@ -55,7 +57,23 @@
 
 #include "tracker-rss-registrar-glue.h"
 
-/* Based on data/services/email.metadata */
+/* This is of course TODO (and to move to libtracker-common/tracker-ontology.h): */
+#define TRACKER_RSS_PREFIX		       "http://www.tracker-project.org/temp/rss#"
+
+#define METADATA_RSS			       TRACKER_RSS_PREFIX "RSS"
+#define METADATA_RSSDATA_OBJECT		       TRACKER_RSS_PREFIX "RSSDataObject"
+
+#define METADATA_RSS_SOMETHING		       TRACKER_RSS_PREFIX "something"
+
+#define NIE_DATASOURCE 			       TRACKER_NIE_PREFIX "DataSource"
+#define NIE_DATASOURCE_P 		       TRACKER_NIE_PREFIX "dataSource"
+
+#define RDF_TYPE			       TRACKER_RDF_PREFIX "type"
+
+#define NAO_TAG				       TRACKER_NAO_PREFIX "Tag"
+#define NAO_PREFLABEL			       TRACKER_NAO_PREFIX "prefLabel"
+
+#define DATASOURCE_URN			       "urn:nepomuk:datasource:670e2cd0-1241-11de-8c30-0800200c9a66"
 
 G_DEFINE_TYPE (TrackerRssIndexer, tracker_rss_indexer, G_TYPE_OBJECT)
 
@@ -122,44 +140,60 @@ perform_set (TrackerRssIndexer *object,
 	     const GStrv values)
 {
 	guint i = 0;
-	TrackerModuleMetadata *metadata;
-	GHashTable *data;
 
-	metadata = tracker_module_metadata_new ();
+	/* TODO */
+	return;
+
+	if (!tracker_data_query_resource_exists (DATASOURCE_URN, NULL, NULL)) {
+		tracker_data_insert_statement (DATASOURCE_URN, RDF_TYPE,
+					       NIE_DATASOURCE);
+	}
+
+	tracker_data_insert_statement (subject, RDF_TYPE,
+		                       METADATA_RSS);
+
+	tracker_data_insert_statement (subject, RDF_TYPE,
+		                       METADATA_RSSDATA_OBJECT);
+
+	tracker_data_insert_statement (subject, NIE_DATASOURCE_P,
+		                       DATASOURCE_URN);
 
 	while (predicates [i] != NULL && values[i] != NULL) {
 
 		if (g_strcmp0 (predicates[i], TRACKER_RSS_PREDICATE_THING) == 0) {
-			tracker_module_metadata_add_string (metadata, 
-							    "Rss:Something", 
-							    values[i]);
+			tracker_data_insert_statement (subject,
+						       METADATA_RSS_SOMETHING, 
+						       values[i]);
 		}
 
 		i++;
 	}
-
-	data = tracker_module_metadata_get_hash_table (metadata);
-
-	// TODO: the service for RSS
-	tracker_data_update_replace_service (subject, "Rss", data);
-
-	g_hash_table_destroy (data);
-	g_object_unref (metadata);
 }
 
 static void 
 perform_unset (TrackerRssIndexer *object, 
 	       const gchar *subject)
 {
-	// TODO: the service for RSS
-	tracker_data_update_delete_service_by_path (subject, "Rss"); 
+	/* TODO */
+	return;
+
+	tracker_data_delete_resource (subject); 
 }
 
 static void
 perform_cleanup (TrackerRssIndexer *object)
 {
-	// TODO: the service for RSS
-	tracker_data_update_delete_service_all ("Rss");
+	GError *error = NULL;
+
+	/* TODO */
+	return;
+
+	tracker_data_update_sparql ("DELETE { ?s ?p ?o } WHERE { ?s nie:dataSource <" DATASOURCE_URN "> }", &error);
+
+	if (error) {
+		g_warning ("%s", error->message);
+		g_error_free (error);
+	}
 }
 
 static void
@@ -193,7 +227,7 @@ tracker_rss_indexer_set (TrackerRssIndexer *object,
 }
 
 void
-tracker_erssindexer_set_many (TrackerRssIndexer *object, 
+tracker_rss_indexer_set_many (TrackerRssIndexer *object, 
 			      const GStrv subjects, 
 			      const GPtrArray *predicates,
 			      const GPtrArray *values,

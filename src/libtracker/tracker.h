@@ -25,54 +25,11 @@
 G_BEGIN_DECLS
 
 typedef void (*TrackerArrayReply) (char **result, GError *error, gpointer user_data);
-typedef void (*TrackerHashTableReply) (GHashTable *result, GError *error, gpointer user_data);
 typedef void (*TrackerGPtrArrayReply) (GPtrArray *result, GError *error, gpointer user_data);
 typedef void (*TrackerBooleanReply) (gboolean result, GError *error, gpointer user_data);
 typedef void (*TrackerStringReply) (char *result, GError *error, gpointer user_data);
 typedef void (*TrackerIntReply) (int result, GError *error, gpointer user_data);
 typedef void (*TrackerVoidReply) (GError *error, gpointer user_data);
-
-
-
-typedef enum {
-	METADATA_STRING_INDEXABLE,
-	METADATA_STRING,
-	METADATA_NUMERIC,
-	METADATA_DATE
-} MetadataTypes;
-
-typedef enum {
-	SERVICE_FILES,
-	SERVICE_FOLDERS,
-	SERVICE_DOCUMENTS,
-	SERVICE_IMAGES,
-	SERVICE_MUSIC,
-	SERVICE_VIDEOS,
-	SERVICE_TEXT_FILES,
-	SERVICE_DEVELOPMENT_FILES,
-	SERVICE_OTHER_FILES,
-	SERVICE_VFS_FILES,
-	SERVICE_VFS_FOLDERS,
-	SERVICE_VFS_DOCUMENTS,
-	SERVICE_VFS_IMAGES,
-	SERVICE_VFS_MUSIC,
-	SERVICE_VFS_VIDEOS,
-	SERVICE_VFS_TEXT_FILES,
-	SERVICE_VFS_DEVELOPMENT_FILES,
-	SERVICE_VFS_OTHER_FILES,
-	SERVICE_CONVERSATIONS,
-	SERVICE_PLAYLISTS,
-	SERVICE_APPLICATIONS,
-	SERVICE_CONTACTS,
-	SERVICE_EMAILS,
-	SERVICE_EMAILATTACHMENTS,
-	SERVICE_APPOINTMENTS,
-	SERVICE_TASKS,
-	SERVICE_BOOKMARKS,
-	SERVICE_WEBHISTORY,
-	SERVICE_PROJECTS
-} ServiceType;
-
 
 
 
@@ -86,7 +43,9 @@ typedef struct {
 
 typedef struct {
 	DBusGProxy	*proxy;
+	DBusGProxy	*proxy_metadata;
 	DBusGProxy	*proxy_search;
+	DBusGProxy	*proxy_resources;
 	DBusGProxyCall	*last_pending_call;
 } TrackerClient;
 
@@ -96,10 +55,6 @@ void	tracker_cancel_last_call (TrackerClient *client);
 /* you can make multiple connections with tracker_connect and free them with tracker_disconnect */
 TrackerClient * tracker_connect (gboolean enable_warnings);
 void		tracker_disconnect (TrackerClient *client);
-
-
-ServiceType	tracker_class_name_to_type (const char *service);
-char *		tracker_type_to_service_name (ServiceType s);
 
 
 
@@ -114,10 +69,15 @@ void		tracker_set_int_option				(TrackerClient *client, const char *option, int 
 void		tracker_shutdown				(TrackerClient *client, gboolean reindex, GError **error);
 void		tracker_prompt_index_signals			(TrackerClient *client, GError **error);
 
-char *		tracker_search_get_snippet			(TrackerClient *client, ServiceType service, const char *uri, const char *search_text, GError **error);
+void		tracker_resources_load				(TrackerClient *client, const char *uri, GError **error);
+
+
+char *		tracker_search_get_snippet			(TrackerClient *client, const char *uri, const char *search_text, GError **error);
 gchar *		tracker_search_suggest				(TrackerClient *client, const char *search_text, int maxdist, GError **error);
 
+
 /* asynchronous calls */
+
 
 void		tracker_get_version_async				(TrackerClient *client,  TrackerIntReply callback, gpointer user_data);
 void		tracker_get_status_async				(TrackerClient *client,  TrackerStringReply callback, gpointer user_data);
@@ -128,8 +88,11 @@ void		tracker_set_int_option_async				(TrackerClient *client, const char *option
 void		tracker_shutdown_async					(TrackerClient *client, gboolean reindex, TrackerVoidReply callback, gpointer user_data);
 void		tracker_prompt_index_signals_async			(TrackerClient *client, TrackerVoidReply callback, gpointer user_data);
 
-void		tracker_search_get_snippet_async			(TrackerClient *client, ServiceType service, const char *uri, const char *search_text, TrackerStringReply callback, gpointer user_data);
+void		tracker_resources_load_async				(TrackerClient *client, const char *uri, TrackerVoidReply callback, gpointer user_data);
+
+void		tracker_search_get_snippet_async			(TrackerClient *client, const char *uri, const char *search_text, TrackerStringReply callback, gpointer user_data);
 void		tracker_search_suggest_async				(TrackerClient *client, const char *search_text, int maxdist, TrackerStringReply callback, gpointer user_data);
+
 
 G_END_DECLS
 

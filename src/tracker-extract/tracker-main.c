@@ -286,7 +286,7 @@ main (int argc, char *argv[])
 	if (filename) {
 		TrackerExtract *object;
 		GFile *file;
-		gchar *full_path;
+		gchar *uri;
 
 		object = tracker_extract_new ();
 		if (!object) {
@@ -294,13 +294,13 @@ main (int argc, char *argv[])
 		}
 
 		file = g_file_new_for_commandline_arg (filename);
-		full_path = g_file_get_path (file);
+		uri = g_file_get_uri (file);
 
-		tracker_extract_get_metadata_by_cmdline (object, full_path, mime_type);
+		tracker_extract_get_metadata_by_cmdline (object, uri, mime_type);
 
 		g_object_unref (object);
 		g_object_unref (file);
-		g_free (full_path);
+		g_free (uri);
 
 		return EXIT_SUCCESS;
 	}

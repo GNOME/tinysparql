@@ -224,7 +224,6 @@ main (int argc, char **argv)
 		for (i = 0; files_resolved[i] != NULL; i++) {
 			if (rm_all) {
 				tracker_keywords_remove_all (client,
-							     SERVICE_FILES,
 							     files_resolved[i],
 							     &error);
 
@@ -243,7 +242,6 @@ main (int argc, char **argv)
 
 			if (tags_to_add) {
 				tracker_keywords_add (client,
-						      SERVICE_FILES,
 						      files_resolved[i],
 						      tags_to_add,
 						      &error);
@@ -263,7 +261,6 @@ main (int argc, char **argv)
 
 			if (tags_to_remove) {
 				tracker_keywords_remove (client,
-							 SERVICE_FILES,
 							 files_resolved[i],
 							 tags_to_remove,
 							 &error);
@@ -288,7 +285,6 @@ main (int argc, char **argv)
 		GPtrArray *array;
 
 		array = tracker_keywords_get_list (client,
-						   SERVICE_FILES,
 						   &error);
 
 		if (error) {
@@ -316,7 +312,6 @@ main (int argc, char **argv)
 			gchar **tags;
 
 			tags = tracker_keywords_get (client,
-						     SERVICE_FILES,
 						     files_resolved[i],
 						     &error);
 
@@ -347,7 +342,7 @@ main (int argc, char **argv)
 	}
 
 	if (search) {
-		gchar **results;
+		gchar **results = NULL;
 
 		search_resolved = g_new0 (gchar*, g_strv_length (search) + 1);
 
@@ -360,12 +355,14 @@ main (int argc, char **argv)
 
 		search_resolved[j] = NULL;
 
+		/* TODO
 		results = tracker_keywords_search (client, -1,
-						   SERVICE_FILES,
+						   SERVICE_RESOURCES,
 						   search_resolved,
 						   offset,
 						   limit,
 						   &error);
+		*/
 
 		if (error) {
 			error_str = g_strdup (_("Could not search tags"));

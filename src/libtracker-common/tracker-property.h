@@ -24,6 +24,8 @@
 
 #include <glib-object.h>
 
+#include "tracker-class.h"
+
 G_BEGIN_DECLS
 
 #if !defined (__LIBTRACKER_COMMON_INSIDE__) && !defined (TRACKER_COMPILATION)
@@ -33,16 +35,18 @@ G_BEGIN_DECLS
 #define TRACKER_TYPE_PROPERTY_TYPE (tracker_property_type_get_type ())
 
 typedef enum {
-	TRACKER_PROPERTY_TYPE_KEYWORD,
-	TRACKER_PROPERTY_TYPE_INDEX,
-	TRACKER_PROPERTY_TYPE_FULLTEXT,
+	/* metadata */
 	TRACKER_PROPERTY_TYPE_STRING,
+	TRACKER_PROPERTY_TYPE_BOOLEAN,
 	TRACKER_PROPERTY_TYPE_INTEGER,
 	TRACKER_PROPERTY_TYPE_DOUBLE,
 	TRACKER_PROPERTY_TYPE_DATE,
+	TRACKER_PROPERTY_TYPE_DATETIME,
 	TRACKER_PROPERTY_TYPE_BLOB,
 	TRACKER_PROPERTY_TYPE_STRUCT,
-	TRACKER_PROPERTY_TYPE_LINK,
+	TRACKER_PROPERTY_TYPE_RESOURCE,
+	/* content */
+	TRACKER_PROPERTY_TYPE_FULLTEXT,
 } TrackerPropertyType;
 
 GType	     tracker_property_type_get_type  (void) G_GNUC_CONST;
@@ -73,42 +77,43 @@ GType		 tracker_property_get_type		   (void) G_GNUC_CONST;
 
 TrackerProperty *	 tracker_property_new		   (void);
 
-const gchar *	 tracker_property_get_id		   (TrackerProperty     *field);
-const gchar *	 tracker_property_get_name		   (TrackerProperty     *field);
-TrackerPropertyType tracker_property_get_data_type	   (TrackerProperty     *field);
-const gchar *	 tracker_property_get_field_name	   (TrackerProperty     *field);
-gint		 tracker_property_get_weight	   (TrackerProperty     *service);
-gboolean	 tracker_property_get_embedded	   (TrackerProperty     *field);
-gboolean	 tracker_property_get_multiple_values (TrackerProperty     *field);
-gboolean	 tracker_property_get_delimited	   (TrackerProperty     *field);
-gboolean	 tracker_property_get_filtered	   (TrackerProperty     *field);
-gboolean	 tracker_property_get_store_metadata  (TrackerProperty     *field);
-const GSList *	 tracker_property_get_child_ids	   (TrackerProperty     *field);
+const gchar *	 tracker_property_get_uri		   (TrackerProperty     *property);
+const gchar *	 tracker_property_get_name		   (TrackerProperty     *property);
+TrackerPropertyType tracker_property_get_data_type	   (TrackerProperty     *property);
+TrackerClass *	 tracker_property_get_domain	   (TrackerProperty     *property);
+TrackerClass *	 tracker_property_get_range	   (TrackerProperty     *property);
+gint		 tracker_property_get_weight	   (TrackerProperty     *property);
+gboolean	 tracker_property_get_indexed	   (TrackerProperty     *property);
+gboolean	 tracker_property_get_fulltext_indexed(TrackerProperty     *property);
+gboolean	 tracker_property_get_embedded	   (TrackerProperty     *property);
+gboolean	 tracker_property_get_multiple_values (TrackerProperty     *property);
+gboolean	 tracker_property_get_filtered	   (TrackerProperty     *property);
+TrackerProperty **tracker_property_get_super_properties	     (TrackerProperty *property);
 
-void		 tracker_property_set_id		   (TrackerProperty     *field,
+void		 tracker_property_set_uri		   (TrackerProperty     *property,
 						    const gchar      *value);
-void		 tracker_property_set_name		   (TrackerProperty     *field,
-						    const gchar      *value);
-void		 tracker_property_set_data_type	   (TrackerProperty     *field,
+void		 tracker_property_set_data_type	   (TrackerProperty     *property,
 						    TrackerPropertyType  value);
-void		 tracker_property_set_field_name	   (TrackerProperty     *field,
-						    const gchar      *value);
-void		 tracker_property_set_weight	   (TrackerProperty     *field,
+void		 tracker_property_set_domain	   (TrackerProperty     *property,
+						    TrackerClass     *value);
+void		 tracker_property_set_range	   (TrackerProperty     *property,
+						    TrackerClass     *range);
+void		 tracker_property_set_weight	   (TrackerProperty     *property,
 						    gint	      value);
-void		 tracker_property_set_embedded	   (TrackerProperty     *field,
+void		 tracker_property_set_indexed	   (TrackerProperty     *property,
 						    gboolean	      value);
-void		 tracker_property_set_multiple_values (TrackerProperty     *field,
+void		 tracker_property_set_fulltext_indexed(TrackerProperty     *property,
 						    gboolean	      value);
-void		 tracker_property_set_delimited	   (TrackerProperty     *field,
+void		 tracker_property_set_embedded	   (TrackerProperty     *property,
 						    gboolean	      value);
-void		 tracker_property_set_filtered	   (TrackerProperty     *field,
+void		 tracker_property_set_multiple_values (TrackerProperty     *property,
 						    gboolean	      value);
-void		 tracker_property_set_store_metadata  (TrackerProperty     *field,
+void		 tracker_property_set_filtered	   (TrackerProperty     *property,
 						    gboolean	      value);
-void		 tracker_property_set_child_ids	   (TrackerProperty     *field,
-						    const GSList     *value);
-void		 tracker_property_append_child_id	   (TrackerProperty     *field,
-						    const gchar      *id);
+void             tracker_property_set_super_properties		(TrackerProperty  *property,
+								 TrackerProperty **super_properties);
+void             tracker_property_add_super_property		(TrackerProperty  *property,
+								 TrackerProperty  *value);
 
 G_END_DECLS
 

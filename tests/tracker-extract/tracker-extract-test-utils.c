@@ -20,7 +20,9 @@
 
 #include <unistd.h>
 
+#include <glib.h>
 #include <glib/gstdio.h>
+#include <glib-object.h>
 #include <gmodule.h>
 
 #include "tracker-extract-test-utils.h"
@@ -108,9 +110,8 @@ parse_file (const gchar *filename)
 }
 
 static void
-dump_metadata_item (gpointer key,
-		    gpointer value,
-		    gpointer user_data)
+dump_metadata_item (const gchar *key,
+		    const gchar *value)
 {
 	gchar *value_utf8;
 
@@ -126,26 +127,56 @@ dump_metadata_item (gpointer key,
 }
 
 static void
-dump_metadata (GHashTable *metadata)
+dump_metadata (GPtrArray *metadata)
 {
+	guint i;
+
 	g_assert (metadata != NULL);
-	g_hash_table_foreach (metadata, dump_metadata_item, NULL);
+
+	for (i = 0; i < metadata->len; i++) {
+		GValueArray *statement;
+		const gchar *subject;
+		const gchar *predicate;
+		const gchar *object;
+
+		statement = metadata->pdata[i];
+		subject = g_value_get_string (&statement->values[0]);
+		predicate = g_value_get_string (&statement->values[1]);
+		object = g_value_get_string (&statement->values[2]);
+
+		dump_metadata_item (predicate, object);
+	}
 }
 
 static void
-check_metadata (GHashTable  *metadata, 
-		const gchar *key, 
+check_metadata (GPtrArray   *metadata,
+		const gchar *key,
 		const gchar *value)
 {
-	gchar *cvalue;
+	GValueArray *statement;
+	const gchar *subject, *predicate, *object;
+	gboolean found = FALSE;
+	guint i;
 
 	g_assert (metadata != NULL);
 	g_assert (key != NULL);
 	g_assert (value != NULL);
-	
-	cvalue = g_hash_table_lookup (metadata, key);
-	g_assert (cvalue != NULL);
-	g_assert_cmpstr (cvalue, ==, value);
+
+	for (i = 0; i < metadata->len; i++) {
+		statement = metadata->pdata[i];
+		subject = g_value_get_string (&statement->values[0]);
+		predicate = g_value_get_string (&statement->values[1]);
+		object = g_value_get_string (&statement->values[2]);
+
+		if (g_strcmp0 (key, predicate) == 0) {
+			found = TRUE;
+			break;
+		}
+	}
+
+	g_assert (found);
+	g_assert (object != NULL);
+	g_assert_cmpstr (value, ==, object);
 }
 
 TrackerExtractData *
@@ -200,15 +231,30 @@ tracker_test_extract_get_extract (const gchar *path, const gchar *mime)
 	return NULL;
 }
 
+static void 
+free_statements (GPtrArray *metadata)
+{
+	guint i;
+
+	for (i = 0; i < metadata->len; i++) {
+		GValueArray *statement;
+		statement = metadata->pdata[i];
+		g_value_array_free (statement);
+	}
+
+	g_ptr_array_free (metadata, TRUE);
+}
+
 void
 tracker_test_extract_file (const TrackerExtractData *data, 
 			   const gchar              *file, 
 			   const gchar              *test_data_file)
 {
-	GHashTable *metadata;
+	GPtrArray  *metadata;
 	GHashTable *test_data;
-	gchar *filename;	
-	gchar *test_data_filename;
+	gchar      *filename, *uri;
+	gchar      *test_data_filename;
+
 	GHashTableIter iter;
 	gpointer key, value;
 
@@ -219,12 +265,11 @@ tracker_test_extract_file (const TrackerExtractData *data,
 	filename = g_strconcat (TEST_DATA_DIR, file, NULL);
 	test_data_filename = g_strconcat (TEST_DATA_DIR, test_data_file, NULL);
 
-	metadata = g_hash_table_new_full (g_str_hash,
-					  g_str_equal,
-					  g_free,
-					  g_free);
+	metadata = g_ptr_array_new ();
 
-	(*data->extract) (filename, metadata);
+	uri = g_filename_to_uri (filename, NULL, NULL);
+	(*data->extract) (uri, metadata);
+	g_free (uri);
 
 	test_data = parse_file (test_data_filename);
 
@@ -238,7 +283,8 @@ tracker_test_extract_file (const TrackerExtractData *data,
 		check_metadata (metadata, key, value);
 	}
 
-	g_hash_table_destroy (metadata);
+	free_statements (metadata);
+
 	g_hash_table_destroy (test_data);
 }
 
@@ -257,16 +303,11 @@ tracker_test_extract_file_performance (const TrackerExtractData *data,
 	g_test_timer_start ();
 
 	for (i = 1; i <= file_count; i++) {
-		GHashTable *metadata;
-		gchar filename[256];
+		GPtrArray *metadata;
+		gchar filename[256], *uri;
 		gchar tmp[256];
 
-		metadata = g_hash_table_new_full (g_str_hash,
-						  g_str_equal,
-						  g_free,
-						  g_free);
-
-		
+		metadata = g_ptr_array_new ();
 
 		if (sprintf (tmp, "%s%s",TEST_DATA_DIR, file_match) < 0) {
 			g_assert_not_reached();
@@ -276,12 +317,15 @@ tracker_test_extract_file_performance (const TrackerExtractData *data,
 			g_assert_not_reached();
 		}
 
-		(*data->extract) (filename, metadata);
+		uri = g_filename_to_uri (filename, NULL, NULL);
+		(*data->extract) (uri, metadata);
+		g_free (uri);
+		
+		g_assert (metadata->len > 0);
 
-		g_assert (g_hash_table_size (metadata) > 0);
+		free_statements (metadata);
 
-		g_hash_table_destroy (metadata);
-	}		
+	}
 
 	perftime = g_test_timer_elapsed();
 
@@ -302,29 +346,29 @@ tracker_test_extract_file_access (const TrackerExtractData *data,
 	g_assert (file_count > 0);
 	
 	for (i = 1; i <= file_count; i++) {
-		GHashTable *metadata;
+		gchar *uri;
+		GPtrArray *metadata;
 		gchar filename[256];
 		gchar tmp[256];
 
-		metadata = g_hash_table_new_full (g_str_hash,
-						  g_str_equal,
-						  g_free,
-						  g_free);
+		metadata = g_ptr_array_new ();
 
-		if (sprintf (tmp, "%s%s", TEST_DATA_DIR, file_match) < 0) {
-			g_assert_not_reached ();
+		if (sprintf (tmp, "%s%s",TEST_DATA_DIR, file_match) < 0) {
+			g_assert_not_reached();
 		}
 
 		if (sprintf (filename, tmp, i) < 0) {
 			g_assert_not_reached ();
 		}
 
-		(*data->extract) (filename, metadata);
+		uri = g_filename_to_uri (filename, NULL, NULL);
+		(*data->extract) (uri, metadata);
+		g_free (uri);
 
-		g_assert (g_hash_table_size (metadata) > 0);
+		g_assert (metadata->len > 0);
 
-		g_hash_table_destroy (metadata);
-	}		
+		free_statements (metadata);
+	}
 }
 
 /* This is added because tracker-main.c includes this file and so
@@ -335,3 +379,5 @@ tracker_main_get_hal (void)
 {
 	return NULL;
 }
+
+

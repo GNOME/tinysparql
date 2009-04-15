@@ -55,7 +55,7 @@ void            tracker_extract_get_pid                 (TrackerExtract         
 							 DBusGMethodInvocation  *context,
 							 GError                **error);
 void            tracker_extract_get_metadata            (TrackerExtract         *object,
-							 const gchar            *path,
+							 const gchar            *uri,
 							 const gchar            *mime,
 							 DBusGMethodInvocation  *context,
 							 GError                **error);

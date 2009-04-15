@@ -97,10 +97,12 @@ gaim_file_get_metadata (TrackerModuleFile *file)
 {
 	TrackerModuleMetadata *metadata;
 	GFile *f;
-	gchar *path;
+	gchar *path, *uri;
 	gchar **path_decomposed;
 	guint len;
 	struct tm tm;
+
+	uri = tracker_module_file_get_uri (file);
 
 	f = tracker_module_file_get_file (file);
 	path = g_file_get_path (f);
@@ -117,16 +119,17 @@ gaim_file_get_metadata (TrackerModuleFile *file)
 
 	metadata = tracker_module_metadata_new ();
 
-	tracker_module_metadata_add_string (metadata, METADATA_CONVERSATION_USER_ACCOUNT, path_decomposed [len - 3]);
-	tracker_module_metadata_add_string (metadata, METADATA_CONVERSATION_PEER_ACCOUNT, path_decomposed [len - 2]);
-	tracker_module_metadata_add_string (metadata, METADATA_CONVERSATION_PROTOCOL, path_decomposed [len - 4]);
+	tracker_module_metadata_add_string (metadata, uri, METADATA_CONVERSATION_USER_ACCOUNT, path_decomposed [len - 3]);
+	tracker_module_metadata_add_string (metadata, uri, METADATA_CONVERSATION_PEER_ACCOUNT, path_decomposed [len - 2]);
+	tracker_module_metadata_add_string (metadata, uri, METADATA_CONVERSATION_PROTOCOL, path_decomposed [len - 4]);
 
 	if (strptime (path_decomposed [len - 1], "%Y-%m-%d.%H%M%S%z", &tm) != NULL) {
-		tracker_module_metadata_add_date (metadata, METADATA_CONVERSATION_DATE, mktime (&tm));
+		tracker_module_metadata_add_date (metadata, uri, METADATA_CONVERSATION_DATE, mktime (&tm));
 	}
 
 	g_strfreev (path_decomposed);
 	g_free (path);
+	g_free (uri);
 
 	return metadata;
 }

@@ -98,7 +98,6 @@ int
 main (int argc, char **argv)
 {
 	TrackerClient	*client;
-	ServiceType	 type;
 	GOptionContext	*context;
 	GError		*error = NULL;
 	gchar		*search;
@@ -176,6 +175,8 @@ main (int argc, char **argv)
 		limit = 512;
 	}
 
+	/* TODO: Port to SPARQL */
+#if 0
 	if (!service) {
 		g_print ("%s\n",
 			 _("Defaulting to 'files' service"));
@@ -192,8 +193,6 @@ main (int argc, char **argv)
 
 	search = g_strjoinv (" ", terms);
 
-	/* TODO: Port to SPARQL */
-#if 0
 	if (detailed) {
 		array = tracker_search_text_detailed (client,
 						      time (NULL),

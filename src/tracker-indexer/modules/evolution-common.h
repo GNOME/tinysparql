@@ -26,18 +26,15 @@
 
 #include <gmime/gmime.h>
 
-#include <libtracker-data/tracker-data-metadata.h>
-
 G_BEGIN_DECLS
 
-#define METADATA_FILE_PATH	     "File:Path"
 #define METADATA_FILE_NAME	     "File:Name"
-#define METADATA_EMAIL_RECIPIENT     "Email:Recipient"
-#define METADATA_EMAIL_DATE	     "Email:Date"
-#define METADATA_EMAIL_SENDER	     "Email:Sender"
-#define METADATA_EMAIL_SUBJECT	     "Email:Subject"
-#define METADATA_EMAIL_SENT_TO	     "Email:SentTo"
-#define METADATA_EMAIL_CC	     "Email:CC"
+#define METADATA_EMAIL_RECIPIENT     "nmo:recipient"
+#define METADATA_EMAIL_DATE	     "nmo:sentDate"
+#define METADATA_EMAIL_SENDER	     "nmo:sender"
+#define METADATA_EMAIL_SUBJECT	     "nmo:messageSubject"
+#define METADATA_EMAIL_SENT_TO	     "nmo:to"
+#define METADATA_EMAIL_CC	     "nmo:cc"
 
 enum EvolutionFlags {
 	EVOLUTION_MESSAGE_ANSWERED     = 1 << 0,
@@ -54,7 +51,9 @@ enum EvolutionFlags {
 GMimeStream *           evolution_common_get_stream           (const gchar      *path,
 							       gint              flags,
 							       off_t             start);
-TrackerModuleMetadata * evolution_common_get_wrapper_metadata (GMimeDataWrapper *wrapper);
+void                    evolution_common_get_wrapper_metadata (GMimeDataWrapper *wrapper,
+							       TrackerModuleMetadata *metadata, 
+							       const gchar *subject);
 gchar *                 evolution_common_get_object_encoding  (GMimeObject      *object);
 
 G_END_DECLS

@@ -23,8 +23,6 @@
 
 #include <string.h>
 
-#include <libtracker-data/tracker-data-metadata.h>
-
 #include <tracker-indexer/tracker-module-file.h>
 
 #include "tracker-config.h"

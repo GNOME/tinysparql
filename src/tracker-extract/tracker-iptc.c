@@ -20,8 +20,16 @@
 
 #include "config.h"
 
+#include <libtracker-common/tracker-ontology.h>
+#include <libtracker-common/tracker-statement-list.h>
+
 #include "tracker-iptc.h"
 #include "tracker-main.h"
+
+#define RDF_PREFIX TRACKER_RDF_PREFIX
+#define RDF_TYPE RDF_PREFIX "type"
+#define NIE_PREFIX TRACKER_NIE_PREFIX
+#define NCO_PREFIX TRACKER_NCO_PREFIX
 
 #include <glib.h>
 #include <string.h>
@@ -31,87 +39,36 @@
 #include <libiptcdata/iptc-data.h>
 #include <libiptcdata/iptc-dataset.h>
 
-typedef gchar * (*IptcPostProcessor) (const gchar*);
+typedef const gchar * (*IptcPostProcessor) (const gchar*);
 
 typedef struct {
 	IptcRecord        record;
 	IptcTag           tag;
-	gchar	         *name;
-	gboolean          multi; /* Does the field have multiple values */
+	const gchar      *name;
 	IptcPostProcessor post;
+	const gchar      *urn;
+	const gchar      *rdf_type;
+	const gchar      *predicate;
 } IptcTagType;
 
-static gchar *fix_iptc_orientation (const gchar *orientation);
+static const gchar *fix_iptc_orientation (const gchar *orientation);
 
 static IptcTagType iptctags[] = {
-        { 2, IPTC_TAG_KEYWORDS, "Image:Keywords", TRUE, NULL },
-	/*	{ 2, IPTC_TAG_CONTENT_LOC_NAME, "Image:Location", NULL }, */
-	{ 2, IPTC_TAG_SUBLOCATION, "Image:Location", FALSE, NULL },
-        { 2, IPTC_TAG_DATE_CREATED, "Image:Date", FALSE, NULL },
-        { 2, IPTC_TAG_ORIGINATING_PROGRAM, "Image:Software", FALSE, NULL },
-        { 2, IPTC_TAG_BYLINE, "Image:Creator", FALSE, NULL },
-        { 2, IPTC_TAG_CITY, "Image:City", FALSE, NULL },
-        { 2, IPTC_TAG_COUNTRY_NAME, "Image:Country", FALSE, NULL },
-        { 2, IPTC_TAG_CREDIT, "Image:Creator", FALSE, NULL },
-        { 2, IPTC_TAG_COPYRIGHT_NOTICE, "File:Copyright", FALSE, NULL },
-        { 2, IPTC_TAG_IMAGE_ORIENTATION, "Image:Orientation", FALSE, fix_iptc_orientation },
-	{ -1, -1, NULL, FALSE, NULL }
+        { 2, IPTC_TAG_KEYWORDS, NIE_PREFIX "keyword", NULL, NULL, NULL, NULL }, /* We might have to strtok_r this one? */
+	/*	{ 2, IPTC_TAG_CONTENT_LOC_NAME, "Image:Location", NULL, NULL, NULL, NULL }, */
+	{ 2, IPTC_TAG_SUBLOCATION, "Image:Location", NULL, NULL, NULL, NULL },
+        { 2, IPTC_TAG_DATE_CREATED, NIE_PREFIX "contentCreated", NULL, NULL, NULL, NULL },
+        { 2, IPTC_TAG_ORIGINATING_PROGRAM, "Image:Software", NULL, NULL, NULL, NULL },
+        { 2, IPTC_TAG_BYLINE, NCO_PREFIX "creator", NULL, ":", NCO_PREFIX "Contact", NCO_PREFIX "fullname" },
+        { 2, IPTC_TAG_CITY, "Image:City", NULL, NULL, NULL, NULL },
+        { 2, IPTC_TAG_COUNTRY_NAME, "Image:Country", NULL, NULL, NULL, NULL },
+	{ 2, IPTC_TAG_CREDIT, NCO_PREFIX "creator", NULL, ":", NCO_PREFIX "Contact", NCO_PREFIX "fullname" },
+        { 2, IPTC_TAG_COPYRIGHT_NOTICE, NIE_PREFIX "copyright", NULL, NULL, NULL, NULL },
+        { 2, IPTC_TAG_IMAGE_ORIENTATION, "Image:Orientation", fix_iptc_orientation, NULL, NULL, NULL },
+	{ -1, -1, NULL, NULL, NULL, NULL, NULL }
 };
 
-static void
-metadata_append (GHashTable *metadata, gchar *key, gchar *value, gboolean append)
-{
-	gchar   *new_value;
-	gchar   *orig;
-	gchar  **list;
-	gboolean found = FALSE;
-	guint    i;
-
-	if (append && (orig = g_hash_table_lookup (metadata, key))) {
-		gchar *escaped;
-		
-		escaped = tracker_escape_metadata (value);
-
-		list = g_strsplit (orig, "|", -1);			
-		for (i=0; list[i]; i++) {
-			if (strcmp (list[i], escaped) == 0) {
-				found = TRUE;
-				break;
-			}
-		}			
-		g_strfreev(list);
-
-		if (!found) {
-			new_value = g_strconcat (orig, "|", escaped, NULL);
-			g_hash_table_insert (metadata, g_strdup (key), new_value);
-		}
-
-		g_free (escaped);		
-	} else {
-		new_value = tracker_escape_metadata (value);
-		g_hash_table_insert (metadata, g_strdup (key), new_value);
-
-		/* FIXME Postprocessing is evil and should be elsewhere */
-		if (strcmp (key, "Image:Keywords") == 0) {
-			g_hash_table_insert (metadata,
-					     g_strdup ("Image:HasKeywords"),
-					     tracker_escape_metadata ("1"));			
-		}		
-	}
-
-	/* Adding certain fields also to keywords FIXME Postprocessing is evil */
-	if ((strcmp (key, "Image:Location") == 0) ||
-	    (strcmp (key, "Image:Sublocation") == 0) ||
-	    (strcmp (key, "Image:Country") == 0) ||
-	    (strcmp (key, "Image:City") == 0) ) {
-		metadata_append (metadata, "Image:Keywords", value, TRUE);
-		g_hash_table_insert (metadata,
-				     g_strdup ("Image:HasKeywords"),
-				     tracker_escape_metadata ("1"));
-	}
-}
-
-static gchar *
+static const gchar *
 fix_iptc_orientation (const gchar *orientation)
 {
 	if (strcmp(orientation, "P")==0) {
@@ -127,7 +84,8 @@ fix_iptc_orientation (const gchar *orientation)
 void
 tracker_read_iptc (const unsigned char *buffer,
 		   size_t		len,
-		   GHashTable	       *metadata)
+		   const gchar         *uri,
+		   GPtrArray	       *metadata)
 {
 #ifdef HAVE_LIBIPTCDATA
 	IptcData     *iptc = NULL;
@@ -147,13 +105,22 @@ tracker_read_iptc (const unsigned char *buffer,
 
 		while ( (dataset = iptc_data_get_next_dataset (iptc, dataset, p->record, p->tag) ) ) {
 			gchar buffer[1024];
-			
+			const gchar *what_i_need;
+
 			iptc_dataset_get_as_str (dataset, buffer, 1024);
 			
 			if (p->post) {
-				metadata_append (metadata,p->name,(*p->post) (buffer), p->multi);
+				what_i_need = (*p->post) (buffer);
 			} else {
-				metadata_append (metadata, p->name, buffer, p->multi);
+				what_i_need = buffer;
+			}
+
+			if (p->urn) {
+				tracker_statement_list_insert (metadata, p->urn, RDF_TYPE, p->rdf_type);
+				tracker_statement_list_insert (metadata, p->urn, p->predicate, what_i_need);
+				tracker_statement_list_insert (metadata, uri, p->name, p->urn);
+			} else {
+				tracker_statement_list_insert (metadata, uri, p->name, what_i_need);
 			}
 		}
 	}

@@ -35,22 +35,14 @@ Metadata object
 @Returns: 
 
 
-<!-- ##### FUNCTION tracker_module_metadata_clear_field ##### -->
-<para>
-
-</para>
-
-@metadata: 
-@field_name: 
-
-
 <!-- ##### FUNCTION tracker_module_metadata_add_take_string ##### -->
 <para>
 
 </para>
 
 @metadata: 
-@field_name: 
+@subject: 
+@predicate: 
 @value: 
 @Returns: 
 
@@ -61,7 +53,8 @@ Metadata object
 </para>
 
 @metadata: 
-@field_name: 
+@subject: 
+@predicate: 
 @value: 
 
 
@@ -71,7 +64,8 @@ Metadata object
 </para>
 
 @metadata: 
-@field_name: 
+@subject: 
+@predicate: 
 @value: 
 
 
@@ -81,7 +75,8 @@ Metadata object
 </para>
 
 @metadata: 
-@field_name: 
+@subject: 
+@predicate: 
 @value: 
 
 
@@ -91,7 +86,8 @@ Metadata object
 </para>
 
 @metadata: 
-@field_name: 
+@subject: 
+@predicate: 
 @value: 
 
 
@@ -101,7 +97,8 @@ Metadata object
 </para>
 
 @metadata: 
-@field_name: 
+@subject: 
+@predicate: 
 @value: 
 
 
@@ -111,7 +108,8 @@ Metadata object
 </para>
 
 @metadata: 
-@field_name: 
+@subject: 
+@predicate: 
 @value: 
 
 

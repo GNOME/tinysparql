@@ -1,2 +1,0 @@
-export XDG_CACHE_HOME=/tmp/Tracker-test/.cache
-export XDG_DATA_HOME=/tmp/Tracker-test/.local/share

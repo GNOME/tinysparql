@@ -427,32 +427,36 @@ tracker_turtle_process (const gchar          *turtle_file,
 			TurtleTripleCallback  callback,
 			void                 *user_data)
 {
-	unsigned char  *uri_string;
-	raptor_uri     *uri, *buri;
-	raptor_parser  *parser;
+	GThread        *parser_thread;
+	TurtleThreadData *thread_data;
 
 	if (!initialized) {
 		g_critical ("Using tracker_turtle module without initialization");
 	}
 
-	parser = raptor_new_parser ("turtle");
 
-	raptor_set_statement_handler (parser, user_data, (raptor_statement_handler) callback);
-	raptor_set_fatal_error_handler (parser, (void *)turtle_file, raptor_error);
-	raptor_set_error_handler (parser, (void *)turtle_file, raptor_error);
-	raptor_set_warning_handler (parser, (void *)turtle_file, raptor_error);
+	turtle_mutex = g_mutex_new ();
+	turtle_cond = g_cond_new ();
 
-	uri_string = raptor_uri_filename_to_uri_string (turtle_file);
-	uri = raptor_new_uri (uri_string);
-	buri = raptor_new_uri ((unsigned char *) base_uri);
+	thread_data = g_new0 (TurtleThreadData, 1);
+	thread_data->file = g_strdup (turtle_file);
+	thread_data->base_uri = g_strdup (base_uri);
 
-	raptor_parse_file (parser, uri, buri);
+	turtle_first = TRUE;
 
-	raptor_free_uri (uri);
-	raptor_free_memory (uri_string);
-	raptor_free_uri (buri);
+	parser_thread = g_thread_create (turtle_thread_func, thread_data, FALSE, NULL);
 
-	raptor_free_parser (parser);
+	while (turtle_next ()) {
+		callback (turtle_subject,
+		          turtle_predicate,
+		          turtle_object,
+		          user_data);
+	}
+
+	turtle_eof = FALSE;
+
+	g_mutex_free (turtle_mutex);
+	g_cond_free (turtle_cond);
 }
 
 void

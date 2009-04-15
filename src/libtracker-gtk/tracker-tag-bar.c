@@ -49,7 +49,9 @@ struct _TrackerTagBarPrivate
 	gchar *uri;
 	const gchar *active_tag;
 
+#if 0
 	ServiceType type;
+#endif
 
 	GtkWidget *tag_box;
 	GtkWidget *add_button;
@@ -179,10 +181,11 @@ remove_tag_activate_cb(GtkMenuItem *menu_item, TrackerTagBar *bar)
 		g_print ("Tag Removal Error : %s", error->message);
 		return;
 	}
-#endif
+
 	gchar *temp = g_strdup (priv->uri);
 	tracker_tag_bar_set_uri (bar, priv->type, temp);
 	g_free (temp);
+#endif
 }
 
 static void
@@ -210,25 +213,25 @@ _on_apply_add_tag (GtkButton *but, TrackerTagBar *bar)
 
 	text = gtk_entry_get_text (GTK_ENTRY (priv->entry));
 
+	/* TODO: Port to SPARQL */
+#if 0
 	if (strcmp (text, "Type tags you want to add here, separated by commas") != 0) {
 
 		tags = g_strsplit (text, ",", 0);
 
-	/* TODO: Port to SPARQL */
-#if 0
 		tracker_keywords_add(priv->client, priv->type, priv->uri,
 				 tags, &error);
 		if (error) {
 			g_print ("Tag Addition Error : %s", error->message);
 			return;
 		}
-#endif
 	}
 
 	_on_close_add_tag (but, bar);
 	gchar *temp = g_strdup (priv->uri);
 	tracker_tag_bar_set_uri (bar, priv->type, temp);
 	g_free (temp);
+#endif
 }
 
 static void
@@ -320,6 +323,8 @@ _tag_bar_add_tag (TrackerTagBar *bar, GtkWidget *box, const char *tag)
 }
 
 /* HEADER FUNCTIONS */
+	/* TODO: Port to SPARQL */
+#if 0
 void
 tracker_tag_bar_set_uri (TrackerTagBar *bar, ServiceType type, const gchar *uri)
 {
@@ -332,13 +337,11 @@ tracker_tag_bar_set_uri (TrackerTagBar *bar, ServiceType type, const gchar *uri)
 	priv->uri = g_strdup (uri);
 	priv->type = type;
 
-	/* TODO: Port to SPARQL */
-#if 0
 	tracker_keywords_get_async (priv->client, priv->type, uri,
 				    (TrackerArrayReply)_keywords_reply,
 				    bar);
-#endif
 }
+#endif
 
 /* TRACKER TAG BAR NEW */
 static void

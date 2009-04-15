@@ -25,15 +25,25 @@
 
 #include <glib.h>
 
-#include "tracker-xmp.h"
+#include <libtracker-common/tracker-ontology.h>
+#include <libtracker-common/tracker-statement-list.h>
+
 #include "tracker-main.h"
+#include "tracker-xmp.h"
+
+#define RDF_PREFIX TRACKER_RDF_PREFIX
+#define RDF_TYPE RDF_PREFIX "type"
+#define NIE_PREFIX TRACKER_NIE_PREFIX
+#define NFO_PREFIX TRACKER_NFO_PREFIX
+#define NCO_PREFIX TRACKER_NCO_PREFIX
+#define DC_PREFIX TRACKER_DC_PREFIX
 
 #ifdef HAVE_EXEMPI
 
 #include <exempi/xmp.h>
 #include <exempi/xmpconsts.h>
 
-static gchar *
+static const gchar *
 fix_metering_mode (const gchar *mode)
 {
 	gint value;
@@ -73,7 +83,7 @@ fix_flash (const gchar *flash)
 		
 }
 
-static gchar *
+static const gchar *
 fix_white_balance (const gchar *wb)
 {
 	gint value;
@@ -87,78 +97,30 @@ fix_white_balance (const gchar *wb)
 
 static void tracker_xmp_iter        (XmpPtr          xmp,
 				     XmpIteratorPtr  iter,
-				     GHashTable     *metadata,
+				     const gchar    *uri,
+				     GPtrArray      *metadata,
 				     gboolean        append);
-static void tracker_xmp_iter_simple (GHashTable     *metadata,
+static void tracker_xmp_iter_simple (const gchar    *uri,
+				     GPtrArray      *metadata,
 				     const gchar    *schema,
 				     const gchar    *path,
 				     const gchar    *value,
 				     gboolean        append);
 
-static void
-tracker_append_string_to_hash_table (GHashTable  *metadata, 
-				     const gchar *key, 
-				     const gchar *value, 
-				     gboolean     append,
-				     gboolean     prio)
-{
-	gchar *new_value;
-
-	if (append) {
-		gchar *orig;
-
-		if ( (orig = g_hash_table_lookup (metadata, key)) ) {
-			gchar   *escaped;
-			gchar  **list;
-			gboolean found = FALSE;
-			guint    i;
-
-			escaped = tracker_escape_metadata (value);
-
-			/* Don't add duplicates. FIXME This is inefficient */
-			list = g_strsplit (orig, "|", -1);			
-			for (i=0; list[i]; i++) {
-				if (strcmp (list[i], escaped) == 0) {
-					found = TRUE;
-					break;
-				}
-			}
-
-			g_strfreev(list);
-
-			if(!found) {
-				new_value = g_strconcat (orig, "|", escaped, NULL);
-				g_hash_table_insert (metadata, g_strdup (key), new_value);						
-			}
-
-			g_free (escaped);
-		} else {
-			new_value = tracker_escape_metadata (value);
-			g_hash_table_insert (metadata, g_strdup (key), new_value);
-		}
-	} else {
-		if (!(g_hash_table_lookup(metadata, key) && !prio)) {
-			new_value = tracker_escape_metadata (value);
-
-			g_hash_table_insert (metadata, g_strdup (key), new_value);		
-		}
-		
-	}
-}
-
 
 /* We have an array, now recursively iterate over it's children.  Set 'append' to true so that all values of the array are added
    under one entry. */
 static void
-tracker_xmp_iter_array (XmpPtr       xmp, 
-			GHashTable  *metadata, 
+tracker_xmp_iter_array (XmpPtr       xmp,
+			const gchar *uri,
+			GPtrArray   *metadata, 
 			const gchar *schema, 
 			const gchar *path)
 {
 	XmpIteratorPtr iter;
 
 	iter = xmp_iterator_new (xmp, schema, path, XMP_ITER_JUSTCHILDREN);
-	tracker_xmp_iter (xmp, iter, metadata, TRUE);
+	tracker_xmp_iter (xmp, iter, uri, metadata, TRUE);
 	xmp_iterator_free (iter);
 }
 
@@ -166,14 +128,15 @@ tracker_xmp_iter_array (XmpPtr       xmp,
 /* We have an array, now recursively iterate over it's children.  Set 'append' to false so that only one item is used. */
 static void
 tracker_xmp_iter_alt_text (XmpPtr       xmp, 
-			   GHashTable  *metadata, 
+			   const gchar *uri,
+			   GPtrArray   *metadata, 
 			   const gchar *schema, 
 			   const gchar *path)
 {
 	XmpIteratorPtr iter;
 
 	iter = xmp_iterator_new (xmp, schema, path, XMP_ITER_JUSTCHILDREN);
-	tracker_xmp_iter (xmp, iter, metadata, FALSE);
+	tracker_xmp_iter (xmp, iter, uri, metadata, FALSE);
 	xmp_iterator_free (iter);
 }
 
@@ -181,7 +144,8 @@ tracker_xmp_iter_alt_text (XmpPtr       xmp,
 /* We have a simple element, but need to iterate over the qualifiers */
 static void
 tracker_xmp_iter_simple_qual (XmpPtr       xmp, 
-			      GHashTable  *metadata,
+			      const gchar *uri,
+			      GPtrArray   *metadata,
 			      const gchar *schema, 
 			      const gchar *path, 
 			      const gchar *value, 
@@ -227,7 +191,7 @@ tracker_xmp_iter_simple_qual (XmpPtr       xmp,
 	}
 
 	if (!ignore_element) {
-		tracker_xmp_iter_simple (metadata, schema, path, value, append);
+		tracker_xmp_iter_simple (uri, metadata, schema, path, value, append);
 	}
 
 	xmp_string_free (the_prop);
@@ -240,7 +204,8 @@ tracker_xmp_iter_simple_qual (XmpPtr       xmp,
  * hash table.
  */
 static void
-tracker_xmp_iter_simple (GHashTable  *metadata,
+tracker_xmp_iter_simple (const gchar *uri,
+			 GPtrArray   *metadata,
 			 const gchar *schema, 
 			 const gchar *path, 
 			 const gchar *value, 
@@ -259,169 +224,205 @@ tracker_xmp_iter_simple (GHashTable  *metadata,
 	/* Dublin Core */
 	if (strcmp (schema, NS_DC) == 0) {
 		if (strcmp (name, "title") == 0) {
-			tracker_append_string_to_hash_table (metadata, "Image:Title", value, append, FALSE);
+			tracker_statement_list_insert (metadata, uri, 
+						  "Image:Title", value);
 		}
 		else if (strcmp (name, "rights") == 0) {
-			tracker_append_string_to_hash_table (metadata, "File:Copyright", value, append, FALSE);
+			tracker_statement_list_insert (metadata, uri,
+						  NIE_PREFIX "copyright", value);
 		}
 		else if (strcmp (name, "creator") == 0) {
-			tracker_append_string_to_hash_table (metadata, "Image:Creator", value, append, FALSE);
+
+			tracker_statement_list_insert (metadata, ":", RDF_TYPE, NCO_PREFIX "Contact");
+			tracker_statement_list_insert (metadata, ":", NCO_PREFIX "fullname", value);
+			tracker_statement_list_insert (metadata, uri, NCO_PREFIX "creator", ":");
+
 		}
 		else if (strcmp (name, "description") == 0) {
-			tracker_append_string_to_hash_table (metadata, "Image:Description", value, append, FALSE);
+			tracker_statement_list_insert (metadata, uri,
+						  "Image:Description", value);
 		}
 		else if (strcmp (name, "date") == 0) {
-			/* exempi considers this an array while we want a single value */
-			tracker_append_string_to_hash_table (metadata, "Image:Date", value, FALSE, FALSE);
+			tracker_statement_list_insert (metadata, uri,
+						  "Image:Date", value);
 		}
 		else if (strcmp (name, "keywords") == 0) {
-			tracker_append_string_to_hash_table (metadata, "Image:Keywords", value, append, FALSE);
-			tracker_append_string_to_hash_table (metadata, "Image:HasKeywords", "1", FALSE, FALSE);
+			tracker_statement_list_insert (metadata, uri,
+						  "Image:Keywords", value);
 		}
 		else if (strcmp (name, "subject") == 0) {
-			tracker_append_string_to_hash_table (metadata, "DC:Subject", value, append, FALSE);
+			tracker_statement_list_insert (metadata, uri, 
+						  NIE_PREFIX "subject", value);
 
 			/* The subject field may contain keywords as well */
-			tracker_append_string_to_hash_table (metadata, "Image:Keywords", value, TRUE, FALSE);
-			tracker_append_string_to_hash_table (metadata, "Image:HasKeywords", "1", FALSE, FALSE);
+			tracker_statement_list_insert (metadata, uri,
+						  "Image:Keywords", value);
 		}
 		else if (strcmp (name, "publisher") == 0) {
-			tracker_append_string_to_hash_table (metadata, "DC:Publisher", value, append, FALSE);
+			tracker_statement_list_insert (metadata, ":", RDF_TYPE, NCO_PREFIX "Contact");
+			tracker_statement_list_insert (metadata, ":", NCO_PREFIX "fullname", value);
+			tracker_statement_list_insert (metadata, uri, NCO_PREFIX "publisher", ":");
 		}
 		else if (strcmp (name, "contributor") == 0) {
-			tracker_append_string_to_hash_table (metadata, "DC:Contributor", value, append, FALSE);
+			tracker_statement_list_insert (metadata, ":", RDF_TYPE, NCO_PREFIX "Contact");
+			tracker_statement_list_insert (metadata, ":", NCO_PREFIX "fullname", value);
+			tracker_statement_list_insert (metadata, uri, NCO_PREFIX "contributor", ":");
 		}
 		else if (strcmp (name, "type") == 0) {
-			tracker_append_string_to_hash_table (metadata, "DC:Type", value, append, FALSE);
+			tracker_statement_list_insert (metadata, uri, 
+						  DC_PREFIX "type", value);
 		}
 		else if (strcmp (name, "format") == 0) {
-			tracker_append_string_to_hash_table (metadata, "DC:Format", value, append, FALSE);
+			tracker_statement_list_insert (metadata, uri, 
+						  DC_PREFIX "format", value);
 		}
 		else if (strcmp (name, "identifier") == 0) {
-			tracker_append_string_to_hash_table (metadata, "DC:Identifier", value, append, FALSE);
+			tracker_statement_list_insert (metadata, uri, 
+						  DC_PREFIX "identifier", value);
 		}
 		else if (strcmp (name, "source") == 0) {
-			tracker_append_string_to_hash_table (metadata, "DC:Source", value, append, FALSE);
+			tracker_statement_list_insert (metadata, uri,
+						  DC_PREFIX "source", value);
 		}
 		else if (strcmp (name, "language") == 0) {
-			tracker_append_string_to_hash_table (metadata, "DC:Language", value, append, FALSE);
+			tracker_statement_list_insert (metadata, uri,
+						  DC_PREFIX "language", value);
 		}
 		else if (strcmp (name, "relation") == 0) {
-			tracker_append_string_to_hash_table (metadata, "DC:Relation", value, append, FALSE);
+			tracker_statement_list_insert (metadata, uri,
+						  DC_PREFIX "relation", value);
 		}
 		else if (strcmp (name, "coverage") == 0) {
-			tracker_append_string_to_hash_table (metadata, "DC:Coverage", value, append, FALSE);
+			tracker_statement_list_insert (metadata, uri, 
+						  DC_PREFIX "coverage", value);
 		}
 
 	}
 	/* Creative Commons */
 	else if (strcmp (schema, NS_CC) == 0) {
 		if (strcmp (name, "license") == 0) {
-			tracker_append_string_to_hash_table (metadata, "File:License", value, append, FALSE);
+			tracker_statement_list_insert (metadata, uri,
+						  NIE_PREFIX "license", value);
 		}
 	}
 	/* Exif basic scheme */
 	else if (strcmp (schema, NS_EXIF) == 0) {
 		if (strcmp (name, "Title") == 0) {
-			tracker_append_string_to_hash_table (metadata, "Image:Title", value, append, FALSE);
+			tracker_statement_list_insert (metadata, uri,
+						  "Image:Title", value);
 		}
 		else if (strcmp (name, "DateTimeOriginal") == 0) {
-			tracker_append_string_to_hash_table (metadata, "Image:Date", value, append, TRUE);
+			tracker_statement_list_insert (metadata, uri, 
+						  "Image:Date", value);
 		}
 		else if (strcmp (name, "Artist") == 0) {
-			tracker_append_string_to_hash_table (metadata, "Image:Creator", value, append, FALSE);
+			tracker_statement_list_insert (metadata, uri,
+						  "Image:Creator", value);
 		}
 		else if (strcmp (name, "Software") == 0) {
-			tracker_append_string_to_hash_table (metadata, "Image:Software", value, append, FALSE);
+			tracker_statement_list_insert (metadata, uri,
+						  "Image:Software", value);
 		}
 		else if (strcmp (name, "Make") == 0) {
-			tracker_append_string_to_hash_table (metadata, "Image:CameraMake", value, append, FALSE);
+			tracker_statement_list_insert (metadata, uri, 
+						  "Image:CameraMake", value);
 		}
 		else if (strcmp (name, "Model") == 0) {
-			tracker_append_string_to_hash_table (metadata, "Image:CameraModel", value, append, FALSE);
+			tracker_statement_list_insert (metadata, uri, 
+						  "Image:CameraModel", value);
 		}
 		else if (strcmp (name, "Orientation") == 0) {
-			tracker_append_string_to_hash_table (metadata, 
-							     "Image:Orientation", 
-							     value, 
-							     append, FALSE);
+			tracker_statement_list_insert (metadata, uri,
+						  "Image:Orientation", 
+						  value);
 		}
 		else if (strcmp (name, "Flash") == 0) {
-			tracker_append_string_to_hash_table (metadata, 
-							     "Image:Flash", 
-							     fix_flash (value), 
-							     append, FALSE);
+			tracker_statement_list_insert (metadata, uri,
+						  "Image:Flash", 
+						  fix_flash (value));
 		}
 		else if (strcmp (name, "MeteringMode") == 0) {
-			tracker_append_string_to_hash_table (metadata, 
-							     "Image:MeteringMode", 
-							     fix_metering_mode (value), 
-							     append, FALSE);
+			tracker_statement_list_insert (metadata, uri,
+						  "Image:MeteringMode", 
+						  fix_metering_mode (value));
 		}
 		else if (strcmp (name, "ExposureProgram") == 0) {
-			tracker_append_string_to_hash_table (metadata, "Image:ExposureProgram", value, append, FALSE);
+			tracker_statement_list_insert (metadata, uri,
+						  "Image:ExposureProgram", value);
 		}
 		else if (strcmp (name, "ExposureTime") == 0) {
-			tracker_append_string_to_hash_table (metadata, "Image:ExposureTime", value, append, FALSE);
+			tracker_statement_list_insert (metadata, uri,
+						  "Image:ExposureTime", value);
 		}
 		else if (strcmp (name, "FNumber") == 0) {
-			tracker_append_string_to_hash_table (metadata, "Image:FNumber", value, append, FALSE);
+			tracker_statement_list_insert (metadata, uri,
+						  "Image:FNumber", value);
 		}
 		else if (strcmp (name, "FocalLength") == 0) {
-			tracker_append_string_to_hash_table (metadata, "Image:FocalLength", value, append, FALSE);
+			tracker_statement_list_insert (metadata, uri, 
+						  "Image:FocalLength", value);
 		}
 		else if (strcmp (name, "ISOSpeedRatings") == 0) {
-			tracker_append_string_to_hash_table (metadata, "Image:ISOSpeed", value, append, FALSE);
+			tracker_statement_list_insert (metadata, uri, 
+						  "Image:ISOSpeed", value);
 		}
 		else if (strcmp (name, "WhiteBalance") == 0) {
-			tracker_append_string_to_hash_table (metadata, "Image:WhiteBalance",
-							     fix_white_balance (value), append, FALSE);
+			tracker_statement_list_insert (metadata, uri,
+						  "Image:WhiteBalance",
+						   fix_white_balance (value));
 		}
 		else if (strcmp (name, "Copyright") == 0) {
-			tracker_append_string_to_hash_table (metadata, "File:Copyright", value, append, FALSE);
+			tracker_statement_list_insert (metadata, uri,
+						  NIE_PREFIX "copyright", value);
 		}
 	}
 	/* XAP (XMP)scheme */
 	else if (strcmp (schema, NS_XAP) == 0) {
 	        if (strcmp (name, "Rating") == 0) {
-		        tracker_append_string_to_hash_table (metadata, "Image:Rating", value, append, FALSE);
+		        tracker_statement_list_insert (metadata, uri,
+						  "Image:Rating", value);
 		}
 		if (strcmp (name, "MetadataDate") == 0) {
-		        tracker_append_string_to_hash_table (metadata, "Image:Date", value, append, FALSE);
+		        tracker_statement_list_insert (metadata, uri,
+						  "Image:Date", value);
 		}
 	}
 	/* IPTC4XMP scheme */
 	else if (strcmp (schema,  NS_IPTC4XMP) == 0) {
 	        if (strcmp (name, "Location") == 0) {
-		        tracker_append_string_to_hash_table (metadata, "Image:Location", value, append, FALSE);
+		        tracker_statement_list_insert (metadata, uri,
+						  "Image:Location", value);
 
 			/* Added to the valid keywords */
-		        tracker_append_string_to_hash_table (metadata, "Image:Keywords", value, TRUE, FALSE);
-			tracker_append_string_to_hash_table (metadata, "Image:HasKeywords", "1", FALSE, FALSE);
+		        tracker_statement_list_insert (metadata, uri,
+						  "Image:Keywords", value);
 		}
 		if (strcmp (name, "Sublocation") == 0) {
-		        tracker_append_string_to_hash_table (metadata, "Image:Sublocation", value, append, FALSE);
-			
+		        tracker_statement_list_insert (metadata, uri,
+						  "Image:Sublocation", value);
+
 			/* Added to the valid keywords */
-		        tracker_append_string_to_hash_table (metadata, "Image:Keywords", value, TRUE, FALSE);
-			tracker_append_string_to_hash_table (metadata, "Image:HasKeywords", "1", FALSE, FALSE);
+		        tracker_statement_list_insert (metadata, uri,
+						  "Image:Keywords", value);
 		}
 	}
 	/* Photoshop scheme */
 	else if (strcmp (schema,  NS_PHOTOSHOP) == 0) {
 	        if (strcmp (name, "City") == 0) {
-		        tracker_append_string_to_hash_table (metadata, "Image:City", value, append, FALSE);
+		        tracker_statement_list_insert (metadata, uri,
+						  "Image:City", value);
 
 			/* Added to the valid keywords */
-		        tracker_append_string_to_hash_table (metadata, "Image:Keywords", value, TRUE, FALSE);
-			tracker_append_string_to_hash_table (metadata, "Image:HasKeywords", "1", FALSE, FALSE);
+		        tracker_statement_list_insert (metadata, uri,
+						  "Image:Keywords", value);
 		}
 		else if (strcmp (name, "Country") == 0) {
-			tracker_append_string_to_hash_table (metadata, "Image:Country", value, append, FALSE);
+			tracker_statement_list_insert (metadata, uri,
+						  "Image:Country", value);
 
 			/* Added to the valid keywords */
-		        tracker_append_string_to_hash_table (metadata, "Image:Keywords", value, TRUE, FALSE);
-			tracker_append_string_to_hash_table (metadata, "Image:HasKeywords", "1", FALSE, FALSE);			
+		        tracker_statement_list_insert (metadata, uri,
+						  "Image:Keywords", value);
 		}
 	}
 
@@ -435,7 +436,8 @@ tracker_xmp_iter_simple (GHashTable  *metadata,
 void
 tracker_xmp_iter (XmpPtr          xmp, 
 		  XmpIteratorPtr  iter, 
-		  GHashTable     *metadata, 
+		  const gchar    *uri,
+		  GPtrArray      *metadata, 
 		  gboolean        append)
 {
 	XmpStringPtr the_schema = xmp_string_new ();
@@ -451,18 +453,18 @@ tracker_xmp_iter (XmpPtr          xmp,
 		if (XMP_IS_PROP_SIMPLE (opt)) {
 			if (strcmp (path,"") != 0) {
 				if (XMP_HAS_PROP_QUALIFIERS (opt)) {
-					tracker_xmp_iter_simple_qual (xmp, metadata, schema, path, value, append);
+					tracker_xmp_iter_simple_qual (xmp, uri, metadata, schema, path, value, append);
 				} else {
-					tracker_xmp_iter_simple (metadata, schema, path, value, append);
+					tracker_xmp_iter_simple (uri, metadata, schema, path, value, append);
 				}
 			}
 		}
 		else if (XMP_IS_PROP_ARRAY (opt)) {
 			if (XMP_IS_ARRAY_ALTTEXT (opt)) {
-				tracker_xmp_iter_alt_text (xmp, metadata, schema, path);
+				tracker_xmp_iter_alt_text (xmp, uri, metadata, schema, path);
 				xmp_iterator_skip (iter, XMP_ITER_SKIPSUBTREE);
 			} else {
-				tracker_xmp_iter_array (xmp, metadata, schema, path);
+				tracker_xmp_iter_array (xmp, uri, metadata, schema, path);
 				xmp_iterator_skip (iter, XMP_ITER_SKIPSUBTREE);
 			}
 		}
@@ -478,7 +480,8 @@ tracker_xmp_iter (XmpPtr          xmp,
 void
 tracker_read_xmp (const gchar *buffer, 
 		  size_t       len, 
-		  GHashTable  *metadata)
+		  const gchar *uri,
+		  GPtrArray   *metadata)
 {
 #ifdef HAVE_EXEMPI
 	XmpPtr xmp;
@@ -492,7 +495,7 @@ tracker_read_xmp (const gchar *buffer,
 		XmpIteratorPtr iter;
 
 		iter = xmp_iterator_new (xmp, NULL, NULL, XMP_ITER_PROPERTIES);
-		tracker_xmp_iter (xmp, iter, metadata, FALSE);
+		tracker_xmp_iter (xmp, iter, uri, metadata, FALSE);
 		xmp_iterator_free (iter);
 		xmp_free (xmp);
 	}

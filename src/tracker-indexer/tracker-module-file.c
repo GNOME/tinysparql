@@ -21,10 +21,6 @@
 #include "tracker-module-metadata-private.h"
 #include "tracker-module-file.h"
 
-#define METADATA_FILE_PATH	     "File:Path"
-#define METADATA_FILE_NAME	     "File:Name"
-#define METADATA_FILE_MODIFIED       "File:Modified"
-
 #define TRACKER_MODULE_FILE_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_MODULE_FILE, TrackerModuleFilePrivate))
 
 typedef struct TrackerModuleFilePrivate TrackerModuleFilePrivate;
@@ -193,24 +189,6 @@ tracker_module_file_get_file (TrackerModuleFile *file)
         return priv->file;
 }
 
-/**
- * tracker_module_file_get_service_type:
- * @file: A #TrackerModuleFile
- *
- * Returns the service type for @file in the current
- * state (See #TrackerModuleIteratable).
- *
- * Returns: The service type name.
- **/
-G_CONST_RETURN gchar *
-tracker_module_file_get_service_type (TrackerModuleFile *file)
-{
-        if (TRACKER_MODULE_FILE_GET_CLASS (file)->get_service_type == NULL) {
-                return NULL;
-        }
-
-        return TRACKER_MODULE_FILE_GET_CLASS (file)->get_service_type (file);
-}
 
 /**
  * tracker_module_file_get_uri:
@@ -234,10 +212,7 @@ tracker_module_file_get_uri (TrackerModuleFile *file)
 
                 f = tracker_module_file_get_file (file);
 
-                /* FIXME: When we agree on storing URIs in the
-                 * database, this should stop returning the path
-                 */
-                uri = g_file_get_path (f);
+                uri = g_file_get_uri (f);
         }
 
         return uri;
@@ -281,29 +256,6 @@ tracker_module_file_get_metadata (TrackerModuleFile *file)
 
         if (TRACKER_MODULE_FILE_GET_CLASS (file)->get_metadata != NULL) {
                 metadata = TRACKER_MODULE_FILE_GET_CLASS (file)->get_metadata (file);
-        }
-
-        if (!metadata) {
-                return NULL;
-        }
-
-        if (!tracker_module_metadata_lookup (metadata, METADATA_FILE_PATH, NULL) &&
-            !tracker_module_metadata_lookup (metadata, METADATA_FILE_NAME, NULL)) {
-                gchar *uri, *dirname, *basename;
-
-                uri = tracker_module_file_get_uri (file);
-                tracker_file_get_path_and_name (uri, &dirname, &basename);
-
-                tracker_module_metadata_add_string (metadata, METADATA_FILE_PATH, dirname);
-                tracker_module_metadata_add_string (metadata, METADATA_FILE_NAME, basename);
-
-                g_free (dirname);
-                g_free (basename);
-                g_free (uri);
-        }
-
-        if (!tracker_module_metadata_lookup (metadata, METADATA_FILE_MODIFIED, NULL)) {
-                tracker_module_metadata_add_date (metadata, METADATA_FILE_MODIFIED, time (NULL));
         }
 
         return metadata;

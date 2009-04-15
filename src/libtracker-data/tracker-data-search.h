@@ -26,13 +26,18 @@
 
 #include <glib.h>
 
+#include <libtracker-common/tracker-language.h>
+#include <libtracker-common/tracker-ontology.h>
+
 #include <libtracker-db/tracker-db-interface.h>
+#include <libtracker-db/tracker-db-file-info.h>
+#include <libtracker-db/tracker-db-index.h>
 
 G_BEGIN_DECLS
 
-/* Files API */
-gchar **	    tracker_data_search_files_get		 (TrackerDBInterface  *iface,
-								  const gchar	      *folder_path);
+/* Search API */
+gint		   *tracker_data_search_get_matches				(const gchar       *search_string,
+										 gint		   *result_length);
 
 G_END_DECLS
 

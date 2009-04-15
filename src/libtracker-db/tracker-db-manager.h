@@ -32,12 +32,9 @@ G_BEGIN_DECLS
 typedef enum {
 	TRACKER_DB_UNKNOWN,
 	TRACKER_DB_COMMON,
-	TRACKER_DB_FILE_METADATA,
-	TRACKER_DB_FILE_CONTENTS,
-	TRACKER_DB_FILE_FULLTEXT,
-	TRACKER_DB_EMAIL_METADATA,
-	TRACKER_DB_EMAIL_CONTENTS,
-	TRACKER_DB_EMAIL_FULLTEXT,
+	TRACKER_DB_METADATA,
+	TRACKER_DB_CONTENTS,
+	TRACKER_DB_FULLTEXT,
 } TrackerDB;
 
 typedef enum {
@@ -50,12 +47,9 @@ typedef enum {
 	TRACKER_DB_MANAGER_FORCE_REINDEX    = 1 << 1,
 	TRACKER_DB_MANAGER_REMOVE_CACHE     = 1 << 2,
 	TRACKER_DB_MANAGER_LOW_MEMORY_MODE  = 1 << 3,
-	TRACKER_DB_MANAGER_REMOVE_ALL       = 1 << 4
+	TRACKER_DB_MANAGER_REMOVE_ALL       = 1 << 4,
+	TRACKER_DB_MANAGER_TEST_MODE        = 1 << 5
 } TrackerDBManagerFlags;
-
-#define TRACKER_DB_FOR_FILE_SERVICE	"Files"
-#define TRACKER_DB_FOR_EMAIL_SERVICE	"Emails"
-#define TRACKER_DB_FOR_VIRTUAL_SERVICE  "Virtual"
 
 GType	     tracker_db_get_type			    (void) G_GNUC_CONST;
 
@@ -69,16 +63,11 @@ void         tracker_db_manager_optimize		    (void);
 
 const gchar *tracker_db_manager_get_file		    (TrackerDB		    db);
 TrackerDBInterface *
-	     tracker_db_manager_get_db_interface	    (TrackerDB		    db);
+	     tracker_db_manager_get_db_interface	    (void);
 TrackerDBInterface *
 	     tracker_db_manager_get_db_interfaces	    (gint num, ...);
 TrackerDBInterface *
 	     tracker_db_manager_get_db_interfaces_ro	    (gint num, ...);
-TrackerDBInterface *
-	     tracker_db_manager_get_db_interface_by_service (const gchar	   *service);
-TrackerDBInterface *
-	     tracker_db_manager_get_db_interface_by_type    (const gchar	   *service,
-							     TrackerDBContentType   content_type);
 gboolean     tracker_db_manager_are_db_too_big		    (void);
 
 G_END_DECLS

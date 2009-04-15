@@ -82,7 +82,9 @@ typedef struct _GSearchOptionTemplate GSearchOptionTemplate;
 typedef struct {
 	GSearchWindow * gsearch;
 	char  *uri;
+#if 0
 	ServiceType type;
+#endif
 
 } SnippetRow;
 
@@ -132,7 +134,8 @@ static char *search_service_types[] = {
 NULL
 };
 
-static service_info_t services[17] = {
+static service_info_t services[] = {
+#if 0
 	{ "Emails",	   N_("Emails"),       "stock_mail",		   NULL, SERVICE_EMAILS,	    NULL, FALSE, 0, 0},
 	{ "EvolutionEmails",
 			   N_("Emails"),       "stock_mail",		   NULL, SERVICE_EMAILS,	    NULL, FALSE, 0, 0},
@@ -152,6 +155,8 @@ static service_info_t services[17] = {
 	{ "Applications",  N_("Applications"), "system-run",		   NULL, SERVICE_APPLICATIONS,	    NULL, FALSE, 0, 0},
 	{ "WebHistory",    N_("WebHistory"),	"text-html",		   NULL, SERVICE_WEBHISTORY,	    NULL, FALSE, 0, 0},
 	{ NULL,		   NULL,	       NULL,			   NULL, -1,			    NULL, FALSE, 0, 0},
+#endif
+	{ NULL,		   NULL,	       NULL,			   NULL,			    NULL, FALSE, 0, 0},
 };
 
 static GSearchOptionTemplate GSearchOptionTemplates[] = {
@@ -332,7 +337,9 @@ process_snippets (GSearchWindow * gsearch)
 
 	SnippetRow *snippet = g_queue_pop_head (gsearch->snippet_queue);
 
+#if 0
 	tracker_search_get_snippet_async (tracker_client, snippet->type, snippet->uri, gsearch->search_term, set_snippet, snippet);
+#endif
 
 	return FALSE;
 }
@@ -476,7 +483,9 @@ add_email_to_search_results (const gchar * uri,
 			    COLUMN_NAME, subject,
 			    COLUMN_PATH, sender,
 			    COLUMN_MIME, mime,
+#if 0
 			    COLUMN_TYPE, SERVICE_EMAILS,
+#endif
 			    COLUMN_NO_FILES_FOUND, FALSE,
 			    -1);
 
@@ -493,7 +502,9 @@ add_email_to_search_results (const gchar * uri,
 	snippet_row = g_new (SnippetRow, 1);
 	snippet_row->gsearch = gsearch;
 	snippet_row->uri = g_strdup (uri);
+#if 0
 	snippet_row->type = SERVICE_EMAILS;
+#endif
 
 	g_queue_push_tail (gsearch->snippet_queue, snippet_row);
 	//tracker_search_get_snippet_async (tracker_client, SERVICE_EMAILS, uri, search_term, set_snippet, snippet_row);
@@ -501,7 +512,9 @@ add_email_to_search_results (const gchar * uri,
 
 static void
 add_file_to_search_results (const gchar * file_path,
+#if 0
 			    ServiceType service_type,
+#endif
 			    const gchar * mime,
 			    GtkListStore * store,
 			    GtkTreeIter * iter,
@@ -548,10 +561,13 @@ add_file_to_search_results (const gchar * file_path,
 	                    COLUMN_NAME, base_name,
 	                    COLUMN_PATH, dir_name,
 	                    COLUMN_MIME, description,
+#if 0
 	                    COLUMN_TYPE, service_type,
+#endif
 	                    COLUMN_NO_FILES_FOUND, FALSE,
 	                    -1);
 	
+#if 0
 	if (gsearch->search_term  &&
 	    (service_type == SERVICE_DOCUMENTS ||
 	     service_type == SERVICE_TEXT_FILES ||
@@ -567,6 +583,7 @@ add_file_to_search_results (const gchar * file_path,
 		
 		g_queue_push_tail (gsearch->snippet_queue, snippet_row);
 	}
+#endif
 	
 	g_object_unref (file);
 	g_object_unref (file_info);
@@ -617,7 +634,9 @@ add_application_to_search_results (const gchar * uri,
 			    COLUMN_NAME, display_name,
 			    COLUMN_PATH, _("Application"),
 			    COLUMN_MIME, "",
+#if 0
 			    COLUMN_TYPE, SERVICE_APPLICATIONS,
+#endif
 			    COLUMN_EXEC, exec,
 			    COLUMN_NO_FILES_FOUND, FALSE,
 			    -1);
@@ -1461,6 +1480,7 @@ get_meta_table_data (gpointer value,
 
 	meta = (char **)value;
 
+#if 0
 	if (gsearch->type == SERVICE_EMAILS) {
 
 		if (meta[0] && meta[1] && meta[2]) {
@@ -1501,7 +1521,7 @@ get_meta_table_data (gpointer value,
 			}
 		}
 	}
-
+#endif
 }
 
 static gint
@@ -1653,12 +1673,14 @@ get_hit_count (GPtrArray *out_array,
 
 		g_free (label_str);
 
+#if 0
 		if (gsearch->old_type == service->service_type) {
 			first_service = TRUE;
 			gsearch->current_service = service;
 			gsearch->type = service->service_type;
 			init_tab (gsearch, service);
 		}
+#endif
 	}
 
 	if (!first_service) {
@@ -1675,6 +1697,7 @@ get_hit_count (GPtrArray *out_array,
 		}
 
 		/* old category not found so go to first one with hits */
+#if 0
 		for (service = services; service->service; ++service) {
 			if (service->hit_count == 0) {
 				continue;
@@ -1687,6 +1710,7 @@ get_hit_count (GPtrArray *out_array,
 
 			break;
 		}
+#endif
 	}
 
 	gsearch->page_setup_mode = FALSE;
@@ -1723,7 +1747,9 @@ select_category (GtkTreeSelection * treeselection,
 	}
 
 	gsearch->current_service = service;
+#if 0
 	gsearch->type = service->service_type;
+#endif
 
 	g_queue_foreach (gsearch->snippet_queue, (GFunc) free_snippet, NULL);
 	g_queue_free (gsearch->snippet_queue);
@@ -1788,12 +1814,14 @@ end_refresh_count (int count, GError * error, gpointer user_data)
 	GSearchWindow *gsearch = user_data;
 	service_info_t	* service;
 
+#if 0
 	for (service = services; service->service; ++service) {
 		if (service->service_type == gsearch->current_service->service_type) {
 			service->hit_count = count;
 			break;
 		}
 	}
+#endif
 
 	update_page_count_label (gsearch);
 

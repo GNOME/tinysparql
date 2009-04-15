@@ -25,21 +25,31 @@
 #include <glib.h>
 
 #include <libxml/HTMLparser.h>
+#include <libtracker-common/tracker-statement-list.h>
 
 #include "tracker-main.h"
-#include "tracker-escape.h"
+
+#include <libtracker-common/tracker-ontology.h>
+
+#define NIE_PREFIX TRACKER_NIE_PREFIX
+#define NFO_PREFIX TRACKER_NFO_PREFIX
+#define NCO_PREFIX TRACKER_NCO_PREFIX
+
+#define RDF_PREFIX TRACKER_RDF_PREFIX
+#define RDF_TYPE RDF_PREFIX "type"
 
 typedef enum {
 	READ_TITLE,
 } tag_type;
 
 typedef struct {
-	GHashTable *metadata;
+	GPtrArray *metadata;
 	tag_type current;
+	const gchar *uri;
 } HTMLParseInfo;
 
 static void extract_html (const gchar *filename,
-			  GHashTable  *metadata);
+			  GPtrArray   *metadata);
 
 static TrackerExtractData data[] = {
 	{ "text/html",		   extract_html },
@@ -89,10 +99,12 @@ lookup_attribute (const xmlChar **atts,
 }
 
 void
-startElement (void	     *info,
+startElement (void	     *info_,
 	      const xmlChar  *name,
 	      const xmlChar **atts)
 {
+	HTMLParseInfo* info = info_;
+
 	if (!(info && name)) {
 		return;
 	}
@@ -109,13 +121,13 @@ startElement (void	     *info,
 			href = lookup_attribute (atts, "href");
 
 			if (href) {
-				g_hash_table_insert (((HTMLParseInfo*) info)->metadata,
-						     g_strdup ("File:License"),
-						     tracker_escape_metadata ((gchar*)  href));
+				tracker_statement_list_insert (info->metadata,
+							  info->uri, NIE_PREFIX "license", 
+							  (const gchar *)  href);
 			}
 		}
 	} else if (strcasecmp ((gchar*)name, "title") == 0) {
-		((HTMLParseInfo*) info)->current = READ_TITLE;
+		info->current = READ_TITLE;
 	} else if (strcasecmp ((gchar*)name, "meta") == 0) {
 		if (has_attribute (atts, "name", "Author")) {
 			const xmlChar *author;
@@ -123,9 +135,9 @@ startElement (void	     *info,
 			author = lookup_attribute (atts, "content");
 
 			if (author) {
-				g_hash_table_insert (((HTMLParseInfo*) info)->metadata,
-						     g_strdup ("Doc:Author"),
-						     tracker_escape_metadata ((gchar*) author));
+				tracker_statement_list_insert (info->metadata, ":", RDF_TYPE, NCO_PREFIX "Contact");
+				tracker_statement_list_insert (info->metadata, ":", NCO_PREFIX "fullname", author);
+				tracker_statement_list_insert (info->metadata, info->uri, NCO_PREFIX "creator", ":");
 			}
 		}
 
@@ -135,49 +147,58 @@ startElement (void	     *info,
 			desc = lookup_attribute (atts,"content");
 
 			if (desc) {
-				g_hash_table_insert (((HTMLParseInfo*) info)->metadata,
-						     g_strdup ("Doc:Comments"),
-						     tracker_escape_metadata ((gchar*) desc));
+				tracker_statement_list_insert (info->metadata,
+							  info->uri, NIE_PREFIX "comment",
+							  (const gchar *) desc);
 			}
 		}
 
 		if (has_attribute (atts, "name", "KEYWORDS") ||
 		    has_attribute (atts, "name", "keywords")) {
-			const xmlChar *keywords;
+			const xmlChar* k = lookup_attribute (atts, "content");
 
-			keywords = lookup_attribute (atts, "content");
+			if (k) {
+				gchar *keywords = g_strdup (k);
+				char *lasts, *keyw;
 
-			if (keywords) {
-				g_hash_table_insert (((HTMLParseInfo*) info)->metadata,
-						     g_strdup ("Doc:Keywords"),
-						     tracker_escape_metadata ((gchar*) keywords));
+				for (keyw = strtok_r (keywords, ",;", &lasts); keyw; 
+				     keyw = strtok_r (NULL, ",;", &lasts)) {
+					tracker_statement_list_insert (info->metadata,
+							  info->uri, NIE_PREFIX "keyword",
+							  (const gchar*) keyw);
+				}
+
+				g_free (keywords);
 			}
 		}
 	}
 }
 
 void
-characters (void	  *info,
+characters (void	  *info_,
 	    const xmlChar *ch,
 	    int		   len)
 {
-	switch (((HTMLParseInfo*) info)->current) {
+	HTMLParseInfo* info = info_;
+
+	switch (info->current) {
 	case READ_TITLE:
-		g_hash_table_insert (((HTMLParseInfo*) info)->metadata,
-				     g_strdup ("Doc:Title"),
-				     tracker_escape_metadata ((gchar*) ch));
+		tracker_statement_list_insert (info->metadata,
+					  info->uri, NIE_PREFIX "title",
+					  (const gchar*) ch);
 		break;
 	default:
 		break;
 	}
 
-	((HTMLParseInfo*) info)->current = -1;
+	info->current = -1;
 }
 
 static void
-extract_html (const gchar *filename,
-	      GHashTable  *metadata)
+extract_html (const gchar *uri,
+	      GPtrArray   *metadata)
 {
+	gchar *filename = g_filename_from_uri (uri, NULL, NULL);
 	xmlSAXHandler SAXHandlerStruct = {
 			NULL, /* internalSubset */
 			NULL, /* isStandalone */
@@ -213,13 +234,20 @@ extract_html (const gchar *filename,
 			NULL  /* xmlStructuredErrorFunc */
 	};
 
-	HTMLParseInfo	info = { metadata, -1 };
+	HTMLParseInfo	info = { metadata, -1, uri };
 
 	htmlDocPtr doc;
 	doc = htmlSAXParseFile (filename, NULL, &SAXHandlerStruct, &info);
 	if (doc) {
+
+		tracker_statement_list_insert (metadata, uri, 
+		                          RDF_TYPE, 
+		                          NFO_PREFIX "Document");
+
 		xmlFreeDoc (doc);
 	}
+
+	g_free (filename);
 }
 
 TrackerExtractData *

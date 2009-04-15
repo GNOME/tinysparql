@@ -49,20 +49,16 @@ main (int argc, char **argv) {
 	g_test_add_data_func ("/tracker-extract/tracker-extract-png/check-extract-data",
 			      data, test_tracker_extract_check_extract_data);
 
-#if 0
 	g_test_add_data_func ("/tracker-extract/tracker-extract-png/basic_size",
 			      data, test_tracker_extract_png_basic_size);
 
 /* 	g_test_add_data_func ("/tracker-extract/tracker-extract-png/xmp_exif_orientation", */
 /* 			      data, test_tracker_extract_png_xmp_exif_orientation); */
 
-	if (g_test_perf()) {
+/*	if (g_test_perf()) {
 		g_test_add_data_func ("/tracker-extract/tracker-extract-png/performance",
 				      data, performance_tracker_extract_png);
-	}
-
-#endif
-
+	}*/
 
 	result = g_test_run ();
 

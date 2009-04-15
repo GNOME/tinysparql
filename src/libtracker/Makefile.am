@@ -28,6 +28,7 @@ include_HEADERS = 				\
 # Generate DBus files from XML data.
 dbus_sources = 					\
 	tracker-daemon-glue.h			\
+	tracker-resources-glue.h		\
 	tracker-search-glue.h
 
 %-glue.h: $(top_srcdir)/data/dbus/%.xml

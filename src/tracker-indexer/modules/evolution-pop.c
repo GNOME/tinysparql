@@ -26,13 +26,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <libtracker-data/tracker-data-metadata.h>
+#include <libtracker-common/tracker-common.h>
+#include <libtracker-common/tracker-ontology.h>
 
 #include <tracker-indexer/tracker-module-file.h>
 #include <tracker-indexer/tracker-module-iteratable.h>
 
 #include "evolution-pop.h"
 #include "evolution-common.h"
+
+#define NMO_PREFIX TRACKER_NMO_PREFIX
+#define RDF_PREFIX TRACKER_RDF_PREFIX
+#define RDF_TYPE RDF_PREFIX "type"
 
 #define MODULE_IMPLEMENT_INTERFACE(TYPE_IFACE, iface_init) \
 { \
@@ -45,7 +50,6 @@
 static void          tracker_evolution_pop_file_finalize         (GObject *object);
 
 static void          tracker_evolution_pop_file_initialize       (TrackerModuleFile *file);
-static const gchar * tracker_evolution_pop_file_get_service_type (TrackerModuleFile *file);
 static gchar *       tracker_evolution_pop_file_get_uri          (TrackerModuleFile *file);
 static gchar *       tracker_evolution_pop_file_get_text         (TrackerModuleFile *file);
 static TrackerModuleMetadata *
@@ -71,7 +75,6 @@ tracker_evolution_pop_file_class_init (TrackerEvolutionPopFileClass *klass)
         object_class->finalize = tracker_evolution_pop_file_finalize;
 
         file_class->initialize = tracker_evolution_pop_file_initialize;
-        file_class->get_service_type = tracker_evolution_pop_file_get_service_type;
         file_class->get_uri = tracker_evolution_pop_file_get_uri;
         file_class->get_text = tracker_evolution_pop_file_get_text;
         file_class->get_metadata = tracker_evolution_pop_file_get_metadata;
@@ -154,19 +157,6 @@ tracker_evolution_pop_file_initialize (TrackerModuleFile *file)
         g_free (path);
 }
 
-static const gchar *
-tracker_evolution_pop_file_get_service_type (TrackerModuleFile *file)
-{
-        TrackerEvolutionPopFile *self;
-
-        self = TRACKER_EVOLUTION_POP_FILE (file);
-
-        if (self->current_mime_part) {
-                return "EvolutionAttachments";
-        }
-
-        return "EvolutionEmails";
-}
 
 static gint
 get_message_id (GMimeMessage *message)
@@ -338,24 +328,29 @@ get_message_recipients (GMimeMessage *message,
 }
 
 static TrackerModuleMetadata *
-get_message_metadata (GMimeMessage *message)
+get_message_metadata (TrackerModuleFile *file, GMimeMessage *message)
 {
 	TrackerModuleMetadata *metadata;
 	time_t t;
 	GList *list, *l;
+	gchar *uri;
+
+	uri = tracker_module_file_get_uri (file);
 
 	metadata = tracker_module_metadata_new ();
 
+	tracker_module_metadata_add_string (metadata, uri, RDF_TYPE, NMO_PREFIX "Email");
+
 	g_mime_message_get_date (message, &t, NULL);
 
-	tracker_module_metadata_add_date (metadata, METADATA_EMAIL_DATE, t);
-	tracker_module_metadata_add_string (metadata, METADATA_EMAIL_SENDER, g_mime_message_get_sender (message));
-	tracker_module_metadata_add_string (metadata, METADATA_EMAIL_SUBJECT, g_mime_message_get_subject (message));
+	tracker_module_metadata_add_date (metadata, uri, METADATA_EMAIL_DATE, t);
+	tracker_module_metadata_add_string (metadata, uri, METADATA_EMAIL_SENDER, g_mime_message_get_sender (message));
+	tracker_module_metadata_add_string (metadata, uri, METADATA_EMAIL_SUBJECT, g_mime_message_get_subject (message));
 
 	list = get_message_recipients (message, GMIME_RECIPIENT_TYPE_TO);
 
 	for (l = list; l; l = l->next) {
-		tracker_module_metadata_add_string (metadata, METADATA_EMAIL_SENT_TO, l->data);
+		tracker_module_metadata_add_string (metadata, uri, METADATA_EMAIL_SENT_TO, l->data);
 		g_free (l->data);
 	}
 
@@ -364,20 +359,23 @@ get_message_metadata (GMimeMessage *message)
 	list = get_message_recipients (message, GMIME_RECIPIENT_TYPE_CC);
 
 	for (l = list; l; l = l->next) {
-		tracker_module_metadata_add_string (metadata, METADATA_EMAIL_CC, l->data);
+		tracker_module_metadata_add_string (metadata, uri, METADATA_EMAIL_CC, l->data);
 		g_free (l->data);
 	}
 
 	g_list_free (list);
 
+	g_free (uri);
+
 	return metadata;
 }
 
 static TrackerModuleMetadata *
-get_attachment_metadata (GMimePart *part)
+get_attachment_metadata (TrackerModuleFile *file, GMimePart *part)
 {
 	TrackerModuleMetadata *metadata;
 	GMimeDataWrapper *content;
+	gchar *tmp, *uri;
 
 	content = g_mime_part_get_content_object (part);
 
@@ -385,7 +383,25 @@ get_attachment_metadata (GMimePart *part)
 		return NULL;
 	}
 
-	metadata = evolution_common_get_wrapper_metadata (content);
+	metadata = tracker_module_metadata_new ();
+
+	tmp = tracker_module_file_get_uri (file);
+
+	/* TODO: we should add 1.1, 1.2, 1.3 as mime-spec per attachment to the 
+	 * URI. Else we don't have a valid URI. Also note that Evolution just
+	 * doesn't support this anyway. (So adding it to the URI and trying to
+	 * index Evolution's attachments is a bit pointless. We can't start/make
+	 * Evolution opening the specific attachment anyway */
+
+	uri = g_strdup_printf ("%s#%s", tmp, g_mime_part_get_content_id (part));
+
+	tracker_module_metadata_add_string (metadata, uri, RDF_TYPE, NMO_PREFIX "Attachment");
+
+	evolution_common_get_wrapper_metadata (content, metadata, uri);
+
+	g_free (uri);
+	g_free (tmp);
+
 	g_object_unref (content);
 
 	return metadata;
@@ -411,10 +427,11 @@ tracker_evolution_pop_file_get_metadata (TrackerModuleFile *file)
 		return NULL;
 	}
 
+
         if (self->current_mime_part) {
-                metadata = get_attachment_metadata (self->current_mime_part->data);
+                metadata = get_attachment_metadata (file, self->current_mime_part->data);
         } else {
-                metadata = get_message_metadata (self->message);
+                metadata = get_message_metadata (file, self->message);
         }
 
         return metadata;

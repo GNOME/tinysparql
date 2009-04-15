@@ -100,9 +100,8 @@ show_term_in_index (const gchar *filename,
     g_print (" - %s ", word);
 
     for (i = 0; i < hits; i++) {
-	    g_print (" (id:%d  t:%d) ",
-		     items[i].id,
-		     tracker_db_index_item_get_service_type (&items[i]));
+	    g_print (" (id:%d) ",
+		     items[i].id);
     }
 
     g_print ("\n");

@@ -25,8 +25,7 @@
 #include <glib.h>
 
 #include <libtracker-common/tracker-hal.h>
-
-#include "tracker-escape.h"
+#include <libtracker-common/tracker-statement-list.h>
 
 G_BEGIN_DECLS
 
@@ -38,7 +37,7 @@ struct TrackerExtractData {
 	const gchar *mime;
 
 	void (* extract) (const gchar *path,
-			  GHashTable  *metadata);
+			  GPtrArray   *metadata);
 };
 
 /* This is defined in each extract */

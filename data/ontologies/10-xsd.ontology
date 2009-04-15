@@ -1,0 +1,14 @@
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix tracker: <http://www.tracker-project.org/ontologies/tracker#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+xsd: a tracker:Namespace ;
+	tracker:prefix "xsd" .
+
+xsd:string a rdfs:Class .
+xsd:boolean a rdfs:Class .
+xsd:integer a rdfs:Class .
+xsd:double a rdfs:Class .
+xsd:date a rdfs:Class .
+xsd:dateTime a rdfs:Class .
+

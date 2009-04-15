@@ -44,10 +44,12 @@ libtracker_common_la_SOURCES =	 			\
 	tracker-log.c	 				\
 	tracker-marshal-main.c				\
 	tracker-module-config.c				\
+	tracker-namespace.c				\
 	tracker-nfs-lock.c				\
 	tracker-ontology.c				\
 	tracker-parser.c				\
 	tracker-property.c				\
+	tracker-statement-list.c			\
 	tracker-type-utils.c				\
 	tracker-utils.c					\
 	tracker-thumbnailer.c				\
@@ -70,9 +72,11 @@ libtracker_commoninclude_HEADERS =			\
 	tracker-file-utils.h				\
 	tracker-language.h				\
 	tracker-module-config.h				\
+	tracker-namespace.h				\
 	tracker-ontology.h				\
 	tracker-parser.h				\
 	tracker-property.h				\
+	tracker-statement-list.h			\
 	tracker-type-utils.h				\
 	tracker-utils.h
 

@@ -11,6 +11,11 @@
 
 <node name="/">
   <interface name="org.freedesktop.Tracker.Indexer">  
+    <method name="TurtleAdd">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
+      <arg type="s" name="file" direction="in" />
+    </method>
+
     <method name="FilesCheck">
       <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
       <arg type="s" name="module" direction="in" />
@@ -42,6 +47,22 @@
       <arg type="s" name="volume_id" direction="in" />
       <arg type="s" name="path" direction="in" />
       <arg type="b" name="enabled" direction="in" />
+    </method>
+
+    <!-- Insert single statement -->
+    <method name="InsertStatement">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/> 
+      <arg type="s" name="subject" direction="in" />
+      <arg type="s" name="predicate" direction="in" />
+      <arg type="s" name="object" direction="in" />
+    </method>
+
+    <!-- Delete single statement -->
+    <method name="DeleteStatement">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/> 
+      <arg type="s" name="subject" direction="in" />
+      <arg type="s" name="predicate" direction="in" />
+      <arg type="s" name="object" direction="in" />
     </method>
 
     <method name="Pause">

@@ -36,10 +36,20 @@
 
 #include <libtracker-common/tracker-utils.h>
 
+#include <libtracker-common/tracker-statement-list.h>
+#include <libtracker-common/tracker-ontology.h>
+
 #include "tracker-main.h"
 
-static void extract_msoffice (const gchar *filename,
-			      GHashTable  *metadata);
+#define NIE_PREFIX TRACKER_NIE_PREFIX
+#define NFO_PREFIX TRACKER_NFO_PREFIX
+#define NCO_PREFIX TRACKER_NCO_PREFIX
+
+#define RDF_PREFIX TRACKER_RDF_PREFIX
+#define RDF_TYPE RDF_PREFIX "type"
+
+static void extract_msoffice (const gchar *uri,
+			      GPtrArray   *metadata);
 
 static TrackerExtractData data[] = {
 	{ "application/msword",	  extract_msoffice },
@@ -47,10 +57,19 @@ static TrackerExtractData data[] = {
 	{ NULL, NULL }
 };
 
+typedef struct {
+	GPtrArray *metadata;
+	const gchar *uri;
+} ForeachInfo;
+
 static void
-add_gvalue_in_hash_table (GHashTable   *table,
-			  const gchar  *key,
-			  GValue const *val)
+add_gvalue_in_metadata (GPtrArray    *table,
+			const gchar  *uri,
+			const gchar  *key,
+			GValue const *val,
+			const gchar *urn,
+			const gchar *type,
+			const gchar *predicate)
 {
 	g_return_if_fail (table != NULL);
 	g_return_if_fail (key != NULL);
@@ -91,8 +110,13 @@ add_gvalue_in_hash_table (GHashTable   *table,
 				}
 
 				if (str_val) {
-					g_hash_table_insert (table, g_strdup (key),
-							     tracker_escape_metadata (str_val));
+					if (urn) {
+						tracker_statement_list_insert (table, urn, RDF_TYPE, type);
+						tracker_statement_list_insert (table, urn, predicate, str_val);
+						tracker_statement_list_insert (table, uri, key, urn);
+					} else {
+						tracker_statement_list_insert (table, uri, key, str_val);
+					}
 					g_free (str_val);
 				}
 			}
@@ -107,10 +131,12 @@ metadata_cb (gpointer key,
 	     gpointer value,
 	     gpointer user_data)
 {
+	ForeachInfo  *info = user_data;
 	gchar	     *name;
 	GsfDocProp   *property;
-	GHashTable   *metadata;
+	GPtrArray    *metadata = info->metadata;
 	GValue const *val;
+	const gchar  *uri = info->uri;
 
 	name = key;
 	property = value;
@@ -118,23 +144,41 @@ metadata_cb (gpointer key,
 	val = gsf_doc_prop_get_val (property);
 
 	if (strcmp (name, "dc:title") == 0) {
-		add_gvalue_in_hash_table (metadata, "Doc:Title", val);
+		add_gvalue_in_metadata (metadata, uri, NIE_PREFIX "title", val, NULL, NULL, NULL);
 	} else if (strcmp (name, "dc:subject") == 0) {
-		add_gvalue_in_hash_table (metadata, "Doc:Subject", val);
+		add_gvalue_in_metadata (metadata, uri, NIE_PREFIX "subject", val, NULL, NULL, NULL);
 	} else if (strcmp (name, "dc:creator") == 0) {
-		add_gvalue_in_hash_table (metadata, "Doc:Author", val);
+		add_gvalue_in_metadata (metadata, uri, NCO_PREFIX "creator", val, ":", NCO_PREFIX "Contact", NCO_PREFIX "fullname");
 	} else if (strcmp (name, "dc:keywords") == 0) {
-		add_gvalue_in_hash_table (metadata, "Doc:Keywords", val);
+		gchar *keywords = g_strdup_value_contents (val);
+		char *lasts, *keyw;
+		size_t len;
+
+		keywords = strchr (keywords, '"');
+		if (keywords)
+			keywords++;
+		len = strlen (keywords);
+		if (keywords[len - 1] == '"')
+			keywords[len - 1] = '\0';
+
+		for (keyw = strtok_r (keywords, ",; ", &lasts); keyw; 
+		     keyw = strtok_r (NULL, ",; ", &lasts)) {
+			tracker_statement_list_insert (metadata,
+					  uri, NIE_PREFIX "keyword",
+					  (const gchar*) keyw);
+		}
+
+		g_free (keywords);
 	} else if (strcmp (name, "dc:description") == 0) {
-		add_gvalue_in_hash_table (metadata, "Doc:Comments", val);
+		add_gvalue_in_metadata (metadata, uri, NIE_PREFIX "comment", val, NULL, NULL, NULL);
 	} else if (strcmp (name, "gsf:page-count") == 0) {
-		add_gvalue_in_hash_table (metadata, "Doc:PageCount", val);
+		add_gvalue_in_metadata (metadata, uri, NFO_PREFIX "pageCount", val, NULL, NULL, NULL);
 	} else if (strcmp (name, "gsf:word-count") == 0) {
-		add_gvalue_in_hash_table (metadata, "Doc:WordCount", val);
+		add_gvalue_in_metadata (metadata, uri, NFO_PREFIX "wordCount", val, NULL, NULL, NULL);
 	} else if (strcmp (name, "meta:creation-date") == 0) {
-		add_gvalue_in_hash_table (metadata, "Doc:Created", val);
+		add_gvalue_in_metadata (metadata, uri, NIE_PREFIX "contentCreated", val, NULL, NULL, NULL);
 	} else if (strcmp (name, "meta:generator") == 0) {
-		add_gvalue_in_hash_table (metadata, "File:Other", val);
+		add_gvalue_in_metadata (metadata, uri, NIE_PREFIX "generator", val, NULL, NULL, NULL);
 	}
 }
 
@@ -143,10 +187,12 @@ doc_metadata_cb (gpointer key,
 		 gpointer value,
 		 gpointer user_data)
 {
+	ForeachInfo  *info = user_data;
 	gchar	     *name;
 	GsfDocProp   *property;
-	GHashTable   *metadata;
+	GPtrArray    *metadata = info->metadata;
 	GValue const *val;
+	const gchar  *uri = info->uri;
 
 	name = key;
 	property = value;
@@ -154,23 +200,28 @@ doc_metadata_cb (gpointer key,
 	val = gsf_doc_prop_get_val (property);
 
 	if (strcmp (name, "CreativeCommons_LicenseURL") == 0) {
-		add_gvalue_in_hash_table (metadata, "File:License", val);
+		add_gvalue_in_metadata (metadata, uri, NIE_PREFIX "license", val, NULL, NULL, NULL);
 	}
 }
 
 static void
-extract_msoffice (const gchar *filename,
-		  GHashTable  *metadata)
+extract_msoffice (const gchar *uri,
+		  GPtrArray   *metadata)
 {
 	GsfInput  *input;
 	GsfInfile *infile;
 	GsfInput  *stream;
+	gchar     *filename;
+	gboolean   rdf_type_added = FALSE;
 
 	gsf_init ();
+
+	filename = g_filename_from_uri (uri, NULL, NULL);
 
 	input = gsf_input_stdio_new (filename, NULL);
 
 	if (!input) {
+		g_free (filename);
 		gsf_shutdown ();
 		return;
 	}
@@ -179,6 +230,7 @@ extract_msoffice (const gchar *filename,
 	g_object_unref (G_OBJECT (input));
 
 	if (!infile) {
+		g_free (filename);
 		gsf_shutdown ();
 		return;
 	}
@@ -186,38 +238,59 @@ extract_msoffice (const gchar *filename,
 	stream = gsf_infile_child_by_name (infile, "\05SummaryInformation");
 	if (stream) {
 		GsfDocMetaData *md;
+		ForeachInfo info = { metadata, uri };
 
 		md = gsf_doc_meta_data_new ();
 
 		if (gsf_msole_metadata_read (stream, md)) {
+			g_object_unref (md);
+			g_object_unref (stream);
+			g_free (filename);
 			gsf_shutdown ();
 			return;
 		}
 
-		gsf_doc_meta_data_foreach (md, metadata_cb, metadata);
+		tracker_statement_list_insert (metadata, uri, 
+		                          RDF_TYPE, 
+		                          NFO_PREFIX "Document");
 
-		g_object_unref (G_OBJECT (md));
-		g_object_unref (G_OBJECT (stream));
+		rdf_type_added = TRUE;
+
+		gsf_doc_meta_data_foreach (md, metadata_cb, &info);
+
+		g_object_unref (md);
+		g_object_unref (stream);
 	}
 
 	stream = gsf_infile_child_by_name (infile, "\05DocumentSummaryInformation");
 	if (stream) {
 		GsfDocMetaData *md;
+		ForeachInfo info = { metadata, uri };
 
 		md = gsf_doc_meta_data_new ();
 
 		if (gsf_msole_metadata_read (stream, md)) {
+			g_object_unref (md);
+			g_object_unref (stream);
 			gsf_shutdown ();
+			g_free (filename);
 			return;
 		}
 
-		gsf_doc_meta_data_foreach (md, doc_metadata_cb, metadata);
+		if (!rdf_type_added) {
+			tracker_statement_list_insert (metadata, uri, 
+			                          RDF_TYPE, 
+			                          NFO_PREFIX "Document");
+			rdf_type_added = TRUE;
+		}
 
-		g_object_unref (G_OBJECT (md));
-		g_object_unref (G_OBJECT (stream));
+		gsf_doc_meta_data_foreach (md, doc_metadata_cb, &info);
+
+		g_object_unref (md);
+		g_object_unref (stream);
 	}
 
-	g_object_unref (G_OBJECT (infile));
+	g_object_unref (infile);
 
 	gsf_shutdown ();
 }

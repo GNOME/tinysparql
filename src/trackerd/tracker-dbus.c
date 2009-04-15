@@ -33,6 +33,8 @@
 #include "tracker-dbus.h"
 #include "tracker-daemon.h"
 #include "tracker-daemon-glue.h"
+#include "tracker-resources.h"
+#include "tracker-resources-glue.h"
 #include "tracker-search.h"
 #include "tracker-search-glue.h"
 #include "tracker-backup.h"
@@ -254,16 +256,14 @@ tracker_dbus_shutdown (void)
 gboolean
 tracker_dbus_register_objects (TrackerConfig	*config,
 			       TrackerLanguage	*language,
-			       TrackerDBIndex	*file_index,
-			       TrackerDBIndex	*email_index,
+			       TrackerDBIndex	*resources_index,
 			       TrackerProcessor *processor)
 {
 	gpointer object;
 
 	g_return_val_if_fail (TRACKER_IS_CONFIG (config), FALSE);
 	g_return_val_if_fail (TRACKER_IS_LANGUAGE (language), FALSE);
-	g_return_val_if_fail (TRACKER_IS_DB_INDEX (file_index), FALSE);
-	g_return_val_if_fail (TRACKER_IS_DB_INDEX (email_index), FALSE);
+	g_return_val_if_fail (TRACKER_IS_DB_INDEX (resources_index), FALSE);
 
 	if (!connection || !gproxy) {
 		g_critical ("DBus support must be initialized before registering objects!");
@@ -284,8 +284,22 @@ tracker_dbus_register_objects (TrackerConfig	*config,
 			      TRACKER_DAEMON_PATH);
 	objects = g_slist_prepend (objects, object);
 
+	/* Add org.freedesktop.Tracker.Resources */
+	object = tracker_resources_new ();
+	if (!object) {
+		g_critical ("Could not create TrackerResources object to register");
+		return FALSE;
+	}
+
+	dbus_register_object (connection,
+			      gproxy,
+			      G_OBJECT (object),
+			      &dbus_glib_tracker_resources_object_info,
+			      TRACKER_RESOURCES_PATH);
+	objects = g_slist_prepend (objects, object);
+
 	/* Add org.freedesktop.Tracker.Search */
-	object = tracker_search_new (config, language, file_index, email_index);
+	object = tracker_search_new (config, language, resources_index);
 	if (!object) {
 		g_critical ("Could not create TrackerSearch object to register");
 		return FALSE;
@@ -311,7 +325,6 @@ tracker_dbus_register_objects (TrackerConfig	*config,
 			      &dbus_glib_tracker_backup_object_info,
 			      TRACKER_BACKUP_PATH);
 	objects = g_slist_prepend (objects, object);
-
 
 	/* Reverse list since we added objects at the top each time */
 	objects = g_slist_reverse (objects);

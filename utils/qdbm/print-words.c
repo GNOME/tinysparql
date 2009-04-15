@@ -100,9 +100,8 @@ load_terms_from_index (gchar *filename)
 	    if (print_services) {
 		    results = get_word_hits (depot, key, &hits);
 		    for (i = 0; i < hits; i++) {
-			    g_print (" (id:%d  t:%d s:%d) ",
+			    g_print (" (id:%d  s:%d) ",
 				     tracker_db_index_item_get_id (&results[i]),
-				     tracker_db_index_item_get_service_type (&results[i]),
 				     tracker_db_index_item_get_score (&results[i]));
 		    }
 	    }

@@ -15,7 +15,6 @@ noinst_PROGRAMS = $(TEST_PROGS)
 #
 
 TEST_PROGS += 								\
-	tracker-ontology 						\
 	tracker-dbus 							\
 	tracker-type-utils 						\
 	tracker-file-utils
@@ -32,17 +31,6 @@ INCLUDES = 								\
 	$(GTHREAD_CFLAGS)						\
 	$(PANGO_CFLAGS)							\
 	$(DBUS_CFLAGS)
-
-tracker_ontology_SOURCES = 						\
-	tracker-ontology-test.c 
-
-tracker_ontology_LDADD =						\
-	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
-	$(top_builddir)/tests/common/libtracker-testcommon.la 		\
-	$(GMODULE_LIBS)							\
-	$(GCOV_LIBS)							\
-	$(GTHREAD_LIBS)							\
-	$(GLIB2_LIBS)							
 
 tracker_dbus_SOURCES = 							\
 	tracker-dbus-test.c

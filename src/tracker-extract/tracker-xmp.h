@@ -22,6 +22,6 @@
 
 #include <glib.h>
 
-void tracker_read_xmp (const gchar *buffer, size_t len, GHashTable *metadata);
+void tracker_read_xmp (const gchar *buffer, size_t len, const gchar *uri, GPtrArray *metadata);
 
 #endif /* _TRACKER_XMP_H_ */

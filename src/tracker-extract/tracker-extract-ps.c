@@ -37,9 +37,17 @@
 #include <libtracker-common/tracker-file-utils.h>
 #include <libtracker-common/tracker-type-utils.h>
 #include <libtracker-common/tracker-os-dependant.h>
+#include <libtracker-common/tracker-statement-list.h>
+#include <libtracker-common/tracker-ontology.h>
 
 #include "tracker-main.h"
-#include "tracker-escape.h"
+
+#define NIE_PREFIX TRACKER_NIE_PREFIX
+#define NFO_PREFIX TRACKER_NFO_PREFIX
+#define NCO_PREFIX TRACKER_NCO_PREFIX
+
+#define RDF_PREFIX TRACKER_RDF_PREFIX
+#define RDF_TYPE RDF_PREFIX "type"
 
 #ifndef HAVE_GETLINE
 
@@ -56,12 +64,11 @@
 #endif /* HAVE_GETLINE */
 
 #ifdef USING_UNZIPPSFILES
-static void extract_ps_gz (const gchar *filename,
-			   GHashTable  *metadata);
+static void extract_ps_gz (const gchar *uri,
+			   GPtrArray  *metadata);
 #endif
-
-static void extract_ps	  (const gchar *filename,
-			   GHashTable  *metadata);
+static void extract_ps	  (const gchar *uri,
+			   GPtrArray   *metadata);
 
 static TrackerExtractData data[] = {
 #ifdef USING_UNZIPPSFILES
@@ -202,10 +209,11 @@ date_to_iso8601 (const gchar *date)
 }
 
 static void
-extract_ps (const gchar *filename,
-	    GHashTable	*metadata)
+extract_ps (const gchar *uri,
+	    GPtrArray	*metadata)
 {
 	FILE *f;
+	gchar *filename = g_filename_from_uri (uri, NULL, NULL);
 
 	f = tracker_file_open (filename, "r", TRUE);
 
@@ -217,6 +225,10 @@ extract_ps (const gchar *filename,
 		line = NULL;
 		length = 0;
 
+		tracker_statement_list_insert (metadata, uri, 
+		                          RDF_TYPE, 
+		                          NFO_PREFIX "Document");
+
 		while ((read_char = getline (&line, &length, f)) != -1) {
 			gboolean pageno_atend	 = FALSE;
 			gboolean header_finished = FALSE;
@@ -224,19 +236,20 @@ extract_ps (const gchar *filename,
 			line[read_char - 1] = '\0';  /* overwrite '\n' char */
 
 			if (!header_finished && strncmp (line, "%%Copyright:", 12) == 0) {
-				g_hash_table_insert (metadata,
-						     g_strdup ("File:Other"),
-						     tracker_escape_metadata (line + 13));
+				tracker_statement_list_insert (metadata, uri,
+							  NIE_PREFIX "copyright",
+							  line + 13);
 
 			} else if (!header_finished && strncmp (line, "%%Title:", 8) == 0) {
-				g_hash_table_insert (metadata,
-						     g_strdup ("Doc:Title"),
-						     tracker_escape_metadata (line + 9));
+				tracker_statement_list_insert (metadata, uri,
+							  NIE_PREFIX "title",
+							  line + 9);
 
 			} else if (!header_finished && strncmp (line, "%%Creator:", 10) == 0) {
-				g_hash_table_insert (metadata,
-						     g_strdup ("Doc:Author"),
-						     tracker_escape_metadata (line + 11));
+
+				tracker_statement_list_insert (metadata, ":", RDF_TYPE, NCO_PREFIX "Contact");
+				tracker_statement_list_insert (metadata, ":", NCO_PREFIX "fullname", line + 11);
+				tracker_statement_list_insert (metadata, uri, NCO_PREFIX "creator", ":");
 
 			} else if (!header_finished && strncmp (line, "%%CreationDate:", 15) == 0) {
 				gchar *date;
@@ -244,9 +257,9 @@ extract_ps (const gchar *filename,
 				date = date_to_iso8601 (line + 16);
 
 				if (date) {
-					g_hash_table_insert (metadata,
-							     g_strdup ("Doc:Created"),
-							     tracker_escape_metadata (date));
+					tracker_statement_list_insert (metadata, uri,
+								  NIE_PREFIX "contentCreated",
+								  date);
 
 					g_free (date);
 				}
@@ -254,9 +267,9 @@ extract_ps (const gchar *filename,
 				if (strcmp (line + 9, "(atend)") == 0) {
 					pageno_atend = TRUE;
 				} else {
-					g_hash_table_insert (metadata,
-							     g_strdup ("Doc:PageCount"),
-							     tracker_escape_metadata (line + 9));
+					tracker_statement_list_insert (metadata, uri,
+								  NFO_PREFIX "pageCount",
+								  line + 9);
 				}
 			} else if (strncmp (line, "%%EndComments", 14) == 0) {
 				header_finished = TRUE;
@@ -277,12 +290,14 @@ extract_ps (const gchar *filename,
 
 		tracker_file_close (f, FALSE);
 	}
+
+	g_free (filename);
 }
 
 #ifdef USING_UNZIPPSFILES
 static void
-extract_ps_gz (const gchar *filename,
-	       GHashTable  *metadata)
+extract_ps_gz (const gchar *uri,
+	       GPtrArray   *metadata)
 {
 	FILE	    *fz, *f;
 	GError	    *error = NULL;
@@ -291,7 +306,8 @@ extract_ps_gz (const gchar *filename,
 	gint	     fd;
 	gboolean     ptat;
 	const gchar *argv[4];
-
+	gchar *filename;
+	
 	fd = g_file_open_tmp ("tracker-extract-ps-gunzipped.XXXXXX",
 			      &gunzipped,
 			      &error);
@@ -300,6 +316,10 @@ extract_ps_gz (const gchar *filename,
 		g_error_free (error);
 		return;
 	}
+
+	filename = g_filename_from_uri (uri, NULL, NULL);
+
+	/* TODO: we should be using libz for this instead */
 
 	argv[0] = "gunzip";
 	argv[1] = "-c";
@@ -319,6 +339,7 @@ extract_ps_gz (const gchar *filename,
 					 &error);
 
 	if (!ptat) {
+		g_free (filename);
 		g_unlink (gunzipped);
 		g_clear_error (&error);
 		close (fd);
@@ -367,6 +388,7 @@ extract_ps_gz (const gchar *filename,
 
 	extract_ps (gunzipped, metadata);
 	g_unlink (gunzipped);
+	g_free (filename);
 }
 #endif
 

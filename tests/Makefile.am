@@ -4,6 +4,5 @@ SUBDIRS = 			\
 	common 			\
 	libtracker-common	\
 	libtracker-db 		\
-	scripts 		\
 	tracker-indexer		\
 	tracker-extract

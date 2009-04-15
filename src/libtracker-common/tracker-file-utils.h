@@ -28,6 +28,7 @@
 
 #include <stdio.h>
 #include <glib.h>
+#include <gio/gio.h>
 
 FILE*    tracker_file_open                         (const gchar  *uri,
 						    const gchar  *how,
@@ -36,10 +37,7 @@ void     tracker_file_close                        (FILE         *file,
 						    gboolean      need_again_soon);
 goffset  tracker_file_get_size                     (const gchar  *uri);
 guint64  tracker_file_get_mtime                    (const gchar  *uri);
-gchar *  tracker_file_get_mime_type                (const gchar  *uri);
-void     tracker_file_get_path_and_name            (const gchar  *uri,
-						    gchar       **path,
-						    gchar       **name);
+gchar *  tracker_file_get_mime_type                (GFile        *file);
 void     tracker_path_remove                       (const gchar  *uri);
 gboolean tracker_path_is_in_path                   (const gchar  *path,
 						    const gchar  *in_path);

@@ -24,14 +24,14 @@
 #include "tracker.h"
 
 #include "tracker-daemon-glue.h"
+#include "tracker-resources-glue.h"
 #include "tracker-search-glue.h"
 
-#define TRACKER_CLASS			"org.freedesktop.Tracker"
+#define TRACKER_SERVICE			"org.freedesktop.Tracker"
 #define TRACKER_OBJECT			"/org/freedesktop/Tracker"
 #define TRACKER_INTERFACE		"org.freedesktop.Tracker"
+#define TRACKER_INTERFACE_RESOURCES	"org.freedesktop.Tracker.Resources"
 #define TRACKER_INTERFACE_SEARCH	"org.freedesktop.Tracker.Search"
-#define TRACKER_INTERFACE_MUSIC		"org.freedesktop.Tracker.Music"
-#define TRACKER_INTERFACE_PLAYLISTS	"org.freedesktop.Tracker.PlayLists"
 
 typedef struct {
 	TrackerArrayReply callback;
@@ -42,12 +42,6 @@ typedef struct {
 	TrackerGPtrArrayReply callback;
 	gpointer	  data;
 } GPtrArrayCallBackStruct;
-
-typedef struct {
-	TrackerHashTableReply	callback;
-	gpointer		data;
-} HashTableCallBackStruct;
-
 
 typedef struct {
 	TrackerBooleanReply callback;
@@ -69,105 +63,6 @@ typedef struct {
 	gpointer	  data;
 } VoidCallBackStruct;
 
-
-const char *tracker_class_types[] = {
-	"Files",
-	"Folders",
-	"Documents",
-	"Images",
-	"Music",
-	"Videos",
-	"Text",
-	"Development",
-	"Other",
-	"VFS",
-	"VFSFolders",
-	"VFSDocuments",
-	"VFSImages",
-	"VFSMusic",
-	"VFSVideos",
-	"VFSText",
-	"VFSDevelopment",
-	"VFSOther",
-	"Conversations",
-	"Playlists",
-	"Applications",
-	"Contacts",
-	"Emails",
-	"EmailAttachments",
-	"Appointments",
-	"Tasks",
-	"Bookmarks",
-	"WebHistory",
-	"Projects",
-	NULL
-};
-
-
-
-
-const char *metadata_types[] = {
-	"index",
-	"string",
-	"numeric",
-	"date",
-	"blob"
-};
-
-
-ServiceType
-tracker_class_name_to_type (const char *service)
-{
-	const char **st;
-	int i = 0;
-
-	for (st=tracker_class_types; *st; st++) {
-
-		if (g_ascii_strcasecmp (service, *st) == 0) {
-			return i;
-		}
-
-		i++;
-	}
-
-	return SERVICE_OTHER_FILES;
-}
-
-
-char *
-tracker_type_to_service_name (ServiceType s)
-{
-	return g_strdup (tracker_class_types[s]);
-}
-
-
-
-static void
-tracker_array_reply (DBusGProxy *proxy, char **OUT_result, GError *error, gpointer user_data)
-{
-
-	ArrayCallBackStruct *callback_struct;
-
-	callback_struct = user_data;
-
-	(*(TrackerArrayReply) callback_struct->callback ) (OUT_result, error, callback_struct->data);
-
-	g_free (callback_struct);
-}
-
-
-static void
-tracker_hashtable_reply (DBusGProxy *proxy,  GHashTable *OUT_result, GError *error, gpointer user_data)
-{
-
-	HashTableCallBackStruct *callback_struct;
-
-	callback_struct = user_data;
-
-	(*(TrackerHashTableReply) callback_struct->callback ) (OUT_result, error, callback_struct->data);
-
-	g_free (callback_struct);
-}
 
 static void
 tracker_GPtrArray_reply (DBusGProxy *proxy,  GPtrArray *OUT_result, GError *error, gpointer user_data)
@@ -265,7 +160,7 @@ tracker_connect (gboolean enable_warnings)
 	}
 
 	proxy = dbus_g_proxy_new_for_name (connection,
-			TRACKER_CLASS,
+			TRACKER_SERVICE,
 			TRACKER_OBJECT,
 			TRACKER_INTERFACE);
 
@@ -281,11 +176,19 @@ tracker_connect (gboolean enable_warnings)
 	client->proxy = proxy;
 
 	proxy = dbus_g_proxy_new_for_name (connection,
-			TRACKER_CLASS,
+			TRACKER_SERVICE,
 			TRACKER_OBJECT "/Search",
 			TRACKER_INTERFACE_SEARCH);
 
 	client->proxy_search = proxy;
+
+	proxy = dbus_g_proxy_new_for_name (connection,
+			TRACKER_SERVICE,
+			TRACKER_OBJECT "/Resources",
+			TRACKER_INTERFACE_RESOURCES);
+
+	client->proxy_resources = proxy;
+
 
 
 	return client;
@@ -297,8 +200,10 @@ tracker_disconnect (TrackerClient *client)
 {
 	g_object_unref (client->proxy);
 	g_object_unref (client->proxy_search);
+	g_object_unref (client->proxy_resources);
 	client->proxy = NULL;
 	client->proxy_search = NULL;
+	client->proxy_resources = NULL;
 
 	g_free (client);
 }
@@ -377,13 +282,19 @@ tracker_prompt_index_signals (TrackerClient *client, GError **error)
 }
 
 
+void
+tracker_resources_load (TrackerClient *client, const char *uri, GError **error)
+{
+	org_freedesktop_Tracker_Resources_load (client->proxy_resources, uri, &*error);
+}
+
+
 char *
-tracker_search_get_snippet (TrackerClient *client, ServiceType service, const char *uri, const char *search_text, GError **error)
+tracker_search_get_snippet (TrackerClient *client, const char *uri, const char *search_text, GError **error)
 {
 	char *result;
-	const char *service_str = tracker_class_types[service];
 
-	if (!org_freedesktop_Tracker_Search_get_snippet (client->proxy_search, service_str, uri, search_text, &result, &*error)) {
+	if (!org_freedesktop_Tracker_Search_get_snippet (client->proxy_search, uri, search_text, &result, &*error)) {
 		return NULL;
 	}
 
@@ -500,18 +411,29 @@ tracker_prompt_index_signals_async (TrackerClient *client, TrackerVoidReply call
 
 
 void
-tracker_search_get_snippet_async (TrackerClient *client, ServiceType service, const char *uri, const char *search_text, TrackerStringReply callback, gpointer user_data)
+tracker_resources_load_async (TrackerClient *client, const char *uri, TrackerVoidReply callback, gpointer user_data)
+{
+	VoidCallBackStruct *callback_struct;
+
+	callback_struct = g_new (VoidCallBackStruct, 1);
+	callback_struct->callback = callback;
+	callback_struct->data = user_data;
+
+	client->last_pending_call = org_freedesktop_Tracker_Resources_load_async (client->proxy_resources, uri, tracker_void_reply, callback_struct);
+
+}
+
+
+void
+tracker_search_get_snippet_async (TrackerClient *client, const char *uri, const char *search_text, TrackerStringReply callback, gpointer user_data)
 {
 	StringCallBackStruct *callback_struct;
-	const char *service_str;
 
 	callback_struct = g_new (StringCallBackStruct, 1);
 	callback_struct->callback = callback;
 	callback_struct->data = user_data;
 
-	service_str = tracker_class_types[service];
-
-	client->last_pending_call = org_freedesktop_Tracker_Search_get_snippet_async (client->proxy_search, service_str, uri, search_text, tracker_string_reply, callback_struct);
+	client->last_pending_call = org_freedesktop_Tracker_Search_get_snippet_async (client->proxy_search, uri, search_text, tracker_string_reply, callback_struct);
 
 }
 

@@ -99,7 +99,9 @@ typedef struct {
 	gchar		*display_name;
 	gchar		*icon_name;
 	GdkPixbuf	*pixbuf;
+#if 0
 	ServiceType	service_type;
+#endif
 	GtkListStore	*store;
 	gboolean	has_hits;
 	gint		hit_count;

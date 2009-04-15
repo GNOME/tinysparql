@@ -29,16 +29,9 @@
 
 #include <raptor.h>
 
-/*
- * TODO: Is it possible to do this in the .c file? Dont expose raptor here. 
-*/
-
-typedef raptor_statement TrackerRaptorStatement;
-
 G_BEGIN_DECLS
 
-typedef void (* TurtleTripleCallback) (void                         *user_data, 
-				       const TrackerRaptorStatement *triple);
+typedef void (* TurtleTripleCallback) (const gchar *subject, const gchar *predicate, const gchar *object, void *user_data);
 
 typedef struct TurtleFile TurtleFile;
 

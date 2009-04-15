@@ -29,104 +29,32 @@
 #include "tracker-ontology.h"
 
 typedef struct {
-	gchar *prefix;
-	gint   service;
-} ServiceMimePrefixes;
-
-typedef struct {
 	gchar  *name;
 	GArray *subcategories;
 } CalculateSubcategoriesForEach;
 
 static gboolean    initialized;
 
-/* Hash (gint service_type_id, TrackerClass *service) */
-static GHashTable *service_ids;
+/* List of TrackerNamespace objects */
+static GArray     *namespaces;
 
-/* Hash (gchar *service_name, TrackerClass *service) */
-static GHashTable *service_names;
+/* Namespace uris */
+static GHashTable *namespace_uris;
 
-/* Hash (gchar *mime, gint service_type_id) */
-static GHashTable *mimes_to_service_ids;
+/* List of TrackerClass objects */
+static GArray     *classes;
 
-/* List of ServiceMimePrefixes */
-static GSList	  *service_mime_prefixes;
+/* Hash (gchar *class_uri, TrackerClass *service) */
+static GHashTable *class_uris;
 
-/* Field descriptions */
-static GHashTable *field_names;
+/* List of TrackerProperty objects */
+static GArray     *properties;
+
+/* Field uris */
+static GHashTable *property_uris;
 
 /* FieldType enum class */
-static gpointer    field_type_enum_class;
-
-/* Category - subcategory ids cache */
-static GHashTable *subcategories_cache;
-
-static void
-ontology_mime_prefix_foreach (gpointer data,
-			      gpointer user_data)
-{
-	ServiceMimePrefixes *mime_prefix;
-
-	mime_prefix = data;
-
-	g_free (mime_prefix->prefix);
-	g_free (mime_prefix);
-}
-
-#if 0
-
-/* NOTE: This function *USED* to be for the service_names and
- * field_names hash tables so they could collate strings before
- * comparing them. But we have stopped using this because all service
- * names and field names are quite specific and defined in code so
- * they shouldn't ever need to be collated or case insensitively
- * compared.
- *
- * If this breaks things, we can reinstate it.
- */
-static gpointer
-ontology_hash_lookup_by_collated_str (GHashTable  *hash_table,
-				      const gchar *str)
-{
-	gpointer  data;
-	gchar	 *str_lower;
-
-	str_lower = g_utf8_collate_key (str, -1);
-	if (!str_lower) {
-		return NULL;
-	}
-
-	data = g_hash_table_lookup (hash_table, str_lower);
-	g_free (str_lower);
-
-	return data;
-}
-
-#endif
-
-static gpointer
-ontology_hash_lookup_by_id (GHashTable	*hash_table,
-			    gint	 id)
-{
-	gpointer  data;
-	gchar	 *str;
-
-	str = g_strdup_printf ("%d", id);
-	if (!str) {
-		return NULL;
-	}
-
-	data = g_hash_table_lookup (hash_table, str);
-	g_free (str);
-
-	return data;
-}
-
-static void
-free_int_array (gpointer data) 
-{
-	g_array_free ((GArray *)data, TRUE);
-}
+static gpointer    property_type_enum_class;
 
 void
 tracker_ontology_init (void)
@@ -135,36 +63,32 @@ tracker_ontology_init (void)
 		return;
 	}
 
-	service_ids = g_hash_table_new_full (g_str_hash,
-					     g_str_equal,
-					     g_free,
-					     g_object_unref);
+	namespaces = g_array_new (TRUE, TRUE, sizeof (TrackerNamespace *));
 
-	service_names = g_hash_table_new_full (g_str_hash,
-					       g_str_equal,
-					       g_free,
-					       g_object_unref);
+	namespace_uris = g_hash_table_new_full (g_str_hash,
+					      g_str_equal,
+					      g_free,
+					      g_object_unref);
 
-	mimes_to_service_ids = g_hash_table_new_full (g_str_hash,
-						      g_str_equal,
-						      g_free,
-						      NULL);
+	classes = g_array_new (TRUE, TRUE, sizeof (TrackerClass *));
 
-	field_names = g_hash_table_new_full (g_str_hash,
-					     g_str_equal,
-					     g_free,
-					     g_object_unref);
+	class_uris = g_hash_table_new_full (g_str_hash,
+					      g_str_equal,
+					      g_free,
+					      g_object_unref);
 
-	subcategories_cache = g_hash_table_new_full (g_str_hash,
-						     g_str_equal,
-						     g_free,
-						     free_int_array);
+	properties = g_array_new (TRUE, TRUE, sizeof (TrackerProperty *));
+
+	property_uris = g_hash_table_new_full (g_str_hash,
+					    g_str_equal,
+					    g_free,
+					    g_object_unref);
 
 	/* We will need the class later in order to match strings to enum values
 	 * when inserting metadata types in the DB, so the enum class needs to be
 	 * created beforehand.
 	 */
-	field_type_enum_class = g_type_class_ref (TRACKER_TYPE_PROPERTY_TYPE);
+	property_type_enum_class = g_type_class_ref (TRACKER_TYPE_PROPERTY_TYPE);
 
 	initialized = TRUE;
 }
@@ -172,658 +96,142 @@ tracker_ontology_init (void)
 void
 tracker_ontology_shutdown (void)
 {
+	gint i;
+
 	if (!initialized) {
 		return;
 	}
 
-	g_hash_table_unref (service_ids);
-	service_ids = NULL;
-
-	g_hash_table_unref (service_names);
-	service_names = NULL;
-
-	g_hash_table_unref (mimes_to_service_ids);
-	mimes_to_service_ids = NULL;
-
-	g_hash_table_unref (field_names);
-	field_names = NULL;
-
-	g_hash_table_unref (subcategories_cache);
-	subcategories_cache = NULL;
-
-	if (service_mime_prefixes) {
-		g_slist_foreach (service_mime_prefixes,
-				 ontology_mime_prefix_foreach,
-				 NULL);
-		g_slist_free (service_mime_prefixes);
-		service_mime_prefixes = NULL;
+	for (i = 0; i < namespaces->len; i++) {
+		g_object_unref (g_array_index (namespaces, TrackerNamespace *, i));
 	}
+	g_array_free (namespaces, TRUE);
 
-	g_type_class_unref (field_type_enum_class);
-	field_type_enum_class = NULL;
+	g_hash_table_unref (namespace_uris);
+	namespace_uris = NULL;
+
+	for (i = 0; i < classes->len; i++) {
+		g_object_unref (g_array_index (classes, TrackerClass *, i));
+	}
+	g_array_free (classes, TRUE);
+
+	g_hash_table_unref (class_uris);
+	class_uris = NULL;
+
+	for (i = 0; i < properties->len; i++) {
+		g_object_unref (g_array_index (properties, TrackerProperty *, i));
+	}
+	g_array_free (properties, TRUE);
+
+	g_hash_table_unref (property_uris);
+	property_uris = NULL;
+
+	g_type_class_unref (property_type_enum_class);
+	property_type_enum_class = NULL;
 
 	initialized = FALSE;
 }
 
 void
-tracker_ontology_service_add (TrackerClass *service,
-			      GSList	     *mimes,
-			      GSList	     *mime_prefixes)
+tracker_ontology_add_class (TrackerClass *service)
 {
 
-	GSList		    *l;
-	ServiceMimePrefixes *service_mime_prefix;
-	gint		     id;
-	const gchar	    *name;
+	const gchar	    *uri, *name;
 
 	g_return_if_fail (TRACKER_IS_CLASS (service));
 
-	id = tracker_class_get_id (service);
+	uri = tracker_class_get_uri (service);
 	name = tracker_class_get_name (service);
 
-	g_hash_table_insert (service_names,
-			     g_strdup (name),
-			     g_object_ref (service));
-	g_hash_table_insert (service_ids,
-			     g_strdup_printf ("%d", id),
-			     g_object_ref (service));
+	g_object_ref (service);
+	g_array_append_val (classes, service);
 
-	for (l = mimes; l && l->data; l = l->next) {
-		g_hash_table_insert (mimes_to_service_ids,
-				     l->data,
-				     GINT_TO_POINTER (id));
-	}
-
-	for (l = mime_prefixes; l; l = l->next) {
-		service_mime_prefix = g_new0 (ServiceMimePrefixes, 1);
-		service_mime_prefix->prefix = l->data;
-		service_mime_prefix->service = id;
-
-		service_mime_prefixes = g_slist_prepend (service_mime_prefixes,
-						       service_mime_prefix);
+	if (uri) {
+		g_hash_table_insert (class_uris,
+				     g_strdup (uri),
+				     g_object_ref (service));
 	}
 }
 
 TrackerClass *
-tracker_ontology_get_service_by_name (const gchar *service_str)
+tracker_ontology_get_class_by_uri (const gchar *class_uri)
 {
-	g_return_val_if_fail (service_str != NULL, NULL);
+	g_return_val_if_fail (class_uri != NULL, NULL);
 
-	return g_hash_table_lookup (service_names, service_str);
+	return g_hash_table_lookup (class_uris, class_uri);
 }
 
-G_CONST_RETURN gchar *
-tracker_ontology_get_service_by_id (gint id)
+TrackerNamespace **
+tracker_ontology_get_namespaces (void)
 {
-	TrackerClass *service;
-
-	service = ontology_hash_lookup_by_id (service_ids, id);
-
-	if (!service) {
-		return NULL;
-	}
-
-	return tracker_class_get_name (service);
+	/* copy len + 1 elements to include NULL terminator */
+	return g_memdup (namespaces->data, sizeof (TrackerNamespace *) * (namespaces->len + 1));
 }
 
-G_CONST_RETURN gchar *
-tracker_ontology_get_service_by_mime (const gchar *mime)
+TrackerClass **
+tracker_ontology_get_classes (void)
 {
-	gpointer	     id;
-	ServiceMimePrefixes *item;
-	GSList		    *prefix_service;
-
-	g_return_val_if_fail (mime != NULL, "Other");
-
-	/* Try a complete mime */
-	id = g_hash_table_lookup (mimes_to_service_ids, mime);
-	if (id) {
-		return tracker_ontology_get_service_by_id (GPOINTER_TO_INT (id));
-	}
-
-	/* Try in prefixes */
-	for (prefix_service = service_mime_prefixes;
-	     prefix_service != NULL;
-	     prefix_service = prefix_service->next) {
-		item = prefix_service->data;
-		if (g_str_has_prefix (mime, item->prefix)) {
-			return tracker_ontology_get_service_by_id (item->service);
-		}
-	}
-
-	/* Default option */
-	return "Other";
+	/* copy len + 1 elements to include NULL terminator */
+	return g_memdup (classes->data, sizeof (TrackerClass *) * (classes->len + 1));
 }
 
-gint
-tracker_ontology_get_service_id_by_name (const char *service_str)
+TrackerProperty **
+tracker_ontology_get_properties (void)
 {
-	TrackerClass *service;
-
-	g_return_val_if_fail (service_str != NULL, -1);
-
-	service = g_hash_table_lookup (service_names, service_str);
-
-	if (!service) {
-		return -1;
-	}
-
-	return tracker_class_get_id (service);
-}
-
-gchar *
-tracker_ontology_get_service_parent (const gchar *service_str)
-{
-	TrackerClass *service;
-	const gchar    *parent = NULL;
-
-	g_return_val_if_fail (service_str != NULL, NULL);
-
-	service = g_hash_table_lookup (service_names, service_str);
-
-	if (service) {
-		parent = tracker_class_get_parent (service);
-	}
-
-	return g_strdup (parent);
-}
-
-gchar *
-tracker_ontology_get_service_parent_by_id (gint id)
-{
-	TrackerClass *service;
-
-	service = ontology_hash_lookup_by_id (service_ids, id);
-
-	if (!service) {
-		return NULL;
-	}
-
-	return g_strdup (tracker_class_get_parent (service));
-}
-
-gint
-tracker_ontology_get_service_parent_id_by_id (gint id)
-{
-	TrackerClass *service;
-	const gchar    *parent = NULL;
-
-	service = ontology_hash_lookup_by_id (service_ids, id);
-
-	if (service) {
-		parent = tracker_class_get_parent (service);
-	}
-
-	if (!parent) {
-		return -1;
-	}
-
-	service = g_hash_table_lookup (service_names, parent);
-
-	if (!service) {
-		return -1;
-	}
-
-	return tracker_class_get_id (service);
-}
-
-TrackerDBType
-tracker_ontology_get_service_db_by_name (const gchar *service_str)
-{
-	TrackerDBType  type;
-	gchar	      *str;
-
-	g_return_val_if_fail (service_str != NULL, TRACKER_DB_TYPE_FILES);
-
-	str = g_utf8_strdown (service_str, -1);
-
-	if (g_str_has_suffix (str, "emails") ||
-	    g_str_has_suffix (str, "attachments")) {
-		type = TRACKER_DB_TYPE_EMAIL;
-	} else if (g_str_has_prefix (str, "files")) {
-		type = TRACKER_DB_TYPE_FILES;
-	} else {
-		type = TRACKER_DB_TYPE_FILES;
-	}
-
-	g_free (str);
-
-	return type;
-}
-
-GSList *
-tracker_ontology_get_service_names_registered (void)
-{
-	TrackerClass *service;
-	GList	       *services, *l;
-	GSList	       *names = NULL;
-
-	services = g_hash_table_get_values (service_names);
-
-	for (l = services; l; l = l->next) {
-		service = l->data;
-		names = g_slist_prepend (names, g_strdup (tracker_class_get_name (service)));
-	}
-
-	return names;
-}
-
-GSList *
-tracker_ontology_get_field_names_registered (const gchar *service_str)
-{
-	GList	    *fields;
-	GList	    *l;
-	GSList	    *names;
-	const gchar *prefix = NULL;
-	const gchar *parent_prefix;
-
-	parent_prefix = NULL;
-
-	if (service_str) {
-		TrackerClass *service;
-		TrackerClass *parent;
-		const gchar    *parent_name;
-
-		service = tracker_ontology_get_service_by_name (service_str);
-		if (!service) {
-			return NULL;
-		}
-
-		/* Prefix for properties of the category */
-		prefix = tracker_class_get_property_prefix (service);
-
-		if (!prefix || g_strcmp0 (prefix, " ") == 0) {
-			prefix = service_str;
-		}
-
-		/* Prefix for properties of the parent */
-		parent_name = tracker_ontology_get_service_parent (service_str);
-
-		if (parent_name && g_strcmp0 (parent_name, " ") != 0) {
-			parent = tracker_ontology_get_service_by_name (parent_name);
-
-			if (parent) {
-				parent_prefix = tracker_class_get_property_prefix (parent);
-
-				if (!parent_prefix || g_strcmp0 (parent_prefix, " ") == 0) {
-					parent_prefix = parent_name;
-				}
-			}
-		}
-	}
-
-	names = NULL;
-	fields = g_hash_table_get_values (field_names);
-
-	for (l = fields; l; l = l->next) {
-		TrackerProperty *field;
-		const gchar  *name;
-
-		field = l->data;
-		name = tracker_property_get_name (field);
-
-		if (service_str == NULL ||
-		    (prefix && g_str_has_prefix (name, prefix)) ||
-		    (parent_prefix && g_str_has_prefix (name, parent_prefix))) {
-			names = g_slist_prepend (names, g_strdup (name));
-		}
-	}
-
-	g_list_free (fields);
-
-	return names;
-}
-
-static void
-calculate_subcategories_foreach (gpointer key, 
-				 gpointer value,
-				 gpointer user_data) 
-{
-	TrackerClass                *service;
-	CalculateSubcategoriesForEach *data;
-
-	service = value;
-	data = user_data;
-
-	if (!g_strcmp0 (tracker_class_get_name (service), data->name) ||
-	    !g_strcmp0 (tracker_class_get_parent (service), data->name) ||
-	    !g_strcmp0 ("*", data->name)) {
-		gint id = tracker_class_get_id (service);
-		g_array_append_val (data->subcategories, id);
-	}
-}
-
-GArray *
-tracker_ontology_get_subcategory_ids (const gchar *service_str)
-{
-	GArray *subcategories;
-
-	subcategories = g_hash_table_lookup (subcategories_cache, service_str);
-
-	if (!subcategories) {
-		CalculateSubcategoriesForEach data;
-
-		data.name = g_strdup (service_str);
-		data.subcategories = g_array_new (TRUE, TRUE, sizeof (int));
-
-		g_hash_table_foreach (service_names, calculate_subcategories_foreach, &data);
-		g_hash_table_insert (subcategories_cache, data.name, data.subcategories);
-
-		subcategories = data.subcategories;
-	}
-
-	return subcategories;
-}
-
-/*
- * Service data
- */
-gboolean
-tracker_ontology_service_is_valid (const gchar *service_str)
-{
-	g_return_val_if_fail (service_str != NULL, FALSE);
-
-	return tracker_ontology_get_service_id_by_name (service_str) != -1;
-}
-
-gboolean
-tracker_ontology_service_has_embedded (const gchar *service_str)
-{
-	TrackerClass *service;
-
-	g_return_val_if_fail (service_str != NULL, FALSE);
-
-	service = g_hash_table_lookup (service_names, service_str);
-
-	if (!service) {
-		return FALSE;
-	}
-
-	return tracker_class_get_embedded (service);
-}
-
-gboolean
-tracker_ontology_service_has_metadata (const gchar *service_str)
-{
-	TrackerClass *service;
-
-	g_return_val_if_fail (service_str != NULL, FALSE);
-
-	service = g_hash_table_lookup (service_names, service_str);
-
-	if (!service) {
-		return FALSE;
-	}
-
-	return tracker_class_get_has_metadata (service);
-}
-
-gboolean
-tracker_ontology_service_has_thumbnails (const gchar *service_str)
-{
-	TrackerClass *service;
-
-	g_return_val_if_fail (service_str != NULL, FALSE);
-
-	service = g_hash_table_lookup (service_names, service_str);
-
-	if (!service) {
-		return FALSE;
-	}
-
-	return tracker_class_get_has_thumbs (service);
-}
-
-gboolean
-tracker_ontology_service_has_text (const char *service_str)
-{
-	TrackerClass *service;
-
-	g_return_val_if_fail (service_str != NULL, FALSE);
-
-	service = g_hash_table_lookup (service_names, service_str);
-
-	if (!service) {
-		return FALSE;
-	}
-
-	return tracker_class_get_has_full_text (service);
-}
-
-gint
-tracker_ontology_service_get_key_metadata (const gchar *service_str,
-					   const gchar *meta_name)
-{
-	TrackerClass *service;
-	gint		i;
-	const GSList   *l;
-
-	g_return_val_if_fail (service_str != NULL, 0);
-	g_return_val_if_fail (meta_name != NULL, 0);
-
-	service = g_hash_table_lookup (service_names, service_str);
-
-	if (!service) {
-		return 0;
-	}
-
-	for (l = tracker_class_get_key_metadata (service), i = 1;
-	     l;
-	     l = l->next, i++) {
-		if (!l->data) {
-			continue;
-		}
-
-		if (strcasecmp (l->data, meta_name) == 0) {
-			return i;
-		}
-	}
-
-	return 0;
-}
-
-gint
-tracker_ontology_service_get_key_collate (const gchar *service_str,
-					  const gchar *meta_name)
-{
-	gint		i;
-
-	g_return_val_if_fail (service_str != NULL, 0);
-	g_return_val_if_fail (meta_name != NULL, 0);
-
-	i = tracker_ontology_service_get_key_metadata (service_str, meta_name);
-
-	return ((i < 6) ? i : 0);
-}
-
-gboolean
-tracker_ontology_service_get_show_directories (const gchar *service_str)
-{
-	TrackerClass *service;
-
-	service = g_hash_table_lookup (service_names, service_str);
-
-	if (!service) {
-		return FALSE;
-	}
-
-	return tracker_class_get_show_service_directories (service);
-}
-
-gboolean
-tracker_ontology_service_get_show_files (const gchar *service_str)
-{
-	TrackerClass *service;
-
-	service = g_hash_table_lookup (service_names, service_str);
-
-	if (!service) {
-		return FALSE;
-	}
-
-	return tracker_class_get_show_service_files (service);
+	/* copy len + 1 elements to include NULL terminator */
+	return g_memdup (properties->data, sizeof (TrackerProperty *) * (properties->len + 1));
 }
 
 /* Field mechanics */
 void
-tracker_ontology_field_add (TrackerProperty *field)
+tracker_ontology_add_property (TrackerProperty *field)
 {
-	const gchar *name;
+	const gchar *uri;
 
 	g_return_if_fail (TRACKER_IS_PROPERTY (field));
 
-	name = tracker_property_get_name (field);
-	g_return_if_fail (name != NULL);
+	uri = tracker_property_get_uri (field);
 
-	g_hash_table_insert (field_names,
-			     /* g_utf8_collate_key (tracker_property_get_name (field), -1), */
-			     g_strdup (name),
+	g_object_ref (field);
+	g_array_append_val (properties, field);
+
+	g_hash_table_insert (property_uris,
+			     g_strdup (uri),
 			     g_object_ref (field));
 }
 
 TrackerProperty *
-tracker_ontology_get_field_by_name (const gchar *name)
+tracker_ontology_get_property_by_uri (const gchar *uri)
 {
-	g_return_val_if_fail (name != NULL, NULL);
+	g_return_val_if_fail (uri != NULL, NULL);
 
-	return g_hash_table_lookup (field_names, name);
+	return g_hash_table_lookup (property_uris, uri);
 }
 
-TrackerProperty *
-tracker_ontology_get_field_by_id (gint id)
+void
+tracker_ontology_add_namespace (TrackerNamespace *namespace)
 {
-	TrackerProperty *field = NULL;
-	GList	     *values;
-	GList	     *l;
+	const gchar *uri;
 
-	/* TODO Create a hashtable with id -> field def. More efficient */
+	g_return_if_fail (TRACKER_IS_NAMESPACE (namespace));
 
-	values = g_hash_table_get_values (field_names);
+	uri = tracker_namespace_get_uri (namespace);
 
-	for (l = values; l && !field; l = l->next) {
-		if (atoi (tracker_property_get_id (l->data)) == id) {
-			field = l->data;
-		}
-	}
+	g_object_ref (namespace);
+	g_array_append_val (namespaces, namespace);
 
-	g_list_free (values);
-
-	return field;
+	g_hash_table_insert (namespace_uris,
+			     g_strdup (uri),
+			     g_object_ref (namespace));
 }
 
-gchar *
-tracker_ontology_get_field_name_by_service_name (TrackerProperty *field,
-						 const gchar  *service_str)
+TrackerNamespace *
+tracker_ontology_get_namespace_by_uri (const gchar *uri)
 {
-	const gchar *field_name;
-	const gchar *meta_name;
-	gint	     key_field;
+	g_return_val_if_fail (uri != NULL, NULL);
 
-	g_return_val_if_fail (TRACKER_IS_PROPERTY (field), NULL);
-	g_return_val_if_fail (service_str != NULL, NULL);
-
-	meta_name = tracker_property_get_name (field);
-	key_field = tracker_ontology_service_get_key_metadata (service_str,
-							       meta_name);
-
-	if (key_field > 0) {
-		return g_strdup_printf ("KeyMetadata%d", key_field);
-
-	}
-
-	/* TODO do it using field_name in TrackerProperty! */
-	field_name = tracker_property_get_field_name (field);
-	if (field_name) {
-		return g_strdup (field_name);
-	} else {
-		return NULL;
-	}
+	return g_hash_table_lookup (namespace_uris, uri);
 }
 
-/*
- * Field data
- */
-gchar *
-tracker_ontology_field_get_display_name (TrackerProperty *field)
-{
-	TrackerPropertyType type;
 
-	g_return_val_if_fail (TRACKER_IS_PROPERTY (field), NULL);
-
-	type = tracker_property_get_data_type (field);
-
-	if (type == TRACKER_PROPERTY_TYPE_INDEX ||
-	    type == TRACKER_PROPERTY_TYPE_STRING ||
-	    type == TRACKER_PROPERTY_TYPE_DOUBLE) {
-		return g_strdup ("MetaDataDisplay");
-	}
-
-	return g_strdup ("MetaDataValue");
-}
-
-const gchar *
-tracker_ontology_field_get_id (const gchar *name)
-{
-	TrackerProperty *field;
-
-	g_return_val_if_fail (name != NULL, NULL);
-
-	field = tracker_ontology_get_field_by_name (name);
-
-	if (field) {
-		return tracker_property_get_id (field);
-	}
-
-	return NULL;
-}
-
-gboolean
-tracker_ontology_field_is_child_of (const gchar *field_str_child,
-				    const gchar *field_str_parent)
-{
-	TrackerProperty *field_child;
-	TrackerProperty *field_parent;
-	const GSList *l;
-
-	g_return_val_if_fail (field_str_child != NULL, FALSE);
-	g_return_val_if_fail (field_str_parent != NULL, FALSE);
-
-	field_child = tracker_ontology_get_field_by_name (field_str_child);
-
-	if (!field_child) {
-		return FALSE;
-	}
-
-	field_parent = tracker_ontology_get_field_by_name (field_str_parent);
-
-	if (!field_parent) {
-		return FALSE;
-	}
-
-	for (l = tracker_property_get_child_ids (field_parent); l; l = l->next) {
-		if (!l->data) {
-			return FALSE;
-		}
-
-		if (strcmp (tracker_property_get_id (field_child), l->data) == 0) {
-			return TRUE;
-		}
-	}
-
-	return FALSE;
-}
-
-const gchar *
-tracker_ontology_get_field_name_by_id (gint id)
-{
-	TrackerProperty *field;
-
-	field = tracker_ontology_get_field_by_id (id);
-
-	if (field) {
-		return tracker_property_get_name (field);
-	}
-	
-	return NULL;
-}
 

@@ -51,15 +51,10 @@ static TrackerDBIndexDefinition  indexes[] = {
 	  NULL,
 	  NULL,
 	  NULL },
-	{ TRACKER_DB_INDEX_FILE,
+	{ TRACKER_DB_INDEX_RESOURCES,
 	  NULL,
-	  "file-index.db",
-	  "file-index",
-	  NULL },
-	{ TRACKER_DB_INDEX_EMAIL,
-	  NULL,
-	  "email-index.db",
-	  "email-index",
+	  "index.db",
+	  "index",
 	  NULL }
 };
 
@@ -185,23 +180,7 @@ tracker_db_index_manager_init (TrackerDBIndexManagerFlags flags,
 
 	g_message ("Merging old temporary indexes");
 
-	i = TRACKER_DB_INDEX_FILE;
-	name = g_strconcat (indexes[i].name, "-final", NULL);
-	final_index_filename = g_build_filename (data_dir, name, NULL);
-	g_free (name);
-
-	if (g_file_test (final_index_filename, G_FILE_TEST_EXISTS) &&
-	    !has_tmp_merge_files (i)) {
-		g_message ("  Overwriting '%s' with '%s'",
-			   indexes[i].abs_filename,
-			   final_index_filename);
-
-		g_rename (final_index_filename, indexes[i].abs_filename);
-	}
-
-	g_free (final_index_filename);
-
-	i = TRACKER_DB_INDEX_EMAIL;
+	i = TRACKER_DB_INDEX_RESOURCES;
 	name = g_strconcat (indexes[i].name, "-final", NULL);
 	final_index_filename = g_build_filename (data_dir, name, NULL);
 	g_free (name);
@@ -297,76 +276,10 @@ tracker_db_index_manager_get_index (TrackerDBIndexType type)
 TrackerDBIndex *
 tracker_db_index_manager_get_index_by_service (const gchar *service)
 {
-	TrackerDBType	   type;
-	TrackerDBIndexType index_type;
-
 	g_return_val_if_fail (initialized == TRUE, NULL);
 	g_return_val_if_fail (service != NULL, NULL);
 
-	type = tracker_ontology_get_service_db_by_name (service);
-
-	switch (type) {
-	case TRACKER_DB_TYPE_FILES:
-		index_type = TRACKER_DB_INDEX_FILE;
-		break;
-	case TRACKER_DB_TYPE_EMAIL:
-		index_type = TRACKER_DB_INDEX_EMAIL;
-		break;
-	case TRACKER_DB_TYPE_UNKNOWN:
-	case TRACKER_DB_TYPE_DATA:
-	case TRACKER_DB_TYPE_INDEX:
-	case TRACKER_DB_TYPE_CONTENT:
-	case TRACKER_DB_TYPE_COMMON:
-	case TRACKER_DB_TYPE_CACHE:
-	case TRACKER_DB_TYPE_USER:
-	default:
-		index_type = TRACKER_DB_INDEX_UNKNOWN;
-		break;
-	}
-
-	return indexes[index_type].index;
-}
-
-TrackerDBIndex *
-tracker_db_index_manager_get_index_by_service_id (gint id)
-{
-	TrackerDBType	    type;
-	TrackerDBIndexType  index_type;
-	const gchar        *service;
-
-	g_return_val_if_fail (initialized == TRUE, NULL);
-
-	service = tracker_ontology_get_service_by_id (id);
-	if (!service) {
-		return NULL;
-	}
-
-	type = tracker_ontology_get_service_db_by_name (service);
-
-	switch (type) {
-	case TRACKER_DB_TYPE_FILES:
-		index_type = TRACKER_DB_INDEX_FILE;
-		break;
-	case TRACKER_DB_TYPE_EMAIL:
-		index_type = TRACKER_DB_INDEX_EMAIL;
-		break;
-	case TRACKER_DB_TYPE_UNKNOWN:
-	case TRACKER_DB_TYPE_DATA:
-	case TRACKER_DB_TYPE_INDEX:
-	case TRACKER_DB_TYPE_CONTENT:
-	case TRACKER_DB_TYPE_COMMON:
-	case TRACKER_DB_TYPE_CACHE:
-	case TRACKER_DB_TYPE_USER:
-	default:
-		index_type = TRACKER_DB_INDEX_UNKNOWN;
-		break;
-	}
-
-	if (index_type == TRACKER_DB_INDEX_UNKNOWN) {
-		return NULL;
-	}
-
-	return indexes[index_type].index;
+	return indexes[TRACKER_DB_INDEX_RESOURCES].index;
 }
 
 const gchar *

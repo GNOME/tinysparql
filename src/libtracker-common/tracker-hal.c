@@ -25,6 +25,7 @@
 
 #include <string.h>
 
+#include <gio/gio.h>
 #include <libhal.h>
 #include <libhal-storage.h>
 
@@ -1150,31 +1151,38 @@ tracker_hal_get_removable_device_roots (TrackerHal *hal)
 /**
  * tracker_hal_path_is_on_removable_device:
  * @hal: A #TrackerHal
- * @path: a path
- * @mount_mount: if @path is on a removable device, the mount point will
+ * @uri: a uri
+ * @mount_mount: if @uri is on a removable device, the mount point will
  * be filled in here. You must free the returned result
- * @available: if @path is on a removable device, this will be set to 
+ * @available: if @uri is on a removable device, this will be set to 
  * TRUE in case the file is available right now
  *
- * Returns Whether or not @path is on a known removable device
+ * Returns Whether or not @uri is on a known removable device
  *
- * Returns: TRUE if @path on a known removable device, FALSE otherwise
+ * Returns: TRUE if @uri on a known removable device, FALSE otherwise
  **/
 gboolean
-tracker_hal_path_is_on_removable_device (TrackerHal  *hal,
-					 const gchar *path,
-					 gchar      **mount_point,
-					 gboolean    *available)
+tracker_hal_uri_is_on_removable_device (TrackerHal  *hal,
+				        const gchar *uri,
+				        gchar      **mount_point,
+				        gboolean    *available)
 {
 	TrackerHalPriv *priv;
 	GHashTableIter  iter;
 	gboolean        found = FALSE;
 	gpointer        key, value;
+	gchar          *path;
+	GFile          *file;
 
 	g_return_val_if_fail (TRACKER_IS_HAL (hal), FALSE);
 
-	if (!path)
+	file = g_file_new_for_uri (uri);
+	path = g_file_get_path (file);
+
+	if (!path) {
+		g_object_unref (file);
 		return FALSE;
+	}
 
 	priv = GET_PRIV (hal);
 
@@ -1215,6 +1223,9 @@ tracker_hal_path_is_on_removable_device (TrackerHal  *hal,
 
 		libhal_volume_free (volume);
 	}
+
+	g_free (path);
+	g_object_unref (file);
 
 	return found;
 }
@@ -1301,4 +1312,73 @@ tracker_hal_udi_get_is_mounted (TrackerHal  *hal,
 
 }
 
+
+
+/**
+ * tracker_hal_get_volume_udi_for_file:
+ * @hal: A #TrackerHal
+ * @file: a file
+ *
+ * Returns the UDI of the removable device for @file
+ *
+ * Returns: Returns the UDI of the removable device for @file
+ **/
+const gchar *
+tracker_hal_get_volume_udi_for_file (TrackerHal  *hal,
+				     GFile       *file)
+{
+	TrackerHalPriv *priv;
+	GHashTableIter  iter;
+	gboolean        found = FALSE;
+	gpointer        key, value;
+	gchar          *path;
+	const gchar    *udi;
+
+	g_return_val_if_fail (TRACKER_IS_HAL (hal), FALSE);
+
+	path = g_file_get_path (file);
+
+	if (!path) {
+		return NULL;
+	}
+
+	priv = GET_PRIV (hal);
+
+	g_hash_table_iter_init (&iter, priv->removable_devices);
+
+	while (g_hash_table_iter_next (&iter, &key, &value)) {
+		LibHalVolume  *volume;
+		const gchar   *mp;
+
+		udi = key;
+
+		volume = libhal_volume_from_udi (priv->context, udi);
+
+		if (!volume) {
+			g_message ("HAL device with udi:'%s' has no volume, "
+				   "should we delete?",
+				   udi);
+			continue;
+		}
+
+		mp = libhal_volume_get_mount_point (volume);
+
+		if (g_strcmp0 (mp, path) != 0) {
+			if (g_strrstr (path, mp)) {
+				found = TRUE;
+				libhal_volume_free (volume);
+				break;
+			}
+		}
+
+		libhal_volume_free (volume);
+	}
+
+	g_free (path);
+
+	if (!found)
+		udi = NULL;
+
+	return udi;
+}
 #endif /* HAVE_HAL */

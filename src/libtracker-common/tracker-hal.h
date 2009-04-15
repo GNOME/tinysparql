@@ -23,6 +23,7 @@
 #define __LIBTRACKER_HAL_H__
 
 #include <glib-object.h>
+#include <gio/gio.h>
 
 G_BEGIN_DECLS
 
@@ -66,10 +67,13 @@ const gchar *tracker_hal_udi_get_mount_point         (TrackerHal  *hal,
 						      const gchar *udi);
 gboolean     tracker_hal_udi_get_is_mounted          (TrackerHal  *hal,
 						      const gchar *udi);
-gboolean     tracker_hal_path_is_on_removable_device (TrackerHal  *hal,
-						      const gchar *path,
+gboolean     tracker_hal_uri_is_on_removable_device  (TrackerHal  *hal,
+						      const gchar *uri,
 						      gchar      **mount_point,
 						      gboolean    *available);
+
+const gchar* tracker_hal_get_volume_udi_for_file     (TrackerHal  *hal, 
+						      GFile        *file);
 
 #endif /* HAVE_HAL */
 

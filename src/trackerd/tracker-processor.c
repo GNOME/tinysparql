@@ -1123,10 +1123,7 @@ indexer_status_cb (DBusGProxy  *proxy,
 	 * module_name->index type so we don't do this for both
 	 * every time:
 	 */
-	index = tracker_db_index_manager_get_index (TRACKER_DB_INDEX_FILE);
-	tracker_db_index_set_reload (index, TRUE);
-
-	index = tracker_db_index_manager_get_index (TRACKER_DB_INDEX_EMAIL);
+	index = tracker_db_index_manager_get_index (TRACKER_DB_INDEX_RESOURCES);
 	tracker_db_index_set_reload (index, TRUE);
 
 	/* Message to the console about state */
@@ -1182,10 +1179,7 @@ indexer_finished_cb (DBusGProxy  *proxy,
 	 * module_name->index type so we don't do this for both
 	 * every time:
 	 */
-	index = tracker_db_index_manager_get_index (TRACKER_DB_INDEX_FILE);
-	tracker_db_index_set_reload (index, TRUE);
-
-	index = tracker_db_index_manager_get_index (TRACKER_DB_INDEX_EMAIL);
+	index = tracker_db_index_manager_get_index (TRACKER_DB_INDEX_RESOURCES);
 	tracker_db_index_set_reload (index, TRUE);
 
 	/* Message to the console about state */

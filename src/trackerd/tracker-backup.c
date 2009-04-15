@@ -64,7 +64,10 @@ tracker_backup_save (TrackerBackup          *object,
 				  path);
 
 	g_message ("Backing up metadata");
+	/* TODO: Port to SPARQL */
+#if 0
 	tracker_data_backup_save (path, &err);
+#endif
 
 	if (err) {
 		GError *actual_error = NULL;

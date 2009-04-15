@@ -1,53 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!-- 
-   The "service" input parameters are a string representing the
-   service type. A list of service types can be obtained by calling
-   method GetServices and will *potentially* include the following:
-
-   "Files" 
-   "Folders" *
-   "Documents" *
-   "Images" *
-   "Music" *
-   "Videos" *
-   "Text Files" *
-   "Development Files" *
-   "Other Files" *
-   "VFS Files"
-   "VFS Folders" **
-   "VFS Documents" **
-   "VFS Images" **
-   "VFS Music" **
-   "VFS Videos" **
-   "VFS Text Files" **
-   "VFS Development Files" **
-   "VFS Other Files" **
-   "Conversations"
-   "Playlists"
-   "Applications"	
-   "Contacts"
-   "Emails"	
-   "EmailAttachments"
-   "Notes"
-   "Appointments"
-   "Tasks"
-   "Bookmarks"
-   "History"
-   "Projects"
-   
-   
-   (*) - these services are a subset of "Files" service.
-   (**) - these services are a subset of "VFSFiles" service.
-   
-   Services may also have a corresponding metadata class associated
-   with them (EG Files has "File" class, Documents "Doc" etc see the
-   spec at:
-   
-   http://freedesktop.org/wiki/Standards/shared-filemetadata-spec 
-
-   for more details on metadata classes).
-   
    The "id" input parameters can represent, in the case of a file, the
    full path and name of the file. In other cases, "id" can also be a
    unique name or URI for the specified service. 
@@ -90,6 +43,8 @@
       --> 
     <method name="GetStats">
       <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
+      <annotation name="com.trolltech.QtDBus.QtTypeName.Out0" 
+		  value="QVector&lt;QStringList&gt;"/>
       <arg type="aas" name="service_stats" direction="out" />
     </method>
         

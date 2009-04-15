@@ -85,7 +85,6 @@ gboolean        tracker_indexer_get_running         (TrackerIndexer         *ind
 void            tracker_indexer_set_running         (TrackerIndexer         *indexer,
 						     gboolean                running);
 gboolean        tracker_indexer_get_stoppable       (TrackerIndexer         *indexer);
-
 void            tracker_indexer_stop                (TrackerIndexer         *indexer);
 void            tracker_indexer_process_all         (TrackerIndexer         *indexer);
 void            tracker_indexer_process_modules     (TrackerIndexer         *indexer,
@@ -104,6 +103,10 @@ void            tracker_indexer_pause_for_duration  (TrackerIndexer         *ind
 void            tracker_indexer_continue            (TrackerIndexer         *indexer,
 						     DBusGMethodInvocation  *context,
 						     GError                **error);
+void		tracker_indexer_turtle_add	   (TrackerIndexer *indexer,
+						    const gchar             *file,
+						    DBusGMethodInvocation *context,
+						    GError **error);
 void            tracker_indexer_files_check         (TrackerIndexer         *indexer,
 						     const gchar            *module,
 						     GStrv                   files,
@@ -132,6 +135,18 @@ void            tracker_indexer_volume_update_state (TrackerIndexer         *ind
 						     const gchar            *volume_uuid,
 						     const gchar            *path,
 						     gboolean                enabled,
+						     DBusGMethodInvocation  *context,
+						     GError                **error);
+void            tracker_indexer_insert_statement    (TrackerIndexer         *indexer,
+						     const gchar            *subject,
+						     const gchar            *predicate,
+						     const gchar            *object,
+						     DBusGMethodInvocation  *context,
+						     GError                **error);
+void            tracker_indexer_delete_statement    (TrackerIndexer         *indexer,
+						     const gchar            *subject,
+						     const gchar            *predicate,
+						     const gchar            *object,
 						     DBusGMethodInvocation  *context,
 						     GError                **error);
 void            tracker_indexer_restore_backup      (TrackerIndexer         *indexer,

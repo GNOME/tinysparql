@@ -204,11 +204,7 @@ tracker_daemon_init (TrackerDaemon *object)
 {
 	TrackerDaemonPrivate *priv;
 	TrackerDBInterface   *iface;
-	TrackerDBResultSet   *result_set;
 	DBusGProxy           *proxy;
-	GHashTable           *values;
-	GHashTableIter        iter;
-	gpointer              key, value;
 
 	priv = TRACKER_DAEMON_GET_PRIVATE (object);
 
@@ -228,30 +224,13 @@ tracker_daemon_init (TrackerDaemon *object)
 				     object,
 				     NULL);
 
-	iface = tracker_db_manager_get_db_interface (TRACKER_DB_COMMON);
+	iface = tracker_db_manager_get_db_interface ();
 
 	/* Prepare cache */
 	priv->stats_cache = g_hash_table_new_full (g_str_hash,
 						   g_str_equal,
 						   g_free, 
 						   NULL);
-
-	result_set = tracker_data_manager_exec_proc (iface, "GetServices", 0);
-	values = tracker_dbus_query_result_to_hash_table (result_set);
-
-	if (result_set) {
-		g_object_unref (result_set);
-	}
-
-	g_hash_table_iter_init (&iter, values);
-
-	while (g_hash_table_iter_next (&iter, &key, &value)) {
-		g_hash_table_replace (priv->stats_cache, 
-				      g_strdup (key), 
-				      GINT_TO_POINTER (0));
-	}
-
-	g_hash_table_destroy (values);
 
 	/* First time update */
 	stats_cache_update (object);
@@ -372,55 +351,38 @@ tracker_daemon_get_status (TrackerDaemon	  *object,
 	tracker_dbus_request_unblock_hooks ();
 }
 
+static TrackerDBResultSet *
+db_get_stats (void)
+{
+	TrackerDBInterface *iface;
+	TrackerDBStatement *stmt;
+	TrackerDBResultSet *result_set;
+
+	iface = tracker_db_manager_get_db_interface ();
+
+	/* FIXME Slow query, switch to SELECT COUNT(*) FROM each class to improve performance */
+	stmt = tracker_db_interface_create_statement (iface, "SELECT Uri, COUNT(*) FROM \"rdfs:Resource_rdf:type\" JOIN \"rdfs:Resource\" ON \"rdf:type\" = \"rdfs:Resource\".ID GROUP BY \"rdf:type\"");
+	result_set = tracker_db_statement_execute (stmt, NULL);
+	g_object_unref (stmt);
+
+	return result_set;
+}
+
 static void
 stats_cache_update (TrackerDaemon *object)
 {
 	TrackerDaemonPrivate *priv;
 	TrackerDBResultSet   *result_set;
-	GPtrArray            *stats, *parent_stats;
 	GPtrArray            *values;
 	guint                 i;
-	const gchar          *services_to_fetch[3] = { 
-		TRACKER_DB_FOR_FILE_SERVICE, 
-		TRACKER_DB_FOR_EMAIL_SERVICE, 
-		NULL 
-	};
 
 	priv = TRACKER_DAEMON_GET_PRIVATE (object);
 
-	values = g_ptr_array_new ();
+	result_set = db_get_stats ();
+	values = tracker_dbus_query_result_to_ptr_array (result_set);
 
-	for (i = 0; services_to_fetch[i]; i++) {
-		TrackerDBInterface *iface;
-		gint                j;
-
-		iface = tracker_db_manager_get_db_interface_by_service (services_to_fetch[i]);
-
-		result_set = tracker_data_manager_exec_proc (iface, "GetStats", 0);
-		stats = tracker_dbus_query_result_to_ptr_array (result_set);
-
-		if (result_set) {
-			g_object_unref (result_set);
-		}
-
-		result_set = tracker_data_manager_exec_proc (iface, "GetStatsForParents", 0);
-		parent_stats = tracker_dbus_query_result_to_ptr_array (result_set);
-
-		if (result_set) {
-			g_object_unref (result_set);
-		}
-
-		/* Concatenate stats */
-		for (j = 0; j < stats->len; j++) {
-			g_ptr_array_add (values, g_ptr_array_index (stats, j));
-		}
-		
-		for (j = 0; j < parent_stats->len; j++) {
-			g_ptr_array_add (values, g_ptr_array_index (parent_stats, j));
-		}
-
-		g_ptr_array_free (parent_stats, TRUE);
-		g_ptr_array_free (stats, TRUE);
+	if (result_set) {
+		g_object_unref (result_set);
 	}
 
 	/* Update local cache */
@@ -741,56 +703,19 @@ tracker_daemon_signal_statistics (void)
 	GObject		     *daemon;
 	TrackerDaemonPrivate *priv;
 	TrackerDBResultSet   *result_set;
-	GPtrArray	     *stats, *parent_stats;
 	GPtrArray            *values;
 	gint                  i;
-	const gchar          *services_to_fetch[3] = {
-		TRACKER_DB_FOR_FILE_SERVICE, 
-		TRACKER_DB_FOR_EMAIL_SERVICE, 
-		NULL
-	};
 
 	daemon = tracker_dbus_get_object (TRACKER_TYPE_DAEMON);
 	priv = TRACKER_DAEMON_GET_PRIVATE (daemon);
 
-	values = g_ptr_array_new ();
-
 	g_message ("Requesting statistics from database for an accurate signal");
 
-	for (i = 0; services_to_fetch[i]; i++) {		
-		TrackerDBInterface *iface;
-		gint                j;
+	result_set = db_get_stats ();
+	values = tracker_dbus_query_result_to_ptr_array (result_set);
 
-		iface = tracker_db_manager_get_db_interface_by_service (services_to_fetch[i]);
-
-		/* GetStats has asc in its query. Therefore we don't have to
-		 * lookup the in a to compare in b, just compare index based.
-		 * Maybe we want to change this nonetheless later?
-		 */
-		result_set = tracker_data_manager_exec_proc (iface, "GetStats", 0);
-		stats = tracker_dbus_query_result_to_ptr_array (result_set);
-
-		if (result_set) {
-			g_object_unref (result_set);
-		}
-
-		result_set = tracker_data_manager_exec_proc (iface, "GetStatsForParents", 0);
-		parent_stats = tracker_dbus_query_result_to_ptr_array (result_set);
-
-		if (result_set) {
-			g_object_unref (result_set);
-		}
-		
-		for (j = 0; j < stats->len; j++) {
-			g_ptr_array_add (values, g_ptr_array_index (stats, j));
-		}
-
-		for (j = 0; j < parent_stats->len; j++) {
-			g_ptr_array_add (values, g_ptr_array_index (parent_stats, j));
-		}
-
-		g_ptr_array_free (parent_stats, TRUE);
-		g_ptr_array_free (stats, TRUE);
+	if (result_set) {
+		g_object_unref (result_set);
 	}
 
 	/* There are 3 situations here:

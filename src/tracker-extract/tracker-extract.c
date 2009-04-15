@@ -72,6 +72,17 @@ tracker_extract_finalize (GObject *object)
 	G_OBJECT_CLASS (tracker_extract_parent_class)->finalize (object);
 }
 
+static void
+statements_free (GPtrArray *statements)
+{
+	guint i;
+
+	for (i = 0; i < statements->len; i++) {
+		g_value_array_free (statements->pdata[i]);
+	}
+	g_ptr_array_free (statements, TRUE);
+}
+
 TrackerExtract *
 tracker_extract_new (void)
 {
@@ -190,52 +201,48 @@ print_file_metadata_item (gpointer key,
 	}
 }
 
-static GHashTable *
+static GPtrArray *
 get_file_metadata (TrackerExtract *extract,
 		   guint           request_id,
-		   const gchar    *path,
-		   const gchar    *mime)
+		   const gchar    *uri,
+		   const gchar    *mime_)
 {
-	GHashTable *values;
+	GPtrArray *statements;
 	GFile *file;
 	GFileInfo *info;
 	GError *error = NULL;
 	const gchar *attributes = NULL;
-	gchar *path_in_locale;
-	gchar *path_used;
 	gchar *mime_used = NULL;
 	goffset size = 0;
-		
-	path_used = g_strdup (path);
-	g_strstrip (path_used);
+	gchar *content_type = NULL;
+	gchar *mime = mime_;
 
-	path_in_locale = g_filename_from_utf8 (path_used, -1, NULL, NULL, NULL);
-	g_free (path_used);
+	/* Create hash table to send back */
+	statements = g_ptr_array_new ();
 
-	if (!path_in_locale) {
-		g_warning ("Could not convert path from UTF-8 to locale");
-		g_free (path_used);
-		return NULL;
-	}
+	if ((!mime || mime[0]=='\0') && content_type)
+		mime = content_type;
 
-	file = g_file_new_for_path (path_in_locale);
+	file = g_file_new_for_uri (uri);
 	if (!file) {
-		g_warning ("Could not create GFile for path:'%s'",
-			   path_in_locale);
-		g_free (path_in_locale);
+		g_warning ("Could not create GFile for uri:'%s'",
+			   uri);
+		g_free (content_type);
+		statements_free (statements);
 		return NULL;
 	}
-		
+
 	/* Blocks */
 	if (!g_file_query_exists (file, NULL)) {
-		g_warning ("File does not exist '%s'", path_in_locale);
+		g_warning ("File does not exist '%s'", uri);
 		g_object_unref (file);
-		g_free (path_in_locale);
+		g_free (content_type);
+		statements_free (statements);
 		return NULL;
 	}
 
 	/* Do we get size and mime? or just size? */
-	if (mime && *mime) {	
+	if (mime && *mime) {
 		attributes = 
 			G_FILE_ATTRIBUTE_STANDARD_SIZE;
 	} else {
@@ -258,19 +265,13 @@ get_file_metadata (TrackerExtract *extract,
 		
 		if (info) {
 			g_object_unref (info);
-		}	
+		}
 		
 		g_object_unref (file);
-		g_free (path_in_locale);
-		
+		g_free (content_type);
+		statements_free (statements);
 		return NULL;
 	}
-	
-	/* Create hash table to send back */
-	values = g_hash_table_new_full (g_str_hash,
-					g_str_equal,
-					g_free,
-					g_free);
 
 	/* Check the size is actually non-zero */
 	size = g_file_info_get_size (info);
@@ -281,9 +282,10 @@ get_file_metadata (TrackerExtract *extract,
 		
 		g_object_unref (info);
 		g_object_unref (file);
-		g_free (path_in_locale);
 
-		return values;
+		g_free (content_type);
+		statements_free (statements);
+		return statements;
 	}
 
 	/* We know the mime */
@@ -294,9 +296,9 @@ get_file_metadata (TrackerExtract *extract,
 		mime_used = g_strdup (g_file_info_get_content_type (info));
 
 		tracker_dbus_request_comment (request_id,
-					      "  Guessing mime type as '%s' for path:'%s'",
+					      "  Guessing mime type as '%s' for uri:'%s'",
 					      mime_used,
-					      path_in_locale);
+					      uri);
 	}
 
 	g_object_unref (info);
@@ -316,20 +318,20 @@ get_file_metadata (TrackerExtract *extract,
 			data = &g_array_index (priv->extractors, TrackerExtractData, i);
 
 			if (g_pattern_match_simple (data->mime, mime_used)) {
-				(*data->extract) (path_in_locale, values);
+				(*data->extract) (uri, statements);
 
-				if (g_hash_table_size (values) == 0) {
+				if (statements->len == 0) {
 					continue;
 				}
 
 				tracker_dbus_request_comment (request_id,
 							      "  Found %d metadata items",
-							      g_hash_table_size (values));
+							      statements->len);
 
-				g_free (path_in_locale);
 				g_free (mime_used);
+				g_free (content_type);
 
-				return values;
+				return statements;
 			}
 		}
 
@@ -342,31 +344,29 @@ get_file_metadata (TrackerExtract *extract,
 					      "  No mime available, not extracting data");
 	}
 
-	g_free (path_in_locale);
+	g_free (content_type);
 
-	return values;
+	return statements;
 }
 
 void
 tracker_extract_get_metadata_by_cmdline (TrackerExtract *object,
-					 const gchar    *path,
+					 const gchar    *uri,
 					 const gchar    *mime)
 {
 	guint       request_id;
-	GHashTable *values = NULL;
+	gint        i;
+	GPtrArray   *statements = NULL;
 
 	request_id = tracker_dbus_get_next_request_id ();
 
-	g_return_if_fail (path != NULL);
+	g_return_if_fail (uri != NULL);
 
 	/* NOTE: Don't reset the timeout to shutdown here */
-	values = get_file_metadata (object, request_id, path, mime);
+	statements = get_file_metadata (object, request_id, uri, mime);
 
-	if (values) {
-		g_hash_table_foreach (values, 
-				      print_file_metadata_item, 
-				      GUINT_TO_POINTER (request_id));
-		g_hash_table_destroy (values);
+	if (statements) {
+		statements_free (statements);
 	}
 }
 
@@ -394,22 +394,23 @@ tracker_extract_get_pid (TrackerExtract	        *object,
 
 void
 tracker_extract_get_metadata (TrackerExtract	     *object,
-			      const gchar            *path,
+			      const gchar            *uri,
 			      const gchar            *mime,
 			      DBusGMethodInvocation  *context,
 			      GError		    **error)
 {
 	guint       request_id;
-	GHashTable *values = NULL;
+	gint        i;
+	GPtrArray  *statements = NULL;
 
 	request_id = tracker_dbus_get_next_request_id ();
 
-	tracker_dbus_async_return_if_fail (path != NULL, context);
+	tracker_dbus_async_return_if_fail (uri != NULL, context);
 
 	tracker_dbus_request_new (request_id,
 				  "DBus request to extract metadata, "
-				  "path:'%s', mime:%s",
-				  path,
+				  "uri:'%s', mime:%s",
+				  uri,
 				  mime);
 
 	tracker_dbus_request_debug (request_id,
@@ -418,22 +419,22 @@ tracker_extract_get_metadata (TrackerExtract	     *object,
 	tracker_main_quit_timeout_reset ();
 	alarm (MAX_EXTRACT_TIME);
 
-	values = get_file_metadata (object, request_id, path, mime);
+	statements = get_file_metadata (object, request_id, uri, mime);
 
-	if (values) {
-		g_hash_table_foreach (values, 
-				      print_file_metadata_item, 
-				      GUINT_TO_POINTER (request_id));
-		dbus_g_method_return (context, values);
-		g_hash_table_destroy (values);
+	if (statements) {
+		dbus_g_method_return (context, statements);
+		for (i = 0; i < statements->len; i++) {
+			g_value_array_free (statements->pdata[i]);
+		}
+		g_ptr_array_free (statements, TRUE);
 		tracker_dbus_request_success (request_id);
 	} else {
 		GError *actual_error = NULL;
 
 		tracker_dbus_request_failed (request_id,
 					     &actual_error,
-					     "Could not get any metadata for path:'%s' and mime:'%s'",
-					     path, 
+					     "Could not get any metadata for uri:'%s' and mime:'%s'",
+					     uri, 
 					     mime);
 		dbus_g_method_return_error (context, actual_error);
 		g_error_free (actual_error);

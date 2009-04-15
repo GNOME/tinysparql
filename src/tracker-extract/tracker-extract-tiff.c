@@ -27,7 +27,9 @@
 #include <tiff.h>
 #include <tiffio.h>
 
+#include <libtracker-common/tracker-ontology.h>
 #include <libtracker-common/tracker-type-utils.h>
+#include <libtracker-common/tracker-statement-list.h>
 #include <libtracker-common/tracker-file-utils.h>
 
 #include "tracker-main.h"
@@ -35,6 +37,15 @@
 #include "tracker-iptc.h"
 
 #define EXIF_DATE_FORMAT     "%Y:%m:%d %H:%M:%S"
+
+#define NMM_PREFIX TRACKER_NMM_PREFIX
+#define NFO_PREFIX TRACKER_NFO_PREFIX
+#define NIE_PREFIX TRACKER_NIE_PREFIX
+#define DC_PREFIX TRACKER_DC_PREFIX
+#define NCO_PREFIX TRACKER_NCO_PREFIX
+
+#define RDF_PREFIX TRACKER_RDF_PREFIX
+#define RDF_TYPE RDF_PREFIX "type"
 
 typedef gchar * (*PostProcessor) (gchar *);
 
@@ -48,30 +59,30 @@ typedef enum {
 } TagType;
 
 typedef struct {
-	guint	       tag;
-	gchar	      *name;
+	guint          tag;
+	const gchar   *name;
 	TagType        type;
 	PostProcessor  post;
 } TiffTag;
  
 static void   extract_tiff    (const gchar *filename,
-			       GHashTable  *metadata);
+			       GPtrArray   *metadata);
 static gchar *date_to_iso8601 (gchar       *date);
 
-static TrackerExtractData data[] = {
+static TrackerExtractData extract_data[] = {
 	{ "image/tiff", extract_tiff },
 	{ NULL, NULL }
 };
 
 /* FIXME: We are missing some */
 static TiffTag tags[] = {
-	{ TIFFTAG_ARTIST, "Image:Creator", TIFF_TAGTYPE_STRING, NULL },
-	{ TIFFTAG_COPYRIGHT, "File:Copyright", TIFF_TAGTYPE_STRING, NULL },
-	{ TIFFTAG_DATETIME, "Image:Date", TIFF_TAGTYPE_STRING, NULL },
-	{ TIFFTAG_DOCUMENTNAME, "Image:Title", TIFF_TAGTYPE_STRING, NULL },
-	{ TIFFTAG_IMAGEDESCRIPTION, "Image:Comments", TIFF_TAGTYPE_STRING, NULL },
-	{ TIFFTAG_IMAGEWIDTH, "Image:Width", TIFF_TAGTYPE_UINT32, NULL },
-	{ TIFFTAG_IMAGELENGTH, "Image:Height", TIFF_TAGTYPE_UINT32, NULL },
+	{ TIFFTAG_ARTIST, NCO_PREFIX "creator", TIFF_TAGTYPE_STRING, NULL },
+	{ TIFFTAG_COPYRIGHT, NIE_PREFIX "copyright", TIFF_TAGTYPE_STRING, NULL },
+	{ TIFFTAG_DATETIME, NIE_PREFIX "contentCreated", TIFF_TAGTYPE_STRING, NULL },
+	{ TIFFTAG_DOCUMENTNAME, NIE_PREFIX "title", TIFF_TAGTYPE_STRING, NULL },
+	{ TIFFTAG_IMAGEDESCRIPTION, NIE_PREFIX "comment", TIFF_TAGTYPE_STRING, NULL },
+	{ TIFFTAG_IMAGEWIDTH, NFO_PREFIX "width", TIFF_TAGTYPE_UINT32, NULL },
+	{ TIFFTAG_IMAGELENGTH, NFO_PREFIX "height", TIFF_TAGTYPE_UINT32, NULL },
 	{ TIFFTAG_MAKE, "Image:CameraMake", TIFF_TAGTYPE_STRING, NULL },
 	{ TIFFTAG_MODEL, "Image:CameraModel", TIFF_TAGTYPE_STRING, NULL },
 	{ TIFFTAG_ORIENTATION, "Image:Orientation", TIFF_TAGTYPE_UINT16, NULL },
@@ -84,12 +95,12 @@ static TiffTag exiftags[] = {
 	{ EXIFTAG_FNUMBER, "Image:FNumber", TIFF_TAGTYPE_DOUBLE, NULL},
 	{ EXIFTAG_EXPOSUREPROGRAM, "Image:ExposureProgram", TIFF_TAGTYPE_UINT16, NULL },
 	{ EXIFTAG_ISOSPEEDRATINGS, "Image:ISOSpeed", TIFF_TAGTYPE_C16_UINT16, NULL},
-	{ EXIFTAG_DATETIMEORIGINAL, "Image:Date", TIFF_TAGTYPE_STRING, date_to_iso8601 },
+	{ EXIFTAG_DATETIMEORIGINAL, NIE_PREFIX "contentCreated", TIFF_TAGTYPE_STRING, date_to_iso8601 },
 	{ EXIFTAG_METERINGMODE, "Image:MeteringMode", TIFF_TAGTYPE_UINT16, NULL},
 	{ EXIFTAG_FLASH, "Image:Flash", TIFF_TAGTYPE_UINT16, NULL},
 	{ EXIFTAG_FOCALLENGTH, "Image:FocalLength", TIFF_TAGTYPE_DOUBLE, NULL},
-	{ EXIFTAG_PIXELXDIMENSION, "Image:Width", TIFF_TAGTYPE_UINT32, NULL},
-	{ EXIFTAG_PIXELYDIMENSION, "Image:Height", TIFF_TAGTYPE_UINT32, NULL},
+	{ EXIFTAG_PIXELXDIMENSION, NFO_PREFIX "width", TIFF_TAGTYPE_UINT32, NULL},
+	{ EXIFTAG_PIXELYDIMENSION, NFO_PREFIX "height", TIFF_TAGTYPE_UINT32, NULL},
 	{ EXIFTAG_WHITEBALANCE, "Image:WhiteBalance", TIFF_TAGTYPE_UINT16, NULL},
 	{ -1, NULL, TIFF_TAGTYPE_UNDEFINED, NULL }
 };
@@ -105,19 +116,18 @@ date_to_iso8601 (gchar *date)
 }
 
 static void
-extract_tiff (const gchar *filename, 
-	      GHashTable  *metadata)
+extract_tiff (const gchar *uri, 
+	      GPtrArray   *metadata)
 {
 	TIFF *image;
 	glong exifOffset;
-
+	gchar *filename = g_filename_from_uri (uri, NULL, NULL);
 	TiffTag *tag;
 
 	gchar buffer[1024];
 	gchar *text;
 	guint16 varui16 = 0;
 	guint32 varui32 = 0;
-	
 	void *data;
 	guint16 count16;
 
@@ -135,8 +145,13 @@ extract_tiff (const gchar *filename,
 
 	if ((image = TIFFOpen (filename, "r")) == NULL){
 		g_critical ("Could not open image:'%s'\n", filename);
+		g_free (filename);
 		return;
 	}
+
+	tracker_statement_list_insert (metadata, uri, 
+	                          RDF_TYPE, 
+	                          NFO_PREFIX "Image");
 
 #ifdef HAVE_LIBIPTCDATA
 	if (TIFFGetField (image, TIFFTAG_RICHTIFFIPTC, &iptcSize, &iptcOffset)) {
@@ -144,7 +159,7 @@ extract_tiff (const gchar *filename,
 			TIFFSwabArrayOfLong((uint32 *) iptcOffset,(unsigned long) iptcSize);
 		tracker_read_iptc (iptcOffset,
 				   4*iptcSize,
-				   metadata);
+				   uri, metadata);
 	}
 #endif /* HAVE_LIBIPTCDATA */
 
@@ -154,6 +169,7 @@ extract_tiff (const gchar *filename,
 	if (TIFFGetField (image, TIFFTAG_XMLPACKET, &size, &xmpOffset)) {
 		tracker_read_xmp (xmpOffset,
 				  size,
+				  uri,
 				  metadata);
 	}
 #endif /* HAVE_EXEMPI */
@@ -205,13 +221,13 @@ extract_tiff (const gchar *filename,
 				}
 
 				if (tag->post) {
-					g_hash_table_insert (metadata,
-							     g_strdup (tag->name),
-							     tracker_escape_metadata ((*tag->post) (buffer)));
+					tracker_statement_list_insert (metadata, uri,
+								  tag->name,
+								  (*tag->post) (buffer));
 				} else {
-					g_hash_table_insert (metadata, 
-							     g_strdup (tag->name),
-							     tracker_escape_metadata (buffer));
+					tracker_statement_list_insert (metadata, uri,
+								  tag->name,
+							 	  buffer);
 				}
 			}
 		}
@@ -219,6 +235,8 @@ extract_tiff (const gchar *filename,
 
 	/* We want to give native tags priority over XMP/Exif */
 	for (tag = tags; tag->name; ++tag) {
+		gchar *what_i_need;
+
 		switch (tag->type) {
 			case TIFF_TAGTYPE_STRING:
 				if (!TIFFGetField (image, tag->tag, &text)) {
@@ -254,36 +272,30 @@ extract_tiff (const gchar *filename,
 			}
 
 		if (tag->post) {
-			g_hash_table_insert (metadata, 
-					     g_strdup (tag->name),
-					     tracker_escape_metadata ((*tag->post) (buffer)));
+			what_i_need = (*tag->post) (buffer);
 		} else {
-			g_hash_table_insert (metadata, 
-					     g_strdup (tag->name),
-					     tracker_escape_metadata (buffer));
+			what_i_need = buffer;
 		}
-	}
 
-	/* Check that we have the minimum data. FIXME We should not need to do this */
-	
-	if (!g_hash_table_lookup (metadata, "Image:Date")) {
-		gchar *date;
-		guint64 mtime;
-		
-		mtime = tracker_file_get_mtime (filename);
-		date = tracker_date_to_string ((time_t) mtime);
-		
-		g_hash_table_insert (metadata,
-				     g_strdup ("Image:Date"),
-				     tracker_escape_metadata (date));
-		g_free (date);
+		if (tag->tag == TIFFTAG_ARTIST) {
+			tracker_statement_list_insert (metadata, ":", RDF_TYPE, NCO_PREFIX "Contact");
+			tracker_statement_list_insert (metadata, ":", NCO_PREFIX "fullname", what_i_need);
+			tracker_statement_list_insert (metadata, uri, tag->name, ":");
+		} else {
+			tracker_statement_list_insert (metadata, uri, tag->name, what_i_need);
+		}
+
+		if (tag->post) 
+			g_free (what_i_need);
 	}
 
 	TIFFClose (image);
+
+	g_free (filename);
 }
 
 TrackerExtractData *
 tracker_get_extract_data (void)
 {
-	return data;
+	return extract_data;
 }

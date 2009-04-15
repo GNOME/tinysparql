@@ -17,9 +17,9 @@
     </method>
     <method name="GetMetadata">
       <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
-      <arg type="s" name="path" direction="in" />
+      <arg type="s" name="uri" direction="in" />
       <arg type="s" name="mime" direction="in" />
-      <arg type="a{ss}" name="values" direction="out" />
+      <arg type="a(sss)" name="statements" direction="out" />
     </method>
   </interface>
 </node>

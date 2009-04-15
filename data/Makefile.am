@@ -1,6 +1,6 @@
 include $(top_srcdir)/Makefile.decl
 
-SUBDIRS = db dbus modules languages icons services
+SUBDIRS = db dbus modules languages icons ontologies
 
 trackerd.desktop.in: trackerd.desktop.in.in
 	@sed -e "s|@libexecdir[@]|${libexecdir}|" \

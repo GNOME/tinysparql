@@ -21,12 +21,13 @@
 
 #include <glib.h>
 
+#include <libtracker-common/tracker-statement-list.h>
+
 #include "tracker-main.h"
 #include "tracker-xmp.h"
-#include "tracker-escape.h"
 
 static void extract_xmp (const gchar *filename, 
-                         GHashTable  *metadata);
+                         GPtrArray   *metadata);
 
 static TrackerExtractData data[] = {
 	{ "application/rdf+xml", extract_xmp },
@@ -34,16 +35,23 @@ static TrackerExtractData data[] = {
 };
 
 static void
-extract_xmp (const gchar *filename, 
-             GHashTable  *metadata)
+extract_xmp (const gchar *uri, 
+             GPtrArray   *metadata)
 {
 	gchar *contents;
 	gsize length;
 	GError *error;
+	gchar *filename = g_filename_from_uri (uri, NULL, NULL);
 
 	if (g_file_get_contents (filename, &contents, &length, &error)) {
-		tracker_read_xmp (contents, length, metadata);
-        }
+		/* URI is very very wrong here. The URI is location://filename.xmp whereas
+		 * the metadata is about location://filename.jpeg (in case it's a sidecar
+		 * for filename.jpeg) */
+		tracker_read_xmp (contents, length, uri, metadata);
+	}
+
+	g_free (filename);
+
 }
 
 TrackerExtractData *

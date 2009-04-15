@@ -18,22 +18,20 @@ libtracker_data_LTLIBRARIES = libtracker-data.la
 libtracker_data_la_SOURCES = 						\
 	tracker-data-backup.c						\
 	tracker-data-manager.c						\
-	tracker-data-metadata.c						\
 	tracker-data-query.c						\
 	tracker-data-search.c						\
 	tracker-data-update.c						\
 	tracker-query-tree.c						\
-	tracker-turtle.c						
+	tracker-turtle.c
 
 noinst_HEADERS =							\
 	tracker-data-backup.h						\
 	tracker-data-manager.h						\
-	tracker-data-metadata.h						\
 	tracker-data-query.h						\
 	tracker-data-search.h						\
 	tracker-data-update.h						\
 	tracker-query-tree.h						\
-	tracker-turtle.h						
+	tracker-turtle.h
 
 libtracker_data_la_LDFLAGS =						\
 	-version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE)

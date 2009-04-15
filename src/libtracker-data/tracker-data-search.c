@@ -42,44 +42,35 @@
 
 #define DEFAULT_METADATA_MAX_HITS 1024
 
-gchar **
-tracker_data_search_files_get (TrackerDBInterface *iface,
-			       const gchar	  *folder_path)
+gint *
+tracker_data_search_get_matches (const gchar       *search_string,
+				 gint		   *result_length)
 {
-	TrackerDBResultSet *result_set;
-	GPtrArray	   *array;
+	GArray		    *hits;
+	TrackerQueryTree    *tree;
+	gint		    *result;
+	gint                 i;
 
-	g_return_val_if_fail (TRACKER_IS_DB_INTERFACE (iface), NULL);
-	g_return_val_if_fail (folder_path != NULL, NULL);
+	g_return_val_if_fail (search_string != NULL, NULL);
+	g_return_val_if_fail (result_length != NULL, NULL);
 
-	result_set = tracker_data_manager_exec_proc (iface,
-						     "GetFileChildren",
-						     folder_path,
-						     NULL);
-	array = g_ptr_array_new ();
+	tree = tracker_query_tree_new (search_string,
+				       tracker_data_manager_get_config (),
+				       tracker_data_manager_get_language ());
+	hits = tracker_query_tree_get_hits (tree, 0, 0);
 
-	if (result_set) {
-		gchar	 *name, *prefix;
-		gboolean  valid = TRUE;
+	result = g_new0 (gint, hits->len);
+	*result_length = hits->len;
 
-		while (valid) {
-			tracker_db_result_set_get (result_set,
-						   1, &prefix,
-						   2, &name,
-						   -1);
+	for (i = 0; i < hits->len; i++) {
+		TrackerDBIndexItemRank	rank;
 
-			g_ptr_array_add (array, g_build_filename (prefix, name, NULL));
+		rank = g_array_index (hits, TrackerDBIndexItemRank, i);
 
-			g_free (prefix);
-			g_free (name);
-			valid = tracker_db_result_set_iter_next (result_set);
-		}
-
-		g_object_unref (result_set);
+		result[i] = rank.service_id;
 	}
 
-	g_ptr_array_add (array, NULL);
-
-	return (gchar**) g_ptr_array_free (array, FALSE);
+	return result;
 }
+
 

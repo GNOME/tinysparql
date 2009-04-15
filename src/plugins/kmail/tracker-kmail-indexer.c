@@ -20,7 +20,7 @@
  * Authors:
  *  Philip Van Hoof <philip@codeminded.be>
  */
-
+ 
 #include "config.h"
 
 #include <string.h>
@@ -34,6 +34,8 @@
 #include <stdio.h>
 
 #include <gmime/gmime.h>
+
+#include <libtracker-common/tracker-ontology.h>
 
 #include <libtracker-data/tracker-data-update.h>
 #include <libtracker-data/tracker-data-manager.h>
@@ -57,14 +59,34 @@
 
 /* Based on data/services/email.metadata */
 
-#define METADATA_EMAIL_RECIPIENT     "Email:Recipient"
-#define METADATA_EMAIL_DATE	     "Email:Date"
-#define METADATA_EMAIL_SENDER	     "Email:Sender"
-#define METADATA_EMAIL_SUBJECT	     "Email:Subject"
-#define METADATA_EMAIL_SENT_TO	     "Email:SentTo"
-#define METADATA_EMAIL_CC	     "Email:CC"
-#define METADATA_EMAIL_TEXT	     "Email:Body"
-#define METADATA_EMAIL_TAG	     "User:Keywords"
+
+#define METADATA_EMAIL			       TRACKER_NMO_PREFIX "Email"
+#define METADATA_MAILBOXDATA_OBJECT	       TRACKER_NMO_PREFIX "MailboxDataObject"
+
+#define METADATA_EMAIL_RECIPIENT	       TRACKER_NMO_PREFIX "to"
+#define METADATA_EMAIL_DATE		       TRACKER_NMO_PREFIX "receivedDate"
+#define METADATA_EMAIL_SENDER		       TRACKER_NMO_PREFIX "sender"
+#define METADATA_EMAIL_SUBJECT		       TRACKER_NMO_PREFIX "subject"
+#define METADATA_EMAIL_SENT_TO		       TRACKER_NMO_PREFIX "recipient"
+#define METADATA_EMAIL_CC		       TRACKER_NMO_PREFIX "cc"
+#if 0
+#define METADATA_EMAIL_TEXT		       TRACKER_NMO_PREFIX "Body" 
+#endif
+
+#define NIE_DATASOURCE 			       TRACKER_NIE_PREFIX "DataSource"
+#define NIE_DATASOURCE_P 		       TRACKER_NIE_PREFIX "dataSource"
+
+#define RDF_TYPE			       TRACKER_RDF_PREFIX "type"
+
+#define METADATA_EMAIL_MESSAGE_HEADER	       TRACKER_NMO_PREFIX "messageHeader"
+#define METADATA_EMAIL_MESSAGE_HEADER_NAME     TRACKER_NMO_PREFIX "headerName"
+#define METADATA_EMAIL_MESSAGE_HEADER_VALUE    TRACKER_NMO_PREFIX "headerValue"
+
+#define NAO_TAG				       TRACKER_NAO_PREFIX "Tag"
+#define NAO_HASTAG			       TRACKER_NAO_PREFIX "hasTag"
+#define NAO_PREFLABEL			       TRACKER_NAO_PREFIX "prefLabel"
+
+#define DATASOURCE_URN			       "urn:nepomuk:datasource:4a157cf0-1241-11de-8c30-0800200c9a66"
 
 G_DEFINE_TYPE (TrackerKMailIndexer, tracker_kmail_indexer, G_TYPE_OBJECT)
 
@@ -132,10 +154,20 @@ perform_set (TrackerKMailIndexer *object,
 	     const GStrv values)
 {
 	guint i = 0;
-	TrackerModuleMetadata *metadata;
-	GHashTable *data;
 
-	metadata = tracker_module_metadata_new ();
+	if (!tracker_data_query_resource_exists (DATASOURCE_URN, NULL, NULL)) {
+		tracker_data_insert_statement (DATASOURCE_URN, RDF_TYPE,
+					       NIE_DATASOURCE);
+	}
+
+	tracker_data_insert_statement (subject, RDF_TYPE,
+		                       METADATA_EMAIL);
+
+	tracker_data_insert_statement (subject, RDF_TYPE,
+		                       METADATA_MAILBOXDATA_OBJECT);
+
+	tracker_data_insert_statement (subject, NIE_DATASOURCE_P,
+		                       DATASOURCE_URN);
 
 	while (predicates [i] != NULL && values[i] != NULL) {
 
@@ -151,63 +183,72 @@ perform_set (TrackerKMailIndexer *object,
 		 * improve this situation. */
 
 		if (g_strcmp0 (predicates[i], TRACKER_KMAIL_PREDICATE_TAG) == 0) {
-			tracker_module_metadata_add_string (metadata, 
-							    METADATA_EMAIL_TAG, 
-							    values[i]);
+
+			tracker_data_insert_statement (":1", RDF_TYPE,
+			                               NAO_TAG);
+
+			tracker_data_insert_statement (":1", 
+			                               NAO_PREFLABEL,
+			                               values[i]);
+
+			tracker_data_insert_statement (subject, 
+			                               NAO_HASTAG, 
+			                                ":1");
 		}
 
 		if (g_strcmp0 (predicates[i], TRACKER_KMAIL_PREDICATE_SUBJECT) == 0) {
-			tracker_module_metadata_add_string (metadata, 
-							    METADATA_EMAIL_SUBJECT, 
-							    values[i]);
+			tracker_data_insert_statement (subject, 
+						       METADATA_EMAIL_SUBJECT, 
+						       values[i]);
 		}
 
 		if (g_strcmp0 (predicates[i], TRACKER_KMAIL_PREDICATE_SENT) == 0) {
-			tracker_module_metadata_add_string (metadata, 
-							    METADATA_EMAIL_DATE, 
-							    values[i]);
+			tracker_data_insert_statement (subject,
+						       METADATA_EMAIL_DATE, 
+						       values[i]);
 		}
 
 		if (g_strcmp0 (predicates[i], TRACKER_KMAIL_PREDICATE_FROM) == 0) {
-			tracker_module_metadata_add_string (metadata, 
-							    METADATA_EMAIL_SENDER, 
-							    values[i]);
+			tracker_data_insert_statement (subject,
+						       METADATA_EMAIL_SENDER, 
+						       values[i]);
 		}
 
 		if (g_strcmp0 (predicates[i], TRACKER_KMAIL_PREDICATE_TO) == 0) {
-			tracker_module_metadata_add_string (metadata, 
-							    METADATA_EMAIL_SENT_TO, 
-							    values[i]);
+			tracker_data_insert_statement (subject,
+						       METADATA_EMAIL_SENT_TO, 
+						       values[i]);
 		}
 
 		if (g_strcmp0 (predicates[i], TRACKER_KMAIL_PREDICATE_CC) == 0) {
-			tracker_module_metadata_add_string (metadata, 
-							    METADATA_EMAIL_CC, 
-							    values[i]);
+			tracker_data_insert_statement (subject, 
+						       METADATA_EMAIL_CC, 
+						       values[i]);
 		}
 
 		i++;
 	}
 
-	data = tracker_module_metadata_get_hash_table (metadata);
-
-	tracker_data_update_replace_service (subject, "KMailEmails", data);
-
-	g_hash_table_destroy (data);
-	g_object_unref (metadata);
 }
 
 static void 
 perform_unset (TrackerKMailIndexer *object, 
 	       const gchar *subject)
 {
-	tracker_data_update_delete_service_by_path (subject, "KMailEmails"); 
+	tracker_data_delete_resource (subject); 
 }
 
 static void
 perform_cleanup (TrackerKMailIndexer *object)
 {
-	tracker_data_update_delete_service_all ("KMailEmails");
+	GError *error = NULL;
+
+	tracker_data_update_sparql ("DELETE { ?s ?p ?o } WHERE { ?s nie:dataSource <" DATASOURCE_URN "> }", &error);
+
+	if (error) {
+		g_warning ("%s", error->message);
+		g_error_free (error);
+	}
 }
 
 static void

@@ -87,7 +87,6 @@ test_creation_common_db_no_reindex ()
 }
 
 
-
 static void
 test_creation_file_meta_db_no_reindex ()
 {

@@ -50,22 +50,18 @@ struct TrackerQueryTreeClass {
 };
 
 struct TrackerHitCount {
-	guint service_type_id;
+	TrackerClass *class;
 	guint count;
 };
 
 GType		      tracker_query_tree_get_type	(void);
 TrackerQueryTree *    tracker_query_tree_new		(const gchar	  *query_str,
 							 TrackerConfig	  *config,
-							 TrackerLanguage  *language,
-							 GArray		  *services);
+							 TrackerLanguage  *language);
 G_CONST_RETURN gchar *tracker_query_tree_get_query	(TrackerQueryTree *tree);
 void		      tracker_query_tree_set_query	(TrackerQueryTree *tree,
 							 const gchar	  *query_str);
 
-GArray *	      tracker_query_tree_get_services	(TrackerQueryTree *tree);
-void		      tracker_query_tree_set_services	(TrackerQueryTree *tree,
-							 GArray		  *services);
 GSList *	      tracker_query_tree_get_words	(TrackerQueryTree *tree);
 GArray *	      tracker_query_tree_get_hits	(TrackerQueryTree *tree,
 							 guint		   offset,

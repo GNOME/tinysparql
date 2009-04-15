@@ -27,56 +27,38 @@
 #include <glib.h>
 
 #include <libtracker-common/tracker-config.h>
-#include <libtracker-common/tracker-property.h>
 #include <libtracker-common/tracker-language.h>
 #include <libtracker-common/tracker-ontology.h>
+#include <libtracker-common/tracker-property.h>
 
 #include <libtracker-db/tracker-db-interface.h>
 #include <libtracker-db/tracker-db-file-info.h>
 #include <libtracker-db/tracker-db-index.h>
 
-#include "tracker-data-metadata.h"
-
 G_BEGIN_DECLS
 
-/* Metadata API */
-GPtrArray *          tracker_data_query_all_metadata          (const gchar         *service_type,
-							       const gchar         *service_id);
-TrackerDataMetadata *tracker_data_query_metadata              (TrackerClass      *service,
-							       guint32              service_id,
-							       gboolean             embedded);
-TrackerDBResultSet  *tracker_data_query_backup_metadata       (TrackerClass      *service);
-gchar *              tracker_data_query_parsed_metadata       (TrackerClass      *service,
-							       guint32              service_id);
-gchar *              tracker_data_query_unparsed_metadata     (TrackerClass      *service,
-							       guint32              service_id);
-gchar **             tracker_data_query_metadata_field_values (TrackerClass      *service_def,
-							       guint32              service_id,
-							       TrackerProperty        *field_def);
+gchar *              tracker_data_query_property_value        (const gchar         *subject,
+							       const gchar         *predicate);
+gchar **             tracker_data_query_property_values       (const gchar         *subject,
+							       const gchar         *predicate);
 
-/* Using path */
-gboolean             tracker_data_query_service_exists        (TrackerClass      *service,
-							       const gchar         *dirname,
-							       const gchar         *basename,
+/* Metadata API */
+GPtrArray *          tracker_data_query_all_metadata          (guint32              resource_id);
+
+/* TODO */
+#if 0
+TrackerDBResultSet  *tracker_data_query_backup_metadata       (TrackerService      *service);
+							       TrackerProperty        *field_def);
+#endif
+
+gboolean             tracker_data_query_resource_exists        (const gchar         *uri,
 							       guint32             *service_id,
 							       time_t              *mtime);
-guint                tracker_data_query_service_type_id       (const gchar         *dirname,
-							       const gchar         *basename);
-GHashTable *         tracker_data_query_service_children      (TrackerClass      *service,
-							       const gchar         *dirname);
 
-/* Service API */
-G_CONST_RETURN gchar *
-                     tracker_data_query_service_type_by_id    (TrackerDBInterface  *iface,
-							       guint32              service_id);
+guint32              tracker_data_query_resource_id           (const gchar         *uri);
 
-/* Files API */
-guint32              tracker_data_query_file_id               (const gchar         *service_type,
-							       const gchar         *path);
-gchar *              tracker_data_query_file_id_as_string     (const gchar         *service_type,
-							       const gchar         *path);
-gchar *              tracker_data_query_content               (TrackerClass      *service,
-							       guint32              service_id);
+TrackerDBResultSet *tracker_data_query_sparql			(const gchar       *query,
+								 GError	          **error);
 
 G_END_DECLS
 

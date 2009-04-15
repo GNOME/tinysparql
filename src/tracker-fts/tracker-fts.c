@@ -324,7 +324,7 @@ db_metadata_get (TrackerDBInterface *iface,
 	g_return_val_if_fail (id, NULL);
 	g_return_val_if_fail (key, NULL);
 
-	def = tracker_ontology_get_field_by_name (key);
+	def = tracker_ontology_get_property_by_name (key);
 	
 	if (!def) {
 		g_warning ("Metadata not found for id:'%s' and type:'%s'", id, key);
@@ -332,8 +332,7 @@ db_metadata_get (TrackerDBInterface *iface,
 	}
 
 	switch (tracker_property_get_data_type (def)) {
-	case TRACKER_PROPERTY_TYPE_INDEX:
-	case TRACKER_PROPERTY_TYPE_STRING:
+	/*case TRACKER_PROPERTY_TYPE_STRING:
 	case TRACKER_PROPERTY_TYPE_DOUBLE:
 		proc = "GetMetadata";
 		break;
@@ -345,11 +344,7 @@ db_metadata_get (TrackerDBInterface *iface,
 
 	case TRACKER_PROPERTY_TYPE_FULLTEXT:
 		proc = "GetContents";
-		break;
-
-	case TRACKER_PROPERTY_TYPE_KEYWORD:
-		proc = "GetMetadataKeyword";
-		break;
+		break;*/
 		
 	default:
 		g_warning ("Metadata could not be retrieved as type:%d is not supported", 
@@ -357,12 +352,12 @@ db_metadata_get (TrackerDBInterface *iface,
 		return NULL;
 	}
 
-	return tracker_db_interface_execute_procedure (iface,
+	/*return tracker_db_interface_execute_procedure (iface,
 						       NULL, 
 				     		       proc, 
 				     		       id, 
 				     		       tracker_property_get_id (def),
-				     		       NULL);
+				     		       NULL);*/
 }
 
 static gchar *
@@ -395,13 +390,14 @@ db_get_text (const char     *service,
 static inline int
 get_metadata_weight (int id)
 {
-  if (id == 0) return 1;
+	/* TODO */
+  /*if (id == 0)*/ return 1;
 
-  TrackerProperty *field = tracker_ontology_get_field_by_id (id);
+  /*TrackerProperty *field = tracker_ontology_get_property_by_id (id);
   
   if (!field) return 1;
 
-  return tracker_property_get_weight (field);
+  return tracker_property_get_weight (field);*/
 
 }
 

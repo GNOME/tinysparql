@@ -85,19 +85,16 @@ tracker_file_close (FILE     *file,
 }
 
 goffset
-tracker_file_get_size (const gchar *uri)
+tracker_file_get_size (const gchar *path)
 {
 	GFileInfo *info;
 	GFile	  *file;
 	GError	  *error = NULL;
 	goffset    size;
 
-	g_return_val_if_fail (uri != NULL, 0);
+	g_return_val_if_fail (path != NULL, 0);
 
-	/* NOTE: We will need to fix this in Jurg's branch and call
-	 * the _for_uri() variant.
-	 */
-	file = g_file_new_for_path (uri);
+	file = g_file_new_for_path (path);
 	info = g_file_query_info (file,
 				  G_FILE_ATTRIBUTE_STANDARD_SIZE,
 				  G_FILE_QUERY_INFO_NONE,
@@ -106,7 +103,7 @@ tracker_file_get_size (const gchar *uri)
 
 	if (G_UNLIKELY (error)) {
 		g_message ("Could not get size for '%s', %s",
-			   uri,
+			   path,
 			   error->message);
 		g_error_free (error);
 		size = 0;
@@ -121,19 +118,16 @@ tracker_file_get_size (const gchar *uri)
 }
 
 guint64
-tracker_file_get_mtime (const gchar *uri)
+tracker_file_get_mtime (const gchar *path)
 {
 	GFileInfo *info;
 	GFile	  *file;
 	GError	  *error = NULL;
 	guint64    mtime;
 
-	g_return_val_if_fail (uri != NULL, 0);
+	g_return_val_if_fail (path != NULL, 0);
 
-	/* NOTE: We will need to fix this in Jurg's branch and call
-	 * the _for_uri() variant.
-	 */
-	file = g_file_new_for_path (uri);
+	file = g_file_new_for_path (path);
 	info = g_file_query_info (file,
 				  G_FILE_ATTRIBUTE_TIME_MODIFIED,
 				  G_FILE_QUERY_INFO_NONE,
@@ -142,7 +136,7 @@ tracker_file_get_mtime (const gchar *uri)
 
 	if (G_UNLIKELY (error)) {
 		g_message ("Could not get mtime for '%s', %s",
-			   uri,
+			   path,
 			   error->message);
 		g_error_free (error);
 		mtime = 0;
@@ -157,17 +151,14 @@ tracker_file_get_mtime (const gchar *uri)
 }
 
 gchar *
-tracker_file_get_mime_type (const gchar *uri)
+tracker_file_get_mime_type (GFile *file)
 {
 	GFileInfo *info;
-	GFile	  *file;
 	GError	  *error = NULL;
 	gchar	  *content_type;
 
-	/* NOTE: We will need to fix this in Jurg's branch and call
-	 * the _for_uri() variant.
-	 */
-	file = g_file_new_for_path (uri);
+	g_return_val_if_fail (G_IS_FILE (file), NULL);
+
 	info = g_file_query_info (file,
 				  G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE,
 				  G_FILE_QUERY_INFO_NONE,
@@ -184,138 +175,20 @@ tracker_file_get_mime_type (const gchar *uri)
 		g_object_unref (info);
 	}
 
-	g_object_unref (file);
-
 	return content_type ? content_type : g_strdup ("unknown");
 }
 
-static gchar *
-tracker_file_get_vfs_path (const gchar *uri)
-{
-	gchar *p;
-
-	if (!uri || !strchr (uri, G_DIR_SEPARATOR)) {
-		return NULL;
-	}
-
-	p = (gchar*) uri + strlen (uri) - 1;
-
-	/* Skip trailing slash */
-	if (p != uri && *p == G_DIR_SEPARATOR) {
-		p--;
-	}
-
-	/* Search backwards to the next slash. */
-	while (p != uri && *p != G_DIR_SEPARATOR) {
-		p--;
-	}
-
-	if (p[0] != '\0') {
-		gchar *new_uri_text;
-		gint   length;
-
-		length = p - uri;
-
-		if (length == 0) {
-			new_uri_text = g_strdup (G_DIR_SEPARATOR_S);
-		} else {
-			new_uri_text = g_malloc (length + 1);
-			memcpy (new_uri_text, uri, length);
-			new_uri_text[length] = '\0';
-		}
-
-		return new_uri_text;
-	} else {
-		return g_strdup (G_DIR_SEPARATOR_S);
-	}
-}
-
-static gchar *
-tracker_file_get_vfs_name (const gchar *uri)
-{
-	gchar *p, *res, *tmp, *result;
-
-	if (!uri || !strchr (uri, G_DIR_SEPARATOR)) {
-		return g_strdup (" ");
-	}
-
-	tmp = g_strdup (uri);
-	p = tmp + strlen (uri) - 1;
-
-	/* Skip trailing slash */
-	if (p != tmp && *p == G_DIR_SEPARATOR) {
-		*p = '\0';
-	}
-
-	/* Search backwards to the next slash.	*/
-	while (p != tmp && *p != G_DIR_SEPARATOR) {
-		p--;
-	}
-
-	res = p + 1;
-
-	if (res && res[0] != '\0') {
-		result = g_strdup (res);
-		g_free (tmp);
-
-		return result;
-	}
-
-	g_free (tmp);
-
-	return g_strdup (" ");
-}
-
-
-static gchar *
-normalize_uri (const gchar *uri) {
-
-	GFile  *f;
-	gchar *normalized;
-
-	f = g_file_new_for_path (uri);
-	normalized =  g_file_get_path (f);
-	g_object_unref (f);
-
-	return normalized;
-}
-
 void
-tracker_file_get_path_and_name (const gchar *uri,
-				gchar **path,
-				gchar **name)
-{
-
-	g_return_if_fail (uri);
-	g_return_if_fail (path);
-	g_return_if_fail (name);
-
-	if (uri[0] == G_DIR_SEPARATOR) {
-		gchar *checked_uri;
-
-		checked_uri = normalize_uri (uri);
-		*name = g_path_get_basename (checked_uri);
-		*path = g_path_get_dirname (checked_uri);
-
-		g_free (checked_uri);
-	} else {
-		*name = tracker_file_get_vfs_name (uri);
-		*path = tracker_file_get_vfs_path (uri);
-	}
-
-}
-
-void
-tracker_path_remove (const gchar *uri)
+tracker_path_remove (const gchar *path)
 {
 	GQueue *dirs;
 	GSList *dirs_to_remove = NULL;
 
-	g_return_if_fail (uri != NULL);
+	g_return_if_fail (path != NULL);
 
 	dirs = g_queue_new ();
 
-	g_queue_push_tail (dirs, g_strdup (uri));
+	g_queue_push_tail (dirs, g_strdup (path));
 
 	while (!g_queue_is_empty (dirs)) {
 		GDir  *p;
@@ -568,7 +441,7 @@ tracker_path_list_filter_duplicates (GSList      *roots,
 }
 
 gchar *
-tracker_path_evaluate_name (const gchar *uri)
+tracker_path_evaluate_name (const gchar *path)
 {
 	gchar	     *final_path;
 	gchar	    **tokens;
@@ -578,12 +451,12 @@ tracker_path_evaluate_name (const gchar *uri)
 	const gchar  *env;
 	gchar	     *expanded;
 
-	if (!uri || uri[0] == '\0') {
+	if (!path || path[0] == '\0') {
 		return NULL;
 	}
 
 	/* First check the simple case of using tilder */
-	if (uri[0] == '~') {
+	if (path[0] == '~') {
 		const char *home = g_get_home_dir ();
 
 		if (!home || home[0] == '\0') {
@@ -592,14 +465,14 @@ tracker_path_evaluate_name (const gchar *uri)
 
 		return g_build_path (G_DIR_SEPARATOR_S,
 				     home,
-				     uri + 1,
+				     path + 1,
 				     NULL);
 	}
 
 	/* Second try to find any environment variables and expand
 	 * them, like $HOME or ${FOO}
 	 */
-	tokens = g_strsplit (uri, G_DIR_SEPARATOR_S, -1);
+	tokens = g_strsplit (path, G_DIR_SEPARATOR_S, -1);
 
 	for (token = tokens; *token; token++) {
 		if (**token != '$') {
@@ -631,7 +504,7 @@ tracker_path_evaluate_name (const gchar *uri)
 		expanded = g_strjoinv (G_DIR_SEPARATOR_S, tokens);
 		g_strfreev (tokens);
 	} else {
-		expanded = g_strdup (uri);
+		expanded = g_strdup (path);
 	}
 
 	/* Only resolve relative paths if there is a directory

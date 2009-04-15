@@ -23,8 +23,6 @@
 #ifndef __TRACKER_REMOVABLE_DEVICE_H__
 #define __TRACKER_REMOVABLE_DEVICE_H__
 
-#include <libtracker-data/tracker-data-metadata.h>
-
 #include "tracker-module-metadata.h"
 #include "tracker-indexer.h"
 
@@ -36,18 +34,15 @@ void    tracker_removable_device_optimize     (TrackerIndexer *indexer,
 					       const gchar *mount_point);
 void    tracker_removable_device_add_metadata (TrackerIndexer *indexer, 
 					       const gchar *mount_point,
-					       const gchar *path,
-					       const gchar *rdf_type,
+					       const gchar *uri,
 					       TrackerModuleMetadata *metadata);
 void    tracker_removable_device_add_removal  (TrackerIndexer *indexer, 
 					       const gchar *mount_point, 
-					       const gchar *path,
-					       const gchar *rdf_type);
+					       const gchar *uri);
 void    tracker_removable_device_add_move     (TrackerIndexer *indexer, 
 					       const gchar *mount_point, 
-					       const gchar *from_path, 
-					       const gchar *to_path,
-					       const gchar *rdf_type);
+					       const gchar *from_uri, 
+					       const gchar *to_uri);
 
 G_END_DECLS
 

@@ -30,8 +30,7 @@ G_BEGIN_DECLS
 
 typedef enum {
 	TRACKER_DB_INDEX_UNKNOWN,
-	TRACKER_DB_INDEX_FILE,
-	TRACKER_DB_INDEX_EMAIL
+	TRACKER_DB_INDEX_RESOURCES,
 } TrackerDBIndexType;
 
 typedef enum {
@@ -47,7 +46,6 @@ void		tracker_db_index_manager_shutdown		 (void);
 void            tracker_db_index_manager_remove_all              (void);
 TrackerDBIndex *tracker_db_index_manager_get_index		 (TrackerDBIndexType	      index);
 TrackerDBIndex *tracker_db_index_manager_get_index_by_service	 (const gchar		     *service);
-TrackerDBIndex *tracker_db_index_manager_get_index_by_service_id (gint			      id);
 const gchar *	tracker_db_index_manager_get_filename		 (TrackerDBIndexType	      index);
 gboolean	tracker_db_index_manager_are_indexes_too_big	 (void);
 

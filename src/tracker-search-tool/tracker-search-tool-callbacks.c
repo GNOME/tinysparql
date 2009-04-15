@@ -506,6 +506,7 @@ get_large_icon (const gchar * local_uri,
 void
 tracker_update_metadata_tile (GSearchWindow *gsearch)
 {
+#if 0
 	GtkTreeModel * model;
 	GList * list, * tmp;
 	ServiceType type;
@@ -557,6 +558,7 @@ tracker_update_metadata_tile (GSearchWindow *gsearch)
 
 	g_list_foreach (list, (GFunc) gtk_tree_path_free, NULL);
 	g_list_free (list);
+#endif
 }
 
 void
@@ -603,7 +605,7 @@ open_file_cb (GtkAction * action,
 				    COLUMN_NO_FILES_FOUND, &no_files_found,
 				    -1);
 
-
+#if 0
 		if (gsearch->type == SERVICE_EMAILS) {
 			if (strstr (mime, "Evolution")) {
 				exec = g_strdup_printf ("evolution \"%s\"", uri);
@@ -659,6 +661,7 @@ open_file_cb (GtkAction * action,
 			}
 			g_object_unref (file);
 		}
+#endif
 		g_free (uri);
 
 	}

@@ -27,13 +27,24 @@
 
 #include <glib.h>
 
+#include <libtracker-common/tracker-ontology.h>
 #include <libtracker-common/tracker-os-dependant.h>
+#include <libtracker-common/tracker-statement.h>
 
 #include "tracker-main.h"
 #include "tracker-xmp.h"
 
-static void extract_imagemagick (const gchar *filename, 
-				 GHashTable  *metadata);
+#define NMM_PREFIX TRACKER_NMM_PREFIX
+#define NFO_PREFIX TRACKER_NFO_PREFIX
+#define NIE_PREFIX TRACKER_NIE_PREFIX
+#define DC_PREFIX TRACKER_DC_PREFIX
+#define NCO_PREFIX TRACKER_NCO_PREFIX
+
+#define RDF_PREFIX TRACKER_RDF_PREFIX
+#define RDF_TYPE RDF_PREFIX "type"
+
+static void extract_imagemagick (const gchar *uri, 
+				 GPtrArray   *metadata);
 
 static TrackerExtractData data[] = {
 	{ "image/*", extract_imagemagick },
@@ -41,18 +52,22 @@ static TrackerExtractData data[] = {
 };
 
 static void
-extract_imagemagick (const gchar *filename, 
-		     GHashTable  *metadata)
+extract_imagemagick (const gchar *uri, 
+		     GPtrArray   *metadata)
 {
 	gchar *argv[6];
 	gchar *identify;
 	gchar **lines;
 	gint  exit_status;
+	gchar *filename;
+
+	filename = g_filename_from_uri (uri, NULL, NULL);
 
 	g_return_if_fail (filename != NULL);
 
 	/* Imagemagick crashes trying to extract from xcf files */
 	if (g_str_has_suffix (filename, ".xcf")) {
+		g_free (filename);
 		return;
 	}
 
@@ -72,27 +87,33 @@ extract_imagemagick (const gchar *filename,
 
 	if (tracker_spawn (argv, 10, &identify, &exit_status)) {
 		if (exit_status == EXIT_SUCCESS) {
+
+
+			tracker_insert_statement (metadata, uri, 
+			                          RDF_TYPE, 
+			                          NFO_PREFIX "Document");
+
 			lines = g_strsplit (identify, ";\n", 4);
 
-			g_hash_table_insert (metadata, 
-					     g_strdup ("Image:Width"), 
-					     g_strdup (lines[0]));
-			g_hash_table_insert (metadata, 
-					     g_strdup ("Image:Height"), 
-					     g_strdup (lines[1]));
+			tracker_insert_statement (metadata, uri,
+						  NFO_PREFIX "width", 
+						  lines[0]);
 
-			/* FIXME: Should we use METADATA_UNKNOWN
-			 * (tracker:unknown) here? -mr
-			 */
-			g_hash_table_insert (metadata, 
-					     g_strdup ("Image:Comments"), 
-					     g_strdup (g_strescape (lines[2], "")));
+			tracker_insert_statement (metadata, uri,
+						  NFO_PREFIX "height", 
+						  lines[1]);
+
+			tracker_insert_statement (metadata, uri,
+						  NIE_PREFIX "comment", 
+						  lines[2]);
+
+			g_strfreev (lines);
 		}
 	}
 
 #ifdef HAVE_EXEMPI
 	/* FIXME: Convert is buggy atm so disable temporarily */
-	return;
+	g_free (filename); return;
 
 	gchar *xmp;
 
@@ -103,10 +124,13 @@ extract_imagemagick (const gchar *filename,
 
 	if (tracker_spawn (argv, 10, &xmp, &exit_status)) {
 		if (exit_status == EXIT_SUCCESS && xmp) {
-			tracker_read_xmp (xmp, strlen (xmp), metadata);
+			tracker_read_xmp (xmp, strlen (xmp), uri, metadata);
 		}
 	}
 #endif /* HAVE_EXEMPI */
+
+	g_free (filename);
+
 }
 
 TrackerExtractData *

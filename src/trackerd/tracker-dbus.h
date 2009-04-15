@@ -41,8 +41,7 @@ gboolean    tracker_dbus_init                    (TrackerConfig    *config);
 void        tracker_dbus_shutdown                (void);
 gboolean    tracker_dbus_register_objects        (TrackerConfig    *config,
 						  TrackerLanguage  *language,
-						  TrackerDBIndex   *file_index,
-						  TrackerDBIndex   *email_index,
+						  TrackerDBIndex   *resources_index,
 						  TrackerProcessor *processor);
 GObject    *tracker_dbus_get_object              (GType             type);
 void        tracker_dbus_indexer_check_is_paused (void);
