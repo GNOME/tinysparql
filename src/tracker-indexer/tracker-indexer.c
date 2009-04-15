@@ -141,7 +141,6 @@ struct TrackerIndexerPrivate {
 	guint pause_for_duration_id;
 	guint signal_status_id;
 	guint flush_id;
-	guint cleanup_task_id;
 
 	guint items_indexed;
 	guint items_processed;
@@ -181,7 +180,6 @@ enum TrackerIndexerState {
 	TRACKER_INDEXER_STATE_INDEX_OVERLOADED = 1 << 0,
 	TRACKER_INDEXER_STATE_PAUSED	= 1 << 1,
 	TRACKER_INDEXER_STATE_STOPPED	= 1 << 2,
-	TRACKER_INDEXER_STATE_CLEANUP   = 1 << 3
 };
 
 enum {
@@ -202,14 +200,16 @@ enum {
 };
 
 static gboolean process_func	       (gpointer	     data);
-static gboolean cleanup_task_func      (gpointer             user_data);
-
 static void	state_set_flags        (TrackerIndexer	    *indexer,
 					TrackerIndexerState  state);
 static void	state_unset_flags      (TrackerIndexer	    *indexer,
 					TrackerIndexerState  state);
 static void	state_check	       (TrackerIndexer	    *indexer);
 
+static void     item_remove            (TrackerIndexer      *indexer,
+					PathInfo	    *info,
+					const gchar         *dirname,
+					const gchar         *basename);
 static void     check_finished         (TrackerIndexer      *indexer,
 					gboolean             interrupted);
 
@@ -400,11 +400,9 @@ static void
 schedule_flush (TrackerIndexer *indexer,
 		gboolean	immediately)
 {
-#if 0
 	if (indexer->private->state != 0) {
 		return;
 	}
-#endif
 
 	if (immediately) {
 		/* No need to wait for flush timeout */
@@ -499,10 +497,6 @@ index_flushing_notify_cb (GObject        *object,
 	TrackerIndexerState state;
 
 	state = indexer->private->state;
-
-	if ((state & TRACKER_INDEXER_STATE_CLEANUP) != 0) {
-		return;
-	}
 
 	if ((state & TRACKER_INDEXER_STATE_STOPPED) != 0 &&
 	    !tracker_db_index_get_flushing (indexer->private->file_index) &&
@@ -619,10 +613,6 @@ tracker_indexer_finalize (GObject *object)
 
 	if (priv->signal_status_id) {
 		g_source_remove (priv->signal_status_id);
-	}
-
-	if (priv->cleanup_task_id) {
-		g_source_remove (priv->cleanup_task_id);
 	}
 
 	if (priv->timer) {
@@ -817,9 +807,7 @@ check_started (TrackerIndexer *indexer)
 	}
 
 	indexer->private->interrupted = FALSE;
-	state_unset_flags (indexer,
-			   TRACKER_INDEXER_STATE_STOPPED |
-			   TRACKER_INDEXER_STATE_CLEANUP);
+	state_unset_flags (indexer, TRACKER_INDEXER_STATE_STOPPED);
 
 	if (indexer->private->timer) {
 		g_timer_destroy (indexer->private->timer);
@@ -877,9 +865,6 @@ check_finished (TrackerIndexer *indexer,
 	indexer->private->items_indexed = 0;
 	indexer->private->items_to_index = 0;
 	indexer->private->subelements_processed = 0;
-
-	/* Setup clean up task */
-	state_set_flags (indexer, TRACKER_INDEXER_STATE_CLEANUP);
 }
 
 static void
@@ -932,42 +917,6 @@ signal_status_timeout_stop (TrackerIndexer *indexer)
 	if (priv->signal_status_id != 0) {
 		g_source_remove (priv->signal_status_id);
 		priv->signal_status_id = 0;
-	}
-}
-
-static void
-cleanup_task_start (TrackerIndexer *indexer)
-{
-	TrackerIndexerPrivate *priv;
-
-	priv = indexer->private;
-
-	if (priv->cleanup_task_id == 0) {
-		priv->cleanup_task_id = g_timeout_add (500, cleanup_task_func, indexer);
-
-		/* Open indexes */
-		tracker_db_index_open (indexer->private->file_index);
-		tracker_db_index_open (indexer->private->email_index);
-
-		/* Push all items in thumbnail queue to the thumbnailer */
-		tracker_thumbnailer_queue_send ();
-	}
-}
-
-static void
-cleanup_task_stop (TrackerIndexer *indexer)
-{
-	TrackerIndexerPrivate *priv;
-
-	priv = indexer->private;
-
-	if (priv->cleanup_task_id != 0) {
-		g_source_remove (priv->cleanup_task_id);
-		priv->cleanup_task_id = 0;
-
-		/* close indexes */
-		tracker_db_index_close (indexer->private->file_index);
-		tracker_db_index_close (indexer->private->email_index);
 	}
 }
 
@@ -1861,78 +1810,6 @@ update_moved_item_index (TrackerIndexer      *indexer,
 	g_free (path);
 }
 
-static void
-item_erase (TrackerIndexer *indexer,
-	    TrackerClass *service,
-	    guint32         service_id)
-{
-	gchar *content, *metadata;
-	guint32 service_type_id;
-	TrackerDataMetadata *data_metadata;
-
-	service_type_id = tracker_class_get_id (service);
-
-	/* Get mime type and remove thumbnail from thumbnailerd */
-	data_metadata = tracker_data_query_metadata (service, service_id, TRUE);
-
-	if (data_metadata) {
-		const gchar *path, *mime_type;
-		GFile *file;
-		gchar *uri;
-
-		/* TODO URI branch: this is a URI conversion */
-		path = tracker_data_metadata_lookup (data_metadata, "File:NameDelimited");
-		file = g_file_new_for_path (path);
-		uri = g_file_get_uri (file);
-		g_object_unref (file);
-
-		mime_type = tracker_data_metadata_lookup (data_metadata, "File:Mime");
-		tracker_thumbnailer_remove (uri, mime_type);
-
-		tracker_data_metadata_free (data_metadata);
-		g_free (uri);
-	}
-
-	/* Get content, unindex the words and delete the contents */
-	content = tracker_data_query_content (service, service_id);
-
-	if (content) {
-		unindex_text_with_parsing (indexer,
-					   service_id,
-					   service_type_id,
-					   content,
-					   1000);
-		g_free (content);
-		tracker_data_update_delete_content (service, service_id);
-	}
-
-	/* Get metadata from DB to remove it from the index */
-	metadata = tracker_data_query_parsed_metadata (service, service_id);
-	unindex_text_no_parsing (indexer,
-				 service_id,
-				 service_type_id,
-				 metadata,
-				 1000);
-	g_free (metadata);
-
-	/* The weight depends on metadata, but a number high enough
-	 * force deletion.
-	 */
-	metadata = tracker_data_query_unparsed_metadata (service, service_id);
-	unindex_text_with_parsing (indexer,
-				   service_id,
-				   service_type_id,
-				   metadata,
-				   1000);
-	g_free (metadata);
-
-	/* Delete service */
-	tracker_data_update_delete_all_metadata (service, service_id);
-	tracker_data_update_delete_service (service, service_id);
-
-	schedule_flush (indexer, FALSE);
-}
-
 static gboolean
 item_move (TrackerIndexer  *indexer,
 	   PathInfo	   *info,
@@ -1942,8 +1819,7 @@ item_move (TrackerIndexer  *indexer,
 	TrackerClass *service;
 	TrackerDataMetadata *old_metadata;
 	gchar *path, *source_path;
-	gchar *dest_dirname, *dest_basename;
-	guint32 service_id, dest_service_id;
+	guint32 service_id;
 	GHashTable *children = NULL;
 
 	service = get_service_for_file (info->module_file, info->module);
@@ -1979,23 +1855,6 @@ item_move (TrackerIndexer  *indexer,
 		return res;
 	}
 
-	tracker_file_get_path_and_name (path, &dest_dirname, &dest_basename);
-
-	/* Check whether destination path already existed */
-	if (tracker_data_query_service_exists (service,
-					       dest_dirname,
-					       dest_basename,
-					       &dest_service_id,
-					       NULL)) {
-		g_message ("Destination file '%s' already existed in database, removing", path);
-
-		/* Item has to be deleted from the database immediately */
-		item_erase (indexer, service, dest_service_id);
-	}
-
-	g_free (dest_dirname);
-	g_free (dest_basename);
-
 	if (info->recurse && strcmp (tracker_class_get_name (service), "Folders") == 0) {
 		children = tracker_data_query_service_children (service, source_path);
 	}
@@ -2004,16 +1863,32 @@ item_move (TrackerIndexer  *indexer,
 	old_metadata = tracker_data_query_metadata (service, service_id, TRUE);
 
 	if (!tracker_data_update_move_service (service, source_path, path)) {
-		g_critical ("Moving item could not be done for unknown reasons");
+		gchar *dest_dirname, *dest_basename;
 
-		g_free (path);
-		g_free (source_path);
+		/* Move operation failed, which means the dest path
+		 * corresponded to an indexed file, remove any info
+		 * related to it.
+		 */
 
-		if (old_metadata) {
-			tracker_data_metadata_free (old_metadata);
+		g_message ("Destination file '%s' already existed in database, removing", path);
+
+		tracker_file_get_path_and_name (path, &dest_dirname, &dest_basename);
+		item_remove (indexer, info, dest_dirname, dest_basename);
+
+		g_free (dest_dirname);
+		g_free (dest_basename);
+
+		if (!tracker_data_update_move_service (service, source_path, path)) {
+			/* It failed again, no point in trying anymore */
+			g_free (path);
+			g_free (source_path);
+
+			if (old_metadata) {
+				tracker_data_metadata_free (old_metadata);
+			}
+
+			return FALSE;
 		}
-
-		return FALSE;
 	}
 
 	/* Update item being moved */
@@ -2060,17 +1935,19 @@ item_move (TrackerIndexer  *indexer,
 
 
 static void
-item_mark_for_removal (TrackerIndexer *indexer,
-		       PathInfo	      *info,
-		       const gchar    *dirname,
-		       const gchar    *basename)
+item_remove (TrackerIndexer *indexer,
+	     PathInfo	    *info,
+	     const gchar    *dirname,
+	     const gchar    *basename)
 {
 	TrackerClass *service;
+	TrackerDataMetadata *data_metadata;
+	gchar *content;
+	gchar *metadata;
 	gchar *path;
 	gchar *mount_point = NULL;
 	const gchar *service_type;
 	guint service_id, service_type_id;
-	GHashTable *children = NULL;
 
 	g_debug ("Removing item: '%s/%s' (no metadata was given by module)", 
 		 dirname, 
@@ -2101,36 +1978,73 @@ item_mark_for_removal (TrackerIndexer *indexer,
 	/* This is needed in a few places. */
 	path = g_build_path (G_DIR_SEPARATOR_S, dirname, basename, NULL);
 
-	if (info->recurse && strcmp (tracker_class_get_name (service), "Folders") == 0) {
-		children = tracker_data_query_service_children (service, path);
+	/* Get mime type and remove thumbnail from thumbnailerd */
+	data_metadata = tracker_data_query_metadata (service, service_id, TRUE);
+
+	if (data_metadata) {
+		GFile *file;
+		const gchar *mime_type;
+		gchar *uri;
+
+		/* TODO URI branch: this is a URI conversion */
+		file = g_file_new_for_path (path);
+		uri = g_file_get_uri (file);
+		g_object_unref (file);
+		
+		mime_type = tracker_data_metadata_lookup (data_metadata, "File:Mime");
+		tracker_thumbnailer_remove (uri, mime_type);
+
+		tracker_data_metadata_free (data_metadata);
+		g_free (uri);
+	} else {
+		g_message ("Could not get mime type to remove thumbnail for:'%s'",
+			   path);
 	}
 
-	tracker_data_update_disable_service (service, service_id);
+	tracker_data_update_delete_content (service, service_id);
 
-	if (children) {
-		GHashTableIter iter;
-		gpointer key, value;
-
-		g_hash_table_iter_init (&iter, children);
-
-		/* Queue children to be removed */
-		while (g_hash_table_iter_next (&iter, &key, &value)) {
-			PathInfo *child_info;
-			const gchar *child_name;
-			GFile *child_file;
-
-			child_name = (const gchar *) value;
-			child_file = g_file_get_child (info->file, child_name);
-
-			child_info = path_info_new (info->module, child_file, NULL, TRUE);
-			add_file (indexer, child_info);
-
-			g_object_unref (child_file);
-		}
-
-		g_hash_table_destroy (children);
+	/* Get content, unindex the words and delete the contents */
+	content = tracker_data_query_content (service, service_id);
+	if (content) {
+		unindex_text_with_parsing (indexer,
+					   service_id,
+					   service_type_id,
+					   content,
+					   1000);
+		g_free (content);
+		tracker_data_update_delete_content (service, service_id);
 	}
-#ifdef HAVE_HAL
+
+	/* Get metadata from DB to remove it from the index */
+	metadata = tracker_data_query_parsed_metadata (service,
+						       service_id);
+	unindex_text_no_parsing (indexer,
+				 service_id,
+				 service_type_id,
+				 metadata,
+				 1000);
+	g_free (metadata);
+
+	/* The weight depends on metadata, but a number high enough
+	 * force deletion.
+	 */
+	metadata = tracker_data_query_unparsed_metadata (service,
+							 service_id);
+	unindex_text_with_parsing (indexer,
+				   service_id,
+				   service_type_id,
+				   metadata,
+				   1000);
+	g_free (metadata);
+
+	/* Delete service */
+	tracker_data_update_delete_service (service, service_id);
+	tracker_data_update_delete_all_metadata (service, service_id);
+
+	if (info->recurse && strcmp (service_type, "Folders") == 0) {
+		tracker_data_update_delete_service_recursively (service, path);
+	}
+
 	if (tracker_hal_path_is_on_removable_device (indexer->private->hal,
 						     path, 
 						     &mount_point,
@@ -2140,7 +2054,7 @@ item_mark_for_removal (TrackerIndexer *indexer,
 						      path,
 						      tracker_class_get_name (service));
 	}
-#endif
+
 	g_free (mount_point);
 	g_free (path);
 }
@@ -2179,7 +2093,7 @@ item_process (TrackerIndexer *indexer,
 		g_object_unref (metadata);
 		g_free (text);
 	} else {
-		item_mark_for_removal (indexer, info, dirname, basename);
+		item_remove (indexer, info, dirname, basename);
 	}
 
 	return TRUE;
@@ -2600,44 +2514,6 @@ process_module (TrackerIndexer *indexer,
 }
 
 static gboolean
-cleanup_task_func (gpointer user_data)
-{
-	TrackerIndexer *indexer;
-	TrackerIndexerPrivate *priv;
-	TrackerClass *service;
-	guint32 id;
-
-	indexer = (TrackerIndexer *) user_data;
-	priv = indexer->private;
-
-	if (indexer->private->idle_id) {
-		/* Sanity check, do not index and clean up at the same time */
-		indexer->private->cleanup_task_id = 0;
-		return FALSE;
-	}
-
-	if (tracker_data_query_first_removed_service (priv->file_metadata, &id)) {
-		g_debug ("Cleanup: Deleting service '%d' from files", id);
-		service = tracker_ontology_get_service_by_name ("Files");
-		item_erase (indexer, service, id);
-
-		return TRUE;
-	} else if (tracker_data_query_first_removed_service (priv->email_metadata, &id)) {
-		g_debug ("Cleanup: Deleting service '%d' from emails", id);
-		service = tracker_ontology_get_service_by_name ("Emails");
-		item_erase (indexer, service, id);
-
-		return TRUE;
-	}
-
-	g_debug ("Cleanup: No elements left, exiting");
-
-	state_unset_flags (indexer, TRACKER_INDEXER_STATE_CLEANUP);
-
-	return FALSE;
-}
-
-static gboolean
 process_func (gpointer data)
 {
 	TrackerIndexer *indexer;
@@ -2723,8 +2599,7 @@ tracker_indexer_get_running (TrackerIndexer *indexer)
 		return FALSE;
 	}
 
-	if ((state & TRACKER_INDEXER_STATE_CLEANUP) == 0 &&
-	    (state & TRACKER_INDEXER_STATE_STOPPED) != 0) {
+	if ((state & TRACKER_INDEXER_STATE_STOPPED) != 0) {
 		return FALSE;
 	}
 
@@ -2767,18 +2642,8 @@ state_check (TrackerIndexer *indexer)
 			g_source_remove (indexer->private->idle_id);
 			indexer->private->idle_id = 0;
 		}
-
-		if ((state & TRACKER_INDEXER_STATE_CLEANUP) != 0) {
-			/* Cleanup stage is only modified by paused */
-			if ((state & TRACKER_INDEXER_STATE_PAUSED) != 0) {
-				cleanup_task_stop (indexer);
-			} else {
-				cleanup_task_start (indexer);
-			}
-		}
 	} else {
 		signal_status_timeout_start (indexer);
-		cleanup_task_stop (indexer);
 
 		if (indexer->private->idle_id == 0) {
 			indexer->private->idle_id = g_idle_add (process_func, indexer);
@@ -2801,9 +2666,6 @@ state_to_string (TrackerIndexerState state)
 	}
 	if (state & TRACKER_INDEXER_STATE_STOPPED) {
 		s = g_string_append (s, "STOPPED | ");
-	}
-	if (state & TRACKER_INDEXER_STATE_CLEANUP) {
-		s = g_string_append (s, "CLEANUP | ");
 	}
 
 	s->str[s->len - 3] = '\0';

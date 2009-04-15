@@ -612,28 +612,3 @@ tracker_data_query_content (TrackerClass *service,
 	return contents;
 }
 
-gboolean
-tracker_data_query_first_removed_service (TrackerDBInterface *iface,
-					  guint32            *service_id)
-{
-	TrackerDBResultSet *result_set;
-
-	result_set = tracker_db_interface_execute_procedure (iface, NULL,
-							     "GetFirstRemovedFile",
-							     NULL);
-
-	if (result_set) {
-		guint32 id;
-
-		tracker_db_result_set_get (result_set, 0, &id, -1);
-		g_object_unref (result_set);
-
-		if (service_id) {
-			*service_id = id;
-		}
-
-		return TRUE;
-	}
-
-	return FALSE;
-}

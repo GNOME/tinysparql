@@ -211,11 +211,8 @@ tracker_db_index_finalize (GObject *object)
 	indez = TRACKER_DB_INDEX (object);
 	priv = TRACKER_DB_INDEX_GET_PRIVATE (indez);
 
-	if (!priv->readonly) {
-		tracker_db_index_open (indez);
-		tracker_db_index_flush_sync (indez);
-		tracker_db_index_close (indez);
-	}
+	tracker_db_index_flush_sync (indez);
+	tracker_db_index_close (indez);
 
 	if (priv->idle_flush_id) {
 		g_source_remove (priv->idle_flush_id);

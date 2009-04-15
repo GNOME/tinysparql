@@ -34,11 +34,6 @@ CreateService                  INSERT INTO Services (ID, Path, Name, ServiceType
 MoveService                    UPDATE Services SET Path = ?, Name = ? WHERE Path = ? AND Name = ?;
 MoveServiceChildren            UPDATE Services SET Path = replace (Path, ?, ?) WHERE Path = ? OR Path LIKE (? || '/%');
 
-DisableService                 UPDATE Services SET Enabled = 0 WHERE ID = ?;
-MarkServiceForRemoval          INSERT INTO DeletedServices (ID) VALUES (?);
-UnmarkServiceForRemoval        DELETE FROM DeletedServices WHERE ID = ?;
-GetFirstRemovedFile            SELECT ID FROM DeletedServices LIMIT 1;
-
 DeleteContent                  DELETE FROM ServiceContents WHERE ServiceID = ? AND MetadataId = ?;
 DeleteService1                 DELETE FROM Services WHERE ID = ?;
 DeleteServiceRecursively       DELETE FROM Services WHERE Path = ? OR Path LIKE (? || '/%');
