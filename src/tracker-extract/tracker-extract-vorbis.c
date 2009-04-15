@@ -177,10 +177,6 @@ extract_vorbis (const char *filename,
                 g_hash_table_insert (metadata, g_strdup ("Audio.Codec"), g_strdup ("vorbis"));
         }
 
-#ifdef HAVE_POSIX_FADVISE
-        posix_fadvise (fileno (f), 0, 0, POSIX_FADV_DONTNEED);
-#endif
-
         /* NOTE: This calls fclose on the file */
 	ov_clear (&vf);
 }

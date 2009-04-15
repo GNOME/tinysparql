@@ -1540,10 +1540,6 @@ extract_mp3 (const gchar *filename,
 	}
 #endif
 
-#ifdef HAVE_POSIX_FADVISE
-	posix_fadvise (fd, 0, 0, POSIX_FADV_SEQUENTIAL);
-#endif
-	
 #ifndef G_OS_WIN32
 	/* We don't use GLib's mmap because size can not be specified */
 	buffer = mmap (NULL, 
@@ -1552,10 +1548,6 @@ extract_mp3 (const gchar *filename,
 		       MAP_PRIVATE, 
 		       fd, 
 		       0);
-#endif
-
-#ifdef HAVE_POSIX_FADVISE
-	posix_fadvise (fd, 0, 0, POSIX_FADV_DONTNEED);
 #endif
 
 	close (fd);
