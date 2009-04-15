@@ -8,6 +8,7 @@ INCLUDES =								\
 	$(WARN_CFLAGS)							\
 	$(GLIB2_CFLAGS)							\
 	$(DBUS_CFLAGS)							\
+	$(UUID_CFLAGS)							\
 	$(RAPTOR_CFLAGS)						\
 	$(GCOV_CFLAGS)
 
@@ -42,6 +43,8 @@ libtracker_data_la_LIBADD = 						\
 	$(top_builddir)/src/libtracker-db/libtracker-db.la		\
 	$(DBUS_LIBS)							\
 	$(GLIB2_LIBS)							\
+	$(UUID_LIBS)							\
 	$(RAPTOR_LIBS)							\
 	$(GCOV_LIBS)							\
 	-lz
+

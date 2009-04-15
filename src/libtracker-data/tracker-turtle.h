@@ -25,7 +25,7 @@
 
 #include <stdio.h>
 
-#include <libtracker-data/tracker-data-metadata.h>
+#include <libtracker-common/tracker-common.h>
 
 #include <raptor.h>
 
@@ -42,29 +42,30 @@ typedef void (* TurtleTripleCallback) (void                         *user_data,
 
 typedef struct TurtleFile TurtleFile;
 
-typedef struct {
-	gchar                *about_uri;
-	TrackerDataMetadata  *metadata;
-	TurtleFile           *turtle; /* For internal use only */
-} TrackerTurtleMetadataItem;
-
 /* Initialization (use in both cases) */
 void        tracker_turtle_init          (void);
 void        tracker_turtle_shutdown      (void);
 
 /* Transactions style */
-TurtleFile *tracker_turtle_open          (const gchar          *turtle_file);
-void        tracker_turtle_add_triple    (TurtleFile           *turtle,
-					  const gchar          *uri,
-					  TrackerProperty         *property,
-					  const gchar          *value);
-void        tracker_turtle_close         (TurtleFile           *turtle);
+TurtleFile *tracker_turtle_open            (const gchar         *turtle_file);
+void        tracker_turtle_add_triple      (TurtleFile          *turtle,
+					    const gchar         *uri,
+					    TrackerProperty        *property,
+					    const gchar         *value);
+void        tracker_turtle_close           (TurtleFile          *turtle);
 
 /* Reading functions */
-void        tracker_turtle_process       (const gchar          *turtle_file,
-					  const gchar          *base_uri,
-					  TurtleTripleCallback  callback,
-					  void                 *user_data);
+void        tracker_turtle_process         (const gchar          *turtle_file,
+					    const gchar          *base_uri,
+					    TurtleTripleCallback  callback,
+					    void                 *user_data);
+
+void         tracker_turtle_reader_init          (const gchar    *turtle_file,
+					          const gchar    *base_uri);
+gboolean     tracker_turtle_reader_next          (void);
+const gchar *tracker_turtle_reader_get_subject   (void);
+const gchar *tracker_turtle_reader_get_predicate (void);
+const gchar *tracker_turtle_reader_get_object    (void);
 
 /* Optimizer, reparser */
 void        tracker_turtle_optimize      (const gchar          *turtle_file);

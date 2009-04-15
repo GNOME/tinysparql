@@ -203,6 +203,11 @@ AC_SUBST(GCONF_LIBS)
 
 AM_CONDITIONAL(HAVE_GCONF, test "$have_gconf" = "yes")
 
+# Check for libuuid
+PKG_CHECK_MODULES(UUID, [uuid])
+AC_SUBST(UUID_CFLAGS)
+AC_SUBST(UUID_LIBS)
+
 # Check for Raptor
 PKG_CHECK_MODULES(RAPTOR, [raptor >= 1.4.17])
 AC_SUBST(RAPTOR_CFLAGS)
