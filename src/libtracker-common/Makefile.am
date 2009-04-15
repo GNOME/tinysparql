@@ -35,6 +35,7 @@ endif
 libtracker_common_la_SOURCES =	 			\
 	$(os_sources)					\
 	$(hal_sources)					\
+	tracker-class.c					\
 	tracker-config.c 				\
 	tracker-dbus.c	 				\
 	tracker-field.c					\
@@ -47,7 +48,6 @@ libtracker_common_la_SOURCES =	 			\
 	tracker-nfs-lock.c				\
 	tracker-ontology.c				\
 	tracker-parser.c				\
-	tracker-service.c				\
 	tracker-type-utils.c				\
 	tracker-utils.c					\
 	tracker-thumbnailer.c				\
@@ -64,6 +64,7 @@ noinst_HEADERS =					\
 	tracker-albumart.h
 
 libtracker_commoninclude_HEADERS =			\
+	tracker-class.h					\
 	tracker-common.h				\
 	tracker-config.h				\
 	tracker-field.h					\
@@ -72,7 +73,6 @@ libtracker_commoninclude_HEADERS =			\
 	tracker-module-config.h				\
 	tracker-ontology.h				\
 	tracker-parser.h				\
-	tracker-service.h				\
 	tracker-type-utils.h				\
 	tracker-utils.h
 

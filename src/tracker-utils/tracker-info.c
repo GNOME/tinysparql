@@ -165,7 +165,7 @@ main (int argc, char **argv)
 
 		type = SERVICE_FILES;
 	} else {
-		type = tracker_service_name_to_type (service);
+		type = tracker_class_name_to_type (service);
 
 		if (type == SERVICE_OTHER_FILES && g_ascii_strcasecmp (service, "Other")) {
 			g_printerr (_("Service type not recognized, using 'Other' ..."));

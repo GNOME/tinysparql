@@ -190,7 +190,7 @@ tracker_data_query_file_id_as_string (const gchar	*service_type,
 }
 
 gboolean
-tracker_data_query_service_exists (TrackerService *service,
+tracker_data_query_service_exists (TrackerClass *service,
 				   const gchar	  *dirname,
 				   const gchar	  *basename,
 				   guint32	  *service_id,
@@ -204,7 +204,7 @@ tracker_data_query_service_exists (TrackerService *service,
 
 	db_id = db_mtime = 0;
 
-	iface = tracker_db_manager_get_db_interface_by_type (tracker_service_get_name (service),
+	iface = tracker_db_manager_get_db_interface_by_type (tracker_class_get_name (service),
 							     TRACKER_DB_CONTENT_TYPE_METADATA);
 
 	result_set = tracker_db_interface_execute_procedure (iface, NULL,
@@ -260,7 +260,7 @@ tracker_data_query_service_type_id (const gchar *dirname,
 }
 
 GHashTable *
-tracker_data_query_service_children (TrackerService *service,
+tracker_data_query_service_children (TrackerClass *service,
 				     const gchar    *dirname)
 {
 	TrackerDBInterface *iface;
@@ -268,7 +268,7 @@ tracker_data_query_service_children (TrackerService *service,
 	gboolean valid = TRUE;
 	GHashTable *children;
 
-	iface = tracker_db_manager_get_db_interface_by_type (tracker_service_get_name (service),
+	iface = tracker_db_manager_get_db_interface_by_type (tracker_class_get_name (service),
 							     TRACKER_DB_CONTENT_TYPE_METADATA);
 
 	result_set = tracker_db_interface_execute_procedure (iface, NULL,
@@ -382,7 +382,7 @@ result_set_to_metadata (TrackerDBResultSet  *result_set,
 }
 
 TrackerDataMetadata *
-tracker_data_query_metadata (TrackerService *service,
+tracker_data_query_metadata (TrackerClass *service,
 			     guint32	     service_id,
 			     gboolean        embedded)
 {
@@ -393,10 +393,10 @@ tracker_data_query_metadata (TrackerService *service,
 
 	metadata = tracker_data_metadata_new ();
 
-	g_return_val_if_fail (TRACKER_IS_SERVICE (service), metadata);
+	g_return_val_if_fail (TRACKER_IS_CLASS (service), metadata);
 
 	service_id_str = g_strdup_printf ("%d", service_id);
-	iface = tracker_db_manager_get_db_interface_by_type (tracker_service_get_name (service),
+	iface = tracker_db_manager_get_db_interface_by_type (tracker_class_get_name (service),
 							     TRACKER_DB_CONTENT_TYPE_METADATA);
 
 
@@ -416,14 +416,14 @@ tracker_data_query_metadata (TrackerService *service,
 }
 
 TrackerDBResultSet *
-tracker_data_query_backup_metadata (TrackerService *service)
+tracker_data_query_backup_metadata (TrackerClass *service)
 {
 	TrackerDBInterface *iface;
 	TrackerDBResultSet *result_set;
 
-	g_return_val_if_fail (TRACKER_IS_SERVICE (service), NULL);
+	g_return_val_if_fail (TRACKER_IS_CLASS (service), NULL);
 
-	iface = tracker_db_manager_get_db_interface_by_service (tracker_service_get_name (service));
+	iface = tracker_db_manager_get_db_interface_by_service (tracker_class_get_name (service));
 
 	result_set = tracker_data_manager_exec_proc (iface,
 						     "GetUserMetadataBackup", 
@@ -432,7 +432,7 @@ tracker_data_query_backup_metadata (TrackerService *service)
 }
 
 static gchar *
-db_get_metadata (TrackerService *service,
+db_get_metadata (TrackerClass *service,
 		 guint		 service_id,
 		 gboolean	 keywords)
 {
@@ -442,7 +442,7 @@ db_get_metadata (TrackerService *service,
 	GString		   *result;
 	gchar		   *str = NULL;
 
-	iface = tracker_db_manager_get_db_interface_by_type (tracker_service_get_name (service),
+	iface = tracker_db_manager_get_db_interface_by_type (tracker_class_get_name (service),
 							     TRACKER_DB_CONTENT_TYPE_METADATA);
 
 	result = g_string_new ("");
@@ -480,21 +480,21 @@ db_get_metadata (TrackerService *service,
 }
 
 gchar *
-tracker_data_query_unparsed_metadata (TrackerService *service,
+tracker_data_query_unparsed_metadata (TrackerClass *service,
 				      guint	      service_id)
 {
 	return db_get_metadata (service, service_id, TRUE);
 }
 
 gchar *
-tracker_data_query_parsed_metadata (TrackerService *service,
+tracker_data_query_parsed_metadata (TrackerClass *service,
 				    guint	    service_id)
 {
 	return db_get_metadata (service, service_id, FALSE);
 }
 
 gchar **
-tracker_data_query_metadata_field_values (TrackerService *service_def,
+tracker_data_query_metadata_field_values (TrackerClass *service_def,
 					  guint32	  service_id,
 					  TrackerField   *field)
 {
@@ -504,9 +504,9 @@ tracker_data_query_metadata_field_values (TrackerService *service_def,
 	gchar		  **final_result = NULL;
 	gboolean	    is_numeric = FALSE;
 
-	iface = tracker_db_manager_get_db_interface_by_type (tracker_service_get_name (service_def),
+	iface = tracker_db_manager_get_db_interface_by_type (tracker_class_get_name (service_def),
 							     TRACKER_DB_CONTENT_TYPE_METADATA);
-	metadata_key = tracker_ontology_service_get_key_metadata (tracker_service_get_name (service_def),
+	metadata_key = tracker_ontology_service_get_key_metadata (tracker_class_get_name (service_def),
 								  tracker_field_get_name (field));
 
 	if (metadata_key > 0) {
@@ -582,7 +582,7 @@ tracker_data_query_metadata_field_values (TrackerService *service_def,
 }
 
 gchar *
-tracker_data_query_content (TrackerService *service,
+tracker_data_query_content (TrackerClass *service,
 			    guint32	    service_id)
 {
 	TrackerDBInterface *iface;
@@ -592,7 +592,7 @@ tracker_data_query_content (TrackerService *service,
 
 	service_id_str = tracker_guint32_to_string (service_id);
 	field = tracker_ontology_get_field_by_name ("File:Contents");
-	iface = tracker_db_manager_get_db_interface_by_type (tracker_service_get_name (service),
+	iface = tracker_db_manager_get_db_interface_by_type (tracker_class_get_name (service),
 							     TRACKER_DB_CONTENT_TYPE_CONTENTS);
 
 	/* Delete contents if it has! */

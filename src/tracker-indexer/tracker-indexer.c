@@ -167,7 +167,7 @@ struct PathInfo {
 struct MetadataForeachData {
 	TrackerLanguage *language;
 	TrackerConfig *config;
-	TrackerService *service;
+	TrackerClass *service;
 	gboolean add;
 	guint32 id;
 };
@@ -1145,14 +1145,14 @@ index_metadata_item (TrackerField	 *field,
 	}
 
 	arr = g_strsplit (parsed_value, " ", -1);
-	service_id = tracker_service_get_id (data->service);
+	service_id = tracker_class_get_id (data->service);
 	lindex = tracker_db_index_manager_get_index_by_service_id (service_id);
 
 	for (i = 0; arr[i]; i++) {
 		tracker_db_index_add_word (lindex,
 					   arr[i],
 					   data->id,
-					   tracker_service_get_id (data->service),
+					   tracker_class_get_id (data->service),
 					   score);
 	}
 
@@ -1203,7 +1203,7 @@ index_metadata_foreach (TrackerField *field,
 static void
 index_metadata (TrackerIndexer	      *indexer,
 		guint32		       id,
-		TrackerService	      *service,
+		TrackerClass	      *service,
 		TrackerModuleMetadata *metadata)
 {
 	MetadataForeachData data;
@@ -1222,7 +1222,7 @@ index_metadata (TrackerIndexer	      *indexer,
 static void
 unindex_metadata (TrackerIndexer      *indexer,
 		  guint32	       id,
-		  TrackerService      *service,
+		  TrackerClass      *service,
 		  TrackerDataMetadata *metadata)
 {
 	MetadataForeachData data;
@@ -1427,7 +1427,7 @@ merge_word_table (gpointer key,
 
 static void
 item_update_content (TrackerIndexer *indexer,
-		     TrackerService *service,
+		     TrackerClass *service,
 		     guint32	     id,
 		     const gchar    *old_text,
 		     const gchar    *new_text)
@@ -1468,7 +1468,7 @@ item_update_content (TrackerIndexer *indexer,
 
 	update_words_no_parsing (indexer,
 				 id,
-				 tracker_service_get_id (service),
+				 tracker_class_get_id (service),
 				 new_words);
 
 	/* Remove old text and set new one in the db */
@@ -1484,7 +1484,7 @@ item_update_content (TrackerIndexer *indexer,
 	g_hash_table_unref (new_words);
 }
 
-static TrackerService *
+static TrackerClass *
 get_service_for_file (TrackerModuleFile    *file,
 		      TrackerIndexerModule *module)
 {
@@ -1526,7 +1526,7 @@ remove_existing_non_emb_metadata (TrackerField *field,
 
 static void
 remove_stale_children (TrackerIndexer *indexer,
-		       TrackerService *service,
+		       TrackerClass *service,
 		       PathInfo       *parent_info,
 		       const gchar    *path)
 {
@@ -1535,7 +1535,7 @@ remove_stale_children (TrackerIndexer *indexer,
 	PathInfo *info;
 	gint i;
 
-	iface = tracker_db_manager_get_db_interface_by_type (tracker_service_get_name (service),
+	iface = tracker_db_manager_get_db_interface_by_type (tracker_class_get_name (service),
 							     TRACKER_DB_CONTENT_TYPE_METADATA);
 
 	children = tracker_data_search_files_get (iface, path);
@@ -1591,7 +1591,7 @@ item_add_or_update (TrackerIndexer        *indexer,
 		    TrackerModuleMetadata *metadata,
 		    const gchar           *text)
 {
-	TrackerService *service;
+	TrackerClass *service;
 	guint32 id;
 	gchar *mount_point = NULL;
 	gchar *service_path;
@@ -1646,7 +1646,7 @@ item_add_or_update (TrackerIndexer        *indexer,
 
 		item_update_content (indexer, service, id, old_text, text);
 
-		if (strcmp (tracker_service_get_name (service), "Folders") == 0) {
+		if (strcmp (tracker_class_get_name (service), "Folders") == 0) {
 			gchar *path;
 
 			/* Remove no longer existing children, this is necessary in case
@@ -1685,7 +1685,7 @@ item_add_or_update (TrackerIndexer        *indexer,
 			/* Save in the index */
 			index_text_with_parsing (indexer,
 						 id,
-						 tracker_service_get_id (service),
+						 tracker_class_get_id (service),
 						 text,
 						 1);
 
@@ -1714,7 +1714,7 @@ item_add_or_update (TrackerIndexer        *indexer,
 		tracker_removable_device_add_metadata (indexer, 
 						       mount_point, 
 						       service_path, 
-						       tracker_service_get_name (service),
+						       tracker_class_get_name (service),
 						       metadata);
 	}
 #endif
@@ -1774,7 +1774,7 @@ update_moved_item_thumbnail (TrackerIndexer      *indexer,
 
 static void
 update_moved_item_removable_device (TrackerIndexer *indexer,
-				    TrackerService *service,
+				    TrackerClass *service,
 				    GFile          *file,
 				    GFile          *source_file)
 {
@@ -1782,7 +1782,7 @@ update_moved_item_removable_device (TrackerIndexer *indexer,
 	gchar *path, *source_path;
 	gchar *mount_point = NULL;
 
-	service_name = tracker_service_get_name (service);
+	service_name = tracker_class_get_name (service);
 	path = g_file_get_path (file);
 	source_path = g_file_get_path (source_file);
 
@@ -1818,7 +1818,7 @@ update_moved_item_removable_device (TrackerIndexer *indexer,
 
 static void
 update_moved_item_index (TrackerIndexer      *indexer,
-			 TrackerService      *service,
+			 TrackerClass      *service,
 			 TrackerDataMetadata *old_metadata,
 			 guint32              service_id,
 			 GFile               *file,
@@ -1863,14 +1863,14 @@ update_moved_item_index (TrackerIndexer      *indexer,
 
 static void
 item_erase (TrackerIndexer *indexer,
-	    TrackerService *service,
+	    TrackerClass *service,
 	    guint32         service_id)
 {
 	gchar *content, *metadata;
 	guint32 service_type_id;
 	TrackerDataMetadata *data_metadata;
 
-	service_type_id = tracker_service_get_id (service);
+	service_type_id = tracker_class_get_id (service);
 
 	/* Get mime type and remove thumbnail from thumbnailerd */
 	data_metadata = tracker_data_query_metadata (service, service_id, TRUE);
@@ -1939,7 +1939,7 @@ item_move (TrackerIndexer  *indexer,
 	   const gchar	   *dirname,
 	   const gchar	   *basename)
 {
-	TrackerService *service;
+	TrackerClass *service;
 	TrackerDataMetadata *old_metadata;
 	gchar *path, *source_path;
 	gchar *dest_dirname, *dest_basename;
@@ -1996,7 +1996,7 @@ item_move (TrackerIndexer  *indexer,
 	g_free (dest_dirname);
 	g_free (dest_basename);
 
-	if (info->recurse && strcmp (tracker_service_get_name (service), "Folders") == 0) {
+	if (info->recurse && strcmp (tracker_class_get_name (service), "Folders") == 0) {
 		children = tracker_data_query_service_children (service, source_path);
 	}
 
@@ -2065,7 +2065,7 @@ item_mark_for_removal (TrackerIndexer *indexer,
 		       const gchar    *dirname,
 		       const gchar    *basename)
 {
-	TrackerService *service;
+	TrackerClass *service;
 	gchar *path;
 	gchar *mount_point = NULL;
 	const gchar *service_type;
@@ -2101,7 +2101,7 @@ item_mark_for_removal (TrackerIndexer *indexer,
 	/* This is needed in a few places. */
 	path = g_build_path (G_DIR_SEPARATOR_S, dirname, basename, NULL);
 
-	if (info->recurse && strcmp (tracker_service_get_name (service), "Folders") == 0) {
+	if (info->recurse && strcmp (tracker_class_get_name (service), "Folders") == 0) {
 		children = tracker_data_query_service_children (service, path);
 	}
 
@@ -2138,7 +2138,7 @@ item_mark_for_removal (TrackerIndexer *indexer,
 
 		tracker_removable_device_add_removal (indexer, mount_point, 
 						      path,
-						      tracker_service_get_name (service));
+						      tracker_class_get_name (service));
 	}
 #endif
 	g_free (mount_point);
@@ -2197,7 +2197,7 @@ handle_metadata_add (TrackerIndexer *indexer,
 		     GStrv	     values,
 		     GError	   **error)
 {
-	TrackerService *service;
+	TrackerClass *service;
 	TrackerField   *field;
 	guint           service_id, i, j;
 	gchar         **set_values;
@@ -2273,13 +2273,13 @@ handle_metadata_add (TrackerIndexer *indexer,
 			if (tracker_field_get_filtered (field)) {
 				unindex_text_with_parsing (indexer,
 							   service_id,
-							   tracker_service_get_id (service),
+							   tracker_class_get_id (service),
 							   old_contents[0],
 							   tracker_field_get_weight (field));
 			} else {
 				unindex_text_no_parsing (indexer,
 							 service_id,
-							 tracker_service_get_id (service),
+							 tracker_class_get_id (service),
 							 old_contents[0],
 							 tracker_field_get_weight (field));
 			}
@@ -2291,7 +2291,7 @@ handle_metadata_add (TrackerIndexer *indexer,
 
 	for (i = 0, j = 0; values[i] != NULL; i++) {
 		g_debug ("Setting metadata: service_type '%s' id '%d' field '%s' value '%s'",
-			 tracker_service_get_name (service),
+			 tracker_class_get_name (service),
 			 service_id,
 			 tracker_field_get_name (field),
 			 values[i]);
@@ -2309,13 +2309,13 @@ handle_metadata_add (TrackerIndexer *indexer,
 	if (tracker_field_get_filtered (field)) {
 		index_text_no_parsing (indexer,
 				       service_id,
-				       tracker_service_get_id (service),
+				       tracker_class_get_id (service),
 				       joined,
 				       tracker_field_get_weight (field));
 	} else {
 		index_text_with_parsing (indexer,
 					 service_id,
-					 tracker_service_get_id (service),
+					 tracker_class_get_id (service),
 					 joined,
 					 tracker_field_get_weight (field));
 	}
@@ -2337,7 +2337,7 @@ should_change_index_for_file (TrackerIndexer *indexer,
 			      const gchar	  *dirname,
 			      const gchar	  *basename)
 {
-	TrackerService *service;
+	TrackerClass *service;
 	gchar *path;
 	guint64 current_mtime;
 	time_t db_mtime;
@@ -2604,7 +2604,7 @@ cleanup_task_func (gpointer user_data)
 {
 	TrackerIndexer *indexer;
 	TrackerIndexerPrivate *priv;
-	TrackerService *service;
+	TrackerClass *service;
 	guint32 id;
 
 	indexer = (TrackerIndexer *) user_data;

@@ -371,7 +371,7 @@ static void
 load_service_file (TrackerDBInterface *iface,
 		   const gchar	      *filename)
 {
-	TrackerService	*service;
+	TrackerClass	*service;
 	GKeyFile	*key_file = NULL;
 	GError          *error = NULL;
 	gchar		*service_file, *str_id;
@@ -407,7 +407,7 @@ load_service_file (TrackerDBInterface *iface,
 								NULL);
 			id = tracker_db_interface_sqlite_get_last_insert_id (TRACKER_DB_INTERFACE_SQLITE (iface));
 		} else {
-			id = tracker_service_get_id (service);
+			id = tracker_class_get_id (service);
 		}
 
 		str_id = tracker_guint_to_string (id);
@@ -772,17 +772,17 @@ db_row_to_field_def (TrackerDBResultSet *result_set)
 	return field_def;
 }
 
-static TrackerService *
+static TrackerClass *
 db_row_to_service (TrackerDBResultSet *result_set)
 {
-	TrackerService *service;
+	TrackerClass *service;
 	GSList	       *new_list = NULL;
 	gint		id, i;
 	gchar	       *name, *parent, *content_metadata, *property_prefix = NULL;
 	gboolean	enabled, embedded, has_metadata, has_fulltext;
 	gboolean	has_thumbs, show_service_files, show_service_directories;
 
-	service = tracker_service_new ();
+	service = tracker_class_new ();
 
 	tracker_db_result_set_get (result_set,
 				   0, &id,
@@ -799,19 +799,19 @@ db_row_to_service (TrackerDBResultSet *result_set)
 				   12, &show_service_directories,
 				   -1);
 
-	tracker_service_set_id (service, id);
-	tracker_service_set_name (service, name);
-	tracker_service_set_parent (service, parent);
-	tracker_service_set_property_prefix (service, property_prefix);
-	tracker_service_set_enabled (service, enabled);
-	tracker_service_set_embedded (service, embedded);
-	tracker_service_set_has_metadata (service, has_metadata);
-	tracker_service_set_has_full_text (service, has_fulltext);
-	tracker_service_set_has_thumbs (service, has_thumbs);
-	tracker_service_set_content_metadata (service, content_metadata);
+	tracker_class_set_id (service, id);
+	tracker_class_set_name (service, name);
+	tracker_class_set_parent (service, parent);
+	tracker_class_set_property_prefix (service, property_prefix);
+	tracker_class_set_enabled (service, enabled);
+	tracker_class_set_embedded (service, embedded);
+	tracker_class_set_has_metadata (service, has_metadata);
+	tracker_class_set_has_full_text (service, has_fulltext);
+	tracker_class_set_has_thumbs (service, has_thumbs);
+	tracker_class_set_content_metadata (service, content_metadata);
 
-	tracker_service_set_show_service_files (service, show_service_files);
-	tracker_service_set_show_service_directories (service, show_service_directories);
+	tracker_class_set_show_service_files (service, show_service_files);
+	tracker_class_set_show_service_directories (service, show_service_directories);
 
 	for (i = 13; i < 24; i++) {
 		gchar *metadata;
@@ -842,7 +842,7 @@ db_row_to_service (TrackerDBResultSet *result_set)
 
 	new_list = g_slist_reverse (new_list);
 
-	tracker_service_set_key_metadata (service, new_list);
+	tracker_class_set_key_metadata (service, new_list);
 	g_slist_foreach (new_list, (GFunc) g_free, NULL);
 	g_slist_free (new_list);
 
@@ -1439,7 +1439,7 @@ db_get_static_data (TrackerDBInterface *iface)
 		gboolean valid = TRUE;
 
 		while (valid) {
-			TrackerService *service;
+			TrackerClass *service;
 			GSList	       *mimes, *mime_prefixes;
 			const gchar    *name;
 			gint		id;
@@ -1450,8 +1450,8 @@ db_get_static_data (TrackerDBInterface *iface)
 				continue;
 			}
 
-			id = tracker_service_get_id (service);
-			name = tracker_service_get_name (service);
+			id = tracker_class_get_id (service);
+			name = tracker_class_get_name (service);
 
 			mimes = db_get_mimes_for_service_id (iface, id);
 			mime_prefixes = db_get_mime_prefixes_for_service_id (iface, id);

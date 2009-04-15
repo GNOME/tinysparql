@@ -1496,7 +1496,7 @@ get_meta_table_data (gpointer value,
 								   gsearch->search_results_list_store, &gsearch->search_results_iter, gsearch);
 
 			} else {
-				add_file_to_search_results (meta[0], tracker_service_name_to_type (meta[1]), meta[2],
+				add_file_to_search_results (meta[0], tracker_class_name_to_type (meta[1]), meta[2],
 							    gsearch->search_results_list_store, &gsearch->search_results_iter, gsearch);
 			}
 		}

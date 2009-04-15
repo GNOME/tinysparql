@@ -40,7 +40,7 @@ G_BEGIN_DECLS
 #include "tracker-module-config.h"
 #include "tracker-ontology.h"
 #include "tracker-parser.h"
-#include "tracker-service.h"
+#include "tracker-class.h"
 #include "tracker-type-utils.h"
 #include "tracker-utils.h"
 

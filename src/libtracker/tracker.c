@@ -26,7 +26,7 @@
 #include "tracker-daemon-glue.h"
 #include "tracker-search-glue.h"
 
-#define TRACKER_SERVICE			"org.freedesktop.Tracker"
+#define TRACKER_CLASS			"org.freedesktop.Tracker"
 #define TRACKER_OBJECT			"/org/freedesktop/Tracker"
 #define TRACKER_INTERFACE		"org.freedesktop.Tracker"
 #define TRACKER_INTERFACE_SEARCH	"org.freedesktop.Tracker.Search"
@@ -70,7 +70,7 @@ typedef struct {
 } VoidCallBackStruct;
 
 
-const char *tracker_service_types[] = {
+const char *tracker_class_types[] = {
 	"Files",
 	"Folders",
 	"Documents",
@@ -116,12 +116,12 @@ const char *metadata_types[] = {
 
 
 ServiceType
-tracker_service_name_to_type (const char *service)
+tracker_class_name_to_type (const char *service)
 {
 	const char **st;
 	int i = 0;
 
-	for (st=tracker_service_types; *st; st++) {
+	for (st=tracker_class_types; *st; st++) {
 
 		if (g_ascii_strcasecmp (service, *st) == 0) {
 			return i;
@@ -137,7 +137,7 @@ tracker_service_name_to_type (const char *service)
 char *
 tracker_type_to_service_name (ServiceType s)
 {
-	return g_strdup (tracker_service_types[s]);
+	return g_strdup (tracker_class_types[s]);
 }
 
 
@@ -265,7 +265,7 @@ tracker_connect (gboolean enable_warnings)
 	}
 
 	proxy = dbus_g_proxy_new_for_name (connection,
-			TRACKER_SERVICE,
+			TRACKER_CLASS,
 			TRACKER_OBJECT,
 			TRACKER_INTERFACE);
 
@@ -281,7 +281,7 @@ tracker_connect (gboolean enable_warnings)
 	client->proxy = proxy;
 
 	proxy = dbus_g_proxy_new_for_name (connection,
-			TRACKER_SERVICE,
+			TRACKER_CLASS,
 			TRACKER_OBJECT "/Search",
 			TRACKER_INTERFACE_SEARCH);
 
@@ -381,7 +381,7 @@ char *
 tracker_search_get_snippet (TrackerClient *client, ServiceType service, const char *uri, const char *search_text, GError **error)
 {
 	char *result;
-	const char *service_str = tracker_service_types[service];
+	const char *service_str = tracker_class_types[service];
 
 	if (!org_freedesktop_Tracker_Search_get_snippet (client->proxy_search, service_str, uri, search_text, &result, &*error)) {
 		return NULL;
@@ -509,7 +509,7 @@ tracker_search_get_snippet_async (TrackerClient *client, ServiceType service, co
 	callback_struct->callback = callback;
 	callback_struct->data = user_data;
 
-	service_str = tracker_service_types[service];
+	service_str = tracker_class_types[service];
 
 	client->last_pending_call = org_freedesktop_Tracker_Search_get_snippet_async (client->proxy_search, service_str, uri, search_text, tracker_string_reply, callback_struct);
 

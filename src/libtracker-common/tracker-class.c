@@ -24,13 +24,13 @@
 
 #include <glib.h>
 
-#include "tracker-service.h"
+#include "tracker-class.h"
 
-#define GET_PRIV(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_SERVICE, TrackerServicePriv))
+#define GET_PRIV(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_CLASS, TrackerClassPriv))
 
-typedef struct _TrackerServicePriv TrackerServicePriv;
+typedef struct _TrackerClassPriv TrackerClassPriv;
 
-struct _TrackerServicePriv {
+struct _TrackerClassPriv {
 	gint	       id;
 
 	gchar	      *name;
@@ -53,12 +53,12 @@ struct _TrackerServicePriv {
 	gboolean       show_service_directories;
 };
 
-static void service_finalize	 (GObject      *object);
-static void service_get_property (GObject      *object,
+static void class_finalize	 (GObject      *object);
+static void class_get_property (GObject      *object,
 				  guint		param_id,
 				  GValue       *value,
 				  GParamSpec   *pspec);
-static void service_set_property (GObject      *object,
+static void class_set_property (GObject      *object,
 				  guint		param_id,
 				  const GValue *value,
 				  GParamSpec   *pspec);
@@ -124,16 +124,16 @@ tracker_db_type_get_type (void)
 	return etype;
 }
 
-G_DEFINE_TYPE (TrackerService, tracker_service, G_TYPE_OBJECT);
+G_DEFINE_TYPE (TrackerClass, tracker_class, G_TYPE_OBJECT);
 
 static void
-tracker_service_class_init (TrackerServiceClass *klass)
+tracker_class_class_init (TrackerClassClass *klass)
 {
 	GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
-	object_class->finalize	   = service_finalize;
-	object_class->get_property = service_get_property;
-	object_class->set_property = service_set_property;
+	object_class->finalize	   = class_finalize;
+	object_class->get_property = class_get_property;
+	object_class->set_property = class_set_property;
 
 	g_object_class_install_property (object_class,
 					 PROP_ID,
@@ -236,18 +236,18 @@ tracker_service_class_init (TrackerServiceClass *klass)
 							       FALSE,
 							       G_PARAM_READWRITE));
 
-	g_type_class_add_private (object_class, sizeof (TrackerServicePriv));
+	g_type_class_add_private (object_class, sizeof (TrackerClassPriv));
 }
 
 static void
-tracker_service_init (TrackerService *service)
+tracker_class_init (TrackerClass *service)
 {
 }
 
 static void
-service_finalize (GObject *object)
+class_finalize (GObject *object)
 {
-	TrackerServicePriv *priv;
+	TrackerClassPriv *priv;
 
 	priv = GET_PRIV (object);
 
@@ -259,16 +259,16 @@ service_finalize (GObject *object)
 	g_slist_foreach (priv->key_metadata, (GFunc) g_free, NULL);
 	g_slist_free (priv->key_metadata);
 
-	(G_OBJECT_CLASS (tracker_service_parent_class)->finalize) (object);
+	(G_OBJECT_CLASS (tracker_class_parent_class)->finalize) (object);
 }
 
 static void
-service_get_property (GObject	 *object,
+class_get_property (GObject	 *object,
 		      guint	  param_id,
 		      GValue	 *value,
 		      GParamSpec *pspec)
 {
-	TrackerServicePriv *priv;
+	TrackerClassPriv *priv;
 
 	priv = GET_PRIV (object);
 
@@ -322,70 +322,70 @@ service_get_property (GObject	 *object,
 }
 
 static void
-service_set_property (GObject	   *object,
+class_set_property (GObject	   *object,
 		      guint	    param_id,
 		      const GValue *value,
 		      GParamSpec   *pspec)
 {
-	TrackerServicePriv *priv;
+	TrackerClassPriv *priv;
 
 	priv = GET_PRIV (object);
 
 	switch (param_id) {
 	case PROP_ID:
-		tracker_service_set_id (TRACKER_SERVICE (object),
+		tracker_class_set_id (TRACKER_CLASS (object),
 					g_value_get_int (value));
 		break;
 	case PROP_NAME:
-		tracker_service_set_name (TRACKER_SERVICE (object),
+		tracker_class_set_name (TRACKER_CLASS (object),
 					  g_value_get_string (value));
 		break;
 	case PROP_PROPERTY_PREFIX:
-		tracker_service_set_property_prefix (TRACKER_SERVICE (object),
+		tracker_class_set_property_prefix (TRACKER_CLASS (object),
 						     g_value_get_string (value));
 		break;
 	case PROP_PARENT:
-		tracker_service_set_parent (TRACKER_SERVICE (object),
+		tracker_class_set_parent (TRACKER_CLASS (object),
 					    g_value_get_string (value));
 		break;
 	case PROP_CONTENT_METADATA:
-		tracker_service_set_content_metadata (TRACKER_SERVICE (object),
+		tracker_class_set_content_metadata (TRACKER_CLASS (object),
 						      g_value_get_string (value));
 		break;
 	case PROP_KEY_METADATA:
-		tracker_service_set_key_metadata (TRACKER_SERVICE (object),
+		tracker_class_set_key_metadata (TRACKER_CLASS (object),
 						  g_value_get_pointer (value));
 		break;
 	case PROP_DB_TYPE:
-		tracker_service_set_db_type (TRACKER_SERVICE (object),
+		tracker_class_set_db_type (TRACKER_CLASS (object),
 					     g_value_get_enum (value));
 		break;
 	case PROP_ENABLED:
-		tracker_service_set_enabled (TRACKER_SERVICE (object),
+		tracker_class_set_enabled (TRACKER_CLASS (object),
 					     g_value_get_boolean (value));
 		break;
 	case PROP_EMBEDDED:
-		tracker_service_set_embedded (TRACKER_SERVICE (object),
+		tracker_class_set_embedded (TRACKER_CLASS (object),
 					      g_value_get_boolean (value));
 		break;
 	case PROP_HAS_METADATA:
-		tracker_service_set_has_metadata (TRACKER_SERVICE (object),
+		tracker_class_set_has_metadata (TRACKER_CLASS (object),
 						  g_value_get_boolean (value));
 		break;
 	case PROP_HAS_FULL_TEXT:
-		tracker_service_set_has_full_text (TRACKER_SERVICE (object),
+		tracker_class_set_has_full_text (TRACKER_CLASS (object),
 						   g_value_get_boolean (value));
 		break;
 	case PROP_HAS_THUMBS:
-		tracker_service_set_has_thumbs (TRACKER_SERVICE (object),
+		tracker_class_set_has_thumbs (TRACKER_CLASS (object),
 						g_value_get_boolean (value));
 		break;
 	case PROP_SHOW_SERVICE_FILES:
-		tracker_service_set_show_service_files (TRACKER_SERVICE (object),
+		tracker_class_set_show_service_files (TRACKER_CLASS (object),
 							g_value_get_boolean (value));
 		break;
 	case PROP_SHOW_SERVICE_DIRECTORIES:
-		tracker_service_set_show_service_directories (TRACKER_SERVICE (object),
+		tracker_class_set_show_service_directories (TRACKER_CLASS (object),
 							      g_value_get_boolean (value));
 		break;
 	default:
@@ -395,7 +395,7 @@ service_set_property (GObject	   *object,
 }
 
 static gboolean
-service_int_validate (TrackerService *service,
+class_int_validate (TrackerClass *service,
 		      const gchar   *property,
 		      gint	    value)
 {
@@ -418,22 +418,22 @@ service_int_validate (TrackerService *service,
 	return TRUE;
 }
 
-TrackerService *
-tracker_service_new (void)
+TrackerClass *
+tracker_class_new (void)
 {
-	TrackerService *service;
+	TrackerClass *service;
 
-	service = g_object_new (TRACKER_TYPE_SERVICE, NULL);
+	service = g_object_new (TRACKER_TYPE_CLASS, NULL);
 
 	return service;
 }
 
 gint
-tracker_service_get_id (TrackerService *service)
+tracker_class_get_id (TrackerClass *service)
 {
-	TrackerServicePriv *priv;
+	TrackerClassPriv *priv;
 
-	g_return_val_if_fail (TRACKER_IS_SERVICE (service), -1);
+	g_return_val_if_fail (TRACKER_IS_CLASS (service), -1);
 
 	priv = GET_PRIV (service);
 
@@ -441,11 +441,11 @@ tracker_service_get_id (TrackerService *service)
 }
 
 const gchar *
-tracker_service_get_name (TrackerService *service)
+tracker_class_get_name (TrackerClass *service)
 {
-	TrackerServicePriv *priv;
+	TrackerClassPriv *priv;
 
-	g_return_val_if_fail (TRACKER_IS_SERVICE (service), NULL);
+	g_return_val_if_fail (TRACKER_IS_CLASS (service), NULL);
 
 	priv = GET_PRIV (service);
 
@@ -453,11 +453,11 @@ tracker_service_get_name (TrackerService *service)
 }
 
 const gchar *
-tracker_service_get_parent (TrackerService *service)
+tracker_class_get_parent (TrackerClass *service)
 {
-	TrackerServicePriv *priv;
+	TrackerClassPriv *priv;
 
-	g_return_val_if_fail (TRACKER_IS_SERVICE (service), NULL);
+	g_return_val_if_fail (TRACKER_IS_CLASS (service), NULL);
 
 	priv = GET_PRIV (service);
 
@@ -465,11 +465,11 @@ tracker_service_get_parent (TrackerService *service)
 }
 
 const gchar *
-tracker_service_get_property_prefix (TrackerService *service)
+tracker_class_get_property_prefix (TrackerClass *service)
 {
-	TrackerServicePriv *priv;
+	TrackerClassPriv *priv;
 
-	g_return_val_if_fail (TRACKER_IS_SERVICE (service), NULL);
+	g_return_val_if_fail (TRACKER_IS_CLASS (service), NULL);
 
 	priv = GET_PRIV (service);
 
@@ -477,11 +477,11 @@ tracker_service_get_property_prefix (TrackerService *service)
 }
 
 const gchar *
-tracker_service_get_content_metadata (TrackerService *service)
+tracker_class_get_content_metadata (TrackerClass *service)
 {
-	TrackerServicePriv *priv;
+	TrackerClassPriv *priv;
 
-	g_return_val_if_fail (TRACKER_IS_SERVICE (service), NULL);
+	g_return_val_if_fail (TRACKER_IS_CLASS (service), NULL);
 
 	priv = GET_PRIV (service);
 
@@ -489,11 +489,11 @@ tracker_service_get_content_metadata (TrackerService *service)
 }
 
 const GSList *
-tracker_service_get_key_metadata (TrackerService *service)
+tracker_class_get_key_metadata (TrackerClass *service)
 {
-	TrackerServicePriv *priv;
+	TrackerClassPriv *priv;
 
-	g_return_val_if_fail (TRACKER_IS_SERVICE (service), NULL);
+	g_return_val_if_fail (TRACKER_IS_CLASS (service), NULL);
 
 	priv = GET_PRIV (service);
 
@@ -501,11 +501,11 @@ tracker_service_get_key_metadata (TrackerService *service)
 }
 
 TrackerDBType
-tracker_service_get_db_type (TrackerService *service)
+tracker_class_get_db_type (TrackerClass *service)
 {
-	TrackerServicePriv *priv;
+	TrackerClassPriv *priv;
 
-	g_return_val_if_fail (TRACKER_IS_SERVICE (service), TRACKER_DB_TYPE_DATA);
+	g_return_val_if_fail (TRACKER_IS_CLASS (service), TRACKER_DB_TYPE_DATA);
 
 	priv = GET_PRIV (service);
 
@@ -513,11 +513,11 @@ tracker_service_get_db_type (TrackerService *service)
 }
 
 gboolean
-tracker_service_get_enabled (TrackerService *service)
+tracker_class_get_enabled (TrackerClass *service)
 {
-	TrackerServicePriv *priv;
+	TrackerClassPriv *priv;
 
-	g_return_val_if_fail (TRACKER_IS_SERVICE (service), FALSE);
+	g_return_val_if_fail (TRACKER_IS_CLASS (service), FALSE);
 
 	priv = GET_PRIV (service);
 
@@ -525,11 +525,11 @@ tracker_service_get_enabled (TrackerService *service)
 }
 
 gboolean
-tracker_service_get_embedded (TrackerService *service)
+tracker_class_get_embedded (TrackerClass *service)
 {
-	TrackerServicePriv *priv;
+	TrackerClassPriv *priv;
 
-	g_return_val_if_fail (TRACKER_IS_SERVICE (service), FALSE);
+	g_return_val_if_fail (TRACKER_IS_CLASS (service), FALSE);
 
 	priv = GET_PRIV (service);
 
@@ -537,11 +537,11 @@ tracker_service_get_embedded (TrackerService *service)
 }
 
 gboolean
-tracker_service_get_has_metadata (TrackerService *service)
+tracker_class_get_has_metadata (TrackerClass *service)
 {
-	TrackerServicePriv *priv;
+	TrackerClassPriv *priv;
 
-	g_return_val_if_fail (TRACKER_IS_SERVICE (service), FALSE);
+	g_return_val_if_fail (TRACKER_IS_CLASS (service), FALSE);
 
 	priv = GET_PRIV (service);
 
@@ -549,11 +549,11 @@ tracker_service_get_has_metadata (TrackerService *service)
 }
 
 gboolean
-tracker_service_get_has_full_text (TrackerService *service)
+tracker_class_get_has_full_text (TrackerClass *service)
 {
-	TrackerServicePriv *priv;
+	TrackerClassPriv *priv;
 
-	g_return_val_if_fail (TRACKER_IS_SERVICE (service), FALSE);
+	g_return_val_if_fail (TRACKER_IS_CLASS (service), FALSE);
 
 	priv = GET_PRIV (service);
 
@@ -561,11 +561,11 @@ tracker_service_get_has_full_text (TrackerService *service)
 }
 
 gboolean
-tracker_service_get_has_thumbs (TrackerService *service)
+tracker_class_get_has_thumbs (TrackerClass *service)
 {
-	TrackerServicePriv *priv;
+	TrackerClassPriv *priv;
 
-	g_return_val_if_fail (TRACKER_IS_SERVICE (service), FALSE);
+	g_return_val_if_fail (TRACKER_IS_CLASS (service), FALSE);
 
 	priv = GET_PRIV (service);
 
@@ -573,11 +573,11 @@ tracker_service_get_has_thumbs (TrackerService *service)
 }
 
 gboolean
-tracker_service_get_show_service_files (TrackerService *service)
+tracker_class_get_show_service_files (TrackerClass *service)
 {
-	TrackerServicePriv *priv;
+	TrackerClassPriv *priv;
 
-	g_return_val_if_fail (TRACKER_IS_SERVICE (service), FALSE);
+	g_return_val_if_fail (TRACKER_IS_CLASS (service), FALSE);
 
 	priv = GET_PRIV (service);
 
@@ -585,11 +585,11 @@ tracker_service_get_show_service_files (TrackerService *service)
 }
 
 gboolean
-tracker_service_get_show_service_directories (TrackerService *service)
+tracker_class_get_show_service_directories (TrackerClass *service)
 {
-	TrackerServicePriv *priv;
+	TrackerClassPriv *priv;
 
-	g_return_val_if_fail (TRACKER_IS_SERVICE (service), FALSE);
+	g_return_val_if_fail (TRACKER_IS_CLASS (service), FALSE);
 
 	priv = GET_PRIV (service);
 
@@ -597,14 +597,14 @@ tracker_service_get_show_service_directories (TrackerService *service)
 }
 
 void
-tracker_service_set_id (TrackerService *service,
+tracker_class_set_id (TrackerClass *service,
 			gint		value)
 {
-	TrackerServicePriv *priv;
+	TrackerClassPriv *priv;
 
-	g_return_if_fail (TRACKER_IS_SERVICE (service));
+	g_return_if_fail (TRACKER_IS_CLASS (service));
 
-	if (!service_int_validate (service, "id", value)) {
+	if (!class_int_validate (service, "id", value)) {
 		return;
 	}
 
@@ -615,12 +615,12 @@ tracker_service_set_id (TrackerService *service,
 }
 
 void
-tracker_service_set_name (TrackerService *service,
+tracker_class_set_name (TrackerClass *service,
 			  const gchar	 *value)
 {
-	TrackerServicePriv *priv;
+	TrackerClassPriv *priv;
 
-	g_return_if_fail (TRACKER_IS_SERVICE (service));
+	g_return_if_fail (TRACKER_IS_CLASS (service));
 
 	priv = GET_PRIV (service);
 
@@ -636,12 +636,12 @@ tracker_service_set_name (TrackerService *service,
 }
 
 void
-tracker_service_set_parent (TrackerService *service,
+tracker_class_set_parent (TrackerClass *service,
 			    const gchar    *value)
 {
-	TrackerServicePriv *priv;
+	TrackerClassPriv *priv;
 
-	g_return_if_fail (TRACKER_IS_SERVICE (service));
+	g_return_if_fail (TRACKER_IS_CLASS (service));
 
 	priv = GET_PRIV (service);
 
@@ -657,12 +657,12 @@ tracker_service_set_parent (TrackerService *service,
 }
 
 void
-tracker_service_set_property_prefix (TrackerService *service,
+tracker_class_set_property_prefix (TrackerClass *service,
 				     const gchar    *value)
 {
-	TrackerServicePriv *priv;
+	TrackerClassPriv *priv;
 
-	g_return_if_fail (TRACKER_IS_SERVICE (service));
+	g_return_if_fail (TRACKER_IS_CLASS (service));
 
 	priv = GET_PRIV (service);
 
@@ -678,12 +678,12 @@ tracker_service_set_property_prefix (TrackerService *service,
 }
 
 void
-tracker_service_set_content_metadata (TrackerService *service,
+tracker_class_set_content_metadata (TrackerClass *service,
 				      const gchar    *value)
 {
-	TrackerServicePriv *priv;
+	TrackerClassPriv *priv;
 
-	g_return_if_fail (TRACKER_IS_SERVICE (service));
+	g_return_if_fail (TRACKER_IS_CLASS (service));
 
 	priv = GET_PRIV (service);
 
@@ -699,12 +699,12 @@ tracker_service_set_content_metadata (TrackerService *service,
 }
 
 void
-tracker_service_set_key_metadata (TrackerService *service,
+tracker_class_set_key_metadata (TrackerClass *service,
 				  const GSList	 *value)
 {
-	TrackerServicePriv *priv;
+	TrackerClassPriv *priv;
 
-	g_return_if_fail (TRACKER_IS_SERVICE (service));
+	g_return_if_fail (TRACKER_IS_CLASS (service));
 
 	priv = GET_PRIV (service);
 
@@ -731,12 +731,12 @@ tracker_service_set_key_metadata (TrackerService *service,
 }
 
 void
-tracker_service_set_db_type (TrackerService *service,
+tracker_class_set_db_type (TrackerClass *service,
 			     TrackerDBType   value)
 {
-	TrackerServicePriv *priv;
+	TrackerClassPriv *priv;
 
-	g_return_if_fail (TRACKER_IS_SERVICE (service));
+	g_return_if_fail (TRACKER_IS_CLASS (service));
 
 	priv = GET_PRIV (service);
 
@@ -745,12 +745,12 @@ tracker_service_set_db_type (TrackerService *service,
 }
 
 void
-tracker_service_set_enabled (TrackerService *service,
+tracker_class_set_enabled (TrackerClass *service,
 			     gboolean	     value)
 {
-	TrackerServicePriv *priv;
+	TrackerClassPriv *priv;
 
-	g_return_if_fail (TRACKER_IS_SERVICE (service));
+	g_return_if_fail (TRACKER_IS_CLASS (service));
 
 	priv = GET_PRIV (service);
 
@@ -759,12 +759,12 @@ tracker_service_set_enabled (TrackerService *service,
 }
 
 void
-tracker_service_set_embedded (TrackerService *service,
+tracker_class_set_embedded (TrackerClass *service,
 			      gboolean	      value)
 {
-	TrackerServicePriv *priv;
+	TrackerClassPriv *priv;
 
-	g_return_if_fail (TRACKER_IS_SERVICE (service));
+	g_return_if_fail (TRACKER_IS_CLASS (service));
 
 	priv = GET_PRIV (service);
 
@@ -773,12 +773,12 @@ tracker_service_set_embedded (TrackerService *service,
 }
 
 void
-tracker_service_set_has_metadata (TrackerService *service,
+tracker_class_set_has_metadata (TrackerClass *service,
 				  gboolean	  value)
 {
-	TrackerServicePriv *priv;
+	TrackerClassPriv *priv;
 
-	g_return_if_fail (TRACKER_IS_SERVICE (service));
+	g_return_if_fail (TRACKER_IS_CLASS (service));
 
 	priv = GET_PRIV (service);
 
@@ -787,12 +787,12 @@ tracker_service_set_has_metadata (TrackerService *service,
 }
 
 void
-tracker_service_set_has_full_text (TrackerService *service,
+tracker_class_set_has_full_text (TrackerClass *service,
 				   gboolean	   value)
 {
-	TrackerServicePriv *priv;
+	TrackerClassPriv *priv;
 
-	g_return_if_fail (TRACKER_IS_SERVICE (service));
+	g_return_if_fail (TRACKER_IS_CLASS (service));
 
 	priv = GET_PRIV (service);
 
@@ -801,12 +801,12 @@ tracker_service_set_has_full_text (TrackerService *service,
 }
 
 void
-tracker_service_set_has_thumbs (TrackerService *service,
+tracker_class_set_has_thumbs (TrackerClass *service,
 				gboolean	value)
 {
-	TrackerServicePriv *priv;
+	TrackerClassPriv *priv;
 
-	g_return_if_fail (TRACKER_IS_SERVICE (service));
+	g_return_if_fail (TRACKER_IS_CLASS (service));
 
 	priv = GET_PRIV (service);
 
@@ -815,12 +815,12 @@ tracker_service_set_has_thumbs (TrackerService *service,
 }
 
 void
-tracker_service_set_show_service_files (TrackerService *service,
+tracker_class_set_show_service_files (TrackerClass *service,
 					gboolean	value)
 {
-	TrackerServicePriv *priv;
+	TrackerClassPriv *priv;
 
-	g_return_if_fail (TRACKER_IS_SERVICE (service));
+	g_return_if_fail (TRACKER_IS_CLASS (service));
 
 	priv = GET_PRIV (service);
 
@@ -829,12 +829,12 @@ tracker_service_set_show_service_files (TrackerService *service,
 }
 
 void
-tracker_service_set_show_service_directories (TrackerService *service,
+tracker_class_set_show_service_directories (TrackerClass *service,
 					      gboolean	      value)
 {
-	TrackerServicePriv *priv;
+	TrackerClassPriv *priv;
 
-	g_return_if_fail (TRACKER_IS_SERVICE (service));
+	g_return_if_fail (TRACKER_IS_CLASS (service));
 
 	priv = GET_PRIV (service);
 

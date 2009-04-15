@@ -112,7 +112,7 @@ tracker_data_backup_save (const gchar  *turtle_filename,
 {
 #ifdef HAVE_RAPTOR
 	TrackerDBResultSet *data;
-	TrackerService *service;
+	TrackerClass *service;
 	TurtleFile *turtle_file;
 
 	/* TODO: temporary location */

@@ -35,18 +35,18 @@ G_BEGIN_DECLS
 guint32  tracker_data_update_get_new_service_id         (TrackerDBInterface  *iface);
 
 /* Services  */
-gboolean tracker_data_update_create_service             (TrackerService      *service,
+gboolean tracker_data_update_create_service             (TrackerClass      *service,
 							 guint32              service_id,
 							 const gchar         *dirname,
 							 const gchar         *basename,
 							 GHashTable          *metadata);
-void     tracker_data_update_disable_service            (TrackerService      *service,
+void     tracker_data_update_disable_service            (TrackerClass      *service,
 							 guint32              service_id);
-void     tracker_data_update_delete_service             (TrackerService      *service,
+void     tracker_data_update_delete_service             (TrackerClass      *service,
 							 guint32              service_id);
-void     tracker_data_update_delete_service_recursively (TrackerService      *service,
+void     tracker_data_update_delete_service_recursively (TrackerClass      *service,
 							 const gchar         *service_path);
-gboolean tracker_data_update_move_service               (TrackerService      *service,
+gboolean tracker_data_update_move_service               (TrackerClass      *service,
 							 const gchar         *from,
 							 const gchar         *to);
 
@@ -60,23 +60,23 @@ void     tracker_data_update_delete_service_all         (const gchar *rdf_type);
 
 
 /* Metadata */
-void     tracker_data_update_set_metadata               (TrackerService      *service,
+void     tracker_data_update_set_metadata               (TrackerClass      *service,
 							 guint32              service_id,
 							 TrackerField        *field,
 							 const gchar         *value,
 							 const gchar         *parsed_value);
-void     tracker_data_update_delete_all_metadata        (TrackerService      *service,
+void     tracker_data_update_delete_all_metadata        (TrackerClass      *service,
 							 guint32              service_id);
-void     tracker_data_update_delete_metadata            (TrackerService      *service,
+void     tracker_data_update_delete_metadata            (TrackerClass      *service,
 							 guint32              service_id,
 							 TrackerField        *field,
 							 const gchar         *value);
 
 /* Contents */
-void     tracker_data_update_set_content                (TrackerService      *service,
+void     tracker_data_update_set_content                (TrackerClass      *service,
 							 guint32              service_id,
 							 const gchar         *text);
-void     tracker_data_update_delete_content             (TrackerService      *service,
+void     tracker_data_update_delete_content             (TrackerClass      *service,
 							 guint32              service_id);
 
 

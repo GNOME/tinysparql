@@ -25,7 +25,7 @@
 #include <glib-object.h>
 
 #include "tracker-field.h"
-#include "tracker-service.h"
+#include "tracker-class.h"
 
 G_BEGIN_DECLS
 
@@ -37,10 +37,10 @@ void		tracker_ontology_init				(void);
 void		tracker_ontology_shutdown			(void);
 
 /* Service mechanics */
-void		tracker_ontology_service_add			(TrackerService *service,
+void		tracker_ontology_service_add			(TrackerClass *service,
 								 GSList		*mimes,
 								 GSList		*mime_prefixes);
-TrackerService *tracker_ontology_get_service_by_name		(const gchar	*service_str);
+TrackerClass *tracker_ontology_get_service_by_name		(const gchar	*service_str);
 G_CONST_RETURN gchar *
                 tracker_ontology_get_service_by_id		(gint		 id);
 G_CONST_RETURN gchar *

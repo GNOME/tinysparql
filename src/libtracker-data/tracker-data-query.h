@@ -42,27 +42,27 @@ G_BEGIN_DECLS
 /* Metadata API */
 GPtrArray *          tracker_data_query_all_metadata          (const gchar         *service_type,
 							       const gchar         *service_id);
-TrackerDataMetadata *tracker_data_query_metadata              (TrackerService      *service,
+TrackerDataMetadata *tracker_data_query_metadata              (TrackerClass      *service,
 							       guint32              service_id,
 							       gboolean             embedded);
-TrackerDBResultSet  *tracker_data_query_backup_metadata       (TrackerService      *service);
-gchar *              tracker_data_query_parsed_metadata       (TrackerService      *service,
+TrackerDBResultSet  *tracker_data_query_backup_metadata       (TrackerClass      *service);
+gchar *              tracker_data_query_parsed_metadata       (TrackerClass      *service,
 							       guint32              service_id);
-gchar *              tracker_data_query_unparsed_metadata     (TrackerService      *service,
+gchar *              tracker_data_query_unparsed_metadata     (TrackerClass      *service,
 							       guint32              service_id);
-gchar **             tracker_data_query_metadata_field_values (TrackerService      *service_def,
+gchar **             tracker_data_query_metadata_field_values (TrackerClass      *service_def,
 							       guint32              service_id,
 							       TrackerField        *field_def);
 
 /* Using path */
-gboolean             tracker_data_query_service_exists        (TrackerService      *service,
+gboolean             tracker_data_query_service_exists        (TrackerClass      *service,
 							       const gchar         *dirname,
 							       const gchar         *basename,
 							       guint32             *service_id,
 							       time_t              *mtime);
 guint                tracker_data_query_service_type_id       (const gchar         *dirname,
 							       const gchar         *basename);
-GHashTable *         tracker_data_query_service_children      (TrackerService      *service,
+GHashTable *         tracker_data_query_service_children      (TrackerClass      *service,
 							       const gchar         *dirname);
 
 /* Deleted files */
@@ -80,7 +80,7 @@ guint32              tracker_data_query_file_id               (const gchar      
 							       const gchar         *path);
 gchar *              tracker_data_query_file_id_as_string     (const gchar         *service_type,
 							       const gchar         *path);
-gchar *              tracker_data_query_content               (TrackerService      *service,
+gchar *              tracker_data_query_content               (TrackerClass      *service,
 							       guint32              service_id);
 
 G_END_DECLS

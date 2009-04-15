@@ -24,22 +24,22 @@
 
 #include <glib.h>
 
-#include <libtracker-common/tracker-service.h>
+#include <libtracker-common/tracker-class.h>
 #include <libtracker-common/tracker-field.h>
 #include <libtracker-common/tracker-ontology.h>
 
 #include <tracker-test-helpers.h>
 
 typedef struct {
-	TrackerService *service;
-	TrackerService *parent_service;
+	TrackerClass *service;
+	TrackerClass *parent_service;
 } ExpectedResults;
 
 static ExpectedResults *expected_results = NULL;
 
 static gboolean
-test_cmp_service_equals (TrackerService *one,
-			 TrackerService *two)
+test_cmp_service_equals (TrackerClass *one,
+			 TrackerClass *two)
 {
 	if (one && !two) {
 		return FALSE;
@@ -54,13 +54,13 @@ test_cmp_service_equals (TrackerService *one,
 	}
 
 	return 
-		tracker_service_get_id (one) == tracker_service_get_id (two) &&
-		tracker_test_helpers_cmpstr_equal (tracker_service_get_name (one),
-						   tracker_service_get_name (two)) &&
-		tracker_test_helpers_cmpstr_equal (tracker_service_get_parent (one),
-						   tracker_service_get_parent (two)) &&
-		tracker_service_get_db_type (one) == tracker_service_get_db_type (two) &&
-		tracker_service_get_embedded (one) == tracker_service_get_embedded (two);
+		tracker_class_get_id (one) == tracker_class_get_id (two) &&
+		tracker_test_helpers_cmpstr_equal (tracker_class_get_name (one),
+						   tracker_class_get_name (two)) &&
+		tracker_test_helpers_cmpstr_equal (tracker_class_get_parent (one),
+						   tracker_class_get_parent (two)) &&
+		tracker_class_get_db_type (one) == tracker_class_get_db_type (two) &&
+		tracker_class_get_embedded (one) == tracker_class_get_embedded (two);
 }
 
 static gboolean
@@ -104,14 +104,14 @@ create_field_definition (const gchar *id,
 	return field;
 }
 
-static TrackerService *
+static TrackerClass *
 create_service_definition (gint		id,
 			   const gchar *name,
 			   const gchar *parent,
 			   const gchar *prefix,
 			   gboolean	embedded)
 {
-	TrackerService *service;
+	TrackerClass *service;
 
 	/* array_to_list use prepend, so use reverse order here  */
 	gchar *key_metadata [] = {
@@ -120,18 +120,18 @@ create_service_definition (gint		id,
 		NULL
 	};
 
-	service = tracker_service_new ();
-	tracker_service_set_id (service, id);
-	tracker_service_set_name (service, name);
-	tracker_service_set_parent (service, parent);
-	tracker_service_set_property_prefix (service, prefix);
-	tracker_service_set_db_type (service, TRACKER_DB_TYPE_CONTENT);
-	tracker_service_set_enabled (service, FALSE);
-	tracker_service_set_embedded (service, embedded);
-	tracker_service_set_has_thumbs (service, TRUE);
-	tracker_service_set_has_full_text (service, TRUE);
-	tracker_service_set_has_metadata (service, FALSE);
-	tracker_service_set_key_metadata (service, array_to_list (key_metadata));
+	service = tracker_class_new ();
+	tracker_class_set_id (service, id);
+	tracker_class_set_name (service, name);
+	tracker_class_set_parent (service, parent);
+	tracker_class_set_property_prefix (service, prefix);
+	tracker_class_set_db_type (service, TRACKER_DB_TYPE_CONTENT);
+	tracker_class_set_enabled (service, FALSE);
+	tracker_class_set_embedded (service, embedded);
+	tracker_class_set_has_thumbs (service, TRUE);
+	tracker_class_set_has_full_text (service, TRUE);
+	tracker_class_set_has_metadata (service, FALSE);
+	tracker_class_set_key_metadata (service, array_to_list (key_metadata));
 
 	return service;
 }
@@ -139,8 +139,8 @@ create_service_definition (gint		id,
 static void
 tracker_services_general_setup (void)
 {
-	TrackerService *service, *parent_service, *other_service;
-	TrackerService *conv_service, *gaim_service, *gossip_service, *new_gaim_service;
+	TrackerClass *service, *parent_service, *other_service;
+	TrackerClass *conv_service, *gaim_service, *gossip_service, *new_gaim_service;
 	TrackerField *field_title;
 	GSList *mimes, *mime_prefixes;
 	gchar *m[] = {"application/rtf", "text/joke", "test/1", NULL};
@@ -266,7 +266,7 @@ test_get_service_type_for_mime (void)
 static void
 test_get_service (void)
 {
-	TrackerService *service;
+	TrackerClass *service;
 
 	service = tracker_ontology_get_service_by_name ("Test service");
 	g_assert (test_cmp_service_equals (service, expected_results->service));

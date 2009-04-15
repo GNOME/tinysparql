@@ -40,10 +40,10 @@ typedef struct {
 
 static gboolean    initialized;
 
-/* Hash (gint service_type_id, TrackerService *service) */
+/* Hash (gint service_type_id, TrackerClass *service) */
 static GHashTable *service_ids;
 
-/* Hash (gchar *service_name, TrackerService *service) */
+/* Hash (gchar *service_name, TrackerClass *service) */
 static GHashTable *service_names;
 
 /* Hash (gchar *mime, gint service_type_id) */
@@ -206,7 +206,7 @@ tracker_ontology_shutdown (void)
 }
 
 void
-tracker_ontology_service_add (TrackerService *service,
+tracker_ontology_service_add (TrackerClass *service,
 			      GSList	     *mimes,
 			      GSList	     *mime_prefixes)
 {
@@ -216,10 +216,10 @@ tracker_ontology_service_add (TrackerService *service,
 	gint		     id;
 	const gchar	    *name;
 
-	g_return_if_fail (TRACKER_IS_SERVICE (service));
+	g_return_if_fail (TRACKER_IS_CLASS (service));
 
-	id = tracker_service_get_id (service);
-	name = tracker_service_get_name (service);
+	id = tracker_class_get_id (service);
+	name = tracker_class_get_name (service);
 
 	g_hash_table_insert (service_names,
 			     g_strdup (name),
@@ -244,7 +244,7 @@ tracker_ontology_service_add (TrackerService *service,
 	}
 }
 
-TrackerService *
+TrackerClass *
 tracker_ontology_get_service_by_name (const gchar *service_str)
 {
 	g_return_val_if_fail (service_str != NULL, NULL);
@@ -255,7 +255,7 @@ tracker_ontology_get_service_by_name (const gchar *service_str)
 G_CONST_RETURN gchar *
 tracker_ontology_get_service_by_id (gint id)
 {
-	TrackerService *service;
+	TrackerClass *service;
 
 	service = ontology_hash_lookup_by_id (service_ids, id);
 
@@ -263,7 +263,7 @@ tracker_ontology_get_service_by_id (gint id)
 		return NULL;
 	}
 
-	return tracker_service_get_name (service);
+	return tracker_class_get_name (service);
 }
 
 G_CONST_RETURN gchar *
@@ -298,7 +298,7 @@ tracker_ontology_get_service_by_mime (const gchar *mime)
 gint
 tracker_ontology_get_service_id_by_name (const char *service_str)
 {
-	TrackerService *service;
+	TrackerClass *service;
 
 	g_return_val_if_fail (service_str != NULL, -1);
 
@@ -308,13 +308,13 @@ tracker_ontology_get_service_id_by_name (const char *service_str)
 		return -1;
 	}
 
-	return tracker_service_get_id (service);
+	return tracker_class_get_id (service);
 }
 
 gchar *
 tracker_ontology_get_service_parent (const gchar *service_str)
 {
-	TrackerService *service;
+	TrackerClass *service;
 	const gchar    *parent = NULL;
 
 	g_return_val_if_fail (service_str != NULL, NULL);
@@ -322,7 +322,7 @@ tracker_ontology_get_service_parent (const gchar *service_str)
 	service = g_hash_table_lookup (service_names, service_str);
 
 	if (service) {
-		parent = tracker_service_get_parent (service);
+		parent = tracker_class_get_parent (service);
 	}
 
 	return g_strdup (parent);
@@ -331,7 +331,7 @@ tracker_ontology_get_service_parent (const gchar *service_str)
 gchar *
 tracker_ontology_get_service_parent_by_id (gint id)
 {
-	TrackerService *service;
+	TrackerClass *service;
 
 	service = ontology_hash_lookup_by_id (service_ids, id);
 
@@ -339,19 +339,19 @@ tracker_ontology_get_service_parent_by_id (gint id)
 		return NULL;
 	}
 
-	return g_strdup (tracker_service_get_parent (service));
+	return g_strdup (tracker_class_get_parent (service));
 }
 
 gint
 tracker_ontology_get_service_parent_id_by_id (gint id)
 {
-	TrackerService *service;
+	TrackerClass *service;
 	const gchar    *parent = NULL;
 
 	service = ontology_hash_lookup_by_id (service_ids, id);
 
 	if (service) {
-		parent = tracker_service_get_parent (service);
+		parent = tracker_class_get_parent (service);
 	}
 
 	if (!parent) {
@@ -364,7 +364,7 @@ tracker_ontology_get_service_parent_id_by_id (gint id)
 		return -1;
 	}
 
-	return tracker_service_get_id (service);
+	return tracker_class_get_id (service);
 }
 
 TrackerDBType
@@ -394,7 +394,7 @@ tracker_ontology_get_service_db_by_name (const gchar *service_str)
 GSList *
 tracker_ontology_get_service_names_registered (void)
 {
-	TrackerService *service;
+	TrackerClass *service;
 	GList	       *services, *l;
 	GSList	       *names = NULL;
 
@@ -402,7 +402,7 @@ tracker_ontology_get_service_names_registered (void)
 
 	for (l = services; l; l = l->next) {
 		service = l->data;
-		names = g_slist_prepend (names, g_strdup (tracker_service_get_name (service)));
+		names = g_slist_prepend (names, g_strdup (tracker_class_get_name (service)));
 	}
 
 	return names;
@@ -420,8 +420,8 @@ tracker_ontology_get_field_names_registered (const gchar *service_str)
 	parent_prefix = NULL;
 
 	if (service_str) {
-		TrackerService *service;
-		TrackerService *parent;
+		TrackerClass *service;
+		TrackerClass *parent;
 		const gchar    *parent_name;
 
 		service = tracker_ontology_get_service_by_name (service_str);
@@ -430,7 +430,7 @@ tracker_ontology_get_field_names_registered (const gchar *service_str)
 		}
 
 		/* Prefix for properties of the category */
-		prefix = tracker_service_get_property_prefix (service);
+		prefix = tracker_class_get_property_prefix (service);
 
 		if (!prefix || g_strcmp0 (prefix, " ") == 0) {
 			prefix = service_str;
@@ -443,7 +443,7 @@ tracker_ontology_get_field_names_registered (const gchar *service_str)
 			parent = tracker_ontology_get_service_by_name (parent_name);
 
 			if (parent) {
-				parent_prefix = tracker_service_get_property_prefix (parent);
+				parent_prefix = tracker_class_get_property_prefix (parent);
 
 				if (!parent_prefix || g_strcmp0 (parent_prefix, " ") == 0) {
 					parent_prefix = parent_name;
@@ -479,16 +479,16 @@ calculate_subcategories_foreach (gpointer key,
 				 gpointer value,
 				 gpointer user_data) 
 {
-	TrackerService                *service;
+	TrackerClass                *service;
 	CalculateSubcategoriesForEach *data;
 
 	service = value;
 	data = user_data;
 
-	if (!g_strcmp0 (tracker_service_get_name (service), data->name) ||
-	    !g_strcmp0 (tracker_service_get_parent (service), data->name) ||
+	if (!g_strcmp0 (tracker_class_get_name (service), data->name) ||
+	    !g_strcmp0 (tracker_class_get_parent (service), data->name) ||
 	    !g_strcmp0 ("*", data->name)) {
-		gint id = tracker_service_get_id (service);
+		gint id = tracker_class_get_id (service);
 		g_array_append_val (data->subcategories, id);
 	}
 }
@@ -529,7 +529,7 @@ tracker_ontology_service_is_valid (const gchar *service_str)
 gboolean
 tracker_ontology_service_has_embedded (const gchar *service_str)
 {
-	TrackerService *service;
+	TrackerClass *service;
 
 	g_return_val_if_fail (service_str != NULL, FALSE);
 
@@ -539,13 +539,13 @@ tracker_ontology_service_has_embedded (const gchar *service_str)
 		return FALSE;
 	}
 
-	return tracker_service_get_embedded (service);
+	return tracker_class_get_embedded (service);
 }
 
 gboolean
 tracker_ontology_service_has_metadata (const gchar *service_str)
 {
-	TrackerService *service;
+	TrackerClass *service;
 
 	g_return_val_if_fail (service_str != NULL, FALSE);
 
@@ -555,13 +555,13 @@ tracker_ontology_service_has_metadata (const gchar *service_str)
 		return FALSE;
 	}
 
-	return tracker_service_get_has_metadata (service);
+	return tracker_class_get_has_metadata (service);
 }
 
 gboolean
 tracker_ontology_service_has_thumbnails (const gchar *service_str)
 {
-	TrackerService *service;
+	TrackerClass *service;
 
 	g_return_val_if_fail (service_str != NULL, FALSE);
 
@@ -571,13 +571,13 @@ tracker_ontology_service_has_thumbnails (const gchar *service_str)
 		return FALSE;
 	}
 
-	return tracker_service_get_has_thumbs (service);
+	return tracker_class_get_has_thumbs (service);
 }
 
 gboolean
 tracker_ontology_service_has_text (const char *service_str)
 {
-	TrackerService *service;
+	TrackerClass *service;
 
 	g_return_val_if_fail (service_str != NULL, FALSE);
 
@@ -587,14 +587,14 @@ tracker_ontology_service_has_text (const char *service_str)
 		return FALSE;
 	}
 
-	return tracker_service_get_has_full_text (service);
+	return tracker_class_get_has_full_text (service);
 }
 
 gint
 tracker_ontology_service_get_key_metadata (const gchar *service_str,
 					   const gchar *meta_name)
 {
-	TrackerService *service;
+	TrackerClass *service;
 	gint		i;
 	const GSList   *l;
 
@@ -607,7 +607,7 @@ tracker_ontology_service_get_key_metadata (const gchar *service_str,
 		return 0;
 	}
 
-	for (l = tracker_service_get_key_metadata (service), i = 1;
+	for (l = tracker_class_get_key_metadata (service), i = 1;
 	     l;
 	     l = l->next, i++) {
 		if (!l->data) {
@@ -639,7 +639,7 @@ tracker_ontology_service_get_key_collate (const gchar *service_str,
 gboolean
 tracker_ontology_service_get_show_directories (const gchar *service_str)
 {
-	TrackerService *service;
+	TrackerClass *service;
 
 	service = g_hash_table_lookup (service_names, service_str);
 
@@ -647,13 +647,13 @@ tracker_ontology_service_get_show_directories (const gchar *service_str)
 		return FALSE;
 	}
 
-	return tracker_service_get_show_service_directories (service);
+	return tracker_class_get_show_service_directories (service);
 }
 
 gboolean
 tracker_ontology_service_get_show_files (const gchar *service_str)
 {
-	TrackerService *service;
+	TrackerClass *service;
 
 	service = g_hash_table_lookup (service_names, service_str);
 
@@ -661,7 +661,7 @@ tracker_ontology_service_get_show_files (const gchar *service_str)
 		return FALSE;
 	}
 
-	return tracker_service_get_show_service_files (service);
+	return tracker_class_get_show_service_files (service);
 }
 
 /* Field mechanics */
