@@ -73,6 +73,45 @@ typedef struct {
         GPid pid;
 } ExtractorContext;
 
+static GPid extractor_pid = 0;
+
+
+static DBusGProxy * get_dbus_extract_proxy (void);
+
+static GPid
+get_extractor_pid (void)
+{
+	GError *error;
+	GPid pid;
+
+	/* Get new PID from extractor */
+	if (!org_freedesktop_Tracker_Extract_get_pid (get_dbus_extract_proxy (),
+						      &pid,
+						      &error)) {
+		g_critical ("Couldn't get PID from tracker-extract, %s",
+			    error ? error->message : "no error given");
+		g_clear_error (&error);
+		pid = 0;
+	}
+
+	g_message ("New extractor PID is %d", (guint) pid);
+
+	return pid;
+}
+
+static void
+extractor_changed_availability_cb (const gchar *name,
+				   gboolean     available,
+				   gpointer     user_data)
+{
+	if (!available) {
+		/* invalidate PID */
+		extractor_pid = 0;
+	} else {
+		extractor_pid = get_extractor_pid ();
+	}
+}
+
 static DBusGProxy *
 get_dbus_extract_proxy (void)
 {
@@ -104,6 +143,9 @@ get_dbus_extract_proxy (void)
                 g_critical ("Could not create a DBusGProxy to the extract service");
         }
 
+	tracker_dbus_add_name_monitor ("org.freedesktop.Tracker.Extract",
+				       extractor_changed_availability_cb,
+				       NULL, NULL);
         return proxy;
 }
 
@@ -221,23 +263,16 @@ static ExtractorContext *
 extractor_context_create (TrackerModuleMetadata *metadata)
 {
         ExtractorContext *context;
-        GError *error = NULL;
-        pid_t pid;
 
-        /* Call extractor to get PID so we can kill it if anything goes wrong. */
-        if (!org_freedesktop_Tracker_Extract_get_pid (get_dbus_extract_proxy (),
-                                                      &pid,
-                                                      &error)) {
-                g_critical ("Couldn't get PID from tracker-extract, %s",
-			    error ? error->message : "no error given");
-                g_clear_error (&error);
-                return NULL;
-        }
+	if (G_UNLIKELY (extractor_pid == 0)) {
+		/* Ensure we have a PID to kill if anything goes wrong */
+		extractor_pid = get_extractor_pid ();
+	}
 
         context = g_slice_new0 (ExtractorContext);
         context->main_loop = g_main_loop_new (NULL, FALSE);
         context->metadata = g_object_ref (metadata);
-        context->pid = pid;
+        context->pid = extractor_pid;
 
         return context;
 }
