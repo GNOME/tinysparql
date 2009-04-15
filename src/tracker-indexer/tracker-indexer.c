@@ -127,7 +127,6 @@ struct TrackerIndexerPrivate {
 	TrackerDBInterface *email_metadata;
 	TrackerDBInterface *email_contents;
 	TrackerDBInterface *common;
-	TrackerDBInterface *cache;
 
 	TrackerConfig *config;
 	TrackerLanguage *language;
@@ -277,7 +276,6 @@ start_transaction (TrackerIndexer *indexer)
 
 	indexer->private->in_transaction = TRUE;
 
-	tracker_db_interface_start_transaction (indexer->private->cache);
 	tracker_db_interface_start_transaction (indexer->private->file_contents);
 	tracker_db_interface_start_transaction (indexer->private->email_contents);
 	tracker_db_interface_start_transaction (indexer->private->file_metadata);
@@ -297,7 +295,6 @@ stop_transaction (TrackerIndexer *indexer)
 	tracker_db_interface_end_transaction (indexer->private->file_metadata);
 	tracker_db_interface_end_transaction (indexer->private->email_contents);
 	tracker_db_interface_end_transaction (indexer->private->file_contents);
-	tracker_db_interface_end_transaction (indexer->private->cache);
 
 	indexer->private->in_transaction = FALSE;
 
@@ -1082,7 +1079,6 @@ tracker_indexer_init (TrackerIndexer *indexer)
 	 * interfaces as singletons, it's safe to just ask it
 	 * again for an interface.
 	 */
-	priv->cache = tracker_db_manager_get_db_interface (TRACKER_DB_CACHE);
 	priv->common = tracker_db_manager_get_db_interface (TRACKER_DB_COMMON);
 	priv->file_metadata = tracker_db_manager_get_db_interface (TRACKER_DB_FILE_METADATA);
 	priv->file_contents = tracker_db_manager_get_db_interface (TRACKER_DB_FILE_CONTENTS);

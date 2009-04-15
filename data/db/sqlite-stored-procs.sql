@@ -90,32 +90,6 @@ InsertServiceType              REPLACE INTO ServiceTypes (TypeName) VALUES (?);
 GetMimeForServiceId            SELECT Mime FROM FileMimes WHERE ServiceTypeId = ?;
 GetMimePrefixForServiceId      SELECT MimePrefix FROM FileMimePrefixes WHERE ServiceTypeId = ?;
 
-/* 
- * Pending files queries - currently unused 
- */
-ExistsPendingFiles             SELECT count (*) FROM FilePending WHERE Action <> 20;
-InsertPendingFile              INSERT INTO FilePending (FileID, Action, PendingDate, FileUri, MimeType, IsDir, IsNew, RefreshEmbedded, RefreshContents, ServiceTypeID) VALUES (?,?,?,?,?,?,?,?,?,?);
-CountPendingMetadataFiles      SELECT count (*) FROM FilePending WHERE Action = 20;
-SelectPendingByUri             SELECT FileID, FileUri, Action, MimeType, IsDir, IsNew, RefreshEmbedded, RefreshContents, ServiceTypeID FROM FilePending WHERE FileUri = ?;
-UpdatePendingFile              UPDATE FilePending SET PendingDate = ?, Action = ? WHERE FileUri = ?;
-DeletePendingFile              DELETE FROM FilePending WHERE FileUri = ?;
-
-/* 
- * Watch queries - currently unused
- */
-GetWatchUri                    SELECT URI FROM FileWatches WHERE WatchID = ?;
-GetWatchID                     SELECT WatchID FROM FileWatches WHERE URI = ?;
-GetSubWatches                  SELECT WatchID FROM FileWatches WHERE URI glob ?;
-DeleteWatch                    DELETE FROM FileWatches WHERE URI = ?;
-DeleteSubWatches               DELETE FROM FileWatches WHERE URI glob ?;
-InsertWatch                    INSERT INTO FileWatches (URI, WatchID) VALUES (?,?);
-
-/*
- * Search result queries
- */
-InsertSearchResult1            INSERT INTO SearchResults1 (SID, Score) VALUES (?,?);
-DeleteSearchResults1           DELETE FROM SearchResults1;
-
 /*
  * Statistics queries
  */

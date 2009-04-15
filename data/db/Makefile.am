@@ -3,7 +3,6 @@ include $(top_srcdir)/Makefile.decl
 configdir = $(datadir)/tracker
 
 config_DATA =				\
-	sqlite-cache.sql 		\
 	sqlite-contents.sql		\
 	sqlite-email.sql		\
 	sqlite-metadata.sql 		\

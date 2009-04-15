@@ -110,18 +110,6 @@ static TrackerDBDefinition dbs[] = {
 	  FALSE,
 	  FALSE,
  	  0 },
-	{ TRACKER_DB_CACHE,
-	  TRACKER_DB_LOCATION_SYS_TMP_DIR,
-	  NULL,
-	  "cache.db",
-	  "cache",
-	  NULL,
-	  128,
-	  TRACKER_DB_PAGE_SIZE_DONT_SET,
-	  FALSE,
-	  FALSE,
-	  FALSE,
- 	  0 },
 	{ TRACKER_DB_FILE_METADATA,
 	  TRACKER_DB_LOCATION_DATA_DIR,
 	  NULL,
@@ -1599,23 +1587,6 @@ db_interface_get_common (void)
 }
 
 static TrackerDBInterface *
-db_interface_get_cache (void)
-{
-	TrackerDBInterface *iface;
-	gboolean	    create;
-
-	iface = db_interface_get (TRACKER_DB_CACHE, &create);
-
-	if (create) {
-		tracker_db_interface_start_transaction (iface);
-		load_sql_file (iface, "sqlite-cache.sql", NULL);
-		tracker_db_interface_end_transaction (iface);
-	}
-
-	return iface;
-}
-
-static TrackerDBInterface *
 db_interface_get_file_metadata (void)
 {
 	TrackerDBInterface *iface;
@@ -1751,9 +1722,6 @@ db_interface_create (TrackerDB db)
 	case TRACKER_DB_COMMON:
 		return db_interface_get_common ();
 
-	case TRACKER_DB_CACHE:
-		return db_interface_get_cache ();
-
 	case TRACKER_DB_FILE_METADATA:
 		return db_interface_get_file_metadata ();
 		
@@ -1888,9 +1856,6 @@ tracker_db_get_type (void)
 			{ TRACKER_DB_COMMON,
 			  "TRACKER_DB_COMMON",
 			  "common" },
-			{ TRACKER_DB_CACHE,
-			  "TRACKER_DB_CACHE",
-			  "cache" },
 			{ TRACKER_DB_FILE_METADATA,
 			  "TRACKER_DB_FILE_METADATA",
 			  "file metadata" },
@@ -2042,14 +2007,6 @@ tracker_db_manager_init (TrackerDBManagerFlags	flags,
 			dbs[i].cache_size /= 2;
 		}
 
-		/* Check we have each database in place, if one is
-		 * missing, we reindex, except the cache which we
-		 * expect to be replaced on each startup.
-		 */
-		if (i == TRACKER_DB_CACHE) {
-			continue;
-		}
-
 		/* No need to check for other files not existing (for
 		 * reindex) if one is already missing.
 		 */
@@ -2127,16 +2084,6 @@ tracker_db_manager_init (TrackerDBManagerFlags	flags,
 			dbs[i].iface = NULL;
 		}
 	} else {
-		/* Make sure we remove and recreate the cache directory in tmp
-		 * each time we start up, this is meant to be a per-run
-		 * thing.
-		 */
-		if (flags & TRACKER_DB_MANAGER_REMOVE_CACHE) {
-			g_message ("Removing cache database:'%s'",
-				   dbs[TRACKER_DB_CACHE].abs_filename);
-			g_unlink (dbs[TRACKER_DB_CACHE].abs_filename);
-		}
-
 		/* Make sure we initialize all other modules we depend on */
 		tracker_ontology_init ();
 	}
@@ -2389,11 +2336,10 @@ tracker_db_manager_get_db_interface_by_service (const gchar *service)
 	switch (type) {
 	case TRACKER_DB_TYPE_EMAIL:
 		if (!email_iface) {
-			email_iface = tracker_db_manager_get_db_interfaces (4,
+			email_iface = tracker_db_manager_get_db_interfaces (3,
 									    TRACKER_DB_COMMON,
 									    TRACKER_DB_EMAIL_CONTENTS,
-									    TRACKER_DB_EMAIL_METADATA,
-									    TRACKER_DB_CACHE);
+									    TRACKER_DB_EMAIL_METADATA);
 		}
 
 		iface = email_iface;
@@ -2404,7 +2350,6 @@ tracker_db_manager_get_db_interface_by_service (const gchar *service)
 	case TRACKER_DB_TYPE_INDEX:
 	case TRACKER_DB_TYPE_COMMON:
 	case TRACKER_DB_TYPE_CONTENT:
-	case TRACKER_DB_TYPE_CACHE:
 	case TRACKER_DB_TYPE_USER:
 		g_warning ("Defaulting to Files DB. Strange DB Type for service '%s'", 
 			   service);
@@ -2412,11 +2357,10 @@ tracker_db_manager_get_db_interface_by_service (const gchar *service)
 	case TRACKER_DB_TYPE_FILES:
 	default:
 		if (!file_iface) {
-			file_iface = tracker_db_manager_get_db_interfaces (4,
+			file_iface = tracker_db_manager_get_db_interfaces (3,
 									   TRACKER_DB_COMMON,
 									   TRACKER_DB_FILE_CONTENTS,
-									   TRACKER_DB_FILE_METADATA,
-									   TRACKER_DB_CACHE);
+									   TRACKER_DB_FILE_METADATA);
 		}
 
 		iface = file_iface;
@@ -2460,7 +2404,6 @@ tracker_db_manager_get_db_interface_by_type (const gchar	  *service,
 	case TRACKER_DB_TYPE_INDEX:
 	case TRACKER_DB_TYPE_COMMON:
 	case TRACKER_DB_TYPE_CONTENT:
-	case TRACKER_DB_TYPE_CACHE:
 	case TRACKER_DB_TYPE_USER:
 	default:
 		g_warning ("Database type not supported");
