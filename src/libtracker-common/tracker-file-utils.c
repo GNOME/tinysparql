@@ -100,19 +100,6 @@ tracker_file_close (FILE     *file,
 	fclose (file);
 }
 
-gboolean
-tracker_file_unlink (const gchar *uri)
-{
-	gchar	 *str;
-	gboolean  result;
-
-	str = g_filename_from_utf8 (uri, -1, NULL, NULL, NULL);
-	result = g_unlink (str) == 0;
-	g_free (str);
-
-	return result;
-}
-
 goffset
 tracker_file_get_size (const gchar *uri)
 {

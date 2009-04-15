@@ -150,7 +150,7 @@ tracker_log_init (const gchar *filename,
 	}
 
 	/* Remove previous log */
-	tracker_file_unlink (filename);
+	g_unlink (filename);
 
 	/* Open file */
 	fd = g_fopen (filename, "a");

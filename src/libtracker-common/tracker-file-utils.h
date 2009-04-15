@@ -34,7 +34,6 @@ FILE*    tracker_file_open                         (const gchar  *uri,
 						    gboolean      sequential);
 void     tracker_file_close                        (FILE         *file,
 						    gboolean      need_again_soon);
-gboolean tracker_file_unlink                       (const gchar  *uri);
 goffset  tracker_file_get_size                     (const gchar  *uri);
 guint64  tracker_file_get_mtime                    (const gchar  *uri);
 gchar *  tracker_file_get_mime_type                (const gchar  *uri);

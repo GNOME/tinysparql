@@ -115,7 +115,6 @@ tracker_file_is_directory
 tracker_file_is_indexable
 tracker_file_is_valid
 tracker_file_open
-tracker_file_unlink
 tracker_path_evaluate_name
 tracker_path_hash_table_filter_duplicates
 tracker_path_is_in_path
