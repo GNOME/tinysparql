@@ -134,20 +134,6 @@ void            tracker_indexer_volume_update_state (TrackerIndexer         *ind
 						     gboolean                enabled,
 						     DBusGMethodInvocation  *context,
 						     GError                **error);
-void            tracker_indexer_property_set        (TrackerIndexer         *indexer,
-						     const gchar            *service_type,
-						     const gchar            *uri,
-						     const gchar            *property,
-						     GStrv                   values,
-						     DBusGMethodInvocation  *context,
-						     GError                **error);
-void            tracker_indexer_property_remove     (TrackerIndexer         *indexer,
-						     const gchar            *service_type,
-						     const gchar            *uri,
-						     const gchar            *property,
-						     GStrv                   values,
-						     DBusGMethodInvocation  *context,
-						     GError                **error);
 void            tracker_indexer_restore_backup      (TrackerIndexer         *indexer,
 						     const gchar            *backup_file,
 						     DBusGMethodInvocation  *context,
