@@ -45,13 +45,16 @@
 
 #define TRACKER_TYPE_G_STRV_ARRAY  (dbus_g_type_get_collection ("GPtrArray", G_TYPE_STRV))
 
+/* Seconds */
+#define STATS_CACHE_LIFETIME 60
+
 typedef struct {
 	TrackerConfig	 *config;
 	TrackerProcessor *processor;
 	DBusGProxy	 *indexer_proxy;
 
-	GTimeVal          last_stats_time;
-	GHashTable       *last_stats;
+	GHashTable       *stats_cache;
+	guint             stats_cache_timeout_id;
 } TrackerDaemonPrivate;
 
 enum {
@@ -63,7 +66,9 @@ enum {
 	LAST_SIGNAL
 };
 
-static void tracker_daemon_finalize (GObject *object);
+static void     tracker_daemon_finalize (GObject       *object);
+static gboolean stats_cache_timeout     (gpointer       user_data);
+static void     stats_cache_update      (TrackerDaemon *object);
 
 static guint signals[LAST_SIGNAL] = {0};
 
@@ -142,13 +147,46 @@ tracker_daemon_class_init (TrackerDaemonClass *klass)
 }
 
 static void
+indexer_started_cb (DBusGProxy *proxy,
+		    gpointer    user_data)
+{
+	TrackerDaemonPrivate *priv;
+
+	priv = TRACKER_DAEMON_GET_PRIVATE (user_data);
+
+	/* Make sure we have the cache timeout set up */
+	if (priv->stats_cache_timeout_id != 0) {
+		return;
+	}
+
+	g_message ("Starting statistics cache timeout");
+	priv->stats_cache_timeout_id = 
+		g_timeout_add_seconds (STATS_CACHE_LIFETIME,
+				       stats_cache_timeout,
+				       user_data);
+}
+
+static void
 indexer_finished_cb (DBusGProxy *proxy,
 		     gdouble	 seconds_elapsed,
+		     guint	 items_processed,
 		     guint	 items_done,
 		     gboolean	 interrupted,
 		     gpointer	 user_data)
 {
+	TrackerDaemonPrivate *priv;
+
 	tracker_daemon_signal_statistics ();
+
+	priv = TRACKER_DAEMON_GET_PRIVATE (user_data);
+
+	if (priv->stats_cache_timeout_id == 0) {
+		return;
+	}
+
+	g_message ("Stopping statistics cache timeout");
+	g_source_remove (priv->stats_cache_timeout_id);
+	priv->stats_cache_timeout_id = 0;
 }
 
 static void
@@ -166,13 +204,21 @@ tracker_daemon_init (TrackerDaemon *object)
 {
 	TrackerDaemonPrivate *priv;
 	TrackerDBInterface   *iface;
+	TrackerDBResultSet   *result_set;
 	DBusGProxy           *proxy;
+	GHashTable           *values;
+	GHashTableIter        iter;
+	gpointer              key, value;
 
 	priv = TRACKER_DAEMON_GET_PRIVATE (object);
 
 	proxy = tracker_dbus_indexer_get_proxy ();
 	priv->indexer_proxy = g_object_ref (proxy);
 
+	dbus_g_proxy_connect_signal (proxy, "Started",
+				     G_CALLBACK (indexer_started_cb),
+				     object,
+				     NULL);
 	dbus_g_proxy_connect_signal (proxy, "Finished",
 				     G_CALLBACK (indexer_finished_cb),
 				     object,
@@ -182,12 +228,39 @@ tracker_daemon_init (TrackerDaemon *object)
 				     object,
 				     NULL);
 
-	iface = tracker_db_manager_get_db_interface_by_service (TRACKER_DB_FOR_FILE_SERVICE);
+	iface = tracker_db_manager_get_db_interface (TRACKER_DB_COMMON);
 
-	priv->last_stats = g_hash_table_new_full (g_str_hash,
-						  g_str_equal,
-						  g_free, 
-						  NULL);
+	/* Prepare cache */
+	priv->stats_cache = g_hash_table_new_full (g_str_hash,
+						   g_str_equal,
+						   g_free, 
+						   NULL);
+
+	result_set = tracker_data_manager_exec_proc (iface, "GetServices", 0);
+	values = tracker_dbus_query_result_to_hash_table (result_set);
+
+	if (result_set) {
+		g_object_unref (result_set);
+	}
+
+	g_hash_table_iter_init (&iter, values);
+
+	while (g_hash_table_iter_next (&iter, &key, &value)) {
+		g_hash_table_replace (priv->stats_cache, 
+				      g_strdup (key), 
+				      GINT_TO_POINTER (0));
+	}
+
+	g_hash_table_destroy (values);
+
+	/* First time update */
+	stats_cache_update (object);
+
+	/* Future updates */
+	priv->stats_cache_timeout_id = 
+		g_timeout_add_seconds (STATS_CACHE_LIFETIME,
+				       stats_cache_timeout,
+				       object);
 }
 
 static void
@@ -199,12 +272,22 @@ tracker_daemon_finalize (GObject *object)
 	daemon = TRACKER_DAEMON (object);
 	priv = TRACKER_DAEMON_GET_PRIVATE (daemon);
 
+	if (priv->stats_cache_timeout_id != 0) {
+		g_source_remove (priv->stats_cache_timeout_id);
+	}
+
+	dbus_g_proxy_disconnect_signal (priv->indexer_proxy, "Started",
+					G_CALLBACK (indexer_started_cb),
+					daemon);
 	dbus_g_proxy_disconnect_signal (priv->indexer_proxy, "Finished",
 					G_CALLBACK (indexer_finished_cb),
-					NULL);
+					daemon);
+	dbus_g_proxy_disconnect_signal (priv->indexer_proxy, "IndexingError",
+					G_CALLBACK (indexing_error_cb),
+					daemon);
 
-	if (priv->last_stats) {
-		g_hash_table_unref (priv->last_stats);
+	if (priv->stats_cache) {
+		g_hash_table_unref (priv->stats_cache);
 	}
 
 	g_object_unref (priv->indexer_proxy);
@@ -271,18 +354,22 @@ tracker_daemon_get_status (TrackerDaemon	  *object,
 			   DBusGMethodInvocation  *context,
 			   GError		 **error)
 {
-	TrackerDaemonPrivate *priv;
-	gchar		     *status;
+	guint  request_id;
+	gchar *status;
 
-	priv = TRACKER_DAEMON_GET_PRIVATE (object);
+	request_id = tracker_dbus_get_next_request_id ();
 
-	g_debug ("DBus request to get daemon status");
+	tracker_dbus_request_block_hooks ();
+	tracker_dbus_request_new (request_id,
+				  "DBus request to get daemon status");
 
 	status = g_strdup (tracker_status_get_as_string ());
 
 	dbus_g_method_return (context, status);
-
 	g_free (status);
+
+	tracker_dbus_request_success (request_id);
+	tracker_dbus_request_unblock_hooks ();
 }
 
 void
@@ -303,15 +390,7 @@ tracker_daemon_get_services (TrackerDaemon	    *object,
 	tracker_dbus_request_new (request_id,
 				  "DBus request to get daemon services");
 
-	/* Here it doesn't matter which one we ask, as long as it has common.db
-	 * attached. The service ones are cached connections, so we can use
-	 * those instead of asking for an individual-file connection (like what
-	 * the original code had)
-	 */
-
-	/* iface = tracker_db_manager_get_db_interfaceX (TRACKER_DB_COMMON); */
-
-	iface = tracker_db_manager_get_db_interface_by_service (TRACKER_DB_FOR_FILE_SERVICE);
+	iface = tracker_db_manager_get_db_interface (TRACKER_DB_COMMON);
 
 	result_set = tracker_data_manager_exec_proc (iface, "GetServices", 0);
 	values = tracker_dbus_query_result_to_hash_table (result_set);
@@ -327,21 +406,116 @@ tracker_daemon_get_services (TrackerDaemon	    *object,
 	tracker_dbus_request_success (request_id);
 }
 
+
+static void
+stats_cache_update (TrackerDaemon *object)
+{
+	TrackerDaemonPrivate *priv;
+	TrackerDBResultSet   *result_set;
+	GPtrArray            *stats, *parent_stats;
+	GPtrArray            *values;
+	guint                 i;
+	const gchar          *services_to_fetch[3] = { 
+		TRACKER_DB_FOR_FILE_SERVICE, 
+		TRACKER_DB_FOR_EMAIL_SERVICE, 
+		NULL 
+	};
+
+	priv = TRACKER_DAEMON_GET_PRIVATE (object);
+
+	values = g_ptr_array_new ();
+
+	for (i = 0; services_to_fetch[i]; i++) {
+		TrackerDBInterface *iface;
+		gint                j;
+
+		iface = tracker_db_manager_get_db_interface_by_service (services_to_fetch[i]);
+
+		result_set = tracker_data_manager_exec_proc (iface, "GetStats", 0);
+		stats = tracker_dbus_query_result_to_ptr_array (result_set);
+
+		if (result_set) {
+			g_object_unref (result_set);
+		}
+
+		result_set = tracker_data_manager_exec_proc (iface, "GetStatsForParents", 0);
+		parent_stats = tracker_dbus_query_result_to_ptr_array (result_set);
+
+		if (result_set) {
+			g_object_unref (result_set);
+		}
+
+		/* Concatenate stats */
+		for (j = 0; j < stats->len; j++) {
+			g_ptr_array_add (values, g_ptr_array_index (stats, j));
+		}
+		
+		for (j = 0; j < parent_stats->len; j++) {
+			g_ptr_array_add (values, g_ptr_array_index (parent_stats, j));
+		}
+
+		g_ptr_array_free (parent_stats, TRUE);
+		g_ptr_array_free (stats, TRUE);
+	}
+
+	/* Update local cache */
+	for (i = 0; i < values->len; i++) {
+		gchar       **p;
+		const gchar  *service_type = NULL;
+		gint          new_count;
+
+		p = g_ptr_array_index (values, i);
+		service_type = p[0];
+		new_count = atoi (p[1]);
+
+		g_hash_table_replace (priv->stats_cache, 
+				      g_strdup (service_type), 
+				      GINT_TO_POINTER (new_count));
+	}
+
+	g_ptr_array_foreach (values, (GFunc) g_strfreev, NULL);
+	g_ptr_array_free (values, TRUE);
+}
+
+static gboolean 
+stats_cache_timeout (gpointer user_data)
+{
+	g_message ("Statistics cache has expired, updating...");
+
+	tracker_dbus_indexer_check_is_paused ();
+	stats_cache_update (user_data);
+
+	return TRUE;
+}
+
+static gint
+stats_cache_sort_func (gconstpointer a,
+		       gconstpointer b)
+{
+	
+	const GStrv *strv_a = (GStrv *) a;
+	const GStrv *strv_b = (GStrv *) b;
+
+	g_return_val_if_fail (strv_a != NULL, 0);
+	g_return_val_if_fail (strv_b != NULL, 0);
+
+	return g_strcmp0 (*strv_a[0], *strv_b[0]);
+}
+
 void
 tracker_daemon_get_stats (TrackerDaemon		 *object,
 			  DBusGMethodInvocation  *context,
 			  GError		**error)
 {
 	TrackerDaemonPrivate *priv;
-	TrackerDBInterface   *iface;
-	TrackerDBResultSet   *result_set;
 	guint		      request_id;
 	GPtrArray            *values;
-	GTimeVal	      now;
-	gboolean              use_cache;
+	GHashTableIter        iter;
+	gpointer              key, value;
 
 	request_id = tracker_dbus_get_next_request_id ();
 
+	tracker_dbus_request_block_hooks ();
 	tracker_dbus_request_new (request_id,
 				  "DBus request to get daemon service stats");
 
@@ -349,97 +523,25 @@ tracker_daemon_get_stats (TrackerDaemon		 *object,
 
 	values = g_ptr_array_new ();
 
-	/* Use the cache if we have requests stats recently. */
-	g_get_current_time (&now);
+	g_hash_table_iter_init (&iter, priv->stats_cache);
+	while (g_hash_table_iter_next (&iter, &key, &value)) {
+		GStrv         strv;
+		const gchar  *service_type;
+		gint          count;
 
-	if (priv->last_stats_time.tv_sec == 0) {
-		use_cache = FALSE;
-	} else {
-		use_cache = now.tv_sec - priv->last_stats_time.tv_sec < 60;
+		service_type = key;
+		count = GPOINTER_TO_INT (value);
+
+		strv = g_new (gchar*, 3);
+		strv[0] = g_strdup (service_type);
+		strv[1] = g_strdup_printf ("%d", count);
+		strv[2] = NULL;
+
+		g_ptr_array_add (values, strv);
 	}
 
-	if (use_cache) {
-		GHashTableIter iter;
-		gpointer key, value;
-
-		g_message ("Using cache for stats");
-		
-		g_hash_table_iter_init (&iter, priv->last_stats);
-		while (g_hash_table_iter_next (&iter, &key, &value)) {
-			GStrv         strv;
-			const gchar  *service_type;
-			gint          count;
-			
-			service_type = key;
-			count = GPOINTER_TO_INT (value);
-
-			strv = g_new (gchar*, 3);
-			strv[0] = g_strdup (service_type);
-			strv[1] = g_strdup_printf ("%d", count);
-			strv[2] = NULL;
-
-			g_ptr_array_add (values, strv);
-		}
-	} else {
-		GPtrArray *stats, *parent_stats;
-		gint i;
-
-		g_message ("Using database for stats (cache is %ld seconds old)",
-			   now.tv_sec - priv->last_stats_time.tv_sec);
-
-		/* Here it doesn't matter which one we ask, as long as
-		 * it has common.db attached. The service ones are
-		 * cached connections, so we can use those instead of
-		 * asking for an individual-file connection (like what
-		 * the original code had).
-		 */
-		iface = tracker_db_manager_get_db_interface_by_service (TRACKER_DB_FOR_FILE_SERVICE);
-		
-		result_set = tracker_data_manager_exec_proc (iface, "GetStats", 0);
-		stats = tracker_dbus_query_result_to_ptr_array (result_set);
-		
-		if (result_set) {
-			g_object_unref (result_set);
-		}
-		
-		result_set = tracker_data_manager_exec_proc (iface, "GetStatsForParents", 0);
-		parent_stats = tracker_dbus_query_result_to_ptr_array (result_set);
-		
-		if (result_set) {
-			g_object_unref (result_set);
-		}
-
-		/* Concatenate stats */
-		for (i = 0; i < stats->len; i++) {
-			g_ptr_array_add (values, g_ptr_array_index (stats, i));
-		}
-		
-		for (i = 0; i < parent_stats->len; i++) {
-			g_ptr_array_add (values, g_ptr_array_index (parent_stats, i));
-		}
-
-		/* Update local cache */
-		for (i = 0; i < values->len; i++) {
-			gchar       **p;
-			const gchar  *service_type = NULL;
-			gint          new_count;
-
-			p = g_ptr_array_index (values, i);
-			service_type = p[0];
-			new_count = atoi (p[1]);
-
-			g_hash_table_replace (priv->last_stats, 
-					      g_strdup (service_type), 
-					      GINT_TO_POINTER (new_count));
-		}
-
-		g_ptr_array_free (parent_stats, TRUE);
-		g_ptr_array_free (stats, TRUE);
-
-		priv->last_stats_time = now;
-
-		g_message ("Updated stats cache time to now");
-	}
+	/* Sort result so it is alphabetical */
+	g_ptr_array_sort (values, stats_cache_sort_func);
 
 	dbus_g_method_return (context, values);
 
@@ -447,6 +549,7 @@ tracker_daemon_get_stats (TrackerDaemon		 *object,
 	g_ptr_array_free (values, TRUE);
 
 	tracker_dbus_request_success (request_id);
+	tracker_dbus_request_unblock_hooks ();
 }
 
 void
@@ -672,51 +775,58 @@ tracker_daemon_signal_statistics (void)
 {
 	GObject		     *daemon;
 	TrackerDaemonPrivate *priv;
-	TrackerDBInterface   *iface;
 	TrackerDBResultSet   *result_set;
 	GPtrArray	     *stats, *parent_stats;
 	GPtrArray            *values;
-	GTimeVal              now;
 	gint                  i;
+	const gchar          *services_to_fetch[3] = {
+		TRACKER_DB_FOR_FILE_SERVICE, 
+		TRACKER_DB_FOR_EMAIL_SERVICE, 
+		NULL
+	};
 
 	daemon = tracker_dbus_get_object (TRACKER_TYPE_DAEMON);
 	priv = TRACKER_DAEMON_GET_PRIVATE (daemon);
 
-	iface = tracker_db_manager_get_db_interface_by_service (TRACKER_DB_FOR_FILE_SERVICE);
-
-	/* GetStats has asc in its query. Therefore we don't have to
-	 * lookup the in a to compare in b, just compare index based.
-	 * Maybe we want to change this nonetheless later?
-	 */
-	g_message ("Using database for stats for accurate signal");
-
-	result_set = tracker_data_manager_exec_proc (iface, "GetStats", 0);
-	stats = tracker_dbus_query_result_to_ptr_array (result_set);
-
-	if (result_set) {
-		g_object_unref (result_set);
-	}
-
-	result_set = tracker_data_manager_exec_proc (iface, "GetStatsForParents", 0);
-	parent_stats = tracker_dbus_query_result_to_ptr_array (result_set);
-
-	if (result_set) {
-		g_object_unref (result_set);
-	}
-	
-	/* Concatenate stats */
 	values = g_ptr_array_new ();
-	
-	for (i = 0; i < stats->len; i++) {
-		g_ptr_array_add (values, g_ptr_array_index (stats, i));
-	}
 
-	for (i = 0; i < parent_stats->len; i++) {
-		g_ptr_array_add (values, g_ptr_array_index (parent_stats, i));
-	}
+	g_message ("Requesting statistics from database for an accurate signal");
 
-	g_ptr_array_free (parent_stats, TRUE);
-	g_ptr_array_free (stats, TRUE);
+	for (i = 0; services_to_fetch[i]; i++) {		
+		TrackerDBInterface *iface;
+		gint                j;
+
+		iface = tracker_db_manager_get_db_interface_by_service (services_to_fetch[i]);
+
+		/* GetStats has asc in its query. Therefore we don't have to
+		 * lookup the in a to compare in b, just compare index based.
+		 * Maybe we want to change this nonetheless later?
+		 */
+		result_set = tracker_data_manager_exec_proc (iface, "GetStats", 0);
+		stats = tracker_dbus_query_result_to_ptr_array (result_set);
+
+		if (result_set) {
+			g_object_unref (result_set);
+		}
+
+		result_set = tracker_data_manager_exec_proc (iface, "GetStatsForParents", 0);
+		parent_stats = tracker_dbus_query_result_to_ptr_array (result_set);
+
+		if (result_set) {
+			g_object_unref (result_set);
+		}
+		
+		for (j = 0; j < stats->len; j++) {
+			g_ptr_array_add (values, g_ptr_array_index (stats, j));
+		}
+
+		for (j = 0; j < parent_stats->len; j++) {
+			g_ptr_array_add (values, g_ptr_array_index (parent_stats, j));
+		}
+
+		g_ptr_array_free (parent_stats, TRUE);
+		g_ptr_array_free (stats, TRUE);
+	}
 
 	/* There are 3 situations here:
 	 *  - 1. No new stats
@@ -735,9 +845,7 @@ tracker_daemon_signal_statistics (void)
 		return;
 	}
 
-	if (g_hash_table_size (priv->last_stats) < 1) {
-		gint i;
-
+	if (g_hash_table_size (priv->stats_cache) < 1) {
 		/* Situation #2 */
 		g_message ("  No previous statistics");
 
@@ -758,7 +866,7 @@ tracker_daemon_signal_statistics (void)
 			g_message ("  Adding '%s' with count:%d", 
 				   service_type,
 				   new_count);
-			g_hash_table_insert (priv->last_stats, 
+			g_hash_table_insert (priv->stats_cache, 
 					     g_strdup (service_type), 
 					     GINT_TO_POINTER (new_count));
 		}
@@ -766,8 +874,6 @@ tracker_daemon_signal_statistics (void)
 		/* Emit signal */
 		g_signal_emit (daemon, signals[SERVICE_STATISTICS_UPDATED], 0, values);
 	} else {
-		gint i;
-
 		/* Situation #3 */
 		for (i = 0; i < values->len; i++) {
 			gchar       **p;
@@ -783,7 +889,7 @@ tracker_daemon_signal_statistics (void)
 				continue;
 			}
 
-			data = g_hash_table_lookup (priv->last_stats, service_type);
+			data = g_hash_table_lookup (priv->stats_cache, service_type);
 			old_count = GPOINTER_TO_INT (data);
 
 			if (old_count != new_count) {
@@ -793,7 +899,7 @@ tracker_daemon_signal_statistics (void)
 					   old_count,
 					   new_count - old_count);
 
-				g_hash_table_replace (priv->last_stats, 
+				g_hash_table_replace (priv->stats_cache, 
 						      g_strdup (service_type), 
 						      GINT_TO_POINTER (new_count));
 			} else {
@@ -815,12 +921,6 @@ tracker_daemon_signal_statistics (void)
 			g_message ("  No changes in the statistics");
 		}
 	}
-
-	/* Update time for last stats */
-	g_get_current_time (&now);
-	priv->last_stats_time = now;
-
-	g_message ("Updated stats cache time to now");
 
 	g_ptr_array_foreach (values, (GFunc) g_strfreev, NULL);
 	g_ptr_array_free (values, TRUE);

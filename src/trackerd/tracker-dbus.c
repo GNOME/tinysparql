@@ -49,8 +49,6 @@
 #include "tracker-status.h"
 #include "tracker-main.h"
 
-#define INDEXER_PAUSE_TIME_FOR_REQUESTS 5 /* seconds */
-
 #define TRACKER_INDEXER_SERVICE   "org.freedesktop.Tracker.Indexer"
 #define TRACKER_INDEXER_PATH      "/org/freedesktop/Tracker/Indexer"
 #define TRACKER_INDEXER_INTERFACE "org.freedesktop.Tracker.Indexer"
@@ -211,65 +209,7 @@ static void
 dbus_request_new_cb (guint    request_id,
 		     gpointer user_data)
 {
-	DBusGProxy    *proxy;
-	gboolean       set_paused = TRUE;
-	TrackerStatus  status;
-
-	status = tracker_status_get ();
-	proxy = tracker_dbus_indexer_get_proxy ();
-
-	/* Don't pause if already paused */
-	if (status == TRACKER_STATUS_PAUSED) {
-		g_message ("New DBus request, not pausing indexer, already in paused state");
-
-		/* Just check if we already have a timeout, to reset it */
-		if (indexer_resume_timeout_id != 0) {
-			g_source_remove (indexer_resume_timeout_id);
-			indexer_resume_timeout_id =
-				g_timeout_add_seconds_full (G_PRIORITY_DEFAULT,
-							    INDEXER_PAUSE_TIME_FOR_REQUESTS,
-							    indexer_resume_cb,
-							    g_object_ref (proxy),
-							    indexer_resume_destroy_notify_cb);
-		}
-
-		return;
-	}
-
-	if (!indexer_available) {
-		g_message ("New DBus request, not pausing indexer, since it's not there");
-		return;
-	}
-
-	/* First remove the timeout */
-	if (indexer_resume_timeout_id != 0) {
-		set_paused = FALSE;
-
-		g_source_remove (indexer_resume_timeout_id);
-	}
-
-	/* Second reset it so we have another 10 seconds before
-	 * continuing.
-	 */
-	indexer_resume_timeout_id =
-		g_timeout_add_seconds_full (G_PRIORITY_DEFAULT,
-					    INDEXER_PAUSE_TIME_FOR_REQUESTS,
-					    indexer_resume_cb,
-					    g_object_ref (proxy),
-					    indexer_resume_destroy_notify_cb);
-
-	/* We really only do this because of the chance that we tell
-	 * the indexer to pause but don't get notified until the next
-	 * request. When we are notified of being paused,
-	 * tracker_get_is_paused_manually() returns TRUE.
-	 */
-	if (!set_paused) {
-		g_message ("New DBus request, not pausing indexer, already requested a pause");
-		return;
-	}
-
-	g_message ("New DBus request, pausing indexer");
-	tracker_status_set_is_paused_for_dbus (TRUE);
+	tracker_dbus_indexer_check_is_paused ();
 }
 
 gboolean
@@ -439,6 +379,70 @@ tracker_dbus_get_object (GType type)
 	}
 
 	return NULL;
+}
+
+void
+tracker_dbus_indexer_check_is_paused (void)
+{
+	DBusGProxy    *proxy;
+	gboolean       set_paused = TRUE;
+	TrackerStatus  status;
+
+	status = tracker_status_get ();
+	proxy = tracker_dbus_indexer_get_proxy ();
+
+	/* Don't pause if already paused */
+	if (status == TRACKER_STATUS_PAUSED) {
+		g_message ("New DBus request, not pausing indexer, already in paused state");
+
+		/* Just check if we already have a timeout, to reset it */
+		if (indexer_resume_timeout_id != 0) {
+			g_source_remove (indexer_resume_timeout_id);
+			indexer_resume_timeout_id =
+				g_timeout_add_seconds_full (G_PRIORITY_DEFAULT,
+							    TRACKER_INDEXER_PAUSE_TIME_FOR_REQUESTS,
+							    indexer_resume_cb,
+							    g_object_ref (proxy),
+							    indexer_resume_destroy_notify_cb);
+		}
+
+		return;
+	}
+
+	if (!indexer_available) {
+		g_message ("New DBus request, not pausing indexer, since it's not there");
+		return;
+	}
+
+	/* First remove the timeout */
+	if (indexer_resume_timeout_id != 0) {
+		set_paused = FALSE;
+
+		g_source_remove (indexer_resume_timeout_id);
+	}
+
+	/* Second reset it so we have another 10 seconds before
+	 * continuing.
+	 */
+	indexer_resume_timeout_id =
+		g_timeout_add_seconds_full (G_PRIORITY_DEFAULT,
+					    TRACKER_INDEXER_PAUSE_TIME_FOR_REQUESTS,
+					    indexer_resume_cb,
+					    g_object_ref (proxy),
+					    indexer_resume_destroy_notify_cb);
+
+	/* We really only do this because of the chance that we tell
+	 * the indexer to pause but don't get notified until the next
+	 * request. When we are notified of being paused,
+	 * tracker_get_is_paused_manually() returns TRUE.
+	 */
+	if (!set_paused) {
+		g_message ("New DBus request, not pausing indexer, already requested a pause");
+		return;
+	}
+
+	g_message ("New DBus request, pausing indexer");
+	tracker_status_set_is_paused_for_dbus (TRUE);
 }
 
 DBusGProxy *
