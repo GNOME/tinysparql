@@ -231,45 +231,6 @@ tracker_turtle_open (const gchar *turtle_file)
 #endif
 }
 
-void 
-tracker_turtle_add_metadata (TurtleFile          *turtle,
-			     const gchar         *uri,
-			     TrackerDataMetadata *metadata)
-{
-#ifdef HAVE_RAPTOR
-	TrackerTurtleMetadataItem *info = g_slice_new (TrackerTurtleMetadataItem);
-
-	info->about_uri = (gchar *) uri;
-	info->metadata = metadata;
-	info->turtle = turtle;
-
-	tracker_data_metadata_foreach (metadata, 
-				       foreach_in_metadata,
-				       info);
-
-	g_slice_free (TrackerTurtleMetadataItem, info);
-#endif /* HAVE_RAPTOR */
-}
-
-void 
-tracker_turtle_add_metadatas (TurtleFile *turtle,
-			      GPtrArray  *metadata_items)
-{
-#ifdef HAVE_RAPTOR
-	guint count;
-
-	for (count = 0; count < metadata_items->len; count++) {
-		TrackerTurtleMetadataItem *item = g_ptr_array_index (metadata_items, count);
-
-		item->turtle = turtle;
-
-		tracker_data_metadata_foreach (item->metadata, 
-					       foreach_in_metadata,
-					       item);
-	}
-#endif /* HAVE_RAPTOR */
-}
-
 void
 tracker_turtle_add_triple (TurtleFile   *turtle,
 			   const gchar  *uri,

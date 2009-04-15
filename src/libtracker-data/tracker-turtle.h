@@ -73,13 +73,6 @@ void        tracker_turtle_add_triple    (TurtleFile           *turtle,
 					  const gchar          *uri,
 					  TrackerField         *property,
 					  const gchar          *value);
-void        tracker_turtle_add_metadata  (TurtleFile           *turtle,
-					  const gchar          *uri,
-					  TrackerDataMetadata  *metadata);
-
-/* @metadata_items contains TrackerTurtleMetadataItem instances */
-void        tracker_turtle_add_metadatas (TurtleFile           *turtle,
-					  GPtrArray            *metadata_items);
 void        tracker_turtle_close         (TurtleFile           *turtle);
 
 /* Reading functions */
