@@ -12,7 +12,6 @@ config_DATA =				\
 	sqlite-service-types.sql 	\
 	sqlite-stored-procs.sql 	\
 	sqlite-tracker.sql 		\
-	sqlite-tracker-triggers.sql 	\
-	sqlite-user-data.sql 		
+	sqlite-tracker-triggers.sql
 
 EXTRA_DIST = $(config_DATA)
