@@ -35,6 +35,10 @@
 
 #define DISABLE_MEM_LIMITS
 
+#if defined(__OpenBSD__) && !defined(RLIMIT_AS)
+#define RLIMIT_AS      RLIMIT_DATA
+#endif
+
 gboolean
 tracker_spawn (gchar **argv,
 	       gint    timeout,
