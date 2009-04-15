@@ -25,6 +25,7 @@ libtracker_moduleincludedir=$(includedir)/tracker-1.0/libtracker-module/
 libtracker_module_LTLIBRARIES = libtracker-module.la
 
 libtracker_module_la_SOURCES =	 					\
+	tracker-dbus.c							\
 	tracker-module-file.c						\
 	tracker-module-iteratable.c					\
 	tracker-module-metadata-utils.c					\
@@ -42,7 +43,6 @@ libtracker_module_la_LIBADD = $(GCOV_LIBS)
 libexec_PROGRAMS = tracker-indexer
 
 tracker_indexer_SOURCES =						\
-	tracker-dbus.c							\
 	tracker-dbus.h							\
 	tracker-indexer.c						\
 	tracker-indexer.h						\

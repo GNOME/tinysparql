@@ -34,7 +34,9 @@ typedef void (* TrackerDBusNameMonitorFunc) (const gchar *name,
 
 gboolean    tracker_dbus_init		   (void);
 void	    tracker_dbus_shutdown	   (void);
-gboolean    tracker_dbus_register_object   (GObject *object);
+gboolean    tracker_dbus_register_object   (GObject               *object,
+					    const DBusGObjectInfo *info,
+					    const gchar	          *path);
 
 void        tracker_dbus_add_name_monitor     (const gchar                *name,
 					       TrackerDBusNameMonitorFunc  func,
