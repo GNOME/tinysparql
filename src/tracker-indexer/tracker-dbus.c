@@ -26,8 +26,6 @@
 #include <libtracker-common/tracker-log.h>
 
 #include "tracker-dbus.h"
-#include "tracker-indexer.h"
-#include "tracker-indexer-glue.h"
 
 static DBusGConnection *connection;
 static DBusGProxy      *gproxy;
@@ -80,13 +78,6 @@ name_owner_changed_cb (DBusGProxy *proxy,
 		       gpointer    user_data)
 {
 	TrackerDBusNameMonitor *name_monitor;
-
-	if (strcmp (name, TRACKER_DAEMON_SERVICE) == 0 && (!new_owner || !*new_owner)) {
-		/* Tracker daemon has dissapeared from
-		 * the bus, shutdown the indexer.
-		 */
-		tracker_indexer_stop (TRACKER_INDEXER (user_data));
-	}
 
 	name_monitor = g_hash_table_lookup (name_monitors, name);
 
@@ -155,7 +146,7 @@ dbus_register_names (void)
 					    DBUS_INTERFACE_DBUS);
 
 	/* Register the service name for org.freedesktop.Tracker */
-	if (!dbus_register_service (gproxy, TRACKER_INDEXER_SERVICE)) {
+	if (!dbus_register_service (gproxy, "org.freedesktop.Tracker.Indexer")) {
 		return FALSE;
 	}
 
@@ -222,24 +213,20 @@ tracker_dbus_shutdown (void)
 }
 
 gboolean
-tracker_dbus_register_object (GObject *object)
+tracker_dbus_register_object (GObject               *object,
+			      const DBusGObjectInfo *info,
+			      const gchar	    *path)
 {
 	if (!connection || !gproxy) {
 		g_critical ("DBus support must be initialized before registering objects!");
 		return FALSE;
 	}
 
-	if (TRACKER_IS_INDEXER (object)) {
-		return dbus_register_object (object,
-					     connection,
-					     gproxy,
-					     &dbus_glib_tracker_indexer_object_info,
-					     TRACKER_INDEXER_PATH);
-	} else {
-		g_warning ("Object not handled by DBus");
-	}
-
-	return FALSE;
+	return dbus_register_object (object,
+				     connection,
+				     gproxy,
+				     info,
+				     path);
 }
 
 void

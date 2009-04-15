@@ -53,6 +53,7 @@
 #include "tracker-dbus.h"
 #include "tracker-indexer.h"
 #include "tracker-push.h"
+#include "tracker-indexer-glue.h"
 
 #define ABOUT								  \
 	"Tracker " PACKAGE_VERSION "\n"
@@ -268,6 +269,16 @@ indexer_finished_cb (TrackerIndexer *indexer,
 	}
 }
 
+static void
+daemon_availability_changed_cb (const gchar *name,
+                                gboolean     available,
+                                gpointer     user_data)
+{
+        if (!available) {
+                tracker_indexer_stop (TRACKER_INDEXER (user_data));
+        }
+}
+
 gint
 main (gint argc, gchar *argv[])
 {
@@ -380,9 +391,16 @@ main (gint argc, gchar *argv[])
 	indexer = tracker_indexer_new ();
 
 	/* Make Tracker available for introspection */
-	if (!tracker_dbus_register_object (G_OBJECT (indexer))) {
+	if (!tracker_dbus_register_object (G_OBJECT (indexer),
+                                           &dbus_glib_tracker_indexer_object_info,
+                                           TRACKER_INDEXER_PATH)) {
 		return EXIT_FAILURE;
 	}
+
+        /* Listen for changes in trackerd availability */
+        tracker_dbus_add_name_monitor (TRACKER_DAEMON_SERVICE,
+                                       daemon_availability_changed_cb,
+                                       indexer, NULL);
 
 	/* Create the indexer and run the main loop */
 	g_signal_connect (indexer, "finished",
