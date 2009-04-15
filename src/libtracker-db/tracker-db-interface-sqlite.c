@@ -18,7 +18,9 @@
  * Boston, MA  02110-1301, USA.
  */
 
+#include <glib/gstdio.h>
 #include <sqlite3.h>
+
 #include "tracker-db-interface-sqlite.h"
 
 #define TRACKER_DB_INTERFACE_SQLITE_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_DB_INTERFACE_SQLITE, TrackerDBInterfaceSqlitePrivate))
@@ -556,9 +558,11 @@ create_result_set_from_stmt (TrackerDBInterfaceSqlite  *interface,
 		g_hash_table_foreach (priv->statements, foreach_print_error, stmt);
 
 		if (result == SQLITE_CORRUPT) {
-			g_critical ("Sqlite3 database:'%s' is corrupt, can not live without it",
-				    priv->filename);
-			g_assert_not_reached ();
+			sqlite3_finalize (stmt);
+			sqlite3_close (priv->db);
+			g_unlink (priv->filename);
+			g_error ("SQLite database:'%s' has been corrupted and removed, it will be recreated on restart, shutting down now",
+				  priv->filename);
 		}
 
 		if (!error) {
