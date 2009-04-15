@@ -14,7 +14,6 @@ endif
 
 man_MANS = 			\
 	tracker-extract.1	\
-	tracker-files.1		\
 	tracker-search.1	\
 	tracker-stats.1		\
 	trackerd.1		\
@@ -22,7 +21,6 @@ man_MANS = 			\
 	tracker-tag.1		\
 	tracker-status.1	\
 	tracker.cfg.5		\
-	tracker-services.1	\
 	tracker-info.1		\
 	$(tst)			\
 	$(ta)			\
