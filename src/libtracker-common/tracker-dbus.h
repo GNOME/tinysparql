@@ -121,6 +121,8 @@ void		 tracker_dbus_request_comment	     (gint			  request_id,
 void		 tracker_dbus_request_debug	     (gint			  request_id,
 						      const gchar		 *format,
 						      ...);
+void             tracker_dbus_request_block_hooks    (void);
+void             tracker_dbus_request_unblock_hooks  (void);
 
 G_END_DECLS
 
