@@ -81,7 +81,7 @@ static DBusGProxy * get_dbus_extract_proxy (void);
 static GPid
 get_extractor_pid (void)
 {
-	GError *error;
+	GError *error = NULL;
 	GPid pid;
 
 	/* Get new PID from extractor */
