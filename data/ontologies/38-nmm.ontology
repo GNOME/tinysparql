@@ -254,3 +254,89 @@ nmm:isContentEncrypted a rdf:Property ;
 	rdfs:domain nmm:Video ;
 	rdfs:range xsd:boolean .
 
+
+## Image ontology
+
+nmm:ImageList a rdfs:Class ;
+	rdfs:subClassOf nfo:MediaList ; 
+	rdfs:label "Image album" ;
+	rdfs:comment "An album of images" .
+
+nmm:Photo a rdfs:Class ;
+	rdfs:subClassOf nfo:Image ;
+	rdfs:label "Photo" ;
+	rdfs:comment "A photo" .
+
+# Properties
+# Photo location is waiting for the Location ontology
+
+nmm:camera a rdf:Property ;
+	rdfs:label "Camera" ;
+	rdfs:comment "The maker and model of the camera used to take the photograph" ;
+	rdfs:domain nmm:Photo ;
+	rdfs:range xsd:string .
+
+nmm:exposureTime a rdf:Property ;
+	rdfs:label "Exposure time" ;
+	rdfs:comment "Exposure time of the photo" ;
+	rdfs:domain nmm:Photo ;
+	rdfs:range xsd:integer .
+
+nmm:Flash a rdfs:Class ;
+	rdfs:label "Flash values" ;
+	rdfs:comment "Enumeration of the possible values of flash property" .
+
+nmm:flash-on a nmm:Flash .
+nmm:flash-off a nmm:Flash .
+
+nmm:flash a rdf:Property ;
+	rdfs:label "Flash" ;
+	rdfs:comment "Specifies whether flash was used" ;
+	rdfs:domain nmm:Photo ;
+	rdfs:range nmm:Flash .
+
+nmm:fnumber a rdf:Property ;
+	rdfs:label "F number" ;
+	rdfs:comment "The diameter of the entrance pupil in terms of the focal length of the lens" ;
+	rdfs:domain nmm:Photo ;
+	rdfs:range xsd:double .
+
+nmm:focalLength a rdf:Property ;
+	rdfs:label "Focal length" ;
+	rdfs:comment "A measure of how strongly the lens converges light" ;
+	rdfs:domain nmm:Photo ;
+	rdfs:range xsd:double .
+
+nmm:isoSpeed a rdf:Property ;
+	rdfs:label "ISO speed" ;
+	rdfs:comment "Measure of a photographic film's sensitivity to light as ISO value" ;
+	rdfs:domain nmm:Photo ;
+	rdfs:range xsd:double .
+
+nmm:MeteringMode a rdfs:Class ;
+	rdfs:label "Metering mode values" ;
+	rdfs:comment "Enumeration of different ways a camera determines exposure." .
+
+nmm:meteringMode-average a nmm:MeteringMode .
+nmm:meteringMode-center-weighted-average a nmm:MeteringMode .
+nmm:meteringMode-spot a nmm:MeteringMode .
+nmm:meteringMode-multispot a nmm:MeteringMode .
+nmm:meteringMode-pattern a nmm:MeteringMode .
+nmm:meteringMode-partial a nmm:MeteringMode .
+nmm:meteringMode-other a nmm:MeteringMode .
+
+nmm:meteringMode a rdf:Property ;
+	rdfs:comment "Metering mode refers to the way in which a camera determines the exposure." ;
+	rdfs:domain nmm:Photo ;
+	rdfs:range nmm:MeteringMode .
+
+nmm:WhiteBalance a rdfs:Class ;
+	rdfs:label "White balance" ;
+	rdfs:comment "Camera's white balance setting" .
+
+nmm:whiteBalance-auto a nmm:WhiteBalance .
+nmm:whiteBalance-manual a nmm:WhiteBalance .
+
+nmm:whiteBalance a rdf:Property ;
+	rdfs:domain nmm:Photo ;
+	rdfs:range nmm:WhiteBalance .

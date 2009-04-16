@@ -785,3 +785,34 @@ nfo:softwareCmdLine a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nfo:Software ;
 	rdfs:range xsd:string .
+
+# Also added 
+
+nfo:Orientation a rdfs:Class ;
+	rdfs:label "Orientation enum" ;
+	rdfs:comment "Orientation enum" .
+
+nfo:orientation-top a nfo:Orientation .
+nfo:orientation-top-mirror a nfo:Orientation .
+nfo:orientation-bottom a nfo:Orientation .
+nfo:orientation-bottom-mirror a nfo:Orientation .
+nfo:orientation-left-mirror a nfo:Orientation .
+nfo:orientation-right a nfo:Orientation .
+nfo:orientation-right-mirror a nfo:Orientation .
+nfo:orientation-left a nfo:Orientation .
+
+nfo:orientation a rdf:Property ;
+	rdfs:domain nfo:Image ;
+	rdfs:range nfo:Orientation .
+
+@prefix poi: <http://www.tracker-project.org/ontologies/poi#> .
+
+poi: a tracker:Namespace ;
+	tracker:prefix "poi" .
+
+# TDB
+poi:ObjectOfInterest a rdfs:Class .
+
+nfo:depicts a rdf:Property ;
+	rdfs:domain nfo:Image ;
+	rdfs:range poi:ObjectOfInterest .
