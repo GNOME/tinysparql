@@ -1197,8 +1197,13 @@ item_add_to_datasource (TrackerIndexer *indexer,
 	const gchar *removable_device_udi;
 
 	file = tracker_module_file_get_file (module_file);
+
+#ifdef HAVE_HAL
 	removable_device_udi = tracker_hal_get_volume_udi_for_file (indexer->private->hal, 
 								    file);
+#else
+	removable_device_udi = NULL;
+#endif
 
 	if (removable_device_udi) {
 		gchar *removable_device_urn;
@@ -1377,7 +1382,9 @@ item_move (TrackerIndexer  *indexer,
 	guint32 service_id;
 	gchar *uri, *old_filename;
 	GFileInfo *file_info;
+#ifdef HAVE_HAL
 	gchar *mount_point = NULL;
+#endif
 
 	uri = g_file_get_uri (info->file);
 
@@ -1500,6 +1507,7 @@ item_remove (TrackerIndexer *indexer,
 		tracker_data_update_delete_service_recursively (uri);
 	}*/
 
+#ifdef HAVE_HAL
 	if (tracker_hal_uri_is_on_removable_device (indexer->private->hal,
 						    uri, 
 						    &mount_point,
@@ -1507,6 +1515,7 @@ item_remove (TrackerIndexer *indexer,
 
 		tracker_removable_device_add_removal (indexer, mount_point, uri);
 	}
+#endif
 
 	g_free (mount_point);
 
