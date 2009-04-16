@@ -36,6 +36,7 @@
 #define NIE_PREFIX TRACKER_NIE_PREFIX
 #define NFO_PREFIX TRACKER_NFO_PREFIX
 #define NCO_PREFIX TRACKER_NCO_PREFIX
+#define NMM_PREFIX TRACKER_NMM_PREFIX
 #define DC_PREFIX TRACKER_DC_PREFIX
 
 #ifdef HAVE_EXEMPI
@@ -50,37 +51,37 @@ fix_metering_mode (const gchar *mode)
 	value = atoi(mode);
 
 	switch (value) {
+	default:
 	case 0:
-		return "unknown";
+		return "nmm:meteringMode-other";
 	case 1:
-		return "Average";
+		return "nmm:meteringMode-average";
 	case 2:
-		return "CenterWeightedAverage";
+		return "nmm:meteringMode-center-weighted-average";
 	case 3:
-		return "Spot";
+		return "nmm:meteringMode-spot";
 	case 4:
-		return "MultiSpot";
+		return "nmm:meteringMode-multispot";
 	case 5:
-		return "Pattern";
+		return "nmm:meteringMode-pattern";
 	case 6:
-		return "Partial";
+		return "nmm:meteringMode-partial";
 	}
 
-	return "unknown";
+	return "nmm:meteringMode-other";
 }
 
-static gchar *
+static const gchar *
 fix_flash (const gchar *flash)
 {
 	static const gint fired_mask = 0x1;
 	gint value;
 	value = atoi(flash);
 	if (value & fired_mask) {
-		return "1";
+		return "nmm:flash-on";
 	} else {
-		return "0";
+		return "nmm:flash-off";
 	}
-		
 }
 
 static const gchar *
@@ -89,9 +90,9 @@ fix_white_balance (const gchar *wb)
 	gint value;
 	value = atoi(wb);
 	if (wb) {
-		return "Manual white balance";
+		return "nmm:whiteBalance-manual";
 	} else {
-		return "Auto white balance";
+		return "nmm:whiteBalance-auto";
 	}
 }
 
@@ -200,6 +201,50 @@ tracker_xmp_iter_simple_qual (XmpPtr       xmp,
 	xmp_iterator_free (iter);
 }
 
+
+static const gchar *
+fix_orientation (const gchar *orientation)
+{
+	guint i;
+	static const gchar *ostr[8] = {
+		/* 0 */ "top - left",
+		/* 1 */ "top - right",
+		/* 2 */ "bottom - right",
+		/* 3 */ "bottom - left",
+		/* 4 */ "left - top",
+		/* 5 */ "right - top",
+		/* 6 */ "right - bottom",
+		/* 7 */ "left - bottom"
+	};
+
+	for (i=0; i < 8; i++) {
+		if (g_strcmp0 (orientation,ostr[i]) == 0) {
+			switch (i) {
+				default:
+				case 0:
+				return  "nfo:orientation-top";
+				case 1:
+				return  "nfo:orientation-top-mirror"; // not sure
+				case 2:
+				return  "nfo:orientation-bottom-mirror"; // not sure
+				case 3:
+				return  "nfo:orientation-bottom";
+				case 4:
+				return  "nfo:orientation-left-mirror";
+				case 5:
+				return  "nfo:orientation-right";
+				case 6:
+				return  "nfo:orientation-right-mirror";
+				case 7:
+				return  "nfo:orientation-left";
+			}
+		}
+	}
+
+	return  "nfo:orientation-top";
+}
+
+
 /* We have a simple element. Add any metadata we know about to the
  * hash table.
  */
@@ -212,20 +257,20 @@ tracker_xmp_iter_simple (const gchar *uri,
 			 gboolean     append)
 {
 	gchar *name;
-	const gchar *index;
+	const gchar *index_;
 
 	name = g_strdup (strchr (path, ':') + 1);
-	index = strrchr (name, '[');
+	index_ = strrchr (name, '[');
 
-	if (index) {
-		name[index-name] = '\0';
+	if (index_) {
+		name[index_ - name] = '\0';
 	}
 
 	/* Dublin Core */
 	if (strcmp (schema, NS_DC) == 0) {
 		if (strcmp (name, "title") == 0) {
 			tracker_statement_list_insert (metadata, uri, 
-						  "Image:Title", value);
+						  NIE_PREFIX "title", value);
 		}
 		else if (strcmp (name, "rights") == 0) {
 			tracker_statement_list_insert (metadata, uri,
@@ -240,15 +285,32 @@ tracker_xmp_iter_simple (const gchar *uri,
 		}
 		else if (strcmp (name, "description") == 0) {
 			tracker_statement_list_insert (metadata, uri,
-						  "Image:Description", value);
+						  NIE_PREFIX "description", value);
 		}
 		else if (strcmp (name, "date") == 0) {
 			tracker_statement_list_insert (metadata, uri,
-						  "Image:Date", value);
+						  NIE_PREFIX "contentCreated", value);
 		}
 		else if (strcmp (name, "keywords") == 0) {
-			tracker_statement_list_insert (metadata, uri,
-						  "Image:Keywords", value);
+			gchar *keywords = g_strdup (value);
+			char *lasts, *keyw;
+			size_t len;
+
+			keywords = strchr (keywords, '"');
+			if (keywords)
+				keywords++;
+			len = strlen (keywords);
+			if (keywords[len - 1] == '"')
+				keywords[len - 1] = '\0';
+
+			for (keyw = strtok_r (keywords, ",; ", &lasts); keyw; 
+			     keyw = strtok_r (NULL, ",; ", &lasts)) {
+				tracker_statement_list_insert (metadata,
+						  uri, NIE_PREFIX "keyword",
+						  (const gchar*) keyw);
+			}
+
+			g_free (keywords);
 		}
 		else if (strcmp (name, "subject") == 0) {
 			tracker_statement_list_insert (metadata, uri, 
@@ -309,66 +371,68 @@ tracker_xmp_iter_simple (const gchar *uri,
 	else if (strcmp (schema, NS_EXIF) == 0) {
 		if (strcmp (name, "Title") == 0) {
 			tracker_statement_list_insert (metadata, uri,
-						  "Image:Title", value);
+						  NFO_PREFIX "title", value);
 		}
 		else if (strcmp (name, "DateTimeOriginal") == 0) {
 			tracker_statement_list_insert (metadata, uri, 
 						  "Image:Date", value);
 		}
 		else if (strcmp (name, "Artist") == 0) {
-			tracker_statement_list_insert (metadata, uri,
-						  "Image:Creator", value);
+			tracker_statement_list_insert (metadata, ":", RDF_TYPE, NCO_PREFIX "Contact");
+			tracker_statement_list_insert (metadata, ":", NCO_PREFIX "fullname", value);
+			/* contributor is OK here? */
+			tracker_statement_list_insert (metadata, uri, NCO_PREFIX "contributor", ":");
 		}
-		else if (strcmp (name, "Software") == 0) {
+/*		else if (strcmp (name, "Software") == 0) {
 			tracker_statement_list_insert (metadata, uri,
 						  "Image:Software", value);
-		}
+		}*/
 		else if (strcmp (name, "Make") == 0) {
 			tracker_statement_list_insert (metadata, uri, 
-						  "Image:CameraMake", value);
+						  NMM_PREFIX "camera", value);
 		}
 		else if (strcmp (name, "Model") == 0) {
 			tracker_statement_list_insert (metadata, uri, 
-						  "Image:CameraModel", value);
+						  NMM_PREFIX "camera", value);
 		}
 		else if (strcmp (name, "Orientation") == 0) {
 			tracker_statement_list_insert (metadata, uri,
-						  "Image:Orientation", 
-						  value);
+						  NFO_PREFIX "orientation", 
+						  fix_orientation (value));
 		}
 		else if (strcmp (name, "Flash") == 0) {
 			tracker_statement_list_insert (metadata, uri,
-						  "Image:Flash", 
+						  NMM_PREFIX "flash", 
 						  fix_flash (value));
 		}
 		else if (strcmp (name, "MeteringMode") == 0) {
 			tracker_statement_list_insert (metadata, uri,
-						  "Image:MeteringMode", 
+						  NMM_PREFIX "meteringMode", 
 						  fix_metering_mode (value));
 		}
-		else if (strcmp (name, "ExposureProgram") == 0) {
+		/*else if (strcmp (name, "ExposureProgram") == 0) {
 			tracker_statement_list_insert (metadata, uri,
 						  "Image:ExposureProgram", value);
-		}
+		}*/
 		else if (strcmp (name, "ExposureTime") == 0) {
 			tracker_statement_list_insert (metadata, uri,
-						  "Image:ExposureTime", value);
+						  NMM_PREFIX "exposureTime", value);
 		}
 		else if (strcmp (name, "FNumber") == 0) {
 			tracker_statement_list_insert (metadata, uri,
-						  "Image:FNumber", value);
+						  NMM_PREFIX "fnumber", value);
 		}
 		else if (strcmp (name, "FocalLength") == 0) {
 			tracker_statement_list_insert (metadata, uri, 
-						  "Image:FocalLength", value);
+						  NMM_PREFIX "focalLength", value);
 		}
 		else if (strcmp (name, "ISOSpeedRatings") == 0) {
 			tracker_statement_list_insert (metadata, uri, 
-						  "Image:ISOSpeed", value);
+						  NMM_PREFIX "isoSpeed", value);
 		}
 		else if (strcmp (name, "WhiteBalance") == 0) {
 			tracker_statement_list_insert (metadata, uri,
-						  "Image:WhiteBalance",
+						   NMM_PREFIX "whiteBalance",
 						   fix_white_balance (value));
 		}
 		else if (strcmp (name, "Copyright") == 0) {
@@ -377,7 +441,7 @@ tracker_xmp_iter_simple (const gchar *uri,
 		}
 	}
 	/* XAP (XMP)scheme */
-	else if (strcmp (schema, NS_XAP) == 0) {
+	/*else if (strcmp (schema, NS_XAP) == 0) {
 	        if (strcmp (name, "Rating") == 0) {
 		        tracker_statement_list_insert (metadata, uri,
 						  "Image:Rating", value);
@@ -386,14 +450,17 @@ tracker_xmp_iter_simple (const gchar *uri,
 		        tracker_statement_list_insert (metadata, uri,
 						  "Image:Date", value);
 		}
-	}
+	}*/
 	/* IPTC4XMP scheme */
-	else if (strcmp (schema,  NS_IPTC4XMP) == 0) {
+
+	/*
+	 GeoClue / location stuff, TODO
+	 else if (strcmp (schema,  NS_IPTC4XMP) == 0) {
 	        if (strcmp (name, "Location") == 0) {
 		        tracker_statement_list_insert (metadata, uri,
 						  "Image:Location", value);
 
-			/* Added to the valid keywords */
+			/ Added to the valid keywords *
 		        tracker_statement_list_insert (metadata, uri,
 						  "Image:Keywords", value);
 		}
@@ -401,18 +468,18 @@ tracker_xmp_iter_simple (const gchar *uri,
 		        tracker_statement_list_insert (metadata, uri,
 						  "Image:Sublocation", value);
 
-			/* Added to the valid keywords */
+			/ Added to the valid keywords *
 		        tracker_statement_list_insert (metadata, uri,
 						  "Image:Keywords", value);
 		}
 	}
-	/* Photoshop scheme */
+	/ Photoshop scheme *
 	else if (strcmp (schema,  NS_PHOTOSHOP) == 0) {
 	        if (strcmp (name, "City") == 0) {
 		        tracker_statement_list_insert (metadata, uri,
 						  "Image:City", value);
 
-			/* Added to the valid keywords */
+			/ Added to the valid keywords *
 		        tracker_statement_list_insert (metadata, uri,
 						  "Image:Keywords", value);
 		}
@@ -420,11 +487,12 @@ tracker_xmp_iter_simple (const gchar *uri,
 			tracker_statement_list_insert (metadata, uri,
 						  "Image:Country", value);
 
-			/* Added to the valid keywords */
+			/ Added to the valid keywords *
 		        tracker_statement_list_insert (metadata, uri,
 						  "Image:Keywords", value);
 		}
 	}
+	*/
 
 	g_free (name);
 }
