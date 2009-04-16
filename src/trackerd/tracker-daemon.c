@@ -44,8 +44,8 @@
 
 #define TRACKER_TYPE_G_STRV_ARRAY  (dbus_g_type_get_collection ("GPtrArray", G_TYPE_STRV))
 
-/* Seconds */
-#define STATS_CACHE_LIFETIME 60
+/* In seconds (3 minutes for now) */
+#define STATS_CACHE_LIFETIME 180
 
 typedef struct {
 	TrackerConfig	 *config;
@@ -65,9 +65,10 @@ enum {
 	LAST_SIGNAL
 };
 
-static void     tracker_daemon_finalize (GObject       *object);
-static gboolean stats_cache_timeout     (gpointer       user_data);
-static void     stats_cache_update      (TrackerDaemon *object);
+static void        tracker_daemon_finalize (GObject       *object);
+static gboolean    stats_cache_timeout     (gpointer       user_data);
+static GHashTable *stats_cache_get_latest  (void);
+static void        stats_cache_update      (TrackerDaemon *object);
 
 static guint signals[LAST_SIGNAL] = {0};
 
@@ -225,16 +226,9 @@ tracker_daemon_init (TrackerDaemon *object)
 
 	iface = tracker_db_manager_get_db_interface ();
 
-	/* Prepare cache */
-	priv->stats_cache = g_hash_table_new_full (g_str_hash,
-						   g_str_equal,
-						   g_free, 
-						   NULL);
+	/* Do first time stats lookup */
+	priv->stats_cache = stats_cache_get_latest ();
 
-	/* First time update */
-	stats_cache_update (object);
-
-	/* Future updates */
 	priv->stats_cache_timeout_id = 
 		g_timeout_add_seconds (STATS_CACHE_LIFETIME,
 				       stats_cache_timeout,
@@ -368,39 +362,97 @@ db_get_stats (void)
 }
 
 static void
-stats_cache_update (TrackerDaemon *object)
+stats_cache_filter_dups_func (gpointer data,
+			      gpointer user_data)
 {
-	TrackerDaemonPrivate *priv;
-	TrackerDBResultSet   *result_set;
-	GPtrArray            *values;
-	guint                 i;
+	GHashTable *values;
+	GStrv       strv;
+	gpointer    p;
+	gint        count;
 
-	priv = TRACKER_DAEMON_GET_PRIVATE (object);
+	/* FIXME: There is a really shit bug here that needs
+	 * fixing. If a file has "Files" as its main category
+	 * and not its *parent* category, then we end up with
+	 * 2 "Files" listings. This sounds like a bug with
+	 * the indexer's insert mechanisms. So far this seems
+	 * to only happen for removable media files
+	 *
+	 * For now, we will concatenate values to sort out the
+	 * duplicates: 
+	 */
+	strv = data;
+	values = user_data;
+
+	count = atoi (strv[1]);
+
+	p = g_hash_table_lookup (values, strv[0]);
+
+	if (G_UNLIKELY (p)) {
+		count += GPOINTER_TO_INT (p);
+	}
+
+	g_hash_table_replace (values, 
+			      g_strdup (strv[0]), 
+			      GINT_TO_POINTER (count));
+}
+
+static GHashTable *
+stats_cache_get_latest (void)
+{
+	TrackerDBResultSet *result_set;
+	GHashTable         *values;
+	GPtrArray          *stats;
+
+	/* Set up empty list of services because SQL queries won't give us 0 items. */
+	g_message ("Requesting statistics from database for an accurate signal");
+
+	values = g_hash_table_new_full (g_str_hash,
+					g_str_equal,
+					g_free,
+					NULL);
 
 	result_set = db_get_stats ();
-	values = tracker_dbus_query_result_to_ptr_array (result_set);
+	stats = tracker_dbus_query_result_to_ptr_array (result_set);
 
 	if (result_set) {
 		g_object_unref (result_set);
 	}
 
-	/* Update local cache */
-	for (i = 0; i < values->len; i++) {
-		gchar       **p;
-		const gchar  *service_type = NULL;
-		gint          new_count;
+	g_ptr_array_foreach (stats, stats_cache_filter_dups_func, values);
 
-		p = g_ptr_array_index (values, i);
-		service_type = p[0];
-		new_count = atoi (p[1]);
+	g_ptr_array_free (stats, TRUE);
+
+	return values;
+}
+
+static void
+stats_cache_update (TrackerDaemon *object)
+{
+	TrackerDaemonPrivate *priv;
+	GHashTable           *values;
+	GHashTableIter        iter;
+	gpointer              key, value;
+
+	priv = TRACKER_DAEMON_GET_PRIVATE (object);
+
+	/* Get latest */
+	values = stats_cache_get_latest ();
+
+	/* Update local cache */
+	g_hash_table_iter_init (&iter, values);
+	while (g_hash_table_iter_next (&iter, &key, &value)) {
+		const gchar *service_type;
+		gint         new_count;
+		
+		service_type = key;
+		new_count = GPOINTER_TO_INT (value);
 
 		g_hash_table_replace (priv->stats_cache, 
 				      g_strdup (service_type), 
 				      GINT_TO_POINTER (new_count));
 	}
 
-	g_ptr_array_foreach (values, (GFunc) g_strfreev, NULL);
-	g_ptr_array_free (values, TRUE);
+	g_hash_table_unref (values);
 }
 
 static gboolean 
@@ -451,9 +503,9 @@ tracker_daemon_get_stats (TrackerDaemon		 *object,
 
 	g_hash_table_iter_init (&iter, priv->stats_cache);
 	while (g_hash_table_iter_next (&iter, &key, &value)) {
-		GStrv         strv;
-		const gchar  *service_type;
-		gint          count;
+		GStrv        strv;
+		const gchar *service_type;
+		gint         count;
 
 		service_type = key;
 		count = GPOINTER_TO_INT (value);
@@ -701,116 +753,81 @@ tracker_daemon_signal_statistics (void)
 {
 	GObject		     *daemon;
 	TrackerDaemonPrivate *priv;
-	TrackerDBResultSet   *result_set;
+	GHashTable           *stats;
+	GHashTableIter        iter;
+	gpointer              key, value;
 	GPtrArray            *values;
-	gint                  i;
 
 	daemon = tracker_dbus_get_object (TRACKER_TYPE_DAEMON);
 	priv = TRACKER_DAEMON_GET_PRIVATE (daemon);
 
-	g_message ("Requesting statistics from database for an accurate signal");
-
-	result_set = db_get_stats ();
-	values = tracker_dbus_query_result_to_ptr_array (result_set);
-
-	if (result_set) {
-		g_object_unref (result_set);
-	}
+	/* Get latest */
+	stats = stats_cache_get_latest ();
 
 	/* There are 3 situations here:
 	 *  - 1. No new stats
 	 *       Action: Do nothing
-	 *  - 2. No previous stats
-	 *       Action: Emit all new stats
-	 *  - 3. New stats and old stats
+	 *  - 2. New stats and old stats
 	 *       Action: Check what has changed and emit new stats
 	 */
 
 	g_message ("Checking for statistics changes and signalling clients...");
 
 	/* Situation #1 */
-	if (!values || values->len < 1) {
+	if (g_hash_table_size (stats) < 1) {
+		g_hash_table_unref (stats);
 		g_message ("  No new statistics, doing nothing");
 		return;
 	}
 
-	if (g_hash_table_size (priv->stats_cache) < 1) {
-		/* Situation #2 */
-		g_message ("  No previous statistics");
+	/* Situation #2 */
+	values = g_ptr_array_new ();
 
-		for (i = 0; i < values->len; i++) {
-			const gchar **p;
-			const gchar  *service_type = NULL;
-			gint          new_count;
-
-			p = g_ptr_array_index (values, i);
-
-			service_type = p[0];
-			new_count = atoi (p[1]);
+	g_hash_table_iter_init (&iter, stats);
+	while (g_hash_table_iter_next (&iter, &key, &value)) {
+		const gchar  *service_type;
+		gpointer      data;
+		gint          old_count, new_count;
+		
+		service_type = key;
+		new_count = GPOINTER_TO_INT (value);
 			
-			if (!service_type) {
-				continue;
-			}
+		data = g_hash_table_lookup (priv->stats_cache, service_type);
+		old_count = GPOINTER_TO_INT (data);
+		
+		if (old_count != new_count) {
+			GStrv strv;
 
-			g_message ("  Adding '%s' with count:%d", 
+			g_message ("  Updating '%s' with new count:%d, old count:%d, diff:%d", 
 				   service_type,
-				   new_count);
-			g_hash_table_insert (priv->stats_cache, 
-					     g_strdup (service_type), 
-					     GINT_TO_POINTER (new_count));
-		}
+				   new_count,
+				   old_count,
+				   new_count - old_count);
+			
+			g_hash_table_replace (priv->stats_cache, 
+					      g_strdup (service_type), 
+					      GINT_TO_POINTER (new_count));
 
-		/* Emit signal */
-		g_signal_emit (daemon, signals[SERVICE_STATISTICS_UPDATED], 0, values);
-	} else {
-		/* Situation #3 */
-		for (i = 0; i < values->len; i++) {
-			gchar       **p;
-			const gchar  *service_type = NULL;
-			gpointer      data;
-			gint          old_count, new_count;
-
-			p = g_ptr_array_index (values, i);
-			service_type = p[0];
-			new_count = atoi (p[1]);
-
-			if (!service_type) {
-				continue;
-			}
-
-			data = g_hash_table_lookup (priv->stats_cache, service_type);
-			old_count = GPOINTER_TO_INT (data);
-
-			if (old_count != new_count) {
-				g_message ("  Updating '%s' with new count:%d, old count:%d, diff:%d", 
-					   service_type,
-					   new_count,
-					   old_count,
-					   new_count - old_count);
-
-				g_hash_table_replace (priv->stats_cache, 
-						      g_strdup (service_type), 
-						      GINT_TO_POINTER (new_count));
-			} else {
-				/* Remove from values since the value is the same */
-				g_strfreev (p);
-				g_ptr_array_remove (values, p);
-
-				/* Decrement i since we are about to
-				 * increment it and we just removed
-				 * an item. Otherwise we miss items.
-				 */
-				i--;
-			}
-		}
-
-		if (values->len > 0) {
-			g_signal_emit (daemon, signals[SERVICE_STATISTICS_UPDATED], 0, values);
-		} else {
-			g_message ("  No changes in the statistics");
+			strv = g_new (gchar*, 3);
+			strv[0] = g_strdup (service_type);
+			strv[1] = g_strdup_printf ("%d", new_count);
+			strv[2] = NULL;
+			
+			g_ptr_array_add (values, strv);
 		}
 	}
 
+	g_hash_table_unref (stats);
+
+	if (values->len > 0) {
+		/* Make sure we sort the results first */
+		g_ptr_array_sort (values, stats_cache_sort_func);
+		
+		g_signal_emit (daemon, signals[SERVICE_STATISTICS_UPDATED], 0, values);
+	} else {
+		g_message ("  No changes in the statistics");
+	}
+	
 	g_ptr_array_foreach (values, (GFunc) g_strfreev, NULL);
 	g_ptr_array_free (values, TRUE);
 }
