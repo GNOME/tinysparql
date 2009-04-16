@@ -26,8 +26,15 @@
 #include "config.h"
 
 #include <stdio.h>
+
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE /* strcasestr() */
+#endif
+
+#include <ctype.h>
 #include <string.h>
 #include <fcntl.h>
+
 #include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -82,6 +89,37 @@ static TrackerExtractData data[] = {
 	{ NULL, NULL }
 };
 
+
+#ifndef HAVE_STRCASESTR
+
+static gchar *
+strcasestr (const gchar *haystack, 
+	    const gchar *needle)
+{
+	gchar *p;
+	gchar *startn = NULL;
+	gchar *np = NULL;
+
+	for (p = (gchar *) haystack; *p; p++) {
+		if (np) {
+			if (toupper (*p) == toupper (*np)) {
+				if (!*++np) {
+					return startn;
+				}
+			} else {
+				np = 0;
+			}
+		} else if (toupper (*p) == toupper (*needle)) {
+			np = (gchar *) needle + 1;
+			startn = p;
+		}
+	}
+
+	return NULL;
+}
+
+#endif /* HAVE_STRCASESTR */
+
 struct tej_error_mgr 
 {
 	struct jpeg_error_mgr jpeg;
@@ -97,46 +135,51 @@ static void tracker_extract_jpeg_error_exit (j_common_ptr cinfo)
 
 #ifdef HAVE_LIBEXIF
 
-typedef gchar * (*PostProcessor) (const gchar*);
+typedef gchar * (*PostProcessor) (const gchar*, gboolean *free_it);
 
 typedef struct {
 	ExifTag       tag;
-	gchar	     *name;
+	const gchar  *name;
 	PostProcessor post;
+	const gchar  *rdf_class;
+	const gchar  *rdf_property;
+	const gchar  *urn_prefix;
 } TagType;
 
-static gchar *date_to_iso8601	(const gchar *exif_date);
-static gchar *fix_focal_length	(const gchar *fl);
-static gchar *fix_flash		(const gchar *flash);
-static gchar *fix_fnumber	(const gchar *fn);
-static gchar *fix_exposure_time (const gchar *et);
-static gchar *fix_orientation   (const gchar *orientation);
+static gchar *date_to_iso8601	(const gchar *exif_date, gboolean *free_it);
+static gchar *fix_focal_length	(const gchar *fl, gboolean *free_it);
+static gchar *fix_flash		(const gchar *flash, gboolean *free_it);
+static gchar *fix_fnumber	(const gchar *fn, gboolean *free_it);
+static gchar *fix_exposure_time (const gchar *et, gboolean *free_it);
+static gchar *fix_orientation   (const gchar *orientation, gboolean *free_it);
+static gchar *fix_metering_mode (const gchar *metering_mode, gboolean *free_it);
+static gchar *fix_white_balance (const gchar *white_balance, gboolean *free_it);
 
 static TagType tags[] = {
-	{ EXIF_TAG_PIXEL_Y_DIMENSION, NFO_PREFIX "height", NULL },
-	{ EXIF_TAG_PIXEL_X_DIMENSION, NFO_PREFIX "width", NULL },
-	{ EXIF_TAG_RELATED_IMAGE_WIDTH, NFO_PREFIX "width", NULL },
-	{ EXIF_TAG_DOCUMENT_NAME, NIE_PREFIX "title", NULL },
+	{ EXIF_TAG_PIXEL_Y_DIMENSION, NFO_PREFIX "height", NULL, NULL, NULL, NULL },
+	{ EXIF_TAG_PIXEL_X_DIMENSION, NFO_PREFIX "width", NULL, NULL, NULL, NULL },
+	{ EXIF_TAG_RELATED_IMAGE_WIDTH, NFO_PREFIX "width", NULL, NULL, NULL, NULL },
+	{ EXIF_TAG_DOCUMENT_NAME, NIE_PREFIX "title", NULL, NULL, NULL, NULL },
 	/* { -1, "Image:Album", NULL }, */
-	{ EXIF_TAG_DATE_TIME, NIE_PREFIX "contentCreated", date_to_iso8601 },
-	{ EXIF_TAG_DATE_TIME_ORIGINAL, NIE_PREFIX "contentCreated", date_to_iso8601 },
+	{ EXIF_TAG_DATE_TIME, NIE_PREFIX "contentCreated", date_to_iso8601, NULL, NULL, NULL },
+	{ EXIF_TAG_DATE_TIME_ORIGINAL, NIE_PREFIX "contentCreated", date_to_iso8601, NULL, NULL, NULL },
 	/* { -1, "Image:Keywords", NULL }, */
-	{ EXIF_TAG_ARTIST, NCO_PREFIX "creator", NULL },
-	{ EXIF_TAG_USER_COMMENT, NIE_PREFIX "comment", NULL },
-	{ EXIF_TAG_IMAGE_DESCRIPTION, NIE_PREFIX "description", NULL },
-	{ EXIF_TAG_SOFTWARE, "Image:Software", NULL },
-	{ EXIF_TAG_MAKE, "Image:CameraMake", NULL },
-	{ EXIF_TAG_MODEL, "Image:CameraModel", NULL },
-	{ EXIF_TAG_ORIENTATION, "Image:Orientation", fix_orientation },
-	{ EXIF_TAG_EXPOSURE_PROGRAM, "Image:ExposureProgram", NULL },
-	{ EXIF_TAG_EXPOSURE_TIME, "Image:ExposureTime", fix_exposure_time },
-	{ EXIF_TAG_FNUMBER, "Image:FNumber", fix_fnumber },
-	{ EXIF_TAG_FLASH, "Image:Flash", fix_flash },
-	{ EXIF_TAG_FOCAL_LENGTH, "Image:FocalLength", fix_focal_length },
-	{ EXIF_TAG_ISO_SPEED_RATINGS, "Image:ISOSpeed", NULL },
-	{ EXIF_TAG_METERING_MODE, "Image:MeteringMode", NULL },
-	{ EXIF_TAG_WHITE_BALANCE, "Image:WhiteBalance", NULL },
-	{ EXIF_TAG_COPYRIGHT, NIE_PREFIX "copyright", NULL },
+	{ EXIF_TAG_ARTIST, NCO_PREFIX "creator", NULL, NCO_PREFIX "Contact", NCO_PREFIX "fullname", "urn:artist:%s"},
+	{ EXIF_TAG_USER_COMMENT, NIE_PREFIX "comment", NULL, NULL, NULL, NULL },
+	{ EXIF_TAG_IMAGE_DESCRIPTION, NIE_PREFIX "description", NULL, NULL, NULL, NULL },
+	/* { EXIF_TAG_SOFTWARE, "Image:Software", NULL }, */
+	{ EXIF_TAG_MAKE, NMM_PREFIX "camera", NULL, NULL, NULL, NULL },
+	{ EXIF_TAG_MODEL, NMM_PREFIX "camera", NULL, NULL, NULL, NULL },
+	{ EXIF_TAG_ORIENTATION, NFO_PREFIX "orientation", fix_orientation, NULL, NULL, NULL },
+	/* { EXIF_TAG_EXPOSURE_PROGRAM, "Image:ExposureProgram", NULL }, */
+	{ EXIF_TAG_EXPOSURE_TIME, NMM_PREFIX "exposureTime", fix_exposure_time, NULL, NULL, NULL },
+	{ EXIF_TAG_FNUMBER, NMM_PREFIX "fnumber", fix_fnumber, NULL, NULL, NULL },
+	{ EXIF_TAG_FLASH, NMM_PREFIX "flash", fix_flash, NULL, NULL, NULL },
+	{ EXIF_TAG_FOCAL_LENGTH, NMM_PREFIX "focalLength", fix_focal_length, NULL, NULL, NULL },
+	{ EXIF_TAG_ISO_SPEED_RATINGS, NMM_PREFIX "isoSpeed", NULL, NULL, NULL, NULL },
+	{ EXIF_TAG_METERING_MODE, NMM_PREFIX "meteringMode", fix_metering_mode, NULL, NULL, NULL },
+	{ EXIF_TAG_WHITE_BALANCE, NMM_PREFIX "whiteBalance", fix_white_balance, NULL, NULL, NULL },
+	{ EXIF_TAG_COPYRIGHT, NIE_PREFIX "copyright", NULL, NULL, NULL, NULL },
 	{ -1, NULL, NULL }
 };
 
@@ -145,36 +188,42 @@ static TagType tags[] = {
 #ifdef HAVE_LIBEXIF
 
 static gchar *
-date_to_iso8601 (const gchar *date)
+date_to_iso8601 (const gchar *date, gboolean *free_it)
 {
 	/* From: ex; date "2007:04:15 15:35:58"
-	 * To  : ex. "2007-04-15T17:35:58+0200 where +0200 is localtime
-	 */
+	 * To  : ex. "2007-04-15T17:35:58+0200 where +0200 is localtime */
+	*free_it = TRUE;
 	return tracker_date_format_to_iso8601 (date, EXIF_DATE_FORMAT);
 }
 
 static gchar *
-fix_focal_length (const gchar *fl)
+fix_focal_length (const gchar *fl, gboolean *free_it)
 {
+	*free_it = TRUE;
 	return g_strndup (fl, strstr (fl, " mm") - fl);
 }
 
 static gchar *
-fix_flash (const gchar *flash)
+fix_flash (const gchar *flash, gboolean *free_it)
 {
-	if (g_str_has_prefix (flash, "Flash fired")) {
-		return g_strdup ("1");
+	/* Found in the field: Auto, Did not fire, Red-eye reduction */
+
+	*free_it = FALSE;
+	
+	if (strcasestr (flash, "not fire")) {
+		return (gchar *) "nmm:flash-off";
 	} else {
-		return g_strdup ("0");
+		return (gchar *) "nmm:flash-on";
 	}
 }
 
 static gchar *
-fix_fnumber (const gchar *fn)
+fix_fnumber (const gchar *fn, gboolean *free_it)
 {
 	gchar *new_fn;
 
 	if (!fn) {
+		*free_it = FALSE;
 		return NULL;
 	}
 
@@ -186,16 +235,19 @@ fix_fnumber (const gchar *fn)
 		new_fn[0] = new_fn[1] = ' ';
 	}
 
+	*free_it = TRUE;
 	return g_strstrip (new_fn);
 }
 
 static gchar *
-fix_exposure_time (const gchar *et)
+fix_exposure_time (const gchar *et, gboolean *free_it)
 {
 	gchar *sep;
 
 	sep = strchr (et, '/');
 
+	*free_it = TRUE;
+	
 	if (sep) {
 		gdouble fraction;
 
@@ -216,29 +268,97 @@ fix_exposure_time (const gchar *et)
 }
 
 static gchar *
-fix_orientation (const gchar *orientation)
+fix_orientation (const gchar *orientation, gboolean *free_it)
 {
 	guint i;
-	static gchar *ostr[8] = {
-		"top - left",
-		"top - right",
-		"bottom - right",
-		"bottom - left",
-		"left - top",
-		"right - top",
-		"right - bottom",
-		"left - bottom"
+	static const gchar *ostr[8] = {
+		/* 0 */ "top - left",
+		/* 1 */ "top - right",
+		/* 2 */ "bottom - right",
+		/* 3 */ "bottom - left",
+		/* 4 */ "left - top",
+		/* 5 */ "right - top",
+		/* 6 */ "right - bottom",
+		/* 7 */ "left - bottom"
 	};
+
+	*free_it = FALSE;
 	
-	for (i=0;i<8;i++) {
-		if (strcmp(orientation,ostr[i])==0) {
-			gchar buffer[2];
-			snprintf (buffer,2,"%d", i+1);
-			return g_strdup(buffer);
+	for (i=0; i < 8; i++) {
+		if (g_strcmp0 (orientation,ostr[i]) == 0) {
+			switch (i) {
+				case 0:
+				return (gchar *) "nfo:orientation-top";
+				case 1:
+				return (gchar *) "nfo:orientation-top-mirror"; // not sure
+				case 2:
+				return (gchar *) "nfo:orientation-bottom-mirror"; // not sure
+				case 3:
+				return (gchar *) "nfo:orientation-bottom";
+				case 4:
+				return (gchar *) "nfo:orientation-left-mirror";
+				case 5:
+				return (gchar *) "nfo:orientation-right";
+				case 6:
+				return (gchar *) "nfo:orientation-right-mirror";
+				case 7:
+				return (gchar *) "nfo:orientation-left";
+			}
 		}
 	}
 
-	return g_strdup("1"); /* We take this as default */
+	return (gchar *) "nfo:orientation-top";
+}
+
+
+static gchar *
+fix_metering_mode (const gchar *metering_mode, gboolean *free_it)
+{
+	/* Found in the field: Multi-segment. These will yield as other */
+
+	*free_it = FALSE;
+	
+	if (strcasestr (metering_mode, "center")) {
+		return (gchar *) "nmm:meteringMode-center-weighted-average";
+	}
+
+	if (strcasestr (metering_mode, "average")) {
+		return (gchar *) "nmm:meteringMode-average";
+	}
+
+	if (strcasestr (metering_mode, "spot")) {
+		return (gchar *) "nmm:meteringMode-spot";
+	}
+
+	if (strcasestr (metering_mode, "multispot")) {
+		return (gchar *) "nmm:meteringMode-multispot";
+	}
+
+	if (strcasestr (metering_mode, "pattern")) {
+		return (gchar *) "nmm:meteringMode-pattern";
+	}
+
+	if (strcasestr (metering_mode, "partial")) {
+		return (gchar *) "nmm:meteringMode-partial";
+	}
+
+	return (gchar *) "nmm:meteringMode-other";
+}
+
+
+static gchar *
+fix_white_balance (const gchar *white_balance, gboolean *free_it)
+{
+	*free_it = FALSE;
+
+	if (strcasestr (white_balance, "auto")) {
+		return (gchar *) "nmm:whiteBalance-auto";
+	}
+
+	/* Found in the field: sunny, fluorescent, incandescent, cloudy. These
+	 * will this way also yield as manual. */
+
+	return (gchar *) "nmm:whiteBalance-manual";
 }
 
 static void
@@ -256,28 +376,29 @@ read_exif (const unsigned char *buffer,
 		ExifEntry *entry = exif_data_get_entry (exif, p->tag);
 
 		if (entry) {
-			gchar buffer[1024];
+			gchar buffer_[1024];
 			gchar *what_i_need;
+			gboolean free_it = FALSE;
 
-			exif_entry_get_value (entry, buffer, 1024);
+			exif_entry_get_value (entry, buffer_, 1024);
 
 			if (p->post) {
-				what_i_need = (*p->post) (buffer);
+				what_i_need = (*p->post) (buffer_, &free_it);
 			} else {
-				what_i_need = buffer;
+				what_i_need = buffer_;
 			}
 
-			if (p->tag == EXIF_TAG_ARTIST) {
-				gchar *canonical_uri = tracker_uri_printf_escaped ("urn:artist:%s", what_i_need);
-				tracker_statement_list_insert (metadata, canonical_uri, RDF_TYPE, NCO_PREFIX "Contact");
-				tracker_statement_list_insert (metadata, canonical_uri, NCO_PREFIX "fullname", what_i_need);
+			if (p->urn_prefix) {
+				gchar *canonical_uri = tracker_uri_printf_escaped (p->urn_prefix, what_i_need);
+				tracker_statement_list_insert (metadata, canonical_uri, RDF_TYPE, p->rdf_class);
+				tracker_statement_list_insert (metadata, canonical_uri, p->rdf_property, what_i_need);
 				tracker_statement_list_insert (metadata, uri, p->name, canonical_uri);
 				g_free (canonical_uri);
 			} else {
 				tracker_statement_list_insert (metadata, uri, p->name, what_i_need);
 			}
 
-			if (p->post)
+			if (free_it)
 				g_free (what_i_need);
 		}
 	}

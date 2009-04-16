@@ -816,3 +816,11 @@ poi:ObjectOfInterest a rdfs:Class .
 nfo:depicts a rdf:Property ;
 	rdfs:domain nfo:Image ;
 	rdfs:range poi:ObjectOfInterest .
+
+
+# Ivan's magic proposal for happy media lists
+nfo:mediaListEntry a rdf:Property ;
+	rdfs:label "Media list entry" ;
+	rdfs:comment "A certain item belongs to a media list. This can reflect that a song is in a playlist, an image or video in an Album" ;
+	rdfs:domain nfo:MediaList ;
+	rdfs:range nie:InformationElement .

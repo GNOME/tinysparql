@@ -26,7 +26,8 @@ nmm:MusicAlbum a rdfs:Class ;
 
 nmm:Video a rdfs:Class ;
 	rdfs:label "Video" ;
-	rdfs:subClassOf nfo:Video .
+	rdfs:subClassOf nfo:Video ;
+	rdfs:subClassOf nfo:Audio .
 
 nmm:Artist a rdfs:Class ;
 	rdfs:label "Artist" ;
