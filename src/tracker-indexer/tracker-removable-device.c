@@ -201,11 +201,7 @@ consume_triple_storer (void                   *user_data,
 
 		if (g_strcmp0 (predicate, "rdf:type") == 0) {
 			g_free (info->rdf_type);
-
-			/* TODO: ontology */
-			/* Change this when Files and Emails becomes File and Email */
-
-			info->rdf_type = g_strdup_printf ("%ss", (gchar *) triple->object);
+			info->rdf_type = g_strdup (triple->object);
 		} else {
 			tracker_module_metadata_add_string (info->metadata,
 							    predicate,
@@ -542,6 +538,7 @@ tracker_removable_device_add_removal (TrackerIndexer *indexer,
 	info->about_uri = about_uri;
 
 	set_metadata ("rdf:type", rdf_type, info);
+
 	set_metadata (NULL, NULL, info);
 
 	raptor_free_uri (suri);
@@ -618,6 +615,7 @@ tracker_removable_device_add_move (TrackerIndexer *indexer,
 	info->about_uri = about_uri;
 
 	set_metadata ("rdf:type", rdf_type, info);
+
 	set_metadata (NULL, to_uri, info);
 
 	g_slice_free (AddMetadataInfo, info);

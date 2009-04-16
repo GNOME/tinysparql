@@ -706,22 +706,14 @@ tracker_data_update_replace_service (const gchar *path,
 	g_return_if_fail (path != NULL);
 	g_return_if_fail (metadata != NULL);
 
-	/* When merging from the decomposed branch to trunk then pick the version
-	 * in the decomposed branch for this function. However, carefully 
-	 * compare the features, as this version is more recent and has 
-	 * implemented a few significant items, whereas the version in the
-	 * decomposed branch was a proof of concept implementation, and might
-	 * not have these needed features. 
-	 */
-
 	if (!rdf_type)
 		return;
 
-	/*
-	service = tracker_ontology_get_service_by_name (rdf_type); */
+	service = tracker_ontology_get_service_by_name (rdf_type);
 
-	/* The current ontology doesn't allow sanity like what above would be */
-	service = tracker_ontology_get_service_by_name ("Files");
+	if (!service) {
+		return;
+	}
 
 	iface = tracker_db_manager_get_db_interface_by_type (tracker_service_get_name (service),
 							     TRACKER_DB_CONTENT_TYPE_METADATA);
