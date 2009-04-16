@@ -597,19 +597,30 @@ create_result_set_from_stmt (TrackerDBInterfaceSqlite  *interface,
 	}
 
 	if (result != SQLITE_DONE) {
-
 		g_hash_table_foreach (priv->statements, foreach_print_error, stmt);
 
-		if (result == SQLITE_CORRUPT) {
+		/* This is rather fatal */
+		if (sqlite3_errcode (priv->db) == SQLITE_IOERR ||
+		    sqlite3_errcode (priv->db) == SQLITE_CORRUPT ||
+		    sqlite3_errcode (priv->db) == SQLITE_NOTADB) {
 			sqlite3_finalize (stmt);
 			sqlite3_close (priv->db);
+			
 			g_unlink (priv->filename);
-			g_error ("SQLite database:'%s' has been corrupted and removed, it will be recreated on restart, shutting down now",
-				  priv->filename);
+			
+			g_error ("SQLite experienced an error with file:'%s'. "
+				 "It is either NOT a SQLite database or it is "
+				 "corrupt or there was an IO error accessing the data. "
+				 "This file has now been removed and will be recreated on the next start. "
+				 "Shutting down now.",
+				 priv->filename);
+			return NULL;
 		}
 
 		if (!error) {
-			g_warning ("%s", sqlite3_errmsg (priv->db));
+			g_warning ("Could not perform SQLite operation, error:%d->'%s'",
+				   sqlite3_errcode (priv->db),
+				   sqlite3_errmsg (priv->db));
 		} else {
 			g_set_error (error,
 				     TRACKER_DB_INTERFACE_ERROR,
