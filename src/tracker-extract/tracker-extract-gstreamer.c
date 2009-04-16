@@ -257,26 +257,6 @@ extract_metadata (MetadataExtractor *extractor,
 		add_string_gst_tag (metadata, uri, DC_PREFIX "coverage", extractor->tagcache, GST_TAG_LOCATION);
 
 		/* Audio */
-		gst_tag_list_get_string (extractor->tagcache, GST_TAG_ALBUM, &s);
-		if (s) {
-			gchar *canonical_uri = tracker_uri_printf_escaped ("urn:album:%s", s);
-			tracker_statement_list_insert (metadata, canonical_uri, RDF_TYPE, NMM_PREFIX "MusicAlbum");
-			tracker_statement_list_insert (metadata, canonical_uri, NMM_PREFIX "albumTitle", s);
-			tracker_statement_list_insert (metadata, uri, NMM_PREFIX "musicAlbum", canonical_uri);
-			g_free (canonical_uri);
-			*album = s;
-		}
-
-		add_uint_gst_tag   (metadata, uri, NMM_PREFIX "albumTrackCount", extractor->tagcache, GST_TAG_TRACK_COUNT);
-
-
-		if (gst_tag_list_get_uint (extractor->tagcache, GST_TAG_TRACK_COUNT, &n)) {
-			*scount = g_strdup_printf ("%d", n);
-		}
-
-		add_uint_gst_tag   (metadata, uri, NMM_PREFIX "trackNumber", extractor->tagcache, GST_TAG_TRACK_NUMBER);
-
-		add_uint_gst_tag   (metadata, uri, NMM_PREFIX "setNumber", extractor->tagcache, GST_TAG_ALBUM_VOLUME_NUMBER);
 
 		gst_tag_list_get_string (extractor->tagcache, GST_TAG_PERFORMER, &s);
 		if (s) {
@@ -309,10 +289,10 @@ extract_metadata (MetadataExtractor *extractor,
 
 			gst_tag_list_get_string (extractor->tagcache, GST_TAG_ARTIST, &s);
 			if (s) {
-				gchar *canonical_uri = tracker_uri_printf_escaped ("urn:artist:%s", s);
-				tracker_statement_list_insert (metadata, canonical_uri, RDF_TYPE, NMM_PREFIX "Artist");
-				tracker_statement_list_insert (metadata, canonical_uri, NMM_PREFIX "artistName", s);
-				tracker_statement_list_insert (metadata, uri, NMM_PREFIX "performer", canonical_uri);
+				gchar *canonical_uri = tracker_uri_printf_escaped ("urn:contact:%s", s);
+				tracker_statement_list_insert (metadata, canonical_uri, RDF_TYPE, NCO_PREFIX "Contact");
+				tracker_statement_list_insert (metadata, canonical_uri, NCO_PREFIX "fullName", s);
+				tracker_statement_list_insert (metadata, uri, NCO_PREFIX "director", canonical_uri);
 				g_free (canonical_uri);
 				g_free (s);
 			}
@@ -326,15 +306,38 @@ extract_metadata (MetadataExtractor *extractor,
 				gchar *canonical_uri = tracker_uri_printf_escaped ("urn:artist:%s", s);
 				tracker_statement_list_insert (metadata, canonical_uri, RDF_TYPE, NMM_PREFIX "Artist");
 				tracker_statement_list_insert (metadata, canonical_uri, NMM_PREFIX "artistName", s);
-				tracker_statement_list_insert (metadata, uri, NMM_PREFIX "performer", canonical_uri);
+				tracker_statement_list_insert (metadata, uri, NMM_PREFIX "director", canonical_uri);
 				g_free (canonical_uri);
 				g_free (s);
 			}
-
+			
 			add_string_gst_tag (metadata, uri, DC_PREFIX "source", extractor->tagcache, GST_TAG_CLASSIFICATION);
 		} else if (extractor->mime == EXTRACT_MIME_AUDIO) {
 			add_string_gst_tag (metadata, uri, NIE_PREFIX "title", extractor->tagcache, GST_TAG_TITLE);
+			
+			gst_tag_list_get_string (extractor->tagcache, GST_TAG_ALBUM, &s);
 
+			if (s) {
+				gchar *canonical_uri = tracker_uri_printf_escaped ("urn:album:%s", s);
+				tracker_statement_list_insert (metadata, canonical_uri, RDF_TYPE, NMM_PREFIX "MusicAlbum");
+				tracker_statement_list_insert (metadata, canonical_uri, NMM_PREFIX "albumTitle", s);
+				tracker_statement_list_insert (metadata, uri, NMM_PREFIX "musicAlbum", canonical_uri);
+				g_free (canonical_uri);
+				*album = s;
+			}
+			
+			add_uint_gst_tag   (metadata, uri, NMM_PREFIX "albumTrackCount", extractor->tagcache, GST_TAG_TRACK_COUNT);
+			
+			
+			if (gst_tag_list_get_uint (extractor->tagcache, GST_TAG_TRACK_COUNT, &n)) {
+				*scount = g_strdup_printf ("%d", n);
+			}
+			
+			add_uint_gst_tag   (metadata, uri, NMM_PREFIX "trackNumber", extractor->tagcache, GST_TAG_TRACK_NUMBER);
+			
+			add_uint_gst_tag   (metadata, uri, NMM_PREFIX "setNumber", extractor->tagcache, GST_TAG_ALBUM_VOLUME_NUMBER);
+			
+			
 			gst_tag_list_get_string (extractor->tagcache, GST_TAG_ARTIST, &s);
 			if (s) {
 				gchar *canonical_uri = tracker_uri_printf_escaped ("urn:artist:%s", s);
@@ -344,7 +347,7 @@ extract_metadata (MetadataExtractor *extractor,
 				g_free (canonical_uri);
 				g_free (s);
 			}
-
+			
 			if (gst_tag_list_get_string (extractor->tagcache, GST_TAG_ARTIST, &s)) {
 				*artist = s;
 			}

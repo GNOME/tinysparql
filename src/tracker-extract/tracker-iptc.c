@@ -30,6 +30,7 @@
 #define RDF_TYPE RDF_PREFIX "type"
 #define NIE_PREFIX TRACKER_NIE_PREFIX
 #define NCO_PREFIX TRACKER_NCO_PREFIX
+#define NFO_PREFIX TRACKER_NFO_PREFIX
 
 #include <glib.h>
 #include <string.h>
@@ -56,15 +57,15 @@ static const gchar *fix_iptc_orientation (const gchar *orientation);
 static IptcTagType iptctags[] = {
         { 2, IPTC_TAG_KEYWORDS, NIE_PREFIX "keyword", NULL, NULL, NULL, NULL }, /* We might have to strtok_r this one? */
 	/*	{ 2, IPTC_TAG_CONTENT_LOC_NAME, "Image:Location", NULL, NULL, NULL, NULL }, */
-	{ 2, IPTC_TAG_SUBLOCATION, "Image:Location", NULL, NULL, NULL, NULL },
+	/*{ 2, IPTC_TAG_SUBLOCATION, "Image:Location", NULL, NULL, NULL, NULL },*/
         { 2, IPTC_TAG_DATE_CREATED, NIE_PREFIX "contentCreated", NULL, NULL, NULL, NULL },
-        { 2, IPTC_TAG_ORIGINATING_PROGRAM, "Image:Software", NULL, NULL, NULL, NULL },
+        /*{ 2, IPTC_TAG_ORIGINATING_PROGRAM, "Image:Software", NULL, NULL, NULL, NULL },*/
         { 2, IPTC_TAG_BYLINE, NCO_PREFIX "creator", NULL, ":", NCO_PREFIX "Contact", NCO_PREFIX "fullname" },
-        { 2, IPTC_TAG_CITY, "Image:City", NULL, NULL, NULL, NULL },
-        { 2, IPTC_TAG_COUNTRY_NAME, "Image:Country", NULL, NULL, NULL, NULL },
+        /*{ 2, IPTC_TAG_CITY, "Image:City", NULL, NULL, NULL, NULL },*/
+        /*{ 2, IPTC_TAG_COUNTRY_NAME, "Image:Country", NULL, NULL, NULL, NULL },*/
 	{ 2, IPTC_TAG_CREDIT, NCO_PREFIX "creator", NULL, ":", NCO_PREFIX "Contact", NCO_PREFIX "fullname" },
         { 2, IPTC_TAG_COPYRIGHT_NOTICE, NIE_PREFIX "copyright", NULL, NULL, NULL, NULL },
-        { 2, IPTC_TAG_IMAGE_ORIENTATION, "Image:Orientation", fix_iptc_orientation, NULL, NULL, NULL },
+        { 2, IPTC_TAG_IMAGE_ORIENTATION, NFO_PREFIX "orientation", fix_iptc_orientation, NULL, NULL, NULL },
 	{ -1, -1, NULL, NULL, NULL, NULL, NULL }
 };
 
@@ -72,10 +73,10 @@ static const gchar *
 fix_iptc_orientation (const gchar *orientation)
 {
 	if (strcmp(orientation, "P")==0) {
-		return "3";
+		return "nfo:orientation-left";
 	}
 	
-	return "1"; /* We take this as default */
+	return "nfo:orientation-top"; /* We take this as default */
 }
 
 #endif

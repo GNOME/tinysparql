@@ -205,14 +205,12 @@ fix_focal_length (const gchar *fl, gboolean *free_it)
 static gchar *
 fix_flash (const gchar *flash, gboolean *free_it)
 {
-	/* Found in the field: Auto, Did not fire, Red-eye reduction */
-
 	*free_it = FALSE;
 	
-	if (strcasestr (flash, "not fire")) {
-		return (gchar *) "nmm:flash-off";
-	} else {
+	if (strcasestr (flash, "flash fired")) {
 		return (gchar *) "nmm:flash-on";
+	} else {
+		return (gchar *) "nmm:flash-off";
 	}
 }
 
@@ -289,11 +287,11 @@ fix_orientation (const gchar *orientation, gboolean *free_it)
 				case 0:
 				return (gchar *) "nfo:orientation-top";
 				case 1:
-				return (gchar *) "nfo:orientation-top-mirror"; // not sure
+				return (gchar *) "nfo:orientation-top-mirror";
 				case 2:
-				return (gchar *) "nfo:orientation-bottom-mirror"; // not sure
-				case 3:
 				return (gchar *) "nfo:orientation-bottom";
+				case 3:
+				return (gchar *) "nfo:orientation-bottom-mirror";
 				case 4:
 				return (gchar *) "nfo:orientation-left-mirror";
 				case 5:
@@ -313,8 +311,6 @@ fix_orientation (const gchar *orientation, gboolean *free_it)
 static gchar *
 fix_metering_mode (const gchar *metering_mode, gboolean *free_it)
 {
-	/* Found in the field: Multi-segment. These will yield as other */
-
 	*free_it = FALSE;
 	
 	if (strcasestr (metering_mode, "center")) {
