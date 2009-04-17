@@ -1353,7 +1353,7 @@ unregister_account (TrackerEvolutionPlugin *self,
 	CamelProvider *provider;
 	CamelStore *store;
 	CamelException ex;
-	char *uri;
+	char *uri = account->source->url;
 	RegisterInfo *reg_info;
 
 
