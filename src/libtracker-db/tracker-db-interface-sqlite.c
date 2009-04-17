@@ -18,6 +18,8 @@
  * Boston, MA  02110-1301, USA.
  */
 
+#include "config.h"
+
 #include <glib/gstdio.h>
 #include <sqlite3.h>
 
@@ -99,6 +101,7 @@ tracker_db_interface_sqlite_constructor (GType			type,
 {
 	GObject *object;
 	TrackerDBInterfaceSqlitePrivate *priv;
+	gchar *err_msg = NULL;
 
 	object = (* G_OBJECT_CLASS (tracker_db_interface_sqlite_parent_class)->constructor) (type,
 											     n_construct_properties,
@@ -122,6 +125,18 @@ tracker_db_interface_sqlite_constructor (GType			type,
 
 	sqlite3_extended_result_codes (priv->db, 0);
 	sqlite3_busy_timeout (priv->db, 10000000);
+
+#ifdef HAVE_SQLITE_FTS
+	sqlite3_enable_load_extension (priv->db, 1);
+	sqlite3_load_extension (priv->db, "tracker-fts.so", NULL, &err_msg);
+
+	if (err_msg) {
+		g_critical ("Could not load tracker-fts extension:'%s'", err_msg);
+		sqlite3_free (err_msg);
+	} else {
+		g_message ("Loaded tracker fts extension");
+	}
+#endif
 
 	return object;
 }

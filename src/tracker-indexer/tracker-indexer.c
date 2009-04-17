@@ -403,7 +403,9 @@ flush_data (TrackerIndexer *indexer)
 		stop_transaction (indexer);
 	}
 
+#ifndef HAVE_SQLITE_FTS
 	tracker_db_index_flush (indexer->private->resources_index);
+#endif
 
 	if ((indexer->private->state & TRACKER_INDEXER_STATE_STOPPED) == 0) {
 		signal_status (indexer, "flush");
@@ -528,6 +530,7 @@ notify_battery_in_use_cb (GObject *gobject,
 
 #endif /* HAVE_HAL */
 
+#ifndef HAVE_SQLITE_FTS
 static void
 index_flushing_notify_cb (GObject        *object,
 			  GParamSpec     *pspec,
@@ -566,6 +569,7 @@ index_error_received_cb (TrackerDBIndex *index,
 	g_signal_emit (indexer, signals[INDEXING_ERROR], 0,
 		       error->message, TRUE);
 }
+#endif
 
 static void
 check_mount_removal (GQueue   *queue,
@@ -667,6 +671,7 @@ tracker_indexer_finalize (GObject *object)
 	g_object_unref (priv->language);
 	g_object_unref (priv->config);
 
+#ifndef HAVE_SQLITE_FTS
 	g_signal_handlers_disconnect_by_func (priv->resources_index,
 					      index_flushing_notify_cb,
 					      object);
@@ -674,6 +679,7 @@ tracker_indexer_finalize (GObject *object)
 					      index_overloaded_notify_cb,
 					      object);
 	g_object_unref (priv->resources_index);
+#endif
 
 	g_free (priv->db_dir);
 
@@ -865,8 +871,10 @@ check_started (TrackerIndexer *indexer)
 
 	indexer->private->timer = g_timer_new ();
 
+#ifndef HAVE_SQLITE_FTS
 	/* Open indexes */
 	tracker_db_index_open (indexer->private->resources_index);
+#endif
 
 	g_signal_emit (indexer, signals[STARTED], 0);
 }
@@ -889,8 +897,10 @@ check_finished (TrackerIndexer *indexer,
 		indexer->private->timer = NULL;
 	}
 
+#ifndef HAVE_SQLITE_FTS
 	/* Close indexes */
 	tracker_db_index_close (indexer->private->resources_index);
+#endif
 
 	/* Print out how long it took us */
 	str = tracker_seconds_to_string (seconds_elapsed, FALSE);
@@ -927,7 +937,10 @@ check_stopped (TrackerIndexer *indexer,
 		/* If the indexer is stopped and the indices aren't
 		 * being flushed, then it's ready for finishing right away
 		 */
-		if (!tracker_db_index_get_flushing (indexer->private->resources_index)) {
+#ifndef HAVE_SQLITE_FTS
+		if (!tracker_db_index_get_flushing (indexer->private->resources_index))
+#endif
+		{
 			check_finished (indexer, interrupted);
 		}
 	}
@@ -1053,6 +1066,7 @@ tracker_indexer_init (TrackerIndexer *indexer)
 
 	tracker_indexer_load_modules (indexer);
 
+#ifndef HAVE_SQLITE_FTS
 	/* Set up indexer */
 	lindex = tracker_db_index_manager_get_index (TRACKER_DB_INDEX_RESOURCES);
 	priv->resources_index = g_object_ref (lindex);
@@ -1063,6 +1077,7 @@ tracker_indexer_init (TrackerIndexer *indexer)
 			  G_CALLBACK (index_overloaded_notify_cb), indexer);
 	g_signal_connect (priv->resources_index, "error-received",
 			  G_CALLBACK (index_error_received_cb), indexer);
+#endif
 
 	/* Set up volume monitor */
 	priv->volume_monitor = g_volume_monitor_get ();
@@ -2164,11 +2179,15 @@ tracker_indexer_set_running (TrackerIndexer *indexer,
 	if (running && (state & TRACKER_INDEXER_STATE_PAUSED)) {
 		state_unset_flags (indexer, TRACKER_INDEXER_STATE_PAUSED);
 
+#ifndef HAVE_SQLITE_FTS
 		tracker_db_index_set_paused (indexer->private->resources_index, FALSE);
+#endif
 	} else if (!running && !(state & TRACKER_INDEXER_STATE_PAUSED)) {
 		state_set_flags (indexer, TRACKER_INDEXER_STATE_PAUSED);
 
+#ifndef HAVE_SQLITE_FTS
 		tracker_db_index_set_paused (indexer->private->resources_index, TRUE);
+#endif
 	}
 }
 

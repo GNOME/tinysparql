@@ -25,25 +25,35 @@ libtracker_data_la_SOURCES = 						\
 	tracker-data-backup.c						\
 	tracker-data-manager.c						\
 	tracker-data-query.c						\
-	tracker-data-search.c						\
 	tracker-data-update.c						\
-	tracker-query-tree.c						\
-	libtracker-data.vala.stamp					\
 	tracker-turtle.c						\
+	libtracker-data.vala.stamp					\
 	$(libtracker_data_la_VALASOURCES:.vala=.c)
 
 noinst_HEADERS =							\
 	tracker-data-backup.h						\
 	tracker-data-manager.h						\
 	tracker-data-query.h						\
-	tracker-data-search.h						\
 	tracker-data-update.h						\
-	tracker-query-tree.h						\
 	tracker-sparql-query.h						\
 	tracker-turtle.h
 
+if ENABLE_SQLITE_FTS
+VALAFLAGS = -D HAVE_SQLITE_FTS
+endif
+
+if !ENABLE_SQLITE_FTS
+libtracker_data_la_SOURCES += 						\
+	tracker-data-search.c						\
+	tracker-query-tree.c
+
+noinst_HEADERS +=							\
+	tracker-data-search.h						\
+	tracker-query-tree.h
+endif
+
 libtracker-data.vala.stamp: $(libtracker_data_la_VALASOURCES)
-	$(VALAC) -C -H tracker-sparql-query.h ../rasqal/rasqal.vapi ../libtracker-common/libtracker-common.vapi libtracker-data.vapi ../libtracker-db/libtracker-db.vapi $^
+	$(VALAC) -C $(VALAFLAGS) -H tracker-sparql-query.h ../rasqal/rasqal.vapi ../libtracker-common/libtracker-common.vapi libtracker-data.vapi ../libtracker-db/libtracker-db.vapi $^
 	touch $@
 
 libtracker_data_la_LDFLAGS =						\

@@ -312,6 +312,7 @@ SQLITE_EXTENSION_INIT1
 static int default_column = 0;
 
 /* Functions from Tracker */
+#if 0
 static TrackerDBResultSet *
 db_metadata_get (TrackerDBInterface *iface, 
 		 const gchar        *id, 
@@ -386,6 +387,7 @@ db_get_text (const char     *service,
 
 	return contents;
 }
+#endif
 
 static inline int
 get_metadata_weight (int id)
@@ -4221,7 +4223,9 @@ static int fulltextNext(sqlite3_vtab_cursor *pCursor){
     }
     rc = sqlite3_bind_int64(c->pStmt, 1, dlrDocid(&c->reader));
     c->currentDocid = dlrDocid(&c->reader);
+#ifdef STORE_CATEGORY
     c->currentCatid = dlrCatid(&c->reader);
+#endif
 
     /* (tracker) read position offsets here */
     

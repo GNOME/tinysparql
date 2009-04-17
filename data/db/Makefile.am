@@ -4,7 +4,6 @@ configdir = $(datadir)/tracker
 
 config_DATA =				\
 	sqlite-contents.sql		\
-	sqlite-fulltext.sql 		\
 	sqlite-tracker.sql
 
 EXTRA_DIST = $(config_DATA)

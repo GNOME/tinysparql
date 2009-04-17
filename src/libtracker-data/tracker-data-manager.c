@@ -745,6 +745,37 @@ create_decomposed_transient_metadata_tables (TrackerDBInterface *iface)
 	g_free (properties);
 }
 
+#ifdef HAVE_SQLITE_FTS
+static void
+create_fts_table (TrackerDBInterface *iface)
+{
+	GString    *sql;
+	TrackerProperty	  **properties, **property;
+	gboolean first;
+
+	sql = g_string_new ("CREATE VIRTUAL TABLE fulltext.fts USING trackerfts (");
+
+	first = TRUE;
+	properties = tracker_ontology_get_properties ();
+	for (property = properties; *property; property++) {
+		if (tracker_property_get_data_type (*property) == TRACKER_PROPERTY_TYPE_STRING) {
+			if (first) {
+				first = FALSE;
+			} else {
+				g_string_append (sql, ", ");
+			}
+			g_string_append_printf (sql, "\"%s\"", tracker_property_get_name (*property));
+		}
+	}
+	g_free (properties);
+
+	g_string_append (sql, ")");
+	tracker_db_interface_execute_query (iface, NULL, "%s", sql->str);
+
+	g_string_free (sql, TRUE);
+}
+#endif
+
 gboolean
 tracker_data_manager_init (TrackerConfig              *config,
 			   TrackerLanguage            *language,
@@ -776,12 +807,16 @@ tracker_data_manager_init (TrackerConfig              *config,
 			      private,
 			      private_free);
 
+#ifdef HAVE_SQLITE_FTS
+	tracker_db_manager_init (flags, &is_first_time_index, FALSE);
+#else
 	tracker_db_manager_init (flags, &is_first_time_index, TRUE);
 	if (!tracker_db_index_manager_init (index_flags,
 					    tracker_config_get_min_bucket_count (config),
 					    tracker_config_get_max_bucket_count (config))) {
 		return FALSE;
 	}
+#endif
 
 	if (first_time != NULL) {
 		*first_time = is_first_time_index;
@@ -855,6 +890,10 @@ tracker_data_manager_init (TrackerConfig              *config,
 			create_decomposed_metadata_tables (iface, *cl, &max_id);
 		}
 
+#ifdef HAVE_SQLITE_FTS
+		create_fts_table (iface);
+#endif
+
 		/* store ontology in database */
 		for (l = sorted; l; l = l->next) {
 			import_ontology_file (l->data);
@@ -887,7 +926,9 @@ tracker_data_manager_shutdown (void)
 {
 	TrackerDBPrivate *private;
 
+#ifndef HAVE_SQLITE_FTS
 	tracker_db_index_manager_shutdown ();
+#endif
 	tracker_db_manager_shutdown ();
 
 	private = g_static_private_get (&private_key);

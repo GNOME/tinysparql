@@ -341,6 +341,23 @@ fi
 
 AM_CONDITIONAL(HAVE_UNIT_TESTS, test "x$have_unit_tests" = "xyes")
 
+##################################################################
+# Enable SQLite FTS support?
+##################################################################
+
+AC_ARG_ENABLE([sqlite_fts],
+              AS_HELP_STRING([--enable-sqlite-fts], 
+	                     [enable SQLite FTS support (default=no)]),,
+              [enable_sqlite_fts=no])
+
+if test "x$enable_sqlite_fts" != "xno" ; then
+   AC_DEFINE(HAVE_SQLITE_FTS, 1, [Define if we have SQLite FTS support])
+else
+   enable_sqlite_fts="no  (disabled)"
+fi
+
+AM_CONDITIONAL(ENABLE_SQLITE_FTS, test "$enable_sqlite_fts" = "yes")
+
 ####################################################################
 # QDBM check
 ####################################################################
@@ -359,7 +376,7 @@ if test "x$enable_external_qdbm" != "xno"; then
    if test "x$have_external_qdbm" = "xyes"; then
       AC_DEFINE(HAVE_EXTERNAL_QDBM, [], [Define if we have external QDBM])
    fi
-else
+elif test "x$enable_sqlite_fts" != "xyes" ; then
    QDBM_CFLAGS="-I\$(top_srcdir)/src/qdbm"
    QDBM_LIBS="\$(top_builddir)/src/qdbm/libqdbm-private.la"
    AC_DEFINE(HAVE_QDBM, [], [Define if we have QDBM (our imported version)])
@@ -1309,21 +1326,6 @@ if test "x$enable_evolution_plugin" = "xyes"; then
 fi
 
 AM_CONDITIONAL(HAVE_EVOLUTION_PLUGIN, test "$have_evolution_plugin" = "yes")
-
-##################################################################
-# Enable SQLite FTS support?
-##################################################################
-
-AC_ARG_ENABLE([sqlite_fts],
-              AS_HELP_STRING([--enable-sqlite-fts], 
-	                     [enable SQLite FTS support (default=no)]),,
-              [enable_sqlite_fts=no])
-
-if test "x$enable_sqlite_fts" != "xyes" ; then
-   enable_sqlite_fts="no  (disabled)"
-fi
-
-AM_CONDITIONAL(ENABLE_SQLITE_FTS, test "$enable_sqlite_fts" = "yes")
 
 ####################################################################
 # Checks for gtk-doc and docbook-tools

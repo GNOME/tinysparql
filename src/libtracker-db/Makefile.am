@@ -19,9 +19,6 @@ libtracker_db_la_SOURCES = 						\
 	tracker-db-action.c						\
 	tracker-db-dbus.c						\
 	tracker-db-file-info.c						\
-	tracker-db-index.c						\
-	tracker-db-index-item.c						\
-	tracker-db-index-manager.c					\
 	tracker-db-interface.c						\
 	tracker-db-interface-sqlite.c					\
 	tracker-db-manager.c
@@ -30,12 +27,21 @@ noinst_HEADERS =							\
 	tracker-db-action.h						\
 	tracker-db-dbus.h						\
 	tracker-db-file-info.h						\
-	tracker-db-index.h						\
-	tracker-db-index-item.h						\
-	tracker-db-index-manager.h					\
 	tracker-db-interface.h						\
 	tracker-db-interface-sqlite.h					\
 	tracker-db-manager.h 
+
+if !ENABLE_SQLITE_FTS
+libtracker_db_la_SOURCES += 						\
+	tracker-db-index.c						\
+	tracker-db-index-item.c						\
+	tracker-db-index-manager.c
+
+noinst_HEADERS +=							\
+	tracker-db-index.h						\
+	tracker-db-index-item.h						\
+	tracker-db-index-manager.h
+endif
 
 libtracker_db_la_LDFLAGS =						\
 	-version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE)

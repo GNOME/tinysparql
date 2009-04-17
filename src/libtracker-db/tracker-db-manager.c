@@ -796,15 +796,6 @@ db_interface_get_fulltext (void)
 
 	iface = db_interface_get (TRACKER_DB_FULLTEXT, &create);
 
-	/*
-	 * disabled to avoid warnings while not implemented
-	if (create) {
-		tracker_db_interface_start_transaction (iface);
-		load_sql_file (iface, "sqlite-fulltext.sql", NULL);
-		tracker_db_interface_end_transaction (iface);
-	}
-	 */
-
 	return iface;
 }
 
@@ -1214,10 +1205,18 @@ tracker_db_manager_init (TrackerDBManagerFlags	flags,
 
 	initialized = TRUE;
 
+#ifdef HAVE_SQLITE_FTS
+	resources_iface = tracker_db_manager_get_db_interfaces (4,
+							    TRACKER_DB_METADATA,
+							    TRACKER_DB_FULLTEXT,
+							    TRACKER_DB_CONTENTS,
+							    TRACKER_DB_COMMON);
+#else
 	resources_iface = tracker_db_manager_get_db_interfaces (3,
 							    TRACKER_DB_METADATA,
 							    TRACKER_DB_CONTENTS,
 							    TRACKER_DB_COMMON);
+#endif
 }
 
 void

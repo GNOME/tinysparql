@@ -270,7 +270,9 @@ tracker_dbus_register_objects (TrackerConfig	*config,
 
 	g_return_val_if_fail (TRACKER_IS_CONFIG (config), FALSE);
 	g_return_val_if_fail (TRACKER_IS_LANGUAGE (language), FALSE);
+#ifndef HAVE_SQLITE_FTS
 	g_return_val_if_fail (TRACKER_IS_DB_INDEX (resources_index), FALSE);
+#endif
 
 	if (!connection || !gproxy) {
 		g_critical ("DBus support must be initialized before registering objects!");

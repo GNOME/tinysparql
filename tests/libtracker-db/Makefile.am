@@ -16,8 +16,10 @@ noinst_PROGRAMS = $(TEST_PROGS)
 #	  tracker-db-manager-custom
 #
 
+if !ENABLE_SQLITE_FTS
 TEST_PROGS += 								\
 	tracker-index-writer
+endif
 
 INCLUDES = 								\
 	-DG_LOG_DOMAIN=\"Tracker\"					\

@@ -1119,12 +1119,14 @@ indexer_status_cb (DBusGProxy  *proxy,
 			       seconds_elapsed);
 	g_free (path);
 
+#ifndef HAVE_SQLITE_FTS
 	/* Tell the index that it can reload, really we should do
 	 * module_name->index type so we don't do this for both
 	 * every time:
 	 */
 	index = tracker_db_index_manager_get_index (TRACKER_DB_INDEX_RESOURCES);
 	tracker_db_index_set_reload (index, TRUE);
+#endif
 
 	/* Message to the console about state */
 	str1 = tracker_seconds_estimate_to_string (seconds_elapsed,
@@ -1175,12 +1177,14 @@ indexer_finished_cb (DBusGProxy  *proxy,
 			       items_processed,
 			       seconds_elapsed);
 
+#ifndef HAVE_SQLITE_FTS
 	/* Tell the index that it can reload, really we should do
 	 * module_name->index type so we don't do this for both
 	 * every time:
 	 */
 	index = tracker_db_index_manager_get_index (TRACKER_DB_INDEX_RESOURCES);
 	tracker_db_index_set_reload (index, TRUE);
+#endif
 
 	/* Message to the console about state */
 	str = tracker_seconds_to_string (seconds_elapsed, FALSE);

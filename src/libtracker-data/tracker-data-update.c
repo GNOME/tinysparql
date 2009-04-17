@@ -58,6 +58,7 @@ struct _TrackerDataUpdateBuffer {
 struct _TrackerDataUpdateBufferProperty {
 	gchar *name;
 	GValue value;
+	gboolean fts;
 };
 
 struct _TrackerDataUpdateBufferTable {
@@ -205,13 +206,15 @@ static void
 cache_insert_value (const gchar            *table_name,
 		    const gchar            *field_name,
 		    GValue                 *value,
-		    gboolean                multiple_values)
+		    gboolean                multiple_values,
+		    gboolean                fts)
 {
 	TrackerDataUpdateBufferTable    *table;
 	TrackerDataUpdateBufferProperty  property;
 
 	property.name = g_strdup (field_name);
 	property.value = *value;
+	property.fts = fts;
 
 	table = cache_ensure_table (table_name, multiple_values);
 	g_array_append_val (table->properties, property);
@@ -275,6 +278,13 @@ ensure_resource_id (const gchar *uri)
 		tracker_db_statement_execute (stmt, NULL);
 		g_object_unref (stmt);
 
+#ifdef HAVE_SQLITE_FTS
+		stmt = tracker_db_interface_create_statement (iface, "INSERT INTO \"fts\" (rowid) VALUES (?)");
+		tracker_db_statement_bind_int (stmt, 0, id);
+		tracker_db_statement_execute (stmt, NULL);
+		g_object_unref (stmt);
+#endif
+
 		g_hash_table_insert (update_buffer.resource_cache, g_strdup (uri), GUINT_TO_POINTER (id));
 	}
 
@@ -314,10 +324,15 @@ tracker_data_update_buffer_flush (void)
 	TrackerDataUpdateBufferProperty *property;
 	GHashTableIter                  iter;
 	const gchar                    *table_name;
-	GString                        *sql;
-	int                             i;
+	GString                        *sql, *fts_sql;
+	int                             i, fts_index;
 
 	iface = tracker_db_manager_get_db_interface ();
+
+#ifdef HAVE_SQLITE_FTS
+	fts_sql = g_string_new ("UPDATE \"fts\" SET ");
+	fts_index = 0;
+#endif
 
 	g_hash_table_iter_init (&iter, update_buffer.tables);
 	while (g_hash_table_iter_next (&iter, (gpointer*) &table_name, (gpointer*) &table)) {
@@ -375,7 +390,42 @@ tracker_data_update_buffer_flush (void)
 
 			g_string_free (sql, TRUE);
 		}
+
+#ifdef HAVE_SQLITE_FTS
+		for (i = 0; i < table->properties->len; i++) {
+			property = &g_array_index (table->properties, TrackerDataUpdateBufferProperty, i);
+			if (property->fts) {
+				if (fts_index > 0) {
+					g_string_append (fts_sql, ", ");
+				}
+				g_string_append_printf (fts_sql, "\"%s\" = ?", property->name);
+				fts_index++;
+			}
+		}
+#endif
 	}
+
+#ifdef HAVE_SQLITE_FTS
+	if (fts_index > 0) {
+		g_string_append (fts_sql, " WHERE rowid = ?");
+
+		stmt = tracker_db_interface_create_statement (iface, "%s", fts_sql->str);
+		tracker_db_statement_bind_int (stmt, fts_index, update_buffer.id);
+
+		fts_index = 0;
+		for (i = 0; i < table->properties->len; i++) {
+			property = &g_array_index (table->properties, TrackerDataUpdateBufferProperty, i);
+			if (property->fts) {
+				statement_bind_gvalue (stmt, fts_index, &property->value);
+				fts_index++;
+			}
+		}
+
+		tracker_db_statement_execute (stmt, NULL);
+		g_object_unref (stmt);
+	}
+	g_string_free (fts_sql, TRUE);
+#endif
 
 	g_hash_table_remove_all (update_buffer.tables);
 	g_free (update_buffer.subject);
@@ -465,7 +515,7 @@ cache_create_service_decomposed (TrackerClass           *cl)
 	cache_insert_row (tracker_class_get_name (cl));
 
 	g_value_set_int (&gvalue, ensure_resource_id (tracker_class_get_uri (cl)));
-	cache_insert_value ("rdfs:Resource_rdf:type", "rdf:type", &gvalue, TRUE);
+	cache_insert_value ("rdfs:Resource_rdf:type", "rdf:type", &gvalue, TRUE, FALSE);
 }
 
 guint32
@@ -523,7 +573,7 @@ cache_set_metadata_decomposed (TrackerProperty	*property,
 			       const gchar	*value)
 {
 	guint32		    object_id;
-	gboolean            multiple_values;
+	gboolean            multiple_values, fts;
 	gchar              *table_name;
 	const gchar        *field_name;
 	TrackerProperty   **super_properties;
@@ -577,7 +627,9 @@ cache_set_metadata_decomposed (TrackerProperty	*property,
 		return;
 	}
 
-	cache_insert_value (table_name, field_name, &gvalue, multiple_values);
+	fts = tracker_property_get_fulltext_indexed (property);
+
+	cache_insert_value (table_name, field_name, &gvalue, multiple_values, fts);
 
 	g_free (table_name);
 }
@@ -591,6 +643,7 @@ send_text_to_index (TrackerConfig  *config,
 		    gboolean	    full_parsing,
 		    gint	    weight_factor)
 {
+#ifndef HAVE_SQLITE_FTS
 	TrackerDBIndex *lindex;
 	GHashTable     *parsed;
 	GHashTableIter	iter;
@@ -631,6 +684,7 @@ send_text_to_index (TrackerConfig  *config,
 	}
 
 	g_hash_table_unref (parsed);
+#endif
 }
 
 static void
@@ -1050,7 +1104,7 @@ tracker_data_insert_statement (const gchar            *subject,
 		update_buffer.types = tracker_data_query_rdf_type (update_buffer.id);
 
 		g_value_set_int64 (&gvalue, (gint64) time (NULL));
-		cache_insert_value ("rdfs:Resource", "Modified", &gvalue, FALSE);
+		cache_insert_value ("rdfs:Resource", "Modified", &gvalue, FALSE, FALSE);
 	}
 
 	if (strcmp (predicate, RDF_PREFIX "type") == 0) {

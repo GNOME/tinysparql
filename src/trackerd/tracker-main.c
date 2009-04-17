@@ -660,7 +660,6 @@ get_ttl_backup_filename (void)
 static void
 backup_user_metadata (TrackerConfig *config, TrackerLanguage *language)
 {
-	TrackerDBIndex		   *index;
 	gboolean                    is_first_time_index;
 
 	g_message ("Saving metadata in %s", get_ttl_backup_filename ());
@@ -679,8 +678,6 @@ backup_user_metadata (TrackerConfig *config, TrackerLanguage *language)
 		return;
 	}
 
-	index = tracker_db_index_manager_get_index (TRACKER_DB_INDEX_RESOURCES);
-	
 	/* Actual save of the metadata */
 	tracker_data_backup_save (get_ttl_backup_filename (), NULL);
 	
@@ -1012,12 +1009,14 @@ main (gint argc, gchar *argv[])
 		return EXIT_FAILURE;
 	}
 
+#ifndef HAVE_SQLITE_FTS
 	resources_index = tracker_db_index_manager_get_index (TRACKER_DB_INDEX_RESOURCES);
 
 	if (!TRACKER_IS_DB_INDEX (resources_index)) {
 		g_critical ("Could not create indexer for resource index");
 		return EXIT_FAILURE;
 	}
+#endif
 
 	tracker_volume_cleanup_init ();
 

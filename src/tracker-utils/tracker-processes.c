@@ -253,9 +253,11 @@ main (int argc, char **argv)
 		tracker_db_manager_remove_all ();
 		tracker_db_manager_shutdown ();
 
+#ifndef HAVE_SQLITE_FTS
 		tracker_db_index_manager_init (TRACKER_DB_INDEX_MANAGER_REMOVE_ALL, 0, 0);
 		tracker_db_index_manager_remove_all ();
 		tracker_db_index_manager_shutdown ();
+#endif
 
 		/* Unset log handler */
 		g_log_remove_handler (NULL, log_handler_id);

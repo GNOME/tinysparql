@@ -5,7 +5,9 @@ build_libinotify = libinotify
 endif
 
 if !HAVE_EXTERNAL_QDBM
+if !ENABLE_SQLITE_FTS
 build_qdbm = qdbm
+endif
 endif
 
 if ENABLE_SQLITE_FTS

@@ -84,7 +84,9 @@ tracker_search_finalize (GObject *object)
 
 	priv = TRACKER_SEARCH_GET_PRIVATE (object);
 
+#ifndef HAVE_SQLITE_FTS
 	g_object_unref (priv->resources_index);
+#endif
 	g_object_unref (priv->language);
 	g_object_unref (priv->config);
 
@@ -101,7 +103,9 @@ tracker_search_new (TrackerConfig   *config,
 
 	g_return_val_if_fail (TRACKER_IS_CONFIG (config), NULL);
 	g_return_val_if_fail (TRACKER_IS_LANGUAGE (language), NULL);
+#ifndef HAVE_SQLITE_FTS
 	g_return_val_if_fail (TRACKER_IS_DB_INDEX (resources_index), NULL);
+#endif
 
 	object = g_object_new (TRACKER_TYPE_SEARCH, NULL);
 
@@ -109,7 +113,9 @@ tracker_search_new (TrackerConfig   *config,
 
 	priv->config = g_object_ref (config);
 	priv->language = g_object_ref (language);
+#ifndef HAVE_SQLITE_FTS
 	priv->resources_index = g_object_ref (resources_index);
+#endif
 
 	return object;
 }
@@ -508,6 +514,7 @@ tracker_search_suggest (TrackerSearch	       *object,
 
 	priv = TRACKER_SEARCH_GET_PRIVATE (object);
 
+#ifndef HAVE_SQLITE_FTS
 	value = tracker_db_index_get_suggestion (priv->resources_index,
 						 search_text,
 						 max_dist);
@@ -528,6 +535,7 @@ tracker_search_suggest (TrackerSearch	       *object,
 				      search_text, value);
 		g_free (value);
 	}
+#endif
 
 	tracker_dbus_request_success (request_id);
 }
