@@ -288,7 +288,12 @@ extractor_context_destroy (ExtractorContext *context)
 static void
 extractor_context_kill (ExtractorContext *context)
 {
-        g_message ("Attempting to kill tracker-extract with SIGKILL");
+	g_message ("Attempting to kill tracker-extract with SIGKILL");
+
+	if (context->pid == 0) {
+		g_warning ("  No PID for tracker-extract");
+		return;
+	}
 
         if (kill (context->pid, SIGKILL) == -1) {
                 const gchar *str = g_strerror (errno);
