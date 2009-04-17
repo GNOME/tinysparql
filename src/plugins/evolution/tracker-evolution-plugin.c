@@ -366,7 +366,7 @@ on_folder_summary_changed (CamelFolder *folder,
 				flags =   (guint)   camel_message_info_flags (linfo);
 
 				/* Camel returns a time_t, I think a uint64 is the best fit here */
-				sent = g_strdup_printf ("%"PRIu64, (unsigned long long) camel_message_info_date_sent (linfo));
+				sent = g_strdup_printf ("%"PRIu64, (guint64) camel_message_info_date_sent (linfo));
 
 				/* Camel returns a uint32, so %u */
 				size = g_strdup_printf ("%u", camel_message_info_size (linfo));

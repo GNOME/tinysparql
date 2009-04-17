@@ -37,8 +37,9 @@
 
 #include <libtracker-common/tracker-ontology.h>
 
-#include <libtracker-data/tracker-data-update.h>
 #include <libtracker-data/tracker-data-manager.h>
+#include <libtracker-data/tracker-data-query.h>
+#include <libtracker-data/tracker-data-update.h>
 
 /* This is okay, we run in-process of the indexer: we can access its symbols */
 #include <tracker-indexer/tracker-module.h>
@@ -98,6 +99,9 @@ static GObject *idx_indexer = NULL;
 enum {
 	PROP_0,
 };
+
+void tracker_push_module_init (TrackerConfig *config);
+void tracker_push_module_shutdown (void);
 
 static void
 tracker_kmail_indexer_finalize (GObject *object)

@@ -108,7 +108,6 @@ extract_playlist (const gchar *uri,
 	TotemPlParser       *pl;
 	TotemPlParserResult  result;
 	PlaylistMetadata     data = { 0, 0, metadata, uri };
-	gchar               *proper_filename;
 
 	pl = totem_pl_parser_new ();
 
@@ -150,7 +149,6 @@ extract_playlist (const gchar *uri,
 					   data.total_time);
 	*/
 
-	g_free (proper_filename);
 	g_object_unref (pl);
 }
 

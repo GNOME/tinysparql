@@ -45,10 +45,8 @@ int
 main (int argc, char **argv)
 {
 	TrackerClient	*client;
-	gchar           *query;
 	GOptionContext	*context;
 	GError		*error = NULL;
-	GPtrArray	*results;
 	GFile		*file;
 	char		*uri;
 

@@ -191,27 +191,6 @@ tracker_extract_new (void)
 	return object;
 }
 
-static void
-print_file_metadata_item (gpointer key,
-			  gpointer value,
-			  gpointer user_data)
-{
-	gchar *value_utf8;
-
-	g_return_if_fail (key != NULL);
-	g_return_if_fail (value != NULL);
-
-	value_utf8 = g_locale_to_utf8 (value, -1, NULL, NULL, NULL);
-
-	if (value_utf8) {
-		tracker_dbus_request_debug (GPOINTER_TO_UINT (user_data),
-					    "  Found '%s'='%s'",
-					    key,
-					    value_utf8);
-		g_free (value_utf8);
-	}
-}
-
 static GPtrArray *
 get_file_metadata (TrackerExtract *extract,
 		   guint           request_id,
@@ -226,7 +205,7 @@ get_file_metadata (TrackerExtract *extract,
 	gchar *mime_used = NULL;
 	goffset size = 0;
 	gchar *content_type = NULL;
-	gchar *mime = mime_;
+	const gchar *mime = mime_;
 
 	/* Create hash table to send back */
 	statements = g_ptr_array_new ();
@@ -370,7 +349,6 @@ tracker_extract_get_metadata_by_cmdline (TrackerExtract *object,
 					 const gchar    *mime)
 {
 	guint       request_id;
-	gint        i;
 	GPtrArray   *statements = NULL;
 
 	request_id = tracker_dbus_get_next_request_id ();

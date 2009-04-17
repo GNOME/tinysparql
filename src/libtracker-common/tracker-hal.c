@@ -958,11 +958,9 @@ hal_device_property_modified_cb (LibHalContext *context,
 		if (is_mounted) {
 			LibHalVolume *volume;
 			const gchar  *mount_point;
-			const gchar  *device_file;
 
 			volume = libhal_volume_from_udi (context, udi);
 			mount_point = libhal_volume_get_mount_point (volume);
-			device_file = libhal_volume_get_device_file (volume);
 
 			g_message ("HAL device:'%s' with udi:'%s' is now mounted",
 				   device_file,
