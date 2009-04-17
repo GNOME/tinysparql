@@ -31,6 +31,13 @@ namespace Raptor {
 		public int byte;
 	}
 
+	[Compact]
+	[CCode (cname = "raptor_uri")]
+	public class Uri {
+		[CCode (cname = "raptor_new_uri")]
+		public Uri (string uri_string);
+	}
+
 	[CCode (cname = "raptor_message_handler", instance_pos = 0)]
 	public delegate void MessageHandler (Locator locator, string message);
 }
@@ -145,7 +152,7 @@ namespace Rasqal {
 	[CCode (cname = "rasqal_prefix", free_function = "rasqal_free_prefix")]
 	public class Prefix {
 		[CCode (cname = "rasqal_new_prefix")]
-		public Prefix (World world, string# prefix, string# uri);
+		public Prefix (World world, owned string prefix, owned Raptor.Uri uri);
 	}
 
 	[Compact]
@@ -153,7 +160,7 @@ namespace Rasqal {
 	public class Query {
 		[CCode (cname = "rasqal_new_query")]
 		public Query (World world, string? name, string? uri);
-		public void add_prefix (Prefix# prefix);
+		public void add_prefix (owned Prefix prefix);
 		public void declare_prefixes ();
 		public weak Triple get_construct_triple (int idx);
 		public bool get_distinct ();

@@ -310,7 +310,7 @@ public class Tracker.SparqlQuery : Object {
 		var query = new Rasqal.Query (world, "laqrs", null);
 
 		foreach (Namespace ns in Ontology.get_namespaces ()) {
-			query.add_prefix (new Rasqal.Prefix (world, ns.prefix, ns.uri));
+			query.add_prefix (new Rasqal.Prefix (world, ns.prefix, new Raptor.Uri (ns.uri)));
 		}
 
 		query.declare_prefixes ();
@@ -1043,23 +1043,23 @@ public class Tracker.SparqlQuery : Object {
 
 	string sql_operator (Rasqal.Op op) {
 		switch (op) {
-		case Rasqal.Op.AND: return " AND ";
-		case Rasqal.Op.OR: return " OR ";
-		case Rasqal.Op.EQ: return " = ";
-		case Rasqal.Op.NEQ: return " <> ";
-		case Rasqal.Op.LT: return " < ";
-		case Rasqal.Op.GT: return " > ";
-		case Rasqal.Op.LE: return " <= ";
-		case Rasqal.Op.GE: return " >= ";
-		case Rasqal.Op.PLUS: return " + ";
-		case Rasqal.Op.MINUS: return " - ";
-		case Rasqal.Op.STAR: return " * ";
-		case Rasqal.Op.SLASH: return " / ";
-		case Rasqal.Op.REM: return " % ";
-		case Rasqal.Op.STR_EQ: return " = ";
+		case Rasqal.Op.AND:     return " AND ";
+		case Rasqal.Op.OR:      return " OR ";
+		case Rasqal.Op.EQ:      return " = ";
+		case Rasqal.Op.NEQ:     return " <> ";
+		case Rasqal.Op.LT:      return " < ";
+		case Rasqal.Op.GT:      return " > ";
+		case Rasqal.Op.LE:      return " <= ";
+		case Rasqal.Op.GE:      return " >= ";
+		case Rasqal.Op.PLUS:    return " + ";
+		case Rasqal.Op.MINUS:   return " - ";
+		case Rasqal.Op.STAR:    return " * ";
+		case Rasqal.Op.SLASH:   return " / ";
+		case Rasqal.Op.REM:     return " % ";
+		case Rasqal.Op.STR_EQ:  return " = ";
 		case Rasqal.Op.STR_NEQ: return " <> ";
+		default:                return "";
 		}
-		return "";
 	}
 
 	bool is_datetime_variable (Rasqal.Expression expr) {
@@ -1144,6 +1144,8 @@ public class Tracker.SparqlQuery : Object {
 				pattern_sql.append ("''");
 			}
 			pattern_sql.append (")");
+			break;
+		default:
 			break;
 		}
 	}
