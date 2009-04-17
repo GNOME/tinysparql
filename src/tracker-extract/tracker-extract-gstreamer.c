@@ -292,7 +292,7 @@ extract_metadata (MetadataExtractor *extractor,
 				gchar *canonical_uri = tracker_uri_printf_escaped ("urn:contact:%s", s);
 				tracker_statement_list_insert (metadata, canonical_uri, RDF_TYPE, NCO_PREFIX "Contact");
 				tracker_statement_list_insert (metadata, canonical_uri, NCO_PREFIX "fullName", s);
-				tracker_statement_list_insert (metadata, uri, NCO_PREFIX "director", canonical_uri);
+				tracker_statement_list_insert (metadata, uri, NCO_PREFIX "creator", canonical_uri);
 				g_free (canonical_uri);
 				g_free (s);
 			}
