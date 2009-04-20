@@ -84,6 +84,9 @@ if HAVE_TOTEM_PL_PARSER
 modules_LTLIBRARIES += libextract-playlist.la
 endif
 
+# A mockup extractor for testing purposes
+#modules_LTLIBRARIES += libextract-mockup.la
+
 # Common XMP Sources
 xmp_sources = 								\
 	tracker-xmp.c							\
@@ -200,10 +203,17 @@ libextract_tiff_la_SOURCES = tracker-extract-tiff.c $(xmp_sources) $(iptc_source
 libextract_tiff_la_LDFLAGS = $(module_flags)
 libextract_tiff_la_LIBADD = $(GLIB2_LIBS) $(LIBTIFF_LIBS) $(LIBIPTCDATA_LIBS) $(EXEMPI_LIBS) $(GCOV_LIBS)
 
+# MOCKUP
+libextract_mockup_la_SOURCES = tracker-extract-mockup.c $(escape_sources)
+libextract_mockup_la_LDFLAGS = $(module_flags)
+libextract_mockup_la_LIBADD = $(GLIB2_LIBS) $(GCOV_LIBS)
+
 # Playlists using totem-pl-parser
 libextract_playlist_la_SOURCES = tracker-extract-playlist.c  $(escape_sources)
 libextract_playlist_la_LDFLAGS = $(module_flags)
 libextract_playlist_la_LIBADD = $(GLIB2_LIBS) $(TOTEM_PL_PARSER_LIBS) $(GCOV_LIBS)
+
+
 
 #
 # Binaries
