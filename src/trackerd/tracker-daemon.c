@@ -44,8 +44,8 @@
 
 #define TRACKER_TYPE_G_STRV_ARRAY  (dbus_g_type_get_collection ("GPtrArray", G_TYPE_STRV))
 
-/* In seconds (3 minutes for now) */
-#define STATS_CACHE_LIFETIME 180
+/* In seconds (5 minutes for now) */
+#define STATS_CACHE_LIFETIME 300
 
 typedef struct {
 	TrackerConfig	 *config;
@@ -68,7 +68,6 @@ enum {
 static void        tracker_daemon_finalize (GObject       *object);
 static gboolean    stats_cache_timeout     (gpointer       user_data);
 static GHashTable *stats_cache_get_latest  (void);
-static void        stats_cache_update      (TrackerDaemon *object);
 
 static guint signals[LAST_SIGNAL] = {0};
 
@@ -425,43 +424,13 @@ stats_cache_get_latest (void)
 	return values;
 }
 
-static void
-stats_cache_update (TrackerDaemon *object)
-{
-	TrackerDaemonPrivate *priv;
-	GHashTable           *values;
-	GHashTableIter        iter;
-	gpointer              key, value;
-
-	priv = TRACKER_DAEMON_GET_PRIVATE (object);
-
-	/* Get latest */
-	values = stats_cache_get_latest ();
-
-	/* Update local cache */
-	g_hash_table_iter_init (&iter, values);
-	while (g_hash_table_iter_next (&iter, &key, &value)) {
-		const gchar *service_type;
-		gint         new_count;
-		
-		service_type = key;
-		new_count = GPOINTER_TO_INT (value);
-
-		g_hash_table_replace (priv->stats_cache, 
-				      g_strdup (service_type), 
-				      GINT_TO_POINTER (new_count));
-	}
-
-	g_hash_table_unref (values);
-}
-
 static gboolean 
 stats_cache_timeout (gpointer user_data)
 {
 	g_message ("Statistics cache has expired, updating...");
 
 	tracker_dbus_indexer_check_is_paused ();
-	stats_cache_update (user_data);
+	tracker_daemon_signal_statistics ();
 
 	return TRUE;
 }
