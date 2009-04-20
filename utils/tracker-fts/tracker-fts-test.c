@@ -89,7 +89,7 @@ main (int argc, char **argv)
 	}
 	
 	sqlite3_enable_load_extension (db, 1);
-	sqlite3_load_extension (db, "tracker-fts.so", NULL, &st);
+	sqlite3_load_extension (db, PKGLIBDIR "/tracker-fts.so", NULL, &st);
 	
 	if (st) {
 		fprintf(stderr, "SQL error: %s\n", st);

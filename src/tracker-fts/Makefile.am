@@ -10,7 +10,7 @@ INCLUDES =							\
 
 module_flags = -module -avoid-version -no-undefined
 
-tracker_fts_modulesdir = $(libdir)
+tracker_fts_modulesdir = $(libdir)/tracker-$(TRACKER_API_VERSION)
 tracker_fts_modules_LTLIBRARIES = tracker-fts.la
 
 tracker_fts_la_SOURCES = 					\

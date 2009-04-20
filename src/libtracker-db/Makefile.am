@@ -3,6 +3,7 @@ include $(top_srcdir)/Makefile.decl
 INCLUDES =								\
 	-DSHAREDIR=\""$(datadir)"\"					\
 	-DG_LOG_DOMAIN=\"Tracker\"					\
+	-DPKGLIBDIR=\""$(libdir)/tracker-$(TRACKER_API_VERSION)"\"	\
 	-DTRACKER_COMPILATION						\
 	-I$(top_srcdir)/src						\
 	$(WARN_CFLAGS)							\

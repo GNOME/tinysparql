@@ -4,6 +4,7 @@ noinst_PROGRAMS = tracker-fts-test
 
 INCLUDES = 								\
 	-DG_LOG_DOMAIN=\"Tracker\"					\
+	-DPKGLIBDIR=\""$(libdir)/tracker-$(TRACKER_API_VERSION)"\"	\
 	-I$(top_srcdir)/src						\
 	$(WARN_CFLAGS)							\
 	$(GLIB2_CFLAGS)							\

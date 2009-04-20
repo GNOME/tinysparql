@@ -128,7 +128,7 @@ tracker_db_interface_sqlite_constructor (GType			type,
 
 #ifdef HAVE_SQLITE_FTS
 	sqlite3_enable_load_extension (priv->db, 1);
-	sqlite3_load_extension (priv->db, "tracker-fts.so", NULL, &err_msg);
+	sqlite3_load_extension (priv->db, PKGLIBDIR "/tracker-fts.so", NULL, &err_msg);
 
 	if (err_msg) {
 		g_critical ("Could not load tracker-fts extension:'%s'", err_msg);
