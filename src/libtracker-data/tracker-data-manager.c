@@ -232,6 +232,18 @@ load_ontology_file_from_path (const gchar	 *ontology_file)
 			if (strcmp (object, "true") == 0) {
 				tracker_property_set_indexed (property, TRUE);
 			}
+		} else if (strcmp (predicate, TRACKER_PREFIX "transient") == 0) {
+			TrackerProperty *property;
+
+			property = tracker_ontology_get_property_by_uri (subject);
+			if (property == NULL) {
+				g_critical ("%s: Unknown property %s", ontology_file, subject);
+				continue;
+			}
+
+			if (strcmp (object, "true") == 0) {
+				tracker_property_set_transient (property, TRUE);
+			}
 		} else if (strcmp (predicate, TRACKER_PREFIX "fulltextIndexed") == 0) {
 			TrackerProperty *property;
 
@@ -437,7 +449,8 @@ db_get_static_data (TrackerDBInterface *iface)
 						      "(SELECT Uri FROM \"rdfs:Resource\" WHERE ID = \"rdfs:range\"), "
 						      "\"nrl:maxCardinality\", "
 						      "\"tracker:indexed\", "
-						      "\"tracker:fulltextIndexed\" "
+						      "\"tracker:fulltextIndexed\", "
+						      "\"tracker:transient\" "
 						      "FROM \"rdf:Property\" ORDER BY ID");
 	result_set = tracker_db_statement_execute (stmt, NULL);
 	g_object_unref (stmt);
@@ -450,6 +463,7 @@ db_get_static_data (TrackerDBInterface *iface)
 			TrackerProperty *property;
 			gchar	        *uri, *domain_uri, *range_uri;
 			gboolean         multi_valued, indexed, fulltext_indexed;
+			gboolean         transient = FALSE;
 
 			property = tracker_property_new ();
 
@@ -487,6 +501,16 @@ db_get_static_data (TrackerDBInterface *iface)
 				fulltext_indexed = FALSE;
 			}
 
+			_tracker_db_result_set_get_value (result_set, 6, &value);
+			if (G_VALUE_TYPE (&value) != 0) {
+				transient = (g_value_get_int (&value) == 1);
+				g_value_unset (&value);
+			} else {
+				/* NULL */
+				transient = FALSE;
+			}
+
+			tracker_property_set_transient (property, transient);
 			tracker_property_set_uri (property, uri);
 			tracker_property_set_domain (property, tracker_ontology_get_class_by_uri (domain_uri));
 			tracker_property_set_range (property, tracker_ontology_get_class_by_uri (range_uri));
@@ -506,6 +530,90 @@ db_get_static_data (TrackerDBInterface *iface)
 
 		g_object_unref (result_set);
 	}
+}
+
+static void
+create_decomposed_metadata_property_table (TrackerDBInterface *iface, 
+					   TrackerProperty   **property, 
+					   const gchar        *service_name,
+					   const gchar       **sql_type_for_single_value)
+{
+	const char *field_name;
+	const char *sql_type;
+	gboolean    transient;
+
+	field_name = tracker_property_get_name (*property);
+
+	transient = !sql_type_for_single_value;
+
+	if (!transient) {
+		transient = tracker_property_get_transient (*property);
+	}
+
+	switch (tracker_property_get_data_type (*property)) {
+	case TRACKER_PROPERTY_TYPE_STRING:
+		sql_type = "TEXT";
+		break;
+	case TRACKER_PROPERTY_TYPE_INTEGER:
+	case TRACKER_PROPERTY_TYPE_BOOLEAN:
+	case TRACKER_PROPERTY_TYPE_DATE:
+	case TRACKER_PROPERTY_TYPE_DATETIME:
+	case TRACKER_PROPERTY_TYPE_RESOURCE:
+		sql_type = "INTEGER";
+		break;
+	case TRACKER_PROPERTY_TYPE_DOUBLE:
+		sql_type = "REAL";
+		break;
+	default:
+		sql_type = "";
+		break;
+	}
+
+	/* TODO: When we refactor to having writes in trackerd, we can use 
+	 * TEMPORARY tables instead of deleting and storing physically */
+
+	if (transient || tracker_property_get_multiple_values (*property)) {
+		/* multiple values */
+		if (tracker_property_get_indexed (*property)) {
+			/* use different UNIQUE index for properties whose
+			 * value should be indexed to minimize index size */
+			tracker_db_interface_execute_query (iface, NULL,
+				"CREATE %sTABLE \"%s_%s\" ("
+				"ID INTEGER NOT NULL, "
+				"\"%s\" %s NOT NULL, "
+				"UNIQUE (\"%s\", ID))",
+				transient ? "" /*"TEMPORARY "*/ : "",
+				service_name,
+				field_name,
+				field_name,
+				sql_type,
+				field_name);
+
+			tracker_db_interface_execute_query (iface, NULL,
+				"CREATE INDEX \"%s_%s_ID\" ON \"%s_%s\" (ID)",
+				service_name,
+				field_name,
+				service_name,
+				field_name);
+		} else {
+			/* we still have to include the property value in
+			 * the unique index for proper constraints */
+			tracker_db_interface_execute_query (iface, NULL,
+				"CREATE %sTABLE \"%s_%s\" ("
+				"ID INTEGER NOT NULL, "
+				"\"%s\" %s NOT NULL, "
+				"UNIQUE (ID, \"%s\"))",
+				transient ? "" /*"TEMPORARY "*/ : "",
+				service_name,
+				field_name,
+				field_name,
+				sql_type,
+				field_name);
+		}
+	} else if (sql_type_for_single_value) {
+		*sql_type_for_single_value = sql_type;
+	}
+
 }
 
 static void
@@ -536,72 +644,21 @@ create_decomposed_metadata_tables (TrackerDBInterface *iface,
 	properties = tracker_ontology_get_properties ();
 	class_properties = NULL;
 	for (property = properties; *property; property++) {
-		const char   *field_name;
-
-		field_name = tracker_property_get_name (*property);
 		if (tracker_property_get_domain (*property) == service) {
-			const char *sql_type;
+			const gchar *sql_type_for_single_value = NULL;
 
-			switch (tracker_property_get_data_type (*property)) {
-			case TRACKER_PROPERTY_TYPE_STRING:
-				sql_type = "TEXT";
-				break;
-			case TRACKER_PROPERTY_TYPE_INTEGER:
-			case TRACKER_PROPERTY_TYPE_BOOLEAN:
-			case TRACKER_PROPERTY_TYPE_DATE:
-			case TRACKER_PROPERTY_TYPE_DATETIME:
-			case TRACKER_PROPERTY_TYPE_RESOURCE:
-				sql_type = "INTEGER";
-				break;
-			case TRACKER_PROPERTY_TYPE_DOUBLE:
-				sql_type = "REAL";
-				break;
-			default:
-				sql_type = "";
-				break;
-			}
+			create_decomposed_metadata_property_table (iface, property, 
+								   service_name, 
+								   &sql_type_for_single_value);
 
-			if (tracker_property_get_multiple_values (*property)) {
-				/* multiple values */
-				if (tracker_property_get_indexed (*property)) {
-					/* use different UNIQUE index for properties whose
-					 * value should be indexed to minimize index size */
-					tracker_db_interface_execute_query (iface, NULL,
-						"CREATE TABLE \"%s_%s\" ("
-						"ID INTEGER NOT NULL, "
-						"\"%s\" %s NOT NULL, "
-						"UNIQUE (\"%s\", ID))",
-						service_name,
-						field_name,
-						field_name,
-						sql_type,
-						field_name);
-
-					tracker_db_interface_execute_query (iface, NULL,
-						"CREATE INDEX \"%s_%s_ID\" ON \"%s_%s\" (ID)",
-						service_name,
-						field_name,
-						service_name,
-						field_name);
-				} else {
-					/* we still have to include the property value in
-					 * the unique index for proper constraints */
-					tracker_db_interface_execute_query (iface, NULL,
-						"CREATE TABLE \"%s_%s\" ("
-						"ID INTEGER NOT NULL, "
-						"\"%s\" %s NOT NULL, "
-						"UNIQUE (ID, \"%s\"))",
-						service_name,
-						field_name,
-						field_name,
-						sql_type,
-						field_name);
-				}
-			} else {
+			if (sql_type_for_single_value) {
 				/* single value */
 
 				class_properties = g_slist_prepend (class_properties, *property);
-				g_string_append_printf (sql, ", \"%s\" %s", field_name, sql_type);
+
+				g_string_append_printf (sql, ", \"%s\" %s", 
+							tracker_property_get_name (*property), 
+							sql_type_for_single_value);
 			}
 		}
 	}
@@ -648,6 +705,44 @@ create_decomposed_metadata_tables (TrackerDBInterface *iface,
 		tracker_db_statement_execute (stmt, NULL);
 		g_object_unref (stmt);
 	}
+}
+
+static void
+create_decomposed_transient_metadata_tables (TrackerDBInterface *iface)
+{
+	TrackerProperty **properties;
+	TrackerProperty **property;
+
+	properties = tracker_ontology_get_properties ();
+
+	for (property = properties; *property; property++) {
+		if (tracker_property_get_transient (*property)) {
+
+			TrackerClass *domain;
+			const gchar *service_name;
+			const char *field_name;
+
+			field_name = tracker_property_get_name (*property);
+
+			domain = tracker_property_get_domain (*property);
+			service_name = tracker_class_get_name (domain);
+
+			/* TODO: When we refactor to having writes in trackerd, we can use 
+	 		 * TEMPORARY tables instead of deleting and storing physically 
+
+			 * create_decomposed_metadata_property_table (iface, property,
+			 * 					   service_name,
+			 *					   NULL);
+			 */
+
+			tracker_db_interface_execute_query (iface, NULL,
+				"DELETE FROM \"%s_%s\"",
+				service_name,
+				field_name);
+		}
+	}
+
+	g_free (properties);
 }
 
 gboolean
@@ -781,6 +876,7 @@ tracker_data_manager_init (TrackerConfig              *config,
 	} else {
 		/* load ontology from database into memory */
 		db_get_static_data (iface);
+		create_decomposed_transient_metadata_tables (iface);
 	}
 
 	return TRUE;
