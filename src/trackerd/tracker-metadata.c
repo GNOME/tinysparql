@@ -216,7 +216,11 @@ tracker_metadata_get_multiple (TrackerMetadata	      *object,
 	count = g_strv_length ((GStrv) uris);
 	values = g_ptr_array_sized_new (count);
 
-	for (i = 0; i < count && !actual_error; i++) {
+	/* Don't stop on errors, we can have invalid URIs here. What
+	 * this means is, this API can never fail unless the original
+	 * parameters are crap.
+	 */
+	for (i = 0; i < count; i++) {
 		GStrv strv;
 
 		strv = tracker_metadata_get_internal (object, 
@@ -230,13 +234,8 @@ tracker_metadata_get_multiple (TrackerMetadata	      *object,
 		g_ptr_array_add (values, strv);
 	}
 
-	if (G_UNLIKELY (actual_error)) {
-		dbus_g_method_return_error (context, actual_error);
-		g_error_free (actual_error);
-	} else {
-		dbus_g_method_return (context, values);
-		tracker_dbus_request_success (request_id);
-	}
+	dbus_g_method_return (context, values);
+	tracker_dbus_request_success (request_id);
 
 	g_ptr_array_foreach (values, (GFunc) g_strfreev, NULL);
 	g_ptr_array_free (values, TRUE);
