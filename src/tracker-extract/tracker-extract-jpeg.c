@@ -365,7 +365,12 @@ read_exif (const unsigned char *buffer,
 	ExifData *exif;
 	TagType  *p;
 
-	exif = exif_data_new_from_data ((unsigned char *) buffer, len);
+	exif = exif_data_new();
+	exif_data_set_option (exif, EXIF_DATA_OPTION_IGNORE_UNKNOWN_TAGS);
+	exif_data_unset_option (exif, EXIF_DATA_OPTION_FOLLOW_SPECIFICATION);
+	exif_data_set_option (exif, EXIF_DATA_OPTION_DONT_CHANGE_MAKER_NOTE);
+
+	exif_data_load_data (exif, (unsigned char *) buffer, len);
 
 	for (p = tags; p->name; ++p) {
 		ExifEntry *entry = exif_data_get_entry (exif, p->tag);
@@ -431,7 +436,7 @@ extract_jpeg (const gchar *uri,
 #ifdef HAVE_LIBIPTCDATA
 		gsize  offset;
 		gsize  sublen;
-#endif /* HAVE_LIBEXIF */
+#endif /* HAVE_LIBIPTCDATA */
 
 		tracker_statement_list_insert (metadata, uri, 
 		                          RDF_TYPE, 
