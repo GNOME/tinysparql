@@ -857,7 +857,7 @@ process_module_files_add_removable_media (TrackerProcessor *processor)
 		file = g_file_new_for_path (root);
 		tracker_monitor_add (processor->private->monitor, module_name, file);
 		g_object_unref (file);
-		
+
 		tracker_crawler_special_paths_add (crawler, root);
 
 		break;
@@ -1784,6 +1784,10 @@ tracker_processor_stop (TrackerProcessor *processor)
 		processor->private->finished = TRUE;
 		g_signal_emit (processor, signals[FINISHED], 0);
 	} else {
+		/* Set status to IDLE, so it isn't left to any other state
+		 * if there are no files to be sent to the indexer.
+		 */
+		tracker_status_set_and_signal (TRACKER_STATUS_IDLE);
 		item_queue_handlers_set_up (processor);
 	}
 }
