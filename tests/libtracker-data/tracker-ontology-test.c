@@ -208,8 +208,6 @@ test_query (gconstpointer test_data)
 	g_string_free (test_results, TRUE);
 
 	tracker_data_manager_shutdown ();
-	tracker_db_index_manager_shutdown ();
-	tracker_db_manager_shutdown ();
 }
 
 int
