@@ -31,6 +31,7 @@
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <errno.h>
 
 #include <glib.h>
 #include <glib/gstdio.h>
@@ -47,15 +48,22 @@
 #include "tracker-main.h"
 #include "tracker-extract-albumart.h"
 
-/* FIXME The max file read is not a good idea as basic 
- * id3 are the _last_ 128 bits of the file. We should
- * probably read 2 buffers (beginning, end) instead.
+/* We mmap the beginning of the file and read separately the last 128 bytes
+   for id3v1 tags. While these are probably cornercases the rationale is that
+   we don't want to fault a whole page for the last 128 bytes and on the other
+   we don't want to mmap the whole file with unlimited size (might need to create
+   private copy in some special cases, finding continuous space etc). We now take
+   5 first MB of the file and assume that this is enough. In theory there is no
+   maximum size as someone could embed 50 gigabytes of albumart there.
 */
-#define MAX_FILE_READ	  1024 * 1024 * 20
+
+#define MAX_FILE_READ	  1024 * 1024 * 5
 #define MAX_MP3_SCAN_DEEP 16768
 
-#define MAX_FRAMES_SCAN   1024 * 3
-#define VBR_THRESHOLD     64
+#define MAX_FRAMES_SCAN   512
+#define VBR_THRESHOLD     16
+
+#define ID3V1_SIZE        128
 
 #define NMM_PREFIX TRACKER_NMM_PREFIX
 #define NFO_PREFIX TRACKER_NFO_PREFIX
@@ -85,7 +93,10 @@ typedef struct {
 } id3tag;
 
 typedef struct {
-	size_t         audio_offset;
+	size_t         size;
+	size_t         id3v2_size;
+
+	guint32        duration;
 
 	unsigned char *albumartdata;
 	size_t         albumartsize;
@@ -298,6 +309,45 @@ static TrackerExtractData extract_data[] = {
 	{ NULL, NULL }
 };
 
+static char *
+read_id3v1_buffer (int fd, goffset size)
+{
+	char *buffer;
+	guint bytes_read;
+	guint rc;
+
+	buffer = g_malloc (ID3V1_SIZE);
+
+	if (!buffer) {
+		return NULL;
+	}
+
+	if (lseek (fd, size-ID3V1_SIZE, SEEK_SET) < 0) {
+		g_free (buffer);
+		return NULL;
+	}
+
+	bytes_read = 0;
+	
+	while (bytes_read < ID3V1_SIZE) {
+		rc = read(fd,
+			  buffer + bytes_read,
+			  ID3V1_SIZE - bytes_read);
+		if (rc == -1) {
+			if (errno != EINTR) {
+				g_free (buffer);
+				return NULL;
+			}
+		}
+		else if (rc == 0)
+			break;
+		else
+			bytes_read += rc;
+	}
+	
+	return buffer;
+}
+
 /* Convert from UCS-2 to UTF-8 checking the BOM.*/
 static gchar *
 ucs2_to_utf8(const gchar *data, guint len)
@@ -474,7 +524,8 @@ mp3_parse_header (const gchar *data,
 		  size_t       size,
 		  size_t       seek_pos,
 		  const gchar *uri,
-		  GPtrArray  *metadata)
+		  GPtrArray   *metadata,
+		  file_data   *filedata)
 {
 	guint header;
 	gchar mpeg_ver = 0;
@@ -629,16 +680,19 @@ mp3_parse_header (const gchar *data,
 
 	avg_bps /= frames;
 
-	if ((!vbr_flag || frames > VBR_THRESHOLD) || (frames > MAX_FRAMES_SCAN)) {
-		/* If not all frames scanned */
-		length = size / (avg_bps ? avg_bps : bitrate ? bitrate : 0xFFFFFFFF) / 125;
-	} else{
-		length = 1152 * frames / (sample_rate ? sample_rate : 0xFFFFFFFF);
+	if (filedata->duration==0) {
+		if ((!vbr_flag || frames > VBR_THRESHOLD) || (frames > MAX_FRAMES_SCAN)) {
+			/* If not all frames scanned */
+			length = (filedata->size - filedata->id3v2_size) / (avg_bps ? avg_bps : bitrate ? bitrate : 0xFFFFFFFF) / 125;
+		} else{
+			length = 1152 * frames / (sample_rate ? sample_rate : 0xFFFFFFFF);
+		}
+ 
+		tracker_statement_list_insert_with_int (metadata, uri,
+				     NMM_PREFIX "length",
+				     length);
 	}
 
-	tracker_statement_list_insert_with_int (metadata, uri,
-			     NMM_PREFIX "length",
-			     length);
 	tracker_statement_list_insert_with_int (metadata, uri,
 			     NFO_PREFIX "sampleRate",
 			     sample_rate);
@@ -652,13 +706,14 @@ mp3_parse_header (const gchar *data,
 static void
 mp3_parse (const gchar *data,
 	   size_t       size,
+	   size_t       offset,
 	   const gchar *uri,
 	   GPtrArray  *metadata,
 	   file_data   *filedata)
 {
 	guint header;
 	guint counter = 0;
-	guint pos = filedata->audio_offset;
+	guint pos = offset;
 
 	do {
 		/* Seek for frame start */
@@ -670,7 +725,7 @@ mp3_parse (const gchar *data,
 
 		if ((header & sync_mask) == sync_mask) {
 			/* Found header sync */
-			if (mp3_parse_header (data,size,pos,uri,metadata)) {
+			if (mp3_parse_header (data, size, pos, uri, metadata, filedata)) {
 				return;
 			}
 		}
@@ -708,6 +763,7 @@ get_id3v24_tags (const gchar *data,
 		{"TDRL", NIE_PREFIX "contentCreated", NULL, NULL, NULL},
 		{"TRCK", NMM_PREFIX "trackNumber", NULL, NULL, NULL},
 		/* TODO Nepomukify {"PCNT", "Audio:PlayCount"}, */
+		{"TLEN", NMM_PREFIX "length", NULL, NULL, NULL},
 		{NULL, 0, NULL, NULL, NULL},
 	};
 
@@ -805,9 +861,7 @@ get_id3v24_tags (const gchar *data,
 						g_free (word);
 						word = g_strdup (parts[0]);
 						g_strfreev (parts);
-					}
-
-					if (strcmp (tmap[i].text, "TCON") == 0) {
+					} else if (strcmp (tmap[i].text, "TCON") == 0) {
 						gint genre;
 
 						if (get_genre_number (word, &genre)) {
@@ -818,6 +872,13 @@ get_id3v24_tags (const gchar *data,
 						if (strcasecmp (word, "unknown") == 0) {
 							break;
 						}
+					} else if (strcmp (tmap[i].text, "TLEN") == 0) {
+						guint32 duration;
+
+						duration = atoi (word);
+						g_free (word);
+						word = g_strdup_printf ("%d", duration/1000);
+						filedata->duration = duration/1000;
 					}
 
 					if (tmap[i].urn) {
@@ -962,6 +1023,7 @@ get_id3v23_tags (const gchar *data,
 		{"TYER", NIE_PREFIX "contentCreated", NULL, NULL, NULL},
 		{"TRCK", NMM_PREFIX "trackNumber", NULL, NULL, NULL},
 		/* TODO Nepomukify {"PCNT", "Audio:PlayCount"}, */
+		{"TLEN", NMM_PREFIX "duration", NULL, NULL, NULL},
 		{NULL, 0, NULL, NULL, NULL},
 	};
 
@@ -1050,9 +1112,7 @@ get_id3v23_tags (const gchar *data,
 						g_free (word);
 						word = g_strdup (parts[0]);
 						g_strfreev (parts);
-					}
-
-					if (strcmp (tmap[i].text, "TCON") == 0) {
+					} else if (strcmp (tmap[i].text, "TCON") == 0) {
 						gint genre;
 
 						if (get_genre_number (word, &genre)) {
@@ -1063,6 +1123,13 @@ get_id3v23_tags (const gchar *data,
 						if (strcasecmp (word, "unknown") == 0) {
 							break;
 						}
+					} else if (strcmp (tmap[i].text, "TLEN") == 0) {
+						guint32 duration;
+
+						duration = atoi (word);
+						g_free (word);
+						word =  g_strdup_printf ("%d", duration/1000);
+						filedata->duration = duration/1000;
 					}
 
 					if (tmap[i].urn) {
@@ -1203,6 +1270,7 @@ get_id3v20_tags (const gchar *data,
 		{"TOT", NIE_PREFIX "title", NULL, NULL, NULL},
 		{"TOL", NMM_PREFIX "performer", "artist", NMM_PREFIX "Artist", NMM_PREFIX "artistName"},
 		{"COM", NIE_PREFIX "comment", NULL, NULL, NULL},
+		{"TLE", NMM_PREFIX "duration", NULL, NULL, NULL},
 		{ NULL, 0, NULL, NULL, NULL},
 	};
 
@@ -1283,8 +1351,16 @@ get_id3v20_tags (const gchar *data,
 						}
 
 						if (strcasecmp (word, "unknown")==0) {
+							g_free (word);
 							break;
 						}
+					} else if (strcmp (tmap[i].text, "TLE") == 0) {
+						guint32 duration;
+
+						duration = atoi (word);
+						g_free (word);
+						word = g_strdup_printf ("%d", duration/1000);
+						filedata->duration = duration/1000;
 					}
 
 					if (tmap[i].urn) {
@@ -1514,7 +1590,7 @@ parse_id3v20 (const gchar *data,
 	*offset_delta = tsize + 10;
 }
 
-static void
+static goffset
 parse_id3v2 (const gchar *data,
 	     size_t	     size,
 	     const gchar *uri,
@@ -1532,12 +1608,14 @@ parse_id3v2 (const gchar *data,
 
 		if (offset_delta == 0) {
 			done = TRUE;
-			filedata->audio_offset = offset;
+			filedata->id3v2_size = offset;
 		} else {
 			offset += offset_delta;
 		}
 
 	} while (!done);
+
+	return offset;
 }
 
 static void
@@ -1547,8 +1625,10 @@ extract_mp3 (const gchar *uri,
 	gchar       *filename;
 	int	     fd;
 	void	    *buffer;
+	void        *id3v1_buffer;
 	goffset      size;
 	id3tag	     info;
+	goffset      audio_offset;
 	file_data    filedata;
 
 	info.title = NULL;
@@ -1559,7 +1639,9 @@ extract_mp3 (const gchar *uri,
 	info.genre = NULL;
 	info.trackno = NULL;
 
-	filedata.audio_offset = 0;
+	filedata.size = 0;
+	filedata.id3v2_size = 0;
+	filedata.duration = 0;
 	filedata.albumartdata = NULL;
 	filedata.albumartsize = 0;
 
@@ -1567,10 +1649,12 @@ extract_mp3 (const gchar *uri,
 
 	size = tracker_file_get_size (filename);
 
-	if (size == 0 || size > MAX_FILE_READ) {
+	if (size == 0) {
 		g_free (filename);
 		return;
 	}
+
+	filedata.size = size;
 
 #if defined(__linux__)
 	/* Can return -1 because of O_NOATIME, so we try again after
@@ -1602,6 +1686,8 @@ extract_mp3 (const gchar *uri,
 		       0);
 #endif
 
+	id3v1_buffer = read_id3v1_buffer (fd, size);
+
 	close (fd);
 
 	if (buffer == NULL || buffer == (void*) -1) {
@@ -1609,7 +1695,7 @@ extract_mp3 (const gchar *uri,
 		return;
 	}
 
-	if (!get_id3 (buffer, size, &info)) {
+	if (!get_id3 (id3v1_buffer, ID3V1_SIZE, &info)) {
 		/* Do nothing? */
 	}
 
@@ -1672,10 +1758,10 @@ extract_mp3 (const gchar *uri,
 	g_free (info.genre);
 
 	/* Get other embedded tags */
-	parse_id3v2 (buffer, size, uri, metadata, &filedata);
+	audio_offset = parse_id3v2 (buffer, MIN(size, MAX_FILE_READ), uri, metadata, &filedata);
 
 	/* Get mp3 stream info */
-	mp3_parse (buffer, size, uri, metadata, &filedata);
+	mp3_parse (buffer, MIN(size, MAX_FILE_READ), audio_offset, uri, metadata, &filedata);
 
 	/* TODO */
 #ifdef HAVE_GDKPIXBUF
@@ -1696,8 +1782,10 @@ extract_mp3 (const gchar *uri,
 	}
 
 #ifndef G_OS_WIN32
-	munmap (buffer, size);
+	munmap (buffer, MIN(size, MAX_FILE_READ));
 #endif
+
+	g_free (id3v1_buffer);
 	g_free (filename);
 }
 
