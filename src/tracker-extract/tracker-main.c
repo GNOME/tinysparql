@@ -222,6 +222,37 @@ initialize_signal_handler (void)
 #endif /* G_OS_WIN32 */
 }
 
+static void
+log_handler (const gchar    *domain,
+	     GLogLevelFlags  log_level,
+	     const gchar    *message,
+	     gpointer	     user_data)
+{
+	if (((log_level & G_LOG_LEVEL_DEBUG) && verbosity < 3) ||
+	    ((log_level & G_LOG_LEVEL_INFO) && verbosity < 2) ||
+	    ((log_level & G_LOG_LEVEL_MESSAGE) && verbosity < 1)) {
+		return;
+	}
+
+	switch (log_level) {
+	case G_LOG_LEVEL_WARNING:
+	case G_LOG_LEVEL_CRITICAL:
+	case G_LOG_LEVEL_ERROR:
+	case G_LOG_FLAG_RECURSION:
+	case G_LOG_FLAG_FATAL:
+		g_fprintf (stderr, "%s\n", message);
+		fflush (stderr);
+		break;
+	case G_LOG_LEVEL_MESSAGE:
+	case G_LOG_LEVEL_INFO:
+	case G_LOG_LEVEL_DEBUG:
+	case G_LOG_LEVEL_MASK:
+		g_fprintf (stdout, "%s\n", message);
+		fflush (stdout);
+		break;
+	}	
+}
+
 int
 main (int argc, char *argv[])
 {
@@ -229,6 +260,8 @@ main (int argc, char *argv[])
 	GError         *error = NULL;
 	TrackerConfig  *config;
 	gchar          *log_filename;
+	gboolean        stand_alone = FALSE;
+	guint           log_handler_id = 0;
 
 	bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
 	bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
@@ -283,6 +316,24 @@ main (int argc, char *argv[])
 
 	setlocale (LC_ALL, "");
 
+	/* Set conditions when we use stand alone settings */
+	stand_alone |= filename != NULL;
+
+	if (stand_alone) {
+		/* Set log handler for library messages */
+		log_handler_id = g_log_set_handler (NULL,
+						    G_LOG_LEVEL_MASK | G_LOG_FLAG_FATAL,
+						    log_handler,
+						    NULL);
+		
+		g_log_set_default_handler (log_handler, NULL);
+
+		/* Set the default verbosity if unset */
+		if (verbosity == -1) {
+			verbosity = 3;
+		}
+	}
+
 	if (filename) {
 		TrackerExtract *object;
 		GFile *file;
@@ -302,7 +353,7 @@ main (int argc, char *argv[])
 		g_object_unref (file);
 		g_free (full_path);
 
-		return EXIT_SUCCESS;
+		goto done;
 	}
 
 	config = tracker_config_new ();
@@ -360,6 +411,13 @@ main (int argc, char *argv[])
 
 	g_free (log_filename);
 	g_object_unref (config);
+
+done:
+
+	if (log_handler_id != 0) {
+		/* Unset log handler */
+		g_log_remove_handler (NULL, log_handler_id);
+	}
 
 	return EXIT_SUCCESS;
 }

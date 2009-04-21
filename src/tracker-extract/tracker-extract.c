@@ -36,8 +36,14 @@
 #define TRACKER_EXTRACT_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_EXTRACT, TrackerExtractPrivate))
 
 typedef struct {
-	GArray *extractors;
+	GArray *specific_extractors;
+	GArray *generic_extractors;
 } TrackerExtractPrivate;
+
+typedef struct { 
+	const GModule *module;
+	const TrackerExtractData *edata; 
+}  ModuleData;
 
 static void tracker_extract_finalize (GObject *object);
 
@@ -66,8 +72,9 @@ tracker_extract_finalize (GObject *object)
 	TrackerExtractPrivate *priv;
 
 	priv = TRACKER_EXTRACT_GET_PRIVATE (object);
-
-	g_array_free (priv->extractors, TRUE);
+	
+	g_array_free (priv->specific_extractors, TRUE);
+	g_array_free (priv->generic_extractors, TRUE);
 
 	G_OBJECT_CLASS (tracker_extract_parent_class)->finalize (object);
 }
@@ -80,7 +87,7 @@ tracker_extract_new (void)
 	GDir *dir;
 	GError *error;
 	const gchar *name;
-	GArray *extractors;
+	GArray *specific_extractors;
 	GArray *generic_extractors;
 
 	if (!g_module_supported ()) {
@@ -88,33 +95,25 @@ tracker_extract_new (void)
 		return NULL;
 	}
 
-	extractors = g_array_sized_new (FALSE,
-					TRUE,
-					sizeof (TrackerExtractData),
-					10);
-
-	/* This array is going to be used to store
-	 * temporarily extractors with mimetypes such as "audio / *"
-	 */
-	generic_extractors = g_array_sized_new (FALSE,
-						TRUE,
-						sizeof (TrackerExtractData),
-						10);
-
 	error = NULL;
 	dir = g_dir_open (MODULESDIR, 0, &error);
 
 	if (!dir) {
 		g_error ("Error opening modules directory: %s", error->message);
 		g_error_free (error);
-		g_array_free (generic_extractors, TRUE);
-		g_array_free (extractors, TRUE);
 		return NULL;
 	}
 
+	specific_extractors = g_array_new (FALSE,
+					   TRUE,
+					   sizeof (ModuleData));
+
+	generic_extractors = g_array_new (FALSE,
+					  TRUE,
+					  sizeof (ModuleData));
+
 	while ((name = g_dir_read_name (dir)) != NULL) {
 		TrackerExtractDataFunc func;
-		TrackerExtractData *data;
 		GModule *module;
 		gchar *module_path;
 
@@ -127,7 +126,9 @@ tracker_extract_new (void)
 		module = g_module_open (module_path, G_MODULE_BIND_LOCAL);
 
 		if (!module) {
-			g_warning ("Could not load module '%s': %s", name, g_module_error ());
+			g_warning ("Could not load module '%s': %s", 
+				   name, 
+				   g_module_error ());
 			g_free (module_path);
 			continue;
 		}
@@ -135,13 +136,23 @@ tracker_extract_new (void)
 		g_module_make_resident (module);
 
 		if (g_module_symbol (module, "tracker_get_extract_data", (gpointer *) &func)) {
-			data = (func) ();
+			ModuleData mdata;
+		
+			mdata.module = module;
+			mdata.edata = (func) ();
 
-			for (; data->mime; data++) {
-				if (strchr (data->mime, '*') != NULL) {
-					g_array_append_val (generic_extractors, *data);
+			g_message ("Adding extractor:'%s' with:",
+				   g_module_name ((GModule*) mdata.module));
+
+			for (; mdata.edata->mime; mdata.edata++) {
+				if (G_UNLIKELY (strchr (mdata.edata->mime, '*') != NULL)) {
+					g_message ("  Generic  match for mime:'%s'",
+						   mdata.edata->mime);
+					g_array_append_val (generic_extractors, mdata);
 				} else {
-					g_array_append_val (extractors, *data);
+					g_message ("  Specific match for mime:'%s'",
+						   mdata.edata->mime);
+					g_array_append_val (specific_extractors, mdata);
 				}
 			}
 		}
@@ -151,20 +162,13 @@ tracker_extract_new (void)
 
 	g_dir_close (dir);
 
-	/* Append the generic extractors at the end of
-	 * the list, so the specific ones are used first
-	 */
-	g_array_append_vals (extractors,
-			     generic_extractors->data,
-			     generic_extractors->len);
-	g_array_free (generic_extractors, TRUE);
-
 	/* Set extractors */
 	object = g_object_new (TRACKER_TYPE_EXTRACT, NULL);
 
 	priv = TRACKER_EXTRACT_GET_PRIVATE (object);
 
-	priv->extractors = extractors;
+	priv->specific_extractors = specific_extractors;
+	priv->generic_extractors = generic_extractors;
 
 	return object;
 }
@@ -307,24 +311,66 @@ get_file_metadata (TrackerExtract *extract,
 	 */
 	if (mime_used) {
 		TrackerExtractPrivate *priv;
-		TrackerExtractData *data;
 		guint i;
 
 		priv = TRACKER_EXTRACT_GET_PRIVATE (extract);
 
-		for (i = 0; i < priv->extractors->len; i++) {
-			data = &g_array_index (priv->extractors, TrackerExtractData, i);
+		for (i = 0; i < priv->specific_extractors->len; i++) {
+			const TrackerExtractData *edata;
+			ModuleData mdata;
 
-			if (g_pattern_match_simple (data->mime, mime_used)) {
-				(*data->extract) (path_in_locale, values);
+			mdata = g_array_index (priv->specific_extractors, ModuleData, i);
+			edata = mdata.edata;
 
-				if (g_hash_table_size (values) == 0) {
-					continue;
-				}
+			if (g_pattern_match_simple (edata->mime, mime_used)) {
+				gint items;
+
+				tracker_dbus_request_comment (request_id,
+							      "  Extracting with module:'%s'",
+							      g_module_name ((GModule*) mdata.module));
+
+				(*edata->extract) (path_in_locale, values);
+
+				items = g_hash_table_size (values);
 
 				tracker_dbus_request_comment (request_id,
 							      "  Found %d metadata items",
-							      g_hash_table_size (values));
+							      items);
+				if (items == 0) {
+					continue;
+				}
+
+				g_free (path_in_locale);
+				g_free (mime_used);
+
+				return values;
+			}
+		}
+
+		for (i = 0; i < priv->generic_extractors->len; i++) {
+			const TrackerExtractData *edata;
+			ModuleData mdata;
+
+			mdata = g_array_index (priv->generic_extractors, ModuleData, i);
+			edata = mdata.edata;
+
+			if (g_pattern_match_simple (edata->mime, mime_used)) {
+				gint items;
+
+				tracker_dbus_request_comment (request_id,
+							      "  Extracting with module:'%s'",
+							      g_module_name ((GModule*) mdata.module));
+				
+				(*edata->extract) (path_in_locale, values);
+
+				items = g_hash_table_size (values);
+
+				tracker_dbus_request_comment (request_id,
+							      "  Found %d metadata items",
+							      items);
+				if (items == 0) {
+					continue;
+				}
 
 				g_free (path_in_locale);
 				g_free (mime_used);
@@ -359,6 +405,12 @@ tracker_extract_get_metadata_by_cmdline (TrackerExtract *object,
 
 	g_return_if_fail (path != NULL);
 
+	tracker_dbus_request_new (request_id,
+				  "Command line request to extract metadata, "
+				  "path:'%s', mime:%s",
+				  path,
+				  mime);
+
 	/* NOTE: Don't reset the timeout to shutdown here */
 	values = get_file_metadata (object, request_id, path, mime);
 
@@ -368,6 +420,8 @@ tracker_extract_get_metadata_by_cmdline (TrackerExtract *object,
 				      GUINT_TO_POINTER (request_id));
 		g_hash_table_destroy (values);
 	}
+
+	tracker_dbus_request_success (request_id);
 }
 
 void
