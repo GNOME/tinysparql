@@ -420,6 +420,16 @@ get_genre_number (const char *str, guint *genre)
 	return FALSE;
 }
 
+static const gchar *
+get_genre_name (guint number)
+{
+	if (number > G_N_ELEMENTS (genre_names)) {
+		return NULL;
+	}
+
+	return genre_names[number];
+}
+
 static void
 un_unsync (const unsigned char *source,
 	   size_t               size,
@@ -510,9 +520,9 @@ get_id3 (const gchar *data,
 
 	pos += 30;
 
-	if ((guint) pos[0] < G_N_ELEMENTS (genre_names)) {
-		id3->genre = g_strdup (genre_names[(unsigned) pos[0]]);
-	} else {
+	id3->genre = g_strdup (get_genre_name ((guint) pos[0]));
+
+	if (!id3->genre) {
 		id3->genre = g_strdup ("");
 	}
 
@@ -866,10 +876,10 @@ get_id3v24_tags (const gchar *data,
 
 						if (get_genre_number (word, &genre)) {
 							g_free (word);
-							word = g_strdup (genre_names[genre]);
+							word = g_strdup (get_genre_name (genre));
 						}
 
-						if (strcasecmp (word, "unknown") == 0) {
+						if (!word || strcasecmp (word, "unknown") == 0) {
 							break;
 						}
 					} else if (strcmp (tmap[i].text, "TLEN") == 0) {
@@ -1117,10 +1127,10 @@ get_id3v23_tags (const gchar *data,
 
 						if (get_genre_number (word, &genre)) {
 							g_free (word);
-							word = g_strdup (genre_names[genre]);
+							word = g_strdup (get_genre_name (genre));
 						}
-						
-						if (strcasecmp (word, "unknown") == 0) {
+
+						if (!word || strcasecmp (word, "unknown") == 0) {
 							break;
 						}
 					} else if (strcmp (tmap[i].text, "TLEN") == 0) {
@@ -1347,10 +1357,10 @@ get_id3v20_tags (const gchar *data,
 						gint genre;
 						if (get_genre_number (word, &genre)) {
 							g_free (word);
-							word = g_strdup (genre_names[genre]);
+							word = g_strdup (get_genre_name (genre));
 						}
 
-						if (strcasecmp (word, "unknown")==0) {
+						if (!word || strcasecmp (word, "unknown") == 0) {
 							g_free (word);
 							break;
 						}
