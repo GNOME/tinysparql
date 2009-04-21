@@ -329,11 +329,6 @@ tracker_data_update_buffer_flush (void)
 
 	iface = tracker_db_manager_get_db_interface ();
 
-#ifdef HAVE_SQLITE_FTS
-	fts_sql = g_string_new ("UPDATE \"fts\" SET ");
-	fts_index = 0;
-#endif
-
 	g_hash_table_iter_init (&iter, update_buffer.tables);
 	while (g_hash_table_iter_next (&iter, (gpointer*) &table_name, (gpointer*) &table)) {
 		if (table->multiple_values) {
@@ -392,6 +387,9 @@ tracker_data_update_buffer_flush (void)
 		}
 
 #ifdef HAVE_SQLITE_FTS
+		fts_sql = g_string_new ("UPDATE \"fts\" SET ");
+		fts_index = 0;
+
 		for (i = 0; i < table->properties->len; i++) {
 			property = &g_array_index (table->properties, TrackerDataUpdateBufferProperty, i);
 			if (property->fts) {
@@ -402,30 +400,28 @@ tracker_data_update_buffer_flush (void)
 				fts_index++;
 			}
 		}
-#endif
-	}
 
-#ifdef HAVE_SQLITE_FTS
-	if (fts_index > 0) {
-		g_string_append (fts_sql, " WHERE rowid = ?");
+		if (fts_index > 0) {
+			g_string_append (fts_sql, " WHERE rowid = ?");
 
-		stmt = tracker_db_interface_create_statement (iface, "%s", fts_sql->str);
-		tracker_db_statement_bind_int (stmt, fts_index, update_buffer.id);
+			stmt = tracker_db_interface_create_statement (iface, "%s", fts_sql->str);
+			tracker_db_statement_bind_int (stmt, fts_index, update_buffer.id);
 
-		fts_index = 0;
-		for (i = 0; i < table->properties->len; i++) {
-			property = &g_array_index (table->properties, TrackerDataUpdateBufferProperty, i);
-			if (property->fts) {
-				statement_bind_gvalue (stmt, fts_index, &property->value);
-				fts_index++;
+			fts_index = 0;
+			for (i = 0; i < table->properties->len; i++) {
+				property = &g_array_index (table->properties, TrackerDataUpdateBufferProperty, i);
+				if (property->fts) {
+					statement_bind_gvalue (stmt, fts_index, &property->value);
+					fts_index++;
+				}
 			}
-		}
 
-		tracker_db_statement_execute (stmt, NULL);
-		g_object_unref (stmt);
-	}
-	g_string_free (fts_sql, TRUE);
+			tracker_db_statement_execute (stmt, NULL);
+			g_object_unref (stmt);
+		}
+		g_string_free (fts_sql, TRUE);
 #endif
+	}
 
 	g_hash_table_remove_all (update_buffer.tables);
 	g_free (update_buffer.subject);
