@@ -214,6 +214,10 @@ static void	state_check	       (TrackerIndexer	    *indexer);
 static void     check_finished         (TrackerIndexer      *indexer,
 					gboolean             interrupted);
 
+static void     item_erase             (TrackerIndexer      *indexer,
+					TrackerService      *service,
+					guint32              service_id);
+
 static gboolean item_process           (TrackerIndexer      *indexer,
 					PathInfo            *info,
 					const gchar         *dirname,
@@ -1599,6 +1603,7 @@ item_add_or_update (TrackerIndexer        *indexer,
 	guint32 id;
 	gchar *mount_point = NULL;
 	gchar *service_path;
+	gboolean exists, enabled;
 
 	service = get_service_for_file (info->module_file, info->module);
 
@@ -1606,7 +1611,15 @@ item_add_or_update (TrackerIndexer        *indexer,
 		return;
 	}
 
-	if (tracker_data_query_service_exists (service, dirname, basename, &id, NULL)) {
+	exists = tracker_data_query_service_exists (service, dirname, basename, &id, NULL, &enabled);
+
+	if (exists && !enabled) {
+		/* Service must be deleted before insertion */
+		item_erase (indexer, service, id);
+		exists = FALSE;
+	}
+
+	if (exists) {
 		TrackerDataMetadata *old_metadata_emb, *old_metadata_non_emb;
 		gchar *old_text;
 
@@ -1949,6 +1962,7 @@ item_move (TrackerIndexer  *indexer,
 	gchar *dest_dirname, *dest_basename;
 	guint32 service_id, dest_service_id;
 	GHashTable *children = NULL;
+	gboolean exists, enabled;
 
 	service = get_service_for_file (info->module_file, info->module);
 
@@ -1962,11 +1976,14 @@ item_move (TrackerIndexer  *indexer,
 	g_debug ("Moving item from '%s' to '%s'", source_path, path);
 
 	/* Get 'source' ID */
-	if (!tracker_data_query_service_exists (service,
-						dirname,
-						basename,
-						&service_id,
-						NULL)) {
+	exists = tracker_data_query_service_exists (service,
+						    dirname,
+						    basename,
+						    &service_id,
+						    NULL,
+						    &enabled);
+
+	if (!exists || !enabled) {
 		gchar *dest_dirname, *dest_basename;
 		gboolean res;
 
@@ -1990,7 +2007,7 @@ item_move (TrackerIndexer  *indexer,
 					       dest_dirname,
 					       dest_basename,
 					       &dest_service_id,
-					       NULL)) {
+					       NULL, NULL)) {
 		g_message ("Destination file '%s' already existed in database, removing", path);
 
 		/* Item has to be deleted from the database immediately */
@@ -2075,6 +2092,7 @@ item_mark_for_removal (TrackerIndexer *indexer,
 	const gchar *service_type;
 	guint service_id, service_type_id;
 	GHashTable *children = NULL;
+	gboolean exists, enabled;
 
 	g_debug ("Removing item: '%s/%s' (no metadata was given by module)", 
 		 dirname, 
@@ -2093,9 +2111,9 @@ item_mark_for_removal (TrackerIndexer *indexer,
 	service_type = tracker_ontology_get_service_by_id (service_type_id);
 	service = tracker_ontology_get_service_by_name (service_type);
 
-	tracker_data_query_service_exists (service, dirname, basename, &service_id, NULL);
+	exists = tracker_data_query_service_exists (service, dirname, basename, &service_id, NULL, &enabled);
 
-	if (service_id < 1) {
+	if (!exists || !enabled) {
 		g_debug ("  File does not exist anyway "
 			 "(dirname:'%s', basename:'%s')",
 			 dirname, basename);
@@ -2208,6 +2226,7 @@ handle_metadata_add (TrackerIndexer *indexer,
 	gchar          *joined, *dirname = NULL, *basename = NULL;
 	gchar         **old_contents;
 	gint            len;
+	gboolean        exists, enabled;
 
 	g_return_val_if_fail (error == NULL || *error == NULL, FALSE);
 
@@ -2247,15 +2266,16 @@ handle_metadata_add (TrackerIndexer *indexer,
 
 	tracker_file_get_path_and_name (uri, &dirname, &basename);
 
-	tracker_data_query_service_exists (service,
-				  dirname,
-				  basename,
-				  &service_id,
-				  NULL);
+	exists = tracker_data_query_service_exists (service,
+						    dirname,
+						    basename,
+						    &service_id,
+						    NULL,
+						    &enabled);
 	g_free (dirname);
 	g_free (basename);
 
-	if (service_id < 1) {
+	if (!exists || !enabled) {
 		g_set_error (error,
 			     g_quark_from_string (TRACKER_INDEXER_ERROR),
 			     TRACKER_INDEXER_ERROR_CODE,
@@ -2347,6 +2367,7 @@ handle_metadata_remove (TrackerIndexer *indexer,
 	TrackerField *field;
 	guint service_id, i;
 	gchar *joined = NULL, *dirname = NULL, *basename = NULL;
+	gboolean exists, enabled;
 
 	check_started (indexer);
 
@@ -2381,12 +2402,14 @@ handle_metadata_remove (TrackerIndexer *indexer,
 
 	tracker_file_get_path_and_name (uri, &dirname, &basename);
 
-	tracker_data_query_service_exists (service, dirname, basename, &service_id, NULL);
+	exists = tracker_data_query_service_exists (service,
+						    dirname, basename,
+						    &service_id, NULL, &enabled);
 
 	g_free (dirname);
 	g_free (basename);
 
-	if (service_id < 1) {
+	if (!exists || !enabled) {
 		g_set_error (error,
 			     g_quark_from_string (TRACKER_INDEXER_ERROR),
 			     TRACKER_INDEXER_ERROR_CODE,
@@ -2445,14 +2468,15 @@ handle_metadata_remove (TrackerIndexer *indexer,
 
 static gboolean
 should_change_index_for_file (TrackerIndexer *indexer,
-			      PathInfo        *info,
-			      const gchar	  *dirname,
-			      const gchar	  *basename)
+			      PathInfo       *info,
+			      const gchar    *dirname,
+			      const gchar    *basename)
 {
 	TrackerService *service;
 	gchar *path;
 	guint64 current_mtime;
 	time_t db_mtime;
+	gboolean enabled;
 
 	service = get_service_for_file (info->module_file, info->module);
 
@@ -2467,7 +2491,16 @@ should_change_index_for_file (TrackerIndexer *indexer,
 						dirname,
 						basename,
 						NULL,
-						&db_mtime)) {
+						&db_mtime,
+						&enabled)) {
+		return TRUE;
+	}
+
+	/* Service exists, but is disabled. In this case
+	 * we want to reindex, so the item will be deleted
+	 * afterwards before inserting the new data.
+	 */
+	if (!enabled) {
 		return TRUE;
 	}
 

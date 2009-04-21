@@ -67,7 +67,8 @@ gboolean             tracker_data_query_service_exists        (TrackerService   
 							       const gchar         *dirname,
 							       const gchar         *basename,
 							       guint32             *service_id,
-							       time_t              *mtime);
+							       time_t              *mtime,
+							       gboolean            *enabled);
 guint                tracker_data_query_service_type_id       (const gchar         *dirname,
 							       const gchar         *basename);
 GHashTable *         tracker_data_query_service_children      (TrackerService      *service,

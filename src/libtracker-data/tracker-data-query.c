@@ -267,6 +267,7 @@ tracker_data_query_file_id (const gchar *service_type,
 	TrackerDBInterface *iface;
 	gchar		   *dir, *name;
 	guint32		    id = 0;
+	gboolean            enabled;
 
 	g_return_val_if_fail (path != NULL, 0);
 
@@ -290,8 +291,15 @@ tracker_data_query_file_id (const gchar *service_type,
 	g_free (name);
 
 	if (result_set) {
-		tracker_db_result_set_get (result_set, 0, &id, -1);
+		tracker_db_result_set_get (result_set,
+					   0, &id,
+					   4, &enabled,
+					   -1);
 		g_object_unref (result_set);
+
+		if (!enabled) {
+			id = 0;
+		}
 	}
 
 	return id;
@@ -319,13 +327,13 @@ tracker_data_query_service_exists (TrackerService *service,
 				   const gchar	  *dirname,
 				   const gchar	  *basename,
 				   guint32	  *service_id,
-				   time_t	  *mtime)
+				   time_t	  *mtime,
+				   gboolean       *enabled)
 {
 	TrackerDBInterface *iface;
 	TrackerDBResultSet *result_set;
-	guint db_id;
-	guint db_mtime;
-	gboolean found = FALSE;
+	guint db_id, db_mtime;
+	gboolean db_enabled, found = FALSE;
 
 	db_id = db_mtime = 0;
 
@@ -341,6 +349,7 @@ tracker_data_query_service_exists (TrackerService *service,
 		tracker_db_result_set_get (result_set,
 					   0, &db_id,
 					   1, &db_mtime,
+					   4, &db_enabled,
 					   -1);
 		g_object_unref (result_set);
 		found = TRUE;
@@ -354,6 +363,10 @@ tracker_data_query_service_exists (TrackerService *service,
 		*mtime = (time_t) db_mtime;
 	}
 
+	if (enabled) {
+		*enabled = db_enabled;
+	}
+
 	return found;
 }
 
@@ -364,6 +377,7 @@ tracker_data_query_service_type_id (const gchar *dirname,
 	TrackerDBInterface *iface;
 	TrackerDBResultSet *result_set;
 	guint service_type_id;
+	gboolean enabled;
 
 	/* We are asking this because the module cannot assign service_type -> probably it is files */
 	iface = tracker_db_manager_get_db_interface_by_type ("Files",
@@ -378,10 +392,13 @@ tracker_data_query_service_type_id (const gchar *dirname,
 		return 0;
 	}
 
-	tracker_db_result_set_get (result_set, 3, &service_type_id, -1);
+	tracker_db_result_set_get (result_set,
+				   3, &service_type_id,
+				   4, &enabled,
+				   -1);
 	g_object_unref (result_set);
 
-	return service_type_id;
+	return (enabled) ? service_type_id : 0;
 }
 
 GHashTable *

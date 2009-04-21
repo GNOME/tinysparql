@@ -46,7 +46,7 @@ DeleteServiceMetadata          DELETE FROM ServiceMetaData WHERE ServiceID = ?;
 DeleteServiceKeywordMetadata   DELETE FROM ServiceMetaData WHERE ServiceID = ?;
 DeleteServiceNumericMetadata   DELETE FROM ServiceMetaData WHERE ServiceID = ?;
 
-GetServiceID                   SELECT ID, IndexTime, IsDirectory, ServiceTypeID FROM Services WHERE Path = ? AND Name = ?;
+GetServiceID                   SELECT ID, IndexTime, IsDirectory, ServiceTypeID, Enabled FROM Services WHERE Path = ? AND Name = ?;
 GetByServiceType               SELECT DISTINCT S.Path || '/' || S.Name AS uri FROM Services AS S WHERE S.Enabled = 1 AND (S.AuxilaryID = 0 OR S.AuxilaryID IN (SELECT VolumeID FROM Volumes WHERE Enabled = 1)) AND S.ServiceTypeID IN (SELECT TypeId FROM ServiceTypes WHERE TypeName = ? OR Parent = ?) LIMIT ?,?;
 GetContents                    SELECT uncompress (Content) FROM ServiceContents WHERE ServiceID = ? AND MetadataID = ? AND Content is not null;
 GetFileContents                SELECT substr(uncompress (Content), ?, ?) FROM ServiceContents WHERE ServiceID = ?;
