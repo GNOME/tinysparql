@@ -303,14 +303,14 @@ read_id3v1_buffer (int fd, goffset size)
 	guint bytes_read;
 	guint rc;
 
-	buffer = g_malloc (ID3V1_SIZE);
-
-	if (!buffer) {
+	if (lseek (fd, size-ID3V1_SIZE, SEEK_SET) < 0) {
 		return NULL;
 	}
 
-	if (lseek (fd, size-ID3V1_SIZE, SEEK_SET) < 0) {
-		g_free (buffer);
+
+	buffer = g_malloc (ID3V1_SIZE);
+
+	if (!buffer) {
 		return NULL;
 	}
 
@@ -1344,6 +1344,8 @@ get_id3v20_tags (const gchar *data,
 					g_free (word);
 				}
 
+				g_free (word);
+
 				break;
 			}
 
@@ -1588,6 +1590,7 @@ extract_mp3 (const gchar *filename,
 	void	    *buffer;
 	void        *id3v1_buffer;
 	goffset      size;
+	goffset      buffer_size;
 	id3tag	     info;
 	goffset      audio_offset;
 	file_data    filedata;
@@ -1613,6 +1616,7 @@ extract_mp3 (const gchar *filename,
 	}
 
 	filedata.size = size;
+	buffer_size = MIN (size, MAX_FILE_READ);
 
 #if defined(__linux__)
 	/* Can return -1 because of O_NOATIME, so we try again after
@@ -1637,7 +1641,7 @@ extract_mp3 (const gchar *filename,
 #ifndef G_OS_WIN32
 	/* We don't use GLib's mmap because size can not be specified */
 	buffer = mmap (NULL, 
-		       MIN (size, MAX_FILE_READ), 
+		       buffer_size, 
 		       PROT_READ, 
 		       MAP_PRIVATE, 
 		       fd, 
@@ -1655,6 +1659,8 @@ extract_mp3 (const gchar *filename,
 	if (!get_id3 (id3v1_buffer, ID3V1_SIZE, &info)) {
 		/* Do nothing? */
 	}
+	
+	g_free (id3v1_buffer);
 
 	if (!tracker_is_empty_string (info.title)) {
 		g_hash_table_insert (metadata,
@@ -1707,10 +1713,10 @@ extract_mp3 (const gchar *filename,
 	g_free (info.genre);
 
 	/* Get other embedded tags */
-	audio_offset = parse_id3v2 (buffer, MIN(size, MAX_FILE_READ), metadata, &filedata);
+	audio_offset = parse_id3v2 (buffer, buffer_size, metadata, &filedata);
 
 	/* Get mp3 stream info */
-	mp3_parse (buffer, MIN(size, MAX_FILE_READ), audio_offset, metadata, &filedata);
+	mp3_parse (buffer, buffer_size, audio_offset, metadata, &filedata);
 
 #ifdef HAVE_GDKPIXBUF
 	tracker_process_albumart (filedata.albumartdata, filedata.albumartsize,
@@ -1750,10 +1756,9 @@ extract_mp3 (const gchar *filename,
 	}
 
 #ifndef G_OS_WIN32
-	munmap (buffer, MIN(size, MAX_FILE_READ));
+	munmap (buffer, buffer_size);
 #endif
 
-	g_free (id3v1_buffer);
 }
 
 TrackerExtractData *
