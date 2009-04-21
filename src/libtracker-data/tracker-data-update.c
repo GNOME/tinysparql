@@ -1460,7 +1460,7 @@ tracker_data_update_disable_all_volumes (void)
 	g_object_unref (stmt);
 
 	delete_q = g_strdup_printf ("DELETE { ?o tracker:isMounted ?d } WHERE { ?o tracker:isMounted ?d  FILTER (?o != <"TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN"> ) }");
-	set_q = g_strdup_printf ("INSERT { ?o a tracker:Volume; tracker:isMounted false . FILTER (?o != <"TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN"> ) }");
+	set_q = g_strdup_printf ("INSERT { ?o a tracker:Volume; tracker:isMounted false } WHERE { ?o a tracker:Volume FILTER (?o != <"TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN"> ) }");
 
 	tracker_data_update_sparql (delete_q, &error);
 
