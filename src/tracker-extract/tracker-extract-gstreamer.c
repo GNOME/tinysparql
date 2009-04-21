@@ -244,7 +244,7 @@ extract_metadata (MetadataExtractor *extractor,
 		  gchar            **album,
 		  gchar            **scount)
 {
-	gchar *s;
+	gchar *s = NULL;
 	gint   n;
 
 	g_return_if_fail (extractor);
@@ -257,7 +257,7 @@ extract_metadata (MetadataExtractor *extractor,
 		add_string_gst_tag (metadata, uri, DC_PREFIX "coverage", extractor->tagcache, GST_TAG_LOCATION);
 
 		/* Audio */
-
+		s = NULL;
 		gst_tag_list_get_string (extractor->tagcache, GST_TAG_PERFORMER, &s);
 		if (s) {
 			gchar *canonical_uri = tracker_uri_printf_escaped ("urn:artist:%s", s);
@@ -287,6 +287,7 @@ extract_metadata (MetadataExtractor *extractor,
 			add_string_gst_tag (metadata, uri, NIE_PREFIX "title", extractor->tagcache, GST_TAG_TITLE);
 			add_string_gst_tag (metadata, uri, NIE_PREFIX "comment", extractor->tagcache, GST_TAG_COMMENT);
 
+			s = NULL;
 			gst_tag_list_get_string (extractor->tagcache, GST_TAG_ARTIST, &s);
 			if (s) {
 				gchar *canonical_uri = tracker_uri_printf_escaped ("urn:contact:%s", s);
@@ -301,6 +302,7 @@ extract_metadata (MetadataExtractor *extractor,
 			add_string_gst_tag (metadata, uri, NIE_PREFIX "title", extractor->tagcache, GST_TAG_TITLE);
 			add_string_gst_tag (metadata, uri, NIE_PREFIX "comment", extractor->tagcache, GST_TAG_COMMENT);
 
+			s = NULL;
 			gst_tag_list_get_string (extractor->tagcache, GST_TAG_ARTIST, &s);
 			if (s) {
 				gchar *canonical_uri = tracker_uri_printf_escaped ("urn:artist:%s", s);
@@ -314,7 +316,8 @@ extract_metadata (MetadataExtractor *extractor,
 			add_string_gst_tag (metadata, uri, DC_PREFIX "source", extractor->tagcache, GST_TAG_CLASSIFICATION);
 		} else if (extractor->mime == EXTRACT_MIME_AUDIO) {
 			add_string_gst_tag (metadata, uri, NIE_PREFIX "title", extractor->tagcache, GST_TAG_TITLE);
-			
+
+			s = NULL;
 			gst_tag_list_get_string (extractor->tagcache, GST_TAG_ALBUM, &s);
 
 			if (s) {
@@ -337,7 +340,7 @@ extract_metadata (MetadataExtractor *extractor,
 			
 			add_uint_gst_tag   (metadata, uri, NMM_PREFIX "setNumber", extractor->tagcache, GST_TAG_ALBUM_VOLUME_NUMBER);
 			
-			
+			s = NULL;
 			gst_tag_list_get_string (extractor->tagcache, GST_TAG_ARTIST, &s);
 			if (s) {
 				gchar *canonical_uri = tracker_uri_printf_escaped ("urn:artist:%s", s);
@@ -347,7 +350,8 @@ extract_metadata (MetadataExtractor *extractor,
 				g_free (canonical_uri);
 				g_free (s);
 			}
-			
+
+			s = NULL;
 			if (gst_tag_list_get_string (extractor->tagcache, GST_TAG_ARTIST, &s)) {
 				*artist = s;
 			}
@@ -738,6 +742,8 @@ tracker_extract_gstreamer (const gchar *uri,
 {
 	MetadataExtractor *extractor;
 	gchar		  *album = NULL, *artist = NULL, *scount = NULL;
+	gchar *path;
+	GFile *file;
 
 	g_return_if_fail (uri);
 	g_return_if_fail (metadata);
@@ -830,14 +836,21 @@ tracker_extract_gstreamer (const gchar *uri,
 	extractor->bus = gst_pipeline_get_bus (GST_PIPELINE (extractor->pipeline));
 	gst_bus_add_watch (extractor->bus, metadata_bus_async_cb, extractor);
 
-	g_object_set (G_OBJECT (extractor->filesrc), "location", uri, NULL);
-
+	file = g_file_new_for_uri (uri);
+	path = g_file_get_path (file);
+	
+	g_object_set (G_OBJECT (extractor->filesrc), "location", path, NULL);
+	
+	
 	gst_element_set_state (extractor->pipeline, GST_STATE_PAUSED);
 
 	g_main_loop_run (extractor->loop);
 
 	extract_metadata (extractor, uri, metadata, 
 			  &artist, &album, &scount);
+
+	g_free (path);
+	g_object_unref (file);
 
 	/* Save embedded art */
 	if (extractor->album_art_data && extractor->album_art_size) {
