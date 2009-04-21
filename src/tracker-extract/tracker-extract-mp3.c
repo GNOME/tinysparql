@@ -316,14 +316,14 @@ read_id3v1_buffer (int fd, goffset size)
 	guint bytes_read;
 	guint rc;
 
-	buffer = g_malloc (ID3V1_SIZE);
-
-	if (!buffer) {
+	if (lseek (fd, size-ID3V1_SIZE, SEEK_SET) < 0) {
 		return NULL;
 	}
 
-	if (lseek (fd, size-ID3V1_SIZE, SEEK_SET) < 0) {
-		g_free (buffer);
+
+	buffer = g_malloc (ID3V1_SIZE);
+
+	if (!buffer) {
 		return NULL;
 	}
 
@@ -1388,6 +1388,8 @@ get_id3v20_tags (const gchar *data,
 					g_free (word);
 				}
 
+				g_free (word);
+
 				break;
 			}
 
@@ -1637,6 +1639,7 @@ extract_mp3 (const gchar *uri,
 	void	    *buffer;
 	void        *id3v1_buffer;
 	goffset      size;
+	goffset      buffer_size;
 	id3tag	     info;
 	goffset      audio_offset;
 	file_data    filedata;
@@ -1665,6 +1668,7 @@ extract_mp3 (const gchar *uri,
 	}
 
 	filedata.size = size;
+	buffer_size = MIN (size, MAX_FILE_READ);
 
 #if defined(__linux__)
 	/* Can return -1 because of O_NOATIME, so we try again after
@@ -1689,7 +1693,7 @@ extract_mp3 (const gchar *uri,
 #ifndef G_OS_WIN32
 	/* We don't use GLib's mmap because size can not be specified */
 	buffer = mmap (NULL, 
-		       MIN (size, MAX_FILE_READ), 
+		       buffer_size, 
 		       PROT_READ, 
 		       MAP_PRIVATE, 
 		       fd, 
@@ -1708,6 +1712,8 @@ extract_mp3 (const gchar *uri,
 	if (!get_id3 (id3v1_buffer, ID3V1_SIZE, &info)) {
 		/* Do nothing? */
 	}
+	
+	g_free (id3v1_buffer);
 
 	tracker_statement_list_insert (metadata, uri, 
 	                          RDF_TYPE, 
@@ -1768,10 +1774,10 @@ extract_mp3 (const gchar *uri,
 	g_free (info.genre);
 
 	/* Get other embedded tags */
-	audio_offset = parse_id3v2 (buffer, MIN(size, MAX_FILE_READ), uri, metadata, &filedata);
+	audio_offset = parse_id3v2 (buffer, buffer_size, uri, metadata, &filedata);
 
 	/* Get mp3 stream info */
-	mp3_parse (buffer, MIN(size, MAX_FILE_READ), audio_offset, uri, metadata, &filedata);
+	mp3_parse (buffer, buffer_size, audio_offset, uri, metadata, &filedata);
 
 	/* TODO */
 #ifdef HAVE_GDKPIXBUF
@@ -1792,10 +1798,9 @@ extract_mp3 (const gchar *uri,
 	}
 
 #ifndef G_OS_WIN32
-	munmap (buffer, MIN(size, MAX_FILE_READ));
+	munmap (buffer, buffer_size);
 #endif
 
-	g_free (id3v1_buffer);
 	g_free (filename);
 }
 
