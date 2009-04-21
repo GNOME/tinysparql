@@ -2333,7 +2333,6 @@ typedef enum QueryType {
 typedef enum fulltext_statement {
   CONTENT_INSERT_STMT,
   CONTENT_SELECT_STMT,
-  CONTENT_UPDATE_STMT,
   CONTENT_DELETE_STMT,
   CONTENT_EXISTS_STMT,
 
@@ -2363,7 +2362,6 @@ typedef enum fulltext_statement {
 static const char *const fulltext_zStatement[MAX_STMT] = {
   /* CONTENT_INSERT */ NULL,  /* generated in contentInsertStatement() */
   /* CONTENT_SELECT */ NULL,  /* generated in contentSelectStatement() */
-  /* CONTENT_UPDATE */ NULL,  /* generated in contentUpdateStatement() */
   /* CONTENT_DELETE */ "delete from %_content where docid = ?",
   /* CONTENT_EXISTS */ "select docid from %_content limit 1",
 
@@ -2475,15 +2473,9 @@ static const sqlite3_module fts3Module;   /* forward declaration */
  */
 static const char *contentInsertStatement(fulltext_vtab *v){
   StringBuffer sb;
-  int i;
 
   initStringBuffer(&sb);
-  append(&sb, "insert into %_content (docid, ");
-  appendList(&sb, v->nColumn, v->azContentColumn);
-  append(&sb, ") values (?");
-  for(i=0; i<v->nColumn; ++i)
-    append(&sb, ", ?");
-  append(&sb, ")");
+  append(&sb, "insert into %_content (docid) values (?)");
   return stringBufferData(&sb);
 }
 
@@ -2492,31 +2484,18 @@ static const char *contentInsertStatement(fulltext_vtab *v){
  */
 static const char *contentSelectStatement(fulltext_vtab *v){
   StringBuffer sb;
-  initStringBuffer(&sb);
-  append(&sb, "SELECT ");
-  appendList(&sb, v->nColumn, v->azContentColumn);
-  append(&sb, " FROM %_content WHERE docid = ?");
-  return stringBufferData(&sb);
-}
-
-/* Return a dynamically generated statement of the form
- *   update %_content set [col_0] = ?, [col_1] = ?, ...
- *                    where docid = ?
- */
-static const char *contentUpdateStatement(fulltext_vtab *v){
-  StringBuffer sb;
   int i;
 
   initStringBuffer(&sb);
-  append(&sb, "update %_content set ");
-  for(i=0; i<v->nColumn; ++i) {
-    if( i>0 ){
+  append(&sb, "SELECT ");
+
+  for (i = 0; i < v->nColumn; i++) {
+    if (i > 0) {
       append(&sb, ", ");
     }
-    append(&sb, v->azContentColumn[i]);
-    append(&sb, " = ?");
+    append(&sb, "NULL");
   }
-  append(&sb, " where docid = ?");
+
   return stringBufferData(&sb);
 }
 
@@ -2535,8 +2514,6 @@ static int sql_get_statement(fulltext_vtab *v, fulltext_statement iStmt,
         zStmt = contentInsertStatement(v); break;
       case CONTENT_SELECT_STMT:
         zStmt = contentSelectStatement(v); break;
-      case CONTENT_UPDATE_STMT:
-        zStmt = contentUpdateStatement(v); break;
       default:
         zStmt = fulltext_zStatement[iStmt];
     }
@@ -2594,36 +2571,11 @@ static int sql_get_leaf_statement(fulltext_vtab *v, int idx,
 static int content_insert(fulltext_vtab *v, sqlite3_value *docid,
                           sqlite3_value **pValues){
   sqlite3_stmt *s;
-  int i;
+
   int rc = sql_get_statement(v, CONTENT_INSERT_STMT, &s);
   if( rc!=SQLITE_OK ) return rc;
 
   rc = sqlite3_bind_value(s, 1, docid);
-  if( rc!=SQLITE_OK ) return rc;
-
-  for(i=0; i<v->nColumn; ++i){
-    rc = sqlite3_bind_value(s, 2+i, pValues[i]);
-    if( rc!=SQLITE_OK ) return rc;
-  }
-
-  return sql_single_step(s);
-}
-
-/* update %_content set col0 = pValues[0], col1 = pValues[1], ...
- *                  where docid = [iDocid] */
-static int content_update(fulltext_vtab *v, sqlite3_value **pValues,
-                          sqlite_int64 iDocid){
-  sqlite3_stmt *s;
-  int i;
-  int rc = sql_get_statement(v, CONTENT_UPDATE_STMT, &s);
-  if( rc!=SQLITE_OK ) return rc;
-
-  for(i=0; i<v->nColumn; ++i){
-    rc = sqlite3_bind_value(s, 1+i, pValues[i]);
-    if( rc!=SQLITE_OK ) return rc;
-  }
-
-  rc = sqlite3_bind_int64(s, 1+v->nColumn, iDocid);
   if( rc!=SQLITE_OK ) return rc;
 
   return sql_single_step(s);
@@ -3517,8 +3469,7 @@ static int fulltextCreate(sqlite3 *db, void *pAux,
 
   initStringBuffer(&schema);
   append(&schema, "CREATE TABLE %_content(");
-  append(&schema, "  docid INTEGER PRIMARY KEY,");
-  appendList(&schema, spec.nColumn, spec.azContentColumn);
+  append(&schema, "  docid INTEGER PRIMARY KEY");
   append(&schema, ")");
   rc = sql_exec(db, spec.zDb, spec.zName, stringBufferData(&schema));
   stringBufferDestroy(&schema);
@@ -4723,13 +4674,18 @@ static int fulltextFilter(
   fulltext_cursor *c = (fulltext_cursor *) pCursor;
   fulltext_vtab *v = cursor_vtab(c);
   int rc;
+  int i;
   StringBuffer sb;
 
   FTSTRACE(("FTS3 Filter %p\n",pCursor));
 
   initStringBuffer(&sb);
-  append(&sb, "SELECT docid, ");
-  appendList(&sb, v->nColumn, v->azContentColumn);
+  append(&sb, "SELECT docid");
+
+  for (i = 0; i < v->nColumn; i++) {
+    append(&sb, ", NULL");
+  }
+
   append(&sb, " FROM %_content");
   if( idxNum!=QUERY_GENERIC ) append(&sb, " WHERE docid = ?");
   sqlite3_finalize(c->pStmt);
@@ -4999,17 +4955,7 @@ static int initPendingTerms(fulltext_vtab *v, sqlite_int64 iDocid);
 */
 static int index_insert(fulltext_vtab *v, sqlite3_value *pRequestDocid,
                         sqlite3_value **pValues, sqlite_int64 *piDocid){
-  int rc;
-
-  rc = content_insert(v, pRequestDocid, pValues);  /* execute an SQL INSERT */
-  if( rc!=SQLITE_OK ) return rc;
-
-  /* docid column is an alias for rowid. */
-  *piDocid = sqlite3_last_insert_rowid(v->db);
-  rc = initPendingTerms(v, *piDocid);
-  if( rc!=SQLITE_OK ) return rc;
-
-  return insertTerms(v, *piDocid, pValues);
+  return content_insert(v, pRequestDocid, pValues);  /* execute an SQL INSERT */
 }
 
 /* Delete a row from the %_content table; add empty doclists for terms
@@ -5031,19 +4977,39 @@ static int index_delete(fulltext_vtab *v, sqlite_int64 iRow){
 */
 static int index_update(fulltext_vtab *v, sqlite_int64 iRow,
                         sqlite3_value **pValues){
+  int i;
+  int delete;
+
   int rc = initPendingTerms(v, iRow);
   if( rc!=SQLITE_OK ) return rc;
 
-  /* Generate an empty doclist for each term that previously appeared in this
-   * row. */
-  rc = deleteTerms(v, iRow);
-  if( rc!=SQLITE_OK ) return rc;
+  /* delete if magic column is set to -1,
+     otherwise insert */
+  delete = (sqlite3_value_int (pValues[v->nColumn]) == -1);
 
-  rc = content_update(v, pValues, iRow);  /* execute an SQL UPDATE */
-  if( rc!=SQLITE_OK ) return rc;
+#ifdef STORE_CATEGORY
 
-  /* Now add positions for terms which appear in the updated row. */
-  return insertTerms(v, iRow, pValues);
+  /* tracker- category is at column 0 so we dont want to add that value to index */
+  for(i = 1; i < v->nColumn ; ++i){
+    char *zText = (char*)sqlite3_value_text(pValues[i]);
+
+    /* tracker - as for col id we want col 0 to be the default metadata field (file:contents or email:body) , 
+    col 1 to be meatdata id 1, col 2 to be metadat id 2 etc so need to decrement i here */
+    int rc = buildTerms(v, iRow, sqlite3_value_int (pValues[0]), zText, delete ? -1 : (i-1));
+    if( rc!=SQLITE_OK ) return rc;
+  }
+
+#else
+
+  for(i = 0; i < v->nColumn ; ++i){
+    char *zText = (char*)sqlite3_value_text(pValues[i]);
+    int rc = buildTerms(v, iRow, zText, delete ? -1 : i);
+    if( rc!=SQLITE_OK ) return rc;
+  }
+
+#endif
+
+  return SQLITE_OK;
 }
 
 /*******************************************************************/
