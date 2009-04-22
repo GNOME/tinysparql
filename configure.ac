@@ -1402,6 +1402,7 @@ AC_CONFIG_FILES([
 	tests/tracker-indexer/Makefile
 	tests/tracker-extract/Makefile
 	utils/Makefile
+	utils/albumart/Makefile
 	utils/qdbm/Makefile
 	utils/tracker-fts/Makefile
 ])

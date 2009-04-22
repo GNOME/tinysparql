@@ -32,26 +32,27 @@ G_BEGIN_DECLS
 
 #include "tracker-hal.h"
 
-gboolean tracker_albumart_heuristic        (const gchar *artist_,  
-					    const gchar *album_, 
-					    const gchar *tracks_str, 
-					    const gchar *filename,
-					    const gchar *local_uri,
-					    gboolean    *copied);
-void     tracker_albumart_copy_to_local    (TrackerHal  *hal,
-					    const gchar *filename, 
-					    const gchar *local_uri);
-void     tracker_albumart_get_path         (const gchar  *a, 
-					    const gchar  *b, 
-					    const gchar  *prefix, 
-					    const gchar  *uri,
-					    gchar       **path,
-					    gchar       **local);
-void     tracker_albumart_request_download (TrackerHal  *hal,
-					    const gchar *album, 
-					    const gchar *artist, 
-					    const gchar *local_uri, 
-					    const gchar *art_path);
+gboolean tracker_albumart_heuristic              (const gchar  *artist_,
+						  const gchar  *album_,
+						  const gchar  *tracks_str,
+						  const gchar  *filename,
+						  const gchar  *local_uri,
+						  gboolean     *copied);
+gchar *  tracker_albumart_strip_invalid_entities (const gchar  *original);
+void     tracker_albumart_copy_to_local          (TrackerHal   *hal,
+						  const gchar  *filename,
+						  const gchar  *local_uri);
+void     tracker_albumart_get_path               (const gchar  *a,
+						  const gchar  *b,
+						  const gchar  *prefix,
+						  const gchar  *uri,
+						  gchar       **path,
+						  gchar       **local);
+void     tracker_albumart_request_download       (TrackerHal   *hal,
+						  const gchar  *album,
+						  const gchar  *artist,
+						  const gchar  *local_uri,
+						  const gchar  *art_path);
 
 G_END_DECLS
 
