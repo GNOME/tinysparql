@@ -1031,6 +1031,13 @@ process_module_next (TrackerProcessor *processor)
 	const gchar *module_name;
 	gboolean     is_removable_media;
 
+	if (tracker_status_get_is_readonly ()) {
+		/* Block any request to process
+		 * modules if indexing is not enabled
+		 */
+		return;
+	}
+
 	/* Don't recursively iterate the modules if this function is
 	 * called, check first.
 	 */
