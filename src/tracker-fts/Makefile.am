@@ -15,7 +15,9 @@ tracker_fts_modules_LTLIBRARIES = tracker-fts.la
 
 tracker_fts_la_SOURCES = 					\
 	tracker-fts.c						\
-	tracker-fts-hash.c				
+	tracker-fts.h						\
+	tracker-fts-hash.c					\
+	tracker-fts-hash.h
 
 tracker_fts_la_LDFLAGS = $(module_flags)
 
