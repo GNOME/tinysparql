@@ -50,7 +50,7 @@ main (int argc, char **argv) {
 	g_test_add_data_func ("/tracker-extract/tracker-extract-gstreamer/check-extract-data",
 			      data, test_tracker_extract_check_extract_data);
 	
-#if 1
+#if 0
 	g_test_add_data_func ("/tracker-extract/tracker-extract-gstreamer/mp3/id3v1_basic",
 			      data, test_tracker_extract_mp3_id3v1_basic);
 	g_test_add_data_func ("/tracker-extract/tracker-extract-gstreamer/mp3/id3v23_basic",

@@ -49,7 +49,7 @@ main (int argc, char **argv) {
 	g_test_add_data_func ("/tracker-extract/tracker-extract-tiff/check-extract-data",
 			      data, test_tracker_extract_check_extract_data);
 	
-#if 1
+#if 0
 	g_test_add_data_func ("/tracker-extract/tracker-extract-tiff/basic_size",
 			      data, test_tracker_extract_tiff_basic_size);
 
