@@ -347,8 +347,8 @@ AM_CONDITIONAL(HAVE_UNIT_TESTS, test "x$have_unit_tests" = "xyes")
 
 AC_ARG_ENABLE([sqlite_fts],
               AS_HELP_STRING([--enable-sqlite-fts], 
-	                     [enable SQLite FTS support (default=no)]),,
-              [enable_sqlite_fts=no])
+	                     [enable SQLite FTS support (default=yes)]),,
+              [enable_sqlite_fts=yes])
 
 if test "x$enable_sqlite_fts" != "xno" ; then
    AC_DEFINE(HAVE_SQLITE_FTS, 1, [Define if we have SQLite FTS support])
