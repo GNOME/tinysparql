@@ -239,6 +239,24 @@ strip_characters (const gchar *original)
 
 	retval[y] = 0;
 
+	y--;
+	while (retval[y] == ' ') {
+		retval[y] = 0;
+		y--;
+	}
+
+	if (retval[0] == ' ') {
+		guint r = 0;
+		gchar *newr;
+
+		while (retval[r] == ' ')
+			r++;
+
+		newr = g_strdup (retval + r);
+		g_free (retval);
+		retval = newr;
+	}
+
 	return retval;
 }
 
