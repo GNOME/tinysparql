@@ -758,7 +758,8 @@ create_fts_table (TrackerDBInterface *iface)
 	first = TRUE;
 	properties = tracker_ontology_get_properties ();
 	for (property = properties; *property; property++) {
-		if (tracker_property_get_data_type (*property) == TRACKER_PROPERTY_TYPE_STRING) {
+		if (tracker_property_get_data_type (*property) == TRACKER_PROPERTY_TYPE_STRING &&
+		    tracker_property_get_fulltext_indexed (*property)) {
 			if (first) {
 				first = FALSE;
 			} else {
