@@ -390,6 +390,9 @@ tracker_data_update_buffer_flush (void)
 		fts_sql = g_string_new ("UPDATE \"fts\" SET ");
 		fts_index = 0;
 
+		/* setting columns will insert specified values and
+		 * never replace existing entries in the fulltext index 
+		 * replace should happen as a delete/insert pair */
 		for (i = 0; i < table->properties->len; i++) {
 			property = &g_array_index (table->properties, TrackerDataUpdateBufferProperty, i);
 			if (property->fts) {
@@ -976,6 +979,24 @@ tracker_data_delete_statement (const gchar            *subject,
 			}
 
 			if (object && tracker_property_get_fulltext_indexed (field)) {
+#ifdef HAVE_SQLITE_FTS
+				TrackerDBInterface *iface;
+				TrackerDBStatement *stmt;
+
+				iface = tracker_db_manager_get_db_interface ();
+
+				/* setting the magic column to -1 will delete
+				 * specified entries from the fulltext index */
+				stmt = tracker_db_interface_create_statement (iface,
+					"UPDATE \"fts\" SET \"%s\" = ?, \"fts\" = -1 WHERE rowid = ?",
+					tracker_property_get_name (field));
+				tracker_db_statement_bind_text (stmt, 0, object);
+				tracker_db_statement_bind_int (stmt, 1, subject_id);
+
+				tracker_db_statement_execute (stmt, NULL);
+
+				g_object_unref (stmt);
+#else
 				TrackerConfig         *config;
 				TrackerLanguage       *language;
 
@@ -995,6 +1016,7 @@ tracker_data_delete_statement (const gchar            *subject,
 								   object,
 								   tracker_property_get_weight (field));
 				}
+#endif
 			}
 		} else {
 			g_warning ("Property '%s' not found in the ontology", predicate);
