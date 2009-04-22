@@ -681,26 +681,9 @@ public class Tracker.SparqlQuery : Object {
 				pattern_sql.append (binding.sql_db_column_name);
 				pattern_sql.append ("\"");
 				if (binding.is_fts_match) {
-#if HAVE_SQLITE_FTS
 					// parameters do not work with fts MATCH
 					string escaped_literal = string.joinv ("''", binding.literal.split ("'"));
 					pattern_sql.append_printf (" IN (SELECT rowid FROM fts WHERE fts MATCH '%s')", escaped_literal);
-#else
-					pattern_sql.append (" IN (");
-
-					// include matches from fulltext search
-					first = true;
-					foreach (int match_id in Data.search_get_matches (binding.literal)) {
-						if (!first) {
-							pattern_sql.append (",");
-						} else {
-							first = false;
-						}
-						pattern_sql.append_printf ("%d", match_id);
-					}
-
-					pattern_sql.append (")");
-#endif
 				} else {
 					pattern_sql.append (" = ");
 					if (binding.is_uri) {

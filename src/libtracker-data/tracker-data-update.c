@@ -30,7 +30,6 @@
 #include <libtracker-common/tracker-file-utils.h>
 #include <libtracker-common/tracker-ontology.h>
 
-#include <libtracker-db/tracker-db-index-manager.h>
 #include <libtracker-db/tracker-db-manager.h>
 #include <libtracker-db/tracker-db-dbus.h>
 
@@ -278,12 +277,10 @@ ensure_resource_id (const gchar *uri)
 		tracker_db_statement_execute (stmt, NULL);
 		g_object_unref (stmt);
 
-#ifdef HAVE_SQLITE_FTS
 		stmt = tracker_db_interface_create_statement (iface, "INSERT INTO \"fts\" (rowid) VALUES (?)");
 		tracker_db_statement_bind_int (stmt, 0, id);
 		tracker_db_statement_execute (stmt, NULL);
 		g_object_unref (stmt);
-#endif
 
 		g_hash_table_insert (update_buffer.resource_cache, g_strdup (uri), GUINT_TO_POINTER (id));
 	}
@@ -386,7 +383,6 @@ tracker_data_update_buffer_flush (void)
 			g_string_free (sql, TRUE);
 		}
 
-#ifdef HAVE_SQLITE_FTS
 		fts_sql = g_string_new ("UPDATE \"fts\" SET ");
 		fts_index = 0;
 
@@ -423,7 +419,6 @@ tracker_data_update_buffer_flush (void)
 			g_object_unref (stmt);
 		}
 		g_string_free (fts_sql, TRUE);
-#endif
 	}
 
 	g_hash_table_remove_all (update_buffer.tables);
@@ -631,119 +626,6 @@ cache_set_metadata_decomposed (TrackerProperty	*property,
 	cache_insert_value (table_name, field_name, &gvalue, multiple_values, fts);
 
 	g_free (table_name);
-}
-
-
-static void
-send_text_to_index (TrackerConfig  *config,
-		    TrackerLanguage*language,
-		    gint	    service_id,
-		    const gchar    *text,
-		    gboolean	    full_parsing,
-		    gint	    weight_factor)
-{
-#ifndef HAVE_SQLITE_FTS
-	TrackerDBIndex *lindex;
-	GHashTable     *parsed;
-	GHashTableIter	iter;
-	gpointer	key, value;
-
-	if (!text) {
-		return;
-	}
-
-	if (full_parsing) {
-		parsed = tracker_parser_text (NULL,
-					      text,
-					      weight_factor,
-					      language,
-					      tracker_config_get_max_words_to_index (config),
-					      tracker_config_get_max_word_length (config),
-					      tracker_config_get_min_word_length (config),
-					      tracker_config_get_enable_stemmer (config),
-					      FALSE);
-	} else {
-		/* We dont know the exact property weight.
-		   Big value works.
-		 */
-		parsed = tracker_parser_text_fast (NULL,
-						   text,
-						   weight_factor);
-	}
-
-	g_hash_table_iter_init (&iter, parsed);
-
-	lindex = tracker_db_index_manager_get_index (TRACKER_DB_INDEX_RESOURCES);
-
-	while (g_hash_table_iter_next (&iter, &key, &value)) {
-		tracker_db_index_add_word (lindex,
-					   key,
-					   service_id,
-					   GPOINTER_TO_INT (value));
-	}
-
-	g_hash_table_unref (parsed);
-#endif
-}
-
-static void
-index_text_with_parsing (TrackerConfig  *config,
-			 TrackerLanguage*language,
-			 gint		 service_id,
-			 const gchar	*content,
-			 gint		 weight_factor)
-{
-	send_text_to_index (config,
-			    language,
-			    service_id,
-			    content,
-			    TRUE,
-			    weight_factor);
-}
-
-static void
-unindex_text_with_parsing (TrackerConfig  *config,
-			   TrackerLanguage*language,
-			   gint		   service_id,
-			   const gchar	  *content,
-			   gint		   weight_factor)
-{
-	send_text_to_index (config,
-			    language,
-			    service_id,
-			    content,
-			    TRUE,
-			    weight_factor * -1);
-}
-
-static void
-index_text_no_parsing (TrackerConfig  *config,
-		       TrackerLanguage*language,
-		       gint	       service_id,
-		       const gchar    *content,
-		       gchar	       weight_factor)
-{
-	send_text_to_index (config,
-			    language,
-			    service_id,
-			    content,
-			    FALSE,
-			    weight_factor);
-}
-
-static void
-unindex_text_no_parsing (TrackerConfig  *config,
-			 TrackerLanguage*language,
-			 gint		 service_id,
-			 const gchar	*content,
-			 gint		 weight_factor)
-{
-	send_text_to_index (config,
-			    language,
-			    service_id,
-			    content,
-			    FALSE,
-			    weight_factor * -1);
 }
 
 static void
@@ -979,7 +861,6 @@ tracker_data_delete_statement (const gchar            *subject,
 			}
 
 			if (object && tracker_property_get_fulltext_indexed (field)) {
-#ifdef HAVE_SQLITE_FTS
 				TrackerDBInterface *iface;
 				TrackerDBStatement *stmt;
 
@@ -996,27 +877,6 @@ tracker_data_delete_statement (const gchar            *subject,
 				tracker_db_statement_execute (stmt, NULL);
 
 				g_object_unref (stmt);
-#else
-				TrackerConfig         *config;
-				TrackerLanguage       *language;
-
-				config = tracker_data_manager_get_config ();
-				language = tracker_data_manager_get_language ();
-
-				if (tracker_property_get_filtered (field)) {
-					unindex_text_no_parsing (config,
-								 language,
-								 subject_id,
-								 object,
-								 tracker_property_get_weight (field));
-				} else {
-					unindex_text_with_parsing (config,
-								   language,
-								   subject_id,
-								   object,
-								   tracker_property_get_weight (field));
-				}
-#endif
 			}
 		} else {
 			g_warning ("Property '%s' not found in the ontology", predicate);
@@ -1144,29 +1004,6 @@ tracker_data_insert_statement (const gchar            *subject,
 		if (field != NULL) {
 			/* add value to metadata database */
 			cache_set_metadata_decomposed (field, object);
-
-			if (tracker_property_get_fulltext_indexed (field)) {
-				/* add value to fulltext index */
-				TrackerConfig         *config;
-				TrackerLanguage       *language;
-
-				config = tracker_data_manager_get_config ();
-				language = tracker_data_manager_get_language ();
-
-				if (tracker_property_get_filtered (field)) {
-					index_text_with_parsing (config,
-								 language,
-								 update_buffer.id,
-								 object,
-								 tracker_property_get_weight (field));
-				} else {
-					index_text_no_parsing (config,
-							       language,
-							       update_buffer.id,
-							       object,
-							       tracker_property_get_weight (field));
-				}
-			}
 		} else {
 			g_warning ("Property '%s' not found in the ontology", predicate);
 		}

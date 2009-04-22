@@ -30,7 +30,6 @@
 #include <libtracker-common/tracker-dbus.h>
 
 #include <libtracker-db/tracker-db-dbus.h>
-#include <libtracker-db/tracker-db-index.h>
 #include <libtracker-db/tracker-db-manager.h>
 
 #include "tracker-dbus.h"

@@ -25,7 +25,6 @@
 
 #include <raptor.h>
 
-#include <libtracker-db/tracker-db-index-manager.h>
 #include <libtracker-db/tracker-db-manager.h>
 
 #include <libtracker-data/tracker-data-manager.h>
@@ -107,7 +106,7 @@ test_query (gconstpointer test_data)
 	tracker_data_manager_init (config, language,
 	                           TRACKER_DB_MANAGER_FORCE_REINDEX
 	                           | TRACKER_DB_MANAGER_TEST_MODE,
-	                           0, NULL, NULL);
+	                           NULL, NULL);
 
 	/* load data set */
 

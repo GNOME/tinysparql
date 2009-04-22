@@ -33,7 +33,6 @@
 
 #include <libtracker-db/tracker-db-interface.h>
 #include <libtracker-db/tracker-db-file-info.h>
-#include <libtracker-db/tracker-db-index.h>
 
 G_BEGIN_DECLS
 

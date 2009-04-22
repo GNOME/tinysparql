@@ -132,7 +132,6 @@ GLIB_REQUIRED=2.16.0
 PANGO_REQUIRED=1.0.0
 GTK_REQUIRED=2.8.0
 GLADE_REQUIRED=2.5
-QDBM_REQUIRED=1.8
 GMIME_REQUIRED=2.1.0
 LIBXML2_REQUIRED=0.6
 LIBNOTIFY_REQUIRED=0.4.3
@@ -340,58 +339,6 @@ else
 fi
 
 AM_CONDITIONAL(HAVE_UNIT_TESTS, test "x$have_unit_tests" = "xyes")
-
-##################################################################
-# Enable SQLite FTS support?
-##################################################################
-
-AC_ARG_ENABLE([sqlite_fts],
-              AS_HELP_STRING([--enable-sqlite-fts], 
-	                     [enable SQLite FTS support (default=yes)]),,
-              [enable_sqlite_fts=yes])
-
-if test "x$enable_sqlite_fts" != "xno" ; then
-   AC_DEFINE(HAVE_SQLITE_FTS, 1, [Define if we have SQLite FTS support])
-else
-   enable_sqlite_fts="no  (disabled)"
-fi
-
-AM_CONDITIONAL(ENABLE_SQLITE_FTS, test "$enable_sqlite_fts" = "yes")
-
-####################################################################
-# QDBM check
-####################################################################
-
-AC_ARG_ENABLE(external-qdbm, 
-	      AS_HELP_STRING([--enable-external-qdbm],
-			     [enable external QDBM, not our imported version (default=no)]),,
-              [enable_external_qdbm=no])
-
-if test "x$enable_external_qdbm" != "xno"; then
-   PKG_CHECK_MODULES(QDBM, 
-   		     [qdbm >= $QDBM_REQUIRED],
-		     [have_external_qdbm=yes],
-		     [have_external_qdbm=no])
-
-   if test "x$have_external_qdbm" = "xyes"; then
-      AC_DEFINE(HAVE_EXTERNAL_QDBM, [], [Define if we have external QDBM])
-   fi
-elif test "x$enable_sqlite_fts" != "xyes" ; then
-   QDBM_CFLAGS="-I\$(top_srcdir)/src/qdbm"
-   QDBM_LIBS="\$(top_builddir)/src/qdbm/libqdbm-private.la"
-   AC_DEFINE(HAVE_QDBM, [], [Define if we have QDBM (our imported version)])
-fi
-
-if test "x$enable_external_qdbm" = "xyes"; then
-   if test "x$have_external_qdbm" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find QDBM >= $QDBM_REQUIRED.])
-   fi
-fi
-
-AC_SUBST(QDBM_CFLAGS)
-AC_SUBST(QDBM_LIBS)
-
-AM_CONDITIONAL(HAVE_EXTERNAL_QDBM, test "x$have_external_qdbm" = "xyes")
 
 ##################################################################
 # Check for HAL
@@ -1418,7 +1365,6 @@ AC_CONFIG_FILES([
 	src/libtracker-gtk/Makefile
 	src/libtracker/Makefile
 	src/Makefile
-	src/qdbm/Makefile
 	src/rasqal/Makefile
 	src/tracker-applet/Makefile
 	src/tracker-applet/tracker-applet.desktop.in
@@ -1444,7 +1390,6 @@ AC_CONFIG_FILES([
 	tests/tracker-indexer/Makefile
 	tests/tracker-extract/Makefile
 	utils/Makefile
-	utils/qdbm/Makefile
 	utils/tracker-fts/Makefile
 	utils/services/Makefile
 ])
@@ -1470,7 +1415,7 @@ Build Configuration:
 
 Applications:
 
-	Build with SQLite FTS support:		$enable_sqlite_fts
+	Build with SQLite FTS support:		yes
 
 	Build deskbar-applet:			$have_deskbar_applet
 	Build tracker-search-tool:	        $have_tracker_search_tool

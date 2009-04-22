@@ -24,8 +24,6 @@
 
 #include <glib-object.h>
 
-#include <libtracker-db/tracker-db-index.h>
-
 #define TRACKER_RESOURCES_SERVICE	 "org.freedesktop.Tracker"
 #define TRACKER_RESOURCES_PATH		 "/org/freedesktop/Tracker/Resources"
 #define TRACKER_RESOURCES_INTERFACE	 "org.freedesktop.Tracker.Resources"

@@ -16,11 +16,6 @@ noinst_PROGRAMS = $(TEST_PROGS)
 #	  tracker-db-manager-custom
 #
 
-if !ENABLE_SQLITE_FTS
-TEST_PROGS += 								\
-	tracker-index-writer
-endif
-
 INCLUDES = 								\
 	-DG_LOG_DOMAIN=\"Tracker\"					\
 	-DTRACKER_COMPILATION						\
@@ -32,11 +27,9 @@ INCLUDES = 								\
 	$(GMODULE_CFLAGS)						\
 	$(GTHREAD_CFLAGS)						\
 	$(DBUS_CFLAGS)							\
-	$(SQLITE3_CFLAGS)						\
-	$(QDBM_CFLAGS)
+	$(SQLITE3_CFLAGS)
 
 # TEST_PROGS +=								\
-#	tracker-index-reader						\
 # 	tracker-db-dbus							\
 # 	tracker-db-manager-unattach					\
 # 	tracker-db-manager-attach					\
@@ -52,7 +45,6 @@ INCLUDES = 								\
 # 	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
 # 	$(top_builddir)/tests/common/libtracker-testcommon.la 		\
 # 	$(SQLITE3_LIBS)							\
-# 	$(QDBM_LIBS)							\
 # 	$(GMODULE_LIBS)							\
 # 	$(GTHREAD_LIBS)							\
 # 	$(GLIB2_LIBS)							\
@@ -68,7 +60,6 @@ INCLUDES = 								\
 # 	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
 # 	$(top_builddir)/tests/common/libtracker-testcommon.la 		\
 # 	$(SQLITE3_LIBS)							\
-# 	$(QDBM_LIBS)							\
 # 	$(GMODULE_LIBS)							\
 # 	$(GTHREAD_LIBS)							\
 # 	$(GLIB2_LIBS)							\
@@ -84,7 +75,6 @@ INCLUDES = 								\
 # 	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
 # 	$(top_builddir)/tests/common/libtracker-testcommon.la 		\
 # 	$(SQLITE3_LIBS)							\
-# 	$(QDBM_LIBS)							\
 # 	$(GMODULE_LIBS)							\
 # 	$(GTHREAD_LIBS)							\
 # 	$(GLIB2_LIBS)							\
@@ -102,32 +92,4 @@ INCLUDES = 								\
 # 	$(GTHREAD_LIBS)							\
 # 	$(GLIB2_LIBS)							\
 # 	-lz
-#
-#
-# tracker_index_reader_SOURCES = 					\
-# 	tracker-index-reader-test.c 
-#
-# tracker_index_reader_LDADD = 						\
-# 	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
-# 	$(top_builddir)/src/libtracker-db/libtracker-db.la 		\
-# 	$(top_builddir)/tests/common/libtracker-testcommon.la 		\
-# 	$(GMODULE_LIBS) 						\
-# 	$(GTHREAD_LIBS) 						\
-# 	$(GLIB2_LIBS) 							\
-# 	$(DBUS_LIBS) 							\
-# 	$(GIO_LIBS) 							\
-# 	$(QDBM_LIBS) 
-
-tracker_index_writer_SOURCES = 						\
-	tracker-index-writer-test.c
-
-tracker_index_writer_LDADD =						\
-	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
-	$(top_builddir)/src/libtracker-db/libtracker-db.la	 	\
-	$(top_builddir)/tests/common/libtracker-testcommon.la 		\
-	$(QDBM_LIBS)							\
-	$(GCOV_LIBS)							\
-	$(GMODULE_LIBS)							\
-	$(GTHREAD_LIBS)							\
-	$(GLIB2_LIBS)							
 

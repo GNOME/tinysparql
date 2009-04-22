@@ -13,7 +13,6 @@ INCLUDES = 								\
 	-I$(top_srcdir)/tests/common					\
 	$(DBUS_CFLAGS)							\
 	$(SQLITE3_CFLAGS)						\
-	$(QDBM_CFLAGS)							\
 	$(GMODULE_CFLAGS)						\
 	$(GTHREAD_CFLAGS)						\
 	$(GLIB2_CFLAGS)							\

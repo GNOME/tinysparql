@@ -19,7 +19,6 @@ INCLUDES =								\
 	$(GMIME_CFLAGS)							\
 	$(FAM_CFLAGS)							\
 	$(SQLITE3_CFLAGS)						\
-	$(QDBM_CFLAGS)							\
 	$(RAPTOR_CFLAGS)
 
 if HAVE_INOTIFY
@@ -78,7 +77,6 @@ trackerd_LDADD =							\
 	$(GMIME_LIBS)							\
 	$(FAM_LIBS)							\
 	$(SQLITE3_LIBS)							\
-	$(QDBM_LIBS)							\
 	$(DBUS_LIBS)							\
 	$(PANGO_LIBS)							\
 	$(GIO_LIBS)							\

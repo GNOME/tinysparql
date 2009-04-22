@@ -54,8 +54,6 @@
 #include <libtracker-common/tracker-thumbnailer.h>
 
 #include <libtracker-db/tracker-db-manager.h>
-#include <libtracker-db/tracker-db-index.h>
-#include <libtracker-db/tracker-db-index-manager.h>
 
 #include <libtracker-data/tracker-data-manager.h>
 #include <libtracker-data/tracker-turtle.h>
@@ -667,7 +665,7 @@ backup_user_metadata (TrackerConfig *config, TrackerLanguage *language)
 	/*
 	 *  Init the DB stack to get the user metadata
 	 */
-	tracker_data_manager_init (config, language, 0, 0, NULL, &is_first_time_index);
+	tracker_data_manager_init (config, language, 0, NULL, &is_first_time_index);
 	
 	/*
 	 * If some database is missing or the dbs dont exists, we dont need
@@ -823,10 +821,8 @@ main (gint argc, gchar *argv[])
 	TrackerConfig		   *config;
 	TrackerLanguage		   *language;
 	TrackerHal		   *hal;
-	TrackerDBIndex		   *resources_index;
 	TrackerRunningLevel	    runtime_level;
 	TrackerDBManagerFlags	    flags = 0;
-	TrackerDBIndexManagerFlags  index_flags = 0;
 	gboolean		    is_first_time_index;
 
 	g_type_init ();
@@ -967,21 +963,19 @@ main (gint argc, gchar *argv[])
 	tracker_thumbnailer_init (config);
 
 	flags |= TRACKER_DB_MANAGER_REMOVE_CACHE;
-	index_flags |= TRACKER_DB_INDEX_MANAGER_READONLY;
 
 	if (force_reindex) {
 		/* TODO port backup support
 		backup_user_metadata (config, language); */
 
 		flags |= TRACKER_DB_MANAGER_FORCE_REINDEX;
-		index_flags |= TRACKER_DB_INDEX_MANAGER_FORCE_REINDEX;
 	}
 
 	if (tracker_config_get_low_memory_mode (config)) {
 		flags |= TRACKER_DB_MANAGER_LOW_MEMORY_MODE;
 	}
 
-	tracker_data_manager_init (config, language, flags, index_flags, NULL, &is_first_time_index);
+	tracker_data_manager_init (config, language, flags, NULL, &is_first_time_index);
 
 	tracker_status_set_is_first_time_index (is_first_time_index);
 
@@ -1009,15 +1003,6 @@ main (gint argc, gchar *argv[])
 		return EXIT_FAILURE;
 	}
 
-#ifndef HAVE_SQLITE_FTS
-	resources_index = tracker_db_index_manager_get_index (TRACKER_DB_INDEX_RESOURCES);
-
-	if (!TRACKER_IS_DB_INDEX (resources_index)) {
-		g_critical ("Could not create indexer for resource index");
-		return EXIT_FAILURE;
-	}
-#endif
-
 	tracker_volume_cleanup_init ();
 
 #ifdef HAVE_HAL
@@ -1034,7 +1019,6 @@ main (gint argc, gchar *argv[])
 	/* Make Tracker available for introspection */
 	if (!tracker_dbus_register_objects (config,
 					    language,
-					    resources_index,
 					    private->processor)) {
 		return EXIT_FAILURE;
 	}

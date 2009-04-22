@@ -44,7 +44,6 @@
 #include <libtracker-common/tracker-thumbnailer.h>
 
 #include <libtracker-db/tracker-db-manager.h>
-#include <libtracker-db/tracker-db-index-manager.h>
 #include <libtracker-db/tracker-db-dbus.h>
 
 #include <libtracker-data/tracker-data-manager.h>
@@ -365,7 +364,7 @@ main (gint argc, gchar *argv[])
 		flags |= TRACKER_DB_MANAGER_LOW_MEMORY_MODE;
 	}
 
-	if (!tracker_data_manager_init (config, language, flags, 0, NULL, &is_first_time_index)) {
+	if (!tracker_data_manager_init (config, language, flags, NULL, &is_first_time_index)) {
 		return EXIT_FAILURE;
 	}
 

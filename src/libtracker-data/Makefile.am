@@ -38,20 +38,6 @@ noinst_HEADERS =							\
 	tracker-sparql-query.h						\
 	tracker-turtle.h
 
-if ENABLE_SQLITE_FTS
-VALAFLAGS = -D HAVE_SQLITE_FTS
-endif
-
-if !ENABLE_SQLITE_FTS
-libtracker_data_la_SOURCES += 						\
-	tracker-data-search.c						\
-	tracker-query-tree.c
-
-noinst_HEADERS +=							\
-	tracker-data-search.h						\
-	tracker-query-tree.h
-endif
-
 libtracker-data.vala.stamp: $(libtracker_data_la_VALASOURCES)
 	$(VALAC) -C $(VALAFLAGS) -H tracker-sparql-query.h ../rasqal/rasqal.vapi ../libtracker-common/libtracker-common.vapi libtracker-data.vapi ../libtracker-db/libtracker-db.vapi $^
 	touch $@

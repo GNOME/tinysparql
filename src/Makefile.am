@@ -4,16 +4,6 @@ if HAVE_INOTIFY
 build_libinotify = libinotify
 endif
 
-if !HAVE_EXTERNAL_QDBM
-if !ENABLE_SQLITE_FTS
-build_qdbm = qdbm
-endif
-endif
-
-if ENABLE_SQLITE_FTS
-build_sqlite_fts = tracker-fts
-endif
-
 if HAVE_TRACKER_PREFERENCES
 build_tracker_preferences = tracker-preferences
 endif
@@ -32,14 +22,13 @@ endif
 
 SUBDIRS = 					\
 	libstemmer				\
-	$(build_qdbm)				\
 	$(build_libinotify)			\
 	rasqal		 			\
 	libtracker-common 			\
 	libtracker-db				\
 	libtracker-data				\
 	libtracker				\
-	$(build_sqlite_fts)			\
+	tracker-fts				\
 	plugins					\
 	trackerd				\
 	tracker-utils				\
@@ -52,7 +41,6 @@ SUBDIRS = 					\
 
 DIST_SUBDIRS = 					\
 	libstemmer				\
-	qdbm					\
 	libinotify				\
 	rasqal		 			\
 	libtracker-common 			\

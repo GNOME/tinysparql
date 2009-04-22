@@ -6,7 +6,6 @@ data/trackerd.desktop.in.in
 python/deskbar-handler/tracker-handler-static.py
 python/deskbar-handler/tracker-handler.py
 python/deskbar-handler/tracker-module.py
-src/libtracker-db/tracker-db-index.c
 src/libtracker-common/tracker-dbus.c
 src/libtracker-common/tracker-utils.c
 src/libtracker-gtk/tracker-metadata-tile.c
@@ -27,7 +26,6 @@ src/tracker-search-tool/tracker-search-tool.c
 src/tracker-search-tool/tracker-search-tool.desktop.in.in
 src/tracker-utils/tracker-import.c
 src/tracker-utils/tracker-info.c
-src/tracker-utils/tracker-meta-folder.c
 src/tracker-utils/tracker-processes.c
 src/tracker-utils/tracker-search.c
 src/tracker-utils/tracker-sparql.c

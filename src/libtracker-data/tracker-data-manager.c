@@ -37,9 +37,7 @@
 #include <libtracker-common/tracker-utils.h>
 #include <libtracker-common/tracker-ontology.h>
 
-#include <libtracker-db/tracker-db-index.h>
 #include <libtracker-db/tracker-db-interface-sqlite.h>
-#include <libtracker-db/tracker-db-index-manager.h>
 #include <libtracker-db/tracker-db-manager.h>
 
 #include "tracker-data-manager.h"
@@ -745,7 +743,6 @@ create_decomposed_transient_metadata_tables (TrackerDBInterface *iface)
 	g_free (properties);
 }
 
-#ifdef HAVE_SQLITE_FTS
 static void
 create_fts_table (TrackerDBInterface *iface)
 {
@@ -775,13 +772,11 @@ create_fts_table (TrackerDBInterface *iface)
 
 	g_string_free (sql, TRUE);
 }
-#endif
 
 gboolean
 tracker_data_manager_init (TrackerConfig              *config,
 			   TrackerLanguage            *language,
 			   TrackerDBManagerFlags       flags,
-			   TrackerDBIndexManagerFlags  index_flags,
 			   const gchar                *test_schema,
 			   gboolean                   *first_time)
 {
@@ -808,16 +803,7 @@ tracker_data_manager_init (TrackerConfig              *config,
 			      private,
 			      private_free);
 
-#ifdef HAVE_SQLITE_FTS
 	tracker_db_manager_init (flags, &is_first_time_index, FALSE);
-#else
-	tracker_db_manager_init (flags, &is_first_time_index, TRUE);
-	if (!tracker_db_index_manager_init (index_flags,
-					    tracker_config_get_min_bucket_count (config),
-					    tracker_config_get_max_bucket_count (config))) {
-		return FALSE;
-	}
-#endif
 
 	if (first_time != NULL) {
 		*first_time = is_first_time_index;
@@ -891,9 +877,7 @@ tracker_data_manager_init (TrackerConfig              *config,
 			create_decomposed_metadata_tables (iface, *cl, &max_id);
 		}
 
-#ifdef HAVE_SQLITE_FTS
 		create_fts_table (iface);
-#endif
 
 		/* store ontology in database */
 		for (l = sorted; l; l = l->next) {
@@ -927,9 +911,6 @@ tracker_data_manager_shutdown (void)
 {
 	TrackerDBPrivate *private;
 
-#ifndef HAVE_SQLITE_FTS
-	tracker_db_index_manager_shutdown ();
-#endif
 	tracker_db_manager_shutdown ();
 
 	private = g_static_private_get (&private_key);

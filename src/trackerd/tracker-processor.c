@@ -28,8 +28,6 @@
 #include <libtracker-common/tracker-module-config.h>
 #include <libtracker-common/tracker-utils.h>
 
-#include <libtracker-db/tracker-db-index.h>
-#include <libtracker-db/tracker-db-index-manager.h>
 #include <libtracker-db/tracker-db-manager.h>
 
 #include "tracker-processor.h"
@@ -1082,7 +1080,6 @@ indexer_status_cb (DBusGProxy  *proxy,
 		   gpointer	user_data)
 {
 	TrackerProcessor *processor;
-	TrackerDBIndex	 *index;
 	GQueue		 *queue;
 	GFile		 *file;
 	gchar		 *path = NULL;
@@ -1119,15 +1116,6 @@ indexer_status_cb (DBusGProxy  *proxy,
 			       seconds_elapsed);
 	g_free (path);
 
-#ifndef HAVE_SQLITE_FTS
-	/* Tell the index that it can reload, really we should do
-	 * module_name->index type so we don't do this for both
-	 * every time:
-	 */
-	index = tracker_db_index_manager_get_index (TRACKER_DB_INDEX_RESOURCES);
-	tracker_db_index_set_reload (index, TRUE);
-#endif
-
 	/* Message to the console about state */
 	str1 = tracker_seconds_estimate_to_string (seconds_elapsed,
 						   TRUE,
@@ -1156,7 +1144,6 @@ indexer_finished_cb (DBusGProxy  *proxy,
 		     gpointer	  user_data)
 {
 	TrackerProcessor *processor;
-	TrackerDBIndex	 *index;
 	GObject		 *object;
 	gchar		 *str;
 
@@ -1176,15 +1163,6 @@ indexer_finished_cb (DBusGProxy  *proxy,
 			       0,
 			       items_processed,
 			       seconds_elapsed);
-
-#ifndef HAVE_SQLITE_FTS
-	/* Tell the index that it can reload, really we should do
-	 * module_name->index type so we don't do this for both
-	 * every time:
-	 */
-	index = tracker_db_index_manager_get_index (TRACKER_DB_INDEX_RESOURCES);
-	tracker_db_index_set_reload (index, TRUE);
-#endif
 
 	/* Message to the console about state */
 	str = tracker_seconds_to_string (seconds_elapsed, FALSE);

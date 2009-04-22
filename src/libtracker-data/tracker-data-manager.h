@@ -32,8 +32,6 @@
 
 #include <libtracker-db/tracker-db-interface.h>
 #include <libtracker-db/tracker-db-file-info.h>
-#include <libtracker-db/tracker-db-index.h>
-#include <libtracker-db/tracker-db-index-manager.h>
 #include <libtracker-db/tracker-db-manager.h>
 
 G_BEGIN_DECLS
@@ -41,7 +39,6 @@ G_BEGIN_DECLS
 gboolean            tracker_data_manager_init              (TrackerConfig              *config,
 							    TrackerLanguage            *language,
 							    TrackerDBManagerFlags       flags,
-							    TrackerDBIndexManagerFlags  index_flags,
 							    const gchar                *test_schema,
 							    gboolean                   *first_time);
 void                tracker_data_manager_shutdown          (void);

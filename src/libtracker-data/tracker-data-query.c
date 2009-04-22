@@ -33,9 +33,7 @@
 #include <libtracker-common/tracker-utils.h>
 
 #include <libtracker-db/tracker-db-dbus.h>
-#include <libtracker-db/tracker-db-index.h>
 #include <libtracker-db/tracker-db-interface-sqlite.h>
-#include <libtracker-db/tracker-db-index-manager.h>
 #include <libtracker-db/tracker-db-manager.h>
 
 #include "tracker-data-manager.h"

@@ -1205,18 +1205,11 @@ tracker_db_manager_init (TrackerDBManagerFlags	flags,
 
 	initialized = TRUE;
 
-#ifdef HAVE_SQLITE_FTS
 	resources_iface = tracker_db_manager_get_db_interfaces (4,
 							    TRACKER_DB_METADATA,
 							    TRACKER_DB_FULLTEXT,
 							    TRACKER_DB_CONTENTS,
 							    TRACKER_DB_COMMON);
-#else
-	resources_iface = tracker_db_manager_get_db_interfaces (3,
-							    TRACKER_DB_METADATA,
-							    TRACKER_DB_CONTENTS,
-							    TRACKER_DB_COMMON);
-#endif
 }
 
 void
