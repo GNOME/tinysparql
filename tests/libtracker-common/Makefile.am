@@ -18,7 +18,8 @@ TEST_PROGS += 								\
 	tracker-ontology 						\
 	tracker-dbus 							\
 	tracker-type-utils 						\
-	tracker-file-utils
+	tracker-file-utils						\
+	tracker-albumart
 
 INCLUDES = 								\
 	-DG_LOG_DOMAIN=\"Tracker\"					\
@@ -102,5 +103,17 @@ tracker_file_utils_LDADD =						\
 # 	$(GTHREAD_LIBS)							\
 # 	$(PANGO_LIBS)							\
 # 	$(GLIB2_LIBS)							
+
+tracker_albumart_SOURCES = 						\
+	tracker-albumart-test.c 
+
+tracker_albumart_LDADD =						\
+	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
+	$(top_builddir)/tests/common/libtracker-testcommon.la 		\
+	$(GMODULE_LIBS)							\
+	$(GCOV_LIBS)							\
+	$(GTHREAD_LIBS)							\
+	$(GLIB2_LIBS)							
+
 
 EXTRA_DIST = non-utf8.txt
