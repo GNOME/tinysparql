@@ -32,6 +32,7 @@ DISTCLEANFILES = 				\
 
 DISTCHECK_CONFIGURE_FLAGS =			\
 	--with-session-bus-services-dir="\$(datadir)"/dbus-1/services \
+	--disable-evolution-push-module		\
 	--disable-deskbar-applet		\
 	--enable-gtk-doc
 
