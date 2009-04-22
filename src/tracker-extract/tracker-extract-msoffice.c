@@ -172,7 +172,7 @@ metadata_cb (gpointer key,
 					  (const gchar*) keyw);
 		}
 
-		g_free (keywords);
+		g_free (keyw);
 	} else if (strcmp (name, "dc:description") == 0) {
 		add_gvalue_in_metadata (metadata, uri, NIE_PREFIX "comment", val, NULL, NULL, NULL);
 	} else if (strcmp (name, "gsf:page-count") == 0) {

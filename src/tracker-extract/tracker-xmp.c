@@ -314,7 +314,7 @@ tracker_xmp_iter_simple (const gchar *uri,
 						  (const gchar*) keyw);
 			}
 
-			g_free (keywords);
+			g_free (keyw);
 		}
 		else if (strcmp (name, "subject") == 0) {
 			gchar *keywords = g_strdup (value);
@@ -344,7 +344,7 @@ tracker_xmp_iter_simple (const gchar *uri,
 						  (const gchar*) keyw);
 			}
 
-			g_free (keywords);
+			g_free (keyw);
 
 		}
 		else if (strcmp (name, "publisher") == 0) {
