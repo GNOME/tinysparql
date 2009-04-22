@@ -894,7 +894,7 @@ tracker_extract_gstreamer (const gchar *uri,
 	g_slice_free (MetadataExtractor, extractor);
 
 	if (type == EXTRACT_MIME_IMAGE) {
-		if (!tracker_statement_list_find (metadata, uri, "Image:Date")) {
+		if (!tracker_statement_list_find (metadata, uri, NIE_PREFIX "contentCreated")) {
 			struct stat st;
 			
 			if (g_lstat (uri, &st) >= 0) {
@@ -903,8 +903,8 @@ tracker_extract_gstreamer (const gchar *uri,
 				date = tracker_date_to_string (st.st_mtime);
 
 				tracker_statement_list_insert (metadata, uri,
-							  "Image:Date",
-							  date);
+							       NIE_PREFIX "contentCreated", 
+							       date);
 
 				g_free (date);
 			}

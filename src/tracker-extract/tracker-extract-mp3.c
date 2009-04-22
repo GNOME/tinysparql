@@ -504,9 +504,9 @@ mp3_parse_header (const gchar *data,
 		    tracker_statement_list_insert (metadata, uri,
 					 NFO_PREFIX "codec",
 					 "MPEG");
-		    tracker_statement_list_insert (metadata, uri,
+/*		    tracker_statement_list_insert (metadata, uri,
 					 "Audio:CodecVersion",
-					 "2");
+					 "2");*/
 		    mpeg_ver = MPEG_V2;
 		    spfp8 = 72;
 		    break;
@@ -514,9 +514,9 @@ mp3_parse_header (const gchar *data,
 		    tracker_statement_list_insert (metadata, uri,
 					 NFO_PREFIX "codec",
 					 "MPEG");
-		    tracker_statement_list_insert (metadata, uri,
+/*		    tracker_statement_list_insert (metadata, uri,
 					 "Audio:CodecVersion",
-					 "1");
+					 "1");*/
 		    mpeg_ver = MPEG_V1;
 		    spfp8 = 144;
 		    break;
@@ -524,9 +524,9 @@ mp3_parse_header (const gchar *data,
 		    tracker_statement_list_insert (metadata, uri,
 					 NFO_PREFIX "codec",
 					 "MPEG");
-		    tracker_statement_list_insert (metadata, uri,
+/*		    tracker_statement_list_insert (metadata, uri,
 					 "Audio:CodecVersion",
-					 "2.5");
+					 "2.5");*/
 		    mpeg_ver = MPEG_V25;
 		    spfp8 = 72;
 		    break;

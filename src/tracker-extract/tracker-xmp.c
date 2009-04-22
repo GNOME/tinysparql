@@ -401,8 +401,8 @@ tracker_xmp_iter_simple (const gchar *uri,
 						  NFO_PREFIX "title", value);
 		}
 		else if (strcmp (name, "DateTimeOriginal") == 0) {
-			tracker_statement_list_insert (metadata, uri, 
-						  "Image:Date", value);
+			tracker_statement_list_insert (metadata, uri,
+						  NIE_PREFIX "contentCreated", value);
 		}
 		else if (strcmp (name, "Artist") == 0) {
 			tracker_statement_list_insert (metadata, ":", RDF_TYPE, NCO_PREFIX "Contact");
