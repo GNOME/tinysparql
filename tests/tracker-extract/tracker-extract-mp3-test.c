@@ -53,6 +53,8 @@ main (int argc, char **argv) {
 	g_test_add_data_func ("/tracker-extract/tracker-extract-mp3/access",
 			      data, test_tracker_extract_mp3_access);	
 
+#if 0
+
 	g_test_add_data_func ("/tracker-extract/tracker-extract-mp3/id3v1_basic",
 			      data, test_tracker_extract_mp3_id3v1_basic);
 	g_test_add_data_func ("/tracker-extract/tracker-extract-mp3/id3v23_basic",
@@ -71,6 +73,8 @@ main (int argc, char **argv) {
 		g_test_add_data_func ("/tracker-extract/tracker-extract-mp3/performance_cbr",
 				      data, test_tracker_extract_mp3_performance);	
 	}
+
+#endif
 
 	result = g_test_run ();
 
