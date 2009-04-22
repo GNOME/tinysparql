@@ -16,17 +16,13 @@ libtracker_dbdir = $(libdir)/tracker-$(TRACKER_API_VERSION)
 libtracker_db_LTLIBRARIES = libtracker-db.la
 
 libtracker_db_la_SOURCES = 						\
-	tracker-db-action.c						\
 	tracker-db-dbus.c						\
-	tracker-db-file-info.c						\
 	tracker-db-interface.c						\
 	tracker-db-interface-sqlite.c					\
 	tracker-db-manager.c
 
 noinst_HEADERS =							\
-	tracker-db-action.h						\
 	tracker-db-dbus.h						\
-	tracker-db-file-info.h						\
 	tracker-db-interface.h						\
 	tracker-db-interface-sqlite.h					\
 	tracker-db-manager.h 
