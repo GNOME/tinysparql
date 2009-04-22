@@ -79,6 +79,9 @@
 
 #define DATASOURCE_URN			       "urn:nepomuk:datasource:1cb1eb90-1241-11de-8c30-0800200c9a66"
 
+void tracker_push_module_init (TrackerConfig *config);
+void tracker_push_module_shutdown (void);
+
 G_DEFINE_TYPE (TrackerEvolutionIndexer, tracker_evolution_indexer, G_TYPE_OBJECT)
 
 /* This runs in-process of tracker-indexer */
