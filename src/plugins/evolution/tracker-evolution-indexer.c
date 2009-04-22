@@ -66,6 +66,9 @@
 #define METADATA_EMAIL_TEXT	     "Email:Body"
 #define METADATA_EMAIL_TAG	     "User:Keywords"
 
+void tracker_push_module_init (TrackerConfig *config);
+void tracker_push_module_shutdown (void);
+
 G_DEFINE_TYPE (TrackerEvolutionIndexer, tracker_evolution_indexer, G_TYPE_OBJECT)
 
 /* This runs in-process of tracker-indexer */

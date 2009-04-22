@@ -45,6 +45,9 @@
 
 #include "tracker-rss-indexer.h"
 
+void tracker_push_module_init (TrackerConfig *config);
+void tracker_push_module_shutdown (void);
+
 /* These defines/renames are necessary for -glue.h */
 #define tracker_rss_registrar_set tracker_rss_indexer_set
 #define tracker_rss_registrar_set_many tracker_rss_indexer_set_many
@@ -193,7 +196,7 @@ tracker_rss_indexer_set (TrackerRssIndexer *object,
 }
 
 void
-tracker_erssindexer_set_many (TrackerRssIndexer *object, 
+tracker_rss_indexer_set_many (TrackerRssIndexer *object, 
 			      const GStrv subjects, 
 			      const GPtrArray *predicates,
 			      const GPtrArray *values,

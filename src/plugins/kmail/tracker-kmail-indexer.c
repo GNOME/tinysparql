@@ -45,6 +45,9 @@
 
 #include "tracker-kmail-indexer.h"
 
+void tracker_push_module_init (TrackerConfig *config);
+void tracker_push_module_shutdown (void);
+
 /* These defines/renames are necessary for -glue.h */
 #define tracker_kmail_registrar_set tracker_kmail_indexer_set
 #define tracker_kmail_registrar_set_many tracker_kmail_indexer_set_many
