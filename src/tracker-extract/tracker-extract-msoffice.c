@@ -154,9 +154,13 @@ metadata_cb (gpointer key,
 		char *lasts, *keyw;
 		size_t len;
 
+		keyw = keywords;
 		keywords = strchr (keywords, '"');
 		if (keywords)
 			keywords++;
+		else 
+			keywords = keyw;
+
 		len = strlen (keywords);
 		if (keywords[len - 1] == '"')
 			keywords[len - 1] = '\0';

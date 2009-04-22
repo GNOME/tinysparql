@@ -296,9 +296,13 @@ tracker_xmp_iter_simple (const gchar *uri,
 			char *lasts, *keyw;
 			size_t len;
 
+			keyw = keywords;
 			keywords = strchr (keywords, '"');
 			if (keywords)
 				keywords++;
+			else 
+				keywords = keyw;
+
 			len = strlen (keywords);
 			if (keywords[len - 1] == '"')
 				keywords[len - 1] = '\0';
@@ -313,12 +317,35 @@ tracker_xmp_iter_simple (const gchar *uri,
 			g_free (keywords);
 		}
 		else if (strcmp (name, "subject") == 0) {
+			gchar *keywords = g_strdup (value);
+			char *lasts, *keyw;
+			size_t len;
+
 			tracker_statement_list_insert (metadata, uri, 
 						  NIE_PREFIX "subject", value);
 
 			/* The subject field may contain keywords as well */
-			tracker_statement_list_insert (metadata, uri,
-						  "Image:Keywords", value);
+
+			keyw = keywords;
+			keywords = strchr (keywords, '"');
+			if (keywords)
+				keywords++;
+			else 
+				keywords = keyw;
+
+			len = strlen (keywords);
+			if (keywords[len - 1] == '"')
+				keywords[len - 1] = '\0';
+
+			for (keyw = strtok_r (keywords, ",; ", &lasts); keyw; 
+			     keyw = strtok_r (NULL, ",; ", &lasts)) {
+				tracker_statement_list_insert (metadata,
+						  uri, NIE_PREFIX "keyword",
+						  (const gchar*) keyw);
+			}
+
+			g_free (keywords);
+
 		}
 		else if (strcmp (name, "publisher") == 0) {
 			tracker_statement_list_insert (metadata, ":", RDF_TYPE, NCO_PREFIX "Contact");
