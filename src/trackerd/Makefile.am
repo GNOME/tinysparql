@@ -39,6 +39,8 @@ trackerd_SOURCES =							\
 	tracker-daemon.h						\
 	tracker-dbus.c							\
 	tracker-dbus.h							\
+	tracker-events.c						\
+	tracker-events.h						\
 	tracker-processor.c						\
 	tracker-processor.h						\
 	tracker-main.c							\

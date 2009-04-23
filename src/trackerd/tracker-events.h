@@ -26,8 +26,6 @@
 
 #include <libtracker-common/tracker-dbus.h>
 
-/* TODO: once all writes are vanished from tracker-indexer, this file can be removed */
-
 G_BEGIN_DECLS
 
 typedef GStrv (*TrackerNotifyClassGetter) (void);

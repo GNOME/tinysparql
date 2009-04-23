@@ -27,7 +27,6 @@
 
 #include "tracker-events.h"
 
-/* TODO: once all writes are vanished from tracker-indexer, this file can be removed */
 
 typedef struct {
 	GPtrArray *allowances;

@@ -52,12 +52,15 @@
 #include <libtracker-common/tracker-nfs-lock.h>
 #include <libtracker-common/tracker-ontology.h>
 #include <libtracker-common/tracker-thumbnailer.h>
+#include <libtracker-common/tracker-events.h>
 
 #include <libtracker-db/tracker-db-manager.h>
+#include <libtracker-db/tracker-db-dbus.h>
 
 #include <libtracker-data/tracker-data-manager.h>
 #include <libtracker-data/tracker-turtle.h>
 #include <libtracker-data/tracker-data-backup.h>
+#include <libtracker-data/tracker-data-query.h>
 
 #include <tracker-push.h>
 
@@ -815,6 +818,25 @@ start_cb (gpointer user_data)
 	return FALSE;
 }
 
+
+static GStrv
+tracker_daemon_get_notifiable_classes (void)
+{
+	TrackerDBResultSet *result_set;
+	GStrv               classes_to_signal = NULL;
+
+	result_set = tracker_data_query_sparql ("SELECT ?class WHERE { ?class tracker:notify true }", NULL);
+
+	if (result_set) {
+		guint count = 0;
+
+		classes_to_signal = tracker_dbus_query_result_to_strv (result_set, 0, &count);
+		g_object_unref (result_set);
+	}
+
+	return classes_to_signal;
+}
+
 gint
 main (gint argc, gchar *argv[])
 {
@@ -1026,6 +1048,7 @@ main (gint argc, gchar *argv[])
 		return EXIT_FAILURE;
 	}
 
+	tracker_events_init (tracker_daemon_get_notifiable_classes);
 	tracker_push_init (config);
 
 	g_message ("Waiting for DBus requests...");
@@ -1090,6 +1113,7 @@ main (gint argc, gchar *argv[])
 	/* Shutdown major subsystems */
 
 	tracker_push_shutdown ();
+	tracker_events_shutdown ();
 
 	tracker_volume_cleanup_shutdown ();
 	tracker_dbus_shutdown ();
