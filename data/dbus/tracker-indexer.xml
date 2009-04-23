@@ -49,28 +49,6 @@
       <arg type="b" name="enabled" direction="in" />
     </method>
 
-    <!-- Insert single statement -->
-    <method name="InsertStatement">
-      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/> 
-      <arg type="s" name="subject" direction="in" />
-      <arg type="s" name="predicate" direction="in" />
-      <arg type="s" name="object" direction="in" />
-    </method>
-
-    <!-- Delete single statement -->
-    <method name="DeleteStatement">
-      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/> 
-      <arg type="s" name="subject" direction="in" />
-      <arg type="s" name="predicate" direction="in" />
-      <arg type="s" name="object" direction="in" />
-    </method>
-
-    <!-- SPARQL Update extensions, allows bulk insert and delete -->
-    <method name="SparqlUpdate">
-      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
-      <arg type="s" name="query" direction="in" />
-    </method>
-
     <method name="Pause">
       <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
     </method>
