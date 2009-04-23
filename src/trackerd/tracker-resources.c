@@ -32,6 +32,7 @@
 
 #include <libtracker-data/tracker-data-manager.h>
 #include <libtracker-data/tracker-data-query.h>
+#include <libtracker-data/tracker-data-update.h>
 
 #include "tracker-indexer-client.h"
 #include "tracker-dbus.h"
@@ -163,7 +164,6 @@ tracker_resources_insert (TrackerResources	     *self,
 			  GError		    **error)
 {
 	guint		    request_id;
-	GError		   *actual_error = NULL;
 
 	request_id = tracker_dbus_get_next_request_id ();
 
@@ -176,17 +176,7 @@ tracker_resources_insert (TrackerResources	     *self,
 				  "'%s' '%s' '%s'",
 				  subject, predicate, object);
 
-	org_freedesktop_Tracker_Indexer_insert_statement (tracker_dbus_indexer_get_proxy (),
-							  subject,
-							  predicate,
-							  object,
-							  &actual_error);
-	if (actual_error) {
-		tracker_dbus_request_failed (request_id, &actual_error, NULL);
-		dbus_g_method_return_error (context, actual_error);
-		g_error_free (actual_error);
-		return;
-	}
+	tracker_data_insert_statement (subject, predicate, object);
 
 	dbus_g_method_return (context);
 
@@ -202,7 +192,6 @@ tracker_resources_delete (TrackerResources	     *self,
 			  GError		    **error)
 {
 	guint		    request_id;
-	GError		   *actual_error = NULL;
 
 	request_id = tracker_dbus_get_next_request_id ();
 
@@ -215,17 +204,7 @@ tracker_resources_delete (TrackerResources	     *self,
 				  "'%s' '%s' '%s'",
 				  subject, predicate, object);
 
-	org_freedesktop_Tracker_Indexer_delete_statement (tracker_dbus_indexer_get_proxy (),
-							  subject,
-							  predicate,
-							  object,
-							  &actual_error);
-	if (actual_error) {
-		tracker_dbus_request_failed (request_id, &actual_error, NULL);
-		dbus_g_method_return_error (context, actual_error);
-		g_error_free (actual_error);
-		return;
-	}
+	tracker_data_delete_statement (subject, predicate, object);
 
 	dbus_g_method_return (context);
 
@@ -336,9 +315,7 @@ tracker_resources_sparql_update (TrackerResources	 *self,
 				  "update:'%s'",
 				  update);
 
-	org_freedesktop_Tracker_Indexer_sparql_update (tracker_dbus_indexer_get_proxy (),
-						       update,
-						       &actual_error);
+	tracker_data_update_sparql (update, &actual_error);
 
 	if (actual_error) {
 		tracker_dbus_request_failed (request_id,
