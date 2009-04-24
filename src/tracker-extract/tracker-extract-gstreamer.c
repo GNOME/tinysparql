@@ -37,6 +37,9 @@
 #include "tracker-main.h"
 #include "tracker-extract-albumart.h"
 
+/* We wait this long (seconds) for NULL state before freeing */
+#define TRACKER_EXTRACT_GUARD_TIMEOUT 3
+
 /* An additional tag in gstreamer for the content source. Remove when in upstream */
 #ifndef GST_TAG_CLASSIFICATION
 #define GST_TAG_CLASSIFICATION "classification"
@@ -766,6 +769,7 @@ tracker_extract_gstreamer (const gchar *uri,
 	}
 
 	gst_element_set_state (extractor->pipeline, GST_STATE_NULL);
+	gst_element_get_state (extractor->pipeline, NULL, NULL, TRACKER_EXTRACT_GUARD_TIMEOUT* GST_SECOND);
 	gst_object_unref (extractor->bus);
 
 	if (extractor->tagcache) {
