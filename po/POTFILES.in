@@ -37,3 +37,4 @@ src/tracker-utils/tracker-status.c
 src/tracker-utils/tracker-tag.c
 src/tracker-utils/tracker-unique.c
 src/trackerd/tracker-main.c
+utils/albumart/albumart-strip.c

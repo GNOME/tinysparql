@@ -1,3 +1,37 @@
+NEW in 0.6.94:
+==============
+Improvements:
+  * Fixes reading past genre name boundaries in MP3 extractor.
+  * Fixes MP3 extractor leak and some minor memory use improvements.
+  * Fixes albumart name stripping code to be UTF8 compliant.
+  * Fixes albumart name stripping to follow specification
+  * Fixes crawling removable media is disabled with READONLY flag.
+  * Fixes tracker-dbus-test output to be UTF8 compliant.
+  * Fixes compilation warnings in push modules.
+  * Fixes indexer crash with unset GError
+  * Fixes indexer crash when extractor fails to return a PID
+  * Fixes TTL rdf:type->service type so MMC files are not always "Files"
+  * Fixes frequent cache refresh/indexer pausing, 3 mins to 5 mins
+  * Adds utils/albumart-strip command to test broken albums/artists.
+  * Adds albumart name stripping test cases.
+  * Adds tracker-extract debug about modules used per file and on init.
+  * Improves JPEG extraction speed, don't worry about unknown tags.
+
+Bugs:
+  * Fixes NB#112393, tracker-extract crashes by freeing GStreamer pipe...
+  * Fixes NB#110310, metadata_get_multiple returns nothing if some file...
+  * Fixes NB#111560, tracker-extract crashes on mp3 files bigger than 20 MB
+  * Fixes NB#109891, If deleting last music track or last video...
+  * Fixes NB#108361, Tracker crashing if commo.db is corrupt
+  * Fixes NB#109046, Tracker is slow to index all the images in the...
+  * Fixes GB#578159, Tracker starts to index when removable media...
+
+Translations:
+None
+
+Help Manual Translations:
+None
+
 NEW in 0.6.93:
 ==============
 Improvements:
