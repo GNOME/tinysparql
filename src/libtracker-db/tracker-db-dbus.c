@@ -362,22 +362,21 @@ tracker_dbus_query_result_to_hash_table (TrackerDBResultSet *result_set)
 	}
 
 	while (valid) {
-		GValue	 transform = { 0, };
 		GValue	*values;
 		gchar  **p;
 		gint	 i = 0;
 		gchar	*key;
 		GSList	*list = NULL;
 
-		g_value_init (&transform, G_TYPE_STRING);
-
 		tracker_db_result_set_get (result_set, 0, &key, -1);
 		values = tracker_dbus_gvalue_slice_new (G_TYPE_STRV);
 
 		for (i = 1; i < field_count; i++) {
+			GValue  transform = { 0, };
 			GValue	value = { 0, };
 			gchar  *str;
 
+			g_value_init (&transform, G_TYPE_STRING);
 			_tracker_db_result_set_get_value (result_set, i, &value);
 
 			if (g_value_transform (&value, &transform)) {
@@ -388,16 +387,23 @@ tracker_dbus_query_result_to_hash_table (TrackerDBResultSet *result_set)
 					g_free (str);
 					str = g_strdup ("");
 				}
+
+				g_value_unset (&transform);
 			} else {
 				str = g_strdup ("");
 			}
 
 			list = g_slist_prepend (list, (gchar*) str);
+
+			g_value_unset (&value);
 		}
 
 		list = g_slist_reverse (list);
 		p = tracker_dbus_slist_to_strv (list);
+
+		g_slist_foreach (list, (GFunc)g_free, NULL);
 		g_slist_free (list);
+
 		g_value_take_boxed (values, p);
 		g_hash_table_insert (hash_table, key, values);
 

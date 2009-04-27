@@ -418,8 +418,7 @@ stats_cache_get_latest (void)
 	}
 
 	g_ptr_array_foreach (stats, stats_cache_filter_dups_func, values);
-
-	g_ptr_array_free (stats, TRUE);
+	tracker_dbus_results_ptr_array_free (&stats);
 
 	return values;
 }

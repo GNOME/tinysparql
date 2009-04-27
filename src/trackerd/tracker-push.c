@@ -52,13 +52,10 @@ static GStaticPrivate private_key = G_STATIC_PRIVATE_INIT;
 static void
 load_modules (PushSupportPrivate *private)
 {
-	GError *error = NULL;
-	GDir *dir = g_dir_open (PUSH_MODULES_DIR, 0, &error);
+	GDir *dir = g_dir_open (PUSH_MODULES_DIR, 0, NULL);
 	const gchar *name;
 
-
-	if (error) {
-		g_error_free (error);
+	if (!dir) {
 		return;
 	}
 
@@ -92,6 +89,8 @@ load_modules (PushSupportPrivate *private)
 			g_free (path);
 		}
 	}
+
+	g_dir_close (dir);
 }
 
 static void
