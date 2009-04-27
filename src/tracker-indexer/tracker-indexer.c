@@ -1138,7 +1138,7 @@ item_add_to_datasource (TrackerIndexer *indexer,
 		removable_device_urn = g_strdup_printf (TRACKER_DATASOURCE_URN_PREFIX "%s", 
 						        removable_device_udi);
 
-		if (!tracker_data_query_resource_exists (removable_device_urn, NULL, NULL)) {
+		if (!tracker_data_query_resource_exists (removable_device_urn, NULL)) {
 			tracker_data_insert_statement (removable_device_urn, 
 						       RDF_TYPE, TRACKER_DATASOURCE);
 		}
@@ -1148,7 +1148,7 @@ item_add_to_datasource (TrackerIndexer *indexer,
 
 		g_free (removable_device_urn);
 	} else {
-		if (!tracker_data_query_resource_exists (TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN, NULL, NULL)) {
+		if (!tracker_data_query_resource_exists (TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN, NULL)) {
 			tracker_data_insert_statement (TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN, 
 						       RDF_TYPE, TRACKER_DATASOURCE);
 		}
@@ -1168,7 +1168,7 @@ item_add_or_update (TrackerIndexer        *indexer,
 	guint32 id;
 	gchar *mount_point = NULL;
 
-	if (tracker_data_query_resource_exists (uri, &id, NULL)) {
+	if (tracker_data_query_resource_exists (uri, &id)) {
 		gchar *old_text;
 
 		if (tracker_module_file_get_flags (info->module_file) & TRACKER_FILE_CONTENTS_STATIC) {
@@ -1317,8 +1317,7 @@ item_move (TrackerIndexer  *indexer,
 
 	/* Get 'source' ID */
 	if (!tracker_data_query_resource_exists (source_uri,
-					       &service_id,
-					       NULL)) {
+					       &service_id)) {
 		gboolean res;
 
 		g_message ("Source file '%s' not found in database to move, indexing '%s' from scratch", source_uri, uri);
@@ -1392,13 +1391,13 @@ item_remove (TrackerIndexer *indexer,
 		/* The file is not anymore in the filesystem. Obtain
 		 * the service type from the DB.
 		 */
-		if (!tracker_data_query_resource_exists (uri, NULL, NULL)) {
+		if (!tracker_data_query_resource_exists (uri, NULL)) {
 			/* File didn't exist, nothing to delete */
 			return;
 		}
 	}
 
-	tracker_data_query_resource_exists (uri, &service_id, NULL);
+	tracker_data_query_resource_exists (uri, &service_id);
 
 	if (service_id < 1) {
 		g_debug ("  File does not exist anyway "
@@ -1529,9 +1528,7 @@ handle_metadata_add (TrackerIndexer *indexer,
 		return FALSE;
 	}
 
-	tracker_data_query_resource_exists (uri,
-					  &service_id,
-					  NULL);
+	tracker_data_query_resource_exists (uri, &service_id);
 
 	if (service_id < 1) {
 		g_set_error (error,
@@ -1580,25 +1577,13 @@ should_change_index_for_file (TrackerIndexer *indexer,
 			      PathInfo       *info,
 			      const gchar    *uri)
 {
-	GFileInfo *file_info;
-	time_t mtime;
+	TrackerDBResultSet *result_set;
+	GFileInfo          *file_info;
+	time_t              mtime;
+	struct tm           t;
+	gchar               *query;
 
-	/* Check the file/directory exists. If it doesn't we
-	 * definitely want to index it.
-	 */
-	if (!tracker_data_query_resource_exists (uri,
-					       NULL,
-					       &mtime)) {
-		return TRUE;
-	}
-
-	/* So, if we are here, then the file or directory DID exist
-	 * in the database already. Now we need to check if the
-	 * parent directory mtime matches the mtime we have for it in
-	 * the database. If it does, then we can ignore any files
-	 * immediately in this parent directory.
-	 */
-	file_info = g_file_query_info (info->file, "standard::*", G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS, NULL, NULL);
+	file_info = g_file_query_info (info->file, G_FILE_ATTRIBUTE_TIME_MODIFIED, G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS, NULL, NULL);
 	if (!file_info) {
 		/* NOTE: We return TRUE here because we want to update the DB
 		 * about this file, not because we want to index it.
@@ -1606,12 +1591,25 @@ should_change_index_for_file (TrackerIndexer *indexer,
 		return TRUE;
 	}
 
-	if (g_file_info_get_attribute_uint64 (file_info, G_FILE_ATTRIBUTE_TIME_MODIFIED) == mtime) {
-		g_message ("%s: is already up to date in DB, not (re)indexing", uri);
+	mtime = g_file_info_get_attribute_uint64 (file_info, G_FILE_ATTRIBUTE_TIME_MODIFIED);
+	g_object_unref (file_info);
 
+	gmtime_r (&mtime, &t);
+
+	query = g_strdup_printf ("SELECT ?file { ?file nfo:fileLastModified \"%04d-%02d-%02dT%02d:%02d:%02d\" . FILTER (?file = <%s>) }",
+	                         t.tm_year + 1900, t.tm_mon + 1, t.tm_mday, t.tm_hour, t.tm_min, t.tm_sec, uri);
+	result_set = tracker_data_query_sparql (query, NULL);
+	g_free (query);
+
+	if (result_set) {
+		/* File already up-to-date in the database */
+		g_object_unref (result_set);
 		return FALSE;
 	}
 
+	/* File either not yet in the database or mtime is different
+	 * Update in database required
+	 */
 	return TRUE;
 }
 

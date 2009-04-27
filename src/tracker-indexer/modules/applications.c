@@ -201,7 +201,7 @@ tracker_application_file_get_metadata (TrackerModuleFile *file)
 
 		tracker_module_metadata_add_string (metadata, uri, RDF_TYPE, NFO_PREFIX "SoftwareApplication");
 
-		if (!tracker_data_query_resource_exists (APPLICATION_DATASOURCE_URN, NULL, NULL)) {
+		if (!tracker_data_query_resource_exists (APPLICATION_DATASOURCE_URN, NULL)) {
 			tracker_module_metadata_add_string (metadata, APPLICATION_DATASOURCE_URN, 
 							    RDF_TYPE, NIE_PREFIX "DataSource");
 		}
@@ -218,7 +218,7 @@ tracker_application_file_get_metadata (TrackerModuleFile *file)
 		/* TODO This is atm specific for Maemo */
 		tracker_module_metadata_add_string (metadata, uri, RDF_TYPE, MAEMO_PREFIX "SoftwareApplet");
 
-		if (!tracker_data_query_resource_exists (APPLET_DATASOURCE_URN, NULL, NULL)) {
+		if (!tracker_data_query_resource_exists (APPLET_DATASOURCE_URN, NULL)) {
 			tracker_module_metadata_add_string (metadata, APPLET_DATASOURCE_URN, 
 							    RDF_TYPE, NIE_PREFIX "DataSource");
 		}
@@ -254,7 +254,7 @@ tracker_application_file_get_metadata (TrackerModuleFile *file)
 			for (i = 0 ; cats[i] && i < cats_len ; i++) {
 				gchar *cat_uri = tracker_uri_printf_escaped (SOFTWARE_CATEGORY_URN_PREFIX "%s", cats[i]);
 
-				if (!tracker_data_query_resource_exists (cat_uri, NULL, NULL)) {
+				if (!tracker_data_query_resource_exists (cat_uri, NULL)) {
 
 					/* Oeps, first time we see the category, there are also .desktop
 					 * files that describe these categories, but we can handle 

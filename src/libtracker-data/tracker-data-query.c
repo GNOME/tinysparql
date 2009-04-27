@@ -278,22 +278,20 @@ tracker_data_query_resource_id (const gchar	   *uri)
 
 gboolean
 tracker_data_query_resource_exists (const gchar	  *uri,
-				   guint32	  *service_id,
-				   time_t	  *mtime)
+				   guint32	  *resource_id)
 {
 	TrackerDBInterface *iface;
 	TrackerDBStatement *stmt;
 	TrackerDBResultSet *result_set;
 	guint db_id;
-	guint db_mtime;
 	gboolean found = FALSE;
 
-	db_id = db_mtime = 0;
+	db_id = 0;
 
 	iface = tracker_db_manager_get_db_interface ();
 
 	stmt = tracker_db_interface_create_statement (iface,
-		"SELECT ID, Modified FROM \"rdfs:Resource\" WHERE Uri = ?");
+		"SELECT ID FROM \"rdfs:Resource\" WHERE Uri = ?");
 	tracker_db_statement_bind_text (stmt, 0, uri);
 	result_set = tracker_db_statement_execute (stmt, NULL);
 	g_object_unref (stmt);
@@ -301,18 +299,13 @@ tracker_data_query_resource_exists (const gchar	  *uri,
 	if (result_set) {
 		tracker_db_result_set_get (result_set,
 					   0, &db_id,
-					   1, &db_mtime,
 					   -1);
 		g_object_unref (result_set);
 		found = TRUE;
 	}
 
-	if (service_id) {
-		*service_id = (guint32) db_id;
-	}
-
-	if (mtime) {
-		*mtime = (time_t) db_mtime;
+	if (resource_id) {
+		*resource_id = (guint32) db_id;
 	}
 
 	return found;

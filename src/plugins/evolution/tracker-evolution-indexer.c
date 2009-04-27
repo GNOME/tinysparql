@@ -260,7 +260,7 @@ perform_set (TrackerEvolutionIndexer *object,
 {
 	guint i = 0;
 
-	if (!tracker_data_query_resource_exists (DATASOURCE_URN, NULL, NULL)) {
+	if (!tracker_data_query_resource_exists (DATASOURCE_URN, NULL)) {
 		tracker_data_insert_statement (DATASOURCE_URN, RDF_TYPE,
 					       NIE_DATASOURCE);
 	}

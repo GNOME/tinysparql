@@ -49,9 +49,8 @@ TrackerDBResultSet  *tracker_data_query_backup_metadata       (TrackerService   
 							       TrackerProperty        *field_def);
 #endif
 
-gboolean             tracker_data_query_resource_exists        (const gchar         *uri,
-							       guint32             *service_id,
-							       time_t              *mtime);
+gboolean             tracker_data_query_resource_exists        (const gchar        *uri,
+							       guint32             *resource_id);
 
 guint32              tracker_data_query_resource_id           (const gchar         *uri);
 
