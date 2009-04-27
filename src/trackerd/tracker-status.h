@@ -47,6 +47,8 @@ gboolean      tracker_status_init		     (TrackerConfig *config,
 						      TrackerHal    *hal);
 void	      tracker_status_shutdown		     (void);
 
+gboolean      tracker_status_is_initialized          (void);
+
 GType	      tracker_status_get_type		     (void) G_GNUC_CONST;
 const gchar * tracker_status_to_string		     (TrackerStatus  status);
 TrackerStatus tracker_status_get		     (void);

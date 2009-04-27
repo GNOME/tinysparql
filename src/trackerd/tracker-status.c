@@ -574,6 +574,16 @@ tracker_status_shutdown (void)
 	g_static_private_free (&private_key);
 }
 
+gboolean
+tracker_status_is_initialized (void)
+{
+	TrackerStatusPrivate *private;
+
+	private = g_static_private_get (&private_key);
+
+	return (private != NULL);
+}
+
 GType
 tracker_status_get_type (void)
 {

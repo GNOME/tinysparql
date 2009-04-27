@@ -108,6 +108,7 @@ typedef struct {
 	gchar            *ttl_backup_file;
 	
 	gboolean	  reindex_on_shutdown;
+	gboolean          shutdown;
 
 	TrackerProcessor *processor;
 } TrackerMainPrivate;
@@ -1059,7 +1060,7 @@ main (gint argc, gchar *argv[])
 		backup_restore_on_crawling_finished (private->processor);
 	}
 
-	if (tracker_status_get_is_ready ()) {
+	if (!private->shutdown && tracker_status_get_is_ready ()) {
 		private->main_loop = g_main_loop_new (NULL, FALSE);
 		g_main_loop_run (private->main_loop);
 	}
@@ -1128,11 +1129,21 @@ tracker_shutdown (void)
 
 	private = g_static_private_get (&private_key);
 
-	tracker_status_set_is_ready (FALSE);
+	if (private) {
+		if (tracker_status_is_initialized ()) {
+			tracker_status_set_is_ready (FALSE);
+		}
 
-	tracker_processor_stop (private->processor);
+		if (private->processor) {
+			tracker_processor_stop (private->processor);
+		}
 
-	g_main_loop_quit (private->main_loop);
+		if (private->main_loop) {
+			g_main_loop_quit (private->main_loop);
+		}
+
+		private->shutdown = TRUE;
+	}
 }
 
 const gchar *
