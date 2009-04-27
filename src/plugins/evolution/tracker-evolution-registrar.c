@@ -45,6 +45,7 @@
 #define TRACKER_TYPE_EVOLUTION_PUSH_REGISTRAR    (tracker_evolution_push_registrar_get_type ())
 #define TRACKER_EVOLUTION_PUSH_REGISTRAR(module) (G_TYPE_CHECK_INSTANCE_CAST ((module), TRACKER_TYPE_EVOLUTION_PUSH_REGISTRAR, TrackerEvolutionPushRegistrar))
 
+#define TRANSACTION_MAX 200
 
 #define NIE_DATASOURCE 			       TRACKER_NIE_PREFIX "DataSource"
 #define NIE_DATASOURCE_P 		       TRACKER_NIE_PREFIX "dataSource"
@@ -552,7 +553,7 @@ tracker_evolution_registrar_set_many (TrackerEvolutionRegistrar *object,
 				      GError *derror)
 {
 	guint len;
-	guint i = 0;
+	guint i = 0, amount = 0;
 
 	dbus_async_return_if_fail (subjects != NULL, context);
 	dbus_async_return_if_fail (predicates != NULL, context);
@@ -563,16 +564,28 @@ tracker_evolution_registrar_set_many (TrackerEvolutionRegistrar *object,
 	dbus_async_return_if_fail (len == predicates->len, context);
 	dbus_async_return_if_fail (len == values->len, context);
 
+	tracker_data_begin_transaction ();
+
 	while (subjects[i] != NULL) {
 		GStrv preds = g_ptr_array_index (predicates, i);
 		GStrv vals = g_ptr_array_index (values, i);
 
 		perform_set (object, subjects[i], preds, vals);
 
+		amount++;
+		if (amount > TRANSACTION_MAX) {
+			tracker_data_commit_transaction ();
+			g_main_context_iteration (NULL, FALSE);
+			tracker_data_begin_transaction ();
+			amount = 0;
+		}
+
 		i++;
 	}
 
 	set_stored_last_modseq (modseq);
+
+	tracker_data_commit_transaction ();
 
 	dbus_g_method_return (context);
 }
@@ -584,18 +597,30 @@ tracker_evolution_registrar_unset_many (TrackerEvolutionRegistrar *object,
 					DBusGMethodInvocation *context,
 					GError *derror)
 {
-	guint i = 0;
+	guint i = 0, amount = 0;
 
 	dbus_async_return_if_fail (subjects != NULL, context);
+
+	tracker_data_begin_transaction ();
 
 	while (subjects[i] != NULL) {
 
 		perform_unset (object, subjects[i]);
 
+		amount++;
+		if (amount > TRANSACTION_MAX) {
+			tracker_data_commit_transaction ();
+			g_main_context_iteration (NULL, FALSE);
+			tracker_data_begin_transaction ();
+			amount = 0;
+		}
+
 		i++;
 	}
 
 	set_stored_last_modseq (modseq);
+
+	tracker_data_commit_transaction ();
 
 	dbus_g_method_return (context);
 }

@@ -36,6 +36,8 @@
 
 #define __TRACKER_KMAIL_REGISTRAR_C__
 
+#define TRANSACTION_MAX 200
+
 #include "tracker-kmail-registrar.h"
 #include "tracker-kmail-registrar-glue.h"
 
@@ -334,7 +336,7 @@ tracker_kmail_registrar_set_many (TrackerKMailRegistrar *object,
 				      GError *derror)
 {
 	guint len;
-	guint i = 0;
+	guint i = 0, amount = 0;
 
 	dbus_async_return_if_fail (subjects != NULL, context);
 	dbus_async_return_if_fail (predicates != NULL, context);
@@ -345,16 +347,28 @@ tracker_kmail_registrar_set_many (TrackerKMailRegistrar *object,
 	dbus_async_return_if_fail (len == predicates->len, context);
 	dbus_async_return_if_fail (len == values->len, context);
 
+	tracker_data_begin_transaction ();
+
 	while (subjects[i] != NULL) {
 		GStrv preds = g_ptr_array_index (predicates, i);
 		GStrv vals = g_ptr_array_index (values, i);
 
 		perform_set (object, subjects[i], preds, vals);
 
+		amount++;
+		if (amount > TRANSACTION_MAX) {
+			tracker_data_commit_transaction ();
+			g_main_context_iteration (NULL, FALSE);
+			tracker_data_begin_transaction ();
+			amount = 0;
+		}
+
 		i++;
 	}
 
 	set_stored_last_modseq (modseq);
+
+	tracker_data_commit_transaction ();
 
 	dbus_g_method_return (context);
 }
@@ -366,18 +380,30 @@ tracker_kmail_registrar_unset_many (TrackerKMailRegistrar *object,
 				    DBusGMethodInvocation *context,
 				    GError *derror)
 {
-	guint i = 0;
+	guint i = 0, amount = 0;
 
 	dbus_async_return_if_fail (subjects != NULL, context);
+
+	tracker_data_begin_transaction ();
 
 	while (subjects[i] != NULL) {
 
 		perform_unset (object, subjects[i]);
 
+		amount++;
+		if (amount > TRANSACTION_MAX) {
+			tracker_data_commit_transaction ();
+			g_main_context_iteration (NULL, FALSE);
+			tracker_data_begin_transaction ();
+			amount = 0;
+		}
+
 		i++;
 	}
 
 	set_stored_last_modseq (modseq);
+
+	tracker_data_commit_transaction ();
 
 	dbus_g_method_return (context);
 }
