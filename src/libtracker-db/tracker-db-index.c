@@ -215,6 +215,8 @@ tracker_db_index_finalize (GObject *object)
 		tracker_db_index_open (indez);
 		tracker_db_index_flush_sync (indez);
 		tracker_db_index_close (indez);
+	} else  {
+		tracker_db_index_close (indez);
 	}
 
 	if (priv->idle_flush_id) {
