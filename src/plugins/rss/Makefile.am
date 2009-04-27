@@ -12,16 +12,8 @@ INCLUDES = -I$(top_srcdir)/src						\
 module_flags = -module -avoid-version -no-undefined
 
 pushd_modulesdir = $(libdir)/tracker-$(TRACKER_API_VERSION)/push-modules/daemon
-pushi_modulesdir = $(libdir)/tracker-$(TRACKER_API_VERSION)/push-modules/indexer
 
 pushd_modules_LTLIBRARIES = libtracker-module-rss-daemon-module.la
-pushi_modules_LTLIBRARIES = libtracker-module-rss-indexer-module.la
-
-libtracker_module_rss_indexer_module_la_SOURCES =			\
-	tracker-rss-indexer.c						\
-	tracker-rss-indexer.h						\
-	tracker-rss-registrar-glue.h					\
-	tracker-rss-common.h
 
 libtracker_module_rss_daemon_module_la_SOURCES =			\
 	tracker-rss-registrar.c						\
@@ -41,21 +33,6 @@ libtracker_module_rss_daemon_module_la_LIBADD = 			\
 	$(GIO_LIBS)                                                     \
 	$(GLIB2_LIBS)                                                   \
 	$(RAPTOR_LIBS)							\
-	$(GCOV_LIBS)
-
-libtracker_module_rss_indexer_module_la_LDFLAGS = $(module_flags)
-
-libtracker_module_rss_indexer_module_la_LIBADD = 			\
-	$(top_builddir)/src/libtracker-data/libtracker-data.la          \
-	$(top_builddir)/src/libtracker-db/libtracker-db.la              \
-	$(top_builddir)/src/libtracker-common/libtracker-common.la      \
-	$(GMODULE_LIBS)							\
-	$(DBUS_LIBS)                                                    \
-	$(GTHREAD_LIBS)                                                 \
-	$(GIO_LIBS)                                                     \
-	$(GLIB2_LIBS)                                                   \
-	$(RAPTOR_LIBS)							\
-	$(GMIME_LIBS)							\
 	$(GCOV_LIBS)
 
 dbus_sources = tracker-rss-registrar-glue.h

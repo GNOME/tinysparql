@@ -28,6 +28,7 @@
 
 #include <libtracker-data/tracker-data-update.h>
 #include <libtracker-data/tracker-data-manager.h>
+#include <libtracker-data/tracker-data-query.h>
 
 #include <trackerd/tracker-push-registrar.h>
 
@@ -40,6 +41,24 @@
 
 #define TRACKER_TYPE_RSS_PUSH_REGISTRAR    (tracker_rss_push_registrar_get_type ())
 #define TRACKER_RSS_PUSH_REGISTRAR(module) (G_TYPE_CHECK_INSTANCE_CAST ((module), TRACKER_TYPE_RSS_PUSH_REGISTRAR, TrackerRssPushRegistrar))
+
+/* This is of course TODO (and to move to libtracker-common/tracker-ontology.h): */
+#define TRACKER_RSS_PREFIX		       "http://www.tracker-project.org/temp/rss#"
+
+#define METADATA_RSS			       TRACKER_RSS_PREFIX "RSS"
+#define METADATA_RSSDATA_OBJECT		       TRACKER_RSS_PREFIX "RSSDataObject"
+
+#define METADATA_RSS_SOMETHING		       TRACKER_RSS_PREFIX "something"
+
+#define NIE_DATASOURCE 			       TRACKER_NIE_PREFIX "DataSource"
+#define NIE_DATASOURCE_P 		       TRACKER_NIE_PREFIX "dataSource"
+
+#define RDF_TYPE			       TRACKER_RDF_PREFIX "type"
+
+#define NAO_TAG				       TRACKER_NAO_PREFIX "Tag"
+#define NAO_PREFLABEL			       TRACKER_NAO_PREFIX "prefLabel"
+
+#define DATASOURCE_URN			       "urn:nepomuk:datasource:670e2cd0-1241-11de-8c30-0800200c9a66"
 
 typedef struct TrackerRssPushRegistrar TrackerRssPushRegistrar;
 typedef struct TrackerRssPushRegistrarClass TrackerRssPushRegistrarClass;
@@ -54,13 +73,11 @@ struct TrackerRssPushRegistrarClass {
 
 
 typedef struct {
-	DBusGProxy *idx_proxy;
-	DBusGConnection *connection;
+	gpointer dummy;
 } TrackerRssRegistrarPrivate;
 
 enum {
 	PROP_0,
-	PROP_CONNECTION
 };
 
 static GType tracker_rss_push_registrar_get_type (void) G_GNUC_CONST;
@@ -68,33 +85,10 @@ static GType tracker_rss_push_registrar_get_type (void) G_GNUC_CONST;
 G_DEFINE_TYPE (TrackerRssRegistrar, tracker_rss_registrar, G_TYPE_OBJECT)
 G_DEFINE_TYPE (TrackerRssPushRegistrar, tracker_rss_push_registrar, TRACKER_TYPE_PUSH_REGISTRAR);
 
-/* This runs in-process of trackerd. It simply proxies everything to the indexer
- * who wont always be running. Which is why this is needed (trackerd is always
- * running, so it's more suitable to respond to Rss's requests). */
-
 static void
 tracker_rss_registrar_finalize (GObject *object)
 {
-	TrackerRssRegistrarPrivate *priv = TRACKER_RSS_REGISTRAR_GET_PRIVATE (object);
-
-	if (priv->idx_proxy)
-		g_object_unref (priv->idx_proxy);
-
 	G_OBJECT_CLASS (tracker_rss_registrar_parent_class)->finalize (object);
-}
-
-static void 
-tracker_rss_registrar_set_connection (TrackerRssRegistrar *object, 
-					    DBusGConnection *connection)
-{
-	TrackerRssRegistrarPrivate *priv = TRACKER_RSS_REGISTRAR_GET_PRIVATE (object);
-
-	priv->connection = connection; /* weak */
-
-	priv->idx_proxy = dbus_g_proxy_new_for_name (priv->connection, 
-						     "org.freedesktop.Tracker.Indexer",
-						     TRACKER_RSS_INDEXER_PATH,
-						     TRACKER_RSS_REGISTRAR_INTERFACE);
 }
 
 static void
@@ -104,10 +98,6 @@ tracker_rss_registrar_set_property (GObject      *object,
 					  GParamSpec   *pspec)
 {
 	switch (prop_id) {
-	case PROP_CONNECTION:
-		tracker_rss_registrar_set_connection (TRACKER_RSS_REGISTRAR (object),
-							    g_value_get_pointer (value));
-		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
 	}
@@ -119,12 +109,7 @@ tracker_rss_registrar_get_property (GObject    *object,
 					  GValue     *value,
 					  GParamSpec *pspec)
 {
-	TrackerRssRegistrarPrivate *priv = TRACKER_RSS_REGISTRAR_GET_PRIVATE (object);
-
 	switch (prop_id) {
-	case PROP_CONNECTION:
-		g_value_set_pointer (value, priv->connection);
-		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
 	}
@@ -139,14 +124,6 @@ tracker_rss_registrar_class_init (TrackerRssRegistrarClass *klass)
 	object_class->set_property = tracker_rss_registrar_set_property;
 	object_class->get_property = tracker_rss_registrar_get_property;
 
-	g_object_class_install_property (object_class,
-					 PROP_CONNECTION,
-					 g_param_spec_pointer ("connection",
-							       "DBus connection",
-							       "DBus connection",
-							       G_PARAM_READWRITE |
-							       G_PARAM_CONSTRUCT));
-
 	g_type_class_add_private (object_class, sizeof (TrackerRssRegistrarPrivate));
 }
 
@@ -154,6 +131,77 @@ static void
 tracker_rss_registrar_init (TrackerRssRegistrar *object)
 {
 }
+
+
+static void
+perform_set (TrackerRssRegistrar *object, 
+	     const gchar *subject, 
+	     const GStrv predicates, 
+	     const GStrv values)
+{
+	guint i = 0;
+
+	/* TODO */
+	return;
+
+	if (!tracker_data_query_resource_exists (DATASOURCE_URN, NULL, NULL)) {
+		tracker_data_insert_statement (DATASOURCE_URN, RDF_TYPE,
+					       NIE_DATASOURCE);
+	}
+
+	tracker_data_insert_statement (subject, RDF_TYPE,
+		                       METADATA_RSS);
+
+	tracker_data_insert_statement (subject, RDF_TYPE,
+		                       METADATA_RSSDATA_OBJECT);
+
+	tracker_data_insert_statement (subject, NIE_DATASOURCE_P,
+		                       DATASOURCE_URN);
+
+	while (predicates [i] != NULL && values[i] != NULL) {
+
+		if (g_strcmp0 (predicates[i], TRACKER_RSS_PREDICATE_THING) == 0) {
+			tracker_data_insert_statement (subject,
+						       METADATA_RSS_SOMETHING, 
+						       values[i]);
+		}
+
+		i++;
+	}
+}
+
+static void 
+perform_unset (TrackerRssRegistrar *object, 
+	       const gchar *subject)
+{
+	/* TODO */
+	return;
+
+	tracker_data_delete_resource (subject); 
+}
+
+static void
+perform_cleanup (TrackerRssRegistrar *object)
+{
+	GError *error = NULL;
+
+	/* TODO */
+	return;
+
+	tracker_data_update_sparql ("DELETE { ?s ?p ?o } WHERE { ?s nie:dataSource <" DATASOURCE_URN "> }", &error);
+
+	if (error) {
+		g_warning ("%s", error->message);
+		g_error_free (error);
+	}
+}
+
+static void
+set_stored_last_modseq (guint last_modseq)
+{
+	tracker_data_manager_set_db_option_int ("RssLastModseq", (gint) last_modseq);
+}
+
 
 void
 tracker_rss_registrar_set (TrackerRssRegistrar *object, 
@@ -164,8 +212,6 @@ tracker_rss_registrar_set (TrackerRssRegistrar *object,
 			   DBusGMethodInvocation *context,
 			   GError *derror)
 {
-	TrackerRssRegistrarPrivate *priv = TRACKER_RSS_REGISTRAR_GET_PRIVATE (object);
-
 	dbus_async_return_if_fail (subject != NULL, context);
 
 	if (predicates && values) {
@@ -173,15 +219,10 @@ tracker_rss_registrar_set (TrackerRssRegistrar *object,
 		dbus_async_return_if_fail (g_strv_length (predicates) == 
 					   g_strv_length (values), context);
 
-		dbus_g_proxy_call_no_reply (priv->idx_proxy,
-					    "Set",
-					    G_TYPE_STRING, subject,
-					    G_TYPE_STRV, predicates,
-					    G_TYPE_STRV, values,
-					    G_TYPE_UINT, modseq,
-					    G_TYPE_INVALID, 
-					    G_TYPE_INVALID);
+		perform_set (object, subject, predicates, values);
 	}
+
+	set_stored_last_modseq (modseq);
 
 	dbus_g_method_return (context);
 }
@@ -195,8 +236,8 @@ tracker_rss_registrar_set_many (TrackerRssRegistrar *object,
 				DBusGMethodInvocation *context,
 				GError *derror)
 {
-	TrackerRssRegistrarPrivate *priv = TRACKER_RSS_REGISTRAR_GET_PRIVATE (object);
 	guint len;
+	guint i = 0;
 
 	dbus_async_return_if_fail (subjects != NULL, context);
 	dbus_async_return_if_fail (predicates != NULL, context);
@@ -207,14 +248,16 @@ tracker_rss_registrar_set_many (TrackerRssRegistrar *object,
 	dbus_async_return_if_fail (len == predicates->len, context);
 	dbus_async_return_if_fail (len == values->len, context);
 
-	dbus_g_proxy_call_no_reply (priv->idx_proxy,
-				    "SetMany",
-				    G_TYPE_STRV, subjects,
-				    TRACKER_TYPE_G_STRV_ARRAY, predicates,
-				    TRACKER_TYPE_G_STRV_ARRAY, values,
-				    G_TYPE_UINT, modseq,
-				    G_TYPE_INVALID, 
-				    G_TYPE_INVALID);
+	while (subjects[i] != NULL) {
+		GStrv preds = g_ptr_array_index (predicates, i);
+		GStrv vals = g_ptr_array_index (values, i);
+
+		perform_set (object, subjects[i], preds, vals);
+
+		i++;
+	}
+
+	set_stored_last_modseq (modseq);
 
 	dbus_g_method_return (context);
 }
@@ -226,16 +269,18 @@ tracker_rss_registrar_unset_many (TrackerRssRegistrar *object,
 				  DBusGMethodInvocation *context,
 				  GError *derror)
 {
-	TrackerRssRegistrarPrivate *priv = TRACKER_RSS_REGISTRAR_GET_PRIVATE (object);
+	guint i = 0;
 
 	dbus_async_return_if_fail (subjects != NULL, context);
 
-	dbus_g_proxy_call_no_reply (priv->idx_proxy,
-				    "UnsetMany",
-				    G_TYPE_STRV, subjects,
-				    G_TYPE_UINT, modseq,
-				    G_TYPE_INVALID, 
-				    G_TYPE_INVALID);
+	while (subjects[i] != NULL) {
+
+		perform_unset (object, subjects[i]);
+
+		i++;
+	}
+
+	set_stored_last_modseq (modseq);
 
 	dbus_g_method_return (context);
 }
@@ -247,16 +292,9 @@ tracker_rss_registrar_unset (TrackerRssRegistrar *object,
 				   DBusGMethodInvocation *context,
 				   GError *derror)
 {
-	TrackerRssRegistrarPrivate *priv = TRACKER_RSS_REGISTRAR_GET_PRIVATE (object);
-
 	dbus_async_return_if_fail (subject != NULL, context);
 
-	dbus_g_proxy_call_no_reply (priv->idx_proxy,
-				    "Unset",
-				    G_TYPE_STRING, subject,
-				    G_TYPE_UINT, modseq,
-				    G_TYPE_INVALID, 
-				    G_TYPE_INVALID);
+	perform_unset (object, subject);
 
 	dbus_g_method_return (context);
 }
@@ -267,13 +305,9 @@ tracker_rss_registrar_cleanup (TrackerRssRegistrar *object,
 				     DBusGMethodInvocation *context,
 				     GError *derror)
 {
-	TrackerRssRegistrarPrivate *priv = TRACKER_RSS_REGISTRAR_GET_PRIVATE (object);
+	perform_cleanup (object);
 
-	dbus_g_proxy_call_no_reply (priv->idx_proxy,
-				    "Cleanup",
-				    G_TYPE_UINT, modseq,
-				    G_TYPE_INVALID, 
-				    G_TYPE_INVALID);
+	set_stored_last_modseq (modseq);
 
 	dbus_g_method_return (context);
 }
@@ -324,8 +358,7 @@ tracker_rss_push_registrar_enable (TrackerPushRegistrar *registrar,
 		return;
 	}
 
-	object = g_object_new (TRACKER_TYPE_RSS_REGISTRAR, 
-			       "connection", connection, NULL);
+	object = g_object_new (TRACKER_TYPE_RSS_REGISTRAR, NULL);
 
 	dbus_g_object_type_install_info (G_OBJECT_TYPE (object), 
 					 &dbus_glib_tracker_rss_registrar_object_info);
