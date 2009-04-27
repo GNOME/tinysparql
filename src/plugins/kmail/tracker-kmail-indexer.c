@@ -46,6 +46,8 @@
 #include <tracker-indexer/tracker-push.h>
 #include <tracker-indexer/tracker-module-metadata-private.h>
 
+#define TRANSACTION_MAX 200
+
 #include "tracker-kmail-indexer.h"
 
 void tracker_push_module_init (TrackerConfig *config);
@@ -64,31 +66,13 @@ void tracker_push_module_shutdown (void);
 /* Based on data/services/email.metadata */
 
 
-#define METADATA_EMAIL			       TRACKER_NMO_PREFIX "Email"
-#define METADATA_MAILBOXDATA_OBJECT	       TRACKER_NMO_PREFIX "MailboxDataObject"
-
-#define METADATA_EMAIL_RECIPIENT	       TRACKER_NMO_PREFIX "to"
-#define METADATA_EMAIL_DATE		       TRACKER_NMO_PREFIX "receivedDate"
-#define METADATA_EMAIL_SENDER		       TRACKER_NMO_PREFIX "sender"
-#define METADATA_EMAIL_SUBJECT		       TRACKER_NMO_PREFIX "subject"
-#define METADATA_EMAIL_SENT_TO		       TRACKER_NMO_PREFIX "recipient"
-#define METADATA_EMAIL_CC		       TRACKER_NMO_PREFIX "cc"
-#if 0
-#define METADATA_EMAIL_TEXT		       TRACKER_NMO_PREFIX "Body" 
-#endif
+#define RDF_PREFIX	TRACKER_RDF_PREFIX
+#define NMO_PREFIX	TRACKER_NMO_PREFIX
+#define NCO_PREFIX	TRACKER_NCO_PREFIX
+#define NAO_PREFIX	TRACKER_NAO_PREFIX
 
 #define NIE_DATASOURCE 			       TRACKER_NIE_PREFIX "DataSource"
 #define NIE_DATASOURCE_P 		       TRACKER_NIE_PREFIX "dataSource"
-
-#define RDF_TYPE			       TRACKER_RDF_PREFIX "type"
-
-#define METADATA_EMAIL_MESSAGE_HEADER	       TRACKER_NMO_PREFIX "messageHeader"
-#define METADATA_EMAIL_MESSAGE_HEADER_NAME     TRACKER_NMO_PREFIX "headerName"
-#define METADATA_EMAIL_MESSAGE_HEADER_VALUE    TRACKER_NMO_PREFIX "headerValue"
-
-#define NAO_TAG				       TRACKER_NAO_PREFIX "Tag"
-#define NAO_HASTAG			       TRACKER_NAO_PREFIX "hasTag"
-#define NAO_PREFLABEL			       TRACKER_NAO_PREFIX "prefLabel"
 
 #define DATASOURCE_URN			       "urn:nepomuk:datasource:4a157cf0-1241-11de-8c30-0800200c9a66"
 
@@ -154,6 +138,34 @@ tracker_kmail_indexer_init (TrackerKMailIndexer *object)
 }
 
 
+
+static void
+get_email_and_fullname (const gchar *line, gchar **email, gchar **fullname)
+{
+	gchar *ptr = g_utf8_strchr (line, -1, '<');
+
+	if (ptr) {
+		gchar *holder;
+
+		holder = g_strdup (line);
+		ptr = g_utf8_strchr (holder, -1, '<');
+		*ptr = '\0';
+		ptr++;
+		*fullname = holder;
+		holder = ptr;
+		ptr = g_utf8_strchr (ptr, -1, '>');
+		if (ptr) {
+			*ptr = '\0';
+		}
+		*email = g_strdup (holder);
+
+	} else {
+		*email = g_strdup (line);
+		*fullname = NULL;
+	}
+}
+
+
 static void
 perform_set (TrackerKMailIndexer *object, 
 	     const gchar *subject, 
@@ -163,15 +175,16 @@ perform_set (TrackerKMailIndexer *object,
 	guint i = 0;
 
 	if (!tracker_data_query_resource_exists (DATASOURCE_URN, NULL)) {
-		tracker_data_insert_statement (DATASOURCE_URN, RDF_TYPE,
+		tracker_data_insert_statement (DATASOURCE_URN, RDF_PREFIX "type",
 					       NIE_DATASOURCE);
 	}
 
-	tracker_data_insert_statement (subject, RDF_TYPE,
-		                       METADATA_EMAIL);
 
-	tracker_data_insert_statement (subject, RDF_TYPE,
-		                       METADATA_MAILBOXDATA_OBJECT);
+	tracker_data_insert_statement (subject, RDF_PREFIX "type",
+		                       NMO_PREFIX "Email");
+
+	tracker_data_insert_statement (subject, RDF_PREFIX "type",
+		                       NMO_PREFIX "MailboxDataObject");
 
 	tracker_data_insert_statement (subject, NIE_DATASOURCE_P,
 		                       DATASOURCE_URN);
@@ -191,47 +204,81 @@ perform_set (TrackerKMailIndexer *object,
 
 		if (g_strcmp0 (predicates[i], TRACKER_KMAIL_PREDICATE_TAG) == 0) {
 
-			tracker_data_insert_statement (":1", RDF_TYPE,
-			                               NAO_TAG);
+			tracker_data_insert_statement (":1", RDF_PREFIX "type",
+			                               NAO_PREFIX "Tag");
 
 			tracker_data_insert_statement (":1", 
-			                               NAO_PREFLABEL,
+			                               NAO_PREFIX "prefLabel",
 			                               values[i]);
 
 			tracker_data_insert_statement (subject, 
-			                               NAO_HASTAG, 
+			                               NAO_PREFIX "hasTag", 
 			                                ":1");
 		}
 
 		if (g_strcmp0 (predicates[i], TRACKER_KMAIL_PREDICATE_SUBJECT) == 0) {
-			tracker_data_insert_statement (subject, 
-						       METADATA_EMAIL_SUBJECT, 
+			tracker_data_insert_statement (subject,
+						       TRACKER_NMO_PREFIX "messageSubject", 
 						       values[i]);
 		}
 
 		if (g_strcmp0 (predicates[i], TRACKER_KMAIL_PREDICATE_SENT) == 0) {
 			tracker_data_insert_statement (subject,
-						       METADATA_EMAIL_DATE, 
+						       TRACKER_NMO_PREFIX "receivedDate", 
 						       values[i]);
 		}
 
 		if (g_strcmp0 (predicates[i], TRACKER_KMAIL_PREDICATE_FROM) == 0) {
-			tracker_data_insert_statement (subject,
-						       METADATA_EMAIL_SENDER, 
-						       values[i]);
+			gchar *email_uri, *email = NULL, *fullname = NULL;
+			tracker_data_insert_statement (":1", RDF_PREFIX "type", NCO_PREFIX "Contact");
+			get_email_and_fullname (values[i], &email, &fullname);
+			if (fullname) {
+				tracker_data_insert_statement (":1", NCO_PREFIX "fullname", fullname);
+				g_free (fullname);
+			}
+			email_uri = tracker_uri_printf_escaped ("mailto:%s", email); 
+			tracker_data_insert_statement (email_uri, RDF_PREFIX "type", NCO_PREFIX "EmailAddress");
+			tracker_data_insert_statement (email_uri, NCO_PREFIX "emailAddress", email);
+			tracker_data_insert_statement (":1", NCO_PREFIX "hasEmailAddress", email_uri);
+			tracker_data_insert_statement (subject, NMO_PREFIX "from", ":1");
+			g_free (email_uri);
+			g_free (email);
 		}
 
 		if (g_strcmp0 (predicates[i], TRACKER_KMAIL_PREDICATE_TO) == 0) {
-			tracker_data_insert_statement (subject,
-						       METADATA_EMAIL_SENT_TO, 
-						       values[i]);
+			gchar *email_uri, *email = NULL, *fullname = NULL;
+			tracker_data_insert_statement (":1", RDF_PREFIX "type", NCO_PREFIX "Contact");
+			get_email_and_fullname (values[i], &email, &fullname);
+			if (fullname) {
+				tracker_data_insert_statement (":1", NCO_PREFIX "fullname", fullname);
+				g_free (fullname);
+			}
+			email_uri = tracker_uri_printf_escaped ("mailto:%s", email); 
+			tracker_data_insert_statement (email_uri, RDF_PREFIX "type", NCO_PREFIX "EmailAddress");
+			tracker_data_insert_statement (email_uri, NCO_PREFIX "emailAddress", email);
+			tracker_data_insert_statement (":1", NCO_PREFIX "hasEmailAddress", email_uri);
+			tracker_data_insert_statement (subject, NMO_PREFIX "to", ":1");
+			g_free (email_uri);
+			g_free (email);
 		}
 
 		if (g_strcmp0 (predicates[i], TRACKER_KMAIL_PREDICATE_CC) == 0) {
-			tracker_data_insert_statement (subject, 
-						       METADATA_EMAIL_CC, 
-						       values[i]);
+			gchar *email_uri, *email = NULL, *fullname = NULL;
+			tracker_data_insert_statement (":1", RDF_PREFIX "type", NCO_PREFIX "Contact");
+			get_email_and_fullname (values[i], &email, &fullname);
+			if (fullname) {
+				tracker_data_insert_statement (":1", NCO_PREFIX "fullname", fullname);
+				g_free (fullname);
+			}
+			email_uri = tracker_uri_printf_escaped ("mailto:%s", email); 
+			tracker_data_insert_statement (email_uri, RDF_PREFIX "type", NCO_PREFIX "EmailAddress");
+			tracker_data_insert_statement (email_uri, NCO_PREFIX "emailAddress", email);
+			tracker_data_insert_statement (":1", NCO_PREFIX "hasEmailAddress", email_uri);
+			tracker_data_insert_statement (subject, NMO_PREFIX "cc", ":1");
+			g_free (email_uri);
+			g_free (email);
 		}
+
 
 		i++;
 	}
@@ -298,7 +345,7 @@ tracker_kmail_indexer_set_many (TrackerKMailIndexer *object,
 				GError *derror)
 {
 	guint len;
-	guint i = 0;
+	guint i = 0, amount = 0;
 
 	dbus_async_return_if_fail (subjects != NULL, context);
 	dbus_async_return_if_fail (predicates != NULL, context);
@@ -309,16 +356,28 @@ tracker_kmail_indexer_set_many (TrackerKMailIndexer *object,
 	dbus_async_return_if_fail (len == predicates->len, context);
 	dbus_async_return_if_fail (len == values->len, context);
 
+	tracker_data_begin_transaction ();
+
 	while (subjects[i] != NULL) {
 		GStrv preds = g_ptr_array_index (predicates, i);
 		GStrv vals = g_ptr_array_index (values, i);
 
 		perform_set (object, subjects[i], preds, vals);
 
+		amount++;
+		if (amount > TRANSACTION_MAX) {
+			tracker_data_commit_transaction ();
+			g_main_context_iteration (NULL, FALSE);
+			tracker_data_begin_transaction ();
+			amount = 0;
+		}
+
 		i++;
 	}
 
 	set_stored_last_modseq (modseq);
+
+	tracker_data_commit_transaction ();
 
 	dbus_g_method_return (context);
 }
@@ -330,18 +389,30 @@ tracker_kmail_indexer_unset_many (TrackerKMailIndexer *object,
 				  DBusGMethodInvocation *context,
 				  GError *derror)
 {
-	guint i = 0;
+	guint i = 0, amount = 0;
 
 	dbus_async_return_if_fail (subjects != NULL, context);
+
+	tracker_data_begin_transaction ();
 
 	while (subjects[i] != NULL) {
 
 		perform_unset (object, subjects[i]);
 
+		amount++;
+		if (amount > TRANSACTION_MAX) {
+			tracker_data_commit_transaction ();
+			g_main_context_iteration (NULL, FALSE);
+			tracker_data_begin_transaction ();
+			amount = 0;
+		}
+
 		i++;
 	}
 
 	set_stored_last_modseq (modseq);
+
+	tracker_data_commit_transaction ();
 
 	dbus_g_method_return (context);
 }
