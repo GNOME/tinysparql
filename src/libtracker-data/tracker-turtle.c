@@ -236,7 +236,12 @@ tracker_turtle_add_metadata (TurtleFile          *turtle,
 			     const gchar         *uri,
 			     TrackerDataMetadata *metadata)
 {
+	if (!initialized) {
+		g_critical ("Using tracker_turtle module without initialization");
+	}
+
 #ifdef HAVE_RAPTOR
+	g_return_if_fail (turtle != NULL);
 	TrackerTurtleMetadataItem *info = g_slice_new (TrackerTurtleMetadataItem);
 
 	info->about_uri = (gchar *) uri;
@@ -255,8 +260,14 @@ void
 tracker_turtle_add_metadatas (TurtleFile *turtle,
 			      GPtrArray  *metadata_items)
 {
+	if (!initialized) {
+		g_critical ("Using tracker_turtle module without initialization");
+	}
+
 #ifdef HAVE_RAPTOR
 	guint count;
+	g_return_if_fail (turtle != NULL);
+	g_return_if_fail (metadata_items != NULL);
 
 	for (count = 0; count < metadata_items->len; count++) {
 		TrackerTurtleMetadataItem *item = g_ptr_array_index (metadata_items, count);
@@ -276,7 +287,17 @@ tracker_turtle_add_triple (TurtleFile   *turtle,
 			   TrackerField *property,
 			   const gchar  *value)
 {
+
+	if (!initialized) {
+		g_critical ("Using tracker_turtle module without initialization");
+	}
+	
 #ifdef HAVE_RAPTOR
+	g_return_if_fail (turtle != NULL); 
+	g_return_if_fail (uri != NULL);
+	g_return_if_fail (property != NULL);
+	g_return_if_fail (value != NULL);
+
 	TrackerTurtleMetadataItem *item = g_slice_new (TrackerTurtleMetadataItem);
 	item->about_uri = (gchar *) uri;
 	item->turtle = turtle;
@@ -290,6 +311,8 @@ void
 tracker_turtle_close (TurtleFile *turtle)
 {
 #ifdef HAVE_RAPTOR
+	g_return_if_fail (turtle != NULL);
+
 	raptor_free_uri (turtle->uri);
 	raptor_serialize_end (turtle->serializer);
 	raptor_free_serializer(turtle->serializer);

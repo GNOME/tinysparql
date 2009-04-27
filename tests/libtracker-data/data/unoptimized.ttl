@@ -1,0 +1,63 @@
+@base </> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix test: <http://test.tracker.org/property#> .
+<file:///a/b/c/0.mp3> test:playcount 0 ;
+                     test:Title "Thunderstuck0";
+                     test:Artist "AC/DC" ;
+                     test:Cool "True" .
+
+<file:///a/b/c/1.mp3> test:playcount 1 ;
+                     test:Title "Thunderstuck1";
+                     test:Artist "AC/DC" ;
+                     test:Cool "True" .
+
+<file:///a/b/c/2.mp3> test:playcount 2 ;
+                     test:Title "Thunderstuck2";
+                     test:Artist "AC/DC" ;
+                     test:Cool "True" .
+
+<file:///a/b/c/0.mp3> test:playcount <> .
+<file:///a/b/c/0.mp3> test:playcount 0 .
+<file:///a/b/c/0.mp3> test:Title     <> .
+<file:///a/b/c/0.mp3> test:Title    "X0" .
+
+<file:///a/b/c/1.mp3> test:playcount <> .
+<file:///a/b/c/1.mp3> test:playcount 1 .
+<file:///a/b/c/1.mp3> test:Title     <> .
+<file:///a/b/c/1.mp3> test:Title    "X1" .
+
+<file:///a/b/c/2.mp3> test:playcount <> .
+<file:///a/b/c/2.mp3> test:playcount 2 .
+<file:///a/b/c/2.mp3> test:Title     <> .
+<file:///a/b/c/2.mp3> test:Title    "X2" .
+
+<file:///a/b/c/0.mp3> test:playcount <> .
+<file:///a/b/c/0.mp3> test:playcount 3 .
+<file:///a/b/c/0.mp3> test:Title     <> .
+<file:///a/b/c/0.mp3> test:Title    "X3" .
+
+<file:///a/b/c/1.mp3> test:playcount <> .
+<file:///a/b/c/1.mp3> test:playcount 4 .
+<file:///a/b/c/1.mp3> test:Title     <> .
+<file:///a/b/c/1.mp3> test:Title    "X4" .
+
+<file:///a/b/c/2.mp3> test:playcount <> .
+<file:///a/b/c/2.mp3> test:playcount 5 .
+<file:///a/b/c/2.mp3> test:Title     <> .
+<file:///a/b/c/2.mp3> test:Title    "X5" .
+
+<file:///a/b/c/0.mp3> test:playcount <> .
+<file:///a/b/c/0.mp3> test:playcount 6 .
+<file:///a/b/c/0.mp3> test:Title     <> .
+<file:///a/b/c/0.mp3> test:Title    "X6" .
+
+<file:///a/b/c/1.mp3> test:playcount <> .
+<file:///a/b/c/1.mp3> test:playcount 7 .
+<file:///a/b/c/1.mp3> test:Title     <> .
+<file:///a/b/c/1.mp3> test:Title    "X7" .
+
+<file:///a/b/c/2.mp3> test:playcount <> .
+<file:///a/b/c/2.mp3> test:playcount 8 .
+<file:///a/b/c/2.mp3> test:Title     <> .
+<file:///a/b/c/2.mp3> test:Title    "X8" .
+

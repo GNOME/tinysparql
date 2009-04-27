@@ -1395,6 +1395,7 @@ AC_CONFIG_FILES([
 	tests/common/Makefile
 	tests/libtracker-common/Makefile
 	tests/libtracker-db/Makefile
+	tests/libtracker-data/Makefile
 	tests/Makefile
 	tests/scripts/dummy_data_start.sh
 	tests/scripts/dummy_data_stop.sh

@@ -1,0 +1,103 @@
+@base </> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix test: <http://test.tracker.org/property#> .
+<file:///a/b/c/0.mp3> test:Cool "True" ;
+                     test:Playcount 19 ;
+                     test:Title "Thunderstuck";
+                     test:Artist "AC/DC" .
+<file:///a/b/c/1.mp3> test:Cool "True" ;
+                     test:Playcount 19 ;
+                     test:Title "Thunderstuck";
+                     test:Artist "AC/DC" .
+<file:///a/b/c/2.mp3> test:Cool "True" ;
+                     test:Playcount 19 ;
+                     test:Title "Thunderstuck";
+                     test:Artist "AC/DC" .
+<file:///a/b/c/3.mp3> test:Cool "True" ;
+                     test:Playcount 19 ;
+                     test:Title "Thunderstuck";
+                     test:Artist "AC/DC" .
+<file:///a/b/c/4.mp3> test:Cool "True" ;
+                     test:Playcount 19 ;
+                     test:Title "Thunderstuck";
+                     test:Artist "AC/DC" .
+<file:///a/b/c/5.mp3> test:Cool "True" ;
+                     test:Playcount 19 ;
+                     test:Title "Thunderstuck";
+                     test:Artist "AC/DC" .
+<file:///a/b/c/6.mp3> test:Cool "True" ;
+                     test:Playcount 19 ;
+                     test:Title "Thunderstuck";
+                     test:Artist "AC/DC" .
+<file:///a/b/c/7.mp3> test:Cool "True" ;
+                     test:Playcount 19 ;
+                     test:Title "Thunderstuck";
+                     test:Artist "AC/DC" .
+<file:///a/b/c/8.mp3> test:Cool "True" ;
+                     test:Playcount 19 ;
+                     test:Title "Thunderstuck";
+                     test:Artist "AC/DC" .
+<file:///a/b/c/9.mp3> test:Cool "True" ;
+                     test:Playcount 19 ;
+                     test:Title "Thunderstuck";
+                     test:Artist "AC/DC" .
+<file:///a/b/c/10.mp3> test:Cool "True" ;
+                     test:Playcount 19 ;
+                     test:Title "Thunderstuck";
+                     test:Artist "AC/DC" .
+<file:///a/b/c/11.mp3> test:Cool "True" ;
+                     test:Playcount 19 ;
+                     test:Title "Thunderstuck";
+                     test:Artist "AC/DC" .
+<file:///a/b/c/12.mp3> test:Cool "True" ;
+                     test:Playcount 19 ;
+                     test:Title "Thunderstuck";
+                     test:Artist "AC/DC" .
+<file:///a/b/c/13.mp3> test:Cool "True" ;
+                     test:Playcount 19 ;
+                     test:Title "Thunderstuck";
+                     test:Artist "AC/DC" .
+<file:///a/b/c/14.mp3> test:Cool "True" ;
+                     test:Playcount 19 ;
+                     test:Title "Thunderstuck";
+                     test:Artist "AC/DC" .
+<file:///a/b/c/15.mp3> test:Cool "True" ;
+                     test:Playcount 19 ;
+                     test:Title "Thunderstuck";
+                     test:Artist "AC/DC" .
+<file:///a/b/c/16.mp3> test:Cool "True" ;
+                     test:Playcount 19 ;
+                     test:Title "Thunderstuck";
+                     test:Artist "AC/DC" .
+<file:///a/b/c/17.mp3> test:Cool "True" ;
+                     test:Playcount 19 ;
+                     test:Title "Thunderstuck";
+                     test:Artist "AC/DC" .
+<file:///a/b/c/18.mp3> test:Cool "True" ;
+                     test:Playcount 19 ;
+                     test:Title "Thunderstuck";
+                     test:Artist "AC/DC" .
+<file:///a/b/c/19.mp3> test:Cool "True" ;
+                     test:Playcount 19 ;
+                     test:Title "Thunderstuck";
+                     test:Artist "AC/DC" .
+<file:///a/b/c/20.mp3> test:Cool "True" ;
+                     test:Playcount 19 ;
+                     test:Title "Thunderstuck";
+                     test:Artist "AC/DC" .
+<file:///a/b/c/21.mp3> test:Cool "True" ;
+                     test:Playcount 19 ;
+                     test:Title "Thunderstuck";
+                     test:Artist "AC/DC" .
+<file:///a/b/c/22.mp3> test:Cool "True" ;
+                     test:Playcount 19 ;
+                     test:Title "Thunderstuck";
+                     test:Artist "AC/DC" .
+<file:///a/b/c/23.mp3> test:Cool "True" ;
+                     test:Playcount 19 ;
+                     test:Title "Thunderstuck";
+                     test:Artist "AC/DC" .
+<file:///a/b/c/24.mp3> test:Cool "True" ;
+                     test:Playcount 19 ;
+                     test:Title "Thunderstuck";
+                     test:Artist "AC/DC" .
