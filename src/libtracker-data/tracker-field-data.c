@@ -251,6 +251,7 @@ field_data_get_property (GObject    *object,
 		break;
 	case PROP_WHERE_FIELD:
 		g_value_set_string (value, priv->where_field);
+		break;
 	case PROP_ORDER_FIELD:
 		g_value_set_string (value, priv->order_field);
 		break;
