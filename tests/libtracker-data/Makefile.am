@@ -3,7 +3,8 @@ include $(top_srcdir)/Makefile.decl
 noinst_PROGRAMS = $(TEST_PROGS)
 
 TEST_PROGS += tracker-turtle \
-	tracker-data-metadata
+	tracker-data-metadata \
+	tracker-field-data
 
 INCLUDES = 					\
 	-DG_LOG_DOMAIN=\"Tracker\"		\
@@ -38,6 +39,17 @@ tracker_data_metadata_LDADD =						\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
 	$(top_builddir)/src/libtracker-data/libtracker-data.la 		\
 	$(top_builddir)/tests/common/libtracker-testcommon.la 		\
+	$(GCOV_LIBS)							\
+	$(GMODULE_LIBS)							\
+	$(GTHREAD_LIBS)							\
+	$(GLIB2_LIBS)							
+
+tracker_field_data_SOURCES = 			\
+	tracker-field-data-test.c
+
+tracker_field_data_LDADD =						\
+	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
+	$(top_builddir)/src/libtracker-data/libtracker-data.la 		\
 	$(GCOV_LIBS)							\
 	$(GMODULE_LIBS)							\
 	$(GTHREAD_LIBS)							\
