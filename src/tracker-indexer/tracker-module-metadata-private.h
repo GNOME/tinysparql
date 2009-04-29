@@ -32,10 +32,6 @@ typedef void (* TrackerModuleMetadataForeach) (const gchar     *subject,
 					       const gchar     *predicate,
 					       const gchar     *object,
 					       gpointer      user_data);
-typedef gboolean (* TrackerModuleMetadataRemove) (const gchar     *subject,
-						  const gchar     *predicate,
-						  const gchar     *object,
-						  gpointer      user_data);
 
 void		       tracker_module_metadata_foreach        (TrackerModuleMetadata        *metadata,
 							       TrackerModuleMetadataForeach  func,
