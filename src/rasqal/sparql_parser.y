@@ -146,7 +146,7 @@ static void sparql_query_error_full(rasqal_query *rq, const char *message, ...) 
 %token SAMETERM "sameTerm"
 /* LAQRS */
 %token EXPLAIN GROUP COUNT SUM AVERAGE MINIMUM MAXIMUM AS
-%token DELETE INSERT
+%token DELETE INSERT DROP
 
 
 /* expression delimiters */
@@ -419,6 +419,15 @@ UpdateQuery: DeleteQuery
 {
   ((rasqal_query*)rq)->constructs=$1;
   ((rasqal_query*)rq)->verb=RASQAL_QUERY_VERB_INSERT;
+}
+| DROP GRAPH IRIref
+{
+  raptor_uri* uri=rasqal_literal_as_uri($3);
+  rasqal_query_add_data_graph((rasqal_query*)rq, uri, uri,
+                              RASQAL_DATA_GRAPH_NAMED);
+  rasqal_free_literal($3);
+
+  ((rasqal_query*)rq)->verb=RASQAL_QUERY_VERB_DROP;
 }
 ;
 

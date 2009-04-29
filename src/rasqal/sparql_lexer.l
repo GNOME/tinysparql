@@ -360,6 +360,7 @@ EXPONENT [eE][+-]?[0-9]+
 [Aa][Ss] { BEGIN(SPID); return AS; }
 [Dd][Ee][Ll][Ee][Tt][Ee]  { return DELETE; }
 [Ii][Nn][Ss][Ee][Rr][Tt]  { return INSERT; }
+[Dd][Rr][Oo][Pp] { return DROP; }
 [Ss][Aa][Mm][Ee][Tt][Ee][Rr][Mm] { return SAMETERM; }
 
 "a" { return A; }

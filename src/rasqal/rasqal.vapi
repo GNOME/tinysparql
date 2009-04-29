@@ -36,6 +36,7 @@ namespace Raptor {
 	public class Uri {
 		[CCode (cname = "raptor_new_uri")]
 		public Uri (string uri_string);
+		public unowned string as_string ();
 	}
 
 	[CCode (cname = "raptor_message_handler", instance_pos = 0)]
@@ -167,6 +168,7 @@ namespace Rasqal {
 		public int get_limit ();
 		public int get_offset ();
 		public QueryVerb get_verb ();
+		public weak DataGraph? get_data_graph (int idx);
 		public weak Expression? get_group_condition (int idx);
 		public weak Expression? get_order_condition (int idx);
 		public weak GraphPattern get_query_graph_pattern ();
@@ -186,7 +188,8 @@ namespace Rasqal {
 		DESCRIBE,
 		ASK,
 		DELETE,
-		INSERT
+		INSERT,
+		DROP
 	}
 
 	[Compact]
@@ -205,6 +208,13 @@ namespace Rasqal {
 	public class Variable {
 		public weak string? name;
 		public Expression? expression;
+	}
+
+	[Compact]
+	[CCode (cname = "rasqal_data_graph", free_function = "rasqal_free_data_graph")]
+	public class DataGraph {
+		public Raptor.Uri uri;
+		public Raptor.Uri name_uri;
 	}
 
 	[Compact]
