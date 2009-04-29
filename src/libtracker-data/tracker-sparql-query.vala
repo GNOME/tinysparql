@@ -214,7 +214,7 @@ public class Tracker.SparqlQuery : Object {
 	string query_string;
 	bool update_extensions;
 
-	StringBuilder pattern_sql = new StringBuilder ();
+	StringBuilder pattern_sql;
 
 	// All SQL tables
 	List<DataTable> tables;
@@ -225,12 +225,12 @@ public class Tracker.SparqlQuery : Object {
 	List<LiteralBinding> pattern_bindings;
 
 	// All SPARQL variables
-	HashTable<string,VariableBinding> var_map = new HashTable<string,VariableBinding>.full (str_hash, str_equal, g_free, g_object_unref);
+	HashTable<string,VariableBinding> var_map;
 	List<string> pattern_variables;
 	HashTable<string,VariableBindingList> pattern_var_map;
 
 	// Variables used as predicates
-	HashTable<string,PredicateVariable> predicate_variable_map = new HashTable<string,VariableBinding>.full (str_hash, str_equal, g_free, g_object_unref);
+	HashTable<string,PredicateVariable> predicate_variable_map;
 
 	int counter;
 
@@ -341,15 +341,27 @@ public class Tracker.SparqlQuery : Object {
 				throw new SparqlError.PARSE ("DELETE and INSERT are not supported in query mode");
 			}
 		} else {
-			if (query.get_verb () == Rasqal.QueryVerb.INSERT) {
-				execute_insert (query);
-				return null;
-			} else if (query.get_verb () == Rasqal.QueryVerb.DELETE) {
-				execute_delete (query);
-				return null;
-			} else {
-				throw new SparqlError.PARSE ("SELECT, CONSTRUCT, DESCRIBE, and ASK are not supported in update mode");
+			// SPARQL update supports multiple operations in a single query
+
+			// all updates should be committed in one transaction
+			Data.begin_transaction ();
+
+			unowned Rasqal.Query operation = query;
+			while (operation != null) {
+				if (operation.get_verb () == Rasqal.QueryVerb.INSERT) {
+					execute_insert (operation);
+				} else if (operation.get_verb () == Rasqal.QueryVerb.DELETE) {
+					execute_delete (operation);
+				} else {
+					Data.commit_transaction ();
+					throw new SparqlError.PARSE ("SELECT, CONSTRUCT, DESCRIBE, and ASK are not supported in update mode");
+				}
+				operation = operation.next ();
 			}
+
+			Data.commit_transaction ();
+
+			return null;
 		}
 	}
 
@@ -397,6 +409,10 @@ public class Tracker.SparqlQuery : Object {
 
 	DBResultSet? execute_select (Rasqal.Query query) throws Error {
 		// SELECT query
+
+		pattern_sql = new StringBuilder ();
+		var_map = new HashTable<string,VariableBinding>.full (str_hash, str_equal, g_free, g_object_unref);
+		predicate_variable_map = new HashTable<string,VariableBinding>.full (str_hash, str_equal, g_free, g_object_unref);
 
 		// process WHERE clause
 		visit_graph_pattern (query.get_query_graph_pattern ());
@@ -508,6 +524,10 @@ public class Tracker.SparqlQuery : Object {
 	void execute_update (Rasqal.Query query, bool delete_statements) throws Error {
 		// INSERT or DELETE
 
+		pattern_sql = new StringBuilder ();
+		var_map = new HashTable<string,VariableBinding>.full (str_hash, str_equal, g_free, g_object_unref);
+		predicate_variable_map = new HashTable<string,VariableBinding>.full (str_hash, str_equal, g_free, g_object_unref);
+
 		var sql = new StringBuilder ();
 
 		// process WHERE clause
@@ -536,9 +556,6 @@ public class Tracker.SparqlQuery : Object {
 		}
 
 		var result_set = exec_sql (sql.str);
-
-		// all updates should be committed in one transaction
-		Data.begin_transaction ();
 
 		// iterate over all solutions
 		if (result_set != null) {
@@ -589,8 +606,6 @@ public class Tracker.SparqlQuery : Object {
 				}
 			} while (result_set.iter_next ());
 		}
-
-		Data.commit_transaction ();
 	}
 
 	void visit_graph_pattern (Rasqal.GraphPattern graph_pattern) throws SparqlError {
