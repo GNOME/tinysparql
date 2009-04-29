@@ -120,26 +120,6 @@ ncal:FreebusyType a rdfs:Class ;
 	rdfs:comment "Type of a Freebusy indication. This class has been introduced to serve as a limited set of values for the ncal:fbtype property. See the documentation of ncal:fbtype for details." ;
 	rdfs:subClassOf rdfs:Resource .
 
-ncal:UnionOfEventJournalTimezoneTodo a rdfs:Class ;
-	rdfs:label "UnionOfEventJournalTimezoneTodo" ;
-	rdfs:subClassOf ncal:UnionParentClass .
-
-ncal:UnionOfEventFreebusy a rdfs:Class ;
-	rdfs:label "UnionOfEventFreebusy" ;
-	rdfs:subClassOf ncal:UnionParentClass .
-
-ncal:UnionOfTimezoneObservanceEventFreebusyTimezoneTodo a rdfs:Class ;
-	rdfs:label "UnionOfTimezoneObservanceEventFreebusyTimezoneTodo" ;
-	rdfs:subClassOf ncal:UnionParentClass .
-
-ncal:UnionOfAlarmEventJournalTodo a rdfs:Class ;
-	rdfs:label "UnionOfAlarmEventJournalTodo" ;
-	rdfs:subClassOf ncal:UnionParentClass .
-
-ncal:UnionOfAlarmEventFreebusyTodo a rdfs:Class ;
-	rdfs:label "UnionOfAlarmEventFreebusyTodo" ;
-	rdfs:subClassOf ncal:UnionParentClass .
-
 ncal:CalendarUserType a rdfs:Class ;
 	rdfs:label "CalendarUserType" ;
 	rdfs:comment "A calendar user type. This class has been introduced to express the limited vocabulary for the ncal:cutype property. See documentation of ncal:cutype for details." ;
@@ -155,25 +135,13 @@ ncal:RequestStatus a rdfs:Class ;
 	rdfs:comment "Request Status. A class that was introduced to provide a structure for the value of ncal:requestStatus property. See documentation for ncal:requestStatus for details." ;
 	rdfs:subClassOf rdfs:Resource .
 
-ncal:UnionOfEventFreebusyJournalTodo a rdfs:Class ;
-	rdfs:label "UnionOfEventFreebusyJournalTodo" ;
-	rdfs:subClassOf ncal:UnionParentClass .
-
 ncal:NcalDateTime a rdfs:Class ;
 	rdfs:label "NcalDateTime" ;
 	rdfs:subClassOf ncal:NcalTimeEntity .
 
-ncal:UnionOfTimezoneObservanceEventFreebusyJournalTimezoneTodo a rdfs:Class ;
-	rdfs:label "UnionOfTimezoneObservanceEventFreebusyJournalTimezoneTodo" ;
-	rdfs:subClassOf ncal:UnionParentClass .
-
-ncal:UnionOfTimezoneObservanceEventJournalTimezoneTodo a rdfs:Class ;
-	rdfs:label "UnionOfTimezoneObservanceEventJournalTimezoneTodo" ;
-	rdfs:subClassOf ncal:UnionParentClass .
-
 ncal:TimezoneObservance a rdfs:Class ;
 	rdfs:label "TimezoneObservance" ;
-	rdfs:subClassOf ncal:UnionOfTimezoneObservanceEventFreebusyJournalTimezoneTodo , ncal:UnionOfTimezoneObservanceEventFreebusyTimezoneTodo , ncal:UnionOfTimezoneObservanceEventJournalTimezoneTodo .
+	rdfs:subClassOf ncal:UnionParentClass .
 
 ncal:Organizer a rdfs:Class ;
 	rdfs:label "Organizer" ;
@@ -195,67 +163,51 @@ ncal:Calendar a rdfs:Class ;
 	rdfs:comment "['A calendar. Inspirations for this class can be traced to the VCALENDAR component defined in RFC 2445 sec. 4.4', 'but it may just as well be used to represent any kind of Calendar.']" ;
 	rdfs:subClassOf nie:InformationElement .
 
-ncal:UnionOfEventTodo a rdfs:Class ;
-	rdfs:label "UnionOfEventTodo" ;
-	rdfs:subClassOf ncal:UnionParentClass .
-
-ncal:UnionOfAlarmEventTodo a rdfs:Class ;
-	rdfs:label "UnionOfAlarmEventTodo" ;
-	rdfs:subClassOf ncal:UnionParentClass .
-
 ncal:FreebusyPeriod a rdfs:Class ;
 	rdfs:label "FreebusyPeriod" ;
 	rdfs:comment "['An aggregate of a period and a freebusy type. This class has been introduced to serve as a range of the ncal:freebusy property. See documentation for ncal:freebusy for details. Note that the specification of freebusy property states that the period is to be expressed using UTC time', 'so the timezone properties should NOT be used for instances of this class.']" ;
 	rdfs:subClassOf ncal:NcalPeriod .
-
-ncal:UnionOfAlarmEventFreebusyJournalTodo a rdfs:Class ;
-	rdfs:label "UnionOfAlarmEventFreebusyJournalTodo" ;
-	rdfs:subClassOf ncal:UnionParentClass .
 
 ncal:TriggerRelation a rdfs:Class ;
 	rdfs:label "TriggerRelation" ;
 	rdfs:comment "The relation between the trigger and its parent calendar component. This class has been introduced to express the limited vocabulary for the ncal:related property. See the documentation for ncal:related for more details." ;
 	rdfs:subClassOf rdfs:Resource .
 
-ncal:UnionOfEventJournalTodo a rdfs:Class ;
-	rdfs:label "UnionOfEventJournalTodo" ;
-	rdfs:subClassOf ncal:UnionParentClass .
-
 ncal:Alarm a rdfs:Class ;
 	rdfs:label "Alarm" ;
 	rdfs:comment "Provide a grouping of component properties that define an alarm." ;
-	rdfs:subClassOf nie:InformationElement , ncal:UnionOfAlarmEventFreebusyJournalTodo , ncal:UnionOfAlarmEventFreebusyTodo , ncal:UnionOfAlarmEventJournalTodo , ncal:UnionOfAlarmEventTodo .
+	rdfs:subClassOf nie:InformationElement , ncal:UnionParentClass .
 
 ncal:Event a rdfs:Class ;
 	rdfs:label "Event" ;
 	rdfs:comment "Provide a grouping of component properties that describe an event." ;
-	rdfs:subClassOf ncal:UnionOfEventFreebusy , ncal:UnionOfEventTodo , ncal:UnionOfAlarmEventFreebusyTodo , ncal:UnionOfTimezoneObservanceEventFreebusyJournalTimezoneTodo , ncal:UnionOfAlarmEventJournalTodo , nie:InformationElement , ncal:UnionOfEventFreebusyJournalTodo , ncal:UnionOfTimezoneObservanceEventFreebusyTimezoneTodo , ncal:UnionOfEventJournalTodo , ncal:UnionOfTimezoneObservanceEventJournalTimezoneTodo , ncal:UnionOfAlarmEventTodo , ncal:UnionOfEventJournalTimezoneTodo , ncal:UnionOfAlarmEventFreebusyJournalTodo .
+	rdfs:subClassOf ncal:UnionParentClass , nie:InformationElement .
 
 ncal:Todo a rdfs:Class ;
 	rdfs:label "Todo" ;
 	rdfs:comment "Provide a grouping of calendar properties that describe a to-do." ;
-	rdfs:subClassOf ncal:UnionOfEventFreebusyJournalTodo , ncal:UnionOfTimezoneObservanceEventJournalTimezoneTodo , ncal:UnionOfEventJournalTodo , ncal:UnionOfAlarmEventFreebusyJournalTodo , ncal:UnionOfAlarmEventFreebusyTodo , ncal:UnionOfTimezoneObservanceEventFreebusyJournalTimezoneTodo , ncal:UnionOfEventJournalTimezoneTodo , ncal:UnionOfAlarmEventTodo , nie:InformationElement , ncal:UnionOfEventTodo , ncal:UnionOfTimezoneObservanceEventFreebusyTimezoneTodo , ncal:UnionOfAlarmEventJournalTodo .
+	rdfs:subClassOf ncal:UnionParentClass , nie:InformationElement .
 
 ncal:Freebusy a rdfs:Class ;
 	rdfs:label "Freebusy" ;
 	rdfs:comment "['Provide a grouping of component properties that describe either a request for free/busy time', 'describe a response to a request for free/busy time or describe a published set of busy time.']" ;
-	rdfs:subClassOf ncal:UnionOfTimezoneObservanceEventFreebusyJournalTimezoneTodo , ncal:UnionOfAlarmEventFreebusyJournalTodo , ncal:UnionOfEventFreebusyJournalTodo , nie:InformationElement , ncal:UnionOfTimezoneObservanceEventFreebusyTimezoneTodo , ncal:UnionOfAlarmEventFreebusyTodo , ncal:UnionOfEventFreebusy .
+	rdfs:subClassOf ncal:UnionParentClass , nie:InformationElement .
 
 ncal:Journal a rdfs:Class ;
 	rdfs:label "Journal" ;
 	rdfs:comment "Provide a grouping of component properties that describe a journal entry." ;
-	rdfs:subClassOf ncal:UnionOfEventJournalTodo , ncal:UnionOfAlarmEventJournalTodo , ncal:UnionOfEventFreebusyJournalTodo , nie:InformationElement , ncal:UnionOfTimezoneObservanceEventFreebusyJournalTimezoneTodo , ncal:UnionOfAlarmEventFreebusyJournalTodo , ncal:UnionOfTimezoneObservanceEventJournalTimezoneTodo , ncal:UnionOfEventJournalTimezoneTodo .
+	rdfs:subClassOf ncal:UnionParentClass , nie:InformationElement .
 
 ncal:Timezone a rdfs:Class ;
 	rdfs:label "Timezone" ;
 	rdfs:comment "Provide a grouping of component properties that defines a time zone." ;
-	rdfs:subClassOf nie:InformationElement , ncal:UnionOfEventJournalTimezoneTodo , ncal:UnionOfTimezoneObservanceEventFreebusyJournalTimezoneTodo , ncal:UnionOfTimezoneObservanceEventFreebusyTimezoneTodo , ncal:UnionOfTimezoneObservanceEventJournalTimezoneTodo .
+	rdfs:subClassOf nie:InformationElement , ncal:UnionParentClass .
 
 ncal:attach a rdf:Property ;
 	rdfs:label "attach" ;
 	rdfs:comment "The property provides the capability to associate a document object with a calendar component. Defined in the RFC 2445 sec. 4.8.1.1" ;
 	rdfs:subPropertyOf nie:hasPart ;
-	rdfs:domain ncal:UnionOfAlarmEventJournalTodo ;
+	rdfs:domain ncal:UnionParentClass ;
 	rdfs:range ncal:Attachment .
 
 ncal:percentComplete a rdf:Property ;
@@ -289,7 +241,7 @@ ncal:lastModified a rdf:Property ;
 	rdfs:label "lastModified" ;
 	rdfs:comment "The property specifies the date and time that the information associated with the calendar component was last revised in the calendar store. Note: This is analogous to the modification date and time for a file in the file system. Inspired by RFC 2445 sec. 4.8.7.3. Note that the RFC allows ONLY UTC time values for this property." ;
 	nrl:maxCardinality 1 ;
-	rdfs:domain ncal:UnionOfEventJournalTimezoneTodo ;
+	rdfs:domain ncal:UnionParentClass ;
 	rdfs:range xsd:dateTime .
 
 ncal:delegatedFrom a rdf:Property ;
@@ -303,7 +255,7 @@ ncal:trigger a rdf:Property ;
 	rdfs:label "trigger" ;
 	rdfs:comment "This property specifies when an alarm will trigger. Inspired by RFC 2445 sec. 4.8.6.3 Originally the value of this property could accept two types : duration and date-time. To express this fact a Trigger class has been introduced. It also has a related property to account for the RELATED parameter." ;
 	nrl:maxCardinality 1 ;
-	rdfs:domain ncal:UnionOfAlarmEventTodo ;
+	rdfs:domain ncal:UnionParentClass ;
 	rdfs:range ncal:Trigger .
 
 ncal:related a rdf:Property ;
@@ -325,21 +277,21 @@ ncal:created a rdf:Property ;
 	rdfs:comment "['This property specifies the date and time that the calendar information was created by the calendar user agent in the calendar store. Note: This is analogous to the creation date and time for a file in the file system. Inspired by RFC 2445 sec. 4.8.7.1. Note that this property is a subproperty of nie:created. The domain of nie:created is nie:DataObject. It is not a superclass of UnionOf_Vevent_Vjournal_Vtodo', 'but since that union is conceived as an 'abstract' class', 'and in real-life all resources referenced by this property will also be DataObjects', 'than this shouldn't cause too much of a problem. Note that RFC allows ONLY UTC time values for this property.']" ;
 	rdfs:subPropertyOf nie:created ;
 	nrl:maxCardinality 1 ;
-	rdfs:domain ncal:UnionOfEventJournalTodo ;
+	rdfs:domain ncal:UnionParentClass ;
 	rdfs:range xsd:dateTime .
 
 ncal:url a rdf:Property ;
 	rdfs:label "url" ;
 	rdfs:comment "This property defines a Uniform Resource Locator (URL) associated with the iCalendar object. Inspired by the RFC 2445 sec. 4.8.4.6. Original range had been specified as URI." ;
 	nrl:maxCardinality 1 ;
-	rdfs:domain ncal:UnionOfEventFreebusyJournalTodo ;
+	rdfs:domain ncal:UnionParentClass ;
 	rdfs:range rdfs:Resource .
 
 ncal:comment a rdf:Property ;
 	rdfs:label "comment" ;
 	rdfs:comment "Non-processing information intended to provide a comment to the calendar user. Inspired by RFC 2445 sec. 4.8.1.4 with the following reservations:  the LANGUAGE parameter has been discarded. Please use xml:lang literals to express language. For the ALTREP parameter use the commentAltRep property." ;
 	nrl:maxCardinality 1 ;
-	rdfs:domain ncal:UnionOfTimezoneObservanceEventFreebusyJournalTimezoneTodo ;
+	rdfs:domain ncal:UnionParentClass ;
 	rdfs:range xsd:string .
 
 # Range Resource in nepomuk
@@ -347,7 +299,7 @@ ncal:summaryAltRep a rdf:Property ;
 	rdfs:label "summaryAltRep" ;
 	rdfs:comment "Alternate representation of the comment. Introduced to cover the ALTREP parameter of the SUMMARY property. See documentation of ncal:summary for details." ;
 	nrl:maxCardinality 1 ;
-	rdfs:domain ncal:UnionOfAlarmEventJournalTodo ;
+	rdfs:domain ncal:UnionParentClass ;
 	rdfs:range rdfs:Resource .
 
 ncal:completed a rdf:Property ;
@@ -375,13 +327,13 @@ ncal:priority a rdf:Property ;
 	rdfs:label "priority" ;
 	rdfs:comment "The property defines the relative priority for a calendar component. Inspired by RFC 2445 sec. 4.8.1.9" ;
 	nrl:maxCardinality 1 ;
-	rdfs:domain ncal:UnionOfEventTodo ;
+	rdfs:domain ncal:UnionParentClass ;
 	rdfs:range xsd:integer .
 
 ncal:resources a rdf:Property ;
 	rdfs:label "resources" ;
 	rdfs:comment "Defines the equipment or resources anticipated for an activity specified by a calendar entity. Inspired by RFC 2445 sec. 4.8.1.10 with the following reservations:  the LANGUAGE parameter has been discarded. Please use xml:lang literals to express language. For the ALTREP parameter use the resourcesAltRep property. This property specifies multiple resources. The order is not important. it is recommended to introduce a separate triple for each resource." ;
-	rdfs:domain ncal:UnionOfEventTodo ;
+	rdfs:domain ncal:UnionParentClass ;
 	rdfs:range xsd:string .
 
 ncal:bysecond a rdf:Property ;
@@ -417,7 +369,7 @@ ncal:location a rdf:Property ;
 	rdfs:label "location" ;
 	rdfs:comment "Defines the intended venue for the activity defined by a calendar component. Inspired by RFC 2445 sec 4.8.1.7 with the following reservations:  the LANGUAGE parameter has been discarded. Please use xml:lang literals to express language.  For the ALTREP parameter use the locationAltRep property." ;
 	nrl:maxCardinality 1 ;
-	rdfs:domain ncal:UnionOfEventTodo ;
+	rdfs:domain ncal:UnionParentClass ;
 	rdfs:range xsd:string .
 
 ncal:eventStatus a rdf:Property ;
@@ -439,7 +391,7 @@ ncal:uid a rdf:Property ;
 	rdfs:comment "['This property defines the persistent', 'globally unique identifier for the calendar component. Inspired by the RFC 2445 sec 4.8.4.7']" ;
 	rdfs:subPropertyOf nie:identifier ;
 	nrl:maxCardinality 1 ;
-	rdfs:domain ncal:UnionOfEventFreebusyJournalTodo ;
+	rdfs:domain ncal:UnionParentClass ;
 	rdfs:range xsd:string .
 
 ncal:standard a rdf:Property ;
@@ -482,7 +434,7 @@ ncal:requestStatus a rdf:Property ;
 	rdfs:label "requestStatus" ;
 	rdfs:comment "This property defines the status code returned for a scheduling request. Inspired by RFC 2445 sec. 4.8.8.2. Original value of this property was a four-element structure. The RequestStatus class has been introduced to express it. In RFC 2445 this property could have the LANGUAGE parameter. This has been discarded in this ontology. Use xml:lang literals to express it if necessary." ;
 	nrl:maxCardinality 1 ;
-	rdfs:domain ncal:UnionOfEventFreebusyJournalTodo ;
+	rdfs:domain ncal:UnionParentClass ;
 	rdfs:range ncal:RequestStatus .
 
 ncal:byday a rdf:Property ;
@@ -495,7 +447,7 @@ ncal:byday a rdf:Property ;
 ncal:recurrenceId a rdf:Property ;
 	rdfs:label "recurrenceId" ;
 	nrl:maxCardinality 1 ;
-	rdfs:domain ncal:UnionOfEventJournalTimezoneTodo ;
+	rdfs:domain ncal:UnionParentClass ;
 	rdfs:range ncal:RecurrenceIdentifier .
 
 # Range is a URL (xsd:string instead of resource?)
@@ -538,7 +490,7 @@ ncal:dtstamp a rdf:Property ;
 	rdfs:label "dtstamp" ;
 	rdfs:comment "The property indicates the date/time that the instance of the iCalendar object was created. Inspired by RFC 2445 sec. 4.8.7.1. Note that the RFC allows ONLY UTC values for this property." ;
 	nrl:maxCardinality 1 ;
-	rdfs:domain ncal:UnionOfEventFreebusyJournalTodo ;
+	rdfs:domain ncal:UnionParentClass ;
 	rdfs:range xsd:dateTime .
 
 ncal:tzoffsetfrom a rdf:Property ;
@@ -559,14 +511,14 @@ ncal:class a rdf:Property ;
 	rdfs:label "class" ;
 	rdfs:comment "['Defines the access classification for a calendar component. Inspired by RFC 2445 sec. 4.8.1.3 with the following reservations:  this property has limited vocabulary. Possible values are:  PUBLIC', 'PRIVATE and CONFIDENTIAL. The default is PUBLIC. Those values are expressed as instances of the AccessClassification class. The user may create his/her own if necessary.']" ;
 	nrl:maxCardinality 1 ;
-	rdfs:domain ncal:UnionOfEventJournalTodo ;
+	rdfs:domain ncal:UnionParentClass ;
 	rdfs:range ncal:AccessClassification .
 
 ncal:organizer a rdf:Property ;
 	rdfs:label "organizer" ;
 	rdfs:comment "The property defines the organizer for a calendar component. Inspired by RFC 2445 sec. 4.8.4.3. Originally this property accepted many parameters. The Organizer class has been introduced to express them all. Note that NCAL is aligned with NCO. The actual value (of the CAL-ADDRESS type) is expressed as an instance of nco:Contact. Remember that the CN parameter has been removed from NCAL. Instead that value should be expressed using nco:fullname property of the above mentioned nco:Contact instance." ;
 	nrl:maxCardinality 1 ;
-	rdfs:domain ncal:UnionOfEventFreebusyJournalTodo ;
+	rdfs:domain ncal:UnionParentClass ;
 	rdfs:range ncal:Organizer .
 
 ncal:calscale a rdf:Property ;
@@ -593,7 +545,7 @@ ncal:transp a rdf:Property ;
 ncal:attendee a rdf:Property ;
 	rdfs:label "attendee" ;
 	rdfs:comment "['The property defines an 'Attendee' within a calendar component. Inspired by RFC 2445 sec. 4.8.4.1. Originally this property accepted many parameters. The Attendee class has been introduced to express them all. Note that NCAL is aligned with NCO. The actual value (of the CAL-ADDRESS type) is expressed as an instance of nco:Contact. Remember that the CN parameter has been removed from NCAL. Instead that value should be expressed using nco:fullname property of the above mentioned nco:Contact instance. The RFC stated that whenever this property is attached to a Valarm instance', 'the Attendee cannot have any parameters apart from involvedContact.']" ;
-	rdfs:domain ncal:UnionOfAlarmEventFreebusyJournalTodo ;
+	rdfs:domain ncal:UnionParentClass ;
 	rdfs:range ncal:Attendee .
 
 ncal:bydayWeekday a rdf:Property ;
@@ -614,14 +566,14 @@ ncal:rrule a rdf:Property ;
 	rdfs:label "rrule" ;
 	rdfs:comment "['This property defines a rule or repeating pattern for recurring events', 'to-dos', 'or time zone definitions. sec. 4.8.5.4']" ;
 	nrl:maxCardinality 1 ;
-	rdfs:domain ncal:UnionOfTimezoneObservanceEventJournalTimezoneTodo ;
+	rdfs:domain ncal:UnionParentClass ;
 	rdfs:range ncal:RecurrenceRule .
 
 ncal:dtend a rdf:Property ;
 	rdfs:label "dtend" ;
 	rdfs:comment "This property specifies the date and time that a calendar component ends. Inspired by RFC 2445 sec. 4.8.2.2" ;
 	nrl:maxCardinality 1 ;
-	rdfs:domain ncal:UnionOfEventFreebusy ;
+	rdfs:domain ncal:UnionParentClass ;
 	rdfs:range ncal:NcalDateTime .
 
 ncal:dateTime a rdf:Property ;
@@ -657,20 +609,20 @@ ncal:ncalRelation a rdf:Property ;
 	rdfs:label "ncalRelation" ;
 	rdfs:comment "A common superproperty for all types of ncal relations. It is not to be used directly." ;
 	rdfs:subPropertyOf dc:relation ;
-	rdfs:domain ncal:UnionOfEventJournalTodo ;
+	rdfs:domain ncal:UnionParentClass ;
 	rdfs:range xsd:string .
 
 ncal:exdate a rdf:Property ;
 	rdfs:label "exdate" ;
 	rdfs:comment "This property defines the list of date/time exceptions for a recurring calendar component. Inspired by RFC 2445 sec. 4.8.5.1" ;
-	rdfs:domain ncal:UnionOfEventJournalTimezoneTodo ;
+	rdfs:domain ncal:UnionParentClass ;
 	rdfs:range ncal:NcalDateTime .
 
 ncal:summary a rdf:Property ;
 	rdfs:label "summary" ;
 	rdfs:comment "Defines a short summary or subject for the calendar component. Inspired by RFC 2445 sec 4.8.1.12 with the following reservations: the LANGUAGE parameter has been discarded. Please use xml:lang literals to express language. For the ALTREP parameter use the summaryAltRep property." ;
 	nrl:maxCardinality 1 ;
-	rdfs:domain ncal:UnionOfAlarmEventJournalTodo ;
+	rdfs:domain ncal:UnionParentClass ;
 	rdfs:range xsd:string .
 
 ncal:role a rdf:Property ;
@@ -699,7 +651,7 @@ ncal:descriptionAltRep a rdf:Property ;
 	rdfs:label "descriptionAltRep" ;
 	rdfs:comment "Alternate representation of the calendar entity description. Introduced to cover the ALTREP parameter of the DESCRIPTION property. See documentation of ncal:description for details." ;
 	nrl:maxCardinality 1 ;
-	rdfs:domain ncal:UnionOfAlarmEventJournalTodo ;
+	rdfs:domain ncal:UnionParentClass ;
 	rdfs:range rdfs:Resource .
 
 # Range is a URL (xsd:string instead of resource?)
@@ -707,7 +659,7 @@ ncal:commentAltRep a rdf:Property ;
 	rdfs:label "commentAltRep" ;
 	rdfs:comment "Alternate representation of the comment. Introduced to cover the ALTREP parameter of the COMMENT property. See documentation of ncal:comment for details." ;
 	nrl:maxCardinality 1 ;
-	rdfs:domain ncal:UnionOfTimezoneObservanceEventFreebusyJournalTimezoneTodo ;
+	rdfs:domain ncal:UnionParentClass ;
 	rdfs:range rdfs:Resource .
 
 ncal:freebusy a rdf:Property ;
@@ -748,14 +700,14 @@ ncal:sequence a rdf:Property ;
 	rdfs:label "sequence" ;
 	rdfs:comment "This property defines the revision sequence number of the calendar component within a sequence of revisions. Inspired by RFC 2445 sec. 4.8.7.4" ;
 	nrl:maxCardinality 1 ;
-	rdfs:domain ncal:UnionOfEventJournalTodo ;
+	rdfs:domain ncal:UnionParentClass ;
 	rdfs:range xsd:integer .
 
 ncal:contact a rdf:Property ;
 	rdfs:label "contact" ;
 	rdfs:comment "The property is used to represent contact information or alternately a reference to contact information associated with the calendar component. Inspired by RFC 2445 sec. 4.8.4.2 with the following reservations: the LANGUAGE parameter has been discarded. Please use xml:lang literals to express language. For the ALTREP parameter use the contactAltRep property.RFC doesn't define any format for the string." ;
 	nrl:maxCardinality 1 ;
-	rdfs:domain ncal:UnionOfEventFreebusyJournalTodo ;
+	rdfs:domain ncal:UnionParentClass ;
 	rdfs:range xsd:string .
 
 ncal:repeat a rdf:Property ;
@@ -784,14 +736,14 @@ ncal:contactAltRep a rdf:Property ;
 	rdfs:label "contactAltRep" ;
 	rdfs:comment "Alternate representation of the contact property. Introduced to cover the ALTREP parameter of the CONTACT property. See documentation of ncal:contact for details." ;
 	nrl:maxCardinality 1 ;
-	rdfs:domain ncal:UnionOfEventFreebusyJournalTodo ;
+	rdfs:domain ncal:UnionParentClass ;
 	rdfs:range rdfs:Resource .
 
 ncal:rdate a rdf:Property ;
 	rdfs:label "rdate" ;
 	rdfs:comment "['This property defines the list of date/times for a recurrence set. Inspired by RFC 2445 sec. 4.8.5.3. Note that RFC allows both DATE', 'DATE-TIME and PERIOD values for this property. That's why the range has been set to NcalTimeEntity.']" ;
 	nrl:maxCardinality 1 ;
-	rdfs:domain ncal:UnionOfTimezoneObservanceEventJournalTimezoneTodo ;
+	rdfs:domain ncal:UnionParentClass ;
 	rdfs:range ncal:NcalTimeEntity .
 
 ncal:recurrenceIdDateTime a rdf:Property ;
@@ -820,7 +772,7 @@ ncal:locationAltRep a rdf:Property ;
 	rdfs:label "locationAltRep" ;
 	rdfs:comment "Alternate representation of the event or todo location. Introduced to cover the ALTREP parameter of the LOCATION property. See documentation of ncal:location for details." ;
 	nrl:maxCardinality 1 ;
-	rdfs:domain ncal:UnionOfEventTodo ;
+	rdfs:domain ncal:UnionParentClass ;
 	rdfs:range rdfs:Resource .
 
 ncal:involvedContact a rdf:Property ;
@@ -834,13 +786,13 @@ ncal:hasAlarm a rdf:Property ;
 	rdfs:label "hasAlarm" ;
 	rdfs:comment "Links an event or a todo with a DataObject that can be interpreted as an alarm. This property has no direct equivalent in the RFC 2445. It has been provided to express this relation." ;
 	rdfs:subPropertyOf nie:hasPart ;
-	rdfs:domain ncal:UnionOfEventTodo ;
+	rdfs:domain ncal:UnionParentClass ;
 	rdfs:range ncal:CalendarDataObject .
 
 ncal:exrule a rdf:Property ;
 	rdfs:label "exrule" ;
 	rdfs:comment "This property defines a rule or repeating pattern for an exception to a recurrence set. Inspired by RFC 2445 sec. 4.8.5.2." ;
-	rdfs:domain ncal:UnionOfEventJournalTodo ;
+	rdfs:domain ncal:UnionParentClass ;
 	rdfs:range ncal:RecurrenceRule .
 
 ncal:rsvp a rdf:Property ;
@@ -862,7 +814,7 @@ ncal:geo a rdf:Property ;
 	rdfs:label "geo" ;
 	rdfs:comment "This property specifies information related to the global position for the activity specified by a calendar component. Inspired by RFC 2445 sec. 4.8.1.6" ;
 	nrl:maxCardinality 1 ;
-	rdfs:domain ncal:UnionOfEventTodo ;
+	rdfs:domain ncal:UnionParentClass ;
 	rdfs:range rdfs:Resource .
 
 ncal:byminute a rdf:Property ;
@@ -877,7 +829,7 @@ ncal:resourcesAltRep a rdf:Property ;
 	rdfs:label "resourcesAltRep" ;
 	rdfs:comment "Alternate representation of the resources needed for an event or todo. Introduced to cover the ALTREP parameter of the resources property. See documentation for ncal:resources for details." ;
 	nrl:maxCardinality 1 ;
-	rdfs:domain ncal:UnionOfEventTodo ;
+	rdfs:domain ncal:UnionParentClass ;
 	rdfs:range rdfs:Resource .
 
 ncal:fmttype a rdf:Property ;
@@ -898,7 +850,7 @@ ncal:dtstart a rdf:Property ;
 	rdfs:label "dtstart" ;
 	rdfs:comment "This property specifies when the calendar component begins. Inspired by RFC 2445 sec. 4.8.2.4" ;
 	nrl:maxCardinality 1 ;
-	rdfs:domain ncal:UnionOfTimezoneObservanceEventFreebusyTimezoneTodo ;
+	rdfs:domain ncal:UnionParentClass ;
 	rdfs:range ncal:NcalDateTime .
 
 ncal:description a rdf:Property ;
@@ -906,7 +858,7 @@ ncal:description a rdf:Property ;
 	rdfs:comment "['A more complete description of the calendar component', 'than  that provided by the ncal:summary property.Inspired by RFC 2445 sec. 4.8.1.5 with following reservations:  the LANGUAGE parameter has been discarded. Please use xml:lang literals to express language. For the ALTREP parameter use the descriptionAltRep property.']" ;
 	rdfs:subPropertyOf nie:description ;
 	nrl:maxCardinality 1 ;
-	rdfs:domain ncal:UnionOfAlarmEventJournalTodo ;
+	rdfs:domain ncal:UnionParentClass ;
 	rdfs:range xsd:string .
 
 ncal:encoding a rdf:Property ;
@@ -935,7 +887,7 @@ ncal:relatedToSibling a rdf:Property ;
 	rdfs:comment "The property is used to represent a relationship or reference between one calendar component and another. Inspired by RFC 2445 sec. 4.8.4.5. Originally this property had a RELTYPE parameter. It has been decided that it is more natural to introduce three different properties to express the values of that parameter. This property expresses the RELATED-TO property with RELTYPE=SIBLING parameter." ;
 	rdfs:subPropertyOf ncal:ncalRelation ;
 	nrl:maxCardinality 1 ;
-	rdfs:domain ncal:UnionOfEventJournalTodo ;
+	rdfs:domain ncal:UnionParentClass ;
 	rdfs:range xsd:string .
 
 ncal:count a rdf:Property ;
@@ -956,7 +908,7 @@ ncal:duration a rdf:Property ;
 	rdfs:label "duration" ;
 	rdfs:comment "The property specifies a positive duration of time. Inspired by RFC 2445 sec. 4.8.2.5" ;
 	nrl:maxCardinality 1 ;
-	rdfs:domain ncal:UnionOfAlarmEventFreebusyTodo ;
+	rdfs:domain ncal:UnionParentClass ;
 	rdfs:range xsd:integer .
 
 ncal:bymonth a rdf:Property ;
@@ -969,7 +921,7 @@ ncal:bymonth a rdf:Property ;
 ncal:categories a rdf:Property ;
 	rdfs:label "categories" ;
 	rdfs:comment "Categories for a calendar component. Inspired by RFC 2445 sec 4.8.1.2 with the following reservations: The LANGUAGE parameter has been discarded. Please use xml:lang literals to express multiple languages. This property can specify multiple comma-separated categories. The order of categories doesn't matter. Please use a separate triple for each category." ;
-	rdfs:domain ncal:UnionOfEventJournalTodo ;
+	rdfs:domain ncal:UnionParentClass ;
 	rdfs:range xsd:string .
 
 ncal:sentBy a rdf:Property ;
@@ -997,13 +949,13 @@ ncal:relatedToChild a rdf:Property ;
 	rdfs:label "relatedToChild" ;
 	rdfs:comment "The property is used to represent a relationship or reference between one calendar component and another. Inspired by RFC 2445 sec. 4.8.4.5. Originally this property had a RELTYPE parameter. It has been decided to introduce three different properties to express the values of that parameter. This property expresses the RELATED-TO property with RELTYPE=CHILD parameter." ;
 	rdfs:subPropertyOf ncal:ncalRelation ;
-	rdfs:domain ncal:UnionOfEventJournalTodo ;
+	rdfs:domain ncal:UnionParentClass ;
 	rdfs:range xsd:string .
 
 ncal:relatedToParent a rdf:Property ;
 	rdfs:label "relatedToParent" ;
 	rdfs:comment "['The property is used to represent a relationship or reference between one calendar component and another. Inspired by RFC 2445 sec. 4.8.4.5. Originally this property had a RELTYPE parameter. It has been decided that it is more natural to introduce three different properties to express the values of that parameter. This property expresses the RELATED-TO property with no RELTYPE parameter (the default value is PARENT)', 'or with explicit RELTYPE=PARENT parameter.']" ;
 	rdfs:subPropertyOf ncal:ncalRelation ;
-	rdfs:domain ncal:UnionOfEventJournalTodo ;
+	rdfs:domain ncal:UnionParentClass ;
 	rdfs:range xsd:string .
 
