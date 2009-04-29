@@ -25,6 +25,7 @@ namespace Tracker {
 		public void commit_transaction ();
 		public void delete_statement (string subject, string predicate, string object);
 		public void insert_statement (string subject, string predicate, string object);
+		public void delete_resource_description (string uri);
 	}
 }
 

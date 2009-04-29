@@ -352,6 +352,8 @@ public class Tracker.SparqlQuery : Object {
 					execute_insert (operation);
 				} else if (operation.get_verb () == Rasqal.QueryVerb.DELETE) {
 					execute_delete (operation);
+				} else if (operation.get_verb () == Rasqal.QueryVerb.DROP) {
+					Data.delete_resource_description (operation.get_data_graph (0).name_uri.as_string ());
 				} else {
 					Data.commit_transaction ();
 					throw new SparqlError.PARSE ("SELECT, CONSTRUCT, DESCRIBE, and ASK are not supported in update mode");
