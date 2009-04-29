@@ -82,7 +82,7 @@ typedef struct {
 } ForeachInMetadataInfo;
 
 
-static gboolean auto_commit = TRUE;
+static gint transaction_level = 0;
 static TrackerDataUpdateBuffer update_buffer;
 static TrackerDataBlankBuffer blank_buffer;
 
@@ -217,23 +217,6 @@ cache_insert_value (const gchar            *table_name,
 
 	table = cache_ensure_table (table_name, multiple_values);
 	g_array_append_val (table->properties, property);
-}
-
-static void
-tracker_data_begin_implicit_transaction (void)
-{
-	TrackerDBInterface *iface;
-
-	update_buffer.resource_cache = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
-	update_buffer.tables = g_hash_table_new_full (g_str_hash, g_str_equal,
-						      g_free, (GDestroyNotify) cache_table_free);
-	if (blank_buffer.table == NULL) {
-		blank_buffer.table = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
-	}
-
-	iface = tracker_db_manager_get_db_interface ();
-
-	tracker_db_interface_start_transaction (iface);
 }
 
 static guint32
@@ -517,15 +500,11 @@ tracker_data_insert_resource (const gchar *uri)
 {
 	guint32 id;
 
-	if (auto_commit) {
-		tracker_data_begin_implicit_transaction ();
-	}
+	tracker_data_begin_transaction ();
 
 	id = ensure_resource_id (uri);
 
-	if (auto_commit) {
-		tracker_data_commit_transaction ();
-	}
+	tracker_data_commit_transaction ();
 
 	return id;
 }
@@ -769,18 +748,14 @@ tracker_data_delete_statement (const gchar            *subject,
 	gint		    subject_id;
 	GPtrArray          *types;
 
-	if (auto_commit) {
-		tracker_data_begin_implicit_transaction ();
-	}
+	tracker_data_begin_transaction ();
 
 	subject_id = query_resource_id (subject);
 	
 	if (subject_id == 0) {
 		/* subject not in database */
 
-		if (auto_commit) {
-			tracker_data_commit_transaction ();
-		}
+		tracker_data_commit_transaction ();
 
 		return;
 	}
@@ -892,9 +867,7 @@ tracker_data_delete_statement (const gchar            *subject,
 		g_ptr_array_free (types, TRUE);
 	}
 
-	if (auto_commit) {
-		tracker_data_commit_transaction ();
-	}
+	tracker_data_commit_transaction ();
 }
 
 void
@@ -909,9 +882,7 @@ tracker_data_insert_statement (const gchar            *subject,
 	g_return_if_fail (predicate != NULL);
 	g_return_if_fail (object != NULL);
 
-	if (auto_commit) {
-		tracker_data_begin_implicit_transaction ();
-	}
+	tracker_data_begin_transaction ();
 
 	/* subjects and objects starting with `:' are anonymous blank nodes */
 	if (g_str_has_prefix (object, ":")) {
@@ -1013,10 +984,7 @@ tracker_data_insert_statement (const gchar            *subject,
 		insert_callback (subject, predicate, object, update_buffer.types, insert_data);
 	}
 
-	if (auto_commit) {
-		tracker_data_commit_transaction ();
-	}
-
+	tracker_data_commit_transaction ();
 }
 
 void
@@ -1343,8 +1311,22 @@ tracker_data_update_disable_all_volumes (void)
 void
 tracker_data_begin_transaction (void)
 {
-	tracker_data_begin_implicit_transaction ();
-	auto_commit = FALSE;
+	TrackerDBInterface *iface;
+
+	if (transaction_level == 0) {
+		update_buffer.resource_cache = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
+		update_buffer.tables = g_hash_table_new_full (g_str_hash, g_str_equal,
+							      g_free, (GDestroyNotify) cache_table_free);
+		if (blank_buffer.table == NULL) {
+			blank_buffer.table = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
+		}
+
+		iface = tracker_db_manager_get_db_interface ();
+
+		tracker_db_interface_start_transaction (iface);
+	}
+
+	transaction_level++;
 }
 
 void
@@ -1352,18 +1334,21 @@ tracker_data_commit_transaction (void)
 {
 	TrackerDBInterface *iface;
 
-	tracker_data_update_buffer_flush ();
+	transaction_level--;
 
-	iface = tracker_db_manager_get_db_interface ();
+	if (transaction_level == 0) {
+		tracker_data_update_buffer_flush ();
 
-	tracker_db_interface_end_transaction (iface);
+		iface = tracker_db_manager_get_db_interface ();
 
-	g_hash_table_unref (update_buffer.resource_cache);
+		tracker_db_interface_end_transaction (iface);
 
-	if (commit_callback)
-		commit_callback (commit_data);
+		g_hash_table_unref (update_buffer.resource_cache);
 
-	auto_commit = TRUE;
+		if (commit_callback) {
+			commit_callback (commit_data);
+		}
+	}
 }
 
 static gchar *
