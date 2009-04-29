@@ -177,6 +177,7 @@ namespace Rasqal {
 		public void set_fatal_error_handler ([CCode (delegate_target_pos = 0.9)] Raptor.MessageHandler handler);
 		public void set_generate_bnodeid_handler ([CCode (delegate_target_pos = 0.9)] GenerateBnodeidHandler handler);
 		public void set_warning_handler ([CCode (delegate_target_pos = 0.9)] Raptor.MessageHandler handler);
+		public unowned Query next ();
 	}
 
 	public enum QueryVerb {

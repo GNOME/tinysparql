@@ -189,7 +189,10 @@ rasqal_free_query(rasqal_query* query)
   
   if(--query->usage)
     return;
-  
+
+  if (query->next)
+    rasqal_free_query (query->next);
+
   if(query->factory)
     query->factory->terminate(query);
 
@@ -1438,6 +1441,13 @@ void
 rasqal_query_set_user_data(rasqal_query* query, void *user_data)
 {
   query->user_data = user_data;
+}
+
+
+rasqal_query*
+rasqal_query_next(rasqal_query* query)
+{
+  return query->next;
 }
 
 

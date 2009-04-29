@@ -850,6 +850,9 @@ void* rasqal_query_get_user_data(rasqal_query* query);
 RASQAL_API
 void rasqal_query_set_user_data(rasqal_query* query, void *user_data);
 
+RASQAL_API
+rasqal_query* rasqal_query_next(rasqal_query* query);
+
 /* query results */
 RASQAL_API
 void rasqal_free_query_results(rasqal_query_results *query_results);

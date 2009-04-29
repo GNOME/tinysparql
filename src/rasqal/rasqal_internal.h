@@ -363,6 +363,9 @@ struct rasqal_query_s {
 
   /* INTERNAL for now: non-0 to store results otherwise lazy eval results */
   int store_results;
+
+  /* next operation in the query, only valid for updates */
+  rasqal_query* next;
 };
 
 

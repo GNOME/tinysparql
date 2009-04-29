@@ -194,7 +194,8 @@ static void sparql_query_error_full(rasqal_query *rq, const char *message, ...) 
 %token <name> IDENTIFIER "identifier"
 
 
-%type <seq> SelectQuery ConstructQuery DescribeQuery DeleteQuery InsertQuery
+%type <seq> SelectQuery ConstructQuery DescribeQuery
+%type <seq> Update UpdateQuery DeleteQuery InsertQuery
 %type <seq> SelectExpressionList VarOrIRIrefList ArgList ConstructTriplesOpt
 %type <seq> ConstructTemplate OrderConditionList
 %type <seq> GraphNodeListNotEmpty SelectExpressionListTail
@@ -367,7 +368,50 @@ ReportFormat: SelectQuery
 {
   ((rasqal_query*)rq)->verb=RASQAL_QUERY_VERB_ASK;
 }
-| DeleteQuery
+| Update
+{
+}
+;
+
+
+Update: UpdateQuery
+{
+}
+| Update
+{
+  /* multiple updates in a single query */
+  rasqal_query* query=((rasqal_query*)rq);
+  query->next=rasqal_new_query(query->world, "laqrs", NULL);
+
+  /* copy prefixes */
+  if(query->prefixes) {
+    int idx;
+    for (idx = 0; idx < raptor_sequence_size(query->prefixes); idx++) {
+      rasqal_prefix* p = raptor_sequence_get_at(query->prefixes, idx);
+
+      unsigned char *prefix_string_copy = (unsigned char*)RASQAL_MALLOC(cstring, strlen(p->prefix));
+      strcpy((char*)prefix_string_copy, (const char*)p->prefix);
+
+      rasqal_query_add_prefix(query->next, rasqal_new_prefix(query->world, prefix_string_copy, raptor_uri_copy(p->uri)));
+    }
+    rasqal_query_declare_prefixes(query->next);
+  }
+
+  query->next->generate_bnodeid_handler_user_data = query->generate_bnodeid_handler_user_data;
+  query->next->generate_bnodeid_handler = query->generate_bnodeid_handler;
+
+  query->next->context = query->context;
+  query->context = NULL;
+
+  rq = query->next;
+}
+UpdateQuery
+{
+}
+;
+
+
+UpdateQuery: DeleteQuery
 {
   ((rasqal_query*)rq)->constructs=$1;
   ((rasqal_query*)rq)->verb=RASQAL_QUERY_VERB_DELETE;
