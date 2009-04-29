@@ -77,6 +77,8 @@
 #include <libtracker-data/tracker-turtle.h>
 #include <libtracker-data/tracker-data-backup.h>
 
+#include <libtracker/tracker.h>
+
 #include "tracker-indexer.h"
 #include "tracker-indexer-module.h"
 #include "tracker-marshal.h"
@@ -1032,53 +1034,6 @@ add_directory (TrackerIndexer *indexer,
 }
 
 static void
-index_metadata_foreach (const gchar  *subject,
-			const gchar  *predicate,
-			const gchar  *object,
-			gpointer      user_data)
-{
-	MetadataForeachData *data;
-	gint throttle;
-
-	if (!object) {
-		return;
-	}
-
-	data = (MetadataForeachData *) user_data;
-
-	/* Throttle indexer, value 9 is from older code, why 9? */
-	throttle = tracker_config_get_throttle (data->config);
-	if (throttle > 9) {
-		tracker_throttle (data->config, throttle * 100);
-	}
-
-	if (data->add) {
-		tracker_data_insert_statement (subject, predicate, object);
-	} else {
-		tracker_data_delete_statement (subject, predicate, object);
-	}
-}
-
-static void
-index_metadata (TrackerIndexer	      *indexer,
-		const gchar	      *uri,
-		guint32		       id,
-		TrackerModuleMetadata *metadata)
-{
-	MetadataForeachData data;
-
-	data.language = indexer->private->language;
-	data.config = indexer->private->config;
-	data.uri = uri;
-	data.id = id;
-	data.add = TRUE;
-
-	tracker_module_metadata_foreach (metadata, index_metadata_foreach, &data);
-
-	schedule_flush (indexer, FALSE);
-}
-
-static void
 item_update_content (TrackerIndexer *indexer,
 		     const gchar    *uri,
 		     guint32	     id,
@@ -1167,6 +1122,7 @@ item_add_or_update (TrackerIndexer        *indexer,
 {
 	guint32 id;
 	gchar *mount_point = NULL;
+	gchar *sparql;
 
 	if (tracker_data_query_resource_exists (uri, &id)) {
 		gchar *old_text;
@@ -1193,7 +1149,11 @@ item_add_or_update (TrackerIndexer        *indexer,
 		 */
 		tracker_data_delete_resource_description (uri);
 
-		index_metadata (indexer, uri, id, metadata);
+		sparql = tracker_module_metadata_get_sparql (metadata);
+		tracker_data_update_sparql (sparql, NULL);
+		g_free (sparql);
+
+		schedule_flush (indexer, FALSE);
 
 		/* Take the old text -> the new one, calculate
 		 * difference and add the words.
@@ -1207,9 +1167,12 @@ item_add_or_update (TrackerIndexer        *indexer,
 			 uri);
 
 		/* Service wasn't previously indexed */
-		id = tracker_data_insert_resource (uri);
 
-		index_metadata (indexer, uri, id, metadata);
+		sparql = tracker_module_metadata_get_sparql (metadata);
+		tracker_data_update_sparql (sparql, NULL);
+		g_free (sparql);
+
+		schedule_flush (indexer, FALSE);
 
 		item_add_to_datasource (indexer, uri, info->module_file, metadata);
 

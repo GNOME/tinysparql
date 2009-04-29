@@ -36,6 +36,7 @@ typedef void (* TrackerModuleMetadataForeach) (const gchar     *subject,
 void		       tracker_module_metadata_foreach        (TrackerModuleMetadata        *metadata,
 							       TrackerModuleMetadataForeach  func,
 							       gpointer	                     user_data);
+gchar *                tracker_module_metadata_get_sparql     (TrackerModuleMetadata        *metadata);
 
 
 G_END_DECLS

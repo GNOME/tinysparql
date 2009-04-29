@@ -307,6 +307,33 @@ tracker_module_metadata_foreach (TrackerModuleMetadata        *metadata,
 	}
 }
 
+gchar *
+tracker_module_metadata_get_sparql (TrackerModuleMetadata        *metadata)
+{
+	GString *sparql;
+	gint     i;
+
+	sparql = g_string_new ("INSERT {");
+
+	for (i = 0; i < metadata->statements->len; i++) {
+		Statement *stmt;
+		gchar     *object;
+
+		stmt = &g_array_index (metadata->statements, Statement, i);
+
+		object = g_strescape (stmt->object, NULL);
+
+		g_string_append_printf (sparql, " <%s> <%s> \"%s\" .",
+		                        stmt->subject, stmt->predicate, object);
+
+		g_free (object);
+	}
+
+	g_string_append (sparql, " }");
+
+	return g_string_free (sparql, FALSE);
+}
+
 /**
  * tracker_module_metadata_new:
  *
