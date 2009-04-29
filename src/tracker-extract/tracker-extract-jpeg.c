@@ -532,6 +532,7 @@ extract_jpeg (const gchar *uri,
 						   NFO_PREFIX "height",
 						    cinfo.image_height);
 
+		jpeg_destroy_decompress (&cinfo);
 fail:
 		tracker_file_close (f, FALSE);
 	}
