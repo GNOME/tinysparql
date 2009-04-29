@@ -19,7 +19,8 @@ TEST_PROGS += 								\
 	tracker-dbus 							\
 	tracker-type-utils 						\
 	tracker-file-utils						\
-	tracker-albumart
+	tracker-albumart						\
+	tracker-thumbnailer
 
 INCLUDES = 								\
 	-DG_LOG_DOMAIN=\"Tracker\"					\
@@ -115,5 +116,17 @@ tracker_albumart_LDADD =						\
 	$(GTHREAD_LIBS)							\
 	$(GLIB2_LIBS)							
 
+tracker_thumbnailer_SOURCES = 						\
+	tracker-thumbnailer-test.c					\
+	mock-dbus-gproxy.c						\
+	mock-thumbnailer-dbus.c
+
+tracker_thumbnailer_LDADD =						\
+	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
+	$(top_builddir)/tests/common/libtracker-testcommon.la 		\
+	$(GMODULE_LIBS)							\
+	$(GCOV_LIBS)							\
+	$(GTHREAD_LIBS)							\
+	$(GLIB2_LIBS)							
 
 EXTRA_DIST = non-utf8.txt
