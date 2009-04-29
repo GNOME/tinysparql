@@ -16,9 +16,9 @@ CREATE TABLE  Services
 	KeyMetadata3		Text,
 	KeyMetadata4		Text,
 	KeyMetadata5		Text,
-	KeyMetadata6		Integer,
-	KeyMetadata7		Integer,
-	KeyMetadata8		Integer,
+	KeyMetadata6		Integer, /* NOTE: If you change the type of any of these KeyMetadata%d members, */
+	KeyMetadata7		Integer, /*       then you must update the source in: */
+	KeyMetadata8		Integer, /*       tracker_data_query_metadata_field_values(); */
 	KeyMetadata9		Text,
 	KeyMetadata10		Text,
 	KeyMetadata11		Text,
