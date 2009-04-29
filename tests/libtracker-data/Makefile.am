@@ -3,14 +3,16 @@ include $(top_srcdir)/Makefile.decl
 noinst_PROGRAMS = $(TEST_PROGS)
 
 TEST_PROGS += 								\
-	tracker-sparql							\
-	tracker-ontology
+	tracker-ontology						\
+	tracker-sparql
 
 INCLUDES = 								\
 	-DG_LOG_DOMAIN=\"Tracker\"					\
 	-DTRACKER_COMPILATION						\
 	-I$(top_srcdir)/src						\
 	-I$(top_srcdir)/tests/common					\
+	$(WARN_CFLAGS)							\
+	$(GCOV_CFLAGS)							\
 	$(DBUS_CFLAGS)							\
 	$(SQLITE3_CFLAGS)						\
 	$(GMODULE_CFLAGS)						\
@@ -18,17 +20,19 @@ INCLUDES = 								\
 	$(GLIB2_CFLAGS)							\
 	$(RAPTOR_CFLAGS)
 
-tracker_sparql_SOURCES = 						\
-	tracker-sparql-test.c
-
 common_ldadd =								\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
 	$(top_builddir)/src/libtracker-db/libtracker-db.la	 	\
 	$(top_builddir)/src/libtracker-data/libtracker-data.la	 	\
+	$(top_builddir)/tests/common/libtracker-testcommon.la 		\
+	$(GCOV_LIBS)							\
 	$(GMODULE_LIBS)							\
 	$(GTHREAD_LIBS)							\
 	$(GLIB2_LIBS)							\
 	$(RAPTOR_LIBS)
+
+tracker_sparql_SOURCES = 						\
+	tracker-sparql-test.c
 
 tracker_sparql_LDADD = $(common_ldadd)
 
