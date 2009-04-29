@@ -1,4 +1,18 @@
-
+/*
+ * To simulate a DBusGProxy in the unit tests, we need a GObject (dbus 
+ * disconnection does a g_object_unref (). This is a GObject with only 
+ * one attribute (an integer), generated with the following vala code:
+ * (command-line: valac -C mock-dbus-gproxy.vala)
+ *
+ *    using GLib;
+ *
+ *    public class MockDBusGProxy : GLib.Object {
+ *      public int id = 1;
+ *    }
+ *
+ *
+ * Modify this code as long as the final result is still a GObject.
+ */
 #ifndef __MOCK_DBUS_GPROXY_H__
 #define __MOCK_DBUS_GPROXY_H__
 
