@@ -1,3 +1,26 @@
+/* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
+/*
+ * Copyright (C) 2008, Nokia (urho.konttori@nokia.com)
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public
+ * License as published by the Free Software Foundation; either
+ * version 2 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public
+ * License along with this library; if not, write to the
+ * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA  02110-1301, USA.
+ */
+
+/*
+ * Overload of some dbus functions to test tracker-thumbnailer.
+ */
 #include <glib.h>
 #include <dbus/dbus.h>
 #include <dbus/dbus-glib-lowlevel.h>
@@ -7,7 +30,6 @@
 DBusGConnection* 
 dbus_g_bus_get (DBusBusType type, GError **error)
 {
-        //g_print ("Calling the right function %s\n", __func__);
         return (DBusGConnection *)g_strdup ("mock connection");
 }
 
@@ -17,7 +39,6 @@ dbus_g_proxy_new_for_name (DBusGConnection *connection,
                            const char *path,
                            const char *interface)
 {
-        //g_print ("Calling the right function %s\n", __func__);
         return (DBusGProxy *)mock_dbus_gproxy_new ();
 }
 
@@ -30,7 +51,6 @@ dbus_g_proxy_call (DBusGProxy *proxy,
 {
         va_list args;
 
-        //g_print ("Calling the right function %s\n", __func__);
         g_message ("DBUS-CALL: %s", method);
 
         va_start (args, first_arg_type);
@@ -55,7 +75,6 @@ dbus_g_proxy_call_no_reply (DBusGProxy *proxy,
                             const char *method, 
                             GType first_arg_type,...)
 {
-
         g_message ("DBUS-CALL: %s", method);
 }
 
