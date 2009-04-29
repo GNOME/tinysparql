@@ -108,7 +108,9 @@ tracker_data_backup_save (const gchar  *turtle_filename,
 			  GError      **error)
 {
 	TrackerDBResultSet *data;
+#if 0
 	TrackerClass *service;
+#endif
 	TurtleFile *turtle_file;
 
 	/* TODO: temporary location */

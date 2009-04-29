@@ -98,6 +98,8 @@ struct _GSearchOptionTemplate {
 };
 
 
+#if 0
+
 static char *search_service_types[] = {
 "Files",
 "Folders",
@@ -133,6 +135,8 @@ static char *search_service_types[] = {
 "Projects",
 NULL
 };
+
+#endif
 
 static service_info_t services[] = {
 #if 0
@@ -233,7 +237,9 @@ static const char * GSearchUiDescription =
 "  </popup>"
 "</ui>";
 
+#if 0
 static void set_snippet (gchar * snippet, GError *error, gpointer user_data);
+#endif 
 
 static void
 display_dialog_character_set_conversion_error (GtkWidget * window,
@@ -335,9 +341,9 @@ process_snippets (GSearchWindow * gsearch)
 		return FALSE;
 	}
 
+#if 0
 	SnippetRow *snippet = g_queue_pop_head (gsearch->snippet_queue);
 
-#if 0
 	tracker_search_get_snippet_async (tracker_client, snippet->type, snippet->uri, gsearch->search_term, set_snippet, snippet);
 #endif
 
@@ -413,6 +419,8 @@ free_snippet (SnippetRow * snippet_row)
 	g_free (snippet_row->uri);
 	g_free (snippet_row);
 }
+
+#if 0
 
 static void
 set_snippet (gchar * snippet,
@@ -642,7 +650,6 @@ add_application_to_search_results (const gchar * uri,
 			    -1);
 }
 
-
 static void
 set_suggestion (gchar * suggestion,
 		GError * error,
@@ -701,6 +708,8 @@ add_no_files_found_message (GSearchWindow * gsearch)
 		tracker_search_suggest_async (tracker_client, search_term, 3, (TrackerStringReply) set_suggestion, gsearch);
 	}
 }
+
+#endif 
 
 void
 update_search_counts (GSearchWindow * gsearch)
@@ -1476,7 +1485,9 @@ get_meta_table_data (gpointer value,
 		     gpointer data)
 {
 	gchar **meta;
+#if 0
 	GSearchWindow * gsearch = data;
+#endif
 
 	meta = (char **)value;
 
@@ -1524,6 +1535,8 @@ get_meta_table_data (gpointer value,
 #endif
 }
 
+#if 0
+
 static gint
 str_in_array (const gchar *str,
 	      gchar **array)
@@ -1565,6 +1578,8 @@ populate_hit_counts (gpointer value,
 		}
 	}
 }
+
+#endif
 
 static void
 update_page_count_label (GSearchWindow * gsearch)
@@ -1622,6 +1637,8 @@ init_tab (GSearchWindow * gsearch,
 	action = gtk_ui_manager_get_action (gsearch->window_ui_manager, "/PopupMenu/SaveResultsAs");
 	gtk_action_set_sensitive (action, (gsearch->type < 10));
 }
+
+#if 0
 
 static void
 get_hit_count (GPtrArray *out_array,
@@ -1718,6 +1735,8 @@ get_hit_count (GPtrArray *out_array,
 	do_search (gsearch, gsearch->search_term, TRUE, 0);
 }
 
+#endif
+
 void
 select_category (GtkTreeSelection * treeselection,
 		 gpointer user_data)
@@ -1808,13 +1827,15 @@ start_new_search (GSearchWindow * gsearch,
 #endif
 }
 
+#if 0
+
 static void
 end_refresh_count (int count, GError * error, gpointer user_data)
 {
 	GSearchWindow *gsearch = user_data;
+#if 0
 	service_info_t	* service;
 
-#if 0
 	for (service = services; service->service; ++service) {
 		if (service->service_type == gsearch->current_service->service_type) {
 			service->hit_count = count;
@@ -1826,6 +1847,8 @@ end_refresh_count (int count, GError * error, gpointer user_data)
 	update_page_count_label (gsearch);
 
 }
+
+#endif
 
 void
 end_search (GPtrArray * out_array,

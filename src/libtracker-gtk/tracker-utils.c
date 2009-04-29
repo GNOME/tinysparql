@@ -47,7 +47,10 @@ tracker_keyword_array_to_glist (gchar **array)
 GList *
 tracker_get_all_keywords (TrackerClient *tracker_client)
 {
+#if 0
 	GPtrArray *out_array;
+#endif
+
 	GList *list = NULL;
 	GError *error = NULL;
 

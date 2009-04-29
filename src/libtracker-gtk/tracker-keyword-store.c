@@ -36,7 +36,9 @@ static void tracker_keyword_store_tree_drag_source_init (GtkTreeDragSourceIface 
 static void  tracker_keyword_store_finalize (GObject *object);
 
 
+#if 0
 static void tracker_keyword_store_populate_cb (GPtrArray *result, GError *error, gpointer user_data);
+#endif
 
 G_DEFINE_TYPE_WITH_CODE (TrackerKeywordStore, tracker_keyword_store, GTK_TYPE_LIST_STORE,
 			G_IMPLEMENT_INTERFACE (GTK_TYPE_TREE_DRAG_SOURCE,
@@ -122,6 +124,8 @@ tracker_keyword_store_tree_drag_source_init (GtkTreeDragSourceIface *iface)
 	iface->drag_data_delete = tracker_keyword_store_drag_data_delete;
 }
 
+#if 0
+
 static void
 tracker_keyword_store_populate_cb (GPtrArray *result, GError *error, gpointer user_data) {
 	GtkTreeIter iter;
@@ -144,6 +148,8 @@ tracker_keyword_store_populate_cb (GPtrArray *result, GError *error, gpointer us
 	}
 	g_clear_error (&error);
 }
+
+#endif 
 
 static void
 tracker_keyword_store_finalize (GObject *object)

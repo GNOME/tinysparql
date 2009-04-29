@@ -106,6 +106,7 @@ tracker_search_new (TrackerConfig   *config,
 	return object;
 }
 
+#if 0
 
 static const gchar *
 search_utf8_p_from_offset_skipping_decomp (const gchar *str,
@@ -207,7 +208,6 @@ search_get_word_break (const char *a)
 
 	return value;
 }
-
 
 static gboolean
 search_is_word_break (const char a)
@@ -385,6 +385,8 @@ search_get_snippet (const gchar  *text,
 	}
 }
 
+#endif
+
 void
 tracker_search_get_snippet (TrackerSearch	   *object,
 			    const gchar		   *uri,
@@ -393,7 +395,9 @@ tracker_search_get_snippet (TrackerSearch	   *object,
 			    GError		  **error)
 {
 	TrackerDBInterface *iface;
+#if 0
 	TrackerDBResultSet *result_set;
+#endif
 	GError		   *actual_error = NULL;
 	guint		    request_id;
 	gchar		   *snippet = NULL;
@@ -483,10 +487,14 @@ tracker_search_suggest (TrackerSearch	       *object,
 			DBusGMethodInvocation  *context,
 			GError		      **error)
 {
+#if 0
 	GError		     *actual_error = NULL;
+#endif
 	TrackerSearchPrivate *priv;
 	guint		      request_id;
+#if 0
 	gchar		     *value;
+#endif
 
 	request_id = tracker_dbus_get_next_request_id ();
 

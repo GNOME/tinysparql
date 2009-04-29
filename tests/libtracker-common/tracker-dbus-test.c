@@ -65,11 +65,15 @@ test_slist_to_strv (void)
 	slist_to_strv (TRUE);
 }
 
+#if 0
+
 static void
 test_slist_to_strv_nonutf8 (void)
 {
 	slist_to_strv (FALSE);
 }
+
+#endif
 
 static void
 async_queue_to_strv (gboolean utf8)
@@ -114,11 +118,15 @@ test_async_queue_to_strv (void)
 	async_queue_to_strv (TRUE);
 }
 
+#if 0
+
 static void
 test_async_queue_to_strv_nonutf8 (void)
 {
 	async_queue_to_strv (FALSE);
 }
+
+#endif
 
 static void
 test_results_ptr_array_free (void)

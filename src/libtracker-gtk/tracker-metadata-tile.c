@@ -78,6 +78,7 @@ static GObjectClass *parent_class = NULL;
 static void  tracker_metadata_tile_class_init	    (TrackerMetadataTileClass *class);
 static void  tracker_metadata_tile_init		    (TrackerMetadataTile      *tile);
 static gboolean tracker_metadata_tile_expose_event(GtkWidget *widget, GdkEventExpose *event);
+#if 0
 static void tracker_metadata_tile_show (TrackerMetadataTile *tile);
 static void _property_to_label (GtkWidget *label, const char *prop, const char *string);
 static void _date_to_label (GtkWidget *label, const char *prop, const char *string);
@@ -87,10 +88,13 @@ static void _dimensions_to_label (GtkWidget *label, const char *width, const cha
 static void _seconds_to_label (GtkWidget *label, const char *prop, const char *string);
 static void _bitrate_to_label (GtkWidget *label, const char *prop, const char *string);
 static void _int_to_label (GtkWidget *label, const char *prop, const char *string);
+#endif
 
 static inline gboolean is_empty_string (const char *s);
 
 /* structs & enums */
+
+#if 0
 
 static const char *default_keys[] =
 {
@@ -103,6 +107,8 @@ static const char *default_keys[] =
 	NULL
 };
 
+#endif
+
 enum {
 	DEFAULT_NAME,
 	DEFAULT_PATH,
@@ -112,6 +118,8 @@ enum {
 	DEFAULT_MIME,
 	DEFAULT_N_KEYS
 };
+
+#if 0
 
 static const char *doc_keys[] =
 {
@@ -125,6 +133,8 @@ static const char *doc_keys[] =
 	NULL
 };
 
+#endif
+
 enum {
 	DOC_NAME,
 	DOC_SUBJECT,
@@ -136,7 +146,7 @@ enum {
 	DOC_N_KEYS
 };
 
-
+#if 0
 
 static const char *email_keys[] =
 {
@@ -149,6 +159,8 @@ static const char *email_keys[] =
 	NULL
 };
 
+#endif
+
 enum {
 	EMAIL_SENDER,
 	EMAIL_SUBJECT,
@@ -158,6 +170,8 @@ enum {
 	EMAIL_ATTACHMENTS,
 	EMAIL_N_KEYS
 };
+
+#if 0
 
 static const char *webhistory_keys[] =
 {
@@ -169,6 +183,8 @@ static const char *webhistory_keys[] =
 	NULL
 };
 
+#endif
+
 enum {
 	WEBHISTORY_URL,
 	WEBHISTORY_TITLE,
@@ -178,6 +194,7 @@ enum {
 	WEBHISTORY_N_KEYS
 };
 
+#if 0
 
 static const char *app_keys[] =
 {
@@ -188,6 +205,8 @@ static const char *app_keys[] =
 	NULL
 };
 
+#endif
+
 enum {
 	APP_DISPLAYNAME,
 	APP_GENERIC_NAME,
@@ -196,6 +215,7 @@ enum {
 	APP_N_KEYS
 };
 
+#if 0
 
 static const char *audio_keys[] =
 {
@@ -211,6 +231,8 @@ static const char *audio_keys[] =
 	NULL
 };
 
+#endif
+
 enum {
 	AUDIO_TITLE,
 	AUDIO_ARTIST,
@@ -223,6 +245,8 @@ enum {
 	AUDIO_SIZE,
 	AUDIO_N_KEYS
 };
+
+#if 0
 
 static const char *image_keys[] =
 {
@@ -239,6 +263,8 @@ static const char *image_keys[] =
 	NULL
 };
 
+#endif
+
 enum {
 	IMAGE_TITLE,
 	IMAGE_HEIGHT,
@@ -253,6 +279,8 @@ enum {
 	IMAGE_N_KEYS
 };
 
+#if 0
+
 static const char *video_keys[] =
 {
 	"File:Name",
@@ -265,6 +293,8 @@ static const char *video_keys[] =
 	"Video:Duration",
 	NULL
 };
+
+#endif
 
 enum {
 	VIDEO_TITLE,
@@ -284,6 +314,7 @@ is_empty_string (const char *s)
 	return s == NULL || s[0] == '\0';
 }
 
+#if 0
 
 static void
 _show_labels (TrackerMetadataTile *tile, gboolean label_visible)
@@ -403,7 +434,6 @@ _tile_tracker_populate_email (char **array, GError *error, TrackerMetadataTile *
 	gtk_widget_show (priv->info2);
 }
 
-
 static void
 _tile_tracker_populate_applications (char **array, GError *error, TrackerMetadataTile *tile)
 {
@@ -440,10 +470,7 @@ _tile_tracker_populate_applications (char **array, GError *error, TrackerMetadat
 	_show_labels (tile, FALSE);
 	gtk_widget_show (priv->info1);
 	gtk_widget_show (priv->info2);
-
 }
-
-
 
 static void
 _tile_tracker_populate_audio (char **array, GError *error, TrackerMetadataTile *tile)
@@ -520,9 +547,6 @@ _tile_tracker_populate_audio (char **array, GError *error, TrackerMetadataTile *
 	_size_to_label ( priv->info5, array[AUDIO_SIZE] , _("Size : <b>%s</b>"));
 	_property_to_label ( priv->info6, array[AUDIO_CODEC] , _("Codec : <b>%s</b>"));
 
-
-
-
 	/* free properties */
 	g_strfreev (array);
 
@@ -591,9 +615,6 @@ _tile_tracker_populate_image (char **array, GError *error, TrackerMetadataTile *
 	_property_to_label ( priv->info5, array[IMAGE_FOCAL] , _("Focal Length : <b>%s</b>"));
 	_property_to_label ( priv->info6, array[IMAGE_EXPO] , _("Exposure Time : <b>%s</b>"));
 
-
-
-
 	tracker_metadata_tile_show (tile);
 	g_strfreev (array);
 }
@@ -623,11 +644,8 @@ _tile_tracker_populate_video (char **array, GError *error, TrackerMetadataTile *
 	_property_to_label ( priv->info5, array[VIDEO_CODEC] , _("Encoded In : <b>%s</b>"));
 	_property_to_label ( priv->info6, array[VIDEO_FRAMERATE] , _("Framerate : <b>%s</b>"));
 
-
-
 	tracker_metadata_tile_show (tile);
 	g_strfreev (array);
-
 }
 
 /* populates the metadata tile for a document */
@@ -656,11 +674,9 @@ _tile_tracker_populate_documents (char **array, GError *error, TrackerMetadataTi
 	_date_to_label ( priv->info5, array[DOC_CREATED] , _("Created : <b>%s</b>"));
 	_property_to_label ( priv->info6, array[DOC_COMMENTS] , _("Comments : <b>%s</b>"));
 
-
 	tracker_metadata_tile_show (tile);
 	g_strfreev (array);
 }
-
 
 /*populates the metadata tile for a web history url */
 static void
@@ -690,10 +706,7 @@ _tile_tracker_populate_webhistory(char **array, GError *error, TrackerMetadataTi
 	_show_labels (tile, FALSE);
 	gtk_widget_show (priv->info1);
 	gtk_widget_show (priv->info2);
-
 }
-
-
 
 /* UTILILTY FUNCTIONS FOR CONVERSIONS */
 
@@ -913,7 +926,7 @@ _property_to_label (GtkWidget *label, const char *prop, const char *string)
 	}
 }
 
-
+#endif
 
 /**
  * tracker_metadata_tile_set_uri:
@@ -1040,7 +1053,6 @@ tracker_metadata_tile_set_uri (TrackerMetadataTile *tile, const gchar *uri,
 
 	gtk_widget_queue_draw (GTK_WIDGET (tile));
 }
-#endif
 
 static void
 tracker_metadata_tile_show (TrackerMetadataTile *tile)
@@ -1059,6 +1071,8 @@ tracker_metadata_tile_show (TrackerMetadataTile *tile)
 		gtk_widget_hide (priv->image);
 	}
 }
+
+#endif
 
 static gboolean
 tracker_metadata_tile_toggle_view (GtkWidget *button, TrackerMetadataTile *tile)

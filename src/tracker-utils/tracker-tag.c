@@ -81,6 +81,8 @@ static GOptionEntry entries[] = {
 	{ NULL }
 };
 
+#if 0
+
 static void
 get_meta_table_data (gpointer value)
 {
@@ -100,6 +102,8 @@ get_meta_table_data (gpointer value)
 
 	g_print ("\n");
 }
+
+#endif
 
 int
 main (int argc, char **argv)
@@ -405,9 +409,11 @@ main (int argc, char **argv)
 			g_strfreev (results);
 		}
 	}
-#endif
 
 finish:
+
+#endif
+
 	g_strfreev (tags_to_remove);
 	g_strfreev (tags_to_add);
 	g_strfreev (search_resolved);

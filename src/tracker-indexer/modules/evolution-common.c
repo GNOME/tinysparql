@@ -31,6 +31,7 @@
 
 #include <tracker-indexer/tracker-module-metadata-utils.h>
 #include <tracker-indexer/tracker-module-metadata.h>
+#include <tracker-indexer/tracker-module-metadata-private.h>
 
 #include "evolution-common.h"
 

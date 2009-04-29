@@ -36,7 +36,10 @@ G_DEFINE_TYPE (TrackerTagBar, tracker_tag_bar, GTK_TYPE_HBOX);
 
 /* FORWARD DECLARATIONS */
 
+#if 0
 static void _tag_bar_add_tag (TrackerTagBar *bar, GtkWidget *box, const char *tag);
+#endif
+
 static void _tag_launch_search (const gchar *tag);
 
 /* STRUCTS & ENUMS */
@@ -60,6 +63,8 @@ struct _TrackerTagBarPrivate
 	GtkWidget *entry_box;
 	GtkWidget *entry;
 };
+
+#if 0
 
 /* CALLBACKS */
 static void
@@ -133,6 +138,8 @@ _on_tag_button_press_event (GtkWidget			*button,
 	return FALSE;
 }
 
+#endif
+
 static void
 _tag_launch_search (const gchar *tag)
 {
@@ -166,7 +173,9 @@ static void
 remove_tag_activate_cb(GtkMenuItem *menu_item, TrackerTagBar *bar)
 {
 	TrackerTagBarPrivate *priv;
+#if 0
 	GError *error = NULL;
+#endif
 	char *args[1];
 
 	priv = TRACKER_TAG_BAR_GET_PRIVATE (bar);
@@ -206,8 +215,10 @@ _on_apply_add_tag (GtkButton *but, TrackerTagBar *bar)
 {
 	TrackerTagBarPrivate *priv;
 	const gchar *text;
+#if 0
 	gchar **tags;
 	GError *error = NULL;
+#endif
 
 	priv = TRACKER_TAG_BAR_GET_PRIVATE (bar);
 
@@ -293,6 +304,8 @@ _on_add_tag_clicked (GtkButton *but, TrackerTagBar *bar)
 
 /* UTILS */
 
+#if 0
+
 static void
 _tag_bar_add_tag (TrackerTagBar *bar, GtkWidget *box, const char *tag)
 {
@@ -324,7 +337,6 @@ _tag_bar_add_tag (TrackerTagBar *bar, GtkWidget *box, const char *tag)
 
 /* HEADER FUNCTIONS */
 	/* TODO: Port to SPARQL */
-#if 0
 void
 tracker_tag_bar_set_uri (TrackerTagBar *bar, ServiceType type, const gchar *uri)
 {
@@ -341,6 +353,7 @@ tracker_tag_bar_set_uri (TrackerTagBar *bar, ServiceType type, const gchar *uri)
 				    (TrackerArrayReply)_keywords_reply,
 				    bar);
 }
+
 #endif
 
 /* TRACKER TAG BAR NEW */

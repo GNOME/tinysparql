@@ -80,7 +80,7 @@ ttl_model_property_free (OntologyProperty *def)
 }
 
 OntologyDescription *
-ttl_model_description_new ()
+ttl_model_description_new (void)
 {
         OntologyDescription *desc;
 

@@ -361,6 +361,8 @@ display_dialog_file_open_limit (GtkWidget * window,
 	return response;
 }
 
+#if 0
+
 static void
 display_dialog_could_not_open_file (GtkWidget * window,
 				    const gchar * file,
@@ -392,6 +394,8 @@ display_dialog_could_not_open_file (GtkWidget * window,
 	gtk_widget_show (dialog);
 	g_free (primary);
 }
+
+#endif
 
 static void
 display_dialog_could_not_open_folder (GtkWidget * window,
@@ -459,6 +463,8 @@ select_changed_cb (GtkTreeSelection *treeselection,
 #endif
 }
 
+#if 0
+
 static GdkPixbuf *
 get_large_icon (const gchar * local_uri,
 		gboolean is_local_file,
@@ -502,6 +508,7 @@ get_large_icon (const gchar * local_uri,
 	return temp;
 }
 
+#endif
 
 void
 tracker_update_metadata_tile (GSearchWindow *gsearch)

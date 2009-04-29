@@ -43,7 +43,7 @@ typedef struct {
 OntologyClass * ttl_model_class_new (const gchar *classname);
 void            ttl_model_class_free (OntologyClass *klass);
 
-OntologyDescription *ttl_model_description_new ();
+OntologyDescription *ttl_model_description_new (void);
 void                 ttl_model_description_free (OntologyDescription *desc);
 
 OntologyProperty *ttl_model_property_new (gchar *propname);

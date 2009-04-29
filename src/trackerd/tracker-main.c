@@ -655,6 +655,7 @@ get_ttl_backup_filename (void)
 	return private->ttl_backup_file;
 }
 
+#if 0
 static void
 backup_user_metadata (TrackerConfig *config, TrackerLanguage *language)
 {
@@ -682,6 +683,7 @@ backup_user_metadata (TrackerConfig *config, TrackerLanguage *language)
 	/* Shutdown the DB stack */
 	tracker_data_manager_shutdown ();
 }
+#endif
 
 /*
  * TODO: Ugly hack counting signals because the indexer is sending two "Finished" signals

@@ -131,9 +131,15 @@ commit_turtle_parse_info_optimizer (TurtleOptimizerInfo *info)
 }
 
 static void
-consume_triple_optimizer (void                   *user_data, 
-			  const raptor_statement *triple) 
+consume_triple_optimizer (const gchar *subject, 
+			  const gchar *predicate,
+			  const gchar *object,
+			  void        *user_data)
 {
+	g_critical ("This function is not yet ported:'%s', doing nothing here, -mr",
+		    __FUNCTION__);
+
+#if 0
 	TurtleOptimizerInfo *info = user_data;
 	gchar               *subject;
 	gchar               *predicate;
@@ -169,6 +175,7 @@ consume_triple_optimizer (void                   *user_data,
 				      g_strdup (predicate),
 				      g_strdup (triple->object));
 	}
+#endif
 }
 
 static void

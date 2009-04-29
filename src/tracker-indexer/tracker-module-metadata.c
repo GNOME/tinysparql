@@ -86,7 +86,8 @@ tracker_module_metadata_finalize (GObject *object)
 /**
  * tracker_module_metadata_add_take_string:
  * @metadata: A #TrackerModuleMetadata
- * @field_name: Field name for the metadata to insert
+ * @subject: The subject this metadata applies to (for example, a URI).
+ * @predicate: The key to which the value will be assigned.
  * @value: Value for the metadata
  *
  * Adds a new metadata element as a string into @metadata.
@@ -128,7 +129,8 @@ tracker_module_metadata_add_take_string (TrackerModuleMetadata *metadata,
 /**
  * tracker_module_metadata_add_string:
  * @metadata: A #TrackerModuleMetadata
- * @field_name: Field name for the metadata to insert
+ * @subject: The subject this metadata applies to (for example, a URI).
+ * @predicate: The key to which the value will be assigned.
  * @value: Value for the metadata
  *
  * Adds a new metadata element as a string into @metadata.
@@ -152,7 +154,8 @@ tracker_module_metadata_add_string (TrackerModuleMetadata *metadata,
 /**
  * tracker_module_metadata_add_int:
  * @metadata: A #TrackerModuleMetadata
- * @field_name: Field name for the metadata to insert
+ * @subject: The subject this metadata applies to (for example, a URI).
+ * @predicate: The key to which the value will be assigned.
  * @value: Value for the metadata
  *
  * Adds a new metadata element as a integer into @metadata.
@@ -176,7 +179,8 @@ tracker_module_metadata_add_int (TrackerModuleMetadata *metadata,
 /**
  * tracker_module_metadata_add_uint:
  * @metadata: A #TrackerModuleMetadata
- * @field_name: Field name for the metadata to insert
+ * @subject: The subject this metadata applies to (for example, a URI).
+ * @predicate: The key to which the value will be assigned.
  * @value: Value for the metadata
  *
  * Adds a new metadata element as an unsigned integer into @metadata.
@@ -200,7 +204,8 @@ tracker_module_metadata_add_uint (TrackerModuleMetadata *metadata,
 /**
  * tracker_module_metadata_add_double:
  * @metadata: A #TrackerModuleMetadata
- * @field_name: Field name for the metadata to insert
+ * @subject: The subject this metadata applies to (for example, a URI).
+ * @predicate: The key to which the value will be assigned.
  * @value: Value for the metadata
  *
  * Adds a new metadata element as a double into @metadata.
@@ -224,7 +229,8 @@ tracker_module_metadata_add_double (TrackerModuleMetadata *metadata,
 /**
  * tracker_module_metadata_add_float:
  * @metadata: A #TrackerModuleMetadata
- * @field_name: Field name for the metadata to insert
+ * @subject: The subject this metadata applies to (for example, a URI).
+ * @predicate: The key to which the value will be assigned.
  * @value: Value for the metadata
  *
  * Adds a new metadata element as a float into @metadata.
@@ -248,7 +254,8 @@ tracker_module_metadata_add_float (TrackerModuleMetadata *metadata,
 /**
  * tracker_module_metadata_add_date:
  * @metadata: A #TrackerModuleMetadata
- * @field_name: Field name for the metadata to insert
+ * @subject: The subject this metadata applies to (for example, a URI).
+ * @predicate: The key to which the value will be assigned.
  * @value: Value for the metadata
  *
  * Adds a new metadata element as a time_t into @metadata.

@@ -309,7 +309,9 @@ SQLITE_EXTENSION_INIT1
 # define FTSTRACE(A)
 #endif
 
+#if 0
 static int default_column = 0;
+#endif
 
 /* Functions from Tracker */
 #if 0
@@ -633,6 +635,7 @@ static void append(StringBuffer *sb, const char *zFrom){
   nappend(sb, zFrom, strlen(zFrom));
 }
 
+#if 0
 /* Append a list of strings separated by commas. */
 static void appendList(StringBuffer *sb, int nString, char **azString){
   int i;
@@ -641,6 +644,7 @@ static void appendList(StringBuffer *sb, int nString, char **azString){
     append(sb, azString[i]);
   }
 }
+#endif
 
 static int endsInWhiteSpace(StringBuffer *p){
   return stringBufferLength(p)>0 &&
@@ -1083,7 +1087,7 @@ static void plrDestroy(PLReader *pReader){
   SCRAMBLE(pReader);
 }
 
-
+#if 0
 /* because plrDestroy should only be called when plrAtEnd is true, 
 we create a new convenience function to do this in one call */
 static void plrEndAndDestroy (PLReader *pReader){
@@ -1094,6 +1098,7 @@ static void plrEndAndDestroy (PLReader *pReader){
 	
 	plrDestroy (pReader);
 }
+#endif
 
 /*******************************************************************/
 /* PLWriter is used in constructing a document's position list.  As a
@@ -3563,7 +3568,7 @@ static int fulltextDestroy(sqlite3_vtab *pVTab){
 static int fulltextOpen(sqlite3_vtab *pVTab, sqlite3_vtab_cursor **ppCursor){
   fulltext_cursor *c;
 
-  fulltext_vtab *v = (fulltext_vtab *)pVTab;
+  /* fulltext_vtab *v = (fulltext_vtab *)pVTab; */
   c = (fulltext_cursor *) sqlite3_malloc(sizeof(fulltext_cursor));
   if( c ){
     memset(c, 0, sizeof(fulltext_cursor));
@@ -3929,6 +3934,7 @@ static void snippetAllOffsets(fulltext_cursor *p){
   trimSnippetOffsetsForNear(&p->q, &p->snippet);
 }
 
+#if 0
 /*
 ** Convert the information in the aMatch[] array of the snippet
 ** into the string zOffset[0..nOffset-1]. This string is used as
@@ -3959,6 +3965,7 @@ static void snippetOffsetText(Snippet *p){
   p->zOffset = stringBufferData(&sb);
   p->nOffset = stringBufferLength(&sb);
 }
+#endif
 
 /*
 ** zDoc[0..nDoc-1] is phrase of text.  aMatch[0..nMatch-1] are a set
@@ -4886,6 +4893,7 @@ int Catid,
 
 }
 
+#if 0
 /* Add doclists for all terms in [pValues] to pendingTerms table. */
 static int insertTerms(fulltext_vtab *v, sqlite_int64 iDocid,
                        sqlite3_value **pValues){
@@ -4915,6 +4923,7 @@ static int insertTerms(fulltext_vtab *v, sqlite_int64 iDocid,
 
   return SQLITE_OK;
 }
+#endif
 
 /* Add empty doclists for all terms in the given row's content to
 ** pendingTerms.
