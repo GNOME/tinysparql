@@ -54,23 +54,10 @@ public class Explorer {
 		view.set_model (listmodel);
 
 		view.insert_column_with_attributes (-1, "URI", new CellRendererText (), "text", 0, null);
-/*
-		var cell = new CellRendererText ();
-		cell.set ("foreground_set", true, null);
-		view.insert_column_with_attributes (-1, "Balance", cell, "text", 2, "foreground", 3, null);
-
-		TreeIter iter;
-		listmodel.append (out iter);
-		listmodel.set (iter, 0, "My Visacard", 1, "card", 2, "102,10", 3, "red", -1);
-
-		listmodel.append (out iter);
-		listmodel.set (iter, 0, "My Mastercard", 1, "card", 2, "10,20", 3, "red", -1);
-*/
 	}
 
 
 	private void entry_changed (Editable editable) {
-		debug ("changed");
 		string query = "SELECT ?s WHERE { ?s fts:match \"%s*\" }".printf(((Entry)editable).text);
 		debug ("Query: %s", query);
 
@@ -78,7 +65,7 @@ public class Explorer {
 			var result = tracker.SparqlQuery(query);
 			listmodel.clear();
 			foreach ( var s in result) {
-				debug ("%s", s);
+//				debug ("%s", s);
 				TreeIter iter;
 				listmodel.append (out iter);
 				listmodel.set (iter, 0, s, -1);
