@@ -1180,6 +1180,8 @@ update_file_uri_recursively (const gchar *source_uri,
 		 uri);
 
 	if (!tracker_data_update_resource_uri (source_uri, uri)) {
+		gchar *sparql;
+
 		/* Move operation failed, which means the dest path
 		 * corresponded to an indexed file, remove any info
 		 * related to it.
@@ -1187,7 +1189,9 @@ update_file_uri_recursively (const gchar *source_uri,
 
 		g_message ("Destination file '%s' already existed in database, removing", uri);
 
-		tracker_data_delete_resource (uri);
+		sparql = g_strdup_printf ("DELETE { <%s> a rdfs:Resource }", uri);
+		tracker_data_update_sparql (sparql, NULL);
+		g_free (sparql);
 
 		if (!tracker_data_update_resource_uri (source_uri, uri)) {
 			/* It failed again, no point in trying anymore */
@@ -1307,11 +1311,11 @@ item_remove (TrackerIndexer *indexer,
 	     PathInfo	    *info,
 	     const gchar    *uri)
 {
-	gchar *content;
 	gchar *mount_point = NULL;
 	const gchar *service_type;
 	gchar *mime_type;
 	guint service_id;
+	gchar *sparql;
 
 	g_debug ("Removing item: '%s' (no metadata was given by module)", 
 		 uri);
@@ -1349,15 +1353,10 @@ item_remove (TrackerIndexer *indexer,
 			   uri);
 	}
 
-	/* Get content, unindex the words and delete the contents */
-	content = tracker_data_query_property_value (uri, NIE_PLAIN_TEXT_CONTENT);
-	if (content) {
-		tracker_data_delete_statement (uri, NIE_PLAIN_TEXT_CONTENT, content);
-		g_free (content);
-	}
-
 	/* Delete service */
-	tracker_data_delete_resource (uri);
+	sparql = g_strdup_printf ("DELETE { <%s> a rdfs:Resource }", uri);
+	tracker_data_update_sparql (sparql, NULL);
+	g_free (sparql);
 
 	/* TODO
 	if (info->recurse && strcmp (service_type, "Folders") == 0) {
