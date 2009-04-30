@@ -401,7 +401,6 @@ Update: UpdateQuery
   query->next->generate_bnodeid_handler = query->generate_bnodeid_handler;
 
   query->next->context = query->context;
-  query->context = NULL;
 
   rq = query->next;
 }

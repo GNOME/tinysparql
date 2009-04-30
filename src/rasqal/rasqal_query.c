@@ -190,8 +190,11 @@ rasqal_free_query(rasqal_query* query)
   if(--query->usage)
     return;
 
-  if (query->next)
+  if (query->next) {
+    /* avoid double free of context */
+    query->next->context = NULL;
     rasqal_free_query (query->next);
+  }
 
   if(query->factory)
     query->factory->terminate(query);
