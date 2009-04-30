@@ -1034,27 +1034,6 @@ add_directory (TrackerIndexer *indexer,
 }
 
 static void
-item_update_content (TrackerIndexer *indexer,
-		     const gchar    *uri,
-		     guint32	     id,
-		     const gchar    *old_text,
-		     const gchar    *new_text)
-{
-	if (!old_text && !new_text) {
-		return;
-	}
-
-	/* Remove old text and set new one in the db */
-	if (old_text) {
-		tracker_data_delete_statement (uri, NIE_PLAIN_TEXT_CONTENT, old_text);
-	}
-
-	if (new_text) {
-		tracker_data_insert_statement (uri, NIE_PLAIN_TEXT_CONTENT, new_text);
-	}
-}
-
-static void
 generate_item_thumbnail (TrackerIndexer        *indexer,
 			 const gchar           *uri)
 {
@@ -1117,8 +1096,7 @@ static void
 item_add_or_update (TrackerIndexer        *indexer,
 		    PathInfo              *info,
 		    const gchar           *uri,
-		    TrackerModuleMetadata *metadata,
-		    const gchar           *text)
+		    TrackerModuleMetadata *metadata)
 {
 	guint32 id;
 	gchar *mount_point = NULL;
@@ -1154,14 +1132,6 @@ item_add_or_update (TrackerIndexer        *indexer,
 		g_free (sparql);
 
 		schedule_flush (indexer, FALSE);
-
-		/* Take the old text -> the new one, calculate
-		 * difference and add the words.
-		 */
-		old_text = tracker_data_query_property_value (uri, NIE_PLAIN_TEXT_CONTENT);
-
-		item_update_content (indexer, uri, id, old_text, text);
-		g_free (old_text);
 	} else {
 		g_debug ("Adding item '%s'", 
 			 uri);
@@ -1175,11 +1145,6 @@ item_add_or_update (TrackerIndexer        *indexer,
 		schedule_flush (indexer, FALSE);
 
 		item_add_to_datasource (indexer, uri, info->module_file, metadata);
-
-		if (text) {
-			/* Save in the DB */
-			tracker_data_insert_statement (uri, NIE_PLAIN_TEXT_CONTENT, text);
-		}
 	}
 
 	generate_item_thumbnail (indexer, uri);
@@ -1438,10 +1403,13 @@ item_process (TrackerIndexer *indexer,
 			return FALSE;
 		}
 
-		item_add_or_update (indexer, info, uri, metadata, text);
+		if (text) {
+			tracker_module_metadata_add_take_string (metadata, uri, NIE_PLAIN_TEXT_CONTENT, text);
+		}
+
+		item_add_or_update (indexer, info, uri, metadata);
 
 		g_object_unref (metadata);
-		g_free (text);
 	} else {
 		item_remove (indexer, info, uri);
 	}
