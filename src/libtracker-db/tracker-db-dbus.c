@@ -49,7 +49,7 @@ row_add (GPtrArray *row,
 	g_ptr_array_add (row, elem);
 }
 
-static inline void
+static inline gboolean
 row_insert (GPtrArray *row, 
 	    gchar     *value, 
 	    guint      lindex)
@@ -67,12 +67,14 @@ row_insert (GPtrArray *row,
 	 */
 	for (iter = list; iter; iter=iter->next) {
 		if (strcmp (iter->data, value) == 0) {
-			return;
+			return FALSE;
 		}
 	}
 
 	list = g_slist_prepend (list, value);
 	elem->value = list;
+
+	return TRUE;
 }
 
 static inline void
@@ -124,6 +126,7 @@ rows_destroy (GPtrArray *rows)
 
 	for (i = 0; i < rows->len; i++) {
 		OneRow *row;
+
 		row = g_ptr_array_index (rows, i);
 		row_destroy (row->value);
 		g_slice_free (OneRow, row);
@@ -538,7 +541,10 @@ tracker_dbus_query_result_multi_to_ptr_array (TrackerDBResultSet *result_set)
 			if (add) {
 				row_add (row, str);
 			} else {				
-				row_insert (row, str, column-1);
+				if (!row_insert (row, str, column-1)) {
+					/* Failed to insert */
+					g_free (str);
+				}
 			}		       
 
 			g_value_unset (&value);
