@@ -14,6 +14,14 @@ REQUIRED_AUTOMAKE_VERSION=1.9
     exit 1
 }
 
+test -z "$VALAC" && VALAC=valac
+
+if ! $VALAC --version | sed -e 's/^.*\([0-9]\+\.[0-9]\+\)\.[0-9]\+.*$/\1/' | grep -vq '^0\.[0-6]$'
+then
+    echo "**Error**: You must have valac >= 0.7.0 installed to build $PKG_NAME"
+    exit 1
+fi
+
 # Automake requires that ChangeLog exist.
 touch ChangeLog
 
