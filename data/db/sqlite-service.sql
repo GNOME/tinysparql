@@ -1,3 +1,4 @@
+
 /* basic info for a file or service object */
 CREATE TABLE  Services
 (
@@ -18,7 +19,7 @@ CREATE TABLE  Services
 	KeyMetadata5		Text,
 	KeyMetadata6		Integer, /* NOTE: If you change the type of any of these KeyMetadata%d members, */
 	KeyMetadata7		Integer, /*       then you must update the source in: */
-	KeyMetadata8		Integer, /*       tracker_data_query_metadata_field_values(); */
+	KeyMetadata8		Integer, /*       tracker_data_query_metadata_field_values() */
 	KeyMetadata9		Text,
 	KeyMetadata10		Text,
 	KeyMetadata11		Text,
