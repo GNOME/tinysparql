@@ -17,7 +17,8 @@ noinst_PROGRAMS = $(TEST_PROGS)
 #
 
 TEST_PROGS += 								\
-	tracker-index-writer
+	tracker-index-writer						\
+	tracker-db-file-info
 
 INCLUDES = 								\
 	-DG_LOG_DOMAIN=\"Tracker\"					\
@@ -129,3 +130,15 @@ tracker_index_writer_LDADD =						\
 	$(GTHREAD_LIBS)							\
 	$(GLIB2_LIBS)							
 
+tracker_db_file_info_SOURCES =						\
+	tracker-db-file-info-test.c
+
+tracker_db_file_info_LDADD =						\
+	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
+	$(top_builddir)/src/libtracker-db/libtracker-db.la	 	\
+	$(top_builddir)/tests/common/libtracker-testcommon.la 		\
+	$(QDBM_LIBS)							\
+	$(GCOV_LIBS)							\
+	$(GMODULE_LIBS)							\
+	$(GTHREAD_LIBS)							\
+	$(GLIB2_LIBS)							
