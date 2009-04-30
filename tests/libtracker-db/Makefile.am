@@ -19,7 +19,8 @@ noinst_PROGRAMS = $(TEST_PROGS)
 TEST_PROGS += 								\
 	tracker-index-writer						\
 	tracker-db-file-info						\
-	tracker-db-action
+	tracker-db-action						\
+	tracker-db-index-manager
 
 INCLUDES = 								\
 	-DG_LOG_DOMAIN=\"Tracker\"					\
@@ -148,6 +149,19 @@ tracker_db_action_SOURCES =						\
 	tracker-db-action-test.c
 
 tracker_db_action_LDADD = 						\
+	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
+	$(top_builddir)/src/libtracker-db/libtracker-db.la	 	\
+	$(top_builddir)/tests/common/libtracker-testcommon.la 		\
+	$(QDBM_LIBS)							\
+	$(GCOV_LIBS)							\
+	$(GMODULE_LIBS)							\
+	$(GTHREAD_LIBS)							\
+	$(GLIB2_LIBS)							
+
+tracker_db_index_manager_SOURCES =					\
+	tracker-db-index-manager-test.c
+
+tracker_db_index_manager_LDADD = 					\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
 	$(top_builddir)/src/libtracker-db/libtracker-db.la	 	\
 	$(top_builddir)/tests/common/libtracker-testcommon.la 		\

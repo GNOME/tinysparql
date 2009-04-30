@@ -291,6 +291,7 @@ tracker_db_index_manager_remove_all (void)
 TrackerDBIndex *
 tracker_db_index_manager_get_index (TrackerDBIndexType type)
 {
+	g_return_val_if_fail (initialized == TRUE, NULL);
 	return indexes[type].index;
 }
 
