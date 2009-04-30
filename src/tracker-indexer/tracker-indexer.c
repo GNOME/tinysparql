@@ -1098,12 +1098,11 @@ item_add_or_update (TrackerIndexer        *indexer,
 		    const gchar           *uri,
 		    TrackerModuleMetadata *metadata)
 {
-	guint32 id;
 	gchar *mount_point = NULL;
 	gchar *sparql;
 
-	if (tracker_data_query_resource_exists (uri, &id)) {
-		gchar *old_text;
+	if (tracker_data_query_resource_exists (uri, NULL)) {
+		gchar *full_sparql;
 
 		if (tracker_module_file_get_flags (info->module_file) & TRACKER_FILE_CONTENTS_STATIC) {
 			/* According to the module, the metadata can't change for this item */
@@ -1125,11 +1124,15 @@ item_add_or_update (TrackerIndexer        *indexer,
 		 *    properties that already have value.
 		 * 3) Save the remain new metadata.
 		 */
-		tracker_data_delete_resource_description (uri);
 
 		sparql = tracker_module_metadata_get_sparql (metadata);
-		tracker_data_update_sparql (sparql, NULL);
+		full_sparql = g_strdup_printf ("DROP GRAPH <%s> %s",
+			uri, sparql);
 		g_free (sparql);
+
+		tracker_data_update_sparql (full_sparql, NULL);
+		g_free (full_sparql);
+
 
 		schedule_flush (indexer, FALSE);
 	} else {
