@@ -1401,6 +1401,7 @@ AC_CONFIG_FILES([
 	src/tracker-preferences/Makefile
 	src/tracker-preferences/tracker-preferences.desktop.in
 	src/tracker-search-tool/Makefile
+	src/tracker-explorer/Makefile
 	src/tracker-search-tool/tracker-search-tool.desktop.in
 	src/tracker-utils/Makefile
 	src/plugins/Makefile
