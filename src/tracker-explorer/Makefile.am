@@ -20,6 +20,7 @@ tracker_explorer_CFLAGS = \
 	$(GIO_CFLAGS)						\
 	$(DBUS_CFLAGS)						\
 	$(LIBTRACKERGTK_CFLAGS)					\
+	$(LIBGEE_CFLAGS)					\
 	$(NULL)
 
 tracker_explorer_LDADD = \
@@ -28,6 +29,7 @@ tracker_explorer_LDADD = \
 	$(GCOV_LIBS)						\
 	$(DBUS_LIBS)						\
 	$(LIBTRACKERGTK_LIBS)					\
+	$(LIBGEE_LIBS)						\
 	$(NULL)
 
 EXTRA_DIST = \

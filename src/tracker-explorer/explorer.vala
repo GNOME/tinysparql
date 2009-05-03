@@ -16,6 +16,7 @@ public class Explorer {
 	private ListStore uris;
 	private ListStore relationships;
 	private Label current_object;
+	private Gee.HashMap<string,string> namespaces = new Gee.HashMap<string,string>(str_hash, str_equal, str_equal);
 
 	public void show() {
 		try {
@@ -41,6 +42,8 @@ public class Explorer {
 			setup_relationships(relationshipsview);
 
 			current_object = builder.get_object ("current-object") as Label;
+			fetch_prefixes();
+
 			window.show_all();
 		} catch (GLib.Error e) {
 			var msg = new MessageDialog (null, DialogFlags.MODAL,
@@ -74,7 +77,18 @@ public class Explorer {
 		relationshipsview.row_activated += object_selected;
 	}
 
-
+	private void fetch_prefixes () {
+		string query = "SELECT ?s ?prefix WHERE { ?s a tracker:Namespace ; tracker:prefix ?prefix }";
+		try {
+			var result = tracker.SparqlQuery(query);
+			for (int i=0; i<result.length[0]; i++) {
+				string _namespace = result[i,0];
+				_namespace = _namespace.substring(0, _namespace.len() -1);
+				namespaces[_namespace] = result[i,1];
+			}
+		} catch (DBus.Error e) {
+		}
+	}
 
 	private void entry_changed (Editable editable) {
 		string query = "SELECT ?s WHERE { ?s fts:match \"%s*\" }".printf(((Entry)editable).text);
@@ -99,17 +113,25 @@ public class Explorer {
 		current_object.set_text (uri);
 
 		string query = "SELECT ?r ?o  WHERE { <%s> ?r ?o }".printf(uri);
-		//debug ("query = %s", query);
+		TreeIter iter;
 		try {
 			var result = tracker.SparqlQuery(query);
 			relationships.clear();
-			//debug ("%d, %d", result.length[0], result.length[1]);
 
 			for (int i=0; i<result.length[0]; i++) {
-				//debug ("%s, %s", result[i,0], result[i,1]);
-				TreeIter iter;
+				//split at '#' and look up to see if we have
+				//a human-readable prefix
+				string[] parts = result[i,0].split("#");
+				string? prefix = namespaces[parts[0]];
+				string relationship;
+
+				if (prefix != null) {
+					relationship = string.join("#", prefix, parts[1]);
+				} else {
+					relationship = result[i,0];
+				}
 				relationships.append (out iter);
-				relationships.set (iter, 0, result[i,0], -1);
+				relationships.set (iter, 0, relationship, -1);
 				relationships.set (iter, 1, result[i,1], -1);
 			}
 

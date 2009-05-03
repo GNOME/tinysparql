@@ -198,6 +198,12 @@ PKG_CHECK_MODULES(LIBPNG, [libpng >= 1.2])
 AC_SUBST(LIBPNG_CFLAGS)
 AC_SUBST(LIBPNG_LIBS)
 
+# Check for libgee 0.1.3 or higher
+PKG_CHECK_MODULES(LIBGEE, [gee-1.0 >= 0.1.3])
+AC_SUBST(LIBGEE_CFLAGS)
+AC_SUBST(LIBGEE_LIBS)
+
+
 # Check for GConf
 PKG_CHECK_MODULES(GCONF, [gconf-2.0 >= 2.2.0], have_gconf=yes, have_gconf=no)
 AC_SUBST(GCONF_CFLAGS)
