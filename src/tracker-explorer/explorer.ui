@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <interface>
-  <requires lib="gtk+" version="2.16"/>
+  <!-- interface-requires gtk+ 2.12 -->
   <!-- interface-naming-policy project-wide -->
   <object class="GtkWindow" id="explorer">
     <property name="default_width">400</property>
@@ -9,7 +9,6 @@
       <object class="GtkVPaned" id="vpaned1">
         <property name="visible">True</property>
         <property name="can_focus">True</property>
-        <property name="orientation">vertical</property>
         <property name="position">200</property>
         <property name="position_set">True</property>
         <child>
