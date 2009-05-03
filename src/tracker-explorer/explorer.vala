@@ -11,77 +11,142 @@ interface Resources : GLib.Object {
 
 public class Explorer {
 
+	private const string UI_FILE = "explorer.ui";
 	private Resources tracker;
-	private ListStore listmodel;
+	private ListStore uris;
+	private ListStore relationships;
+	private Label current_object;
 
-	public Explorer() {
-		var conn = DBus.Bus.get (DBus.BusType.SESSION);
-		tracker = (Resources) conn.get_object ("org.freedesktop.Tracker",
-						       "/org/freedesktop/Tracker/Resources",
-						       "org.freedesktop.Tracker.Resources");
+	public void show() {
+		try {
+			var conn = DBus.Bus.get (DBus.BusType.SESSION);
+			tracker = (Resources) conn.get_object ("org.freedesktop.Tracker",
+							       "/org/freedesktop/Tracker/Resources",
+							       "org.freedesktop.Tracker.Resources");
+
+
+			var builder = new Builder ();
+			builder.add_from_file (UI_FILE);
+
+			var window = builder.get_object ("explorer") as Window;
+			window.destroy += Gtk.main_quit;
+
+			var entry = builder.get_object ("text-search") as Entry;
+			entry.changed += entry_changed;
+
+			var urisview = builder.get_object ("uris") as TreeView;
+			setup_uris(urisview);
+
+			var relationshipsview = builder.get_object ("relationshipsview") as TreeView;
+			setup_relationships(relationshipsview);
+
+			current_object = builder.get_object ("current-object") as Label;
+			window.show_all();
+		} catch (GLib.Error e) {
+			var msg = new MessageDialog (null, DialogFlags.MODAL,
+					 MessageType.ERROR, ButtonsType.CANCEL,
+					 "Failed to load UI\n%s", e.message);
+			msg.run ();
+			Gtk.main_quit();
+		} catch (DBus.Error e) {
+			var msg = new MessageDialog (null, DialogFlags.MODAL,
+					 MessageType.ERROR, ButtonsType.CANCEL,
+					 "Error connecting to D-Bus session bus\n%s", e.message);
+			msg.run ();
+			Gtk.main_quit();
+		}
 	}
 
-	public void setup() {
-		var window = new Window (WindowType.TOPLEVEL);
-		window.title = "Tracker Explorer";
-		window.set_size_request (300, 400);
-		window.position = WindowPosition.CENTER;
-		window.destroy += Gtk.main_quit;
+	private void setup_uris (TreeView urisview) {
+		uris = new ListStore (1, typeof (string));
+		urisview.set_model (uris);
 
-		var vbox = new VBox(false, 0);
-		window.add(vbox);
-
-		var entry = new Entry();
-		entry.set_text ("Test");
-		entry.changed += entry_changed;
-		vbox.pack_start(entry, false, false, 0);
-
-		var treeview = new TreeView();
-		setup_treeview(treeview);
-
-		var scrolled_window = new ScrolledWindow(null,null);
-		scrolled_window.set_policy (PolicyType.AUTOMATIC, PolicyType.AUTOMATIC);
-		scrolled_window.add_with_viewport(treeview);
-
-		vbox.pack_start(scrolled_window, true, true, 0);
-
-		window.show_all ();
-		window.destroy += Gtk.main_quit;
+		urisview.insert_column_with_attributes (-1, "URI", new CellRendererText (), "text", 0, null);
+		urisview.row_activated += uri_selected;
 	}
 
-	private void setup_treeview (TreeView view) {
-		listmodel = new ListStore (1, typeof (string));
-		view.set_model (listmodel);
+	private void setup_relationships(TreeView relationshipsview) {
+		relationships = new ListStore (2, typeof(string), typeof(string));
+		relationshipsview.set_model(relationships);
 
-		view.insert_column_with_attributes (-1, "URI", new CellRendererText (), "text", 0, null);
+		relationshipsview.insert_column_with_attributes (-1, "Relationship", new CellRendererText (), "text", 0, null);
+		relationshipsview.insert_column_with_attributes (-1, "Object", new CellRendererText (), "text", 1, null);
+		relationshipsview.row_activated += object_selected;
 	}
+
 
 
 	private void entry_changed (Editable editable) {
 		string query = "SELECT ?s WHERE { ?s fts:match \"%s*\" }".printf(((Entry)editable).text);
-		debug ("Query: %s", query);
+		//debug ("Query: %s", query);
 
 		try {
 			var result = tracker.SparqlQuery(query);
-			listmodel.clear();
+			uris.clear();
 			foreach ( var s in result) {
-//				debug ("%s", s);
+//				//debug ("%s", s);
 				TreeIter iter;
-				listmodel.append (out iter);
-				listmodel.set (iter, 0, s, -1);
+				uris.append (out iter);
+				uris.set (iter, 0, s, -1);
 			}
 
 		} catch (DBus.Error e) {
 		}
 	}
 
+	private void update_pane(string uri) {
+		//debug ("updating pane: %s", uri);
+		current_object.set_text (uri);
 
-	static int main (string[] args) {
-		Gtk.init (ref args);
+		string query = "SELECT ?r ?o  WHERE { <%s> ?r ?o }".printf(uri);
+		//debug ("query = %s", query);
+		try {
+			var result = tracker.SparqlQuery(query);
+			relationships.clear();
+			//debug ("%d, %d", result.length[0], result.length[1]);
 
-		Explorer e = new Explorer();
-		e.setup();
-		Gtk.main ();
-		return 0;
+			for (int i=0; i<result.length[0]; i++) {
+				//debug ("%s, %s", result[i,0], result[i,1]);
+				TreeIter iter;
+				relationships.append (out iter);
+				relationships.set (iter, 0, result[i,0], -1);
+				relationships.set (iter, 1, result[i,1], -1);
+			}
+
+		} catch (DBus.Error e) {
+		}
 	}
+
+	private void uri_selected(TreeView view, TreePath path, TreeViewColumn column) {
+		TreeIter iter;
+		var model = view.get_model();
+		model.get_iter(out iter, path);
+		weak string uri;
+		model.get (iter, 0, out uri);
+		//debug ("uri selected: %s", uri);
+		update_pane(uri);
+	}
+
+	private void object_selected(TreeView view, TreePath path, TreeViewColumn column) {
+		TreeIter iter;
+		var model = view.get_model();
+		model.get_iter(out iter, path);
+		weak string uri;
+		model.get (iter, 1, out uri);
+		//debug ("object selected: %s", uri);
+		update_pane(uri);
+	}
+
 }
+
+
+
+static int main (string[] args) {
+	Gtk.init (ref args);
+
+	Explorer s = new Explorer();
+	s.show();
+	Gtk.main ();
+	return 0;
+}
+
