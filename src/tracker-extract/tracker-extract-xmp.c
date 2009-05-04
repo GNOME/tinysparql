@@ -43,43 +43,85 @@ static TrackerExtractData data[] = {
 static gchar *
 find_orig_uri (const gchar *xmp_filename)
 {
-	GFile *file = g_file_new_for_path (xmp_filename);
-	GFile *dir = g_file_get_parent (file);
+	GFile *file;
+	GFile *dir;
 	GFileEnumerator *iter;
 	GFileInfo *orig_info;
-	gchar *compare_part, *found_file = NULL;
-	guint len;
+	const gchar *filename_a;
+        gchar *found_file = NULL;
 
-	orig_info = g_file_query_info (file, G_FILE_ATTRIBUTE_STANDARD_NAME,
-								   G_FILE_QUERY_INFO_NONE, NULL, NULL);
+        file = g_file_new_for_path (xmp_filename);
+        dir = g_file_get_parent (file);
 
-	compare_part = g_utf8_strup (g_file_info_get_name (orig_info), -1);
+	orig_info = g_file_query_info (file, 
+                                       G_FILE_ATTRIBUTE_STANDARD_NAME,
+                                       G_FILE_QUERY_INFO_NONE, 
+                                       NULL, 
+                                       NULL);
 
-	len = g_utf8_strlen (compare_part, -1);
+	filename_a = g_file_info_get_name (orig_info);
 
-	iter =  g_file_enumerate_children (dir, G_FILE_ATTRIBUTE_STANDARD_NAME, 
-									   G_FILE_QUERY_INFO_NONE, NULL, NULL);
+	iter = g_file_enumerate_children (dir, 
+                                          G_FILE_ATTRIBUTE_STANDARD_NAME, 
+                                          G_FILE_QUERY_INFO_NONE, 
+                                          NULL, 
+                                          NULL);
 
 	if (iter) {
 		GFileInfo *info;
 
 		while ((info = g_file_enumerator_next_file (iter, NULL, NULL)) && !found_file) {
-			gchar *compare_with;
-			const gchar *filename;
+			const gchar *filename_b;
+                        const gchar *ext_a, *ext_b;
+                        gchar *casefold_a, *casefold_b;
 
-			filename = g_file_info_get_name (orig_info);
-			compare_with = g_utf8_strup (filename, -1);
+                        /* OK, important: 
+                         * 1. Files can't be the same.
+                         * 2. File names (without extension) must match
+                         * 3. Something else?
+                         */
+			filename_b = g_file_info_get_name (info);
+
+                        ext_a = g_utf8_strrchr (filename_a, -1, '.');
+                        ext_b = g_utf8_strrchr (filename_b, -1, '.');
+
+                        /* Look for extension */
+                        if (!ext_a || !ext_b) {
+                                g_object_unref (info);
+                                continue;
+                        }
+
+                        /* Name part is the same length */
+                        if ((ext_a - filename_a) != (ext_b - filename_b)) {
+                                g_object_unref (info);
+                                continue;
+                        }
+                        
+                        /* Check extensions are not the same (i.e. same len and ext) */
+                        if (g_strcmp0 (ext_a, ext_b) == 0) {
+                                g_object_unref (info);
+                                continue;
+                        }
 
 			/* Don't compare the ".xmp" with ".jpeg" and don't match the same file */
 
-			if (g_strncasecmp (compare_part, compare_with, len - 4) == 0 &&
-				g_strcmp0 (compare_part, compare_with) != 0) {
-				GFile *found = g_file_get_child (dir, filename);
+                        /* Now compare name (without ext) and make
+                         * sure they are the same in a caseless
+                         * compare.
+                         */
+                        casefold_a = g_utf8_casefold (filename_a, (ext_a - filename_a));
+                        casefold_b = g_utf8_casefold (filename_b, (ext_b - filename_b));
+                        
+			if (g_strcmp0 (casefold_a, casefold_b) == 0) {
+				GFile *found;
+                                
+                                found = g_file_get_child (dir, filename_b);
 				found_file = g_file_get_uri (found);
 				g_object_unref (found);
 			}
 
-			g_free (compare_with);
+			g_free (casefold_a);
+			g_free (casefold_b);
 			g_object_unref (info);
 		}
 
@@ -89,7 +131,6 @@ find_orig_uri (const gchar *xmp_filename)
 	g_object_unref (orig_info);
 	g_object_unref (file);
 	g_object_unref (dir);
-	g_free (compare_part);
 
 	return found_file;
 }
