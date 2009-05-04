@@ -40,6 +40,7 @@
 
 #define RDF_PREFIX TRACKER_RDF_PREFIX
 #define RDFS_PREFIX TRACKER_RDFS_PREFIX
+#define TRACKER_PREFIX TRACKER_TRACKER_PREFIX
 
 typedef struct _TrackerDataUpdateBuffer TrackerDataUpdateBuffer;
 typedef struct _TrackerDataUpdateBufferProperty TrackerDataUpdateBufferProperty;
@@ -49,6 +50,7 @@ typedef struct _TrackerDataBlankBuffer TrackerDataBlankBuffer;
 struct _TrackerDataUpdateBuffer {
 	GHashTable *resource_cache;
 	gchar *subject;
+	gchar *new_subject;
 	guint32 id;
 	GHashTable *tables;
 	GPtrArray *types;
@@ -308,6 +310,19 @@ tracker_data_update_buffer_flush (void)
 	int                             i, fts_index;
 
 	iface = tracker_db_manager_get_db_interface ();
+
+	if (update_buffer.new_subject != NULL) {
+		// change uri of resource
+		stmt = tracker_db_interface_create_statement (iface,
+			"UPDATE \"rdfs:Resource\" SET Uri = ? WHERE ID = ?");
+		tracker_db_statement_bind_text (stmt, 0, update_buffer.new_subject);
+		tracker_db_statement_bind_int (stmt, 1, update_buffer.id);
+		tracker_db_statement_execute (stmt, NULL);
+		g_object_unref (stmt);
+
+		g_free (update_buffer.new_subject);
+		update_buffer.new_subject = NULL;
+	}
 
 	g_hash_table_iter_init (&iter, update_buffer.tables);
 	while (g_hash_table_iter_next (&iter, (gpointer*) &table_name, (gpointer*) &table)) {
@@ -974,6 +989,9 @@ tracker_data_insert_statement (const gchar            *subject,
 		} else {
 			g_warning ("Class '%s' not found in the ontology", object);
 		}
+	} else if (strcmp (predicate, TRACKER_PREFIX "uri") == 0) {
+		/* internal property tracker:uri, used to change uri of existing element */
+		update_buffer.new_subject = g_strdup (object);
 	} else {
 		field = tracker_ontology_get_property_by_uri (predicate);
 		if (field != NULL) {
