@@ -361,7 +361,7 @@ fi
 
 if test "x$enable_hal" = "xyes"; then
    if test "x$have_hal" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find HAL >= $HAL_REQUIRED and HAL storage.])
+      AC_MSG_ERROR([Couldn't find hal >= $HAL_REQUIRED and hal-storage.])
    fi
 fi
 
