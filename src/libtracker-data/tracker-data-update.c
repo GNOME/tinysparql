@@ -904,6 +904,8 @@ tracker_data_insert_statement (const gchar            *subject,
 
 		g_hash_table_remove (blank_buffer.table, object);
 
+		tracker_data_commit_transaction ();
+
 		return;
 	}
 
@@ -930,6 +932,8 @@ tracker_data_insert_statement (const gchar            *subject,
 		g_array_append_val (blank_buffer.predicates, value);
 		value = g_strdup (object);
 		g_array_append_val (blank_buffer.objects, value);
+
+		tracker_data_commit_transaction ();
 
 		return;
 	}
