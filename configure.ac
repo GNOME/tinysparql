@@ -256,7 +256,7 @@ IT_PROG_INTLTOOL([0.35.0])
 
 AC_ARG_ENABLE(gcov,
               AS_HELP_STRING([--enable-gcov],
-                             [enable coverage reporting support (default=no)]), ,
+                             [enable coverage reporting support [[default=no]]]), ,
               [enable_gcov=no])
 
 if test "x$enable_gcov" != "xno" ; then
@@ -277,7 +277,7 @@ AC_SUBST(GCOV_LIBS)
 
 AC_ARG_ENABLE(unit_tests,
 	      AS_HELP_STRING([--enable-unit-tests],
-			     [enable unit tests (default=no)]), ,
+			     [enable unit tests [[default=no]]]), ,
 	      [enable_unit_tests=no])
 
 if test "x$enable_unit_tests" != "xno" ; then
@@ -306,7 +306,7 @@ AM_CONDITIONAL(HAVE_UNIT_TESTS, test "x$have_unit_tests" = "xyes")
 
 AC_ARG_ENABLE(external-qdbm, 
 	      AS_HELP_STRING([--enable-external-qdbm],
-			     [enable external QDBM, not our imported version (default=no)]),,
+			     [enable external QDBM, not our imported version [[default=no]]]),,
               [enable_external_qdbm=no])
 
 if test "x$enable_external_qdbm" != "xno"; then
@@ -341,7 +341,7 @@ AM_CONDITIONAL(HAVE_EXTERNAL_QDBM, test "x$have_external_qdbm" = "xyes")
 
 AC_ARG_ENABLE(hal, 
 	      AS_HELP_STRING([--disable-hal],
-			     [disable HAL support for AC power detection]),,
+			     [disable HAL support for AC power detection [[default=yes]]]),,
 	      [enable_hal=yes])
 
 if test "x$enable_hal" != "xno"; then
@@ -373,7 +373,7 @@ AM_CONDITIONAL(HAVE_HAL, test "x$have_hal" = "xyes")
 
 AC_ARG_ENABLE(libxml2, 
 	      AS_HELP_STRING([--disable-libxml2],
-			     [disable HTML/XML extractors]),,
+			     [disable HTML/XML extractors [[default=yes]]]),,
 	      [enable_libxml2=yes])
 
 if test "x$enable_libxml2" != "xno"; then
@@ -405,7 +405,7 @@ AM_CONDITIONAL(HAVE_LIBXML2, test "x$have_libxml2" = "xyes")
 
 AC_ARG_ENABLE(gdkpixbuf, 
 	      AS_HELP_STRING([--enable-gdkpixbuf],
-			     [enable GdkPixbuf support, (MP3 album art)]),,
+			     [enable GdkPixbuf support, (MP3 album art) [[default=auto]]]),,
 	      [enable_gdkpixbuf=auto])
 
 if test "x$enable_gdkpixbuf" != "xno"; then
@@ -438,7 +438,7 @@ AM_CONDITIONAL(HAVE_GDKPIXBUF, test "x$have_gdkpixbuf" = "xyes")
 
 AC_ARG_ENABLE(video-extractor,
 	      AS_HELP_STRING([--enable-video-extractor=ARG],
-	                     [enables one of the (gstreamer, xine, external, auto) video extractor backends]),,
+	                     [enables one of the (gstreamer, xine, external, auto) video extractor backends [[default=auto]]]),,
               [enable_video_extractor=auto])
 
 PKG_CHECK_MODULES(GSTREAMER,
@@ -510,7 +510,7 @@ fi
 
 AC_ARG_ENABLE(gstreamer-helix, 
 	      AS_HELP_STRING([--enable-gstreamer-helix],
-			     [enable GStreamer helix extractor for Real Media (default=no)]),,
+			     [enable GStreamer helix extractor for Real Media [[default=no]]]),,
 	      [enable_gstreamer_helix=no])
 
 if test "x$enable_gstreamer_helix" != "xno"; then
@@ -583,7 +583,7 @@ AC_SUBST(SQLITE3_LIBS)
 
 AC_ARG_ENABLE(unac, 
 	      AS_HELP_STRING([--enable-unac],
-			     [enable UNAC support, required for stripping accents]),,
+			     [enable UNAC support, required for stripping accents [[default=auto]]]),,
 	      [enable_unac=auto])
 
 if test "x$enable_unac" != "xno"; then
@@ -615,21 +615,21 @@ AM_CONDITIONAL(HAVE_UNAC, test "x$have_unac" = "xyes")
 
 AC_ARG_ENABLE([evolution_push_module],
               AS_HELP_STRING([--enable-evolution-push-module],
-                             [enable support for Evolution push mechanism (default=yes)]),,
+                             [enable support for Evolution push mechanism [[default=no]]]),,
               [enable_evolution_push_module=no])
 
 AM_CONDITIONAL(USING_EVOLUTION_PUSH_MODULE, test "x$enable_evolution_push_module" = "xyes")
 
 AC_ARG_ENABLE([kmail_push_module],
               AS_HELP_STRING([--enable-kmail-push-module],
-                             [enable support for KMail push mechanism (default=yes)]),,
+                             [enable support for KMail push mechanism [[default=no]]]),,
               [enable_kmail_push_module=no])
 
 AM_CONDITIONAL(USING_KMAIL_PUSH_MODULE, test "x$enable_kmail_push_module" = "xyes")
 
 AC_ARG_ENABLE([rss_push_module],
               AS_HELP_STRING([--enable-rss-push-module],
-                             [enable support for RSS push mechanism (default=no)]),,
+                             [enable support for RSS push mechanism [[default=no]]]),,
               [enable_rss_push_module=no])
 
 AM_CONDITIONAL(USING_RSS_PUSH_MODULE, test "x$enable_rss_push_module" = "xyes")
@@ -640,7 +640,7 @@ AM_CONDITIONAL(USING_RSS_PUSH_MODULE, test "x$enable_rss_push_module" = "xyes")
 
 AC_ARG_ENABLE([deskbar_applet],
               AS_HELP_STRING([--enable-deskbar-applet], 
-	      		     [enable support for Deskbar applet]),,
+	      		     [enable support for Deskbar applet [[default=auto]]]),,
               [enable_deskbar_applet=auto])
 
 if test "x$enable_deskbar_applet" != "xno" ; then
@@ -664,7 +664,7 @@ AM_CONDITIONAL(HAVE_DESKBAR_APPLET_MODULE, test "x$have_deskbar_applet" = "xmodu
 
 AC_ARG_WITH([deskbar_applet_dir],
             AS_HELP_STRING([--with-deskbar-applet-dir], 
-	    		   [Path to Deskbar handler/module directory]))
+	    		   [Path to Deskbar handler/module directory [[default=pkgconfig]]]))
 
 if test "x$have_deskbar_applet" = "xhandler"; then
    if test -z "x$with_deskbar_applet_dir"; then
@@ -699,7 +699,7 @@ AC_SUBST(DESKBAR_APPLET_DIR)
 
 AC_ARG_ENABLE([libtrackergtk], 
               AS_HELP_STRING([--enable-libtrackergtk], 
-	      		     [enable libtrackergtk]),,
+	      		     [enable libtrackergtk [[default=auto]]]),,
 	      [enable_libtrackergtk=auto])
 
 if test "x$enable_libtrackergtk" != "xno" ; then
@@ -731,7 +731,7 @@ AM_CONDITIONAL(HAVE_LIBTRACKERGTK, test "$have_libtrackergtk" = "yes")
 
 AC_ARG_ENABLE([tracker-applet], 
 	      AS_HELP_STRING([--enable-tracker-applet], 
-	                     [enable tracker-applet]),,
+	                     [enable tracker-applet [[default=auto]]]),,
 	      [enable_tracker_applet=auto])
 
 if test "x$enable_tracker_applet" != "xno" ; then
@@ -764,7 +764,7 @@ AM_CONDITIONAL(HAVE_TRACKER_APPLET, test "$have_tracker_applet" = "yes")
 
 AC_ARG_ENABLE(tracker-search-tool, 
               AS_HELP_STRING([--enable-tracker-search-tool], 
-	      		     [enable tracker-search-tool]),,
+	      		     [enable tracker-search-tool [[default=auto]]]),,
 	      [enable_tracker_search_tool=auto])
 
 if test "x$enable_tracker_search_tool" != "xno"; then
@@ -816,7 +816,7 @@ AM_CONDITIONAL(HAVE_TRACKER_SEARCH_TOOL, test "$have_tracker_search_tool" = "yes
 
 AC_ARG_ENABLE([tracker-preferences],
               AS_HELP_STRING([--enable-tracker-preferences], 
-	                     [enable the tracker preferences dialog]),,
+	                     [enable the tracker preferences dialog [[default=auto]]]),,
               [enable_tracker_preferences=auto])
 
 if test "x$enable_tracker_preferences" != "xno" ; then
@@ -865,7 +865,7 @@ AM_CONDITIONAL(HAVE_TRACKER_PREFERENCES, test "$have_tracker_preferences" = "yes
 
 AC_ARG_ENABLE([unzip_psgz_files],
               AS_HELP_STRING([--disable-unzip-ps-gz-files],
-                             [disable unzipping ps.gz files]),,
+                             [disable unzipping ps.gz files [[default=yes]]]),,
               [enable_unzip_psgz_files=yes])
 
 if test x$enable_unzip_psgz_files != "xno"; then
@@ -878,7 +878,7 @@ fi
 
 AC_ARG_ENABLE(poppler-glib, 
 	      AS_HELP_STRING([--enable-poppler-glib], 
-	      		     [enable extractor for PDF data]),,
+	      		     [enable extractor for PDF data [[default=auto]]]),,
 	      [enable_poppler_glib=auto])
 
 if test "x$enable_poppler_glib" != "xno" ; then
@@ -913,7 +913,7 @@ AM_CONDITIONAL(HAVE_POPPLER_GLIB, test "x$have_poppler_glib" = "xyes")
 
 AC_ARG_ENABLE(libexif, 
               AS_HELP_STRING([--enable-libexif],
-		             [enable extractor for exif data]),,
+		             [enable extractor for exif data [[default=auto]]]),,
 	      [enable_libexif=auto])
 
 if test "x$enable_libexif" != "xno" ; then
@@ -946,7 +946,7 @@ AM_CONDITIONAL(HAVE_EXIF, test "x$have_libexif" = "xyes")
 
 AC_ARG_ENABLE(libiptcdata, 
               AS_HELP_STRING([--enable-libiptcdata],
-		             [enable extractor for iptc data]),,
+		             [enable extractor for iptc data [[default=auto]]]),,
 	      [enable_libiptcdata=auto])
 
 if test "x$enable_libiptcdata" != "xno" ; then
@@ -979,7 +979,7 @@ AM_CONDITIONAL(HAVE_IPTC, test "x$have_libiptcdata" = "xyes")
 
 AC_ARG_ENABLE(libgsf, 
               AS_HELP_STRING([--enable-libgsf], 
-	                     [enable extractor for GSF data]),,
+	                     [enable extractor for GSF data [[default=auto]]]),,
 	      [enable_libgsf=auto])
 
 if test "x$enable_libgsf" != "xno" ; then
@@ -1020,7 +1020,7 @@ LIBS=""
 
 AC_ARG_ENABLE(libjpeg, 
 	      AS_HELP_STRING([--enable-libjpeg], 
-	                     [enable extractor for JPEG data]),,
+	                     [enable extractor for JPEG data [[default=auto]]]),,
 	      [enable_libjpeg=auto])
 
 if test "x$enable_libjpeg" != "xno" ; then
@@ -1067,7 +1067,7 @@ LIBS=""
 
 AC_ARG_ENABLE(libtiff, 
               AS_HELP_STRING([--enable-libtiff], 
-     	                     [enable extractor for TIFF data]),,
+     	                     [enable extractor for TIFF data [[default=auto]]]),,
 	      [enable_libtiff=auto])
 
 if test "x$enable_libtiff" != "xno" ; then
@@ -1106,7 +1106,7 @@ LIBS="$OLD_LIBS"
 
 AC_ARG_ENABLE(libvorbis, 
               AS_HELP_STRING([--enable-libvorbis], 
-     	                     [enable extractor for vorbis data (ogg)]),,
+     	                     [enable extractor for vorbis data (ogg) [[default=no]]]),,
 	      [enable_libvorbis=no])
 
 if test "x$enable_libvorbis" != "xno" ; then
@@ -1173,7 +1173,7 @@ AC_MSG_RESULT([$have_ioprio])
 
 AC_ARG_ENABLE(exempi, 
               AS_HELP_STRING([--enable-exempi], 
-	                     [enable extractor for XMP data]),,
+	                     [enable extractor for XMP data [[default=auto]]]),,
 	      [enable_exempi=auto])
 
 if test "x$enable_exempi" != "xno" ; then
@@ -1206,7 +1206,7 @@ AM_CONDITIONAL(HAVE_EXEMPI, test "x$have_exempi" = "xyes")
 
 AC_ARG_ENABLE(playlist, 
 	      AS_HELP_STRING([--enable-playlist],
-			     [enable playlist support]),,
+			     [enable playlist support [[default=auto]]]),,
 	      [enable_playlist=auto])
 
 if test "x$enable_playlist" != "xno" ; then
@@ -1276,7 +1276,7 @@ AM_CONDITIONAL(HAVE_EVOLUTION_PLUGIN, test "$have_evolution_plugin" = "yes")
 
 AC_ARG_ENABLE([sqlite_fts],
               AS_HELP_STRING([--enable-sqlite-fts], 
-	                     [enable SQLite FTS support (default=no)]),,
+	                     [enable SQLite FTS support [[default=no]]]),,
               [enable_sqlite_fts=no])
 
 if test "x$enable_sqlite_fts" != "xyes" ; then
