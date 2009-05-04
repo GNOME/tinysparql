@@ -1168,7 +1168,8 @@ item_add_or_update (TrackerIndexer        *indexer,
 }
 
 static void
-update_file_uri_recursively (const gchar *source_uri,
+update_file_uri_recursively (GString     *sparql_update,
+			     const gchar *source_uri,
 			     const gchar *uri)
 {
 	gchar *mime_type, *sparql;
@@ -1179,39 +1180,20 @@ update_file_uri_recursively (const gchar *source_uri,
 		 source_uri,
 		 uri);
 
-	if (!tracker_data_update_resource_uri (source_uri, uri)) {
-		gchar *sparql;
-
-		/* Move operation failed, which means the dest path
-		 * corresponded to an indexed file, remove any info
-		 * related to it.
-		 */
-
-		g_message ("Destination file '%s' already existed in database, removing", uri);
-
-		sparql = g_strdup_printf ("DELETE { <%s> a rdfs:Resource }", uri);
-		tracker_data_update_sparql (sparql, NULL);
-		g_free (sparql);
-
-		if (!tracker_data_update_resource_uri (source_uri, uri)) {
-			/* It failed again, no point in trying anymore */
-
-			return;
-		}
-	}
+	g_string_append_printf (sparql_update, " <%s> tracker:uri <%s> .", source_uri, uri);
 
 	/* Get mime type in order to move thumbnail from thumbnailerd */
-	mime_type = tracker_data_query_property_value (uri, NIE_MIME_TYPE);
+	mime_type = tracker_data_query_property_value (source_uri, NIE_MIME_TYPE);
 
 	if (mime_type) {
 		tracker_thumbnailer_move (source_uri, mime_type, uri);
 		g_free (mime_type);
 	} else {
 		g_message ("Could not get mime type to remove thumbnail for:'%s'",
-			   uri);
+			   source_uri);
 	}
 
-	sparql = g_strdup_printf ("SELECT ?child WHERE { ?child nfo:belongsToContainer <%s> }", uri);
+	sparql = g_strdup_printf ("SELECT ?child WHERE { ?child nfo:belongsToContainer <%s> }", source_uri);
 	result_set = tracker_data_query_sparql (sparql, &error);
 	g_free (sparql);
 	if (result_set) {
@@ -1227,7 +1209,7 @@ update_file_uri_recursively (const gchar *source_uri,
 			}
 			child_uri = g_strdup_printf ("%s%s", uri, child_source_uri + strlen (source_uri));
 
-			update_file_uri_recursively (child_source_uri, child_uri);
+			update_file_uri_recursively (sparql_update, child_source_uri, child_uri);
 
 			g_free (child_source_uri);
 			g_free (child_uri);
@@ -1241,9 +1223,10 @@ item_move (TrackerIndexer  *indexer,
 	   PathInfo	   *info,
 	   const gchar	   *source_uri)
 {
-	guint32 service_id;
-	gchar *uri, *old_filename;
+	guint32    service_id;
+	gchar     *uri, *escaped_filename;
 	GFileInfo *file_info;
+	GString   *sparql;
 #ifdef HAVE_HAL
 	gchar *mount_point = NULL;
 #endif
@@ -1264,7 +1247,28 @@ item_move (TrackerIndexer  *indexer,
 		return res;
 	}
 
-	update_file_uri_recursively (source_uri, uri);
+	sparql = g_string_new ("");
+
+	g_string_append_printf (sparql,
+		"DELETE { <%s> nfo:fileName ?o } WHERE { <%s> nfo:fileName ?o }",
+		source_uri, source_uri);
+
+	g_string_append (sparql, " INSERT {");
+
+	file_info = g_file_query_info (info->file,
+					G_FILE_ATTRIBUTE_STANDARD_DISPLAY_NAME,
+					G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
+					NULL, NULL);
+
+	escaped_filename = g_strescape (g_file_info_get_display_name (file_info), NULL);
+
+	g_string_append_printf (sparql, " <%s> nfo:fileName \"%s\" .", source_uri, escaped_filename);
+
+	update_file_uri_recursively (sparql, source_uri, uri);
+
+	g_string_append (sparql, " }");
+
+	tracker_data_update_sparql (sparql->str, NULL);
 
 #ifdef HAVE_HAL
 	if (tracker_hal_uri_is_on_removable_device (indexer->private->hal,
@@ -1290,17 +1294,9 @@ item_move (TrackerIndexer  *indexer,
 	}
 #endif
 
-	file_info = g_file_query_info (info->file,
-					G_FILE_ATTRIBUTE_STANDARD_DISPLAY_NAME,
-					G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
-					NULL, NULL);
-
-	old_filename = tracker_data_query_property_value (uri, NFO_FILE_NAME);
-	tracker_data_delete_statement (uri, NFO_FILE_NAME, old_filename);
-	tracker_data_insert_statement (uri, NFO_FILE_NAME, g_file_info_get_display_name (file_info));
-
 	g_free (uri);
 	g_object_unref (file_info);
+	g_string_free (sparql, TRUE);
 
 	return TRUE;
 }
