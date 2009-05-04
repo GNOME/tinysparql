@@ -1414,92 +1414,6 @@ item_process (TrackerIndexer *indexer,
 	return TRUE;
 }
 
-/*
- * TODO: Check how are we using this functions. 
- *       I think 99% of the time "values" has only 1 element.
- */
-static gboolean
-handle_metadata_add (TrackerIndexer *indexer,
-		     const gchar    *uri,
-		     const gchar    *property,
-		     GStrv	     values,
-		     GError	   **error)
-{
-	TrackerProperty   *field;
-	guint           service_id, i, j;
-	gchar         **old_contents;
-	gint            len;
-
-	g_return_val_if_fail (error == NULL || *error == NULL, FALSE);
-
-	check_started (indexer);
-
-	field = tracker_ontology_get_property_by_uri (property);
-	if (!field) {
-		g_set_error (error,
-			     g_quark_from_string (TRACKER_INDEXER_ERROR),
-			     TRACKER_INDEXER_ERROR_CODE,
-			     "Unknown field type: '%s'",
-			     property);
-		return FALSE;
-	}
-
-	len = g_strv_length (values);
-
-	if (!tracker_property_get_multiple_values (field) && len > 1) {
-		g_set_error (error,
-			     g_quark_from_string (TRACKER_INDEXER_ERROR),
-			     TRACKER_INDEXER_ERROR_CODE,
-			     "Field type: '%s' doesnt support multiple values (trying to set %d)",
-			     property,
-			     len);
-		return FALSE;
-	}
-
-	tracker_data_query_resource_exists (uri, &service_id);
-
-	if (service_id < 1) {
-		g_set_error (error,
-			     g_quark_from_string (TRACKER_INDEXER_ERROR),
-			     TRACKER_INDEXER_ERROR_CODE,
-			     "File '%s' doesnt exist in the DB", uri);
-		return FALSE;
-	}
-
-	old_contents = tracker_data_query_property_values (uri, tracker_property_get_uri (field));
-	if (!tracker_property_get_multiple_values (field) && old_contents) {
-		/* Remove old value from DB and index */
-		len = g_strv_length (old_contents);
-
-		if (old_contents && len > 1) {
-			g_critical ("Seems to be multiple values in field:'%s' that doesn allow that",
-				    tracker_property_get_name (field));
-		} else if (old_contents && len == 1) {
-			tracker_data_delete_statement (uri, tracker_property_get_uri (field), old_contents[0]);
-		}
-	}
-
-	for (i = 0, j = 0; values[i] != NULL; i++) {
-		g_debug ("Setting metadata: id '%d' field '%s' value '%s'",
-			 service_id,
-			 tracker_property_get_name (field),
-			 values[i]);
-
-		if (tracker_property_get_multiple_values (field) 
-		    && (tracker_string_in_string_list (values[i], old_contents) > -1) ) {
-			continue;
-		}
-
-		tracker_data_insert_statement (uri, tracker_property_get_uri (field), values[i]);
-	}
-
-	if (old_contents) {
-		g_strfreev (old_contents);
-	}
-
-	return TRUE;
-}
-
 static gboolean
 should_change_index_for_file (TrackerIndexer *indexer,
 			      PathInfo       *info,
@@ -2479,20 +2393,7 @@ restore_backup_cb (const gchar *subject,
 		   const gchar *object,
 		   gpointer     user_data)
 {
-	const gchar *values[2] = { object, NULL };
-	TrackerIndexer *indexer = user_data;
-	GError *error = NULL;
-
-	handle_metadata_add (indexer,
-			     subject,
-			     predicate,
-			     (GStrv) values,
-			     &error);
-
-	if (error) {
-		g_warning ("Restoring backup: %s", error->message);
-		g_error_free (error);
-	}
+	tracker_data_insert_statement (subject, predicate, object);
 
 	g_main_context_iteration (NULL, FALSE);
 }
