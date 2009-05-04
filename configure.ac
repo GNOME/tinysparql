@@ -566,16 +566,29 @@ if test "$have_inotify" = "yes" ; then
 fi
 
 ####################################################################
-#  SQLite check
+#  SQLite checks
 ####################################################################
 
 SQLITE_REQUIRED=3.5
 
 PKG_CHECK_MODULES(SQLITE3, [sqlite3 >= $SQLITE_REQUIRED])
-AC_CHECK_LIB([sqlite3], [sqlite3_enable_load_extension], [:],
-  [AC_MSG_ERROR([SQLite must be configured with --enable-load-extenstion.])])
+
 AC_SUBST(SQLITE3_CFLAGS)
 AC_SUBST(SQLITE3_LIBS)
+
+AC_ARG_ENABLE([sqlite_fts],
+              AS_HELP_STRING([--enable-sqlite-fts], 
+	                     [enable SQLite FTS support [[default=no]]]),,
+              [enable_sqlite_fts=no])
+
+if test "x$enable_sqlite_fts" != "xyes" ; then
+   enable_sqlite_fts="no  (disabled)"
+else
+   AC_CHECK_LIB([sqlite3], [sqlite3_enable_load_extension], [:],
+     [AC_MSG_ERROR([SQLite must be configured with --enable-load-extension.])])
+fi
+
+AM_CONDITIONAL(ENABLE_SQLITE_FTS, test "$enable_sqlite_fts" = "yes")
 
 ##################################################################
 # Enable UNAC support?
@@ -1269,21 +1282,6 @@ if test "x$enable_evolution_plugin" = "xyes"; then
 fi
 
 AM_CONDITIONAL(HAVE_EVOLUTION_PLUGIN, test "$have_evolution_plugin" = "yes")
-
-##################################################################
-# Enable SQLite FTS support?
-##################################################################
-
-AC_ARG_ENABLE([sqlite_fts],
-              AS_HELP_STRING([--enable-sqlite-fts], 
-	                     [enable SQLite FTS support [[default=no]]]),,
-              [enable_sqlite_fts=no])
-
-if test "x$enable_sqlite_fts" != "xyes" ; then
-   enable_sqlite_fts="no  (disabled)"
-fi
-
-AM_CONDITIONAL(ENABLE_SQLITE_FTS, test "$enable_sqlite_fts" = "yes")
 
 ####################################################################
 # Checks for gtk-doc and docbook-tools
