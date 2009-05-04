@@ -1073,8 +1073,8 @@ item_add_to_datasource (TrackerIndexer *indexer,
 						        removable_device_udi);
 
 		if (!tracker_data_query_resource_exists (removable_device_urn, NULL)) {
-			tracker_data_insert_statement (removable_device_urn, 
-						       RDF_TYPE, TRACKER_DATASOURCE);
+			tracker_module_metadata_add_string (metadata, removable_device_urn,
+							    RDF_TYPE, TRACKER_DATASOURCE);
 		}
 
 		tracker_module_metadata_add_string (metadata, uri, NIE_DATASOURCE_P,
@@ -1083,8 +1083,8 @@ item_add_to_datasource (TrackerIndexer *indexer,
 		g_free (removable_device_urn);
 	} else {
 		if (!tracker_data_query_resource_exists (TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN, NULL)) {
-			tracker_data_insert_statement (TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN, 
-						       RDF_TYPE, TRACKER_DATASOURCE);
+			tracker_module_metadata_add_string (metadata, TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN, 
+							    RDF_TYPE, TRACKER_DATASOURCE);
 		}
 
 		tracker_module_metadata_add_string (metadata, uri, NIE_DATASOURCE_P,
@@ -1133,7 +1133,6 @@ item_add_or_update (TrackerIndexer        *indexer,
 		tracker_data_update_sparql (full_sparql, NULL);
 		g_free (full_sparql);
 
-
 		schedule_flush (indexer, FALSE);
 	} else {
 		g_debug ("Adding item '%s'", 
@@ -1141,13 +1140,13 @@ item_add_or_update (TrackerIndexer        *indexer,
 
 		/* Service wasn't previously indexed */
 
+		item_add_to_datasource (indexer, uri, info->module_file, metadata);
+
 		sparql = tracker_module_metadata_get_sparql (metadata);
 		tracker_data_update_sparql (sparql, NULL);
 		g_free (sparql);
 
 		schedule_flush (indexer, FALSE);
-
-		item_add_to_datasource (indexer, uri, info->module_file, metadata);
 	}
 
 	generate_item_thumbnail (indexer, uri);
