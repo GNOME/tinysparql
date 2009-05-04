@@ -2044,7 +2044,7 @@ tray_icon_set_tooltip (TrayIcon    *icon,
 	tooltip = g_strdup_vprintf (format, args);
 	va_end (args);
 
-	gtk_status_icon_set_tooltip (priv->icon, tooltip);
+	gtk_status_icon_set_tooltip_text (priv->icon, tooltip);
 
 	g_free (tooltip);
 }

@@ -2226,7 +2226,7 @@ main (gint argc,
 	gtk_window_set_default_icon_name ("tracker");
 
 	gtk_window_set_wmclass (GTK_WINDOW (gsearch->window), "tracker-search-tool", "tracker-search-tool");
-	gtk_window_set_policy (GTK_WINDOW (gsearch->window), TRUE, TRUE, TRUE);
+	gtk_window_set_resizable (GTK_WINDOW (gsearch->window), TRUE);
 
 	g_signal_connect (G_OBJECT (gsearch->window), "delete_event",
 				    G_CALLBACK (quit_cb),
