@@ -261,8 +261,8 @@ tracker_application_file_get_metadata (TrackerModuleFile *file)
 					 * preemptively creating them if we visit a app .desktop
 					 * file that mentions one that we don't yet know about */
 
-					tracker_data_insert_statement (cat_uri, RDF_TYPE, NFO_PREFIX "SoftwareCategory");
-					tracker_data_insert_statement (cat_uri, NIE_PREFIX "title", cats[i]);
+					tracker_module_metadata_add_string (metadata, cat_uri, RDF_TYPE, NFO_PREFIX "SoftwareCategory");
+					tracker_module_metadata_add_string (metadata, cat_uri, NIE_PREFIX "title", cats[i]);
 				}
 
 				tracker_module_metadata_add_string (metadata, uri, NFO_PREFIX "belongsToContainer", cat_uri);
