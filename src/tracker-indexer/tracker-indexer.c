@@ -168,7 +168,9 @@ struct PathInfo {
 struct MetadataForeachData {
 	TrackerLanguage *language;
 	TrackerConfig *config;
+	guint32 service_id;
 	TrackerService *service;
+	TrackerDBIndex *index;
 	gboolean add;
 	guint32 id;
 };
@@ -1127,12 +1129,10 @@ index_metadata_item (TrackerField	 *field,
 		     const gchar	 *value,
 		     MetadataForeachData *data)
 {
-	TrackerDBIndex *lindex;
+	gchar *word, *end;
 	gchar *parsed_value;
-	gchar **arr;
-	gint service_id;
-	gint i;
 	gint score;
+	gboolean reached_end = FALSE;
 
 	parsed_value = tracker_parser_text_to_string (value,
 						      data->language,
@@ -1152,25 +1152,52 @@ index_metadata_item (TrackerField	 *field,
 		score = -1 * tracker_field_get_weight (field);
 	}
 
-	arr = g_strsplit (parsed_value, " ", -1);
-	service_id = tracker_service_get_id (data->service);
-	lindex = tracker_db_index_manager_get_index_by_service_id (service_id);
+	word = parsed_value;
 
-	for (i = 0; arr[i]; i++) {
-		tracker_db_index_add_word (lindex,
-					   arr[i],
+	while (word && *word) {
+		/* Skip whitespaces */
+		while (*word == ' ') {
+			word++;
+		}
+
+		if (!*word) {
+			/* Reached end of the string */
+			break;
+		}
+
+		/* Find end of word */
+		end = word;
+
+		while (*end != ' ' && *end != '\0') {
+			end++;
+		}
+
+		if (!*end) {
+			/* Reached end of the string */
+			reached_end = TRUE;
+		}
+
+		*end = '\0';
+
+		tracker_db_index_add_word (data->index,
+					   word,
 					   data->id,
-					   tracker_service_get_id (data->service),
+					   data->service_id,
 					   score);
+
+		if (!reached_end) {
+			word = end + 1;
+		} else {
+			word = NULL;
+		}
 	}
 
 	if (data->add) {
 		tracker_data_update_set_metadata (data->service, data->id, field, (gchar *) value, parsed_value);
 	} else {
-		tracker_data_update_delete_metadata (data->service, data->id, field, (gchar *)value);
+		tracker_data_update_delete_metadata (data->service, data->id, field, (gchar *) value);
 	}
 
-	g_strfreev (arr);
 	g_free (parsed_value);
 }
 
@@ -1215,10 +1242,15 @@ index_metadata (TrackerIndexer	      *indexer,
 		TrackerModuleMetadata *metadata)
 {
 	MetadataForeachData data;
+	gint service_id;
+
+	service_id = tracker_service_get_id (service);
 
 	data.language = indexer->private->language;
 	data.config = indexer->private->config;
+	data.service_id = service_id;
 	data.service = service;
+	data.index = tracker_db_index_manager_get_index_by_service_id (service_id);
 	data.id = id;
 	data.add = TRUE;
 
