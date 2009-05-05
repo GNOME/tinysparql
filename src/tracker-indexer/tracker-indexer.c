@@ -139,6 +139,8 @@ struct TrackerIndexerPrivate {
 
 	TrackerHal *hal;
 
+	TrackerClient *client;
+
 	GTimer *timer;
 
 	GVolumeMonitor *volume_monitor;
@@ -569,6 +571,10 @@ tracker_indexer_finalize (GObject *object)
 	g_object_unref (priv->hal);
 #endif /* HAVE_HAL */
 
+	if (priv->client) {
+		tracker_disconnect (priv->client);
+	}
+
 	g_object_unref (priv->language);
 	g_object_unref (priv->config);
 
@@ -901,6 +907,8 @@ tracker_indexer_init (TrackerIndexer *indexer)
 	priv->modules_queue = g_queue_new ();
 	priv->config = tracker_config_new ();
 
+	priv->client = tracker_connect (TRUE);
+
 #ifdef HAVE_HAL
 	priv->hal = tracker_hal_new ();
 
@@ -1056,7 +1064,7 @@ item_add_or_update (TrackerIndexer        *indexer,
 			uri, sparql);
 		g_free (sparql);
 
-		tracker_data_update_sparql (full_sparql, NULL);
+		tracker_resources_sparql_update (indexer->private->client, full_sparql, NULL);
 		g_free (full_sparql);
 
 		schedule_flush (indexer, FALSE);
@@ -1069,7 +1077,7 @@ item_add_or_update (TrackerIndexer        *indexer,
 		item_add_to_datasource (indexer, uri, info->module_file, metadata);
 
 		sparql = tracker_module_metadata_get_sparql (metadata);
-		tracker_data_update_sparql (sparql, NULL);
+		tracker_resources_sparql_update (indexer->private->client, sparql, NULL);
 		g_free (sparql);
 
 		schedule_flush (indexer, FALSE);
@@ -1193,7 +1201,7 @@ item_move (TrackerIndexer  *indexer,
 
 	g_string_append (sparql, " }");
 
-	tracker_data_update_sparql (sparql->str, NULL);
+	tracker_resources_sparql_update (indexer->private->client, sparql->str, NULL);
 
 #ifdef HAVE_HAL
 	if (tracker_hal_uri_is_on_removable_device (indexer->private->hal,
@@ -1276,7 +1284,7 @@ item_remove (TrackerIndexer *indexer,
 
 	/* Delete service */
 	sparql = g_strdup_printf ("DELETE { <%s> a rdfs:Resource }", uri);
-	tracker_data_update_sparql (sparql, NULL);
+	tracker_resources_sparql_update (indexer->private->client, sparql, NULL);
 	g_free (sparql);
 
 	/* TODO

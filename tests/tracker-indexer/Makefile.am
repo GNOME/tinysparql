@@ -43,6 +43,7 @@ tracker_metadata_utils_LDADD =	                                        	\
 	$(top_builddir)/src/libtracker-data/libtracker-data.la 			\
 	$(top_builddir)/src/libtracker-db/libtracker-db.la 			\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la 		\
+	$(top_builddir)/src/libtracker/libtrackerclient-@TRACKER_API_VERSION@.la \
 	$(top_builddir)/tests/common/libtracker-testcommon.la           	\
 	$(DBUS_LIBS)								\
 	$(PANGO_LIBS)								\
