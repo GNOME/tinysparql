@@ -1205,11 +1205,19 @@ tracker_db_manager_init (TrackerDBManagerFlags	flags,
 
 	initialized = TRUE;
 
-	resources_iface = tracker_db_manager_get_db_interfaces (4,
-							    TRACKER_DB_METADATA,
-							    TRACKER_DB_FULLTEXT,
-							    TRACKER_DB_CONTENTS,
-							    TRACKER_DB_COMMON);
+	if (flags & TRACKER_DB_MANAGER_READONLY) {
+		resources_iface = tracker_db_manager_get_db_interfaces_ro (4,
+								    TRACKER_DB_METADATA,
+								    TRACKER_DB_FULLTEXT,
+								    TRACKER_DB_CONTENTS,
+								    TRACKER_DB_COMMON);
+	} else {
+		resources_iface = tracker_db_manager_get_db_interfaces (4,
+								    TRACKER_DB_METADATA,
+								    TRACKER_DB_FULLTEXT,
+								    TRACKER_DB_CONTENTS,
+								    TRACKER_DB_COMMON);
+	}
 }
 
 void

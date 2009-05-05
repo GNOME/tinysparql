@@ -363,6 +363,9 @@ main (gint argc, gchar *argv[])
 		flags |= TRACKER_DB_MANAGER_LOW_MEMORY_MODE;
 	}
 
+	/* Only tracker-store writes to database */
+	flags |= TRACKER_DB_MANAGER_READONLY;
+
 	if (!tracker_data_manager_init (config, language, flags, NULL, &is_first_time_index)) {
 		return EXIT_FAILURE;
 	}
