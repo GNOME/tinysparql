@@ -1643,6 +1643,10 @@ item_add_or_update (TrackerIndexer        *indexer,
 		return;
 	}
 
+	if (G_UNLIKELY (!indexer->private->in_transaction)) {
+		start_transaction (indexer);
+	}
+
 	exists = tracker_data_query_service_exists (service, dirname, basename, &id, NULL, &enabled);
 
 	if (exists && !enabled) {
@@ -2129,6 +2133,10 @@ item_mark_for_removal (TrackerIndexer *indexer,
 	g_debug ("Removing item: '%s/%s' (no metadata was given by module)", 
 		 dirname, 
 		 basename);
+
+	if (G_UNLIKELY (!indexer->private->in_transaction)) {
+		start_transaction (indexer);
+	}
 
 	/* The file is not anymore in the filesystem. Obtain
 	 * the service type from the DB.
