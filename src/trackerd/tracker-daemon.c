@@ -428,7 +428,6 @@ stats_cache_timeout (gpointer user_data)
 {
 	g_message ("Statistics cache has expired, updating...");
 
-	tracker_dbus_indexer_check_is_paused ();
 	tracker_daemon_signal_statistics ();
 
 	return TRUE;
