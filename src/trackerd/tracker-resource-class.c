@@ -130,6 +130,63 @@ tracker_resource_class_init (TrackerResourceClass *object)
 }
 
 static void
+emit_strings (TrackerResourceClass *object, gint signal_, GPtrArray *array)
+{
+	GStrv strings_to_emit;
+	guint i;
+
+	if (array->len > 0) {
+		strings_to_emit = (GStrv) g_malloc0  (sizeof (gchar *) * (array->len + 1));
+
+		for (i = 0; i < array->len; i++) {
+			strings_to_emit[i] = array->pdata [i];
+		}
+
+		g_signal_emit (object, signal_, 0, strings_to_emit);
+
+		/* Normal free, not a GStrv free, we free the strings later */
+		g_free (strings_to_emit);
+	}
+}
+
+static void
+free_array (GPtrArray *array)
+{
+	guint i;
+	for (i = 0; i < array->len; i++) {
+		g_free (array->pdata [i]);
+	}
+	g_ptr_array_free (array, TRUE);
+}
+
+static void
+tracker_resource_class_emit_events (TrackerResourceClass  *object)
+{
+	TrackerResourceClassPrivate *priv;
+
+	priv = TRACKER_RESOURCE_CLASS_GET_PRIVATE (object);
+
+	if (priv->adds) {
+		emit_strings (object, signals[SUBJECTS_ADDED], priv->adds);
+		free_array (priv->adds);
+		priv->adds = NULL;
+	}
+
+	if (priv->ups) {
+		emit_strings (object, signals[SUBJECTS_CHANGED], priv->ups);
+		free_array (priv->ups);
+		priv->ups = NULL;
+	}
+
+	if (priv->dels) {
+		emit_strings (object, signals[SUBJECTS_REMOVED], priv->dels);
+		free_array (priv->dels);
+		priv->dels = NULL;
+	}
+}
+
+
+static void
 tracker_resource_class_finalize (GObject *object)
 {
 	TrackerResourceClassPrivate *priv;
@@ -170,7 +227,7 @@ tracker_resource_class_get_rdf_class (TrackerResourceClass  *object)
 	return priv->rdf_class;
 }
 
-void 
+static void 
 tracker_resource_class_add_event (TrackerResourceClass  *object,
 				  const gchar           *uri,
 				  TrackerDBusEventsType type)
@@ -199,63 +256,6 @@ tracker_resource_class_add_event (TrackerResourceClass  *object,
 		break;
 	}
 }
-
-static void
-emit_strings (TrackerResourceClass *object, gint signal_, GPtrArray *array)
-{
-	GStrv strings_to_emit;
-	guint i;
-
-	if (array->len > 0) {
-		strings_to_emit = (GStrv) g_malloc0  (sizeof (gchar *) * (array->len + 1));
-
-		for (i = 0; i < array->len; i++) {
-			strings_to_emit[i] = array->pdata [i];
-		}
-
-		g_signal_emit (object, signal_, 0, strings_to_emit);
-
-		/* Normal free, not a GStrv free, we free the strings later */
-		g_free (strings_to_emit);
-	}
-}
-
-static void
-free_array (GPtrArray *array)
-{
-	guint i;
-	for (i = 0; i < array->len; i++) {
-		g_free (array->pdata [i]);
-	}
-	g_ptr_array_free (array, TRUE);
-}
-
-void
-tracker_resource_class_emit_events (TrackerResourceClass  *object)
-{
-	TrackerResourceClassPrivate *priv;
-
-	priv = TRACKER_RESOURCE_CLASS_GET_PRIVATE (object);
-
-	if (priv->adds) {
-		emit_strings (object, signals[SUBJECTS_ADDED], priv->adds);
-		free_array (priv->adds);
-		priv->adds = NULL;
-	}
-
-	if (priv->ups) {
-		emit_strings (object, signals[SUBJECTS_CHANGED], priv->ups);
-		free_array (priv->ups);
-		priv->ups = NULL;
-	}
-
-	if (priv->dels) {
-		emit_strings (object, signals[SUBJECTS_REMOVED], priv->dels);
-		free_array (priv->dels);
-		priv->dels = NULL;
-	}
-}
-
 
 static void
 on_statements_committed (gpointer user_data)

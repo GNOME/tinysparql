@@ -52,7 +52,6 @@
 #include <libtracker-data/tracker-turtle.h>
 
 #include "tracker-dbus.h"
-#include "tracker-events.h"
 #include "tracker-indexer.h"
 #include "tracker-indexer-glue.h"
 #include "tracker-push.h"
@@ -415,7 +414,6 @@ main (gint argc, gchar *argv[])
                 tracker_indexer_process_modules (indexer, modules);
         }
 
-	tracker_events_init (tracker_indexer_get_notifiable_classes);
 	tracker_push_init (config, indexer);
 
 	tracker_turtle_init ();
@@ -440,7 +438,6 @@ main (gint argc, gchar *argv[])
 	g_object_unref (language);
 
 	tracker_push_shutdown ();
-	tracker_events_shutdown ();
 
 	tracker_thumbnailer_shutdown ();
 	tracker_dbus_shutdown ();

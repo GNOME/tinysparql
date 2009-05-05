@@ -84,7 +84,6 @@
 #include "tracker-marshal.h"
 #include "tracker-module-metadata-private.h"
 #include "tracker-removable-device.h"
-#include "tracker-events.h"
 
 #define TRACKER_INDEXER_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_INDEXER, TrackerIndexerPrivate))
 
@@ -201,7 +200,6 @@ enum {
 	PAUSED,
 	CONTINUED,
 	INDEXING_ERROR,
-	EVENT_HAPPENED,
 	LAST_SIGNAL
 };
 
@@ -226,48 +224,6 @@ static gboolean item_process           (TrackerIndexer      *indexer,
 static guint signals[LAST_SIGNAL] = { 0, };
 
 G_DEFINE_TYPE (TrackerIndexer, tracker_indexer, G_TYPE_OBJECT)
-
-
-static void
-on_statements_committed (gpointer user_data)
-{
-	GPtrArray *events;
-	TrackerIndexer *indexer = user_data;
-
-	events = tracker_events_get_pending ();
-	if (events) {
-		tracker_indexer_make_event_happen (indexer, events);
-	}
-	tracker_events_reset ();
-}
-
-static void
-on_statement_inserted (const gchar *subject, 
-		       const gchar *predicate, 
-		       const gchar *object, 
-		       GPtrArray   *rdf_types,
-		       gpointer user_data)
-{
-	if (g_strcmp0 (predicate, RDF_PREFIX "type") == 0) {
-		tracker_events_insert (subject, object, rdf_types, TRACKER_DBUS_EVENTS_TYPE_ADD);
-	} else {
-		tracker_events_insert (subject, object, rdf_types, TRACKER_DBUS_EVENTS_TYPE_UPDATE);
-	}
-}
-
-static void
-on_statement_deleted (const gchar *subject, 
-		      const gchar *predicate, 
-		      const gchar *object, 
-		      GPtrArray   *rdf_types,
-		      gpointer user_data)
-{
-	if (g_strcmp0 (predicate, RDF_PREFIX "type") == 0) {
-		tracker_events_insert (subject, object, rdf_types, TRACKER_DBUS_EVENTS_TYPE_DELETE);
-	} else {
-		tracker_events_insert (subject, object, rdf_types, TRACKER_DBUS_EVENTS_TYPE_UPDATE);
-	}
-}
 
 
 static PathInfo *
@@ -765,17 +721,6 @@ tracker_indexer_class_init (TrackerIndexerClass *class)
 			      G_TYPE_NONE,
 			      2, G_TYPE_STRING, G_TYPE_BOOLEAN);
 
-	signals[EVENT_HAPPENED] =
-		g_signal_new ("event-happened",
-			      G_OBJECT_CLASS_TYPE (object_class),
-			      G_SIGNAL_RUN_LAST,
-			      G_STRUCT_OFFSET (TrackerIndexerClass, event_happened),
-			      NULL, NULL,
-			      g_cclosure_marshal_VOID__BOXED,
-			      G_TYPE_NONE,
-			      1,
-			      TRACKER_TYPE_EVENT_ARRAY);
-
 	g_object_class_install_property (object_class,
 					 PROP_RUNNING,
 					 g_param_spec_boolean ("running",
@@ -785,13 +730,6 @@ tracker_indexer_class_init (TrackerIndexerClass *class)
 							       G_PARAM_READABLE));
 
 	g_type_class_add_private (object_class, sizeof (TrackerIndexerPrivate));
-}
-
-void
-tracker_indexer_make_event_happen   (TrackerIndexer         *indexer,
-				     GPtrArray              *events)
-{
-	g_signal_emit (indexer, signals[EVENT_HAPPENED], 0, events);
 }
 
 static void
@@ -953,10 +891,6 @@ tracker_indexer_init (TrackerIndexer *indexer)
 	TrackerIndexerPrivate *priv;
 
 	priv = indexer->private = TRACKER_INDEXER_GET_PRIVATE (indexer);
-
-	tracker_data_set_insert_statement_callback (on_statement_inserted, indexer);
-	tracker_data_set_delete_statement_callback (on_statement_deleted, indexer);
-	tracker_data_set_commit_statement_callback (on_statements_committed, indexer);
 
 	/* NOTE: We set this to stopped because it is likely the
 	 * daemon sends a request for something other than to check
@@ -1745,24 +1679,6 @@ process_func (gpointer data)
 	}
 
 	return TRUE;
-}
-
-GStrv
-tracker_indexer_get_notifiable_classes (void)
-{
-	TrackerDBResultSet *result_set;
-	GStrv               classes_to_signal = NULL;
-
-	result_set = tracker_data_query_sparql ("SELECT ?class WHERE { ?class tracker:notify true }", NULL);
-
-	if (result_set) {
-		guint count = 0;
-
-		classes_to_signal = tracker_dbus_query_result_to_strv (result_set, 0, &count);
-		g_object_unref (result_set);
-	}
-
-	return classes_to_signal;
 }
 
 TrackerIndexer *

@@ -14,6 +14,7 @@ INCLUDES = 									\
 	-DTRACKER_COMPILATION							\
 	-I$(top_srcdir)/src							\
 	-I$(top_srcdir)/tests/common						\
+	-I$(top_builddir)/src/trackerd						\
 	-I$(top_builddir)/src/tracker-indexer					\
 	$(WARN_CFLAGS)								\
 	$(GLIB2_CFLAGS)								\
@@ -26,7 +27,7 @@ INCLUDES = 									\
 
 tracker_metadata_utils_SOURCES = 						\
 	$(top_srcdir)/src/tracker-indexer/tracker-dbus.c			\
-	$(top_srcdir)/src/tracker-indexer/tracker-events.c			\
+	$(top_srcdir)/src/trackerd/tracker-events.c			\
 	$(top_srcdir)/src/tracker-indexer/tracker-indexer.c			\
 	$(top_srcdir)/src/tracker-indexer/tracker-indexer-module.c		\
 	$(top_srcdir)/src/tracker-indexer/tracker-marshal-main.c		\
@@ -54,7 +55,7 @@ tracker_metadata_utils_LDADD =	                                        	\
 
 tracker_events_SOURCES = 							\
 	tracker-events-test.c							\
-	$(top_srcdir)/src/tracker-indexer/tracker-events.c
+	$(top_srcdir)/src/trackerd/tracker-events.c
 
 tracker_events_LDADD = 								\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la 		\
