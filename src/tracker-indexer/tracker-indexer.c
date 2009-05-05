@@ -275,11 +275,7 @@ path_info_free (PathInfo *info)
 static void
 start_transaction (TrackerIndexer *indexer)
 {
-	g_debug ("Transaction start");
-
 	indexer->private->in_transaction = TRUE;
-
-	tracker_data_begin_transaction ();
 }
 
 static void
@@ -289,11 +285,7 @@ stop_transaction (TrackerIndexer *indexer)
 		return;
 	}
 
-	tracker_data_commit_transaction ();
-
 	indexer->private->in_transaction = FALSE;
-
-	g_debug ("Transaction commit");
 }
 
 static void
