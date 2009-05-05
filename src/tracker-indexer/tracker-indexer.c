@@ -1168,6 +1168,10 @@ item_add_or_update (TrackerIndexer        *indexer,
 	guint32 id;
 	gchar *mount_point = NULL;
 
+	if (G_UNLIKELY (!indexer->private->in_transaction)) {
+		start_transaction (indexer);
+	}
+
 	if (tracker_data_query_resource_exists (uri, &id)) {
 		gchar *old_text;
 
@@ -1384,6 +1388,10 @@ item_remove (TrackerIndexer *indexer,
 
 	g_debug ("Removing item: '%s' (no metadata was given by module)", 
 		 uri);
+
+	if (G_UNLIKELY (!indexer->private->in_transaction)) {
+		start_transaction (indexer);
+	}
 
 	service_type = tracker_module_config_get_index_service (info->module->name);
 
