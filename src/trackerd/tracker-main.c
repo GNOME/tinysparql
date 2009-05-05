@@ -52,7 +52,6 @@
 #include <libtracker-common/tracker-nfs-lock.h>
 #include <libtracker-common/tracker-ontology.h>
 #include <libtracker-common/tracker-thumbnailer.h>
-#include <libtracker-common/tracker-events.h>
 
 #include <libtracker-db/tracker-db-manager.h>
 #include <libtracker-db/tracker-db-dbus.h>
@@ -66,6 +65,7 @@
 
 #include "tracker-crawler.h"
 #include "tracker-dbus.h"
+#include "tracker-events.h"
 #include "tracker-indexer-client.h"
 #include "tracker-main.h"
 #include "tracker-monitor.h"
