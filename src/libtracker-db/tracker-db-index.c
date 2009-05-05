@@ -1238,7 +1238,8 @@ tracker_db_index_add_word (TrackerDBIndex *indez,
 	TrackerDBIndexItem     elem;
 	TrackerDBIndexItem    *current;
 	GArray		      *array;
-	guint		       i, new_score;
+	guint                  left, right, center;
+	guint		       new_score;
 
 	g_return_if_fail (TRACKER_IS_DB_INDEX (indez));
 	g_return_if_fail (word != NULL);
@@ -1267,11 +1268,20 @@ tracker_db_index_add_word (TrackerDBIndex *indez,
 		return;
 	}
 
-	/* It is not the first time we find the word */
-	for (i = 0; i < array->len; i++) {
-		current = &g_array_index (array, TrackerDBIndexItem, i);
+	/* It is not the first time we find the word, perform binary search */
+	left = 0;
+	right = array->len;
+	center = (right - left) / 2;
 
-		if (current->id == service_id) {
+	do {
+		center += left;
+		current = &g_array_index (array, TrackerDBIndexItem, center);
+
+		if (service_id > current->id) {
+			left = center + 1;
+		} else if (service_id < current->id) {
+			right = center - 1;
+		} else if (service_id == current->id) {
 			guint32 serv_type;
 
 			/* The word was already found in the same
@@ -1284,7 +1294,9 @@ tracker_db_index_add_word (TrackerDBIndex *indez,
 
 			return;
 		}
-	}
+
+		center = (right - left) / 2;
+	} while (left <= right);
 
 	/* First time in the file */
 	g_array_append_val (array, elem);
