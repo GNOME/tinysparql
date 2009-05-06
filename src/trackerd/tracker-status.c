@@ -95,7 +95,9 @@ private_free (gpointer data)
 
 	private = data;
 
-	disk_space_check_stop ();
+	if (private->disk_space_check_id) {
+		g_source_remove (private->disk_space_check_id);
+	}
 
 	g_signal_handlers_disconnect_by_func (private->config,
 					      low_disk_space_limit_cb,
