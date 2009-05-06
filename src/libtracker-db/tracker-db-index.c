@@ -1270,7 +1270,7 @@ tracker_db_index_add_word (TrackerDBIndex *indez,
 
 	/* It is not the first time we find the word, perform binary search */
 	left = 0;
-	right = array->len;
+	right = array->len - 1;
 	center = (right - left) / 2;
 
 	do {
