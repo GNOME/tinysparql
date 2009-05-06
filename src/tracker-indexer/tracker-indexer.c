@@ -2006,6 +2006,7 @@ static gchar *
 state_to_string (TrackerIndexerState state)
 {
 	GString *s;
+	gchar   *str, *p;
 
 	s = g_string_new ("");
 	
@@ -2019,9 +2020,19 @@ state_to_string (TrackerIndexerState state)
 		s = g_string_append (s, "STOPPED | ");
 	}
 
-	s->str[s->len - 3] = '\0';
+	str = g_string_free (s, FALSE);
 
-	return g_string_free (s, FALSE);
+	/* Remove last separator */
+	p = g_utf8_strrchr (str, -1, '|');
+	if (p) {
+		/* Go back one to the space before '|' */
+		p--;
+		
+		/* NULL terminate here */
+		*p = '\0';
+	}
+
+	return str;
 }
 
 static void
