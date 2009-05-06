@@ -983,7 +983,7 @@ public class Tracker.SparqlQuery : Object {
 					pattern_variables.append (binding.variable);
 					pattern_var_map.insert (binding.variable, binding_list);
 
-					pattern_sql.append_printf ("\"%s\".\"%s\" AS %s, ",
+					pattern_sql.append_printf ("\"%s\".\"%s\" AS \"%s\", ",
 						binding.table.sql_query_tablename,
 						binding.sql_db_column_name,
 						binding.variable);
