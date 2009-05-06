@@ -141,6 +141,17 @@ void             tracker_metadata_get_unique_values_with_concat_count_and_sum (T
 									       gint                    max_hits,
 									       DBusGMethodInvocation  *context,
 									       GError                **error);
+void             tracker_metadata_get_unique_values_with_aggregates           (TrackerMetadata        *object,
+									       const gchar            *service_type,
+									       gchar                 **fields,
+									       const gchar            *query_condition,
+									       gchar                 **aggregates,
+									       gchar                 **aggregate_fields,
+									       gboolean                order_desc,
+									       gint                    offset,
+									       gint                    max_hits,
+									       DBusGMethodInvocation  *context,
+									       GError                **error);
 
 G_END_DECLS
 

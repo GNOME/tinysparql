@@ -38,9 +38,9 @@
 static gchar	    **fields;
 static gchar	     *service;
 static gchar	     *path;
-static gchar         *concat;
-static gchar	     *count;
-static gchar         *sum;
+static gchar        **concat;
+static gchar	    **count;
+static gchar        **sum;
 static gboolean       descending;
 
 static GOptionEntry   entries[] = {
@@ -52,15 +52,15 @@ static GOptionEntry   entries[] = {
 	  N_("Search from a specific service"),
 	  NULL
 	},
-	{ "concat", 'n', 0, G_OPTION_ARG_STRING, &concat,
+	{ "concat", 'n', 0, G_OPTION_ARG_STRING_ARRAY, &concat,
 	  N_("Concatenate different values of this field"),
 	  "e.g. File:Mime"
 	},
-	{ "count", 'c', 0, G_OPTION_ARG_STRING, &count,
+	{ "count", 'c', 0, G_OPTION_ARG_STRING_ARRAY, &count,
 	  N_("Count instances of unique fields of this type"),
 	  "e.g. File:Mime"
 	},
-	{ "sum", 'u', 0, G_OPTION_ARG_STRING, &sum,
+	{ "sum", 'u', 0, G_OPTION_ARG_STRING_ARRAY, &sum,
 	  N_("Sum the values of this field"),
 	  "e.g. File:Mime"
 	},
@@ -104,6 +104,10 @@ main (int argc, char **argv)
 	gchar		*buffer = NULL;
 	gsize		 size;
 	GPtrArray	*array;
+	gchar          **aggregates = NULL;
+	gchar          **aggregate_fields = NULL;
+	guint            aggregate_count;
+	guint            aggregate;
 
 	setlocale (LC_ALL, "");
 
@@ -196,19 +200,71 @@ main (int argc, char **argv)
 			return EXIT_FAILURE;
 		}
 	}
+	
+	aggregate_count =
+		(concat ? g_strv_length(concat) : 0) + 
+		(sum    ? g_strv_length(sum)    : 0) +
+		(count  ? g_strv_length(count)  : 0);	
+	aggregate = 0;
 
-	array = tracker_metadata_get_unique_values_with_concat_count_and_sum (client,
-									      type,
-									      fields,
-									      buffer,
-									      concat,
-									      count,
-									      sum,
-									      descending,
-									      0,
-									      512,
-									      &error);
+	aggregates = g_new0 (gchar*, aggregate_count + 1);
+	aggregate_fields = g_new0 (gchar*, aggregate_count + 1);
+
+	g_debug ("Count of aggregates: %d", aggregate_count);
+
+	if (concat) {
+		guint i;
+		for (i=0;i<g_strv_length (concat);i++) {
+			g_debug ("Concat added for %s", concat[i]);
+			
+			aggregates[aggregate] = g_strdup ("CONCAT");
+			aggregate_fields[aggregate] = g_strdup (concat[i]);
+
+			aggregate++;
+		}
+	}
+
+	if (sum) {
+		guint i;
+		for (i=0;i<g_strv_length (sum);i++) {
+			g_debug ("Sum added for %s", sum[i]);
+
+			aggregates[aggregate] = g_strdup ("SUM");
+			aggregate_fields[aggregate] = g_strdup (sum[i]);
+
+			aggregate++;
+		}
+	}
+
+	if (count) {
+		guint i;
+		for (i=0;i<g_strv_length (count);i++) {
+			g_debug ("Count added for %s", count[i]);
+
+			aggregates[aggregate] = g_strdup ("COUNT");
+			aggregate_fields[aggregate] = g_strdup (count[i]);
+
+			aggregate++;
+		}
+	}
+
+	aggregates[aggregate_count] = NULL;
+	aggregate_fields[aggregate_count] = NULL;
+
+	array = tracker_metadata_get_unique_values_with_aggregates (client,
+								    type,
+								    fields,
+								    buffer,
+								    aggregates,
+								    aggregate_fields,
+								    descending,
+								    0,
+								    512,
+								    &error);
 	g_free (buffer);
+
+	g_strfreev (aggregates);
+	g_strfreev (aggregate_fields);
 
 	if (error) {
 		g_printerr ("%s, %s\n",
@@ -239,6 +295,8 @@ main (int argc, char **argv)
 	}
 
 	tracker_disconnect (client);
+
+	g_option_context_free (context);
 
 	return EXIT_SUCCESS;
 }

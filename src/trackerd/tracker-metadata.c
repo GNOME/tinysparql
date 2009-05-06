@@ -869,3 +869,63 @@ tracker_metadata_get_count (TrackerMetadata	   *object,
 	tracker_dbus_request_success (request_id);
 }
 
+void
+tracker_metadata_get_unique_values_with_aggregates (TrackerMetadata	      *object,
+						    const gchar	      *service_type,
+						    gchar		     **fields,
+						    const gchar	      *query_condition,
+						    gchar                 **aggregates,
+						    gchar                 **aggregate_fields,
+						    gboolean		       order_desc,
+						    gint		       offset,
+						    gint		       max_hits,
+						    DBusGMethodInvocation  *context,
+						    GError		     **error)
+{
+	TrackerDBResultSet *result_set = NULL;
+	guint		    request_id;
+	GPtrArray	   *values = NULL;
+	GError		   *actual_error = NULL;
+
+	request_id = tracker_dbus_get_next_request_id ();
+
+	tracker_dbus_async_return_if_fail (service_type != NULL, context);
+	tracker_dbus_async_return_if_fail (fields != NULL, context);
+	tracker_dbus_async_return_if_fail (query_condition != NULL, context);
+
+	tracker_dbus_request_new (request_id,
+				  "DBus request to get unique values with aggregates, "
+				  "service type:'%s', query '%s', ",
+				  service_type,
+				  query_condition);
+
+	result_set = 
+		tracker_data_search_get_unique_values_with_aggregates (service_type,
+								       fields,
+								       query_condition,
+								       aggregates,
+								       aggregate_fields,
+								       order_desc,
+								       offset,
+								       max_hits,
+								       &actual_error);
+	
+	if (actual_error) {
+		tracker_dbus_request_failed (request_id, &actual_error, NULL);
+		dbus_g_method_return_error (context, actual_error);
+		g_error_free (actual_error);
+		return;
+	}
+
+	values = tracker_dbus_query_result_to_ptr_array (result_set);
+
+	dbus_g_method_return (context, values);
+
+	tracker_dbus_results_ptr_array_free (&values);
+
+	if (result_set) {
+		g_object_unref (result_set);
+	}
+
+	tracker_dbus_request_success (request_id);
+}

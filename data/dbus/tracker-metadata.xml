@@ -144,5 +144,18 @@
       <arg type="aas" name="result" direction="out" />
     </method>
 
+    <method name="GetUniqueValuesWithAggregates">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
+      <arg type="s" name="service" direction="in" />
+      <arg type="as" name="meta_types" direction="in" />
+      <arg type="s" name="query" direction="in" />
+      <arg type="as" name="aggregates" direction="in" />
+      <arg type="as" name="aggregate_fields" direction="in" />
+      <arg type="b" name="descending" direction="in" />
+      <arg type="i" name="offset" direction="in" />
+      <arg type="i" name="max_hits" direction="in" />
+      <arg type="aas" name="result" direction="out" />
+    </method>
+
   </interface>
 </node>

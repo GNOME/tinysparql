@@ -618,6 +618,19 @@ tracker_metadata_get_unique_values_with_concat_count_and_sum (TrackerClient *cli
 }
 
 GPtrArray *
+tracker_metadata_get_unique_values_with_aggregates (TrackerClient *client, ServiceType service, char **meta_types, char *query, char **aggregates, char **aggregate_fields, gboolean descending, int offset, int max_hits, GError **error)
+{
+	GPtrArray *table;
+	const char *service_str = tracker_service_types[service];
+
+	if (!org_freedesktop_Tracker_Metadata_get_unique_values_with_aggregates (client->proxy_metadata, service_str, (const char **)meta_types, query, (const char **)aggregates, (const char **)aggregate_fields, descending, offset, max_hits, &table, &*error)) {
+		return NULL;
+	}
+
+	return table;
+}
+
+GPtrArray *
 tracker_keywords_get_list (TrackerClient *client, ServiceType service, GError **error)
 {
 	GPtrArray *table;
@@ -1297,6 +1310,21 @@ tracker_metadata_get_unique_values_with_concat_count_and_sum_async (TrackerClien
 	callback_struct->data = user_data;
 
 	client->last_pending_call = org_freedesktop_Tracker_Metadata_get_unique_values_with_concat_count_and_sum_async (client->proxy_metadata, service_str, (const char **) meta_types, query, concat, count, sum, descending, offset, max_hits, tracker_GPtrArray_reply, callback_struct);
+
+}
+
+void
+tracker_metadata_get_unique_values_with_aggregates_async (TrackerClient *client, ServiceType service, char **meta_types, const char *query, char **aggregates, char **aggregate_fields, gboolean descending, int offset, int max_hits, TrackerGPtrArrayReply callback, gpointer user_data)
+{
+
+	GPtrArrayCallBackStruct *callback_struct;
+	const char *service_str = tracker_service_types[service];
+
+	callback_struct = g_new (GPtrArrayCallBackStruct, 1);
+	callback_struct->callback = callback;
+	callback_struct->data = user_data;
+
+	client->last_pending_call = org_freedesktop_Tracker_Metadata_get_unique_values_with_aggregates_async (client->proxy_metadata, service_str, (const char **) meta_types, query, (const char **) aggregates, (const char **) aggregate_fields, descending, offset, max_hits, tracker_GPtrArray_reply, callback_struct);
 
 }
 

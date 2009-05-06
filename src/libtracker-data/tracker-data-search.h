@@ -121,6 +121,16 @@ TrackerDBResultSet *tracker_data_search_get_unique_values_with_concat_count_and_
 											 gint		    max_hits,
 											 GError		  **error);
 
+TrackerDBResultSet *tracker_data_search_get_unique_values_with_aggregates	(const gchar	   *service_type,
+										 gchar		  **fields,
+										 const gchar	   *query_condition,
+										 gchar	          **aggregates,
+										 gchar            **aggregate_fields,
+										 gboolean	    order_desc,
+										 gint		    offset,
+										 gint		    max_hits,
+										 GError		  **error);
+
 TrackerDBResultSet *tracker_data_search_metadata_in_path			(const gchar	   *path,
 										 gchar		  **fields,
 										 GError		  **error);
