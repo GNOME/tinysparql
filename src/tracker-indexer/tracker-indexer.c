@@ -1266,10 +1266,15 @@ unindex_metadata (TrackerIndexer      *indexer,
 		  TrackerDataMetadata *metadata)
 {
 	MetadataForeachData data;
+	gint service_id;
+
+	service_id = tracker_service_get_id (service);
 
 	data.language = indexer->private->language;
 	data.config = indexer->private->config;
+	data.service_id = service_id;
 	data.service = service;
+	data.index = tracker_db_index_manager_get_index_by_service_id (service_id);
 	data.id = id;
 	data.add = FALSE;
 
