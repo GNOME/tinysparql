@@ -1886,7 +1886,6 @@ msgstr ""
 msgid "- start the tracker daemon"
 msgstr "iniciar el demonio de tracker"
 
-#~| msgid "Indexing Speed:"
 #~ msgid "Index corrupted"
 #~ msgstr "El índice está corrupto"
 
