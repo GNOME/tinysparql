@@ -39,6 +39,8 @@
 #define MAX_EXTRACT_TIME 5
 #define TRACKER_EXTRACT_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_EXTRACT, TrackerExtractPrivate))
 
+extern gboolean debug_mode;
+
 typedef struct {
 	GArray *specific_extractors;
 	GArray *generic_extractors;
@@ -464,7 +466,9 @@ tracker_extract_get_metadata (TrackerExtract	     *object,
 				    "  Resetting shutdown timeout");
 	
 	tracker_main_quit_timeout_reset ();
-	alarm (MAX_EXTRACT_TIME);
+	if (!debug_mode) {
+		alarm (MAX_EXTRACT_TIME);
+	}
 
 	statements = get_file_metadata (object, request_id, uri, mime);
 
@@ -487,6 +491,8 @@ tracker_extract_get_metadata (TrackerExtract	     *object,
 		g_error_free (actual_error);
 	}
 
-	/* Unset alarm so the extractor doesn't die when it's idle */
-	alarm (0);
+	if (!debug_mode) {
+		/* Unset alarm so the extractor doesn't die when it's idle */
+		alarm (0);
+	}
 }

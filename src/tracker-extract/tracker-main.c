@@ -71,6 +71,7 @@ static guint       quit_timeout_id = 0;
 static TrackerHal *hal;
 
 static gboolean    version;
+gboolean           debug_mode = FALSE;
 static gint        verbosity = -1;
 static gchar      *filename;
 static gchar      *mime_type;
@@ -93,6 +94,12 @@ static GOptionEntry  entries[] = {
 	  G_OPTION_ARG_STRING, &mime_type,
 	  N_("MIME type for file (if not provided, this will be guessed)"),
 	  N_("MIME") },
+	/* Debug run is used to avoid that the mainloop exits, so that
+	 * as a developer you can be relax when running the tool in gdb */
+	{ "debug-mode", 'd', 0,
+	  G_OPTION_ARG_NONE, &debug_mode,
+	  N_("Debug mode (default = off)"),
+	  NULL },
 
 	{ NULL }
 };
@@ -101,7 +108,12 @@ static gboolean
 quit_timeout_cb (gpointer user_data)
 {
 	quit_timeout_id = 0;
-	g_main_loop_quit (main_loop);
+	
+	if (!debug_mode) {
+		g_main_loop_quit (main_loop);
+	} else {
+		g_debug ("Would have quit the mainloop");
+	}
 
 	return FALSE;
 }
@@ -298,7 +310,7 @@ main (int argc, char *argv[])
 		return EXIT_SUCCESS;
 	}
 
-	g_print ("Initializing tracker-extract...\n");
+	g_print ("Initializing tracker-extract...%s\n", debug_mode ? "Running in debug mode" : "");
 
 	initialize_signal_handler ();
 
