@@ -182,10 +182,9 @@ consume_triple_storer (void                   *user_data,
 
 	/* TODO: cope with multi-value values like User:Keywords */
 
-	subject = (gchar *) raptor_uri_as_string ((raptor_uri *) triple->subject);
+	subject = raptor_uri_as_string ((raptor_uri *) triple->subject);
 
-	if (!info->last_subject || g_strcmp0 (subject, info->last_subject) != 0) {
-
+	if (g_strcmp0 (subject, info->last_subject) != 0) {
 		/* Commit previous subject */
 		commit_turtle_parse_info_storer (info, TRUE, REPLACE, NULL);
 
@@ -195,9 +194,9 @@ consume_triple_storer (void                   *user_data,
 	}
 
 	if (triple->object_type == RAPTOR_IDENTIFIER_TYPE_LITERAL) {
-		gchar *predicate;
+		const gchar *predicate;
 
-		predicate = g_strdup ((const gchar *) raptor_uri_as_string ((raptor_uri *) triple->predicate));
+		predicate = raptor_uri_as_string ((raptor_uri *) triple->predicate);
 
 		if (g_strcmp0 (predicate, "rdf:type") == 0) {
 			g_free (info->rdf_type);
@@ -207,7 +206,6 @@ consume_triple_storer (void                   *user_data,
 							    predicate,
 							    triple->object);
 		}
-
 	} else if (triple->object_type == RAPTOR_IDENTIFIER_TYPE_RESOURCE) {
 		GFile *file;
 		gchar *key;
@@ -227,13 +225,13 @@ consume_triple_storer (void                   *user_data,
 			commit_turtle_parse_info_storer (info, FALSE, REMOVAL, NULL);
 		} else if (g_strcmp0 (key, triple->object) == 0 &&
 			   g_strcmp0 (key, triple->predicate) != 0) {
-			gchar        *predicate;
+			const gchar *predicate;
 
 			/* <URI> <rdf:type> "Type" ;                             *
 			 *       <Pfx:Predicate> <>  -  is a removal of the      * 
 			 *                              resource's Pfx:Predicate */
 
-			predicate = (gchar *) raptor_uri_as_string ((raptor_uri *) triple->predicate);
+			predicate = raptor_uri_as_string ((raptor_uri *) triple->predicate);
 
 			/* We put NULL here, so that a null value goes into 
 			 * SQLite. Perhaps we should change this? If so, Why? */
@@ -241,14 +239,13 @@ consume_triple_storer (void                   *user_data,
 			tracker_module_metadata_add_string (info->metadata,
 							    predicate,
 							    NULL);
-
 		} else if (g_strcmp0 (key, triple->object) != 0 &&
 			   g_strcmp0 (key, triple->predicate) == 0) {
-			gchar        *object;
-			/* <URI> <> <to-URI>  -  is a move of the subject */
-			object = (gchar *) raptor_uri_as_string ((raptor_uri *) triple->object);
-			commit_turtle_parse_info_storer (info, FALSE, MOVE, object);
+			gchar *object;
 
+			/* <URI> <> <to-URI>  -  is a move of the subject */
+			object = raptor_uri_as_string ((raptor_uri *) triple->object);
+			commit_turtle_parse_info_storer (info, FALSE, MOVE, object);
 		}
 
 		g_free (key);
@@ -342,9 +339,16 @@ set_metadata (const gchar *key,
 	      gpointer     user_data)
 {
 	raptor_statement    *statement;
-	AddMetadataInfo     *item = user_data;
-	const gchar         *about_uri = item->about_uri;
-	raptor_serializer   *serializer = item->serializer;
+	AddMetadataInfo     *item;
+	const gchar         *about_uri;
+	raptor_serializer   *serializer;
+
+	item = user_data;
+	
+	g_return_if_fail (item != NULL);
+	
+	about_uri = item->about_uri;
+	serializer = item->serializer;
 
 	statement = g_new0 (raptor_statement, 1);
 
@@ -403,9 +407,15 @@ tracker_removable_device_add_metadata (TrackerIndexer        *indexer,
 				       const gchar           *rdf_type,
 				       TrackerModuleMetadata *metadata)
 {
+	g_return_if_fail (TRACKER_IS_INDEXER (indexer));
+	g_return_if_fail (mount_point != NULL);
+	g_return_if_fail (path != NULL);
+	g_return_if_fail (rdf_type != NULL);
+	
 #ifdef HAVE_RAPTOR
 	AddMetadataInfo *info;
 	gchar           *filename, *muri;
+	const gchar     *p;
 	FILE            *target_file;
 	raptor_uri      *suri;
 	GFile           *file, *base_file;
@@ -433,7 +443,9 @@ tracker_removable_device_add_metadata (TrackerIndexer        *indexer,
 	info = g_slice_new (AddMetadataInfo);
 
 	info->serializer = raptor_new_serializer ("turtle");
-	info->about_uri = g_strdup (path + strlen (mount_point) + 1);
+
+	p = path + strlen (mount_point) + 1;
+	info->about_uri = g_strdup (p);
 
 	raptor_serializer_set_feature (info->serializer, 
 				       RAPTOR_FEATURE_WRITE_BASE_URI, 0);
@@ -484,8 +496,14 @@ tracker_removable_device_add_removal (TrackerIndexer *indexer,
 				      const gchar    *path,
 				      const gchar    *rdf_type)
 {
+	g_return_if_fail (TRACKER_IS_INDEXER (indexer));
+	g_return_if_fail (mount_point != NULL);
+	g_return_if_fail (path != NULL);
+	g_return_if_fail (rdf_type != NULL);
+
 #ifdef HAVE_RAPTOR
 	gchar               *filename, *about_uri, *muri;
+	const gchar         *p;
 	FILE                *target_file;
 	raptor_uri          *suri;
 	raptor_serializer   *serializer;
@@ -512,7 +530,9 @@ tracker_removable_device_add_removal (TrackerIndexer *indexer,
 	}
 
 	serializer = raptor_new_serializer ("turtle");
-	about_uri = g_strdup (path + strlen (mount_point) + 1);
+
+	p = path + strlen (mount_point) + 1;
+	about_uri = g_strdup (p);
 
 	raptor_serializer_set_feature (serializer, 
 				       RAPTOR_FEATURE_WRITE_BASE_URI,
@@ -562,8 +582,15 @@ tracker_removable_device_add_move (TrackerIndexer *indexer,
 				   const gchar    *to_path,
 				   const gchar    *rdf_type)
 {
+	g_return_if_fail (TRACKER_IS_INDEXER (indexer));
+	g_return_if_fail (mount_point != NULL);
+	g_return_if_fail (from_path != NULL);
+	g_return_if_fail (to_path != NULL);
+	g_return_if_fail (rdf_type != NULL);
+
 #ifdef HAVE_RAPTOR
 	gchar               *filename, *about_uri, *to_uri, *muri;
+	const gchar         *p;
 	FILE                *target_file;
 	raptor_uri          *suri;
 	raptor_serializer   *serializer;
@@ -595,8 +622,11 @@ tracker_removable_device_add_move (TrackerIndexer *indexer,
 	raptor_serializer_set_feature (serializer, 
 				       RAPTOR_FEATURE_WRITE_BASE_URI, 0);
 
-	about_uri = g_strdup (from_path + strlen (mount_point) + 1);
-	to_uri = g_strdup (to_path + strlen (mount_point) + 1);
+	p = from_path + strlen (mount_point) + 1;
+	about_uri = g_strdup (p);
+
+	p = to_path + strlen (mount_point) + 1;
+	to_uri = g_strdup (p);
 
 	file = g_file_new_for_path (mount_point);
 	muri = get_uri_with_trailing_slash (file);
