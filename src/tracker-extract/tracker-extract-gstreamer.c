@@ -33,6 +33,7 @@
 #include <gst/tag/tag.h>
 
 #include <libtracker-common/tracker-type-utils.h>
+#include <libtracker-common/tracker-file-utils.h>
 
 #include "tracker-main.h"
 #include "tracker-extract-albumart.h"
@@ -239,8 +240,9 @@ extract_metadata (MetadataExtractor *extractor,
 		  GHashTable        *metadata)
 {
 	gchar *value;
-	g_return_if_fail (extractor);
-	g_return_if_fail (metadata);
+
+	g_return_if_fail (extractor != NULL);
+	g_return_if_fail (metadata != NULL);
 
 	if (extractor->tagcache) {
 		/* General */
@@ -348,7 +350,6 @@ extract_metadata (MetadataExtractor *extractor,
 					     "Audio:Genre");
 		}
 	}
-
 }
 
 static void
@@ -389,10 +390,9 @@ dbin_dpad_cb (GstElement* e, GstPad* pad, gboolean cont, gpointer data)
 	gst_object_unref (fsinkpad);
 }
 
-
-
 static void
-add_stream_tags_tagreadbin_for_element (MetadataExtractor *extractor, GstElement *elem)
+add_stream_tags_tagreadbin_for_element (MetadataExtractor *extractor, 
+					GstElement        *elem)
 {
 	GstStructure      *s         = NULL;
 	GstCaps	          *caps      = NULL;
@@ -405,10 +405,9 @@ add_stream_tags_tagreadbin_for_element (MetadataExtractor *extractor, GstElement
 	while (!done) {
 		switch (gst_iterator_next (iter, &item)) {
 		case GST_ITERATOR_OK:
-			
 			if ((caps = GST_PAD_CAPS (item))) {
 				s = gst_caps_get_structure (caps, 0);
-
+				
 				if (s) {
 					if (g_strrstr (gst_structure_get_name (s), "audio")) {
 						if ( ( (extractor->audio_channels != -1) &&
@@ -685,27 +684,27 @@ tracker_extract_gstreamer (const gchar *uri,
 	
 	extractor->pipeline = gst_element_factory_make ("pipeline", NULL);
 	if (!extractor->pipeline) {
-		g_error ("Failed to create pipeline");
-		return;
+		g_critical ("Failed to create GStreamer pipeline");
+		goto fail;
 	}
-	extractor->filesrc  = gst_element_factory_make ("filesrc",  NULL);
+	extractor->filesrc = gst_element_factory_make ("filesrc", NULL);
 	if (!extractor->filesrc) {
-		g_error ("Failed to create filesrc");
-		return;
+		g_critical ("Failed to create GStreamer filesrc");
+		goto fail;
 	}
 	if (use_cache) {
-		extractor->cache    = gst_element_factory_make ("cache",    NULL);
+		extractor->cache = gst_element_factory_make ("cache", NULL);
 		if (!extractor->cache) {
-			g_error ("Failed to create cache");
-			return;
+			g_critical ("Failed to create GStreamer cache");
+			goto fail;
 		}
 	}
 
 	if (use_dbin) {
 		extractor->bin = gst_element_factory_make ("decodebin2", "decodebin2");
 		if (!extractor->bin) {
-			g_error ("Failed to create decodebin");
-			return;
+			g_critical ("Failed to create GStreamer decodebin");
+			goto fail;
 		}
 		extractor->id = g_signal_connect (G_OBJECT (extractor->bin), 
 				       "new-decoded-pad",
@@ -714,8 +713,8 @@ tracker_extract_gstreamer (const gchar *uri,
 	} else {
 	        extractor->bin = gst_element_factory_make ("tagreadbin", "tagreadbin");
 		if (!extractor->bin) {
-			g_error ("Failed to create tagreadbin");
-			return;
+			g_error ("Failed to create GStreamer tagreadbin");
+			goto fail;
 		}
 		extractor->id = 0;
 	}
@@ -725,16 +724,16 @@ tracker_extract_gstreamer (const gchar *uri,
 
 	if (use_cache) {
 		gst_bin_add (GST_BIN (extractor->pipeline), extractor->cache);
-		if (! gst_element_link_many (extractor->filesrc, extractor->cache, extractor->bin, NULL)) {
-		g_error ("Can't link elements\n");
-		/* FIXME Clean up */
-		return;
+		if (!gst_element_link_many (extractor->filesrc, extractor->cache, extractor->bin, NULL)) {
+			g_critical ("Could not link GStreamer elements (using cache)");
+			/* FIXME Clean up */
+			goto fail;
 		}
 	} else {
 		if (!gst_element_link_many (extractor->filesrc, extractor->bin, NULL)) {
-			g_error ("Can't link elements\n");
+			g_critical ("Could not link GStreamer elements");
 			/* FIXME Clean up */
-			return;
+			goto fail;
 		}
 	}
 
@@ -788,20 +787,24 @@ tracker_extract_gstreamer (const gchar *uri,
 	g_main_loop_unref (extractor->loop);
 	g_slice_free (MetadataExtractor, extractor);
 
+fail:
 	if (type == EXTRACT_MIME_IMAGE) {
+		/* We fallback to the file's modified time for the
+		 * "Image:Date" metadata if it doesn't exist.
+		 *
+		 * FIXME: This shouldn't be necessary.
+		 */
 		if (!g_hash_table_lookup (metadata, "Image:Date")) {
-			struct stat st;
+			gchar *date;
+			guint64 mtime;
 			
-			if (g_lstat (uri, &st) >= 0) {
-				gchar *date;
-				
-				date = tracker_date_to_string (st.st_mtime);
-				
-				g_hash_table_insert (metadata,
-						     g_strdup ("Image:Date"),
-						     tracker_escape_metadata (date));
-				g_free (date);
-			}
+			mtime = tracker_file_get_mtime (uri);
+			date = tracker_date_to_string ((time_t) mtime);
+			
+			g_hash_table_insert (metadata,
+					     g_strdup ("Image:Date"),
+					     tracker_escape_metadata (date));
+			g_free (date);
 		}
 	} else if (type == EXTRACT_MIME_VIDEO) {
 		if (!g_hash_table_lookup (metadata, "Video:Title")) {
@@ -836,7 +839,6 @@ tracker_extract_gstreamer (const gchar *uri,
 			g_free (title);
 		}
 	}
-
 }
 
 

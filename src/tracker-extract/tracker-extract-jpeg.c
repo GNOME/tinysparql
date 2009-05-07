@@ -70,17 +70,19 @@ static TrackerExtractData data[] = {
 	{ NULL, NULL }
 };
 
-struct tej_error_mgr 
-{
+struct tej_error_mgr {
 	struct jpeg_error_mgr jpeg;
 	jmp_buf setjmp_buffer;
 };
 
-static void tracker_extract_jpeg_error_exit (j_common_ptr cinfo)
+static void 
+tracker_extract_jpeg_error_exit (j_common_ptr cinfo)
 {
-    struct tej_error_mgr *h = (struct tej_error_mgr *)cinfo->err;
+    struct tej_error_mgr *h = (struct tej_error_mgr *) cinfo->err;
+
     (*cinfo->err->output_message)(cinfo);
-    longjmp(h->setjmp_buffer, 1);
+
+    longjmp (h->setjmp_buffer, 1);
 }
 
 #ifdef HAVE_LIBEXIF
@@ -276,7 +278,6 @@ read_exif (const unsigned char *buffer,
 
 #endif /* HAVE_LIBEXIF */
 
-
 static void
 extract_jpeg (const gchar *filename,
 	      GHashTable  *metadata)
@@ -303,9 +304,14 @@ extract_jpeg (const gchar *filename,
 		gsize  sublen;
 #endif /* HAVE_LIBIPTCDATA */
 
+		/* So, if we don't use the jpeg.error_exit() here, the
+		 * JPEG library will abort() on error. So, we use
+		 * setjmp and longjmp here to avoid that.
+		 */
 		cinfo.err = jpeg_std_error (&tejerr.jpeg);
 		tejerr.jpeg.error_exit = tracker_extract_jpeg_error_exit;
-		if (setjmp(tejerr.setjmp_buffer)) {
+		if (setjmp (tejerr.setjmp_buffer)) {
+			tracker_file_close (f, FALSE);
 			goto fail;
 		}
 
@@ -393,24 +399,27 @@ extract_jpeg (const gchar *filename,
 				     g_strdup ("Image:Height"),
 				     tracker_escape_metadata_printf ("%u", cinfo.image_height));
 
-		/* Check that we have the minimum data. FIXME We should not need to do this */
-
-		if (!g_hash_table_lookup (metadata, "Image:Date")) {
-			gchar *date;
-			guint64 mtime;
-
-			mtime = tracker_file_get_mtime (filename);
-			date = tracker_date_to_string ((time_t) mtime);
-
-			g_hash_table_insert (metadata,
-					     g_strdup ("Image:Date"),
-					     tracker_escape_metadata (date));
-			g_free (date);
-		}
-
 		jpeg_destroy_decompress (&cinfo);
-	fail:
 		tracker_file_close (f, FALSE);
+	}
+
+fail:
+	/* We fallback to the file's modified time for the
+	 * "Image:Date" metadata if it doesn't exist.
+	 *
+	 * FIXME: This shouldn't be necessary.
+	 */
+	if (!g_hash_table_lookup (metadata, "Image:Date")) {
+		gchar *date;
+		guint64 mtime;
+		
+		mtime = tracker_file_get_mtime (filename);
+		date = tracker_date_to_string ((time_t) mtime);
+		
+		g_hash_table_insert (metadata,
+				     g_strdup ("Image:Date"),
+				     tracker_escape_metadata (date));
+		g_free (date);
 	}
 }
 

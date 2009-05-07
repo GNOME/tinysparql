@@ -135,7 +135,7 @@ extract_tiff (const gchar *filename,
 
 	if ((image = TIFFOpen (filename, "r")) == NULL){
 		g_critical ("Could not open image:'%s'\n", filename);
-		return;
+		goto fail;
 	}
 
 #ifdef HAVE_LIBIPTCDATA
@@ -264,8 +264,14 @@ extract_tiff (const gchar *filename,
 		}
 	}
 
-	/* Check that we have the minimum data. FIXME We should not need to do this */
-	
+	TIFFClose (image);
+
+fail:
+	/* We fallback to the file's modified time for the
+	 * "Image:Date" metadata if it doesn't exist.
+	 *
+	 * FIXME: This shouldn't be necessary.
+	 */
 	if (!g_hash_table_lookup (metadata, "Image:Date")) {
 		gchar *date;
 		guint64 mtime;
@@ -278,8 +284,6 @@ extract_tiff (const gchar *filename,
 				     tracker_escape_metadata (date));
 		g_free (date);
 	}
-
-	TIFFClose (image);
 }
 
 TrackerExtractData *
