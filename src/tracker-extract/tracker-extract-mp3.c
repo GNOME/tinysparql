@@ -857,6 +857,8 @@ get_id3v24_tags (const gchar *data,
 				csize--;
 
 				if (!tracker_is_empty_string (word)) {       
+					g_strstrip (word);
+
 					if (strcmp (tmap[i].text, "TRCK") == 0) {
 						gchar **parts;
 
@@ -962,6 +964,8 @@ get_id3v24_tags (const gchar *data,
 			}
 
 			if (!tracker_is_empty_string (word)) {
+				g_strstrip (word);
+
 				tracker_statement_list_insert (metadata, uri,
 						     NIE_PREFIX "comment",
 						     word);
@@ -1108,6 +1112,8 @@ get_id3v23_tags (const gchar *data,
 				csize--;
 
 				if (!tracker_is_empty_string (word)) {
+					g_strstrip (word);
+
 					if (strcmp (tmap[i].text, "TRCK") == 0) {
 						gchar **parts;
 
@@ -1204,6 +1210,8 @@ get_id3v23_tags (const gchar *data,
 			}
 
 			if (!tracker_is_empty_string (word)) {
+				g_strstrip (word);
+
 				tracker_statement_list_insert (metadata, uri,
 						     NIE_PREFIX "comment",
 						     word);
@@ -1338,6 +1346,8 @@ get_id3v20_tags (const gchar *data,
 				csize--;
 
 				if (!tracker_is_empty_string (word)) {
+					g_strstrip (word);
+
 					if (strcmp (tmap[i].text, "COM") == 0) {
 						gchar *s;
 
