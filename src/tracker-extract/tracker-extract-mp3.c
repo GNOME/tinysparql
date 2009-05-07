@@ -319,13 +319,10 @@ read_id3v1_buffer (int fd, goffset size)
 	guint bytes_read;
 	guint rc;
 
-	if (size<128) {
-		return NULL;
-	}
-
 	if (lseek (fd, size-ID3V1_SIZE, SEEK_SET) < 0) {
 		return NULL;
 	}
+
 
 	buffer = g_malloc (ID3V1_SIZE);
 
@@ -484,10 +481,6 @@ get_id3 (const gchar *data,
 	const gchar *pos;
 	gchar buf[5];
 
-	if (!data) {
-		return FALSE;
-	}
-	
 	if (size < 128) {
 		return FALSE;
 	}
