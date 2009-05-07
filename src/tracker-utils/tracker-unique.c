@@ -296,7 +296,5 @@ main (int argc, char **argv)
 
 	tracker_disconnect (client);
 
-	g_option_context_free (context);
-
 	return EXIT_SUCCESS;
 }
