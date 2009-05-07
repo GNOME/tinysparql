@@ -376,11 +376,11 @@ tracker_albumart_heuristic (const gchar *artist_,
 			    const gchar *local_uri,
 			    gboolean    *copied)
 {
-	GFile *file;
+	GFile *file, *dirf;
 	GDir *dir;
 	struct stat st;
 	gchar *target = NULL;
-	gchar *basename;
+	gchar *dirname;
 	const gchar *name;
 	gboolean retval;
 	gint tracks;
@@ -419,24 +419,26 @@ tracker_albumart_heuristic (const gchar *artist_,
 	*copied = FALSE;
 
 	file = g_file_new_for_path (filename);
-	basename = g_file_get_basename (file);
+	dirf = g_file_get_parent (file);
+	dirname = g_file_get_path (dirf);
 	g_object_unref (file);
+	g_object_unref (dirf);
 
-	if (!basename) {
+	if (!dirname) {
 		return FALSE;
 	}
 
-	dir = g_dir_open (basename, 0, NULL);
+	dir = g_dir_open (dirname, 0, NULL);
 
 	if (!dir) {
-		g_free (basename);
+		g_free (dirname);
 		return FALSE;
 	}
 
 	retval = FALSE;
 	file = NULL;
 
-	g_stat (basename, &st);
+	g_stat (dirname, &st);
 	count = st.st_nlink;
 	
 	if (tracks_str) {
@@ -456,7 +458,7 @@ tracker_albumart_heuristic (const gchar *artist_,
 	/* If amount of files and amount of tracks in the album somewhat match */
 
 	if ((tracks != -1 && tracks < count + 3 && tracks > count - 3) || 
-	    (tracks == -1 && count > 8 && count < 50)) {
+	    (tracks == -1 && count >= 2 && count < 50)) {
 		gchar *found = NULL;
 
 		/* Try to find cover art in the directory */
@@ -480,7 +482,7 @@ tracker_albumart_heuristic (const gchar *artist_,
 						file = g_file_new_for_path (target);
 					}
 					
-					found = g_build_filename (basename, name, NULL);
+					found = g_build_filename (dirname, name, NULL);
 					file_found = g_file_new_for_path (found);
 					
 					g_file_copy (file_found, file, 0, NULL, NULL, NULL, &error);
@@ -498,7 +500,7 @@ tracker_albumart_heuristic (const gchar *artist_,
 #ifdef HAVE_GDKPIXBUF
 					GdkPixbuf *pixbuf;
 					
-					found = g_build_filename (basename, name, NULL);
+					found = g_build_filename (dirname, name, NULL);
 					pixbuf = gdk_pixbuf_new_from_file (found, &error);
 					
 					if (error) {
@@ -545,7 +547,7 @@ tracker_albumart_heuristic (const gchar *artist_,
 	}
 
 	g_free (target);
-	g_free (basename);
+	g_free (dirname);
 	g_free (artist);
 	g_free (album);
 
