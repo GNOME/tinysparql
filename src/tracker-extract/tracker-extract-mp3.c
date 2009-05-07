@@ -459,6 +459,17 @@ un_unsync (const unsigned char *source,
 	*dest_size = new_size;
 }
 
+/* convert string from ISO-8859-1 to UTF-8 and strip leading and trailing whitespace */
+static gchar *
+convert_and_strip (const gchar *str,
+                   gssize       len)
+{
+	return g_strstrip (g_convert (str, len,
+				      "UTF-8",
+				      "ISO-8859-1",
+				      NULL, NULL, NULL));
+}
+
 static gboolean
 get_id3 (const gchar *data,
 	 size_t       size,
@@ -479,41 +490,23 @@ get_id3 (const gchar *data,
 
 	pos += 3;
 
-	id3->title = g_convert (pos, 30,
-				"UTF-8",
-				"ISO-8859-1",
-				NULL, NULL, NULL);
+	id3->title = convert_and_strip (pos, 30);
 
 	pos += 30;
-	id3->artist = g_convert (pos, 30,
-				 "UTF-8",
-				 "ISO-8859-1",
-				 NULL, NULL, NULL);
+	id3->artist = convert_and_strip (pos, 30);
 	pos += 30;
-	id3->album = g_convert (pos, 30,
-				"UTF-8",
-				"ISO-8859-1",
-				NULL, NULL, NULL);
+	id3->album = convert_and_strip (pos, 30);
 	pos += 30;
-	id3->year = g_convert (pos, 4,
-			       "UTF-8",
-			       "ISO-8859-1",
-			       NULL, NULL, NULL);
+	id3->year = convert_and_strip (pos, 4);
 
 	pos += 4;
 
 	if (pos[28] != (guint)0) {
-		id3->comment = g_convert (pos, 30,
-					  "UTF-8",
-					  "ISO-8859-1",
-					  NULL, NULL, NULL);
+		id3->comment = convert_and_strip (pos, 30);
 
 		id3->trackno = NULL;
 	} else {
-		id3->comment = g_convert (pos, 28,
-					  "UTF-8",
-					  "ISO-8859-1",
-					  NULL, NULL, NULL);
+		id3->comment = convert_and_strip (pos, 28);
 		snprintf (buf, 5, "%d", pos[29]);
 		id3->trackno = strdup(buf);
 	}
