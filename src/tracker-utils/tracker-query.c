@@ -113,7 +113,7 @@ main (int argc, char **argv)
 	GFile           *file;
 	gchar		*path_in_utf8, *abs_path;
 	gchar		*content;
-	gchar		*buffer;
+	gchar		*buffer = NULL;
 	gsize		 size;
 	GPtrArray	*array;
 
@@ -129,11 +129,11 @@ main (int argc, char **argv)
 	g_option_context_add_main_entries (context, entries, NULL);
 	g_option_context_parse (context, &argc, &argv, NULL);
 
-	if (!fields || !path) {
+	if (!fields) {
 		gchar *help;
 
 		g_printerr ("%s\n\n",
-			    _("Path or fields are missing"));
+			    _("Fields are missing"));
 
 		help = g_option_context_get_help (context, TRUE, NULL);
 		g_option_context_free (context);
@@ -171,53 +171,55 @@ main (int argc, char **argv)
 		}
 	}
 
-	path_in_utf8 = g_filename_to_utf8 (path, -1, NULL, NULL, &error);
-	if (error) {
-		g_printerr ("%s:'%s', %s\n",
-			    _("Could not get UTF-8 path from path"),
-			    path,
-			    error->message);
-		g_error_free (error);
-		tracker_disconnect (client);
-
-		return EXIT_FAILURE;
-	}
-
-	file = g_file_new_for_commandline_arg (path_in_utf8);
-	abs_path = g_file_get_path (file);
-
-	g_file_get_contents (abs_path, &content, &size, &error);
-	if (error) {
-		g_printerr ("%s:'%s', %s\n",
-			    _("Could not read file"),
-			    abs_path,
-			    error->message);
-		g_error_free (error);
+	if (path) {
+		path_in_utf8 = g_filename_to_utf8 (path, -1, NULL, NULL, &error);
+		if (error) {
+			g_printerr ("%s:'%s', %s\n",
+				    _("Could not get UTF-8 path from path"),
+				    path,
+				    error->message);
+			g_error_free (error);
+			tracker_disconnect (client);
+			
+			return EXIT_FAILURE;
+		}
+		
+		file = g_file_new_for_commandline_arg (path_in_utf8);
+		abs_path = g_file_get_path (file);
+		
+		g_file_get_contents (abs_path, &content, &size, &error);
+		if (error) {
+			g_printerr ("%s:'%s', %s\n",
+				    _("Could not read file"),
+				    abs_path,
+				    error->message);
+			g_error_free (error);
+			g_free (path_in_utf8);
+			g_free (abs_path);
+			g_object_unref (file);
+			tracker_disconnect (client);
+			
+			return EXIT_FAILURE;
+		}
+		
 		g_free (path_in_utf8);
 		g_free (abs_path);
 		g_object_unref (file);
-		tracker_disconnect (client);
-
-		return EXIT_FAILURE;
+		
+		buffer = g_locale_to_utf8 (content, size, NULL, NULL, &error);
+		g_free (content);
+		
+		if (error) {
+			g_printerr ("%s, %s\n",
+				    _("Could not convert query file to UTF-8"),
+				    error->message);
+			g_error_free (error);
+			tracker_disconnect (client);
+			
+			return EXIT_FAILURE;
+		}
 	}
-
-	g_free (path_in_utf8);
-	g_free (abs_path);
-	g_object_unref (file);
-
-	buffer = g_locale_to_utf8 (content, size, NULL, NULL, &error);
-	g_free (content);
-
-	if (error) {
-		g_printerr ("%s, %s\n",
-			    _("Could not convert query file to UTF-8"),
-			    error->message);
-		g_error_free (error);
-		tracker_disconnect (client);
-
-		return EXIT_FAILURE;
-	}
-
+		
 	array = tracker_search_query (client,
 				      time (NULL),
 				      type,
