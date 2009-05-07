@@ -1238,8 +1238,7 @@ tracker_db_index_add_word (TrackerDBIndex *indez,
 	TrackerDBIndexItem     elem;
 	TrackerDBIndexItem    *current;
 	GArray		      *array;
-	gint64                 left, right, center;
-	gint64		       new_score;
+	guint                  i;
 
 	g_return_if_fail (TRACKER_IS_DB_INDEX (indez));
 	g_return_if_fail (word != NULL);
@@ -1268,39 +1267,24 @@ tracker_db_index_add_word (TrackerDBIndex *indez,
 		return;
 	}
 
-	/* It is not the first time we find the word, perform binary search */
-	left = 0;
-	right = array->len - 1;
-	center = (right - left) / 2;
+	/* It is not the first time we find the word */
+	for (i = 0; i < array->len; i++) {
+		current = &g_array_index (array, TrackerDBIndexItem, i);
 
-	do {
-		center += left;
-
-		/* For testing */
-		/* g_return_if_fail (center < array->len); */
-	
-		current = &g_array_index (array, TrackerDBIndexItem, center);
-
-		if (service_id > current->id) {
-			left = center + 1;
-		} else if (service_id < current->id) {
-			right = center - 1;
-		} else if (service_id == current->id) {
+		if (current->id == service_id) {
 			guint32 serv_type;
+			gint64  new_score;
 
 			/* The word was already found in the same
 			 * service_id (file), modify score
 			 */
 			new_score = tracker_db_index_item_get_score (current) + weight;
-
 			serv_type = tracker_db_index_item_get_service_type (current);
 			current->amalgamated = tracker_db_index_item_calc_amalgamated (serv_type, new_score);
 
 			return;
 		}
-
-		center = (right - left) / 2;
-	} while (left <= right);
+	}
 
 	/* First time in the file */
 	g_array_append_val (array, elem);
