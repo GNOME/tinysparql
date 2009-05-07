@@ -2219,7 +2219,6 @@ item_process (TrackerIndexer *indexer,
 	      const gchar    *basename)
 {
 	TrackerModuleMetadata *metadata;
-	gchar *text;
 
 	metadata = tracker_module_file_get_metadata (info->module_file);
 
@@ -2232,7 +2231,13 @@ item_process (TrackerIndexer *indexer,
 	}
 
 	if (metadata) {
+		gchar *text;
+
+#ifdef ENABLE_FTS
 		text = tracker_module_file_get_text (info->module_file);
+#else  /* ENABLE_FTS */
+		text = NULL;
+#endif /* ENABLE_FTS */
 
 		if (tracker_module_file_is_cancelled (info->module_file)) {
 			g_object_unref (metadata);

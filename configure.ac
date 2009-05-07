@@ -270,7 +270,6 @@ fi
 AC_SUBST(GCOV_CFLAGS)
 AC_SUBST(GCOV_LIBS)
 
-
 ####################################################################
 # Should we build GLib based unit tests
 ####################################################################
@@ -566,6 +565,21 @@ if test "$have_inotify" = "yes" ; then
 fi
 
 ####################################################################
+#  Full Text Search (FTS)
+####################################################################
+
+AC_ARG_ENABLE([fts],
+              AS_HELP_STRING([--disable-fts], 
+	                     [disable full text search support [[default=no]]]),,
+              [enable_fts=yes])
+
+AM_CONDITIONAL(ENABLE_FTS, test "$enable_fts" = "yes")
+
+if test "$enable_fts" = "yes" ; then
+   AC_DEFINE(ENABLE_FTS, 1, [Define if we enable FTS support])
+fi
+
+####################################################################
 #  SQLite checks
 ####################################################################
 
@@ -580,6 +594,12 @@ AC_ARG_ENABLE([sqlite_fts],
               AS_HELP_STRING([--enable-sqlite-fts], 
 	                     [enable SQLite FTS support [[default=no]]]),,
               [enable_sqlite_fts=no])
+
+if test "x$enable_sqlite_fts" = "xyes"; then
+   if test "x$enable_fts" != "xyes"; then
+      AC_MSG_ERROR([Couldn't enable SQLite FTS support, FTS has been disabled.])
+   fi
+fi
 
 if test "x$enable_sqlite_fts" != "xyes" ; then
    enable_sqlite_fts="no  (disabled)"
@@ -1421,6 +1441,7 @@ Build Configuration:
 
 	Enable unit tests:			$have_unit_tests
 	Enable unac accent stripper:	  	$have_unac
+	Enable full text search:               	$enable_fts
 
 	Support for file monitoring:           	gio (w/ libinotify: $have_inotify)
 	Support for ioprio:			$have_ioprio
