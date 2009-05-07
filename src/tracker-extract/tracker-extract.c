@@ -397,6 +397,7 @@ tracker_extract_get_metadata_by_cmdline (TrackerExtract *object,
 					 const gchar    *mime)
 {
 	guint       request_id;
+	gint        i;
 	GPtrArray   *statements = NULL;
 
 	request_id = tracker_dbus_get_next_request_id ();
@@ -413,6 +414,20 @@ tracker_extract_get_metadata_by_cmdline (TrackerExtract *object,
 	statements = get_file_metadata (object, request_id, uri, mime);
 
 	if (statements) {
+		for (i = 0; i < statements->len; i++) {
+			GValueArray *statement;
+			const gchar *subject;
+			const gchar *predicate;
+			const gchar *object;
+
+			statement = statements->pdata[i];
+
+			subject = g_value_get_string (&statement->values[0]);
+			predicate = g_value_get_string (&statement->values[1]);
+			object = g_value_get_string (&statement->values[2]);
+
+			tracker_dbus_request_debug (request_id, "  '%s' '%s' '%s'", subject, predicate, object);
+		}
 		statements_free (statements);
 	}
 
@@ -449,7 +464,6 @@ tracker_extract_get_metadata (TrackerExtract	     *object,
 			      GError		    **error)
 {
 	guint       request_id;
-	gint        i;
 	GPtrArray  *statements = NULL;
 
 	request_id = tracker_dbus_get_next_request_id ();
@@ -474,10 +488,7 @@ tracker_extract_get_metadata (TrackerExtract	     *object,
 
 	if (statements) {
 		dbus_g_method_return (context, statements);
-		for (i = 0; i < statements->len; i++) {
-			g_value_array_free (statements->pdata[i]);
-		}
-		g_ptr_array_free (statements, TRUE);
+		statements_free (statements);
 		tracker_dbus_request_success (request_id);
 	} else {
 		GError *actual_error = NULL;
