@@ -16,7 +16,7 @@ INCLUDES =						\
 	$(UNAC_CFLAGS)
 
 libtracker_commondir = $(libdir)/tracker-$(TRACKER_API_VERSION)
-libtracker_commonincludedir=$(includedir)/tracker-1.0/libtracker-common/
+libtracker_commonincludedir=$(includedir)/tracker-$(TRACKER_API_VERSION)/libtracker-common/
 libtracker_common_LTLIBRARIES = libtracker-common.la
 
 if OS_WIN32

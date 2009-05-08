@@ -1342,7 +1342,7 @@ AC_CONFIG_FILES([
 	data/modules/Makefile
 	data/ontologies/Makefile
 	data/tracker.pc
-	data/tracker-module-1.0.pc
+	data/tracker-module.pc
 	docs/Makefile
 	docs/design/Makefile
 	docs/manpages/Makefile

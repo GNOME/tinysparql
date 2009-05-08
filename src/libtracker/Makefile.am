@@ -11,6 +11,8 @@ INCLUDES = 					\
 
 lib_LTLIBRARIES = libtrackerclient-@TRACKER_API_VERSION@.la
 
+libtrackerclientincdir = $(includedir)/tracker-$(TRACKER_API_VERSION)
+
 libtrackerclient_@TRACKER_API_VERSION@_la_SOURCES = tracker.c
 
 libtrackerclient_@TRACKER_API_VERSION@_la_LDFLAGS = 			\
@@ -22,7 +24,7 @@ libtrackerclient_@TRACKER_API_VERSION@_la_LIBADD = 			\
 	$(GCOV_LIBS)				\
 	$(GOBJECT_LIBS)
 
-include_HEADERS = 				\
+libtrackerclientinc_HEADERS = 				\
 	tracker.h
 
 # Generate DBus files from XML data.

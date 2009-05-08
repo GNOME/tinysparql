@@ -9,4 +9,4 @@ Version: @VERSION@
 Requires.private: cairo
 Requires: tracker gtk+-2.0 glib-2.0
 Libs: -L${libdir} -ltracker-gtk-@TRACKER_API_VERSION@
-Cflags: -I${includedir}/libtracker-gtk
+Cflags: -I${includedir}/libtracker-gtk-@TRACKER_API_VERSION@

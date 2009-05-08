@@ -6,7 +6,7 @@ INCLUDES = 							\
 	$(LIBTRACKERGTK_CFLAGS)					\
 	$(GCOV_CFLAGS)
 
-libtracker_gtkincdir = $(includedir)/libtracker-gtk
+libtracker_gtkincdir = $(includedir)/libtracker-gtk-@TRACKER_API_VERSION@
 
 lib_LTLIBRARIES = libtracker-gtk-@TRACKER_API_VERSION@.la
 
