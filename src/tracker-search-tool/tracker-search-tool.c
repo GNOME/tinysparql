@@ -46,7 +46,7 @@
 #include "tracker-search-tool-callbacks.h"
 #include "tracker-search-tool-support.h"
 #include "sexy-icon-entry.h"
-#include "../libtracker-gtk/tracker-metadata-tile.h"
+#include <libtracker-gtk/tracker-metadata-tile.h>
 
 #define TRACKER_SEARCH_TOOL_DEFAULT_ICON_SIZE 32
 #define TRACKER_SEARCH_TOOL_STOCK "panel-searchtool"
