@@ -1156,14 +1156,13 @@ public class Tracker.SparqlQuery : Object {
 
 	static string? get_string_for_value (Value value)
 	{
-		switch (value.type ()) {
-		case typeof (int):
+		if (value.type () == typeof (int)) {
 			return value.get_int ().to_string ();
-		case typeof (double):
+		} else if (value.type () == typeof (double)) {
 			return value.get_double ().to_string ();
-		case typeof (string):
+		} else if (value.type () == typeof (string)) {
 			return value.get_string ();
-		default:
+		} else {
 			return null;
 		}
 	}
