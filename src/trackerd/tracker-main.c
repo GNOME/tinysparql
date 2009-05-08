@@ -112,6 +112,8 @@ typedef struct {
 	gboolean	  reindex_on_shutdown;
 	gboolean          shutdown;
 
+	gint              mount_points_to_set;
+
 	TrackerProcessor *processor;
 } TrackerMainPrivate;
 
@@ -316,6 +318,8 @@ mount_point_set_cb (DBusGProxy *proxy,
 		    GError     *error, 
 		    gpointer    user_data)
 {
+	TrackerMainPrivate *private;
+
 	if (error) {
 		g_critical ("Couldn't set mount point state, %s", 
 			    error->message);
@@ -328,6 +332,26 @@ mount_point_set_cb (DBusGProxy *proxy,
 	g_message ("  %s", (gchar*) user_data);
 
 	g_free (user_data);
+
+	/* See if we have any more callbacks here, if we don't we can
+	 * signal the stats to update.
+	 */
+	private = g_static_private_get (&private_key);
+
+	private->mount_points_to_set--;
+
+	if (private->mount_points_to_set < 1) {
+		/* This is a special case, because we don't get the
+		 * "Finished" signal from the indexer when we set something
+		 * in the volumes table, we have to signal all clients from
+		 * here that the statistics may have changed.
+		 */
+		g_message ("Statistics being signalled now mountable media states have changed");
+		tracker_daemon_signal_statistics ();
+	} else {
+		g_message ("Statistics not being signalled, %d mountable media states left to set still", 
+			   private->mount_points_to_set);
+	}
 }
 
 static void
@@ -339,6 +363,8 @@ mount_point_added_cb (TrackerHal  *hal,
 	TrackerMainPrivate *private;
 	
 	private = g_static_private_get (&private_key);
+
+	private->mount_points_to_set++;
 
 	g_message ("Indexer is being notified about added UDI:");
 	g_message ("  %s", udi);
@@ -352,33 +378,6 @@ mount_point_added_cb (TrackerHal  *hal,
 }
 
 static void
-mount_point_set_and_signal_cb (DBusGProxy *proxy, 
-			       GError     *error, 
-			       gpointer    user_data)
-{
-	if (error) {
-		g_critical ("Couldn't set mount point state, %s", 
-			    error->message);
-		g_error_free (error);
-		g_free (user_data);
-		return;
-	}
-
-	g_message ("Indexer now knows about UDI state:");
-	g_message ("  %s", (gchar*) user_data);
-
-
-	/* This is a special case, because we don't get the
-	 * "Finished" signal from the indexer when we set something
-	 * in the volumes table, we have to signal all clients from
-	 * here that the statistics may have changed.
-	 */
-	tracker_daemon_signal_statistics ();
-
-	g_free (user_data);
-}
-
-static void
 mount_point_removed_cb (TrackerHal  *hal,
 			const gchar *udi,
 			const gchar *mount_point,
@@ -388,6 +387,8 @@ mount_point_removed_cb (TrackerHal  *hal,
 	
 	private = g_static_private_get (&private_key);
 
+	private->mount_points_to_set++;
+
 	g_message ("Indexer is being notified about removed UDI:");
 	g_message ("  %s", udi);
 
@@ -395,7 +396,7 @@ mount_point_removed_cb (TrackerHal  *hal,
 								   udi,
 								   mount_point,
 								   FALSE,
-								   mount_point_set_and_signal_cb,
+								   mount_point_set_cb,
 								   g_strdup (udi));
 }
 
@@ -759,6 +760,7 @@ set_up_mount_points_cb (DBusGProxy *proxy,
 			GError     *error,
 			gpointer    user_data)
 {
+	TrackerMainPrivate *private;
 	TrackerHal *hal;
 	GList *roots, *l;
 
@@ -773,6 +775,8 @@ set_up_mount_points_cb (DBusGProxy *proxy,
 
 	hal = user_data;
 	roots = tracker_hal_get_removable_device_udis (hal);
+
+	private = g_static_private_get (&private_key);
 	
 	for (l = roots; l; l = l->next) {
 		gchar       *udi;
@@ -784,6 +788,8 @@ set_up_mount_points_cb (DBusGProxy *proxy,
 		is_mounted = tracker_hal_udi_get_is_mounted (hal, udi);
 
 		g_message ("  %s", udi);
+
+		private->mount_points_to_set++;
 
 		org_freedesktop_Tracker_Indexer_volume_update_state_async (tracker_dbus_indexer_get_proxy (), 
 									   udi,
