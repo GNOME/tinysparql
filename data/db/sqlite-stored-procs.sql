@@ -129,7 +129,7 @@ GetHitDetails                  SELECT ROWID, HitCount, HitArraySize FROM HitInde
  */
 
 GetVolumeID                    SELECT VolumeID FROM Volumes WHERE UDI = ?;
-GetVolumeByPath                SELECT VolumeID FROM Volumes WHERE Enabled = 1 AND (? = MountPath OR ? LIKE (MountPath || '/%'));
+GetVolumeByPath                SELECT VolumeID FROM Volumes WHERE Enabled = 1 AND (? = MountPath OR ? LIKE (MountPath || '/%')) ORDER BY length(MountPath) DESC LIMIT 1;
 GetVolumesToClean              SELECT MountPath, VolumeID FROM Volumes WHERE DisabledDate < date('now', '-3 day');
 InsertVolume                   INSERT INTO Volumes (MountPath, UDI, Enabled, DisabledDate) VALUES (?, ?, 1, date('now'));
 EnableVolume                   UPDATE Volumes SET MountPath = ?, Enabled = 1 WHERE UDI = ?;
