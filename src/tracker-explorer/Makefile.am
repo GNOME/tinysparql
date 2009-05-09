@@ -14,6 +14,8 @@ tracker_explorer.vala.stamp: $(tracker_explorer_VALASOURCES)
 	touch tracker_explorer.vala.stamp
 
 tracker_explorer_CFLAGS = \
+	-DTRACKER_UI_DIR=\"$(datadir)/tracker/\"		\
+	-DSRCDIR=\"$(abssrcdir)/\"				\
 	$(WARN_CFLAGS)						\
 	$(GLIB2_CFLAGS)						\
 	$(GCOV_CFLAGS)						\
@@ -31,6 +33,11 @@ tracker_explorer_LDADD = \
 	$(LIBTRACKERGTK_LIBS)					\
 	$(LIBGEE_LIBS)						\
 	$(NULL)
+
+uidir = $(datadir)/tracker
+ui_DATA = \
+	explorer.ui
+
 
 EXTRA_DIST = \
 	$(tracker_explorer_SOURCES) \

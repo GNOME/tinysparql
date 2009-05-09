@@ -69,41 +69,95 @@
           </packing>
         </child>
         <child>
-          <object class="GtkFrame" id="frame1">
+          <object class="GtkVPaned" id="vpaned2">
             <property name="visible">True</property>
-            <property name="label_xalign">0</property>
-            <property name="shadow_type">none</property>
+            <property name="can_focus">True</property>
+            <property name="orientation">vertical</property>
             <child>
-              <object class="GtkAlignment" id="alignment1">
+              <object class="GtkFrame" id="frame1">
                 <property name="visible">True</property>
-                <property name="left_padding">12</property>
+                <property name="label_xalign">0</property>
+                <property name="shadow_type">none</property>
                 <child>
-                  <object class="GtkScrolledWindow" id="scrolledwindow2">
+                  <object class="GtkAlignment" id="alignment1">
                     <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="hscrollbar_policy">automatic</property>
-                    <property name="vscrollbar_policy">automatic</property>
+                    <property name="left_padding">12</property>
                     <child>
-                      <object class="GtkTreeView" id="relationshipsview">
+                      <object class="GtkScrolledWindow" id="scrolledwindow2">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
-                        <property name="search_column">0</property>
+                        <property name="hscrollbar_policy">automatic</property>
+                        <property name="vscrollbar_policy">automatic</property>
+                        <child>
+                          <object class="GtkTreeView" id="relationshipsview">
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="search_column">0</property>
+                          </object>
+                        </child>
                       </object>
                     </child>
                   </object>
                 </child>
+                <child type="label">
+                  <object class="GtkLabel" id="current-object">
+                    <property name="visible">True</property>
+                    <property name="label" translatable="yes">&lt;b&gt;No object selected&lt;/b&gt;</property>
+                    <property name="use_markup">True</property>
+                    <property name="justify">fill</property>
+                    <property name="ellipsize">start</property>
+                    <property name="single_line_mode">True</property>
+                    <property name="max_width_chars">50</property>
+                  </object>
+                </child>
               </object>
+              <packing>
+                <property name="resize">True</property>
+                <property name="shrink">True</property>
+              </packing>
             </child>
-            <child type="label">
-              <object class="GtkLabel" id="current-object">
+            <child>
+              <object class="GtkFrame" id="frame2">
                 <property name="visible">True</property>
-                <property name="label" translatable="yes">&lt;b&gt;No object selected&lt;/b&gt;</property>
-                <property name="use_markup">True</property>
-                <property name="justify">fill</property>
-                <property name="ellipsize">start</property>
-                <property name="single_line_mode">True</property>
-                <property name="max_width_chars">50</property>
+                <property name="label_xalign">0</property>
+                <property name="shadow_type">none</property>
+                <child>
+                  <object class="GtkAlignment" id="alignment2">
+                    <property name="visible">True</property>
+                    <property name="left_padding">12</property>
+                    <child>
+                      <object class="GtkScrolledWindow" id="scrolledwindow3">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="hscrollbar_policy">automatic</property>
+                        <property name="vscrollbar_policy">automatic</property>
+                        <child>
+                          <object class="GtkTreeView" id="reverserelationshipsview">
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="search_column">0</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child type="label">
+                  <object class="GtkLabel" id="current-object-reverse">
+                    <property name="visible">True</property>
+                    <property name="label" translatable="yes">&lt;b&gt;No object selected&lt;/b&gt;</property>
+                    <property name="use_markup">True</property>
+                    <property name="justify">fill</property>
+                    <property name="ellipsize">start</property>
+                    <property name="single_line_mode">True</property>
+                    <property name="max_width_chars">50</property>
+                  </object>
+                </child>
               </object>
+              <packing>
+                <property name="resize">True</property>
+                <property name="shrink">True</property>
+              </packing>
             </child>
           </object>
           <packing>
