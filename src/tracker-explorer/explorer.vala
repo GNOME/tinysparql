@@ -173,7 +173,7 @@ public class Explorer {
 				relationships.set (iter, 0, relationship, -1);
 				relationships.set (iter, 1, result[i,1], -1);
 			}
-
+/*
 			query = "SELECT ?s ?r WHERE { ?s ?r  <%s> }".printf(uri);
 			result = tracker.SparqlQuery(query);
 			reverserelationships.clear();
@@ -185,7 +185,7 @@ public class Explorer {
 				reverserelationships.set (iter, 1, relationship, -1);
 			}
 
-
+*/
 		} catch (DBus.Error e) {
 		}
 	}
