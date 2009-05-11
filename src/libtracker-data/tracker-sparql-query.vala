@@ -170,6 +170,9 @@ public class Tracker.SparqlQuery : Object {
 							}
 						}
 					} while (result_set.iter_next ());
+				} else {
+					/* no match */
+					sql.append ("SELECT NULL AS ID, NULL AS \"predicate\", NULL AS \"object\"");
 				}
 			} else if (domain != null) {
 				// any subject, predicates limited to a specific domain
