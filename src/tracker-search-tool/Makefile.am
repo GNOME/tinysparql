@@ -8,6 +8,7 @@ INCLUDES = 	\
 	-DTRACKER_DATADIR=\""$(datadir)"\"			\
 	-DGREP_COMMAND=\""$(GREP_COMMAND)"\"			\
 	-I$(top_srcdir)/src/					\
+	-I$(top_srcdir)/src/libtracker				\
 	$(WARN_CFLAGS)						\
 	$(GLIB2_CFLAGS)						\
 	$(GCOV_CFLAGS)						\
