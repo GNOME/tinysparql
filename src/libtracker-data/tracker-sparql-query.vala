@@ -253,8 +253,7 @@ public class Tracker.SparqlQuery : Object {
 		assert (literal.type == Rasqal.Literal.Type.VARIABLE);
 
 		string variable_name = literal.as_variable ().name;
-
-		return "\"%s\"".printf (variable_name);
+		return "\"%s_u\"".printf (variable_name);
 	}
 
 	string get_sql_for_expression (Rasqal.Expression expr) {
@@ -369,13 +368,13 @@ public class Tracker.SparqlQuery : Object {
 		var binding = var_map.lookup (variable_name);
 		assert (binding != null);
 		if (binding.is_uri) {
-			return "(SELECT Uri FROM \"rdfs:Resource\" WHERE ID = \"%s\")".printf (variable_name);
+			return "(SELECT Uri FROM \"rdfs:Resource\" WHERE ID = \"%s_u\")".printf (variable_name);
 		} else if (binding.is_boolean) {
-			return "(CASE \"%s\" WHEN 1 THEN 'true' WHEN 0 THEN 'false' ELSE NULL END)".printf (variable_name);
+			return "(CASE \"%s_u\" WHEN 1 THEN 'true' WHEN 0 THEN 'false' ELSE NULL END)".printf (variable_name);
 		} else if (binding.is_datetime) {
-			return "strftime (\"%%Y-%%m-%%dT%%H:%%M:%%S\", \"%s\", \"unixepoch\")".printf (variable_name);
+			return "strftime (\"%%Y-%%m-%%dT%%H:%%M:%%S\", \"%s_u\", \"unixepoch\")".printf (variable_name);
 		} else {
-			return "\"%s\"".printf (variable_name);
+			return "\"%s_u\"".printf (variable_name);
 		}
 	}
 
@@ -680,7 +679,7 @@ public class Tracker.SparqlQuery : Object {
 						pattern_sql.append (" WHERE ");
 						first_where = false;
 					}
-					pattern_sql.append_printf ("%s IS NOT NULL", variable);
+					pattern_sql.append_printf ("\"%s_u\" IS NOT NULL", variable);
 				}
 			}
 			foreach (LiteralBinding binding in pattern_bindings) {
@@ -905,7 +904,7 @@ public class Tracker.SparqlQuery : Object {
 				pattern_variables.append (binding.variable);
 				pattern_var_map.insert (binding.variable, binding_list);
 
-				pattern_sql.append_printf ("\"%s\".\"%s\" AS \"%s\", ",
+				pattern_sql.append_printf ("\"%s\".\"%s\" AS \"%s_u\", ",
 					binding.table.sql_query_tablename,
 					binding.sql_db_column_name,
 					binding.variable);
@@ -929,7 +928,7 @@ public class Tracker.SparqlQuery : Object {
 					pattern_variables.append (binding.variable);
 					pattern_var_map.insert (binding.variable, binding_list);
 
-					pattern_sql.append_printf ("\"%s\".\"%s\" AS \"%s\", ",
+					pattern_sql.append_printf ("\"%s\".\"%s\" AS \"%s_u\", ",
 						binding.table.sql_query_tablename,
 						binding.sql_db_column_name,
 						binding.variable);
@@ -983,7 +982,7 @@ public class Tracker.SparqlQuery : Object {
 					pattern_variables.append (binding.variable);
 					pattern_var_map.insert (binding.variable, binding_list);
 
-					pattern_sql.append_printf ("\"%s\".\"%s\" AS \"%s\", ",
+					pattern_sql.append_printf ("\"%s\".\"%s\" AS \"%s_u\", ",
 						binding.table.sql_query_tablename,
 						binding.sql_db_column_name,
 						binding.variable);
@@ -1116,7 +1115,7 @@ public class Tracker.SparqlQuery : Object {
 		case Rasqal.Op.LITERAL:
 			if (expr.literal.type == Rasqal.Literal.Type.VARIABLE) {
 				string variable_name = expr.literal.as_variable ().name;
-				pattern_sql.append (variable_name);
+				pattern_sql.append_printf ("\"%s_u\"", variable_name);
 			} else {
 				if (expr.literal.type == Rasqal.Literal.Type.URI) {
 					pattern_sql.append ("(SELECT ID FROM \"rdfs:Resource\" WHERE Uri = ?)");
