@@ -25,6 +25,7 @@ CREATE TABLE  Volumes
 );
 
 INSERT INTO Volumes (Enabled) VALUES ('1');
+CREATE INDEX VolumesIndex1 ON Volumes (VolumeID, UDI, MountPath, Enabled);
 
 /* provides links from one service entity to another (entities can be in different databases) */
 CREATE TABLE  ServiceLinks
