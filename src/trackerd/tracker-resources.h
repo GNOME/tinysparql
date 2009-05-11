@@ -51,8 +51,8 @@ struct TrackerResourcesClass {
 GType		 tracker_resources_get_type		 (void);
 TrackerResources *tracker_resources_new			 (void);
 
-void		 tracker_resources_set_event_sources	 (TrackerResources       *object,
-							  GSList                 *event_sources);
+void		 tracker_resources_prepare	 (TrackerResources       *object,
+						  GSList                 *event_sources);
 
 /* DBus methods */
 void		 tracker_resources_insert		 (TrackerResources	 *self,

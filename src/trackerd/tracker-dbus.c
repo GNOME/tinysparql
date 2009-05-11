@@ -371,7 +371,7 @@ tracker_dbus_register_objects (TrackerConfig	*config,
 	}
 
 
-	tracker_resources_set_event_sources (resources, event_sources);
+	tracker_resources_prepare (resources, event_sources);
 
 	return TRUE;
 }

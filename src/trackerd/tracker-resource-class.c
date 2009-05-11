@@ -38,21 +38,6 @@
 #include "tracker-resource-class.h"
 #include "tracker-marshal.h"
 
-#define RDF_PREFIX TRACKER_RDF_PREFIX
-#define RDF_TYPE RDF_PREFIX "type"
-
-static void on_statements_committed (gpointer user_data);
-static void on_statement_inserted   (const gchar *subject,
-				     const gchar *predicate,
-				     const gchar *object,
-				     GPtrArray   *rdf_types,
-				     gpointer user_data);
-static void on_statement_deleted    (const gchar *subject,
-				     const gchar *predicate,
-				     const gchar *object,
-				     GPtrArray   *rdf_types,
-				     gpointer user_data);
-
 #define TRACKER_RESOURCE_CLASS_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_RESOURCE_CLASS, TrackerResourceClassPrivate))
 
 typedef struct {
@@ -124,9 +109,6 @@ tracker_resource_class_class_init (TrackerResourceClassClass *klass)
 static void
 tracker_resource_class_init (TrackerResourceClass *object)
 {
-	tracker_data_set_insert_statement_callback (on_statement_inserted, object);
-	tracker_data_set_delete_statement_callback (on_statement_deleted, object);
-	tracker_data_set_commit_statement_callback (on_statements_committed, object);
 }
 
 static void
@@ -159,7 +141,7 @@ free_array (GPtrArray *array)
 	g_ptr_array_free (array, TRUE);
 }
 
-static void
+void
 tracker_resource_class_emit_events (TrackerResourceClass  *object)
 {
 	TrackerResourceClassPrivate *priv;
@@ -227,7 +209,7 @@ tracker_resource_class_get_rdf_class (TrackerResourceClass  *object)
 	return priv->rdf_class;
 }
 
-static void 
+void 
 tracker_resource_class_add_event (TrackerResourceClass  *object,
 				  const gchar           *uri,
 				  TrackerDBusEventsType type)
@@ -254,72 +236,5 @@ tracker_resource_class_add_event (TrackerResourceClass  *object,
 		break;
 		default:
 		break;
-	}
-}
-
-static void
-on_statements_committed (gpointer user_data)
-{
-	GPtrArray *events;
-
-	events = tracker_events_get_pending ();
-
-	if (events) {
-		GSList *event_sources, *l, *to_emit = NULL;
-		guint i;
-
-		for (i = 0; i < events->len; i++) {
-			GValueArray *event = events->pdata[i];
-			const gchar *uri = g_value_get_string (g_value_array_get_nth (event, 0));
-			const gchar *rdf_class = g_value_get_string (g_value_array_get_nth (event, 1));
-			TrackerDBusEventsType type = g_value_get_int (g_value_array_get_nth (event, 2));
-
-			for (l = event_sources; l; l = l->next) {
-				TrackerResourceClass *class_ = l->data;
-				if (g_strcmp0 (rdf_class, tracker_resource_class_get_rdf_class (class_)) == 0) {
-					tracker_resource_class_add_event (class_, uri, type);
-					to_emit = g_slist_prepend (to_emit, class_);
-				}
-			}
-		}
-
-		if (to_emit) {
-			for (l = to_emit; l; l = l->next) {
-				TrackerResourceClass *class_ = l->data;
-				tracker_resource_class_emit_events (class_);
-			}
-
-			g_slist_free (to_emit);
-		}
-	}
-
-	tracker_events_reset ();
-}
-
-static void
-on_statement_inserted (const gchar *subject,
-		       const gchar *predicate,
-		       const gchar *object,
-		       GPtrArray   *rdf_types,
-		       gpointer user_data)
-{
-	if (g_strcmp0 (predicate, RDF_PREFIX "type") == 0) {
-		tracker_events_insert (subject, object, rdf_types, TRACKER_DBUS_EVENTS_TYPE_ADD);
-	} else {
-		tracker_events_insert (subject, object, rdf_types, TRACKER_DBUS_EVENTS_TYPE_UPDATE);
-	}
-}
-
-static void
-on_statement_deleted (const gchar *subject,
-		      const gchar *predicate,
-		      const gchar *object,
-		      GPtrArray   *rdf_types,
-		      gpointer user_data)
-{
-	if (g_strcmp0 (predicate, RDF_PREFIX "type") == 0) {
-		tracker_events_insert (subject, object, rdf_types, TRACKER_DBUS_EVENTS_TYPE_DELETE);
-	} else {
-		tracker_events_insert (subject, object, rdf_types, TRACKER_DBUS_EVENTS_TYPE_UPDATE);
 	}
 }
