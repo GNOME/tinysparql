@@ -15,7 +15,7 @@ tracker_explorer.vala.stamp: $(tracker_explorer_VALASOURCES)
 
 tracker_explorer_CFLAGS = \
 	-DTRACKER_UI_DIR=\"$(datadir)/tracker/\"		\
-	-DSRCDIR=\"$(abssrcdir)/\"				\
+	-DSRCDIR=\"$(abs_srcdir)/\"				\
 	$(WARN_CFLAGS)						\
 	$(GLIB2_CFLAGS)						\
 	$(GCOV_CFLAGS)						\
