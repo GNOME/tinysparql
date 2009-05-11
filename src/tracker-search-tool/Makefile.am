@@ -7,7 +7,7 @@ INCLUDES = 	\
 	-DTRACKER_LOCALEDIR=\""$(localedir)"\" 			\
 	-DTRACKER_DATADIR=\""$(datadir)"\"			\
 	-DGREP_COMMAND=\""$(GREP_COMMAND)"\"			\
-	-I$(top_srcdir)/src/libtracker				\
+	-I$(top_srcdir)/src/					\
 	$(WARN_CFLAGS)						\
 	$(GLIB2_CFLAGS)						\
 	$(GCOV_CFLAGS)						\
