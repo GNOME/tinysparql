@@ -151,7 +151,7 @@ tracker_connect (gboolean enable_warnings)
 
 	connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
 
-	if (connection == NULL)	{
+	if (connection == NULL || error != NULL) {
 		if (enable_warnings) {
 			g_warning("Unable to connect to dbus: %s\n", error->message);
 		}
