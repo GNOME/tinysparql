@@ -860,16 +860,10 @@ static void
 check_stopped (TrackerIndexer *indexer,
 	       gboolean        interrupted)
 {
-	if ((indexer->private->state & TRACKER_INDEXER_STATE_STOPPED) == 0) {
-		schedule_flush (indexer, TRUE);
-		state_set_flags (indexer, TRACKER_INDEXER_STATE_STOPPED);
-		indexer->private->interrupted = (interrupted != FALSE);
-	} else {
-		/* If the indexer is stopped,
-		 * then it's ready for finishing right away
-		 */
-		check_finished (indexer, interrupted);
-	}
+	schedule_flush (indexer, TRUE);
+	state_set_flags (indexer, TRACKER_INDEXER_STATE_STOPPED);
+	indexer->private->interrupted = (interrupted != FALSE);
+	check_finished (indexer, interrupted);
 }
 
 static gboolean
