@@ -37,6 +37,7 @@ guint32  tracker_data_update_get_new_service_id         (TrackerDBInterface  *if
 /* Services  */
 gboolean tracker_data_update_create_service             (TrackerService      *service,
 							 guint32              service_id,
+							 const gchar         *udi,
 							 const gchar         *dirname,
 							 const gchar         *basename,
 							 GHashTable          *metadata);
@@ -51,7 +52,8 @@ gboolean tracker_data_update_move_service               (TrackerService      *se
 							 const gchar         *to);
 
 /* Turtle importing */
-void     tracker_data_update_replace_service            (const gchar         *path,
+void     tracker_data_update_replace_service            (const gchar         *udi,
+							 const gchar         *path,
 							 const gchar         *rdf_type,
 							 GHashTable          *metadata);
 void     tracker_data_update_delete_service_by_path     (const gchar         *path,

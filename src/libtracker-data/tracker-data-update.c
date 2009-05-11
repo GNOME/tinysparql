@@ -92,6 +92,7 @@ tracker_data_update_get_new_service_id (TrackerDBInterface *iface)
 gboolean
 tracker_data_update_create_service (TrackerService *service,
 				    guint32	    service_id,
+				    const gchar    *udi,
 				    const gchar	   *dirname,
 				    const gchar	   *basename,
 				    GHashTable     *metadata)
@@ -106,17 +107,20 @@ tracker_data_update_create_service (TrackerService *service,
 		return FALSE;
 	}
 
-	/* retrieve VolumeID */
 	iface = tracker_db_manager_get_db_interface (TRACKER_DB_COMMON);
-	result_set = tracker_db_interface_execute_procedure (iface, NULL,
-							     "GetVolumeByPath",
-							     dirname,
-							     dirname,
-							     NULL);
-	if (result_set) {
-		tracker_db_result_set_get (result_set, 0, &volume_id, -1);
-		g_object_unref (result_set);
+	
+	if (udi) {
+		result_set = tracker_db_interface_execute_procedure (iface, NULL,
+								     "GetVolumeID",
+								     udi,
+								     NULL);
+		
+		if (result_set) {
+			tracker_db_result_set_get (result_set, 0, &volume_id, -1);
+			g_object_unref (result_set);
+		}
 	}
+
 	volume_id_str = tracker_guint32_to_string (volume_id);
 
 	iface = tracker_db_manager_get_db_interface_by_type (tracker_service_get_name (service),
@@ -688,7 +692,8 @@ foreach_in_metadata_set_metadata (gpointer   predicate,
 }
 
 void 
-tracker_data_update_replace_service (const gchar *path,
+tracker_data_update_replace_service (const gchar *udi,
+				     const gchar *path,
 				     const gchar *rdf_type,
 				     GHashTable  *metadata)
 {
@@ -703,11 +708,13 @@ tracker_data_update_replace_service (const gchar *path,
 	gboolean             set_metadata = FALSE;
 	guint32              id = 0;
 
+	g_return_if_fail (udi != NULL);
 	g_return_if_fail (path != NULL);
 	g_return_if_fail (metadata != NULL);
 
-	if (!rdf_type)
+	if (!rdf_type) {
 		return;
+	}
 
 	service = tracker_ontology_get_service_by_name (rdf_type);
 
@@ -752,6 +759,7 @@ tracker_data_update_replace_service (const gchar *path,
 		id = tracker_data_update_get_new_service_id (iface);
 
 		if (tracker_data_update_create_service (service, id,
+							udi,
 							dirname, basename,
 							metadata)) {
 			set_metadata = TRUE;
@@ -795,10 +803,9 @@ tracker_data_update_enable_volume (const gchar *udi,
 	iface = tracker_db_manager_get_db_interface (TRACKER_DB_COMMON);
 
 	result_set = tracker_db_interface_execute_procedure (iface, NULL,
-					   "GetVolumeID",
-					   udi,
-					   NULL);
-
+							     "GetVolumeID",
+							     udi,
+							     NULL);
 
 	if (result_set) {
 		tracker_db_result_set_get (result_set, 0, &id, -1);

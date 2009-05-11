@@ -30,6 +30,8 @@
 
 #include <dbus/dbus-glib-lowlevel.h>
 
+#include <gio/gio.h>
+
 #include "tracker-log.h"
 #include "tracker-hal.h"
 #include "tracker-utils.h"
@@ -52,6 +54,7 @@ typedef struct {
 	GHashTable    *all_devices;
 	GHashTable    *mounted_devices;
 	GHashTable    *removable_devices;
+	GHashTable    *removable_mount_points;
 	GHashTable    *batteries;
 
 	gchar	      *ac_adapter_udi;
@@ -191,6 +194,12 @@ tracker_hal_init (TrackerHal *hal)
 							 g_str_equal,
 							 (GDestroyNotify) g_free,
 							 (GDestroyNotify) g_free);
+
+	priv->removable_mount_points = g_hash_table_new_full (g_str_hash,
+							      g_str_equal,
+							      (GDestroyNotify) g_free,
+							      (GDestroyNotify) g_free);
+
 	priv->batteries = g_hash_table_new_full (g_str_hash,
 						 g_str_equal,
 						 (GDestroyNotify) g_free,
@@ -263,6 +272,10 @@ tracker_hal_finalize (GObject *object)
 	TrackerHalPriv *priv;
 
 	priv = GET_PRIV (object);
+
+	if (priv->removable_mount_points) {
+		g_hash_table_unref (priv->removable_mount_points);
+	}
 
 	if (priv->removable_devices) {
 		g_hash_table_unref (priv->removable_devices);
@@ -532,6 +545,9 @@ hal_mount_point_add (TrackerHal  *hal,
 		g_hash_table_insert (priv->removable_devices,
 				     g_strdup (udi),
 				     g_strdup (mount_point));
+		g_hash_table_insert (priv->removable_mount_points,
+				     g_strdup (mount_point),
+				     g_strdup (udi));
 	}
 
 	g_signal_emit (hal, signals[MOUNT_POINT_ADDED], 0, udi, mount_point, NULL);
@@ -543,6 +559,7 @@ hal_mount_point_remove (TrackerHal  *hal,
 {
 	TrackerHalPriv *priv;
 	const gchar    *mount_point;
+	gboolean        was_removable;
 
 	priv = GET_PRIV (hal);
 
@@ -552,16 +569,18 @@ hal_mount_point_remove (TrackerHal  *hal,
 		return;
 	}
 
+	was_removable = g_hash_table_remove (priv->removable_devices, udi);
+	g_hash_table_remove (priv->removable_mount_points, mount_point);
+
 	g_message ("HAL device:'%s' with mount point:'%s' (uuid:'%s'), removable:%s NO LONGER being tracked",
 		   (const gchar*) g_hash_table_lookup (priv->all_devices, udi),
 		   mount_point,
 		   udi,
-		   g_hash_table_remove (priv->removable_devices, udi) ? "yes" : "no");
+		   was_removable ? "yes" : "no");
 	
 	g_signal_emit (hal, signals[MOUNT_POINT_REMOVED], 0, udi, mount_point, NULL);
 
 	g_hash_table_remove (priv->mounted_devices, udi);
-	g_hash_table_remove (priv->removable_devices, udi);
 }
 
 static const gchar *
@@ -1284,6 +1303,53 @@ tracker_hal_udi_get_is_mounted (TrackerHal  *hal,
 
 	return is_mounted && mount_point;
 
+}
+
+/**
+ * tracker_hal_udi_get_for_path:
+ * @hal: A #TrackerHal
+ * @file: a file
+ *
+ * Returns the UDI of the removable device for @file
+ *
+ * Returns: Returns the UDI of the removable device for @file
+ **/
+const gchar *
+tracker_hal_udi_get_for_path (TrackerHal  *hal,
+			      const gchar *path)
+{
+	TrackerHalPriv *priv;
+	GFile          *file, *file_for_mount_point;
+	GMount         *mount;
+	GError         *error = NULL;
+	gchar          *path_for_mount_point;
+	const gchar    *udi;
+
+	g_return_val_if_fail (TRACKER_IS_HAL (hal), NULL);
+	g_return_val_if_fail (path != NULL, NULL);
+
+	/* Get the actual mount point root for the given path */
+	file = g_file_new_for_path (path);
+	mount = g_file_find_enclosing_mount (file, NULL, &error);
+	g_object_unref (file);
+
+	if (!mount) {
+		return NULL;
+	}
+
+	file_for_mount_point = g_mount_get_root (mount);
+	path_for_mount_point = g_file_get_path (file_for_mount_point);
+	g_object_unref (file_for_mount_point);
+	g_object_unref (mount);
+
+	/* Now check against all volumes to get the right UDI */
+	priv = GET_PRIV (hal);
+
+	udi = g_hash_table_lookup (priv->removable_mount_points, 
+				   path_for_mount_point);
+	g_free (path_for_mount_point);
+
+	return udi;
 }
 
 #endif /* HAVE_HAL */

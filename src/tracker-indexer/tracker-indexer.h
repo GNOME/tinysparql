@@ -25,6 +25,8 @@
 #include <glib-object.h>
 #include <dbus/dbus-glib.h>
 
+#include <libtracker-common/tracker-hal.h>
+
 #define TRACKER_DAEMON_SERVICE	     "org.freedesktop.Tracker"
 #define TRACKER_INDEXER_SERVICE      "org.freedesktop.Tracker.Indexer"
 #define TRACKER_INDEXER_PATH	     "/org/freedesktop/Tracker/Indexer"
@@ -92,6 +94,7 @@ void            tracker_indexer_process_modules     (TrackerIndexer         *ind
 						     gchar                 **modules);
 void		tracker_indexer_transaction_commit  (TrackerIndexer         *indexer);
 void		tracker_indexer_transaction_open    (TrackerIndexer         *indexer);
+TrackerHal *    tracker_indexer_get_hal             (TrackerIndexer         *indexer);
 
 /* DBus methods */
 void            tracker_indexer_pause               (TrackerIndexer         *indexer,

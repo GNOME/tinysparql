@@ -104,17 +104,26 @@ commit_turtle_parse_info_storer (TurtleStorerInfo *info,
 		}
 
 		if (info->rdf_type) {
+			TrackerHal *hal;
+			const gchar *udi;
+
 			/* We ignore records that didn't have an <rdf:type> 
 			 * predicate. Those are just wrong anyway.
 			 */
+
 			switch (task) {
 			case REMOVAL:
 				tracker_data_update_delete_service_by_path (path, info->rdf_type);
 				break;
 			case MOVE:
 				data = tracker_module_metadata_get_hash_table (info->metadata);
+
+				hal = tracker_indexer_get_hal (info->indexer);
+				udi = tracker_hal_udi_get_for_path (hal, dest_path);
+
 				tracker_data_update_delete_service_by_path (path, info->rdf_type);
-				tracker_data_update_replace_service (dest_path,
+				tracker_data_update_replace_service (udi,
+								     dest_path,
 								     info->rdf_type,
 								     data);
 				g_hash_table_destroy (data);
@@ -122,7 +131,12 @@ commit_turtle_parse_info_storer (TurtleStorerInfo *info,
 			case REPLACE:
 			default:
 				data = tracker_module_metadata_get_hash_table (info->metadata);
-				tracker_data_update_replace_service (path,
+
+				hal = tracker_indexer_get_hal (info->indexer);
+				udi = tracker_hal_udi_get_for_path (hal, path);
+
+				tracker_data_update_replace_service (udi, 
+								     path,
 								     info->rdf_type,
 								     data);
 				g_hash_table_destroy (data);

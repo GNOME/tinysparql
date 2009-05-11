@@ -51,25 +51,23 @@ struct _TrackerHalClass {
 #ifdef HAVE_HAL
 
 GType	     tracker_hal_get_type		     (void) G_GNUC_CONST;
-
 TrackerHal * tracker_hal_new                         (void);
-
-gboolean     tracker_hal_get_battery_in_use          (TrackerHal  *hal);
-gboolean     tracker_hal_get_battery_exists          (TrackerHal  *hal);
-gdouble      tracker_hal_get_battery_percentage      (TrackerHal  *hal);
-
-GList *      tracker_hal_get_mounted_directory_roots (TrackerHal  *hal);
-GList *      tracker_hal_get_removable_device_roots  (TrackerHal  *hal);
-GList *      tracker_hal_get_removable_device_udis   (TrackerHal  *hal);
-
-const gchar *tracker_hal_udi_get_mount_point         (TrackerHal  *hal,
-						      const gchar *udi);
-gboolean     tracker_hal_udi_get_is_mounted          (TrackerHal  *hal,
-						      const gchar *udi);
-gboolean     tracker_hal_path_is_on_removable_device (TrackerHal  *hal,
-						      const gchar *path,
-						      gchar      **mount_point,
-						      gboolean    *available);
+gboolean     tracker_hal_get_battery_in_use          (TrackerHal   *hal);
+gboolean     tracker_hal_get_battery_exists          (TrackerHal   *hal);
+gdouble      tracker_hal_get_battery_percentage      (TrackerHal   *hal);
+GList *      tracker_hal_get_mounted_directory_roots (TrackerHal   *hal);
+GList *      tracker_hal_get_removable_device_roots  (TrackerHal   *hal);
+GList *      tracker_hal_get_removable_device_udis   (TrackerHal   *hal);
+const gchar *tracker_hal_udi_get_mount_point         (TrackerHal   *hal,
+						      const gchar  *udi);
+gboolean     tracker_hal_udi_get_is_mounted          (TrackerHal   *hal,
+						      const gchar  *udi);
+const gchar *tracker_hal_udi_get_for_path            (TrackerHal   *hal,
+						      const gchar  *path);
+gboolean     tracker_hal_path_is_on_removable_device (TrackerHal   *hal,
+						      const gchar  *path,
+						      gchar       **mount_point,
+						      gboolean     *available);
 
 #endif /* HAVE_HAL */
 

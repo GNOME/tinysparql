@@ -56,7 +56,6 @@
 #include <libtracker-common/tracker-config.h>
 #include <libtracker-common/tracker-dbus.h>
 #include <libtracker-common/tracker-file-utils.h>
-#include <libtracker-common/tracker-hal.h>
 #include <libtracker-common/tracker-language.h>
 #include <libtracker-common/tracker-parser.h>
 #include <libtracker-common/tracker-ontology.h>
@@ -438,7 +437,6 @@ tracker_indexer_transaction_commit (TrackerIndexer *indexer)
 {
 	stop_transaction (indexer);
 	tracker_indexer_set_running (indexer, TRUE);
-
 }
 
 void
@@ -446,6 +444,14 @@ tracker_indexer_transaction_open (TrackerIndexer *indexer)
 {
 	tracker_indexer_set_running (indexer, FALSE);
 	start_transaction (indexer);
+}
+
+TrackerHal *
+tracker_indexer_get_hal (TrackerIndexer *indexer)
+{
+	g_return_val_if_fail (TRACKER_IS_INDEXER (indexer), NULL);
+
+	return indexer->private->hal;
 }
 
 #ifdef HAVE_HAL
@@ -1722,6 +1728,7 @@ item_add_or_update (TrackerIndexer        *indexer,
 		tracker_data_metadata_free (old_metadata_non_emb);
 	} else {
 		GHashTable *data;
+		const gchar *udi;
 
 		g_debug ("Adding item '%s/%s'",
 			 dirname,
@@ -1730,9 +1737,11 @@ item_add_or_update (TrackerIndexer        *indexer,
 		/* Service wasn't previously indexed */
 		id = tracker_data_update_get_new_service_id (indexer->private->common);
 		data = tracker_module_metadata_get_hash_table (metadata);
+		udi = tracker_hal_udi_get_for_path (indexer->private->hal, dirname);
 
 		tracker_data_update_create_service (service,
 						    id,
+						    udi,
 						    dirname,
 						    basename,
 						    data);
