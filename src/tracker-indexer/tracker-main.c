@@ -54,7 +54,6 @@
 #include "tracker-dbus.h"
 #include "tracker-indexer.h"
 #include "tracker-indexer-glue.h"
-#include "tracker-push.h"
 
 #define ABOUT								  \
 	"Tracker " PACKAGE_VERSION "\n"
@@ -417,8 +416,6 @@ main (gint argc, gchar *argv[])
                 tracker_indexer_process_modules (indexer, modules);
         }
 
-	tracker_push_init (config, indexer);
-
 	tracker_turtle_init ();
 
 	g_message ("Starting...");
@@ -439,8 +436,6 @@ main (gint argc, gchar *argv[])
 
 	g_object_unref (config);
 	g_object_unref (language);
-
-	tracker_push_shutdown ();
 
 	tracker_thumbnailer_shutdown ();
 	tracker_dbus_shutdown ();

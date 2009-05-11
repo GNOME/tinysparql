@@ -8,7 +8,6 @@ INCLUDES =								\
 	-DPKGLIBDIR=\""$(libdir)/tracker"\"					\
 	-DLOCALEDIR=\""$(localedir)"\" 					\
 	-DINDEXER_MODULES_DIR=\""$(libdir)/tracker-$(TRACKER_API_VERSION)/indexer-modules"\"	\
-	-DPUSH_MODULES_DIR=\""$(libdir)/tracker-$(TRACKER_API_VERSION)/push-modules/indexer"\" \
 	-DLIBEXEC_PATH=\""$(libexecdir)"\"				\
 	-DG_LOG_DOMAIN=\"Tracker\"					\
 	-DTRACKER_COMPILATION						\
@@ -52,9 +51,7 @@ tracker_indexer_SOURCES =						\
 	tracker-module-metadata-private.h				\
 	tracker-marshal-main.c						\
 	tracker-removable-device.c					\
-	tracker-removable-device.h					\
-	tracker-push.c							\
-	tracker-push.h
+	tracker-removable-device.h					
 
 tracker_indexer_LDADD =							\
 	$(plugin_libs)							\
