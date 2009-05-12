@@ -500,35 +500,37 @@ tracker_albumart_heuristic (const gchar *artist_,
 					g_object_unref (file_found);
 				} else {
 #ifdef HAVE_GDKPIXBUF
-					GdkPixbuf *pixbuf;
-					
-					found = g_build_filename (dirname, name, NULL);
-					pixbuf = gdk_pixbuf_new_from_file (found, &error);
-					
-					if (error) {
-						g_error_free (error);
-						retval = FALSE;
-					} else {
-						if (!target) {
-							tracker_albumart_get_path (artist, 
-										   album, 
-										   "album", 
-										   NULL, 
-										   &target, 
-										   NULL);
-						}
+					if (g_str_has_suffix (name, "png")) {
+						GdkPixbuf *pixbuf;
 						
-						gdk_pixbuf_save (pixbuf, target, "jpeg", &error, NULL);
+						found = g_build_filename (dirname, name, NULL);
+						pixbuf = gdk_pixbuf_new_from_file (found, &error);
 						
-						if (!error) {
-							retval = TRUE;
-						} else {
+						if (error) {
 							g_error_free (error);
 							retval = FALSE;
+						} else {
+							if (!target) {
+								tracker_albumart_get_path (artist, 
+											   album, 
+											   "album", 
+											   NULL, 
+											   &target, 
+											   NULL);
+							}
+							
+							gdk_pixbuf_save (pixbuf, target, "jpeg", &error, NULL);
+							
+							if (!error) {
+								retval = TRUE;
+							} else {
+								g_error_free (error);
+								retval = FALSE;
+							}
 						}
+						
+						g_free (found);
 					}
-					
-					g_free (found);
 #else  /* HAVE_GDKPIXBUF */
 					retval = FALSE;
 #endif /* HAVE_GDKPIXBUF */
