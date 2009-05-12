@@ -578,7 +578,7 @@ SQLITE_REQUIRED=3.5
 
 PKG_CHECK_MODULES(SQLITE3, [sqlite3 >= $SQLITE_REQUIRED])
 AC_CHECK_LIB([sqlite3], [sqlite3_enable_load_extension], [:],
-  [AC_MSG_ERROR([SQLite must be configured with --enable-load-extenstion.])])
+  [AC_MSG_ERROR([SQLite must be configured with --enable-load-extension.])])
 AC_SUBST(SQLITE3_CFLAGS)
 AC_SUBST(SQLITE3_LIBS)
 
@@ -1342,7 +1342,7 @@ AC_CONFIG_FILES([
 	data/modules/Makefile
 	data/ontologies/Makefile
 	data/tracker.pc
-	data/tracker-module-1.0.pc
+	data/tracker-module.pc
 	docs/Makefile
 	docs/design/Makefile
 	docs/manpages/Makefile

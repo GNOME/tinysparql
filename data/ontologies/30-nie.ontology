@@ -239,3 +239,7 @@ nie:rootElementOf a rdf:Property ;
 	rdfs:domain nie:InformationElement ;
 	rdfs:range nie:DataSource .
 
+nie:usageCounter a rdf:Property ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nie:InformationElement ;
+	rdfs:range xsd:integer.

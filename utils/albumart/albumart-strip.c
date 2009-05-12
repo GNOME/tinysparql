@@ -31,8 +31,8 @@ static gchar	    **text;
 static GOptionEntry   entries[] = {
 	{ G_OPTION_REMAINING, 0, 0,
 	  G_OPTION_ARG_STRING_ARRAY, &text,
-	  N_("album or artist"),
-	  N_("EXPRESSION")
+	  "album or artist",
+	  "EXPRESSION"
 	},
 	{ NULL }
 };
@@ -46,8 +46,8 @@ main (int argc, char *argv[])
 
 	setlocale (LC_ALL, "");
 
-	context = g_option_context_new (_("- Test albumart text stripping"));
-	summary = g_strconcat (_("You can use this utility to check album/artist strings, for example:"),
+	context = g_option_context_new ("- Test albumart text stripping");
+	summary = g_strconcat ("You can use this utility to check album/artist strings, for example:",
 			       "\n",
 			       "\n",
 			       "  \"[I_am_da_man dwz m1 mp3ieez] Jhonny Dee - "
@@ -62,7 +62,7 @@ main (int argc, char *argv[])
 		gchar *help;
 
 		g_printerr ("%s\n\n",
-			    _("No album/artist text was provided"));
+			    "No album/artist text was provided");
 
 		help = g_option_context_get_help (context, TRUE, NULL);
 		g_option_context_free (context);
@@ -79,7 +79,7 @@ main (int argc, char *argv[])
 
 		g_print ("\n");
 
-		g_print ("%s:\n", _("Converted to"));
+		g_print ("%s:\n", "Converted to");
 
 		output = tracker_albumart_strip_invalid_entities (*p);
 		g_print ("  %s\n", output);

@@ -80,6 +80,7 @@ typedef struct {
 	const gchar *urn;
 	const gchar *rdf_type;
 	const gchar *predicate;
+	gchar      **nullify;
 } Matches;
 
 typedef struct {
@@ -100,6 +101,8 @@ typedef struct {
 
 	unsigned char *albumartdata;
 	size_t         albumartsize;
+
+	id3tag        *id3v1_info;
 } file_data;
 
 enum {
@@ -316,10 +319,13 @@ read_id3v1_buffer (int fd, goffset size)
 	guint bytes_read;
 	guint rc;
 
-	if (lseek (fd, size-ID3V1_SIZE, SEEK_SET) < 0) {
+	if (size<128) {
 		return NULL;
 	}
 
+	if (lseek (fd, size-ID3V1_SIZE, SEEK_SET) < 0) {
+		return NULL;
+	}
 
 	buffer = g_malloc (ID3V1_SIZE);
 
@@ -459,6 +465,17 @@ un_unsync (const unsigned char *source,
 	*dest_size = new_size;
 }
 
+/* convert string from ISO-8859-1 to UTF-8 and strip leading and trailing whitespace */
+static gchar *
+convert_and_strip (const gchar *str,
+                   gssize       len)
+{
+	return g_strstrip (g_convert (str, len,
+				      "UTF-8",
+				      "ISO-8859-1",
+				      NULL, NULL, NULL));
+}
+
 static gboolean
 get_id3 (const gchar *data,
 	 size_t       size,
@@ -467,6 +484,10 @@ get_id3 (const gchar *data,
 	const gchar *pos;
 	gchar buf[5];
 
+	if (!data) {
+		return FALSE;
+	}
+	
 	if (size < 128) {
 		return FALSE;
 	}
@@ -479,41 +500,23 @@ get_id3 (const gchar *data,
 
 	pos += 3;
 
-	id3->title = g_convert (pos, 30,
-				"UTF-8",
-				"ISO-8859-1",
-				NULL, NULL, NULL);
+	id3->title = convert_and_strip (pos, 30);
 
 	pos += 30;
-	id3->artist = g_convert (pos, 30,
-				 "UTF-8",
-				 "ISO-8859-1",
-				 NULL, NULL, NULL);
+	id3->artist = convert_and_strip (pos, 30);
 	pos += 30;
-	id3->album = g_convert (pos, 30,
-				"UTF-8",
-				"ISO-8859-1",
-				NULL, NULL, NULL);
+	id3->album = convert_and_strip (pos, 30);
 	pos += 30;
-	id3->year = g_convert (pos, 4,
-			       "UTF-8",
-			       "ISO-8859-1",
-			       NULL, NULL, NULL);
+	id3->year = convert_and_strip (pos, 4);
 
 	pos += 4;
 
 	if (pos[28] != (guint)0) {
-		id3->comment = g_convert (pos, 30,
-					  "UTF-8",
-					  "ISO-8859-1",
-					  NULL, NULL, NULL);
+		id3->comment = convert_and_strip (pos, 30);
 
 		id3->trackno = NULL;
 	} else {
-		id3->comment = g_convert (pos, 28,
-					  "UTF-8",
-					  "ISO-8859-1",
-					  NULL, NULL, NULL);
+		id3->comment = convert_and_strip (pos, 28);
 		snprintf (buf, 5, "%d", pos[29]);
 		id3->trackno = strdup(buf);
 	}
@@ -754,26 +757,26 @@ get_id3v24_tags (const gchar *data,
 {
 	guint pos = 0;
 	Matches tmap[] = {
-		{"TCOP", NIE_PREFIX "copyright", NULL, NULL, NULL},
-		{"TDRC", NIE_PREFIX "contentCreated", NULL, NULL, NULL},
-		{"TCON", NFO_PREFIX "genre", NULL, NULL, NULL},
-		{"TIT1", NFO_PREFIX "genre", NULL, NULL, NULL},
-		{"TENC", NCO_PREFIX "publisher", "publisher", NMM_PREFIX "Artist", NMM_PREFIX "artistName"},
-		{"TEXT", NIE_PREFIX "plainTextContent", FALSE},
-		{"TPE1", NMM_PREFIX "performer", "artist", NMM_PREFIX "Artist", NMM_PREFIX "artistName"},
-		{"TPE2", NMM_PREFIX "performer", "artist", NMM_PREFIX "Artist", NMM_PREFIX "artistName"},
-		{"TPE3", NMM_PREFIX "performer", "artist", NMM_PREFIX "Artist", NMM_PREFIX "artistName"},
+		{"TCOP", NIE_PREFIX "copyright", NULL, NULL, NULL, NULL},
+		{"TDRC", NIE_PREFIX "contentCreated", NULL, NULL, NULL, &filedata->id3v1_info->year},
+		{"TCON", NFO_PREFIX "genre", NULL, NULL, NULL, &filedata->id3v1_info->genre},
+		{"TIT1", NFO_PREFIX "genre", NULL, NULL, NULL, &filedata->id3v1_info->genre},
+		{"TENC", NCO_PREFIX "publisher", "publisher", NMM_PREFIX "Artist", NMM_PREFIX "artistName", NULL},
+		{"TEXT", NIE_PREFIX "plainTextContent", NULL, NULL, NULL, NULL},
+		{"TPE1", NMM_PREFIX "performer", "artist", NMM_PREFIX "Artist", NMM_PREFIX "artistName", &filedata->id3v1_info->artist},
+		{"TPE2", NMM_PREFIX "performer", "artist", NMM_PREFIX "Artist", NMM_PREFIX "artistName", &filedata->id3v1_info->artist},
+		{"TPE3", NMM_PREFIX "performer", "artist", NMM_PREFIX "Artist", NMM_PREFIX "artistName", &filedata->id3v1_info->artist},
 		/*	{"TOPE", NID3_LEAD_ARTIST}, We dont' want the original artist for now */
-		{"TPUB", NCO_PREFIX "publisher", "publisher", NMM_PREFIX "Artist", NMM_PREFIX "artistName"},
-		{"TOAL", NIE_PREFIX "title", NULL, NULL, NULL},
-		{"TALB", NIE_PREFIX "title" , NULL, NULL, NULL},
-		{"TLAN", NIE_PREFIX "language", NULL, NULL, NULL},
-		{"TIT2", NIE_PREFIX "title", NULL, NULL, NULL},
-		{"TIT3", NIE_PREFIX "comment", NULL, NULL, NULL},
-		{"TDRL", NIE_PREFIX "contentCreated", NULL, NULL, NULL},
-		{"TRCK", NMM_PREFIX "trackNumber", NULL, NULL, NULL},
+		{"TPUB", NCO_PREFIX "publisher", "publisher", NMM_PREFIX "Artist", NMM_PREFIX "artistName", &filedata->id3v1_info->artist},
+		{"TOAL", NMM_PREFIX "musicAlbum", "album", NMM_PREFIX "MusicAlbum", NMM_PREFIX "albumTitle", &filedata->id3v1_info->album},
+		{"TALB", NMM_PREFIX "musicAlbum", "album", NMM_PREFIX "MusicAlbum", NMM_PREFIX "albumTitle", &filedata->id3v1_info->album},
+		{"TLAN", NIE_PREFIX "language", NULL, NULL, NULL, NULL},
+		{"TIT2", NIE_PREFIX "title", NULL, NULL, NULL, &filedata->id3v1_info->title},
+		{"TIT3", NIE_PREFIX "comment", NULL, NULL, NULL, &filedata->id3v1_info->comment},
+		{"TDRL", NIE_PREFIX "contentCreated", NULL, NULL, NULL, &filedata->id3v1_info->year},
+		{"TRCK", NMM_PREFIX "trackNumber", NULL, NULL, NULL, &filedata->id3v1_info->trackno},
 		/* TODO Nepomukify {"PCNT", "Audio:PlayCount"}, */
-		{"TLEN", NMM_PREFIX "length", NULL, NULL, NULL},
+		{"TLEN", NMM_PREFIX "length", NULL, NULL, NULL, NULL},
 		{NULL, 0, NULL, NULL, NULL},
 	};
 
@@ -864,6 +867,8 @@ get_id3v24_tags (const gchar *data,
 				csize--;
 
 				if (!tracker_is_empty_string (word)) {       
+					g_strstrip (word);
+
 					if (strcmp (tmap[i].text, "TRCK") == 0) {
 						gchar **parts;
 
@@ -891,6 +896,11 @@ get_id3v24_tags (const gchar *data,
 						filedata->duration = duration/1000;
 					}
 
+					if (tmap[i].nullify) {
+						/* prefer ID3v2 tag over ID3v1 tag */
+						g_free (*tmap[i].nullify);
+						*tmap[i].nullify = NULL;
+					}
 					if (tmap[i].urn) {
 						gchar *canonical_uri = tmap[i].urn[0]!=':'?tracker_uri_printf_escaped ("urn:%s:%s", tmap[i].urn, word):g_strdup(tmap[i].urn);
 						tracker_statement_list_insert (metadata, canonical_uri, RDF_TYPE, tmap[i].rdf_type);
@@ -969,6 +979,8 @@ get_id3v24_tags (const gchar *data,
 			}
 
 			if (!tracker_is_empty_string (word)) {
+				g_strstrip (word);
+
 				tracker_statement_list_insert (metadata, uri,
 						     NIE_PREFIX "comment",
 						     word);
@@ -1015,25 +1027,25 @@ get_id3v23_tags (const gchar *data,
 {
 	guint	pos = 0;
 	Matches tmap[] = {
-		{"TCOP", NIE_PREFIX "copyright", NULL, NULL, NULL},
-		{"TDAT", NIE_PREFIX "contentCreated", NULL, NULL, NULL},
-		{"TCON", NFO_PREFIX "genre", NULL, NULL, NULL},
-		{"TIT1", NFO_PREFIX "genre", NULL, NULL, NULL},
-		{"TENC", NCO_PREFIX "publisher", "publisher", NMM_PREFIX "Artist", NMM_PREFIX "artistName"},
-		{"TEXT", NIE_PREFIX "plainTextContent", NULL, NULL, NULL},
-		{"TPE1", NMM_PREFIX "performer", "artist", NMM_PREFIX "Artist", NMM_PREFIX "artistName"},
-		{"TPE2", NMM_PREFIX "performer", "artist", NMM_PREFIX "Artist", NMM_PREFIX "artistName"},
-		{"TPE3", NMM_PREFIX "performer", "artist", NMM_PREFIX "Artist", NMM_PREFIX "artistName"},
+		{"TCOP", NIE_PREFIX "copyright", NULL, NULL, NULL, NULL},
+		{"TDAT", NIE_PREFIX "contentCreated", NULL, NULL, NULL, &filedata->id3v1_info->year},
+		{"TCON", NFO_PREFIX "genre", NULL, NULL, NULL, &filedata->id3v1_info->genre},
+		{"TIT1", NFO_PREFIX "genre", NULL, NULL, NULL, &filedata->id3v1_info->genre},
+		{"TENC", NCO_PREFIX "publisher", "publisher", NMM_PREFIX "Artist", NMM_PREFIX "artistName", &filedata->id3v1_info->artist},
+		{"TEXT", NIE_PREFIX "plainTextContent", NULL, NULL, NULL, NULL},
+		{"TPE1", NMM_PREFIX "performer", "artist", NMM_PREFIX "Artist", NMM_PREFIX "artistName", &filedata->id3v1_info->artist},
+		{"TPE2", NMM_PREFIX "performer", "artist", NMM_PREFIX "Artist", NMM_PREFIX "artistName", &filedata->id3v1_info->artist},
+		{"TPE3", NMM_PREFIX "performer", "artist", NMM_PREFIX "Artist", NMM_PREFIX "artistName", &filedata->id3v1_info->artist},
 		/*	{"TOPE", NID3_LEAD_ARTIST}, We don't want the original artist for now */
-		{"TPUB", NCO_PREFIX "publisher", "publisher", NMM_PREFIX "Artist", NMM_PREFIX "artistName"},
-		{"TOAL", NIE_PREFIX "title", NULL, NULL, NULL},
-		{"TALB", NIE_PREFIX "title", NULL, NULL, NULL},
-		{"TLAN", NIE_PREFIX "language", NULL, NULL, NULL},
-		{"TIT2", NIE_PREFIX "title", NULL, NULL, NULL},
-		{"TYER", NIE_PREFIX "contentCreated", NULL, NULL, NULL},
-		{"TRCK", NMM_PREFIX "trackNumber", NULL, NULL, NULL},
+		{"TPUB", NCO_PREFIX "publisher", "publisher", NMM_PREFIX "Artist", NMM_PREFIX "artistName", NULL},
+		{"TOAL", NMM_PREFIX "musicAlbum", "album", NMM_PREFIX "MusicAlbum", NMM_PREFIX "albumTitle", &filedata->id3v1_info->album},
+		{"TALB", NMM_PREFIX "musicAlbum", "album", NMM_PREFIX "MusicAlbum", NMM_PREFIX "albumTitle", &filedata->id3v1_info->album},
+		{"TLAN", NIE_PREFIX "language", NULL, NULL, NULL, NULL},
+		{"TIT2", NIE_PREFIX "title", NULL, NULL, NULL, &filedata->id3v1_info->title},
+		{"TYER", NIE_PREFIX "contentCreated", NULL, NULL, NULL, &filedata->id3v1_info->year},
+		{"TRCK", NMM_PREFIX "trackNumber", NULL, NULL, NULL, &filedata->id3v1_info->trackno},
 		/* TODO Nepomukify {"PCNT", "Audio:PlayCount"}, */
-		{"TLEN", NMM_PREFIX "duration", NULL, NULL, NULL},
+		{"TLEN", NMM_PREFIX "length", NULL, NULL, NULL, NULL},
 		{NULL, 0, NULL, NULL, NULL},
 	};
 
@@ -1115,6 +1127,8 @@ get_id3v23_tags (const gchar *data,
 				csize--;
 
 				if (!tracker_is_empty_string (word)) {
+					g_strstrip (word);
+
 					if (strcmp (tmap[i].text, "TRCK") == 0) {
 						gchar **parts;
 
@@ -1142,6 +1156,11 @@ get_id3v23_tags (const gchar *data,
 						filedata->duration = duration/1000;
 					}
 
+					if (tmap[i].nullify) {
+						/* prefer ID3v2 tag over ID3v1 tag */
+						g_free (*tmap[i].nullify);
+						*tmap[i].nullify = NULL;
+					}
 					if (tmap[i].urn) {
 						gchar *canonical_uri = tmap[i].urn[0]!=':'?tracker_uri_printf_escaped ("urn:%s:%s", tmap[i].urn, word):g_strdup(tmap[i].urn);
 						tracker_statement_list_insert (metadata, canonical_uri, RDF_TYPE, tmap[i].rdf_type);
@@ -1211,6 +1230,8 @@ get_id3v23_tags (const gchar *data,
 			}
 
 			if (!tracker_is_empty_string (word)) {
+				g_strstrip (word);
+
 				tracker_statement_list_insert (metadata, uri,
 						     NIE_PREFIX "comment",
 						     word);
@@ -1256,31 +1277,31 @@ get_id3v20_tags (const gchar *data,
 {
 	guint	pos = 0;
 	Matches tmap[] = {
-		{"TAL", NIE_PREFIX "musicAlbum", "album", NMM_PREFIX "MusicAlbum", NMM_PREFIX "albumTitle"},
-		{"TT1", NMM_PREFIX "performer", "artist", NMM_PREFIX "Artist", NMM_PREFIX "artistName"},
-		{"TT2", NIE_PREFIX "title", NULL, NULL, NULL},
-		{"TT3", NIE_PREFIX "title", NULL, NULL, NULL},
-		{"TXT", NIE_PREFIX "comment", NULL, NULL, NULL},
-		{"TPB", NCO_PREFIX "publisher", "publisher", NMM_PREFIX "Artist", NMM_PREFIX "artistName"},
+		{"TAL", NMM_PREFIX "musicAlbum", "album", NMM_PREFIX "MusicAlbum", NMM_PREFIX "albumTitle", &filedata->id3v1_info->album},
+		{"TT1", NMM_PREFIX "performer", "artist", NMM_PREFIX "Artist", NMM_PREFIX "artistName", &filedata->id3v1_info->artist},
+		{"TT2", NIE_PREFIX "title", NULL, NULL, NULL, &filedata->id3v1_info->title},
+		{"TT3", NIE_PREFIX "title", NULL, NULL, NULL, &filedata->id3v1_info->title},
+		{"TXT", NIE_PREFIX "comment", NULL, NULL, NULL, &filedata->id3v1_info->comment},
+		{"TPB", NCO_PREFIX "publisher", "publisher", NMM_PREFIX "Artist", NMM_PREFIX "artistName", &filedata->id3v1_info->artist},
 		/* TODO {"WAF", "DC:Location", NULL, NULL, NULL},
 		   TODO {"WAR", "DC:Location", NULL, NULL, NULL},
 		   TODO {"WAS", "DC:Location", NULL, NULL, NULL},
 		   TODO {"WAF", "DC:Location", NULL, NULL, NULL}, */
-		{"WCM", NIE_PREFIX "license", NULL, NULL, NULL},
-		{"TYE", NIE_PREFIX "contentCreated"},
-		{"TLA", NIE_PREFIX "language", NULL, NULL, NULL},
-		{"TP1", NMM_PREFIX "performer", "artist", NMM_PREFIX "Artist", NMM_PREFIX "artistName"},
-		{"TP2", NMM_PREFIX "performer", "artist", NMM_PREFIX "Artist", NMM_PREFIX "artistName"},
-		{"TP3", NMM_PREFIX "performer", "artist", NMM_PREFIX "Artist", NMM_PREFIX "artistName"},
-		{"TEN", NMM_PREFIX "performer", "artist", NMM_PREFIX "Artist", NMM_PREFIX "artistName"},
-		{"TCO", NMM_PREFIX "genre", NULL, NULL, NULL},
-		{"TCR", NIE_PREFIX "copyright", NULL, NULL, NULL},
-		{"SLT", NIE_PREFIX "plainTextContent"}, /* Lyrics */
-		{"TOA", NMM_PREFIX "performer", "artist", NMM_PREFIX "Artist", NMM_PREFIX "artistName"},
-		{"TOT", NIE_PREFIX "title", NULL, NULL, NULL},
-		{"TOL", NMM_PREFIX "performer", "artist", NMM_PREFIX "Artist", NMM_PREFIX "artistName"},
-		{"COM", NIE_PREFIX "comment", NULL, NULL, NULL},
-		{"TLE", NMM_PREFIX "duration", NULL, NULL, NULL},
+		{"WCM", NIE_PREFIX "license", NULL, NULL, NULL, NULL},
+		{"TYE", NIE_PREFIX "contentCreated", NULL, NULL, NULL, &filedata->id3v1_info->year},
+		{"TLA", NIE_PREFIX "language", NULL, NULL, NULL, NULL},
+		{"TP1", NMM_PREFIX "performer", "artist", NMM_PREFIX "Artist", NMM_PREFIX "artistName", &filedata->id3v1_info->artist},
+		{"TP2", NMM_PREFIX "performer", "artist", NMM_PREFIX "Artist", NMM_PREFIX "artistName", &filedata->id3v1_info->artist},
+		{"TP3", NMM_PREFIX "performer", "artist", NMM_PREFIX "Artist", NMM_PREFIX "artistName", &filedata->id3v1_info->artist},
+		{"TEN", NMM_PREFIX "performer", "artist", NMM_PREFIX "Artist", NMM_PREFIX "artistName", &filedata->id3v1_info->artist},
+		{"TCO", NMM_PREFIX "genre", NULL, NULL, NULL, &filedata->id3v1_info->genre},
+		{"TCR", NIE_PREFIX "copyright", NULL, NULL, NULL, NULL},
+		{"SLT", NIE_PREFIX "plainTextContent", NULL, NULL, NULL, NULL}, /* Lyrics */
+		{"TOA", NMM_PREFIX "performer", "artist", NMM_PREFIX "Artist", NMM_PREFIX "artistName", &filedata->id3v1_info->artist},
+		{"TOT", NMM_PREFIX "musicAlbum", "album", NMM_PREFIX "MusicAlbum", NMM_PREFIX "albumTitle", &filedata->id3v1_info->album},
+		{"TOL", NMM_PREFIX "performer", "artist", NMM_PREFIX "Artist", NMM_PREFIX "artistName", &filedata->id3v1_info->artist},
+		{"COM", NIE_PREFIX "comment", NULL, NULL, NULL, &filedata->id3v1_info->comment},
+		{"TLE", NMM_PREFIX "length", NULL, NULL, NULL, NULL},
 		{ NULL, 0, NULL, NULL, NULL},
 	};
 
@@ -1345,6 +1366,8 @@ get_id3v20_tags (const gchar *data,
 				csize--;
 
 				if (!tracker_is_empty_string (word)) {
+					g_strstrip (word);
+
 					if (strcmp (tmap[i].text, "COM") == 0) {
 						gchar *s;
 
@@ -1373,6 +1396,11 @@ get_id3v20_tags (const gchar *data,
 						filedata->duration = duration/1000;
 					}
 
+					if (tmap[i].nullify) {
+						/* prefer ID3v2 tag over ID3v1 tag */
+						g_free (*tmap[i].nullify);
+						*tmap[i].nullify = NULL;
+					}
 					if (tmap[i].urn) {
 						gchar *canonical_uri = tmap[i].urn[0]!=':'?tracker_uri_printf_escaped ("urn:%s:%s", tmap[i].urn, word):g_strdup(tmap[i].urn);
 						tracker_statement_list_insert (metadata, canonical_uri, RDF_TYPE, tmap[i].rdf_type);
@@ -1657,6 +1685,7 @@ extract_mp3 (const gchar *uri,
 	filedata.duration = 0;
 	filedata.albumartdata = NULL;
 	filedata.albumartsize = 0;
+	filedata.id3v1_info = &info;
 
 	filename = g_filename_from_uri (uri, NULL, NULL);
 
@@ -1719,6 +1748,9 @@ extract_mp3 (const gchar *uri,
 	                          RDF_TYPE, 
 	                          NMM_PREFIX "MusicPiece");
 
+	/* Get other embedded tags */
+	audio_offset = parse_id3v2 (buffer, buffer_size, uri, metadata, &filedata);
+
 	if (!tracker_is_empty_string (info.title)) {
 		tracker_statement_list_insert (metadata, uri,
 				     NIE_PREFIX "title",
@@ -1772,9 +1804,6 @@ extract_mp3 (const gchar *uri,
 	g_free (info.comment);
 	g_free (info.trackno);
 	g_free (info.genre);
-
-	/* Get other embedded tags */
-	audio_offset = parse_id3v2 (buffer, buffer_size, uri, metadata, &filedata);
 
 	/* Get mp3 stream info */
 	mp3_parse (buffer, buffer_size, audio_offset, uri, metadata, &filedata);

@@ -20,7 +20,7 @@ INCLUDES =								\
 	$(RAPTOR_CFLAGS)
 
 libtracker_moduledir = $(libdir)/tracker-$(TRACKER_API_VERSION)
-libtracker_moduleincludedir=$(includedir)/tracker-1.0/libtracker-module/
+libtracker_moduleincludedir=$(includedir)/tracker-$(TRACKER_API_VERSION)/libtracker-module/
 libtracker_module_LTLIBRARIES = libtracker-module.la
 
 libtracker_module_la_SOURCES =	 					\

@@ -68,19 +68,23 @@ typedef struct {
 	gboolean       in_merge;
 } TrackerStatusPrivate;
 
-static void indexer_continued_cb  (DBusGProxy  *proxy,
-				   gpointer     user_data);
-static void indexer_paused_cb     (DBusGProxy  *proxy,
-				   const gchar *reason,
-				   gpointer     user_data);
-static void indexer_continue      (gboolean     should_block);
-static void indexer_pause         (gboolean     should_block);
-static void battery_in_use_cb     (GObject     *gobject,
-				   GParamSpec  *arg1,
-				   gpointer     user_data);
-static void battery_percentage_cb (GObject     *object,
-				   GParamSpec  *pspec,
-				   gpointer     user_data);
+static void indexer_continued_cb    (DBusGProxy  *proxy,
+				     gpointer     user_data);
+static void indexer_paused_cb       (DBusGProxy  *proxy,
+				     const gchar *reason,
+				     gpointer     user_data);
+static void indexer_continue        (gboolean     should_block);
+static void indexer_pause           (gboolean     should_block);
+static void low_disk_space_limit_cb (GObject     *gobject,
+				     GParamSpec  *arg1,
+				     gpointer     user_data);
+static void battery_in_use_cb       (GObject     *gobject,
+				     GParamSpec  *arg1,
+				     gpointer     user_data);
+static void battery_percentage_cb   (GObject     *object,
+				     GParamSpec  *pspec,
+				     gpointer     user_data);
+static void disk_space_check_stop   (void);
 
 static GStaticPrivate private_key = G_STATIC_PRIVATE_INIT;
 
@@ -94,6 +98,10 @@ private_free (gpointer data)
 	if (private->disk_space_check_id) {
 		g_source_remove (private->disk_space_check_id);
 	}
+
+	g_signal_handlers_disconnect_by_func (private->config,
+					      low_disk_space_limit_cb,
+					      NULL);
 
 	g_object_unref (private->config);
 
@@ -331,7 +339,7 @@ disk_space_check_start (void)
 	limit = tracker_config_get_low_disk_space_limit (private->config);
 
 	if (limit != -1) {
-		g_message ("Setting disk space check for every %d seconds",
+		g_message ("Starting disk space check for every %d seconds",
 			   DISK_SPACE_CHECK_FREQUENCY);
 		private->disk_space_check_id = 
 			g_timeout_add_seconds (DISK_SPACE_CHECK_FREQUENCY,
@@ -344,6 +352,21 @@ disk_space_check_start (void)
 		disk_space_check_cb (NULL);
 	} else {
 		g_message ("Not setting disk space, configuration is set to -1 (disabled)");
+	}
+}
+
+static void
+disk_space_check_stop (void)
+{
+	TrackerStatusPrivate *private;
+
+	private = g_static_private_get (&private_key);
+	g_return_if_fail (private != NULL);
+
+	if (private->disk_space_check_id) {
+		g_message ("Stopping disk space check");
+		g_source_remove (private->disk_space_check_id);
+		private->disk_space_check_id = 0;
 	}
 }
 
@@ -408,9 +431,17 @@ set_up_throttle (gboolean debugging)
 }
 
 static void
-battery_in_use_cb (GObject *gobject,
+low_disk_space_limit_cb (GObject    *gobject,
+			 GParamSpec *arg1,
+			 gpointer    user_data)
+{
+	disk_space_check_cb (NULL);
+}
+
+static void
+battery_in_use_cb (GObject    *gobject,
 		   GParamSpec *arg1,
-		   gpointer user_data)
+		   gpointer    user_data)
 {
 	set_up_throttle (TRUE);
 }
@@ -486,6 +517,11 @@ tracker_status_init (TrackerConfig *config,
 
 	private->config = g_object_ref (config);
 
+	g_signal_connect (private->config, "notify::low-disk-space-limit",
+			  G_CALLBACK (low_disk_space_limit_cb),
+			  NULL);
+
+
 #ifdef HAVE_HAL 
 	private->hal = g_object_ref (hal);
 
@@ -551,10 +587,12 @@ tracker_status_init (TrackerConfig *config,
 				     NULL,
 				     NULL);
 	
-	/* Start monitoring system for low disk space, low battery
-	 * power, etc. 
+	/* Do initial disk space check, we don't start the timeout
+	 * which checks the disk space every 10 seconds here because
+	 * we might not have enough to begin with. So we do one
+	 * initial check to set the state correctly. 
 	 */
-	disk_space_check_start ();
+	disk_space_check_cb (NULL);
 
 	return TRUE;
 }
@@ -664,6 +702,39 @@ tracker_status_get_as_string (void)
 	return tracker_status_to_string (private->status);
 }
 
+static void
+status_set_priority (TrackerStatus old_status,
+		     TrackerStatus new_status,
+		     gint          special_priority,
+		     gint          default_priority)
+{
+	/* Note, we can't use -1 here, so we use a value
+	 * outside the nice values from -20->19 
+	 */
+	gint new_priority = 100;
+	
+	/* Handle priority changes */
+	if (new_status == TRACKER_STATUS_PENDING) {
+		new_priority = special_priority;
+	} else if (old_status == TRACKER_STATUS_PENDING) {
+		new_priority = default_priority;
+	}
+	
+	if (new_priority != 100) {
+		g_message ("Setting process priority to %d (%s)", 
+			   new_priority,
+			   new_priority == default_priority ? "default" : "special");
+		
+		if (nice (new_priority) == -1) {
+			const gchar *str = g_strerror (errno);
+			
+			g_message ("Couldn't set nice value to %d, %s",
+				   new_priority,
+				   str ? str : "no error given");
+		}
+	}
+}
+
 void
 tracker_status_set (TrackerStatus new_status)
 {
@@ -679,39 +750,69 @@ tracker_status_set (TrackerStatus new_status)
 	/* Don't set previous status to the same as we are now,
 	 * otherwise we could end up setting PAUSED and our old state
 	 * to return to is also PAUSED.
+	 *  
+	 * We really should start using a proper state machine here,
+	 * but I am avoiding it for now, -mr.
 	 */
-	if (private->status_before_paused != new_status) {
+	if (private->status_before_paused != new_status && 
+	    private->status != TRACKER_STATUS_PAUSED) {
 		/* ALWAYS only set this after checking against the
 		 * previous value 
 		 */
 		private->status_before_paused = private->status;
 	}
 
+	/* State machine */
 	if (private->status != new_status) {
-		/* Note, we can't use -1 here, so we use a value
-		 * outside the nice values from -20->19 
+		/* If we are paused but have been moved OUT of state
+		 * by some call, we set back to the state BEFORE we
+		 * were PAUSED. We only do this for IDLE so far.
+		 *
+		 * The reason is in part explained above with states
+		 * A, B and C. If we return to IDLE because we were
+		 * PENDING/WATCHING previously we need to move back to
+		 * PAUSED here otherwise we risk actually processing
+		 * files with no disk space.
+		 *
+		 * NOTE: We correct the state here if we are paused
+		 * for some reason like being out of space and we
+		 * attempt to go into an IDLE state. 
 		 */
-		gint new_priority = 100;
-
-		if (new_status == TRACKER_STATUS_PENDING) {
-			new_priority = PROCESS_PRIORITY_FOR_BUSY;
-		} else if (private->status == TRACKER_STATUS_PENDING) {
-			new_priority = private->cpu_priority;
+		if (new_status == TRACKER_STATUS_IDLE && 
+		    (private->is_paused_manually ||
+		     private->is_paused_for_batt || 
+		     private->is_paused_for_io ||
+		     private->is_paused_for_space ||
+		     private->is_paused_for_dbus ||
+		     private->is_paused_for_unknown)) {
+			g_message ("Attempt to set state to IDLE with pause conditions, changing...");
+			tracker_status_set (TRACKER_STATUS_PAUSED);
+			return;
 		}
 
-		if (new_priority != 100) {
-			g_message ("Setting process priority to %d", 
-				   new_priority);
-			
-			if (nice (new_priority) == -1) {
-				const gchar *str = g_strerror (errno);
-				
-				g_message ("Couldn't set nice value to %d, %s",
-					   new_priority,
-					   str ? str : "no error given");
-			}
+		/* Make sure we are using the correct priority for
+		 * the new state.
+		 */
+		status_set_priority (new_status, 
+				     private->status,
+				     TRACKER_STATUS_PENDING,
+				     private->cpu_priority);
+		
+		/* Handle disk space moitor changes
+		 * 
+		 * So these are the conditions when we need checks
+		 * running:
+		 *
+		 * 1. Are we low on space?
+		 * 3. State is INDEXING or OPTIMIZING (use of disk)
+		 */
+		if (private->is_paused_for_space ||
+		    new_status == TRACKER_STATUS_INDEXING || 
+		    new_status == TRACKER_STATUS_OPTIMIZING) {
+			disk_space_check_start ();
+		} else {
+			disk_space_check_stop ();
 		}
-
 	}
 
 	private->status = new_status;

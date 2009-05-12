@@ -1187,39 +1187,24 @@ tracker_hal_uri_is_on_removable_device (TrackerHal  *hal,
 	g_hash_table_iter_init (&iter, priv->removable_devices);
 
 	while (g_hash_table_iter_next (&iter, &key, &value)) {
-		LibHalVolume  *volume;
-		const gchar   *udi;
-		const gchar   *mp;
+		const gchar *mp;
 
-		udi = key;
+		mp = value;
 
-		volume = libhal_volume_from_udi (priv->context, udi);
+		if (mp && path &&
+		    g_str_has_prefix (path, mp)) {
+			found = TRUE;
 
-		if (!volume) {
-			g_message ("HAL device with udi:'%s' has no volume, "
-				   "should we delete?",
-				   udi);
-			continue;
-		}
-
-		mp = libhal_volume_get_mount_point (volume);
-
-		if (g_strcmp0 (mp, path) != 0) {
-			if (g_strrstr (path, mp)) {
-				found = TRUE;
-
-				if (mount_point)
-					*mount_point = g_strdup (mp);
-
-				if (available)
-					*available = libhal_volume_is_mounted (volume);
-
-				libhal_volume_free (volume);
-				break;
+			if (mount_point) {
+				*mount_point = g_strdup (mp);
 			}
-		}
 
-		libhal_volume_free (volume);
+			if (available) {
+				*available = TRUE;
+			}
+
+			break;
+		}
 	}
 
 	g_free (path);

@@ -23,11 +23,11 @@
 #ifndef TRACKER_GTK_H
 #define TRACKER_GTK_H
 
-#include <tracker-utils.h>
-#include <tracker-ui.h>
-#include <tracker-keyword-store.h>
-#include <tracker-metadata-tile.h>
-#include <tracker-tag-bar.h>
+#include <libtracker-gtk/tracker-utils.h>
+#include <libtracker-gtk/tracker-ui.h>
+#include <libtracker-gtk/tracker-keyword-store.h>
+#include <libtracker-gtk/tracker-metadata-tile.h>
+#include <libtracker-gtk/tracker-tag-bar.h>
 
 #endif /* TRACKER_GTK_H */
 

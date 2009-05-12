@@ -3,8 +3,8 @@ include $(top_srcdir)/Makefile.decl
 noinst_PROGRAMS = $(TEST_PROGS)
 
 TEST_PROGS += 								\
-	tracker-ontology						\
-	tracker-sparql
+	tracker-sparql							\
+	tracker-ontology
 
 INCLUDES = 								\
 	-DG_LOG_DOMAIN=\"Tracker\"					\

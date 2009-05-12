@@ -272,7 +272,7 @@ nmo:folderName a rdf:Property ;
 # FIXME Extension to nepomuk 
 nmo:status a rdf:Property ;
 	nrl:maxCardinality 1 ;
-	rdfs:domain nmo:Email ;
+	rdfs:domain nmo:Email , nmo:MailFolder , nmo:Mailbox ;
 	rdfs:range xsd:string .
 
 # FIXME Extension to nepomuk 
@@ -280,6 +280,18 @@ nmo:responseType a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmo:Email ;
 	rdfs:range xsd:string .
+
+# FIXME Extension to nepomuk
+nmo:serverCount a rdf:Property ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmo:MailFolder ;
+	rdfs:range xsd:integer .
+
+# FIXME Extension to nepomik
+nmo:serverUnreadCount a rdf:Property ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmo:MailFolder ;
+	rdfs:range xsd:integer .
 
 # Don't use this!! Only for compat with original Nepomuk NMO
 nmo:hasAttachment a rdf:Property ;

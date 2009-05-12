@@ -215,6 +215,7 @@ nfo:MediaStream a rdfs:Class ;
 nfo:BookmarkFolder a rdfs:Class ;
 	rdfs:label "Bookmark Folder" ;
 	rdfs:comment "['A folder with bookmarks of a webbrowser. Use nfo:containsBookmark to relate Bookmarks. Folders can contain subfolders', 'use containsBookmarkFolder to relate them.']" ;
+	tracker:notify true ;
 	rdfs:subClassOf nie:InformationElement .
 
 nfo:FilesystemImage a rdfs:Class ;

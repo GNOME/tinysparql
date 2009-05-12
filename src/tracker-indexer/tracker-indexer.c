@@ -798,16 +798,10 @@ static void
 check_stopped (TrackerIndexer *indexer,
 	       gboolean        interrupted)
 {
-	if ((indexer->private->state & TRACKER_INDEXER_STATE_STOPPED) == 0) {
-		schedule_flush (indexer, TRUE);
-		state_set_flags (indexer, TRACKER_INDEXER_STATE_STOPPED);
-		indexer->private->interrupted = (interrupted != FALSE);
-	} else {
-		/* If the indexer is stopped,
-		 * then it's ready for finishing right away
-		 */
-		check_finished (indexer, interrupted);
-	}
+	schedule_flush (indexer, TRUE);
+	state_set_flags (indexer, TRACKER_INDEXER_STATE_STOPPED);
+	indexer->private->interrupted = (interrupted != FALSE);
+	check_finished (indexer, interrupted);
 }
 
 static gboolean
@@ -1035,6 +1029,10 @@ item_add_or_update (TrackerIndexer        *indexer,
 	gchar *mount_point = NULL;
 	gchar *sparql;
 
+	if (G_UNLIKELY (!indexer->private->in_transaction)) {
+		start_transaction (indexer);
+	}
+
 	if (tracker_data_query_resource_exists (uri, NULL)) {
 		gchar *full_sparql;
 
@@ -1248,6 +1246,10 @@ item_remove (TrackerIndexer *indexer,
 
 	g_debug ("Removing item: '%s' (no metadata was given by module)", 
 		 uri);
+
+	if (G_UNLIKELY (!indexer->private->in_transaction)) {
+		start_transaction (indexer);
+	}
 
 	service_type = tracker_module_config_get_index_service (info->module->name);
 
@@ -1756,6 +1758,7 @@ static gchar *
 state_to_string (TrackerIndexerState state)
 {
 	GString *s;
+	gchar   *str, *p;
 
 	s = g_string_new ("");
 	
@@ -1769,9 +1772,19 @@ state_to_string (TrackerIndexerState state)
 		s = g_string_append (s, "STOPPED | ");
 	}
 
-	s->str[s->len - 3] = '\0';
+	str = g_string_free (s, FALSE);
 
-	return g_string_free (s, FALSE);
+	/* Remove last separator */
+	p = g_utf8_strrchr (str, -1, '|');
+	if (p) {
+		/* Go back one to the space before '|' */
+		p--;
+		
+		/* NULL terminate here */
+		*p = '\0';
+	}
+
+	return str;
 }
 
 static void

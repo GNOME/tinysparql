@@ -116,8 +116,7 @@ consume_triple_storer (const gchar *subject,
 	if (!object || !predicate)
 		return;
 
-	if (!info->last_subject || g_strcmp0 (subject, info->last_subject) != 0) {
-
+	if (g_strcmp0 (subject, info->last_subject) != 0) {
 		/* Commit previous subject */
 		commit_turtle_parse_info_storer (info, TRUE, REPLACE, NULL);
 
@@ -128,7 +127,6 @@ consume_triple_storer (const gchar *subject,
 							(GDestroyNotify) g_free);
 	}
 
-	
 	if (object[0] == '\0' && predicate[0] == '\0') {
 		/* <URI> <rdf:type> "Type" ;                    *
 		 *       <> <>  -  is a removal of the resource */
@@ -240,9 +238,16 @@ set_metadata (const gchar *key,
 	      gpointer     user_data)
 {
 	raptor_statement     statement;
-	AddMetadataInfo     *item = user_data;
-	const gchar         *about_uri = item->about_uri;
-	raptor_serializer   *serializer = item->serializer;
+	AddMetadataInfo     *item;
+	const gchar         *about_uri;
+	raptor_serializer   *serializer;
+
+	item = user_data;
+
+	g_return_if_fail (item != NULL);
+
+	about_uri = item->about_uri;
+	serializer = item->serializer;
 
 	statement.subject = (void *) raptor_new_uri ((const guchar *) about_uri);
 	statement.subject_type = RAPTOR_IDENTIFIER_TYPE_RESOURCE;
@@ -313,8 +318,13 @@ tracker_removable_device_add_metadata (TrackerIndexer        *indexer,
 				       const gchar           *uri,
 				       TrackerModuleMetadata *metadata)
 {
+	g_return_if_fail (TRACKER_IS_INDEXER (indexer));
+	g_return_if_fail (mount_point != NULL);
+	g_return_if_fail (uri != NULL);
+
 	AddMetadataInfo  info;
 	gchar           *filename, *muri, *tmp;
+	const gchar     *p;
 	FILE            *target_file;
 	raptor_uri      *suri;
 	GFile           *mountp_file;
@@ -345,7 +355,8 @@ tracker_removable_device_add_metadata (TrackerIndexer        *indexer,
 	info.serializer = raptor_new_serializer ("turtle");
 
 	/* TODO: paths to URIs: this is wrong */
-	info.about_uri = g_strdup (uri+strlen (mount_point)+1+7);
+	p = uri + strlen (mount_point) + 1 + 7;
+	info.about_uri = g_strdup (p);
 
 	raptor_serializer_set_feature (info.serializer, 
 				       RAPTOR_FEATURE_WRITE_BASE_URI, 0);
@@ -391,7 +402,12 @@ tracker_removable_device_add_removal (TrackerIndexer *indexer,
 				      const gchar *mount_point, 
 				      const gchar *uri)
 {
+	g_return_if_fail (TRACKER_IS_INDEXER (indexer));
+	g_return_if_fail (mount_point != NULL);
+	g_return_if_fail (uri != NULL);
+
 	gchar               *filename, *about_uri, *muri, *tmp;
+	const gchar         *p;
 	FILE                *target_file;
 	raptor_uri          *suri;
 	raptor_serializer   *serializer;
@@ -423,7 +439,8 @@ tracker_removable_device_add_removal (TrackerIndexer *indexer,
 	serializer = raptor_new_serializer ("turtle");
 
 	/* TODO: paths to URIs: this is wrong */
-	about_uri = g_strdup (uri+strlen (mount_point)+1+7);
+	p = uri + strlen (mount_point) + 1 + 7;
+	about_uri = g_strdup (p);
 
 	raptor_serializer_set_feature (serializer, 
 				       RAPTOR_FEATURE_WRITE_BASE_URI,
@@ -465,7 +482,13 @@ tracker_removable_device_add_move (TrackerIndexer *indexer,
 				   const gchar *from_uri, 
 				   const gchar *to_uri)
 {
+	g_return_if_fail (TRACKER_IS_INDEXER (indexer));
+	g_return_if_fail (mount_point != NULL);
+	g_return_if_fail (from_uri != NULL);
+	g_return_if_fail (to_uri != NULL);
+
 	gchar               *filename, *about_uri, *to_urip, *muri, *tmp;
+	const gchar         *p;
 	FILE                *target_file;
 	raptor_uri          *suri;
 	raptor_serializer   *serializer;
@@ -501,9 +524,12 @@ tracker_removable_device_add_move (TrackerIndexer *indexer,
 				       RAPTOR_FEATURE_WRITE_BASE_URI, 0);
 
 	/* TODO: paths to URIs: this is wrong */
-	about_uri = g_strdup (from_uri+strlen (mount_point)+1+7);
+	p = from_uri + strlen (mount_point) + 1 + 7;
+	about_uri = g_strdup (p);
+
 	/* TODO: paths to URIs: this is wrong */
-	to_urip = g_strdup (to_uri+strlen (mount_point)+1+7);
+	p = to_uri + strlen (mount_point) + 1 + 7;
+	to_urip = g_strdup (p);
 
 	mountp_file = g_file_new_for_path (mount_point);
 	tmp = g_file_get_uri (mountp_file);

@@ -45,7 +45,7 @@
 #include "tracker-search-tool.h"
 #include "tracker-search-tool-callbacks.h"
 #include "tracker-search-tool-support.h"
-#include "../libtracker-gtk/tracker-metadata-tile.h"
+#include <libtracker-gtk/tracker-metadata-tile.h>
 
 #define SILENT_WINDOW_OPEN_LIMIT 5
 #define METADATA_IMAGE_WIDTH	128
