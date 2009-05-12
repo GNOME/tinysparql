@@ -309,6 +309,20 @@ tracker_resources_sparql_update (TrackerClient *client, const char *query, GErro
 }
 
 
+void
+tracker_resources_batch_sparql_update (TrackerClient *client, const char *query, GError **error)
+{
+	org_freedesktop_Tracker_Resources_batch_sparql_update (client->proxy_resources, query, &*error);
+}
+
+
+void
+tracker_resources_batch_commit (TrackerClient *client, GError **error)
+{
+	org_freedesktop_Tracker_Resources_batch_commit (client->proxy_resources, &*error);
+}
+
+
 char *
 tracker_search_get_snippet (TrackerClient *client, const char *uri, const char *search_text, GError **error)
 {
@@ -468,6 +482,34 @@ tracker_resources_sparql_update_async (TrackerClient *client, const char *query,
 	callback_struct->data = user_data;
 
 	client->last_pending_call = org_freedesktop_Tracker_Resources_sparql_update_async (client->proxy_resources, query, tracker_void_reply, callback_struct);
+
+}
+
+
+void
+tracker_resources_batch_sparql_update_async (TrackerClient *client, const char *query, TrackerVoidReply callback, gpointer user_data)
+{
+	VoidCallBackStruct *callback_struct;
+
+	callback_struct = g_new (VoidCallBackStruct, 1);
+	callback_struct->callback = callback;
+	callback_struct->data = user_data;
+
+	client->last_pending_call = org_freedesktop_Tracker_Resources_batch_sparql_update_async (client->proxy_resources, query, tracker_void_reply, callback_struct);
+
+}
+
+
+void
+tracker_resources_batch_commit_async (TrackerClient *client, TrackerVoidReply callback, gpointer user_data)
+{
+	VoidCallBackStruct *callback_struct;
+
+	callback_struct = g_new (VoidCallBackStruct, 1);
+	callback_struct->callback = callback;
+	callback_struct->data = user_data;
+
+	client->last_pending_call = org_freedesktop_Tracker_Resources_batch_commit_async (client->proxy_resources, tracker_void_reply, callback_struct);
 
 }
 
