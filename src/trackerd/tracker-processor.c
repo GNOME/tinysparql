@@ -1731,6 +1731,7 @@ tracker_processor_start (TrackerProcessor *processor)
 	processor->private->timer = g_timer_new ();
 
 	processor->private->interrupted = TRUE;
+	processor->private->finished = FALSE;
 
 	process_module_next (processor);
 }
@@ -1742,6 +1743,10 @@ tracker_processor_stop (TrackerProcessor *processor)
 
 	g_return_if_fail (TRACKER_IS_PROCESSOR (processor));
 
+	if (processor->private->finished) {
+		return;
+	}
+
 	if (processor->private->interrupted) {
 		TrackerCrawler *crawler;
 
@@ -1750,7 +1755,6 @@ tracker_processor_stop (TrackerProcessor *processor)
 		tracker_crawler_stop (crawler);
 
 	}
-
 
 	/* Now we have finished crawling, we enable monitor events */
 	g_message ("Enabling monitor events");

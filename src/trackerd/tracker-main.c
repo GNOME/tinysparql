@@ -109,6 +109,9 @@ typedef struct {
 	gchar		 *sys_tmp_dir;
 	gchar            *ttl_backup_file;
 	
+	gboolean          public_interfaces_up;
+	gboolean          mount_points_up;
+
 	gboolean	  reindex_on_shutdown;
 	gboolean          shutdown;
 
@@ -204,7 +207,9 @@ private_free (gpointer data)
 	g_free (private->ttl_backup_file);
 	g_free (private->log_filename);
 
-	g_main_loop_unref (private->main_loop);
+	if (private->main_loop) {
+		g_main_loop_unref (private->main_loop);
+	}
 
 	g_free (private);
 }
@@ -310,97 +315,6 @@ check_runtime_level (TrackerConfig *config,
 
 	return runlevel;
 }
-
-#ifdef HAVE_HAL
-
-static void
-mount_point_set_cb (DBusGProxy *proxy, 
-		    GError     *error, 
-		    gpointer    user_data)
-{
-	TrackerMainPrivate *private;
-
-	if (error) {
-		g_critical ("Couldn't set mount point state, %s", 
-			    error->message);
-		g_error_free (error);
-		g_free (user_data);
-		return;
-	}
-
-	g_message ("Indexer now knows about UDI state:");
-	g_message ("  %s", (gchar*) user_data);
-
-	g_free (user_data);
-
-	/* See if we have any more callbacks here, if we don't we can
-	 * signal the stats to update.
-	 */
-	private = g_static_private_get (&private_key);
-
-	private->mount_points_to_set--;
-
-	if (private->mount_points_to_set < 1) {
-		/* This is a special case, because we don't get the
-		 * "Finished" signal from the indexer when we set something
-		 * in the volumes table, we have to signal all clients from
-		 * here that the statistics may have changed.
-		 */
-		g_message ("Statistics being signalled now mountable media states have changed");
-		tracker_daemon_signal_statistics ();
-	} else {
-		g_message ("Statistics not being signalled, %d mountable media states left to set still", 
-			   private->mount_points_to_set);
-	}
-}
-
-static void
-mount_point_added_cb (TrackerHal  *hal,
-		      const gchar *udi,
-		      const gchar *mount_point,
-		      gpointer	   user_data)
-{
-	TrackerMainPrivate *private;
-	
-	private = g_static_private_get (&private_key);
-
-	private->mount_points_to_set++;
-
-	g_message ("Indexer is being notified about added UDI:");
-	g_message ("  %s", udi);
-
-	org_freedesktop_Tracker_Indexer_volume_update_state_async (tracker_dbus_indexer_get_proxy (), 
-								   udi,
-								   mount_point,
-								   TRUE,
-								   mount_point_set_cb,
-								   g_strdup (udi));
-}
-
-static void
-mount_point_removed_cb (TrackerHal  *hal,
-			const gchar *udi,
-			const gchar *mount_point,
-			gpointer     user_data)
-{
-	TrackerMainPrivate *private;
-	
-	private = g_static_private_get (&private_key);
-
-	private->mount_points_to_set++;
-
-	g_message ("Indexer is being notified about removed UDI:");
-	g_message ("  %s", udi);
-
-	org_freedesktop_Tracker_Indexer_volume_update_state_async (tracker_dbus_indexer_get_proxy (), 
-								   udi,
-								   mount_point,
-								   FALSE,
-								   mount_point_set_cb,
-								   g_strdup (udi));
-}
-
-#endif /* HAVE_HAL */
 
 static void
 log_option_list (GSList      *list,
@@ -708,16 +622,16 @@ crawling_finished_cb (TrackerProcessor *processor,
 		      gpointer          user_data)
 {
 	GError *error = NULL;
-	gulong *callback_id;
 	static gint counter = 0;
 	
-	callback_id = user_data;
-
 	if (++counter >= 2) {
 		gchar *rebackup;
 
 		g_debug ("Uninstalling initial crawling callback");
-		g_signal_handler_disconnect (processor, *callback_id);
+
+		g_signal_handlers_disconnect_by_func (processor, 
+						      crawling_finished_cb, 
+						      user_data);
 
 		if (g_file_test (get_ttl_backup_filename (), G_FILE_TEST_EXISTS)) {
 			org_freedesktop_Tracker_Indexer_restore_backup (tracker_dbus_indexer_get_proxy (),
@@ -742,18 +656,106 @@ crawling_finished_cb (TrackerProcessor *processor,
 	}
 }
 
-static void
-backup_restore_on_crawling_finished (TrackerProcessor *processor)
-{
-	static gulong restore_cb_id = 0;
+#ifdef HAVE_HAL
 
-	g_debug ("Setting callback for crawling finish detection");
-	restore_cb_id = g_signal_connect (processor, "finished", 
-					  G_CALLBACK (crawling_finished_cb), 
-					  &restore_cb_id);
+static void
+mount_point_set_cb (DBusGProxy *proxy, 
+		    GError     *error, 
+		    gpointer    user_data)
+{
+	TrackerMainPrivate *private;
+
+	if (error) {
+		g_critical ("Indexer couldn't set removable media state for:'%s' in database, %s", 
+			    (gchar*) user_data,
+			    error ? error->message : "no error given");
+		g_error_free (error);
+
+		tracker_shutdown ();
+	} else {
+		g_message ("Indexer now knows about UDI state:");
+		g_message ("  %s", (gchar*) user_data);
+	}
+		
+	g_free (user_data);
+
+	/* See if we have any more callbacks here, if we don't we can
+	 * signal the stats to update.
+	 */
+	private = g_static_private_get (&private_key);
+
+	private->mount_points_to_set--;
+
+	if (private->mount_points_to_set < 1) {
+		/* This is a special case, because we don't get the
+		 * "Finished" signal from the indexer when we set something
+		 * in the volumes table, we have to signal all clients from
+		 * here that the statistics may have changed.
+		 */
+		if (private->public_interfaces_up) {
+			tracker_daemon_signal_statistics ();
+		}
+
+		if (!private->mount_points_up) {
+			private->mount_points_up = TRUE;
+
+			/* We need to stop the main loop, we started
+			 * it so we could wait for mount points to be
+			 * set up successfully in main().
+			 */
+			g_main_loop_quit (private->main_loop);
+		}
+	} else {
+		g_message ("Statistics not being signalled, %d mountable media states left to set still", 
+			   private->mount_points_to_set);
+	}
 }
 
-#ifdef HAVE_HAL
+static void
+mount_point_added_cb (TrackerHal  *hal,
+		      const gchar *udi,
+		      const gchar *mount_point,
+		      gpointer	   user_data)
+{
+	TrackerMainPrivate *private;
+	
+	private = g_static_private_get (&private_key);
+
+	private->mount_points_to_set++;
+
+	g_message ("Indexer is being notified about added UDI:");
+	g_message ("  %s", udi);
+
+	org_freedesktop_Tracker_Indexer_volume_update_state_async (tracker_dbus_indexer_get_proxy (), 
+								   udi,
+								   mount_point,
+								   TRUE,
+								   mount_point_set_cb,
+								   g_strdup (udi));
+}
+
+static void
+mount_point_removed_cb (TrackerHal  *hal,
+			const gchar *udi,
+			const gchar *mount_point,
+			gpointer     user_data)
+{
+	TrackerMainPrivate *private;
+	
+	private = g_static_private_get (&private_key);
+
+	private->mount_points_to_set++;
+
+	g_message ("Indexer is being notified about removed UDI:");
+	g_message ("  %s", udi);
+
+	org_freedesktop_Tracker_Indexer_volume_update_state_async (tracker_dbus_indexer_get_proxy (), 
+								   udi,
+								   mount_point,
+								   FALSE,
+								   mount_point_set_cb,
+								   g_strdup (udi));
+}
 
 static void
 set_up_mount_points_cb (DBusGProxy *proxy, 
@@ -765,9 +767,10 @@ set_up_mount_points_cb (DBusGProxy *proxy,
 	GList *roots, *l;
 
 	if (error) {
-		g_critical ("Couldn't disable all volumes, %s", 
-			    error->message);
+		g_critical ("Indexer couldn't disable all removable devices, %s", 
+			    error ? error->message : "no error given");
 		g_error_free (error);
+		tracker_shutdown ();
 		return;
 	}
 
@@ -805,6 +808,12 @@ set_up_mount_points_cb (DBusGProxy *proxy,
 static void
 set_up_mount_points (TrackerHal *hal)
 {
+	TrackerMainPrivate *private;
+
+	private = g_static_private_get (&private_key);
+
+	private->mount_points_up = FALSE;
+
 	g_message ("Indexer is being notified to disable all volumes");
 	org_freedesktop_Tracker_Indexer_volume_disable_all_async (tracker_dbus_indexer_get_proxy (), 
 								  set_up_mount_points_cb,
@@ -814,13 +823,9 @@ set_up_mount_points (TrackerHal *hal)
 #endif /* HAVE_HAL */
 
 static gboolean
-start_cb (gpointer user_data)
+start_processor_cb (gpointer user_data)
 {
 	TrackerMainPrivate *private;
-
-	if (!tracker_status_get_is_ready ()) {
-		return FALSE;
-	}
 
 	private = g_static_private_get (&private_key);
 
@@ -1027,6 +1032,9 @@ main (gint argc, gchar *argv[])
 		break;
 	}
 
+	/*
+	 * Set up databases
+	 */
 	if (!initialize_databases ()) {
 		return EXIT_FAILURE;
 	}
@@ -1050,9 +1058,30 @@ main (gint argc, gchar *argv[])
 	 * are going to do that.
 	 */
 	set_up_mount_points (hal);
+	
+	/* Wait until we have these set up. */
+	private->main_loop = g_main_loop_new (NULL, FALSE);
+	g_main_loop_run (private->main_loop);
+	g_main_loop_unref (private->main_loop);
+	private->main_loop = NULL;
 #endif /* HAVE_HAL */
 
+	if (private->shutdown) {
+		goto shutdown;
+	}
+
+	/* 
+	 * Start public interfaces (DBus, push modules, etc)
+	 */
 	private->processor = tracker_processor_new (config, hal);
+		
+	if (force_reindex &&
+	    g_file_test (get_ttl_backup_filename (), G_FILE_TEST_EXISTS)) {
+		g_debug ("Setting callback for crawling finish detection");
+		g_signal_connect (private->processor, "finished", 
+				  G_CALLBACK (crawling_finished_cb), 
+				  NULL);
+	}
 
 	/* Make Tracker available for introspection */
 	if (!tracker_dbus_register_objects (config,
@@ -1062,27 +1091,30 @@ main (gint argc, gchar *argv[])
 					    private->processor)) {
 		return EXIT_FAILURE;
 	}
-
+	
 	tracker_push_init (config);
+	
+	private->public_interfaces_up = TRUE;
+
+	/* Signal to clients current statistics */
+	tracker_daemon_signal_statistics ();
 
 	g_message ("Waiting for DBus requests...");
 
-	/* Set our status as running, if this is FALSE, threads stop
-	 * doing what they do and shutdown.
+	/* 
+	 * Start processor
 	 */
-	tracker_status_set_is_ready (TRUE);
-
 	if (!tracker_status_get_is_readonly ()) {
 		gint seconds;
-
+		
 		seconds = tracker_config_get_initial_sleep (config);
-
+		
 		if (seconds > 0) {
-			g_message ("Waiting %d seconds before starting",
+			g_message ("Waiting %d seconds before starting processor",
 				   seconds);
-			g_timeout_add_seconds (seconds, start_cb, NULL);
+			g_timeout_add_seconds (seconds, start_processor_cb, NULL);
 		} else {
-			g_idle_add (start_cb, NULL);
+			g_idle_add (start_processor_cb, NULL);
 		}
 	} else {
 		/* We set the state here because it is not set in the
@@ -1092,18 +1124,17 @@ main (gint argc, gchar *argv[])
 		tracker_status_set_and_signal (TRACKER_STATUS_IDLE);
 	}
 
-	if (flags & TRACKER_DB_MANAGER_FORCE_REINDEX ||
-	    g_file_test (get_ttl_backup_filename (), G_FILE_TEST_EXISTS)) {
-		backup_restore_on_crawling_finished (private->processor);
-	}
-
-	if (!private->shutdown && tracker_status_get_is_ready ()) {
+	/* 
+	 * Start main loop
+	 */
+	if (!private->shutdown) {
 		private->main_loop = g_main_loop_new (NULL, FALSE);
 		g_main_loop_run (private->main_loop);
 	}
 
+shutdown:
 	/*
-	 * Shutdown the daemon
+	 * Shutdown main loop
 	 */
 	g_message ("Shutdown started");
 
@@ -1125,8 +1156,9 @@ main (gint argc, gchar *argv[])
 	shutdown_directories ();
 
 	/* Shutdown major subsystems */
-
-	tracker_push_shutdown ();
+	if (private->public_interfaces_up) {
+		tracker_push_shutdown ();
+	}
 
 	tracker_volume_cleanup_shutdown ();
 	tracker_dbus_shutdown ();
@@ -1156,6 +1188,8 @@ main (gint argc, gchar *argv[])
 
 	shutdown_locations ();
 
+	g_static_private_free (&private_key);
+
 	g_print ("\nOK\n\n");
 
 	return EXIT_SUCCESS;
@@ -1169,10 +1203,6 @@ tracker_shutdown (void)
 	private = g_static_private_get (&private_key);
 
 	if (private) {
-		if (tracker_status_is_initialized ()) {
-			tracker_status_set_is_ready (FALSE);
-		}
-
 		if (private->processor) {
 			tracker_processor_stop (private->processor);
 		}

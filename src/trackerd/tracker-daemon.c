@@ -226,8 +226,10 @@ tracker_daemon_init (TrackerDaemon *object)
 
 	iface = tracker_db_manager_get_db_interface (TRACKER_DB_COMMON);
 
-	/* Do first time stats lookup */
-	priv->stats_cache = stats_cache_get_latest ();
+	priv->stats_cache = g_hash_table_new_full (g_str_hash,
+						   g_str_equal,
+						   g_free,
+						   NULL);
 
 	priv->stats_cache_timeout_id = 
 		g_timeout_add_seconds (STATS_CACHE_LIFETIME,
