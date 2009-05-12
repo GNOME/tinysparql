@@ -45,12 +45,17 @@
 #define RDF_PREFIX TRACKER_RDF_PREFIX
 #define RDF_TYPE RDF_PREFIX "type"
 
+/* Transaction every 'x' batch items */
+#define TRACKER_STORE_TRANSACTION_MAX	4000
+
 G_DEFINE_TYPE(TrackerResources, tracker_resources, G_TYPE_OBJECT)
 
 #define TRACKER_RESOURCES_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_RESOURCES, TrackerResourcesPrivate))
 
 
 typedef struct {
+	gboolean    batch_mode;
+	gint        batch_count;
 	GSList     *event_sources;
 } TrackerResourcesPrivate;
 
@@ -254,12 +259,22 @@ tracker_resources_sparql_update (TrackerResources	 *self,
 				 DBusGMethodInvocation	 *context,
 				 GError			**error)
 {
+	TrackerResourcesPrivate *priv;
 	GError 		     *actual_error = NULL;
 	guint		      request_id;
+
+	priv = TRACKER_RESOURCES_GET_PRIVATE (self);
 
 	request_id = tracker_dbus_get_next_request_id ();
 
 	tracker_dbus_async_return_if_fail (update != NULL, context);
+
+	if (priv->batch_mode) {
+		/* commit pending batch items */
+		tracker_data_commit_transaction ();
+		priv->batch_mode = FALSE;
+		priv->batch_count = 0;
+	}
 
 	tracker_dbus_request_new (request_id,
 				  "DBus request for SPARQL Update, "
@@ -275,6 +290,85 @@ tracker_resources_sparql_update (TrackerResources	 *self,
 		dbus_g_method_return_error (context, actual_error);
 		g_error_free (actual_error);
 		return;
+	}
+
+	dbus_g_method_return (context);
+
+	tracker_dbus_request_success (request_id);
+}
+
+void
+tracker_resources_batch_sparql_update (TrackerResources          *self,
+				       const gchar	         *update,
+				       DBusGMethodInvocation	 *context,
+				       GError			**error)
+{
+	TrackerResourcesPrivate *priv;
+	GError 		     *actual_error = NULL;
+	guint		      request_id;
+
+	priv = TRACKER_RESOURCES_GET_PRIVATE (self);
+
+	request_id = tracker_dbus_get_next_request_id ();
+
+	tracker_dbus_async_return_if_fail (update != NULL, context);
+
+	tracker_dbus_request_new (request_id,
+				  "DBus request for batch SPARQL Update, "
+				  "update:'%s'",
+				  update);
+
+	if (!priv->batch_mode) {
+		/* switch to batch mode
+		   delays database commits to improve performance */
+		priv->batch_mode = TRUE;
+		priv->batch_count = 0;
+		tracker_data_begin_transaction ();
+	}
+
+	tracker_data_update_sparql (update, &actual_error);
+
+	if (actual_error) {
+		tracker_dbus_request_failed (request_id,
+					     &actual_error,
+					     NULL);
+		dbus_g_method_return_error (context, actual_error);
+		g_error_free (actual_error);
+		return;
+	}
+
+	if (++priv->batch_count >= TRACKER_STORE_TRANSACTION_MAX) {
+		/* commit pending batch items */
+		tracker_data_commit_transaction ();
+		priv->batch_mode = FALSE;
+		priv->batch_count = 0;
+	}
+
+	dbus_g_method_return (context);
+
+	tracker_dbus_request_success (request_id);
+}
+
+void
+tracker_resources_batch_commit (TrackerResources	 *self,
+				DBusGMethodInvocation	 *context,
+				GError			**error)
+{
+	TrackerResourcesPrivate *priv;
+	guint		      request_id;
+
+	priv = TRACKER_RESOURCES_GET_PRIVATE (self);
+
+	request_id = tracker_dbus_get_next_request_id ();
+
+	tracker_dbus_request_new (request_id,
+				  "DBus request for batch commit");
+
+	if (priv->batch_mode) {
+		/* commit pending batch items */
+		tracker_data_commit_transaction ();
+		priv->batch_mode = FALSE;
+		priv->batch_count = 0;
 	}
 
 	dbus_g_method_return (context);

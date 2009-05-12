@@ -79,6 +79,13 @@ void		 tracker_resources_sparql_update	 (TrackerResources       *object,
 							  const gchar		 *update,
 							  DBusGMethodInvocation  *context,
 							  GError		**error);
+void		 tracker_resources_batch_sparql_update	 (TrackerResources       *object,
+							  const gchar		 *update,
+							  DBusGMethodInvocation  *context,
+							  GError		**error);
+void		 tracker_resources_batch_commit		 (TrackerResources       *object,
+							  DBusGMethodInvocation  *context,
+							  GError		**error);
 
 
 G_END_DECLS
