@@ -351,6 +351,8 @@ flush_data (TrackerIndexer *indexer)
 		stop_transaction (indexer);
 	}
 
+	tracker_resources_batch_commit (indexer->private->client, NULL);
+
 	if ((indexer->private->state & TRACKER_INDEXER_STATE_STOPPED) == 0) {
 		signal_status (indexer, "flush");
 	}
@@ -1062,7 +1064,7 @@ item_add_or_update (TrackerIndexer        *indexer,
 			uri, sparql);
 		g_free (sparql);
 
-		tracker_resources_sparql_update (indexer->private->client, full_sparql, NULL);
+		tracker_resources_batch_sparql_update (indexer->private->client, full_sparql, NULL);
 		g_free (full_sparql);
 
 		schedule_flush (indexer, FALSE);
@@ -1075,7 +1077,7 @@ item_add_or_update (TrackerIndexer        *indexer,
 		item_add_to_datasource (indexer, uri, info->module_file, metadata);
 
 		sparql = tracker_module_metadata_get_sparql (metadata);
-		tracker_resources_sparql_update (indexer->private->client, sparql, NULL);
+		tracker_resources_batch_sparql_update (indexer->private->client, sparql, NULL);
 		g_free (sparql);
 
 		schedule_flush (indexer, FALSE);
@@ -1199,7 +1201,7 @@ item_move (TrackerIndexer  *indexer,
 
 	g_string_append (sparql, " }");
 
-	tracker_resources_sparql_update (indexer->private->client, sparql->str, NULL);
+	tracker_resources_batch_sparql_update (indexer->private->client, sparql->str, NULL);
 
 #ifdef HAVE_HAL
 	if (tracker_hal_uri_is_on_removable_device (indexer->private->hal,
@@ -1286,7 +1288,7 @@ item_remove (TrackerIndexer *indexer,
 
 	/* Delete service */
 	sparql = g_strdup_printf ("DELETE { <%s> a rdfs:Resource }", uri);
-	tracker_resources_sparql_update (indexer->private->client, sparql, NULL);
+	tracker_resources_batch_sparql_update (indexer->private->client, sparql, NULL);
 	g_free (sparql);
 
 	/* TODO
