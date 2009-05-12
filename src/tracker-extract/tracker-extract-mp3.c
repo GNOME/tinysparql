@@ -1045,7 +1045,7 @@ get_id3v23_tags (const gchar *data,
 		{"TYER", NIE_PREFIX "contentCreated", NULL, NULL, NULL, &filedata->id3v1_info->year},
 		{"TRCK", NMM_PREFIX "trackNumber", NULL, NULL, NULL, &filedata->id3v1_info->trackno},
 		/* TODO Nepomukify {"PCNT", "Audio:PlayCount"}, */
-		{"TLEN", NMM_PREFIX "duration", NULL, NULL, NULL, NULL},
+		{"TLEN", NMM_PREFIX "length", NULL, NULL, NULL, NULL},
 		{NULL, 0, NULL, NULL, NULL},
 	};
 
@@ -1301,7 +1301,7 @@ get_id3v20_tags (const gchar *data,
 		{"TOT", NMM_PREFIX "musicAlbum", "album", NMM_PREFIX "MusicAlbum", NMM_PREFIX "albumTitle", &filedata->id3v1_info->album},
 		{"TOL", NMM_PREFIX "performer", "artist", NMM_PREFIX "Artist", NMM_PREFIX "artistName", &filedata->id3v1_info->artist},
 		{"COM", NIE_PREFIX "comment", NULL, NULL, NULL, &filedata->id3v1_info->comment},
-		{"TLE", NMM_PREFIX "duration", NULL, NULL, NULL, NULL},
+		{"TLE", NMM_PREFIX "length", NULL, NULL, NULL, NULL},
 		{ NULL, 0, NULL, NULL, NULL},
 	};
 
