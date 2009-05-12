@@ -441,7 +441,8 @@ tracker_albumart_heuristic (const gchar *artist_,
 	file = NULL;
 
 	g_stat (dirname, &st);
-	count = st.st_nlink;
+	/* do not count . and .. */
+	count = st.st_nlink - 2;
 	
 	if (tracks_str) {
 		tracks = atoi (tracks_str);
