@@ -39,6 +39,8 @@
 #define NMM_PREFIX TRACKER_NMM_PREFIX
 #define DC_PREFIX TRACKER_DC_PREFIX
 
+#include <libtracker-common/tracker-utils.h>
+
 #ifdef HAVE_EXEMPI
 
 #include <exempi/xmp.h>
@@ -76,7 +78,9 @@ fix_flash (const gchar *flash)
 {
 	static const gint fired_mask = 0x1;
 	gint value;
-	value = atoi(flash);
+
+	value = atoi (flash);
+
 	if (value & fired_mask) {
 		return "nmm:flash-on";
 	} else {
@@ -87,8 +91,6 @@ fix_flash (const gchar *flash)
 static const gchar *
 fix_white_balance (const gchar *wb)
 {
-	gint value;
-	value = atoi(wb);
 	if (wb) {
 		return "nmm:whiteBalance-manual";
 	} else {
@@ -546,7 +548,7 @@ tracker_xmp_iter (XmpPtr          xmp,
 		const gchar *value = xmp_string_cstr (the_prop);
 
 		if (XMP_IS_PROP_SIMPLE (opt)) {
-			if (strcmp (path,"") != 0) {
+			if (!tracker_is_empty_string (path)) {
 				if (XMP_HAS_PROP_QUALIFIERS (opt)) {
 					tracker_xmp_iter_simple_qual (xmp, uri, metadata, schema, path, value, append);
 				} else {
