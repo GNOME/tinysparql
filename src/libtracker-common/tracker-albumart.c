@@ -55,7 +55,7 @@
 #define THUMBNAILER_INTERFACE    "org.freedesktop.thumbnailer.Generic"
 
 typedef struct {
-	TrackerHal *hal;
+	TrackerStorage *hal;
 	gchar      *art_path;
 	gchar      *local_uri;
 } GetFileInfo;
@@ -304,7 +304,7 @@ tracker_albumart_strip_invalid_entities (const gchar *original)
 }
 
 void
-tracker_albumart_copy_to_local (TrackerHal  *hal,
+tracker_albumart_copy_to_local (TrackerStorage  *hal,
 				const gchar *filename, 
 				const gchar *local_uri)
 {
@@ -321,7 +321,7 @@ tracker_albumart_copy_to_local (TrackerHal  *hal,
 #ifdef HAVE_HAL
 	g_return_if_fail (hal != NULL);
 
-	removable_roots = tracker_hal_get_removable_device_roots (hal);
+	removable_roots = tracker_storage_get_removable_device_roots (hal);
 #else
 	removable_roots = g_list_append (removable_roots, "/media");
 	removable_roots = g_list_append (removable_roots, "/mnt");
@@ -722,7 +722,7 @@ tracker_albumart_get_path (const gchar  *a,
 }
 
 void
-tracker_albumart_request_download (TrackerHal  *hal,
+tracker_albumart_request_download (TrackerStorage *hal,
 				   const gchar *album, 
 				   const gchar *artist, 
 				   const gchar *local_uri, 

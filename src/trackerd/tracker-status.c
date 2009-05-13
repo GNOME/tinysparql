@@ -50,7 +50,7 @@ typedef struct {
 	gint           cpu_priority;
 
 	TrackerConfig *config;
-	TrackerHal    *hal;
+	TrackerPower  *hal;
 
 
 	DBusGProxy    *indexer_proxy;
@@ -370,6 +370,14 @@ disk_space_check_stop (void)
 	}
 }
 
+static void
+low_disk_space_limit_cb (GObject    *gobject,
+			 GParamSpec *arg1,
+			 gpointer    user_data)
+{
+	disk_space_check_cb (NULL);
+}
+
 #ifdef HAVE_HAL
 
 static void
@@ -387,7 +395,7 @@ set_up_throttle (gboolean debugging)
 	 */
 	throttle = tracker_config_get_throttle (private->config);
 
-	if (tracker_hal_get_battery_in_use (private->hal)) {
+	if (tracker_power_get_battery_in_use (private->hal)) {
 		if (debugging) {
 			g_message ("We are running on battery");
 		}
@@ -431,14 +439,6 @@ set_up_throttle (gboolean debugging)
 }
 
 static void
-low_disk_space_limit_cb (GObject    *gobject,
-			 GParamSpec *arg1,
-			 gpointer    user_data)
-{
-	disk_space_check_cb (NULL);
-}
-
-static void
 battery_in_use_cb (GObject    *gobject,
 		   GParamSpec *arg1,
 		   gpointer    user_data)
@@ -458,8 +458,8 @@ battery_percentage_cb (GObject    *object,
 	private = g_static_private_get (&private_key);
 	g_return_if_fail (private != NULL);
 
-	percentage = tracker_hal_get_battery_percentage (private->hal);
-	battery_in_use = tracker_hal_get_battery_in_use (private->hal);
+	percentage = tracker_power_get_battery_percentage (private->hal);
+	battery_in_use = tracker_power_get_battery_in_use (private->hal);
 
 	g_message ("Battery percentage is now %.0f%%",
 		   percentage * 100);
@@ -483,7 +483,7 @@ battery_percentage_cb (GObject    *object,
 
 gboolean
 tracker_status_init (TrackerConfig *config,
-		     TrackerHal    *hal)
+		     TrackerPower  *hal)
 {
 	GType		      type;
 	DBusGProxy           *proxy;

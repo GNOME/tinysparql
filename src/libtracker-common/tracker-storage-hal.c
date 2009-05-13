@@ -32,19 +32,15 @@
 #include <dbus/dbus-glib-lowlevel.h>
 
 #include "tracker-log.h"
-#include "tracker-hal.h"
+#include "tracker-storage.h"
 #include "tracker-utils.h"
 #include "tracker-marshal.h"
 
-#define CAPABILITY_AC_ADAPTER  "ac_adapter"
-#define CAPABILITY_BATTERY     "battery"
 #define CAPABILITY_VOLUME      "volume"
 
-#define PROP_AC_ADAPTER_ON     "ac_adapter.present"
-#define PROP_BATT_PERCENTAGE   "battery.charge_level.percentage"
 #define PROP_IS_MOUNTED        "volume.is_mounted"
 
-#define GET_PRIV(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_HAL, TrackerHalPriv))
+#define GET_PRIV(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_STORAGE, TrackerStoragePriv))
 
 typedef struct {
 	LibHalContext *context;
@@ -53,33 +49,21 @@ typedef struct {
 	GHashTable    *all_devices;
 	GHashTable    *mounted_devices;
 	GHashTable    *removable_devices;
-	GHashTable    *batteries;
-
-	gchar	      *ac_adapter_udi;
-	gboolean       battery_in_use;
-	gdouble        battery_percentage;
-} TrackerHalPriv;
+} TrackerStoragePriv;
 
 typedef struct {
 	LibHalContext *context;
 	GList	      *roots;
 } GetRoots;
 
-static void	tracker_hal_finalize		(GObject	 *object);
+static void	tracker_storage_finalize	(GObject	 *object);
 static void	hal_get_property		(GObject	 *object,
 						 guint		  param_id,
 						 GValue		 *value,
 						 GParamSpec	 *pspec);
-static gboolean hal_setup_devices		(TrackerHal	 *hal);
-static gboolean hal_setup_ac_adapters		(TrackerHal	 *hal);
-static gboolean hal_setup_batteries		(TrackerHal	 *hal);
+static gboolean hal_setup_devices		(TrackerStorage	 *hal);
 
-static void     hal_battery_modify              (TrackerHal      *hal,
-						 const gchar     *udi);
-static void     hal_battery_remove              (TrackerHal      *hal,
-						 const gchar     *udi);
-
-static gboolean hal_device_add			(TrackerHal	 *hal,
+static gboolean hal_device_add			(TrackerStorage	 *hal,
 						 LibHalVolume	 *volume);
 static void	hal_device_added_cb		(LibHalContext	 *context,
 						 const gchar	 *udi);
@@ -93,9 +77,6 @@ static void	hal_device_property_modified_cb (LibHalContext	 *context,
 
 enum {
 	PROP_0,
-	PROP_BATTERY_IN_USE,
-	PROP_BATTERY_EXISTS,
-	PROP_BATTERY_PERCENTAGE
 };
 
 enum {
@@ -106,16 +87,16 @@ enum {
 
 static guint signals[LAST_SIGNAL] = {0};
 
-G_DEFINE_TYPE (TrackerHal, tracker_hal, G_TYPE_OBJECT);
+G_DEFINE_TYPE (TrackerStorage, tracker_storage, G_TYPE_OBJECT);
 
 static void
-tracker_hal_class_init (TrackerHalClass *klass)
+tracker_storage_class_init (TrackerStorageClass *klass)
 {
 	GObjectClass *object_class;
 
 	object_class = G_OBJECT_CLASS (klass);
 
-	object_class->finalize	   = tracker_hal_finalize;
+	object_class->finalize	   = tracker_storage_finalize;
 	object_class->get_property = hal_get_property;
 
 	signals[MOUNT_POINT_ADDED] =
@@ -142,41 +123,18 @@ tracker_hal_class_init (TrackerHalClass *klass)
 			      G_TYPE_STRING,
 			      G_TYPE_STRING);
 
-	g_object_class_install_property (object_class,
-					 PROP_BATTERY_IN_USE,
-					 g_param_spec_boolean ("battery-in-use",
-							       "Battery in use",
-							       "Whether the battery is being used",
-							       FALSE,
-							       G_PARAM_READABLE));
-
-	g_object_class_install_property (object_class,
-					 PROP_BATTERY_EXISTS,
-					 g_param_spec_boolean ("battery-exists",
-							       "Battery exists",
-							       "There is a battery on this machine",
-							       FALSE,
-							       G_PARAM_READABLE));
-	g_object_class_install_property (object_class,
-					 PROP_BATTERY_PERCENTAGE,
-					 g_param_spec_double ("battery-percentage",
-							      "Battery percentage",
-							      "Battery percentage",
-							      0.0, 1.0, 0.0,
-							      G_PARAM_READABLE));
-
-	g_type_class_add_private (object_class, sizeof (TrackerHalPriv));
+	g_type_class_add_private (object_class, sizeof (TrackerStoragePriv));
 }
 
 static void
-tracker_hal_init (TrackerHal *hal)
+tracker_storage_init (TrackerStorage *storage)
 {
-	TrackerHalPriv *priv;
+	TrackerStoragePriv *priv;
 	DBusError	error;
 
-	g_message ("Initializing HAL...");
+	g_message ("Initializing HAL Storage...");
 
-	priv = GET_PRIV (hal);
+	priv = GET_PRIV (storage);
 
 	priv->all_devices = g_hash_table_new_full (g_str_hash,
 						   g_str_equal,
@@ -192,10 +150,6 @@ tracker_hal_init (TrackerHal *hal)
 							 g_str_equal,
 							 (GDestroyNotify) g_free,
 							 (GDestroyNotify) g_free);
-	priv->batteries = g_hash_table_new_full (g_str_hash,
-						 g_str_equal,
-						 (GDestroyNotify) g_free,
-						 NULL);
 
 	dbus_error_init (&error);
 
@@ -217,7 +171,7 @@ tracker_hal_init (TrackerHal *hal)
 		return;
 	}
 
-	libhal_ctx_set_user_data (priv->context, hal);
+	libhal_ctx_set_user_data (priv->context, storage);
 	libhal_ctx_set_dbus_connection (priv->context, priv->connection);
 
 	if (!libhal_ctx_init (priv->context, &error)) {
@@ -243,25 +197,15 @@ tracker_hal_init (TrackerHal *hal)
 	libhal_ctx_set_device_property_modified (priv->context, hal_device_property_modified_cb);
 
 	/* Get all devices which are mountable and set them up */
-	if (!hal_setup_devices (hal)) {
-		return;
-	}
-
-	/* Get all AC adapters info and set them up */
-	if (!hal_setup_ac_adapters (hal)) {
-		return;
-	}
-
-	/* Get all battery devices and set them up */
-	if (!hal_setup_batteries (hal)) {
+	if (!hal_setup_devices (storage)) {
 		return;
 	}
 }
 
 static void
-tracker_hal_finalize (GObject *object)
+tracker_storage_finalize (GObject *object)
 {
-	TrackerHalPriv *priv;
+	TrackerStoragePriv *priv;
 
 	priv = GET_PRIV (object);
 
@@ -277,12 +221,6 @@ tracker_hal_finalize (GObject *object)
 		g_hash_table_unref (priv->all_devices);
 	}
 
-	if (priv->batteries) {
-		g_hash_table_unref (priv->batteries);
-	}
-
-	g_free (priv->ac_adapter_udi);
-
 	if (priv->context) {
 		libhal_ctx_shutdown (priv->context, NULL);
 		libhal_ctx_set_user_data (priv->context, NULL);
@@ -293,7 +231,7 @@ tracker_hal_finalize (GObject *object)
 		dbus_connection_unref (priv->connection);
 	}
 
-	(G_OBJECT_CLASS (tracker_hal_parent_class)->finalize) (object);
+	(G_OBJECT_CLASS (tracker_storage_parent_class)->finalize) (object);
 }
 
 static void
@@ -302,20 +240,11 @@ hal_get_property (GObject    *object,
 		  GValue     *value,
 		  GParamSpec *pspec)
 {
-	TrackerHalPriv *priv;
+	TrackerStoragePriv *priv;
 
 	priv = GET_PRIV (object);
 
 	switch (param_id) {
-	case PROP_BATTERY_IN_USE:
-		g_value_set_boolean (value, priv->battery_in_use);
-		break;
-	case PROP_BATTERY_EXISTS:
-		g_value_set_boolean (value, priv->ac_adapter_udi != NULL);
-		break;
-	case PROP_BATTERY_PERCENTAGE:
-		g_value_set_double (value, priv->battery_percentage);
-		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, param_id, pspec);
 		break;
@@ -323,14 +252,14 @@ hal_get_property (GObject    *object,
 }
 
 static gboolean
-hal_setup_devices (TrackerHal *hal)
+hal_setup_devices (TrackerStorage *storage)
 {
-	TrackerHalPriv	*priv;
+	TrackerStoragePriv	*priv;
 	DBusError	 error;
 	gchar	       **devices, **p;
 	gint		 num;
 
-	priv = GET_PRIV (hal);
+	priv = GET_PRIV (storage);
 
 	dbus_error_init (&error);
 
@@ -374,7 +303,7 @@ hal_setup_devices (TrackerHal *hal)
 		g_debug ("  Label	 : %s",
 			   libhal_volume_get_label (volume));
 
-		hal_device_add (hal, volume);
+		hal_device_add (storage, volume);
 		libhal_volume_free (volume);
 	}
 
@@ -383,142 +312,15 @@ hal_setup_devices (TrackerHal *hal)
 	return TRUE;
 }
 
-static gboolean
-hal_setup_ac_adapters (TrackerHal *hal)
-{
-	TrackerHalPriv	*priv;
-	DBusError	 error;
-	gchar	       **devices, **p;
-	gint		 num;
-
-	priv = GET_PRIV (hal);
-
-	dbus_error_init (&error);
-
-	devices = libhal_find_device_by_capability (priv->context,
-						    CAPABILITY_AC_ADAPTER,
-						    &num,
-						    &error);
-
-	if (dbus_error_is_set (&error)) {
-		g_critical ("Could not get AC adapter capable devices, %s",
-			    error.message);
-		dbus_error_free (&error);
-		return FALSE;
-	}
-
-	g_message ("HAL found %d AC adapter capable devices", num);
-
-	if (!devices || !devices[0]) {
-		libhal_free_string_array (devices);
-
-		priv->battery_in_use = FALSE;
-		g_object_notify (G_OBJECT (hal), "battery-in-use");
-
-		priv->ac_adapter_udi = NULL;
-		g_object_notify (G_OBJECT (hal), "battery-exists");
-
-		return TRUE;
-	}
-
-	for (p = devices; *p; p++) {
-		if (!priv->ac_adapter_udi) {
-			/* For now just use the first one we find */
-			priv->ac_adapter_udi = g_strdup (*p);
-			g_object_notify (G_OBJECT (hal), "battery-exists");
-
-			g_message ("  Device '%s' (default)", *p);
-		} else {
-			g_message ("  Device '%s'", *p);
-		}
-	}
-
-	libhal_free_string_array (devices);
-
-	/* Make sure we watch changes to the battery use */
-	libhal_device_add_property_watch (priv->context,
-					  priv->ac_adapter_udi,
-					  &error);
-
-	if (dbus_error_is_set (&error)) {
-		g_critical ("Could not add device:'%s' to property watch, %s",
-			       priv->ac_adapter_udi, error.message);
-		dbus_error_free (&error);
-		return FALSE;
-	}
-
-	/* Get current state, are we using the battery now? */
-	priv->battery_in_use = !libhal_device_get_property_bool (priv->context,
-								 priv->ac_adapter_udi,
-								 PROP_AC_ADAPTER_ON,
-								 NULL);
-
-	g_message ("HAL reports system is currently powered by %s",
-		   priv->battery_in_use ? "battery" : "AC adapter");
-
-	g_object_notify (G_OBJECT (hal), "battery-in-use");
-
-	return TRUE;
-}
-
-static gboolean
-hal_setup_batteries (TrackerHal *hal)
-{
-	TrackerHalPriv	*priv;
-	DBusError	 error;
-	gchar	       **devices, **p;
-	gint		 num;
-
-	priv = GET_PRIV (hal);
-
-	dbus_error_init (&error);
-
-	devices = libhal_find_device_by_capability (priv->context,
-						    CAPABILITY_BATTERY,
-						    &num,
-						    &error);
-
-	if (dbus_error_is_set (&error)) {
-		g_critical ("Could not get Battery HAL info, %s",
-			    error.message);
-		dbus_error_free (&error);
-		return FALSE;
-	}
-
-	g_message ("HAL found %d batteries", num);
-
-	if (!devices || !devices[0]) {
-		libhal_free_string_array (devices);
-		return TRUE;
-	}
-
-	for (p = devices; *p; p++) {
-		g_message ("  Device '%s'", *p);
-
-		hal_battery_modify (hal, *p);
-		libhal_device_add_property_watch (priv->context, *p, &error);
-
-		if (dbus_error_is_set (&error)) {
-			g_critical ("Could not add device:'%s' to property watch, %s",
-				    *p, error.message);
-			dbus_error_free (&error);
-		}
-	}
-
-	libhal_free_string_array (devices);
-
-	return TRUE;
-}
-
 static void
-hal_mount_point_add (TrackerHal  *hal,
-		     const gchar *udi,
-		     const gchar *mount_point,
-		     gboolean	  removable_device)
+hal_mount_point_add (TrackerStorage *storage,
+		     const gchar    *udi,
+		     const gchar    *mount_point,
+		     gboolean	     removable_device)
 {
-	TrackerHalPriv *priv;
+	TrackerStoragePriv *priv;
 
-	priv = GET_PRIV (hal);
+	priv = GET_PRIV (storage);
 
 	g_message ("HAL device:'%s' with mount point:'%s', removable:%s now being tracked",
 		   (const gchar*) g_hash_table_lookup (priv->all_devices, udi),
@@ -535,17 +337,17 @@ hal_mount_point_add (TrackerHal  *hal,
 				     g_strdup (mount_point));
 	}
 
-	g_signal_emit (hal, signals[MOUNT_POINT_ADDED], 0, udi, mount_point, NULL);
+	g_signal_emit (storage, signals[MOUNT_POINT_ADDED], 0, udi, mount_point, NULL);
 }
 
 static void
-hal_mount_point_remove (TrackerHal  *hal,
-			const gchar *udi)
+hal_mount_point_remove (TrackerStorage *storage,
+			const gchar    *udi)
 {
-	TrackerHalPriv *priv;
+	TrackerStoragePriv *priv;
 	const gchar    *mount_point;
 
-	priv = GET_PRIV (hal);
+	priv = GET_PRIV (storage);
 
 	mount_point = g_hash_table_lookup (priv->mounted_devices, udi);
 
@@ -559,7 +361,7 @@ hal_mount_point_remove (TrackerHal  *hal,
 		   udi,
 		   g_hash_table_remove (priv->removable_devices, udi) ? "yes" : "no");
 	
-	g_signal_emit (hal, signals[MOUNT_POINT_REMOVED], 0, udi, mount_point, NULL);
+	g_signal_emit (storage, signals[MOUNT_POINT_REMOVED], 0, udi, mount_point, NULL);
 
 	g_hash_table_remove (priv->mounted_devices, udi);
 	g_hash_table_remove (priv->removable_devices, udi);
@@ -605,10 +407,10 @@ hal_drive_type_to_string (LibHalDriveType type)
 }
 
 static gboolean
-hal_device_is_removable (TrackerHal  *hal,
-			 const gchar *device_file)
+hal_device_is_removable (TrackerStorage *storage,
+			 const gchar    *device_file)
 {
-	TrackerHalPriv	*priv;
+	TrackerStoragePriv	*priv;
 	LibHalDrive	*drive;
 	gboolean	 removable;
 
@@ -616,7 +418,7 @@ hal_device_is_removable (TrackerHal  *hal,
 		return FALSE;
 	}
 
-	priv = GET_PRIV (hal);
+	priv = GET_PRIV (storage);
 
 	drive = libhal_drive_from_device_file (priv->context, device_file);
 	if (!drive) {
@@ -630,10 +432,10 @@ hal_device_is_removable (TrackerHal  *hal,
 }
 
 static gboolean
-hal_device_should_be_tracked (TrackerHal  *hal,
-			      const gchar *device_file)
+hal_device_should_be_tracked (TrackerStorage *storage,
+			      const gchar    *device_file)
 {
-	TrackerHalPriv	*priv;
+	TrackerStoragePriv	*priv;
 	LibHalDrive	*drive;
 	LibHalDriveType  drive_type;
 	gboolean	 eligible;
@@ -642,7 +444,7 @@ hal_device_should_be_tracked (TrackerHal  *hal,
 		return FALSE;
 	}
 
-	priv = GET_PRIV (hal);
+	priv = GET_PRIV (storage);
 
 	drive = libhal_drive_from_device_file (priv->context, device_file);
 	if (!drive) {
@@ -696,77 +498,17 @@ hal_device_should_be_tracked (TrackerHal  *hal,
 	return eligible;
 }
 
-static void
-hal_battery_notify (TrackerHal *hal)
-{
-	TrackerHalPriv *priv;
-	GList *values, *v;
-	gint percentage, n_values;
-
-	priv = GET_PRIV (hal);
-	percentage = n_values = 0;
-
-	values = g_hash_table_get_values (priv->batteries);
-
-	for (v = values; v; v = v->next) {
-		percentage += GPOINTER_TO_INT (v->data);
-		n_values++;
-	}
-
-	if (n_values > 0) {
-		priv->battery_percentage = (gdouble) percentage / n_values;
-		priv->battery_percentage /= 100;
-	} else {
-		priv->battery_percentage = 0;
-	}
-
-	g_list_free (values);
-
-	g_object_notify (G_OBJECT (hal), "battery-percentage");
-}
-
-static void
-hal_battery_modify (TrackerHal  *hal,
-		    const gchar *udi)
-{
-	TrackerHalPriv *priv;
-	gint percentage;
-
-	priv = GET_PRIV (hal);
-	percentage = libhal_device_get_property_int (priv->context, udi,
-						     PROP_BATT_PERCENTAGE,
-						     NULL);
-
-	g_hash_table_insert (priv->batteries,
-			     g_strdup (udi),
-			     GINT_TO_POINTER (percentage));
-
-	hal_battery_notify (hal);
-}
-
-static void
-hal_battery_remove (TrackerHal  *hal,
-		    const gchar *udi)
-{
-	TrackerHalPriv *priv;
-
-	priv = GET_PRIV (hal);
-
-	g_hash_table_remove (priv->batteries, udi);
-	hal_battery_notify (hal);
-}
-
 static gboolean
-hal_device_add (TrackerHal   *hal,
-		LibHalVolume *volume)
+hal_device_add (TrackerStorage *storage,
+		LibHalVolume   *volume)
 {
-	TrackerHalPriv *priv;
+	TrackerStoragePriv *priv;
 	DBusError	error;
 	const gchar    *udi;
 	const gchar    *mount_point;
 	const gchar    *device_file;
 
-	priv = GET_PRIV (hal);
+	priv = GET_PRIV (storage);
 
 	dbus_error_init (&error);
 
@@ -779,7 +521,7 @@ hal_device_add (TrackerHal   *hal,
 	}
 
 	/* If there is no mount point, then there is nothing to track */
-	if (!hal_device_should_be_tracked (hal, device_file)) {
+	if (!hal_device_should_be_tracked (storage, device_file)) {
 		return TRUE;
 	}
 
@@ -800,10 +542,10 @@ hal_device_add (TrackerHal   *hal,
 			     g_strdup (device_file));
 
 	if (mount_point) {
-		hal_mount_point_add (hal,
+		hal_mount_point_add (storage,
 				     udi,
 				     mount_point,
-				     hal_device_is_removable (hal, device_file));
+				     hal_device_is_removable (storage, device_file));
 	}
 
 	return TRUE;
@@ -813,14 +555,12 @@ static void
 hal_device_added_cb (LibHalContext *context,
 		     const gchar   *udi)
 {
-	TrackerHal   *hal;
-	LibHalVolume *volume;
+	TrackerStorage *storage;
+	LibHalVolume   *volume;
 
-	hal = libhal_ctx_get_user_data (context);
+	storage = libhal_ctx_get_user_data (context);
 
-	if (libhal_device_query_capability (context, udi, CAPABILITY_BATTERY, NULL)) {
-		hal_battery_modify (hal, udi);
-	} else if (libhal_device_query_capability (context, udi, CAPABILITY_VOLUME, NULL)) {
+	if (libhal_device_query_capability (context, udi, CAPABILITY_VOLUME, NULL)) {
 		volume = libhal_volume_from_udi (context, udi);
 
 		if (!volume) {
@@ -843,7 +583,7 @@ hal_device_added_cb (LibHalContext *context,
 		g_message ("  Label	 : %s",
 			   libhal_volume_get_label (volume));
 
-		hal_device_add (hal, volume);
+		hal_device_add (storage, volume);
 		libhal_volume_free (volume);
 	}
 }
@@ -852,17 +592,15 @@ static void
 hal_device_removed_cb (LibHalContext *context,
 		       const gchar   *udi)
 {
-	TrackerHal     *hal;
-	TrackerHalPriv *priv;
-	const gchar    *device_file;
-	const gchar    *mount_point;
+	TrackerStorage     *storage;
+	TrackerStoragePriv *priv;
+	const gchar        *device_file;
+	const gchar        *mount_point;
 
-	hal = (TrackerHal*) libhal_ctx_get_user_data (context);
-	priv = GET_PRIV (hal);
+	storage = (TrackerStorage*) libhal_ctx_get_user_data (context);
+	priv = GET_PRIV (storage);
 
-	if (g_hash_table_lookup (priv->batteries, udi)) {
-		hal_battery_remove (hal, udi);
-	} else if (g_hash_table_lookup (priv->all_devices, udi)) {
+	if (g_hash_table_lookup (priv->all_devices, udi)) {
 		device_file = g_hash_table_lookup (priv->all_devices, udi);
 
 		if (!device_file) {
@@ -881,7 +619,7 @@ hal_device_removed_cb (LibHalContext *context,
 
 		g_hash_table_remove (priv->all_devices, udi);
 
-		hal_mount_point_remove (hal, udi);
+		hal_mount_point_remove (storage, udi);
 	}
 }
 
@@ -892,38 +630,16 @@ hal_device_property_modified_cb (LibHalContext *context,
 				 dbus_bool_t	is_removed,
 				 dbus_bool_t	is_added)
 {
-	TrackerHal     *hal;
-	TrackerHalPriv *priv;
-	DBusError	error;
+	TrackerStorage     *storage;
+	TrackerStoragePriv *priv;
+	DBusError	    error;
 
-	hal = (TrackerHal*) libhal_ctx_get_user_data (context);
-	priv = GET_PRIV (hal);
+	storage = (TrackerStorage*) libhal_ctx_get_user_data (context);
+	priv = GET_PRIV (storage);
 
 	dbus_error_init (&error);
 
-	if (priv->ac_adapter_udi && strcmp (priv->ac_adapter_udi, udi) == 0) {
-		/* Property change is on the AC adapter */
-		priv->battery_in_use = !libhal_device_get_property_bool (priv->context,
-									 priv->ac_adapter_udi,
-									 PROP_AC_ADAPTER_ON,
-									 &error);
-		g_message ("HAL reports system is now powered by %s",
-			   priv->battery_in_use ? "battery" : "AC adapter");
-
-		g_object_notify (G_OBJECT (hal), "battery-in-use");
-
-		if (dbus_error_is_set (&error)) {
-			g_critical ("Could not get device property:'%s' for udi:'%s', %s",
-				    udi, PROP_AC_ADAPTER_ON, error.message);
-			dbus_error_free (&error);
-			return;
-		}
-	} else if (g_hash_table_lookup (priv->batteries, udi)) {
-		/* Property change is on any battery */
-		if (strcmp (key, PROP_BATT_PERCENTAGE) == 0) {
-			hal_battery_modify (hal, udi);
-		}
-	} else if (g_hash_table_lookup (priv->all_devices, udi)) {
+	if (g_hash_table_lookup (priv->all_devices, udi)) {
 		const gchar *device_file;
 		gboolean is_mounted;
 
@@ -951,7 +667,7 @@ hal_device_property_modified_cb (LibHalContext *context,
 			g_message ("HAL device:'%s' with udi:'%s' is now unmounted (due to error)",
 				   device_file, 
 				   udi);
-			hal_mount_point_remove (hal, udi);
+			hal_mount_point_remove (storage, udi);
 			return;
 		}
 
@@ -966,10 +682,10 @@ hal_device_property_modified_cb (LibHalContext *context,
 				   device_file,
 				   udi);
 
-			hal_mount_point_add (hal,
+			hal_mount_point_add (storage,
 					     udi,
 					     mount_point,
-					     hal_device_is_removable (hal, device_file));
+					     hal_device_is_removable (storage, device_file));
 
 			libhal_volume_free (volume);
 		} else {
@@ -977,83 +693,22 @@ hal_device_property_modified_cb (LibHalContext *context,
 				   device_file,
 				   udi);
 
-			hal_mount_point_remove (hal, udi);
+			hal_mount_point_remove (storage, udi);
 		}
 	}
 }
 
 /**
- * tracker_hal_new:
+ * tracker_storage_new:
  *
- * Creates a new instance of #TrackerHal.
+ * Creates a new instance of #TrackerStorage.
  *
- * Returns: The newly created #TrackerHal.
+ * Returns: The newly created #TrackerStorage.
  **/
-TrackerHal *
-tracker_hal_new ()
+TrackerStorage *
+tracker_storage_new ()
 {
-	return g_object_new (TRACKER_TYPE_HAL, NULL);
-}
-
-/**
- * tracker_hal_get_battery_in_use:
- * @hal: A #TrackerHal.
- *
- * Returns whether the computer battery (if any) is currently in use.
- *
- * Returns: #TRUE if the computer is running on battery power.
- **/
-gboolean
-tracker_hal_get_battery_in_use (TrackerHal *hal)
-{
-	TrackerHalPriv *priv;
-
-	g_return_val_if_fail (TRACKER_IS_HAL (hal), TRUE);
-
-	priv = GET_PRIV (hal);
-
-	return priv->battery_in_use;
-}
-
-/**
- * tracker_hal_get_battery_exists:
- * @hal: A #TrackerHal
- *
- * Returns whether the computer has batteries.
- *
- * Returns: #TRUE if the computer has batteries available.
- **/
-gboolean
-tracker_hal_get_battery_exists (TrackerHal *hal)
-{
-	TrackerHalPriv *priv;
-
-	g_return_val_if_fail (TRACKER_IS_HAL (hal), TRUE);
-
-	priv = GET_PRIV (hal);
-
-	return priv->ac_adapter_udi != NULL;
-}
-
-/**
- * tracker_hal_get_battery_percentage:
- * @hal: A #TrackerHal
- *
- * Returns the battery percentage left on the
- * computer, or #0.0 if no batteries are present.
- *
- * Returns: The battery percentage left.
- **/
-gdouble
-tracker_hal_get_battery_percentage (TrackerHal *hal)
-{
-	TrackerHalPriv *priv;
-
-	g_return_val_if_fail (TRACKER_IS_HAL (hal), 0.0);
-
-	priv = GET_PRIV (hal);
-
-	return priv->battery_percentage;
+	return g_object_new (TRACKER_TYPE_STORAGE, NULL);
 }
 
 static void
@@ -1089,8 +744,8 @@ hal_get_mount_point_by_udi_foreach (gpointer key,
 }
 
 /**
- * tracker_hal_get_mounted_directory_roots:
- * @hal: A #TrackerHal
+ * tracker_storage_get_mounted_directory_roots:
+ * @storage: A #TrackerStorage
  *
  * Returns a #Glist of strings containing the root directories for mounted devices.
  * Each element must be freed using g_free() and the list itself using g_list_free().
@@ -1098,14 +753,14 @@ hal_get_mount_point_by_udi_foreach (gpointer key,
  * Returns: The list of root directories.
  **/
 GList *
-tracker_hal_get_mounted_directory_roots (TrackerHal *hal)
+tracker_storage_get_mounted_directory_roots (TrackerStorage *storage)
 {
-	TrackerHalPriv *priv;
+	TrackerStoragePriv *priv;
 	GetRoots	gr;
 
-	g_return_val_if_fail (TRACKER_IS_HAL (hal), NULL);
+	g_return_val_if_fail (TRACKER_IS_STORAGE (storage), NULL);
 
-	priv = GET_PRIV (hal);
+	priv = GET_PRIV (storage);
 
 	gr.context = priv->context;
 	gr.roots = NULL;
@@ -1118,8 +773,8 @@ tracker_hal_get_mounted_directory_roots (TrackerHal *hal)
 }
 
 /**
- * tracker_hal_get_removable_device_roots:
- * @hal: A #TrackerHal
+ * tracker_storage_get_removable_device_roots:
+ * @storage: A #TrackerStorage
  *
  * Returns a #GList of strings containing the root directories for removable devices.
  * Each element must be freed using g_free() and the list itself through g_list_free().
@@ -1127,14 +782,14 @@ tracker_hal_get_mounted_directory_roots (TrackerHal *hal)
  * Returns: The list of root directories.
  **/
 GList *
-tracker_hal_get_removable_device_roots (TrackerHal *hal)
+tracker_storage_get_removable_device_roots (TrackerStorage *storage)
 {
-	TrackerHalPriv *priv;
+	TrackerStoragePriv *priv;
 	GetRoots	gr;
 
-	g_return_val_if_fail (TRACKER_IS_HAL (hal), NULL);
+	g_return_val_if_fail (TRACKER_IS_STORAGE (storage), NULL);
 
-	priv = GET_PRIV (hal);
+	priv = GET_PRIV (storage);
 
 	gr.context = priv->context;
 	gr.roots = NULL;
@@ -1147,8 +802,8 @@ tracker_hal_get_removable_device_roots (TrackerHal *hal)
 }
 
 /**
- * tracker_hal_path_is_on_removable_device:
- * @hal: A #TrackerHal
+ * tracker_storage_path_is_on_removable_device:
+ * @storage: A #TrackerStorage
  * @uri: a uri
  * @mount_mount: if @uri is on a removable device, the mount point will
  * be filled in here. You must free the returned result
@@ -1160,19 +815,19 @@ tracker_hal_get_removable_device_roots (TrackerHal *hal)
  * Returns: TRUE if @uri on a known removable device, FALSE otherwise
  **/
 gboolean
-tracker_hal_uri_is_on_removable_device (TrackerHal  *hal,
-				        const gchar *uri,
-				        gchar      **mount_point,
-				        gboolean    *available)
+tracker_storage_uri_is_on_removable_device (TrackerStorage *storage,
+					    const gchar    *uri,
+					    gchar         **mount_point,
+					    gboolean       *available)
 {
-	TrackerHalPriv *priv;
+	TrackerStoragePriv *priv;
 	GHashTableIter  iter;
 	gboolean        found = FALSE;
 	gpointer        key, value;
 	gchar          *path;
 	GFile          *file;
 
-	g_return_val_if_fail (TRACKER_IS_HAL (hal), FALSE);
+	g_return_val_if_fail (TRACKER_IS_STORAGE (storage), FALSE);
 
 	file = g_file_new_for_uri (uri);
 	path = g_file_get_path (file);
@@ -1182,7 +837,7 @@ tracker_hal_uri_is_on_removable_device (TrackerHal  *hal,
 		return FALSE;
 	}
 
-	priv = GET_PRIV (hal);
+	priv = GET_PRIV (storage);
 
 	g_hash_table_iter_init (&iter, priv->removable_devices);
 
@@ -1215,8 +870,8 @@ tracker_hal_uri_is_on_removable_device (TrackerHal  *hal,
 
 
 /**
- * tracker_hal_get_removable_device_udis:
- * @hal: A #TrackerHal
+ * tracker_storage_get_removable_device_udis:
+ * @storage: A #TrackerStorage
  *
  * Returns a #GList of strings containing the UDI for removable devices.
  * Each element is owned by the #GHashTable internally, the list
@@ -1225,58 +880,58 @@ tracker_hal_uri_is_on_removable_device (TrackerHal  *hal,
  * Returns: The list of UDIs.
  **/
 GList *
-tracker_hal_get_removable_device_udis (TrackerHal *hal)
+tracker_storage_get_removable_device_udis (TrackerStorage *storage)
 {
-	TrackerHalPriv *priv;
+	TrackerStoragePriv *priv;
 
-	g_return_val_if_fail (TRACKER_IS_HAL (hal), NULL);
+	g_return_val_if_fail (TRACKER_IS_STORAGE (storage), NULL);
 
-	priv = GET_PRIV (hal);
+	priv = GET_PRIV (storage);
 	
 	return g_hash_table_get_keys (priv->removable_devices);
 }
 
 /**
- * tracker_hal_udi_get_mount_point:
- * @hal: A #TrackerHal
+ * tracker_storage_udi_get_mount_point:
+ * @storage: A #TrackerStorage
  * @udi: A string pointer to the UDI for the device.
  *
  * Returns: The mount point for @udi, this should not be freed.
  **/
 const gchar *
-tracker_hal_udi_get_mount_point (TrackerHal  *hal,
-				 const gchar *udi)
+tracker_storage_udi_get_mount_point (TrackerStorage *storage,
+				     const gchar    *udi)
 {
-	TrackerHalPriv *priv;
+	TrackerStoragePriv *priv;
 
-	g_return_val_if_fail (TRACKER_IS_HAL (hal), NULL);
+	g_return_val_if_fail (TRACKER_IS_STORAGE (storage), NULL);
 	g_return_val_if_fail (udi != NULL, NULL);
 
-	priv = GET_PRIV (hal);
+	priv = GET_PRIV (storage);
 	
 	return g_hash_table_lookup (priv->removable_devices, udi);
 }
 
 /**
- * tracker_hal_udi_get_mount_point:
- * @hal: A #TrackerHal
+ * tracker_storage_udi_get_mount_point:
+ * @storage: A #TrackerStorage
  * @udi: A #gboolean
  *
  * Returns: The %TRUE if @udi is mounted or %FALSE if it isn't.
  **/
 gboolean    
-tracker_hal_udi_get_is_mounted (TrackerHal  *hal,
-				const gchar *udi)
+tracker_storage_udi_get_is_mounted (TrackerStorage *storage,
+				    const gchar    *udi)
 {
-	TrackerHalPriv *priv;
+	TrackerStoragePriv *priv;
 	LibHalVolume   *volume;
 	const gchar    *mount_point;
 	gboolean        is_mounted;
 
-	g_return_val_if_fail (TRACKER_IS_HAL (hal), FALSE);
+	g_return_val_if_fail (TRACKER_IS_STORAGE (storage), FALSE);
 	g_return_val_if_fail (udi != NULL, FALSE);
 
-	priv = GET_PRIV (hal);
+	priv = GET_PRIV (storage);
 
 	volume = libhal_volume_from_udi (priv->context, udi);
 	if (!volume) {
@@ -1298,8 +953,8 @@ tracker_hal_udi_get_is_mounted (TrackerHal  *hal,
 
 
 /**
- * tracker_hal_get_volume_udi_for_file:
- * @hal: A #TrackerHal
+ * tracker_storage_get_volume_udi_for_file:
+ * @storage: A #TrackerStorage
  * @file: a file
  *
  * Returns the UDI of the removable device for @file
@@ -1307,17 +962,17 @@ tracker_hal_udi_get_is_mounted (TrackerHal  *hal,
  * Returns: Returns the UDI of the removable device for @file
  **/
 const gchar *
-tracker_hal_get_volume_udi_for_file (TrackerHal  *hal,
-				     GFile       *file)
+tracker_storage_get_volume_udi_for_file (TrackerStorage *storage,
+					 GFile          *file)
 {
-	TrackerHalPriv *priv;
+	TrackerStoragePriv *priv;
 	GHashTableIter  iter;
 	gboolean        found = FALSE;
 	gpointer        key, value;
 	gchar          *path;
 	const gchar    *udi;
 
-	g_return_val_if_fail (TRACKER_IS_HAL (hal), FALSE);
+	g_return_val_if_fail (TRACKER_IS_STORAGE (storage), FALSE);
 
 	path = g_file_get_path (file);
 
@@ -1325,7 +980,7 @@ tracker_hal_get_volume_udi_for_file (TrackerHal  *hal,
 		return NULL;
 	}
 
-	priv = GET_PRIV (hal);
+	priv = GET_PRIV (storage);
 
 	g_hash_table_iter_init (&iter, priv->removable_devices);
 
