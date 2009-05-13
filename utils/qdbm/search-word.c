@@ -81,7 +81,7 @@ show_term_in_index (const gchar *filename,
 
     depot = dpopen (filename, DP_OREADER, -1);
 
-    if (depot == NULL) {
+    if (!depot) {
 	   g_print ("Unable to open file: %s "
 		    "(Could be a lock problem: is tracker running?)\n",
 		    filename);
@@ -92,8 +92,10 @@ show_term_in_index (const gchar *filename,
 
     items = get_word_hits (depot, word, &hits);
 
-    if (hits < 1 ) {
+    if (hits < 1) {
 	    g_print ("No results for %s\n", word);
+	    g_free (items);
+	    dpclose (depot);
 	    return;
     }
 
@@ -108,6 +110,8 @@ show_term_in_index (const gchar *filename,
     g_print ("\n");
 
     g_print ("Total: %d terms.\n", dprnum (depot));
+
+    g_free (items);
     dpclose (depot);
 }
 

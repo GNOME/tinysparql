@@ -81,7 +81,7 @@ load_terms_from_index (gchar *filename)
 
     depot = dpopen (filename, DP_OREADER | DP_ONOLCK, -1);
 
-    if (depot == NULL) {
+    if (!depot) {
 	   g_print ("Unable to open file: %s "
 		    "(Could be a lock problem: is tracker running?)\n",
 		    filename);
@@ -92,27 +92,30 @@ load_terms_from_index (gchar *filename)
 
     dpiterinit (depot);
 
-    key = dpiternext (depot, NULL);
-
-    while (key != NULL) {
+    for (key = dpiternext (depot, NULL); 
+	 key != NULL; 
+	 key = dpiternext (depot, NULL)) {
 	    g_print (" - %s ", key);
 
 	    if (print_services) {
 		    results = get_word_hits (depot, key, &hits);
+
 		    for (i = 0; i < hits; i++) {
 			    g_print (" (id:%d  t:%d s:%d) ",
 				     tracker_db_index_item_get_id (&results[i]),
 				     tracker_db_index_item_get_service_type (&results[i]),
 				     tracker_db_index_item_get_score (&results[i]));
 		    }
+
+		    g_free (results);
 	    }
 
 	    g_print ("\n");
 	    g_free (key);
-	    key = dpiternext (depot, NULL);
     }
 
     g_print ("Total: %d terms.\n", dprnum (depot));
+
     dpclose (depot);
 }
 
