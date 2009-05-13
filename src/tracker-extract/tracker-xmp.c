@@ -28,6 +28,8 @@
 #include "tracker-xmp.h"
 #include "tracker-main.h"
 
+#include <libtracker-common/tracker-utils.h>
+
 #ifdef HAVE_EXEMPI
 
 #include <exempi/xmp.h>
@@ -64,20 +66,19 @@ fix_flash (const gchar *flash)
 {
 	static const gint fired_mask = 0x1;
 	gint value;
-	value = atoi(flash);
+
+	value = atoi (flash);
+
 	if (value & fired_mask) {
 		return "1";
 	} else {
 		return "0";
 	}
-		
 }
 
 static gchar *
 fix_white_balance (const gchar *wb)
 {
-	gint value;
-	value = atoi(wb);
 	if (wb) {
 		return "Manual white balance";
 	} else {
@@ -449,7 +450,7 @@ tracker_xmp_iter (XmpPtr          xmp,
 		const gchar *value = xmp_string_cstr (the_prop);
 
 		if (XMP_IS_PROP_SIMPLE (opt)) {
-			if (strcmp (path,"") != 0) {
+			if (!tracker_is_empty_string (path)) {
 				if (XMP_HAS_PROP_QUALIFIERS (opt)) {
 					tracker_xmp_iter_simple_qual (xmp, metadata, schema, path, value, append);
 				} else {
