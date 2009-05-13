@@ -169,6 +169,7 @@ read_summary (FILE *summary,
                         }
 
                         if (c == EOF) {
+				va_end (args);
                                 return FALSE;
                         }
 
@@ -178,6 +179,7 @@ read_summary (FILE *summary,
 			gint32 value, *dest;
 
 			if (fread (&value, sizeof (gint32), 1, summary) != 1) {
+				va_end (args);
 				return FALSE;
 			}
 
@@ -198,6 +200,7 @@ read_summary (FILE *summary,
 			}
 
 			if (c == EOF) {
+				va_end (args);
 				return FALSE;
 			} else {
 				value |= (c & 0x7f);
@@ -237,11 +240,13 @@ read_summary (FILE *summary,
 
 			str = g_try_malloc0 (len);
 			if (!str) {
+				va_end (args);
 				return FALSE;
 			}
 
 			if (fread (str, len - 1, 1, summary) != 1) {
 				g_free (str);
+				va_end (args);
 				return FALSE;
 			}
 
