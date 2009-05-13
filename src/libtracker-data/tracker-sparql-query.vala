@@ -510,6 +510,8 @@ public class Tracker.SparqlQuery : Object {
 			if (query.get_offset () >= 0) {
 				sql.append_printf (" OFFSET %d", query.get_offset ());
 			}
+		} else if (query.get_offset () >= 0) {
+			sql.append_printf (" LIMIT -1 OFFSET %d", query.get_offset ());
 		}
 
 		return exec_sql (sql.str);
