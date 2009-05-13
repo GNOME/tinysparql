@@ -666,14 +666,14 @@ mount_point_set_cb (DBusGProxy *proxy,
 	TrackerMainPrivate *private;
 
 	if (error) {
-		g_critical ("Indexer couldn't set removable media state for:'%s' in database, %s", 
+		g_critical ("Indexer couldn't set volume state for:'%s' in database, %s", 
 			    (gchar*) user_data,
 			    error ? error->message : "no error given");
 		g_error_free (error);
 
 		tracker_shutdown ();
 	} else {
-		g_message ("Indexer now knows about UDI state:");
+		g_message ("Indexer has now set the state for the volume with UDI:");
 		g_message ("  %s", (gchar*) user_data);
 	}
 		
@@ -696,6 +696,9 @@ mount_point_set_cb (DBusGProxy *proxy,
 			tracker_daemon_signal_statistics ();
 		}
 
+		/* Unpause the indexer */
+		tracker_status_set_is_paused_for_dbus (FALSE);
+			
 		if (!private->mount_points_up) {
 			private->mount_points_up = TRUE;
 
@@ -705,9 +708,10 @@ mount_point_set_cb (DBusGProxy *proxy,
 			 */
 			g_main_loop_quit (private->main_loop);
 		}
-	} else {
-		g_message ("Statistics not being signalled, %d mountable media states left to set still", 
-			   private->mount_points_to_set);
+	} else if (private->mount_points_up) {
+		g_message ("Statistics not being signalled, %d %s remaining", 
+			   private->mount_points_to_set,
+			   private->mount_points_to_set == 1 ? "volume" : "volumes");
 	}
 }
 
@@ -723,7 +727,9 @@ mount_point_added_cb (TrackerHal  *hal,
 
 	private->mount_points_to_set++;
 
-	g_message ("Indexer is being notified about added UDI:");
+	tracker_status_set_is_paused_for_dbus (TRUE);
+
+	g_message ("Indexer is being notified about added volume with UDI:");
 	g_message ("  %s", udi);
 
 	org_freedesktop_Tracker_Indexer_volume_update_state_async (tracker_dbus_indexer_get_proxy (), 
@@ -746,7 +752,9 @@ mount_point_removed_cb (TrackerHal  *hal,
 
 	private->mount_points_to_set++;
 
-	g_message ("Indexer is being notified about removed UDI:");
+	tracker_status_set_is_paused_for_dbus (TRUE);
+
+	g_message ("Indexer is being notified about removed volume with UDI:");
 	g_message ("  %s", udi);
 
 	org_freedesktop_Tracker_Indexer_volume_update_state_async (tracker_dbus_indexer_get_proxy (), 
@@ -767,42 +775,62 @@ set_up_mount_points_cb (DBusGProxy *proxy,
 	GList *roots, *l;
 
 	if (error) {
-		g_critical ("Indexer couldn't disable all removable devices, %s", 
+		g_critical ("Indexer couldn't disable all volumes, %s", 
 			    error ? error->message : "no error given");
 		g_error_free (error);
 		tracker_shutdown ();
 		return;
 	}
 
-	g_message ("Indexer is being notified about ALL UDIs");
+	g_message ("  Done");
+
+	private = g_static_private_get (&private_key);
 
 	hal = user_data;
 	roots = tracker_hal_get_removable_device_udis (hal);
 
-	private = g_static_private_get (&private_key);
-	
-	for (l = roots; l; l = l->next) {
-		gchar       *udi;
-		const gchar *mount_point;
-		gboolean     is_mounted;
+	if (roots) {
+		g_message ("Indexer is being notified about volume states with UDIs:");
 
-		udi = l->data;
-		mount_point = tracker_hal_udi_get_mount_point (hal, udi);
-		is_mounted = tracker_hal_udi_get_is_mounted (hal, udi);
+		for (l = roots; l; l = l->next) {
+			gchar       *udi;
+			const gchar *mount_point;
+			gboolean     is_mounted;
+			
+			udi = l->data;
+			mount_point = tracker_hal_udi_get_mount_point (hal, udi);
+			is_mounted = tracker_hal_udi_get_is_mounted (hal, udi);
+			
+			g_message ("  %s", udi);
+			
+			private->mount_points_to_set++;
+			
+			org_freedesktop_Tracker_Indexer_volume_update_state_async (tracker_dbus_indexer_get_proxy (), 
+										   udi,
+										   mount_point,
+										   is_mounted,
+										   mount_point_set_cb,
+										   g_strdup (udi));
+		}
 
-		g_message ("  %s", udi);
+		g_list_free (roots);
+	} else {
+		g_message ("Indexer does not need to be notified of volume states, none to set");
 
-		private->mount_points_to_set++;
+		tracker_status_set_is_paused_for_dbus (FALSE);
 
-		org_freedesktop_Tracker_Indexer_volume_update_state_async (tracker_dbus_indexer_get_proxy (), 
-									   udi,
-									   mount_point,
-									   is_mounted,
-									   mount_point_set_cb,
-									   g_strdup (udi));
+		/* Make sure we stop the main loop used to set up
+		 * mount points on start up if we have no removable
+		 * devices to update in the indexer.
+		 */
+		private->mount_points_up = TRUE;
+
+		/* We need to stop the main loop, we started
+		 * it so we could wait for mount points to be
+		 * set up successfully in main().
+		 */
+		g_main_loop_quit (private->main_loop);
 	}
-
-	g_list_free (roots);
 }
 
 static void
@@ -811,6 +839,8 @@ set_up_mount_points (TrackerHal *hal)
 	TrackerMainPrivate *private;
 
 	private = g_static_private_get (&private_key);
+
+	tracker_status_set_is_paused_for_dbus (TRUE);
 
 	private->mount_points_up = FALSE;
 

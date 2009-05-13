@@ -708,7 +708,6 @@ tracker_data_update_replace_service (const gchar *udi,
 	gboolean             set_metadata = FALSE;
 	guint32              id = 0;
 
-	g_return_if_fail (udi != NULL);
 	g_return_if_fail (path != NULL);
 	g_return_if_fail (metadata != NULL);
 

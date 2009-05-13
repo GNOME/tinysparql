@@ -101,6 +101,8 @@
 #define METADATA_FILE_NAME	     "File:Name"
 #define METADATA_FILE_MIMETYPE       "File:Mime"
 
+#undef ENABLE_TTL_LOADER
+
 typedef struct PathInfo PathInfo;
 typedef struct MetadataForeachData MetadataForeachData;
 typedef struct MetadataRequest MetadataRequest;
@@ -1772,19 +1774,21 @@ item_add_or_update (TrackerIndexer        *indexer,
 				     basename, 
 				     NULL);
 
+#ifdef ENABLE_TTL_LOADER
 #ifdef HAVE_HAL
 	if (tracker_hal_path_is_on_removable_device (indexer->private->hal,
 						     service_path, 
 						     &mount_point,
 						     NULL)) {
-
 		tracker_removable_device_add_metadata (indexer, 
 						       mount_point, 
 						       service_path, 
 						       tracker_service_get_name (service),
 						       metadata);
 	}
-#endif
+#endif /* HAVE_HAL */
+#endif /* ENABLE_TTL_LOADER */
+
 	g_free (mount_point);
 	g_free (service_path);
 }
@@ -1845,6 +1849,8 @@ update_moved_item_removable_device (TrackerIndexer *indexer,
 				    GFile          *file,
 				    GFile          *source_file)
 {
+#ifdef ENABLE_TTL_LOADER
+#ifdef HAVE_HAL
 	const gchar *service_name;
 	gchar *path, *source_path;
 	gchar *mount_point = NULL;
@@ -1853,23 +1859,19 @@ update_moved_item_removable_device (TrackerIndexer *indexer,
 	path = g_file_get_path (file);
 	source_path = g_file_get_path (source_file);
 
-#ifdef HAVE_HAL
 	if (tracker_hal_path_is_on_removable_device (indexer->private->hal,
 						     source_path,
 						     &mount_point,
-						     NULL) ) {
-
+						     NULL)) {
 		if (tracker_hal_path_is_on_removable_device (indexer->private->hal,
-						     path,
-						     NULL,
-						     NULL) ) {
-
+							     path,
+							     NULL,
+							     NULL)) {
 			tracker_removable_device_add_move (indexer,
 							   mount_point,
 							   source_path,
 							   path,
 							   service_name);
-
 		} else {
 			tracker_removable_device_add_removal (indexer,
 							      mount_point,
@@ -1877,10 +1879,12 @@ update_moved_item_removable_device (TrackerIndexer *indexer,
 							      service_name);
 		}
 	}
-#endif
+
 	g_free (mount_point);
 	g_free (source_path);
 	g_free (path);
+#endif /* HAVE_HAL */
+#endif /* ENABLE_TTL_LOADER */
 }
 
 static void
@@ -2206,17 +2210,20 @@ item_mark_for_removal (TrackerIndexer *indexer,
 
 		g_hash_table_destroy (children);
 	}
+
+#ifdef ENABLE_TTL_LOADER
 #ifdef HAVE_HAL
 	if (tracker_hal_path_is_on_removable_device (indexer->private->hal,
 						     path, 
 						     &mount_point,
 						     NULL)) {
-
 		tracker_removable_device_add_removal (indexer, mount_point, 
 						      path,
 						      tracker_service_get_name (service));
 	}
-#endif
+#endif /* HAVE_HAL */
+#endif /* ENABLE_TTL_LOADER */
+
 	g_free (mount_point);
 	g_free (path);
 }
@@ -3426,9 +3433,11 @@ tracker_indexer_volume_update_state (TrackerIndexer         *indexer,
 	/* tracker_turtle_process_ttl will be spinning the mainloop, therefore
 	   we can already return the DBus method */
 
+#ifdef ENABLE_TTL_LOADER
 	if (enabled) {
 		tracker_removable_device_load (indexer, path);
 	}
+#endif /* ENABLE_TTL_LOADER */
 }
 
 void
