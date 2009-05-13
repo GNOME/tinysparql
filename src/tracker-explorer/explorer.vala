@@ -22,9 +22,8 @@ public class Explorer {
 	private ListStore uris;
 	private ListStore relationships;
 	private Label current_object;
-	private ListStore reverserelationships;
-	private Label current_object_reverse;
 	private Gee.HashMap<string,string> namespaces = new Gee.HashMap<string,string>(str_hash, str_equal, str_equal);
+	private Notebook types;
 
 	public void show() {
 
@@ -73,10 +72,8 @@ public class Explorer {
 		setup_relationships(relationshipsview);
 
 		current_object = builder.get_object ("current-object") as Label;
-		var reverserelationshipsview = builder.get_object ("reverserelationshipsview") as TreeView;
-		setup_reverserelationships(reverserelationshipsview);
 
-		current_object_reverse = builder.get_object ("current-object-reverse") as Label;
+		types = builder.get_object ("types") as Notebook;
 
 		fetch_prefixes();
 
@@ -100,13 +97,16 @@ public class Explorer {
 		relationshipsview.row_activated += object_selected;
 	}
 
-	private void setup_reverserelationships(TreeView reverserelationshipsview) {
-		reverserelationships = new ListStore (2, typeof(string), typeof(string));
+	private TreeView setup_reverserelationships() {
+		ListStore reverserelationships = new ListStore (2, typeof(string), typeof(string));
+		TreeView reverserelationshipsview = new TreeView.with_model (reverserelationships);
 		reverserelationshipsview.set_model(reverserelationships);
 
 		reverserelationshipsview.insert_column_with_attributes (-1, "Subject", new CellRendererText (), "text", 1, null);
 		reverserelationshipsview.insert_column_with_attributes (-1, "Relationship", new CellRendererText (), "text", 0, null);
 		reverserelationshipsview.row_activated += object_selected;
+
+		return reverserelationshipsview;
 	}
 
 
@@ -149,31 +149,27 @@ public class Explorer {
 		string relationship;
 
 		if (prefix != null) {
-			relationship = string.join("#", prefix, parts[1]);
+			relationship = string.join(":", prefix, parts[1]);
 		} else {
 			relationship = uri;
-		}
-		return relationship;
+		} return relationship;
 	}
 
-	private void update_pane(string uri) {
-		//debug ("updating pane: %s", uri);
-		current_object.set_text (uri);
-		current_object_reverse.set_text (uri);
+	private void clear_types() {
+		for (int i = 0; i < types.get_n_pages(); i++) {
+			types.remove_page (i);
+		}
+	}
 
-		try {
-			string query = "SELECT ?r ?o  WHERE { <%s> ?r ?o }".printf(uri);
-			TreeIter iter;
-			var result = tracker.SparqlQuery(query);
-			relationships.clear();
-
-			for (int i=0; i<result.length[0]; i++) {
-				var relationship = subst_prefix(result[i,0]);
-				relationships.append (out iter);
-				relationships.set (iter, 0, relationship, -1);
-				relationships.set (iter, 1, result[i,1], -1);
-			}
+	private void add_type(string type) {
+		Label tab_label = new Label(type);
+		ScrolledWindow child = new ScrolledWindow(null, null);
+		TreeView tv = setup_reverserelationships();
+		child.add(tv);
+		types.append_page(child, tab_label);
+		child.show_all();
 /*
+		try {
 			query = "SELECT ?s ?r WHERE { ?s ?r  <%s> }".printf(uri);
 			result = tracker.SparqlQuery(query);
 			reverserelationships.clear();
@@ -184,8 +180,33 @@ public class Explorer {
 				reverserelationships.set (iter, 0, result[i,0], -1);
 				reverserelationships.set (iter, 1, relationship, -1);
 			}
+		} catch (DBus.Error e) {
+		}
+		*/
+	}
 
-*/
+	private void update_pane(string uri) {
+		//debug ("updating pane: %s", uri);
+		current_object.set_text (uri);
+
+		try {
+			string query = "SELECT ?r ?o  WHERE { <%s> ?r ?o }".printf(uri);
+			TreeIter iter;
+			var result = tracker.SparqlQuery(query);
+			relationships.clear();
+			clear_types();
+
+			for (int i=0; i<result.length[0]; i++) {
+				var relationship = subst_prefix(result[i,0]);
+				var obj = subst_prefix(result[i,1]);
+				relationships.append (out iter);
+				relationships.set (iter, 0, relationship, -1);
+				relationships.set (iter, 1, obj, -1);
+
+				if (relationship == "rdf:type") {
+					add_type (obj);
+				}
+			}
 		} catch (DBus.Error e) {
 		}
 	}
