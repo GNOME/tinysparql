@@ -611,10 +611,6 @@ config_set_property (GObject	  *object,
 		     const GValue *value,
 		     GParamSpec	  *pspec)
 {
-	TrackerConfigPrivate *priv;
-
-	priv = TRACKER_CONFIG_GET_PRIVATE (object);
-
 	switch (param_id) {
 		/* General */
 	case PROP_VERBOSITY:

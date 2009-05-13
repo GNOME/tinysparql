@@ -660,10 +660,6 @@ tracker_indexer_get_property (GObject	 *object,
 			      GValue	 *value,
 			      GParamSpec *pspec)
 {
-	TrackerIndexerPrivate *priv;
-
-	priv = TRACKER_INDEXER_GET_PRIVATE (object);
-
 	switch (prop_id) {
 	case PROP_RUNNING:
 		g_value_set_boolean (value,

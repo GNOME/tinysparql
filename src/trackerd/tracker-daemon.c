@@ -202,7 +202,6 @@ static void
 tracker_daemon_init (TrackerDaemon *object)
 {
 	TrackerDaemonPrivate *priv;
-	TrackerDBInterface   *iface;
 	DBusGProxy           *proxy;
 
 	priv = TRACKER_DAEMON_GET_PRIVATE (object);
@@ -222,8 +221,6 @@ tracker_daemon_init (TrackerDaemon *object)
 				     G_CALLBACK (indexing_error_cb),
 				     object,
 				     NULL);
-
-	iface = tracker_db_manager_get_db_interface ();
 
 	/* Do first time stats lookup */
 	priv->stats_cache = stats_cache_get_latest ();
@@ -646,8 +643,7 @@ tracker_daemon_shutdown (TrackerDaemon		*object,
 			 DBusGMethodInvocation	*context,
 			 GError		       **error)
 {
-	TrackerDaemonPrivate *priv;
-	guint		      request_id;
+	guint request_id;
 
 	request_id = tracker_dbus_get_next_request_id ();
 
@@ -655,8 +651,6 @@ tracker_daemon_shutdown (TrackerDaemon		*object,
 				  "DBus request to shutdown daemon, "
 				  "reindex:%s",
 				  reindex ? "yes" : "no");
-
-	priv = TRACKER_DAEMON_GET_PRIVATE (object);
 
 	g_message ("Tracker daemon attempting to shutdown");
 

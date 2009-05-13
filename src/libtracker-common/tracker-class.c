@@ -138,10 +138,6 @@ class_set_property (GObject	   *object,
 		      const GValue *value,
 		      GParamSpec   *pspec)
 {
-	TrackerClassPriv *priv;
-
-	priv = GET_PRIV (object);
-
 	switch (param_id) {
 	case PROP_URI:
 		tracker_class_set_uri (TRACKER_CLASS (object),
