@@ -1509,32 +1509,33 @@ tracker_rdf_query_to_sql (TrackerDBInterface  *iface,
 }
 
 
-/*
- * The following function turns an rdf query into a filter that can be used for example
- * for getting unique values of a field with a certain query.
- * FIXME It is not pretty. The calling function needs to define Services S that is joined in this method.
+/* The following function turns an rdf query into a filter that can be
+ * used for example for getting unique values of a field with a
+ * certain query. FIXME It is not pretty. The calling function needs
+ * to define Services S that is joined in this method.
  */
-
 void
 tracker_rdf_filter_to_sql (TrackerDBInterface *iface,
-			   const char	      *query,
-			   const char	      *service,
+			   const gchar	      *query,
+			   const gchar	      *service,
 			   GSList	     **fields,
-			   char		     **from,
-			   char		     **where,
+			   gchar	     **from,
+			   gchar	     **where,
 			   GError	     **error)
 {
 	ParserData data;
 
 	g_return_if_fail (TRACKER_IS_DB_INTERFACE (iface));
+	g_return_if_fail (query != NULL);
 	g_return_if_fail (service != NULL);
 	g_return_if_fail (from != NULL);
 	g_return_if_fail (where != NULL);
+	g_return_if_fail (fields != NULL);
 
 	memset (&data, 0, sizeof (data));
 	data.iface = iface;
 	data.statement_count = 0;
-	data.service = (char *) service;
+	data.service = (gchar *) service;
 
 	data.sql_from = g_string_new ("");
 	data.sql_where = g_string_new ("");
@@ -1560,14 +1561,9 @@ tracker_rdf_filter_to_sql (TrackerDBInterface *iface,
 
 	push_stack (&data, STATE_START);
 
-	if ( (query != NULL) && (!g_markup_parse_context_parse (data.context, query, -1, error))) {
-
+	if (!g_markup_parse_context_parse (data.context, query, -1, error)) {
 		*from = NULL;
 		*where = NULL;
-
-		g_string_free (data.sql_from, TRUE);
-		g_string_free (data.sql_where, TRUE);
-
 	} else {
 		GSList *l;
 
@@ -1619,28 +1615,20 @@ tracker_rdf_filter_to_sql (TrackerDBInterface *iface,
 			}
 		}
 
-
 		*from  = g_strdup (data.sql_from->str);
 		*where = g_strdup (data.sql_where->str);
-		g_string_free (data.sql_from, TRUE);
-		g_string_free (data.sql_where, TRUE);
-
-
 	}
+
+	g_string_free (data.sql_from, TRUE);
+	g_string_free (data.sql_where, TRUE);
 
 	*fields = data.fields;
 
 	g_slist_free (data.stack);
 	g_markup_parse_context_free (data.context);
 
-	if (data.current_field) {
-		g_free (data.current_field);
-	}
-
-	if (data.current_value) {
-		g_free (data.current_value);
-	}
-
+	g_free (data.current_field);
+	g_free (data.current_value);
 	g_free (data.parser);
 }
 
