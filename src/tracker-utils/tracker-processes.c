@@ -166,9 +166,7 @@ main (int argc, char **argv)
 		gchar **strv;
 
 		filename = g_build_filename ("/proc", l->data, "cmdline", NULL);
-		g_file_get_contents (filename, &contents, NULL, &error);
-
-		if (error) {	
+		if (!g_file_get_contents (filename, &contents, NULL, &error)) {
 			str = g_strdup_printf (_("Could not open '%s'"), filename);
 			g_printerr ("%s, %s\n", 
 				    str,

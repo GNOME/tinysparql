@@ -440,7 +440,13 @@ tracker_albumart_heuristic (const gchar *artist_,
 	retval = FALSE;
 	file = NULL;
 
-	g_stat (dirname, &st);
+	if (g_stat (dirname, &st) == -1) {
+		g_warning ("Could not g_stat() directory:'%s' for albumart heuristic",
+			   dirname);
+		g_free (dirname);
+		return FALSE;
+	}
+
 	count = st.st_nlink;
 	
 	if (tracks_str) {
