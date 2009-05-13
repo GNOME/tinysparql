@@ -429,7 +429,7 @@ tracker_files_search_text_contents (TrackerFiles	   *object,
 				    DBusGMethodInvocation  *context,
 				    GError		  **error)
 {
-	TrackerDBInterface *iface;
+	/* TrackerDBInterface *iface; */
 	TrackerDBResultSet *result_set = NULL;
 	guint		    request_id;
 	gchar		   *name = NULL;
@@ -451,7 +451,7 @@ tracker_files_search_text_contents (TrackerFiles	   *object,
 				  text,
 				  max_length);
 
-	iface = tracker_db_manager_get_db_interface_by_service (TRACKER_DB_FOR_FILE_SERVICE);
+	/* iface = tracker_db_manager_get_db_interface_by_service (TRACKER_DB_FOR_FILE_SERVICE); */
 
 	tracker_file_get_path_and_name (uri, &path, &name);
 
@@ -473,8 +473,6 @@ tracker_files_search_text_contents (TrackerFiles	   *object,
 	if (result_set) {
 		tracker_db_result_set_get (result_set, 0, value, -1);
 		g_object_unref (result_set);
-	} else {
-		value = g_strdup ("");
 	}
 
 	/* Fixme: when this is implemented, we should return TRUE and

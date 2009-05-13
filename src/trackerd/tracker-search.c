@@ -1080,7 +1080,7 @@ tracker_search_matching_fields (TrackerSearch	      *object,
 				DBusGMethodInvocation  *context,
 				GError		      **error)
 {
-	TrackerDBInterface *iface;
+	/* TrackerDBInterface *iface; */
 	TrackerDBResultSet *result_set;
 	GError		   *actual_error = NULL;
 	guint		    request_id;
@@ -1120,7 +1120,7 @@ tracker_search_matching_fields (TrackerSearch	      *object,
 		return;
 	}
 
-	iface = tracker_db_manager_get_db_interface_by_service (service);
+	/* iface = tracker_db_manager_get_db_interface_by_service (service); */
 
 	/* FIXME: This function no longer exists, it was returning
 	 * NULL in every case, this DBus function needs rewriting or

@@ -640,12 +640,10 @@ tracker_db_interface_sqlite_execute_procedure (TrackerDBInterface  *db_interface
 					       const gchar	   *procedure_name,
 					       va_list		    args)
 {
-	TrackerDBInterfaceSqlitePrivate *priv;
 	sqlite3_stmt *stmt;
 	gint stmt_args, n_args;
 	gchar *str;
 
-	priv = TRACKER_DB_INTERFACE_SQLITE_GET_PRIVATE (db_interface);
 	stmt = get_stored_stmt (TRACKER_DB_INTERFACE_SQLITE (db_interface), procedure_name);
 	stmt_args = sqlite3_bind_parameter_count (stmt);
 
@@ -663,12 +661,10 @@ tracker_db_interface_sqlite_execute_procedure_len (TrackerDBInterface  *db_inter
 						   const gchar	       *procedure_name,
 						   va_list		args)
 {
-	TrackerDBInterfaceSqlitePrivate *priv;
 	sqlite3_stmt *stmt;
 	gint stmt_args, n_args, len;
 	gchar *str;
 
-	priv = TRACKER_DB_INTERFACE_SQLITE_GET_PRIVATE (db_interface);
 	stmt = get_stored_stmt (TRACKER_DB_INTERFACE_SQLITE (db_interface), procedure_name);
 	stmt_args = sqlite3_bind_parameter_count (stmt);
 

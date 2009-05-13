@@ -195,10 +195,6 @@ language_set_property (GObject	    *object,
 		       const GValue *value,
 		       GParamSpec   *pspec)
 {
-	TrackerLanguagePriv *priv;
-
-	priv = GET_PRIV (object);
-
 	switch (param_id) {
 	case PROP_CONFIG:
 		tracker_language_set_config (TRACKER_LANGUAGE (object),

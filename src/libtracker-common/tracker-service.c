@@ -327,10 +327,6 @@ service_set_property (GObject	   *object,
 		      const GValue *value,
 		      GParamSpec   *pspec)
 {
-	TrackerServicePriv *priv;
-
-	priv = GET_PRIV (object);
-
 	switch (param_id) {
 	case PROP_ID:
 		tracker_service_set_id (TRACKER_SERVICE (object),
