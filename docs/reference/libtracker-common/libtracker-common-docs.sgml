@@ -11,7 +11,8 @@
 <!ENTITY tracker-log SYSTEM "xml/tracker-log.xml">
 <!ENTITY tracker-language SYSTEM "xml/tracker-language.xml">
 <!ENTITY tracker-ioprio SYSTEM "xml/tracker-ioprio.xml">
-<!ENTITY tracker-hal SYSTEM "xml/tracker-hal.xml">
+<!ENTITY tracker-power SYSTEM "xml/tracker-power.xml">
+<!ENTITY tracker-storage SYSTEM "xml/tracker-storage.xml">
 <!ENTITY tracker-file-utils SYSTEM "xml/tracker-file-utils.xml">
 <!ENTITY tracker-property SYSTEM "xml/tracker-property.xml">
 <!ENTITY tracker-dbus SYSTEM "xml/tracker-dbus.xml">
@@ -56,7 +57,8 @@
     <chapter>
       <title>Configuration</title>
       &tracker-config;
-      &tracker-hal;
+      &tracker-power;
+      &tracker-storage;
       &tracker-language;
       &tracker-module-config;
     </chapter>
