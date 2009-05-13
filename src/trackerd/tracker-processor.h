@@ -52,39 +52,47 @@ struct TrackerProcessorClass {
 };
 
 GType		  tracker_processor_get_type		    (void) G_GNUC_CONST;
-
-TrackerProcessor *tracker_processor_new			    (TrackerConfig    *config,
+TrackerProcessor *tracker_processor_new                     (TrackerConfig    *config,
 							     TrackerHal       *hal);
-void		  tracker_processor_start		    (TrackerProcessor *processor);
-void		  tracker_processor_stop		    (TrackerProcessor *processor);
+void              tracker_processor_start                   (TrackerProcessor *processor);
+void              tracker_processor_stop                    (TrackerProcessor *processor);
+
 
 /* Required API for org.freedesktop.Tracker.Files */
-void		  tracker_processor_files_check		    (TrackerProcessor *processor,
+void              tracker_processor_files_check             (TrackerProcessor *processor,
 							     const gchar      *module_name,
-							     GFile	      *file,
-							     gboolean	       is_directory);
-void		  tracker_processor_files_update	    (TrackerProcessor *processor,
+							     GFile            *file,
+							     gboolean          is_directory);
+void              tracker_processor_files_update            (TrackerProcessor *processor,
 							     const gchar      *module_name,
-							     GFile	      *file,
-							     gboolean	       is_directory);
-void		  tracker_processor_files_delete	    (TrackerProcessor *processor,
+							     GFile            *file,
+							     gboolean          is_directory);
+void              tracker_processor_files_delete            (TrackerProcessor *processor,
 							     const gchar      *module_name,
-							     GFile	      *file,
-							     gboolean	       is_directory);
-void		  tracker_processor_files_move		    (TrackerProcessor *processor,
+							     GFile            *file,
+							     gboolean          is_directory);
+void              tracker_processor_files_move              (TrackerProcessor *processor,
 							     const gchar      *module_name,
-							     GFile	      *file,
-							     GFile	      *other_file,
-							     gboolean	       is_directory);
+							     GFile            *file,
+							     GFile            *other_file,
+							     gboolean          is_directory);
+#ifdef HAVE_HAL
+void              tracker_processor_mount_point_added       (TrackerProcessor *processor,
+							     const gchar      *udi,
+							     const gchar      *mount_point);
+void              tracker_processor_mount_point_removed     (TrackerProcessor *processor,
+							     const gchar      *udi,
+							     const gchar      *mount_point);
+#endif /* HAVE_HAL */
 
 /* Statistics */
-guint		  tracker_processor_get_directories_found   (TrackerProcessor *processor);
-guint		  tracker_processor_get_directories_ignored (TrackerProcessor *processor);
-guint		  tracker_processor_get_directories_total   (TrackerProcessor *processor);
-guint		  tracker_processor_get_files_found	    (TrackerProcessor *processor);
-guint		  tracker_processor_get_files_ignored	    (TrackerProcessor *processor);
-guint		  tracker_processor_get_files_total	    (TrackerProcessor *processor);
-gdouble		  tracker_processor_get_seconds_elapsed     (TrackerProcessor *processor);
+guint             tracker_processor_get_directories_found   (TrackerProcessor *processor);
+guint             tracker_processor_get_directories_ignored (TrackerProcessor *processor);
+guint             tracker_processor_get_directories_total   (TrackerProcessor *processor);
+guint             tracker_processor_get_files_found         (TrackerProcessor *processor);
+guint             tracker_processor_get_files_ignored       (TrackerProcessor *processor);
+guint             tracker_processor_get_files_total         (TrackerProcessor *processor);
+gdouble           tracker_processor_get_seconds_elapsed     (TrackerProcessor *processor);
 
 G_END_DECLS
 

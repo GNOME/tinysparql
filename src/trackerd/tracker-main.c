@@ -94,6 +94,17 @@
 #define THROTTLE_DEFAULT	    0
 #define THROTTLE_DEFAULT_ON_BATTERY 5
 
+#ifdef HAVE_HAL 
+
+typedef struct {
+	gchar    *udi;
+	gchar    *mount_point;
+	gboolean  no_crawling;
+	gboolean  was_added;
+} MountPointUpdate;
+
+#endif /* HAVE_HAL */
+
 typedef enum {
 	TRACKER_RUNNING_NON_ALLOWED,
 	TRACKER_RUNNING_READONLY,
@@ -658,27 +669,61 @@ crawling_finished_cb (TrackerProcessor *processor,
 
 #ifdef HAVE_HAL
 
+static MountPointUpdate *
+mount_point_update_new (const gchar *udi,
+			const gchar *mount_point,
+			gboolean     no_crawling,
+			gboolean     was_added)
+{
+	MountPointUpdate *mpu;
+
+	mpu = g_slice_new0 (MountPointUpdate);
+
+	mpu->udi = g_strdup (udi);
+	mpu->mount_point = g_strdup (mount_point);
+
+	mpu->no_crawling = no_crawling;
+	mpu->was_added = was_added;
+
+	return mpu;
+}
+
+static void
+mount_point_update_free (MountPointUpdate *mpu)
+{
+	if (!mpu) {
+		return;
+	}
+
+	g_free (mpu->mount_point);
+	g_free (mpu->udi);
+
+	g_slice_free (MountPointUpdate, mpu);
+}
+
 static void
 mount_point_set_cb (DBusGProxy *proxy, 
 		    GError     *error, 
 		    gpointer    user_data)
 {
 	TrackerMainPrivate *private;
+	MountPointUpdate   *mpu;
+
+	mpu = user_data;
 
 	if (error) {
 		g_critical ("Indexer couldn't set volume state for:'%s' in database, %s", 
-			    (gchar*) user_data,
+			    mpu->udi,
 			    error ? error->message : "no error given");
+
 		g_error_free (error);
 
 		tracker_shutdown ();
 	} else {
 		g_message ("Indexer has now set the state for the volume with UDI:");
-		g_message ("  %s", (gchar*) user_data);
+		g_message ("  %s", mpu->udi);
 	}
 		
-	g_free (user_data);
-
 	/* See if we have any more callbacks here, if we don't we can
 	 * signal the stats to update.
 	 */
@@ -699,7 +744,11 @@ mount_point_set_cb (DBusGProxy *proxy,
 		/* Unpause the indexer */
 		tracker_status_set_is_paused_for_dbus (FALSE);
 			
-		if (!private->mount_points_up) {
+		/* Don't try to quit the main loop twice if we have
+		 * had an error above.
+		 */
+		if (!private->mount_points_up && 
+		    !private->shutdown) {
 			private->mount_points_up = TRUE;
 
 			/* We need to stop the main loop, we started
@@ -713,6 +762,28 @@ mount_point_set_cb (DBusGProxy *proxy,
 			   private->mount_points_to_set,
 			   private->mount_points_to_set == 1 ? "volume" : "volumes");
 	}
+
+	/* Make sure we crawl any new mount points or stop crawling
+	 * any mount points. We do it this way instead of listening
+	 * for the same HAL signals in the processor because the
+	 * processor checks state and at the time, we are PAUSED which
+	 * causes us state machine problems. 
+	 *
+	 * This is the easiest way to do it.
+	 */
+	if (!mpu->no_crawling) {
+		if (mpu->was_added) {
+			tracker_processor_mount_point_added (private->processor,
+							     mpu->udi,
+							     mpu->mount_point);
+		} else {
+			tracker_processor_mount_point_removed (private->processor,
+							       mpu->udi,
+							       mpu->mount_point);
+		}
+	}
+
+	mount_point_update_free (mpu);
 }
 
 static void
@@ -722,6 +793,7 @@ mount_point_added_cb (TrackerHal  *hal,
 		      gpointer	   user_data)
 {
 	TrackerMainPrivate *private;
+	MountPointUpdate   *mpu;
 	
 	private = g_static_private_get (&private_key);
 
@@ -732,12 +804,13 @@ mount_point_added_cb (TrackerHal  *hal,
 	g_message ("Indexer is being notified about added volume with UDI:");
 	g_message ("  %s", udi);
 
+	mpu = mount_point_update_new (udi, mount_point, FALSE, TRUE);
 	org_freedesktop_Tracker_Indexer_volume_update_state_async (tracker_dbus_indexer_get_proxy (), 
 								   udi,
 								   mount_point,
 								   TRUE,
 								   mount_point_set_cb,
-								   g_strdup (udi));
+								   mpu);
 }
 
 static void
@@ -747,7 +820,8 @@ mount_point_removed_cb (TrackerHal  *hal,
 			gpointer     user_data)
 {
 	TrackerMainPrivate *private;
-	
+	MountPointUpdate   *mpu;
+
 	private = g_static_private_get (&private_key);
 
 	private->mount_points_to_set++;
@@ -757,12 +831,13 @@ mount_point_removed_cb (TrackerHal  *hal,
 	g_message ("Indexer is being notified about removed volume with UDI:");
 	g_message ("  %s", udi);
 
+	mpu = mount_point_update_new (udi, mount_point, FALSE, FALSE);
 	org_freedesktop_Tracker_Indexer_volume_update_state_async (tracker_dbus_indexer_get_proxy (), 
 								   udi,
 								   mount_point,
 								   FALSE,
 								   mount_point_set_cb,
-								   g_strdup (udi));
+								   mpu);
 }
 
 static void
@@ -793,24 +868,22 @@ set_up_mount_points_cb (DBusGProxy *proxy,
 		g_message ("Indexer is being notified about volume states with UDIs:");
 
 		for (l = roots; l; l = l->next) {
-			gchar       *udi;
-			const gchar *mount_point;
-			gboolean     is_mounted;
-			
-			udi = l->data;
-			mount_point = tracker_hal_udi_get_mount_point (hal, udi);
-			is_mounted = tracker_hal_udi_get_is_mounted (hal, udi);
-			
-			g_message ("  %s", udi);
-			
+			MountPointUpdate *mpu;
+
 			private->mount_points_to_set++;
-			
+			mpu = mount_point_update_new (l->data, 
+						      tracker_hal_udi_get_mount_point (hal, l->data),
+						      TRUE, 
+						      tracker_hal_udi_get_is_mounted (hal, l->data));	
+		
+			g_message ("  %s", mpu->udi);
+		
 			org_freedesktop_Tracker_Indexer_volume_update_state_async (tracker_dbus_indexer_get_proxy (), 
-										   udi,
-										   mount_point,
-										   is_mounted,
+										   mpu->udi,
+										   mpu->mount_point,
+										   mpu->was_added,
 										   mount_point_set_cb,
-										   g_strdup (udi));
+										   mpu);
 		}
 
 		g_list_free (roots);

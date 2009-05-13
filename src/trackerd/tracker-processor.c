@@ -164,17 +164,6 @@ static void crawler_finished_cb		    (TrackerCrawler   *crawler,
 					     guint	       files_ignored,
 					     gpointer	       user_data);
 
-#ifdef HAVE_HAL
-static void mount_point_added_cb	    (TrackerHal       *hal,
-					     const gchar      *volume_uuid,
-					     const gchar      *mount_point,
-					     gpointer	       user_data);
-static void mount_point_removed_cb	    (TrackerHal       *hal,
-					     const gchar      *volume_uuid,
-					     const gchar      *mount_point,
-					     gpointer	       user_data);
-#endif /* HAVE_HAL */
-
 static guint signals[LAST_SIGNAL] = { 0, };
 
 G_DEFINE_TYPE (TrackerProcessor, tracker_processor, G_TYPE_OBJECT)
@@ -334,13 +323,6 @@ tracker_processor_finalize (GObject *object)
 	}
 
 	if (priv->hal) {
-		g_signal_handlers_disconnect_by_func (priv->hal,
-						      mount_point_added_cb,
-						      object);
-		g_signal_handlers_disconnect_by_func (priv->hal,
-						      mount_point_removed_cb,
-						      object);
-
 		g_object_unref (priv->hal);
 	}
 #endif /* HAVE_HAL */
@@ -1525,18 +1507,17 @@ crawler_finished_cb (TrackerCrawler *crawler,
 
 #ifdef HAVE_HAL
 
-static void
-mount_point_added_cb (TrackerHal  *hal,
-		      const gchar *udi,
-		      const gchar *mount_point,
-		      gpointer	   user_data)
+void
+tracker_processor_mount_point_added (TrackerProcessor *processor,
+				     const gchar      *udi,
+				     const gchar      *mount_point)
 {
-	TrackerProcessor        *processor;
 	TrackerProcessorPrivate *priv;
 	TrackerStatus	         status;
 	GList                   *l;
 
-	processor = user_data;
+	g_return_if_fail (TRACKER_IS_PROCESSOR (processor));
+
 	priv = processor->private;
 
 	status = tracker_status_get ();
@@ -1569,22 +1550,21 @@ mount_point_added_cb (TrackerHal  *hal,
 		 * crawled all locations so we need to start up the
 		 * processor again for the removable media once more.
 		 */
-		process_module_next (processor);
+		tracker_processor_start (processor);
 	}
 }
 
-static void
-mount_point_removed_cb (TrackerHal  *hal,
-			const gchar *udi,
-			const gchar *mount_point,
-			gpointer     user_data)
+void
+tracker_processor_mount_point_removed (TrackerProcessor *processor,
+				       const gchar      *udi,
+				       const gchar      *mount_point)
 {
-	TrackerProcessor        *processor;
 	TrackerProcessorPrivate *priv;
 	GFile		        *file;
 	GList                   *l;
 
-	processor = user_data;
+	g_return_if_fail (TRACKER_IS_PROCESSOR (processor));
+
 	priv = processor->private;
 
 	/* Remove directory from list of iterated_removable_media, so
@@ -1651,13 +1631,6 @@ tracker_processor_new (TrackerConfig *config,
 	priv->removable_devices = tracker_hal_get_removable_device_roots (priv->hal);
 	priv->removable_devices_current = priv->removable_devices;
 	priv->removable_devices_completed = NULL;
-
-	g_signal_connect (priv->hal, "mount-point-added",
-			  G_CALLBACK (mount_point_added_cb),
-			  processor);
-	g_signal_connect (priv->hal, "mount-point-removed",
-			  G_CALLBACK (mount_point_removed_cb),
-			  processor);
 #endif /* HAVE_HAL */
 
 	/* Set up the crawlers now we have config and hal */
