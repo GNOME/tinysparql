@@ -19,6 +19,7 @@
  */
 
 #include <glib/gstdio.h>
+
 #include <sqlite3.h>
 
 #include "tracker-db-interface-sqlite.h"
@@ -72,7 +73,7 @@ G_DEFINE_TYPE_WITH_CODE (TrackerDBInterfaceSqlite, tracker_db_interface_sqlite, 
 void 
 tracker_db_interface_sqlite_enable_shared_cache (void) 
 {
-  sqlite3_enable_shared_cache (1);
+	sqlite3_enable_shared_cache (1);
 }
 
 static GObject *
@@ -619,7 +620,11 @@ get_stored_stmt (TrackerDBInterfaceSqlite *db_interface,
 			return NULL;
 		}
 
-                /* g_debug ("Running procedure: '%s'", procedure); */
+                tracker_db_interface_debug (TRACKER_DB_INTERFACE (db_interface), 
+					    "[SP:'%s'] -- %s",
+					    procedure_name,
+					    procedure);
+
 		result = sqlite3_prepare_v2 (priv->db, procedure, -1, &stmt, NULL);
 
 		if (result == SQLITE_OK && stmt) {
@@ -696,7 +701,10 @@ tracker_db_interface_sqlite_execute_query (TrackerDBInterface  *db_interface,
 
 	priv = TRACKER_DB_INTERFACE_SQLITE_GET_PRIVATE (db_interface);
 
-        /* g_debug ("Running query: '%s'", query); */
+	tracker_db_interface_debug (TRACKER_DB_INTERFACE (db_interface), 
+				    "[Q] -- %s",
+				    query);
+
 	retval = sqlite3_prepare_v2 (priv->db, query, -1, &stmt, NULL);
 
 	if (retval != SQLITE_OK) {

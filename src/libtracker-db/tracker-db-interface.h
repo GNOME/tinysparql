@@ -70,6 +70,28 @@ struct TrackerDBInterfaceIface {
 
 };
 
+#undef DISABLE_DEBUG
+
+#ifdef G_HAVE_ISO_VARARGS
+#  ifdef DISABLE_DEBUG
+#    define tracker_db_interface_debug(iface, ...)
+#  else
+#    define tracker_db_interface_debug(iface, ...) tracker_db_interface_debug_impl (iface, __VA_ARGS__)
+#  endif
+#elif defined(G_HAVE_GNUC_VARARGS)
+#  if DISABLE_DEBUG
+#    define tracker_db_interface_debug(iface, fmt...)
+#  else
+#    define tracker_db_interface_debug(iface, fmt...) tracker_db_interface_impl(iface, fmt)
+#  endif
+#else
+#  if DISABLE_DEBUG
+#    define tracker_db_interface_debug(x)
+#  else
+#    define tracker_db_interface_debug tracker_db_interface_impl
+#  endif
+#endif
+
 struct TrackerDBResultSet {
 	GObject parent_class;
 };
@@ -78,15 +100,16 @@ struct TrackerDBResultSetClass {
 	GObjectClass parent_class;
 };
 
-
 GQuark tracker_db_interface_error_quark (void);
 
 GType tracker_db_interface_get_type (void);
 GType tracker_db_result_set_get_type (void);
 GType tracker_db_blob_get_type (void);
 
-
 /* Functions to create queries/procedures */
+void                    tracker_db_interface_debug_impl          (TrackerDBInterface   *iface,
+								  const gchar          *msg, 
+								  ...);
 TrackerDBResultSet *	tracker_db_interface_execute_vquery	 (TrackerDBInterface   *interface,
 								  GError	     **error,
 								  const gchar	       *query,
@@ -136,7 +159,6 @@ void			  tracker_db_result_set_rewind	       (TrackerDBResultSet *result_set);
 gboolean		  tracker_db_result_set_iter_next      (TrackerDBResultSet *result_set);
 guint			  tracker_db_result_set_get_n_columns  (TrackerDBResultSet *result_set);
 guint			  tracker_db_result_set_get_n_rows     (TrackerDBResultSet *result_set);
-
 
 G_END_DECLS
 

@@ -18,7 +18,12 @@
  * Boston, MA  02110-1301, USA.
  */
 
+#include <stdio.h>
 #include <string.h>
+#include <errno.h>
+
+#include <glib.h>
+#include <glib/gstdio.h>
 
 #include <gobject/gvaluecollector.h>
 
@@ -39,6 +44,13 @@ enum {
 	PROP_0,
 	PROP_COLUMNS
 };
+
+#ifndef DISABLE_DEBUG
+
+static FILE *log_fd;
+static gchar *log_filename;
+
+#endif /* DISABLE_DEBUG */
 
 G_DEFINE_TYPE (TrackerDBResultSet, tracker_db_result_set, G_TYPE_OBJECT)
 
@@ -216,6 +228,75 @@ tracker_db_result_set_init (TrackerDBResultSet *result_set)
 {
 }
 
+#ifndef DISABLE_DEBUG
+
+#include <glib/gprintf.h>
+
+void
+tracker_db_interface_debug_impl (TrackerDBInterface *iface,
+				 const gchar        *msg, 
+				 ...)
+{
+        va_list args;
+	time_t now;
+	gchar time_str[64];
+	struct tm *local_time;
+	GTimeVal current_time;
+
+	if (!log_filename) {
+		/* Set up */
+		gchar *str;
+		
+		str = g_strdup_printf ("tracker-%s-db-interface.log", 
+				       g_get_application_name ());
+		log_filename =
+			g_build_filename (g_get_user_data_dir (),
+					  "tracker",
+					  str,
+					  NULL);
+		g_free (str);
+		
+		g_unlink (log_filename);
+		
+		log_fd = g_fopen (log_filename, "a");
+		if (!log_fd) {
+			const gchar *error_string;
+			
+			error_string = g_strerror (errno);
+			g_fprintf (stderr,
+				   "Could not open log:'%s', %s\n",
+				   log_filename,
+				   error_string);
+			g_fprintf (stderr,
+				   "All logging will go to stderr\n");
+			
+			return;
+		}
+	}
+
+	if (!log_fd) {
+		return;
+	}
+
+	g_get_current_time (&current_time);
+
+	now = time ((time_t *) NULL);
+	local_time = localtime (&now);
+	strftime (time_str, 64, "%d %b %Y, %H:%M:%S:", local_time);
+
+	g_fprintf (log_fd, "%s ", time_str);
+
+        va_start (args, msg);
+        g_vfprintf (log_fd, msg, args);
+        va_end (args);
+
+        g_fprintf (log_fd, "\n");
+
+	fflush (log_fd);
+}
+
+#endif /* DISABLE_DEBUG */
+
 static TrackerDBResultSet *
 ensure_result_set_state (TrackerDBResultSet *result_set)
 {
@@ -260,8 +341,6 @@ tracker_db_interface_execute_vquery (TrackerDBInterface  *interface,
 
 	return ensure_result_set_state (result_set);
 }
-
-
 
 TrackerDBResultSet *
 tracker_db_interface_execute_query (TrackerDBInterface	*interface,
