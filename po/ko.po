@@ -433,8 +433,8 @@ msgstr "%s: 트래커 대몬에 연결되어 있지 않습니다"
 
 #: ../src/libtracker/tracker-search.c:135 ../src/libtracker/tracker-stats.c:92
 #: ../src/libtracker/tracker-status.c:48 ../src/libtracker/tracker-tag.c:134
-msgid "Ensure \"trackerd\" is running before launch this command."
-msgstr "이 명령을 실행하기 전에 \"trackerd\" 프로세스가 실행 중인지 확인하십시오."
+msgid "Ensure \"tracker-store\" is running before launch this command."
+msgstr "이 명령을 실행하기 전에 \"tracker-store\" 프로세스가 실행 중인지 확인하십시오."
 
 #: ../src/libtracker/tracker-search.c:147
 msgid "Service not recognized, searching in Other Files...\n"
@@ -516,28 +516,28 @@ msgstr "%s: 잘못된 매개 변수"
 msgid "%s: file %s not found"
 msgstr "%s: %s 파일을 찾을 수 없음"
 
-#: ../src/trackerd/trackerd.c:146
+#: ../src/tracker-store/tracker-store.c:146
 msgid "Directory to exclude from indexing"
 msgstr "인덱싱에서 제외할 디렉토리"
 
-#: ../src/trackerd/trackerd.c:146 ../src/trackerd/trackerd.c:147
-#: ../src/trackerd/trackerd.c:148
+#: ../src/tracker-store/tracker-store.c:146 ../src/tracker-store/tracker-store.c:147
+#: ../src/tracker-store/tracker-store.c:148
 msgid "/PATH/DIR"
 msgstr "/PATH/DIR"
 
-#: ../src/trackerd/trackerd.c:147
+#: ../src/tracker-store/tracker-store.c:147
 msgid "Directory to include in indexing"
 msgstr "인덱싱에 포함시킬 디렉토리"
 
-#: ../src/trackerd/trackerd.c:148
+#: ../src/tracker-store/tracker-store.c:148
 msgid "Directory to crawl for indexing at start up only"
 msgstr "시작 시에만 인덱싱을 수행할 디렉토리"
 
-#: ../src/trackerd/trackerd.c:149
+#: ../src/tracker-store/tracker-store.c:149
 msgid "Disable any indexing or watching taking place"
 msgstr "모든 인덱싱과 감시를 수행하지 않음"
 
-#: ../src/trackerd/trackerd.c:150
+#: ../src/tracker-store/tracker-store.c:150
 msgid ""
 "Value that controls the level of logging. Valid values are 0 (displays/logs "
 "only errors), 1 (minimal), 2 (detailed), and 3 (debug)"
@@ -545,54 +545,54 @@ msgstr ""
 "로그 수준을 제어하는 값. 사용할 수 있는 값은 0 (에러만 보기/로그 남김), "
 "1 (최소 수준), 2 (상세 정보), 3 (디버그)"
 
-#: ../src/trackerd/trackerd.c:150 ../src/trackerd/trackerd.c:151
+#: ../src/tracker-store/tracker-store.c:150 ../src/tracker-store/tracker-store.c:151
 msgid "VALUE"
 msgstr "VALUE"
 
-#: ../src/trackerd/trackerd.c:151
+#: ../src/tracker-store/tracker-store.c:151
 msgid ""
 "Value to use for throttling indexing. Value must be in range 0-99 (default "
 "0) with lower values increasing indexing speed"
 msgstr "인덱싱의 성능을 제어하는 값. 사용할 수 있는 값은 0-99이며 (기본값은 0) "
 "값이 낮을수록 인덱싱 속도가 빨라짐"
 
-#: ../src/trackerd/trackerd.c:152
+#: ../src/tracker-store/tracker-store.c:152
 msgid "Minimizes the use of memory but may slow indexing down"
 msgstr "메모리 사용량을 최소화하지만, 인덱싱이 느려질 수 있음"
 
-#: ../src/trackerd/trackerd.c:153
+#: ../src/tracker-store/tracker-store.c:153
 msgid "Initial sleep time, just before indexing, in seconds"
 msgstr "인덱싱 바로 직전의 최초 대기 시간 (초)"
 
-#: ../src/trackerd/trackerd.c:154
+#: ../src/tracker-store/tracker-store.c:154
 msgid ""
 "Language to use for stemmer and stop words list (ISO 639-1 2 characters code)"
 msgstr ""
 "스테머(stemmer)와 정지 단어 목록에서 사용할 언어 (ISO 639-1 2 문자셋 코드)"
 
-#: ../src/trackerd/trackerd.c:154
+#: ../src/tracker-store/tracker-store.c:154
 msgid "LANG"
 msgstr "LANG"
 
-#: ../src/trackerd/trackerd.c:155
+#: ../src/tracker-store/tracker-store.c:155
 msgid "Force a re-index of all content"
 msgstr "강제로 모든 내용의 인덱싱을 다시 수행"
 
-#: ../src/trackerd/trackerd.c:156
+#: ../src/tracker-store/tracker-store.c:156
 msgid "Make tracker errors fatal"
 msgstr "트래커의 오류를 치명적인 오류로 만듬"
 
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND <THIS_MESSAGE>
-#: ../src/trackerd/trackerd.c:2439
+#: ../src/tracker-store/tracker-store.c:2439
 msgid "- start the tracker daemon"
 msgstr "- 트래커 대몬을 시작합니다"
 
-#: ../src/trackerd/trackerd.c:2440 ../src/trackerd/trackerd.c:2441
+#: ../src/tracker-store/tracker-store.c:2440 ../src/tracker-store/tracker-store.c:2441
 msgid "DIRECTORY"
 msgstr "DIRECTORY"
 
-#: ../src/trackerd/trackerd.c:2448
+#: ../src/tracker-store/tracker-store.c:2448
 msgid ""
 "To include or exclude multiple directories at the same time, join multiple "
 "options like:"
@@ -745,7 +745,7 @@ msgstr ""
 "\n"
 "여기를 오른쪽 클릭하면 이 작업을 중지할 수 있습니다"
 
-#: ../src/tracker-applet/tracker-applet.c:1078 ../trackerd.desktop.in.in.h:2
+#: ../src/tracker-applet/tracker-applet.c:1078 ../tracker-store.desktop.in.in.h:2
 msgid "Tracker search and indexing service"
 msgstr "트래커 찾기 및 인덱싱 서비스"
 
@@ -1337,7 +1337,7 @@ msgstr "링크 (깨짐)"
 msgid "link to %s"
 msgstr "%s(으)로의 링크"
 
-#: ../trackerd.desktop.in.in.h:1
+#: ../tracker-store.desktop.in.in.h:1
 msgid "Tracker"
 msgstr "트래커"
 

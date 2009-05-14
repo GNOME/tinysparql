@@ -303,7 +303,7 @@ class TrackerLiveSearchHandler(deskbar.Handler.SignallingHandler):
 			except: self.tracker = None # reconnect
 		if not self.tracker:
 			try:
-				print "Connecting to Tracker (first search or trackerd restarted)"
+				print "Connecting to Tracker (first search or tracker-store restarted)"
 				import dbus
 				bus = dbus.SessionBus()
 				self.tracker = bus.get_object('org.freedesktop.Tracker','/org/freedesktop/tracker')

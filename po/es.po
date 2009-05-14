@@ -20,12 +20,12 @@ msgstr ""
 "Plural-Forms:  nplurals=2; plural=(n != 1);\n"
 "X-Generator: KBabel 1.11.4\n"
 
-#: ../data/trackerd.desktop.in.in.h:1
+#: ../data/tracker-store.desktop.in.in.h:1
 #: ../src/tracker-applet/tracker-applet.c:2327
 msgid "Tracker"
 msgstr "Tracker"
 
-#: ../data/trackerd.desktop.in.in.h:2
+#: ../data/tracker-store.desktop.in.in.h:2
 msgid "Tracker search and indexing service"
 msgstr "Servicio de búsqueda e indexado Tracker"
 
@@ -762,12 +762,12 @@ msgid "Control and monitor the Tracker search and indexing service"
 msgstr "Controle y monitorice el servicio de búsqueda e indexado Tracker"
 
 #: ../src/tracker-extract/tracker-main.c:82
-#: ../src/tracker-indexer/tracker-main.c:84 ../src/trackerd/tracker-main.c:137
+#: ../src/tracker-indexer/tracker-main.c:84 ../src/tracker-store/tracker-main.c:137
 msgid "Displays version information"
 msgstr "Muestra información de la versión"
 
 #: ../src/tracker-extract/tracker-main.c:86
-#: ../src/tracker-indexer/tracker-main.c:88 ../src/trackerd/tracker-main.c:141
+#: ../src/tracker-indexer/tracker-main.c:88 ../src/tracker-store/tracker-main.c:141
 msgid ""
 "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default = "
 "0)"
@@ -1828,17 +1828,17 @@ msgstr ""
 "NOTA: Se alcanzó el límite, existen más elementos en la base de datos que no "
 "se listan aquí"
 
-#: ../src/trackerd/tracker-main.c:146
+#: ../src/tracker-store/tracker-main.c:146
 msgid "Seconds to wait before starting any crawling or indexing (default = 45)"
 msgstr ""
 "Segundos que esperar antes de iniciar una búsqueda o indexado "
 "(predeterminado = 45)"
 
-#: ../src/trackerd/tracker-main.c:150
+#: ../src/tracker-store/tracker-main.c:150
 msgid "Minimizes the use of memory but may slow indexing down"
 msgstr "Minimiza el uso de memoria pero puede ralentizar el indexado"
 
-#: ../src/trackerd/tracker-main.c:154
+#: ../src/tracker-store/tracker-main.c:154
 msgid ""
 "Directories to exclude for file change monitoring (you can do -e <path> -e "
 "<path>)"
@@ -1846,7 +1846,7 @@ msgstr ""
 "Directorios que excluir para la monitorización del cambio de archivos (puede "
 "hacer -e <ruta> -e <ruta>)"
 
-#: ../src/trackerd/tracker-main.c:158
+#: ../src/tracker-store/tracker-main.c:158
 msgid ""
 "Directories to include for file change monitoring (you can do -i <path> -i "
 "<path>)"
@@ -1854,28 +1854,28 @@ msgstr ""
 "Directorios que incluir para la monitorización del cambio de archivos (puede "
 "hacer -i <ruta> -i <ruta>)"
 
-#: ../src/trackerd/tracker-main.c:162
+#: ../src/tracker-store/tracker-main.c:162
 msgid "Directories to crawl to index files (you can do -c <path> -c <path>)"
 msgstr ""
 "Directorios en los que arrastrarse para indexar sus archivos (puede hacer -c "
 "<ruta> -c <ruta>)"
 
-#: ../src/trackerd/tracker-main.c:166
+#: ../src/tracker-store/tracker-main.c:166
 msgid ""
 "Disable modules from being processed (you can do -d <module> -d <module>)"
 msgstr ""
 "Desactivar módulos para que no sean procesados (puede hacer -d <módulo> -d "
 "<módulo>)"
 
-#: ../src/trackerd/tracker-main.c:172
+#: ../src/tracker-store/tracker-main.c:172
 msgid "Force a re-index of all content"
 msgstr "Forzar un reindexamiento de todo el contenido"
 
-#: ../src/trackerd/tracker-main.c:176
+#: ../src/tracker-store/tracker-main.c:176
 msgid "Disable any indexing and monitoring"
 msgstr "Desactivar cualquier indexado y monitorización"
 
-#: ../src/trackerd/tracker-main.c:179
+#: ../src/tracker-store/tracker-main.c:179
 msgid ""
 "Language to use for stemmer and stop words (ISO 639-1 2 characters code)"
 msgstr ""
@@ -1885,7 +1885,7 @@ msgstr ""
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/trackerd/tracker-main.c:856
+#: ../src/tracker-store/tracker-main.c:856
 msgid "- start the tracker daemon"
 msgstr "iniciar el demonio de tracker"
 
@@ -2245,9 +2245,9 @@ msgstr "iniciar el demonio de tracker"
 #~ msgid "%s: no connection to tracker daemon"
 #~ msgstr "%s: no hay conexión al demonio de tracker"
 
-#~ msgid "Ensure \"trackerd\" is running before launch this command."
+#~ msgid "Ensure \"tracker-store\" is running before launch this command."
 #~ msgstr ""
-#~ "Asegúrese de que «trackerd» esté funcionando antes de lanzar este comando."
+#~ "Asegúrese de que «tracker-store» esté funcionando antes de lanzar este comando."
 
 #~ msgid "%s: internal tracker error: %s"
 #~ msgstr "%s: error interno de tracker: %s"

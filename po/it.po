@@ -18,12 +18,12 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: ../data/trackerd.desktop.in.in.h:1
+#: ../data/tracker-store.desktop.in.in.h:1
 #: ../src/tracker-applet/tracker-applet.c:2327
 msgid "Tracker"
 msgstr "Tracker"
 
-#: ../data/trackerd.desktop.in.in.h:2
+#: ../data/tracker-store.desktop.in.in.h:2
 msgid "Tracker search and indexing service"
 msgstr "Servizio di ricerca e indicizzazione Tracker"
 
@@ -775,13 +775,13 @@ msgstr ""
 "Tiene sotto controllo il servizio di ricerca e indicizzazione di Tracker"
 
 #: ../src/tracker-extract/tracker-main.c:81
-#: ../src/tracker-indexer/tracker-main.c:84 ../src/trackerd/tracker-main.c:136
+#: ../src/tracker-indexer/tracker-main.c:84 ../src/tracker-store/tracker-main.c:136
 msgid "Displays version information"
 msgstr "Mostra informazioni sulla versione"
 
 # cambiata la punteggiatura
 #: ../src/tracker-extract/tracker-main.c:85
-#: ../src/tracker-indexer/tracker-main.c:88 ../src/trackerd/tracker-main.c:140
+#: ../src/tracker-indexer/tracker-main.c:88 ../src/tracker-store/tracker-main.c:140
 msgid ""
 "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default = "
 "0)"
@@ -1862,18 +1862,18 @@ msgstr ""
 "NOTA: è stato raggiunto il limite, ci sono altre voci nel database non "
 "elencate qui"
 
-#: ../src/trackerd/tracker-main.c:145
+#: ../src/tracker-store/tracker-main.c:145
 msgid "Seconds to wait before starting any crawling or indexing (default = 45)"
 msgstr ""
 "Secondi da attendere prima di avviare ogni osservazione o indicizzazione "
 "(predefinito = 45)"
 
-#: ../src/trackerd/tracker-main.c:149
+#: ../src/tracker-store/tracker-main.c:149
 msgid "Minimizes the use of memory but may slow indexing down"
 msgstr "Minimizza l'uso della memoria, ma potrebbe rallentare l'indicizzazione"
 
 # cambiata la forma tra parentesi, qui e successivi
-#: ../src/trackerd/tracker-main.c:153
+#: ../src/tracker-store/tracker-main.c:153
 msgid ""
 "Directories to exclude for file change monitoring (you can do -e <path> -e "
 "<path>)"
@@ -1881,7 +1881,7 @@ msgstr ""
 "Directory da escludere nel monitoraggio dei cambiamenti dei file "
 "(ripetizione ammessa: -e PERCORSO -e PERCORSO)"
 
-#: ../src/trackerd/tracker-main.c:157
+#: ../src/tracker-store/tracker-main.c:157
 msgid ""
 "Directories to include for file change monitoring (you can do -i <path> -i "
 "<path>)"
@@ -1889,28 +1889,28 @@ msgstr ""
 "Directory da includere nel monitoraggio dei cambiamenti dei file "
 "(ripetizione ammessa: -i PERCORSO -i PERCORSO)"
 
-#: ../src/trackerd/tracker-main.c:161
+#: ../src/tracker-store/tracker-main.c:161
 msgid "Directories to crawl to index files (you can do -c <path> -c <path>)"
 msgstr ""
 "Directory da osservare per indicizzare i file (ripetizione ammessa: -c "
 "PERCORSO -c PERCORSO)"
 
-#: ../src/trackerd/tracker-main.c:165
+#: ../src/tracker-store/tracker-main.c:165
 msgid ""
 "Disable modules from being processed (you can do -d <module> -d <module>)"
 msgstr ""
 "Disabilita i moduli dall'essere processati (ripetizione ammessa: -d MODULO -"
 "d MODULO)"
 
-#: ../src/trackerd/tracker-main.c:171
+#: ../src/tracker-store/tracker-main.c:171
 msgid "Force a re-index of all content"
 msgstr "Forza una re-indicizzazione di tutti i contenuti"
 
-#: ../src/trackerd/tracker-main.c:175
+#: ../src/tracker-store/tracker-main.c:175
 msgid "Disable any indexing and monitoring"
 msgstr "Disabilita ogni indicizzazione e monitoraggio"
 
-#: ../src/trackerd/tracker-main.c:178
+#: ../src/tracker-store/tracker-main.c:178
 msgid ""
 "Language to use for stemmer and stop words (ISO 639-1 2 characters code)"
 msgstr ""
@@ -1920,7 +1920,7 @@ msgstr ""
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/trackerd/tracker-main.c:853
+#: ../src/tracker-store/tracker-main.c:853
 msgid "- start the tracker daemon"
 msgstr "- avvia il demone di Tracker"
 

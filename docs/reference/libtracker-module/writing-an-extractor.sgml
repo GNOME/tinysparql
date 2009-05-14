@@ -124,7 +124,7 @@ void name_of_the_function (const gchar *filename,
       with maximum verbosity to know what is happening. The log is
       printed on the console, but also in two files:
       <simplelist>
-	<member><filename>~/.local/share/tracker/trackerd.log</filename></member>
+	<member><filename>~/.local/share/tracker/tracker-store.log</filename></member>
 	<member><filename>~/.local/share/tracker/tracker-indexer.log</filename></member>
       </simplelist>
     </para>

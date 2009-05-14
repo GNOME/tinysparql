@@ -16,12 +16,12 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 
-#: ../data/trackerd.desktop.in.in.h:1
+#: ../data/tracker-store.desktop.in.in.h:1
 #: ../src/tracker-applet/tracker-applet.c:2327
 msgid "Tracker"
 msgstr "Tracker"
 
-#: ../data/trackerd.desktop.in.in.h:2
+#: ../data/tracker-store.desktop.in.in.h:2
 msgid "Tracker search and indexing service"
 msgstr "Sök- och indexeringstjänsten Tracker"
 
@@ -727,13 +727,13 @@ msgstr "Styr och övervaka sök- och indexeringstjänsten Tracker"
 
 #: ../src/tracker-extract/tracker-main.c:81
 #: ../src/tracker-indexer/tracker-main.c:85
-#: ../src/trackerd/tracker-main.c:138
+#: ../src/tracker-store/tracker-main.c:138
 msgid "Displays version information"
 msgstr "Visar versionsinformation"
 
 #: ../src/tracker-extract/tracker-main.c:85
 #: ../src/tracker-indexer/tracker-main.c:89
-#: ../src/trackerd/tracker-main.c:142
+#: ../src/tracker-store/tracker-main.c:142
 msgid "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default = 0)"
 msgstr "Loggning, 0 = endast fel, 1 = minimalt, 2 = detaljerat samt 3 = felsökning (standard = 0)"
 
@@ -1752,46 +1752,46 @@ msgstr "Kunde inte söka i taggar"
 msgid "NOTE: Limit was reached, there are more items in the database not listed here"
 msgstr "OBSERVERA: Gräns nåddes, det finns fler objekt i databasen som inte listas här"
 
-#: ../src/trackerd/tracker-main.c:147
+#: ../src/tracker-store/tracker-main.c:147
 msgid "Seconds to wait before starting any crawling or indexing (default = 45)"
 msgstr "Sekunder att vänta innan en insamling eller indexering (standard = 45)"
 
-#: ../src/trackerd/tracker-main.c:151
+#: ../src/tracker-store/tracker-main.c:151
 msgid "Minimizes the use of memory but may slow indexing down"
 msgstr "Minimerar minnesanvändningen men kan göra indexeringen långsammare"
 
-#: ../src/trackerd/tracker-main.c:155
+#: ../src/tracker-store/tracker-main.c:155
 msgid "Directories to exclude for file change monitoring (you can do -e <path> -e <path>)"
 msgstr "Kataloger att undanta för filändringsövervakning (du kan använda -e <sökväg> -e <sökväg>)"
 
-#: ../src/trackerd/tracker-main.c:159
+#: ../src/tracker-store/tracker-main.c:159
 msgid "Directories to include for file change monitoring (you can do -i <path> -i <path>)"
 msgstr "Kataloger att inkludera för filändringsövervakning (du kan använda -i <sökväg> -i <sökväg>)"
 
-#: ../src/trackerd/tracker-main.c:163
+#: ../src/tracker-store/tracker-main.c:163
 msgid "Directories to crawl to index files (you can do -c <path> -c <path>)"
 msgstr "Kataloger att genomsöka för indexering (du kan använda -c <sökväg> -c <sökväg>)"
 
-#: ../src/trackerd/tracker-main.c:167
+#: ../src/tracker-store/tracker-main.c:167
 msgid "Disable modules from being processed (you can do -d <module> -d <module>)"
 msgstr "Inaktivera moduler från att behandlas (du kan använda -d <modul> -d <modul>)"
 
-#: ../src/trackerd/tracker-main.c:173
+#: ../src/tracker-store/tracker-main.c:173
 msgid "Force a re-index of all content"
 msgstr "Tvinga igenom en omindexering av samtligt innehåll"
 
-#: ../src/trackerd/tracker-main.c:177
+#: ../src/tracker-store/tracker-main.c:177
 msgid "Disable any indexing and monitoring"
 msgstr "Inaktivera all indexering eller övervakning"
 
-#: ../src/trackerd/tracker-main.c:180
+#: ../src/tracker-store/tracker-main.c:180
 msgid "Language to use for stemmer and stop words (ISO 639-1 2 characters code)"
 msgstr "Språk att använda för bildande av ordstam och stoppord (tvåbokstavskod enligt ISO 639-1)"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/trackerd/tracker-main.c:857
+#: ../src/tracker-store/tracker-main.c:857
 msgid "- start the tracker daemon"
 msgstr "- starta tracker-demonen"
 
@@ -2010,9 +2010,9 @@ msgstr "- starta tracker-demonen"
 #~ msgstr "Prova \"%s --help\" för mer information."
 #~ msgid "%s: no connection to tracker daemon"
 #~ msgstr "%s: ingen anslutning till tracker-demonen"
-#~ msgid "Ensure \"trackerd\" is running before launch this command."
+#~ msgid "Ensure \"tracker-store\" is running before launch this command."
 #~ msgstr ""
-#~ "Kontrollera att \"trackerd\" har startats innan du kör det här kommandot."
+#~ "Kontrollera att \"tracker-store\" har startats innan du kör det här kommandot."
 #~ msgid "%s: internal tracker error: %s"
 #~ msgstr "%s: internt tracker-fel: %s"
 #~ msgid "fetching index stats"

@@ -396,7 +396,7 @@ main (gint argc, gchar *argv[])
 		return EXIT_FAILURE;
 	}
 
-        /* Listen for changes in trackerd availability */
+        /* Listen for changes in tracker-store availability */
         tracker_dbus_add_name_monitor (TRACKER_DAEMON_SERVICE,
                                        daemon_availability_changed_cb,
                                        indexer, NULL);

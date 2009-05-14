@@ -16,7 +16,7 @@ man_MANS = 			\
 	tracker-extract.1	\
 	tracker-search.1	\
 	tracker-stats.1		\
-	trackerd.1		\
+	tracker-store.1		\
 	tracker-thumbnailer.1	\
 	tracker-tag.1		\
 	tracker-status.1	\

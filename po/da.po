@@ -17,12 +17,12 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: ../data/trackerd.desktop.in.in.h:1
+#: ../data/tracker-store.desktop.in.in.h:1
 #: ../src/tracker-applet/tracker-applet.c:2226
 msgid "Tracker"
 msgstr "Tracker"
 
-#: ../data/trackerd.desktop.in.in.h:2
+#: ../data/tracker-store.desktop.in.in.h:2
 msgid "Tracker search and indexing service"
 msgstr "Tracker søge- og indekseringstjeneste"
 
@@ -753,12 +753,12 @@ msgid "Control and monitor the Tracker search and indexing service"
 msgstr "Kontrollér og overvåg Tracker søge- og indekseringstjeneste"
 
 #: ../src/tracker-extract/tracker-main.c:77
-#: ../src/tracker-indexer/tracker-main.c:79 ../src/trackerd/tracker-main.c:136
+#: ../src/tracker-indexer/tracker-main.c:79 ../src/tracker-store/tracker-main.c:136
 msgid "Displays version information"
 msgstr "Viser versionsoplysninger"
 
 #: ../src/tracker-extract/tracker-main.c:81
-#: ../src/tracker-indexer/tracker-main.c:83 ../src/trackerd/tracker-main.c:140
+#: ../src/tracker-indexer/tracker-main.c:83 ../src/tracker-store/tracker-main.c:140
 msgid ""
 "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default = "
 "0)"
@@ -1961,17 +1961,17 @@ msgstr "Påkrævede felter"
 msgid "Fields are missing"
 msgstr "Felter mangler"
 
-#: ../src/trackerd/tracker-main.c:145
+#: ../src/tracker-store/tracker-main.c:145
 msgid "Seconds to wait before starting any crawling or indexing (default = 45)"
 msgstr ""
 "Sekunders ventetid før påbegyndelse af gennemsøgning og indeksering "
 "(standard = 45)"
 
-#: ../src/trackerd/tracker-main.c:149
+#: ../src/tracker-store/tracker-main.c:149
 msgid "Minimizes the use of memory but may slow indexing down"
 msgstr "Minimerer forbrug af hukommelse, men kan gøre indeksering langsommere"
 
-#: ../src/trackerd/tracker-main.c:153
+#: ../src/tracker-store/tracker-main.c:153
 msgid ""
 "Directories to exclude for file change monitoring (you can do -e <path> -e "
 "<path>)"
@@ -1979,7 +1979,7 @@ msgstr ""
 "Mapper som skal udelukkes fra overvågning af filændringer (du kan anvende -e "
 "<sti> -e <sti>)"
 
-#: ../src/trackerd/tracker-main.c:157
+#: ../src/tracker-store/tracker-main.c:157
 msgid ""
 "Directories to include for file change monitoring (you can do -i <path> -i "
 "<path>)"
@@ -1987,28 +1987,28 @@ msgstr ""
 "Mapper som skal inkluderes i overvågning af filændringer (du kan anvende -e "
 "<sti> -e <sti>)"
 
-#: ../src/trackerd/tracker-main.c:161
+#: ../src/tracker-store/tracker-main.c:161
 msgid "Directories to crawl to index files (you can do -c <path> -c <path>)"
 msgstr ""
 "Mapper at gennemsøge for at indeksere filer (du kan anvende -c <sti> -c "
 "<sti>)"
 
-#: ../src/trackerd/tracker-main.c:165
+#: ../src/tracker-store/tracker-main.c:165
 msgid ""
 "Disable modules from being processed (you can do -d <module> -d <module>)"
 msgstr ""
 "Deaktivér moduler fra at blive behandlet (du kan anvende -d <modul> -d "
 "<modul>)"
 
-#: ../src/trackerd/tracker-main.c:171
+#: ../src/tracker-store/tracker-main.c:171
 msgid "Force a re-index of all content"
 msgstr "Gennemtving en genindeksering af alt indhold"
 
-#: ../src/trackerd/tracker-main.c:175
+#: ../src/tracker-store/tracker-main.c:175
 msgid "Disable any indexing and monitoring"
 msgstr "Deaktivér enhver indeksering og overvågning"
 
-#: ../src/trackerd/tracker-main.c:178
+#: ../src/tracker-store/tracker-main.c:178
 msgid ""
 "Language to use for stemmer and stop words (ISO 639-1 2 characters code)"
 msgstr ""
@@ -2018,7 +2018,7 @@ msgstr ""
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/trackerd/tracker-main.c:896
+#: ../src/tracker-store/tracker-main.c:896
 msgid "- start the tracker daemon"
 msgstr "- start tracker-dæmon"
 

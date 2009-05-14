@@ -17,11 +17,11 @@ msgstr ""
 "Plural-Forms: nplurals=3; plural= n==1 || n%10==1 ? 0 : 1\n"
 "X-Generator: KBabel 1.11.4\n"
 
-#: ../trackerd.desktop.in.in.h:1
+#: ../tracker-store.desktop.in.in.h:1
 msgid "Tracker"
 msgstr ""
 
-#: ../trackerd.desktop.in.in.h:2
+#: ../tracker-store.desktop.in.in.h:2
 msgid "Tracker search and indexing service"
 msgstr ""
 
@@ -290,7 +290,7 @@ msgstr "%s: нема врска со демонот на tracker"
 
 #: ../src/libtracker/tracker-search.c:135 ../src/libtracker/tracker-stats.c:92
 #: ../src/libtracker/tracker-status.c:48 ../src/libtracker/tracker-tag.c:134
-msgid "Ensure \"trackerd\" is running before launch this command."
+msgid "Ensure \"tracker-store\" is running before launch this command."
 msgstr ""
 "Осигурајте се дека „tracker“ се извршува пред да ја пуштите оваа команда."
 
@@ -373,29 +373,29 @@ msgstr "%s: невалидни аргументи"
 msgid "%s: file %s not found"
 msgstr "%s: датотеката %s не е пронајдена"
 
-#: ../src/trackerd/trackerd.c:158
+#: ../src/tracker-store/tracker-store.c:158
 msgid "Directory to exclude from indexing"
 msgstr "Директориум кој ќе се исклучи од пребарувањето"
 
-#: ../src/trackerd/trackerd.c:158 ../src/trackerd/trackerd.c:159
-#: ../src/trackerd/trackerd.c:160
+#: ../src/tracker-store/tracker-store.c:158 ../src/tracker-store/tracker-store.c:159
+#: ../src/tracker-store/tracker-store.c:160
 msgid "/PATH/DIR"
 msgstr "/ПАТЕКА/ДИРЕКТОРИУМ"
 
-#: ../src/trackerd/trackerd.c:159
+#: ../src/tracker-store/tracker-store.c:159
 msgid "Directory to include in indexing"
 msgstr "Директориум кој ќе се вклучи во индексирањето"
 
-#: ../src/trackerd/trackerd.c:160
+#: ../src/tracker-store/tracker-store.c:160
 #, fuzzy
 msgid "Directory to crawl for indexing at start up only"
 msgstr "Директориум кој ќе се исклучи од пребарувањето"
 
-#: ../src/trackerd/trackerd.c:161
+#: ../src/tracker-store/tracker-store.c:161
 msgid "Disable any indexing or watching taking place"
 msgstr "Оневозможи да се случи надгледување или индексирање"
 
-#: ../src/trackerd/trackerd.c:162
+#: ../src/tracker-store/tracker-store.c:162
 #, fuzzy
 msgid ""
 "Value that controls the level of logging. Valid values are 0 (displays/logs "
@@ -404,11 +404,11 @@ msgstr ""
 "Вредност која го контролира нивото на логирање. Валидни вредности се 0 "
 "(стандардно минимално), 1 (детално) и 2 (за дебагирање)"
 
-#: ../src/trackerd/trackerd.c:162 ../src/trackerd/trackerd.c:163
+#: ../src/tracker-store/tracker-store.c:162 ../src/tracker-store/tracker-store.c:163
 msgid "VALUE"
 msgstr "ВРЕДНОСТ"
 
-#: ../src/trackerd/trackerd.c:163
+#: ../src/tracker-store/tracker-store.c:163
 msgid ""
 "Value to use for throttling indexing. Value must be in range 0-20 (default "
 "0) with lower values increasing indexing speed"
@@ -417,41 +417,41 @@ msgstr ""
 "биде во опсегот од 0-20 (стандардно 0) со пониски вредности за зголемена "
 "брзина на индексирање"
 
-#: ../src/trackerd/trackerd.c:164
+#: ../src/tracker-store/tracker-store.c:164
 msgid "Minimizes the use of memory but may slow indexing down"
 msgstr ""
 "Ја минимизира употребата на меморијата, но може да го направи системот бавен"
 
-#: ../src/trackerd/trackerd.c:165
+#: ../src/tracker-store/tracker-store.c:165
 msgid "Initial sleep time, just before indexing, in seconds"
 msgstr ""
 
-#: ../src/trackerd/trackerd.c:166
+#: ../src/tracker-store/tracker-store.c:166
 msgid ""
 "Language to use for stemmer and stop words list (ISO 639-1 2 characters code)"
 msgstr ""
 "Јазикот кој ќе се користи за stemmer и листата со запрени зборови (код од 2 "
 "ISO 639-1 знаци)"
 
-#: ../src/trackerd/trackerd.c:166
+#: ../src/tracker-store/tracker-store.c:166
 msgid "LANG"
 msgstr "ЈАЗИК"
 
-#: ../src/trackerd/trackerd.c:167
+#: ../src/tracker-store/tracker-store.c:167
 msgid "Force a re-index of all content"
 msgstr ""
 
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND <THIS_MESSAGE>
-#: ../src/trackerd/trackerd.c:2047
+#: ../src/tracker-store/tracker-store.c:2047
 msgid "- start the tracker daemon"
 msgstr "- стартувај го tracker демонот"
 
-#: ../src/trackerd/trackerd.c:2048 ../src/trackerd/trackerd.c:2049
+#: ../src/tracker-store/tracker-store.c:2048 ../src/tracker-store/tracker-store.c:2049
 msgid "DIRECTORY"
 msgstr "ДИРЕКТОРИУМ"
 
-#: ../src/trackerd/trackerd.c:2056
+#: ../src/tracker-store/tracker-store.c:2056
 msgid ""
 "To include or exclude multiple directories at the same time, join multiple "
 "options like:"

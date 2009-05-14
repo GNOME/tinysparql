@@ -22,12 +22,12 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n>1;\n"
 
-#: ../data/trackerd.desktop.in.in.h:1
+#: ../data/tracker-store.desktop.in.in.h:1
 #: ../src/tracker-applet/tracker-applet.c:2117
 msgid "Tracker"
 msgstr "Tracker"
 
-#: ../data/trackerd.desktop.in.in.h:2
+#: ../data/tracker-store.desktop.in.in.h:2
 msgid "Tracker search and indexing service"
 msgstr "Service de recherche et d'indexation Tracker"
 
@@ -714,7 +714,7 @@ msgstr ""
 msgid "Here are some examples of how to use this command:"
 msgstr "Voici quelques exemples d'utilisation de cette commande :"
 
-#: ../src/tracker-indexer/tracker-main.c:72 ../src/trackerd/tracker-main.c:123
+#: ../src/tracker-indexer/tracker-main.c:72 ../src/tracker-store/tracker-main.c:123
 msgid ""
 "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default = "
 "0)"
@@ -1795,17 +1795,17 @@ msgstr "Champs obligatoires"
 msgid "Fields are missing"
 msgstr "Les champs sont manquants"
 
-#: ../src/trackerd/tracker-main.c:128
+#: ../src/tracker-store/tracker-main.c:128
 msgid "Seconds to wait before starting any crawling or indexing (default = 45)"
 msgstr ""
 "Nombre de secondes d'attente avant de démarrer toute indexation (par "
 "défaut 45)"
 
-#: ../src/trackerd/tracker-main.c:132
+#: ../src/tracker-store/tracker-main.c:132
 msgid "Minimizes the use of memory but may slow indexing down"
 msgstr "Réduit l'utilisation de la mémoire, mais peut ralentir l'indexation"
 
-#: ../src/trackerd/tracker-main.c:136
+#: ../src/tracker-store/tracker-main.c:136
 msgid ""
 "Directories to exclude for file change monitoring (you can do -e <path> -e "
 "<path>)"
@@ -1813,7 +1813,7 @@ msgstr ""
 "Répertoires à exclure de la surveillance de modification de fichiers (utiliser "
 "-e <chemin> -e <chemin>)"
 
-#: ../src/trackerd/tracker-main.c:140
+#: ../src/tracker-store/tracker-main.c:140
 msgid ""
 "Directories to include for file change monitoring (you can do -i <path> -i "
 "<path>)"
@@ -1821,26 +1821,26 @@ msgstr ""
 "Répertoires à inclure dans la surveillance de modification de fichiers (utiliser "
 "-i <chemin> -i <chemin>)"
 
-#: ../src/trackerd/tracker-main.c:144
+#: ../src/tracker-store/tracker-main.c:144
 msgid "Directories to crawl to index files (you can do -c <path> -c <path>)"
 msgstr ""
 "Répertoires à explorer pour l'indexation de fichiers (utiliser -c <chemin> -"
 "c <chemin>)"
 
-#: ../src/trackerd/tracker-main.c:148
+#: ../src/tracker-store/tracker-main.c:148
 msgid ""
 "Disable modules from being processed (you can do -d <module> -d <module>)"
 msgstr "Empêche des modules d'être traités (utiliser -d <module> -d <module>)"
 
-#: ../src/trackerd/tracker-main.c:156
+#: ../src/tracker-store/tracker-main.c:156
 msgid "Force a re-index of all content"
 msgstr "Force une réindexation de tout le contenu"
 
-#: ../src/trackerd/tracker-main.c:160
+#: ../src/tracker-store/tracker-main.c:160
 msgid "Disable any indexing and monitoring"
 msgstr "Désactive toute indexation ou surveillance"
 
-#: ../src/trackerd/tracker-main.c:163
+#: ../src/tracker-store/tracker-main.c:163
 msgid ""
 "Language to use for stemmer and stop words (ISO 639-1 2 characters code)"
 msgstr ""
@@ -1850,22 +1850,22 @@ msgstr ""
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/trackerd/tracker-main.c:792
+#: ../src/tracker-store/tracker-main.c:792
 msgid "- start the tracker daemon"
 msgstr "- démarre le démon tracker"
 
-#: ../src/trackerd/tracker-main.c:796
+#: ../src/tracker-store/tracker-main.c:796
 msgid "Daemon Options"
 msgstr "Options du démon"
 
-#: ../src/trackerd/tracker-main.c:797
+#: ../src/tracker-store/tracker-main.c:797
 msgid "Show daemon options"
 msgstr "Affiche les options du démon"
 
-#: ../src/trackerd/tracker-main.c:805
+#: ../src/tracker-store/tracker-main.c:805
 msgid "Indexer Options"
 msgstr "Options d'indexation"
 
-#: ../src/trackerd/tracker-main.c:806
+#: ../src/tracker-store/tracker-main.c:806
 msgid "Show indexer options"
 msgstr "Affiche les options de l'indexeur"

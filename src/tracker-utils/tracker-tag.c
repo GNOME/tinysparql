@@ -33,7 +33,7 @@
 #include <libtracker-common/tracker-common.h>
 
 #ifdef G_OS_WIN32
-#include <trackerd/mingw-compat.h>
+#include <tracker-store/mingw-compat.h>
 #endif /* G_OS_WIN32 */
 
 static gint	     limit = 512;

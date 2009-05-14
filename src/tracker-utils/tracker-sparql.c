@@ -32,7 +32,7 @@
 #include <libtracker/tracker.h>
 
 #ifdef G_OS_WIN32
-#include <trackerd/mingw-compat.h>
+#include <tracker-store/mingw-compat.h>
 #endif /* G_OS_WIN32 */
 
 static gchar	     *path;

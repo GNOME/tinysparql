@@ -17,12 +17,12 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: ../data/trackerd.desktop.in.in.h:1
+#: ../data/tracker-store.desktop.in.in.h:1
 #: ../src/tracker-applet/tracker-applet.c:2236
 msgid "Tracker"
 msgstr "Tracker"
 
-#: ../data/trackerd.desktop.in.in.h:2
+#: ../data/tracker-store.desktop.in.in.h:2
 msgid "Tracker search and indexing service"
 msgstr "Tracker zoek- en indexeringsdienst"
 
@@ -767,12 +767,12 @@ msgid "Control and monitor the Tracker search and indexing service"
 msgstr ""
 
 #: ../src/tracker-extract/tracker-main.c:78
-#: ../src/tracker-indexer/tracker-main.c:79 ../src/trackerd/tracker-main.c:136
+#: ../src/tracker-indexer/tracker-main.c:79 ../src/tracker-store/tracker-main.c:136
 msgid "Displays version information"
 msgstr "Toont versie-informatie"
 
 #: ../src/tracker-extract/tracker-main.c:82
-#: ../src/tracker-indexer/tracker-main.c:83 ../src/trackerd/tracker-main.c:140
+#: ../src/tracker-indexer/tracker-main.c:83 ../src/tracker-store/tracker-main.c:140
 msgid ""
 "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default = "
 "0)"
@@ -2096,45 +2096,45 @@ msgstr "Vereiste velden"
 msgid "Fields are missing"
 msgstr "Bepaalde verplichte velden ontbreken"
 
-#: ../src/trackerd/tracker-main.c:145
+#: ../src/tracker-store/tracker-main.c:145
 msgid "Seconds to wait before starting any crawling or indexing (default = 45)"
 msgstr ""
 
-#: ../src/trackerd/tracker-main.c:149
+#: ../src/tracker-store/tracker-main.c:149
 msgid "Minimizes the use of memory but may slow indexing down"
 msgstr "Verminderd het geheugengebruik maar kan het indexeren vertragen"
 
-#: ../src/trackerd/tracker-main.c:153
+#: ../src/tracker-store/tracker-main.c:153
 msgid ""
 "Directories to exclude for file change monitoring (you can do -e <path> -e "
 "<path>)"
 msgstr ""
 
-#: ../src/trackerd/tracker-main.c:157
+#: ../src/tracker-store/tracker-main.c:157
 msgid ""
 "Directories to include for file change monitoring (you can do -i <path> -i "
 "<path>)"
 msgstr ""
 
-#: ../src/trackerd/tracker-main.c:161
+#: ../src/tracker-store/tracker-main.c:161
 msgid "Directories to crawl to index files (you can do -c <path> -c <path>)"
 msgstr ""
 
-#: ../src/trackerd/tracker-main.c:165
+#: ../src/tracker-store/tracker-main.c:165
 msgid ""
 "Disable modules from being processed (you can do -d <module> -d <module>)"
 msgstr ""
 
-#: ../src/trackerd/tracker-main.c:171
+#: ../src/tracker-store/tracker-main.c:171
 msgid "Force a re-index of all content"
 msgstr "Dwing een herindexering van alle data af"
 
-#: ../src/trackerd/tracker-main.c:175
+#: ../src/tracker-store/tracker-main.c:175
 #, fuzzy
 msgid "Disable any indexing and monitoring"
 msgstr "Schakel alle indexerings- en controleprocessen uit"
 
-#: ../src/trackerd/tracker-main.c:178
+#: ../src/tracker-store/tracker-main.c:178
 #, fuzzy
 msgid ""
 "Language to use for stemmer and stop words (ISO 639-1 2 characters code)"
@@ -2145,7 +2145,7 @@ msgstr ""
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/trackerd/tracker-main.c:878
+#: ../src/tracker-store/tracker-main.c:878
 msgid "- start the tracker daemon"
 msgstr "- start de tracker daemon"
 
@@ -2165,8 +2165,8 @@ msgstr "- start de tracker daemon"
 #~ msgid "%s: no connection to tracker daemon"
 #~ msgstr "%s: geen verbinding met tracker daemon"
 
-#~ msgid "Ensure \"trackerd\" is running before launch this command."
-#~ msgstr "Controleer dat \"trackerd\" draait voordat u dit commando gebruikt."
+#~ msgid "Ensure \"tracker-store\" is running before launch this command."
+#~ msgstr "Controleer dat \"tracker-store\" draait voordat u dit commando gebruikt."
 
 #~ msgid "%s: internal tracker error: %s"
 #~ msgstr "%s: interne tracker fout: %s"

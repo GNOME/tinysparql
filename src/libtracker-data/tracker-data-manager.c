@@ -567,7 +567,7 @@ create_decomposed_metadata_property_table (TrackerDBInterface *iface,
 		break;
 	}
 
-	/* TODO: When we refactor to having writes in trackerd, we can use 
+	/* TODO: When we refactor to having writes in tracker-store, we can use 
 	 * TEMPORARY tables instead of deleting and storing physically */
 
 	if (transient || tracker_property_get_multiple_values (*property)) {
@@ -725,7 +725,7 @@ create_decomposed_transient_metadata_tables (TrackerDBInterface *iface)
 			domain = tracker_property_get_domain (*property);
 			service_name = tracker_class_get_name (domain);
 
-			/* TODO: When we refactor to having writes in trackerd, we can use 
+			/* TODO: When we refactor to having writes in tracker-store, we can use 
 	 		 * TEMPORARY tables instead of deleting and storing physically 
 
 			 * create_decomposed_metadata_property_table (iface, property,

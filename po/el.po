@@ -444,9 +444,9 @@ msgstr "%s: δεν υπάρχει σύνδεση στην υπηρεσία εύ�
 #: ../src/libtracker/tracker-search.c:135 ../src/libtracker/tracker-stats.c:92
 #: ../src/libtracker/tracker-status.c:48 ../src/libtracker/tracker-tag.c:134
 #, c-format
-msgid "Ensure \"trackerd\" is running before launch this command."
+msgid "Ensure \"tracker-store\" is running before launch this command."
 msgstr ""
-"Βεβαιωθείτε ότι η υπηρεσία \"trackerd\" εκτελείται προτού εκτελέσετε αυτήν "
+"Βεβαιωθείτε ότι η υπηρεσία \"tracker-store\" εκτελείται προτού εκτελέσετε αυτήν "
 "την εντολή."
 
 #: ../src/libtracker/tracker-search.c:147
@@ -532,29 +532,29 @@ msgstr "%s: μη έγκυροι παράμετροι"
 msgid "%s: file %s not found"
 msgstr "%s: δε βρέθηκε το αρχείο %s"
 
-#: ../src/trackerd/trackerd.c:127
+#: ../src/tracker-store/tracker-store.c:127
 msgid "Directory to exclude from indexing"
 msgstr "Φάκελος που θα παραληφθεί από την ευρετηρίαση"
 
-#: ../src/trackerd/trackerd.c:127 ../src/trackerd/trackerd.c:128
-#: ../src/trackerd/trackerd.c:129
+#: ../src/tracker-store/tracker-store.c:127 ../src/tracker-store/tracker-store.c:128
+#: ../src/tracker-store/tracker-store.c:129
 msgid "/PATH/DIR"
 msgstr "/ΜΟΝΟΠΑΤΙ/ΚΑΤΑΛΟΓΟΣ"
 
-#: ../src/trackerd/trackerd.c:128
+#: ../src/tracker-store/tracker-store.c:128
 msgid "Directory to include in indexing"
 msgstr "Κατάλογος που θα παραληθφεί από την ευρετηρίαση"
 
-#: ../src/trackerd/trackerd.c:129
+#: ../src/tracker-store/tracker-store.c:129
 msgid "Directory to crawl for indexing at start up only"
 msgstr "Κατάλογος για ευρετηρίαση μόνο κατά την εκκίνηση"
 
-#: ../src/trackerd/trackerd.c:130
+#: ../src/tracker-store/tracker-store.c:130
 msgid "Disable any indexing or watching taking place"
 msgstr ""
 "Απενεργοποίηση ευρετηρίασης ή των παρακολουθήσεων που πραγματοποιούνται"
 
-#: ../src/trackerd/trackerd.c:131
+#: ../src/tracker-store/tracker-store.c:131
 msgid ""
 "Value that controls the level of logging. Valid values are 0 (displays/logs "
 "only errors), 1 (minimal), 2 (detailed), and 3 (debug)"
@@ -563,11 +563,11 @@ msgstr ""
 "(εμφανίζει/καταγράφει μόνο σφάλματα), το 1 (ελάχιστη), το 2 (λεπτομερειακή) "
 "και, το 3 (αποσφαλμάτωση)"
 
-#: ../src/trackerd/trackerd.c:131 ../src/trackerd/trackerd.c:132
+#: ../src/tracker-store/tracker-store.c:131 ../src/tracker-store/tracker-store.c:132
 msgid "VALUE"
 msgstr "ΤΙΜΗ"
 
-#: ../src/trackerd/trackerd.c:132
+#: ../src/tracker-store/tracker-store.c:132
 msgid ""
 "Value to use for throttling indexing. Value must be in range 0-99 (default "
 "0) with lower values increasing indexing speed"
@@ -576,49 +576,49 @@ msgstr ""
 "έχει εύρος 0-99 (προεπιλεγμένο το 0) με χαμηλότερες τιμές όταν αυξάνεται η "
 "ταχύτητα εύρεσης"
 
-#: ../src/trackerd/trackerd.c:133
+#: ../src/tracker-store/tracker-store.c:133
 msgid "Minimizes the use of memory but may slow indexing down"
 msgstr ""
 "Ελαχιστοποιεί τη χρήση της μνήμης αλλά μπορεί να καθυστερήσει τη διαδικασία "
 "της ευρετηρίασης"
 
-#: ../src/trackerd/trackerd.c:134
+#: ../src/tracker-store/tracker-store.c:134
 msgid "Initial sleep time, just before indexing, in seconds"
 msgstr ""
 "Αρχικός χρόνος αδρανοποίησης, μόλις πριν την ευρετηρίαση, σε δευτερόλεπτα"
 
-#: ../src/trackerd/trackerd.c:135
+#: ../src/tracker-store/tracker-store.c:135
 msgid ""
 "Language to use for stemmer and stop words list (ISO 639-1 2 characters code)"
 msgstr ""
 "Η γλώσσα που χρησιμοποιείται για τον εξαγωγέα προθεμάτων λέξεων και τη λίστα "
 "διακοπής λέξεων (με κωδικοποίηση χαρακτήρων ISO 639-1 2)"
 
-#: ../src/trackerd/trackerd.c:135
+#: ../src/tracker-store/tracker-store.c:135
 msgid "LANG"
 msgstr "ΓΛΩΣΣΑ"
 
-#: ../src/trackerd/trackerd.c:136
+#: ../src/tracker-store/tracker-store.c:136
 msgid "Force a re-index of all content"
 msgstr "Εξαναγκασμός για ευρετηρίαση ξανά όλου του περιεχομένου"
 
 # #-#-#-#-#  libbonoboui.HEAD.el.po (el)  #-#-#-#-#
 #
-#: ../src/trackerd/trackerd.c:137
+#: ../src/tracker-store/tracker-store.c:137
 msgid "Make tracker errors fatal"
 msgstr "Να γίνουν κρίσιμα όλα τα σφάλματα ευρετηρίασης"
 
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND <THIS_MESSAGE>
-#: ../src/trackerd/trackerd.c:794
+#: ../src/tracker-store/tracker-store.c:794
 msgid "- start the tracker daemon"
 msgstr "- εκκίνηση της υπηρεσίας εύρεσης"
 
-#: ../src/trackerd/trackerd.c:795 ../src/trackerd/trackerd.c:796
+#: ../src/tracker-store/tracker-store.c:795 ../src/tracker-store/tracker-store.c:796
 msgid "DIRECTORY"
 msgstr "ΚΑΤΑΛΟΓΟΣ"
 
-#: ../src/trackerd/trackerd.c:803
+#: ../src/tracker-store/tracker-store.c:803
 msgid ""
 "To include or exclude multiple directories at the same time, join multiple "
 "options like:"
@@ -961,7 +961,7 @@ msgstr "_Περί"
 msgid "_Quit"
 msgstr "Έ_ξοδος"
 
-#: ../src/tracker-applet/tracker-applet.c:1997 ../trackerd.desktop.in.in.h:1
+#: ../src/tracker-applet/tracker-applet.c:1997 ../tracker-store.desktop.in.in.h:1
 msgid "Tracker"
 msgstr "Εύρεση (Tracker)"
 
@@ -1929,6 +1929,6 @@ msgstr "σύνδεσμος (κατεστραμμένος)"
 msgid "link to %s"
 msgstr "σύνδεσμος σε %s"
 
-#: ../trackerd.desktop.in.in.h:2
+#: ../tracker-store.desktop.in.in.h:2
 msgid "Tracker search and indexing service"
 msgstr "Υπηρεσία αναζήτησης και ευρετηρίασης"

@@ -32,7 +32,7 @@
 #include <libtracker-data/tracker-data-manager.h>
 #include <libtracker-data/tracker-data-query.h>
 
-#include <trackerd/tracker-push-registrar.h>
+#include <tracker-store/tracker-push-registrar.h>
 
 #define __TRACKER_KMAIL_REGISTRAR_C__
 

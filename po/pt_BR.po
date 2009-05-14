@@ -21,12 +21,12 @@ msgstr ""
 "X-Poedit-Language: Portuguese\n"
 "X-Poedit-Country: BRAZIL\n"
 
-#: ../data/trackerd.desktop.in.in.h:1
+#: ../data/tracker-store.desktop.in.in.h:1
 #: ../src/tracker-applet/tracker-applet.c:2113
 msgid "Tracker"
 msgstr "Tracker"
 
-#: ../data/trackerd.desktop.in.in.h:2
+#: ../data/tracker-store.desktop.in.in.h:2
 msgid "Tracker search and indexing service"
 msgstr "Serviço de Pesquisa e Indexação Tracker"
 
@@ -710,7 +710,7 @@ msgstr ""
 msgid "Here are some examples of how to use this command:"
 msgstr "Aqui estão alguns exemplos de como usar este comando:"
 
-#: ../src/tracker-indexer/tracker-main.c:72 ../src/trackerd/tracker-main.c:123
+#: ../src/tracker-indexer/tracker-main.c:72 ../src/tracker-store/tracker-main.c:123
 msgid ""
 "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default = "
 "0)"
@@ -1780,17 +1780,17 @@ msgstr "Campos requeridos"
 msgid "Fields are missing"
 msgstr "Estão faltando campos"
 
-#: ../src/trackerd/tracker-main.c:128
+#: ../src/tracker-store/tracker-main.c:128
 msgid "Seconds to wait before starting any crawling or indexing (default = 45)"
 msgstr ""
 "Segundos a esperar antes de iniciar qualquer rastreamento ou indexação "
 "(padrão = 45)"
 
-#: ../src/trackerd/tracker-main.c:132
+#: ../src/tracker-store/tracker-main.c:132
 msgid "Minimizes the use of memory but may slow indexing down"
 msgstr "Minimiza o uso de memória, mas pode diminuir a velocidade de indexação"
 
-#: ../src/trackerd/tracker-main.c:136
+#: ../src/tracker-store/tracker-main.c:136
 msgid ""
 "Directories to exclude for file change monitoring (you can do -e <path> -e "
 "<path>)"
@@ -1798,7 +1798,7 @@ msgstr ""
 "Diretórios a excluir para a monitoração de mudanças em arquivos (você pode "
 "digitar -e <caminho> -e <caminho>)"
 
-#: ../src/trackerd/tracker-main.c:140
+#: ../src/tracker-store/tracker-main.c:140
 msgid ""
 "Directories to include for file change monitoring (you can do -i <path> -i "
 "<path>)"
@@ -1806,28 +1806,28 @@ msgstr ""
 "Diretórios a incluir para a monitoração de alterações em arquivos (você pode "
 "digitar -i <caminho> -i <caminho>)"
 
-#: ../src/trackerd/tracker-main.c:144
+#: ../src/tracker-store/tracker-main.c:144
 msgid "Directories to crawl to index files (you can do -c <path> -c <path>)"
 msgstr ""
 "Diretórios a rastrear para arquivos de índice (você pode digitar -c "
 "<caminho> -c <caminho>"
 
-#: ../src/trackerd/tracker-main.c:148
+#: ../src/tracker-store/tracker-main.c:148
 msgid ""
 "Disable modules from being processed (you can do -d <module> -d <module>)"
 msgstr ""
 "Desabilitar módulos de serem processados (você pode digitar -d <módulo> -d "
 "<módulo>)"
 
-#: ../src/trackerd/tracker-main.c:156
+#: ../src/tracker-store/tracker-main.c:156
 msgid "Force a re-index of all content"
 msgstr "Forçar a reindexação de todo o conteúdo"
 
-#: ../src/trackerd/tracker-main.c:160
+#: ../src/tracker-store/tracker-main.c:160
 msgid "Disable any indexing and monitoring"
 msgstr "Desabilitar qualquer indexação e monitoramento"
 
-#: ../src/trackerd/tracker-main.c:163
+#: ../src/tracker-store/tracker-main.c:163
 msgid ""
 "Language to use for stemmer and stop words (ISO 639-1 2 characters code)"
 msgstr ""
@@ -1837,23 +1837,23 @@ msgstr ""
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/trackerd/tracker-main.c:673
+#: ../src/tracker-store/tracker-main.c:673
 msgid "- start the tracker daemon"
 msgstr "- inicia o serviço tracker"
 
-#: ../src/trackerd/tracker-main.c:677
+#: ../src/tracker-store/tracker-main.c:677
 msgid "Daemon Options"
 msgstr "Opções do daemon"
 
-#: ../src/trackerd/tracker-main.c:678
+#: ../src/tracker-store/tracker-main.c:678
 msgid "Show daemon options"
 msgstr "Mostra as opções do serviço"
 
-#: ../src/trackerd/tracker-main.c:686
+#: ../src/tracker-store/tracker-main.c:686
 msgid "Indexer Options"
 msgstr "Opções do indexador"
 
-#: ../src/trackerd/tracker-main.c:687
+#: ../src/tracker-store/tracker-main.c:687
 msgid "Show indexer options"
 msgstr "Mostra as opções do indexador"
 
@@ -1876,9 +1876,9 @@ msgstr "Mostra as opções do indexador"
 #~ msgid "%s: no connection to tracker daemon"
 #~ msgstr "%s: sem conexão com o serviço tracker"
 
-#~ msgid "Ensure \"trackerd\" is running before launch this command."
+#~ msgid "Ensure \"tracker-store\" is running before launch this command."
 #~ msgstr ""
-#~ "Certifique-se de que o \"trackerd\" esteja sendo executado antes de "
+#~ "Certifique-se de que o \"tracker-store\" esteja sendo executado antes de "
 #~ "chamar este comando."
 
 #~ msgid "%s: internal tracker error: %s"

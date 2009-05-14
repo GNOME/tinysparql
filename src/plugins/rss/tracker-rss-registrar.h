@@ -30,7 +30,7 @@
 
 #include <dbus/dbus-glib-bindings.h>
 
-#include <trackerd/tracker-push.h>
+#include <tracker-store/tracker-push.h>
 #include "tracker-rss-common.h"
 
 G_BEGIN_DECLS

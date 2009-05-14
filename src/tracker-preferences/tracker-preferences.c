@@ -174,7 +174,7 @@ name_owner_changed (DBusGProxy  *proxy,
 		/* Tracker has exited */
 		gchar *command;
 
-                command = g_build_filename (TRACKER_LIBEXECDIR, "trackerd", NULL);
+                command = g_build_filename (TRACKER_LIBEXECDIR, "tracker-store", NULL);
 
                 if (!g_spawn_command_line_async (command, NULL)) {
 			g_warning ("Unable to execute command: %s", command);
@@ -210,7 +210,7 @@ str_slist_equal (GSList *a,
 }
 
 static gboolean
-if_trackerd_start (TrackerPreferencesPrivate *priv)
+if_tracker_store_start (TrackerPreferencesPrivate *priv)
 {
 	TrackerClient *client;
 	gchar *status;
@@ -632,7 +632,7 @@ cmd_apply (GtkWidget *widget,
 	/* save config to distk */
 	tracker_config_save (priv->config);
 
-	if (priv->should_restart && if_trackerd_start (priv)) {
+	if (priv->should_restart && if_tracker_store_start (priv)) {
 		GtkWidget *dialog;
 		gchar *primary;
 		gchar *secondary;

@@ -17,12 +17,12 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: ../data/trackerd.desktop.in.in.h:1
+#: ../data/tracker-store.desktop.in.in.h:1
 #: ../src/tracker-applet/tracker-applet.c:2224
 msgid "Tracker"
 msgstr "Tracker"
 
-#: ../data/trackerd.desktop.in.in.h:2
+#: ../data/tracker-store.desktop.in.in.h:2
 msgid "Tracker search and indexing service"
 msgstr "Serviço de procura e indexação Tracker"
 
@@ -749,7 +749,7 @@ msgid "Control and monitor the Tracker search and indexing service"
 msgstr "Controlo e monitorização dos serviços de procura e indexação Tracker"
 
 #: ../src/tracker-extract/tracker-main.c:70
-#: ../src/tracker-indexer/tracker-main.c:80 ../src/trackerd/tracker-main.c:134
+#: ../src/tracker-indexer/tracker-main.c:80 ../src/tracker-store/tracker-main.c:134
 msgid ""
 "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default = "
 "0)"
@@ -1955,17 +1955,17 @@ msgstr "Campos necessários"
 msgid "Fields are missing"
 msgstr "Faltam campos"
 
-#: ../src/trackerd/tracker-main.c:139
+#: ../src/tracker-store/tracker-main.c:139
 msgid "Seconds to wait before starting any crawling or indexing (default = 45)"
 msgstr ""
 "Segundos a aguardar antes de começar a registar ou a indexar (omissão = 45)"
 
-#: ../src/trackerd/tracker-main.c:143
+#: ../src/tracker-store/tracker-main.c:143
 msgid "Minimizes the use of memory but may slow indexing down"
 msgstr ""
 "Minimiza a utilização de memória mas pode diminuir a velocidade de indexação"
 
-#: ../src/trackerd/tracker-main.c:147
+#: ../src/tracker-store/tracker-main.c:147
 msgid ""
 "Directories to exclude for file change monitoring (you can do -e <path> -e "
 "<path>)"
@@ -1973,7 +1973,7 @@ msgstr ""
 "Directórios a excluir da monitorização de alteração de ficheiros (pode fazer -"
 "e <caminho> -e <caminho>)"
 
-#: ../src/trackerd/tracker-main.c:151
+#: ../src/tracker-store/tracker-main.c:151
 msgid ""
 "Directories to include for file change monitoring (you can do -i <path> -i "
 "<path>)"
@@ -1981,27 +1981,27 @@ msgstr ""
 "Directórios a incluir na monitorização de alteração de ficheiros (pode fazer -"
 "i <caminho> -i <caminho>)"
 
-#: ../src/trackerd/tracker-main.c:155
+#: ../src/tracker-store/tracker-main.c:155
 msgid "Directories to crawl to index files (you can do -c <path> -c <path>)"
 msgstr ""
 "Directórios a registar para indexar ficheiros (pode fazer -c <caminho> -c "
 "<caminho>)"
 
-#: ../src/trackerd/tracker-main.c:159
+#: ../src/tracker-store/tracker-main.c:159
 msgid ""
 "Disable modules from being processed (you can do -d <module> -d <module>)"
 msgstr ""
 "Módulos desactivados do processamento (pode fazer -d <módulo> -d <módulo>)"
 
-#: ../src/trackerd/tracker-main.c:167
+#: ../src/tracker-store/tracker-main.c:167
 msgid "Force a re-index of all content"
 msgstr "Forçar a reindexação de todo o conteúdo"
 
-#: ../src/trackerd/tracker-main.c:171
+#: ../src/tracker-store/tracker-main.c:171
 msgid "Disable any indexing and monitoring"
 msgstr "Desactivar quaisquer indexações ou observações a decorrer"
 
-#: ../src/trackerd/tracker-main.c:174
+#: ../src/tracker-store/tracker-main.c:174
 msgid ""
 "Language to use for stemmer and stop words (ISO 639-1 2 characters code)"
 msgstr ""
@@ -2011,23 +2011,23 @@ msgstr ""
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/trackerd/tracker-main.c:912
+#: ../src/tracker-store/tracker-main.c:912
 msgid "- start the tracker daemon"
 msgstr "- iniciar o serviço tracker"
 
-#: ../src/trackerd/tracker-main.c:916
+#: ../src/tracker-store/tracker-main.c:916
 msgid "Daemon Options"
 msgstr "Opções do Serviço"
 
-#: ../src/trackerd/tracker-main.c:917
+#: ../src/tracker-store/tracker-main.c:917
 msgid "Show daemon options"
 msgstr "Mostrar as opções do serviço"
 
-#: ../src/trackerd/tracker-main.c:925
+#: ../src/tracker-store/tracker-main.c:925
 msgid "Indexer Options"
 msgstr "Opções do Indexador"
 
-#: ../src/trackerd/tracker-main.c:926
+#: ../src/tracker-store/tracker-main.c:926
 msgid "Show indexer options"
 msgstr "Mostrar as opções do indexador"
 

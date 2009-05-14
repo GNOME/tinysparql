@@ -125,7 +125,7 @@ tracker_events_insert (const gchar *uri,
 
 	if (rdf_types && type == TRACKER_DBUS_EVENTS_TYPE_UPDATE) {
 		/* object is not very important for updates (we don't expose
-		 * the value being set to the user's DBus API in trackerd) */
+		 * the value being set to the user's DBus API in tracker-store) */
 		g_ptr_array_foreach (rdf_types, prepare_event_for_rdf_types, &info);
 	} else if (type == TRACKER_DBUS_EVENTS_TYPE_UPDATE) {
 		/* In this case we had an INSERT for a resource that didn't exist 

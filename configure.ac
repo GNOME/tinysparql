@@ -44,7 +44,7 @@ AC_INIT([tracker], [tracker_version],
         [http://bugzilla.gnome.org/enter_bug.cgi?product=tracker],
 	[tracker])
 
-AC_CONFIG_SRCDIR([src/trackerd/tracker-main.c])
+AC_CONFIG_SRCDIR([src/tracker-store/tracker-main.c])
 
 AM_INIT_AUTOMAKE([no-define tar-ustar])
 AM_CONFIG_HEADER(config.h)
@@ -1369,7 +1369,7 @@ AC_CONFIG_FILES([
 	src/rasqal/Makefile
 	src/tracker-applet/Makefile
 	src/tracker-applet/tracker-applet.desktop.in
-	src/trackerd/Makefile
+	src/tracker-store/Makefile
 	src/tracker-extract/Makefile
 	src/tracker-fts/Makefile
 	src/tracker-indexer/Makefile

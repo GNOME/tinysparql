@@ -438,8 +438,8 @@ msgstr "%s: ei yhteyttä tracker-palvelimeen"
 #: ../src/libtracker/tracker-search.c:135 ../src/libtracker/tracker-stats.c:92
 #: ../src/libtracker/tracker-status.c:48 ../src/libtracker/tracker-tag.c:134
 #, c-format
-msgid "Ensure \"trackerd\" is running before launch this command."
-msgstr "Varmista, että \"trackerd\" on käynnissä ennen komennon suorittamista."
+msgid "Ensure \"tracker-store\" is running before launch this command."
+msgstr "Varmista, että \"tracker-store\" on käynnissä ennen komennon suorittamista."
 
 #: ../src/libtracker/tracker-search.c:147
 #, c-format
@@ -523,28 +523,28 @@ msgstr "%s: virheellisiä argumentteja"
 msgid "%s: file %s not found"
 msgstr "%s: tiedostoa %s ei löydy"
 
-#: ../src/trackerd/trackerd.c:120
+#: ../src/tracker-store/tracker-store.c:120
 msgid "Directory to exclude from indexing"
 msgstr "Indeksoitaessa ohitettava kansio"
 
-#: ../src/trackerd/trackerd.c:120 ../src/trackerd/trackerd.c:121
-#: ../src/trackerd/trackerd.c:122
+#: ../src/tracker-store/tracker-store.c:120 ../src/tracker-store/tracker-store.c:121
+#: ../src/tracker-store/tracker-store.c:122
 msgid "/PATH/DIR"
 msgstr "/POLKU/KANSIO"
 
-#: ../src/trackerd/trackerd.c:121
+#: ../src/tracker-store/tracker-store.c:121
 msgid "Directory to include in indexing"
 msgstr "Indeksoitavaksi liitettävä kansio"
 
-#: ../src/trackerd/trackerd.c:122
+#: ../src/tracker-store/tracker-store.c:122
 msgid "Directory to crawl for indexing at start up only"
 msgstr "Käynnistettäessä indeksointia varten läpikäytävä kansio"
 
-#: ../src/trackerd/trackerd.c:123
+#: ../src/tracker-store/tracker-store.c:123
 msgid "Disable any indexing or watching taking place"
 msgstr "Poista kaikki indeksointi ja tarkkailu käytöstä"
 
-#: ../src/trackerd/trackerd.c:124
+#: ../src/tracker-store/tracker-store.c:124
 msgid ""
 "Value that controls the level of logging. Valid values are 0 (displays/logs "
 "only errors), 1 (minimal), 2 (detailed), and 3 (debug)"
@@ -553,11 +553,11 @@ msgstr ""
 "arvoja ovat 0 (näyttää/kirjoittaa lokiin vain virheet), 1 (minimaalinen), 2 "
 "(yksityiskohtainen), ja 3 (virheenjäljitys)"
 
-#: ../src/trackerd/trackerd.c:124 ../src/trackerd/trackerd.c:125
+#: ../src/tracker-store/tracker-store.c:124 ../src/tracker-store/tracker-store.c:125
 msgid "VALUE"
 msgstr "ARVO"
 
-#: ../src/trackerd/trackerd.c:125
+#: ../src/tracker-store/tracker-store.c:125
 msgid ""
 "Value to use for throttling indexing. Value must be in range 0-99 (default "
 "0) with lower values increasing indexing speed"
@@ -565,44 +565,44 @@ msgstr ""
 "Arvo jota käytetään indeksoinnin nopeuden säätelyyn. Arvon tulee olla "
 "välillä 0-99 (oletus 0), pienempien arvojen lisätessä indeksointinopeutta"
 
-#: ../src/trackerd/trackerd.c:126
+#: ../src/tracker-store/tracker-store.c:126
 msgid "Minimizes the use of memory but may slow indexing down"
 msgstr "Minimoi käytettävän muistin määrän, mutta voi hidastaa indeksointia"
 
-#: ../src/trackerd/trackerd.c:127
+#: ../src/tracker-store/tracker-store.c:127
 msgid "Initial sleep time, just before indexing, in seconds"
 msgstr "Odotusaika aluksi ennen indeksointia, sekunneissa"
 
-#: ../src/trackerd/trackerd.c:128
+#: ../src/tracker-store/tracker-store.c:128
 msgid ""
 "Language to use for stemmer and stop words list (ISO 639-1 2 characters code)"
 msgstr ""
 "Kieli jota käytetään louhinta- ja hukkasanaluetteloihin (ISO 639-1 "
 "kaksikirjaiminen koodi)"
 
-#: ../src/trackerd/trackerd.c:128
+#: ../src/tracker-store/tracker-store.c:128
 msgid "LANG"
 msgstr "KIELI"
 
-#: ../src/trackerd/trackerd.c:129
+#: ../src/tracker-store/tracker-store.c:129
 msgid "Force a re-index of all content"
 msgstr "Pakota kaiken sisällön uudelleenindeksointi"
 
-#: ../src/trackerd/trackerd.c:130
+#: ../src/tracker-store/tracker-store.c:130
 msgid "Make tracker errors fatal"
 msgstr "Tee trackerin virheistä kriittisiä"
 
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND <THIS_MESSAGE>
-#: ../src/trackerd/trackerd.c:668
+#: ../src/tracker-store/tracker-store.c:668
 msgid "- start the tracker daemon"
 msgstr "- käynnistä tracker-seurantapalvelin"
 
-#: ../src/trackerd/trackerd.c:669 ../src/trackerd/trackerd.c:670
+#: ../src/tracker-store/tracker-store.c:669 ../src/tracker-store/tracker-store.c:670
 msgid "DIRECTORY"
 msgstr "KANSIO"
 
-#: ../src/trackerd/trackerd.c:677
+#: ../src/tracker-store/tracker-store.c:677
 msgid ""
 "To include or exclude multiple directories at the same time, join multiple "
 "options like:"
@@ -768,7 +768,7 @@ msgstr "Tietoj_a"
 msgid "_Quit"
 msgstr "_Poistu"
 
-#: ../src/tracker-applet/tracker-applet.c:1997 ../trackerd.desktop.in.in.h:1
+#: ../src/tracker-applet/tracker-applet.c:1997 ../tracker-store.desktop.in.in.h:1
 msgid "Tracker"
 msgstr "Tracker"
 
@@ -1496,7 +1496,7 @@ msgstr "linkki (rikki)"
 msgid "link to %s"
 msgstr "linkki kohteeseen %s"
 
-#: ../trackerd.desktop.in.in.h:2
+#: ../tracker-store.desktop.in.in.h:2
 msgid "Tracker search and indexing service"
 msgstr "Haku- ja indeksointipalvelu"
 

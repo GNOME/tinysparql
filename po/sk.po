@@ -18,12 +18,12 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 1 : (n>=2 && n<=4) ? 2 : 0;\n"
 
-#: ../data/trackerd.desktop.in.in.h:1
+#: ../data/tracker-store.desktop.in.in.h:1
 #: ../src/tracker-applet/tracker-applet.c:2183
 msgid "Tracker"
 msgstr "Tracker"
 
-#: ../data/trackerd.desktop.in.in.h:2
+#: ../data/tracker-store.desktop.in.in.h:2
 msgid "Tracker search and indexing service"
 msgstr "Služba Tracker na hľadanie a indexovanie"
 
@@ -695,7 +695,7 @@ msgstr "%s: nesprávne parametre"
 msgid " - Reading filename/mime-type pairs from STDIN"
 msgstr ""
 
-#: ../src/tracker-indexer/tracker-main.c:75 ../src/trackerd/tracker-main.c:127
+#: ../src/tracker-indexer/tracker-main.c:75 ../src/tracker-store/tracker-main.c:127
 msgid ""
 "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default = "
 "0)"
@@ -1751,44 +1751,44 @@ msgstr ""
 msgid "Fields are missing"
 msgstr ""
 
-#: ../src/trackerd/tracker-main.c:132
+#: ../src/tracker-store/tracker-main.c:132
 msgid "Seconds to wait before starting any crawling or indexing (default = 45)"
 msgstr ""
 
-#: ../src/trackerd/tracker-main.c:136
+#: ../src/tracker-store/tracker-main.c:136
 msgid "Minimizes the use of memory but may slow indexing down"
 msgstr "Minimalizuje využitie pamäte, ale môže spomaliť indexovanie"
 
-#: ../src/trackerd/tracker-main.c:140
+#: ../src/tracker-store/tracker-main.c:140
 msgid ""
 "Directories to exclude for file change monitoring (you can do -e <path> -e "
 "<path>)"
 msgstr ""
 
-#: ../src/trackerd/tracker-main.c:144
+#: ../src/tracker-store/tracker-main.c:144
 msgid ""
 "Directories to include for file change monitoring (you can do -i <path> -i "
 "<path>)"
 msgstr ""
 
-#: ../src/trackerd/tracker-main.c:148
+#: ../src/tracker-store/tracker-main.c:148
 msgid "Directories to crawl to index files (you can do -c <path> -c <path>)"
 msgstr ""
 
-#: ../src/trackerd/tracker-main.c:152
+#: ../src/tracker-store/tracker-main.c:152
 msgid ""
 "Disable modules from being processed (you can do -d <module> -d <module>)"
 msgstr ""
 
-#: ../src/trackerd/tracker-main.c:160
+#: ../src/tracker-store/tracker-main.c:160
 msgid "Force a re-index of all content"
 msgstr "Vynútiť preindexovanie všetkého obsahu"
 
-#: ../src/trackerd/tracker-main.c:164
+#: ../src/tracker-store/tracker-main.c:164
 msgid "Disable any indexing and monitoring"
 msgstr "Zakázať akékoľvek indexovanie a sledovanie"
 
-#: ../src/trackerd/tracker-main.c:167
+#: ../src/tracker-store/tracker-main.c:167
 msgid ""
 "Language to use for stemmer and stop words (ISO 639-1 2 characters code)"
 msgstr ""
@@ -1796,23 +1796,23 @@ msgstr ""
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/trackerd/tracker-main.c:906
+#: ../src/tracker-store/tracker-main.c:906
 msgid "- start the tracker daemon"
 msgstr "- spustiť tracker daemon"
 
-#: ../src/trackerd/tracker-main.c:910
+#: ../src/tracker-store/tracker-main.c:910
 msgid "Daemon Options"
 msgstr "Daemon voľby"
 
-#: ../src/trackerd/tracker-main.c:911
+#: ../src/tracker-store/tracker-main.c:911
 msgid "Show daemon options"
 msgstr "Zobraziť voľby deamon"
 
-#: ../src/trackerd/tracker-main.c:919
+#: ../src/tracker-store/tracker-main.c:919
 msgid "Indexer Options"
 msgstr "Nastavenia indexovania"
 
-#: ../src/trackerd/tracker-main.c:920
+#: ../src/tracker-store/tracker-main.c:920
 msgid "Show indexer options"
 msgstr "Zobraziť voľby indexovania"
 
@@ -1884,8 +1884,8 @@ msgstr "Zobraziť voľby indexovania"
 #~ msgid "%s: no connection to tracker daemon"
 #~ msgstr "%s: žiadne pripojenie k tracker daemon"
 
-#~ msgid "Ensure \"trackerd\" is running before launch this command."
-#~ msgstr "Zaistite pred spustením tohto príkazu či beží \"trackerd\"."
+#~ msgid "Ensure \"tracker-store\" is running before launch this command."
+#~ msgstr "Zaistite pred spustením tohto príkazu či beží \"tracker-store\"."
 
 #~ msgid "%s: internal tracker error: %s"
 #~ msgstr "%s: vnútorná tracker chyba: %s"

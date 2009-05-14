@@ -19,11 +19,11 @@ msgstr ""
 "10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 "X-Generator: KBabel 1.11.4\n"
 
-#: ../trackerd.desktop.in.in.h:1
+#: ../tracker-store.desktop.in.in.h:1
 msgid "Tracker"
 msgstr ""
 
-#: ../trackerd.desktop.in.in.h:2
+#: ../tracker-store.desktop.in.in.h:2
 msgid "Tracker search and indexing service"
 msgstr "Служба поиска и индексирования Tracker"
 
@@ -294,9 +294,9 @@ msgstr "%s: нет соединения с демоном tracker"
 
 #: ../src/libtracker/tracker-search.c:135 ../src/libtracker/tracker-stats.c:92
 #: ../src/libtracker/tracker-status.c:48 ../src/libtracker/tracker-tag.c:134
-msgid "Ensure \"trackerd\" is running before launch this command."
+msgid "Ensure \"tracker-store\" is running before launch this command."
 msgstr ""
-"Прежде, чем выполнять данную команду, убедитесь, что запущен «trackerd»."
+"Прежде, чем выполнять данную команду, убедитесь, что запущен «tracker-store»."
 
 #: ../src/libtracker/tracker-search.c:147
 msgid "Service not recognized, searching in Other Files...\n"
@@ -377,29 +377,29 @@ msgstr "%s: неверные аргументы"
 msgid "%s: file %s not found"
 msgstr "%s: файл %s не найден"
 
-#: ../src/trackerd/trackerd.c:158
+#: ../src/tracker-store/tracker-store.c:158
 msgid "Directory to exclude from indexing"
 msgstr "Каталог для исключения из индексирования"
 
-#: ../src/trackerd/trackerd.c:158 ../src/trackerd/trackerd.c:159
-#: ../src/trackerd/trackerd.c:160
+#: ../src/tracker-store/tracker-store.c:158 ../src/tracker-store/tracker-store.c:159
+#: ../src/tracker-store/tracker-store.c:160
 msgid "/PATH/DIR"
 msgstr "/ПУТЬ/КАТ"
 
-#: ../src/trackerd/trackerd.c:159
+#: ../src/tracker-store/tracker-store.c:159
 msgid "Directory to include in indexing"
 msgstr "Каталог для включения в индексирование"
 
-#: ../src/trackerd/trackerd.c:160
+#: ../src/tracker-store/tracker-store.c:160
 #, fuzzy
 msgid "Directory to crawl for indexing at start up only"
 msgstr "Каталог для исключения из индексирования"
 
-#: ../src/trackerd/trackerd.c:161
+#: ../src/tracker-store/tracker-store.c:161
 msgid "Disable any indexing or watching taking place"
 msgstr "Отключить всё индексирование и наблюдение"
 
-#: ../src/trackerd/trackerd.c:162
+#: ../src/tracker-store/tracker-store.c:162
 msgid ""
 "Value that controls the level of logging. Valid values are 0 (displays/logs "
 "only errors), 1 (minimal), 2 (detailed), and 3 (debug)"
@@ -407,11 +407,11 @@ msgstr ""
 "Значение, указывающее уровень подробности журналирования. Допустимые "
 "значения: 0 (минимально, по умолчанию), 1 (подробно) и 2 (для отладки)"
 
-#: ../src/trackerd/trackerd.c:162 ../src/trackerd/trackerd.c:163
+#: ../src/tracker-store/tracker-store.c:162 ../src/tracker-store/tracker-store.c:163
 msgid "VALUE"
 msgstr "ЗНАЧЕНИЕ"
 
-#: ../src/trackerd/trackerd.c:163
+#: ../src/tracker-store/tracker-store.c:163
 msgid ""
 "Value to use for throttling indexing. Value must be in range 0-20 (default "
 "0) with lower values increasing indexing speed"
@@ -419,40 +419,40 @@ msgstr ""
 "Ограничение скорости индексирования. Должно быть в интервале 0—20 (по "
 "умолчанию — 0); чем меньше значение, тем выше скорость индексирования"
 
-#: ../src/trackerd/trackerd.c:164
+#: ../src/tracker-store/tracker-store.c:164
 msgid "Minimizes the use of memory but may slow indexing down"
 msgstr "Уменьшает использование памяти, но может замедлить индексирование"
 
-#: ../src/trackerd/trackerd.c:165
+#: ../src/tracker-store/tracker-store.c:165
 msgid "Initial sleep time, just before indexing, in seconds"
 msgstr "Пауза перед началом индексирования, в секундах"
 
-#: ../src/trackerd/trackerd.c:166
+#: ../src/tracker-store/tracker-store.c:166
 msgid ""
 "Language to use for stemmer and stop words list (ISO 639-1 2 characters code)"
 msgstr ""
 "Язык для списков корней и стоповых слов (двухбуквенный код согласно ISO 639-"
 "1)"
 
-#: ../src/trackerd/trackerd.c:166
+#: ../src/tracker-store/tracker-store.c:166
 msgid "LANG"
 msgstr "ЯЗЫК"
 
-#: ../src/trackerd/trackerd.c:167
+#: ../src/tracker-store/tracker-store.c:167
 msgid "Force a re-index of all content"
 msgstr "Принудительно переиндексировать всё"
 
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND <THIS_MESSAGE>
-#: ../src/trackerd/trackerd.c:2047
+#: ../src/tracker-store/tracker-store.c:2047
 msgid "- start the tracker daemon"
 msgstr "- запуск демона Tracker"
 
-#: ../src/trackerd/trackerd.c:2048 ../src/trackerd/trackerd.c:2049
+#: ../src/tracker-store/tracker-store.c:2048 ../src/tracker-store/tracker-store.c:2049
 msgid "DIRECTORY"
 msgstr "КАТАЛОГ"
 
-#: ../src/trackerd/trackerd.c:2056
+#: ../src/tracker-store/tracker-store.c:2056
 msgid ""
 "To include or exclude multiple directories at the same time, join multiple "
 "options like:"

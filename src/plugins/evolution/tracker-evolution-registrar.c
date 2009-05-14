@@ -33,7 +33,7 @@
 #include <libtracker-data/tracker-data-query.h>
 #include <libtracker-common/tracker-ontology.h>
 
-#include <trackerd/tracker-push-registrar.h>
+#include <tracker-store/tracker-push-registrar.h>
 
 #define __TRACKER_EVOLUTION_REGISTRAR_C__
 

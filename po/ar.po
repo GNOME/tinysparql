@@ -21,12 +21,12 @@ msgstr ""
 "&& n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5;\n"
 "X-Generator: Virtaal 0.3.1\n"
 
-#: ../data/trackerd.desktop.in.in.h:1
+#: ../data/tracker-store.desktop.in.in.h:1
 #: ../src/tracker-applet/tracker-applet.c:2327
 msgid "Tracker"
 msgstr "المُقتفي"
 
-#: ../data/trackerd.desktop.in.in.h:2
+#: ../data/tracker-store.desktop.in.in.h:2
 msgid "Tracker search and indexing service"
 msgstr "خدمة بحث وقهرسة المُقتفي"
 
@@ -753,12 +753,12 @@ msgid "Control and monitor the Tracker search and indexing service"
 msgstr "تحكّم وراقب خدمة بحث وفهرسة المُقتفي"
 
 #: ../src/tracker-extract/tracker-main.c:81
-#: ../src/tracker-indexer/tracker-main.c:84 ../src/trackerd/tracker-main.c:136
+#: ../src/tracker-indexer/tracker-main.c:84 ../src/tracker-store/tracker-main.c:136
 msgid "Displays version information"
 msgstr "يعرض معلومات الإصدارة"
 
 #: ../src/tracker-extract/tracker-main.c:85
-#: ../src/tracker-indexer/tracker-main.c:88 ../src/trackerd/tracker-main.c:140
+#: ../src/tracker-indexer/tracker-main.c:88 ../src/tracker-store/tracker-main.c:140
 msgid ""
 "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default = "
 "0)"
@@ -1826,44 +1826,44 @@ msgstr ""
 "ملاحظة: وصلنا للحد المسموح، هناك الكثير من النتائج في قاعدة البيانات ولم "
 "تسرد هنا"
 
-#: ../src/trackerd/tracker-main.c:145
+#: ../src/tracker-store/tracker-main.c:145
 msgid "Seconds to wait before starting any crawling or indexing (default = 45)"
 msgstr ""
 
-#: ../src/trackerd/tracker-main.c:149
+#: ../src/tracker-store/tracker-main.c:149
 msgid "Minimizes the use of memory but may slow indexing down"
 msgstr "يخفف استعمال الذاكرة، يمكن أن يبطئ الفهرسة"
 
-#: ../src/trackerd/tracker-main.c:153
+#: ../src/tracker-store/tracker-main.c:153
 msgid ""
 "Directories to exclude for file change monitoring (you can do -e <path> -e "
 "<path>)"
 msgstr ""
 
-#: ../src/trackerd/tracker-main.c:157
+#: ../src/tracker-store/tracker-main.c:157
 msgid ""
 "Directories to include for file change monitoring (you can do -i <path> -i "
 "<path>)"
 msgstr ""
 
-#: ../src/trackerd/tracker-main.c:161
+#: ../src/tracker-store/tracker-main.c:161
 msgid "Directories to crawl to index files (you can do -c <path> -c <path>)"
 msgstr ""
 
-#: ../src/trackerd/tracker-main.c:165
+#: ../src/tracker-store/tracker-main.c:165
 msgid ""
 "Disable modules from being processed (you can do -d <module> -d <module>)"
 msgstr ""
 
-#: ../src/trackerd/tracker-main.c:171
+#: ../src/tracker-store/tracker-main.c:171
 msgid "Force a re-index of all content"
 msgstr "افرض إعادة فهرسة كل المحتوى"
 
-#: ../src/trackerd/tracker-main.c:175
+#: ../src/tracker-store/tracker-main.c:175
 msgid "Disable any indexing and monitoring"
 msgstr "عطّل أي فهرسة أو مراقبة"
 
-#: ../src/trackerd/tracker-main.c:178
+#: ../src/tracker-store/tracker-main.c:178
 msgid ""
 "Language to use for stemmer and stop words (ISO 639-1 2 characters code)"
 msgstr "اللغة اللتي ستستخدم للمجذّر والمُنهية (رموز محارف ISO 639-1 2)"
@@ -1871,7 +1871,7 @@ msgstr "اللغة اللتي ستستخدم للمجذّر والمُنهية (
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/trackerd/tracker-main.c:853
+#: ../src/tracker-store/tracker-main.c:853
 msgid "- start the tracker daemon"
 msgstr "- ابدأ عفريت المُقتفي"
 
@@ -1959,8 +1959,8 @@ msgstr "- ابدأ عفريت المُقتفي"
 #~ msgid "%s: no connection to tracker daemon"
 #~ msgstr "%s: لا اتصال بعفريت المُقتفي"
 
-#~ msgid "Ensure \"trackerd\" is running before launch this command."
-#~ msgstr "تأكّد من أن \"trackerd\" يعمل قبل تشغيل هذا الأمر"
+#~ msgid "Ensure \"tracker-store\" is running before launch this command."
+#~ msgstr "تأكّد من أن \"tracker-store\" يعمل قبل تشغيل هذا الأمر"
 
 #~ msgid "%s: internal tracker error: %s"
 #~ msgstr "%s: خطأ مُقتفي داخلي: %s"

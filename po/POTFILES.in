@@ -2,7 +2,7 @@
 # Please keep this file sorted alphabetically.
 [encoding: UTF-8]
 
-data/trackerd.desktop.in.in
+data/tracker-store.desktop.in.in
 python/deskbar-handler/tracker-handler-static.py
 python/deskbar-handler/tracker-handler.py
 python/deskbar-handler/tracker-module.py
@@ -32,4 +32,4 @@ src/tracker-utils/tracker-sparql.c
 src/tracker-utils/tracker-stats.c
 src/tracker-utils/tracker-status.c
 src/tracker-utils/tracker-tag.c
-src/trackerd/tracker-main.c
+src/tracker-store/tracker-main.c

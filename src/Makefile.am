@@ -30,7 +30,7 @@ SUBDIRS = 					\
 	libtracker				\
 	tracker-fts				\
 	plugins					\
-	trackerd				\
+	tracker-store				\
 	tracker-utils				\
 	tracker-extract				\
 	tracker-indexer				\
@@ -48,7 +48,7 @@ DIST_SUBDIRS = 					\
 	libtracker-data				\
 	libtracker				\
 	tracker-fts				\
-	trackerd				\
+	tracker-store				\
 	tracker-utils				\
 	tracker-extract				\
 	tracker-indexer				\

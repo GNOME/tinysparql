@@ -554,7 +554,7 @@ initialize_locations (void)
 	private->log_filename =
 		g_build_filename (g_get_user_data_dir (),
 				  "tracker",
-				  "trackerd.log",
+				  "tracker-store.log",
 				  NULL);
 }
 
@@ -892,7 +892,7 @@ main (gint argc, gchar *argv[])
 		return EXIT_SUCCESS;
 	}
 
-	g_print ("Initializing trackerd...\n");
+	g_print ("Initializing tracker-store...\n");
 
 	initialize_signal_handler ();
 

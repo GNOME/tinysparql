@@ -436,8 +436,8 @@ msgstr "%s: ไม่มีการเชื่อมต่อไปยัง�
 #: ../src/libtracker/tracker-search.c:135 ../src/libtracker/tracker-stats.c:92
 #: ../src/libtracker/tracker-status.c:48 ../src/libtracker/tracker-tag.c:134
 #, c-format
-msgid "Ensure \"trackerd\" is running before launch this command."
-msgstr "ตรวจสอบให้แน่ชัดว่า \"trackerd\" ทำงานอยู่ ก่อนเรียกใช้คำสั่งนี้"
+msgid "Ensure \"tracker-store\" is running before launch this command."
+msgstr "ตรวจสอบให้แน่ชัดว่า \"tracker-store\" ทำงานอยู่ ก่อนเรียกใช้คำสั่งนี้"
 
 #: ../src/libtracker/tracker-search.c:147
 #, c-format
@@ -519,28 +519,28 @@ msgstr "%s: อากิวเมนต์ไม่ถูกต้อง"
 msgid "%s: file %s not found"
 msgstr "%s: ไม่พบแฟ้ม %s"
 
-#: ../src/trackerd/trackerd.c:120
+#: ../src/tracker-store/tracker-store.c:120
 msgid "Directory to exclude from indexing"
 msgstr "ไดเรกทอรีที่จะไม่ทำดัชนี"
 
-#: ../src/trackerd/trackerd.c:120 ../src/trackerd/trackerd.c:121
-#: ../src/trackerd/trackerd.c:122
+#: ../src/tracker-store/tracker-store.c:120 ../src/tracker-store/tracker-store.c:121
+#: ../src/tracker-store/tracker-store.c:122
 msgid "/PATH/DIR"
 msgstr "/PATH/DIR"
 
-#: ../src/trackerd/trackerd.c:121
+#: ../src/tracker-store/tracker-store.c:121
 msgid "Directory to include in indexing"
 msgstr "ไดเรกทอรีที่จะนับรวมในการทำดัชนี"
 
-#: ../src/trackerd/trackerd.c:122
+#: ../src/tracker-store/tracker-store.c:122
 msgid "Directory to crawl for indexing at start up only"
 msgstr "ไดเรกทอรีที่จะทำดัชนีเมื่อเริ่มต้นเท่านั้น"
 
-#: ../src/trackerd/trackerd.c:123
+#: ../src/tracker-store/tracker-store.c:123
 msgid "Disable any indexing or watching taking place"
 msgstr "ปิดการทำดัชนีหรือการเฝ้าสังเกตใดๆ"
 
-#: ../src/trackerd/trackerd.c:124
+#: ../src/tracker-store/tracker-store.c:124
 msgid ""
 "Value that controls the level of logging. Valid values are 0 (displays/logs "
 "only errors), 1 (minimal), 2 (detailed), and 3 (debug)"
@@ -548,11 +548,11 @@ msgstr ""
 "ค่าระดับการบันทึกปูม ค่าที่ใช้ได้คือ 0(แสดง/บันทึกเฉพาะข้อผิดพลาด), 1 (น้อยที่สุด), 2 (ละเอียด) "
 "และ 3 (ดีบั๊ก)"
 
-#: ../src/trackerd/trackerd.c:124 ../src/trackerd/trackerd.c:125
+#: ../src/tracker-store/tracker-store.c:124 ../src/tracker-store/tracker-store.c:125
 msgid "VALUE"
 msgstr "VALUE"
 
-#: ../src/trackerd/trackerd.c:125
+#: ../src/tracker-store/tracker-store.c:125
 msgid ""
 "Value to use for throttling indexing. Value must be in range 0-99 (default "
 "0) with lower values increasing indexing speed"
@@ -560,42 +560,42 @@ msgstr ""
 "ค่าที่ใช้ในการผ่อนเครื่องการทำดัชนี ค่าต้องอยู่ในช่วง 0-99 (ค่าปริยายคือ 0) "
 "โดยค่าที่ต่ำจะเพิ่มความเร็วการทำดัชนีั"
 
-#: ../src/trackerd/trackerd.c:126
+#: ../src/tracker-store/tracker-store.c:126
 msgid "Minimizes the use of memory but may slow indexing down"
 msgstr "ลดการใช้หน่วยความจำ แต่อาจทำให้ทำดัชนีช้าลง"
 
-#: ../src/trackerd/trackerd.c:127
+#: ../src/tracker-store/tracker-store.c:127
 msgid "Initial sleep time, just before indexing, in seconds"
 msgstr "เวลาพักเริ่มต้นก่อนการทำดัชนี (เป็นวินาที)"
 
-#: ../src/trackerd/trackerd.c:128
+#: ../src/tracker-store/tracker-store.c:128
 msgid ""
 "Language to use for stemmer and stop words list (ISO 639-1 2 characters code)"
 msgstr "ภาษาที่จะโหลดรายการคำสำหรับแยกคำ (เป็นรหัส ISO 639-1 แบบ 2 อักขระ)"
 
-#: ../src/trackerd/trackerd.c:128
+#: ../src/tracker-store/tracker-store.c:128
 msgid "LANG"
 msgstr "LANG"
 
-#: ../src/trackerd/trackerd.c:129
+#: ../src/tracker-store/tracker-store.c:129
 msgid "Force a re-index of all content"
 msgstr "บังคับให้ทำดัชนีเนื้อหาใหม่ทั้งหมด"
 
-#: ../src/trackerd/trackerd.c:130
+#: ../src/tracker-store/tracker-store.c:130
 msgid "Make tracker errors fatal"
 msgstr "ให้ถือข้อผิดพลาดของ tracker เป็นความเรื่องร้ายแรง"
 
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND <THIS_MESSAGE>
-#: ../src/trackerd/trackerd.c:664
+#: ../src/tracker-store/tracker-store.c:664
 msgid "- start the tracker daemon"
 msgstr "- เริ่มดีมอน tracker"
 
-#: ../src/trackerd/trackerd.c:665 ../src/trackerd/trackerd.c:666
+#: ../src/tracker-store/tracker-store.c:665 ../src/tracker-store/tracker-store.c:666
 msgid "DIRECTORY"
 msgstr "DIRECTORY"
 
-#: ../src/trackerd/trackerd.c:673
+#: ../src/tracker-store/tracker-store.c:673
 msgid ""
 "To include or exclude multiple directories at the same time, join multiple "
 "options like:"
@@ -755,7 +755,7 @@ msgstr "เ_กี่ยวกับ"
 msgid "_Quit"
 msgstr "_ออก"
 
-#: ../src/tracker-applet/tracker-applet.c:1997 ../trackerd.desktop.in.in.h:1
+#: ../src/tracker-applet/tracker-applet.c:1997 ../tracker-store.desktop.in.in.h:1
 msgid "Tracker"
 msgstr "Tracker"
 
@@ -1461,6 +1461,6 @@ msgstr "ลิงก์ (เสีย)"
 msgid "link to %s"
 msgstr "ลิงก์ไปยัง %s"
 
-#: ../trackerd.desktop.in.in.h:2
+#: ../tracker-store.desktop.in.in.h:2
 msgid "Tracker search and indexing service"
 msgstr "บริการสืบค้นและทำดัชนี Tracker"

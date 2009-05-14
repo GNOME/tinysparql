@@ -417,7 +417,7 @@ msgstr ""
 #: ../src/libtracker/tracker-search.c:135 ../src/libtracker/tracker-stats.c:92
 #: ../src/libtracker/tracker-status.c:48 ../src/libtracker/tracker-tag.c:134
 #, c-format
-msgid "Ensure \"trackerd\" is running before launch this command."
+msgid "Ensure \"tracker-store\" is running before launch this command."
 msgstr ""
 
 #: ../src/libtracker/tracker-search.c:147
@@ -500,79 +500,79 @@ msgstr ""
 msgid "%s: file %s not found"
 msgstr ""
 
-#: ../src/trackerd/trackerd.c:120
+#: ../src/tracker-store/tracker-store.c:120
 msgid "Directory to exclude from indexing"
 msgstr ""
 
-#: ../src/trackerd/trackerd.c:120 ../src/trackerd/trackerd.c:121
-#: ../src/trackerd/trackerd.c:122
+#: ../src/tracker-store/tracker-store.c:120 ../src/tracker-store/tracker-store.c:121
+#: ../src/tracker-store/tracker-store.c:122
 msgid "/PATH/DIR"
 msgstr ""
 
-#: ../src/trackerd/trackerd.c:121
+#: ../src/tracker-store/tracker-store.c:121
 msgid "Directory to include in indexing"
 msgstr ""
 
-#: ../src/trackerd/trackerd.c:122
+#: ../src/tracker-store/tracker-store.c:122
 msgid "Directory to crawl for indexing at start up only"
 msgstr ""
 
-#: ../src/trackerd/trackerd.c:123
+#: ../src/tracker-store/tracker-store.c:123
 msgid "Disable any indexing or watching taking place"
 msgstr ""
 
-#: ../src/trackerd/trackerd.c:124
+#: ../src/tracker-store/tracker-store.c:124
 msgid ""
 "Value that controls the level of logging. Valid values are 0 (displays/logs "
 "only errors), 1 (minimal), 2 (detailed), and 3 (debug)"
 msgstr ""
 
-#: ../src/trackerd/trackerd.c:124 ../src/trackerd/trackerd.c:125
+#: ../src/tracker-store/tracker-store.c:124 ../src/tracker-store/tracker-store.c:125
 msgid "VALUE"
 msgstr ""
 
-#: ../src/trackerd/trackerd.c:125
+#: ../src/tracker-store/tracker-store.c:125
 msgid ""
 "Value to use for throttling indexing. Value must be in range 0-99 (default "
 "0) with lower values increasing indexing speed"
 msgstr ""
 
-#: ../src/trackerd/trackerd.c:126
+#: ../src/tracker-store/tracker-store.c:126
 msgid "Minimizes the use of memory but may slow indexing down"
 msgstr ""
 
-#: ../src/trackerd/trackerd.c:127
+#: ../src/tracker-store/tracker-store.c:127
 msgid "Initial sleep time, just before indexing, in seconds"
 msgstr ""
 
-#: ../src/trackerd/trackerd.c:128
+#: ../src/tracker-store/tracker-store.c:128
 msgid ""
 "Language to use for stemmer and stop words list (ISO 639-1 2 characters code)"
 msgstr ""
 
-#: ../src/trackerd/trackerd.c:128
+#: ../src/tracker-store/tracker-store.c:128
 msgid "LANG"
 msgstr ""
 
-#: ../src/trackerd/trackerd.c:129
+#: ../src/tracker-store/tracker-store.c:129
 msgid "Force a re-index of all content"
 msgstr ""
 
-#: ../src/trackerd/trackerd.c:130
+#: ../src/tracker-store/tracker-store.c:130
 msgid "Make tracker errors fatal"
 msgstr ""
 
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND <THIS_MESSAGE>
-#: ../src/trackerd/trackerd.c:664
+#: ../src/tracker-store/tracker-store.c:664
 msgid "- start the tracker daemon"
 msgstr ""
 
-#: ../src/trackerd/trackerd.c:665 ../src/trackerd/trackerd.c:666
+#: ../src/tracker-store/tracker-store.c:665 ../src/tracker-store/tracker-store.c:666
 msgid "DIRECTORY"
 msgstr ""
 
-#: ../src/trackerd/trackerd.c:673
+#: ../src/tracker-store/tracker-store.c:673
 msgid ""
 "To include or exclude multiple directories at the same time, join multiple "
 "options like:"
@@ -718,7 +718,7 @@ msgstr ""
 msgid "_Quit"
 msgstr ""
 
-#: ../src/tracker-applet/tracker-applet.c:1997 ../trackerd.desktop.in.in.h:1
+#: ../src/tracker-applet/tracker-applet.c:1997 ../tracker-store.desktop.in.in.h:1
 msgid "Tracker"
 msgstr "Tracker"
 
@@ -1422,6 +1422,6 @@ msgstr ""
 msgid "link to %s"
 msgstr ""
 
-#: ../trackerd.desktop.in.in.h:2
+#: ../tracker-store.desktop.in.in.h:2
 msgid "Tracker search and indexing service"
 msgstr "Tracker 検索と索引サービス"

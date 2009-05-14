@@ -28,9 +28,9 @@ endif
 #
 # Daemon sources
 #
-libexec_PROGRAMS = trackerd
+libexec_PROGRAMS = tracker-store
 
-trackerd_SOURCES =							\
+tracker_store_SOURCES =							\
 	tracker-backup.h						\
 	tracker-backup.c						\
 	tracker-crawler.c						\
@@ -66,10 +66,10 @@ trackerd_SOURCES =							\
 	tracker-resource-class.h
 
 if OS_WIN32
-trackerd_win_libs = -lws2_32 -lkernel32
+tracker_store_win_libs = -lws2_32 -lkernel32
 endif
 
-trackerd_LDADD =							\
+tracker_store_LDADD =							\
 	$(plugin_libs)							\
 	$(top_builddir)/src/libtracker-data/libtracker-data.la		\
 	$(top_builddir)/src/libtracker-db/libtracker-db.la 		\
@@ -87,7 +87,7 @@ trackerd_LDADD =							\
 	$(GLIB2_LIBS)							\
 	$(RAPTOR_LIBS)							\
 	$(GCOV_LIBS)							\
-	$(trackerd_win_libs)						\
+	$(tracker_store_win_libs)						\
 	-lz								\
 	-lm
 

@@ -1799,7 +1799,7 @@ name_owner_changed (DBusGProxy	*proxy,
 		priv = TRAY_ICON_GET_PRIVATE (data);
 
 		/* Tracker has exited so reset status and make
-		 * invisible until trackerd relaunched.
+		 * invisible until tracker-store relaunched.
 		 */
 		index_state_changed (proxy,
 				     "Idle",
@@ -1822,7 +1822,7 @@ name_owner_changed (DBusGProxy	*proxy,
 			GError *error = NULL;
 			const gchar *command;
 
-			command = g_build_filename (TRACKER_LIBEXECDIR, "trackerd", NULL);
+			command = g_build_filename (TRACKER_LIBEXECDIR, "tracker-store", NULL);
 
 			priv->reindex = FALSE;
 

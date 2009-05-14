@@ -2,14 +2,14 @@ include $(top_srcdir)/Makefile.decl
 
 SUBDIRS = db dbus modules languages icons ontologies
 
-trackerd.desktop.in: trackerd.desktop.in.in
+tracker-store.desktop.in: tracker-store.desktop.in.in
 	@sed -e "s|@libexecdir[@]|${libexecdir}|" \
 	     -e "s|@VERSION[@]|${VERSION}|" $< > $@
 
 autostartdir = $(sysconfdir)/xdg/autostart
-autostart_in_in_files = trackerd.desktop.in.in
-autostart_in_files = trackerd.desktop.in
-autostart_DATA = trackerd.desktop
+autostart_in_in_files = tracker-store.desktop.in.in
+autostart_in_files = tracker-store.desktop.in
+autostart_DATA = tracker-store.desktop
 
 @INTLTOOL_DESKTOP_RULE@
 

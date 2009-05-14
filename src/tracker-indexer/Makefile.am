@@ -61,7 +61,7 @@ tracker_indexer_LDADD =							\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
 	$(top_builddir)/src/libtracker/libtrackerclient-@TRACKER_API_VERSION@.la \
 	$(top_builddir)/src/libstemmer/libstemmer.la	 		\
-	$(trackerd_win_libs)						\
+	$(tracker_store_win_libs)						\
 	$(DBUS_LIBS)							\
 	$(GMODULE_LIBS)							\
 	$(GTHREAD_LIBS)							\

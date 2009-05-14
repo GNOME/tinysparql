@@ -1,10 +1,10 @@
-.TH trackerd 1 "Jan 2008" GNU "User Commands"
+.TH tracker-store 1 "Jan 2008" GNU "User Commands"
 
 .SH NAME
-trackerd \- indexer daemon for tracker search tool
+tracker-store \- indexer daemon for tracker search tool
 
 .SH SYNOPSIS
-.B trackerd [OPTIONS]
+.B tracker-store [OPTIONS]
 
 .SH DESCRIPTION
 .B Trackerd
@@ -12,7 +12,7 @@ provides both a powerful indexer and an extensible metadata database. It
 indexes files including the text contents and any available metadata to
 provide fast search services.
 .PP
-By default, trackerd will index all files in a user's home directory (with
+By default, tracker-store will index all files in a user's home directory (with
 the exception of hidden files). This can be overridden by specifying
 one or more directories to be indexed instead in the configuration file
 ($HOME/.config/tracker/tracker.cfg) and/or by using the --include-dir
@@ -44,13 +44,13 @@ indexable content but do not watch for directory or file changes.
 .TP
 \-n, --disable-indexing
 Prevent
-.B trackerd
+.B tracker-store
 from indexing and watching. Searching is still
 possible.
 
 .TP
 \-v, --verbosity=value
-Makes trackerd log/print more information. Value can be one of 0 - show
+Makes tracker-store log/print more information. Value can be one of 0 - show
 only errors, 1 - show only minimal output, 2 - show detailed output and
 3 - show debug output (don't do this, unless you know what you are doing).
 
@@ -61,7 +61,7 @@ Minimise memory usage. Note that this may slow down indexing.
 .TP
 \-s, --initial-sleep=value
 Set the initial sleep time in seconds. This is the time
-.B trackerd
+.B tracker-store
 waits at startup before indexing.
 
 .TP
@@ -71,14 +71,14 @@ code).
 
 .TP
 \-R, --force-reindex
-This forces trackerd to re-index all watched files and directories.
+This forces tracker-store to re-index all watched files and directories.
 Since every watched directory and any previously indexed file has to be
 read and processed again, this may degrade the whole system performance.
 
 .TP
 \-f, --fatal-errors
 Makes any errors fatal, i.e. forces abortion of
-.B trackerd.
+.B tracker-store.
 This switch is only useful for debugging.
 
 .SH FILES
