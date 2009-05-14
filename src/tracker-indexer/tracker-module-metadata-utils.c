@@ -882,15 +882,17 @@ tracker_module_metadata_utils_get_data (GFile *file)
 
 	if (S_ISLNK (st.st_mode)) {
 		gchar *link_path;
-		gchar *link_path_delimited;
 
 		link_path = g_file_read_link (path, NULL);
-		link_path_delimited = g_filename_to_utf8 (link_path, -1, NULL, NULL, NULL);
+		if (link_path) {
+			gchar *link_path_delimited;
+			link_path_delimited = g_filename_to_utf8 (link_path, -1, NULL, NULL, NULL);
 
-		tracker_module_metadata_add_string (metadata, METADATA_FILE_LINK, link_path_delimited);
+			tracker_module_metadata_add_string (metadata, METADATA_FILE_LINK, link_path_delimited);
 
-		g_free (link_path_delimited);
-		g_free (link_path);
+			g_free (link_path_delimited);
+			g_free (link_path);
+		}
 	}
 
 	tracker_module_metadata_add_uint (metadata, METADATA_FILE_SIZE, st.st_size);
