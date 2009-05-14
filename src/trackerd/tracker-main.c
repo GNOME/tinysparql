@@ -568,6 +568,7 @@ shutdown_directories (void)
 	/* If we are reindexing, just remove the databases */
 	if (private->reindex_on_shutdown) {
 		tracker_db_manager_remove_all ();
+		tracker_db_index_manager_remove_all ();
 	}
 }
 
