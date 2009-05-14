@@ -183,9 +183,10 @@ struct UpdateWordsForeachData {
 
 enum TrackerIndexerState {
 	TRACKER_INDEXER_STATE_INDEX_OVERLOADED = 1 << 0,
-	TRACKER_INDEXER_STATE_PAUSED	= 1 << 1,
-	TRACKER_INDEXER_STATE_STOPPED	= 1 << 2,
-	TRACKER_INDEXER_STATE_CLEANUP   = 1 << 3
+	TRACKER_INDEXER_STATE_INDEX_ERROR = 1 << 1,
+	TRACKER_INDEXER_STATE_PAUSED	= 1 << 2,
+	TRACKER_INDEXER_STATE_STOPPED	= 1 << 3,
+	TRACKER_INDEXER_STATE_CLEANUP   = 1 << 4
 };
 
 enum {
@@ -549,6 +550,7 @@ index_error_received_cb (TrackerDBIndex *index,
 			 const GError   *error,
 			 TrackerIndexer *indexer)
 {
+	state_set_flags (indexer, TRACKER_INDEXER_STATE_INDEX_ERROR);
 	g_signal_emit (indexer, signals[INDEXING_ERROR], 0,
 		       error->message, TRUE);
 }
@@ -3003,6 +3005,9 @@ state_to_string (TrackerIndexerState state)
 	
 	if (state & TRACKER_INDEXER_STATE_INDEX_OVERLOADED) {
 		s = g_string_append (s, "INDEX_OVERLOADED | ");
+	}
+	if (state & TRACKER_INDEXER_STATE_INDEX_ERROR) {
+		s = g_string_append (s, "INDEX_ERROR | ");
 	}
 	if (state & TRACKER_INDEXER_STATE_PAUSED) {
 		s = g_string_append (s, "PAUSED | ");
