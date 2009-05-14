@@ -261,6 +261,7 @@ tracker_xmp_iter_simple (GHashTable  *metadata,
 	if (strcmp (schema, NS_DC) == 0) {
 		if (strcmp (name, "title") == 0) {
 			tracker_append_string_to_hash_table (metadata, "Image:Title", value, append, FALSE);
+			tracker_append_string_to_hash_table (metadata, "Image:HasKeywords", "1", FALSE, FALSE);
 		}
 		else if (strcmp (name, "rights") == 0) {
 			tracker_append_string_to_hash_table (metadata, "File:Copyright", value, append, FALSE);
@@ -270,6 +271,7 @@ tracker_xmp_iter_simple (GHashTable  *metadata,
 		}
 		else if (strcmp (name, "description") == 0) {
 			tracker_append_string_to_hash_table (metadata, "Image:Description", value, append, FALSE);
+			tracker_append_string_to_hash_table (metadata, "Image:HasKeywords", "1", FALSE, FALSE);
 		}
 		else if (strcmp (name, "date") == 0) {
 			/* exempi considers this an array while we want a single value */
@@ -395,34 +397,18 @@ tracker_xmp_iter_simple (GHashTable  *metadata,
 	else if (strcmp (schema,  NS_IPTC4XMP) == 0) {
 	        if (strcmp (name, "Location") == 0) {
 		        tracker_append_string_to_hash_table (metadata, "Image:Location", value, append, FALSE);
-
-			/* Added to the valid keywords */
-		        tracker_append_string_to_hash_table (metadata, "Image:Keywords", value, TRUE, FALSE);
-			tracker_append_string_to_hash_table (metadata, "Image:HasKeywords", "1", FALSE, FALSE);
 		}
 		if (strcmp (name, "Sublocation") == 0) {
 		        tracker_append_string_to_hash_table (metadata, "Image:Sublocation", value, append, FALSE);
-			
-			/* Added to the valid keywords */
-		        tracker_append_string_to_hash_table (metadata, "Image:Keywords", value, TRUE, FALSE);
-			tracker_append_string_to_hash_table (metadata, "Image:HasKeywords", "1", FALSE, FALSE);
 		}
 	}
 	/* Photoshop scheme */
 	else if (strcmp (schema,  NS_PHOTOSHOP) == 0) {
 	        if (strcmp (name, "City") == 0) {
 		        tracker_append_string_to_hash_table (metadata, "Image:City", value, append, FALSE);
-
-			/* Added to the valid keywords */
-		        tracker_append_string_to_hash_table (metadata, "Image:Keywords", value, TRUE, FALSE);
-			tracker_append_string_to_hash_table (metadata, "Image:HasKeywords", "1", FALSE, FALSE);
 		}
 		else if (strcmp (name, "Country") == 0) {
 			tracker_append_string_to_hash_table (metadata, "Image:Country", value, append, FALSE);
-
-			/* Added to the valid keywords */
-		        tracker_append_string_to_hash_table (metadata, "Image:Keywords", value, TRUE, FALSE);
-			tracker_append_string_to_hash_table (metadata, "Image:HasKeywords", "1", FALSE, FALSE);			
 		}
 	}
 

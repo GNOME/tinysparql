@@ -375,13 +375,10 @@ dbin_dpad_cb (GstElement* e, GstPad* pad, gboolean cont, gpointer data)
 	
 	g_value_init (&val, G_TYPE_INT);
 	g_value_set_int (&val, 50);
-
 	g_object_set_property (G_OBJECT (fsink), "preroll-queue-len", &val);
-
 	g_value_unset (&val);
 
 	extractor->fsinks = g_list_append (extractor->fsinks, fsink);
-	
 	gst_element_set_state (fsink, GST_STATE_PAUSED);
 	
 	gst_bin_add (GST_BIN (extractor->pipeline), fsink);

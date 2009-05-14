@@ -19,10 +19,6 @@
  * Boston, MA  02110-1301, USA.
  */
 
-/*
- * FIXME: We should try to get raw data (from libexif) to avoid processing.
- */
-
 #include "config.h"
 
 #include <stdio.h>
@@ -92,6 +88,7 @@ typedef gchar * (*PostProcessor) (const gchar*);
 typedef struct {
 	ExifTag       tag;
 	gchar	     *name;
+	gboolean      multi;
 	PostProcessor post;
 } TagType;
 
@@ -103,36 +100,86 @@ static gchar *fix_exposure_time (const gchar *et);
 static gchar *fix_orientation   (const gchar *orientation);
 
 static TagType tags[] = {
-	{ EXIF_TAG_PIXEL_Y_DIMENSION, "Image:Height", NULL },
-	{ EXIF_TAG_PIXEL_X_DIMENSION, "Image:Width", NULL },
-	{ EXIF_TAG_RELATED_IMAGE_WIDTH, "Image:Width", NULL },
-	{ EXIF_TAG_DOCUMENT_NAME, "Image:Title", NULL },
+	{ EXIF_TAG_PIXEL_Y_DIMENSION, "Image:Height", FALSE, NULL },
+	{ EXIF_TAG_PIXEL_X_DIMENSION, "Image:Width", FALSE, NULL },
+	{ EXIF_TAG_RELATED_IMAGE_WIDTH, "Image:Width", FALSE, NULL },
+	{ EXIF_TAG_DOCUMENT_NAME, "Image:Title", FALSE, NULL },
 	/* { -1, "Image:Album", NULL }, */
-	{ EXIF_TAG_DATE_TIME, "Image:Date", date_to_iso8601 },
-	{ EXIF_TAG_DATE_TIME_ORIGINAL, "Image:Date", date_to_iso8601 },
+	{ EXIF_TAG_DATE_TIME, "Image:Date", FALSE, date_to_iso8601, },
+	{ EXIF_TAG_DATE_TIME_ORIGINAL, "Image:Date", FALSE, date_to_iso8601, },
 	/* { -1, "Image:Keywords", NULL }, */
-	{ EXIF_TAG_ARTIST, "Image:Creator", NULL },
-	{ EXIF_TAG_USER_COMMENT, "Image:Comments", NULL },
-	{ EXIF_TAG_IMAGE_DESCRIPTION, "Image:Description", NULL },
-	{ EXIF_TAG_SOFTWARE, "Image:Software", NULL },
-	{ EXIF_TAG_MAKE, "Image:CameraMake", NULL },
-	{ EXIF_TAG_MODEL, "Image:CameraModel", NULL },
-	{ EXIF_TAG_ORIENTATION, "Image:Orientation", fix_orientation },
-	{ EXIF_TAG_EXPOSURE_PROGRAM, "Image:ExposureProgram", NULL },
-	{ EXIF_TAG_EXPOSURE_TIME, "Image:ExposureTime", fix_exposure_time },
-	{ EXIF_TAG_FNUMBER, "Image:FNumber", fix_fnumber },
-	{ EXIF_TAG_FLASH, "Image:Flash", fix_flash },
-	{ EXIF_TAG_FOCAL_LENGTH, "Image:FocalLength", fix_focal_length },
-	{ EXIF_TAG_ISO_SPEED_RATINGS, "Image:ISOSpeed", NULL },
-	{ EXIF_TAG_METERING_MODE, "Image:MeteringMode", NULL },
-	{ EXIF_TAG_WHITE_BALANCE, "Image:WhiteBalance", NULL },
-	{ EXIF_TAG_COPYRIGHT, "File:Copyright", NULL },
-	{ -1, NULL, NULL }
+	{ EXIF_TAG_ARTIST, "Image:Creator", FALSE, NULL },
+	{ EXIF_TAG_USER_COMMENT, "Image:Comments", FALSE, NULL },
+	{ EXIF_TAG_IMAGE_DESCRIPTION, "Image:Description", FALSE, NULL },
+	{ EXIF_TAG_SOFTWARE, "Image:Software", FALSE, NULL },
+	{ EXIF_TAG_MAKE, "Image:CameraMake", FALSE, NULL },
+	{ EXIF_TAG_MODEL, "Image:CameraModel", FALSE, NULL },
+	{ EXIF_TAG_ORIENTATION, "Image:Orientation", FALSE, fix_orientation },
+	{ EXIF_TAG_EXPOSURE_PROGRAM, "Image:ExposureProgram", FALSE, NULL },
+	{ EXIF_TAG_EXPOSURE_TIME, "Image:ExposureTime", FALSE, fix_exposure_time },
+	{ EXIF_TAG_FNUMBER, "Image:FNumber", FALSE, fix_fnumber },
+	{ EXIF_TAG_FLASH, "Image:Flash", FALSE, fix_flash },
+	{ EXIF_TAG_FOCAL_LENGTH, "Image:FocalLength", FALSE, fix_focal_length },
+	{ EXIF_TAG_ISO_SPEED_RATINGS, "Image:ISOSpeed", FALSE, NULL },
+	{ EXIF_TAG_METERING_MODE, "Image:MeteringMode", FALSE, NULL },
+	{ EXIF_TAG_WHITE_BALANCE, "Image:WhiteBalance", FALSE, NULL },
+	{ EXIF_TAG_COPYRIGHT, "File:Copyright", FALSE, NULL },
+	{ -1, NULL, FALSE, NULL }
 };
 
 #endif /* HAVE_EXIF */
 
 #ifdef HAVE_LIBEXIF
+
+static void
+metadata_append (GHashTable *metadata, gchar *key, gchar *value, gboolean append)
+{
+	gchar   *new_value;
+	gchar   *orig;
+	gchar  **list;
+	gboolean found = FALSE;
+	guint    i;
+
+	if (append && (orig = g_hash_table_lookup (metadata, key))) {
+		gchar *escaped;
+		
+		escaped = tracker_escape_metadata (value);
+
+		list = g_strsplit (orig, "|", -1);			
+		for (i=0; list[i]; i++) {
+			if (strcmp (list[i], escaped) == 0) {
+				found = TRUE;
+				break;
+			}
+		}			
+		g_strfreev(list);
+
+		if (!found) {
+			new_value = g_strconcat (orig, "|", escaped, NULL);
+			g_hash_table_insert (metadata, g_strdup (key), new_value);
+		}
+
+		g_free (escaped);		
+	} else {
+		new_value = tracker_escape_metadata (value);
+		g_hash_table_insert (metadata, g_strdup (key), new_value);
+
+		/* FIXME Postprocessing is evil and should be elsewhere */
+		if (strcmp (key, "Image:Keywords") == 0) {
+			g_hash_table_insert (metadata,
+					     g_strdup ("Image:HasKeywords"),
+					     tracker_escape_metadata ("1"));			
+		}		
+	}
+
+	/* Adding certain fields also to HasKeywords FIXME Postprocessing is evil */
+	if ((strcmp (key, "Image:Title") == 0) ||
+	    (strcmp (key, "Image:Description") == 0) ) {
+		g_hash_table_insert (metadata,
+				     g_strdup ("Image:HasKeywords"),
+				     tracker_escape_metadata ("1"));
+	}
+}
 
 static gchar *
 date_to_iso8601 (const gchar *date)
@@ -261,14 +308,16 @@ read_exif (const unsigned char *buffer,
 
 				str = (*p->post) (buffer);
 
-				g_hash_table_insert (metadata,
-						     g_strdup (p->name),
-						     tracker_escape_metadata (str));
+				metadata_append (metadata,
+						 g_strdup (p->name),
+						 tracker_escape_metadata (str),
+						 p->multi);
 				g_free (str);
 			} else {
-				g_hash_table_insert (metadata,
-						     g_strdup (p->name),
-						     tracker_escape_metadata (buffer));
+				metadata_append (metadata,
+						 g_strdup (p->name),
+						 tracker_escape_metadata (buffer),
+						 p->multi);
 			}
 		}
 	}
