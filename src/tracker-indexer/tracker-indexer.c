@@ -1241,7 +1241,6 @@ item_remove (TrackerIndexer *indexer,
 	     const gchar    *uri)
 {
 	gchar *mount_point = NULL;
-	const gchar *service_type;
 	gchar *mime_type;
 	guint service_id;
 	gchar *sparql;
@@ -1251,18 +1250,6 @@ item_remove (TrackerIndexer *indexer,
 
 	if (G_UNLIKELY (!indexer->private->in_transaction)) {
 		start_transaction (indexer);
-	}
-
-	service_type = tracker_module_config_get_index_service (info->module->name);
-
-	if (!service_type || !service_type[0]) {
-		/* The file is not anymore in the filesystem. Obtain
-		 * the service type from the DB.
-		 */
-		if (!tracker_data_query_resource_exists (uri, NULL)) {
-			/* File didn't exist, nothing to delete */
-			return;
-		}
 	}
 
 	tracker_data_query_resource_exists (uri, &service_id);
