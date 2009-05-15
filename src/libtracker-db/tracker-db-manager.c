@@ -195,15 +195,18 @@ static TrackerDBDefinition dbs[] = {
  	  0 },
 };
 
-static gboolean		   db_exec_no_reply    (TrackerDBInterface *iface,
-						const gchar	   *query,
-						...);
-static TrackerDBInterface *db_interface_create (TrackerDB	    db);
+static gboolean            db_exec_no_reply          (TrackerDBInterface *iface,
+						      const gchar        *query,
+						      ...);
+static TrackerDBInterface *db_interface_create       (TrackerDB           db);
+static gboolean            save_pragma_file_defaults (gboolean            safe);
 
 static gboolean		   initialized;
 static GHashTable	  *prepared_queries;
+static GHashTable         *pragmas;
 static gchar		  *services_dir;
 static gchar		  *sql_dir;
+static gchar		  *config_dir;
 static gchar		  *data_dir;
 static gchar		  *user_data_dir;
 static gchar		  *sys_tmp_dir;
@@ -224,6 +227,147 @@ location_to_directory (TrackerDBLocation location)
 	default:
 		return NULL;
 	};
+}
+
+static gboolean
+load_pragma_file (gboolean safe)
+{
+	GKeyFile      *key_file = NULL;
+	GError        *error = NULL;
+	GStrv          keys;
+	gchar	      *pragma_file;
+	const gchar   *group;
+	gint           i;
+
+	if (pragmas) {
+		g_hash_table_unref (pragmas);
+	}
+
+	pragmas = g_hash_table_new_full (g_str_hash,
+					 g_str_equal,
+					 g_free,
+					 g_free);
+
+	key_file = g_key_file_new ();
+	pragma_file = g_build_filename (config_dir, "sqlite-db.pragmas", NULL);
+
+	g_message ("Loading pragma file:'%s' using %s values", 
+		   pragma_file,
+		   safe ? "safe" : "fast");
+
+	if (!g_key_file_load_from_file (key_file, pragma_file, G_KEY_FILE_NONE, &error)) {
+		g_message ("  Couldn't load pragma file, %s", 
+			    error ? error->message : "no error given");
+
+		g_clear_error (&error);
+		g_free (pragma_file);
+		g_key_file_free (key_file);
+
+		g_message ("  Trying to re-create file with defaults"); 
+
+		save_pragma_file_defaults (safe);
+		return load_pragma_file (safe);
+	}
+
+	if (safe) {
+		group = "Safe";
+	} else {
+		group = "Fast";
+	}
+
+	keys = g_key_file_get_keys (key_file, group, NULL, NULL);
+
+	for (i = 0; keys[i]; i++) {
+		gchar *value;
+
+		value = g_key_file_get_string (key_file, group, keys[i], NULL);
+		g_hash_table_insert (pragmas, g_strdup (keys[i]), value);
+
+		g_message ("  Adding pragma '%s' with value '%s'", 
+			   keys[i],
+			   value);
+	}
+
+	g_strfreev (keys);
+
+	g_free (pragma_file);
+	g_key_file_free (key_file);
+
+	return TRUE;
+}
+
+static gboolean
+save_pragma_file_defaults (gboolean safe)
+{
+	GKeyFile      *key_file = NULL;
+	GError        *error = NULL;
+	gchar	      *pragma_file;
+	gchar         *content;
+	const gchar   *group;
+
+	pragma_file = g_build_filename (config_dir, "sqlite-db.pragmas", NULL);
+	key_file = g_key_file_new ();
+
+	g_message ("Saving pragma file:'%s' with defaults using %s values", 
+		   pragma_file,
+		   safe ? "safe" : "fast");
+
+	g_key_file_set_comment (key_file, NULL, NULL,
+				"\n"
+				" There are two groups here, \"Safe\" and \"Fast\".\n"
+				" The \"Safe\" group is the default.\n"
+				"\n"
+				" These are the values which each property can be set to:\n"
+				"\n"
+				"   encoding:      \"UTF-8\", \"UTF-16\", \"UTF-16le\" or \"UTF-16be\"\n"
+				"   journal_mode:  \"OFF\", \"TRUNCATE\", \"PERSIST\", \"MEMORY\" or \"DELETE\"\n"
+				"   synchronous:   \"OFF\", \"NORMAL\", or \"FULL\"\n"
+				"   temp_store:    \"DEFAULT\", \"FILE\", or \"MEMORY\"\n"
+				"   auto_vacuum:   \"NONE\", \"FULL\", or \"INCREMENTAL\"\n"
+				"   count_changes: \"0\" or \"1\"\n",
+				NULL);
+
+	group = "Safe";
+	g_key_file_set_string (key_file, group, "encoding", "\"UTF-8\"");
+	g_key_file_set_string (key_file, group, "journal_mode", "DELETE");
+	g_key_file_set_string (key_file, group, "synchronous", "NORMAL");
+	g_key_file_set_string (key_file, group, "temp_store", "FILE");
+	g_key_file_set_string (key_file, group, "auto_vacuum", "NONE");
+	g_key_file_set_string (key_file, group, "count_changes", "0");
+
+	group = "Fast";
+	g_key_file_set_string (key_file, group, "encoding", "\"UTF-8\"");
+	g_key_file_set_string (key_file, group, "journal_mode", "MEMORY");
+	g_key_file_set_string (key_file, group, "synchronous", "OFF");
+	g_key_file_set_string (key_file, group, "temp_store", "MEMORY");
+	g_key_file_set_string (key_file, group, "auto_vacuum", "NONE");
+	g_key_file_set_string (key_file, group, "count_changes", "0");
+
+	content = g_key_file_to_data (key_file, NULL, &error);
+	g_key_file_free (key_file);
+
+	if (error) {
+		g_critical ("Couldn't produce default pragma file, %s", 
+			    error->message);
+		g_clear_error (&error);
+		g_free (pragma_file);
+		return FALSE;
+	}
+
+	if (!g_file_set_contents (pragma_file, content, -1, &error)) {
+		g_critical ("Couldn't write default configuration, %s", 
+			    error->message);
+		g_clear_error (&error);
+		g_free (content);
+		g_free (pragma_file);
+		return FALSE;
+	}
+
+	g_message ("  Written");
+	g_free (content);
+	g_free (pragma_file);
+	
+	return TRUE;
 }
 
 static void
@@ -608,6 +752,15 @@ load_prepared_queries (void)
 	GStrv	     queries;
 	gchar	    *filename;
 	gdouble      secs;
+
+	if (prepared_queries) {
+		g_hash_table_unref (prepared_queries);
+	}
+
+	prepared_queries = g_hash_table_new_full (g_str_hash,
+						  g_str_equal,
+						  g_free,
+						  g_free);
 
 	g_message ("Loading prepared queries...");
 
@@ -1320,11 +1473,25 @@ db_set_params (TrackerDBInterface *iface,
 	       gint		   page_size,
 	       gboolean		   add_functions)
 {
-	tracker_db_interface_execute_query (iface, NULL, "PRAGMA synchronous = NORMAL;");
-	tracker_db_interface_execute_query (iface, NULL, "PRAGMA count_changes = 0;");
-	tracker_db_interface_execute_query (iface, NULL, "PRAGMA temp_store = FILE;");
-	tracker_db_interface_execute_query (iface, NULL, "PRAGMA encoding = \"UTF-8\"");
-	tracker_db_interface_execute_query (iface, NULL, "PRAGMA auto_vacuum = 0;");
+	GHashTableIter  iter;
+	gpointer        key, value;
+
+	if (pragmas) {
+		g_hash_table_iter_init (&iter, pragmas);
+		while (g_hash_table_iter_next (&iter, &key, &value)) {
+			tracker_db_interface_execute_query (iface,
+							    NULL,
+							    "PRAGMA %s = %s;",
+							    (const gchar*) key,
+							    (const gchar*) value);
+		}
+	}
+
+	/* tracker_db_interface_execute_query (iface, NULL, "PRAGMA synchronous = NORMAL;"); */
+	/* tracker_db_interface_execute_query (iface, NULL, "PRAGMA count_changes = 0;"); */
+	/* tracker_db_interface_execute_query (iface, NULL, "PRAGMA temp_store = FILE;"); */
+	/* tracker_db_interface_execute_query (iface, NULL, "PRAGMA encoding = \"UTF-8\""); */
+	/* tracker_db_interface_execute_query (iface, NULL, "PRAGMA auto_vacuum = 0;"); */
 
 	if (page_size != TRACKER_DB_PAGE_SIZE_DONT_SET) {
 		g_message ("  Setting page size to %d", page_size);
@@ -1637,6 +1804,7 @@ static TrackerDBInterface *
 db_interface_get_file_fulltext (void)
 {
 	TrackerDBInterface *iface;
+#ifdef HAVE_SQLITE_FTS
 	gboolean	    create;
 
 	iface = db_interface_get (TRACKER_DB_FILE_FULLTEXT, &create);
@@ -1646,9 +1814,13 @@ db_interface_get_file_fulltext (void)
 		load_sql_file (iface, "sqlite-fulltext.sql", NULL);
 		tracker_db_interface_end_transaction (iface);
 	}
+#else  /* HAVE_SQLITE_FTS */
+	iface = NULL;
+#endif /* HAVE_SQLITE_FTS */
 
 	return iface;
 }
+
 
 static TrackerDBInterface *
 db_interface_get_file_contents (void)
@@ -1676,8 +1848,6 @@ db_interface_get_file_contents (void)
 	return iface;
 }
 
-
-
 static TrackerDBInterface *
 db_interface_get_email_metadata (void)
 {
@@ -1701,6 +1871,7 @@ static TrackerDBInterface *
 db_interface_get_email_fulltext (void)
 {
 	TrackerDBInterface *iface;
+#ifdef HAVE_SQLITE_FTS
 	gboolean	    create;
 
 	iface = db_interface_get (TRACKER_DB_EMAIL_FULLTEXT, &create);
@@ -1710,6 +1881,9 @@ db_interface_get_email_fulltext (void)
 		load_sql_file (iface, "sqlite-fulltext.sql", NULL);
 		tracker_db_interface_end_transaction (iface);
 	}
+#else  /* HAVE_SQLITE_FTS */
+	iface = NULL;
+#endif /* HAVE_SQLITE_FTS */
 
 	return iface;
 }
@@ -2007,6 +2181,10 @@ tracker_db_manager_init (TrackerDBManagerFlags	flags,
 				     "tracker",
 				     NULL);
 
+	config_dir = g_build_filename (g_get_user_config_dir (),
+				       "tracker",
+				       NULL);
+
 	filename = g_strdup_printf ("tracker-%s", g_get_user_name ());
 	sys_tmp_dir = g_build_filename (g_get_tmp_dir (), filename, NULL);
 	g_free (filename);
@@ -2014,6 +2192,7 @@ tracker_db_manager_init (TrackerDBManagerFlags	flags,
 	/* Make sure the directories exist */
 	g_message ("Checking database directories exist");
 
+	g_mkdir_with_parents (config_dir, 00755);
 	g_mkdir_with_parents (data_dir, 00755);
 	g_mkdir_with_parents (user_data_dir, 00755);
 	g_mkdir_with_parents (sys_tmp_dir, 00755);
@@ -2078,14 +2257,12 @@ tracker_db_manager_init (TrackerDBManagerFlags	flags,
 		tracker_db_interface_sqlite_enable_shared_cache ();
 	}
 
-	/* Add prepared queries */
-	prepared_queries = g_hash_table_new_full (g_str_hash,
-						  g_str_equal,
-						  g_free,
-						  g_free);
-
+	/* Get prepared queries */
 	load_prepared_queries ();
 
+	/* Get pragma details */
+	load_pragma_file (TRUE);
+	
 	/* Should we reindex? If so, just remove all databases files,
 	 * NOT the paths, note, that these paths are also used for
 	 * other things like the nfs lock file.
@@ -2123,8 +2300,10 @@ tracker_db_manager_init (TrackerDBManagerFlags	flags,
 		 * attached to be created correctly.
 		 */
 		for (i = 1; i < G_N_ELEMENTS (dbs); i++) {
-			g_object_unref (dbs[i].iface);
-			dbs[i].iface = NULL;
+			if (dbs[i].iface) {
+				g_object_unref (dbs[i].iface);
+				dbs[i].iface = NULL;
+			}
 		}
 	} else {
 		/* Make sure we remove and recreate the cache directory in tmp
@@ -2180,6 +2359,12 @@ tracker_db_manager_shutdown (void)
 		prepared_queries = NULL;
 	}
 
+	if (pragmas) {
+		g_hash_table_unref (pragmas);
+		pragmas = NULL;
+	}
+
+	g_free (config_dir);
 	g_free (data_dir);
 	g_free (user_data_dir);
 	g_free (sys_tmp_dir);
@@ -2237,6 +2422,10 @@ tracker_db_manager_optimize (void)
 
 	/* Check if any connections are open? */
 	for (i = 1; i < G_N_ELEMENTS (dbs); i++) {
+		if (!dbs[i].iface) {
+			continue;
+		}
+
 		if (G_OBJECT (dbs[i].iface)->ref_count > 1) {
 			g_message ("  DB:'%s' is still open with %d references!",
 				   dbs[i].name,
