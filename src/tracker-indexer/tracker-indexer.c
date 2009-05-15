@@ -167,6 +167,7 @@ struct PathInfo {
 };
 
 struct MetadataForeachData {
+	TrackerDataUpdateMetadataContext *context;
 	TrackerLanguage *language;
 	TrackerConfig *config;
 	guint32 service_id;
@@ -1199,9 +1200,17 @@ index_metadata_item (TrackerField	 *field,
 	}
 
 	if (data->add) {
-		tracker_data_update_set_metadata (data->service, data->id, field, (gchar *) value, parsed_value);
+		tracker_data_update_set_metadata (data->context, 
+						  data->service, 
+						  data->id, 
+						  field, 
+						  value, 
+						  parsed_value);
 	} else {
-		tracker_data_update_delete_metadata (data->service, data->id, field, (gchar *) value);
+		tracker_data_update_delete_metadata (data->service, 
+						     data->id, 
+						     field, 
+						     value);
 	}
 
 	g_free (parsed_value);
@@ -1243,6 +1252,7 @@ index_metadata_foreach (TrackerField *field,
 
 static void
 index_metadata (TrackerIndexer	      *indexer,
+		TrackerDataUpdateMetadataContext *context,
 		guint32		       id,
 		TrackerService	      *service,
 		TrackerModuleMetadata *metadata)
@@ -1252,6 +1262,7 @@ index_metadata (TrackerIndexer	      *indexer,
 
 	service_id = tracker_service_get_id (service);
 
+	data.context = context;
 	data.language = indexer->private->language;
 	data.config = indexer->private->config;
 	data.service_id = service_id;
@@ -1276,6 +1287,7 @@ unindex_metadata (TrackerIndexer      *indexer,
 
 	service_id = tracker_service_get_id (service);
 
+	data.context = NULL;
 	data.language = indexer->private->language;
 	data.config = indexer->private->config;
 	data.service_id = service_id;
@@ -1667,6 +1679,7 @@ item_add_or_update (TrackerIndexer        *indexer,
 	}
 
 	if (exists) {
+		TrackerDataUpdateMetadataContext *context;
 		TrackerDataMetadata *old_metadata_emb, *old_metadata_non_emb;
 		gchar *old_text;
 
@@ -1701,7 +1714,13 @@ item_add_or_update (TrackerIndexer        *indexer,
 							remove_existing_non_emb_metadata,
 							old_metadata_non_emb);
 
-		index_metadata (indexer, id, service, metadata);
+		context = tracker_data_update_metadata_context_new (TRACKER_CONTEXT_TYPE_UPDATE,
+								    service, id);
+
+		index_metadata (indexer, context, id, service, metadata);
+
+		tracker_data_update_metadata_context_close (context);
+		tracker_data_update_metadata_context_free (context);
 
 		/* Take the old text -> the new one, calculate
 		 * difference and add the words.
@@ -1727,6 +1746,7 @@ item_add_or_update (TrackerIndexer        *indexer,
 		tracker_data_metadata_free (old_metadata_emb);
 		tracker_data_metadata_free (old_metadata_non_emb);
 	} else {
+		TrackerDataUpdateMetadataContext *context;
 		GHashTable *data;
 		const gchar *udi;
 
@@ -1739,14 +1759,21 @@ item_add_or_update (TrackerIndexer        *indexer,
 		data = tracker_module_metadata_get_hash_table (metadata);
 		udi = tracker_hal_udi_get_for_path (indexer->private->hal, dirname);
 
-		tracker_data_update_create_service (service,
+		context = tracker_data_update_metadata_context_new (TRACKER_CONTEXT_TYPE_INSERT,
+								    service, id);
+
+		tracker_data_update_create_service (context,
+						    service,
 						    id,
 						    udi,
 						    dirname,
 						    basename,
 						    data);
 
-		index_metadata (indexer, id, service, metadata);
+		index_metadata (indexer, context, id, service, metadata);
+
+		tracker_data_update_metadata_context_close (context);
+		tracker_data_update_metadata_context_free (context);
 
 		if (text) {
 			/* Save in the index */
@@ -1893,6 +1920,7 @@ update_moved_item_index (TrackerIndexer      *indexer,
 			 GFile               *file,
 			 GFile               *source_file)
 {
+	TrackerDataUpdateMetadataContext *context;
 	TrackerModuleMetadata *new_metadata;
 	gchar *path, *new_path, *new_name;
 	const gchar *ext;
@@ -1922,7 +1950,13 @@ update_moved_item_index (TrackerIndexer      *indexer,
 		tracker_module_metadata_add_string (new_metadata, METADATA_FILE_EXT, ext);
 	}
 
-	index_metadata (indexer, service_id, service, new_metadata);
+	context = tracker_data_update_metadata_context_new (TRACKER_CONTEXT_TYPE_UPDATE,
+							    service, service_id);
+
+	index_metadata (indexer, context, service_id, service, new_metadata);
+
+	tracker_data_update_metadata_context_close (context);
+	tracker_data_update_metadata_context_free (context);
 
 	g_object_unref (new_metadata);
 	g_free (new_path);
@@ -2283,6 +2317,7 @@ handle_metadata_add (TrackerIndexer *indexer,
 		     GStrv	     values,
 		     GError	   **error)
 {
+	TrackerDataUpdateMetadataContext *context;
 	TrackerService *service;
 	TrackerField   *field;
 	guint           service_id, i, j;
@@ -2377,6 +2412,9 @@ handle_metadata_add (TrackerIndexer *indexer,
 
 	set_values = g_new0 (gchar *, g_strv_length (values) + 1);
 
+	context = tracker_data_update_metadata_context_new (TRACKER_CONTEXT_TYPE_UPDATE,
+							    service, service_id);
+
 	for (i = 0, j = 0; values[i] != NULL; i++) {
 		g_debug ("Setting metadata: service_type '%s' id '%d' field '%s' value '%s'",
 			 tracker_service_get_name (service),
@@ -2384,14 +2422,22 @@ handle_metadata_add (TrackerIndexer *indexer,
 			 tracker_field_get_name (field),
 			 values[i]);
 
-		if (tracker_field_get_multiple_values (field) 
-		    && (tracker_string_in_string_list (values[i], old_contents) > -1) ) {
+		if (tracker_field_get_multiple_values (field) &&
+		    tracker_string_in_string_list (values[i], old_contents) > -1) {
 			continue;
 		}
 
-		tracker_data_update_set_metadata (service, service_id, field, values[i], NULL);
+		tracker_data_update_set_metadata (context, 
+						  service, 
+						  service_id, 
+						  field, 
+						  values[i], 
+						  NULL);
 		set_values [++j] = values[i];
 	}
+
+	tracker_data_update_metadata_context_close (context);
+	tracker_data_update_metadata_context_free (context);
 
 	joined = g_strjoinv (" ", set_values);
 	if (tracker_field_get_filtered (field)) {

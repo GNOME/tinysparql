@@ -36,12 +36,17 @@
 #include "tracker-data-query.h"
 
 typedef struct {
+	TrackerDataUpdateMetadataContext *context;
 	TrackerService *service;
 	guint32 iid_value;
 	TrackerLanguage *language;
 	TrackerConfig *config;
 } ForeachInMetadataInfo;
 
+typedef struct {
+	GPtrArray *columns;
+	GPtrArray *values;
+} InsertData;
 
 guint32
 tracker_data_update_get_new_service_id (TrackerDBInterface *iface)
@@ -90,12 +95,13 @@ tracker_data_update_get_new_service_id (TrackerDBInterface *iface)
 }
 
 gboolean
-tracker_data_update_create_service (TrackerService *service,
-				    guint32	    service_id,
-				    const gchar    *udi,
-				    const gchar	   *dirname,
-				    const gchar	   *basename,
-				    GHashTable     *metadata)
+tracker_data_update_create_service (TrackerDataUpdateMetadataContext *context,
+				    TrackerService                   *service,
+				    guint32	                      service_id,
+				    const gchar                      *udi,
+				    const gchar	                     *dirname,
+				    const gchar	                     *basename,
+				    GHashTable                       *metadata)
 {
 	TrackerDBInterface *iface;
 	TrackerDBResultSet *result_set;
@@ -134,19 +140,22 @@ tracker_data_update_create_service (TrackerService *service,
 	is_dir = g_file_test (path, G_FILE_TEST_IS_DIR);
 	is_symlink = g_file_test (path, G_FILE_TEST_IS_SYMLINK);
 
-	tracker_db_interface_execute_procedure (iface, NULL, "CreateService",
-						id_str,
-						dirname,
-						basename,
-						service_type_id_str,
-						is_dir ? "Folder" : g_hash_table_lookup (metadata, "File:Mime"),
-						g_hash_table_lookup (metadata, "File:Size"),
-						is_dir ? "1" : "0",
-						is_symlink ? "1" : "0",
-						"0", /* Offset */
-						g_hash_table_lookup (metadata, "File:Modified"),
-						volume_id_str, /* Aux ID */
-						NULL);
+	/* Add data to the context */
+	tracker_data_update_metadata_context_add (context, "ID", id_str);
+	tracker_data_update_metadata_context_add (context, "Path", dirname);
+	tracker_data_update_metadata_context_add (context, "Name", basename);
+	tracker_data_update_metadata_context_add (context, "ServiceTypeID", service_type_id_str);
+	tracker_data_update_metadata_context_add (context, "Mime",
+						  is_dir ? "Folder" : g_hash_table_lookup (metadata, "File:Mime"));
+	tracker_data_update_metadata_context_add (context, "Size",
+						  g_hash_table_lookup (metadata, "File:Size"));
+	tracker_data_update_metadata_context_add (context, "IsDirectory",
+						  is_dir ? "1" : "0");
+	tracker_data_update_metadata_context_add (context, "IsLink",
+						  is_symlink ? "1" : "0");
+	tracker_data_update_metadata_context_add (context, "IndexTime",
+						  g_hash_table_lookup (metadata, "File:Modified"));
+	tracker_data_update_metadata_context_add (context, "AuxilaryID", volume_id_str);
 
 	g_free (id_str);
 	g_free (service_type_id_str);
@@ -323,19 +332,21 @@ tracker_data_update_delete_all_metadata (TrackerService *service,
 }
 
 void
-tracker_data_update_set_metadata (TrackerService *service,
-				  guint32	  service_id,
-				  TrackerField	 *field,
-				  const gchar	 *value,
-				  const gchar	 *parsed_value)
+tracker_data_update_set_metadata (TrackerDataUpdateMetadataContext *context,
+				  TrackerService                   *service,
+				  guint32	                    service_id,
+				  TrackerField	                   *field,
+				  const gchar	                   *value,
+				  const gchar	                   *parsed_value)
 {
 	TrackerDBInterface *iface;
 	gint metadata_key;
 	gint collate_key;
 	gchar *id_str;
 
-	if(!strlen(value))
+	if (tracker_is_empty_string (value)) {
 		return;
+	}
 
 	id_str = tracker_guint32_to_string (service_id);
 
@@ -390,39 +401,31 @@ tracker_data_update_set_metadata (TrackerService *service,
 	metadata_key = tracker_ontology_service_get_key_metadata (tracker_service_get_name (service),
 								  tracker_field_get_name (field));
 	if (metadata_key > 0) {
-		gchar *val;
+		gchar *column;
 
-		val = tracker_escape_string (value);
-
-		tracker_db_interface_execute_query (iface, NULL,
-						    "update Services set KeyMetadata%d = '%s' where id = %d",
-						    metadata_key,
-						    val,
-						    service_id);
-		g_free (val);
+		column = g_strdup_printf ("KeyMetadata%d", metadata_key);
+		tracker_data_update_metadata_context_add (context, column, value);
+		g_free (column);
 	} else if (tracker_field_get_data_type (field) == TRACKER_FIELD_TYPE_DATE &&
 		   (strcmp (tracker_field_get_name (field), "File:Modified") == 0)) {
 		/* Handle mtime */
-		tracker_db_interface_execute_query (iface, NULL,
-						    "update Services set IndexTime = '%s' where ID = %d",
-						    value,
-						    service_id);
+		tracker_data_update_metadata_context_add (context, "IndexTime", value);
 	}
 
 	collate_key = tracker_ontology_service_get_key_collate (tracker_service_get_name (service),
 								tracker_field_get_name (field));
 	if (collate_key > 0) {
-		gchar *val;
-		
+		gchar *val, *collate_val, *column;
+
 		val = tracker_escape_string (value);
-		
-		tracker_db_interface_execute_query (iface, NULL,
-			       "update Services set KeyMetadataCollation%d = CollateKey('%s') where id = %d",
-			       collate_key,
-			       val,
-			       service_id);
+		collate_val = g_strdup_printf ("CollateKey('%s')", val);
+		column = g_strdup_printf ("KeyMetadataCollation%d", collate_key);
+
+		tracker_data_update_metadata_context_add (context, column, collate_val);
 
 		g_free (val);
+		g_free (collate_val);
+		g_free (column);
 	}
 
 	g_free (id_str);
@@ -654,7 +657,12 @@ set_metadata (TrackerField *field,
 					   score);
 	}
 
-	tracker_data_update_set_metadata (info->service, info->iid_value, field, value, parsed_value);
+	tracker_data_update_set_metadata (info->context, 
+					  info->service, 
+					  info->iid_value, 
+					  field, 
+					  value, 
+					  parsed_value);
 
 	g_free (parsed_value);
 	g_strfreev (arr);
@@ -697,6 +705,7 @@ tracker_data_update_replace_service (const gchar *udi,
 				     const gchar *rdf_type,
 				     GHashTable  *metadata)
 {
+	TrackerDataUpdateMetadataContext *context;
 	TrackerDBInterface  *iface;
 	TrackerDBResultSet  *result_set;
 	const gchar         *modified;
@@ -753,11 +762,17 @@ tracker_data_update_replace_service (const gchar *udi,
 			set_metadata = TRUE;
 		}
 
+		context = tracker_data_update_metadata_context_new (TRACKER_CONTEXT_TYPE_UPDATE,
+								    service, id);
+
 		g_object_unref (result_set);
 	} else {
 		id = tracker_data_update_get_new_service_id (iface);
 
-		if (tracker_data_update_create_service (service, id,
+		context = tracker_data_update_metadata_context_new (TRACKER_CONTEXT_TYPE_INSERT,
+								    service, id);
+
+		if (tracker_data_update_create_service (context, service, id,
 							udi,
 							dirname, basename,
 							metadata)) {
@@ -770,6 +785,7 @@ tracker_data_update_replace_service (const gchar *udi,
 
 		info = g_slice_new (ForeachInMetadataInfo);
 
+		info->context = context;
 		info->service = service;
 		info->iid_value = id;
 
@@ -782,6 +798,9 @@ tracker_data_update_replace_service (const gchar *udi,
 
 		g_slice_free (ForeachInMetadataInfo, info);
 	}
+
+	tracker_data_update_metadata_context_close (context);
+	tracker_data_update_metadata_context_free (context);
 
 	g_free (dirname);
 	g_free (basename);
@@ -872,3 +891,143 @@ tracker_data_update_disable_all_volumes (void)
 						NULL);
 }
 
+/* Metadata context */
+TrackerDataUpdateMetadataContext *
+tracker_data_update_metadata_context_new (TrackerDataUpdateMetadataContextType  type,
+					  TrackerService                       *service,
+					  guint                                 id)
+{
+	TrackerDataUpdateMetadataContext *context;
+
+	context = g_slice_new (TrackerDataUpdateMetadataContext);
+	context->type = type;
+	context->service = g_object_ref (service);
+	context->id = id;
+
+	context->data = g_hash_table_new_full (g_str_hash,
+					       g_str_equal,
+					       (GDestroyNotify) g_free,
+					       (GDestroyNotify) g_free);
+	return context;
+}
+
+void
+tracker_data_update_metadata_context_add (TrackerDataUpdateMetadataContext *context,
+					  const gchar                      *column,
+					  const gchar                      *value)
+{
+	g_hash_table_replace (context->data,
+			      g_strdup (column),
+			      tracker_escape_string (value));
+}
+
+static void
+get_insert_data_foreach (gpointer key,
+			 gpointer value,
+			 gpointer user_data)
+{
+	InsertData *insert_data = (InsertData *) user_data;
+
+	g_ptr_array_add (insert_data->columns, key);
+	g_ptr_array_add (insert_data->values, value);
+}
+
+void
+tracker_data_update_metadata_context_close (TrackerDataUpdateMetadataContext *context)
+{
+	TrackerDBInterface *iface;
+	GError *error = NULL;
+	guint size;
+	gchar *sql;
+
+	size = g_hash_table_size (context->data);
+
+	if (size == 0) {
+		/* No changes */
+		return;
+	}
+
+	if (context->type == TRACKER_CONTEXT_TYPE_INSERT) {
+		gchar *id_str, *joined_columns, *joined_values;
+		InsertData insert_data;
+
+		/* Ensure we have an ID */
+		id_str = tracker_guint32_to_string (context->id);
+		tracker_data_update_metadata_context_add (context, "ID", id_str);
+		g_free (id_str);
+
+		/* Compose insert SQL query */
+		size = g_hash_table_size (context->data);
+		insert_data.columns = g_ptr_array_sized_new (size + 1);
+		insert_data.values = g_ptr_array_sized_new (size + 1);
+
+		g_hash_table_foreach (context->data,
+				      get_insert_data_foreach,
+				      &insert_data);
+
+		g_ptr_array_add (insert_data.columns, NULL);
+		g_ptr_array_add (insert_data.values, NULL);
+
+		joined_columns = g_strjoinv (",", (gchar **) insert_data.columns->pdata);
+		joined_values = g_strjoinv (",", (gchar **) insert_data.values->pdata);
+
+		sql = g_strdup_printf ("INSERT INTO Services (%s) VALUES (%s);", 
+				       joined_columns, 
+				       joined_values);
+
+		g_free (joined_columns);
+		g_free (joined_values);
+
+		g_ptr_array_free (insert_data.columns, TRUE);
+		g_ptr_array_free (insert_data.values, TRUE);
+	} else if (context->type == TRACKER_CONTEXT_TYPE_UPDATE) {
+		GString        *update_query;
+		GHashTableIter  iter;
+		gpointer        key, value;
+		gboolean        first = TRUE;
+
+		/* Compose update SQL query */
+		update_query = g_string_new ("UPDATE Services SET ");
+
+		g_hash_table_iter_init (&iter, context->data);
+
+		while (g_hash_table_iter_next (&iter, &key, &value)) {
+			const gchar *column = key;
+			const gchar *val    = value;
+
+			if (!first) {
+				g_string_append (update_query, ", ");
+			}
+
+			g_string_append_printf (update_query,
+						"%s = '%s'",
+						column,
+						val);
+			first = FALSE;
+		}
+
+		g_string_append_printf (update_query, " WHERE ID = %d", context->id);
+
+		sql = g_string_free (update_query, FALSE);
+	} else {
+		g_assert_not_reached ();
+	}
+
+	iface = tracker_db_manager_get_db_interface_by_type (tracker_service_get_name (context->service),
+							     TRACKER_DB_CONTENT_TYPE_METADATA);
+
+	tracker_db_interface_execute_query (iface, &error, sql, NULL);
+
+	if (error) {
+		g_warning ("%s", error->message);
+		g_error_free (error);
+	}
+}
+
+void
+tracker_data_update_metadata_context_free (TrackerDataUpdateMetadataContext *context)
+{
+	g_object_unref (context->service);
+	g_hash_table_unref (context->data);
+	g_slice_free (TrackerDataUpdateMetadataContext, context);
+}

@@ -32,10 +32,26 @@
 
 G_BEGIN_DECLS
 
+typedef struct TrackerDataUpdateMetadataContext TrackerDataUpdateMetadataContext;
+typedef enum TrackerDataUpdateMetadataContextType TrackerDataUpdateMetadataContextType;
+
+enum TrackerDataUpdateMetadataContextType {
+	TRACKER_CONTEXT_TYPE_INSERT,
+	TRACKER_CONTEXT_TYPE_UPDATE
+};
+
+struct TrackerDataUpdateMetadataContext {
+	TrackerDataUpdateMetadataContextType type;
+	TrackerService *service;
+	guint id;
+	GHashTable *data;
+};
+
 guint32  tracker_data_update_get_new_service_id         (TrackerDBInterface  *iface);
 
 /* Services  */
-gboolean tracker_data_update_create_service             (TrackerService      *service,
+gboolean tracker_data_update_create_service             (TrackerDataUpdateMetadataContext *context,
+							 TrackerService      *service,
 							 guint32              service_id,
 							 const gchar         *udi,
 							 const gchar         *dirname,
@@ -62,7 +78,8 @@ void     tracker_data_update_delete_service_all         (const gchar *rdf_type);
 
 
 /* Metadata */
-void     tracker_data_update_set_metadata               (TrackerService      *service,
+void     tracker_data_update_set_metadata               (TrackerDataUpdateMetadataContext *context,
+							 TrackerService      *service,
 							 guint32              service_id,
 							 TrackerField        *field,
 							 const gchar         *value,
@@ -88,6 +105,17 @@ void tracker_data_update_enable_volume                  (const gchar         *ud
 void tracker_data_update_disable_volume                 (const gchar         *udi);
 void tracker_data_update_disable_all_volumes            (void);
 void tracker_data_update_reset_volume                   (guint32              volume_id);
+
+/* Metadata context */
+TrackerDataUpdateMetadataContext *
+     tracker_data_update_metadata_context_new           (TrackerDataUpdateMetadataContextType  type,
+							 TrackerService                       *service,
+							 guint                                 id);
+void tracker_data_update_metadata_context_add           (TrackerDataUpdateMetadataContext *context,
+							 const gchar                      *column,
+							 const gchar                      *value);
+void tracker_data_update_metadata_context_close         (TrackerDataUpdateMetadataContext *context);
+void tracker_data_update_metadata_context_free          (TrackerDataUpdateMetadataContext *context);
 
 G_END_DECLS
 
