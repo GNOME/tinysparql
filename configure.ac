@@ -606,6 +606,8 @@ if test "x$enable_sqlite_fts" != "xyes" ; then
 else
    AC_CHECK_LIB([sqlite3], [sqlite3_enable_load_extension], [:],
      [AC_MSG_ERROR([SQLite must be configured with --enable-load-extension.])])
+
+   AC_DEFINE(HAVE_SQLITE_FTS, [], [Define if we have SQLite FTS])
 fi
 
 AM_CONDITIONAL(ENABLE_SQLITE_FTS, test "$enable_sqlite_fts" = "yes")
