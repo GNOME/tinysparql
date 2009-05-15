@@ -276,8 +276,7 @@ check_runtime_level (TrackerConfig *config,
 		runlevel = TRACKER_RUNNING_MAIN_INSTANCE;
 
 #ifdef HAVE_HAL
-		if (!tracker_power_get_battery_exists (hal) ||
-		    !tracker_power_get_battery_in_use (hal)) {
+		if (!tracker_power_get_on_battery (hal)) {
 			return TRACKER_RUNNING_MAIN_INSTANCE;
 		}
 

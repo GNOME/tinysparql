@@ -78,12 +78,12 @@ static void indexer_pause           (gboolean     should_block);
 static void low_disk_space_limit_cb (GObject     *gobject,
 				     GParamSpec  *arg1,
 				     gpointer     user_data);
-static void battery_in_use_cb       (GObject     *gobject,
-				     GParamSpec  *arg1,
-				     gpointer     user_data);
-static void battery_percentage_cb   (GObject     *object,
-				     GParamSpec  *pspec,
-				     gpointer     user_data);
+static void on_battery_cb     (GObject     *gobject,
+				   GParamSpec  *arg1,
+				   gpointer     user_data);
+static void on_low_battery_cb (GObject     *object,
+				   GParamSpec  *pspec,
+				   gpointer     user_data);
 static void disk_space_check_stop   (void);
 
 static GStaticPrivate private_key = G_STATIC_PRIVATE_INIT;
@@ -107,10 +107,10 @@ private_free (gpointer data)
 
 #ifdef HAVE_HAL
 	g_signal_handlers_disconnect_by_func (private->hal,
-					      battery_in_use_cb,
+					      on_battery_cb,
 					      NULL);
 	g_signal_handlers_disconnect_by_func (private->hal,
-					      battery_percentage_cb,
+					      on_low_battery_cb,
 					      NULL);
 
 	g_object_unref (private->hal);
@@ -395,7 +395,7 @@ set_up_throttle (gboolean debugging)
 	 */
 	throttle = tracker_config_get_throttle (private->config);
 
-	if (tracker_power_get_battery_in_use (private->hal)) {
+	if (tracker_power_get_on_battery (private->hal)) {
 		if (debugging) {
 			g_message ("We are running on battery");
 		}
@@ -439,34 +439,31 @@ set_up_throttle (gboolean debugging)
 }
 
 static void
-battery_in_use_cb (GObject    *gobject,
+on_battery_cb (GObject *gobject,
 		   GParamSpec *arg1,
-		   gpointer    user_data)
+		   gpointer user_data)
 {
 	set_up_throttle (TRUE);
 }
 
 static void
-battery_percentage_cb (GObject    *object,
+on_low_battery_cb (GObject    *object,
 		       GParamSpec *pspec,
 		       gpointer    user_data)
 {
 	TrackerStatusPrivate *private;
-	gdouble               percentage;
-	gboolean              battery_in_use;
+	gboolean              on_low_battery;
+	gboolean              on_battery;
 
 	private = g_static_private_get (&private_key);
 	g_return_if_fail (private != NULL);
 
-	percentage = tracker_power_get_battery_percentage (private->hal);
-	battery_in_use = tracker_power_get_battery_in_use (private->hal);
-
-	g_message ("Battery percentage is now %.0f%%",
-		   percentage * 100);
+	on_low_battery = tracker_power_get_on_low_battery (private->hal);
+	on_battery = tracker_power_get_on_battery (private->hal);
 
 	/* FIXME: This could be a configuration option */
-	if (battery_in_use) {
-		if (percentage <= 0.05) {
+	if (on_battery) {
+		if (on_low_battery) {
 			/* Running on low batteries, stop indexing for now */
 			tracker_status_set_is_paused_for_batt (TRUE);
 		} else {
@@ -526,11 +523,11 @@ tracker_status_init (TrackerConfig *config,
 	private->hal = g_object_ref (hal);
 
 	g_message ("Setting battery percentage checking");
-	g_signal_connect (private->hal, "notify::battery-percentage",
-			  G_CALLBACK (battery_percentage_cb),
+	g_signal_connect (private->hal, "notify::on-low-battery",
+			  G_CALLBACK (on_low_battery_cb),
 			  NULL);
-	g_signal_connect (private->hal, "notify::battery-in-use",
-			  G_CALLBACK (battery_in_use_cb),
+	g_signal_connect (private->hal, "notify::on-battery",
+			  G_CALLBACK (on_battery_cb),
 			  NULL);
 #endif
 

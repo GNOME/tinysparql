@@ -485,7 +485,7 @@ set_up_throttle (TrackerIndexer *indexer)
 	 */
 	throttle = tracker_config_get_throttle (indexer->private->config);
 
-	if (tracker_power_get_battery_in_use (indexer->private->hal_power)) {
+	if (tracker_power_get_on_battery (indexer->private->hal_power)) {
 		g_message ("We are running on battery");
 
 		if (throttle == THROTTLE_DEFAULT) {
@@ -515,9 +515,9 @@ set_up_throttle (TrackerIndexer *indexer)
 }
 
 static void
-notify_battery_in_use_cb (GObject *gobject,
-			  GParamSpec *arg1,
-			  gpointer user_data)
+notify_on_battery_cb (GObject *gobject,
+		      GParamSpec *arg1,
+		      gpointer user_data)
 {
 	set_up_throttle (TRACKER_INDEXER (user_data));
 }
@@ -615,7 +615,7 @@ tracker_indexer_finalize (GObject *object)
 
 #ifdef HAVE_HAL
 	g_signal_handlers_disconnect_by_func (priv->hal_power,
-					      notify_battery_in_use_cb,
+					      notify_on_battery_cb,
 					      TRACKER_INDEXER (object));
 
 	g_object_unref (priv->hal_power);
@@ -970,8 +970,8 @@ tracker_indexer_init (TrackerIndexer *indexer)
 	priv->hal_power = tracker_power_new ();
 	priv->hal_storage = tracker_storage_new ();
 
-	g_signal_connect (priv->hal_power, "notify::battery-in-use",
-			  G_CALLBACK (notify_battery_in_use_cb),
+	g_signal_connect (priv->hal_power, "notify::on-battery",
+			  G_CALLBACK (notify_on_battery_cb),
 			  indexer);
 
 	set_up_throttle (indexer);

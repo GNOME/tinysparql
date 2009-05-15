@@ -54,9 +54,8 @@ GType	     tracker_power_get_type			   (void) G_GNUC_CONST;
 
 TrackerPower * tracker_power_new			   (void);
 
-gboolean     tracker_power_get_battery_in_use		   (TrackerPower  *power);
-gboolean     tracker_power_get_battery_exists		   (TrackerPower  *power);
-gdouble      tracker_power_get_battery_percentage	   (TrackerPower  *power);
+gboolean     tracker_power_get_on_battery		(TrackerPower  *power);
+gboolean     tracker_power_get_on_low_battery	(TrackerPower  *power);
 
 #endif /* HAVE_HAL */
 
