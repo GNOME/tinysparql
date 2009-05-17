@@ -1415,8 +1415,6 @@ get_id3v20_tags (const gchar *data,
 									  tmap[i].type,
 									  word);
 					}
-				} else {
-					g_free (word);
 				}
 
 				g_free (word);
