@@ -19,11 +19,13 @@ public class Explorer {
 
 	private const string UI_FILE = "explorer.ui";
 	private Resources tracker;
+	private string current_uri;
 	private ListStore uris;
 	private ListStore relationships;
 	private Label current_object;
 	private Gee.HashMap<string,string> namespaces = new Gee.HashMap<string,string>(str_hash, str_equal, str_equal);
 	private Notebook types;
+
 
 	public void show() {
 
@@ -75,6 +77,7 @@ public class Explorer {
 
 		types = builder.get_object ("types") as Notebook;
 
+		types.switch_page += update_types_page;
 		fetch_prefixes();
 
 		window.show_all();
@@ -161,6 +164,39 @@ public class Explorer {
 		}
 	}
 
+
+	private void update_types_page(void *page, uint _page_num) {
+
+		debug ("update_types_page: %u", _page_num);
+		int page_num = (int) _page_num;
+		ScrolledWindow sw = types.get_nth_page(page_num) as ScrolledWindow;
+		string type = (types.get_tab_label(sw) as Label).get_text();
+
+		ListStore model = (sw.get_child() as TreeView).get_model() as ListStore;
+		try {
+			var query = "SELECT ?r WHERE { ?r rdfs:range %s }".printf(type);
+			var result = tracker.SparqlQuery(query);
+
+			model.clear();
+			TreeIter iter;
+
+			for (int i=0; i<result.length[0]; i++) {
+				var relation = result[i,0];
+				var query2 = "SELECT ?s WHERE { ?s <%s> <%s>}".printf(relation, current_uri);
+				var result2 = tracker.SparqlQuery(query2);
+
+				for (int j=0; j<result2.length[0]; j++) {
+					var relationship = subst_prefix(result2[j,0]);
+					model.append (out iter);
+					model.set (iter, 0, result2[j,0], -1);
+					model.set (iter, 1, relationship, -1);
+				}
+
+			}
+		} catch (DBus.Error e) {
+		}
+	}
+
 	private void add_type(string type) {
 		Label tab_label = new Label(type);
 		ScrolledWindow child = new ScrolledWindow(null, null);
@@ -168,27 +204,12 @@ public class Explorer {
 		child.add(tv);
 		types.append_page(child, tab_label);
 		child.show_all();
-/*
-		try {
-			query = "SELECT ?s ?r WHERE { ?s ?r  <%s> }".printf(uri);
-			result = tracker.SparqlQuery(query);
-			reverserelationships.clear();
-
-			for (int i=0; i<result.length[0]; i++) {
-				var relationship = subst_prefix(result[i,1]);
-				reverserelationships.append (out iter);
-				reverserelationships.set (iter, 0, result[i,0], -1);
-				reverserelationships.set (iter, 1, relationship, -1);
-			}
-		} catch (DBus.Error e) {
-		}
-		*/
 	}
 
 	private void update_pane(string uri) {
 		//debug ("updating pane: %s", uri);
 		current_object.set_text (uri);
-
+		current_uri = uri;
 		try {
 			string query = "SELECT ?r ?o  WHERE { <%s> ?r ?o }".printf(uri);
 			TreeIter iter;
@@ -203,10 +224,12 @@ public class Explorer {
 				relationships.set (iter, 0, relationship, -1);
 				relationships.set (iter, 1, obj, -1);
 
-				if (relationship == "rdf:type") {
+				if (relationship == "rdf:type" && obj != "rdfs:Resource") {
 					add_type (obj);
 				}
 			}
+			update_types_page(null, 0);
+
 		} catch (DBus.Error e) {
 		}
 	}
