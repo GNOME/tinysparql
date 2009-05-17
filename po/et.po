@@ -12,7 +12,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&component=general\n"
 "POT-Creation-Date: 2009-05-06 14:44+0000\n"
-"PO-Revision-Date: 2009-05-16 12:09+0300\n"
+"PO-Revision-Date: 2009-05-16 23:59+0300\n"
 "Last-Translator: Ivar Smolin <okul@linux.ee>\n"
 "Language-Team: Estonian <gnome-et@linux.ee>\n"
 "MIME-Version: 1.0\n"
@@ -141,7 +141,7 @@ msgstr "Suurus : <b>%s</b>"
 
 #, c-format
 msgid "Accessed : <b>%s</b>"
-msgstr ""
+msgstr "Kasutatud : <b>%s</b>"
 
 #, c-format
 msgid "Mime : <b>%s</b>"
@@ -280,7 +280,7 @@ msgstr ""
 
 #. Remove Tag
 msgid "_Remove Tag"
-msgstr ""
+msgstr "_Eemalda silt"
 
 msgid "Support for Tracker."
 msgstr ""
@@ -298,7 +298,7 @@ msgid "<b>Visibility</b>"
 msgstr "<b>Nähtavus</b>"
 
 msgid "Animate _icon when indexing"
-msgstr "Indekseerimise ajal animeeritakse _ikooni"
+msgstr "_Indekseerimise ajal animeeritakse ikooni"
 
 msgid "Applet Preferences"
 msgstr "Rakendi eelistused"
@@ -314,7 +314,7 @@ msgid "_Off"
 msgstr "_Puuduvad"
 
 msgid "Tracker Applet"
-msgstr ""
+msgstr "Trackeri rakend"
 
 #. Translators: this will be a status hint like:
 #. * Tracker: Initializing
@@ -326,7 +326,7 @@ msgstr "Lähtestamine"
 #. * Tracker: Adding File System Monitors
 #.
 msgid "Adding File System Monitors"
-msgstr ""
+msgstr "Failisüsteemide monitoorijate lisamine"
 
 #. Translators: this will be a status hint like:
 #. * Tracker: Indexing
@@ -345,7 +345,7 @@ msgstr "Pausitud"
 #. *  e.g. to crawl the file system for changes
 #.
 msgid "Crawling File System"
-msgstr ""
+msgstr "Failisüsteemi läbivaatus"
 
 #. Translators: this will be a status hint like:
 #. * Tracker: Idle
@@ -363,7 +363,7 @@ msgstr "Andmebaaside optimeerimine"
 #. * Tracker: Shutting Down
 #.
 msgid "Shutting Down"
-msgstr ""
+msgstr "Seiskamine"
 
 #. Translators: this will be a status hint like:
 #. * Tracker: Initializing/Idle/Indexing/Merging (paused by user)
@@ -381,7 +381,7 @@ msgstr "süsteemi poolt"
 #. * Tracker: Initializing/Idle/Indexing/Merging (paused by system)
 #.
 msgid "low disk space or heavy disk use"
-msgstr ""
+msgstr "vähe kettaruumi või aktiivne kettakasutus"
 
 #. FIXME: We need to check if we are on the
 #. * battery first, this state purely means we
@@ -391,21 +391,21 @@ msgstr ""
 #. * Tracker: Initializing/Idle/Indexing/Merging (paused by battery)
 #.
 msgid "low battery"
-msgstr ""
+msgstr "tühi aku"
 
 #. Translators: this will be a status hint like:
 #. * Tracker: Indexing (paused by system)
 #.
 #, c-format
 msgid "Tracker: %s (%s)"
-msgstr ""
+msgstr "Tracker: %s (%s)"
 
 #. Translators: this will be a status hint like:
 #. * Tracker: Indexing
 #.
 #, c-format
 msgid "Tracker: %s"
-msgstr ""
+msgstr "Tracker: %s"
 
 #, c-format
 msgid ""
@@ -503,10 +503,10 @@ msgid "Tracker has finished indexing your system"
 msgstr ""
 
 msgid "You can now perform searches by clicking here"
-msgstr ""
+msgstr "Nüüd on võimalik siin klõpsates otsinguid läbi viia"
 
 msgid "There was an error while performing indexing:"
-msgstr ""
+msgstr "Indekseerimisel tekkis viga:"
 
 msgid ""
 "Your computer is about to be indexed so you can perform fast searches of "
@@ -603,7 +603,7 @@ msgid "Run forever, only interesting for debugging purposes"
 msgstr ""
 
 msgid "Modules to be used when processing data"
-msgstr ""
+msgstr "Andmete töötlemise kasutatavad moodulid"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
@@ -641,7 +641,7 @@ msgid "Search and Indexing"
 msgstr "Otsimine ja indekseerimine"
 
 msgid "<b>Crawled Directories</b>"
-msgstr ""
+msgstr "<b>Läbivaadatavad kataloogid</b>"
 
 msgid "<b>Ignored File Patterns</b>"
 msgstr "<b>Eiratavad failimustrid</b>"
@@ -650,10 +650,10 @@ msgid "<b>Ignored Paths</b>"
 msgstr "<b>Eiratavad rajad</b>"
 
 msgid "<b>Index Merging</b>"
-msgstr ""
+msgstr "<b>Indeksite ühendamine</b>"
 
 msgid "<b>Indexing Limits (per file)</b>"
-msgstr ""
+msgstr "<b>Indekseerimise piirangud (faili kohta)</b>"
 
 msgid "<b>Indexing Options</b>"
 msgstr "<b>Indekseerimisvalikud</b>"
@@ -745,10 +745,10 @@ msgid "Maximum number of unique _words to index:"
 msgstr "Suurim indekseeritavate unikaalsete _sõnade arv:"
 
 msgid "Path roots to be ignored during indexing:"
-msgstr ""
+msgstr "Indekseerimise ajal eiratavate radade juurkataloogid:"
 
 msgid "Perform fast index merges (may affect system performance)"
-msgstr ""
+msgstr "Indeksid ühendatakse kiirmeetodil (võib mõjuda süsteemi jõudlusele)"
 
 msgid "Performance"
 msgstr "Jõudlus"
@@ -812,8 +812,8 @@ msgstr ""
 #, c-format
 msgid "Are you sure you want to open %d folder?"
 msgid_plural "Are you sure you want to open %d folders?"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Kas soovid avada %d kataloogi?"
+msgstr[1] "Kas soovid avada %d kataloogi?"
 
 #, c-format
 msgid "Could not move \"%s\" to trash."
@@ -1316,7 +1316,7 @@ msgid "No tags found"
 msgstr ""
 
 msgid "All tags"
-msgstr ""
+msgstr "Kõik sildid"
 
 msgid "Found"
 msgstr ""
@@ -1334,6 +1334,8 @@ msgstr ""
 
 msgid "Seconds to wait before starting any crawling or indexing (default = 45)"
 msgstr ""
+"Mitu sekundit oodatakse enne läbivaatamise või indekseerimise alustamist "
+"(vaikimisi 45)"
 
 msgid "Minimizes the use of memory but may slow indexing down"
 msgstr ""
@@ -1350,6 +1352,8 @@ msgstr ""
 
 msgid "Directories to crawl to index files (you can do -c <path> -c <path>)"
 msgstr ""
+"Failide indekseerimiseks läbivaadatavad kataloogid (võtit võib anda mitu "
+"korda: -c <rada1> -c <rada2>)"
 
 msgid ""
 "Disable modules from being processed (you can do -d <module> -d <module>)"
