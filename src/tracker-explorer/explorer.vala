@@ -22,7 +22,7 @@ public class Explorer {
 	private string current_uri;
 	private ListStore uris;
 	private ListStore relationships;
-	private Label current_object;
+	private Label current_uri_label;
 	private Gee.HashMap<string,string> namespaces = new Gee.HashMap<string,string>(str_hash, str_equal, str_equal);
 	private Notebook types;
 
@@ -73,11 +73,12 @@ public class Explorer {
 		var relationshipsview = builder.get_object ("relationshipsview") as TreeView;
 		setup_relationships(relationshipsview);
 
-		current_object = builder.get_object ("current-object") as Label;
+		current_uri_label = builder.get_object ("current-object") as Label;
 
 		types = builder.get_object ("types") as Notebook;
 
 		types.switch_page += update_types_page;
+
 		fetch_prefixes();
 
 		window.show_all();
@@ -97,7 +98,7 @@ public class Explorer {
 
 		relationshipsview.insert_column_with_attributes (-1, "Relationship", new CellRendererText (), "text", 0, null);
 		relationshipsview.insert_column_with_attributes (-1, "Object", new CellRendererText (), "text", 1, null);
-		relationshipsview.row_activated += object_selected;
+		relationshipsview.row_activated += (view, path, column) => { row_selected(view, path, column, 1);};
 	}
 
 	private TreeView setup_reverserelationships() {
@@ -105,9 +106,9 @@ public class Explorer {
 		TreeView reverserelationshipsview = new TreeView.with_model (reverserelationships);
 		reverserelationshipsview.set_model(reverserelationships);
 
-		reverserelationshipsview.insert_column_with_attributes (-1, "Subject", new CellRendererText (), "text", 1, null);
-		reverserelationshipsview.insert_column_with_attributes (-1, "Relationship", new CellRendererText (), "text", 0, null);
-		reverserelationshipsview.row_activated += object_selected;
+		reverserelationshipsview.insert_column_with_attributes (-1, "Subject", new CellRendererText (), "text", 0, null);
+		reverserelationshipsview.insert_column_with_attributes (-1, "Relationship", new CellRendererText (), "text", 1, null);
+		reverserelationshipsview.row_activated += (view, path, column) => { row_selected(view, path, column, 0);};
 
 		return reverserelationshipsview;
 	}
@@ -181,15 +182,15 @@ public class Explorer {
 			TreeIter iter;
 
 			for (int i=0; i<result.length[0]; i++) {
-				var relation = result[i,0];
-				var query2 = "SELECT ?s WHERE { ?s <%s> <%s>}".printf(relation, current_uri);
+				var relation = subst_prefix(result[i,0]);
+				var query2 = "SELECT ?s WHERE { ?s %s <%s>}".printf(relation, current_uri);
 				var result2 = tracker.SparqlQuery(query2);
 
 				for (int j=0; j<result2.length[0]; j++) {
-					var relationship = subst_prefix(result2[j,0]);
+					var subject = subst_prefix(result2[j,0]);
 					model.append (out iter);
-					model.set (iter, 0, result2[j,0], -1);
-					model.set (iter, 1, relationship, -1);
+					model.set (iter, 0, subject, -1);
+					model.set (iter, 1, relation, -1);
 				}
 
 			}
@@ -202,14 +203,13 @@ public class Explorer {
 		ScrolledWindow child = new ScrolledWindow(null, null);
 		TreeView tv = setup_reverserelationships();
 		child.add(tv);
-		types.append_page(child, tab_label);
+		types.prepend_page(child, tab_label);
 		child.show_all();
 	}
 
 	private void update_pane(string uri) {
-		//debug ("updating pane: %s", uri);
-		current_object.set_text (uri);
 		current_uri = uri;
+		current_uri_label.set_text (uri);
 		try {
 			string query = "SELECT ?r ?o  WHERE { <%s> ?r ?o }".printf(uri);
 			TreeIter iter;
@@ -244,15 +244,16 @@ public class Explorer {
 		update_pane(uri);
 	}
 
-	private void object_selected(TreeView view, TreePath path, TreeViewColumn column) {
+	private void row_selected(TreeView view, TreePath path, TreeViewColumn column, int index) {
 		TreeIter iter;
 		var model = view.get_model();
 		model.get_iter(out iter, path);
 		weak string uri;
-		model.get (iter, 1, out uri);
+		model.get (iter, index, out uri);
 		//debug ("object selected: %s", uri);
 		update_pane(uri);
 	}
+
 
 }
 
