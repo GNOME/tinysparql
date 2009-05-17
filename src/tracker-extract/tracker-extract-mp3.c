@@ -1347,8 +1347,6 @@ get_id3v20_tags (const gchar *data,
 					g_hash_table_insert (metadata,
 							     g_strdup (tmap[i].type),
 							     tracker_escape_metadata (word));
-				} else {
-					g_free (word);
 				}
 
 				g_free (word);
