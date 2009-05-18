@@ -996,7 +996,7 @@ tracker_data_update_metadata_context_close (TrackerDataUpdateMetadataContext *co
 			g_string_append_printf (update_query,
 						"%s = '%s'",
 						(gchar*) key,
-						(gchar*) value);
+						value ? (gchar*) value : "");
 
 			first = FALSE;
 		}
