@@ -116,7 +116,7 @@ tracker_data_update_create_service (TrackerDataUpdateMetadataContext *context,
 	TrackerDBInterface *iface;
 	TrackerDBResultSet *result_set;
 	guint32	volume_id = 1;
-	gchar *id_str, *service_type_id_str, *path, *volume_id_str;
+	gchar *service_type_id_str, *path, *volume_id_str;
 	gboolean is_dir, is_symlink;
 
 	if (!service) {
@@ -142,7 +142,6 @@ tracker_data_update_create_service (TrackerDataUpdateMetadataContext *context,
 	iface = tracker_db_manager_get_db_interface_by_type (tracker_service_get_name (service),
 							     TRACKER_DB_CONTENT_TYPE_METADATA);
 
-	id_str = tracker_guint32_to_string (service_id);
 	service_type_id_str = tracker_gint_to_string (tracker_service_get_id (service));
 
 	path = g_build_filename (dirname, basename, NULL);
@@ -151,7 +150,6 @@ tracker_data_update_create_service (TrackerDataUpdateMetadataContext *context,
 	is_symlink = g_file_test (path, G_FILE_TEST_IS_SYMLINK);
 
 	/* Add data to the context */
-	tracker_data_update_metadata_context_add (context, "ID", id_str);
 	tracker_data_update_metadata_context_add (context, "Path", dirname);
 	tracker_data_update_metadata_context_add (context, "Name", basename);
 	tracker_data_update_metadata_context_add (context, "ServiceTypeID", service_type_id_str);
@@ -167,7 +165,6 @@ tracker_data_update_create_service (TrackerDataUpdateMetadataContext *context,
 						  g_hash_table_lookup (metadata, "File:Modified"));
 	tracker_data_update_metadata_context_add (context, "AuxilaryID", volume_id_str);
 
-	g_free (id_str);
 	g_free (service_type_id_str);
 	g_free (volume_id_str);
 
@@ -426,15 +423,13 @@ tracker_data_update_set_metadata (TrackerDataUpdateMetadataContext *context,
 	collate_key = tracker_ontology_service_get_key_collate (tracker_service_get_name (service),
 								tracker_field_get_name (field));
 	if (collate_key > 0) {
-		gchar *value_escaped, *value_collated, *column;
+		gchar *value_collated, *column;
 
-		value_escaped = tracker_escape_string (value);
-		value_collated = g_utf8_collate_key (value_escaped, -1);
+		value_collated = g_utf8_collate_key (value, -1);
 		column = g_strdup_printf ("KeyMetadataCollation%d", collate_key);
 
 		tracker_data_update_metadata_context_add (context, column, value_collated);
 
-		g_free (value_escaped);
 		g_free (value_collated);
 		g_free (column);
 	}
