@@ -958,12 +958,20 @@ tracker_data_update_metadata_context_close (TrackerDataUpdateMetadataContext *co
 		
 		g_hash_table_iter_init (&iter, context->data);
 		while (g_hash_table_iter_next (&iter, &key, &value)) {
+			/* We don't insert empty strings for NULLS, we
+			 * simply don't insert the data and accept
+			 * the database default.
+			 */
+			if (!value) {
+				continue;
+			}
+
 			if (first) {
 				g_string_append_printf (keys, "%s", (gchar*) key);
-				g_string_append_printf (values, "'%s'", value ? (gchar*) value : "");
+				g_string_append_printf (values, "'%s'", (gchar*) value);
 			} else {
 				g_string_append_printf (keys, ",%s", (gchar*) key);
-				g_string_append_printf (values, ",'%s'", value ? (gchar*) value : "");
+				g_string_append_printf (values, ",'%s'", (gchar*) value);
 			}
 
 			first = FALSE;
@@ -989,6 +997,14 @@ tracker_data_update_metadata_context_close (TrackerDataUpdateMetadataContext *co
 
 		g_hash_table_iter_init (&iter, context->data);
 		while (g_hash_table_iter_next (&iter, &key, &value)) {
+			/* We don't update empty strings for NULLS, we
+			 * simply don't insert the data and accept
+			 * the database default.
+			 */
+			if (!value) {
+				continue;
+			}
+
 			if (!first) {
 				g_string_append (update_query, ", ");
 			}
@@ -996,7 +1012,7 @@ tracker_data_update_metadata_context_close (TrackerDataUpdateMetadataContext *co
 			g_string_append_printf (update_query,
 						"%s = '%s'",
 						(gchar*) key,
-						value ? (gchar*) value : "");
+						(gchar*) value);
 
 			first = FALSE;
 		}
