@@ -134,6 +134,7 @@ static TrackerDBDefinition dbs[] = {
 	  FALSE,
 	  FALSE,
  	  0 },
+#ifdef HAVE_SQLITE_FTS
 	{ TRACKER_DB_FILE_FULLTEXT,
 	  TRACKER_DB_LOCATION_DATA_DIR,
 	  NULL,
@@ -146,6 +147,7 @@ static TrackerDBDefinition dbs[] = {
 	  FALSE,
 	  TRUE,
  	  0 },
+#endif /* HAVE_SQLITE_FTS */
 	{ TRACKER_DB_FILE_CONTENTS,
 	  TRACKER_DB_LOCATION_DATA_DIR,
 	  NULL,
@@ -169,6 +171,7 @@ static TrackerDBDefinition dbs[] = {
 	  TRUE,
 	  FALSE,
  	  0 },
+#ifdef HAVE_SQLITE_FTS
 	{ TRACKER_DB_EMAIL_FULLTEXT,
 	  TRACKER_DB_LOCATION_DATA_DIR,
 	  NULL,
@@ -181,6 +184,7 @@ static TrackerDBDefinition dbs[] = {
 	  FALSE,
 	  TRUE,
  	  0 },
+#endif /* HAVE_SQLITE_FTS */
 	{ TRACKER_DB_EMAIL_CONTENTS,
 	  TRACKER_DB_LOCATION_DATA_DIR,
 	  NULL,
@@ -1800,11 +1804,12 @@ db_interface_get_file_metadata (void)
 	return iface;
 }
 
+#ifdef HAVE_SQLITE_FTS
+
 static TrackerDBInterface *
 db_interface_get_file_fulltext (void)
 {
 	TrackerDBInterface *iface;
-#ifdef HAVE_SQLITE_FTS
 	gboolean	    create;
 
 	iface = db_interface_get (TRACKER_DB_FILE_FULLTEXT, &create);
@@ -1814,13 +1819,11 @@ db_interface_get_file_fulltext (void)
 		load_sql_file (iface, "sqlite-fulltext.sql", NULL);
 		tracker_db_interface_end_transaction (iface);
 	}
-#else  /* HAVE_SQLITE_FTS */
-	iface = NULL;
-#endif /* HAVE_SQLITE_FTS */
 
 	return iface;
 }
 
+#endif /* HAVE_SQLITE_FTS */
 
 static TrackerDBInterface *
 db_interface_get_file_contents (void)
@@ -1867,11 +1870,12 @@ db_interface_get_email_metadata (void)
 	return iface;
 }
 
+#ifdef HAVE_SQLITE_FTS
+
 static TrackerDBInterface *
 db_interface_get_email_fulltext (void)
 {
 	TrackerDBInterface *iface;
-#ifdef HAVE_SQLITE_FTS
 	gboolean	    create;
 
 	iface = db_interface_get (TRACKER_DB_EMAIL_FULLTEXT, &create);
@@ -1881,12 +1885,11 @@ db_interface_get_email_fulltext (void)
 		load_sql_file (iface, "sqlite-fulltext.sql", NULL);
 		tracker_db_interface_end_transaction (iface);
 	}
-#else  /* HAVE_SQLITE_FTS */
-	iface = NULL;
-#endif /* HAVE_SQLITE_FTS */
 
 	return iface;
 }
+
+#endif /* HAVE_SQLITE_FTS */
 
 static TrackerDBInterface *
 db_interface_get_email_contents (void)
@@ -1931,17 +1934,21 @@ db_interface_create (TrackerDB db)
 	case TRACKER_DB_FILE_METADATA:
 		return db_interface_get_file_metadata ();
 		
+#ifdef HAVE_SQLITE_FTS
 	case TRACKER_DB_FILE_FULLTEXT:
 		return db_interface_get_file_fulltext ();	
+#endif /* HAVE_SQLITE_FTS */
 
 	case TRACKER_DB_FILE_CONTENTS:
 		return db_interface_get_file_contents ();
 
 	case TRACKER_DB_EMAIL_METADATA:
 		return db_interface_get_email_metadata ();
-		
+
+#ifdef HAVE_SQLITE_FTS		
 	case TRACKER_DB_EMAIL_FULLTEXT:
 		return db_interface_get_email_fulltext ();	
+#endif /* HAVE_SQLITE_FTS */
 		
 	case TRACKER_DB_EMAIL_CONTENTS:
 		return db_interface_get_email_contents ();
