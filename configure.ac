@@ -1426,6 +1426,7 @@ AC_CONFIG_FILES([
 	utils/Makefile
 	utils/albumart/Makefile
 	utils/qdbm/Makefile
+	utils/sqlite/Makefile
 	utils/tracker-fts/Makefile
 ])
 

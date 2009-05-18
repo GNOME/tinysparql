@@ -7,4 +7,5 @@ endif
 SUBDIRS = 			\
 	$(build_sqlite_fts)	\
 	albumart		\
-	qdbm
+	qdbm			\
+	sqlite
