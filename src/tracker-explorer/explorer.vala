@@ -160,8 +160,10 @@ public class Explorer {
 	}
 
 	private void clear_types() {
-		for (int i = 0; i < types.get_n_pages(); i++) {
-			types.remove_page (i);
+		int npages = types.get_n_pages();
+		for (int i = 0; i < npages; i++) {
+			debug ("removeing page %d", i);
+			types.remove_page (0);
 		}
 	}
 
