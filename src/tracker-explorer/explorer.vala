@@ -15,11 +15,62 @@ interface Resources : GLib.Object {
 	public abstract void SparqlUpdate (string query) throws DBus.Error;
 }
 
+public class HistoryItem {
+	public string uri;
+	public HistoryItem? next = null;
+	public HistoryItem? prev = null;
+}
+
+public class History {
+	private HistoryItem? items = null;
+	private HistoryItem? current = null;
+
+	public string? current_uri() {
+		if (current) {
+			return current.uri;
+		} else {
+			return null;
+		}
+	}
+
+	public bool can_go_forward() {
+		return (current != null) && (current.next != null);
+	}
+
+	public bool can_go_back() {
+		return (current != null) && (current.prev != null);
+	}
+
+	public void forward() {
+		if (can_go_forward()) {
+			current = current.next;
+		}
+	}
+
+	public void back() {
+		if (can_go_back()) {
+			current = current.prev;
+		}
+	}
+
+	public void add(string uri) {
+		HistoryItem hi = new HistoryItem();
+		if (current == null) {
+			items = hi;
+			current = items;
+		} else {
+			current.next = hi;
+			hi.prev = current;
+		}
+		current = hi;
+	}
+}
+
 public class Explorer {
 
 	private const string UI_FILE = "explorer.ui";
 	private Resources tracker;
-	private string current_uri;
+	private History history = new History();
 	private ListStore uris;
 	private ListStore relationships;
 	private Label current_uri_label;
