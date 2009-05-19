@@ -253,7 +253,7 @@ ensure_resource_id (const gchar *uri)
 		iface = tracker_db_manager_get_db_interface ();
 
 		id = tracker_data_update_get_new_service_id (common);
-		stmt = tracker_db_interface_create_statement (iface, "INSERT INTO \"rdfs:Resource\" (ID, Uri, Modified, Available) VALUES (?, ?, ?, 1)");
+		stmt = tracker_db_interface_create_statement (iface, "INSERT INTO \"rdfs:Resource\" (ID, Uri, \"tracker:modified\", Available) VALUES (?, ?, ?, 1)");
 		tracker_db_statement_bind_int (stmt, 0, id);
 		tracker_db_statement_bind_text (stmt, 1, uri);
 		tracker_db_statement_bind_int64 (stmt, 2, (gint64) time(NULL));
@@ -957,7 +957,7 @@ tracker_data_insert_statement (const gchar            *subject,
 		update_buffer.types = tracker_data_query_rdf_type (update_buffer.id);
 
 		g_value_set_int64 (&gvalue, (gint64) time (NULL));
-		cache_insert_value ("rdfs:Resource", "Modified", &gvalue, FALSE, FALSE);
+		cache_insert_value ("rdfs:Resource", "tracker:modified", &gvalue, FALSE, FALSE);
 	}
 
 	if (strcmp (predicate, RDF_PREFIX "type") == 0) {
@@ -1043,7 +1043,7 @@ tracker_data_update_replace_service (const gchar *uri,
 	iface = tracker_db_manager_get_db_interface ();
 
 	result_set = tracker_db_interface_execute_query (iface, &error,
-							 "SELECT ID, Modified < '%s' FROM \"rdfs:Resource\" "
+							 "SELECT ID, \"tracker:modified\" < '%s' FROM \"rdfs:Resource\" "
 							 "WHERE Uri = '%s'",
 							 modified,
 							 escaped_uri);

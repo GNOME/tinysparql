@@ -636,7 +636,7 @@ create_decomposed_metadata_tables (TrackerDBInterface *iface,
 	sql = g_string_new ("");
 	g_string_append_printf (sql, "CREATE TABLE \"%s\" (ID INTEGER NOT NULL PRIMARY KEY", service_name);
 	if (main_class) {
-		g_string_append (sql, ", Uri TEXT NOT NULL, Modified INTEGER NOT NULL, Available INTEGER NOT NULL");
+		g_string_append (sql, ", Uri TEXT NOT NULL, Available INTEGER NOT NULL");
 	}
 
 	properties = tracker_ontology_get_properties ();
@@ -696,7 +696,7 @@ create_decomposed_metadata_tables (TrackerDBInterface *iface,
 		TrackerDBStatement *stmt;
 
 		stmt = tracker_db_interface_create_statement (iface,
-							      "INSERT OR IGNORE INTO \"rdfs:Resource\" (ID, Uri, Modified) VALUES (?, ?, ?)");
+							      "INSERT OR IGNORE INTO \"rdfs:Resource\" (ID, Uri, \"tracker:modified\") VALUES (?, ?, ?)");
 		tracker_db_statement_bind_int (stmt, 0, ++(*max_id));
 		tracker_db_statement_bind_text (stmt, 1, tracker_class_get_uri (service));
 		tracker_db_statement_bind_int64 (stmt, 2, (gint64) time (NULL));
