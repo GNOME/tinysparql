@@ -963,13 +963,46 @@ add_directory (TrackerIndexer *indexer,
 	check_started (indexer);
 }
 
+static gchar *
+query_property_value (TrackerIndexer *indexer,
+		      const gchar    *subject,
+		      const gchar    *predicate)
+{
+	gchar     *sparql, *result;
+	GPtrArray *sparql_result;
+
+	sparql = g_strdup_printf ("SELECT ?o WHERE { <%s> <%s> ?o }",
+	                          subject, predicate);
+
+	sparql_result = tracker_resources_sparql_query (indexer->private->client, sparql, NULL);
+
+	result = NULL;
+
+	if (sparql_result) {
+		if (sparql_result->len == 1) {
+			gchar **row;
+
+			row = sparql_result->pdata[0];
+			if (row[0] != NULL && strlen (row[0]) > 0) {
+				result = row[0];
+			}
+			g_free (row);
+		}
+		g_ptr_array_free (sparql_result, TRUE);
+	}
+
+	g_free (sparql);
+
+	return result;
+}
+
 static void
 generate_item_thumbnail (TrackerIndexer        *indexer,
 			 const gchar           *uri)
 {
 	gchar *mime_type;
 
-	mime_type = tracker_data_query_property_value (uri, NIE_MIME_TYPE);
+	mime_type = query_property_value (indexer, uri, NIE_MIME_TYPE);
 
 	if (mime_type && tracker_config_get_enable_thumbnails (indexer->private->config)) {
 		tracker_thumbnailer_queue_file (uri, mime_type);
@@ -1101,9 +1134,10 @@ item_add_or_update (TrackerIndexer        *indexer,
 }
 
 static void
-update_file_uri_recursively (GString     *sparql_update,
-			     const gchar *source_uri,
-			     const gchar *uri)
+update_file_uri_recursively (TrackerIndexer *indexer,
+			     GString        *sparql_update,
+			     const gchar    *source_uri,
+			     const gchar    *uri)
 {
 	gchar *mime_type, *sparql;
 	TrackerDBResultSet *result_set;
@@ -1116,7 +1150,7 @@ update_file_uri_recursively (GString     *sparql_update,
 	g_string_append_printf (sparql_update, " <%s> tracker:uri <%s> .", source_uri, uri);
 
 	/* Get mime type in order to move thumbnail from thumbnailerd */
-	mime_type = tracker_data_query_property_value (source_uri, NIE_MIME_TYPE);
+	mime_type = query_property_value (indexer, source_uri, NIE_MIME_TYPE);
 
 	if (mime_type) {
 		tracker_thumbnailer_move (source_uri, mime_type, uri);
@@ -1142,7 +1176,7 @@ update_file_uri_recursively (GString     *sparql_update,
 			}
 			child_uri = g_strdup_printf ("%s%s", uri, child_source_uri + strlen (source_uri));
 
-			update_file_uri_recursively (sparql_update, child_source_uri, child_uri);
+			update_file_uri_recursively (indexer, sparql_update, child_source_uri, child_uri);
 
 			g_free (child_source_uri);
 			g_free (child_uri);
@@ -1197,7 +1231,7 @@ item_move (TrackerIndexer  *indexer,
 
 	g_string_append_printf (sparql, " <%s> nfo:fileName \"%s\" .", source_uri, escaped_filename);
 
-	update_file_uri_recursively (sparql, source_uri, uri);
+	update_file_uri_recursively (indexer, sparql, source_uri, uri);
 
 	g_string_append (sparql, " }");
 
@@ -1262,7 +1296,7 @@ item_remove (TrackerIndexer *indexer,
 	}
 
 	/* Get mime type and remove thumbnail from thumbnailerd */
-	mime_type = tracker_data_query_property_value (uri, NIE_MIME_TYPE);
+	mime_type = query_property_value (indexer, uri, NIE_MIME_TYPE);
 
 	if (mime_type) {
 		tracker_thumbnailer_remove (uri, mime_type);
