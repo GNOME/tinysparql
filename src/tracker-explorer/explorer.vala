@@ -16,6 +16,9 @@ interface Resources : GLib.Object {
 }
 
 public class HistoryItem {
+	HistoryItem (string uri) {
+		this.uri = uri;
+	}
 	public string uri;
 	public HistoryItem? next = null;
 	public HistoryItem? prev = null;
@@ -26,7 +29,7 @@ public class History {
 	private HistoryItem? current = null;
 
 	public string? current_uri() {
-		if (current) {
+		if (current != null) {
 			return current.uri;
 		} else {
 			return null;
@@ -41,20 +44,24 @@ public class History {
 		return (current != null) && (current.prev != null);
 	}
 
-	public void forward() {
+	public bool forward() {
 		if (can_go_forward()) {
 			current = current.next;
+			return true;
 		}
+		return false;
 	}
 
-	public void back() {
+	public bool back() {
 		if (can_go_back()) {
 			current = current.prev;
+			return true;
 		}
+		return false;
 	}
 
 	public void add(string uri) {
-		HistoryItem hi = new HistoryItem();
+		HistoryItem hi = new HistoryItem(uri);
 		if (current == null) {
 			items = hi;
 			current = items;
@@ -63,6 +70,8 @@ public class History {
 			hi.prev = current;
 		}
 		current = hi;
+
+		debug ("history.add current=%p, next=%p, prev=%p, uri = %s", current, current.next, current.prev, current.uri);
 	}
 }
 
@@ -76,6 +85,8 @@ public class Explorer {
 	private Label current_uri_label;
 	private Gee.HashMap<string,string> namespaces = new Gee.HashMap<string,string>(str_hash, str_equal, str_equal);
 	private Notebook types;
+	private Button forward;
+	private Button back;
 
 
 	public void show() {
@@ -128,7 +139,15 @@ public class Explorer {
 
 		types = builder.get_object ("types") as Notebook;
 
-		types.switch_page += update_types_page;
+		types.set_focus_child += update_types_page;
+
+		forward = builder.get_object("forward") as Button;
+		forward.clicked += forward_clicked;
+		forward.set_sensitive(false);
+
+		back = builder.get_object("back") as Button;
+		back.clicked += back_clicked;
+		back.set_sensitive(false);
 
 		fetch_prefixes();
 
@@ -213,16 +232,18 @@ public class Explorer {
 	private void clear_types() {
 		int npages = types.get_n_pages();
 		for (int i = 0; i < npages; i++) {
-			debug ("removeing page %d", i);
+			debug ("removing page %d", i);
 			types.remove_page (0);
 		}
 	}
 
 
-	private void update_types_page(void *page, uint _page_num) {
-
-		debug ("update_types_page: %u", _page_num);
-		int page_num = (int) _page_num;
+	private void update_types_page(Widget ?w) {
+		int page_num = types.get_current_page();
+		if (page_num < 0) {
+			return;
+		}
+		debug ("update_types_page: %d", page_num);
 		ScrolledWindow sw = types.get_nth_page(page_num) as ScrolledWindow;
 		string type = (types.get_tab_label(sw) as Label).get_text();
 
@@ -236,7 +257,7 @@ public class Explorer {
 
 			for (int i=0; i<result.length[0]; i++) {
 				var relation = subst_prefix(result[i,0]);
-				var query2 = "SELECT ?s WHERE { ?s %s <%s>}".printf(relation, current_uri);
+				var query2 = "SELECT ?s WHERE { ?s %s <%s>}".printf(relation, history.current_uri());
 				var result2 = tracker.SparqlQuery(query2);
 
 				for (int j=0; j<result2.length[0]; j++) {
@@ -256,15 +277,33 @@ public class Explorer {
 		ScrolledWindow child = new ScrolledWindow(null, null);
 		TreeView tv = setup_reverserelationships();
 		child.add(tv);
-		types.prepend_page(child, tab_label);
+		types.append_page(child, tab_label);
 		child.show_all();
 	}
 
-	private void update_pane(string uri) {
-		current_uri = uri;
-		current_uri_label.set_text (uri);
+	private void set_current_uri(string uri) {
+		history.add(uri);
+		update_pane();
+	}
+
+	private void forward_clicked() {
+		if (history.forward()) {
+			update_pane();
+		}
+	}
+
+	private void back_clicked() {
+		if (history.back()) {
+			update_pane();
+		}
+	}
+
+	private void update_pane() {
+		forward.set_sensitive(history.can_go_forward());
+		back.set_sensitive(history.can_go_back());
+		current_uri_label.set_text (history.current_uri());
 		try {
-			string query = "SELECT ?r ?o  WHERE { <%s> ?r ?o }".printf(uri);
+			string query = "SELECT ?r ?o  WHERE { <%s> ?r ?o }".printf(history.current_uri());
 			TreeIter iter;
 			var result = tracker.SparqlQuery(query);
 			relationships.clear();
@@ -281,7 +320,8 @@ public class Explorer {
 					add_type (obj);
 				}
 			}
-			update_types_page(null, 0);
+			types.set_current_page(types.get_n_pages() - 1);
+			update_types_page(null);
 
 		} catch (DBus.Error e) {
 		}
@@ -293,8 +333,7 @@ public class Explorer {
 		model.get_iter(out iter, path);
 		weak string uri;
 		model.get (iter, 0, out uri);
-		//debug ("uri selected: %s", uri);
-		update_pane(uri);
+		set_current_uri(uri);
 	}
 
 	private void row_selected(TreeView view, TreePath path, TreeViewColumn column, int index) {
@@ -303,8 +342,7 @@ public class Explorer {
 		model.get_iter(out iter, path);
 		weak string uri;
 		model.get (iter, index, out uri);
-		//debug ("object selected: %s", uri);
-		update_pane(uri);
+		set_current_uri(uri);
 	}
 
 
