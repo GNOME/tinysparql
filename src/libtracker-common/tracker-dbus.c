@@ -286,7 +286,7 @@ tracker_dbus_request_new (gint		request_id,
 	str = g_strdup_vprintf (format, args);
 	va_end (args);
 
-	g_message ("<--- [%d] %s",
+	g_debug ("<--- [%d] %s",
 		   request_id,
 		   str);
 
@@ -300,7 +300,7 @@ tracker_dbus_request_success (gint request_id)
 {
 	request_handler_call_for_done (request_id);
 
-	g_message ("---> [%d] Success, no error given",
+	g_debug ("---> [%d] Success, no error given",
 		   request_id);
 }
 
