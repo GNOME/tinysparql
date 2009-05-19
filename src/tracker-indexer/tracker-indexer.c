@@ -963,6 +963,27 @@ add_directory (TrackerIndexer *indexer,
 	check_started (indexer);
 }
 
+static gboolean
+query_resource_exists (TrackerIndexer *indexer,
+		       const gchar    *uri)
+{
+	gboolean   result;
+	gchar     *sparql;
+	GPtrArray *sparql_result;
+
+	sparql = g_strdup_printf ("SELECT ?s WHERE { ?s a rdfs:Resource . FILTER (?s = <%s>) }",
+	                          uri);
+
+	sparql_result = tracker_resources_sparql_query (indexer->private->client, sparql, NULL);
+
+	result = (sparql_result && sparql_result->len == 1);
+
+	tracker_dbus_results_ptr_array_free (&sparql_result);
+	g_free (sparql);
+
+	return result;
+}
+
 static gchar *
 query_property_value (TrackerIndexer *indexer,
 		      const gchar    *subject,
@@ -1035,20 +1056,16 @@ item_add_to_datasource (TrackerIndexer *indexer,
 		removable_device_urn = g_strdup_printf (TRACKER_DATASOURCE_URN_PREFIX "%s", 
 						        removable_device_udi);
 
-		if (!tracker_data_query_resource_exists (removable_device_urn, NULL)) {
-			tracker_module_metadata_add_string (metadata, removable_device_urn,
-							    RDF_TYPE, TRACKER_DATASOURCE);
-		}
+		tracker_module_metadata_add_string (metadata, removable_device_urn,
+						    RDF_TYPE, TRACKER_DATASOURCE);
 
 		tracker_module_metadata_add_string (metadata, uri, NIE_DATASOURCE_P,
 		                                    removable_device_urn);
 
 		g_free (removable_device_urn);
 	} else {
-		if (!tracker_data_query_resource_exists (TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN, NULL)) {
-			tracker_module_metadata_add_string (metadata, TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN, 
-							    RDF_TYPE, TRACKER_DATASOURCE);
-		}
+		tracker_module_metadata_add_string (metadata, TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN,
+						    RDF_TYPE, TRACKER_DATASOURCE);
 
 		tracker_module_metadata_add_string (metadata, uri, NIE_DATASOURCE_P,
 						    TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN);
@@ -1068,7 +1085,7 @@ item_add_or_update (TrackerIndexer        *indexer,
 		start_transaction (indexer);
 	}
 
-	if (tracker_data_query_resource_exists (uri, NULL)) {
+	if (query_resource_exists (indexer, uri)) {
 		gchar *full_sparql;
 
 		if (tracker_module_file_get_flags (info->module_file) & TRACKER_FILE_CONTENTS_STATIC) {
@@ -1190,7 +1207,6 @@ item_move (TrackerIndexer  *indexer,
 	   PathInfo	   *info,
 	   const gchar	   *source_uri)
 {
-	guint32    service_id;
 	gchar     *uri, *escaped_filename;
 	GFileInfo *file_info;
 	GString   *sparql;
@@ -1201,8 +1217,7 @@ item_move (TrackerIndexer  *indexer,
 	uri = g_file_get_uri (info->file);
 
 	/* Get 'source' ID */
-	if (!tracker_data_query_resource_exists (source_uri,
-					       &service_id)) {
+	if (!query_resource_exists (indexer, source_uri)) {
 		gboolean res;
 
 		g_message ("Source file '%s' not found in database to move, indexing '%s' from scratch", source_uri, uri);
@@ -1276,7 +1291,6 @@ item_remove (TrackerIndexer *indexer,
 {
 	gchar *mount_point = NULL;
 	gchar *mime_type;
-	guint service_id;
 	gchar *sparql;
 
 	g_debug ("Removing item: '%s' (no metadata was given by module)", 
@@ -1286,9 +1300,7 @@ item_remove (TrackerIndexer *indexer,
 		start_transaction (indexer);
 	}
 
-	tracker_data_query_resource_exists (uri, &service_id);
-
-	if (service_id < 1) {
+	if (!query_resource_exists (indexer, uri)) {
 		g_debug ("  File does not exist anyway "
 			 "(uri:'%s')",
 			 uri);
