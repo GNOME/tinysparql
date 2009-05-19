@@ -1390,7 +1390,8 @@ should_change_index_for_file (TrackerIndexer *indexer,
 			      PathInfo       *info,
 			      const gchar    *uri)
 {
-	TrackerDBResultSet *result_set;
+	gboolean            uptodate;
+	GPtrArray          *sparql_result;
 	GFileInfo          *file_info;
 	time_t              mtime;
 	struct tm           t;
@@ -1411,12 +1412,15 @@ should_change_index_for_file (TrackerIndexer *indexer,
 
 	query = g_strdup_printf ("SELECT ?file { ?file nfo:fileLastModified \"%04d-%02d-%02dT%02d:%02d:%02d\" . FILTER (?file = <%s>) }",
 	                         t.tm_year + 1900, t.tm_mon + 1, t.tm_mday, t.tm_hour, t.tm_min, t.tm_sec, uri);
-	result_set = tracker_data_query_sparql (query, NULL);
+	sparql_result = tracker_resources_sparql_query (indexer->private->client, query, NULL);
+
+	uptodate = (sparql_result && sparql_result->len == 1);
+
+	tracker_dbus_results_ptr_array_free (&sparql_result);
 	g_free (query);
 
-	if (result_set) {
+	if (uptodate) {
 		/* File already up-to-date in the database */
-		g_object_unref (result_set);
 		return FALSE;
 	}
 
