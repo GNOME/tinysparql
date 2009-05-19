@@ -28,10 +28,6 @@
 #include <unistd.h>
 
 #include "tracker-status.h"
-#include "tracker-dbus.h"
-#include "tracker-daemon.h"
-#include "tracker-main.h"
-#include "tracker-indexer-client.h"
 
 #define DISK_SPACE_CHECK_FREQUENCY 10
 
@@ -53,8 +49,6 @@ typedef struct {
 	TrackerPower  *hal;
 
 
-	DBusGProxy    *indexer_proxy;
-
 	gboolean       is_readonly;
 	gboolean       is_ready;
 	gboolean       is_running;
@@ -68,13 +62,6 @@ typedef struct {
 	gboolean       in_merge;
 } TrackerStatusPrivate;
 
-static void indexer_continued_cb    (DBusGProxy  *proxy,
-				     gpointer     user_data);
-static void indexer_paused_cb       (DBusGProxy  *proxy,
-				     const gchar *reason,
-				     gpointer     user_data);
-static void indexer_continue        (gboolean     should_block);
-static void indexer_pause           (gboolean     should_block);
 static void low_disk_space_limit_cb (GObject     *gobject,
 				     GParamSpec  *arg1,
 				     gpointer     user_data);
@@ -120,18 +107,6 @@ private_free (gpointer data)
 		g_type_class_unref (private->type_class);
 	}
 
-	dbus_g_proxy_disconnect_signal (private->indexer_proxy, "Continued",
-					G_CALLBACK (indexer_continued_cb),
-					NULL);
-	dbus_g_proxy_disconnect_signal (private->indexer_proxy, "Paused",
-					G_CALLBACK (indexer_paused_cb),
-					NULL);
-	dbus_g_proxy_disconnect_signal (private->indexer_proxy, "Finished",
-					G_CALLBACK (indexer_continued_cb),
-					NULL);
-
-	g_object_unref (private->indexer_proxy);
-
 	g_free (private);
 }
 
@@ -140,8 +115,7 @@ private_free (gpointer data)
  */
 
 static void
-indexer_recheck (gboolean should_inform_indexer,
-		 gboolean should_block,
+indexer_recheck (gboolean should_block,
 		 gboolean should_signal_small_changes)
 {
 	TrackerStatusPrivate *private;
@@ -158,24 +132,14 @@ indexer_recheck (gboolean should_inform_indexer,
 	    private->is_paused_for_unknown) {
 		/* We are paused, but our status is NOT paused? */
 		if (private->status != TRACKER_STATUS_PAUSED) {
-			if (G_LIKELY (should_inform_indexer)) {
-				/* We set state after confirmation*/
-				indexer_pause (should_block);
-			} else {
-				tracker_status_set_and_signal (TRACKER_STATUS_PAUSED);
-			}
+			tracker_status_set_and_signal (TRACKER_STATUS_PAUSED);
 			
 			return;
 		}
 	} else {
 		/* We are not paused, but our status is paused */
 		if (private->status == TRACKER_STATUS_PAUSED) {
-			if (G_LIKELY (should_inform_indexer)) {
-				/* We set state after confirmation*/
-				indexer_continue (should_block);
-			} else {
-				tracker_status_set_and_signal (private->status_before_paused);
-			}
+			tracker_status_set_and_signal (private->status_before_paused);
 
 			return;
 		}
@@ -189,105 +153,13 @@ indexer_recheck (gboolean should_inform_indexer,
 	}
 }
 
-static void
-indexer_paused_cb (DBusGProxy  *proxy,
-		   const gchar *reason,
-		   gpointer     user_data)
-{
-	g_message ("The indexer has paused");
-}
-
-static void
-indexer_continued_cb (DBusGProxy *proxy,
-		      gpointer	  user_data)
-{
-	g_message ("The indexer has continued");
-}
-
-static void
-indexer_continue_cb (DBusGProxy *proxy,
-		     GError     *error,
-		     gpointer    user_data)
-{
-	TrackerStatusPrivate *private;
-
-	private = g_static_private_get (&private_key);
-	g_return_if_fail (private != NULL);
-
-	if (G_UNLIKELY (error)) {
-		g_message ("Could not continue the indexer, %s",
-			   error->message);
-		return;
-	}
-
-	tracker_status_set_and_signal (private->status_before_paused);
-}
-
-static void
-indexer_continue (gboolean should_block)
-{
-	TrackerStatusPrivate *private;
-
-	/* NOTE: We don't need private, but we do this to check we
-	 * are initialised before calling continue.
-	 */
-	private = g_static_private_get (&private_key);
-	g_return_if_fail (private != NULL);
-
-	if (G_LIKELY (!should_block)) {
-		org_freedesktop_Tracker_Indexer_continue_async (private->indexer_proxy,
-								indexer_continue_cb,
-								NULL);
-	} else {
-		org_freedesktop_Tracker_Indexer_continue (private->indexer_proxy, 
-							  NULL);
-		tracker_status_set_and_signal (private->status_before_paused);
-	}
-}
-
-static void
-indexer_pause_cb (DBusGProxy *proxy,
-		  GError     *error,
-		  gpointer    user_data)
-{
-	if (G_UNLIKELY (error)) {
-		g_message ("Could not pause the indexer, %s",
-			   error->message);
-		return;
-	}
-	
-	tracker_status_set_and_signal (TRACKER_STATUS_PAUSED);
-}
-
-static void
-indexer_pause (gboolean should_block)
-{
-	TrackerStatusPrivate *private;
-
-	/* NOTE: We don't need private, but we do this to check we
-	 * are initialised before calling continue.
-	 */
-	private = g_static_private_get (&private_key);
-	g_return_if_fail (private != NULL);
-
-	if (G_LIKELY (!should_block)) {
-		org_freedesktop_Tracker_Indexer_pause_async (private->indexer_proxy,
-							     indexer_pause_cb,
-							     NULL);
-	} else {
-		org_freedesktop_Tracker_Indexer_pause (private->indexer_proxy, 
-						       NULL);
-		tracker_status_set_and_signal (TRACKER_STATUS_PAUSED);
-	}
-}
-
-
 static gboolean
 disk_space_check (void)
 {
 	TrackerStatusPrivate *private;
 	struct statvfs        st;
 	gint                  limit;
+	gchar                *data_dir;
 
 	private = g_static_private_get (&private_key);
 	g_return_val_if_fail (private != NULL, FALSE);
@@ -298,10 +170,17 @@ disk_space_check (void)
 		return FALSE;
 	}
 
-	if (statvfs (tracker_get_data_dir (), &st) == -1) {
-		g_warning ("Could not statvfs() '%s'", tracker_get_data_dir ());
+	data_dir = g_build_filename (g_get_user_cache_dir (),
+				     "tracker",
+				     NULL);
+
+	if (statvfs (data_dir, &st) == -1) {
+		g_warning ("Could not statvfs() '%s'", data_dir);
+		g_free (data_dir);
 		return FALSE;
 	}
+
+	g_free (data_dir);
 
 	if (((long long) st.f_bavail * 100 / st.f_blocks) <= limit) {
 		g_message ("Disk space is low");
@@ -483,7 +362,6 @@ tracker_status_init (TrackerConfig *config,
 		     TrackerPower  *hal)
 {
 	GType		      type;
-	DBusGProxy           *proxy;
 	TrackerStatusPrivate *private;
 
 	g_return_val_if_fail (TRACKER_IS_CONFIG (config), FALSE);
@@ -571,19 +449,6 @@ tracker_status_init (TrackerConfig *config,
 			      private,
 			      private_free);
 
-	/* Initialize the DBus indexer listening functions */
-	proxy = tracker_dbus_indexer_get_proxy ();
-	private->indexer_proxy = g_object_ref (proxy);
-
-	dbus_g_proxy_connect_signal (proxy, "Paused",
-				     G_CALLBACK (indexer_paused_cb),
-				     NULL,
-				     NULL);
-	dbus_g_proxy_connect_signal (proxy, "Continued",
-				     G_CALLBACK (indexer_continued_cb),
-				     NULL,
-				     NULL);
-	
 	/* Do initial disk space check, we don't start the timeout
 	 * which checks the disk space every 10 seconds here because
 	 * we might not have enough to begin with. So we do one
@@ -818,6 +683,7 @@ tracker_status_set (TrackerStatus new_status)
 void
 tracker_status_signal (void)
 {
+#if 0
 	TrackerStatusPrivate *private;
 	GObject		     *object;
 	gboolean              pause_for_io;
@@ -853,6 +719,7 @@ tracker_status_signal (void)
 			       private->is_paused_for_batt,
 			       pause_for_io,
 			       !private->is_readonly);
+#endif
 }
 
 void
@@ -1064,7 +931,7 @@ tracker_status_set_is_paused_manually (gboolean value)
 	private->is_paused_manually = value;
 
 	/* Set indexer state and our state to paused or not */ 
-	indexer_recheck (TRUE, FALSE, emit);
+	indexer_recheck (FALSE, emit);
 }
 
 gboolean
@@ -1092,7 +959,7 @@ tracker_status_set_is_paused_for_batt (gboolean value)
 	private->is_paused_for_batt = value;
 
 	/* Set indexer state and our state to paused or not */ 
-	indexer_recheck (TRUE, FALSE, emit);
+	indexer_recheck (FALSE, emit);
 }
 
 gboolean
@@ -1120,7 +987,7 @@ tracker_status_set_is_paused_for_io (gboolean value)
 	private->is_paused_for_io = value;
 
 	/* Set indexer state and our state to paused or not */ 
-	indexer_recheck (TRUE, FALSE, emit);
+	indexer_recheck (FALSE, emit);
 }
 
 gboolean
@@ -1148,7 +1015,7 @@ tracker_status_set_is_paused_for_space (gboolean value)
 	private->is_paused_for_space = value;
 
 	/* Set indexer state and our state to paused or not */ 
-	indexer_recheck (TRUE, FALSE, emit);
+	indexer_recheck (FALSE, emit);
 }
 
 gboolean
@@ -1176,6 +1043,6 @@ tracker_status_set_is_paused_for_dbus (gboolean value)
 	private->is_paused_for_dbus = value;
 
 	/* Set indexer state and our state to paused or not */ 
-	indexer_recheck (TRUE, TRUE, emit);
+	indexer_recheck (TRUE, emit);
 }
 

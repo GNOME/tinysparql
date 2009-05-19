@@ -22,6 +22,7 @@
 #include "config.h"
 
 #include <string.h>
+#include <gio/gio.h>
 
 #include <libtracker-common/tracker-dbus.h>
 #include <libtracker-common/tracker-log.h>

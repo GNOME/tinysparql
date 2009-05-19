@@ -16,28 +16,6 @@
       <arg type="s" name="file" direction="in" />
     </method>
 
-    <method name="FilesCheck">
-      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
-      <arg type="s" name="module" direction="in" />
-      <arg type="as" name="files" direction="in" />
-    </method>
-    <method name="FilesUpdate">
-      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
-      <arg type="s" name="module" direction="in" />
-      <arg type="as" name="files" direction="in" />
-    </method>
-    <method name="FilesDelete">
-      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
-      <arg type="s" name="module" direction="in" />
-      <arg type="as" name="files" direction="in" />
-    </method>
-    <method name="FileMove">
-      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
-      <arg type="s" name="module" direction="in" />
-      <arg type="s" name="file_from" direction="in" />
-      <arg type="s" name="file_to" direction="in" />
-    </method>
-
     <method name="VolumeDisableAll">
       <annotation name="org.freedesktop.DBus.GLib.Async"
       value="true"/>

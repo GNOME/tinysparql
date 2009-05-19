@@ -26,8 +26,6 @@
 
 #include <libtracker-common/tracker-config.h>
 
-#include "tracker-processor.h"
-
 #define TRACKER_DAEMON_SERVICE	       "org.freedesktop.Tracker"
 #define TRACKER_DAEMON_PATH	       "/org/freedesktop/Tracker"
 #define TRACKER_DAEMON_INTERFACE       "org.freedesktop.Tracker"
@@ -53,8 +51,7 @@ struct TrackerDaemonClass {
 };
 
 GType	       tracker_daemon_get_type		   (void);
-TrackerDaemon *tracker_daemon_new		   (TrackerConfig	  *config,
-						    TrackerProcessor	  *processor);
+TrackerDaemon *tracker_daemon_new		   (TrackerConfig	  *config);
 void	       tracker_daemon_get_version	   (TrackerDaemon	  *object,
 						    DBusGMethodInvocation *context,
 						    GError **error);

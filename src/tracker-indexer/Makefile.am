@@ -19,6 +19,10 @@ INCLUDES =								\
 	$(GCOV_CFLAGS)							\
 	$(RAPTOR_CFLAGS)
 
+if HAVE_INOTIFY
+inotify_libs = $(top_builddir)/src/libinotify/libinotify.la
+endif
+
 libtracker_moduledir = $(libdir)/tracker-$(TRACKER_API_VERSION)
 libtracker_moduleincludedir=$(includedir)/tracker-$(TRACKER_API_VERSION)/libtracker-module/
 libtracker_module_LTLIBRARIES = libtracker-module.la
@@ -43,6 +47,8 @@ libexec_PROGRAMS = tracker-indexer
 
 tracker_indexer_SOURCES =						\
 	tracker-dbus.h							\
+	tracker-crawler.c						\
+	tracker-crawler.h						\
 	tracker-indexer.c						\
 	tracker-indexer.h						\
 	tracker-indexer-module.c					\
@@ -50,6 +56,10 @@ tracker_indexer_SOURCES =						\
 	tracker-main.c							\
 	tracker-module-metadata-private.h				\
 	tracker-marshal-main.c						\
+	tracker-monitor.c						\
+	tracker-monitor.h						\
+	tracker-processor.c						\
+	tracker-processor.h						\
 	tracker-removable-device.c					\
 	tracker-removable-device.h					
 
@@ -62,6 +72,7 @@ tracker_indexer_LDADD =							\
 	$(top_builddir)/src/libtracker/libtrackerclient-@TRACKER_API_VERSION@.la \
 	$(top_builddir)/src/libstemmer/libstemmer.la	 		\
 	$(tracker_store_win_libs)						\
+	$(inotify_libs)							\
 	$(DBUS_LIBS)							\
 	$(GMODULE_LIBS)							\
 	$(GTHREAD_LIBS)							\

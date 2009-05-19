@@ -21,10 +21,6 @@ INCLUDES =								\
 	$(SQLITE3_CFLAGS)						\
 	$(RAPTOR_CFLAGS)
 
-if HAVE_INOTIFY
-inotify_libs = $(top_builddir)/src/libinotify/libinotify.la
-endif
-
 #
 # Daemon sources
 #
@@ -33,27 +29,19 @@ libexec_PROGRAMS = tracker-store
 tracker_store_SOURCES =							\
 	tracker-backup.h						\
 	tracker-backup.c						\
-	tracker-crawler.c						\
-	tracker-crawler.h						\
 	tracker-daemon.c						\
 	tracker-daemon.h						\
 	tracker-dbus.c							\
 	tracker-dbus.h							\
 	tracker-events.c						\
 	tracker-events.h						\
-	tracker-processor.c						\
-	tracker-processor.h						\
 	tracker-main.c							\
 	tracker-main.h							\
 	tracker-marshal-main.c						\
-	tracker-monitor.c						\
-	tracker-monitor.h						\
 	tracker-resources.c						\
 	tracker-resources.h						\
 	tracker-search.c						\
 	tracker-search.h						\
-	tracker-status.c						\
-	tracker-status.h						\
 	tracker-utils.c							\
 	tracker-utils.h							\
 	tracker-volume-cleanup.c					\
@@ -75,9 +63,7 @@ tracker_store_LDADD =							\
 	$(top_builddir)/src/libtracker-db/libtracker-db.la 		\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
 	$(top_builddir)/src/libstemmer/libstemmer.la	 		\
-	$(inotify_libs)							\
 	$(GMIME_LIBS)							\
-	$(FAM_LIBS)							\
 	$(SQLITE3_LIBS)							\
 	$(DBUS_LIBS)							\
 	$(PANGO_LIBS)							\

@@ -52,6 +52,7 @@ libtracker_common_la_SOURCES =	 			\
 	tracker-parser.c				\
 	tracker-property.c				\
 	tracker-statement-list.c			\
+	tracker-status.c				\
 	tracker-type-utils.c				\
 	tracker-utils.c					\
 	tracker-thumbnailer.c				\
@@ -79,6 +80,7 @@ libtracker_commoninclude_HEADERS =			\
 	tracker-parser.h				\
 	tracker-property.h				\
 	tracker-statement-list.h			\
+	tracker-status.h				\
 	tracker-type-utils.h				\
 	tracker-utils.h
 

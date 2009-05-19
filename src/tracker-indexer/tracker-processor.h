@@ -27,6 +27,8 @@
 #include <libtracker-common/tracker-config.h>
 #include <libtracker-common/tracker-storage.h>
 
+#include "tracker-indexer.h"
+
 G_BEGIN_DECLS
 
 #define TRACKER_TYPE_PROCESSOR	       (tracker_processor_get_type())
@@ -54,7 +56,8 @@ struct TrackerProcessorClass {
 GType		  tracker_processor_get_type		    (void) G_GNUC_CONST;
 
 TrackerProcessor *tracker_processor_new			    (TrackerConfig    *config,
-							     TrackerStorage   *hal);
+							     TrackerStorage   *hal,
+							     TrackerIndexer   *indexer);
 void		  tracker_processor_start		    (TrackerProcessor *processor);
 void		  tracker_processor_stop		    (TrackerProcessor *processor);
 

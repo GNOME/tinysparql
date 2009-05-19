@@ -67,6 +67,7 @@
 #include <libtracker-common/tracker-parser.h>
 #include <libtracker-common/tracker-ontology.h>
 #include <libtracker-common/tracker-module-config.h>
+#include <libtracker-common/tracker-status.h>
 #include <libtracker-common/tracker-utils.h>
 #include <libtracker-common/tracker-thumbnailer.h>
 
@@ -84,6 +85,7 @@
 #include "tracker-indexer-module.h"
 #include "tracker-marshal.h"
 #include "tracker-module-metadata-private.h"
+#include "tracker-processor.h"
 #include "tracker-removable-device.h"
 
 #define TRACKER_INDEXER_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_INDEXER, TrackerIndexerPrivate))
@@ -140,6 +142,8 @@ struct TrackerIndexerPrivate {
 
 	TrackerPower   *hal_power;
 	TrackerStorage *hal_storage;
+
+	TrackerProcessor *processor;
 
 	TrackerClient *client;
 
@@ -576,6 +580,10 @@ tracker_indexer_finalize (GObject *object)
 	g_object_unref (priv->hal_storage);
 #endif /* HAVE_HAL */
 
+	if (priv->processor) {
+		g_object_unref (priv->processor);
+	}
+
 	if (priv->client) {
 		tracker_disconnect (priv->client);
 	}
@@ -878,10 +886,29 @@ tracker_indexer_load_modules (TrackerIndexer *indexer)
 	g_list_free (modules);
 }
 
+static gboolean
+start_cb (gpointer user_data)
+{
+	TrackerIndexer        *indexer;
+
+	if (!tracker_status_get_is_ready ()) {
+		return FALSE;
+	}
+
+	indexer = TRACKER_INDEXER (user_data);
+
+	if (indexer->private->processor) {
+		tracker_processor_start (indexer->private->processor);
+	}
+
+	return FALSE;
+}
+
 static void
 tracker_indexer_init (TrackerIndexer *indexer)
 {
 	TrackerIndexerPrivate *priv;
+	gint seconds;
 
 	priv = indexer->private = TRACKER_INDEXER_GET_PRIVATE (indexer);
 
@@ -915,6 +942,20 @@ tracker_indexer_init (TrackerIndexer *indexer)
 	set_up_throttle (indexer);
 #endif /* HAVE_HAL */
 
+	tracker_status_init (priv->config, priv->hal_power);
+
+	/* Set our status as running, if this is FALSE, threads stop
+	 * doing what they do and shutdown.
+	 */
+	tracker_status_set_is_ready (TRUE);
+
+	/* We set the state here because it is not set in the
+	 * processor otherwise.
+	 */
+	tracker_status_set_and_signal (TRACKER_STATUS_IDLE);
+
+	priv->processor = tracker_processor_new (priv->config, priv->hal_storage, indexer);
+
 	priv->language = tracker_language_new (priv->config);
 
 	priv->db_dir = g_build_filename (g_get_user_cache_dir (),
@@ -930,6 +971,16 @@ tracker_indexer_init (TrackerIndexer *indexer)
 
 	/* Set up idle handler to process files/directories */
 	state_check (indexer);
+
+	seconds = tracker_config_get_initial_sleep (priv->config);
+
+	if (seconds > 0) {
+		g_message ("Waiting %d seconds before starting",
+		           seconds);
+		g_timeout_add_seconds (seconds, start_cb, indexer);
+	} else {
+		g_idle_add (start_cb, indexer);
+	}
 }
 
 static void
@@ -2070,35 +2121,15 @@ tracker_indexer_turtle_add (TrackerIndexer *indexer,
 void
 tracker_indexer_files_check (TrackerIndexer *indexer,
 			     const gchar *module_name,
-			     GStrv files,
-			     DBusGMethodInvocation *context,
-			     GError **error)
+			     GStrv files)
 {
 	TrackerIndexerModule *module;
-	guint request_id;
 	gint i;
-	GError *actual_error = NULL;
 
-	request_id = tracker_dbus_get_next_request_id ();
-
-	tracker_dbus_async_return_if_fail (TRACKER_IS_INDEXER (indexer), context);
-	tracker_dbus_async_return_if_fail (files != NULL, context);
-
-	tracker_dbus_request_new (request_id,
-				  "DBus request to check %d files",
-				  g_strv_length (files));
+	g_return_if_fail (TRACKER_IS_INDEXER (indexer));
+	g_return_if_fail (files != NULL);
 
 	module = g_hash_table_lookup (indexer->private->indexer_modules, module_name);
-
-	if (!module) {
-		tracker_dbus_request_failed (request_id,
-					     &actual_error,
-					     "The module '%s' is not loaded",
-					     module_name);
-		dbus_g_method_return_error (context, actual_error);
-		g_error_free (actual_error);
-		return;
-	}
 
 	/* Add files to the queue */
 	for (i = 0; files[i]; i++) {
@@ -2111,70 +2142,23 @@ tracker_indexer_files_check (TrackerIndexer *indexer,
 
 		g_object_unref (file);
 	}
-
-	dbus_g_method_return (context);
-	tracker_dbus_request_success (request_id);
-}
-
-/* FIXME: Should get rid of this DBus method */
-void
-tracker_indexer_files_update (TrackerIndexer *indexer,
-			      const gchar *module_name,
-			      GStrv files,
-			      DBusGMethodInvocation *context,
-			      GError **error)
-{
-	tracker_indexer_files_check (indexer, module_name,
-				     files, context, error);
-}
-
-/* FIXME: Should get rid of this DBus method */
-void
-tracker_indexer_files_delete (TrackerIndexer *indexer,
-			      const gchar *module_name,
-			      GStrv files,
-			      DBusGMethodInvocation *context,
-			      GError **error)
-{
-	tracker_indexer_files_check (indexer, module_name,
-				     files, context, error);
 }
 
 void
 tracker_indexer_file_move (TrackerIndexer	  *indexer,
 			   const gchar		  *module_name,
-			   gchar		  *from,
-			   gchar		  *to,
-			   DBusGMethodInvocation  *context,
-			   GError		 **error)
+			   const gchar		  *from,
+			   const gchar		  *to)
 {
 	TrackerIndexerModule *module;
-	guint request_id;
-	GError *actual_error;
 	PathInfo *info;
 	GFile *file_from, *file_to;
 
-	request_id = tracker_dbus_get_next_request_id ();
-
-	tracker_dbus_async_return_if_fail (TRACKER_IS_INDEXER (indexer), context);
-	tracker_dbus_async_return_if_fail (from != NULL, context);
-	tracker_dbus_async_return_if_fail (to != NULL, context);
-
-	tracker_dbus_request_new (request_id,
-				  "DBus request to move '%s' to '%s'",
-				  from, to);
+	g_return_if_fail (TRACKER_IS_INDEXER (indexer));
+	g_return_if_fail (from != NULL);
+	g_return_if_fail (to != NULL);
 
 	module = g_hash_table_lookup (indexer->private->indexer_modules, module_name);
-
-	if (!module) {
-		tracker_dbus_request_failed (request_id,
-					     &actual_error,
-					     "The module '%s' is not loaded",
-					     module_name);
-		dbus_g_method_return_error (context, actual_error);
-		g_error_free (actual_error);
-		return;
-	}
 
 	file_from = g_file_new_for_path (from);
 	file_to = g_file_new_for_path (to);
@@ -2182,9 +2166,6 @@ tracker_indexer_file_move (TrackerIndexer	  *indexer,
 	/* Add files to the queue */
 	info = path_info_new (module, file_to, file_from, TRUE);
 	add_file (indexer, info);
-
-	dbus_g_method_return (context);
-	tracker_dbus_request_success (request_id);
 
 	g_object_unref (file_from);
 	g_object_unref (file_to);

@@ -109,25 +109,11 @@ void		tracker_indexer_turtle_add	   (TrackerIndexer *indexer,
 						    GError **error);
 void            tracker_indexer_files_check         (TrackerIndexer         *indexer,
 						     const gchar            *module,
-						     GStrv                   files,
-						     DBusGMethodInvocation  *context,
-						     GError                **error);
-void            tracker_indexer_files_update        (TrackerIndexer         *indexer,
-						     const gchar            *module,
-						     GStrv                   files,
-						     DBusGMethodInvocation  *context,
-						     GError                **error);
-void            tracker_indexer_files_delete        (TrackerIndexer         *indexer,
-						     const gchar            *module,
-						     GStrv                   files,
-						     DBusGMethodInvocation  *context,
-						     GError                **error);
+						     GStrv                   files);
 void            tracker_indexer_file_move           (TrackerIndexer         *indexer,
 						     const gchar            *module_name,
-						     gchar                  *from,
-						     gchar                  *to,
-						     DBusGMethodInvocation  *context,
-						     GError                **error);
+						     const gchar            *from,
+						     const gchar            *to);
 void            tracker_indexer_volume_disable_all  (TrackerIndexer         *indexer,
 						     DBusGMethodInvocation  *context,
 						     GError                **error);

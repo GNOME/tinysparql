@@ -52,6 +52,7 @@
 #include <libtracker-common/tracker-module-config.h>
 #include <libtracker-common/tracker-nfs-lock.h>
 #include <libtracker-common/tracker-ontology.h>
+#include <libtracker-common/tracker-status.h>
 #include <libtracker-common/tracker-thumbnailer.h>
 
 #include <libtracker-db/tracker-db-manager.h>
@@ -64,14 +65,10 @@
 
 #include <tracker-push.h>
 
-#include "tracker-crawler.h"
 #include "tracker-dbus.h"
 #include "tracker-events.h"
 #include "tracker-indexer-client.h"
 #include "tracker-main.h"
-#include "tracker-monitor.h"
-#include "tracker-processor.h"
-#include "tracker-status.h"
 #include "tracker-volume-cleanup.h"
 #include "tracker-backup.h"
 #include "tracker-daemon.h"
@@ -113,8 +110,6 @@ typedef struct {
 	
 	gboolean	  reindex_on_shutdown;
 	gboolean          shutdown;
-
-	TrackerProcessor *processor;
 } TrackerMainPrivate;
 
 /* Private */
@@ -192,10 +187,6 @@ private_free (gpointer data)
 	TrackerMainPrivate *private;
 
 	private = data;
-
-	if (private->processor) {
-		g_object_unref (private->processor);
-	}
 
 	g_free (private->sys_tmp_dir);
 	g_free (private->user_data_dir);
@@ -689,62 +680,6 @@ backup_user_metadata (TrackerConfig *config, TrackerLanguage *language)
 }
 #endif
 
-/*
- * TODO: Ugly hack counting signals because the indexer is sending two "Finished" signals
- *  and only the second really mean "finished processing modules".
- *
- * Saving the last backup file to help with debugging.
- */
-static void
-crawling_finished_cb (TrackerProcessor *processor, 
-		      gpointer          user_data)
-{
-	GError *error = NULL;
-	gulong *callback_id;
-	static gint counter = 0;
-	
-	callback_id = user_data;
-
-	if (++counter >= 2) {
-		gchar *rebackup;
-
-		g_debug ("Uninstalling initial crawling callback");
-		g_signal_handler_disconnect (processor, *callback_id);
-
-		if (g_file_test (get_ttl_backup_filename (), G_FILE_TEST_EXISTS)) {
-			org_freedesktop_Tracker_Indexer_restore_backup (tracker_dbus_indexer_get_proxy (),
-									get_ttl_backup_filename (),
-									&error);
-
-			if (error) {
-				g_message ("Could not restore backup, %s",
-					   error->message);
-				g_error_free (error);
-				return;
-			}
-
-			rebackup = g_strdup_printf ("%s.old",
-						    get_ttl_backup_filename ());
-			g_rename (get_ttl_backup_filename (), rebackup);
-			g_free (rebackup);
-		}
-
-	} else {
-		g_debug ("%d finished signal", counter);
-	}
-}
-
-static void
-backup_restore_on_crawling_finished (TrackerProcessor *processor)
-{
-	static gulong restore_cb_id = 0;
-
-	g_debug ("Setting callback for crawling finish detection");
-	restore_cb_id = g_signal_connect (processor, "finished", 
-					  G_CALLBACK (crawling_finished_cb), 
-					  &restore_cb_id);
-}
-
 #ifdef HAVE_HAL
 
 static void
@@ -799,25 +734,6 @@ set_up_mount_points (TrackerStorage *hal)
 }
 
 #endif /* HAVE_HAL */
-
-static gboolean
-start_cb (gpointer user_data)
-{
-	TrackerMainPrivate *private;
-
-	if (!tracker_status_get_is_ready ()) {
-		return FALSE;
-	}
-
-	private = g_static_private_get (&private_key);
-
-	if (private->processor) {
-		tracker_processor_start (private->processor);
-	}
-
-	return FALSE;
-}
-
 
 static GStrv
 tracker_daemon_get_notifiable_classes (void)
@@ -1041,12 +957,9 @@ main (gint argc, gchar *argv[])
 	set_up_mount_points (hal_storage);
 #endif /* HAVE_HAL */
 
-	private->processor = tracker_processor_new (config, hal_storage);
-
 	/* Make Tracker available for introspection */
 	if (!tracker_dbus_register_objects (config,
-					    language,
-					    private->processor)) {
+					    language)) {
 		return EXIT_FAILURE;
 	}
 
@@ -1060,30 +973,10 @@ main (gint argc, gchar *argv[])
 	 */
 	tracker_status_set_is_ready (TRUE);
 
-	if (!tracker_status_get_is_readonly ()) {
-		gint seconds;
-
-		seconds = tracker_config_get_initial_sleep (config);
-
-		if (seconds > 0) {
-			g_message ("Waiting %d seconds before starting",
-				   seconds);
-			g_timeout_add_seconds (seconds, start_cb, NULL);
-		} else {
-			g_idle_add (start_cb, NULL);
-		}
-	} else {
-		/* We set the state here because it is not set in the
-		 * processor otherwise.
-		 */
-		g_message ("Running in read-only mode, not starting crawler/indexing");
-		tracker_status_set_and_signal (TRACKER_STATUS_IDLE);
-	}
-
-	if (flags & TRACKER_DB_MANAGER_FORCE_REINDEX ||
-	    g_file_test (get_ttl_backup_filename (), G_FILE_TEST_EXISTS)) {
-		backup_restore_on_crawling_finished (private->processor);
-	}
+	/* We set the state here because it is not set in the
+	 * processor otherwise.
+	 */
+	tracker_status_set_and_signal (TRACKER_STATUS_IDLE);
 
 	if (!private->shutdown && tracker_status_get_is_ready ()) {
 		private->main_loop = g_main_loop_new (NULL, FALSE);
@@ -1100,14 +993,6 @@ main (gint argc, gchar *argv[])
 	g_timeout_add_full (G_PRIORITY_LOW, 5000, shutdown_timeout_cb, NULL, NULL);
 
 	g_message ("Cleaning up");
-	if (private->processor) {
-		/* We do this instead of let the private data free
-		 * itself later so we can clean up references to this
-		 * elsewhere.
-		 */
-		g_object_unref (private->processor);
-		private->processor = NULL;
-	}
 
 	shutdown_databases ();
 	shutdown_directories ();
@@ -1159,10 +1044,6 @@ tracker_shutdown (void)
 	if (private) {
 		if (tracker_status_is_initialized ()) {
 			tracker_status_set_is_ready (FALSE);
-		}
-
-		if (private->processor) {
-			tracker_processor_stop (private->processor);
 		}
 
 		if (private->main_loop) {

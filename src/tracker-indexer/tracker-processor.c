@@ -27,17 +27,15 @@
 #include <libtracker-common/tracker-storage.h>
 #include <libtracker-common/tracker-module-config.h>
 #include <libtracker-common/tracker-utils.h>
+#include <libtracker-common/tracker-status.h>
 
 #include <libtracker-db/tracker-db-manager.h>
 
 #include "tracker-processor.h"
 #include "tracker-crawler.h"
-#include "tracker-daemon.h"
 #include "tracker-dbus.h"
-#include "tracker-indexer-client.h"
-#include "tracker-main.h"
+#include "tracker-indexer.h"
 #include "tracker-monitor.h"
-#include "tracker-status.h"
 
 #define TRACKER_PROCESSOR_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_PROCESSOR, TrackerProcessorPrivate))
 
@@ -59,7 +57,7 @@ struct TrackerProcessorPrivate {
 	TrackerStorage *hal;
 	TrackerMonitor *monitor;
 
-	DBusGProxy     *indexer_proxy;
+	TrackerIndexer *indexer;
 
 	/* Crawlers */
 	GHashTable     *crawlers;
@@ -111,14 +109,14 @@ static void tracker_processor_finalize	    (GObject	      *object);
 static void crawler_destroy_notify	    (gpointer	       data);
 static void item_queue_destroy_notify	    (gpointer	       data);
 static void process_module_next		    (TrackerProcessor *processor);
-static void indexer_status_cb		    (DBusGProxy       *proxy,
+static void indexer_status_cb		    (TrackerIndexer   *indexer,
 					     gdouble	       seconds_elapsed,
 					     const gchar      *current_module_name,
 					     guint             items_processed,
 					     guint	       items_indexed,
 					     guint	       items_remaining,
 					     gpointer	       user_data);
-static void indexer_finished_cb		    (DBusGProxy       *proxy,
+static void indexer_finished_cb		    (TrackerIndexer   *indexer,
 					     gdouble	       seconds_elapsed,
 					     guint             items_processed,
 					     guint	       items_indexed,
@@ -298,13 +296,12 @@ tracker_processor_finalize (GObject *object)
 
 	g_list_free (priv->modules);
 
-	dbus_g_proxy_disconnect_signal (priv->indexer_proxy, "Finished",
-					G_CALLBACK (indexer_finished_cb),
-					NULL);
-	dbus_g_proxy_disconnect_signal (priv->indexer_proxy, "Status",
-					G_CALLBACK (indexer_status_cb),
-					NULL);
-	g_object_unref (priv->indexer_proxy);
+	g_signal_handlers_disconnect_by_func (priv->indexer,
+					      G_CALLBACK (indexer_finished_cb),
+					      NULL);
+	g_signal_handlers_disconnect_by_func (priv->indexer,
+					      G_CALLBACK (indexer_status_cb),
+					      NULL);
 
 	g_signal_handlers_disconnect_by_func (priv->monitor,
 					      G_CALLBACK (monitor_item_deleted_cb),
@@ -520,63 +517,9 @@ item_queue_destroy_notify (gpointer data)
 }
 
 static void
-item_queue_readd_items (GQueue *queue,
-			GStrv	strv)
+item_queue_processed_cb (TrackerProcessor *processor)
 {
-	if (queue) {
-		GStrv p;
-		gint  i;
-
-		for (p = strv, i = 0; *p; p++, i++) {
-			g_queue_push_nth (queue, g_file_new_for_path (*p), i);
-		}
-	}
-}
-
-static void
-item_queue_processed_cb (DBusGProxy *proxy,
-			 GError     *error,
-			 gpointer    user_data)
-{
-	TrackerProcessor *processor;
-
-	processor = user_data;
-
-	if (error) {
-		GQueue *queue;
-
-		g_message ("Items could not be processed by the indexer, %s",
-			   error->message);
-		g_error_free (error);
-
-		/* Put files back into queue */
-		switch (processor->private->sent_type) {
-		case SENT_TYPE_CREATED:
-			queue = g_hash_table_lookup (processor->private->items_created_queues,
-						     processor->private->sent_module_name);
-			break;
-		case SENT_TYPE_UPDATED:
-			queue = g_hash_table_lookup (processor->private->items_updated_queues,
-						     processor->private->sent_module_name);
-			break;
-		case SENT_TYPE_DELETED:
-			queue = g_hash_table_lookup (processor->private->items_deleted_queues,
-						     processor->private->sent_module_name);
-			break;
-		case SENT_TYPE_MOVED:
-			queue = g_hash_table_lookup (processor->private->items_moved_queues,
-						     processor->private->sent_module_name);
-			break;
-		case SENT_TYPE_NONE:
-		default:
-			queue = NULL;
-			break;
-		}
-
-		item_queue_readd_items (queue, processor->private->sent_items);
-	} else {
-		g_debug ("Sent!");
-	}
+	g_debug ("Sent!");
 
 	g_strfreev (processor->private->sent_items);
 
@@ -630,11 +573,10 @@ item_queue_handlers_cb (gpointer user_data)
 		processor->private->sent_module_name = module_name;
 		processor->private->sent_items = files;
 
-		org_freedesktop_Tracker_Indexer_files_delete_async (processor->private->indexer_proxy,
-								    module_name,
-								    (const gchar **) files,
-								    item_queue_processed_cb,
-								    processor);
+		tracker_indexer_files_check (processor->private->indexer,
+					     module_name,
+					     files);
+		item_queue_processed_cb (processor);
 
 		return TRUE;
 	}
@@ -658,11 +600,10 @@ item_queue_handlers_cb (gpointer user_data)
 		processor->private->sent_module_name = module_name;
 		processor->private->sent_items = files;
 
-		org_freedesktop_Tracker_Indexer_files_check_async (processor->private->indexer_proxy,
-								   module_name,
-								   (const gchar **) files,
-								   item_queue_processed_cb,
-								   processor);
+		tracker_indexer_files_check (processor->private->indexer,
+					     module_name,
+					     files);
+		item_queue_processed_cb (processor);
 
 		return TRUE;
 	}
@@ -686,11 +627,10 @@ item_queue_handlers_cb (gpointer user_data)
 		processor->private->sent_module_name = module_name;
 		processor->private->sent_items = files;
 
-		org_freedesktop_Tracker_Indexer_files_update_async (processor->private->indexer_proxy,
-								    module_name,
-								    (const gchar **) files,
-								    item_queue_processed_cb,
-								    processor);
+		tracker_indexer_files_check (processor->private->indexer,
+					     module_name,
+					     files);
+		item_queue_processed_cb (processor);
 
 		return TRUE;
 	}
@@ -725,12 +665,11 @@ item_queue_handlers_cb (gpointer user_data)
 		processor->private->sent_module_name = module_name;
 		processor->private->sent_items = files;
 
-		org_freedesktop_Tracker_Indexer_file_move_async (processor->private->indexer_proxy,
-								 module_name,
-								 source,
-								 target,
-								 item_queue_processed_cb,
-								 processor);
+		tracker_indexer_file_move (processor->private->indexer,
+					   module_name,
+					   source,
+					   target);
+		item_queue_processed_cb (processor);
 
 		return TRUE;
 	}
@@ -1078,7 +1017,7 @@ process_module_next (TrackerProcessor *processor)
 }
 
 static void
-indexer_status_cb (DBusGProxy  *proxy,
+indexer_status_cb (TrackerIndexer *indexer,
 		   gdouble	seconds_elapsed,
 		   const gchar *current_module_name,
 		   guint        items_processed,
@@ -1087,9 +1026,6 @@ indexer_status_cb (DBusGProxy  *proxy,
 		   gpointer	user_data)
 {
 	TrackerProcessor *processor;
-	GQueue		 *queue;
-	GFile		 *file;
-	gchar		 *path = NULL;
 	gchar		 *str1;
 	gchar		 *str2;
 
@@ -1105,23 +1041,6 @@ indexer_status_cb (DBusGProxy  *proxy,
 	    current_module_name[0] == '\0') {
 		return;
 	}
-
-	/* Signal to any applications */
-	queue = g_hash_table_lookup (processor->private->items_created_queues, current_module_name);
-	file = g_queue_peek_tail (queue);
-	if (file) {
-		path = g_file_get_path (file);
-	}
-
-	g_signal_emit_by_name (tracker_dbus_get_object (TRACKER_TYPE_DAEMON),
-			       "index-progress",
-			       tracker_module_config_get_index_service (current_module_name),
-			       path ? path : "",
-			       items_processed,
-			       items_remaining,
-			       items_processed + items_remaining,
-			       seconds_elapsed);
-	g_free (path);
 
 	/* Message to the console about state */
 	str1 = tracker_seconds_estimate_to_string (seconds_elapsed,
@@ -1143,7 +1062,7 @@ indexer_status_cb (DBusGProxy  *proxy,
 }
 
 static void
-indexer_finished_cb (DBusGProxy  *proxy,
+indexer_finished_cb (TrackerIndexer *indexer,
 		     gdouble	  seconds_elapsed,
 		     guint        items_processed,
 		     guint	  items_indexed,
@@ -1151,25 +1070,13 @@ indexer_finished_cb (DBusGProxy  *proxy,
 		     gpointer	  user_data)
 {
 	TrackerProcessor *processor;
-	GObject		 *object;
 	gchar		 *str;
 
 	processor = user_data;
-	object = tracker_dbus_get_object (TRACKER_TYPE_DAEMON);
 
 	processor->private->items_done = items_processed;
 	processor->private->items_remaining = 0;
 	processor->private->seconds_elapsed = seconds_elapsed;
-
-	/* Signal to any applications */
-	g_signal_emit_by_name (object,
-			       "index-progress",
-			       "", /* Service */
-			       "", /* Path */
-			       items_processed,
-			       0,
-			       items_processed,
-			       seconds_elapsed);
 
 	/* Message to the console about state */
 	str = tracker_seconds_to_string (seconds_elapsed, FALSE);
@@ -1186,11 +1093,6 @@ indexer_finished_cb (DBusGProxy  *proxy,
 
 	/* Now the indexer is done, we can signal our status as IDLE */
 	tracker_status_set_and_signal (TRACKER_STATUS_IDLE);
-
-	/* Signal to the applet we are finished */
-	g_signal_emit_by_name (object,
-			       "index-finished",
-			       seconds_elapsed);
 
 	/* Signal the processor is now finished */
 	processor->private->finished = TRUE;
@@ -1598,12 +1500,12 @@ mount_point_removed_cb (TrackerStorage  *hal,
 
 TrackerProcessor *
 tracker_processor_new (TrackerConfig  *config,
-		       TrackerStorage *hal)
+		       TrackerStorage *hal,
+		       TrackerIndexer *indexer)
 {
 	TrackerProcessor	*processor;
 	TrackerProcessorPrivate *priv;
 	TrackerCrawler		*crawler;
-	DBusGProxy		*proxy;
 	GList			*l;
 
 	g_return_val_if_fail (TRACKER_IS_CONFIG (config), NULL);
@@ -1616,6 +1518,8 @@ tracker_processor_new (TrackerConfig  *config,
 
 	processor = g_object_new (TRACKER_TYPE_PROCESSOR, NULL);
 	priv = processor->private;
+
+	priv->indexer = indexer;
 
 	/* Set up config */
 	priv->config = g_object_ref (config);
@@ -1674,20 +1578,16 @@ tracker_processor_new (TrackerConfig  *config,
 			  G_CALLBACK (monitor_item_moved_cb),
 			  processor);
 
-	/* Set up the indexer proxy and signalling to know when we are
+	/* Set up the indexer and signalling to know when we are
 	 * finished.
 	 */
-	proxy = tracker_dbus_indexer_get_proxy ();
-	priv->indexer_proxy = g_object_ref (proxy);
 
-	dbus_g_proxy_connect_signal (proxy, "Status",
-				     G_CALLBACK (indexer_status_cb),
-				     processor,
-				     NULL);
-	dbus_g_proxy_connect_signal (proxy, "Finished",
-				     G_CALLBACK (indexer_finished_cb),
-				     processor,
-				     NULL);
+	g_signal_connect (priv->indexer, "status",
+			  G_CALLBACK (indexer_status_cb),
+			  processor);
+	g_signal_connect (priv->indexer, "finished",
+			  G_CALLBACK (indexer_finished_cb),
+			  processor);
 
 	return processor;
 }

@@ -26,6 +26,7 @@
 #include <libtracker-common/tracker-log.h>
 #include <libtracker-common/tracker-utils.h>
 #include <libtracker-common/tracker-ontology.h>
+#include <libtracker-common/tracker-status.h>
 
 #include <libtracker-db/tracker-db-dbus.h>
 #include <libtracker-db/tracker-db-manager.h>
@@ -47,7 +48,6 @@
 #include "tracker-indexer-client.h"
 #include "tracker-utils.h"
 #include "tracker-marshal.h"
-#include "tracker-status.h"
 #include "tracker-main.h"
 
 #define TRACKER_INDEXER_SERVICE   "org.freedesktop.Tracker.Indexer"
@@ -232,8 +232,7 @@ tracker_dbus_shutdown (void)
 
 gboolean
 tracker_dbus_register_objects (TrackerConfig	*config,
-			       TrackerLanguage	*language,
-			       TrackerProcessor *processor)
+			       TrackerLanguage	*language)
 {
 	gpointer object, resources;
 	GSList *event_sources = NULL;
@@ -248,7 +247,7 @@ tracker_dbus_register_objects (TrackerConfig	*config,
 	}
 
 	/* Add org.freedesktop.Tracker */
-	object = tracker_daemon_new (config, processor);
+	object = tracker_daemon_new (config);
 	if (!object) {
 		g_critical ("Could not create TrackerDaemon object to register");
 		return FALSE;

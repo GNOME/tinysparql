@@ -28,6 +28,7 @@
 #include <libtracker-common/tracker-log.h>
 #include <libtracker-common/tracker-config.h>
 #include <libtracker-common/tracker-dbus.h>
+#include <libtracker-common/tracker-status.h>
 
 #include <libtracker-db/tracker-db-dbus.h>
 #include <libtracker-db/tracker-db-manager.h>
@@ -37,7 +38,6 @@
 #include <libtracker-data/tracker-data-manager.h>
 #include "tracker-indexer-client.h"
 #include "tracker-main.h"
-#include "tracker-status.h"
 #include "tracker-marshal.h"
 
 #define TRACKER_DAEMON_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_DAEMON, TrackerDaemonPrivate))
@@ -49,7 +49,6 @@
 
 typedef struct {
 	TrackerConfig	 *config;
-	TrackerProcessor *processor;
 	DBusGProxy	 *indexer_proxy;
 
 	GHashTable       *stats_cache;
@@ -260,28 +259,24 @@ tracker_daemon_finalize (GObject *object)
 
 	g_object_unref (priv->indexer_proxy);
 
-	g_object_unref (priv->processor);
 	g_object_unref (priv->config);
 
 	G_OBJECT_CLASS (tracker_daemon_parent_class)->finalize (object);
 }
 
 TrackerDaemon *
-tracker_daemon_new (TrackerConfig    *config,
-		    TrackerProcessor *processor)
+tracker_daemon_new (TrackerConfig    *config)
 {
 	TrackerDaemon	     *object;
 	TrackerDaemonPrivate *priv;
 
 	g_return_val_if_fail (TRACKER_IS_CONFIG (config), NULL);
-	g_return_val_if_fail (TRACKER_IS_PROCESSOR (processor), NULL);
 
 	object = g_object_new (TRACKER_TYPE_DAEMON, NULL);
 
 	priv = TRACKER_DAEMON_GET_PRIVATE (object);
 
 	priv->config = g_object_ref (config);
-	priv->processor = g_object_ref (processor);
 
 	return object;
 }
@@ -679,30 +674,6 @@ tracker_daemon_prompt_index_signals (TrackerDaemon	    *object,
 
 	/* Signal state change */
 	tracker_status_signal ();
-
-	/* Signal progress */
-	g_signal_emit_by_name (object,
-			       "index-progress",
-			       "Files",
-			       "",
-			       tracker_processor_get_files_total (priv->processor),
-			       tracker_processor_get_directories_found (priv->processor),
-			       tracker_processor_get_directories_total (priv->processor),
-			       tracker_processor_get_seconds_elapsed (priv->processor));
-
-#if 1
-	/* FIXME: We need a way of knowing WHAT service we have a
-	 * count for, i.e. emails, files, etc.
-	 */
-	g_signal_emit_by_name (object,
-			       "index-progress",
-			       "Emails",
-			       "",
-			       0,  /* priv->tracker->index_count, */
-			       0,  /* priv->tracker->mbox_processed, */
-			       0,  /* priv->tracker->mbox_count); */
-			       0); /* seconds elapsed */
-#endif
 
 	dbus_g_method_return (context);
 
