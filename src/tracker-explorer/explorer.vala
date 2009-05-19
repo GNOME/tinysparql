@@ -159,26 +159,28 @@ public class Explorer {
 		urisview.set_model (uris);
 
 		urisview.insert_column_with_attributes (-1, "URI", new CellRendererText (), "text", 0, null);
-		urisview.row_activated += uri_selected;
+		urisview.row_activated += row_selected;
 	}
 
 	private void setup_relationships(TreeView relationshipsview) {
-		relationships = new ListStore (2, typeof(string), typeof(string));
+		relationships = new ListStore (3, typeof(string), typeof(string), typeof(string)); //select uri, relationship, object
 		relationshipsview.set_model(relationships);
 
-		relationshipsview.insert_column_with_attributes (-1, "Relationship", new CellRendererText (), "text", 0, null);
-		relationshipsview.insert_column_with_attributes (-1, "Object", new CellRendererText (), "text", 1, null);
-		relationshipsview.row_activated += (view, path, column) => { row_selected(view, path, column, 1);};
+		relationshipsview.insert_column_with_attributes (-1, "Relationship", new CellRendererText (), "text", 1, null);
+		relationshipsview.insert_column_with_attributes (-1, "Object", new CellRendererText (), "text", 2, null);
+		relationshipsview.row_activated += row_selected;
 	}
 
 	private TreeView setup_reverserelationships() {
-		ListStore reverserelationships = new ListStore (2, typeof(string), typeof(string));
+		// select uri, subject, relationship
+		ListStore reverserelationships = new ListStore (3, typeof(string), typeof(string), typeof(string));
+
 		TreeView reverserelationshipsview = new TreeView.with_model (reverserelationships);
 		reverserelationshipsview.set_model(reverserelationships);
 
-		reverserelationshipsview.insert_column_with_attributes (-1, "Subject", new CellRendererText (), "text", 0, null);
-		reverserelationshipsview.insert_column_with_attributes (-1, "Relationship", new CellRendererText (), "text", 1, null);
-		reverserelationshipsview.row_activated += (view, path, column) => { row_selected(view, path, column, 0);};
+		reverserelationshipsview.insert_column_with_attributes (-1, "Subject", new CellRendererText (), "text", 1, null);
+		reverserelationshipsview.insert_column_with_attributes (-1, "Relationship", new CellRendererText (), "text", 2, null);
+		reverserelationshipsview.row_activated += row_selected;
 
 		return reverserelationshipsview;
 	}
@@ -263,8 +265,9 @@ public class Explorer {
 				for (int j=0; j<result2.length[0]; j++) {
 					var subject = subst_prefix(result2[j,0]);
 					model.append (out iter);
-					model.set (iter, 0, subject, -1);
-					model.set (iter, 1, relation, -1);
+					model.set (iter, 0, result2[j,0], -1);
+					model.set (iter, 1, subject, -1);
+					model.set (iter, 2, relation, -1);
 				}
 
 			}
@@ -301,9 +304,9 @@ public class Explorer {
 	private void update_pane() {
 		forward.set_sensitive(history.can_go_forward());
 		back.set_sensitive(history.can_go_back());
-		current_uri_label.set_text (history.current_uri());
+		current_uri_label.set_text (subst_prefix(history.current_uri()));
 		try {
-			string query = "SELECT ?r ?o  WHERE { <%s> ?r ?o }".printf(history.current_uri());
+			var query = "SELECT ?r ?o  WHERE { <%s> ?r ?o }".printf(history.current_uri());
 			TreeIter iter;
 			var result = tracker.SparqlQuery(query);
 			relationships.clear();
@@ -313,8 +316,9 @@ public class Explorer {
 				var relationship = subst_prefix(result[i,0]);
 				var obj = subst_prefix(result[i,1]);
 				relationships.append (out iter);
-				relationships.set (iter, 0, relationship, -1);
-				relationships.set (iter, 1, obj, -1);
+				relationships.set (iter, 0, result[i,1], -1);
+				relationships.set (iter, 1, relationship, -1);
+				relationships.set (iter, 2, obj, -1);
 
 				if (relationship == "rdf:type" && obj != "rdfs:Resource") {
 					add_type (obj);
@@ -327,21 +331,12 @@ public class Explorer {
 		}
 	}
 
-	private void uri_selected(TreeView view, TreePath path, TreeViewColumn column) {
+	private void row_selected(TreeView view, TreePath path, TreeViewColumn column) {
 		TreeIter iter;
 		var model = view.get_model();
 		model.get_iter(out iter, path);
 		weak string uri;
 		model.get (iter, 0, out uri);
-		set_current_uri(uri);
-	}
-
-	private void row_selected(TreeView view, TreePath path, TreeViewColumn column, int index) {
-		TreeIter iter;
-		var model = view.get_model();
-		model.get_iter(out iter, path);
-		weak string uri;
-		model.get (iter, index, out uri);
 		set_current_uri(uri);
 	}
 
