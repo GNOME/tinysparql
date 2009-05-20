@@ -101,7 +101,7 @@ typedef struct {
 
 	unsigned char *albumartdata;
 	size_t         albumartsize;
-	gchar         *albumartmime
+	gchar         *albumartmime;
 
 	id3tag        *id3v1_info;
 } file_data;
