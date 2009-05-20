@@ -1678,6 +1678,11 @@ item_add_or_update (TrackerIndexer        *indexer,
 		start_transaction (indexer);
 	}
 
+	service_path = g_build_path (G_DIR_SEPARATOR_S,
+				     dirname,
+				     basename,
+				     NULL);
+
 	exists = tracker_data_query_service_exists (service, dirname, basename, &id, NULL, &enabled);
 
 	if (exists && !enabled) {
@@ -1693,16 +1698,13 @@ item_add_or_update (TrackerIndexer        *indexer,
 
 		if (tracker_module_file_get_flags (info->module_file) & TRACKER_FILE_CONTENTS_STATIC) {
 			/* According to the module, the metadata can't change for this item */
-			g_debug ("Not updating static item '%s/%s'",
-				 dirname,
-				 basename);
+			g_debug ("Not updating static item '%s'", service_path);
+			g_free (service_path);
 			return;
 		}
 
 		/* Update case */
-		g_debug ("Updating item '%s/%s'", 
-			 dirname, 
-			 basename);
+		g_debug ("Updating item '%s'", service_path);
 
 		/* "metadata" (new metadata) contains embedded props and can contain
 		 * non-embedded properties with default values! Dont overwrite those 
@@ -1738,16 +1740,11 @@ item_add_or_update (TrackerIndexer        *indexer,
 		item_update_content (indexer, service, id, old_text, text);
 
 		if (strcmp (tracker_service_get_name (service), "Folders") == 0) {
-			gchar *path;
-
 			/* Remove no longer existing children, this is necessary in case
 			 * there were files added/removed in a directory between tracker
 			 * executions
 			 */
-
-			path = g_build_path (G_DIR_SEPARATOR_S, dirname, basename, NULL);
-			remove_stale_children (indexer, service, info, path);
-			g_free (path);
+			remove_stale_children (indexer, service, info, service_path);
 		}
 
 		g_free (old_text);
@@ -1758,14 +1755,12 @@ item_add_or_update (TrackerIndexer        *indexer,
 		GHashTable *data;
 		const gchar *udi;
 
-		g_debug ("Adding item '%s/%s'",
-			 dirname,
-			 basename);
+		g_debug ("Adding item '%s'", service_path);
 
 		/* Service wasn't previously indexed */
 		id = tracker_data_update_get_new_service_id (indexer->private->common);
 		data = tracker_module_metadata_get_hash_table (metadata);
-		udi = tracker_hal_udi_get_for_path (indexer->private->hal, dirname);
+		udi = tracker_hal_udi_get_for_path (indexer->private->hal, service_path);
 
 		context = tracker_data_update_metadata_context_new (TRACKER_CONTEXT_TYPE_INSERT,
 								    service, id);
@@ -1799,13 +1794,6 @@ item_add_or_update (TrackerIndexer        *indexer,
 	}
 
 	generate_item_thumbnail (indexer, dirname, basename, metadata);
-
-	/* TODO: URI branch path -> uri */
-
-	service_path = g_build_path (G_DIR_SEPARATOR_S, 
-				     dirname, 
-				     basename, 
-				     NULL);
 
 #ifdef ENABLE_TTL_LOADER
 #ifdef HAVE_HAL
