@@ -288,6 +288,7 @@ tracker_xmp_iter_simple (GHashTable  *metadata,
 			tracker_append_string_to_hash_table (metadata, "Image:Keywords", value, TRUE, FALSE);
 			tracker_append_string_to_hash_table (metadata, "Image:HasKeywords", "1", FALSE, FALSE);
 		}
+#ifdef ENABLE_DETAILED_METADATA
 		else if (strcmp (name, "publisher") == 0) {
 			tracker_append_string_to_hash_table (metadata, "DC:Publisher", value, append, FALSE);
 		}
@@ -315,7 +316,7 @@ tracker_xmp_iter_simple (GHashTable  *metadata,
 		else if (strcmp (name, "coverage") == 0) {
 			tracker_append_string_to_hash_table (metadata, "DC:Coverage", value, append, FALSE);
 		}
-
+#endif /* ENABLE_DETAILED_METADATA */
 	}
 	/* Creative Commons */
 	else if (strcmp (schema, NS_CC) == 0) {
@@ -334,6 +335,7 @@ tracker_xmp_iter_simple (GHashTable  *metadata,
 		else if (strcmp (name, "Artist") == 0) {
 			tracker_append_string_to_hash_table (metadata, "Image:Creator", value, append, FALSE);
 		}
+#ifdef ENABLE_DETAILED_METADATA
 		else if (strcmp (name, "Software") == 0) {
 			tracker_append_string_to_hash_table (metadata, "Image:Software", value, append, FALSE);
 		}
@@ -343,6 +345,7 @@ tracker_xmp_iter_simple (GHashTable  *metadata,
 		else if (strcmp (name, "Model") == 0) {
 			tracker_append_string_to_hash_table (metadata, "Image:CameraModel", value, append, FALSE);
 		}
+#endif /* ENABLE_DETAILED_METADATA */
 		else if (strcmp (name, "Orientation") == 0) {
 			tracker_append_string_to_hash_table (metadata, 
 							     "Image:Orientation", 
@@ -355,6 +358,7 @@ tracker_xmp_iter_simple (GHashTable  *metadata,
 							     fix_flash (value), 
 							     append, FALSE);
 		}
+#ifdef ENABLE_DETAILED_METADATA
 		else if (strcmp (name, "MeteringMode") == 0) {
 			tracker_append_string_to_hash_table (metadata, 
 							     "Image:MeteringMode", 
@@ -373,13 +377,16 @@ tracker_xmp_iter_simple (GHashTable  *metadata,
 		else if (strcmp (name, "FocalLength") == 0) {
 			tracker_append_string_to_hash_table (metadata, "Image:FocalLength", value, append, FALSE);
 		}
+#endif /* ENABLE_DETAILED_METADATA */
 		else if (strcmp (name, "ISOSpeedRatings") == 0) {
 			tracker_append_string_to_hash_table (metadata, "Image:ISOSpeed", value, append, FALSE);
 		}
+#ifdef ENABLE_DETAILED_METADATA
 		else if (strcmp (name, "WhiteBalance") == 0) {
 			tracker_append_string_to_hash_table (metadata, "Image:WhiteBalance",
 							     fix_white_balance (value), append, FALSE);
 		}
+#endif /* ENABLE_DETAILED_METADATA */
 		else if (strcmp (name, "Copyright") == 0) {
 			tracker_append_string_to_hash_table (metadata, "File:Copyright", value, append, FALSE);
 		}

@@ -52,8 +52,11 @@ static MockupTag tags[] = {
 	{ "Audio:Title", "Title" },
 	{ "Video:Title", "Title for Video" },
 	{ "Audio:Genre", "Genre" },
+	{ "Audio:Duration", "5" },
 	{ "Image:Location", "Here" },
+#ifdef ENABLE_DETAILED_METADATA
 	{ "Image:Software", "Softa" },
+#endif /* ENABLE_DETAILED_METADATA */
 	{ NULL, NULL }
 };
 

@@ -291,7 +291,9 @@ extract_metadata (MetadataExtractor *extractor,
 		/* General */
 		add_string_gst_tag (metadata, "File:Copyright", extractor->tagcache, GST_TAG_COPYRIGHT);
 		add_string_gst_tag (metadata, "File:License", extractor->tagcache, GST_TAG_LICENSE);
+#ifdef ENABLE_DETAILED_METADATA
 		add_string_gst_tag (metadata, "DC:Coverage", extractor->tagcache, GST_TAG_LOCATION);
+#endif /* ENABLE_DETAILED_METADATA */
 
 		/* Audio */
  		add_string_gst_tag (metadata, "Audio:Album", extractor->tagcache, GST_TAG_ALBUM);
@@ -299,13 +301,17 @@ extract_metadata (MetadataExtractor *extractor,
 		add_uint_gst_tag   (metadata, "Audio:TrackNo", extractor->tagcache, GST_TAG_TRACK_NUMBER);
 		add_uint_gst_tag   (metadata, "Audio:DiscNo", extractor->tagcache, GST_TAG_ALBUM_VOLUME_NUMBER);
 		add_string_gst_tag (metadata, "Audio:Performer", extractor->tagcache, GST_TAG_PERFORMER);
+#ifdef ENABLE_DETAILED_METADATA
 		add_double_gst_tag (metadata, "Audio:TrackGain", extractor->tagcache, GST_TAG_TRACK_GAIN);
 		add_double_gst_tag (metadata, "Audio:PeakTrackGain", extractor->tagcache, GST_TAG_TRACK_PEAK);
 		add_double_gst_tag (metadata, "Audio:AlbumGain", extractor->tagcache, GST_TAG_ALBUM_GAIN);
 		add_double_gst_tag (metadata, "Audio:AlbumPeakGain", extractor->tagcache, GST_TAG_ALBUM_PEAK);
+#endif /* ENABLE_DETAILED_METADATA */
 		add_y_date_gst_tag (metadata, "Audio:ReleaseDate", extractor->tagcache, GST_TAG_DATE);
 		add_string_gst_tag (metadata, "Audio:Genre", extractor->tagcache, GST_TAG_GENRE);
+#ifdef ENABLE_DETAILED_METADATA
 		add_string_gst_tag (metadata, "Audio:Codec", extractor->tagcache, GST_TAG_AUDIO_CODEC);
+#endif /* ENABLE_DETAILED_METADATA */
 
 		/* Video */
 		add_string_gst_tag (metadata, "Video:Codec", extractor->tagcache, GST_TAG_VIDEO_CODEC);
@@ -322,10 +328,13 @@ extract_metadata (MetadataExtractor *extractor,
 		} else if (extractor->mime == EXTRACT_MIME_AUDIO) {
 			add_string_gst_tag (metadata, "Audio:Title", extractor->tagcache, GST_TAG_TITLE);
 			add_string_gst_tag (metadata, "Audio:Artist", extractor->tagcache, GST_TAG_ARTIST);
+#ifdef ENABLE_DETAILED_METADATA
 			add_string_gst_tag (metadata, "Audio:Comment", extractor->tagcache, GST_TAG_COMMENT);
+#endif /* ENABLE_DETAILED_METADATA */
 		}
  	}
 
+#ifdef ENABLE_DETAILED_METADATA
 	if (extractor->audio_channels >= 0) {
 		add_uint_info (metadata,
 			       g_strdup ("Audio:Channels"),
@@ -337,6 +346,7 @@ extract_metadata (MetadataExtractor *extractor,
 			       g_strdup ("Audio:Samplerate"),
 			       extractor->audio_samplerate);
 	}
+#endif /* ENABLE_DETAILED_METADATA */
 
 	if (extractor->video_height >= 0) {
 		if (extractor->mime == EXTRACT_MIME_IMAGE) {

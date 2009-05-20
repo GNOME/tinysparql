@@ -556,32 +556,38 @@ mp3_parse_header (const gchar *data,
 		    mpeg_ver = MPEG_ERR;
 		    break;
 	    case 0x1000:
+#ifdef ENABLE_DETAILED_METADATA
 		    g_hash_table_insert (metadata,
 					 g_strdup ("Audio:Codec"),
 					 g_strdup ("MPEG"));
 		    g_hash_table_insert (metadata,
 					 g_strdup ("Audio:CodecVersion"),
 					 g_strdup ("2"));
+#endif /* ENABLE_DETAILED_METADATA */
 		    mpeg_ver = MPEG_V2;
 		    spfp8 = 72;
 		    break;
 	    case 0x1800:
+#ifdef ENABLE_DETAILED_METADATA
 		    g_hash_table_insert (metadata,
 					 g_strdup ("Audio:Codec"),
 					 g_strdup ("MPEG"));
 		    g_hash_table_insert (metadata,
 					 g_strdup ("Audio:CodecVersion"),
 					 g_strdup ("1"));
+#endif /* ENABLE_DETAILED_METADATA */
 		    mpeg_ver = MPEG_V1;
 		    spfp8 = 144;
 		    break;
 	    case 0:
+#ifdef ENABLE_DETAILED_METADATA
 		    g_hash_table_insert (metadata,
 					 g_strdup ("Audio:Codec"),
 					 g_strdup ("MPEG"));
 		    g_hash_table_insert (metadata,
 					 g_strdup ("Audio:CodecVersion"),
 					 g_strdup ("2.5"));
+#endif /* ENABLE_DETAILED_METADATA */
 		    mpeg_ver = MPEG_V25;
 		    spfp8 = 72;
 		    break;
@@ -622,14 +628,18 @@ mp3_parse_header (const gchar *data,
 	
 	if ((header & ch_mask) == ch_mask) {
 		ch = 1;
+#ifdef ENABLE_DETAILED_METADATA
 		g_hash_table_insert (metadata,
 				     g_strdup ("Audio:Channels"),
 				     g_strdup ("1"));
+#endif /* ENABLE_DETAILED_METADATA */
 	} else {
 		ch = 2; /* stereo non stereo select */
+#ifdef ENABLE_DETAILED_METADATA
 		g_hash_table_insert (metadata,
 				     g_strdup ("Audio:Channels"),
 				     g_strdup ("2"));
+#endif /* ENABLE_DETAILED_METADATA */
 	}
 	
 	/* We assume mpeg version, layer and channels are constant in frames */
@@ -695,12 +705,15 @@ mp3_parse_header (const gchar *data,
 				     tracker_escape_metadata_printf ("%d", length));
 	}
 
+#ifdef ENABLE_DETAILED_METADATA
 	g_hash_table_insert (metadata,
 			     g_strdup ("Audio:Samplerate"),
 			     tracker_escape_metadata_printf ("%d", sample_rate));
+
 	g_hash_table_insert (metadata,
 			     g_strdup ("Audio:Bitrate"),
 			     tracker_escape_metadata_printf ("%d", avg_bps*1000));
+#endif /* ENABLE_DETAILED_METADATA */
 
 	return TRUE;
 }
@@ -748,18 +761,24 @@ get_id3v24_tags (const gchar *data,
 		{"TDRC", "Audio:ReleaseDate"},
 		{"TCON", "Audio:Genre"},
 		{"TIT1", "Audio:Genre"},
+#ifdef ENABLE_DETAILED_METADATA
 		{"TENC", "DC:Publishers"},
+#endif /* ENABLE_DETAILED_METADATA */
 		{"TEXT", "Audio:Lyrics"},
 		{"TPE1", "Audio:Artist"},
 		{"TPE2", "Audio:Artist"},
 		{"TPE3", "Audio:Performer"},
 		/*	{"TOPE", "Audio:Artist"}, We dont' want the original artist for now */
+#ifdef ENABLE_DETAILED_METADATA
 		{"TPUB", "DC:Publishers"},
+#endif /* ENABLE_DETAILED_METADATA */
 		{"TOAL", "Audio:Album"},
 		{"TALB", "Audio:Album"},
 		{"TLAN", "File:Language"},
 		{"TIT2", "Audio:Title"},
+#ifdef ENABLE_DETAILED_METADATA
 		{"TIT3", "Audio:Comment"},
+#endif /* ENABLE_DETAILED_METADATA */
 		{"TDRL", "Audio:ReleaseDate"},
 		{"TRCK", "Audio:TrackNo"},
 		{"PCNT", "Audio:PlayCount"},
@@ -950,11 +969,13 @@ get_id3v24_tags (const gchar *data,
 				break;
 			}
 
+#ifdef ENABLE_DETAILED_METADATA
 			if (!tracker_is_empty_string (word)) {
 				g_hash_table_insert (metadata,
 						     g_strdup ("Audio:Comment"),
 						     tracker_escape_metadata (word));
 			}
+#endif /* ENABLE_DETAILED_METADATA */
 
 			g_free (word);
 		}
@@ -1001,13 +1022,17 @@ get_id3v23_tags (const gchar *data,
 		{"TDAT", "Audio:ReleaseDate"},
 		{"TCON", "Audio:Genre"},
 		{"TIT1", "Audio:Genre"},
+#ifdef ENABLE_DETAILED_METADATA
 		{"TENC", "DC:Publishers"},
+#endif /* ENABLE_DETAILED_METADATA */
 		{"TEXT", "Audio:Lyrics"},
 		{"TPE1", "Audio:Artist"},
 		{"TPE2", "Audio:Artist"},
 		{"TPE3", "Audio:Performer"},
 		/*	{"TOPE", "Audio:Artist"}, We don't want the original artist for now */
+#ifdef ENABLE_DETAILED_METADATA
 		{"TPUB", "DC:Publishers"},
+#endif /* ENABLE_DETAILED_METADATA */
 		{"TOAL", "Audio:Album"},
 		{"TALB", "Audio:Album"},
 		{"TLAN", "File:Language"},
@@ -1184,11 +1209,13 @@ get_id3v23_tags (const gchar *data,
 				break;
 			}
 
+#ifdef ENABLE_DETAILED_METADATA
 			if (!tracker_is_empty_string (word)) {
 				g_hash_table_insert (metadata,
 						     g_strdup ("Audio:Comment"),
 						     tracker_escape_metadata (word));
 			}
+#endif /* ENABLE_DETAILED_METADATA */
 
 			g_free (word);
 		}
@@ -1234,8 +1261,10 @@ get_id3v20_tags (const gchar *data,
 		{"TT1", "Audio:Artist"},
 		{"TT2", "Audio:Title"},
 		{"TT3", "Audio:Title"},
+#ifdef ENABLE_DETAILED_METADATA
 		{"TXT", "Audio:Comment"},
 		{"TPB", "DC:Publishers"},
+#endif /* ENABLE_DETAILED_METADATA */
 		{"WAF", "DC:Location"},
 		{"WAR", "DC:Location"},
 		{"WAS", "DC:Location"},
@@ -1253,7 +1282,9 @@ get_id3v20_tags (const gchar *data,
 		{"TOA", "Audio:Artist"},
 		{"TOT", "Audio:Album"},
 		{"TOL", "Audio:Artist"},
+#ifdef ENABLE_DETAILED_METADATA
 		{"COM", "Audio:Comment"},
+#endif /* ENABLE_DETAILED_METADATA */
 		{"TLE", "Audio:Duration"},
 		{ NULL, 0},
 	};
@@ -1704,11 +1735,13 @@ extract_mp3 (const gchar *filename,
 				     tracker_escape_metadata (info.genre));
 	}
 
+#ifdef ENABLE_DETAILED_METADATA
 	if (!tracker_is_empty_string (info.comment)) {
 		g_hash_table_insert (metadata,
 				     g_strdup ("Audio:Comment"),
 				     tracker_escape_metadata (info.comment));
 	}
+#endif /* ENABLE_DETAILED_METADATA */
 
 	if (!tracker_is_empty_string (info.trackno)) {
 		g_hash_table_insert (metadata,

@@ -50,10 +50,12 @@ static gchar *video_tags[][2] = {
 };
 
 static gchar *audio_tags[][2] = {
+#ifdef ENABLE_DETAILED_METADATA
 	{ "ID_AUDIO_BITRATE",	"Audio:Bitrate"		},
 	{ "ID_AUDIO_RATE",	"Audio:Samplerate"	},
 	{ "ID_AUDIO_CODEC",	"Audio:Codec"		},
 	{ "ID_AUDIO_NCH",	"Audio:Channels"	},
+#endif /* ENABLE_DETAILED_METADATA */
 	{ NULL,			NULL			}
 };
 
@@ -64,7 +66,9 @@ static gchar *audio_tags[][2] = {
  *    tag to Video, otherwise to Audio if it has audio.
  */
 static gchar *info_tags[][3] = {
+#ifdef ENABLE_DETAILED_METADATA
 	{ "Comment",		"Audio:Comment",	"Video:Comment"	},
+#endif /* ENABLE_DETAILED_METADATA */
 	{ "Title",		"Audio:Title",		"Video:Title"	},
 	{ "Genre",		"Audio:Genre",		NULL		},
 	{ "Track",		"Audio:TrackNo",	NULL		},

@@ -48,13 +48,15 @@ static IptcTagType iptctags[] = {
 	/*	{ 2, IPTC_TAG_CONTENT_LOC_NAME, "Image:Location", NULL }, */
 	{ 2, IPTC_TAG_SUBLOCATION, "Image:Location", FALSE, NULL },
         { 2, IPTC_TAG_DATE_CREATED, "Image:Date", FALSE, NULL },
-        { 2, IPTC_TAG_ORIGINATING_PROGRAM, "Image:Software", FALSE, NULL },
         { 2, IPTC_TAG_BYLINE, "Image:Creator", FALSE, NULL },
         { 2, IPTC_TAG_CITY, "Image:City", FALSE, NULL },
         { 2, IPTC_TAG_COUNTRY_NAME, "Image:Country", FALSE, NULL },
         { 2, IPTC_TAG_CREDIT, "Image:Creator", FALSE, NULL },
         { 2, IPTC_TAG_COPYRIGHT_NOTICE, "File:Copyright", FALSE, NULL },
         { 2, IPTC_TAG_IMAGE_ORIENTATION, "Image:Orientation", FALSE, fix_iptc_orientation },
+#ifdef ENABLE_DETAILED_METADATA
+        { 2, IPTC_TAG_ORIGINATING_PROGRAM, "Image:Software", FALSE, NULL },
+#endif /* ENABLE_DETAILED_METADATA */
 	{ -1, -1, NULL, FALSE, NULL }
 };
 

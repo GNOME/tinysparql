@@ -19,6 +19,8 @@
  * Boston, MA  02110-1301, USA.
  */
 
+#include "config.h"
+
 #include <string.h>
 
 #include <glib.h>
@@ -36,10 +38,12 @@ static gchar *tags[][2] = {
 	{ "TOTEM_INFO_VIDEO_BITRATE",		"Video:Bitrate"		},
 	{ "TOTEM_INFO_TITLE",			"Video:Title"		},
 	{ "TOTEM_INFO_AUTHOR",			"Video:Author"		},
+#ifdef ENABLE_DETAILED_METADATA
 	{ "TOTEM_INFO_AUDIO_BITRATE",		"Audio:Bitrate"		},
 	{ "TOTEM_INFO_AUDIO_SAMPLE_RATE",	"Audio:Samplerate"	},
 	{ "TOTEM_INFO_AUDIO_CODEC",		"Audio:Codec"		},
 	{ "TOTEM_INFO_AUDIO_CHANNELS",		"Audio:Channels"	},
+#endif /* ENABLE_DETAILED_METADATA */
 	{ NULL,					NULL			}
 };
 

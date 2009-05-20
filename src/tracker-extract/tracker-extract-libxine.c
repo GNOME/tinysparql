@@ -152,9 +152,8 @@ tracker_extract_xine (gchar *uri, GHashTable *metadata)
 		}
 	}
 
-
 	/* Audio */
-
+#ifdef ENABLE_DETAILED_METADATA
 	if (has_audio) {
 		uint32_t   n;
 		const char *audio_codec;
@@ -180,10 +179,11 @@ tracker_extract_xine (gchar *uri, GHashTable *metadata)
                                              tracker_escape_metadata (audio_codec));
 		}
 	}
+#endif /* ENABLE_DETAILED_METADATA */
 
 
 	/* Tags */
-
+#ifdef ENABLE_DETAILED_METADATA
 	comment = xine_get_meta_info (stream, XINE_META_INFO_COMMENT);
 	if (comment) {
 		if (has_video) {
@@ -194,6 +194,7 @@ tracker_extract_xine (gchar *uri, GHashTable *metadata)
                                              tracker_escape_metadata (comment));
 		}
 	}
+#endif /* ENABLE_DETAILED_METADATA */
 
 	title = xine_get_meta_info (stream, XINE_META_INFO_TITLE);
 	if (title) {

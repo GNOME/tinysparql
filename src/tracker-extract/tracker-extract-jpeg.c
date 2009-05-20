@@ -111,19 +111,21 @@ static TagType tags[] = {
 	{ EXIF_TAG_ARTIST, "Image:Creator", FALSE, NULL },
 	{ EXIF_TAG_USER_COMMENT, "Image:Comments", FALSE, NULL },
 	{ EXIF_TAG_IMAGE_DESCRIPTION, "Image:Description", FALSE, NULL },
+	{ EXIF_TAG_ORIENTATION, "Image:Orientation", FALSE, fix_orientation },
+	{ EXIF_TAG_FLASH, "Image:Flash", FALSE, fix_flash },
+	{ EXIF_TAG_ISO_SPEED_RATINGS, "Image:ISOSpeed", FALSE, NULL },
+	{ EXIF_TAG_COPYRIGHT, "File:Copyright", FALSE, NULL },
+#ifdef ENABLE_DETAILED_METADATA
 	{ EXIF_TAG_SOFTWARE, "Image:Software", FALSE, NULL },
 	{ EXIF_TAG_MAKE, "Image:CameraMake", FALSE, NULL },
 	{ EXIF_TAG_MODEL, "Image:CameraModel", FALSE, NULL },
-	{ EXIF_TAG_ORIENTATION, "Image:Orientation", FALSE, fix_orientation },
 	{ EXIF_TAG_EXPOSURE_PROGRAM, "Image:ExposureProgram", FALSE, NULL },
 	{ EXIF_TAG_EXPOSURE_TIME, "Image:ExposureTime", FALSE, fix_exposure_time },
 	{ EXIF_TAG_FNUMBER, "Image:FNumber", FALSE, fix_fnumber },
-	{ EXIF_TAG_FLASH, "Image:Flash", FALSE, fix_flash },
 	{ EXIF_TAG_FOCAL_LENGTH, "Image:FocalLength", FALSE, fix_focal_length },
-	{ EXIF_TAG_ISO_SPEED_RATINGS, "Image:ISOSpeed", FALSE, NULL },
 	{ EXIF_TAG_METERING_MODE, "Image:MeteringMode", FALSE, NULL },
 	{ EXIF_TAG_WHITE_BALANCE, "Image:WhiteBalance", FALSE, NULL },
-	{ EXIF_TAG_COPYRIGHT, "File:Copyright", FALSE, NULL },
+#endif /* ENABLE_DETAILED_METADATA */
 	{ -1, NULL, FALSE, NULL }
 };
 
@@ -146,7 +148,7 @@ metadata_append (GHashTable *metadata, gchar *key, gchar *value, gboolean append
 		escaped = tracker_escape_metadata (value);
 
 		list = g_strsplit (orig, "|", -1);			
-		for (i=0; list[i]; i++) {
+		for (i = 0; list[i]; i++) {
 			if (strcmp (list[i], escaped) == 0) {
 				found = TRUE;
 				break;

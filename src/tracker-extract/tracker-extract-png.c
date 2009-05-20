@@ -67,8 +67,10 @@ static TagProcessors tag_processors[] = {
 	{ "Copyright",	   "File:Copyright",    FALSE, NULL },
 	{ "Creation Time", "Image:Date",	FALSE, rfc1123_to_iso8601_date },
 	{ "Title",	   "Image:Title",	FALSE, NULL },
-	{ "Software",	   "Image:Software",    FALSE, NULL },
 	{ "Disclaimer",	   "File:License",      FALSE, NULL },
+#ifdef ENABLE_DETAILED_METADATA
+	{ "Software",	   "Image:Software",    FALSE, NULL },
+#endif /* ENABLE_DETAILED_METADATA */
 	{ NULL,		   NULL,		FALSE, NULL },
 };
 

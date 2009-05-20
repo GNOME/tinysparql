@@ -334,6 +334,19 @@ AC_SUBST(QDBM_LIBS)
 
 AM_CONDITIONAL(HAVE_EXTERNAL_QDBM, test "x$have_external_qdbm" = "xyes")
 
+####################################################################
+# Detailed metadata?
+####################################################################
+
+AC_ARG_ENABLE(detailed-metadata, 
+	      AS_HELP_STRING([--disable-detailed-metadata],
+			     [disable detailed metadata [[default=no]]]),,
+              [enable_detailed_metadata=yes])
+
+if test "x$enable_detailed_metadata" != "xno"; then
+  AC_DEFINE(ENABLE_DETAILED_METADATA, 1, [Define if we want detailed metadata in the database])
+fi
+
 ##################################################################
 # Check for HAL
 ##################################################################
@@ -1445,6 +1458,7 @@ Build Configuration:
 	Enable unit tests:			$have_unit_tests
 	Enable unac accent stripper:	  	$have_unac
 	Enable full text search:               	$enable_fts
+	Enable detailed metadata:              	$enable_detailed_metadata
 
 	Support for file monitoring:           	gio (w/ libinotify: $have_inotify)
 	Support for ioprio:			$have_ioprio
