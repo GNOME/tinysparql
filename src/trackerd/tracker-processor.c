@@ -1218,14 +1218,13 @@ processor_files_check (TrackerProcessor *processor,
 		 is_directory ? "DIR" : "FILE");
 
 	if (!ignored) {
-		if (!is_directory) {
-			queue = g_hash_table_lookup (processor->private->items_created_queues, module_name);
-			g_queue_push_tail (queue, g_object_ref (file));
-			
-			item_queue_handlers_set_up (processor);
-		} else {
+		if (is_directory) {
 			tracker_crawler_add_unexpected_path (crawler, path);
 		}
+		queue = g_hash_table_lookup (processor->private->items_created_queues, module_name);
+		g_queue_push_tail (queue, g_object_ref (file));
+			
+		item_queue_handlers_set_up (processor);
 	}
 
 	g_free (path);
