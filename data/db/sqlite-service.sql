@@ -81,7 +81,7 @@ CREATE TABLE  ServiceMetaData
 	MetaDataCollation	Text
 );
 
-CREATE INDEX ServiceMetaDataCompoundIndex ON ServiceMetaData (ServiceID, MetaDataID, MetaDataDisplay, MetaDataCollation);
+CREATE INDEX ServiceMetaDataCompoundIndex ON ServiceMetaData (ServiceID, MetaDataID);
 
 /* metadata for all keyword types - keywords are db indexed for fast searching - they are also not processed like other metadata. */
 CREATE TABLE  ServiceKeywordMetaData 
@@ -92,7 +92,7 @@ CREATE TABLE  ServiceKeywordMetaData
 	MetaDataValue		Text COLLATE NOCASE
 );
 
-CREATE INDEX ServiceKeywordMetaDataCompoundIndex ON ServiceKeywordMetaData (ServiceID, MetaDataID, MetaDataValue);
+CREATE INDEX ServiceKeywordMetaDataCompoundIndex ON ServiceKeywordMetaData (ServiceID, MetaDataID);
 
 /* metadata for all integer/date types */
 CREATE TABLE  ServiceNumericMetaData 
@@ -103,7 +103,7 @@ CREATE TABLE  ServiceNumericMetaData
 	MetaDataValue		Integer not null
 );
 
-CREATE INDEX ServiceNumericMetaDataCompoundIndex ON ServiceNumericMetaData (ServiceID, MetaDataID, MetaDataValue);
+CREATE INDEX ServiceNumericMetaDataCompoundIndex ON ServiceNumericMetaData (ServiceID, MetaDataID);
 
 
 CREATE TABLE DeletedServices
