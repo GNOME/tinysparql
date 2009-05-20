@@ -61,7 +61,8 @@
 #include <libtracker-common/tracker-config.h>
 #include <libtracker-common/tracker-dbus.h>
 #include <libtracker-common/tracker-file-utils.h>
-#include <libtracker-common/tracker-hal.h>
+#include <libtracker-common/tracker-power.h>
+#include <libtracker-common/tracker-storage.h>
 #include <libtracker-common/tracker-language.h>
 #include <libtracker-common/tracker-parser.h>
 #include <libtracker-common/tracker-ontology.h>
@@ -137,7 +138,8 @@ struct TrackerIndexerPrivate {
 	TrackerConfig *config;
 	TrackerLanguage *language;
 
-	TrackerHal *hal;
+	TrackerPower   *hal_power;
+	TrackerStorage *hal_storage;
 
 	TrackerClient *client;
 
@@ -437,7 +439,7 @@ set_up_throttle (TrackerIndexer *indexer)
 	 */
 	throttle = tracker_config_get_throttle (indexer->private->config);
 
-	if (tracker_hal_get_battery_in_use (indexer->private->hal)) {
+	if (tracker_power_get_on_battery (indexer->private->hal_power)) {
 		g_message ("We are running on battery");
 
 		if (throttle == THROTTLE_DEFAULT) {
@@ -467,9 +469,9 @@ set_up_throttle (TrackerIndexer *indexer)
 }
 
 static void
-notify_battery_in_use_cb (GObject *gobject,
-			  GParamSpec *arg1,
-			  gpointer user_data)
+notify_on_battery_cb (GObject *gobject,
+		      GParamSpec *arg1,
+		      gpointer user_data)
 {
 	set_up_throttle (TRACKER_INDEXER (user_data));
 }
@@ -566,11 +568,12 @@ tracker_indexer_finalize (GObject *object)
 	}
 
 #ifdef HAVE_HAL
-	g_signal_handlers_disconnect_by_func (priv->hal,
-					      notify_battery_in_use_cb,
+	g_signal_handlers_disconnect_by_func (priv->hal_power,
+					      notify_on_battery_cb,
 					      TRACKER_INDEXER (object));
 
-	g_object_unref (priv->hal);
+	g_object_unref (priv->hal_power);
+	g_object_unref (priv->hal_storage);
 #endif /* HAVE_HAL */
 
 	if (priv->client) {
@@ -615,10 +618,6 @@ tracker_indexer_get_property (GObject	 *object,
 			      GValue	 *value,
 			      GParamSpec *pspec)
 {
-	TrackerIndexerPrivate *priv;
-
-	priv = TRACKER_INDEXER_GET_PRIVATE (object);
-
 	switch (prop_id) {
 	case PROP_RUNNING:
 		g_value_set_boolean (value,
@@ -906,10 +905,11 @@ tracker_indexer_init (TrackerIndexer *indexer)
 	priv->client = tracker_connect (TRUE);
 
 #ifdef HAVE_HAL
-	priv->hal = tracker_hal_new ();
+	priv->hal_power = tracker_power_new ();
+	priv->hal_storage = tracker_storage_new ();
 
-	g_signal_connect (priv->hal, "notify::battery-in-use",
-			  G_CALLBACK (notify_battery_in_use_cb),
+	g_signal_connect (priv->hal_power, "notify::on-battery",
+			  G_CALLBACK (notify_on_battery_cb),
 			  indexer);
 
 	set_up_throttle (indexer);
@@ -1044,8 +1044,8 @@ item_add_to_datasource (TrackerIndexer *indexer,
 	file = tracker_module_file_get_file (module_file);
 
 #ifdef HAVE_HAL
-	removable_device_udi = tracker_hal_get_volume_udi_for_file (indexer->private->hal, 
-								    file);
+	removable_device_udi = tracker_storage_get_volume_udi_for_file (indexer->private->hal_storage,
+									file);
 #else
 	removable_device_udi = NULL;
 #endif
@@ -1136,10 +1136,10 @@ item_add_or_update (TrackerIndexer        *indexer,
 	generate_item_thumbnail (indexer, uri);
 
 #ifdef HAVE_HAL
-	if (tracker_hal_uri_is_on_removable_device (indexer->private->hal,
-						    uri, 
-						    &mount_point,
-						    NULL)) {
+	if (tracker_storage_uri_is_on_removable_device (indexer->private->hal_storage,
+							uri, 
+							&mount_point,
+							NULL)) {
 
 		tracker_removable_device_add_metadata (indexer, 
 						       mount_point, 
@@ -1253,14 +1253,14 @@ item_move (TrackerIndexer  *indexer,
 	tracker_resources_batch_sparql_update (indexer->private->client, sparql->str, NULL);
 
 #ifdef HAVE_HAL
-	if (tracker_hal_uri_is_on_removable_device (indexer->private->hal,
-						    source_uri, 
-						    &mount_point,
-						    NULL) ) {
-		if (tracker_hal_uri_is_on_removable_device (indexer->private->hal,
-							    uri, 
-							    NULL,
-							    NULL) ) {
+	if (tracker_storage_uri_is_on_removable_device (indexer->private->hal_storage,
+							source_uri, 
+							&mount_point,
+							NULL) ) {
+		if (tracker_storage_uri_is_on_removable_device (indexer->private->hal_storage,
+								uri, 
+								NULL,
+								NULL) ) {
 
 			tracker_removable_device_add_move (indexer, 
 							   mount_point, 
@@ -1330,10 +1330,10 @@ item_remove (TrackerIndexer *indexer,
 	}*/
 
 #ifdef HAVE_HAL
-	if (tracker_hal_uri_is_on_removable_device (indexer->private->hal,
-						    uri, 
-						    &mount_point,
-						    NULL)) {
+	if (tracker_storage_uri_is_on_removable_device (indexer->private->hal_storage,
+							uri, 
+							&mount_point,
+							NULL)) {
 
 		tracker_removable_device_add_removal (indexer, mount_point, uri);
 	}

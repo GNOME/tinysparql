@@ -27,9 +27,11 @@ endif
 
 if HAVE_HAL
 hal_sources = 						\
-	tracker-hal.c
+	tracker-power-hal.c				\
+	tracker-storage-hal.c
 hal_headers = 						\
-	tracker-hal.h
+	tracker-power.h					\
+	tracker-storage.h
 endif
 
 libtracker_common_la_SOURCES =	 			\

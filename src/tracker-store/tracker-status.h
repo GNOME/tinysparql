@@ -25,7 +25,7 @@
 #include <glib-object.h>
 
 #include <libtracker-common/tracker-config.h>
-#include <libtracker-common/tracker-hal.h>
+#include <libtracker-common/tracker-power.h>
 
 G_BEGIN_DECLS
 
@@ -44,7 +44,7 @@ typedef enum {
 
 
 gboolean      tracker_status_init		     (TrackerConfig *config,
-						      TrackerHal    *hal);
+						      TrackerPower  *hal);
 void	      tracker_status_shutdown		     (void);
 
 gboolean      tracker_status_is_initialized          (void);

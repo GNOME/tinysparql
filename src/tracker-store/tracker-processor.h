@@ -25,7 +25,7 @@
 #include <gio/gio.h>
 
 #include <libtracker-common/tracker-config.h>
-#include <libtracker-common/tracker-hal.h>
+#include <libtracker-common/tracker-storage.h>
 
 G_BEGIN_DECLS
 
@@ -54,7 +54,7 @@ struct TrackerProcessorClass {
 GType		  tracker_processor_get_type		    (void) G_GNUC_CONST;
 
 TrackerProcessor *tracker_processor_new			    (TrackerConfig    *config,
-							     TrackerHal       *hal);
+							     TrackerStorage   *hal);
 void		  tracker_processor_start		    (TrackerProcessor *processor);
 void		  tracker_processor_stop		    (TrackerProcessor *processor);
 

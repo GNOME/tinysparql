@@ -28,7 +28,7 @@
 #include <libtracker-common/tracker-module-config.h>
 
 #ifdef HAVE_INOTIFY
-#include <linux/inotify.h>
+#include <sys/inotify.h>
 #include <libinotify/libinotify.h>
 #define USE_LIBINOTIFY
 #endif /* HAVE_INOTIFY */

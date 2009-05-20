@@ -24,7 +24,7 @@
 
 #include <libtracker-common/tracker-dbus.h>
 #include <libtracker-common/tracker-file-utils.h>
-#include <libtracker-common/tracker-hal.h>
+#include <libtracker-common/tracker-storage.h>
 #include <libtracker-common/tracker-module-config.h>
 #include <libtracker-common/tracker-utils.h>
 
@@ -56,7 +56,7 @@ typedef enum {
 
 struct TrackerProcessorPrivate {
 	TrackerConfig  *config;
-	TrackerHal     *hal;
+	TrackerStorage *hal;
 	TrackerMonitor *monitor;
 
 	DBusGProxy     *indexer_proxy;
@@ -163,11 +163,11 @@ static void crawler_finished_cb		    (TrackerCrawler   *crawler,
 					     gpointer	       user_data);
 
 #ifdef HAVE_HAL
-static void mount_point_added_cb	    (TrackerHal       *hal,
+static void mount_point_added_cb	    (TrackerStorage   *hal,
 					     const gchar      *volume_uuid,
 					     const gchar      *mount_point,
 					     gpointer	       user_data);
-static void mount_point_removed_cb	    (TrackerHal       *hal,
+static void mount_point_removed_cb	    (TrackerStorage   *hal,
 					     const gchar      *volume_uuid,
 					     const gchar      *mount_point,
 					     gpointer	       user_data);
@@ -358,8 +358,8 @@ get_remote_roots (TrackerProcessor  *processor,
 	GList *l2;
 
 #ifdef HAVE_HAL
-	l1 = tracker_hal_get_mounted_directory_roots (processor->private->hal);
-	l2 = tracker_hal_get_removable_device_roots (processor->private->hal);
+	l1 = tracker_storage_get_mounted_directory_roots (processor->private->hal);
+	l2 = tracker_storage_get_removable_device_roots (processor->private->hal);
 #else  /* HAVE_HAL */
 	l1 = NULL;
 	l2 = NULL;
@@ -1502,7 +1502,7 @@ crawler_finished_cb (TrackerCrawler *crawler,
 #ifdef HAVE_HAL
 
 static void
-mount_point_added_cb (TrackerHal  *hal,
+mount_point_added_cb (TrackerStorage  *hal,
 		      const gchar *udi,
 		      const gchar *mount_point,
 		      gpointer	   user_data)
@@ -1550,7 +1550,7 @@ mount_point_added_cb (TrackerHal  *hal,
 }
 
 static void
-mount_point_removed_cb (TrackerHal  *hal,
+mount_point_removed_cb (TrackerStorage  *hal,
 			const gchar *udi,
 			const gchar *mount_point,
 			gpointer     user_data)
@@ -1597,8 +1597,8 @@ mount_point_removed_cb (TrackerHal  *hal,
 #endif /* HAVE_HAL */
 
 TrackerProcessor *
-tracker_processor_new (TrackerConfig *config,
-		       TrackerHal    *hal)
+tracker_processor_new (TrackerConfig  *config,
+		       TrackerStorage *hal)
 {
 	TrackerProcessor	*processor;
 	TrackerProcessorPrivate *priv;
@@ -1609,7 +1609,7 @@ tracker_processor_new (TrackerConfig *config,
 	g_return_val_if_fail (TRACKER_IS_CONFIG (config), NULL);
 
 #ifdef HAVE_HAL
-	g_return_val_if_fail (TRACKER_IS_HAL (hal), NULL);
+	g_return_val_if_fail (TRACKER_IS_STORAGE (hal), NULL);
 #endif /* HAVE_HAL */
 
 	tracker_status_set_and_signal (TRACKER_STATUS_INITIALIZING);
@@ -1624,7 +1624,7 @@ tracker_processor_new (TrackerConfig *config,
 	/* Set up hal */
 	priv->hal = g_object_ref (hal);
 
-	priv->removable_devices = tracker_hal_get_removable_device_roots (priv->hal);
+	priv->removable_devices = tracker_storage_get_removable_device_roots (priv->hal);
 	priv->removable_devices_current = priv->removable_devices;
 	priv->removable_devices_completed = NULL;
 

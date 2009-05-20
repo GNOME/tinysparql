@@ -126,10 +126,6 @@ tracker_push_registrar_set_property (GObject      *object,
 				     const GValue *value,
 				     GParamSpec   *pspec)
 {
-	TrackerPushRegistrarPrivate *priv;
-
-	priv = TRACKER_PUSH_REGISTRAR_GET_PRIVATE (object);
-
 	switch (prop_id) {
 	case PROP_MANAGER:
 		tracker_push_registrar_set_manager (TRACKER_PUSH_REGISTRAR (object),

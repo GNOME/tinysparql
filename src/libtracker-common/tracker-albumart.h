@@ -30,7 +30,7 @@ G_BEGIN_DECLS
 #error "only <libtracker-common/tracker-common.h> must be included directly."
 #endif
 
-#include "tracker-hal.h"
+#include "tracker-storage.h"
 
 gboolean tracker_albumart_heuristic              (const gchar  *artist_,
 						  const gchar  *album_,
@@ -39,7 +39,7 @@ gboolean tracker_albumart_heuristic              (const gchar  *artist_,
 						  const gchar  *local_uri,
 						  gboolean     *copied);
 gchar *  tracker_albumart_strip_invalid_entities (const gchar  *original);
-void     tracker_albumart_copy_to_local          (TrackerHal   *hal,
+void     tracker_albumart_copy_to_local          (TrackerStorage *storage,
 						  const gchar  *filename,
 						  const gchar  *local_uri);
 void     tracker_albumart_get_path               (const gchar  *a,
@@ -48,7 +48,7 @@ void     tracker_albumart_get_path               (const gchar  *a,
 						  const gchar  *uri,
 						  gchar       **path,
 						  gchar       **local);
-void     tracker_albumart_request_download       (TrackerHal   *hal,
+void     tracker_albumart_request_download       (TrackerStorage *storage,
 						  const gchar  *album,
 						  const gchar  *artist,
 						  const gchar  *local_uri,

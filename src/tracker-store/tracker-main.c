@@ -44,7 +44,8 @@
 
 #include <libtracker-common/tracker-config.h>
 #include <libtracker-common/tracker-file-utils.h>
-#include <libtracker-common/tracker-hal.h>
+#include <libtracker-common/tracker-power.h>
+#include <libtracker-common/tracker-storage.h>
 #include <libtracker-common/tracker-ioprio.h>
 #include <libtracker-common/tracker-language.h>
 #include <libtracker-common/tracker-log.h>
@@ -229,7 +230,7 @@ get_lock_file (void)
 
 static TrackerRunningLevel
 check_runtime_level (TrackerConfig *config,
-		     TrackerHal    *hal)
+		     TrackerPower  *hal)
 {
 	TrackerRunningLevel  runlevel;
 	gchar		    *lock_file;
@@ -278,8 +279,7 @@ check_runtime_level (TrackerConfig *config,
 		runlevel = TRACKER_RUNNING_MAIN_INSTANCE;
 
 #ifdef HAVE_HAL
-		if (!tracker_hal_get_battery_exists (hal) ||
-		    !tracker_hal_get_battery_in_use (hal)) {
+		if (!tracker_power_get_on_battery (hal)) {
 			return TRACKER_RUNNING_MAIN_INSTANCE;
 		}
 
@@ -332,10 +332,10 @@ mount_point_set_cb (DBusGProxy *proxy,
 }
 
 static void
-mount_point_added_cb (TrackerHal  *hal,
-		      const gchar *udi,
-		      const gchar *mount_point,
-		      gpointer	   user_data)
+mount_point_added_cb (TrackerStorage *hal,
+		      const gchar    *udi,
+		      const gchar    *mount_point,
+		      gpointer	      user_data)
 {
 	TrackerMainPrivate *private;
 	
@@ -380,10 +380,10 @@ mount_point_set_and_signal_cb (DBusGProxy *proxy,
 }
 
 static void
-mount_point_removed_cb (TrackerHal  *hal,
-			const gchar *udi,
-			const gchar *mount_point,
-			gpointer     user_data)
+mount_point_removed_cb (TrackerStorage  *hal,
+			const gchar     *udi,
+			const gchar     *mount_point,
+			gpointer         user_data)
 {
 	TrackerMainPrivate *private;
 	
@@ -752,7 +752,7 @@ set_up_mount_points_cb (DBusGProxy *proxy,
 			GError     *error,
 			gpointer    user_data)
 {
-	TrackerHal *hal;
+	TrackerStorage *hal;
 	GList *roots, *l;
 
 	if (error) {
@@ -765,7 +765,7 @@ set_up_mount_points_cb (DBusGProxy *proxy,
 	g_message ("Indexer is being notified about ALL UDIs");
 
 	hal = user_data;
-	roots = tracker_hal_get_removable_device_udis (hal);
+	roots = tracker_storage_get_removable_device_udis (hal);
 	
 	for (l = roots; l; l = l->next) {
 		gchar       *udi;
@@ -773,8 +773,8 @@ set_up_mount_points_cb (DBusGProxy *proxy,
 		gboolean     is_mounted;
 
 		udi = l->data;
-		mount_point = tracker_hal_udi_get_mount_point (hal, udi);
-		is_mounted = tracker_hal_udi_get_is_mounted (hal, udi);
+		mount_point = tracker_storage_udi_get_mount_point (hal, udi);
+		is_mounted = tracker_storage_udi_get_is_mounted (hal, udi);
 
 		g_message ("  %s", udi);
 
@@ -790,7 +790,7 @@ set_up_mount_points_cb (DBusGProxy *proxy,
 }
 
 static void
-set_up_mount_points (TrackerHal *hal)
+set_up_mount_points (TrackerStorage *hal)
 {
 	g_message ("Indexer is being notified to disable all volumes");
 	org_freedesktop_Tracker_Indexer_volume_disable_all_async (tracker_dbus_indexer_get_proxy (), 
@@ -845,7 +845,8 @@ main (gint argc, gchar *argv[])
 	TrackerMainPrivate	   *private;
 	TrackerConfig		   *config;
 	TrackerLanguage		   *language;
-	TrackerHal		   *hal;
+	TrackerPower		   *hal_power;
+	TrackerStorage		   *hal_storage;
 	TrackerRunningLevel	    runtime_level;
 	TrackerDBManagerFlags	    flags = 0;
 	gboolean		    is_first_time_index;
@@ -970,17 +971,18 @@ main (gint argc, gchar *argv[])
 	tracker_nfs_lock_init (tracker_config_get_nfs_locking (config));
 
 #ifdef HAVE_HAL
-	hal = tracker_hal_new ();
+	hal_power = tracker_power_new ();
+	hal_storage = tracker_storage_new ();
 
-	g_signal_connect (hal, "mount-point-added",
+	g_signal_connect (hal_storage, "mount-point-added",
 			  G_CALLBACK (mount_point_added_cb),
 			  NULL);
-	g_signal_connect (hal, "mount-point-removed",
+	g_signal_connect (hal_storage, "mount-point-removed",
 			  G_CALLBACK (mount_point_removed_cb),
 			  NULL);
 #endif /* HAVE_HAL */
 
-	tracker_status_init (config, hal);
+	tracker_status_init (config, hal_power);
 
 	tracker_module_config_init ();
 
@@ -1007,7 +1009,7 @@ main (gint argc, gchar *argv[])
 	/*
 	 * Check instances running
 	 */
-	runtime_level = check_runtime_level (config, hal);
+	runtime_level = check_runtime_level (config, hal_power);
 
 	switch (runtime_level) {
 	case TRACKER_RUNNING_NON_ALLOWED:
@@ -1036,10 +1038,10 @@ main (gint argc, gchar *argv[])
 	 * we have to have already initialised the databases if we
 	 * are going to do that.
 	 */
-	set_up_mount_points (hal);
+	set_up_mount_points (hal_storage);
 #endif /* HAVE_HAL */
 
-	private->processor = tracker_processor_new (config, hal);
+	private->processor = tracker_processor_new (config, hal_storage);
 
 	/* Make Tracker available for introspection */
 	if (!tracker_dbus_register_objects (config,
@@ -1126,14 +1128,15 @@ main (gint argc, gchar *argv[])
 	tracker_log_shutdown ();
 
 #ifdef HAVE_HAL
-	g_signal_handlers_disconnect_by_func (hal,
+	g_signal_handlers_disconnect_by_func (hal_storage,
 					      mount_point_added_cb,
 					      NULL);
-	g_signal_handlers_disconnect_by_func (hal,
+	g_signal_handlers_disconnect_by_func (hal_storage,
 					      mount_point_removed_cb,
 					      NULL);
 
-	g_object_unref (hal);
+	g_object_unref (hal_power);
+	g_object_unref (hal_storage);
 #endif /* HAVE_HAL */
 
 	g_object_unref (language);

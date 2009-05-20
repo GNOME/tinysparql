@@ -24,7 +24,7 @@
 
 #include <glib.h>
 
-#include <libtracker-common/tracker-hal.h>
+#include <libtracker-common/tracker-storage.h>
 #include <libtracker-common/tracker-statement-list.h>
 
 G_BEGIN_DECLS
@@ -47,7 +47,7 @@ TrackerExtractData *tracker_get_extract_data        (void);
  * avoid creating new HAL objects constantly, we initialize it once
  * and it is available using this API.
  */
-TrackerHal *        tracker_main_get_hal            (void);
+TrackerStorage *    tracker_main_get_hal            (void);
 
 /* This is used to not shutdown after the default of 30 seconds if we
  * get more work to do.

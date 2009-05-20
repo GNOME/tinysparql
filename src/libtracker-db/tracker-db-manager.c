@@ -45,9 +45,6 @@
 /* Default memory settings for databases */
 #define TRACKER_DB_PAGE_SIZE_DONT_SET -1
 
-/* Size is in bytes and is currently 2Gb */
-#define TRACKER_DB_MAX_FILE_SIZE      2000000000 
-
 /* Set current database version we are working with */
 #define TRACKER_DB_VERSION_NOW        TRACKER_DB_VERSION_5
 #define TRACKER_DB_VERSION_FILE       "db-version.txt"
@@ -1415,20 +1412,3 @@ tracker_db_manager_get_db_interface (void)
 	return resources_iface;
 }
 
-gboolean
-tracker_db_manager_are_db_too_big (void)
-{
-	const gchar *filename_const;
-	gboolean     too_big;
-
-	filename_const = tracker_db_manager_get_file (TRACKER_DB_METADATA);
-	too_big = tracker_file_get_size (filename_const) > TRACKER_DB_MAX_FILE_SIZE;
-
-	if (too_big) {
-		g_critical ("Metadata database is too big, discontinuing indexing");
-		return TRUE;
-	}
-
-	return FALSE;
-
-}

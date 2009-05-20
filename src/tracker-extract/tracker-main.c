@@ -68,7 +68,7 @@
 
 static GMainLoop  *main_loop;
 static guint       quit_timeout_id = 0;
-static TrackerHal *hal;
+static TrackerStorage *hal;
 
 static gboolean    version;
 gboolean           debug_mode = FALSE;
@@ -130,12 +130,12 @@ tracker_main_quit_timeout_reset (void)
 						 NULL);
 }
 
-TrackerHal *
+TrackerStorage *
 tracker_main_get_hal (void)
 {
 	if (!hal) {
 #ifdef HAVE_HAL
-		hal = tracker_hal_new ();
+		hal = tracker_storage_new ();
 #else 
 		hal = NULL;
 #endif

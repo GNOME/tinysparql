@@ -611,10 +611,6 @@ config_set_property (GObject	  *object,
 		     const GValue *value,
 		     GParamSpec	  *pspec)
 {
-	TrackerConfigPrivate *priv;
-
-	priv = TRACKER_CONFIG_GET_PRIVATE (object);
-
 	switch (param_id) {
 		/* General */
 	case PROP_VERBOSITY:
@@ -2151,7 +2147,7 @@ tracker_config_set_language (TrackerConfig *config,
 
 	/* Validate language */
 	use_default |= !value;
-	use_default |= strlen (value) < 2;
+	use_default |= value && strlen (value) < 2;
 	use_default |= !tracker_language_check_exists (value);
 
 	if (use_default) {
