@@ -87,7 +87,7 @@ typedef struct {
 
 	unsigned char *albumartdata;
 	size_t         albumartsize;
-	gchar         *albumartmime
+	gchar         *albumartmime;
 } file_data;
 
 enum {
