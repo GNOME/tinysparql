@@ -1139,6 +1139,7 @@ index_metadata_item (TrackerField	 *field,
 	gint score;
 	gboolean reached_end = FALSE;
 
+#ifdef ENABLE_FTS
 	parsed_value = tracker_parser_text_to_string (value,
 						      data->language,
 						      tracker_config_get_max_word_length (data->config),
@@ -1146,7 +1147,25 @@ index_metadata_item (TrackerField	 *field,
 						      tracker_field_get_filtered (field),
 						      tracker_field_get_filtered (field),
 						      tracker_field_get_delimited (field));
+#else
+	parsed_value = NULL;
+#endif /* ENABLE_FTS */
 
+	if (data->add) {
+		tracker_data_update_set_metadata (data->context,
+						  data->service,
+						  data->id,
+						  field,
+						  value,
+						  parsed_value);
+	} else {
+		tracker_data_update_delete_metadata (data->service,
+						     data->id,
+						     field,
+						     value);
+	}
+
+#ifdef ENABLE_FTS
 	if (!parsed_value) {
 		return;
 	}
@@ -1197,21 +1216,8 @@ index_metadata_item (TrackerField	 *field,
 		}
 	}
 
-	if (data->add) {
-		tracker_data_update_set_metadata (data->context, 
-						  data->service, 
-						  data->id, 
-						  field, 
-						  value, 
-						  parsed_value);
-	} else {
-		tracker_data_update_delete_metadata (data->service, 
-						     data->id, 
-						     field, 
-						     value);
-	}
-
 	g_free (parsed_value);
+#endif
 }
 
 static void
