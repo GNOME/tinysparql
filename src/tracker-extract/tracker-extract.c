@@ -32,7 +32,7 @@
 #include "tracker-dbus.h"
 #include "tracker-extract.h"
 
-#define MAX_EXTRACT_TIME 5
+#define MAX_EXTRACT_TIME 10
 #define TRACKER_EXTRACT_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_EXTRACT, TrackerExtractPrivate))
 
 typedef struct {
