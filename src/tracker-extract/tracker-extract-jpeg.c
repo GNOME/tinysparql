@@ -396,7 +396,6 @@ extract_jpeg (const gchar *filename,
 						     tracker_escape_metadata (str));
 				g_free (str);
 				break;
-				
 			case JPEG_APP0+1:
 				str = (gchar*) marker->data;
 				len = marker->data_length;

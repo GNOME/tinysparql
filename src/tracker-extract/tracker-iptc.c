@@ -59,7 +59,7 @@ static IptcTagType iptctags[] = {
 };
 
 static void
-metadata_append (GHashTable *metadata, gchar *key, gchar *value, gboolean append)
+metadata_append (GHashTable *metadata, gchar *key, gchar *value, gboolean append, gboolean set_additional)
 {
 	gchar   *new_value;
 	gchar   *orig;
@@ -67,44 +67,55 @@ metadata_append (GHashTable *metadata, gchar *key, gchar *value, gboolean append
 	gboolean found = FALSE;
 	guint    i;
 
-	if (append && (orig = g_hash_table_lookup (metadata, key))) {
-		gchar *escaped;
-		
-		escaped = tracker_escape_metadata (value);
+	/* Iptc is always low priority, don't overwrite */
+	if ( (orig = g_hash_table_lookup (metadata, key)) != NULL) {
+		if (append) {
+			gchar *escaped;
 
-		list = g_strsplit (orig, "|", -1);			
-		for (i=0; list[i]; i++) {
-			if (strcmp (list[i], escaped) == 0) {
-				found = TRUE;
-				break;
+			escaped = tracker_escape_metadata (value);
+
+			list = g_strsplit (orig, "|", -1);
+			for (i=0; list[i]; i++) {
+				/* Check 32 first characters (truncated) */
+				if (strncmp (list[i], escaped, 32) == 0) {
+					found = TRUE;
+					break;
+				}
 			}
-		}			
-		g_strfreev(list);
+			g_strfreev(list);
 
-		if (!found) {
-			new_value = g_strconcat (orig, "|", escaped, NULL);
-			g_hash_table_insert (metadata, g_strdup (key), new_value);
+			if (!found) {
+				new_value = g_strconcat (orig, "|", escaped, NULL);
+				g_hash_table_insert (metadata, g_strdup (key), new_value);
+			}
+
+			g_free (escaped);
 		}
-
-		g_free (escaped);		
 	} else {
 		new_value = tracker_escape_metadata (value);
 		g_hash_table_insert (metadata, g_strdup (key), new_value);
 
 		/* FIXME Postprocessing is evil and should be elsewhere */
-		if (strcmp (key, "Image:Keywords") == 0) {
+		if (set_additional && strcmp (key, "Image:Keywords") == 0) {
 			g_hash_table_insert (metadata,
 					     g_strdup ("Image:HasKeywords"),
 					     tracker_escape_metadata ("1"));			
 		}		
 	}
 
-	/* Adding certain fields also to keywords FIXME Postprocessing is evil */
+	/* Giving certain properties HasKeywords FIXME Postprocessing is evil */
 	if ((strcmp (key, "Image:Title") == 0) ||
 	    (strcmp (key, "Image:Description") == 0) ) {
 		g_hash_table_insert (metadata,
 				     g_strdup ("Image:HasKeywords"),
 				     tracker_escape_metadata ("1"));
+	}
+	/* Adding certain fields also to keywords */
+	if ((strcmp (key, "Image:Location") == 0) ||
+	    (strcmp (key, "Image:Sublocation") == 0) ||
+	    (strcmp (key, "Image:Country") == 0) ||
+	    (strcmp (key, "Image:City") == 0) ) {
+		metadata_append (metadata, "Image:Keywords", value, TRUE, FALSE);
 	}
 }
 
@@ -148,9 +159,9 @@ tracker_read_iptc (const unsigned char *buffer,
 			iptc_dataset_get_as_str (dataset, buffer, 1024);
 			
 			if (p->post) {
-				metadata_append (metadata,p->name,(*p->post) (buffer), p->multi);
+				metadata_append (metadata,p->name,(*p->post) (buffer), p->multi, TRUE);
 			} else {
-				metadata_append (metadata, p->name, buffer, p->multi);
+				metadata_append (metadata, p->name, buffer, p->multi, TRUE);
 			}
 		}
 	}
