@@ -52,10 +52,10 @@ typedef struct {
 	DBusConnection *connection;
 
 	GHashTable    *all_devices;
-	GHashTable    *mounted_devices;
-	GHashTable    *removable_devices;
-	GHashTable    *removable_mount_points;
 	GHashTable    *batteries;
+
+	GNode         *mounts;
+	GHashTable    *mounts_by_udi;
 
 	gchar	      *ac_adapter_udi;
 	gboolean       battery_in_use;
@@ -63,8 +63,20 @@ typedef struct {
 } TrackerHalPriv;
 
 typedef struct {
+	gchar *mount_point;
+	gchar *udi;
+	guint  removable : 1;
+} MountInfo;
+
+typedef struct {
+	const gchar *path;
+	GNode *node;
+} TraverseData;
+
+typedef struct {
 	LibHalContext *context;
 	GList	      *roots;
+	gboolean       only_removable;
 } GetRoots;
 
 static void	tracker_hal_finalize		(GObject	 *object);
@@ -185,20 +197,12 @@ tracker_hal_init (TrackerHal *hal)
 						   (GDestroyNotify) g_free,
 						   (GDestroyNotify) g_free);
 
-	priv->mounted_devices = g_hash_table_new_full (g_str_hash,
-						       g_str_equal,
-						       (GDestroyNotify) g_free,
-						       (GDestroyNotify) g_free);
+	priv->mounts = g_node_new (NULL);
 
-	priv->removable_devices = g_hash_table_new_full (g_str_hash,
-							 g_str_equal,
-							 (GDestroyNotify) g_free,
-							 (GDestroyNotify) g_free);
-
-	priv->removable_mount_points = g_hash_table_new_full (g_str_hash,
-							      g_str_equal,
-							      (GDestroyNotify) g_free,
-							      (GDestroyNotify) g_free);
+	priv->mounts_by_udi = g_hash_table_new_full (g_str_hash,
+						     g_str_equal,
+						     (GDestroyNotify) g_free,
+						     NULL);
 
 	priv->batteries = g_hash_table_new_full (g_str_hash,
 						 g_str_equal,
@@ -266,6 +270,37 @@ tracker_hal_init (TrackerHal *hal)
 	}
 }
 
+static gboolean
+free_mount_info (GNode    *node,
+		 gpointer  user_data)
+{
+	MountInfo *info;
+
+	info = node->data;
+
+	if (info) {
+		g_free (info->mount_point);
+		g_free (info->udi);
+
+		g_slice_free (MountInfo, info);
+	}
+
+	return FALSE;
+}
+
+static void
+free_mount_node (GNode *node)
+{
+	g_node_traverse (node,
+			 G_POST_ORDER,
+			 G_TRAVERSE_ALL,
+			 -1,
+			 free_mount_info,
+			 NULL);
+
+	g_node_destroy (node);
+}
+
 static void
 tracker_hal_finalize (GObject *object)
 {
@@ -273,16 +308,12 @@ tracker_hal_finalize (GObject *object)
 
 	priv = GET_PRIV (object);
 
-	if (priv->removable_mount_points) {
-		g_hash_table_unref (priv->removable_mount_points);
+	if (priv->mounts_by_udi) {
+		g_hash_table_unref (priv->mounts_by_udi);
 	}
 
-	if (priv->removable_devices) {
-		g_hash_table_unref (priv->removable_devices);
-	}
-
-	if (priv->mounted_devices) {
-		g_hash_table_unref (priv->mounted_devices);
+	if (priv->mounts) {
+		free_mount_node (priv->mounts);
 	}
 
 	if (priv->all_devices) {
@@ -522,6 +553,86 @@ hal_setup_batteries (TrackerHal *hal)
 	return TRUE;
 }
 
+static gboolean
+mount_point_traverse_func (GNode    *node,
+			   gpointer  user_data)
+{
+	TraverseData *data;
+	MountInfo *info;
+
+	if (!node->data) {
+		/* Root node */
+		return FALSE;
+	}
+
+	data = user_data;
+	info = node->data;
+
+	if (g_str_has_prefix (data->path, info->mount_point)) {
+		data->node = node;
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
+static GNode *
+find_mount_point (GNode       *root,
+		  const gchar *path)
+{
+	TraverseData data = { path, NULL };
+
+	g_node_traverse (root,
+			 G_POST_ORDER,
+			 G_TRAVERSE_ALL,
+			 -1,
+			 mount_point_traverse_func,
+			 &data);
+
+	return data.node;
+}
+
+static MountInfo *
+find_mount_point_info (GNode       *root,
+		       const gchar *path)
+{
+	GNode *node;
+
+	node = find_mount_point (root, path);
+	return (node) ? node->data : NULL;
+}
+
+static GNode *
+mount_point_hierarchy_add (GNode       *root,
+			   const gchar *mount_point,
+			   const gchar *udi,
+			   gboolean     removable)
+{
+	MountInfo *info;
+	GNode *node;
+	gchar *mp;
+
+	/* Normalize all mount points to have a / at the end */
+	if (g_str_has_suffix (mount_point, G_DIR_SEPARATOR_S)) {
+		mp = g_strdup (mount_point);
+	} else {
+		mp = g_strconcat (mount_point, G_DIR_SEPARATOR_S, NULL);
+	}
+
+	node = find_mount_point (root, mp);
+
+	if (!node) {
+		node = root;
+	}
+
+	info = g_slice_new (MountInfo);
+	info->mount_point = mp;
+	info->udi = g_strdup (udi);
+	info->removable = removable;
+
+	return g_node_append_data (node, info);
+}
+
 static void
 hal_mount_point_add (TrackerHal  *hal,
 		     const gchar *udi,
@@ -529,6 +640,7 @@ hal_mount_point_add (TrackerHal  *hal,
 		     gboolean	  removable_device)
 {
 	TrackerHalPriv *priv;
+	GNode *node;
 
 	priv = GET_PRIV (hal);
 
@@ -536,19 +648,9 @@ hal_mount_point_add (TrackerHal  *hal,
 		   (const gchar*) g_hash_table_lookup (priv->all_devices, udi),
 		   mount_point,
 		   removable_device ? "yes" : "no");
-	
-	g_hash_table_insert (priv->mounted_devices,
-			     g_strdup (udi),
-			     g_strdup (mount_point));
 
-	if (removable_device) {
-		g_hash_table_insert (priv->removable_devices,
-				     g_strdup (udi),
-				     g_strdup (mount_point));
-		g_hash_table_insert (priv->removable_mount_points,
-				     g_strdup (mount_point),
-				     g_strdup (udi));
-	}
+	node = mount_point_hierarchy_add (priv->mounts, mount_point, udi, removable_device);
+	g_hash_table_insert (priv->mounts_by_udi, g_strdup (udi), node);
 
 	g_signal_emit (hal, signals[MOUNT_POINT_ADDED], 0, udi, mount_point, NULL);
 }
@@ -557,30 +659,30 @@ static void
 hal_mount_point_remove (TrackerHal  *hal,
 			const gchar *udi)
 {
+	MountInfo      *info;
 	TrackerHalPriv *priv;
-	const gchar    *mount_point;
-	gboolean        was_removable;
+	GNode          *node;
 
 	priv = GET_PRIV (hal);
 
-	mount_point = g_hash_table_lookup (priv->mounted_devices, udi);
+	node = g_hash_table_lookup (priv->mounts_by_udi, udi);
 
-	if (!mount_point) {
+	if (!node) {
 		return;
 	}
 
-	was_removable = g_hash_table_remove (priv->removable_devices, udi);
-	g_hash_table_remove (priv->removable_mount_points, mount_point);
+	info = node->data;
 
 	g_message ("HAL device:'%s' with mount point:'%s' (uuid:'%s'), removable:%s NO LONGER being tracked",
 		   (const gchar*) g_hash_table_lookup (priv->all_devices, udi),
-		   mount_point,
+		   info->mount_point,
 		   udi,
-		   was_removable ? "yes" : "no");
-	
-	g_signal_emit (hal, signals[MOUNT_POINT_REMOVED], 0, udi, mount_point, NULL);
+		   info->removable ? "yes" : "no");
 
-	g_hash_table_remove (priv->mounted_devices, udi);
+	g_signal_emit (hal, signals[MOUNT_POINT_REMOVED], 0, udi, info->mount_point, NULL);
+
+	g_hash_table_remove (priv->mounts_by_udi, udi);
+	free_mount_node (node);
 }
 
 static const gchar *
@@ -873,7 +975,6 @@ hal_device_removed_cb (LibHalContext *context,
 	TrackerHal     *hal;
 	TrackerHalPriv *priv;
 	const gchar    *device_file;
-	const gchar    *mount_point;
 
 	hal = (TrackerHal*) libhal_ctx_get_user_data (context);
 	priv = GET_PRIV (hal);
@@ -888,14 +989,10 @@ hal_device_removed_cb (LibHalContext *context,
 			return;
 		}
 
-		mount_point = g_hash_table_lookup (priv->mounted_devices, udi);
-
 		g_message ("HAL device:'%s' removed:",
 			   device_file);
 		g_message ("  UDI	 : %s",
 			   udi);
-		g_message ("  Mount point: %s",
-			   mount_point);
 
 		g_hash_table_remove (priv->all_devices, udi);
 
@@ -1081,31 +1178,19 @@ hal_get_mount_point_by_udi_foreach (gpointer key,
 				    gpointer value,
 				    gpointer user_data)
 {
-	LibHalVolume  *volume;
 	GetRoots      *gr;
 	const gchar   *udi;
-	const gchar   *mount_point;
-	gboolean       is_mounted;
+	GNode         *node;
+	MountInfo     *info;
 
 	gr = (GetRoots*) user_data;
 	udi = key;
+	node = value;
+	info = node->data;
 
-	volume = libhal_volume_from_udi (gr->context, udi);
-	if (!volume) {
-		g_message ("HAL device with udi:'%s' has no volume, "
-			   "should we delete?",
-			   udi);
-		return;
+	if (!gr->only_removable || info->removable) {
+		gr->roots = g_list_prepend (gr->roots, g_strdup (info->mount_point));
 	}
-
-	mount_point = libhal_volume_get_mount_point (volume);
-	is_mounted = libhal_volume_is_mounted (volume);
-
-	if (is_mounted && mount_point) {
-		gr->roots = g_list_prepend (gr->roots, g_strdup (mount_point));
-	}
-
-	libhal_volume_free (volume);
 }
 
 /**
@@ -1129,8 +1214,9 @@ tracker_hal_get_mounted_directory_roots (TrackerHal *hal)
 
 	gr.context = priv->context;
 	gr.roots = NULL;
+	gr.only_removable = FALSE;
 
-	g_hash_table_foreach (priv->mounted_devices,
+	g_hash_table_foreach (priv->mounts_by_udi,
 			      hal_get_mount_point_by_udi_foreach,
 			      &gr);
 
@@ -1158,8 +1244,9 @@ tracker_hal_get_removable_device_roots (TrackerHal *hal)
 
 	gr.context = priv->context;
 	gr.roots = NULL;
+	gr.only_removable = TRUE;
 
-	g_hash_table_foreach (priv->removable_devices,
+	g_hash_table_foreach (priv->mounts_by_udi,
 			      hal_get_mount_point_by_udi_foreach,
 			      &gr);
 
@@ -1186,41 +1273,35 @@ tracker_hal_path_is_on_removable_device (TrackerHal  *hal,
 					 gboolean    *available)
 {
 	TrackerHalPriv *priv;
-	GHashTableIter  iter;
-	gboolean        found = FALSE;
-	gpointer        key, value;
+	MountInfo      *info;
 
 	g_return_val_if_fail (TRACKER_IS_HAL (hal), FALSE);
 
-	if (!path)
+	if (!path) {
 		return FALSE;
-
-	priv = GET_PRIV (hal);
-
-	g_hash_table_iter_init (&iter, priv->removable_devices);
-
-	while (g_hash_table_iter_next (&iter, &key, &value)) {
-		const gchar *mp;
-
-		mp = value;
-
-		if (mp && path &&
-		    g_str_has_prefix (path, mp)) {
-			found = TRUE;
-
-			if (mount_point) {
-				*mount_point = g_strdup (mp);
-			}
-
-			if (available) {
-				*available = TRUE;
-			}
-
-			break;
-		}
 	}
 
-	return found;
+	priv = GET_PRIV (hal);
+	info = find_mount_point_info (priv->mounts, path);
+
+	if (!info) {
+		return FALSE;
+	}
+
+	if (!info->removable) {
+		return FALSE;
+	}
+
+	/* Mount point found and is removable */
+	if (mount_point) {
+		*mount_point = g_strdup (info->mount_point);
+	}
+
+	if (available) {
+		*available = TRUE;
+	}
+
+	return TRUE;
 }
 
 
@@ -1238,12 +1319,31 @@ GList *
 tracker_hal_get_removable_device_udis (TrackerHal *hal)
 {
 	TrackerHalPriv *priv;
+	GHashTableIter iter;
+	gpointer key, value;
+	GList *udis = NULL;
 
 	g_return_val_if_fail (TRACKER_IS_HAL (hal), NULL);
 
 	priv = GET_PRIV (hal);
-	
-	return g_hash_table_get_keys (priv->removable_devices);
+
+	g_hash_table_iter_init (&iter, priv->mounts_by_udi);
+
+	while (g_hash_table_iter_next (&iter, &key, &value)) {
+		const gchar *udi;
+		GNode *node;
+		MountInfo *info;
+
+		udi = key;
+		node = value;
+		info = node->data;
+
+		if (info->removable) {
+			udis = g_list_prepend (udis, (gpointer) udi);
+		}
+	}
+
+	return g_list_reverse (udis);
 }
 
 /**
@@ -1258,13 +1358,21 @@ tracker_hal_udi_get_mount_point (TrackerHal  *hal,
 				 const gchar *udi)
 {
 	TrackerHalPriv *priv;
+	GNode *node;
+	MountInfo *info;
 
 	g_return_val_if_fail (TRACKER_IS_HAL (hal), NULL);
 	g_return_val_if_fail (udi != NULL, NULL);
 
 	priv = GET_PRIV (hal);
-	
-	return g_hash_table_lookup (priv->removable_devices, udi);
+	node = g_hash_table_lookup (priv->mounts_by_udi, udi);
+
+	if (!node) {
+		return NULL;
+	}
+
+	info = node->data;
+	return info->mount_point;
 }
 
 /**
@@ -1319,37 +1427,23 @@ tracker_hal_udi_get_for_path (TrackerHal  *hal,
 			      const gchar *path)
 {
 	TrackerHalPriv *priv;
-	GFile          *file, *file_for_mount_point;
-	GMount         *mount;
-	GError         *error = NULL;
-	gchar          *path_for_mount_point;
-	const gchar    *udi;
+	MountInfo      *info;
 
 	g_return_val_if_fail (TRACKER_IS_HAL (hal), NULL);
 	g_return_val_if_fail (path != NULL, NULL);
 
-	/* Get the actual mount point root for the given path */
-	file = g_file_new_for_path (path);
-	mount = g_file_find_enclosing_mount (file, NULL, &error);
-	g_object_unref (file);
+	priv = GET_PRIV (hal);
 
-	if (!mount) {
+	info = find_mount_point_info (priv->mounts, path);
+
+	if (!info) {
 		return NULL;
 	}
 
-	file_for_mount_point = g_mount_get_root (mount);
-	path_for_mount_point = g_file_get_path (file_for_mount_point);
-	g_object_unref (file_for_mount_point);
-	g_object_unref (mount);
+	g_debug ("Mount for path '%s' is '%s' (UDI:'%s')",
+		 path, info->mount_point, info->udi);
 
-	/* Now check against all volumes to get the right UDI */
-	priv = GET_PRIV (hal);
-
-	udi = g_hash_table_lookup (priv->removable_mount_points, 
-				   path_for_mount_point);
-	g_free (path_for_mount_point);
-
-	return udi;
+	return info->udi;
 }
 
 #endif /* HAVE_HAL */
