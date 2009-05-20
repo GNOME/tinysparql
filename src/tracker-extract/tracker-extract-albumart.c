@@ -48,6 +48,7 @@
 static gboolean
 set_albumart (const unsigned char *buffer,
 	      size_t               len,
+	      const gchar         *mime,
 	      const gchar         *artist, 
 	      const gchar         *album,
 	      const gchar         *uri)
@@ -66,36 +67,40 @@ set_albumart (const unsigned char *buffer,
 
 	tracker_albumart_get_path (artist, album, "album", NULL, &filename, NULL);
 
-	loader = gdk_pixbuf_loader_new ();
+	if (g_strcmp0 (mime, "image/jpeg") == 0 || g_strcmp0 (mime, "JPG") == 0) {
+		g_file_set_contents (filename, buffer, (gssize) len, NULL);
+	} else {
+		loader = gdk_pixbuf_loader_new ();
 
-	if (!gdk_pixbuf_loader_write (loader, buffer, len, &error)) {
-		g_warning ("%s\n", error->message);
-		g_error_free (error);
+		if (!gdk_pixbuf_loader_write (loader, buffer, len, &error)) {
+			g_warning ("%s\n", error->message);
+			g_error_free (error);
 
-		gdk_pixbuf_loader_close (loader, NULL);
-		g_free (filename);
-		return FALSE;
-	}
+			gdk_pixbuf_loader_close (loader, NULL);
+			g_free (filename);
+			return FALSE;
+		}
 
-	pixbuf = gdk_pixbuf_loader_get_pixbuf (loader);
+		pixbuf = gdk_pixbuf_loader_get_pixbuf (loader);
 
-	if (!gdk_pixbuf_save (pixbuf, filename, "jpeg", &error, NULL)) {
-		g_warning ("%s\n", error->message);
-		g_error_free (error);
+		if (!gdk_pixbuf_save (pixbuf, filename, "jpeg", &error, NULL)) {
+			g_warning ("%s\n", error->message);
+			g_error_free (error);
 
-		g_free (filename);
+			g_free (filename);
+			g_object_unref (pixbuf);
+
+			gdk_pixbuf_loader_close (loader, NULL);
+			return FALSE;
+		}
+
+
 		g_object_unref (pixbuf);
 
-		gdk_pixbuf_loader_close (loader, NULL);
-		return FALSE;
-	}
-
-
-	g_object_unref (pixbuf);
-
-	if (!gdk_pixbuf_loader_close (loader, &error)) {
-		g_warning ("%s\n", error->message);
-		g_error_free (error);
+		if (!gdk_pixbuf_loader_close (loader, &error)) {
+			g_warning ("%s\n", error->message);
+			g_error_free (error);
+		}
 	}
 
 	tracker_thumbnailer_queue_file (filename, "image/jpeg");
@@ -109,6 +114,7 @@ set_albumart (const unsigned char *buffer,
 gboolean
 tracker_process_albumart (const unsigned char *buffer,
                           size_t               len,
+                          const gchar         *buf_mime,
                           const gchar         *artist,
                           const gchar         *album,
                           const gchar         *trackercnt_str,
@@ -145,7 +151,7 @@ tracker_process_albumart (const unsigned char *buffer,
 		/* If we have embedded album art */
 		if (buffer && len) {
 			retval = set_albumart (buffer, 
-					       len,
+					       len, buf_mime,
 					       artist,
 					       album,
 					       filename);

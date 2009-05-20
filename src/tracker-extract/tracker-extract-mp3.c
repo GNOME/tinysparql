@@ -87,6 +87,7 @@ typedef struct {
 
 	unsigned char *albumartdata;
 	size_t         albumartsize;
+	gchar         *albumartmime
 } file_data;
 
 enum {
@@ -978,6 +979,7 @@ get_id3v24_tags (const gchar *data,
 				offset = pos + 11 + mime_len + 2 + strlen (desc) + 1;
 
 				filedata->albumartdata = g_malloc0 (csize);
+				filedata->albumartmime = g_strdup (mime);
 				memcpy (filedata->albumartdata, &data[offset], csize);
 				filedata->albumartsize = csize;
 			}
@@ -1210,6 +1212,7 @@ get_id3v23_tags (const gchar *data,
 				offset = pos + 11 + mime_len + 2 + strlen (desc) + 1;
 				
 				filedata->albumartdata = g_malloc0 (csize);
+				filedata->albumartmime = g_strdup (mime);
 				memcpy (filedata->albumartdata, &data[offset], csize);
 				filedata->albumartsize = csize;
 			}
@@ -1362,13 +1365,16 @@ get_id3v20_tags (const gchar *data,
 			gchar          pic_type;
 			const gchar   *desc;
 			guint          offset;
+			const gchar   *mime;
 
+			mime      = &data[pos + 6 + 3 + 1];
 			pic_type  =  data[pos + 6 + 3 + 1 + 3];
 			desc      = &data[pos + 6 + 3 + 1 + 3 + 1];
 
 			if (pic_type == 3 || (pic_type == 0 && filedata->albumartsize == 0)) {
 				offset = pos + 6 + 3 + 1 + 3  + 1 + strlen (desc) + 1;
 
+				filedata->albumartmime = g_strdup (mime);
 				filedata->albumartdata = g_malloc0 (csize);
 				memcpy (filedata->albumartdata, &data[offset], csize);
 				filedata->albumartsize = csize;
@@ -1612,6 +1618,7 @@ extract_mp3 (const gchar *filename,
 	filedata.id3v2_size = 0;
 	filedata.duration = 0;
 	filedata.albumartdata = NULL;
+	filedata.albumartmime = NULL;
 	filedata.albumartsize = 0;
 
 	size = tracker_file_get_size (filename);
@@ -1724,13 +1731,13 @@ extract_mp3 (const gchar *filename,
 	mp3_parse (buffer, buffer_size, audio_offset, metadata, &filedata);
 
 #ifdef HAVE_GDKPIXBUF
-	tracker_process_albumart (filedata.albumartdata, filedata.albumartsize,
+	tracker_process_albumart (filedata.albumartdata, filedata.albumartsize, filedata.albumartmime,
 				  /* g_hash_table_lookup (metadata, "Audio:Artist") */ NULL,
 				  g_hash_table_lookup (metadata, "Audio:Album"),
 				  g_hash_table_lookup (metadata, "Audio:AlbumTrackCount"),
 				  filename);
 #else
-	tracker_process_albumart (NULL, 0,
+	tracker_process_albumart (NULL, 0, NULL,
 				  /* g_hash_table_lookup (metadata, "Audio:Artist") */ NULL,
 				  g_hash_table_lookup (metadata, "Audio:Album"),
 				  g_hash_table_lookup (metadata, "Audio:AlbumTrackCount"),
@@ -1738,9 +1745,8 @@ extract_mp3 (const gchar *filename,
 
 #endif /* HAVE_GDKPIXBUF */
 
-	if (filedata.albumartdata) {
-		g_free (filedata.albumartdata);
-	}
+	g_free (filedata.albumartdata);
+	g_free (filedata.albumartmime);
 
 	/* Check that we have the minimum data. FIXME We should not need to do this */
 	if (!g_hash_table_lookup (metadata, "Audio:Title")) {

@@ -749,13 +749,13 @@ tracker_extract_gstreamer (const gchar *uri,
 	/* Save embedded art */
 	if (extractor->album_art_data && extractor->album_art_size) {
 #ifdef HAVE_GDKPIXBUF
-		tracker_process_albumart (extractor->album_art_data, extractor->album_art_size,
+		tracker_process_albumart (extractor->album_art_data, extractor->album_art_size, NULL,
 					  /* g_hash_table_lookup (metadata, "Audio:Artist") */ NULL,
 					  g_hash_table_lookup (metadata, "Audio:Album"),
 					  g_hash_table_lookup (metadata, "Audio:AlbumTrackCount"),
 					  uri);
 #else
-		tracker_process_albumart (NULL, 0,
+		tracker_process_albumart (NULL, 0, NULL,
 					  /* g_hash_table_lookup (metadata, "Audio:Artist") */ NULL,
 					  g_hash_table_lookup (metadata, "Audio:Album"),
 					  g_hash_table_lookup (metadata, "Audio:AlbumTrackCount"),
