@@ -42,8 +42,6 @@
 #include "tracker-extract-client.h"
 #include "tracker-dbus.h"
 
-#define METADATA_FILE_NAME_DELIMITED "File:NameDelimited"
-#define METADATA_FILE_EXT            "File:Ext"
 #define METADATA_FILE_PATH           "File:Path"
 #define METADATA_FILE_NAME           "File:Name"
 #define METADATA_FILE_LINK           "File:Link"
@@ -846,7 +844,6 @@ tracker_module_metadata_utils_get_data (GFile *file)
 {
 	TrackerModuleMetadata *metadata;
 	struct stat st;
-	const gchar *ext;
 	gchar *path, *mime_type;
 	gchar *dirname, *basename, *path_delimited;
 
@@ -858,12 +855,6 @@ tracker_module_metadata_utils_get_data (GFile *file)
 	}
 
 	metadata = tracker_module_metadata_new ();
-	ext = strrchr (path, '.');
-
-	if (ext) {
-		ext++;
-		tracker_module_metadata_add_string (metadata, METADATA_FILE_EXT, ext);
-	}
 
 	mime_type = tracker_file_get_mime_type (path);
 
@@ -873,27 +864,11 @@ tracker_module_metadata_utils_get_data (GFile *file)
 
 	tracker_module_metadata_add_string (metadata, METADATA_FILE_NAME, basename);
 	tracker_module_metadata_add_string (metadata, METADATA_FILE_PATH, dirname);
-	tracker_module_metadata_add_string (metadata, METADATA_FILE_NAME_DELIMITED, path_delimited);
 	tracker_module_metadata_add_string (metadata, METADATA_FILE_MIMETYPE, mime_type);
 
 	g_free (path_delimited);
 	g_free (basename);
 	g_free (dirname);
-
-	if (S_ISLNK (st.st_mode)) {
-		gchar *link_path;
-
-		link_path = g_file_read_link (path, NULL);
-		if (link_path) {
-			gchar *link_path_delimited;
-			link_path_delimited = g_filename_to_utf8 (link_path, -1, NULL, NULL, NULL);
-
-			tracker_module_metadata_add_string (metadata, METADATA_FILE_LINK, link_path_delimited);
-
-			g_free (link_path_delimited);
-			g_free (link_path);
-		}
-	}
 
 	tracker_module_metadata_add_uint (metadata, METADATA_FILE_SIZE, st.st_size);
 	tracker_module_metadata_add_date (metadata, METADATA_FILE_MODIFIED, st.st_mtime);

@@ -95,8 +95,6 @@
 #define TRACKER_INDEXER_ERROR_CODE  0
 
 /* Properties that change in move event */
-#define METADATA_FILE_NAME_DELIMITED "File:NameDelimited"
-#define METADATA_FILE_EXT	     "File:Ext"
 #define METADATA_FILE_PATH	     "File:Path"
 #define METADATA_FILE_NAME	     "File:Name"
 #define METADATA_FILE_MIMETYPE       "File:Mime"
@@ -1626,22 +1624,26 @@ generate_item_thumbnail (TrackerIndexer        *indexer,
 			 const gchar           *basename,
 			 TrackerModuleMetadata *metadata)
 {
-	const gchar *path, *mime_type;
+	const gchar *mime_type;
 
-	path = tracker_module_metadata_lookup (metadata, METADATA_FILE_NAME_DELIMITED, FALSE);
 	mime_type = tracker_module_metadata_lookup (metadata, METADATA_FILE_MIMETYPE, FALSE);
 
-	if (path && path[0] == G_DIR_SEPARATOR && mime_type &&
+	if (dirname && 
+	    dirname[0] == G_DIR_SEPARATOR && 
+	    mime_type &&
 	    tracker_config_get_enable_thumbnails (indexer->private->config)) {
 		GFile *file;
 		gchar *uri;
+		gchar *path;
 
+		path = g_build_filename (dirname, basename, NULL);
 		file = g_file_new_for_path (path);
+		g_free (path);
+
 		uri = g_file_get_uri (file);
+		g_object_unref (file);
 
 		tracker_thumbnailer_queue_file (uri, mime_type);
-
-		g_object_unref (file);
 		g_free (uri);
 	}
 }
@@ -1828,12 +1830,11 @@ filter_invalid_after_move_properties (TrackerField *field,
 
 	name = tracker_field_get_name (field);
 
-	if (g_strcmp0 (name, METADATA_FILE_NAME_DELIMITED) == 0 ||
-	    g_strcmp0 (name, METADATA_FILE_NAME) == 0 ||
-	    g_strcmp0 (name, METADATA_FILE_PATH) == 0 ||
-	    g_strcmp0 (name, METADATA_FILE_EXT) == 0) {
+	if (g_strcmp0 (name, METADATA_FILE_NAME) == 0 ||
+	    g_strcmp0 (name, METADATA_FILE_PATH) == 0) {
 		return FALSE;
 	}
+
 
 	return TRUE;
 }
@@ -1923,7 +1924,6 @@ update_moved_item_index (TrackerIndexer      *indexer,
 	TrackerDataUpdateMetadataContext *context;
 	TrackerModuleMetadata *new_metadata;
 	gchar *path, *new_path, *new_name;
-	const gchar *ext;
 
 	path = g_file_get_path (file);
 
@@ -1942,13 +1942,6 @@ update_moved_item_index (TrackerIndexer      *indexer,
 
 	tracker_module_metadata_add_string (new_metadata, METADATA_FILE_PATH, new_path);
 	tracker_module_metadata_add_string (new_metadata, METADATA_FILE_NAME, new_name);
-	tracker_module_metadata_add_string (new_metadata, METADATA_FILE_NAME_DELIMITED, path);
-
-	ext = strrchr (path, '.');
-	if (ext) {
-		ext++;
-		tracker_module_metadata_add_string (new_metadata, METADATA_FILE_EXT, ext);
-	}
 
 	context = tracker_data_update_metadata_context_new (TRACKER_CONTEXT_TYPE_UPDATE,
 							    service, service_id);
@@ -1984,7 +1977,9 @@ item_erase (TrackerIndexer *indexer,
 		gchar *uri;
 
 		/* TODO URI branch: this is a URI conversion */
-		path = tracker_data_metadata_lookup (data_metadata, "File:NameDelimited");
+		path = g_build_path (tracker_data_metadata_lookup (data_metadata, "File:Path"),
+				     tracker_data_metadata_lookup (data_metadata, "File:Name"),
+				     NULL);
 		file = g_file_new_for_path (path);
 		uri = g_file_get_uri (file);
 		g_object_unref (file);
