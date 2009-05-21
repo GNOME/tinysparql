@@ -72,6 +72,7 @@
 #include "tracker-volume-cleanup.h"
 #include "tracker-backup.h"
 #include "tracker-daemon.h"
+#include "tracker-store.h"
 
 #ifdef G_OS_WIN32
 #include <windows.h>
@@ -898,6 +899,7 @@ main (gint argc, gchar *argv[])
 			  NULL);
 #endif /* HAVE_HAL */
 
+	tracker_store_init ();
 	tracker_status_init (config, hal_power);
 
 	tracker_module_config_init ();
@@ -1009,6 +1011,7 @@ main (gint argc, gchar *argv[])
 	tracker_nfs_lock_shutdown ();
 	tracker_status_shutdown ();
 	tracker_turtle_shutdown ();
+	tracker_store_shutdown ();
 	tracker_thumbnailer_shutdown ();
 	tracker_log_shutdown ();
 

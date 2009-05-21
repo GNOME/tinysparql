@@ -1,0 +1,328 @@
+/* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
+/*
+ * Copyright (C) 2009, Nokia
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public
+ * License as published by the Free Software Foundation; either
+ * version 2 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public
+ * License along with this library; if not, write to the
+ * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA  02110-1301, USA.
+ *
+ * Author: Philip Van Hoof <philip@codeminded.be>
+ */
+
+#include "config.h"
+
+#include <libtracker-common/tracker-dbus.h>
+#include <libtracker-db/tracker-db-dbus.h>
+
+#include <libtracker-data/tracker-data-update.h>
+#include <libtracker-data/tracker-data-query.h>
+
+#include "tracker-store.h"
+
+#define TRACKER_STORE_TRANSACTION_MAX	4000
+
+typedef struct {
+	gboolean  have_handler;
+	gboolean  batch_mode;
+	guint     batch_count;
+	GQueue   *queue;
+} TrackerStorePrivate;
+
+typedef enum {
+	TRACKER_STORE_TASK_TYPE_UPDATE = 0,
+	TRACKER_STORE_TASK_TYPE_COMMIT = 1
+} TrackerStoreTaskType;
+
+typedef struct {
+	TrackerStoreTaskType  type;
+	union {
+	  gchar                   *query;
+	} data;
+	gpointer                   user_data;
+	GDestroyNotify             destroy;
+	union {
+		TrackerStoreSparqlUpdateCallback update_callback;
+		TrackerStoreCommitCallback       commit_callback;
+	} callback;
+} TrackerStoreTask;
+
+static GStaticPrivate private_key = G_STATIC_PRIVATE_INIT;
+
+static void
+private_free (gpointer data)
+{
+	TrackerStorePrivate *private = data;
+
+	g_queue_free (private->queue);
+	g_free (private);
+}
+
+static void
+tracker_store_task_free (TrackerStoreTask *task)
+{
+	g_free (task->data.query);
+	g_slice_free (TrackerStoreTask, task);
+}
+
+
+static gboolean
+queue_idle_handler (gpointer user_data)
+{
+	TrackerStorePrivate *private = user_data;
+	TrackerStoreTask    *task;
+	GError              *error = NULL;
+
+	task = g_queue_pop_head (private->queue);
+
+	if (!task) {
+		return FALSE;
+	}
+
+	/* Implicit transaction start */
+
+	if (!private->batch_mode && task->type != TRACKER_STORE_TASK_TYPE_COMMIT) {
+		/* switch to batch mode
+		   delays database commits to improve performance */
+		tracker_data_begin_transaction ();
+		private->batch_mode = TRUE;
+		private->batch_count = 0;
+	}
+
+	switch (task->type) {
+		case TRACKER_STORE_TASK_TYPE_COMMIT:
+			if (private->batch_mode) {
+				/* commit pending batch items */
+				tracker_data_commit_transaction ();
+				private->batch_mode = FALSE;
+				private->batch_count = 0;
+			}
+
+			if (task->callback.commit_callback) {
+				task->callback.commit_callback (task->user_data);
+			}
+			break;
+
+		case TRACKER_STORE_TASK_TYPE_UPDATE:
+			tracker_data_update_sparql (task->data.query, &error);
+			if (task->callback.update_callback) {
+				task->callback.update_callback (error, task->user_data);
+			}
+
+			if (!error) {
+				private->batch_count++;
+			}
+			break;
+	}
+
+	if (private->batch_count >= TRACKER_STORE_TRANSACTION_MAX) {
+		/* commit pending batch items */
+		tracker_data_commit_transaction ();
+		private->batch_mode = FALSE;
+		private->batch_count = 0;
+	}
+
+	if (task->destroy) {
+		task->destroy (task->user_data);
+	}
+
+	if (error) {
+		g_clear_error (&error);
+	}
+
+	tracker_store_task_free (task);
+
+	return TRUE;
+}
+
+static void
+queue_idle_destroy (gpointer user_data)
+{
+	TrackerStorePrivate *private = user_data;
+
+	private->have_handler = FALSE;
+}
+
+void
+tracker_store_init (void)
+{
+	TrackerStorePrivate *private;
+
+	private = g_new0 (TrackerStorePrivate, 1);
+
+	private->queue = g_queue_new ();
+
+	g_static_private_set (&private_key,
+	                      private,
+	                      private_free);
+}
+
+void
+tracker_store_shutdown (void)
+{
+	TrackerStorePrivate *private;
+
+	private = g_static_private_get (&private_key);
+	g_return_if_fail (private != NULL);
+
+	if (private->have_handler) {
+		g_debug ("Can't exit until store-queue is finished ...");
+		while (private->have_handler) {
+			g_main_context_iteration (NULL, TRUE);
+		}
+		g_debug ("Store-queue finished");
+	}
+
+	g_static_private_set (&private_key, NULL, NULL);
+}
+
+static void
+start_handler (TrackerStorePrivate *private)
+{
+	private->have_handler = TRUE;
+
+	g_idle_add_full (G_PRIORITY_DEFAULT,
+	                 queue_idle_handler,
+	                 private,
+	                 queue_idle_destroy);
+}
+
+void
+tracker_store_queue_commit (TrackerStoreCommitCallback callback,
+                            gpointer user_data,
+                            GDestroyNotify destroy)
+{
+	TrackerStorePrivate *private;
+	TrackerStoreTask    *task;
+
+	private = g_static_private_get (&private_key);
+	g_return_if_fail (private != NULL);
+
+	task = g_slice_new0 (TrackerStoreTask);
+	task->type = TRACKER_STORE_TASK_TYPE_COMMIT;
+	task->user_data = user_data;
+	task->callback.commit_callback = callback;
+	task->destroy = destroy;
+
+	g_queue_push_tail (private->queue, task);
+
+	if (!private->have_handler) {
+		start_handler (private);
+	}
+}
+
+
+void
+tracker_store_queue_sparql_update (const gchar *sparql,
+                                   TrackerStoreSparqlUpdateCallback callback,
+                                   gpointer user_data,
+                                   GDestroyNotify destroy)
+{
+	TrackerStorePrivate *private;
+	TrackerStoreTask    *task;
+
+	g_return_if_fail (sparql != NULL);
+
+	private = g_static_private_get (&private_key);
+	g_return_if_fail (private != NULL);
+
+	task = g_slice_new0 (TrackerStoreTask);
+	task->type = TRACKER_STORE_TASK_TYPE_UPDATE;
+	task->data.query = g_strdup (sparql);
+	task->user_data = user_data;
+	task->callback.update_callback = callback;
+	task->destroy = destroy;
+
+	g_queue_push_tail (private->queue, task);
+
+	if (!private->have_handler) {
+		start_handler (private);
+	}
+}
+
+void
+tracker_store_sparql_update (const gchar *sparql,
+                             GError     **error)
+{
+	TrackerStorePrivate *private;
+
+	g_return_if_fail (sparql != NULL);
+
+	private = g_static_private_get (&private_key);
+	g_return_if_fail (private != NULL);
+
+	if (private->batch_mode) {
+		/* commit pending batch items */
+		tracker_data_commit_transaction ();
+		private->batch_mode = FALSE;
+		private->batch_count = 0;
+	}
+
+	tracker_data_update_sparql (sparql, error);
+}
+
+TrackerDBResultSet*
+tracker_store_sparql_query (const gchar *sparql,
+                            GError     **error)
+{
+	return tracker_data_query_sparql (sparql, error);
+}
+
+void
+tracker_store_insert_statement (const gchar   *subject,
+                                const gchar   *predicate,
+                                const gchar   *object)
+{
+	TrackerStorePrivate *private;
+
+	g_return_if_fail (subject != NULL);
+	g_return_if_fail (predicate != NULL);
+	g_return_if_fail (object != NULL);
+
+	private = g_static_private_get (&private_key);
+	g_return_if_fail (private != NULL);
+
+	if (private->batch_mode) {
+		/* commit pending batch items */
+		tracker_data_commit_transaction ();
+		private->batch_mode = FALSE;
+		private->batch_count = 0;
+	}
+
+	tracker_data_insert_statement (subject, predicate, object);
+}
+
+void
+tracker_store_delete_statement (const gchar   *subject,
+                                const gchar   *predicate,
+                                const gchar   *object)
+{
+	TrackerStorePrivate *private;
+
+	g_return_if_fail (subject != NULL);
+	g_return_if_fail (predicate != NULL);
+	g_return_if_fail (object != NULL);
+
+	private = g_static_private_get (&private_key);
+	g_return_if_fail (private != NULL);
+
+	if (private->batch_mode) {
+		/* commit pending batch items */
+		tracker_data_commit_transaction ();
+		private->batch_mode = FALSE;
+		private->batch_count = 0;
+	}
+
+	tracker_data_delete_statement (subject, predicate, object);
+}
+

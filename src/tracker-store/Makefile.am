@@ -51,7 +51,9 @@ tracker_store_SOURCES =							\
 	tracker-push-registrar.c					\
 	tracker-push-registrar.h					\
 	tracker-resource-class.c					\
-	tracker-resource-class.h
+	tracker-resource-class.h					\
+	tracker-store.c							\
+	tracker-store.h
 
 if OS_WIN32
 tracker_store_win_libs = -lws2_32 -lkernel32
