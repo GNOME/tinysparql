@@ -632,12 +632,6 @@ AC_ARG_ENABLE([kmail_push_module],
 
 AM_CONDITIONAL(USING_KMAIL_PUSH_MODULE, test "x$enable_kmail_push_module" = "xyes")
 
-AC_ARG_ENABLE([rss_push_module],
-              AS_HELP_STRING([--enable-rss-push-module],
-                             [enable support for RSS push mechanism [[default=no]]]),,
-              [enable_rss_push_module=no])
-
-AM_CONDITIONAL(USING_RSS_PUSH_MODULE, test "x$enable_rss_push_module" = "xyes")
 
 ####################################################################
 # Deskbar Applet Handler/Module
@@ -1382,7 +1376,6 @@ AC_CONFIG_FILES([
 	src/plugins/Makefile
 	src/plugins/evolution/Makefile
 	src/plugins/kmail/Makefile
-	src/plugins/rss/Makefile
 	tests/common/Makefile
 	tests/libtracker-common/Makefile
 	tests/libtracker-data/Makefile
@@ -1446,7 +1439,6 @@ Plugins:
 	Evolution extracter (data-pull):	yes (old)
 	Evolution plugin    (data-push):	$have_evolution_plugin
 	KMail plugin        (data-push):	$enable_kmail_push_module
-	RSS plugin          (data-push):	$enable_rss_push_module
 
 Warning:
 
