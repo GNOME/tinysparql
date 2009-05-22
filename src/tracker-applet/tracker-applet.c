@@ -46,8 +46,6 @@
 #include <dbus/dbus-glib.h>
 #include <dbus/dbus-glib-bindings.h>
 
-#include <glade/glade.h>
-
 #include <libtracker/tracker.h>
 
 #include <libtracker-common/tracker-utils.h>
@@ -994,35 +992,40 @@ static void
 create_prefs (TrayIcon *icon)
 {
 	TrayIconPrivate *priv;
-	GladeXML *glade;
+        GtkBuilder *builder;
+        GError* error = NULL;
 	gchar *filename;
 
 	priv = TRAY_ICON_GET_PRIVATE (icon);
 	filename = g_build_filename (SHAREDIR,
 				     "tracker",
-				     "tracker-applet-prefs.glade",
+				     "tracker-applet-prefs.ui",
 				     NULL);
-	glade = glade_xml_new (filename, NULL, "tracker");
-
-	if (!glade) {
-		g_error ("Unable to find locate '%s'", filename);
-		g_free (filename);
-		priv->prefs_window = NULL;
-		return;
-	}
+	builder = gtk_builder_new ();
+        if (!gtk_builder_add_from_file (builder, filename, &error)) {
+          g_error ("Unable to find '%s'", filename);
+          g_free (filename);
+          priv->prefs_window = NULL;
+          return;
+        }
 
 	g_free (filename);
 
-	priv->prefs_window = glade_xml_get_widget (glade, "wnd_prefs");
+	priv->prefs_window =
+          GTK_WIDGET (gtk_builder_get_object (builder, "wnd_prefs"));
 	gtk_widget_hide (priv->prefs_window);
 	gtk_window_set_deletable (GTK_WINDOW (priv->prefs_window), FALSE);
 
-	priv->chk_animate = glade_xml_get_widget (glade, "chk_animate");
-	priv->chk_show_icon = glade_xml_get_widget (glade, "chk_show_icon");
-	priv->opt_pause_off = glade_xml_get_widget (glade, "opt_pause_off");
+	priv->chk_animate =
+          GTK_WIDGET (gtk_builder_get_object (builder, "chk_animate"));
+	priv->chk_show_icon =
+          GTK_WIDGET (gtk_builder_get_object (builder, "chk_show_icon"));
+	priv->opt_pause_off =
+          GTK_WIDGET (gtk_builder_get_object (builder, "opt_pause_off"));
 	priv->opt_pause_index =
-		glade_xml_get_widget (glade, "opt_pause_index");
-	priv->btn_close = glade_xml_get_widget (glade, "btn_close");
+          GTK_WIDGET (gtk_builder_get_object (builder, "opt_pause_index"));
+	priv->btn_close =
+          GTK_WIDGET (gtk_builder_get_object (builder, "btn_close"));
 
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (priv->chk_animate),
 				      priv->show_animation);

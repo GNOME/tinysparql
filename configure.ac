@@ -131,7 +131,6 @@ DBUS_REQUIRED=0.60
 GLIB_REQUIRED=2.16.0
 PANGO_REQUIRED=1.0.0
 GTK_REQUIRED=2.16.0
-GLADE_REQUIRED=2.5
 GMIME_REQUIRED=2.1.0
 LIBXML2_REQUIRED=0.6
 LIBNOTIFY_REQUIRED=0.4.3
@@ -890,23 +889,13 @@ if test "x$enable_tracker_preferences" != "xno" ; then
       AC_SUBST([GTK2_CFLAGS])
       AC_SUBST([GTK2_LIBS])
    fi
-
-   if test "$have_tracker_preferences" = "yes"; then
-      PKG_CHECK_MODULES(LIBGLADE,  
-      		        [libglade-2.0 >= $GLADE_REQUIRED], 
-			[have_tracker_preferences=yes], 
-			[have_tracker_preferences=no])
-
-      AC_SUBST([LIBGLADE_CFLAGS])
-      AC_SUBST([LIBGLADE_LIBS])
-   fi
 else
    have_tracker_preferences="no  (disabled)"
 fi
 
 if test "x$enable_tracker_preferences" = "xyes"; then
    if test "x$have_tracker_preferences" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find tracker-preferences dependencies (GLib >= $GLIB_REQUIRED, GTK+ >= $GTK_REQUIRED, Libglade >= $GLADE_REQUIRED).])
+      AC_MSG_ERROR([Couldn't find tracker-preferences dependencies (GLib >= $GLIB_REQUIRED, GTK+ >= $GTK_REQUIRED).])
    fi
 fi
 

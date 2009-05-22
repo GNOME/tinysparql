@@ -7,7 +7,7 @@ bin_PROGRAMS = tracker-preferences
 desktopdir = $(datadir)/applications
 desktop_DATA =  tracker-preferences.desktop
 
-pkgdata_DATA = tracker-preferences.glade
+pkgdata_DATA = tracker-preferences.ui
 
 INCLUDES = 								\
 	-DTRACKER_DATADIR=\""$(datadir)/tracker"\" 			\
@@ -20,8 +20,7 @@ INCLUDES = 								\
 	$(GLIB_CFLAGS) 							\
 	$(GCOV_CFLAGS) 							\
 	$(GTK2_CFLAGS) 							\
-	$(DBUS_CFLAGS) 							\
-	$(LIBGLADE_CFLAGS)
+	$(DBUS_CFLAGS)
 
 tracker_preferences_SOURCES = 						\
 	tracker-preferences.c 						\
@@ -35,7 +34,6 @@ tracker_preferences_SOURCES = 						\
 tracker_preferences_LDADD = 						\
 	$(top_builddir)/src/libtracker/libtrackerclient-@TRACKER_API_VERSION@.la	\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
-	$(LIBGLADE_LIBS)						\
 	$(GTK2_LIBS) 							\
 	$(DBUS_LIBS) 							\
 	$(GCOV_LIBS) 							\
