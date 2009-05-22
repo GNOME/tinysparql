@@ -1,3 +1,89 @@
+NEW in 0.6.95:
+==============
+
+Improvements:
+  * Fixes indexer potential path breakage by using g_build_path instead
+  * Fixes indexer so we do not parse metadata text if FTS is disabled
+  * Fixes mime check for albumart extraction in gstreamer & mp3 extractors
+  * Fixes max extractor time per file from 10s to 5s, videos reached this
+  * Fixes n updates vs. 1 insert to DB Services table, much faster now
+  * Fixes SQLite FTS warning in logs
+  * Fixes double free in MP3 extractor
+  * Fixes memory leaks in tracker-files
+  * Fixes trackerd to remove QDBM indexes on reindex too.
+  * Fixes indexer to disable all sync/async flushing on any error
+  * Fixes SEGFAULT if calling g_filename_to_utf8() with symlink
+  * Fixes not crawling inserted media AFTER indexing is complete
+  * Fixes album art heuristics
+  * Fixes missing va_end calls in evolution-imap module when returning
+  * Fixes unchecked return values g_stat() and g_file_get_content()
+  * Fixes unused variables left in various places found by coverity
+  * Fixes leaks in utils/qdbm/ print and search applications
+  * Fixes xmp extractor white balance check which had old code in use
+  * Fixes RDF query functions which failed coverity checks
+  * Fixes condition where we hang setting volume states with no volumes
+  * Fixes daemon shutdown with unresponsive indexer setting volume states
+  * Fixes warning in indexer logs for NULL udi
+  * Fixes the way we get volume IDs for a given path
+  * Fixes albumart heuristic scanner
+  * Fixes tracker-query to allow queries without an rdf-file
+  * Fixes binary search index size error, assumed 0 to array->len
+  * Fixes binary search index use gint64 not guint for array index
+  * Fixes indexer invalid writes in state_to_string() if string is empty
+  * Fixes indexer crash, by setting ALL struct members in unindex_metadata
+  * Fixes turtle memory leaks and unnecessary allocations and adds checks
+  * Fixes trackerd disk_space_check_stop() critical warning on shutdown
+  * Fixes indexer transactions, start after data extraction, now 2x faster
+  * Fixes indexer to perform binary searches on cached words.
+  * Fixes tracker_hal_path_is_on_removable_device() performance.
+  * Fixes need for sqlite_load_extension() without FTS support enabled.
+  * Fixes several memory leaks
+  * Fixes missing break causing WHERE property to return ORDER property
+  * Added more generic DBus API for performing aggregates on unique values
+  * Added test cases for TrackerDataMetadata, TrackerThumbnailer, etc
+  * Added dynamic pragma loading for SQLite now in $HOME/.config/tracker
+  * Improves indexer's error handling, we now pause on error
+  * Improves MP3 extractor checks for files before getting metadata
+  * Improves indexing speed by not inserting less important metadata to db
+  * Improves indexing speed by using less columns for Services indices
+  * Improves HAL UDI lookup speed from ~5ms to 0.5ms
+  * Improves embedded albumart extraction speed
+  * Reverted QDBM binary search work after several negative reports
+  * Disable QDBM operations with patch 09
+  * Disable FTS support, so we don't open files and extract content
+  * Disabled indexer TTL support improving speed and general responsivness
+  * Set volume states before enabling DBus interfaces, shutdown on error
+
+Bugs:
+  * Fixes: NB#110584, Image:HasKeywords cannot be used for ImageViewer...
+  * Fixes: NB#113083, Tracker extracts Sub-location instead of Location...
+  * Fixes: NB#106085, Tracked database is not updated when images were...
+  * Fixes: NB#110584, Image:HasKeywords cannot be used for ImageViewer...
+  * Fixes: NB#115978, two instances of "0" are seen in the tracker-unique...
+  * Fixes: NB#109892, NFTTOP10: tracker-files is not listing the newly ...
+  * Fixes: NB#112632, Files seem to go missing from database
+  * Fixes: NB#113903, tracker-extract crashes on mp3 files with a bad...
+  * Fixes: NB#110221, ML: Album Art is not displaying in All Album...
+  * Fixes: NB#100123, Image:Date is empty for some of the images
+  * Fixes: NB#115184, tracker-unique crashed
+  * Fixes: NB#114354, trackerd polls
+  * Fixes: NB#113528, Tracker indexer crashes after querying meta data of...
+  * Fixes: NB#109071, Error updating "Playlist:ValidDuration" property
+  * Fixes: NB#107962, trackerd crashes
+  * Fixes: GB#580586, FTBFS: undefined reference to `sqlite3_enable_load...
+  * Fixes: GB#580908, [PATCH] Make configure error on missing hal and ...
+  * Fixes: GB#580905, [PATCH] Clean up help messages in configure
+  * Fixes: GB#575130, Remove deprecated GTK+ symbols
+
+Translations:
+  * Updated es: Jorge Gonzalez
+  * Updated hu: Gabor Kelemen
+  * Updated it: Luca Ferretti
+
+Help Manual Translations:
+None
+
+
 NEW in 0.6.94:
 ==============
 Improvements:
