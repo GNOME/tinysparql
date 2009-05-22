@@ -609,10 +609,14 @@ db_get_metadata (TrackerService *service,
 
 		while (valid) {
 			tracker_db_result_set_get (result_set, 0, &str, -1);
-			result = g_string_append (result, str);
-			result = g_string_append (result, " ");
+
+			if (str) {
+				result = g_string_append (result, str);
+				result = g_string_append (result, " ");
+				g_free (str);
+			}
+
 			valid = tracker_db_result_set_iter_next (result_set);
-			g_free (str);
 		}
 
 		g_object_unref (result_set);
