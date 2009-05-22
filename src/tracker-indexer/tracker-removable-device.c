@@ -75,13 +75,17 @@ commit_turtle_parse_info_storer (TurtleStorerInfo *info,
 		    break;
 		    case MOVE:
 			tracker_data_delete_resource (info->last_subject);
+#if 0
 			tracker_data_update_replace_service (destination, 
 							     info->metadata);
+#endif
 		    break;
 		    default:
 		    case REPLACE:
+#if 0
 			tracker_data_update_replace_service (info->last_subject, 
 							     info->metadata);
+#endif
 		    break;
 		}
 

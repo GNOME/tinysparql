@@ -35,10 +35,6 @@ guint32  tracker_data_insert_resource                   (const gchar         *ur
 void     tracker_data_delete_resource                   (const gchar         *uri);
 gboolean tracker_data_update_resource_uri               (const gchar         *old_uri,
 							 const gchar         *new_uri);
-/* Turtle importing */
-void     tracker_data_update_replace_service            (const gchar         *uri,
-							 GHashTable          *metadata);
-
 /* Metadata */
 void     tracker_data_delete_resource_description       (const gchar         *uri);
 void     tracker_data_delete_statement			(const gchar	     *subject,

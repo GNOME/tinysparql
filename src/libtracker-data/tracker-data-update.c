@@ -77,12 +77,6 @@ struct _TrackerDataBlankBuffer {
 	GArray *objects;
 };
 
-typedef struct {
-	const gchar *uri;
-	TrackerLanguage *language;
-	TrackerConfig *config;
-} ForeachInMetadataInfo;
-
 
 static gint transaction_level = 0;
 static TrackerDataUpdateBuffer update_buffer;
@@ -713,46 +707,6 @@ delete_metadata_decomposed (gint resource_id,
 }
 
 
-static void
-delete_metadata_decomposed_all (gint resource_id,
-				TrackerProperty	*property)
-{
-	TrackerDBInterface  *iface;
-	TrackerDBStatement  *stmt;
-	gboolean            multiple_values;
-	const gchar *class_name, *property_name;
-	TrackerProperty   **super_properties;
-
-	iface = tracker_db_manager_get_db_interface ();
-
-	multiple_values = tracker_property_get_multiple_values (property);
-	class_name = tracker_class_get_name (tracker_property_get_domain (property));
-	property_name = tracker_property_get_name (property);
-	if (multiple_values) {
-		/* delete rows for multiple value properties */
-		stmt = tracker_db_interface_create_statement (iface,
-			"DELETE FROM \"%s_%s\" WHERE ID = ?",
-			class_name, property_name);
-	} else {
-		/* just set value to NULL for single value properties */
-		stmt = tracker_db_interface_create_statement (iface,
-			"UPDATE \"%s\" SET \"%s\" = NULL WHERE ID = ?",
-			class_name, property_name);
-	}
-
-	tracker_db_statement_bind_int (stmt, 0, resource_id);
-
-	tracker_db_statement_execute (stmt, NULL);
-	g_object_unref (stmt);
-
-	/* also delete super property values */
-	super_properties = tracker_property_get_super_properties (property);
-	while (*super_properties) {
-		delete_metadata_decomposed_all (resource_id, *super_properties);
-		super_properties++;
-	}
-}
-
 void
 tracker_data_delete_statement (const gchar            *subject,
 			       const gchar            *predicate,
@@ -844,11 +798,7 @@ tracker_data_delete_statement (const gchar            *subject,
 		field = tracker_ontology_get_property_by_uri (predicate);
 		if (field != NULL) {
 
-			if (object) {
-				delete_metadata_decomposed (subject_id, field, object);
-			} else {
-				delete_metadata_decomposed_all (subject_id, field);
-			}
+			delete_metadata_decomposed (subject_id, field, object);
 
 			if (object && tracker_property_get_fulltext_indexed (field)) {
 				TrackerDBInterface *iface;
@@ -1021,110 +971,6 @@ tracker_data_delete_resource (const gchar     *uri)
 	g_return_if_fail (uri != NULL);
 
 	tracker_data_delete_statement (uri, RDF_PREFIX "type", RDFS_PREFIX "Resource");
-}
-
-static void
-foreach_in_metadata_set_metadata (gpointer      predicate,
-				  gpointer      value,
-				  gpointer      user_data)
-{
-	ForeachInMetadataInfo *info = user_data;
-	TrackerProperty *field;
-
-	field = tracker_ontology_get_property_by_uri (predicate);
-
-	if (!field)
-		return;
-
-	if (!value) {
-		tracker_data_delete_statement (info->uri, tracker_property_get_uri (field), NULL);
-	} else {
-		tracker_data_insert_statement (info->uri, tracker_property_get_uri (field), value);
-	}
-}
-
-void 
-tracker_data_update_replace_service (const gchar *uri,
-				     GHashTable  *metadata)
-{
-	TrackerDBInterface  *iface;
-	TrackerDBResultSet  *result_set;
-	const gchar         *modified;
-	GError              *error = NULL;
-	gchar               *escaped_uri;
-
-	g_return_if_fail (uri != NULL);
-	g_return_if_fail (metadata != NULL);
-
-	modified = g_hash_table_lookup (metadata, "resource:Modified");
-
-	if (!modified) {
-		return;
-	}
-
-	escaped_uri = tracker_escape_string (uri);
-
-	iface = tracker_db_manager_get_db_interface ();
-
-	result_set = tracker_db_interface_execute_query (iface, &error,
-							 "SELECT ID, \"tracker:modified\" < '%s' FROM \"rdfs:Resource\" "
-							 "WHERE Uri = '%s'",
-							 modified,
-							 escaped_uri);
-
-	g_hash_table_remove (metadata, "resource:Modified");
-
-	if (error) {
-		g_error_free (error);
-	}
-
-	if (result_set) {
-		GValue id_value = { 0, };
-		GValue is_value = { 0, };
-		gint   iid_value, iis_value;
-
-		_tracker_db_result_set_get_value (result_set, 0, &id_value);
-		iid_value = g_value_get_int (&id_value);
-
-		_tracker_db_result_set_get_value (result_set, 1, &is_value);
-		iis_value = g_value_get_int (&is_value);
-
-		if (iis_value) {
-			ForeachInMetadataInfo info;
-
-			info.uri = uri;
-
-			info.config = tracker_data_manager_get_config ();
-			info.language = tracker_data_manager_get_language ();
-
-			g_hash_table_foreach (metadata, 
-					      foreach_in_metadata_set_metadata,
-					      &info);
-		}
-
-		g_value_unset (&id_value);
-		g_value_unset (&is_value);
-
-		g_object_unref (result_set);
-	} else {
-		ForeachInMetadataInfo info;
-		guint32               id;
-
-		id = tracker_data_insert_resource (uri);
-
-		info.uri = uri;
-
-		info.config = tracker_data_manager_get_config ();
-		info.language = tracker_data_manager_get_language ();
-
-		g_hash_table_foreach (metadata, 
-				      foreach_in_metadata_set_metadata,
-				      &info);
-
-	}
-
-	g_free (escaped_uri);
-
 }
 
 static void
