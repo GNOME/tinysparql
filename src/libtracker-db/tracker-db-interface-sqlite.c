@@ -124,7 +124,7 @@ tracker_db_interface_sqlite_constructor (GType			type,
 	}
 
 	sqlite3_extended_result_codes (priv->db, 0);
-	sqlite3_busy_timeout (priv->db, 10000000);
+	sqlite3_busy_timeout (priv->db, 100000);
 
 	sqlite3_enable_load_extension (priv->db, 1);
 	sqlite3_load_extension (priv->db, PKGLIBDIR "/tracker-fts.so", NULL, &err_msg);
