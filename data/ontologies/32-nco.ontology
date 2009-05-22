@@ -447,7 +447,6 @@ nco:voiceMail a rdf:Property ;
 nco:belongsToGroup a rdf:Property ;
 	rdfs:label "addressLocation" ;
 	rdfs:comment "Links a Contact with a ContactGroup it belongs to." ;
-	nrl:maxCardinality 1 ;
 	rdfs:domain nco:Contact ;
 	rdfs:range nco:ContactGroup .
 
