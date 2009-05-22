@@ -897,16 +897,22 @@ tracker_data_insert_statement (const gchar            *subject,
 		}
 
 		blank_uri = g_hash_table_lookup (blank_buffer.table, object);
-		g_return_if_fail (blank_uri != NULL);
 
-		/* now insert statement referring to blank node */
-		tracker_data_insert_statement (subject, predicate, blank_uri);
+		if (blank_uri != NULL) {
+			/* now insert statement referring to blank node */
+			tracker_data_insert_statement (subject, predicate, blank_uri);
 
-		g_hash_table_remove (blank_buffer.table, object);
+			g_hash_table_remove (blank_buffer.table, object);
 
-		tracker_data_commit_transaction ();
+			tracker_data_commit_transaction ();
 
-		return;
+			return;
+		} else {
+			/* TODO: to fix this properly, we need to split
+			   tracker_data_insert_statement into two functions,
+			   one for uri objects and one for literal objects */
+			g_warning ("Blank node '%s' not found", object);
+		}
 	}
 
 	if (g_str_has_prefix (subject, ":")) {
