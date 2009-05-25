@@ -32,16 +32,32 @@ gchar *
 tracker_escape_metadata (const gchar *str)
 {
 	const gchar *end;
+	gchar *copy;
 
 	if (!str) {
 		return NULL;
 	}
 
 	if (g_utf8_validate (str, -1, &end)) {
-		return g_strstrip (g_strdup (str));
+		copy = g_strstrip (g_strdup (str));
+	} else {
+		copy = g_strstrip (g_strndup (str, end - str));
 	}
 
-	return g_strstrip (g_strndup (str, end - str));
+	if (strchr (copy, '|') != NULL) {
+		gchar **arr;
+		gchar join_str[7] = { 0 };
+
+		/* Replace the metadata separator with a similarly looking UTF8 char */
+		g_unichar_to_utf8 (0xff5c, join_str);
+		arr = g_strsplit (copy, "|", -1);
+
+		g_free (copy);
+		copy = g_strjoinv (join_str, arr);
+		g_strfreev (arr);
+	}
+
+	return copy;
 }
 
 gchar *
