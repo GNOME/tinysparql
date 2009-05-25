@@ -504,15 +504,17 @@ load_metadata_file (TrackerDBInterface *iface,
 					g_critical ("Field '%s' doesn't have a valid data type '%s'", groups[i], new_value);
 				}
 			} else {
-				gchar *esc_value;
+				gchar *escaped_value;
 
-				esc_value = tracker_escape_string (new_value);
+				escaped_value = tracker_escape_db_string (new_value, TRUE);
 
 				tracker_db_interface_execute_query (iface, NULL,
-								    "update MetaDataTypes set  %s = '%s' where ID = %d",
-								    keys[j], esc_value, id);
+								    "update MetaDataTypes set  %s = %s where ID = %d",
+								    keys[j], 
+								    escaped_value, 
+								    id);
 
-				g_free (esc_value);
+				g_free (escaped_value);
 			}
 
 			g_free (new_value);
@@ -663,19 +665,19 @@ load_service_file (TrackerDBInterface *iface,
 
 				g_strfreev (tab_array);
 			} else {
-				gchar *value, *new_value, *esc_value;
+				gchar *value, *new_value, *escaped_value;
 
 				value = g_key_file_get_string (key_file, groups[i], keys[j], NULL);
 				new_value = tracker_string_boolean_to_string_gint (value);
-				esc_value = tracker_escape_string (new_value);
+				escaped_value = tracker_escape_db_string (new_value, TRUE);
 
 				/* Special case "Parent */
 				if (g_ascii_strcasecmp (keys[j], "parent") == 0) {
 					TrackerDBResultSet *result_set;
 					gchar *query;
 
-					query = g_strdup_printf ("SELECT TypeId FROM ServiceTypes WHERE TypeName = '%s'",
-								 esc_value);
+					query = g_strdup_printf ("SELECT TypeId FROM ServiceTypes WHERE TypeName = %s",
+								 escaped_value);
 					result_set = tracker_db_interface_execute_query (iface, NULL, "%s", query);
 					g_free (query);
 
@@ -703,12 +705,12 @@ load_service_file (TrackerDBInterface *iface,
 				
 				tracker_db_interface_execute_query (iface,
 								    NULL,
-								    "UPDATE ServiceTypes SET %s = '%s' WHERE TypeID = %s",
+								    "UPDATE ServiceTypes SET %s = %s WHERE TypeID = %s",
 								    keys[j],
-								    esc_value,
+								    escaped_value,
 								    str_id);
 
-				g_free (esc_value);
+				g_free (escaped_value);
 				g_free (value);
 				g_free (new_value);
 			}

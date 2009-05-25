@@ -35,7 +35,8 @@ gchar *  tracker_string_replace		    (const gchar   *haystack,
 					     const gchar   *replacement);
 gchar *  tracker_string_remove		    (gchar	   *haystack,
 					     const gchar   *needle);
-gchar *  tracker_escape_string		    (const gchar   *in);
+gchar *  tracker_escape_db_string           (const gchar   *str,
+					     gboolean       add_quotes);
 gchar *  tracker_seconds_estimate_to_string (gdouble	    seconds_elapsed,
 					     gboolean	    short_string,
 					     guint	    items_done,

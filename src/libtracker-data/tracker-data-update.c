@@ -150,20 +150,33 @@ tracker_data_update_create_service (TrackerDataUpdateMetadataContext *context,
 	is_symlink = g_file_test (path, G_FILE_TEST_IS_SYMLINK);
 
 	/* Add data to the context */
-	tracker_data_update_metadata_context_add (context, "Path", dirname);
-	tracker_data_update_metadata_context_add (context, "Name", basename);
-	tracker_data_update_metadata_context_add (context, "ServiceTypeID", service_type_id_str);
+	tracker_data_update_metadata_context_add (context, "Path", 
+						  dirname, 
+						  NULL);
+	tracker_data_update_metadata_context_add (context, "Name", 
+						  basename, 
+						  NULL);
+	tracker_data_update_metadata_context_add (context, "ServiceTypeID", 
+						  service_type_id_str, 
+						  NULL);
 	tracker_data_update_metadata_context_add (context, "Mime",
-						  is_dir ? "Folder" : g_hash_table_lookup (metadata, "File:Mime"));
+						  is_dir ? "Folder" : g_hash_table_lookup (metadata, "File:Mime"),
+						  NULL);
 	tracker_data_update_metadata_context_add (context, "Size",
-						  g_hash_table_lookup (metadata, "File:Size"));
-	tracker_data_update_metadata_context_add (context, "IsDirectory",
-						  is_dir ? "1" : "0");
-	tracker_data_update_metadata_context_add (context, "IsLink",
-						  is_symlink ? "1" : "0");
+						  g_hash_table_lookup (metadata, "File:Size"),
+						  NULL);
+	tracker_data_update_metadata_context_add (context, "IsDirectory", 
+						  is_dir ? "1" : "0", 
+						  NULL);
+	tracker_data_update_metadata_context_add (context, "IsLink", 
+						  is_symlink ? "1" : "0",
+						  NULL);
 	tracker_data_update_metadata_context_add (context, "IndexTime",
-						  g_hash_table_lookup (metadata, "File:Modified"));
-	tracker_data_update_metadata_context_add (context, "AuxilaryID", volume_id_str);
+						  g_hash_table_lookup (metadata, "File:Modified"),
+						  NULL);
+	tracker_data_update_metadata_context_add (context, "AuxilaryID",
+						  volume_id_str,
+						  NULL);
 
 	g_free (service_type_id_str);
 	g_free (volume_id_str);
@@ -412,25 +425,21 @@ tracker_data_update_set_metadata (TrackerDataUpdateMetadataContext *context,
 		gchar *column;
 
 		column = g_strdup_printf ("KeyMetadata%d", metadata_key);
-		tracker_data_update_metadata_context_add (context, column, value);
+		tracker_data_update_metadata_context_add (context, column, value, NULL);
 		g_free (column);
 	} else if (tracker_field_get_data_type (field) == TRACKER_FIELD_TYPE_DATE &&
 		   (strcmp (tracker_field_get_name (field), "File:Modified") == 0)) {
 		/* Handle mtime */
-		tracker_data_update_metadata_context_add (context, "IndexTime", value);
+		tracker_data_update_metadata_context_add (context, "IndexTime", value, NULL);
 	}
 
 	collate_key = tracker_ontology_service_get_key_collate (tracker_service_get_name (service),
 								tracker_field_get_name (field));
 	if (collate_key > 0) {
-		gchar *value_collated, *column;
+		gchar *column;
 
-		value_collated = g_utf8_collate_key (value, -1);
 		column = g_strdup_printf ("KeyMetadataCollation%d", collate_key);
-
-		tracker_data_update_metadata_context_add (context, column, value_collated);
-
-		g_free (value_collated);
+		tracker_data_update_metadata_context_add (context, column, value, "CollateKey");
 		g_free (column);
 	}
 
@@ -746,7 +755,7 @@ tracker_data_update_replace_service (const gchar *udi,
 	}
 
 	file_mtime = atoi (modified);
-	escaped_path = tracker_escape_string (path);
+	escaped_path = tracker_escape_db_string (path, FALSE);
 
 	basename = g_path_get_basename (escaped_path);
 	dirname = g_path_get_dirname (escaped_path);
@@ -920,11 +929,27 @@ tracker_data_update_metadata_context_new (TrackerDataUpdateMetadataContextType  
 void
 tracker_data_update_metadata_context_add (TrackerDataUpdateMetadataContext *context,
 					  const gchar                      *column,
-					  const gchar                      *value)
+					  const gchar                      *value,
+					  const gchar                      *function)
 {
-	g_hash_table_replace (context->data,
-			      g_strdup (column),
-			      tracker_escape_string (value));
+	if (G_UNLIKELY (function)) {
+		gchar *escaped;
+		gchar *wrapped;
+
+		escaped = tracker_escape_db_string (value, TRUE);
+		wrapped = g_strdup_printf ("%s(%s)", 
+					   function, 
+					   escaped);
+		g_free (escaped);
+
+		g_hash_table_replace (context->data,
+				      g_strdup (column),
+				      wrapped);
+	} else {
+		g_hash_table_replace (context->data,
+				      g_strdup (column),
+				      tracker_escape_db_string (value, TRUE));
+	}
 }
 
 void
@@ -949,7 +974,7 @@ tracker_data_update_metadata_context_close (TrackerDataUpdateMetadataContext *co
 
 		/* Ensure we have an ID */
 		id_str = tracker_guint32_to_string (context->id);
-		tracker_data_update_metadata_context_add (context, "ID", id_str);
+		tracker_data_update_metadata_context_add (context, "ID", id_str, NULL);
 		g_free (id_str);
 
 		/* Compose insert SQL query */
@@ -968,10 +993,10 @@ tracker_data_update_metadata_context_close (TrackerDataUpdateMetadataContext *co
 
 			if (first) {
 				g_string_append_printf (keys, "%s", (gchar*) key);
-				g_string_append_printf (values, "'%s'", (gchar*) value);
+				g_string_append_printf (values, "%s", (gchar*) value);
 			} else {
 				g_string_append_printf (keys, ",%s", (gchar*) key);
-				g_string_append_printf (values, ",'%s'", (gchar*) value);
+				g_string_append_printf (values, ",%s", (gchar*) value);
 			}
 
 			first = FALSE;
@@ -1010,7 +1035,7 @@ tracker_data_update_metadata_context_close (TrackerDataUpdateMetadataContext *co
 			}
 
 			g_string_append_printf (update_query,
-						"%s = '%s'",
+						"%s = %s",
 						(gchar*) key,
 						(gchar*) value);
 
@@ -1028,13 +1053,15 @@ tracker_data_update_metadata_context_close (TrackerDataUpdateMetadataContext *co
 							     TRACKER_DB_CONTENT_TYPE_METADATA);
 
 	tracker_db_interface_execute_query (iface, &error, sql, NULL);
-	g_free (sql);
 
 	if (error) {
-		g_warning ("Couldn't close TrackerDataUpdateMetadataContext, %s", 
+		g_warning ("Couldn't close TrackerDataUpdateMetadataContext, query was '%s', %s", 
+			   sql,
 			   error->message);
 		g_error_free (error);
 	}
+
+	g_free (sql);
 }
 
 void

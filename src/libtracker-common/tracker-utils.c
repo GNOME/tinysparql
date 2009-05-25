@@ -103,24 +103,37 @@ tracker_string_replace (const gchar *haystack,
 }
 
 gchar *
-tracker_escape_string (const gchar *in)
+tracker_escape_db_string (const gchar *str,
+			  gboolean     add_quotes)
 {
-	gchar **array, *out;
+	GStrv strv;
+	gchar *escaped;
 
-	if (!in) {
+	if (!str) {
 		return NULL;
 	}
 
-	if (!strchr (in, '\'')) {
-		return g_strdup (in);
+	if (!g_utf8_strchr (str, -1, '\'')) {
+		if (G_LIKELY (add_quotes)) {
+			return g_strdup_printf ("'%s'", str);
+		} else {
+			return g_strdup (str);
+		}
 	}
 
-	/* double single quotes */
-	array = g_strsplit (in, "'", -1);
-	out = g_strjoinv ("''", array);
-	g_strfreev (array);
+	strv = g_strsplit (str, "'", -1);
+	escaped = g_strjoinv ("''", strv);
+	g_strfreev (strv);
 
-	return out;
+	if (G_LIKELY (add_quotes)) {
+		gchar *p;
+		
+		p = escaped;
+		escaped = g_strdup_printf ("'%s'", escaped);
+		g_free (p);
+	}
+
+	return escaped;
 }
 
 gchar *

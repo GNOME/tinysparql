@@ -111,11 +111,12 @@ TrackerDataUpdateMetadataContext *
      tracker_data_update_metadata_context_new           (TrackerDataUpdateMetadataContextType  type,
 							 TrackerService                       *service,
 							 guint                                 id);
-void tracker_data_update_metadata_context_add           (TrackerDataUpdateMetadataContext *context,
-							 const gchar                      *column,
-							 const gchar                      *value);
-void tracker_data_update_metadata_context_close         (TrackerDataUpdateMetadataContext *context);
-void tracker_data_update_metadata_context_free          (TrackerDataUpdateMetadataContext *context);
+void tracker_data_update_metadata_context_add           (TrackerDataUpdateMetadataContext     *context,
+							 const gchar                          *column,
+							 const gchar                          *value,
+							 const gchar                          *function);
+void tracker_data_update_metadata_context_close         (TrackerDataUpdateMetadataContext     *context);
+void tracker_data_update_metadata_context_free          (TrackerDataUpdateMetadataContext     *context);
 
 G_END_DECLS
 

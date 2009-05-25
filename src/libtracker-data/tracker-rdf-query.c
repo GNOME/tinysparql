@@ -742,24 +742,6 @@ start_element_handler (GMarkupParseContext  *context,
 	}
 }
 
-static gchar *
-get_value (const gchar *value, gboolean quote)
-{
-	gchar *escaped;
-	gchar *ret;
-
-	escaped = tracker_escape_string(value);
-	if (quote) {
-		ret = g_strconcat (" '", escaped, "' ", NULL);
-	} else {
-		ret = g_strdup (escaped);
-	}
-
-	g_free (escaped);
-
-	return ret;
-}
-
 static gboolean
 build_sql (ParserData *data)
 {
@@ -781,9 +763,10 @@ build_sql (ParserData *data)
 
 	state = peek_state (data);
 
-	avalue = get_value (data->current_value, (state != STATE_END_DATE &&
-						  state != STATE_END_INTEGER &&
-						  state != STATE_END_FLOAT));
+	avalue = tracker_escape_db_string (data->current_value, 
+					   state != STATE_END_DATE &&
+					   state != STATE_END_INTEGER &&
+					   state != STATE_END_FLOAT);
 
 	field_data = add_metadata_field (data, data->current_field, FALSE, TRUE, FALSE);
 
@@ -1299,7 +1282,7 @@ tracker_rdf_query_to_sql (TrackerDBInterface  *iface,
 			}
 
 			list = g_hash_table_lookup (table, key);
-			list = g_list_prepend (list, tracker_escape_string(value));
+			list = g_list_prepend (list, tracker_escape_db_string (value, TRUE));
 			g_hash_table_insert (table, g_strdup (key), list);
 
 			g_free (full);
@@ -1315,7 +1298,7 @@ tracker_rdf_query_to_sql (TrackerDBInterface  *iface,
 
 			for (l = list; l; l = l->next) {
 				g_string_append_printf (data.sql_where,
-				     " AND (S.ID IN (SELECT ServiceID FROM ServiceKeywordMetaData WHERE MetaDataID in (%s) AND MetadataValue = '%s')) ",
+							" AND (S.ID IN (SELECT ServiceID FROM ServiceKeywordMetaData WHERE MetaDataID in (%s) AND MetadataValue = %s)) ",
 							keyword_metadata,
 							(gchar*) l->data);
 			}
