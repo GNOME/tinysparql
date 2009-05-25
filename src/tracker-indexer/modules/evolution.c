@@ -63,16 +63,23 @@ static MailStorageType
 get_mail_storage_type_from_path (const gchar *path)
 {
 	MailStorageType type = MAIL_STORAGE_NONE;
-	gchar *basenam;
+	gchar *basenam, *dup_, *t;
+	const gchar *ac_path;
 
 	basenam = g_path_get_basename (path);
+	dup_ = g_strdup (path);
+	t = dup_;
 
 	if (g_str_has_prefix (path, local_dir) &&
 	    strchr (basenam, '.') == NULL) {
 		type = MAIL_STORAGE_LOCAL;
+		dup_ += strlen (local_dir);
+		ac_path = local_dir;
 	} else if (g_str_has_prefix (path, imap_dir)) {
 		if (strcmp (basenam, "summary") == 0) {
 			type = MAIL_STORAGE_IMAP;
+			dup_ += strlen (imap_dir);
+			ac_path = imap_dir;
 		}
 	}
 
@@ -86,7 +93,34 @@ get_mail_storage_type_from_path (const gchar *path)
 		type = MAIL_STORAGE_NONE;
 	}
 
+	if (type != MAIL_STORAGE_NONE) {
+		gchar *ptr = dup_;
+
+		/* If recent Evolution detected, summary files are outdated */
+
+		ptr++;
+		ptr = g_utf8_strchr (ptr, -1, G_DIR_SEPARATOR);
+
+		if (ptr) {
+			GFile *parent_dir, 
+			      *account_dir, 
+			      *summary_file;
+
+			*ptr = '\0';
+			parent_dir = g_file_new_for_path (ac_path);
+			account_dir = g_file_get_child (parent_dir, dup_);
+			summary_file = g_file_get_child (account_dir, "folders.db");
+			if (g_file_query_exists (summary_file, NULL)) {
+				type = MAIL_STORAGE_NONE;
+			}
+			g_object_unref (parent_dir);
+			g_object_unref (account_dir);
+			g_object_unref (summary_file);
+		}
+	}
+
 	g_free (basenam);
+	g_free (t);
 
 	return type;
 }
