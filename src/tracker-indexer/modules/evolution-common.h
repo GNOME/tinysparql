@@ -26,15 +26,16 @@
 
 #include <gmime/gmime.h>
 
+#include <libtracker-common/tracker-ontology.h>
+
 G_BEGIN_DECLS
 
-#define METADATA_FILE_NAME	     "File:Name"
-#define METADATA_EMAIL_RECIPIENT     "nmo:recipient"
-#define METADATA_EMAIL_DATE	     "nmo:sentDate"
-#define METADATA_EMAIL_SENDER	     "nmo:sender"
-#define METADATA_EMAIL_SUBJECT	     "nmo:messageSubject"
-#define METADATA_EMAIL_SENT_TO	     "nmo:to"
-#define METADATA_EMAIL_CC	     "nmo:cc"
+#define METADATA_EMAIL_RECIPIENT     TRACKER_NMO_PREFIX "recipient"
+#define METADATA_EMAIL_DATE          TRACKER_NMO_PREFIX "sentDate"
+#define METADATA_EMAIL_SENDER	     TRACKER_NMO_PREFIX "sender"
+#define METADATA_EMAIL_SUBJECT	     TRACKER_NMO_PREFIX "messageSubject"
+#define METADATA_EMAIL_SENT_TO	     TRACKER_NMO_PREFIX "to"
+#define METADATA_EMAIL_CC	         TRACKER_NMO_PREFIX "cc"
 
 enum EvolutionFlags {
 	EVOLUTION_MESSAGE_ANSWERED     = 1 << 0,

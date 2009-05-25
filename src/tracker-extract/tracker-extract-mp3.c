@@ -101,6 +101,7 @@ typedef struct {
 
 	unsigned char *albumartdata;
 	size_t         albumartsize;
+	gchar         *albumartmime;
 
 	id3tag        *id3v1_info;
 } file_data;
@@ -1009,6 +1010,7 @@ get_id3v24_tags (const gchar *data,
 				offset = pos + 11 + mime_len + 2 + strlen (desc) + 1;
 
 				filedata->albumartdata = g_malloc0 (csize);
+				filedata->albumartmime = g_strdup (mime);
 				memcpy (filedata->albumartdata, &data[offset], csize);
 				filedata->albumartsize = csize;
 			}
@@ -1259,6 +1261,7 @@ get_id3v23_tags (const gchar *data,
 				offset = pos + 11 + mime_len + 2 + strlen (desc) + 1;
 				
 				filedata->albumartdata = g_malloc0 (csize);
+				filedata->albumartmime = g_strdup (mime);
 				memcpy (filedata->albumartdata, &data[offset], csize);
 				filedata->albumartsize = csize;
 			}
@@ -1412,8 +1415,6 @@ get_id3v20_tags (const gchar *data,
 									  tmap[i].type,
 									  word);
 					}
-				} else {
-					g_free (word);
 				}
 
 				g_free (word);
@@ -1429,13 +1430,16 @@ get_id3v20_tags (const gchar *data,
 			gchar          pic_type;
 			const gchar   *desc;
 			guint          offset;
+			const gchar   *mime;
 
+			mime      = &data[pos + 6 + 3 + 1];
 			pic_type  =  data[pos + 6 + 3 + 1 + 3];
 			desc      = &data[pos + 6 + 3 + 1 + 3 + 1];
 
 			if (pic_type == 3 || (pic_type == 0 && filedata->albumartsize == 0)) {
 				offset = pos + 6 + 3 + 1 + 3  + 1 + strlen (desc) + 1;
 
+				filedata->albumartmime = g_strdup (mime);
 				filedata->albumartdata = g_malloc0 (csize);
 				memcpy (filedata->albumartdata, &data[offset], csize);
 				filedata->albumartsize = csize;
@@ -1684,6 +1688,7 @@ extract_mp3 (const gchar *uri,
 	filedata.id3v2_size = 0;
 	filedata.duration = 0;
 	filedata.albumartdata = NULL;
+	filedata.albumartmime = NULL;
 	filedata.albumartsize = 0;
 	filedata.id3v1_info = &info;
 
@@ -1810,21 +1815,20 @@ extract_mp3 (const gchar *uri,
 
 	/* TODO */
 #ifdef HAVE_GDKPIXBUF
-	tracker_process_albumart (filedata.albumartdata, filedata.albumartsize,
+	tracker_process_albumart (filedata.albumartdata, filedata.albumartsize, filedata.albumartmime,
 				  /* tracker_statement_list_find (metadata, NMM_PREFIX "performer") */ NULL,
 				  tracker_statement_list_find (metadata, uri, NIE_PREFIX "title"), "-1",
 				  filename);
 #else
-	tracker_process_albumart (NULL, 0,
+	tracker_process_albumart (NULL, 0, NULL,
 				  /* tracker_statement_list_find (metadata, NMM_PREFIX "performer") */ NULL,
 				  tracker_statement_list_find (metadata, uri, NIE_PREFIX "title"), "-1",
 				  filename);
 
 #endif /* HAVE_GDKPIXBUF */
 
-	if (filedata.albumartdata) {
-		g_free (filedata.albumartdata);
-	}
+	g_free (filedata.albumartdata);
+	g_free (filedata.albumartmime);
 
 #ifndef G_OS_WIN32
 	munmap (buffer, buffer_size);

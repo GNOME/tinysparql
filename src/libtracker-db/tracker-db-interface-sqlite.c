@@ -124,7 +124,7 @@ tracker_db_interface_sqlite_constructor (GType			type,
 	}
 
 	sqlite3_extended_result_codes (priv->db, 0);
-	sqlite3_busy_timeout (priv->db, 10000000);
+	sqlite3_busy_timeout (priv->db, 100000);
 
 	sqlite3_enable_load_extension (priv->db, 1);
 	sqlite3_load_extension (priv->db, PKGLIBDIR "/tracker-fts.so", NULL, &err_msg);
@@ -552,37 +552,20 @@ create_result_set_from_stmt (TrackerDBInterfaceSqlite  *interface,
 {
 	TrackerDBInterfaceSqlitePrivate *priv;
 	TrackerDBResultSet *result_set = NULL;
-	gint columns, result, busy_count;
+	gint columns, result;
 
 	priv = TRACKER_DB_INTERFACE_SQLITE_GET_PRIVATE (interface);
 	columns = sqlite3_column_count (stmt);
 	result = SQLITE_OK;
-	busy_count = 0;
 
 	while (result == SQLITE_OK  ||
-	       result == SQLITE_ROW ||
-	       result == SQLITE_BUSY) {
+	       result == SQLITE_ROW) {
 
 		result = sqlite3_step (stmt);
 
 		switch (result) {
 		case SQLITE_ERROR:
 			sqlite3_reset (stmt);
-			break;
-		case SQLITE_BUSY:
-			busy_count++;
-
-			if (busy_count > 100000) {
-				/* tracker_error ("ERROR: excessive busy count in query %s", query); */
-				busy_count = 0;
-			}
-
-			if (busy_count > 50) {
-				g_usleep (g_random_int_range (1000, busy_count * 200));
-			} else {
-				g_usleep (100);
-			}
-
 			break;
 		case SQLITE_ROW:
 			if (G_UNLIKELY (!result_set)) {

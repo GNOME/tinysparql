@@ -28,6 +28,7 @@ G_BEGIN_DECLS
 
 gboolean tracker_process_albumart (const unsigned char *buffer,
                                    size_t               len,
+                                   const gchar         *buf_mime,
                                    const gchar         *artist,
                                    const gchar         *album,
                                    const gchar         *trackercnt_str,

@@ -97,6 +97,7 @@ typedef struct {
 
 	unsigned char  *album_art_data;
 	guint           album_art_size;
+	const gchar    *album_art_mime;
 
 } MetadataExtractor;
 
@@ -237,6 +238,48 @@ get_media_duration (MetadataExtractor *extractor)
 	} else {
 		return -1;
 	}
+}
+
+static void
+get_embedded_album_art(MetadataExtractor *extractor)
+{
+	const GValue *value;
+	guint         lindex;
+
+	lindex = 0;
+
+	do {
+		value = gst_tag_list_get_value_index (extractor->tagcache, GST_TAG_IMAGE, lindex);
+
+		if (value) {
+			GstBuffer    *buffer;
+			GstCaps      *caps;
+			GstStructure *caps_struct;
+			gint          type;
+
+			buffer = gst_value_get_buffer (value);
+			caps   = gst_buffer_get_caps (buffer);
+			caps_struct = gst_caps_get_structure (buffer->caps, 0);
+
+			gst_structure_get_enum (caps_struct,
+						"image-type",
+						GST_TYPE_TAG_IMAGE_TYPE,
+						&type);
+
+			if ((type == GST_TAG_IMAGE_TYPE_FRONT_COVER)||
+			    ((type == GST_TAG_IMAGE_TYPE_UNDEFINED)&&(extractor->album_art_size == 0))) {
+				extractor->album_art_data = buffer->data;
+				extractor->album_art_size = buffer->size;
+				extractor->album_art_mime = gst_structure_get_name (caps_struct);
+				g_debug ("Mime was %s", extractor->album_art_mime);
+				return;
+			}
+
+			gst_object_unref (caps);
+
+			lindex++;
+		}
+	} while (value);
 }
 
 static void
@@ -423,6 +466,8 @@ extract_metadata (MetadataExtractor *extractor,
  		if (extractor->duration >= 0) {
  			add_int64_info (metadata, uri, NMM_PREFIX "length", extractor->duration);
  		}
+
+		get_embedded_album_art (extractor);
  	} else if (extractor->mime == EXTRACT_MIME_IMAGE) {
 		tracker_statement_list_insert (metadata, uri, 
 		                          RDF_TYPE, 
@@ -774,6 +819,10 @@ tracker_extract_gstreamer (const gchar *uri,
 	extractor->audiotags    = NULL;
 	extractor->videotags    = NULL;	
 
+	extractor->album_art_data = NULL;
+	extractor->album_art_size = 0;
+	extractor->album_art_mime = NULL;
+
 	extractor->duration = -1;
 	extractor->video_fps_n = extractor->video_fps_d = -1;
 	extractor->video_height = extractor->video_width = -1;
@@ -858,13 +907,13 @@ tracker_extract_gstreamer (const gchar *uri,
 	/* Save embedded art */
 	if (extractor->album_art_data && extractor->album_art_size) {
 #ifdef HAVE_GDKPIXBUF
-		tracker_process_albumart (extractor->album_art_data, extractor->album_art_size,
+		tracker_process_albumart (extractor->album_art_data, extractor->album_art_size, extractor->album_art_mime,
 					  /* artist */ NULL,
 					  album,
 					  scount,
 					  uri);
 #else
-		tracker_process_albumart (NULL, 0,
+		tracker_process_albumart (NULL, 0, NULL,
 					  /* artist */ NULL,
 					  album,
 					  scount,
