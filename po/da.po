@@ -12,8 +12,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-05-26 01:10+0200\n"
-"PO-Revision-Date: 2009-05-25 12:57+0200\n"
+"POT-Creation-Date: 2009-05-26 22:23+0200\n"
+"PO-Revision-Date: 2009-05-26 01:51+0200\n"
 "Last-Translator: Ask Hjorth Larsen <asklarsen@gmail.com>\n"
 "Language-Team: Danish <dansk@dansk-gruppen.dk>\n"
 "MIME-Version: 1.0\n"
@@ -1583,8 +1583,9 @@ msgid "Path to use in query"
 msgstr "Sti til anvendelse i forespørgsel"
 
 #: ../src/tracker-utils/tracker-sparql.c:48
+#, fuzzy
 msgid "SPARQL query"
-msgstr ""
+msgstr "SQL-forespørgsel, der skal bruges"
 
 #: ../src/tracker-utils/tracker-sparql.c:52
 msgid "SPARQL update extensions"
@@ -1900,7 +1901,6 @@ msgstr ""
 msgid "- start the tracker daemon"
 msgstr "- start tracker-dæmon"
 
-#~| msgid "Indexing Speed:"
 #~ msgid "Index corrupted"
 #~ msgstr "Indekset er beskadiget"
 
@@ -1951,11 +1951,9 @@ msgstr "- start tracker-dæmon"
 #~ msgid "Metadata to request (optional, multiple calls allowed)"
 #~ msgstr "Forespurgte metadata (valgfri, flere kald er tilladt)"
 
-#~| msgid "Files:"
 #~ msgid "File:Size"
 #~ msgstr "Fil:Størrelse"
 
-#~| msgid "No metadata available for that uri"
 #~ msgid "No metadata available"
 #~ msgstr "Ingen tilgængelige metadata"
 
@@ -1967,7 +1965,6 @@ msgstr "- start tracker-dæmon"
 #~ "Se tracker-services for listen over tjenester og metadata, der kan "
 #~ "anvendes her."
 
-#~| msgid "Uri missing"
 #~ msgid "URI missing"
 #~ msgstr "URI mangler"
 
@@ -1981,35 +1978,27 @@ msgstr "- start tracker-dæmon"
 #~ msgid "Service type not recognized, using 'Other' ..."
 #~ msgstr "Tjenestetype ikke genkendt, anvender \"Øvrige\" ..."
 
-#~| msgid "Unable to retrieve data for uri"
 #~ msgid "Unable to retrieve data for %d uri"
 #~ msgstr "Kan ikke hente data for %d uri"
 
-#~| msgid "Unable to retrieve data for uri"
 #~ msgid "Unable to retrieve data for %d uris"
 #~ msgstr "Kan ikke hente data for %d uri'er"
 
-#~| msgid "No metadata available for that uri"
 #~ msgid "No metadata available for all %d uri"
 #~ msgstr "Ingen metadata tilgængelige for %d uri"
 
-#~| msgid "No metadata available for that uri"
 #~ msgid "No metadata available for all %d uris"
 #~ msgstr "Ingen metadata tilgængelige for alle %d uri'er"
 
-#~| msgid "Results"
 #~ msgid "Result:"
 #~ msgstr "Resultat:"
 
-#~| msgid "Results"
 #~ msgid "Results:"
 #~ msgstr "Resultater:"
 
-#~| msgid "Result: %d"
 #~ msgid "Result: %d for '%s'"
 #~ msgstr "Resultat: %d for \"%s\""
 
-#~| msgid "Results: %d"
 #~ msgid "Results: %d for '%s'"
 #~ msgstr "Resultater: %d for \"%s\""
 
@@ -2131,13 +2120,33 @@ msgstr "- start tracker-dæmon"
 #~ "Du kan bruge dette værktøj til at kontrollere album-/kunstnerstrenge - "
 #~ "for eksempel:"
 
-#~| msgid "No arguments were provided"
 #~ msgid "No album/artist text was provided"
 #~ msgstr "Ingen album-/kunstertekst blev givet"
 
-#~| msgid "Conversations:"
 #~ msgid "Converted to"
 #~ msgstr "Konverteret til"
+
+#~ msgid "SQL"
+#~ msgstr "SQL"
+
+#~ msgid "Files to attach"
+#~ msgstr "Filer til vedhæftning"
+
+#~ msgid "- Test SQLite databases with queries"
+#~ msgstr "- Test SQLite-databaser med forespørgsler"
+
+#~ msgid ""
+#~ "You can use this utility to attach DBs and run queries using the SQLite "
+#~ "API"
+#~ msgstr ""
+#~ "Du kan bruge dette værktøj til at tilknytte databaser og køre "
+#~ "forespørgsler ved brug af SQLite-API'en"
+
+#~ msgid "No query was provided"
+#~ msgstr "Ingen forespørgsel blev givet"
+
+#~ msgid "No databases were provided"
+#~ msgstr "Ingen databaser blev givet"
 
 #~ msgid ""
 #~ "Automatically _pause if indexing may degrade performance of other "
