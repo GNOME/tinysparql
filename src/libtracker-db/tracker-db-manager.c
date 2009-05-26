@@ -2249,6 +2249,16 @@ tracker_db_manager_init (TrackerDBManagerFlags	flags,
 			g_message ("Could not find database file:'%s'", dbs[i].abs_filename);
 			g_message ("One or more database files are missing, a reindex will be forced");
 			need_reindex = TRUE;
+		} else if (i == TRACKER_DB_COMMON) {
+			guint64 mtime, services_dir_mtime;
+
+			mtime = tracker_file_get_mtime (dbs[i].abs_filename);
+			services_dir_mtime = tracker_file_get_mtime (services_dir);
+
+			if (mtime < services_dir_mtime) {
+				g_message ("Ontology is more recent than DB cache, a reindex will be forced");
+				need_reindex = TRUE;
+			}
 		}
 	}
 
