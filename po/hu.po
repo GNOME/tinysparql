@@ -2,14 +2,14 @@
 # Copyright (C) 2007, 2008, 2009 Free Software Foundation, Inc.
 # This file is distributed under the same license as the tracker package.
 #
-#: ../src/libtracker-common/tracker-utils.c:262
+#: ../src/libtracker-common/tracker-utils.c:275
 # Gabor Kelemen <kelemeng@gnome.hu>, 2007, 2008, 2009.
 msgid ""
 msgstr ""
 "Project-Id-Version: Tracker HEAD\n"
-"Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=tracker&component=general\n"
-"POT-Creation-Date: 2009-05-20 12:35+0000\n"
-"PO-Revision-Date: 2009-05-21 01:46+0200\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2009-05-26 19:07+0200\n"
+"PO-Revision-Date: 2009-05-26 20:19+0200\n"
 "Last-Translator: Gabor Kelemen <kelemeng@gnome.hu>\n"
 "Language-Team: Hungarian <gnome@fsf.hu>\n"
 "MIME-Version: 1.0\n"
@@ -181,7 +181,6 @@ msgid "Search with Tracker, as you type"
 msgstr "Keresés a Trackerrel gépelés közben"
 
 #: ../src/libtracker-db/tracker-db-index.c:853
-#| msgid "Indexing speed:"
 msgid "Index corrupted"
 msgstr "Az indexel sérült"
 
@@ -189,15 +188,15 @@ msgstr "Az indexel sérült"
 msgid "No error given"
 msgstr "Nincs megadva hiba"
 
-#: ../src/libtracker-common/tracker-utils.c:135
-#: ../src/libtracker-common/tracker-utils.c:142
+#: ../src/libtracker-common/tracker-utils.c:148
+#: ../src/libtracker-common/tracker-utils.c:155
 #: ../src/tracker-utils/tracker-status.c:153
 #: ../src/tracker-utils/tracker-status.c:160
 msgid "unknown time"
 msgstr "ismeretlen idő"
 
-#: ../src/libtracker-common/tracker-utils.c:160
-#: ../src/libtracker-common/tracker-utils.c:219
+#: ../src/libtracker-common/tracker-utils.c:173
+#: ../src/libtracker-common/tracker-utils.c:232
 #: ../src/tracker-utils/tracker-status.c:77
 #: ../src/tracker-utils/tracker-status.c:136
 msgid "less than one second"
@@ -577,7 +576,6 @@ msgid "Indexing can take a long time. Are you sure you want to re-index?"
 msgstr "Az indexelés sokáig tarthat. Biztosan újra kívánja indexelni?"
 
 #: ../src/tracker-applet/tracker-applet.c:1261
-#| msgid "Statistics"
 msgid "Tracker Statistics"
 msgstr "Tracker statisztika"
 
@@ -623,7 +621,6 @@ msgstr ""
 "kinyerésére tervezték, azok gyors és egyszerű kereshetővé tétele érdekében."
 
 #: ../src/tracker-applet/tracker-applet.c:1434
-#| msgid "Copyright © 2005-2008 The Tracker authors"
 msgid "Copyright © 2005-2009 The Tracker authors"
 msgstr "Copyright © 2005-2009 A Tracker szerzői"
 
@@ -700,7 +697,6 @@ msgstr ""
 "módosíthatja az indexelés beállításait"
 
 #: ../src/tracker-applet/tracker-applet.c:2142
-#| msgid "Index _file contents"
 msgid "Reindex all contents"
 msgstr "Minden tartalom újraindexelése"
 
@@ -779,7 +775,7 @@ msgid "File to extract metadata for"
 msgstr "Metaadatok kinyerése e fájlból"
 
 #: ../src/tracker-extract/tracker-main.c:91
-#: ../src/tracker-utils/tracker-info.c:51
+#: ../src/tracker-utils/tracker-info.c:51 ../utils/sqlite/query.c:48
 msgid "FILE"
 msgstr "FÁJL"
 
@@ -988,7 +984,6 @@ msgid "Index and watch my home _directory"
 msgstr "A saját _könyvtáram indexelése és figyelése"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:32
-#| msgid "Indexing speed:"
 msgid "Indexing Speed:"
 msgstr "Indexelés sebessége:"
 
@@ -1477,7 +1472,6 @@ msgid "Metadata to request (optional, multiple calls allowed)"
 msgstr "Lekérendő metaadatok (elhagyható, több hívás engedélyezett)"
 
 #: ../src/tracker-utils/tracker-info.c:47
-#| msgid "Files:"
 msgid "File:Size"
 msgstr "Fájl:méret"
 
@@ -1487,7 +1481,6 @@ msgid "FILE..."
 msgstr "FÁJL…"
 
 #: ../src/tracker-utils/tracker-info.c:74
-#| msgid "No metadata available for that uri"
 msgid "No metadata available"
 msgstr "Nem érhetők el metaadatok"
 
@@ -1503,11 +1496,12 @@ msgstr "– Adott fájl minden információjának lekérése"
 msgid ""
 "For a list of services and metadata that can be used here, see tracker-"
 "services."
-msgstr "Az itt használható szolgáltatások és metaadatok listájáért lásd a tracker-services parancsot."
+msgstr ""
+"Az itt használható szolgáltatások és metaadatok listájáért lásd a tracker-"
+"services parancsot."
 
 #: ../src/tracker-utils/tracker-info.c:126
 #, c-format
-#| msgid "Uri missing"
 msgid "URI missing"
 msgstr "Az URI hiányzik"
 
@@ -1531,37 +1525,31 @@ msgstr "Ismeretlen szolgáltatástípus, az „egyéb” használata…"
 
 #: ../src/tracker-utils/tracker-info.c:203
 #, c-format
-#| msgid "Unable to retrieve data for uri"
 msgid "Unable to retrieve data for %d uri"
 msgstr "Az adatok nem kérhetők le %d URI címhez"
 
 #: ../src/tracker-utils/tracker-info.c:204
 #, c-format
-#| msgid "Unable to retrieve data for uri"
 msgid "Unable to retrieve data for %d uris"
 msgstr "Az adatok nem kérhetők le %d URI címhez"
 
 #: ../src/tracker-utils/tracker-info.c:215
 #, c-format
-#| msgid "No metadata available for that uri"
 msgid "No metadata available for all %d uri"
 msgstr "Nem érhetők el metaadatok mind a(z) %d URI címhez"
 
 #: ../src/tracker-utils/tracker-info.c:216
 #, c-format
-#| msgid "No metadata available for that uri"
 msgid "No metadata available for all %d uris"
 msgstr "Nem érhetők el metaadatok mind a(z) %d URI címhez"
 
 #: ../src/tracker-utils/tracker-info.c:225
 #: ../src/tracker-utils/tracker-info.c:300
-#| msgid "Result: %d"
 msgid "Result:"
 msgstr "Találat:"
 
 #: ../src/tracker-utils/tracker-info.c:226
 #: ../src/tracker-utils/tracker-info.c:301
-#| msgid "Results: %d"
 msgid "Results:"
 msgstr "Találatok:"
 
@@ -1578,13 +1566,11 @@ msgstr "Nem érhetők el metaadatok ehhez az URI címhez"
 
 #: ../src/tracker-utils/tracker-info.c:265
 #, c-format
-#| msgid "Result: %d"
 msgid "Result: %d for '%s'"
 msgstr "Találat: %d ehhez: „%s”"
 
 #: ../src/tracker-utils/tracker-info.c:266
 #, c-format
-#| msgid "Results: %d"
 msgid "Results: %d for '%s'"
 msgstr "Találat: %d ehhez: „%s”"
 
@@ -1657,7 +1643,6 @@ msgid "This will kill all Tracker processes and remove all databases"
 msgstr "Ez az összes Tracker folyamatot kilövi és eltávolítja az összes adatbázist"
 
 #: ../src/tracker-utils/tracker-processes.c:68
-#| msgid "Could not open help document."
 msgid "Could not open /proc"
 msgstr "Nem nyitható meg a /proc"
 
@@ -1665,7 +1650,6 @@ msgstr "Nem nyitható meg a /proc"
 #: ../src/tracker-utils/tracker-processes.c:173
 #: ../src/tracker-utils/tracker-processes.c:203
 #: ../src/tracker-utils/tracker-processes.c:217
-#| msgid "No error given"
 msgid "no error given"
 msgstr "Nincs megadva hiba"
 
@@ -1692,7 +1676,6 @@ msgstr "%d pid található…"
 
 #: ../src/tracker-utils/tracker-processes.c:170
 #, c-format
-#| msgid "Could not open folder \"%s\"."
 msgid "Could not open '%s'"
 msgstr "Nem nyitható meg a következő: „%s”"
 
@@ -1703,7 +1686,6 @@ msgstr "A(z) %d folyamatazonosító található ehhez: „%s”"
 
 #: ../src/tracker-utils/tracker-processes.c:200
 #, c-format
-#| msgid "Could not get Tracker properties"
 msgid "Could not terminate process %d"
 msgstr "Nem fejeztethető be a(z) %d számú folyamat"
 
@@ -1714,7 +1696,6 @@ msgstr "A(z) %d számú folyamat befejeztetve"
 
 #: ../src/tracker-utils/tracker-processes.c:214
 #, c-format
-#| msgid "Could not get Tracker status"
 msgid "Could not kill process %d"
 msgstr "A(z) %d számú folyamat nem lőhető ki"
 
@@ -2204,12 +2185,38 @@ msgid "You can use this utility to check album/artist strings, for example:"
 msgstr "Ezzel a segédprogrammal lemez/előadó karakterláncok ellenőrizhetők, például:"
 
 #: ../utils/albumart/albumart-strip.c:65
-#| msgid "No arguments were provided"
 msgid "No album/artist text was provided"
 msgstr "Nincs megadva lemez/előadó szöveg"
 
 #: ../utils/albumart/albumart-strip.c:82
-#| msgid "Conversations:"
 msgid "Converted to"
 msgstr "Átalakítva erre"
+
+#: ../utils/sqlite/query.c:42
+msgid "SQL query to use"
+msgstr "Használandó SQL lekérdezés"
+
+#: ../utils/sqlite/query.c:43
+msgid "SQL"
+msgstr "SQL"
+
+#: ../utils/sqlite/query.c:47
+msgid "Files to attach"
+msgstr "Csatolandó fájlok"
+
+#: ../utils/sqlite/query.c:237
+msgid "- Test SQLite databases with queries"
+msgstr "– SQLite adatbázisok tesztelése lekérdezésekkel"
+
+#: ../utils/sqlite/query.c:238
+msgid "You can use this utility to attach DBs and run queries using the SQLite API"
+msgstr "Ezzel a segédprogrammal adatbázisokat csatolhat és lekérdezéseket futtathat az SQLite API használatával"
+
+#: ../utils/sqlite/query.c:271
+msgid "No query was provided"
+msgstr "Nincs megadva lekérdezés"
+
+#: ../utils/sqlite/query.c:285
+msgid "No databases were provided"
+msgstr "Nincsenek megadva adatbázisok"
 
