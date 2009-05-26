@@ -12,8 +12,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-05-26 01:08+0200\n"
-"PO-Revision-Date: 2009-05-25 12:57+0200\n"
+"POT-Creation-Date: 2009-05-26 22:23+0200\n"
+"PO-Revision-Date: 2009-05-26 01:51+0200\n"
 "Last-Translator: Ask Hjorth Larsen <asklarsen@gmail.com>\n"
 "Language-Team: Danish <dansk@dansk-gruppen.dk>\n"
 "MIME-Version: 1.0\n"
@@ -2232,37 +2232,34 @@ msgstr "Konverteret til"
 
 #: ../utils/sqlite/query.c:42
 msgid "SQL query to use"
-msgstr ""
+msgstr "SQL-forespørgsel, der skal bruges"
 
 #: ../utils/sqlite/query.c:43
 msgid "SQL"
-msgstr ""
+msgstr "SQL"
 
 #: ../utils/sqlite/query.c:47
 msgid "Files to attach"
-msgstr ""
+msgstr "Filer til vedhæftning"
 
 #: ../utils/sqlite/query.c:237
 msgid "- Test SQLite databases with queries"
-msgstr ""
+msgstr "- Test SQLite-databaser med forespørgsler"
 
 #: ../utils/sqlite/query.c:238
-#, fuzzy
 msgid ""
 "You can use this utility to attach DBs and run queries using the SQLite API"
 msgstr ""
-"Du kan bruge dette værktøj til at kontrollere album-/kunstnerstrenge - for "
-"eksempel:"
+"Du kan bruge dette værktøj til at tilknytte databaser og køre forespørgsler "
+"ved brug af SQLite-API'en"
 
 #: ../utils/sqlite/query.c:271
-#, fuzzy
 msgid "No query was provided"
-msgstr "Ingen argumenter blev givet"
+msgstr "Ingen forespørgsel blev givet"
 
 #: ../utils/sqlite/query.c:285
-#, fuzzy
 msgid "No databases were provided"
-msgstr "Ingen argumenter blev givet"
+msgstr "Ingen databaser blev givet"
 
 #~ msgid ""
 #~ "Automatically _pause if indexing may degrade performance of other "
