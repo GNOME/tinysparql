@@ -34,8 +34,8 @@
 #include "tracker-turtle.h"
 
 static gboolean  initialized = FALSE;
-static GMutex   *turtle_mutex;
-static GCond    *turtle_cond;
+static GMutex   *turtle_mutex = NULL;
+static GCond    *turtle_cond = NULL;
 
 static gboolean turtle_first;
 static gchar * volatile turtle_subject;
@@ -439,8 +439,10 @@ tracker_turtle_process (const gchar          *turtle_file,
 
 	if (!initialized) {
 		g_critical ("Using tracker_turtle module without initialization");
+		return;
 	}
 
+	g_return_if_fail (turtle_mutex == NULL);
 
 	turtle_mutex = g_mutex_new ();
 	turtle_cond = g_cond_new ();
@@ -464,6 +466,8 @@ tracker_turtle_process (const gchar          *turtle_file,
 
 	g_mutex_free (turtle_mutex);
 	g_cond_free (turtle_cond);
+	turtle_mutex = NULL;
+	turtle_cond = NULL;
 }
 
 void
@@ -532,7 +536,10 @@ tracker_turtle_reader_init (const gchar *turtle_file,
 
 	if (!initialized) {
 		g_critical ("Using tracker_turtle module without initialization");
+		return;
 	}
+
+	g_return_if_fail (turtle_mutex == NULL);
 
 	turtle_mutex = g_mutex_new ();
 	turtle_cond = g_cond_new ();
@@ -558,6 +565,8 @@ tracker_turtle_reader_next (void)
 
 		g_mutex_free (turtle_mutex);
 		g_cond_free (turtle_cond);
+		turtle_mutex = NULL;
+		turtle_cond = NULL;
 
 		return FALSE;
 	}
