@@ -103,10 +103,6 @@ void            tracker_indexer_pause_for_duration  (TrackerIndexer         *ind
 void            tracker_indexer_continue            (TrackerIndexer         *indexer,
 						     DBusGMethodInvocation  *context,
 						     GError                **error);
-void		tracker_indexer_turtle_add	   (TrackerIndexer *indexer,
-						    const gchar             *file,
-						    DBusGMethodInvocation *context,
-						    GError **error);
 void            tracker_indexer_files_check         (TrackerIndexer         *indexer,
 						     const gchar            *module,
 						     GStrv                   files);

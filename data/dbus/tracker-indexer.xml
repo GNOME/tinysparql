@@ -11,11 +11,6 @@
 
 <node name="/">
   <interface name="org.freedesktop.Tracker.Indexer">  
-    <method name="TurtleAdd">
-      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
-      <arg type="s" name="file" direction="in" />
-    </method>
-
     <method name="VolumeDisableAll">
       <annotation name="org.freedesktop.DBus.GLib.Async"
       value="true"/>

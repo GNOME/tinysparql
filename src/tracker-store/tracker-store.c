@@ -27,6 +27,7 @@
 
 #include <libtracker-data/tracker-data-update.h>
 #include <libtracker-data/tracker-data-query.h>
+#include <libtracker-data/tracker-turtle.h>
 
 #include "tracker-store.h"
 
@@ -41,19 +42,25 @@ typedef struct {
 
 typedef enum {
 	TRACKER_STORE_TASK_TYPE_UPDATE = 0,
-	TRACKER_STORE_TASK_TYPE_COMMIT = 1
+	TRACKER_STORE_TASK_TYPE_COMMIT = 1,
+	TRACKER_STORE_TASK_TYPE_TURTLE = 2
 } TrackerStoreTaskType;
 
 typedef struct {
 	TrackerStoreTaskType  type;
 	union {
 	  gchar                   *query;
+	  struct {
+		gboolean           in_progress;
+		gchar             *path;
+	  } turtle;
 	} data;
 	gpointer                   user_data;
 	GDestroyNotify             destroy;
 	union {
 		TrackerStoreSparqlUpdateCallback update_callback;
 		TrackerStoreCommitCallback       commit_callback;
+		TrackerStoreTurtleCallback       turtle_callback;
 	} callback;
 } TrackerStoreTask;
 
@@ -71,10 +78,62 @@ private_free (gpointer data)
 static void
 tracker_store_task_free (TrackerStoreTask *task)
 {
-	g_free (task->data.query);
+	if (task->type == TRACKER_STORE_TASK_TYPE_TURTLE) {
+		g_free (task->data.turtle.path);
+	} else {
+		g_free (task->data.query);
+	}
 	g_slice_free (TrackerStoreTask, task);
 }
 
+static gboolean
+process_turtle_file_part (void)
+{
+	int i;
+
+	/* process 10 statements at once before returning to main loop */
+
+	i = 0;
+
+	while (tracker_turtle_reader_next ()) {
+		/* insert statement */
+		tracker_data_insert_statement (
+			tracker_turtle_reader_get_subject (),
+			tracker_turtle_reader_get_predicate (),
+			tracker_turtle_reader_get_object ());
+
+		i++;
+		if (i >= 10) {
+			/* return to main loop */
+			return TRUE;
+		}
+	}
+
+	return FALSE;
+}
+
+static void
+begin_batch (TrackerStorePrivate *private)
+{
+	if (!private->batch_mode) {
+		/* switch to batch mode
+		   delays database commits to improve performance */
+		tracker_data_begin_transaction ();
+		private->batch_mode = TRUE;
+		private->batch_count = 0;
+	}
+}
+
+static void
+end_batch (TrackerStorePrivate *private)
+{
+	if (private->batch_mode) {
+		/* commit pending batch items */
+		tracker_data_commit_transaction ();
+		private->batch_mode = FALSE;
+		private->batch_count = 0;
+	}
+}
 
 static gboolean
 queue_idle_handler (gpointer user_data)
@@ -83,54 +142,59 @@ queue_idle_handler (gpointer user_data)
 	TrackerStoreTask    *task;
 	GError              *error = NULL;
 
-	task = g_queue_pop_head (private->queue);
+	task = g_queue_peek_head (private->queue);
+	g_return_val_if_fail (task != NULL, FALSE);
 
-	if (!task) {
-		return FALSE;
-	}
+	if (task->type == TRACKER_STORE_TASK_TYPE_UPDATE) {
+		begin_batch (private);
 
-	/* Implicit transaction start */
+		tracker_data_update_sparql (task->data.query, &error);
+		if (!error) {
+			private->batch_count++;
+			if (private->batch_count >= TRACKER_STORE_TRANSACTION_MAX) {
+				end_batch (private);
+			}
+		}
 
-	if (!private->batch_mode && task->type != TRACKER_STORE_TASK_TYPE_COMMIT) {
-		/* switch to batch mode
-		   delays database commits to improve performance */
-		tracker_data_begin_transaction ();
-		private->batch_mode = TRUE;
-		private->batch_count = 0;
-	}
+		if (task->callback.update_callback) {
+			task->callback.update_callback (error, task->user_data);
+		}
+	} else if (task->type == TRACKER_STORE_TASK_TYPE_COMMIT) {
+		end_batch (private);
 
-	switch (task->type) {
-		case TRACKER_STORE_TASK_TYPE_COMMIT:
-			if (private->batch_mode) {
-				/* commit pending batch items */
-				tracker_data_commit_transaction ();
-				private->batch_mode = FALSE;
-				private->batch_count = 0;
+		if (task->callback.commit_callback) {
+			task->callback.commit_callback (task->user_data);
+		}
+	} else if (task->type == TRACKER_STORE_TASK_TYPE_TURTLE) {
+		begin_batch (private);
+
+		if (!task->data.turtle.in_progress) {
+			tracker_turtle_reader_init (task->data.turtle.path, NULL);
+			task->data.turtle.in_progress = TRUE;
+		}
+
+		if (process_turtle_file_part ()) {
+			/* import still in progress */
+			private->batch_count++;
+			if (private->batch_count >= TRACKER_STORE_TRANSACTION_MAX) {
+				end_batch (private);
 			}
 
-			if (task->callback.commit_callback) {
-				task->callback.commit_callback (task->user_data);
-			}
-			break;
+			return TRUE;
+		} else {
+			/* import finished */
+			task->data.turtle.in_progress = FALSE;
 
-		case TRACKER_STORE_TASK_TYPE_UPDATE:
-			tracker_data_update_sparql (task->data.query, &error);
-			if (task->callback.update_callback) {
-				task->callback.update_callback (error, task->user_data);
-			}
+			end_batch (private);
 
-			if (!error) {
-				private->batch_count++;
+			if (task->callback.turtle_callback) {
+				task->callback.turtle_callback (error, task->user_data);
 			}
-			break;
+		}
+
 	}
 
-	if (private->batch_count >= TRACKER_STORE_TRANSACTION_MAX) {
-		/* commit pending batch items */
-		tracker_data_commit_transaction ();
-		private->batch_mode = FALSE;
-		private->batch_count = 0;
-	}
+	g_queue_pop_head (private->queue);
 
 	if (task->destroy) {
 		task->destroy (task->user_data);
@@ -142,7 +206,7 @@ queue_idle_handler (gpointer user_data)
 
 	tracker_store_task_free (task);
 
-	return TRUE;
+	return !g_queue_is_empty (private->queue);
 }
 
 static void
@@ -239,6 +303,34 @@ tracker_store_queue_sparql_update (const gchar *sparql,
 	task = g_slice_new0 (TrackerStoreTask);
 	task->type = TRACKER_STORE_TASK_TYPE_UPDATE;
 	task->data.query = g_strdup (sparql);
+	task->user_data = user_data;
+	task->callback.update_callback = callback;
+	task->destroy = destroy;
+
+	g_queue_push_tail (private->queue, task);
+
+	if (!private->have_handler) {
+		start_handler (private);
+	}
+}
+
+void
+tracker_store_queue_turtle_import (GFile                      *file,
+				   TrackerStoreTurtleCallback  callback,
+				   gpointer                    user_data,
+				   GDestroyNotify              destroy)
+{
+	TrackerStorePrivate *private;
+	TrackerStoreTask    *task;
+
+	g_return_if_fail (G_IS_FILE (file));
+
+	private = g_static_private_get (&private_key);
+	g_return_if_fail (private != NULL);
+
+	task = g_slice_new0 (TrackerStoreTask);
+	task->type = TRACKER_STORE_TASK_TYPE_TURTLE;
+	task->data.turtle.path = g_file_get_path (file);
 	task->user_data = user_data;
 	task->callback.update_callback = callback;
 	task->destroy = destroy;

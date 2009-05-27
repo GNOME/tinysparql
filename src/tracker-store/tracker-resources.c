@@ -177,16 +177,33 @@ tracker_resources_delete (TrackerResources	     *self,
 	tracker_dbus_request_success (request_id);
 }
 
+static void
+turtle_import_callback (GError *error, gpointer user_data)
+{
+	TrackerDBusMethodInfo *info = user_data;
+
+	if (error) {
+		tracker_dbus_request_failed (info->request_id,
+					     &error,
+					     NULL);
+		dbus_g_method_return_error (info->context, error);
+		return;
+	}
+
+	dbus_g_method_return (info->context);
+
+	tracker_dbus_request_success (info->request_id);
+}
+
 void
 tracker_resources_load (TrackerResources	 *object,
 			const gchar		 *uri,
 			DBusGMethodInvocation	 *context,
 			GError			**error)
 {
+	TrackerDBusMethodInfo   *info;
 	guint		    request_id;
 	GFile  *file;
-	gchar  *path;
-	GError		   *actual_error = NULL;
 
 	request_id = tracker_dbus_get_next_request_id ();
 
@@ -198,25 +215,16 @@ tracker_resources_load (TrackerResources	 *object,
 				  uri);
 
 	file = g_file_new_for_uri (uri);
-	path = g_file_get_path (file);
 
-	org_freedesktop_Tracker_Indexer_turtle_add (tracker_dbus_indexer_get_proxy (),
-						    path,
-						    &actual_error);
+	info = g_slice_new (TrackerDBusMethodInfo);
 
-	g_free (path);
+	info->request_id = request_id;
+	info->context = context;
+
+	tracker_store_queue_turtle_import (file, turtle_import_callback,
+	                                   info, destroy_method_info);
+
 	g_object_unref (file);
-
-	if (actual_error) {
-		tracker_dbus_request_failed (request_id, &actual_error, NULL);
-		dbus_g_method_return_error (context, actual_error);
-		g_error_free (actual_error);
-		return;
-	}
-
-	dbus_g_method_return (context);
-
-	tracker_dbus_request_success (request_id);
 }
 
 void

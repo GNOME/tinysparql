@@ -21,12 +21,7 @@
 
 /* The indexer works as a state machine, there are 3 different queues:
  *
- * * The update queue: the highest priority one, turtle files waiting for
- *   import and single statements waiting for insertion or deleation are
- *   taken one by one in order to be processed, when this queue is
- *   empty, a single token from the next queue is processed.
- *
- * * The files queue: second highest priority, individual files are
+ * * The files queue: highest priority, individual files are
  *   stored here, waiting for metadata extraction, etc... files are
  *   taken one by one in order to be processed, when this queue is
  *   empty, a single token from the next queue is processed.
@@ -126,7 +121,6 @@ typedef struct MetadataRequest MetadataRequest;
 typedef enum TrackerIndexerState TrackerIndexerState;
 
 struct TrackerIndexerPrivate {
-	GQueue *import_queue;
 	GQueue *dir_queue;
 	GQueue *file_queue;
 	GQueue *modules_queue;
@@ -164,8 +158,6 @@ struct TrackerIndexerPrivate {
 	guint in_transaction : 1;
 	guint in_process : 1;
 	guint interrupted : 1;
-
-	gboolean turtle_import_in_progress;
 
 	guint state;
 };
@@ -607,9 +599,6 @@ tracker_indexer_finalize (GObject *object)
 	g_queue_foreach (priv->file_queue, (GFunc) path_info_free, NULL);
 	g_queue_free (priv->file_queue);
 
-	g_queue_foreach (priv->import_queue, (GFunc) g_free, NULL);
-	g_queue_free (priv->import_queue);
-
 	if (priv->volume_monitor) {
 		g_signal_handlers_disconnect_by_func (priv->volume_monitor,
 						      mount_pre_unmount_cb,
@@ -923,7 +912,6 @@ tracker_indexer_init (TrackerIndexer *indexer)
 	priv->items_processed = 0;
 	priv->in_transaction = FALSE;
 
-	priv->import_queue = g_queue_new ();
 	priv->dir_queue = g_queue_new ();
 	priv->file_queue = g_queue_new ();
 	priv->modules_queue = g_queue_new ();
@@ -981,17 +969,6 @@ tracker_indexer_init (TrackerIndexer *indexer)
 	} else {
 		g_idle_add (start_cb, indexer);
 	}
-}
-
-static void
-add_turtle_file (TrackerIndexer *indexer,
-                 const gchar    *file)
-{
-	g_queue_push_tail (indexer->private->import_queue,
-		g_strdup (file));
-
-	/* Make sure we are still running */
-	check_started (indexer);
 }
 
 static void
@@ -1660,51 +1637,11 @@ process_module (TrackerIndexer *indexer,
 	g_list_free (dirs);
 }
 
-static void
-process_turtle_file_part (TrackerIndexer *indexer)
-{
-	int i;
-
-	/* process 100 statements at once before returning to main loop */
-
-	i = 0;
-
-	while (tracker_turtle_reader_next ()) {
-		/* insert statement */
-		tracker_data_insert_statement (
-			tracker_turtle_reader_get_subject (),
-			tracker_turtle_reader_get_predicate (),
-			tracker_turtle_reader_get_object ());
-
-		indexer->private->items_processed++;
-		indexer->private->items_to_index++;
-		i++;
-		if (i >= 100) {
-			/* return to main loop */
-			return;
-		}
-	}
-
-	indexer->private->turtle_import_in_progress = FALSE;
-}
-
-static void
-process_turtle_file (TrackerIndexer *indexer,
-                     const gchar    *file)
-{
-	indexer->private->turtle_import_in_progress = TRUE;
-
-	tracker_turtle_reader_init (file, NULL);
-
-	process_turtle_file_part (indexer);
-}
-
 static gboolean
 process_func (gpointer data)
 {
 	TrackerIndexer *indexer;
 	PathInfo *path;
-	gchar *file;
 
 	indexer = TRACKER_INDEXER (data);
 
@@ -1714,13 +1651,7 @@ process_func (gpointer data)
 		start_transaction (indexer);
 	}
 
-	if (indexer->private->turtle_import_in_progress) {
-		process_turtle_file_part (indexer);
-	} else if ((file = g_queue_pop_head (indexer->private->import_queue)) != NULL) {
-		/* Import file */
-		process_turtle_file (indexer, file);
-		g_free (file);
-	} else if ((path = g_queue_peek_head (indexer->private->file_queue)) != NULL) {
+	if ((path = g_queue_peek_head (indexer->private->file_queue)) != NULL) {
 		/* Process file */
 		if (process_file (indexer, path)) {
 			indexer->private->subelements_processed = 0;
@@ -2093,30 +2024,6 @@ tracker_indexer_process_modules (TrackerIndexer  *indexer,
 		}
 	}
 }
-
-void
-tracker_indexer_turtle_add (TrackerIndexer *indexer,
-			    const gchar    *file,
-			    DBusGMethodInvocation *context,
-			    GError **error)
-{
-	guint request_id;
-
-	request_id = tracker_dbus_get_next_request_id ();
-
-	tracker_dbus_async_return_if_fail (TRACKER_IS_INDEXER (indexer), context);
-	tracker_dbus_async_return_if_fail (file != NULL, context);
-
-	tracker_dbus_request_new (request_id,
-				  "DBus request to check TTL file %s",
-				  file);
-
-	add_turtle_file (indexer, file);
-
-	dbus_g_method_return (context);
-	tracker_dbus_request_success (request_id);
-}
-
 
 void
 tracker_indexer_files_check (TrackerIndexer *indexer,
