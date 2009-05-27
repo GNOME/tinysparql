@@ -103,27 +103,6 @@ tracker_string_replace (const gchar *haystack,
 }
 
 gchar *
-tracker_escape_string (const gchar *in)
-{
-	gchar **array, *out;
-
-	if (!in) {
-		return g_strdup ("");
-	}
-
-	if (!strchr (in, '\'')) {
-		return g_strdup (in);
-	}
-
-	/* double single quotes */
-	array = g_strsplit (in, "'", -1);
-	out = g_strjoinv ("''", array);
-	g_strfreev (array);
-
-	return out;
-}
-
-gchar *
 tracker_seconds_estimate_to_string (gdouble  seconds_elapsed,
 				    gboolean short_string,
 				    guint    items_done,

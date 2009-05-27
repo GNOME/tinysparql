@@ -122,7 +122,6 @@ tracker_path_remove
 <SECTION>
 <FILE>tracker-utils</FILE>
 <TITLE>General</TITLE>
-tracker_escape_string
 tracker_is_empty_string
 tracker_seconds_estimate_to_string
 tracker_seconds_to_string
