@@ -681,9 +681,13 @@ initialize_directories (void)
 static gboolean
 initialize_databases (void)
 {
-	/*
-	 * Create SQLite databases
+	/* This means we doing the initial check that our dbs are up
+	 * to date. Once we get finished from the indexer, we set
+	 * this to FALSE.
 	 */
+	tracker_status_set_is_initial_check (TRUE);
+
+	/* We set our first time indexing state here */
 	if (!tracker_status_get_is_readonly () && force_reindex) {
 		tracker_status_set_is_first_time_index (TRUE);
 	}
@@ -783,20 +787,19 @@ backup_user_metadata (TrackerConfig *config, TrackerLanguage *language)
  * Saving the last backup file to help with debugging.
  */
 static void
-crawling_finished_cb (TrackerProcessor *processor, 
+processor_finished_cb (TrackerProcessor *processor, 
 		      gpointer          user_data)
 {
 	GError *error = NULL;
-	gulong *callback_id;
-	static gint counter = 0;
 	
-	callback_id = user_data;
-
-	if (++counter >= 2) {
+	if (!tracker_status_get_is_initial_check ()) {
 		gchar *rebackup;
 
-		g_debug ("Uninstalling initial crawling callback");
-		g_signal_handler_disconnect (processor, *callback_id);
+		g_debug ("Uninstalling initial processor finished callback");
+
+		g_signal_handlers_disconnect_by_func (processor, 
+						      processor_finished_cb, 
+						      user_data);
 
 		if (g_file_test (get_ttl_backup_filename (), G_FILE_TEST_EXISTS)) {
 			org_freedesktop_Tracker_Indexer_restore_backup (tracker_dbus_indexer_get_proxy (),
@@ -815,22 +818,9 @@ crawling_finished_cb (TrackerProcessor *processor,
 			g_rename (get_ttl_backup_filename (), rebackup);
 			g_free (rebackup);
 		}
-
-	} else {
-		g_debug ("%d finished signal", counter);
 	}
 }
 
-static void
-backup_restore_on_crawling_finished (TrackerProcessor *processor)
-{
-	static gulong restore_cb_id = 0;
-
-	g_debug ("Setting callback for crawling finish detection");
-	restore_cb_id = g_signal_connect (processor, "finished", 
-					  G_CALLBACK (crawling_finished_cb), 
-					  &restore_cb_id);
-}
 
 #ifdef HAVE_HAL
 
@@ -1129,7 +1119,22 @@ main (gint argc, gchar *argv[])
 	set_up_mount_points (hal_storage);
 #endif /* HAVE_HAL */
 
+	if (private->shutdown) {
+		goto shutdown;
+	}
+
+	/* 
+	 * Start public interfaces (DBus, push modules, etc)
+	 */
 	private->processor = tracker_processor_new (config, hal_storage);
+
+	if (force_reindex &&
+	    g_file_test (get_ttl_backup_filename (), G_FILE_TEST_EXISTS)) {
+		g_debug ("Setting callback for crawling finish detection");
+		g_signal_connect (private->processor, "finished", 
+				  G_CALLBACK (processor_finished_cb), 
+				  NULL);
+	}
 
 	/* Make Tracker available for introspection */
 	if (!tracker_dbus_register_objects (config,
@@ -1167,16 +1172,12 @@ main (gint argc, gchar *argv[])
 		tracker_status_set_and_signal (TRACKER_STATUS_IDLE);
 	}
 
-	if (flags & TRACKER_DB_MANAGER_FORCE_REINDEX ||
-	    g_file_test (get_ttl_backup_filename (), G_FILE_TEST_EXISTS)) {
-		backup_restore_on_crawling_finished (private->processor);
-	}
-
-	if (!private->shutdown && tracker_status_get_is_ready ()) {
+	if (!private->shutdown) {
 		private->main_loop = g_main_loop_new (NULL, FALSE);
 		g_main_loop_run (private->main_loop);
 	}
 
+shutdown:
 	/*
 	 * Shutdown the daemon
 	 */

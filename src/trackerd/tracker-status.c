@@ -59,6 +59,7 @@ typedef struct {
 	gboolean       is_ready;
 	gboolean       is_running;
 	gboolean       is_first_time_index;
+	gboolean       is_initial_check;
 	gboolean       is_paused_manually;
 	gboolean       is_paused_for_batt;
 	gboolean       is_paused_for_io;
@@ -535,6 +536,7 @@ tracker_status_init (TrackerConfig *config,
 	private->is_ready = FALSE;
 	private->is_running = FALSE;
 	private->is_first_time_index = FALSE;
+	private->is_initial_check = FALSE;
 	private->is_paused_manually = FALSE;
 	private->is_paused_for_batt = FALSE;
 	private->is_paused_for_io = FALSE;
@@ -1028,6 +1030,31 @@ tracker_status_set_is_first_time_index (gboolean value)
 }
 
 gboolean
+tracker_status_get_is_initial_check (void)
+{
+	TrackerStatusPrivate *private;
+
+	private = g_static_private_get (&private_key);
+	g_return_val_if_fail (private != NULL, FALSE);
+
+	return private->is_initial_check;
+}
+
+void
+tracker_status_set_is_initial_check (gboolean value)
+{
+	TrackerStatusPrivate *private;
+
+	private = g_static_private_get (&private_key);
+	g_return_if_fail (private != NULL);
+
+	/* Set value */
+	private->is_initial_check = value;
+
+	/* We don't need to signal this */
+}
+
+gboolean
 tracker_status_get_in_merge (void)
 {
 	TrackerStatusPrivate *private;
@@ -1199,4 +1226,3 @@ tracker_status_set_is_paused_for_dbus (gboolean value)
 	/* Set indexer state and our state to paused or not */ 
 	indexer_recheck (TRUE, TRUE, emit);
 }
-
