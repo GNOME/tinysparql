@@ -20,6 +20,7 @@
  */
 
 #include <glib.h>
+#include <string.h>
 #include <time.h>
 #include <libtracker-common/tracker-type-utils.h>
 #include "tracker-module-metadata-private.h"
@@ -307,6 +308,58 @@ tracker_module_metadata_foreach (TrackerModuleMetadata        *metadata,
 	}
 }
 
+static gchar *
+sparql_escape (const gchar *str)
+{
+	gchar       *escaped_string;
+	const gchar *p;
+	gchar       *q;
+
+	escaped_string = g_malloc (2 * strlen (str) + 1);
+
+	p = str;
+	q = escaped_string;
+	while (*p != '\0') {
+		switch (*p) {
+		case '\t':
+			*q++ = '\\';
+			*q++ = 't';
+			break;
+		case '\n':
+			*q++ = '\\';
+			*q++ = 'n';
+			break;
+		case '\r':
+			*q++ = '\\';
+			*q++ = 'r';
+			break;
+		case '\b':
+			*q++ = '\\';
+			*q++ = 'b';
+			break;
+		case '\f':
+			*q++ = '\\';
+			*q++ = 'f';
+			break;
+		case '"':
+			*q++ = '\\';
+			*q++ = '"';
+			break;
+		case '\\':
+			*q++ = '\\';
+			*q++ = '\\';
+			break;
+		default:
+			*q++ = *p;
+			break;
+		}
+		p++;
+	}
+	*q = '\0';
+
+	return escaped_string;
+}
+
 gchar *
 tracker_module_metadata_get_sparql (TrackerModuleMetadata        *metadata)
 {
@@ -321,7 +374,7 @@ tracker_module_metadata_get_sparql (TrackerModuleMetadata        *metadata)
 
 		stmt = &g_array_index (metadata->statements, Statement, i);
 
-		object = g_strescape (stmt->object, NULL);
+		object = sparql_escape (stmt->object);
 
 		g_string_append_printf (sparql, " <%s> <%s> \"%s\" .",
 		                        stmt->subject, stmt->predicate, object);
