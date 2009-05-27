@@ -12,6 +12,7 @@ Namespace NAMESPACES [] = {
         {"dc", "http://purl.org/dc/elements/1.1/"},
         {"fts", "http://www.tracker-project.org/ontologies/fts#"},
         {"mto", "http://www.tracker-project.org/temp/mto#"},
+        {"mlo", "http://www.tracker-project.org/temp/mlo#"},
         {"nao", "http://www.semanticdesktop.org/ontologies/2007/08/15/nao#"},
         {"ncal", "http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#"},
         {"nco", "http://www.semanticdesktop.org/ontologies/2007/03/22/nco#"},
@@ -64,7 +65,10 @@ qname_to_shortname (const gchar *qname)
         for (i = 0; NAMESPACES[i].namespace != NULL; i++) {
                 if (g_str_has_prefix (qname, NAMESPACES[i].uri)) {
                         pieces = g_strsplit (qname, "#", 2);
-                        g_assert (g_strv_length (pieces) == 2);
+                        if (g_strv_length (pieces) != 2) {
+                                g_warning ("Unable to get the shortname for %s", qname);
+                                break;
+                        }
 
                         name = g_strdup_printf ("%s:%s", 
                                                 NAMESPACES[i].namespace, 

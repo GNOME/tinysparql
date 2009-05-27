@@ -1,0 +1,10 @@
+@prefix dsc: <http://www.tracker-project.org/temp/dsc#> .
+
+<virtual-ontology-uri:40-mlo.ontology> a dsc:Ontology ;
+      dsc:title "Maemo Location Ontology (MLO)" ;
+      dsc:author "Ivan Frade &lt;ivan.frade@nokia.com&gt;" ;
+      dsc:editor "Ivan Frade &lt;ivan.frade@nokia.com&gt" ;
+      dsc:contributor "Example of contributor" ;
+      
+      dsc:baseUrl "http://www.tracker-project.org/temp/mlo#" ;
+      dsc:relativePath "./40-mlo.ontology" .

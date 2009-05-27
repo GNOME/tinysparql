@@ -1,0 +1,101 @@
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix nrl: <http://www.semanticdesktop.org/ontologies/2007/08/15/nrl#> .
+@prefix nie: <http://www.semanticdesktop.org/ontologies/2007/01/19/nie#> .
+
+@prefix mlo: <http://www.tracker-project.org/temp/mlo#> .
+@prefix tracker: <http://www.tracker-project.org/ontologies/tracker#> .
+
+mlo: a tracker:Namespace ;
+    tracker:prefix "mlo" .
+
+mlo:GeoPoint a rdfs:Class ;
+    rdfs:label "Point on the earth" ;
+    rdfs:comment "The inherited properties from InformationElement can be used to add details." ;
+    rdfs:subClassOf nie:InformationElement .
+
+# Should this be a subclass of nao:Tag?
+mlo:PointOfInterest a rdfs:Class ;
+    rdfs:label "Annotation for a point (FIXME subclass of nao:Tag?)" ;
+    rdfs:subClassOf nie:InformationElement ;
+    rdfs:comment "Use the nie title, description, ...  properties".
+
+mlo:LocationBoundingBox a rdfs:Class ;
+    rdfs:label "Box containing a relevant location (places that cannot be described in one concrete point)" ;
+    rdfs:subClassOf nie:InformationElement .
+
+mlo:Route a rdfs:Class ;
+    rdfs:label "Bounding box with an specific use-case" ;
+    rdfs:subClassOf mlo:LocationBoundingBox .
+
+#Properties of GeoPoint
+mlo:latitude a rdf:Property ;
+    rdfs:label "Latitude";
+    rdfs:comment "Positive values for the north hemisphere, negative for the south" ;
+    rdfs:domain mlo:GeoPoint ;
+    rdfs:range  xsd:double .
+
+mlo:longitude a rdf:Property ;
+    rdfs:label "Longitude" ;
+    rdfs:comment "Positive to one side of the Greenwich meridian, negative to the the other" ;
+    rdfs:domain mlo:GeoPoint ;
+    rdfs:range  xsd:double .
+
+mlo:altitude a rdf:Property ;
+    rdfs:label "Altitude" ;
+    rdfs:comment "Altitude above mean sea level";
+    rdfs:domain mlo:GeoPoint ;
+    rdfs:range  xsd:integer .
+
+mlo:timestamp a rdf:Property ;
+    rdfs:label "Timestamp" ;
+    rdfs:comment "Timestamp when the geopoint is referenced. Create subproperties for certain use cases" ;
+    rdfs:domain mlo:GeoPoint ;
+    rdfs:range xsd:dateTime .
+
+# Properties of LocationBoundingBox
+mlo:boxSouthWestCorner a rdf:Property ;
+    rdfs:label "South-west corner of the bounding box" ;
+    rdfs:domain mlo:LocationBoundingBox ;
+    rdfs:range  mlo:GeoPoint.
+
+mlo:boxEastLimit a rdf:Property ;
+    rdfs:label "Length of the box in the East direction" ;
+    rdfs:domain mlo:LocationBoundingBox ;
+    rdfs:range mlo:GeoPoint.
+
+mlo:boxVerticalLimit a rdf:Property ;
+    rdfs:label "Length of the box in the Up direction (height)" ;
+    rdfs:domain mlo:LocationBoundingBox ;
+    rdfs:range mlo:GeoPoint.
+
+mlo:boxNorthLimit a rdf:Property ;
+    rdfs:label "Length of the box in the North direction" ;
+    rdfs:domain mlo:LocationBoundingBox ;
+    rdfs:range mlo:GeoPoint.
+
+# Properties of Rouce
+mlo:startTime a rdf:Property ;
+    rdfs:label "Time when the first point in the route was saved" ;
+    rdfs:domain mlo:Route ;
+    rdfs:range  xsd:dateTime .
+
+mlo:endTime a rdf:Property ;
+    rdfs:label "Time when the last point in the route was saved" ;
+    rdfs:domain mlo:Route ;
+    rdfs:range  xsd:dateTime .
+
+mlo:routeDetails a rdf:Property ;
+    rdfs:label "Pointer to a file containing route details (e.g. KML file)." ;
+    rdfs:comment "FIXME Domain can be resource if we handle map-files correctly in the ontology";
+    rdfs:domain mlo:Route ;
+    rdfs:range  xsd:string . 
+
+
+# FIXME Domain rdfs:Resource?? to link files and not only content?
+mlo:location a rdf:Property ;
+    rdfs:label "Property linking something to a location" ;
+    rdfs:comment "This can be subclassed to add semantics" ;
+    rdfs:domain nie:InformationElement ;
+    rdfs:range mlo:GeoPoint .
