@@ -136,7 +136,58 @@ tracker_void_reply (DBusGProxy *proxy, GError *error, gpointer user_data)
 }
 
 
+/* copied from tracker-module-metadata.c */
+gchar *
+tracker_sparql_escape (const gchar *str)
+{
+	gchar       *escaped_string;
+	const gchar *p;
+	gchar       *q;
 
+	escaped_string = g_malloc (2 * strlen (str) + 1);
+
+	p = str;
+	q = escaped_string;
+	while (*p != '\0') {
+		switch (*p) {
+		case '\t':
+			*q++ = '\\';
+			*q++ = 't';
+			break;
+		case '\n':
+			*q++ = '\\';
+			*q++ = 'n';
+			break;
+		case '\r':
+			*q++ = '\\';
+			*q++ = 'r';
+			break;
+		case '\b':
+			*q++ = '\\';
+			*q++ = 'b';
+			break;
+		case '\f':
+			*q++ = '\\';
+			*q++ = 'f';
+			break;
+		case '"':
+			*q++ = '\\';
+			*q++ = '"';
+			break;
+		case '\\':
+			*q++ = '\\';
+			*q++ = '\\';
+			break;
+		default:
+			*q++ = *p;
+			break;
+		}
+		p++;
+	}
+	*q = '\0';
+
+	return escaped_string;
+}
 
 
 TrackerClient *
