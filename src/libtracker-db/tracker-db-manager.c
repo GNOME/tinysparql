@@ -1485,11 +1485,17 @@ db_set_params (TrackerDBInterface *iface,
 	if (pragmas) {
 		g_hash_table_iter_init (&iter, pragmas);
 		while (g_hash_table_iter_next (&iter, &key, &value)) {
-			tracker_db_interface_execute_query (iface,
-							    NULL,
-							    "PRAGMA %s = %s;",
-							    (const gchar*) key,
-							    (const gchar*) value);
+			TrackerDBResultSet *result_set;
+
+			result_set = tracker_db_interface_execute_query (iface,
+									 NULL,
+									 "PRAGMA %s = %s;",
+									 (const gchar*) key,
+									 (const gchar*) value);
+
+			if (result_set) {
+				g_object_unref (result_set);
+			}
 		}
 	}
 
