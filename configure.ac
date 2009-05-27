@@ -621,14 +621,14 @@ AM_CONDITIONAL(HAVE_UNAC, test "x$have_unac" = "xyes")
 AC_ARG_ENABLE([evolution_push_module],
               AS_HELP_STRING([--enable-evolution-push-module],
                              [enable support for Evolution push mechanism [[default=no]]]),,
-              [enable_evolution_push_module=no])
+              [enable_evolution_push_module=yes])
 
 AM_CONDITIONAL(USING_EVOLUTION_PUSH_MODULE, test "x$enable_evolution_push_module" = "xyes")
 
 AC_ARG_ENABLE([kmail_push_module],
               AS_HELP_STRING([--enable-kmail-push-module],
                              [enable support for KMail push mechanism [[default=no]]]),,
-              [enable_kmail_push_module=no])
+              [enable_kmail_push_module=yes])
 
 AM_CONDITIONAL(USING_KMAIL_PUSH_MODULE, test "x$enable_kmail_push_module" = "xyes")
 
