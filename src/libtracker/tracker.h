@@ -52,6 +52,8 @@ typedef struct {
 
 void	tracker_cancel_last_call (TrackerClient *client);
 
+gchar * tracker_sparql_escape (const gchar *str);
+
 /* you can make multiple connections with tracker_connect and free them with tracker_disconnect */
 TrackerClient * tracker_connect (gboolean enable_warnings);
 void		tracker_disconnect (TrackerClient *client);
