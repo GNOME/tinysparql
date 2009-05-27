@@ -335,7 +335,7 @@ save_pragma_file_defaults (gboolean safe)
 	g_key_file_set_string (key_file, group, "encoding", "\"UTF-8\"");
 	g_key_file_set_string (key_file, group, "journal_mode", "DELETE");
 	g_key_file_set_string (key_file, group, "synchronous", "NORMAL");
-	g_key_file_set_string (key_file, group, "temp_store", "FILE");
+	g_key_file_set_string (key_file, group, "temp_store", "MEMORY");
 	g_key_file_set_string (key_file, group, "auto_vacuum", "NONE");
 	g_key_file_set_string (key_file, group, "count_changes", "0");
 
@@ -1498,12 +1498,6 @@ db_set_params (TrackerDBInterface *iface,
 			}
 		}
 	}
-
-	/* tracker_db_interface_execute_query (iface, NULL, "PRAGMA synchronous = NORMAL;"); */
-	/* tracker_db_interface_execute_query (iface, NULL, "PRAGMA count_changes = 0;"); */
-	/* tracker_db_interface_execute_query (iface, NULL, "PRAGMA temp_store = FILE;"); */
-	/* tracker_db_interface_execute_query (iface, NULL, "PRAGMA encoding = \"UTF-8\""); */
-	/* tracker_db_interface_execute_query (iface, NULL, "PRAGMA auto_vacuum = 0;"); */
 
 	if (page_size != TRACKER_DB_PAGE_SIZE_DONT_SET) {
 		g_message ("  Setting page size to %d", page_size);
