@@ -384,7 +384,7 @@ extract_jpeg (const gchar *filename,
 		 *
 		 * jpeg_calc_output_dimensions(&cinfo);
 		 */
-		
+
 		marker = (struct jpeg_marker_struct *) &cinfo.marker_list;
 		
 		while (marker) {

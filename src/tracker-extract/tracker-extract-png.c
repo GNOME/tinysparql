@@ -133,7 +133,6 @@ metadata_append (GHashTable *metadata, gchar *key, gchar *value, gboolean append
 	/* Adding certain fields also to keywords FIXME Postprocessing is evil */
 	if ((strcmp (key, "Image:Title") == 0) ||
 	    (strcmp (key, "Image:Description") == 0) ) {
-		metadata_append (metadata, "Image:Keywords", value, TRUE);
 		g_hash_table_insert (metadata,
 				     g_strdup ("Image:HasKeywords"),
 				     tracker_escape_metadata ("1"));

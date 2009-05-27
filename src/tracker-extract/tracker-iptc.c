@@ -26,10 +26,15 @@
 #include <glib.h>
 #include <string.h>
 
+#include <libtracker-common/tracker-type-utils.h>
+#include <libtracker-common/tracker-file-utils.h>
+
 #ifdef HAVE_LIBIPTCDATA
 
 #include <libiptcdata/iptc-data.h>
 #include <libiptcdata/iptc-dataset.h>
+
+#define IPTC_DATE_FORMAT "%Y %m %d"
 
 typedef gchar * (*IptcPostProcessor) (const gchar*);
 
@@ -42,12 +47,13 @@ typedef struct {
 } IptcTagType;
 
 static gchar *fix_iptc_orientation (const gchar *orientation);
+static gchar *date_to_iso8601 (const gchar *date);
 
 static IptcTagType iptctags[] = {
         { 2, IPTC_TAG_KEYWORDS, "Image:Keywords", TRUE, NULL },
 	/*	{ 2, IPTC_TAG_CONTENT_LOC_NAME, "Image:Location", NULL }, */
 	{ 2, IPTC_TAG_SUBLOCATION, "Image:Location", FALSE, NULL },
-        { 2, IPTC_TAG_DATE_CREATED, "Image:Date", FALSE, NULL },
+        { 2, IPTC_TAG_DATE_CREATED, "Image:Date", FALSE, date_to_iso8601 },
         { 2, IPTC_TAG_BYLINE, "Image:Creator", FALSE, NULL },
         { 2, IPTC_TAG_CITY, "Image:City", FALSE, NULL },
         { 2, IPTC_TAG_COUNTRY_NAME, "Image:Country", FALSE, NULL },
@@ -119,6 +125,15 @@ metadata_append (GHashTable *metadata, gchar *key, gchar *value, gboolean append
 	    (strcmp (key, "Image:City") == 0) ) {
 		metadata_append (metadata, "Image:Keywords", value, TRUE, FALSE);
 	}
+}
+
+static gchar *
+date_to_iso8601 (const gchar *date)
+{
+	/* From: ex; date "2007:04:15 15:35:58"
+	 * To  : ex. "2007-04-15T17:35:58+0200 where +0200 is localtime
+	 */
+	return tracker_date_format_to_iso8601 (date, IPTC_DATE_FORMAT);
 }
 
 static gchar *
