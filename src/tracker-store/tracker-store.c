@@ -140,12 +140,13 @@ queue_idle_handler (gpointer user_data)
 {
 	TrackerStorePrivate *private = user_data;
 	TrackerStoreTask    *task;
-	GError              *error = NULL;
 
 	task = g_queue_peek_head (private->queue);
 	g_return_val_if_fail (task != NULL, FALSE);
 
 	if (task->type == TRACKER_STORE_TASK_TYPE_UPDATE) {
+		GError *error = NULL;
+
 		begin_batch (private);
 
 		tracker_data_update_sparql (task->data.query, &error);
@@ -158,6 +159,10 @@ queue_idle_handler (gpointer user_data)
 
 		if (task->callback.update_callback) {
 			task->callback.update_callback (error, task->user_data);
+		}
+
+		if (error) {
+			g_clear_error (&error);
 		}
 	} else if (task->type == TRACKER_STORE_TASK_TYPE_COMMIT) {
 		end_batch (private);
@@ -188,7 +193,7 @@ queue_idle_handler (gpointer user_data)
 			end_batch (private);
 
 			if (task->callback.turtle_callback) {
-				task->callback.turtle_callback (error, task->user_data);
+				task->callback.turtle_callback (NULL, task->user_data);
 			}
 		}
 
@@ -198,10 +203,6 @@ queue_idle_handler (gpointer user_data)
 
 	if (task->destroy) {
 		task->destroy (task->user_data);
-	}
-
-	if (error) {
-		g_clear_error (&error);
 	}
 
 	tracker_store_task_free (task);
