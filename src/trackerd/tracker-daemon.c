@@ -159,7 +159,7 @@ indexer_started_cb (DBusGProxy *proxy,
 		return;
 	}
 
-	g_message ("Starting statistics cache timeout");
+	g_debug ("Starting statistics cache timeout");
 	priv->stats_cache_timeout_id = 
 		g_timeout_add_seconds (STATS_CACHE_LIFETIME,
 				       stats_cache_timeout,
@@ -184,7 +184,7 @@ indexer_finished_cb (DBusGProxy *proxy,
 		return;
 	}
 
-	g_message ("Stopping statistics cache timeout");
+	g_debug ("Stopping statistics cache timeout");
 	g_source_remove (priv->stats_cache_timeout_id);
 	priv->stats_cache_timeout_id = 0;
 }
@@ -429,8 +429,6 @@ stats_cache_get_latest (void)
 	};
 
 	/* Set up empty list of services because SQL queries won't give us 0 items. */
-	g_message ("Requesting statistics from database for an accurate signal");
-
 	iface = tracker_db_manager_get_db_interface (TRACKER_DB_COMMON);
 	result_set = tracker_data_manager_exec_proc (iface, "GetServices", 0);
 	services = tracker_dbus_query_result_to_hash_table (result_set);

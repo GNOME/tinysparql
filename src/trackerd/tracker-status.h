@@ -69,6 +69,9 @@ void	      tracker_status_set_is_running	     (gboolean	     value);
 void	      tracker_status_set_is_first_time_index (gboolean	     value);
 gboolean      tracker_status_get_is_first_time_index (void);
 
+void	      tracker_status_set_is_initial_check    (gboolean	     value);
+gboolean      tracker_status_get_is_initial_check    (void);
+
 gboolean      tracker_status_get_in_merge	     (void);
 void	      tracker_status_set_in_merge	     (gboolean	     value);
 

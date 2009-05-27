@@ -519,9 +519,13 @@ initialize_directories (void)
 static gboolean
 initialize_databases (void)
 {
-	/*
-	 * Create SQLite databases
+	/* This means we doing the initial check that our dbs are up
+	 * to date. Once we get finished from the indexer, we set
+	 * this to FALSE.
 	 */
+	tracker_status_set_is_initial_check (TRUE);
+
+	/* We set our first time indexing state here */
 	if (!tracker_status_get_is_readonly () && force_reindex) {
 		tracker_status_set_is_first_time_index (TRUE);
 	}
@@ -630,19 +634,18 @@ backup_user_metadata (TrackerConfig *config, TrackerLanguage *language)
  * Saving the last backup file to help with debugging.
  */
 static void
-crawling_finished_cb (TrackerProcessor *processor, 
+processor_finished_cb (TrackerProcessor *processor, 
 		      gpointer          user_data)
 {
 	GError *error = NULL;
-	static gint counter = 0;
 	
-	if (++counter >= 2) {
+	if (!tracker_status_get_is_initial_check ()) {
 		gchar *rebackup;
 
-		g_debug ("Uninstalling initial crawling callback");
+		g_debug ("Uninstalling initial processor finished callback");
 
 		g_signal_handlers_disconnect_by_func (processor, 
-						      crawling_finished_cb, 
+						      processor_finished_cb, 
 						      user_data);
 
 		if (g_file_test (get_ttl_backup_filename (), G_FILE_TEST_EXISTS)) {
@@ -662,9 +665,6 @@ crawling_finished_cb (TrackerProcessor *processor,
 			g_rename (get_ttl_backup_filename (), rebackup);
 			g_free (rebackup);
 		}
-
-	} else {
-		g_debug ("%d finished signal", counter);
 	}
 }
 
@@ -1178,12 +1178,12 @@ main (gint argc, gchar *argv[])
 	 * Start public interfaces (DBus, push modules, etc)
 	 */
 	private->processor = tracker_processor_new (config, hal);
-		
+
 	if (force_reindex &&
 	    g_file_test (get_ttl_backup_filename (), G_FILE_TEST_EXISTS)) {
 		g_debug ("Setting callback for crawling finish detection");
 		g_signal_connect (private->processor, "finished", 
-				  G_CALLBACK (crawling_finished_cb), 
+				  G_CALLBACK (processor_finished_cb), 
 				  NULL);
 	}
 
