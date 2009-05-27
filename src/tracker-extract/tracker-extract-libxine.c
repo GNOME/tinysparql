@@ -215,9 +215,9 @@ tracker_extract_xine (gchar *uri, GPtrArray *metadata)
 
 	author = xine_get_meta_info (stream, XINE_META_INFO_ARTIST);
 	if (author) {
-		gchar *canonical_uri = tracker_uri_printf_escaped ("urn:artist:%s", s);
+		gchar *canonical_uri = tracker_uri_printf_escaped ("urn:artist:%s", author);
 		tracker_statement_list_insert (metadata, canonical_uri, RDF_TYPE, NCO_PREFIX "Contact");
-		tracker_statement_list_insert (metadata, canonical_uri, NCO_PREFIX "fullname", s);
+		tracker_statement_list_insert (metadata, canonical_uri, NCO_PREFIX "fullname", author);
 		tracker_statement_list_insert (metadata, uri, NCO_PREFIX "creator", canonical_uri);
 		g_free (canonical_uri);
 	}
@@ -229,7 +229,7 @@ tracker_extract_xine (gchar *uri, GPtrArray *metadata)
 
 	year = xine_get_meta_info (stream, XINE_META_INFO_YEAR);
 	if (year) {
-		tracker_statement_list_insert (metadata, uri, "Audio:Year"), year);
+	/*	tracker_statement_list_insert (metadata, uri, "Audio:Year", year); */
 	}
 
 	genre = xine_get_meta_info (stream, XINE_META_INFO_GENRE);
