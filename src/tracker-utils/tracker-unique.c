@@ -210,7 +210,7 @@ main (int argc, char **argv)
 	aggregates = g_new0 (gchar*, aggregate_count + 1);
 	aggregate_fields = g_new0 (gchar*, aggregate_count + 1);
 
-	g_debug ("Count of aggregates: %d", aggregate_count);
+	/* g_debug ("Count of aggregates: %d", aggregate_count); */
 
 	if (concat) {
 		guint i;
