@@ -181,11 +181,13 @@ ncal:Alarm a rdfs:Class ;
 ncal:Event a rdfs:Class ;
 	rdfs:label "Event" ;
 	rdfs:comment "Provide a grouping of component properties that describe an event." ;
+	tracker:notify true ;
 	rdfs:subClassOf ncal:UnionParentClass , nie:InformationElement .
 
 ncal:Todo a rdfs:Class ;
 	rdfs:label "Todo" ;
 	rdfs:comment "Provide a grouping of calendar properties that describe a to-do." ;
+	tracker:notify true ;
 	rdfs:subClassOf ncal:UnionParentClass , nie:InformationElement .
 
 ncal:Freebusy a rdfs:Class ;
@@ -196,6 +198,7 @@ ncal:Freebusy a rdfs:Class ;
 ncal:Journal a rdfs:Class ;
 	rdfs:label "Journal" ;
 	rdfs:comment "Provide a grouping of component properties that describe a journal entry." ;
+	tracker:notify true ;
 	rdfs:subClassOf ncal:UnionParentClass , nie:InformationElement .
 
 ncal:Timezone a rdfs:Class ;
