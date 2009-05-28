@@ -279,7 +279,7 @@ start_handler (TrackerStorePrivate *private)
 {
 	private->have_handler = TRUE;
 
-	g_idle_add_full (G_PRIORITY_DEFAULT,
+	g_idle_add_full (G_PRIORITY_LOW,
 	                 queue_idle_handler,
 	                 private,
 	                 queue_idle_destroy);
