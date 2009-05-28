@@ -34,6 +34,9 @@ hal_headers = 						\
 	tracker-storage.h
 endif
 
+libtracker_common_la_VALASOURCES =			\
+	tracker-sparql-builder.vala
+
 libtracker_common_la_SOURCES =	 			\
 	$(os_sources)					\
 	$(hal_sources)					\
@@ -56,7 +59,9 @@ libtracker_common_la_SOURCES =	 			\
 	tracker-type-utils.c				\
 	tracker-utils.c					\
 	tracker-thumbnailer.c				\
-	tracker-albumart.c
+	tracker-albumart.c				\
+	libtracker-common.vala.stamp			\
+	$(libtracker_common_la_VALASOURCES:.vala=.c)
 
 noinst_HEADERS =					\
 	$(hal_headers)					\
@@ -79,10 +84,15 @@ libtracker_commoninclude_HEADERS =			\
 	tracker-ontology.h				\
 	tracker-parser.h				\
 	tracker-property.h				\
+	tracker-sparql-builder.h						\
 	tracker-statement-list.h			\
 	tracker-status.h				\
 	tracker-type-utils.h				\
 	tracker-utils.h
+
+libtracker-common.vala.stamp: $(libtracker_common_la_VALASOURCES)
+	$(VALAC) -C $(VALAFLAGS) -H tracker-sparql-builder.h $^
+	touch $@
 
 libtracker_common_la_LDFLAGS = 				\
 	-version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE)
@@ -112,11 +122,14 @@ marshal_sources =                              		\
         tracker-marshal.c
 
 BUILT_SOURCES =						\
-	$(marshal_sources)
+	$(marshal_sources)				\
+	libtracker-common.vala.stamp
 
 CLEANFILES = $(BUILT_SOURCES)
 
 EXTRA_DIST = 						\
 	tracker-marshal.list				\
+	$(libtracker_common_la_VALASOURCES)		\
+	libtracker-common.vala.stamp			\
 	libtracker-common.vapi
 

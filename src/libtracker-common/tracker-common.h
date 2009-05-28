@@ -42,6 +42,7 @@ G_BEGIN_DECLS
 #include "tracker-parser.h"
 #include "tracker-power.h"
 #include "tracker-property.h"
+#include "tracker-sparql-builder.h"
 #include "tracker-storage.h"
 #include "tracker-type-utils.h"
 #include "tracker-utils.h"
