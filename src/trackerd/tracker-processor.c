@@ -43,10 +43,23 @@
 
 #define TRACKER_PROCESSOR_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_PROCESSOR, TrackerProcessorPrivate))
 
-#define ITEMS_QUEUE_PROCESS_INTERVAL 2
-#define ITEMS_QUEUE_PROCESS_MAX      1000
+/* This means, if we have <= 50 items in the queues, we will use a
+ * g_idle_add() call instead of g_timeout_add() with
+ * ITEMS_QUEUE_PROCESS_INTERVAL to make sure items get handled as
+ * quickly as possible. NOTE: This is only used AFTER an initial
+ * check of all files and index status.
+ */ 
+#define ITEMS_QUEUE_PROCESS_QUICK_COUNT 50
 
-#define ITEMS_SIGNAL_TO_DAEMON_RATIO 500
+/* This is the interval we wait before attempting to send items to
+ * the indexer (again).
+ */
+#define ITEMS_QUEUE_PROCESS_INTERVAL    2
+
+/* This is the maximum number of items we send at one time to the
+ * indexer 
+ */
+#define ITEMS_QUEUE_PROCESS_MAX         1000
 
 typedef enum {
 	SENT_TYPE_NONE,
@@ -529,6 +542,31 @@ item_queue_readd_items (GQueue *queue,
 	}
 }
 
+static guint 
+item_queue_count_all (TrackerProcessor *processor)
+{
+	GList *l;
+	guint  items = 0;
+
+	for (l = processor->private->modules; l; l = l->next) {
+		GQueue *q;
+
+		q = g_hash_table_lookup (processor->private->items_created_queues, l->data);
+		items += g_queue_get_length (q);
+
+		q = g_hash_table_lookup (processor->private->items_updated_queues, l->data);
+		items += g_queue_get_length (q);
+
+		q = g_hash_table_lookup (processor->private->items_deleted_queues, l->data);
+		items += g_queue_get_length (q);
+
+		q = g_hash_table_lookup (processor->private->items_moved_queues, l->data);
+		items += g_queue_get_length (q);
+	}
+
+	return items;
+}
+
 static void
 item_queue_processed_cb (DBusGProxy *proxy,
 			 GError     *error,
@@ -584,27 +622,57 @@ static gboolean
 item_queue_handlers_cb (gpointer user_data)
 {
 	TrackerProcessor *processor;
+	TrackerStatus     status;
 	GQueue		 *queue;
 	GStrv		  files;
 	gchar		 *module_name;
+	gboolean          should_repeat = FALSE;
+	GTimeVal          time_now;
+	static GTimeVal   time_last = { 0, 0 };
 
 	processor = user_data;
 
-	/* This way we don't send anything to the indexer from monitor
-	 * events but we still queue them ready to send when we are
-	 * unpaused.
-	 */
-	if (tracker_status_get () == TRACKER_STATUS_PAUSED) {
-		g_message ("We are paused, sending nothing to the index until we are unpaused");
+	status = tracker_status_get ();
+
+	/* Don't spam */
+	g_get_current_time (&time_now);
+
+	should_repeat = (time_now.tv_sec - time_last.tv_sec) >= 5;
+	if (should_repeat) {
+		time_last = time_now;
+	}
+
+	switch (status) {
+	case TRACKER_STATUS_PAUSED:
+		/* This way we don't send anything to the indexer from
+		 * monitor events but we still queue them ready to
+		 * send when we are unpaused.  
+		 */
+		if (should_repeat) {
+			g_message ("We are paused, sending nothing to the "
+				   "indexer until we are unpaused");
+		}
+
+	case TRACKER_STATUS_PENDING:
+	case TRACKER_STATUS_WATCHING:
+		/* Wait until we have finished crawling before
+		 * sending anything.
+		 */
 		return TRUE;
+
+	default:
+		break;
 	}
 
 	/* This is here so we don't try to send something if we are
 	 * still waiting for a response from the last send.
 	 */
 	if (processor->private->sent_type != SENT_TYPE_NONE) {
-		g_message ("Still waiting for response from indexer, "
-			   "not sending more files yet");
+		if (should_repeat) {
+			g_message ("Still waiting for response from indexer, "
+				   "not sending more files yet");
+		}
+
 		return TRUE;
 	}
 
@@ -755,10 +823,26 @@ item_queue_handlers_set_up (TrackerProcessor *processor)
 		return;
 	}
 
+	if (!tracker_status_get_is_initial_check ()) {
+		guint count;
+
+		/* Get items left to handle */
+		count = item_queue_count_all (processor);
+		
+		if (count <= ITEMS_QUEUE_PROCESS_QUICK_COUNT) {
+			g_message ("Only %d items queued currently, setting up quick handler", 
+				   count);
+			processor->private->item_queues_handler_id =
+				g_idle_add (item_queue_handlers_cb,
+					    processor);
+			return;
+		}
+	}
+
 	processor->private->item_queues_handler_id =
 		g_timeout_add_seconds (ITEMS_QUEUE_PROCESS_INTERVAL,
-			       item_queue_handlers_cb,
-			       processor);
+				       item_queue_handlers_cb,
+				       processor);
 }
 
 static gboolean
