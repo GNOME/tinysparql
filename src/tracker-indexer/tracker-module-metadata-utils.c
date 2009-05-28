@@ -49,6 +49,7 @@
 #define METADATA_FILE_SIZE           "File:Size"
 #define METADATA_FILE_MODIFIED       "File:Modified"
 #define METADATA_FILE_ACCESSED       "File:Accessed"
+#define METADATA_FILE_ADDED          "File:Added"
 
 #undef  TRY_LOCALE_TO_UTF8_CONVERSION
 #define TEXT_MAX_SIZE                1048576  /* bytes */
@@ -873,6 +874,9 @@ tracker_module_metadata_utils_get_data (GFile *file)
 	tracker_module_metadata_add_uint (metadata, METADATA_FILE_SIZE, st.st_size);
 	tracker_module_metadata_add_date (metadata, METADATA_FILE_MODIFIED, st.st_mtime);
 	tracker_module_metadata_add_date (metadata, METADATA_FILE_ACCESSED, st.st_atime);
+
+	/* Set mtime as addition date, so we don't report older files as "recent" on reindex */
+	tracker_module_metadata_add_date (metadata, METADATA_FILE_ADDED, st.st_mtime);
 
 	metadata_utils_get_embedded (file, mime_type, metadata);
 

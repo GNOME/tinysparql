@@ -81,10 +81,18 @@ FieldName=IndexTime
 
 [File:Accessed]
 DisplayName=Accessed
-Description=Last acessed date
+Description=Last accessed date
 DataType=date
 Parent=DC:Date
 FieldName=Accessed
+
+[File:Added]
+DisplayName=Added
+Description=Date of insertion to Tracker DB
+DataType=date
+Parent=DC:Date
+FieldName=Added
+Embedded=false
 
 [File:Other]
 DisplayName=Other
