@@ -745,7 +745,6 @@ ncal:contactAltRep a rdf:Property ;
 ncal:rdate a rdf:Property ;
 	rdfs:label "rdate" ;
 	rdfs:comment "['This property defines the list of date/times for a recurrence set. Inspired by RFC 2445 sec. 4.8.5.3. Note that RFC allows both DATE', 'DATE-TIME and PERIOD values for this property. That's why the range has been set to NcalTimeEntity.']" ;
-	nrl:maxCardinality 1 ;
 	rdfs:domain ncal:UnionParentClass ;
 	rdfs:range ncal:NcalTimeEntity .
 
