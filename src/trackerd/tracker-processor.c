@@ -98,6 +98,7 @@ struct TrackerProcessorPrivate {
 
 	GTimer	       *timer;
 
+	gboolean        been_started;
 	gboolean	interrupted;
 
 	gboolean	finished_modules;
@@ -1930,6 +1931,8 @@ tracker_processor_start (TrackerProcessor *processor)
 {
 	g_return_if_fail (TRACKER_IS_PROCESSOR (processor));
 
+	processor->private->been_started = TRUE;
+
 	processor->private->interrupted = FALSE;
 
 	processor->private->finished_modules = FALSE;
@@ -1944,6 +1947,10 @@ void
 tracker_processor_stop (TrackerProcessor *processor)
 {
 	g_return_if_fail (TRACKER_IS_PROCESSOR (processor));
+
+	if (!processor->private->been_started) {
+		return;
+	}
 
 	processor->private->interrupted = TRUE;
 
