@@ -106,32 +106,49 @@ gchar *
 tracker_escape_db_string (const gchar *str,
 			  gboolean     add_quotes)
 {
-	GStrv strv;
-	gchar *escaped;
+	gchar *escaped, *p;
+	guint len;
 
 	if (!str) {
 		return NULL;
 	}
 
-	if (!g_utf8_strchr (str, -1, '\'')) {
-		if (G_LIKELY (add_quotes)) {
-			return g_strdup_printf ("'%s'", str);
-		} else {
-			return g_strdup (str);
-		}
-	}
-
-	strv = g_strsplit (str, "'", -1);
-	escaped = g_strjoinv ("''", strv);
-	g_strfreev (strv);
+	/* Ensure there's enough room for escaped chars */
+	len = (strlen (str) * 2) + 1;
 
 	if (G_LIKELY (add_quotes)) {
-		gchar *p;
-		
-		p = escaped;
-		escaped = g_strdup_printf ("'%s'", escaped);
-		g_free (p);
+		len += 2;
 	}
+
+	p = escaped = g_new0 (char, len);
+
+	if (G_LIKELY (add_quotes)) {
+		*p = '\'';
+		p++;
+	}
+
+	while (*str) {
+		switch (*str) {
+		case '\'':
+		case '%':
+			/* These chars need to be twice in the escaped string */
+			*p = *str;
+			p++;
+			/* Fall through */
+		default:
+			*p = *str;
+			p++;
+		}
+
+		str++;
+	}
+
+	if (G_LIKELY (add_quotes)) {
+		*p = '\'';
+		p++;
+	}
+
+	*p = '\0';
 
 	return escaped;
 }
