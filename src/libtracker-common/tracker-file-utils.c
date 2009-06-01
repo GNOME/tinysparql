@@ -198,7 +198,7 @@ tracker_file_system_has_enough_space (const gchar *path,
 	str1 = g_format_size_for_display (required_bytes);
 	str2 = g_format_size_for_display (st.f_bsize * st.f_bavail);
 
-	enough = ((long long) st.f_bsize * st.f_bavail) <= required_bytes;
+	enough = ((long long) st.f_bsize * st.f_bavail) >= required_bytes;
 
 	if (!enough) {
 		g_critical ("Not enough disk space to create databases, "
