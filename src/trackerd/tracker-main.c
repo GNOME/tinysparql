@@ -772,9 +772,15 @@ mount_point_set_cb (DBusGProxy *proxy,
 	 * processor checks state and at the time, we are PAUSED which
 	 * causes us state machine problems. 
 	 *
+	 * We check the processor is created here because there is a
+	 * race condition where the processor isn't created yet and we
+	 * tell it about added/removed mount points. It will
+	 * automatically find those out when it is created, it is only
+	 * needed here for AFTER it is created.
+	 *
 	 * This is the easiest way to do it.
 	 */
-	if (!mpu->no_crawling) {
+	if (!mpu->no_crawling && private->processor) {
 		if (mpu->was_added) {
 			tracker_processor_mount_point_added (private->processor,
 							     mpu->udi,
