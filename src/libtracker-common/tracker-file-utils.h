@@ -41,6 +41,8 @@ gchar *  tracker_file_get_mime_type                (const gchar  *uri);
 void     tracker_file_get_path_and_name            (const gchar  *uri,
 						    gchar       **path,
 						    gchar       **name);
+gboolean tracker_file_system_has_enough_space      (const gchar  *path,
+						    gulong        required_bytes);
 void     tracker_path_remove                       (const gchar  *uri);
 gboolean tracker_path_is_in_path                   (const gchar  *path,
 						    const gchar  *in_path);
@@ -48,6 +50,7 @@ void     tracker_path_hash_table_filter_duplicates (GHashTable   *roots);
 GSList * tracker_path_list_filter_duplicates       (GSList       *roots,
 						    const gchar  *basename_exception_prefix);
 gchar *  tracker_path_evaluate_name                (const gchar  *uri);
+
 gboolean tracker_env_check_xdg_dirs                (void);
 
 #endif /* __LIBTRACKER_COMMON_FILE_UTILS_H__ */

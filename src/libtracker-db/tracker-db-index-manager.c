@@ -34,6 +34,8 @@
 
 #define MAX_INDEX_FILE_SIZE 2000000000
 
+#define MIN_REQUIRED_SPACE  5242880
+
 typedef struct {
 	TrackerDBIndexType  type;
 	TrackerDBIndex	   *index;
@@ -181,6 +183,10 @@ tracker_db_index_manager_init (TrackerDBIndexManagerFlags flags,
 	if ((flags & TRACKER_DB_INDEX_MANAGER_REMOVE_ALL) != 0) {
 		initialized = TRUE;
 		return TRUE;
+	}
+
+	if (!tracker_file_system_has_enough_space (data_dir, MIN_REQUIRED_SPACE)) {
+		return FALSE;
 	}
 
 	g_message ("Merging old temporary indexes");

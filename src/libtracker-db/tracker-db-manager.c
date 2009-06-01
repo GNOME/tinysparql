@@ -41,6 +41,9 @@
 /* ZLib buffer settings */
 #define ZLIB_BUF_SIZE		      8192
 
+/* Required minimum space needed to create databases (5Mb) */
+#define TRACKER_DB_MIN_REQUIRED_SPACE 5242880
+
 /* Default memory settings for databases */
 #define TRACKER_DB_PAGE_SIZE_DONT_SET -1
 
@@ -2136,7 +2139,7 @@ tracker_db_manager_ensure_locale (void)
 	g_free (stored_locale);
 }
 
-void
+gboolean
 tracker_db_manager_init (TrackerDBManagerFlags	flags,
 			 gboolean	       *first_time,
 			 gboolean	        shared_cache)
@@ -2153,7 +2156,7 @@ tracker_db_manager_init (TrackerDBManagerFlags	flags,
 	}
 
 	if (initialized) {
-		return;
+		return TRUE;
 	}
 
 	need_reindex = FALSE;
@@ -2267,7 +2270,7 @@ tracker_db_manager_init (TrackerDBManagerFlags	flags,
 	 */
 	if ((flags & TRACKER_DB_MANAGER_REMOVE_ALL) != 0) {
 		initialized = TRUE;
-		return;
+		return TRUE;
 	}
 
 	/* Set general database options */
@@ -2289,6 +2292,10 @@ tracker_db_manager_init (TrackerDBManagerFlags	flags,
 	if (flags & TRACKER_DB_MANAGER_FORCE_REINDEX || need_reindex) {
 		if (first_time) {
 			*first_time = TRUE;
+		}
+
+		if (!tracker_file_system_has_enough_space (data_dir, TRACKER_DB_MIN_REQUIRED_SPACE)) {
+			return FALSE;
 		}
 
 		/* We call an internal version of this function here
@@ -2350,6 +2357,8 @@ tracker_db_manager_init (TrackerDBManagerFlags	flags,
 	tracker_db_manager_ensure_locale ();
 
 	initialized = TRUE;
+
+	return TRUE;
 }
 
 void

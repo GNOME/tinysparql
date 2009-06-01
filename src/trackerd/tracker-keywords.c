@@ -36,6 +36,7 @@
 
 #include "tracker-dbus.h"
 #include "tracker-keywords.h"
+#include "tracker-status.h"
 #include "tracker-marshal.h"
 #include "tracker-indexer-client.h"
 
@@ -309,6 +310,19 @@ tracker_keywords_add (TrackerKeywords	     *object,
 		g_free (stripped_value);
 	}
 
+	/* First check we have disk space, we do this with ALL our
+	 * indexer commands.
+	 */
+	if (tracker_status_get_is_paused_for_space ()) {
+		tracker_dbus_request_failed (request_id,
+					     &actual_error,
+					     "No disk space left to write to the databases");
+		dbus_g_method_return_error (context, actual_error);
+		g_error_free (actual_error);
+		g_free (id);
+		return;
+	}
+
 	org_freedesktop_Tracker_Indexer_property_set (tracker_dbus_indexer_get_proxy (),
 						      service_type,
 						      uri,
@@ -385,6 +399,19 @@ tracker_keywords_remove (TrackerKeywords	*object,
 					     uri);
 		dbus_g_method_return_error (context, actual_error);
 		g_error_free (actual_error);
+		return;
+	}
+
+	/* First check we have disk space, we do this with ALL our
+	 * indexer commands.
+	 */
+	if (tracker_status_get_is_paused_for_space ()) {
+		tracker_dbus_request_failed (request_id,
+					     &actual_error,
+					     "No disk space left to write to the databases");
+		dbus_g_method_return_error (context, actual_error);
+		g_error_free (actual_error);
+		g_free (service_id);
 		return;
 	}
 
@@ -465,8 +492,22 @@ tracker_keywords_remove_all (TrackerKeywords	    *object,
 		return;
 	}
 
+	/* First check we have disk space, we do this with ALL our
+	 * indexer commands.
+	 */
+	if (tracker_status_get_is_paused_for_space ()) {
+		tracker_dbus_request_failed (request_id,
+					     &actual_error,
+					     "No disk space left to write to the databases");
+		dbus_g_method_return_error (context, actual_error);
+		g_error_free (actual_error);
+		g_free (service_id);
+		return;
+	}
+
 	values = g_new0 (gchar *, 1);
 	values[0] = NULL;
+
 	org_freedesktop_Tracker_Indexer_property_remove (tracker_dbus_indexer_get_proxy (),
 							 service_type,
 							 uri,
@@ -483,7 +524,6 @@ tracker_keywords_remove_all (TrackerKeywords	    *object,
 		g_error_free (actual_error);
 		return;
 	}
-
 
 	dbus_g_method_return (context);
 

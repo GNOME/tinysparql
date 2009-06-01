@@ -598,7 +598,9 @@ backup_user_metadata (TrackerConfig *config, TrackerLanguage *language)
 	/*
 	 *  Init the DB stack to get the user metadata
 	 */
-	tracker_db_manager_init (0, &is_first_time_index, TRUE);
+	if (!tracker_db_manager_init (0, &is_first_time_index, TRUE)) {
+		return;
+	}
 
 	/*
 	 * If some database is missing or the dbs dont exists, we dont need
@@ -1107,14 +1109,17 @@ main (gint argc, gchar *argv[])
 		flags |= TRACKER_DB_MANAGER_LOW_MEMORY_MODE;
 	}
 
-	tracker_db_manager_init (flags, &is_first_time_index, TRUE);
-	tracker_status_set_is_first_time_index (is_first_time_index);
+	if (!tracker_db_manager_init (flags, &is_first_time_index, TRUE)) {
+		return EXIT_FAILURE;
+	}
 
 	if (!tracker_db_index_manager_init (index_flags,
 					    tracker_config_get_min_bucket_count (config),
 					    tracker_config_get_max_bucket_count (config))) {
 		return EXIT_FAILURE;
 	}
+
+	tracker_status_set_is_first_time_index (is_first_time_index);
 
 	/*
 	 * Check instances running

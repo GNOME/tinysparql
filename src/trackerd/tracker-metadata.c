@@ -40,6 +40,7 @@
 
 #include "tracker-indexer-client.h"
 #include "tracker-dbus.h"
+#include "tracker-status.h"
 #include "tracker-metadata.h"
 #include "tracker-marshal.h"
 
@@ -371,6 +372,7 @@ tracker_metadata_set (TrackerMetadata	     *object,
 						     keys[i]);
 			dbus_g_method_return_error (context, actual_error);
 			g_error_free (actual_error);
+			g_free (service_id);
 			return;
 		}
 
@@ -386,13 +388,27 @@ tracker_metadata_set (TrackerMetadata	     *object,
 						     len);
 			dbus_g_method_return_error (context, actual_error);
 			g_error_free (actual_error);
+			g_free (service_id);
 			return;
 		}
 	}
 
+	/* First check we have disk space, we do this with ALL our
+	 * indexer commands.
+	 */
+	if (tracker_status_get_is_paused_for_space ()) {
+		tracker_dbus_request_failed (request_id,
+					     &actual_error,
+					     "No disk space left to write to the databases");
+		dbus_g_method_return_error (context, actual_error);
+		g_error_free (actual_error);
+		g_free (service_id);
+		return;
+	}
+
 	/* Real insertion */
 	for (i = 0; i < g_strv_length (keys); i++) {
-		gchar	    **value;
+		gchar **value;
 
 		value = tracker_string_to_string_list (values[i]);
 		org_freedesktop_Tracker_Indexer_property_set (tracker_dbus_indexer_get_proxy (),
@@ -406,6 +422,7 @@ tracker_metadata_set (TrackerMetadata	     *object,
 			tracker_dbus_request_failed (request_id, &actual_error, NULL);
 			dbus_g_method_return_error (context, actual_error);
 			g_error_free (actual_error);
+			g_free (service_id);
 			return;
 		}
 	}

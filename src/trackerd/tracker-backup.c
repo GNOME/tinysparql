@@ -22,13 +22,14 @@
 
 #include <glib-object.h>
 #include <glib/gstdio.h>
+
 #include <libtracker-common/tracker-dbus.h>
 #include <libtracker-data/tracker-data-backup.h>
 
 #include "tracker-dbus.h"
 #include "tracker-indexer-client.h"
 #include "tracker-backup.h"
-
+#include "tracker-status.h"
 
 G_DEFINE_TYPE (TrackerBackup, tracker_backup, G_TYPE_OBJECT)
 
@@ -90,7 +91,8 @@ tracker_backup_restore (TrackerBackup          *object,
 			GError                **error)
 {
 	guint request_id;
-	GError *err = NULL;
+	GError *actual_error = NULL;
+	GError *restore_error = NULL;
 
 	request_id = tracker_dbus_get_next_request_id ();
 
@@ -98,20 +100,33 @@ tracker_backup_restore (TrackerBackup          *object,
 				  "DBus request to restore backup from '%s'",
 				  path);
 
-	org_freedesktop_Tracker_Indexer_restore_backup (tracker_dbus_indexer_get_proxy (),
-							path, &err);
+	/* First check we have disk space, we do this with ALL our
+	 * indexer commands.
+	 */
+	if (tracker_status_get_is_paused_for_space ()) {
+		tracker_dbus_request_failed (request_id,
+					     &actual_error,
+					     "No disk space left to write to the databases");
+		dbus_g_method_return_error (context, actual_error);
+		g_error_free (actual_error);
+		return;
+	}
 
-	if (err) {
+	org_freedesktop_Tracker_Indexer_restore_backup (tracker_dbus_indexer_get_proxy (),
+							path, 
+							&restore_error);
+
+	if (restore_error) {
 		GError *actual_error = NULL;
 
 		tracker_dbus_request_failed (request_id,
 					     &actual_error,
-					     err->message);
+					     restore_error->message);
 
 		dbus_g_method_return_error (context, actual_error);
 
 		g_error_free (actual_error);
-		g_error_free (err);
+		g_error_free (restore_error);
 	} else {
 		dbus_g_method_return (context);
 		tracker_dbus_request_success (request_id);
