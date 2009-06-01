@@ -705,28 +705,13 @@ mount_point_update_free (MountPointUpdate *mpu)
 }
 
 static void
-mount_point_set_cb (DBusGProxy *proxy, 
-		    GError     *error, 
-		    gpointer    user_data)
+mount_point_set (MountPointUpdate *mpu)
 {
 	TrackerMainPrivate *private;
-	MountPointUpdate   *mpu;
 
-	mpu = user_data;
+	g_message ("Indexer has now set the state for the volume with UDI:");
+	g_message ("  %s", mpu->udi);
 
-	if (error) {
-		g_critical ("Indexer couldn't set volume state for:'%s' in database, %s", 
-			    mpu->udi,
-			    error ? error->message : "no error given");
-
-		g_error_free (error);
-
-		tracker_shutdown ();
-	} else {
-		g_message ("Indexer has now set the state for the volume with UDI:");
-		g_message ("  %s", mpu->udi);
-	}
-		
 	/* See if we have any more callbacks here, if we don't we can
 	 * signal the stats to update.
 	 */
@@ -746,20 +731,6 @@ mount_point_set_cb (DBusGProxy *proxy,
 
 		/* Unpause the indexer */
 		tracker_status_set_is_paused_for_dbus (FALSE);
-			
-		/* Don't try to quit the main loop twice if we have
-		 * had an error above.
-		 */
-		if (!private->mount_points_up && 
-		    !private->shutdown) {
-			private->mount_points_up = TRUE;
-
-			/* We need to stop the main loop, we started
-			 * it so we could wait for mount points to be
-			 * set up successfully in main().
-			 */
-			g_main_loop_quit (private->main_loop);
-		}
 	} else if (private->mount_points_up) {
 		g_message ("Statistics not being signalled, %d %s remaining", 
 			   private->mount_points_to_set,
@@ -790,6 +761,28 @@ mount_point_set_cb (DBusGProxy *proxy,
 							       mpu->udi,
 							       mpu->mount_point);
 		}
+	}
+}
+
+static void
+mount_point_set_cb (DBusGProxy *proxy,
+		    GError     *error,
+		    gpointer    user_data)
+{
+	MountPointUpdate *mpu;
+
+	mpu = user_data;
+
+	if (error) {
+		g_critical ("Indexer couldn't set volume state for:'%s' in database, %s",
+			    mpu->udi,
+			    error ? error->message : "no error given");
+
+		g_error_free (error);
+
+		tracker_shutdown ();
+	} else {
+		mount_point_set (mpu);
 	}
 
 	mount_point_update_free (mpu);
@@ -850,75 +843,11 @@ mount_point_removed_cb (TrackerHal  *hal,
 }
 
 static void
-set_up_mount_points_cb (DBusGProxy *proxy, 
-			GError     *error,
-			gpointer    user_data)
-{
-	TrackerMainPrivate *private;
-	TrackerHal *hal;
-	GList *roots, *l;
-
-	if (error) {
-		g_critical ("Indexer couldn't disable all volumes, %s", 
-			    error ? error->message : "no error given");
-		g_error_free (error);
-		tracker_shutdown ();
-		return;
-	}
-
-	g_message ("  Done");
-
-	private = g_static_private_get (&private_key);
-
-	hal = user_data;
-	roots = tracker_hal_get_removable_device_udis (hal);
-
-	if (roots) {
-		g_message ("Indexer is being notified about volume states with UDIs:");
-
-		for (l = roots; l; l = l->next) {
-			MountPointUpdate *mpu;
-
-			private->mount_points_to_set++;
-			mpu = mount_point_update_new (l->data, 
-						      tracker_hal_udi_get_mount_point (hal, l->data),
-						      TRUE, 
-						      tracker_hal_udi_get_is_mounted (hal, l->data));	
-		
-			g_message ("  %s", mpu->udi);
-		
-			org_freedesktop_Tracker_Indexer_volume_update_state_async (tracker_dbus_indexer_get_proxy (), 
-										   mpu->udi,
-										   mpu->mount_point,
-										   mpu->was_added,
-										   mount_point_set_cb,
-										   mpu);
-		}
-
-		g_list_free (roots);
-	} else {
-		g_message ("Indexer does not need to be notified of volume states, none to set");
-
-		tracker_status_set_is_paused_for_dbus (FALSE);
-
-		/* Make sure we stop the main loop used to set up
-		 * mount points on start up if we have no removable
-		 * devices to update in the indexer.
-		 */
-		private->mount_points_up = TRUE;
-
-		/* We need to stop the main loop, we started
-		 * it so we could wait for mount points to be
-		 * set up successfully in main().
-		 */
-		g_main_loop_quit (private->main_loop);
-	}
-}
-
-static void
 set_up_mount_points (TrackerHal *hal)
 {
 	TrackerMainPrivate *private;
+	GError *error = NULL;
+	GList *roots, *l;
 
 	private = g_static_private_get (&private_key);
 
@@ -927,9 +856,67 @@ set_up_mount_points (TrackerHal *hal)
 	private->mount_points_up = FALSE;
 
 	g_message ("Indexer is being notified to disable all volumes");
-	org_freedesktop_Tracker_Indexer_volume_disable_all_async (tracker_dbus_indexer_get_proxy (), 
-								  set_up_mount_points_cb,
-								  hal);
+	org_freedesktop_Tracker_Indexer_volume_disable_all (tracker_dbus_indexer_get_proxy (), &error);
+
+	if (error) {
+		g_critical ("Indexer couldn't disable all volumes, %s",
+			    error ? error->message : "no error given");
+		g_error_free (error);
+		tracker_shutdown ();
+		return;
+	}
+
+	g_message ("  Done");
+
+	roots = tracker_hal_get_removable_device_udis (hal);
+
+	if (roots) {
+		g_message ("Indexer is being notified about volume states with UDIs:");
+
+		l = roots;
+
+		while (l && !private->shutdown) {
+			MountPointUpdate *mpu;
+
+			private->mount_points_to_set++;
+			mpu = mount_point_update_new (l->data,
+						      tracker_hal_udi_get_mount_point (hal, l->data),
+						      TRUE,
+						      tracker_hal_udi_get_is_mounted (hal, l->data));
+
+			g_message ("  %s", mpu->udi);
+
+			org_freedesktop_Tracker_Indexer_volume_update_state (tracker_dbus_indexer_get_proxy (),
+									     mpu->udi,
+									     mpu->mount_point,
+									     mpu->was_added,
+									     &error);
+
+			if (error) {
+				g_critical ("Indexer couldn't set volume state for:'%s' in database, %s",
+					    mpu->udi,
+					    error ? error->message : "no error given");
+
+				g_error_free (error);
+
+				tracker_shutdown ();
+				break;
+			} else {
+				mount_point_set (mpu);
+			}
+
+			mount_point_update_free (mpu);
+			l = l->next;
+		}
+
+		g_list_free (roots);
+	} else {
+		g_message ("Indexer does not need to be notified of volume states, none to set");
+
+		tracker_status_set_is_paused_for_dbus (FALSE);
+	}
+
+	private->mount_points_up = TRUE;
 }
 
 #endif /* HAVE_HAL */
@@ -1173,12 +1160,6 @@ main (gint argc, gchar *argv[])
 	 * are going to do that.
 	 */
 	set_up_mount_points (hal);
-	
-	/* Wait until we have these set up. */
-	private->main_loop = g_main_loop_new (NULL, FALSE);
-	g_main_loop_run (private->main_loop);
-	g_main_loop_unref (private->main_loop);
-	private->main_loop = NULL;
 #endif /* HAVE_HAL */
 
 	if (private->shutdown) {
