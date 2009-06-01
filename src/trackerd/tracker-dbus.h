@@ -35,7 +35,7 @@
 
 G_BEGIN_DECLS
 
-#define TRACKER_INDEXER_PAUSE_TIME_FOR_REQUESTS 5 /* seconds */
+#define TRACKER_INDEXER_PAUSE_TIME_FOR_REQUESTS 2 /* seconds */
 
 gboolean    tracker_dbus_init                    (TrackerConfig    *config);
 void        tracker_dbus_shutdown                (void);
