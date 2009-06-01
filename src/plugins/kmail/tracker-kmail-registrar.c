@@ -153,36 +153,33 @@ get_email_and_fullname (const gchar *line, gchar **email, gchar **fullname)
 }
 
 static void
-data_insert_statement (TrackerKMailRegistrar *self, 
-		       const gchar *subject, 
-		       const gchar *predicate,
-		       const gchar *object)
-{
-	/* To be replaced with batch_update when query builder is available */
-	tracker_store_queue_insert_statement (subject, predicate, object, 
-	                                      NULL, NULL, NULL); 
-}
-
-static void
 perform_set (TrackerKMailRegistrar *object, 
 	     const gchar *subject, 
 	     const GStrv predicates, 
 	     const GStrv values)
 {
 	guint i = 0;
+	TrackerSparqlBuilder *sparql;
 
-	data_insert_statement (object, DATASOURCE_URN, RDF_PREFIX "type",
-	                      NIE_DATASOURCE);
+	sparql = tracker_sparql_builder_new_update ();
 
+	tracker_sparql_builder_insert_open (sparql);
 
-	data_insert_statement (object, subject, RDF_PREFIX "type",
-	                       NMO_PREFIX "Email");
+	tracker_sparql_builder_subject_iri (sparql, DATASOURCE_URN);
+	tracker_sparql_builder_predicate (sparql, "rdf:type");
+	tracker_sparql_builder_object_iri (sparql, NIE_DATASOURCE);
 
-	data_insert_statement (object, subject, RDF_PREFIX "type",
-	                       NMO_PREFIX "MailboxDataObject");
+	tracker_sparql_builder_subject_iri (sparql, subject);
+	tracker_sparql_builder_predicate (sparql, "rdf:type");
+	tracker_sparql_builder_object (sparql, "nmo:Email");
 
-	data_insert_statement (object, subject, NIE_DATASOURCE_P,
-	                       DATASOURCE_URN);
+	tracker_sparql_builder_subject_iri (sparql, subject);
+	tracker_sparql_builder_predicate (sparql, "rdf:type");
+	tracker_sparql_builder_object (sparql, "nmo:MailboxDataObject");
+
+	tracker_sparql_builder_subject_iri (sparql, subject);
+	tracker_sparql_builder_predicate_iri (sparql, NIE_DATASOURCE_P);
+	tracker_sparql_builder_object_iri (sparql, DATASOURCE_URN);
 
 	while (predicates [i] != NULL && values[i] != NULL) {
 
@@ -199,77 +196,141 @@ perform_set (TrackerKMailRegistrar *object,
 
 		if (g_strcmp0 (predicates[i], TRACKER_KMAIL_PREDICATE_TAG) == 0) {
 
-			data_insert_statement (object, ":1", RDF_PREFIX "type",
-			                       NAO_PREFIX "Tag");
+			tracker_sparql_builder_predicate (sparql, "nao:hasTag");
 
-			data_insert_statement (object, ":1", 
-			                       NAO_PREFIX "prefLabel",
-			                       values[i]);
+			tracker_sparql_builder_object_blank_open (sparql);
 
-			data_insert_statement (object, subject, 
-			                       NAO_PREFIX "hasTag", 
-			                       ":1");
+			tracker_sparql_builder_predicate (sparql, "rdf:type");
+			tracker_sparql_builder_object (sparql, "nao:Tag");
+
+			tracker_sparql_builder_predicate (sparql, "nao:prefLabel");
+			tracker_sparql_builder_object_string (sparql, values[i]);
+
 		}
 
 		if (g_strcmp0 (predicates[i], TRACKER_KMAIL_PREDICATE_SUBJECT) == 0) {
-			data_insert_statement (object, subject,
-			                       TRACKER_NMO_PREFIX "messageSubject", 
-			                       values[i]);
+			tracker_sparql_builder_subject_iri (sparql, subject);
+			tracker_sparql_builder_predicate (sparql, "nmo:messageSubject");
+			tracker_sparql_builder_object_string (sparql, values[i]);
 		}
 
 		if (g_strcmp0 (predicates[i], TRACKER_KMAIL_PREDICATE_SENT) == 0) {
-			data_insert_statement (object, subject,
-			                      TRACKER_NMO_PREFIX "receivedDate", 
-			                      values[i]);
+			tracker_sparql_builder_subject_iri (sparql, subject);
+			tracker_sparql_builder_predicate (sparql, "nmo:receivedDate");
+			tracker_sparql_builder_object_string (sparql, values[i]);
 		}
 
 		if (g_strcmp0 (predicates[i], TRACKER_KMAIL_PREDICATE_FROM) == 0) {
 			gchar *email_uri, *email = NULL, *fullname = NULL;
-			data_insert_statement (object, ":1", RDF_PREFIX "type", NCO_PREFIX "Contact");
+
 			get_email_and_fullname (values[i], &email, &fullname);
+
+			email_uri = tracker_uri_printf_escaped ("mailto:%s", email); 
+
+			tracker_sparql_builder_subject_iri (sparql, email_uri);
+			tracker_sparql_builder_predicate (sparql, "rdf:type");
+			tracker_sparql_builder_object (sparql, "nco:EmailAddress");
+
+			tracker_sparql_builder_subject_iri (sparql, email_uri);
+			tracker_sparql_builder_predicate (sparql, "nco:emailAddress");
+			tracker_sparql_builder_object_string (sparql, email);
+
+			tracker_sparql_builder_subject_iri (sparql, subject);
+			tracker_sparql_builder_predicate (sparql, "nmo:from");
+
+			tracker_sparql_builder_object_blank_open (sparql);
+
+			tracker_sparql_builder_predicate (sparql, "rdf:type");
+			tracker_sparql_builder_object (sparql, "nco:Contact");
+
 			if (fullname) {
-				data_insert_statement (object, ":1", NCO_PREFIX "fullname", fullname);
+				tracker_sparql_builder_predicate (sparql, "nco:fullname");
+				tracker_sparql_builder_object_string (sparql, fullname);
 				g_free (fullname);
 			}
-			email_uri = tracker_uri_printf_escaped ("mailto:%s", email); 
-			data_insert_statement (object, email_uri, RDF_PREFIX "type", NCO_PREFIX "EmailAddress");
-			data_insert_statement (object, email_uri, NCO_PREFIX "emailAddress", email);
-			data_insert_statement (object, ":1", NCO_PREFIX "hasEmailAddress", email_uri);
-			data_insert_statement (object, subject, NMO_PREFIX "from", ":1");
+
+			tracker_sparql_builder_predicate (sparql, "nco:hasEmailAddress");
+			tracker_sparql_builder_object_iri (sparql, email_uri);
+
+			tracker_sparql_builder_object_blank_close (sparql);
+
 			g_free (email_uri);
 			g_free (email);
 		}
 
+
 		if (g_strcmp0 (predicates[i], TRACKER_KMAIL_PREDICATE_TO) == 0) {
 			gchar *email_uri, *email = NULL, *fullname = NULL;
-			data_insert_statement (object, ":1", RDF_PREFIX "type", NCO_PREFIX "Contact");
+
 			get_email_and_fullname (values[i], &email, &fullname);
+
+			email_uri = tracker_uri_printf_escaped ("mailto:%s", email); 
+
+			tracker_sparql_builder_subject_iri (sparql, email_uri);
+			tracker_sparql_builder_predicate (sparql, "rdf:type");
+			tracker_sparql_builder_object (sparql, "nco:EmailAddress");
+
+			tracker_sparql_builder_subject_iri (sparql, email_uri);
+			tracker_sparql_builder_predicate (sparql, "nco:emailAddress");
+			tracker_sparql_builder_object_string (sparql, email);
+
+			tracker_sparql_builder_subject_iri (sparql, subject);
+			tracker_sparql_builder_predicate (sparql, "nmo:to");
+
+			tracker_sparql_builder_object_blank_open (sparql);
+
+			tracker_sparql_builder_predicate (sparql, "rdf:type");
+			tracker_sparql_builder_object (sparql, "nco:Contact");
+
 			if (fullname) {
-				data_insert_statement (object, ":1", NCO_PREFIX "fullname", fullname);
+				tracker_sparql_builder_predicate (sparql, "nco:fullname");
+				tracker_sparql_builder_object_string (sparql, fullname);
 				g_free (fullname);
 			}
-			email_uri = tracker_uri_printf_escaped ("mailto:%s", email); 
-			data_insert_statement (object, email_uri, RDF_PREFIX "type", NCO_PREFIX "EmailAddress");
-			data_insert_statement (object, email_uri, NCO_PREFIX "emailAddress", email);
-			data_insert_statement (object, ":1", NCO_PREFIX "hasEmailAddress", email_uri);
-			data_insert_statement (object, subject, NMO_PREFIX "to", ":1");
+
+			tracker_sparql_builder_predicate (sparql, "nco:hasEmailAddress");
+			tracker_sparql_builder_object_iri (sparql, email_uri);
+
+			tracker_sparql_builder_object_blank_close (sparql);
+
 			g_free (email_uri);
 			g_free (email);
 		}
 
 		if (g_strcmp0 (predicates[i], TRACKER_KMAIL_PREDICATE_CC) == 0) {
 			gchar *email_uri, *email = NULL, *fullname = NULL;
-			data_insert_statement (object, ":1", RDF_PREFIX "type", NCO_PREFIX "Contact");
+
 			get_email_and_fullname (values[i], &email, &fullname);
+
+			email_uri = tracker_uri_printf_escaped ("mailto:%s", email); 
+
+			tracker_sparql_builder_subject_iri (sparql, email_uri);
+			tracker_sparql_builder_predicate (sparql, "rdf:type");
+			tracker_sparql_builder_object (sparql, "nco:EmailAddress");
+
+			tracker_sparql_builder_subject_iri (sparql, email_uri);
+			tracker_sparql_builder_predicate (sparql, "nco:emailAddress");
+			tracker_sparql_builder_object_string (sparql, email);
+
+			tracker_sparql_builder_subject_iri (sparql, subject);
+			tracker_sparql_builder_predicate (sparql, "nmo:cc");
+
+			tracker_sparql_builder_object_blank_open (sparql);
+
+			tracker_sparql_builder_predicate (sparql, "rdf:type");
+			tracker_sparql_builder_object (sparql, "nco:Contact");
+
 			if (fullname) {
-				data_insert_statement (object, ":1", NCO_PREFIX "fullname", fullname);
+				tracker_sparql_builder_predicate (sparql, "nco:fullname");
+				tracker_sparql_builder_object_string (sparql, fullname);
 				g_free (fullname);
 			}
-			email_uri = tracker_uri_printf_escaped ("mailto:%s", email); 
-			data_insert_statement (object, email_uri, RDF_PREFIX "type", NCO_PREFIX "EmailAddress");
-			data_insert_statement (object, email_uri, NCO_PREFIX "emailAddress", email);
-			data_insert_statement (object, ":1", NCO_PREFIX "hasEmailAddress", email_uri);
-			data_insert_statement (object, subject, NMO_PREFIX "cc", ":1");
+
+			tracker_sparql_builder_predicate (sparql, "nco:hasEmailAddress");
+			tracker_sparql_builder_object_iri (sparql, email_uri);
+
+			tracker_sparql_builder_object_blank_close (sparql);
+
 			g_free (email_uri);
 			g_free (email);
 		}
@@ -278,6 +339,10 @@ perform_set (TrackerKMailRegistrar *object,
 		i++;
 	}
 
+	tracker_store_queue_sparql_update (tracker_sparql_builder_get_result (sparql),
+	                                   NULL, NULL, NULL);
+
+	g_object_unref (sparql);
 }
 
 static void 
