@@ -385,7 +385,6 @@ tracker_albumart_heuristic (const gchar *artist_,
 	gchar *dirname;
 	const gchar *name;
 	gboolean retval;
-	gint tracks;
 	gint count;
 	gchar *artist = NULL;
 	gchar *album = NULL;
@@ -451,12 +450,6 @@ tracker_albumart_heuristic (const gchar *artist_,
 	/* do not count . and .. */
 	count = st.st_nlink - 2;
 	
-	if (tracks_str) {
-		tracks = atoi (tracks_str);
-	} else {
-		tracks = -1;
-	}
-
 	if (artist_) {
 		artist = tracker_albumart_strip_invalid_entities (artist_);
 	}
@@ -467,8 +460,7 @@ tracker_albumart_heuristic (const gchar *artist_,
 
 	/* If amount of files and amount of tracks in the album somewhat match */
 
-	if ((tracks != -1 && tracks < count + 3 && tracks > count - 3) || 
-	    (tracks == -1 && count >= 2 && count < 50)) {
+	if (count >= 2 && count < 50) {
 		gchar *found = NULL;
 
 		/* Try to find cover art in the directory */
