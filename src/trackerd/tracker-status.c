@@ -305,7 +305,9 @@ disk_space_check (void)
 	}
 
 	if (((long long) st.f_bavail * 100 / st.f_blocks) <= limit) {
-		g_message ("Disk space is low");
+		g_message ("WARNING: Available disk space is below configured "
+			   "threshold for acceptable working (%d%%)",
+			   limit);
 		return TRUE;
 	}
 

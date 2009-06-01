@@ -635,7 +635,7 @@ item_queue_handlers_cb (gpointer user_data)
 	/* Don't spam */
 	g_get_current_time (&time_now);
 
-	should_repeat = (time_now.tv_sec - time_last.tv_sec) >= 5;
+	should_repeat = (time_now.tv_sec - time_last.tv_sec) >= 10;
 	if (should_repeat) {
 		time_last = time_now;
 	}
