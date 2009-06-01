@@ -44,8 +44,6 @@ typedef enum {
 	TRACKER_STORE_TASK_TYPE_UPDATE = 0,
 	TRACKER_STORE_TASK_TYPE_COMMIT = 1,
 	TRACKER_STORE_TASK_TYPE_TURTLE = 2,
-	/* To be removed when query builder is available */
-	TRACKER_STORE_TASK_TYPE_STATEMENT = 3
 } TrackerStoreTaskType;
 
 typedef struct {
@@ -56,12 +54,6 @@ typedef struct {
 		gboolean           in_progress;
 		gchar             *path;
 	  } turtle;
-	/* To be removed when query builder is available */
-	  struct {
-		gchar             *subject;
-		gchar             *predicate;
-		gchar             *object;
-	  } statement;
 	} data;
 	gpointer                   user_data;
 	GDestroyNotify             destroy;
@@ -88,10 +80,6 @@ tracker_store_task_free (TrackerStoreTask *task)
 {
 	if (task->type == TRACKER_STORE_TASK_TYPE_TURTLE) {
 		g_free (task->data.turtle.path);
-	} else 	if (task->type == TRACKER_STORE_TASK_TYPE_STATEMENT) {
-		g_free (task->data.statement.subject);
-		g_free (task->data.statement.predicate);
-		g_free (task->data.statement.object);
 	} else {
 		g_free (task->data.query);
 	}
@@ -182,17 +170,6 @@ queue_idle_handler (gpointer user_data)
 		if (task->callback.commit_callback) {
 			task->callback.commit_callback (task->user_data);
 		}
-	} else if (task->type == TRACKER_STORE_TASK_TYPE_STATEMENT) {
-
-		/* To be removed when query builder is available */
-		tracker_data_insert_statement (task->data.statement.subject,
-		                               task->data.statement.predicate,
-		                               task->data.statement.object);
-
-		if (task->callback.update_callback) {
-			task->callback.update_callback (NULL, task->user_data);
-		}
-
 	} else if (task->type == TRACKER_STORE_TASK_TYPE_TURTLE) {
 		begin_batch (private);
 
@@ -442,36 +419,3 @@ tracker_store_delete_statement (const gchar   *subject,
 	tracker_data_delete_statement (subject, predicate, object);
 }
 
-/* To be removed when query builder is available */
-void
-tracker_store_queue_insert_statement (const gchar *subject,
-                                      const gchar *predicate,
-                                      const gchar *object,
-                                      TrackerStoreSparqlUpdateCallback callback,
-                                      gpointer user_data,
-                                      GDestroyNotify destroy)
-{
-	TrackerStorePrivate *private;
-	TrackerStoreTask *task;
-
-	g_assert (subject != NULL);
-	g_assert (predicate != NULL);
-	g_assert (object != NULL);
-
-	private = g_static_private_get (&private_key);
-	g_return_if_fail (private != NULL);
-	task = g_slice_new0 (TrackerStoreTask);
-	task->type = TRACKER_STORE_TASK_TYPE_STATEMENT;
-	task->data.statement.subject = g_strdup (subject);
-	task->data.statement.predicate = g_strdup (predicate);
-	task->data.statement.object = g_strdup (object);
-	task->user_data = user_data;
-	task->callback.update_callback = callback;
-	task->destroy = destroy;
-
-	g_queue_push_tail (private->queue, task);
-
-	if (!private->have_handler) {
-		start_handler (private);
-	}
-}

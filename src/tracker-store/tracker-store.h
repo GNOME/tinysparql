@@ -61,14 +61,6 @@ TrackerDBResultSet*
              tracker_store_sparql_query           (const gchar   *sparql,
                                                    GError       **error);
 
-/* To be removed when query builder is available */
-void         tracker_store_queue_insert_statement (const gchar *subject,
-                                                   const gchar *predicate,
-                                                   const gchar *object,
-                                                   TrackerStoreSparqlUpdateCallback callback,
-                                                   gpointer user_data,
-                                                   GDestroyNotify destroy);
-
 G_END_DECLS
 
 #endif /* __TRACKER_STORE_H__ */
