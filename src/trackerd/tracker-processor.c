@@ -1095,7 +1095,18 @@ process_device_next (TrackerProcessor *processor)
 			processor->private->current_device = processor->private->devices;
 		}
 	} else {
-		processor->private->current_device = processor->private->current_device->next;
+		GList *l;
+
+		l = processor->private->current_device;
+		
+		/* Now free that device so we don't recrawl it */
+		if (l) {
+			g_free (l->data);
+			
+			processor->private->current_device = 
+			processor->private->devices = 
+				g_list_delete_link (processor->private->devices, l);
+		}
 	}
 
 	/* If we have no further devices to iterate */
@@ -1111,6 +1122,9 @@ process_device_next (TrackerProcessor *processor)
 static void
 process_modules_start (TrackerProcessor *processor)
 {
+	g_message ("Processor has started iterating %d modules", 
+		   g_list_length (processor->private->modules));
+
 	if (processor->private->timer) {
 		g_timer_destroy (processor->private->timer);
 	}
@@ -1135,8 +1149,8 @@ process_modules_stop (TrackerProcessor *processor)
 	}
 
 	g_message ("--------------------------------------------------");
-	g_message ("Processor %s crawling modules",
-		   processor->private->interrupted ? "been stopped" : "has finished");
+	g_message ("Processor has %s iterating modules",
+		   processor->private->interrupted ? "been stopped while" : "finished");
 
 	processor->private->finished_modules = TRUE;
 
@@ -1179,6 +1193,9 @@ process_modules_stop (TrackerProcessor *processor)
 static void
 process_devices_start (TrackerProcessor *processor)
 {
+	g_message ("Processor has started iterating %d devices", 
+		   g_list_length (processor->private->devices));
+
 	if (processor->private->timer) {
 		g_timer_destroy (processor->private->timer);
 	}
@@ -1203,8 +1220,8 @@ process_devices_stop (TrackerProcessor *processor)
 	}
 
 	g_message ("--------------------------------------------------");
-	g_message ("Processor %s crawling devices",
-		   processor->private->interrupted ? "been stopped" : "has finished");
+	g_message ("Processor has %s iterating devices",
+		   processor->private->interrupted ? "been stopped while" : "finished");
 
 	processor->private->finished_devices = TRUE;
 
@@ -1755,19 +1772,6 @@ crawler_finished_cb (TrackerCrawler *crawler,
 	processor->private->total_files_found += files_found;
 	processor->private->total_files_ignored += files_ignored;
 
-	if (processor->private->finished_modules == TRUE &&
-	    processor->private->finished_devices == FALSE) {
-		GList *l;
-
-		l = processor->private->current_device;
-		
-		/* Now free that device so we don't recrawl it */
-		if (l) {
-			g_free (l->data);
-			processor->private->devices = g_list_delete_link (processor->private->devices, l);
-		}
-	}
-	
 	/* Proceed to next thing to process */
 	process_continue (processor);
 }
