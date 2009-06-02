@@ -1500,6 +1500,16 @@ crawler_finished_cb (TrackerCrawler *crawler,
 
 #ifdef HAVE_HAL
 
+static gchar *
+normalize_mount_point (const gchar *mount_point)
+{
+	if (g_str_has_suffix (mount_point, G_DIR_SEPARATOR_S)) {
+		return g_strdup (mount_point);
+	} else {
+		return g_strconcat (mount_point, G_DIR_SEPARATOR_S, NULL);
+	}
+}
+
 static void
 mount_point_added_cb (TrackerStorage  *hal,
 		      const gchar *udi,
@@ -1510,19 +1520,20 @@ mount_point_added_cb (TrackerStorage  *hal,
 	TrackerProcessorPrivate *priv;
 	TrackerStatus	         status;
 	GList                   *l;
+	gchar                   *mp;
 
 	processor = user_data;
 	priv = processor->private;
 
 	status = tracker_status_get ();
+	mp = normalize_mount_point (mount_point);
 
 	/* Add removable device to list of known devices to iterate */
-	priv->removable_devices = g_list_append (priv->removable_devices, 
-						 g_strdup (mount_point));
+	priv->removable_devices = g_list_append (priv->removable_devices, mp);
 
 	/* Remove from completed list so we don't ignore it */
-	l = g_list_find_custom (priv->removable_devices_completed, 
-				mount_point,
+	l = g_list_find_custom (priv->removable_devices_completed,
+				mp,
 				(GCompareFunc) g_strcmp0);
 
 	if (l) {
@@ -1558,15 +1569,17 @@ mount_point_removed_cb (TrackerStorage  *hal,
 	TrackerProcessorPrivate *priv;
 	GFile		        *file;
 	GList                   *l;
+	gchar                   *mp;
 
 	processor = user_data;
 	priv = processor->private;
+	mp = normalize_mount_point (mount_point);
 
 	/* Remove directory from list of iterated_removable_media, so
 	 * we don't traverse it.
 	 */
-	l = g_list_find_custom (priv->removable_devices, 
-				mount_point,
+	l = g_list_find_custom (priv->removable_devices,
+				mp,
 				(GCompareFunc) g_strcmp0);
 
 	if (l) {
@@ -1576,7 +1589,7 @@ mount_point_removed_cb (TrackerStorage  *hal,
 	}
 
 	l = g_list_find_custom (priv->removable_devices_completed, 
-				mount_point,
+				mp,
 				(GCompareFunc) g_strcmp0);
 
 	if (l) {
@@ -1591,6 +1604,8 @@ mount_point_removed_cb (TrackerStorage  *hal,
 	file = g_file_new_for_path (mount_point);
 	tracker_monitor_remove_recursively (priv->monitor, file);
 	g_object_unref (file);
+
+	g_free (mp);
 }
 
 #endif /* HAVE_HAL */
