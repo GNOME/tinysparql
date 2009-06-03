@@ -1304,6 +1304,25 @@ search_sql_iface_cleanup_cb (gpointer user_data)
 	return FALSE;
 }
 
+static void
+search_sql_iface_invalidate (TrackerDBInterface *iface,
+			     TrackerSearch      *object)
+{
+	TrackerSearchPrivate *priv;
+
+	priv = TRACKER_SEARCH_GET_PRIVATE (object);
+
+	if (priv->sql_query_timeout_id != 0) {
+		g_source_remove (priv->sql_query_timeout_id);
+		priv->sql_query_timeout_id = 0;
+	}
+
+	if (priv->sql_query_iface) {
+		g_object_unref (priv->sql_query_iface);
+		priv->sql_query_iface = NULL;
+	}
+}
+
 void
 tracker_search_sql_query (TrackerSearch		*object,
 			  gchar 		*query,
@@ -1340,6 +1359,9 @@ tracker_search_sql_query (TrackerSearch		*object,
 								 TRACKER_DB_FILE_METADATA,
 								 TRACKER_DB_EMAIL_CONTENTS,
 								 TRACKER_DB_EMAIL_METADATA);
+
+		g_signal_connect (priv->sql_query_iface, "invalidated",
+				  G_CALLBACK (search_sql_iface_invalidate), object);
 	}
 
 	result_set = tracker_db_interface_execute_query (priv->sql_query_iface,
