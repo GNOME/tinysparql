@@ -66,7 +66,8 @@ GType	     tracker_db_get_type			    (void) G_GNUC_CONST;
 
 gboolean     tracker_db_manager_init			    (TrackerDBManagerFlags  flags,
 							     gboolean		   *first_time,
-							     gboolean 		    shared_cache);
+							     gboolean 		    shared_cache,
+							     const gchar           *profile_name);
 void	     tracker_db_manager_shutdown		    (void);
 
 void	     tracker_db_manager_remove_all		    (void);

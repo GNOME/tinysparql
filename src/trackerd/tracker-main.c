@@ -598,7 +598,7 @@ backup_user_metadata (TrackerConfig *config, TrackerLanguage *language)
 	/*
 	 *  Init the DB stack to get the user metadata
 	 */
-	if (!tracker_db_manager_init (0, &is_first_time_index, TRUE)) {
+	if (!tracker_db_manager_init (0, &is_first_time_index, TRUE, NULL)) {
 		return;
 	}
 
@@ -1102,7 +1102,7 @@ main (gint argc, gchar *argv[])
 		flags |= TRACKER_DB_MANAGER_LOW_MEMORY_MODE;
 	}
 
-	if (!tracker_db_manager_init (flags, &is_first_time_index, TRUE)) {
+	if (!tracker_db_manager_init (flags, &is_first_time_index, TRUE, NULL)) {
 		return EXIT_FAILURE;
 	}
 

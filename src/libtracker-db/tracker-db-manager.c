@@ -237,13 +237,12 @@ location_to_directory (TrackerDBLocation location)
 }
 
 static gboolean
-load_pragma_file (gboolean safe)
+load_pragma_file (const gchar *profile_name)
 {
 	GKeyFile      *key_file = NULL;
 	GError        *error = NULL;
 	GStrv          keys;
 	gchar	      *pragma_file;
-	const gchar   *group;
 	gint           i;
 
 	if (pragmas) {
@@ -258,9 +257,13 @@ load_pragma_file (gboolean safe)
 	key_file = g_key_file_new ();
 	pragma_file = g_build_filename (config_dir, "sqlite-db.pragmas", NULL);
 
-	g_message ("Loading pragma file:'%s' using %s values", 
+	if (!profile_name) {
+		profile_name = "Safe";
+	}
+
+	g_message ("Loading pragma file:'%s' using profile '%s'",
 		   pragma_file,
-		   safe ? "safe" : "fast");
+		   profile_name);
 
 	if (!g_key_file_load_from_file (key_file, pragma_file, G_KEY_FILE_NONE, &error)) {
 		g_message ("  Couldn't load pragma file, %s", 
@@ -272,22 +275,21 @@ load_pragma_file (gboolean safe)
 
 		g_message ("  Trying to re-create file with defaults"); 
 
-		save_pragma_file_defaults (safe);
-		return load_pragma_file (safe);
+		save_pragma_file_defaults (TRUE);
+		return load_pragma_file (NULL);
 	}
 
-	if (safe) {
-		group = "Safe";
-	} else {
-		group = "Fast";
+	if (!g_key_file_has_group (key_file, profile_name)) {
+		g_warning ("  Profile '%s' does not exist, stepping back to 'Safe'", profile_name);
+		profile_name = "Safe";
 	}
 
-	keys = g_key_file_get_keys (key_file, group, NULL, NULL);
+	keys = g_key_file_get_keys (key_file, profile_name, NULL, NULL);
 
 	for (i = 0; keys[i]; i++) {
 		gchar *value;
 
-		value = g_key_file_get_string (key_file, group, keys[i], NULL);
+		value = g_key_file_get_string (key_file, profile_name, keys[i], NULL);
 		g_hash_table_insert (pragmas, g_strdup (keys[i]), value);
 
 		g_message ("  Adding pragma '%s' with value '%s'", 
@@ -2142,7 +2144,8 @@ tracker_db_manager_ensure_locale (void)
 gboolean
 tracker_db_manager_init (TrackerDBManagerFlags	flags,
 			 gboolean	       *first_time,
-			 gboolean	        shared_cache)
+			 gboolean	        shared_cache,
+			 const gchar           *profile_name)
 {
 	GType		    etype;
 	TrackerDBVersion    version;
@@ -2283,8 +2286,8 @@ tracker_db_manager_init (TrackerDBManagerFlags	flags,
 	load_prepared_queries ();
 
 	/* Get pragma details */
-	load_pragma_file (TRUE);
-	
+	load_pragma_file (profile_name);
+
 	/* Should we reindex? If so, just remove all databases files,
 	 * NOT the paths, note, that these paths are also used for
 	 * other things like the nfs lock file.

@@ -1025,6 +1025,26 @@ tracker_indexer_load_modules (TrackerIndexer *indexer)
 }
 
 static void
+set_up_databases (TrackerIndexer *indexer)
+{
+	TrackerIndexerPrivate *priv;
+
+	priv = indexer->private;
+
+	/* Set up databases, these pointers are mostly used to
+	 * start/stop transactions, since TrackerDBManager treats
+	 * interfaces as singletons, it's safe to just ask it
+	 * again for an interface.
+	 */
+	priv->cache = tracker_db_manager_get_db_interface (TRACKER_DB_CACHE);
+	priv->common = tracker_db_manager_get_db_interface (TRACKER_DB_COMMON);
+	priv->file_metadata = tracker_db_manager_get_db_interface (TRACKER_DB_FILE_METADATA);
+	priv->file_contents = tracker_db_manager_get_db_interface (TRACKER_DB_FILE_CONTENTS);
+	priv->email_metadata = tracker_db_manager_get_db_interface (TRACKER_DB_EMAIL_METADATA);
+	priv->email_contents = tracker_db_manager_get_db_interface (TRACKER_DB_EMAIL_CONTENTS);
+}
+
+static void
 tracker_indexer_init (TrackerIndexer *indexer)
 {
 	TrackerIndexerPrivate *priv;
@@ -1088,17 +1108,7 @@ tracker_indexer_init (TrackerIndexer *indexer)
 	g_signal_connect (priv->email_index, "error-received",
 			  G_CALLBACK (index_error_received_cb), indexer);
 
-	/* Set up databases, these pointers are mostly used to
-	 * start/stop transactions, since TrackerDBManager treats
-	 * interfaces as singletons, it's safe to just ask it
-	 * again for an interface.
-	 */
-	priv->cache = tracker_db_manager_get_db_interface (TRACKER_DB_CACHE);
-	priv->common = tracker_db_manager_get_db_interface (TRACKER_DB_COMMON);
-	priv->file_metadata = tracker_db_manager_get_db_interface (TRACKER_DB_FILE_METADATA);
-	priv->file_contents = tracker_db_manager_get_db_interface (TRACKER_DB_FILE_CONTENTS);
-	priv->email_metadata = tracker_db_manager_get_db_interface (TRACKER_DB_EMAIL_METADATA);
-	priv->email_contents = tracker_db_manager_get_db_interface (TRACKER_DB_EMAIL_CONTENTS);
+	set_up_databases (indexer);
 
 	/* Set up volume monitor */
 	priv->volume_monitor = g_volume_monitor_get ();
@@ -3649,4 +3659,74 @@ tracker_indexer_shutdown (TrackerIndexer	 *indexer,
 
 	dbus_g_method_return (context);
 	tracker_dbus_request_success (request_id);
+}
+
+static gboolean
+set_profile (TrackerIndexer *indexer,
+	     const gchar    *profile_name)
+{
+	TrackerDBManagerFlags flags = 0;
+	TrackerIndexerPrivate *priv;
+	gboolean return_val = TRUE;
+
+	priv = indexer->private;
+
+	if (tracker_config_get_low_memory_mode (priv->config)) {
+		flags |= TRACKER_DB_MANAGER_LOW_MEMORY_MODE;
+	}
+
+	/* Pause the indexer, this also flushes data to DBs */
+	tracker_indexer_set_running (indexer, FALSE);
+
+	/* Reinitialize DB Manager with new profile */
+	tracker_db_manager_shutdown ();
+
+	if (!tracker_db_manager_init (flags, NULL, FALSE, profile_name)) {
+		g_critical ("Could not restart DB manager, trying again with defaults");
+
+		if (!tracker_db_manager_init (flags, NULL, FALSE, NULL)) {
+			g_critical ("  Not even defaults worked, bailing out.");
+			g_assert_not_reached ();
+		}
+
+		return_val = FALSE;
+	}
+
+	/* Restore database pointers */
+	set_up_databases (indexer);
+
+	/* Restart the indexer */
+	tracker_indexer_set_running (indexer, TRUE);
+
+	return return_val;
+}
+
+void
+tracker_indexer_set_profile (TrackerIndexer         *indexer,
+			     const gchar            *profile_name,
+			     DBusGMethodInvocation  *context,
+			     GError                **error)
+{
+	guint request_id;
+
+	tracker_dbus_async_return_if_fail (TRACKER_IS_INDEXER (indexer), context);
+
+	request_id = tracker_dbus_get_next_request_id ();
+	tracker_dbus_request_new (request_id,
+				  "DBus request to switch to profile '%s'", profile_name);
+
+	if (!set_profile (indexer, profile_name)) {
+		GError *actual_error = NULL;
+
+		tracker_dbus_request_failed (request_id,
+					     &actual_error,
+					     "Could not set profile '%s'",
+					     profile_name);
+
+		dbus_g_method_return_error (context, actual_error);
+		g_error_free (actual_error);
+	} else {
+		dbus_g_method_return (context);
+		tracker_dbus_request_success (request_id);
+	}
 }

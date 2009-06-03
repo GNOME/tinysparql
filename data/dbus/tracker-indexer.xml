@@ -79,6 +79,11 @@
       <arg type="s" name="backup_file" direction="in" />
     </method>
 
+    <method name="SetProfile">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
+      <arg type="s" name="profile_name" direction="in" />
+    </method>
+
     <!-- Signals --> 
     <signal name="Status">
       <arg type="d" name="elapsed_time" />

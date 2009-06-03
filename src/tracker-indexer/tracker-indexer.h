@@ -158,6 +158,10 @@ void            tracker_indexer_restore_backup      (TrackerIndexer         *ind
 void            tracker_indexer_shutdown            (TrackerIndexer         *indexer,
 						     DBusGMethodInvocation  *context,
 						     GError                **error);
+void            tracker_indexer_set_profile         (TrackerIndexer         *indexer,
+						     const gchar            *profile_name,
+						     DBusGMethodInvocation  *context,
+						     GError                **error);
 
 G_END_DECLS
 

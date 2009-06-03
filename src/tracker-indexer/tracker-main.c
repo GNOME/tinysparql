@@ -363,7 +363,7 @@ main (gint argc, gchar *argv[])
 		flags |= TRACKER_DB_MANAGER_LOW_MEMORY_MODE;
 	}
 
-	if (!tracker_db_manager_init (flags, NULL, FALSE)) {
+	if (!tracker_db_manager_init (flags, NULL, FALSE, NULL)) {
 		return EXIT_FAILURE;
         }
 
