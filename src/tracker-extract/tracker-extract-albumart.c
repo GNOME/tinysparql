@@ -45,6 +45,8 @@
 
 #ifdef HAVE_GDKPIXBUF
 
+static GHashTable *album_art_done = NULL;
+
 static gboolean
 set_albumart (const unsigned char *buffer,
 	      size_t               len,
@@ -125,6 +127,8 @@ tracker_process_albumart (const unsigned char *buffer,
 	gchar *local_uri = NULL;
 	gchar *filename_uri;
 	gboolean lcopied = FALSE;
+	gboolean art_exists;
+	gchar *as_uri;
 
 	if (strchr (filename, ':')) {
 		filename_uri = g_strdup (filename);
@@ -146,7 +150,9 @@ tracker_process_albumart (const unsigned char *buffer,
 		return FALSE;
 	}
 
-	if (!g_file_test (art_path, G_FILE_TEST_EXISTS)) {
+	art_exists = g_file_test (art_path, G_FILE_TEST_EXISTS);
+
+	if (!art_exists) {
 #ifdef HAVE_GDKPIXBUF
 		/* If we have embedded album art */
 		if (buffer && len) {
@@ -161,45 +167,78 @@ tracker_process_albumart (const unsigned char *buffer,
 		} else {
 #endif /* HAVE_GDK_PIXBUF */
 			/* If not, we perform a heuristic on the dir */
-			if (!tracker_albumart_heuristic (artist, album, 
-			                                 trackercnt_str, 
-			                                 filename, 
-			                                 local_uri, 
-			                                 &lcopied)) {
+			gchar *key;
+			gchar *dirname;
+			GFile *file, *dirf;
 
-				/* If the heuristic failed, we request the download 
-				 * of the media-art to the media-art downloaders */
-				lcopied = TRUE;
-				tracker_albumart_request_download (tracker_main_get_hal (), 
-								   artist,
-								   album,
-								   local_uri,
-								   art_path);
+			file = g_file_new_for_path (filename);
+			dirf = g_file_get_parent (file);
+			dirname = g_file_get_path (dirf);
+			g_object_unref (file);
+			g_object_unref (dirf);
+
+			key = g_strdup_printf ("%s-%s-%s", artist ? artist : "",
+					       album ? album : "",
+					       dirname ? dirname : "");
+
+			g_free (dirname);
+
+			/* We store these in a table because we want to avoid 
+			  * that we do many requests for the same directory
+			  * subsequently without success. It's a small but
+			  * known leak on the variable "key" and the hashtable
+			  * itself.
+			  *
+			  * We could get rid of the leak by having a shutdown 
+			  * function for extract modules. I don't think this 
+			  * mini leak is enough reason to add such shutdown
+			  * infrastructure to the extract modules. */
+
+			if (!album_art_done) {
+				album_art_done = g_hash_table_new_full (g_str_hash,
+									g_str_equal,
+									(GDestroyNotify) g_free,
+									NULL);
+			}
+
+			if (!g_hash_table_lookup (album_art_done, key)) {
+				if (!tracker_albumart_heuristic (artist, album, 
+					                         trackercnt_str, 
+					                         filename, 
+					                         local_uri, 
+					                         &lcopied)) {
+
+					/* If the heuristic failed, we request the download 
+					 * of the media-art to the media-art downloaders */
+					lcopied = TRUE;
+					tracker_albumart_request_download (tracker_main_get_hal (), 
+									   artist,
+									   album,
+									   local_uri,
+									   art_path);
+				}
+				g_hash_table_insert (album_art_done, key, GINT_TO_POINTER(TRUE));
+			} else {
+				g_free (key);
 			}
 #ifdef HAVE_GDKPIXBUF
 		}
 #endif /* HAVE_GDKPIXBUF */
 
-		/* If the heuristic didn't copy from the .mediaartlocal, then 
-		 * we'll perhaps copy it to .mediaartlocal (perhaps because this
-		 * only copies in case the media is located on a removable 
-		 * device */
-
-		if (g_file_test (art_path, G_FILE_TEST_EXISTS)) {
-			gchar *as_uri;
-
-			as_uri = g_filename_to_uri (art_path, NULL, NULL);
-			tracker_thumbnailer_queue_file (as_uri, "image/jpeg");
-			g_free (as_uri);
-		}
+		as_uri = g_filename_to_uri (art_path, NULL, NULL);
+		tracker_thumbnailer_queue_file (as_uri, "image/jpeg");
+		g_free (as_uri);
 
 	}
 
 	if (local_uri && !g_file_test (local_uri, G_FILE_TEST_EXISTS)) {
-		if (g_file_test (art_path, G_FILE_TEST_EXISTS))
+		/* We can't reuse art_exists here because the situation might
+		 * have changed */
+		if (g_file_test (art_path, G_FILE_TEST_EXISTS)) {
 			tracker_albumart_copy_to_local (tracker_main_get_hal (),
 							art_path, 
 							local_uri);
+		}
 	}
 
 	g_free (art_path);
@@ -208,3 +247,4 @@ tracker_process_albumart (const unsigned char *buffer,
 
 	return retval;
 }
+

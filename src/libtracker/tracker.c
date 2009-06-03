@@ -136,6 +136,7 @@ tracker_void_reply (DBusGProxy *proxy, GError *error, gpointer user_data)
 }
 
 
+/* copied from tracker-module-metadata.c */
 gchar *
 tracker_sparql_escape (const gchar *str)
 {

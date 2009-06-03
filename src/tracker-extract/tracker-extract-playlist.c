@@ -51,8 +51,8 @@
 #define RDF_TYPE RDF_PREFIX "type"
 
 typedef struct {
-	gint         track_counter;
-	gint         total_time;
+	guint        track_counter;
+	gint64      total_time;
 	GPtrArray   *metadata;
 	const gchar *uri;
 } PlaylistMetadata;
@@ -94,7 +94,7 @@ entry_parsed (TotemPlParser *parser, const gchar *to_uri, GHashTable *to_metadat
 	}
 
 	if (duration != NULL) {
-		gint secs = atoi (duration);
+		gint64 secs = totem_pl_parser_parse_duration (duration, FALSE);
 		if (secs > 0) {
 			data->total_time += secs;
 		}
