@@ -43,7 +43,10 @@
 typedef struct {
 	TrackerStatus  status;
 	TrackerStatus  status_before_paused;
-	gpointer       type_class;
+	gpointer       status_type_class;
+
+	TrackerMode    mode;
+	gpointer       mode_type_class;
 
 	guint          disk_space_check_id;
 
@@ -117,8 +120,12 @@ private_free (gpointer data)
 	g_object_unref (private->hal);
 #endif
 
-	if (private->type_class) {
-		g_type_class_unref (private->type_class);
+	if (private->status_type_class) {
+		g_type_class_unref (private->status_type_class);
+	}
+
+	if (private->mode_type_class) {
+		g_type_class_unref (private->mode_type_class);
 	}
 
 	dbus_g_proxy_disconnect_signal (private->indexer_proxy, "Continued",
@@ -373,6 +380,42 @@ disk_space_check_stop (void)
 	}
 }
 
+static void
+mode_check (void)
+{
+	TrackerStatusPrivate *private;
+	TrackerMode           new_mode;
+
+	private = g_static_private_get (&private_key);
+	g_return_if_fail (private != NULL);
+
+	new_mode = private->mode;
+
+	/* FIXME: Need to add cover check here in MCE patch 08 */
+	if (private->is_paused_for_batt ||
+	    private->is_paused_for_space) {
+		new_mode = TRACKER_MODE_SAFE;
+	} else {
+		new_mode = TRACKER_MODE_FAST;
+	}
+
+	if (new_mode == private->mode) {
+		return;
+	}
+
+	g_message ("Mode change from '%s' --> '%s'",
+		   tracker_mode_to_string (private->mode),
+		   tracker_mode_to_string (new_mode));
+
+
+	private->mode = new_mode;
+
+	/* FIXME: Tell the indexer */
+
+	/* FIXME: Do DB switch over */
+
+}
+
 #ifdef HAVE_HAL
 
 static void
@@ -506,6 +549,8 @@ tracker_status_init (TrackerConfig *config,
 	private->status = TRACKER_STATUS_INITIALIZING;
 	private->status_before_paused = private->status;
 
+	private->mode = TRACKER_MODE_SAFE;
+
 	/* Since we don't reference this enum anywhere, we do
 	 * it here to make sure it exists when we call
 	 * g_type_class_peek(). This wouldn't be necessary if
@@ -516,7 +561,10 @@ tracker_status_init (TrackerConfig *config,
 	 * this is acceptable.
 	 */
 	type = tracker_status_get_type ();
-	private->type_class = g_type_class_ref (type);
+	private->status_type_class = g_type_class_ref (type);
+
+	type = tracker_mode_get_type ();
+	private->mode_type_class = g_type_class_ref (type);
 
 	private->config = g_object_ref (config);
 
@@ -1097,6 +1145,7 @@ tracker_status_set_is_paused_manually (gboolean value)
 
 	/* Set indexer state and our state to paused or not */ 
 	indexer_recheck (TRUE, FALSE, emit);
+	mode_check ();
 }
 
 gboolean
@@ -1125,6 +1174,7 @@ tracker_status_set_is_paused_for_batt (gboolean value)
 
 	/* Set indexer state and our state to paused or not */ 
 	indexer_recheck (TRUE, FALSE, emit);
+	mode_check ();
 }
 
 gboolean
@@ -1153,6 +1203,7 @@ tracker_status_set_is_paused_for_io (gboolean value)
 
 	/* Set indexer state and our state to paused or not */ 
 	indexer_recheck (TRUE, FALSE, emit);
+	mode_check ();
 }
 
 gboolean
@@ -1181,6 +1232,7 @@ tracker_status_set_is_paused_for_space (gboolean value)
 
 	/* Set indexer state and our state to paused or not */ 
 	indexer_recheck (TRUE, FALSE, emit);
+	mode_check ();
 }
 
 gboolean
@@ -1209,4 +1261,60 @@ tracker_status_set_is_paused_for_dbus (gboolean value)
 
 	/* Set indexer state and our state to paused or not */ 
 	indexer_recheck (TRUE, TRUE, emit);
+	mode_check ();
+}
+
+/*
+ * Modes
+ */
+
+GType
+tracker_mode_get_type (void)
+{
+	static GType type = 0;
+
+	if (type == 0) {
+		static const GEnumValue values[] = {
+			{ TRACKER_MODE_SAFE,
+			  "TRACKER_MODE_SAFE",
+			  "Safe" },
+			{ TRACKER_MODE_FAST,
+			  "TRACKER_MODE_FAST",
+			  "Fast" },
+			{ 0, NULL, NULL }
+		};
+
+		type = g_enum_register_static ("TrackerMode", values);
+	}
+
+	return type;
+}
+
+const gchar *
+tracker_mode_to_string (TrackerMode mode)
+{
+	GType	    type;
+	GEnumClass *enum_class;
+	GEnumValue *enum_value;
+
+	type = tracker_mode_get_type ();
+	enum_class = G_ENUM_CLASS (g_type_class_peek (type));
+	enum_value = g_enum_get_value (enum_class, mode);
+
+	if (!enum_value) {
+		enum_value = g_enum_get_value (enum_class, TRACKER_MODE_SAFE);
+	}
+
+	return enum_value->value_nick;
+}
+
+TrackerMode
+tracker_mode_get (void)
+{
+	TrackerStatusPrivate *private;
+
+	private = g_static_private_get (&private_key);
+	g_return_val_if_fail (private != NULL, TRACKER_MODE_SAFE);
+
+	return private->mode;
 }

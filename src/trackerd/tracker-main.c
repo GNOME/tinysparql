@@ -587,18 +587,24 @@ get_ttl_backup_filename (void)
 }
 
 static void
-backup_user_metadata (TrackerConfig *config, TrackerLanguage *language)
+backup_user_metadata (TrackerConfig   *config, 
+		      TrackerLanguage *language)
 {
-	TrackerDBIndex		   *file_index;
-	TrackerDBIndex		   *email_index;
-	gboolean                    is_first_time_index;
+	TrackerDBIndex *file_index;
+	TrackerDBIndex *email_index;
+	TrackerMode     mode;
+	const gchar    *mode_str;
+	gboolean        is_first_time_index;
 
 	g_message ("Saving metadata in %s", get_ttl_backup_filename ());
 	
 	/*
 	 *  Init the DB stack to get the user metadata
 	 */
-	if (!tracker_db_manager_init (0, &is_first_time_index, TRUE, NULL)) {
+	mode = tracker_mode_get ();
+	mode_str = tracker_mode_to_string (mode);
+	
+	if (!tracker_db_manager_init (0, &is_first_time_index, TRUE, mode_str)) {
 		return;
 	}
 
@@ -949,6 +955,8 @@ main (gint argc, gchar *argv[])
 	TrackerRunningLevel	    runtime_level;
 	TrackerDBManagerFlags	    flags = 0;
 	TrackerDBIndexManagerFlags  index_flags = 0;
+	TrackerMode                 mode;
+	const gchar                *mode_str;
 	gboolean		    is_first_time_index;
 
 	g_type_init ();
@@ -1102,7 +1110,10 @@ main (gint argc, gchar *argv[])
 		flags |= TRACKER_DB_MANAGER_LOW_MEMORY_MODE;
 	}
 
-	if (!tracker_db_manager_init (flags, &is_first_time_index, TRUE, NULL)) {
+	mode = tracker_mode_get ();
+	mode_str = tracker_mode_to_string (mode);
+	
+	if (!tracker_db_manager_init (flags, &is_first_time_index, TRUE, mode_str)) {
 		return EXIT_FAILURE;
 	}
 
