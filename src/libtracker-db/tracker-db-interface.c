@@ -63,6 +63,15 @@ tracker_db_interface_error_quark (void)
 static void
 tracker_db_interface_class_init (gpointer iface)
 {
+	GType iface_type = G_TYPE_FROM_INTERFACE (iface);
+
+	g_signal_new ("invalidated",
+		      iface_type,
+		      G_SIGNAL_RUN_LAST,
+		      0, NULL, NULL,
+		      g_cclosure_marshal_VOID__VOID,
+		      G_TYPE_NONE, 0);
+
 	g_object_interface_install_property (iface,
 					     g_param_spec_boolean ("in-transaction",
 								   "In transaction",

@@ -220,6 +220,7 @@ static gchar		  *sys_tmp_dir;
 static gpointer		   db_type_enum_class_pointer;
 static TrackerDBInterface *file_iface;
 static TrackerDBInterface *email_iface;
+static GList              *not_owned_ifaces = NULL;
 
 static const gchar *
 location_to_directory (TrackerDBLocation location)
@@ -2364,6 +2365,23 @@ tracker_db_manager_init (TrackerDBManagerFlags	flags,
 	return TRUE;
 }
 
+static void
+invalidate_ifaces (void)
+{
+	GList *l;
+	gint i;
+
+	for (i = 1; i < G_N_ELEMENTS (dbs); i++) {
+		if (dbs[i].iface) {
+			g_signal_emit_by_name (dbs[i].iface, "invalidated");
+		}
+	}
+
+	for (l = not_owned_ifaces; l; l = l->next) {
+		g_signal_emit_by_name (l->data, "invalidated");
+	}
+}
+
 void
 tracker_db_manager_shutdown (void)
 {
@@ -2372,6 +2390,8 @@ tracker_db_manager_shutdown (void)
 	if (!initialized) {
 		return;
 	}
+
+	invalidate_ifaces ();
 
 	for (i = 1; i < G_N_ELEMENTS (dbs); i++) {
 		if (dbs[i].abs_filename) {
@@ -2429,6 +2449,9 @@ tracker_db_manager_shutdown (void)
 	tracker_ontology_shutdown ();
 
 	initialized = FALSE;
+
+	g_list_free (not_owned_ifaces);
+	not_owned_ifaces = NULL;
 }
 
 void
@@ -2484,6 +2507,13 @@ tracker_db_manager_get_file (TrackerDB db)
 	return dbs[db].abs_filename;
 }
 
+static void
+remove_not_owned_iface (gpointer  user_data,
+			GObject  *iface)
+{
+	not_owned_ifaces = g_list_remove (not_owned_ifaces, iface);
+}
+
 /**
  * tracker_db_manager_get_db_interfaces:
  * @num: amount of TrackerDB files wanted
@@ -2529,6 +2559,11 @@ tracker_db_manager_get_db_interfaces (gint num, ...)
 	}
 	va_end (args);
 
+	if (connection) {
+		not_owned_ifaces = g_list_prepend (not_owned_ifaces, connection);
+		g_object_weak_ref (G_OBJECT (connection), remove_not_owned_iface, NULL);
+	}
+
 	return connection;
 }
 
@@ -2562,6 +2597,11 @@ tracker_db_manager_get_db_interfaces_ro (gint num, ...)
 
 	}
 	va_end (args);
+
+	if (connection) {
+		not_owned_ifaces = g_list_prepend (not_owned_ifaces, connection);
+		g_object_weak_ref (G_OBJECT (connection), remove_not_owned_iface, NULL);
+	}
 
 	return connection;
 }
