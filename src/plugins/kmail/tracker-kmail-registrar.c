@@ -354,7 +354,7 @@ perform_unset (TrackerKMailRegistrar *object,
 {
 	gchar *sparql = g_strdup_printf ("DELETE { <%s> a rdfs:Resource }", subject);
 
-	if (batch) {
+	if (!batch) {
 		tracker_store_sparql_update (sparql, NULL);
 	} else {
 		tracker_store_queue_sparql_update (sparql, NULL, NULL, NULL);
