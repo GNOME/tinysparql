@@ -13,7 +13,7 @@ nco: a tracker:Namespace ;
 
 nco:Role a rdfs:Class ;
 	rdfs:label "Role" ;
-	rdfs:comment "['A role played by a contact. Contacts that denote people', 'can have many roles (e.g. see the hasAffiliation property and Affiliation class). Contacts that denote Organizations or other Agents usually have one role.  Each role can introduce additional contact media.']" ;
+	rdfs:comment "A role played by a contact. Contacts that denote people, can have many roles (e.g. see the hasAffiliation property and Affiliation class). Contacts that denote Organizations or other Agents usually have one role.  Each role can introduce additional contact media." ;
 	rdfs:subClassOf rdfs:Resource .
 
 nco:Affiliation a rdfs:Class ;
@@ -33,13 +33,13 @@ nco:ContactGroup a rdfs:Class ;
 
 nco:ContactList a rdfs:Class ;
 	rdfs:label "ContactList" ;
-	rdfs:comment "['A contact list', 'this class represents an addressbook or a contact list of an IM application. Contacts inside a contact list can belong to contact groups.']" ;
+	rdfs:comment "A contact list, this class represents an addressbook or a contact list of an IM application. Contacts inside a contact list can belong to contact groups." ;
 	rdfs:subClassOf nie:InformationElement .
 
 # Maybe a bug? Shouldnt it be a subclass of nie:InformationElement?
 nco:ContactMedium a rdfs:Class ;
 	rdfs:label "ContactMedium" ;
-	rdfs:comment "['A superclass for all contact media - ways to contact an entity represented by a Contact instance. Some of the subclasses of this class (the various kinds of telephone numbers and postal addresses) have been inspired by the values of the TYPE parameter of ADR and TEL properties defined in RFC 2426 sec. 3.2.1. and 3.3.1 respectively. Each value is represented by an appropriate subclass with two major exceptions TYPE=home and TYPE=work. They are to be expressed by the roles these contact media are attached to i.e. contact media with TYPE=home parameter are to be attached to the default role (nco:Contact or nco:PersonContact)', 'whereas media with TYPE=work parameter should be attached to nco:Affiliation or nco:OrganizationContact.']" ;
+	rdfs:comment "A superclass for all contact media - ways to contact an entity represented by a Contact instance. Some of the subclasses of this class (the various kinds of telephone numbers and postal addresses) have been inspired by the values of the TYPE parameter of ADR and TEL properties defined in RFC 2426 sec. 3.2.1. and 3.3.1 respectively. Each value is represented by an appropriate subclass with two major exceptions TYPE=home and TYPE=work. They are to be expressed by the roles these contact media are attached to i.e. contact media with TYPE=home parameter are to be attached to the default role (nco:Contact or nco:PersonContact), whereas media with TYPE=work parameter should be attached to nco:Affiliation or nco:OrganizationContact." ;
 	rdfs:subClassOf rdfs:Resource .
 
 nco:EmailAddress a rdfs:Class ;
@@ -155,7 +155,7 @@ nco:BbsNumber a rdfs:Class ;
 
 nco:CellPhoneNumber a rdfs:Class ;
 	rdfs:label "CellPhoneNumber" ;
-	rdfs:comment "['A cellular phone number. Inspired by the (TYPE=cell) parameter of the TEL property as defined in RFC 2426 sec  3.3.1. Usually a cellular phone can accept voice calls as well as textual messages (SMS)', 'therefore this class has two superclasses.']" ;
+	rdfs:comment "A cellular phone number. Inspired by the (TYPE=cell) parameter of the TEL property as defined in RFC 2426 sec  3.3.1. Usually a cellular phone can accept voice calls as well as textual messages (SMS), therefore this class has two superclasses." ;
 	rdfs:subClassOf nco:MessagingNumber , nco:VoicePhoneNumber .
 
 nco:DomesticDeliveryAddress a rdfs:Class ;
@@ -187,7 +187,7 @@ nco:contributor a rdf:Property ;
 
 nco:creator a rdf:Property ;
 	rdfs:label "creator" ;
-	rdfs:comment "['Creator of a data object', 'an entity primarily responsible for the creation of the content of the data object.']" ;
+	rdfs:comment "Creator of a data object, an entity primarily responsible for the creation of the content of the data object.]" ;
 	rdfs:subPropertyOf dc:creator , nco:contributor ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nie:InformationElement ;
@@ -195,7 +195,7 @@ nco:creator a rdf:Property ;
 
 nco:region a rdf:Property ;
 	rdfs:label "region" ;
-	rdfs:comment "['Region. Inspired by the fifth part of the value of the 'ADR' property as defined in RFC 2426', 'sec. 3.2.1']" ;
+	rdfs:comment "Region. Inspired by the fifth part of the value of the 'ADR' property as defined in RFC 2426, sec. 3.2.1" ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nco:PostalAddress ;
 	rdfs:range xsd:string .
@@ -217,7 +217,7 @@ nco:nameHonorificSuffix a rdf:Property ;
 
 nco:nameFamily a rdf:Property ;
 	rdfs:label "nameFamily" ;
-	rdfs:comment "['The family name of an Object represented by this Contact. These applies to people that have more than one given name. The 'first' one is considered 'the' given name (see nameGiven) property. All additional ones are considered 'additional' names. The name inherited from parents is the 'family name'. e.g. For Dr. John Phil Paul Stevenson Jr. M.D. A.C.P. we have contact with: honorificPrefix: 'Dr.'', 'nameGiven: 'John'', 'nameAdditional: 'Phil'', 'nameAdditional: 'Paul'', 'nameFamily: 'Stevenson'', 'honorificSuffix: 'Jr.'', 'honorificSuffix: 'M.D.'', 'honorificSuffix: 'A.C.P.'. These properties form an equivalent of the compound 'N' property as defined in RFC 2426 Sec. 3.1.2']" ;
+	rdfs:comment "The family name of an Object represented by this Contact. These applies to people that have more than one given name. The 'first' one is considered 'the' given name (see nameGiven) property. All additional ones are considered 'additional' names. The name inherited from parents is the 'family name'. e.g. For Dr. John Phil Paul Stevenson Jr. M.D. A.C.P. we have contact with: honorificPrefix: 'Dr.', nameGiven: 'John', nameAdditional: 'Phil', nameAdditional: 'Paul', nameFamily: 'Stevenson', honorificSuffix: 'Jr.', honorificSuffix: 'M.D.', honorificSuffix: 'A.C.P.'. These properties form an equivalent of the compound 'N' property as defined in RFC 2426 Sec. 3.1.2" ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nco:PersonContact ;
 	rdfs:range xsd:string .
@@ -240,7 +240,7 @@ nco:publisher a rdf:Property ;
 
 nco:country a rdf:Property ;
 	rdfs:label "country" ;
-	rdfs:comment "['A part of an address specyfing the country. Inspired by the seventh part of the value of the 'ADR' property as defined in RFC 2426', 'sec. 3.2.1']" ;
+	rdfs:comment "A part of an address specyfing the country. Inspired by the seventh part of the value of the 'ADR' property as defined in RFC 2426, sec. 3.2.1" ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nco:PostalAddress ;
 	rdfs:range xsd:string .
@@ -254,7 +254,7 @@ nco:nameHonorificPrefix a rdf:Property ;
 
 nco:extendedAddress a rdf:Property ;
 	rdfs:label "extendedAddress" ;
-	rdfs:comment "['An extended part of an address. This field might be used to express parts of an address that aren't include in the name of the Contact but also aren't part of the actual location. Usually the streed address and following fields are enough for a postal letter to arrive. Examples may include ('University of California Campus building 45'', 'Sears Tower 34th floor' etc.) Inspired by the second part of the value of the 'ADR' property as defined in RFC 2426', 'sec. 3.2.1']" ;
+	rdfs:comment "An extended part of an address. This field might be used to express parts of an address that aren't include in the name of the Contact but also aren't part of the actual location. Usually the streed address and following fields are enough for a postal letter to arrive. Examples may include ('University of California Campus building 45', 'Sears Tower 34th floor' etc.) Inspired by the second part of the value of the 'ADR' property as defined in RFC 2426, sec. 3.2.1" ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nco:PostalAddress ;
 	rdfs:range xsd:string .
@@ -309,7 +309,7 @@ nco:department a rdf:Property ;
 
 nco:imID a rdf:Property ;
 	rdfs:label "imID" ;
-	rdfs:comment "['Identifier of the IM account. Examples of such identifier might include ICQ UINs', 'Jabber IDs', 'Skype names etc.']" ;
+	rdfs:comment "Identifier of the IM account. Examples of such identifier might include ICQ UINs, Jabber IDs, Skype names etc." ;
 	rdfs:subPropertyOf nao:identifier ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nco:IMAccount ;
@@ -333,7 +333,7 @@ nco:note a rdf:Property ;
 
 nco:representative a rdf:Property ;
 	rdfs:label "representative" ;
-	rdfs:comment "['An object that represent an object represented by this Contact. Usually this property is used to link a Contact to an organization', 'to a contact to the representative of this organization the user directly interacts with. An equivalent for the 'AGENT' property defined in RFC 2426 Sec. 3.5.4']" ;
+	rdfs:comment "An object that represent an object represented by this Contact. Usually this property is used to link a Contact to an organization, to a contact to the representative of this organization the user directly interacts with. An equivalent for the 'AGENT' property defined in RFC 2426 Sec. 3.5.4" ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nco:Contact ;
 	rdfs:range nco:Contact .
@@ -363,7 +363,7 @@ nco:fullname a rdf:Property ;
 
 nco:streetAddress a rdf:Property ;
 	rdfs:label "streetAddress" ;
-	rdfs:comment "['The streed address. Inspired by the third part of the value of the 'ADR' property as defined in RFC 2426', 'sec. 3.2.1']" ;
+	rdfs:comment "The streed address. Inspired by the third part of the value of the 'ADR' property as defined in RFC 2426, sec. 3.2.1" ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nco:PostalAddress ;
 	rdfs:range xsd:string .
@@ -419,7 +419,7 @@ nco:hasEmailAddress a rdf:Property ;
 
 nco:postalcode a rdf:Property ;
 	rdfs:label "postalcode" ;
-	rdfs:comment "['Postal Code. Inspired by the sixth part of the value of the 'ADR' property as defined in RFC 2426', 'sec. 3.2.1']" ;
+	rdfs:comment "Postal Code. Inspired by the sixth part of the value of the 'ADR' property as defined in RFC 2426, sec. 3.2.1" ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nco:PostalAddress ;
 	rdfs:range xsd:string .
@@ -482,7 +482,7 @@ nco:emailAddress a rdf:Property ;
 
 nco:locality a rdf:Property ;
 	rdfs:label "locality" ;
-	rdfs:comment "['Locality or City. Inspired by the fourth part of the value of the 'ADR' property as defined in RFC 2426', 'sec. 3.2.1']" ;
+	rdfs:comment "Locality or City. Inspired by the fourth part of the value of the 'ADR' property as defined in RFC 2426, sec. 3.2.1" ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nco:PostalAddress ;
 	rdfs:range xsd:string .
@@ -534,21 +534,21 @@ nco:hasPostalAddress a rdf:Property ;
 
 nco:imAccountType a rdf:Property ;
 	rdfs:label "imAccountType" ;
-	rdfs:comment "['Type of the IM account. This may be the name of the service that provides the IM functionality. Examples might include Jabber', 'ICQ', 'MSN etc']" ;
+	rdfs:comment "Type of the IM account. This may be the name of the service that provides the IM functionality. Examples might include Jabber, ICQ, MSN etc" ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nco:IMAccount ;
 	rdfs:range xsd:string .
 
 nco:imProtocol a rdf:Property ;
 	rdfs:label "imProtocol" ;
-	rdfs:comment "['Protocol of the account ('skype'', 'gtalk', 'icq', '...)']" ;
+	rdfs:comment "Protocol of the account ('skype', 'gtalk', 'icq', ...)" ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nco:IMAccount ;
 	rdfs:range xsd:string .
 
 nco:pobox a rdf:Property ;
 	rdfs:label "pobox" ;
-	rdfs:comment "['Post office box. This is the first part of the value of the 'ADR' property as defined in RFC 2426', 'sec. 3.2.1']" ;
+	rdfs:comment "Post office box. This is the first part of the value of the 'ADR' property as defined in RFC 2426, sec. 3.2.1" ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nco:PostalAddress ;
 	rdfs:range xsd:string .

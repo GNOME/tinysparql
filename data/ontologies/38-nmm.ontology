@@ -112,7 +112,7 @@ nmm:isForHearingImpaired a rdf:Property ;
 
 nmm:musicCDIdentifier a rdf:Property ;
 	rdfs:label "Music CD identifier" ;
-	rdfs:comment "['Music CD identifier to for databases like FreeDB.org. This frame is intended for music that comes from a CD', 'so that the CD can be identified in databases such as the CDDB. The frame consists of a binary dump of the Table Of Contents', 'TOC', 'from the CD', 'which is a header of 4 bytes and then 8 bytes/track on the CD plus 8 bytes for the 'lead out' making a maximum of 804 bytes. The offset to the beginning of every track on the CD should be described with a four bytes absolute CD-frame address per track', 'and not with absolute time.']" ;
+	rdfs:comment "Music CD identifier to for databases like FreeDB.org. This frame is intended for music that comes from a CD, so that the CD can be identified in databases such as the CDDB. The frame consists of a binary dump of the Table Of Contents, TOC, from the CD, which is a header of 4 bytes and then 8 bytes/track on the CD plus 8 bytes for the 'lead out' making a maximum of 804 bytes. The offset to the beginning of every track on the CD should be described with a four bytes absolute CD-frame address per track, and not with absolute time." ;
 	rdfs:subPropertyOf nie:identifier ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmm:MusicAlbum ;
