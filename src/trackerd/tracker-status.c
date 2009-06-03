@@ -27,6 +27,8 @@
 #include <errno.h>
 #include <unistd.h>
 
+#include <libtracker-db/tracker-db-manager.h>
+
 #include "tracker-status.h"
 #include "tracker-dbus.h"
 #include "tracker-daemon.h"
@@ -383,15 +385,17 @@ disk_space_check_stop (void)
 static void
 mode_check (void)
 {
+	TrackerDBManagerFlags flags = 0;
 	TrackerStatusPrivate *private;
 	TrackerMode           new_mode;
+	const gchar          *new_mode_str;
+	GError               *error = NULL;
 
 	private = g_static_private_get (&private_key);
 	g_return_if_fail (private != NULL);
 
 	new_mode = private->mode;
 
-	/* FIXME: Need to add cover check here in MCE patch 08 */
 	if (private->is_paused_for_batt ||
 	    private->is_paused_for_space) {
 		new_mode = TRACKER_MODE_SAFE;
@@ -403,17 +407,43 @@ mode_check (void)
 		return;
 	}
 
+	new_mode_str = tracker_mode_to_string (new_mode);
+
 	g_message ("Mode change from '%s' --> '%s'",
 		   tracker_mode_to_string (private->mode),
-		   tracker_mode_to_string (new_mode));
+		   new_mode_str);
 
 
 	private->mode = new_mode;
 
-	/* FIXME: Tell the indexer */
+	/* Tell the indexer to switch profile */
+	org_freedesktop_Tracker_Indexer_set_profile (private->indexer_proxy,
+						     new_mode_str,
+						     &error);
 
-	/* FIXME: Do DB switch over */
+	if (G_UNLIKELY (error)) {
+		g_critical ("Could not change profile in the indexer: %s\n",
+			    error->message);
+		g_error_free (error);
 
+		return;
+	}
+
+	if (tracker_config_get_low_memory_mode (private->config)) {
+		flags |= TRACKER_DB_MANAGER_LOW_MEMORY_MODE;
+	}
+
+	/* Now reinitialize DBs ourselves */
+	tracker_db_manager_shutdown ();
+
+	if (!tracker_db_manager_init (flags, NULL, TRUE, new_mode_str)) {
+		g_critical ("Could not restart DB Manager, trying again with defaults");
+
+		if (!tracker_db_manager_init (flags, NULL, TRUE, NULL)) {
+			g_critical ("  Not even defaults worked, bailing out.");
+			g_assert_not_reached ();
+		}
+	}
 }
 
 #ifdef HAVE_HAL
