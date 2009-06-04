@@ -813,7 +813,9 @@ build_sql (ParserData *data)
 						where_field,
 						data->current_value);
 		} else {
-			if ( !strlen(value) || (strcmp(value, " '' ") == 0) ) {
+			/* FIXME This check is too fragile */
+			g_debug ("value:(%s)", value);
+			if ( !strlen(value) || (strcmp(value, "''") == 0) ) {
 				tracker_field_data_set_needs_null (field_data, TRUE);
 				g_string_append_printf (str, " ((%s = '') OR %s IS NULL) ",
 							where_field,
