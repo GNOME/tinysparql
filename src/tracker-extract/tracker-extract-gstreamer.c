@@ -293,7 +293,7 @@ add_time_gst_tag (GHashTable  *metadata,
 	}
 }
 
-static void
+static gboolean
 get_embedded_album_art(MetadataExtractor *extractor)
 {
 	const GValue *value;
@@ -324,7 +324,8 @@ get_embedded_album_art(MetadataExtractor *extractor)
 				extractor->album_art_data = buffer->data;
 				extractor->album_art_size = buffer->size;
 				extractor->album_art_mime = gst_structure_get_name (caps_struct);
-				return;
+				gst_object_unref (caps);
+				return TRUE;
 			}
 
 			gst_object_unref (caps);
@@ -332,6 +333,28 @@ get_embedded_album_art(MetadataExtractor *extractor)
 			lindex++;
 		}
 	} while (value);
+
+	value = gst_tag_list_get_value_index (extractor->tagcache, GST_TAG_PREVIEW_IMAGE, lindex);
+
+	if (value) {
+		GstBuffer    *buffer;
+		GstCaps      *caps;
+		GstStructure *caps_struct;
+
+		buffer = gst_value_get_buffer (value);
+		caps   = gst_buffer_get_caps (buffer);
+		caps_struct = gst_caps_get_structure (buffer->caps, 0);
+
+		extractor->album_art_data = buffer->data;
+		extractor->album_art_size = buffer->size;
+		extractor->album_art_mime = gst_structure_get_name (caps_struct);		
+
+		gst_object_unref (caps);
+
+		return TRUE;
+	}
+
+	return FALSE;
 }
 
 static void
@@ -361,8 +384,6 @@ extract_stream_metadata_tagreadbin (MetadataExtractor *extractor,
 		add_time_gst_tag   (metadata, "Video:Duration", extractor->tagcache, GST_TAG_DURATION); 
  	} else if (extractor->mime == EXTRACT_MIME_AUDIO) {
 		add_time_gst_tag   (metadata, "Audio:Duration", extractor->tagcache, GST_TAG_DURATION); 
-
-		get_embedded_album_art (extractor);
  	}
 }
 
@@ -422,8 +443,6 @@ extract_stream_metadata_decodebin (MetadataExtractor *extractor,
  		if (extractor->duration >= 0) {
  			add_int64_info (metadata, g_strdup ("Audio:Duration"), extractor->duration);
  		}
-
-		get_embedded_album_art (extractor);
  	}
 }
 
@@ -487,6 +506,10 @@ extract_metadata (MetadataExtractor *extractor,
 		extract_stream_metadata_tagreadbin (extractor, metadata);
 	} else {
 		extract_stream_metadata_decodebin (extractor, metadata);
+	}
+
+	if (extractor->mime == EXTRACT_MIME_AUDIO) {
+		get_embedded_album_art (extractor);
 	}
 
 	/* Do some postprocessing (FIXME, or fix gstreamer) */
