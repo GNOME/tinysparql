@@ -180,7 +180,8 @@ libextract_pdf_la_LIBADD = $(GLIB2_LIBS) $(POPPLER_GLIB_LIBS) $(EXEMPI_LIBS) $(G
 
 # GStreamer
 libextract_gstreamer_la_SOURCES = tracker-extract-gstreamer.c $(albumart_sources) $(escape_sources)
-libextract_gstreamer_la_LDFLAGS = $(module_flags) $(albumart_flags)
+libextract_gstreamer_la_CFLAGS = -std=c99
+libextract_gstreamer_la_LDFLAGS = $(module_flags) $(albumart_flags) -lm
 libextract_gstreamer_la_LIBADD = $(albumart_libs) $(GSTREAMER_LIBS) $(GLIB2_LIBS) $(GCOV_LIBS)
 
 # GStreamer helix

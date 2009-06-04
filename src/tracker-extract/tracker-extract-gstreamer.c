@@ -25,6 +25,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 
 #include <glib.h>
 #include <glib/gstdio.h>
@@ -288,7 +289,7 @@ add_time_gst_tag (GHashTable  *metadata,
 	if (ret) {
 		g_hash_table_insert (metadata,
 				     g_strdup (key),
-				     tracker_escape_metadata_printf ("%lld", n/GST_SECOND));
+				     tracker_escape_metadata_printf ("%lld", llroundl ((long double)n/(long double)GST_SECOND)));
 	}
 }
 
