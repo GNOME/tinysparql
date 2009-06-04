@@ -146,6 +146,7 @@ tracker_data_manager_exec_no_reply (TrackerDBInterface *iface,
 {
 	TrackerDBResultSet *result_set;
 	va_list		    args;
+	GError             *error = NULL;
 
 	g_return_val_if_fail (TRACKER_IS_DB_INTERFACE (iface), FALSE);
 	g_return_val_if_fail (query != NULL, FALSE);
@@ -153,7 +154,7 @@ tracker_data_manager_exec_no_reply (TrackerDBInterface *iface,
 	tracker_nfs_lock_obtain ();
 
 	va_start (args, query);
-	result_set = tracker_db_interface_execute_vquery (iface, NULL, query, args);
+	result_set = tracker_db_interface_execute_vquery (iface, &error, query, args);
 	va_end (args);
 
 	if (result_set) {
@@ -161,6 +162,12 @@ tracker_data_manager_exec_no_reply (TrackerDBInterface *iface,
 	}
 
 	tracker_nfs_lock_release ();
+
+	if (error) {
+		g_critical ("Error executing no reply query: %s\n",
+			    error->message);
+		g_error_free (error);
+	}
 
 	return TRUE;
 }
@@ -172,6 +179,7 @@ tracker_data_manager_exec (TrackerDBInterface *iface,
 {
 	TrackerDBResultSet *result_set;
 	va_list		    args;
+	GError             *error = NULL;
 
 	g_return_val_if_fail (TRACKER_IS_DB_INTERFACE (iface), NULL);
 	g_return_val_if_fail (query != NULL, NULL);
@@ -180,12 +188,17 @@ tracker_data_manager_exec (TrackerDBInterface *iface,
 
 	va_start (args, query);
 	result_set = tracker_db_interface_execute_vquery (iface,
-							  NULL,
+							  &error,
 							  query,
 							  args);
 	va_end (args);
 
 	tracker_nfs_lock_release ();
+
+	if (error) {
+		g_critical ("Error executing query: %s", error->message);
+		g_error_free (error);
+	}
 
 	return result_set;
 }
@@ -197,16 +210,23 @@ tracker_data_manager_exec_proc (TrackerDBInterface *iface,
 {
 	TrackerDBResultSet *result_set;
 	va_list		    args;
+	GError             *error = NULL;
 
 	g_return_val_if_fail (TRACKER_IS_DB_INTERFACE (iface), NULL);
 	g_return_val_if_fail (procedure != NULL, NULL);
 
 	va_start (args, procedure);
 	result_set = tracker_db_interface_execute_vprocedure (iface,
-							      NULL,
+							      &error,
 							      procedure,
 							      args);
 	va_end (args);
+
+	if (error) {
+		g_critical ("Error executing stored procedure '%s': %s",
+			    procedure, error->message);
+		g_error_free (error);
+	}
 
 	return result_set;
 }
