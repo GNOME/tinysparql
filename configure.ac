@@ -347,6 +347,20 @@ if test "x$enable_detailed_metadata" != "xno"; then
   AC_DEFINE(ENABLE_DETAILED_METADATA, 1, [Define if we want detailed metadata in the database])
 fi
 
+####################################################################
+# Use tagreadbin in gstreamer extraction?
+####################################################################
+
+AC_ARG_ENABLE(gstreamer-tagreadbin, 
+	      AS_HELP_STRING([--enable-gstreamer-tagreadbin],
+			     [enable tagreadbin in gstreamer [[default=no]]]),
+			     [enable_tagreadbin=yes],
+			     [enable_tagreadbin=no])
+
+if test "x$enable_tagreadbin" != "xno"; then
+  AC_DEFINE(TRACKER_EXTRACT_GSTREAMER_USE_TAGREADBIN, 1, [Use tagreadbin in gstreamer extraction])
+fi
+
 ##################################################################
 # Check for HAL
 ##################################################################
@@ -1484,7 +1498,7 @@ Metadata Extractors:
 	Support MS & Open Office:	        $have_libgsf
 	Support XML / HTML:		        $have_libxml2
 	Support embedded / sidecar XMP:		$have_exempi
-	Support video formats:			$have_video_handler ($have_video_handler_app)
+	Support video formats:			$have_video_handler ($have_video_handler_app) (tagreadbin: $enable_tagreadbin)
 	Support helix formats (RPM/RM/etc):     $have_gstreamer_helix
 	Support MP3 album art (w/ GdkPixbuf):	$have_gdkpixbuf
 	Support playlists (w/ Totem):           $have_playlist
