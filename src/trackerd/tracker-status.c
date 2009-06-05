@@ -389,7 +389,6 @@ mode_check (void)
 	TrackerStatusPrivate *private;
 	TrackerMode           new_mode;
 	const gchar          *new_mode_str;
-	GError               *error = NULL;
 
 	private = g_static_private_get (&private_key);
 	g_return_if_fail (private != NULL);
@@ -417,15 +416,7 @@ mode_check (void)
 	private->mode = new_mode;
 
 	/* Tell the indexer to switch profile */
-	org_freedesktop_Tracker_Indexer_set_profile (private->indexer_proxy,
-						     new_mode_str,
-						     &error);
-
-	if (G_UNLIKELY (error)) {
-		g_critical ("Could not change profile in the indexer: %s\n",
-			    error->message);
-		g_error_free (error);
-
+	if (!tracker_dbus_indexer_set_profile (new_mode)) {
 		return;
 	}
 

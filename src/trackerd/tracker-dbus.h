@@ -32,6 +32,7 @@
 #include <libtracker-db/tracker-db-index.h>
 
 #include "tracker-processor.h"
+#include "tracker-status.h"
 
 G_BEGIN_DECLS
 
@@ -47,6 +48,7 @@ gboolean    tracker_dbus_register_objects        (TrackerConfig    *config,
 GObject    *tracker_dbus_get_object              (GType             type);
 void        tracker_dbus_indexer_check_is_paused (void);
 DBusGProxy *tracker_dbus_indexer_get_proxy       (void);
+gboolean    tracker_dbus_indexer_set_profile     (TrackerMode mode);
 
 G_END_DECLS
 

@@ -120,8 +120,13 @@ indexer_name_owner_changed (DBusGProxy   *proxy,
 			g_debug ("Indexer no longer present");
 			indexer_available = FALSE;
 		} else {
+			TrackerMode mode;
+
 			g_debug ("Indexer has become present");
 			indexer_available = TRUE;
+
+			mode = tracker_mode_get ();
+			tracker_dbus_indexer_set_profile (mode);
 		}
 	}
 }
@@ -529,4 +534,35 @@ tracker_dbus_indexer_get_proxy (void)
 	}
 
 	return proxy_for_indexer;
+}
+
+gboolean
+tracker_dbus_indexer_set_profile (TrackerMode mode)
+{
+	const gchar *mode_str;
+	GError *error = NULL;
+
+	if (!indexer_available) {
+		g_debug ("Indexer not available yet, no need to change profile there");
+		/* No need to signal the indexer */
+		return TRUE;
+	}
+
+	mode_str = tracker_mode_to_string (mode);
+	g_debug ("Changing indexer profile to '%s'", mode_str);
+
+	/* Tell the indexer to switch profile */
+	org_freedesktop_Tracker_Indexer_set_profile (proxy_for_indexer,
+						     mode_str,
+						     &error);
+
+	if (G_UNLIKELY (error)) {
+		g_critical ("Could not change profile in the indexer: %s\n",
+			    error->message);
+		g_error_free (error);
+
+		return FALSE;
+	}
+
+	return TRUE;
 }
