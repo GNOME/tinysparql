@@ -116,6 +116,7 @@ struct TrackerIndexerPrivate {
 	GQuark current_module;
 	GHashTable *indexer_modules;
 
+	gchar *db_mode;
 	gchar *db_dir;
 
 	TrackerDBIndex *file_index;
@@ -626,6 +627,8 @@ tracker_indexer_finalize (GObject *object)
 	 * and do that first.
 	 */
 	stop_scheduled_flush (TRACKER_INDEXER (object));
+
+	g_free (priv->db_mode);
 
 	if (priv->pause_for_duration_id) {
 		g_source_remove (priv->pause_for_duration_id);
@@ -3671,6 +3674,11 @@ set_profile (TrackerIndexer *indexer,
 
 	priv = indexer->private;
 
+	if (g_strcmp0 (profile_name, priv->db_mode) != 0) {
+		g_free (priv->db_mode);
+		priv->db_mode = g_strdup (profile_name);
+	}
+
 	if (tracker_config_get_low_memory_mode (priv->config)) {
 		flags |= TRACKER_DB_MANAGER_LOW_MEMORY_MODE;
 	}
@@ -3681,13 +3689,19 @@ set_profile (TrackerIndexer *indexer,
 	/* Reinitialize DB Manager with new profile */
 	tracker_db_manager_shutdown ();
 
-	if (!tracker_db_manager_init (flags, NULL, FALSE, profile_name)) {
+	if (!tracker_db_manager_init (flags, NULL, FALSE, priv->db_mode)) {
 		g_critical ("Could not restart DB manager, trying again with defaults");
 
 		if (!tracker_db_manager_init (flags, NULL, FALSE, NULL)) {
-			g_critical ("  Not even defaults worked, bailing out.");
+			g_critical ("Not even defaults worked, bailing out.");
 			g_assert_not_reached ();
 		}
+
+		/* Reset this if we could get things working with no
+		 * profile set.
+		 */
+		g_free (priv->db_mode);
+		priv->db_mode = NULL;
 
 		return_val = FALSE;
 	}
