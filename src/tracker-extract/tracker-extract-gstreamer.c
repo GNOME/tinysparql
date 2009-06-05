@@ -49,7 +49,7 @@
 
 /* Some additional tagreadbin tags (FIXME until they are defined upstream)*/
 #ifndef GST_TAG_CHANNEL
-#define GST_TAG_CHANNEL "channel"
+#define GST_TAG_CHANNEL "channels"
 #endif
 
 #ifndef GST_TAG_RATE
@@ -789,7 +789,12 @@ create_tagreadbin_pipeline (MetadataExtractor *extractor, const gchar *uri)
 		return NULL;
 	}
 
-	complete_uri = g_build_filename ("file://", uri, NULL);
+	complete_uri = g_filename_to_uri (uri, NULL, NULL);
+	if (!complete_uri) {
+		g_warning ("Failed to convert filename to uri");
+		return NULL;
+	}
+
 	g_object_set (G_OBJECT (pipeline), "uri", complete_uri, NULL);
 	g_free (complete_uri);
 	return pipeline;
