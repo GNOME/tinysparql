@@ -379,7 +379,7 @@ extract_stream_metadata_tagreadbin (MetadataExtractor *extractor,
 	}
 
  	if (extractor->mime == EXTRACT_MIME_VIDEO) {
-		add_fraction_gst_tag   (metadata, "Video:Framerate", extractor->tagcache, GST_TAG_FRAMERATE);	
+		add_fraction_gst_tag   (metadata, "Video:FrameRate", extractor->tagcache, GST_TAG_FRAMERATE);	
 
 		add_time_gst_tag   (metadata, "Video:Duration", extractor->tagcache, GST_TAG_DURATION); 
  	} else if (extractor->mime == EXTRACT_MIME_AUDIO) {
