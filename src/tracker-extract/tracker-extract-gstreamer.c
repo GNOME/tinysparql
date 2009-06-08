@@ -919,6 +919,9 @@ tracker_extract_gstreamer (const gchar *uri,
 #endif /* HAVE_GDKPIXBUF */
 	}
 
+	g_free (scount);
+	g_free (album);
+
 	gst_element_set_state (extractor->pipeline, GST_STATE_NULL);
 	gst_element_get_state (extractor->pipeline, NULL, NULL, TRACKER_EXTRACT_GUARD_TIMEOUT* GST_SECOND);
 	gst_object_unref (extractor->bus);
