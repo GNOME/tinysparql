@@ -34,12 +34,12 @@ static void          query_run     (sqlite3      *db,
                                     sqlite3_stmt *stmt);
 static void          query_close   (sqlite3_stmt *stmt);
 
-static gchar	     *query;
+static gchar	    **queries;
 static gchar	    **attach_dbs;
 
 static GOptionEntry   entries[] = {
-	{ "query", 'q', 0, G_OPTION_ARG_STRING, &query,
-	  N_("SQL query to use"),
+	{ "query", 'q', 0, G_OPTION_ARG_STRING_ARRAY, &queries,
+	  N_("SQL query to use (can be used multiple times)"),
 	  N_("SQL")
         },
 	{ G_OPTION_REMAINING, 0, 0,
@@ -227,6 +227,8 @@ main (int argc, char *argv[])
 {
 	GOptionContext *context;
         gchar *summary;
+	gchar **query;
+	gint failures;
         sqlite3 *db;
         sqlite3_stmt *stmt;
 
@@ -264,7 +266,7 @@ main (int argc, char *argv[])
 	g_option_context_parse (context, &argc, &argv, NULL);
 	g_free (summary);
 
-	if (!query || !*query) {
+	if (!queries || g_strv_length (queries) < 1) {
 		gchar *help;
 
 		g_printerr ("%s\n\n",
@@ -301,17 +303,19 @@ main (int argc, char *argv[])
                 return EXIT_FAILURE;
         }
 
-        stmt = query_prepare (db, query);
+	for (query = queries, failures = 0; *query; query++) {
+		stmt = query_prepare (db, *query);
 
-        if (!stmt) {
-                connection_close (db);
-                return EXIT_FAILURE;
-        }
+		if (!stmt) {
+			failures++;
+			continue;
+		}
 
-        query_run (db, stmt);
-       
-        query_close (stmt);
+		query_run (db, stmt);
+		query_close (stmt);
+	}
+      
         connection_close (db);
        
-        return EXIT_SUCCESS;
+	return failures > 0 ? EXIT_FAILURE : EXIT_SUCCESS;
 }
