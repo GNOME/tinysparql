@@ -83,7 +83,6 @@
 #endif
 
 typedef enum {
-	EXTRACT_MIME_UNDEFINED,
 	EXTRACT_MIME_AUDIO,
 	EXTRACT_MIME_VIDEO,
 	EXTRACT_MIME_IMAGE
@@ -364,13 +363,14 @@ extract_stream_metadata_tagreadbin (MetadataExtractor *extractor,
 				    const gchar       *uri,
 				    GPtrArray         *metadata)
 {
-
-	add_uint_gst_tag (metadata, uri, NFO_PREFIX "channels", extractor->tagcache, GST_TAG_CHANNEL);
-	add_uint_gst_tag (metadata, uri, NFO_PREFIX "sampleRate", extractor->tagcache, GST_TAG_RATE);
+	if (extractor->mime != EXTRACT_MIME_IMAGE) {
+		add_uint_gst_tag (metadata, uri, NFO_PREFIX "channels", extractor->tagcache, GST_TAG_CHANNEL);
+		add_uint_gst_tag (metadata, uri, NFO_PREFIX "sampleRate", extractor->tagcache, GST_TAG_RATE);
+		add_time_gst_tag (metadata, uri, NFO_PREFIX "duration", extractor->tagcache, GST_TAG_DURATION); 
+	}
 
 	add_int_gst_tag (metadata, uri, NFO_PREFIX "height", extractor->tagcache, GST_TAG_HEIGHT);
 	add_int_gst_tag (metadata, uri, NFO_PREFIX "width", extractor->tagcache, GST_TAG_WIDTH);
-	add_time_gst_tag (metadata, uri, NFO_PREFIX "duration", extractor->tagcache, GST_TAG_DURATION); 
 
 	if (extractor->mime == EXTRACT_MIME_VIDEO) {
 		add_fraction_gst_tag   (metadata, uri, NFO_PREFIX "frameRate", extractor->tagcache, GST_TAG_FRAMERATE);	
@@ -382,16 +382,22 @@ extract_stream_metadata_decodebin (MetadataExtractor *extractor,
 				   const gchar       *uri,
 				   GPtrArray         *metadata)
 {
-	if (extractor->audio_channels >= 0) {
-		add_uint_info (metadata,
-			       uri, NFO_PREFIX "channels",
-			       extractor->audio_channels);
-	}
+	if (extractor->mime != EXTRACT_MIME_IMAGE) {
+		if (extractor->audio_channels >= 0) {
+			add_uint_info (metadata,
+				       uri, NFO_PREFIX "channels",
+				       extractor->audio_channels);
+		}
 
-	if (extractor->audio_samplerate >= 0) {
-		add_uint_info (metadata,
-			       uri, NFO_PREFIX "sampleRate",
-			       extractor->audio_samplerate);
+		if (extractor->audio_samplerate >= 0) {
+			add_uint_info (metadata,
+				       uri, NFO_PREFIX "sampleRate",
+				       extractor->audio_samplerate);
+		}
+
+		if (extractor->duration >= 0) {
+			add_int64_info (metadata, uri, NFO_PREFIX "duration", extractor->duration);
+		}
 	}
 
 	if (extractor->video_height >= 0) {
@@ -404,10 +410,6 @@ extract_stream_metadata_decodebin (MetadataExtractor *extractor,
 		add_uint_info (metadata,
 			       uri, NFO_PREFIX "width",
 			       extractor->video_width);
-	}
-
-	if (extractor->duration >= 0) {
-		add_int64_info (metadata, uri, NFO_PREFIX "duration", extractor->duration);
 	}
 
 	if (extractor->mime == EXTRACT_MIME_VIDEO) {
@@ -439,74 +441,98 @@ extract_metadata (MetadataExtractor *extractor,
 		add_string_gst_tag (metadata, uri, NIE_PREFIX "title", extractor->tagcache, GST_TAG_TITLE);
 		add_string_gst_tag (metadata, uri, NIE_PREFIX "copyright", extractor->tagcache, GST_TAG_COPYRIGHT);
 		add_string_gst_tag (metadata, uri, NIE_PREFIX "license", extractor->tagcache, GST_TAG_LICENSE);
-
 		add_string_gst_tag (metadata, uri, DC_PREFIX "coverage", extractor->tagcache, GST_TAG_LOCATION);
-
-		/* Audio */
-		s = NULL;
-		gst_tag_list_get_string (extractor->tagcache, GST_TAG_ALBUM, &s);
-		if (s) {
-			gchar *canonical_uri = tracker_uri_printf_escaped ("urn:album:%s", s);
-			tracker_statement_list_insert (metadata, canonical_uri, RDF_TYPE, NMM_PREFIX "MusicAlbum");
-			tracker_statement_list_insert (metadata, canonical_uri, NMM_PREFIX "albumTitle", s);
-			tracker_statement_list_insert (metadata, uri, NMM_PREFIX "musicAlbum", canonical_uri);
-			g_free (canonical_uri);
-			*album = s;
-		}
-
-		ret = gst_tag_list_get_uint (extractor->tagcache, GST_TAG_TRACK_COUNT, &count);
-		if (ret) {
-			*scount = g_strdup_printf ("%d", count);
-		}
-
-		add_uint_gst_tag   (metadata, uri, NMM_PREFIX "albumTrackCount", extractor->tagcache, GST_TAG_TRACK_COUNT);
-		add_uint_gst_tag   (metadata, uri, NMM_PREFIX "trackNumber", extractor->tagcache, GST_TAG_TRACK_NUMBER);
-		add_uint_gst_tag   (metadata, uri, NMM_PREFIX "setNumber", extractor->tagcache, GST_TAG_ALBUM_VOLUME_NUMBER);
-
-		s = NULL;
-		gst_tag_list_get_string (extractor->tagcache, GST_TAG_PERFORMER, &s);
-		if (s) {
-			gchar *canonical_uri = tracker_uri_printf_escaped ("urn:artist:%s", s);
-			tracker_statement_list_insert (metadata, canonical_uri, RDF_TYPE, NMM_PREFIX "Artist");
-			tracker_statement_list_insert (metadata, canonical_uri, NMM_PREFIX "artistName", s);
-			tracker_statement_list_insert (metadata, uri, NMM_PREFIX "performer", canonical_uri);
-			g_free (canonical_uri);
-			g_free (s);
-		}
-
-		/* Warn, same predicate as above. Is this an err in our onto? */
-		s = NULL;
-		gst_tag_list_get_string (extractor->tagcache, GST_TAG_ARTIST, &s);
-		if (s) {
-			gchar *canonical_uri = tracker_uri_printf_escaped ("urn:artist:%s", s);
-			tracker_statement_list_insert (metadata, canonical_uri, RDF_TYPE, NMM_PREFIX "Artist");
-			tracker_statement_list_insert (metadata, canonical_uri, NMM_PREFIX "artistName", s);
-			tracker_statement_list_insert (metadata, uri, NMM_PREFIX "performer", canonical_uri);
-			g_free (canonical_uri);
-			g_free (s);
-		}
-
-		add_double_gst_tag (metadata, uri, NFO_PREFIX "gain", extractor->tagcache, GST_TAG_TRACK_GAIN);
-		add_double_gst_tag (metadata, uri, NFO_PREFIX "peakGain", extractor->tagcache, GST_TAG_TRACK_PEAK);
-		add_double_gst_tag (metadata, uri, NFO_PREFIX "albumGain", extractor->tagcache, GST_TAG_ALBUM_GAIN);
-		add_double_gst_tag (metadata, uri, NFO_PREFIX "albumPeakGain", extractor->tagcache, GST_TAG_ALBUM_PEAK);
-
 		add_y_date_gst_tag (metadata, uri, NIE_PREFIX "contentCreated", extractor->tagcache, GST_TAG_DATE);
-
-		s = NULL;
-		gst_tag_list_get_string (extractor->tagcache, GST_TAG_GENRE, &s);
-
-		if (g_strcmp0 (s, "Unknown") != 0) {
-			tracker_statement_list_insert (metadata, uri, NFO_PREFIX "genre", s);
-			g_free (s);
-		}
-
-		add_string_gst_tag (metadata, uri, NFO_PREFIX "codec", extractor->tagcache, GST_TAG_AUDIO_CODEC);
-
 		add_string_gst_tag (metadata, uri, NIE_PREFIX "comment", extractor->tagcache, GST_TAG_COMMENT);
 
 		if (extractor->mime == EXTRACT_MIME_VIDEO) {
 			add_string_gst_tag (metadata, uri, DC_PREFIX "source", extractor->tagcache, GST_TAG_CLASSIFICATION);
+		}
+
+		if (extractor->mime == EXTRACT_MIME_AUDIO) {
+			/* Audio */
+			s = NULL;
+			gst_tag_list_get_string (extractor->tagcache, GST_TAG_ALBUM, &s);
+			if (s) {
+				gchar *canonical_uri = tracker_uri_printf_escaped ("urn:album:%s", s);
+				tracker_statement_list_insert (metadata, canonical_uri, RDF_TYPE, NMM_PREFIX "MusicAlbum");
+				tracker_statement_list_insert (metadata, canonical_uri, NMM_PREFIX "albumTitle", s);
+				tracker_statement_list_insert (metadata, uri, NMM_PREFIX "musicAlbum", canonical_uri);
+				g_free (canonical_uri);
+				*album = s;
+			}
+
+			ret = gst_tag_list_get_uint (extractor->tagcache, GST_TAG_TRACK_COUNT, &count);
+			if (ret) {
+				*scount = g_strdup_printf ("%d", count);
+			}
+
+			add_uint_gst_tag   (metadata, uri, NMM_PREFIX "albumTrackCount", extractor->tagcache, GST_TAG_TRACK_COUNT);
+			add_uint_gst_tag   (metadata, uri, NMM_PREFIX "trackNumber", extractor->tagcache, GST_TAG_TRACK_NUMBER);
+			add_uint_gst_tag   (metadata, uri, NMM_PREFIX "setNumber", extractor->tagcache, GST_TAG_ALBUM_VOLUME_NUMBER);
+
+			add_double_gst_tag (metadata, uri, NFO_PREFIX "gain", extractor->tagcache, GST_TAG_TRACK_GAIN);
+			add_double_gst_tag (metadata, uri, NFO_PREFIX "peakGain", extractor->tagcache, GST_TAG_TRACK_PEAK);
+			add_double_gst_tag (metadata, uri, NFO_PREFIX "albumGain", extractor->tagcache, GST_TAG_ALBUM_GAIN);
+			add_double_gst_tag (metadata, uri, NFO_PREFIX "albumPeakGain", extractor->tagcache, GST_TAG_ALBUM_PEAK);
+		}
+
+		if (extractor->mime == EXTRACT_MIME_AUDIO || extractor->mime == EXTRACT_MIME_VIDEO) {
+			s = NULL;
+			gst_tag_list_get_string (extractor->tagcache, GST_TAG_PERFORMER, &s);
+			if (s) {
+				gchar *canonical_uri = tracker_uri_printf_escaped ("urn:artist:%s", s);
+				tracker_statement_list_insert (metadata, canonical_uri, RDF_TYPE, NMM_PREFIX "Artist");
+				tracker_statement_list_insert (metadata, canonical_uri, NMM_PREFIX "artistName", s);
+				tracker_statement_list_insert (metadata, uri, 
+							       (extractor->mime == EXTRACT_MIME_AUDIO ? 
+							        NMM_PREFIX "performer" :
+							        NMM_PREFIX "leadActor"),
+							       canonical_uri);
+				g_free (canonical_uri);
+				g_free (s);
+			}
+
+			/* Warn, same predicate as above. Is this an err in our onto? */
+			s = NULL;
+			gst_tag_list_get_string (extractor->tagcache, GST_TAG_ARTIST, &s);
+			if (s) {
+				gchar *canonical_uri = tracker_uri_printf_escaped ("urn:artist:%s", s);
+				tracker_statement_list_insert (metadata, canonical_uri, RDF_TYPE, NMM_PREFIX "Artist");
+				tracker_statement_list_insert (metadata, canonical_uri, NMM_PREFIX "artistName", s);
+				tracker_statement_list_insert (metadata, uri, 
+							       (extractor->mime == EXTRACT_MIME_AUDIO ? 
+							        NMM_PREFIX "performer" :
+							        NMM_PREFIX "leadActor"),
+							       canonical_uri);
+				g_free (canonical_uri);
+				g_free (s);
+			}
+
+			s = NULL;
+			gst_tag_list_get_string (extractor->tagcache, GST_TAG_COMPOSER, &s);
+			if (s) {
+				gchar *canonical_uri = tracker_uri_printf_escaped ("urn:artist:%s", s);
+				tracker_statement_list_insert (metadata, canonical_uri, RDF_TYPE, NMM_PREFIX "Artist");
+				tracker_statement_list_insert (metadata, canonical_uri, NMM_PREFIX "artistName", s);
+				tracker_statement_list_insert (metadata, uri, 
+							       (extractor->mime == EXTRACT_MIME_AUDIO ? 
+							        NMM_PREFIX "composer" :
+							        NMM_PREFIX "director"),
+							       canonical_uri);
+				g_free (canonical_uri);
+				g_free (s);
+			}
+
+			s = NULL;
+			gst_tag_list_get_string (extractor->tagcache, GST_TAG_GENRE, &s);
+			if (g_strcmp0 (s, "Unknown") != 0) {
+				tracker_statement_list_insert (metadata, uri, NFO_PREFIX "genre", s);
+			}
+			g_free (s);
+
+			add_string_gst_tag (metadata, uri, NFO_PREFIX "codec", extractor->tagcache, GST_TAG_AUDIO_CODEC);
+
 		}
 	}
 
