@@ -43,7 +43,7 @@
 #define PLAYLIST_DEFAULT_DURATION 0 
 
 typedef struct {
-	guint        track_counter;
+	guint32     track_counter;
 	gint64      total_time;
 } PlaylistMetadata;
 
@@ -126,11 +126,10 @@ extract_playlist (const gchar *filename,
 
 	g_hash_table_insert (metadata, 
 			     g_strdup (PLAYLIST_PROPERTY_DURATION), 
-			     tracker_escape_metadata_printf ("%d", data.total_time));
-
+			     tracker_escape_metadata_printf ("%" G_GINT64_FORMAT, data.total_time));
 	g_hash_table_insert (metadata, 
 			     g_strdup (PLAYLIST_PROPERTY_NO_TRACKS), 
-			     tracker_escape_metadata_printf ("%d", data.track_counter));
+			     tracker_escape_metadata_printf ("%" G_GUINT32_FORMAT, data.track_counter));
 	g_hash_table_insert (metadata,
 			     g_strdup (PLAYLIST_PROPERTY_CALCULATED),
 			     g_strdup (data.total_time == 0 ? "0" : "1"));
