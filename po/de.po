@@ -12,8 +12,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-05-24 11:56+0200\n"
-"PO-Revision-Date: 2009-05-24 12:22+0100\n"
+"POT-Creation-Date: 2009-06-08 21:17+0200\n"
+"PO-Revision-Date: 2009-06-08 21:18+0100\n"
 "Last-Translator: Mario Blättermann <mariobl@gnome.org>\n"
 "Language-Team: German <gnome-de@gnome.org>\n"
 "MIME-Version: 1.0\n"
@@ -194,15 +194,15 @@ msgstr "Index ist beschädigt"
 msgid "No error given"
 msgstr "Kein Fehler angegeben"
 
-#: ../src/libtracker-common/tracker-utils.c:135
-#: ../src/libtracker-common/tracker-utils.c:142
+#: ../src/libtracker-common/tracker-utils.c:165
+#: ../src/libtracker-common/tracker-utils.c:172
 #: ../src/tracker-utils/tracker-status.c:153
 #: ../src/tracker-utils/tracker-status.c:160
 msgid "unknown time"
 msgstr "Unbekannte Zeit"
 
-#: ../src/libtracker-common/tracker-utils.c:160
-#: ../src/libtracker-common/tracker-utils.c:219
+#: ../src/libtracker-common/tracker-utils.c:190
+#: ../src/libtracker-common/tracker-utils.c:249
 #: ../src/tracker-utils/tracker-status.c:77
 #: ../src/tracker-utils/tracker-status.c:136
 msgid "less than one second"
@@ -2190,7 +2190,7 @@ msgstr ""
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/trackerd/tracker-main.c:984
+#: ../src/trackerd/tracker-main.c:987
 msgid "- start the tracker daemon"
 msgstr "- startet den Tracker-Dienst"
 
@@ -2217,8 +2217,8 @@ msgid "Converted to"
 msgstr "Konvertiert in"
 
 #: ../utils/sqlite/query.c:42
-msgid "SQL query to use"
-msgstr "Zu verwendende SQL-Abfrage"
+msgid "SQL query to use (can be used multiple times)"
+msgstr "Zu verwendende SQL-Abfrage (kann mehrmals verwendet werden)"
 
 #: ../utils/sqlite/query.c:43
 msgid "SQL"
@@ -2228,24 +2228,27 @@ msgstr "SQL"
 msgid "Files to attach"
 msgstr "Anzuhängende Dateien"
 
-#: ../utils/sqlite/query.c:237
+#: ../utils/sqlite/query.c:239
 msgid "- Test SQLite databases with queries"
 msgstr "- SQLite-Datenbanken durch Abfragen überprüfen"
 
-#: ../utils/sqlite/query.c:238
+#: ../utils/sqlite/query.c:240
 msgid ""
 "You can use this utility to attach DBs and run queries using the SQLite API"
 msgstr ""
 "Sie können dieses Werkzeug zum Anhängen von Datenbanken und Ausführen von "
 "Abfragen mittels der SQLite-API verwenden"
 
-#: ../utils/sqlite/query.c:271
+#: ../utils/sqlite/query.c:273
 msgid "No query was provided"
 msgstr "Es wurde keine Abfrage angegeben"
 
-#: ../utils/sqlite/query.c:285
+#: ../utils/sqlite/query.c:287
 msgid "No databases were provided"
 msgstr "Es wurden keine Datenbanken angegeben"
+
+#~ msgid "SQL query to use"
+#~ msgstr "Zu verwendende SQL-Abfrage"
 
 #~ msgid "Debug mode (default = off)"
 #~ msgstr "Debugmodus (Vorgabe = aus)"
