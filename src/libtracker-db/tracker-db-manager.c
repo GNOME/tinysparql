@@ -2256,16 +2256,6 @@ tracker_db_manager_init (TrackerDBManagerFlags	flags,
 			g_message ("Could not find database file:'%s'", dbs[i].abs_filename);
 			g_message ("One or more database files are missing, a reindex will be forced");
 			need_reindex = TRUE;
-		} else if (i == TRACKER_DB_COMMON) {
-			guint64 mtime, services_dir_mtime;
-
-			mtime = tracker_file_get_mtime (dbs[i].abs_filename);
-			services_dir_mtime = tracker_file_get_mtime (services_dir);
-
-			if (mtime < services_dir_mtime) {
-				g_message ("Ontology is more recent than DB cache, a reindex will be forced");
-				need_reindex = TRUE;
-			}
 		}
 	}
 
@@ -2293,7 +2283,8 @@ tracker_db_manager_init (TrackerDBManagerFlags	flags,
 	 * NOT the paths, note, that these paths are also used for
 	 * other things like the nfs lock file.
 	 */
-	if (flags & TRACKER_DB_MANAGER_FORCE_REINDEX || need_reindex) {
+	if ((flags & TRACKER_DB_MANAGER_FORCE_NO_REINDEX) == 0 &&
+	    ((flags & TRACKER_DB_MANAGER_FORCE_REINDEX) != 0 || need_reindex)) {
 		if (first_time) {
 			*first_time = TRUE;
 		}
@@ -2336,6 +2327,10 @@ tracker_db_manager_init (TrackerDBManagerFlags	flags,
 			}
 		}
 	} else {
+		if ((flags & TRACKER_DB_MANAGER_FORCE_NO_REINDEX) && need_reindex) {
+			g_message ("Reindex was needed, but has been forbidden by NO_REINDEX flag");
+		}
+
 		/* Make sure we remove and recreate the cache directory in tmp
 		 * each time we start up, this is meant to be a per-run
 		 * thing.

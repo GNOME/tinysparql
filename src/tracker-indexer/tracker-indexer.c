@@ -3668,7 +3668,7 @@ static gboolean
 set_profile (TrackerIndexer *indexer,
 	     const gchar    *profile_name)
 {
-	TrackerDBManagerFlags flags = 0;
+	TrackerDBManagerFlags flags = TRACKER_DB_MANAGER_FORCE_NO_REINDEX;
 	TrackerIndexerPrivate *priv;
 	gboolean return_val = TRUE;
 

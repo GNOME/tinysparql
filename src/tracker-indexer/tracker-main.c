@@ -285,7 +285,7 @@ main (gint argc, gchar *argv[])
 	TrackerConfig *config;
 	TrackerLanguage *language;
 	TrackerIndexer *indexer;
-	TrackerDBManagerFlags flags = 0;
+	TrackerDBManagerFlags flags = TRACKER_DB_MANAGER_FORCE_NO_REINDEX;
 	GOptionContext *context;
 	GError *error = NULL;
 	gchar *filename;
