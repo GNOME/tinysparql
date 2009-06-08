@@ -18,7 +18,7 @@ nfo:Document a rdfs:Class ;
 
 nfo:FileDataObject a rdfs:Class ;
 	rdfs:label "FileDataObject" ;
-	rdfs:comment "['A resource containing a finite sequence of bytes with arbitrary information', 'that is available to a computer program and is usually based on some kind of durable storage. A file is durable in the sense that it remains available for programs to use after the current program has finished.']" ;
+	rdfs:comment "A resource containing a finite sequence of bytes with arbitrary information, that is available to a computer program and is usually based on some kind of durable storage. A file is durable in the sense that it remains available for programs to use after the current program has finished." ;
 	rdfs:subClassOf nie:DataObject .
 
 nfo:Software a rdfs:Class ;
@@ -49,17 +49,17 @@ nfo:RasterImage a rdfs:Class ;
 
 nfo:DataContainer a rdfs:Class ;
 	rdfs:label "DataContainer" ;
-	rdfs:comment "['A superclass for all entities', 'whose primary purpose is to serve as containers for other data object. They usually don't have any 'meaning' by themselves. Examples include folders', 'archives and optical disc images.']" ;
+	rdfs:comment "A superclass for all entities, whose primary purpose is to serve as containers for other data object. They usually don't have any 'meaning' by themselves. Examples include folders, archives and optical disc images." ;
 	rdfs:subClassOf nie:InformationElement .
 
 nfo:RemotePortAddress a rdfs:Class ;
 	rdfs:label "RemotePortAddress" ;
-	rdfs:comment "['An address specifying a remote host and port. Such an address can be interpreted in many ways (examples of such interpretations include mailboxes', 'websites', 'remote calendars or filesystems)', 'depending on an interpretation', 'various kinds of data may be extracted from such an address.']" ;
+	rdfs:comment "An address specifying a remote host and port. Such an address can be interpreted in many ways (examples of such interpretations include mailboxes, websites, remote calendars or filesystems), depending on an interpretation, various kinds of data may be extracted from such an address." ;
 	rdfs:subClassOf nie:DataObject .
 
 nfo:MediaFileListEntry a rdfs:Class ;
 	rdfs:label "MediaFileListEntry" ;
-	rdfs:comment "['A single node in the list of media files contained within an MediaList instance. This class is intended to provide a type all those links have. In valid NRL untyped resources cannot be linked. There are no properties defined for this class but the application may expect rdf:first and rdf:last links. The former points to the DataObject instance', 'interpreted as Media the latter points at another MediaFileListEntr. At the end of the list there is a link to rdf:nil.']" ;
+	rdfs:comment "A single node in the list of media files contained within an MediaList instance. This class is intended to provide a type all those links have. In valid NRL untyped resources cannot be linked. There are no properties defined for this class but the application may expect rdf:first and rdf:last links. The former points to the DataObject instance, interpreted as Media the latter points at another MediaFileListEntr. At the end of the list there is a link to rdf:nil." ;
 	rdfs:subClassOf rdfs:Resource .
 
 nfo:VectorImage a rdfs:Class ;
@@ -79,7 +79,7 @@ nfo:CompressionType a rdfs:Class ;
 
 nfo:Icon a rdfs:Class ;
 	rdfs:label "Icon" ;
-	rdfs:comment "['An Icon (regardless of whether it's a raster or a vector icon. A resource representing an icon could have two types (Icon and Raster', 'or Icon and Vector) if required.']" ;
+	rdfs:comment "An Icon (regardless of whether it's a raster or a vector icon. A resource representing an icon could have two types (Icon and Raster, or Icon and Vector) if required." ;
 	rdfs:subClassOf nfo:Image .
 
 nfo:TextDocument a rdfs:Class ;
@@ -89,12 +89,12 @@ nfo:TextDocument a rdfs:Class ;
 
 nfo:PlainTextDocument a rdfs:Class ;
 	rdfs:label "PlainTextDocument" ;
-	rdfs:comment "['A file containing plain text (ASCII', 'Unicode or other encodings). Examples may include TXT', 'HTML', 'XML', 'program source code etc.']" ;
+	rdfs:comment "A file containing plain text (ASCII, Unicode or other encodings). Examples may include TXT, HTML, XML, program source code etc." ;
 	rdfs:subClassOf nfo:TextDocument .
 
 nfo:HtmlDocument a rdfs:Class ;
 	rdfs:label "HtmlDocument" ;
-	rdfs:comment "['A HTML document', 'may contain links to other files.']" ;
+	rdfs:comment "A HTML document, may contain links to other files." ;
 	rdfs:subClassOf nfo:PlainTextDocument .
 
 nfo:OperatingSystem a rdfs:Class ;
@@ -124,12 +124,12 @@ nfo:Font a rdfs:Class ;
 
 nfo:Filesystem a rdfs:Class ;
 	rdfs:label "Filesystem" ;
-	rdfs:comment "['A filesystem. Examples of filesystems include hard disk partitions', 'removable media', 'but also images thereof stored in files.']" ;
+	rdfs:comment "A filesystem. Examples of filesystems include hard disk partitions, removable media, but also images thereof stored in files." ;
 	rdfs:subClassOf nfo:DataContainer .
 
 nfo:SoftwareService a rdfs:Class ;
 	rdfs:label "SoftwareService" ;
-	rdfs:comment "['A service published by a piece of software', 'either by an operating system or an application. Examples of such services may include calendar','addresbook and mailbox managed by a PIM application. This category is introduced to distinguish between data available directly from the applications (Via some Interprocess Communication Mechanisms) and data available from files on a disk. In either case both DataObjects would receive a similar interpretation (e.g. a Mailbox) and wouldn't differ on the content level.']" ;
+	rdfs:comment "A service published by a piece of software, either by an operating system or an application. Examples of such services may include calendar, addresbook and mailbox managed by a PIM application. This category is introduced to distinguish between data available directly from the applications (Via some Interprocess Communication Mechanisms) and data available from files on a disk. In either case both DataObjects would receive a similar interpretation (e.g. a Mailbox) and wouldn't differ on the content level." ;
 	rdfs:subClassOf nie:DataObject .
 
 nfo:SoftwareItem a rdfs:Class ;
@@ -139,17 +139,17 @@ nfo:SoftwareItem a rdfs:Class ;
 
 nfo:Presentation a rdfs:Class ;
 	rdfs:label "Presentation" ;
-	rdfs:comment "['A Presentation made by some presentation software (Corel Presentations', 'OpenOffice Impress', 'MS Powerpoint etc.)']" ;
+	rdfs:comment "A Presentation made by some presentation software (Corel Presentations, OpenOffice Impress, MS Powerpoint etc.)" ;
 	rdfs:subClassOf nfo:Document .
 
 nfo:RemoteDataObject a rdfs:Class ;
 	rdfs:label "RemoteDataObject" ;
-	rdfs:comment "['A file data object stored at a remote location. Don't confuse this class with a RemotePortAddress. This one applies to a particular resource, 'RemotePortAddress applies to an address', 'that can have various interpretations.']" ;
+	rdfs:comment "A file data object stored at a remote location. Don't confuse this class with a RemotePortAddress. This one applies to a particular resource, RemotePortAddress applies to an address, that can have various interpretations." ;
 	rdfs:subClassOf nfo:FileDataObject .
 
 nfo:PaginatedTextDocument a rdfs:Class ;
 	rdfs:label "PaginatedTextDocument" ;
-	rdfs:comment "['A file containing a text document', 'that is unambiguously divided into pages. Examples might include PDF', 'DOC', 'PS', 'DVI etc.']" ;
+	rdfs:comment "A file containing a text document, that is unambiguously divided into pages. Examples might include PDF, DOC, PS', DVI etc." ;
 	rdfs:subClassOf nfo:TextDocument .
 
 nfo:Video a rdfs:Class ;
@@ -159,17 +159,17 @@ nfo:Video a rdfs:Class ;
 
 nfo:Spreadsheet a rdfs:Class ;
 	rdfs:label "Spreadsheet" ;
-	rdfs:comment "['A spreadsheet', 'created by a spreadsheet application. Examples might include Gnumeric', 'OpenOffice Calc or MS Excel.']" ;
+	rdfs:comment "A spreadsheet, created by a spreadsheet application. Examples might include Gnumeric, OpenOffice Calc or MS Excel." ;
 	rdfs:subClassOf nfo:Document .
 
 nfo:Trash a rdfs:Class ;
 	rdfs:label "Trash" ;
-	rdfs:comment "['Represents a container for deleted files', 'a feature common in modern operating systems.']" ;
+	rdfs:comment "Represents a container for deleted files, a feature common in modern operating systems." ;
 	rdfs:subClassOf nfo:DataContainer .
 
 nfo:FileHash a rdfs:Class ;
 	rdfs:label "FileHash" ;
-	rdfs:comment "['A fingerprint of the file', 'generated by some hashing function.']" ;
+	rdfs:comment "A fingerprint of the file, generated by some hashing function." ;
 	rdfs:subClassOf rdfs:Resource .
 
 nfo:SourceCode a rdfs:Class ;
@@ -189,7 +189,7 @@ nfo:EmbeddedFileDataObject a rdfs:Class ;
 
 nfo:Attachment a rdfs:Class ;
 	rdfs:label "Attachment" ;
-	rdfs:comment "['A file attached to another data object. Many data formats allow for attachments: emails', 'vcards', 'ical events', 'id3 and exif...']" ;
+	rdfs:comment "A file attached to another data object. Many data formats allow for attachments: emails, vcards, ical events, id3 and exif..." ;
 	rdfs:subClassOf nfo:EmbeddedFileDataObject .
 
 nfo:ArchiveItem a rdfs:Class ;
@@ -204,23 +204,23 @@ nfo:Archive a rdfs:Class ;
 
 nfo:MindMap a rdfs:Class ;
 	rdfs:label "MindMap" ;
-	rdfs:comment "['A MindMap', 'created by a mind-mapping utility. Examples might include FreeMind or mind mapper.']" ;
+	rdfs:comment "A MindMap, created by a mind-mapping utility. Examples might include FreeMind or mind mapper." ;
 	rdfs:subClassOf nfo:Document .
 
 nfo:MediaStream a rdfs:Class ;
 	rdfs:label "MediaStream" ;
-	rdfs:comment "['A stream of multimedia content', 'usually contained within a media container such as a movie (containing both audio and video) or a DVD (possibly containing many streams of audio and video). Most common interpretations for such a DataObject include Audio and Video.']" ;
+	rdfs:comment "A stream of multimedia content, usually contained within a media container such as a movie (containing both audio and video) or a DVD (possibly containing many streams of audio and video). Most common interpretations for such a DataObject include Audio and Video." ;
 	rdfs:subClassOf nie:DataObject .
 
 nfo:BookmarkFolder a rdfs:Class ;
 	rdfs:label "Bookmark Folder" ;
-	rdfs:comment "['A folder with bookmarks of a webbrowser. Use nfo:containsBookmark to relate Bookmarks. Folders can contain subfolders', 'use containsBookmarkFolder to relate them.']" ;
+	rdfs:comment "A folder with bookmarks of a webbrowser. Use nfo:containsBookmark to relate Bookmarks. Folders can contain subfolders, use containsBookmarkFolder to relate them." ;
 	tracker:notify true ;
 	rdfs:subClassOf nie:InformationElement .
 
 nfo:FilesystemImage a rdfs:Class ;
 	rdfs:label "FilesystemImage" ;
-	rdfs:comment "['An image of a filesystem. Instances of this class may include CD images', 'DVD images or hard disk partition images created by various pieces of software (e.g. Norton Ghost)']" ;
+	rdfs:comment "An image of a filesystem. Instances of this class may include CD images, DVD images or hard disk partition images created by various pieces of software (e.g. Norton Ghost)" ;
 	rdfs:subClassOf nfo:Filesystem .
 
 nfo:HardDiskPartition a rdfs:Class ;
@@ -235,7 +235,7 @@ nfo:Cursor a rdfs:Class ;
 
 nfo:Bookmark a rdfs:Class ;
 	rdfs:label "Bookmark" ;
-	rdfs:comment "['A bookmark of a webbrowser. Use nie:title for the name/label', 'nie:contentCreated to represent the date when the user added the bookmark', 'and nie:contentLastModified for modifications. nfo:bookmarks to store the link.']" ;
+	rdfs:comment "A bookmark of a webbrowser. Use nie:title for the name/label, nie:contentCreated to represent the date when the user added the bookmark, and nie:contentLastModified for modifications. nfo:bookmarks to store the link." ;
 	tracker:notify true ;
 	rdfs:subClassOf nie:InformationElement .
 
@@ -246,7 +246,7 @@ nfo:DeletedResource a rdfs:Class ;
 
 nfo:Website a rdfs:Class ;
 	rdfs:label "Website" ;
-	rdfs:comment "['A website', 'usually a container for remote resources', 'that may be interpreted as HTMLDocuments', 'images or other types of content.']" ;
+	rdfs:comment "A website, usually a container for remote resources, that may be interpreted as HTMLDocuments, images or other types of content." ;
 	rdfs:subClassOf nie:InformationElement .
 
 nfo:WebHistory a rdfs:Class ;
@@ -346,7 +346,7 @@ nfo:aspectRatio a rdf:Property ;
 
 nfo:fileSize a rdf:Property ;
 	rdfs:label "fileSize" ;
-	rdfs:comment "['The size of the file in bytes. For compressed files it means the size of the packed file', 'not of the contents. For folders it means the aggregated size of all contained files and folders']" ;
+	rdfs:comment "The size of the file in bytes. For compressed files it means the size of the packed file, not of the contents. For folders it means the aggregated size of all contained files and folders" ;
 	rdfs:subPropertyOf nie:byteSize ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nfo:FileDataObject ;
@@ -388,7 +388,7 @@ nfo:definesClass a rdf:Property ;
 
 nfo:interlaceMode a rdf:Property ;
 	rdfs:label "interlaceMode" ;
-	rdfs:comment "['True if the image is interlaced', 'false if not.']" ;
+	rdfs:comment "True if the image is interlaced, false if not." ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nfo:Visual ;
 	rdfs:range xsd:boolean .
@@ -438,14 +438,14 @@ nfo:height a rdf:Property ;
 
 nfo:hashAlgorithm a rdf:Property ;
 	rdfs:label "hashAlgorithm" ;
-	rdfs:comment "['Name of the algorithm used to compute the hash value. Examples might include CRC32', 'MD5', 'SHA', 'TTH etc.']" ;
+	rdfs:comment "Name of the algorithm used to compute the hash value. Examples might include CRC32, MD5, SHA, TTH etc." ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nfo:FileHash ;
 	rdfs:range xsd:string .
 
 nfo:fileName a rdf:Property ;
 	rdfs:label "fileName" ;
-	rdfs:comment "['Name of the file', 'together with the extension']" ;
+	rdfs:comment "Name of the file, together with the extension" ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nfo:FileDataObject ;
 	rdfs:range xsd:string ;
@@ -474,7 +474,7 @@ nfo:definesGlobalVariable a rdf:Property ;
 
 nfo:compressionType a rdf:Property ;
 	rdfs:label "compressionType" ;
-	rdfs:comment "['The type of the compression. Values include', 'x'lossy' and x'lossless'.']" ;
+	rdfs:comment "The type of the compression. Values include, lossy and lossless." ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nfo:Media ;
 	rdfs:range nfo:CompressionType .
@@ -586,7 +586,7 @@ nfo:originalLocation a rdf:Property ;
 
 nfo:foundry a rdf:Property ;
 	rdfs:label "foundry" ;
-	rdfs:comment "['The foundry', 'the organization that created the font.']" ;
+	rdfs:comment "The foundry, the organization that created the font." ;
 	rdfs:subPropertyOf nco:creator ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nfo:Font ;
@@ -661,7 +661,7 @@ nfo:containsBookmark a rdf:Property ;
 
 nfo:averageBitrate a rdf:Property ;
 	rdfs:label "averageBitrate" ;
-	rdfs:comment "['The average overall bitrate of a media container. (i.e. the size of the piece of media in bits', 'divided by it's duration expressed in seconds).']" ;
+	rdfs:comment "The average overall bitrate of a media container. (i.e. the size of the piece of media in bits, divided by it's duration expressed in seconds)." ;
 	rdfs:subPropertyOf nfo:rate ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nfo:Media ;

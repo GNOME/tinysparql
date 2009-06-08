@@ -112,7 +112,7 @@ nmm:isForHearingImpaired a rdf:Property ;
 
 nmm:musicCDIdentifier a rdf:Property ;
 	rdfs:label "Music CD identifier" ;
-	rdfs:comment "['Music CD identifier to for databases like FreeDB.org. This frame is intended for music that comes from a CD', 'so that the CD can be identified in databases such as the CDDB. The frame consists of a binary dump of the Table Of Contents', 'TOC', 'from the CD', 'which is a header of 4 bytes and then 8 bytes/track on the CD plus 8 bytes for the 'lead out' making a maximum of 804 bytes. The offset to the beginning of every track on the CD should be described with a four bytes absolute CD-frame address per track', 'and not with absolute time.']" ;
+	rdfs:comment "Music CD identifier to for databases like FreeDB.org. This frame is intended for music that comes from a CD, so that the CD can be identified in databases such as the CDDB. The frame consists of a binary dump of the Table Of Contents, TOC, from the CD, which is a header of 4 bytes and then 8 bytes/track on the CD plus 8 bytes for the 'lead out' making a maximum of 804 bytes. The offset to the beginning of every track on the CD should be described with a four bytes absolute CD-frame address per track, and not with absolute time." ;
 	rdfs:subPropertyOf nie:identifier ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmm:MusicAlbum ;
@@ -341,3 +341,86 @@ nmm:whiteBalance-manual a nmm:WhiteBalance .
 nmm:whiteBalance a rdf:Property ;
 	rdfs:domain nmm:Photo ;
 	rdfs:range nmm:WhiteBalance .
+
+
+# Radio (IE part)
+nmm:RadioStation a rdfs:Class ;
+	rdfs:label "Radio station" ;
+	rdfs:comment "The Radio station in user terms: BBC3, Radio5, YLEX, ... It is linked with 1 or more carriers (different FM frenquencies, online sources in different qualities, etc.). Some RDS information is represented with nie properties, nie:identifier for PI, nie:title for PS" ;
+	rdfs:subClassOf nfo:Audio .
+
+nmm:radioIcon a rdf:Property ;
+        rdfs:label "Radio station icon" ;
+	rdfs:comment "Image used as logo for a radio station" ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmm:RadioStation ;
+	rdfs:range nfo:Image .
+
+nmm:radioPTY a rdf:Property ;
+	rdfs:label "PTY" ;
+	rdfs:comment "PTY Code (content description) as integer. RDS specs define the translations into human readable descriptions for various languages" ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmm:RadioStation ;
+	rdfs:range xsd:integer .
+
+nmm:carrier a rdf:Property ;
+	rdfs:label "Carrier" ;
+	rdfs:comment "Signal where a radio can be tuned in. There can be more than one." ;
+	rdfs:domain nmm:RadioStation ;
+	rdfs:range nfo:MediaStream .
+
+# Radio (DO part)
+nmm:DigitalRadio a rdfs:Class ;
+        rdfs:label "Online Radio Stream" ;
+	rdfs:comment "Online Radio Stream data object (i.e. as a raw flow of bytes)" ;
+	rdfs:subClassOf nfo:MediaStream .
+
+nmm:AnalogRadio a rdfs:Class ;
+	rdfs:label "AM/FM Radio carrier signal" ;
+	rdfs:comment "FM Radio carrier signal data. Basically the frequency" ;
+	rdfs:subClassOf nfo:MediaStream .
+
+nmm:RadioModulation a rdfs:Class ;
+ 	rdfs:label "Radio modulation" ;
+	rdfs:comment "Set of instances for analog radio modulation".
+
+nmm:radio-modulation-am a nmm:RadioModulation.
+nmm:radio-modulation-fm a nmm:RadioModulation.
+
+nmm:modulation a rdf:Property ;
+	rdfs:label "Signal modulation" ;
+	rdfs:comment "Modulation used in the frequency (AM or FM)" ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmm:AnalogRadio ;
+	rdfs:range nmm:RadioModulation .
+
+nmm:frequency a rdf:Property ;
+	rdfs:label "Frequency" ;
+	rdfs:comment "Frequency in the Radio spectrum in Khz (note that usually FM frequencies are in MHz)" ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmm:AnalogRadio ;
+	rdfs:range xsd:integer .
+
+
+nmm:streamingBitrate a rdf:Property ;
+ 	rdfs:label "Streaming bitrate" ;
+	rdfs:comment "Bitrate indicating the quality of the stream in Kbits (usual values 32, 64, 128...)" ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmm:DigitalRadio ;
+	rdfs:range xsd:integer .
+
+# Maybe defined set of instances? AAC, MP3, ...
+nmm:encoding a rdf:Property ;
+	rdfs:label "Encoding of the radio" ;
+	rdfs:comment "Encoding of the radio. It is a property of the streaming, that it is known before hand, so the applications can choose the encoding they understand." ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmm:DigitalRadio ;
+	rdfs:range xsd:string .
+
+nmm:protocol a rdf:Property ;
+	rdfs:label "Protocol" ;
+	rdfs:comment "Protocol used for the streaming (HTTP, RTSP)" ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmm:DigitalRadio ;
+	rdfs:range xsd:string .
+

@@ -1,6 +1,6 @@
 include $(top_srcdir)/Makefile.decl
 
-noinst_PROGRAMS = ontology-validator ttl2html
+noinst_PROGRAMS = ontology-validator ttl2html data-validator
 
 INCLUDES = 				\
 	-DG_LOG_DOMAIN=\"Tracker\"	\
@@ -13,6 +13,14 @@ ontology_validator_SOURCES =		\
 	ontology-validator.c
 
 ontology_validator_LDADD =		\
+	$(RAPTOR_LIBS) 			\
+	$(GLIB2_LIBS)			\
+	$(GIO_LIBS)							
+
+data_validator_SOURCES = 		\
+	data-validator.c
+
+data_validator_LDADD =			\
 	$(RAPTOR_LIBS) 			\
 	$(GLIB2_LIBS)			\
 	$(GIO_LIBS)							

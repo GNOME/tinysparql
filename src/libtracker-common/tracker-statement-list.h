@@ -43,10 +43,13 @@ void   tracker_statement_list_insert_with_double (GPtrArray   *statements,
                                              const gchar *subject,
                                              const gchar *predicate,
                                              gdouble      value);
+void   tracker_statement_list_insert_with_float  (GPtrArray   *statements,
+                                             const gchar *subject,
+                                             const gchar *predicate,
+                                             gfloat      value);
 const gchar* tracker_statement_list_find         (GPtrArray *statements, 
                                              const gchar *subj, 
                                              const gchar *pred);
-
 
 
 G_END_DECLS

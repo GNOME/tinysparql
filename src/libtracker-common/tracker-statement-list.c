@@ -114,6 +114,20 @@ tracker_statement_list_insert_with_double  (GPtrArray   *statements,
 	g_free (value_str);
 }
 
+
+void
+tracker_statement_list_insert_with_float  (GPtrArray   *statements,
+                                       const gchar *subject,
+                                       const gchar *predicate,
+                                       gfloat      value)
+{
+	gchar *value_str;
+
+	value_str = g_strdup_printf ("%f", value);
+	tracker_statement_list_insert (statements, subject, predicate, value_str);
+	g_free (value_str);
+}
+
 void
 tracker_statement_list_insert_with_int (GPtrArray   *statements,
                                    const gchar *subject,

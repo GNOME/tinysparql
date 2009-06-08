@@ -131,7 +131,7 @@ print_html_header (FILE *f, OntologyDescription *desc)
         g_fprintf (f,"<div class=\"head\">\n");
         g_fprintf (f," <div class=\"nav\">\n");
         g_fprintf (f," <a href=\"http://www.maemo.org\"> <img alt=\"MAEMO logo\" ");
-        g_fprintf (f," src=\"http://static.maemo.org/style_maemo2007/maemo-logo.gif\" /></a>\n");
+        g_fprintf (f," src=\"../resources/maemo-logo.gif\" /></a>\n");
         g_fprintf (f,"</div>\n");
 // style="border: 0px solid ; width: 180px; height: 88px;"  /> </a> </div>
 
