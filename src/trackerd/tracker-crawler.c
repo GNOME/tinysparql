@@ -731,14 +731,18 @@ file_enumerator_close_cb (GObject      *enumerator,
 			  gpointer	user_data)
 {
 	TrackerCrawler *crawler;
+	GError         *error = NULL;
 
 	crawler = TRACKER_CRAWLER (user_data);
 	crawler->private->enumerations--;
 
 	if (!g_file_enumerator_close_finish (G_FILE_ENUMERATOR (enumerator),
 					     result,
-					     NULL)) {
-		g_warning ("Couldn't close GFileEnumerator:%p", enumerator);
+					     &error)) {
+		g_warning ("Couldn't close GFileEnumerator (%p): %s", enumerator,
+			   (error) ? error->message : "No reason");
+
+		g_clear_error (&error);
 	}
 }
 
@@ -753,6 +757,7 @@ file_enumerate_next_cb (GObject      *object,
 	GFile		*parent, *child;
 	GFileInfo	*info;
 	GList		*files, *l;
+	GError          *error = NULL;
 
 	enumerator = G_FILE_ENUMERATOR (object);
 
@@ -762,9 +767,14 @@ file_enumerate_next_cb (GObject      *object,
 
 	files = g_file_enumerator_next_files_finish (enumerator,
 						     result,
-						     NULL);
+						     &error);
 
-	if (!files || !crawler->private->is_running) {
+	if (error || !files || !crawler->private->is_running) {
+		if (error) {
+			g_critical ("Could not crawl through directory: %s", error->message);
+			g_error_free (error);
+		}
+
 		/* No more files or we are stopping anyway, so clean
 		 * up and close all file enumerators.
 		 */
@@ -828,13 +838,26 @@ file_enumerate_children_cb (GObject	 *file,
 	EnumeratorData	*ed;
 	GFileEnumerator *enumerator;
 	GFile		*parent;
+	GError          *error = NULL;
 
 	parent = G_FILE (file);
 	ed = (EnumeratorData *) user_data;
 	crawler = ed->crawler;
-	enumerator = g_file_enumerate_children_finish (parent, result, NULL);
+	enumerator = g_file_enumerate_children_finish (parent, result, &error);
 
 	if (!enumerator) {
+		if (error) {
+			gchar *uri;
+
+			uri = g_file_get_uri (parent);
+
+			g_critical ("Could not open directory '%s': %s",
+				    uri, error->message);
+
+			g_error_free (error);
+			g_free (uri);
+		}
+
 		crawler->private->enumerations--;
 		return;
 	}
