@@ -268,20 +268,20 @@ static const guint pad_mask = 0x20000;
 
 static guint bitrate_table[16][6] = {
 	{   0,   0,   0,   0,   0,   0 },
-	{  32,  32,  32,  32,  32,   8 },
-	{  64,  48,  40,  64,  48,  16 },
-	{  96,  56,  48,  96,  56,  24 },
-	{ 128,  64,  56, 128,  64,  32 },
-	{ 160,  80,  64, 160,  80,  64 },
-	{ 192,  96,  80, 192,  96,  80 },
-	{ 224, 112,  96, 224, 112,  56 },
-	{ 256, 128, 112, 256, 128,  64 },
-	{ 288, 160, 128, 288, 160, 128 },
-	{ 320, 192, 160, 320, 192, 160 },
-	{ 352, 224, 192, 352, 224, 112 },
-	{ 384, 256, 224, 384, 256, 128 },
-	{ 416, 320, 256, 416, 320, 256 },
-	{ 448, 384, 320, 448, 384, 320 },
+	{  32,  32,  32,  32,   8,   8 },
+	{  64,  48,  40,  48,  16,  16 },
+	{  96,  56,  48,  56,  24,  24 },
+	{ 128,  64,  56,  64,  32,  32 },
+	{ 160,  80,  64,  80,  40,  40 },
+	{ 192,  96,  80,  96,  48,  48 },
+	{ 224, 112,  96, 112,  56,  56 },
+	{ 256, 128, 112, 128,  64,  64 },
+	{ 288, 160, 128, 144,  80,  80 },
+	{ 320, 192, 160, 160,  96,  96 },
+	{ 352, 224, 192, 176, 112, 112 },
+	{ 384, 256, 224, 192, 128, 128 },
+	{ 416, 320, 256, 224, 144, 144 },
+	{ 448, 384, 320, 256, 160, 160 },
 	{  -1,  -1,  -1,  -1,  -1,  -1 }
 };
 
@@ -290,6 +290,8 @@ static gint freq_table[4][3] = {
 	{48000, 24000, 12000},
 	{32000, 16000, 8000}
 };
+
+static gint spf_table[6] = { 48, 144, 144, 48, 144,  72 };
 
 static TrackerExtractData extract_data[] = {
 	{ "audio/mpeg", extract_mp3 },
@@ -534,7 +536,7 @@ mp3_parse_header (const gchar *data,
 	guint header;
 	gchar mpeg_ver = 0;
 	gchar layer_ver = 0;
-	guint spfp8 = 0;
+	gint spfp8 = 0;
 	guint padsize = 0;
 	gint idx_num = 0;
 	guint bitrate = 0;
@@ -565,7 +567,6 @@ mp3_parse_header (const gchar *data,
 					 g_strdup ("2"));
 #endif /* ENABLE_DETAILED_METADATA */
 		    mpeg_ver = MPEG_V2;
-		    spfp8 = 72;
 		    break;
 	    case 0x1800:
 #ifdef ENABLE_DETAILED_METADATA
@@ -577,7 +578,6 @@ mp3_parse_header (const gchar *data,
 					 g_strdup ("1"));
 #endif /* ENABLE_DETAILED_METADATA */
 		    mpeg_ver = MPEG_V1;
-		    spfp8 = 144;
 		    break;
 	    case 0:
 #ifdef ENABLE_DETAILED_METADATA
@@ -589,7 +589,6 @@ mp3_parse_header (const gchar *data,
 					 g_strdup ("2.5"));
 #endif /* ENABLE_DETAILED_METADATA */
 		    mpeg_ver = MPEG_V25;
-		    spfp8 = 72;
 		    break;
 	    default:
 		    break;
@@ -625,6 +624,8 @@ mp3_parse_header (const gchar *data,
 	} else {
 		idx_num = 2 + layer_ver;
 	}
+
+	spfp8 = spf_table[idx_num];
 	
 	if ((header & ch_mask) == ch_mask) {
 		ch = 1;
@@ -693,11 +694,11 @@ mp3_parse_header (const gchar *data,
 	avg_bps /= frames;
 
 	if (filedata->duration==0) {
-		if ((!vbr_flag || frames > VBR_THRESHOLD) || (frames > MAX_FRAMES_SCAN)) {
+		if ((!vbr_flag && frames > VBR_THRESHOLD) || (frames > MAX_FRAMES_SCAN)) {
 			/* If not all frames scanned */
 			length = (filedata->size - filedata->id3v2_size) / (avg_bps ? avg_bps : bitrate ? bitrate : 0xFFFFFFFF) / 125;
 		} else{
-			length = 1152 * frames / (sample_rate ? sample_rate : 0xFFFFFFFF);
+			length = spfp8 * 8 * frames / (sample_rate ? sample_rate : 0xFFFFFFFF);
 		}
  
 		g_hash_table_insert (metadata,
