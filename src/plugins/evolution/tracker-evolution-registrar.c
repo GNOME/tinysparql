@@ -602,7 +602,8 @@ perform_unset (TrackerEvolutionRegistrar *object,
 static void
 perform_cleanup (TrackerEvolutionRegistrar *object)
 {
-	tracker_store_sparql_update ("DELETE { ?s ?p ?o } WHERE { ?s nie:dataSource <" DATASOURCE_URN "> }", NULL);
+	tracker_store_sparql_update ("DELETE { ?s a rdfs:Resource } WHERE { ?s nie:dataSource <" DATASOURCE_URN "> }", NULL);
+	/* tracker_store_sparql_update ("DELETE { ?s ?p ?o } WHERE { ?s nie:dataSource <" DATASOURCE_URN "> }", NULL); */
 }
 
 static void
