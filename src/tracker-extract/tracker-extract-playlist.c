@@ -51,7 +51,7 @@
 #define RDF_TYPE RDF_PREFIX "type"
 
 typedef struct {
-	guint        track_counter;
+	guint32     track_counter;
 	gint64      total_time;
 	GPtrArray   *metadata;
 	const gchar *uri;
@@ -136,15 +136,15 @@ extract_playlist (const gchar *uri,
 	}
 
 	/* TODO
-	tracker_statement_list_insert_with_int (metadata, uri,
+	tracker_statement_list_insert_with_int64 (metadata, uri,
 					   PLAYLIST_PROPERTY_DURATION, 
 					   data.total_time);
 
-	tracker_statement_list_insert_with_int (metadata, uri,
+	tracker_statement_list_insert_with_uint (metadata, uri,
 					   PLAYLIST_PROPERTY_NO_TRACKS, 
 					   data.track_counter);
 
-	tracker_statement_list_insert_with_int (metadata, uri,
+	tracker_statement_list_insert_with_int64 (metadata, uri,
 					   PLAYLIST_PROPERTY_CALCULATED,
 					   data.total_time);
 	*/
