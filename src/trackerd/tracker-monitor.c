@@ -995,7 +995,7 @@ libinotify_monitor_force_emission (TrackerMonitor *monitor,
 						is_directory);
 
 		/* Clean up */
-		g_hash_table_remove (monitor->private->cached_events, data);
+		g_hash_table_remove (monitor->private->cached_events, data->file);
 	}
 }
 
