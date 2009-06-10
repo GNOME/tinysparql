@@ -4,14 +4,14 @@
 # This file is distributed under the same license as the PACKAGE package.
 #
 # Jorge González <jorgegonz@svn.gnome.org>, 2007, 200, 2009.
-#: ../src/libtracker-common/tracker-utils.c:262
+#: ../src/libtracker-common/tracker-utils.c:292
 msgid ""
 msgstr ""
 "Project-Id-Version: tracker.HEAD\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&component=general\n"
-"POT-Creation-Date: 2009-05-20 12:35+0000\n"
-"PO-Revision-Date: 2009-05-24 13:57+0200\n"
+"POT-Creation-Date: 2009-06-08 14:47+0000\n"
+"PO-Revision-Date: 2009-06-09 16:27+0200\n"
 "Last-Translator: Jorge González <jorgegonz@svn.gnome.org>\n"
 "Language-Team: Español <gnome-es-list@gnome.org>\n"
 "MIME-Version: 1.0\n"
@@ -183,7 +183,6 @@ msgid "Search with Tracker, as you type"
 msgstr "Buscar con Tracker, al escribir"
 
 #: ../src/libtracker-db/tracker-db-index.c:853
-#| msgid "Indexing Speed:"
 msgid "Index corrupted"
 msgstr "Índice corrupto"
 
@@ -191,15 +190,15 @@ msgstr "Índice corrupto"
 msgid "No error given"
 msgstr "No se proporcionó ningún error"
 
-#: ../src/libtracker-common/tracker-utils.c:135
-#: ../src/libtracker-common/tracker-utils.c:142
+#: ../src/libtracker-common/tracker-utils.c:165
+#: ../src/libtracker-common/tracker-utils.c:172
 #: ../src/tracker-utils/tracker-status.c:153
 #: ../src/tracker-utils/tracker-status.c:160
 msgid "unknown time"
 msgstr "hora desconocida"
 
-#: ../src/libtracker-common/tracker-utils.c:160
-#: ../src/libtracker-common/tracker-utils.c:219
+#: ../src/libtracker-common/tracker-utils.c:190
+#: ../src/libtracker-common/tracker-utils.c:249
 #: ../src/tracker-utils/tracker-status.c:77
 #: ../src/tracker-utils/tracker-status.c:136
 msgid "less than one second"
@@ -629,7 +628,6 @@ msgstr ""
 "buscada."
 
 #: ../src/tracker-applet/tracker-applet.c:1434
-#| msgid "Copyright © 2005-2008 The Tracker authors"
 msgid "Copyright © 2005-2009 The Tracker authors"
 msgstr "Copyright © 2005-2009 Los autores de Tracker"
 
@@ -706,7 +704,6 @@ msgstr ""
 "indexado pulsando con el botón derecho del ratón aquí"
 
 #: ../src/tracker-applet/tracker-applet.c:2142
-#| msgid "Index _file contents"
 msgid "Reindex all contents"
 msgstr "Reindexar todos los contenidos"
 
@@ -787,7 +784,7 @@ msgid "File to extract metadata for"
 msgstr "Archivo del que extraer los metadatos"
 
 #: ../src/tracker-extract/tracker-main.c:91
-#: ../src/tracker-utils/tracker-info.c:51
+#: ../src/tracker-utils/tracker-info.c:51 ../utils/sqlite/query.c:48
 msgid "FILE"
 msgstr "ARCHIVO"
 
@@ -2197,7 +2194,7 @@ msgstr ""
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/trackerd/tracker-main.c:984
+#: ../src/trackerd/tracker-main.c:987
 msgid "- start the tracker daemon"
 msgstr "iniciar el demonio de tracker"
 
@@ -2207,7 +2204,7 @@ msgstr "álbum o artista"
 
 #: ../utils/albumart/albumart-strip.c:49
 msgid "- Test albumart text stripping"
-msgstr ""
+msgstr "- Probar listado de textos de álbumes"
 
 #: ../utils/albumart/albumart-strip.c:50
 msgid "You can use this utility to check album/artist strings, for example:"
@@ -2216,14 +2213,47 @@ msgstr ""
 "ejemplo:"
 
 #: ../utils/albumart/albumart-strip.c:65
-#| msgid "No arguments were provided"
 msgid "No album/artist text was provided"
 msgstr "No se proporcionó ningún álbum o artista"
 
 #: ../utils/albumart/albumart-strip.c:82
-#| msgid "Conversations:"
 msgid "Converted to"
 msgstr "Convertido a"
+
+#: ../utils/sqlite/query.c:42
+#| msgid "Search for specified MIME type (can be used multiple times)"
+msgid "SQL query to use (can be used multiple times)"
+msgstr "Consulta SQL que usar (se puede usar varias veces)"
+
+#: ../utils/sqlite/query.c:43
+msgid "SQL"
+msgstr "SQL"
+
+#: ../utils/sqlite/query.c:47
+msgid "Files to attach"
+msgstr "Archivos que adjuntar"
+
+#: ../utils/sqlite/query.c:239
+msgid "- Test SQLite databases with queries"
+msgstr "- Probar bases de datos SQLite con consultas"
+
+#: ../utils/sqlite/query.c:240
+#| msgid "You can use this utility to check album/artist strings, for example:"
+msgid ""
+"You can use this utility to attach DBs and run queries using the SQLite API"
+msgstr ""
+"Puede usar esta utilidad para adjuntar bases de datos y ejecutar consultas "
+"usando la API SQLite"
+
+#: ../utils/sqlite/query.c:273
+#| msgid "No arguments were provided"
+msgid "No query was provided"
+msgstr "No se proporcionó ninguna consulta"
+
+#: ../utils/sqlite/query.c:287
+#| msgid "No arguments were provided"
+msgid "No databases were provided"
+msgstr "No se proporcionó ninguna base de datos"
 
 #~ msgid "Whether to process data from all configured modules to be indexed"
 #~ msgstr ""
