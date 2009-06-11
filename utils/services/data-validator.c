@@ -126,9 +126,9 @@ process_file (const gchar *ttl_file, TurtleTripleCallback handler, void *user_da
 
 	raptor_set_statement_handler (parser, user_data, 
                                       handler);
-	raptor_set_fatal_error_handler (parser, (void *)file, raptor_error);
-	raptor_set_error_handler (parser, (void *)file, raptor_error);
-	raptor_set_warning_handler (parser, (void *)file, raptor_error);
+	raptor_set_fatal_error_handler (parser, (void *)ttl_file, raptor_error);
+	raptor_set_error_handler (parser, (void *)ttl_file, raptor_error);
+	raptor_set_warning_handler (parser, (void *)ttl_file, raptor_error);
 
 	uri_string = raptor_uri_filename_to_uri_string (ttl_file);
 	uri = raptor_new_uri (uri_string);
