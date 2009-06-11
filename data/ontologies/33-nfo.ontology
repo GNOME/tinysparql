@@ -429,6 +429,20 @@ nfo:hasMediaFileListEntry a rdf:Property ;
 	rdfs:domain nfo:MediaList ;
 	rdfs:range nfo:MediaFileListEntry .
 
+nfo:listPosition a rdf:Property ;
+	rdfs:label "list position" ;
+	rdfs:comment "Position of an entry in a list. Double, to optimize the poor insertions" ;
+ 	nrl:maxCardinality 1 ;
+	rdfs:domain nfo:MediaFileListEntry ;
+	rdfs:range xsd:double .
+
+nfo:entryContent a rdf:Property ;
+	rdfs:label "Entry content" ;
+	rdfs:Comment "URI to the element in certain position of the list" ;
+        nrl:maxCardinality 1 ;
+	rdfs:domain nfo:MediaFileListEntry ;
+	rdfs:range nie:InformationElement .
+
 nfo:height a rdf:Property ;
 	rdfs:label "height" ;
 	rdfs:comment "Visual content height in pixels." ;
