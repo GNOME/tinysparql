@@ -814,7 +814,6 @@ build_sql (ParserData *data)
 						data->current_value);
 		} else {
 			/* FIXME This check is too fragile */
-			g_debug ("value:(%s)", value);
 			if ( !strlen(value) || (strcmp(value, "''") == 0) ) {
 				tracker_field_data_set_needs_null (field_data, TRUE);
 				g_string_append_printf (str, " ((%s = '') OR %s IS NULL) ",
@@ -902,6 +901,8 @@ build_sql (ParserData *data)
 
 			g_string_append_printf (str, ") ) " );
 		}
+		g_strfreev(s);
+		
 		break;
 
 	default:
@@ -1345,8 +1346,22 @@ tracker_rdf_query_to_sql (TrackerDBInterface  *iface,
 
 		for (i = 0; i < sort_field_count; i++) {
 			TrackerFieldData *field_data;
+			gchar           **s;
+			gboolean          desc;
 
-			field_data = add_metadata_field (&data, sort_fields[i], FALSE, FALSE, TRUE);
+			s = g_strsplit (sort_fields[i], " ", 2);
+
+			field_data = add_metadata_field (&data, s[0], FALSE, FALSE, TRUE);
+
+			if (s[1]) {
+				if ((strcmp (s[1], "ASC") == 0) || (strcmp (s[1], "A")==0)) {
+					desc = FALSE;
+				} else {
+					desc = TRUE;
+				}
+			} else {
+				desc = sort_desc;
+			}
 
 			if (!field_data) {
 				g_set_error (error,
@@ -1372,7 +1387,8 @@ tracker_rdf_query_to_sql (TrackerDBInterface  *iface,
 
 			g_string_append_printf (data.sql_order, "%s %s",
 						tracker_field_data_get_order_field (field_data),
-						sort_desc ? "DESC" : "ASC");
+						desc ? "DESC" : "ASC");
+			g_strfreev(s);
 		}
 	}
 

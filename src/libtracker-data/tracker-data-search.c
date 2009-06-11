@@ -822,14 +822,28 @@ tracker_data_search_get_unique_values_with_concat_count_and_sum (const gchar	   
 	sql_select = g_string_new ("SELECT DISTINCT ");
 	sql_from   = g_string_new ("\nFROM Services AS S ");
 	sql_where  = g_string_new ("\nWHERE ");
-	sql_order  = g_string_new ("");
+	sql_order  = g_string_new ("\nORDER BY ");
 	sql_group  = g_string_new ("\nGROUP BY ");
 
 
 	for (i = 0; i < g_strv_length (fields); i++) {
 		TrackerFieldData *fd;
+		gchar           **s;
+		gboolean          desc;
 
-		fd = tracker_metadata_add_metadata_field (iface, service_type, &field_list, fields[i], TRUE, FALSE, TRUE);
+		s = g_strsplit (fields[i], " ", 2);
+
+		fd = tracker_metadata_add_metadata_field (iface, service_type, &field_list, s[0], TRUE, FALSE, TRUE);
+
+		if (s[1]) {
+			if ((strcmp (s[1], "ASC") == 0) || (strcmp (s[1], "A")==0)) {
+				desc = FALSE;
+			} else {
+				desc = TRUE;
+			}
+		} else {
+			desc = order_desc;
+		}
 
 		if (!fd) {
 			g_string_free (sql_select, TRUE);
@@ -840,25 +854,26 @@ tracker_data_search_get_unique_values_with_concat_count_and_sum (const gchar	   
 
 			g_set_error (error, TRACKER_DBUS_ERROR, 0,
 				     "Invalid or non-existant metadata type '%s' specified",
-				     fields[i]);
+				     s[0]);
+			g_strfreev(s);
 			return NULL;
 		}
 
 		if (i) {
 			g_string_append_printf (sql_select, ",");
 			g_string_append_printf (sql_group, ",");
+			g_string_append_printf (sql_order, ",");
 		}
 
 		g_string_append_printf (sql_select, "%s", tracker_field_data_get_select_field (fd));
-		if (order_desc) {
-			if (i) {
-				g_string_append_printf (sql_order, ",");
-			}
-			g_string_append_printf (sql_order, "\nORDER BY %s DESC ",
-						tracker_field_data_get_order_field (fd));
-		}
+
+		g_string_append_printf (sql_order, "%s %s ",
+					tracker_field_data_get_order_field (fd),
+					desc ? "DESC" : "ASC");
+       
 		g_string_append_printf (sql_group, "%s", tracker_field_data_get_order_field (fd));
 
+		g_strfreev(s);
 	}
 
 	if (concat_field && !(tracker_is_empty_string (concat_field))) {
@@ -1108,8 +1123,6 @@ tracker_data_search_get_sum (const gchar	 *service_type,
 	g_slist_foreach (fields, (GFunc) g_object_unref, NULL);
 	g_slist_free (fields);
 
-	g_debug ("Sum query executed:\n%s", sql);
-
 	result_set =  tracker_db_interface_execute_query (iface, NULL, "%s", sql);
 
 	g_free (sql);
@@ -1276,14 +1289,28 @@ tracker_data_search_get_unique_values_with_aggregates (const gchar	      *servic
 	sql_select = g_string_new ("SELECT DISTINCT ");
 	sql_from   = g_string_new ("\nFROM Services AS S ");
 	sql_where  = g_string_new ("\nWHERE ");
-	sql_order  = g_string_new ("");
+	sql_order  = g_string_new ("\nORDER BY ");
 	sql_group  = g_string_new ("\nGROUP BY ");
 
 
 	for (i = 0; i < g_strv_length (fields); i++) {
 		TrackerFieldData *fd;
+		gchar           **s;
+		gboolean          desc;
 
-		fd = tracker_metadata_add_metadata_field (iface, service_type, &field_list, fields[i], TRUE, FALSE, TRUE);
+		s = g_strsplit (fields[i], " ", 2);
+
+		fd = tracker_metadata_add_metadata_field (iface, service_type, &field_list, s[0], TRUE, FALSE, TRUE);
+
+		if (s[1]) {
+			if ((strcmp (s[1], "ASC") == 0) || (strcmp (s[1], "A")==0)) {
+				desc = FALSE;
+			} else {
+				desc = TRUE;
+			}
+		} else {
+			desc = order_desc;
+		}
 
 		if (!fd) {
 			g_string_free (sql_select, TRUE);
@@ -1298,24 +1325,27 @@ tracker_data_search_get_unique_values_with_aggregates (const gchar	      *servic
 			g_set_error (error, TRACKER_DBUS_ERROR, 0,
 				     "Invalid or non-existant metadata type '%s' specified",
 				     fields[i]);
+
+			g_strfreev (s);
+
 			return NULL;
 		}
 
 		if (i) {
 			g_string_append_printf (sql_select, ",");
 			g_string_append_printf (sql_group, ",");
+			g_string_append_printf (sql_order, ",");
 		}
 
 		g_string_append_printf (sql_select, "%s", tracker_field_data_get_select_field (fd));
-		if (order_desc) {
-			if (i) {
-				g_string_append_printf (sql_order, ",");
-			}
-			g_string_append_printf (sql_order, "\nORDER BY %s DESC ",
-						tracker_field_data_get_order_field (fd));
-		}
+
+		g_string_append_printf (sql_order, "%s %s ",
+					tracker_field_data_get_order_field (fd),
+					desc ? "DESC" : "ASC");
+
 		g_string_append_printf (sql_group, "%s", tracker_field_data_get_order_field (fd));
 
+		g_strfreev (s);
 	}
 
 	for (i = 0; i < g_strv_length (aggregates); i++) {
@@ -1452,8 +1482,6 @@ tracker_data_search_get_unique_values_with_aggregates (const gchar	      *servic
 			g_slist_foreach (field_list, (GFunc) g_object_unref, NULL);
 			g_slist_free (field_list);
 
-			g_debug ("Got an unknown operation %s", aggregates[i]);
-			
 			g_set_error (error, TRACKER_DBUS_ERROR, 0,
 				     "Aggregate operation %s not found",
 				     aggregates[i]);
