@@ -86,7 +86,7 @@ entry_parsed (TotemPlParser *parser, const gchar *to_uri, GHashTable *to_metadat
 
 	tracker_statement_list_insert (data->metadata, ":1", 
 	                               NFO_PREFIX "entryContent",
-	                               data->uri);
+	                               to_uri);
 
 	data->track_counter++;
 
