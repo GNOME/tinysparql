@@ -736,13 +736,29 @@ void
 tracker_status_set (TrackerStatus new_status)
 {
 	TrackerStatusPrivate *private;
+	gboolean should_be_paused;
+	gboolean invalid_new_state;
 
 	private = g_static_private_get (&private_key);
 	g_return_if_fail (private != NULL);
 
-	g_message ("State change from '%s' --> '%s'",
+
+	should_be_paused =
+		private->is_paused_manually ||
+		private->is_paused_for_batt ||
+		private->is_paused_for_io ||
+		private->is_paused_for_space ||
+		private->is_paused_for_dbus ||
+		private->is_paused_for_unknown;
+
+	invalid_new_state =
+		should_be_paused &&
+		new_status != TRACKER_STATUS_PAUSED;
+
+	g_message ("State change from '%s' --> '%s' %s",
 		   tracker_status_to_string (private->status),
-		   tracker_status_to_string (new_status));
+		   tracker_status_to_string (new_status),
+		   invalid_new_state ? "attempted with pause conditions, doing nothing" : "");
 
 	/* Don't set previous status to the same as we are now,
 	 * otherwise we could end up setting PAUSED and our old state
@@ -761,29 +777,34 @@ tracker_status_set (TrackerStatus new_status)
 
 	/* State machine */
 	if (private->status != new_status) {
-		/* If we are paused but have been moved OUT of state
-		 * by some call, we set back to the state BEFORE we
-		 * were PAUSED. We only do this for IDLE so far.
+		/* The reason we have this check, is that it is
+		 * possible that we are trying to set our state to
+		 * IDLE after finishing crawling but actually, we
+		 * should be in a PAUSED state due to another flag,
+		 * such as low disk space. So we force PAUSED state.
+		 * However, the interesting thing here is, we must
+		 * remember to set the OLD state so we go back to the
+		 * state as set by the caller. If we don't we end up
+		 * going back to PENDING/WATCHING instead of IDLE when
+		 * we come out of being PAUSED.
 		 *
-		 * The reason is in part explained above with states
-		 * A, B and C. If we return to IDLE because we were
-		 * PENDING/WATCHING previously we need to move back to
-		 * PAUSED here otherwise we risk actually processing
-		 * files with no disk space.
-		 *
-		 * NOTE: We correct the state here if we are paused
-		 * for some reason like being out of space and we
-		 * attempt to go into an IDLE state. 
+		 * FIXME: Should we ONLY cater for IDLE here? -mr
 		 */
-		if (new_status == TRACKER_STATUS_IDLE && 
-		    (private->is_paused_manually ||
-		     private->is_paused_for_batt || 
-		     private->is_paused_for_io ||
-		     private->is_paused_for_space ||
-		     private->is_paused_for_dbus ||
-		     private->is_paused_for_unknown)) {
-			g_message ("Attempt to set state to IDLE with pause conditions, changing...");
-			tracker_status_set (TRACKER_STATUS_PAUSED);
+
+		if (invalid_new_state) {
+			g_message ("Attempt to set state to '%s' with pause conditions, doing nothing",
+				   tracker_status_to_string (new_status));
+
+			if (private->status != TRACKER_STATUS_PAUSED) {
+				tracker_status_set (TRACKER_STATUS_PAUSED);
+			}
+
+			/* Set last state so we know what to return
+			 * to when we come out of PAUSED
+			 */
+
+			private->status_before_paused = new_status;
+
 			return;
 		}
 
