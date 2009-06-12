@@ -425,7 +425,6 @@ nfo:definesFunction a rdf:Property ;
 nfo:hasMediaFileListEntry a rdf:Property ;
 	rdfs:label "hasMediaFileListEntry" ;
 	rdfs:comment "This property is intended to point to an RDF list of MediaFiles." ;
-	nrl:maxCardinality 1 ;
 	rdfs:domain nfo:MediaList ;
 	rdfs:range nfo:MediaFileListEntry .
 
