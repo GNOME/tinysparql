@@ -76,6 +76,14 @@ void		  tracker_processor_files_move		    (TrackerProcessor *processor,
 							     GFile	      *file,
 							     GFile	      *other_file,
 							     gboolean	       is_directory);
+#ifdef HAVE_HAL
+void		  tracker_processor_mount_point_added 	     (TrackerProcessor *processor,
+							      const gchar *udi,
+							      const gchar *mount_point);
+void		  tracker_processor_mount_point_removed     (TrackerProcessor *processor,
+							      const gchar *udi,
+							      const gchar *mount_point);
+#endif /* HAVE_HAL */
 
 /* Statistics */
 guint		  tracker_processor_get_directories_found   (TrackerProcessor *processor);
