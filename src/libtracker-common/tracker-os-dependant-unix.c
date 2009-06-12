@@ -26,6 +26,8 @@
 #include <errno.h>
 #include <unistd.h>
 #include <sys/resource.h>
+#include <sys/types.h>
+#include <fcntl.h>
 
 #include <glib.h>
 
@@ -266,6 +268,30 @@ get_memory_total (void)
 	return total;
 }
 
+static void
+tracker_memory_set_oom_adj (void)
+{
+	const gchar *str = "15";
+	gboolean success = FALSE;
+	int fd;
+ 
+	fd = open ("/proc/self/oom_adj", O_WRONLY);
+
+	if (fd != -1) {
+		if (write (fd, str, strlen (str)) > 0) {
+			success = TRUE;
+		}
+
+		close (fd);
+	}
+
+	if (success) {
+		g_message ("OOM score has been set to %s", str);
+	} else {
+		g_critical ("Could not adjust OOM score");
+	}
+}
+
 gboolean
 tracker_memory_setrlimits (void)
 {
@@ -317,6 +343,8 @@ tracker_memory_setrlimits (void)
 		}
 	}
 #endif /* DISABLE_MEM_LIMITS */
+
+	tracker_memory_set_oom_adj ();
 
 	return TRUE;
 }
