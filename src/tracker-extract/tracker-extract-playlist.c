@@ -81,11 +81,23 @@ entry_parsed (TotemPlParser *parser, const gchar *to_uri, GHashTable *to_metadat
 
 	data = (PlaylistMetadata *)user_data;
 
-	tracker_statement_list_insert (data->metadata, data->uri,
-				  NFO_PREFIX "hasMediaFileListEntry", 
-				  to_uri);
+	tracker_statement_list_insert (data->metadata, ":1", RDF_TYPE,
+	                               NFO_PREFIX "MediaFileListEntry");
 
-	data->track_counter += 1;
+	tracker_statement_list_insert (data->metadata, ":1", 
+	                               NFO_PREFIX "entryContent",
+	                               data->uri);
+
+	data->track_counter++;
+
+	tracker_statement_list_insert_with_int (data->metadata, ":1",
+	                                        NFO_PREFIX "listPosition", 
+	                                        data->track_counter);
+
+
+	tracker_statement_list_insert (data->metadata, data->uri,
+	                               NFO_PREFIX "hasMediaFileListEntry", 
+	                               ":1");
 
 	duration = g_hash_table_lookup (to_metadata, TOTEM_PL_PARSER_FIELD_DURATION);
 
@@ -117,8 +129,8 @@ extract_playlist (const gchar *uri,
 			  G_CALLBACK (entry_parsed), &data);
 
 	tracker_statement_list_insert (metadata, uri, 
-	                          RDF_TYPE, 
-	                          NFO_PREFIX "MediaList");
+	                               RDF_TYPE, 
+	                               NFO_PREFIX "MediaList");
 
 	result = totem_pl_parser_parse (pl, uri, FALSE);
 
