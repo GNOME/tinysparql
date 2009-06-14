@@ -567,9 +567,6 @@ create_decomposed_metadata_property_table (TrackerDBInterface *iface,
 		break;
 	}
 
-	/* TODO: When we refactor to having writes in tracker-store, we can use 
-	 * TEMPORARY tables instead of deleting and storing physically */
-
 	if (transient || tracker_property_get_multiple_values (*property)) {
 		/* multiple values */
 		if (tracker_property_get_indexed (*property)) {
@@ -580,7 +577,7 @@ create_decomposed_metadata_property_table (TrackerDBInterface *iface,
 				"ID INTEGER NOT NULL, "
 				"\"%s\" %s NOT NULL, "
 				"UNIQUE (\"%s\", ID))",
-				transient ? "" /*"TEMPORARY "*/ : "",
+				transient ? "TEMPORARY " : "",
 				service_name,
 				field_name,
 				field_name,
@@ -601,7 +598,7 @@ create_decomposed_metadata_property_table (TrackerDBInterface *iface,
 				"ID INTEGER NOT NULL, "
 				"\"%s\" %s NOT NULL, "
 				"UNIQUE (ID, \"%s\"))",
-				transient ? "" /*"TEMPORARY "*/ : "",
+				transient ? "TEMPORARY " : "",
 				service_name,
 				field_name,
 				field_name,
@@ -725,18 +722,11 @@ create_decomposed_transient_metadata_tables (TrackerDBInterface *iface)
 			domain = tracker_property_get_domain (*property);
 			service_name = tracker_class_get_name (domain);
 
-			/* TODO: When we refactor to having writes in tracker-store, we can use 
-	 		 * TEMPORARY tables instead of deleting and storing physically 
-
-			 * create_decomposed_metadata_property_table (iface, property,
-			 * 					   service_name,
-			 *					   NULL);
-			 */
-
-			tracker_db_interface_execute_query (iface, NULL,
-				"DELETE FROM \"%s_%s\"",
-				service_name,
-				field_name);
+			/* create the TEMPORARY table */
+			create_decomposed_metadata_property_table (iface, property,
+								   service_name,
+								   NULL);
+			
 		}
 	}
 
