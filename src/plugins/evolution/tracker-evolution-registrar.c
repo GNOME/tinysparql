@@ -55,8 +55,6 @@
 
 #define DATASOURCE_URN			       "urn:nepomuk:datasource:1cb1eb90-1241-11de-8c30-0800200c9a66"
 
-#define RELAXED_IMPORT_SECONDS  5
-
 typedef struct TrackerEvolutionPushRegistrar TrackerEvolutionPushRegistrar;
 typedef struct TrackerEvolutionPushRegistrarClass TrackerEvolutionPushRegistrarClass;
 
@@ -578,6 +576,8 @@ perform_set (TrackerEvolutionRegistrar *object,
 		i++;
 	}
 
+	tracker_sparql_builder_insert_close (sparql);
+
 	tracker_store_queue_sparql_update (tracker_sparql_builder_get_result (sparql),
 	                                   NULL, NULL, NULL);
 
@@ -749,11 +749,10 @@ tracker_evolution_registrar_set_many (TrackerEvolutionRegistrar *object,
 	info->predicates = strv_ptrarray_dup (predicates);
 	info->values = strv_ptrarray_dup (values);
 
-	g_timeout_add_seconds_full (G_PRIORITY_LOW,
-	                            RELAXED_IMPORT_SECONDS,
-	                            set_many_idle,
-	                            info,
-	                            set_many_destroy);
+	g_idle_add_full (G_PRIORITY_LOW,
+	                 set_many_idle,
+	                 info,
+	                 set_many_destroy);
 }
 
 
@@ -819,11 +818,10 @@ tracker_evolution_registrar_unset_many (TrackerEvolutionRegistrar *object,
 	info->modseq = modseq;
 	info->subjects = g_strdupv (subjects);
 
-	g_timeout_add_seconds_full (G_PRIORITY_LOW,
-	                            RELAXED_IMPORT_SECONDS,
-	                            unset_many_idle,
-	                            info,
-	                            unset_many_destroy);
+	g_idle_add_full (G_PRIORITY_LOW,
+	                 unset_many_idle,
+	                 info,
+	                 unset_many_destroy);
 }
 
 void
