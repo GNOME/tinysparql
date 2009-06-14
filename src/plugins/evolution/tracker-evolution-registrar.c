@@ -639,84 +639,10 @@ tracker_evolution_registrar_set (TrackerEvolutionRegistrar *object,
 	dbus_g_method_return (context);
 }
 
-
-
-typedef struct {
-	TrackerEvolutionRegistrar *object;
-	GStrv subjects;
-	GPtrArray *predicates;
-	GPtrArray *values;
-	guint modseq;
-	DBusGMethodInvocation *context;
-} SetManyInfo;
-
-static gboolean
-set_many_idle (gpointer user_data)
-{
-	guint i = 0;
-	SetManyInfo *info = user_data;
-	gboolean cont = FALSE;
-
-	while (info->subjects[i] != NULL) {
-		GStrv preds = g_ptr_array_index (info->predicates, i);
-		GStrv vals = g_ptr_array_index (info->values, i);
-
-		perform_set (info->object, info->subjects[i], preds, vals);
-
-		if (i > 100) {
-			cont = TRUE;
-			break;
-		}
-
-		i++;
-	}
-
-	return cont;
-}
-
 static void
-strv_ptrarray_free (GPtrArray *array)
+on_commit (gpointer user_data)
 {
-	guint i;
-
-	for (i = 0; i < array->len; i++) {
-		g_strfreev (g_ptr_array_index (array, i));
-	}
-
-	g_ptr_array_free (array, TRUE);
-}
-
-static void 
-set_many_destroy (gpointer user_data)
-{
-	SetManyInfo *info = user_data;
-
-	strv_ptrarray_free (info->predicates);
-	strv_ptrarray_free (info->values);
-	g_strfreev (info->subjects);
-
-	set_stored_last_modseq (info->modseq);
-
-	tracker_store_queue_commit (NULL, NULL, NULL);
-
-	dbus_g_method_return (info->context);
-
-	g_object_unref (info->object);
-	g_free (info);
-}
-
-static GPtrArray* 
-strv_ptrarray_dup (const GPtrArray *array)
-{
-	GPtrArray *new_array = g_ptr_array_sized_new (array->len);
-	guint i;
-
-	for (i = 0; i < array->len; i++) {
-		g_ptr_array_add	(new_array, g_strdupv (
-		                 g_ptr_array_index (array, i)));
-	}
-
-	return new_array;
+	set_stored_last_modseq (GPOINTER_TO_UINT (user_data));
 }
 
 void
@@ -728,8 +654,7 @@ tracker_evolution_registrar_set_many (TrackerEvolutionRegistrar *object,
 				      DBusGMethodInvocation *context,
 				      GError *derror)
 {
-	guint len;
-	SetManyInfo *info;
+	guint len, i = 0;
 
 	dbus_async_return_if_fail (subjects != NULL, context);
 	dbus_async_return_if_fail (predicates != NULL, context);
@@ -740,65 +665,19 @@ tracker_evolution_registrar_set_many (TrackerEvolutionRegistrar *object,
 	dbus_async_return_if_fail (len == predicates->len, context);
 	dbus_async_return_if_fail (len == values->len, context);
 
-	info = g_new0 (SetManyInfo, 1);
-
-	info->object = g_object_ref (object);
-	info->context = context;
-	info->modseq = modseq;
-	info->subjects = g_strdupv (subjects);
-	info->predicates = strv_ptrarray_dup (predicates);
-	info->values = strv_ptrarray_dup (values);
-
-	g_idle_add_full (G_PRIORITY_LOW,
-	                 set_many_idle,
-	                 info,
-	                 set_many_destroy);
-}
-
-
-typedef struct {
-	GStrv subjects;
-	guint modseq;
-	DBusGMethodInvocation *context;
-	TrackerEvolutionRegistrar *object;
-} UnsetManyInfo;
-
-static gboolean
-unset_many_idle (gpointer user_data)
-{
-	guint i = 0;
-	gboolean cont = FALSE;
-	UnsetManyInfo *info = user_data;
-
-	while (info->subjects[i] != NULL) {
-
-		perform_unset (info->object, info->subjects[i], TRUE);
-
-		if (i > 100) {
-			cont = TRUE;
-			break;
-		}
-
+	while (subjects[i] != NULL) {
+		GStrv preds = g_ptr_array_index (predicates, i);
+		GStrv vals = g_ptr_array_index (values, i);
+		perform_set (object, subjects[i], preds, vals);
 		i++;
 	}
 
-	return cont;
+	tracker_store_queue_commit (on_commit, GUINT_TO_POINTER (modseq), NULL);
+
+	dbus_g_method_return (context);
 }
 
-static void
-unset_many_destroy (gpointer user_data)
-{
-	UnsetManyInfo *info = user_data;
 
-	set_stored_last_modseq (info->modseq);
-
-	tracker_store_queue_commit (NULL, NULL, NULL);
-
-	dbus_g_method_return (info->context);
-
-	g_object_unref (info->object);
-	g_free (info);
-}
 
 void
 tracker_evolution_registrar_unset_many (TrackerEvolutionRegistrar *object, 
@@ -807,21 +686,18 @@ tracker_evolution_registrar_unset_many (TrackerEvolutionRegistrar *object,
 					DBusGMethodInvocation *context,
 					GError *derror)
 {
-	UnsetManyInfo *info;
+	guint i = 0;
 
 	dbus_async_return_if_fail (subjects != NULL, context);
 
-	info = g_new0 (UnsetManyInfo, 1);
+	while (subjects[i] != NULL) {
+		perform_unset (object, subjects[i], TRUE);
+		i++;
+	}
 
-	info->object = g_object_ref (object);
-	info->context = context;
-	info->modseq = modseq;
-	info->subjects = g_strdupv (subjects);
+	tracker_store_queue_commit (on_commit, GUINT_TO_POINTER (modseq), NULL);
 
-	g_idle_add_full (G_PRIORITY_LOW,
-	                 unset_many_idle,
-	                 info,
-	                 unset_many_destroy);
+	dbus_g_method_return (context);
 }
 
 void
