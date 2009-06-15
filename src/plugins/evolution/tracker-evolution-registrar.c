@@ -31,9 +31,11 @@
 #include <libtracker-data/tracker-data-manager.h>
 #include <libtracker-common/tracker-ontology.h>
 #include <libtracker-common/tracker-sparql-builder.h>
+#include <libtracker-common/tracker-dbus.h>
 
 #include <tracker-store/tracker-push-registrar.h>
 #include <tracker-store/tracker-store.h>
+#include <tracker-store/tracker-dbus.h>
 
 #define __TRACKER_EVOLUTION_REGISTRAR_C__
 
@@ -596,15 +598,11 @@ perform_set (TrackerEvolutionRegistrar *object,
 
 static void 
 perform_unset (TrackerEvolutionRegistrar *object, 
-	       const gchar *subject, gboolean batch)
+	       const gchar *subject)
 {
 	gchar *sparql = g_strdup_printf ("DELETE { <%s> a rdfs:Resource }", subject);
 
-	if (!batch) {
-		tracker_store_sparql_update (sparql, NULL);
-	} else {
-		tracker_store_queue_sparql_update (sparql, NULL, NULL, NULL);
-	}
+	tracker_store_queue_sparql_update (sparql, NULL, NULL, NULL);
 
 	g_free (sparql);
 }
@@ -612,14 +610,20 @@ perform_unset (TrackerEvolutionRegistrar *object,
 static void
 perform_cleanup (TrackerEvolutionRegistrar *object)
 {
-	tracker_store_sparql_update ("DELETE { ?s a rdfs:Resource } WHERE { ?s nie:dataSource <" DATASOURCE_URN "> }", NULL);
-	/* tracker_store_sparql_update ("DELETE { ?s ?p ?o } WHERE { ?s nie:dataSource <" DATASOURCE_URN "> }", NULL); */
+	tracker_store_queue_sparql_update ("DELETE { ?s a rdfs:Resource } WHERE { ?s nie:dataSource <" DATASOURCE_URN "> }", NULL, NULL, NULL);
+	/* tracker_store_queue_sparql_update ("DELETE { ?s ?p ?o } WHERE { ?s nie:dataSource <" DATASOURCE_URN "> }", NULL, NULL, NULL); */
 }
 
 static void
 set_stored_last_modseq (guint last_modseq)
 {
 	tracker_data_manager_set_db_option_int ("EvolutionLastModseq", (gint) last_modseq);
+}
+
+static void
+on_commit (gpointer user_data)
+{
+	set_stored_last_modseq (GPOINTER_TO_UINT (user_data));
 }
 
 
@@ -632,6 +636,13 @@ tracker_evolution_registrar_set (TrackerEvolutionRegistrar *object,
 				 DBusGMethodInvocation *context,
 				 GError *derror)
 {
+	guint request_id;
+
+	request_id = tracker_dbus_get_next_request_id ();
+
+	tracker_dbus_request_new (request_id,
+				  "DBus request to set one: 'Evolution' ");
+
 	dbus_async_return_if_fail (subject != NULL, context);
 
 	if (predicates && values) {
@@ -642,17 +653,11 @@ tracker_evolution_registrar_set (TrackerEvolutionRegistrar *object,
 		perform_set (object, subject, predicates, values);
 	}
 
-	set_stored_last_modseq (modseq);
-
-	tracker_store_queue_commit (NULL, NULL, NULL);
+	tracker_store_queue_commit (on_commit, GUINT_TO_POINTER (modseq), NULL);
 
 	dbus_g_method_return (context);
-}
 
-static void
-on_commit (gpointer user_data)
-{
-	set_stored_last_modseq (GPOINTER_TO_UINT (user_data));
+	tracker_dbus_request_success (request_id);
 }
 
 static void
@@ -719,8 +724,11 @@ tracker_evolution_registrar_set_many (TrackerEvolutionRegistrar *object,
 				      DBusGMethodInvocation *context,
 				      GError *derror)
 {
+	guint request_id;
 	guint len, i = 0;
 	gboolean start_handler = FALSE;
+
+	request_id = tracker_dbus_get_next_request_id ();
 
 	dbus_async_return_if_fail (subjects != NULL, context);
 	dbus_async_return_if_fail (predicates != NULL, context);
@@ -730,6 +738,10 @@ tracker_evolution_registrar_set_many (TrackerEvolutionRegistrar *object,
 
 	dbus_async_return_if_fail (len == predicates->len, context);
 	dbus_async_return_if_fail (len == values->len, context);
+
+	tracker_dbus_request_new (request_id,
+				  "DBus request to set many: 'Evolution' "
+				  "'%d'", len);
 
 	if (!many_queue) {
 		many_queue = g_queue_new ();
@@ -756,6 +768,8 @@ tracker_evolution_registrar_set_many (TrackerEvolutionRegistrar *object,
 	}
 
 	dbus_g_method_return (context);
+
+	tracker_dbus_request_success (request_id);
 }
 
 
@@ -768,17 +782,26 @@ tracker_evolution_registrar_unset_many (TrackerEvolutionRegistrar *object,
 					GError *derror)
 {
 	guint i = 0;
+	guint request_id;
+
+	request_id = tracker_dbus_get_next_request_id ();
+
+	tracker_dbus_request_new (request_id,
+				  "DBus request to unset many: 'Evolution' "
+				  "'%d'", g_strv_length (subjects));
 
 	dbus_async_return_if_fail (subjects != NULL, context);
 
 	while (subjects[i] != NULL) {
-		perform_unset (object, subjects[i], TRUE);
+		perform_unset (object, subjects[i]);
 		i++;
 	}
 
 	tracker_store_queue_commit (on_commit, GUINT_TO_POINTER (modseq), NULL);
 
 	dbus_g_method_return (context);
+
+	tracker_dbus_request_success (request_id);
 }
 
 void
@@ -788,11 +811,22 @@ tracker_evolution_registrar_unset (TrackerEvolutionRegistrar *object,
 				   DBusGMethodInvocation *context,
 				   GError *derror)
 {
+	guint request_id;
+
+	request_id = tracker_dbus_get_next_request_id ();
+
+	tracker_dbus_request_new (request_id,
+				  "DBus request to unset one: 'Evolution'");
+
 	dbus_async_return_if_fail (subject != NULL, context);
 
-	perform_unset (object, subject, FALSE);
+	perform_unset (object, subject);
+
+	tracker_store_queue_commit (on_commit, GUINT_TO_POINTER (modseq), NULL);
 
 	dbus_g_method_return (context);
+
+	tracker_dbus_request_success (request_id);
 }
 
 void
@@ -801,11 +835,20 @@ tracker_evolution_registrar_cleanup (TrackerEvolutionRegistrar *object,
 				     DBusGMethodInvocation *context,
 				     GError *derror)
 {
+	guint request_id;
+
+	request_id = tracker_dbus_get_next_request_id ();
+
+	tracker_dbus_request_new (request_id,
+				  "DBus request to cleanup: 'Evolution'");
+
 	perform_cleanup (object);
 
-	set_stored_last_modseq (modseq);
+	tracker_store_queue_commit (on_commit, GUINT_TO_POINTER (modseq), NULL);
 
 	dbus_g_method_return (context);
+
+	tracker_dbus_request_success (request_id);
 }
 
 
@@ -881,6 +924,8 @@ tracker_evolution_push_registrar_enable (TrackerPushRegistrar *registrar,
 
 	g_object_unref (object); /* sink own */
 	g_object_unref (manager_proxy);  /* sink own */
+
+	g_debug ("Enabled Push module 'Evolution'");
 }
 
 static void
@@ -888,6 +933,7 @@ tracker_evolution_push_registrar_disable (TrackerPushRegistrar *registrar)
 {
 	tracker_push_registrar_set_object (registrar, NULL);
 	tracker_push_registrar_set_manager (registrar, NULL);
+	g_debug ("Disabled Push module 'Evolution'");
 }
 
 static void
