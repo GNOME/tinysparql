@@ -264,6 +264,7 @@ main (int argc, char *argv[])
 	gchar          *log_filename;
 	gboolean        stand_alone = FALSE;
 	guint           log_handler_id = 0;
+	TrackerExtract *object;
 
 	bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
 	bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
@@ -304,8 +305,6 @@ main (int argc, char *argv[])
 
 	initialize_signal_handler ();
 
-	tracker_memory_setrlimits ();
-
 	g_type_init ();
 
 	if (!g_thread_supported ()) {
@@ -317,6 +316,10 @@ main (int argc, char *argv[])
 	g_set_application_name ("tracker-extract");
 
 	setlocale (LC_ALL, "");
+
+	object = tracker_extract_new ();
+
+	tracker_memory_setrlimits ();
 
 	/* Set conditions when we use stand alone settings */
 	stand_alone |= filename != NULL;
@@ -337,11 +340,9 @@ main (int argc, char *argv[])
 	}
 
 	if (filename) {
-		TrackerExtract *object;
 		GFile *file;
 		gchar *full_path;
 
-		object = tracker_extract_new ();
 		if (!object) {
 			return EXIT_FAILURE;
 		}
@@ -384,7 +385,7 @@ main (int argc, char *argv[])
 	tracker_thumbnailer_init (config);
 
 	/* Make Tracker available for introspection */
-	if (!tracker_dbus_register_objects ()) {
+	if (!tracker_dbus_register_objects (object)) {
 		g_free (log_filename);
 		g_object_unref (config);
 

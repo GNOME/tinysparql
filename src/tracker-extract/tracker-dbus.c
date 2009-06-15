@@ -153,19 +153,12 @@ tracker_dbus_shutdown (void)
 }
 
 gboolean
-tracker_dbus_register_objects (void)
+tracker_dbus_register_objects (gpointer object)
 {
-	gpointer object;
+	g_return_val_if_fail (TRACKER_IS_EXTRACT (object), FALSE);
 
 	if (!connection || !gproxy) {
 		g_critical ("DBus support must be initialized before registering objects!");
-		return FALSE;
-	}
-
-	/* Add org.freedesktop.Tracker.Extract */
-	object = tracker_extract_new ();
-	if (!object) {
-		g_critical ("Could not create TrackerExtract object to register");
 		return FALSE;
 	}
 
