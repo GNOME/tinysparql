@@ -66,7 +66,6 @@ struct TrackerEvolutionPushRegistrarClass {
 	TrackerPushRegistrarClass parent_class;
 };
 
-
 typedef struct {
 	gpointer dummy;
 } TrackerEvolutionRegistrarPrivate;
@@ -74,6 +73,17 @@ typedef struct {
 enum {
 	PROP_0,
 };
+
+
+typedef struct {
+	guint modseq;
+	gchar *subject;
+	GStrv predicates;
+	GStrv values;
+} QueuedSet;
+
+static GQueue *many_queue = NULL;
+#define QUEUED_SETS_PER_MAINLOOP 2
 
 static GType tracker_evolution_push_registrar_get_type (void) G_GNUC_CONST;
 
@@ -645,6 +655,63 @@ on_commit (gpointer user_data)
 	set_stored_last_modseq (GPOINTER_TO_UINT (user_data));
 }
 
+static void
+queued_set_free (QueuedSet *queued_set)
+{
+	g_free (queued_set->subject);
+	g_strfreev (queued_set->values);
+	g_strfreev (queued_set->predicates);
+	g_slice_free (QueuedSet, queued_set);
+}
+
+static gboolean 
+many_idle_handler (gpointer user_data)
+{
+	guint i, last_modseq = 0;
+	QueuedSet *queued_set = GUINT_TO_POINTER (1);
+	TrackerEvolutionRegistrar *object = user_data;
+
+	for (i = 0; i < QUEUED_SETS_PER_MAINLOOP && queued_set ; i++) {
+		queued_set = g_queue_pop_head (many_queue);
+
+		if (queued_set) {
+			perform_set (object,
+			             queued_set->subject,
+			             queued_set->predicates,
+			             queued_set->values);
+
+			if (last_modseq != queued_set->modseq) {
+				tracker_store_queue_commit (on_commit, 
+				                            GUINT_TO_POINTER (queued_set->modseq), 
+				                            NULL);
+			}
+
+			last_modseq = queued_set->modseq;
+
+			queued_set_free (queued_set);
+		} 
+	}
+
+	return (gboolean) queued_set;
+}
+
+static void
+many_idle_destroy (gpointer user_data)
+{
+	g_queue_free (many_queue);
+	many_queue = NULL;
+	g_object_unref (user_data);
+}
+
+static void
+start_many_handler (TrackerEvolutionRegistrar *object)
+{
+	g_idle_add_full (G_PRIORITY_LOW,
+	                 many_idle_handler,
+	                 g_object_ref (object),
+	                 many_idle_destroy);
+}
+
 void
 tracker_evolution_registrar_set_many (TrackerEvolutionRegistrar *object, 
 				      const GStrv subjects, 
@@ -655,6 +722,7 @@ tracker_evolution_registrar_set_many (TrackerEvolutionRegistrar *object,
 				      GError *derror)
 {
 	guint len, i = 0;
+	gboolean start_handler = FALSE;
 
 	dbus_async_return_if_fail (subjects != NULL, context);
 	dbus_async_return_if_fail (predicates != NULL, context);
@@ -665,14 +733,27 @@ tracker_evolution_registrar_set_many (TrackerEvolutionRegistrar *object,
 	dbus_async_return_if_fail (len == predicates->len, context);
 	dbus_async_return_if_fail (len == values->len, context);
 
+	if (!many_queue) {
+		many_queue = g_queue_new ();
+		start_handler = TRUE;
+	}
+
 	while (subjects[i] != NULL) {
-		GStrv preds = g_ptr_array_index (predicates, i);
-		GStrv vals = g_ptr_array_index (values, i);
-		perform_set (object, subjects[i], preds, vals);
+		QueuedSet *queued_set = g_slice_new (QueuedSet);
+
+		queued_set->subject = g_strdup (subjects[1]);
+		queued_set->predicates = g_strdupv (g_ptr_array_index (predicates, i));
+		queued_set->values = g_strdupv (g_ptr_array_index (values, i));
+		queued_set->modseq = modseq;
+
+		g_queue_push_tail (many_queue, queued_set);
+
 		i++;
 	}
 
-	tracker_store_queue_commit (on_commit, GUINT_TO_POINTER (modseq), NULL);
+	if (start_handler) {
+		start_many_handler (object);
+	}
 
 	dbus_g_method_return (context);
 }
