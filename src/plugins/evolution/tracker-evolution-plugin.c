@@ -469,6 +469,83 @@ on_folder_summary_changed (CamelFolder *folder,
 	g_free (em_uri);
 }
 
+
+#define QUEUED_SETS_PER_MAINLOOP 2
+
+typedef struct {
+	GStrv subjects;
+	GPtrArray *values_array;
+	GPtrArray *predicates_array;
+	DBusGProxy *registrar;
+} QueuedSet;
+
+static GQueue *many_queue = NULL;
+
+static void
+queued_set_free (QueuedSet *queued_set)
+{
+	guint i;
+
+	g_strfreev (queued_set->subjects);
+	for (i = 0; i < queued_set->values_array->len; i++)
+		g_strfreev (queued_set->values_array->pdata[i]); 
+	g_ptr_array_free (queued_set->values_array, TRUE);
+	for (i = 0; i < queued_set->predicates_array->len; i++)
+		g_strfreev (queued_set->predicates_array->pdata[i]); 
+	g_ptr_array_free (queued_set->predicates_array, TRUE);
+	g_object_unref (queued_set->registrar);
+
+	g_slice_free (QueuedSet, queued_set);
+}
+
+static gboolean 
+many_idle_handler (gpointer user_data)
+{
+	guint i;
+	QueuedSet *queued_set = (gpointer) 1;
+
+	for (i = 0; i < QUEUED_SETS_PER_MAINLOOP && queued_set ; i++) {
+
+		if (!many_queue) {
+			return FALSE;
+		}
+
+		queued_set = g_queue_pop_head (many_queue);
+
+		if (queued_set) {
+
+			dbus_g_proxy_call_no_reply (queued_set->registrar,
+						    "SetMany",
+						    G_TYPE_STRV, queued_set->subjects,
+						    TRACKER_TYPE_G_STRV_ARRAY, queued_set->predicates_array,
+						    TRACKER_TYPE_G_STRV_ARRAY, queued_set->values_array,
+						    G_TYPE_UINT, (guint) time (NULL),
+						    G_TYPE_INVALID, 
+						    G_TYPE_INVALID);
+
+			queued_set_free (queued_set);
+		} 
+	}
+
+	return (gboolean) queued_set;
+}
+
+static void
+many_idle_destroy (gpointer user_data)
+{
+	g_queue_free (many_queue);
+	many_queue = NULL;
+}
+
+static void
+start_many_handler (void)
+{
+	g_timeout_add_seconds_full (G_PRIORITY_LOW, 1,
+	                            many_idle_handler,
+	                            NULL,
+	                            many_idle_destroy);
+}
+
 /* Initial upload of more recent than last_checkout items, called in the mainloop */
 static void
 introduce_walk_folders_in_folder (TrackerEvolutionPlugin *self, 
@@ -639,33 +716,46 @@ introduce_walk_folders_in_folder (TrackerEvolutionPlugin *self,
 
 			if (count > 0) {
 				gchar **subjects;
+				QueuedSet *queued_set;
+				gboolean start_handler = FALSE;
 
 				subjects = (gchar **) g_malloc0 (sizeof (gchar *) * subjects_a->len + 1);
 				for (i = 0; i < subjects_a->len; i++)
 					subjects[i] = g_ptr_array_index (subjects_a, i);
 				subjects[i] = NULL;
 
-				dbus_g_proxy_call_no_reply (info->registrar,
-							    "SetMany",
-							    G_TYPE_STRV, subjects,
-							    TRACKER_TYPE_G_STRV_ARRAY, predicates_array,
-							    TRACKER_TYPE_G_STRV_ARRAY, values_array,
-							    G_TYPE_UINT, (guint) time (NULL),
-							    G_TYPE_INVALID, 
-							    G_TYPE_INVALID);
+				queued_set = g_slice_new (QueuedSet);
 
-				g_strfreev (subjects);
+				queued_set->subjects = subjects;
+				queued_set->predicates_array = predicates_array;
+				queued_set->values_array = values_array;
+				queued_set->registrar = g_object_ref (info->registrar);
+
+				if (!many_queue) {
+					many_queue = g_queue_new ();
+					start_handler = TRUE;
+				}
+
+				g_queue_push_tail (many_queue, 
+						   queued_set);
+
+				if (start_handler) {
+					start_many_handler ();
+				}
+
+			} else {
+
+				for (i = 0; i < values_array->len; i++)
+					g_strfreev (values_array->pdata[i]); 
+				g_ptr_array_free (values_array, TRUE);
+
+				for (i = 0; i < predicates_array->len; i++)
+					g_strfreev (predicates_array->pdata[i]); 
+				g_ptr_array_free (predicates_array, TRUE);
 			}
 
 			g_ptr_array_free (subjects_a, TRUE);
 
-			for (i = 0; i < values_array->len; i++)
-				g_strfreev (values_array->pdata[i]); 
-			g_ptr_array_free (values_array, TRUE);
-
-			for (i = 0; i < predicates_array->len; i++)
-				g_strfreev (predicates_array->pdata[i]); 
-			g_ptr_array_free (predicates_array, TRUE);
 		}
 
 		sqlite3_finalize (stmt);
@@ -1085,7 +1175,7 @@ register_client (TrackerEvolutionPlugin *self,
 {
 	TrackerEvolutionPluginPrivate *priv = TRACKER_EVOLUTION_PLUGIN_GET_PRIVATE (self);
 	guint64 too_old = get_last_deleted_time (self);
-	ClientRegistry *info = g_slice_new (ClientRegistry);
+	ClientRegistry *info = g_slice_new0 (ClientRegistry);
 
 	info->signal = dsignal;
 	info->registrar = g_object_ref (registrar);
