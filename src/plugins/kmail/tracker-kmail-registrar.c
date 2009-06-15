@@ -503,7 +503,7 @@ tracker_kmail_registrar_set_many (TrackerKMailRegistrar *object,
 	while (subjects[i] != NULL) {
 		QueuedSet *queued_set = g_slice_new (QueuedSet);
 
-		queued_set->subject = g_strdup (subjects[1]);
+		queued_set->subject = g_strdup (subjects[i]);
 		queued_set->predicates = g_strdupv (g_ptr_array_index (predicates, i));
 		queued_set->values = g_strdupv (g_ptr_array_index (values, i));
 		queued_set->modseq = modseq;
