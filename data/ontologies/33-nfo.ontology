@@ -428,6 +428,20 @@ nfo:hasMediaFileListEntry a rdf:Property ;
 	rdfs:domain nfo:MediaList ;
 	rdfs:range nfo:MediaFileListEntry .
 
+# Propose in nepomuk
+nfo:entryCounter a rdf:Property ;
+        rdfs:label "entry Counter" ;
+	rdfs:comment "Number of entries in the list. Optimize some common queries" ;
+	rdfs:domain nfo:MediaList ;
+	rdfs:range xsd:integer .
+
+nfo:listDuration a rdf:Property ;
+	rdfs:label "List duration" ;
+	rdfs:comment "Sum of the duration of all items in the list. Optimize some common queries. In seconds";
+        rdfs:domain nfo:MediaList ;
+	rdfs:range xsd:integer .
+
+# Propose in nepomuk
 nfo:listPosition a rdf:Property ;
 	rdfs:label "list position" ;
 	rdfs:comment "Position of an entry in a list. Double, to optimize the poor insertions" ;
@@ -435,6 +449,7 @@ nfo:listPosition a rdf:Property ;
 	rdfs:domain nfo:MediaFileListEntry ;
 	rdfs:range xsd:double .
 
+# Propose in nepomuk
 nfo:entryContent a rdf:Property ;
 	rdfs:label "Entry content" ;
 	rdfs:Comment "URI to the element in certain position of the list" ;
