@@ -422,7 +422,9 @@ perform_set (TrackerEvolutionRegistrar *object,
 			if (value) {
 				*value = '\0';
 				value++;
+			}
 
+			if (value) {
 				tracker_sparql_builder_predicate (sparql, "nao:hasProperty");
 
 				tracker_sparql_builder_object_blank_open (sparql);
