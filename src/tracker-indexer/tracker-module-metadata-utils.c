@@ -875,8 +875,7 @@ tracker_module_metadata_utils_get_data (GFile *file)
 	tracker_module_metadata_add_date (metadata, METADATA_FILE_MODIFIED, st.st_mtime);
 	tracker_module_metadata_add_date (metadata, METADATA_FILE_ACCESSED, st.st_atime);
 
-	/* Set mtime as addition date, so we don't report older files as "recent" on reindex */
-	tracker_module_metadata_add_date (metadata, METADATA_FILE_ADDED, st.st_mtime);
+	tracker_module_metadata_add_date (metadata, METADATA_FILE_ADDED, time (NULL));
 
 	metadata_utils_get_embedded (file, mime_type, metadata);
 
