@@ -351,10 +351,10 @@ tracker_memory_setrlimits (void)
 	buffer = MEM_LIMIT;
 
 #ifdef __x86_64__
-	/* We double the memory here because otherwise it generally
-	 * isn't enough.
+	/* We multiply the memory limit here because otherwise it
+	 * generally isn't enough. 
 	 */
-	buffer *= 2;
+	buffer *= 12;
 #endif /* __x86_64__ */
 
 	ideal = current + buffer;
