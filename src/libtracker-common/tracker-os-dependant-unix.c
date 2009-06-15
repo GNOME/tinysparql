@@ -34,14 +34,7 @@
 #include "tracker-log.h"
 #include "tracker-os-dependant.h"
 
-/* Maximum here is a G_MAXLONG, so if you want to use > 2GB, you have
- * to set MEM_LIMIT to RLIM_INFINITY
- */
-#ifdef __x86_64__
-#define MEM_LIMIT 512 * 1024 * 1024
-#else
 #define MEM_LIMIT 100 * 1024 * 1024
-#endif
 
 #if defined(__OpenBSD__) && !defined(RLIMIT_AS)
 #define RLIMIT_AS RLIMIT_DATA
@@ -346,18 +339,25 @@ gboolean
 tracker_memory_setrlimits (void)
 {
 #ifndef DISABLE_MEM_LIMITS
-	struct rlimit rl;
-	glong         total;
-	glong         limit;
-	glong         current, ideal;
-#endif
+	struct rlimit  rl;
+	glong          buffer;
+	glong          total;
+	glong          limit;
+	glong          current, ideal;
+	gchar         *str1, *str2, *str3;
 
-	tracker_memory_set_oom_adj ();
-
-#ifndef DISABLE_MEM_LIMITS
 	total = get_memory_total ();
 	current = get_process_memory_usage ();
-	ideal = current + MEM_LIMIT;
+	buffer = MEM_LIMIT;
+
+#ifdef __x86_64__
+	/* We double the memory here because otherwise it generally
+	 * isn't enough.
+	 */
+	buffer *= 2;
+#endif /* __x86_64__ */
+
+	ideal = current + buffer;
 
 	limit = CLAMP (ideal, 0, total);
 
@@ -375,32 +375,35 @@ tracker_memory_setrlimits (void)
 			   str ? str : "no error given");
 
                return FALSE;
-	} else {
-		getrlimit (RLIMIT_DATA, &rl);
-		rl.rlim_cur = limit;
-
-		if (setrlimit (RLIMIT_DATA, &rl) == -1) {
-			const gchar *str = g_strerror (errno);
-
-			g_critical ("Could not set heap memory limit with setrlimit(RLIMIT_DATA), %s",
-				    str ? str : "no error given");
-
-			return FALSE;
-		} else {
-			gchar *str1, *str2;
-
-			str1 = g_format_size_for_display (total);
-			str2 = g_format_size_for_display (limit);
-
-			g_message ("Setting memory limitations: total is %s, virtual/heap set to %s",
-				   str1,
-				   str2);
-
-			g_free (str2);
-			g_free (str1);
-		}
 	}
+
+	getrlimit (RLIMIT_DATA, &rl);
+	rl.rlim_cur = limit;
+	
+	if (setrlimit (RLIMIT_DATA, &rl) == -1) {
+		const gchar *str = g_strerror (errno);
+		
+		g_critical ("Could not set heap memory limit with setrlimit(RLIMIT_DATA), %s",
+			    str ? str : "no error given");
+		
+		return FALSE;
+	}
+
+	str1 = g_format_size_for_display (total);
+	str2 = g_format_size_for_display (limit);
+	str3 = g_format_size_for_display (buffer);
+	
+	g_message ("Setting memory limitations: total is %s, virtual/heap set to %s (%s buffer)",
+		   str1,
+		   str2,
+		   str3);
+	
+	g_free (str3);
+	g_free (str2);
+	g_free (str1);
 #endif /* DISABLE_MEM_LIMITS */
+
+	tracker_memory_set_oom_adj ();
 
 	return TRUE;
 }
