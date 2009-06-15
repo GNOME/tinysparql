@@ -74,7 +74,7 @@ enum {
 
 
 typedef struct {
-	guint modseq;
+	guint modseq, item_no, reached;
 	gchar *subject;
 	GStrv predicates;
 	GStrv values;
@@ -431,7 +431,7 @@ queued_set_free (QueuedSet *queued_set)
 static gboolean 
 many_idle_handler (gpointer user_data)
 {
-	guint i, last_modseq = 0;
+	guint i;
 	QueuedSet *queued_set = GUINT_TO_POINTER (1);
 	TrackerKMailRegistrar *object = user_data;
 
@@ -444,13 +444,11 @@ many_idle_handler (gpointer user_data)
 			             queued_set->predicates,
 			             queued_set->values);
 
-			if (last_modseq != queued_set->modseq) {
+			if (queued_set->item_no == queued_set->reached) {
 				tracker_store_queue_commit (on_commit, 
 				                            GUINT_TO_POINTER (queued_set->modseq), 
 				                            NULL);
 			}
-
-			last_modseq = queued_set->modseq;
 
 			queued_set_free (queued_set);
 		} 
@@ -509,6 +507,8 @@ tracker_kmail_registrar_set_many (TrackerKMailRegistrar *object,
 		queued_set->predicates = g_strdupv (g_ptr_array_index (predicates, i));
 		queued_set->values = g_strdupv (g_ptr_array_index (values, i));
 		queued_set->modseq = modseq;
+		queued_set->item_no = i;
+		queued_set->reached = len - 1;
 
 		g_queue_push_tail (many_queue, queued_set);
 
