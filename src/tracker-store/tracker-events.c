@@ -211,8 +211,7 @@ tracker_events_shutdown (void)
 
 	private = g_static_private_get (&private_key);
 	if (private != NULL) {
-		/* Shutdown with pending events = ERROR */
-		g_return_if_fail (private->events == NULL);
+		tracker_events_reset ();
 		g_static_private_set (&private_key, NULL, NULL);
 	} else {
 		g_warning ("tracker_events already shutdown");
