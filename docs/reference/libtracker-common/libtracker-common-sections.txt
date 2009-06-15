@@ -17,7 +17,6 @@ tracker_config_get_enable_indexing
 tracker_config_get_enable_stemmer
 tracker_config_get_enable_thumbnails
 tracker_config_get_enable_watches
-tracker_config_get_enable_xesam
 tracker_config_get_fast_merges
 tracker_config_get_index_mounted_directories
 tracker_config_get_index_removable_devices
@@ -45,7 +44,6 @@ tracker_config_set_enable_indexing
 tracker_config_set_enable_stemmer
 tracker_config_set_enable_thumbnails
 tracker_config_set_enable_watches
-tracker_config_set_enable_xesam
 tracker_config_set_fast_merges
 tracker_config_set_index_mounted_directories
 tracker_config_set_index_removable_devices
@@ -71,15 +69,6 @@ tracker_config_get_type
 TRACKER_CONFIG_CLASS
 TRACKER_IS_CONFIG_CLASS
 TRACKER_CONFIG_GET_CLASS
-</SECTION>
-
-<INCLUDE>libtracker-common/tracker-type-utils.h</INCLUDE>
-<SECTION>
-<FILE>tracker-type-utils</FILE>
-<TITLE>Type Utils</TITLE>
-tracker_date_format
-tracker_date_to_string
-tracker_date_to_time_string
 </SECTION>
 
 <INCLUDE>libtracker-common/tracker-dbus.h</INCLUDE>
@@ -113,9 +102,6 @@ tracker_file_get_mime_type
 tracker_file_get_mtime
 tracker_file_get_path_and_name
 tracker_file_get_size
-tracker_file_is_directory
-tracker_file_is_indexable
-tracker_file_is_valid
 tracker_file_open
 tracker_file_unlink
 tracker_path_evaluate_name
@@ -129,7 +115,7 @@ tracker_path_remove
 <SECTION>
 <FILE>tracker-utils</FILE>
 <TITLE>General</TITLE>
-tracker_escape_string
+tracker_escape_db_string
 tracker_is_empty_string
 tracker_seconds_estimate_to_string
 tracker_seconds_to_string
@@ -180,48 +166,14 @@ TRACKER_TYPE_FIELD_TYPE
 tracker_field_type_get_type
 </SECTION>
 
-<INCLUDE>libtracker-common/tracker-field-data.h</INCLUDE>
-<SECTION>
-<FILE>tracker-field-data</FILE>
-<TITLE>Field Data</TITLE>
-TrackerFieldData
-tracker_field_data_new
-tracker_field_data_get_alias
-tracker_field_data_get_data_type
-tracker_field_data_get_field_name
-tracker_field_data_get_id_field
-tracker_field_data_get_is_condition
-tracker_field_data_get_is_select
-tracker_field_data_get_multiple_values
-tracker_field_data_get_needs_join
-tracker_field_data_get_select_field
-tracker_field_data_get_table_name
-tracker_field_data_get_where_field
-tracker_field_data_set_alias
-tracker_field_data_set_data_type
-tracker_field_data_set_field_name
-tracker_field_data_set_id_field
-tracker_field_data_set_is_condition
-tracker_field_data_set_is_select
-tracker_field_data_set_multiple_values
-tracker_field_data_set_needs_join
-tracker_field_data_set_select_field
-tracker_field_data_set_table_name
-tracker_field_data_set_where_field
-<SUBSECTION Standard>
-TRACKER_FIELD_DATA
-TRACKER_IS_FIELD_DATA
-TRACKER_TYPE_FIELD_DATA
-tracker_field_data_get_type
-TRACKER_FIELD_DATA_CLASS
-TRACKER_IS_FIELD_DATA_CLASS
-TRACKER_FIELD_DATA_GET_CLASS
-</SECTION>
-
 <INCLUDE>libtracker-common/tracker-type-utils.h</INCLUDE>
 <SECTION>
 <FILE>tracker-type-utils</FILE>
 <TITLE>Type Conversions</TITLE>
+tracker_date_format
+tracker_date_format_to_iso8601
+tracker_date_to_string
+tracker_date_to_time_string
 tracker_gint32_to_string
 tracker_gint_to_string
 tracker_glong_to_string
