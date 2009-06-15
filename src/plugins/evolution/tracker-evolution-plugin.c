@@ -62,7 +62,7 @@
  * access to the CamelSession using the external variable 'session'. The header
  * mail/mail-session.h makes this variable public */
 
-#define MAX_BEFORE_SEND 2000
+#define MAX_BEFORE_SEND 200
 
 G_DEFINE_TYPE (TrackerEvolutionPlugin, tracker_evolution_plugin, G_TYPE_OBJECT)
 
