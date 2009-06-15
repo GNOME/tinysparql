@@ -423,9 +423,33 @@ tracker_thumbnailer_queue_send (void)
 	TrackerThumbnailerPrivate *private;
 	GStrv uri_strv;
 	GStrv mime_type_strv;
+	guint len = 0;
 
 	private = g_static_private_get (&private_key);
 	g_return_if_fail (private != NULL);
+
+	if (private->uris) {
+		len = g_slist_length (private->uris);
+	}
+
+	if (!len) {
+		g_message ("Thumbnailer queue has no items ...");
+
+		if (private->uris) {
+			g_slist_free (private->uris);
+			private->uris = NULL;
+		}
+
+		if (private->mime_types) {
+			if (g_slist_length (private->mime_types) > 0) {
+				g_slist_foreach (private->mime_types, (GFunc) g_free, NULL);
+			}
+			g_slist_free (private->mime_types);
+			private->mime_types = NULL;
+		}
+
+		return;
+	}
 
 	uri_strv = tracker_dbus_slist_to_strv (private->uris);
 	mime_type_strv = tracker_dbus_slist_to_strv (private->mime_types);
