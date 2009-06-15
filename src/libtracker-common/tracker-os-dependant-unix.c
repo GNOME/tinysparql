@@ -40,7 +40,7 @@
 #ifdef __x86_64__
 #define MEM_LIMIT 512 * 1024 * 1024
 #else
-#define MEM_LIMIT 80 * 1024 * 1024
+#define MEM_LIMIT 100 * 1024 * 1024
 #endif
 
 #if defined(__OpenBSD__) && !defined(RLIMIT_AS)
@@ -268,13 +268,63 @@ get_memory_total (void)
 	return total;
 }
 
+static glong
+get_process_memory_usage (void)
+{
+	gchar *contents = NULL;
+	GError *error;
+	glong memory = 0;
+
+	if (!g_file_get_contents ("/proc/self/status",
+				  &contents,
+				  NULL,
+				  &error)) {
+		g_critical ("Could not get process current memory usage: %s", error->message);
+		g_error_free (error);
+	} else {
+		gchar *p, *end;
+
+		p = contents;
+		end = strchr (p, '\n');
+
+		while (p) {
+			if (end) {
+				*end = '\0';
+			}
+
+			if (g_str_has_prefix (p, "VmSize:")) {
+				gchar *line_end;
+
+				/* Get VmSize since we actually deal with RLIMIT_AS anyway */
+				p += strlen ("VmSize:");
+				line_end = strstr (p, "kB");
+				*line_end = '\0';
+
+				memory = strtol (p, NULL, 10);
+				p = line_end + 1;
+			}
+
+			if (end) {
+				p = end + 1;
+				end = strchr (p, '\n');
+			} else {
+				p = NULL;
+			}
+		}
+
+		g_free (contents);
+	}
+
+	return memory * 1024;
+}
+
 static void
 tracker_memory_set_oom_adj (void)
 {
 	const gchar *str = "15";
 	gboolean success = FALSE;
 	int fd;
- 
+
 	fd = open ("/proc/self/oom_adj", O_WRONLY);
 
 	if (fd != -1) {
@@ -299,9 +349,17 @@ tracker_memory_setrlimits (void)
 	struct rlimit rl;
 	glong         total;
 	glong         limit;
+	glong         current, ideal;
+#endif
 
+	tracker_memory_set_oom_adj ();
+
+#ifndef DISABLE_MEM_LIMITS
 	total = get_memory_total ();
-	limit = CLAMP (MEM_LIMIT, 0, total);
+	current = get_process_memory_usage ();
+	ideal = current + MEM_LIMIT;
+
+	limit = CLAMP (ideal, 0, total);
 
 	/* We want to limit the max virtual memory
 	 * most extractors use mmap() so only virtual memory can be
@@ -343,8 +401,6 @@ tracker_memory_setrlimits (void)
 		}
 	}
 #endif /* DISABLE_MEM_LIMITS */
-
-	tracker_memory_set_oom_adj ();
 
 	return TRUE;
 }
