@@ -144,7 +144,6 @@ enum {
 	PROP_CONNECTION
 };
 
-static GHashTable *registrars = NULL;
 static DBusGProxy *dbus_proxy = NULL;
 static TrackerEvolutionPlugin *manager = NULL;
 static GStaticRecMutex glock = G_STATIC_REC_MUTEX_INIT;
@@ -497,7 +496,7 @@ typedef struct {
 	GPtrArray *values_array;
 	GPtrArray *predicates_array;
 	DBusGProxy *registrar;
-	GObject *self;
+	TrackerEvolutionPlugin *self;
 	gchar *sender;
 } QueuedSet;
 
@@ -590,7 +589,7 @@ start_many_handler (void)
 static void
 introduce_walk_folders_in_folder (TrackerEvolutionPlugin *self, 
 				  CamelFolderInfo *iter, 
-				  CamelStore *store, 
+				  CamelStore *store, CamelDB *cdb_r,
 				  gchar *account_uri, 
 				  ClientRegistry *info)
 {
@@ -599,7 +598,6 @@ introduce_walk_folders_in_folder (TrackerEvolutionPlugin *self,
 
 	while (iter) {
 		guint i, ret = SQLITE_OK;
-		CamelDB *cdb_r;
 		gchar *query;
 		sqlite3_stmt *stmt = NULL;
 		gboolean more = TRUE;
@@ -628,7 +626,6 @@ introduce_walk_folders_in_folder (TrackerEvolutionPlugin *self,
 					 iter->full_name, 
 					 info->last_checkout);
 
-		cdb_r = camel_db_clone (store->cdb_r, NULL);
 
 		ret = sqlite3_prepare_v2 (cdb_r->db, query, -1, &stmt, NULL);
 
@@ -823,10 +820,8 @@ introduce_walk_folders_in_folder (TrackerEvolutionPlugin *self,
 		sqlite3_finalize (stmt);
 		sqlite3_free (query);
 
-		camel_db_clone (cdb_r, NULL);
-
 		if (iter->child) {
-			introduce_walk_folders_in_folder (self, iter->child, store, account_uri, info);
+			introduce_walk_folders_in_folder (self, iter->child, store, cdb_r, account_uri, info);
 		}
 
 		iter = iter->next;
@@ -855,6 +850,7 @@ introduce_store_deal_with_deleted (TrackerEvolutionPlugin *self,
 	query = sqlite3_mprintf ("SELECT uid, mailbox FROM Deletes WHERE modified > %" PRIu64, 
 				 info->last_checkout);
 
+	/* This creates a thread apparently */
 	cdb_r = camel_db_clone (store->cdb_r, NULL);
 
 	sqlite3_prepare_v2 (cdb_r->db, query, -1, &stmt, NULL);
@@ -1212,6 +1208,7 @@ client_registry_info_copy (ClientRegistry *info)
 typedef struct {
 	IntroductionInfo *intro_info;
 	CamelStore *store;
+	CamelDB *cdb_r;
 	CamelFolderInfo *iter;
 } TryAgainInfo;
 
@@ -1225,6 +1222,7 @@ try_again (gpointer user_data)
 		introduce_walk_folders_in_folder (intro_info->self, 
 						  info->iter,
 						  info->store, 
+						  info->cdb_r,
 						  intro_info->account_uri, 
 						  intro_info->info);
 
@@ -1239,6 +1237,7 @@ try_again_d (gpointer user_data)
 {
 	TryAgainInfo *info = user_data;
 
+	camel_db_close (info->cdb_r);
 	camel_object_unref (info->store);
 	camel_folder_info_free (info->iter);
 
@@ -1259,6 +1258,9 @@ on_got_folderinfo_introduce (CamelStore *store,
 
 	camel_object_ref (store);
 	info->store = store;
+
+	/* This apparently creates a thread */
+	info->cdb_r = camel_db_clone (store->cdb_r, NULL);
 
 	info->iter = camel_folder_info_clone (iter);
 	info->intro_info = data;
