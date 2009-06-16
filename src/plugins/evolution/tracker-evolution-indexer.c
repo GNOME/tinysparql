@@ -436,7 +436,7 @@ perform_set (TrackerEvolutionIndexer *object,
 #endif
 
 	data = tracker_module_metadata_get_hash_table (metadata);
-	tracker_data_update_replace_service (subject, "EvolutionEmails", data);				    
+	tracker_data_update_replace_service (NULL, subject, "EvolutionEmails", data);				    
 					    
 	g_hash_table_unref (data);
 	g_object_unref (metadata);

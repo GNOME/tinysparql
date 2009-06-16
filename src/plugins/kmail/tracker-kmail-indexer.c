@@ -194,7 +194,7 @@ perform_set (TrackerKMailIndexer *object,
 
 	data = tracker_module_metadata_get_hash_table (metadata);
 
-	tracker_data_update_replace_service (subject, "KMailEmails", data);
+	tracker_data_update_replace_service (NULL, subject, "KMailEmails", data);
 
 	g_hash_table_destroy (data);
 	g_object_unref (metadata);

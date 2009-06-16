@@ -62,13 +62,24 @@
  * access to the CamelSession using the external variable 'session'. The header
  * mail/mail-session.h makes this variable public */
 
-#define MAX_BEFORE_SEND 2000
+/* Note to people who are scared about this plugin using the CamelDB directly: 
+ * The code uses camel_db_clone to create a new connection to the DB. We hope
+ * that's sufficient for not having to lock the store instances (sqlite3 has
+ * its own locks, and we only clone the db_r instance, we also only ever do
+ * reads, never writes). We hope that's sufficient for not having to get our
+ * code involved in Camel's cruel inneryard of having to lock the db_r ptr. */
+
+#define MAX_BEFORE_SEND 200
 
 G_DEFINE_TYPE (TrackerEvolutionPlugin, tracker_evolution_plugin, G_TYPE_OBJECT)
 
 #define TRACKER_EVOLUTION_PLUGIN_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_EVOLUTION_PLUGIN, TrackerEvolutionPluginPrivate))
 
-/* Some helper-defines */
+/* Some helper-defines (Copied from cruel Camel code, might be wrong as soon as
+ * the cruel and nasty Camel coders decide to change the format of the fields in
+ * the database) - guys, encoding things in fields of a table in a database is
+ * cruel and prone to error. Anyway). */
+
 #define CAMEL_CALLBACK(func) ((CamelObjectEventHookFunc) func)
 #define EXTRACT_STRING(val) if (*part) part++; len=strtoul (part, &part, 10); if (*part) part++; val=g_strndup (part, len); part+=len;
 #define EXTRACT_FIRST_DIGIT(val) val=strtoul (part, &part, 10);
@@ -77,12 +88,13 @@ G_DEFINE_TYPE (TrackerEvolutionPlugin, tracker_evolution_plugin, G_TYPE_OBJECT)
  * fashion. Therefore it's necessary to guard against concurrent access of
  * memory. Especially given that both the mainloop and the Camel-threads will
  * be accessing the memory (mainloop for DBus calls, and Camel-threads mostly
- * during registration of accounts and folders) */
+ * during registration of accounts and folders). I know this is cruel. I know. */
 
 typedef struct {
 	guint64 last_checkout;
 	DBusGProxy *registrar;
 	guint signal;
+	gchar *sender;
 } ClientRegistry;
 
 typedef struct {
@@ -132,9 +144,11 @@ enum {
 	PROP_CONNECTION
 };
 
+static GHashTable *registrars = NULL;
 static DBusGProxy *dbus_proxy = NULL;
 static TrackerEvolutionPlugin *manager = NULL;
 static GStaticRecMutex glock = G_STATIC_REC_MUTEX_INIT;
+static guint register_count = 0;
 
 /* Prototype declarations */
 static void register_account (TrackerEvolutionPlugin *self, EAccount *account);
@@ -142,6 +156,9 @@ static void unregister_account (TrackerEvolutionPlugin *self, EAccount *account)
 int e_plugin_lib_enable (EPluginLib *ep, int enable);
 static void metadata_set_many (TrackerEvolutionPlugin *self, GStrv subjects, GPtrArray *predicates, GPtrArray *values);
 static void metadata_unset_many (TrackerEvolutionPlugin *self, GStrv subjects);
+
+
+/* First a bunch of helper functions. */
 
 static GList *
 get_recipient_list (const gchar *str)
@@ -284,7 +301,9 @@ process_fields (GPtrArray *predicates_temp,
 
 /* When new messages arrive to- or got deleted from the summary, called in
  * mainloop or by a thread (unknown, depends on Camel and Evolution code that 
- * executes the reason why this signal gets emitted) */
+ * executes the reason why this signal gets emitted).
+ *
+ * This one is the reason why we registered all those folders during init below. */
 
 static void
 on_folder_summary_changed (CamelFolder *folder, 
@@ -366,7 +385,7 @@ on_folder_summary_changed (CamelFolder *folder,
 				flags =   (guint)   camel_message_info_flags (linfo);
 
 				/* Camel returns a time_t, I think a uint64 is the best fit here */
-				sent = g_strdup_printf ("%"PRIu64, (unsigned long long) camel_message_info_date_sent (linfo));
+				sent = g_strdup_printf ("%"PRIu64, (guint64) camel_message_info_date_sent (linfo));
 
 				/* Camel returns a uint32, so %u */
 				size = g_strdup_printf ("%u", camel_message_info_size (linfo));
@@ -469,6 +488,104 @@ on_folder_summary_changed (CamelFolder *folder,
 	g_free (em_uri);
 }
 
+/* Info about this many_queue can be found in introduce_walk_folders_in_folder */
+
+#define QUEUED_SETS_PER_MAINLOOP 2
+
+typedef struct {
+	GStrv subjects;
+	GPtrArray *values_array;
+	GPtrArray *predicates_array;
+	DBusGProxy *registrar;
+	GObject *self;
+	gchar *sender;
+} QueuedSet;
+
+static GQueue *many_queue = NULL;
+
+static void
+queued_set_free (QueuedSet *queued_set)
+{
+	guint i;
+
+	g_strfreev (queued_set->subjects);
+	for (i = 0; i < queued_set->values_array->len; i++)
+		g_strfreev (queued_set->values_array->pdata[i]); 
+	g_ptr_array_free (queued_set->values_array, TRUE);
+	for (i = 0; i < queued_set->predicates_array->len; i++)
+		g_strfreev (queued_set->predicates_array->pdata[i]); 
+	g_ptr_array_free (queued_set->predicates_array, TRUE);
+	g_object_unref (queued_set->registrar);
+	g_object_unref (queued_set->self);
+	g_free (queued_set->sender);
+
+	g_slice_free (QueuedSet, queued_set);
+}
+
+static gboolean 
+many_idle_handler (gpointer user_data)
+{
+	guint i;
+	QueuedSet *queued_set = (gpointer) 1;
+
+	for (i = 0; i < QUEUED_SETS_PER_MAINLOOP && queued_set ; i++) {
+
+		if (!many_queue) {
+			return FALSE;
+		}
+
+		queued_set = g_queue_pop_head (many_queue);
+
+		if (queued_set) {
+
+			TrackerEvolutionPlugin *self = queued_set->self;
+			TrackerEvolutionPluginPrivate *priv = TRACKER_EVOLUTION_PLUGIN_GET_PRIVATE (self);
+
+			/* During initial introduction the client-registrar might 
+			 * decide to crash, disconnect, stop listening. That 
+			 * would result in critical warnings so we start ignoring
+			 * as soon as service_gone has removed the registrar. 
+			 *
+			 * We nonetheless need to handle these items to clean up
+			 * the queue properly, of course. */
+
+			if (priv->registrars && g_hash_table_lookup (priv->registrars, queued_set->sender)) {
+				dbus_g_proxy_call_no_reply (queued_set->registrar,
+							    "SetMany",
+							    G_TYPE_STRV, queued_set->subjects,
+							    TRACKER_TYPE_G_STRV_ARRAY, queued_set->predicates_array,
+							    TRACKER_TYPE_G_STRV_ARRAY, queued_set->values_array,
+							    G_TYPE_UINT, (guint) time (NULL),
+							    G_TYPE_INVALID, 
+							    G_TYPE_INVALID);
+			}
+
+			queued_set_free (queued_set);
+		} 
+	}
+
+	return (gboolean) queued_set;
+}
+
+static void
+many_idle_destroy (gpointer user_data)
+{
+	g_queue_free (many_queue);
+	many_queue = NULL;
+}
+
+static void
+start_many_handler (void)
+{
+	/* We just slow it down to 'once per second' (for now, we can tweak this
+	 * afterward, of course, but once per second seems to work great) */
+
+	g_timeout_add_seconds_full (G_PRIORITY_LOW, 1,
+	                            many_idle_handler,
+	                            NULL,
+	                            many_idle_destroy);
+}
+
 /* Initial upload of more recent than last_checkout items, called in the mainloop */
 static void
 introduce_walk_folders_in_folder (TrackerEvolutionPlugin *self, 
@@ -482,10 +599,23 @@ introduce_walk_folders_in_folder (TrackerEvolutionPlugin *self,
 
 	while (iter) {
 		guint i, ret = SQLITE_OK;
-		CamelDB *cdb_r = store->cdb_r;
+		CamelDB *cdb_r;
 		gchar *query;
 		sqlite3_stmt *stmt = NULL;
 		gboolean more = TRUE;
+
+		/* This query is the culprint of the functionality: it fetches
+		 * all the metadata from the summary table where modified is
+		 * more recent than the client-registry's modseq. Note that we
+		 * pass time(NULL) to all methods, which is why comparing 
+		 * against the modified column that Evolution > 2.25.5 stores
+		 * works (otherwise this wouldn't work, of course).
+		 *
+		 * The idea is that only the changes must initially be pushed,
+		 * not everything each time (which would be unefficient). The
+		 * specification (http://live.gnome.org/Evolution/Metadata) 
+		 * allows this 'modseq' optimization (is in fact recommending
+		 * it over using Cleanup() each time) */
 
 		query = sqlite3_mprintf ("SELECT uid, flags, read, deleted, "            /* 0  - 3  */
 					        "replied, important, junk, attachment, " /* 4  - 7  */
@@ -498,7 +628,7 @@ introduce_walk_folders_in_folder (TrackerEvolutionPlugin *self,
 					 iter->full_name, 
 					 info->last_checkout);
 
-		g_mutex_lock (cdb_r->lock);
+		cdb_r = camel_db_clone (store->cdb_r, NULL);
 
 		ret = sqlite3_prepare_v2 (cdb_r->db, query, -1, &stmt, NULL);
 
@@ -639,39 +769,61 @@ introduce_walk_folders_in_folder (TrackerEvolutionPlugin *self,
 
 			if (count > 0) {
 				gchar **subjects;
+				QueuedSet *queued_set;
+				gboolean start_handler = FALSE;
 
 				subjects = (gchar **) g_malloc0 (sizeof (gchar *) * subjects_a->len + 1);
 				for (i = 0; i < subjects_a->len; i++)
 					subjects[i] = g_ptr_array_index (subjects_a, i);
 				subjects[i] = NULL;
 
-				dbus_g_proxy_call_no_reply (info->registrar,
-							    "SetMany",
-							    G_TYPE_STRV, subjects,
-							    TRACKER_TYPE_G_STRV_ARRAY, predicates_array,
-							    TRACKER_TYPE_G_STRV_ARRAY, values_array,
-							    G_TYPE_UINT, (guint) time (NULL),
-							    G_TYPE_INVALID, 
-							    G_TYPE_INVALID);
+				/* The many_queue stuff:
+				 * Why is this? Ah! Good question and glad you ask.
+				 * We noticed that hammering the DBus isn't exactly
+				 * a truly good idea. This many-handler will 
+				 * slow it all down to a N items per N seconds 
+				 * thing. */
 
-				g_strfreev (subjects);
+				queued_set = g_slice_new (QueuedSet);
+
+				queued_set->subjects = subjects;
+				queued_set->predicates_array = predicates_array;
+				queued_set->values_array = values_array;
+				queued_set->registrar = g_object_ref (info->registrar);
+				queued_set->self = g_object_ref (self);
+				queued_set->sender = g_strdup (info->sender);
+
+				if (!many_queue) {
+					many_queue = g_queue_new ();
+					start_handler = TRUE;
+				}
+
+				g_queue_push_tail (many_queue, 
+						   queued_set);
+
+				if (start_handler) {
+					start_many_handler ();
+				}
+
+			} else {
+
+				for (i = 0; i < values_array->len; i++)
+					g_strfreev (values_array->pdata[i]); 
+				g_ptr_array_free (values_array, TRUE);
+
+				for (i = 0; i < predicates_array->len; i++)
+					g_strfreev (predicates_array->pdata[i]); 
+				g_ptr_array_free (predicates_array, TRUE);
 			}
 
 			g_ptr_array_free (subjects_a, TRUE);
 
-			for (i = 0; i < values_array->len; i++)
-				g_strfreev (values_array->pdata[i]); 
-			g_ptr_array_free (values_array, TRUE);
-
-			for (i = 0; i < predicates_array->len; i++)
-				g_strfreev (predicates_array->pdata[i]); 
-			g_ptr_array_free (predicates_array, TRUE);
 		}
 
 		sqlite3_finalize (stmt);
 		sqlite3_free (query);
 
-		g_mutex_unlock (cdb_r->lock);
+		camel_db_clone (cdb_r, NULL);
 
 		if (iter->child) {
 			introduce_walk_folders_in_folder (self, iter->child, store, account_uri, info);
@@ -703,9 +855,7 @@ introduce_store_deal_with_deleted (TrackerEvolutionPlugin *self,
 	query = sqlite3_mprintf ("SELECT uid, mailbox FROM Deletes WHERE modified > %" PRIu64, 
 				 info->last_checkout);
 
-	cdb_r = store->cdb_r;
-
-	g_mutex_lock (cdb_r->lock);
+	cdb_r = camel_db_clone (store->cdb_r, NULL);
 
 	sqlite3_prepare_v2 (cdb_r->db, query, -1, &stmt, NULL);
 
@@ -785,12 +935,13 @@ introduce_store_deal_with_deleted (TrackerEvolutionPlugin *self,
 	sqlite3_finalize (stmt);
 	sqlite3_free (query);
 
-	g_mutex_unlock (cdb_r->lock);
+	camel_db_close (cdb_r);
 
 	g_free (em_uri);
 }
 
-/* Get the oldest date in all of the deleted-tables, called in the mainloop */
+/* Get the oldest date in all of the deleted-tables, called in the mainloop. We
+ * need this to test whether we should use Cleanup() or not. */
 
 static guint64
 get_last_deleted_time (TrackerEvolutionPlugin *self)
@@ -823,34 +974,35 @@ get_last_deleted_time (TrackerEvolutionPlugin *self)
 				continue;
 			}
 
-			if (!(provider->flags & CAMEL_PROVIDER_IS_STORAGE))
+			if (!(provider->flags & CAMEL_PROVIDER_IS_STORAGE)) {
 				continue;
+			}
 
 			if (!(store = (CamelStore *) camel_session_get_service (session, uri, CAMEL_PROVIDER_STORE, &ex))) {
 				camel_exception_clear (&ex);
 				continue;
 			}
 
-			cdb_r = store->cdb_r;
+			cdb_r = camel_db_clone (store->cdb_r, NULL);
 
 			query = sqlite3_mprintf ("SELECT time FROM Deletes ORDER BY time LIMIT 1");
-
-			g_mutex_lock (cdb_r->lock);
 
 			ret = sqlite3_prepare_v2 (cdb_r->db, query, -1, &stmt, NULL);
 
 			ret = sqlite3_step (stmt);
-			if (ret == SQLITE_OK || ret == SQLITE_ROW)
-				latest = sqlite3_column_int64 (stmt, 0);
 
-			if (latest < smallest)
+			if (ret == SQLITE_OK || ret == SQLITE_ROW) {
+				latest = sqlite3_column_int64 (stmt, 0);
+			}
+
+			if (latest < smallest) {
 				smallest = latest;
+			}
 
 			sqlite3_finalize (stmt);
 			sqlite3_free (query);
 
-			g_mutex_unlock (cdb_r->lock);
-
+			camel_db_close (cdb_r);
 		}
 
 		g_object_unref (it);
@@ -859,6 +1011,58 @@ get_last_deleted_time (TrackerEvolutionPlugin *self)
 	return smallest;
 }
 
+typedef struct {
+	TrackerEvolutionPlugin *self;
+	gchar *account_uri;
+	CamelFolderInfo *iter;
+} GetFolderInfo;
+
+static void
+register_on_get_folder (gchar *uri, CamelFolder *folder, gpointer user_data)
+{
+	GetFolderInfo *info = user_data;
+	gchar *account_uri = info->account_uri;
+	CamelFolderInfo *iter = info->iter;
+	TrackerEvolutionPlugin *self = info->self;
+	TrackerEvolutionPluginPrivate *priv = TRACKER_EVOLUTION_PLUGIN_GET_PRIVATE (self);
+	guint hook_id;
+	FolderRegistry *registry;
+
+	if (!folder) {
+		goto fail_register;
+	}
+
+	registry = folder_registry_new (account_uri, folder, self);
+
+	g_static_rec_mutex_lock (priv->mutex);
+
+	if (!priv->registered_folders || !priv->cached_folders) {
+		goto not_ready;
+	}
+
+	hook_id = camel_object_hook_event (folder, "folder_changed", 
+					   CAMEL_CALLBACK (on_folder_summary_changed), 
+					   registry->hook_info);
+	registry->hook_info->hook_id = hook_id;
+
+	g_hash_table_replace (priv->registered_folders, &hook_id, 
+			      registry);
+	g_hash_table_replace (priv->cached_folders, g_strdup (iter->full_name), 
+			      folder);
+
+	not_ready:
+
+	g_static_rec_mutex_unlock (priv->mutex);
+
+	fail_register:
+
+	camel_folder_info_free (info->iter);
+	g_free (info->account_uri);
+	g_object_unref (info->self);
+	g_free (info);
+
+	register_count--;
+}
 
 static void
 register_walk_folders_in_folder (TrackerEvolutionPlugin *self, 
@@ -868,42 +1072,35 @@ register_walk_folders_in_folder (TrackerEvolutionPlugin *self,
 {
 	TrackerEvolutionPluginPrivate *priv = TRACKER_EVOLUTION_PLUGIN_GET_PRIVATE (self);
 
+	g_static_rec_mutex_lock (priv->mutex);
+
+	if (!priv->registered_folders) {
+		priv->registered_folders = g_hash_table_new_full (g_int_hash, g_int_equal,
+								  (GDestroyNotify) NULL,
+								  (GDestroyNotify) folder_registry_free);
+		priv->cached_folders = g_hash_table_new_full (g_str_hash, g_str_equal,
+							      (GDestroyNotify) g_free,
+							      (GDestroyNotify) NULL);
+	}
+
+	g_static_rec_mutex_unlock (priv->mutex);
+
+	/* Recursively walks all the folders in store */
+
 	while (iter) {
-		CamelFolder *folder;
+		GetFolderInfo *info = g_new0 (GetFolderInfo, 1);
 
-		folder = camel_store_get_folder (store, iter->full_name, 0, NULL);
+		info->self = g_object_ref (self);
+		info->account_uri = g_strdup (account_uri);
+		info->iter = camel_folder_info_clone (iter);
 
-		if (folder) {
-			guint hook_id;
-			FolderRegistry *registry;
+		register_count++;
 
-			registry = folder_registry_new (account_uri, folder, self);
+		/* This is asynchronous and hooked to the mail/ API, so nicely
+		 * integrated with the Evolution UI application */
 
-			g_static_rec_mutex_lock (priv->mutex);
-
-			if (!priv->registered_folders) {
-				priv->registered_folders = g_hash_table_new_full (g_int_hash, g_int_equal,
-										  (GDestroyNotify) NULL,
-										  (GDestroyNotify) folder_registry_free);
-				priv->cached_folders = g_hash_table_new_full (g_str_hash, g_str_equal,
-									      (GDestroyNotify) g_free,
-									      (GDestroyNotify) NULL);
-			}
-
-			hook_id = camel_object_hook_event (folder, "folder_changed", 
-							   CAMEL_CALLBACK (on_folder_summary_changed), 
-							   registry->hook_info);
-			registry->hook_info->hook_id = hook_id;
-
-			g_hash_table_replace (priv->registered_folders, &hook_id, 
-					      registry);
-			g_hash_table_replace (priv->cached_folders, g_strdup (iter->full_name), 
-					      folder);
-
-			g_static_rec_mutex_unlock (priv->mutex);
-
-			camel_object_unref (folder);
-		}
+		mail_get_folder (iter->uri, 0, register_on_get_folder, info, 
+				 mail_msg_main_loop_push);
 
 		if (iter->child) {
 			register_walk_folders_in_folder (self, iter->child, store, 
@@ -916,38 +1113,67 @@ register_walk_folders_in_folder (TrackerEvolutionPlugin *self,
 
 
 static void
+unregister_on_get_folder (gchar *uri, CamelFolder *folder, gpointer user_data)
+{
+	GetFolderInfo *info = user_data;
+	CamelFolderInfo *titer = info->iter;
+	TrackerEvolutionPlugin *self = info->self;
+	TrackerEvolutionPluginPrivate *priv = TRACKER_EVOLUTION_PLUGIN_GET_PRIVATE (self);
+	GHashTableIter iter;
+	gpointer key, value;
+
+	if (!folder) {
+		goto fail_unregister;
+	}
+
+	g_static_rec_mutex_lock (priv->mutex);
+
+	if (!priv->registered_folders) {
+		goto no_folders;
+	}
+
+	g_hash_table_iter_init (&iter, priv->registered_folders);
+	while (g_hash_table_iter_next (&iter, &key, &value)) {
+		FolderRegistry *registry = value;
+
+		if (folder == registry->folder) {
+			g_hash_table_remove (priv->cached_folders, titer->full_name);
+			g_hash_table_iter_remove (&iter);
+			break;
+		}
+	}
+
+	no_folders:
+
+	g_static_rec_mutex_unlock (priv->mutex);
+
+	fail_unregister:
+
+	camel_folder_info_free (info->iter);
+	g_free (info->account_uri);
+	g_object_unref (info->self);
+	g_free (info);
+}
+static void
 unregister_walk_folders_in_folder (TrackerEvolutionPlugin *self, 
 				   CamelFolderInfo *titer, 
 				   CamelStore *store, 
 				   gchar *account_uri)
 {
-	TrackerEvolutionPluginPrivate *priv = TRACKER_EVOLUTION_PLUGIN_GET_PRIVATE (self);
+	/* Recursively walks all the folders in store */
 
 	while (titer) {
-		CamelFolder *folder;
-		GHashTableIter iter;
-		gpointer key, value;
+		GetFolderInfo *info = g_new0 (GetFolderInfo, 1);
 
-		folder = camel_store_get_folder (store, titer->full_name, 0, NULL);
+		info->self = g_object_ref (self);
+		info->account_uri = g_strdup (account_uri);
+		info->iter = camel_folder_info_clone (titer);
 
-		if (folder) {
-			g_static_rec_mutex_lock (priv->mutex);
+		/* This is asynchronous and hooked to the mail/ API, so nicely
+		 * integrated with the Evolution UI application */
 
-			g_hash_table_iter_init (&iter, priv->registered_folders);
-			while (g_hash_table_iter_next (&iter, &key, &value)) {
-				FolderRegistry *registry = value;
-
-				if (folder == registry->folder) {
-					g_hash_table_remove (priv->cached_folders, titer->full_name);
-					g_hash_table_iter_remove (&iter);
-					break;
-				}
-			}
-
-			camel_object_unref (folder);
-
-			g_static_rec_mutex_unlock (priv->mutex);
-		}
+		mail_get_folder (titer->uri, 0, unregister_on_get_folder, info, 
+				 mail_msg_main_loop_push);
 
 		if (titer->child) {
 			unregister_walk_folders_in_folder (self, titer->child, store, 
@@ -964,6 +1190,7 @@ client_registry_info_free (ClientRegistry *info)
 	if (info->signal != 0) /* known (see below) */
 		g_signal_handler_disconnect (info->registrar, info->signal);
 	g_object_unref (info->registrar);
+	g_free (info->sender);
 	g_slice_free (ClientRegistry, info);
 }
 
@@ -973,10 +1200,54 @@ client_registry_info_copy (ClientRegistry *info)
 	ClientRegistry *ninfo = g_slice_new0 (ClientRegistry);
 
 	ninfo->signal = 0; /* known */
+	ninfo->sender = g_strdup (info->sender);
 	ninfo->last_checkout = info->last_checkout;
 	ninfo->registrar = g_object_ref (info->registrar);
 
 	return ninfo;
+}
+
+/* For info about this try-again stuff, look at on_got_folderinfo_introduce */
+
+typedef struct {
+	IntroductionInfo *intro_info;
+	CamelStore *store;
+	CamelFolderInfo *iter;
+} TryAgainInfo;
+
+static gboolean
+try_again (gpointer user_data)
+{
+	if (register_count == 0) {
+		TryAgainInfo *info = user_data;
+		IntroductionInfo *intro_info = info->intro_info;
+
+		introduce_walk_folders_in_folder (intro_info->self, 
+						  info->iter,
+						  info->store, 
+						  intro_info->account_uri, 
+						  intro_info->info);
+
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
+static void
+try_again_d (gpointer user_data)
+{
+	TryAgainInfo *info = user_data;
+
+	camel_object_unref (info->store);
+	camel_folder_info_free (info->iter);
+
+	client_registry_info_free (info->intro_info->info);
+	g_free (info->intro_info->account_uri);
+	g_object_unref (info->intro_info->self);
+	g_free (info->intro_info);
+
+	g_free (info);
 }
 
 static gboolean
@@ -984,16 +1255,39 @@ on_got_folderinfo_introduce (CamelStore *store,
 			     CamelFolderInfo *iter, 
 			     void *data)
 {
-	IntroductionInfo *intro_info = data;
+	TryAgainInfo *info = g_new0 (TryAgainInfo, 1);
 
-	introduce_walk_folders_in_folder (intro_info->self, iter, store, 
-					  intro_info->account_uri, 
-					  intro_info->info);
+	camel_object_ref (store);
+	info->store = store;
 
-	client_registry_info_free (intro_info->info);
-	g_free (intro_info->account_uri);
-	g_object_unref (intro_info->self);
-	g_free (intro_info);
+	info->iter = camel_folder_info_clone (iter);
+	info->intro_info = data;
+
+	/* If a registrar is running while Evolution is starting up, we decide
+	 * not to slow down Evolution's startup by immediately going through
+	 * all CamelFolder instances (the UI is doing the same thing, we can
+	 * better allow the UI to do this first, and cache the folders that 
+	 * way) 
+	 *
+	 * Regretfully doesn't Evolution's plugin interfaces give me a better
+	 * hook to detect the startup of the UI application of Evolution, else
+	 * it would of course be better to use that instead. 
+	 *
+	 * The register_count is the amount of folders that we register, a 
+	 * registry has been made asynchronous using the high-level API
+	 * mail_get_folder, so in the callback we decrement the number, before
+	 * the call we increment the number. If we're at zero, it means we're
+	 * fully initialized. If not, we wait ten seconds and retry until 
+	 * finally we're fully initialized. (it's not as magic as it looks) */
+
+	if (register_count != 0) {
+		g_timeout_add_seconds_full (G_PRIORITY_DEFAULT, 10,
+					    try_again, info, 
+					    try_again_d);
+	} else {
+		try_again (info);
+		try_again_d (info);
+	}
 
 	return TRUE;
 }
@@ -1076,19 +1370,23 @@ introduce_accounts_to (TrackerEvolutionPlugin *self,
 	g_object_unref (it);
 }
 
-
 static void
 register_client (TrackerEvolutionPlugin *self, 
 		 guint64 last_checkout, 
 		 DBusGProxy *registrar, 
+		 gchar *sender,
 		 guint dsignal)
 {
 	TrackerEvolutionPluginPrivate *priv = TRACKER_EVOLUTION_PLUGIN_GET_PRIVATE (self);
 	guint64 too_old = get_last_deleted_time (self);
-	ClientRegistry *info = g_slice_new (ClientRegistry);
+	ClientRegistry *info = g_slice_new0 (ClientRegistry);
 
+	info->sender = g_strdup (sender);
 	info->signal = dsignal;
 	info->registrar = g_object_ref (registrar);
+
+	/* If registrar's modseq is too old, send Cleanup (). This means that
+	 * we tell it to start over (it must invalidate what it has). */
 
 	if (last_checkout < too_old) {
 		dbus_g_proxy_call_no_reply (registrar,
@@ -1097,8 +1395,9 @@ register_client (TrackerEvolutionPlugin *self,
 					    G_TYPE_INVALID,
 					    G_TYPE_INVALID);
 		info->last_checkout = 0;
-	} else
+	} else {
 		info->last_checkout = last_checkout;
+	}
 
 	introduce_accounts_to (self, info);
 
@@ -1231,12 +1530,15 @@ on_got_folderinfo_register (CamelStore *store,
 	gchar *uri = reg_info->uri;
 	guint hook_id;
 
+	/* This is where it all starts for a registrar registering itself */
+
 	g_static_rec_mutex_lock (priv->mutex);
 
-	if (!priv->registered_stores)
+	if (!priv->registered_stores) {
 		priv->registered_stores = g_hash_table_new_full (g_int_hash, g_int_equal,
 								 (GDestroyNotify) NULL,
 								 (GDestroyNotify) store_registry_free);
+	}
 
 	/* Hook up catching folder changes in the store */
 	registry = store_registry_new (store, account, self);
@@ -1262,7 +1564,7 @@ on_got_folderinfo_register (CamelStore *store,
 
 	g_static_rec_mutex_unlock (priv->mutex);
 
-	/* Register each folder to hook folder_changed everywhere */
+	/* Register each folder to hook folder_changed everywhere (recursive) */
 	register_walk_folders_in_folder (self, iter, store, uri);
 
 	g_object_unref (reg_info->account);
@@ -1353,7 +1655,7 @@ unregister_account (TrackerEvolutionPlugin *self,
 	CamelProvider *provider;
 	CamelStore *store;
 	CamelException ex;
-	char *uri;
+	char *uri = account->source->url;
 	RegisterInfo *reg_info;
 
 
@@ -1576,7 +1878,7 @@ tracker_evolution_plugin_register  (TrackerEvolutionPlugin *plugin,
 	g_static_rec_mutex_unlock (priv->mutex);
 
 	/* Passing uint64 over DBus ain't working :-\ */
-	register_client (plugin, (guint64) last_checkout, registrar, dsignal);
+	register_client (plugin, (guint64) last_checkout, registrar, sender, dsignal);
 
 	dbus_g_method_return (context);
 }
