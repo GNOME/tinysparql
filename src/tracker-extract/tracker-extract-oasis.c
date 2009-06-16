@@ -108,7 +108,7 @@ extract_oasis (const gchar *uri,
 
 		tracker_statement_list_insert (metadata, uri, 
 		                          RDF_TYPE, 
-		                          NFO_PREFIX "Document");
+		                          NFO_PREFIX "PaginatedTextDocument");
 
 		context = g_markup_parse_context_new (&parser, 0, &info, NULL);
 		g_markup_parse_context_parse (context, xml, -1, NULL);

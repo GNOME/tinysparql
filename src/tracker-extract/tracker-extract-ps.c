@@ -227,7 +227,7 @@ extract_ps (const gchar *uri,
 
 		tracker_statement_list_insert (metadata, uri, 
 		                          RDF_TYPE, 
-		                          NFO_PREFIX "Document");
+		                          NFO_PREFIX "PaginatedTextDocument");
 
 		while ((read_char = getline (&line, &length, f)) != -1) {
 			gboolean pageno_atend	 = FALSE;
