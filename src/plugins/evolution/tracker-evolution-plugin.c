@@ -1100,7 +1100,7 @@ register_walk_folders_in_folder (TrackerEvolutionPlugin *self,
 		 * integrated with the Evolution UI application */
 
 		mail_get_folder (iter->uri, 0, register_on_get_folder, info, 
-				 mail_msg_main_loop_push);
+				 mail_msg_unordered_push);
 
 		if (iter->child) {
 			register_walk_folders_in_folder (self, iter->child, store, 
@@ -1173,7 +1173,7 @@ unregister_walk_folders_in_folder (TrackerEvolutionPlugin *self,
 		 * integrated with the Evolution UI application */
 
 		mail_get_folder (titer->uri, 0, unregister_on_get_folder, info, 
-				 mail_msg_main_loop_push);
+				 mail_msg_unordered_push);
 
 		if (titer->child) {
 			unregister_walk_folders_in_folder (self, titer->child, store, 
