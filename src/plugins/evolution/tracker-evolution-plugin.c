@@ -557,6 +557,19 @@ many_idle_handler (gpointer user_data)
 							    G_TYPE_UINT, (guint) time (NULL),
 							    G_TYPE_INVALID, 
 							    G_TYPE_INVALID);
+			} else {
+				guint t;
+
+				/* Performance improvement: remove all that had 
+				 * this disconnected registrar from the queue */
+
+				for (i = 0; t < many_queue->length; t++) {
+					QueuedSet *remove_candidate;
+					remove_candidate = g_queue_peek_nth (many_queue, t);
+					if (remove_candidate->registrar == queued_set->registrar) {
+						queued_set_free (g_queue_pop_nth (many_queue, t));
+					}
+				}
 			}
 
 			queued_set_free (queued_set);
