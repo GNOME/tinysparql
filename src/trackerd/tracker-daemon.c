@@ -454,7 +454,7 @@ stats_cache_get_latest (void)
 	/* Populate with real stats */
 	for (i = 0; services_to_fetch[i]; i++) {		
 		TrackerDBInterface *iface;
-		GPtrArray          *stats, *parent_stats;
+		GPtrArray          *stats; 
 
 		iface = tracker_db_manager_get_db_interface_by_service (services_to_fetch[i]);
 
@@ -469,18 +469,52 @@ stats_cache_get_latest (void)
 			g_object_unref (result_set);
 		}
 
-		result_set = tracker_data_manager_exec_proc (iface, "GetStatsForParents", 0);
-		parent_stats = tracker_dbus_query_result_to_ptr_array (result_set);
-
-		if (result_set) {
-			g_object_unref (result_set);
-		}
-		
 		g_ptr_array_foreach (stats, stats_cache_filter_dups_func, values);
-		g_ptr_array_foreach (parent_stats, stats_cache_filter_dups_func, values);
-
-		tracker_dbus_results_ptr_array_free (&parent_stats);
 		tracker_dbus_results_ptr_array_free (&stats);
+	}
+
+	/*
+	 * For each of the top services, add the items of their subservices 
+	 *  (calculated in the previous GetStats)
+	 */
+	GSList *top_services = NULL;
+	GSList *tops = NULL;
+
+	top_services = tracker_ontology_get_top_services ();
+
+	for (tops = top_services; tops != NULL; tops = tops->next) {
+		const gchar *top_name = NULL;
+		GArray *subcategories = NULL;
+		gint subcategories_items = 0;
+
+		top_name = tracker_service_get_name (tops->data);
+
+		if (!top_name) continue;
+
+		subcategories = tracker_ontology_get_subcategory_ids (top_name);
+
+		for (i = 0; i < subcategories->len; i++) {
+			const gchar *subclass;
+			gpointer     amount;
+			gint         id;
+
+			id = g_array_index (subcategories, gint, i);
+			subclass = tracker_ontology_get_service_by_id (id);
+			amount = g_hash_table_lookup (values, subclass);
+			if (amount == NULL) continue;
+			
+			subcategories_items += GPOINTER_TO_INT (amount);
+		}
+
+		if (g_hash_table_lookup (values, tops->data)) {
+			g_hash_table_replace (values, 
+					      g_strdup (top_name), 
+					      GINT_TO_POINTER (subcategories_items));
+		} else {
+			g_hash_table_insert (values, 
+					     g_strdup (top_name), 
+					     GINT_TO_POINTER (subcategories_items));
+		}
 	}
 
 	return values;

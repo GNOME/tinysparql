@@ -50,7 +50,7 @@ static GHashTable *service_names;
 static GHashTable *mimes_to_service_ids;
 
 /* List of ServiceMimePrefixes */
-static GSList	  *service_mime_prefixes;
+static GSList	  *service_mime_prefixes = NULL;
 
 /* Field descriptions */
 static GHashTable *field_names;
@@ -60,6 +60,9 @@ static gpointer    field_type_enum_class;
 
 /* Category - subcategory ids cache */
 static GHashTable *subcategories_cache;
+
+/* List of top services in the hierarchy */ 
+static GSList *top_services = NULL;
 
 static void
 ontology_mime_prefix_foreach (gpointer data,
@@ -199,6 +202,11 @@ tracker_ontology_shutdown (void)
 		service_mime_prefixes = NULL;
 	}
 
+	if (top_services) {
+		g_slist_free (top_services);
+		top_services = NULL;
+	}
+
 	g_type_class_unref (field_type_enum_class);
 	field_type_enum_class = NULL;
 
@@ -227,6 +235,11 @@ tracker_ontology_service_add (TrackerService *service,
 	g_hash_table_insert (service_ids,
 			     g_strdup_printf ("%d", id),
 			     g_object_ref (service));
+
+	if (tracker_service_get_parent (service) == NULL ||
+	    !g_strcmp0 (tracker_service_get_parent (service), " ")) {
+		top_services = g_slist_prepend (top_services, service);
+	}
 
 	for (l = mimes; l && l->data; l = l->next) {
 		g_hash_table_insert (mimes_to_service_ids,
@@ -513,6 +526,13 @@ tracker_ontology_get_subcategory_ids (const gchar *service_str)
 	}
 
 	return subcategories;
+}
+
+
+GSList *        
+tracker_ontology_get_top_services (void)
+{
+	return top_services;
 }
 
 /*

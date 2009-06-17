@@ -53,6 +53,7 @@ gint		tracker_ontology_get_service_parent_id_by_id	(gint		 id);
 GSList *	tracker_ontology_get_service_names_registered	(void);
 GSList *	tracker_ontology_get_field_names_registered	(const gchar	*service_str);
 GArray *        tracker_ontology_get_subcategory_ids            (const gchar    *service_str);
+GSList *        tracker_ontology_get_top_services               (void);
 
 /* Service data */
 gboolean	tracker_ontology_service_is_valid		(const gchar	*service_str);
