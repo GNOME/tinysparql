@@ -459,7 +459,7 @@ un_unsync (const unsigned char *source,
 static char*
 get_encoding (const char *data, size_t size)
 {
-	gchar *encoding_string = NULL;
+	gchar *encoding = NULL;
 
 #ifdef HAVE_ENCA
 	const char **langs;
@@ -467,7 +467,7 @@ get_encoding (const char *data, size_t size)
 
 	langs = enca_get_languages (&s);
 
-	for (i = 0; i < s && !encoding_string; i++) {
+	for (i = 0; i < s && !encoding; i++) {
 		EncaAnalyser analyser;
 		EncaEncoding encoding;
 
@@ -475,8 +475,8 @@ get_encoding (const char *data, size_t size)
 		encoding = enca_analyse_const (analyser, data, size);
 
 		if (enca_charset_is_known (encoding.charset)) {
-			encoding_string = g_strdup (enca_charset_name (encoding.charset, 
-								       ENCA_NAME_STYLE_ICONV));
+			encoding = g_strdup (enca_charset_name (encoding.charset, 
+								ENCA_NAME_STYLE_ICONV));
 		}
 
 		enca_analyser_free (analyser);
@@ -485,11 +485,11 @@ get_encoding (const char *data, size_t size)
 	free (langs);
 #endif
 
-	if (!encoding_string) {
-		encoding_string = g_strdup ("ISO-8859-1");
+	if (!encoding) {
+		encoding = g_strdup ("ISO-8859-1");
 	}
 
-	return encoding_string;
+	return encoding;
 }
 
 static gboolean
