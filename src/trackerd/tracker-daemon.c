@@ -420,6 +420,7 @@ stats_cache_get_latest (void)
 	GHashTable         *services;
 	GHashTable         *values;
 	GHashTableIter      iter;
+	GSList             *parent_services, *l;
 	gpointer            key, value;
 	guint               i;
 	const gchar        *services_to_fetch[3] = { 
@@ -475,46 +476,41 @@ stats_cache_get_latest (void)
 
 	/*
 	 * For each of the top services, add the items of their subservices 
-	 *  (calculated in the previous GetStats)
+	 * (calculated in the previous GetStats)
 	 */
-	GSList *top_services = NULL;
-	GSList *tops = NULL;
+	parent_services = tracker_ontology_get_parent_services ();
 
-	top_services = tracker_ontology_get_top_services ();
+	for (l = parent_services; l; l = l->next) {
+		GArray      *subcategories;
+		const gchar *name;
+		gint         children = 0;
 
-	for (tops = top_services; tops != NULL; tops = tops->next) {
-		const gchar *top_name = NULL;
-		GArray *subcategories = NULL;
-		gint subcategories_items = 0;
+		name = tracker_service_get_name (l->data);
+		
+		if (!name) {
+			continue;
+		}
 
-		top_name = tracker_service_get_name (tops->data);
+		subcategories = tracker_ontology_get_subcategory_ids (name);
 
-		if (!top_name) continue;
-
-		subcategories = tracker_ontology_get_subcategory_ids (top_name);
+		if (!subcategories) {
+			continue;
+		}
 
 		for (i = 0; i < subcategories->len; i++) {
 			const gchar *subclass;
-			gpointer     amount;
+			gpointer     p;
 			gint         id;
 
 			id = g_array_index (subcategories, gint, i);
 			subclass = tracker_ontology_get_service_by_id (id);
-			amount = g_hash_table_lookup (values, subclass);
-			if (amount == NULL) continue;
-			
-			subcategories_items += GPOINTER_TO_INT (amount);
+			p = g_hash_table_lookup (values, subclass);
+			children += GPOINTER_TO_INT (p);
 		}
 
-		if (g_hash_table_lookup (values, tops->data)) {
-			g_hash_table_replace (values, 
-					      g_strdup (top_name), 
-					      GINT_TO_POINTER (subcategories_items));
-		} else {
-			g_hash_table_insert (values, 
-					     g_strdup (top_name), 
-					     GINT_TO_POINTER (subcategories_items));
-		}
+		g_hash_table_replace (values, 
+				      g_strdup (name), 
+				      GINT_TO_POINTER (children));
 	}
 
 	return values;
