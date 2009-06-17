@@ -457,7 +457,7 @@ un_unsync (const unsigned char *source,
 }
 
 static char*
-get_encoding (const char *data, size_t size)
+get_encoding (const char *data, size_t size, gboolean **is_enca)
 {
 	gchar *encoding = NULL;
 
@@ -475,6 +475,9 @@ get_encoding (const char *data, size_t size)
 		eencoding = enca_analyse_const (analyser, data, size);
 
 		if (enca_charset_is_known (eencoding.charset)) {
+			if (is_enca) {
+				*is_enca = TRUE;
+			}
 			encoding = g_strdup (enca_charset_name (eencoding.charset, 
 								ENCA_NAME_STYLE_ICONV));
 		}
@@ -503,6 +506,7 @@ get_id3 (const gchar *data,
 	const gchar *pos;
 	gchar *encoding = NULL;
 	gchar buf[5];
+	gboolean is_enca = FALSE;
 
 	if (!data) {
 		return FALSE;
@@ -525,10 +529,10 @@ get_id3 (const gchar *data,
 	g_string_append_len (s, pos + 30, 30);
 	g_string_append_len (s, pos + 60, 30);
 
-	encoding = get_encoding (s->str, 90);
+	encoding = get_encoding (s->str, 90, &is_enca);
 	g_string_free (s, TRUE);
 #else  /* HAVE_ENCA */
-	encoding = get_encoding (NULL, 0);
+	encoding = get_encoding (NULL, 0, NULL);
 #endif /* HAVE_ENCA */
 
 	/* Now convert all the data separately */
@@ -565,7 +569,7 @@ get_id3 (const gchar *data,
 
 	g_free (encoding);
 
-	return TRUE;
+	return is_enca;
 }
 
 static gboolean
@@ -1679,6 +1683,7 @@ extract_mp3 (const gchar *filename,
 	id3tag	     info;
 	goffset      audio_offset;
 	file_data    filedata;
+	gboolean     is_enca;
 
 	info.title = NULL;
 	info.artist = NULL;
@@ -1742,10 +1747,8 @@ extract_mp3 (const gchar *filename,
 		return;
 	}
 
-	if (!get_id3 (id3v1_buffer, ID3V1_SIZE, &info)) {
-		/* Do nothing? */
-	}
-	
+	is_enca = get_id3 (id3v1_buffer, ID3V1_SIZE, &info);
+
 	g_free (id3v1_buffer);
 
 	if (!tracker_is_empty_string (info.title)) {
@@ -1800,29 +1803,31 @@ extract_mp3 (const gchar *filename,
 	g_free (info.trackno);
 	g_free (info.genre);
 
-	/* Get other embedded tags */
-	audio_offset = parse_id3v2 (buffer, buffer_size, metadata, &filedata);
+	if (!is_enca) {
+		/* Get other embedded tags */
+		audio_offset = parse_id3v2 (buffer, buffer_size, metadata, &filedata);
 
-	/* Get mp3 stream info */
-	mp3_parse (buffer, buffer_size, audio_offset, metadata, &filedata);
+		/* Get mp3 stream info */
+		mp3_parse (buffer, buffer_size, audio_offset, metadata, &filedata);
 
 #ifdef HAVE_GDKPIXBUF
-	tracker_process_albumart (filedata.albumartdata, filedata.albumartsize, filedata.albumartmime,
-				  /* g_hash_table_lookup (metadata, "Audio:Artist") */ NULL,
-				  g_hash_table_lookup (metadata, "Audio:Album"),
-				  g_hash_table_lookup (metadata, "Audio:AlbumTrackCount"),
-				  filename);
+		tracker_process_albumart (filedata.albumartdata, filedata.albumartsize, filedata.albumartmime,
+					  /* g_hash_table_lookup (metadata, "Audio:Artist") */ NULL,
+					  g_hash_table_lookup (metadata, "Audio:Album"),
+					  g_hash_table_lookup (metadata, "Audio:AlbumTrackCount"),
+					  filename);
 #else
-	tracker_process_albumart (NULL, 0, NULL,
-				  /* g_hash_table_lookup (metadata, "Audio:Artist") */ NULL,
-				  g_hash_table_lookup (metadata, "Audio:Album"),
-				  g_hash_table_lookup (metadata, "Audio:AlbumTrackCount"),
-				  filename);
+		tracker_process_albumart (NULL, 0, NULL,
+					  /* g_hash_table_lookup (metadata, "Audio:Artist") */ NULL,
+					  g_hash_table_lookup (metadata, "Audio:Album"),
+					  g_hash_table_lookup (metadata, "Audio:AlbumTrackCount"),
+					  filename);
 
 #endif /* HAVE_GDKPIXBUF */
 
-	g_free (filedata.albumartdata);
-	g_free (filedata.albumartmime);
+		g_free (filedata.albumartdata);
+		g_free (filedata.albumartmime);
+	}
 
 	/* Check that we have the minimum data. FIXME We should not need to do this */
 	if (!g_hash_table_lookup (metadata, "Audio:Title")) {
