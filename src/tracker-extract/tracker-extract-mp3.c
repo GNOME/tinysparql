@@ -593,7 +593,7 @@ get_id3 (const gchar *data,
 
 	g_string_free (s, TRUE);
 #else  /* HAVE_ENCA */
-	encoding = get_encoding (s->str, 90, NULL);
+	encoding = get_encoding (NULL, 0, NULL);
 #endif /* HAVE_ENCA */
 
 	id3->title = g_convert (pos, 30, "UTF-8", encoding, NULL, NULL, NULL);
