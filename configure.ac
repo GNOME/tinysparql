@@ -203,6 +203,17 @@ AC_SUBST(GCONF_LIBS)
 
 AM_CONDITIONAL(HAVE_GCONF, test "$have_gconf" = "yes")
 
+# Check for enca, detects defect Russian or Cyrillic language specifics in mp3s
+PKG_CHECK_MODULES(ENCA, [enca >= 1.9], have_enca=yes, have_enca=no)
+AC_SUBST(ENCA_CFLAGS)
+AC_SUBST(ENCA_LIBS)
+
+AM_CONDITIONAL(HAVE_ENCA, test "$have_enca" = "yes")
+
+if test x$have_enca == "xyes"; then
+  AC_DEFINE(HAVE_ENCA, 1, [Enca language detection aid])
+fi
+
 # Check for Raptor
 PKG_CHECK_MODULES(RAPTOR, [raptor >= 1.4.17], have_raptor=yes, have_raptor=no)
 AC_SUBST(RAPTOR_CFLAGS)
@@ -1471,6 +1482,7 @@ Build Configuration:
 
 	Enable unit tests:			$have_unit_tests
 	Enable unac accent stripper:	  	$have_unac
+	Enable enca encoding detection:	  	$have_enca
 	Enable full text search:               	$enable_fts
 	Enable detailed metadata:              	$enable_detailed_metadata
 
