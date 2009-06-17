@@ -469,13 +469,13 @@ get_encoding (const char *data, size_t size)
 
 	for (i = 0; i < s && !encoding; i++) {
 		EncaAnalyser analyser;
-		EncaEncoding encoding;
+		EncaEncoding eencoding;
 
 		analyser = enca_analyser_alloc (langs[i]);
-		encoding = enca_analyse_const (analyser, data, size);
+		eencoding = enca_analyse_const (analyser, data, size);
 
-		if (enca_charset_is_known (encoding.charset)) {
-			encoding = g_strdup (enca_charset_name (encoding.charset, 
+		if (enca_charset_is_known (eencoding.charset)) {
+			encoding = g_strdup (enca_charset_name (eencoding.charset, 
 								ENCA_NAME_STYLE_ICONV));
 		}
 
