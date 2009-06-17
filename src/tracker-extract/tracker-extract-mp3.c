@@ -459,10 +459,16 @@ un_unsync (const unsigned char *source,
 
 
 static char*
-get_encoding (const char *data, gssize size, gboolean *is_enca)
+get_encoding (const char *data, 
+	      gssize      size, 
+	      gboolean   *encoding_found)
 {
 	gchar *encoding = NULL;
 
+	if (encoding_found) {
+		*encoding_found = FALSE;
+	}
+	
 #ifdef HAVE_ENCA
 	const char **langs;
 	size_t s, i;
@@ -477,9 +483,10 @@ get_encoding (const char *data, gssize size, gboolean *is_enca)
 		eencoding = enca_analyse_const (analyser, data, size);
 
 		if (enca_charset_is_known (eencoding.charset)) {
-			if (is_enca) {
-				*is_enca = TRUE;
+			if (encoding_found) {
+				*encoding_found = TRUE;
 			}
+
 			encoding = g_strdup (enca_charset_name (eencoding.charset, 
 								ENCA_NAME_STYLE_ICONV));
 		}
@@ -498,13 +505,13 @@ get_encoding (const char *data, gssize size, gboolean *is_enca)
 }
 
 static gchar*
-t_convert (const gchar *str,
-           gssize len,
-           const gchar *to_codeset,
-           const gchar *from_codeset,
-           gsize *bytes_read,
-           gsize *bytes_written,
-           GError **error_out)
+t_convert (const gchar  *str,
+           gssize        len,
+           const gchar  *to_codeset,
+           const gchar  *from_codeset,
+           gsize        *bytes_read,
+           gsize        *bytes_written,
+           GError      **error_out)
 {
 	GError *error = NULL;
 	gchar *word;
@@ -515,20 +522,23 @@ t_convert (const gchar *str,
 			  len,
 			  to_codeset,
 			  from_codeset,
-			  bytes_read, bytes_written, &error);
+			  bytes_read, 
+			  bytes_written, 
+			  &error);
 
 	if (error) {
-		gchar *encoding = get_encoding (str, len, NULL);
+		gchar *encoding;
 
-		if (word) {
-			g_free (word);
-		}
+		encoding = get_encoding (str, len, NULL);
+		g_free (word);
 
 		word = g_convert (str,
 				  len,
 				  to_codeset,
 				  encoding,
-				  bytes_read, bytes_written, error_out);
+				  bytes_read, 
+				  bytes_written, 
+				  error_out);
 
 		g_free (encoding);
 		g_error_free (error);
@@ -544,11 +554,10 @@ get_id3 (const gchar *data,
 {
 #ifdef HAVE_ENCA
 	GString *s;
+	gboolean encoding_was_found;
 #endif /* HAVE_ENCA */
+	gchar *encoding;
 	const gchar *pos;
-	const gchar *encoding = "ISO-8859-1", *enca;
-	gchar buf[5];
-	gboolean is_enca = FALSE;
 
 	if (!data) {
 		return FALSE;
@@ -576,12 +585,15 @@ get_id3 (const gchar *data,
 	g_string_append_len (s, pos + 30, 30);
 	g_string_append_len (s, pos + 60, 30);
 
-	enca = get_encoding (s->str, 90, &is_enca);
-	if (is_enca) {
-		id3->encoding = enca;
-		encoding = enca;
+	encoding = get_encoding (s->str, 90, &encoding_was_found);
+
+	if (encoding_was_found) {
+		id3->encoding = encoding;
 	}
+
 	g_string_free (s, TRUE);
+#else  /* HAVE_ENCA */
+	encoding = get_encoding (s->str, 90, NULL);
 #endif /* HAVE_ENCA */
 
 	id3->title = g_convert (pos, 30, "UTF-8", encoding, NULL, NULL, NULL);
@@ -601,6 +613,8 @@ get_id3 (const gchar *data,
 		id3->comment = g_convert (pos, 30, "UTF-8", encoding, NULL, NULL, NULL);
 		id3->trackno = NULL;
 	} else {
+		gchar buf[5];
+
 		id3->comment = g_convert (pos, 28, "UTF-8", encoding, NULL, NULL, NULL);
 
 		snprintf (buf, 5, "%d", pos[29]);
@@ -613,6 +627,10 @@ get_id3 (const gchar *data,
 	if (!id3->genre) {
 		id3->genre = g_strdup ("");
 	}
+
+#ifndef HAVE_ENCA
+	g_free (encoding);
+#endif /* HAVE_ENCA */
 
 	return TRUE;
 }
