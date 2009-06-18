@@ -1095,8 +1095,13 @@ text_handler (GMarkupParseContext *context,
         case STATE_STRING:
         case STATE_DATE:
         case STATE_FLOAT:
+		{
+			gchar *str;
 
-                data->current_value = g_strstrip (g_strndup (text, text_len));
+			str = g_strstrip (g_strndup (text, text_len));
+			data->current_value = tracker_escape_db_string (str, FALSE);
+			g_free (str);
+		}
                 break;
         default:
                 break;
