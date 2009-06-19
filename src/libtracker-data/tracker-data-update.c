@@ -755,7 +755,7 @@ tracker_data_update_replace_service (const gchar *udi,
 	}
 
 	file_mtime = atoi (modified);
-	escaped_path = tracker_escape_db_string (path, FALSE);
+	escaped_path = tracker_escape_db_string (path, FALSE, TRUE);
 
 	basename = g_path_get_basename (escaped_path);
 	dirname = g_path_get_dirname (escaped_path);
@@ -932,13 +932,15 @@ tracker_data_update_metadata_context_add (TrackerDataUpdateMetadataContext *cont
 					  const gchar                      *value,
 					  const gchar                      *function)
 {
+	gchar *escaped;
+
+	escaped = tracker_escape_db_string (value, TRUE, TRUE);
+
 	if (G_UNLIKELY (function)) {
-		gchar *escaped;
 		gchar *wrapped;
 
-		escaped = tracker_escape_db_string (value, TRUE);
-		wrapped = g_strdup_printf ("%s(%s)", 
-					   function, 
+		wrapped = g_strdup_printf ("%s(%s)",
+					   function,
 					   escaped);
 		g_free (escaped);
 
@@ -948,7 +950,7 @@ tracker_data_update_metadata_context_add (TrackerDataUpdateMetadataContext *cont
 	} else {
 		g_hash_table_replace (context->data,
 				      g_strdup (column),
-				      tracker_escape_db_string (value, TRUE));
+				      escaped);
 	}
 }
 

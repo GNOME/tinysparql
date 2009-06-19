@@ -104,7 +104,8 @@ tracker_string_replace (const gchar *haystack,
 
 gchar *
 tracker_escape_db_string (const gchar *str,
-			  gboolean     add_quotes)
+			  gboolean     add_quotes,
+			  gboolean     escape_percent)
 {
 	gchar *escaped, *p;
 	guint len;
@@ -131,9 +132,12 @@ tracker_escape_db_string (const gchar *str,
 		switch (*str) {
 		case '\'':
 		case '%':
-			/* These chars need to be twice in the escaped string */
-			*p = *str;
-			p++;
+			if (*str != '%' || escape_percent) {
+				/* These chars need to be twice in the escaped string */
+				*p = *str;
+				p++;
+			}
+
 			/* Fall through */
 		default:
 			*p = *str;

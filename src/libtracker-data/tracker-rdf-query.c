@@ -742,12 +742,27 @@ start_element_handler (GMarkupParseContext  *context,
 	}
 }
 
+static void
+replace_wildcards (gchar *str)
+{
+	gchar *c;
+
+	/* Replace glob-like wildcards
+	 * with % so we can use LIKE clauses
+	 */
+	for (c = str; *c; c++) {
+		if (*c == '*') {
+			*c = '%';
+		}
+	}
+}
+
 static gboolean
 build_sql (ParserData *data)
 {
 	TrackerFieldData  *field_data;
 	ParseState	   state;
-	gchar		  *avalue, *value, *sub;
+	gchar		  *avalue, *value, *sub, *val;
 	const gchar	  *where_field;
 	GString		  *str;
 	gchar		 **s;
@@ -764,9 +779,10 @@ build_sql (ParserData *data)
 	state = peek_state (data);
 
 	avalue = tracker_escape_db_string (data->current_value, 
-					   state != STATE_END_DATE &&
-					   state != STATE_END_INTEGER &&
-					   state != STATE_END_FLOAT);
+					   (state != STATE_END_DATE &&
+					    state != STATE_END_INTEGER &&
+					    state != STATE_END_FLOAT),
+					   FALSE);
 
 	field_data = add_metadata_field (data, data->current_field, FALSE, TRUE, FALSE);
 
@@ -809,9 +825,12 @@ build_sql (ParserData *data)
 	case OP_EQUALS:
 		sub = strchr (data->current_value, '*');
 		if (sub) {
-			g_string_append_printf (str, " (%s glob '%s') ",
-						where_field,
-						data->current_value);
+			val = tracker_escape_db_string (data->current_value, FALSE, TRUE);
+			replace_wildcards (val);
+
+			g_string_append_printf (str, " (%s like '%s') ",
+						where_field, val);
+			g_free (val);
 		} else {
 			/* FIXME This check is too fragile */
 			if ( !strlen(value) || (strcmp(value, "''") == 0) ) {
@@ -821,8 +840,7 @@ build_sql (ParserData *data)
 							where_field);
 			} else {
 				g_string_append_printf (str, " (%s = %s) ",
-							where_field,
-							value);
+							where_field, value);
 			}
 		}
 		break;
@@ -852,31 +870,35 @@ build_sql (ParserData *data)
 		break;
 
 	case OP_CONTAINS:
+		val = tracker_escape_db_string (data->current_value, FALSE, TRUE);
 		sub = strchr (data->current_value, '*');
 
 		if (sub) {
+			replace_wildcards (val);
 			g_string_append_printf (str, " (%s like '%%%%%s%%%%') ",
-						where_field,
-						data->current_value);
+						where_field, val);
 		} else {
 			g_string_append_printf (str, " (%s like '%%%%%s%%%%') ",
-						where_field,
-						data->current_value);
+						where_field, val);
 		}
+
+		g_free (val);
 		break;
 
 	case OP_STARTS:
+		val = tracker_escape_db_string (data->current_value, FALSE, TRUE);
 		sub = strchr (data->current_value, '*');
 
 		if (sub) {
+			replace_wildcards (val);
 			g_string_append_printf (str, " (%s like '%s') ",
-						where_field,
-						data->current_value);
+						where_field, val);
 		} else {
 			g_string_append_printf (str, " (%s like '%s%%%%') ",
-						where_field,
-						data->current_value);
+						where_field, val);
 		}
+
+		g_free (val);
 		break;
 
 	case OP_REGEX:
@@ -1095,13 +1117,7 @@ text_handler (GMarkupParseContext *context,
         case STATE_STRING:
         case STATE_DATE:
         case STATE_FLOAT:
-		{
-			gchar *str;
-
-			str = g_strstrip (g_strndup (text, text_len));
-			data->current_value = tracker_escape_db_string (str, FALSE);
-			g_free (str);
-		}
+		data->current_value = g_strstrip (g_strndup (text, text_len));
                 break;
         default:
                 break;
@@ -1290,7 +1306,7 @@ tracker_rdf_query_to_sql (TrackerDBInterface  *iface,
 			}
 
 			list = g_hash_table_lookup (table, key);
-			list = g_list_prepend (list, tracker_escape_db_string (value, TRUE));
+			list = g_list_prepend (list, tracker_escape_db_string (value, TRUE, FALSE));
 			g_hash_table_insert (table, g_strdup (key), list);
 
 			g_free (full);

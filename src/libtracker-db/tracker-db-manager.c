@@ -512,7 +512,7 @@ load_metadata_file (TrackerDBInterface *iface,
 			} else {
 				gchar *escaped_value;
 
-				escaped_value = tracker_escape_db_string (new_value, TRUE);
+				escaped_value = tracker_escape_db_string (new_value, TRUE, FALSE);
 
 				tracker_db_interface_execute_query (iface, NULL,
 								    "update MetaDataTypes set  %s = %s where ID = %d",
@@ -675,7 +675,7 @@ load_service_file (TrackerDBInterface *iface,
 
 				value = g_key_file_get_string (key_file, groups[i], keys[j], NULL);
 				new_value = tracker_string_boolean_to_string_gint (value);
-				escaped_value = tracker_escape_db_string (new_value, TRUE);
+				escaped_value = tracker_escape_db_string (new_value, TRUE, FALSE);
 
 				/* Special case "Parent */
 				if (g_ascii_strcasecmp (keys[j], "parent") == 0) {
