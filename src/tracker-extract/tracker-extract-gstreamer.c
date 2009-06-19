@@ -324,11 +324,11 @@ get_embedded_album_art(MetadataExtractor *extractor)
 				extractor->album_art_data = buffer->data;
 				extractor->album_art_size = buffer->size;
 				extractor->album_art_mime = gst_structure_get_name (caps_struct);
-				gst_object_unref (caps);
+				gst_caps_unref (caps);
 				return TRUE;
 			}
 
-			gst_object_unref (caps);
+			gst_caps_unref (caps);
 
 			lindex++;
 		}
