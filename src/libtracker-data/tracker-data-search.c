@@ -658,6 +658,11 @@ tracker_metadata_add_metadata_field (TrackerDBInterface *iface,
 	gboolean	  field_exists;
 	GSList		 *l;
 
+	g_return_val_if_fail (iface != NULL, NULL);
+	g_return_val_if_fail (service != NULL, NULL);
+	g_return_val_if_fail (fields != NULL, NULL);
+	g_return_val_if_fail (field_name != NULL, NULL);
+	
 	field_exists = FALSE;
 	field_data = NULL;
 
@@ -1300,10 +1305,16 @@ tracker_data_search_get_unique_values_with_aggregates (const gchar	      *servic
 
 		s = g_strsplit (fields[i], " ", 2);
 
+		if (!s || g_strv_length (s) < 1) {
+			g_strfreev (s);
+			continue;
+		}
+
 		fd = tracker_metadata_add_metadata_field (iface, service_type, &field_list, s[0], TRUE, FALSE, TRUE);
 
 		if (s[1]) {
-			if ((strcmp (s[1], "ASC") == 0) || (strcmp (s[1], "A")==0)) {
+			if (strcasecmp (s[1], "ASC") == 0 || 
+			    strcasecmp (s[1], "A") == 0) {
 				desc = FALSE;
 			} else {
 				desc = TRUE;
