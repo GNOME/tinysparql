@@ -47,6 +47,7 @@ struct TrackerDBInterfaceSqlitePrivate {
 struct SqliteFunctionData {
 	TrackerDBInterface *interface;
 	TrackerDBFunc func;
+	gchar *func_name;
 };
 
 struct SqliteAggregateData {
@@ -161,6 +162,13 @@ tracker_db_interface_sqlite_get_property (GObject    *object,
 }
 
 static void
+function_data_free (SqliteFunctionData *data)
+{
+	g_free (data->func_name);
+	g_free (data);
+}
+
+static void
 tracker_db_interface_sqlite_finalize (GObject *object)
 {
 	TrackerDBInterfaceSqlitePrivate *priv;
@@ -173,7 +181,7 @@ tracker_db_interface_sqlite_finalize (GObject *object)
 		g_hash_table_unref (priv->procedures);
 	}
 
-	g_slist_foreach (priv->function_data, (GFunc) g_free, NULL);
+	g_slist_foreach (priv->function_data, (GFunc) function_data_free, NULL);
 	g_slist_free (priv->function_data);
 
 	g_slist_foreach (priv->aggregate_data, (GFunc) g_free, NULL);
@@ -282,8 +290,9 @@ internal_sqlite3_function (sqlite3_context *context,
 			   sqlite3_value   *argv[])
 {
 	SqliteFunctionData *data;
-	GValue *values, result;
+	GValue *values, result = { 0 };
 	GByteArray *blob_array;
+	gboolean success = TRUE;
 	gint i;
 
 	data = (SqliteFunctionData *) sqlite3_user_data (context);
@@ -320,40 +329,48 @@ internal_sqlite3_function (sqlite3_context *context,
 			break;
 		}
 		default:
-			g_critical ("Unknown sqlite3 database value type:%d",
-				    sqlite3_value_type (argv[i]));
+			g_critical ("Unknown sqlite3 database value type (%d) when running stored procedure '%s'",
+				    sqlite3_value_type (argv[i]),
+				    data->func_name);
+			success = FALSE;
 		}
 	}
 
-	/* Call the function */
-	result = data->func (data->interface, argc, values);
+	if (success) {
+		/* Call the function */
+		result = data->func (data->interface, argc, values);
 
-	/* And return something appropriate to the context */
-	if (G_VALUE_HOLDS_INT (&result)) {
-		sqlite3_result_int (context, g_value_get_int (&result));
-	} else if (G_VALUE_HOLDS_DOUBLE (&result)) {
-		sqlite3_result_double (context, g_value_get_double (&result));
-	} else if (G_VALUE_HOLDS_STRING (&result)) {
-		sqlite3_result_text (context,
-				     g_value_dup_string (&result),
-				     -1, g_free);
-	} else if (G_VALUE_HOLDS (&result, TRACKER_TYPE_DB_BLOB)) {
-		blob_array = g_value_get_boxed (&result);
-		sqlite3_result_blob (context,
-				     g_memdup (blob_array->data, blob_array->len),
-				     blob_array->len,
-				     g_free);
-	} else if (G_VALUE_HOLDS (&result, G_TYPE_INVALID)) {
-		sqlite3_result_null (context);
+		/* And return something appropriate to the context */
+		if (G_VALUE_HOLDS_INT (&result)) {
+			sqlite3_result_int (context, g_value_get_int (&result));
+		} else if (G_VALUE_HOLDS_DOUBLE (&result)) {
+			sqlite3_result_double (context, g_value_get_double (&result));
+		} else if (G_VALUE_HOLDS_STRING (&result)) {
+			sqlite3_result_text (context,
+					     g_value_dup_string (&result),
+					     -1, g_free);
+		} else if (G_VALUE_HOLDS (&result, TRACKER_TYPE_DB_BLOB)) {
+			blob_array = g_value_get_boxed (&result);
+			sqlite3_result_blob (context,
+					     g_memdup (blob_array->data, blob_array->len),
+					     blob_array->len,
+					     g_free);
+		} else if (G_VALUE_HOLDS (&result, G_TYPE_INVALID)) {
+			sqlite3_result_null (context);
+		} else {
+			g_critical ("Sqlite3 returned type not managed:'%s'",
+				    G_VALUE_TYPE_NAME (&result));
+			sqlite3_result_null (context);
+		}
 	} else {
-		g_critical ("Sqlite3 returned type not managed:'%s'",
-			    G_VALUE_TYPE_NAME (&result));
 		sqlite3_result_null (context);
 	}
 
 	/* Now free all this mess */
 	for (i = 0; i < argc; i++) {
-		g_value_unset (&values[i]);
+		if (!G_VALUE_HOLDS (&values[i], G_TYPE_INVALID)) {
+			g_value_unset (&values[i]);
+		}
 	}
 
 	if (! G_VALUE_HOLDS (&result, G_TYPE_INVALID)) {
@@ -784,6 +801,7 @@ tracker_db_interface_sqlite_create_function (TrackerDBInterface *interface,
 	data = g_new0 (SqliteFunctionData, 1);
 	data->interface = interface;
 	data->func = func;
+	data->func_name = g_strdup (name);
 
 	priv->function_data = g_slist_prepend (priv->function_data, data);
 
