@@ -36,30 +36,106 @@ test_date_format (void)
 	result = tracker_date_format ("");
 	g_assert (result == NULL);
 
-	/* Fails
 	result = tracker_date_format ("1978"); //Audio.ReleaseDate
-	g_assert (tracker_test_helpers_cmpstr_equal (result, "1978-01-01T00:00:00"));
-	*/
+	g_assert (tracker_test_helpers_cmpstr_equal (result, "1978-01-01T00:00:00+00:00"));
 
 	result = tracker_date_format ("2008-06-14");
-	g_assert (tracker_test_helpers_cmpstr_equal (result, "2008-06-14T00:00:00"));
+	g_assert (tracker_test_helpers_cmpstr_equal (result, "2008-06-14T00:00:00+00:00"));
 	g_free (result);
 
 	result = tracker_date_format ("20080614000000");
-	g_assert (tracker_test_helpers_cmpstr_equal (result, "2008-06-14T00:00:00"));
+	g_assert (tracker_test_helpers_cmpstr_equal (result, "2008-06-14T00:00:00+00:00"));
 	g_free (result);
 
 	result = tracker_date_format ("20080614000000Z");
-	g_assert (tracker_test_helpers_cmpstr_equal (result, "2008-06-14T00:00:00Z"));
+	g_assert (tracker_test_helpers_cmpstr_equal (result, "2008-06-14T00:00:00+00:00"));
 	g_free (result);
 
 	result = tracker_date_format ("Mon Jun 14 04:20:20 2008"); /* MS Office */
-	g_assert (tracker_test_helpers_cmpstr_equal (result, "2008-06-14T04:20:20"));
+	g_assert (tracker_test_helpers_cmpstr_equal (result, "2008-06-14T04:20:20+00:00"));
 	g_free (result);
 
 	result = tracker_date_format ("2008:06:14 04:20:20"); /* Exif style */
-	g_assert (tracker_test_helpers_cmpstr_equal (result, "2008-06-14T04:20:20"));
+	g_assert (tracker_test_helpers_cmpstr_equal (result, "2008-06-14T04:20:20+00:00"));
 	g_free (result);
+
+	/* Do everything allowed in ISO 8601 here */
+
+	/* Dates */
+	/* YYYY or YYYY-MM or YYYY-MM-DD or YYYYMMDD */
+	result = tracker_date_format ("2008");
+	g_assert (tracker_test_helpers_cmpstr_equal (result, "2008-01-01T00:00:00+00:00"));
+	g_free (result);
+
+	result = tracker_date_format ("1978-06");
+	g_assert (tracker_test_helpers_cmpstr_equal (result, "1978-06-01T00:00:00+00:00"));
+	g_free (result);
+
+	result = tracker_date_format ("1999-02-23");
+	g_assert (tracker_test_helpers_cmpstr_equal (result, "1999-02-23T00:00:00+00:00"));
+	g_free (result);
+
+	result = tracker_date_format ("19931223");
+	g_assert (tracker_test_helpers_cmpstr_equal (result, "1993-12-23T00:00:00+00:00"));
+	g_free (result);
+
+	/* Times */
+	/* hh:mm:ss or hhmmss, hh:mm or hhmm or hh , with T and without*/
+	
+	result = tracker_date_format ("1999-02-23T23:12:01");
+	g_assert (tracker_test_helpers_cmpstr_equal (result, "1999-02-23T23:12:01+00:00"));
+	g_free (result);	
+
+	result = tracker_date_format ("19990223T231201");
+	g_assert (tracker_test_helpers_cmpstr_equal (result, "1999-02-23T23:12:01+00:00"));
+	g_free (result);
+
+	result = tracker_date_format ("1979-03-04 16:03:03");
+	g_assert (tracker_test_helpers_cmpstr_equal (result, "1979-03-04T16:03:03+00:00"));
+	g_free (result);
+
+	result = tracker_date_format ("1979-03-04T16:03");
+	g_assert (tracker_test_helpers_cmpstr_equal (result, "1979-03-04T16:03:00+00:00"));
+	g_free (result);
+
+	result = tracker_date_format ("1979-03-04T16");
+	g_assert (tracker_test_helpers_cmpstr_equal (result, "1979-03-04T16:00:00+00:00"));
+	g_free (result);	
+
+	/* Decimals */
+	/* We are only interested in accuracy of a second */
+
+	result = tracker_date_format ("1979-03-04 16:03:03.5");
+	g_assert (tracker_test_helpers_cmpstr_equal (result, "1979-03-04T16:03:03+00:00"));
+	g_free (result);
+
+	result = tracker_date_format ("1979-03-04T16:03.2");
+	g_assert (tracker_test_helpers_cmpstr_equal (result, "1979-03-04T16:03:12+00:00"));
+	g_free (result);
+
+	result = tracker_date_format ("1979-03-04T16.25");
+	g_assert (tracker_test_helpers_cmpstr_equal (result, "1979-03-04T16:15:00+00:00"));
+	g_free (result);	
+
+	result = tracker_date_format ("1979-03-04 16.125");
+	g_assert (tracker_test_helpers_cmpstr_equal (result, "1979-03-04T16:07:30+00:00"));
+	g_free (result);
+
+	result = tracker_date_format ("2002-07-20T11:24:35.1Z");
+	g_assert (tracker_test_helpers_cmpstr_equal (result, "2002-07-20T11:24:35+00:00"));
+	g_free (result);
+
+	/* Timezone and UTC */
+
+	result = tracker_date_format ("1979-03-04 16:03:03.5Z");
+	g_assert (tracker_test_helpers_cmpstr_equal (result, "1979-03-04T16:03:03+00:00"));
+	g_free (result);
+
+	result = tracker_date_format ("1979-03-04T16:03:03.50+02:00");
+	g_assert (tracker_test_helpers_cmpstr_equal (result, "1979-03-04T16:03:03+02:00"));
+	g_free (result);
+
+	/* FIXME Missing week and day notations, truncated notation, extended years */
 
 	if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDERR)) {
 		result = tracker_date_format (NULL);

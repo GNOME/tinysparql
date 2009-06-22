@@ -474,6 +474,8 @@ fail:
 				     tracker_escape_metadata (date));
 		g_free (date);
 	}
+
+	g_debug ("Date: %s", (char *)g_hash_table_lookup (metadata, "Image:Date"));
 }
 
 TrackerExtractData *
