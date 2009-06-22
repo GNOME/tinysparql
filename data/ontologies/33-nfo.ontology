@@ -452,7 +452,7 @@ nfo:listPosition a rdf:Property ;
 # Propose in nepomuk
 nfo:entryContent a rdf:Property ;
 	rdfs:label "Entry content" ;
-	rdfs:Comment "URI to the element in certain position of the list" ;
+	rdfs:comment "URI to the element in certain position of the list" ;
         nrl:maxCardinality 1 ;
 	rdfs:domain nfo:MediaFileListEntry ;
 	rdfs:range nie:InformationElement .
