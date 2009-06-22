@@ -136,6 +136,7 @@ GMIME_REQUIRED=2.1.0
 LIBXML2_REQUIRED=0.6
 LIBNOTIFY_REQUIRED=0.4.3
 HAL_REQUIRED=0.5
+DEVKIT_POWER_REQUIRED=007
 GDKPIXBUF_REQUIRED=2.12.0
 UNAC_REQUIRED=1.0.0
 POPPLER_GLIB_REQUIRED=0.4.5
@@ -386,6 +387,38 @@ if test "x$enable_hal" = "xyes"; then
 fi
 
 AM_CONDITIONAL(HAVE_HAL, test "x$have_hal" = "xyes")
+
+##################################################################
+# Check for DeviceKit-power
+##################################################################
+
+AC_ARG_ENABLE(devkit_power,
+	      AS_HELP_STRING([--disable-devkit-power],
+			     [disable DeviceKit-power support for AC power detection [[default=yes]]]),,
+	      [enable_devkit_power=yes])
+
+if test "x$enable_devkit_power" != "xno"; then
+   PKG_CHECK_MODULES(DEVKIT_POWER,
+		     [devkit-power-gobject >= $DEVKIT_POWER_REQUIRED],
+		     [have_devkit_power=yes] ,
+		     [have_devkit_power=no])
+   AC_SUBST(DEVKIT_POWER_CFLAGS)
+   AC_SUBST(DEVKIT_POWER_LIBS)
+
+   if test "x$have_devkit_power" = "xyes"; then
+      AC_DEFINE(HAVE_DEVKIT_POWER, [], [Define if we have DEVKIT_POWER])
+   fi
+else
+   have_devkit_power="no  (disabled)"
+fi
+
+if test "x$enable_devkit_power" = "xyes"; then
+   if test "x$have_devkit_power" != "xyes"; then
+      AC_MSG_ERROR([Couldn't find devkit_power >= $DEVKIT_POWER_REQUIRED and devkit_power-storage.])
+   fi
+fi
+
+AM_CONDITIONAL(HAVE_DEVKIT_POWER, test "x$have_devkit_power" = "xyes")
 
 ##################################################################
 # Check for libxml2
@@ -1429,6 +1462,7 @@ Build Configuration:
 	Support for file monitoring:           	gio (w/ libinotify: $have_inotify)
 	Support for ioprio:			$have_ioprio
 	Support for HAL:                    	$have_hal
+	Support for DeviceKit-power:           	$have_devkit_power
 
 Applications:
 
