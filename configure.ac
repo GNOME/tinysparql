@@ -394,8 +394,8 @@ AM_CONDITIONAL(HAVE_HAL, test "x$have_hal" = "xyes")
 
 AC_ARG_ENABLE(devkit_power,
 	      AS_HELP_STRING([--disable-devkit-power],
-			     [disable DeviceKit-power support for AC power detection [[default=yes]]]),,
-	      [enable_devkit_power=yes])
+			     [disable DeviceKit-power support for AC power detection [[default=auto]]]),,
+	      [enable_devkit_power=auto])
 
 if test "x$enable_devkit_power" != "xno"; then
    PKG_CHECK_MODULES(DEVKIT_POWER,
