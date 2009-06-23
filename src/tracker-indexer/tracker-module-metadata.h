@@ -25,6 +25,8 @@
 #include <glib.h>
 #include <glib-object.h>
 
+#include <libtracker-common/tracker-sparql-builder.h>
+
 G_BEGIN_DECLS
 
 #if !defined (__TRACKER_MODULE_INSIDE__) && !defined (TRACKER_COMPILATION)
@@ -39,18 +41,19 @@ G_BEGIN_DECLS
 #define TRACKER_IS_MODULE_METADATA_CLASS(c)  (G_TYPE_CHECK_CLASS_TYPE ((c),    TRACKER_TYPE_MODULE_METADATA))
 #define TRACKER_MODULE_METADATA_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o),  TRACKER_TYPE_MODULE_METADATA, TrackerModuleMetadataClass))
 
-typedef struct TrackerModuleMetadata TrackerModuleMetadata;           /* dummy typedef */
+typedef struct TrackerModuleMetadata TrackerModuleMetadata;
 typedef struct TrackerModuleMetadataClass TrackerModuleMetadataClass; /* dummy typedef */
 
+struct TrackerModuleMetadata {
+	GObject parent_instance;
+	TrackerSparqlBuilder *sparql;
+	gboolean sparql_closed;
+};
 
 GType                  tracker_module_metadata_get_type         (void) G_GNUC_CONST;
 
 TrackerModuleMetadata *tracker_module_metadata_new              (void);
 
-gboolean               tracker_module_metadata_add_take_string  (TrackerModuleMetadata *metadata,
-								 const gchar           *subject,
-								 const gchar           *predicate,
-								 gchar                 *value);
 void                   tracker_module_metadata_add_string       (TrackerModuleMetadata *metadata,
 								 const gchar           *subject,
 								 const gchar           *predicate,

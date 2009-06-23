@@ -1405,7 +1405,8 @@ item_process (TrackerIndexer *indexer,
 		}
 
 		if (text) {
-			tracker_module_metadata_add_take_string (metadata, uri, NIE_PLAIN_TEXT_CONTENT, text);
+			tracker_module_metadata_add_string (metadata, uri, NIE_PLAIN_TEXT_CONTENT, text);
+			g_free (text);
 		}
 
 		item_add_or_update (indexer, info, uri, metadata);

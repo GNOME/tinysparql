@@ -26,12 +26,6 @@
 #include <libtracker-common/tracker-type-utils.h>
 #include "tracker-module-metadata-private.h"
 
-struct TrackerModuleMetadata {
-	GObject parent_instance;
-	TrackerSparqlBuilder *sparql;
-	gboolean sparql_closed;
-};
-
 struct TrackerModuleMetadataClass {
 	GObjectClass parent_class;
 };
@@ -69,25 +63,7 @@ tracker_module_metadata_finalize (GObject *object)
 	G_OBJECT_CLASS (tracker_module_metadata_parent_class)->finalize (object);
 }
 
-/**
- * tracker_module_metadata_add_take_string:
- * @metadata: A #TrackerModuleMetadata
- * @subject: The subject this metadata applies to (for example, a URI).
- * @predicate: The key to which the value will be assigned.
- * @value: Value for the metadata
- *
- * Adds a new metadata element as a string into @metadata.
- * For ontology fields that can take several values, this
- * function will allow adding several elements to the same
- * field name.
- *
- * If the function returns #TRUE, @metadata will take
- * ownership on @value, else you are responsible of
- * freeing it.
- *
- * Returns: #TRUE if the value was added successfully.
- **/
-gboolean
+static gboolean
 tracker_module_metadata_add_take_string (TrackerModuleMetadata *metadata,
 					 const gchar           *subject,
 					 const gchar           *predicate,
