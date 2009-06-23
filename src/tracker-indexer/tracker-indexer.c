@@ -1984,7 +1984,8 @@ item_erase (TrackerIndexer *indexer,
 		gchar *uri;
 
 		/* TODO URI branch: this is a URI conversion */
-		path = g_build_path (tracker_data_metadata_lookup (data_metadata, "File:Path"),
+		path = g_build_path (G_DIR_SEPARATOR_S,
+		                     tracker_data_metadata_lookup (data_metadata, "File:Path"),
 				     tracker_data_metadata_lookup (data_metadata, "File:Name"),
 				     NULL);
 		file = g_file_new_for_path (path);
@@ -1996,6 +1997,7 @@ item_erase (TrackerIndexer *indexer,
 
 		tracker_data_metadata_free (data_metadata);
 		g_free (uri);
+		g_free (path);
 	}
 
 	/* Get content, unindex the words and delete the contents */
