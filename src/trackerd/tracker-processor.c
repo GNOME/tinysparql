@@ -1846,7 +1846,12 @@ tracker_processor_mount_point_removed (TrackerProcessor *processor,
 	 */
 	l = g_list_find_custom (priv->devices, mp, (GCompareFunc) g_strcmp0);
 
-	if (l) {
+
+	/* Make sure we don't remove the current device we are
+	 * processing, this is because we do this same clean up later
+	 * in process_device_next() 
+	 */
+	if (l && l != priv->current_device) {
 		g_free (l->data);
 		priv->devices = g_list_delete_link (priv->devices, l);
 	}
