@@ -1979,7 +1979,8 @@ item_erase (TrackerIndexer *indexer,
 	data_metadata = tracker_data_query_metadata (service, service_id, TRUE);
 
 	if (data_metadata) {
-		const gchar *path, *mime_type;
+		const gchar *mime_type;
+		gchar *path;
 		GFile *file;
 		gchar *uri;
 
