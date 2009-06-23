@@ -855,7 +855,9 @@ tracker_module_metadata_utils_get_data (GFile *file, TrackerModuleMetadata *meta
 	tracker_module_metadata_add_string (metadata, uri, NFO_FILE_NAME, g_file_info_get_display_name (file_info));
 	tracker_module_metadata_add_string (metadata, uri, NIE_MIME_TYPE, mime_type);
 
-	tracker_module_metadata_add_uint (metadata, uri, NFO_FILE_SIZE, g_file_info_get_size (file_info));
+	tracker_sparql_builder_predicate_iri (metadata->sparql, NFO_FILE_SIZE);
+	tracker_sparql_builder_object_int64 (metadata->sparql, g_file_info_get_size (file_info));
+
 	time_ = g_file_info_get_attribute_uint64 (file_info, G_FILE_ATTRIBUTE_TIME_MODIFIED);
 	tracker_module_metadata_add_date (metadata, uri, NFO_FILE_LAST_MODIFIED, time_);
 	time_ = g_file_info_get_attribute_uint64 (file_info, G_FILE_ATTRIBUTE_TIME_ACCESS);

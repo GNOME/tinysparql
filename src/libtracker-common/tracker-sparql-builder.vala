@@ -54,7 +54,7 @@ public class Tracker.SparqlBuilder : Object {
 		requires (state == State.INSERT || state == State.OBJECT)
 	{
 		if (state == State.OBJECT) {
-			str.append (".\n");
+			str.append (" .\n");
 			states.length -= 3;
 		}
 		states.length--;
@@ -69,7 +69,7 @@ public class Tracker.SparqlBuilder : Object {
 		requires (state == State.INSERT || state == State.OBJECT)
 	{
 		if (state == State.OBJECT) {
-			str.append (".\n");
+			str.append (" .\n");
 			states.length -= 3;
 		}
 		str.append (s);
@@ -84,7 +84,7 @@ public class Tracker.SparqlBuilder : Object {
 		requires (state == State.SUBJECT || state == State.OBJECT || state == State.BLANK)
 	{
 		if (state == State.OBJECT) {
-			str.append (";");
+			str.append (" ;");
 			states.length -= 2;
 		}
 		str.append (" ");
@@ -100,7 +100,7 @@ public class Tracker.SparqlBuilder : Object {
 		requires (state == State.PREDICATE || state == State.OBJECT)
 	{
 		if (state == State.OBJECT) {
-			str.append (",");
+			str.append (" ,");
 			states.length--;
 		}
 		str.append (" ");
@@ -112,7 +112,7 @@ public class Tracker.SparqlBuilder : Object {
 		requires (state == State.PREDICATE || state == State.OBJECT)
 	{
 		if (state == State.OBJECT) {
-			str.append (",");
+			str.append (" ,");
 			states.length--;
 		}
 
@@ -158,11 +158,15 @@ public class Tracker.SparqlBuilder : Object {
 		object (literal ? "true" : "false");
 	}
 
+	public void object_int64 (int64 literal) {
+		object (literal.to_string ());
+	}
+
 	public void object_blank_open ()
 		requires (state == State.PREDICATE || state == State.OBJECT)
 	{
 		if (state == State.OBJECT) {
-			str.append (",");
+			str.append (" ,");
 			states.length--;
 		}
 		str.append (" [");

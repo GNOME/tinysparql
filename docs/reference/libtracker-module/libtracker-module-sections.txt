@@ -27,10 +27,6 @@ TrackerModuleMetadata
 tracker_module_metadata_new
 tracker_module_metadata_add_take_string
 tracker_module_metadata_add_string
-tracker_module_metadata_add_int
-tracker_module_metadata_add_uint
-tracker_module_metadata_add_double
-tracker_module_metadata_add_float
 tracker_module_metadata_add_date
 </SECTION>
 

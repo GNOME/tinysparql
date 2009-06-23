@@ -58,22 +58,6 @@ void                   tracker_module_metadata_add_string       (TrackerModuleMe
 								 const gchar           *subject,
 								 const gchar           *predicate,
 								 const gchar           *value);
-void                   tracker_module_metadata_add_int          (TrackerModuleMetadata *metadata,
-								 const gchar           *subject,
-								 const gchar           *predicate,
-								 gint                   value);
-void                   tracker_module_metadata_add_uint         (TrackerModuleMetadata *metadata,
-								 const gchar           *subject,
-								 const gchar           *predicate,
-								 guint                  value);
-void                   tracker_module_metadata_add_double       (TrackerModuleMetadata *metadata,
-								 const gchar           *subject,
-								 const gchar           *predicate,
-								 gdouble                value);
-void                   tracker_module_metadata_add_float        (TrackerModuleMetadata *metadata,
-								 const gchar           *subject,
-								 const gchar           *predicate,
-								 gfloat                 value);
 void                   tracker_module_metadata_add_date         (TrackerModuleMetadata *metadata,
 								 const gchar           *subject,
 								 const gchar           *predicate,

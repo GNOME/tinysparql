@@ -58,50 +58,6 @@ Metadata object
 @value: 
 
 
-<!-- ##### FUNCTION tracker_module_metadata_add_int ##### -->
-<para>
-
-</para>
-
-@metadata: 
-@subject: 
-@predicate: 
-@value: 
-
-
-<!-- ##### FUNCTION tracker_module_metadata_add_uint ##### -->
-<para>
-
-</para>
-
-@metadata: 
-@subject: 
-@predicate: 
-@value: 
-
-
-<!-- ##### FUNCTION tracker_module_metadata_add_double ##### -->
-<para>
-
-</para>
-
-@metadata: 
-@subject: 
-@predicate: 
-@value: 
-
-
-<!-- ##### FUNCTION tracker_module_metadata_add_float ##### -->
-<para>
-
-</para>
-
-@metadata: 
-@subject: 
-@predicate: 
-@value: 
-
-
 <!-- ##### FUNCTION tracker_module_metadata_add_date ##### -->
 <para>
 
