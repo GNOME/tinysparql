@@ -26,19 +26,10 @@
 #include <libtracker-common/tracker-type-utils.h>
 #include "tracker-module-metadata-private.h"
 
-typedef struct _Statement Statement;
-
-struct _Statement {
-	gchar *subject;
-	gchar *predicate;
-	gchar *object;
-};
-
 struct TrackerModuleMetadata {
 	GObject parent_instance;
 	TrackerSparqlBuilder *sparql;
 	gboolean sparql_closed;
-	GArray *statements;
 };
 
 struct TrackerModuleMetadataClass {
@@ -64,30 +55,16 @@ tracker_module_metadata_init (TrackerModuleMetadata *metadata)
 {
 	metadata->sparql = tracker_sparql_builder_new_update ();
 	tracker_sparql_builder_insert_open (metadata->sparql);
-
-	metadata->statements = g_array_new (FALSE, TRUE, sizeof (Statement));
 }
 
 static void
 tracker_module_metadata_finalize (GObject *object)
 {
 	TrackerModuleMetadata *metadata;
-	gint i;
 
 	metadata = TRACKER_MODULE_METADATA (object);
 
 	g_object_unref (metadata->sparql);
-
-	for (i = 0; i < metadata->statements->len; i++) {
-		Statement *stmt;
-
-		stmt = &g_array_index (metadata->statements, Statement, i);
-		g_free (stmt->subject);
-		g_free (stmt->predicate);
-		g_free (stmt->object);
-	}
-
-	g_array_free (metadata->statements, TRUE);
 
 	G_OBJECT_CLASS (tracker_module_metadata_parent_class)->finalize (object);
 }
@@ -116,8 +93,6 @@ tracker_module_metadata_add_take_string (TrackerModuleMetadata *metadata,
 					 const gchar           *predicate,
 					 gchar                 *value)
 {
-	Statement stmt;
-
 	g_return_val_if_fail (metadata != NULL, FALSE);
 	g_return_val_if_fail (subject != NULL, FALSE);
 	g_return_val_if_fail (predicate != NULL, FALSE);
@@ -130,11 +105,7 @@ tracker_module_metadata_add_take_string (TrackerModuleMetadata *metadata,
 	tracker_sparql_builder_predicate_iri (metadata->sparql, predicate);
 	tracker_sparql_builder_object_string (metadata->sparql, value);
 
-	stmt.subject = g_strdup (subject);
-	stmt.predicate = g_strdup (predicate);
-	stmt.object = value;
-
-	g_array_append_val (metadata->statements, stmt);
+	g_free (value);
 
 	return TRUE;
 }
@@ -297,35 +268,9 @@ tracker_module_metadata_add_date (TrackerModuleMetadata *metadata,
 	}
 }
 
-/**
- * tracker_module_metadata_foreach:
- * @metadata: A #TrackerModuleMetadata.
- * @func: The function to call with each metadata.
- * @user_data: user data to pass to the function.
- *
- * Calls a function for each element in @metadata.
- **/
-void
-tracker_module_metadata_foreach (TrackerModuleMetadata        *metadata,
-				 TrackerModuleMetadataForeach  func,
-				 gpointer		       user_data)
-{
-	gint i;
-
-	for (i = 0; i < metadata->statements->len; i++) {
-		Statement *stmt;
-
-		stmt = &g_array_index (metadata->statements, Statement, i);
-		func (stmt->subject, stmt->predicate, stmt->object, user_data);
-	}
-}
-
 gchar *
 tracker_module_metadata_get_sparql (TrackerModuleMetadata        *metadata)
 {
-	TrackerSparqlBuilder *sparql;
-	gchar *result;
-
 	if (!metadata->sparql_closed) {
 		tracker_sparql_builder_insert_close (metadata->sparql);
 		metadata->sparql_closed = TRUE;

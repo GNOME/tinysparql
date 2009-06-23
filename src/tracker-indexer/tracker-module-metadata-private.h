@@ -28,14 +28,6 @@
 
 G_BEGIN_DECLS
 
-typedef void (* TrackerModuleMetadataForeach) (const gchar     *subject,
-					       const gchar     *predicate,
-					       const gchar     *object,
-					       gpointer      user_data);
-
-void		       tracker_module_metadata_foreach        (TrackerModuleMetadata        *metadata,
-							       TrackerModuleMetadataForeach  func,
-							       gpointer	                     user_data);
 gchar *                tracker_module_metadata_get_sparql     (TrackerModuleMetadata        *metadata);
 
 

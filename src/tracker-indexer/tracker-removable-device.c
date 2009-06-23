@@ -386,9 +386,11 @@ tracker_removable_device_add_metadata (TrackerIndexer        *indexer,
 					       suri,
 					       target_file);
 
+	/* TODO: Concatenate SPARQL queries instead
 	tracker_module_metadata_foreach (metadata, 
 					 foreach_in_metadata_set_metadata,
 					 &info);
+	 */
 
 	g_free (info.about_uri);
 
