@@ -159,13 +159,22 @@ check_exclude_file (const gchar *path)
 static TrackerModuleMetadata *
 tracker_regular_file_get_metadata (TrackerModuleFile *file)
 {
+	TrackerModuleMetadata *metadata;
+
 #ifdef ENABLE_FILE_EXCLUDE_CHECKING
 	if (check_exclude_file (file->path)) {
 		return NULL;
 	}
 #endif
 
-	return tracker_module_metadata_utils_get_data (tracker_module_file_get_file (file));
+	metadata = tracker_module_metadata_new ();
+
+	if (!tracker_module_metadata_utils_get_data (tracker_module_file_get_file (file), metadata)) {
+		g_object_unref (metadata);
+		metadata = NULL;
+	}
+
+	return metadata;
 }
 
 static gchar *

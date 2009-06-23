@@ -32,7 +32,8 @@ G_BEGIN_DECLS
 #endif
 
 
-TrackerModuleMetadata *tracker_module_metadata_utils_get_data (GFile *file);
+gboolean               tracker_module_metadata_utils_get_data (GFile *file,
+                                                               TrackerModuleMetadata *metadata);
 gchar *		       tracker_module_metadata_utils_get_text (GFile *file);
 void                   tracker_module_metadata_utils_cancel   (GFile *file);
 

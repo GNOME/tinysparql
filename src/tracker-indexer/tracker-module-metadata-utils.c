@@ -820,10 +820,10 @@ tracker_module_metadata_utils_get_text (GFile *file)
  *
  * Returns: A newly created #TrackerModuleMetadata, or %NULL if the file is not found.
  **/
-TrackerModuleMetadata *
-tracker_module_metadata_utils_get_data (GFile *file)
+
+gboolean
+tracker_module_metadata_utils_get_data (GFile *file, TrackerModuleMetadata *metadata)
 {
-	TrackerModuleMetadata *metadata;
 	gchar *mime_type, *uri;
 	GFileInfo *file_info;
 	guint64 time_;
@@ -832,10 +832,8 @@ tracker_module_metadata_utils_get_data (GFile *file)
 
 	file_info = g_file_query_info (file, "standard::*,time::*", G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS, NULL, NULL);
 	if (!file_info) {
-		return NULL;
+		return FALSE;
 	}
-
-	metadata = tracker_module_metadata_new ();
 
 	uri = g_file_get_uri (file);
 
@@ -868,7 +866,7 @@ tracker_module_metadata_utils_get_data (GFile *file)
 	g_free (mime_type);
 	g_free (uri);
 
-	return metadata;
+	return TRUE;
 }
 
 void

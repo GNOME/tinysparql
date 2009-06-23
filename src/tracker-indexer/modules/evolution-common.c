@@ -58,24 +58,6 @@ evolution_common_get_stream (const gchar *path,
 	return stream;
 }
 
-typedef struct {
-	const gchar *subject;
-	TrackerModuleMetadata *metadata;
-} WrapInfo;
-
-static void
-foreach_wrap_metadata (const gchar     *subject,
-		       const gchar     *predicate,
-		       const gchar     *object,
-		       gpointer      user_data)
-{
-	WrapInfo *info = user_data;
-
-	tracker_module_metadata_add_string (info->metadata, 
-					    info->subject, 
-					    predicate, object);
-}
-
 void
 evolution_common_get_wrapper_metadata (GMimeDataWrapper *wrapper, 
 				       TrackerModuleMetadata *metadata, 
@@ -87,28 +69,17 @@ evolution_common_get_wrapper_metadata (GMimeDataWrapper *wrapper,
 
 	path = g_build_filename (g_get_tmp_dir (), "tracker-evolution-module-XXXXXX", NULL);
 	fd = g_mkstemp (path);
-	metadata = NULL;
 
 	stream = g_mime_stream_fs_new (fd);
 
 	if (g_mime_data_wrapper_write_to_stream (wrapper, stream) != -1) {
 		GFile *file;
-		TrackerModuleMetadata *f_metadata;
-		WrapInfo info;
-
-		info.subject = subject;
-		info.metadata = metadata;
 
 		file = g_file_new_for_path (path);
 		g_mime_stream_flush (stream);
 
-		f_metadata = tracker_module_metadata_utils_get_data (file);
+		tracker_module_metadata_utils_get_data (file, metadata);
 
-		tracker_module_metadata_foreach (f_metadata, 
-						 foreach_wrap_metadata,
-						 &info);
-
-		g_object_unref (f_metadata);
 		g_object_unref (file);
 		g_unlink (path);
 	}
