@@ -75,16 +75,6 @@ enum {
 };
 
 
-typedef struct {
-	guint modseq, item_no, reached;
-	gchar *subject;
-	GStrv predicates;
-	GStrv values;
-} QueuedSet;
-
-static GQueue *many_queue = NULL;
-#define QUEUED_SETS_PER_MAINLOOP 2
-
 static GType tracker_kmail_push_registrar_get_type (void) G_GNUC_CONST;
 
 G_DEFINE_TYPE (TrackerKMailRegistrar, tracker_kmail_registrar, G_TYPE_OBJECT)
@@ -425,61 +415,6 @@ tracker_kmail_registrar_set (TrackerKMailRegistrar *object,
 	tracker_dbus_request_success (request_id);
 }
 
-static void
-queued_set_free (QueuedSet *queued_set)
-{
-	g_free (queued_set->subject);
-	g_strfreev (queued_set->values);
-	g_strfreev (queued_set->predicates);
-	g_slice_free (QueuedSet, queued_set);
-}
-
-static gboolean 
-many_idle_handler (gpointer user_data)
-{
-	guint i;
-	QueuedSet *queued_set = GUINT_TO_POINTER (1);
-	TrackerKMailRegistrar *object = user_data;
-
-	for (i = 0; i < QUEUED_SETS_PER_MAINLOOP && queued_set ; i++) {
-		queued_set = g_queue_pop_head (many_queue);
-
-		if (queued_set) {
-			perform_set (object,
-			             queued_set->subject,
-			             queued_set->predicates,
-			             queued_set->values);
-
-			if (queued_set->item_no == queued_set->reached) {
-				tracker_store_queue_commit (on_commit, 
-				                            GUINT_TO_POINTER (queued_set->modseq), 
-				                            NULL);
-			}
-
-			queued_set_free (queued_set);
-		} 
-	}
-
-	return (gboolean) queued_set;
-}
-
-static void
-many_idle_destroy (gpointer user_data)
-{
-	g_queue_free (many_queue);
-	many_queue = NULL;
-	g_object_unref (user_data);
-}
-
-static void
-start_many_handler (TrackerKMailRegistrar *object)
-{
-	g_idle_add_full (G_PRIORITY_LOW,
-	                 many_idle_handler,
-	                 g_object_ref (object),
-	                 many_idle_destroy);
-}
-
 void
 tracker_kmail_registrar_set_many (TrackerKMailRegistrar *object, 
 				  const GStrv subjects, 
@@ -508,29 +443,17 @@ tracker_kmail_registrar_set_many (TrackerKMailRegistrar *object,
 				  "DBus request to set many: 'KMail' "
 				  "'%d'", len);
 
-	if (!many_queue) {
-		many_queue = g_queue_new ();
-		start_handler = TRUE;
-	}
-
 	while (subjects[i] != NULL) {
-		QueuedSet *queued_set = g_slice_new (QueuedSet);
-
-		queued_set->subject = g_strdup (subjects[i]);
-		queued_set->predicates = g_strdupv (g_ptr_array_index (predicates, i));
-		queued_set->values = g_strdupv (g_ptr_array_index (values, i));
-		queued_set->modseq = modseq;
-		queued_set->item_no = i;
-		queued_set->reached = len - 1;
-
-		g_queue_push_tail (many_queue, queued_set);
-
+		perform_set (object,
+		             subjects[i],
+		             g_ptr_array_index (predicates, i),
+		             g_ptr_array_index (values, i));
 		i++;
 	}
 
-	if (start_handler) {
-		start_many_handler (object);
-	}
+	tracker_store_queue_commit (on_commit, 
+	                            GUINT_TO_POINTER (modseq), 
+	                            NULL);
 
 	dbus_g_method_return (context);
 

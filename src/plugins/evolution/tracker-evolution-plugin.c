@@ -591,8 +591,7 @@ start_many_handler (void)
 {
 	/* We just slow it down to 'once per second' (for now, we can tweak this
 	 * afterward, of course, but once per second seems to work great) */
-
-	g_timeout_add_seconds_full (G_PRIORITY_LOW, 1,
+	 g_timeout_add_seconds_full (G_PRIORITY_LOW, 1,
 	                            many_idle_handler,
 	                            NULL,
 	                            many_idle_destroy);
@@ -760,7 +759,7 @@ introduce_walk_folders_in_folder (TrackerEvolutionPlugin *self,
 					count++;
 				}
 
-				if (count > MAX_BEFORE_SEND) {
+				if (count >= MAX_BEFORE_SEND) {
 
 					/* Yield per MAX_BEFORE_SEND. This function is 
 					 * called as a result of a DBus call, so it runs
