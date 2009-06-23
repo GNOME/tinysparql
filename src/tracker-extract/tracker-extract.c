@@ -286,7 +286,7 @@ get_file_metadata (TrackerExtract *extract,
 
 		g_free (content_type);
 		statements_free (statements);
-		return statements;
+		return NULL;
 	}
 
 	/* We know the mime */
