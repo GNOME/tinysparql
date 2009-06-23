@@ -186,5 +186,11 @@ public class Tracker.SparqlBuilder : Object {
 		states.length -= 3;
 		states += State.OBJECT;
 	}
+
+	public void append (string raw)
+		requires (states.length == 1)
+	{
+		str.append (raw);
+	}
 }
 

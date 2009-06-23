@@ -27,6 +27,7 @@
 #include <gio/gio.h>
 
 #include <libtracker-common/tracker-dbus.h>
+#include <libtracker-common/tracker-sparql-builder.h>
 
 #include "tracker-main.h"
 #include "tracker-dbus.h"
@@ -392,6 +393,51 @@ get_file_metadata (TrackerExtract *extract,
 	return statements;
 }
 
+static gchar *
+get_file_metadata_as_sparql (TrackerExtract *extract,
+			     guint           request_id,
+			     const gchar    *uri,
+			     const gchar    *mime)
+{
+	TrackerSparqlBuilder *sparql;
+	GPtrArray            *statements;
+	gint                  i;
+	gchar                *result;
+
+	statements = get_file_metadata (extract, request_id, uri, mime);
+
+	sparql = tracker_sparql_builder_new_update ();
+	tracker_sparql_builder_insert_open (sparql);
+
+	if (statements) {
+		for (i = 0; i < statements->len; i++) {
+			GValueArray *statement;
+			const gchar *subject;
+			const gchar *predicate;
+			const gchar *object;
+
+			statement = statements->pdata[i];
+
+			subject = g_value_get_string (&statement->values[0]);
+			predicate = g_value_get_string (&statement->values[1]);
+			object = g_value_get_string (&statement->values[2]);
+
+			tracker_sparql_builder_subject_iri (sparql, subject);
+			tracker_sparql_builder_predicate_iri (sparql, predicate);
+			tracker_sparql_builder_object_string (sparql, object);
+		}
+		statements_free (statements);
+	}
+
+	tracker_sparql_builder_insert_close (sparql);
+
+	result = g_strdup (tracker_sparql_builder_get_result (sparql));
+
+	g_object_unref (sparql);
+
+	return result;
+}
+
 void
 tracker_extract_get_metadata_by_cmdline (TrackerExtract *object,
 					 const gchar    *uri,
@@ -465,7 +511,7 @@ tracker_extract_get_metadata (TrackerExtract	     *object,
 			      GError		    **error)
 {
 	guint       request_id;
-	GPtrArray  *statements = NULL;
+	gchar      *sparql = NULL;
 
 	request_id = tracker_dbus_get_next_request_id ();
 
@@ -485,11 +531,11 @@ tracker_extract_get_metadata (TrackerExtract	     *object,
 		alarm (MAX_EXTRACT_TIME);
 	}
 
-	statements = get_file_metadata (object, request_id, uri, mime);
+	sparql = get_file_metadata_as_sparql (object, request_id, uri, mime);
 
-	if (statements) {
-		dbus_g_method_return (context, statements);
-		statements_free (statements);
+	if (sparql) {
+		dbus_g_method_return (context, sparql);
+		g_free (sparql);
 		tracker_dbus_request_success (request_id);
 	} else {
 		GError *actual_error = NULL;

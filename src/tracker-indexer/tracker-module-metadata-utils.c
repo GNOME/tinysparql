@@ -316,12 +316,11 @@ extractor_context_kill (ExtractorContext *context)
 
 static void
 get_metadata_async_cb (DBusGProxy *proxy,
-		       GPtrArray  *statements,
+		       gchar      *sparql,
 		       GError     *error,
 		       gpointer    user_data)
 {
 	ExtractorContext *context;
-	gint i;
 
 	gboolean should_kill = TRUE;
 
@@ -353,26 +352,11 @@ get_metadata_async_cb (DBusGProxy *proxy,
 		if (should_kill) {
 			extractor_context_kill (context);
 		}
-	} else if (statements) {
-		for (i = 0; i < statements->len; i++) {
-			GValueArray *statement;
-			const gchar *subject;
-			const gchar *predicate;
-			const gchar *object;
-
-			statement = statements->pdata[i];
-			subject = g_value_get_string (&statement->values[0]);
-			predicate = g_value_get_string (&statement->values[1]);
-			object = g_value_get_string (&statement->values[2]);
-
-			tracker_sparql_builder_subject_iri (context->metadata, subject);
-			tracker_sparql_builder_predicate_iri (context->metadata, predicate);
-			tracker_sparql_builder_object_string (context->metadata, object);
-
-			g_value_array_free (statement);
-		}
-
-		g_ptr_array_free (statements, TRUE);
+	} else if (sparql) {
+		tracker_sparql_builder_insert_close (context->metadata);
+		tracker_sparql_builder_append (context->metadata, sparql);
+		tracker_sparql_builder_insert_open (context->metadata);
+		g_free (sparql);
 	}
 
 	g_main_loop_quit (context->main_loop);
