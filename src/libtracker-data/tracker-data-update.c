@@ -453,7 +453,9 @@ tracker_data_update_delete_metadata (TrackerService *service,
 				     const gchar    *value)
 {
 	TrackerDBInterface *iface;
+	GString *s = NULL;
 	gint metadata_key;
+	gint collate_key;
 	gchar *id_str;
 
 	id_str = tracker_guint32_to_string (service_id);
@@ -510,15 +512,37 @@ tracker_data_update_delete_metadata (TrackerService *service,
 		break;
 	}
 
+	g_free (id_str);
+
 	metadata_key = tracker_ontology_service_get_key_metadata (tracker_service_get_name (service),
 								  tracker_field_get_name (field));
+	collate_key = tracker_ontology_service_get_key_collate (tracker_service_get_name (service),
+								tracker_field_get_name (field));
+
+	/* Try to do these together if we can, saves time */
 	if (metadata_key > 0) {
-		tracker_db_interface_execute_query (iface, NULL,
-						    "update Services set KeyMetadata%d = '%s' where id = %d",
-						    metadata_key, "", service_id);
+		s = g_string_new ("");
+		g_string_append_printf (s, "KeyMetadata%d = NULL", metadata_key);
 	}
 
-	g_free (id_str);
+	if (collate_key > 0) {
+		if (!s) {
+			s = g_string_new ("");
+		} else {
+			g_string_append (s, ", ");
+		}
+
+		g_string_append_printf (s, "KeyMetadataCollation%d = NULL", collate_key);
+	}
+
+	if (s) {
+		tracker_db_interface_execute_query (iface, NULL,
+						    "UPDATE Services SET %s WHERE id = %d",
+						    s->str, 
+						    service_id);
+
+		g_string_free (s, TRUE);
+	}
 }
 
 void
