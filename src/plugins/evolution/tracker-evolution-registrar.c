@@ -433,7 +433,7 @@ perform_set (TrackerEvolutionRegistrar *object,
 				tracker_sparql_builder_object (sparql, "nao:Property");
 
 				tracker_sparql_builder_predicate (sparql, "nao:propertyName");
-				tracker_sparql_builder_object (sparql, key);
+				tracker_sparql_builder_object_string (sparql, key);
 				
 				tracker_sparql_builder_predicate (sparql, "nao:propertyValue");
 				tracker_sparql_builder_object_string (sparql, value);
