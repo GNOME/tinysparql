@@ -36,6 +36,8 @@ struct _Statement {
 
 struct TrackerModuleMetadata {
 	GObject parent_instance;
+	TrackerSparqlBuilder *sparql;
+	gboolean sparql_closed;
 	GArray *statements;
 };
 
@@ -60,6 +62,9 @@ tracker_module_metadata_class_init (TrackerModuleMetadataClass *klass)
 static void
 tracker_module_metadata_init (TrackerModuleMetadata *metadata)
 {
+	metadata->sparql = tracker_sparql_builder_new_update ();
+	tracker_sparql_builder_insert_open (metadata->sparql);
+
 	metadata->statements = g_array_new (FALSE, TRUE, sizeof (Statement));
 }
 
@@ -70,6 +75,8 @@ tracker_module_metadata_finalize (GObject *object)
 	gint i;
 
 	metadata = TRACKER_MODULE_METADATA (object);
+
+	g_object_unref (metadata->sparql);
 
 	for (i = 0; i < metadata->statements->len; i++) {
 		Statement *stmt;
@@ -118,6 +125,10 @@ tracker_module_metadata_add_take_string (TrackerModuleMetadata *metadata,
 	if (!value) {
 		return FALSE;
 	}
+
+	tracker_sparql_builder_subject_iri (metadata->sparql, subject);
+	tracker_sparql_builder_predicate_iri (metadata->sparql, predicate);
+	tracker_sparql_builder_object_string (metadata->sparql, value);
 
 	stmt.subject = g_strdup (subject);
 	stmt.predicate = g_strdup (predicate);
@@ -313,30 +324,14 @@ gchar *
 tracker_module_metadata_get_sparql (TrackerModuleMetadata        *metadata)
 {
 	TrackerSparqlBuilder *sparql;
-	gint     i;
 	gchar *result;
 
-	sparql = tracker_sparql_builder_new_update ();
-	tracker_sparql_builder_insert_open (sparql);
-
-	for (i = 0; i < metadata->statements->len; i++) {
-		Statement *stmt;
-		gchar     *object;
-
-		stmt = &g_array_index (metadata->statements, Statement, i);
-
-		tracker_sparql_builder_subject_iri (sparql, stmt->subject);
-		tracker_sparql_builder_predicate_iri (sparql, stmt->predicate);
-		tracker_sparql_builder_object_string (sparql, stmt->object);
+	if (!metadata->sparql_closed) {
+		tracker_sparql_builder_insert_close (metadata->sparql);
+		metadata->sparql_closed = TRUE;
 	}
 
-	tracker_sparql_builder_insert_close (sparql);
-
-	result = g_strdup (tracker_sparql_builder_get_result (sparql));
-
-	g_object_unref (sparql);
-
-	return result;
+	return g_strdup (tracker_sparql_builder_get_result (metadata->sparql));
 }
 
 /**
