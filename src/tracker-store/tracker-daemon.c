@@ -694,6 +694,10 @@ tracker_daemon_signal_statistics (void)
 	daemon = tracker_dbus_get_object (TRACKER_TYPE_DAEMON);
 	priv = TRACKER_DAEMON_GET_PRIVATE (daemon);
 
+	/* Disabled because the query is way to inefficient, especially on large databases */
+	g_warning ("Stats cache updating is disabled because for large databases it brings the computer to its knees");
+	return;
+	
 	/* Get latest */
 	stats = stats_cache_get_latest ();
 
