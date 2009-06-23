@@ -4,6 +4,7 @@ INCLUDES =						\
 	-DSHAREDIR=\""$(datadir)"\"			\
 	-DG_LOG_DOMAIN=\"Tracker\"			\
 	-DTRACKER_COMPILATION				\
+	-DI_KNOW_THE_DEVICEKIT_POWER_API_IS_SUBJECT_TO_CHANGE	\
 	-I$(top_srcdir)/src				\
 	$(WARN_CFLAGS)					\
 	$(GLIB2_CFLAGS)					\
@@ -12,6 +13,7 @@ INCLUDES =						\
 	$(GIO_CFLAGS)					\
 	$(PANGO_CFLAGS)					\
 	$(HAL_CFLAGS)					\
+	$(DEVKIT_POWER_CFLAGS)				\
 	$(DBUS_CFLAGS)					\
 	$(UNAC_CFLAGS)
 
@@ -25,13 +27,27 @@ else
 os_sources = tracker-os-dependant-unix.c
 endif
 
+# For storage, we need HAL, tracker isn't yet ported to DeviceKit-disks
 if HAVE_HAL
-hal_sources = 						\
-	tracker-power-hal.c				\
-	tracker-storage-hal.c
-hal_headers = 						\
-	tracker-power.h					\
+storage_headers =					\
 	tracker-storage.h
+storage_sources =					\
+	tracker-storage-hal.c
+endif
+
+# Prefer DeviceKit-power for the power data if it's available, else fall back to HAL
+if HAVE_DEVKIT_POWER
+power_headers =						\
+	tracker-power.h
+power_sources =						\
+	tracker-power-devicekit.c
+else
+if HAVE_HAL
+power_headers =						\
+	tracker-power.h
+power_sources =						\
+	tracker-power-hal.c
+endif
 endif
 
 libtracker_common_la_VALASOURCES =			\
@@ -39,7 +55,8 @@ libtracker_common_la_VALASOURCES =			\
 
 libtracker_common_la_SOURCES =	 			\
 	$(os_sources)					\
-	$(hal_sources)					\
+	$(power_sources)				\
+	$(storage_sources)				\
 	tracker-class.c					\
 	tracker-config.c 				\
 	tracker-dbus.c	 				\
@@ -64,7 +81,8 @@ libtracker_common_la_SOURCES =	 			\
 	$(libtracker_common_la_VALASOURCES:.vala=.c)
 
 noinst_HEADERS =					\
-	$(hal_headers)					\
+	$(power_headers)				\
+	$(storage_headers)				\
 	tracker-dbus.h					\
 	tracker-ioprio.h				\
 	tracker-log.h					\
@@ -100,6 +118,7 @@ libtracker_common_la_LDFLAGS = 				\
 libtracker_common_la_LIBADD = 				\
 	$(top_builddir)/src/libstemmer/libstemmer.la	\
 	$(HAL_LIBS)					\
+	$(DEVKIT_POWER_LIBS)				\
 	$(DBUS_LIBS)					\
 	$(UNAC_LIBS)					\
 	$(PANGO_LIBS)					\

@@ -246,7 +246,10 @@ main (int argc, char **argv)
 		g_log_set_default_handler (log_handler, NULL);
 
 		/* Clean up */
-		tracker_db_manager_init (TRACKER_DB_MANAGER_REMOVE_ALL, NULL, FALSE);
+		if (!tracker_db_manager_init (TRACKER_DB_MANAGER_REMOVE_ALL, NULL, FALSE)) {
+			return EXIT_FAILURE;
+		}
+
 		tracker_db_manager_remove_all ();
 		tracker_db_manager_shutdown ();
 

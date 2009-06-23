@@ -39,6 +39,10 @@ void   tracker_statement_list_insert_with_int64  (GPtrArray   *statements,
                                              const gchar *subject,
                                              const gchar *predicate,
                                              gint64       value);
+void   tracker_statement_list_insert_with_uint  (GPtrArray *statements,
+						 const gchar *subject,
+						 const gchar *predicate,
+						 guint32      value);
 void   tracker_statement_list_insert_with_double (GPtrArray   *statements,
                                              const gchar *subject,
                                              const gchar *predicate,

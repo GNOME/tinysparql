@@ -568,7 +568,6 @@ ncal:date a rdf:Property ;
 ncal:rrule a rdf:Property ;
 	rdfs:label "rrule" ;
 	rdfs:comment "This property defines a rule or repeating pattern for recurring events, to-dos, or time zone definitions. sec. 4.8.5.4" ;
-	nrl:maxCardinality 1 ;
 	rdfs:domain ncal:UnionParentClass ;
 	rdfs:range ncal:RecurrenceRule .
 

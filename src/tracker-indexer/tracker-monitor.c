@@ -40,11 +40,14 @@
 
 #define TRACKER_MONITOR_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_MONITOR, TrackerMonitorPrivate))
 
+/* The life time of an item in the cache */
+#define CACHE_LIFETIME_SECONDS 1
+
 /* When we receive IO monitor events, we pause sending information to
  * the indexer for a few seconds before continuing. We have to receive
  * NO events for at least a few seconds before unpausing.
  */
-#define PAUSE_ON_IO_SECONDS   5
+#define PAUSE_ON_IO_SECONDS    5
 
 /* If this is defined, we pause the indexer when we get events. If it
  * is not, we don't do any pausing.
@@ -898,7 +901,7 @@ libinotify_cached_events_timeout_cb (gpointer data)
 			force_emit = start_event_seconds > cache_timeout;
 		}
 
-		timed_out = last_event_seconds >= MAX (2, scan_timeout);
+		timed_out = last_event_seconds >= MAX (CACHE_LIFETIME_SECONDS, scan_timeout);
 
 		/* Make sure the item is in the cache for at least 2
 		 * seconds OR the time as stated by the module config
@@ -995,7 +998,7 @@ libinotify_monitor_force_emission (TrackerMonitor *monitor,
 						is_directory);
 
 		/* Clean up */
-		g_hash_table_remove (monitor->private->cached_events, data);
+		g_hash_table_remove (monitor->private->cached_events, data->file);
 	}
 }
 
@@ -1114,7 +1117,7 @@ libinotify_monitor_event_cb (INotifyHandle *handle,
 			g_debug ("Setting up event pair timeout check");
 
 			monitor->private->event_pairs_timeout_id =
-				g_timeout_add_seconds (2,
+				g_timeout_add_seconds (CACHE_LIFETIME_SECONDS,
 						       libinotify_event_pairs_timeout_cb,
 						       monitor);
 		}
@@ -1307,7 +1310,7 @@ libinotify_monitor_event_cb (INotifyHandle *handle,
 		g_debug ("Setting up cached events timeout check");
 
 		monitor->private->cached_events_timeout_id =
-			g_timeout_add_seconds (2,
+			g_timeout_add_seconds (CACHE_LIFETIME_SECONDS,
 					       libinotify_cached_events_timeout_cb,
 					       monitor);
 	}

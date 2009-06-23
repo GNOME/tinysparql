@@ -76,7 +76,7 @@ extract_pdf (const gchar *uri,
 
 	tracker_statement_list_insert (metadata, uri, 
 	                          RDF_TYPE, 
-	                          NFO_PREFIX "Document");
+	                          NFO_PREFIX "PaginatedTextDocument");
 
 	g_object_get (document,
 		      "title", &title,

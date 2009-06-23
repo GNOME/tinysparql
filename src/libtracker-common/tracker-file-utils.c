@@ -26,6 +26,7 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/statvfs.h>
 #include <fcntl.h>
 #include <limits.h>
 
@@ -176,6 +177,45 @@ tracker_file_get_mime_type (GFile *file)
 	}
 
 	return content_type ? content_type : g_strdup ("unknown");
+}
+
+gboolean
+tracker_file_system_has_enough_space (const gchar *path,
+				      gulong       required_bytes)
+{
+	struct statvfs st;
+	gchar *str1;
+	gchar *str2;
+	gboolean enough;
+
+	g_return_val_if_fail (path != NULL, FALSE);
+
+	if (statvfs (path, &st) == -1) {
+		g_critical ("Could not statvfs() '%s'", path);
+		return FALSE;
+	}
+
+	str1 = g_format_size_for_display (required_bytes);
+	str2 = g_format_size_for_display (st.f_bsize * st.f_bavail);
+
+	enough = ((long long) st.f_bsize * st.f_bavail) >= required_bytes;
+
+	if (!enough) {
+		g_critical ("Not enough disk space to create databases, "
+			    "%s remaining, %s required as a minimum",
+			    str2,
+			    str1);
+	} else {
+		g_message ("Checking for adequate disk space to create databases, "
+			   "%s remaining, %s required as a minimum",
+			   str2,
+			   str1);
+	}
+
+	g_free (str2);
+	g_free (str1);
+
+	return enough;
 }
 
 void

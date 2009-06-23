@@ -38,9 +38,12 @@
 
 #include "tracker-main.h"
 
-#define PLAYLIST_PROPERTY_NO_TRACKS "Playlist:Songs"
-#define PLAYLIST_PROPERTY_DURATION  "Playlist:Duration"
+#define PLAYLIST_PROPERTY_NO_TRACKS "entryCounter"
+#define PLAYLIST_PROPERTY_DURATION  "listDuration"
+/*
+ FIXME Decide what to do with this in nepomuk
 #define PLAYLIST_PROPERTY_CALCULATED "Playlist:ValidDuration"
+*/
 
 #define PLAYLIST_DEFAULT_NO_TRACKS 0
 #define PLAYLIST_DEFAULT_DURATION 0 
@@ -51,7 +54,7 @@
 #define RDF_TYPE RDF_PREFIX "type"
 
 typedef struct {
-	guint        track_counter;
+	guint32     track_counter;
 	gint64      total_time;
 	GPtrArray   *metadata;
 	const gchar *uri;
@@ -77,15 +80,29 @@ static void
 entry_parsed (TotemPlParser *parser, const gchar *to_uri, GHashTable *to_metadata, gpointer user_data)
 {
 	gchar *duration;
+	gchar *anon_node;
 	PlaylistMetadata *data;
 
 	data = (PlaylistMetadata *)user_data;
+	data->track_counter++;
+
+	anon_node = g_strdup_printf (":%" G_GUINT32_FORMAT, data->track_counter);
+
+	tracker_statement_list_insert (data->metadata, anon_node, RDF_TYPE,
+	                               NFO_PREFIX "MediaFileListEntry");
+
+	tracker_statement_list_insert (data->metadata, anon_node, 
+	                               NFO_PREFIX "entryContent",
+	                               to_uri);
+
+	tracker_statement_list_insert_with_int (data->metadata, anon_node,
+	                                        NFO_PREFIX "listPosition", 
+	                                        data->track_counter);
+
 
 	tracker_statement_list_insert (data->metadata, data->uri,
-				  NFO_PREFIX "hasMediaFileListEntry", 
-				  to_uri);
-
-	data->track_counter += 1;
+	                               NFO_PREFIX "hasMediaFileListEntry", 
+	                               anon_node);
 
 	duration = g_hash_table_lookup (to_metadata, TOTEM_PL_PARSER_FIELD_DURATION);
 
@@ -117,8 +134,8 @@ extract_playlist (const gchar *uri,
 			  G_CALLBACK (entry_parsed), &data);
 
 	tracker_statement_list_insert (metadata, uri, 
-	                          RDF_TYPE, 
-	                          NFO_PREFIX "MediaList");
+	                               RDF_TYPE, 
+	                               NFO_PREFIX "MediaList");
 
 	result = totem_pl_parser_parse (pl, uri, FALSE);
 
@@ -135,16 +152,16 @@ extract_playlist (const gchar *uri,
 		g_warning ("Undefined result in totem-plparser");
 	}
 
-	/* TODO
-	tracker_statement_list_insert_with_int (metadata, uri,
-					   PLAYLIST_PROPERTY_DURATION, 
+	tracker_statement_list_insert_with_int64 (metadata, uri,
+					   NFO_PREFIX PLAYLIST_PROPERTY_DURATION, 
 					   data.total_time);
 
-	tracker_statement_list_insert_with_int (metadata, uri,
-					   PLAYLIST_PROPERTY_NO_TRACKS, 
+	tracker_statement_list_insert_with_uint (metadata, uri,
+					   NFO_PREFIX PLAYLIST_PROPERTY_NO_TRACKS, 
 					   data.track_counter);
-
-	tracker_statement_list_insert_with_int (metadata, uri,
+/*
+  TODO
+	tracker_statement_list_insert_with_int64 (metadata, uri,
 					   PLAYLIST_PROPERTY_CALCULATED,
 					   data.total_time);
 	*/

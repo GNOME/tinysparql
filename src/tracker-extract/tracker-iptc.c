@@ -35,10 +35,15 @@
 #include <glib.h>
 #include <string.h>
 
+#include <libtracker-common/tracker-type-utils.h>
+#include <libtracker-common/tracker-file-utils.h>
+
 #ifdef HAVE_LIBIPTCDATA
 
 #include <libiptcdata/iptc-data.h>
 #include <libiptcdata/iptc-dataset.h>
+
+#define IPTC_DATE_FORMAT "%Y %m %d"
 
 typedef const gchar * (*IptcPostProcessor) (const gchar*);
 
@@ -54,11 +59,20 @@ typedef struct {
 
 static const gchar *fix_iptc_orientation (const gchar *orientation);
 
+static gchar *
+date_to_iso8601 (const gchar *date)
+{
+	/* From: ex; date "2007:04:15 15:35:58"
+	* To : ex. "2007-04-15T17:35:58+0200 where +0200 is localtime
+	*/
+	return tracker_date_format_to_iso8601 (date, IPTC_DATE_FORMAT);
+}
+
 static IptcTagType iptctags[] = {
         { 2, IPTC_TAG_KEYWORDS, NIE_PREFIX "keyword", NULL, NULL, NULL, NULL }, /* We might have to strtok_r this one? */
 	/*	{ 2, IPTC_TAG_CONTENT_LOC_NAME, "Image:Location", NULL, NULL, NULL, NULL }, */
 	/*{ 2, IPTC_TAG_SUBLOCATION, "Image:Location", NULL, NULL, NULL, NULL },*/
-        { 2, IPTC_TAG_DATE_CREATED, NIE_PREFIX "contentCreated", NULL, NULL, NULL, NULL },
+        { 2, IPTC_TAG_DATE_CREATED, NIE_PREFIX "contentCreated", date_to_iso8601, NULL, NULL, NULL },
         /*{ 2, IPTC_TAG_ORIGINATING_PROGRAM, "Image:Software", NULL, NULL, NULL, NULL },*/
         { 2, IPTC_TAG_BYLINE, NCO_PREFIX "creator", NULL, ":", NCO_PREFIX "Contact", NCO_PREFIX "fullname" },
         /*{ 2, IPTC_TAG_CITY, "Image:City", NULL, NULL, NULL, NULL },*/

@@ -256,7 +256,7 @@ extract_msoffice (const gchar *uri,
 
 		tracker_statement_list_insert (metadata, uri, 
 		                          RDF_TYPE, 
-		                          NFO_PREFIX "Document");
+		                          NFO_PREFIX "PaginatedTextDocument");
 
 		rdf_type_added = TRUE;
 
@@ -284,7 +284,7 @@ extract_msoffice (const gchar *uri,
 		if (!rdf_type_added) {
 			tracker_statement_list_insert (metadata, uri, 
 			                          RDF_TYPE, 
-			                          NFO_PREFIX "Document");
+			                          NFO_PREFIX "PaginatedTextDocument");
 			rdf_type_added = TRUE;
 		}
 

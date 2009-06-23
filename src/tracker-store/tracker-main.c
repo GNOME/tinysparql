@@ -94,6 +94,18 @@
 #define THROTTLE_DEFAULT	    0
 #define THROTTLE_DEFAULT_ON_BATTERY 5
 
+
+#ifdef HAVE_HAL
+
+typedef struct {
+	gchar *udi;
+	gchar *mount_point;
+	gboolean no_crawling;
+	gboolean was_added;
+} MountPointUpdate;
+
+#endif /* HAVE_HAL */
+
 typedef enum {
 	TRACKER_RUNNING_NON_ALLOWED,
 	TRACKER_RUNNING_READONLY,
@@ -304,23 +316,67 @@ check_runtime_level (TrackerConfig *config,
 
 #ifdef HAVE_HAL
 
-static void
-mount_point_set_cb (DBusGProxy *proxy, 
-		    GError     *error, 
-		    gpointer    user_data)
+static MountPointUpdate *
+mount_point_update_new (const gchar *udi,
+			const gchar *mount_point,
+			gboolean no_crawling,
+			gboolean was_added)
 {
-	if (error) {
-		g_critical ("Couldn't set mount point state, %s", 
-			    error->message);
-		g_error_free (error);
-		g_free (user_data);
+	MountPointUpdate *mpu;
+
+	mpu = g_slice_new0 (MountPointUpdate);
+
+	mpu->udi = g_strdup (udi);
+	mpu->mount_point = g_strdup (mount_point);
+
+	mpu->no_crawling = no_crawling;
+	mpu->was_added = was_added;
+
+	return mpu;
+}
+
+static void
+mount_point_update_free (MountPointUpdate *mpu)
+{
+	if (!mpu) {
 		return;
 	}
 
-	g_message ("Indexer now knows about UDI state:");
-	g_message ("  %s", (gchar*) user_data);
+	g_free (mpu->mount_point);
+	g_free (mpu->udi);
 
-	g_free (user_data);
+	g_slice_free (MountPointUpdate, mpu);
+}
+
+static void
+mount_point_set (MountPointUpdate *mpu)
+{
+	g_message ("Indexer has now set the state for the volume with UDI:");
+	g_message (" %s", mpu->udi);
+}
+
+static void
+mount_point_set_cb (DBusGProxy *proxy,
+		    GError *error,
+		    gpointer user_data)
+{
+	MountPointUpdate *mpu;
+
+	mpu = user_data;
+
+	if (error) {
+		g_critical ("Indexer couldn't set volume state for:'%s' in database, %s",
+			    mpu->udi,
+			    error ? error->message : "no error given");
+
+		g_error_free (error);
+
+		tracker_shutdown ();
+	} else {
+		mount_point_set (mpu);
+	}
+
+	mount_point_update_free (mpu);
 }
 
 static void
@@ -330,18 +386,20 @@ mount_point_added_cb (TrackerStorage *hal,
 		      gpointer	      user_data)
 {
 	TrackerMainPrivate *private;
-	
+	MountPointUpdate *mpu;
+
 	private = g_static_private_get (&private_key);
 
 	g_message ("Indexer is being notified about added UDI:");
 	g_message ("  %s", udi);
 
+	mpu = mount_point_update_new (udi, mount_point, FALSE, TRUE);
 	org_freedesktop_Tracker_Indexer_volume_update_state_async (tracker_dbus_indexer_get_proxy (), 
 								   udi,
 								   mount_point,
 								   TRUE,
 								   mount_point_set_cb,
-								   g_strdup (udi));
+								   mpu);
 }
 
 static void
@@ -378,18 +436,20 @@ mount_point_removed_cb (TrackerStorage  *hal,
 			gpointer         user_data)
 {
 	TrackerMainPrivate *private;
-	
+	MountPointUpdate *mpu;
+
 	private = g_static_private_get (&private_key);
 
 	g_message ("Indexer is being notified about removed UDI:");
 	g_message ("  %s", udi);
 
+	mpu = mount_point_update_new (udi, mount_point, FALSE, FALSE);
 	org_freedesktop_Tracker_Indexer_volume_update_state_async (tracker_dbus_indexer_get_proxy (), 
 								   udi,
 								   mount_point,
 								   FALSE,
 								   mount_point_set_and_signal_cb,
-								   g_strdup (udi));
+								   mpu);
 }
 
 #endif /* HAVE_HAL */
@@ -586,9 +646,13 @@ initialize_directories (void)
 static gboolean
 initialize_databases (void)
 {
-	/*
-	 * Create SQLite databases
+	/* This means we doing the initial check that our dbs are up
+	 * to date. Once we get finished from the indexer, we set
+	 * this to FALSE.
 	 */
+	tracker_status_set_is_initial_check (TRUE);
+
+	/* We set our first time indexing state here */
 	if (!tracker_status_get_is_readonly () && force_reindex) {
 		tracker_status_set_is_first_time_index (TRUE);
 	}
@@ -662,6 +726,7 @@ backup_user_metadata (TrackerConfig *config, TrackerLanguage *language)
 	/*
 	 *  Init the DB stack to get the user metadata
 	 */
+
 	tracker_data_manager_init (config, language, 0, NULL, &is_first_time_index);
 	
 	/*
@@ -684,55 +749,75 @@ backup_user_metadata (TrackerConfig *config, TrackerLanguage *language)
 #ifdef HAVE_HAL
 
 static void
-set_up_mount_points_cb (DBusGProxy *proxy, 
-			GError     *error,
-			gpointer    user_data)
+set_up_mount_points (TrackerStorage *hal)
 {
-	TrackerStorage *hal;
+	TrackerMainPrivate *private;
+	GError *error = NULL;
 	GList *roots, *l;
 
+	private = g_static_private_get (&private_key);
+
+	/* Merging: This has something to do with "mount_points_to_set", which apparently
+	 * we  don't have here in master apparently (but which tracker-0.6 uses)
+	 *
+	 * tracker_status_set_is_paused_for_dbus (TRUE); */
+
+	g_message ("Indexer is being notified to disable all volumes");
+	org_freedesktop_Tracker_Indexer_volume_disable_all (tracker_dbus_indexer_get_proxy (), &error);
+
 	if (error) {
-		g_critical ("Couldn't disable all volumes, %s", 
+		g_critical ("Indexer couldn't disable all volumes, %s",
 			    error->message);
 		g_error_free (error);
+		tracker_shutdown ();
 		return;
 	}
 
-	g_message ("Indexer is being notified about ALL UDIs");
+	g_message ("   Done");
 
-	hal = user_data;
 	roots = tracker_storage_get_removable_device_udis (hal);
 	
-	for (l = roots; l; l = l->next) {
-		gchar       *udi;
-		const gchar *mount_point;
-		gboolean     is_mounted;
+	l = roots;
 
-		udi = l->data;
-		mount_point = tracker_storage_udi_get_mount_point (hal, udi);
-		is_mounted = tracker_storage_udi_get_is_mounted (hal, udi);
+	while (l && !private->shutdown) {
+		MountPointUpdate *mpu;
 
-		g_message ("  %s", udi);
+		mpu = mount_point_update_new (l->data,
+					      tracker_storage_udi_get_mount_point (hal, l->data),
+					      TRUE,
+					      tracker_storage_udi_get_is_mounted (hal, l->data));
 
-		org_freedesktop_Tracker_Indexer_volume_update_state_async (tracker_dbus_indexer_get_proxy (), 
-									   udi,
-									   mount_point,
-									   is_mounted,
-									   mount_point_set_cb,
-									   g_strdup (udi));
+		g_message (" %s", mpu->udi);
+
+		org_freedesktop_Tracker_Indexer_volume_update_state (tracker_dbus_indexer_get_proxy (),
+									   mpu->udi,
+									   mpu->mount_point,
+									   mpu->was_added,
+									   &error);
+		if (error) {
+			g_critical ("Indexer couldn't set volume state for:'%s' in database, %s",
+				    mpu->udi,
+				    error->message);
+
+			g_error_free (error);
+
+			tracker_shutdown ();
+			break;
+		} else {
+			mount_point_set (mpu);
+		}
+
+		mount_point_update_free (mpu);
+		l = l->next;
 	}
 
 	g_list_free (roots);
+
+	/* Merging: tracker-0.6 appears to have code here that we don't have
+	 *
+	 * About "mount_points_up" */
 }
 
-static void
-set_up_mount_points (TrackerStorage *hal)
-{
-	g_message ("Indexer is being notified to disable all volumes");
-	org_freedesktop_Tracker_Indexer_volume_disable_all_async (tracker_dbus_indexer_get_proxy (), 
-								  set_up_mount_points_cb,
-								  hal);
-}
 
 #endif /* HAVE_HAL */
 
@@ -920,7 +1005,9 @@ main (gint argc, gchar *argv[])
 		flags |= TRACKER_DB_MANAGER_LOW_MEMORY_MODE;
 	}
 
-	tracker_data_manager_init (config, language, flags, NULL, &is_first_time_index);
+	if (!tracker_data_manager_init (config, language, flags, NULL, &is_first_time_index)) {
+		return EXIT_FAILURE;
+	}
 
 	tracker_status_set_is_first_time_index (is_first_time_index);
 
@@ -959,6 +1046,10 @@ main (gint argc, gchar *argv[])
 	set_up_mount_points (hal_storage);
 #endif /* HAVE_HAL */
 
+	if (private->shutdown) {
+		goto shutdown;
+	}
+
 	/* Make Tracker available for introspection */
 	if (!tracker_dbus_register_objects (config,
 					    language)) {
@@ -980,11 +1071,12 @@ main (gint argc, gchar *argv[])
 	 */
 	tracker_status_set_and_signal (TRACKER_STATUS_IDLE);
 
-	if (!private->shutdown && tracker_status_get_is_ready ()) {
+	if (!private->shutdown) {
 		private->main_loop = g_main_loop_new (NULL, FALSE);
 		g_main_loop_run (private->main_loop);
 	}
 
+shutdown:
 	/*
 	 * Shutdown the daemon
 	 */

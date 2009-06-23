@@ -100,6 +100,19 @@ tracker_statement_list_insert_with_int64 (GPtrArray   *statements,
 	g_free (value_str);
 }
 
+void
+tracker_statement_list_insert_with_uint (GPtrArray   *statements,
+					 const gchar *subject,
+					 const gchar *predicate,
+					 guint32      value)
+{
+	gchar *value_str;
+
+	value_str = g_strdup_printf ("%" G_GUINT32_FORMAT, value);
+	tracker_statement_list_insert (statements, subject, predicate, value_str);
+	g_free (value_str);
+}
+
 
 void
 tracker_statement_list_insert_with_double  (GPtrArray   *statements,
