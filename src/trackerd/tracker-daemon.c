@@ -45,8 +45,8 @@
 
 #define TRACKER_TYPE_G_STRV_ARRAY  (dbus_g_type_get_collection ("GPtrArray", G_TYPE_STRV))
 
-/* In seconds (5 minutes for now) */
-#define STATS_CACHE_LIFETIME 300
+/* In seconds (2 minutes for now) */
+#define STATS_CACHE_LIFETIME 120
 
 typedef struct {
 	TrackerConfig	 *config;
