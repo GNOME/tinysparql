@@ -43,9 +43,9 @@
 #include "tracker-main.h"
 #include "tracker-extract-albumart.h"
 
-#ifdef HAVE_GDKPIXBUF
-
 static GHashTable *album_art_done = NULL;
+
+#ifdef HAVE_GDKPIXBUF
 
 static gboolean
 set_albumart (const unsigned char *buffer,
