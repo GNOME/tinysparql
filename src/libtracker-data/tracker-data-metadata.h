@@ -26,7 +26,23 @@
 
 #include <libtracker-common/tracker-common.h>
 
+#define TRACKER_TYPE_DATA_METADATA	   (tracker_data_metadata_get_type())
+#define TRACKER_DATA_METADATA(o)	   (G_TYPE_CHECK_INSTANCE_CAST ((o), TRACKER_TYPE_DATA_METADATA, TrackerDataMetadata))
+#define TRACKER_DATA_METADATA_CLASS(c)     (G_TYPE_CHECK_CLASS_CAST ((c),    TRACKER_TYPE_DATA_METADATA, TrackerDataMetadataClass))
+#define TRACKER_IS_DATA_METADATA(o)	   (G_TYPE_CHECK_INSTANCE_TYPE ((o), TRACKER_TYPE_DATA_METADATA))
+#define TRACKER_IS_DATA_METADATA_CLASS(c)  (G_TYPE_CHECK_CLASS_TYPE ((c),    TRACKER_TYPE_DATA_METADATA))
+#define TRACKER_DATA_METADATA_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o),  TRACKER_TYPE_DATA_METADATA, TrackerDataMetadataClass))
+
 typedef struct TrackerDataMetadata TrackerDataMetadata;
+typedef struct TrackerDataMetadataClass TrackerDataMetadataClass;
+
+struct TrackerDataMetadata {
+	GObject parent_instance;
+};
+
+struct TrackerDataMetadataClass {
+	GObjectClass parent_class;
+};
 
 typedef void (* TrackerDataMetadataForeach) (TrackerField *field,
 					     gpointer      value,
@@ -35,8 +51,16 @@ typedef gboolean (* TrackerDataMetadataRemove) (TrackerField *field,
 						gpointer      value,
 						gpointer      user_data);
 
+GType                 tracker_data_metadata_get_type       (void) G_GNUC_CONST;
+
 TrackerDataMetadata * tracker_data_metadata_new            (void);
-void                  tracker_data_metadata_free           (TrackerDataMetadata        *metadata);
+
+void                  tracker_data_metadata_clear_field    (TrackerDataMetadata        *metadata,
+							    const gchar                *field_name);
+gboolean              tracker_data_metadata_insert_take_ownership
+                                                           (TrackerDataMetadata        *metadata,
+							    const gchar                *field_name,
+							    gchar                      *value);
 void                  tracker_data_metadata_insert         (TrackerDataMetadata        *metadata,
 							    const gchar                *field_name,
 							    const gchar                *value);

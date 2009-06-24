@@ -287,8 +287,8 @@ tracker_module_file_get_metadata (TrackerModuleFile *file)
                 return NULL;
         }
 
-        if (!tracker_module_metadata_lookup (metadata, METADATA_FILE_PATH, NULL) &&
-            !tracker_module_metadata_lookup (metadata, METADATA_FILE_NAME, NULL)) {
+        if (!tracker_data_metadata_lookup (TRACKER_DATA_METADATA (metadata), METADATA_FILE_PATH) &&
+            !tracker_data_metadata_lookup (TRACKER_DATA_METADATA (metadata), METADATA_FILE_NAME)) {
                 gchar *uri, *dirname, *basename;
 
                 uri = tracker_module_file_get_uri (file);
@@ -302,7 +302,7 @@ tracker_module_file_get_metadata (TrackerModuleFile *file)
                 g_free (uri);
         }
 
-        if (!tracker_module_metadata_lookup (metadata, METADATA_FILE_MODIFIED, NULL)) {
+        if (!tracker_data_metadata_lookup (TRACKER_DATA_METADATA (metadata), METADATA_FILE_MODIFIED)) {
                 tracker_module_metadata_add_date (metadata, METADATA_FILE_MODIFIED, time (NULL));
         }
 

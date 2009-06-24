@@ -27,9 +27,89 @@
 
 #include "tracker-data-metadata.h"
 
-struct TrackerDataMetadata {
+#define GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_DATA_METADATA, TrackerDataMetadataPrivate))
+
+typedef struct TrackerDataMetadataPrivate TrackerDataMetadataPrivate;
+
+struct TrackerDataMetadataPrivate {
 	GHashTable *table;
 };
+
+
+static void tracker_data_metadata_finalize (GObject *object);
+
+
+G_DEFINE_TYPE (TrackerDataMetadata, tracker_data_metadata, G_TYPE_OBJECT)
+
+
+static void
+tracker_data_metadata_class_init (TrackerDataMetadataClass *klass)
+{
+	GObjectClass *object_class = G_OBJECT_CLASS (klass);
+
+	object_class->finalize = tracker_data_metadata_finalize;
+
+	g_type_class_add_private (object_class,
+				  sizeof (TrackerDataMetadataPrivate));
+}
+
+static void
+tracker_data_metadata_init (TrackerDataMetadata *metadata)
+{
+	TrackerDataMetadataPrivate *priv;
+
+	priv = GET_PRIVATE (metadata);
+
+	priv->table = g_hash_table_new_full (g_direct_hash,
+					     g_direct_equal,
+					     (GDestroyNotify) g_object_unref,
+					     NULL);
+}
+
+static void
+free_metadata (gpointer      data,
+	       TrackerField *field)
+{
+	if (tracker_field_get_multiple_values (field)) {
+		GList *list;
+
+		list = (GList *) data;
+		g_list_foreach (list, (GFunc) g_free, NULL);
+		g_list_free (list);
+	} else {
+		g_free (data);
+	}
+
+}
+
+static gboolean
+remove_metadata_foreach (gpointer key,
+			 gpointer value,
+			 gpointer user_data)
+{
+	TrackerField *field;
+
+	field = (TrackerField *) key;
+	free_metadata (value, field);
+
+	return TRUE;
+}
+
+static void
+tracker_data_metadata_finalize (GObject *object)
+{
+	TrackerDataMetadataPrivate *priv;
+
+	priv = GET_PRIVATE (object);
+
+	g_hash_table_foreach_remove (priv->table,
+				     remove_metadata_foreach,
+				     NULL);
+
+	g_hash_table_destroy (priv->table);
+
+	G_OBJECT_CLASS (tracker_data_metadata_parent_class)->finalize (object);
+}
 
 /**
  * tracker_data_metadata_new:
@@ -41,55 +121,59 @@ struct TrackerDataMetadata {
 TrackerDataMetadata *
 tracker_data_metadata_new (void)
 {
-	TrackerDataMetadata *metadata;
-
-	metadata = g_slice_new (TrackerDataMetadata);
-	metadata->table = g_hash_table_new_full (g_direct_hash,
-						 g_direct_equal,
-						 (GDestroyNotify) g_object_unref,
-						 NULL);
-	return metadata;
+	return g_object_new (TRACKER_TYPE_DATA_METADATA, NULL);
 }
 
-static gboolean
-remove_metadata_foreach (gpointer key,
-			 gpointer value,
-			 gpointer user_data)
+void
+tracker_data_metadata_clear_field (TrackerDataMetadata *metadata,
+				   const gchar         *field_name)
 {
+	TrackerDataMetadataPrivate *priv;
 	TrackerField *field;
+	gpointer data;
 
-	field = (TrackerField *) key;
+	field = tracker_ontology_get_field_by_name (field_name);
 
-	if (tracker_field_get_multiple_values (field)) {
-		GList *list;
-
-		list = (GList *) value;
-		g_list_foreach (list, (GFunc) g_free, NULL);
-		g_list_free (list);
-	} else {
-		g_free (value);
+	if (!field) {
+		g_warning ("Field name '%s' isn't described in the ontology", field_name);
+		return;
 	}
 
-	return TRUE;
+	priv = GET_PRIVATE (metadata);
+	data = g_hash_table_lookup (priv->table, field);
+
+	if (data) {
+		free_metadata (data, field);
+		g_hash_table_remove (priv->table, field);
+	}
 }
 
-/**
- * tracker_data_metadata_free:
- * @metadata: A #TrackerDataMetadata
- *
- * Frees the #TrackerDataMetadata and any contained data.
- **/
-void
-tracker_data_metadata_free (TrackerDataMetadata *metadata)
+gboolean
+tracker_data_metadata_insert_take_ownership (TrackerDataMetadata *metadata,
+					     const gchar         *field_name,
+					     gchar               *value)
 {
-	g_return_if_fail (metadata != NULL);
+	TrackerDataMetadataPrivate *priv;
+	TrackerField *field;
+	gchar *old_value;
 
-	g_hash_table_foreach_remove (metadata->table,
-				     remove_metadata_foreach,
-				     NULL);
+	g_return_val_if_fail (TRACKER_IS_DATA_METADATA (metadata), FALSE);
+	g_return_val_if_fail (field_name != NULL, FALSE);
+	g_return_val_if_fail (value != NULL, FALSE);
 
-	g_hash_table_destroy (metadata->table);
-	g_slice_free (TrackerDataMetadata, metadata);
+	priv = GET_PRIVATE (metadata);
+	field = tracker_ontology_get_field_by_name (field_name);
+
+	g_return_val_if_fail (TRACKER_IS_FIELD (field), FALSE);
+	g_return_val_if_fail (tracker_field_get_multiple_values (field) == FALSE, FALSE);
+
+	old_value = g_hash_table_lookup (priv->table, field);
+	g_free (old_value);
+
+	g_hash_table_replace (priv->table,
+			      g_object_ref (field),
+			      value);
+	return TRUE;
 }
 
 /**
@@ -105,22 +189,24 @@ tracker_data_metadata_insert (TrackerDataMetadata *metadata,
 			      const gchar	  *field_name,
 			      const gchar         *value)
 {
+	TrackerDataMetadataPrivate *priv;
 	TrackerField *field;
 	gchar *old_value;
 
-	g_return_if_fail (metadata != NULL);
+	g_return_if_fail (TRACKER_IS_DATA_METADATA (metadata));
 	g_return_if_fail (field_name != NULL);
 	g_return_if_fail (value != NULL);
 
+	priv = GET_PRIVATE (metadata);
 	field = tracker_ontology_get_field_by_name (field_name);
 
 	g_return_if_fail (TRACKER_IS_FIELD (field));
 	g_return_if_fail (tracker_field_get_multiple_values (field) == FALSE);
 
-	old_value = g_hash_table_lookup (metadata->table, field);
+	old_value = g_hash_table_lookup (priv->table, field);
 	g_free (old_value);
 
-	g_hash_table_replace (metadata->table,
+	g_hash_table_replace (priv->table,
 			      g_object_ref (field),
 			      g_strdup (value));
 }
@@ -144,16 +230,18 @@ tracker_data_metadata_insert_values (TrackerDataMetadata *metadata,
 				     const gchar         *field_name,
 				     const GList	 *list)
 {
+	TrackerDataMetadataPrivate *priv;
 	TrackerField *field;
 	GList        *old_values, *copy;
 
-	g_return_if_fail (metadata != NULL);
+	g_return_if_fail (TRACKER_IS_DATA_METADATA (metadata));
 	g_return_if_fail (field_name != NULL);
 
 	if (!list) {
 		return;
 	}
 
+	priv = GET_PRIVATE (metadata);
 	field = tracker_ontology_get_field_by_name (field_name);
 
 	if (!field) {
@@ -166,14 +254,14 @@ tracker_data_metadata_insert_values (TrackerDataMetadata *metadata,
 
 	copy = tracker_glist_copy_with_string_data ((GList *)list);
 
-	old_values = g_hash_table_lookup (metadata->table, field);
+	old_values = g_hash_table_lookup (priv->table, field);
 
 	if (old_values) {
 		g_list_foreach (old_values, (GFunc) g_free, NULL);
 		g_list_free (old_values);
 	}
 
-	g_hash_table_replace (metadata->table,
+	g_hash_table_replace (priv->table,
 			      g_object_ref (field),
 			      copy);
 }
@@ -193,17 +281,19 @@ G_CONST_RETURN gchar *
 tracker_data_metadata_lookup (TrackerDataMetadata *metadata,
 			      const gchar	  *field_name)
 {
+	TrackerDataMetadataPrivate *priv;
 	TrackerField *field;
 
-	g_return_val_if_fail (metadata != NULL, NULL);
+	g_return_val_if_fail (TRACKER_IS_DATA_METADATA (metadata), NULL);
 	g_return_val_if_fail (field_name != NULL, NULL);
 
+	priv = GET_PRIVATE (metadata);
 	field = tracker_ontology_get_field_by_name (field_name);
 
 	g_return_val_if_fail (TRACKER_IS_FIELD (field), NULL);
 	g_return_val_if_fail (tracker_field_get_multiple_values (field) == FALSE, NULL);
 
-	return g_hash_table_lookup (metadata->table, field);
+	return g_hash_table_lookup (priv->table, field);
 }
 
 /**
@@ -222,17 +312,19 @@ G_CONST_RETURN GList *
 tracker_data_metadata_lookup_values (TrackerDataMetadata *metadata,
 				     const gchar         *field_name)
 {
+	TrackerDataMetadataPrivate *priv;
 	TrackerField *field;
 
-	g_return_val_if_fail (metadata != NULL, NULL);
+	g_return_val_if_fail (TRACKER_IS_DATA_METADATA (metadata), NULL);
 	g_return_val_if_fail (field_name != NULL, NULL);
 
+	priv = GET_PRIVATE (metadata);
 	field = tracker_ontology_get_field_by_name (field_name);
 
 	g_return_val_if_fail (TRACKER_IS_FIELD (field), NULL);
 	g_return_val_if_fail (tracker_field_get_multiple_values (field) == TRUE, NULL);
 
-	return g_hash_table_lookup (metadata->table, field);
+	return g_hash_table_lookup (priv->table, field);
 }
 
 /**
@@ -248,10 +340,14 @@ tracker_data_metadata_foreach (TrackerDataMetadata	  *metadata,
 			       TrackerDataMetadataForeach  func,
 			       gpointer			   user_data)
 {
-	g_return_if_fail (metadata != NULL);
+	TrackerDataMetadataPrivate *priv;
+
+	g_return_if_fail (TRACKER_IS_DATA_METADATA (metadata));
 	g_return_if_fail (func != NULL);
 
-	g_hash_table_foreach (metadata->table,
+	priv = GET_PRIVATE (metadata);
+
+	g_hash_table_foreach (priv->table,
 			      (GHFunc) func,
 			      user_data);
 }
@@ -270,11 +366,14 @@ tracker_data_metadata_foreach_remove (TrackerDataMetadata       *metadata,
 				      TrackerDataMetadataRemove  func,
 				      gpointer		         user_data)
 {
-	g_return_if_fail (metadata != NULL);
+	TrackerDataMetadataPrivate *priv;
+
+	g_return_if_fail (TRACKER_IS_DATA_METADATA (metadata));
 	g_return_if_fail (func != NULL);
 
-	g_hash_table_foreach_remove (metadata->table,
+	priv = GET_PRIVATE (metadata);
+
+	g_hash_table_foreach_remove (priv->table,
 				     (GHRFunc) func,
 				     user_data);
 }
-

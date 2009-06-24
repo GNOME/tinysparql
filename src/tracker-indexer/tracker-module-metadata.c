@@ -21,128 +21,28 @@
 
 #include <glib.h>
 #include <libtracker-common/tracker-type-utils.h>
+#include <libtracker-data/tracker-data-metadata.h>
 #include "tracker-module-metadata-private.h"
 
 struct TrackerModuleMetadata {
-	GObject parent_instance;
-	GHashTable *table;
+	TrackerDataMetadata parent_instance;
 };
 
 struct TrackerModuleMetadataClass {
-	GObjectClass parent_class;
+	TrackerDataMetadataClass parent_class;
 };
 
 
-static void   tracker_module_metadata_finalize   (GObject *object);
-
-
-G_DEFINE_TYPE (TrackerModuleMetadata, tracker_module_metadata, G_TYPE_OBJECT)
+G_DEFINE_TYPE (TrackerModuleMetadata, tracker_module_metadata, TRACKER_TYPE_DATA_METADATA)
 
 static void
 tracker_module_metadata_class_init (TrackerModuleMetadataClass *klass)
 {
-	GObjectClass *object_class = G_OBJECT_CLASS (klass);
-
-	object_class->finalize = tracker_module_metadata_finalize;
 }
 
 static void
 tracker_module_metadata_init (TrackerModuleMetadata *metadata)
 {
-	metadata->table = g_hash_table_new_full (g_direct_hash,
-						 g_direct_equal,
-						 (GDestroyNotify) g_object_unref,
-						 NULL);
-}
-
-static void
-free_metadata (TrackerField *field,
-	       gpointer      data)
-{
-	if (tracker_field_get_multiple_values (field)) {
-		GList *list;
-
-		list = (GList *) data;
-		g_list_foreach (list, (GFunc) g_free, NULL);
-		g_list_free (list);
-	} else {
-		g_free (data);
-	}
-}
-
-static gboolean
-remove_metadata_foreach (gpointer key,
-			 gpointer value,
-			 gpointer user_data)
-{
-	TrackerField *field;
-
-	field = (TrackerField *) key;
-	free_metadata (field, value);
-
-	return TRUE;
-}
-
-static void
-tracker_module_metadata_finalize (GObject *object)
-{
-	TrackerModuleMetadata *metadata;
-
-	metadata = TRACKER_MODULE_METADATA (object);
-
-	g_hash_table_foreach_remove (metadata->table,
-				     remove_metadata_foreach,
-				     NULL);
-
-	g_hash_table_destroy (metadata->table);
-
-	G_OBJECT_CLASS (tracker_module_metadata_parent_class)->finalize (object);
-}
-
-gconstpointer
-tracker_module_metadata_lookup (TrackerModuleMetadata *metadata,
-				const gchar           *field_name,
-				gboolean              *multiple_values)
-{
-	TrackerField *field;
-
-	field = tracker_ontology_get_field_by_name (field_name);
-
-	if (multiple_values) {
-		*multiple_values = tracker_field_get_multiple_values (field);
-	}
-
-	return g_hash_table_lookup (metadata->table, field);
-}
-
-/**
- * tracker_module_metadata_clear_field:
- * @metadata: A #TrackerModuleMetadata
- * @field_name: Field name for the metadata to clear
- *
- * Clears any content for the given field name.
- **/
-void
-tracker_module_metadata_clear_field (TrackerModuleMetadata *metadata,
-				     const gchar           *field_name)
-{
-	TrackerField *field;
-
-	gpointer data;
-
-	field = tracker_ontology_get_field_by_name (field_name);
-
-	if (!field) {
-		g_warning ("Field name '%s' isn't described in the ontology", field_name);
-		return;
-	}
-
-	data = g_hash_table_lookup (metadata->table, field);
-
-	if (data) {
-		free_metadata (field, data);
-		g_hash_table_remove (metadata->table, field);
-	}
 }
 
 /**
@@ -168,39 +68,44 @@ tracker_module_metadata_add_take_string (TrackerModuleMetadata *metadata,
 					 gchar                 *value)
 {
 	TrackerField *field;
-	gpointer data;
 
-	g_return_val_if_fail (metadata != NULL, FALSE);
+	g_return_val_if_fail (TRACKER_IS_MODULE_METADATA (metadata), FALSE);
 	g_return_val_if_fail (field_name != NULL, FALSE);
-
-	if (!value) {
-		return FALSE;
-	}
 
 	field = tracker_ontology_get_field_by_name (field_name);
 
 	if (!field) {
 		g_warning ("Field name '%s' isn't described in the ontology", field_name);
 		return FALSE;
+
 	}
 
 	if (tracker_field_get_multiple_values (field)) {
-		GList *list;
+		const GList *list;
+		GList *copy = NULL;
 
-		list = g_hash_table_lookup (metadata->table, field);
-		list = g_list_prepend (list, value);
-		data = list;
+		list = tracker_data_metadata_lookup_values (TRACKER_DATA_METADATA (metadata),
+							    field_name);
+
+		while (list) {
+			copy = g_list_prepend (copy, g_strdup (list->data));
+			list = list->next;
+		}
+
+		copy = g_list_prepend (copy, value);
+		copy = g_list_reverse (copy);
+
+		tracker_data_metadata_insert_values (TRACKER_DATA_METADATA (metadata),
+						     field_name, copy);
+
+		g_list_foreach (copy, (GFunc) g_free, NULL);
+		g_list_free (copy);
+
+		return TRUE;
 	} else {
-		data = g_hash_table_lookup (metadata->table, field);
-		g_free (data);
-		data = value;
+		return tracker_data_metadata_insert_take_ownership (TRACKER_DATA_METADATA (metadata),
+								    field_name, value);
 	}
-
-	g_hash_table_replace (metadata->table,
-			      g_object_ref (field),
-			      data);
-
-	return TRUE;
 }
 
 /**
@@ -217,12 +122,40 @@ tracker_module_metadata_add_string (TrackerModuleMetadata *metadata,
 				    const gchar           *field_name,
 				    const gchar           *value)
 {
-	gchar *str;
+	TrackerField *field;
 
-	str = g_strdup (value);
+	g_return_if_fail (TRACKER_IS_MODULE_METADATA (metadata));
+	g_return_if_fail (field_name != NULL);
 
-	if (!tracker_module_metadata_add_take_string (metadata, field_name, str)) {
-		g_free (str);
+	field = tracker_ontology_get_field_by_name (field_name);
+
+	if (!field) {
+		g_warning ("Field name '%s' isn't described in the ontology", field_name);
+	}
+
+	if (tracker_field_get_multiple_values (field)) {
+		const GList *list;
+		GList *copy = NULL;
+
+		list = tracker_data_metadata_lookup_values (TRACKER_DATA_METADATA (metadata),
+							    field_name);
+
+		while (list) {
+			copy = g_list_prepend (copy, g_strdup (list->data));
+			list = list->next;
+		}
+
+		copy = g_list_prepend (copy, g_strdup (value));
+		copy = g_list_reverse (copy);
+
+		tracker_data_metadata_insert_values (TRACKER_DATA_METADATA (metadata),
+						     field_name, copy);
+
+		g_list_foreach (copy, (GFunc) g_free, NULL);
+		g_list_free (copy);
+	} else {
+		tracker_data_metadata_insert (TRACKER_DATA_METADATA (metadata),
+					      field_name, value);
 	}
 }
 
@@ -345,43 +278,13 @@ tracker_module_metadata_add_date (TrackerModuleMetadata *metadata,
 	}
 }
 
-/**
- * tracker_module_metadata_foreach:
- * @metadata: A #TrackerModuleMetadata.
- * @func: The function to call with each metadata.
- * @user_data: user data to pass to the function.
- *
- * Calls a function for each element in @metadata.
- **/
-void
-tracker_module_metadata_foreach (TrackerModuleMetadata        *metadata,
-				 TrackerModuleMetadataForeach  func,
-				 gpointer		       user_data)
-{
-	g_hash_table_foreach (metadata->table,
-			      (GHFunc) func,
-			      user_data);
-}
-
-void
-tracker_module_metadata_foreach_remove (TrackerModuleMetadata       *metadata,
-					TrackerModuleMetadataRemove  func,
-					gpointer                     user_data)
-{
-	g_hash_table_foreach_remove (metadata->table,
-				     (GHRFunc) func,
-				     user_data);
-}
-
 static void
-get_hash_table_foreach (gpointer key,
-			gpointer value,
-			gpointer user_data)
+get_hash_table_foreach (TrackerField *field,
+			gpointer      value,
+			gpointer      user_data)
 {
-	TrackerField *field;
 	GHashTable *table;
 
-	field = TRACKER_FIELD (key);
 	table = user_data;
 
 	g_hash_table_insert (table,
@@ -395,8 +298,10 @@ tracker_module_metadata_get_hash_table (TrackerModuleMetadata *metadata)
 	GHashTable *table;
 
 	table = g_hash_table_new (g_str_hash, g_str_equal);
-	g_hash_table_foreach (metadata->table, (GHFunc) get_hash_table_foreach, table);
 
+	tracker_data_metadata_foreach (TRACKER_DATA_METADATA (metadata),
+				       get_hash_table_foreach,
+				       table);
 	return table;
 }
 

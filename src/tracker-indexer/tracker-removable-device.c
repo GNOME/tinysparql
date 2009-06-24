@@ -486,9 +486,9 @@ tracker_removable_device_add_metadata (TrackerIndexer        *indexer,
 
 	set_metadata ("rdf:type", rdf_type, info);
 
-	tracker_module_metadata_foreach (metadata, 
-					 foreach_in_metadata_set_metadata,
-					 info);
+	tracker_data_metadata_foreach (TRACKER_DATA_METADATA (metadata),
+				       foreach_in_metadata_set_metadata,
+				       info);
 
 	g_free (info->about_uri);
 

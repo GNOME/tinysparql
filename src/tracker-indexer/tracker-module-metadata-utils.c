@@ -328,8 +328,11 @@ metadata_utils_add_embedded_data (TrackerModuleMetadata *metadata,
 
                         /* Dates come in ISO 8601 format, we handle them as time_t */
                         time_str = tracker_date_to_time_string (utf_value);
-                        tracker_module_metadata_add_string (metadata, name, time_str);
-                        g_free (time_str);
+
+			if (time_str) {
+				tracker_module_metadata_add_string (metadata, name, time_str);
+				g_free (time_str);
+			}
                 } else {
                         tracker_module_metadata_add_string (metadata, name, utf_value);
                 }

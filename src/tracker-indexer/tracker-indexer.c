@@ -1288,7 +1288,8 @@ index_metadata (TrackerIndexer	      *indexer,
 	data.id = id;
 	data.add = TRUE;
 
-	tracker_module_metadata_foreach (metadata, index_metadata_foreach, &data);
+	tracker_data_metadata_foreach (TRACKER_DATA_METADATA (metadata),
+				       index_metadata_foreach, &data);
 
 	schedule_flush (indexer, FALSE);
 }
@@ -1645,7 +1646,8 @@ generate_item_thumbnail (TrackerIndexer        *indexer,
 {
 	const gchar *mime_type;
 
-	mime_type = tracker_module_metadata_lookup (metadata, METADATA_FILE_MIMETYPE, FALSE);
+	mime_type = tracker_data_metadata_lookup (TRACKER_DATA_METADATA (metadata),
+						  METADATA_FILE_MIMETYPE);
 
 	if (dirname && 
 	    dirname[0] == G_DIR_SEPARATOR && 
@@ -1733,9 +1735,9 @@ item_add_or_update (TrackerIndexer        *indexer,
 
 		unindex_metadata (indexer, id, service, old_metadata_emb);
 
-		tracker_module_metadata_foreach_remove (metadata,
-							remove_existing_non_emb_metadata,
-							old_metadata_non_emb);
+		tracker_data_metadata_foreach_remove (TRACKER_DATA_METADATA (metadata),
+						      remove_existing_non_emb_metadata,
+						      old_metadata_non_emb);
 
 		context = tracker_data_update_metadata_context_new (TRACKER_CONTEXT_TYPE_UPDATE,
 								    service, id);
@@ -1761,8 +1763,8 @@ item_add_or_update (TrackerIndexer        *indexer,
 		}
 
 		g_free (old_text);
-		tracker_data_metadata_free (old_metadata_emb);
-		tracker_data_metadata_free (old_metadata_non_emb);
+		g_object_unref (old_metadata_emb);
+		g_object_unref (old_metadata_non_emb);
 	} else {
 		TrackerDataUpdateMetadataContext *context;
 		GHashTable *data;
@@ -1996,7 +1998,7 @@ item_erase (TrackerIndexer *indexer,
 		mime_type = tracker_data_metadata_lookup (data_metadata, "File:Mime");
 		tracker_thumbnailer_remove (uri, mime_type);
 
-		tracker_data_metadata_free (data_metadata);
+		g_object_unref (data_metadata);
 		g_free (uri);
 		g_free (path);
 	}
@@ -2122,7 +2124,7 @@ item_move (TrackerIndexer  *indexer,
 		g_free (source_path);
 
 		if (old_metadata) {
-			tracker_data_metadata_free (old_metadata);
+			g_object_unref (old_metadata);
 		}
 
 		return FALSE;
@@ -2161,7 +2163,7 @@ item_move (TrackerIndexer  *indexer,
 	}
 
 	if (old_metadata) {
-		tracker_data_metadata_free (old_metadata);
+		g_object_unref (old_metadata);
 	}
 
 	g_free (source_path);

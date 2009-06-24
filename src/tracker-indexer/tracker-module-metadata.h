@@ -24,6 +24,7 @@
 
 #include <glib.h>
 #include <glib-object.h>
+#include "libtracker-data/tracker-data-metadata.h"
 
 G_BEGIN_DECLS
 
