@@ -208,6 +208,8 @@ add_int_gst_tag (GHashTable  *metadata,
 	}
 }
 
+#ifdef ENABLE_DETAILED_METADATA
+
 static void
 add_double_gst_tag (GHashTable	*metadata,
 		    const gchar *key,
@@ -225,6 +227,8 @@ add_double_gst_tag (GHashTable	*metadata,
 				     tracker_escape_metadata_printf ("%f", n));
 	}
 }
+
+#endif /* ENABLE_DETAILED_METADATA */
 
 static void
 add_fraction_gst_tag (GHashTable	*metadata,

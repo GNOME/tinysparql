@@ -17,12 +17,14 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA  02110-1301, USA.
  */
-#include <glib.h>
+
+#include <glib-object.h>
 
 #include <tracker-test-helpers.h>
 
-void
-test_something () {
+static void
+test_something (void) 
+{
         g_assert_cmpint (1, ==, 1);
         return;
 }

@@ -176,7 +176,7 @@ tracker_test_extract_get_extract (const gchar *path, const gchar *mime)
 		data = (func) ();
 	} else {
 		g_error ("Could not get accesspoint to the module");
-		return;
+		return NULL;
 	}	
 
 	/* Search for exact match first */

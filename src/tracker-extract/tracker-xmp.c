@@ -35,6 +35,8 @@
 #include <exempi/xmp.h>
 #include <exempi/xmpconsts.h>
 
+#ifdef ENABLE_DETAILED_METADATA
+
 static gchar *
 fix_metering_mode (const gchar *mode)
 {
@@ -61,6 +63,8 @@ fix_metering_mode (const gchar *mode)
 	return "unknown";
 }
 
+#endif /* ENABLE_DETAILED_METADATA */
+
 static gchar *
 fix_flash (const gchar *flash)
 {
@@ -76,6 +80,8 @@ fix_flash (const gchar *flash)
 	}
 }
 
+#ifdef ENABLE_DETAILED_METADATA
+
 static gchar *
 fix_white_balance (const gchar *wb)
 {
@@ -85,6 +91,8 @@ fix_white_balance (const gchar *wb)
 		return "Auto white balance";
 	}
 }
+
+#endif /* ENABLE_DETAILED_METADATA */
 
 static void tracker_xmp_iter        (XmpPtr          xmp,
 				     XmpIteratorPtr  iter,

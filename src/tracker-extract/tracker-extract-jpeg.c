@@ -93,10 +93,14 @@ typedef struct {
 } TagType;
 
 static gchar *date_to_iso8601	(const gchar *exif_date);
+
+#ifdef ENABLE_DETAILED_METADATA
 static gchar *fix_focal_length	(const gchar *fl);
-static gchar *fix_flash		(const gchar *flash);
 static gchar *fix_fnumber	(const gchar *fn);
 static gchar *fix_exposure_time (const gchar *et);
+#endif  /* ENABLE_DETAILED_METADATA */
+
+static gchar *fix_flash		(const gchar *flash);
 static gchar *fix_orientation   (const gchar *orientation);
 
 static TagType tags[] = {
@@ -195,11 +199,15 @@ date_to_iso8601 (const gchar *date)
 	return tracker_date_format_to_iso8601 (date, EXIF_DATE_FORMAT);
 }
 
+#ifdef ENABLE_DETAILED_METADATA
+
 static gchar *
 fix_focal_length (const gchar *fl)
 {
 	return g_strndup (fl, strstr (fl, " mm") - fl);
 }
+
+#endif /* ENABLE_DETAILED_METADATA */
 
 static gchar *
 fix_flash (const gchar *flash)
@@ -210,6 +218,8 @@ fix_flash (const gchar *flash)
 		return g_strdup ("0");
 	}
 }
+
+#ifdef ENABLE_DETAILED_METADATA
 
 static gchar *
 fix_fnumber (const gchar *fn)
@@ -256,6 +266,8 @@ fix_exposure_time (const gchar *et)
 
 	return g_strdup (et);
 }
+
+#endif /* ENABLE_DETAILED_METADATA */
 
 static gchar *
 fix_orientation (const gchar *orientation)
