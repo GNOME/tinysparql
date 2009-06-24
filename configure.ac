@@ -1463,6 +1463,7 @@ AC_CONFIG_FILES([
 	tests/tracker-extract/Makefile
 	utils/Makefile
 	utils/albumart/Makefile
+	utils/mp3-genre-leading-uppercase/Makefile
 	utils/qdbm/Makefile
 	utils/sqlite/Makefile
 	utils/tracker-fts/Makefile

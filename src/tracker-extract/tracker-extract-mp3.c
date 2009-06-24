@@ -114,7 +114,23 @@ enum {
 static void extract_mp3 (const gchar *filename,
 			 GHashTable  *metadata);
 
+/* This list is based on the comprehensive list on the French wiki
+ * page here:
+ * 
+ *   http://fr.wikipedia.org/wiki/ID3
+ * 
+ * The actual list as explained by the standard is available here but
+ * has some ~17 or so genres missing which are on the French list:
+ *
+ *   http://www.id3.org/id3v2.3.0#head-129376727ebe5309c1de1888987d070288d7c7e7
+ * 
+ * Since the index is the most important thing here and this list is
+ * not sorted alphabetically, all new IDs are only ever appended to
+ * the list and that's why we can still use the French ID3 list over
+ * the actual list on the standards website.
+ */
 static const char *const genre_names[] = {
+	/* Standard genres */
 	"Blues",
 	"Classic Rock",
 	"Country",
@@ -155,7 +171,7 @@ static const char *const genre_names[] = {
 	"Sound Clip",
 	"Gospel",
 	"Noise",
-	"Alt. Rock",
+	"AlternRock",
 	"Bass",
 	"Soul",
 	"Punk",
@@ -174,7 +190,7 @@ static const char *const genre_names[] = {
 	"Southern Rock",
 	"Comedy",
 	"Cult",
-	"Gangsta Rap",
+	"Gangsta",
 	"Top 40",
 	"Christian Rap",
 	"Pop/Funk",
@@ -182,7 +198,7 @@ static const char *const genre_names[] = {
 	"Native American",
 	"Cabaret",
 	"New Wave",
-	"Psychedelic",
+	"Psychadelic",
 	"Rave",
 	"Showtunes",
 	"Trailer",
@@ -195,11 +211,13 @@ static const char *const genre_names[] = {
 	"Musical",
 	"Rock & Roll",
 	"Hard Rock",
+
+	/* Added on December 12, 1997 in cooperation with Winamp: */
 	"Folk",
-	"Folk/Rock",
+	"Folk-Rock",
 	"National Folk",
 	"Swing",
-	"Fast-Fusion",
+	"Fast Fusion",
 	"Bebob",
 	"Latin",
 	"Revival",
@@ -226,11 +244,15 @@ static const char *const genre_names[] = {
 	"Primus",
 	"Porn Groove",
 	"Satire",
+
+	/* Added on January 26, 1998 to ensure compatibility with Winamp 1.7: */
 	"Slow Jam",
 	"Club",
 	"Tango",
 	"Samba",
 	"Folklore",
+
+	/* Added on April 13, 1998 to ensure compatibility with Winamp 1.90: */
 	"Ballad",
 	"Power Ballad",
 	"Rhythmic Soul",
@@ -238,7 +260,7 @@ static const char *const genre_names[] = {
 	"Duet",
 	"Punk Rock",
 	"Drum Solo",
-	"A Cappella",
+	"A capella",
 	"Euro-House",
 	"Dance Hall",
 	"Goa",
@@ -257,6 +279,8 @@ static const char *const genre_names[] = {
 	"Crossover",
 	"Contemporary Christian",
 	"Christian Rock",
+
+	/* Added on Jun 1, 1998 to ensure compatibility with Winamp 1.91: */
 	"Merengue",
 	"Salsa",
 	"Thrash Metal",
@@ -307,6 +331,80 @@ static TrackerExtractData extract_data[] = {
 	{ "audio/x-mp3", extract_mp3 },
 	{ NULL, NULL }
 };
+
+static void
+improve_handwritten_genre (gchar *genre)
+{
+	/* This function tries to make each first letter of each word
+	 * upper case so we conform a bit more to the standards, for
+	 * example, if it is "Fusion jazz", we want "Fussion Jazz" to
+	 * make things more consistent.
+	 */
+        gchar *p;
+	gunichar c;
+	gboolean set_next;
+
+	if (!genre) {
+		return;
+	}
+
+	c = g_utf8_get_char (genre);
+	*genre = g_unichar_toupper (c);
+
+        for (p = genre, set_next = FALSE; *p; p = g_utf8_next_char (p)) {
+		GUnicodeBreakType t;
+
+                c = g_utf8_get_char (p);
+		t = g_unichar_break_type (c);
+
+		if (set_next) {
+			*p = g_unichar_toupper (c);
+			set_next = FALSE;
+		}
+
+		switch (t) {
+		case G_UNICODE_BREAK_MANDATORY:
+		case G_UNICODE_BREAK_CARRIAGE_RETURN:
+		case G_UNICODE_BREAK_LINE_FEED:
+		case G_UNICODE_BREAK_COMBINING_MARK:
+		case G_UNICODE_BREAK_SURROGATE:
+		case G_UNICODE_BREAK_ZERO_WIDTH_SPACE:
+		case G_UNICODE_BREAK_INSEPARABLE:
+		case G_UNICODE_BREAK_NON_BREAKING_GLUE:
+		case G_UNICODE_BREAK_CONTINGENT:
+		case G_UNICODE_BREAK_SPACE:
+		case G_UNICODE_BREAK_HYPHEN:
+		case G_UNICODE_BREAK_EXCLAMATION:
+		case G_UNICODE_BREAK_WORD_JOINER:
+		case G_UNICODE_BREAK_NEXT_LINE:
+		case G_UNICODE_BREAK_SYMBOL:
+			set_next = TRUE;
+
+		case G_UNICODE_BREAK_AFTER:
+		case G_UNICODE_BREAK_BEFORE:
+		case G_UNICODE_BREAK_BEFORE_AND_AFTER:
+		case G_UNICODE_BREAK_NON_STARTER:
+		case G_UNICODE_BREAK_OPEN_PUNCTUATION:
+		case G_UNICODE_BREAK_CLOSE_PUNCTUATION:
+		case G_UNICODE_BREAK_QUOTATION:
+		case G_UNICODE_BREAK_IDEOGRAPHIC:
+		case G_UNICODE_BREAK_NUMERIC:
+		case G_UNICODE_BREAK_INFIX_SEPARATOR:
+		case G_UNICODE_BREAK_ALPHABETIC:
+		case G_UNICODE_BREAK_PREFIX:
+		case G_UNICODE_BREAK_POSTFIX:
+		case G_UNICODE_BREAK_COMPLEX_CONTEXT:
+		case G_UNICODE_BREAK_AMBIGUOUS:
+		case G_UNICODE_BREAK_UNKNOWN:
+		case G_UNICODE_BREAK_HANGUL_L_JAMO:
+		case G_UNICODE_BREAK_HANGUL_V_JAMO:
+		case G_UNICODE_BREAK_HANGUL_T_JAMO:
+		case G_UNICODE_BREAK_HANGUL_LV_SYLLABLE:
+		case G_UNICODE_BREAK_HANGUL_LVT_SYLLABLE:
+			break;
+		}
+        }
+}
 
 static char *
 read_id3v1_buffer (int fd, goffset size)
@@ -1005,10 +1103,13 @@ get_id3v24_tags (const gchar *data,
 						if (get_genre_number (word, &genre)) {
 							g_free (word);
 							word = g_strdup (get_genre_name (genre));
-						}
+						} else {
+							if (g_ascii_strcasecmp (word, "unknown") == 0) {
+								g_free (word);
+								break;
+							} 
 
-						if (!word || strcasecmp (word, "unknown") == 0) {
-							break;
+							improve_handwritten_genre (word);
 						}
 					} else if (strcmp (tmap[i].text, "TLEN") == 0) {
 						guint32 duration;
@@ -1255,6 +1356,7 @@ get_id3v23_tags (const gchar *data,
 
 						parts = g_strsplit (word, "/", 2);
 						g_free (word);
+
 						word = g_strdup (parts[0]);
 						g_strfreev (parts);
 					} else if (strcmp (tmap[i].text, "TCON") == 0) {
@@ -1263,10 +1365,13 @@ get_id3v23_tags (const gchar *data,
 						if (get_genre_number (word, &genre)) {
 							g_free (word);
 							word = g_strdup (get_genre_name (genre));
-						}
+						} else {
+							if (g_ascii_strcasecmp (word, "unknown") == 0) {
+								g_free (word);
+								break;
+							} 
 
-						if (!word || strcasecmp (word, "unknown") == 0) {
-							break;
+							improve_handwritten_genre (word);
 						}
 					} else if (strcmp (tmap[i].text, "TLEN") == 0) {
 						guint32 duration;
@@ -1492,19 +1597,19 @@ get_id3v20_tags (const gchar *data,
 						s = g_strdup (word + strlen (word) + 1);
 						g_free (word);
 						word = s;
-					}
-
-					if (strcmp (tmap[i].text, "TCO") == 0) {
+					} else if (strcmp (tmap[i].text, "TCO") == 0) {
 						gint genre;
 
 						if (get_genre_number (word, &genre)) {
 							g_free (word);
 							word = g_strdup (get_genre_name (genre));
-						}
+						} else {
+							if (g_ascii_strcasecmp (word, "unknown") == 0) {
+								g_free (word);
+								break;
+							} 
 
-						if (!word || strcasecmp (word, "unknown") == 0) {
-							g_free (word);
-							break;
+							improve_handwritten_genre (word);
 						}
 					} else if (strcmp (tmap[i].text, "TLE") == 0) {
 						guint32 duration;
