@@ -913,16 +913,24 @@ get_message_metadata (TrackerModuleFile *file)
 
 		metadata = tracker_module_metadata_new ();
 
-		tracker_module_metadata_add_string (metadata, uri, RDF_TYPE, NMO_PREFIX "Email");
+		tracker_sparql_builder_subject_iri (metadata->sparql, uri);
+		tracker_sparql_builder_predicate (metadata->sparql, "a");
+		tracker_sparql_builder_object (metadata->sparql, "nmo:Email");
 
-		tracker_module_metadata_add_date (metadata, uri, METADATA_EMAIL_DATE, t);
-		tracker_module_metadata_add_string (metadata, uri, METADATA_EMAIL_SENDER, from);
-		tracker_module_metadata_add_string (metadata, uri, METADATA_EMAIL_SUBJECT, subject);
+		tracker_sparql_builder_predicate (metadata->sparql, "nmo:sentDate");
+		tracker_sparql_builder_object_date (metadata->sparql, &t);
+
+		tracker_sparql_builder_predicate (metadata->sparql, "nmo:sender");
+		tracker_sparql_builder_object_string (metadata->sparql, from);
+
+		tracker_sparql_builder_predicate (metadata->sparql, "nmo:messageSubject");
+		tracker_sparql_builder_object_string (metadata->sparql, subject);
 
 		list = get_recipient_list (to);
 
 		for (l = list; l; l = l->next) {
-			tracker_module_metadata_add_string (metadata, uri, METADATA_EMAIL_SENT_TO, l->data);
+			tracker_sparql_builder_predicate (metadata->sparql, "nmo:to");
+			tracker_sparql_builder_object_string (metadata->sparql, l->data);
 			g_free (l->data);
 		}
 
@@ -931,7 +939,8 @@ get_message_metadata (TrackerModuleFile *file)
 		list = get_recipient_list (cc);
 
 		for (l = list; l; l = l->next) {
-			tracker_module_metadata_add_string (metadata, uri, METADATA_EMAIL_CC, l->data);
+			tracker_sparql_builder_predicate (metadata->sparql, "nmo:cc");
+			tracker_sparql_builder_object_string (metadata->sparql, l->data);
 			g_free (l->data);
 		}
 
@@ -1056,8 +1065,9 @@ get_attachment_metadata (TrackerModuleFile *file,
 	 * Evolution opening the specific attachment anyway */
 
 	uri = g_strdup_printf ("%s#%s", tmp, mime_file);
-
-	tracker_module_metadata_add_string (metadata, uri, RDF_TYPE, NMO_PREFIX "Attachment");
+	tracker_sparql_builder_subject_iri (metadata->sparql, uri);
+	tracker_sparql_builder_predicate (metadata->sparql, "a");
+	tracker_sparql_builder_object (metadata->sparql, "nmo:Attachment");
 
 	evolution_common_get_wrapper_metadata (wrapper, metadata, uri);
 

@@ -339,18 +339,25 @@ get_message_metadata (TrackerModuleFile *file, GMimeMessage *message)
 
 	metadata = tracker_module_metadata_new ();
 
-	tracker_module_metadata_add_string (metadata, uri, RDF_TYPE, NMO_PREFIX "Email");
+	tracker_sparql_builder_subject_iri (metadata->sparql, uri);
+	tracker_sparql_builder_predicate (metadata->sparql, "a");
+	tracker_sparql_builder_object (metadata->sparql, "nmo:Email");
 
 	g_mime_message_get_date (message, &t, NULL);
+	tracker_sparql_builder_predicate (metadata->sparql, "nmo:sentDate");
+	tracker_sparql_builder_object_date (metadata->sparql, &t);
 
-	tracker_module_metadata_add_date (metadata, uri, METADATA_EMAIL_DATE, t);
-	tracker_module_metadata_add_string (metadata, uri, METADATA_EMAIL_SENDER, g_mime_message_get_sender (message));
-	tracker_module_metadata_add_string (metadata, uri, METADATA_EMAIL_SUBJECT, g_mime_message_get_subject (message));
+	tracker_sparql_builder_predicate (metadata->sparql, "nmo:sender");
+	tracker_sparql_builder_object_string (metadata->sparql, g_mime_message_get_sender (message));
+
+	tracker_sparql_builder_predicate (metadata->sparql, "nmo:messageSubject");
+	tracker_sparql_builder_object_string (metadata->sparql, g_mime_message_get_subject (message));
 
 	list = get_message_recipients (message, GMIME_RECIPIENT_TYPE_TO);
 
 	for (l = list; l; l = l->next) {
-		tracker_module_metadata_add_string (metadata, uri, METADATA_EMAIL_SENT_TO, l->data);
+		tracker_sparql_builder_predicate (metadata->sparql, "nmo:to");
+		tracker_sparql_builder_object_string (metadata->sparql, l->data);
 		g_free (l->data);
 	}
 
@@ -359,7 +366,8 @@ get_message_metadata (TrackerModuleFile *file, GMimeMessage *message)
 	list = get_message_recipients (message, GMIME_RECIPIENT_TYPE_CC);
 
 	for (l = list; l; l = l->next) {
-		tracker_module_metadata_add_string (metadata, uri, METADATA_EMAIL_CC, l->data);
+		tracker_sparql_builder_predicate (metadata->sparql, "nmo:cc");
+		tracker_sparql_builder_object_string (metadata->sparql, l->data);
 		g_free (l->data);
 	}
 
@@ -394,8 +402,9 @@ get_attachment_metadata (TrackerModuleFile *file, GMimePart *part)
 	 * Evolution opening the specific attachment anyway */
 
 	uri = g_strdup_printf ("%s#%s", tmp, g_mime_part_get_content_id (part));
-
-	tracker_module_metadata_add_string (metadata, uri, RDF_TYPE, NMO_PREFIX "Attachment");
+	tracker_sparql_builder_subject_iri (metadata->sparql, uri);
+	tracker_sparql_builder_predicate (metadata->sparql, "a");
+	tracker_sparql_builder_object (metadata->sparql, "nmo:Attachment");
 
 	evolution_common_get_wrapper_metadata (content, metadata, uri);
 
