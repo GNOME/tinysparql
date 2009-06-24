@@ -117,6 +117,8 @@ gaim_file_get_metadata (TrackerModuleFile *file)
 	path_decomposed = g_strsplit (path, G_DIR_SEPARATOR_S, -1);
 	len = g_strv_length (path_decomposed);
 
+	/* Port to SparqlBuilder
+
 	metadata = tracker_module_metadata_new ();
 
 	tracker_module_metadata_add_string (metadata, uri, METADATA_CONVERSATION_USER_ACCOUNT, path_decomposed [len - 3]);
@@ -130,8 +132,9 @@ gaim_file_get_metadata (TrackerModuleFile *file)
 	g_strfreev (path_decomposed);
 	g_free (path);
 	g_free (uri);
+	 */
 
-	return metadata;
+	return NULL;
 }
 
 void

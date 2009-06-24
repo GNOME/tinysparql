@@ -1089,19 +1089,21 @@ item_add_to_datasource (TrackerIndexer *indexer,
 		removable_device_urn = g_strdup_printf (TRACKER_DATASOURCE_URN_PREFIX "%s", 
 						        removable_device_udi);
 
-		tracker_module_metadata_add_string (metadata, removable_device_urn,
-						    RDF_TYPE, TRACKER_DATASOURCE);
+		tracker_sparql_builder_subject_iri (metadata->sparql, removable_device_urn);
+		tracker_sparql_builder_predicate (metadata->sparql, "a");
+		tracker_sparql_builder_object (metadata->sparql, "tracker:Volume");
 
-		tracker_module_metadata_add_string (metadata, uri, NIE_DATASOURCE_P,
-		                                    removable_device_urn);
+		tracker_sparql_builder_predicate (metadata->sparql, "nie:dataSource");
+		tracker_sparql_builder_object_iri (metadata->sparql, removable_device_urn);
 
 		g_free (removable_device_urn);
 	} else {
-		tracker_module_metadata_add_string (metadata, TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN,
-						    RDF_TYPE, TRACKER_DATASOURCE);
+		tracker_sparql_builder_subject_iri (metadata->sparql, TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN);
+		tracker_sparql_builder_predicate (metadata->sparql, "a");
+		tracker_sparql_builder_object (metadata->sparql, "tracker:Volume");
 
-		tracker_module_metadata_add_string (metadata, uri, NIE_DATASOURCE_P,
-						    TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN);
+		tracker_sparql_builder_predicate (metadata->sparql, "nie:dataSource");
+		tracker_sparql_builder_object_iri (metadata->sparql, TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN);
 	}
 }
 
@@ -1405,7 +1407,10 @@ item_process (TrackerIndexer *indexer,
 		}
 
 		if (text) {
-			tracker_module_metadata_add_string (metadata, uri, NIE_PLAIN_TEXT_CONTENT, text);
+			tracker_sparql_builder_subject_iri (metadata->sparql, uri);
+			tracker_sparql_builder_predicate (metadata->sparql, "nie:plainTextContent");
+			tracker_sparql_builder_object_string (metadata->sparql, text);
+
 			g_free (text);
 		}
 

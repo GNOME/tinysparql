@@ -54,15 +54,6 @@ GType                  tracker_module_metadata_get_type         (void) G_GNUC_CO
 
 TrackerModuleMetadata *tracker_module_metadata_new              (void);
 
-void                   tracker_module_metadata_add_string       (TrackerModuleMetadata *metadata,
-								 const gchar           *subject,
-								 const gchar           *predicate,
-								 const gchar           *value);
-void                   tracker_module_metadata_add_date         (TrackerModuleMetadata *metadata,
-								 const gchar           *subject,
-								 const gchar           *predicate,
-								 time_t                 value);
-
 G_END_DECLS
 
 #endif /* __TRACKER_MODULE_METADATA_H__*/

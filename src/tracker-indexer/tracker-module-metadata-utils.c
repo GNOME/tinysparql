@@ -333,7 +333,9 @@ metadata_utils_add_embedded_data (TrackerModuleMetadata *metadata,
 
 		predicate = tracker_property_get_uri (field);
 
-		tracker_module_metadata_add_string (metadata, uri, predicate, utf_value);
+		tracker_sparql_builder_subject_iri (metadata->sparql, uri);
+		tracker_sparql_builder_predicate_iri (metadata->sparql, predicate);
+		tracker_sparql_builder_object_string (metadata->sparql, utf_value);
 
 		g_free (utf_value);
 	}
@@ -839,29 +841,38 @@ tracker_module_metadata_utils_get_data (GFile *file, TrackerModuleMetadata *meta
 
 	mime_type = tracker_file_get_mime_type (file);
 
-	tracker_module_metadata_add_string (metadata, uri, RDF_TYPE, NFO_FILE_DATA_OBJECT);
+	tracker_sparql_builder_subject_iri (metadata->sparql, uri);
+	tracker_sparql_builder_predicate (metadata->sparql, "a");
+	tracker_sparql_builder_object (metadata->sparql, "nfo:FileDataObject");
+
 	if (g_file_info_get_file_type (file_info) == G_FILE_TYPE_DIRECTORY) {
-		tracker_module_metadata_add_string (metadata, uri, RDF_TYPE, NFO_FOLDER);
+		tracker_sparql_builder_object (metadata->sparql, "nfo:Folder");
 	}
 
 	parent = g_file_get_parent (file);
 	if (parent) {
 		parent_uri = g_file_get_uri (parent);
-		tracker_module_metadata_add_string (metadata, uri, NFO_BELONGS_TO_CONTAINER, parent_uri);
+		tracker_sparql_builder_predicate (metadata->sparql, "nfo:belongsToContainer");
+		tracker_sparql_builder_object_iri (metadata->sparql, parent_uri);
 		g_free (parent_uri);
 		g_object_unref (parent);
 	}
 
-	tracker_module_metadata_add_string (metadata, uri, NFO_FILE_NAME, g_file_info_get_display_name (file_info));
-	tracker_module_metadata_add_string (metadata, uri, NIE_MIME_TYPE, mime_type);
+	tracker_sparql_builder_predicate (metadata->sparql, "nfo:fileName");
+	tracker_sparql_builder_object_string (metadata->sparql, g_file_info_get_display_name (file_info));
 
-	tracker_sparql_builder_predicate_iri (metadata->sparql, NFO_FILE_SIZE);
+	tracker_sparql_builder_predicate (metadata->sparql, "nie:mimeType");
+	tracker_sparql_builder_object_string (metadata->sparql, mime_type);
+
+	tracker_sparql_builder_predicate (metadata->sparql, "nfo:fileSize");
 	tracker_sparql_builder_object_int64 (metadata->sparql, g_file_info_get_size (file_info));
 
 	time_ = g_file_info_get_attribute_uint64 (file_info, G_FILE_ATTRIBUTE_TIME_MODIFIED);
-	tracker_module_metadata_add_date (metadata, uri, NFO_FILE_LAST_MODIFIED, time_);
+	tracker_sparql_builder_predicate (metadata->sparql, "nfo:fileLastModified");
+	tracker_sparql_builder_object_date (metadata->sparql, &time_);
 	time_ = g_file_info_get_attribute_uint64 (file_info, G_FILE_ATTRIBUTE_TIME_ACCESS);
-	tracker_module_metadata_add_date (metadata, uri, NFO_FILE_LAST_ACCESSED, time_);
+	tracker_sparql_builder_predicate (metadata->sparql, "nfo:fileLastAccessed");
+	tracker_sparql_builder_object_date (metadata->sparql, &time_);
 
 	metadata_utils_get_embedded (file, mime_type, metadata);
 
