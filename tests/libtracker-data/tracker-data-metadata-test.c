@@ -65,10 +65,10 @@ test_new_free ()
 
         metadata = tracker_data_metadata_new ();
         g_assert (metadata != NULL);
-        tracker_data_metadata_free (metadata);
+	g_object_unref (metadata);
         
         if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDERR)) {
-                tracker_data_metadata_free (NULL);
+		g_object_unref (NULL);
         }
         g_test_trap_assert_failed ();
 }
@@ -100,7 +100,7 @@ test_single_valued ()
         g_assert (result);
         g_assert (g_strcmp0 (result, "13") == 0);
 
-        tracker_data_metadata_free (metadata);
+	g_object_unref (metadata);
 }
 
 static void
@@ -141,7 +141,7 @@ test_multiple_valued ()
         g_list_free (tags);
         tags = NULL;
 
-        tracker_data_metadata_free (metadata);
+	g_object_unref (metadata);
 }
 
 static void

@@ -18,6 +18,9 @@
  */
 
 #include <libtracker-common/tracker-file-utils.h>
+
+#include <libtracker-data/tracker-data-metadata.h>
+
 #include "tracker-module-metadata-private.h"
 #include "tracker-module-file.h"
 

@@ -38,7 +38,9 @@ libtracker_moduleinclude_HEADERS =					\
 	tracker-module-metadata-utils.h					\
 	tracker-module-metadata.h
 
-libtracker_module_la_LIBADD = $(GCOV_LIBS)
+libtracker_module_la_LIBADD = 						\
+	$(top_builddir)/src/libtracker-data/libtracker-data.la		\
+	$(GCOV_LIBS)
 
 libexec_PROGRAMS = tracker-indexer
 

@@ -23,8 +23,12 @@
 #include <glib.h>
 #include <glib/gstdio.h>
 #include <gio/gio.h>
-#include <libtracker-data/tracker-turtle.h>
+
 #include <libtracker-common/tracker-common.h>
+
+#include <libtracker-data/tracker-turtle.h>
+#include <libtracker-data/tracker-data-metadata.h>
+
 #include <tracker-test-helpers.h>
 
 #define TEST_FILE "./test-file.ttl"
@@ -337,7 +341,7 @@ test_add_metadatas (void)
 	clean_test_file ();
 	
 	g_free (item->about_uri);
-	tracker_data_metadata_free (item->metadata);
+	g_object_unref (item->metadata);
 
 	tracker_turtle_shutdown ();
 }
