@@ -315,54 +315,6 @@ extractor_context_kill (ExtractorContext *context)
 }
 
 static void
-metadata_utils_add_embedded_data (TrackerModuleMetadata *metadata,
-				  const gchar           *uri,
-				  TrackerProperty       *field,
-				  const gchar           *value)
-{
-	gchar *utf_value;
-
-	if (!g_utf8_validate (value, -1, NULL)) {
-		utf_value = g_locale_to_utf8 (value, -1, NULL, NULL, NULL);
-	} else {
-		utf_value = g_strdup (value);
-	}
-
-	if (utf_value) {
-		const gchar *predicate;
-
-		predicate = tracker_property_get_uri (field);
-
-		tracker_sparql_builder_subject_iri (metadata->sparql, uri);
-		tracker_sparql_builder_predicate_iri (metadata->sparql, predicate);
-		tracker_sparql_builder_object_string (metadata->sparql, utf_value);
-
-		g_free (utf_value);
-	}
-}
-
-static void
-metadata_utils_get_embedded_foreach (TrackerModuleMetadata *metadata,
-                                     const gchar           *uri,
-                                     const gchar           *key,
-                                     const gchar           *value)
-{
-	TrackerProperty *field;
-	
-	if (!key || !value) {
-		return;
-	}
-	
-	field = tracker_ontology_get_property_by_uri (key);
-	if (!field) {
-		g_warning ("Field name '%s' isn't described in the ontology", key);
-		return;
-	}
-	
-	metadata_utils_add_embedded_data (metadata, uri, field, value);
-}
-
-static void
 get_metadata_async_cb (DBusGProxy *proxy,
 		       GPtrArray  *statements,
 		       GError     *error,
@@ -413,7 +365,9 @@ get_metadata_async_cb (DBusGProxy *proxy,
 			predicate = g_value_get_string (&statement->values[1]);
 			object = g_value_get_string (&statement->values[2]);
 
-			metadata_utils_get_embedded_foreach (context->metadata, subject, predicate, object);
+			tracker_sparql_builder_subject_iri (context->metadata->sparql, subject);
+			tracker_sparql_builder_predicate_iri (context->metadata->sparql, predicate);
+			tracker_sparql_builder_object_string (context->metadata->sparql, object);
 
 			g_value_array_free (statement);
 		}
