@@ -19,17 +19,6 @@ tracker_module_iteratable_iter_contents
 tracker_module_iteratable_get_count
 </SECTION>
 
-<INCLUDE>libtracker-module/tracker-module-metadata.h</INCLUDE>
-<SECTION>
-<FILE>tracker-module-metadata</FILE>
-<TITLE>Metadata Object</TITLE>
-TrackerModuleMetadata
-tracker_module_metadata_new
-tracker_module_metadata_add_take_string
-tracker_module_metadata_add_string
-tracker_module_metadata_add_date
-</SECTION>
-
 <INCLUDE>libtracker-module/tracker-module-metadata-utils.h</INCLUDE>
 <SECTION>
 <FILE>tracker-module-metadata-utils</FILE>

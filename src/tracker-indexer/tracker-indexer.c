@@ -79,7 +79,6 @@
 #include "tracker-indexer.h"
 #include "tracker-indexer-module.h"
 #include "tracker-marshal.h"
-#include "tracker-module-metadata-private.h"
 #include "tracker-processor.h"
 #include "tracker-removable-device.h"
 
@@ -1069,7 +1068,7 @@ static void
 item_add_to_datasource (TrackerIndexer *indexer,
 			const gchar *uri,
 			TrackerModuleFile *module_file,
-			TrackerModuleMetadata *metadata)
+			TrackerSparqlBuilder *sparql)
 {
 	GFile *file;
 	const gchar *removable_device_udi;
@@ -1089,21 +1088,21 @@ item_add_to_datasource (TrackerIndexer *indexer,
 		removable_device_urn = g_strdup_printf (TRACKER_DATASOURCE_URN_PREFIX "%s", 
 						        removable_device_udi);
 
-		tracker_sparql_builder_subject_iri (metadata->sparql, removable_device_urn);
-		tracker_sparql_builder_predicate (metadata->sparql, "a");
-		tracker_sparql_builder_object (metadata->sparql, "tracker:Volume");
+		tracker_sparql_builder_subject_iri (sparql, removable_device_urn);
+		tracker_sparql_builder_predicate (sparql, "a");
+		tracker_sparql_builder_object (sparql, "tracker:Volume");
 
-		tracker_sparql_builder_predicate (metadata->sparql, "nie:dataSource");
-		tracker_sparql_builder_object_iri (metadata->sparql, removable_device_urn);
+		tracker_sparql_builder_predicate (sparql, "nie:dataSource");
+		tracker_sparql_builder_object_iri (sparql, removable_device_urn);
 
 		g_free (removable_device_urn);
 	} else {
-		tracker_sparql_builder_subject_iri (metadata->sparql, TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN);
-		tracker_sparql_builder_predicate (metadata->sparql, "a");
-		tracker_sparql_builder_object (metadata->sparql, "tracker:Volume");
+		tracker_sparql_builder_subject_iri (sparql, TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN);
+		tracker_sparql_builder_predicate (sparql, "a");
+		tracker_sparql_builder_object (sparql, "tracker:Volume");
 
-		tracker_sparql_builder_predicate (metadata->sparql, "nie:dataSource");
-		tracker_sparql_builder_object_iri (metadata->sparql, TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN);
+		tracker_sparql_builder_predicate (sparql, "nie:dataSource");
+		tracker_sparql_builder_object_iri (sparql, TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN);
 	}
 }
 
@@ -1111,10 +1110,9 @@ static void
 item_add_or_update (TrackerIndexer        *indexer,
 		    PathInfo              *info,
 		    const gchar           *uri,
-		    TrackerModuleMetadata *metadata)
+		    TrackerSparqlBuilder  *sparql)
 {
 	gchar *mount_point = NULL;
-	gchar *sparql;
 
 	if (G_UNLIKELY (!indexer->private->in_transaction)) {
 		start_transaction (indexer);
@@ -1144,10 +1142,10 @@ item_add_or_update (TrackerIndexer        *indexer,
 		 * 3) Save the remain new metadata.
 		 */
 
-		sparql = tracker_module_metadata_get_sparql (metadata);
+		tracker_sparql_builder_insert_close (sparql);
+
 		full_sparql = g_strdup_printf ("DROP GRAPH <%s> %s",
-			uri, sparql);
-		g_free (sparql);
+			uri, tracker_sparql_builder_get_result (sparql));
 
 		tracker_resources_batch_sparql_update (indexer->private->client, full_sparql, NULL);
 		g_free (full_sparql);
@@ -1159,11 +1157,13 @@ item_add_or_update (TrackerIndexer        *indexer,
 
 		/* Service wasn't previously indexed */
 
-		item_add_to_datasource (indexer, uri, info->module_file, metadata);
+		item_add_to_datasource (indexer, uri, info->module_file, sparql);
 
-		sparql = tracker_module_metadata_get_sparql (metadata);
-		tracker_resources_batch_sparql_update (indexer->private->client, sparql, NULL);
-		g_free (sparql);
+		tracker_sparql_builder_insert_close (sparql);
+
+		tracker_resources_batch_sparql_update (indexer->private->client,
+		                                       tracker_sparql_builder_get_result (sparql),
+		                                       NULL);
 
 		schedule_flush (indexer, FALSE);
 	}
@@ -1179,7 +1179,7 @@ item_add_or_update (TrackerIndexer        *indexer,
 		tracker_removable_device_add_metadata (indexer, 
 						       mount_point, 
 						       uri, 
-						       metadata);
+						       sparql);
 	}
 #endif
 	g_free (mount_point);
@@ -1383,40 +1383,40 @@ item_process (TrackerIndexer *indexer,
 	      PathInfo       *info,
 	      const gchar    *uri)
 {
-	TrackerModuleMetadata *metadata;
+	TrackerSparqlBuilder *sparql;
 	gchar *text;
 
-	metadata = tracker_module_file_get_metadata (info->module_file);
+	sparql = tracker_module_file_get_metadata (info->module_file);
 
 	if (tracker_module_file_is_cancelled (info->module_file)) {
-		if (metadata) {
-			g_object_unref (metadata);
+		if (sparql) {
+			g_object_unref (sparql);
 		}
 
 		return FALSE;
 	}
 
-	if (metadata) {
+	if (sparql) {
 		text = tracker_module_file_get_text (info->module_file);
 
 		if (tracker_module_file_is_cancelled (info->module_file)) {
-			g_object_unref (metadata);
+			g_object_unref (sparql);
 			g_free (text);
 
 			return FALSE;
 		}
 
 		if (text) {
-			tracker_sparql_builder_subject_iri (metadata->sparql, uri);
-			tracker_sparql_builder_predicate (metadata->sparql, "nie:plainTextContent");
-			tracker_sparql_builder_object_string (metadata->sparql, text);
+			tracker_sparql_builder_subject_iri (sparql, uri);
+			tracker_sparql_builder_predicate (sparql, "nie:plainTextContent");
+			tracker_sparql_builder_object_string (sparql, text);
 
 			g_free (text);
 		}
 
-		item_add_or_update (indexer, info, uri, metadata);
+		item_add_or_update (indexer, info, uri, sparql);
 
-		g_object_unref (metadata);
+		g_object_unref (sparql);
 	} else {
 		item_remove (indexer, info, uri);
 	}

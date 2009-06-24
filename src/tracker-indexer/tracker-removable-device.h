@@ -23,7 +23,6 @@
 #ifndef __TRACKER_REMOVABLE_DEVICE_H__
 #define __TRACKER_REMOVABLE_DEVICE_H__
 
-#include "tracker-module-metadata.h"
 #include "tracker-indexer.h"
 
 G_BEGIN_DECLS
@@ -31,7 +30,7 @@ G_BEGIN_DECLS
 void    tracker_removable_device_add_metadata (TrackerIndexer *indexer, 
 					       const gchar *mount_point,
 					       const gchar *uri,
-					       TrackerModuleMetadata *metadata);
+					       TrackerSparqlBuilder *sparql);
 void    tracker_removable_device_add_removal  (TrackerIndexer *indexer, 
 					       const gchar *mount_point, 
 					       const gchar *uri);

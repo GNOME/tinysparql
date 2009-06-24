@@ -41,8 +41,6 @@
 
 #include "tracker-removable-device.h"
 
-#include "tracker-module-metadata-private.h"
-
 typedef struct {
 	gchar *last_subject;
 	gchar *base;
@@ -320,7 +318,7 @@ void
 tracker_removable_device_add_metadata (TrackerIndexer        *indexer, 
 				       const gchar           *mount_point, 
 				       const gchar           *uri,
-				       TrackerModuleMetadata *metadata)
+				       TrackerSparqlBuilder  *sparql)
 {
 	g_return_if_fail (TRACKER_IS_INDEXER (indexer));
 	g_return_if_fail (mount_point != NULL);

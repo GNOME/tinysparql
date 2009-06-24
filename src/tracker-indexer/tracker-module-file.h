@@ -22,7 +22,7 @@
 
 #include <glib-object.h>
 #include <gio/gio.h>
-#include "tracker-module-metadata.h"
+#include <libtracker-common/tracker-sparql-builder.h>
 
 G_BEGIN_DECLS
 
@@ -57,7 +57,7 @@ struct TrackerModuleFileClass {
         void (* initialize) (TrackerModuleFile *file);
         gchar * (* get_uri) (TrackerModuleFile *file);
         gchar * (* get_text) (TrackerModuleFile *file);
-        TrackerModuleMetadata * (* get_metadata) (TrackerModuleFile *file);
+        TrackerSparqlBuilder * (* get_metadata) (TrackerModuleFile *file);
         TrackerModuleFlags (* get_flags) (TrackerModuleFile *file);
         void (* cancel) (TrackerModuleFile *file);
 };
@@ -69,7 +69,7 @@ GFile *                 tracker_module_file_get_file         (TrackerModuleFile 
 G_CONST_RETURN gchar *  tracker_module_file_get_service_type (TrackerModuleFile *file);
 gchar *                 tracker_module_file_get_uri          (TrackerModuleFile *file);
 gchar *                 tracker_module_file_get_text         (TrackerModuleFile *file);
-TrackerModuleMetadata * tracker_module_file_get_metadata     (TrackerModuleFile *file);
+TrackerSparqlBuilder *  tracker_module_file_get_metadata     (TrackerModuleFile *file);
 TrackerModuleFlags      tracker_module_file_get_flags        (TrackerModuleFile *file);
 
 void                    tracker_module_file_cancel           (TrackerModuleFile *file);

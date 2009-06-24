@@ -72,7 +72,7 @@ static void          tracker_evolution_imap_file_finalize         (GObject *obje
 static void          tracker_evolution_imap_file_initialize       (TrackerModuleFile *file);
 static gchar *       tracker_evolution_imap_file_get_uri          (TrackerModuleFile *file);
 static gchar *       tracker_evolution_imap_file_get_text         (TrackerModuleFile *file);
-static TrackerModuleMetadata *
+static TrackerSparqlBuilder *
                      tracker_evolution_imap_file_get_metadata     (TrackerModuleFile *file);
 static TrackerModuleFlags
                      tracker_evolution_imap_file_get_flags        (TrackerModuleFile *file);
@@ -864,11 +864,11 @@ get_recipient_list (const gchar *str)
 	return g_list_reverse (list);
 }
 
-static TrackerModuleMetadata *
+static TrackerSparqlBuilder *
 get_message_metadata (TrackerModuleFile *file)
 {
         TrackerEvolutionImapFile *self;
-	TrackerModuleMetadata *metadata = NULL;
+	TrackerSparqlBuilder *sparql = NULL;
 	gchar *subject, *from, *to, *cc, *uri;
 	gint32 i, count, flags;
 	time_t t;
@@ -911,26 +911,27 @@ get_message_metadata (TrackerModuleFile *file)
 	if (!deleted && subject && from) {
 		uri = tracker_module_file_get_uri (file);
 
-		metadata = tracker_module_metadata_new ();
+		sparql = tracker_sparql_builder_new_update ();
+		tracker_sparql_builder_insert_open (sparql);
 
-		tracker_sparql_builder_subject_iri (metadata->sparql, uri);
-		tracker_sparql_builder_predicate (metadata->sparql, "a");
-		tracker_sparql_builder_object (metadata->sparql, "nmo:Email");
+		tracker_sparql_builder_subject_iri (sparql, uri);
+		tracker_sparql_builder_predicate (sparql, "a");
+		tracker_sparql_builder_object (sparql, "nmo:Email");
 
-		tracker_sparql_builder_predicate (metadata->sparql, "nmo:sentDate");
-		tracker_sparql_builder_object_date (metadata->sparql, &t);
+		tracker_sparql_builder_predicate (sparql, "nmo:sentDate");
+		tracker_sparql_builder_object_date (sparql, &t);
 
-		tracker_sparql_builder_predicate (metadata->sparql, "nmo:sender");
-		tracker_sparql_builder_object_string (metadata->sparql, from);
+		tracker_sparql_builder_predicate (sparql, "nmo:sender");
+		tracker_sparql_builder_object_string (sparql, from);
 
-		tracker_sparql_builder_predicate (metadata->sparql, "nmo:messageSubject");
-		tracker_sparql_builder_object_string (metadata->sparql, subject);
+		tracker_sparql_builder_predicate (sparql, "nmo:messageSubject");
+		tracker_sparql_builder_object_string (sparql, subject);
 
 		list = get_recipient_list (to);
 
 		for (l = list; l; l = l->next) {
-			tracker_sparql_builder_predicate (metadata->sparql, "nmo:to");
-			tracker_sparql_builder_object_string (metadata->sparql, l->data);
+			tracker_sparql_builder_predicate (sparql, "nmo:to");
+			tracker_sparql_builder_object_string (sparql, l->data);
 			g_free (l->data);
 		}
 
@@ -939,8 +940,8 @@ get_message_metadata (TrackerModuleFile *file)
 		list = get_recipient_list (cc);
 
 		for (l = list; l; l = l->next) {
-			tracker_sparql_builder_predicate (metadata->sparql, "nmo:cc");
-			tracker_sparql_builder_object_string (metadata->sparql, l->data);
+			tracker_sparql_builder_predicate (sparql, "nmo:cc");
+			tracker_sparql_builder_object_string (sparql, l->data);
 			g_free (l->data);
 		}
 
@@ -1012,22 +1013,22 @@ get_message_metadata (TrackerModuleFile *file)
 
 	skip_content_info (self->summary);
 
-	return metadata;
+	return sparql;
 
 corruption:
 	/* assume corruption */
-	if (metadata) {
-		g_object_unref (metadata);
+	if (sparql) {
+		g_object_unref (sparql);
 	}
 
 	return NULL;
 }
 
-static TrackerModuleMetadata *
+static TrackerSparqlBuilder *
 get_attachment_metadata (TrackerModuleFile *file,
                          const gchar       *mime_file)
 {
-	TrackerModuleMetadata *metadata;
+	TrackerSparqlBuilder *sparql;
 	GMimeStream *stream;
 	GMimeDataWrapper *wrapper;
 	GMimePartEncodingType encoding;
@@ -1056,7 +1057,8 @@ get_attachment_metadata (TrackerModuleFile *file,
 
 	tmp = tracker_module_file_get_uri (file);
 
-	metadata = tracker_module_metadata_new ();
+	sparql = tracker_sparql_builder_new_update ();
+	tracker_sparql_builder_insert_open (sparql);
 
 	/* TODO: we should add 1.1, 1.2, 1.3 as mime-spec per attachment to the 
 	 * URI. Else we don't have a valid URI. Also note that Evolution just
@@ -1065,11 +1067,11 @@ get_attachment_metadata (TrackerModuleFile *file,
 	 * Evolution opening the specific attachment anyway */
 
 	uri = g_strdup_printf ("%s#%s", tmp, mime_file);
-	tracker_sparql_builder_subject_iri (metadata->sparql, uri);
-	tracker_sparql_builder_predicate (metadata->sparql, "a");
-	tracker_sparql_builder_object (metadata->sparql, "nmo:Attachment");
+	tracker_sparql_builder_subject_iri (sparql, uri);
+	tracker_sparql_builder_predicate (sparql, "a");
+	tracker_sparql_builder_object (sparql, "nmo:Attachment");
 
-	evolution_common_get_wrapper_metadata (wrapper, metadata, uri);
+	evolution_common_get_wrapper_metadata (wrapper, sparql, uri);
 
 	g_free (uri);
 	g_free (tmp);
@@ -1079,10 +1081,10 @@ get_attachment_metadata (TrackerModuleFile *file,
 	g_free (name);
 	g_free (path);
 
-	return metadata;
+	return sparql;
 }
 
-static TrackerModuleMetadata *
+static TrackerSparqlBuilder *
 tracker_evolution_imap_file_get_metadata (TrackerModuleFile *file)
 {
 	TrackerEvolutionImapFile *self;

@@ -72,7 +72,7 @@ struct TrackerApplicationFileClass {
 };
 
 static GType                   tracker_application_file_get_type      (void) G_GNUC_CONST;
-static TrackerModuleMetadata * tracker_application_file_get_metadata  (TrackerModuleFile *file);
+static TrackerSparqlBuilder *  tracker_application_file_get_metadata  (TrackerModuleFile *file);
 
 
 G_DEFINE_DYNAMIC_TYPE (TrackerApplicationFile, tracker_application_file, TRACKER_TYPE_MODULE_FILE);
@@ -97,7 +97,7 @@ tracker_application_file_init (TrackerApplicationFile *file)
 }
 
 static void
-insert_data_from_desktop_file (TrackerModuleMetadata *metadata,
+insert_data_from_desktop_file (TrackerSparqlBuilder  *sparql,
 			       const gchar           *subject,
 			       const gchar           *metadata_key,
 			       GKeyFile              *desktop_file,
@@ -113,17 +113,17 @@ insert_data_from_desktop_file (TrackerModuleMetadata *metadata,
 	}
 
 	if (str) {
-		tracker_sparql_builder_predicate_iri (metadata->sparql, metadata_key);
-		tracker_sparql_builder_object_string (metadata->sparql, str);
+		tracker_sparql_builder_predicate_iri (sparql, metadata_key);
+		tracker_sparql_builder_object_string (sparql, str);
 		g_free (str);
 	}
 }
 
 
-static TrackerModuleMetadata *
+static TrackerSparqlBuilder *
 tracker_application_file_get_metadata (TrackerModuleFile *file)
 {
-	TrackerModuleMetadata *metadata = NULL;
+	TrackerSparqlBuilder *sparql = NULL;
 	GKeyFile *key_file;
 	GFile *f;
 	gchar *path, *type, *filename, *name = NULL, *uri = NULL;
@@ -181,92 +181,95 @@ tracker_application_file_get_metadata (TrackerModuleFile *file)
 		gchar *icon = g_key_file_get_string (key_file, GROUP_DESKTOP_ENTRY, "Icon", NULL);
 
 		uri = NULL;
-		metadata = tracker_module_metadata_new ();
+		sparql = tracker_sparql_builder_new_update ();
+		tracker_sparql_builder_insert_open (sparql);
 
 		if (icon) {
 			gchar *icon_uri = g_strdup_printf (THEME_ICON_URN_PREFIX "%s", icon);
 
-			tracker_sparql_builder_subject_iri (metadata->sparql, icon_uri);
-			tracker_sparql_builder_predicate (metadata->sparql, "a");
-			tracker_sparql_builder_object (metadata->sparql, "nfo:Image");
+			tracker_sparql_builder_subject_iri (sparql, icon_uri);
+			tracker_sparql_builder_predicate (sparql, "a");
+			tracker_sparql_builder_object (sparql, "nfo:Image");
 
-			tracker_sparql_builder_subject_iri (metadata->sparql, canonical_uri);
-			tracker_sparql_builder_predicate (metadata->sparql, "nfo:softwareCategoryIcon");
-			tracker_sparql_builder_object_iri (metadata->sparql, icon_uri);
+			tracker_sparql_builder_subject_iri (sparql, canonical_uri);
+			tracker_sparql_builder_predicate (sparql, "nfo:softwareCategoryIcon");
+			tracker_sparql_builder_object_iri (sparql, icon_uri);
 
 			g_free (icon_uri);
 			g_free (icon);
 		}
 
-		tracker_sparql_builder_subject_iri (metadata->sparql, canonical_uri);
-		tracker_sparql_builder_predicate (metadata->sparql, "a");
-		tracker_sparql_builder_object (metadata->sparql, "nfo:SoftwareCategory");
+		tracker_sparql_builder_subject_iri (sparql, canonical_uri);
+		tracker_sparql_builder_predicate (sparql, "a");
+		tracker_sparql_builder_object (sparql, "nfo:SoftwareCategory");
 
-		tracker_sparql_builder_predicate (metadata->sparql, "nie:title");
-		tracker_sparql_builder_object_string (metadata->sparql, name);
+		tracker_sparql_builder_predicate (sparql, "nie:title");
+		tracker_sparql_builder_object_string (sparql, name);
 
 		g_free (canonical_uri);
 
 	} else if (name && g_ascii_strcasecmp (type, "Application") == 0) {
 
 		uri = tracker_module_file_get_uri (file);
-		metadata = tracker_module_metadata_new ();
+		sparql = tracker_sparql_builder_new_update ();
+		tracker_sparql_builder_insert_open (sparql);
 
-		tracker_sparql_builder_subject_iri (metadata->sparql, APPLICATION_DATASOURCE_URN);
-		tracker_sparql_builder_predicate (metadata->sparql, "a");
-		tracker_sparql_builder_object (metadata->sparql, "nie:DataSource");
+		tracker_sparql_builder_subject_iri (sparql, APPLICATION_DATASOURCE_URN);
+		tracker_sparql_builder_predicate (sparql, "a");
+		tracker_sparql_builder_object (sparql, "nie:DataSource");
 
-		tracker_sparql_builder_subject_iri (metadata->sparql, uri);
-		tracker_sparql_builder_predicate (metadata->sparql, "a");
-		tracker_sparql_builder_object (metadata->sparql, "nfo:SoftwareApplication");
+		tracker_sparql_builder_subject_iri (sparql, uri);
+		tracker_sparql_builder_predicate (sparql, "a");
+		tracker_sparql_builder_object (sparql, "nfo:SoftwareApplication");
 
-		tracker_sparql_builder_predicate (metadata->sparql, "nie:dataSource");
-		tracker_sparql_builder_object_iri (metadata->sparql, APPLICATION_DATASOURCE_URN);
+		tracker_sparql_builder_predicate (sparql, "nie:dataSource");
+		tracker_sparql_builder_object_iri (sparql, APPLICATION_DATASOURCE_URN);
 
 	/* This matches SomeApplet as Type= */
 	} else if (name && g_str_has_suffix (type, "Applet")) {
 
 		uri = tracker_module_file_get_uri (file);
-		metadata = tracker_module_metadata_new ();
+		sparql = tracker_sparql_builder_new_update ();
+		tracker_sparql_builder_insert_open (sparql);
 
-		tracker_sparql_builder_subject_iri (metadata->sparql, APPLET_DATASOURCE_URN);
-		tracker_sparql_builder_predicate (metadata->sparql, "a");
-		tracker_sparql_builder_object (metadata->sparql, "nie:DataSource");
+		tracker_sparql_builder_subject_iri (sparql, APPLET_DATASOURCE_URN);
+		tracker_sparql_builder_predicate (sparql, "a");
+		tracker_sparql_builder_object (sparql, "nie:DataSource");
 
 		/* TODO This is atm specific for Maemo */
-		tracker_sparql_builder_subject_iri (metadata->sparql, uri);
-		tracker_sparql_builder_predicate (metadata->sparql, "a");
-		tracker_sparql_builder_object (metadata->sparql, "nfo:SoftwareApplet");
+		tracker_sparql_builder_subject_iri (sparql, uri);
+		tracker_sparql_builder_predicate (sparql, "a");
+		tracker_sparql_builder_object (sparql, "nfo:SoftwareApplet");
 
-		tracker_sparql_builder_predicate (metadata->sparql, "nie:dataSource");
-		tracker_sparql_builder_object_iri (metadata->sparql, APPLET_DATASOURCE_URN);
+		tracker_sparql_builder_predicate (sparql, "nie:dataSource");
+		tracker_sparql_builder_object_iri (sparql, APPLET_DATASOURCE_URN);
 	}
 
-	if (metadata && uri) {
+	if (sparql && uri) {
 		gchar *icon;
 
-		tracker_sparql_builder_predicate (metadata->sparql, "a");
-		tracker_sparql_builder_object (metadata->sparql, "nfo:Executable");
-		tracker_sparql_builder_object (metadata->sparql, "nfo:FileDataObject");
+		tracker_sparql_builder_predicate (sparql, "a");
+		tracker_sparql_builder_object (sparql, "nfo:Executable");
+		tracker_sparql_builder_object (sparql, "nfo:FileDataObject");
 
-		tracker_sparql_builder_predicate (metadata->sparql, "nie:title");
-		tracker_sparql_builder_object_string (metadata->sparql, name);
+		tracker_sparql_builder_predicate (sparql, "nie:title");
+		tracker_sparql_builder_object_string (sparql, name);
 
-		insert_data_from_desktop_file (metadata, uri, NIE_PREFIX "comment", key_file, "Comment", TRUE);
-		insert_data_from_desktop_file (metadata, uri, NFO_PREFIX "softwareCmdLine", key_file, "Exec", TRUE);
+		insert_data_from_desktop_file (sparql, uri, NIE_PREFIX "comment", key_file, "Comment", TRUE);
+		insert_data_from_desktop_file (sparql, uri, NFO_PREFIX "softwareCmdLine", key_file, "Exec", TRUE);
 
 		icon = g_key_file_get_string (key_file, GROUP_DESKTOP_ENTRY, "Icon", NULL);
 
 		if (icon) {
 			gchar *icon_uri = g_strdup_printf (THEME_ICON_URN_PREFIX "%s", icon);
 
-			tracker_sparql_builder_subject_iri (metadata->sparql, icon_uri);
-			tracker_sparql_builder_predicate (metadata->sparql, "a");
-			tracker_sparql_builder_object (metadata->sparql, "nfo:Image");
+			tracker_sparql_builder_subject_iri (sparql, icon_uri);
+			tracker_sparql_builder_predicate (sparql, "a");
+			tracker_sparql_builder_object (sparql, "nfo:Image");
 
-			tracker_sparql_builder_subject_iri (metadata->sparql, uri);
-			tracker_sparql_builder_predicate (metadata->sparql, "nfo:softwareIcon");
-			tracker_sparql_builder_object_iri (metadata->sparql, icon_uri);
+			tracker_sparql_builder_subject_iri (sparql, uri);
+			tracker_sparql_builder_predicate (sparql, "nfo:softwareIcon");
+			tracker_sparql_builder_object_iri (sparql, icon_uri);
 
 			g_free (icon_uri);
 			g_free (icon);
@@ -283,27 +286,27 @@ tracker_application_file_get_metadata (TrackerModuleFile *file)
 				 * preemptively creating them if we visit a app .desktop
 				 * file that mentions one that we don't yet know about */
 
-				tracker_sparql_builder_subject_iri (metadata->sparql, cat_uri);
-				tracker_sparql_builder_predicate (metadata->sparql, "a");
-				tracker_sparql_builder_object (metadata->sparql, "nfo:SoftwareCategory");
+				tracker_sparql_builder_subject_iri (sparql, cat_uri);
+				tracker_sparql_builder_predicate (sparql, "a");
+				tracker_sparql_builder_object (sparql, "nfo:SoftwareCategory");
 
-				tracker_sparql_builder_predicate (metadata->sparql, "nie:title");
-				tracker_sparql_builder_object_string (metadata->sparql, cats[i]);
+				tracker_sparql_builder_predicate (sparql, "nie:title");
+				tracker_sparql_builder_object_string (sparql, cats[i]);
 
-				tracker_sparql_builder_subject_iri (metadata->sparql, uri);
-				tracker_sparql_builder_predicate (metadata->sparql, "nfo:belongsToContainer");
-				tracker_sparql_builder_object_iri (metadata->sparql, cat_uri);
+				tracker_sparql_builder_subject_iri (sparql, uri);
+				tracker_sparql_builder_predicate (sparql, "nfo:belongsToContainer");
+				tracker_sparql_builder_object_iri (sparql, cat_uri);
 
 				g_free (cat_uri);
 			}
 		}
 
-		tracker_sparql_builder_predicate (metadata->sparql, "nie:dataSource");
-		tracker_sparql_builder_object_iri (metadata->sparql, APPLICATION_DATASOURCE_URN);
+		tracker_sparql_builder_predicate (sparql, "nie:dataSource");
+		tracker_sparql_builder_object_iri (sparql, APPLICATION_DATASOURCE_URN);
 
 		filename = g_filename_display_basename (path);
-		tracker_sparql_builder_predicate (metadata->sparql, "nfo:fileName");
-		tracker_sparql_builder_object_string (metadata->sparql, filename);
+		tracker_sparql_builder_predicate (sparql, "nfo:fileName");
+		tracker_sparql_builder_object_string (sparql, filename);
 		g_free (filename);
 	}
 
@@ -316,7 +319,7 @@ tracker_application_file_get_metadata (TrackerModuleFile *file)
 	g_free (path);
 	g_free (name);
 
-	return metadata;
+	return sparql;
 }
 
 

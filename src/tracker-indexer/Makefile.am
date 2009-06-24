@@ -31,15 +31,13 @@ libtracker_module_la_SOURCES =	 					\
 	tracker-dbus.c							\
 	tracker-module-file.c						\
 	tracker-module-iteratable.c					\
-	tracker-module-metadata-utils.c					\
-	tracker-module-metadata.c
+	tracker-module-metadata-utils.c
 
 libtracker_moduleinclude_HEADERS =					\
 	tracker-module.h						\
 	tracker-module-file.h						\
 	tracker-module-iteratable.h					\
-	tracker-module-metadata-utils.h					\
-	tracker-module-metadata.h
+	tracker-module-metadata-utils.h
 
 libtracker_module_la_LIBADD = $(GCOV_LIBS)
 
@@ -54,7 +52,6 @@ tracker_indexer_SOURCES =						\
 	tracker-indexer-module.c					\
 	tracker-indexer-module.h					\
 	tracker-main.c							\
-	tracker-module-metadata-private.h				\
 	tracker-marshal-main.c						\
 	tracker-monitor.c						\
 	tracker-monitor.h						\

@@ -53,7 +53,7 @@ GMimeStream *           evolution_common_get_stream           (const gchar      
 							       gint              flags,
 							       off_t             start);
 void                    evolution_common_get_wrapper_metadata (GMimeDataWrapper *wrapper,
-							       TrackerModuleMetadata *metadata, 
+							       TrackerSparqlBuilder *metadata, 
 							       const gchar *subject);
 gchar *                 evolution_common_get_object_encoding  (GMimeObject      *object);
 

@@ -31,7 +31,6 @@ G_BEGIN_DECLS
 
 #include "tracker-module-file.h"
 #include "tracker-module-iteratable.h"
-#include "tracker-module-metadata.h"
 #include "tracker-module-metadata-utils.h"
 
 void                indexer_module_initialize  (GTypeModule *module);

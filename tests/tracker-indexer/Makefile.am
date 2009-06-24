@@ -36,8 +36,6 @@ tracker_metadata_utils_SOURCES = 						\
 	$(top_srcdir)/src/tracker-indexer/tracker-indexer.c			\
 	$(top_srcdir)/src/tracker-indexer/tracker-indexer-module.c		\
 	$(top_srcdir)/src/tracker-indexer/tracker-marshal-main.c		\
-	$(top_srcdir)/src/tracker-indexer/tracker-module-metadata.c		\
-	$(top_srcdir)/src/tracker-indexer/tracker-module-metadata.h		\
 	$(top_srcdir)/src/tracker-indexer/tracker-module-metadata-utils.c 	\
 	$(top_srcdir)/src/tracker-indexer/tracker-module-file.c			\
 	$(top_srcdir)/src/tracker-indexer/tracker-module-iteratable.c		\

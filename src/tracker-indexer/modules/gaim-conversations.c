@@ -61,7 +61,7 @@ struct GaimFileClass {
 static GType         gaim_file_get_type         (void) G_GNUC_CONST;
 
 static gchar *       gaim_file_get_text         (TrackerModuleFile *file);
-static TrackerModuleMetadata *
+static TrackerSparqlBuilder *
                      gaim_file_get_metadata     (TrackerModuleFile *file);
 
 
@@ -92,10 +92,10 @@ gaim_file_get_text (TrackerModuleFile *file)
 	return tracker_module_metadata_utils_get_text (tracker_module_file_get_file (file));
 }
 
-static TrackerModuleMetadata *
+static TrackerSparqlBuilder *
 gaim_file_get_metadata (TrackerModuleFile *file)
 {
-	TrackerModuleMetadata *metadata;
+	TrackerSparqlBuilder *sparql;
 	GFile *f;
 	gchar *path, *uri;
 	gchar **path_decomposed;
@@ -119,7 +119,8 @@ gaim_file_get_metadata (TrackerModuleFile *file)
 
 	/* Port to SparqlBuilder
 
-	metadata = tracker_module_metadata_new ();
+	sparql = tracker_sparql_builder_new_update ();
+	tracker_sparql_builder_insert_open (sparql);
 
 	tracker_module_metadata_add_string (metadata, uri, METADATA_CONVERSATION_USER_ACCOUNT, path_decomposed [len - 3]);
 	tracker_module_metadata_add_string (metadata, uri, METADATA_CONVERSATION_PEER_ACCOUNT, path_decomposed [len - 2]);

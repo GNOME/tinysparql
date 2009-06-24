@@ -30,8 +30,6 @@
 #include <glib/gstdio.h>
 
 #include <tracker-indexer/tracker-module-metadata-utils.h>
-#include <tracker-indexer/tracker-module-metadata.h>
-#include <tracker-indexer/tracker-module-metadata-private.h>
 
 #include "evolution-common.h"
 
@@ -60,7 +58,7 @@ evolution_common_get_stream (const gchar *path,
 
 void
 evolution_common_get_wrapper_metadata (GMimeDataWrapper *wrapper, 
-				       TrackerModuleMetadata *metadata, 
+				       TrackerSparqlBuilder *sparql, 
 				       const gchar *subject)
 {
 	GMimeStream *stream;
@@ -78,7 +76,7 @@ evolution_common_get_wrapper_metadata (GMimeDataWrapper *wrapper,
 		file = g_file_new_for_path (path);
 		g_mime_stream_flush (stream);
 
-		tracker_module_metadata_utils_get_data (file, metadata);
+		tracker_module_metadata_utils_get_data (file, sparql);
 
 		g_object_unref (file);
 		g_unlink (path);

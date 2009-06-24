@@ -18,7 +18,6 @@
  */
 
 #include <libtracker-common/tracker-file-utils.h>
-#include "tracker-module-metadata-private.h"
 #include "tracker-module-file.h"
 
 #define TRACKER_MODULE_FILE_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_MODULE_FILE, TrackerModuleFilePrivate))
@@ -249,16 +248,16 @@ tracker_module_file_get_text (TrackerModuleFile *file)
  * Returns: A newly created #TrackerModuleMetadata containing all
  *          the extracted metadata, or %NULL.
  **/
-TrackerModuleMetadata *
+TrackerSparqlBuilder *
 tracker_module_file_get_metadata (TrackerModuleFile *file)
 {
-        TrackerModuleMetadata *metadata = NULL;
+        TrackerSparqlBuilder *sparql = NULL;
 
         if (TRACKER_MODULE_FILE_GET_CLASS (file)->get_metadata != NULL) {
-                metadata = TRACKER_MODULE_FILE_GET_CLASS (file)->get_metadata (file);
+                sparql = TRACKER_MODULE_FILE_GET_CLASS (file)->get_metadata (file);
         }
 
-        return metadata;
+        return sparql;
 }
 
 /**

@@ -22,7 +22,8 @@
 #ifndef __TRACKER_METADATA_UTILS_H__
 #define __TRACKER_METADATA_UTILS_H__
 
-#include "tracker-module-metadata.h"
+#include <libtracker-common/tracker-sparql-builder.h>
+
 #include "tracker-module-file.h"
 
 G_BEGIN_DECLS
@@ -33,7 +34,7 @@ G_BEGIN_DECLS
 
 
 gboolean               tracker_module_metadata_utils_get_data (GFile *file,
-                                                               TrackerModuleMetadata *metadata);
+                                                               TrackerSparqlBuilder *metadata);
 gchar *		       tracker_module_metadata_utils_get_text (GFile *file);
 void                   tracker_module_metadata_utils_cancel   (GFile *file);
 
