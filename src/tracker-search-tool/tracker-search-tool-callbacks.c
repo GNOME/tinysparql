@@ -243,6 +243,26 @@ constraint_update_info_cb (GtkWidget * widget,
 }
 
 void
+search_entry_icon_press_cb (GtkWidget * widget,
+			    GdkEventButton *event,
+			    gpointer data)
+{
+	gtk_entry_set_text (GTK_ENTRY (widget), "");
+}
+
+void
+search_entry_text_changed_cb (GtkWidget * widget,
+			      gpointer data)
+{
+  gboolean has_text;
+
+  has_text = gtk_entry_get_text_length (GTK_ENTRY (widget)) > 0;
+  gtk_entry_set_icon_sensitive (GTK_ENTRY (widget),
+                                GTK_ENTRY_ICON_SECONDARY,
+                                has_text);
+}
+
+void
 name_contains_activate_cb (GtkWidget * widget,
 			   gpointer data)
 {

@@ -78,6 +78,14 @@ void
 constraint_update_info_cb (GtkWidget * widget,
 			   gpointer data);
 void
+search_entry_icon_press_cb (GtkWidget * widget,
+			    GdkEventButton *event,
+			    gpointer data);
+void
+search_entry_text_changed_cb (GtkWidget * widget,
+			      gpointer data);
+
+void
 name_contains_activate_cb (GtkWidget * widget,
 			   gpointer data);
 

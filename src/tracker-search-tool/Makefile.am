@@ -26,9 +26,7 @@ tracker_search_tool_SOURCES =     				\
 	tracker-search-tool-callbacks.c 			\
 	tracker-search-tool-callbacks.h 			\
 	tracker-search-tool.c	        			\
-	tracker-search-tool.h					\
-	sexy-icon-entry.c					\
-	sexy-icon-entry.h
+	tracker-search-tool.h
 
 tracker_search_tool_LDADD =   					\
 	$(GLIB2_LIBS) 						\

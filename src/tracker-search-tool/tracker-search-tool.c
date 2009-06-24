@@ -45,7 +45,6 @@
 #include "tracker-search-tool.h"
 #include "tracker-search-tool-callbacks.h"
 #include "tracker-search-tool-support.h"
-#include "sexy-icon-entry.h"
 #include <libtracker-gtk/tracker-metadata-tile.h>
 
 #define TRACKER_SEARCH_TOOL_DEFAULT_ICON_SIZE 32
@@ -2068,8 +2067,22 @@ gsearch_app_create (GSearchWindow * gsearch)
 
 	gtk_table_attach (GTK_TABLE (gsearch->name_and_folder_table), label, 0, 1, 0, 1, GTK_FILL, 0, 6, 1);
 
-	gsearch->search_entry = sexy_icon_entry_new ();
-	sexy_icon_entry_add_clear_button (SEXY_ICON_ENTRY (gsearch->search_entry));
+	gsearch->search_entry = gtk_entry_new ();
+	gtk_entry_set_icon_from_stock (GTK_ENTRY (gsearch->search_entry),
+				       GTK_ENTRY_ICON_SECONDARY,
+				       GTK_STOCK_CLEAR);
+	gtk_entry_set_icon_sensitive (GTK_ENTRY (gsearch->search_entry),
+				      GTK_ENTRY_ICON_SECONDARY,
+				      FALSE);
+	g_signal_connect (gsearch->search_entry, "icon-press",
+			  G_CALLBACK (search_entry_icon_press_cb), NULL);
+	g_signal_connect (gsearch->search_entry, "notify::text",
+			  G_CALLBACK (search_entry_text_changed_cb), NULL);
+
+	gtk_entry_set_icon_tooltip_text (GTK_ENTRY (gsearch->search_entry),
+					 GTK_ENTRY_ICON_SECONDARY,
+					 _("Clear the search text"));
+
 	gtk_table_attach (GTK_TABLE (gsearch->name_and_folder_table), gsearch->search_entry, 1, 2, 0, 1, GTK_EXPAND | GTK_FILL | GTK_SHRINK, 0, 0, 0);
 	entry =  (gsearch->search_entry);
 	gtk_label_set_mnemonic_widget (GTK_LABEL (label), entry);
