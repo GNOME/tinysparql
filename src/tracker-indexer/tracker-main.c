@@ -46,9 +46,6 @@
 #include <libtracker-db/tracker-db-manager.h>
 #include <libtracker-db/tracker-db-dbus.h>
 
-#include <libtracker-data/tracker-data-manager.h>
-#include <libtracker-data/tracker-data-update.h>
-#include <libtracker-data/tracker-data-query.h>
 #include <libtracker-data/tracker-turtle.h>
 
 #include "tracker-dbus.h"
@@ -239,11 +236,9 @@ main (gint argc, gchar *argv[])
 	TrackerConfig *config;
 	TrackerLanguage *language;
 	TrackerIndexer *indexer;
-	TrackerDBManagerFlags flags = 0;
 	GOptionContext *context;
 	GError *error = NULL;
 	gchar *filename;
-	gboolean		    is_first_time_index;
 
 	g_type_init ();
 
@@ -311,18 +306,6 @@ main (gint argc, gchar *argv[])
 
 	sanity_check_option_values (config);
 
-	/* Initialize database manager */
-	if (tracker_config_get_low_memory_mode (config)) {
-		flags |= TRACKER_DB_MANAGER_LOW_MEMORY_MODE;
-	}
-
-	/* Only tracker-store writes to database */
-	flags |= TRACKER_DB_MANAGER_READONLY;
-
-	if (!tracker_data_manager_init (config, language, flags, NULL, &is_first_time_index)) {
-		return EXIT_FAILURE;
-	}
-
 	tracker_module_config_init ();
 
 	/* Set IO priority */
@@ -389,7 +372,6 @@ main (gint argc, gchar *argv[])
 
 	tracker_thumbnailer_shutdown ();
 	tracker_dbus_shutdown ();
-	tracker_data_manager_shutdown ();
 	tracker_module_config_shutdown ();
 	tracker_log_shutdown ();
 
