@@ -215,7 +215,7 @@ tracker_throttle (TrackerConfig *config,
 	 * nothing and then multiply it by the factor given
 	 */
 	throttle  = tracker_config_get_throttle (config);
-	throttle += 5;
+	/* throttle += 5; */
 	throttle *= multiplier;
 
 	if (throttle > 0) {
