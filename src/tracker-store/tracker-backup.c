@@ -26,9 +26,9 @@
 #include <libtracker-common/tracker-dbus.h>
 #include <libtracker-common/tracker-status.h>
 #include <libtracker-data/tracker-data-backup.h>
+#include <libtracker-data/tracker-data-update.h>
 
 #include "tracker-dbus.h"
-#include "tracker-indexer-client.h"
 #include "tracker-backup.h"
 
 G_DEFINE_TYPE (TrackerBackup, tracker_backup, G_TYPE_OBJECT)

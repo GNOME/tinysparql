@@ -96,8 +96,7 @@ dbus_sources = 								\
 	tracker-daemon-glue.h						\
 	tracker-resources-glue.h					\
 	tracker-search-glue.h						\
-	tracker-resources-class-glue.h					\
-	tracker-indexer-client.h
+	tracker-resources-class-glue.h
 
 %-glue.h: $(top_srcdir)/data/dbus/%.xml
 	$(DBUSBINDINGTOOL) --mode=glib-server --output=$@ --prefix=$(subst -,_,$*) $^

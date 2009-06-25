@@ -45,20 +45,13 @@
 #include "tracker-search-glue.h"
 #include "tracker-backup.h"
 #include "tracker-backup-glue.h"
-#include "tracker-indexer-client.h"
 #include "tracker-utils.h"
 #include "tracker-marshal.h"
 #include "tracker-main.h"
 
-#define TRACKER_INDEXER_SERVICE   "org.freedesktop.Tracker.Indexer"
-#define TRACKER_INDEXER_PATH      "/org/freedesktop/Tracker/Indexer"
-#define TRACKER_INDEXER_INTERFACE "org.freedesktop.Tracker.Indexer"
-
 static DBusGConnection *connection;
 static DBusGProxy      *gproxy;
-static DBusGProxy      *proxy_for_indexer;
 static GSList	       *objects;
-static gboolean         indexer_available;
 
 static gboolean
 dbus_register_service (DBusGProxy  *proxy,
@@ -108,37 +101,6 @@ dbus_register_object (DBusGConnection	    *lconnection,
 	dbus_g_connection_register_g_object (lconnection, path, object);
 }
 
-static void
-indexer_name_owner_changed (DBusGProxy   *proxy,
-			    const char   *name,
-			    const char   *prev_owner,
-			    const char   *new_owner,
-			    gpointer     *user_data)
-{
-	if (strcmp (name, TRACKER_INDEXER_SERVICE) == 0) {
-		if (!new_owner || !*new_owner) {
-			g_debug ("Indexer no longer present");
-			indexer_available = FALSE;
-		} else {
-			g_debug ("Indexer has become present");
-			indexer_available = TRUE;
-		}
-	}
-}
-
-static void
-initialize_indexer_presence (DBusGProxy *proxy)
-{
-	gchar *owner;
-
-	if (org_freedesktop_DBus_get_name_owner (gproxy, TRACKER_INDEXER_SERVICE, &owner, NULL)) {
-		indexer_available = (owner != NULL);
-		g_free (owner);
-	} else {
-		indexer_available = FALSE;
-	}
-}
-
 static gboolean
 dbus_register_names (TrackerConfig *config)
 {
@@ -170,17 +132,6 @@ dbus_register_names (TrackerConfig *config)
 					    DBUS_SERVICE_DBUS,
 					    DBUS_PATH_DBUS,
 					    DBUS_INTERFACE_DBUS);
-
-	/* Register signals to know about tracker-indexer presence */
-	dbus_g_proxy_add_signal (gproxy, "NameOwnerChanged",
-				 G_TYPE_STRING, G_TYPE_STRING,
-				 G_TYPE_STRING, G_TYPE_INVALID);
-
-	dbus_g_proxy_connect_signal (gproxy, "NameOwnerChanged",
-				     G_CALLBACK (indexer_name_owner_changed),
-				     NULL, NULL);
-
-	initialize_indexer_presence (gproxy);
 
 	/* Register the service name for org.freedesktop.Tracker */
 	if (!dbus_register_service (gproxy, TRACKER_DAEMON_SERVICE)) {
@@ -220,11 +171,6 @@ tracker_dbus_shutdown (void)
 	if (gproxy) {
 		g_object_unref (gproxy);
 		gproxy = NULL;
-	}
-
-	if (proxy_for_indexer) {
-		g_object_unref (proxy_for_indexer);
-		proxy_for_indexer = NULL;
 	}
 
 	connection = NULL;
@@ -389,93 +335,3 @@ tracker_dbus_get_object (GType type)
 	return NULL;
 }
 
-DBusGProxy *
-tracker_dbus_indexer_get_proxy (void)
-{
-	if (!connection) {
-		g_critical ("DBus support must be initialized before starting the indexer!");
-		return NULL;
-	}
-
-	if (!proxy_for_indexer) {
-		/* Get proxy for Service / Path / Interface of the indexer */
-		proxy_for_indexer = dbus_g_proxy_new_for_name (connection,
-							       TRACKER_INDEXER_SERVICE,
-							       TRACKER_INDEXER_PATH,
-							       TRACKER_INDEXER_INTERFACE);
-
-		if (!proxy_for_indexer) {
-			g_critical ("Couldn't create a DBusGProxy to the indexer service");
-			return NULL;
-		}
-
-		/* Add marshallers */
-		dbus_g_object_register_marshaller (tracker_marshal_VOID__DOUBLE_STRING_UINT_UINT_UINT,
-						   G_TYPE_NONE,
-						   G_TYPE_DOUBLE,
-						   G_TYPE_STRING,
-						   G_TYPE_UINT,
-						   G_TYPE_UINT,
-						   G_TYPE_UINT,
-						   G_TYPE_INVALID);
-		dbus_g_object_register_marshaller (tracker_marshal_VOID__DOUBLE_UINT_UINT_BOOL,
-						   G_TYPE_NONE,
-						   G_TYPE_DOUBLE,
-						   G_TYPE_UINT,
-						   G_TYPE_UINT,
-						   G_TYPE_BOOLEAN,
-						   G_TYPE_INVALID);
-		dbus_g_object_register_marshaller (tracker_marshal_VOID__STRING_BOOLEAN,
-						   G_TYPE_NONE,
-						   G_TYPE_STRING,
-						   G_TYPE_BOOLEAN,
-						   G_TYPE_INVALID);
-
-		/* Add signals, why can't we use introspection for this? */
-		dbus_g_proxy_add_signal (proxy_for_indexer,
-					 "Status",
-					 G_TYPE_DOUBLE,
-					 G_TYPE_STRING,
-					 G_TYPE_UINT,
-					 G_TYPE_UINT,
-					 G_TYPE_UINT,
-					 G_TYPE_INVALID);
-		dbus_g_proxy_add_signal (proxy_for_indexer,
-					 "Started",
-					 G_TYPE_INVALID);
-		dbus_g_proxy_add_signal (proxy_for_indexer,
-					 "Paused",
-					 G_TYPE_STRING,
-					 G_TYPE_INVALID);
-		dbus_g_proxy_add_signal (proxy_for_indexer,
-					 "Continued",
-					 G_TYPE_INVALID);
-		dbus_g_proxy_add_signal (proxy_for_indexer,
-					 "Finished",
-					 G_TYPE_DOUBLE,
-					 G_TYPE_UINT,
-					 G_TYPE_UINT,
-					 G_TYPE_BOOLEAN,
-					 G_TYPE_INVALID);
-		dbus_g_proxy_add_signal (proxy_for_indexer,
-					 "ModuleStarted",
-					 G_TYPE_STRING,
-					 G_TYPE_INVALID);
-		dbus_g_proxy_add_signal (proxy_for_indexer,
-					 "ModuleFinished",
-					 G_TYPE_STRING,
-					 G_TYPE_INVALID);
-		dbus_g_proxy_add_signal (proxy_for_indexer,
-					 "IndexingError",
-					 G_TYPE_STRING,
-					 G_TYPE_BOOLEAN,
-					 G_TYPE_INVALID);
-		dbus_g_proxy_add_signal (proxy_for_indexer,
-					 "EventHappened",
-					 TRACKER_TYPE_EVENT_ARRAY,
-					 G_TYPE_INVALID);
-
-	}
-
-	return proxy_for_indexer;
-}

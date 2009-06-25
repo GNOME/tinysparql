@@ -36,7 +36,6 @@
 #include <libtracker-data/tracker-data-query.h>
 #include <libtracker-data/tracker-data-update.h>
 
-#include "tracker-indexer-client.h"
 #include "tracker-dbus.h"
 #include "tracker-marshal.h"
 #include "tracker-resources.h"

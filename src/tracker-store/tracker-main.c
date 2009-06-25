@@ -67,7 +67,6 @@
 
 #include "tracker-dbus.h"
 #include "tracker-events.h"
-#include "tracker-indexer-client.h"
 #include "tracker-main.h"
 #include "tracker-volume-cleanup.h"
 #include "tracker-backup.h"

@@ -36,7 +36,6 @@
 #include "tracker-dbus.h"
 #include "tracker-daemon.h"
 #include <libtracker-data/tracker-data-manager.h>
-#include "tracker-indexer-client.h"
 #include "tracker-main.h"
 #include "tracker-marshal.h"
 
@@ -49,7 +48,6 @@
 
 typedef struct {
 	TrackerConfig	 *config;
-	DBusGProxy	 *indexer_proxy;
 
 	GHashTable       *stats_cache;
 	guint             stats_cache_timeout_id;
@@ -145,81 +143,11 @@ tracker_daemon_class_init (TrackerDaemonClass *klass)
 }
 
 static void
-indexer_started_cb (DBusGProxy *proxy,
-		    gpointer    user_data)
-{
-	TrackerDaemonPrivate *priv;
-
-	priv = TRACKER_DAEMON_GET_PRIVATE (user_data);
-
-	/* Make sure we have the cache timeout set up */
-	if (priv->stats_cache_timeout_id != 0) {
-		return;
-	}
-
-	g_debug ("Starting statistics cache timeout");
-	priv->stats_cache_timeout_id = 
-		g_timeout_add_seconds (STATS_CACHE_LIFETIME,
-				       stats_cache_timeout,
-				       user_data);
-}
-
-static void
-indexer_finished_cb (DBusGProxy *proxy,
-		     gdouble	 seconds_elapsed,
-		     guint	 items_processed,
-		     guint	 items_done,
-		     gboolean	 interrupted,
-		     gpointer	 user_data)
-{
-	TrackerDaemonPrivate *priv;
-
-	tracker_daemon_signal_statistics ();
-
-	priv = TRACKER_DAEMON_GET_PRIVATE (user_data);
-
-	if (priv->stats_cache_timeout_id == 0) {
-		return;
-	}
-
-	g_debug ("Stopping statistics cache timeout");
-	g_source_remove (priv->stats_cache_timeout_id);
-	priv->stats_cache_timeout_id = 0;
-}
-
-static void
-indexing_error_cb (DBusGProxy    *proxy,
-		   const gchar   *reason,
-		   gboolean       requires_reindex,
-		   TrackerDaemon *daemon)
-{
-	g_signal_emit (daemon, signals[INDEXING_ERROR], 0,
-		       reason, requires_reindex);
-}
-
-static void
 tracker_daemon_init (TrackerDaemon *object)
 {
 	TrackerDaemonPrivate *priv;
-	DBusGProxy           *proxy;
 
 	priv = TRACKER_DAEMON_GET_PRIVATE (object);
-
-	proxy = tracker_dbus_indexer_get_proxy ();
-	priv->indexer_proxy = g_object_ref (proxy);
-
-	dbus_g_proxy_connect_signal (proxy, "Started",
-				     G_CALLBACK (indexer_started_cb),
-				     object,
-				     NULL);
-	dbus_g_proxy_connect_signal (proxy, "Finished",
-				     G_CALLBACK (indexer_finished_cb),
-				     object,
-				     NULL);
-	dbus_g_proxy_connect_signal (proxy, "IndexingError",
-				     G_CALLBACK (indexing_error_cb),
-				     object,
-				     NULL);
 
 	/* Do first time stats lookup */
 	priv->stats_cache = stats_cache_get_latest ();
@@ -243,21 +171,9 @@ tracker_daemon_finalize (GObject *object)
 		g_source_remove (priv->stats_cache_timeout_id);
 	}
 
-	dbus_g_proxy_disconnect_signal (priv->indexer_proxy, "Started",
-					G_CALLBACK (indexer_started_cb),
-					daemon);
-	dbus_g_proxy_disconnect_signal (priv->indexer_proxy, "Finished",
-					G_CALLBACK (indexer_finished_cb),
-					daemon);
-	dbus_g_proxy_disconnect_signal (priv->indexer_proxy, "IndexingError",
-					G_CALLBACK (indexing_error_cb),
-					daemon);
-
 	if (priv->stats_cache) {
 		g_hash_table_unref (priv->stats_cache);
 	}
-
-	g_object_unref (priv->indexer_proxy);
 
 	g_object_unref (priv->config);
 
