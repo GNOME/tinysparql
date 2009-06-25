@@ -87,6 +87,17 @@ tracker_backup_save (TrackerBackup          *object,
 	}
 }
 
+static void
+restore_backup_cb (const gchar *subject,
+		   const gchar *predicate,
+		   const gchar *object,
+		   gpointer     user_data)
+{
+	tracker_data_insert_statement (subject, predicate, object);
+
+	g_main_context_iteration (NULL, FALSE);
+}
+
 void
 tracker_backup_restore (TrackerBackup          *object,
 			const gchar            *path,
@@ -115,9 +126,10 @@ tracker_backup_restore (TrackerBackup          *object,
 		return;
 	}
 
-	org_freedesktop_Tracker_Indexer_restore_backup (tracker_dbus_indexer_get_proxy (),
-							path, 
-							&restore_error);
+	tracker_data_backup_restore (path,
+				     restore_backup_cb,
+				     NULL,
+				     &restore_error);
 
 	if (restore_error) {
 		GError *actual_error = NULL;

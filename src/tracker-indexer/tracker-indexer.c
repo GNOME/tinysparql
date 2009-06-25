@@ -2116,56 +2116,6 @@ tracker_indexer_volume_update_state (TrackerIndexer         *indexer,
 }
 #endif
 
-static void
-restore_backup_cb (const gchar *subject,
-		   const gchar *predicate,
-		   const gchar *object,
-		   gpointer     user_data)
-{
-	tracker_data_insert_statement (subject, predicate, object);
-
-	g_main_context_iteration (NULL, FALSE);
-}
-
-void
-tracker_indexer_restore_backup (TrackerIndexer         *indexer,
-				const gchar            *backup_file,
-				DBusGMethodInvocation  *context,
-				GError                **error)
-{
-	guint request_id;
-	GError *err = NULL;
-
-	request_id = tracker_dbus_get_next_request_id ();
-
-	tracker_dbus_async_return_if_fail (TRACKER_IS_INDEXER (indexer), context);
-
-	tracker_dbus_request_new (request_id,
-				  "DBus request to restore backup data from '%s'",
-				  backup_file);
-
-	tracker_data_backup_restore (backup_file,
-				     restore_backup_cb,
-				     indexer,
-				     &err);
-
-	if (err) {
-		GError *actual_error = NULL;
-
-		tracker_dbus_request_failed (request_id,
-					     &actual_error,
-					     err->message);
-
-		dbus_g_method_return_error (context, actual_error);
-
-		g_error_free (actual_error);
-		g_error_free (err);
-	} else {
-		dbus_g_method_return (context);
-		tracker_dbus_request_success (request_id);
-	}
-}
-
 
 void
 tracker_indexer_shutdown (TrackerIndexer	 *indexer,

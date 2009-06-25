@@ -25,11 +25,6 @@
       <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
     </method>
 
-    <method name="RestoreBackup">
-      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
-      <arg type="s" name="backup_file" direction="in" />
-    </method>
-
     <!-- Signals --> 
     <signal name="Status">
       <arg type="d" name="elapsed_time" />
