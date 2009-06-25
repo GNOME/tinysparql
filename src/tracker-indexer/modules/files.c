@@ -58,7 +58,7 @@ struct TrackerRegularFileClass {
 static GType                   tracker_regular_file_get_type         (void) G_GNUC_CONST;
 
 static gchar *                 tracker_regular_file_get_text         (TrackerModuleFile *file);
-static TrackerSparqlBuilder *  tracker_regular_file_get_metadata     (TrackerModuleFile *file);
+static TrackerSparqlBuilder *  tracker_regular_file_get_metadata     (TrackerModuleFile *file, gchar **mime_type);
 static void                    tracker_regular_file_cancel           (TrackerModuleFile *file);
 
 
@@ -157,7 +157,7 @@ check_exclude_file (const gchar *path)
 #endif /* ENABLE_FILE_EXCLUDE_CHECKING */
 
 static TrackerSparqlBuilder *
-tracker_regular_file_get_metadata (TrackerModuleFile *file)
+tracker_regular_file_get_metadata (TrackerModuleFile *file, gchar **mime_type)
 {
 	TrackerSparqlBuilder *sparql;
 
@@ -170,7 +170,7 @@ tracker_regular_file_get_metadata (TrackerModuleFile *file)
 	sparql = tracker_sparql_builder_new_update ();
 	tracker_sparql_builder_insert_open (sparql);
 
-	if (!tracker_module_metadata_utils_get_data (tracker_module_file_get_file (file), sparql)) {
+	if (!tracker_module_metadata_utils_get_data (tracker_module_file_get_file (file), sparql, mime_type)) {
 		g_object_unref (sparql);
 		sparql = NULL;
 	}

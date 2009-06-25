@@ -73,7 +73,7 @@ static void          tracker_evolution_imap_file_initialize       (TrackerModule
 static gchar *       tracker_evolution_imap_file_get_uri          (TrackerModuleFile *file);
 static gchar *       tracker_evolution_imap_file_get_text         (TrackerModuleFile *file);
 static TrackerSparqlBuilder *
-                     tracker_evolution_imap_file_get_metadata     (TrackerModuleFile *file);
+                     tracker_evolution_imap_file_get_metadata     (TrackerModuleFile *file, gchar **mime_type);
 static TrackerModuleFlags
                      tracker_evolution_imap_file_get_flags        (TrackerModuleFile *file);
 
@@ -1085,7 +1085,7 @@ get_attachment_metadata (TrackerModuleFile *file,
 }
 
 static TrackerSparqlBuilder *
-tracker_evolution_imap_file_get_metadata (TrackerModuleFile *file)
+tracker_evolution_imap_file_get_metadata (TrackerModuleFile *file, gchar **mime_type)
 {
 	TrackerEvolutionImapFile *self;
 

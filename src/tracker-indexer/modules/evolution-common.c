@@ -72,14 +72,16 @@ evolution_common_get_wrapper_metadata (GMimeDataWrapper *wrapper,
 
 	if (g_mime_data_wrapper_write_to_stream (wrapper, stream) != -1) {
 		GFile *file;
+		gchar *mime_type;
 
 		file = g_file_new_for_path (path);
 		g_mime_stream_flush (stream);
 
-		tracker_module_metadata_utils_get_data (file, sparql);
+		tracker_module_metadata_utils_get_data (file, sparql, &mime_type);
 
 		g_object_unref (file);
 		g_unlink (path);
+		g_free (mime_type);
 	}
 
 	g_mime_stream_close (stream);

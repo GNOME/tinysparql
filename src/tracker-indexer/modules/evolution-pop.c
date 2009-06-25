@@ -53,7 +53,7 @@ static void          tracker_evolution_pop_file_initialize       (TrackerModuleF
 static gchar *       tracker_evolution_pop_file_get_uri          (TrackerModuleFile *file);
 static gchar *       tracker_evolution_pop_file_get_text         (TrackerModuleFile *file);
 static TrackerSparqlBuilder *
-                     tracker_evolution_pop_file_get_metadata     (TrackerModuleFile *file);
+                     tracker_evolution_pop_file_get_metadata     (TrackerModuleFile *file, gchar **mime_type);
 static TrackerModuleFlags
                      tracker_evolution_pop_file_get_flags        (TrackerModuleFile *file);
 
@@ -419,7 +419,7 @@ get_attachment_metadata (TrackerModuleFile *file, GMimePart *part)
 }
 
 static TrackerSparqlBuilder *
-tracker_evolution_pop_file_get_metadata (TrackerModuleFile *file)
+tracker_evolution_pop_file_get_metadata (TrackerModuleFile *file, gchar **mime_type)
 {
         TrackerEvolutionPopFile *self;
         TrackerSparqlBuilder *sparql;

@@ -762,9 +762,9 @@ tracker_module_metadata_utils_get_text (GFile *file)
  **/
 
 gboolean
-tracker_module_metadata_utils_get_data (GFile *file, TrackerSparqlBuilder *sparql)
+tracker_module_metadata_utils_get_data (GFile *file, TrackerSparqlBuilder *sparql, gchar **mime_type)
 {
-	gchar *mime_type, *uri;
+	gchar *uri;
 	GFileInfo *file_info;
 	guint64 time_;
 	GFile *parent;
@@ -777,7 +777,7 @@ tracker_module_metadata_utils_get_data (GFile *file, TrackerSparqlBuilder *sparq
 
 	uri = g_file_get_uri (file);
 
-	mime_type = tracker_file_get_mime_type (file);
+	*mime_type = g_strdup (g_file_info_get_content_type (file_info));
 
 	tracker_sparql_builder_subject_iri (sparql, uri);
 	tracker_sparql_builder_predicate (sparql, "a");
@@ -800,7 +800,7 @@ tracker_module_metadata_utils_get_data (GFile *file, TrackerSparqlBuilder *sparq
 	tracker_sparql_builder_object_string (sparql, g_file_info_get_display_name (file_info));
 
 	tracker_sparql_builder_predicate (sparql, "nie:mimeType");
-	tracker_sparql_builder_object_string (sparql, mime_type);
+	tracker_sparql_builder_object_string (sparql, *mime_type);
 
 	tracker_sparql_builder_predicate (sparql, "nfo:fileSize");
 	tracker_sparql_builder_object_int64 (sparql, g_file_info_get_size (file_info));
@@ -812,9 +812,8 @@ tracker_module_metadata_utils_get_data (GFile *file, TrackerSparqlBuilder *sparq
 	tracker_sparql_builder_predicate (sparql, "nfo:fileLastAccessed");
 	tracker_sparql_builder_object_date (sparql, &time_);
 
-	metadata_utils_get_embedded (file, mime_type, sparql);
+	metadata_utils_get_embedded (file, *mime_type, sparql);
 
-	g_free (mime_type);
 	g_free (uri);
 
 	return TRUE;

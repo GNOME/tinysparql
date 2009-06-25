@@ -62,7 +62,7 @@ static GType         gaim_file_get_type         (void) G_GNUC_CONST;
 
 static gchar *       gaim_file_get_text         (TrackerModuleFile *file);
 static TrackerSparqlBuilder *
-                     gaim_file_get_metadata     (TrackerModuleFile *file);
+                     gaim_file_get_metadata     (TrackerModuleFile *file, gchar **mime_type);
 
 
 G_DEFINE_DYNAMIC_TYPE (GaimFile, gaim_file, TRACKER_TYPE_MODULE_FILE)
@@ -93,7 +93,7 @@ gaim_file_get_text (TrackerModuleFile *file)
 }
 
 static TrackerSparqlBuilder *
-gaim_file_get_metadata (TrackerModuleFile *file)
+gaim_file_get_metadata (TrackerModuleFile *file, gchar **mime_type)
 {
 	TrackerSparqlBuilder *sparql;
 	GFile *f;

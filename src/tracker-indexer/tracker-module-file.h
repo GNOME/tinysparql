@@ -57,7 +57,7 @@ struct TrackerModuleFileClass {
         void (* initialize) (TrackerModuleFile *file);
         gchar * (* get_uri) (TrackerModuleFile *file);
         gchar * (* get_text) (TrackerModuleFile *file);
-        TrackerSparqlBuilder * (* get_metadata) (TrackerModuleFile *file);
+        TrackerSparqlBuilder * (* get_metadata) (TrackerModuleFile *file, gchar **mime_type);
         TrackerModuleFlags (* get_flags) (TrackerModuleFile *file);
         void (* cancel) (TrackerModuleFile *file);
 };
@@ -69,7 +69,7 @@ GFile *                 tracker_module_file_get_file         (TrackerModuleFile 
 G_CONST_RETURN gchar *  tracker_module_file_get_service_type (TrackerModuleFile *file);
 gchar *                 tracker_module_file_get_uri          (TrackerModuleFile *file);
 gchar *                 tracker_module_file_get_text         (TrackerModuleFile *file);
-TrackerSparqlBuilder *  tracker_module_file_get_metadata     (TrackerModuleFile *file);
+TrackerSparqlBuilder *  tracker_module_file_get_metadata     (TrackerModuleFile *file, gchar **mime_type);
 TrackerModuleFlags      tracker_module_file_get_flags        (TrackerModuleFile *file);
 
 void                    tracker_module_file_cancel           (TrackerModuleFile *file);

@@ -211,7 +211,8 @@ static void	state_check	       (TrackerIndexer	    *indexer);
 
 static void     item_remove            (TrackerIndexer      *indexer,
 					PathInfo	    *info,
-					const gchar         *uri);
+					const gchar         *uri,
+					const gchar         *mime_type);
 static void     check_finished         (TrackerIndexer      *indexer,
 					gboolean             interrupted);
 
@@ -1051,17 +1052,12 @@ query_property_value (TrackerIndexer *indexer,
 
 static void
 generate_item_thumbnail (TrackerIndexer        *indexer,
-			 const gchar           *uri)
+			 const gchar           *uri,
+			 const gchar           *mime_type)
 {
-	gchar *mime_type;
-
-	mime_type = query_property_value (indexer, uri, NIE_MIME_TYPE);
-
 	if (mime_type && tracker_config_get_enable_thumbnails (indexer->private->config)) {
 		tracker_thumbnailer_queue_file (uri, mime_type);
 	}
-
-	g_free (mime_type);
 }
 
 static void
@@ -1110,7 +1106,8 @@ static void
 item_add_or_update (TrackerIndexer        *indexer,
 		    PathInfo              *info,
 		    const gchar           *uri,
-		    TrackerSparqlBuilder  *sparql)
+		    TrackerSparqlBuilder  *sparql,
+		    const gchar           *mime_type)
 {
 	gchar *mount_point = NULL;
 
@@ -1168,7 +1165,7 @@ item_add_or_update (TrackerIndexer        *indexer,
 		schedule_flush (indexer, FALSE);
 	}
 
-	generate_item_thumbnail (indexer, uri);
+	generate_item_thumbnail (indexer, uri, mime_type);
 
 #ifdef HAVE_HAL
 	if (tracker_storage_uri_is_on_removable_device (indexer->private->storage,
@@ -1322,10 +1319,10 @@ item_move (TrackerIndexer  *indexer,
 static void
 item_remove (TrackerIndexer *indexer,
 	     PathInfo	    *info,
-	     const gchar    *uri)
+	     const gchar    *uri,
+	     const gchar    *mime_type)
 {
 	gchar *mount_point = NULL;
-	gchar *mime_type;
 	gchar *sparql;
 
 	g_debug ("Removing item: '%s' (no metadata was given by module)", 
@@ -1342,13 +1339,8 @@ item_remove (TrackerIndexer *indexer,
 		return;
 	}
 
-	/* Get mime type and remove thumbnail from thumbnailerd */
-	mime_type = query_property_value (indexer, uri, NIE_MIME_TYPE);
-
 	if (mime_type) {
 		tracker_thumbnailer_remove (uri, mime_type);
-
-		g_free (mime_type);
 	} else {
 		g_message ("Could not get mime type to remove thumbnail for:'%s'",
 			   uri);
@@ -1384,9 +1376,9 @@ item_process (TrackerIndexer *indexer,
 	      const gchar    *uri)
 {
 	TrackerSparqlBuilder *sparql;
-	gchar *text;
+	gchar *text, *mime_type;
 
-	sparql = tracker_module_file_get_metadata (info->module_file);
+	sparql = tracker_module_file_get_metadata (info->module_file, &mime_type);
 
 	if (tracker_module_file_is_cancelled (info->module_file)) {
 		if (sparql) {
@@ -1414,11 +1406,11 @@ item_process (TrackerIndexer *indexer,
 			g_free (text);
 		}
 
-		item_add_or_update (indexer, info, uri, sparql);
+		item_add_or_update (indexer, info, uri, sparql, mime_type);
 
 		g_object_unref (sparql);
 	} else {
-		item_remove (indexer, info, uri);
+		item_remove (indexer, info, uri, mime_type);
 	}
 
 	return TRUE;

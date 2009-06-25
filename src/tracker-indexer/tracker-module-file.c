@@ -249,12 +249,12 @@ tracker_module_file_get_text (TrackerModuleFile *file)
  *          the extracted metadata, or %NULL.
  **/
 TrackerSparqlBuilder *
-tracker_module_file_get_metadata (TrackerModuleFile *file)
+tracker_module_file_get_metadata (TrackerModuleFile *file, gchar **mime_type)
 {
         TrackerSparqlBuilder *sparql = NULL;
 
         if (TRACKER_MODULE_FILE_GET_CLASS (file)->get_metadata != NULL) {
-                sparql = TRACKER_MODULE_FILE_GET_CLASS (file)->get_metadata (file);
+                sparql = TRACKER_MODULE_FILE_GET_CLASS (file)->get_metadata (file, mime_type);
         }
 
         return sparql;

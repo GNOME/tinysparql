@@ -34,7 +34,8 @@ G_BEGIN_DECLS
 
 
 gboolean               tracker_module_metadata_utils_get_data (GFile *file,
-                                                               TrackerSparqlBuilder *metadata);
+                                                               TrackerSparqlBuilder *metadata,
+                                                               gchar **mime_type);
 gchar *		       tracker_module_metadata_utils_get_text (GFile *file);
 void                   tracker_module_metadata_utils_cancel   (GFile *file);
 

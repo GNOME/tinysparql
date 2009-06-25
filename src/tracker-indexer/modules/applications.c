@@ -72,7 +72,7 @@ struct TrackerApplicationFileClass {
 };
 
 static GType                   tracker_application_file_get_type      (void) G_GNUC_CONST;
-static TrackerSparqlBuilder *  tracker_application_file_get_metadata  (TrackerModuleFile *file);
+static TrackerSparqlBuilder *  tracker_application_file_get_metadata  (TrackerModuleFile *file, gchar **mime_type);
 
 
 G_DEFINE_DYNAMIC_TYPE (TrackerApplicationFile, tracker_application_file, TRACKER_TYPE_MODULE_FILE);
@@ -121,7 +121,7 @@ insert_data_from_desktop_file (TrackerSparqlBuilder  *sparql,
 
 
 static TrackerSparqlBuilder *
-tracker_application_file_get_metadata (TrackerModuleFile *file)
+tracker_application_file_get_metadata (TrackerModuleFile *file, gchar **mime_type)
 {
 	TrackerSparqlBuilder *sparql = NULL;
 	GKeyFile *key_file;
