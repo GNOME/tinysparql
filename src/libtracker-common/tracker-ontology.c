@@ -204,7 +204,7 @@ tracker_ontology_shutdown (void)
 
 	if (parent_services) {
 		g_slist_foreach (parent_services,
-				 g_object_unref,
+				 (GFunc) g_object_unref,
 				 NULL);
 		g_slist_free (parent_services);
 		parent_services = NULL;
