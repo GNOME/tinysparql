@@ -1235,9 +1235,10 @@ process_next (TrackerProcessor *processor)
 static void
 process_finish (TrackerProcessor *processor)
 {
-	/* Optimize DBs */
+	/* TODO: Optimize DBs
 	tracker_status_set_and_signal (TRACKER_STATUS_OPTIMIZING);
 	tracker_db_manager_optimize ();
+	 */
 	
 	/* All done */
 	tracker_status_set_and_signal (TRACKER_STATUS_IDLE);
