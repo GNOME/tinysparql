@@ -327,7 +327,7 @@ inotify_monitor_add( const char *filename, guint32 mask, unsigned long flags,
   }
   else
   {
-    const char *parent = g_path_get_dirname( filename );
+    char *parent = g_path_get_dirname( filename );
     unsigned long lflags;
     guint32 lmask;
 
@@ -346,6 +346,7 @@ inotify_monitor_add( const char *filename, guint32 mask, unsigned long flags,
     /* This will be filtered out if it shouldn't be delivered. */
     inotify_handle_invoke_callback( inh, NULL, IN_DELETE | IN_SYNTHETIC, -1 );
 
+    g_free (parent);
     result = 0;
   }
 
