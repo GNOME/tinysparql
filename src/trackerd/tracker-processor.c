@@ -824,6 +824,11 @@ item_queue_handlers_set_up (TrackerProcessor *processor)
 		return;
 	}
 
+	processor->private->item_queues_handler_id =
+		g_timeout_add_seconds (ITEMS_QUEUE_PROCESS_INTERVAL,
+				       item_queue_handlers_cb,
+				       processor);
+
 	if (!tracker_status_get_is_initial_check ()) {
 		guint count;
 
@@ -833,17 +838,9 @@ item_queue_handlers_set_up (TrackerProcessor *processor)
 		if (count <= ITEMS_QUEUE_PROCESS_QUICK_COUNT) {
 			g_message ("Only %d items queued currently, setting up quick handler", 
 				   count);
-			processor->private->item_queues_handler_id =
-				g_idle_add (item_queue_handlers_cb,
-					    processor);
-			return;
+			item_queue_handlers_cb (processor);
 		}
 	}
-
-	processor->private->item_queues_handler_id =
-		g_timeout_add_seconds (ITEMS_QUEUE_PROCESS_INTERVAL,
-				       item_queue_handlers_cb,
-				       processor);
 }
 
 static gboolean
