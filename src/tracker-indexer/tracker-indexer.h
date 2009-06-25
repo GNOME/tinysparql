@@ -110,15 +110,6 @@ void            tracker_indexer_file_move           (TrackerIndexer         *ind
 						     const gchar            *module_name,
 						     const gchar            *from,
 						     const gchar            *to);
-void            tracker_indexer_volume_disable_all  (TrackerIndexer         *indexer,
-						     DBusGMethodInvocation  *context,
-						     GError                **error);
-void            tracker_indexer_volume_update_state (TrackerIndexer         *indexer,
-						     const gchar            *volume_uuid,
-						     const gchar            *path,
-						     gboolean                enabled,
-						     DBusGMethodInvocation  *context,
-						     GError                **error);
 
 void            tracker_indexer_restore_backup      (TrackerIndexer         *indexer,
 						     const gchar            *backup_file,

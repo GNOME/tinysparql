@@ -2047,6 +2047,9 @@ tracker_indexer_file_move (TrackerIndexer	  *indexer,
 	g_object_unref (file_to);
 }
 
+/* TODO: Fix volume handling in tracker-store / tracker-indexer */
+
+#if 0
 void            
 tracker_indexer_volume_disable_all (TrackerIndexer         *indexer,
 				    DBusGMethodInvocation  *context,
@@ -2111,6 +2114,7 @@ tracker_indexer_volume_update_state (TrackerIndexer         *indexer,
 	}
 
 }
+#endif
 
 static void
 restore_backup_cb (const gchar *subject,

@@ -390,6 +390,8 @@ mount_point_added_cb (TrackerStorage *hal,
 
 	private = g_static_private_get (&private_key);
 
+	/* TODO: Fix volume handling in tracker-store / tracker-indexer
+
 	g_message ("Indexer is being notified about added UDI:");
 	g_message ("  %s", udi);
 
@@ -400,6 +402,7 @@ mount_point_added_cb (TrackerStorage *hal,
 								   TRUE,
 								   mount_point_set_cb,
 								   mpu);
+	 */
 }
 
 static void
@@ -440,6 +443,8 @@ mount_point_removed_cb (TrackerStorage  *hal,
 
 	private = g_static_private_get (&private_key);
 
+	/* TODO: Fix volume handling in tracker-store / tracker-indexer
+
 	g_message ("Indexer is being notified about removed UDI:");
 	g_message ("  %s", udi);
 
@@ -450,6 +455,7 @@ mount_point_removed_cb (TrackerStorage  *hal,
 								   FALSE,
 								   mount_point_set_and_signal_cb,
 								   mpu);
+	 */
 }
 
 #endif /* HAVE_HAL */
@@ -762,6 +768,7 @@ set_up_mount_points (TrackerStorage *hal)
 	 *
 	 * tracker_status_set_is_paused_for_dbus (TRUE); */
 
+	/* TODO: Fix volume handling in tracker-store / tracker-indexer
 	g_message ("Indexer is being notified to disable all volumes");
 	org_freedesktop_Tracker_Indexer_volume_disable_all (tracker_dbus_indexer_get_proxy (), &error);
 
@@ -812,6 +819,7 @@ set_up_mount_points (TrackerStorage *hal)
 	}
 
 	g_list_free (roots);
+	 */
 
 	/* Merging: tracker-0.6 appears to have code here that we don't have
 	 *
