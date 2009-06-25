@@ -203,6 +203,9 @@ tracker_ontology_shutdown (void)
 	}
 
 	if (parent_services) {
+		g_slist_foreach (parent_services,
+				 g_object_unref,
+				 NULL);
 		g_slist_free (parent_services);
 		parent_services = NULL;
 	}
@@ -238,7 +241,7 @@ tracker_ontology_service_add (TrackerService *service,
 
 	if (tracker_service_get_parent (service) == NULL ||
 	    g_strcmp0 (tracker_service_get_parent (service), " ") == 0) {
-		parent_services = g_slist_prepend (parent_services, service);
+		parent_services = g_slist_prepend (parent_services, g_object_ref (service));
 	}
 
 	for (l = mimes; l && l->data; l = l->next) {
