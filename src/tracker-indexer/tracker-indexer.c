@@ -1109,61 +1109,27 @@ item_add_or_update (TrackerIndexer        *indexer,
 		    TrackerSparqlBuilder  *sparql,
 		    const gchar           *mime_type)
 {
+	gchar *full_sparql;
 	gchar *mount_point = NULL;
 
 	if (G_UNLIKELY (!indexer->private->in_transaction)) {
 		start_transaction (indexer);
 	}
 
-	if (query_resource_exists (indexer, uri)) {
-		gchar *full_sparql;
+	g_debug ("Adding item '%s'", 
+		 uri);
 
-		if (tracker_module_file_get_flags (info->module_file) & TRACKER_FILE_CONTENTS_STATIC) {
-			/* According to the module, the metadata can't change for this item */
-			g_debug ("Not updating static item '%s'",
-				 uri);
-			return;
-		}
+	item_add_to_datasource (indexer, uri, info->module_file, sparql);
 
-		/* Update case */
-		g_debug ("Updating item '%s'", 
-			 uri);
+	tracker_sparql_builder_insert_close (sparql);
 
-		/* "metadata" (new metadata) contains embedded props and can contain
-		 * non-embedded properties with default values! Dont overwrite those 
-		 * in the DB if they already has a value.
-		 * 
-		 * 1) Remove all old embedded metadata from index and DB
-		 * 2) Remove from new metadata all non embedded
-		 *    properties that already have value.
-		 * 3) Save the remain new metadata.
-		 */
+	full_sparql = g_strdup_printf ("DROP GRAPH <%s> %s",
+		uri, tracker_sparql_builder_get_result (sparql));
 
-		tracker_sparql_builder_insert_close (sparql);
+	tracker_resources_batch_sparql_update (indexer->private->client, full_sparql, NULL);
+	g_free (full_sparql);
 
-		full_sparql = g_strdup_printf ("DROP GRAPH <%s> %s",
-			uri, tracker_sparql_builder_get_result (sparql));
-
-		tracker_resources_batch_sparql_update (indexer->private->client, full_sparql, NULL);
-		g_free (full_sparql);
-
-		schedule_flush (indexer, FALSE);
-	} else {
-		g_debug ("Adding item '%s'", 
-			 uri);
-
-		/* Service wasn't previously indexed */
-
-		item_add_to_datasource (indexer, uri, info->module_file, sparql);
-
-		tracker_sparql_builder_insert_close (sparql);
-
-		tracker_resources_batch_sparql_update (indexer->private->client,
-		                                       tracker_sparql_builder_get_result (sparql),
-		                                       NULL);
-
-		schedule_flush (indexer, FALSE);
-	}
+	schedule_flush (indexer, FALSE);
 
 	generate_item_thumbnail (indexer, uri, mime_type);
 
