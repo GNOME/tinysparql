@@ -414,7 +414,7 @@ public class Tracker.SparqlQuery : Object {
 
 		pattern_sql = new StringBuilder ();
 		var_map = new HashTable<string,VariableBinding>.full (str_hash, str_equal, g_free, g_object_unref);
-		predicate_variable_map = new HashTable<string,VariableBinding>.full (str_hash, str_equal, g_free, g_object_unref);
+		predicate_variable_map = new HashTable<string,PredicateVariable>.full (str_hash, str_equal, g_free, g_object_unref);
 
 		// process WHERE clause
 		visit_graph_pattern (query.get_query_graph_pattern ());
@@ -530,7 +530,7 @@ public class Tracker.SparqlQuery : Object {
 
 		pattern_sql = new StringBuilder ();
 		var_map = new HashTable<string,VariableBinding>.full (str_hash, str_equal, g_free, g_object_unref);
-		predicate_variable_map = new HashTable<string,VariableBinding>.full (str_hash, str_equal, g_free, g_object_unref);
+		predicate_variable_map = new HashTable<string,PredicateVariable>.full (str_hash, str_equal, g_free, g_object_unref);
 
 		var sql = new StringBuilder ();
 
