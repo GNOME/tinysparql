@@ -23,6 +23,8 @@
 #include <sys/types.h>
 #include <fcntl.h>
 #include <time.h>
+#include <errno.h>
+
 #include <glib/gstdio.h>
 
 #include "tracker-nfs-lock.h"
@@ -32,31 +34,6 @@ static gchar *lock_filename;
 static gchar *tmp_dir;
 
 static gboolean use_nfs_safe_locking;
-
-/* Get no of links to a file - used for safe NFS atomic file locking */
-static gint
-get_nlinks (const gchar *filename)
-{
-	struct stat st;
-
-	if (g_stat (filename, &st) == 0) {
-		return st.st_nlink;
-	} else {
-		return -1;
-	}
-}
-
-static time_t
-get_mtime (const gchar *filename)
-{
-	struct stat st;
-
-	if (g_stat (filename, &st) == 0) {
-		return st.st_mtime;
-	} else {
-		return -1;
-	}
-}
 
 static gboolean
 is_initialized (void)
@@ -88,9 +65,21 @@ tracker_nfs_lock_obtain (void)
 				    g_get_user_name ());
 
 	for (attempt = 0; attempt < 10000; ++attempt) {
+		struct stat st;
+		
+		if (g_stat (lock_filename, &st) == -1) {
+			const gchar *str = g_strerror (errno);
+
+			g_debug ("Couldn't stat lock file:'%s', %s",
+				 lock_filename, 
+				 str ? str : "no error given");
+
+			continue;
+		}
+
 		/* Delete existing lock file if older than 5 mins */
 		if (g_file_test (lock_filename, G_FILE_TEST_EXISTS) &&
-		    time ((time_t *) - get_mtime (lock_filename)) > 300) {
+		    time ((time_t*) -st.st_mtime) > 300) {
 			g_unlink (lock_filename);
 		}
 
@@ -106,7 +95,7 @@ tracker_nfs_lock_obtain (void)
 			 * if file locked. If greater than 2 then we
 			 * have a race condition.
 			 */
-			if (get_nlinks (lock_filename) == 2) {
+			if (st.st_nlink == 2) {
 				close (fd);
 				g_free (filename);
 
