@@ -677,6 +677,12 @@ tracker_guint64_to_string (guint64 i)
 	return g_strdup_printf ("%" G_GUINT64_FORMAT, i);
 }
 
+gchar *
+tracker_goffset_to_string (goffset i)
+{
+	return g_strdup_printf ("%" G_GOFFSET_FORMAT, i);
+}
+
 gboolean
 tracker_string_to_uint (const gchar *s,
 			guint	    *value)

@@ -233,6 +233,20 @@ tracker_module_metadata_add_uint64 (TrackerModuleMetadata *metadata,
 	}
 }
 
+void
+tracker_module_metadata_add_offset (TrackerModuleMetadata *metadata,
+				    const gchar           *field_name,
+				    goffset                value)
+{
+	gchar *str;
+
+	str = tracker_goffset_to_string (value);
+
+	if (!tracker_module_metadata_add_take_string (metadata, field_name, str)) {
+		g_free (str);
+	}
+}
+
 /**
  * tracker_module_metadata_add_double:
  * @metadata: A #TrackerModuleMetadata

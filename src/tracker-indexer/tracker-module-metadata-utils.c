@@ -849,8 +849,9 @@ tracker_module_metadata_utils_get_data (GFile *file)
 {
 	TrackerModuleMetadata *metadata;
 	GFileInfo             *info;
-	gchar                 *path, *mime_type;
-	gchar                 *dirname, *basename, *path_delimited;
+	gchar                 *path;
+	const gchar           *mime_type;
+	gchar                 *dirname, *basename;
 	guint64                modified, accessed;
 	GError                *error = NULL;
 
@@ -859,49 +860,50 @@ tracker_module_metadata_utils_get_data (GFile *file)
 				  G_FILE_ATTRIBUTE_STANDARD_SIZE ","
 				  G_FILE_ATTRIBUTE_TIME_ACCESS "," 
 				  G_FILE_ATTRIBUTE_TIME_MODIFIED,  
-				  G_FILE_QUERY_INFO_NONE, NULL, &error);
+				  G_FILE_QUERY_INFO_NONE, 
+				  NULL, 
+				  &error);
 	
 	if (error) {
 		g_warning ("Unable to retrieve info from file (%s)", error->message);
 		return NULL;
 	}
 
-	metadata = tracker_module_metadata_new ();
-	
-	mime_type = g_file_info_get_content_type (info);
-	if (!mime_type) {
-		/* Tracker convention... duplicated with tracker-file-utils.c */
-		mime_type = g_strdup ("unknown");
-	}
-
 	path = g_file_get_path (file);
 	dirname = g_path_get_dirname (path);
 	basename = g_filename_display_basename (path);
-	path_delimited = g_filename_to_utf8 (path, -1, NULL, NULL, NULL);
 
-	tracker_module_metadata_add_string (metadata, METADATA_FILE_NAME, basename);
-	tracker_module_metadata_add_string (metadata, METADATA_FILE_PATH, dirname);
-	tracker_module_metadata_add_string (metadata, METADATA_FILE_MIMETYPE, mime_type);
-
-	g_free (path_delimited);
-	g_free (basename);
-	g_free (dirname);
-
-	tracker_module_metadata_add_int64 (metadata, 
-					   METADATA_FILE_SIZE, 
-					   g_file_info_get_size (info));
-
+	mime_type = g_file_info_get_content_type (info);
 	modified = g_file_info_get_attribute_uint64 (info, G_FILE_ATTRIBUTE_TIME_MODIFIED);
-	tracker_module_metadata_add_uint64 (metadata, METADATA_FILE_MODIFIED, modified);
-
 	accessed = g_file_info_get_attribute_uint64 (info, G_FILE_ATTRIBUTE_TIME_ACCESS);
-	tracker_module_metadata_add_uint64 (metadata, METADATA_FILE_ACCESSED, accessed);
 
+	metadata = tracker_module_metadata_new ();
+
+	tracker_module_metadata_add_string (metadata, 
+					    METADATA_FILE_NAME, 
+					    basename);
+	tracker_module_metadata_add_string (metadata, 
+					    METADATA_FILE_PATH, 
+					    dirname);
+	tracker_module_metadata_add_string (metadata, 
+					    METADATA_FILE_MIMETYPE, 
+					    mime_type ? mime_type : "unknown");
+	tracker_module_metadata_add_offset (metadata, 
+					    METADATA_FILE_SIZE, 
+					    g_file_info_get_size (info));
+	tracker_module_metadata_add_uint64 (metadata, 
+					    METADATA_FILE_MODIFIED, 
+					    modified);
+	tracker_module_metadata_add_uint64 (metadata, 
+					    METADATA_FILE_ACCESSED, 
+					    accessed);
 	tracker_module_metadata_add_date (metadata, METADATA_FILE_ADDED, time (NULL));
 
 	metadata_utils_get_embedded (file, mime_type, metadata);
 
-	g_free (mime_type);
+
+	g_free (basename);
+	g_free (dirname);
 	g_free (path);
 
 	return metadata;

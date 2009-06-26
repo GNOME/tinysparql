@@ -43,6 +43,7 @@ gchar *  tracker_gint32_to_string	       (gint32	      i);
 gchar *  tracker_guint32_to_string	       (guint32       i);
 gchar *  tracker_gint64_to_string              (gint64        i);
 gchar *  tracker_guint64_to_string             (guint64       i);
+gchar *  tracker_goffset_to_string             (goffset       i);
 
 gboolean tracker_string_to_uint		       (const gchar  *s,
 						guint	     *ret);
