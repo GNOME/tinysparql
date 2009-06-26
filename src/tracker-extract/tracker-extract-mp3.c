@@ -99,6 +99,8 @@ typedef struct {
 
 	guint32        duration;
 
+	gchar         *title;
+
 	unsigned char *albumartdata;
 	size_t         albumartsize;
 	gchar         *albumartmime;
@@ -902,6 +904,11 @@ get_id3v24_tags (const gchar *data,
 						/* prefer ID3v2 tag over ID3v1 tag */
 						g_free (*tmap[i].nullify);
 						*tmap[i].nullify = NULL;
+
+						/* keep title around for albumart */
+						if (tmap[i].nullify == &filedata->id3v1_info->title) {
+							filedata->title = g_strdup (word);
+						}
 					}
 					if (tmap[i].urn) {
 						gchar *canonical_uri = tmap[i].urn[0]!=':'?tracker_uri_printf_escaped ("urn:%s:%s", tmap[i].urn, word):g_strdup(tmap[i].urn);
@@ -1163,6 +1170,11 @@ get_id3v23_tags (const gchar *data,
 						/* prefer ID3v2 tag over ID3v1 tag */
 						g_free (*tmap[i].nullify);
 						*tmap[i].nullify = NULL;
+
+						/* keep title around for albumart */
+						if (tmap[i].nullify == &filedata->id3v1_info->title) {
+							filedata->title = g_strdup (word);
+						}
 					}
 					if (tmap[i].urn) {
 						gchar *canonical_uri = tmap[i].urn[0]!=':'?tracker_uri_printf_escaped ("urn:%s:%s", tmap[i].urn, word):g_strdup(tmap[i].urn);
@@ -1404,6 +1416,11 @@ get_id3v20_tags (const gchar *data,
 						/* prefer ID3v2 tag over ID3v1 tag */
 						g_free (*tmap[i].nullify);
 						*tmap[i].nullify = NULL;
+
+						/* keep title around for albumart */
+						if (tmap[i].nullify == &filedata->id3v1_info->title) {
+							filedata->title = g_strdup (word);
+						}
 					}
 					if (tmap[i].urn) {
 						gchar *canonical_uri = tmap[i].urn[0]!=':'?tracker_uri_printf_escaped ("urn:%s:%s", tmap[i].urn, word):g_strdup(tmap[i].urn);
@@ -1688,6 +1705,7 @@ extract_mp3 (const gchar *uri,
 	filedata.size = 0;
 	filedata.id3v2_size = 0;
 	filedata.duration = 0;
+	filedata.title = NULL;
 	filedata.albumartdata = NULL;
 	filedata.albumartmime = NULL;
 	filedata.albumartsize = 0;
@@ -1761,6 +1779,9 @@ extract_mp3 (const gchar *uri,
 		tracker_statement_list_insert (metadata, uri,
 				     NIE_PREFIX "title",
 				     info.title);
+
+		/* keep title around for albumart */
+		filedata.title = g_strdup (info.title);
 	}
 
 	if (!tracker_is_empty_string (info.artist)) {
@@ -1818,16 +1839,17 @@ extract_mp3 (const gchar *uri,
 #ifdef HAVE_GDKPIXBUF
 	tracker_process_albumart (filedata.albumartdata, filedata.albumartsize, filedata.albumartmime,
 				  /* tracker_statement_list_find (metadata, NMM_PREFIX "performer") */ NULL,
-				  tracker_statement_list_find (metadata, uri, NIE_PREFIX "title"), "-1",
+				  filedata.title, "-1",
 				  filename);
 #else
 	tracker_process_albumart (NULL, 0, NULL,
 				  /* tracker_statement_list_find (metadata, NMM_PREFIX "performer") */ NULL,
-				  tracker_statement_list_find (metadata, uri, NIE_PREFIX "title"), "-1",
+				  filedata.title, "-1",
 				  filename);
 
 #endif /* HAVE_GDKPIXBUF */
 
+	g_free (filedata.title);
 	g_free (filedata.albumartdata);
 	g_free (filedata.albumartmime);
 

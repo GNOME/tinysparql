@@ -872,7 +872,7 @@ tracker_extract_gstreamer (const gchar *uri,
 
 	if (!extractor->pipeline) {
 		g_warning ("No valid pipeline for uri %s", uri);
-		goto fail;
+		return;
 	}
 
 	extractor->bus = gst_pipeline_get_bus (GST_PIPELINE (extractor->pipeline));
@@ -880,12 +880,12 @@ tracker_extract_gstreamer (const gchar *uri,
 	if (use_tagreadbin) {
 		if (!poll_for_ready (extractor, GST_STATE_PLAYING, FALSE, TRUE)) {
 			g_warning ("Error running tagreadbin");
-			goto fail;
+			return;
 		}			
 	} else {
 		if (!poll_for_ready (extractor, GST_STATE_PAUSED, TRUE, FALSE)) {
 			g_warning ("Error running decodebin");
-			goto fail;
+			return;
 		}
 
 		add_stream_tags(extractor);
@@ -932,43 +932,6 @@ tracker_extract_gstreamer (const gchar *uri,
 
 	gst_object_unref (GST_OBJECT (extractor->pipeline));
 	g_slice_free (MetadataExtractor, extractor);
-
-fail:
-	if (type == EXTRACT_MIME_IMAGE) {
-		/* We fallback to the file's modified time for the
-		 * "Image:Date" metadata if it doesn't exist.
-		 *
-		 * FIXME: This shouldn't be necessary.
-		 */
-		if (!tracker_statement_list_find (metadata, uri, NIE_PREFIX "contentCreated")) {
-			gchar *date;
-			guint64 mtime;
-			
-			mtime = tracker_file_get_mtime (uri);
-			date = tracker_date_to_string ((time_t) mtime);
-
-			tracker_statement_list_insert (metadata, uri, 
-						       NIE_PREFIX "contentCreated",
-						       date);
-			g_free (date);
-		}
-	}
- 
-	if (!tracker_statement_list_find (metadata, uri, NIE_PREFIX "title")) {
-		gchar  *basename = g_filename_display_basename (uri);
-		gchar **parts    = g_strsplit (basename, ".", -1);
-		gchar  *title    = g_strdup (parts[0]);
-		
-		g_strfreev (parts);
-		g_free (basename);
-
-		title = g_strdelimit (title, "_", ' ');
-
-		tracker_statement_list_insert (metadata, uri, 
-					       NIE_PREFIX "title",
-					       title);
-		g_free (title);
-	}
 }
 
 
