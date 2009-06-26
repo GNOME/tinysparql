@@ -770,7 +770,7 @@ tracker_module_metadata_utils_get_data (GFile *file, TrackerSparqlBuilder *sparq
 	GFile *parent;
 	gchar *parent_uri;
 
-	file_info = g_file_query_info (file, "standard::*,time::*", G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS, NULL, NULL);
+	file_info = g_file_query_info (file, "standard::type,standard::content-type,standard::display-name,standard::size,time::modified,time::access", G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS, NULL, NULL);
 	if (!file_info) {
 		return FALSE;
 	}
