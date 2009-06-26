@@ -39,24 +39,6 @@
 
 #define TRACKER_PROCESSOR_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_PROCESSOR, TrackerProcessorPrivate))
 
-/* This means, if we have <= 50 items in the queues, we will use a
- * g_idle_add() call instead of g_timeout_add() with
- * ITEMS_QUEUE_PROCESS_INTERVAL to make sure items get handled as
- * quickly as possible. NOTE: This is only used AFTER an initial
- * check of all files and index status.
- */ 
-#define ITEMS_QUEUE_PROCESS_QUICK_COUNT 50
-
-/* This is the interval we wait before attempting to send items to
- * the indexer (again).
- */
-#define ITEMS_QUEUE_PROCESS_INTERVAL    2
-
-/* This is the maximum number of items we send at one time to the
- * indexer 
- */
-#define ITEMS_QUEUE_PROCESS_MAX         1000
-
 typedef enum {
 	SENT_TYPE_NONE,
 	SENT_TYPE_CREATED,
@@ -616,9 +598,9 @@ item_queue_handlers_cb (gpointer user_data)
 					  &module_name);
 
 	if (queue) {
-		files = tracker_dbus_queue_gfile_to_strv (queue, ITEMS_QUEUE_PROCESS_MAX);
+		files = tracker_dbus_queue_gfile_to_strv (queue, -1);
 
-		g_message ("Queue for module:'%s' deleted items processed, sending first %d to the indexer",
+		g_message ("Queue for module:'%s' deleted items processed, sending %d to the indexer",
 			   module_name,
 			   g_strv_length (files));
 
@@ -645,9 +627,9 @@ item_queue_handlers_cb (gpointer user_data)
 		/* Now we try to send items to the indexer */
 		tracker_status_set_and_signal (TRACKER_STATUS_INDEXING);
 
-		files = tracker_dbus_queue_gfile_to_strv (queue, ITEMS_QUEUE_PROCESS_MAX);
+		files = tracker_dbus_queue_gfile_to_strv (queue, -1);
 
-		g_message ("Queue for module:'%s' created items processed, sending first %d to the indexer",
+		g_message ("Queue for module:'%s' created items processed, sending %d to the indexer",
 			   module_name,
 			   g_strv_length (files));
 
@@ -674,9 +656,9 @@ item_queue_handlers_cb (gpointer user_data)
 		/* Now we try to send items to the indexer */
 		tracker_status_set_and_signal (TRACKER_STATUS_INDEXING);
 
-		files = tracker_dbus_queue_gfile_to_strv (queue, ITEMS_QUEUE_PROCESS_MAX);
+		files = tracker_dbus_queue_gfile_to_strv (queue, -1);
 
-		g_message ("Queue for module:'%s' updated items processed, sending first %d to the indexer",
+		g_message ("Queue for module:'%s' updated items processed, sending %d to the indexer",
 			   module_name,
 			   g_strv_length (files));
 
@@ -716,7 +698,7 @@ item_queue_handlers_cb (gpointer user_data)
 			target = NULL;
 		}
 
-		g_message ("Queue for module:'%s' moved items processed, sending first %d to the indexer",
+		g_message ("Queue for module:'%s' moved items processed, sending %d to the indexer",
 			   module_name,
 			   g_strv_length (files));
 
@@ -754,9 +736,8 @@ item_queue_handlers_set_up (TrackerProcessor *processor)
 	}
 
 	processor->private->item_queues_handler_id =
-		g_timeout_add_seconds (ITEMS_QUEUE_PROCESS_INTERVAL,
-				       item_queue_handlers_cb,
-				       processor);
+		g_idle_add (item_queue_handlers_cb,
+			    processor);
 }
 
 static gboolean
