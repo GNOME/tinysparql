@@ -404,17 +404,18 @@ hal_setup_devices (TrackerHal *hal)
 
 		g_debug ("HAL device:'%s' found:",
 			   libhal_volume_get_device_file (volume));
-		g_debug ("  UDI	 : %s",
+		g_debug ("  UDI        : %s",
 			   libhal_volume_get_udi (volume));
 		g_debug ("  Mount point: %s",
 			   libhal_volume_get_mount_point (volume));
- 		g_debug ("  UUID	 : %s",
+ 		g_debug ("  UUID       : %s",
 			   libhal_volume_get_uuid (volume));
-		g_debug ("  Mounted    : %s",
-			   libhal_volume_is_mounted (volume) ? "yes" : "no");
+		g_debug ("  Mounted    : %s (readonly:%s)",
+			   libhal_volume_is_mounted (volume) ? "yes" : "no",
+			   libhal_volume_is_mounted_read_only (volume) ? "yes" : "no");
 		g_debug ("  File system: %s",
 			   libhal_volume_get_fstype (volume));
-		g_debug ("  Label	 : %s",
+		g_debug ("  Label      : %s",
 			   libhal_volume_get_label (volume));
 
 		hal_device_add (hal, volume);
@@ -644,7 +645,7 @@ hal_mount_point_add (TrackerHal  *hal,
 
 	priv = GET_PRIV (hal);
 
-	g_message ("HAL device:'%s' with mount point:'%s', removable:%s now being tracked",
+	g_message ("HAL device:'%s' with mount point:'%s', removable:%s, now being tracked",
 		   (const gchar*) g_hash_table_lookup (priv->all_devices, udi),
 		   mount_point,
 		   removable_device ? "yes" : "no");
@@ -673,7 +674,7 @@ hal_mount_point_remove (TrackerHal  *hal,
 
 	info = node->data;
 
-	g_message ("HAL device:'%s' with mount point:'%s' (uuid:'%s'), removable:%s NO LONGER being tracked",
+	g_message ("HAL device:'%s' with mount point:'%s' (uuid:'%s'), removable:%s, NO LONGER being tracked",
 		   (const gchar*) g_hash_table_lookup (priv->all_devices, udi),
 		   info->mount_point,
 		   udi,
@@ -792,6 +793,10 @@ hal_device_should_be_tracked (TrackerHal  *hal,
 
 	drive_type = libhal_drive_get_type (drive);
 
+	g_message ("HAL device:'%s' is type:'%s'",
+		   device_file,
+		   hal_drive_type_to_string (drive_type));
+	
 	/* So here we don't track CDROM devices or the hard disks in
 	 * the machine, we simply track devices which are added or
 	 * removed in real time which we are interested in and which
@@ -802,16 +807,6 @@ hal_device_should_be_tracked (TrackerHal  *hal,
 	eligible &= drive_type != LIBHAL_DRIVE_TYPE_CDROM;
 
 	libhal_drive_free (drive);
-
-	if (!eligible) {
-		g_message ("HAL device:'%s' is not eligible for tracking, type is '%s'",
-			   device_file,
-			   hal_drive_type_to_string (drive_type));
-	} else {
-		g_message ("HAL device:'%s' is eligible for tracking, type is '%s'",
-			   device_file,
-			   hal_drive_type_to_string (drive_type));
-	}
 
 	return eligible;
 }
@@ -894,14 +889,30 @@ hal_device_add (TrackerHal   *hal,
 	mount_point = libhal_volume_get_mount_point (volume);
 	device_file = libhal_volume_get_device_file (volume);
 
-	if (g_hash_table_lookup (priv->all_devices, udi)) {
+	if (g_hash_table_lookup (priv->all_devices, udi)) {	
 		return TRUE;
 	}
 
 	/* If there is no mount point, then there is nothing to track */
 	if (!hal_device_should_be_tracked (hal, device_file)) {
+		g_message ("HAL device:'%s' is not eligible for tracking",
+			   device_file);
 		return TRUE;
 	}
+
+	/* If the device is mounted in read-only mode, we don't work
+	 * with it, the reason for this is that often a file system
+	 * is remounted as READONLY when it has errors which need
+	 * fixing. 
+	 */
+	if (libhal_volume_is_mounted_read_only (volume)) {
+		g_message ("HAL device:'%s' is mounted in readonly mode and so unavailable",
+			   device_file);
+		return TRUE;
+	}
+
+	g_message ("HAL device:'%s' is eligible for tracking",
+		   device_file);
 
 	/* Make sure we watch changes to the mount/umount state */
 	libhal_device_add_property_watch (priv->context, udi, &error);
@@ -948,19 +959,20 @@ hal_device_added_cb (LibHalContext *context,
 			return;
 		}
 
-		g_message ("HAL device:'%s' added:",
+		g_message ("HAL device   :'%s' added:",
 			   libhal_volume_get_device_file (volume));
-		g_message ("  UDI	 : %s",
+		g_message ("  UDI        : %s",
 			   udi);
 		g_message ("  Mount point: %s",
 			   libhal_volume_get_mount_point (volume));
- 		g_message ("  UUID	 : %s",
+ 		g_message ("  UUID       : %s",
 			   libhal_volume_get_uuid (volume));
-		g_message ("  Mounted    : %s",
-			   libhal_volume_is_mounted (volume) ? "yes" : "no");
+		g_message ("  Mounted    : %s (readonly:%s)",
+			   libhal_volume_is_mounted (volume) ? "yes" : "no",
+			   libhal_volume_is_mounted_read_only (volume) ? "yes" : "no");
 		g_message ("  File system: %s",
 			   libhal_volume_get_fstype (volume));
-		g_message ("  Label	 : %s",
+		g_message ("  Label      : %s",
 			   libhal_volume_get_label (volume));
 
 		hal_device_add (hal, volume);
@@ -1083,10 +1095,20 @@ hal_device_property_modified_cb (LibHalContext *context,
 				   device_file,
 				   udi);
 
-			hal_mount_point_add (hal,
-					     udi,
-					     mount_point,
-					     hal_device_is_removable (hal, device_file));
+			/* If the device is mounted in read-only mode, we don't work
+			 * with it, the reason for this is that often a file system
+			 * is remounted as READONLY when it has errors which need
+			 * fixing. 
+			 */
+			if (libhal_volume_is_mounted_read_only (volume)) {
+				g_message ("HAL device:'%s' is mounted in readonly mode and so unavailable",
+					   device_file);
+			} else {
+				hal_mount_point_add (hal,
+						     udi,
+						     mount_point,
+						     hal_device_is_removable (hal, device_file));
+			}
 
 			libhal_volume_free (volume);
 		} else {
