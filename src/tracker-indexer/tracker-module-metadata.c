@@ -205,6 +205,34 @@ tracker_module_metadata_add_uint (TrackerModuleMetadata *metadata,
 	}
 }
 
+void
+tracker_module_metadata_add_int64 (TrackerModuleMetadata *metadata,
+				    const gchar           *field_name,
+				    gint64                value)
+{
+	gchar *str;
+
+	str = tracker_gint64_to_string (value);
+
+	if (!tracker_module_metadata_add_take_string (metadata, field_name, str)) {
+		g_free (str);
+	}
+}
+
+void
+tracker_module_metadata_add_uint64 (TrackerModuleMetadata *metadata,
+				    const gchar           *field_name,
+				    guint64                value)
+{
+	gchar *str;
+
+	str = tracker_guint64_to_string (value);
+
+	if (!tracker_module_metadata_add_take_string (metadata, field_name, str)) {
+		g_free (str);
+	}
+}
+
 /**
  * tracker_module_metadata_add_double:
  * @metadata: A #TrackerModuleMetadata

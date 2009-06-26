@@ -41,6 +41,9 @@ gchar *  tracker_gint_to_string		       (gint	      i);
 gchar *  tracker_guint_to_string	       (guint	      i);
 gchar *  tracker_gint32_to_string	       (gint32	      i);
 gchar *  tracker_guint32_to_string	       (guint32       i);
+gchar *  tracker_gint64_to_string              (gint64        i);
+gchar *  tracker_guint64_to_string             (guint64       i);
+
 gboolean tracker_string_to_uint		       (const gchar  *s,
 						guint	     *ret);
 gint	 tracker_string_in_string_list	       (const gchar  *str,

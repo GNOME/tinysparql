@@ -665,6 +665,18 @@ tracker_guint32_to_string (guint32 i)
 	return g_strdup_printf ("%" G_GUINT32_FORMAT, i);
 }
 
+gchar *
+tracker_gint64_to_string (gint64 i)
+{
+	return g_strdup_printf ("%" G_GINT64_FORMAT, i);
+}
+
+gchar *
+tracker_guint64_to_string (guint64 i)
+{
+	return g_strdup_printf ("%" G_GUINT64_FORMAT, i);
+}
+
 gboolean
 tracker_string_to_uint (const gchar *s,
 			guint	    *value)

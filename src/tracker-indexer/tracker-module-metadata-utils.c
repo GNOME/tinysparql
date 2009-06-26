@@ -23,6 +23,7 @@
 
 #include <string.h>
 #include <stdlib.h>
+#include <sys/stat.h>
 #include <sys/types.h>
 #include <signal.h>
 #include <errno.h>
@@ -847,21 +848,33 @@ TrackerModuleMetadata *
 tracker_module_metadata_utils_get_data (GFile *file)
 {
 	TrackerModuleMetadata *metadata;
-	struct stat st;
-	gchar *path, *mime_type;
-	gchar *dirname, *basename, *path_delimited;
+	GFileInfo             *info;
+	gchar                 *path, *mime_type;
+	gchar                 *dirname, *basename, *path_delimited;
+	guint64                modified, accessed;
+	GError                *error = NULL;
 
-	path = g_file_get_path (file);
-
-	if (g_lstat (path, &st) < 0) {
-		g_free (path);
+	info = g_file_query_info (file, 
+				  G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE ","
+				  G_FILE_ATTRIBUTE_STANDARD_SIZE ","
+				  G_FILE_ATTRIBUTE_TIME_ACCESS "," 
+				  G_FILE_ATTRIBUTE_TIME_MODIFIED,  
+				  G_FILE_QUERY_INFO_NONE, NULL, &error);
+	
+	if (error) {
+		g_warning ("Unable to retrieve info from file (%s)", error->message);
 		return NULL;
 	}
 
 	metadata = tracker_module_metadata_new ();
+	
+	mime_type = g_file_info_get_content_type (info);
+	if (!mime_type) {
+		/* Tracker convention... duplicated with tracker-file-utils.c */
+		mime_type = g_strdup ("unknown");
+	}
 
-	mime_type = tracker_file_get_mime_type (path);
-
+	path = g_file_get_path (file);
 	dirname = g_path_get_dirname (path);
 	basename = g_filename_display_basename (path);
 	path_delimited = g_filename_to_utf8 (path, -1, NULL, NULL, NULL);
@@ -874,9 +887,15 @@ tracker_module_metadata_utils_get_data (GFile *file)
 	g_free (basename);
 	g_free (dirname);
 
-	tracker_module_metadata_add_uint (metadata, METADATA_FILE_SIZE, st.st_size);
-	tracker_module_metadata_add_date (metadata, METADATA_FILE_MODIFIED, st.st_mtime);
-	tracker_module_metadata_add_date (metadata, METADATA_FILE_ACCESSED, st.st_atime);
+	tracker_module_metadata_add_int64 (metadata, 
+					   METADATA_FILE_SIZE, 
+					   g_file_info_get_size (info));
+
+	modified = g_file_info_get_attribute_uint64 (info, G_FILE_ATTRIBUTE_TIME_MODIFIED);
+	tracker_module_metadata_add_uint64 (metadata, METADATA_FILE_MODIFIED, modified);
+
+	accessed = g_file_info_get_attribute_uint64 (info, G_FILE_ATTRIBUTE_TIME_ACCESS);
+	tracker_module_metadata_add_uint64 (metadata, METADATA_FILE_ACCESSED, accessed);
 
 	tracker_module_metadata_add_date (metadata, METADATA_FILE_ADDED, time (NULL));
 

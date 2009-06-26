@@ -62,6 +62,12 @@ void                   tracker_module_metadata_add_int          (TrackerModuleMe
 void                   tracker_module_metadata_add_uint         (TrackerModuleMetadata *metadata,
 								 const gchar           *field_name,
 								 guint                  value);
+void                   tracker_module_metadata_add_int64        (TrackerModuleMetadata *metadata,
+								 const gchar           *field_name,
+								 gint64                 value);
+void                   tracker_module_metadata_add_uint64       (TrackerModuleMetadata *metadata,
+								 const gchar           *field_name,
+								 guint64                value);
 void                   tracker_module_metadata_add_double       (TrackerModuleMetadata *metadata,
 								 const gchar           *field_name,
 								 gdouble                value);
