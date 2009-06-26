@@ -251,66 +251,13 @@ tracker_daemon_get_status (TrackerDaemon	  *object,
 	tracker_dbus_request_unblock_hooks ();
 }
 
-static TrackerDBResultSet *
-db_get_stats (void)
-{
-	TrackerDBInterface *iface;
-	TrackerDBStatement *stmt;
-	TrackerDBResultSet *result_set;
-
-	iface = tracker_db_manager_get_db_interface ();
-
-	/* FIXME Slow query, switch to SELECT COUNT(*) FROM each class to improve performance */
-	stmt = tracker_db_interface_create_statement (iface, "SELECT Uri, COUNT(*) FROM \"rdfs:Resource_rdf:type\" JOIN \"rdfs:Resource\" ON \"rdf:type\" = \"rdfs:Resource\".ID GROUP BY \"rdf:type\"");
-	result_set = tracker_db_statement_execute (stmt, NULL);
-	g_object_unref (stmt);
-
-	return result_set;
-}
-
-static void
-stats_cache_filter_dups_func (gpointer data,
-			      gpointer user_data)
-{
-	GHashTable *values;
-	GStrv       strv;
-	gpointer    p;
-	gint        count;
-
-	/* FIXME: There is a really shit bug here that needs
-	 * fixing. If a file has "Files" as its main category
-	 * and not its *parent* category, then we end up with
-	 * 2 "Files" listings. This sounds like a bug with
-	 * the indexer's insert mechanisms. So far this seems
-	 * to only happen for removable media files
-	 *
-	 * For now, we will concatenate values to sort out the
-	 * duplicates: 
-	 */
-	strv = data;
-	values = user_data;
-
-	count = atoi (strv[1]);
-
-	p = g_hash_table_lookup (values, strv[0]);
-
-	if (G_UNLIKELY (p)) {
-		count += GPOINTER_TO_INT (p);
-	}
-
-	g_hash_table_replace (values, 
-			      g_strdup (strv[0]), 
-			      GINT_TO_POINTER (count));
-}
-
 static GHashTable *
 stats_cache_get_latest (void)
 {
-	TrackerDBResultSet *result_set;
-	GHashTable         *values;
-	GPtrArray          *stats;
-
-	/* Set up empty list of services because SQL queries won't give us 0 items. */
+	GHashTable    *values;
+	TrackerClass **classes;
+	TrackerClass **cl;
+	TrackerDBInterface *iface;
 
 	g_message ("Requesting statistics from database for an accurate signal");
 
@@ -319,15 +266,34 @@ stats_cache_get_latest (void)
 					g_free,
 					NULL);
 
-	result_set = db_get_stats ();
-	stats = tracker_dbus_query_result_to_ptr_array (result_set);
+	classes = tracker_ontology_get_classes ();
 
-	if (result_set) {
+	iface = tracker_db_manager_get_db_interface ();
+
+	for (cl = classes; *cl; cl++) {
+		TrackerDBStatement *stmt;
+		TrackerDBResultSet *result_set;
+		gint count;
+
+		if (g_str_has_prefix (tracker_class_get_name (*cl), "xsd:")) {
+			/* xsd classes do not derive from rdfs:Resource and do not use separate tables */
+			continue;
+		}
+
+		stmt = tracker_db_interface_create_statement (iface, "SELECT COUNT(1) FROM \"%s\"", tracker_class_get_name (*cl));
+		result_set = tracker_db_statement_execute (stmt, NULL);
+
+		tracker_db_result_set_get (result_set, 0, &count, -1);
+
+		g_hash_table_insert (values, 
+				     g_strdup (tracker_class_get_name (*cl)),
+				     GINT_TO_POINTER (count));
+
 		g_object_unref (result_set);
+		g_object_unref (stmt);
 	}
 
-	g_ptr_array_foreach (stats, stats_cache_filter_dups_func, values);
-	tracker_dbus_results_ptr_array_free (&stats);
+	g_free (classes);
 
 	return values;
 }
@@ -610,10 +576,6 @@ tracker_daemon_signal_statistics (void)
 	daemon = tracker_dbus_get_object (TRACKER_TYPE_DAEMON);
 	priv = TRACKER_DAEMON_GET_PRIVATE (daemon);
 
-	/* Disabled because the query is way to inefficient, especially on large databases */
-	g_warning ("Stats cache updating is disabled because for large databases it brings the computer to its knees");
-	return;
-	
 	/* Get latest */
 	stats = stats_cache_get_latest ();
 
@@ -657,10 +619,6 @@ tracker_daemon_signal_statistics (void)
 				   old_count,
 				   new_count - old_count);
 			
-			g_hash_table_replace (priv->stats_cache, 
-					      g_strdup (service_type), 
-					      GINT_TO_POINTER (new_count));
-
 			strv = g_new (gchar*, 3);
 			strv[0] = g_strdup (service_type);
 			strv[1] = g_strdup_printf ("%d", new_count);
@@ -669,8 +627,6 @@ tracker_daemon_signal_statistics (void)
 			g_ptr_array_add (values, strv);
 		}
 	}
-
-	g_hash_table_unref (stats);
 
 	if (values->len > 0) {
 		/* Make sure we sort the results first */
@@ -683,4 +639,7 @@ tracker_daemon_signal_statistics (void)
 	
 	g_ptr_array_foreach (values, (GFunc) g_strfreev, NULL);
 	g_ptr_array_free (values, TRUE);
+
+	g_hash_table_unref (priv->stats_cache);
+	priv->stats_cache = stats;
 }
