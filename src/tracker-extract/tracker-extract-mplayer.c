@@ -42,7 +42,7 @@
 #define RDF_TYPE RDF_PREFIX "type"
 
 static void extract_mplayer (const gchar *uri,
-			     GPtrArray   *metadata);
+			     TrackerSparqlBuilder   *metadata);
 
 static TrackerExtractData extract_data[] = {
 	{ "audio/*", extract_mplayer },
@@ -86,7 +86,7 @@ static const gchar *info_tags[][3] = {
 };
 
 typedef struct {
-	GPtrArray *metadata;
+	TrackerSparqlBuilder *metadata;
 	const gchar *uri;
 } ForeachCopyInfo;
 
@@ -110,7 +110,7 @@ copy_hash_table_entry (gpointer key,
 
 static void
 extract_mplayer (const gchar *uri,
-		 GPtrArray  *metadata)
+		 TrackerSparqlBuilder  *metadata)
 {
 	gchar *argv[10];
 	gchar *mplayer;

@@ -22,38 +22,36 @@
 #define __TRACKER_STATEMENT_H__
 
 #include <glib.h>
+#include "tracker-sparql-builder.h"
 
 #define SHOULD_VALIDATE_UTF8
 
 G_BEGIN_DECLS
 
-void   tracker_statement_list_insert             (GPtrArray   *statements, 
+void   tracker_statement_list_insert             (TrackerSparqlBuilder   *statements, 
                                              const gchar *subject,
                                              const gchar *predicate,
                                              const gchar *value);
-void   tracker_statement_list_insert_with_int    (GPtrArray   *statements,
+void   tracker_statement_list_insert_with_int    (TrackerSparqlBuilder   *statements,
                                              const gchar *subject,
                                              const gchar *predicate,
                                              gint         value);
-void   tracker_statement_list_insert_with_int64  (GPtrArray   *statements,
+void   tracker_statement_list_insert_with_int64  (TrackerSparqlBuilder   *statements,
                                              const gchar *subject,
                                              const gchar *predicate,
                                              gint64       value);
-void   tracker_statement_list_insert_with_uint  (GPtrArray *statements,
+void   tracker_statement_list_insert_with_uint  (TrackerSparqlBuilder *statements,
 						 const gchar *subject,
 						 const gchar *predicate,
 						 guint32      value);
-void   tracker_statement_list_insert_with_double (GPtrArray   *statements,
+void   tracker_statement_list_insert_with_double (TrackerSparqlBuilder   *statements,
                                              const gchar *subject,
                                              const gchar *predicate,
                                              gdouble      value);
-void   tracker_statement_list_insert_with_float  (GPtrArray   *statements,
+void   tracker_statement_list_insert_with_float  (TrackerSparqlBuilder   *statements,
                                              const gchar *subject,
                                              const gchar *predicate,
                                              gfloat      value);
-const gchar* tracker_statement_list_find         (GPtrArray *statements, 
-                                             const gchar *subj, 
-                                             const gchar *pred);
 
 
 G_END_DECLS

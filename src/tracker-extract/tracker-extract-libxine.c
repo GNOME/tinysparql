@@ -40,7 +40,7 @@
 /* Take an absolute path to a file and fill a hashtable with metadata.
  */
 void
-tracker_extract_xine (gchar *uri, GPtrArray *metadata)
+tracker_extract_xine (gchar *uri, TrackerSparqlBuilder *metadata)
 {
 	xine_t		  *xine_base;
 	xine_audio_port_t *audio_port;

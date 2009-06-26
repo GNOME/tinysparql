@@ -80,7 +80,7 @@ typedef struct {
 } TiffTag;
  
 static void   extract_tiff    (const gchar *filename,
-			       GPtrArray   *metadata);
+			       TrackerSparqlBuilder   *metadata);
 
 static gchar *date_to_iso8601	(const gchar *exif_date, gboolean *free_it);
 static gchar *fix_focal_length	(const gchar *fl, gboolean *free_it);
@@ -338,7 +338,7 @@ fix_white_balance (const gchar *white_balance, gboolean *free_it)
 
 static void
 extract_tiff (const gchar *uri, 
-	      GPtrArray   *metadata)
+	      TrackerSparqlBuilder   *metadata)
 {
 	TIFF *image;
 	glong exifOffset;

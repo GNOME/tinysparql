@@ -49,7 +49,7 @@
 #define RDF_TYPE RDF_PREFIX "type"
 
 static void extract_abw (const gchar *uri,
-			 GPtrArray   *metadata);
+			 TrackerSparqlBuilder   *metadata);
 
 static TrackerExtractData data[] = {
 	{ "application/x-abiword", extract_abw },
@@ -58,7 +58,7 @@ static TrackerExtractData data[] = {
 
 static void
 extract_abw (const gchar *uri,
-	     GPtrArray   *metadata)
+	     TrackerSparqlBuilder   *metadata)
 {
 	FILE *f;
 	gchar *filename;

@@ -28,7 +28,7 @@
 #include "tracker-xmp.h"
 
 static void extract_xmp (const gchar *filename, 
-                         GPtrArray   *metadata);
+                         TrackerSparqlBuilder   *metadata);
 
 static TrackerExtractData data[] = {
 	{ "application/rdf+xml", extract_xmp },
@@ -137,7 +137,7 @@ find_orig_uri (const gchar *xmp_filename)
 
 static void
 extract_xmp (const gchar *uri, 
-             GPtrArray   *metadata)
+             TrackerSparqlBuilder   *metadata)
 {
 	gchar *contents;
 	gsize length;

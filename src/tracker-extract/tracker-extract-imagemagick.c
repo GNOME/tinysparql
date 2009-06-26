@@ -44,7 +44,7 @@
 #define RDF_TYPE RDF_PREFIX "type"
 
 static void extract_imagemagick (const gchar *uri, 
-				 GPtrArray   *metadata);
+				 TrackerSparqlBuilder   *metadata);
 
 static TrackerExtractData data[] = {
 	{ "image/*", extract_imagemagick },
@@ -53,7 +53,7 @@ static TrackerExtractData data[] = {
 
 static void
 extract_imagemagick (const gchar *uri, 
-		     GPtrArray   *metadata)
+		     TrackerSparqlBuilder   *metadata)
 {
 	gchar *argv[6];
 	gchar *identify;

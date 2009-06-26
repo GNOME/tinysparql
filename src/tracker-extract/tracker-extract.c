@@ -94,17 +94,6 @@ tracker_extract_finalize (GObject *object)
 	G_OBJECT_CLASS (tracker_extract_parent_class)->finalize (object);
 }
 
-static void
-statements_free (GPtrArray *statements)
-{
-	guint i;
-
-	for (i = 0; i < statements->len; i++) {
-		g_value_array_free (statements->pdata[i]);
-	}
-	g_ptr_array_free (statements, TRUE);
-}
-
 TrackerExtract *
 tracker_extract_new (void)
 {
@@ -199,13 +188,13 @@ tracker_extract_new (void)
 	return object;
 }
 
-static GPtrArray *
+static TrackerSparqlBuilder *
 get_file_metadata (TrackerExtract *extract,
 		   guint           request_id,
 		   const gchar    *uri,
 		   const gchar    *mime_)
 {
-	GPtrArray *statements;
+	TrackerSparqlBuilder *statements;
 	GFile *file;
 	GFileInfo *info;
 	GError *error = NULL;
@@ -216,7 +205,9 @@ get_file_metadata (TrackerExtract *extract,
 	const gchar *mime = mime_;
 
 	/* Create hash table to send back */
-	statements = g_ptr_array_new ();
+	statements = tracker_sparql_builder_new_update ();
+
+	tracker_sparql_builder_insert_open (statements);
 
 #ifdef HAVE_STREAMANALYZER
 	tracker_topanalyzer_extract (uri, statements, &content_type);
@@ -230,7 +221,7 @@ get_file_metadata (TrackerExtract *extract,
 		g_warning ("Could not create GFile for uri:'%s'",
 			   uri);
 		g_free (content_type);
-		statements_free (statements);
+		g_object_unref (statements);
 		return NULL;
 	}
 
@@ -239,7 +230,7 @@ get_file_metadata (TrackerExtract *extract,
 		g_warning ("File does not exist '%s'", uri);
 		g_object_unref (file);
 		g_free (content_type);
-		statements_free (statements);
+		g_object_unref (statements);
 		return NULL;
 	}
 
@@ -271,7 +262,7 @@ get_file_metadata (TrackerExtract *extract,
 		
 		g_object_unref (file);
 		g_free (content_type);
-		statements_free (statements);
+		g_object_unref (statements);
 		return NULL;
 	}
 
@@ -286,7 +277,7 @@ get_file_metadata (TrackerExtract *extract,
 		g_object_unref (file);
 
 		g_free (content_type);
-		statements_free (statements);
+		g_object_unref (statements);
 		return NULL;
 	}
 
@@ -331,7 +322,7 @@ get_file_metadata (TrackerExtract *extract,
 
 				(*edata->extract) (uri, statements);
 
-				items = statements->len;
+				items = tracker_sparql_builder_get_length (statements);
 
 				tracker_dbus_request_comment (request_id,
 							      "  Found %d metadata items",
@@ -339,6 +330,8 @@ get_file_metadata (TrackerExtract *extract,
 				if (items == 0) {
 					continue;
 				}
+
+				tracker_sparql_builder_insert_close (statements);
 
 				g_free (mime_used);
 				g_free (content_type);
@@ -363,7 +356,7 @@ get_file_metadata (TrackerExtract *extract,
 				
 				(*edata->extract) (uri, statements);
 
-				items = statements->len;
+				items = tracker_sparql_builder_get_length (statements);
 
 				tracker_dbus_request_comment (request_id,
 							      "  Found %d metadata items",
@@ -371,6 +364,8 @@ get_file_metadata (TrackerExtract *extract,
 				if (items == 0) {
 					continue;
 				}
+
+				tracker_sparql_builder_insert_close (statements);
 
 				g_free (mime_used);
 				g_free (content_type);
@@ -388,54 +383,11 @@ get_file_metadata (TrackerExtract *extract,
 					      "  No mime available, not extracting data");
 	}
 
+	tracker_sparql_builder_insert_close (statements);
+
 	g_free (content_type);
 
 	return statements;
-}
-
-static gchar *
-get_file_metadata_as_sparql (TrackerExtract *extract,
-			     guint           request_id,
-			     const gchar    *uri,
-			     const gchar    *mime)
-{
-	TrackerSparqlBuilder *sparql;
-	GPtrArray            *statements;
-	gint                  i;
-	gchar                *result;
-
-	statements = get_file_metadata (extract, request_id, uri, mime);
-
-	sparql = tracker_sparql_builder_new_update ();
-	tracker_sparql_builder_insert_open (sparql);
-
-	if (statements) {
-		for (i = 0; i < statements->len; i++) {
-			GValueArray *statement;
-			const gchar *subject;
-			const gchar *predicate;
-			const gchar *object;
-
-			statement = statements->pdata[i];
-
-			subject = g_value_get_string (&statement->values[0]);
-			predicate = g_value_get_string (&statement->values[1]);
-			object = g_value_get_string (&statement->values[2]);
-
-			tracker_sparql_builder_subject_iri (sparql, subject);
-			tracker_sparql_builder_predicate_iri (sparql, predicate);
-			tracker_sparql_builder_object_string (sparql, object);
-		}
-		statements_free (statements);
-	}
-
-	tracker_sparql_builder_insert_close (sparql);
-
-	result = g_strdup (tracker_sparql_builder_get_result (sparql));
-
-	g_object_unref (sparql);
-
-	return result;
 }
 
 void
@@ -445,7 +397,7 @@ tracker_extract_get_metadata_by_cmdline (TrackerExtract *object,
 {
 	guint       request_id;
 	gint        i;
-	GPtrArray   *statements = NULL;
+	TrackerSparqlBuilder *statements = NULL;
 
 	request_id = tracker_dbus_get_next_request_id ();
 
@@ -461,21 +413,9 @@ tracker_extract_get_metadata_by_cmdline (TrackerExtract *object,
 	statements = get_file_metadata (object, request_id, uri, mime);
 
 	if (statements) {
-		for (i = 0; i < statements->len; i++) {
-			GValueArray *statement;
-			const gchar *subject;
-			const gchar *predicate;
-			const gchar *object;
-
-			statement = statements->pdata[i];
-
-			subject = g_value_get_string (&statement->values[0]);
-			predicate = g_value_get_string (&statement->values[1]);
-			object = g_value_get_string (&statement->values[2]);
-
-			tracker_dbus_request_debug (request_id, "  '%s' '%s' '%s'", subject, predicate, object);
-		}
-		statements_free (statements);
+		tracker_dbus_request_debug (request_id, "%s",
+		                            tracker_sparql_builder_get_result (statements));
+		g_object_unref (statements);
 	}
 
 	tracker_dbus_request_success (request_id);
@@ -511,7 +451,7 @@ tracker_extract_get_metadata (TrackerExtract	     *object,
 			      GError		    **error)
 {
 	guint       request_id;
-	gchar      *sparql = NULL;
+	TrackerSparqlBuilder *sparql = NULL;
 
 	request_id = tracker_dbus_get_next_request_id ();
 
@@ -531,11 +471,11 @@ tracker_extract_get_metadata (TrackerExtract	     *object,
 		alarm (MAX_EXTRACT_TIME);
 	}
 
-	sparql = get_file_metadata_as_sparql (object, request_id, uri, mime);
+	sparql = get_file_metadata (object, request_id, uri, mime);
 
 	if (sparql) {
-		dbus_g_method_return (context, sparql);
-		g_free (sparql);
+		dbus_g_method_return (context, tracker_sparql_builder_get_result (sparql));
+		g_object_unref (sparql);
 		tracker_dbus_request_success (request_id);
 	} else {
 		GError *actual_error = NULL;

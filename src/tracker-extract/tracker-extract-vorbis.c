@@ -44,7 +44,7 @@
 #define RDF_TYPE RDF_PREFIX "type"
 
 static void extract_vorbis (const char *uri, 
-                            GPtrArray  *metadata);
+                            TrackerSparqlBuilder  *metadata);
 
 static struct {
 	gchar *name;
@@ -137,7 +137,7 @@ ogg_write (const char *meta_name,
 
 static void
 extract_vorbis (const char *uri,
-                GPtrArray *metadata)
+                TrackerSparqlBuilder *metadata)
 {
 	FILE	       *f;
 	OggVorbis_File  vf;

@@ -56,12 +56,12 @@
 typedef struct {
 	guint32     track_counter;
 	gint64      total_time;
-	GPtrArray   *metadata;
+	TrackerSparqlBuilder   *metadata;
 	const gchar *uri;
 } PlaylistMetadata;
 
 static void extract_playlist (const gchar *uri,
-			      GPtrArray   *metadata);
+			      TrackerSparqlBuilder   *metadata);
 
 
 static TrackerExtractData playlist_data[] = {
@@ -120,7 +120,7 @@ entry_parsed (TotemPlParser *parser, const gchar *to_uri, GHashTable *to_metadat
 
 static void
 extract_playlist (const gchar *uri,
-		  GPtrArray   *metadata)
+		  TrackerSparqlBuilder   *metadata)
 {
 	TotemPlParser       *pl;
 	TotemPlParserResult  result;

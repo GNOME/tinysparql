@@ -65,10 +65,10 @@
 
 #ifdef USING_UNZIPPSFILES
 static void extract_ps_gz (const gchar *uri,
-			   GPtrArray  *metadata);
+			   TrackerSparqlBuilder  *metadata);
 #endif
 static void extract_ps	  (const gchar *uri,
-			   GPtrArray   *metadata);
+			   TrackerSparqlBuilder   *metadata);
 
 static TrackerExtractData data[] = {
 #ifdef USING_UNZIPPSFILES
@@ -210,7 +210,7 @@ date_to_iso8601 (const gchar *date)
 
 static void
 extract_ps (const gchar *uri,
-	    GPtrArray	*metadata)
+	    TrackerSparqlBuilder	*metadata)
 {
 	FILE *f;
 	gchar *filename = g_filename_from_uri (uri, NULL, NULL);
@@ -297,7 +297,7 @@ extract_ps (const gchar *uri,
 #ifdef USING_UNZIPPSFILES
 static void
 extract_ps_gz (const gchar *uri,
-	       GPtrArray   *metadata)
+	       TrackerSparqlBuilder   *metadata)
 {
 	FILE	    *fz, *f;
 	GError	    *error = NULL;

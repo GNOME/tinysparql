@@ -123,7 +123,7 @@ enum {
 };
 
 static void extract_mp3 (const gchar *filename,
-			 GPtrArray  *metadata);
+			 TrackerSparqlBuilder  *metadata);
 
 static const char *const genre_names[] = {
 	"Blues",
@@ -542,7 +542,7 @@ mp3_parse_header (const gchar *data,
 		  size_t       size,
 		  size_t       seek_pos,
 		  const gchar *uri,
-		  GPtrArray   *metadata,
+		  TrackerSparqlBuilder   *metadata,
 		  file_data   *filedata)
 {
 	guint header;
@@ -725,7 +725,7 @@ mp3_parse (const gchar *data,
 	   size_t       size,
 	   size_t       offset,
 	   const gchar *uri,
-	   GPtrArray  *metadata,
+	   TrackerSparqlBuilder  *metadata,
 	   file_data   *filedata)
 {
 	guint header;
@@ -756,7 +756,7 @@ static void
 get_id3v24_tags (const gchar *data,
 		 size_t       size,
 		 const gchar *uri,
-		 GPtrArray  *metadata,
+		 TrackerSparqlBuilder  *metadata,
 		 file_data   *filedata)
 {
 	guint pos = 0;
@@ -1032,7 +1032,7 @@ static void
 get_id3v23_tags (const gchar *data,
 		 size_t       size,
 		 const gchar *uri,
-		 GPtrArray  *metadata,
+		 TrackerSparqlBuilder  *metadata,
 		 file_data   *filedata)
 {
 	guint	pos = 0;
@@ -1288,7 +1288,7 @@ static void
 get_id3v20_tags (const gchar *data,
 		size_t	     size,
 		const gchar *uri,
-		GPtrArray  *metadata,
+		TrackerSparqlBuilder  *metadata,
 		 file_data   *filedata)
 {
 	guint	pos = 0;
@@ -1472,7 +1472,7 @@ static void
 parse_id3v24 (const gchar *data,
 	      size_t       size,
 	      const gchar *uri,
-	      GPtrArray  *metadata,
+	      TrackerSparqlBuilder  *metadata,
 	      file_data   *filedata,
 	      size_t      *offset_delta)
 {
@@ -1536,7 +1536,7 @@ static void
 parse_id3v23 (const gchar *data,
 	      size_t       size,
 	      const gchar *uri,
-	      GPtrArray  *metadata,
+	      TrackerSparqlBuilder  *metadata,
 	      file_data   *filedata,
 	      size_t      *offset_delta)
 {
@@ -1610,7 +1610,7 @@ static void
 parse_id3v20 (const gchar *data,
 	      size_t	      size,
 	      const gchar *uri,
-	      GPtrArray  *metadata,
+	      TrackerSparqlBuilder  *metadata,
 	      file_data   *filedata,
 	      size_t      *offset_delta)
 {
@@ -1656,7 +1656,7 @@ static goffset
 parse_id3v2 (const gchar *data,
 	     size_t	     size,
 	     const gchar *uri,
-	     GPtrArray  *metadata,
+	     TrackerSparqlBuilder  *metadata,
 	     file_data   *filedata)
 {
 	gboolean done = FALSE;
@@ -1682,7 +1682,7 @@ parse_id3v2 (const gchar *data,
 
 static void
 extract_mp3 (const gchar *uri,
-	     GPtrArray  *metadata)
+	     TrackerSparqlBuilder  *metadata)
 {
 	gchar       *filename;
 	int	     fd;

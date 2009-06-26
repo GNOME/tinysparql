@@ -43,13 +43,13 @@ typedef enum {
 } tag_type;
 
 typedef struct {
-	GPtrArray *metadata;
+	TrackerSparqlBuilder *metadata;
 	tag_type current;
 	const gchar *uri;
 } HTMLParseInfo;
 
 static void extract_html (const gchar *filename,
-			  GPtrArray   *metadata);
+			  TrackerSparqlBuilder   *metadata);
 
 static TrackerExtractData data[] = {
 	{ "text/html",		   extract_html },
@@ -196,7 +196,7 @@ characters (void	  *info_,
 
 static void
 extract_html (const gchar *uri,
-	      GPtrArray   *metadata)
+	      TrackerSparqlBuilder   *metadata)
 {
 	gchar *filename = g_filename_from_uri (uri, NULL, NULL);
 	xmlSAXHandler SAXHandlerStruct = {

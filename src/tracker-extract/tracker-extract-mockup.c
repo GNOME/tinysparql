@@ -39,7 +39,7 @@
 #include "tracker-main.h"
 
 static void extract_mockup (const gchar *uri,
-			    GPtrArray   *metadata);
+			    TrackerSparqlBuilder   *metadata);
 
 typedef struct {
 	gchar	     *key;
@@ -66,7 +66,7 @@ static TrackerExtractData data[] = {
 
 static void
 extract_mockup (const gchar *uri,
-		GPtrArray   *metadata)
+		TrackerSparqlBuilder   *metadata)
 {
 	MockupTag *p;
 

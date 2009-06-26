@@ -81,7 +81,7 @@
 #endif /* HAVE_LIBIPTCDATA */
 
 static void extract_jpeg (const gchar *filename,
-			  GPtrArray   *metadata);
+			  TrackerSparqlBuilder   *metadata);
 
 static TrackerExtractData data[] = {
 	{ "image/jpeg", extract_jpeg },
@@ -360,7 +360,7 @@ static void
 read_exif (const unsigned char *buffer,
 	   size_t		len,
 	   const gchar         *uri,
-	   GPtrArray	       *metadata)
+	   TrackerSparqlBuilder	       *metadata)
 {
 	ExifData *exif;
 	TagType  *p;
@@ -411,7 +411,7 @@ read_exif (const unsigned char *buffer,
 
 static void
 extract_jpeg (const gchar *uri,
-	      GPtrArray   *metadata)
+	      TrackerSparqlBuilder   *metadata)
 {
 	struct jpeg_decompress_struct  cinfo;
 	struct tej_error_mgr	       tejerr;

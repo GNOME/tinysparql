@@ -49,7 +49,7 @@
 #define RDF_TYPE RDF_PREFIX "type"
 
 static void extract_msoffice (const gchar *uri,
-			      GPtrArray   *metadata);
+			      TrackerSparqlBuilder   *metadata);
 
 static TrackerExtractData data[] = {
 	{ "application/msword",	  extract_msoffice },
@@ -58,12 +58,12 @@ static TrackerExtractData data[] = {
 };
 
 typedef struct {
-	GPtrArray *metadata;
+	TrackerSparqlBuilder *metadata;
 	const gchar *uri;
 } ForeachInfo;
 
 static void
-add_gvalue_in_metadata (GPtrArray    *table,
+add_gvalue_in_metadata (TrackerSparqlBuilder    *table,
 			const gchar  *uri,
 			const gchar  *key,
 			GValue const *val,
@@ -134,7 +134,7 @@ metadata_cb (gpointer key,
 	ForeachInfo  *info = user_data;
 	gchar	     *name;
 	GsfDocProp   *property;
-	GPtrArray    *metadata = info->metadata;
+	TrackerSparqlBuilder    *metadata = info->metadata;
 	GValue const *val;
 	const gchar  *uri = info->uri;
 
@@ -194,7 +194,7 @@ doc_metadata_cb (gpointer key,
 	ForeachInfo  *info = user_data;
 	gchar	     *name;
 	GsfDocProp   *property;
-	GPtrArray    *metadata = info->metadata;
+	TrackerSparqlBuilder    *metadata = info->metadata;
 	GValue const *val;
 	const gchar  *uri = info->uri;
 
@@ -210,7 +210,7 @@ doc_metadata_cb (gpointer key,
 
 static void
 extract_msoffice (const gchar *uri,
-		  GPtrArray   *metadata)
+		  TrackerSparqlBuilder   *metadata)
 {
 	GsfInput  *input;
 	GsfInfile *infile;

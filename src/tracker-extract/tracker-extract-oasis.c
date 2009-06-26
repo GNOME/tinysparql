@@ -49,7 +49,7 @@ typedef enum {
 } tag_type;
 
 typedef struct {
-	GPtrArray *metadata;
+	TrackerSparqlBuilder *metadata;
 	tag_type current;
 	const gchar *uri;
 } ODTParseInfo;
@@ -70,7 +70,7 @@ static void text_handler	  (GMarkupParseContext	*context,
 				   gpointer		 user_data,
 				   GError	       **error);
 static void extract_oasis	  (const gchar		*filename,
-				   GPtrArray		*metadata);
+				   TrackerSparqlBuilder		*metadata);
 
 static TrackerExtractData extract_data[] = {
 	{ "application/vnd.oasis.opendocument.*", extract_oasis },
@@ -79,7 +79,7 @@ static TrackerExtractData extract_data[] = {
 
 static void
 extract_oasis (const gchar *uri,
-	       GPtrArray   *metadata)
+	       TrackerSparqlBuilder   *metadata)
 {
 	gchar	      *argv[5];
 	gchar	      *xml;
@@ -150,7 +150,7 @@ start_element_handler (GMarkupParseContext  *context,
 		data->current = READ_COMMENTS;
 	}
 	else if (strcmp (element_name, "meta:document-statistic") == 0) {
-		GPtrArray *metadata;
+		TrackerSparqlBuilder *metadata;
 		const gchar *uri;
 		const gchar **a, **v;
 
@@ -200,7 +200,7 @@ text_handler (GMarkupParseContext  *context,
 	      GError		  **error)
 {
 	ODTParseInfo *data;
-	GPtrArray    *metadata;
+	TrackerSparqlBuilder    *metadata;
 	const gchar        *uri;
 
 	data = user_data;

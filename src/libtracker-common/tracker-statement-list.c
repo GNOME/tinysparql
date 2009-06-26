@@ -31,64 +31,20 @@
 #include <libtracker-common/tracker-statement-list.h>
 
 
-const gchar*
-tracker_statement_list_find (GPtrArray *statements, 
-                        const gchar *subj, 
-                        const gchar *pred)
-{
-	guint i;
-	const gchar *subject;
-	const gchar *predicate;
-	const gchar *object = NULL;
-
-	for (i = 0; i < statements->len; i++) {
-		GValueArray *statement;
-
-		statement = statements->pdata[i];
-
-		subject = g_value_get_string (&statement->values[0]);
-		predicate = g_value_get_string (&statement->values[1]);
-		object = g_value_get_string (&statement->values[2]);
-
-		if (g_strcmp0 (pred, predicate) == 0 && g_strcmp0 (subj, subject) == 0)
-			break;
-	}
-
-	return object;
-}
-
 void
-tracker_statement_list_insert (GPtrArray   *statements, 
+tracker_statement_list_insert (TrackerSparqlBuilder   *statements, 
                           const gchar *subject,
                           const gchar *predicate,
                           const gchar *value)
 {
-	GValueArray *statement;
-	GValue       gvalue = { 0 };
-
-	statement = g_value_array_new (3);
-
-	g_value_init (&gvalue, G_TYPE_STRING);
-	g_value_set_string (&gvalue, subject);
-	g_value_array_append (statement, &gvalue);
-	g_value_unset (&gvalue);
-
-	g_value_init (&gvalue, G_TYPE_STRING);
-	g_value_set_string (&gvalue, predicate);
-	g_value_array_append (statement, &gvalue);
-	g_value_unset (&gvalue);
-
-	g_value_init (&gvalue, G_TYPE_STRING);
-	g_value_set_string (&gvalue, value);
-	g_value_array_append (statement, &gvalue);
-	g_value_unset (&gvalue);
-
-	g_ptr_array_add (statements, statement);
+	tracker_sparql_builder_subject_iri (statements, subject);
+	tracker_sparql_builder_predicate_iri (statements, predicate);
+	tracker_sparql_builder_object_string (statements, value);
 }
 
 
 void
-tracker_statement_list_insert_with_int64 (GPtrArray   *statements,
+tracker_statement_list_insert_with_int64 (TrackerSparqlBuilder   *statements,
                                      const gchar *subject,
                                      const gchar *predicate,
                                      gint64       value)
@@ -101,7 +57,7 @@ tracker_statement_list_insert_with_int64 (GPtrArray   *statements,
 }
 
 void
-tracker_statement_list_insert_with_uint (GPtrArray   *statements,
+tracker_statement_list_insert_with_uint (TrackerSparqlBuilder   *statements,
 					 const gchar *subject,
 					 const gchar *predicate,
 					 guint32      value)
@@ -115,7 +71,7 @@ tracker_statement_list_insert_with_uint (GPtrArray   *statements,
 
 
 void
-tracker_statement_list_insert_with_double  (GPtrArray   *statements,
+tracker_statement_list_insert_with_double  (TrackerSparqlBuilder   *statements,
                                        const gchar *subject,
                                        const gchar *predicate,
                                        gdouble      value)
@@ -129,7 +85,7 @@ tracker_statement_list_insert_with_double  (GPtrArray   *statements,
 
 
 void
-tracker_statement_list_insert_with_float  (GPtrArray   *statements,
+tracker_statement_list_insert_with_float  (TrackerSparqlBuilder   *statements,
                                        const gchar *subject,
                                        const gchar *predicate,
                                        gfloat      value)
@@ -142,7 +98,7 @@ tracker_statement_list_insert_with_float  (GPtrArray   *statements,
 }
 
 void
-tracker_statement_list_insert_with_int (GPtrArray   *statements,
+tracker_statement_list_insert_with_int (TrackerSparqlBuilder   *statements,
                                    const gchar *subject,
                                    const gchar *predicate,
                                    gint         value)

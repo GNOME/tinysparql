@@ -54,7 +54,7 @@ static const gchar *tags[][2] = {
 };
 
 static void extract_totem (const gchar *uri,
-			   GPtrArray   *metadata);
+			   TrackerSparqlBuilder   *metadata);
 
 static TrackerExtractData data[] = {
 	{ "audio/*", extract_totem },
@@ -64,7 +64,7 @@ static TrackerExtractData data[] = {
 
 static void
 extract_totem (const gchar *uri,
-	       GPtrArray   *metadata)
+	       TrackerSparqlBuilder   *metadata)
 {
 	gchar *argv[3];
 	gchar *totem;

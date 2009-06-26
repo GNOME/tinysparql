@@ -44,7 +44,7 @@
 #define RDF_TYPE RDF_PREFIX "type"
 
 static void extract_pdf (const gchar *uri,
-			 GPtrArray   *metadata);
+			 TrackerSparqlBuilder   *metadata);
 
 static TrackerExtractData data[] = {
 	{ "application/pdf", extract_pdf },
@@ -53,7 +53,7 @@ static TrackerExtractData data[] = {
 
 static void
 extract_pdf (const gchar *uri,
-	     GPtrArray  *metadata)
+	     TrackerSparqlBuilder  *metadata)
 {
 	PopplerDocument *document;
 	gchar		*title		= NULL;

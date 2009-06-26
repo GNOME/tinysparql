@@ -70,8 +70,8 @@ typedef struct {
 
 } MetadataExtractor;
 
-static void extract_gstreamer_helix_audio (const gchar *uri, GPtrArray *metadata);
-static void extract_gstreamer_helix_video (const gchar *uri, GPtrArray *metadata);
+static void extract_gstreamer_helix_audio (const gchar *uri, TrackerSparqlBuilder *metadata);
+static void extract_gstreamer_helix_video (const gchar *uri, TrackerSparqlBuilder *metadata);
 
 static TrackerExtractData data[] = {
 	{ "audio/vnd.rn-realaudio", extract_gstreamer_helix_audio },
@@ -365,7 +365,7 @@ gst_bus_cb (GstBus	      *bus,
 
 
 static void
-add_int64_info (GPtrArray *metadata,
+add_int64_info (TrackerSparqlBuilder *metadata,
 		const gchar *uri,
 		const gchar	   *key,
 		gint64	    info)
@@ -374,7 +374,7 @@ add_int64_info (GPtrArray *metadata,
 }
 
 static void
-add_uint_info (GPtrArray *metadata,
+add_uint_info (TrackerSparqlBuilder *metadata,
 		const gchar *uri,
 	       gchar	  *key,
 	       guint	   info)
@@ -383,7 +383,7 @@ add_uint_info (GPtrArray *metadata,
 }
 
 static void
-add_string_gst_tag (GPtrArray	*metadata,
+add_string_gst_tag (TrackerSparqlBuilder	*metadata,
 		const gchar *uri,
 		    const gchar *key,
 		    GstTagList	*tag_list,
@@ -405,7 +405,7 @@ add_string_gst_tag (GPtrArray	*metadata,
 }
 
 static void
-add_uint_gst_tag (GPtrArray  *metadata,
+add_uint_gst_tag (TrackerSparqlBuilder  *metadata,
 		const gchar *uri,
 		  const gchar *key,
 		  GstTagList  *tag_list,
@@ -422,7 +422,7 @@ add_uint_gst_tag (GPtrArray  *metadata,
 }
 
 static void
-add_double_gst_tag (GPtrArray	*metadata,
+add_double_gst_tag (TrackerSparqlBuilder	*metadata,
 		const gchar *uri,
 		    const gchar *key,
 		    GstTagList	*tag_list,
@@ -439,7 +439,7 @@ add_double_gst_tag (GPtrArray	*metadata,
 }
 
 static void
-add_year_of_gdate_gst_tag (GPtrArray  *metadata,
+add_year_of_gdate_gst_tag (TrackerSparqlBuilder  *metadata,
 		const gchar *uri,
 			   const gchar *key,
 			   GstTagList  *tag_list,
@@ -532,7 +532,7 @@ get_embedded_album_art(MetadataExtractor *extractor)
 static void
 extract_metadata (MetadataExtractor *extractor,
                   const gchar *uri,
-		  GPtrArray  *metadata,
+		  TrackerSparqlBuilder  *metadata,
                   gchar **artist,
                   gchar **album,
                   gchar **scount)
@@ -765,7 +765,7 @@ poll_for_state_change (MetadataExtractor *extractor,
 
 static void
 tracker_extract_gstreamer_helix (const gchar *uri,
-				 GPtrArray  *metadata,
+				 TrackerSparqlBuilder  *metadata,
 				 ExtractMime	type)
 {
 	MetadataExtractor *extractor;
@@ -857,13 +857,13 @@ tracker_extract_gstreamer_helix (const gchar *uri,
 }
 
 static void
-extract_gstreamer_helix_audio (const gchar *uri, GPtrArray *metadata)
+extract_gstreamer_helix_audio (const gchar *uri, TrackerSparqlBuilder *metadata)
 {
 	tracker_extract_gstreamer_helix (uri, metadata, EXTRACT_MIME_AUDIO);
 }
 
 static void
-extract_gstreamer_helix_video (const gchar *uri, GPtrArray *metadata)
+extract_gstreamer_helix_video (const gchar *uri, TrackerSparqlBuilder *metadata)
 {
 	tracker_extract_gstreamer_helix (uri, metadata, EXTRACT_MIME_VIDEO);
 }

@@ -32,6 +32,8 @@ public class Tracker.SparqlBuilder : Object {
 		get { return str.str; }
 	}
 
+	public int length { get; private set; }
+
 	State state {
 		get { return states[states.length - 1]; }
 	}
@@ -106,6 +108,8 @@ public class Tracker.SparqlBuilder : Object {
 		str.append (" ");
 		str.append (s);
 		states += State.OBJECT;
+
+		length++;
 	}
 
 	public void object_string (string literal)
@@ -152,6 +156,8 @@ public class Tracker.SparqlBuilder : Object {
 		str.append ("\"");
 
 		states += State.OBJECT;
+
+		length++;
 	}
 
 	public void object_boolean (bool literal) {
@@ -185,6 +191,8 @@ public class Tracker.SparqlBuilder : Object {
 		str.append ("]");
 		states.length -= 3;
 		states += State.OBJECT;
+
+		length++;
 	}
 
 	public void append (string raw)

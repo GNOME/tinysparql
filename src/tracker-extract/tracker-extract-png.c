@@ -67,7 +67,7 @@ typedef struct {
 
 static gchar *rfc1123_to_iso8601_date (gchar	   *rfc_date);
 static void   extract_png	      (const gchar *filename,
-				       GPtrArray   *metadata);
+				       TrackerSparqlBuilder   *metadata);
 
 static TagProcessors tag_processors[] = {
 	{ "Author",		NCO_PREFIX "creator",      NULL, TRUE},
@@ -98,7 +98,7 @@ rfc1123_to_iso8601_date (gchar *date)
 }
 
 static void
-read_metadata (png_structp png_ptr, png_infop info_ptr, const gchar *uri, GPtrArray *metadata)
+read_metadata (png_structp png_ptr, png_infop info_ptr, const gchar *uri, TrackerSparqlBuilder *metadata)
 {
 	gint	     num_text;
 	png_textp    text_ptr;
@@ -165,7 +165,7 @@ read_metadata (png_structp png_ptr, png_infop info_ptr, const gchar *uri, GPtrAr
 
 static void
 extract_png (const gchar *uri,
-	     GPtrArray   *metadata)
+	     TrackerSparqlBuilder   *metadata)
 {
 	goffset      size;
 	FILE	    *f;

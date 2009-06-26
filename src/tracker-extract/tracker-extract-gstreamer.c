@@ -118,9 +118,9 @@ typedef struct {
 
 } MetadataExtractor;
 
-static void extract_gstreamer_audio (const gchar *uri, GPtrArray *metadata);
-static void extract_gstreamer_video (const gchar *uri, GPtrArray *metadata);
-static void extract_gstreamer_image (const gchar *uri, GPtrArray *metadata);
+static void extract_gstreamer_audio (const gchar *uri, TrackerSparqlBuilder *metadata);
+static void extract_gstreamer_video (const gchar *uri, TrackerSparqlBuilder *metadata);
+static void extract_gstreamer_image (const gchar *uri, TrackerSparqlBuilder *metadata);
 
 static TrackerExtractData data[] = {
 	{ "audio/*", extract_gstreamer_audio },
@@ -137,7 +137,7 @@ const gboolean use_tagreadbin = FALSE;
 #endif
 
 static void
-add_int64_info (GPtrArray *metadata,
+add_int64_info (TrackerSparqlBuilder *metadata,
 		const gchar *uri,
 		const gchar *key,
 		gint64	    info)
@@ -146,7 +146,7 @@ add_int64_info (GPtrArray *metadata,
 }
 
 static void
-add_uint_info (GPtrArray *metadata,
+add_uint_info (TrackerSparqlBuilder *metadata,
 	       const gchar *uri,
 	       const gchar *key,
 	       guint	   info)
@@ -155,7 +155,7 @@ add_uint_info (GPtrArray *metadata,
 }
 
 static void
-add_string_gst_tag (GPtrArray	*metadata,
+add_string_gst_tag (TrackerSparqlBuilder	*metadata,
 		    const gchar *uri,
 		    const gchar *key,
 		    GstTagList	*tag_list,
@@ -177,7 +177,7 @@ add_string_gst_tag (GPtrArray	*metadata,
 }
 
 static void
-add_uint_gst_tag (GPtrArray   *metadata,
+add_uint_gst_tag (TrackerSparqlBuilder   *metadata,
 		  const gchar *uri,
 		  const gchar *key,
 		  GstTagList  *tag_list,
@@ -194,7 +194,7 @@ add_uint_gst_tag (GPtrArray   *metadata,
 }
 
 static void
-add_int_gst_tag (GPtrArray   *metadata,
+add_int_gst_tag (TrackerSparqlBuilder   *metadata,
 		 const gchar *uri,
 		 const gchar *key,
 		 GstTagList  *tag_list,
@@ -211,7 +211,7 @@ add_int_gst_tag (GPtrArray   *metadata,
 }
 
 static void
-add_double_gst_tag (GPtrArray	*metadata,
+add_double_gst_tag (TrackerSparqlBuilder	*metadata,
 		    const gchar *uri,
 		    const gchar *key,
 		    GstTagList	*tag_list,
@@ -228,7 +228,7 @@ add_double_gst_tag (GPtrArray	*metadata,
 }
 
 static void
-add_fraction_gst_tag (GPtrArray         *metadata,
+add_fraction_gst_tag (TrackerSparqlBuilder         *metadata,
 		      const gchar       *uri,
 		      const gchar       *key,
 		      GstTagList	*tag_list,
@@ -249,7 +249,7 @@ add_fraction_gst_tag (GPtrArray         *metadata,
 }
 
 static void
-add_y_date_gst_tag (GPtrArray  *metadata,
+add_y_date_gst_tag (TrackerSparqlBuilder  *metadata,
 		    const gchar *uri,
 		    const gchar *key,
 		    GstTagList  *tag_list,
@@ -276,7 +276,7 @@ add_y_date_gst_tag (GPtrArray  *metadata,
 }
 
 static void
-add_time_gst_tag (GPtrArray   *metadata,
+add_time_gst_tag (TrackerSparqlBuilder   *metadata,
 		  const gchar *uri,
 		  const gchar *key,
 		  GstTagList  *tag_list,
@@ -361,7 +361,7 @@ get_embedded_album_art(MetadataExtractor *extractor)
 static void
 extract_stream_metadata_tagreadbin (MetadataExtractor *extractor,
 				    const gchar       *uri,
-				    GPtrArray         *metadata)
+				    TrackerSparqlBuilder         *metadata)
 {
 	if (extractor->mime != EXTRACT_MIME_IMAGE) {
 		add_uint_gst_tag (metadata, uri, NFO_PREFIX "channels", extractor->tagcache, GST_TAG_CHANNEL);
@@ -380,7 +380,7 @@ extract_stream_metadata_tagreadbin (MetadataExtractor *extractor,
 static void
 extract_stream_metadata_decodebin (MetadataExtractor *extractor,
 				   const gchar       *uri,
-				   GPtrArray         *metadata)
+				   TrackerSparqlBuilder         *metadata)
 {
 	if (extractor->mime != EXTRACT_MIME_IMAGE) {
 		if (extractor->audio_channels >= 0) {
@@ -425,7 +425,7 @@ extract_stream_metadata_decodebin (MetadataExtractor *extractor,
 static void
 extract_metadata (MetadataExtractor *extractor,
 		  const gchar       *uri,
-		  GPtrArray         *metadata,
+		  TrackerSparqlBuilder         *metadata,
 		  gchar **album, gchar **scount)
 {
 	gchar *s;
@@ -829,7 +829,7 @@ create_tagreadbin_pipeline (MetadataExtractor *extractor, const gchar *uri)
 
 static void
 tracker_extract_gstreamer (const gchar *uri,
-			   GPtrArray  *metadata,
+			   TrackerSparqlBuilder  *metadata,
 			   ExtractMime	type)
 {
 	MetadataExtractor *extractor;
@@ -936,7 +936,7 @@ tracker_extract_gstreamer (const gchar *uri,
 
 
 static void
-extract_gstreamer_audio (const gchar *uri, GPtrArray *metadata)
+extract_gstreamer_audio (const gchar *uri, TrackerSparqlBuilder *metadata)
 {
 	tracker_statement_list_insert (metadata, uri, 
 				       RDF_TYPE, 
@@ -946,7 +946,7 @@ extract_gstreamer_audio (const gchar *uri, GPtrArray *metadata)
 }
 
 static void
-extract_gstreamer_video (const gchar *uri, GPtrArray *metadata)
+extract_gstreamer_video (const gchar *uri, TrackerSparqlBuilder *metadata)
 {
 	tracker_statement_list_insert (metadata, uri, 
 				       RDF_TYPE, 
@@ -956,7 +956,7 @@ extract_gstreamer_video (const gchar *uri, GPtrArray *metadata)
 }
 
 static void
-extract_gstreamer_image (const gchar *uri, GPtrArray *metadata)
+extract_gstreamer_image (const gchar *uri, TrackerSparqlBuilder *metadata)
 {
 	tracker_statement_list_insert (metadata, uri, 
 				       RDF_TYPE, 

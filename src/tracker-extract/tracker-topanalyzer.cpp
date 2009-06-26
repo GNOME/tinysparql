@@ -39,6 +39,7 @@
 
 #include <libtracker-common/tracker-type-utils.h>
 #include <libtracker-common/tracker-os-dependant.h>
+#include <libtracker-common/tracker-sparql-builder.h>
 #include <libtracker-common/tracker-statement-list.h>
 
 #include <libtracker-common/tracker-ontology.h>
@@ -82,7 +83,7 @@ namespace Tracker {
 		void addValue( const AnalysisResult*, const RegisteredField* field,
 			       const std::string& name, const std::string& value );
 		void finishAnalysis( const AnalysisResult* );
-		void setParams (const gchar *uri_, GPtrArray *metadata_);
+		void setParams (const gchar *uri_, TrackerSparqlBuilder *metadata_);
 
 		gchar *content_type;
 
@@ -91,7 +92,7 @@ namespace Tracker {
 		const gchar* PredicateMapping (const std::string &key);
 
 		const gchar *uri;
-		GPtrArray *metadata;
+		TrackerSparqlBuilder *metadata;
 	};
 
 	Tracker::TripleCollector::TripleCollector () 
@@ -99,7 +100,7 @@ namespace Tracker {
 		content_type = NULL;
 	}
 
-	void Tracker::TripleCollector::setParams (const gchar *uri_, GPtrArray *metadata_)
+	void Tracker::TripleCollector::setParams (const gchar *uri_, TrackerSparqlBuilder *metadata_)
 	{
 		uri = uri_;
 		metadata = metadata_;
@@ -273,7 +274,7 @@ tracker_topanalyzer_shutdown (void)
 }
 
 void
-tracker_topanalyzer_extract (const gchar *uri, GPtrArray  *metadata, gchar **content_type)
+tracker_topanalyzer_extract (const gchar *uri, TrackerSparqlBuilder  *metadata, gchar **content_type)
 {
 	gchar *filename;
 	TrackerTopanalyzerPrivate *priv;
