@@ -192,17 +192,11 @@ static TrackerSparqlBuilder *
 get_file_metadata (TrackerExtract *extract,
 		   guint           request_id,
 		   const gchar    *uri,
-		   const gchar    *mime_)
+		   const gchar    *mime)
 {
 	TrackerSparqlBuilder *statements;
-	GFile *file;
-	GFileInfo *info;
-	GError *error = NULL;
-	const gchar *attributes = NULL;
 	gchar *mime_used = NULL;
-	goffset size = 0;
 	gchar *content_type = NULL;
-	const gchar *mime = mime_;
 
 	/* Create hash table to send back */
 	statements = tracker_sparql_builder_new_update ();
@@ -211,91 +205,62 @@ get_file_metadata (TrackerExtract *extract,
 
 #ifdef HAVE_STREAMANALYZER
 	tracker_topanalyzer_extract (uri, statements, &content_type);
+
+	if ((!mime || mime[0]=='\0') && content_type) {
+		mime = content_type;
+	}
 #endif
 
-	if ((!mime || mime[0]=='\0') && content_type)
-		mime = content_type;
-
-	file = g_file_new_for_uri (uri);
-	if (!file) {
-		g_warning ("Could not create GFile for uri:'%s'",
-			   uri);
-		g_free (content_type);
-		g_object_unref (statements);
-		return NULL;
-	}
-
-	/* Blocks */
-	if (!g_file_query_exists (file, NULL)) {
-		g_warning ("File does not exist '%s'", uri);
-		g_object_unref (file);
-		g_free (content_type);
-		g_object_unref (statements);
-		return NULL;
-	}
-
-	/* Do we get size and mime? or just size? */
 	if (mime && *mime) {
-		attributes = 
-			G_FILE_ATTRIBUTE_STANDARD_SIZE;
-	} else {
-		attributes = 
-			G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE ","
-			G_FILE_ATTRIBUTE_STANDARD_SIZE;
-	}
-
-	info = g_file_query_info (file, 
-				  attributes, 
-				  G_FILE_QUERY_INFO_NONE, 
-				  NULL, 
-				  &error);
-	
-	if (error || !info) {
-		tracker_dbus_request_comment (request_id,
-					      "  Could not create GFileInfo for file size check, %s",
-					      error ? error->message : "no error given");
-		g_error_free (error);
-		
-		if (info) {
-			g_object_unref (info);
-		}
-		
-		g_object_unref (file);
-		g_free (content_type);
-		g_object_unref (statements);
-		return NULL;
-	}
-
-	/* Check the size is actually non-zero */
-	size = g_file_info_get_size (info);
-
-	if (size < 1) {
-		tracker_dbus_request_comment (request_id,
-					      "  File size is 0 bytes, ignoring file");
-		
-		g_object_unref (info);
-		g_object_unref (file);
-
-		g_free (content_type);
-		g_object_unref (statements);
-		return NULL;
-	}
-
-	/* We know the mime */
-	if (mime && *mime) {
+		/* We know the mime */
 		mime_used = g_strdup (mime);
 		g_strstrip (mime_used);
 	} else {
+		GFile *file;
+		GFileInfo *info;
+		GError *error = NULL;
+
+		file = g_file_new_for_uri (uri);
+		if (!file) {
+			g_warning ("Could not create GFile for uri:'%s'",
+				   uri);
+			g_free (content_type);
+			g_object_unref (statements);
+			return NULL;
+		}
+
+		info = g_file_query_info (file,
+					  G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE,
+					  G_FILE_QUERY_INFO_NONE, 
+					  NULL, 
+					  &error);
+	
+		if (error || !info) {
+			tracker_dbus_request_comment (request_id,
+						      "  Could not create GFileInfo for file size check, %s",
+						      error ? error->message : "no error given");
+			g_error_free (error);
+		
+			if (info) {
+				g_object_unref (info);
+			}
+
+			g_object_unref (file);
+			g_free (content_type);
+			g_object_unref (statements);
+			return NULL;
+		}
+
 		mime_used = g_strdup (g_file_info_get_content_type (info));
 
 		tracker_dbus_request_comment (request_id,
 					      "  Guessing mime type as '%s' for uri:'%s'",
 					      mime_used,
 					      uri);
-	}
 
-	g_object_unref (info);
-	g_object_unref (file);
+		g_object_unref (info);
+		g_object_unref (file);
+	}
 
 	/* Now we have sanity checked everything, actually get the
 	 * data we need from the extractors.

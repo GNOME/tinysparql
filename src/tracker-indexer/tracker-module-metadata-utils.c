@@ -812,7 +812,10 @@ tracker_module_metadata_utils_get_data (GFile *file, TrackerSparqlBuilder *sparq
 	tracker_sparql_builder_predicate (sparql, "nfo:fileLastAccessed");
 	tracker_sparql_builder_object_date (sparql, &time_);
 
-	metadata_utils_get_embedded (file, *mime_type, sparql);
+	/* Check the size is actually non-zero */
+	if (g_file_info_get_size (file_info) > 0) {
+		metadata_utils_get_embedded (file, *mime_type, sparql);
+	}
 
 	g_free (uri);
 
