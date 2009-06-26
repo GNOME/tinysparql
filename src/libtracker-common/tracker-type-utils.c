@@ -38,6 +38,11 @@
 
 #define DATE_FORMAT_ISO8601 "%Y-%m-%dT%H:%M:%S%z"
 
+/* Fix for < Glib 2.20. */
+#ifndef G_GOFFSET_FORMAT
+#define G_GOFFSET_FORMAT G_GINT64_FORMAT
+#endif /* G_GOFFSET_FORMAT */
+
 static const char *months[] = {
 	"Jan", "Feb", "Mar", "Apr", "May", "Jun",
 	"Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
