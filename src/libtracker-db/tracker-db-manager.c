@@ -1471,7 +1471,7 @@ function_collate_key (TrackerDBInterface *interface,
 	GValue result = { 0 };
 	gchar *collate_key;
 
-	collate_key = g_utf8_collate_key (g_value_get_string (&values[0]), -1);
+	collate_key = g_utf8_collate_key_for_filename (g_value_get_string (&values[0]), -1);
 
 	g_value_init (&result, G_TYPE_STRING);
 	g_value_take_string (&result, collate_key);
