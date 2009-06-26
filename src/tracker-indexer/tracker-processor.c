@@ -96,11 +96,6 @@ struct TrackerProcessorPrivate {
 	guint		directories_ignored;
 	guint		files_found;
 	guint		files_ignored;
-
-	guint		indexer_items_done;
-	guint		indexer_items_remaining;
-
-	gdouble		indexer_seconds_elapsed;
 };
 
 enum {
@@ -117,13 +112,6 @@ static void process_device_next               (TrackerProcessor *processor);
 static void process_devices_stop              (TrackerProcessor *processor);
 static void process_check_completely_finished (TrackerProcessor *processor);
 static void process_next                      (TrackerProcessor *processor);
-static void indexer_status_cb                 (TrackerIndexer   *indexer,
-					       gdouble           seconds_elapsed,
-					       const gchar      *current_module_name,
-					       guint             items_processed,
-					       guint             items_indexed,
-					       guint             items_remaining,
-					       gpointer          user_data);
 static void indexer_started_cb                (TrackerIndexer   *indexer,
 					       gpointer          user_data);
 static void indexer_finished_cb               (TrackerIndexer   *indexer,
@@ -310,9 +298,6 @@ tracker_processor_finalize (GObject *object)
 					      NULL);
 	g_signal_handlers_disconnect_by_func (priv->indexer,
 					      G_CALLBACK (indexer_finished_cb),
-					      NULL);
-	g_signal_handlers_disconnect_by_func (priv->indexer,
-					      G_CALLBACK (indexer_status_cb),
 					      NULL);
 
 	g_signal_handlers_disconnect_by_func (priv->monitor,
@@ -717,7 +702,6 @@ item_queue_handlers_cb (gpointer user_data)
 		return TRUE;
 	}
 
-	g_message ("No items in any queues to process, doing nothing");
 	processor->private->item_queues_handler_id = 0;
 
 	processor->private->finished_sending = TRUE;
@@ -1242,51 +1226,6 @@ process_check_completely_finished (TrackerProcessor *processor)
 }
 
 static void
-indexer_status_cb (TrackerIndexer *indexer,
-		   gdouble	seconds_elapsed,
-		   const gchar *current_module_name,
-		   guint        items_processed,
-		   guint	items_indexed,
-		   guint	items_remaining,
-		   gpointer	user_data)
-{
-	TrackerProcessor *processor;
-	gchar		 *str1;
-	gchar		 *str2;
-
-	processor = user_data;
-
-	/* Update our local copy */
-	processor->private->indexer_items_done = items_processed;
-	processor->private->indexer_items_remaining = items_remaining;
-	processor->private->indexer_seconds_elapsed = seconds_elapsed;
-
-	if (items_remaining < 1 ||
-	    current_module_name == NULL ||
-	    current_module_name[0] == '\0') {
-		return;
-	}
-
-	/* Message to the console about state */
-	str1 = tracker_seconds_estimate_to_string (seconds_elapsed,
-						   TRUE,
-						   items_processed,
-						   items_remaining);
-	str2 = tracker_seconds_to_string (seconds_elapsed, TRUE);
-
-	g_message ("Processed %d/%d, indexed %d, module:'%s', %s left, %s elapsed",
-		   items_processed,
-		   items_processed + items_remaining,
-		   items_indexed,
-		   current_module_name,
-		   str1,
-		   str2);
-
-	g_free (str2);
-	g_free (str1);
-}
-
-static void
 indexer_started_cb (TrackerIndexer *indexer,
 		    gpointer	 user_data)
 {
@@ -1306,22 +1245,8 @@ indexer_finished_cb (TrackerIndexer *indexer,
 		     gpointer	  user_data)
 {
 	TrackerProcessor *processor;
-	gchar		 *str;
 
 	processor = user_data;
-
-	processor->private->indexer_items_done = items_processed;
-	processor->private->indexer_items_remaining = 0;
-	processor->private->indexer_seconds_elapsed = seconds_elapsed;
-
-	/* Message to the console about state */
-	str = tracker_seconds_to_string (seconds_elapsed, FALSE);
-
-	g_message ("Indexer finished last batch in %s, %d items processed in total (%d indexed)",
-		   str,
-		   items_processed,
-		   items_indexed);
-	g_free (str);
 
 	/* Save indexer's state */
 	processor->private->finished_indexer = TRUE;
@@ -1489,7 +1414,7 @@ monitor_item_created_cb (TrackerMonitor *monitor,
 			 gboolean	 is_directory,
 			 gpointer	 user_data)
 {
-	tracker_processor_files_check (user_data, module_name, file, is_directory);
+	processor_files_check (user_data, module_name, file, is_directory);
 }
 
 static void
@@ -1787,9 +1712,6 @@ tracker_processor_new (TrackerConfig  *config,
 	 * finished.
 	 */
 
-	g_signal_connect (priv->indexer, "status",
-			  G_CALLBACK (indexer_status_cb),
-			  processor);
 	g_signal_connect (priv->indexer, "started",
 			  G_CALLBACK (indexer_started_cb),
 			  processor);
@@ -1836,112 +1758,3 @@ tracker_processor_stop (TrackerProcessor *processor)
 	process_finish (processor);
 }
 
-void
-tracker_processor_files_check (TrackerProcessor *processor,
-			       const gchar	*module_name,
-			       GFile		*file,
-			       gboolean		 is_directory)
-{
-	g_return_if_fail (TRACKER_IS_PROCESSOR (processor));
-	g_return_if_fail (module_name != NULL);
-	g_return_if_fail (G_IS_FILE (file));
-	
-	processor_files_check (processor, module_name, file, is_directory);
-}
-
-void
-tracker_processor_files_update (TrackerProcessor *processor,
-				const gchar	 *module_name,
-				GFile		 *file,
-				gboolean	  is_directory)
-{
-	g_return_if_fail (TRACKER_IS_PROCESSOR (processor));
-	g_return_if_fail (module_name != NULL);
-	g_return_if_fail (G_IS_FILE (file));
-
-	processor_files_update (processor, module_name, file, is_directory);
-}
-
-void
-tracker_processor_files_delete (TrackerProcessor *processor,
-				const gchar	 *module_name,
-				GFile		 *file,
-				gboolean	  is_directory)
-{
-	g_return_if_fail (TRACKER_IS_PROCESSOR (processor));
-	g_return_if_fail (module_name != NULL);
-	g_return_if_fail (G_IS_FILE (file));
-
-	processor_files_delete (processor, module_name, file, is_directory);
-}
-
-void
-tracker_processor_files_move (TrackerProcessor *processor,
-			      const gchar      *module_name,
-			      GFile	       *file,
-			      GFile	       *other_file,
-			      gboolean		is_directory)
-{
-	g_return_if_fail (TRACKER_IS_PROCESSOR (processor));
-	g_return_if_fail (module_name != NULL);
-	g_return_if_fail (G_IS_FILE (file));
-	g_return_if_fail (G_IS_FILE (other_file));
-
-	processor_files_move (processor, module_name, file, other_file, is_directory);
-}
-
-guint
-tracker_processor_get_directories_found (TrackerProcessor *processor)
-{
-	g_return_val_if_fail (TRACKER_IS_PROCESSOR (processor), 0);
-
-	return processor->private->total_directories_found;
-}
-
-guint
-tracker_processor_get_directories_ignored (TrackerProcessor *processor)
-{
-	g_return_val_if_fail (TRACKER_IS_PROCESSOR (processor), 0);
-
-	return processor->private->total_directories_ignored;
-}
-
-guint
-tracker_processor_get_directories_total (TrackerProcessor *processor)
-{
-	g_return_val_if_fail (TRACKER_IS_PROCESSOR (processor), 0);
-
-	return processor->private->total_directories_found + processor->private->total_directories_ignored;
-}
-
-guint
-tracker_processor_get_files_found (TrackerProcessor *processor)
-{
-	g_return_val_if_fail (TRACKER_IS_PROCESSOR (processor), 0);
-
-	return processor->private->total_files_found;
-}
-
-guint
-tracker_processor_get_files_ignored (TrackerProcessor *processor)
-{
-	g_return_val_if_fail (TRACKER_IS_PROCESSOR (processor), 0);
-
-	return processor->private->total_files_ignored;
-}
-
-guint
-tracker_processor_get_files_total (TrackerProcessor *processor)
-{
-	g_return_val_if_fail (TRACKER_IS_PROCESSOR (processor), 0);
-
-	return processor->private->total_files_found + processor->private->total_files_ignored;
-}
-
-gdouble
-tracker_processor_get_seconds_elapsed (TrackerProcessor *processor)
-{
-	g_return_val_if_fail (TRACKER_IS_PROCESSOR (processor), 0);
-
-	return processor->private->indexer_seconds_elapsed;
-}
