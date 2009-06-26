@@ -148,7 +148,7 @@ tracker_simplify_8601 (const gchar *date_string,
 			year *= 100;
 			mon = day = 1;
 		} else {
-			g_critical ("Could not parse date in '%s'", date);
+			g_warning ("Could not parse date in '%s'", date);
 			g_free (copy);
 			return FALSE;
 		}
