@@ -32,7 +32,6 @@
 #include <libtracker-common/tracker-ontology.h>
 
 #include <libtracker-db/tracker-db-interface.h>
-#include <libtracker-db/tracker-db-file-info.h>
 #include <libtracker-db/tracker-db-index.h>
 
 #include "tracker-field-data.h"
