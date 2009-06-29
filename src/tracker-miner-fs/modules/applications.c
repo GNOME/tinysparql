@@ -28,10 +28,11 @@
 #include <libtracker-common/tracker-ontology.h>
 #include <libtracker-common/tracker-utils.h>
 
-#include <tracker-indexer/tracker-module.h>
 #include <libtracker-data/tracker-data-update.h>
 #include <libtracker-data/tracker-data-manager.h>
 #include <libtracker-data/tracker-data-query.h>
+
+#include <tracker-miner-fs/tracker-module.h>
 
 #define RDF_TYPE 	TRACKER_RDF_PREFIX "type"
 #define NFO_PREFIX	TRACKER_NFO_PREFIX

@@ -5,5 +5,5 @@ SUBDIRS = 			\
 	libtracker-common	\
 	libtracker-data		\
 	libtracker-db 		\
-	tracker-indexer		\
+	tracker-miner-fs	\
 	tracker-extract

@@ -26,7 +26,7 @@
 
 #include <gmime/gmime.h>
 
-#include <tracker-indexer/tracker-module-file.h>
+#include <tracker-miner-fs/tracker-module-file.h>
 
 G_BEGIN_DECLS
 

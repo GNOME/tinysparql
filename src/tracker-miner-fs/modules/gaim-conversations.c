@@ -21,8 +21,9 @@
 
 #include "config.h"
 
-#include <tracker-indexer/tracker-module.h>
 #include <time.h>
+
+#include <tracker-miner-fs/tracker-module.h>
 
 #define METADATA_CONVERSATION_USER_ACCOUNT "Conversation:UserAccount"
 #define METADATA_CONVERSATION_PEER_ACCOUNT "Conversation:PeerAccount"

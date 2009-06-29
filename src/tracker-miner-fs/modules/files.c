@@ -31,7 +31,8 @@
 
 #include <libtracker-common/tracker-file-utils.h>
 #include <libtracker-common/tracker-ontology.h>
-#include <tracker-indexer/tracker-module.h>
+
+#include <tracker-miner-fs/tracker-module.h>
 
 /* This is ONLY needed for the indexer to run standalone with
  * the -p option, otherwise it will pick up all sorts of crap

@@ -23,6 +23,8 @@ Helper functions to retrieve metadata or text for common files
 </para>
 
 @file: 
+@metadata: 
+@mime_type: 
 @Returns: 
 
 

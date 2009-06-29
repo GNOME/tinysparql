@@ -79,6 +79,7 @@ The GFile that corresponds to the TrackerModuleFile
 </para>
 
 @file: 
+@mime_type: 
 @Returns: 
 
 

@@ -33,7 +33,7 @@ SUBDIRS = 					\
 	tracker-store				\
 	tracker-utils				\
 	tracker-extract				\
-	tracker-indexer				\
+	tracker-miner-fs			\
 	$(build_libtrackergtk)			\
 	$(build_tracker_applet)			\
 	$(build_tracker_search_tool)		\
@@ -51,7 +51,7 @@ DIST_SUBDIRS = 					\
 	tracker-store				\
 	tracker-utils				\
 	tracker-extract				\
-	tracker-indexer				\
+	tracker-miner-fs			\
 	libtracker-gtk				\
 	tracker-applet	 			\
 	tracker-search-tool			\

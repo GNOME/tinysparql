@@ -5,7 +5,7 @@ SUBDIRS = modules
 INCLUDES =								\
 	-Wall								\
 	-DSHAREDIR=\""$(datadir)"\"					\
-	-DPKGLIBDIR=\""$(libdir)/tracker"\"					\
+	-DPKGLIBDIR=\""$(libdir)/tracker"\"				\
 	-DLOCALEDIR=\""$(localedir)"\" 					\
 	-DINDEXER_MODULES_DIR=\""$(libdir)/tracker-$(TRACKER_API_VERSION)/indexer-modules"\"	\
 	-DLIBEXEC_PATH=\""$(libexecdir)"\"				\
@@ -41,9 +41,9 @@ libtracker_moduleinclude_HEADERS =					\
 
 libtracker_module_la_LIBADD = $(GCOV_LIBS)
 
-libexec_PROGRAMS = tracker-indexer
+libexec_PROGRAMS = tracker-miner-fs
 
-tracker_indexer_SOURCES =						\
+tracker_miner_fs_SOURCES =						\
 	tracker-dbus.h							\
 	tracker-crawler.c						\
 	tracker-crawler.h						\
@@ -60,7 +60,7 @@ tracker_indexer_SOURCES =						\
 	tracker-removable-device.c					\
 	tracker-removable-device.h					
 
-tracker_indexer_LDADD =							\
+tracker_miner_fs_LDADD =						\
 	$(plugin_libs)							\
 	libtracker-module.la						\
 	$(top_builddir)/src/libtracker-data/libtracker-data.la		\
@@ -68,7 +68,7 @@ tracker_indexer_LDADD =							\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
 	$(top_builddir)/src/libtracker/libtrackerclient-@TRACKER_API_VERSION@.la \
 	$(top_builddir)/src/libstemmer/libstemmer.la	 		\
-	$(tracker_store_win_libs)						\
+	$(tracker_store_win_libs)					\
 	$(inotify_libs)							\
 	$(DBUS_LIBS)							\
 	$(GMODULE_LIBS)							\

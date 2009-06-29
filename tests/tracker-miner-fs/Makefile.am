@@ -14,8 +14,8 @@ INCLUDES = 									\
 	-DTRACKER_COMPILATION							\
 	-I$(top_srcdir)/src							\
 	-I$(top_srcdir)/tests/common						\
-	-I$(top_builddir)/src/tracker-store						\
-	-I$(top_builddir)/src/tracker-indexer					\
+	-I$(top_builddir)/src/tracker-store					\
+	-I$(top_builddir)/src/tracker-miner-fs					\
 	$(WARN_CFLAGS)								\
 	$(GLIB2_CFLAGS)								\
 	$(GCOV_CFLAGS)								\
@@ -30,18 +30,18 @@ inotify_libs = $(top_builddir)/src/libinotify/libinotify.la
 endif
 
 tracker_metadata_utils_SOURCES = 						\
-	$(top_srcdir)/src/tracker-indexer/tracker-dbus.c			\
 	$(top_srcdir)/src/tracker-store/tracker-events.c			\
-	$(top_srcdir)/src/tracker-indexer/tracker-crawler.c			\
-	$(top_srcdir)/src/tracker-indexer/tracker-indexer.c			\
-	$(top_srcdir)/src/tracker-indexer/tracker-indexer-module.c		\
-	$(top_srcdir)/src/tracker-indexer/tracker-marshal-main.c		\
-	$(top_srcdir)/src/tracker-indexer/tracker-module-metadata-utils.c 	\
-	$(top_srcdir)/src/tracker-indexer/tracker-module-file.c			\
-	$(top_srcdir)/src/tracker-indexer/tracker-module-iteratable.c		\
-	$(top_srcdir)/src/tracker-indexer/tracker-monitor.c			\
-	$(top_srcdir)/src/tracker-indexer/tracker-processor.c			\
-	$(top_srcdir)/src/tracker-indexer/tracker-removable-device.c		\
+	$(top_srcdir)/src/tracker-miner-fs/tracker-dbus.c			\
+	$(top_srcdir)/src/tracker-miner-fs/tracker-crawler.c			\
+	$(top_srcdir)/src/tracker-miner-fs/tracker-indexer.c			\
+	$(top_srcdir)/src/tracker-miner-fs/tracker-indexer-module.c		\
+	$(top_srcdir)/src/tracker-miner-fs/tracker-marshal-main.c		\
+	$(top_srcdir)/src/tracker-miner-fs/tracker-module-metadata-utils.c 	\
+	$(top_srcdir)/src/tracker-miner-fs/tracker-module-file.c			\
+	$(top_srcdir)/src/tracker-miner-fs/tracker-module-iteratable.c		\
+	$(top_srcdir)/src/tracker-miner-fs/tracker-monitor.c			\
+	$(top_srcdir)/src/tracker-miner-fs/tracker-processor.c			\
+	$(top_srcdir)/src/tracker-miner-fs/tracker-removable-device.c		\
 	tracker-metadata-utils-test.c 					
 
 tracker_metadata_utils_LDADD =	                                        	\
@@ -50,7 +50,7 @@ tracker_metadata_utils_LDADD =	                                        	\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la 		\
 	$(top_builddir)/src/libtracker/libtrackerclient-@TRACKER_API_VERSION@.la \
 	$(top_builddir)/tests/common/libtracker-testcommon.la           	\
-	$(inotify_libs)							\
+	$(inotify_libs)								\
 	$(DBUS_LIBS)								\
 	$(PANGO_LIBS)								\
 	$(GMODULE_LIBS)								\

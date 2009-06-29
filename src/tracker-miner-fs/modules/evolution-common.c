@@ -25,11 +25,12 @@
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+
 #include <glib.h>
 #include <gio/gio.h>
 #include <glib/gstdio.h>
 
-#include <tracker-indexer/tracker-module-metadata-utils.h>
+#include <tracker-miner-fs/tracker-module-metadata-utils.h>
 
 #include "evolution-common.h"
 

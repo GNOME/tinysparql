@@ -23,7 +23,7 @@
 
 #include <string.h>
 
-#include <tracker-indexer/tracker-module-file.h>
+#include <tracker-miner-fs/tracker-module-file.h>
 
 #include "tracker-config.h"
 #include "tracker-dbus.h"

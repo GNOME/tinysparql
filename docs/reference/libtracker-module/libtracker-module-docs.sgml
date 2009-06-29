@@ -38,7 +38,9 @@
 
     <chapter>
       <title>Metadata</title>
+<!--
       &tracker-module-metadata;
+-->
       &tracker-module-metadata-utils;
     </chapter>
 

@@ -15,11 +15,11 @@ DOC_MAIN_SGML_FILE=libtracker-module-docs.sgml
 # SCANGOBJ_OPTIONS=--type-init-func="gtk_type_init(0)" 
 
 # The directory containing the source code. Relative to $(srcdir)
-DOC_SOURCE_DIR=../../../src/tracker-indexer
+DOC_SOURCE_DIR=../../../src/tracker-miner-fs
 
 # Used for dependencies
-HFILE_GLOB=$(top_srcdir)/src/tracker-indexer/*.h
-CFILE_GLOB=$(top_srcdir)/src/tracker-indexer/*.c
+HFILE_GLOB=$(top_srcdir)/src/tracker-miner-fs/*.h
+CFILE_GLOB=$(top_srcdir)/src/tracker-miner-fs/*.c
 
 # Header files to ignore when scanning
 IGNORE_HFILES=								\
@@ -50,8 +50,8 @@ GTKDOC_LIBS =								\
 	$(top_builddir)/src/libtracker-db/libtracker-db.la 		\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
 	$(top_builddir)/src/libstemmer/libstemmer.la	 		\
-	$(top_builddir)/src/tracker-indexer/libtracker-module.la	\
-	$(tracker_store_win_libs)						\
+	$(top_builddir)/src/tracker-miner-fs/libtracker-module.la	\
+	$(tracker_store_win_libs)					\
 	$(DBUS_LIBS)							\
 	$(GMODULE_LIBS)							\
 	$(GTHREAD_LIBS)							\

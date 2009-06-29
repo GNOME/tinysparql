@@ -23,8 +23,8 @@
 
 #include <libtracker-data/tracker-data-metadata.h>
 
-#include <tracker-indexer/tracker-module-file.h>
-#include <tracker-indexer/tracker-module-iteratable.h>
+#include <tracker-miner-fs/tracker-module-file.h>
+#include <tracker-miner-fs/tracker-module-iteratable.h>
 
 #define DUMMY_TYPE_FILE    (dummy_file_get_type ())
 #define DUMMY_FILE(module) (G_TYPE_CHECK_INSTANCE_CAST ((module), DUMMY_TYPE_FILE, DummyFile))

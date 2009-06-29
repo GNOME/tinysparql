@@ -29,8 +29,8 @@
 #include <libtracker-common/tracker-common.h>
 #include <libtracker-common/tracker-ontology.h>
 
-#include <tracker-indexer/tracker-module-file.h>
-#include <tracker-indexer/tracker-module-iteratable.h>
+#include <tracker-miner-fs/tracker-module-file.h>
+#include <tracker-miner-fs/tracker-module-iteratable.h>
 
 #include "evolution-pop.h"
 #include "evolution-common.h"
