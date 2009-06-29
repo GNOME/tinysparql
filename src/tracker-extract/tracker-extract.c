@@ -361,7 +361,6 @@ tracker_extract_get_metadata_by_cmdline (TrackerExtract *object,
 					 const gchar    *mime)
 {
 	guint       request_id;
-	gint        i;
 	TrackerSparqlBuilder *statements = NULL;
 
 	request_id = tracker_dbus_get_next_request_id ();

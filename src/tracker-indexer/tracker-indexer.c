@@ -422,7 +422,7 @@ tracker_indexer_transaction_open (TrackerIndexer *indexer)
 	start_transaction (indexer);
 }
 
-#ifdef HAVE_HAL || HAVE_DEVKIT_POWER
+#if defined HAVE_HAL || defined HAVE_DEVKIT_POWER
 
 static void
 set_up_throttle (TrackerIndexer *indexer)
@@ -563,7 +563,7 @@ tracker_indexer_finalize (GObject *object)
 		g_timer_destroy (priv->timer);
 	}
 
-#ifdef HAVE_HAL || HAVE_DEVKIT_POWER
+#if defined HAVE_HAL || defined HAVE_DEVKIT_POWER
 	g_signal_handlers_disconnect_by_func (priv->power,
 					      notify_on_battery_cb,
 					      TRACKER_INDEXER (object));
@@ -926,7 +926,7 @@ tracker_indexer_init (TrackerIndexer *indexer)
 	priv->storage = tracker_storage_new ();
 #endif /* HAVE_HAL */
 
-#ifdef HAVE_HAL || HAVE_DEVKIT_POWER
+#if defined HAVE_HAL || defined HAVE_DEVKIT_POWER
 	priv->power = tracker_power_new ();
 	g_signal_connect (priv->power, "notify::on-battery",
 			  G_CALLBACK (notify_on_battery_cb),

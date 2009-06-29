@@ -95,12 +95,12 @@ gaim_file_get_text (TrackerModuleFile *file)
 static TrackerSparqlBuilder *
 gaim_file_get_metadata (TrackerModuleFile *file, gchar **mime_type)
 {
-	TrackerSparqlBuilder *sparql;
+	/* TrackerSparqlBuilder *sparql; */
 	GFile *f;
 	gchar *path, *uri;
 	gchar **path_decomposed;
 	guint len;
-	struct tm tm;
+	/* struct tm tm; */
 
 	uri = tracker_module_file_get_uri (file);
 
