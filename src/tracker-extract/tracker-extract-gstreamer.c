@@ -942,6 +942,10 @@ extract_gstreamer_audio (const gchar *uri, TrackerSparqlBuilder *metadata)
 				       RDF_TYPE, 
 				       NMM_PREFIX "MusicPiece");
 
+	tracker_statement_list_insert (metadata, uri, 
+				       RDF_TYPE, 
+				       NFO_PREFIX "Audio");
+
 	tracker_extract_gstreamer (uri, metadata, EXTRACT_MIME_AUDIO);
 }
 

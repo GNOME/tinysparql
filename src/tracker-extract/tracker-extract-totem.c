@@ -26,6 +26,7 @@
 #include <libtracker-common/tracker-os-dependant.h>
 #include <libtracker-common/tracker-statement-list.h>
 #include <libtracker-common/tracker-ontology.h>
+#include <libtracker-common/tracker-utils.h>
 
 #include "tracker-main.h"
 
@@ -112,8 +113,11 @@ extract_totem (const gchar *uri,
 			                          NMM_PREFIX "Video");
 		} else {
 			tracker_statement_list_insert (metadata, uri, 
-			                          RDF_TYPE, 
-			                          NMM_PREFIX "MusicPiece");
+			                               RDF_TYPE, 
+			                               NMM_PREFIX "MusicPiece");
+			tracker_statement_list_insert (metadata, uri, 
+			                               RDF_TYPE, 
+			                               NFO_PREFIX "Audio");
 		}
 	}
 }

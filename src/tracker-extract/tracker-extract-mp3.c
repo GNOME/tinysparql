@@ -1769,8 +1769,12 @@ extract_mp3 (const gchar *uri,
 	g_free (id3v1_buffer);
 
 	tracker_statement_list_insert (metadata, uri, 
-	                          RDF_TYPE, 
-	                          NMM_PREFIX "MusicPiece");
+	                               RDF_TYPE, 
+	                               NMM_PREFIX "MusicPiece");
+
+	tracker_statement_list_insert (metadata, uri, 
+	                               RDF_TYPE, 
+	                               NFO_PREFIX "Audio");
 
 	/* Get other embedded tags */
 	audio_offset = parse_id3v2 (buffer, buffer_size, uri, metadata, &filedata);

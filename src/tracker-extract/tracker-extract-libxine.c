@@ -39,8 +39,8 @@
 
 /* Take an absolute path to a file and fill a hashtable with metadata.
  */
-void
-tracker_extract_xine (gchar *uri, TrackerSparqlBuilder *metadata)
+static void
+tracker_extract_xine (const gchar *uri, TrackerSparqlBuilder *metadata)
 {
 	xine_t		  *xine_base;
 	xine_audio_port_t *audio_port;
@@ -156,8 +156,11 @@ tracker_extract_xine (gchar *uri, TrackerSparqlBuilder *metadata)
 		}
 	} else if (has_audio) {
 		tracker_statement_list_insert (metadata, uri, 
-		                          RDF_TYPE, 
-		                          NMM_PREFIX "MusicPiece");
+		                               RDF_TYPE, 
+		                               NMM_PREFIX "MusicPiece");
+		tracker_statement_list_insert (metadata, uri, 
+		                               RDF_TYPE, 
+		                               NFO_PREFIX "Audio");
 	} else {
 		tracker_statement_list_insert (metadata, uri, 
 		                          RDF_TYPE, 

@@ -163,8 +163,12 @@ extract_vorbis (const char *uri,
 
 	if ((comment = ov_comment (&vf, -1)) != NULL) {
 		tracker_statement_list_insert (metadata, uri, 
-		                          RDF_TYPE, 
-		                          NMM_PREFIX "MusicPiece");
+		                               RDF_TYPE, 
+		                               NMM_PREFIX "MusicPiece");
+
+		tracker_statement_list_insert (metadata, uri, 
+		                               RDF_TYPE, 
+		                               NFO_PREFIX "Audio");
 
                 for (i = 0; tags[i].name != NULL; i++) {
                         gchar *str;
