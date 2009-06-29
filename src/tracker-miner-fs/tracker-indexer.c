@@ -1864,106 +1864,19 @@ tracker_indexer_stop (TrackerIndexer *indexer)
 }
 
 void
-tracker_indexer_pause (TrackerIndexer	      *indexer,
-		       DBusGMethodInvocation  *context,
-		       GError		     **error)
+tracker_indexer_pause (TrackerIndexer *indexer)
 {
-	guint request_id;
-
-	request_id = tracker_dbus_get_next_request_id ();
-
-	tracker_dbus_async_return_if_fail (TRACKER_IS_INDEXER (indexer), context);
-
-	tracker_dbus_request_new (request_id,
-				  "DBus request to pause the indexer");
-
 	if (tracker_indexer_get_running (indexer)) {
-		tracker_dbus_request_comment (request_id,
-					      "Pausing indexing");
-
 		tracker_indexer_set_running (indexer, FALSE);
 	}
-
-	dbus_g_method_return (context);
-
-	tracker_dbus_request_success (request_id);
-}
-
-static gboolean
-pause_for_duration_cb (gpointer user_data)
-{
-	TrackerIndexer *indexer;
-
-	indexer = TRACKER_INDEXER (user_data);
-
-	tracker_indexer_set_running (indexer, TRUE);
-	indexer->private->pause_for_duration_id = 0;
-
-	return FALSE;
 }
 
 void
-tracker_indexer_pause_for_duration (TrackerIndexer	   *indexer,
-				    guint		    seconds,
-				    DBusGMethodInvocation  *context,
-				    GError		  **error)
+tracker_indexer_continue (TrackerIndexer *indexer)
 {
-	guint request_id;
-
-	request_id = tracker_dbus_get_next_request_id ();
-
-	tracker_dbus_async_return_if_fail (TRACKER_IS_INDEXER (indexer), context);
-
-	tracker_dbus_request_new (request_id,
-				  "DBus request to pause the indexer for %d seconds",
-				  seconds);
-
-	if (tracker_indexer_get_running (indexer)) {
-		if (indexer->private->in_transaction) {
-			tracker_dbus_request_comment (request_id,
-						      "Committing transactions");
-		}
-
-		tracker_dbus_request_comment (request_id,
-					      "Pausing indexing");
-
-		tracker_indexer_set_running (indexer, FALSE);
-
-		indexer->private->pause_for_duration_id =
-			g_timeout_add_seconds (seconds,
-					       pause_for_duration_cb,
-					       indexer);
-	}
-
-	dbus_g_method_return (context);
-
-	tracker_dbus_request_success (request_id);
-}
-
-void
-tracker_indexer_continue (TrackerIndexer	 *indexer,
-			  DBusGMethodInvocation  *context,
-			  GError		**error)
-{
-	guint request_id;
-
-	request_id = tracker_dbus_get_next_request_id ();
-
-	tracker_dbus_async_return_if_fail (TRACKER_IS_INDEXER (indexer), context);
-
-	tracker_dbus_request_new (request_id,
-				  "DBus request to continue the indexer");
-
 	if (tracker_indexer_get_running (indexer) == FALSE) {
-		tracker_dbus_request_comment (request_id,
-					      "Continuing indexing");
-
 		tracker_indexer_set_running (indexer, TRUE);
 	}
-
-	dbus_g_method_return (context);
-
-	tracker_dbus_request_success (request_id);
 }
 
 void

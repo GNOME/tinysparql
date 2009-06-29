@@ -53,6 +53,7 @@ tracker_miner_fs_SOURCES =						\
 	tracker-indexer-module.h					\
 	tracker-main.c							\
 	tracker-marshal-main.c						\
+	tracker-miner.c							\
 	tracker-monitor.c						\
 	tracker-monitor.h						\
 	tracker-processor.c						\
@@ -94,7 +95,7 @@ marshal_sources =                                         		\
         tracker-marshal.c
 
 dbus_sources = 								\
-	tracker-indexer-glue.h						\
+	tracker-miner-glue.h						\
 	tracker-extract-client.h
 
 %-glue.h: $(top_srcdir)/data/dbus/%.xml

@@ -91,18 +91,10 @@ void            tracker_indexer_process_modules     (TrackerIndexer         *ind
 						     gchar                 **modules);
 void		tracker_indexer_transaction_commit  (TrackerIndexer         *indexer);
 void		tracker_indexer_transaction_open    (TrackerIndexer         *indexer);
+void            tracker_indexer_pause               (TrackerIndexer         *indexer);
+void            tracker_indexer_continue            (TrackerIndexer         *indexer);
 
 /* DBus methods */
-void            tracker_indexer_pause               (TrackerIndexer         *indexer,
-						     DBusGMethodInvocation  *context,
-						     GError                **error);
-void            tracker_indexer_pause_for_duration  (TrackerIndexer         *indexer,
-						     guint                   seconds,
-						     DBusGMethodInvocation  *context,
-						     GError                **error);
-void            tracker_indexer_continue            (TrackerIndexer         *indexer,
-						     DBusGMethodInvocation  *context,
-						     GError                **error);
 void            tracker_indexer_files_check         (TrackerIndexer         *indexer,
 						     const gchar            *module,
 						     GStrv                   files);

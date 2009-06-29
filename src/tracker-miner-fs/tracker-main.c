@@ -50,7 +50,8 @@
 
 #include "tracker-dbus.h"
 #include "tracker-indexer.h"
-#include "tracker-indexer-glue.h"
+#include "tracker-miner.h"
+#include "tracker-miner-glue.h"
 
 #define ABOUT								  \
 	"Tracker " PACKAGE_VERSION "\n"
@@ -236,6 +237,7 @@ main (gint argc, gchar *argv[])
 	TrackerConfig *config;
 	TrackerLanguage *language;
 	TrackerIndexer *indexer;
+	TrackerMiner *miner;
 	GOptionContext *context;
 	GError *error = NULL;
 	gchar *filename;
@@ -325,11 +327,12 @@ main (gint argc, gchar *argv[])
 	}
 
 	indexer = tracker_indexer_new ();
+	miner = tracker_miner_new (indexer);
 
 	/* Make Tracker available for introspection */
-	if (!tracker_dbus_register_object (G_OBJECT (indexer),
-                                           &dbus_glib_tracker_indexer_object_info,
-                                           TRACKER_INDEXER_PATH)) {
+	if (!tracker_dbus_register_object (G_OBJECT (miner),
+                                           &dbus_glib_tracker_miner_object_info,
+                                           TRACKER_MINER_PATH)) {
 		return EXIT_FAILURE;
 	}
 
@@ -366,6 +369,7 @@ main (gint argc, gchar *argv[])
 
 	g_main_loop_unref (main_loop);
 	g_object_unref (indexer);
+	g_object_unref (miner);
 
 	g_object_unref (config);
 	g_object_unref (language);
