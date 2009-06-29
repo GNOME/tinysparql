@@ -46,6 +46,18 @@
 #include <exempi/xmp.h>
 #include <exempi/xmpconsts.h>
 
+static void tracker_xmp_iter        (XmpPtr                xmp,
+				     XmpIteratorPtr        iter,
+				     const gchar          *uri,
+				     TrackerSparqlBuilder *metadata,
+				     gboolean              append);
+static void tracker_xmp_iter_simple (const gchar          *uri,
+				     TrackerSparqlBuilder *metadata,
+				     const gchar          *schema,
+				     const gchar          *path,
+				     const gchar          *value,
+				     gboolean              append);
+
 static const gchar *
 fix_metering_mode (const gchar *mode)
 {
@@ -98,27 +110,16 @@ fix_white_balance (const gchar *wb)
 	}
 }
 
-static void tracker_xmp_iter        (XmpPtr          xmp,
-				     XmpIteratorPtr  iter,
-				     const gchar    *uri,
-				     GPtrArray      *metadata,
-				     gboolean        append);
-static void tracker_xmp_iter_simple (const gchar    *uri,
-				     GPtrArray      *metadata,
-				     const gchar    *schema,
-				     const gchar    *path,
-				     const gchar    *value,
-				     gboolean        append);
-
-
-/* We have an array, now recursively iterate over it's children.  Set 'append' to true so that all values of the array are added
-   under one entry. */
-static void
-tracker_xmp_iter_array (XmpPtr       xmp,
-			const gchar *uri,
-			GPtrArray   *metadata, 
-			const gchar *schema, 
-			const gchar *path)
+/* We have an array, now recursively iterate over it's children.  Set
+ * 'append' to true so that all values of the array are added under
+ * one entry. 
+ */
+static void 
+tracker_xmp_iter_array (XmpPtr                xmp,
+			const gchar          *uri,
+			TrackerSparqlBuilder *metadata, 
+			const gchar          *schema, 
+			const gchar          *path)
 {
 	XmpIteratorPtr iter;
 
@@ -130,11 +131,11 @@ tracker_xmp_iter_array (XmpPtr       xmp,
 
 /* We have an array, now recursively iterate over it's children.  Set 'append' to false so that only one item is used. */
 static void
-tracker_xmp_iter_alt_text (XmpPtr       xmp, 
-			   const gchar *uri,
-			   GPtrArray   *metadata, 
-			   const gchar *schema, 
-			   const gchar *path)
+tracker_xmp_iter_alt_text (XmpPtr                xmp, 
+			   const gchar          *uri,
+			   TrackerSparqlBuilder *metadata, 
+			   const gchar          *schema, 
+			   const gchar          *path)
 {
 	XmpIteratorPtr iter;
 
@@ -143,16 +144,15 @@ tracker_xmp_iter_alt_text (XmpPtr       xmp,
 	xmp_iterator_free (iter);
 }
 
-
 /* We have a simple element, but need to iterate over the qualifiers */
 static void
-tracker_xmp_iter_simple_qual (XmpPtr       xmp, 
-			      const gchar *uri,
-			      GPtrArray   *metadata,
-			      const gchar *schema, 
-			      const gchar *path, 
-			      const gchar *value, 
-			      gboolean     append)
+tracker_xmp_iter_simple_qual (XmpPtr                xmp, 
+			      const gchar          *uri,
+			      TrackerSparqlBuilder *metadata,
+			      const gchar          *schema, 
+			      const gchar          *path, 
+			      const gchar          *value, 
+			      gboolean              append)
 {
 	XmpIteratorPtr iter;
 	XmpStringPtr the_path;
@@ -251,12 +251,12 @@ fix_orientation (const gchar *orientation)
  * hash table.
  */
 static void
-tracker_xmp_iter_simple (const gchar *uri,
-			 GPtrArray   *metadata,
-			 const gchar *schema, 
-			 const gchar *path, 
-			 const gchar *value, 
-			 gboolean     append)
+tracker_xmp_iter_simple (const gchar          *uri,
+			 TrackerSparqlBuilder *metadata,
+			 const gchar          *schema, 
+			 const gchar          *path, 
+			 const gchar          *value, 
+			 gboolean              append)
 {
 	gchar *name;
 	const gchar *index_;
@@ -531,11 +531,11 @@ tracker_xmp_iter_simple (const gchar *uri,
  * (simple, simple w/qualifiers, or an array) handler.
  */
 void
-tracker_xmp_iter (XmpPtr          xmp, 
-		  XmpIteratorPtr  iter, 
-		  const gchar    *uri,
-		  GPtrArray      *metadata, 
-		  gboolean        append)
+tracker_xmp_iter (XmpPtr                xmp, 
+		  XmpIteratorPtr        iter, 
+		  const gchar          *uri,
+		  TrackerSparqlBuilder *metadata, 
+		  gboolean              append)
 {
 	XmpStringPtr the_schema = xmp_string_new ();
 	XmpStringPtr the_path = xmp_string_new ();
@@ -575,10 +575,10 @@ tracker_xmp_iter (XmpPtr          xmp,
 #endif /* HAVE_EXEMPI */
 
 void
-tracker_read_xmp (const gchar *buffer, 
-		  size_t       len, 
-		  const gchar *uri,
-		  GPtrArray   *metadata)
+tracker_read_xmp (const gchar          *buffer, 
+		  size_t                len, 
+		  const gchar          *uri,
+		  TrackerSparqlBuilder *metadata)
 {
 #ifdef HAVE_EXEMPI
 	XmpPtr xmp;
