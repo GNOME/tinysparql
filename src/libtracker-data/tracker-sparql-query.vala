@@ -1029,6 +1029,13 @@ public class Tracker.SparqlQuery : Object {
 				bindings.append (binding);
 			}
 		}
+
+		if (triple.subject.type != Rasqal.Literal.Type.VARIABLE &&
+		    triple.predicate.type != Rasqal.Literal.Type.VARIABLE &&
+		    triple.object.type != Rasqal.Literal.Type.VARIABLE) {
+			// no variables involved, add dummy expression to SQL
+			pattern_sql.append ("1, ");
+		}
 	}
 
 	DataTable get_table (string subject, string db_table, bool share_table, out bool newtable) {
