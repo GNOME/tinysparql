@@ -524,59 +524,59 @@ queued_set_free (QueuedSet *queued_set)
 static gboolean 
 many_idle_handler (gpointer user_data)
 {
-	guint i;
-	QueuedSet *queued_set = (gpointer) 1;
+	QueuedSet *queued_set;
+	gint popped;
 
-	for (i = 0; i < QUEUED_SETS_PER_MAINLOOP && queued_set ; i++) {
+	g_return_val_if_fail (QUEUED_SETS_PER_MAINLOOP > 0, FALSE);
 
-		if (!many_queue) {
-			return FALSE;
-		}
-
-		queued_set = g_queue_pop_head (many_queue);
-
-		if (queued_set) {
-
-			TrackerEvolutionPlugin *self = queued_set->self;
-			TrackerEvolutionPluginPrivate *priv = TRACKER_EVOLUTION_PLUGIN_GET_PRIVATE (self);
-
-			/* During initial introduction the client-registrar might 
-			 * decide to crash, disconnect, stop listening. That 
-			 * would result in critical warnings so we start ignoring
-			 * as soon as service_gone has removed the registrar. 
-			 *
-			 * We nonetheless need to handle these items to clean up
-			 * the queue properly, of course. */
-
-			if (priv->registrars && g_hash_table_lookup (priv->registrars, queued_set->sender)) {
-				dbus_g_proxy_call_no_reply (queued_set->registrar,
-							    "SetMany",
-							    G_TYPE_STRV, queued_set->subjects,
-							    TRACKER_TYPE_G_STRV_ARRAY, queued_set->predicates_array,
-							    TRACKER_TYPE_G_STRV_ARRAY, queued_set->values_array,
-							    G_TYPE_UINT, (guint) time (NULL),
-							    G_TYPE_INVALID, 
-							    G_TYPE_INVALID);
-			} else {
-				guint t;
-
-				/* Performance improvement: remove all that had 
-				 * this disconnected registrar from the queue */
-
-				for (i = 0; t < many_queue->length; t++) {
-					QueuedSet *remove_candidate;
-					remove_candidate = g_queue_peek_nth (many_queue, t);
-					if (remove_candidate->registrar == queued_set->registrar) {
-						queued_set_free (g_queue_pop_nth (many_queue, t));
-					}
-				}
-			}
-
-			queued_set_free (queued_set);
-		} 
+	if (!many_queue) {
+		return FALSE;
 	}
 
-	return (gboolean) queued_set;
+	for (queued_set  = g_queue_pop_head (many_queue), popped = 1; 
+	     queued_set != NULL && popped < QUEUED_SETS_PER_MAINLOOP; 
+	     queued_set  = g_queue_pop_head (many_queue), popped++) {
+		TrackerEvolutionPlugin *self = queued_set->self;
+		TrackerEvolutionPluginPrivate *priv = TRACKER_EVOLUTION_PLUGIN_GET_PRIVATE (self);
+		
+		/* During initial introduction the client-registrar might 
+		 * decide to crash, disconnect, stop listening. That 
+		 * would result in critical warnings so we start ignoring
+		 * as soon as service_gone has removed the registrar. 
+		 *
+		 * We nonetheless need to handle these items to clean up
+		 * the queue properly, of course. */
+		
+		if (priv->registrars && g_hash_table_lookup (priv->registrars, queued_set->sender)) {
+			dbus_g_proxy_call_no_reply (queued_set->registrar,
+						    "SetMany",
+						    G_TYPE_STRV, queued_set->subjects,
+						    TRACKER_TYPE_G_STRV_ARRAY, queued_set->predicates_array,
+						    TRACKER_TYPE_G_STRV_ARRAY, queued_set->values_array,
+						    G_TYPE_UINT, (guint) time (NULL),
+						    G_TYPE_INVALID, 
+						    G_TYPE_INVALID);
+		} else {
+			gint i;
+			
+			/* Performance improvement: remove all that had 
+			 * this disconnected registrar from the queue */
+			
+			for (i = 0; i < many_queue->length; i++) {
+				QueuedSet *remove_candidate;
+				
+				remove_candidate = g_queue_peek_nth (many_queue, i);
+				
+				if (remove_candidate->registrar == queued_set->registrar) {
+					queued_set_free (g_queue_pop_nth (many_queue, i));
+				}
+			}
+		}
+		
+		queued_set_free (queued_set);
+	}
+
+	return queued_set ? TRUE : FALSE;
 }
 
 static void
