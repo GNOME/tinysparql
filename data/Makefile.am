@@ -2,20 +2,33 @@ include $(top_srcdir)/Makefile.decl
 
 SUBDIRS = db dbus modules languages icons ontologies
 
+# Should do this for *.desktop.in.in 
 tracker-store.desktop.in: tracker-store.desktop.in.in
-	@sed -e "s|@libexecdir[@]|${libexecdir}|" \
+	@sed -e "s|@libexecdir[@]|${libexecdir}|" 	\
+	     -e "s|@VERSION[@]|${VERSION}|" $< > $@
+
+tracker-miner-fs.desktop.in: tracker-miner-fs.desktop.in.in
+	@sed -e "s|@libexecdir[@]|${libexecdir}|" 	\
 	     -e "s|@VERSION[@]|${VERSION}|" $< > $@
 
 autostartdir = $(sysconfdir)/xdg/autostart
-autostart_in_in_files = tracker-store.desktop.in.in
-autostart_in_files = tracker-store.desktop.in
-autostart_DATA = tracker-store.desktop
+autostart_in_in_files = 				\
+	tracker-store.desktop.in.in			\
+	tracker-miner-fs.desktop.in.in
+
+autostart_in_files = 					\
+	tracker-store.desktop.in			\
+	tracker-miner-fs.desktop.in
+
+autostart_DATA = 					\
+	tracker-store.desktop				\
+	tracker-miner-fs.desktop
 
 @INTLTOOL_DESKTOP_RULE@
 
 pkgconfigdir = $(libdir)/pkgconfig
-pkgconfig_DATA = 			\
-	tracker-$(TRACKER_API_VERSION).pc	\
+pkgconfig_DATA = 					\
+	tracker-$(TRACKER_API_VERSION).pc		\
 	tracker-module-$(TRACKER_API_VERSION).pc
 
 tracker-$(TRACKER_API_VERSION).pc: tracker.pc
@@ -24,7 +37,9 @@ tracker-$(TRACKER_API_VERSION).pc: tracker.pc
 tracker-module-$(TRACKER_API_VERSION).pc: tracker-module.pc
 	cp $< $@
 
-CLEANFILES = $(autostart_DATA) $(autostart_in_files)	\
+CLEANFILES = 						\
+	$(autostart_DATA) 				\
+	$(autostart_in_files)				\
 	tracker-$(TRACKER_API_VERSION).pc		\
 	tracker-module-$(TRACKER_API_VERSION).pc
 

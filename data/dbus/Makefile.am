@@ -7,7 +7,6 @@ config_DATA =						\
 	tracker-daemon.xml				\
 	tracker-resources.xml				\
 	tracker-search.xml				\
-	tracker-indexer.xml				\
 	tracker-extract.xml				\
 	tracker-resources-class.xml
 
@@ -15,7 +14,7 @@ config_DATA =						\
 servicedir = $(DBUS_SERVICES_DIR)
 service_in_files =					\
 	org.freedesktop.Tracker.service.in		\
-	org.freedesktop.Tracker.Indexer.service.in	\
+	org.freedesktop.Tracker.Miner.FS.service.in	\
 	org.freedesktop.Tracker.Extract.service.in
 service_DATA = $(service_in_files:.service.in=.service)
 

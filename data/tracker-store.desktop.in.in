@@ -1,12 +1,12 @@
 [Desktop Entry]
 Encoding=UTF-8
-_Name=Tracker
-_Comment=Tracker search and indexing service
+_Name=Tracker Store
+_Comment=Metadata database store and lookup manager
 Icon=
 Exec=@libexecdir@/tracker-store
 Terminal=false
 Type=Application
-Categories=
+Categories=GNOME;Utility
 X-GNOME-Autostart-enabled=true
 X-KDE-autostart-after=panel
 X-KDE-StartupNotify=false
@@ -15,6 +15,5 @@ NoDisplay=true
 OnlyShowIn=GNOME;KDE;XFCE;
 X-GNOME-Bugzilla-Bugzilla=GNOME
 X-GNOME-Bugzilla-Product=tracker
-X-GNOME-Bugzilla-Component=Indexer
+X-GNOME-Bugzilla-Component=store
 X-GNOME-Bugzilla-Version=@VERSION@
-
