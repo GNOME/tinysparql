@@ -54,6 +54,7 @@ tracker_miner_fs_SOURCES =						\
 	tracker-main.c							\
 	tracker-marshal-main.c						\
 	tracker-miner.c							\
+	tracker-miner.h							\
 	tracker-monitor.c						\
 	tracker-monitor.h						\
 	tracker-processor.c						\
