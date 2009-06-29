@@ -426,7 +426,6 @@ tracker_kmail_registrar_set_many (TrackerKMailRegistrar *object,
 {
 	guint request_id;
 	guint len, i = 0;
-	gboolean start_handler = FALSE;
 
 	request_id = tracker_dbus_get_next_request_id ();
 
