@@ -278,41 +278,41 @@ set_metadata (const gchar *key,
 	}
 }
 
-static void
-foreach_in_metadata_set_metadata (const gchar     *subject,
-				  const gchar     *key,
-				  const gchar     *value,
-				  gpointer      user_data)
-{
-	raptor_statement     statement;
-	AddMetadataInfo     *item = user_data;
-	raptor_serializer   *serializer = item->serializer;
+/* static void */
+/* foreach_in_metadata_set_metadata (const gchar     *subject, */
+/* 				  const gchar     *key, */
+/* 				  const gchar     *value, */
+/* 				  gpointer      user_data) */
+/* { */
+/* 	raptor_statement     statement; */
+/* 	AddMetadataInfo     *item = user_data; */
+/* 	raptor_serializer   *serializer = item->serializer; */
 
-	statement.subject = (void *) raptor_new_uri ((const guchar *) subject);
-	statement.subject_type = RAPTOR_IDENTIFIER_TYPE_RESOURCE;
+/* 	statement.subject = (void *) raptor_new_uri ((const guchar *) subject); */
+/* 	statement.subject_type = RAPTOR_IDENTIFIER_TYPE_RESOURCE; */
 
-	statement.predicate = (void *) raptor_new_uri ((const guchar *) (key?key:""));
-	statement.predicate_type = RAPTOR_IDENTIFIER_TYPE_RESOURCE;
+/* 	statement.predicate = (void *) raptor_new_uri ((const guchar *) (key?key:"")); */
+/* 	statement.predicate_type = RAPTOR_IDENTIFIER_TYPE_RESOURCE; */
 
-	if (value) {
-		statement.object = (unsigned char *) g_strdup (value);
-		statement.object_type = RAPTOR_IDENTIFIER_TYPE_LITERAL;
-	} else {
-		statement.object = (void *) raptor_new_uri ((const guchar *) (""));
-		statement.object_type = RAPTOR_IDENTIFIER_TYPE_RESOURCE;
-	}
+/* 	if (value) { */
+/* 		statement.object = (unsigned char *) g_strdup (value); */
+/* 		statement.object_type = RAPTOR_IDENTIFIER_TYPE_LITERAL; */
+/* 	} else { */
+/* 		statement.object = (void *) raptor_new_uri ((const guchar *) ("")); */
+/* 		statement.object_type = RAPTOR_IDENTIFIER_TYPE_RESOURCE; */
+/* 	} */
 
-	raptor_serialize_statement (serializer, 
-				    &statement);
+/* 	raptor_serialize_statement (serializer,  */
+/* 				    &statement); */
 
-	raptor_free_uri ((raptor_uri *) statement.subject);
-	raptor_free_uri ((raptor_uri *) statement.predicate);
+/* 	raptor_free_uri ((raptor_uri *) statement.subject); */
+/* 	raptor_free_uri ((raptor_uri *) statement.predicate); */
 
-	if (value)
-		g_free ((unsigned char *) statement.object);
-	else 
-		raptor_free_uri ((raptor_uri *) statement.object);
-}
+/* 	if (value) */
+/* 		g_free ((unsigned char *) statement.object); */
+/* 	else  */
+/* 		raptor_free_uri ((raptor_uri *) statement.object); */
+/* } */
 
 void
 tracker_removable_device_add_metadata (TrackerIndexer        *indexer, 
@@ -384,11 +384,10 @@ tracker_removable_device_add_metadata (TrackerIndexer        *indexer,
 					       suri,
 					       target_file);
 
-	/* TODO: Concatenate SPARQL queries instead
-	tracker_module_metadata_foreach (metadata, 
-					 foreach_in_metadata_set_metadata,
-					 &info);
-	 */
+	/* TODO: Concatenate SPARQL queries instead */
+	/* tracker_module_metadata_foreach (metadata,  */
+	/* 				 foreach_in_metadata_set_metadata, */
+	/* 				 &info); */
 
 	g_free (info.about_uri);
 

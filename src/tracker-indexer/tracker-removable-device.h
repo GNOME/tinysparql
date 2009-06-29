@@ -27,17 +27,21 @@
 
 G_BEGIN_DECLS
 
-void    tracker_removable_device_add_metadata (TrackerIndexer *indexer, 
-					       const gchar *mount_point,
-					       const gchar *uri,
-					       TrackerSparqlBuilder *sparql);
-void    tracker_removable_device_add_removal  (TrackerIndexer *indexer, 
-					       const gchar *mount_point, 
-					       const gchar *uri);
-void    tracker_removable_device_add_move     (TrackerIndexer *indexer, 
-					       const gchar *mount_point, 
-					       const gchar *from_uri, 
-					       const gchar *to_uri);
+void tracker_removable_device_add_metadata (TrackerIndexer       *indexer,
+					    const gchar          *mount_point,
+					    const gchar          *uri,
+					    TrackerSparqlBuilder *sparql);
+void tracker_removable_device_add_removal  (TrackerIndexer       *indexer,
+					    const gchar          *mount_point,
+					    const gchar          *uri);
+void tracker_removable_device_add_move     (TrackerIndexer       *indexer,
+					    const gchar          *mount_point,
+					    const gchar          *from_uri,
+					    const gchar          *to_uri);
+void tracker_removable_device_optimize     (TrackerIndexer       *indexer,
+					    const gchar          *mount_point);
+void tracker_removable_device_load         (TrackerIndexer       *indexer,
+					    const gchar          *mount_point);
 
 G_END_DECLS
 
