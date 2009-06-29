@@ -994,8 +994,6 @@ main (gint argc, gchar *argv[])
 	tracker_store_init ();
 	tracker_status_init (config, hal_power);
 
-	tracker_module_config_init ();
-
 	tracker_turtle_init ();
 	tracker_thumbnailer_init (config);
 
@@ -1106,7 +1104,6 @@ shutdown:
 	tracker_volume_cleanup_shutdown ();
 	tracker_dbus_shutdown ();
 	tracker_data_manager_shutdown ();
-	tracker_module_config_shutdown ();
 	tracker_nfs_lock_shutdown ();
 	tracker_status_shutdown ();
 	tracker_turtle_shutdown ();
