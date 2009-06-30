@@ -418,6 +418,10 @@ public class Tracker.SparqlQuery : Object {
 		var_map = new HashTable<string,VariableBinding>.full (str_hash, str_equal, g_free, g_object_unref);
 		predicate_variable_map = new HashTable<string,PredicateVariable>.full (str_hash, str_equal, g_free, g_object_unref);
 
+		if (query.get_query_graph_pattern () == null) {
+			throw new SparqlError.PARSE ("Missing WHERE clause");
+		}
+
 		// process WHERE clause
 		visit_graph_pattern (query.get_query_graph_pattern ());
 
