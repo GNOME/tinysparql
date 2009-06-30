@@ -7,7 +7,6 @@ INCLUDES =								\
 	-DTRACKER_COMPILATION						\
 	-I$(top_srcdir)/src						\
 	$(WARN_CFLAGS)							\
-	$(LIBGLADE_CFLAGS)						\
 	$(TRACKER_APPLET_CFLAGS)					\
 	$(GCOV_CFLAGS)
 
@@ -17,7 +16,6 @@ tracker_applet_LDADD = 							\
 	$(top_builddir)/src/libtracker/libtrackerclient-@TRACKER_API_VERSION@.la \
 	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
 	$(TRACKER_APPLET_LIBS)						\
-	$(LIBGLADE_LIBS)						\
 	$(GCOV_LIBS)
 
 tracker-marshal.h: tracker-marshal.list
@@ -51,7 +49,7 @@ icon_DATA = 								\
 autostartdir = $(sysconfdir)/xdg/autostart
 autostart_DATA = tracker-applet.desktop
 
-pkgdata_DATA = tracker-applet-prefs.glade
+pkgdata_DATA = tracker-applet-prefs.ui
 
 
 EXTRA_DIST = $(icon_DATA) $(pkgdata_DATA) tracker-marshal.list

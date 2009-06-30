@@ -774,6 +774,13 @@ tracker_data_delete_statement (const gchar            *subject,
 			tracker_db_statement_execute (stmt, NULL);
 			g_object_unref (stmt);
 
+			if (strcmp (tracker_class_get_name (class), "rdfs:Resource") == 0) {
+				stmt = tracker_db_interface_create_statement (iface, "DELETE FROM \"fts\" WHERE ID = ?");
+				tracker_db_statement_bind_int (stmt, 0, subject_id);
+				tracker_db_statement_execute (stmt, NULL);
+				g_object_unref (stmt);
+			}
+
 			for (prop = properties; *prop; prop++) {
 				if (tracker_property_get_domain (*prop) != class
 				    || !tracker_property_get_multiple_values (*prop)) {
