@@ -22,6 +22,7 @@
 #define __TRACKER_DATA_BACKUP_H__
 
 #include <glib.h>
+#include <gio/gio.h>
 
 G_BEGIN_DECLS
 
@@ -30,12 +31,8 @@ typedef void (* TrackerDataBackupRestoreFunc) (const gchar *subject,
 					       const gchar *object,
 					       gpointer     user_data);
 
-gboolean tracker_data_backup_save    (const gchar                   *turtle_filename,
-				      GError                       **error);
-gboolean tracker_data_backup_restore (const gchar                   *turtle_filename,
-				      TrackerDataBackupRestoreFunc   restore_func,
-				      gpointer                       user_data,
-				      GError                       **error);
+gboolean        tracker_data_backup_save      (GFile     *turtle_file,
+					       GError   **error);
 
 G_END_DECLS
 

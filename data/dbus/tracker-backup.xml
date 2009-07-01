@@ -4,11 +4,11 @@
   <interface name="org.freedesktop.Tracker.Backup">
     <method name="Save">
       <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
-      <arg type="s" name="turtle-file" direction="in" />
+      <arg type="s" name="turtle-file-uri" direction="in" />
     </method>
     <method name="Restore">
       <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
-      <arg type="s" name="turtle-file" direction="in" />
+      <arg type="s" name="turtle-file-uri" direction="in" />
     </method>
   </interface>
 </node>

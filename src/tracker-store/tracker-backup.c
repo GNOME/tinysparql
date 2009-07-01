@@ -30,6 +30,12 @@
 
 #include "tracker-dbus.h"
 #include "tracker-backup.h"
+#include "tracker-store.h"
+
+typedef struct {
+	DBusGMethodInvocation *context;
+	guint request_id;
+} TrackerDBusMethodInfo;
 
 G_DEFINE_TYPE (TrackerBackup, tracker_backup, G_TYPE_OBJECT)
 
@@ -51,31 +57,42 @@ tracker_backup_new (void)
 
 void
 tracker_backup_save (TrackerBackup          *object,
-		     const gchar            *path,
-		     DBusGMethodInvocation  *context,
-		     GError                **error)
+                     const gchar            *uri,
+                     DBusGMethodInvocation  *context,
+                     GError                **error)
 {
 	guint request_id;
 	GError *err = NULL;
+	GFile *file;
 
 	request_id = tracker_dbus_get_next_request_id ();
 
 	tracker_dbus_request_new (request_id,
 				  "DBus request to save backup into '%s'",
-				  path);
+				  uri);
 
-	g_message ("Backing up metadata");
-	/* TODO: Port to SPARQL */
-#if 0
-	tracker_data_backup_save (path, &err);
-#endif
+	g_message ("Backing up metadata (unfinished, unsupported)");
+
+	/* Previous DBus API accepted paths. For this reason I decided to try
+	 * to support both paths and uris. Perhaps we should just remove the
+	 * support for paths here? */
+
+	if (!strchr (uri, ':')) {
+		file = g_file_new_for_path (uri);
+	} else {
+		file = g_file_new_for_uri (uri);
+	}
+
+	tracker_data_backup_save (file, &err);
+
+	g_object_unref (file);
 
 	if (err) {
 		GError *actual_error = NULL;
 
 		tracker_dbus_request_failed (request_id,
-					     &actual_error,
-					     err->message);
+		                             &actual_error,
+		                             err->message);
 
 		dbus_g_method_return_error (context, actual_error);
 
@@ -88,62 +105,79 @@ tracker_backup_save (TrackerBackup          *object,
 }
 
 static void
-restore_backup_cb (const gchar *subject,
-		   const gchar *predicate,
-		   const gchar *object,
-		   gpointer     user_data)
+destroy_method_info (gpointer user_data)
 {
-	tracker_data_insert_statement (subject, predicate, object);
+	g_slice_free (TrackerDBusMethodInfo, user_data);
+}
 
-	g_main_context_iteration (NULL, FALSE);
+static void
+backup_callback (GError *error, gpointer user_data)
+{
+	TrackerDBusMethodInfo *info = user_data;
+
+	if (error) {
+		tracker_dbus_request_failed (info->request_id,
+		                             &error,
+		                             NULL);
+		dbus_g_method_return_error (info->context, error);
+		return;
+	}
+
+	dbus_g_method_return (info->context);
+
+	tracker_dbus_request_success (info->request_id);
 }
 
 void
 tracker_backup_restore (TrackerBackup          *object,
-			const gchar            *path,
-			DBusGMethodInvocation  *context,
-			GError                **error)
+                        const gchar            *uri,
+                        DBusGMethodInvocation  *context,
+                        GError                **error)
 {
 	guint request_id;
 	GError *actual_error = NULL;
-	GError *restore_error = NULL;
+	TrackerDBusMethodInfo *info;
+	GFile *file;
 
 	request_id = tracker_dbus_get_next_request_id ();
 
 	tracker_dbus_request_new (request_id,
-				  "DBus request to restore backup from '%s'",
-				  path);
+	                          "DBus request to restore backup from '%s'",
+	                          uri);
 
-	/* First check we have disk space, we do this with ALL our
-	 * indexer commands.
-	 */
+	/* First check we have disk space */
+
 	if (tracker_status_get_is_paused_for_space ()) {
 		tracker_dbus_request_failed (request_id,
-					     &actual_error,
-					     "No disk space left to write to the databases");
+		                             &actual_error,
+		                             "No disk space left to write to"
+		                             " the databases");
 		dbus_g_method_return_error (context, actual_error);
 		g_error_free (actual_error);
 		return;
 	}
 
-	tracker_data_backup_restore (path,
-				     restore_backup_cb,
-				     NULL,
-				     &restore_error);
+	tracker_dbus_request_new (request_id,
+	                          "DBus request to restore backup '%s'",
+	                          uri);
 
-	if (restore_error) {
-		GError *actual_error = NULL;
+	/* Previous DBus API accepted paths. For this reason I decided to try
+	 * to support both paths and uris. Perhaps we should just remove the
+	 * support for paths here? */
 
-		tracker_dbus_request_failed (request_id,
-					     &actual_error,
-					     restore_error->message);
-
-		dbus_g_method_return_error (context, actual_error);
-
-		g_error_free (actual_error);
-		g_error_free (restore_error);
+	if (!strchr (uri, ':')) {
+		file = g_file_new_for_path (uri);
 	} else {
-		dbus_g_method_return (context);
-		tracker_dbus_request_success (request_id);
+		file = g_file_new_for_uri (uri);
 	}
+
+	info = g_slice_new (TrackerDBusMethodInfo);
+
+	info->request_id = request_id;
+	info->context = context;
+
+	tracker_store_queue_turtle_import (file, backup_callback,
+	                                   info, destroy_method_info);
+
+	g_object_unref (file);
 }

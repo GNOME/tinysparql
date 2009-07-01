@@ -30,87 +30,13 @@
 
 #include "tracker-data-backup.h"
 
-typedef struct BackupRestoreData BackupRestoreData;
-
-struct BackupRestoreData {
-	TrackerDataBackupRestoreFunc func;
-	gpointer user_data;
-};
-
-/*
- * (uri, metadataid, value)
- */
-static void
-extended_result_set_to_turtle (TrackerDBResultSet  *result_set,
-			       TurtleFile          *turtle_file)
-{
-	TrackerProperty *field = NULL;
-	gboolean valid = TRUE;
-
-	while (valid) {
-		gchar *uri, *service_type, *str;
-		gint metadata_id;
-
-		tracker_db_result_set_get (result_set,
-					   0, &uri,
-					   1, &service_type,
-					   2, &metadata_id,
-					   3, &str,
-					   -1);
-
-		/* TODO */
-#if 0
-		field = tracker_ontology_get_property_by_id (metadata_id);
-#endif
-
-		if (!field) {
-			g_critical ("Field id %d in database but not in tracker-ontology",
-				    metadata_id);
-			g_free (str);
-			g_free (service_type);
-			g_free (uri);
-			return;
-		}
-
-		g_debug ("Inserting in turtle <%s, %s, %s>",
-			 uri, tracker_property_get_name (field), str);
-		tracker_turtle_add_triple (turtle_file, uri, field, str);
-
-		g_free (str);
-		g_free (service_type);
-		g_free (uri);
-
-		valid = tracker_db_result_set_iter_next (result_set);
-	}
-}
-
-static void
-restore_backup_triple (gpointer                user_data,
-		       const raptor_statement *triple)
-{
-	BackupRestoreData *data;
-
-	data = (BackupRestoreData *) user_data;
-
-	g_debug ("Turtle loading <%s, %s, %s>",
-		 (gchar *)triple->subject,
-		 (gchar *)triple->predicate,
-		 (gchar *)triple->object);
-
-	(data->func) ((const gchar *) triple->subject,
-		      (const gchar *) triple->predicate,
-		      (const gchar *) triple->object,
-		      data->user_data);
-}
-
 gboolean
-tracker_data_backup_save (const gchar  *turtle_filename,
-			  GError      **error)
+tracker_data_backup_save (GFile   *turtle_file,
+			  GError **error)
 {
-	TrackerDBResultSet *data;
 #if 0
+	TrackerDBResultSet *data;
 	TrackerClass *service;
-#endif
 	TurtleFile *turtle_file;
 
 	/* TODO: temporary location */
@@ -123,10 +49,9 @@ tracker_data_backup_save (const gchar  *turtle_filename,
 	g_message ("Saving metadata backup in turtle file");
 
 	/* TODO */
-#if 0
+
 	service = tracker_ontology_get_service_by_name ("Files");
 	data = tracker_data_query_backup_metadata (service);
-#endif
 
 	if (data) {
 		extended_result_set_to_turtle (data, turtle_file);
@@ -135,31 +60,10 @@ tracker_data_backup_save (const gchar  *turtle_filename,
 
 	tracker_turtle_close (turtle_file);
 
+#endif
+
+	g_warning ("tracker_data_backup_save is unimplemented");
+
 	return TRUE;
 }
 
-gboolean
-tracker_data_backup_restore (const gchar                   *turtle_filename,
-			     TrackerDataBackupRestoreFunc   restore_func,
-			     gpointer                       user_data,
-			     GError                       **error)
-{
-	BackupRestoreData data;
-
-	data.func = restore_func;
-	data.user_data = user_data;
-
-	g_message ("Restoring metadata backup from turtle file");
-
-	if (!g_file_test (turtle_filename, G_FILE_TEST_EXISTS)) {
-		g_set_error (error, 0, 0,
-			     "Turtle file does not exist");
-		return FALSE;
-	}
-
-	tracker_turtle_process (turtle_filename,
-				"/",
-				(TurtleTripleCallback) restore_backup_triple,
-				&data);
-	return TRUE;
-}
