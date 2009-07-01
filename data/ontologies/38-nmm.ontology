@@ -14,6 +14,7 @@ nmm: a tracker:Namespace ;
 
 nmm:MusicPiece a rdfs:Class ;
 	rdfs:label "Music" ;
+	tracker:notify true ;
 	rdfs:subClassOf nfo:Media .
 
 nmm:SynchronizedText a rdfs:Class ;
