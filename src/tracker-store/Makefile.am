@@ -42,8 +42,6 @@ tracker_store_SOURCES =							\
 	tracker-resources.h						\
 	tracker-search.c						\
 	tracker-search.h						\
-	tracker-utils.c							\
-	tracker-utils.h							\
 	tracker-volume-cleanup.c					\
 	tracker-volume-cleanup.h					\
 	tracker-push.c							\

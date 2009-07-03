@@ -45,7 +45,6 @@
 #include "tracker-search-glue.h"
 #include "tracker-backup.h"
 #include "tracker-backup-glue.h"
-#include "tracker-utils.h"
 #include "tracker-marshal.h"
 #include "tracker-main.h"
 
