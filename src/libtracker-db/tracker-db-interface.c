@@ -256,6 +256,8 @@ tracker_db_interface_create_statement (TrackerDBInterface  *interface,
 				       const gchar	   *query,
 				       ...)
 {
+	TrackerDBStatement *stmt;
+	TrackerDBInterfaceIface *iface;
 	va_list args;
 	gchar *str;
 
@@ -266,8 +268,11 @@ tracker_db_interface_create_statement (TrackerDBInterface  *interface,
 	str = g_strdup_vprintf (query, args);
 	va_end (args);
 
-	return TRACKER_DB_INTERFACE_GET_IFACE (interface)->create_statement (interface,
-									     str);
+	iface = TRACKER_DB_INTERFACE_GET_IFACE (interface);
+	stmt = iface->create_statement (interface, str);
+	g_free (str);
+	
+	return stmt;
 }
 
 
