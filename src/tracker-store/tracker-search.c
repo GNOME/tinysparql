@@ -106,287 +106,6 @@ tracker_search_new (TrackerConfig   *config,
 	return object;
 }
 
-#if 0
-
-static const gchar *
-search_utf8_p_from_offset_skipping_decomp (const gchar *str,
-					   gint		offset)
-{
-	const gchar *p, *q;
-	gchar	    *casefold, *normal;
-
-	g_return_val_if_fail (str != NULL, NULL);
-
-	p = str;
-
-	while (offset > 0) {
-		q = g_utf8_next_char (p);
-		casefold = g_utf8_casefold (p, q - p);
-		normal = g_utf8_normalize (casefold, -1, G_NORMALIZE_NFC);
-		offset -= g_utf8_strlen (normal, -1);
-		g_free (casefold);
-		g_free (normal);
-		p = q;
-	}
-
-	return p;
-}
-
-static const char *
-search_utf8_strcasestr_array (const gchar  *haystack,
-			      const gchar **needles)
-{
-	gsize	      needle_len;
-	gsize	      haystack_len;
-	const gchar  *ret = NULL;
-	const gchar  *needle;
-	const gchar **array;
-	gchar	     *p;
-	gchar	     *casefold;
-	gchar	     *caseless_haystack;
-	gint	      i;
-
-	g_return_val_if_fail (haystack != NULL, NULL);
-
-	casefold = g_utf8_casefold (haystack, -1);
-	caseless_haystack = g_utf8_normalize (casefold, -1, G_NORMALIZE_NFC);
-	g_free (casefold);
-
-	if (!caseless_haystack) {
-		return NULL;
-	}
-
-	haystack_len = g_utf8_strlen (caseless_haystack, -1);
-
-	for (array = needles; *array; array++) {
-		needle = *array;
-		needle_len = g_utf8_strlen (needle, -1);
-
-		if (needle_len == 0) {
-			continue;
-		}
-
-		if (haystack_len < needle_len) {
-			continue;
-		}
-
-		p = (gchar *) caseless_haystack;
-		needle_len = strlen (needle);
-		i = 0;
-
-		while (*p) {
-			if ((strncmp (p, needle, needle_len) == 0)) {
-				ret = search_utf8_p_from_offset_skipping_decomp (haystack, i);
-				goto done;
-			}
-
-			p = g_utf8_next_char (p);
-			i++;
-		}
-	}
-
-done:
-	g_free (caseless_haystack);
-
-	return ret;
-}
-
-static gint
-search_get_word_break (const char *a)
-{
-	gchar **words;
-	gint	value;
-
-	words = g_strsplit_set (a, "\t\n\v\f\r !\"#$%&'()*/<=>?[\\]^`{|}~+,.:;@\"[]" , -1);
-
-	if (!words) {
-		return 0;
-	}
-
-	value = strlen (words[0]);
-	g_strfreev (words);
-
-	return value;
-}
-
-static gboolean
-search_is_word_break (const char a)
-{
-	const gchar *breaks = "\t\n\v\f\r !\"#$%&'()*/<=>?[\\]^`{|}~+,.:;@\"[]";
-	gint	     i;
-
-	for (i = 0; breaks[i]; i++) {
-		if (a == breaks[i]) {
-			return TRUE;
-		}
-	}
-
-	return FALSE;
-}
-
-static char *
-search_highlight_terms (const gchar  *text,
-			const gchar **terms)
-{
-	const gchar **p;
-	GString      *s;
-	const gchar  *str;
-	gchar	     *text_copy;
-	gint	      term_len;
-
-	if (!text || !terms) {
-		return NULL;
-	}
-
-	s = g_string_new ("");
-	text_copy = g_strdup (text);
-
-	for (p = terms; *p; p++) {
-		const gchar *text_p;
-		const gchar *single_term[2] = { *p, NULL };
-
-		text_p = text_copy;
-
-		while ((str = search_utf8_strcasestr_array (text_p, single_term))) {
-			gchar *pre_snip;
-			gchar *term;
-
-			pre_snip = g_strndup (text_p, (str - text_p));
-			term_len = search_get_word_break (str);
-			term = g_strndup (str, term_len);
-
-			text_p = str + term_len;
-			g_string_append_printf (s, "%s<b>%s</b>", pre_snip, term);
-
-			g_free (pre_snip);
-			g_free (term);
-		}
-
-		if (text_p) {
-			g_string_append (s, text_p);
-		}
-	}
-
-	g_free (text_copy);
-	text_copy = g_string_free (s, FALSE);
-
-	return text_copy;
-}
-
-static gchar *
-search_get_snippet (const gchar  *text,
-		    const gchar **terms,
-		    gint	  length)
-{
-	const gchar *ptr = NULL;
-	const gchar *end_ptr;
-	const gchar *tmp;
-	gint	     i;
-	gint	     text_len;
-
-	if (!text || !terms) {
-		return NULL;
-	}
-
-	text_len = strlen (text);
-	ptr = search_utf8_strcasestr_array (text, terms);
-
-	if (ptr) {
-		gchar *snippet;
-		gchar *snippet_escaped;
-		gchar *snippet_highlighted;
-
-		tmp = ptr;
-		i = 0;
-
-		/* Get snippet before the matching term, try to keep it in the middle */
-		while (ptr != NULL && *ptr != '\n' && i < length / 2) {
-			ptr = g_utf8_find_prev_char (text, ptr);
-			i++;
-		}
-
-		if (!ptr) {
-			/* No newline was found before highlighted term */
-			ptr = text;
-		} else if (*ptr != '\n') {
-			/* Try to start beginning of snippet on a word break */
-			while (!search_is_word_break (*ptr) && ptr != tmp) {
-				ptr = g_utf8_find_next_char (ptr, NULL);
-			}
-		} else {
-			ptr = g_utf8_find_next_char (ptr, NULL);
-		}
-
-		end_ptr = ptr;
-		i = 0;
-
-		while (end_ptr != NULL && *end_ptr != '\n' && i < length) {
-			end_ptr = g_utf8_find_next_char (end_ptr, NULL);
-			i++;
-		}
-
-		if (end_ptr && *end_ptr != '\n') {
-			/* Try to end snippet on a word break */
-			while (!search_is_word_break (*end_ptr) && end_ptr != tmp) {
-				end_ptr = g_utf8_find_prev_char (text, end_ptr);
-			}
-
-			if (end_ptr == tmp) {
-				end_ptr = NULL;
-			}
-		}
-
-		if (!end_ptr) {
-			/* Copy to the end of the string */
-			snippet = g_strdup (ptr);
-		} else {
-			snippet = g_strndup (ptr, end_ptr - ptr);
-		}
-
-		snippet_escaped = g_markup_escape_text (snippet, -1);
-		g_free (snippet);
-
-		snippet_highlighted = search_highlight_terms (snippet_escaped, terms);
-		g_free (snippet_escaped);
-
-		return snippet_highlighted;
-	}
-
-	ptr = text;
-	i = 0;
-
-	while ((ptr = g_utf8_next_char (ptr)) && ptr <= text_len + text && i < length) {
-		i++;
-
-		if (*ptr == '\n') {
-			break;
-		}
-	}
-
-	if (ptr > text_len + text) {
-		ptr = g_utf8_prev_char (ptr);
-	}
-
-	if (ptr) {
-		gchar *snippet;
-		gchar *snippet_escaped;
-		gchar *snippet_highlighted;
-
-		snippet = g_strndup (text, ptr - text);
-		snippet_escaped = g_markup_escape_text (snippet, ptr - text);
-		snippet_highlighted = search_highlight_terms (snippet_escaped, terms);
-
-		g_free (snippet);
-		g_free (snippet_escaped);
-
-		return snippet_highlighted;
-	} else {
-		return NULL;
-	}
-}
-
-#endif
-
 void
 tracker_search_get_snippet (TrackerSearch	   *object,
 			    const gchar		   *uri,
@@ -394,10 +113,9 @@ tracker_search_get_snippet (TrackerSearch	   *object,
 			    DBusGMethodInvocation  *context,
 			    GError		  **error)
 {
-	TrackerDBInterface *iface;
 #if 0
+	TrackerDBInterface *iface;
 	TrackerDBResultSet *result_set;
-#endif
 	GError		   *actual_error = NULL;
 	guint		    request_id;
 	gchar		   *snippet = NULL;
@@ -439,7 +157,6 @@ tracker_search_get_snippet (TrackerSearch	   *object,
 	}
 
 	/* TODO: Port to SPARQL */
-#if 0
 	result_set = tracker_data_manager_exec_proc (iface,
 					   "GetAllContents",
 					   tracker_guint_to_string (resource_id),
@@ -466,7 +183,6 @@ tracker_search_get_snippet (TrackerSearch	   *object,
 		g_free (text);
 		g_object_unref (result_set);
 	}
-#endif
 
 	/* Sanity check snippet, using NULL will crash */
 	if (!snippet || !g_utf8_validate (snippet, -1, NULL) ) {
@@ -478,6 +194,25 @@ tracker_search_get_snippet (TrackerSearch	   *object,
 	g_free (snippet);
 
 	tracker_dbus_request_success (request_id);
+#else
+	GError *actual_error = NULL;
+	gint request_id;
+
+	/* TODO: Port to SPARQL */
+	request_id = tracker_dbus_get_next_request_id ();
+
+	tracker_dbus_async_return_if_fail (search_text != NULL, context);
+
+	tracker_dbus_request_new (request_id,
+				  "%s: term:'%s'",
+				  __FUNCTION__,
+				  search_text);
+	tracker_dbus_request_failed (request_id,
+				     &actual_error,
+				     _("Function unsupported or not ported to SparQL yet"));
+	dbus_g_method_return_error (context, actual_error);
+	g_error_free (actual_error);
+#endif
 }
 
 void
@@ -488,13 +223,10 @@ tracker_search_suggest (TrackerSearch	       *object,
 			GError		      **error)
 {
 #if 0
-	GError		     *actual_error = NULL;
-#endif
 	TrackerSearchPrivate *priv;
 	guint		      request_id;
-#if 0
+ 	GError		     *actual_error = NULL;
 	gchar		     *value;
-#endif
 
 	request_id = tracker_dbus_get_next_request_id ();
 
@@ -509,7 +241,6 @@ tracker_search_suggest (TrackerSearch	       *object,
 	priv = TRACKER_SEARCH_GET_PRIVATE (object);
 
 	/* TODO: Port to SPARQL */
-#if 0
 	value = tracker_db_index_get_suggestion (priv->resources_index,
 						 search_text,
 						 max_dist);
@@ -530,8 +261,27 @@ tracker_search_suggest (TrackerSearch	       *object,
 				      search_text, value);
 		g_free (value);
 	}
-#endif
 
 	tracker_dbus_request_success (request_id);
+#else
+	GError *actual_error = NULL;
+	gint request_id;
+
+	/* TODO: Port to SPARQL */
+	request_id = tracker_dbus_get_next_request_id ();
+
+	tracker_dbus_async_return_if_fail (search_text != NULL, context);
+
+	tracker_dbus_request_new (request_id,
+				  "%s: term:'%s', max dist:%d",
+				  __FUNCTION__,
+				  search_text,
+				  max_dist);
+	tracker_dbus_request_failed (request_id,
+				     &actual_error,
+				     _("Function unsupported or not ported to SparQL yet"));
+	dbus_g_method_return_error (context, actual_error);
+	g_error_free (actual_error);
+#endif
 }
 
