@@ -286,6 +286,8 @@ tracker_dbus_register_objects (TrackerConfig	*config,
 				g_free (namespace_uri);
 			}
 
+			g_free (uri);
+
 			path = g_strdup_printf (TRACKER_RESOURCES_CLASS_PATH,
 						replaced);
 
