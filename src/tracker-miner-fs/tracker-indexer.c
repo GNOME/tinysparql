@@ -1379,6 +1379,8 @@ item_process (TrackerIndexer *indexer,
 		item_remove (indexer, info, uri, mime_type);
 	}
 
+	g_free (mime_type);
+
 	return TRUE;
 }
 
