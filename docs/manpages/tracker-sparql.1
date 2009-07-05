@@ -1,0 +1,124 @@
+.TH tracker-sparql 1 "July 2009" GNU "User Commands"
+
+.SH NAME
+tracker-sparql \- Use SparQL to query the Tracker databases.
+
+.SH SYNOPSYS
+.B tracker-sparql [-p <path> | -q <query>]
+
+.SH DESCRIPTION
+.B tracker-sparql
+Allows the caller to run an RDF SparQL query on the Tracker database.
+This can be done two ways. Either by providing a path to a file with
+the query or by providing a string with the query on the command line.
+
+.SH EXAMPLES
+.TP
+List all classes
+
+.BR
+$ tracker-sparql -q "SELECT ?cl WHERE { ?cl a rdfs:Class }"
+
+.TP
+List all properties for the Resources class
+
+.BR
+.NF
+$ tracker-sparql -q "SELECT ?prop WHERE { 
+      ?prop a rdf:Property ; 
+      rdfs:domain <http://www.w3.org/2000/01/rdf-schema#Resource> 
+ }"
+.FI
+
+.TP
+List all class namespace prefixes
+
+.BR
+.NF
+$ tracker-sparql -q "SELECT ?prefix ?ns WHERE { 
+      ?ns a tracker:Namespace ;
+      tracker:prefix ?prefix 
+ }"
+.FI
+
+.TP
+List all music files
+
+.BR
+$ tracker-sparql -q "SELECT ?song WHERE { ?song a nmm:MusicPiece }"
+
+.TP
+List all music albums
+
+.BR
+.NF
+$ tracker-sparql -q "SELECT ?album ?title COUNT(?song) 
+                     AS songs 
+                     SUM(?length) AS totallength 
+                     WHERE {
+      ?album a nmm:MusicAlbum ;
+      nie:title ?title .
+      ?song nmm:musicAlbum ?album ;
+      nmm:length ?length
+ } GROUP BY ?album"
+.FI
+
+.TP
+List all music from a particular artist
+
+.BR
+.NF
+$ tracker-sparql -q "SELECT ?song ?title WHERE {
+      ?song nmm:performer [ nmm:artistName 'Artist Name' ] ;
+      nie:title ?title
+ }"
+.FI
+
+.TP
+Set the played count for a song
+
+.BR
+.NF
+$ tracker-sparql -u -q "DELETE {
+      <file:///home/user/Music/song.mp3> nie:usageCounter ?count
+ } WHERE {
+      <file:///home/user/Music/song.mp3> nie:usageCounter ?count
+ } INSERT {
+      <file:///home/user/Music/song.mp3> nie:usageCounter 42
+ }"
+.FI
+
+.TP
+List all image files
+
+.BR
+$ tracker-sparql -q "SELECT ?image WHERE { ?image a nfo:Image }"
+
+.TP
+List all image files with a specific tag
+
+.BR
+.NF
+$ tracker-sparql -q "SELECT ?image WHERE { 
+      ?image a nfo:Image ;
+      nao:hasTag [ nao:prefLabel 'tag' ] 
+ }"
+.FI
+
+.TP
+List all image files created on a specific month and order by date
+
+.BR
+.NF
+$ tracker-sparql -q "SELECT ?image ?date WHERE {
+      ?image a nfo:Image ; 
+      nie:contentCreated ?date .
+      FILTER (?date >= '2008-07-01T00:00:00' &&
+              ?date <  '2008-08-01T00:00:00')
+ } ORDER BY ?date"
+.FI
+
+.SH SEE ALSO
+.BR tracker-store (1)
+.TP
+.BR http://www.w3.org/TR/rdf-sparql-query/
