@@ -277,7 +277,7 @@ AC_ARG_WITH([session_bus_services_dir],
 	                   [Path to DBus services directory]))
 
 if test "x$with_session_bus_services_dir" = "x" ; then
-   services_dir="`pkg-config --variable session_bus_services_dir dbus-1`"
+   services_dir="$datadir/dbus-1/services"
 else
    services_dir="$with_session_bus_services_dir"
 fi
