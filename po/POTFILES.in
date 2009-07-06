@@ -35,3 +35,4 @@ src/tracker-utils/tracker-status.c
 src/tracker-utils/tracker-tag.c
 src/tracker-store/tracker-main.c
 src/tracker-store/tracker-search.c
+src/tracker-explorer/explorer.ui

@@ -51,7 +51,6 @@ DIST_SUBDIRS = 					\
 	tracker-miner-fs			\
 	libtracker-gtk				\
 	tracker-applet	 			\
-	tracker-explorer			\
 	tracker-search-tool			\
 	tracker-preferences			\
 	plugins

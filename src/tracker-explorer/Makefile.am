@@ -1,3 +1,5 @@
+include $(top_srcdir)/Makefile.decl
+
 bin_PROGRAMS = tracker-explorer
 
 tracker_explorer_VALASOURCES = \
@@ -43,11 +45,7 @@ EXTRA_DIST = \
 	$(tracker_explorer_SOURCES) \
 	$(tracker_explorer_VALASOURCES) \
 	tracker_explorer.vala.stamp \
-	$(NULL)
-
-DISTCLEANFILES = \
-	*.gcno \
-	*.gcda \
+	explorer.ui \
 	$(NULL)
 
 MAINTAINERCLEANFILES = \
