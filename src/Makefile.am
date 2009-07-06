@@ -1,9 +1,5 @@
 include $(top_srcdir)/Makefile.decl
 
-if HAVE_INOTIFY
-build_libinotify = libinotify
-endif
-
 if HAVE_TRACKER_PREFERENCES
 build_tracker_preferences = tracker-preferences
 endif
@@ -22,7 +18,7 @@ endif
 
 SUBDIRS = 					\
 	libstemmer				\
-	$(build_libinotify)			\
+	libinotify				\
 	rasqal		 			\
 	libtracker-common 			\
 	libtracker-db				\

@@ -28,11 +28,8 @@
 #include <libtracker-common/tracker-status.h>
 #include <libtracker-common/tracker-module-config.h>
 
-#ifdef HAVE_INOTIFY
 #include <sys/inotify.h>
 #include <libinotify/libinotify.h>
-#define USE_LIBINOTIFY
-#endif /* HAVE_INOTIFY */
 
 #include "tracker-monitor.h"
 #include "tracker-dbus.h"
@@ -77,13 +74,11 @@ struct _TrackerMonitorPrivate {
 	guint	       unpause_timeout_id;
 #endif /* PAUSE_ON_IO */
 
-#ifdef USE_LIBINOTIFY
 	GHashTable    *event_pairs;
 	guint	       event_pairs_timeout_id;
 
 	GHashTable    *cached_events;
 	guint	       cached_events_timeout_id;
-#endif /* USE_LIBINOTIFY */
 };
 
 typedef struct {
@@ -120,11 +115,9 @@ static EventData *    event_data_new               (GFile          *file,
 static void           event_data_free              (gpointer        data);
 static guint          get_inotify_limit            (void);
 
-#ifdef USE_LIBINOTIFY
 static INotifyHandle *libinotify_monitor_directory (TrackerMonitor *monitor,
 						    GFile          *file);
 static void           libinotify_monitor_cancel    (gpointer        data);
-#endif /* USE_LIBINOTIFY */
 
 static guint signals[LAST_SIGNAL] = { 0, };
 
@@ -226,7 +219,6 @@ tracker_monitor_init (TrackerMonitor *object)
 				       g_free,
 				       (GDestroyNotify) g_hash_table_unref);
 
-#ifdef USE_LIBINOTIFY
 	/* We have a hash table with cookies so we can pair up move
 	 * events.
 	 */
@@ -245,7 +237,6 @@ tracker_monitor_init (TrackerMonitor *object)
 				       (GEqualFunc) g_file_equal,
 				       g_object_unref,
 				       event_data_free);
-#endif /* USE_LIBINOTIFY */
 
 	all_modules = tracker_module_config_get_modules ();
 
@@ -253,19 +244,11 @@ tracker_monitor_init (TrackerMonitor *object)
 		GHashTable *monitors;
 
 		/* Create monitors table for this module */
-#ifdef USE_LIBINOTIFY
 		monitors =
 			g_hash_table_new_full (g_file_hash,
 					       (GEqualFunc) g_file_equal,
 					       (GDestroyNotify) g_object_unref,
 					       (GDestroyNotify) libinotify_monitor_cancel);
-#else  /* USE_LIBINOTIFY */
-		monitors =
-			g_hash_table_new_full (g_file_hash,
-					       (GEqualFunc) g_file_equal,
-					       (GDestroyNotify) g_object_unref,
-					       (GDestroyNotify) g_file_monitor_cancel);
-#endif /* USE_LIBINOTIFY */
 
 		g_hash_table_insert (priv->modules, g_strdup (l->data), monitors);
 	}
@@ -367,7 +350,6 @@ tracker_monitor_finalize (GObject *object)
 	}
 #endif /* PAUSE_ON_IO */
 
-#ifdef USE_LIBINOTIFY
 	if (priv->cached_events_timeout_id) {
 		g_source_remove (priv->cached_events_timeout_id);
 	}
@@ -378,7 +360,6 @@ tracker_monitor_finalize (GObject *object)
 
 	g_hash_table_unref (priv->cached_events);
 	g_hash_table_unref (priv->event_pairs);
-#endif /* USE_LIBINOTIFY */
 
 	g_hash_table_unref (priv->modules);
 
@@ -605,7 +586,6 @@ unpause_cb (gpointer data)
 
 #endif /* PAUSE_ON_IO */
 
-#ifdef USE_LIBINOTIFY
 
 static gchar *
 libinotify_monitor_event_to_string (guint32 event_type)
@@ -1357,145 +1337,6 @@ libinotify_monitor_cancel (gpointer data)
 	inotify_monitor_remove (data);
 }
 
-#else  /* USE_LIBINOTIFY */
-
-static const gchar *
-monitor_event_to_string (GFileMonitorEvent event_type)
-{
-	switch (event_type) {
-	case G_FILE_MONITOR_EVENT_CHANGED:
-		return "G_FILE_MONITOR_EVENT_CHANGED";
-	case G_FILE_MONITOR_EVENT_CHANGES_DONE_HINT:
-		return "G_FILE_MONITOR_EVENT_CHANGES_DONE_HINT";
-	case G_FILE_MONITOR_EVENT_DELETED:
-		return "G_FILE_MONITOR_EVENT_DELETED";
-	case G_FILE_MONITOR_EVENT_CREATED:
-		return "G_FILE_MONITOR_EVENT_CREATED";
-	case G_FILE_MONITOR_EVENT_ATTRIBUTE_CHANGED:
-		return "G_FILE_MONITOR_EVENT_ATTRIBUTE_CHANGED";
-	case G_FILE_MONITOR_EVENT_PRE_UNMOUNT:
-		return "G_FILE_MONITOR_EVENT_PRE_UNMOUNT";
-	case G_FILE_MONITOR_EVENT_UNMOUNTED:
-		return "G_FILE_MONITOR_EVENT_UNMOUNTED";
-	}
-
-	return "unknown";
-}
-
-static void
-monitor_event_cb (GFileMonitor	    *file_monitor,
-		  GFile		    *file,
-		  GFile		    *other_file,
-		  GFileMonitorEvent  event_type,
-		  gpointer	     user_data)
-{
-	TrackerMonitor *monitor;
-	const gchar    *module_name;
-	gchar	       *str1;
-	gchar	       *str2;
-	gboolean	is_directory;
-
-	monitor = user_data;
-
-	if (G_UNLIKELY (!monitor->private->enabled)) {
-		g_debug ("Silently dropping monitor event, monitor disabled for now");
-		return;
-	}
-
-	module_name = get_module_name_from_gfile (monitor,
-						  file,
-						  &is_directory);
-	if (!module_name) {
-		return;
-	}
-
-	str1 = g_file_get_path (file);
-
-	if (other_file) {
-		str2 = g_file_get_path (other_file);
-	} else {
-		str2 = NULL;
-	}
-
-	g_message ("Received monitor event:%d->'%s' for file:'%s' and other file:'%s'",
-		   event_type,
-		   monitor_event_to_string (event_type),
-		   str1,
-		   str2 ? str2 : "");
-
-#ifdef PAUSE_ON_IO
-	if (monitor->private->unpause_timeout_id != 0) {
-		g_source_remove (monitor->private->unpause_timeout_id);
-	} else {
-		g_message ("Pausing indexing because we are "
-			   "receiving monitor events");
-
-		tracker_status_set_is_paused_for_io (TRUE);
-	}
-
-	monitor->private->unpause_timeout_id =
-		g_timeout_add_seconds (PAUSE_ON_IO_SECONDS,
-				       unpause_cb,
-				       monitor);
-#endif /* PAUSE_ON_IO */
-
-	switch (event_type) {
-	case G_FILE_MONITOR_EVENT_CHANGED:
-		if (!monitor->private->use_changed_event) {
-			/* Do nothing */
-			break;
-		}
-
-	case G_FILE_MONITOR_EVENT_CHANGES_DONE_HINT:
-	case G_FILE_MONITOR_EVENT_ATTRIBUTE_CHANGED:
-		g_signal_emit (monitor,
-			       signals[ITEM_UPDATED], 0,
-			       module_name,
-			       file,
-			       is_directory);
-		break;
-
-	case G_FILE_MONITOR_EVENT_DELETED:
-		if (is_directory) {
-			tracker_monitor_remove (monitor,
-						module_name,
-						file);
-		}
-
-		g_signal_emit (monitor,
-			       signals[ITEM_DELETED], 0,
-			       module_name,
-			       file,
-			       is_directory);
-		break;
-
-	case G_FILE_MONITOR_EVENT_CREATED:
-		g_signal_emit (monitor,
-			       signals[ITEM_CREATED], 0,
-			       module_name,
-			       file,
-			       is_directory);
-		break;
-
-	case G_FILE_MONITOR_EVENT_PRE_UNMOUNT:
-		g_signal_emit (monitor,
-			       signals[ITEM_DELETED], 0,
-			       module_name,
-			       file,
-			       is_directory);
-		break;
-
-	case G_FILE_MONITOR_EVENT_UNMOUNTED:
-		/* Do nothing */
-		break;
-	}
-
-	g_free (str1);
-	g_free (str2);
-}
-
-#endif /* USE_LIBINOTIFY */
-
 TrackerMonitor *
 tracker_monitor_new (TrackerConfig *config)
 {
@@ -1537,12 +1378,7 @@ tracker_monitor_add (TrackerMonitor *monitor,
 		     const gchar    *module_name,
 		     GFile	    *file)
 {
-#ifdef USE_LIBINOTIFY
 	INotifyHandle *file_monitor;
-#else  /* USE_LIBINOTIFY */
-	GFileMonitor *file_monitor;
-	GError	     *error = NULL;
-#endif /* USE_LIBINOTIFY */
 	GHashTable   *monitors;
 	GSList	     *ignored_roots;
 	GSList	     *l;
@@ -1600,7 +1436,6 @@ tracker_monitor_add (TrackerMonitor *monitor,
 	 *
 	 * Also, we assume ALL paths passed are directories.
 	 */
-#ifdef USE_LIBINOTIFY
 	file_monitor = libinotify_monitor_directory (monitor, file);
 
 	if (!file_monitor) {
@@ -1613,29 +1448,6 @@ tracker_monitor_add (TrackerMonitor *monitor,
 	g_hash_table_insert (monitors,
 			     g_object_ref (file),
 			     file_monitor);
-#else  /* USE_LIBINOTIFY */
-	file_monitor = g_file_monitor_directory (file,
-						 G_FILE_MONITOR_WATCH_MOUNTS,
-						 NULL,
-						 &error);
-
-	if (error) {
-		g_warning ("Could not add monitor for path:'%s', %s",
-			   path,
-			   error->message);
-		g_free (path);
-		g_error_free (error);
-		return FALSE;
-	}
-
-	g_signal_connect (file_monitor, "changed",
-			  G_CALLBACK (monitor_event_cb),
-			  monitor);
-
-	g_hash_table_insert (monitors,
-			     g_object_ref (file),
-			     file_monitor);
-#endif /* USE_LIBINOTIFY */
 
 	g_debug ("Added monitor for module:'%s', path:'%s', total monitors:%d",
 		 module_name,

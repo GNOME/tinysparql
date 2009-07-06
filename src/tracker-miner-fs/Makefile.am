@@ -19,9 +19,7 @@ INCLUDES =								\
 	$(GCOV_CFLAGS)							\
 	$(RAPTOR_CFLAGS)
 
-if HAVE_INOTIFY
-inotify_libs = $(top_builddir)/src/libinotify/libinotify.la
-endif
+
 
 libtracker_moduledir = $(libdir)/tracker-$(TRACKER_API_VERSION)
 libtracker_moduleincludedir=$(includedir)/tracker-$(TRACKER_API_VERSION)/libtracker-module/
@@ -70,8 +68,8 @@ tracker_miner_fs_LDADD =						\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
 	$(top_builddir)/src/libtracker/libtrackerclient-@TRACKER_API_VERSION@.la \
 	$(top_builddir)/src/libstemmer/libstemmer.la	 		\
+	$(top_builddir)/src/libinotify/libinotify.la			\
 	$(tracker_store_win_libs)					\
-	$(inotify_libs)							\
 	$(DBUS_LIBS)							\
 	$(GMODULE_LIBS)							\
 	$(GTHREAD_LIBS)							\

@@ -608,14 +608,7 @@ fi
 #  libinotify
 ####################################################################
 
-have_inotify=no
-AC_CHECK_HEADERS([sys/inotify.h],[have_inotify=yes])
-
-AM_CONDITIONAL(HAVE_INOTIFY, test "$have_inotify" = "yes")
-
-if test "$have_inotify" = "yes" ; then
-   AC_DEFINE(HAVE_INOTIFY, 1, [Define if we have inotify])
-fi
+AC_CHECK_HEADERS([sys/inotify.h])
 
 ####################################################################
 #  SQLite check
@@ -1441,7 +1434,6 @@ Build Configuration:
 	Enable unit tests:			$have_unit_tests
 	Enable unac accent stripper:	  	$have_unac
 
-	Support for file monitoring:           	gio (w/ libinotify: $have_inotify)
 	Support for ioprio:			$have_ioprio
 	Support for HAL:                    	$have_hal
 	Support for DeviceKit-power:           	$have_devkit_power
