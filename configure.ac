@@ -803,6 +803,35 @@ fi
 
 AM_CONDITIONAL(HAVE_TRACKER_APPLET, test "$have_tracker_applet" = "yes")
 
+AC_ARG_ENABLE([tracker-explorer],
+	      AS_HELP_STRING([--enable-tracker-explorer],
+	                     [enable tracker-explorer[[default=auto]]]),,
+	      [enable_tracker_explorer=auto])
+
+if test "x$enable_tracker_explorer" != "xno" ; then
+   PKG_CHECK_MODULES(TRACKER_EXPLORER, [
+		glib-2.0    >= $GLIB_REQUIRED
+		gtk+-2.0    >= $GTK_REQUIRED
+		dbus-1      >= $DBUS_REQUIRED
+		dbus-glib-1 >= $DBUS_REQUIRED],
+		[have_tracker_explorer=yes],
+		[have_tracker_explorer=no])
+
+   AC_SUBST([TRACKER_EXPLORER_CFLAGS])
+   AC_SUBST([TRACKER_EXPLORER_LIBS])
+else
+   have_tracker_explorer="no  (disabled)"
+fi
+
+if test "x$enable_tracker_explorer" = "xyes"; then
+   if test "x$have_tracker_explorer" != "xyes"; then
+      AC_MSG_ERROR([Couldn't find tracker-explorer dependencies (glib-2.0 >= $GLIB_REQUIRED, gtk+-2.0 >= $GTK_REQUIRED, dbus-1 >= $DBUS_REQUIRED, dbus-glib-1 >= $DBUS_REQUIRED).])
+   fi
+fi
+
+AM_CONDITIONAL(HAVE_TRACKER_EXPLORER, test "$have_tracker_explorer" = "yes")
+
+
 ##################################################################
 # Check for GNOME/GTK dependencies to build tracker search tool
 ##################################################################
@@ -1454,6 +1483,7 @@ Applications:
 	Build tracker-preferences:		$have_tracker_preferences
 	Build tracker-applet:	                $have_tracker_applet
 	Build libtracker-gtk:			$have_libtrackergtk
+	Build tracker-explorer:	                $have_tracker_explorer
 
 Metadata Extractors:
 
