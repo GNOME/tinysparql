@@ -63,15 +63,14 @@
 #include <libtracker-data/tracker-data-backup.h>
 #include <libtracker-data/tracker-data-query.h>
 
-#include <tracker-push.h>
-
 #include "tracker-dbus.h"
 #include "tracker-events.h"
 #include "tracker-main.h"
+#include "tracker-push.h"
 #include "tracker-volume-cleanup.h"
 #include "tracker-backup.h"
-#include "tracker-daemon.h"
 #include "tracker-store.h"
+#include "tracker-statistics.h"
 
 #ifdef G_OS_WIN32
 #include <windows.h>
@@ -426,7 +425,7 @@ mount_point_set_and_signal_cb (DBusGProxy *proxy,
 	 * in the volumes table, we have to signal all clients from
 	 * here that the statistics may have changed.
 	 */
-	tracker_daemon_signal_statistics ();
+	tracker_statistics_signal ();
 
 	g_free (user_data);
 }

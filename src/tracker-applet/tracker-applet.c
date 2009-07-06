@@ -521,12 +521,12 @@ auto_pause_timeout (gpointer data)
 		return FALSE;
 	}
 
-	dbus_g_proxy_begin_call (priv->tracker->proxy,
-				 "PromptIndexSignals",
-				 NULL,
-				 NULL,
-				 NULL,
-				 G_TYPE_INVALID);
+	/* dbus_g_proxy_begin_call (priv->tracker->proxy, */
+	/* 			 "PromptIndexSignals", */
+	/* 			 NULL, */
+	/* 			 NULL, */
+	/* 			 NULL, */
+	/* 			 G_TYPE_INVALID); */
 
 	return TRUE;
 }
@@ -1078,13 +1078,13 @@ restart_tracker (GtkDialog *dialog,
 		priv = TRAY_ICON_GET_PRIVATE (icon);
 		priv->reindex = TRUE;
 
-		dbus_g_proxy_begin_call (priv->tracker->proxy,
-					 "Shutdown",
-					 NULL,
-					 NULL,
-					 NULL,
-					 G_TYPE_BOOLEAN,
-					 TRUE, G_TYPE_INVALID);
+		/* dbus_g_proxy_begin_call (priv->tracker->proxy, */
+		/* 			 "Shutdown", */
+		/* 			 NULL, */
+		/* 			 NULL, */
+		/* 			 NULL, */
+		/* 			 G_TYPE_BOOLEAN, */
+		/* 			 TRUE, G_TYPE_INVALID); */
 	}
 }
 
@@ -1218,9 +1218,9 @@ refresh_stats (TrayIcon *icon)
 
 	priv->stat_request_pending = TRUE;
 
-	tracker_get_stats_async (priv->tracker,
-				 (TrackerGPtrArrayReply) update_stats,
-				 icon);
+	tracker_statistics_get_async (priv->tracker,
+                                      (TrackerReplyGPtrArray) update_stats,
+                                      icon);
 }
 
 static void
@@ -1887,68 +1887,68 @@ setup_dbus_connection (TrayIcon *icon)
                                            G_TYPE_BOOLEAN,
                                            G_TYPE_INVALID);
 
-	dbus_g_proxy_add_signal (priv->tracker->proxy,
-				 "IndexStateChange",
-				 G_TYPE_STRING,
-				 G_TYPE_BOOLEAN,
-				 G_TYPE_BOOLEAN,
-				 G_TYPE_BOOLEAN,
-				 G_TYPE_BOOLEAN,
-				 G_TYPE_BOOLEAN,
-				 G_TYPE_BOOLEAN,
-				 G_TYPE_INVALID);
+	/* dbus_g_proxy_add_signal (priv->tracker->proxy, */
+	/* 			 "IndexStateChange", */
+	/* 			 G_TYPE_STRING, */
+	/* 			 G_TYPE_BOOLEAN, */
+	/* 			 G_TYPE_BOOLEAN, */
+	/* 			 G_TYPE_BOOLEAN, */
+	/* 			 G_TYPE_BOOLEAN, */
+	/* 			 G_TYPE_BOOLEAN, */
+	/* 			 G_TYPE_BOOLEAN, */
+	/* 			 G_TYPE_INVALID); */
 
-	dbus_g_proxy_add_signal (priv->tracker->proxy,
-				 "IndexProgress",
-				 G_TYPE_STRING,
-				 G_TYPE_STRING,
-				 G_TYPE_INT,
-				 G_TYPE_INT,
-				 G_TYPE_INT,
-				 G_TYPE_DOUBLE,
-				 G_TYPE_INVALID);
+	/* dbus_g_proxy_add_signal (priv->tracker->proxy, */
+	/* 			 "IndexProgress", */
+	/* 			 G_TYPE_STRING, */
+	/* 			 G_TYPE_STRING, */
+	/* 			 G_TYPE_INT, */
+	/* 			 G_TYPE_INT, */
+	/* 			 G_TYPE_INT, */
+	/* 			 G_TYPE_DOUBLE, */
+	/* 			 G_TYPE_INVALID); */
 
-	dbus_g_proxy_add_signal (priv->tracker->proxy,
-				 "IndexFinished",
-				 G_TYPE_DOUBLE,
-				 G_TYPE_INVALID);
+	/* dbus_g_proxy_add_signal (priv->tracker->proxy, */
+	/* 			 "IndexFinished", */
+	/* 			 G_TYPE_DOUBLE, */
+	/* 			 G_TYPE_INVALID); */
 
-	dbus_g_proxy_add_signal (priv->tracker->proxy,
-				 "ServiceStatisticsUpdated",
+	dbus_g_proxy_add_signal (priv->tracker->proxy_statistics,
+				 "Updated",
 				 TRACKER_TYPE_G_STRV_ARRAY,
 				 G_TYPE_INVALID);
 
-        dbus_g_proxy_add_signal (priv->tracker->proxy,
-                                 "IndexingError",
-                                 G_TYPE_STRING,
-                                 G_TYPE_BOOLEAN,
-                                 G_TYPE_INVALID);
+        /* dbus_g_proxy_add_signal (priv->tracker->proxy, */
+        /*                          "IndexingError", */
+        /*                          G_TYPE_STRING, */
+        /*                          G_TYPE_BOOLEAN, */
+        /*                          G_TYPE_INVALID); */
 
-	dbus_g_proxy_connect_signal (priv->tracker->proxy,
-				     "IndexStateChange",
-				     G_CALLBACK (index_state_changed),
-				     icon,
-				     NULL);
+	/* dbus_g_proxy_connect_signal (priv->tracker->proxy, */
+	/* 			     "IndexStateChange", */
+	/* 			     G_CALLBACK (index_state_changed), */
+	/* 			     icon, */
+	/* 			     NULL); */
 
-	dbus_g_proxy_connect_signal (priv->tracker->proxy,
-				     "IndexProgress",
-				     G_CALLBACK (index_progress_changed),
-				     icon,
-				     NULL);
+	/* dbus_g_proxy_connect_signal (priv->tracker->proxy, */
+	/* 			     "IndexProgress", */
+	/* 			     G_CALLBACK (index_progress_changed), */
+	/* 			     icon, */
+	/* 			     NULL); */
 
-	dbus_g_proxy_connect_signal (priv->tracker->proxy,
-				     "IndexFinished",
-				     G_CALLBACK (index_finished),
-				     icon,
-				     NULL);
-        dbus_g_proxy_connect_signal (priv->tracker->proxy,
-                                     "IndexingError",
-                                     G_CALLBACK (index_error),
-                                     icon,
-                                     NULL);
+	/* dbus_g_proxy_connect_signal (priv->tracker->proxy, */
+	/* 			     "IndexFinished", */
+	/* 			     G_CALLBACK (index_finished), */
+	/* 			     icon, */
+	/* 			     NULL); */
+        /* dbus_g_proxy_connect_signal (priv->tracker->proxy, */
+        /*                              "IndexingError", */
+        /*                              G_CALLBACK (index_error), */
+        /*                              icon, */
+        /*                              NULL); */
 
-	dbus_g_proxy_connect_signal (priv->tracker->proxy,
-				     "ServiceStatisticsUpdated",
+	dbus_g_proxy_connect_signal (priv->tracker->proxy_statistics,
+				     "Updated",
 				     G_CALLBACK (index_service_stats_updated),
 				     icon,
 				     NULL);
@@ -1971,12 +1971,12 @@ setup_dbus_connection (TrayIcon *icon)
 				     icon, NULL);
 
 	/* Prompt for updated signals */
-	dbus_g_proxy_begin_call (priv->tracker->proxy,
-				 "PromptIndexSignals",
-				 NULL,
-				 NULL,
-				 NULL,
-				 G_TYPE_INVALID);
+	/* dbus_g_proxy_begin_call (priv->tracker->proxy, */
+	/* 			 "PromptIndexSignals", */
+	/* 			 NULL, */
+	/* 			 NULL, */
+	/* 			 NULL, */
+	/* 			 G_TYPE_INVALID); */
 
 	return FALSE;
 }

@@ -4,12 +4,12 @@ configdir = $(datadir)/tracker
 
 config_DATA =						\
 	tracker-backup.xml				\
-	tracker-daemon.xml				\
 	tracker-extract.xml				\
 	tracker-miner.xml				\
 	tracker-resources.xml				\
 	tracker-resources-class.xml			\
-	tracker-search.xml
+	tracker-search.xml				\
+	tracker-statistics.xml
 
 # Services
 servicedir = $(DBUS_SERVICES_DIR)

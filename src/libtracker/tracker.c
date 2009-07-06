@@ -23,90 +23,84 @@
 
 #include "tracker.h"
 
-#include "tracker-daemon-glue.h"
 #include "tracker-resources-glue.h"
 #include "tracker-search-glue.h"
+#include "tracker-statistics-glue.h"
 
 #define TRACKER_SERVICE			"org.freedesktop.Tracker"
 #define TRACKER_OBJECT			"/org/freedesktop/Tracker"
-#define TRACKER_INTERFACE		"org.freedesktop.Tracker"
 #define TRACKER_INTERFACE_RESOURCES	"org.freedesktop.Tracker.Resources"
 #define TRACKER_INTERFACE_SEARCH	"org.freedesktop.Tracker.Search"
+#define TRACKER_INTERFACE_STATISTICS	"org.freedesktop.Tracker.Statistics"
 
 typedef struct {
-	TrackerArrayReply callback;
-	gpointer	  data;
-} ArrayCallBackStruct;
+	TrackerReplyGPtrArray callback;
+	gpointer	      data;
+} CallbackGPtrArray;
 
 typedef struct {
-	TrackerGPtrArrayReply callback;
-	gpointer	  data;
-} GPtrArrayCallBackStruct;
+	TrackerReplyString callback;
+	gpointer	   data;
+} CallbackString;
 
 typedef struct {
-	TrackerBooleanReply callback;
-	gpointer	  data;
-} BooleanCallBackStruct;
-
-typedef struct {
-	TrackerStringReply callback;
-	gpointer	  data;
-} StringCallBackStruct;
-
-typedef struct {
-	TrackerIntReply callback;
-	gpointer	  data;
-} IntCallBackStruct;
-
-typedef struct {
-	TrackerVoidReply callback;
-	gpointer	  data;
-} VoidCallBackStruct;
-
+	TrackerReplyVoid callback;
+	gpointer	 data;
+} CallbackVoid;
 
 static void
-tracker_GPtrArray_reply (DBusGProxy *proxy,  GPtrArray *OUT_result, GError *error, gpointer user_data)
+tracker_GPtrArray_reply (DBusGProxy *proxy,  
+                         GPtrArray  *OUT_result, 
+                         GError     *error, 
+                         gpointer    user_data)
 {
 
-	GPtrArrayCallBackStruct *callback_struct;
+	CallbackGPtrArray *s;
 
-	callback_struct = user_data;
+	s = user_data;
 
-	(*(TrackerGPtrArrayReply) callback_struct->callback ) (OUT_result, error, callback_struct->data);
+	(*(TrackerReplyGPtrArray) s->callback) (OUT_result, 
+                                                error, 
+                                                s->data);
 
-	g_free (callback_struct);
-}
-
-
-
-static void
-tracker_string_reply (DBusGProxy *proxy, gchar *OUT_result, GError *error, gpointer user_data)
-{
-
-	StringCallBackStruct *callback_struct;
-
-	callback_struct = user_data;
-
-	(*(TrackerStringReply) callback_struct->callback ) (OUT_result, error, callback_struct->data);
-
-	g_free (callback_struct);
+	g_free (s);
 }
 
 static void
-tracker_void_reply (DBusGProxy *proxy, GError *error, gpointer user_data)
+tracker_string_reply (DBusGProxy *proxy, 
+                      gchar      *OUT_result, 
+                      GError     *error, 
+                      gpointer    user_data)
 {
 
-	VoidCallBackStruct *callback_struct;
+	CallbackString *s;
 
-	callback_struct = user_data;
+	s = user_data;
 
-	(*(TrackerVoidReply) callback_struct->callback ) (error, callback_struct->data);
+	(*(TrackerReplyString) s->callback) (OUT_result, 
+                                             error, 
+                                             s->data);
 
-	g_free (callback_struct);
+	g_free (s);     
 }
 
+static void
+tracker_void_reply (DBusGProxy *proxy, 
+                    GError     *error, 
+                    gpointer    user_data)
+{
 
-/* copied from tracker-module-metadata.c */
+	CallbackVoid *s;
+
+	s = user_data;
+
+	(*(TrackerReplyVoid) s->callback) (error, 
+                                           s->data);
+
+	g_free (s);
+}
+
+/* Copied from tracker-module-metadata.c */
 gchar *
 tracker_sparql_escape (const gchar *str)
 {
@@ -159,7 +153,6 @@ tracker_sparql_escape (const gchar *str)
 	return escaped_string;
 }
 
-
 TrackerClient *
 tracker_connect (gboolean enable_warnings)
 {
@@ -180,11 +173,6 @@ tracker_connect (gboolean enable_warnings)
 		return NULL;
 	}
 
-	proxy = dbus_g_proxy_new_for_name (connection,
-			TRACKER_SERVICE,
-			TRACKER_OBJECT,
-			TRACKER_INTERFACE);
-
 	if (!proxy) {
 		if (enable_warnings) {
 			g_warning ("could not create proxy");
@@ -192,242 +180,321 @@ tracker_connect (gboolean enable_warnings)
 		return NULL;
 	}
 
+	client = g_new0 (TrackerClient, 1);
 
-	client = g_new (TrackerClient, 1);
-	client->proxy = proxy;
+	client->proxy_search = 
+                dbus_g_proxy_new_for_name (connection,
+                                           TRACKER_SERVICE,
+                                           TRACKER_OBJECT "/Search",
+                                           TRACKER_INTERFACE_SEARCH);
 
-	proxy = dbus_g_proxy_new_for_name (connection,
-			TRACKER_SERVICE,
-			TRACKER_OBJECT "/Search",
-			TRACKER_INTERFACE_SEARCH);
+	client->proxy_statistics = 
+                dbus_g_proxy_new_for_name (connection,
+                                           TRACKER_SERVICE,
+                                           TRACKER_OBJECT "/Statistics",
+                                           TRACKER_INTERFACE_STATISTICS);
 
-	client->proxy_search = proxy;
-
-	proxy = dbus_g_proxy_new_for_name (connection,
-			TRACKER_SERVICE,
-			TRACKER_OBJECT "/Resources",
-			TRACKER_INTERFACE_RESOURCES);
-
-	client->proxy_resources = proxy;
-
-
+	client->proxy_resources = 
+                dbus_g_proxy_new_for_name (connection,
+                                           TRACKER_SERVICE,
+                                           TRACKER_OBJECT "/Resources",
+                                           TRACKER_INTERFACE_RESOURCES);
 
 	return client;
-
 }
 
 void
 tracker_disconnect (TrackerClient *client)
 {
-	g_object_unref (client->proxy);
-	g_object_unref (client->proxy_search);
-	g_object_unref (client->proxy_resources);
-	client->proxy = NULL;
-	client->proxy_search = NULL;
-	client->proxy_resources = NULL;
+        if (client->proxy_search) {
+                g_object_unref (client->proxy_search);
+        }
+
+        if (client->proxy_statistics) {
+                g_object_unref (client->proxy_statistics);
+        }
+
+        if (client->proxy_resources) {
+                g_object_unref (client->proxy_resources);
+        }
 
 	g_free (client);
 }
 
-
-
 void
 tracker_cancel_last_call (TrackerClient *client)
 {
-	dbus_g_proxy_cancel_call (client->proxy, client->last_pending_call);
+        
+	dbus_g_proxy_cancel_call (client->pending_proxy, 
+                                  client->pending_call);
 }
-
-
 
 /* dbus synchronous calls */
 GPtrArray *
-tracker_get_stats (TrackerClient *client,  GError **error)
+tracker_statistics_get (TrackerClient  *client,  
+                        GError        **error)
 {
 	GPtrArray *table;
 
-	if (!org_freedesktop_Tracker_get_stats (client->proxy, &table, &*error)) {
+	if (!org_freedesktop_Tracker_Statistics_get (client->proxy_statistics, 
+                                                     &table, 
+                                                     &*error)) {
 		return NULL;
 	}
 
 	return table;
-
-
 }
 
 void
-tracker_resources_load (TrackerClient *client, const char *uri, GError **error)
+tracker_resources_load (TrackerClient  *client, 
+                        const gchar    *uri, 
+                        GError        **error)
 {
-	org_freedesktop_Tracker_Resources_load (client->proxy_resources, uri, &*error);
+	org_freedesktop_Tracker_Resources_load (client->proxy_resources, 
+                                                uri, 
+                                                &*error);
 }
-
 
 GPtrArray *
-tracker_resources_sparql_query (TrackerClient *client, const char *query, GError **error)
+tracker_resources_sparql_query (TrackerClient  *client, 
+                                const gchar    *query, 
+                                GError        **error)
 {
 	GPtrArray *table;
 
-	if (!org_freedesktop_Tracker_Resources_sparql_query (client->proxy_resources, query, &table, &*error)) {
+	if (!org_freedesktop_Tracker_Resources_sparql_query (client->proxy_resources, 
+                                                             query, 
+                                                             &table, 
+                                                             &*error)) {
 		return NULL;
 	}
 
 	return table;
 }
 
+void
+tracker_resources_sparql_update (TrackerClient  *client, 
+                                 const gchar    *query, 
+                                 GError        **error)
+{
+	org_freedesktop_Tracker_Resources_sparql_update (client->proxy_resources, 
+                                                         query, 
+                                                         &*error);
+}
 
 void
-tracker_resources_sparql_update (TrackerClient *client, const char *query, GError **error)
+tracker_resources_batch_sparql_update (TrackerClient  *client, 
+                                       const gchar    *query, 
+                                       GError        **error)
 {
-	org_freedesktop_Tracker_Resources_sparql_update (client->proxy_resources, query, &*error);
+	org_freedesktop_Tracker_Resources_batch_sparql_update (client->proxy_resources, 
+                                                               query, 
+                                                               &*error);
+}
+
+void
+tracker_resources_batch_commit (TrackerClient  *client, 
+                                GError        **error)
+{
+	org_freedesktop_Tracker_Resources_batch_commit (client->proxy_resources,
+                                                        &*error);
 }
 
 
-void
-tracker_resources_batch_sparql_update (TrackerClient *client, const char *query, GError **error)
+gchar *
+tracker_search_get_snippet (TrackerClient  *client, 
+                            const gchar    *uri, 
+                            const gchar    *search_text, 
+                            GError        **error)
 {
-	org_freedesktop_Tracker_Resources_batch_sparql_update (client->proxy_resources, query, &*error);
-}
+	gchar *result;
 
-
-void
-tracker_resources_batch_commit (TrackerClient *client, GError **error)
-{
-	org_freedesktop_Tracker_Resources_batch_commit (client->proxy_resources, &*error);
-}
-
-
-char *
-tracker_search_get_snippet (TrackerClient *client, const char *uri, const char *search_text, GError **error)
-{
-	char *result;
-
-	if (!org_freedesktop_Tracker_Search_get_snippet (client->proxy_search, uri, search_text, &result, &*error)) {
+	if (!org_freedesktop_Tracker_Search_get_snippet (client->proxy_search, 
+                                                         uri, 
+                                                         search_text, 
+                                                         &result, 
+                                                         &*error)) {
 		return NULL;
 	}
 
 	return result;
-
-
 }
 
-
-char *
-tracker_search_suggest (TrackerClient *client, const char *search_term, int maxdist, GError **error)
+gchar *
+tracker_search_suggest (TrackerClient  *client, 
+                        const gchar    *search_term, 
+                        gint            maxdist, 
+                        GError        **error)
 {
 	gchar *result;
-	if (org_freedesktop_Tracker_Search_suggest (client->proxy_search, search_term, maxdist, &result, &*error)) {
+
+	if (org_freedesktop_Tracker_Search_suggest (client->proxy_search, 
+                                                    search_term, 
+                                                    maxdist, 
+                                                    &result, 
+                                                    &*error)) {
 		return result;
 	}
+
 	return NULL;
 }
 
 void
-tracker_get_stats_async	(TrackerClient *client,  TrackerGPtrArrayReply callback, gpointer user_data)
+tracker_statistics_get_async (TrackerClient         *client,  
+                              TrackerReplyGPtrArray  callback, 
+                              gpointer               user_data)
 {
-	GPtrArrayCallBackStruct *callback_struct;
+	CallbackGPtrArray *s;
 
-	callback_struct = g_new (GPtrArrayCallBackStruct, 1);
-	callback_struct->callback = callback;
-	callback_struct->data = user_data;
+	s = g_new0 (CallbackGPtrArray, 1);
+	s->callback = callback;
+	s->data = user_data;
 
-	client->last_pending_call = org_freedesktop_Tracker_get_stats_async (client->proxy, tracker_GPtrArray_reply, callback_struct);
-
+        client->pending_proxy = client->proxy_statistics;
+	client->pending_call = 
+                org_freedesktop_Tracker_Statistics_get_async (client->proxy_statistics, 
+                                                              tracker_GPtrArray_reply, 
+                                                              s);
 }
 
 void
-tracker_resources_load_async (TrackerClient *client, const char *uri, TrackerVoidReply callback, gpointer user_data)
+tracker_resources_load_async (TrackerClient     *client, 
+                              const gchar       *uri, 
+                              TrackerReplyVoid  callback, 
+                              gpointer user_data)
 {
-	VoidCallBackStruct *callback_struct;
+	CallbackVoid *s;
 
-	callback_struct = g_new (VoidCallBackStruct, 1);
-	callback_struct->callback = callback;
-	callback_struct->data = user_data;
+	s = g_new0 (CallbackVoid, 1);
+	s->callback = callback;
+	s->data = user_data;
 
-	client->last_pending_call = org_freedesktop_Tracker_Resources_load_async (client->proxy_resources, uri, tracker_void_reply, callback_struct);
-
+        client->pending_proxy = client->proxy_resources;
+	client->pending_call = 
+                org_freedesktop_Tracker_Resources_load_async (client->proxy_resources, 
+                                                              uri, 
+                                                              tracker_void_reply, 
+                                                              s);
 }
-
 
 void
-tracker_resources_sparql_query_async (TrackerClient *client, const char *query, TrackerGPtrArrayReply callback, gpointer user_data)
+tracker_resources_sparql_query_async (TrackerClient         *client, 
+                                      const gchar           *query, 
+                                      TrackerReplyGPtrArray  callback, 
+                                      gpointer               user_data)
 {
-	GPtrArrayCallBackStruct *callback_struct;
+	CallbackGPtrArray *s;
 
-	callback_struct = g_new (GPtrArrayCallBackStruct, 1);
-	callback_struct->callback = callback;
-	callback_struct->data = user_data;
+	s = g_new0 (CallbackGPtrArray, 1);
+	s->callback = callback;
+	s->data = user_data;
 
-	client->last_pending_call = org_freedesktop_Tracker_Resources_sparql_query_async (client->proxy_resources, query, tracker_GPtrArray_reply, callback_struct);
-
+        client->pending_proxy = client->proxy_resources;
+	client->pending_call = 
+                org_freedesktop_Tracker_Resources_sparql_query_async (client->proxy_resources, 
+                                                                      query, 
+                                                                      tracker_GPtrArray_reply, 
+                                                                      s);
 }
-
 
 void
-tracker_resources_sparql_update_async (TrackerClient *client, const char *query, TrackerVoidReply callback, gpointer user_data)
+tracker_resources_sparql_update_async (TrackerClient    *client, 
+                                       const gchar      *query, 
+                                       TrackerReplyVoid  callback, 
+                                       gpointer          user_data)
 {
-	VoidCallBackStruct *callback_struct;
+	CallbackVoid *s;
 
-	callback_struct = g_new (VoidCallBackStruct, 1);
-	callback_struct->callback = callback;
-	callback_struct->data = user_data;
+	s = g_new0 (CallbackVoid, 1);
+	s->callback = callback;
+	s->data = user_data;
 
-	client->last_pending_call = org_freedesktop_Tracker_Resources_sparql_update_async (client->proxy_resources, query, tracker_void_reply, callback_struct);
-
+        client->pending_proxy = client->proxy_resources;
+	client->pending_call = 
+                org_freedesktop_Tracker_Resources_sparql_update_async (client->proxy_resources, 
+                                                                       query, 
+                                                                       tracker_void_reply, 
+                                                                       s);
 }
-
 
 void
-tracker_resources_batch_sparql_update_async (TrackerClient *client, const char *query, TrackerVoidReply callback, gpointer user_data)
+tracker_resources_batch_sparql_update_async (TrackerClient    *client, 
+                                             const gchar      *query, 
+                                             TrackerReplyVoid  callback, 
+                                             gpointer          user_data)
 {
-	VoidCallBackStruct *callback_struct;
+	CallbackVoid *s;
 
-	callback_struct = g_new (VoidCallBackStruct, 1);
-	callback_struct->callback = callback;
-	callback_struct->data = user_data;
+	s = g_new0 (CallbackVoid, 1);
+	s->callback = callback;
+	s->data = user_data;
 
-	client->last_pending_call = org_freedesktop_Tracker_Resources_batch_sparql_update_async (client->proxy_resources, query, tracker_void_reply, callback_struct);
-
+        client->pending_proxy = client->proxy_resources;
+	client->pending_call = 
+                org_freedesktop_Tracker_Resources_batch_sparql_update_async (client->proxy_resources, 
+                                                                             query, 
+                                                                             tracker_void_reply, 
+                                                                             s);
 }
-
 
 void
-tracker_resources_batch_commit_async (TrackerClient *client, TrackerVoidReply callback, gpointer user_data)
+tracker_resources_batch_commit_async (TrackerClient    *client, 
+                                      TrackerReplyVoid  callback, 
+                                      gpointer          user_data)
 {
-	VoidCallBackStruct *callback_struct;
+	CallbackVoid *s;
 
-	callback_struct = g_new (VoidCallBackStruct, 1);
-	callback_struct->callback = callback;
-	callback_struct->data = user_data;
+	s = g_new0 (CallbackVoid, 1);
+	s->callback = callback;
+	s->data = user_data;
 
-	client->last_pending_call = org_freedesktop_Tracker_Resources_batch_commit_async (client->proxy_resources, tracker_void_reply, callback_struct);
-
+        client->pending_proxy = client->proxy_resources;
+	client->pending_call = 
+                org_freedesktop_Tracker_Resources_batch_commit_async (client->proxy_resources, 
+                                                                      tracker_void_reply, 
+                                                                      s);
 }
-
 
 void
-tracker_search_get_snippet_async (TrackerClient *client, const char *uri, const char *search_text, TrackerStringReply callback, gpointer user_data)
+tracker_search_get_snippet_async (TrackerClient      *client, 
+                                  const gchar        *uri, 
+                                  const gchar        *search_text, 
+                                  TrackerReplyString  callback, 
+                                  gpointer            user_data)
 {
-	StringCallBackStruct *callback_struct;
+	CallbackString *s;
 
-	callback_struct = g_new (StringCallBackStruct, 1);
-	callback_struct->callback = callback;
-	callback_struct->data = user_data;
+	s = g_new0 (CallbackString, 1);
+	s->callback = callback;
+	s->data = user_data;
 
-	client->last_pending_call = org_freedesktop_Tracker_Search_get_snippet_async (client->proxy_search, uri, search_text, tracker_string_reply, callback_struct);
-
+        client->pending_proxy = client->proxy_search;
+	client->pending_call = 
+                org_freedesktop_Tracker_Search_get_snippet_async (client->proxy_search, 
+                                                                  uri, 
+                                                                  search_text, 
+                                                                  tracker_string_reply, 
+                                                                  s);
 }
-
 
 void
-tracker_search_suggest_async (TrackerClient *client, const char *search_text, int maxdist, TrackerStringReply callback, gpointer user_data)
+tracker_search_suggest_async (TrackerClient      *client, 
+                              const gchar        *search_text, 
+                              gint                maxdist, 
+                              TrackerReplyString  callback, 
+                              gpointer            user_data)
 {
+	CallbackString *s;
 
-	StringCallBackStruct *callback_struct;
+	s = g_new0 (CallbackString, 1);
+	s->callback = callback;
+	s->data = user_data;
 
-	callback_struct = g_new (StringCallBackStruct, 1);
-	callback_struct->callback = callback;
-	callback_struct->data = user_data;
-
-	client->last_pending_call = org_freedesktop_Tracker_Search_suggest_async (client->proxy_search, search_text, maxdist,  tracker_string_reply, callback_struct);
-
+        client->pending_proxy = client->proxy_search;
+	client->pending_call = 
+                org_freedesktop_Tracker_Search_suggest_async (client->proxy_search, 
+                                                              search_text, 
+                                                              maxdist,  
+                                                              tracker_string_reply, 
+                                                              s);
 }
-

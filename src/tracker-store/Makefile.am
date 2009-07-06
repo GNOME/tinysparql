@@ -29,8 +29,6 @@ libexec_PROGRAMS = tracker-store
 tracker_store_SOURCES =							\
 	tracker-backup.h						\
 	tracker-backup.c						\
-	tracker-daemon.c						\
-	tracker-daemon.h						\
 	tracker-dbus.c							\
 	tracker-dbus.h							\
 	tracker-events.c						\
@@ -50,6 +48,8 @@ tracker_store_SOURCES =							\
 	tracker-push-registrar.h					\
 	tracker-resource-class.c					\
 	tracker-resource-class.h					\
+	tracker-statistics.c						\
+	tracker-statistics.h						\
 	tracker-store.c							\
 	tracker-store.h
 
@@ -91,9 +91,9 @@ marshal_sources =                                         		\
 
 dbus_sources = 								\
 	tracker-backup-glue.h						\
-	tracker-daemon-glue.h						\
 	tracker-resources-glue.h					\
 	tracker-search-glue.h						\
+	tracker-statistics-glue.h					\
 	tracker-resources-class-glue.h
 
 %-glue.h: $(top_srcdir)/data/dbus/%.xml

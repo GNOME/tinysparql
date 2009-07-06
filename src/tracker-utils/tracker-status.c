@@ -509,7 +509,7 @@ main (gint argc, gchar *argv[])
 
 		g_print ("Press Ctrl+C to end follow of Tracker state\n");
 
-		proxy = client->proxy;
+		proxy = client->proxy_statistics;
 
 		/* Set signal handlers */
 		dbus_g_object_register_marshaller (tracker_VOID__STRING_BOOLEAN_BOOLEAN_BOOLEAN_BOOLEAN_BOOLEAN,

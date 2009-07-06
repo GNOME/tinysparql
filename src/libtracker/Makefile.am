@@ -15,23 +15,23 @@ libtrackerclientincdir = $(includedir)/tracker-$(TRACKER_API_VERSION)
 
 libtrackerclient_@TRACKER_API_VERSION@_la_SOURCES = tracker.c
 
-libtrackerclient_@TRACKER_API_VERSION@_la_LDFLAGS = 			\
+libtrackerclient_@TRACKER_API_VERSION@_la_LDFLAGS = 	\
 	-version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE)
 
-libtrackerclient_@TRACKER_API_VERSION@_la_LIBADD = 			\
-	$(GLIB2_LIBS) 				\
-	$(DBUS_LIBS)				\
-	$(GCOV_LIBS)				\
+libtrackerclient_@TRACKER_API_VERSION@_la_LIBADD =	\
+	$(GLIB2_LIBS) 					\
+	$(DBUS_LIBS)					\
+	$(GCOV_LIBS)					\
 	$(GOBJECT_LIBS)
 
 libtrackerclientinc_HEADERS = 				\
 	tracker.h
 
 # Generate DBus files from XML data.
-dbus_sources = 					\
-	tracker-daemon-glue.h			\
-	tracker-resources-glue.h		\
-	tracker-search-glue.h
+dbus_sources = 						\
+	tracker-resources-glue.h			\
+	tracker-search-glue.h				\
+	tracker-statistics-glue.h
 
 %-glue.h: $(top_srcdir)/data/dbus/%.xml
 	$(DBUSBINDINGTOOL) --mode=glib-client --output=$@ --prefix=$(subst -,_,$*) $^

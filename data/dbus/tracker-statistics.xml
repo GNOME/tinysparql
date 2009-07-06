@@ -17,12 +17,12 @@
   -->
 
 <node name="/">
-  <interface name="org.freedesktop.Tracker">
+  <interface name="org.freedesktop.Tracker.Statistics">
    
     <!-- Get statistics for services that have been indexed. Output is
 	 in string array format: [service, no of entities]  
       --> 
-    <method name="GetStats">
+    <method name="Get">
       <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
       <annotation name="com.trolltech.QtDBus.QtTypeName.Out0" 
 		  value="QVector&lt;QStringList&gt;"/>
@@ -32,7 +32,7 @@
     <!-- Signal whenever the count of a category changed. Look at GetStats for
 	 the format of service_stats. 
       -->
-    <signal name="StatisticsUpdated">
+    <signal name="Updated">
       <arg type="aas" name="statistics"/>
     </signal>
   </interface>

@@ -36,49 +36,49 @@
 #include <libtracker-data/tracker-data-manager.h>
 
 #include "tracker-dbus.h"
-#include "tracker-daemon.h"
 #include "tracker-main.h"
 #include "tracker-marshal.h"
 #include "tracker-store.h"
+#include "tracker-statistics.h"
 
-#define TRACKER_DAEMON_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_DAEMON, TrackerDaemonPrivate))
+#define TRACKER_STATISTICS_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_STATISTICS, TrackerStatisticsPrivate))
 
 #define TRACKER_TYPE_G_STRV_ARRAY  (dbus_g_type_get_collection ("GPtrArray", G_TYPE_STRV))
 
 /* In seconds (5 minutes for now) */
-#define STATS_CACHE_LIFETIME 300
+#define CACHE_LIFETIME 300
 
 typedef struct {
 	TrackerConfig	 *config;
 
-	GHashTable       *stats_cache;
-	guint             stats_cache_timeout_id;
-} TrackerDaemonPrivate;
+	GHashTable       *cache;
+	guint             cache_timeout_id;
+} TrackerStatisticsPrivate;
 
 enum {
-	STATISTICS_UPDATED,
+	UPDATED,
 	LAST_SIGNAL
 };
 
-static void        tracker_daemon_finalize (GObject       *object);
-static gboolean    stats_cache_timeout     (gpointer       user_data);
-static GHashTable *stats_cache_get_latest  (void);
+static void        tracker_statistics_finalize (GObject       *object);
+static gboolean    cache_timeout     (gpointer       user_data);
+static GHashTable *cache_get_latest  (void);
 
 static guint signals[LAST_SIGNAL] = {0};
 
-G_DEFINE_TYPE(TrackerDaemon, tracker_daemon, G_TYPE_OBJECT)
+G_DEFINE_TYPE(TrackerStatistics, tracker_statistics, G_TYPE_OBJECT)
 
 static void
-tracker_daemon_class_init (TrackerDaemonClass *klass)
+tracker_statistics_class_init (TrackerStatisticsClass *klass)
 {
 	GObjectClass *object_class;
 
 	object_class = G_OBJECT_CLASS (klass);
 
-	object_class->finalize = tracker_daemon_finalize;
+	object_class->finalize = tracker_statistics_finalize;
 
-	signals[STATISTICS_UPDATED] =
-		g_signal_new ("statistics-updated",
+	signals[UPDATED] =
+		g_signal_new ("updated",
 			      G_TYPE_FROM_CLASS (klass),
 			      G_SIGNAL_RUN_LAST,
 			      0,
@@ -88,69 +88,56 @@ tracker_daemon_class_init (TrackerDaemonClass *klass)
 			      1,
 			      TRACKER_TYPE_G_STRV_ARRAY);
 
-	g_type_class_add_private (object_class, sizeof (TrackerDaemonPrivate));
+	g_type_class_add_private (object_class, sizeof (TrackerStatisticsPrivate));
 }
 
 static void
-tracker_daemon_init (TrackerDaemon *object)
+tracker_statistics_init (TrackerStatistics *object)
 {
-	TrackerDaemonPrivate *priv;
+	TrackerStatisticsPrivate *priv;
 
-	priv = TRACKER_DAEMON_GET_PRIVATE (object);
+	priv = TRACKER_STATISTICS_GET_PRIVATE (object);
 
 	/* Do first time stats lookup */
-	priv->stats_cache = stats_cache_get_latest ();
+	priv->cache = cache_get_latest ();
 
-	priv->stats_cache_timeout_id = 
-		g_timeout_add_seconds (STATS_CACHE_LIFETIME,
-				       stats_cache_timeout,
+	priv->cache_timeout_id = 
+		g_timeout_add_seconds (CACHE_LIFETIME,
+				       cache_timeout,
 				       object);
 }
 
 static void
-tracker_daemon_finalize (GObject *object)
+tracker_statistics_finalize (GObject *object)
 {
-	TrackerDaemon	     *daemon;
-	TrackerDaemonPrivate *priv;
+	TrackerStatistics	     *statistics;
+	TrackerStatisticsPrivate *priv;
 
-	daemon = TRACKER_DAEMON (object);
-	priv = TRACKER_DAEMON_GET_PRIVATE (daemon);
+	statistics = TRACKER_STATISTICS (object);
+	priv = TRACKER_STATISTICS_GET_PRIVATE (statistics);
 
-	if (priv->stats_cache_timeout_id != 0) {
-		g_source_remove (priv->stats_cache_timeout_id);
+	if (priv->cache_timeout_id != 0) {
+		g_source_remove (priv->cache_timeout_id);
 	}
 
-	if (priv->stats_cache) {
-		g_hash_table_unref (priv->stats_cache);
+	if (priv->cache) {
+		g_hash_table_unref (priv->cache);
 	}
 
-	g_object_unref (priv->config);
-
-	G_OBJECT_CLASS (tracker_daemon_parent_class)->finalize (object);
+	G_OBJECT_CLASS (tracker_statistics_parent_class)->finalize (object);
 }
 
-TrackerDaemon *
-tracker_daemon_new (TrackerConfig    *config)
+TrackerStatistics *
+tracker_statistics_new (void)
 {
-	TrackerDaemon	     *object;
-	TrackerDaemonPrivate *priv;
-
-	g_return_val_if_fail (TRACKER_IS_CONFIG (config), NULL);
-
-	object = g_object_new (TRACKER_TYPE_DAEMON, NULL);
-
-	priv = TRACKER_DAEMON_GET_PRIVATE (object);
-
-	priv->config = g_object_ref (config);
-
-	return object;
+	return g_object_new (TRACKER_TYPE_STATISTICS, NULL);
 }
 
 /*
  * Functions
  */
 static GHashTable *
-stats_cache_get_latest (void)
+cache_get_latest (void)
 {
 	GHashTable    *values;
 	TrackerClass **classes;
@@ -197,17 +184,17 @@ stats_cache_get_latest (void)
 }
 
 static gboolean 
-stats_cache_timeout (gpointer user_data)
+cache_timeout (gpointer user_data)
 {
 	g_message ("Statistics cache has expired, updating...");
 
-	tracker_daemon_signal_statistics ();
+	tracker_statistics_signal ();
 
 	return TRUE;
 }
 
 static gint
-stats_cache_sort_func (gconstpointer a,
+cache_sort_func (gconstpointer a,
 		       gconstpointer b)
 {
 	
@@ -221,28 +208,26 @@ stats_cache_sort_func (gconstpointer a,
 }
 
 void
-tracker_daemon_get_stats (TrackerDaemon		 *object,
-			  DBusGMethodInvocation  *context,
-			  GError		**error)
+tracker_statistics_get (TrackerStatistics      *object,
+			DBusGMethodInvocation  *context,
+			GError		      **error)
 {
-	TrackerDaemonPrivate *priv;
-	guint		      request_id;
-	GPtrArray            *values;
-	GHashTableIter        iter;
-	gpointer              key, value;
+	TrackerStatisticsPrivate *priv;
+	guint		          request_id;
+	GPtrArray                *values;
+	GHashTableIter            iter;
+	gpointer                  key, value;
 
 	request_id = tracker_dbus_get_next_request_id ();
 
 	tracker_dbus_request_block_hooks ();
-	tracker_dbus_request_new (request_id,
-				  "%s",
-				  __FUNCTION__);
+	tracker_dbus_request_new (request_id, __FUNCTION__);
 
-	priv = TRACKER_DAEMON_GET_PRIVATE (object);
+	priv = TRACKER_STATISTICS_GET_PRIVATE (object);
 
 	values = g_ptr_array_new ();
 
-	g_hash_table_iter_init (&iter, priv->stats_cache);
+	g_hash_table_iter_init (&iter, priv->cache);
 	while (g_hash_table_iter_next (&iter, &key, &value)) {
 		GStrv        strv;
 		const gchar *service_type;
@@ -260,7 +245,7 @@ tracker_daemon_get_stats (TrackerDaemon		 *object,
 	}
 
 	/* Sort result so it is alphabetical */
-	g_ptr_array_sort (values, stats_cache_sort_func);
+	g_ptr_array_sort (values, cache_sort_func);
 
 	dbus_g_method_return (context, values);
 
@@ -271,22 +256,21 @@ tracker_daemon_get_stats (TrackerDaemon		 *object,
 	tracker_dbus_request_unblock_hooks ();
 }
 
-
 void
-tracker_daemon_signal_statistics (void)
+tracker_statistics_signal (void)
 {
-	GObject		     *daemon;
-	TrackerDaemonPrivate *priv;
+	GObject		     *statistics;
+	TrackerStatisticsPrivate *priv;
 	GHashTable           *stats;
 	GHashTableIter        iter;
 	gpointer              key, value;
 	GPtrArray            *values;
 
-	daemon = tracker_dbus_get_object (TRACKER_TYPE_DAEMON);
-	priv = TRACKER_DAEMON_GET_PRIVATE (daemon);
+	statistics = tracker_dbus_get_object (TRACKER_TYPE_STATISTICS);
+	priv = TRACKER_STATISTICS_GET_PRIVATE (statistics);
 
 	/* Get latest */
-	stats = stats_cache_get_latest ();
+	stats = cache_get_latest ();
 
 	/* There are 3 situations here:
 	 *  - 1. No new stats
@@ -316,7 +300,7 @@ tracker_daemon_signal_statistics (void)
 		service_type = key;
 		new_count = GPOINTER_TO_INT (value);
 			
-		data = g_hash_table_lookup (priv->stats_cache, service_type);
+		data = g_hash_table_lookup (priv->cache, service_type);
 		old_count = GPOINTER_TO_INT (data);
 		
 		if (old_count != new_count) {
@@ -339,9 +323,9 @@ tracker_daemon_signal_statistics (void)
 
 	if (values->len > 0) {
 		/* Make sure we sort the results first */
-		g_ptr_array_sort (values, stats_cache_sort_func);
+		g_ptr_array_sort (values, cache_sort_func);
 		
-		g_signal_emit (daemon, signals[STATISTICS_UPDATED], 0, values);
+		g_signal_emit (statistics, signals[UPDATED], 0, values);
 	} else {
 		g_message ("  No changes in the statistics");
 	}
@@ -349,6 +333,6 @@ tracker_daemon_signal_statistics (void)
 	g_ptr_array_foreach (values, (GFunc) g_strfreev, NULL);
 	g_ptr_array_free (values, TRUE);
 
-	g_hash_table_unref (priv->stats_cache);
-	priv->stats_cache = stats;
+	g_hash_table_unref (priv->cache);
+	priv->cache = stats;
 }

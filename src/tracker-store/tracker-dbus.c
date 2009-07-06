@@ -35,14 +35,14 @@
 #include <libtracker-data/tracker-data-query.h>
 
 #include "tracker-dbus.h"
-#include "tracker-daemon.h"
-#include "tracker-daemon-glue.h"
 #include "tracker-resources.h"
 #include "tracker-resources-glue.h"
 #include "tracker-resource-class.h"
 #include "tracker-resources-class-glue.h"
 #include "tracker-search.h"
 #include "tracker-search-glue.h"
+#include "tracker-statistics.h"
+#include "tracker-statistics-glue.h"
 #include "tracker-backup.h"
 #include "tracker-backup-glue.h"
 #include "tracker-marshal.h"
@@ -133,7 +133,7 @@ dbus_register_names (TrackerConfig *config)
 					    DBUS_INTERFACE_DBUS);
 
 	/* Register the service name for org.freedesktop.Tracker */
-	if (!dbus_register_service (gproxy, TRACKER_DAEMON_SERVICE)) {
+	if (!dbus_register_service (gproxy, TRACKER_STATISTICS_SERVICE)) {
 		return FALSE;
 	}
 
@@ -192,7 +192,7 @@ tracker_dbus_register_objects (TrackerConfig	*config,
 	}
 
 	/* Add org.freedesktop.Tracker */
-	object = tracker_daemon_new (config);
+	object = tracker_statistics_new ();
 	if (!object) {
 		g_critical ("Could not create TrackerDaemon object to register");
 		return FALSE;
@@ -201,8 +201,8 @@ tracker_dbus_register_objects (TrackerConfig	*config,
 	dbus_register_object (connection,
 			      gproxy,
 			      G_OBJECT (object),
-			      &dbus_glib_tracker_daemon_object_info,
-			      TRACKER_DAEMON_PATH);
+			      &dbus_glib_tracker_statistics_object_info,
+			      TRACKER_STATISTICS_PATH);
 	objects = g_slist_prepend (objects, object);
 
 	/* Add org.freedesktop.Tracker.Resources */

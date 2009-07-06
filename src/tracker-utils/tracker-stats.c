@@ -79,7 +79,7 @@ main (int argc, char **argv)
 		return EXIT_FAILURE;
 	}
 
-	array = tracker_get_stats (client, &error);
+	array = tracker_statistics_get (client, &error);
 
 	if (error) {
 		g_printerr ("%s, %s\n",
