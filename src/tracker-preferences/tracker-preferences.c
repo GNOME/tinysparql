@@ -221,7 +221,8 @@ if_tracker_store_start (TrackerPreferencesPrivate *priv)
 		return FALSE;
         }
 
-	status = tracker_get_status (client, NULL);
+	/* status = tracker_get_status (client, NULL); */
+	status = "Idle";
 	tracker_disconnect (client);
 
 	if (strcmp (status, "Shutdown") == 0) {

@@ -76,7 +76,7 @@ private_free (gpointer data)
 }
 
 static void
-tracker_store_task_free (TrackerStoreTask *task)
+store_task_free (TrackerStoreTask *task)
 {
 	if (task->type == TRACKER_STORE_TASK_TYPE_TURTLE) {
 		g_free (task->data.turtle.path);
@@ -205,7 +205,7 @@ queue_idle_handler (gpointer user_data)
 		task->destroy (task->user_data);
 	}
 
-	tracker_store_task_free (task);
+	store_task_free (task);
 
 	return !g_queue_is_empty (private->queue);
 }
@@ -419,3 +419,13 @@ tracker_store_delete_statement (const gchar   *subject,
 	tracker_data_delete_statement (subject, predicate, object);
 }
 
+guint
+tracker_store_get_queue_size (void)
+{
+	TrackerStorePrivate *private;
+
+	private = g_static_private_get (&private_key);
+	g_return_val_if_fail (private != NULL, 0);
+
+	return g_queue_get_length (private->queue);
+}

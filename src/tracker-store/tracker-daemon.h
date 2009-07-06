@@ -52,30 +52,7 @@ struct TrackerDaemonClass {
 
 GType	       tracker_daemon_get_type		   (void);
 TrackerDaemon *tracker_daemon_new		   (TrackerConfig	  *config);
-void	       tracker_daemon_get_version	   (TrackerDaemon	  *object,
-						    DBusGMethodInvocation *context,
-						    GError **error);
-void	       tracker_daemon_get_status	   (TrackerDaemon	  *object,
-						    DBusGMethodInvocation *context,
-						    GError **error);
 void	       tracker_daemon_get_stats		   (TrackerDaemon	  *object,
-						    DBusGMethodInvocation *context,
-						    GError **error);
-void	       tracker_daemon_set_bool_option	   (TrackerDaemon	  *object,
-						    const gchar		  *option,
-						    gboolean		   value,
-						    DBusGMethodInvocation *context,
-						    GError **error);
-void	       tracker_daemon_set_int_option	   (TrackerDaemon	  *object,
-						    const gchar		  *option,
-						    gint		   value,
-						    DBusGMethodInvocation *context,
-						    GError **error);
-void	       tracker_daemon_shutdown		   (TrackerDaemon	  *object,
-						    gboolean		   reindex,
-						    DBusGMethodInvocation *context,
-						    GError **error);
-void	       tracker_daemon_prompt_index_signals (TrackerDaemon	  *object,
 						    DBusGMethodInvocation *context,
 						    GError **error);
 

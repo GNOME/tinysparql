@@ -1866,7 +1866,8 @@ end_search (GPtrArray * out_array,
 	}
 
 	GError *error2 = NULL;
-	gchar* status = tracker_get_status (tracker_client, &error2);
+	gchar *status = g_strdup ("Idle");
+	/* gchar* status = tracker_get_status (tracker_client, &error2); */
 
 	if (error2) {
 		g_error_free (error2);

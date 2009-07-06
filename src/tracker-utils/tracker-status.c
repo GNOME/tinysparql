@@ -484,7 +484,8 @@ main (gint argc, gchar *argv[])
 		GError *error = NULL;
 		gchar *state;
 
-		state = tracker_get_status (client, &error);
+ 		/* state = tracker_get_status (client, &error); */
+		state = "Idle";
 		
 		if (error) {
 			g_printerr ("%s, %s\n",

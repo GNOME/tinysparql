@@ -1071,11 +1071,6 @@ main (gint argc, gchar *argv[])
 	 */
 	tracker_status_set_is_ready (TRUE);
 
-	/* We set the state here because it is not set in the
-	 * processor otherwise.
-	 */
-	tracker_status_set_and_signal (TRACKER_STATUS_IDLE);
-
 	if (!private->shutdown) {
 		private->main_loop = g_main_loop_new (NULL, FALSE);
 		g_main_loop_run (private->main_loop);
@@ -1086,8 +1081,6 @@ shutdown:
 	 * Shutdown the daemon
 	 */
 	g_message ("Shutdown started");
-
-	tracker_status_set_and_signal (TRACKER_STATUS_SHUTDOWN);
 
 	g_timeout_add_full (G_PRIORITY_LOW, 5000, shutdown_timeout_cb, NULL, NULL);
 

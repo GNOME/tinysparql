@@ -24,17 +24,18 @@
 
 G_BEGIN_DECLS
 
-typedef void (*TrackerArrayReply) (char **result, GError *error, gpointer user_data);
+typedef void (*TrackerArrayReply) (gchar **result, GError *error, gpointer user_data);
 typedef void (*TrackerGPtrArrayReply) (GPtrArray *result, GError *error, gpointer user_data);
 typedef void (*TrackerBooleanReply) (gboolean result, GError *error, gpointer user_data);
-typedef void (*TrackerStringReply) (char *result, GError *error, gpointer user_data);
-typedef void (*TrackerIntReply) (int result, GError *error, gpointer user_data);
+typedef void (*TrackerStringReply) (gchar *result, GError *error, gpointer user_data);
+typedef void (*TrackerIntReply) (gint result, GError *error, gpointer user_data);
+typedef void (*TrackerUIntReply) (guint result, GError *error, gpointer user_data);
 typedef void (*TrackerVoidReply) (GError *error, gpointer user_data);
 
 
 
 typedef struct {
-	char *		type;
+	gchar *		type;
 	gboolean	is_embedded;
 	gboolean	is_writeable;
 
@@ -63,7 +64,7 @@ void		tracker_disconnect (TrackerClient *client);
 /* synchronous calls */
 
 int		tracker_get_version				(TrackerClient *client, GError **error);
-char *		tracker_get_status				(TrackerClient *client, GError **error);
+guint		tracker_get_status				(TrackerClient *client, GError **error);
 GPtrArray *	tracker_get_stats				(TrackerClient *client, GError **error);
 
 void		tracker_set_bool_option				(TrackerClient *client, const char *option, gboolean value, GError **error);

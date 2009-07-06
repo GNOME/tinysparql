@@ -80,7 +80,7 @@ tracker_GPtrArray_reply (DBusGProxy *proxy,  GPtrArray *OUT_result, GError *erro
 
 
 static void
-tracker_string_reply (DBusGProxy *proxy, char *OUT_result, GError *error, gpointer user_data)
+tracker_string_reply (DBusGProxy *proxy, gchar *OUT_result, GError *error, gpointer user_data)
 {
 
 	StringCallBackStruct *callback_struct;
@@ -91,36 +91,6 @@ tracker_string_reply (DBusGProxy *proxy, char *OUT_result, GError *error, gpoint
 
 	g_free (callback_struct);
 }
-
-
-static void
-tracker_int_reply (DBusGProxy *proxy, int OUT_result, GError *error, gpointer user_data)
-{
-
-	IntCallBackStruct *callback_struct;
-
-	callback_struct = user_data;
-
-	(*(TrackerIntReply) callback_struct->callback ) (OUT_result, error, callback_struct->data);
-
-	g_free (callback_struct);
-}
-
-/*
-static void
-tracker_boolean_reply (DBusGProxy *proxy, gboolean OUT_result, GError *error, gpointer user_data)
-{
-
-	BooleanCallBackStruct *callback_struct;
-
-	callback_struct = user_data;
-
-	(*(TrackerBooleanReply) callback_struct->callback ) (OUT_result, error, callback_struct->data);
-
-	g_free (callback_struct);
-}
-*/
-
 
 static void
 tracker_void_reply (DBusGProxy *proxy, GError *error, gpointer user_data)
@@ -270,27 +240,6 @@ tracker_cancel_last_call (TrackerClient *client)
 
 
 /* dbus synchronous calls */
-
-
-int
-tracker_get_version (TrackerClient *client, GError **error)
-{
-	int version;
-
-	org_freedesktop_Tracker_get_version (client->proxy, &version, &*error);
-
-	return version;
-}
-
-char *
-tracker_get_status (TrackerClient *client, GError **error)
-{
-	char *status ;
-	org_freedesktop_Tracker_get_status (client->proxy, &status, &*error);
-	return status;
-}
-
-
 GPtrArray *
 tracker_get_stats (TrackerClient *client,  GError **error)
 {
@@ -304,34 +253,6 @@ tracker_get_stats (TrackerClient *client,  GError **error)
 
 
 }
-
-
-void
-tracker_set_bool_option (TrackerClient *client, const char *option, gboolean value, GError **error)
-{
-	org_freedesktop_Tracker_set_bool_option (client->proxy, option, value,	&*error);
-}
-
-void
-tracker_set_int_option (TrackerClient *client, const char *option, int value, GError **error)
-{
-	org_freedesktop_Tracker_set_int_option (client->proxy, option, value,  &*error);
-}
-
-
-void
-tracker_shutdown (TrackerClient *client, gboolean reindex, GError **error)
-{
-	org_freedesktop_Tracker_shutdown (client->proxy, reindex,  &*error);
-}
-
-
-void
-tracker_prompt_index_signals (TrackerClient *client, GError **error)
-{
-	org_freedesktop_Tracker_prompt_index_signals (client->proxy, &*error);
-}
-
 
 void
 tracker_resources_load (TrackerClient *client, const char *uri, GError **error)
@@ -399,36 +320,6 @@ tracker_search_suggest (TrackerClient *client, const char *search_term, int maxd
 	return NULL;
 }
 
-
-void
-tracker_get_version_async (TrackerClient *client, TrackerIntReply callback, gpointer user_data)
-{
-
-	IntCallBackStruct *callback_struct;
-
-	callback_struct = g_new (IntCallBackStruct, 1);
-	callback_struct->callback = callback;
-	callback_struct->data = user_data;
-
-	client->last_pending_call = org_freedesktop_Tracker_get_version_async (client->proxy, tracker_int_reply, callback_struct);
-
-}
-
-void
-tracker_get_status_async (TrackerClient *client, TrackerStringReply callback, gpointer user_data)
-{
-
-	StringCallBackStruct *callback_struct;
-
-	callback_struct = g_new (StringCallBackStruct, 1);
-	callback_struct->callback = callback;
-	callback_struct->data = user_data;
-
-	client->last_pending_call = org_freedesktop_Tracker_get_status_async (client->proxy, tracker_string_reply, callback_struct);
-
-}
-
-
 void
 tracker_get_stats_async	(TrackerClient *client,  TrackerGPtrArrayReply callback, gpointer user_data)
 {
@@ -441,59 +332,6 @@ tracker_get_stats_async	(TrackerClient *client,  TrackerGPtrArrayReply callback,
 	client->last_pending_call = org_freedesktop_Tracker_get_stats_async (client->proxy, tracker_GPtrArray_reply, callback_struct);
 
 }
-
-
-
-void
-tracker_set_bool_option_async (TrackerClient *client, const char *option, gboolean value, TrackerVoidReply callback, gpointer user_data)
-{
-	VoidCallBackStruct *callback_struct;
-
-	callback_struct = g_new (VoidCallBackStruct, 1);
-	callback_struct->callback = callback;
-	callback_struct->data = user_data;
-
-	client->last_pending_call = org_freedesktop_Tracker_set_bool_option_async  (client->proxy, option, value, tracker_void_reply, callback_struct);
-}
-
-void
-tracker_set_int_option_async (TrackerClient *client, const char *option, int value, TrackerVoidReply callback, gpointer user_data)
-{
-	VoidCallBackStruct *callback_struct;
-
-	callback_struct = g_new (VoidCallBackStruct, 1);
-	callback_struct->callback = callback;
-	callback_struct->data = user_data;
-
-	client->last_pending_call = org_freedesktop_Tracker_set_int_option_async  (client->proxy, option, value, tracker_void_reply, callback_struct);
-}
-
-
-void
-tracker_shutdown_async (TrackerClient *client, gboolean reindex, TrackerVoidReply callback, gpointer user_data)
-{
-	VoidCallBackStruct *callback_struct;
-
-	callback_struct = g_new (VoidCallBackStruct, 1);
-	callback_struct->callback = callback;
-	callback_struct->data = user_data;
-
-	client->last_pending_call = org_freedesktop_Tracker_shutdown_async  (client->proxy, reindex, tracker_void_reply, callback_struct);
-}
-
-
-void
-tracker_prompt_index_signals_async (TrackerClient *client, TrackerVoidReply callback, gpointer user_data)
-{
-	VoidCallBackStruct *callback_struct;
-
-	callback_struct = g_new (VoidCallBackStruct, 1);
-	callback_struct->callback = callback;
-	callback_struct->data = user_data;
-
-	client->last_pending_call = org_freedesktop_Tracker_prompt_index_signals_async	(client->proxy, tracker_void_reply, callback_struct);
-}
-
 
 void
 tracker_resources_load_async (TrackerClient *client, const char *uri, TrackerVoidReply callback, gpointer user_data)

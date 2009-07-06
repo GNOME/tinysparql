@@ -555,7 +555,7 @@ set_auto_pause (TrayIcon *icon,
 			g_timeout_add_seconds (2, auto_pause_timeout, icon);
 
 			priv->auto_pause_timer_active = TRUE;
-			tracker_set_bool_option (priv->tracker, "Pause", TRUE, NULL);
+			/* tracker_set_bool_option (priv->tracker, "Pause", TRUE, NULL); */
 		}
 
 		priv->animated = FALSE;
@@ -563,7 +563,7 @@ set_auto_pause (TrayIcon *icon,
 		priv->auto_pause_timer_active = FALSE;
 		priv->auto_pause = FALSE;
 
-		tracker_set_bool_option (priv->tracker, "Pause", FALSE,  NULL);
+		/* tracker_set_bool_option (priv->tracker, "Pause", FALSE,  NULL); */
 	}
 
 	set_icon (priv);
@@ -597,7 +597,7 @@ set_user_pause (TrayIcon *icon,
 	priv = TRAY_ICON_GET_PRIVATE (icon);
 	priv->user_pause = pause;
 
-	tracker_set_bool_option (priv->tracker, "Pause", pause, NULL);
+	/* tracker_set_bool_option (priv->tracker, "Pause", pause, NULL); */
 }
 
 static void

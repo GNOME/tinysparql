@@ -61,6 +61,8 @@ TrackerDBResultSet*
              tracker_store_sparql_query           (const gchar   *sparql,
                                                    GError       **error);
 
+guint        tracker_store_get_queue_size         (void);
+
 G_END_DECLS
 
 #endif /* __TRACKER_STORE_H__ */
