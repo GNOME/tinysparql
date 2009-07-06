@@ -25,7 +25,6 @@
 G_BEGIN_DECLS
 
 typedef struct {
-	DBusGProxy	*proxy_search;
 	DBusGProxy	*proxy_statistics;
 	DBusGProxy	*proxy_resources;
 
@@ -34,9 +33,6 @@ typedef struct {
 } TrackerClient;
 
 typedef void (*TrackerReplyGPtrArray) (GPtrArray *result, 
-                                       GError    *error, 
-                                       gpointer   user_data);
-typedef void (*TrackerReplyString)    (gchar     *result, 
                                        GError    *error, 
                                        gpointer   user_data);
 typedef void (*TrackerReplyVoid)      (GError    *error, 
@@ -66,14 +62,6 @@ void           tracker_resources_batch_sparql_update       (TrackerClient       
                                                             GError                **error);
 void           tracker_resources_batch_commit              (TrackerClient          *client,
                                                             GError                **error);
-gchar *        tracker_search_get_snippet                  (TrackerClient          *client,
-                                                            const gchar            *uri,
-                                                            const gchar            *search_text,
-                                                            GError                **error);
-gchar *        tracker_search_suggest                      (TrackerClient          *client,
-                                                            const gchar            *search_text,
-                                                            gint                    maxdist,
-                                                            GError                **error);
 /* Asynchronous API */
 void           tracker_statistics_get_async                (TrackerClient          *client,
                                                             TrackerReplyGPtrArray   callback,
@@ -96,16 +84,6 @@ void           tracker_resources_batch_sparql_update_async (TrackerClient       
                                                             gpointer                user_data);
 void           tracker_resources_batch_commit_async        (TrackerClient          *client,
                                                             TrackerReplyVoid        callback,
-                                                            gpointer                user_data);
-void           tracker_search_get_snippet_async            (TrackerClient          *client,
-                                                            const gchar            *uri,
-                                                            const gchar            *search_text,
-                                                            TrackerReplyString      callback,
-                                                            gpointer                user_data);
-void           tracker_search_suggest_async                (TrackerClient          *client,
-                                                            const gchar            *search_text,
-                                                            gint                    maxdist,
-                                                            TrackerReplyString      callback,
                                                             gpointer                user_data);
 
 G_END_DECLS

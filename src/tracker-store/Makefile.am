@@ -38,8 +38,6 @@ tracker_store_SOURCES =							\
 	tracker-marshal-main.c						\
 	tracker-resources.c						\
 	tracker-resources.h						\
-	tracker-search.c						\
-	tracker-search.h						\
 	tracker-volume-cleanup.c					\
 	tracker-volume-cleanup.h					\
 	tracker-push.c							\
@@ -92,7 +90,6 @@ marshal_sources =                                         		\
 dbus_sources = 								\
 	tracker-backup-glue.h						\
 	tracker-resources-glue.h					\
-	tracker-search-glue.h						\
 	tracker-statistics-glue.h					\
 	tracker-resources-class-glue.h
 

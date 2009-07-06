@@ -8,7 +8,6 @@ config_DATA =						\
 	tracker-miner.xml				\
 	tracker-resources.xml				\
 	tracker-resources-class.xml			\
-	tracker-search.xml				\
 	tracker-statistics.xml
 
 # Services

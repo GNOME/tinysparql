@@ -810,7 +810,8 @@ tracker_module_metadata_utils_get_data (GFile *file, TrackerSparqlBuilder *sparq
 	tracker_sparql_builder_object_date (sparql, &time_);
 	time_ = g_file_info_get_attribute_uint64 (file_info, G_FILE_ATTRIBUTE_TIME_ACCESS);
 	tracker_sparql_builder_predicate (sparql, "nfo:fileLastAccessed");
-	tracker_sparql_builder_object_date (sparql, &time_);
+	
+tracker_sparql_builder_object_date (sparql, &time_);
 
 	/* Check the size is actually non-zero */
 	if (g_file_info_get_size (file_info) > 0) {

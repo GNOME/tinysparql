@@ -30,7 +30,6 @@ libtrackerclientinc_HEADERS = 				\
 # Generate DBus files from XML data.
 dbus_sources = 						\
 	tracker-resources-glue.h			\
-	tracker-search-glue.h				\
 	tracker-statistics-glue.h
 
 %-glue.h: $(top_srcdir)/data/dbus/%.xml

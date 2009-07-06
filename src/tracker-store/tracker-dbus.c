@@ -39,8 +39,6 @@
 #include "tracker-resources-glue.h"
 #include "tracker-resource-class.h"
 #include "tracker-resources-class-glue.h"
-#include "tracker-search.h"
-#include "tracker-search-glue.h"
 #include "tracker-statistics.h"
 #include "tracker-statistics-glue.h"
 #include "tracker-backup.h"
@@ -218,20 +216,6 @@ tracker_dbus_register_objects (TrackerConfig	*config,
 			      G_OBJECT (object),
 			      &dbus_glib_tracker_resources_object_info,
 			      TRACKER_RESOURCES_PATH);
-	objects = g_slist_prepend (objects, object);
-
-	/* Add org.freedesktop.Tracker.Search */
-	object = tracker_search_new (config, language);
-	if (!object) {
-		g_critical ("Could not create TrackerSearch object to register");
-		return FALSE;
-	}
-
-	dbus_register_object (connection,
-			      gproxy,
-			      G_OBJECT (object),
-			      &dbus_glib_tracker_search_object_info,
-			      TRACKER_SEARCH_PATH);
 	objects = g_slist_prepend (objects, object);
 
 	/* Add org.freedesktop.Tracker.Backup */

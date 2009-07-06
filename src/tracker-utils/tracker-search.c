@@ -35,14 +35,9 @@
 static gint	      limit = 512;
 static gint	      offset;
 static gchar	    **terms;
-static gchar	     *service;
 static gboolean       detailed;
 
 static GOptionEntry   entries[] = {
-	{ "service", 's', 0, G_OPTION_ARG_STRING, &service,
-	  N_("Search from a specific service"),
-	  NULL
-	},
 	{ "limit", 'l', 0, G_OPTION_ARG_INT, &limit,
 	  N_("Limit the number of results shown"),
 	  N_("512")
@@ -112,23 +107,6 @@ main (int argc, char **argv)
 			       "\n",
 			       _("This means if you search for 'foo' and 'bar', "
 				 "they must BOTH exist"),
-			       "\n",
-			       "\n",
-			       _("Recognized services include:"),
-			       "\n"
-			       "\n",
-			       "  Documents\n"
-			       "  Emails\n"
-			       "  EmailAttachments\n"
-			       "  Music\n"
-			       "  Images\n"
-			       "  Videos\n"
-			       "  Text\n"
-			       "  Development\n"
-			       "  Applications\n"
-			       "  Conversations\n"
-			       "  Folders\n"
-			       "  Files",
 			       NULL);
 	g_option_context_set_summary (context, summary);
 	g_option_context_add_main_entries (context, entries, NULL);
