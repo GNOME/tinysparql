@@ -10,8 +10,8 @@ msgstr ""
 "Project-Id-Version: tracker.HEAD\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&component=general\n"
-"POT-Creation-Date: 2009-06-30 13:50+0000\n"
-"PO-Revision-Date: 2009-06-30 20:44+0200\n"
+"POT-Creation-Date: 2009-07-06 16:27+0000\n"
+"PO-Revision-Date: 2009-07-07 04:41+0200\n"
 "Last-Translator: Jorge González <jorgegonz@svn.gnome.org>\n"
 "Language-Team: Español <gnome-es-list@gnome.org>\n"
 "MIME-Version: 1.0\n"
@@ -25,7 +25,6 @@ msgid "Metadata database store and lookup manager"
 msgstr "Gestor de almacenamiento y búsqueda en la base de datos de metadatos"
 
 #: ../data/tracker-store.desktop.in.in.h:2
-#| msgid "Tracker Web Site"
 msgid "Tracker Store"
 msgstr "Almacén de Tracker"
 
@@ -34,7 +33,6 @@ msgid "Crawls and processes files on the file system"
 msgstr "Araña y procesa archivos en el sistema de archivos"
 
 #: ../data/tracker-miner-fs.desktop.in.in.h:2
-#| msgid "Tracker Live Search"
 msgid "Tracker File System Miner "
 msgstr "Minero de seguimiento del sistema de archivos"
 
@@ -476,7 +474,7 @@ msgstr "Añadiendo monitores del sistema de archivos"
 #. * Tracker: Indexing
 #.
 #: ../src/tracker-applet/tracker-applet.c:295
-#: ../src/tracker-search-tool/tracker-search-tool.c:1873
+#: ../src/tracker-search-tool/tracker-search-tool.c:1874
 msgid "Indexing"
 msgstr "Indexando"
 
@@ -776,13 +774,13 @@ msgstr "Controle y monitorice el servicio de búsqueda e indexado Tracker"
 
 #: ../src/tracker-extract/tracker-main.c:82
 #: ../src/tracker-miner-fs/tracker-main.c:76
-#: ../src/tracker-store/tracker-main.c:148
+#: ../src/tracker-store/tracker-main.c:147
 msgid "Displays version information"
 msgstr "Muestra información de la versión"
 
 #: ../src/tracker-extract/tracker-main.c:86
 #: ../src/tracker-miner-fs/tracker-main.c:80
-#: ../src/tracker-store/tracker-main.c:152
+#: ../src/tracker-store/tracker-main.c:151
 msgid ""
 "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default = "
 "0)"
@@ -835,11 +833,11 @@ msgstr "Indexar datos de todos los módulos activados"
 msgid "- start the tracker indexer"
 msgstr "- iniciar el indexador de tracker"
 
-#: ../src/tracker-preferences/tracker-preferences.c:650
+#: ../src/tracker-preferences/tracker-preferences.c:651
 msgid "Data must be reindexed"
 msgstr "Los datos deben ser reindexados"
 
-#: ../src/tracker-preferences/tracker-preferences.c:651
+#: ../src/tracker-preferences/tracker-preferences.c:652
 msgid ""
 "In order for your changes to take effect, Tracker must reindex your files. "
 "Click the Reindex button to start reindexing now, otherwise this action will "
@@ -849,15 +847,15 @@ msgstr ""
 "Pulse el botón Reindexar para comenzar el reindexado ahora, de otra forma "
 "esta acción se realizará la próxima vez que se inicie el demonio de Tracker."
 
-#: ../src/tracker-preferences/tracker-preferences.c:658
+#: ../src/tracker-preferences/tracker-preferences.c:659
 msgid "_Reindex"
 msgstr "_Reindexar"
 
-#: ../src/tracker-preferences/tracker-preferences.c:661
+#: ../src/tracker-preferences/tracker-preferences.c:662
 msgid "Tracker daemon must be restarted"
 msgstr "Se debe reiniciar el demonio de Tracker"
 
-#: ../src/tracker-preferences/tracker-preferences.c:663
+#: ../src/tracker-preferences/tracker-preferences.c:664
 msgid ""
 "In order for your changes to take effect, the Tracker daemon has to be "
 "restarted. Click the Restart button to restart the daemon now."
@@ -865,7 +863,7 @@ msgstr ""
 "Para que sus cambios tengan efecto se debe reiniciar el demonio de Tracker. "
 "Pulse el botón Reiniciar para reiniciar el demonio ahora."
 
-#: ../src/tracker-preferences/tracker-preferences.c:668
+#: ../src/tracker-preferences/tracker-preferences.c:669
 msgid "_Restart"
 msgstr "_Reiniciar"
 
@@ -1124,7 +1122,7 @@ msgstr "Activar para ver este correo-e"
 
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1332
 msgid "Save Search Results As..."
-msgstr "Guardar los resultados de la búsqueda como..."
+msgstr "Guardar los resultados de la búsqueda como…"
 
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1367
 msgid "Could not save document."
@@ -1254,7 +1252,7 @@ msgstr "_Mover a la papelera"
 
 #: ../src/tracker-search-tool/tracker-search-tool.c:224
 msgid "_Save Results As..."
-msgstr "_Guardar resultado como..."
+msgstr "_Guardar resultado como…"
 
 #: ../src/tracker-search-tool/tracker-search-tool.c:254
 #, c-format
@@ -1286,7 +1284,7 @@ msgid "Tracker Search Tool-"
 msgstr "Herramienta de búsqueda Tracker-"
 
 #: ../src/tracker-search-tool/tracker-search-tool.c:879
-#: ../src/tracker-search-tool/tracker-search-tool.c:2285
+#: ../src/tracker-search-tool/tracker-search-tool.c:2286
 #: ../src/tracker-search-tool/tracker-search-tool.desktop.in.in.h:2
 msgid "Tracker Search Tool"
 msgstr "Herramienta de búsqueda Tracker"
@@ -1345,36 +1343,35 @@ msgid "Could not connect to search service as it may be busy"
 msgstr ""
 "No se pudo conectar con el servicio de búsqueda ya que puede estar ocupado"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:2062
+#: ../src/tracker-search-tool/tracker-search-tool.c:2063
 msgid "_Search:"
 msgstr "_Buscar:"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:2084
-#| msgid "Could not search tags"
+#: ../src/tracker-search-tool/tracker-search-tool.c:2085
 msgid "Clear the search text"
 msgstr "Limpiar el texto de búsqueda"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:2090
+#: ../src/tracker-search-tool/tracker-search-tool.c:2091
 msgid "Tracker is still indexing so not all search results are available yet"
 msgstr ""
 "Tracker aún está indexando así que no todos los resultados de búsqueda están "
 "disponibles"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:2104
 #: ../src/tracker-search-tool/tracker-search-tool.c:2105
+#: ../src/tracker-search-tool/tracker-search-tool.c:2106
 msgid "Enter a search term with multiple words seperated with spaces."
 msgstr ""
 "Introduzca un término de búsqueda con varias palabras separadas por espacios."
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:2105
+#: ../src/tracker-search-tool/tracker-search-tool.c:2106
 msgid "search_entry"
 msgstr "entrada_búsqueda"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:2116
+#: ../src/tracker-search-tool/tracker-search-tool.c:2117
 msgid "Select more _options"
 msgstr "Seleccionar más _opciones"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:2151
+#: ../src/tracker-search-tool/tracker-search-tool.c:2152
 msgid "Click to perform a search."
 msgstr "Pulse para realizar una búsqueda."
 
@@ -1482,7 +1479,7 @@ msgstr "No puede usar --terminate con --hard-reset, --kill está implicado"
 #: ../src/tracker-utils/tracker-processes.c:158
 #, c-format
 msgid "Found %d pids..."
-msgstr "Encontrados %d pids..."
+msgstr "%d pids encontrados…"
 
 #: ../src/tracker-utils/tracker-processes.c:169
 #, c-format
@@ -1714,11 +1711,11 @@ msgstr "Está activado indexando"
 msgid "- Report current status"
 msgstr "- Informar del estado actual"
 
-#: ../src/tracker-utils/tracker-status.c:491
+#: ../src/tracker-utils/tracker-status.c:492
 msgid "Could not get Tracker status"
 msgstr "No se pudo obtener es estado de Tracker"
 
-#: ../src/tracker-utils/tracker-status.c:502
+#: ../src/tracker-utils/tracker-status.c:503
 #, c-format
 msgid "Tracker status is '%s'"
 msgstr "El estado de Tracker es «%s»"
@@ -1751,11 +1748,11 @@ msgstr "Buscar archivos con la etiqueta especificada"
 
 #: ../src/tracker-utils/tracker-tag.c:79
 msgid "FILE..."
-msgstr "ARCHIVO..."
+msgstr "ARCHIVO…"
 
 #: ../src/tracker-utils/tracker-tag.c:80
 msgid "FILE [FILE...]"
-msgstr "ARCHIVO [ARCHIVO...]"
+msgstr "ARCHIVO [ARCHIVO…]"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
@@ -1840,17 +1837,17 @@ msgstr ""
 "NOTA: Se alcanzó el límite, existen más elementos en la base de datos que no "
 "se listan aquí"
 
-#: ../src/tracker-store/tracker-main.c:157
+#: ../src/tracker-store/tracker-main.c:156
 msgid "Seconds to wait before starting any crawling or indexing (default = 45)"
 msgstr ""
 "Segundos que esperar antes de iniciar una búsqueda o indexado "
 "(predeterminado = 45)"
 
-#: ../src/tracker-store/tracker-main.c:161
+#: ../src/tracker-store/tracker-main.c:160
 msgid "Minimizes the use of memory but may slow indexing down"
 msgstr "Minimiza el uso de memoria pero puede ralentizar el indexado"
 
-#: ../src/tracker-store/tracker-main.c:165
+#: ../src/tracker-store/tracker-main.c:164
 msgid ""
 "Directories to exclude for file change monitoring (you can do -e <path> -e "
 "<path>)"
@@ -1858,7 +1855,7 @@ msgstr ""
 "Directorios que excluir para la monitorización del cambio de archivos (puede "
 "hacer -e <ruta> -e <ruta>)"
 
-#: ../src/tracker-store/tracker-main.c:169
+#: ../src/tracker-store/tracker-main.c:168
 msgid ""
 "Directories to include for file change monitoring (you can do -i <path> -i "
 "<path>)"
@@ -1866,28 +1863,28 @@ msgstr ""
 "Directorios que incluir para la monitorización del cambio de archivos (puede "
 "hacer -i <ruta> -i <ruta>)"
 
-#: ../src/tracker-store/tracker-main.c:173
+#: ../src/tracker-store/tracker-main.c:172
 msgid "Directories to crawl to index files (you can do -c <path> -c <path>)"
 msgstr ""
 "Directorios en los que arrastrarse para indexar sus archivos (puede hacer -c "
 "<ruta> -c <ruta>)"
 
-#: ../src/tracker-store/tracker-main.c:177
+#: ../src/tracker-store/tracker-main.c:176
 msgid ""
 "Disable modules from being processed (you can do -d <module> -d <module>)"
 msgstr ""
 "Desactivar módulos para que no sean procesados (puede hacer -d <módulo> -d "
 "<módulo>)"
 
-#: ../src/tracker-store/tracker-main.c:183
+#: ../src/tracker-store/tracker-main.c:182
 msgid "Force a re-index of all content"
 msgstr "Forzar un reindexamiento de todo el contenido"
 
-#: ../src/tracker-store/tracker-main.c:187
+#: ../src/tracker-store/tracker-main.c:186
 msgid "Disable any indexing and monitoring"
 msgstr "Desactivar cualquier indexado y monitorización"
 
-#: ../src/tracker-store/tracker-main.c:190
+#: ../src/tracker-store/tracker-main.c:189
 msgid ""
 "Language to use for stemmer and stop words (ISO 639-1 2 characters code)"
 msgstr ""
@@ -1897,9 +1894,14 @@ msgstr ""
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/tracker-store/tracker-main.c:888
+#: ../src/tracker-store/tracker-main.c:887
 msgid "- start the tracker daemon"
 msgstr "iniciar el demonio de tracker"
+
+#: ../src/tracker-store/tracker-search.c:212
+#: ../src/tracker-store/tracker-search.c:282
+msgid "Function unsupported or not ported to SparQL yet"
+msgstr "Función no soportada o aún no portada a SparQL"
 
 #~ msgid "Tracker search and indexing service"
 #~ msgstr "Servicio de búsqueda e indexado Tracker"
