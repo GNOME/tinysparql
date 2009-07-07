@@ -71,7 +71,7 @@ public class History {
 		}
 		current = hi;
 
-		debug ("history.add current=%p, next=%p, prev=%p, uri = %s", current, current.next, current.prev, current.uri);
+		//debug ("history.add current=%p, next=%p, prev=%p, uri = %s", current, current.next, current.prev, current.uri);
 	}
 }
 
@@ -234,7 +234,7 @@ public class Explorer {
 	private void clear_types() {
 		int npages = types.get_n_pages();
 		for (int i = 0; i < npages; i++) {
-			debug ("removing page %d", i);
+			//debug ("removing page %d", i);
 			types.remove_page (0);
 		}
 	}
@@ -245,7 +245,7 @@ public class Explorer {
 		if (page_num < 0) {
 			return;
 		}
-		debug ("update_types_page: %d", page_num);
+		//debug ("update_types_page: %d", page_num);
 		ScrolledWindow sw = types.get_nth_page(page_num) as ScrolledWindow;
 		string type = (types.get_tab_label(sw) as Label).get_text();
 
