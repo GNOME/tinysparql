@@ -73,11 +73,8 @@ int
 main (int argc, char **argv)
 {
 	TrackerClient	*client;
-	gchar           *query;
 	GOptionContext	*context;
-	GError		*error = NULL;
-	GPtrArray	*results;
-	char		*uri;
+	gchar          **p;
 
 	setlocale (LC_ALL, "");
 
@@ -87,7 +84,7 @@ main (int argc, char **argv)
 
 	/* Translators: this messagge will apper immediately after the	*/
 	/* usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>	*/
-	context = g_option_context_new (_("- Get all information from a certain file"));
+	context = g_option_context_new (_("- Get all information about one or more files"));
 
 	/* Translators: this message will appear after the usage string */
 	/* and before the list of options.				*/
@@ -98,7 +95,7 @@ main (int argc, char **argv)
 		gchar *help;
 
 		g_printerr ("%s\n\n",
-			    _("File missing"));
+			    _("One or more files have not been specified"));
 
 		help = g_option_context_get_help (context, TRUE, NULL);
 		g_option_context_free (context);
@@ -118,53 +115,64 @@ main (int argc, char **argv)
 		return EXIT_FAILURE;
 	}
 
-	/* support both, URIs and local file paths */
-	if (has_valid_uri_scheme (filenames[0])) {
-		uri = g_strdup (filenames[0]);
-	} else {
-		GFile *file;
+        for (p = filenames; *p; p++) {
+		GPtrArray *results;
+		GError    *error = NULL;
+		gchar     *uri;
+		gchar     *query;
 
-		file = g_file_new_for_commandline_arg (filenames[0]);
-		uri = g_file_get_uri (file);
-		g_object_unref (file);
-	}
-
-	query = g_strdup_printf ("SELECT ?predicate ?object WHERE { <%s> ?predicate ?object }", uri);
-
-	results = tracker_resources_sparql_query (client, query, &error);
-
-	g_free (uri);
-	g_free (query);
-
-	if (error) {
-		g_printerr ("%s, %s\n",
-			    _("Unable to retrieve data for uri"),
-			    error->message);
+		g_print ("%s:'%s'\n",
+			 _("Querying information for file"),
+			 *p);
+	
+		/* support both, URIs and local file paths */
+		if (has_valid_uri_scheme (*p)) {
+			uri = g_strdup (*p);
+		} else {
+			GFile *file;
+			
+			file = g_file_new_for_commandline_arg (*p);
+			uri = g_file_get_uri (file);
+			g_object_unref (file);
+		}
 		
-		g_error_free (error);
-		tracker_disconnect (client);
+		query = g_strdup_printf ("SELECT ?predicate ?object WHERE { <%s> ?predicate ?object }", uri);
 		
-		return EXIT_FAILURE;
-	}
+		results = tracker_resources_sparql_query (client, query, &error);
+		
+		g_free (uri);
+		g_free (query);
 
-	if (!results) {
-		g_print ("%s\n",
-			 _("No metadata available for that uri"));
-	} else {
-		gint length;
+		if (error) {
+			g_printerr ("  %s, %s\n",
+				    _("Unable to retrieve data for uri"),
+				    error->message);
+			
+			g_error_free (error);
+			continue;
+		}
+		
+		if (!results) {
+			g_print ("  %s\n",
+				 _("No metadata available for that uri"));
+		} else {
+			gint length;
+			
+			length = results->len;
+			
+			g_print (tracker_dngettext (NULL,
+						    _("Result: %d"), 
+						    _("Results: %d"),
+						    length),
+				 length);
+			g_print ("\n");
+			
+			g_ptr_array_foreach (results, (GFunc) print_property_value, NULL);
+			g_ptr_array_foreach (results, (GFunc) g_strfreev, NULL);
+			g_ptr_array_free (results, TRUE);
+		}
 
-		length = results->len;
-
-		g_print (tracker_dngettext (NULL,
-					    _("Result: %d"), 
-					    _("Results: %d"),
-					    length),
-			 length);
 		g_print ("\n");
-		
-		g_ptr_array_foreach (results, (GFunc) print_property_value, NULL);
-		g_ptr_array_foreach (results, (GFunc) g_strfreev, NULL);
-		g_ptr_array_free (results, TRUE);
 	}
 
 	tracker_disconnect (client);

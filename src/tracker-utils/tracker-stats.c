@@ -67,7 +67,7 @@ main (int argc, char **argv)
 
 	/* Translators: this messagge will apper immediately after the	*/
 	/* usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>	*/
-	context = g_option_context_new (_(" - Show number of indexed files for each service"));
+	context = g_option_context_new (_(" - Show statistics for all Nepomuk defined ontology classes"));
 	g_option_context_parse (context, &argc, &argv, NULL);
 	g_option_context_free (context);
 
