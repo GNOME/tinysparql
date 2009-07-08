@@ -1,43 +1,37 @@
-.TH tracker-search 1 "July 2007" GNU "User Commands"
+.TH tracker-search 1 "July 2009" GNU "User Commands"
 
 .SH NAME
-tracker-search \- command line tool to search documents indexed by
-tracker-store
+tracker-search \- Search all content for keywords
 
 .SH SYNOPSIS
-.B tracker-search
+.B tracker-search 
 [OPTIONS]
-.I EXPRESION
+.I EXPRESSION
 
 .SH DESCRIPTION
 .B tracker-search
-searches all by
-.BR tracker-store(1)
-indexed content for
-.I expression.
-.I Expression
-can be any number of words to be searched for.
-
-.SH OPTIONS
-.TP
-\-?, --help
-Give a short help message.
-
+searches all indexed content for \fIEXPRESSION\fR.
 .TP
 \fIEXPRESSION\fR
 One or more terms to search. The default operation is a logical AND.
 
+.SH OPTIONS
 .TP
-\-l, --limit=N
-Limit search to N results.
-
+\-?, \-\-help
+Give a short help message.
 .TP
-\-s, --service=SERVICE
-Search by a specific service. For more information on tracker services,
-see
-.BR tracker-services (1).
+\-l, \-\-limit=N
+Limit search to N results. The default is 512.
+.TP
+\-o, \-\-offset=N
+Offset the search results by N. For example, start at item number 10
+in the results. The default is 0.
+.TP
+\-d, \-\-detailed
+Give more information in the search results.
 
-.SH "SEE ALSO"
+.SH SEE ALSO
 .BR tracker-store (1),
-.BR tracker-search-tool (1),
-.BR tracker-services (1).
+.BR tracker-stats (1),
+.BR tracker-tag (1),
+.BR tracker-info (1).

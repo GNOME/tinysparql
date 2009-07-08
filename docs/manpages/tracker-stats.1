@@ -1,17 +1,21 @@
-.TH tracker-stats 1 "July 2007" GNU "User Commands"
+.TH tracker-stats 1 "July 2009" GNU "User Commands"
 
 .SH NAME
-tracker-stats\- command line tool that provides statistics on files
-indexed by
-.B tracker-store 
+tracker-stats \- Provides statistics on the data available for querying
 
 .SH SYNOPSIS
-.B tracker-stats [OPTIONS] 
+\fBtracker-stats\fR 
 
 .SH DESCRIPTION
 .B tracker-stats
-returns statistics on files indexed by tracker indexing daemon, ordered
-by service type.
+takes no arguments and returns statistics based on the ontology
+classes outlined in the 
+.B Nepomuk
+ontology specification. These classes can be used to further query
+more information using 
+.B SparQL
+with 
+.B tracker-sparql.
 
 .SH OPTIONS
 .TP
@@ -21,4 +25,9 @@ Show a brief help message.
 .SH SEE ALSO
 .BR tracker-store (1),
 .BR tracker-status (1),
-.BR tracker-services (7).
+.BR tracker-sparql (1),
+.BR tracker-info (1).
+.TP
+.BR Nepomuk.
+.TP
+.BR http://www.w3.org/TR/rdf-sparql-query/

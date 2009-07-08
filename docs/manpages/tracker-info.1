@@ -1,33 +1,31 @@
 .TH tracker-info 1 "Oct 2008" GNU "User Commands"
 
 .SH NAME
-tracker-info \- command line tool to retrieve all metadata available
-in tracker for a certain file.
+tracker-info \- Retrieve all information available for a certain file.
 
 .SH SYNOPSIS
 \fBtracker-info\fR 
--s ServiceType \fIFILE\fR
+\fIFILE\fR
 
 .SH DESCRIPTION
 .B tracker-info
-asks tracker for all the known metadata available for the 
-\fIFILE\fR. The actual information is stored in the
-.B tracker
-database.
+asks for all the known metadata available for the given \fIFILE\fR.
+
+Multiple \fIFILE\fR arguments can be provided to retrieve information
+about multiple files.
+
+The \fIFILE\fR argument can be either a local path or a URI. It also
+does not have to be an absolute path.
 
 .SH OPTIONS
 .TP
 .B \-?, \-\-help
 Show summary of options.
-.TP
-.B \-s, \-\-service=SERVICE
-Look for the file in this service type. For more information on
-tracker services, see 
-.BR tracker-services (1)
 
 .SH SEE ALSO
 .BR tracker-store (1),
-.BR tracker-services (1).
-
-.SH AUTHOR
-tracker-info was written by Ivan Frade <ivan.frade@nokia.com>.
+.BR tracker-sparql (1).
+.TP
+.BR Nepomuk
+.TP
+.BR http://www.w3.org/TR/rdf-sparql-query/

@@ -1,17 +1,14 @@
 .TH tracker-tag 1 "July 2007" GNU "User Commands"
 
 .SH NAME
-tracker-tag \- command line tool for setting and searching tags/keywords
+tracker-tag \- Tool to get/set and search for tags and keywords
 
 .SH SYNOPSIS
-\fBtracker-tag\fR [\fIoptions\fR] \fIFILE\fR...
+\fBtracker-tag\fR [\fIOPTIONS\fR] \fIFILE\fR...
 
 .SH DESCRIPTION
 .B tracker-tag
-allows you to modify the tags that are associated with a file.
-The actual information is stored in a 
-.B tracker
-database.
+allows you to change and search for tags associated with a file.
 
 .SH OPTIONS
 .TP
@@ -36,10 +33,6 @@ If no file name is given, all known tags and their count is listed.
 Search for files matching the given tag.
 
 .SH SEE ALSO
-.BR tracker-store (1).
-
-.SH AUTHOR
-tracker-tag was written by Jamie McCracken <jamiemcc@gnome.org>.
-.PP
-This manual page was written by Michael Biebl <biebl@debian.org>,
-for the Debian project (but may be used by others).
+.BR tracker-store (1),
+.BR tracker-stats (1),
+.BR tracker-info (1).

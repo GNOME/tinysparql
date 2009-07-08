@@ -3,14 +3,29 @@
 .SH NAME
 tracker-sparql \- Use SparQL to query the Tracker databases.
 
-.SH SYNOPSYS
-.B tracker-sparql [-p <path> | -q <query>]
+.SH SYNOPSIS
+\fBtracker-sparql\fR 
+[-p \fIFILE\fR | -q \fIQUERY\fR]
 
 .SH DESCRIPTION
 .B tracker-sparql
-Allows the caller to run an RDF SparQL query on the Tracker database.
-This can be done two ways. Either by providing a path to a file with
-the query or by providing a string with the query on the command line.
+allows the caller to run an RDF query on the database. This can be
+done two ways. Either by providing a \fIFILE\fR with the query or by
+providing a string with the \fIQUERY\fR string. 
+
+The \fIFILE\fR argument can be either a local path or a URI. It also
+does not have to be an absolute path. 
+
+.SH OPTIONS
+.TP
+.B \-?, \-\-help
+Show summary of options.
+.TP
+.B \-p, \-\-path=PATH
+Use a file with sparql content to query the Tracker database.
+.TP
+.B \-q, \-\-query=QUERY
+Use a query string with sparql content to query the Tracker database.
 
 .SH EXAMPLES
 .TP
@@ -119,6 +134,9 @@ $ tracker-sparql -q "SELECT ?image ?date WHERE {
 .FI
 
 .SH SEE ALSO
-.BR tracker-store (1)
+.BR tracker-store (1),
+.BR tracker-info (1).
+.TP
+.BR Nepomuk
 .TP
 .BR http://www.w3.org/TR/rdf-sparql-query/

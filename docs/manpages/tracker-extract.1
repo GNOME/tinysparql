@@ -1,15 +1,44 @@
 .TH tracker-extract 1 "July 2007" GNU "User Commands"
 
 .SH NAME
-tracker-extract \- extract metadata from file and display them.
+tracker-extract \- Extract metadata from a file.
 
 .SH SYNOPSYS
-.B tracker-extract
+\fBtracker-extract\fR [\fIOPTIONS\fR] \fIFILE\fR...
 
 .SH DESCRIPTION
 .B tracker-extract
-read the file and mimetype provided in stdin and extract the metadata from this
+reads the file and mimetype provided in stdin and extract the metadata from this
 file; then it displays the metadata on the standard output.
+
+.B NOTE:
+If a \fIFILE\fR is not provided then 
+.B tracker-extract
+will run for 30 seconds waiting for DBus calls before quitting.
+
+.SH OPTIONS
+.TP
+.B \-?, \-\-help
+Show summary of options.
+.TP
+.B \-V, \-\-version
+Show binary version.
+.TP
+.B \-v, \-\-verbosity=N
+Set verbosity to N. This overrides the config value.
+Values include 0=errors, 1=minimal, 2=detailed and 3=debug.
+.TP
+.B \-f, \-\-file=FILE
+The \fIFILE\fR to extract metadata from. The \fIFILE\fR argument can
+be either a local path or a URI. It also does not have to be an absolute path.
+.TP
+.B \-m, \-\-mime=MIME
+The \fIMIME\fR type to use for the file. If one is not provided, it
+will be guessed automatically.
+.TP
+.B \-d, \-\-debug
+Enable debug mode which will provide more information about what is
+going on during the extraction.
 
 .SH EXAMPLES
 .TP
@@ -18,4 +47,7 @@ Using tracker-extract from command line to extract metadata from one file:
 $ echo -e "/x/y/z.mp3\\naudio/mpeg" | tracker-extract
 
 .SH SEE ALSO
-.BR tracker-store (1)
+.BR tracker-store (1),
+.BR tracker-sparql (1),
+.BR tracker-stats (1),
+.BR tracker-info (1).
