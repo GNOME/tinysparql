@@ -1707,10 +1707,6 @@ parse_id3v24 (const gchar *data,
 			    ((data[12] & 0x7F) << 7) |
 			    ((data[13] & 0x7F) << 0));
 		pos += ehdrSize;
-
-		if (tsize + 10 + ehdrSize > size) {
-			return;
-		}
 	}
 
 	if (unsync) {
@@ -1779,10 +1775,6 @@ parse_id3v23 (const gchar *data,
 			   ((unsigned char)(data[18]) << 0));
 
 		pos += 4 + ehdrSize;
-
-		if (tsize + 10 + ehdrSize + padding > size) {
-			return;
-		}
 
 		if (padding < tsize) {
 			tsize -= padding;
