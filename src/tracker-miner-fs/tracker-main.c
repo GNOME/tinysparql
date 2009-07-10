@@ -220,6 +220,7 @@ main (gint argc, gchar *argv[])
 	GOptionContext *context;
 	GError *error = NULL;
 	gchar *filename;
+        gchar *basename;
 
 	g_type_init ();
 
@@ -276,10 +277,12 @@ main (gint argc, gchar *argv[])
 		return EXIT_FAILURE;
 	}
 
-	filename = g_build_filename (g_get_user_data_dir (),
-				     "tracker",
-				     "tracker-indexer.log",
-				     NULL);
+	basename = g_strdup_printf ("%s.log", g_get_application_name ());
+	filename = g_build_filename (g_get_user_data_dir (), 
+                                     "tracker", 
+                                     basename, 
+                                     NULL);
+	g_free (basename);
 
 	tracker_log_init (filename, tracker_config_get_verbosity (config));
 	g_print ("Starting log:\n  File:'%s'\n", filename);

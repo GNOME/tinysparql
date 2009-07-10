@@ -56,50 +56,28 @@ gboolean       tracker_config_save                                 (TrackerConfi
 
 gint	       tracker_config_get_verbosity			   (TrackerConfig *config);
 gint	       tracker_config_get_initial_sleep			   (TrackerConfig *config);
-gboolean       tracker_config_get_low_memory_mode		   (TrackerConfig *config);
 GSList *       tracker_config_get_watch_directory_roots		   (TrackerConfig *config);
 GSList *       tracker_config_get_crawl_directory_roots		   (TrackerConfig *config);
 GSList *       tracker_config_get_no_watch_directory_roots	   (TrackerConfig *config);
 gboolean       tracker_config_get_enable_watches		   (TrackerConfig *config);
 gint	       tracker_config_get_throttle			   (TrackerConfig *config);
-gboolean       tracker_config_get_enable_indexing		   (TrackerConfig *config);
-gboolean       tracker_config_get_enable_content_indexing	   (TrackerConfig *config);
 gboolean       tracker_config_get_enable_thumbnails		   (TrackerConfig *config);
 GSList *       tracker_config_get_disabled_modules		   (TrackerConfig *config);
-gint	       tracker_config_get_min_word_length		   (TrackerConfig *config);
-gint	       tracker_config_get_max_word_length		   (TrackerConfig *config);
-const gchar *  tracker_config_get_language			   (TrackerConfig *config);
-gboolean       tracker_config_get_enable_stemmer		   (TrackerConfig *config);
 gboolean       tracker_config_get_disable_indexing_on_battery	   (TrackerConfig *config);
 gboolean       tracker_config_get_disable_indexing_on_battery_init (TrackerConfig *config);
 gint	       tracker_config_get_low_disk_space_limit		   (TrackerConfig *config);
 gboolean       tracker_config_get_index_removable_devices	   (TrackerConfig *config);
 gboolean       tracker_config_get_index_mounted_directories	   (TrackerConfig *config);
-gint	       tracker_config_get_max_text_to_index		   (TrackerConfig *config);
-gint	       tracker_config_get_max_words_to_index		   (TrackerConfig *config);
+
 void	       tracker_config_set_verbosity			   (TrackerConfig *config,
 								    gint	   value);
 void	       tracker_config_set_initial_sleep			   (TrackerConfig *config,
 								    gint	   value);
-void	       tracker_config_set_low_memory_mode		   (TrackerConfig *config,
-								    gboolean	   value);
 void	       tracker_config_set_enable_watches		   (TrackerConfig *config,
 								    gboolean	   value);
 void	       tracker_config_set_throttle			   (TrackerConfig *config,
 								    gint	   value);
-void	       tracker_config_set_enable_indexing		   (TrackerConfig *config,
-								    gboolean	   value);
-void	       tracker_config_set_enable_content_indexing	   (TrackerConfig *config,
-								    gboolean	   value);
 void	       tracker_config_set_enable_thumbnails		   (TrackerConfig *config,
-								    gboolean	   value);
-void	       tracker_config_set_min_word_length		   (TrackerConfig *config,
-								    gint	   value);
-void	       tracker_config_set_max_word_length		   (TrackerConfig *config,
-								    gint	   value);
-void	       tracker_config_set_language			   (TrackerConfig *config,
-								    const gchar   *value);
-void	       tracker_config_set_enable_stemmer		   (TrackerConfig *config,
 								    gboolean	   value);
 void	       tracker_config_set_disable_indexing_on_battery	   (TrackerConfig *config,
 								    gboolean	   value);
@@ -111,10 +89,6 @@ void	       tracker_config_set_index_removable_devices	   (TrackerConfig *config
 								    gboolean	   value);
 void	       tracker_config_set_index_mounted_directories	   (TrackerConfig *config,
 								    gboolean	   value);
-void	       tracker_config_set_max_text_to_index		   (TrackerConfig *config,
-								    gint	   value);
-void	       tracker_config_set_max_words_to_index		   (TrackerConfig *config,
-								    gint	   value);
 
 /* List APIs*/
 void	       tracker_config_add_watch_directory_roots		   (TrackerConfig *config,

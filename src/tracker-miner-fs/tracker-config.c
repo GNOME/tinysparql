@@ -1,7 +1,5 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*
- * Copyright (C) 2006, Mr Jamie McCracken (jamiemcc@gnome.org)
- * Copyright (C) 2007, Michal Pryc (Michal.Pryc@Sun.Com)
  * Copyright (C) 2008, Nokia (urho.konttori@nokia.com)
  *
  * This library is free software; you can redistribute it and/or
@@ -28,7 +26,6 @@
 #include <glib.h>
 #include <gio/gio.h>
 
-#include <libtracker-common/tracker-language.h>
 #include <libtracker-common/tracker-file-utils.h>
 #include <libtracker-common/tracker-type-utils.h>
 
@@ -40,52 +37,34 @@
 #define GROUP_GENERAL				 "General"
 #define KEY_VERBOSITY				 "Verbosity"
 #define KEY_INITIAL_SLEEP			 "InitialSleep"
-#define KEY_LOW_MEMORY_MODE			 "LowMemoryMode"
-#define GROUP_WATCHES				 "Watches"
+
+#define GROUP_MONITORS				 "Monitors"
+#define KEY_ENABLE_WATCHES		         "EnableWatches"
 #define KEY_WATCH_DIRECTORY_ROOTS		 "WatchDirectoryRoots"
 #define KEY_CRAWL_DIRECTORY_ROOTS		 "CrawlDirectory"
 #define KEY_NO_WATCH_DIRECTORY_ROOTS		 "NoWatchDirectory"
-#define KEY_ENABLE_WATCHES			 "EnableWatching"
 
 #define GROUP_INDEXING				 "Indexing"
 #define KEY_THROTTLE				 "Throttle"
-#define KEY_ENABLE_INDEXING			 "EnableIndexing"
-#define KEY_ENABLE_CONTENT_INDEXING		 "EnableFileContentIndexing"
 #define KEY_ENABLE_THUMBNAILS			 "EnableThumbnails"
 #define KEY_DISABLED_MODULES			 "DisabledModules"
-#define KEY_MIN_WORD_LENGTH			 "MinWordLength"
-#define KEY_MAX_WORD_LENGTH			 "MaxWordLength"
-#define KEY_LANGUAGE				 "Language"
-#define KEY_ENABLE_STEMMER			 "EnableStemmer"
 #define KEY_DISABLE_INDEXING_ON_BATTERY		 "BatteryIndex"
 #define KEY_DISABLE_INDEXING_ON_BATTERY_INIT	 "BatteryIndexInitial"
 #define KEY_LOW_DISK_SPACE_LIMIT		 "LowDiskSpaceLimit"
 #define KEY_INDEX_MOUNTED_DIRECTORIES		 "IndexMountedDirectories"
 #define KEY_INDEX_REMOVABLE_DEVICES		 "IndexRemovableMedia"
 
-#define GROUP_PERFORMANCE			 "Performance"
-#define KEY_MAX_TEXT_TO_INDEX			 "MaxTextToIndex"
-#define KEY_MAX_WORDS_TO_INDEX			 "MaxWordsToIndex"
-
 /* Default values */
 #define DEFAULT_VERBOSITY			 0
 #define DEFAULT_INITIAL_SLEEP			 45	  /* 0->1000 */
-#define DEFAULT_LOW_MEMORY_MODE			 FALSE
 #define DEFAULT_ENABLE_WATCHES			 TRUE
 #define DEFAULT_THROTTLE			 0	  /* 0->20 */
-#define DEFAULT_ENABLE_INDEXING			 TRUE
-#define DEFAULT_ENABLE_CONTENT_INDEXING		 TRUE
 #define DEFAULT_ENABLE_THUMBNAILS		 TRUE
-#define DEFAULT_MIN_WORD_LENGTH			 3	  /* 0->30 */
-#define DEFAULT_MAX_WORD_LENGTH			 30	  /* 0->200 */
-#define DEFAULT_ENABLE_STEMMER			 TRUE
 #define DEFAULT_DISABLE_INDEXING_ON_BATTERY	 TRUE
 #define DEFAULT_DISABLE_INDEXING_ON_BATTERY_INIT FALSE
 #define DEFAULT_INDEX_MOUNTED_DIRECTORIES	 TRUE
 #define DEFAULT_INDEX_REMOVABLE_DEVICES		 TRUE
 #define DEFAULT_LOW_DISK_SPACE_LIMIT		 1	  /* 0->100 / -1 */
-#define DEFAULT_MAX_TEXT_TO_INDEX		 1048576  /* Bytes */
-#define DEFAULT_MAX_WORDS_TO_INDEX		 10000
 
 typedef struct _TrackerConfigPrivate TrackerConfigPrivate;
 
@@ -98,7 +77,6 @@ struct _TrackerConfigPrivate {
 	/* General */
 	gint	      verbosity;
 	gint	      initial_sleep;
-	gboolean      low_memory_mode;
 
 	/* Watches */
 	GSList	     *watch_directory_roots;
@@ -108,23 +86,14 @@ struct _TrackerConfigPrivate {
 
 	/* Indexing */
 	gint	      throttle;
-	gboolean      enable_indexing;
-	gboolean      enable_content_indexing;
 	gboolean      enable_thumbnails;
 	GSList	     *disabled_modules;
-	gint	      min_word_length;
-	gint	      max_word_length;
-	gchar	     *language;
-	gboolean      enable_stemmer;
+
 	gboolean      disable_indexing_on_battery;
 	gboolean      disable_indexing_on_battery_init;
 	gint	      low_disk_space_limit;
 	gboolean      index_mounted_directories;
 	gboolean      index_removable_devices;
-
-	/* Performance */
-	gint	      max_text_to_index;
-	gint	      max_words_to_index;
 };
 
 static void     config_finalize             (GObject       *object);
@@ -147,7 +116,6 @@ enum {
 	/* General */
 	PROP_VERBOSITY,
 	PROP_INITIAL_SLEEP,
-	PROP_LOW_MEMORY_MODE,
 
 	/* Watches */
 	PROP_WATCH_DIRECTORY_ROOTS,
@@ -157,23 +125,13 @@ enum {
 
 	/* Indexing */
 	PROP_THROTTLE,
-	PROP_ENABLE_INDEXING,
-	PROP_ENABLE_CONTENT_INDEXING,
 	PROP_ENABLE_THUMBNAILS,
 	PROP_DISABLED_MODULES,
-	PROP_MIN_WORD_LENGTH,
-	PROP_MAX_WORD_LENGTH,
-	PROP_LANGUAGE,
-	PROP_ENABLE_STEMMER,
 	PROP_DISABLE_INDEXING_ON_BATTERY,
 	PROP_DISABLE_INDEXING_ON_BATTERY_INIT,
 	PROP_LOW_DISK_SPACE_LIMIT,
 	PROP_INDEX_MOUNTED_DIRECTORIES,
 	PROP_INDEX_REMOVABLE_DEVICES,
-
-	/* Performance */
-	PROP_MAX_TEXT_TO_INDEX,
-	PROP_MAX_WORDS_TO_INDEX,
 };
 
 G_DEFINE_TYPE (TrackerConfig, tracker_config, G_TYPE_OBJECT);
@@ -208,14 +166,6 @@ tracker_config_class_init (TrackerConfigClass *klass)
 							   1000,
 							   DEFAULT_INITIAL_SLEEP,
 							   G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
-	g_object_class_install_property (object_class,
-					 PROP_LOW_MEMORY_MODE,
-					 g_param_spec_boolean ("low-memory-mode",
-							       "Use extra memory",
-							       "Use extra memory at the "
-							       "expense of indexing speed",
-							       DEFAULT_LOW_MEMORY_MODE,
-							       G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
 
 	/* Watches */
 	g_object_class_install_property (object_class,
@@ -260,21 +210,6 @@ tracker_config_class_init (TrackerConfigClass *klass)
 							   DEFAULT_THROTTLE,
 							   G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
 	g_object_class_install_property (object_class,
-					 PROP_ENABLE_INDEXING,
-					 g_param_spec_boolean ("enable-indexing",
-							       "Enable indexing",
-							       "All indexing",
-							       DEFAULT_ENABLE_INDEXING,
-							       G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
-	g_object_class_install_property (object_class,
-					 PROP_ENABLE_CONTENT_INDEXING,
-					 g_param_spec_boolean ("enable-content-indexing",
-							       "Enable content indexing",
-							       "Content specific indexing "
-							       "(i.e. file content)",
-							       DEFAULT_ENABLE_CONTENT_INDEXING,
-							       G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
-	g_object_class_install_property (object_class,
 					 PROP_ENABLE_THUMBNAILS,
 					 g_param_spec_boolean ("enable-thumbnails",
 							       "Enable thumbnails",
@@ -287,40 +222,7 @@ tracker_config_class_init (TrackerConfigClass *klass)
 							       "Disabled modules",
 							       "Modules to disable, like 'files', etc.",
 							       G_PARAM_READABLE));
-	g_object_class_install_property (object_class,
-					 PROP_MIN_WORD_LENGTH,
-					 g_param_spec_int ("min-word-length",
-							   "Minimum word length",
-							   "Minimum word length used to index "
-							   "(0->30)",
-							   0,
-							   30,
-							   DEFAULT_MIN_WORD_LENGTH,
-							   G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
-	g_object_class_install_property (object_class,
-					 PROP_MAX_WORD_LENGTH,
-					 g_param_spec_int ("max-word-length",
-							   "Maximum word length",
-							   "Maximum word length used to index",
-							   0,
-							   200, /* Is this a reasonable limit? */
-							   DEFAULT_MAX_WORD_LENGTH,
-							   G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
-	g_object_class_install_property (object_class,
-					 PROP_LANGUAGE,
-					 g_param_spec_string ("language",
-							      "Language",
-							      "Language to use with stemming "
-							      "('en', 'fr', 'sv', etc)",
-							      "en",
-							      G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
-	g_object_class_install_property (object_class,
-					 PROP_ENABLE_STEMMER,
-					 g_param_spec_boolean ("enable-stemmer",
-							       "Enable stemmer",
-							       "Language specific stemmer",
-							       DEFAULT_ENABLE_STEMMER,
-							       G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
+;
 	g_object_class_install_property (object_class,
 					 PROP_DISABLE_INDEXING_ON_BATTERY,
 					 g_param_spec_boolean ("disable-indexing-on-battery",
@@ -364,28 +266,6 @@ tracker_config_class_init (TrackerConfigClass *klass)
 							       DEFAULT_INDEX_REMOVABLE_DEVICES,
 							       G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
 
-	/* Performance */
-	g_object_class_install_property (object_class,
-					 PROP_MAX_TEXT_TO_INDEX,
-					 g_param_spec_int ("max-text-to-index",
-							   "Maximum text to index",
-							   "Maximum text in bytes to index "
-							   "from file's content",
-							   0,
-							   G_MAXINT,
-							   DEFAULT_MAX_TEXT_TO_INDEX,
-							   G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
-	g_object_class_install_property (object_class,
-					 PROP_MAX_WORDS_TO_INDEX,
-					 g_param_spec_int ("max-words-to-index",
-							   "Maximum words to index",
-							   "Maximum unique words to index "
-							   "from file's content",
-							   0,
-							   G_MAXINT,
-							   DEFAULT_MAX_WORDS_TO_INDEX,
-							   G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
-
 	g_type_class_add_private (object_class, sizeof (TrackerConfigPrivate));
 }
 
@@ -417,8 +297,6 @@ config_finalize (GObject *object)
 
 	g_slist_foreach (priv->disabled_modules, (GFunc) g_free, NULL);
 	g_slist_free (priv->disabled_modules);
-
-	g_free (priv->language);
 
 	if (priv->key_file) {
 		g_key_file_free (priv->key_file);
@@ -453,9 +331,6 @@ config_get_property (GObject	*object,
 	case PROP_INITIAL_SLEEP:
 		g_value_set_int (value, priv->initial_sleep);
 		break;
-	case PROP_LOW_MEMORY_MODE:
-		g_value_set_boolean (value, priv->low_memory_mode);
-		break;
 
 		/* Watches */
 	case PROP_WATCH_DIRECTORY_ROOTS:
@@ -475,29 +350,11 @@ config_get_property (GObject	*object,
 	case PROP_THROTTLE:
 		g_value_set_int (value, priv->throttle);
 		break;
-	case PROP_ENABLE_INDEXING:
-		g_value_set_boolean (value, priv->enable_indexing);
-		break;
-	case PROP_ENABLE_CONTENT_INDEXING:
-		g_value_set_boolean (value, priv->enable_content_indexing);
-		break;
 	case PROP_ENABLE_THUMBNAILS:
 		g_value_set_boolean (value, priv->enable_thumbnails);
 		break;
 	case PROP_DISABLED_MODULES:
 		g_value_set_pointer (value, priv->disabled_modules);
-		break;
-	case PROP_MIN_WORD_LENGTH:
-		g_value_set_int (value, priv->min_word_length);
-		break;
-	case PROP_MAX_WORD_LENGTH:
-		g_value_set_int (value, priv->max_word_length);
-		break;
-	case PROP_LANGUAGE:
-		g_value_set_string (value, priv->language);
-		break;
-	case PROP_ENABLE_STEMMER:
-		g_value_set_boolean (value, priv->enable_stemmer);
 		break;
 	case PROP_DISABLE_INDEXING_ON_BATTERY:
 		g_value_set_boolean (value, priv->disable_indexing_on_battery);
@@ -513,14 +370,6 @@ config_get_property (GObject	*object,
 		break;
 	case PROP_INDEX_REMOVABLE_DEVICES:
 		g_value_set_boolean (value, priv->index_removable_devices);
-		break;
-
-		/* Performance */
-	case PROP_MAX_TEXT_TO_INDEX:
-		g_value_set_int (value, priv->max_text_to_index);
-		break;
-	case PROP_MAX_WORDS_TO_INDEX:
-		g_value_set_int (value, priv->max_words_to_index);
 		break;
 
 	default:
@@ -545,10 +394,6 @@ config_set_property (GObject	  *object,
 		tracker_config_set_initial_sleep (TRACKER_CONFIG (object),
 						  g_value_get_int (value));
 		break;
-	case PROP_LOW_MEMORY_MODE:
-		tracker_config_set_low_memory_mode (TRACKER_CONFIG (object),
-						    g_value_get_boolean (value));
-		break;
 
 		/* Watches */
 	case PROP_WATCH_DIRECTORY_ROOTS:    /* Not writable */
@@ -565,36 +410,12 @@ config_set_property (GObject	  *object,
 		tracker_config_set_throttle (TRACKER_CONFIG (object),
 					     g_value_get_int (value));
 		break;
-	case PROP_ENABLE_INDEXING:
-		tracker_config_set_enable_indexing (TRACKER_CONFIG (object),
-						    g_value_get_boolean (value));
-		break;
-	case PROP_ENABLE_CONTENT_INDEXING:
-		tracker_config_set_enable_content_indexing (TRACKER_CONFIG (object),
-							    g_value_get_boolean (value));
-		break;
 	case PROP_ENABLE_THUMBNAILS:
 		tracker_config_set_enable_thumbnails (TRACKER_CONFIG (object),
 						      g_value_get_boolean (value));
 		break;
 	case PROP_DISABLED_MODULES:
 		/* Not writable */
-		break;
-	case PROP_MIN_WORD_LENGTH:
-		tracker_config_set_min_word_length (TRACKER_CONFIG (object),
-						    g_value_get_int (value));
-		break;
-	case PROP_MAX_WORD_LENGTH:
-		tracker_config_set_max_word_length (TRACKER_CONFIG (object),
-						    g_value_get_int (value));
-		break;
-	case PROP_LANGUAGE:
-		tracker_config_set_language (TRACKER_CONFIG (object),
-					     g_value_get_string (value));
-		break;
-	case PROP_ENABLE_STEMMER:
-		tracker_config_set_enable_stemmer (TRACKER_CONFIG (object),
-						   g_value_get_boolean (value));
 		break;
 	case PROP_DISABLE_INDEXING_ON_BATTERY:
 		tracker_config_set_disable_indexing_on_battery (TRACKER_CONFIG (object),
@@ -615,16 +436,6 @@ config_set_property (GObject	  *object,
 	case PROP_INDEX_REMOVABLE_DEVICES:
 		tracker_config_set_index_removable_devices (TRACKER_CONFIG (object),
 								g_value_get_boolean (value));
-		break;
-
-		/* Performance */
-	case PROP_MAX_TEXT_TO_INDEX:
-		tracker_config_set_max_text_to_index (TRACKER_CONFIG (object),
-						      g_value_get_int (value));
-		break;
-	case PROP_MAX_WORDS_TO_INDEX:
-		tracker_config_set_max_words_to_index (TRACKER_CONFIG (object),
-						       g_value_get_int (value));
 		break;
 
 	default:
@@ -659,13 +470,10 @@ static void
 config_create_with_defaults (GKeyFile *key_file, 
 			     gboolean  overwrite)
 {
-	gchar	     *language;
 	const gchar  *watch_directory_roots[2] = { NULL, NULL };
 	const gchar  *empty_string_list[] = { NULL };
 
 	/* Get default values */
-	language = tracker_language_get_default_code ();
-
 	watch_directory_roots[0] = g_get_home_dir ();
 
 	g_message ("Loading defaults into GKeyFile...");
@@ -687,44 +495,36 @@ config_create_with_defaults (GKeyFile *key_file,
 					NULL);
 	}
 
-	if (overwrite || !g_key_file_has_key (key_file, GROUP_GENERAL, KEY_LOW_MEMORY_MODE, NULL)) {
-		g_key_file_set_boolean (key_file, GROUP_GENERAL, KEY_LOW_MEMORY_MODE, 
-					DEFAULT_LOW_MEMORY_MODE);
-		g_key_file_set_comment (key_file, GROUP_GENERAL, KEY_LOW_MEMORY_MODE,
-					" Minimizes memory use at the expense of indexing speed",
-					NULL);
-	}
-
 	/* Watches */
-	if (overwrite || !g_key_file_has_key (key_file, GROUP_WATCHES, KEY_WATCH_DIRECTORY_ROOTS, NULL)) {
-		g_key_file_set_string_list (key_file, GROUP_WATCHES, KEY_WATCH_DIRECTORY_ROOTS,
+	if (overwrite || !g_key_file_has_key (key_file, GROUP_MONITORS, KEY_WATCH_DIRECTORY_ROOTS, NULL)) {
+		g_key_file_set_string_list (key_file, GROUP_MONITORS, KEY_WATCH_DIRECTORY_ROOTS,
 					    watch_directory_roots, 
 					    g_strv_length ((gchar**) watch_directory_roots));
-		g_key_file_set_comment (key_file, GROUP_WATCHES, KEY_WATCH_DIRECTORY_ROOTS,
+		g_key_file_set_comment (key_file, GROUP_MONITORS, KEY_WATCH_DIRECTORY_ROOTS,
 					" List of directory roots to index and watch (separator=;)",
 					NULL);
 	}
 
-	if (overwrite || !g_key_file_has_key (key_file, GROUP_WATCHES, KEY_CRAWL_DIRECTORY_ROOTS, NULL)) {
-		g_key_file_set_string_list (key_file, GROUP_WATCHES, KEY_CRAWL_DIRECTORY_ROOTS,
+	if (overwrite || !g_key_file_has_key (key_file, GROUP_MONITORS, KEY_CRAWL_DIRECTORY_ROOTS, NULL)) {
+		g_key_file_set_string_list (key_file, GROUP_MONITORS, KEY_CRAWL_DIRECTORY_ROOTS,
 					    empty_string_list, 0);
-		g_key_file_set_comment (key_file, GROUP_WATCHES, KEY_CRAWL_DIRECTORY_ROOTS,
+		g_key_file_set_comment (key_file, GROUP_MONITORS, KEY_CRAWL_DIRECTORY_ROOTS,
 					" List of directory roots to index but NOT watch (separator=;)",
 					NULL);
 	}
 
-	if (overwrite || !g_key_file_has_key (key_file, GROUP_WATCHES, KEY_NO_WATCH_DIRECTORY_ROOTS, NULL)) {
-		g_key_file_set_string_list (key_file, GROUP_WATCHES, KEY_NO_WATCH_DIRECTORY_ROOTS,
+	if (overwrite || !g_key_file_has_key (key_file, GROUP_MONITORS, KEY_NO_WATCH_DIRECTORY_ROOTS, NULL)) {
+		g_key_file_set_string_list (key_file, GROUP_MONITORS, KEY_NO_WATCH_DIRECTORY_ROOTS,
 					    empty_string_list, 0);
-		g_key_file_set_comment (key_file, GROUP_WATCHES, KEY_NO_WATCH_DIRECTORY_ROOTS,
+		g_key_file_set_comment (key_file, GROUP_MONITORS, KEY_NO_WATCH_DIRECTORY_ROOTS,
 					" List of directory roots NOT to index and NOT to watch (separator=;)",
 					NULL);
 	}
 
-	if (overwrite || !g_key_file_has_key (key_file, GROUP_WATCHES, KEY_ENABLE_WATCHES, NULL)) {
-		g_key_file_set_boolean (key_file, GROUP_WATCHES, KEY_ENABLE_WATCHES, 
+	if (overwrite || !g_key_file_has_key (key_file, GROUP_MONITORS, KEY_ENABLE_WATCHES, NULL)) {
+		g_key_file_set_boolean (key_file, GROUP_MONITORS, KEY_ENABLE_WATCHES, 
 					DEFAULT_ENABLE_WATCHES);
-		g_key_file_set_comment (key_file, GROUP_WATCHES, KEY_ENABLE_WATCHES,
+		g_key_file_set_comment (key_file, GROUP_MONITORS, KEY_ENABLE_WATCHES,
 					" Set to false to completely disable any watching",
 					NULL);
 	}
@@ -735,22 +535,6 @@ config_create_with_defaults (GKeyFile *key_file,
 					DEFAULT_THROTTLE);
 		g_key_file_set_comment (key_file, GROUP_INDEXING, KEY_THROTTLE,
 					" Sets the indexing speed (0->20, where 20=slowest speed)",
-					NULL);
-	}
-
-	if (overwrite || !g_key_file_has_key (key_file, GROUP_INDEXING, KEY_ENABLE_INDEXING, NULL)) {
-		g_key_file_set_boolean (key_file, GROUP_INDEXING, KEY_ENABLE_INDEXING, 
-					DEFAULT_ENABLE_INDEXING);
-		g_key_file_set_comment (key_file, GROUP_INDEXING, KEY_ENABLE_INDEXING,
-					" Set to false to completely disable any indexing",
-					NULL);
-	}
-
-	if (overwrite || !g_key_file_has_key (key_file, GROUP_INDEXING, KEY_ENABLE_CONTENT_INDEXING, NULL)) {
-		g_key_file_set_boolean (key_file, GROUP_INDEXING, KEY_ENABLE_CONTENT_INDEXING, 
-					DEFAULT_ENABLE_CONTENT_INDEXING);
-		g_key_file_set_comment (key_file, GROUP_INDEXING, KEY_ENABLE_CONTENT_INDEXING,
-					" Set to false to completely disable file content indexing",
 					NULL);
 	}
 
@@ -768,51 +552,6 @@ config_create_with_defaults (GKeyFile *key_file,
 		g_key_file_set_comment (key_file, GROUP_INDEXING, KEY_DISABLED_MODULES,
 					" List of disabled modules (separator=;)\n"
 					" The modules that are indexed are kept in $prefix/lib/tracker/indexer-modules",
-					NULL);
-	}
-
-	if (overwrite || !g_key_file_has_key (key_file, GROUP_INDEXING, KEY_MIN_WORD_LENGTH, NULL)) {
-		g_key_file_set_integer (key_file, GROUP_INDEXING, KEY_MIN_WORD_LENGTH,
-					DEFAULT_MIN_WORD_LENGTH);
-		g_key_file_set_comment (key_file, GROUP_INDEXING, KEY_MIN_WORD_LENGTH,
-					" Set the minimum length of words to index (0->30, default=3)",
-					NULL);
-	}
-
-	if (overwrite || !g_key_file_has_key (key_file, GROUP_INDEXING, KEY_MAX_WORD_LENGTH, NULL)) {
-		g_key_file_set_integer (key_file, GROUP_INDEXING, KEY_MAX_WORD_LENGTH,
-					DEFAULT_MAX_WORD_LENGTH);
-		g_key_file_set_comment (key_file, GROUP_INDEXING, KEY_MAX_WORD_LENGTH,
-					" Set the maximum length of words to index (0->200, default=30)",
-					NULL);
-	}
-
-	if (overwrite || !g_key_file_has_key (key_file, GROUP_INDEXING, KEY_LANGUAGE, NULL)) {
-		g_key_file_set_string (key_file, GROUP_INDEXING, KEY_LANGUAGE, 
-				       language);
-		g_key_file_set_comment (key_file, GROUP_INDEXING, KEY_LANGUAGE,
-					" Set the language specific stemmer and stopword list to use\n"
-					" Values include:\n"
-					" - en (English)\n"
-					" - da (Danish)\n"
-					" - nl (Dutch)\n"
-					" - fi (Finish)\n"
-					" - fr (French)\n"
-					" - de (German)\n"
-					" - it (Italian)\n"
-					" - nb (Norwegian)\n"
-					" - pt (Portugese)\n"
-					" - ru (Russian)\n"
-					" - es (Spanish)\n"
-					" - sv (Swedish)",
-					NULL);
-	}
-
-	if (overwrite || !g_key_file_has_key (key_file, GROUP_INDEXING, KEY_ENABLE_STEMMER, NULL)) {
-		g_key_file_set_boolean (key_file, GROUP_INDEXING, KEY_ENABLE_STEMMER, 
-					DEFAULT_ENABLE_STEMMER);
-		g_key_file_set_comment (key_file, GROUP_INDEXING, KEY_ENABLE_STEMMER,
-					" Set to false to disable language specific stemmer",
 					NULL);
 	}
 
@@ -857,25 +596,6 @@ config_create_with_defaults (GKeyFile *key_file,
 					" Set to true to enable traversing mounted directories for removable devices",
 					NULL);
 	}
-
-	/* Performance */
-	if (overwrite || !g_key_file_has_key (key_file, GROUP_PERFORMANCE, KEY_MAX_TEXT_TO_INDEX, NULL)) {
-		g_key_file_set_integer (key_file, GROUP_PERFORMANCE, KEY_MAX_TEXT_TO_INDEX, 
-					DEFAULT_MAX_TEXT_TO_INDEX);
-		g_key_file_set_comment (key_file, GROUP_PERFORMANCE, KEY_MAX_TEXT_TO_INDEX,
-					" Maximum text size in bytes to index from a file's content",
-					NULL);
-	}
-
-	if (overwrite || !g_key_file_has_key (key_file, GROUP_PERFORMANCE, KEY_MAX_WORDS_TO_INDEX, NULL)) {
-		g_key_file_set_integer (key_file, GROUP_PERFORMANCE, KEY_MAX_WORDS_TO_INDEX, 
-					DEFAULT_MAX_WORDS_TO_INDEX);
-		g_key_file_set_comment (key_file, GROUP_PERFORMANCE, KEY_MAX_WORDS_TO_INDEX,
-					" Maximum unique words to index from a file's content",
-					NULL);
-	}
-
-	g_free (language);
 }
 
 static gboolean
@@ -984,6 +704,8 @@ config_load_boolean (TrackerConfig *config,
 	}
 }
 
+#if 0
+
 static void
 config_load_string (TrackerConfig *config,
 		    const gchar	  *property,
@@ -1006,6 +728,8 @@ config_load_string (TrackerConfig *config,
 	g_free (value);
 }
 
+#endif
+
 static void
 config_load_string_list (TrackerConfig *config,
 			 const gchar   *property,
@@ -1020,8 +744,7 @@ config_load_string_list (TrackerConfig *config,
 
 	priv = TRACKER_CONFIG_GET_PRIVATE (config);
 
-	if (strcmp (property, "no-index-file-types") == 0 || 
-	    strcmp (property, "disabled-modules") == 0) {
+	if (strcmp (property, "disabled-modules") == 0) {
 		is_directory_list = FALSE;
 	}
 
@@ -1080,6 +803,8 @@ config_save_boolean (TrackerConfig *config,
 	g_key_file_set_boolean (key_file, group, key, value);
 }
 
+#if 0
+
 static void
 config_save_string (TrackerConfig *config,
 		    const gchar	  *property,
@@ -1093,6 +818,8 @@ config_save_string (TrackerConfig *config,
 	g_key_file_set_string (key_file, group, key, value);
 	g_free (value);
 }
+
+#endif 
 
 static void
 config_save_string_list (TrackerConfig *config,
@@ -1174,6 +901,7 @@ config_load (TrackerConfig *config)
 {
 	TrackerConfigPrivate *priv;
 	GError		     *error = NULL;
+	gchar                *basename;
 	gchar		     *filename;
 	gchar		     *directory;
 	gboolean	      value;
@@ -1186,7 +914,9 @@ config_load (TrackerConfig *config)
 		return;
 	}
 
-	filename = g_build_filename (directory, "tracker.cfg", NULL);
+	basename = g_strdup_printf ("%s.cfg", g_get_application_name ());
+	filename = g_build_filename (directory, basename, NULL);
+	g_free (basename);
 	g_free (directory);
 
 	priv = TRACKER_CONFIG_GET_PRIVATE (config);
@@ -1228,33 +958,22 @@ config_load (TrackerConfig *config)
 	/* General */
 	config_load_int (config, "verbosity", priv->key_file, GROUP_GENERAL, KEY_VERBOSITY);
 	config_load_int (config, "initial-sleep", priv->key_file, GROUP_GENERAL, KEY_INITIAL_SLEEP);
-	config_load_boolean (config, "low-memory-mode", priv->key_file, GROUP_GENERAL, KEY_LOW_MEMORY_MODE);
 
 	/* Watches */
-	config_load_string_list (config, "watch-directory-roots", priv->key_file, GROUP_WATCHES, KEY_WATCH_DIRECTORY_ROOTS);
-	config_load_string_list (config, "crawl-directory-roots", priv->key_file, GROUP_WATCHES, KEY_CRAWL_DIRECTORY_ROOTS);
-	config_load_string_list (config, "no-watch-directory-roots", priv->key_file, GROUP_WATCHES, KEY_NO_WATCH_DIRECTORY_ROOTS);
-	config_load_boolean (config, "enable-watches", priv->key_file, GROUP_WATCHES, KEY_ENABLE_WATCHES);
+	config_load_string_list (config, "watch-directory-roots", priv->key_file, GROUP_MONITORS, KEY_WATCH_DIRECTORY_ROOTS);
+	config_load_string_list (config, "crawl-directory-roots", priv->key_file, GROUP_MONITORS, KEY_CRAWL_DIRECTORY_ROOTS);
+	config_load_string_list (config, "no-watch-directory-roots", priv->key_file, GROUP_MONITORS, KEY_NO_WATCH_DIRECTORY_ROOTS);
+	config_load_boolean (config, "enable-watches", priv->key_file, GROUP_MONITORS, KEY_ENABLE_WATCHES);
 
 	/* Indexing */
 	config_load_int (config, "throttle", priv->key_file, GROUP_INDEXING, KEY_THROTTLE);
-	config_load_boolean (config, "enable-indexing", priv->key_file, GROUP_INDEXING, KEY_ENABLE_INDEXING);
-	config_load_boolean (config, "enable-content-indexing", priv->key_file, GROUP_INDEXING, KEY_ENABLE_CONTENT_INDEXING);
 	config_load_boolean (config, "enable-thumbnails", priv->key_file, GROUP_INDEXING, KEY_ENABLE_THUMBNAILS);
 	config_load_string_list (config, "disabled-modules", priv->key_file, GROUP_INDEXING, KEY_DISABLED_MODULES);
-	config_load_int (config, "min-word-length", priv->key_file, GROUP_INDEXING, KEY_MIN_WORD_LENGTH);
-	config_load_int (config, "max-word-length", priv->key_file, GROUP_INDEXING, KEY_MAX_WORD_LENGTH);
-	config_load_string (config, "language", priv->key_file, GROUP_INDEXING, KEY_LANGUAGE);
-	config_load_boolean (config, "enable-stemmer", priv->key_file, GROUP_INDEXING, KEY_ENABLE_STEMMER);
 	config_load_boolean (config, "disable-indexing-on-battery", priv->key_file, GROUP_INDEXING, KEY_DISABLE_INDEXING_ON_BATTERY);
 	config_load_boolean (config, "disable-indexing-on-battery-init", priv->key_file, GROUP_INDEXING, KEY_DISABLE_INDEXING_ON_BATTERY_INIT);
 	config_load_int (config, "low-disk-space-limit", priv->key_file, GROUP_INDEXING, KEY_LOW_DISK_SPACE_LIMIT);
 	config_load_boolean (config, "index-mounted-directories", priv->key_file, GROUP_INDEXING, KEY_INDEX_MOUNTED_DIRECTORIES);
 	config_load_boolean (config, "index-removable-devices", priv->key_file, GROUP_INDEXING, KEY_INDEX_REMOVABLE_DEVICES);
-
-	/* Performance */
-	config_load_int (config, "max-text-to-index", priv->key_file, GROUP_PERFORMANCE, KEY_MAX_TEXT_TO_INDEX);
-	config_load_int (config, "max-words-to-index", priv->key_file, GROUP_PERFORMANCE, KEY_MAX_WORDS_TO_INDEX);
 
 	/*
 	 * Legacy options no longer supported:
@@ -1317,33 +1036,22 @@ config_save (TrackerConfig *config)
 	/* Set properties to GKeyFile */
 	config_save_int (config, "verbosity", priv->key_file, GROUP_GENERAL, KEY_VERBOSITY);
 	config_save_int (config, "initial-sleep", priv->key_file, GROUP_GENERAL, KEY_INITIAL_SLEEP);
-	config_save_boolean (config, "low-memory-mode", priv->key_file, GROUP_GENERAL, KEY_LOW_MEMORY_MODE);
 
 	/* Watches */
-	config_save_string_list (config, "watch-directory-roots", priv->key_file, GROUP_WATCHES, KEY_WATCH_DIRECTORY_ROOTS);
-	config_save_string_list (config, "crawl-directory-roots", priv->key_file, GROUP_WATCHES, KEY_CRAWL_DIRECTORY_ROOTS);
-	config_save_string_list (config, "no-watch-directory-roots", priv->key_file, GROUP_WATCHES, KEY_NO_WATCH_DIRECTORY_ROOTS);
-	config_save_boolean (config, "enable-watches", priv->key_file, GROUP_WATCHES, KEY_ENABLE_WATCHES);
+	config_save_string_list (config, "watch-directory-roots", priv->key_file, GROUP_MONITORS, KEY_WATCH_DIRECTORY_ROOTS);
+	config_save_string_list (config, "crawl-directory-roots", priv->key_file, GROUP_MONITORS, KEY_CRAWL_DIRECTORY_ROOTS);
+	config_save_string_list (config, "no-watch-directory-roots", priv->key_file, GROUP_MONITORS, KEY_NO_WATCH_DIRECTORY_ROOTS);
+	config_save_boolean (config, "enable-watches", priv->key_file, GROUP_MONITORS, KEY_ENABLE_WATCHES);
 
 	/* Indexing */
 	config_save_int (config, "throttle", priv->key_file, GROUP_INDEXING, KEY_THROTTLE);
-	config_save_boolean (config, "enable-indexing", priv->key_file, GROUP_INDEXING, KEY_ENABLE_INDEXING);
-	config_save_boolean (config, "enable-content-indexing", priv->key_file, GROUP_INDEXING, KEY_ENABLE_CONTENT_INDEXING);
 	config_save_boolean (config, "enable-thumbnails", priv->key_file, GROUP_INDEXING, KEY_ENABLE_THUMBNAILS);
 	config_save_string_list (config, "disabled-modules", priv->key_file, GROUP_INDEXING, KEY_DISABLED_MODULES);
-	config_save_int (config, "min-word-length", priv->key_file, GROUP_INDEXING, KEY_MIN_WORD_LENGTH);
-	config_save_int (config, "max-word-length", priv->key_file, GROUP_INDEXING, KEY_MAX_WORD_LENGTH);
-	config_save_string (config, "language", priv->key_file, GROUP_INDEXING, KEY_LANGUAGE);
-	config_save_boolean (config, "enable-stemmer", priv->key_file, GROUP_INDEXING, KEY_ENABLE_STEMMER);
 	config_save_boolean (config, "disable-indexing-on-battery", priv->key_file, GROUP_INDEXING, KEY_DISABLE_INDEXING_ON_BATTERY);
 	config_save_boolean (config, "disable-indexing-on-battery-init", priv->key_file, GROUP_INDEXING, KEY_DISABLE_INDEXING_ON_BATTERY_INIT);
 	config_save_int (config, "low-disk-space-limit", priv->key_file, GROUP_INDEXING, KEY_LOW_DISK_SPACE_LIMIT);
 	config_save_boolean (config, "index-mounted-directories", priv->key_file, GROUP_INDEXING, KEY_INDEX_MOUNTED_DIRECTORIES);
 	config_save_boolean (config, "index-removable-devices", priv->key_file, GROUP_INDEXING, KEY_INDEX_REMOVABLE_DEVICES);
-
-	/* Performance */
-	config_save_int (config, "max-text-to-index", priv->key_file, GROUP_PERFORMANCE, KEY_MAX_TEXT_TO_INDEX);
-	config_save_int (config, "max-words-to-index", priv->key_file, GROUP_PERFORMANCE, KEY_MAX_WORDS_TO_INDEX);
 
 	g_message ("Saving config to disk...");
 
@@ -1483,18 +1191,6 @@ tracker_config_get_initial_sleep (TrackerConfig *config)
 	return priv->initial_sleep;
 }
 
-gboolean
-tracker_config_get_low_memory_mode (TrackerConfig *config)
-{
-	TrackerConfigPrivate *priv;
-
-	g_return_val_if_fail (TRACKER_IS_CONFIG (config), DEFAULT_LOW_MEMORY_MODE);
-
-	priv = TRACKER_CONFIG_GET_PRIVATE (config);
-
-	return priv->low_memory_mode;
-}
-
 GSList *
 tracker_config_get_watch_directory_roots (TrackerConfig *config)
 {
@@ -1556,30 +1252,6 @@ tracker_config_get_throttle (TrackerConfig *config)
 }
 
 gboolean
-tracker_config_get_enable_indexing (TrackerConfig *config)
-{
-	TrackerConfigPrivate *priv;
-
-	g_return_val_if_fail (TRACKER_IS_CONFIG (config), DEFAULT_ENABLE_INDEXING);
-
-	priv = TRACKER_CONFIG_GET_PRIVATE (config);
-
-	return priv->enable_indexing;
-}
-
-gboolean
-tracker_config_get_enable_content_indexing (TrackerConfig *config)
-{
-	TrackerConfigPrivate *priv;
-
-	g_return_val_if_fail (TRACKER_IS_CONFIG (config), DEFAULT_ENABLE_CONTENT_INDEXING);
-
-	priv = TRACKER_CONFIG_GET_PRIVATE (config);
-
-	return priv->enable_content_indexing;
-}
-
-gboolean
 tracker_config_get_enable_thumbnails (TrackerConfig *config)
 {
 	TrackerConfigPrivate *priv;
@@ -1601,54 +1273,6 @@ tracker_config_get_disabled_modules (TrackerConfig *config)
 	priv = TRACKER_CONFIG_GET_PRIVATE (config);
 
 	return priv->disabled_modules;
-}
-
-gint
-tracker_config_get_min_word_length (TrackerConfig *config)
-{
-	TrackerConfigPrivate *priv;
-
-	g_return_val_if_fail (TRACKER_IS_CONFIG (config), DEFAULT_MIN_WORD_LENGTH);
-
-	priv = TRACKER_CONFIG_GET_PRIVATE (config);
-
-	return priv->min_word_length;
-}
-
-gint
-tracker_config_get_max_word_length (TrackerConfig *config)
-{
-	TrackerConfigPrivate *priv;
-
-	g_return_val_if_fail (TRACKER_IS_CONFIG (config), DEFAULT_MAX_WORD_LENGTH);
-
-	priv = TRACKER_CONFIG_GET_PRIVATE (config);
-
-	return priv->max_word_length;
-}
-
-const gchar *
-tracker_config_get_language (TrackerConfig *config)
-{
-	TrackerConfigPrivate *priv;
-
-	g_return_val_if_fail (TRACKER_IS_CONFIG (config), "en");
-
-	priv = TRACKER_CONFIG_GET_PRIVATE (config);
-
-	return priv->language;
-}
-
-gboolean
-tracker_config_get_enable_stemmer (TrackerConfig *config)
-{
-	TrackerConfigPrivate *priv;
-
-	g_return_val_if_fail (TRACKER_IS_CONFIG (config), DEFAULT_ENABLE_STEMMER);
-
-	priv = TRACKER_CONFIG_GET_PRIVATE (config);
-
-	return priv->enable_stemmer;
 }
 
 gboolean
@@ -1711,30 +1335,6 @@ tracker_config_get_index_removable_devices (TrackerConfig *config)
 	return priv->index_removable_devices;
 }
 
-gint
-tracker_config_get_max_text_to_index (TrackerConfig *config)
-{
-	TrackerConfigPrivate *priv;
-
-	g_return_val_if_fail (TRACKER_IS_CONFIG (config), DEFAULT_MAX_TEXT_TO_INDEX);
-
-	priv = TRACKER_CONFIG_GET_PRIVATE (config);
-
-	return priv->max_text_to_index;
-}
-
-gint
-tracker_config_get_max_words_to_index (TrackerConfig *config)
-{
-	TrackerConfigPrivate *priv;
-
-	g_return_val_if_fail (TRACKER_IS_CONFIG (config), DEFAULT_MAX_WORDS_TO_INDEX);
-
-	priv = TRACKER_CONFIG_GET_PRIVATE (config);
-
-	return priv->max_words_to_index;
-}
-
 void
 tracker_config_set_verbosity (TrackerConfig *config,
 			      gint	     value)
@@ -1772,20 +1372,6 @@ tracker_config_set_initial_sleep (TrackerConfig *config,
 }
 
 void
-tracker_config_set_low_memory_mode (TrackerConfig *config,
-				    gboolean	   value)
-{
-	TrackerConfigPrivate *priv;
-
-	g_return_if_fail (TRACKER_IS_CONFIG (config));
-
-	priv = TRACKER_CONFIG_GET_PRIVATE (config);
-
-	priv->low_memory_mode = value;
-	g_object_notify (G_OBJECT (config), "low-memory-mode");
-}
-
-void
 tracker_config_set_enable_watches (TrackerConfig *config,
 				   gboolean	  value)
 {
@@ -1818,34 +1404,6 @@ tracker_config_set_throttle (TrackerConfig *config,
 }
 
 void
-tracker_config_set_enable_indexing (TrackerConfig *config,
-				    gboolean	   value)
-{
-	TrackerConfigPrivate *priv;
-
-	g_return_if_fail (TRACKER_IS_CONFIG (config));
-
-	priv = TRACKER_CONFIG_GET_PRIVATE (config);
-
-	priv->enable_indexing = value;
-	g_object_notify (G_OBJECT (config), "enable-indexing");
-}
-
-void
-tracker_config_set_enable_content_indexing (TrackerConfig *config,
-					    gboolean	   value)
-{
-	TrackerConfigPrivate *priv;
-
-	g_return_if_fail (TRACKER_IS_CONFIG (config));
-
-	priv = TRACKER_CONFIG_GET_PRIVATE (config);
-
-	priv->enable_content_indexing = value;
-	g_object_notify (G_OBJECT (config), "enable-content-indexing");
-}
-
-void
 tracker_config_set_enable_thumbnails (TrackerConfig *config,
 				      gboolean	     value)
 {
@@ -1857,83 +1415,6 @@ tracker_config_set_enable_thumbnails (TrackerConfig *config,
 
 	priv->enable_thumbnails = value;
 	g_object_notify (G_OBJECT (config), "enable-thumbnails");
-}
-
-void
-tracker_config_set_min_word_length (TrackerConfig *config,
-				    gint	   value)
-{
-	TrackerConfigPrivate *priv;
-
-	g_return_if_fail (TRACKER_IS_CONFIG (config));
-
-	if (!config_int_validate (config, "min-word-length", value)) {
-		return;
-	}
-
-	priv = TRACKER_CONFIG_GET_PRIVATE (config);
-
-	priv->min_word_length = value;
-	g_object_notify (G_OBJECT (config), "min-word-length");
-}
-
-void
-tracker_config_set_max_word_length (TrackerConfig *config,
-				    gint	   value)
-{
-	TrackerConfigPrivate *priv;
-
-	g_return_if_fail (TRACKER_IS_CONFIG (config));
-
-	if (!config_int_validate (config, "max-word-length", value)) {
-		return;
-	}
-
-	priv = TRACKER_CONFIG_GET_PRIVATE (config);
-
-	priv->max_word_length = value;
-	g_object_notify (G_OBJECT (config), "max-word-length");
-}
-
-void
-tracker_config_set_language (TrackerConfig *config,
-			     const gchar   *value)
-{
-	TrackerConfigPrivate *priv;
-	gboolean	      use_default = FALSE;
-
-	g_return_if_fail (TRACKER_IS_CONFIG (config));
-
-	priv = TRACKER_CONFIG_GET_PRIVATE (config);
-
-	g_free (priv->language);
-
-	/* Validate language */
-	use_default |= !value;
-	use_default |= value && strlen (value) < 2;
-	use_default |= !tracker_language_check_exists (value);
-
-	if (use_default) {
-		priv->language = tracker_language_get_default_code ();
-	} else {
-		priv->language = g_strdup (value);
-	}
-
-	g_object_notify (G_OBJECT (config), "language");
-}
-
-void
-tracker_config_set_enable_stemmer (TrackerConfig *config,
-				   gboolean	  value)
-{
-	TrackerConfigPrivate *priv;
-
-	g_return_if_fail (TRACKER_IS_CONFIG (config));
-
-	priv = TRACKER_CONFIG_GET_PRIVATE (config);
-
-	priv->enable_stemmer = value;
-	g_object_notify (G_OBJECT (config), "enable-stemmer");
 }
 
 void
@@ -2008,42 +1489,6 @@ tracker_config_set_index_removable_devices (TrackerConfig *config,
 
 	priv->index_removable_devices = value;
 	g_object_notify (G_OBJECT (config), "index-removable-devices");
-}
-
-void
-tracker_config_set_max_text_to_index (TrackerConfig *config,
-				      gint	     value)
-{
-	TrackerConfigPrivate *priv;
-
-	g_return_if_fail (TRACKER_IS_CONFIG (config));
-
-	if (!config_int_validate (config, "max-text-to-index", value)) {
-		return;
-	}
-
-	priv = TRACKER_CONFIG_GET_PRIVATE (config);
-
-	priv->max_text_to_index = value;
-	g_object_notify (G_OBJECT (config), "max-text-to-index");
-}
-
-void
-tracker_config_set_max_words_to_index (TrackerConfig *config,
-				       gint	      value)
-{
-	TrackerConfigPrivate *priv;
-
-	g_return_if_fail (TRACKER_IS_CONFIG (config));
-
-	if (!config_int_validate (config, "max-words-to-index", value)) {
-		return;
-	}
-
-	priv = TRACKER_CONFIG_GET_PRIVATE (config);
-
-	priv->max_words_to_index = value;
-	g_object_notify (G_OBJECT (config), "max-words-to-index");
 }
 
 void
