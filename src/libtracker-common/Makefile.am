@@ -67,7 +67,6 @@ libtracker_common_la_SOURCES =	 			\
 	tracker-marshal-main.c				\
 	tracker-module-config.c				\
 	tracker-namespace.c				\
-	tracker-nfs-lock.c				\
 	tracker-ontology.c				\
 	tracker-parser.c				\
 	tracker-property.c				\
@@ -86,7 +85,6 @@ noinst_HEADERS =					\
 	tracker-dbus.h					\
 	tracker-ioprio.h				\
 	tracker-log.h					\
-	tracker-nfs-lock.h				\
 	tracker-os-dependant.h				\
 	tracker-thumbnailer.h				\
 	tracker-albumart.h

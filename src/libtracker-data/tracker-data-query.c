@@ -27,7 +27,6 @@
 #include <stdlib.h>
 
 #include <libtracker-common/tracker-file-utils.h>
-#include <libtracker-common/tracker-nfs-lock.h>
 #include <libtracker-common/tracker-parser.h>
 #include <libtracker-common/tracker-type-utils.h>
 #include <libtracker-common/tracker-utils.h>

@@ -50,7 +50,6 @@
 #include <libtracker-common/tracker-language.h>
 #include <libtracker-common/tracker-log.h>
 #include <libtracker-common/tracker-module-config.h>
-#include <libtracker-common/tracker-nfs-lock.h>
 #include <libtracker-common/tracker-ontology.h>
 #include <libtracker-common/tracker-status.h>
 #include <libtracker-common/tracker-thumbnailer.h>
@@ -976,8 +975,6 @@ main (gint argc, gchar *argv[])
 
 	sanity_check_option_values (config);
 
-	tracker_nfs_lock_init (tracker_config_get_nfs_locking (config));
-
 #ifdef HAVE_HAL
 	hal_power = tracker_power_new ();
 	hal_storage = tracker_storage_new ();
@@ -1096,7 +1093,6 @@ shutdown:
 	tracker_volume_cleanup_shutdown ();
 	tracker_dbus_shutdown ();
 	tracker_data_manager_shutdown ();
-	tracker_nfs_lock_shutdown ();
 	tracker_status_shutdown ();
 	tracker_turtle_shutdown ();
 	tracker_store_shutdown ();

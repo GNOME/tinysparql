@@ -30,7 +30,6 @@
 #include <glib/gstdio.h>
 
 #include <libtracker-common/tracker-file-utils.h>
-#include <libtracker-common/tracker-nfs-lock.h>
 #include <libtracker-common/tracker-ontology.h>
 #include <libtracker-common/tracker-property.h>
 #include <libtracker-common/tracker-type-utils.h>
@@ -237,8 +236,6 @@ db_exec_no_reply (TrackerDBInterface *iface,
 	TrackerDBResultSet *result_set;
 	va_list		    args;
 
-	tracker_nfs_lock_obtain ();
-
 	va_start (args, query);
 	result_set = tracker_db_interface_execute_vquery (iface, NULL, query, args);
 	va_end (args);
@@ -246,8 +243,6 @@ db_exec_no_reply (TrackerDBInterface *iface,
 	if (result_set) {
 		g_object_unref (result_set);
 	}
-
-	tracker_nfs_lock_release ();
 
 	return TRUE;
 }
