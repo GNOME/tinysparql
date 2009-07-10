@@ -281,16 +281,6 @@ tracker_module_config_get_monitor_directories
 tracker_module_config_get_monitor_recurse_directories
 </SECTION>
 
-<INCLUDE>libtracker-common/tracker-nfs-lock.h</INCLUDE>
-<SECTION>
-<FILE>tracker-nfs-lock</FILE>
-<TITLE>NFS Locking</TITLE>
-tracker_nfs_lock_init
-tracker_nfs_lock_obtain
-tracker_nfs_lock_release
-tracker_nfs_lock_shutdown
-</SECTION>
-
 <INCLUDE>libtracker-common/tracker-ontology.h</INCLUDE>
 <SECTION>
 <FILE>tracker-ontology</FILE>

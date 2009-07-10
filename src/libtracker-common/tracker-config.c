@@ -40,7 +40,6 @@
 #define KEY_VERBOSITY				 "Verbosity"
 #define KEY_INITIAL_SLEEP			 "InitialSleep"
 #define KEY_LOW_MEMORY_MODE			 "LowMemoryMode"
-#define KEY_NFS_LOCKING				 "NFSLocking"
 #define GROUP_WATCHES				 "Watches"
 #define KEY_WATCH_DIRECTORY_ROOTS		 "WatchDirectoryRoots"
 #define KEY_CRAWL_DIRECTORY_ROOTS		 "CrawlDirectory"
@@ -75,7 +74,6 @@
 #define DEFAULT_VERBOSITY			 0
 #define DEFAULT_INITIAL_SLEEP			 45	  /* 0->1000 */
 #define DEFAULT_LOW_MEMORY_MODE			 FALSE
-#define DEFAULT_NFS_LOCKING			 FALSE
 #define DEFAULT_ENABLE_WATCHES			 TRUE
 #define DEFAULT_THROTTLE			 0	  /* 0->20 */
 #define DEFAULT_ENABLE_INDEXING			 TRUE
@@ -107,7 +105,6 @@ struct _TrackerConfigPrivate {
 	gint	      verbosity;
 	gint	      initial_sleep;
 	gboolean      low_memory_mode;
-	gboolean      nfs_locking;
 
 	/* Watches */
 	GSList	     *watch_directory_roots;
@@ -161,7 +158,6 @@ enum {
 	PROP_VERBOSITY,
 	PROP_INITIAL_SLEEP,
 	PROP_LOW_MEMORY_MODE,
-	PROP_NFS_LOCKING,
 
 	/* Watches */
 	PROP_WATCH_DIRECTORY_ROOTS,
@@ -233,14 +229,6 @@ tracker_config_class_init (TrackerConfigClass *klass)
 							       "Use extra memory at the "
 							       "expense of indexing speed",
 							       DEFAULT_LOW_MEMORY_MODE,
-							       G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
-	g_object_class_install_property (object_class,
-					 PROP_NFS_LOCKING,
-					 g_param_spec_boolean ("nfs-locking",
-							       "Use NFS friendly location for lock file",
-							       "In NFS filesystems is not safe to have "
-							       "the lock file in the home directory",
-							       DEFAULT_NFS_LOCKING,
 							       G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
 
 	/* Watches */
@@ -517,9 +505,6 @@ config_get_property (GObject	*object,
 	case PROP_LOW_MEMORY_MODE:
 		g_value_set_boolean (value, priv->low_memory_mode);
 		break;
-	case PROP_NFS_LOCKING:
-		g_value_set_boolean (value, priv->nfs_locking);
-		break;
 
 		/* Watches */
 	case PROP_WATCH_DIRECTORY_ROOTS:
@@ -624,10 +609,6 @@ config_set_property (GObject	  *object,
 	case PROP_LOW_MEMORY_MODE:
 		tracker_config_set_low_memory_mode (TRACKER_CONFIG (object),
 						    g_value_get_boolean (value));
-		break;
-	case PROP_NFS_LOCKING:
-		tracker_config_set_nfs_locking (TRACKER_CONFIG (object),
-						g_value_get_boolean (value));
 		break;
 
 		/* Watches */
@@ -787,14 +768,6 @@ config_create_with_defaults (GKeyFile *key_file,
 					DEFAULT_LOW_MEMORY_MODE);
 		g_key_file_set_comment (key_file, GROUP_GENERAL, KEY_LOW_MEMORY_MODE,
 					" Minimizes memory use at the expense of indexing speed",
-					NULL);
-	}
-
-	if (overwrite || !g_key_file_has_key (key_file, GROUP_GENERAL, KEY_NFS_LOCKING, NULL)) {
-		g_key_file_set_boolean (key_file, GROUP_GENERAL, KEY_NFS_LOCKING, 
-					DEFAULT_NFS_LOCKING);
-		g_key_file_set_comment (key_file, GROUP_GENERAL, KEY_NFS_LOCKING,
-					" Set to TRUE when the home directory is in a NFS filesystem",
 					NULL);
 	}
 
@@ -1366,7 +1339,6 @@ config_load (TrackerConfig *config)
 	config_load_int (config, "verbosity", priv->key_file, GROUP_GENERAL, KEY_VERBOSITY);
 	config_load_int (config, "initial-sleep", priv->key_file, GROUP_GENERAL, KEY_INITIAL_SLEEP);
 	config_load_boolean (config, "low-memory-mode", priv->key_file, GROUP_GENERAL, KEY_LOW_MEMORY_MODE);
-	config_load_boolean (config, "nfs-locking", priv->key_file, GROUP_GENERAL, KEY_NFS_LOCKING);
 
 	/* Watches */
 	config_load_string_list (config, "watch-directory-roots", priv->key_file, GROUP_WATCHES, KEY_WATCH_DIRECTORY_ROOTS);
@@ -1460,7 +1432,6 @@ config_save (TrackerConfig *config)
 	config_save_int (config, "verbosity", priv->key_file, GROUP_GENERAL, KEY_VERBOSITY);
 	config_save_int (config, "initial-sleep", priv->key_file, GROUP_GENERAL, KEY_INITIAL_SLEEP);
 	config_save_boolean (config, "low-memory-mode", priv->key_file, GROUP_GENERAL, KEY_LOW_MEMORY_MODE);
-	config_save_boolean (config, "nfs-locking", priv->key_file, GROUP_GENERAL, KEY_NFS_LOCKING);
 
 	/* Watches */
 	config_save_string_list (config, "watch-directory-roots", priv->key_file, GROUP_WATCHES, KEY_WATCH_DIRECTORY_ROOTS);
@@ -1641,19 +1612,6 @@ tracker_config_get_low_memory_mode (TrackerConfig *config)
 
 	return priv->low_memory_mode;
 }
-
-gboolean
-tracker_config_get_nfs_locking (TrackerConfig *config)
-{
-	TrackerConfigPrivate *priv;
-
-	g_return_val_if_fail (TRACKER_IS_CONFIG (config), DEFAULT_NFS_LOCKING);
-
-	priv = TRACKER_CONFIG_GET_PRIVATE (config);
-
-	return priv->nfs_locking;
-}
-
 
 GSList *
 tracker_config_get_watch_directory_roots (TrackerConfig *config)
@@ -1992,21 +1950,6 @@ tracker_config_set_low_memory_mode (TrackerConfig *config,
 	priv->low_memory_mode = value;
 	g_object_notify (G_OBJECT (config), "low-memory-mode");
 }
-
-void
-tracker_config_set_nfs_locking (TrackerConfig *config,
-				gboolean      value)
-{
-	TrackerConfigPrivate *priv;
-
-	g_return_if_fail (TRACKER_IS_CONFIG (config));
-
-	priv = TRACKER_CONFIG_GET_PRIVATE (config);
-
-	priv->nfs_locking = value;
-	g_object_notify (G_OBJECT (config), "nfs-locking");
-}
-
 
 void
 tracker_config_set_enable_watches (TrackerConfig *config,

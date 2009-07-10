@@ -235,7 +235,6 @@ check_runtime_level (TrackerConfig *config,
 {
 	TrackerRunningLevel  runlevel;
 	gchar		    *lock_file;
-	gboolean	     use_nfs;
 	gint		     fd;
 
 	g_message ("Checking instances running...");
@@ -244,8 +243,6 @@ check_runtime_level (TrackerConfig *config,
 		g_message ("Indexing disabled in config, running in read-only mode");
 		return TRACKER_RUNNING_READONLY;
 	}
-
-	use_nfs = tracker_config_get_nfs_locking (config);
 
 	lock_file = get_lock_file ();
 	fd = g_open (lock_file, O_RDWR | O_CREAT, 0640);
@@ -265,15 +262,9 @@ check_runtime_level (TrackerConfig *config,
 	g_free (lock_file);
 
 	if (lockf (fd, F_TLOCK, 0) < 0) {
-		if (use_nfs) {
-			g_message ("Already running, running in "
-				   "read-only mode (with NFS)");
-			runlevel = TRACKER_RUNNING_READONLY;
-		} else {
-			g_message ("Already running, not allowed "
-				   "multiple instances (without NFS)");
-			runlevel = TRACKER_RUNNING_NON_ALLOWED;
-		}
+		g_message ("Already running, not allowed "
+			   "multiple instances (without NFS)");
+		runlevel = TRACKER_RUNNING_NON_ALLOWED;
 	} else {
 		g_message ("This is the first/main instance");
 

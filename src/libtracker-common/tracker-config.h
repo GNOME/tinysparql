@@ -57,7 +57,6 @@ gboolean       tracker_config_save                                 (TrackerConfi
 gint	       tracker_config_get_verbosity			   (TrackerConfig *config);
 gint	       tracker_config_get_initial_sleep			   (TrackerConfig *config);
 gboolean       tracker_config_get_low_memory_mode		   (TrackerConfig *config);
-gboolean       tracker_config_get_nfs_locking			   (TrackerConfig *config);
 GSList *       tracker_config_get_watch_directory_roots		   (TrackerConfig *config);
 GSList *       tracker_config_get_crawl_directory_roots		   (TrackerConfig *config);
 GSList *       tracker_config_get_no_watch_directory_roots	   (TrackerConfig *config);
@@ -87,8 +86,6 @@ void	       tracker_config_set_verbosity			   (TrackerConfig *config,
 void	       tracker_config_set_initial_sleep			   (TrackerConfig *config,
 								    gint	   value);
 void	       tracker_config_set_low_memory_mode		   (TrackerConfig *config,
-								    gboolean	   value);
-void	       tracker_config_set_nfs_locking			   (TrackerConfig *config,
 								    gboolean	   value);
 void	       tracker_config_set_enable_watches		   (TrackerConfig *config,
 								    gboolean	   value);
