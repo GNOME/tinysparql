@@ -98,12 +98,6 @@ typedef struct {
 
 #endif /* HAVE_HAL */
 
-typedef enum {
-	TRACKER_RUNNING_NON_ALLOWED,
-	TRACKER_RUNNING_READONLY,
-	TRACKER_RUNNING_MAIN_INSTANCE
-} TrackerRunningLevel;
-
 typedef struct {
 	GMainLoop	 *main_loop;
 	gchar		 *log_filename;
@@ -123,16 +117,10 @@ static GStaticPrivate	     private_key = G_STATIC_PRIVATE_INIT;
 /* Private command line parameters */
 static gboolean		     version;
 static gint		     verbosity = -1;
-static gint		     initial_sleep = -1;
 static gboolean		     low_memory;
-static gchar	           **monitors_to_exclude;
-static gchar	           **monitors_to_include;
-static gchar	           **crawl_dirs;
-static const gchar * const  *disable_modules;
 
 static gboolean		     force_reindex;
-static gboolean		     disable_indexing;
-static gchar	            *language_code;
+static gboolean		     readonly_mode;
 
 static GOptionEntry	     entries[] = {
 	/* Daemon options */
@@ -145,29 +133,9 @@ static GOptionEntry	     entries[] = {
 	  N_("Logging, 0 = errors only, "
 	     "1 = minimal, 2 = detailed and 3 = debug (default = 0)"),
 	  NULL },
-	{ "initial-sleep", 's', 0,
-	  G_OPTION_ARG_INT, &initial_sleep,
-	  N_("Seconds to wait before starting any crawling or indexing (default = 45)"),
-	  NULL },
 	{ "low-memory", 'm', 0,
 	  G_OPTION_ARG_NONE, &low_memory,
 	  N_("Minimizes the use of memory but may slow indexing down"),
-	  NULL },
-	{ "monitors-exclude-dirs", 'e', 0,
-	  G_OPTION_ARG_STRING_ARRAY, &monitors_to_exclude,
-	  N_("Directories to exclude for file change monitoring (you can do -e <path> -e <path>)"),
-	  NULL },
-	{ "monitors-include-dirs", 'i', 0,
-	  G_OPTION_ARG_STRING_ARRAY, &monitors_to_include,
-	  N_("Directories to include for file change monitoring (you can do -i <path> -i <path>)"),
-	  NULL },
-	{ "crawler-include-dirs", 'c', 0,
-	  G_OPTION_ARG_STRING_ARRAY, &crawl_dirs,
-	  N_("Directories to crawl to index files (you can do -c <path> -c <path>)"),
-	  NULL },
-	{ "disable-modules", 'd', 0,
-	  G_OPTION_ARG_STRING_ARRAY, &disable_modules,
-	  N_("Disable modules from being processed (you can do -d <module> -d <module>)"),
 	  NULL },
 
 	/* Indexer options */
@@ -175,14 +143,9 @@ static GOptionEntry	     entries[] = {
 	  G_OPTION_ARG_NONE, &force_reindex,
 	  N_("Force a re-index of all content"),
 	  NULL },
-	{ "disable-indexing", 'n', 0,
-	  G_OPTION_ARG_NONE, &disable_indexing,
-	  N_("Disable any indexing and monitoring"), NULL },
-	{ "language", 'l', 0,
-	  G_OPTION_ARG_STRING, &language_code,
-	  N_("Language to use for stemmer and stop words "
-	     "(ISO 639-1 2 characters code)"),
-	  NULL },
+	{ "readonly-mode", 'n', 0,
+	  G_OPTION_ARG_NONE, &readonly_mode,
+	  N_("Only allow read based actions on the database"), NULL },
 	{ NULL }
 };
 
@@ -203,98 +166,6 @@ private_free (gpointer data)
 	g_main_loop_unref (private->main_loop);
 
 	g_free (private);
-}
-
-static gchar *
-get_lock_file (void)
-{
-	TrackerMainPrivate *private;
-	gchar		   *lock_filename;
-	gchar		   *filename;
-
-	private = g_static_private_get (&private_key);
-
-	filename = g_strconcat (g_get_user_name (), "_tracker_lock", NULL);
-
-	lock_filename = g_build_filename (private->sys_tmp_dir,
-					  filename,
-					  NULL);
-	g_free (filename);
-
-	return lock_filename;
-}
-
-static TrackerRunningLevel
-check_runtime_level (TrackerConfig *config,
-		     TrackerPower  *hal)
-{
-	TrackerRunningLevel  runlevel;
-	gchar		    *lock_file;
-	gint		     fd;
-
-	g_message ("Checking instances running...");
-
-	if (!tracker_config_get_enable_indexing (config)) {
-		g_message ("Indexing disabled in config, running in read-only mode");
-		return TRACKER_RUNNING_READONLY;
-	}
-
-	lock_file = get_lock_file ();
-	fd = g_open (lock_file, O_RDWR | O_CREAT, 0640);
-
-	if (fd == -1) {
-		const gchar *error_string;
-
-		error_string = g_strerror (errno);
-		g_critical ("Can not open or create lock file:'%s', %s",
-			    lock_file,
-			    error_string);
-		g_free (lock_file);
-
-		return TRACKER_RUNNING_NON_ALLOWED;
-	}
-
-	g_free (lock_file);
-
-	if (lockf (fd, F_TLOCK, 0) < 0) {
-		g_message ("Already running, not allowed "
-			   "multiple instances (without NFS)");
-		runlevel = TRACKER_RUNNING_NON_ALLOWED;
-	} else {
-		g_message ("This is the first/main instance");
-
-		runlevel = TRACKER_RUNNING_MAIN_INSTANCE;
-
-#ifdef HAVE_HAL
-		if (!tracker_power_get_on_battery (hal)) {
-			return TRACKER_RUNNING_MAIN_INSTANCE;
-		}
-
-		if (!tracker_status_get_is_first_time_index () &&
-		    tracker_config_get_disable_indexing_on_battery (config)) {
-			g_message ("Battery in use");
-			g_message ("Config is set to not index on battery");
-			g_message ("Running in read only mode");
-			runlevel = TRACKER_RUNNING_READONLY;
-		}
-
-		/* Special case first time situation which are
-		 * overwritten by the config option to disable or not
-		 * indexing on battery initially.
-		 */
-		if (tracker_status_get_is_first_time_index () &&
-		    tracker_config_get_disable_indexing_on_battery_init (config)) {
-			g_message ("Battery in use & reindex is needed");
-			g_message ("Config is set to not index on battery for initial index");
-			g_message ("Running in read only mode");
-			runlevel = TRACKER_RUNNING_READONLY;
-		}
-#endif /* HAVE_HAL */
-	}
-
-	close (fd);
-
-	return runlevel;
 }
 
 #ifdef HAVE_HAL
@@ -444,24 +315,6 @@ mount_point_removed_cb (TrackerStorage  *hal,
 #endif /* HAVE_HAL */
 
 static void
-log_option_list (GSList      *list,
-		 const gchar *str)
-{
-	GSList *l;
-
-	g_message ("%s:", str);
-
-	if (!list) {
-		g_message ("  DEFAULT");
-		return;
-	}
-
-	for (l = list; l; l = l->next) {
-		g_message ("  %s", (gchar*) l->data);
-	}
-}
-
-static void
 sanity_check_option_values (TrackerConfig *config)
 {
 	g_message ("General options:");
@@ -470,9 +323,9 @@ sanity_check_option_values (TrackerConfig *config)
 	g_message ("  Low memory mode  ......................  %s",
 		   tracker_config_get_low_memory_mode (config) ? "yes" : "no");
 
-	g_message ("Daemon options:");
-	g_message ("  Indexing enabled  .....................  %s",
-		   tracker_config_get_enable_indexing (config) ? "yes" : "no");
+	g_message ("Store options:");
+	g_message ("  Readonly mode  ........................  %s",
+		   readonly_mode ? "yes" : "no");
 }
 
 static gboolean
@@ -676,6 +529,8 @@ shutdown_directories (void)
 	}
 }
 
+#if 0
+
 static const gchar *
 get_ttl_backup_filename (void) 
 {
@@ -686,7 +541,6 @@ get_ttl_backup_filename (void)
 	return private->ttl_backup_file;
 }
 
-#if 0
 static void
 backup_user_metadata (TrackerConfig *config, TrackerLanguage *language)
 {
@@ -822,7 +676,6 @@ main (gint argc, gchar *argv[])
 	TrackerLanguage		   *language;
 	TrackerPower		   *hal_power;
 	TrackerStorage		   *hal_storage;
-	TrackerRunningLevel	    runtime_level;
 	TrackerDBManagerFlags	    flags = 0;
 	gboolean		    is_first_time_index;
 
@@ -898,37 +751,8 @@ main (gint argc, gchar *argv[])
 		tracker_config_set_verbosity (config, verbosity);
 	}
 
-	if (initial_sleep > -1) {
-		tracker_config_set_initial_sleep (config, initial_sleep);
-	}
-
 	if (low_memory) {
 		tracker_config_set_low_memory_mode (config, TRUE);
-	}
-
-	if (monitors_to_exclude) {
-		tracker_config_add_no_watch_directory_roots (config, monitors_to_exclude);
-	}
-
-	if (monitors_to_include) {
-		tracker_config_add_watch_directory_roots (config, monitors_to_include);
-	}
-
-	if (crawl_dirs) {
-		tracker_config_add_crawl_directory_roots (config, crawl_dirs);
-	}
-
-	if (disable_modules) {
-		tracker_config_add_disabled_modules (config, disable_modules);
-	}
-
-	/* Indexer command line arguments */
-	if (disable_indexing) {
-		tracker_config_set_enable_indexing (config, FALSE);
-	}
-
-	if (language_code) {
-		tracker_config_set_language (config, language_code);
 	}
 
 	initialize_directories ();
@@ -981,24 +805,9 @@ main (gint argc, gchar *argv[])
 	tracker_status_set_is_first_time_index (is_first_time_index);
 
 	/*
-	 * Check instances running
+	 * Check mode
 	 */
-	runtime_level = check_runtime_level (config, hal_power);
-
-	switch (runtime_level) {
-	case TRACKER_RUNNING_NON_ALLOWED:
-		return EXIT_FAILURE;
-
-	case TRACKER_RUNNING_READONLY:
-		tracker_status_set_is_readonly (TRUE);
-		break;
-
-	case TRACKER_RUNNING_MAIN_INSTANCE:
-		tracker_status_set_is_readonly (FALSE);
-		break;
-	default:
-		break;
-	}
+	tracker_status_set_is_readonly (readonly_mode);
 
 	if (!initialize_databases ()) {
 		return EXIT_FAILURE;
