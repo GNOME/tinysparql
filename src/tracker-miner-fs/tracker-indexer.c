@@ -58,7 +58,6 @@
 #include <libtracker-common/tracker-file-utils.h>
 #include <libtracker-common/tracker-power.h>
 #include <libtracker-common/tracker-storage.h>
-#include <libtracker-common/tracker-language.h>
 #include <libtracker-common/tracker-parser.h>
 #include <libtracker-common/tracker-ontology.h>
 #include <libtracker-common/tracker-module-config.h>
@@ -131,7 +130,6 @@ struct TrackerIndexerPrivate {
 	gchar *db_dir;
 
 	TrackerConfig *config;
-	TrackerLanguage *language;
 
 	TrackerPower   *power;
 	TrackerStorage *storage;
@@ -171,7 +169,6 @@ struct PathInfo {
 };
 
 struct MetadataForeachData {
-	TrackerLanguage *language;
 	TrackerConfig *config;
 	TrackerClass *service;
 	gboolean add;
@@ -583,7 +580,6 @@ tracker_indexer_finalize (GObject *object)
 		tracker_disconnect (priv->client);
 	}
 
-	g_object_unref (priv->language);
 	g_object_unref (priv->config);
 
 	g_free (priv->db_dir);
@@ -948,8 +944,6 @@ tracker_indexer_init (TrackerIndexer *indexer)
 	tracker_status_set_and_signal (TRACKER_STATUS_IDLE);
 
 	priv->processor = tracker_processor_new (priv->config, priv->storage, indexer);
-
-	priv->language = tracker_language_new (priv->config);
 
 	priv->db_dir = g_build_filename (g_get_user_cache_dir (),
 					 "tracker",
