@@ -94,20 +94,12 @@ sanity_check_option_values (TrackerConfig *config)
 	g_message ("General options:");
 	g_message ("  Verbosity  ............................  %d",
 		   tracker_config_get_verbosity (config));
-	g_message ("  Low memory mode  ......................  %s",
-		   tracker_config_get_low_memory_mode (config) ? "yes" : "no");
 
 	g_message ("Indexer options:");
 	g_message ("  Throttle level  .......................  %d",
 		   tracker_config_get_throttle (config));
-	g_message ("  File content indexing enabled  ........  %s",
-		   tracker_config_get_enable_content_indexing (config) ? "yes" : "no");
 	g_message ("  Thumbnail indexing enabled  ...........  %s",
 		   tracker_config_get_enable_thumbnails (config) ? "yes" : "no");
-	g_message ("  Indexer language code  ................  %s",
-		   tracker_config_get_language (config));
-	g_message ("  Stemmer enabled  ......................  %s",
-		   tracker_config_get_enable_stemmer (config) ? "yes" : "no");
 	g_message ("  Fast merges enabled  ..................  %s",
 		   tracker_config_get_fast_merges (config) ? "yes" : "no");
 	g_message ("  Disable indexing on battery  ..........  %s (initially = %s)",
@@ -120,19 +112,6 @@ sanity_check_option_values (TrackerConfig *config)
 		g_message ("  Low disk space limit  .................  %d%%",
 			   tracker_config_get_low_disk_space_limit (config));
 	}
-
-	g_message ("  Minimum index word length  ............  %d",
-		   tracker_config_get_min_word_length (config));
-	g_message ("  Maximum index word length  ............  %d",
-		   tracker_config_get_max_word_length (config));
-	g_message ("  Maximum text to index  ................  %d",
-		   tracker_config_get_max_text_to_index (config));
-	g_message ("  Maximum words to index  ...............  %d",
-		   tracker_config_get_max_words_to_index (config));
-	g_message ("  Maximum bucket count  .................  %d",
-		   tracker_config_get_max_bucket_count (config));
-	g_message ("  Minimum bucket count  .................  %d",
-		   tracker_config_get_min_bucket_count (config));
 }
 
 static void
