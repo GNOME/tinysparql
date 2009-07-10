@@ -21,12 +21,10 @@
 
 #include "config.h"
 
-#include <libtracker-common/tracker-config.h>
 #include <libtracker-common/tracker-dbus.h>
 #include <libtracker-common/tracker-log.h>
 #include <libtracker-common/tracker-utils.h>
 #include <libtracker-common/tracker-ontology.h>
-#include <libtracker-common/tracker-status.h>
 
 #include <libtracker-db/tracker-db-dbus.h>
 #include <libtracker-db/tracker-db-manager.h>
@@ -99,7 +97,7 @@ dbus_register_object (DBusGConnection	    *lconnection,
 }
 
 static gboolean
-dbus_register_names (TrackerConfig *config)
+dbus_register_names (void)
 {
 	GError *error = NULL;
 
@@ -139,17 +137,15 @@ dbus_register_names (TrackerConfig *config)
 }
 
 gboolean
-tracker_dbus_init (TrackerConfig *config)
+tracker_dbus_init (void)
 {
-	g_return_val_if_fail (TRACKER_IS_CONFIG (config), FALSE);
-
 	/* Don't reinitialize */
 	if (objects) {
 		return TRUE;
 	}
 
 	/* Register names and get proxy/connection details */
-	if (!dbus_register_names (config)) {
+	if (!dbus_register_names ()) {
 		return FALSE;
 	}
 
@@ -174,16 +170,12 @@ tracker_dbus_shutdown (void)
 }
 
 gboolean
-tracker_dbus_register_objects (TrackerConfig	*config,
-			       TrackerLanguage	*language)
+tracker_dbus_register_objects (void)
 {
 	TrackerDBResultSet *result_set;
 	GSList *event_sources = NULL;
 	GStrv classes, p;
 	gpointer object, resources;
-
-	g_return_val_if_fail (TRACKER_IS_CONFIG (config), FALSE);
-	g_return_val_if_fail (TRACKER_IS_LANGUAGE (language), FALSE);
 
 	if (!connection || !gproxy) {
 		g_critical ("DBus support must be initialized before registering objects!");

@@ -28,10 +28,11 @@
 #include <glib.h>
 #include <gio/gio.h>
 
-#include "tracker-language.h"
+#include <libtracker-common/tracker-language.h>
+#include <libtracker-common/tracker-file-utils.h>
+#include <libtracker-common/tracker-type-utils.h>
+
 #include "tracker-config.h"
-#include "tracker-file-utils.h"
-#include "tracker-type-utils.h"
 
 #define TRACKER_CONFIG_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_CONFIG, TrackerConfigPrivate))
 

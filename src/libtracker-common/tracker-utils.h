@@ -27,30 +27,27 @@
 #endif
 
 #include <glib.h>
-#include "tracker-config.h"
 
-gboolean tracker_is_empty_string	    (const char    *str);
-gchar *  tracker_string_replace		    (const gchar   *haystack,
-					     const gchar   *needle,
-					     const gchar   *replacement);
-gchar *  tracker_string_remove		    (gchar	   *haystack,
-					     const gchar   *needle);
-gchar *  tracker_seconds_estimate_to_string (gdouble	    seconds_elapsed,
-					     gboolean	    short_string,
-					     guint	    items_done,
-					     guint	    items_remaining);
-gchar *  tracker_seconds_to_string	    (gdouble	    seconds_elapsed,
-					     gboolean	    short_string);
-void	 tracker_throttle		    (TrackerConfig *config,
-					     gint	    multiplier);
-
-
-gchar* tracker_uri_vprintf_escaped (const gchar *format,
-                                    va_list      args);
-gchar* tracker_uri_printf_escaped (const gchar *format, ...);
+gboolean tracker_is_empty_string            (const char  *str);
+gchar *  tracker_string_replace             (const gchar *haystack,
+					     const gchar *needle,
+					     const gchar *replacement);
+gchar *  tracker_string_remove              (gchar       *haystack,
+					     const gchar *needle);
+gchar *  tracker_seconds_estimate_to_string (gdouble      seconds_elapsed,
+					     gboolean     short_string,
+					     guint        items_done,
+					     guint        items_remaining);
+gchar *  tracker_seconds_to_string          (gdouble      seconds_elapsed,
+					     gboolean     short_string);
+gchar*   tracker_uri_vprintf_escaped        (const gchar *format,
+					     va_list      args);
+gchar*   tracker_uri_printf_escaped         (const gchar *format,
+					     ...);
 
 /* Temporary: Just here until we upgrade to GLib 2.18. */
-G_CONST_RETURN gchar *tracker_dngettext     (const gchar *domain,
+G_CONST_RETURN gchar *
+         tracker_dngettext                  (const gchar *domain,
 					     const gchar *msgid,
 					     const gchar *msgid_plural,
 					     gulong       n);

@@ -43,6 +43,8 @@ libexec_PROGRAMS = tracker-miner-fs
 
 tracker_miner_fs_SOURCES =						\
 	tracker-dbus.h							\
+	tracker-config.c						\
+	tracker-config.h						\
 	tracker-crawler.c						\
 	tracker-crawler.h						\
 	tracker-indexer.c						\
@@ -57,8 +59,12 @@ tracker_miner_fs_SOURCES =						\
 	tracker-monitor.h						\
 	tracker-processor.c						\
 	tracker-processor.h						\
+	tracker-status.c						\
+	tracker-status.h						\
 	tracker-removable-device.c					\
-	tracker-removable-device.h					
+	tracker-removable-device.h					\
+	tracker-utils.c							\
+	tracker-utils.h
 
 tracker_miner_fs_LDADD =						\
 	$(plugin_libs)							\

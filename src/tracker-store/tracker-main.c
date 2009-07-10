@@ -42,7 +42,7 @@
 #include <glib/gi18n.h>
 #include <glib/gstdio.h>
 
-#include <libtracker-common/tracker-config.h>
+#include <libtracker-common/tracker-global-config.h>
 #include <libtracker-common/tracker-file-utils.h>
 #include <libtracker-common/tracker-power.h>
 #include <libtracker-common/tracker-storage.h>
@@ -51,7 +51,6 @@
 #include <libtracker-common/tracker-log.h>
 #include <libtracker-common/tracker-module-config.h>
 #include <libtracker-common/tracker-ontology.h>
-#include <libtracker-common/tracker-status.h>
 #include <libtracker-common/tracker-thumbnailer.h>
 
 #include <libtracker-db/tracker-db-manager.h>
@@ -107,6 +106,7 @@ typedef struct {
 	gchar		 *sys_tmp_dir;
 	gchar            *ttl_backup_file;
 	
+	gboolean          first_time_index;
 	gboolean	  reindex_on_shutdown;
 	gboolean          shutdown;
 } TrackerMainPrivate;
@@ -467,31 +467,6 @@ initialize_directories (void)
 	g_free (filename);
 }
 
-static gboolean
-initialize_databases (void)
-{
-	/* This means we doing the initial check that our dbs are up
-	 * to date. Once we get finished from the indexer, we set
-	 * this to FALSE.
-	 */
-	tracker_status_set_is_initial_check (TRUE);
-
-	/* We set our first time indexing state here */
-	if (!tracker_status_get_is_readonly () && force_reindex) {
-		tracker_status_set_is_first_time_index (TRUE);
-	}
-
-	/* Check db integrity if not previously shut down cleanly */
-	if (!tracker_status_get_is_readonly () &&
-	    !tracker_status_get_is_first_time_index () &&
-	    tracker_data_manager_get_db_option_int ("IntegrityCheck") == 1) {
-		g_message ("Performing integrity check as the daemon was not shutdown cleanly");
-		/* FIXME: Finish */
-	}
-
-	return TRUE;
-}
-
 static void
 shutdown_databases (void)
 {
@@ -506,8 +481,6 @@ shutdown_databases (void)
 		tracker_data_backup_save (private->ttl_backup_file, NULL);
 	}
 #endif
-	/* Reset integrity status as threads have closed cleanly */
-	tracker_data_manager_set_db_option_int ("IntegrityCheck", 0);
 }
 
 static void
@@ -542,9 +515,10 @@ get_ttl_backup_filename (void)
 }
 
 static void
-backup_user_metadata (TrackerConfig *config, TrackerLanguage *language)
+backup_user_metadata (TrackerConfig   *config, 
+		      TrackerLanguage *language)
 {
-	gboolean                    is_first_time_index;
+	gboolean is_first_time_index;
 
 	g_message ("Saving metadata in %s", get_ttl_backup_filename ());
 	
@@ -757,7 +731,7 @@ main (gint argc, gchar *argv[])
 
 	initialize_directories ();
 
-	if (!tracker_dbus_init (config)) {
+	if (!tracker_dbus_init ()) {
 		return EXIT_FAILURE;
 	}
 
@@ -780,8 +754,6 @@ main (gint argc, gchar *argv[])
 #endif /* HAVE_HAL */
 
 	tracker_store_init ();
-	tracker_status_init (config, hal_power);
-
 	tracker_turtle_init ();
 	tracker_thumbnailer_init (config);
 
@@ -802,17 +774,6 @@ main (gint argc, gchar *argv[])
 		return EXIT_FAILURE;
 	}
 
-	tracker_status_set_is_first_time_index (is_first_time_index);
-
-	/*
-	 * Check mode
-	 */
-	tracker_status_set_is_readonly (readonly_mode);
-
-	if (!initialize_databases ()) {
-		return EXIT_FAILURE;
-	}
-
 	tracker_volume_cleanup_init ();
 
 #ifdef HAVE_HAL
@@ -829,8 +790,7 @@ main (gint argc, gchar *argv[])
 	}
 
 	/* Make Tracker available for introspection */
-	if (!tracker_dbus_register_objects (config,
-					    language)) {
+	if (!tracker_dbus_register_objects ()) {
 		return EXIT_FAILURE;
 	}
 
@@ -842,8 +802,6 @@ main (gint argc, gchar *argv[])
 	/* Set our status as running, if this is FALSE, threads stop
 	 * doing what they do and shutdown.
 	 */
-	tracker_status_set_is_ready (TRUE);
-
 	if (!private->shutdown) {
 		private->main_loop = g_main_loop_new (NULL, FALSE);
 		g_main_loop_run (private->main_loop);
@@ -870,7 +828,6 @@ shutdown:
 	tracker_volume_cleanup_shutdown ();
 	tracker_dbus_shutdown ();
 	tracker_data_manager_shutdown ();
-	tracker_status_shutdown ();
 	tracker_turtle_shutdown ();
 	tracker_store_shutdown ();
 	tracker_thumbnailer_shutdown ();
@@ -906,10 +863,6 @@ tracker_shutdown (void)
 	private = g_static_private_get (&private_key);
 
 	if (private) {
-		if (tracker_status_is_initialized ()) {
-			tracker_status_set_is_ready (FALSE);
-		}
-
 		if (private->main_loop) {
 			g_main_loop_quit (private->main_loop);
 		}

@@ -35,7 +35,6 @@
 #include <glib-object.h>
 #include <glib/gi18n.h>
 
-#include <libtracker-common/tracker-config.h>
 #include <libtracker-common/tracker-ioprio.h>
 #include <libtracker-common/tracker-log.h>
 #include <libtracker-common/tracker-ontology.h>
@@ -52,6 +51,7 @@
 #include "tracker-indexer.h"
 #include "tracker-miner.h"
 #include "tracker-miner-glue.h"
+#include "tracker-config.h"
 
 #define ABOUT								  \
 	"Tracker " PACKAGE_VERSION "\n"
@@ -156,6 +156,8 @@ initialize_signal_handler (void)
 	sigaction (SIGHUP,  &act, NULL);
 #endif /* G_OS_WIN32 */
 }
+
+
 
 static void
 initialize_priority (void)

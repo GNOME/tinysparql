@@ -24,7 +24,7 @@
 
 #include <glib-object.h>
 
-#include "tracker-config.h"
+#include "tracker-global-config.h"
 
 G_BEGIN_DECLS
 

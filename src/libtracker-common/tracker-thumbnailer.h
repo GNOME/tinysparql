@@ -22,7 +22,7 @@
 #ifndef __LIBTRACKER_COMMON_THUMBNAILER_H__
 #define __LIBTRACKER_COMMON_THUMBNAILER_H__
 
-#include <libtracker-common/tracker-config.h>
+#include "tracker-global-config.h"
 
 G_BEGIN_DECLS
 

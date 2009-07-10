@@ -1,7 +1,6 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*
- * Copyright (C) 2006, Mr Jamie McCracken (jamiemcc@gnome.org)
- * Copyright (C) 2008, Nokia
+ * Copyright (C) 2009, Nokia
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -19,25 +18,14 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __TRACKERD_DBUS_H__
-#define __TRACKERD_DBUS_H__
+#ifndef __TRACKERD_UTILS_H__
+#define __TRACKERD_UTILS_H__
 
 #include <glib.h>
 
-#include <dbus/dbus-glib-bindings.h>
+#include "tracker-config.h"
 
-G_BEGIN_DECLS
+void tracker_throttle (TrackerConfig *config,
+		       gint           multiplier);
 
-#define TRACKER_INDEXER_PAUSE_TIME_FOR_REQUESTS 5 /* seconds */
-
-gboolean    tracker_dbus_init                    (void);
-void        tracker_dbus_shutdown                (void);
-gboolean    tracker_dbus_register_objects        (void);
-
-GObject    *tracker_dbus_get_object              (GType type);
-void        tracker_dbus_indexer_check_is_paused (void);
-DBusGProxy *tracker_dbus_indexer_get_proxy       (void);
-
-G_END_DECLS
-
-#endif /* __TRACKERD_DBUS_H__ */
+#endif /* __TRACKERD_UTILS_H__ */

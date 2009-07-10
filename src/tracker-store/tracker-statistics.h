@@ -24,8 +24,6 @@
 
 #include <glib-object.h>
 
-#include <libtracker-common/tracker-config.h>
-
 #define TRACKER_STATISTICS_SERVICE     "org.freedesktop.Tracker"
 #define TRACKER_STATISTICS_PATH	       "/org/freedesktop/Tracker/Statistics"
 #define TRACKER_STATISTICS_INTERFACE   "org.freedesktop.Tracker.Statistics"

@@ -34,11 +34,13 @@ tracker_metadata_utils_SOURCES = 						\
 	$(top_srcdir)/src/tracker-miner-fs/tracker-indexer-module.c		\
 	$(top_srcdir)/src/tracker-miner-fs/tracker-marshal-main.c		\
 	$(top_srcdir)/src/tracker-miner-fs/tracker-module-metadata-utils.c 	\
-	$(top_srcdir)/src/tracker-miner-fs/tracker-module-file.c			\
+	$(top_srcdir)/src/tracker-miner-fs/tracker-module-file.c		\
 	$(top_srcdir)/src/tracker-miner-fs/tracker-module-iteratable.c		\
 	$(top_srcdir)/src/tracker-miner-fs/tracker-monitor.c			\
 	$(top_srcdir)/src/tracker-miner-fs/tracker-processor.c			\
 	$(top_srcdir)/src/tracker-miner-fs/tracker-removable-device.c		\
+	$(top_srcdir)/src/tracker-miner-fs/tracker-status.c			\
+	$(top_srcdir)/src/tracker-miner-fs/tracker-utils.c			\
 	tracker-metadata-utils-test.c 					
 
 tracker_metadata_utils_LDADD =	                                        	\

@@ -26,9 +26,7 @@
 #include <string.h>
 
 #include <libtracker-common/tracker-log.h>
-#include <libtracker-common/tracker-config.h>
 #include <libtracker-common/tracker-dbus.h>
-#include <libtracker-common/tracker-status.h>
 
 #include <libtracker-db/tracker-db-dbus.h>
 #include <libtracker-db/tracker-db-manager.h>
@@ -49,8 +47,6 @@
 #define CACHE_LIFETIME 300
 
 typedef struct {
-	TrackerConfig	 *config;
-
 	GHashTable       *cache;
 	guint             cache_timeout_id;
 } TrackerStatisticsPrivate;

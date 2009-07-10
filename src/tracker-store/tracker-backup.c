@@ -24,7 +24,7 @@
 #include <glib/gstdio.h>
 
 #include <libtracker-common/tracker-dbus.h>
-#include <libtracker-common/tracker-status.h>
+
 #include <libtracker-data/tracker-data-backup.h>
 #include <libtracker-data/tracker-data-update.h>
 
@@ -134,6 +134,7 @@ tracker_backup_restore (TrackerBackup          *object,
                         DBusGMethodInvocation  *context,
                         GError                **error)
 {
+#if 0
 	guint request_id;
 	GError *actual_error = NULL;
 	TrackerDBusMethodInfo *info;
@@ -146,7 +147,8 @@ tracker_backup_restore (TrackerBackup          *object,
 	                          uri);
 
 	/* First check we have disk space */
-
+#if 0
+	/* FIXME: MJR */
 	if (tracker_status_get_is_paused_for_space ()) {
 		tracker_dbus_request_failed (request_id,
 		                             &actual_error,
@@ -156,6 +158,7 @@ tracker_backup_restore (TrackerBackup          *object,
 		g_error_free (actual_error);
 		return;
 	}
+#endif
 
 	tracker_dbus_request_new (request_id,
 	                          "DBus request to restore backup '%s'",
@@ -180,4 +183,5 @@ tracker_backup_restore (TrackerBackup          *object,
 	                                   info, destroy_method_info);
 
 	g_object_unref (file);
+#endif
 }

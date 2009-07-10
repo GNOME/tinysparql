@@ -25,7 +25,7 @@
 
 #include <tracker-miner-fs/tracker-module-file.h>
 
-#include "tracker-config.h"
+#include "tracker-global-config.h"
 #include "tracker-dbus.h"
 #include "tracker-thumbnailer.h"
 

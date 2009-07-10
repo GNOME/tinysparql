@@ -53,7 +53,6 @@
 #include <gio/gio.h>
 #include <gmodule.h>
 
-#include <libtracker-common/tracker-config.h>
 #include <libtracker-common/tracker-dbus.h>
 #include <libtracker-common/tracker-file-utils.h>
 #include <libtracker-common/tracker-power.h>
@@ -61,7 +60,6 @@
 #include <libtracker-common/tracker-parser.h>
 #include <libtracker-common/tracker-ontology.h>
 #include <libtracker-common/tracker-module-config.h>
-#include <libtracker-common/tracker-status.h>
 #include <libtracker-common/tracker-utils.h>
 #include <libtracker-common/tracker-thumbnailer.h>
 
@@ -75,11 +73,14 @@
 
 #include <libtracker/tracker.h>
 
+#include "tracker-config.h"
 #include "tracker-indexer.h"
 #include "tracker-indexer-module.h"
 #include "tracker-marshal.h"
 #include "tracker-processor.h"
 #include "tracker-removable-device.h"
+#include "tracker-status.h"
+#include "tracker-utils.h"
 
 #define TRACKER_INDEXER_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_INDEXER, TrackerIndexerPrivate))
 

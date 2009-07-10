@@ -44,7 +44,7 @@
 #endif
 
 #include <libtracker-common/tracker-log.h>
-#include <libtracker-common/tracker-config.h>
+#include <libtracker-common/tracker-global-config.h>
 #include <libtracker-common/tracker-dbus.h>
 #include <libtracker-common/tracker-os-dependant.h>
 #include <libtracker-common/tracker-thumbnailer.h>

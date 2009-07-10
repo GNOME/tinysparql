@@ -24,10 +24,10 @@
 #include <glib-object.h>
 #include <gio/gio.h>
 
-#include <libtracker-common/tracker-config.h>
 #include <libtracker-common/tracker-storage.h>
 
 #include "tracker-indexer.h"
+#include "tracker-config.h"
 
 G_BEGIN_DECLS
 

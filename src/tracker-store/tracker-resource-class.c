@@ -26,7 +26,6 @@
 #include <string.h>
 
 #include <libtracker-common/tracker-dbus.h>
-#include <libtracker-common/tracker-config.h>
 #include <libtracker-common/tracker-ontology.h>
 
 #include <libtracker-db/tracker-db-dbus.h>

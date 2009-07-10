@@ -203,26 +203,6 @@ tracker_seconds_to_string (gdouble  seconds_elapsed,
 	return str;
 }
 
-void
-tracker_throttle (TrackerConfig *config,
-		  gint		 multiplier)
-{
-	gint throttle;
-
-	g_return_if_fail (TRACKER_IS_CONFIG (config));
-
-	/* Get the throttle, add 5 (minimum value) so we don't do
-	 * nothing and then multiply it by the factor given
-	 */
-	throttle  = tracker_config_get_throttle (config);
-	/* throttle += 5; */
-	throttle *= multiplier;
-
-	if (throttle > 0) {
-		g_usleep (throttle);
-	}
-}
-
 /* Temporary: Just here until we upgrade to GLib 2.18. */
 static gboolean
 tracker_dgettext_should_translate (void)

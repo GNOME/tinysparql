@@ -27,15 +27,15 @@
 #include <libtracker-common/tracker-storage.h>
 #include <libtracker-common/tracker-module-config.h>
 #include <libtracker-common/tracker-utils.h>
-#include <libtracker-common/tracker-status.h>
 
 #include <libtracker-db/tracker-db-manager.h>
 
-#include "tracker-processor.h"
 #include "tracker-crawler.h"
 #include "tracker-dbus.h"
 #include "tracker-indexer.h"
 #include "tracker-monitor.h"
+#include "tracker-processor.h"
+#include "tracker-status.h"
 
 #define TRACKER_PROCESSOR_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_PROCESSOR, TrackerProcessorPrivate))
 
