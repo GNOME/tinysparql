@@ -66,8 +66,6 @@ gboolean       tracker_config_get_enable_indexing		   (TrackerConfig *config);
 gboolean       tracker_config_get_enable_content_indexing	   (TrackerConfig *config);
 gboolean       tracker_config_get_enable_thumbnails		   (TrackerConfig *config);
 GSList *       tracker_config_get_disabled_modules		   (TrackerConfig *config);
-gboolean       tracker_config_get_fast_merges			   (TrackerConfig *config);
-GSList *       tracker_config_get_no_index_file_types		   (TrackerConfig *config);
 gint	       tracker_config_get_min_word_length		   (TrackerConfig *config);
 gint	       tracker_config_get_max_word_length		   (TrackerConfig *config);
 const gchar *  tracker_config_get_language			   (TrackerConfig *config);
@@ -79,8 +77,6 @@ gboolean       tracker_config_get_index_removable_devices	   (TrackerConfig *con
 gboolean       tracker_config_get_index_mounted_directories	   (TrackerConfig *config);
 gint	       tracker_config_get_max_text_to_index		   (TrackerConfig *config);
 gint	       tracker_config_get_max_words_to_index		   (TrackerConfig *config);
-gint	       tracker_config_get_max_bucket_count		   (TrackerConfig *config);
-gint	       tracker_config_get_min_bucket_count		   (TrackerConfig *config);
 void	       tracker_config_set_verbosity			   (TrackerConfig *config,
 								    gint	   value);
 void	       tracker_config_set_initial_sleep			   (TrackerConfig *config,
@@ -96,8 +92,6 @@ void	       tracker_config_set_enable_indexing		   (TrackerConfig *config,
 void	       tracker_config_set_enable_content_indexing	   (TrackerConfig *config,
 								    gboolean	   value);
 void	       tracker_config_set_enable_thumbnails		   (TrackerConfig *config,
-								    gboolean	   value);
-void	       tracker_config_set_fast_merges			   (TrackerConfig *config,
 								    gboolean	   value);
 void	       tracker_config_set_min_word_length		   (TrackerConfig *config,
 								    gint	   value);
@@ -121,10 +115,6 @@ void	       tracker_config_set_max_text_to_index		   (TrackerConfig *config,
 								    gint	   value);
 void	       tracker_config_set_max_words_to_index		   (TrackerConfig *config,
 								    gint	   value);
-void	       tracker_config_set_max_bucket_count		   (TrackerConfig *config,
-								    gint	   value);
-void	       tracker_config_set_min_bucket_count		   (TrackerConfig *config,
-								    gint	   value);
 
 /* List APIs*/
 void	       tracker_config_add_watch_directory_roots		   (TrackerConfig *config,
@@ -134,11 +124,7 @@ void	       tracker_config_add_crawl_directory_roots		   (TrackerConfig *config,
 void	       tracker_config_add_no_watch_directory_roots	   (TrackerConfig *config,
 								    gchar * const *roots);
 void	       tracker_config_add_disabled_modules		   (TrackerConfig *config,
-								    const gchar * const *modules);
-void	       tracker_config_add_no_index_file_types		   (TrackerConfig *config,
-								    gchar * const *file_types);
-
-void	       tracker_config_remove_watch_directory_roots         (TrackerConfig *config,
+								    const gchar * const *modules);void	         tracker_config_remove_watch_directory_roots         (TrackerConfig *config,
 								    const gchar   *root);
 void	       tracker_config_remove_crawl_directory_roots         (TrackerConfig *config,
 								    const gchar   *root);
@@ -146,8 +132,6 @@ void	       tracker_config_remove_no_watch_directory_roots      (TrackerConfig *
 								    const gchar   *root);
 void	       tracker_config_remove_disabled_modules		   (TrackerConfig *config,
 								    const gchar   *module);
-void	       tracker_config_remove_no_index_file_types	   (TrackerConfig *config,
-								    const gchar   *file_types);
 
 void	       tracker_config_set_watch_directory_roots		   (TrackerConfig *config,
 								    GSList        *roots);
@@ -157,8 +141,6 @@ void	       tracker_config_set_no_watch_directory_roots	   (TrackerConfig *confi
 								    GSList        *roots);
 void	       tracker_config_set_disabled_modules		   (TrackerConfig *config,
 								    GSList        *modules);
-void	       tracker_config_set_no_index_file_types		   (TrackerConfig *config,
-								    GSList        *types);
 
 G_END_DECLS
 

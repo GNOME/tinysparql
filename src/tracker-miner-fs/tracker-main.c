@@ -100,8 +100,6 @@ sanity_check_option_values (TrackerConfig *config)
 		   tracker_config_get_throttle (config));
 	g_message ("  Thumbnail indexing enabled  ...........  %s",
 		   tracker_config_get_enable_thumbnails (config) ? "yes" : "no");
-	g_message ("  Fast merges enabled  ..................  %s",
-		   tracker_config_get_fast_merges (config) ? "yes" : "no");
 	g_message ("  Disable indexing on battery  ..........  %s (initially = %s)",
 		   tracker_config_get_disable_indexing_on_battery (config) ? "yes" : "no",
 		   tracker_config_get_disable_indexing_on_battery_init (config) ? "yes" : "no");

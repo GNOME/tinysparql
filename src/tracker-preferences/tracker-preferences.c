@@ -555,6 +555,7 @@ cmd_apply (GtkWidget *widget,
                                                      "lstIgnoreFilePatterns"));
 	list = model_get_values (GTK_TREE_VIEW (widget));
 
+/*
         list_old = tracker_config_get_no_index_file_types (priv->config);
 	if (!str_slist_equal (list, list_old)) {
 		priv->should_restart = TRUE;
@@ -562,6 +563,7 @@ cmd_apply (GtkWidget *widget,
 	}
 
 	g_slist_free (list);
+*/
 
 	/* Email settings */
 	widget = GTK_WIDGET (gtk_builder_get_object (priv->builder,
@@ -613,12 +615,12 @@ cmd_apply (GtkWidget *widget,
 
 	widget = GTK_WIDGET (gtk_builder_get_object (priv->builder, "chkFastMerges"));
 	bvalue = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
-	bvalue_old = tracker_config_get_fast_merges (priv->config);
+	/* bvalue_old = tracker_config_get_fast_merges (priv->config); */
 
-	if (bvalue != bvalue_old) {
-		set_bool_option (priv, "FastMerges", bvalue);
-		tracker_config_set_fast_merges (priv->config, bvalue);
-	}
+	/* if (bvalue != bvalue_old) { */
+	/* 	set_bool_option (priv, "FastMerges", bvalue); */
+	/* 	tracker_config_set_fast_merges (priv->config, bvalue); */
+	/* } */
 
 	widget = GTK_WIDGET (gtk_builder_get_object (priv->builder, "spnMaxText"));
 	ivalue = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON (widget))*1024;
@@ -941,8 +943,8 @@ setup_page_performance (TrackerPreferences *preferences)
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget), !bvalue);
 
 	widget = GTK_WIDGET (gtk_builder_get_object (priv->builder, "chkFastMerges"));
-	bvalue = tracker_config_get_fast_merges (priv->config);
-	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget), bvalue);
+	/* bvalue = tracker_config_get_fast_merges (priv->config); */
+	/* gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget), bvalue); */
 
 	widget = GTK_WIDGET (gtk_builder_get_object (priv->builder, "spnMaxText"));
 	value = tracker_config_get_max_text_to_index (priv->config);
@@ -1038,10 +1040,10 @@ setup_page_ignored_files (TrackerPreferences *preferences)
 	widget = GTK_WIDGET (gtk_builder_get_object (priv->builder,
                                                      "lstIgnoreFilePatterns"));
 	gtk_tree_view_set_headers_visible (GTK_TREE_VIEW (widget), FALSE);
-	list = tracker_config_get_no_index_file_types (priv->config);
+	/* list = tracker_config_get_no_index_file_types (priv->config); */
 
 	model_set_up (widget);
-	model_populate (widget, list);
+	/* model_populate (widget, list); */
 }
 
 static void

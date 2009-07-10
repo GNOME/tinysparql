@@ -52,8 +52,6 @@
 #define KEY_ENABLE_CONTENT_INDEXING		 "EnableFileContentIndexing"
 #define KEY_ENABLE_THUMBNAILS			 "EnableThumbnails"
 #define KEY_DISABLED_MODULES			 "DisabledModules"
-#define KEY_FAST_MERGES				 "FastMerges"
-#define KEY_NO_INDEX_FILE_TYPES			 "NoIndexFileTypes"
 #define KEY_MIN_WORD_LENGTH			 "MinWordLength"
 #define KEY_MAX_WORD_LENGTH			 "MaxWordLength"
 #define KEY_LANGUAGE				 "Language"
@@ -67,8 +65,6 @@
 #define GROUP_PERFORMANCE			 "Performance"
 #define KEY_MAX_TEXT_TO_INDEX			 "MaxTextToIndex"
 #define KEY_MAX_WORDS_TO_INDEX			 "MaxWordsToIndex"
-#define KEY_MAX_BUCKET_COUNT			 "MaxBucketCount"
-#define KEY_MIN_BUCKET_COUNT			 "MinBucketCount"
 
 /* Default values */
 #define DEFAULT_VERBOSITY			 0
@@ -79,7 +75,6 @@
 #define DEFAULT_ENABLE_INDEXING			 TRUE
 #define DEFAULT_ENABLE_CONTENT_INDEXING		 TRUE
 #define DEFAULT_ENABLE_THUMBNAILS		 TRUE
-#define DEFAULT_FAST_MERGES			 FALSE
 #define DEFAULT_MIN_WORD_LENGTH			 3	  /* 0->30 */
 #define DEFAULT_MAX_WORD_LENGTH			 30	  /* 0->200 */
 #define DEFAULT_ENABLE_STEMMER			 TRUE
@@ -90,8 +85,6 @@
 #define DEFAULT_LOW_DISK_SPACE_LIMIT		 1	  /* 0->100 / -1 */
 #define DEFAULT_MAX_TEXT_TO_INDEX		 1048576  /* Bytes */
 #define DEFAULT_MAX_WORDS_TO_INDEX		 10000
-#define DEFAULT_MAX_BUCKET_COUNT		 524288
-#define DEFAULT_MIN_BUCKET_COUNT		 65536
 
 typedef struct _TrackerConfigPrivate TrackerConfigPrivate;
 
@@ -118,8 +111,6 @@ struct _TrackerConfigPrivate {
 	gboolean      enable_content_indexing;
 	gboolean      enable_thumbnails;
 	GSList	     *disabled_modules;
-	gboolean      fast_merges;
-	GSList	     *no_index_file_types;
 	gint	      min_word_length;
 	gint	      max_word_length;
 	gchar	     *language;
@@ -133,8 +124,6 @@ struct _TrackerConfigPrivate {
 	/* Performance */
 	gint	      max_text_to_index;
 	gint	      max_words_to_index;
-	gint	      max_bucket_count;
-	gint	      min_bucket_count;
 };
 
 static void     config_finalize             (GObject       *object);
@@ -171,8 +160,6 @@ enum {
 	PROP_ENABLE_CONTENT_INDEXING,
 	PROP_ENABLE_THUMBNAILS,
 	PROP_DISABLED_MODULES,
-	PROP_FAST_MERGES,
-	PROP_NO_INDEX_FILE_TYPES,
 	PROP_MIN_WORD_LENGTH,
 	PROP_MAX_WORD_LENGTH,
 	PROP_LANGUAGE,
@@ -186,8 +173,6 @@ enum {
 	/* Performance */
 	PROP_MAX_TEXT_TO_INDEX,
 	PROP_MAX_WORDS_TO_INDEX,
-	PROP_MAX_BUCKET_COUNT,
-	PROP_MIN_BUCKET_COUNT,
 };
 
 G_DEFINE_TYPE (TrackerConfig, tracker_config, G_TYPE_OBJECT);
@@ -302,20 +287,6 @@ tracker_config_class_init (TrackerConfigClass *klass)
 							       "Modules to disable, like 'files', etc.",
 							       G_PARAM_READABLE));
 	g_object_class_install_property (object_class,
-					 PROP_FAST_MERGES,
-					 g_param_spec_boolean ("fast-merges",
-							       "Fast merges",
-							       "Spends more disk usage if TRUE",
-							       DEFAULT_FAST_MERGES,
-							       G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
-	g_object_class_install_property (object_class,
-					 PROP_NO_INDEX_FILE_TYPES,
-					 g_param_spec_pointer ("no-index-file-types",
-							       "File types to not index",
-							       "This is a GSList of file types "
-							       "to NOT index",
-							       G_PARAM_READABLE));
-	g_object_class_install_property (object_class,
 					 PROP_MIN_WORD_LENGTH,
 					 g_param_spec_int ("min-word-length",
 							   "Minimum word length",
@@ -413,24 +384,6 @@ tracker_config_class_init (TrackerConfigClass *klass)
 							   G_MAXINT,
 							   DEFAULT_MAX_WORDS_TO_INDEX,
 							   G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
-	g_object_class_install_property (object_class,
-					 PROP_MAX_BUCKET_COUNT,
-					 g_param_spec_int ("max-bucket-count",
-							   "Maximum bucket count",
-							   "Maximum bucket count (1000->524288)",
-							   1000,
-							   G_MAXINT, /* FIXME: Is this reasonable? */
-							   DEFAULT_MAX_BUCKET_COUNT,
-							   G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
-	g_object_class_install_property (object_class,
-					 PROP_MIN_BUCKET_COUNT,
-					 g_param_spec_int ("min-bucket-count",
-							   "Minimum bucket count",
-							   "Minimum bucket count (1000->65536)",
-							   1000,
-							   G_MAXINT,
-							   DEFAULT_MIN_BUCKET_COUNT,
-							   G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
 
 	g_type_class_add_private (object_class, sizeof (TrackerConfigPrivate));
 }
@@ -460,9 +413,6 @@ config_finalize (GObject *object)
 
 	g_slist_foreach (priv->no_watch_directory_roots, (GFunc) g_free, NULL);
 	g_slist_free (priv->no_watch_directory_roots);
-
-	g_slist_foreach (priv->no_index_file_types, (GFunc) g_free, NULL);
-	g_slist_free (priv->no_index_file_types);
 
 	g_slist_foreach (priv->disabled_modules, (GFunc) g_free, NULL);
 	g_slist_free (priv->disabled_modules);
@@ -536,12 +486,6 @@ config_get_property (GObject	*object,
 	case PROP_DISABLED_MODULES:
 		g_value_set_pointer (value, priv->disabled_modules);
 		break;
-	case PROP_FAST_MERGES:
-		g_value_set_boolean (value, priv->fast_merges);
-		break;
-	case PROP_NO_INDEX_FILE_TYPES:
-		g_value_set_pointer (value, priv->no_index_file_types);
-		break;
 	case PROP_MIN_WORD_LENGTH:
 		g_value_set_int (value, priv->min_word_length);
 		break;
@@ -576,12 +520,6 @@ config_get_property (GObject	*object,
 		break;
 	case PROP_MAX_WORDS_TO_INDEX:
 		g_value_set_int (value, priv->max_words_to_index);
-		break;
-	case PROP_MAX_BUCKET_COUNT:
-		g_value_set_int (value, priv->max_bucket_count);
-		break;
-	case PROP_MIN_BUCKET_COUNT:
-		g_value_set_int (value, priv->min_bucket_count);
 		break;
 
 	default:
@@ -641,13 +579,6 @@ config_set_property (GObject	  *object,
 	case PROP_DISABLED_MODULES:
 		/* Not writable */
 		break;
-	case PROP_FAST_MERGES:
-		tracker_config_set_fast_merges (TRACKER_CONFIG (object),
-						g_value_get_boolean (value));
-		break;
-	case PROP_NO_INDEX_FILE_TYPES:
-		/* Not writable */
-		break;
 	case PROP_MIN_WORD_LENGTH:
 		tracker_config_set_min_word_length (TRACKER_CONFIG (object),
 						    g_value_get_int (value));
@@ -693,14 +624,6 @@ config_set_property (GObject	  *object,
 	case PROP_MAX_WORDS_TO_INDEX:
 		tracker_config_set_max_words_to_index (TRACKER_CONFIG (object),
 						       g_value_get_int (value));
-		break;
-	case PROP_MAX_BUCKET_COUNT:
-		tracker_config_set_max_bucket_count (TRACKER_CONFIG (object),
-						     g_value_get_int (value));
-		break;
-	case PROP_MIN_BUCKET_COUNT:
-		tracker_config_set_min_bucket_count (TRACKER_CONFIG (object),
-						     g_value_get_int (value));
 		break;
 
 	default:
@@ -847,24 +770,6 @@ config_create_with_defaults (GKeyFile *key_file,
 					NULL);
 	}
 
-	if (overwrite || !g_key_file_has_key (key_file, GROUP_INDEXING, KEY_FAST_MERGES, NULL)) {
-		g_key_file_set_boolean (key_file, GROUP_INDEXING, KEY_FAST_MERGES,
-					DEFAULT_FAST_MERGES);
-		g_key_file_set_comment (key_file, GROUP_INDEXING, KEY_FAST_MERGES,
-					" Set to false to NOT hog the disk for extended periods",
-					NULL);
-	}
-
-	if (overwrite || !g_key_file_has_key (key_file, GROUP_INDEXING, KEY_NO_INDEX_FILE_TYPES, NULL)) {
-		g_key_file_set_string_list (key_file, GROUP_INDEXING, KEY_NO_INDEX_FILE_TYPES,
-					    empty_string_list, 0);
-		g_key_file_set_comment (key_file, GROUP_INDEXING, KEY_NO_INDEX_FILE_TYPES,
-					" List of partial file pattern globs (separator=;)\n"
-					" This is for files to NOT index\n"
-					" (basic stat info is only extended for files that match the patterns)",
-					NULL);
-	}
-
 	if (overwrite || !g_key_file_has_key (key_file, GROUP_INDEXING, KEY_MIN_WORD_LENGTH, NULL)) {
 		g_key_file_set_integer (key_file, GROUP_INDEXING, KEY_MIN_WORD_LENGTH,
 					DEFAULT_MIN_WORD_LENGTH);
@@ -967,16 +872,6 @@ config_create_with_defaults (GKeyFile *key_file,
 		g_key_file_set_comment (key_file, GROUP_PERFORMANCE, KEY_MAX_WORDS_TO_INDEX,
 					" Maximum unique words to index from a file's content",
 					NULL);
-	}
-
-	if (overwrite || !g_key_file_has_key (key_file, GROUP_PERFORMANCE, KEY_MIN_BUCKET_COUNT, NULL)) {
-		g_key_file_set_integer (key_file, GROUP_PERFORMANCE, KEY_MIN_BUCKET_COUNT,
-					DEFAULT_MIN_BUCKET_COUNT);
-	}
-
-	if (overwrite || !g_key_file_has_key (key_file, GROUP_PERFORMANCE, KEY_MAX_BUCKET_COUNT, NULL)) {
-		g_key_file_set_integer (key_file, GROUP_PERFORMANCE, KEY_MAX_BUCKET_COUNT, 
-					DEFAULT_MAX_BUCKET_COUNT);
 	}
 
 	g_free (language);
@@ -1141,9 +1036,6 @@ config_load_string_list (TrackerConfig *config,
 	else if (strcmp (property, "no-watch-directory-roots") == 0) {
 		priv->no_watch_directory_roots = tracker_path_list_filter_duplicates (l, ".");
 	}
-	else if (strcmp (property, "no-index-file-types") == 0) {
-		priv->no_index_file_types = l;
-	}
 	else if (strcmp (property, "disabled-modules") == 0) {
 		priv->disabled_modules = l;
 	}
@@ -1222,9 +1114,6 @@ config_save_string_list (TrackerConfig *config,
 	}
 	else if (strcmp (property, "no-watch-directory-roots") == 0) {
 		list = priv->no_watch_directory_roots;
-	}
-	else if (strcmp (property, "no-index-file-types") == 0) {
-		list = priv->no_index_file_types;
 	}
 	else if (strcmp (property, "disabled-modules") == 0) {
 		list = priv->disabled_modules;
@@ -1352,8 +1241,6 @@ config_load (TrackerConfig *config)
 	config_load_boolean (config, "enable-content-indexing", priv->key_file, GROUP_INDEXING, KEY_ENABLE_CONTENT_INDEXING);
 	config_load_boolean (config, "enable-thumbnails", priv->key_file, GROUP_INDEXING, KEY_ENABLE_THUMBNAILS);
 	config_load_string_list (config, "disabled-modules", priv->key_file, GROUP_INDEXING, KEY_DISABLED_MODULES);
-	config_load_boolean (config, "fast-merges", priv->key_file, GROUP_INDEXING, KEY_FAST_MERGES);
-	config_load_string_list (config, "no-index-file-types", priv->key_file, GROUP_INDEXING, KEY_NO_INDEX_FILE_TYPES);
 	config_load_int (config, "min-word-length", priv->key_file, GROUP_INDEXING, KEY_MIN_WORD_LENGTH);
 	config_load_int (config, "max-word-length", priv->key_file, GROUP_INDEXING, KEY_MAX_WORD_LENGTH);
 	config_load_string (config, "language", priv->key_file, GROUP_INDEXING, KEY_LANGUAGE);
@@ -1367,8 +1254,6 @@ config_load (TrackerConfig *config)
 	/* Performance */
 	config_load_int (config, "max-text-to-index", priv->key_file, GROUP_PERFORMANCE, KEY_MAX_TEXT_TO_INDEX);
 	config_load_int (config, "max-words-to-index", priv->key_file, GROUP_PERFORMANCE, KEY_MAX_WORDS_TO_INDEX);
-	config_load_int (config, "max-bucket-count", priv->key_file, GROUP_PERFORMANCE, KEY_MAX_BUCKET_COUNT);
-	config_load_int (config, "min-bucket-count", priv->key_file, GROUP_PERFORMANCE, KEY_MIN_BUCKET_COUNT);
 
 	/*
 	 * Legacy options no longer supported:
@@ -1445,8 +1330,6 @@ config_save (TrackerConfig *config)
 	config_save_boolean (config, "enable-content-indexing", priv->key_file, GROUP_INDEXING, KEY_ENABLE_CONTENT_INDEXING);
 	config_save_boolean (config, "enable-thumbnails", priv->key_file, GROUP_INDEXING, KEY_ENABLE_THUMBNAILS);
 	config_save_string_list (config, "disabled-modules", priv->key_file, GROUP_INDEXING, KEY_DISABLED_MODULES);
-	config_save_boolean (config, "fast-merges", priv->key_file, GROUP_INDEXING, KEY_FAST_MERGES);
-	config_save_string_list (config, "no-index-file-types", priv->key_file, GROUP_INDEXING, KEY_NO_INDEX_FILE_TYPES);
 	config_save_int (config, "min-word-length", priv->key_file, GROUP_INDEXING, KEY_MIN_WORD_LENGTH);
 	config_save_int (config, "max-word-length", priv->key_file, GROUP_INDEXING, KEY_MAX_WORD_LENGTH);
 	config_save_string (config, "language", priv->key_file, GROUP_INDEXING, KEY_LANGUAGE);
@@ -1460,8 +1343,6 @@ config_save (TrackerConfig *config)
 	/* Performance */
 	config_save_int (config, "max-text-to-index", priv->key_file, GROUP_PERFORMANCE, KEY_MAX_TEXT_TO_INDEX);
 	config_save_int (config, "max-words-to-index", priv->key_file, GROUP_PERFORMANCE, KEY_MAX_WORDS_TO_INDEX);
-	config_save_int (config, "max-bucket-count", priv->key_file, GROUP_PERFORMANCE, KEY_MAX_BUCKET_COUNT);
-	config_save_int (config, "min-bucket-count", priv->key_file, GROUP_PERFORMANCE, KEY_MIN_BUCKET_COUNT);
 
 	g_message ("Saving config to disk...");
 
@@ -1721,30 +1602,6 @@ tracker_config_get_disabled_modules (TrackerConfig *config)
 	return priv->disabled_modules;
 }
 
-gboolean
-tracker_config_get_fast_merges (TrackerConfig *config)
-{
-	TrackerConfigPrivate *priv;
-
-	g_return_val_if_fail (TRACKER_IS_CONFIG (config), DEFAULT_FAST_MERGES);
-
-	priv = TRACKER_CONFIG_GET_PRIVATE (config);
-
-	return priv->fast_merges;
-}
-
-GSList *
-tracker_config_get_no_index_file_types (TrackerConfig *config)
-{
-	TrackerConfigPrivate *priv;
-
-	g_return_val_if_fail (TRACKER_IS_CONFIG (config), NULL);
-
-	priv = TRACKER_CONFIG_GET_PRIVATE (config);
-
-	return priv->no_index_file_types;
-}
-
 gint
 tracker_config_get_min_word_length (TrackerConfig *config)
 {
@@ -1877,30 +1734,6 @@ tracker_config_get_max_words_to_index (TrackerConfig *config)
 	return priv->max_words_to_index;
 }
 
-gint
-tracker_config_get_max_bucket_count (TrackerConfig *config)
-{
-	TrackerConfigPrivate *priv;
-
-	g_return_val_if_fail (TRACKER_IS_CONFIG (config), DEFAULT_MAX_BUCKET_COUNT);
-
-	priv = TRACKER_CONFIG_GET_PRIVATE (config);
-
-	return priv->max_bucket_count;
-}
-
-gint
-tracker_config_get_min_bucket_count (TrackerConfig *config)
-{
-	TrackerConfigPrivate *priv;
-
-	g_return_val_if_fail (TRACKER_IS_CONFIG (config), DEFAULT_MIN_BUCKET_COUNT);
-
-	priv = TRACKER_CONFIG_GET_PRIVATE (config);
-
-	return priv->min_bucket_count;
-}
-
 void
 tracker_config_set_verbosity (TrackerConfig *config,
 			      gint	     value)
@@ -2023,20 +1856,6 @@ tracker_config_set_enable_thumbnails (TrackerConfig *config,
 
 	priv->enable_thumbnails = value;
 	g_object_notify (G_OBJECT (config), "enable-thumbnails");
-}
-
-void
-tracker_config_set_fast_merges (TrackerConfig *config,
-				gboolean       value)
-{
-	TrackerConfigPrivate *priv;
-
-	g_return_if_fail (TRACKER_IS_CONFIG (config));
-
-	priv = TRACKER_CONFIG_GET_PRIVATE (config);
-
-	priv->fast_merges = value;
-	g_object_notify (G_OBJECT (config), "fast-merges");
 }
 
 void
@@ -2227,42 +2046,6 @@ tracker_config_set_max_words_to_index (TrackerConfig *config,
 }
 
 void
-tracker_config_set_max_bucket_count (TrackerConfig *config,
-				     gint	    value)
-{
-	TrackerConfigPrivate *priv;
-
-	g_return_if_fail (TRACKER_IS_CONFIG (config));
-
-	if (!config_int_validate (config, "max-bucket-count", value)) {
-		return;
-	}
-
-	priv = TRACKER_CONFIG_GET_PRIVATE (config);
-
-	priv->max_bucket_count = value;
-	g_object_notify (G_OBJECT (config), "max-bucket-count");
-}
-
-void
-tracker_config_set_min_bucket_count (TrackerConfig *config,
-				     gint	    value)
-{
-	TrackerConfigPrivate *priv;
-
-	g_return_if_fail (TRACKER_IS_CONFIG (config));
-
-	if (!config_int_validate (config, "min-bucket-count", value)) {
-		return;
-	}
-
-	priv = TRACKER_CONFIG_GET_PRIVATE (config);
-
-	priv->min_bucket_count = value;
-	g_object_notify (G_OBJECT (config), "min-bucket-count");
-}
-
-void
 tracker_config_add_watch_directory_roots (TrackerConfig *config,
 					  gchar * const *roots)
 {
@@ -2402,37 +2185,6 @@ tracker_config_add_disabled_modules (TrackerConfig *config,
 }
 
 void
-tracker_config_add_no_index_file_types (TrackerConfig *config,
-					gchar * const *file_types)
-{
-	TrackerConfigPrivate *priv;
-	GSList		     *new_file_types;
-	gchar * const	     *p;
-
-	g_return_if_fail (TRACKER_IS_CONFIG (config));
-	g_return_if_fail (file_types != NULL);
-
-	priv = TRACKER_CONFIG_GET_PRIVATE (config);
-
-	new_file_types = NULL;
-
-	for (p = file_types; *p; p++) {
-		if (g_slist_find_custom (priv->no_index_file_types,
-					 *p,
-					 (GCompareFunc) strcmp)) {
-			continue;
-		}
-
-		new_file_types = g_slist_append (new_file_types, g_strdup (*p));
-	}
-
-	priv->no_index_file_types = g_slist_concat (priv->no_index_file_types,
-						    new_file_types);
-
-	g_object_notify (G_OBJECT (config), "no-index-file-types");
-}
-
-void
 tracker_config_remove_watch_directory_roots (TrackerConfig *config,
 					     const gchar   *root)
 {
@@ -2521,29 +2273,6 @@ tracker_config_remove_disabled_modules (TrackerConfig *config,
 		g_free (l->data);
 		priv->disabled_modules = g_slist_delete_link (priv->disabled_modules, l);
 		g_object_notify (G_OBJECT (config), "disabled-modules");
-	}
-}
-
-void
-tracker_config_remove_no_index_file_types (TrackerConfig *config,
-					   const gchar   *file_type)
-{
-	TrackerConfigPrivate *priv;
-	GSList		     *l;
-
-	g_return_if_fail (TRACKER_IS_CONFIG (config));
-	g_return_if_fail (file_type != NULL);
-
-	priv = TRACKER_CONFIG_GET_PRIVATE (config);
-
-	l = g_slist_find_custom (priv->no_index_file_types,
-				 file_type,
-				 (GCompareFunc) strcmp);
-
-	if (l) {
-		g_free (l->data);
-		priv->no_index_file_types = g_slist_delete_link (priv->no_index_file_types, l);
-		g_object_notify (G_OBJECT (config), "no-index-file-types");
 	}
 }
 
@@ -2645,29 +2374,4 @@ tracker_config_set_disabled_modules (TrackerConfig *config,
 	g_slist_free (l);
 
 	g_object_notify (G_OBJECT (config), "disabled-modules");
-}
-
-void	       
-tracker_config_set_no_index_file_types (TrackerConfig *config,
-					GSList        *file_types)
-{
-	TrackerConfigPrivate *priv;
-	GSList               *l;
-
-	g_return_if_fail (TRACKER_IS_CONFIG (config));
-
-	priv = TRACKER_CONFIG_GET_PRIVATE (config);
-
-	l = priv->no_index_file_types;
-
-	if (!file_types) {
-		priv->no_index_file_types = NULL;
-	} else {
-		priv->no_index_file_types = tracker_gslist_copy_with_string_data (file_types);
-	}
-
-	g_slist_foreach (l, (GFunc) g_free, NULL);
-	g_slist_free (l);
-
-	g_object_notify (G_OBJECT (config), "no-index-file-types");
 }
