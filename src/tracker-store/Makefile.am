@@ -27,8 +27,10 @@ INCLUDES =								\
 libexec_PROGRAMS = tracker-store
 
 tracker_store_SOURCES =							\
-	tracker-backup.h						\
 	tracker-backup.c						\
+	tracker-backup.h						\
+	tracker-config.c						\
+	tracker-config.h						\
 	tracker-dbus.c							\
 	tracker-dbus.h							\
 	tracker-events.c						\
