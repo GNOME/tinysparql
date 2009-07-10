@@ -13,7 +13,7 @@ nmo: a tracker:Namespace ;
 
 # FIXME Extension requested in Nepomuk 
 nmo:MimePartContainer a rdfs:Class ;
-	rdfs:subClassOf nfo:DataContainer .
+	rdfs:subClassOf nmo:MimePart .
 
 # FIXME Extension requested in Nepomuk 
 nmo:partBoundary a rdf:Property ;
@@ -25,7 +25,7 @@ nmo:Message a rdfs:Class ;
 	rdfs:subClassOf nfo:TextDocument .
 
 nmo:Email a rdfs:Class;
-	rdfs:subClassOf nmo:Message , nmo:MimePartContainer .
+	rdfs:subClassOf nmo:Message .
 
 # FIXME Extension requested in Nepomuk 
 nmo:MimePart a rdfs:Class ;
