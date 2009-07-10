@@ -87,11 +87,6 @@
 	"\n"								  \
 	"  http://www.gnu.org/licenses/gpl.txt\n"
 
-/* Throttle defaults */
-#define THROTTLE_DEFAULT	    0
-#define THROTTLE_DEFAULT_ON_BATTERY 5
-
-
 #ifdef HAVE_HAL
 
 typedef struct {
@@ -470,32 +465,14 @@ static void
 sanity_check_option_values (TrackerConfig *config)
 {
 	g_message ("General options:");
-	g_message ("  Initial sleep  ........................  %d (seconds)",
-		   tracker_config_get_initial_sleep (config));
 	g_message ("  Verbosity  ............................  %d",
 		   tracker_config_get_verbosity (config));
 	g_message ("  Low memory mode  ......................  %s",
 		   tracker_config_get_low_memory_mode (config) ? "yes" : "no");
 
-
 	g_message ("Daemon options:");
-	g_message ("  Throttle level  .......................  %d",
-		   tracker_config_get_throttle (config));
 	g_message ("  Indexing enabled  .....................  %s",
 		   tracker_config_get_enable_indexing (config) ? "yes" : "no");
-	g_message ("  Monitoring enabled  ...................  %s",
-		   tracker_config_get_enable_watches (config) ? "yes" : "no");
-
-	log_option_list (tracker_config_get_watch_directory_roots (config),
-			 "Monitor directories included");
-	log_option_list (tracker_config_get_no_watch_directory_roots (config),
-			 "Monitor directories excluded");
-	log_option_list (tracker_config_get_crawl_directory_roots (config),
-			 "Crawling directories");
-	log_option_list (tracker_config_get_no_index_file_types (config),
-			 "File types excluded from indexing");
-	log_option_list (tracker_config_get_disabled_modules (config),
-			 "Disabled modules (config)");
 }
 
 static gboolean
@@ -1030,10 +1007,10 @@ main (gint argc, gchar *argv[])
 	tracker_volume_cleanup_init ();
 
 #ifdef HAVE_HAL
-	/* We set up the throttle and mount points here. For the mount
-	 * points, this means contacting the Indexer. This means that
-	 * we have to have already initialised the databases if we
-	 * are going to do that.
+	/* We set up the mount points here. For the mount points, this
+	 * means contacting the Indexer. This means that we have to
+	 * have already initialised the databases if we are going to
+	 * do that.
 	 */
 	set_up_mount_points (hal_storage);
 #endif /* HAVE_HAL */
