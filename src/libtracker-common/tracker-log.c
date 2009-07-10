@@ -140,14 +140,22 @@ tracker_log_handler (const gchar    *domain,
 }
 
 gboolean
-tracker_log_init (const gchar *filename,
-		  gint	       this_verbosity)
+tracker_log_init (gint    this_verbosity,
+		  gchar **used_filename)
 {
-	g_return_val_if_fail (filename != NULL, FALSE);
+	gchar *filename;
+	gchar *basename;
 
 	if (initialized) {
 		return TRUE;
 	}
+		
+	basename = g_strdup_printf ("%s.log", g_get_application_name ());
+	filename = g_build_filename (g_get_user_data_dir (), 
+				     "tracker", 
+				     basename, 
+				     NULL);
+	g_free (basename);
 
 	/* Remove previous log */
 	g_unlink (filename);
@@ -176,6 +184,12 @@ tracker_log_init (const gchar *filename,
 					    NULL);
 
 	g_log_set_default_handler (tracker_log_handler, NULL);
+
+	if (used_filename) {
+		*used_filename = filename;
+	} else {
+		g_free (filename);
+	}
 
 	initialized = TRUE;
 

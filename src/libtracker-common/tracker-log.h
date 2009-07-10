@@ -30,8 +30,8 @@ G_BEGIN_DECLS
 #error "only <libtracker-common/tracker-common.h> must be included directly."
 #endif
 
-gboolean tracker_log_init     (const char *filename,
-			       gint	   verbosity);
+gboolean tracker_log_init     (gint    verbosity,
+			       gchar **used_filename);
 void	 tracker_log_shutdown (void);
 
 G_END_DECLS

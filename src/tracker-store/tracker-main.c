@@ -425,13 +425,6 @@ initialize_locations (void)
 		g_build_filename (private->user_data_dir, 
 				  "tracker-userdata-backup.ttl",
 				  NULL);
-
-	/* Private locations */
-	private->log_filename =
-		g_build_filename (g_get_user_data_dir (),
-				  "tracker",
-				  "tracker-store.log",
-				  NULL);
 }
 
 static void
@@ -736,7 +729,8 @@ main (gint argc, gchar *argv[])
 	}
 
 	/* Initialize other subsystems */
-	tracker_log_init (private->log_filename, tracker_config_get_verbosity (config));
+	tracker_log_init (tracker_config_get_verbosity (config),
+			  &private->log_filename);
 	g_print ("Starting log:\n  File:'%s'\n", private->log_filename);
 
 	sanity_check_option_values (config);

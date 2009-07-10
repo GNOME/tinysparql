@@ -219,8 +219,7 @@ main (gint argc, gchar *argv[])
 	TrackerMiner *miner;
 	GOptionContext *context;
 	GError *error = NULL;
-	gchar *filename;
-        gchar *basename;
+	gchar *log_filename = NULL;
 
 	g_type_init ();
 
@@ -277,16 +276,10 @@ main (gint argc, gchar *argv[])
 		return EXIT_FAILURE;
 	}
 
-	basename = g_strdup_printf ("%s.log", g_get_application_name ());
-	filename = g_build_filename (g_get_user_data_dir (), 
-                                     "tracker", 
-                                     basename, 
-                                     NULL);
-	g_free (basename);
-
-	tracker_log_init (filename, tracker_config_get_verbosity (config));
-	g_print ("Starting log:\n  File:'%s'\n", filename);
-	g_free (filename);
+	tracker_log_init (tracker_config_get_verbosity (config),
+                          &log_filename);
+	g_print ("Starting log:\n  File:'%s'\n", log_filename);
+	g_free (log_filename);
 
 	sanity_check_option_values (config);
 

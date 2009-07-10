@@ -273,7 +273,7 @@ main (int argc, char *argv[])
 	GOptionContext *context;
 	GError         *error = NULL;
 	TrackerConfig  *config;
-	gchar          *log_filename;
+	gchar          *log_filename = NULL;
 	gboolean        stand_alone = FALSE;
 	guint           log_handler_id = 0;
 
@@ -372,12 +372,6 @@ main (int argc, char *argv[])
 
 	config = tracker_config_new ();
 
-	log_filename =
-		g_build_filename (g_get_user_data_dir (),
-				  "tracker",
-				  "tracker-extract.log",
-				  NULL);
-
 	/* Extractor command line arguments */
 	if (verbosity > -1) {
 		tracker_config_set_verbosity (config, verbosity);
@@ -390,14 +384,15 @@ main (int argc, char *argv[])
 	/* Initialize subsystems */
 	initialize_directories ();
 
-	tracker_log_init (log_filename, tracker_config_get_verbosity (config));
+	tracker_log_init (tracker_config_get_verbosity (config),
+			  &log_filename);
 	g_print ("Starting log:\n  File:'%s'\n", log_filename);
+	g_free (log_filename);
 
 	tracker_thumbnailer_init (config);
 
 	/* Make Tracker available for introspection */
 	if (!tracker_dbus_register_objects ()) {
-		g_free (log_filename);
 		g_object_unref (config);
 
 		return EXIT_FAILURE;
@@ -423,7 +418,6 @@ main (int argc, char *argv[])
 		g_object_unref (hal);
 	}
 
-	g_free (log_filename);
 	g_object_unref (config);
 
 done:
