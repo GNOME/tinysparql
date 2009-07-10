@@ -69,7 +69,7 @@
  * reads, never writes). We hope that's sufficient for not having to get our
  * code involved in Camel's cruel inneryard of having to lock the db_r ptr. */
 
-#define MAX_BEFORE_SEND 200
+#define MAX_BEFORE_SEND 2000
 
 G_DEFINE_TYPE (TrackerEvolutionPlugin, tracker_evolution_plugin, G_TYPE_OBJECT)
 
@@ -591,7 +591,7 @@ start_many_handler (void)
 {
 	/* We just slow it down to 'once per second' (for now, we can tweak this
 	 * afterward, of course, but once per second seems to work great) */
-	 g_timeout_add_seconds_full (G_PRIORITY_LOW, 1,
+	 g_idle_add_full (G_PRIORITY_LOW,
 	                            many_idle_handler,
 	                            NULL,
 	                            many_idle_destroy);
