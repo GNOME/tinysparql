@@ -1,6 +1,10 @@
 include $(top_srcdir)/Makefile.decl
 
-noinst_PROGRAMS = playlist2ttl
+noinst_PROGRAMS = 
+
+if HAVE_TOTEM_PL_PARSER
+noinst_PROGRAMS += playlist2ttl
+endif
 
 INCLUDES = 				\
 	-DG_LOG_DOMAIN=\"Tracker\"	\
