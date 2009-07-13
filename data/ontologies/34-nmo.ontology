@@ -11,7 +11,11 @@
 nmo: a tracker:Namespace ;
 	tracker:prefix "nmo" .
 
-# FIXME Extension requested in Nepomuk 
+# FIXME Extension requested in Nepomuk
+nmo:MimePart a rdfs:Class ;
+	rdfs:subClassOf nfo:EmbeddedFileDataObject .
+
+# FIXME Extension requested in Nepomuk
 nmo:MimePartContainer a rdfs:Class ;
 	rdfs:subClassOf nmo:MimePart .
 
@@ -26,10 +30,6 @@ nmo:Message a rdfs:Class ;
 
 nmo:Email a rdfs:Class;
 	rdfs:subClassOf nmo:Message .
-
-# FIXME Extension requested in Nepomuk 
-nmo:MimePart a rdfs:Class ;
-	rdfs:subClassOf nfo:EmbeddedFileDataObject .
 
 # FIXME Extension requested in Nepomuk 
 nmo:Attachment a rdfs:Class ;
