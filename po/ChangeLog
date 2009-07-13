@@ -1,3 +1,11 @@
+2009-07-13  Michael Biebl  <mbiebl@gmail.com>
+
+	* Fix "make distcheck"
+	* POTFILES.skip: Add src/rasqal/rdql_parser.c and
+	src/rasqal/sparql_parser.c
+	* POTFILES.in: Add
+	utils/mp3-genre-leading-uppercase/mp3-genre-leading-uppercase.c
+
 2009-04-24  Martyn Russell  <martyn@imendio.com>
 
 	* POTFILES.in: Fixed for release 0.6.94.

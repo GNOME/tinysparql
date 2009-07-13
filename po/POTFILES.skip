@@ -2,6 +2,8 @@
 # Please keep this file sorted alphabetically.
 
 data/trackerd.desktop.in
+src/rasqal/rdql_parser.c
+src/rasqal/sparql_parser.c
 src/tracker-applet/tracker-applet.desktop.in
 src/tracker-preferences/tracker-preferences.desktop.in
 src/tracker-search-tool/tracker-search-tool.desktop.in

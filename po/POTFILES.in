@@ -39,3 +39,4 @@ src/tracker-utils/tracker-unique.c
 src/trackerd/tracker-main.c
 utils/albumart/albumart-strip.c
 utils/sqlite/query.c
+utils/mp3-genre-leading-uppercase/mp3-genre-leading-uppercase.c
