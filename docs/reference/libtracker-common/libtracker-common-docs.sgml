@@ -6,7 +6,6 @@
 <!ENTITY tracker-class SYSTEM "xml/tracker-class.xml">
 <!ENTITY tracker-parser SYSTEM "xml/tracker-parser.xml">
 <!ENTITY tracker-ontology SYSTEM "xml/tracker-ontology.xml">
-<!ENTITY tracker-nfs-lock SYSTEM "xml/tracker-nfs-lock.xml">
 <!ENTITY tracker-module-config SYSTEM "xml/tracker-module-config.xml">
 <!ENTITY tracker-log SYSTEM "xml/tracker-log.xml">
 <!ENTITY tracker-language SYSTEM "xml/tracker-language.xml">
@@ -42,7 +41,6 @@
       &tracker-file-utils;
       &tracker-ioprio;
       &tracker-log;
-      &tracker-nfs-lock;
       &tracker-type-utils;
       &tracker-utils;
     </chapter>
