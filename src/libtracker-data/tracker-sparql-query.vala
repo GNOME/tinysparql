@@ -104,7 +104,7 @@ public class Tracker.SparqlQuery : Object {
 								} else if (prop.data_type == PropertyType.BOOLEAN) {
 									sql.append_printf ("CASE \"%s\" WHEN 1 THEN 'true' WHEN 0 THEN 'false' ELSE NULL END", prop.name);
 								} else if (prop.data_type == PropertyType.DATETIME) {
-									sql.append_printf ("strftime (\"%%Y-%%m-%%dT%%H:%%M:%%S\", \"%s\", \"unixepoch\")", prop.name);
+									sql.append_printf ("strftime (\"%%Y-%%m-%%dT%%H:%%M:%%SZ\", \"%s\", \"unixepoch\")", prop.name);
 								} else {
 									sql.append_printf ("\"%s\"", prop.name);
 								}
@@ -156,7 +156,7 @@ public class Tracker.SparqlQuery : Object {
 								} else if (prop.data_type == PropertyType.BOOLEAN) {
 									sql.append_printf ("CASE \"%s\" WHEN 1 THEN 'true' WHEN 0 THEN 'false' ELSE NULL END", prop.name);
 								} else if (prop.data_type == PropertyType.DATETIME) {
-									sql.append_printf ("strftime (\"%%Y-%%m-%%dT%%H:%%M:%%S\", \"%s\", \"unixepoch\")", prop.name);
+									sql.append_printf ("strftime (\"%%Y-%%m-%%dT%%H:%%M:%%SZ\", \"%s\", \"unixepoch\")", prop.name);
 								} else {
 									sql.append_printf ("\"%s\"", prop.name);
 								}
@@ -193,7 +193,7 @@ public class Tracker.SparqlQuery : Object {
 						} else if (prop.data_type == PropertyType.BOOLEAN) {
 							sql.append_printf ("CASE \"%s\" WHEN 1 THEN 'true' WHEN 0 THEN 'false' ELSE NULL END", prop.name);
 						} else if (prop.data_type == PropertyType.DATETIME) {
-							sql.append_printf ("strftime (\"%%Y-%%m-%%dT%%H:%%M:%%S\", \"%s\", \"unixepoch\")", prop.name);
+							sql.append_printf ("strftime (\"%%Y-%%m-%%dT%%H:%%M:%%SZ\", \"%s\", \"unixepoch\")", prop.name);
 						} else {
 							sql.append_printf ("\"%s\"", prop.name);
 						}
@@ -377,7 +377,7 @@ public class Tracker.SparqlQuery : Object {
 		} else if (binding.is_boolean) {
 			return "(CASE \"%s_u\" WHEN 1 THEN 'true' WHEN 0 THEN 'false' ELSE NULL END)".printf (variable_name);
 		} else if (binding.is_datetime) {
-			return "strftime (\"%%Y-%%m-%%dT%%H:%%M:%%S\", \"%s_u\", \"unixepoch\")".printf (variable_name);
+			return "strftime (\"%%Y-%%m-%%dT%%H:%%M:%%SZ\", \"%s_u\", \"unixepoch\")".printf (variable_name);
 		} else {
 			return "\"%s_u\"".printf (variable_name);
 		}

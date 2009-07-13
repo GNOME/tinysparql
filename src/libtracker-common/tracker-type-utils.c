@@ -478,16 +478,16 @@ gchar *
 tracker_date_to_string (time_t date_time)
 {
 	gchar	  buffer[30];
-	struct tm local_time;
+	struct tm utc_time;
 	size_t	  count;
 
 	memset (buffer, '\0', sizeof (buffer));
-	memset (&local_time, 0, sizeof (struct tm));
+	memset (&utc_time, 0, sizeof (struct tm));
 
-	localtime_r (&date_time, &local_time);
+	gmtime_r (&date_time, &utc_time);
 
-	/* Output is ISO 8160 format : "YYYY-MM-DDThh:mm:ss+zz:zz" */
-	count = strftime (buffer, sizeof (buffer), "%FT%T%z", &local_time);
+	/* Output is ISO 8160 format : "YYYY-MM-DDThh:mm:ssZ" */
+	count = strftime (buffer, sizeof (buffer), "%FT%TZ", &utc_time);
 
 	return count > 0 ? g_strdup (buffer) : NULL;
 }

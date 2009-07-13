@@ -118,13 +118,13 @@ test_date_to_string (void)
 	original->tm_mday = 16;
 	original->tm_mon = 5;
 	original->tm_year = 108;
-	original->tm_isdst = 1;
+	original->tm_isdst = 0;
 
-	input = mktime (original);
+	input = mktime (original) - timezone;
 
 	result = tracker_date_to_string (input);
 
-	g_assert (result != NULL && strncmp (result, "2008-06-16T23:53:10", 19) == 0);
+	g_assert (result != NULL && strncmp (result, "2008-06-16T23:53:10Z", 19) == 0);
 }
 
 static void
