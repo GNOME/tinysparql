@@ -134,7 +134,6 @@ tracker_connect (gboolean enable_warnings)
 	DBusGConnection *connection;
 	GError *error = NULL;
 	TrackerClient *client = NULL;
-	DBusGProxy *proxy;
 
 	g_type_init ();
 
@@ -145,13 +144,6 @@ tracker_connect (gboolean enable_warnings)
 			g_warning("Unable to connect to dbus: %s\n", error->message);
 		}
 		g_error_free (error);
-		return NULL;
-	}
-
-	if (!proxy) {
-		if (enable_warnings) {
-			g_warning ("could not create proxy");
-		}
 		return NULL;
 	}
 
