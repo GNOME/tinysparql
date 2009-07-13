@@ -382,103 +382,14 @@ tracker_date_to_time_string (const gchar *date_string)
 	return NULL;
 }
 
-static gboolean
-is_valid_8601_datetime (const gchar *date_string)
-{
-	gint len;
-
-	len = strlen (date_string);
-
-	if (len < 19) {
-		return FALSE;
-	}
-
-	if (!g_ascii_isdigit (date_string[0]) ||
-	    !g_ascii_isdigit (date_string[1]) ||
-	    !g_ascii_isdigit (date_string[2]) ||
-	    !g_ascii_isdigit (date_string[3])) {
-		return FALSE;
-	}
-
-	if (date_string[4] != '-') {
-		return FALSE;
-	}
-
-	if (!g_ascii_isdigit (date_string[5]) ||
-	    !g_ascii_isdigit (date_string[6])) {
-		return FALSE;
-	}
-
-	if (date_string[7] != '-') {
-		return FALSE;
-	}
-
-	if (!g_ascii_isdigit (date_string[8]) ||
-	    !g_ascii_isdigit (date_string[9])) {
-		return FALSE;
-	}
-
-	if ((date_string[10] != 'T')) {
-		return FALSE;
-	}
-
-	if (!g_ascii_isdigit (date_string[11]) ||
-	    !g_ascii_isdigit (date_string[12])) {
-		return FALSE;
-	}
-
-	if (date_string[13] != ':') {
-		return FALSE;
-	}
-
-	if (!g_ascii_isdigit (date_string[14]) ||
-	    !g_ascii_isdigit (date_string[15])) {
-		return FALSE;
-	}
-
-	if (date_string[16] != ':'){
-		return FALSE;
-	}
-
-	if (!g_ascii_isdigit (date_string[17]) ||
-	    !g_ascii_isdigit (date_string[18])) {
-		return FALSE;
-	}
-
-	if (len == 20) {
-		if (date_string[19] != 'Z') {
-			return FALSE;
-		}
-	} else {
-		if (len > 20) {
-			/* Format must be YYYY-MM-DDThh:mm:ss+xx  or
-			 * YYYY-MM-DDThh:mm:ss+xx:yy or
-			 * YYYY-MM-DDThh:mm:ss+xxyy
-			 */
-			if (len < 22 || len > 25) {
-				return FALSE;
-			}
-
-			if (date_string[19] != '+' &&
-			    date_string[19] != '-') {
-				return FALSE;
-			}
-
-			if (!g_ascii_isdigit (date_string[20]) ||
-			    !g_ascii_isdigit (date_string[21])) {
-				return FALSE;
-			}
-		}
-	}
-
-	return TRUE;
-}
-
 time_t
 tracker_string_to_date (const gchar *date_string)
 {
+	static GRegex *regex = NULL;
+
+	GMatchInfo *match_info;
+	gchar      *match;
 	struct tm tm;
-	long	  val;
 	time_t	  t;
 
 	g_return_val_if_fail (date_string, -1);
@@ -486,99 +397,79 @@ tracker_string_to_date (const gchar *date_string)
 	/* We should have a valid iso 8601 date in format
 	 * YYYY-MM-DDThh:mm:ss with optional TZ
 	 */
-	if (!is_valid_8601_datetime (date_string)) {
+
+	if (!regex) {
+		GError *e = NULL;
+		regex = g_regex_new ("^(-?[0-9][0-9][0-9][0-9])-([0-9][0-9])-([0-9][0-9])T([0-9][0-9]):([0-9][0-9]):([0-9][0-9])(\\.[0-9]+)?(Z|((\\+|-)[0-9][0-9]):?([0-9][0-9]))?$", 0, 0, &e);
+		if (e) {
+			g_error ("%s", e->message);
+		}
+	}
+
+	if (!g_regex_match (regex, date_string, 0, &match_info)) {
 		return -1;
 	}
 
 	memset (&tm, 0, sizeof (struct tm));
-	val = strtoul (date_string, (gchar**) &date_string, 10);
 
-	if (*date_string == '-') {
-		/* YYYY-MM-DD */
-		tm.tm_year = val - 1900;
-		date_string++;
-		tm.tm_mon = strtoul (date_string, (gchar **) &date_string, 10) - 1;
+	/* year */
+	match = g_match_info_fetch (match_info, 1);
+	tm.tm_year = atoi (match) - 1900;
+	g_free (match);
 
-		if (*date_string++ != '-') {
-			return -1;
+	/* month */
+	match = g_match_info_fetch (match_info, 2);
+	tm.tm_mon = atoi (match) - 1;
+	g_free (match);
+
+	/* day of month */
+	match = g_match_info_fetch (match_info, 3);
+	tm.tm_mday = atoi (match);
+	g_free (match);
+
+	/* hour */
+	match = g_match_info_fetch (match_info, 4);
+	tm.tm_hour = atoi (match);
+	g_free (match);
+
+	/* minute */
+	match = g_match_info_fetch (match_info, 5);
+	tm.tm_min = atoi (match);
+	g_free (match);
+
+	/* second */
+	match = g_match_info_fetch (match_info, 6);
+	tm.tm_sec = atoi (match);
+	g_free (match);
+
+	match = g_match_info_fetch (match_info, 8);
+	if (match) {
+		/* timezoned */
+		g_free (match);
+
+		/* mktime() always assumes that "tm" is in locale time but we
+		 * want to keep control on time, so we go to UTC
+		 */
+		t  = mktime (&tm);
+		t -= timezone;
+
+		match = g_match_info_fetch (match_info, 9);
+		if (match) {
+			/* non-UTC timezone */
+			t -= atoi (match) * 3600;
+			g_free (match);
+
+			match = g_match_info_fetch (match_info, 10);
+			t -= atoi (match) * 60;
+			g_free (match);
 		}
-
-		tm.tm_mday = strtoul (date_string, (gchar **) &date_string, 10);
+	} else {
+		/* local time */
+		tm.tm_isdst = -1;
+		t = mktime (&tm);
 	}
 
-	if (*date_string++ != 'T') {
-		g_critical ("Date validation failed for '%s' st '%c'",
-			    date_string,
-			    *date_string);
-		return -1;
-	}
-
-	val = strtoul (date_string, (gchar**) &date_string, 10);
-
-	if (*date_string == ':') {
-		/* hh:mm:ss */
-		tm.tm_hour = val;
-		date_string++;
-		tm.tm_min = strtoul (date_string, (gchar**) &date_string, 10);
-
-		if (*date_string++ != ':') {
-			return -1;
-		}
-
-		tm.tm_sec = strtoul (date_string, (gchar**) &date_string, 10);
-	}
-
-	/* mktime() always assumes that "tm" is in locale time but we
-	 * want to keep control on time, so we go to UTC
-	 */
-	t  = mktime (&tm);
-	t -= timezone;
-
-	if (*date_string == '+' ||
-	    *date_string == '-') {
-		gint sign;
-
-		sign = *date_string++ == '+' ? -1 : 1;
-
-		/* We have format hh:mm or hhmm */
-		/* Now, we are reading hours */
-		if (date_string[0] &&
-		    date_string[1]) {
-			if (g_ascii_isdigit (date_string[0]) &&
-			    g_ascii_isdigit (date_string[1])) {
-				gchar buff[3];
-
-				buff[0] = date_string[0];
-				buff[1] = date_string[1];
-				buff[2] = '\0';
-
-				val = strtoul (buff, NULL, 10);
-				t += sign * (3600 * val);
-				date_string += 2;
-			}
-
-			if (*date_string == ':' || *date_string == '\'') {
-				date_string++;
-			}
-		}
-
-		/* Now, we are reading minutes */
-		if (date_string[0] &&
-		    date_string[1]) {
-			if (g_ascii_isdigit (date_string[0]) &&
-			    g_ascii_isdigit (date_string[1])) {
-				gchar buff[3];
-
-				buff[0] = date_string[0];
-				buff[1] = date_string[1];
-				buff[2] = '\0';
-
-				val = strtoul (buff, NULL, 10);
-				t += sign * (60 * val);
-				date_string += 2;
-			}
-		}
-	}
+	g_match_info_free (match_info);
 
 	return t;
 }
