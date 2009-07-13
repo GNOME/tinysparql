@@ -1449,6 +1449,7 @@ AC_CONFIG_FILES([
 	utils/albumart/Makefile
 	utils/tracker-fts/Makefile
 	utils/services/Makefile
+	utils/playlists/Makefile
 ])
 
 AC_OUTPUT
