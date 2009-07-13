@@ -153,6 +153,7 @@ STREAMANALYZER_REQUIRED=9.9.9
 LIBGNOME_DESKTOP_REQUIRED=2.9.91
 LIBGNOME_REQUIRED=2.13.2
 LIBGNOMEUI_REQUIRED=2.13.7
+GEE_REQUIRED=0.1.3
 
 # Library Checks
 PKG_CHECK_MODULES(GLIB2, [glib-2.0 >= $GLIB_REQUIRED])
@@ -197,12 +198,6 @@ AC_SUBST(DBUS_LIBS)
 PKG_CHECK_MODULES(LIBPNG, [libpng >= 1.2])
 AC_SUBST(LIBPNG_CFLAGS)
 AC_SUBST(LIBPNG_LIBS)
-
-# Check for libgee 0.1.3 or higher
-PKG_CHECK_MODULES(LIBGEE, [gee-1.0 >= 0.1.3])
-AC_SUBST(LIBGEE_CFLAGS)
-AC_SUBST(LIBGEE_LIBS)
-
 
 # Check for GConf
 PKG_CHECK_MODULES(GCONF, [gconf-2.0 >= 2.2.0], have_gconf=yes, have_gconf=no)
@@ -813,7 +808,8 @@ if test "x$enable_tracker_explorer" != "xno" ; then
 		glib-2.0    >= $GLIB_REQUIRED
 		gtk+-2.0    >= $GTK_REQUIRED
 		dbus-1      >= $DBUS_REQUIRED
-		dbus-glib-1 >= $DBUS_REQUIRED],
+		dbus-glib-1 >= $DBUS_REQUIRED
+		gee-1.0     >= $GEE_REQUIRED],
 		[have_tracker_explorer=yes],
 		[have_tracker_explorer=no])
 
@@ -825,7 +821,7 @@ fi
 
 if test "x$enable_tracker_explorer" = "xyes"; then
    if test "x$have_tracker_explorer" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find tracker-explorer dependencies (glib-2.0 >= $GLIB_REQUIRED, gtk+-2.0 >= $GTK_REQUIRED, dbus-1 >= $DBUS_REQUIRED, dbus-glib-1 >= $DBUS_REQUIRED).])
+      AC_MSG_ERROR([Couldn't find tracker-explorer dependencies (glib-2.0 >= $GLIB_REQUIRED, gtk+-2.0 >= $GTK_REQUIRED, dbus-1 >= $DBUS_REQUIRED, dbus-glib-1 >= $DBUS_REQUIRED, gee-1.0 >= $GEE_REQUIRED).])
    fi
 fi
 

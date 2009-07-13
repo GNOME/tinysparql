@@ -19,21 +19,13 @@ tracker_explorer_CFLAGS = \
 	-DTRACKER_UI_DIR=\"$(datadir)/tracker/\"		\
 	-DSRCDIR=\"$(abs_srcdir)/\"				\
 	$(WARN_CFLAGS)						\
-	$(GLIB2_CFLAGS)						\
 	$(GCOV_CFLAGS)						\
-	$(GIO_CFLAGS)						\
-	$(DBUS_CFLAGS)						\
-	$(LIBTRACKERGTK_CFLAGS)					\
-	$(LIBGEE_CFLAGS)					\
+	$(TRACKER_EXPLORER_CFLAGS)				\
 	$(NULL)
 
 tracker_explorer_LDADD = \
-	$(GLIB2_LIBS)						\
-	$(GIO_LIBS)						\
 	$(GCOV_LIBS)						\
-	$(DBUS_LIBS)						\
-	$(LIBTRACKERGTK_LIBS)					\
-	$(LIBGEE_LIBS)						\
+	$(TRACKER_EXPLORER_LIBS)				\
 	$(NULL)
 
 uidir = $(datadir)/tracker
