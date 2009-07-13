@@ -229,6 +229,7 @@ tracker_application_file_get_metadata (TrackerModuleFile *file, gchar **mime_typ
 	/* This matches SomeApplet as Type= */
 	} else if (name && g_str_has_suffix (type, "Applet")) {
 
+		/* The URI of the InformationElement should be a UUID URN */
 		uri = tracker_module_file_get_uri (file);
 		sparql = tracker_sparql_builder_new_update ();
 		tracker_sparql_builder_insert_open (sparql);
@@ -248,6 +249,7 @@ tracker_application_file_get_metadata (TrackerModuleFile *file, gchar **mime_typ
 
 	if (sparql && uri) {
 		gchar *icon;
+		gchar *desktop_file_uri;
 
 		tracker_sparql_builder_predicate (sparql, "a");
 		tracker_sparql_builder_object (sparql, "nfo:Executable");
@@ -309,6 +311,16 @@ tracker_application_file_get_metadata (TrackerModuleFile *file, gchar **mime_typ
 		tracker_sparql_builder_predicate (sparql, "nfo:fileName");
 		tracker_sparql_builder_object_string (sparql, filename);
 		g_free (filename);
+
+		desktop_file_uri = g_file_get_uri (f);
+		tracker_sparql_builder_subject_iri (sparql, desktop_file_uri);
+		tracker_sparql_builder_predicate (sparql, "a");
+		tracker_sparql_builder_object (sparql, "nfo:FileDataObject");
+
+		tracker_sparql_builder_subject_iri (sparql, uri);
+		tracker_sparql_builder_predicate (sparql, "nie:isStoredAs");
+		tracker_sparql_builder_object_iri (sparql, desktop_file_uri);
+		g_free (desktop_file_uri);
 	}
 
 	if (cats)

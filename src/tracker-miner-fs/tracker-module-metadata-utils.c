@@ -783,6 +783,10 @@ tracker_module_metadata_utils_get_data (GFile *file, TrackerSparqlBuilder *sparq
 	tracker_sparql_builder_predicate (sparql, "a");
 	tracker_sparql_builder_object (sparql, "nfo:FileDataObject");
 
+	tracker_sparql_builder_subject_iri (sparql, uri); /* Change to URN */
+	tracker_sparql_builder_predicate (sparql, "nie:isStoredAs");
+	tracker_sparql_builder_object_iri (sparql, uri);
+
 	if (g_file_info_get_file_type (file_info) == G_FILE_TYPE_DIRECTORY) {
 		tracker_sparql_builder_object (sparql, "nfo:Folder");
 	}

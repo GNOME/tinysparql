@@ -344,6 +344,15 @@ get_message_metadata (TrackerModuleFile *file, GMimeMessage *message)
 	tracker_sparql_builder_predicate (sparql, "a");
 	tracker_sparql_builder_object (sparql, "nmo:Email");
 
+	tracker_sparql_builder_subject_iri (sparql, uri);
+	tracker_sparql_builder_predicate (sparql, "rdf:type");
+	tracker_sparql_builder_object (sparql, "nmo:MailboxDataObject");
+
+	/* The URI of the InformationElement should be a UUID URN */
+	tracker_sparql_builder_subject_iri (sparql, uri);
+	tracker_sparql_builder_predicate (sparql, "nie:isStoredAs");
+	tracker_sparql_builder_object_iri (sparql, uri);
+
 	g_mime_message_get_date (message, &t, NULL);
 	tracker_sparql_builder_predicate (sparql, "nmo:sentDate");
 	tracker_sparql_builder_object_date (sparql, &t);
