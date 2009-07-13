@@ -275,12 +275,14 @@ nmm:Photo a rdfs:Class ;
 nmm:camera a rdf:Property ;
 	rdfs:label "Camera" ;
 	rdfs:comment "The maker and model of the camera used to take the photograph" ;
+	nrl:maxCardinality 1 ;
 	rdfs:domain nmm:Photo ;
 	rdfs:range xsd:string .
 
 nmm:exposureTime a rdf:Property ;
 	rdfs:label "Exposure time" ;
 	rdfs:comment "Exposure time of the photo" ;
+	nrl:maxCardinality 1 ;
 	rdfs:domain nmm:Photo ;
 	rdfs:range xsd:integer .
 
@@ -294,24 +296,28 @@ nmm:flash-off a nmm:Flash .
 nmm:flash a rdf:Property ;
 	rdfs:label "Flash" ;
 	rdfs:comment "Specifies whether flash was used" ;
+	nrl:maxCardinality 1 ;
 	rdfs:domain nmm:Photo ;
 	rdfs:range nmm:Flash .
 
 nmm:fnumber a rdf:Property ;
 	rdfs:label "F number" ;
 	rdfs:comment "The diameter of the entrance pupil in terms of the focal length of the lens" ;
+	nrl:maxCardinality 1 ;
 	rdfs:domain nmm:Photo ;
 	rdfs:range xsd:double .
 
 nmm:focalLength a rdf:Property ;
 	rdfs:label "Focal length" ;
 	rdfs:comment "A measure of how strongly the lens converges light" ;
+	nrl:maxCardinality 1 ;
 	rdfs:domain nmm:Photo ;
 	rdfs:range xsd:double .
 
 nmm:isoSpeed a rdf:Property ;
 	rdfs:label "ISO speed" ;
 	rdfs:comment "Measure of a photographic film's sensitivity to light as ISO value" ;
+	nrl:maxCardinality 1 ;
 	rdfs:domain nmm:Photo ;
 	rdfs:range xsd:double .
 
@@ -329,17 +335,20 @@ nmm:meteringMode-other a nmm:MeteringMode .
 
 nmm:meteringMode a rdf:Property ;
 	rdfs:comment "Metering mode refers to the way in which a camera determines the exposure." ;
+	nrl:maxCardinality 1 ;
 	rdfs:domain nmm:Photo ;
 	rdfs:range nmm:MeteringMode .
 
 nmm:WhiteBalance a rdfs:Class ;
 	rdfs:label "White balance" ;
-	rdfs:comment "Camera's white balance setting" .
+	rdfs:comment "Camera's white balance setting" ;
+	nrl:maxCardinality 1 .
 
 nmm:whiteBalance-auto a nmm:WhiteBalance .
 nmm:whiteBalance-manual a nmm:WhiteBalance .
 
 nmm:whiteBalance a rdf:Property ;
+	nrl:maxCardinality 1 ;
 	rdfs:domain nmm:Photo ;
 	rdfs:range nmm:WhiteBalance .
 
