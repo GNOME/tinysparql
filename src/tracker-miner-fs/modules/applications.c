@@ -321,6 +321,8 @@ tracker_application_file_get_metadata (TrackerModuleFile *file, gchar **mime_typ
 		tracker_sparql_builder_predicate (sparql, "nie:isStoredAs");
 		tracker_sparql_builder_object_iri (sparql, desktop_file_uri);
 		g_free (desktop_file_uri);
+
+		tracker_sparql_builder_insert_close (sparql);
 	}
 
 	if (cats)
