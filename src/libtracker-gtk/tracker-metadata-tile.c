@@ -1354,7 +1354,7 @@ tracker_metadata_tile_new (void)
 	tile = g_object_new (TRACKER_TYPE_METADATA_TILE, NULL);
 	priv = TRACKER_METADATA_TILE_GET_PRIVATE (tile);
 
-	client = tracker_connect (TRUE);
+	client = tracker_connect (TRUE, -1);
 	priv->client = client;
 	return tile;
 }

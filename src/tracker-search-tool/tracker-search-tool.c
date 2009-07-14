@@ -2323,7 +2323,7 @@ main (gint argc,
 
 	gtk_widget_show (gsearch->window);
 
-	tracker_client = tracker_connect (FALSE);
+	tracker_client = tracker_connect (FALSE, -1);
 
 	tracker_search_setup_gconf_notifications (gsearch);
 

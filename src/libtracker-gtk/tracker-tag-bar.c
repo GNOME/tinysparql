@@ -451,7 +451,7 @@ tracker_tag_bar_new (void)
 				NULL);
 	priv = TRACKER_TAG_BAR_GET_PRIVATE (tag_bar);
 
-	client = tracker_connect (TRUE);
+	client = tracker_connect (TRUE, -1);
 	priv->client = client;
 	return tag_bar;
 }

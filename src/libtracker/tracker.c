@@ -129,7 +129,7 @@ tracker_sparql_escape (const gchar *str)
 }
 
 TrackerClient *
-tracker_connect (gboolean enable_warnings)
+tracker_connect (gboolean enable_warnings, gint timeout)
 {
 	DBusGConnection *connection;
 	GError *error = NULL;
@@ -160,6 +160,10 @@ tracker_connect (gboolean enable_warnings)
                                            TRACKER_SERVICE,
                                            TRACKER_OBJECT "/Resources",
                                            TRACKER_INTERFACE_RESOURCES);
+
+	if (timeout > 0) {
+		dbus_g_proxy_set_default_timeout (client->proxy_resources, timeout);
+	}
 
 	return client;
 }

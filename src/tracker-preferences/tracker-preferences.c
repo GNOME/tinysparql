@@ -215,7 +215,7 @@ if_tracker_store_start (TrackerPreferencesPrivate *priv)
 	TrackerClient *client;
 	gchar *status;
 
-	client = tracker_connect (FALSE);
+	client = tracker_connect (FALSE, -1);
 
 	if (!client) {
 		return FALSE;

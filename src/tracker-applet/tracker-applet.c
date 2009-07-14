@@ -1853,7 +1853,7 @@ setup_dbus_connection (TrayIcon *icon)
 
 	priv = TRAY_ICON_GET_PRIVATE (icon);
 
-	priv->tracker = tracker_connect (FALSE);
+	priv->tracker = tracker_connect (FALSE, -1);
 
 	if (!priv->tracker) {
 		g_critical ("Could not connect to the Tracker daemon\n");

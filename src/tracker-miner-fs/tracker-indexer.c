@@ -916,7 +916,7 @@ tracker_indexer_init (TrackerIndexer *indexer)
 	priv->modules_queue = g_queue_new ();
 	priv->config = tracker_config_new ();
 
-	priv->client = tracker_connect (TRUE);
+	priv->client = tracker_connect (TRUE, -1);
 
 #ifdef HAVE_HAL
 	priv->storage = tracker_storage_new ();

@@ -42,7 +42,8 @@ void           tracker_cancel_last_call                    (TrackerClient       
 
 gchar *        tracker_sparql_escape                       (const gchar            *str);
 
-TrackerClient *tracker_connect                             (gboolean                enable_warnings);
+TrackerClient *tracker_connect                             (gboolean                enable_warnings,
+                                                            gint                    timeout);
 void           tracker_disconnect                          (TrackerClient          *client);
 
 /* Synchronous API */
