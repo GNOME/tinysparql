@@ -341,8 +341,7 @@ nmm:meteringMode a rdf:Property ;
 
 nmm:WhiteBalance a rdfs:Class ;
 	rdfs:label "White balance" ;
-	rdfs:comment "Camera's white balance setting" ;
-	nrl:maxCardinality 1 .
+	rdfs:comment "Camera's white balance setting" .
 
 nmm:whiteBalance-auto a nmm:WhiteBalance .
 nmm:whiteBalance-manual a nmm:WhiteBalance .
