@@ -963,10 +963,7 @@ tracker_data_insert_statement_with_uri (const gchar            *subject,
 
 			return;
 		} else {
-			/* TODO: to fix this properly, we need to split
-			   tracker_data_insert_statement into two functions,
-			   one for uri objects and one for literal objects */
-			g_warning ("Blank node '%s' not found", object);
+			g_critical ("Blank node '%s' not found", object);
 		}
 	}
 
