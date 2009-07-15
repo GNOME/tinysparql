@@ -842,7 +842,7 @@ tracker_data_delete_statement (const gchar            *subject,
 	tracker_data_commit_transaction ();
 }
 
-static void
+static gboolean
 tracker_data_insert_statement_common (const gchar            *subject,
 				      const gchar            *predicate,
 				      const gchar            *object)
@@ -871,9 +871,7 @@ tracker_data_insert_statement_common (const gchar            *subject,
 		value = g_strdup (object);
 		g_array_append_val (blank_buffer.objects, value);
 
-		tracker_data_commit_transaction ();
-
-		return;
+		return FALSE;
 	}
 
 	if (update_buffer.subject != NULL) {
@@ -897,6 +895,8 @@ tracker_data_insert_statement_common (const gchar            *subject,
 		g_value_set_int64 (&gvalue, (gint64) time (NULL));
 		cache_insert_value ("rdfs:Resource", "tracker:modified", &gvalue, FALSE, FALSE);
 	}
+
+	return TRUE;
 }
 
 void
@@ -967,7 +967,10 @@ tracker_data_insert_statement_with_uri (const gchar            *subject,
 		}
 	}
 
-	tracker_data_insert_statement_common (subject, predicate, object);
+	if (!tracker_data_insert_statement_common (subject, predicate, object)) {
+		tracker_data_commit_transaction ();
+		return;
+	}
 
 	if (strcmp (predicate, RDF_PREFIX "type") == 0) {
 		/* handle rdf:type statements specially to
@@ -1014,7 +1017,10 @@ tracker_data_insert_statement_with_string (const gchar            *subject,
 
 	tracker_data_begin_transaction ();
 
-	tracker_data_insert_statement_common (subject, predicate, object);
+	if (!tracker_data_insert_statement_common (subject, predicate, object)) {
+		tracker_data_commit_transaction ();
+		return;
+	}
 
 	/* add value to metadata database */
 	cache_set_metadata_decomposed (property, object);
