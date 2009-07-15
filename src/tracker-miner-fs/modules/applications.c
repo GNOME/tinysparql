@@ -326,7 +326,6 @@ tracker_application_file_get_metadata (TrackerModuleFile *file, gchar **mime_typ
 		tracker_sparql_builder_object_iri (sparql, desktop_file_uri);
 		g_free (desktop_file_uri);
 
-		tracker_sparql_builder_insert_close (sparql);
 	}
 
 	if (cats)
@@ -337,6 +336,8 @@ tracker_application_file_get_metadata (TrackerModuleFile *file, gchar **mime_typ
 	g_free (type);
 	g_free (path);
 	g_free (name);
+
+	/* We must return a opened sparql-builder (don't close it) */
 
 	return sparql;
 }
