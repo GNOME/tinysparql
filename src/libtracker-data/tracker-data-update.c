@@ -842,50 +842,13 @@ tracker_data_delete_statement (const gchar            *subject,
 	tracker_data_commit_transaction ();
 }
 
-void
-tracker_data_insert_statement (const gchar            *subject,
-			       const gchar            *predicate,
-			       const gchar            *object)
+static void
+tracker_data_insert_statement_common (const gchar            *subject,
+				      const gchar            *predicate,
+				      const gchar            *object)
 {
 	TrackerClass       *service;
 	TrackerProperty       *field;
-
-	g_return_if_fail (subject != NULL);
-	g_return_if_fail (predicate != NULL);
-	g_return_if_fail (object != NULL);
-
-	tracker_data_begin_transaction ();
-
-	/* subjects and objects starting with `:' are anonymous blank nodes */
-	if (g_str_has_prefix (object, ":")) {
-		/* anonymous blank node used as object in a statement */
-		const gchar *blank_uri;
-
-		if (blank_buffer.subject != NULL) {
-			if (strcmp (blank_buffer.subject, object) == 0) {
-				/* object still in blank buffer, need to flush buffer */
-				tracker_data_blank_buffer_flush ();
-			}
-		}
-
-		blank_uri = g_hash_table_lookup (blank_buffer.table, object);
-
-		if (blank_uri != NULL) {
-			/* now insert statement referring to blank node */
-			tracker_data_insert_statement (subject, predicate, blank_uri);
-
-			g_hash_table_remove (blank_buffer.table, object);
-
-			tracker_data_commit_transaction ();
-
-			return;
-		} else {
-			/* TODO: to fix this properly, we need to split
-			   tracker_data_insert_statement into two functions,
-			   one for uri objects and one for literal objects */
-			g_warning ("Blank node '%s' not found", object);
-		}
-	}
 
 	if (g_str_has_prefix (subject, ":")) {
 		/* blank node definition
@@ -968,6 +931,90 @@ tracker_data_insert_statement (const gchar            *subject,
 	if (insert_callback) {
 		insert_callback (subject, predicate, object, update_buffer.types, insert_data);
 	}
+}
+
+void
+tracker_data_insert_statement (const gchar            *subject,
+			       const gchar            *predicate,
+			       const gchar            *object)
+{
+	TrackerProperty *property;
+
+	g_return_if_fail (subject != NULL);
+	g_return_if_fail (predicate != NULL);
+	g_return_if_fail (object != NULL);
+
+	property = tracker_ontology_get_property_by_uri (predicate);
+	if (property != NULL) {
+		if (tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_RESOURCE) {
+			tracker_data_insert_statement_with_uri (subject, predicate, object);
+		} else {
+			tracker_data_insert_statement_with_string (subject, predicate, object);
+		}
+	} else {
+		g_warning ("Property '%s' not found in the ontology", predicate);
+	}
+}
+
+void
+tracker_data_insert_statement_with_uri (const gchar            *subject,
+					const gchar            *predicate,
+					const gchar            *object)
+{
+	g_return_if_fail (subject != NULL);
+	g_return_if_fail (predicate != NULL);
+	g_return_if_fail (object != NULL);
+
+	tracker_data_begin_transaction ();
+
+	/* subjects and objects starting with `:' are anonymous blank nodes */
+	if (g_str_has_prefix (object, ":")) {
+		/* anonymous blank node used as object in a statement */
+		const gchar *blank_uri;
+
+		if (blank_buffer.subject != NULL) {
+			if (strcmp (blank_buffer.subject, object) == 0) {
+				/* object still in blank buffer, need to flush buffer */
+				tracker_data_blank_buffer_flush ();
+			}
+		}
+
+		blank_uri = g_hash_table_lookup (blank_buffer.table, object);
+
+		if (blank_uri != NULL) {
+			/* now insert statement referring to blank node */
+			tracker_data_insert_statement (subject, predicate, blank_uri);
+
+			g_hash_table_remove (blank_buffer.table, object);
+
+			tracker_data_commit_transaction ();
+
+			return;
+		} else {
+			/* TODO: to fix this properly, we need to split
+			   tracker_data_insert_statement into two functions,
+			   one for uri objects and one for literal objects */
+			g_warning ("Blank node '%s' not found", object);
+		}
+	}
+
+	tracker_data_insert_statement_common (subject, predicate, object);
+
+	tracker_data_commit_transaction ();
+}
+
+void
+tracker_data_insert_statement_with_string (const gchar            *subject,
+					   const gchar            *predicate,
+					   const gchar            *object)
+{
+	g_return_if_fail (subject != NULL);
+	g_return_if_fail (predicate != NULL);
+	g_return_if_fail (object != NULL);
+
+	tracker_data_begin_transaction ();
+
+	tracker_data_insert_statement_common (subject, predicate, object);
 
 	tracker_data_commit_transaction ();
 }

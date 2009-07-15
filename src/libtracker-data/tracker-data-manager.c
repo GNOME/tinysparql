@@ -282,10 +282,17 @@ import_ontology_file_from_path (const gchar	 *ontology_file)
 {
 	tracker_turtle_reader_init (ontology_file, NULL);
 	while (tracker_turtle_reader_next ()) {
-		tracker_data_insert_statement (
-			tracker_turtle_reader_get_subject (),
-			tracker_turtle_reader_get_predicate (),
-			tracker_turtle_reader_get_object ());
+		if (tracker_turtle_reader_object_is_uri ()) {
+			tracker_data_insert_statement_with_uri (
+				tracker_turtle_reader_get_subject (),
+				tracker_turtle_reader_get_predicate (),
+				tracker_turtle_reader_get_object ());
+		} else {
+			tracker_data_insert_statement_with_string (
+				tracker_turtle_reader_get_subject (),
+				tracker_turtle_reader_get_predicate (),
+				tracker_turtle_reader_get_object ());
+		}
 	}
 }
 

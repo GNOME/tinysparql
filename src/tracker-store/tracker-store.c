@@ -97,10 +97,17 @@ process_turtle_file_part (void)
 
 	while (tracker_turtle_reader_next ()) {
 		/* insert statement */
-		tracker_data_insert_statement (
-			tracker_turtle_reader_get_subject (),
-			tracker_turtle_reader_get_predicate (),
-			tracker_turtle_reader_get_object ());
+		if (tracker_turtle_reader_object_is_uri ()) {
+			tracker_data_insert_statement_with_uri (
+				tracker_turtle_reader_get_subject (),
+				tracker_turtle_reader_get_predicate (),
+				tracker_turtle_reader_get_object ());
+		} else {
+			tracker_data_insert_statement_with_string (
+				tracker_turtle_reader_get_subject (),
+				tracker_turtle_reader_get_predicate (),
+				tracker_turtle_reader_get_object ());
+		}
 
 		i++;
 		if (i >= 10) {

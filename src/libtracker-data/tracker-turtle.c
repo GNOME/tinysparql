@@ -41,6 +41,8 @@ static gboolean turtle_first;
 static gchar * volatile turtle_subject;
 static gchar * volatile turtle_predicate;
 static char * volatile turtle_object;
+static raptor_identifier_type volatile turtle_object_type;
+
 static volatile gboolean     turtle_eof;
 
 typedef struct {
@@ -328,6 +330,7 @@ turtle_statement_handler (void                   *user_data,
 	turtle_subject = g_strdup ((const gchar *) raptor_uri_as_string ((raptor_uri *) triple->subject));
 	turtle_predicate = g_strdup ((const gchar *) raptor_uri_as_string ((raptor_uri *) triple->predicate));
 	turtle_object = g_strdup ((const gchar *) triple->object);
+	turtle_object_type = triple->object_type;
 
 	/* signal main thread to pull statement */
 	g_cond_signal (turtle_cond);
@@ -590,3 +593,8 @@ tracker_turtle_reader_get_object (void)
 	return turtle_object;
 }
 
+gboolean
+tracker_turtle_reader_object_is_uri (void)
+{
+	return (turtle_object_type == RAPTOR_IDENTIFIER_TYPE_RESOURCE);
+}

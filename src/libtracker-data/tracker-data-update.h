@@ -44,6 +44,12 @@ void     tracker_data_delete_statement			(const gchar	     *subject,
 void     tracker_data_insert_statement			(const gchar	     *subject,
 							 const gchar         *predicate,
 							 const gchar         *object);
+void     tracker_data_insert_statement_with_uri		(const gchar	     *subject,
+							 const gchar         *predicate,
+							 const gchar         *object);
+void     tracker_data_insert_statement_with_string	(const gchar	     *subject,
+							 const gchar         *predicate,
+							 const gchar         *object);
 void     tracker_data_begin_transaction			(void);
 void     tracker_data_commit_transaction		(void);
 
