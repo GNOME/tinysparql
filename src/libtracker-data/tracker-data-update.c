@@ -847,9 +847,6 @@ tracker_data_insert_statement_common (const gchar            *subject,
 				      const gchar            *predicate,
 				      const gchar            *object)
 {
-	TrackerClass       *service;
-	TrackerProperty       *field;
-
 	if (g_str_has_prefix (subject, ":")) {
 		/* blank node definition
 		   pile up statements until the end of the blank node */
@@ -900,37 +897,6 @@ tracker_data_insert_statement_common (const gchar            *subject,
 		g_value_set_int64 (&gvalue, (gint64) time (NULL));
 		cache_insert_value ("rdfs:Resource", "tracker:modified", &gvalue, FALSE, FALSE);
 	}
-
-	if (strcmp (predicate, RDF_PREFIX "type") == 0) {
-		/* handle rdf:type statements specially to
-		   cope with inference and insert blank rows */
-		service = tracker_ontology_get_class_by_uri (object);
-		if (service != NULL) {
-			cache_create_service_decomposed (service);
-
-			if (!update_buffer.types)
-				update_buffer.types = g_ptr_array_new ();
-			g_ptr_array_add (update_buffer.types, g_strdup (object));
-
-		} else {
-			g_warning ("Class '%s' not found in the ontology", object);
-		}
-	} else if (strcmp (predicate, TRACKER_PREFIX "uri") == 0) {
-		/* internal property tracker:uri, used to change uri of existing element */
-		update_buffer.new_subject = g_strdup (object);
-	} else {
-		field = tracker_ontology_get_property_by_uri (predicate);
-		if (field != NULL) {
-			/* add value to metadata database */
-			cache_set_metadata_decomposed (field, object);
-		} else {
-			g_warning ("Property '%s' not found in the ontology", predicate);
-		}
-	}
-
-	if (insert_callback) {
-		insert_callback (subject, predicate, object, update_buffer.types, insert_data);
-	}
 }
 
 void
@@ -961,9 +927,15 @@ tracker_data_insert_statement_with_uri (const gchar            *subject,
 					const gchar            *predicate,
 					const gchar            *object)
 {
+	TrackerClass    *class;
+	TrackerProperty *property;
+
 	g_return_if_fail (subject != NULL);
 	g_return_if_fail (predicate != NULL);
 	g_return_if_fail (object != NULL);
+
+	property = tracker_ontology_get_property_by_uri (predicate);
+	g_return_if_fail (property != NULL && tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_RESOURCE);
 
 	tracker_data_begin_transaction ();
 
@@ -1000,6 +972,32 @@ tracker_data_insert_statement_with_uri (const gchar            *subject,
 
 	tracker_data_insert_statement_common (subject, predicate, object);
 
+	if (strcmp (predicate, RDF_PREFIX "type") == 0) {
+		/* handle rdf:type statements specially to
+		   cope with inference and insert blank rows */
+		class = tracker_ontology_get_class_by_uri (object);
+		if (class != NULL) {
+			cache_create_service_decomposed (class);
+
+			if (!update_buffer.types)
+				update_buffer.types = g_ptr_array_new ();
+			g_ptr_array_add (update_buffer.types, g_strdup (object));
+
+		} else {
+			g_warning ("Class '%s' not found in the ontology", object);
+		}
+	} else if (strcmp (predicate, TRACKER_PREFIX "uri") == 0) {
+		/* internal property tracker:uri, used to change uri of existing element */
+		update_buffer.new_subject = g_strdup (object);
+	} else {
+		/* add value to metadata database */
+		cache_set_metadata_decomposed (property, object);
+	}
+
+	if (insert_callback) {
+		insert_callback (subject, predicate, object, update_buffer.types, insert_data);
+	}
+
 	tracker_data_commit_transaction ();
 }
 
@@ -1008,13 +1006,25 @@ tracker_data_insert_statement_with_string (const gchar            *subject,
 					   const gchar            *predicate,
 					   const gchar            *object)
 {
+	TrackerProperty *property;
+
 	g_return_if_fail (subject != NULL);
 	g_return_if_fail (predicate != NULL);
 	g_return_if_fail (object != NULL);
 
+	property = tracker_ontology_get_property_by_uri (predicate);
+	g_return_if_fail (property != NULL && tracker_property_get_data_type (property) != TRACKER_PROPERTY_TYPE_RESOURCE);
+
 	tracker_data_begin_transaction ();
 
 	tracker_data_insert_statement_common (subject, predicate, object);
+
+	/* add value to metadata database */
+	cache_set_metadata_decomposed (property, object);
+
+	if (insert_callback) {
+		insert_callback (subject, predicate, object, update_buffer.types, insert_data);
+	}
 
 	tracker_data_commit_transaction ();
 }
