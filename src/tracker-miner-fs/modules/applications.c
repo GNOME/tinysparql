@@ -114,6 +114,7 @@ insert_data_from_desktop_file (TrackerSparqlBuilder  *sparql,
 	}
 
 	if (str) {
+		tracker_sparql_builder_subject_iri (sparql, subject);
 		tracker_sparql_builder_predicate_iri (sparql, metadata_key);
 		tracker_sparql_builder_object_string (sparql, str);
 		g_free (str);
@@ -181,7 +182,6 @@ tracker_application_file_get_metadata (TrackerModuleFile *file, gchar **mime_typ
 		gchar *canonical_uri = tracker_uri_printf_escaped (SOFTWARE_CATEGORY_URN_PREFIX "%s", name);
 		gchar *icon = g_key_file_get_string (key_file, GROUP_DESKTOP_ENTRY, "Icon", NULL);
 
-		uri = NULL;
 		sparql = tracker_sparql_builder_new_update ();
 		tracker_sparql_builder_insert_open (sparql);
 
@@ -200,14 +200,15 @@ tracker_application_file_get_metadata (TrackerModuleFile *file, gchar **mime_typ
 			g_free (icon);
 		}
 
-		tracker_sparql_builder_subject_iri (sparql, canonical_uri);
+		uri = canonical_uri;
+
+		tracker_sparql_builder_subject_iri (sparql, uri);
+
 		tracker_sparql_builder_predicate (sparql, "a");
 		tracker_sparql_builder_object (sparql, "nfo:SoftwareCategory");
 
 		tracker_sparql_builder_predicate (sparql, "nie:title");
 		tracker_sparql_builder_object_string (sparql, name);
-
-		g_free (canonical_uri);
 
 	} else if (name && g_ascii_strcasecmp (type, "Application") == 0) {
 
@@ -220,6 +221,7 @@ tracker_application_file_get_metadata (TrackerModuleFile *file, gchar **mime_typ
 		tracker_sparql_builder_object (sparql, "nie:DataSource");
 
 		tracker_sparql_builder_subject_iri (sparql, uri);
+
 		tracker_sparql_builder_predicate (sparql, "a");
 		tracker_sparql_builder_object (sparql, "nfo:SoftwareApplication");
 
@@ -240,6 +242,7 @@ tracker_application_file_get_metadata (TrackerModuleFile *file, gchar **mime_typ
 
 		/* TODO This is atm specific for Maemo */
 		tracker_sparql_builder_subject_iri (sparql, uri);
+
 		tracker_sparql_builder_predicate (sparql, "a");
 		tracker_sparql_builder_object (sparql, "nfo:SoftwareApplet");
 
@@ -304,6 +307,7 @@ tracker_application_file_get_metadata (TrackerModuleFile *file, gchar **mime_typ
 			}
 		}
 
+		tracker_sparql_builder_subject_iri (sparql, uri);
 		tracker_sparql_builder_predicate (sparql, "nie:dataSource");
 		tracker_sparql_builder_object_iri (sparql, APPLICATION_DATASOURCE_URN);
 
