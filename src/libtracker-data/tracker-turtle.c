@@ -44,6 +44,7 @@ static char * volatile turtle_object;
 static raptor_identifier_type volatile turtle_object_type;
 
 static volatile gboolean     turtle_eof;
+static volatile gboolean     turtle_cancel;
 
 typedef struct {
 	gchar                *about_uri;
@@ -319,6 +320,8 @@ static void
 turtle_statement_handler (void                   *user_data,
                           const raptor_statement *triple) 
 {
+	raptor_parser *parser = user_data;
+
 	g_mutex_lock (turtle_mutex);
 
 	/* wait until last statement has been released */
@@ -326,11 +329,15 @@ turtle_statement_handler (void                   *user_data,
 		g_cond_wait (turtle_cond, turtle_mutex);
 	}
 
-	/* set new statement */
-	turtle_subject = g_strdup ((const gchar *) raptor_uri_as_string ((raptor_uri *) triple->subject));
-	turtle_predicate = g_strdup ((const gchar *) raptor_uri_as_string ((raptor_uri *) triple->predicate));
-	turtle_object = g_strdup ((const gchar *) triple->object);
-	turtle_object_type = triple->object_type;
+	if (turtle_cancel) {
+		raptor_parse_abort (parser);
+	} else {
+		/* set new statement */
+		turtle_subject = g_strdup ((const gchar *) raptor_uri_as_string ((raptor_uri *) triple->subject));
+		turtle_predicate = g_strdup ((const gchar *) raptor_uri_as_string ((raptor_uri *) triple->predicate));
+		turtle_object = g_strdup ((const gchar *) triple->object);
+		turtle_object_type = triple->object_type;
+	}
 
 	/* signal main thread to pull statement */
 	g_cond_signal (turtle_cond);
@@ -376,8 +383,8 @@ turtle_thread_func (gpointer data)
 	TurtleThreadData *thread_data;
 	unsigned char  *uri_string;
 	raptor_uri     *uri, *buri;
-	raptor_parser  *parser;
 	uuid_t          base_uuid;
+	raptor_parser  *parser;
 
 	thread_data = (TurtleThreadData *) data;
 
@@ -386,7 +393,7 @@ turtle_thread_func (gpointer data)
 	/* generate UUID as base for blank nodes */
 	uuid_generate (base_uuid);
 
-	raptor_set_statement_handler (parser, NULL, (raptor_statement_handler) turtle_statement_handler);
+	raptor_set_statement_handler (parser, parser, (raptor_statement_handler) turtle_statement_handler);
 	raptor_set_generate_id_handler (parser, base_uuid, turtle_generate_id);
 	raptor_set_fatal_error_handler (parser, (void *)thread_data->file, raptor_error);
 	raptor_set_error_handler (parser, (void *)thread_data->file, raptor_error);
@@ -552,6 +559,7 @@ tracker_turtle_reader_init (const gchar *turtle_file,
 	thread_data->base_uri = g_strdup (base_uri);
 
 	turtle_first = TRUE;
+	turtle_cancel = FALSE;
 
 	parser_thread = g_thread_create (turtle_thread_func, thread_data, FALSE, NULL);
 }
@@ -572,6 +580,16 @@ tracker_turtle_reader_next (void)
 		turtle_cond = NULL;
 
 		return FALSE;
+	}
+}
+
+
+void
+tracker_turtle_reader_cancel (void)
+{
+	if (!turtle_eof) {
+		turtle_cancel = TRUE;
+		while (tracker_turtle_reader_next ());
 	}
 }
 

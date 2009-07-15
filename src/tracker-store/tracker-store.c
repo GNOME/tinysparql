@@ -87,35 +87,40 @@ store_task_free (TrackerStoreTask *task)
 }
 
 static gboolean
-process_turtle_file_part (void)
+process_turtle_file_part (GError **error)
 {
 	int i;
+	GError *new_error = NULL;
 
 	/* process 10 statements at once before returning to main loop */
 
 	i = 0;
 
-	while (tracker_turtle_reader_next ()) {
+	while (!new_error && tracker_turtle_reader_next ()) {
 		/* insert statement */
 		if (tracker_turtle_reader_object_is_uri ()) {
 			tracker_data_insert_statement_with_uri (
 				tracker_turtle_reader_get_subject (),
 				tracker_turtle_reader_get_predicate (),
 				tracker_turtle_reader_get_object (),
-				NULL);
+				&new_error);
 		} else {
 			tracker_data_insert_statement_with_string (
 				tracker_turtle_reader_get_subject (),
 				tracker_turtle_reader_get_predicate (),
 				tracker_turtle_reader_get_object (),
-				NULL);
+				&new_error);
 		}
 
 		i++;
-		if (i >= 10) {
+		if (!new_error && i >= 10) {
 			/* return to main loop */
 			return TRUE;
 		}
+	}
+
+	if (new_error) {
+		g_propagate_error (error, new_error);
 	}
 
 	return FALSE;
@@ -180,6 +185,8 @@ queue_idle_handler (gpointer user_data)
 			task->callback.commit_callback (task->user_data);
 		}
 	} else if (task->type == TRACKER_STORE_TASK_TYPE_TURTLE) {
+		GError *error = NULL;
+
 		begin_batch (private);
 
 		if (!task->data.turtle.in_progress) {
@@ -187,12 +194,14 @@ queue_idle_handler (gpointer user_data)
 			task->data.turtle.in_progress = TRUE;
 		}
 
-		if (process_turtle_file_part ()) {
+		if (process_turtle_file_part (&error)) {
 			/* import still in progress */
 			private->batch_count++;
 			if (private->batch_count >= TRACKER_STORE_TRANSACTION_MAX) {
 				end_batch (private);
 			}
+
+			/* Process function wont return true in case of error */
 
 			return TRUE;
 		} else {
@@ -202,10 +211,14 @@ queue_idle_handler (gpointer user_data)
 			end_batch (private);
 
 			if (task->callback.turtle_callback) {
-				task->callback.turtle_callback (NULL, task->user_data);
+				task->callback.turtle_callback (error, task->user_data);
+			}
+
+			if (error) {
+				tracker_turtle_reader_cancel ();
+				g_clear_error (&error);
 			}
 		}
-
 	}
 
 	g_queue_pop_head (private->queue);
