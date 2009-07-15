@@ -7803,6 +7803,10 @@ int sqlite3Fts3InitHashTable(sqlite3 *, fts3Hash *, const char *);
 int sqlite3Fts3Init(sqlite3 *db){
   int rc = SQLITE_OK;
 
+  g_type_init ();
+  if (!g_thread_supported ())
+    g_thread_init (NULL);
+
   /* Create the virtual table wrapper around the hash-table and overload
   ** the two scalar functions. If this is successful, register the
   ** module with sqlite.
