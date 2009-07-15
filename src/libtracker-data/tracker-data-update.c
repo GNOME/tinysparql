@@ -113,6 +113,10 @@ tracker_data_set_delete_statement_callback (TrackerStatementCallback callback,
 	delete_data = user_data;
 }
 
+GQuark tracker_data_error_quark (void) {
+	return g_quark_from_static_string ("tracker_data_error-quark");
+}
+
 static guint32
 tracker_data_update_get_new_service_id (TrackerDBInterface *iface)
 {
@@ -463,7 +467,8 @@ tracker_data_blank_buffer_flush (void)
 		for (i = 0; i < blank_buffer.predicates->len; i++) {
 			tracker_data_insert_statement (blank_uri,
 				g_array_index (blank_buffer.predicates, gchar *, i),
-				g_array_index (blank_buffer.objects, gchar *, i));
+				g_array_index (blank_buffer.objects, gchar *, i),
+				NULL);
 		}
 		tracker_data_update_buffer_flush ();
 	}
@@ -902,7 +907,8 @@ tracker_data_insert_statement_common (const gchar            *subject,
 void
 tracker_data_insert_statement (const gchar            *subject,
 			       const gchar            *predicate,
-			       const gchar            *object)
+			       const gchar            *object,
+			       GError                **error)
 {
 	TrackerProperty *property;
 
@@ -913,19 +919,21 @@ tracker_data_insert_statement (const gchar            *subject,
 	property = tracker_ontology_get_property_by_uri (predicate);
 	if (property != NULL) {
 		if (tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_RESOURCE) {
-			tracker_data_insert_statement_with_uri (subject, predicate, object);
+			tracker_data_insert_statement_with_uri (subject, predicate, object, error);
 		} else {
-			tracker_data_insert_statement_with_string (subject, predicate, object);
+			tracker_data_insert_statement_with_string (subject, predicate, object, error);
 		}
 	} else {
-		g_warning ("Property '%s' not found in the ontology", predicate);
+		g_set_error (error, TRACKER_DATA_ERROR, TRACKER_DATA_ERROR_UNKNOWN_PROPERTY,
+		             "Property '%s' not found in the ontology", predicate);
 	}
 }
 
 void
 tracker_data_insert_statement_with_uri (const gchar            *subject,
 					const gchar            *predicate,
-					const gchar            *object)
+					const gchar            *object,
+					GError                **error)
 {
 	TrackerClass    *class;
 	TrackerProperty *property;
@@ -935,7 +943,15 @@ tracker_data_insert_statement_with_uri (const gchar            *subject,
 	g_return_if_fail (object != NULL);
 
 	property = tracker_ontology_get_property_by_uri (predicate);
-	g_return_if_fail (property != NULL && tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_RESOURCE);
+	if (property == NULL) {
+		g_set_error (error, TRACKER_DATA_ERROR, TRACKER_DATA_ERROR_UNKNOWN_PROPERTY,
+		             "Property '%s' not found in the ontology", predicate);
+		return;
+	} else if (tracker_property_get_data_type (property) != TRACKER_PROPERTY_TYPE_RESOURCE) {
+		g_set_error (error, TRACKER_DATA_ERROR, TRACKER_DATA_ERROR_INVALID_TYPE,
+		             "Property '%s' does not accept URIs", predicate);
+		return;
+	}
 
 	tracker_data_begin_transaction ();
 
@@ -955,7 +971,7 @@ tracker_data_insert_statement_with_uri (const gchar            *subject,
 
 		if (blank_uri != NULL) {
 			/* now insert statement referring to blank node */
-			tracker_data_insert_statement (subject, predicate, blank_uri);
+			tracker_data_insert_statement (subject, predicate, blank_uri, error);
 
 			g_hash_table_remove (blank_buffer.table, object);
 
@@ -984,7 +1000,8 @@ tracker_data_insert_statement_with_uri (const gchar            *subject,
 			g_ptr_array_add (update_buffer.types, g_strdup (object));
 
 		} else {
-			g_warning ("Class '%s' not found in the ontology", object);
+			g_set_error (error, TRACKER_DATA_ERROR, TRACKER_DATA_ERROR_UNKNOWN_CLASS,
+				     "Class '%s' not found in the ontology", object);
 		}
 	} else if (strcmp (predicate, TRACKER_PREFIX "uri") == 0) {
 		/* internal property tracker:uri, used to change uri of existing element */
@@ -1004,7 +1021,8 @@ tracker_data_insert_statement_with_uri (const gchar            *subject,
 void
 tracker_data_insert_statement_with_string (const gchar            *subject,
 					   const gchar            *predicate,
-					   const gchar            *object)
+					   const gchar            *object,
+					   GError                **error)
 {
 	TrackerProperty *property;
 
@@ -1013,7 +1031,15 @@ tracker_data_insert_statement_with_string (const gchar            *subject,
 	g_return_if_fail (object != NULL);
 
 	property = tracker_ontology_get_property_by_uri (predicate);
-	g_return_if_fail (property != NULL && tracker_property_get_data_type (property) != TRACKER_PROPERTY_TYPE_RESOURCE);
+	if (property == NULL) {
+		g_set_error (error, TRACKER_DATA_ERROR, TRACKER_DATA_ERROR_UNKNOWN_PROPERTY,
+		             "Property '%s' not found in the ontology", predicate);
+		return;
+	} else if (tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_RESOURCE) {
+		g_set_error (error, TRACKER_DATA_ERROR, TRACKER_DATA_ERROR_INVALID_TYPE,
+		             "Property '%s' only accepts URIs", predicate);
+		return;
+	}
 
 	tracker_data_begin_transaction ();
 

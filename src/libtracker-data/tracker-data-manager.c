@@ -286,12 +286,14 @@ import_ontology_file_from_path (const gchar	 *ontology_file)
 			tracker_data_insert_statement_with_uri (
 				tracker_turtle_reader_get_subject (),
 				tracker_turtle_reader_get_predicate (),
-				tracker_turtle_reader_get_object ());
+				tracker_turtle_reader_get_object (),
+				NULL);
 		} else {
 			tracker_data_insert_statement_with_string (
 				tracker_turtle_reader_get_subject (),
 				tracker_turtle_reader_get_predicate (),
-				tracker_turtle_reader_get_object ());
+				tracker_turtle_reader_get_object (),
+				NULL);
 		}
 	}
 }

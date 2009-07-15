@@ -101,12 +101,14 @@ process_turtle_file_part (void)
 			tracker_data_insert_statement_with_uri (
 				tracker_turtle_reader_get_subject (),
 				tracker_turtle_reader_get_predicate (),
-				tracker_turtle_reader_get_object ());
+				tracker_turtle_reader_get_object (),
+				NULL);
 		} else {
 			tracker_data_insert_statement_with_string (
 				tracker_turtle_reader_get_subject (),
 				tracker_turtle_reader_get_predicate (),
-				tracker_turtle_reader_get_object ());
+				tracker_turtle_reader_get_object (),
+				NULL);
 		}
 
 		i++;
@@ -399,7 +401,7 @@ tracker_store_insert_statement (const gchar   *subject,
 		private->batch_count = 0;
 	}
 
-	tracker_data_insert_statement (subject, predicate, object);
+	tracker_data_insert_statement (subject, predicate, object, NULL);
 }
 
 void

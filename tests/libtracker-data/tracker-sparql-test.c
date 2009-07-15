@@ -66,7 +66,7 @@ consume_triple_storer (const gchar *subject,
                        const gchar *object,
                        void        *user_data)
 {
-	tracker_data_insert_statement (subject, predicate, object);
+	tracker_data_insert_statement (subject, predicate, object, NULL);
 }
 
 static void

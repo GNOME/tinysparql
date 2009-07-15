@@ -30,6 +30,16 @@
 
 G_BEGIN_DECLS
 
+typedef enum  {
+	TRACKER_DATA_ERROR_UNKNOWN_CLASS,
+	TRACKER_DATA_ERROR_UNKNOWN_PROPERTY,
+	TRACKER_DATA_ERROR_INVALID_TYPE
+} TrackerDataError;
+
+#define TRACKER_DATA_ERROR tracker_data_error_quark ()
+
+GQuark   tracker_data_error_quark (void);
+
 /* Services  */
 guint32  tracker_data_insert_resource                   (const gchar         *uri);
 void     tracker_data_delete_resource                   (const gchar         *uri);
@@ -43,13 +53,16 @@ void     tracker_data_delete_statement			(const gchar	     *subject,
 
 void     tracker_data_insert_statement			(const gchar	     *subject,
 							 const gchar         *predicate,
-							 const gchar         *object);
+							 const gchar         *object,
+							 GError             **error);
 void     tracker_data_insert_statement_with_uri		(const gchar	     *subject,
 							 const gchar         *predicate,
-							 const gchar         *object);
+							 const gchar         *object,
+							 GError             **error);
 void     tracker_data_insert_statement_with_string	(const gchar	     *subject,
 							 const gchar         *predicate,
-							 const gchar         *object);
+							 const gchar         *object,
+							 GError             **error);
 void     tracker_data_begin_transaction			(void);
 void     tracker_data_commit_transaction		(void);
 
