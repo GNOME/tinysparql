@@ -282,7 +282,8 @@
 #include <libtracker-common/tracker-common.h>
 #include <libtracker-db/tracker-db-manager.h>
 
-#include "tracker-config.h"
+#include <tracker-store/tracker-config.h>
+
 #include "tracker-fts.h"
 #include "tracker-fts-hash.h"
 
@@ -3401,7 +3402,7 @@ static int constructVtab(
 
   /* set up our parser */
 
-  TrackerConfig *config = tracker_config_new ("tracker-fts");
+  TrackerConfig *config = tracker_config_new ();
 
   TrackerLanguage *language = tracker_language_new (NULL);
 
