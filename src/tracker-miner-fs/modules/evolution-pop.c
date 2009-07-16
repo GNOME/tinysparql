@@ -243,7 +243,7 @@ static gchar *
 tracker_evolution_pop_file_get_text (TrackerModuleFile *file)
 {
         TrackerEvolutionPopFile *self;
-        gchar *text, *encoding, *utf8_text;
+        gchar *text, *encoding, *utf8_text = NULL;
         gboolean is_html;
 
         self = TRACKER_EVOLUTION_POP_FILE (file);
@@ -261,17 +261,12 @@ tracker_evolution_pop_file_get_text (TrackerModuleFile *file)
 
         encoding = evolution_common_get_object_encoding (GMIME_OBJECT (self->message));
 
-        if (!encoding) {
-                /* FIXME: could still puke on non-utf8
-                 * messages without proper content type
-                 */
-                return text;
+        if (encoding) {
+             utf8_text = g_convert (text, -1, "utf8", encoding, NULL, NULL, NULL);
+
+             g_free (encoding);
+             g_free (text);
         }
-
-        utf8_text = g_convert (text, -1, "utf8", encoding, NULL, NULL, NULL);
-
-        g_free (encoding);
-        g_free (text);
 
         return utf8_text;
 }

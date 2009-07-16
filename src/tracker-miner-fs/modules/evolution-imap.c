@@ -780,15 +780,9 @@ extract_message_text (GMimeObject *object,
 
         encoding = evolution_common_get_object_encoding (object);
 
-        if (!encoding) {
-                /* FIXME: This will break for non-utf8 text without
-                 * the proper content type set
-                 */
-                g_string_append_len (body, content, (gssize) len);
-        } else {
+        if (encoding) {
                 part_body = g_convert (content, (gssize) len, "utf8", encoding, NULL, NULL, NULL);
                 g_string_append (body, part_body);
-
                 g_free (part_body);
                 g_free (encoding);
         }
@@ -931,17 +925,23 @@ get_message_metadata (TrackerModuleFile *file)
 		tracker_sparql_builder_predicate (sparql, "nmo:sentDate");
 		tracker_sparql_builder_object_date (sparql, &t);
 
-		tracker_sparql_builder_predicate (sparql, "nmo:sender");
-		tracker_sparql_builder_object_string (sparql, from);
+		if (g_utf8_validate (from, -1, NULL)) {
+			tracker_sparql_builder_predicate (sparql, "nmo:sender");
+			tracker_sparql_builder_object_string (sparql, from);
+		}
 
-		tracker_sparql_builder_predicate (sparql, "nmo:messageSubject");
-		tracker_sparql_builder_object_string (sparql, subject);
+		if (g_utf8_validate (subject, -1, NULL)) {
+			tracker_sparql_builder_predicate (sparql, "nmo:messageSubject");
+			tracker_sparql_builder_object_string (sparql, subject);
+		}
 
 		list = get_recipient_list (to);
 
 		for (l = list; l; l = l->next) {
-			tracker_sparql_builder_predicate (sparql, "nmo:to");
-			tracker_sparql_builder_object_string (sparql, l->data);
+			if (g_utf8_validate (l->data, -1, NULL)) {
+				tracker_sparql_builder_predicate (sparql, "nmo:to");
+				tracker_sparql_builder_object_string (sparql, l->data);
+			}
 			g_free (l->data);
 		}
 
@@ -950,8 +950,10 @@ get_message_metadata (TrackerModuleFile *file)
 		list = get_recipient_list (cc);
 
 		for (l = list; l; l = l->next) {
-			tracker_sparql_builder_predicate (sparql, "nmo:cc");
-			tracker_sparql_builder_object_string (sparql, l->data);
+			if (g_utf8_validate (l->data, -1, NULL)) {
+				tracker_sparql_builder_predicate (sparql, "nmo:cc");
+				tracker_sparql_builder_object_string (sparql, l->data);
+			}
 			g_free (l->data);
 		}
 
