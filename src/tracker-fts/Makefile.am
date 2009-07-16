@@ -6,7 +6,8 @@ INCLUDES =							\
 	$(GLIB2_CFLAGS)						\
 	$(GCOV_CFLAGS)						\
 	$(PANGO_CFLAGS)						\
-	$(SQLITE3_CFLAGS)
+	$(SQLITE3_CFLAGS)					\
+	-DNDEBUG
 
 module_flags = -module -avoid-version -no-undefined
 
