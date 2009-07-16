@@ -30,6 +30,7 @@
 #include <libtracker-common/tracker-utils.h>
 #include <libtracker-common/tracker-module-config.h>
 
+#include "tracker-config.h"
 #include "tracker-crawler.h"
 #include "tracker-dbus.h"
 #include "tracker-monitor.h"

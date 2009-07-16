@@ -89,8 +89,6 @@ test_query (gconstpointer test_data)
 	gchar       *data_filename;
 	gchar       *query, *query_filename;
 	gchar       *results, *results_filename;
-	TrackerConfig   *config;
-	TrackerLanguage	*language;
 	TrackerDBResultSet *result_set;
 	const TestInfo *test_info;
 	GString *test_results;
@@ -99,17 +97,10 @@ test_query (gconstpointer test_data)
 	test_info = test_data;
 
 	/* initialization */
-
-	config = tracker_config_new ();
-	language = tracker_language_new (config);
-
-	tracker_data_manager_init (config, language,
-	                           TRACKER_DB_MANAGER_FORCE_REINDEX
-	                           | TRACKER_DB_MANAGER_TEST_MODE,
+	tracker_data_manager_init (TRACKER_DB_MANAGER_FORCE_REINDEX | TRACKER_DB_MANAGER_TEST_MODE,
 	                           NULL, NULL);
 
 	/* load data set */
-
 	data_filename = g_strconcat (test_info->data, ".ttl", NULL);
 	tracker_data_begin_transaction ();
 	tracker_turtle_process (data_filename, NULL, consume_triple_storer, NULL);

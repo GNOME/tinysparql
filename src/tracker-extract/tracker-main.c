@@ -44,12 +44,12 @@
 #endif
 
 #include <libtracker-common/tracker-log.h>
-#include <libtracker-common/tracker-global-config.h>
 #include <libtracker-common/tracker-dbus.h>
 #include <libtracker-common/tracker-os-dependant.h>
 #include <libtracker-common/tracker-thumbnailer.h>
 #include <libtracker-common/tracker-ioprio.h>
 
+#include "tracker-config.h"
 #include "tracker-main.h"
 #include "tracker-dbus.h"
 #include "tracker-extract.h"
@@ -389,7 +389,7 @@ main (int argc, char *argv[])
 	g_print ("Starting log:\n  File:'%s'\n", log_filename);
 	g_free (log_filename);
 
-	tracker_thumbnailer_init (config);
+	tracker_thumbnailer_init ();
 
 	/* Make Tracker available for introspection */
 	if (!tracker_dbus_register_objects ()) {

@@ -18,13 +18,14 @@
  * Boston, MA  02110-1301, USA.
  */
 #include "config.h"
-#include <glib.h>
+
 #include <stdlib.h>
+
+#include <glib-object.h>
 
 #include <libtracker-common/tracker-thumbnailer.h>
 
 static const gchar *old_xdg_config = NULL;
-static TrackerConfig *cosmic_config = NULL;
 
 static void
 set_config_directory ()
@@ -45,22 +46,22 @@ test_init_shutdown ()
 
         tracker_thumbnailer_shutdown ();
 
-        tracker_thumbnailer_init (cosmic_config);
+        tracker_thumbnailer_init ();
         tracker_thumbnailer_shutdown ();
 
-        tracker_thumbnailer_init (cosmic_config);
+        tracker_thumbnailer_init ();
         tracker_thumbnailer_shutdown ();
 
         tracker_thumbnailer_shutdown ();
-        tracker_thumbnailer_init (cosmic_config);
-        tracker_thumbnailer_init (cosmic_config);
+        tracker_thumbnailer_init ();
+        tracker_thumbnailer_init ();
         tracker_thumbnailer_shutdown ();
 }
 
 static void
 test_queue_file ()
 {
-        tracker_thumbnailer_init (cosmic_config);
+        tracker_thumbnailer_init ();
 
         /* URI with supported mimetype */
         if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDERR)) {
@@ -93,7 +94,7 @@ test_queue_send ()
 {
         gint i;
         
-        tracker_thumbnailer_init (cosmic_config);
+        tracker_thumbnailer_init ();
         
         for (i = 0; i < 10; i++) {
                 gchar *filename = g_strdup_printf ("file:///a/b/c%d.jpeg", i);
@@ -112,7 +113,7 @@ test_queue_send ()
 static void
 test_move ()
 {
-        tracker_thumbnailer_init (cosmic_config);
+        tracker_thumbnailer_init ();
         
         if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDERR)) {
                 tracker_thumbnailer_move ("file:///a/b/c1.jpeg", "image/jpeg",
@@ -126,7 +127,7 @@ test_move ()
 static void
 test_remove ()
 {
-        tracker_thumbnailer_init (cosmic_config);
+        tracker_thumbnailer_init ();
         
         if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDERR)) {
                 tracker_thumbnailer_remove ("file:///a/b/c1.jpeg", "image/jpeg");
@@ -140,7 +141,7 @@ test_remove ()
 static void
 test_cleanup ()
 {
-        tracker_thumbnailer_init (cosmic_config);
+        tracker_thumbnailer_init ();
         
         if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDERR)) {
                 tracker_thumbnailer_cleanup ("file:///a/b/c1.jpeg");
@@ -160,10 +161,6 @@ main (gint argc, gchar **argv)
 	g_test_init (&argc, &argv, NULL);
 
         set_config_directory ();
-        cosmic_config = tracker_config_new ();
-        /* True is the default value, but makes sure! */
-        tracker_config_set_enable_thumbnails (cosmic_config, TRUE);
-        
         
         g_test_add_func ("/libtracker-common/tracker-thumbnailer/init_shutdown",
                          test_init_shutdown);

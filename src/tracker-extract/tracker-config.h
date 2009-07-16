@@ -1,5 +1,7 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*
+ * Copyright (C) 2006, Mr Jamie McCracken (jamiemcc@gnome.org)
+ * Copyright (C) 2007, Michal Pryc (Michal.Pryc@Sun.Com)
  * Copyright (C) 2008, Nokia (urho.konttori@nokia.com)
  *
  * This library is free software; you can redistribute it and/or
@@ -18,8 +20,8 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __TRACKER_STORE_CONFIG_H__
-#define __TRACKER_STORE_CONFIG_H__
+#ifndef __TRACKER_EXTRACT_CONFIG_H__
+#define __TRACKER_EXTRACT_CONFIG_H__
 
 #include <glib-object.h>
 
@@ -43,28 +45,15 @@ struct _TrackerConfigClass {
 	GObjectClass parent_class;
 };
 
-GType	       tracker_config_get_type               (void) G_GNUC_CONST;
+GType	       tracker_config_get_type            (void) G_GNUC_CONST;
 
-TrackerConfig *tracker_config_new                    (void);
-gboolean       tracker_config_save                   (TrackerConfig *config);
-gint           tracker_config_get_verbosity          (TrackerConfig *config);
-gboolean       tracker_config_get_low_memory_mode    (TrackerConfig *config);
-gint           tracker_config_get_min_word_length    (TrackerConfig *config);
-gint           tracker_config_get_max_word_length    (TrackerConfig *config);
-gint           tracker_config_get_max_words_to_index (TrackerConfig *config);
-
-void           tracker_config_set_verbosity          (TrackerConfig *config,
-						      gint           value);
-void           tracker_config_set_low_memory_mode    (TrackerConfig *config,
-						      gboolean       value);
-void           tracker_config_set_min_word_length    (TrackerConfig *config,
-						      gint           value);
-void           tracker_config_set_max_word_length    (TrackerConfig *config,
-						      gint           value);
-void           tracker_config_set_max_words_to_index (TrackerConfig *config,
-						      gint           value);
+TrackerConfig *tracker_config_new                 (void);
+gboolean       tracker_config_save                (TrackerConfig *config);
+gint           tracker_config_get_verbosity       (TrackerConfig *config);
+void           tracker_config_set_verbosity       (TrackerConfig *config,
+						   gint           value);
 
 G_END_DECLS
 
-#endif /* __TRACKER_STORE_CONFIG_H__ */
+#endif /* __TRACKER_EXTRACT_CONFIG_H__ */
 

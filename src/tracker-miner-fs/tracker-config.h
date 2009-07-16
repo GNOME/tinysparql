@@ -20,16 +20,12 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __LIBTRACKER_COMMON_CONFIG_H__
-#define __LIBTRACKER_COMMON_CONFIG_H__
+#ifndef __TRACKER_MINER_FS_CONFIG_H__
+#define __TRACKER_MINER_FS_CONFIG_H__
 
 #include <glib-object.h>
 
 G_BEGIN_DECLS
-
-#if !defined (__LIBTRACKER_COMMON_INSIDE__) && !defined (TRACKER_COMPILATION)
-#error "only <libtracker-common/tracker-common.h> must be included directly."
-#endif
 
 #define TRACKER_TYPE_CONFIG	    (tracker_config_get_type ())
 #define TRACKER_CONFIG(o)	    (G_TYPE_CHECK_INSTANCE_CAST ((o), TRACKER_TYPE_CONFIG, TrackerConfig))
@@ -98,7 +94,8 @@ void	       tracker_config_add_crawl_directory_roots		   (TrackerConfig *config,
 void	       tracker_config_add_no_watch_directory_roots	   (TrackerConfig *config,
 								    gchar * const *roots);
 void	       tracker_config_add_disabled_modules		   (TrackerConfig *config,
-								    const gchar * const *modules);void	         tracker_config_remove_watch_directory_roots         (TrackerConfig *config,
+								    const gchar * const *modules);
+void	       tracker_config_remove_watch_directory_roots         (TrackerConfig *config,
 								    const gchar   *root);
 void	       tracker_config_remove_crawl_directory_roots         (TrackerConfig *config,
 								    const gchar   *root);
@@ -118,5 +115,5 @@ void	       tracker_config_set_disabled_modules		   (TrackerConfig *config,
 
 G_END_DECLS
 
-#endif /* __LIBTRACKER_COMMON_CONFIG_H__ */
+#endif /* __TRACKER_MINER_FS_CONFIG_H__ */
 

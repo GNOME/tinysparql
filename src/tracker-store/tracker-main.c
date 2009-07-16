@@ -46,7 +46,6 @@
 #include <libtracker-common/tracker-power.h>
 #include <libtracker-common/tracker-storage.h>
 #include <libtracker-common/tracker-ioprio.h>
-#include <libtracker-common/tracker-language.h>
 #include <libtracker-common/tracker-log.h>
 #include <libtracker-common/tracker-module-config.h>
 #include <libtracker-common/tracker-ontology.h>
@@ -519,7 +518,7 @@ backup_user_metadata (TrackerConfig   *config,
 	 *  Init the DB stack to get the user metadata
 	 */
 
-	tracker_data_manager_init (config, language, 0, NULL, &is_first_time_index);
+	tracker_data_manager_init (0, NULL, &is_first_time_index);
 	
 	/*
 	 * If some database is missing or the dbs dont exists, we dont need
@@ -640,7 +639,6 @@ main (gint argc, gchar *argv[])
 	GError			   *error = NULL;
 	TrackerMainPrivate	   *private;
 	TrackerConfig		   *config;
-	TrackerLanguage		   *language;
 	TrackerPower		   *hal_power;
 	TrackerStorage		   *hal_storage;
 	TrackerDBManagerFlags	    flags = 0;
@@ -711,7 +709,6 @@ main (gint argc, gchar *argv[])
 
 	/* Initialize major subsystems */
 	config = tracker_config_new ();
-	language = tracker_language_new (config);
 
 	/* Daemon command line arguments */
 	if (verbosity > -1) {
@@ -749,7 +746,7 @@ main (gint argc, gchar *argv[])
 
 	tracker_store_init ();
 	tracker_turtle_init ();
-	tracker_thumbnailer_init (config);
+	tracker_thumbnailer_init ();
 
 	flags |= TRACKER_DB_MANAGER_REMOVE_CACHE;
 
@@ -764,7 +761,7 @@ main (gint argc, gchar *argv[])
 		flags |= TRACKER_DB_MANAGER_LOW_MEMORY_MODE;
 	}
 
-	if (!tracker_data_manager_init (config, language, flags, NULL, &is_first_time_index)) {
+	if (!tracker_data_manager_init (flags, NULL, &is_first_time_index)) {
 		return EXIT_FAILURE;
 	}
 
@@ -789,7 +786,7 @@ main (gint argc, gchar *argv[])
 	}
 
 	tracker_events_init (tracker_daemon_get_notifiable_classes);
-	tracker_push_init (config);
+	tracker_push_init ();
 
 	g_message ("Waiting for DBus requests...");
 
@@ -839,7 +836,6 @@ shutdown:
 	g_object_unref (hal_storage);
 #endif /* HAVE_HAL */
 
-	g_object_unref (language);
 	g_object_unref (config);
 
 	shutdown_locations ();

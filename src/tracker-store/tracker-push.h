@@ -33,11 +33,9 @@
 #include <glib-object.h>
 #include <dbus/dbus-glib-bindings.h>
 
-#include <libtracker-common/tracker-common.h>
-
 G_BEGIN_DECLS
 
-void tracker_push_init     (TrackerConfig *config);
+void tracker_push_init     (void);
 void tracker_push_shutdown (void);
 
 G_END_DECLS

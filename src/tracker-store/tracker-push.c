@@ -28,12 +28,12 @@
 
 #include <dbus/dbus-glib-lowlevel.h>
 
+#include <libtracker-common/tracker-utils.h>
+
 #include "tracker-push.h"
 #include "tracker-push-registrar.h"
 
-
 typedef struct {
-	TrackerConfig *config;
 	DBusGConnection *connection;
 	DBusGProxy *dbus_proxy;
 	GList *modules;
@@ -233,13 +233,11 @@ free_private (PushSupportPrivate *private)
 {
 	if (private->connection)
 		dbus_g_connection_unref (private->connection);
-	if (private->config)
-		g_object_unref (private->config);
 	g_free (private);
 }
 
 void
-tracker_push_init (TrackerConfig *config)
+tracker_push_init (void)
 {
 	DBusGConnection *connection;
 	GError *error = NULL;
@@ -259,7 +257,6 @@ tracker_push_init (TrackerConfig *config)
 		GList *copy;
 		DBusError dbus_error;
 
-		private->config = g_object_ref (config);
 		private->connection = dbus_g_connection_ref (connection);
 
 		private->dbus_proxy = dbus_g_proxy_new_for_name (private->connection, 

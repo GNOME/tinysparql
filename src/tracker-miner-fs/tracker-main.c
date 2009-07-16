@@ -214,7 +214,6 @@ gint
 main (gint argc, gchar *argv[])
 {
 	TrackerConfig *config;
-	TrackerLanguage *language;
 	TrackerIndexer *indexer;
 	TrackerMiner *miner;
 	GOptionContext *context;
@@ -264,7 +263,6 @@ main (gint argc, gchar *argv[])
 
 	/* Initialize logging */
 	config = tracker_config_new ();
-	language = tracker_language_new (config);
 
 	if (verbosity > -1) {
 		tracker_config_set_verbosity (config, verbosity);
@@ -322,7 +320,7 @@ main (gint argc, gchar *argv[])
 			  NULL);
 
 	/* Set up connections to the thumbnailer if supported */
-	tracker_thumbnailer_init (config);
+	tracker_thumbnailer_init ();
 
 	if (process_all) {
 		/* Tell the indexer to process all configured modules */
@@ -347,7 +345,6 @@ main (gint argc, gchar *argv[])
 	g_object_unref (miner);
 
 	g_object_unref (config);
-	g_object_unref (language);
 
 	tracker_thumbnailer_shutdown ();
 	tracker_dbus_shutdown ();

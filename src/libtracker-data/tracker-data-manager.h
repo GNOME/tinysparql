@@ -26,7 +26,6 @@
 
 #include <glib.h>
 
-#include <libtracker-common/tracker-global-config.h>
 #include <libtracker-common/tracker-language.h>
 #include <libtracker-common/tracker-ontology.h>
 
@@ -35,14 +34,10 @@
 
 G_BEGIN_DECLS
 
-gboolean            tracker_data_manager_init              (TrackerConfig              *config,
-							    TrackerLanguage            *language,
-							    TrackerDBManagerFlags       flags,
+gboolean            tracker_data_manager_init              (TrackerDBManagerFlags       flags,
 							    const gchar                *test_schema,
 							    gboolean                   *first_time);
 void                tracker_data_manager_shutdown          (void);
-TrackerConfig *     tracker_data_manager_get_config        (void);
-TrackerLanguage *   tracker_data_manager_get_language      (void);
 
 gint                tracker_data_manager_get_db_option_int (const gchar        *option);
 void                tracker_data_manager_set_db_option_int (const gchar        *option,

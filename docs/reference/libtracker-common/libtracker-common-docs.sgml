@@ -15,7 +15,6 @@
 <!ENTITY tracker-file-utils SYSTEM "xml/tracker-file-utils.xml">
 <!ENTITY tracker-property SYSTEM "xml/tracker-property.xml">
 <!ENTITY tracker-dbus SYSTEM "xml/tracker-dbus.xml">
-<!ENTITY tracker-config SYSTEM "xml/tracker-config.xml">
 <!ENTITY version SYSTEM "version.xml">
 ]>
 <book id="index">
@@ -54,7 +53,6 @@
 
     <chapter>
       <title>Configuration</title>
-      &tracker-config;
       &tracker-power;
       &tracker-storage;
       &tracker-language;

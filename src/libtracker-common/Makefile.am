@@ -60,7 +60,6 @@ libtracker_common_la_SOURCES =	 			\
 	tracker-class.c					\
 	tracker-dbus.c	 				\
 	tracker-file-utils.c				\
-	tracker-global-config.c				\
 	tracker-ioprio.c				\
 	tracker-language.c				\
 	tracker-log.c	 				\
@@ -92,7 +91,6 @@ libtracker_commoninclude_HEADERS =			\
 	tracker-class.h					\
 	tracker-common.h				\
 	tracker-file-utils.h				\
-	tracker-global-config.h				\
 	tracker-language.h				\
 	tracker-module-config.h				\
 	tracker-namespace.h				\

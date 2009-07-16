@@ -29,6 +29,7 @@ INCLUDES = 									\
 tracker_metadata_utils_SOURCES = 						\
 	$(top_srcdir)/src/tracker-store/tracker-events.c			\
 	$(top_srcdir)/src/tracker-miner-fs/tracker-dbus.c			\
+	$(top_srcdir)/src/tracker-miner-fs/tracker-config.c			\
 	$(top_srcdir)/src/tracker-miner-fs/tracker-crawler.c			\
 	$(top_srcdir)/src/tracker-miner-fs/tracker-indexer.c			\
 	$(top_srcdir)/src/tracker-miner-fs/tracker-indexer-module.c		\

@@ -238,13 +238,14 @@ libextract_playlist_la_LIBADD = $(GLIB2_LIBS) $(TOTEM_PL_PARSER_LIBS) $(GCOV_LIB
 libexec_PROGRAMS = tracker-extract
 
 tracker_extract_SOURCES = 						\
+	tracker-config.c						\
+	tracker-config.h						\
 	tracker-dbus.c							\
 	tracker-dbus.h							\
 	tracker-extract.c						\
 	tracker-extract.h						\
 	tracker-main.c							\
 	tracker-main.h							
-
 
 tracker_extract_LDADD = 						\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la	\

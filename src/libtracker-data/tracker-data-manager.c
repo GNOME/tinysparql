@@ -61,34 +61,8 @@
 
 #define ZLIBBUFSIZ 8192
 
-typedef struct {
-	TrackerConfig	*config;
-	TrackerLanguage *language;
-} TrackerDBPrivate;
-
-/* Private */
-static GStaticPrivate private_key = G_STATIC_PRIVATE_INIT;
-
 static gchar		  *ontologies_dir;
-
-static void
-private_free (gpointer data)
-{
-	TrackerDBPrivate *private;
-
-	private = data;
-
-	if (private->config) {
-		g_object_unref (private->config);
-	}
-
-	if (private->language) {
-		g_object_unref (private->language);
-	}
-
-	g_free (private);
-}
-
+static gboolean            initialized;
 
 static void
 load_ontology_file_from_path (const gchar	 *ontology_file)
@@ -772,34 +746,16 @@ create_fts_table (TrackerDBInterface *iface)
 }
 
 gboolean
-tracker_data_manager_init (TrackerConfig              *config,
-			   TrackerLanguage            *language,
-			   TrackerDBManagerFlags       flags,
+tracker_data_manager_init (TrackerDBManagerFlags       flags,
 			   const gchar                *test_schema,
 			   gboolean                   *first_time)
 {
-	TrackerDBPrivate *private;
 	TrackerDBInterface *iface;
 	gboolean is_first_time_index;
 
-	g_return_val_if_fail (TRACKER_IS_CONFIG (config), FALSE);
-	g_return_val_if_fail (TRACKER_IS_LANGUAGE (language), FALSE);
-
-	private = g_static_private_get (&private_key);
-	if (private) {
-		g_warning ("Already initialized (%s)",
-			   __FUNCTION__);
-		return FALSE;
+	if (initialized) {
+		return TRUE;
 	}
-
-	private = g_new0 (TrackerDBPrivate, 1);
-
-	private->config = g_object_ref (config);
-	private->language = g_object_ref (language);
-
-	g_static_private_set (&private_key,
-			      private,
-			      private_free);
 
 	tracker_db_manager_init (flags, &is_first_time_index, FALSE);
 
@@ -901,46 +857,17 @@ tracker_data_manager_init (TrackerConfig              *config,
 		create_decomposed_transient_metadata_tables (iface);
 	}
 
+	initialized = TRUE;
+
 	return TRUE;
 }
 
 void
 tracker_data_manager_shutdown (void)
 {
-	TrackerDBPrivate *private;
+	g_return_if_fail (initialized == TRUE);
 
 	tracker_db_manager_shutdown ();
-
-	private = g_static_private_get (&private_key);
-	if (!private) {
-		g_warning ("Not initialized (%s)",
-			   __FUNCTION__);
-		return;
-	}
-
-	g_static_private_free (&private_key);
-}
-
-TrackerConfig *
-tracker_data_manager_get_config (void)
-{
-	TrackerDBPrivate   *private;
-
-	private = g_static_private_get (&private_key);
-	g_return_val_if_fail (private != NULL, NULL);
-
-	return private->config;
-}
-
-TrackerLanguage *
-tracker_data_manager_get_language (void)
-{
-	TrackerDBPrivate   *private;
-
-	private = g_static_private_get (&private_key);
-	g_return_val_if_fail (private != NULL, NULL);
-
-	return private->language;
 }
 
 gint

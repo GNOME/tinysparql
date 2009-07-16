@@ -24,8 +24,6 @@
 
 #include <glib-object.h>
 
-#include "tracker-global-config.h"
-
 G_BEGIN_DECLS
 
 #if !defined (__LIBTRACKER_COMMON_INSIDE__) && !defined (TRACKER_COMPILATION)
@@ -50,25 +48,28 @@ struct _TrackerLanguageClass {
 	GObjectClass parent_class;
 };
 
-GType		 tracker_language_get_type	   (void) G_GNUC_CONST;
+GType		 tracker_language_get_type	     (void) G_GNUC_CONST;
+TrackerLanguage *tracker_language_new                (const gchar     *language_code);
 
-TrackerLanguage *tracker_language_new		   (TrackerConfig   *language);
-TrackerConfig *  tracker_language_get_config	   (TrackerLanguage *language);
-GHashTable *	 tracker_language_get_stop_words   (TrackerLanguage *language);
-void		 tracker_language_set_config	   (TrackerLanguage *language,
-						    TrackerConfig   *config);
-const gchar *	 tracker_language_stem_word	   (TrackerLanguage *language,
-						    const gchar     *word,
-						    gint	     word_length);
+gboolean         tracker_language_get_enable_stemmer (TrackerLanguage *language);
+GHashTable *     tracker_language_get_stop_words     (TrackerLanguage *language);
+const gchar *    tracker_language_get_language_code  (TrackerLanguage *language);
+
+void             tracker_language_set_enable_stemmer (TrackerLanguage *language,
+						      gboolean         value);
+void             tracker_language_set_language_code  (TrackerLanguage *language,
+						      const gchar     *language_code);
+
+const gchar *    tracker_language_stem_word          (TrackerLanguage *language,
+						      const gchar     *word,
+						      gint             word_length);
 
 /* Utility functions */
-gboolean	 tracker_language_check_exists	   (const gchar     *language_code);
-gchar *		 tracker_language_get_default_code (void);
-
-GSList *         tracker_language_get_all_by_code  (void);
-
-const gchar *    tracker_language_get_name_by_code (const gchar     *language_code);
-const gchar *    tracker_language_get_code_by_name (const gchar     *langauge_name);
+gboolean         tracker_language_check_exists       (const gchar     *language_code);
+gchar *          tracker_language_get_default_code   (void);
+GSList *         tracker_language_get_all_by_code    (void);
+const gchar *    tracker_language_get_name_by_code   (const gchar     *language_code);
+const gchar *    tracker_language_get_code_by_name   (const gchar     *langauge_name);
 
 G_END_DECLS
 

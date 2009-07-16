@@ -16,7 +16,7 @@ SUBDIRS = 					\
 	tracker-miner-fs
 
 if HAVE_TRACKER_PREFERENCES
-SUBDIRS += tracker-preferences
+# SUBDIRS += tracker-preferences
 endif
 
 if HAVE_TRACKER_APPLET
@@ -52,5 +52,7 @@ DIST_SUBDIRS = 					\
 	libtracker-gtk				\
 	tracker-applet	 			\
 	tracker-search-tool			\
-	tracker-preferences			\
 	plugins
+
+# Disabled for now
+# tracker-preferences			

@@ -1,9 +1,0 @@
-#include <libtracker-common/tracker-common.h>
-
-tracker_class_get_type
-tracker_config_get_type
-tracker_language_get_type
-tracker_power_get_type
-tracker_property_get_type
-tracker_storage_get_type
-

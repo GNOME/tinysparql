@@ -25,7 +25,6 @@
 
 #include <tracker-miner-fs/tracker-module-file.h>
 
-#include "tracker-global-config.h"
 #include "tracker-dbus.h"
 #include "tracker-thumbnailer.h"
 
@@ -40,8 +39,6 @@
 #define THUMBNAIL_REQUEST_LIMIT 50
 
 typedef struct {
-	TrackerConfig *config;
-
 	DBusGProxy *requester_proxy;
 	DBusGProxy *manager_proxy;
 
@@ -56,10 +53,6 @@ typedef struct {
 	gboolean service_is_enabled;
 } TrackerThumbnailerPrivate;
 
-static void thumbnailer_enabled_cb (GObject    *pspec,
-				    GParamSpec *gobject,
-				    gpointer    user_data);
-
 static GStaticPrivate private_key = G_STATIC_PRIVATE_INIT;
 
 static void
@@ -69,14 +62,6 @@ private_free (gpointer data)
 
 	private = data;
 
-	if (private->config) {
-		g_signal_handlers_disconnect_by_func (private->config, 
-						      thumbnailer_enabled_cb, 
-						      NULL); 
-
-		g_object_unref (private->config);
-	}
-	
 	if (private->requester_proxy) {
 		g_object_unref (private->requester_proxy);
 	}
@@ -118,40 +103,15 @@ should_be_thumbnailed (GStrv        list,
 	return should_thumbnail;
 }
 
-static void 
-thumbnailer_enabled_cb (GObject    *pspec,
-			GParamSpec *gobject,
-			gpointer    user_data)
-{
-	TrackerThumbnailerPrivate *private;
-
-	private = g_static_private_get (&private_key);
-	g_return_if_fail (private != NULL);
-
-	private->service_is_enabled = tracker_config_get_enable_thumbnails (private->config);
-
-	g_message ("Thumbnailer service %s", 
-		   private->service_is_enabled ? "enabled" : "disabled");
-}
-
 void
-tracker_thumbnailer_init (TrackerConfig *config)
+tracker_thumbnailer_init (void)
 {
 	TrackerThumbnailerPrivate *private;
 	DBusGConnection *connection;
 	GStrv mime_types = NULL;
 	GError *error = NULL;
 
-	g_return_if_fail (TRACKER_IS_CONFIG (config));
-
 	private = g_new0 (TrackerThumbnailerPrivate, 1);
-
-	private->config = g_object_ref (config);
-	private->service_is_enabled = tracker_config_get_enable_thumbnails (private->config);
-
-	g_signal_connect (private->config, "notify::enable-thumbnails",
-			  G_CALLBACK (thumbnailer_enabled_cb), 
-			  NULL);
 
 	g_static_private_set (&private_key,
 			      private,

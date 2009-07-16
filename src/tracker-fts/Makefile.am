@@ -2,12 +2,13 @@ include $(top_srcdir)/Makefile.decl
 
 INCLUDES =							\
 	-I$(top_srcdir)/src					\
+	-DTRACKER_COMPILATION					\
+	-DNDEBUG						\
 	$(WARN_CFLAGS)						\
 	$(GLIB2_CFLAGS)						\
 	$(GCOV_CFLAGS)						\
 	$(PANGO_CFLAGS)						\
-	$(SQLITE3_CFLAGS)					\
-	-DNDEBUG
+	$(SQLITE3_CFLAGS)
 
 module_flags = -module -avoid-version -no-undefined
 
