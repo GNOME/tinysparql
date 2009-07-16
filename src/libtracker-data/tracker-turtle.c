@@ -31,6 +31,8 @@
 
 #include <uuid.h>
 
+#include <libtracker-data/tracker-data-update.h>
+
 #include "tracker-turtle.h"
 
 static gboolean  initialized = FALSE;
@@ -42,6 +44,7 @@ static gchar * volatile turtle_subject;
 static gchar * volatile turtle_predicate;
 static char * volatile turtle_object;
 static raptor_identifier_type volatile turtle_object_type;
+static GError *raptor_error = NULL;
 
 static volatile gboolean     turtle_eof;
 static volatile gboolean     turtle_cancel;
@@ -276,15 +279,19 @@ tracker_turtle_close (TurtleFile *turtle)
 }
 
 static void 
-raptor_error (void           *user_data, 
-	      raptor_locator *locator, 
-	      const gchar    *message)
+raptor_error_handler (void           *user_data, 
+                      raptor_locator *locator, 
+                      const gchar    *message)
 {
-	g_message ("RAPTOR parse error: %s:%d:%d: %s\n", 
-		   (gchar *) user_data,
-		   locator->line,
-		   locator->column,
-		   message);
+	g_set_error (&raptor_error, TRACKER_DATA_ERROR, 
+	             TRACKER_DATA_ERROR_UNKNOWN_PROPERTY,
+	             "RAPTOR parse error: %s:%d:%d: %s\n", 
+	             (gchar *) user_data,
+	             locator->line,
+	             locator->column,
+	             message);
+
+	turtle_cancel = TRUE;
 }
 
 static unsigned char*
@@ -395,9 +402,9 @@ turtle_thread_func (gpointer data)
 
 	raptor_set_statement_handler (parser, parser, (raptor_statement_handler) turtle_statement_handler);
 	raptor_set_generate_id_handler (parser, base_uuid, turtle_generate_id);
-	raptor_set_fatal_error_handler (parser, (void *)thread_data->file, raptor_error);
-	raptor_set_error_handler (parser, (void *)thread_data->file, raptor_error);
-	raptor_set_warning_handler (parser, (void *)thread_data->file, raptor_error);
+	raptor_set_fatal_error_handler (parser, (void *)thread_data->file, raptor_error_handler);
+	raptor_set_error_handler (parser, (void *)thread_data->file, raptor_error_handler);
+	raptor_set_warning_handler (parser, (void *)thread_data->file, raptor_error_handler);
 
 	uri_string = raptor_uri_filename_to_uri_string (thread_data->file);
 	uri = raptor_new_uri (uri_string);
@@ -454,6 +461,7 @@ tracker_turtle_process (const gchar          *turtle_file,
 
 	g_return_if_fail (turtle_mutex == NULL);
 
+	g_clear_error (&raptor_error);
 	turtle_mutex = g_mutex_new ();
 	turtle_cond = g_cond_new ();
 
@@ -474,6 +482,7 @@ tracker_turtle_process (const gchar          *turtle_file,
 
 	turtle_eof = FALSE;
 
+	g_clear_error (&raptor_error);
 	g_mutex_free (turtle_mutex);
 	g_cond_free (turtle_cond);
 	turtle_mutex = NULL;
@@ -551,6 +560,7 @@ tracker_turtle_reader_init (const gchar *turtle_file,
 
 	g_return_if_fail (turtle_mutex == NULL);
 
+	g_clear_error (&raptor_error);
 	turtle_mutex = g_mutex_new ();
 	turtle_cond = g_cond_new ();
 
@@ -574,6 +584,7 @@ tracker_turtle_reader_next (void)
 
 		turtle_eof = FALSE;
 
+		g_clear_error (&raptor_error);
 		g_mutex_free (turtle_mutex);
 		g_cond_free (turtle_cond);
 		turtle_mutex = NULL;
@@ -591,6 +602,18 @@ tracker_turtle_reader_cancel (void)
 		turtle_cancel = TRUE;
 		while (tracker_turtle_reader_next ());
 	}
+}
+
+GError*
+tracker_turtle_get_error (void)
+{
+	GError *error = NULL;
+
+	if (raptor_error) {
+		error = g_error_copy (raptor_error);
+	}
+
+	return error;
 }
 
 const gchar *

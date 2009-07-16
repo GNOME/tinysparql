@@ -61,6 +61,7 @@ const gchar *tracker_turtle_reader_get_predicate (void);
 const gchar *tracker_turtle_reader_get_object    (void);
 gboolean     tracker_turtle_reader_object_is_uri (void);
 void         tracker_turtle_reader_cancel        (void);
+GError*      tracker_turtle_get_error           (void);
 
 /* Optimizer, reparser */
 void        tracker_turtle_optimize      (const gchar          *turtle_file);

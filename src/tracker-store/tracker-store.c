@@ -90,11 +90,12 @@ static gboolean
 process_turtle_file_part (GError **error)
 {
 	int i;
-	GError *new_error = NULL;
+	GError *new_error;
 
 	/* process 10 statements at once before returning to main loop */
 
 	i = 0;
+	new_error = tracker_turtle_get_error ();
 
 	while (!new_error && tracker_turtle_reader_next ()) {
 		/* insert statement */
@@ -111,6 +112,8 @@ process_turtle_file_part (GError **error)
 				tracker_turtle_reader_get_object (),
 				&new_error);
 		}
+
+		new_error = tracker_turtle_get_error ();
 
 		i++;
 		if (!new_error && i >= 10) {
