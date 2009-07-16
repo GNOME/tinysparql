@@ -389,7 +389,7 @@ Update: UpdateQuery
     for (idx = 0; idx < raptor_sequence_size(query->prefixes); idx++) {
       rasqal_prefix* p = raptor_sequence_get_at(query->prefixes, idx);
 
-      unsigned char *prefix_string_copy = (unsigned char*)RASQAL_MALLOC(cstring, strlen(p->prefix));
+      unsigned char *prefix_string_copy = (unsigned char*)RASQAL_MALLOC(cstring, strlen((const char*)p->prefix));
       strcpy((char*)prefix_string_copy, (const char*)p->prefix);
 
       rasqal_query_add_prefix(query->next, rasqal_new_prefix(query->world, prefix_string_copy, raptor_uri_copy(p->uri)));
