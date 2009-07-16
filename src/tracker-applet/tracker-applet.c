@@ -1540,6 +1540,7 @@ create_context_menu (TrayIcon *icon)
 	gtk_widget_show_all (GTK_WIDGET (priv->menu));
 }
 
+#if 0
 static void
 index_finished (DBusGProxy *proxy,
 		gdouble     seconds_elapsed,
@@ -1593,6 +1594,7 @@ index_error (DBusGProxy  *proxy,
                               _("There was an error while performing indexing:"),
                               reason);
 }
+#endif
 
 static void
 index_service_stats_updated (DBusGProxy *proxy,
@@ -1739,6 +1741,7 @@ index_state_changed (DBusGProxy  *proxy,
 	}
 }
 
+#if 0
 static void
 index_progress_changed (DBusGProxy  *proxy,
 			const gchar *service,
@@ -1768,6 +1771,7 @@ index_progress_changed (DBusGProxy  *proxy,
 	set_status_hint (icon);
 	set_icon (priv);
 }
+#endif
 
 static void
 init_settings (TrayIcon *icon)

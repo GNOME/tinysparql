@@ -169,6 +169,7 @@ private_free (gpointer data)
 
 #ifdef HAVE_HAL
 
+#if 0
 static MountPointUpdate *
 mount_point_update_new (const gchar *udi,
 			const gchar *mount_point,
@@ -231,6 +232,7 @@ mount_point_set_cb (DBusGProxy *proxy,
 
 	mount_point_update_free (mpu);
 }
+#endif
 
 static void
 mount_point_added_cb (TrackerStorage *hal,
@@ -238,12 +240,12 @@ mount_point_added_cb (TrackerStorage *hal,
 		      const gchar    *mount_point,
 		      gpointer	      user_data)
 {
+	/* TODO: Fix volume handling in tracker-store / tracker-indexer
+
 	TrackerMainPrivate *private;
 	MountPointUpdate *mpu;
 
 	private = g_static_private_get (&private_key);
-
-	/* TODO: Fix volume handling in tracker-store / tracker-indexer
 
 	g_message ("Indexer is being notified about added UDI:");
 	g_message ("  %s", udi);
@@ -258,6 +260,7 @@ mount_point_added_cb (TrackerStorage *hal,
 	 */
 }
 
+#if 0
 static void
 mount_point_set_and_signal_cb (DBusGProxy *proxy, 
 			       GError     *error, 
@@ -284,6 +287,7 @@ mount_point_set_and_signal_cb (DBusGProxy *proxy,
 
 	g_free (user_data);
 }
+#endif
 
 static void
 mount_point_removed_cb (TrackerStorage  *hal,
@@ -291,12 +295,12 @@ mount_point_removed_cb (TrackerStorage  *hal,
 			const gchar     *mount_point,
 			gpointer         user_data)
 {
+	/* TODO: Fix volume handling in tracker-store / tracker-indexer
+
 	TrackerMainPrivate *private;
 	MountPointUpdate *mpu;
 
 	private = g_static_private_get (&private_key);
-
-	/* TODO: Fix volume handling in tracker-store / tracker-indexer
 
 	g_message ("Indexer is being notified about removed UDI:");
 	g_message ("  %s", udi);
@@ -542,18 +546,19 @@ backup_user_metadata (TrackerConfig   *config,
 static void
 set_up_mount_points (TrackerStorage *hal)
 {
+	/* TODO: Fix volume handling in tracker-store / tracker-indexer
+
 	TrackerMainPrivate *private;
 	GError *error = NULL;
 	GList *roots, *l;
 
 	private = g_static_private_get (&private_key);
 
-	/* Merging: This has something to do with "mount_points_to_set", which apparently
+	 * Merging: This has something to do with "mount_points_to_set", which apparently
 	 * we  don't have here in master apparently (but which tracker-0.6 uses)
 	 *
-	 * tracker_status_set_is_paused_for_dbus (TRUE); */
+	 * tracker_status_set_is_paused_for_dbus (TRUE);
 
-	/* TODO: Fix volume handling in tracker-store / tracker-indexer
 	g_message ("Indexer is being notified to disable all volumes");
 	org_freedesktop_Tracker_Indexer_volume_disable_all (tracker_dbus_indexer_get_proxy (), &error);
 
