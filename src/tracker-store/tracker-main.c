@@ -42,7 +42,6 @@
 #include <glib/gi18n.h>
 #include <glib/gstdio.h>
 
-#include <libtracker-common/tracker-global-config.h>
 #include <libtracker-common/tracker-file-utils.h>
 #include <libtracker-common/tracker-power.h>
 #include <libtracker-common/tracker-storage.h>
@@ -62,6 +61,7 @@
 #include <libtracker-data/tracker-data-query.h>
 
 #include "tracker-dbus.h"
+#include "tracker-config.h"
 #include "tracker-events.h"
 #include "tracker-main.h"
 #include "tracker-push.h"
