@@ -44,7 +44,7 @@ static gchar * volatile turtle_subject;
 static gchar * volatile turtle_predicate;
 static char * volatile turtle_object;
 static raptor_identifier_type volatile turtle_object_type;
-static GError *raptor_error = NULL;
+static GError * volatile raptor_error = NULL;
 
 static volatile gboolean     turtle_eof;
 static volatile gboolean     turtle_cancel;
@@ -339,11 +339,27 @@ turtle_statement_handler (void                   *user_data,
 	if (turtle_cancel) {
 		raptor_parse_abort (parser);
 	} else {
+		const gchar *subjec_as_s = (const gchar *) raptor_uri_as_string ((raptor_uri *) triple->subject);
+		const gchar *predic_as_s = (const gchar *) raptor_uri_as_string ((raptor_uri *) triple->predicate);
+		const gchar *object_as_s = (const gchar *) raptor_uri_as_string ((raptor_uri *) triple->object);
+
 		/* set new statement */
-		turtle_subject = g_strdup ((const gchar *) raptor_uri_as_string ((raptor_uri *) triple->subject));
-		turtle_predicate = g_strdup ((const gchar *) raptor_uri_as_string ((raptor_uri *) triple->predicate));
-		turtle_object = g_strdup ((const gchar *) triple->object);
-		turtle_object_type = triple->object_type;
+		if (subjec_as_s && !g_utf8_validate (subjec_as_s, -1, NULL) || 
+		    predic_as_s && !g_utf8_validate (predic_as_s, -1, NULL) ||
+		    object_as_s && !g_utf8_validate (object_as_s, -1, NULL)) {
+
+			g_set_error (&raptor_error, TRACKER_DATA_ERROR, 
+			             TRACKER_DATA_ERROR_UNKNOWN_PROPERTY,
+			             "RAPTOR parse error: Invalid UTF-8\n");
+
+			turtle_cancel = TRUE;
+
+		} else {
+			turtle_subject = g_strdup (subjec_as_s);
+			turtle_predicate = g_strdup (predic_as_s);
+			turtle_object = g_strdup (object_as_s);
+			turtle_object_type = triple->object_type;
+		}
 	}
 
 	/* signal main thread to pull statement */
@@ -584,7 +600,11 @@ tracker_turtle_reader_next (void)
 
 		turtle_eof = FALSE;
 
-		g_clear_error (&raptor_error);
+		/* Known temp leak until first next file is processed. Kept
+		 * to make get_error work after parse is finished.
+		 * g_clear_error (&raptor_error); 
+		 * */
+
 		g_mutex_free (turtle_mutex);
 		g_cond_free (turtle_cond);
 		turtle_mutex = NULL;
@@ -600,7 +620,9 @@ tracker_turtle_reader_cancel (void)
 {
 	if (!turtle_eof) {
 		turtle_cancel = TRUE;
-		while (tracker_turtle_reader_next ());
+		if (turtle_mutex) {
+			while (tracker_turtle_reader_next ());
+		}
 	}
 }
 

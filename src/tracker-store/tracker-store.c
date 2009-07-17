@@ -122,6 +122,10 @@ process_turtle_file_part (GError **error)
 		}
 	}
 
+	if (!new_error) {
+		new_error = tracker_turtle_get_error ();
+	}
+
 	if (new_error) {
 		g_propagate_error (error, new_error);
 	}
