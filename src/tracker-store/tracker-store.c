@@ -113,7 +113,9 @@ process_turtle_file_part (GError **error)
 				&new_error);
 		}
 
-		new_error = tracker_turtle_get_error ();
+		if (!new_error) {
+			new_error = tracker_turtle_get_error ();
+		}
 
 		i++;
 		if (!new_error && i >= 10) {
