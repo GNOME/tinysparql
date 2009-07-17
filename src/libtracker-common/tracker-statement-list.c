@@ -30,18 +30,40 @@
 
 #include <libtracker-common/tracker-statement-list.h>
 
-
 void
-tracker_statement_list_insert (TrackerSparqlBuilder   *statements, 
-                          const gchar *subject,
-                          const gchar *predicate,
-                          const gchar *value)
+tracker_statement_list_insert (TrackerSparqlBuilder *statements, 
+                               const gchar *subject,
+                               const gchar *predicate,
+                               const gchar *value)
 {
+	const gchar *end;
+
+	g_return_if_fail (TRACKER_IS_SPARQL_BUILDER (statements));
+	g_return_if_fail (subject != NULL);
+	g_return_if_fail (predicate != NULL);
+	g_return_if_fail (value != NULL);
+
 	tracker_sparql_builder_subject_iri (statements, subject);
 	tracker_sparql_builder_predicate_iri (statements, predicate);
+
+	if (!g_utf8_validate (value, -1, &end)) {
+		gchar *valid;
+
+		g_warning ("Invalid UTF-8 in statement list insert for value");
+
+		if (value != end) {
+			valid = g_strndup (value, end - value);
+			tracker_sparql_builder_object_string (statements, valid);
+			g_free (valid);
+		} else {
+			tracker_sparql_builder_object_string (statements, "(invalid data)");
+		}
+
+		return;
+	}
+
 	tracker_sparql_builder_object_string (statements, value);
 }
-
 
 void
 tracker_statement_list_insert_with_int64 (TrackerSparqlBuilder   *statements,
