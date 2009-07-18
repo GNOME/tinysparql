@@ -4,14 +4,14 @@
 # This file is distributed under the same license as the PACKAGE package.
 #
 # Jorge González <jorgegonz@svn.gnome.org>, 2007, 2008, 2009.
-#: ../src/libtracker-common/tracker-utils.c:241
+#: ../src/libtracker-common/tracker-utils.c:221
 msgid ""
 msgstr ""
 "Project-Id-Version: tracker.HEAD\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&component=general\n"
-"POT-Creation-Date: 2009-07-08 17:58+0000\n"
-"PO-Revision-Date: 2009-07-08 22:59+0200\n"
+"POT-Creation-Date: 2009-07-16 10:18+0000\n"
+"PO-Revision-Date: 2009-07-18 15:27+0200\n"
 "Last-Translator: Jorge González <jorgegonz@svn.gnome.org>\n"
 "Language-Team: Español <gnome-es-list@gnome.org>\n"
 "MIME-Version: 1.0\n"
@@ -774,13 +774,13 @@ msgstr "Controle y monitorice el servicio de búsqueda e indexado Tracker"
 
 #: ../src/tracker-extract/tracker-main.c:82
 #: ../src/tracker-miner-fs/tracker-main.c:76
-#: ../src/tracker-store/tracker-main.c:147
+#: ../src/tracker-store/tracker-main.c:129
 msgid "Displays version information"
 msgstr "Muestra información de la versión"
 
 #: ../src/tracker-extract/tracker-main.c:86
 #: ../src/tracker-miner-fs/tracker-main.c:80
-#: ../src/tracker-store/tracker-main.c:151
+#: ../src/tracker-store/tracker-main.c:133
 msgid ""
 "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default = "
 "0)"
@@ -793,8 +793,8 @@ msgid "File to extract metadata for"
 msgstr "Archivo del que extraer los metadatos"
 
 #: ../src/tracker-extract/tracker-main.c:92
-#: ../src/tracker-utils/tracker-import.c:39
 #: ../src/tracker-utils/tracker-import.c:40
+#: ../src/tracker-utils/tracker-import.c:41
 #: ../src/tracker-utils/tracker-info.c:39
 #: ../src/tracker-utils/tracker-info.c:40
 msgid "FILE"
@@ -809,7 +809,6 @@ msgid "MIME"
 msgstr "MIME"
 
 #: ../src/tracker-extract/tracker-main.c:101
-#| msgid "Debug mode (default = off)"
 msgid "Debug (default = off)"
 msgstr "Depuración (predeterminado = desactivado)"
 
@@ -830,15 +829,15 @@ msgstr "Indexar datos de todos los módulos activados"
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/tracker-miner-fs/tracker-main.c:263
+#: ../src/tracker-miner-fs/tracker-main.c:242
 msgid "- start the tracker indexer"
 msgstr "- iniciar el indexador de tracker"
 
-#: ../src/tracker-preferences/tracker-preferences.c:651
+#: ../src/tracker-preferences/tracker-preferences.c:653
 msgid "Data must be reindexed"
 msgstr "Los datos deben ser reindexados"
 
-#: ../src/tracker-preferences/tracker-preferences.c:652
+#: ../src/tracker-preferences/tracker-preferences.c:654
 msgid ""
 "In order for your changes to take effect, Tracker must reindex your files. "
 "Click the Reindex button to start reindexing now, otherwise this action will "
@@ -848,15 +847,15 @@ msgstr ""
 "Pulse el botón Reindexar para comenzar el reindexado ahora, de otra forma "
 "esta acción se realizará la próxima vez que se inicie el demonio de Tracker."
 
-#: ../src/tracker-preferences/tracker-preferences.c:659
+#: ../src/tracker-preferences/tracker-preferences.c:661
 msgid "_Reindex"
 msgstr "_Reindexar"
 
-#: ../src/tracker-preferences/tracker-preferences.c:662
+#: ../src/tracker-preferences/tracker-preferences.c:664
 msgid "Tracker daemon must be restarted"
 msgstr "Se debe reiniciar el demonio de Tracker"
 
-#: ../src/tracker-preferences/tracker-preferences.c:664
+#: ../src/tracker-preferences/tracker-preferences.c:666
 msgid ""
 "In order for your changes to take effect, the Tracker daemon has to be "
 "restarted. Click the Restart button to restart the daemon now."
@@ -864,7 +863,7 @@ msgstr ""
 "Para que sus cambios tengan efecto se debe reiniciar el demonio de Tracker. "
 "Pulse el botón Reiniciar para reiniciar el demonio ahora."
 
-#: ../src/tracker-preferences/tracker-preferences.c:669
+#: ../src/tracker-preferences/tracker-preferences.c:671
 msgid "_Restart"
 msgstr "_Reiniciar"
 
@@ -1385,18 +1384,16 @@ msgstr ""
 
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
-#: ../src/tracker-utils/tracker-import.c:59
-#| msgid "- Import files"
+#: ../src/tracker-utils/tracker-import.c:60
 msgid "- Import data using Turtle files"
 msgstr "- Importar datos usando archivos Turtle"
 
-#: ../src/tracker-utils/tracker-import.c:70
+#: ../src/tracker-utils/tracker-import.c:71
 #: ../src/tracker-utils/tracker-info.c:98
-#| msgid "No files were specified"
 msgid "One or more files have not been specified"
 msgstr "No se especificó uno o más archivos"
 
-#: ../src/tracker-utils/tracker-import.c:86
+#: ../src/tracker-utils/tracker-import.c:87
 #: ../src/tracker-utils/tracker-info.c:114
 #: ../src/tracker-utils/tracker-search.c:137
 #: ../src/tracker-utils/tracker-sparql.c:120
@@ -1406,30 +1403,25 @@ msgstr "No se especificó uno o más archivos"
 msgid "Could not establish a DBus connection to Tracker"
 msgstr "No se pudo establecer una conexión de DBus a Tracker"
 
-#: ../src/tracker-utils/tracker-import.c:96
-#| msgid "- Import files"
+#: ../src/tracker-utils/tracker-import.c:97
 msgid "Importing Turtle file"
 msgstr "Importando archivo Turtle"
 
-#: ../src/tracker-utils/tracker-import.c:109
-#| msgid "Unable to import file"
+#: ../src/tracker-utils/tracker-import.c:110
 msgid "Unable to import Turtle file"
 msgstr "No se pudo importar el archivo Turtle"
 
-#: ../src/tracker-utils/tracker-import.c:116
-#| msgid "None"
+#: ../src/tracker-utils/tracker-import.c:117
 msgid "Done"
 msgstr "Hecho"
 
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
 #: ../src/tracker-utils/tracker-info.c:87
-#| msgid "- Get all information from a certain file"
 msgid "- Get all information about one or more files"
 msgstr "- Obtener toda la información de uno o más archivos"
 
 #: ../src/tracker-utils/tracker-info.c:125
-#| msgid "- Get all information from a certain file"
 msgid "Querying information for file"
 msgstr "Consultando la información para el archivo"
 
@@ -1852,66 +1844,64 @@ msgstr ""
 "NOTA: Se alcanzó el límite, existen más elementos en la base de datos que no "
 "se listan aquí"
 
-#: ../src/tracker-store/tracker-main.c:156
-msgid "Seconds to wait before starting any crawling or indexing (default = 45)"
-msgstr ""
-"Segundos que esperar antes de iniciar una búsqueda o indexado "
-"(predeterminado = 45)"
-
-#: ../src/tracker-store/tracker-main.c:160
+#: ../src/tracker-store/tracker-main.c:138
 msgid "Minimizes the use of memory but may slow indexing down"
 msgstr "Minimiza el uso de memoria pero puede ralentizar el indexado"
 
-#: ../src/tracker-store/tracker-main.c:164
-msgid ""
-"Directories to exclude for file change monitoring (you can do -e <path> -e "
-"<path>)"
-msgstr ""
-"Directorios que excluir para la monitorización del cambio de archivos (puede "
-"hacer -e <ruta> -e <ruta>)"
-
-#: ../src/tracker-store/tracker-main.c:168
-msgid ""
-"Directories to include for file change monitoring (you can do -i <path> -i "
-"<path>)"
-msgstr ""
-"Directorios que incluir para la monitorización del cambio de archivos (puede "
-"hacer -i <ruta> -i <ruta>)"
-
-#: ../src/tracker-store/tracker-main.c:172
-msgid "Directories to crawl to index files (you can do -c <path> -c <path>)"
-msgstr ""
-"Directorios en los que arrastrarse para indexar sus archivos (puede hacer -c "
-"<ruta> -c <ruta>)"
-
-#: ../src/tracker-store/tracker-main.c:176
-msgid ""
-"Disable modules from being processed (you can do -d <module> -d <module>)"
-msgstr ""
-"Desactivar módulos para que no sean procesados (puede hacer -d <módulo> -d "
-"<módulo>)"
-
-#: ../src/tracker-store/tracker-main.c:182
+#: ../src/tracker-store/tracker-main.c:144
 msgid "Force a re-index of all content"
 msgstr "Forzar un reindexamiento de todo el contenido"
 
-#: ../src/tracker-store/tracker-main.c:186
-msgid "Disable any indexing and monitoring"
-msgstr "Desactivar cualquier indexado y monitorización"
-
-#: ../src/tracker-store/tracker-main.c:189
-msgid ""
-"Language to use for stemmer and stop words (ISO 639-1 2 characters code)"
-msgstr ""
-"Idioma que usar para stemmer y lista de palabras de parada (código de "
-"caracteres ISO 639-1 2)"
+#: ../src/tracker-store/tracker-main.c:148
+msgid "Only allow read based actions on the database"
+msgstr "Sólo permitir acciones de lectura en la base de datos"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/tracker-store/tracker-main.c:887
+#: ../src/tracker-store/tracker-main.c:674
 msgid "- start the tracker daemon"
 msgstr "iniciar el demonio de tracker"
+
+#~ msgid ""
+#~ "Seconds to wait before starting any crawling or indexing (default = 45)"
+#~ msgstr ""
+#~ "Segundos que esperar antes de iniciar una búsqueda o indexado "
+#~ "(predeterminado = 45)"
+
+#~ msgid ""
+#~ "Directories to exclude for file change monitoring (you can do -e <path> -"
+#~ "e <path>)"
+#~ msgstr ""
+#~ "Directorios que excluir para la monitorización del cambio de archivos "
+#~ "(puede hacer -e <ruta> -e <ruta>)"
+
+#~ msgid ""
+#~ "Directories to include for file change monitoring (you can do -i <path> -"
+#~ "i <path>)"
+#~ msgstr ""
+#~ "Directorios que incluir para la monitorización del cambio de archivos "
+#~ "(puede hacer -i <ruta> -i <ruta>)"
+
+#~ msgid "Directories to crawl to index files (you can do -c <path> -c <path>)"
+#~ msgstr ""
+#~ "Directorios en los que arrastrarse para indexar sus archivos (puede hacer "
+#~ "-c <ruta> -c <ruta>)"
+
+#~ msgid ""
+#~ "Disable modules from being processed (you can do -d <module> -d <module>)"
+#~ msgstr ""
+#~ "Desactivar módulos para que no sean procesados (puede hacer -d <módulo> -"
+#~ "d <módulo>)"
+
+#~ msgid "Disable any indexing and monitoring"
+#~ msgstr "Desactivar cualquier indexado y monitorización"
+
+#~ msgid ""
+#~ "Language to use for stemmer and stop words (ISO 639-1 2 characters code)"
+#~ msgstr ""
+#~ "Idioma que usar para stemmer y lista de palabras de parada (código de "
+#~ "caracteres ISO 639-1 2)"
 
 #~ msgid "File missing"
 #~ msgstr "Falta un archivo"
