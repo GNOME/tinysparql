@@ -341,7 +341,7 @@ turtle_statement_handler (void                   *user_data,
 	} else {
 		const gchar *subjec_as_s = (const gchar *) raptor_uri_as_string ((raptor_uri *) triple->subject);
 		const gchar *predic_as_s = (const gchar *) raptor_uri_as_string ((raptor_uri *) triple->predicate);
-		const gchar *object_as_s = (const gchar *) raptor_uri_as_string ((raptor_uri *) triple->object);
+		const gchar *object_as_s = (const gchar *) triple->object;
 
 		/* set new statement */
 		if ((subjec_as_s && !g_utf8_validate (subjec_as_s, -1, NULL)) || 
