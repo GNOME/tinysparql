@@ -12,8 +12,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-05-09 21:20+0200\n"
-"PO-Revision-Date: 2009-05-10 13:42+0100\n"
+"POT-Creation-Date: 2009-07-19 11:45+0200\n"
+"PO-Revision-Date: 2009-07-19 11:51+0100\n"
 "Last-Translator: Mario Blättermann <mariobl@gnome.org>\n"
 "Language-Team: German <gnome-de@gnome.org>\n"
 "MIME-Version: 1.0\n"
@@ -25,13 +25,20 @@ msgstr ""
 "X-Poedit-Country: GERMANY\n"
 
 #: ../data/tracker-store.desktop.in.in.h:1
-#: ../src/tracker-applet/tracker-applet.c:2327
-msgid "Tracker"
-msgstr "Tracker"
+msgid "Metadata database store and lookup manager"
+msgstr "Verwaltung für Suche und Speicherung in einer Metadaten-Datenbank"
 
 #: ../data/tracker-store.desktop.in.in.h:2
-msgid "Tracker search and indexing service"
-msgstr "Tracker Such- und Indizierungsdienst"
+msgid "Tracker Store"
+msgstr "Tracker-Speicher"
+
+#: ../data/tracker-miner-fs.desktop.in.in.h:1
+msgid "Crawls and processes files on the file system"
+msgstr "Spürt Dateien in Ihrem System auf und verarbeitet diese"
+
+#: ../data/tracker-miner-fs.desktop.in.in.h:2
+msgid "Tracker File System Miner "
+msgstr "Tracker Dateisystemsuche"
 
 #: ../python/deskbar-handler/tracker-handler-static.py:37
 #: ../python/deskbar-handler/tracker-module.py:65
@@ -154,19 +161,19 @@ msgstr "Entwicklungsdateien"
 
 #: ../python/deskbar-handler/tracker-handler.py:393
 #: ../python/deskbar-handler/tracker-module.py:298
-#: ../src/tracker-search-tool/tracker-search-tool.c:153
+#: ../src/tracker-search-tool/tracker-search-tool.c:152
 msgid "Music"
 msgstr "Musik"
 
 #: ../python/deskbar-handler/tracker-handler.py:396
 #: ../python/deskbar-handler/tracker-module.py:301
-#: ../src/tracker-search-tool/tracker-search-tool.c:152
+#: ../src/tracker-search-tool/tracker-search-tool.c:151
 msgid "Images"
 msgstr "Bilder"
 
 #: ../python/deskbar-handler/tracker-handler.py:399
 #: ../python/deskbar-handler/tracker-module.py:304
-#: ../src/tracker-search-tool/tracker-search-tool.c:155
+#: ../src/tracker-search-tool/tracker-search-tool.c:154
 msgid "Videos"
 msgstr "Videos"
 
@@ -190,15 +197,15 @@ msgstr "Alle Ihre Dokumente <b>während der Eingabe</b> durchsuchen"
 msgid "No error given"
 msgstr "Kein Fehler angegeben"
 
-#: ../src/libtracker-common/tracker-utils.c:135
-#: ../src/libtracker-common/tracker-utils.c:142
+#: ../src/libtracker-common/tracker-utils.c:114
+#: ../src/libtracker-common/tracker-utils.c:121
 #: ../src/tracker-utils/tracker-status.c:153
 #: ../src/tracker-utils/tracker-status.c:160
 msgid "unknown time"
 msgstr "Unbekannte Zeit"
 
-#: ../src/libtracker-common/tracker-utils.c:160
-#: ../src/libtracker-common/tracker-utils.c:219
+#: ../src/libtracker-common/tracker-utils.c:139
+#: ../src/libtracker-common/tracker-utils.c:198
 #: ../src/tracker-utils/tracker-status.c:77
 #: ../src/tracker-utils/tracker-status.c:136
 msgid "less than one second"
@@ -415,39 +422,39 @@ msgstr "Unterstützung für Tracker."
 msgid "TrackerEvolutionPlugin"
 msgstr "TrackerEvolutionPlugin"
 
-#: ../src/tracker-applet/tracker-applet-prefs.glade.h:1
+#: ../src/tracker-applet/tracker-applet-prefs.ui.h:1
 msgid "<b>Animation</b>"
 msgstr "<b>Animation</b>"
 
-#: ../src/tracker-applet/tracker-applet-prefs.glade.h:2
+#: ../src/tracker-applet/tracker-applet-prefs.ui.h:2
 msgid "<b>Smart Pausing</b>"
 msgstr "<b>Sanfte Unterbrechung</b>"
 
-#: ../src/tracker-applet/tracker-applet-prefs.glade.h:3
+#: ../src/tracker-applet/tracker-applet-prefs.ui.h:3
 msgid "<b>Visibility</b>"
 msgstr "<b>Sichtbarkeit</b>"
 
-#: ../src/tracker-applet/tracker-applet-prefs.glade.h:4
+#: ../src/tracker-applet/tracker-applet-prefs.ui.h:4
 msgid "Animate _icon when indexing"
 msgstr "Symbol bei _Indizierung animieren"
 
-#: ../src/tracker-applet/tracker-applet-prefs.glade.h:5
+#: ../src/tracker-applet/tracker-applet-prefs.ui.h:5
 msgid "Applet Preferences"
 msgstr "Applet-Einstellungen"
 
-#: ../src/tracker-applet/tracker-applet-prefs.glade.h:6
+#: ../src/tracker-applet/tracker-applet-prefs.ui.h:6
 msgid "_Automatically pause all indexing when computer is in active use"
 msgstr "Indizierung _automatisch unterbrechen, wenn der Rechner benutzt wird"
 
-#: ../src/tracker-applet/tracker-applet-prefs.glade.h:7
+#: ../src/tracker-applet/tracker-applet-prefs.ui.h:7
 msgid "_Hide Icon (except when displaying messages to user)"
 msgstr "_Symbol verbergen (außer bei der Anzeige von Benutzerinfos)"
 
-#: ../src/tracker-applet/tracker-applet-prefs.glade.h:8
+#: ../src/tracker-applet/tracker-applet-prefs.ui.h:8
 msgid "_Off"
 msgstr "A_us"
 
-#: ../src/tracker-applet/tracker-applet.c:61
+#: ../src/tracker-applet/tracker-applet.c:59
 #: ../src/tracker-applet/tracker-applet.desktop.in.in.h:2
 msgid "Tracker Applet"
 msgstr "Tracker Applet"
@@ -455,21 +462,21 @@ msgstr "Tracker Applet"
 #. Translators: this will be a status hint like:
 #. * Tracker: Initializing
 #.
-#: ../src/tracker-applet/tracker-applet.c:285
+#: ../src/tracker-applet/tracker-applet.c:283
 msgid "Initializing"
 msgstr "Initialisierung"
 
 #. Translators: this will be a status hint like:
 #. * Tracker: Adding File System Monitors
 #.
-#: ../src/tracker-applet/tracker-applet.c:291
+#: ../src/tracker-applet/tracker-applet.c:289
 msgid "Adding File System Monitors"
 msgstr "Hinzufügen der Dateisystemüberwachung"
 
 #. Translators: this will be a status hint like:
 #. * Tracker: Indexing
 #.
-#: ../src/tracker-applet/tracker-applet.c:297
+#: ../src/tracker-applet/tracker-applet.c:295
 #: ../src/tracker-search-tool/tracker-search-tool.c:1874
 msgid "Indexing"
 msgstr "Indizierung"
@@ -477,7 +484,7 @@ msgstr "Indizierung"
 #. Translators: this will be a status hint like:
 #. * Tracker: Paused
 #.
-#: ../src/tracker-applet/tracker-applet.c:303
+#: ../src/tracker-applet/tracker-applet.c:301
 msgid "Paused"
 msgstr "Unterbrochen"
 
@@ -485,49 +492,49 @@ msgstr "Unterbrochen"
 #. * Tracker: Crawling File System
 #. *  e.g. to crawl the file system for changes
 #.
-#: ../src/tracker-applet/tracker-applet.c:310
+#: ../src/tracker-applet/tracker-applet.c:308
 msgid "Crawling File System"
 msgstr "Dateisystem wird durchsucht"
 
 #. Translators: this will be a status hint like:
 #. * Tracker: Idle
 #.
-#: ../src/tracker-applet/tracker-applet.c:316
+#: ../src/tracker-applet/tracker-applet.c:314
 msgid "Idle"
 msgstr "Leerlauf"
 
 #. Translators: this will be a status hint like:
 #. * Tracker: Optimizing Databases
 #.
-#: ../src/tracker-applet/tracker-applet.c:322
+#: ../src/tracker-applet/tracker-applet.c:320
 msgid "Optimizing Databases"
 msgstr "Optimierung der Datenbanken"
 
 #. Translators: this will be a status hint like:
 #. * Tracker: Shutting Down
 #.
-#: ../src/tracker-applet/tracker-applet.c:328
+#: ../src/tracker-applet/tracker-applet.c:326
 msgid "Shutting Down"
 msgstr "Herunterfahren"
 
 #. Translators: this will be a status hint like:
 #. * Tracker: Initializing/Idle/Indexing/Merging (paused by user)
 #.
-#: ../src/tracker-applet/tracker-applet.c:336
+#: ../src/tracker-applet/tracker-applet.c:334
 msgid "by user"
 msgstr "durch Benutzer"
 
 #. Translators: this will be a status hint like:
 #. * Tracker: Initializing/Idle/Indexing/Merging (paused by system)
 #.
-#: ../src/tracker-applet/tracker-applet.c:341
+#: ../src/tracker-applet/tracker-applet.c:339
 msgid "by system"
 msgstr "durch System"
 
 #. Translators: this will be a status hint like:
 #. * Tracker: Initializing/Idle/Indexing/Merging (paused by system)
 #.
-#: ../src/tracker-applet/tracker-applet.c:348
+#: ../src/tracker-applet/tracker-applet.c:346
 msgid "low disk space or heavy disk use"
 msgstr "zu wenig Plattenplatz oder zu hohe Laufwerksaktivität"
 
@@ -538,14 +545,14 @@ msgstr "zu wenig Plattenplatz oder zu hohe Laufwerksaktivität"
 #. Translators: this will be a status hint like:
 #. * Tracker: Initializing/Idle/Indexing/Merging (paused by battery)
 #.
-#: ../src/tracker-applet/tracker-applet.c:358
+#: ../src/tracker-applet/tracker-applet.c:356
 msgid "low battery"
 msgstr "Akkuzustand kritisch"
 
 #. Translators: this will be a status hint like:
 #. * Tracker: Indexing (paused by system)
 #.
-#: ../src/tracker-applet/tracker-applet.c:371
+#: ../src/tracker-applet/tracker-applet.c:369
 #, c-format
 msgid "Tracker: %s (%s)"
 msgstr "Tracker: %s (%s)"
@@ -553,12 +560,12 @@ msgstr "Tracker: %s (%s)"
 #. Translators: this will be a status hint like:
 #. * Tracker: Indexing
 #.
-#: ../src/tracker-applet/tracker-applet.c:376
+#: ../src/tracker-applet/tracker-applet.c:374
 #, c-format
 msgid "Tracker: %s"
 msgstr "Tracker: %s"
 
-#: ../src/tracker-applet/tracker-applet.c:399
+#: ../src/tracker-applet/tracker-applet.c:397
 #, c-format
 msgid ""
 "Done: %d of %d\n"
@@ -569,20 +576,20 @@ msgstr ""
 "Verbleibend: %s\n"
 "Vergangen: %s"
 
-#: ../src/tracker-applet/tracker-applet.c:1096
+#: ../src/tracker-applet/tracker-applet.c:1099
 msgid "Re-index your system?"
 msgstr "System neu indizieren?"
 
-#: ../src/tracker-applet/tracker-applet.c:1098
+#: ../src/tracker-applet/tracker-applet.c:1101
 msgid "Indexing can take a long time. Are you sure you want to re-index?"
 msgstr ""
 "Eine Indizierung kann sehr lange dauern. Wollen Sie das System neu indizieren?"
 
-#: ../src/tracker-applet/tracker-applet.c:1261
+#: ../src/tracker-applet/tracker-applet.c:1264
 msgid "Tracker Statistics"
 msgstr "Tracker-Statistiken"
 
-#: ../src/tracker-applet/tracker-applet.c:1414
+#: ../src/tracker-applet/tracker-applet.c:1417
 msgid ""
 "Tracker is free software; you can redistribute it and/or modify it under the "
 "terms of the GNU General Public License as published by the Free Software "
@@ -594,7 +601,7 @@ msgstr ""
 "sie von der Free Software Foundation festgelegt wurden; entweder in Version 2 "
 "der Lizenz oder (nach Ihrem Ermessen) in jeder folgenden Lizenz."
 
-#: ../src/tracker-applet/tracker-applet.c:1415
+#: ../src/tracker-applet/tracker-applet.c:1418
 msgid ""
 "Tracker is distributed in the hope that it will be useful, but WITHOUT ANY "
 "WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR "
@@ -606,7 +613,7 @@ msgstr ""
 "für weitere Informationen bitte in der GNU General Public License (GNU GPL) "
 "nach."
 
-#: ../src/tracker-applet/tracker-applet.c:1416
+#: ../src/tracker-applet/tracker-applet.c:1419
 msgid ""
 "You should have received a copy of the GNU General Public License along with "
 "Tracker; if not, write to the Free Software Foundation, Inc., 51 Franklin "
@@ -617,7 +624,7 @@ msgstr ""
 "Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA "
 "02110-1301, USA."
 
-#: ../src/tracker-applet/tracker-applet.c:1432
+#: ../src/tracker-applet/tracker-applet.c:1435
 msgid ""
 "Tracker is a tool designed to extract info and metadata about your personal "
 "data so that it can be searched easily and quickly"
@@ -625,7 +632,7 @@ msgstr ""
 "Tracker indiziert ihre persönlichen Daten und erlaubt das schnelle und "
 "unkomplizierte Suchen von Informationen"
 
-#: ../src/tracker-applet/tracker-applet.c:1434
+#: ../src/tracker-applet/tracker-applet.c:1437
 msgid "Copyright © 2005-2009 The Tracker authors"
 msgstr "Copyright © 2005-2009 Die Tracker-Autoren"
 
@@ -633,7 +640,7 @@ msgstr "Copyright © 2005-2009 Die Tracker-Autoren"
 #. * which will be displayed at the bottom of the about
 #. * box to give credit to the translator(s).
 #.
-#: ../src/tracker-applet/tracker-applet.c:1442
+#: ../src/tracker-applet/tracker-applet.c:1445
 msgid "translator-credits"
 msgstr ""
 "Hendrik Richter <hendrikr@gnome.org>\n"
@@ -641,55 +648,55 @@ msgstr ""
 "Marcus Fritzsch <m@fritschy.de>\n"
 "Mario Blättermann <mariobl@gnome.org>"
 
-#: ../src/tracker-applet/tracker-applet.c:1445
+#: ../src/tracker-applet/tracker-applet.c:1448
 msgid "Tracker Web Site"
 msgstr "Tracker Website"
 
-#: ../src/tracker-applet/tracker-applet.c:1466
+#: ../src/tracker-applet/tracker-applet.c:1469
 msgid "_Pause All Indexing"
 msgstr "Indizierung _anhalten"
 
-#: ../src/tracker-applet/tracker-applet.c:1476
+#: ../src/tracker-applet/tracker-applet.c:1479
 msgid "_Search"
 msgstr "_Suchen"
 
-#: ../src/tracker-applet/tracker-applet.c:1485
+#: ../src/tracker-applet/tracker-applet.c:1488
 msgid "_Re-index"
 msgstr "_Neu indizieren"
 
-#: ../src/tracker-applet/tracker-applet.c:1493
+#: ../src/tracker-applet/tracker-applet.c:1496
 msgid "_Preferences"
 msgstr "_Einstellungen"
 
-#: ../src/tracker-applet/tracker-applet.c:1502
+#: ../src/tracker-applet/tracker-applet.c:1505
 msgid "_Indexer Preferences"
 msgstr "_Indizierungseinstellungen"
 
-#: ../src/tracker-applet/tracker-applet.c:1510
+#: ../src/tracker-applet/tracker-applet.c:1513
 msgid "S_tatistics"
 msgstr "S_tatistiken"
 
-#: ../src/tracker-applet/tracker-applet.c:1518
+#: ../src/tracker-applet/tracker-applet.c:1521
 msgid "_About"
 msgstr "_Über"
 
-#: ../src/tracker-applet/tracker-applet.c:1529
+#: ../src/tracker-applet/tracker-applet.c:1532
 msgid "_Quit"
 msgstr "_Beenden"
 
-#: ../src/tracker-applet/tracker-applet.c:1570
+#: ../src/tracker-applet/tracker-applet.c:1574
 msgid "Tracker has finished indexing your system"
 msgstr "Tracker hat die Indizierung Ihres Systems abgeschlossen"
 
-#: ../src/tracker-applet/tracker-applet.c:1572
+#: ../src/tracker-applet/tracker-applet.c:1576
 msgid "You can now perform searches by clicking here"
 msgstr "Sie können eine Suche durchführen, indem Sie hier klicken"
 
-#: ../src/tracker-applet/tracker-applet.c:1590
+#: ../src/tracker-applet/tracker-applet.c:1594
 msgid "There was an error while performing indexing:"
 msgstr "Bei der Ausführung der Indizierung trat ein Fehler auf:"
 
-#: ../src/tracker-applet/tracker-applet.c:1644
+#: ../src/tracker-applet/tracker-applet.c:1649
 msgid ""
 "Your computer is about to be indexed so you can perform fast searches of your "
 "files and emails"
@@ -697,7 +704,7 @@ msgstr ""
 "Ihr Rechner wird indiziert, damit die Suche nach Dateien und E-Mails "
 "schneller erfolgen kann"
 
-#: ../src/tracker-applet/tracker-applet.c:1647
+#: ../src/tracker-applet/tracker-applet.c:1652
 msgid ""
 "You can pause indexing at any time and configure index settings by right "
 "clicking here"
@@ -705,59 +712,63 @@ msgstr ""
 "Sie können die Indizierung zu jeder Zeit unterbrechen und durch Rechtsklick "
 "hier Einstellungen vornehmen"
 
-#: ../src/tracker-applet/tracker-applet.c:2142
+#: ../src/tracker-applet/tracker-applet.c:2149
 msgid "Reindex all contents"
 msgstr "Alle Inhalte erneut indizieren"
 
-#: ../src/tracker-applet/tracker-applet.c:2304
+#: ../src/tracker-applet/tracker-applet.c:2311
 msgid "- Tracker applet for quick control of your desktop search tools"
 msgstr "- Tracker-Applet für die Überwachung Ihrer Desktop-Suchwerkzeuge"
 
-#: ../src/tracker-applet/tracker-applet.c:2329
+#: ../src/tracker-applet/tracker-applet.c:2334
+msgid "Tracker"
+msgstr "Tracker"
+
+#: ../src/tracker-applet/tracker-applet.c:2336
 msgid "Files:"
 msgstr "Dateien:"
 
-#: ../src/tracker-applet/tracker-applet.c:2330
+#: ../src/tracker-applet/tracker-applet.c:2337
 msgid "    Folders:"
 msgstr "    Ordner:"
 
-#: ../src/tracker-applet/tracker-applet.c:2331
+#: ../src/tracker-applet/tracker-applet.c:2338
 msgid "    Documents:"
 msgstr "    Dokumente:"
 
-#: ../src/tracker-applet/tracker-applet.c:2332
+#: ../src/tracker-applet/tracker-applet.c:2339
 msgid "    Images:"
 msgstr "    Bilder:"
 
-#: ../src/tracker-applet/tracker-applet.c:2333
+#: ../src/tracker-applet/tracker-applet.c:2340
 msgid "    Music:"
 msgstr "    Musik:"
 
-#: ../src/tracker-applet/tracker-applet.c:2334
+#: ../src/tracker-applet/tracker-applet.c:2341
 msgid "    Videos:"
 msgstr "    Videos:"
 
-#: ../src/tracker-applet/tracker-applet.c:2335
+#: ../src/tracker-applet/tracker-applet.c:2342
 msgid "    Text:"
 msgstr "    Text:"
 
-#: ../src/tracker-applet/tracker-applet.c:2336
+#: ../src/tracker-applet/tracker-applet.c:2343
 msgid "    Development:"
 msgstr "    Entwicklung:"
 
-#: ../src/tracker-applet/tracker-applet.c:2337
+#: ../src/tracker-applet/tracker-applet.c:2344
 msgid "    Other:"
 msgstr "    Sonstige Dateien:"
 
-#: ../src/tracker-applet/tracker-applet.c:2338
+#: ../src/tracker-applet/tracker-applet.c:2345
 msgid "Applications:"
 msgstr "Anwendungen:"
 
-#: ../src/tracker-applet/tracker-applet.c:2339
+#: ../src/tracker-applet/tracker-applet.c:2346
 msgid "Conversations:"
 msgstr "Unterhaltungen:"
 
-#: ../src/tracker-applet/tracker-applet.c:2340
+#: ../src/tracker-applet/tracker-applet.c:2347
 msgid "Emails:"
 msgstr "Emails:"
 
@@ -766,12 +777,14 @@ msgid "Control and monitor the Tracker search and indexing service"
 msgstr "Statusanzeige für Tracker Such- und Indizierungsdienst"
 
 #: ../src/tracker-extract/tracker-main.c:82
-#: ../src/tracker-indexer/tracker-main.c:84 ../src/tracker-store/tracker-main.c:137
+#: ../src/tracker-miner-fs/tracker-main.c:76
+#: ../src/tracker-store/tracker-main.c:128
 msgid "Displays version information"
 msgstr "Versionsinformationen anzeigen"
 
 #: ../src/tracker-extract/tracker-main.c:86
-#: ../src/tracker-indexer/tracker-main.c:88 ../src/tracker-store/tracker-main.c:141
+#: ../src/tracker-miner-fs/tracker-main.c:80
+#: ../src/tracker-store/tracker-main.c:132
 msgid ""
 "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default = "
 "0)"
@@ -784,8 +797,8 @@ msgid "File to extract metadata for"
 msgstr "Datei zur Ermittlung der Metadaten"
 
 #: ../src/tracker-extract/tracker-main.c:92
-#: ../src/tracker-utils/tracker-import.c:39
 #: ../src/tracker-utils/tracker-import.c:40
+#: ../src/tracker-utils/tracker-import.c:41
 #: ../src/tracker-utils/tracker-info.c:39
 #: ../src/tracker-utils/tracker-info.c:40
 msgid "FILE"
@@ -800,43 +813,35 @@ msgid "MIME"
 msgstr "MIME"
 
 #: ../src/tracker-extract/tracker-main.c:101
-msgid "Debug mode (default = off)"
+msgid "Debug (default = off)"
 msgstr "Debugmodus (Vorgabe = aus)"
 
 #. Translators: this message will appear immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
-#: ../src/tracker-extract/tracker-main.c:284
+#: ../src/tracker-extract/tracker-main.c:286
 msgid "- Extract file meta data"
 msgstr "- Metadaten der Datei entpacken"
 
-#: ../src/tracker-extract/tracker-main.c:296
+#: ../src/tracker-extract/tracker-main.c:298
 msgid "Filename and mime type must be provided together"
 msgstr "Dateiname und MIME-Typ müssen zusammen angegeben werden"
 
-#: ../src/tracker-indexer/tracker-main.c:93
+#: ../src/tracker-miner-fs/tracker-main.c:85
 msgid "Index data from all enabled modules"
 msgstr "Indexdaten aus allen aktivierten Modulen"
-
-#: ../src/tracker-indexer/tracker-main.c:97
-msgid "Run forever, only interesting for debugging purposes"
-msgstr "Endlos ausführen, nur interessant für Debuging-Zwecke"
-
-#: ../src/tracker-indexer/tracker-main.c:101
-msgid "Modules to be used when processing data"
-msgstr "Für die Verarbeitung der Daten zu verwendende Module"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/tracker-indexer/tracker-main.c:314
+#: ../src/tracker-miner-fs/tracker-main.c:241
 msgid "- start the tracker indexer"
 msgstr "- startet die Tracker-Indizierung"
 
-#: ../src/tracker-preferences/tracker-preferences.c:642
+#: ../src/tracker-preferences/tracker-preferences.c:653
 msgid "Data must be reindexed"
 msgstr "Daten müssen neu indiziert werden"
 
-#: ../src/tracker-preferences/tracker-preferences.c:643
+#: ../src/tracker-preferences/tracker-preferences.c:654
 msgid ""
 "In order for your changes to take effect, Tracker must reindex your files. "
 "Click the Reindex button to start reindexing now, otherwise this action will "
@@ -846,15 +851,15 @@ msgstr ""
 "Klicken Sie auf »Neu indizieren«, um diesen Prozess jetzt zu starten. "
 "Ansonsten wird dies bei einem Neustart des Tracker-Dienstes geschehen."
 
-#: ../src/tracker-preferences/tracker-preferences.c:650
+#: ../src/tracker-preferences/tracker-preferences.c:661
 msgid "_Reindex"
 msgstr "Neu _indizieren"
 
-#: ../src/tracker-preferences/tracker-preferences.c:653
+#: ../src/tracker-preferences/tracker-preferences.c:664
 msgid "Tracker daemon must be restarted"
 msgstr "Tracker Dienst muss neu gestartet werden"
 
-#: ../src/tracker-preferences/tracker-preferences.c:655
+#: ../src/tracker-preferences/tracker-preferences.c:666
 msgid ""
 "In order for your changes to take effect, the Tracker daemon has to be "
 "restarted. Click the Restart button to restart the daemon now."
@@ -862,7 +867,7 @@ msgstr ""
 "Damit die Änderungen wirksam werden, muss der Tracker Dienst neu gestartet "
 "werden. Klicken Sie auf »Neu starten«, um den Dienst jetzt neu zu starten."
 
-#: ../src/tracker-preferences/tracker-preferences.c:660
+#: ../src/tracker-preferences/tracker-preferences.c:671
 msgid "_Restart"
 msgstr "Neu _starten"
 
@@ -874,179 +879,179 @@ msgstr "Tracker Indizierungseinstellungen ändern"
 msgid "Search and Indexing"
 msgstr "Suche und Indizierung"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:1
+#: ../src/tracker-preferences/tracker-preferences.ui.h:1
 msgid "<b>Crawled Directories</b>"
 msgstr "<b>Verzeichnisse zur einmaligen Indizierung</b>"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:2
+#: ../src/tracker-preferences/tracker-preferences.ui.h:2
 msgid "<b>Ignored File Patterns</b>"
 msgstr "<b>Ignorierte Dateimuster</b>"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:3
+#: ../src/tracker-preferences/tracker-preferences.ui.h:3
 msgid "<b>Ignored Paths</b>"
 msgstr "<b>Ignorierte Pfade</b>"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:4
+#: ../src/tracker-preferences/tracker-preferences.ui.h:4
 msgid "<b>Index Merging</b>"
 msgstr "<b>Indexzusammenführung</b>"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:5
+#: ../src/tracker-preferences/tracker-preferences.ui.h:5
 msgid "<b>Indexing Limits (per file)</b>"
 msgstr "<b>Indizierungsgrenzen (pro Datei)</b>"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:6
+#: ../src/tracker-preferences/tracker-preferences.ui.h:6
 msgid "<b>Indexing Options</b>"
 msgstr "<b>Indizierungsoptionen</b>"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:7
+#: ../src/tracker-preferences/tracker-preferences.ui.h:7
 msgid "<b>Indexing</b>"
 msgstr "<b>Indizierung</b>"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:8
+#: ../src/tracker-preferences/tracker-preferences.ui.h:8
 msgid "<b>Power management</b>"
 msgstr "<b>Energieverwaltung</b>"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:9
+#: ../src/tracker-preferences/tracker-preferences.ui.h:9
 msgid "<b>Resource Usage</b>"
 msgstr "<b>Ressourcenverbrauch</b>"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:10
+#: ../src/tracker-preferences/tracker-preferences.ui.h:10
 msgid "<b>Startup</b>"
 msgstr "<b>Programmstart</b>"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:11
+#: ../src/tracker-preferences/tracker-preferences.ui.h:11
 msgid "<b>Stemming</b>"
 msgstr "<b>Suche nach Wortstämmen</b>"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:12
+#: ../src/tracker-preferences/tracker-preferences.ui.h:12
 msgid "<b>Throttling</b>"
 msgstr "<b>Drosselung</b>"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:13
+#: ../src/tracker-preferences/tracker-preferences.ui.h:13
 msgid "<b>Watch Directories</b>"
 msgstr "<b>Zu überwachende Verzeichnisse</b>"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:14
+#: ../src/tracker-preferences/tracker-preferences.ui.h:14
 msgid "Additional mbox style mailboxes to index:"
 msgstr "Zusätzliche mbox-Postfächer, die indiziert werden sollen:"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:15
+#: ../src/tracker-preferences/tracker-preferences.ui.h:15
 msgid "Additional paths to index and watch:"
 msgstr "Zusätzliche Ordner, die indiziert und überwacht werden sollen:"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:16
+#: ../src/tracker-preferences/tracker-preferences.ui.h:16
 msgid "Additional paths to index on startup (but not watch for updates):"
 msgstr "Zusätzliche Ordner, die einmalig indiziert werden sollen:"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:17
+#: ../src/tracker-preferences/tracker-preferences.ui.h:17
 msgid "Disable all Indexing when on battery"
 msgstr "Indizierung während des Akkubetriebs deaktivieren"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:18
+#: ../src/tracker-preferences/tracker-preferences.ui.h:18
 msgid "Disable initial index sweep when on battery"
 msgstr "Erstmaligen Indizierungsdurchlauf während des Akkubetriebs deaktivieren"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:19
+#: ../src/tracker-preferences/tracker-preferences.ui.h:19
 msgid "Email"
 msgstr "E-Mail"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:20
+#: ../src/tracker-preferences/tracker-preferences.ui.h:20
 msgid "Enable _Evolution email indexing"
 msgstr "_Evolution E-Mail-Indizierung aktivieren"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:21
+#: ../src/tracker-preferences/tracker-preferences.ui.h:21
 msgid "Enable i_ndexing"
 msgstr "I_ndizierung aktivieren"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:22
+#: ../src/tracker-preferences/tracker-preferences.ui.h:22
 msgid "Faster"
 msgstr "schneller"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:23
+#: ../src/tracker-preferences/tracker-preferences.ui.h:23
 msgid "File patterns to ignore during indexing:"
 msgstr "Dateimuster, die von der Indizierung ausgeschlossen werden sollen:"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:24
+#: ../src/tracker-preferences/tracker-preferences.ui.h:24
 msgid "Files"
 msgstr "Dateien"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:25
+#: ../src/tracker-preferences/tracker-preferences.ui.h:25
 msgid "General"
 msgstr "Allgemein"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:26
+#: ../src/tracker-preferences/tracker-preferences.ui.h:26
 msgid "Generate thum_bnails"
 msgstr "_Miniaturbilder erstellen"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:27
+#: ../src/tracker-preferences/tracker-preferences.ui.h:27
 msgid "Ignored Files"
 msgstr "Ignorierte Dateien"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:28
+#: ../src/tracker-preferences/tracker-preferences.ui.h:28
 msgid "Index _delay:"
 msgstr "Pause vor In_dizierung: "
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:29
+#: ../src/tracker-preferences/tracker-preferences.ui.h:29
 msgid "Index _file contents"
 msgstr "D_ateiinhalte indizieren"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:30
+#: ../src/tracker-preferences/tracker-preferences.ui.h:30
 msgid "Index _mounted directories"
 msgstr "_Eingehängte Ordner indizieren"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:31
+#: ../src/tracker-preferences/tracker-preferences.ui.h:31
 msgid "Index and watch my home _directory"
 msgstr "Persönlichen Or_dner indizieren und überwachen"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:32
+#: ../src/tracker-preferences/tracker-preferences.ui.h:32
 msgid "Indexing Speed:"
 msgstr "Indizierungsgeschwindigkeit:"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:33
+#: ../src/tracker-preferences/tracker-preferences.ui.h:33
 msgid "Maximum _amount of text to index:"
 msgstr "M_aximal zu indizierende Textgröße:"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:34
+#: ../src/tracker-preferences/tracker-preferences.ui.h:34
 msgid "Maximum number of unique _words to index:"
 msgstr "Maximale Anzahl eindeutiger _Worte:"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:35
+#: ../src/tracker-preferences/tracker-preferences.ui.h:35
 msgid "Path roots to be ignored during indexing:"
 msgstr "Ordner, die von der Indizierung ausgeschlossen werden sollen:"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:36
+#: ../src/tracker-preferences/tracker-preferences.ui.h:36
 msgid "Perform fast index merges (may affect system performance)"
 msgstr "Schnelle Indexzusammenführung (kann System verlangsamen)"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:37
+#: ../src/tracker-preferences/tracker-preferences.ui.h:37
 msgid "Performance"
 msgstr "Leistung"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:38
+#: ../src/tracker-preferences/tracker-preferences.ui.h:38
 msgid "Slower"
 msgstr "langsamer"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:39
+#: ../src/tracker-preferences/tracker-preferences.ui.h:39
 msgid "Tracker Preferences"
 msgstr "Tracker Einstellungen"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:40
+#: ../src/tracker-preferences/tracker-preferences.ui.h:40
 msgid "_Language:"
 msgstr "_Sprache:"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:41
+#: ../src/tracker-preferences/tracker-preferences.ui.h:41
 msgid "_Minimize memory usage (slower indexing)"
 msgstr "Speicherverbrauch auf Kosten der Geschwindigkeit _minimieren"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:42
+#: ../src/tracker-preferences/tracker-preferences.ui.h:42
 msgid "_Use additional memory for faster indexing"
 msgstr "Zusätzlichen Speicher für eine schnellere Indizierung ben_utzen"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:43
+#: ../src/tracker-preferences/tracker-preferences.ui.h:43
 msgid "kB"
 msgstr "KB"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:44
+#: ../src/tracker-preferences/tracker-preferences.ui.h:44
 msgid "seconds"
 msgstr "Sekunden"
 
@@ -1054,105 +1059,105 @@ msgstr "Sekunden"
 msgid "Could not open help document."
 msgstr "Hilfe konnte nicht geöffnet werden."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:325
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:345
 #, c-format
 msgid "Are you sure you want to open %d document?"
 msgid_plural "Are you sure you want to open %d documents?"
 msgstr[0] "Wollen Sie %d Dokument öffnen?"
 msgstr[1] "Wollen Sie %d Dokumente öffnen?"
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:330
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:694
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:350
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:714
 #, c-format
 msgid "This will open %d separate window."
 msgid_plural "This will open %d separate windows."
 msgstr[0] "%d eigenes Fenster wird geöffnet."
 msgstr[1] "%d eigene Fenster werden geöffnet."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:374
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:394
 #, c-format
 msgid "Could not open document \"%s\"."
 msgstr "Dokument »%s« konnte nicht geöffnet werden."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:407
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:427
 #, c-format
 msgid "Could not open folder \"%s\"."
 msgstr "Ordner »%s« konnte nicht geöffnet werden."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:416
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:436
 msgid "The nautilus file manager is not running."
 msgstr "Der Nautilus Dateimanager ist nicht verfügbar."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:641
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:661
 msgid "Application could not be opened"
 msgstr "Anwendung konnte nicht geöffnet werden"
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:652
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:672
 msgid "The document does not exist."
 msgstr "Das Dokument existiert nicht."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:664
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:684
 msgid "There is no installed viewer capable of displaying the document."
 msgstr ""
 "Keine der installierten Anwendungen ist in der Lage das Dokument anzuzeigen."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:689
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:709
 #, c-format
 msgid "Are you sure you want to open %d folder?"
 msgid_plural "Are you sure you want to open %d folders?"
 msgstr[0] "Wollen Sie %d Ordner öffnen?"
 msgstr[1] "Wollen Sie %d Ordner öffnen?"
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:793
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:813
 #, c-format
 msgid "Could not move \"%s\" to trash."
 msgstr "»%s« konnte nicht in den Müll verschoben werden."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:862
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:882
 #, c-format
 msgid "Moving \"%s\" failed: %s."
 msgstr "Verschieben von »%s« fehlgeschlagen: %s."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1143
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1163
 msgid "Activate to view this email"
 msgstr "E-Mail anzeigen"
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1312
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1332
 msgid "Save Search Results As..."
 msgstr "Ergebnisse _speichern unter..."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1347
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1367
 msgid "Could not save document."
 msgstr "Dokument konnte nicht gespeichert werden."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1348
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1368
 msgid "You did not select a document name."
 msgstr "Sie haben keinen Namen für das Dokument ausgewählt."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1380
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1400
 #, c-format
 msgid "Could not save \"%s\" document to \"%s\"."
 msgstr "Dokument »%s« nicht unter »%s« gespeichert werden."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1416
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1436
 #, c-format
 msgid "The document \"%s\" already exists.  Would you like to replace it?"
 msgstr "Das Dokument »%s« existiert bereits.  Wollen Sie es ersetzen?"
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1420
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1440
 msgid "If you replace an existing file, its contents will be overwritten."
 msgstr ""
 "Wenn Sie die bestehende Datei ersetzen, wird deren Inhalt überschrieben."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1435
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1455
 msgid "_Replace"
 msgstr "_Ersetzen"
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1485
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1505
 msgid "The document name you selected is a folder."
 msgstr "Der gewählte Name existiert bereits und ist ein Ordner."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1534
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1554
 msgid "You may not have write permissions to the document."
 msgstr "Sie haben vermutlich keine Schreibrechte für das Dokument."
 
@@ -1183,160 +1188,159 @@ msgstr "gestern um %-H:%M"
 msgid "%A, %B %-d %Y at %-I:%M:%S %p"
 msgstr "%A, %B %-d %Y at %-H:%M:%S"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:63
-#: ../src/tracker-utils/tracker-search.c:43
+#: ../src/tracker-search-tool/tracker-search-tool.c:62
 msgid "Search from a specific service"
 msgstr "Einen bestimmten Dienst durchsuchen"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:63
+#: ../src/tracker-search-tool/tracker-search-tool.c:62
 msgid "SERVICE"
 msgstr "DIENST"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:143
+#: ../src/tracker-search-tool/tracker-search-tool.c:142
+#: ../src/tracker-search-tool/tracker-search-tool.c:144
 #: ../src/tracker-search-tool/tracker-search-tool.c:145
-#: ../src/tracker-search-tool/tracker-search-tool.c:146
-#: ../src/tracker-search-tool/tracker-search-tool.c:148
+#: ../src/tracker-search-tool/tracker-search-tool.c:147
 msgid "Emails"
 msgstr "E-Mails"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:149
+#: ../src/tracker-search-tool/tracker-search-tool.c:148
 msgid "All Files"
 msgstr "Alle Dateien"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:150
+#: ../src/tracker-search-tool/tracker-search-tool.c:149
 msgid "Folders"
 msgstr "Ordner"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:151
+#: ../src/tracker-search-tool/tracker-search-tool.c:150
 msgid "Documents"
 msgstr "Dokumente"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:154
+#: ../src/tracker-search-tool/tracker-search-tool.c:153
 msgid "Playlists"
 msgstr "Wiedergabelisten"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:156
-#: ../src/tracker-search-tool/tracker-search-tool.c:1242
+#: ../src/tracker-search-tool/tracker-search-tool.c:155
+#: ../src/tracker-search-tool/tracker-search-tool.c:1241
 msgid "Text"
 msgstr "Text"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:157
+#: ../src/tracker-search-tool/tracker-search-tool.c:156
 msgid "Development"
 msgstr "Entwicklung"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:158
+#: ../src/tracker-search-tool/tracker-search-tool.c:157
 msgid "Chat Logs"
 msgstr "Unterhaltungsprotokoll"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:159
+#: ../src/tracker-search-tool/tracker-search-tool.c:158
 msgid "Applications"
 msgstr "Anwendungen"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:160
+#: ../src/tracker-search-tool/tracker-search-tool.c:159
 msgid "WebHistory"
 msgstr "Webchronik"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:222
+#: ../src/tracker-search-tool/tracker-search-tool.c:221
 msgid "_Open"
 msgstr "Ö_ffnen"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:223
+#: ../src/tracker-search-tool/tracker-search-tool.c:222
 msgid "O_pen Folder"
 msgstr "_Ordner öffnen"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:224
+#: ../src/tracker-search-tool/tracker-search-tool.c:223
 msgid "Mo_ve to Trash"
 msgstr "In den _Müll verschieben"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:225
+#: ../src/tracker-search-tool/tracker-search-tool.c:224
 msgid "_Save Results As..."
 msgstr "Ergebnisse _speichern unter …"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:255
+#: ../src/tracker-search-tool/tracker-search-tool.c:254
 #, c-format
 msgid "Character set conversion failed for \"%s\""
 msgstr "Zeichenkonvertierung war für »%s« nicht möglich"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:284
+#: ../src/tracker-search-tool/tracker-search-tool.c:283
 msgid "The following error has occurred :"
 msgstr "Der folgende Fehler ist aufgetreten:"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:290
+#: ../src/tracker-search-tool/tracker-search-tool.c:289
 msgid "Error"
 msgstr "Fehler"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:643
+#: ../src/tracker-search-tool/tracker-search-tool.c:642
 msgid "Application"
 msgstr "Anwendung"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:671
+#: ../src/tracker-search-tool/tracker-search-tool.c:670
 msgid "Did you mean"
 msgstr "Meinten Sie"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:702
+#: ../src/tracker-search-tool/tracker-search-tool.c:701
 msgid "Your search returned no results."
 msgstr "Ihre Suche ergab keine Ergebnisse."
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:719
+#: ../src/tracker-search-tool/tracker-search-tool.c:718
 msgid "Tracker Search Tool-"
 msgstr "Tracker Suche-"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:880
-#: ../src/tracker-search-tool/tracker-search-tool.c:2272
+#: ../src/tracker-search-tool/tracker-search-tool.c:879
+#: ../src/tracker-search-tool/tracker-search-tool.c:2286
 #: ../src/tracker-search-tool/tracker-search-tool.desktop.in.in.h:2
 msgid "Tracker Search Tool"
 msgstr "Tracker Suche"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1070
+#: ../src/tracker-search-tool/tracker-search-tool.c:1069
 msgid "Search _results: "
 msgstr "Such_ergebnisse: "
 
 #. Translators: this will appears as "Search results: no search performed"
-#: ../src/tracker-search-tool/tracker-search-tool.c:1076
+#: ../src/tracker-search-tool/tracker-search-tool.c:1075
 msgid "no search performed"
 msgstr "keine Suche ausgeführt"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1136
-#: ../src/tracker-search-tool/tracker-search-tool.c:1296
+#: ../src/tracker-search-tool/tracker-search-tool.c:1135
+#: ../src/tracker-search-tool/tracker-search-tool.c:1295
 msgid "List View"
 msgstr "Listenansicht"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1208
+#: ../src/tracker-search-tool/tracker-search-tool.c:1207
 msgid "Icon"
 msgstr "Symbol"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1220
+#: ../src/tracker-search-tool/tracker-search-tool.c:1219
 msgid "Name"
 msgstr "Name"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1314
+#: ../src/tracker-search-tool/tracker-search-tool.c:1313
 msgid "_Categories"
 msgstr "_Kategorien"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1498
+#: ../src/tracker-search-tool/tracker-search-tool.c:1497
 msgid "Unknown email subject"
 msgstr "Unbekannter E-Mail-Betreff"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1498
+#: ../src/tracker-search-tool/tracker-search-tool.c:1497
 msgid "Unknown email sender"
 msgstr "Unbekannter E-Mail-Absender"
 
 #. Translators: this will appear like "Search results: 5 - 10 of 30 items"
-#: ../src/tracker-search-tool/tracker-search-tool.c:1601
+#: ../src/tracker-search-tool/tracker-search-tool.c:1600
 #, c-format
 msgid "%d - %d of %d items"
 msgstr "%d - %d von %d Treffern"
 
 #. Translators: this will appear like "Search results: 7 items"
-#: ../src/tracker-search-tool/tracker-search-tool.c:1604
+#: ../src/tracker-search-tool/tracker-search-tool.c:1603
 #, c-format
 msgid "%d item"
 msgid_plural "%d items"
 msgstr[0] "%d Treffer"
 msgstr[1] "%d Treffer"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1654
-#: ../src/tracker-search-tool/tracker-search-tool.c:1864
+#: ../src/tracker-search-tool/tracker-search-tool.c:1653
+#: ../src/tracker-search-tool/tracker-search-tool.c:1863
 msgid "Could not connect to search service as it may be busy"
 msgstr ""
 "Es konnte keine Verbindung zum Suchdienst aufgenommen werden, da dieser "
@@ -1346,28 +1350,32 @@ msgstr ""
 msgid "_Search:"
 msgstr "S_uchen:"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:2077
+#: ../src/tracker-search-tool/tracker-search-tool.c:2085
+msgid "Clear the search text"
+msgstr "Suchfeld leeren"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:2091
 msgid "Tracker is still indexing so not all search results are available yet"
 msgstr ""
 "Indizierung noch nicht abgeschlossen. Suchergebnisse können unvollständig "
 "sein."
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:2091
-#: ../src/tracker-search-tool/tracker-search-tool.c:2092
+#: ../src/tracker-search-tool/tracker-search-tool.c:2105
+#: ../src/tracker-search-tool/tracker-search-tool.c:2106
 msgid "Enter a search term with multiple words seperated with spaces."
 msgstr ""
 "Geben Sie einen Suchbegriff mit mehreren Wörtern durch Leerzeichen getrennt "
 "ein."
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:2092
+#: ../src/tracker-search-tool/tracker-search-tool.c:2106
 msgid "search_entry"
 msgstr "Such_begriff"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:2103
+#: ../src/tracker-search-tool/tracker-search-tool.c:2117
 msgid "Select more _options"
 msgstr "Weitere _Optionen wählen"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:2138
+#: ../src/tracker-search-tool/tracker-search-tool.c:2152
 msgid "Click to perform a search."
 msgstr "Klicken Sie hier, um die Suche zu starten"
 
@@ -1380,18 +1388,18 @@ msgstr ""
 
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
-#: ../src/tracker-utils/tracker-import.c:61
-msgid "- Import files"
-msgstr "- Dateien importieren"
+#: ../src/tracker-utils/tracker-import.c:60
+msgid "- Import data using Turtle files"
+msgstr "Daten mittels Turtle-Dateien importieren"
 
-#: ../src/tracker-utils/tracker-import.c:72
-#: ../src/tracker-utils/tracker-info.c:101
-msgid "File missing"
-msgstr "Datei fehlt"
+#: ../src/tracker-utils/tracker-import.c:71
+#: ../src/tracker-utils/tracker-info.c:98
+msgid "One or more files have not been specified"
+msgstr "Eine oder mehrere Dateien wurden nicht angegeben"
 
-#: ../src/tracker-utils/tracker-import.c:88
-#: ../src/tracker-utils/tracker-info.c:117
-#: ../src/tracker-utils/tracker-search.c:159
+#: ../src/tracker-utils/tracker-import.c:87
+#: ../src/tracker-utils/tracker-info.c:114
+#: ../src/tracker-utils/tracker-search.c:137
 #: ../src/tracker-utils/tracker-sparql.c:120
 #: ../src/tracker-utils/tracker-stats.c:78
 #: ../src/tracker-utils/tracker-status.c:478
@@ -1399,33 +1407,45 @@ msgstr "Datei fehlt"
 msgid "Could not establish a DBus connection to Tracker"
 msgstr "DBus-Verbindung zu Tracker konnte nicht aufgebaut werden"
 
-#: ../src/tracker-utils/tracker-import.c:102
-msgid "Unable to import file"
-msgstr "Datei konnte nicht importiert werden"
+#: ../src/tracker-utils/tracker-import.c:97
+msgid "Importing Turtle file"
+msgstr "Turtle-Datei wird importiert"
+
+#: ../src/tracker-utils/tracker-import.c:110
+msgid "Unable to import Turtle file"
+msgstr "Turtle-Datei konnte nicht importiert werden"
+
+#: ../src/tracker-utils/tracker-import.c:117
+msgid "Done"
+msgstr "Abgeschlossen"
 
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
-#: ../src/tracker-utils/tracker-info.c:90
-msgid "- Get all information from a certain file"
-msgstr "- Alle Informationen für eine bestimmte Datei holen"
+#: ../src/tracker-utils/tracker-info.c:87
+msgid "- Get all information about one or more files"
+msgstr "- Alle Informationen für eine oder mehrere Dateien holen"
 
-#: ../src/tracker-utils/tracker-info.c:141
+#: ../src/tracker-utils/tracker-info.c:125
+msgid "Querying information for file"
+msgstr "Informationen für eine Datei werden abgefragt"
+
+#: ../src/tracker-utils/tracker-info.c:148
 msgid "Unable to retrieve data for uri"
 msgstr "Daten für URI konnten nicht erhalten werden"
 
-#: ../src/tracker-utils/tracker-info.c:152
+#: ../src/tracker-utils/tracker-info.c:157
 msgid "No metadata available for that uri"
 msgstr "Keine Metadaten für diese URI verfügbar"
 
-#: ../src/tracker-utils/tracker-info.c:159
-#: ../src/tracker-utils/tracker-search.c:200
+#: ../src/tracker-utils/tracker-info.c:164
+#: ../src/tracker-utils/tracker-search.c:178
 #: ../src/tracker-utils/tracker-tag.c:385
 #, c-format
 msgid "Result: %d"
 msgstr "Ergebnis: %d"
 
-#: ../src/tracker-utils/tracker-info.c:160
-#: ../src/tracker-utils/tracker-search.c:201
+#: ../src/tracker-utils/tracker-info.c:165
+#: ../src/tracker-utils/tracker-search.c:179
 #: ../src/tracker-utils/tracker-tag.c:386
 #, c-format
 msgid "Results: %d"
@@ -1449,9 +1469,9 @@ msgid "Could not open /proc"
 msgstr "/proc konnte nicht geöffnet werden"
 
 #: ../src/tracker-utils/tracker-processes.c:68
-#: ../src/tracker-utils/tracker-processes.c:174
-#: ../src/tracker-utils/tracker-processes.c:204
-#: ../src/tracker-utils/tracker-processes.c:218
+#: ../src/tracker-utils/tracker-processes.c:172
+#: ../src/tracker-utils/tracker-processes.c:202
+#: ../src/tracker-utils/tracker-processes.c:216
 msgid "no error given"
 msgstr "kein Fehler angegeben"
 
@@ -1477,100 +1497,96 @@ msgstr ""
 msgid "Found %d pids..."
 msgstr "%d Prozesskennungen gefunden ..."
 
-#: ../src/tracker-utils/tracker-processes.c:171
+#: ../src/tracker-utils/tracker-processes.c:169
 #, c-format
 msgid "Could not open '%s'"
 msgstr "»%s« konnte nicht geöffnet werden."
 
-#: ../src/tracker-utils/tracker-processes.c:193
+#: ../src/tracker-utils/tracker-processes.c:191
 #, c-format
 msgid "Found process ID %d for '%s'"
 msgstr "Prozesskennung %d für %s gefunden"
 
-#: ../src/tracker-utils/tracker-processes.c:201
+#: ../src/tracker-utils/tracker-processes.c:199
 #, c-format
 msgid "Could not terminate process %d"
 msgstr "Prozess %d konnte nicht beendet werden"
 
-#: ../src/tracker-utils/tracker-processes.c:207
+#: ../src/tracker-utils/tracker-processes.c:205
 #, c-format
 msgid "Terminated process %d"
 msgstr "Prozess %d wurde beendet"
 
-#: ../src/tracker-utils/tracker-processes.c:215
+#: ../src/tracker-utils/tracker-processes.c:213
 #, c-format
 msgid "Could not kill process %d"
 msgstr "Prozess %d konnte nicht getötet werden"
 
-#: ../src/tracker-utils/tracker-processes.c:221
+#: ../src/tracker-utils/tracker-processes.c:219
 #, c-format
 msgid "Killed process %d"
 msgstr "Prozess %d wurde getötet"
 
-#: ../src/tracker-utils/tracker-search.c:47
+#: ../src/tracker-utils/tracker-search.c:42
 #: ../src/tracker-utils/tracker-tag.c:66
 msgid "Limit the number of results shown"
 msgstr "Die anzuzeigenden Ergebnisse begrenzen"
 
-#: ../src/tracker-utils/tracker-search.c:48
+#: ../src/tracker-utils/tracker-search.c:43
 #: ../src/tracker-utils/tracker-tag.c:67
 msgid "512"
 msgstr "512"
 
-#: ../src/tracker-utils/tracker-search.c:51
+#: ../src/tracker-utils/tracker-search.c:46
 #: ../src/tracker-utils/tracker-tag.c:70
 msgid "Offset the results"
 msgstr "Ergebnisse versetzen"
 
-#: ../src/tracker-utils/tracker-search.c:52
+#: ../src/tracker-utils/tracker-search.c:47
 #: ../src/tracker-utils/tracker-tag.c:71
 msgid "0"
 msgstr "0"
 
-#: ../src/tracker-utils/tracker-search.c:55
+#: ../src/tracker-utils/tracker-search.c:50
 msgid "Show more detailed results with service and mime type"
 msgstr "Erweiterte Ergebnisse mit Dienst und MIME-Typ anzeigen"
 
-#: ../src/tracker-utils/tracker-search.c:60
+#: ../src/tracker-utils/tracker-search.c:55
 msgid "search terms"
 msgstr "Suchbegriffe"
 
-#: ../src/tracker-utils/tracker-search.c:61
+#: ../src/tracker-utils/tracker-search.c:56
 msgid "EXPRESSION"
 msgstr "AUSDRUCK"
 
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
-#: ../src/tracker-utils/tracker-search.c:106
+#: ../src/tracker-utils/tracker-search.c:101
 msgid "- Search files for certain terms"
 msgstr "- Dateien mit bestimmen Begriffen suchen"
 
 #. Translators: this message will appear after the usage string
 #. and before the list of options.
-#: ../src/tracker-utils/tracker-search.c:110
+#: ../src/tracker-utils/tracker-search.c:105
 msgid "Specifying multiple terms apply an AND operator to the search performed"
 msgstr ""
 "Bei mehreren Begriffen werden diese zur Ausführung der Suche mit einem AND-"
 "Operator verbunden"
 
-#: ../src/tracker-utils/tracker-search.c:113
+#: ../src/tracker-utils/tracker-search.c:108
 msgid "This means if you search for 'foo' and 'bar', they must BOTH exist"
 msgstr ""
 "Das bedeutet, dass bei der Suche nach »foo« und »bar« BEIDE existieren müssen"
 
-#: ../src/tracker-utils/tracker-search.c:117
-msgid "Recognized services include:"
-msgstr "Liste der bekannten Dienste:"
-
-#: ../src/tracker-utils/tracker-search.c:143
+#: ../src/tracker-utils/tracker-search.c:121
 msgid "Search terms are missing"
 msgstr "Suchbegriffe fehlen"
 
-#: ../src/tracker-utils/tracker-search.c:186
+#: ../src/tracker-utils/tracker-search.c:164
 msgid "Could not get find detailed results by text"
 msgstr "Detaillierte Ergebnisse der Textsuche konnten nicht gefunden werden"
 
-#: ../src/tracker-utils/tracker-search.c:197
+#: ../src/tracker-utils/tracker-search.c:175
 #: ../src/tracker-utils/tracker-sparql.c:171
 msgid "No results found matching your query"
 msgstr "Es konnten keine Ergebnisse gefunden werden"
@@ -1610,8 +1626,9 @@ msgstr "Suche konnte nicht abgefragt werden"
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
 #: ../src/tracker-utils/tracker-stats.c:70
-msgid " - Show number of indexed files for each service"
-msgstr "- Anzahl der indizierten Dateien pro Dienst anzeigen"
+msgid " - Show statistics for all Nepomuk defined ontology classes"
+msgstr ""
+"- Statistiken für alle durch Nepomuk definierten Ontologie-Klassen zeigen"
 
 #: ../src/tracker-utils/tracker-stats.c:86
 msgid "Could not get Tracker statistics"
@@ -1708,11 +1725,11 @@ msgstr "Indizierung aktiviert"
 msgid "- Report current status"
 msgstr "- Aktueller Statusbericht"
 
-#: ../src/tracker-utils/tracker-status.c:491
+#: ../src/tracker-utils/tracker-status.c:492
 msgid "Could not get Tracker status"
 msgstr "Tracker-Status konnte nicht ermittelt werden"
 
-#: ../src/tracker-utils/tracker-status.c:502
+#: ../src/tracker-utils/tracker-status.c:503
 #, c-format
 msgid "Tracker status is '%s'"
 msgstr "Tracker-Status ist »%s«"
@@ -1834,61 +1851,79 @@ msgstr ""
 "ACHTUNG: Limit wurde erreicht. Die Datenbank enthält weitere hier nicht "
 "aufgelistete Einträge"
 
-#: ../src/tracker-store/tracker-main.c:146
-msgid "Seconds to wait before starting any crawling or indexing (default = 45)"
-msgstr ""
-"Wartezeit in Sekunden vor dem Beginn der Durchsuchung oder Indizierung "
-"(Vorgabe = 45)"
-
-#: ../src/tracker-store/tracker-main.c:150
+#: ../src/tracker-store/tracker-main.c:137
 msgid "Minimizes the use of memory but may slow indexing down"
 msgstr "Minimiert den Speicherverbrauch auf Kosten der Geschwindigkeit"
 
-#: ../src/tracker-store/tracker-main.c:154
-msgid ""
-"Directories to exclude for file change monitoring (you can do -e <path> -e "
-"<path>)"
-msgstr ""
-"Von der Überwachung der Dateiänderungen auszuschließende Ordner (-e <Pfad> -e "
-"<Pfad>)"
-
-#: ../src/tracker-store/tracker-main.c:158
-msgid ""
-"Directories to include for file change monitoring (you can do -i <path> -i "
-"<path>)"
-msgstr ""
-"In die Überwachung der Dateiänderungen einzuschließende Ordner (-i <Pfad> -i "
-"<Pfad>)"
-
-#: ../src/tracker-store/tracker-main.c:162
-msgid "Directories to crawl to index files (you can do -c <path> -c <path>)"
-msgstr "Ordner für die Suche nach Indexdateien (-c <Pfad> c <Pfad>)"
-
-#: ../src/tracker-store/tracker-main.c:166
-msgid ""
-"Disable modules from being processed (you can do -d <module> -d <module>)"
-msgstr "Module von der Ausführung ausschließen (z.B. mit -d <Modul> -d <Modul>)"
-
-#: ../src/tracker-store/tracker-main.c:172
+#: ../src/tracker-store/tracker-main.c:143
 msgid "Force a re-index of all content"
 msgstr "Erzwingt eine Neuindizierung aller Inhalte"
 
-#: ../src/tracker-store/tracker-main.c:176
-msgid "Disable any indexing and monitoring"
-msgstr "Jegliche Indizierung und Dateiüberwachung deaktivieren"
-
-#: ../src/tracker-store/tracker-main.c:179
-msgid "Language to use for stemmer and stop words (ISO 639-1 2 characters code)"
-msgstr ""
-"Sprache, die für den Wortstamm und die Stopwortliste verwendet wird (ISO 639-"
-"1 2 Zeichenkodierung)"
+#: ../src/tracker-store/tracker-main.c:147
+msgid "Only allow read based actions on the database"
+msgstr "Nur Lesevorgänge in der Datenbank erlauben"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/tracker-store/tracker-main.c:856
+#: ../src/tracker-store/tracker-main.c:677
 msgid "- start the tracker daemon"
 msgstr "- startet den Tracker-Dienst"
+
+#~ msgid "Tracker search and indexing service"
+#~ msgstr "Tracker Such- und Indizierungsdienst"
+
+#~ msgid "Run forever, only interesting for debugging purposes"
+#~ msgstr "Endlos ausführen, nur interessant für Debuging-Zwecke"
+
+#~ msgid "Modules to be used when processing data"
+#~ msgstr "Für die Verarbeitung der Daten zu verwendende Module"
+
+#~ msgid "File missing"
+#~ msgstr "Datei fehlt"
+
+#~ msgid "Recognized services include:"
+#~ msgstr "Liste der bekannten Dienste:"
+
+#~ msgid " - Show number of indexed files for each service"
+#~ msgstr "- Anzahl der indizierten Dateien pro Dienst anzeigen"
+
+#~ msgid ""
+#~ "Seconds to wait before starting any crawling or indexing (default = 45)"
+#~ msgstr ""
+#~ "Wartezeit in Sekunden vor dem Beginn der Durchsuchung oder Indizierung "
+#~ "(Vorgabe = 45)"
+
+#~ msgid ""
+#~ "Directories to exclude for file change monitoring (you can do -e <path> -e "
+#~ "<path>)"
+#~ msgstr ""
+#~ "Von der Überwachung der Dateiänderungen auszuschließende Ordner (-e <Pfad> "
+#~ "-e <Pfad>)"
+
+#~ msgid ""
+#~ "Directories to include for file change monitoring (you can do -i <path> -i "
+#~ "<path>)"
+#~ msgstr ""
+#~ "In die Überwachung der Dateiänderungen einzuschließende Ordner (-i <Pfad> -"
+#~ "i <Pfad>)"
+
+#~ msgid "Directories to crawl to index files (you can do -c <path> -c <path>)"
+#~ msgstr "Ordner für die Suche nach Indexdateien (-c <Pfad> c <Pfad>)"
+
+#~ msgid ""
+#~ "Disable modules from being processed (you can do -d <module> -d <module>)"
+#~ msgstr ""
+#~ "Module von der Ausführung ausschließen (z.B. mit -d <Modul> -d <Modul>)"
+
+#~ msgid "Disable any indexing and monitoring"
+#~ msgstr "Jegliche Indizierung und Dateiüberwachung deaktivieren"
+
+#~ msgid ""
+#~ "Language to use for stemmer and stop words (ISO 639-1 2 characters code)"
+#~ msgstr ""
+#~ "Sprache, die für den Wortstamm und die Stopwortliste verwendet wird (ISO "
+#~ "639-1 2 Zeichenkodierung)"
 
 #~ msgid "N"
 #~ msgstr "N"
@@ -1911,7 +1946,8 @@ msgstr "- startet den Tracker-Dienst"
 
 #~ msgid "Ensure \"tracker-store\" is running before launch this command."
 #~ msgstr ""
-#~ "Stellen Sie sicher, dass »tracker-store« läuft bevor Sie diese Anwendung starten."
+#~ "Stellen Sie sicher, dass »tracker-store« läuft bevor Sie diese Anwendung "
+#~ "starten."
 
 #~ msgid "Service not recognized, searching in Other Files...\n"
 #~ msgstr ""
