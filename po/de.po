@@ -12,8 +12,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-08 21:17+0200\n"
-"PO-Revision-Date: 2009-06-08 21:18+0100\n"
+"POT-Creation-Date: 2009-07-19 11:37+0200\n"
+"PO-Revision-Date: 2009-07-19 11:40+0100\n"
 "Last-Translator: Mario Blättermann <mariobl@gnome.org>\n"
 "Language-Team: German <gnome-de@gnome.org>\n"
 "MIME-Version: 1.0\n"
@@ -194,15 +194,15 @@ msgstr "Index ist beschädigt"
 msgid "No error given"
 msgstr "Kein Fehler angegeben"
 
-#: ../src/libtracker-common/tracker-utils.c:165
-#: ../src/libtracker-common/tracker-utils.c:172
+#: ../src/libtracker-common/tracker-utils.c:169
+#: ../src/libtracker-common/tracker-utils.c:176
 #: ../src/tracker-utils/tracker-status.c:153
 #: ../src/tracker-utils/tracker-status.c:160
 msgid "unknown time"
 msgstr "Unbekannte Zeit"
 
-#: ../src/libtracker-common/tracker-utils.c:190
-#: ../src/libtracker-common/tracker-utils.c:249
+#: ../src/libtracker-common/tracker-utils.c:194
+#: ../src/libtracker-common/tracker-utils.c:253
 #: ../src/tracker-utils/tracker-status.c:77
 #: ../src/tracker-utils/tracker-status.c:136
 msgid "less than one second"
@@ -802,11 +802,11 @@ msgstr "MIME"
 
 #. Translators: this message will appear immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
-#: ../src/tracker-extract/tracker-main.c:272
+#: ../src/tracker-extract/tracker-main.c:275
 msgid "- Extract file meta data"
 msgstr "- Metadaten der Datei entpacken"
 
-#: ../src/tracker-extract/tracker-main.c:284
+#: ../src/tracker-extract/tracker-main.c:287
 msgid "Filename and mime type must be provided together"
 msgstr "Dateiname und MIME-Typ müssen zusammen angegeben werden"
 
@@ -1814,6 +1814,7 @@ msgstr "Suchbegriffe"
 
 #: ../src/tracker-utils/tracker-search.c:61
 #: ../utils/albumart/albumart-strip.c:35
+#: ../utils/mp3-genre-leading-uppercase/mp3-genre-leading-uppercase.c:35
 msgid "EXPRESSION"
 msgstr "AUSDRUCK"
 
@@ -2213,6 +2214,7 @@ msgid "No album/artist text was provided"
 msgstr "Es wurde kein Album/Künstler angegeben"
 
 #: ../utils/albumart/albumart-strip.c:82
+#: ../utils/mp3-genre-leading-uppercase/mp3-genre-leading-uppercase.c:159
 msgid "Converted to"
 msgstr "Konvertiert in"
 
@@ -2246,6 +2248,30 @@ msgstr "Es wurde keine Abfrage angegeben"
 #: ../utils/sqlite/query.c:287
 msgid "No databases were provided"
 msgstr "Es wurden keine Datenbanken angegeben"
+
+#: ../utils/mp3-genre-leading-uppercase/mp3-genre-leading-uppercase.c:34
+msgid "genre"
+msgstr "Genre"
+
+#: ../utils/mp3-genre-leading-uppercase/mp3-genre-leading-uppercase.c:123
+msgid "- Test MP3 handwritten genre conversion to leading uppercase"
+msgstr ""
+"- Überprüfung benutzerdefinierter Genre-Umwandlung für MP3 in Großschreibung"
+
+#: ../utils/mp3-genre-leading-uppercase/mp3-genre-leading-uppercase.c:124
+msgid ""
+"You can use this to check genre strings get converted correctly, for example:"
+msgstr ""
+"Sie können dieses Werkzeug zum Überprüfen der korrekten Umwandlung von "
+"Zeichenketten verwenden, zum Beispiel:"
+
+#: ../utils/mp3-genre-leading-uppercase/mp3-genre-leading-uppercase.c:130
+msgid "Should be converted to"
+msgstr "Soll umgewandelt werden in"
+
+#: ../utils/mp3-genre-leading-uppercase/mp3-genre-leading-uppercase.c:144
+msgid "No genre text was provided"
+msgstr "Es wurde kein Text in »Genre« angegeben"
 
 #~ msgid "SQL query to use"
 #~ msgstr "Zu verwendende SQL-Abfrage"
