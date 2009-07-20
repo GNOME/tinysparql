@@ -659,5 +659,6 @@ tracker_turtle_reader_get_object (void)
 gboolean
 tracker_turtle_reader_object_is_uri (void)
 {
-	return (turtle_object_type == RAPTOR_IDENTIFIER_TYPE_RESOURCE);
+	return (turtle_object_type == RAPTOR_IDENTIFIER_TYPE_RESOURCE ||
+	        turtle_object_type == RAPTOR_IDENTIFIER_TYPE_ANONYMOUS);
 }
