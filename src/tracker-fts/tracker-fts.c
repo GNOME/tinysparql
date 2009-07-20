@@ -282,9 +282,8 @@
 #include <libtracker-common/tracker-common.h>
 #include <libtracker-db/tracker-db-manager.h>
 
-#include <tracker-store/tracker-config.h>
-
 #include "tracker-fts.h"
+#include "tracker-fts-config.h"
 #include "tracker-fts-hash.h"
 
 SQLITE_EXTENSION_INIT1
@@ -3402,13 +3401,13 @@ static int constructVtab(
 
   /* set up our parser */
 
-  TrackerConfig *config = tracker_config_new ();
+  TrackerFTSConfig *config = tracker_fts_config_new ();
 
   TrackerLanguage *language = tracker_language_new (NULL);
 
-  int min_len = tracker_config_get_min_word_length (config);
-  int max_len = tracker_config_get_max_word_length (config);
-  v->max_words = tracker_config_get_max_words_to_index (config);
+  int min_len = tracker_fts_config_get_min_word_length (config);
+  int max_len = tracker_fts_config_get_max_word_length (config);
+  v->max_words = tracker_fts_config_get_max_words_to_index (config);
 
   v->parser =	tracker_parser_new (language, max_len, min_len);
 

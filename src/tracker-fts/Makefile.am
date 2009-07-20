@@ -18,6 +18,8 @@ tracker_fts_modules_LTLIBRARIES = tracker-fts.la
 tracker_fts_la_SOURCES = 					\
 	tracker-fts.c						\
 	tracker-fts.h						\
+	tracker-fts-config.c					\
+	tracker-fts-config.h					\
 	tracker-fts-hash.c					\
 	tracker-fts-hash.h
 

@@ -51,20 +51,11 @@ TrackerConfig *tracker_config_new                    (void);
 gboolean       tracker_config_save                   (TrackerConfig *config);
 gint           tracker_config_get_verbosity          (TrackerConfig *config);
 gboolean       tracker_config_get_low_memory_mode    (TrackerConfig *config);
-gint           tracker_config_get_min_word_length    (TrackerConfig *config);
-gint           tracker_config_get_max_word_length    (TrackerConfig *config);
-gint           tracker_config_get_max_words_to_index (TrackerConfig *config);
 
 void           tracker_config_set_verbosity          (TrackerConfig *config,
 						      gint           value);
 void           tracker_config_set_low_memory_mode    (TrackerConfig *config,
 						      gboolean       value);
-void           tracker_config_set_min_word_length    (TrackerConfig *config,
-						      gint           value);
-void           tracker_config_set_max_word_length    (TrackerConfig *config,
-						      gint           value);
-void           tracker_config_set_max_words_to_index (TrackerConfig *config,
-						      gint           value);
 
 G_END_DECLS
 

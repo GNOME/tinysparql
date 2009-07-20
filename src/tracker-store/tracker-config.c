@@ -39,9 +39,6 @@
 /* Default values */
 #define DEFAULT_VERBOSITY	    2
 #define DEFAULT_LOW_MEMORY_MODE	    FALSE
-#define DEFAULT_MIN_WORD_LENGTH	    3	  /* 0->30 */
-#define DEFAULT_MAX_WORD_LENGTH	    30	  /* 0->200 */
-#define DEFAULT_MAX_WORDS_TO_INDEX  10000
 
 /* typedef struct TrackerConfigPrivate TrackerConfigPrivate; */
 
@@ -49,11 +46,6 @@ typedef struct {
 	/* General */
 	gint     verbosity;
 	gboolean low_memory_mode;
-
-	/* Indexing */
-	gint     min_word_length;
-	gint     max_word_length;
-	gint     max_words_to_index;
 }  TrackerConfigPrivate;
 
 typedef struct {
@@ -84,21 +76,11 @@ enum {
 	/* General */
 	PROP_VERBOSITY,
 	PROP_LOW_MEMORY_MODE,
-
-	/* Indexing */
-	PROP_MIN_WORD_LENGTH,
-	PROP_MAX_WORD_LENGTH,
-
-	/* Performance */
-	PROP_MAX_WORDS_TO_INDEX,
 };
 
 static ObjectToKeyFile conversions[] = {
 	{ G_TYPE_INT,     "verbosity",          GROUP_GENERAL,  "Verbosity"       },
 	{ G_TYPE_BOOLEAN, "low-memory-mode",    GROUP_GENERAL,  "LowMemoryMode"   },
-	{ G_TYPE_INT,     "min-word-length",    GROUP_INDEXING, "MinWordLength"   },
-	{ G_TYPE_INT,     "max-word-length",    GROUP_INDEXING, "MaxWordLength"   },
-	{ G_TYPE_INT,     "max-words-to-index", GROUP_INDEXING, "MaxWordsToIndex" },
 };
 
 G_DEFINE_TYPE (TrackerConfig, tracker_config, TRACKER_TYPE_CONFIG_MANAGER);
@@ -131,35 +113,6 @@ tracker_config_class_init (TrackerConfigClass *klass)
 							       DEFAULT_LOW_MEMORY_MODE,
 							       G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
 
-	/* Indexing */
-	g_object_class_install_property (object_class,
-					 PROP_MIN_WORD_LENGTH,
-					 g_param_spec_int ("min-word-length",
-							   "Minimum word length",
-							   " Set the minimum length of words to index (0->30, default=3)",
-							   0,
-							   30,
-							   DEFAULT_MIN_WORD_LENGTH,
-							   G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
-	g_object_class_install_property (object_class,
-					 PROP_MAX_WORD_LENGTH,
-					 g_param_spec_int ("max-word-length",
-							   "Maximum word length",
-							   " Set the maximum length of words to index (0->200, default=30)",
-							   0,
-							   200, /* Is this a reasonable limit? */
-							   DEFAULT_MAX_WORD_LENGTH,
-							   G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
-	g_object_class_install_property (object_class,
-					 PROP_MAX_WORDS_TO_INDEX,
-					 g_param_spec_int ("max-words-to-index",
-							   "Maximum words to index",
-							   " Maximum unique words to index from a file's content (default=10000)",
-							   0,
-							   G_MAXINT,
-							   DEFAULT_MAX_WORDS_TO_INDEX,
-							   G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
-
 	g_type_class_add_private (object_class, sizeof (TrackerConfigPrivate));
 }
 
@@ -185,20 +138,6 @@ config_set_property (GObject	  *object,
 						    g_value_get_boolean (value));
 		break;
 
-		/* Indexing */
-	case PROP_MIN_WORD_LENGTH:
-		tracker_config_set_min_word_length (TRACKER_CONFIG (object),
-						    g_value_get_int (value));
-		break;
-	case PROP_MAX_WORD_LENGTH:
-		tracker_config_set_max_word_length (TRACKER_CONFIG (object),
-						    g_value_get_int (value));
-		break;
-	case PROP_MAX_WORDS_TO_INDEX:
-		tracker_config_set_max_words_to_index (TRACKER_CONFIG (object),
-						       g_value_get_int (value));
-		break;
-
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, param_id, pspec);
 		break;
@@ -222,17 +161,6 @@ config_get_property (GObject	*object,
 		break;
 	case PROP_LOW_MEMORY_MODE:
 		g_value_set_boolean (value, priv->low_memory_mode);
-		break;
-
-		/* Indexing */
-	case PROP_MIN_WORD_LENGTH:
-		g_value_set_int (value, priv->min_word_length);
-		break;
-	case PROP_MAX_WORD_LENGTH:
-		g_value_set_int (value, priv->max_word_length);
-		break;
-	case PROP_MAX_WORDS_TO_INDEX:
-		g_value_set_int (value, priv->max_words_to_index);
 		break;
 
 	default:
@@ -436,43 +364,6 @@ tracker_config_get_low_memory_mode (TrackerConfig *config)
 	return priv->low_memory_mode;
 }
 
-
-gint
-tracker_config_get_min_word_length (TrackerConfig *config)
-{
-	TrackerConfigPrivate *priv;
-
-	g_return_val_if_fail (TRACKER_IS_CONFIG (config), DEFAULT_MIN_WORD_LENGTH);
-
-	priv = TRACKER_CONFIG_GET_PRIVATE (config);
-
-	return priv->min_word_length;
-}
-
-gint
-tracker_config_get_max_word_length (TrackerConfig *config)
-{
-	TrackerConfigPrivate *priv;
-
-	g_return_val_if_fail (TRACKER_IS_CONFIG (config), DEFAULT_MAX_WORD_LENGTH);
-
-	priv = TRACKER_CONFIG_GET_PRIVATE (config);
-
-	return priv->max_word_length;
-}
-
-gint
-tracker_config_get_max_words_to_index (TrackerConfig *config)
-{
-	TrackerConfigPrivate *priv;
-
-	g_return_val_if_fail (TRACKER_IS_CONFIG (config), DEFAULT_MAX_WORDS_TO_INDEX);
-
-	priv = TRACKER_CONFIG_GET_PRIVATE (config);
-
-	return priv->max_words_to_index;
-}
-
 void
 tracker_config_set_verbosity (TrackerConfig *config,
 			      gint	     value)
@@ -503,58 +394,4 @@ tracker_config_set_low_memory_mode (TrackerConfig *config,
 
 	priv->low_memory_mode = value;
 	g_object_notify (G_OBJECT (config), "low-memory-mode");
-}
-
-void
-tracker_config_set_min_word_length (TrackerConfig *config,
-				    gint	   value)
-{
-	TrackerConfigPrivate *priv;
-
-	g_return_if_fail (TRACKER_IS_CONFIG (config));
-
-	if (!tracker_config_validate_int (config, "min-word-length", value)) {
-		return;
-	}
-
-	priv = TRACKER_CONFIG_GET_PRIVATE (config);
-
-	priv->min_word_length = value;
-	g_object_notify (G_OBJECT (config), "min-word-length");
-}
-
-void
-tracker_config_set_max_word_length (TrackerConfig *config,
-				    gint	   value)
-{
-	TrackerConfigPrivate *priv;
-
-	g_return_if_fail (TRACKER_IS_CONFIG (config));
-
-	if (!tracker_config_validate_int (config, "max-word-length", value)) {
-		return;
-	}
-
-	priv = TRACKER_CONFIG_GET_PRIVATE (config);
-
-	priv->max_word_length = value;
-	g_object_notify (G_OBJECT (config), "max-word-length");
-}
-
-void
-tracker_config_set_max_words_to_index (TrackerConfig *config,
-				       gint	      value)
-{
-	TrackerConfigPrivate *priv;
-
-	g_return_if_fail (TRACKER_IS_CONFIG (config));
-
-	if (!tracker_config_validate_int (config, "max-words-to-index", value)) {
-		return;
-	}
-
-	priv = TRACKER_CONFIG_GET_PRIVATE (config);
-
-	priv->max_words_to_index = value;
-	g_object_notify (G_OBJECT (config), "max-words-to-index");
 }
