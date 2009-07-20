@@ -1,0 +1,371 @@
+/* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
+/*
+ * Copyright (C) 2009, Nokia (urho.konttori@nokia.com)
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public
+ * License as published by the Free Software Foundation; either
+ * version 2 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public
+ * License along with this library; if not, write to the
+ * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA  02110-1301, USA.
+ */
+
+#include "config.h"
+
+#include <string.h>
+#include <stdlib.h>
+
+#include "tracker-config-manager.h"
+
+#define TRACKER_CONFIG_MANAGER_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_CONFIG_MANAGER, TrackerConfigManagerPrivate))
+
+typedef struct _TrackerConfigManagerPrivate TrackerConfigManagerPrivate;
+
+struct _TrackerConfigManagerPrivate {
+	gchar *domain;
+};
+
+static void     config_finalize     (GObject              *object);
+static void     config_load         (TrackerConfigManager *config);
+static gboolean config_save         (TrackerConfigManager *config);
+static void     config_get_property (GObject              *object,
+				     guint                 param_id,
+				     GValue               *value,
+				     GParamSpec           *pspec);
+static void     config_set_property (GObject              *object,
+				     guint                 param_id,
+				     const GValue         *value,
+				     GParamSpec           *pspec);
+static void     config_constructed  (GObject              *object);
+
+enum {
+	PROP_0,
+	PROP_DOMAIN
+};
+
+G_DEFINE_TYPE (TrackerConfigManager, tracker_config_manager, G_TYPE_OBJECT);
+
+static void
+tracker_config_manager_class_init (TrackerConfigManagerClass *klass)
+{
+	GObjectClass *object_class = G_OBJECT_CLASS (klass);
+
+	object_class->get_property = config_get_property;
+	object_class->set_property = config_set_property;
+	object_class->finalize	   = config_finalize;
+	object_class->constructed  = config_constructed;
+
+	g_object_class_install_property (object_class,
+					 PROP_DOMAIN,
+					 g_param_spec_string ("domain",
+							      "Config domain",
+							      "The prefix before .cfg for the filename",
+							      g_get_application_name (),
+							      G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
+
+	g_type_class_add_private (object_class, sizeof (TrackerConfigManagerPrivate));
+}
+
+static void
+tracker_config_manager_init (TrackerConfigManager *manager)
+{
+	manager->key_file = g_key_file_new ();
+}
+
+static void     
+config_get_property (GObject       *object,
+		     guint          param_id,
+		     GValue        *value,
+		     GParamSpec    *pspec)
+{
+	TrackerConfigManagerPrivate *priv;
+
+	priv = TRACKER_CONFIG_MANAGER_GET_PRIVATE (object);
+
+	switch (param_id) {
+	case PROP_DOMAIN:
+		g_value_set_string (value, priv->domain);
+		break;
+
+	default:
+		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, param_id, pspec);
+		break;
+	};
+}
+
+static void
+config_set_property (GObject	  *object,
+		     guint	   param_id,
+		     const GValue *value,
+		     GParamSpec	  *pspec)
+{
+	TrackerConfigManagerPrivate *priv;
+
+	priv = TRACKER_CONFIG_MANAGER_GET_PRIVATE (object);
+
+	switch (param_id) {
+	case PROP_DOMAIN:
+		g_free (priv->domain);
+		priv->domain = g_strdup (g_value_get_string (value));
+		g_object_notify (object, "domain");
+		break;
+
+	default:
+		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, param_id, pspec);
+		break;
+	};
+}
+
+static void
+config_finalize (GObject *object)
+{
+	TrackerConfigManager *manager;
+	TrackerConfigManagerPrivate *priv;
+
+	manager = TRACKER_CONFIG_MANAGER (object);
+	priv = TRACKER_CONFIG_MANAGER_GET_PRIVATE (manager);
+
+	if (manager->key_file) {
+		g_key_file_free (manager->key_file);
+	}
+
+	if (manager->monitor) {
+		g_object_unref (manager->monitor);
+	}
+
+	if (manager->file) {
+		g_object_unref (manager->file);
+	}
+
+	g_free (priv->domain);
+
+	(G_OBJECT_CLASS (tracker_config_manager_parent_class)->finalize) (object);
+}
+
+static void
+config_constructed (GObject *object)
+{
+	config_load (TRACKER_CONFIG_MANAGER (object));
+}
+
+static gchar *
+config_dir_ensure_exists_and_return (void)
+{
+	gchar *directory;
+
+	directory = g_build_filename (g_get_user_config_dir (),
+				      "tracker",
+				      NULL);
+
+	if (!g_file_test (directory, G_FILE_TEST_EXISTS)) {
+		g_print ("Creating config directory:'%s'\n", directory);
+
+		if (g_mkdir_with_parents (directory, 0700) == -1) {
+			g_critical ("Could not create configuration directory");
+			g_free (directory);
+			return NULL;
+		}
+	}
+
+	return directory;
+}
+
+static void
+config_changed_cb (GFileMonitor     *monitor,
+		   GFile	    *file,
+		   GFile	    *other_file,
+		   GFileMonitorEvent event_type,
+		   gpointer	     user_data)
+{
+	TrackerConfigManager *manager;
+	gchar	             *filename;
+
+	manager = TRACKER_CONFIG_MANAGER (user_data);
+
+	/* Do we recreate if the file is deleted? */
+
+	switch (event_type) {
+	case G_FILE_MONITOR_EVENT_CHANGED:
+	case G_FILE_MONITOR_EVENT_CHANGES_DONE_HINT:
+		manager->file_exists = TRUE;
+
+		filename = g_file_get_path (file);
+		g_message ("Config file changed:'%s', reloading settings...",
+			   filename);
+		g_free (filename);
+
+		config_load (manager);
+		break;
+
+	case G_FILE_MONITOR_EVENT_DELETED:
+		manager->file_exists = FALSE;
+		break;
+
+	case G_FILE_MONITOR_EVENT_CREATED:
+	case G_FILE_MONITOR_EVENT_ATTRIBUTE_CHANGED:
+	case G_FILE_MONITOR_EVENT_PRE_UNMOUNT:
+	case G_FILE_MONITOR_EVENT_UNMOUNTED:
+		manager->file_exists = TRUE;
+
+	default:
+		break;
+	}
+}
+
+static void
+config_load (TrackerConfigManager *manager)
+{
+	TrackerConfigManagerPrivate *priv;
+	GError *error = NULL;
+	gchar *basename;
+	gchar *filename;
+	gchar *directory;
+
+	/* Check we have a config file and if not, create it based on
+	 * the default settings.
+	 */
+	directory = config_dir_ensure_exists_and_return ();
+	if (!directory) {
+		return;
+	}
+
+	priv = TRACKER_CONFIG_MANAGER_GET_PRIVATE (manager);
+
+	basename = g_strdup_printf ("%s.cfg", priv->domain);
+	filename = g_build_filename (directory, basename, NULL);
+	g_free (basename);
+	g_free (directory);
+
+	/* Add file monitoring for changes */
+	if (!manager->file) {
+		manager->file = g_file_new_for_path (filename);
+	}
+
+	if (!manager->monitor) {
+		g_message ("Setting up monitor for changes to config file:'%s'",
+			   filename);
+
+		manager->monitor = g_file_monitor_file (manager->file,
+						       G_FILE_MONITOR_NONE,
+						       NULL,
+						       NULL);
+
+		g_signal_connect (manager->monitor, "changed",
+				  G_CALLBACK (config_changed_cb),
+				  manager);
+	}
+
+	/* Load options */
+	g_key_file_load_from_file (manager->key_file, 
+				   filename, 
+				   G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS,
+				   &error);
+
+	/* We force an overwrite in cases of error */
+	manager->file_exists = error ? FALSE : TRUE;
+
+	if (error) {
+		g_error_free (error);
+	}
+
+	g_free (filename);
+}
+
+static gboolean
+config_save (TrackerConfigManager *manager)
+{
+	GError *error = NULL;
+	gchar *filename;
+	gchar *data;
+	gsize size;
+
+	if (!manager->key_file) {
+		g_critical ("Could not save config, GKeyFile was NULL, has the config been loaded?");
+
+		return FALSE;
+	}
+
+	g_message ("Setting details to GKeyFile object...");
+
+	/* FIXME: Get to GKeyFile from object properties */
+
+	g_message ("Saving config to disk...");
+
+	/* Do the actual saving to disk now */
+	data = g_key_file_to_data (manager->key_file, &size, &error);
+	if (error) {
+		g_warning ("Could not get config data to write to file, %s",
+			   error->message);
+		g_error_free (error);
+
+		return FALSE;
+	}
+
+	filename = g_file_get_path (manager->file);
+
+	g_file_set_contents (filename, data, size, &error);
+	g_free (data);
+
+	if (error) {
+		g_warning ("Could not write %" G_GSIZE_FORMAT " bytes to file '%s', %s",
+			   size,
+			   filename,
+			   error->message);
+		g_free (filename);
+		g_error_free (error);
+
+		return FALSE;
+	}
+
+	g_message ("Wrote config to '%s' (%" G_GSIZE_FORMAT " bytes)",
+		   filename, 
+		   size);
+
+	g_free (filename);
+
+	return TRUE;
+}
+
+/**
+ * tracker_config_manager_new:
+ *
+ * Creates a new GObject for handling Tracker's config file.
+ *
+ * Return value: A new TrackerConfigManager object. Must be unreferenced when
+ * finished with.
+ */
+TrackerConfigManager *
+tracker_config_manager_new (const gchar *domain)
+{
+	TrackerConfigManager *config;
+
+	config = g_object_new (TRACKER_TYPE_CONFIG_MANAGER, 
+			       "domain", domain,
+			       NULL);
+
+	return config;
+}
+
+/**
+ * tracker_config_manager_save:
+ * @config: a #TrackerConfigManager
+ *
+ * Writes the configuration stored in TrackerConfigManager to disk.
+ *
+ * Return value: %TRUE on success, %FALSE otherwise.
+ */
+gboolean
+tracker_config_manager_save (TrackerConfigManager *config)
+{
+	g_return_val_if_fail (TRACKER_IS_CONFIG_MANAGER (config), FALSE);
+
+	return config_save (config);
+}

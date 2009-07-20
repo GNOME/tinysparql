@@ -1504,7 +1504,7 @@ Plugins:
 	Evolution plugin    (data-push):	$have_evolution_plugin
 	KMail plugin        (data-push):	$enable_kmail_push_module
 
-Warning:
+Warning:2
 
         You must make sure SQLite is compiled with --enable-threadsafe
 

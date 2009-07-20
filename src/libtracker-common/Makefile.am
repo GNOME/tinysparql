@@ -57,6 +57,8 @@ libtracker_common_la_SOURCES =	 			\
 	$(os_sources)					\
 	$(power_sources)				\
 	$(storage_sources)				\
+	tracker-config-manager.c			\
+	tracker-config-utils.c				\
 	tracker-class.c					\
 	tracker-dbus.c	 				\
 	tracker-file-utils.c				\
@@ -88,6 +90,8 @@ noinst_HEADERS =					\
 	tracker-albumart.h
 
 libtracker_commoninclude_HEADERS =			\
+	tracker-config-manager.h			\
+	tracker-config-utils.h				\
 	tracker-class.h					\
 	tracker-common.h				\
 	tracker-file-utils.h				\

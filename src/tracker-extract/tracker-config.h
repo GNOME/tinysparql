@@ -1,8 +1,6 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*
- * Copyright (C) 2006, Mr Jamie McCracken (jamiemcc@gnome.org)
- * Copyright (C) 2007, Michal Pryc (Michal.Pryc@Sun.Com)
- * Copyright (C) 2008, Nokia (urho.konttori@nokia.com)
+ * Copyright (C) 2009, Nokia (urho.konttori@nokia.com)
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -25,6 +23,8 @@
 
 #include <glib-object.h>
 
+#include <libtracker-common/tracker-config-manager.h>
+
 G_BEGIN_DECLS
 
 #define TRACKER_TYPE_CONFIG	    (tracker_config_get_type ())
@@ -34,24 +34,25 @@ G_BEGIN_DECLS
 #define TRACKER_IS_CONFIG_CLASS(k)  (G_TYPE_CHECK_CLASS_TYPE ((k), TRACKER_TYPE_CONFIG))
 #define TRACKER_CONFIG_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o), TRACKER_TYPE_CONFIG, TrackerConfigClass))
 
-typedef struct _TrackerConfig	   TrackerConfig;
-typedef struct _TrackerConfigClass TrackerConfigClass;
+typedef struct TrackerConfig	  TrackerConfig;
+typedef struct TrackerConfigClass TrackerConfigClass;
 
-struct _TrackerConfig {
-	GObject      parent;
+struct TrackerConfig {
+	TrackerConfigManager parent;
 };
 
-struct _TrackerConfigClass {
-	GObjectClass parent_class;
+struct TrackerConfigClass {
+	TrackerConfigManagerClass parent_class;
 };
 
-GType	       tracker_config_get_type            (void) G_GNUC_CONST;
+GType	       tracker_config_get_type      (void) G_GNUC_CONST;
 
-TrackerConfig *tracker_config_new                 (void);
-gboolean       tracker_config_save                (TrackerConfig *config);
-gint           tracker_config_get_verbosity       (TrackerConfig *config);
-void           tracker_config_set_verbosity       (TrackerConfig *config,
-						   gint           value);
+TrackerConfig *tracker_config_new           (void);
+gboolean       tracker_config_save          (TrackerConfig *config);
+
+gint           tracker_config_get_verbosity (TrackerConfig *config);
+void           tracker_config_set_verbosity (TrackerConfig *config,
+					     gint           value);
 
 G_END_DECLS
 
