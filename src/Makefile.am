@@ -52,7 +52,5 @@ DIST_SUBDIRS = 					\
 	libtracker-gtk				\
 	tracker-applet	 			\
 	tracker-search-tool			\
+	tracker-preferences			\
 	plugins
-
-# Disabled for now
-# tracker-preferences			
