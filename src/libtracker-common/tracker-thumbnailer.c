@@ -113,6 +113,8 @@ tracker_thumbnailer_init (void)
 
 	private = g_new0 (TrackerThumbnailerPrivate, 1);
 
+	private->service_is_enabled = TRUE;
+
 	g_static_private_set (&private_key,
 			      private,
 			      private_free);
