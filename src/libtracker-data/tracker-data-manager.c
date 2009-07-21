@@ -868,6 +868,8 @@ tracker_data_manager_shutdown (void)
 	g_return_if_fail (initialized == TRUE);
 
 	tracker_db_manager_shutdown ();
+
+	initialized = FALSE;
 }
 
 gint
