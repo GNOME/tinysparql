@@ -95,7 +95,6 @@ dc:language a rdf:Property ;
 dc:relation a rdf:Property ;
 	rdfs:label "Relation" ;
 	rdfs:comment "A related resource." ;
-	nrl:maxCardinality 1 ;
 	rdfs:domain rdfs:Resource ;
 	rdfs:range xsd:string .
 

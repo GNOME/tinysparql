@@ -81,7 +81,6 @@ nie:legal a rdf:Property ;
 
 nie:relatedTo a rdf:Property ;
 	rdfs:subPropertyOf dc:relation ;
-	nrl:maxCardinality 1 ;
 	rdfs:domain nie:InformationElement ;
 	rdfs:range nie:DataObject .
 
@@ -203,7 +202,6 @@ nie:hasLogicalPart a rdf:Property ;
 
 nie:hasPart a rdf:Property ;
 	rdfs:subPropertyOf nie:relatedTo ;
-	nrl:maxCardinality 1 ;
 	rdfs:domain nie:InformationElement ;
 	rdfs:range nie:DataObject .
 
