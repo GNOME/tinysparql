@@ -809,7 +809,10 @@ shutdown:
 	 */
 	g_message ("Shutdown started");
 
+	tracker_store_shutdown ();
+
 	g_timeout_add_full (G_PRIORITY_LOW, 5000, shutdown_timeout_cb, NULL, NULL);
+
 
 	g_message ("Cleaning up");
 
@@ -825,7 +828,6 @@ shutdown:
 	tracker_dbus_shutdown ();
 	tracker_data_manager_shutdown ();
 	tracker_turtle_shutdown ();
-	tracker_store_shutdown ();
 	tracker_thumbnailer_shutdown ();
 	tracker_log_shutdown ();
 

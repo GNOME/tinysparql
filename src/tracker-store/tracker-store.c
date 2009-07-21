@@ -38,6 +38,7 @@ typedef struct {
 	gboolean  batch_mode;
 	guint     batch_count;
 	GQueue   *queue;
+	guint     handler;
 } TrackerStorePrivate;
 
 typedef enum {
@@ -272,11 +273,8 @@ tracker_store_shutdown (void)
 	g_return_if_fail (private != NULL);
 
 	if (private->have_handler) {
-		g_debug ("Can't exit until store-queue is finished ...");
-		while (private->have_handler) {
-			g_main_context_iteration (NULL, TRUE);
-		}
-		g_debug ("Store-queue finished");
+		g_source_remove (private->handler);
+		private->have_handler = FALSE;
 	}
 
 	g_static_private_set (&private_key, NULL, NULL);
@@ -287,10 +285,10 @@ start_handler (TrackerStorePrivate *private)
 {
 	private->have_handler = TRUE;
 
-	g_idle_add_full (G_PRIORITY_LOW,
-	                 queue_idle_handler,
-	                 private,
-	                 queue_idle_destroy);
+	private->handler = g_idle_add_full (G_PRIORITY_LOW,
+	                                    queue_idle_handler,
+	                                    private,
+	                                    queue_idle_destroy);
 }
 
 void
