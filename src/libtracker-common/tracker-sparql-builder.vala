@@ -17,6 +17,9 @@
  * Boston, MA  02110-1301, USA.
  */
 
+[CCode (cname = "strcspn", cheader_filename = "string.h")]
+extern static size_t strcspn (string s1, string s2);
+
 public class Tracker.SparqlBuilder : Object {
 	enum State {
 		UPDATE,
@@ -124,6 +127,9 @@ public class Tracker.SparqlBuilder : Object {
 
 		char* p = literal;
 		while (*p != '\0') {
+			size_t len = strcspn ((string) p, "\t\n\r\"\\");
+			str.append_len ((string) p, (long) len);
+			p += len;
 			switch (*p) {
 			case '\t':
 				str.append ("\\t");
@@ -134,12 +140,6 @@ public class Tracker.SparqlBuilder : Object {
 			case '\r':
 				str.append ("\\r");
 				break;
-			case '\b':
-				str.append ("\\b");
-				break;
-			case '\f':
-				str.append ("\\f");
-				break;
 			case '"':
 				str.append ("\\\"");
 				break;
@@ -147,8 +147,7 @@ public class Tracker.SparqlBuilder : Object {
 				str.append ("\\\\");
 				break;
 			default:
-				str.append_c (*p);
-				break;
+				continue;
 			}
 			p++;
 		}
