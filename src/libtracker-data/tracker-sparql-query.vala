@@ -93,7 +93,7 @@ public class Tracker.SparqlQuery : Object {
 								if (first) {
 									first = false;
 								} else {
-									sql.append (" UNION ");
+									sql.append (" UNION ALL ");
 								}
 								sql.append_printf ("SELECT ID, (SELECT ID FROM \"rdfs:Resource\" WHERE Uri = '%s') AS \"predicate\", ", prop.uri);
 
@@ -145,7 +145,7 @@ public class Tracker.SparqlQuery : Object {
 								if (first) {
 									first = false;
 								} else {
-									sql.append (" UNION ");
+									sql.append (" UNION ALL ");
 								}
 								sql.append_printf ("SELECT ID, (SELECT ID FROM \"rdfs:Resource\" WHERE Uri = '%s') AS \"predicate\", ", prop.uri);
 
@@ -182,7 +182,7 @@ public class Tracker.SparqlQuery : Object {
 						if (first) {
 							first = false;
 						} else {
-							sql.append (" UNION ");
+							sql.append (" UNION ALL ");
 						}
 						sql.append_printf ("SELECT ID, (SELECT ID FROM \"rdfs:Resource\" WHERE Uri = '%s') AS \"predicate\", ", prop.uri);
 
@@ -776,7 +776,7 @@ public class Tracker.SparqlQuery : Object {
 				}
 
 				if (pattern_idx > 0) {
-					pattern_sql.append (" UNION ");
+					pattern_sql.append (" UNION ALL ");
 				}
 				visit_graph_pattern (sub_graph_pattern);
 			}
