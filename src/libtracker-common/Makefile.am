@@ -107,7 +107,7 @@ libtracker_commoninclude_HEADERS =			\
 	tracker-utils.h
 
 libtracker-common.vala.stamp: $(libtracker_common_la_VALASOURCES)
-	$(VALAC) -C $(VALAFLAGS) -H tracker-sparql-builder.h $^
+	$(VALAC) -C $(VALAFLAGS) -H tracker-sparql-builder.h posix.vapi $^
 	touch $@
 
 libtracker_common_la_LDFLAGS = 				\
@@ -148,5 +148,6 @@ EXTRA_DIST = 						\
 	tracker-marshal.list				\
 	$(libtracker_common_la_VALASOURCES)		\
 	libtracker-common.vala.stamp			\
+	posix.vapi					\
 	libtracker-common.vapi
 
