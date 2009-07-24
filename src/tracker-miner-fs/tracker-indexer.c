@@ -66,8 +66,6 @@
 #include <libtracker-db/tracker-db-dbus.h>
 
 #include <libtracker-data/tracker-data-manager.h>
-#include <libtracker-data/tracker-data-query.h>
-#include <libtracker-data/tracker-data-update.h>
 #include <libtracker-data/tracker-turtle.h>
 #include <libtracker-data/tracker-data-backup.h>
 
@@ -1150,7 +1148,7 @@ update_file_uri_recursively (TrackerIndexer *indexer,
 			     const gchar    *uri)
 {
 	gchar *mime_type, *sparql;
-	TrackerDBResultSet *result_set;
+	GPtrArray *result_set;
 	GError *error = NULL;
 
 	g_debug ("Moving item from '%s' to '%s'",
@@ -1171,27 +1169,29 @@ update_file_uri_recursively (TrackerIndexer *indexer,
 	}
 
 	sparql = g_strdup_printf ("SELECT ?child WHERE { ?child nfo:belongsToContainer <%s> }", source_uri);
-	result_set = tracker_data_query_sparql (sparql, &error);
+	result_set = tracker_resources_sparql_query (indexer->private->client, sparql, &error);
 	g_free (sparql);
 	if (result_set) {
-		do {
-			gchar *child_source_uri, *child_uri;
+		gint i;
 
-			tracker_db_result_set_get (result_set, 0, &child_source_uri, -1);
-			if (!g_str_has_prefix (child_source_uri, source_uri)) {
+		for (i = 0; i < result_set->len; i++) {
+			gchar **child_source_uri, *child_uri;
+
+			child_source_uri = result_set->pdata[i];
+			if (!g_str_has_prefix (*child_source_uri, source_uri)) {
 				g_warning ("Child URI '%s' does not start with parent URI '%s'",
-				           child_source_uri,
+				           *child_source_uri,
 				           source_uri);
 				continue;
 			}
-			child_uri = g_strdup_printf ("%s%s", uri, child_source_uri + strlen (source_uri));
+			child_uri = g_strdup_printf ("%s%s", uri, *child_source_uri + strlen (source_uri));
 
-			update_file_uri_recursively (indexer, sparql_update, child_source_uri, child_uri);
+			update_file_uri_recursively (indexer, sparql_update, *child_source_uri, child_uri);
 
 			g_free (child_source_uri);
 			g_free (child_uri);
-		} while (tracker_db_result_set_iter_next (result_set));
-		g_object_unref (result_set);
+		}
+		g_ptr_array_free (result_set, TRUE);
 	}
 }
 
