@@ -43,13 +43,13 @@
 #include "tracker-albumart.h"
 #include "tracker-marshal.h"
 
-#define ALBUMARTER_SERVICE      "com.nokia.albumart"
-#define ALBUMARTER_PATH         "/com/nokia/albumart/Requester"
-#define ALBUMARTER_INTERFACE    "com.nokia.albumart.Requester"
+#define ALBUMARTER_SERVICE    "com.nokia.albumart"
+#define ALBUMARTER_PATH       "/com/nokia/albumart/Requester"
+#define ALBUMARTER_INTERFACE  "com.nokia.albumart.Requester"
 
-#define THUMBNAILER_SERVICE     "org.freedesktop.thumbnailer"
-#define THUMBNAILER_PATH        "/org/freedesktop/thumbnailer/Generic"
-#define THUMBNAILER_INTERFACE   "org.freedesktop.thumbnailer.Generic"
+#define THUMBNAILER_SERVICE   "org.freedesktop.thumbnailer"
+#define THUMBNAILER_PATH      "/org/freedesktop/thumbnailer/Generic"
+#define THUMBNAILER_INTERFACE "org.freedesktop.thumbnailer.Generic"
 
 typedef struct {
 	TrackerStorage *hal;
@@ -71,9 +71,9 @@ static gboolean albumart_process_cb (DBusGProxy          *proxy,
 
 
 static gboolean initialized;
+static gboolean disable_requests;
 static GHashTable *albumart_cache;
 static TrackerStorage *albumart_storage;
-static gboolean no_more_requesting;
 static DBusGProxy *albumart_proxy;
 
 #ifndef HAVE_STRCASESTR
@@ -332,9 +332,6 @@ albumart_get_path (const gchar  *artist,
 	gchar *artist_stripped, *album_stripped;
 	gchar *artist_checksum, *album_checksum;
 
-	/* g_return_if_fail ((local_uri != NULL && uri != NULL) || local_uri == NULL); */
-	/* g_return_if_fail (artist != NULL || album != NULL); */
-
 	/* http://live.gnome.org/MediaArtStorageSpec */
 
 	if (path) {
@@ -421,7 +418,6 @@ albumart_get_path (const gchar  *artist,
 	g_free (album_checksum);
 }
 
-
 static gboolean 
 albumart_heuristic (const gchar *artist,  
 		    const gchar *album, 
@@ -439,10 +435,6 @@ albumart_heuristic (const gchar *artist,
 	gint count;
 	gchar *artist_stripped = NULL;
 	gchar *album_stripped = NULL;
-
-	g_return_val_if_fail (artist != NULL, FALSE);
-	g_return_val_if_fail (album != NULL, FALSE);
-	g_return_val_if_fail (filename != NULL, FALSE);
 
 	if (copied) {
 		*copied = FALSE;
@@ -720,7 +712,7 @@ albumart_request_download (TrackerStorage *hal,
 {
 	GetFileInfo *info;
 
-	if (no_more_requesting) {
+	if (disable_requests) {
 		return;
 	}
 
@@ -772,9 +764,6 @@ albumart_copy_to_local (TrackerStorage *hal,
 	gboolean on_removable_device = FALSE;
 	guint flen;
 
-	g_return_if_fail (filename != NULL);
-	g_return_if_fail (local_uri != NULL);
-
 	flen = strlen (filename);
 
 	/* Determining if we are on a removable device */
@@ -821,6 +810,9 @@ albumart_copy_to_local (TrackerStorage *hal,
 			make_directory_with_parents (dirf, NULL, NULL);
 			g_object_unref (dirf);
 
+			g_message ("Copying album art from:'%s' to:'%s'", 
+				   filename, local_uri);
+
 			g_file_copy_async (from, local_file, 0, 0, 
 					   NULL, NULL, NULL, NULL, NULL);
 		}
@@ -844,8 +836,6 @@ albumart_process_cb (DBusGProxy          *proxy,
 	gboolean processed = TRUE;
 	gchar *local_uri = NULL;
 	gchar *filename_uri;
-
-	g_message ("***** PROCESSING NEW ALBUM ART!! *****");
 
 	if (strstr (filename, "://")) {
 		filename_uri = g_strdup (filename);
@@ -970,7 +960,7 @@ albumart_queue_cb (DBusGProxy     *proxy,
 
 	if (error) {
 		if (error->code == DBUS_GERROR_SERVICE_UNKNOWN) {
-			no_more_requesting = TRUE;
+			disable_requests = TRUE;
 		} else {
 			g_warning ("%s", error->message);
 		}
@@ -981,8 +971,12 @@ albumart_queue_cb (DBusGProxy     *proxy,
 	if (info->hal && info->art_path &&
 	    g_file_test (info->art_path, G_FILE_TEST_EXISTS)) {
 		gchar *uri;
-		
+
 		uri = g_filename_to_uri (info->art_path, NULL, NULL);
+
+		g_message ("Downloaded album art using DBus service for uri:'%s'", 
+			   uri);
+
 		tracker_thumbnailer_queue_add (uri, "image/jpeg");
 		g_free (uri);
 
