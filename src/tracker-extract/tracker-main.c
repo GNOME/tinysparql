@@ -49,7 +49,7 @@
 #include <libtracker-common/tracker-thumbnailer.h>
 #include <libtracker-common/tracker-ioprio.h>
 
-#include "tracker-extract-albumart.h"
+#include "tracker-albumart.h"
 #include "tracker-config.h"
 #include "tracker-main.h"
 #include "tracker-dbus.h"

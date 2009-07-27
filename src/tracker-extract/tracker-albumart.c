@@ -41,7 +41,7 @@
 #include <libtracker-common/tracker-albumart.h>
 
 #include "tracker-main.h"
-#include "tracker-extract-albumart.h"
+#include "tracker-albumart.h"
 
 static GHashTable *albumart;
 static TrackerStorage *hal;

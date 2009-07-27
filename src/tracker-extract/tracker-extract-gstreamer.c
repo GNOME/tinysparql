@@ -39,7 +39,7 @@
 #include <libtracker-common/tracker-utils.h>
 
 #include "tracker-main.h"
-#include "tracker-extract-albumart.h"
+#include "tracker-albumart.h"
 
 /* We wait this long (seconds) for NULL state before freeing */
 #define TRACKER_EXTRACT_GUARD_TIMEOUT 3
