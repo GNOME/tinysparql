@@ -37,6 +37,7 @@
 #include <libtracker-common/tracker-file-utils.h>
 
 #include "tracker-main.h"
+#include "tracker-utils.h"
 #include "tracker-extract-albumart.h"
 
 /* We wait this long (seconds) for NULL state before freeing */
@@ -923,37 +924,13 @@ fail:
 			g_free (date);
 		}
 	} else if (type == EXTRACT_MIME_VIDEO) {
-		if (!g_hash_table_lookup (metadata, "Video:Title")) {
-			gchar  *basename = g_filename_display_basename (uri);
-			gchar **parts    = g_strsplit (basename, ".", -1);
-			gchar  *title    = g_strdup (parts[0]);
-			
-			g_strfreev (parts);
-			g_free (basename);
-
-			title = g_strdelimit (title, "_", ' ');
-			
-			g_hash_table_insert (metadata,
-					     g_strdup ("Video:Title"),
-					     tracker_escape_metadata (title));
-			g_free (title);
-		}
+		tracker_utils_default_check_filename (metadata,
+						      "Video:Title",
+						      uri);
 	} else if (type == EXTRACT_MIME_AUDIO) {
-		if (!g_hash_table_lookup (metadata, "Audio:Title")) {
-			gchar  *basename = g_filename_display_basename (uri);
-			gchar **parts    = g_strsplit (basename, ".", -1);
-			gchar  *title    = g_strdup (parts[0]);
-			
-			g_strfreev (parts);
-			g_free (basename);
-			
-			title = g_strdelimit (title, "_", ' ');
-			
-			g_hash_table_insert (metadata,
-					     g_strdup ("Audio:Title"),
-					     tracker_escape_metadata (title));
-			g_free (title);
-		}
+		tracker_utils_default_check_filename (metadata,
+						      "Audio:Title",
+						      uri);
 	}
 }
 

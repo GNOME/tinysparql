@@ -50,6 +50,7 @@
 #include "tracker-main.h"
 #include "tracker-extract-albumart.h"
 #include "tracker-escape.h"
+#include "tracker-utils.h"
 
 /* We mmap the beginning of the file and read separately the last 128
  * bytes for id3v1 tags. While these are probably cornercases the
@@ -2055,26 +2056,9 @@ extract_mp3 (const gchar *filename,
 	g_free (filedata.albumartmime);
 
 	/* Check that we have the minimum data. FIXME We should not need to do this */
-	if (!g_hash_table_lookup (metadata, "Audio:Title")) {
-		gchar  *basename;
-		gchar **parts;
-		gchar  *title;
-		
-		basename = g_filename_display_basename (filename);
-		parts = g_strsplit (basename, ".", -1);
-		title = g_strdup (parts[0]);
-
-		g_strfreev (parts);
-		g_free (basename);
-		
-		title = g_strdelimit (title, "_", ' ');
-		
-		g_hash_table_insert (metadata,
-				     g_strdup ("Audio:Title"),
-				     tracker_escape_metadata (title));
-
-		g_free (title);
-	}
+	tracker_utils_default_check_filename (metadata,
+					      "Audio:Title",
+					      filename);
 
 #ifndef G_OS_WIN32
 	munmap (buffer, buffer_size);
