@@ -180,6 +180,7 @@ enum TrackerIndexerState {
 
 enum {
 	PROP_0,
+	PROP_CONFIG,
 	PROP_STORAGE,
 	PROP_RUNNING,
 };
@@ -710,7 +711,13 @@ tracker_indexer_class_init (TrackerIndexerClass *class)
 					 g_param_spec_pointer ("storage",
 							       "Storage HAL object",
 							       "The object used for storage knowledge",
-							       G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
+							       G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY));
+	g_object_class_install_property (object_class,
+					 PROP_CONFIG,
+					 g_param_spec_pointer ("config",
+							       "Config object",
+							       "The object used for config knowledge",
+							       G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY));
 
 	g_object_class_install_property (object_class,
 					 PROP_RUNNING,
@@ -734,6 +741,24 @@ indexer_set_property (GObject	   *object,
 	indexer = TRACKER_INDEXER (object);
 
 	switch (param_id) {
+	case PROP_CONFIG: {
+		gpointer p;
+
+		p = g_value_get_pointer (value);
+
+		if (indexer->private->config) {
+			g_object_unref (indexer->private->config);
+		}
+
+		if (p) {
+			indexer->private->config = g_object_ref (p);
+		} else {
+			indexer->private->config = NULL;
+		}
+
+		break;
+	}
+
 	case PROP_STORAGE: {
 		gpointer p;
 
@@ -769,7 +794,19 @@ indexer_get_property (GObject	 *object,
 		      GValue	 *value,
 		      GParamSpec *pspec)
 {
+	TrackerIndexer *indexer;
+
+	indexer = TRACKER_INDEXER (object);
+
 	switch (prop_id) {
+	case PROP_CONFIG:
+		g_value_set_pointer (value, indexer->private->config);
+		break;
+
+	case PROP_STORAGE:
+		g_value_set_pointer (value, indexer->private->storage);
+		break;
+
 	case PROP_RUNNING:
 		g_value_set_boolean (value,
 				     tracker_indexer_get_running (TRACKER_INDEXER (object)));
@@ -786,6 +823,8 @@ indexer_constructed (GObject *object)
 	gint seconds;
 
 	indexer = TRACKER_INDEXER (object);
+
+	set_up_throttle (indexer);
 
 	tracker_status_init (indexer->private->config, 
 			     indexer->private->power);
@@ -1011,7 +1050,6 @@ tracker_indexer_init (TrackerIndexer *indexer)
 	priv->dir_queue = g_queue_new ();
 	priv->file_queue = g_queue_new ();
 	priv->modules_queue = g_queue_new ();
-	priv->config = tracker_config_new ();
 
 	priv->client = tracker_connect (TRUE, -1);
 
@@ -1020,8 +1058,6 @@ tracker_indexer_init (TrackerIndexer *indexer)
 	g_signal_connect (priv->power, "notify::on-battery",
 			  G_CALLBACK (notify_on_battery_cb),
 			  indexer);
-
-	set_up_throttle (indexer);
 #endif /* HAVE_HAL || HAVE_DEVKIT_POWER */
 
 	/* Set up volume monitor */
@@ -1727,9 +1763,11 @@ process_func (gpointer data)
 }
 
 TrackerIndexer *
-tracker_indexer_new (TrackerStorage *storage)
+tracker_indexer_new (TrackerConfig  *config,
+		     TrackerStorage *storage)
 {
 	return g_object_new (TRACKER_TYPE_INDEXER, 
+			     "config", config,
 			     "storage", storage,
 			     NULL);
 }

@@ -70,6 +70,7 @@ static GMainLoop    *main_loop;
 
 static gboolean      version;
 static gint	     verbosity = -1;
+static gint	     initial_sleep = -1;
 static gboolean      process_all;
 static gchar       **modules;
 
@@ -81,7 +82,12 @@ static GOptionEntry  entries[] = {
 	{ "verbosity", 'v', 0,
 	  G_OPTION_ARG_INT, &verbosity,
 	  N_("Logging, 0 = errors only, "
-	     "1 = minimal, 2 = detailed and 3 = debug (default = 0)"),
+	     "1 = minimal, 2 = detailed and 3 = debug (default = config)"),
+	  NULL },
+	{ "initial-sleep", 's', 0,
+	  G_OPTION_ARG_INT, &initial_sleep,
+	  N_("Initial sleep time in seconds, "
+	     "0->1000 (default = config)"),
 	  NULL },
 	{ "process-all", 'p', 0,
 	  G_OPTION_ARG_NONE, &process_all,
@@ -97,6 +103,8 @@ sanity_check_option_values (TrackerConfig *config)
 	g_message ("General options:");
 	g_message ("  Verbosity  ............................  %d",
 		   tracker_config_get_verbosity (config));
+	g_message ("  Initial Sleep  ........................  %d",
+		   tracker_config_get_initial_sleep (config));
 
 	g_message ("Indexer options:");
 	g_message ("  Throttle level  .......................  %d",
@@ -270,6 +278,11 @@ main (gint argc, gchar *argv[])
 	if (verbosity > -1) {
 		tracker_config_set_verbosity (config, verbosity);
 	}
+
+	if (initial_sleep > -1) {
+		tracker_config_set_initial_sleep (config, initial_sleep);
+	}
+
 	/* Make sure we initialize DBus, this shows we are started
 	 * successfully when called upon from the daemon.
 	 */
@@ -308,7 +321,7 @@ main (gint argc, gchar *argv[])
 	storage = NULL;
 #endif
 
-	indexer = tracker_indexer_new (storage);
+	indexer = tracker_indexer_new (config, storage);
 	miner = tracker_miner_new (indexer);
 
 	/* Make Tracker available for introspection */
