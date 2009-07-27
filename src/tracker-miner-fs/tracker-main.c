@@ -330,7 +330,7 @@ main (gint argc, gchar *argv[])
 
 	/* Set up connections to the thumbnailer if supported */
 	tracker_thumbnailer_init ();
-        tracker_albumart_init (storage);
+        tracker_albumart_init (config, storage);
 
 	if (process_all) {
 		/* Tell the indexer to process all configured modules */

@@ -25,9 +25,12 @@
 
 #include <libtracker-common/tracker-storage.h>
 
+#include "tracker-config.h"
+
 G_BEGIN_DECLS
 
-gboolean tracker_albumart_init     (TrackerStorage *hal);
+gboolean tracker_albumart_init     (TrackerConfig  *config,
+				    TrackerStorage *hal);
 void     tracker_albumart_shutdown (void);
 
 G_END_DECLS

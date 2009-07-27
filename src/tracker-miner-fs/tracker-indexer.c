@@ -1173,9 +1173,10 @@ item_add_or_update (TrackerIndexer        *indexer,
 
 	schedule_flush (indexer, FALSE);
 
-	if (mime_type && 
-	    tracker_config_get_enable_thumbnails (indexer->private->config)) {
-		tracker_thumbnailer_queue_add (uri, mime_type);
+	if (mime_type) {
+		if (tracker_config_get_enable_thumbnails (indexer->private->config)) {
+			tracker_thumbnailer_queue_add (uri, mime_type);
+		}
 	}
 
 #ifdef HAVE_HAL
