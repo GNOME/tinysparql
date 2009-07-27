@@ -75,7 +75,6 @@ libtracker_common_la_SOURCES =	 			\
 	tracker-type-utils.c				\
 	tracker-utils.c					\
 	tracker-thumbnailer.c				\
-	tracker-albumart.c				\
 	libtracker-common.vala.stamp			\
 	$(libtracker_common_la_VALASOURCES:.vala=.c)
 
@@ -86,8 +85,7 @@ noinst_HEADERS =					\
 	tracker-ioprio.h				\
 	tracker-log.h					\
 	tracker-os-dependant.h				\
-	tracker-thumbnailer.h				\
-	tracker-albumart.h
+	tracker-thumbnailer.h
 
 libtracker_commoninclude_HEADERS =			\
 	tracker-config-file.h				\
