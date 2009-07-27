@@ -884,6 +884,9 @@ check_finished (TrackerIndexer *indexer,
 	indexer->private->items_indexed = 0;
 	indexer->private->items_to_index = 0;
 	indexer->private->subelements_processed = 0;
+
+	/* Push all items in thumbnail queue to the thumbnailer */
+	tracker_thumbnailer_queue_send ();
 }
 
 static void
