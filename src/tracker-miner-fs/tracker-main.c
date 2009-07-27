@@ -134,7 +134,7 @@ signal_handler (int signo)
 	default:
 		if (g_strsignal (signo)) {
 			g_print ("\n");
-			g_print ("Received signal:%d->'%s'",
+			g_print ("Received signal:%d->'%s'\n",
                                  signo,
                                  g_strsignal (signo));
 		}
