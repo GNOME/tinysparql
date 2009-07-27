@@ -771,9 +771,9 @@ create_decodebin_pipeline (MetadataExtractor *extractor, const gchar *uri)
 		return FALSE;
 	}
 
-	filesrc = gst_element_factory_make ("filesrc", NULL);
+	filesrc = gst_element_factory_make ("giosrc", NULL);
 	if (!filesrc) {
-		g_warning ("Failed to create GStreamer filesrc");
+		g_warning ("Failed to create GStreamer giosrc");
 		return FALSE;
 	}
 
