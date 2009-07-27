@@ -1967,14 +1967,20 @@ extract_mp3 (const gchar *uri,
 
 	/* TODO */
 #ifdef HAVE_GDKPIXBUF
-	tracker_process_albumart (filedata.albumartdata, filedata.albumartsize, filedata.albumartmime,
+	tracker_albumart_process (filedata.albumartdata, 
+				  filedata.albumartsize, 
+				  filedata.albumartmime,
 				  /* tracker_statement_list_find (metadata, NMM_PREFIX "performer") */ NULL,
-				  filedata.title, "-1",
+				  filedata.title, 
+				  "-1",
 				  filename);
 #else
-	tracker_process_albumart (NULL, 0, NULL,
+	tracker_albumart_process (NULL, 
+				  0, 
+				  NULL,
 				  /* tracker_statement_list_find (metadata, NMM_PREFIX "performer") */ NULL,
-				  filedata.title, "-1",
+				  filedata.title, 
+				  "-1",
 				  filename);
 
 #endif /* HAVE_GDKPIXBUF */

@@ -21,5 +21,9 @@
       <arg type="s" name="mime" direction="in" />
       <arg type="s" name="sparql" direction="out" />
     </method>
+
+    <signal name="NeedsThumbnailing">
+      <arg type="s" name="uri"/>
+    </signal>
   </interface>
 </node>

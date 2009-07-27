@@ -105,20 +105,6 @@ iptc_sources =								\
 	tracker-iptc.c							\
 	tracker-iptc.h
 
-# Common AlbumArt sources
-
-albumart_libs = 
-albumart_flags = 
-albumart_sources =							\
-	tracker-extract-albumart.c					\
-	tracker-extract-albumart.h
-
-if HAVE_GDKPIXBUF
-albumart_flags += $(DBUS_CFLAGS)
-albumart_libs += 							\
-	$(GDKPIXBUF_LIBS) $(DBUS_LIBS) $(GCOV_LIBS)
-endif
-
 # ABW
 libextract_abw_la_SOURCES = tracker-extract-abw.c
 libextract_abw_la_LDFLAGS = $(module_flags)
@@ -126,9 +112,9 @@ libextract_abw_la_LIBADD = $(GLIB2_LIBS) $(GCOV_LIBS) \
 	$(top_builddir)/src/libtracker-common/libtracker-common.la
 
 # MP3
-libextract_mp3_la_SOURCES = tracker-extract-mp3.c $(albumart_sources)
-libextract_mp3_la_LDFLAGS = $(module_flags) $(albumart_flags)
-libextract_mp3_la_LIBADD = $(albumart_libs) $(GLIB2_LIBS) $(GCOV_LIBS) \
+libextract_mp3_la_SOURCES = tracker-extract-mp3.c
+libextract_mp3_la_LDFLAGS = $(module_flags)
+libextract_mp3_la_LIBADD = $(GLIB2_LIBS) $(GCOV_LIBS) \
 	$(top_builddir)/src/libtracker-common/libtracker-common.la
 
 if HAVE_ENCA
@@ -198,15 +184,15 @@ libextract_pdf_la_LIBADD = $(GLIB2_LIBS) $(POPPLER_GLIB_LIBS) $(EXEMPI_LIBS) $(G
 	$(top_builddir)/src/libtracker-common/libtracker-common.la
 
 # GStreamer
-libextract_gstreamer_la_SOURCES = tracker-extract-gstreamer.c $(albumart_sources)
-libextract_gstreamer_la_LDFLAGS = $(module_flags) $(albumart_flags)
-libextract_gstreamer_la_LIBADD = $(albumart_libs) $(GSTREAMER_LIBS) $(GLIB2_LIBS) $(GCOV_LIBS) \
+libextract_gstreamer_la_SOURCES = tracker-extract-gstreamer.c
+libextract_gstreamer_la_LDFLAGS = $(module_flags)
+libextract_gstreamer_la_LIBADD = $(GSTREAMER_LIBS) $(GLIB2_LIBS) $(GCOV_LIBS) \
 	$(top_builddir)/src/libtracker-common/libtracker-common.la
 
 # GStreamer helix
-libextract_gstreamer_helix_la_SOURCES = tracker-extract-gstreamer-helix.c $(albumart_sources)
+libextract_gstreamer_helix_la_SOURCES = tracker-extract-gstreamer-helix.c
 libextract_gstreamer_helix_la_LDFLAGS = $(module_flags) $(albumart_flags)
-libextract_gstreamer_helix_la_LIBADD = $(albumart_libs) $(GSTREAMER_LIBS) $(GLIB2_LIBS) $(GCOV_LIBS) \
+libextract_gstreamer_helix_la_LIBADD = $(GSTREAMER_LIBS) $(GLIB2_LIBS) $(GCOV_LIBS) \
 	$(top_builddir)/src/libtracker-common/libtracker-common.la
 
 # Xine
@@ -240,7 +226,6 @@ libextract_playlist_la_LIBADD = $(GLIB2_LIBS) $(TOTEM_PL_PARSER_LIBS) $(GCOV_LIB
 	$(top_builddir)/src/libtracker-common/libtracker-common.la
 
 
-
 #
 # Binaries
 #
@@ -253,16 +238,23 @@ tracker_extract_SOURCES = 						\
 	tracker-dbus.h							\
 	tracker-extract.c						\
 	tracker-extract.h						\
+	tracker-extract-albumart.c					\
+	tracker-extract-albumart.h					\
 	tracker-main.c							\
 	tracker-main.h							
 
 tracker_extract_LDADD = 						\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la	\
+	$(DBUS_LIBS)							\
 	$(GMODULE_LIBS)							\
 	$(GTHREAD_LIBS)							\
 	$(GCOV_LIBS)							\
 	$(GLIB2_LIBS)							\
 	$(STREAMANALYZER_LIBS)
+
+if HAVE_GDKPIXBUF
+tracker_extract_LDADD += $(GDKPIXBUF_LIBS) 
+endif
 
 if HAVE_STREAMANALYZER
 tracker_extract_SOURCES += tracker-topanalyzer.cpp tracker-topanalyzer.h

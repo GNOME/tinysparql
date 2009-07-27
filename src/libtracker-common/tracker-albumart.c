@@ -389,6 +389,10 @@ tracker_albumart_heuristic (const gchar *artist_,
 	gchar *artist = NULL;
 	gchar *album = NULL;
 
+	if (copied) {
+		*copied = FALSE;
+	}
+
 	/* Copy from local album art (.mediaartlocal) to spec */
 	if (local_uri) {
 		GFile *local_file;
@@ -409,7 +413,10 @@ tracker_albumart_heuristic (const gchar *artist_,
 			}
 			g_object_unref (local_file);
 			
-			*copied = TRUE;
+			if (copied) {
+				*copied = TRUE;
+			}
+
 			g_free (target);
 			
 			return TRUE;
@@ -417,8 +424,6 @@ tracker_albumart_heuristic (const gchar *artist_,
 		
 		g_object_unref (local_file);
 	}
-
-	*copied = FALSE;
 
 	file = g_file_new_for_path (filename);
 	dirf = g_file_get_parent (file);

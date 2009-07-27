@@ -49,6 +49,7 @@
 #include <libtracker-common/tracker-thumbnailer.h>
 #include <libtracker-common/tracker-ioprio.h>
 
+#include "tracker-extract-albumart.h"
 #include "tracker-config.h"
 #include "tracker-main.h"
 #include "tracker-dbus.h"
@@ -68,7 +69,6 @@
 
 static GMainLoop  *main_loop;
 static guint       quit_timeout_id = 0;
-static TrackerStorage *hal;
 
 static gboolean    version;
 gboolean           debug = FALSE;
@@ -128,20 +128,6 @@ tracker_main_quit_timeout_reset (void)
 	quit_timeout_id = g_timeout_add_seconds (QUIT_TIMEOUT, 
 						 quit_timeout_cb, 
 						 NULL);
-}
-
-TrackerStorage *
-tracker_main_get_hal (void)
-{
-	if (!hal) {
-#ifdef HAVE_HAL
-		hal = tracker_storage_new ();
-#else 
-		hal = NULL;
-#endif
-	}
-
-	return hal;
 }
 
 static void
@@ -389,6 +375,7 @@ main (int argc, char *argv[])
 	g_print ("Starting log:\n  File:'%s'\n", log_filename);
 	g_free (log_filename);
 
+	tracker_albumart_init ();
 	tracker_thumbnailer_init ();
 
 	/* Make Tracker available for introspection */
@@ -408,15 +395,12 @@ main (int argc, char *argv[])
 
 	/* Push all items in thumbnail queue to the thumbnailer */
 	tracker_thumbnailer_queue_send ();
+	tracker_albumart_shutdown ();
 
 	/* Shutdown subsystems */
 	tracker_dbus_shutdown ();
 	tracker_thumbnailer_shutdown ();
 	tracker_log_shutdown ();
-
-	if (hal) {
-		g_object_unref (hal);
-	}
 
 	g_object_unref (config);
 

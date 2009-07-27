@@ -53,7 +53,14 @@ typedef struct {
 	const TrackerExtractData *edata; 
 }  ModuleData;
 
+enum {
+	NEEDS_THUMBNAILING,
+	LAST_SIGNAL
+};
+
 static void tracker_extract_finalize (GObject *object);
+
+static guint signals[LAST_SIGNAL] = {0};
 
 G_DEFINE_TYPE(TrackerExtract, tracker_extract, G_TYPE_OBJECT)
 
@@ -65,6 +72,17 @@ tracker_extract_class_init (TrackerExtractClass *klass)
 	object_class = G_OBJECT_CLASS (klass);
 
 	object_class->finalize = tracker_extract_finalize;
+
+	signals[NEEDS_THUMBNAILING] =
+		g_signal_new ("needs-thumbnailing",
+			      G_TYPE_FROM_CLASS (klass),
+			      G_SIGNAL_RUN_LAST,
+			      0,
+			      NULL, NULL,
+			      g_cclosure_marshal_VOID__STRING,
+			      G_TYPE_NONE,
+			      1,
+			      G_TYPE_STRING);
 
 	g_type_class_add_private (object_class, sizeof (TrackerExtractPrivate));
 }

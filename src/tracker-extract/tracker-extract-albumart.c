@@ -37,13 +37,14 @@
 #include <gdk-pixbuf/gdk-pixbuf.h>
 #endif
 
-#include <libtracker-common/tracker-common.h>
 #include <libtracker-common/tracker-thumbnailer.h>
+#include <libtracker-common/tracker-albumart.h>
 
 #include "tracker-main.h"
 #include "tracker-extract-albumart.h"
 
-static GHashTable *album_art_done = NULL;
+static GHashTable *albumart;
+static TrackerStorage *hal;
 
 #ifdef HAVE_GDKPIXBUF
 
@@ -53,14 +54,17 @@ set_albumart (const unsigned char *buffer,
 	      const gchar         *mime,
 	      const gchar         *artist, 
 	      const gchar         *album,
-	      const gchar         *uri)
+	      const gchar         *uri,
+	      gboolean            *was_thumbnail_queued)
 {
 	GdkPixbufLoader *loader;
 	GdkPixbuf       *pixbuf = NULL;
 	gchar           *filename;
 	GError          *error = NULL;
 
-	g_type_init ();
+	if (was_thumbnail_queued) {
+		*was_thumbnail_queued = FALSE;
+	}
 
 	if (!artist && !album) {
 		g_warning ("No identification data for embedded image");
@@ -69,40 +73,48 @@ set_albumart (const unsigned char *buffer,
 
 	tracker_albumart_get_path (artist, album, "album", NULL, &filename, NULL);
 
-	if (g_strcmp0 (mime, "image/jpeg") == 0 || g_strcmp0 (mime, "JPG") == 0) {
+	if (g_strcmp0 (mime, "image/jpeg") == 0 ||
+	    g_strcmp0 (mime, "JPG") == 0) {
 		g_file_set_contents (filename, buffer, (gssize) len, NULL);
 	} else {
 		loader = gdk_pixbuf_loader_new ();
 
 		if (!gdk_pixbuf_loader_write (loader, buffer, len, &error)) {
-			g_warning ("%s\n", error->message);
-			g_error_free (error);
+			g_warning ("Could not write with GdkPixbufLoader when setting album art, %s", 
+				   error ? error->message : "no error given");
 
+			g_clear_error (&error);
 			gdk_pixbuf_loader_close (loader, NULL);
 			g_free (filename);
+
 			return FALSE;
 		}
 
 		pixbuf = gdk_pixbuf_loader_get_pixbuf (loader);
 
 		if (!gdk_pixbuf_save (pixbuf, filename, "jpeg", &error, NULL)) {
-			g_warning ("%s\n", error->message);
-			g_error_free (error);
+			g_warning ("Could not save GdkPixbuf when setting album art, %s", 
+				   error ? error->message : "no error given");
 
+			g_clear_error (&error);
 			g_free (filename);
 			g_object_unref (pixbuf);
-
 			gdk_pixbuf_loader_close (loader, NULL);
+
 			return FALSE;
 		}
-
 
 		g_object_unref (pixbuf);
 
 		if (!gdk_pixbuf_loader_close (loader, &error)) {
-			g_warning ("%s\n", error->message);
-			g_error_free (error);
+			g_warning ("Could not close GdkPixbufLoader when setting album art, %s", 
+				   error ? error->message : "no error given");
+			g_clear_error (&error);
 		}
+	}
+
+	if (was_thumbnail_queued) {
+		*was_thumbnail_queued = TRUE;
 	}
 
 	tracker_thumbnailer_queue_file (filename, "image/jpeg");
@@ -113,24 +125,46 @@ set_albumart (const unsigned char *buffer,
 
 #endif /* HAVE_GDKPIXBUF */
 
+void
+tracker_albumart_init (void)
+{
+	g_type_init ();
+
+	albumart = g_hash_table_new_full (g_str_hash,
+					  g_str_equal,
+					  (GDestroyNotify) g_free,
+					  NULL);
+
+#ifdef HAVE_HAL
+	hal = tracker_storage_new ();
+#else 
+	hal = NULL;
+#endif
+}
+
+void
+tracker_albumart_shutdown (void)
+{
+	g_hash_table_unref (albumart);
+}
+
 gboolean
-tracker_process_albumart (const unsigned char *buffer,
+tracker_albumart_process (const unsigned char *buffer,
                           size_t               len,
-                          const gchar         *buf_mime,
+                          const gchar         *mime,
                           const gchar         *artist,
                           const gchar         *album,
                           const gchar         *trackercnt_str,
                           const gchar         *filename)
 {
 	gchar *art_path;
-	gboolean retval = TRUE;
+	gboolean processed = TRUE;
 	gchar *local_uri = NULL;
 	gchar *filename_uri;
-	gboolean lcopied = FALSE;
 	gboolean art_exists;
-	gchar *as_uri;
+	gboolean was_thumbnail_queued;
 
-	if (strchr (filename, ':')) {
+	if (strstr (filename, "://")) {
 		filename_uri = g_strdup (filename);
 	} else {
 		filename_uri = g_filename_to_uri (filename, NULL, NULL);
@@ -156,14 +190,13 @@ tracker_process_albumart (const unsigned char *buffer,
 #ifdef HAVE_GDKPIXBUF
 		/* If we have embedded album art */
 		if (buffer && len) {
-			retval = set_albumart (buffer, 
-					       len, buf_mime,
-					       artist,
-					       album,
-					       filename);
-
-			lcopied = !retval;
-
+			processed = set_albumart (buffer, 
+						  len, 
+						  mime,
+						  artist,
+						  album,
+						  filename,
+						  &was_thumbnail_queued);
 		} else {
 #endif /* HAVE_GDK_PIXBUF */
 			/* If not, we perform a heuristic on the dir */
@@ -177,47 +210,35 @@ tracker_process_albumart (const unsigned char *buffer,
 			g_object_unref (file);
 			g_object_unref (dirf);
 
-			key = g_strdup_printf ("%s-%s-%s", artist ? artist : "",
+			key = g_strdup_printf ("%s-%s-%s", 
+					       artist ? artist : "",
 					       album ? album : "",
 					       dirname ? dirname : "");
 
 			g_free (dirname);
 
-			/* We store these in a table because we want to avoid 
-			  * that we do many requests for the same directory
-			  * subsequently without success. It's a small but
-			  * known leak on the variable "key" and the hashtable
-			  * itself.
-			  *
-			  * We could get rid of the leak by having a shutdown 
-			  * function for extract modules. I don't think this 
-			  * mini leak is enough reason to add such shutdown
-			  * infrastructure to the extract modules. */
-
-			if (!album_art_done) {
-				album_art_done = g_hash_table_new_full (g_str_hash,
-									g_str_equal,
-									(GDestroyNotify) g_free,
-									NULL);
-			}
-
-			if (!g_hash_table_lookup (album_art_done, key)) {
-				if (!tracker_albumart_heuristic (artist, album, 
+			if (!g_hash_table_lookup (albumart, key)) {
+				if (!tracker_albumart_heuristic (artist, 
+								 album, 
 					                         trackercnt_str, 
 					                         filename, 
 					                         local_uri, 
-					                         &lcopied)) {
-
-					/* If the heuristic failed, we request the download 
-					 * of the media-art to the media-art downloaders */
-					lcopied = TRUE;
-					tracker_albumart_request_download (tracker_main_get_hal (), 
+					                         NULL)) {
+					/* If the heuristic failed, we
+					 * request the download the
+					 * media-art to the media-art
+					 * downloaders
+					 */
+					tracker_albumart_request_download (hal, 
 									   artist,
 									   album,
 									   local_uri,
 									   art_path);
 				}
-				g_hash_table_insert (album_art_done, key, GINT_TO_POINTER(TRUE));
+
+				g_hash_table_insert (albumart, 
+						     key, 
+						     GINT_TO_POINTER(TRUE));
 			} else {
 				g_free (key);
 			}
@@ -225,17 +246,18 @@ tracker_process_albumart (const unsigned char *buffer,
 		}
 #endif /* HAVE_GDKPIXBUF */
 
-		as_uri = g_filename_to_uri (art_path, NULL, NULL);
-		tracker_thumbnailer_queue_file (as_uri, "image/jpeg");
-		g_free (as_uri);
-
+		if (!was_thumbnail_queued) {
+			was_thumbnail_queued = TRUE;
+			tracker_thumbnailer_queue_file (filename_uri, "image/jpeg");
+		}
 	}
 
 	if (local_uri && !g_file_test (local_uri, G_FILE_TEST_EXISTS)) {
-		/* We can't reuse art_exists here because the situation might
-		 * have changed */
+		/* We can't reuse art_exists here because the
+		 * situation might have changed
+		 */
 		if (g_file_test (art_path, G_FILE_TEST_EXISTS)) {
-			tracker_albumart_copy_to_local (tracker_main_get_hal (),
+			tracker_albumart_copy_to_local (hal,
 							art_path, 
 							local_uri);
 		}
@@ -245,6 +267,5 @@ tracker_process_albumart (const unsigned char *buffer,
 	g_free (filename_uri);
 	g_free (local_uri);
 
-	return retval;
+	return processed;
 }
-
