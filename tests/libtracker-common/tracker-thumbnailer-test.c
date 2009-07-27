@@ -65,14 +65,14 @@ test_queue_file ()
 
         /* URI with supported mimetype */
         if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDERR)) {
-                tracker_thumbnailer_queue_file ("file:///a/b/c.jpeg", "image/jpeg");
+                tracker_thumbnailer_queue_add ("file:///a/b/c.jpeg", "image/jpeg");
         }
         g_test_trap_assert_stderr ("*Thumbnailer queue appended with uri:'file:///a/b/c.jpeg', mime type:'image/jpeg', request_id:1...*");
 
 
         /* URI with unsupported mimetype */
         if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDOUT)) {
-                tracker_thumbnailer_queue_file ("file:///a/b/c.jpeg", "unsupported");
+                tracker_thumbnailer_queue_add ("file:///a/b/c.jpeg", "unsupported");
                 exit (0);
         }
         g_test_trap_assert_passed ();
@@ -81,7 +81,7 @@ test_queue_file ()
 
         /* Path with supported mimetype */
         if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDERR)) {
-                tracker_thumbnailer_queue_file ("/a/b/c.jpeg", "image/jpeg");
+                tracker_thumbnailer_queue_add ("/a/b/c.jpeg", "image/jpeg");
         }
         g_test_trap_assert_stderr ("*Thumbnailer queue appended with uri:'file:///a/b/c.jpeg', mime type:'image/jpeg', request_id:1...*");
 
@@ -98,7 +98,7 @@ test_queue_send ()
         
         for (i = 0; i < 10; i++) {
                 gchar *filename = g_strdup_printf ("file:///a/b/c%d.jpeg", i);
-                tracker_thumbnailer_queue_file (filename, "image/jpeg");
+                tracker_thumbnailer_queue_add (filename, "image/jpeg");
         }
 
         if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDERR)) {

@@ -41,17 +41,20 @@
 #include <libtracker-common/tracker-module-config.h>
 #include <libtracker-common/tracker-file-utils.h>
 #include <libtracker-common/tracker-thumbnailer.h>
+#include <libtracker-common/tracker-storage.h>
 
 #include <libtracker-db/tracker-db-manager.h>
 #include <libtracker-db/tracker-db-dbus.h>
 
 #include <libtracker-data/tracker-turtle.h>
 
+#include "tracker-albumart.h"
 #include "tracker-dbus.h"
+#include "tracker-config.h"
 #include "tracker-indexer.h"
 #include "tracker-miner.h"
 #include "tracker-miner-glue.h"
-#include "tracker-config.h"
+#include "tracker-marshal.h"
 
 #define ABOUT								  \
 	"Tracker " PACKAGE_VERSION "\n"
@@ -197,7 +200,6 @@ indexer_finished_cb (TrackerIndexer *indexer,
 		g_main_loop_quit (main_loop);
 		return;
 	}
-
 }
 
 static void
@@ -210,12 +212,13 @@ daemon_availability_changed_cb (const gchar *name,
         }
 }
 
-gint
+int
 main (gint argc, gchar *argv[])
 {
 	TrackerConfig *config;
 	TrackerIndexer *indexer;
 	TrackerMiner *miner;
+        TrackerStorage *storage;
 	GOptionContext *context;
 	GError *error = NULL;
 	gchar *log_filename = NULL;
@@ -299,7 +302,13 @@ main (gint argc, gchar *argv[])
 			   str ? str : "no error given");
 	}
 
-	indexer = tracker_indexer_new ();
+#ifdef HAVE_HAL
+	storage = tracker_storage_new ();
+#else 
+	storage = NULL;
+#endif
+
+	indexer = tracker_indexer_new (storage);
 	miner = tracker_miner_new (indexer);
 
 	/* Make Tracker available for introspection */
@@ -321,6 +330,7 @@ main (gint argc, gchar *argv[])
 
 	/* Set up connections to the thumbnailer if supported */
 	tracker_thumbnailer_init ();
+        tracker_albumart_init (storage);
 
 	if (process_all) {
 		/* Tell the indexer to process all configured modules */
@@ -343,9 +353,13 @@ main (gint argc, gchar *argv[])
 	g_main_loop_unref (main_loop);
 	g_object_unref (indexer);
 	g_object_unref (miner);
-
 	g_object_unref (config);
+        
+        if (storage) {
+                g_object_unref (storage);
+        }
 
+        tracker_albumart_shutdown ();
 	tracker_thumbnailer_shutdown ();
 	tracker_dbus_shutdown ();
 	tracker_module_config_shutdown ();

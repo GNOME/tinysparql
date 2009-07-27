@@ -23,7 +23,10 @@
 #define __TRACKER_INDEXER_H__
 
 #include <glib-object.h>
+
 #include <dbus/dbus-glib.h>
+
+#include <libtracker-common/tracker-storage.h>
 
 #define TRACKER_DAEMON_SERVICE	     "org.freedesktop.Tracker"
 #define TRACKER_INDEXER_SERVICE      "org.freedesktop.Tracker.Indexer"
@@ -80,7 +83,7 @@ struct TrackerIndexerClass {
 
 GType		tracker_indexer_get_type	    (void) G_GNUC_CONST;
 
-TrackerIndexer *tracker_indexer_new                 (void);
+TrackerIndexer *tracker_indexer_new                 (TrackerStorage         *storage);
 gboolean        tracker_indexer_get_running         (TrackerIndexer         *indexer);
 void            tracker_indexer_set_running         (TrackerIndexer         *indexer,
 						     gboolean                running);

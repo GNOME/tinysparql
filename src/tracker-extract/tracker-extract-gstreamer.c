@@ -39,7 +39,8 @@
 #include <libtracker-common/tracker-utils.h>
 
 #include "tracker-main.h"
-#include "tracker-albumart.h"
+#include "tracker-dbus.h"
+#include "tracker-extract.h"
 
 /* We wait this long (seconds) for NULL state before freeing */
 #define TRACKER_EXTRACT_GUARD_TIMEOUT 3
@@ -903,22 +904,26 @@ tracker_extract_gstreamer (const gchar *uri,
 
 	/* Save embedded art */
 	if (extractor->album_art_data && extractor->album_art_size) {
+		GObject *object;
+
+		object = tracker_dbus_get_object (TRACKER_TYPE_EXTRACT);
+
 #ifdef HAVE_GDKPIXBUF
-		tracker_albumart_process (extractor->album_art_data, 
-					  extractor->album_art_size, 
-					  extractor->album_art_mime,
-					  /* g_hash_table_lookup (metadata, "Audio:Artist") */ NULL,
-					  album,
-					  scount,
-					  uri);
+		tracker_extract_process_albumart (TRACKER_EXTRACT (object),
+						  extractor->album_art_data, 
+						  extractor->album_art_size, 
+						  extractor->album_art_mime,
+						  /* g_hash_table_lookup (metadata, "Audio:Artist") */ NULL,
+						  album,
+						  uri);
 #else
-		tracker_albumart_process (NULL, 
-					  0, 
-					  NULL,
-					  /* g_hash_table_lookup (metadata, "Audio:Artist") */ NULL,
-					  album,
-					  scount,
-					  uri);
+		tracker_extract_process_albumart (TRACKER_EXTRACT (object),
+						  NULL,
+						  0, 
+						  NULL,
+						  /* g_hash_table_lookup (metadata, "Audio:Artist") */ NULL,
+						  album,
+						  uri);
 		
 #endif /* HAVE_GDKPIXBUF */
 	}

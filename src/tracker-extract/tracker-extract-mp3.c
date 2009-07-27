@@ -50,7 +50,8 @@
 #include <libtracker-common/tracker-utils.h>
 
 #include "tracker-main.h"
-#include "tracker-albumart.h"
+#include "tracker-dbus.h"
+#include "tracker-extract.h"
 
 /* We mmap the beginning of the file and read separately the last 128 bytes
    for id3v1 tags. While these are probably cornercases the rationale is that
@@ -1809,15 +1810,16 @@ static void
 extract_mp3 (const gchar *uri,
 	     TrackerSparqlBuilder  *metadata)
 {
-	gchar       *filename;
-	int	     fd;
-	void	    *buffer;
-	void        *id3v1_buffer;
-	goffset      size;
-	goffset      buffer_size;
-	id3tag	     info;
-	goffset      audio_offset;
-	file_data    filedata;
+	GObject *object;
+	gchar *filename;
+	int fd;
+	void *buffer;
+	void *id3v1_buffer;
+	goffset size;
+	goffset  buffer_size;
+	id3tag info;
+	goffset audio_offset;
+	file_data filedata;
 
 	info.title = NULL;
 	info.artist = NULL;
@@ -1966,22 +1968,24 @@ extract_mp3 (const gchar *uri,
 	g_free (info.genre);
 
 	/* TODO */
+	object = tracker_dbus_get_object (TRACKER_TYPE_EXTRACT);
+
 #ifdef HAVE_GDKPIXBUF
-	tracker_albumart_process (filedata.albumartdata, 
-				  filedata.albumartsize, 
-				  filedata.albumartmime,
-				  /* tracker_statement_list_find (metadata, NMM_PREFIX "performer") */ NULL,
-				  filedata.title, 
-				  "-1",
-				  filename);
+	tracker_extract_process_albumart (TRACKER_EXTRACT (object),
+					  filedata.albumartdata, 
+					  filedata.albumartsize, 
+					  filedata.albumartmime,
+					  /* tracker_statement_list_find (metadata, NMM_PREFIX "performer") */ NULL,
+					  filedata.title, 
+					  filename);
 #else
-	tracker_albumart_process (NULL, 
-				  0, 
-				  NULL,
-				  /* tracker_statement_list_find (metadata, NMM_PREFIX "performer") */ NULL,
-				  filedata.title, 
-				  "-1",
-				  filename);
+	tracker_extract_process_albumart (TRACKER_EXTRACT (object),
+					  NULL, 
+					  0, 
+					  NULL,
+					  /* tracker_statement_list_find (metadata, NMM_PREFIX "performer") */ NULL,
+					  filedata.title, 
+					  filename);
 
 #endif /* HAVE_GDKPIXBUF */
 

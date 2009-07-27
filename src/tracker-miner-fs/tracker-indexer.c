@@ -111,7 +111,6 @@
 #define NIE_PLAIN_TEXT_CONTENT NIE_PREFIX "plainTextContent"
 #define NIE_MIME_TYPE NIE_PREFIX "mimeType"
 
-
 typedef struct PathInfo PathInfo;
 typedef struct MetadataForeachData MetadataForeachData;
 typedef struct MetadataRequest MetadataRequest;
@@ -125,8 +124,6 @@ struct TrackerIndexerPrivate {
 	GList *module_names;
 	GQuark current_module;
 	GHashTable *indexer_modules;
-
-	gchar *db_dir;
 
 	TrackerConfig *config;
 
@@ -183,6 +180,7 @@ enum TrackerIndexerState {
 
 enum {
 	PROP_0,
+	PROP_STORAGE,
 	PROP_RUNNING,
 };
 
@@ -198,24 +196,32 @@ enum {
 	LAST_SIGNAL
 };
 
-static gboolean process_func	       (gpointer	     data);
-static void	state_set_flags        (TrackerIndexer	    *indexer,
-					TrackerIndexerState  state);
-static void	state_unset_flags      (TrackerIndexer	    *indexer,
-					TrackerIndexerState  state);
-static void	state_check	       (TrackerIndexer	    *indexer);
-
-static void     item_remove            (TrackerIndexer      *indexer,
-					PathInfo	    *info,
-					const gchar         *uri,
-					const gchar         *mime_type);
-static void     check_finished         (TrackerIndexer      *indexer,
-					gboolean             interrupted);
-
-static gboolean item_process           (TrackerIndexer      *indexer,
-					PathInfo            *info,
-					const gchar         *uri);
-
+static void     indexer_set_property (GObject             *object,
+				      guint                param_id,
+				      const GValue        *value,
+				      GParamSpec          *pspec);
+static void     indexer_get_property (GObject             *object,
+				      guint                prop_id,
+				      GValue              *value,
+				      GParamSpec          *pspec);
+static void     indexer_constructed  (GObject             *object);
+static gboolean process_func         (gpointer             data);
+static void     state_set_flags      (TrackerIndexer      *indexer,
+				      TrackerIndexerState  state);
+static void     state_unset_flags    (TrackerIndexer      *indexer,
+				      TrackerIndexerState  state);
+static void     state_check          (TrackerIndexer      *indexer);
+static void     item_remove          (TrackerIndexer      *indexer,
+				      PathInfo            *info,
+				      const gchar         *uri,
+				      const gchar         *mime_type);
+static void     check_finished       (TrackerIndexer      *indexer,
+				      gboolean             interrupted);
+static gboolean item_process         (TrackerIndexer      *indexer,
+				      PathInfo            *info,
+				      const gchar         *uri);
+static void     indexer_load_modules (TrackerIndexer      *indexer);
+static gboolean start_cb             (gpointer             user_data);
 
 static guint signals[LAST_SIGNAL] = { 0, };
 
@@ -581,8 +587,6 @@ tracker_indexer_finalize (GObject *object)
 
 	g_object_unref (priv->config);
 
-	g_free (priv->db_dir);
-
 	g_hash_table_unref (priv->indexer_modules);
 
 	g_list_foreach (priv->module_names, (GFunc) g_free, NULL);
@@ -608,28 +612,14 @@ tracker_indexer_finalize (GObject *object)
 }
 
 static void
-tracker_indexer_get_property (GObject	 *object,
-			      guint	  prop_id,
-			      GValue	 *value,
-			      GParamSpec *pspec)
-{
-	switch (prop_id) {
-	case PROP_RUNNING:
-		g_value_set_boolean (value,
-				     tracker_indexer_get_running (TRACKER_INDEXER (object)));
-		break;
-	default:
-		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
-	}
-}
-
-static void
 tracker_indexer_class_init (TrackerIndexerClass *class)
 {
 	GObjectClass *object_class = G_OBJECT_CLASS (class);
 
 	object_class->finalize = tracker_indexer_finalize;
-	object_class->get_property = tracker_indexer_get_property;
+	object_class->set_property = indexer_set_property;
+	object_class->get_property = indexer_get_property;
+	object_class->constructed = indexer_constructed;
 
 	signals[STATUS] =
 		g_signal_new ("status",
@@ -716,14 +706,120 @@ tracker_indexer_class_init (TrackerIndexerClass *class)
 			      2, G_TYPE_STRING, G_TYPE_BOOLEAN);
 
 	g_object_class_install_property (object_class,
+					 PROP_STORAGE,
+					 g_param_spec_pointer ("storage",
+							       "Storage HAL object",
+							       "The object used for storage knowledge",
+							       G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
+
+	g_object_class_install_property (object_class,
 					 PROP_RUNNING,
 					 g_param_spec_boolean ("running",
 							       "Running",
 							       "Whether the indexer is running",
 							       TRUE,
-							       G_PARAM_READABLE));
+							       G_PARAM_READWRITE));
 
 	g_type_class_add_private (object_class, sizeof (TrackerIndexerPrivate));
+}
+
+static void
+indexer_set_property (GObject	   *object,
+		      guint	    param_id,
+		      const GValue *value,
+		      GParamSpec   *pspec)
+{
+	TrackerIndexer *indexer;
+
+	indexer = TRACKER_INDEXER (object);
+
+	switch (param_id) {
+	case PROP_STORAGE: {
+		gpointer p;
+
+		p = g_value_get_pointer (value);
+
+		if (indexer->private->storage) {
+			g_object_unref (indexer->private->storage);
+		}
+
+		if (p) {
+			indexer->private->storage = g_object_ref (p);
+		} else {
+			indexer->private->storage = NULL;
+		}
+
+		break;
+	}
+
+	case PROP_RUNNING:
+		tracker_indexer_set_running (TRACKER_INDEXER (object),
+					     g_value_get_boolean (value));
+		break;
+
+	default:
+		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, param_id, pspec);
+		break;
+	};
+}
+
+static void
+indexer_get_property (GObject	 *object,
+		      guint	  prop_id,
+		      GValue	 *value,
+		      GParamSpec *pspec)
+{
+	switch (prop_id) {
+	case PROP_RUNNING:
+		g_value_set_boolean (value,
+				     tracker_indexer_get_running (TRACKER_INDEXER (object)));
+		break;
+	default:
+		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+	}
+}
+
+static void
+indexer_constructed (GObject *object)
+{
+	TrackerIndexer *indexer;
+	gint seconds;
+
+	indexer = TRACKER_INDEXER (object);
+
+	tracker_status_init (indexer->private->config, 
+			     indexer->private->power);
+
+	/* Set our status as running, if this is FALSE, threads stop
+	 * doing what they do and shutdown.
+	 */
+	tracker_status_set_is_ready (TRUE);
+
+	/* We set the state here because it is not set in the
+	 * processor otherwise.
+	 */
+	tracker_status_set_and_signal (TRACKER_STATUS_IDLE);
+
+	indexer->private->processor = 
+		tracker_processor_new (indexer->private->config, 
+				       indexer->private->storage, 
+				       indexer);
+
+	indexer_load_modules (indexer);
+
+	/* Set up idle handler to process files/directories */
+	state_check (indexer);
+
+	/* Set up wait time */
+	seconds = tracker_config_get_initial_sleep (indexer->private->config);
+
+	if (seconds > 0) {
+		g_message ("Waiting %d seconds before starting",
+		           seconds);
+		g_timeout_add_seconds (seconds, start_cb, indexer);
+	} else {
+		g_idle_add (start_cb, indexer);
+	}
 }
 
 static void
@@ -835,7 +931,7 @@ signal_status_timeout_stop (TrackerIndexer *indexer)
 }
 
 static void
-tracker_indexer_load_modules (TrackerIndexer *indexer)
+indexer_load_modules (TrackerIndexer *indexer)
 {
 	TrackerIndexerPrivate *priv;
 	GSList *disabled_modules;
@@ -876,7 +972,7 @@ tracker_indexer_load_modules (TrackerIndexer *indexer)
 static gboolean
 start_cb (gpointer user_data)
 {
-	TrackerIndexer        *indexer;
+	TrackerIndexer *indexer;
 
 	if (!tracker_status_get_is_ready ()) {
 		return FALSE;
@@ -895,7 +991,6 @@ static void
 tracker_indexer_init (TrackerIndexer *indexer)
 {
 	TrackerIndexerPrivate *priv;
-	gint seconds;
 
 	priv = indexer->private = TRACKER_INDEXER_GET_PRIVATE (indexer);
 
@@ -917,10 +1012,6 @@ tracker_indexer_init (TrackerIndexer *indexer)
 
 	priv->client = tracker_connect (TRUE, -1);
 
-#ifdef HAVE_HAL
-	priv->storage = tracker_storage_new ();
-#endif /* HAVE_HAL */
-
 #if defined(HAVE_HAL) || defined(HAVE_DEVKIT_POWER)
 	priv->power = tracker_power_new ();
 	g_signal_connect (priv->power, "notify::on-battery",
@@ -930,43 +1021,11 @@ tracker_indexer_init (TrackerIndexer *indexer)
 	set_up_throttle (indexer);
 #endif /* HAVE_HAL || HAVE_DEVKIT_POWER */
 
-	tracker_status_init (priv->config, priv->power);
-
-	/* Set our status as running, if this is FALSE, threads stop
-	 * doing what they do and shutdown.
-	 */
-	tracker_status_set_is_ready (TRUE);
-
-	/* We set the state here because it is not set in the
-	 * processor otherwise.
-	 */
-	tracker_status_set_and_signal (TRACKER_STATUS_IDLE);
-
-	priv->processor = tracker_processor_new (priv->config, priv->storage, indexer);
-
-	priv->db_dir = g_build_filename (g_get_user_cache_dir (),
-					 "tracker",
-					 NULL);
-
-	tracker_indexer_load_modules (indexer);
-
 	/* Set up volume monitor */
 	priv->volume_monitor = g_volume_monitor_get ();
 	g_signal_connect (priv->volume_monitor, "mount-pre-unmount",
-			  G_CALLBACK (mount_pre_unmount_cb), indexer);
-
-	/* Set up idle handler to process files/directories */
-	state_check (indexer);
-
-	seconds = tracker_config_get_initial_sleep (priv->config);
-
-	if (seconds > 0) {
-		g_message ("Waiting %d seconds before starting",
-		           seconds);
-		g_timeout_add_seconds (seconds, start_cb, indexer);
-	} else {
-		g_idle_add (start_cb, indexer);
-	}
+			  G_CALLBACK (mount_pre_unmount_cb), 
+			  indexer);
 }
 
 static void
@@ -1044,16 +1103,6 @@ query_property_value (TrackerIndexer *indexer,
 }
 
 static void
-generate_item_thumbnail (TrackerIndexer        *indexer,
-			 const gchar           *uri,
-			 const gchar           *mime_type)
-{
-	if (mime_type && tracker_config_get_enable_thumbnails (indexer->private->config)) {
-		tracker_thumbnailer_queue_file (uri, mime_type);
-	}
-}
-
-static void
 item_add_to_datasource (TrackerIndexer *indexer,
 			const gchar *uri,
 			TrackerModuleFile *module_file,
@@ -1124,7 +1173,10 @@ item_add_or_update (TrackerIndexer        *indexer,
 
 	schedule_flush (indexer, FALSE);
 
-	generate_item_thumbnail (indexer, uri, mime_type);
+	if (mime_type && 
+	    tracker_config_get_enable_thumbnails (indexer->private->config)) {
+		tracker_thumbnailer_queue_add (uri, mime_type);
+	}
 
 #ifdef HAVE_HAL
 	if (tracker_storage_uri_is_on_removable_device (indexer->private->storage,
@@ -1671,9 +1723,11 @@ process_func (gpointer data)
 }
 
 TrackerIndexer *
-tracker_indexer_new (void)
+tracker_indexer_new (TrackerStorage *storage)
 {
-	return g_object_new (TRACKER_TYPE_INDEXER, NULL);
+	return g_object_new (TRACKER_TYPE_INDEXER, 
+			     "storage", storage,
+			     NULL);
 }
 
 gboolean

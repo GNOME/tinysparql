@@ -22,8 +22,13 @@
       <arg type="s" name="sparql" direction="out" />
     </method>
 
-    <signal name="NeedsThumbnailing">
-      <arg type="s" name="uri"/>
+    <signal name="ProcessAlbumArt">
+      <arg type="y" name="buffer"/>
+      <arg type="i" name="size"/>
+      <arg type="s" name="mime"/>
+      <arg type="s" name="artist"/>
+      <arg type="s" name="album"/>
+      <arg type="s" name="filename"/>
     </signal>
   </interface>
 </node>

@@ -49,7 +49,6 @@
 #include <libtracker-common/tracker-thumbnailer.h>
 #include <libtracker-common/tracker-ioprio.h>
 
-#include "tracker-albumart.h"
 #include "tracker-config.h"
 #include "tracker-main.h"
 #include "tracker-dbus.h"
@@ -263,6 +262,18 @@ main (int argc, char *argv[])
 	gboolean        stand_alone = FALSE;
 	guint           log_handler_id = 0;
 
+	g_type_init ();
+
+	if (!g_thread_supported ()) {
+		g_thread_init (NULL);
+	}
+
+	dbus_g_thread_init ();
+
+	g_set_application_name ("tracker-extract");
+
+	setlocale (LC_ALL, "");
+
 	bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
 	bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
 	textdomain (GETTEXT_PACKAGE);
@@ -304,18 +315,6 @@ main (int argc, char *argv[])
 
 	tracker_memory_setrlimits ();
 
-	g_type_init ();
-
-	if (!g_thread_supported ()) {
-		g_thread_init (NULL);
-	}
-
-	dbus_g_thread_init ();
-
-	g_set_application_name ("tracker-extract");
-
-	setlocale (LC_ALL, "");
-
 	/* Set conditions when we use stand alone settings */
 	stand_alone |= filename != NULL;
 
@@ -335,21 +334,21 @@ main (int argc, char *argv[])
 	}
 
 	if (filename) {
-		TrackerExtract *object;
+		TrackerExtract *extract;
 		GFile *file;
 		gchar *uri;
 
-		object = tracker_extract_new ();
-		if (!object) {
+		extract = tracker_extract_new ();
+		if (!extract) {
 			return EXIT_FAILURE;
 		}
 
 		file = g_file_new_for_commandline_arg (filename);
 		uri = g_file_get_uri (file);
 
-		tracker_extract_get_metadata_by_cmdline (object, uri, mime_type);
+		tracker_extract_get_metadata_by_cmdline (extract, uri, mime_type);
 
-		g_object_unref (object);
+		g_object_unref (extract);
 		g_object_unref (file);
 		g_free (uri);
 
@@ -375,15 +374,14 @@ main (int argc, char *argv[])
 	g_print ("Starting log:\n  File:'%s'\n", log_filename);
 	g_free (log_filename);
 
-	tracker_albumart_init ();
-	tracker_thumbnailer_init ();
-
 	/* Make Tracker available for introspection */
 	if (!tracker_dbus_register_objects ()) {
 		g_object_unref (config);
 
 		return EXIT_FAILURE;
 	}
+
+	tracker_thumbnailer_init ();
 
 	/* Main loop */
 	main_loop = g_main_loop_new (NULL, FALSE);
@@ -395,7 +393,6 @@ main (int argc, char *argv[])
 
 	/* Push all items in thumbnail queue to the thumbnailer */
 	tracker_thumbnailer_queue_send ();
-	tracker_albumart_shutdown ();
 
 	/* Shutdown subsystems */
 	tracker_dbus_shutdown ();

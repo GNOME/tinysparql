@@ -50,7 +50,6 @@ typedef struct {
 	guint request_id;
 
 	gboolean service_is_available;
-	gboolean service_is_enabled;
 } TrackerThumbnailerPrivate;
 
 static GStaticPrivate private_key = G_STATIC_PRIVATE_INIT;
@@ -112,8 +111,6 @@ tracker_thumbnailer_init (void)
 	GError *error = NULL;
 
 	private = g_new0 (TrackerThumbnailerPrivate, 1);
-
-	private->service_is_enabled = TRUE;
 
 	g_static_private_set (&private_key,
 			      private,
@@ -224,13 +221,13 @@ tracker_thumbnailer_move (const gchar *from_uri,
 		   to_uri,
 		   private->request_id); 
 
-	if (!strstr (to_uri, ":/")) {
+	if (!strstr (to_uri, "://")) {
 		to[0] = g_filename_to_uri (to_uri, NULL, NULL);
 	} else {
 		to[0] = g_strdup (to_uri);
 	}
 
-	if (!strstr (from_uri, ":/")) {
+	if (!strstr (from_uri, "://")) {
 		from[0] = g_filename_to_uri (from_uri, NULL, NULL);
 	} else {
 		from[0] = g_strdup (from_uri);
@@ -278,7 +275,7 @@ tracker_thumbnailer_remove (const gchar *uri,
 
 	private->request_id++;
 
-	if (!strstr (uri, ":/")) {
+	if (!strstr (uri, "://")) {
 		uris[0] = g_filename_to_uri (uri, NULL, NULL);
 	} else {
 		uris[0] = g_strdup (uri);
@@ -301,6 +298,8 @@ void
 tracker_thumbnailer_cleanup (const gchar *uri_prefix)
 {
 	TrackerThumbnailerPrivate *private;
+
+	g_return_if_fail (uri_prefix != NULL);
 
 	private = g_static_private_get (&private_key);
 	g_return_if_fail (private != NULL);
@@ -328,8 +327,8 @@ tracker_thumbnailer_cleanup (const gchar *uri_prefix)
 }
 
 void
-tracker_thumbnailer_queue_file (const gchar *uri,
-				const gchar *mime_type)
+tracker_thumbnailer_queue_add (const gchar *uri,
+			       const gchar *mime_type)
 {
 	TrackerThumbnailerPrivate *private;
 	gchar *used_uri;
@@ -341,8 +340,7 @@ tracker_thumbnailer_queue_file (const gchar *uri,
 	private = g_static_private_get (&private_key);
 	g_return_if_fail (private != NULL);
 
-	if (!private->service_is_available ||
-	    !private->service_is_enabled) {
+	if (!private->service_is_available) {
 		return;
 	}
 
@@ -356,7 +354,7 @@ tracker_thumbnailer_queue_file (const gchar *uri,
 	private->request_id++;
 
 	/* Add new URI (detect if we got passed a path) */
-	if (!strstr (uri, ":/")) {
+	if (!strstr (uri, "://")) {
 		used_uri = g_filename_to_uri (uri, NULL, NULL);
 	} else {
 		used_uri = g_strdup (uri);

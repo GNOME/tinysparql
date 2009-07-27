@@ -29,9 +29,10 @@
 #include <libtracker-common/tracker-dbus.h>
 #include <libtracker-common/tracker-sparql-builder.h>
 
-#include "tracker-main.h"
 #include "tracker-dbus.h"
 #include "tracker-extract.h"
+#include "tracker-main.h"
+#include "tracker-marshal.h"
 
 #ifdef HAVE_STREAMANALYZER
 #include "tracker-topanalyzer.h"
@@ -54,7 +55,7 @@ typedef struct {
 }  ModuleData;
 
 enum {
-	NEEDS_THUMBNAILING,
+	PROCESS_ALBUM_ART,
 	LAST_SIGNAL
 };
 
@@ -73,15 +74,20 @@ tracker_extract_class_init (TrackerExtractClass *klass)
 
 	object_class->finalize = tracker_extract_finalize;
 
-	signals[NEEDS_THUMBNAILING] =
-		g_signal_new ("needs-thumbnailing",
+	signals[PROCESS_ALBUM_ART] =
+		g_signal_new ("process-album-art",
 			      G_TYPE_FROM_CLASS (klass),
 			      G_SIGNAL_RUN_LAST,
 			      0,
 			      NULL, NULL,
-			      g_cclosure_marshal_VOID__STRING,
+			      tracker_marshal_VOID__UCHAR_INT_STRING_STRING_STRING_STRING,
 			      G_TYPE_NONE,
-			      1,
+			      6,
+			      G_TYPE_UCHAR,
+			      G_TYPE_INT,
+			      G_TYPE_STRING,
+			      G_TYPE_STRING,
+			      G_TYPE_STRING,
 			      G_TYPE_STRING);
 
 	g_type_class_add_private (object_class, sizeof (TrackerExtractPrivate));
@@ -475,4 +481,30 @@ tracker_extract_get_metadata (TrackerExtract	     *object,
 		/* Unset alarm so the extractor doesn't die when it's idle */
 		alarm (0);
 	}
+}
+
+void
+tracker_extract_process_albumart (TrackerExtract      *object, 
+				  const unsigned char *buffer,
+				  size_t               len,
+				  const gchar         *mime,
+				  const gchar         *artist,
+				  const gchar         *album,
+				  const gchar         *filename)
+{
+	g_return_if_fail (buffer != NULL);
+	g_return_if_fail (len > 0);
+	g_return_if_fail (object != NULL);
+	g_return_if_fail (mime != NULL);
+	g_return_if_fail (filename != NULL);
+
+	g_signal_emit (object,
+		       signals[PROCESS_ALBUM_ART],
+		       0,
+		       buffer,
+		       len,
+		       mime,
+		       artist,
+		       album,
+		       filename);
 }
