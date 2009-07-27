@@ -26,7 +26,7 @@
 #include <glib.h>
 #include <gio/gio.h>
 
-#include <libtracker-common/tracker-config-utils.h>
+#include <libtracker-common/tracker-keyfile-object.h>
 #include <libtracker-common/tracker-file-utils.h>
 #include <libtracker-common/tracker-type-utils.h>
 
@@ -139,7 +139,7 @@ static ObjectToKeyFile conversions[] = {
 	{ G_TYPE_BOOLEAN, "index-removable-devices",          GROUP_INDEXING, "IndexRemovableMedia"     },
 };
 
-G_DEFINE_TYPE (TrackerConfig, tracker_config, TRACKER_TYPE_CONFIG_MANAGER);
+G_DEFINE_TYPE (TrackerConfig, tracker_config, TRACKER_TYPE_CONFIG_FILE);
 
 static void
 tracker_config_class_init (TrackerConfigClass *klass)
@@ -222,7 +222,7 @@ tracker_config_class_init (TrackerConfigClass *klass)
 							       " List of disabled modules (separator=;)\n"
 							       " The modules that are indexed are kept in $prefix/lib/tracker/indexer-modules",
 							       G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
-;
+	;
 	g_object_class_install_property (object_class,
 					 PROP_DISABLE_INDEXING_ON_BATTERY,
 					 g_param_spec_boolean ("disable-indexing-on-battery",
@@ -338,7 +338,7 @@ config_set_property (GObject	  *object,
 		break;
 	case PROP_INDEX_REMOVABLE_DEVICES:
 		tracker_config_set_index_removable_devices (TRACKER_CONFIG (object),
-								g_value_get_boolean (value));
+							    g_value_get_boolean (value));
 		break;
 
 	default:
@@ -467,16 +467,16 @@ config_create_with_defaults (TrackerConfig *config,
 			g_key_file_set_integer (key_file, 
 						conversions[i].group, 
 						conversions[i].key, 
-						tracker_config_default_int (config, 
-									    conversions[i].property));
+						tracker_keyfile_object_default_int (config, 
+										    conversions[i].property));
 			break;
 
 		case G_TYPE_BOOLEAN:
 			g_key_file_set_boolean (key_file, 
 						conversions[i].group, 
 						conversions[i].key, 
-						tracker_config_default_boolean (config, 
-										conversions[i].property));
+						tracker_keyfile_object_default_boolean (config, 
+											conversions[i].property));
 			break;
 
 		case G_TYPE_POINTER:
@@ -510,8 +510,8 @@ config_create_with_defaults (TrackerConfig *config,
 		g_key_file_set_comment (key_file, 
 					conversions[i].group, 
 					conversions[i].key, 
-					tracker_config_blurb (config,
-							      conversions[i].property), 
+					tracker_keyfile_object_blurb (config,
+								      conversions[i].property), 
 					NULL);
 	}
 }
@@ -519,40 +519,40 @@ config_create_with_defaults (TrackerConfig *config,
 static void
 config_load (TrackerConfig *config)
 {
-	TrackerConfigManager *manager;
+	TrackerConfigFile *file;
 	gint i;
 
-	manager = TRACKER_CONFIG_MANAGER (config);
-	config_create_with_defaults (config, manager->key_file, FALSE);
+	file = TRACKER_CONFIG_FILE (config);
+	config_create_with_defaults (config, file->key_file, FALSE);
 
-	if (!manager->file_exists) {
-		tracker_config_manager_save (manager);
+	if (!file->file_exists) {
+		tracker_config_file_save (file);
 	}
 
 	for (i = 0; i < G_N_ELEMENTS (conversions); i++) {
 		gboolean has_key;
 		gboolean is_directory_list;
 		
-		has_key = g_key_file_has_key (manager->key_file, 
+		has_key = g_key_file_has_key (file->key_file, 
 					      conversions[i].group, 
 					      conversions[i].key, 
 					      NULL);
 	
 		switch (conversions[i].type) {
 		case G_TYPE_INT:
-			tracker_config_load_int (G_OBJECT (manager), 
-						 conversions[i].property,
-						 manager->key_file,
-						 conversions[i].group, 
-						 conversions[i].key);
+			tracker_keyfile_object_load_int (G_OBJECT (file), 
+							 conversions[i].property,
+							 file->key_file,
+							 conversions[i].group, 
+							 conversions[i].key);
 			break;
 
 		case G_TYPE_BOOLEAN:
-			tracker_config_load_boolean (G_OBJECT (manager), 
-						     conversions[i].property,
-						     manager->key_file,
-						     conversions[i].group, 
-						     conversions[i].key);
+			tracker_keyfile_object_load_boolean (G_OBJECT (file), 
+							     conversions[i].property,
+							     file->key_file,
+							     conversions[i].group, 
+							     conversions[i].key);
 			break;
 
 		case G_TYPE_POINTER:
@@ -562,12 +562,12 @@ config_load (TrackerConfig *config)
 				is_directory_list = TRUE;
 			}
 
-			tracker_config_load_string_list (G_OBJECT (manager), 
-							 conversions[i].property,
-							 manager->key_file, 
-							 conversions[i].group, 
-							 conversions[i].key,
-							 is_directory_list);
+			tracker_keyfile_object_load_string_list (G_OBJECT (file), 
+								 conversions[i].property,
+								 file->key_file, 
+								 conversions[i].group, 
+								 conversions[i].key,
+								 is_directory_list);
 			break;
 		}
 	}
@@ -576,12 +576,12 @@ config_load (TrackerConfig *config)
 static gboolean
 config_save (TrackerConfig *config)
 {
-	TrackerConfigManager *manager;
+	TrackerConfigFile *file;
 	gint i;
 
-	manager = TRACKER_CONFIG_MANAGER (config);
+	file = TRACKER_CONFIG_FILE (config);
 
-	if (!manager->key_file) {
+	if (!file->key_file) {
 		g_critical ("Could not save config, GKeyFile was NULL, has the config been loaded?");
 
 		return FALSE;
@@ -592,27 +592,27 @@ config_save (TrackerConfig *config)
 	for (i = 0; i < G_N_ELEMENTS (conversions); i++) {
 		switch (conversions[i].type) {
 		case G_TYPE_INT:
-			tracker_config_save_int (manager,
-						 conversions[i].property, 
-						 manager->key_file,
-						 conversions[i].group, 
-						 conversions[i].key);
+			tracker_keyfile_object_save_int (file,
+							 conversions[i].property, 
+							 file->key_file,
+							 conversions[i].group, 
+							 conversions[i].key);
 			break;
 
 		case G_TYPE_BOOLEAN:
-			tracker_config_save_boolean (manager,
-						     conversions[i].property, 
-						     manager->key_file,
-						     conversions[i].group, 
-						     conversions[i].key);
+			tracker_keyfile_object_save_boolean (file,
+							     conversions[i].property, 
+							     file->key_file,
+							     conversions[i].group, 
+							     conversions[i].key);
 			break;
 
 		case G_TYPE_POINTER:
-			tracker_config_save_string_list (manager,
-							 conversions[i].property, 
-							 manager->key_file,
-							 conversions[i].group, 
-							 conversions[i].key);
+			tracker_keyfile_object_save_string_list (file,
+								 conversions[i].property, 
+								 file->key_file,
+								 conversions[i].group, 
+								 conversions[i].key);
 			break;
 
 		default:
@@ -621,7 +621,7 @@ config_save (TrackerConfig *config)
 		}
 	}
 
-	return tracker_config_manager_save (manager);
+	return tracker_config_file_save (file);
 }
 
 TrackerConfig *
@@ -814,7 +814,7 @@ tracker_config_set_verbosity (TrackerConfig *config,
 
 	g_return_if_fail (TRACKER_IS_CONFIG (config));
 
-	if (!tracker_config_validate_int (config, "verbosity", value)) {
+	if (!tracker_keyfile_object_validate_int (config, "verbosity", value)) {
 		return;
 	}
 
@@ -832,7 +832,7 @@ tracker_config_set_initial_sleep (TrackerConfig *config,
 
 	g_return_if_fail (TRACKER_IS_CONFIG (config));
 
-	if (!tracker_config_validate_int (config, "initial-sleep", value)) {
+	if (!tracker_keyfile_object_validate_int (config, "initial-sleep", value)) {
 		return;
 	}
 
@@ -864,7 +864,7 @@ tracker_config_set_throttle (TrackerConfig *config,
 
 	g_return_if_fail (TRACKER_IS_CONFIG (config));
 
-	if (!tracker_config_validate_int (config, "throttle", value)) {
+	if (!tracker_keyfile_object_validate_int (config, "throttle", value)) {
 		return;
 	}
 
@@ -924,7 +924,7 @@ tracker_config_set_low_disk_space_limit (TrackerConfig *config,
 
 	g_return_if_fail (TRACKER_IS_CONFIG (config));
 
-	if (!tracker_config_validate_int (config, "low-disk-space-limit", value)) {
+	if (!tracker_keyfile_object_validate_int (config, "low-disk-space-limit", value)) {
 		return;
 	}
 
@@ -950,7 +950,7 @@ tracker_config_set_index_mounted_directories (TrackerConfig *config,
 
 void
 tracker_config_set_index_removable_devices (TrackerConfig *config,
-					  gboolean	 value)
+					    gboolean	 value)
 {
 	TrackerConfigPrivate *priv;
 

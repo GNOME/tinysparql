@@ -26,7 +26,7 @@
 #include <glib.h>
 #include <gio/gio.h>
 
-#include <libtracker-common/tracker-config-utils.h>
+#include <libtracker-common/tracker-keyfile-object.h>
 
 #include "tracker-config.h"
 
@@ -83,7 +83,7 @@ static ObjectToKeyFile conversions[] = {
 	{ G_TYPE_BOOLEAN, "low-memory-mode",    GROUP_GENERAL,  "LowMemoryMode"   },
 };
 
-G_DEFINE_TYPE (TrackerConfig, tracker_config, TRACKER_TYPE_CONFIG_MANAGER);
+G_DEFINE_TYPE (TrackerConfig, tracker_config, TRACKER_TYPE_CONFIG_FILE);
 
 static void
 tracker_config_class_init (TrackerConfigClass *klass)
@@ -212,16 +212,16 @@ config_create_with_defaults (TrackerConfig *config,
 			g_key_file_set_integer (key_file, 
 						conversions[i].group, 
 						conversions[i].key, 
-						tracker_config_default_int (config, 
-									    conversions[i].property));
+						tracker_keyfile_object_default_int (config, 
+										    conversions[i].property));
 			break;
 
 		case G_TYPE_BOOLEAN:
 			g_key_file_set_boolean (key_file, 
 						conversions[i].group, 
 						conversions[i].key, 
-						tracker_config_default_boolean (config, 
-										conversions[i].property));
+						tracker_keyfile_object_default_boolean (config, 
+											conversions[i].property));
 			break;
 
 		default:
@@ -232,7 +232,7 @@ config_create_with_defaults (TrackerConfig *config,
 		g_key_file_set_comment (key_file, 
 					conversions[i].group, 
 					conversions[i].key, 
-					tracker_config_blurb (config,
+					tracker_keyfile_object_blurb (config,
 							      conversions[i].property), 
 					NULL);
 	}
@@ -241,37 +241,37 @@ config_create_with_defaults (TrackerConfig *config,
 static void
 config_load (TrackerConfig *config)
 {
-	TrackerConfigManager *manager;
+	TrackerConfigFile *file;
 	gint i;
 
-	manager = TRACKER_CONFIG_MANAGER (config);
-	config_create_with_defaults (config, manager->key_file, FALSE);
+	file = TRACKER_CONFIG_FILE (config);
+	config_create_with_defaults (config, file->key_file, FALSE);
 
-	if (!manager->file_exists) {
-		tracker_config_manager_save (manager);
+	if (!file->file_exists) {
+		tracker_config_file_save (file);
 	}
 
 	for (i = 0; i < G_N_ELEMENTS (conversions); i++) {
 		gboolean has_key;
 		
-		has_key = g_key_file_has_key (manager->key_file, 
+		has_key = g_key_file_has_key (file->key_file, 
 					      conversions[i].group, 
 					      conversions[i].key, 
 					      NULL);
 	
 		switch (conversions[i].type) {
 		case G_TYPE_INT:
-			tracker_config_load_int (G_OBJECT (manager), 
+			tracker_keyfile_object_load_int (G_OBJECT (file), 
 						 conversions[i].property,
-						 manager->key_file,
+						 file->key_file,
 						 conversions[i].group, 
 						 conversions[i].key);
 			break;
 
 		case G_TYPE_BOOLEAN:
-			tracker_config_load_boolean (G_OBJECT (manager), 
+			tracker_keyfile_object_load_boolean (G_OBJECT (file), 
 						     conversions[i].property,
-						     manager->key_file,
+						     file->key_file,
 						     conversions[i].group, 
 						     conversions[i].key);
 			break;
@@ -286,12 +286,12 @@ config_load (TrackerConfig *config)
 static gboolean
 config_save (TrackerConfig *config)
 {
-	TrackerConfigManager *manager;
+	TrackerConfigFile *file;
 	gint i;
 
-	manager = TRACKER_CONFIG_MANAGER (config);
+	file = TRACKER_CONFIG_FILE (config);
 
-	if (!manager->key_file) {
+	if (!file->key_file) {
 		g_critical ("Could not save config, GKeyFile was NULL, has the config been loaded?");
 
 		return FALSE;
@@ -302,17 +302,17 @@ config_save (TrackerConfig *config)
 	for (i = 0; i < G_N_ELEMENTS (conversions); i++) {
 		switch (conversions[i].type) {
 		case G_TYPE_INT:
-			tracker_config_save_int (manager,
+			tracker_keyfile_object_save_int (file,
 						 conversions[i].property, 
-						 manager->key_file,
+						 file->key_file,
 						 conversions[i].group, 
 						 conversions[i].key);
 			break;
 
 		case G_TYPE_BOOLEAN:
-			tracker_config_save_boolean (manager,
+			tracker_keyfile_object_save_boolean (file,
 						     conversions[i].property, 
-						     manager->key_file,
+						     file->key_file,
 						     conversions[i].group, 
 						     conversions[i].key);
 			break;
@@ -323,7 +323,7 @@ config_save (TrackerConfig *config)
 		}
 	}
 
-	return tracker_config_manager_save (TRACKER_CONFIG_MANAGER (config));
+	return tracker_config_file_save (TRACKER_CONFIG_FILE (config));
 }
 
 TrackerConfig *
@@ -372,7 +372,7 @@ tracker_config_set_verbosity (TrackerConfig *config,
 
 	g_return_if_fail (TRACKER_IS_CONFIG (config));
 
-	if (!tracker_config_validate_int (config, "verbosity", value)) {
+	if (!tracker_keyfile_object_validate_int (config, "verbosity", value)) {
 		return;
 	}
 

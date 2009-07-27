@@ -23,11 +23,10 @@
 #include <libtracker-common/tracker-file-utils.h>
 #include <libtracker-common/tracker-type-utils.h>
 
-#include "tracker-config-utils.h"
+#include "tracker-keyfile-object.h"
 
 static GSList *
-config_string_list_to_gslist (const gchar **value,
-			      gboolean	    is_directory_list)
+directory_string_list_to_gslist (const gchar **value)
 {
 	GSList *list = NULL;
 	gint	i;
@@ -45,11 +44,6 @@ config_string_list_to_gslist (const gchar **value,
 			continue;
 		}
 
-		if (!is_directory_list) {
-			list = g_slist_prepend (list, g_strdup (str));
-			continue;
-		}
-
 		/* For directories we validate any special characters,
 		 * for example '~' and '../../'
 		 */
@@ -63,16 +57,16 @@ config_string_list_to_gslist (const gchar **value,
 }
 
 const gchar *
-tracker_config_blurb (gpointer     config,
-		      const gchar *property)
+tracker_keyfile_object_blurb (gpointer     object,
+			      const gchar *property)
 {
 	GObjectClass *klass;
 	GParamSpec *spec;
 
-	g_return_val_if_fail (G_IS_OBJECT (config), NULL);
+	g_return_val_if_fail (G_IS_OBJECT (object), NULL);
 	g_return_val_if_fail (property != NULL, NULL);
-	
-	klass = G_OBJECT_GET_CLASS (config);
+
+	klass = G_OBJECT_GET_CLASS (object);
 	spec = g_object_class_find_property (G_OBJECT_CLASS (klass), property);
 	g_return_val_if_fail (spec != NULL, NULL);
 
@@ -80,17 +74,17 @@ tracker_config_blurb (gpointer     config,
 }
 
 gboolean
-tracker_config_default_boolean (gpointer     config,
-				const gchar *property)
+tracker_keyfile_object_default_boolean (gpointer     object,
+					const gchar *property)
 {
 	GObjectClass *klass;
 	GParamSpec *spec;
 	GParamSpecBoolean *bspec; 
 
-	g_return_val_if_fail (G_IS_OBJECT (config), FALSE);
+	g_return_val_if_fail (G_IS_OBJECT (object), FALSE);
 	g_return_val_if_fail (property != NULL, FALSE);
 
-	klass = G_OBJECT_GET_CLASS (config);
+	klass = G_OBJECT_GET_CLASS (object);
 	spec = g_object_class_find_property (G_OBJECT_CLASS (klass), property);
 	g_return_val_if_fail (spec != NULL, FALSE);
 
@@ -101,17 +95,17 @@ tracker_config_default_boolean (gpointer     config,
 }
 
 gint
-tracker_config_default_int (gpointer     config,
-			    const gchar *property)
+tracker_keyfile_object_default_int (gpointer     object,
+				    const gchar *property)
 {
 	GObjectClass *klass;
 	GParamSpec *spec;
 	GParamSpecInt *ispec; 
 
-	g_return_val_if_fail (G_IS_OBJECT (config), 0);
+	g_return_val_if_fail (G_IS_OBJECT (object), 0);
 	g_return_val_if_fail (property != NULL, 0);
 
-	klass = G_OBJECT_GET_CLASS (config);
+	klass = G_OBJECT_GET_CLASS (object);
 	spec = g_object_class_find_property (G_OBJECT_CLASS (klass), property);
 	g_return_val_if_fail (spec != NULL, 0);
 
@@ -122,11 +116,11 @@ tracker_config_default_int (gpointer     config,
 }
 
 gboolean
-tracker_config_validate_int (gpointer     config,
-			     const gchar *property,
-			     gint	  value)
+tracker_keyfile_object_validate_int (gpointer     object,
+				     const gchar *property,
+				     gint	  value)
 {
-	g_return_val_if_fail (G_IS_OBJECT (config), FALSE);
+	g_return_val_if_fail (G_IS_OBJECT (object), FALSE);
 	g_return_val_if_fail (property != NULL, FALSE);
 
 #ifdef G_DISABLE_CHECKS
@@ -134,7 +128,7 @@ tracker_config_validate_int (gpointer     config,
 	GValue	    value = { 0 };
 	gboolean    valid;
 
-	spec = g_object_class_find_property (G_OBJECT_CLASS (config), property);
+	spec = g_object_class_find_property (G_OBJECT_CLASS (object), property);
 	g_return_val_if_fail (spec != NULL, FALSE);
 
 	g_value_init (&value, spec->value_type);
@@ -149,16 +143,16 @@ tracker_config_validate_int (gpointer     config,
 }
 
 void
-tracker_config_load_int (gpointer     config,
-			 const gchar *property,
-			 GKeyFile    *key_file,
-			 const gchar *group,
-			 const gchar *key)
+tracker_keyfile_object_load_int (gpointer     object,
+				 const gchar *property,
+				 GKeyFile    *key_file,
+				 const gchar *group,
+				 const gchar *key)
 {
 	GError *error = NULL;
 	gint	value;
 
-	g_return_if_fail (G_IS_OBJECT (config));
+	g_return_if_fail (G_IS_OBJECT (object));
 	g_return_if_fail (property != NULL);
 	g_return_if_fail (key_file != NULL);
 	g_return_if_fail (group != NULL);
@@ -166,25 +160,25 @@ tracker_config_load_int (gpointer     config,
 
 	value = g_key_file_get_integer (key_file, group, key, &error);
 	if (!error) {
-		g_object_set (G_OBJECT (config), property, value, NULL);
+		g_object_set (G_OBJECT (object), property, value, NULL);
 	} else {
-		g_message ("Couldn't load config option '%s' (int) in group '%s', %s",
+		g_message ("Couldn't load object property '%s' (int) in group '%s', %s",
 			   property, group, error->message);
 		g_error_free (error);
 	}
 }
 
 void
-tracker_config_load_boolean (gpointer     config,
-			     const gchar *property,
-			     GKeyFile	 *key_file,
-			     const gchar *group,
-			     const gchar *key)
+tracker_keyfile_object_load_boolean (gpointer     object,
+				     const gchar *property,
+				     GKeyFile	 *key_file,
+				     const gchar *group,
+				     const gchar *key)
 {
 	GError	 *error = NULL;
 	gboolean  value;
 
-	g_return_if_fail (G_IS_OBJECT (config));
+	g_return_if_fail (G_IS_OBJECT (object));
 	g_return_if_fail (property != NULL);
 	g_return_if_fail (key_file != NULL);
 	g_return_if_fail (group != NULL);
@@ -192,25 +186,25 @@ tracker_config_load_boolean (gpointer     config,
 
 	value = g_key_file_get_boolean (key_file, group, key, &error);
 	if (!error) {
-		g_object_set (G_OBJECT (config), property, value, NULL);
+		g_object_set (G_OBJECT (object), property, value, NULL);
 	} else {
-		g_message ("Couldn't load config option '%s' (bool) in group '%s', %s",
+		g_message ("Couldn't load object property '%s' (bool) in group '%s', %s",
 			   property, group, error->message);
 		g_error_free (error);
 	}
 }
 
 void
-tracker_config_load_string (gpointer     config,
-			    const gchar	*property,
-			    GKeyFile    *key_file,
-			    const gchar	*group,
-			    const gchar	*key)
+tracker_keyfile_object_load_string (gpointer     object,
+				    const gchar	*property,
+				    GKeyFile    *key_file,
+				    const gchar	*group,
+				    const gchar	*key)
 {
 	GError *error = NULL;
 	gchar  *value;
 
-	g_return_if_fail (G_IS_OBJECT (config));
+	g_return_if_fail (G_IS_OBJECT (object));
 	g_return_if_fail (property != NULL);
 	g_return_if_fail (key_file != NULL);
 	g_return_if_fail (group != NULL);
@@ -218,9 +212,9 @@ tracker_config_load_string (gpointer     config,
 
 	value = g_key_file_get_string (key_file, group, key, &error);
 	if (!error) {
-		g_object_set (G_OBJECT (config), property, value, NULL);
+		g_object_set (G_OBJECT (object), property, value, NULL);
 	} else {
-		g_message ("Couldn't load config option '%s' (string) in group '%s', %s",
+		g_message ("Couldn't load object property '%s' (string) in group '%s', %s",
 			   property, group, error->message);
 		g_error_free (error);
 	}
@@ -229,112 +223,116 @@ tracker_config_load_string (gpointer     config,
 }
 
 void
-tracker_config_load_string_list (gpointer     config,
-				 const gchar *property,
-				 GKeyFile    *key_file,
-				 const gchar *group,
-				 const gchar *key,
-				 gboolean     is_directory_list)
+tracker_keyfile_object_load_string_list (gpointer     object,
+					 const gchar *property,
+					 GKeyFile    *key_file,
+					 const gchar *group,
+					 const gchar *key,
+					 gboolean     is_directory_list)
 {
 	GSList *l;
 	gchar **value;
 
-	g_return_if_fail (G_IS_OBJECT (config));
+	g_return_if_fail (G_IS_OBJECT (object));
 	g_return_if_fail (property != NULL);
 	g_return_if_fail (key_file != NULL);
 	g_return_if_fail (group != NULL);
 	g_return_if_fail (key != NULL);
 
 	value = g_key_file_get_string_list (key_file, group, key, NULL, NULL);
-	l = config_string_list_to_gslist ((const gchar **) value, is_directory_list);
-	g_strfreev (value);
+	if (is_directory_list) {
+		l = directory_string_list_to_gslist ((const gchar **) value);
+	} else {
+		l = tracker_string_list_to_gslist (value, -1);
+}
+g_strfreev (value);
 
-	if (l) {
-		GSList *filtered;
+if (l) {
+	GSList *filtered;
 
-		/* Should we make the basename (2nd argument) here
-		 * part of this function's API? 
-		 */
-		filtered = tracker_path_list_filter_duplicates (l, ".");
+	/* Should we make the basename (2nd argument) here
+	 * part of this function's API? 
+	 */
+	filtered = tracker_path_list_filter_duplicates (l, ".");
 		
-		g_slist_foreach (l, (GFunc) g_free, NULL);
-		g_slist_free (l);
+	g_slist_foreach (l, (GFunc) g_free, NULL);
+	g_slist_free (l);
 
-		l = filtered;
-	}
+	l = filtered;
+}
 
-	g_object_set (G_OBJECT (config), property, l, NULL);
+g_object_set (G_OBJECT (object), property, l, NULL);
 }
 
 void
-tracker_config_save_int (gpointer     config,
-			 const gchar *property,
-			 GKeyFile    *key_file,
-			 const gchar *group,
-			 const gchar *key)
-{
-	gint value;
-
-	g_return_if_fail (G_IS_OBJECT (config));
-	g_return_if_fail (property != NULL);
-	g_return_if_fail (key_file != NULL);
-	g_return_if_fail (group != NULL);
-	g_return_if_fail (key != NULL);
-
-	g_object_get (G_OBJECT (config), property, &value, NULL);
-	g_key_file_set_integer (key_file, group, key, value);
-}
-
-void
-tracker_config_save_boolean (gpointer     config,
-			     const gchar *property,
-			     GKeyFile    *key_file,
-			     const gchar *group,
-			     const gchar *key)
-{
-	gboolean value;
-
-	g_return_if_fail (G_IS_OBJECT (config));
-	g_return_if_fail (property != NULL);
-	g_return_if_fail (key_file != NULL);
-	g_return_if_fail (group != NULL);
-	g_return_if_fail (key != NULL);
-
-	g_object_get (G_OBJECT (config), property, &value, NULL);
-	g_key_file_set_boolean (key_file, group, key, value);
-}
-
-void
-tracker_config_save_string (gpointer     config,
-			    const gchar *property,
-			    GKeyFile	*key_file,
-			    const gchar *group,
-			    const gchar	*key)
-{
-	gchar *value;
-
-	g_return_if_fail (G_IS_OBJECT (config));
-	g_return_if_fail (property != NULL);
-	g_return_if_fail (key_file != NULL);
-	g_return_if_fail (group != NULL);
-	g_return_if_fail (key != NULL);
-
-	g_object_get (G_OBJECT (config), property, &value, NULL);
-	g_key_file_set_string (key_file, group, key, value);
-	g_free (value);
-}
-
-void
-tracker_config_save_string_list (gpointer     config,
+tracker_keyfile_object_save_int (gpointer     object,
 				 const gchar *property,
 				 GKeyFile    *key_file,
 				 const gchar *group,
 				 const gchar *key)
 {
+	gint value;
+
+	g_return_if_fail (G_IS_OBJECT (object));
+	g_return_if_fail (property != NULL);
+	g_return_if_fail (key_file != NULL);
+	g_return_if_fail (group != NULL);
+	g_return_if_fail (key != NULL);
+
+	g_object_get (G_OBJECT (object), property, &value, NULL);
+	g_key_file_set_integer (key_file, group, key, value);
+}
+
+void
+tracker_keyfile_object_save_boolean (gpointer     object,
+				     const gchar *property,
+				     GKeyFile    *key_file,
+				     const gchar *group,
+				     const gchar *key)
+{
+	gboolean value;
+
+	g_return_if_fail (G_IS_OBJECT (object));
+	g_return_if_fail (property != NULL);
+	g_return_if_fail (key_file != NULL);
+	g_return_if_fail (group != NULL);
+	g_return_if_fail (key != NULL);
+
+	g_object_get (G_OBJECT (object), property, &value, NULL);
+	g_key_file_set_boolean (key_file, group, key, value);
+}
+
+void
+tracker_keyfile_object_save_string (gpointer     object,
+				    const gchar *property,
+				    GKeyFile	*key_file,
+				    const gchar *group,
+				    const gchar	*key)
+{
+	gchar *value;
+
+	g_return_if_fail (G_IS_OBJECT (object));
+	g_return_if_fail (property != NULL);
+	g_return_if_fail (key_file != NULL);
+	g_return_if_fail (group != NULL);
+	g_return_if_fail (key != NULL);
+
+	g_object_get (G_OBJECT (object), property, &value, NULL);
+	g_key_file_set_string (key_file, group, key, value);
+	g_free (value);
+}
+
+void
+tracker_keyfile_object_save_string_list (gpointer     object,
+					 const gchar *property,
+					 GKeyFile    *key_file,
+					 const gchar *group,
+					 const gchar *key)
+{
 	GSList *list;
 	gchar **value;
 
-	g_return_if_fail (G_IS_OBJECT (config));
+	g_return_if_fail (G_IS_OBJECT (object));
 	g_return_if_fail (property != NULL);
 	g_return_if_fail (key_file != NULL);
 	g_return_if_fail (group != NULL);

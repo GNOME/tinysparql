@@ -23,7 +23,7 @@
 
 #include <glib-object.h>
 
-#include <libtracker-common/tracker-config-manager.h>
+#include <libtracker-common/tracker-config-file.h>
 
 G_BEGIN_DECLS
 
@@ -38,11 +38,11 @@ typedef struct TrackerFTSConfig	     TrackerFTSConfig;
 typedef struct TrackerFTSConfigClass TrackerFTSConfigClass;
 
 struct TrackerFTSConfig {
-	TrackerConfigManager parent;
+	TrackerConfigFile parent;
 };
 
 struct TrackerFTSConfigClass {
-	TrackerConfigManagerClass parent_class;
+	TrackerConfigFileClass parent_class;
 };
 
 GType             tracker_fts_config_get_type               (void) G_GNUC_CONST;

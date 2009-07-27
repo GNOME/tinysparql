@@ -1,6 +1,6 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*
- * Copyright (C) 2009, Nokia (urho.konttori@nokia.com)
+ * Copyright (C) 2009%, Nokia (urho.konttori@nokia.com)
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -23,7 +23,7 @@
 
 #include <glib-object.h>
 
-#include <libtracker-common/tracker-config-manager.h>
+#include <libtracker-common/tracker-config-file.h>
 
 G_BEGIN_DECLS
 
@@ -38,11 +38,11 @@ typedef struct TrackerConfig	  TrackerConfig;
 typedef struct TrackerConfigClass TrackerConfigClass;
 
 struct TrackerConfig {
-	TrackerConfigManager parent;
+	TrackerConfigFile parent;
 };
 
 struct TrackerConfigClass {
-	TrackerConfigManagerClass parent_class;
+	TrackerConfigFileClass parent_class;
 };
 
 GType	       tracker_config_get_type				   (void) G_GNUC_CONST;

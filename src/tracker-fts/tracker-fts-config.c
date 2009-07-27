@@ -26,7 +26,7 @@
 #include <glib.h>
 #include <gio/gio.h>
 
-#include <libtracker-common/tracker-config-utils.h>
+#include <libtracker-common/tracker-keyfile-object.h>
 
 #include "tracker-fts-config.h"
 
@@ -86,7 +86,7 @@ static ObjectToKeyFile conversions[] = {
 	{ G_TYPE_INT,     "max-words-to-index", GROUP_INDEXING, "MaxWordsToIndex" },
 };
 
-G_DEFINE_TYPE (TrackerFTSConfig, tracker_fts_config, TRACKER_TYPE_CONFIG_MANAGER);
+G_DEFINE_TYPE (TrackerFTSConfig, tracker_fts_config, TRACKER_TYPE_CONFIG_FILE);
 
 static void
 tracker_fts_config_class_init (TrackerFTSConfigClass *klass)
@@ -233,8 +233,8 @@ config_create_with_defaults (TrackerFTSConfig *config,
 			g_key_file_set_integer (key_file, 
 						conversions[i].group, 
 						conversions[i].key, 
-						tracker_config_default_int (config, 
-									    conversions[i].property));
+						tracker_keyfile_object_default_int (config, 
+										    conversions[i].property));
 			break;
 
 		default:
@@ -245,8 +245,8 @@ config_create_with_defaults (TrackerFTSConfig *config,
 		g_key_file_set_comment (key_file, 
 					conversions[i].group, 
 					conversions[i].key, 
-					tracker_config_blurb (config,
-							      conversions[i].property), 
+					tracker_keyfile_object_blurb (config,
+								      conversions[i].property), 
 					NULL);
 	}
 }
@@ -254,31 +254,31 @@ config_create_with_defaults (TrackerFTSConfig *config,
 static void
 config_load (TrackerFTSConfig *config)
 {
-	TrackerConfigManager *manager;
+	TrackerConfigFile *file;
 	gint i;
 
-	manager = TRACKER_CONFIG_MANAGER (config);
-	config_create_with_defaults (config, manager->key_file, FALSE);
+	file = TRACKER_CONFIG_FILE (config);
+	config_create_with_defaults (config, file->key_file, FALSE);
 
-	if (!manager->file_exists) {
-		tracker_config_manager_save (manager);
+	if (!file->file_exists) {
+		tracker_config_file_save (file);
 	}
 
 	for (i = 0; i < G_N_ELEMENTS (conversions); i++) {
 		gboolean has_key;
 		
-		has_key = g_key_file_has_key (manager->key_file, 
+		has_key = g_key_file_has_key (file->key_file, 
 					      conversions[i].group, 
 					      conversions[i].key, 
 					      NULL);
 	
 		switch (conversions[i].type) {
 		case G_TYPE_INT:
-			tracker_config_load_int (G_OBJECT (manager), 
-						 conversions[i].property,
-						 manager->key_file,
-						 conversions[i].group, 
-						 conversions[i].key);
+			tracker_keyfile_object_load_int (G_OBJECT (file), 
+							 conversions[i].property,
+							 file->key_file,
+							 conversions[i].group, 
+							 conversions[i].key);
 			break;
 
 		default:
@@ -291,12 +291,12 @@ config_load (TrackerFTSConfig *config)
 static gboolean
 config_save (TrackerFTSConfig *config)
 {
-	TrackerConfigManager *manager;
+	TrackerConfigFile *file;
 	gint i;
 
-	manager = TRACKER_CONFIG_MANAGER (config);
+	file = TRACKER_CONFIG_FILE (config);
 
-	if (!manager->key_file) {
+	if (!file->key_file) {
 		g_critical ("Could not save config, GKeyFile was NULL, has the config been loaded?");
 
 		return FALSE;
@@ -307,11 +307,11 @@ config_save (TrackerFTSConfig *config)
 	for (i = 0; i < G_N_ELEMENTS (conversions); i++) {
 		switch (conversions[i].type) {
 		case G_TYPE_INT:
-			tracker_config_save_int (manager,
-						 conversions[i].property, 
-						 manager->key_file,
-						 conversions[i].group, 
-						 conversions[i].key);
+			tracker_keyfile_object_save_int (file,
+							 conversions[i].property, 
+							 file->key_file,
+							 conversions[i].group, 
+							 conversions[i].key);
 			break;
 
 		default:
@@ -320,7 +320,7 @@ config_save (TrackerFTSConfig *config)
 		}
 	}
 
-	return tracker_config_manager_save (TRACKER_CONFIG_MANAGER (config));
+	return tracker_config_file_save (TRACKER_CONFIG_FILE (config));
 }
 
 TrackerFTSConfig *
@@ -383,7 +383,7 @@ tracker_fts_config_set_min_word_length (TrackerFTSConfig *config,
 
 	g_return_if_fail (TRACKER_IS_FTS_CONFIG (config));
 
-	if (!tracker_config_validate_int (config, "min-word-length", value)) {
+	if (!tracker_keyfile_object_validate_int (config, "min-word-length", value)) {
 		return;
 	}
 
@@ -401,7 +401,7 @@ tracker_fts_config_set_max_word_length (TrackerFTSConfig *config,
 
 	g_return_if_fail (TRACKER_IS_FTS_CONFIG (config));
 
-	if (!tracker_config_validate_int (config, "max-word-length", value)) {
+	if (!tracker_keyfile_object_validate_int (config, "max-word-length", value)) {
 		return;
 	}
 
@@ -419,7 +419,7 @@ tracker_fts_config_set_max_words_to_index (TrackerFTSConfig *config,
 
 	g_return_if_fail (TRACKER_IS_FTS_CONFIG (config));
 
-	if (!tracker_config_validate_int (config, "max-words-to-index", value)) {
+	if (!tracker_keyfile_object_validate_int (config, "max-words-to-index", value)) {
 		return;
 	}
 
