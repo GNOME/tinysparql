@@ -216,10 +216,10 @@ tracker_thumbnailer_move (const gchar *from_uri,
 
 	private->request_id++;
 
-	g_message ("Thumbnailer request to move uri from:'%s' to:'%s', request_id:%d...",
-		   from_uri,
-		   to_uri,
-		   private->request_id); 
+	g_debug ("Thumbnailer request to move uri from:'%s' to:'%s', request_id:%d...",
+		 from_uri,
+		 to_uri,
+		 private->request_id); 
 
 	if (!strstr (to_uri, "://")) {
 		to[0] = g_filename_to_uri (to_uri, NULL, NULL);
@@ -281,9 +281,9 @@ tracker_thumbnailer_remove (const gchar *uri,
 		uris[0] = g_strdup (uri);
 	}
 
-	g_message ("Thumbnailer request to remove uri:'%s', request_id:%d...",
-		   uri,
-		   private->request_id); 
+	g_debug ("Thumbnailer request to remove uri:'%s', request_id:%d...",
+		 uri,
+		 private->request_id); 
 	
 	dbus_g_proxy_call_no_reply (private->requester_proxy,
 				    "Delete",
@@ -314,9 +314,9 @@ tracker_thumbnailer_cleanup (const gchar *uri_prefix)
 
 	private->request_id++;
 
-	g_message ("Thumbnailer cleaning up uri:'%s', request_id:%d...",
-		   uri_prefix,
-		   private->request_id); 
+	g_debug ("Thumbnailer cleaning up uri:'%s', request_id:%d...",
+		 uri_prefix,
+		 private->request_id); 
 
 	dbus_g_proxy_call_no_reply (private->requester_proxy,
 				    "Cleanup",
@@ -369,10 +369,10 @@ tracker_thumbnailer_queue_add (const gchar *uri,
 	private->uris = g_slist_append (private->uris, used_uri);
 	private->mime_types = g_slist_append (private->mime_types, used_mime_type);
 
-	g_message ("Thumbnailer queue appended with uri:'%s', mime type:'%s', request_id:%d...",
-		   used_uri,
-		   used_mime_type,
-		   private->request_id); 
+	g_debug ("Thumbnailer queue appended with uri:'%s', mime type:'%s', request_id:%d...",
+		 used_uri,
+		 used_mime_type,
+		 private->request_id); 
 }
 
 void
@@ -399,7 +399,7 @@ tracker_thumbnailer_queue_send (void)
 	g_message ("Thumbnailer queue sent with %d items to thumbnailer daemon, request ID:%d...", 
 		   g_slist_length (private->uris),
 		   private->request_id);
-
+	
 	/* Clean up newly created GStrv */
 	g_strfreev (uri_strv);
 	g_strfreev (mime_type_strv);
