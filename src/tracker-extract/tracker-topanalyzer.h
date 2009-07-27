@@ -29,7 +29,7 @@ G_BEGIN_DECLS
 
 void tracker_topanalyzer_init     (void);
 void tracker_topanalyzer_extract  (const gchar *uri, 
-                                   GPtrArray *metadata, 
+                                   TrackerSparqlBuilder *metadata, 
                                    gchar **content_type);
 void tracker_topanalyzer_shutdown (void);
 
