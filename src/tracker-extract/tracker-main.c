@@ -381,8 +381,6 @@ main (int argc, char *argv[])
 		return EXIT_FAILURE;
 	}
 
-	tracker_thumbnailer_init ();
-
 	/* Main loop */
 	main_loop = g_main_loop_new (NULL, FALSE);
 	tracker_main_quit_timeout_reset ();
@@ -391,12 +389,8 @@ main (int argc, char *argv[])
 
 	g_message ("Shutdown started");
 
-	/* Push all items in thumbnail queue to the thumbnailer */
-	tracker_thumbnailer_queue_send ();
-
 	/* Shutdown subsystems */
 	tracker_dbus_shutdown ();
-	tracker_thumbnailer_shutdown ();
 	tracker_log_shutdown ();
 
 	g_object_unref (config);
