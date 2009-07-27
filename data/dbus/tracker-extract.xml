@@ -23,8 +23,7 @@
     </method>
 
     <signal name="ProcessAlbumArt">
-      <arg type="y" name="buffer"/>
-      <arg type="i" name="size"/>
+      <arg type="ay" name="buffer"/>
       <arg type="s" name="mime"/>
       <arg type="s" name="artist"/>
       <arg type="s" name="album"/>

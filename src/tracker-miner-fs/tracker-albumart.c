@@ -51,6 +51,8 @@
 #define THUMBNAILER_PATH      "/org/freedesktop/thumbnailer/Generic"
 #define THUMBNAILER_INTERFACE "org.freedesktop.thumbnailer.Generic"
 
+#define DBUS_TYPE_UCHAR_ARRAY (dbus_g_type_get_collection ("GArray", G_TYPE_UCHAR))
+
 typedef struct {
 	TrackerStorage *hal;
 	gchar *art_path;
@@ -61,8 +63,7 @@ static void     albumart_queue_cb   (DBusGProxy          *proxy,
 				     DBusGProxyCall      *call,
 				     gpointer             user_data);
 static gboolean albumart_process_cb (DBusGProxy          *proxy,
-				     const unsigned char *buffer,
-				     size_t               len,
+				     GArray              *buffer,
 				     const gchar         *mime,
 				     const gchar         *artist,
 				     const gchar         *album,
@@ -648,16 +649,19 @@ albumart_set (const unsigned char *buffer,
 
 	albumart_get_path (artist, album, "album", NULL, &local_path, NULL);
 
-	g_message ("Saving album art using GdkPixbuf for uri:'%s'", 
-		   local_path);
-
 	if (g_strcmp0 (mime, "image/jpeg") == 0 ||
 	    g_strcmp0 (mime, "JPG") == 0) {
+		g_debug ("Saving album art using raw data for uri:'%s'", 
+			 local_path);
+
 		g_file_set_contents (local_path, buffer, (gssize) len, NULL);
 	} else {
 		GdkPixbuf *pixbuf;
 		GdkPixbufLoader *loader;
 		GError *error = NULL;
+
+		g_debug ("Saving album art using GdkPixbufLoader for uri:'%s'", 
+			 local_path);
 
 		loader = gdk_pixbuf_loader_new ();
 
@@ -810,8 +814,8 @@ albumart_copy_to_local (TrackerStorage *hal,
 			make_directory_with_parents (dirf, NULL, NULL);
 			g_object_unref (dirf);
 
-			g_message ("Copying album art from:'%s' to:'%s'", 
-				   filename, local_uri);
+			g_debug ("Copying album art from:'%s' to:'%s'", 
+				 filename, local_uri);
 
 			g_file_copy_async (from, local_file, 0, 0, 
 					   NULL, NULL, NULL, NULL, NULL);
@@ -824,8 +828,7 @@ albumart_copy_to_local (TrackerStorage *hal,
 
 static gboolean
 albumart_process_cb (DBusGProxy          *proxy,
-		     const unsigned char *buffer,
-		     size_t               len,
+		     GArray              *buffer,
 		     const gchar         *mime,
 		     const gchar         *artist,
 		     const gchar         *album,
@@ -862,9 +865,9 @@ albumart_process_cb (DBusGProxy          *proxy,
 	if (!g_file_test (art_path, G_FILE_TEST_EXISTS)) {
 #ifdef HAVE_GDKPIXBUF
 		/* If we have embedded album art */
-		if (buffer && len) {
-			processed = albumart_set (buffer, 
-						  len, 
+		if (buffer && buffer->len > 0) {
+			processed = albumart_set ((const unsigned char *) buffer->data, 
+						  (size_t) buffer->len, 
 						  mime,
 						  artist,
 						  album,
@@ -921,8 +924,8 @@ albumart_process_cb (DBusGProxy          *proxy,
 			tracker_thumbnailer_queue_add (filename_uri, "image/jpeg"); 
 		}
 	} else {
-		g_message ("Albumart already exists for uri:'%s'", 
-			   filename_uri);
+		g_debug ("Albumart already exists for uri:'%s'", 
+			 filename_uri);
 	}
 
 	if (local_uri && !g_file_test (local_uri, G_FILE_TEST_EXISTS)) {
@@ -974,8 +977,8 @@ albumart_queue_cb (DBusGProxy     *proxy,
 
 		uri = g_filename_to_uri (info->art_path, NULL, NULL);
 
-		g_message ("Downloaded album art using DBus service for uri:'%s'", 
-			   uri);
+		g_debug ("Downloaded album art using DBus service for uri:'%s'", 
+			 uri);
 
 		tracker_thumbnailer_queue_add (uri, "image/jpeg");
 		g_free (uri);
@@ -1035,10 +1038,9 @@ tracker_albumart_init (TrackerStorage *storage)
                 return FALSE;
 	}
 
-        dbus_g_object_register_marshaller (tracker_marshal_VOID__UCHAR_INT_STRING_STRING_STRING_STRING,
+        dbus_g_object_register_marshaller (tracker_marshal_VOID__POINTER_STRING_STRING_STRING_STRING,
                                            G_TYPE_NONE,
-					   G_TYPE_UCHAR,
-					   G_TYPE_INT,
+					   DBUS_TYPE_UCHAR_ARRAY,
 					   G_TYPE_STRING,
 					   G_TYPE_STRING,
                                            G_TYPE_STRING,
@@ -1047,8 +1049,7 @@ tracker_albumart_init (TrackerStorage *storage)
 	
         dbus_g_proxy_add_signal (proxy,
                                  "ProcessAlbumArt",
-                                 G_TYPE_UCHAR,
-                                 G_TYPE_INT,
+                                 DBUS_TYPE_UCHAR_ARRAY,
                                  G_TYPE_STRING,
                                  G_TYPE_STRING,
                                  G_TYPE_STRING,

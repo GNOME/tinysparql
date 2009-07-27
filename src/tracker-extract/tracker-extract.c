@@ -40,6 +40,8 @@
 
 #define MAX_EXTRACT_TIME 10
 
+#define DBUS_TYPE_UCHAR_ARRAY (dbus_g_type_get_collection ("GArray", G_TYPE_UCHAR))
+
 #define TRACKER_EXTRACT_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_EXTRACT, TrackerExtractPrivate))
 
 extern gboolean debug;
@@ -80,11 +82,10 @@ tracker_extract_class_init (TrackerExtractClass *klass)
 			      G_SIGNAL_RUN_LAST,
 			      0,
 			      NULL, NULL,
-			      tracker_marshal_VOID__UCHAR_INT_STRING_STRING_STRING_STRING,
+			      tracker_marshal_VOID__POINTER_STRING_STRING_STRING_STRING,
 			      G_TYPE_NONE,
-			      6,
-			      G_TYPE_UCHAR,
-			      G_TYPE_INT,
+			      5,
+			      DBUS_TYPE_UCHAR_ARRAY,
 			      G_TYPE_STRING,
 			      G_TYPE_STRING,
 			      G_TYPE_STRING,
@@ -493,18 +494,26 @@ tracker_extract_process_albumart (TrackerExtract      *object,
 				  const gchar         *filename)
 {
 	g_return_if_fail (buffer != NULL);
-	g_return_if_fail (len > 0);
 	g_return_if_fail (object != NULL);
 	g_return_if_fail (mime != NULL);
 	g_return_if_fail (filename != NULL);
 
+	GArray *array;
+
+	array = g_array_sized_new (FALSE,
+				   FALSE,
+				   sizeof (guchar),
+				   len);
+	g_array_append_vals (array, buffer, len);
+
 	g_signal_emit (object,
 		       signals[PROCESS_ALBUM_ART],
 		       0,
-		       buffer,
-		       len,
+		       array,
 		       mime,
 		       artist,
 		       album,
 		       filename);
+
+	g_array_free (array, TRUE);
 }
