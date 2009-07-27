@@ -32,6 +32,10 @@ if HAVE_STREAMANALYZER
 INCLUDES += $(STREAMANALYZER_CFLAGS) -DHAVE_STREAMANALYZER
 endif
 
+if HAVE_ENCA
+INCLUDES += $(ENCA_CFLAGS)
+endif
+
 modules_LTLIBRARIES = 							\
 	libextract-abw.la 						\
 	libextract-mp3.la				 		\
@@ -126,6 +130,11 @@ libextract_mp3_la_SOURCES = tracker-extract-mp3.c $(albumart_sources)
 libextract_mp3_la_LDFLAGS = $(module_flags) $(albumart_flags)
 libextract_mp3_la_LIBADD = $(albumart_libs) $(GLIB2_LIBS) $(GCOV_LIBS) \
 	$(top_builddir)/src/libtracker-common/libtracker-common.la
+
+if HAVE_ENCA
+libextract_mp3_la_LIBADD += $(ENCA_LIBS)
+#libextract_mp3_la_LIBADD += -L/usr/lib/libenca.a
+endif
 
 # Vorbis (OGG)
 libextract_vorbis_la_SOURCES = tracker-extract-vorbis.c $(escape_sources)

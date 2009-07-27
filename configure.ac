@@ -219,6 +219,17 @@ PKG_CHECK_MODULES(UUID, [uuid])
 AC_SUBST(UUID_CFLAGS)
 AC_SUBST(UUID_LIBS)
 
+# Check for enca, detects defect Russian or Cyrillic language specifics in mp3s
+PKG_CHECK_MODULES(ENCA, [enca >= 1.9], have_enca=yes, have_enca=no)
+AC_SUBST(ENCA_CFLAGS)
+AC_SUBST(ENCA_LIBS)
+
+AM_CONDITIONAL(HAVE_ENCA, test "$have_enca" = "yes")
+
+if test x$have_enca == "xyes"; then
+  AC_DEFINE(HAVE_ENCA, 1, [Enca language detection aid])
+fi
+
 # Check for Raptor
 PKG_CHECK_MODULES(RAPTOR, [raptor >= 1.4.18])
 AC_SUBST(RAPTOR_CFLAGS)
