@@ -638,7 +638,7 @@ delete_resource_type (gint resource_id,
 	g_object_unref (stmt);
 
 	/* remove row from class table */
-	stmt = tracker_db_interface_create_statement (iface, "DELETE FROM \"%s\" WHERE rowid = ?", tracker_class_get_name (cl));
+	stmt = tracker_db_interface_create_statement (iface, "DELETE FROM \"%s\" WHERE ID = ?", tracker_class_get_name (cl));
 	tracker_db_statement_bind_int (stmt, 0, resource_id);
 	tracker_db_statement_execute (stmt, NULL);
 	g_object_unref (stmt);
