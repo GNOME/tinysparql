@@ -49,7 +49,9 @@ tracker_statement_list_insert (TrackerSparqlBuilder *statements,
 	if (!g_utf8_validate (value, -1, &end)) {
 		gchar *valid;
 
-		g_warning ("Invalid UTF-8 in statement list insert for value");
+		/* g_message ("Only inserting %ld/%ld (valid UTF8) bytes for statement list", */
+		/* 	   end - value, */
+		/* 	   strlen (value)); */
 
 		if (value != end) {
 			valid = g_strndup (value, end - value);
