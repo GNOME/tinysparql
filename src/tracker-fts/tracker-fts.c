@@ -2144,6 +2144,7 @@ static void docListExceptMerge(
 }
 #endif
 
+#if 0
 static char *string_dup_n(const char *s, int n){
   char *str = sqlite3_malloc(n + 1);
   memcpy(str, s, n);
@@ -2157,6 +2158,7 @@ static char *string_dup_n(const char *s, int n){
 static char *string_dup(const char *s){
   return string_dup_n(s, strlen(s));
 }
+#endif
 
 /* Format a string, replacing each occurrence of the % character with
  * zDb.zName.  This may be more convenient than sqlite_mprintf()
@@ -2584,6 +2586,7 @@ static int content_insert(fulltext_vtab *v, sqlite3_value *docid,
   return sql_single_step(s);
 }
 
+#if 0
 static void freeStringArray(int nString, const char **pString){
   int i;
 
@@ -2637,6 +2640,7 @@ static int content_select(fulltext_vtab *v, sqlite_int64 iDocid,
   freeStringArray(v->nColumn, values);
   return rc;
 }
+#endif
 
 /* delete from %_content where docid = [iDocid ] */
 static int content_delete(fulltext_vtab *v, sqlite_int64 iDocid){
@@ -4921,7 +4925,6 @@ static int insertTerms(fulltext_vtab *v, sqlite_int64 iDocid,
 
   return SQLITE_OK;
 }
-#endif
 
 /* Add empty doclists for all terms in the given row's content to
 ** pendingTerms.
@@ -4953,6 +4956,7 @@ static int deleteTerms(fulltext_vtab *v, sqlite_int64 iDocid){
   freeStringArray(v->nColumn, pValues);
   return SQLITE_OK;
 }
+#endif
 
 /* TODO(shess) Refactor the code to remove this forward decl. */
 static int initPendingTerms(fulltext_vtab *v, sqlite_int64 iDocid);
@@ -4969,12 +4973,6 @@ static int index_insert(fulltext_vtab *v, sqlite3_value *pRequestDocid,
 ** to pendingTerms.
 */
 static int index_delete(fulltext_vtab *v, sqlite_int64 iRow){
-  int rc = initPendingTerms(v, iRow);
-  if( rc!=SQLITE_OK ) return rc;
-
-  rc = deleteTerms(v, iRow);
-  if( rc!=SQLITE_OK ) return rc;
-
   return content_delete(v, iRow);  /* execute an SQL DELETE */
 }
 
