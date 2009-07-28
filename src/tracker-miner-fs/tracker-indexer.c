@@ -817,6 +817,174 @@ indexer_get_property (GObject	 *object,
 }
 
 static void
+set_up_mount_point (TrackerIndexer *indexer,
+		    const gchar    *removable_device_urn,
+		    const gchar    *mount_point,
+		    gboolean        mounted)
+{
+	GString *queries;
+	GError *error = NULL;
+
+	g_debug ("Setting up mount point '%s'", removable_device_urn);
+
+	queries = g_string_new (NULL);
+
+	if (mounted) {
+		if (mount_point) {
+			GFile *file;
+			gchar *uri;
+
+			file = g_file_new_for_path (mount_point);
+			uri = g_file_get_uri (file);
+
+			g_string_append_printf (queries,
+						"INSERT { <%s> a tracker:Volume; tracker:mountPoint <%s> } ",
+						removable_device_urn, uri);
+
+			g_object_unref (file);
+			g_free (uri);
+		}
+
+		g_string_append_printf (queries,
+					"INSERT { <%s> a tracker:Volume; tracker:isMounted true } ",
+					removable_device_urn);
+
+		g_string_append_printf (queries,
+					"INSERT { ?do tracker:available true } WHERE { ?do nie:dataSource <%s> }",
+					removable_device_urn);
+	} else {
+		gchar *now;
+
+		now = tracker_date_to_string (time (NULL));
+
+		g_string_append_printf (queries,
+					"INSERT { <%s> a tracker:Volume; tracker:unmountDate \"%s\" } ",
+					removable_device_urn, now);
+
+		g_string_append_printf (queries,
+					"INSERT { <%s> a tracker:Volume; tracker:isMounted false } ",
+					removable_device_urn);
+
+		g_string_append_printf (queries,
+					"DELETE { ?do tracker:available true } WHERE { ?do nie:dataSource <%s> }",
+					removable_device_urn);
+		g_free (now);
+	}
+
+	tracker_resources_batch_sparql_update (indexer->private->client, queries->str, &error);
+	g_string_free (queries, TRUE);
+
+	if (error) {
+		g_critical ("Could not set up mount point '%s': %s",
+			    removable_device_urn, error->message);
+		g_error_free (error);
+	}
+}
+
+static void
+mount_point_added_cb (TrackerStorage *storage,
+		      const gchar    *udi,
+		      const gchar    *mount_point,
+		      gpointer        user_data)
+{
+	TrackerIndexer *indexer;
+	gchar *urn;
+
+	g_debug ("Configuring added mount point '%s'", mount_point);
+
+	indexer = TRACKER_INDEXER (user_data);
+	urn = g_strdup_printf (TRACKER_DATASOURCE_URN_PREFIX "%s", udi);
+
+	set_up_mount_point (indexer, urn, mount_point, TRUE);
+	tracker_resources_batch_commit (indexer->private->client, NULL);
+	g_free (urn);
+}
+
+static void
+mount_point_removed_cb (TrackerStorage *storage,
+			const gchar    *udi,
+			const gchar    *mount_point,
+			gpointer        user_data)
+{
+	TrackerIndexer *indexer;
+	gchar *urn;
+
+	g_debug ("Removing mount point '%s'", mount_point);
+
+	indexer = TRACKER_INDEXER (user_data);
+	urn = g_strdup_printf (TRACKER_DATASOURCE_URN_PREFIX "%s", udi);
+
+	set_up_mount_point (indexer, urn, mount_point, FALSE);
+	tracker_resources_batch_commit (indexer->private->client, NULL);
+	g_free (urn);
+}
+
+static void
+disable_all_mount_points (TrackerIndexer *indexer)
+{
+	GString *queries;
+	GError *error = NULL;
+
+	g_debug ("Disabling all mount points");
+
+	queries = g_string_new (NULL);
+
+	/* FIXME: no need to remove tracker:available for files in non removable media */
+	g_string_append (queries,
+			 "DELETE { ?do tracker:available true } WHERE { ?do nie:dataSource ?u } ");
+
+	g_string_append (queries,
+			 "DELETE { ?o tracker:isMounted ?d } WHERE { ?o tracker:isMounted ?d "
+			 "FILTER (?o != <" TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN ">) } ");
+
+	g_string_append (queries,
+			 "INSERT { ?o a tracker:Volume; tracker:isMounted false } WHERE { ?o a tracker:Volume "
+			 "FILTER (?o != <" TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN ">) }");
+
+	tracker_resources_batch_sparql_update (indexer->private->client, queries->str, &error);
+	g_string_free (queries, TRUE);
+
+	if (error) {
+		g_critical ("Could not disable all mount points: %s", error->message);
+		g_error_free (error);
+	}
+}
+
+static void
+init_mount_points (TrackerIndexer *indexer)
+{
+#ifdef HAVE_HAL
+	GList *udis, *u;
+#endif
+
+	disable_all_mount_points (indexer);
+
+	/* set up root mount point */
+	set_up_mount_point (indexer,
+			    TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN,
+			    NULL, TRUE);
+
+#ifdef HAVE_HAL
+	udis = tracker_storage_get_removable_device_udis (indexer->private->storage);
+
+	for (u = udis; u; u = u->next) {
+		gchar *removable_device_urn;
+		const gchar *udi, *mount_point;
+
+		udi = u->data;
+		mount_point = tracker_storage_udi_get_mount_point (indexer->private->storage, udi);
+		removable_device_urn = g_strdup_printf (TRACKER_DATASOURCE_URN_PREFIX "%s", udi);
+
+		set_up_mount_point (indexer, removable_device_urn, mount_point, TRUE);
+
+		g_free (removable_device_urn);
+	}
+
+	g_list_free (udis);
+#endif
+}
+
+static void
 indexer_constructed (GObject *object)
 {
 	TrackerIndexer *indexer;
@@ -828,6 +996,15 @@ indexer_constructed (GObject *object)
 
 	tracker_status_init (indexer->private->config, 
 			     indexer->private->power);
+
+#ifdef HAVE_HAL
+	g_signal_connect (indexer->private->storage, "mount-point-added",
+			  G_CALLBACK (mount_point_added_cb), indexer);
+	g_signal_connect (indexer->private->storage, "mount-point-removed",
+			  G_CALLBACK (mount_point_removed_cb), indexer);
+#endif /* HAVE_HAL */
+
+	init_mount_points (indexer);
 
 	/* Set our status as running, if this is FALSE, threads stop
 	 * doing what they do and shutdown.
@@ -1149,6 +1326,7 @@ item_add_to_datasource (TrackerIndexer *indexer,
 {
 	GFile *file;
 	const gchar *removable_device_udi;
+	gchar *removable_device_urn;
 
 	file = tracker_module_file_get_file (module_file);
 
@@ -1160,27 +1338,23 @@ item_add_to_datasource (TrackerIndexer *indexer,
 #endif
 
 	if (removable_device_udi) {
-		gchar *removable_device_urn;
-
-		removable_device_urn = g_strdup_printf (TRACKER_DATASOURCE_URN_PREFIX "%s", 
+		removable_device_urn = g_strdup_printf (TRACKER_DATASOURCE_URN_PREFIX "%s",
 						        removable_device_udi);
-
-		tracker_sparql_builder_subject_iri (sparql, removable_device_urn);
-		tracker_sparql_builder_predicate (sparql, "a");
-		tracker_sparql_builder_object (sparql, "tracker:Volume");
-
-		tracker_sparql_builder_predicate (sparql, "nie:dataSource");
-		tracker_sparql_builder_object_iri (sparql, removable_device_urn);
-
-		g_free (removable_device_urn);
 	} else {
-		tracker_sparql_builder_subject_iri (sparql, TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN);
-		tracker_sparql_builder_predicate (sparql, "a");
-		tracker_sparql_builder_object (sparql, "tracker:Volume");
-
-		tracker_sparql_builder_predicate (sparql, "nie:dataSource");
-		tracker_sparql_builder_object_iri (sparql, TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN);
+		removable_device_urn = g_strdup (TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN);
 	}
+
+	tracker_sparql_builder_subject_iri (sparql, uri);
+	tracker_sparql_builder_predicate (sparql, "a");
+	tracker_sparql_builder_object (sparql, "nfo:FileDataObject");
+
+	tracker_sparql_builder_predicate (sparql, "nie:dataSource");
+	tracker_sparql_builder_object_iri (sparql, removable_device_urn);
+
+	tracker_sparql_builder_predicate (sparql, "tracker:available");
+	tracker_sparql_builder_object_boolean (sparql, TRUE);
+
+	g_free (removable_device_urn);
 }
 
 static void

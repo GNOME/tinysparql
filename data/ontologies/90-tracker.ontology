@@ -39,7 +39,10 @@ tracker:mountPoint a rdf:Property ;
 	rdfs:domain tracker:Volume ;
 	rdfs:range rdfs:Resource .
 
+tracker:available a rdf:Property ;
+	nrl:maxCardinality 1 ;
+        rdfs:domain nie:DataObject ;
+        rdfs:range xsd:boolean .
+
 fts: a tracker:Namespace ;
 	tracker:prefix "fts" .
-
-
