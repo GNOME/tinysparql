@@ -527,7 +527,7 @@ extract_metadata (MetadataExtractor *extractor,
 
 			s = NULL;
 			gst_tag_list_get_string (extractor->tagcache, GST_TAG_GENRE, &s);
-			if (g_strcmp0 (s, "Unknown") != 0) {
+			if (s && strcmp (s, "Unknown") != 0) {
 				tracker_statement_list_insert (metadata, uri, NFO_PREFIX "genre", s);
 			}
 			g_free (s);
