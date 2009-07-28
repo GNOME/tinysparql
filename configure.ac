@@ -329,8 +329,8 @@ AC_SUBST(GCOV_LIBS)
 
 AC_ARG_ENABLE(unit_tests,
 	      AS_HELP_STRING([--enable-unit-tests],
-			     [enable unit tests [[default=no]]]), ,
-	      [enable_unit_tests=no])
+			     [enable unit tests [[default=yes]]]), ,
+	      [enable_unit_tests=yes])
 
 if test "x$enable_unit_tests" != "xno" ; then
    have_unit_tests=yes
