@@ -12,6 +12,7 @@ INCLUDES = 								\
 	$(WARN_CFLAGS)							\
 	$(GLIB2_CFLAGS)							\
 	$(GCOV_CFLAGS)							\
+	$(GDKPIXBUF_CFLAGS)						\
 	$(GMODULE_CFLAGS) 						\
 	$(DBUS_CFLAGS)							\
 	$(EXEMPI_CFLAGS) 						\
@@ -231,6 +232,8 @@ libextract_playlist_la_LIBADD = $(GLIB2_LIBS) $(TOTEM_PL_PARSER_LIBS) $(GCOV_LIB
 libexec_PROGRAMS = tracker-extract
 
 tracker_extract_SOURCES = 						\
+	tracker-albumart.c						\
+	tracker-albumart.h						\
 	tracker-config.c						\
 	tracker-config.h						\
 	tracker-dbus.c							\
@@ -253,6 +256,10 @@ tracker_extract_LDADD = 						\
 if HAVE_STREAMANALYZER
 tracker_extract_SOURCES += tracker-topanalyzer.cpp tracker-topanalyzer.h
 tracker_extract_LDADD += $(STREAMANALYZER_LIBS)
+endif
+
+if HAVE_GDKPIXBUF
+tracker_extract_LDADD += $(GDKPIXBUF_LIBS)
 endif
 
 tracker-marshal.h: tracker-marshal.list

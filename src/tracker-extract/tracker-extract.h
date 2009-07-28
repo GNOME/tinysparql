@@ -64,13 +64,6 @@ void            tracker_extract_get_metadata            (TrackerExtract         
 void            tracker_extract_get_metadata_by_cmdline (TrackerExtract         *object,
 							 const gchar            *path,
 							 const gchar            *mime);
-void            tracker_extract_process_albumart        (TrackerExtract         *object,
-							 const unsigned char    *buffer,
-							 size_t                  len,
-							 const gchar            *mime,
-							 const gchar            *artist,
-							 const gchar            *album,
-							 const gchar            *filename);
 
 G_END_DECLS
 

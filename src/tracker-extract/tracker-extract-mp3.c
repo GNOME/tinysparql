@@ -49,9 +49,9 @@
 #include <libtracker-common/tracker-ontology.h>
 #include <libtracker-common/tracker-utils.h>
 
+#include "tracker-albumart.h"
 #include "tracker-main.h"
 #include "tracker-dbus.h"
-#include "tracker-extract.h"
 
 /* We mmap the beginning of the file and read separately the last 128 bytes
    for id3v1 tags. While these are probably cornercases the rationale is that
@@ -1810,7 +1810,6 @@ static void
 extract_mp3 (const gchar *uri,
 	     TrackerSparqlBuilder  *metadata)
 {
-	GObject *object;
 	gchar *filename;
 	int fd;
 	void *buffer;
@@ -1967,25 +1966,20 @@ extract_mp3 (const gchar *uri,
 	g_free (info.trackno);
 	g_free (info.genre);
 
-	/* TODO */
-	object = tracker_dbus_get_object (TRACKER_TYPE_EXTRACT);
-
 #ifdef HAVE_GDKPIXBUF
-	tracker_extract_process_albumart (TRACKER_EXTRACT (object),
-					  filedata.albumartdata, 
-					  filedata.albumartsize, 
-					  filedata.albumartmime,
-					  /* tracker_statement_list_find (metadata, NMM_PREFIX "performer") */ NULL,
-					  filedata.title, 
-					  filename);
+	tracker_albumart_process (filedata.albumartdata, 
+				  filedata.albumartsize, 
+				  filedata.albumartmime,
+				  /* tracker_statement_list_find (metadata, NMM_PREFIX "performer") */ NULL,
+				  filedata.title, 
+				  filename);
 #else
-	tracker_extract_process_albumart (TRACKER_EXTRACT (object),
-					  NULL, 
-					  0, 
-					  NULL,
-					  /* tracker_statement_list_find (metadata, NMM_PREFIX "performer") */ NULL,
-					  filedata.title, 
-					  filename);
+	tracker_albumart_process (NULL, 
+				  0, 
+				  NULL,
+				  /* tracker_statement_list_find (metadata, NMM_PREFIX "performer") */ NULL,
+				  filedata.title, 
+				  filename);
 
 #endif /* HAVE_GDKPIXBUF */
 
@@ -2007,3 +2001,4 @@ tracker_get_extract_data (void)
 {
 	return extract_data;
 }
+

@@ -38,9 +38,12 @@
 
 #include <dbus/dbus-glib-bindings.h>
 
+#include <libtracker-common/tracker-storage.h>
 #include <libtracker-common/tracker-thumbnailer.h>
 
 #include "tracker-albumart.h"
+#include "tracker-dbus.h"
+#include "tracker-extract.h"
 #include "tracker-marshal.h"
 
 #define ALBUMARTER_SERVICE    "com.nokia.albumart"
@@ -51,29 +54,18 @@
 #define THUMBNAILER_PATH      "/org/freedesktop/thumbnailer/Generic"
 #define THUMBNAILER_INTERFACE "org.freedesktop.thumbnailer.Generic"
 
-#define DBUS_TYPE_UCHAR_ARRAY (dbus_g_type_get_collection ("GArray", G_TYPE_UCHAR))
-
 typedef struct {
 	TrackerStorage *hal;
 	gchar *art_path;
 	gchar *local_uri;
 } GetFileInfo;
 
-static void     albumart_queue_cb   (DBusGProxy          *proxy,
-				     DBusGProxyCall      *call,
-				     gpointer             user_data);
-static gboolean albumart_process_cb (DBusGProxy          *proxy,
-				     GArray              *buffer,
-				     const gchar         *mime,
-				     const gchar         *artist,
-				     const gchar         *album,
-				     const gchar         *filename,
-				     gpointer             user_data);
-
+static void albumart_queue_cb (DBusGProxy     *proxy,
+			       DBusGProxyCall *call,
+			       gpointer        user_data);
 
 static gboolean initialized;
 static gboolean disable_requests;
-static TrackerConfig *albumart_config;
 static TrackerStorage *albumart_storage;
 static GHashTable *albumart_cache;
 static DBusGProxy *albumart_proxy;
@@ -512,7 +504,7 @@ albumart_heuristic (const gchar *artist,
 	file = NULL;
 
 	if (g_stat (dirname, &st) == -1) {
-		g_warning ("Could not g_stat() directory:'%s' for albumart heuristic",
+		g_warning ("Could not g_stat() directory:'%s' for album art heuristic",
 			   dirname);
 
 		g_free (dirname);
@@ -631,6 +623,26 @@ albumart_heuristic (const gchar *artist,
 	return retval;
 }
 
+static void
+albumart_signal_queue_thumbnail (const gchar *file,
+				 const gchar *mime)
+{
+	GObject *object;
+
+	object = tracker_dbus_get_object (TRACKER_TYPE_EXTRACT);
+	if (!object) {
+		/* This can happen if we run tracker-extract on the
+		 * command line for one file only because we don't
+		 * register the TrackerExtract object with DBus.
+		 */
+		return;
+	}
+
+	g_message ("Album art being signaled for thumbnail queue for file:'%s', mime:'%s'", 
+		   file, mime);
+	g_signal_emit_by_name (object, "queue-thumbnail", file, mime);
+}
+
 #ifdef HAVE_GDKPIXBUF
 
 static gboolean
@@ -700,10 +712,7 @@ albumart_set (const unsigned char *buffer,
 		}
 	}
 
-	if (tracker_config_get_enable_thumbnails (albumart_config)) {
-		tracker_thumbnailer_queue_add (local_path, "image/jpeg"); 
-	}
-
+	albumart_signal_queue_thumbnail (local_path, mime);
 	g_free (local_path);
 
 	return TRUE;
@@ -830,20 +839,140 @@ albumart_copy_to_local (TrackerStorage *hal,
 	}
 }
 
-static gboolean
-albumart_process_cb (DBusGProxy          *proxy,
-		     GArray              *buffer,
-		     const gchar         *mime,
-		     const gchar         *artist,
-		     const gchar         *album,
-		     const gchar         *filename,
-		     gpointer             user_data)
+static void
+albumart_queue_cb (DBusGProxy     *proxy,
+		   DBusGProxyCall *call,
+		   gpointer	   user_data)
+{
+	GError      *error = NULL;
+	guint        handle;
+	GetFileInfo *info;
+
+	info = user_data;
+
+	dbus_g_proxy_end_call (proxy, call, &error,
+			       G_TYPE_UINT, &handle,
+			       G_TYPE_INVALID);
+
+	if (error) {
+		if (error->code == DBUS_GERROR_SERVICE_UNKNOWN) {
+			disable_requests = TRUE;
+		} else {
+			g_warning ("%s", error->message);
+		}
+
+		g_clear_error (&error);
+	}
+
+	if (info->hal && info->art_path &&
+	    g_file_test (info->art_path, G_FILE_TEST_EXISTS)) {
+		gchar *uri;
+
+		uri = g_filename_to_uri (info->art_path, NULL, NULL);
+
+		g_debug ("Downloaded album art using DBus service for uri:'%s'", 
+			 uri);
+
+		albumart_signal_queue_thumbnail (uri, "image/jpeg");
+		g_free (uri);
+
+		albumart_copy_to_local (info->hal,
+					info->art_path, 
+					info->local_uri);
+	}
+
+	g_free (info->art_path);
+	g_free (info->local_uri);
+
+	if (info->hal) {
+		g_object_unref (info->hal);
+	}
+
+	g_slice_free (GetFileInfo, info);
+}
+
+gboolean
+tracker_albumart_init (void)
+{
+	DBusGConnection *connection;
+	GError *error = NULL;
+
+	g_return_val_if_fail (initialized == FALSE, FALSE);
+
+#ifdef HAVE_HAL
+	albumart_storage = tracker_storage_new ();
+#else  /* HAVE_HAL */
+	albumart_storage = NULL;
+#endif /* HAVE_HAL */
+
+	/* Cache to know if we have already handled uris */
+	albumart_cache = g_hash_table_new_full (g_str_hash,
+						g_str_equal,
+						(GDestroyNotify) g_free,
+						NULL);
+
+	/* Signal handler for new album art from the extractor */
+	connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
+
+	if (!connection) {
+		g_critical ("Could not connect to the DBus session bus, %s",
+			    error ? error->message : "no error given.");
+		g_clear_error (&error);
+		return FALSE;
+	}
+
+	/* Get album art downloader proxy */
+	albumart_proxy = dbus_g_proxy_new_for_name (connection,
+						    ALBUMARTER_SERVICE,
+						    ALBUMARTER_PATH,
+						    ALBUMARTER_INTERFACE);
+
+	initialized = TRUE;
+
+	return TRUE;
+}
+
+void
+tracker_albumart_shutdown (void)
+{
+	g_return_if_fail (initialized == TRUE);
+
+	if (albumart_proxy) {
+		g_object_unref (albumart_proxy);
+	}
+
+	if (albumart_cache) {
+		g_hash_table_unref (albumart_cache);
+	}
+
+#ifdef HAVE_HAL
+	if (albumart_storage) {
+		g_object_unref (albumart_storage);
+	}
+#endif /* HAVE_HAL */
+
+	initialized = FALSE;
+}
+
+gboolean
+tracker_albumart_process (const unsigned char *buffer,
+			  size_t               len,
+			  const gchar         *mime,
+			  const gchar         *artist,
+			  const gchar         *album,
+			  const gchar         *filename)
 {
 	gchar *art_path;
 	gboolean processed = TRUE;
 	gchar *local_uri = NULL;
 	gchar *filename_uri;
 
+	g_debug ("Processing album art, buffer is %ld bytes, artist:'%s', album:'%s', filename:'%s', mime:'%s'",
+		 len,
+		 artist ? artist : "", 
+		 album ? album : "",
+		 filename, 
+		 mime);
 
 	if (strstr (filename, "://")) {
 		filename_uri = g_strdup (filename);
@@ -859,7 +988,7 @@ albumart_process_cb (DBusGProxy          *proxy,
 			   &local_uri);
 
 	if (!art_path) {
-		g_warning ("Albumart path could not be obtained, not processing any further");
+		g_warning ("Album art path could not be obtained, not processing any further");
 
 		g_free (filename_uri);
 		g_free (local_uri);
@@ -870,9 +999,9 @@ albumart_process_cb (DBusGProxy          *proxy,
 	if (!g_file_test (art_path, G_FILE_TEST_EXISTS)) {
 #ifdef HAVE_GDKPIXBUF
 		/* If we have embedded album art */
-		if (buffer && buffer->len > 0) {
-			processed = albumart_set ((const unsigned char *) buffer->data, 
-						  (size_t) buffer->len, 
+		if (buffer && len > 0) {
+			processed = albumart_set (buffer,
+						  len, 
 						  mime,
 						  artist,
 						  album,
@@ -926,12 +1055,10 @@ albumart_process_cb (DBusGProxy          *proxy,
 #endif /* HAVE_GDKPIXBUF */
 
 		if (processed) {
-			if (tracker_config_get_enable_thumbnails (albumart_config)) {
-				tracker_thumbnailer_queue_add (filename_uri, "image/jpeg"); 
-			}
+			albumart_signal_queue_thumbnail (filename_uri, "image/jpeg");
 		}
 	} else {
-		g_debug ("Albumart already exists for uri:'%s'", 
+		g_debug ("Album art already exists for uri:'%s'", 
 			 filename_uri);
 	}
 
@@ -951,166 +1078,4 @@ albumart_process_cb (DBusGProxy          *proxy,
 	g_free (local_uri);
 
 	return processed;
-}
-
-static void
-albumart_queue_cb (DBusGProxy     *proxy,
-		   DBusGProxyCall *call,
-		   gpointer	   user_data)
-{
-	GError      *error = NULL;
-	guint        handle;
-	GetFileInfo *info;
-
-	info = user_data;
-
-	dbus_g_proxy_end_call (proxy, call, &error,
-			       G_TYPE_UINT, &handle,
-			       G_TYPE_INVALID);
-
-	if (error) {
-		if (error->code == DBUS_GERROR_SERVICE_UNKNOWN) {
-			disable_requests = TRUE;
-		} else {
-			g_warning ("%s", error->message);
-		}
-
-		g_clear_error (&error);
-	}
-
-	if (info->hal && info->art_path &&
-	    g_file_test (info->art_path, G_FILE_TEST_EXISTS)) {
-		gchar *uri;
-
-		uri = g_filename_to_uri (info->art_path, NULL, NULL);
-
-		g_debug ("Downloaded album art using DBus service for uri:'%s'", 
-			 uri);
-
-		if (tracker_config_get_enable_thumbnails (albumart_config)) {
-			tracker_thumbnailer_queue_add (uri, "image/jpeg");
-		}
-
-		g_free (uri);
-
-		albumart_copy_to_local (info->hal,
-					info->art_path, 
-					info->local_uri);
-	}
-
-	g_free (info->art_path);
-	g_free (info->local_uri);
-
-	if (info->hal) {
-		g_object_unref (info->hal);
-	}
-
-	g_slice_free (GetFileInfo, info);
-}
-
-gboolean
-tracker_albumart_init (TrackerConfig  *config,
-		       TrackerStorage *storage)
-{
-	DBusGProxy *proxy;
-	DBusGConnection *connection;
-	GError *error = NULL;
-
-	g_return_val_if_fail (initialized == FALSE, FALSE);
-	g_return_val_if_fail (TRACKER_IS_CONFIG (config), FALSE);
-
-	albumart_config = g_object_ref (config);
-
-#ifdef HAVE_HAL
-	g_return_val_if_fail (TRACKER_IS_STORAGE (storage), FALSE);
-
-	albumart_storage = g_object_ref (storage);
-#endif /* HAVE_HAL */
-
-	/* Cache to know if we have already handled uris */
-	albumart_cache = g_hash_table_new_full (g_str_hash,
-						g_str_equal,
-						(GDestroyNotify) g_free,
-						NULL);
-
-	/* Signal handler for new album art from the extractor */
-	connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
-
-	if (!connection) {
-		g_critical ("Could not connect to the DBus session bus, %s",
-			    error ? error->message : "no error given.");
-		g_clear_error (&error);
-		return FALSE;
-	}
-
-	/* Get proxy for Service / Path / Interface of the indexer */
-	proxy = dbus_g_proxy_new_for_name (connection,
-					   "org.freedesktop.Tracker.Extract",
-					   "/org/freedesktop/Tracker/Extract",
-					   "org.freedesktop.Tracker.Extract");
-
-	if (!proxy) {
-		g_critical ("Could not create a DBusGProxy to the extract service");
-                return FALSE;
-	}
-
-        dbus_g_object_register_marshaller (tracker_marshal_VOID__POINTER_STRING_STRING_STRING_STRING,
-                                           G_TYPE_NONE,
-					   DBUS_TYPE_UCHAR_ARRAY,
-					   G_TYPE_STRING,
-					   G_TYPE_STRING,
-                                           G_TYPE_STRING,
-                                           G_TYPE_STRING,
-                                           G_TYPE_INVALID);
-	
-        dbus_g_proxy_add_signal (proxy,
-                                 "ProcessAlbumArt",
-                                 DBUS_TYPE_UCHAR_ARRAY,
-                                 G_TYPE_STRING,
-                                 G_TYPE_STRING,
-                                 G_TYPE_STRING,
-                                 G_TYPE_STRING,
-                                 G_TYPE_INVALID);
-        			
-        dbus_g_proxy_connect_signal (proxy,
-                                     "ProcessAlbumArt",
-                                     G_CALLBACK (albumart_process_cb),
-                                     NULL,
-                                     NULL);
-
-	/* Get album art downloader proxy */
-	albumart_proxy = dbus_g_proxy_new_for_name (connection,
-						    ALBUMARTER_SERVICE,
-						    ALBUMARTER_PATH,
-						    ALBUMARTER_INTERFACE);
-
-	initialized = TRUE;
-
-	return TRUE;
-}
-
-void
-tracker_albumart_shutdown (void)
-{
-	g_return_if_fail (initialized == TRUE);
-
-	if (albumart_proxy) {
-		g_object_unref (albumart_proxy);
-	}
-
-	if (albumart_cache) {
-		g_hash_table_unref (albumart_cache);
-	}
-
-#ifdef HAVE_HAL
-	if (albumart_storage) {
-		g_object_unref (albumart_storage);
-	}
-#endif /* HAVE_HAL */
-
-	if (albumart_config) {
-		g_object_unref (albumart_config);
-	}
-
-	initialized = FALSE;
 }

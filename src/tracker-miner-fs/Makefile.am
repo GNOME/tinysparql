@@ -13,7 +13,6 @@ INCLUDES =								\
 	-DTRACKER_COMPILATION						\
 	-I$(top_srcdir)/src						\
 	$(WARN_CFLAGS)							\
-	$(GDKPIXBUF_CFLAGS)						\
 	$(GMODULE_CFLAGS)						\
 	$(PANGO_CFLAGS)							\
 	$(DBUS_CFLAGS)							\
@@ -41,8 +40,6 @@ libtracker_module_la_LIBADD = $(GCOV_LIBS)
 libexec_PROGRAMS = tracker-miner-fs
 
 tracker_miner_fs_SOURCES =						\
-	tracker-albumart.c						\
-	tracker-albumart.h						\
 	tracker-config.c						\
 	tracker-config.h						\
 	tracker-crawler.c						\
@@ -78,7 +75,6 @@ tracker_miner_fs_LDADD =						\
 	$(top_builddir)/src/libinotify/libinotify.la			\
 	$(tracker_store_win_libs)					\
 	$(DBUS_LIBS)							\
-	$(GDKPIXBUF_LIBS)						\
 	$(GMODULE_LIBS)							\
 	$(GTHREAD_LIBS)							\
 	$(PANGO_LIBS)							\

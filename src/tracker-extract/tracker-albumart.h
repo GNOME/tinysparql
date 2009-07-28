@@ -18,21 +18,22 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __TRACKER_MINER_FS_ALBUMART_H__
-#define __TRACKER_MINER_FS_ALBUMART_H__
+#ifndef __TRACKER_EXTRACT_ALBUMART_H__
+#define __TRACKER_EXTRACT_ALBUMART_H__
 
 #include <glib.h>
 
-#include <libtracker-common/tracker-storage.h>
-
-#include "tracker-config.h"
-
 G_BEGIN_DECLS
 
-gboolean tracker_albumart_init     (TrackerConfig  *config,
-				    TrackerStorage *hal);
+gboolean tracker_albumart_init     (void);
 void     tracker_albumart_shutdown (void);
+gboolean tracker_albumart_process  (const unsigned char *buffer,
+				    size_t               len,
+				    const gchar         *mime,
+				    const gchar         *artist,
+				    const gchar         *album,
+				    const gchar         *filename);
 
 G_END_DECLS
 
-#endif /* __TRACKER_MINER_FS_ALBUMART_H__ */
+#endif /* __TRACKER_MINER_EXTRACT_H__ */

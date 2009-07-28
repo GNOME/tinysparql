@@ -40,8 +40,6 @@
 
 #define MAX_EXTRACT_TIME 10
 
-#define DBUS_TYPE_UCHAR_ARRAY (dbus_g_type_get_collection ("GArray", G_TYPE_UCHAR))
-
 #define TRACKER_EXTRACT_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_EXTRACT, TrackerExtractPrivate))
 
 extern gboolean debug;
@@ -57,7 +55,7 @@ typedef struct {
 }  ModuleData;
 
 enum {
-	PROCESS_ALBUM_ART,
+	QUEUE_THUMBNAIL,
 	LAST_SIGNAL
 };
 
@@ -76,18 +74,15 @@ tracker_extract_class_init (TrackerExtractClass *klass)
 
 	object_class->finalize = tracker_extract_finalize;
 
-	signals[PROCESS_ALBUM_ART] =
-		g_signal_new ("process-album-art",
+	signals[QUEUE_THUMBNAIL] =
+		g_signal_new ("queue-thumbnail",
 			      G_TYPE_FROM_CLASS (klass),
 			      G_SIGNAL_RUN_LAST,
 			      0,
 			      NULL, NULL,
-			      tracker_marshal_VOID__POINTER_STRING_STRING_STRING_STRING,
+			      tracker_marshal_VOID__STRING_STRING,
 			      G_TYPE_NONE,
-			      5,
-			      DBUS_TYPE_UCHAR_ARRAY,
-			      G_TYPE_STRING,
-			      G_TYPE_STRING,
+			      2,
 			      G_TYPE_STRING,
 			      G_TYPE_STRING);
 
@@ -482,38 +477,4 @@ tracker_extract_get_metadata (TrackerExtract	     *object,
 		/* Unset alarm so the extractor doesn't die when it's idle */
 		alarm (0);
 	}
-}
-
-void
-tracker_extract_process_albumart (TrackerExtract      *object, 
-				  const unsigned char *buffer,
-				  size_t               len,
-				  const gchar         *mime,
-				  const gchar         *artist,
-				  const gchar         *album,
-				  const gchar         *filename)
-{
-	g_return_if_fail (buffer != NULL);
-	g_return_if_fail (object != NULL);
-	g_return_if_fail (mime != NULL);
-	g_return_if_fail (filename != NULL);
-
-	GArray *array;
-
-	array = g_array_sized_new (FALSE,
-				   FALSE,
-				   sizeof (guchar),
-				   len);
-	g_array_append_vals (array, buffer, len);
-
-	g_signal_emit (object,
-		       signals[PROCESS_ALBUM_ART],
-		       0,
-		       array,
-		       mime,
-		       artist,
-		       album,
-		       filename);
-
-	g_array_free (array, TRUE);
 }

@@ -48,7 +48,6 @@
 
 #include <libtracker-data/tracker-turtle.h>
 
-#include "tracker-albumart.h"
 #include "tracker-dbus.h"
 #include "tracker-config.h"
 #include "tracker-indexer.h"
@@ -67,7 +66,7 @@
 	"  http://www.gnu.org/licenses/gpl.txt\n"
 
 static GMainLoop    *main_loop;
-
+static DBusGProxy   *proxy_for_extractor;
 static gboolean      version;
 static gint	     verbosity = -1;
 static gint	     initial_sleep = -1;
@@ -220,6 +219,92 @@ daemon_availability_changed_cb (const gchar *name,
         }
 }
 
+static void
+albumart_queue_thumbnail_cb (DBusGProxy  *proxy,
+                             const gchar *filename,
+                             const gchar *mime,
+                             gpointer     user_data)
+{
+        TrackerConfig *config;
+
+        g_message ("Album art received for thumbnail queue for uri:'%s' with mime:'%s'",
+                   filename, 
+                   mime);
+        
+        config = TRACKER_CONFIG (user_data);
+
+        if (tracker_config_get_enable_thumbnails (config)) {
+                tracker_thumbnailer_queue_add (filename, mime);
+        }
+}
+
+static gboolean 
+albumart_init (TrackerConfig *config)
+{
+	DBusGConnection *connection;
+	GError *error = NULL;
+
+        g_message ("Setting up album art queue handler for thumbnails");
+
+	/* Signal handler for new album art from the extractor */
+	connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
+
+	if (!connection) {
+		g_critical ("Could not connect to the DBus session bus, %s",
+			    error ? error->message : "no error given.");
+		g_clear_error (&error);
+		return FALSE;
+	}
+
+	/* Get proxy for Service / Path / Interface of the indexer */
+	proxy_for_extractor = 
+                dbus_g_proxy_new_for_name (connection,
+                                           "org.freedesktop.Tracker.Extract",
+                                           "/org/freedesktop/Tracker/Extract",
+                                           "org.freedesktop.Tracker.Extract");
+
+	if (!proxy_for_extractor) {
+		g_critical ("Could not create a DBusGProxy to the extract service");
+                return FALSE;
+	}
+
+        dbus_g_object_register_marshaller (tracker_marshal_VOID__STRING_STRING,
+                                           G_TYPE_NONE,
+                                           G_TYPE_STRING,
+                                           G_TYPE_STRING,
+                                           G_TYPE_INVALID);
+	
+        dbus_g_proxy_add_signal (proxy_for_extractor,
+                                 "QueueThumbnail",
+                                 G_TYPE_STRING,
+                                 G_TYPE_STRING,
+                                 G_TYPE_INVALID);
+        			
+        dbus_g_proxy_connect_signal (proxy_for_extractor,
+                                     "QueueThumbnail",
+                                     G_CALLBACK (albumart_queue_thumbnail_cb),
+                                     g_object_ref (config),
+                                     NULL);
+
+        return TRUE;
+}
+
+static void 
+albumart_shutdown (TrackerConfig *config)
+{
+        dbus_g_proxy_disconnect_signal (proxy_for_extractor,
+                                        "QueueThumbnail",
+                                        G_CALLBACK (albumart_queue_thumbnail_cb),
+                                        config);
+
+        g_object_unref (config);
+
+        if (proxy_for_extractor) {
+                g_object_unref (proxy_for_extractor);
+                proxy_for_extractor = NULL;
+        }
+}
+
 int
 main (gint argc, gchar *argv[])
 {
@@ -343,7 +428,7 @@ main (gint argc, gchar *argv[])
 
 	/* Set up connections to the thumbnailer if supported */
 	tracker_thumbnailer_init ();
-        tracker_albumart_init (config, storage);
+        albumart_init (config);
 
 	if (process_all) {
 		/* Tell the indexer to process all configured modules */
@@ -363,6 +448,12 @@ main (gint argc, gchar *argv[])
 
 	tracker_turtle_shutdown ();
 
+        albumart_shutdown (config);
+	tracker_thumbnailer_shutdown ();
+	tracker_dbus_shutdown ();
+	tracker_module_config_shutdown ();
+	tracker_log_shutdown ();
+
 	g_main_loop_unref (main_loop);
 	g_object_unref (indexer);
 	g_object_unref (miner);
@@ -371,12 +462,6 @@ main (gint argc, gchar *argv[])
         if (storage) {
                 g_object_unref (storage);
         }
-
-        tracker_albumart_shutdown ();
-	tracker_thumbnailer_shutdown ();
-	tracker_dbus_shutdown ();
-	tracker_module_config_shutdown ();
-	tracker_log_shutdown ();
 
 	g_print ("\nOK\n\n");
 
