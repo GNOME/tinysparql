@@ -743,6 +743,7 @@ tracker_data_delete_statement (const gchar            *subject,
 			TrackerDBStatement *stmt;
 			TrackerDBResultSet *result_set;
 			TrackerProperty   **properties, **prop;
+			GString *projection = NULL;
 
 			iface = tracker_db_manager_get_db_interface ();
 
@@ -771,7 +772,124 @@ tracker_data_delete_statement (const gchar            *subject,
 
 			properties = tracker_ontology_get_properties ();
 
+			for (prop = properties; *prop; prop++) {
+
+				if (tracker_property_get_domain (*prop) != class) {
+					continue;
+				}
+
+				if (!tracker_property_get_multiple_values (*prop)) {
+
+					if (tracker_property_get_fulltext_indexed (*prop)) {
+						if (!projection) {
+							projection = g_string_new ("");
+						} else {
+							g_string_append_c (projection, ',');
+						}
+
+						g_string_append_c (projection, '\'');
+						g_string_append (projection, tracker_property_get_name (*prop));
+						g_string_append (projection, "',");
+						g_string_append_c (projection, '"');
+						g_string_append (projection, tracker_property_get_name (*prop));
+						g_string_append_c (projection, '"');
+					}
+				} else {
+
+					if (tracker_property_get_fulltext_indexed (*prop)) {
+
+						/* Removing all fulltext properties from fts for 
+						 * none nrl:maxCardinality */
+
+						stmt = tracker_db_interface_create_statement (iface, "SELECT \"%s\" FROM \"%s_%s\" WHERE ID = ?",
+								tracker_property_get_name (*prop),
+								tracker_class_get_name (class),
+								tracker_property_get_name (*prop));
+						tracker_db_statement_bind_int (stmt, 0, subject_id);
+						result_set = tracker_db_statement_execute (stmt, NULL);
+						g_object_unref (stmt);
+
+						if (result_set) {
+							gchar *prop_object = NULL;
+
+							tracker_db_result_set_get (result_set, 0, &prop_object, -1);
+							g_object_unref (result_set);
+
+							if (prop_object) {
+								stmt = tracker_db_interface_create_statement (iface,
+											"UPDATE \"fts\" SET \"%s\" = ?, \"fts\" = -1 WHERE rowid = ?",
+											tracker_property_get_name (*prop));
+								tracker_db_statement_bind_text (stmt, 0, prop_object);
+								tracker_db_statement_bind_int (stmt, 1, subject_id);
+
+								tracker_db_statement_execute (stmt, NULL);
+
+								g_free (prop_object);
+								g_object_unref (stmt);
+							}
+						}
+					}
+
+					/* multi-valued property, delete values from DB */
+					stmt = tracker_db_interface_create_statement (iface, "DELETE FROM \"%s_%s\" WHERE ID = ?",
+								tracker_class_get_name (class),
+								tracker_property_get_name (*prop));
+					tracker_db_statement_bind_int (stmt, 0, subject_id);
+					tracker_db_statement_execute (stmt, NULL);
+					g_object_unref (stmt);
+				}
+			}
+
 			/* delete single-valued properties for current class */
+
+			if (projection) {
+
+				/* Removing all fulltext properties from fts for
+				 * nrl:maxCardinality 1 */
+
+				stmt = tracker_db_interface_create_statement (iface, "SELECT %s FROM \"%s\" WHERE ID = ?",
+						projection->str,
+						tracker_class_get_name (class));
+				g_string_free (projection, TRUE);
+
+				tracker_db_statement_bind_int (stmt, 0, subject_id);
+				result_set = tracker_db_statement_execute (stmt, NULL);
+				g_object_unref (stmt);
+
+				if (result_set) {
+					gchar *prop_object = NULL;
+					gchar *prop_name = NULL;
+					guint columns, c;
+
+					do {
+						columns = tracker_db_result_set_get_n_columns (result_set);
+						for (c = 0; c < columns; c += 2) {
+							tracker_db_result_set_get (result_set, c, &prop_name, -1);
+							tracker_db_result_set_get (result_set, c + 1, &prop_object, -1);
+
+							if (prop_object && prop_name) {
+								stmt = tracker_db_interface_create_statement (iface,
+										"UPDATE \"fts\" SET \"%s\" = ?, \"fts\" = -1 WHERE rowid = ?",
+										prop_name);
+								tracker_db_statement_bind_text (stmt, 0, prop_object);
+								tracker_db_statement_bind_int (stmt, 1, subject_id);
+
+								tracker_db_statement_execute (stmt, NULL);
+
+								g_object_unref (stmt);
+							}
+
+							g_free (prop_object);
+							prop_object = NULL;
+							g_free (prop_name);
+							prop_name = NULL;
+
+						}
+					} while (tracker_db_result_set_iter_next (result_set));
+
+					g_object_unref (result_set);
+				}
+			}
 
 			stmt = tracker_db_interface_create_statement (iface, "DELETE FROM \"%s\" WHERE ID = ?",
 			                                              tracker_class_get_name (class));
@@ -781,21 +899,6 @@ tracker_data_delete_statement (const gchar            *subject,
 
 			if (strcmp (tracker_class_get_name (class), "rdfs:Resource") == 0) {
 				stmt = tracker_db_interface_create_statement (iface, "DELETE FROM \"fts\" WHERE rowid = ?");
-				tracker_db_statement_bind_int (stmt, 0, subject_id);
-				tracker_db_statement_execute (stmt, NULL);
-				g_object_unref (stmt);
-			}
-
-			for (prop = properties; *prop; prop++) {
-				if (tracker_property_get_domain (*prop) != class
-				    || !tracker_property_get_multiple_values (*prop)) {
-					continue;
-				}
-
-				/* multi-valued property, delete values from DB */
-				stmt = tracker_db_interface_create_statement (iface, "DELETE FROM \"%s_%s\" WHERE ID = ?",
-							tracker_class_get_name (class),
-							tracker_property_get_name (*prop));
 				tracker_db_statement_bind_int (stmt, 0, subject_id);
 				tracker_db_statement_execute (stmt, NULL);
 				g_object_unref (stmt);
