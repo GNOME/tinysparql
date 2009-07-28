@@ -64,10 +64,10 @@ test_queue_file ()
         tracker_thumbnailer_init ();
 
         /* URI with supported mimetype */
-        if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDERR)) {
+        if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDOUT)) {
                 tracker_thumbnailer_queue_add ("file:///a/b/c.jpeg", "image/jpeg");
         }
-        g_test_trap_assert_stderr ("*Thumbnailer queue appended with uri:'file:///a/b/c.jpeg', mime type:'image/jpeg', request_id:1...*");
+        g_test_trap_assert_stdout ("*Thumbnailer queue appended with uri:'file:///a/b/c.jpeg', mime type:'image/jpeg', request_id:1...*");
 
 
         /* URI with unsupported mimetype */
@@ -80,10 +80,10 @@ test_queue_file ()
 
 
         /* Path with supported mimetype */
-        if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDERR)) {
+        if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDOUT)) {
                 tracker_thumbnailer_queue_add ("/a/b/c.jpeg", "image/jpeg");
         }
-        g_test_trap_assert_stderr ("*Thumbnailer queue appended with uri:'file:///a/b/c.jpeg', mime type:'image/jpeg', request_id:1...*");
+        g_test_trap_assert_stdout ("*Thumbnailer queue appended with uri:'file:///a/b/c.jpeg', mime type:'image/jpeg', request_id:1...*");
 
 
         tracker_thumbnailer_shutdown ();
@@ -115,12 +115,12 @@ test_move ()
 {
         tracker_thumbnailer_init ();
         
-        if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDERR)) {
+        if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDOUT | G_TEST_TRAP_SILENCE_STDERR)) {
                 tracker_thumbnailer_move ("file:///a/b/c1.jpeg", "image/jpeg",
                                           "file:///a/b/d1.jpeg");
         }
         g_test_trap_assert_stderr ("*DBUS-CALL: Move*");
-        g_test_trap_assert_stderr ("*Thumbnailer request to move uri from:'file:///a/b/c1.jpeg' to:'file:///a/b/d1.jpeg', request_id:1...*");
+        g_test_trap_assert_stdout ("*Thumbnailer request to move uri from:'file:///a/b/c1.jpeg' to:'file:///a/b/d1.jpeg', request_id:1...*");
         tracker_thumbnailer_shutdown ();
 }
 
@@ -129,11 +129,11 @@ test_remove ()
 {
         tracker_thumbnailer_init ();
         
-        if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDERR)) {
+        if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDOUT | G_TEST_TRAP_SILENCE_STDERR)) {
                 tracker_thumbnailer_remove ("file:///a/b/c1.jpeg", "image/jpeg");
         }
         g_test_trap_assert_stderr ("*DBUS-CALL: Delete*");
-        g_test_trap_assert_stderr ("*Thumbnailer request to remove uri:'file:///a/b/c1.jpeg', request_id:1...*");
+        g_test_trap_assert_stdout ("*Thumbnailer request to remove uri:'file:///a/b/c1.jpeg', request_id:1...*");
 
         tracker_thumbnailer_shutdown ();
 }
@@ -143,11 +143,11 @@ test_cleanup ()
 {
         tracker_thumbnailer_init ();
         
-        if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDERR)) {
+        if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDOUT | G_TEST_TRAP_SILENCE_STDERR)) {
                 tracker_thumbnailer_cleanup ("file:///a/b/c1.jpeg");
         }
         g_test_trap_assert_stderr ("*DBUS-CALL: Cleanup*");
-        g_test_trap_assert_stderr ("*Thumbnailer cleaning up uri:'file:///a/b/c1.jpeg', request_id:1...*");
+        g_test_trap_assert_stdout ("*Thumbnailer cleaning up uri:'file:///a/b/c1.jpeg', request_id:1...*");
 
         tracker_thumbnailer_shutdown ();
 }
