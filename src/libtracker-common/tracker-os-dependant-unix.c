@@ -45,7 +45,7 @@
 #define RLIMIT_AS RLIMIT_DATA
 #endif
 
-#undef DISABLE_MEM_LIMITS
+#define DISABLE_MEM_LIMITS
 
 gboolean
 tracker_spawn (gchar **argv,
@@ -220,6 +220,8 @@ tracker_create_permission_string (struct stat finfo)
 	return str;
 }
 
+#ifndef DISABLE_MEM_LIMITS
+
 static guint
 get_memory_total (void)
 {
@@ -265,6 +267,8 @@ get_memory_total (void)
 
 	return total;
 }
+
+#endif /* DISABLE_MEM_LIMITS */
 
 gboolean
 tracker_memory_setrlimits (void)
