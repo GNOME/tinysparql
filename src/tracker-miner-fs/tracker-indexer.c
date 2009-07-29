@@ -937,7 +937,7 @@ init_mount_points (TrackerIndexer *indexer)
 	GPtrArray *sparql_result;
 	GError *error = NULL;
 	GString *accumulator;
-	gint i;
+	gint i, state;
 #ifdef HAVE_HAL
 	GList *udis, *u;
 #endif
@@ -961,15 +961,9 @@ init_mount_points (TrackerIndexer *indexer)
 
 	for (i = 0; i < sparql_result->len; i++) {
 		gchar **row;
-		gint state;
 
 		row = g_ptr_array_index (sparql_result, i);
 		state = VOLUME_MOUNTED_IN_STORE;
-
-		if (strcmp (row[0], TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN) == 0) {
-			/* Report non-removable media to be mounted by HAL as well */
-			state |= VOLUME_MOUNTED;
-		}
 
 		g_hash_table_insert (volumes, g_strdup (row[0]), GINT_TO_POINTER (state));
 	}
@@ -977,8 +971,12 @@ init_mount_points (TrackerIndexer *indexer)
 	g_ptr_array_foreach (sparql_result, (GFunc) g_strfreev, NULL);
 	g_ptr_array_free (sparql_result, TRUE);
 
-	g_hash_table_replace (volumes, g_strdup (TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN),
-	                      GINT_TO_POINTER (VOLUME_MOUNTED));
+	/* Report non-removable media to be mounted by HAL, so it
+	 * gets added on first index, and ignored in subsequent ones
+	 */
+	state = GPOINTER_TO_INT (g_hash_table_lookup (volumes, TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN));
+	state |= VOLUME_MOUNTED;
+	g_hash_table_replace (volumes, g_strdup (TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN), GINT_TO_POINTER (state));
 
 #ifdef HAVE_HAL
 	udis = tracker_storage_get_removable_device_udis (indexer->private->storage);
@@ -987,7 +985,6 @@ init_mount_points (TrackerIndexer *indexer)
 	for (u = udis; u; u = u->next) {
 		const gchar *udi;
 		gchar *removable_device_urn;
-		gint state;
 
 		udi = u->data;
 		removable_device_urn = g_strdup_printf (TRACKER_DATASOURCE_URN_PREFIX "%s", udi);
