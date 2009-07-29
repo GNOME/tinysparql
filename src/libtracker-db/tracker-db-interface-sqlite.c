@@ -103,7 +103,7 @@ tracker_db_interface_sqlite_constructor (GType			type,
 	GObject *object;
 	TrackerDBInterfaceSqlitePrivate *priv;
 	gchar *err_msg = NULL;
-	gchar *env_path;
+	const gchar *env_path;
 
 	object = (* G_OBJECT_CLASS (tracker_db_interface_sqlite_parent_class)->constructor) (type,
 											     n_construct_properties,
@@ -130,7 +130,7 @@ tracker_db_interface_sqlite_constructor (GType			type,
 
 	sqlite3_enable_load_extension (priv->db, 1);
 
-	env_path = getenv ("TRACKER_DB_MODULES_DIR");
+	env_path = g_getenv ("TRACKER_DB_MODULES_DIR");
 
 	if (G_LIKELY (!env_path)) {
 		sqlite3_load_extension (priv->db, PKGLIBDIR "/tracker-fts.so", NULL, &err_msg);
