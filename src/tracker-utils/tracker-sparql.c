@@ -113,7 +113,7 @@ main (int argc, char **argv)
 
 	g_option_context_free (context);
 
-	client = tracker_connect (FALSE, -1);
+	client = tracker_connect (FALSE, INT_MAX);
 
 	if (!client) {
 		g_printerr ("%s\n",
