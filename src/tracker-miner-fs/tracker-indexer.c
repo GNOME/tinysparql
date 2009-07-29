@@ -179,6 +179,11 @@ enum TrackerIndexerState {
 };
 
 enum {
+	VOLUME_MOUNTED_IN_STORE = 1 << 0,
+	VOLUME_MOUNTED = 1 << 1
+};
+
+enum {
 	PROP_0,
 	PROP_CONFIG,
 	PROP_STORAGE,
@@ -820,7 +825,8 @@ static void
 set_up_mount_point (TrackerIndexer *indexer,
 		    const gchar    *removable_device_urn,
 		    const gchar    *mount_point,
-		    gboolean        mounted)
+		    gboolean        mounted,
+		    GString        *accumulator)
 {
 	GString *queries;
 	GError *error = NULL;
@@ -871,14 +877,19 @@ set_up_mount_point (TrackerIndexer *indexer,
 		g_free (now);
 	}
 
-	tracker_resources_batch_sparql_update (indexer->private->client, queries->str, &error);
-	g_string_free (queries, TRUE);
+	if (accumulator) {
+		g_string_append_printf (accumulator, "%s ", queries->str);
+	} else {
+		tracker_resources_sparql_update (indexer->private->client, queries->str, &error);
 
-	if (error) {
-		g_critical ("Could not set up mount point '%s': %s",
-			    removable_device_urn, error->message);
-		g_error_free (error);
+		if (error) {
+			g_critical ("Could not set up mount point '%s': %s",
+				    removable_device_urn, error->message);
+			g_error_free (error);
+		}
 	}
+
+	g_string_free (queries, TRUE);
 }
 
 static void
@@ -895,8 +906,7 @@ mount_point_added_cb (TrackerStorage *storage,
 	indexer = TRACKER_INDEXER (user_data);
 	urn = g_strdup_printf (TRACKER_DATASOURCE_URN_PREFIX "%s", udi);
 
-	set_up_mount_point (indexer, urn, mount_point, TRUE);
-	tracker_resources_batch_commit (indexer->private->client, NULL);
+	set_up_mount_point (indexer, urn, mount_point, TRUE, NULL);
 	g_free (urn);
 }
 
@@ -914,74 +924,123 @@ mount_point_removed_cb (TrackerStorage *storage,
 	indexer = TRACKER_INDEXER (user_data);
 	urn = g_strdup_printf (TRACKER_DATASOURCE_URN_PREFIX "%s", udi);
 
-	set_up_mount_point (indexer, urn, mount_point, FALSE);
-	tracker_resources_batch_commit (indexer->private->client, NULL);
+	set_up_mount_point (indexer, urn, mount_point, FALSE, NULL);
 	g_free (urn);
-}
-
-static void
-disable_all_mount_points (TrackerIndexer *indexer)
-{
-	GString *queries;
-	GError *error = NULL;
-
-	g_debug ("Disabling all mount points");
-
-	queries = g_string_new (NULL);
-
-	/* FIXME: no need to remove tracker:available for files in non removable media */
-	g_string_append (queries,
-			 "DELETE { ?do tracker:available true } WHERE { ?do nie:dataSource ?u } ");
-
-	g_string_append (queries,
-			 "DELETE { ?o tracker:isMounted ?d } WHERE { ?o tracker:isMounted ?d "
-			 "FILTER (?o != <" TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN ">) } ");
-
-	g_string_append (queries,
-			 "INSERT { ?o a tracker:Volume; tracker:isMounted false } WHERE { ?o a tracker:Volume "
-			 "FILTER (?o != <" TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN ">) }");
-
-	tracker_resources_batch_sparql_update (indexer->private->client, queries->str, &error);
-	g_string_free (queries, TRUE);
-
-	if (error) {
-		g_critical ("Could not disable all mount points: %s", error->message);
-		g_error_free (error);
-	}
 }
 
 static void
 init_mount_points (TrackerIndexer *indexer)
 {
+	GHashTable *volumes;
+	GHashTableIter iter;
+	gpointer key, value;
+	GPtrArray *sparql_result;
+	GError *error = NULL;
+	GString *accumulator;
+	gint i;
 #ifdef HAVE_HAL
 	GList *udis, *u;
 #endif
 
-	disable_all_mount_points (indexer);
+	g_debug ("Initializing mount points");
 
-	/* set up root mount point */
-	set_up_mount_point (indexer,
-			    TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN,
-			    NULL, TRUE);
+	volumes = g_hash_table_new_full (g_str_hash, g_str_equal,
+					 (GDestroyNotify) g_free,
+					 NULL);
+
+	/* First, get all mounted volumes, according to tracker-store */
+	sparql_result = tracker_resources_sparql_query (indexer->private->client,
+							"SELECT ?v WHERE { ?v a tracker:Volume ; tracker:isMounted true }",
+							&error);
+
+	if (error) {
+		g_critical ("Could not obtain the mounted volumes");
+		g_error_free (error);
+		return;
+	}
+
+	for (i = 0; i < sparql_result->len; i++) {
+		gchar **row;
+		gint state;
+
+		row = g_ptr_array_index (sparql_result, i);
+		state = VOLUME_MOUNTED_IN_STORE;
+
+		if (strcmp (row[0], TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN) == 0) {
+			/* Report non-removable media to be mounted by HAL as well */
+			state |= VOLUME_MOUNTED;
+		}
+
+		g_hash_table_insert (volumes, g_strdup (row[0]), GINT_TO_POINTER (state));
+	}
+
+	g_ptr_array_foreach (sparql_result, (GFunc) g_strfreev, NULL);
+	g_ptr_array_free (sparql_result, TRUE);
 
 #ifdef HAVE_HAL
 	udis = tracker_storage_get_removable_device_udis (indexer->private->storage);
 
+	/* Then, get all currently mounted volumes, according to HAL */
 	for (u = udis; u; u = u->next) {
+		const gchar *udi;
 		gchar *removable_device_urn;
-		const gchar *udi, *mount_point;
+		gint state;
 
 		udi = u->data;
-		mount_point = tracker_storage_udi_get_mount_point (indexer->private->storage, udi);
 		removable_device_urn = g_strdup_printf (TRACKER_DATASOURCE_URN_PREFIX "%s", udi);
 
-		set_up_mount_point (indexer, removable_device_urn, mount_point, TRUE);
+		state = GPOINTER_TO_INT (g_hash_table_lookup (volumes, removable_device_urn));
+		state |= VOLUME_MOUNTED;
 
-		g_free (removable_device_urn);
+		g_hash_table_replace (volumes, removable_device_urn, GINT_TO_POINTER (state));
 	}
 
 	g_list_free (udis);
 #endif
+
+	accumulator = g_string_new (NULL);
+	g_hash_table_iter_init (&iter, volumes);
+
+	/* Finally, set up volumes based on the composed info */
+	while (g_hash_table_iter_next (&iter, &key, &value)) {
+		const gchar *urn = key;
+		gint state = GPOINTER_TO_INT (value);
+
+		if ((state & VOLUME_MOUNTED) &&
+		    !(state & VOLUME_MOUNTED_IN_STORE)) {
+			const gchar *mount_point = NULL;
+
+#ifdef HAVE_HAL
+			if (g_str_has_prefix (urn, TRACKER_DATASOURCE_URN_PREFIX)) {
+				const gchar *udi;
+
+				udi = urn + strlen (TRACKER_DATASOURCE_URN_PREFIX);
+				mount_point = tracker_storage_udi_get_mount_point (indexer->private->storage, udi);
+			}
+#endif
+
+			g_debug ("URN '%s' (mount point: %s) was not reported to be mounted, but now it is, updating state",
+				 mount_point, urn);
+			set_up_mount_point (indexer, urn, mount_point, TRUE, accumulator);
+		} else if (!(state & VOLUME_MOUNTED) &&
+			   (state & VOLUME_MOUNTED_IN_STORE)) {
+			g_debug ("URN '%s' was reported to be mounted, but it isn't anymore, updating state", urn);
+			set_up_mount_point (indexer, urn, NULL, FALSE, accumulator);
+		}
+	}
+
+	if (accumulator->str[0] != '\0') {
+		tracker_resources_sparql_update (indexer->private->client, accumulator->str, &error);
+
+		if (error) {
+			g_critical ("Could not initialize currently active mount points: %s",
+				    error->message);
+			g_error_free (error);
+		}
+	}
+
+	g_string_free (accumulator, TRUE);
+	g_hash_table_destroy (volumes);
 }
 
 static void
