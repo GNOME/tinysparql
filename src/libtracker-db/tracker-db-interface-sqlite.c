@@ -22,6 +22,7 @@
 
 #include <glib/gstdio.h>
 #include <sqlite3.h>
+#include <stdlib.h>
 
 #include "tracker-db-interface-sqlite.h"
 
@@ -102,6 +103,7 @@ tracker_db_interface_sqlite_constructor (GType			type,
 	GObject *object;
 	TrackerDBInterfaceSqlitePrivate *priv;
 	gchar *err_msg = NULL;
+	gchar *env_path;
 
 	object = (* G_OBJECT_CLASS (tracker_db_interface_sqlite_parent_class)->constructor) (type,
 											     n_construct_properties,
@@ -127,7 +129,18 @@ tracker_db_interface_sqlite_constructor (GType			type,
 	sqlite3_busy_timeout (priv->db, 100000);
 
 	sqlite3_enable_load_extension (priv->db, 1);
-	sqlite3_load_extension (priv->db, PKGLIBDIR "/tracker-fts.so", NULL, &err_msg);
+
+	env_path = getenv ("TRACKER_DB_MODULES_DIR");
+
+	if (G_LIKELY (!env_path)) {
+		sqlite3_load_extension (priv->db, PKGLIBDIR "/tracker-fts.so", NULL, &err_msg);
+	} else {
+		gchar *filename;
+
+		filename = g_build_filename (env_path, "tracker-fts.so", NULL);
+		sqlite3_load_extension (priv->db, PKGLIBDIR "/tracker-fts.so", NULL, &err_msg);
+		g_free (filename);
+	}
 
 	if (err_msg) {
 		g_critical ("Could not load tracker-fts extension:'%s'", err_msg);
