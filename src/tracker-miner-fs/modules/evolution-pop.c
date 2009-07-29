@@ -417,6 +417,7 @@ get_attachment_metadata (TrackerModuleFile *file, GMimePart *part)
 
 	evolution_common_get_wrapper_metadata (content, sparql, uri);
 
+	tracker_sparql_builder_subject_iri (sparql, uri);
 	tracker_sparql_builder_predicate (sparql, "tracker:available");
 	tracker_sparql_builder_object_boolean (sparql, TRUE);
 

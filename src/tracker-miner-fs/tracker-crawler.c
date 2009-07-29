@@ -852,7 +852,8 @@ file_enumerate_children_cb (GObject	 *file,
 
 			uri = g_file_get_uri (parent);
 
-			g_critical ("Could not open directory '%s': %s",
+			/* Permission denied isn't worth a critical */
+			g_message ("Could not open directory '%s': %s",
 				    uri, error->message);
 
 			g_error_free (error);
