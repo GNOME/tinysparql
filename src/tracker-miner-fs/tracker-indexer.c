@@ -1020,7 +1020,7 @@ init_mount_points (TrackerIndexer *indexer)
 #endif
 
 			g_debug ("URN '%s' (mount point: %s) was not reported to be mounted, but now it is, updating state",
-				 mount_point, urn);
+				 urn, mount_point);
 			set_up_mount_point (indexer, urn, mount_point, TRUE, accumulator);
 		} else if (!(state & VOLUME_MOUNTED) &&
 			   (state & VOLUME_MOUNTED_IN_STORE)) {
