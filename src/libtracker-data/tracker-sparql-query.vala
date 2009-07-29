@@ -348,22 +348,23 @@ public class Tracker.SparqlQuery : Object {
 			// all updates should be committed in one transaction
 			Data.begin_transaction ();
 
-			unowned Rasqal.Query operation = query;
-			while (operation != null) {
-				if (operation.get_verb () == Rasqal.QueryVerb.INSERT) {
-					execute_insert (operation);
-				} else if (operation.get_verb () == Rasqal.QueryVerb.DELETE) {
-					execute_delete (operation);
-				} else if (operation.get_verb () == Rasqal.QueryVerb.DROP) {
-					Data.delete_resource_description (operation.get_data_graph (0).name_uri.as_string ());
-				} else {
-					Data.commit_transaction ();
-					throw new SparqlError.PARSE ("SELECT, CONSTRUCT, DESCRIBE, and ASK are not supported in update mode");
+			try {
+				unowned Rasqal.Query operation = query;
+				while (operation != null) {
+					if (operation.get_verb () == Rasqal.QueryVerb.INSERT) {
+						execute_insert (operation);
+					} else if (operation.get_verb () == Rasqal.QueryVerb.DELETE) {
+						execute_delete (operation);
+					} else if (operation.get_verb () == Rasqal.QueryVerb.DROP) {
+						Data.delete_resource_description (operation.get_data_graph (0).name_uri.as_string ());
+					} else {
+						throw new SparqlError.PARSE ("SELECT, CONSTRUCT, DESCRIBE, and ASK are not supported in update mode");
+					}
+					operation = operation.next ();
 				}
-				operation = operation.next ();
+			} finally {
+				Data.commit_transaction ();
 			}
-
-			Data.commit_transaction ();
 
 			return null;
 		}
