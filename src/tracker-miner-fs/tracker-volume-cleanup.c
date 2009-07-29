@@ -62,6 +62,7 @@ private_free (gpointer data)
 static gboolean
 check_for_volumes_to_cleanup (gpointer user_data)
 {
+#if 0
 	TrackerDBInterface *iface;
 	TrackerDBResultSet *result_set;
 	gchar *query;
@@ -129,6 +130,7 @@ check_for_volumes_to_cleanup (gpointer user_data)
 
 	g_free (three_days_ago_as_string);
 	g_free (query);
+#endif
 
 	return TRUE;
 }
