@@ -977,6 +977,9 @@ init_mount_points (TrackerIndexer *indexer)
 	g_ptr_array_foreach (sparql_result, (GFunc) g_strfreev, NULL);
 	g_ptr_array_free (sparql_result, TRUE);
 
+	g_hash_table_replace (volumes, g_strdup (TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN),
+	                      GINT_TO_POINTER (VOLUME_MOUNTED));
+
 #ifdef HAVE_HAL
 	udis = tracker_storage_get_removable_device_udis (indexer->private->storage);
 
@@ -999,6 +1002,7 @@ init_mount_points (TrackerIndexer *indexer)
 #endif
 
 	accumulator = g_string_new (NULL);
+
 	g_hash_table_iter_init (&iter, volumes);
 
 	/* Finally, set up volumes based on the composed info */
