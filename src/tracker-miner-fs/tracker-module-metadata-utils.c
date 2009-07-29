@@ -36,11 +36,11 @@
 #include <libtracker-common/tracker-type-utils.h>
 #include <libtracker-common/tracker-os-dependant.h>
 #include <libtracker-common/tracker-ontology.h>
-#include <libtracker-common/tracker-thumbnailer.h>
 
 #include "tracker-module-metadata-utils.h"
 #include "tracker-extract-client.h"
 #include "tracker-dbus.h"
+#include "tracker-thumbnailer.h"
 
 #define THUMBNAIL_RETRIEVAL_ENABLED
 #define HAVE_HILDON_THUMBNAIL

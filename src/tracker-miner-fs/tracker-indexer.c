@@ -61,7 +61,6 @@
 #include <libtracker-common/tracker-ontology.h>
 #include <libtracker-common/tracker-module-config.h>
 #include <libtracker-common/tracker-utils.h>
-#include <libtracker-common/tracker-thumbnailer.h>
 
 #include <libtracker-db/tracker-db-dbus.h>
 
@@ -76,9 +75,10 @@
 #include "tracker-indexer-module.h"
 #include "tracker-marshal.h"
 #include "tracker-processor.h"
-#include "tracker-removable-device.h"
 #include "tracker-status.h"
+#include "tracker-thumbnailer.h"
 #include "tracker-utils.h"
+#include "tracker-removable-device.h"
 
 #define TRACKER_INDEXER_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_INDEXER, TrackerIndexerPrivate))
 

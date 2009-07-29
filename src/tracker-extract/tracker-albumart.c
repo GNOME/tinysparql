@@ -39,7 +39,6 @@
 #include <dbus/dbus-glib-bindings.h>
 
 #include <libtracker-common/tracker-storage.h>
-#include <libtracker-common/tracker-thumbnailer.h>
 
 #include "tracker-albumart.h"
 #include "tracker-dbus.h"

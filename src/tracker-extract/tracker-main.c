@@ -46,7 +46,6 @@
 #include <libtracker-common/tracker-log.h>
 #include <libtracker-common/tracker-dbus.h>
 #include <libtracker-common/tracker-os-dependant.h>
-#include <libtracker-common/tracker-thumbnailer.h>
 #include <libtracker-common/tracker-ioprio.h>
 
 #include "tracker-albumart.h"

@@ -40,6 +40,8 @@ libtracker_module_la_LIBADD = $(GCOV_LIBS)
 libexec_PROGRAMS = tracker-miner-fs
 
 tracker_miner_fs_SOURCES =						\
+	$(marshal_sources)						\
+	$(dbus_sources)							\
 	tracker-config.c						\
 	tracker-config.h						\
 	tracker-crawler.c						\
@@ -50,19 +52,22 @@ tracker_miner_fs_SOURCES =						\
 	tracker-indexer-module.c					\
 	tracker-indexer-module.h					\
 	tracker-main.c							\
-	tracker-marshal-main.c						\
 	tracker-miner.c							\
 	tracker-miner.h							\
 	tracker-monitor.c						\
 	tracker-monitor.h						\
 	tracker-processor.c						\
 	tracker-processor.h						\
-	tracker-status.c						\
-	tracker-status.h						\
 	tracker-removable-device.c					\
 	tracker-removable-device.h					\
+	tracker-status.c						\
+	tracker-status.h						\
+	tracker-thumbnailer.c						\
+	tracker-thumbnailer.h						\
 	tracker-utils.c							\
-	tracker-utils.h
+	tracker-utils.h							\
+	tracker-volume-cleanup.c					\
+	tracker-volume-cleanup.h
 
 tracker_miner_fs_LDADD =						\
 	$(plugin_libs)							\
@@ -85,21 +90,20 @@ tracker_miner_fs_LDADD =						\
 	-lz								\
 	-lm
 
-tracker-marshal.h: tracker-marshal.list
-	$(GLIB_GENMARSHAL) $< --prefix=tracker_marshal --header > $@
-
-tracker-marshal.c: tracker-marshal.list
-	$(GLIB_GENMARSHAL) $< --prefix=tracker_marshal --body > $@
-
-tracker-marshal-main.c: tracker-marshal.c tracker-marshal.h
-
-marshal_sources =                                         		\
-        tracker-marshal.h                             			\
-        tracker-marshal.c
+marshal_sources =							\
+	tracker-marshal.h						\
+	tracker-marshal.c
 
 dbus_sources = 								\
 	tracker-miner-glue.h						\
 	tracker-extract-client.h
+
+tracker-marshal.h: tracker-marshal.list
+	$(GLIB_GENMARSHAL) $< --prefix=tracker_marshal --header > $@
+
+tracker-marshal.c: tracker-marshal.list
+	echo "#include \"tracker-marshal.h\"" > $@ &&			\
+	$(GLIB_GENMARSHAL) $< --prefix=tracker_marshal --body >> $@
 
 %-glue.h: $(top_srcdir)/data/dbus/%.xml
 	$(DBUSBINDINGTOOL) --mode=glib-server --output=$@ --prefix=$(subst -,_,$*) $^
@@ -108,8 +112,8 @@ dbus_sources = 								\
 	$(DBUSBINDINGTOOL) --mode=glib-client --output=$@ --prefix=$(subst -,_,$*) $^
 
 BUILT_SOURCES = 							\
-	$(dbus_sources)							\
-	$(marshal_sources)
+	$(marshal_sources)						\
+	$(dbus_sources)
 
 CLEANFILES = $(BUILT_SOURCES)
 

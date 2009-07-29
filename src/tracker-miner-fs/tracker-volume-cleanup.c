@@ -24,13 +24,13 @@
 
 #include <gio/gio.h>
 
-#include <libtracker-common/tracker-thumbnailer.h>
 #include <libtracker-common/tracker-utils.h>
 #include <libtracker-common/tracker-type-utils.h>
 #include <libtracker-db/tracker-db-manager.h>
 #include <libtracker-data/tracker-data-update.h>
 #include <libtracker-data/tracker-data-query.h>
 
+#include "tracker-thumbnailer.h"
 #include "tracker-volume-cleanup.h"
 
 /* Deals with cleaning up resident data after longer timeouts (days,

@@ -1456,6 +1456,7 @@ AC_CONFIG_FILES([
 	tests/Makefile
 	tests/tracker-miner-fs/Makefile
 	tests/tracker-extract/Makefile
+	tests/tracker-store/Makefile
 	utils/Makefile
 	utils/tracker-fts/Makefile
 	utils/services/Makefile

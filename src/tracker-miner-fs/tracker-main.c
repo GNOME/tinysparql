@@ -40,7 +40,6 @@
 #include <libtracker-common/tracker-ontology.h>
 #include <libtracker-common/tracker-module-config.h>
 #include <libtracker-common/tracker-file-utils.h>
-#include <libtracker-common/tracker-thumbnailer.h>
 #include <libtracker-common/tracker-storage.h>
 
 #include <libtracker-db/tracker-db-manager.h>
@@ -54,6 +53,8 @@
 #include "tracker-miner.h"
 #include "tracker-miner-glue.h"
 #include "tracker-marshal.h"
+#include "tracker-thumbnailer.h"
+#include "tracker-volume-cleanup.h"
 
 #define ABOUT								  \
 	"Tracker " PACKAGE_VERSION "\n"
@@ -438,6 +439,7 @@ main (gint argc, gchar *argv[])
         }
 
 	tracker_turtle_init ();
+	tracker_volume_cleanup_init ();
 
 	g_message ("Starting...");
 
@@ -446,6 +448,7 @@ main (gint argc, gchar *argv[])
 
 	g_message ("Shutdown started");
 
+	tracker_volume_cleanup_shutdown ();
 	tracker_turtle_shutdown ();
 
         albumart_shutdown (config);

@@ -54,6 +54,7 @@ libtracker_common_la_VALASOURCES =			\
 	tracker-sparql-builder.vala
 
 libtracker_common_la_SOURCES =	 			\
+	$(marshal_sources)				\
 	$(os_sources)					\
 	$(power_sources)				\
 	$(storage_sources)				\
@@ -65,7 +66,6 @@ libtracker_common_la_SOURCES =	 			\
 	tracker-keyfile-object.c			\
 	tracker-language.c				\
 	tracker-log.c	 				\
-	tracker-marshal-main.c				\
 	tracker-module-config.c				\
 	tracker-namespace.c				\
 	tracker-ontology.c				\
@@ -74,7 +74,6 @@ libtracker_common_la_SOURCES =	 			\
 	tracker-statement-list.c			\
 	tracker-type-utils.c				\
 	tracker-utils.c					\
-	tracker-thumbnailer.c				\
 	libtracker-common.vala.stamp			\
 	$(libtracker_common_la_VALASOURCES:.vala=.c)
 
@@ -84,8 +83,7 @@ noinst_HEADERS =					\
 	tracker-dbus.h					\
 	tracker-ioprio.h				\
 	tracker-log.h					\
-	tracker-os-dependant.h				\
-	tracker-thumbnailer.h
+	tracker-os-dependant.h
 
 libtracker_commoninclude_HEADERS =			\
 	tracker-config-file.h				\
@@ -123,18 +121,16 @@ libtracker_common_la_LIBADD = 				\
 	$(GLIB2_LIBS)					\
 	$(GDKPIXBUF_LIBS)
 
+marshal_sources =                              		\
+        tracker-marshal.h              			\
+        tracker-marshal.c
 
 tracker-marshal.h: tracker-marshal.list
 	$(GLIB_GENMARSHAL) $< --prefix=tracker_marshal --header > $@
 
 tracker-marshal.c: tracker-marshal.list
-	$(GLIB_GENMARSHAL) $< --prefix=tracker_marshal --body > $@
-
-tracker-marshal-main.c: tracker-marshal.c tracker-marshal.h
-
-marshal_sources =                              		\
-        tracker-marshal.h              			\
-        tracker-marshal.c
+	echo "#include \"tracker-marshal.h\"" > $@ &&	\
+	$(GLIB_GENMARSHAL) $< --prefix=tracker_marshal --body >> $@
 
 BUILT_SOURCES =						\
 	$(marshal_sources)				\

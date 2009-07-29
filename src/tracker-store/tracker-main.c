@@ -49,7 +49,6 @@
 #include <libtracker-common/tracker-log.h>
 #include <libtracker-common/tracker-module-config.h>
 #include <libtracker-common/tracker-ontology.h>
-#include <libtracker-common/tracker-thumbnailer.h>
 
 #include <libtracker-db/tracker-db-manager.h>
 #include <libtracker-db/tracker-db-dbus.h>
@@ -64,7 +63,6 @@
 #include "tracker-events.h"
 #include "tracker-main.h"
 #include "tracker-push.h"
-#include "tracker-volume-cleanup.h"
 #include "tracker-backup.h"
 #include "tracker-store.h"
 #include "tracker-statistics.h"
@@ -751,7 +749,6 @@ main (gint argc, gchar *argv[])
 
 	tracker_store_init ();
 	tracker_turtle_init ();
-	tracker_thumbnailer_init ();
 
 	flags |= TRACKER_DB_MANAGER_REMOVE_CACHE;
 
@@ -769,8 +766,6 @@ main (gint argc, gchar *argv[])
 	if (!tracker_data_manager_init (flags, NULL, &is_first_time_index)) {
 		return EXIT_FAILURE;
 	}
-
-	tracker_volume_cleanup_init ();
 
 #ifdef HAVE_HAL
 	/* We set up the mount points here. For the mount points, this
@@ -824,11 +819,9 @@ shutdown:
 	tracker_push_shutdown ();
 	tracker_events_shutdown ();
 
-	tracker_volume_cleanup_shutdown ();
 	tracker_dbus_shutdown ();
 	tracker_data_manager_shutdown ();
 	tracker_turtle_shutdown ();
-	tracker_thumbnailer_shutdown ();
 	tracker_log_shutdown ();
 
 #ifdef HAVE_HAL

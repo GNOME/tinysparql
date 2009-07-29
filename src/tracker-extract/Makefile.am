@@ -232,6 +232,8 @@ libextract_playlist_la_LIBADD = $(GLIB2_LIBS) $(TOTEM_PL_PARSER_LIBS) $(GCOV_LIB
 libexec_PROGRAMS = tracker-extract
 
 tracker_extract_SOURCES = 						\
+	$(marshal_sources)						\
+	$(dbus_sources)							\
 	tracker-albumart.c						\
 	tracker-albumart.h						\
 	tracker-config.c						\
@@ -241,8 +243,7 @@ tracker_extract_SOURCES = 						\
 	tracker-extract.c						\
 	tracker-extract.h						\
 	tracker-main.c							\
-	tracker-main.h							\
-	tracker-marshal-main.c
+	tracker-main.h
 
 tracker_extract_LDADD = 						\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la	\
@@ -262,14 +263,6 @@ if HAVE_GDKPIXBUF
 tracker_extract_LDADD += $(GDKPIXBUF_LIBS)
 endif
 
-tracker-marshal.h: tracker-marshal.list
-	$(GLIB_GENMARSHAL) $< --prefix=tracker_marshal --header > $@
-
-tracker-marshal.c: tracker-marshal.list
-	$(GLIB_GENMARSHAL) $< --prefix=tracker_marshal --body > $@
-
-tracker-marshal-main.c: tracker-marshal.c tracker-marshal.h
-
 marshal_sources =                                         		\
         tracker-marshal.h                             			\
         tracker-marshal.c
@@ -277,12 +270,19 @@ marshal_sources =                                         		\
 dbus_sources = 								\
 	tracker-extract-glue.h
 
+tracker-marshal.h: tracker-marshal.list
+	$(GLIB_GENMARSHAL) $< --prefix=tracker_marshal --header > $@
+
+tracker-marshal.c: tracker-marshal.list
+	echo "#include \"tracker-marshal.h\"" > $@ &&			\
+	$(GLIB_GENMARSHAL) $< --prefix=tracker_marshal --body >> $@
+
 %-glue.h: $(top_srcdir)/data/dbus/%.xml
 	$(DBUSBINDINGTOOL) --mode=glib-server --output=$@ --prefix=$(subst -,_,$*) $^
 
 BUILT_SOURCES = 							\
-	$(dbus_sources)							\
-	$(marshal_sources)
+	$(marshal_sources)						\
+	$(dbus_sources)
 
 CLEANFILES = $(BUILT_SOURCES)
 
