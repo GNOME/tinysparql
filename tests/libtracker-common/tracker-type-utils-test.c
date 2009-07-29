@@ -102,6 +102,10 @@ test_date_format (void)
 	g_assert (tracker_test_helpers_cmpstr_equal (result, "1979-03-04T16:00:00+00:00"));
 	g_free (result);	
 
+	result = tracker_date_format ("2009-02-13T09:00+02:00");
+	g_assert (tracker_test_helpers_cmpstr_equal (result, "2009-02-13T09:00:00+02:00"));
+	g_free (result);
+
 	/* Decimals */
 	/* We are only interested in accuracy of a second */
 

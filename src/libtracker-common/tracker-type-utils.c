@@ -91,9 +91,14 @@ static gboolean
 tracker_simplify_8601 (const gchar *date_string,
 		       gchar       *buf)
 {
-	gchar *copy, *date, *time, *zone, *sep;
-	gint year, mon, day, hour, min, sec, remainder;
-	gint len;
+	gchar        *copy, *date, *sep;
+	gchar        *time = NULL, *zone = NULL;
+	const gchar  *time_part;
+	gint          year, mon, day, hour, min, sec, remainder;
+	gint          len;
+	gchar       **pieces;
+	const gchar  *timezone_sep = NULL;
+		
 
 	if (!date_string) {
 		return FALSE;
@@ -114,21 +119,30 @@ tracker_simplify_8601 (const gchar *date_string,
 	if (sep) {
 		/* Separate date and time */
 		*sep = '\0';
-		time = sep + 1;
+		time_part = sep + 1;
 	} else {
-		time = NULL;
+		time_part = NULL;
 	}
 
-	if (time) {
-		zone = strchr (time, '+');
+	if (time_part) {
+		timezone_sep = g_strrstr (time_part, "+");
+		if (!timezone_sep) {
+			timezone_sep = g_strrstr (time_part, "-");
+		}
 
-		if (!zone) {
-			zone = strchr (time, '-');
+		if (!timezone_sep) {
+			time = g_strdup (time_part);
+			zone = g_strdup ("+00:00");
+		} else {
+			pieces = g_strsplit_set (time_part, "+-", -1);
+			time = g_strdup (pieces [0]);
+			zone = g_strdup_printf ("%c%s", timezone_sep[0], pieces [1]);
+			g_strfreev (pieces);
 		}
 	}
 
 	if (!zone) {
-		zone = "+00:00";
+		zone = g_strdup ("+00:00");
 	}
 
 	if (date) {
@@ -189,6 +203,8 @@ tracker_simplify_8601 (const gchar *date_string,
 		} else {
 			g_critical ("Could not parse time in '%s'", time);
 			g_free (copy);
+			g_free (time);
+			g_free (zone);
 			return FALSE;
 		}
 	}
@@ -200,6 +216,10 @@ tracker_simplify_8601 (const gchar *date_string,
 		 zone);
 
 	g_free (copy);
+	g_free (zone);
+	if (time) {
+		g_free (time);
+	}
 
 	return TRUE;
 }
