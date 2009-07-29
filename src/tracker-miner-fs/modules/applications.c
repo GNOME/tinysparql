@@ -258,6 +258,9 @@ tracker_application_file_get_metadata (TrackerModuleFile *file, gchar **mime_typ
 		tracker_sparql_builder_object (sparql, "nfo:Executable");
 		tracker_sparql_builder_object (sparql, "nfo:FileDataObject");
 
+		tracker_sparql_builder_predicate (sparql, "tracker:available");
+		tracker_sparql_builder_object_boolean (sparql, TRUE);
+
 		tracker_sparql_builder_predicate (sparql, "nie:title");
 		tracker_sparql_builder_object_string (sparql, name);
 
