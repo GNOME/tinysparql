@@ -1147,6 +1147,12 @@ public class Tracker.SparqlQuery : Object {
 					} else {
 						visit_filter (expr.arg1);
 					}
+				} else if (expr.arg1.literal.type == Rasqal.Literal.Type.URI) {
+					// Rasqal already takes care of this, but I added it here
+					// for the reader of this code to understand what goes on
+					// Note that rasqal will have converted a str(<urn:something>)
+					// to a literal string 'urn:something'
+					pattern_sql.append_printf ("'%s'", expr.arg1.literal.as_string ());
 				} else {
 					visit_filter (expr.arg1);
 				}
