@@ -1068,6 +1068,7 @@ public class Tracker.SparqlQuery : Object {
 		case Rasqal.Op.AND:     return " AND ";
 		case Rasqal.Op.OR:      return " OR ";
 		case Rasqal.Op.EQ:      return " = ";
+		case Rasqal.Op.SAMETERM:return " = ";
 		case Rasqal.Op.NEQ:     return " <> ";
 		case Rasqal.Op.LT:      return " < ";
 		case Rasqal.Op.GT:      return " > ";
@@ -1115,6 +1116,7 @@ public class Tracker.SparqlQuery : Object {
 		case Rasqal.Op.REM:
 		case Rasqal.Op.STR_EQ:
 		case Rasqal.Op.STR_NEQ:
+		case Rasqal.Op.SAMETERM:
 			pattern_sql.append ("(");
 			visit_filter (expr.arg1, is_datetime_variable (expr.arg2));
 			pattern_sql.append (sql_operator (expr.op));
