@@ -22,13 +22,27 @@ libtracker_minerincludedir=$(includedir)/tracker-$(TRACKER_API_VERSION)/libtrack
 libtracker_miner_LTLIBRARIES = libtracker-miner.la
 
 libtracker_miner_la_SOURCES = 				\
+	tracker-config.c				\
+	tracker-config.h				\
+	tracker-crawler.c				\
+	tracker-crawler.h				\
 	tracker-dbus.c					\
 	tracker-dbus.h					\
+	tracker-marshal.c				\
+	tracker-marshal.h				\
 	tracker-miner-dbus.h				\
 	tracker-miner.c					\
 	tracker-miner.h					\
 	tracker-miner-crawler.c				\
-	tracker-miner-crawler.h
+	tracker-miner-crawler.h				\
+	tracker-monitor.c				\
+	tracker-monitor.h				\
+	tracker-processor.c				\
+	tracker-processor.h				\
+	tracker-status.c				\
+	tracker-status.h				\
+	tracker-utils.c					\
+	tracker-utils.h
 
 libtracker_minerinclude_HEADERS = 			\
 	tracker-miner.h 				\
@@ -39,7 +53,9 @@ libtracker_miner_la_LDFLAGS = \
 
 libtracker_miner_la_LIBADD = 				\
 	$(top_builddir)/src/libstemmer/libstemmer.la	\
+	$(top_builddir)/src/libtracker-common/libtracker-common.la \
 	$(top_builddir)/src/libtracker/libtrackerclient-@TRACKER_API_VERSION@.la \
+	$(top_builddir)/src/libinotify/libinotify.la	\
 	$(HAL_LIBS)					\
 	$(DEVKIT_POWER_LIBS)				\
 	$(DBUS_LIBS)					\
@@ -50,14 +66,27 @@ libtracker_miner_la_LIBADD = 				\
 	$(GLIB2_LIBS)					\
 	$(GDKPIXBUF_LIBS)
 
+tracker-marshal.h: tracker-marshal.list
+	$(GLIB_GENMARSHAL) $< --prefix=tracker_marshal --header > $@
+
+tracker-marshal.c: tracker-marshal.list
+	(echo "#include \"tracker-marshal.h\""; \
+	 $(GLIB_GENMARSHAL) $< --prefix=tracker_marshal --body) > $@
+
+marshal_sources = 					\
+	tracker-marshal.c				\
+	tracker-marshal.h
+
 dbus_sources = tracker-miner-glue.h
 
 %-glue.h: $(top_srcdir)/data/dbus/%.xml
 	$(DBUSBINDINGTOOL) --mode=glib-server --output=$@ --prefix=$(subst -,_,$*) $^
 
-BUILT_SOURCES = $(dbus_sources)
+BUILT_SOURCES = $(dbus_sources) $(marshal_sources)
 
 CLEANFILES = $(BUILT_SOURCES)
+
+EXTRA_DIST = tracker-marshal.list
 
 libexec_PROGRAMS = tracker-miner-test
 

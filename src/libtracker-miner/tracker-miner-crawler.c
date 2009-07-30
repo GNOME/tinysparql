@@ -20,12 +20,18 @@
  */
 
 #include "tracker-miner-crawler.h"
+#include "tracker-config.h"
+#include "tracker-processor.h"
+#include <libtracker-common/tracker-storage.h>
 
-#define TRACKER_MINER_CRAWLER_GET_PRIVATE (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_MINER_CRAWLER, TrackerMinerCrawlerPrivate))
+#define TRACKER_MINER_CRAWLER_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_MINER_CRAWLER, TrackerMinerCrawlerPrivate))
 
 typedef struct TrackerMinerCrawlerPrivate TrackerMinerCrawlerPrivate;
 
 struct TrackerMinerCrawlerPrivate {
+	TrackerConfig *config;
+	TrackerStorage *storage;
+	TrackerProcessor *processor;
 };
 
 static void tracker_miner_crawler_finalize (GObject *object);
@@ -57,6 +63,14 @@ tracker_miner_crawler_class_init (TrackerMinerCrawlerClass *klass)
 static void
 tracker_miner_crawler_init (TrackerMinerCrawler *miner)
 {
+	TrackerMinerCrawlerPrivate *priv;
+
+	priv = miner->_priv = TRACKER_MINER_CRAWLER_GET_PRIVATE (miner);
+
+	priv->config = tracker_config_new ();
+	priv->storage = tracker_storage_new ();
+
+	priv->processor = tracker_processor_new (priv->config, priv->storage);
 }
 
 static void
@@ -68,4 +82,11 @@ tracker_miner_crawler_finalize (GObject *object)
 static void
 tracker_miner_crawler_started (TrackerMiner *miner)
 {
+	TrackerMinerCrawler *miner_crawler;
+	TrackerMinerCrawlerPrivate *priv;
+
+	miner_crawler = TRACKER_MINER_CRAWLER (miner);
+	priv = miner_crawler->_priv;
+
+	tracker_processor_start (priv->processor);
 }
