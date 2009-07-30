@@ -81,37 +81,43 @@ test_sparql_query (gconstpointer test_data)
 		TrackerDBResultSet *result_set;
 		GError *error;
 		GString *test_results;
-		gchar *data_path, *data_filename;
+		gchar *data_filename;
 		gchar *query, *query_filename;
 		gchar *results, *results_filename;
+		gchar *prefix, *data_prefix, *test_prefix;
 		gint exitcode;
 
 		exitcode = 0;
 		error = NULL;
 
 		/* initialization */
+		prefix = g_build_path (G_DIR_SEPARATOR_S, TOP_SRCDIR, "tests", "libtracker-data", NULL);
+		data_prefix = g_build_filename (prefix, test_info->data, NULL);
+		test_prefix = g_build_filename (prefix, test_info->test_name, NULL);
+		g_free (prefix);
+
 		tracker_data_manager_init (TRACKER_DB_MANAGER_FORCE_REINDEX,
-			                   test_info->data, 
+			                   data_prefix, 
 					   NULL);
 
-		data_path = g_build_path (G_DIR_SEPARATOR_S, TOP_SRCDIR, "tests", "libtracker-data", NULL);
+		/* data_path = g_build_path (G_DIR_SEPARATOR_S, TOP_SRCDIR, "tests", "libtracker-data", NULL); */
 
 		/* load data set */
-		data_filename = g_strconcat (data_path, G_DIR_SEPARATOR_S, test_info->data, ".ttl", NULL);
-
+		data_filename = g_strconcat (data_prefix, ".ttl", NULL);
 		tracker_data_begin_transaction ();
 		tracker_turtle_process (data_filename, NULL, consume_triple_storer, NULL);
 		tracker_data_commit_transaction ();
 
-		query_filename = g_strconcat (data_path, G_DIR_SEPARATOR_S, test_info->test_name, ".rq", NULL);
+		query_filename = g_strconcat (test_prefix, ".rq", NULL);
 		g_file_get_contents (query_filename, &query, NULL, &error);
 		g_assert_no_error (error);
 
-		results_filename = g_strconcat (data_path, G_DIR_SEPARATOR_S, test_info->test_name, ".out", NULL);
+		results_filename = g_strconcat (test_prefix, ".out", NULL);
 		g_file_get_contents (results_filename, &results, NULL, &error);
 		g_assert_no_error (error);
 
-		g_free (data_path);
+		g_free (data_prefix);
+		g_free (test_prefix);
 
 		/* perform actual query */
 
