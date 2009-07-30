@@ -1133,6 +1133,24 @@ public class Tracker.SparqlQuery : Object {
 			visit_filter (expr.arg1);
 			pattern_sql.append (")");
 			break;
+		case Rasqal.Op.STR:
+				if (expr.arg1.literal.type == Rasqal.Literal.Type.VARIABLE) {
+					string variable_name = expr.arg1.literal.as_variable ().name;
+					var binding = var_map.lookup (variable_name);
+
+					if (binding.is_uri) {
+						pattern_sql.append_printf ("(SELECT \"%s\".\"Uri\" as \"STR\" FROM \"%s\" WHERE \"%s\".\"ID\" = \"%s_u\")", 
+						                           binding.table.sql_db_tablename,
+						                           binding.table.sql_db_tablename,
+						                           binding.table.sql_db_tablename,
+						                           variable_name);
+					} else {
+						visit_filter (expr.arg1);
+					}
+				} else {
+					visit_filter (expr.arg1);
+				}
+			break;
 		case Rasqal.Op.LITERAL:
 			if (expr.literal.type == Rasqal.Literal.Type.VARIABLE) {
 				string variable_name = expr.literal.as_variable ().name;
