@@ -1431,6 +1431,7 @@ AC_CONFIG_FILES([
 	src/libtracker-db/Makefile
 	src/libtracker-gtk/Makefile
 	src/libtracker/Makefile
+        src/libtracker-miner/Makefile
 	src/Makefile
 	src/rasqal/Makefile
 	src/tracker-applet/Makefile
@@ -1514,7 +1515,7 @@ Plugins:
 	Evolution plugin    (data-push):	$have_evolution_plugin
 	KMail plugin        (data-push):	$enable_kmail_push_module
 
-Warning:2
+Warning:
 
         You must make sure SQLite is compiled with --enable-threadsafe
 

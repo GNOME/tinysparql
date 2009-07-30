@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <node name="/">
-  <interface name="org.freedesktop.Tracker.Miner.FS">
+  <interface name="org.freedesktop.Tracker.Miner">
     <method name="Pause">
       <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
     </method>
-    <method name="Continue">
+    <method name="Resume">
       <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
     </method>
   </interface>
