@@ -103,7 +103,7 @@ test_query (gconstpointer test_data)
 		error = NULL;
 
 		/* initialization */
-		tracker_data_manager_init (TRACKER_DB_MANAGER_FORCE_REINDEX | TRACKER_DB_MANAGER_TEST_MODE,
+		tracker_data_manager_init (TRACKER_DB_MANAGER_FORCE_REINDEX,
 			                   NULL, NULL);
 
 		/* load data set */
@@ -216,13 +216,25 @@ test_query (gconstpointer test_data)
 int
 main (int argc, char **argv)
 {
-
-	int              result;
-	int              i;
+	gint result;
+	gint i;
+	gchar *current_dir;
 
 	g_type_init ();
-	g_thread_init (NULL);
+
+	if (!g_thread_supported ()) {
+		g_thread_init (NULL);
+	}
+	
 	g_test_init (&argc, &argv, NULL);
+
+	current_dir = g_get_current_dir ();
+	
+	g_setenv ("XDG_DATA_HOME", current_dir, TRUE);
+	g_setenv ("XDG_CACHE_HOME", current_dir, TRUE);
+	g_setenv ("TRACKER_DB_MODULES_DIR", TOP_BUILDDIR "/src/tracker-fts/.libs/", TRUE);
+	g_setenv ("TRACKER_DB_SQL_DIR", TOP_SRCDIR "/data/db/", TRUE);
+	g_setenv ("TRACKER_DB_ONTOLOGIES_DIR", TOP_SRCDIR "/data/ontologies/", TRUE);
 
 	tracker_turtle_init ();
 
@@ -230,6 +242,7 @@ main (int argc, char **argv)
 
 	for (i = 0; nie_tests[i].test_name; i++) {
 		gchar *testpath;
+
 		g_message ("%d", i);
 		
 		testpath = g_strconcat ("/libtracker-data/nie/", nie_tests[i].test_name, NULL);
@@ -239,6 +252,7 @@ main (int argc, char **argv)
 
 	for (i = 0; nmo_tests[i].test_name; i++) {
 		gchar *testpath;
+
 		g_message ("%d", i);
 		
 		testpath = g_strconcat ("/libtracker-data/nmo/", nmo_tests[i].test_name, NULL);
@@ -251,6 +265,10 @@ main (int argc, char **argv)
 	result = g_test_run ();
 
 	tracker_turtle_shutdown ();
+
+	/* clean up */
+	g_print ("Removing temporary data\n");
+	g_spawn_command_line_async ("rm -R tracker/", NULL);
 
 	return result;
 }

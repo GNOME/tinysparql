@@ -138,7 +138,7 @@ tracker_db_interface_sqlite_constructor (GType			type,
 		gchar *filename;
 
 		filename = g_build_filename (env_path, "tracker-fts.so", NULL);
-		sqlite3_load_extension (priv->db, PKGLIBDIR "/tracker-fts.so", NULL, &err_msg);
+		sqlite3_load_extension (priv->db, filename, NULL, &err_msg);
 		g_free (filename);
 	}
 

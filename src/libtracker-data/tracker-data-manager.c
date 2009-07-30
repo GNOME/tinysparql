@@ -768,21 +768,20 @@ tracker_data_manager_init (TrackerDBManagerFlags       flags,
 	if (is_first_time_index) {
 		TrackerClass **classes;
 		TrackerClass **cl;
-		gint           max_id = 0;
+		gint max_id = 0;
 		GList *sorted = NULL, *l;
 		gchar *test_schema_path;
+		const gchar *env_path;
 
-
-		if (flags & TRACKER_DB_MANAGER_TEST_MODE) {
-			ontologies_dir = g_build_filename ("..", "..",
-							 "data",
-							 "ontologies",
-							 NULL);
-		} else {
+		env_path = g_getenv ("TRACKER_DB_ONTOLOGIES_DIR");
+		
+		if (G_LIKELY (!env_path)) {
 			ontologies_dir = g_build_filename (SHAREDIR,
-							 "tracker",
-							 "ontologies",
-							 NULL);
+							   "tracker",
+							   "ontologies",
+							   NULL);
+		} else {
+			ontologies_dir = g_strdup (env_path);
 		}
 
 		if (test_schema) {
@@ -804,8 +803,8 @@ tracker_data_manager_init (TrackerDBManagerFlags       flags,
 			while (conf_file) {
 				if (g_str_has_suffix (conf_file, ".ontology")) {
 					sorted = g_list_insert_sorted (sorted,
-					                                   g_strdup (conf_file), 
-					                                   (GCompareFunc) strcmp);
+								       g_strdup (conf_file), 
+								       (GCompareFunc) strcmp);
 				}
 				conf_file = g_dir_read_name (ontologies);
 			}
@@ -818,7 +817,10 @@ tracker_data_manager_init (TrackerDBManagerFlags       flags,
 			g_debug ("Loading ontology %s", (char *) l->data);
 			load_ontology_file (l->data);
 		}
+
 		if (test_schema) {
+			g_debug ("Loading ontology:'%s' (TEST ONTOLOGY)", test_schema_path);
+
 			load_ontology_file_from_path (test_schema_path);
 		}
 

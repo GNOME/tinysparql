@@ -78,40 +78,45 @@ test_sparql_query (gconstpointer test_data)
 
 	/* fork as tracker-fts can only be initialized once per process (GType in loadable module) */
 	if (g_test_trap_fork (0, 0)) {
-		int          exitcode;
-		GError      *error;
-		gchar       *data_filename;
-		gchar       *query, *query_filename;
-		gchar       *results, *results_filename;
 		TrackerDBResultSet *result_set;
+		GError *error;
 		GString *test_results;
+		gchar *data_path, *data_filename;
+		gchar *query, *query_filename;
+		gchar *results, *results_filename;
+		gint exitcode;
 
 		exitcode = 0;
 		error = NULL;
 
 		/* initialization */
-		tracker_data_manager_init (TRACKER_DB_MANAGER_FORCE_REINDEX | TRACKER_DB_MANAGER_TEST_MODE,
+		tracker_data_manager_init (TRACKER_DB_MANAGER_FORCE_REINDEX,
 			                   test_info->data, 
 					   NULL);
 
+		data_path = g_build_path (G_DIR_SEPARATOR_S, TOP_SRCDIR, "tests", "libtracker-data", NULL);
+
 		/* load data set */
-		data_filename = g_strconcat (test_info->data, ".ttl", NULL);
+		data_filename = g_strconcat (data_path, G_DIR_SEPARATOR_S, test_info->data, ".ttl", NULL);
+
 		tracker_data_begin_transaction ();
 		tracker_turtle_process (data_filename, NULL, consume_triple_storer, NULL);
 		tracker_data_commit_transaction ();
 
-		query_filename = g_strconcat (test_info->test_name, ".rq", NULL);
+		query_filename = g_strconcat (data_path, G_DIR_SEPARATOR_S, test_info->test_name, ".rq", NULL);
 		g_file_get_contents (query_filename, &query, NULL, &error);
-		g_assert (error == NULL);
+		g_assert_no_error (error);
 
-		results_filename = g_strconcat (test_info->test_name, ".out", NULL);
+		results_filename = g_strconcat (data_path, G_DIR_SEPARATOR_S, test_info->test_name, ".out", NULL);
 		g_file_get_contents (results_filename, &results, NULL, &error);
-		g_assert (error == NULL);
+		g_assert_no_error (error);
+
+		g_free (data_path);
 
 		/* perform actual query */
 
 		result_set = tracker_data_query_sparql (query, &error);
-		g_assert (error == NULL);
+		g_assert_no_error (error);
 
 		/* compare results with reference output */
 
@@ -204,18 +209,31 @@ test_sparql_query (gconstpointer test_data)
 int
 main (int argc, char **argv)
 {
-
-	int              result;
-	int              i;
+	gint result;
+	gint i;
+	gchar *current_dir;
 
 	g_type_init ();
-	g_thread_init (NULL);
+
+	if (!g_thread_supported ()) {
+		g_thread_init (NULL);
+	}
+	
 	g_test_init (&argc, &argv, NULL);
+
+	current_dir = g_get_current_dir ();
+	
+	g_setenv ("XDG_DATA_HOME", current_dir, TRUE);
+	g_setenv ("XDG_CACHE_HOME", current_dir, TRUE);
+	g_setenv ("TRACKER_DB_MODULES_DIR", TOP_BUILDDIR "/src/tracker-fts/.libs/", TRUE);
+	g_setenv ("TRACKER_DB_SQL_DIR", TOP_SRCDIR "/data/db/", TRUE);
+	g_setenv ("TRACKER_DB_ONTOLOGIES_DIR", TOP_SRCDIR "/data/ontologies/", TRUE);
+
+	g_free (current_dir);
 
 	tracker_turtle_init ();
 
 	/* add test cases */
-
 	for (i = 0; tests[i].test_name; i++) {
 		gchar *testpath;
 		
@@ -225,10 +243,13 @@ main (int argc, char **argv)
 	}
 
 	/* run tests */
-
 	result = g_test_run ();
 
 	tracker_turtle_shutdown ();
+
+	/* clean up */
+	g_print ("Removing temporary data\n");
+	g_spawn_command_line_async ("rm -R tracker/", NULL);
 
 	return result;
 }

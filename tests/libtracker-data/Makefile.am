@@ -1,5 +1,15 @@
 include $(top_srcdir)/Makefile.decl
 
+SUBDIRS = 			\
+	algebra			\
+	bnode-coreference	\
+	bound 			\
+	expr-ops		\
+	nie			\
+	nmo			\
+	regex			\
+	sort
+
 noinst_PROGRAMS = $(TEST_PROGS)
 
 TEST_PROGS += 								\
@@ -7,8 +17,10 @@ TEST_PROGS += 								\
 	tracker-ontology
 
 INCLUDES = 								\
-	-DG_LOG_DOMAIN=\"Tracker\"					\
 	-DTRACKER_COMPILATION						\
+	-DTOP_SRCDIR=\"$(top_srcdir)\"					\
+	-DTOP_BUILDDIR=\"$(top_builddir)\"				\
+	-DG_LOG_DOMAIN=\"Tracker\"					\
 	-I$(top_srcdir)/src						\
 	-I$(top_srcdir)/tests/common					\
 	$(WARN_CFLAGS)							\

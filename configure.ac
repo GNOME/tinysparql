@@ -1452,6 +1452,14 @@ AC_CONFIG_FILES([
 	tests/common/Makefile
 	tests/libtracker-common/Makefile
 	tests/libtracker-data/Makefile
+	tests/libtracker-data/algebra/Makefile
+	tests/libtracker-data/bnode-coreference/Makefile
+	tests/libtracker-data/bound/Makefile
+	tests/libtracker-data/expr-ops/Makefile
+	tests/libtracker-data/nie/Makefile
+	tests/libtracker-data/nmo/Makefile
+	tests/libtracker-data/regex/Makefile
+	tests/libtracker-data/sort/Makefile
 	tests/libtracker-db/Makefile
 	tests/Makefile
 	tests/tracker-miner-fs/Makefile

@@ -42,8 +42,7 @@ typedef enum {
 	TRACKER_DB_MANAGER_REMOVE_CACHE     = 1 << 2,
 	TRACKER_DB_MANAGER_LOW_MEMORY_MODE  = 1 << 3,
 	TRACKER_DB_MANAGER_REMOVE_ALL       = 1 << 4,
-	TRACKER_DB_MANAGER_READONLY        = 1 << 5,
-	TRACKER_DB_MANAGER_TEST_MODE        = 1 << 6
+	TRACKER_DB_MANAGER_READONLY         = 1 << 5
 } TrackerDBManagerFlags;
 
 GType	     tracker_db_get_type			    (void) G_GNUC_CONST;

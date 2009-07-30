@@ -193,7 +193,7 @@ load_sql_file (TrackerDBInterface *iface,
 
 	if (!g_file_get_contents (path, &content, NULL, NULL)) {
 		g_critical ("Cannot read SQL file:'%s', please reinstall tracker"
-			    " or check read permissions on the file if it exists", file);
+			    " or check read permissions on the file if it exists", path);
 		g_assert_not_reached ();
 	}
 
@@ -1025,6 +1025,7 @@ tracker_db_manager_init (TrackerDBManagerFlags	flags,
 	TrackerDBVersion    version;
 	gchar		   *filename;
 	const gchar	   *dir;
+	const gchar        *env_path;
 	gboolean	    need_reindex;
 	guint		    i;
 
@@ -1057,28 +1058,24 @@ tracker_db_manager_init (TrackerDBManagerFlags	flags,
 	sys_tmp_dir = g_build_filename (g_get_tmp_dir (), filename, NULL);
 	g_free (filename);
 
-	if (flags & TRACKER_DB_MANAGER_TEST_MODE) {
-		sql_dir = g_build_filename ("..", "..",
-					    "data",
-					    "db",
-					    NULL);
-
-		user_data_dir = g_strdup (sys_tmp_dir);
-		data_dir = g_strdup (sys_tmp_dir);
-	} else {
+	env_path = g_getenv ("TRACKER_DB_SQL_DIR");
+	
+	if (G_UNLIKELY (!env_path)) {
 		sql_dir = g_build_filename (SHAREDIR,
 					    "tracker",
 					    NULL);
-
-		user_data_dir = g_build_filename (g_get_user_data_dir (),
-						  "tracker",
-						  "data",
-						  NULL);
-
-		data_dir = g_build_filename (g_get_user_cache_dir (),
-					     "tracker",
-					     NULL);
+	} else {
+		sql_dir = g_strdup (env_path);
 	}
+	
+	user_data_dir = g_build_filename (g_get_user_data_dir (),
+					  "tracker",
+					  "data",
+					  NULL);
+	
+	data_dir = g_build_filename (g_get_user_cache_dir (),
+				     "tracker",
+				     NULL);
 
 	/* Make sure the directories exist */
 	g_message ("Checking database directories exist");
