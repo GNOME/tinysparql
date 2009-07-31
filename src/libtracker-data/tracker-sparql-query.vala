@@ -1139,28 +1139,44 @@ public class Tracker.SparqlQuery : Object {
 			pattern_sql.append ("(0)");
 			break;
 		case Rasqal.Op.STR:
-				if (expr.arg1.literal.type == Rasqal.Literal.Type.VARIABLE) {
-					string variable_name = expr.arg1.literal.as_variable ().name;
-					var binding = var_map.lookup (variable_name);
+			if (expr.arg1.literal.type == Rasqal.Literal.Type.VARIABLE) {
+				string variable_name = expr.arg1.literal.as_variable ().name;
+				var binding = var_map.lookup (variable_name);
 
-					if (binding.is_uri) {
-						pattern_sql.append_printf ("(SELECT \"%s\".\"Uri\" as \"STR\" FROM \"%s\" WHERE \"%s\".\"ID\" = \"%s_u\")", 
-						                           binding.table.sql_db_tablename,
-						                           binding.table.sql_db_tablename,
-						                           binding.table.sql_db_tablename,
-						                           variable_name);
-					} else {
-						visit_filter (expr.arg1);
-					}
-				} else if (expr.arg1.literal.type == Rasqal.Literal.Type.URI) {
-					// Rasqal already takes care of this, but I added it here
-					// for the reader of this code to understand what goes on
-					// Note that rasqal will have converted a str(<urn:something>)
-					// to a literal string 'urn:something'
-					pattern_sql.append_printf ("'%s'", expr.arg1.literal.as_string ());
+				if (binding.is_uri) {
+					pattern_sql.append_printf ("(SELECT \"%s\".\"Uri\" as \"STR\" FROM \"%s\" WHERE \"%s\".\"ID\" = \"%s_u\")", 
+					                           binding.table.sql_db_tablename,
+					                           binding.table.sql_db_tablename,
+					                           binding.table.sql_db_tablename,
+					                           variable_name);
 				} else {
 					visit_filter (expr.arg1);
 				}
+			} else if (expr.arg1.literal.type == Rasqal.Literal.Type.URI) {
+				// Rasqal already takes care of this, but I added it here
+				// for the reader of this code to understand what goes on
+				// Note that rasqal will have converted a str(<urn:something>)
+				// to a literal string 'urn:something'
+				pattern_sql.append_printf ("'%s'", expr.arg1.literal.as_string ());
+			} else {
+				visit_filter (expr.arg1);
+			}
+			break;
+		case Rasqal.Op.ISURI:
+			if (expr.arg1.literal.type == Rasqal.Literal.Type.VARIABLE) {
+				string variable_name = expr.arg1.literal.as_variable ().name;
+				var binding = var_map.lookup (variable_name);
+
+				if (!binding.is_uri) {
+					pattern_sql.append ("(0)");
+				} else {
+					pattern_sql.append ("(1)");
+				}
+			} else if (expr.arg1.literal.type != Rasqal.Literal.Type.URI) {
+				pattern_sql.append ("(0)");
+			} else {
+				pattern_sql.append ("(1)");
+			}
 			break;
 		case Rasqal.Op.LITERAL:
 			if (expr.literal.type == Rasqal.Literal.Type.VARIABLE) {
