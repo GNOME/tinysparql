@@ -22,6 +22,8 @@
 #ifndef __TRACKER_MINER_CRAWLER_H__
 #define __TRACKER_MINER_CRAWLER_H__
 
+#include "config.h"
+
 #include "tracker-miner.h"
 
 G_BEGIN_DECLS

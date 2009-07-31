@@ -57,9 +57,8 @@ struct TrackerMinerClass {
 
 GType    tracker_miner_get_type    (void) G_GNUC_CONST;
 
-G_CONST_RETURN gchar * tracker_miner_get_name (TrackerMiner *miner);
-
-void                   tracker_miner_start    (TrackerMiner *miner);
+G_CONST_RETURN gchar *tracker_miner_get_name (TrackerMiner           *miner);
+void                  tracker_miner_start    (TrackerMiner           *miner);
 
 
 G_END_DECLS

@@ -19,10 +19,10 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#include "tracker-miner.h"
-#include "tracker-dbus.h"
-#include "tracker-miner-dbus.h"
 #include <libtracker/tracker.h>
+
+#include "tracker-miner.h"
+#include "tracker-miner-dbus.h"
 
 #define TRACKER_MINER_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_MINER, TrackerMinerPrivate))
 

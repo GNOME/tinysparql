@@ -62,12 +62,12 @@ TrackerMiner *tracker_miner_new      (TrackerIndexer *indexer);
 
 
 /* DBus methods */
-void          tracker_miner_pause    (TrackerMiner           *miner,
-				      DBusGMethodInvocation  *context,
-				      GError                **error);
-void          tracker_miner_continue (TrackerMiner           *miner,
-				      DBusGMethodInvocation  *context,
-				      GError                **error);
+void          tracker_miner_pause  (TrackerMiner           *miner,
+				    DBusGMethodInvocation  *context,
+				    GError                **error);
+void          tracker_miner_resume (TrackerMiner           *miner,
+				    DBusGMethodInvocation  *context,
+				    GError                **error);
 
 G_END_DECLS
 

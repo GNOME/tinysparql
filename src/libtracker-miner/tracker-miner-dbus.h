@@ -1,6 +1,5 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*
- * Copyright (C) 2006, Mr Jamie McCracken (jamiemcc@gnome.org)
  * Copyright (C) 2008, Nokia
 
  * This library is free software; you can redistribute it and/or
@@ -23,6 +22,9 @@
 #define __TRACKER_MINER_DBUS_H__
 
 #include <glib-object.h>
+
+#include "tracker-dbus.h"
+#include "tracker-miner.h"
 
 G_BEGIN_DECLS
 

@@ -1,6 +1,5 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*
- * Copyright (C) 2006, Mr Jamie McCracken (jamiemcc@gnome.org)
  * Copyright (C) 2008, Nokia
 
  * This library is free software; you can redistribute it and/or
@@ -19,10 +18,13 @@
  * Boston, MA  02110-1301, USA.
  */
 
+#include "config.h"
+
+#include <libtracker-common/tracker-storage.h>
+
 #include "tracker-miner-crawler.h"
 #include "tracker-config.h"
 #include "tracker-processor.h"
-#include <libtracker-common/tracker-storage.h>
 
 #define TRACKER_MINER_CRAWLER_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_MINER_CRAWLER, TrackerMinerCrawlerPrivate))
 

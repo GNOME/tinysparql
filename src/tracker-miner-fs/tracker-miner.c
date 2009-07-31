@@ -159,9 +159,9 @@ tracker_miner_pause (TrackerMiner	    *miner,
 }
 
 void
-tracker_miner_continue (TrackerMiner	       *miner,
-			DBusGMethodInvocation  *context,
-			GError		      **error)
+tracker_miner_resume (TrackerMiner	       *miner,
+		      DBusGMethodInvocation  *context,
+		      GError		      **error)
 {
 	TrackerMinerPrivate *priv;
 	guint request_id;
