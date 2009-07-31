@@ -305,6 +305,8 @@ public class Tracker.SparqlQuery : Object {
 		}
 	}
 
+	private bool is_ask { get; set; }
+
 	public DBResultSet? execute () throws Error {
 		var world = new Rasqal.World ();
 		world.open ();
@@ -339,7 +341,8 @@ public class Tracker.SparqlQuery : Object {
 			} else if (query.get_verb () == Rasqal.QueryVerb.DESCRIBE) {
 				throw new SparqlError.INTERNAL ("DESCRIBE is not supported");
 			} else if (query.get_verb () == Rasqal.QueryVerb.ASK) {
-				throw new SparqlError.INTERNAL ("ASK is not supported");
+				is_ask = true;
+				return execute_select (query);
 			} else {
 				throw new SparqlError.PARSE ("DELETE and INSERT are not supported in query mode");
 			}
@@ -434,6 +437,11 @@ public class Tracker.SparqlQuery : Object {
 		if (query.get_distinct ()) {
 			sql.append ("DISTINCT ");
 		}
+
+		if (is_ask) {
+			sql.append ("COUNT(1) > 0");
+		}
+
 		bool first = true;
 		for (int var_idx = 0; true; var_idx++) {
 			weak Rasqal.Variable variable = query.get_variable (var_idx);
