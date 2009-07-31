@@ -44,6 +44,9 @@ struct TrackerMinerCrawlerPrivate {
 	TrackerProcessor *processor;
 
 	GArray *dirs;
+
+	GQueue *files_queue;
+	guint process_files_id;
 };
 
 enum {
@@ -98,6 +101,43 @@ tracker_miner_crawler_class_init (TrackerMinerCrawlerClass *klass)
         g_type_class_add_private (object_class, sizeof (TrackerMinerCrawlerPrivate));
 }
 
+static gboolean
+process_files_func (TrackerMinerCrawler *miner)
+{
+	TrackerMinerCrawlerPrivate *priv;
+	GFile *file;
+
+	priv = miner->_priv;
+	file = g_queue_pop_head (priv->files_queue);
+
+	if (!file) {
+		/* No more files left to process, at the moment */
+		priv->process_files_id = 0;
+		return FALSE;
+	}
+
+	g_signal_emit (miner, signals [PROCESS_FILE], 0, file);
+	g_object_unref (file);
+
+	return TRUE;
+}
+
+static void
+processor_check_file (TrackerProcessor    *processor,
+		      GFile               *file,
+		      TrackerMinerCrawler *miner)
+{
+	TrackerMinerCrawlerPrivate *priv;
+
+	priv = miner->_priv;
+
+	g_queue_push_tail (priv->files_queue, g_object_ref (file));
+
+	if (priv->process_files_id == 0) {
+		priv->process_files_id = g_idle_add ((GSourceFunc) process_files_func, miner);
+	}
+}
+
 static void
 tracker_miner_crawler_init (TrackerMinerCrawler *miner)
 {
@@ -110,13 +150,55 @@ tracker_miner_crawler_init (TrackerMinerCrawler *miner)
 
 	priv->processor = tracker_processor_new (priv->config, priv->storage);
 
+	g_signal_connect (priv->processor, "check-file",
+			  G_CALLBACK (processor_check_file), miner);
+
 	priv->dirs = g_array_new (FALSE, TRUE, sizeof (DirectoryData));
+	priv->files_queue = g_queue_new ();
 }
 
 static void
 tracker_miner_crawler_finalize (GObject *object)
 {
-        G_OBJECT_CLASS (tracker_miner_crawler_parent_class)->finalize (object);
+	TrackerMinerCrawler *miner = TRACKER_MINER_CRAWLER (object);
+	TrackerMinerCrawlerPrivate *priv = miner->_priv;
+
+	if (priv->config) {
+		g_object_unref (priv->config);
+	}
+
+	if (priv->storage) {
+		g_object_unref (priv->storage);
+	}
+
+	if (priv->processor) {
+		g_object_unref (priv->processor);
+	}
+
+	if (priv->dirs) {
+		gint i;
+
+		for (i = 0; i < priv->dirs->len; i++) {
+			DirectoryData data;
+
+			data = g_array_index (priv->dirs, DirectoryData, i);
+			g_object_unref (data.dir);
+		}
+
+		g_array_free (priv->dirs, TRUE);
+	}
+
+	if (priv->process_files_id) {
+		g_source_remove (priv->process_files_id);
+		priv->process_files_id = 0;
+	}
+
+	if (priv->files_queue) {
+		g_queue_foreach (priv->files_queue, (GFunc) g_object_unref, NULL);
+		g_queue_free (priv->files_queue);
+	}
+
+	G_OBJECT_CLASS (tracker_miner_crawler_parent_class)->finalize (object);
 }
 
 static void
