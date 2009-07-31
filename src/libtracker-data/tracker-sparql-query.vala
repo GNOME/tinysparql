@@ -22,7 +22,8 @@ public errordomain Tracker.SparqlError {
 	UNKNOWN_CLASS,
 	UNKNOWN_PROPERTY,
 	TYPE,
-	INTERNAL
+	INTERNAL,
+	UNSUPPORTED
 }
 
 public class Tracker.SparqlQuery : Object {
@@ -1099,7 +1100,7 @@ public class Tracker.SparqlQuery : Object {
 		return false;
 	}
 
-	void visit_filter (Rasqal.Expression expr, bool is_datetime = false) {
+	void visit_filter (Rasqal.Expression expr, bool is_datetime = false) throws SparqlError {
 		switch (expr.op) {
 		case Rasqal.Op.AND:
 		case Rasqal.Op.OR:
@@ -1215,7 +1216,7 @@ public class Tracker.SparqlQuery : Object {
 			pattern_sql.append (")");
 			break;
 		default:
-			break;
+				throw new SparqlError.UNSUPPORTED ("Unsupported operation");
 		}
 	}
 
