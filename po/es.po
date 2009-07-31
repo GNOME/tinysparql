@@ -2280,27 +2280,8 @@ msgstr "Se debería convertir a"
 msgid "No genre text was provided"
 msgstr "No se proporcionó ningún texto de género"
 
-#~ msgid "Metadata database store and lookup manager"
-#~ msgstr ""
-#~ "Gestor de almacenamiento y búsqueda en la base de datos de metadatos"
-
-#~| msgid "Tracker Web Site"
-#~ msgid "Tracker Store"
-#~ msgstr "Almacén de Tracker"
-
-#~ msgid "Crawls and processes files on the file system"
-#~ msgstr "Araña y procesa archivos en el sistema de archivos"
-
-#~| msgid "Tracker Live Search"
-#~ msgid "Tracker File System Miner "
-#~ msgstr "Minero de seguimiento del sistema de archivos"
-
 #~ msgid "Debug mode (default = off)"
 #~ msgstr "Modo de depuración (predeterminado = desactivado)"
-
-#~| msgid "Could not search tags"
-#~ msgid "Clear the search text"
-#~ msgstr "Limpiar el texto de búsqueda"
 
 #~ msgid "- Import files"
 #~ msgstr "- Importar archivos"
