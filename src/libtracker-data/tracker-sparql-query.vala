@@ -1133,6 +1133,11 @@ public class Tracker.SparqlQuery : Object {
 			visit_filter (expr.arg1);
 			pattern_sql.append (")");
 			break;
+		case Rasqal.Op.ISBLANK:
+			/* We don't store blank nodes as blank nodes atm, so we always 
+			 * return false. */
+			pattern_sql.append ("(0)");
+			break;
 		case Rasqal.Op.STR:
 				if (expr.arg1.literal.type == Rasqal.Literal.Type.VARIABLE) {
 					string variable_name = expr.arg1.literal.as_variable ().name;
