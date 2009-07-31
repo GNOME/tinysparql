@@ -25,6 +25,7 @@
 #include "tracker-miner-crawler.h"
 #include "tracker-config.h"
 #include "tracker-processor.h"
+#include "tracker-marshal.h"
 
 #define TRACKER_MINER_CRAWLER_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_MINER_CRAWLER, TrackerMinerCrawlerPrivate))
 
@@ -44,6 +45,15 @@ struct TrackerMinerCrawlerPrivate {
 
 	GArray *dirs;
 };
+
+enum {
+	CHECK_FILE,
+	PROCESS_FILE,
+	LAST_SIGNAL
+};
+
+static guint signals[LAST_SIGNAL] = { 0 };
+
 
 static void tracker_miner_crawler_finalize (GObject *object);
 
@@ -67,6 +77,23 @@ tracker_miner_crawler_class_init (TrackerMinerCrawlerClass *klass)
         miner_class->paused = tracker_miner_crawler_paused;
         miner_class->resumed = tracker_miner_crawler_resumed;
 	*/
+
+	signals[CHECK_FILE] =
+		g_signal_new ("check-file",
+			      G_OBJECT_CLASS_TYPE (object_class),
+			      G_SIGNAL_RUN_LAST,
+			      G_STRUCT_OFFSET (TrackerMinerCrawlerClass, check_file),
+			      NULL, NULL,
+			      tracker_marshal_BOOLEAN__OBJECT,
+			      G_TYPE_BOOLEAN, 1, G_TYPE_FILE);
+	signals[PROCESS_FILE] =
+		g_signal_new ("process-file",
+			      G_OBJECT_CLASS_TYPE (object_class),
+			      G_SIGNAL_RUN_LAST,
+			      G_STRUCT_OFFSET (TrackerMinerCrawlerClass, process_file),
+			      NULL, NULL,
+			      tracker_marshal_BOOLEAN__OBJECT,
+			      G_TYPE_BOOLEAN, 1, G_TYPE_FILE);
 
         g_type_class_add_private (object_class, sizeof (TrackerMinerCrawlerPrivate));
 }

@@ -25,6 +25,7 @@
 #include "config.h"
 
 #include "tracker-miner.h"
+#include <gio/gio.h>
 
 G_BEGIN_DECLS
 
@@ -45,6 +46,11 @@ struct TrackerMinerCrawler {
 
 struct TrackerMinerCrawlerClass {
         TrackerMinerClass parent_class;
+
+	gboolean (* check_file) (TrackerMinerCrawler *miner,
+				 GFile               *file);
+	gboolean (* process_file) (TrackerMinerCrawler *miner,
+				   GFile               *file);
 };
 
 
