@@ -29,11 +29,20 @@
 #define TRACKER_MINER_CRAWLER_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_MINER_CRAWLER, TrackerMinerCrawlerPrivate))
 
 typedef struct TrackerMinerCrawlerPrivate TrackerMinerCrawlerPrivate;
+typedef struct DirectoryData DirectoryData;
+
+struct DirectoryData {
+	GFile *dir;
+	guint monitor : 1;
+	guint recurse : 1;
+};
 
 struct TrackerMinerCrawlerPrivate {
 	TrackerConfig *config;
 	TrackerStorage *storage;
 	TrackerProcessor *processor;
+
+	GArray *dirs;
 };
 
 static void tracker_miner_crawler_finalize (GObject *object);
@@ -73,6 +82,8 @@ tracker_miner_crawler_init (TrackerMinerCrawler *miner)
 	priv->storage = tracker_storage_new ();
 
 	priv->processor = tracker_processor_new (priv->config, priv->storage);
+
+	priv->dirs = g_array_new (FALSE, TRUE, sizeof (DirectoryData));
 }
 
 static void
@@ -91,4 +102,38 @@ tracker_miner_crawler_started (TrackerMiner *miner)
 	priv = miner_crawler->_priv;
 
 	tracker_processor_start (priv->processor);
+}
+
+/* Public API */
+void
+tracker_miner_crawler_add_directory (TrackerMinerCrawler *miner,
+				     const gchar         *directory_uri,
+				     gboolean             monitor,
+				     gboolean             recurse)
+{
+	TrackerMinerCrawlerPrivate *priv;
+	DirectoryData dir_data;
+
+	g_return_if_fail (TRACKER_IS_MINER_CRAWLER (miner));
+	g_return_if_fail (directory_uri != NULL);
+
+	priv = miner->_priv;
+
+	dir_data.dir = g_file_new_for_uri (directory_uri);
+	dir_data.monitor = (monitor == TRUE);
+	dir_data.recurse = (recurse == TRUE);
+
+	g_array_append_val (priv->dirs, dir_data);
+}
+
+void
+tracker_miner_crawler_set_ignore_directory_patterns (TrackerMinerCrawler *miner,
+						     GList               *patterns)
+{
+}
+
+void
+tracker_miner_crawler_set_ignore_file_patterns (TrackerMinerCrawler *miner,
+						GList               *patterns)
+{
 }

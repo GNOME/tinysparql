@@ -50,6 +50,15 @@ struct TrackerMinerCrawlerClass {
 
 GType    tracker_miner_crawler_get_type    (void) G_GNUC_CONST;
 
+void     tracker_miner_crawler_add_directory (TrackerMinerCrawler *miner,
+					      const gchar         *directory_uri,
+					      gboolean             monitor,
+					      gboolean             recurse);
+
+void     tracker_miner_crawler_set_ignore_directory_patterns (TrackerMinerCrawler *miner,
+							      GList               *patterns);
+void     tracker_miner_crawler_set_ignore_file_patterns      (TrackerMinerCrawler *miner,
+							      GList               *patterns);
 
 G_END_DECLS
 
