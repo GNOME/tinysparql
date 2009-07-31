@@ -1216,7 +1216,7 @@ public class Tracker.SparqlQuery : Object {
 			pattern_sql.append (")");
 			break;
 		default:
-				throw new SparqlError.UNSUPPORTED ("Unsupported operation");
+			throw new SparqlError.UNSUPPORTED ("Unsupported operation");
 		}
 	}
 
