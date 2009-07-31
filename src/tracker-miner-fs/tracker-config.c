@@ -65,7 +65,6 @@ typedef struct {
 	/* Indexing */
 	gint	  throttle;
 	gboolean  enable_thumbnails;
-	GSList   *disabled_modules;
 
 	gboolean  disable_indexing_on_battery;
 	gboolean  disable_indexing_on_battery_init;
@@ -113,7 +112,6 @@ enum {
 	/* Indexing */
 	PROP_THROTTLE,
 	PROP_ENABLE_THUMBNAILS,
-	PROP_DISABLED_MODULES,
 	PROP_DISABLE_INDEXING_ON_BATTERY,
 	PROP_DISABLE_INDEXING_ON_BATTERY_INIT,
 	PROP_LOW_DISK_SPACE_LIMIT,
@@ -131,7 +129,6 @@ static ObjectToKeyFile conversions[] = {
 	{ G_TYPE_POINTER, "no-watch-directory-roots",         GROUP_MONITORS, "NoWatchDirectory"        },
 	{ G_TYPE_INT,     "throttle",                         GROUP_INDEXING, "Throttle"                },
 	{ G_TYPE_BOOLEAN, "enable-thumbnails",                GROUP_INDEXING, "EnableThumbnails"        },
-	{ G_TYPE_POINTER, "disabled-modules",                 GROUP_INDEXING, "DisabledModules"         },
 	{ G_TYPE_BOOLEAN, "disable-indexing-on-battery",      GROUP_INDEXING, "BatteryIndex"            },
 	{ G_TYPE_BOOLEAN, "disable-indexing-on-battery-init", GROUP_INDEXING, "BatteryIndexInitial"     },
 	{ G_TYPE_INT,     "low-disk-space-limit",             GROUP_INDEXING, "LowDiskSpaceLimit"       },
@@ -214,13 +211,6 @@ tracker_config_class_init (TrackerConfigClass *klass)
 							       "Enable thumbnails",
 							       " Set to false to completely disable thumbnail generation",
 							       DEFAULT_ENABLE_THUMBNAILS,
-							       G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
-	g_object_class_install_property (object_class,
-					 PROP_DISABLED_MODULES,
-					 g_param_spec_pointer ("disabled-modules",
-							       "Disabled modules",
-							       " List of disabled modules (separator=;)\n"
-							       " The modules that are indexed are kept in $prefix/lib/tracker/indexer-modules",
 							       G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
 	;
 	g_object_class_install_property (object_class,
@@ -316,10 +306,6 @@ config_set_property (GObject	  *object,
 		tracker_config_set_enable_thumbnails (TRACKER_CONFIG (object),
 						      g_value_get_boolean (value));
 		break;
-	case PROP_DISABLED_MODULES:
-		tracker_config_set_disabled_modules (TRACKER_CONFIG (object),
-						     g_value_get_pointer (value));
-		break;
 	case PROP_DISABLE_INDEXING_ON_BATTERY:
 		tracker_config_set_disable_indexing_on_battery (TRACKER_CONFIG (object),
 								g_value_get_boolean (value));
@@ -387,9 +373,6 @@ config_get_property (GObject	*object,
 	case PROP_ENABLE_THUMBNAILS:
 		g_value_set_boolean (value, priv->enable_thumbnails);
 		break;
-	case PROP_DISABLED_MODULES:
-		g_value_set_pointer (value, priv->disabled_modules);
-		break;
 	case PROP_DISABLE_INDEXING_ON_BATTERY:
 		g_value_set_boolean (value, priv->disable_indexing_on_battery);
 		break;
@@ -427,9 +410,6 @@ config_finalize (GObject *object)
 
 	g_slist_foreach (priv->no_watch_directory_roots, (GFunc) g_free, NULL);
 	g_slist_free (priv->no_watch_directory_roots);
-
-	g_slist_foreach (priv->disabled_modules, (GFunc) g_free, NULL);
-	g_slist_free (priv->disabled_modules);
 
 	(G_OBJECT_CLASS (tracker_config_parent_class)->finalize) (object);
 }
@@ -556,11 +536,7 @@ config_load (TrackerConfig *config)
 			break;
 
 		case G_TYPE_POINTER:
-			if (g_strcmp0 (conversions[i].property, "disabled-modules") == 0) {
-				is_directory_list = FALSE;
-			} else {
-				is_directory_list = TRUE;
-			}
+			is_directory_list = TRUE;
 
 			tracker_keyfile_object_load_string_list (G_OBJECT (file), 
 								 conversions[i].property,
@@ -732,18 +708,6 @@ tracker_config_get_enable_thumbnails (TrackerConfig *config)
 	priv = TRACKER_CONFIG_GET_PRIVATE (config);
 
 	return priv->enable_thumbnails;
-}
-
-GSList *
-tracker_config_get_disabled_modules (TrackerConfig *config)
-{
-	TrackerConfigPrivate *priv;
-
-	g_return_val_if_fail (TRACKER_IS_CONFIG (config), NULL);
-
-	priv = TRACKER_CONFIG_GET_PRIVATE (config);
-
-	return priv->disabled_modules;
 }
 
 gboolean
@@ -1037,27 +1001,3 @@ tracker_config_set_no_watch_directory_roots (TrackerConfig *config,
 	g_object_notify (G_OBJECT (config), "no-watch-directory-roots");
 }
 
-void	       
-tracker_config_set_disabled_modules (TrackerConfig *config,
-				     GSList        *modules)
-{
-	TrackerConfigPrivate *priv;
-	GSList               *l;
-
-	g_return_if_fail (TRACKER_IS_CONFIG (config));
-
-	priv = TRACKER_CONFIG_GET_PRIVATE (config);
-
-	l = priv->disabled_modules;
-
-	if (!modules) {
-		priv->disabled_modules = NULL;
-	} else {
-		priv->disabled_modules = tracker_gslist_copy_with_string_data (modules);
-	}
-
-	g_slist_foreach (l, (GFunc) g_free, NULL);
-	g_slist_free (l);
-
-	g_object_notify (G_OBJECT (config), "disabled-modules");
-}

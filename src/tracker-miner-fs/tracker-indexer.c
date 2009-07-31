@@ -982,7 +982,6 @@ indexer_load_modules (TrackerIndexer *indexer)
 	priv = indexer->private;
 	priv->indexer_modules = g_hash_table_new (g_str_hash, g_str_equal);
 
-	disabled_modules = tracker_config_get_disabled_modules (priv->config);
 	modules = tracker_module_config_get_modules ();
 
 	for (l = modules; l; l = l->next) {

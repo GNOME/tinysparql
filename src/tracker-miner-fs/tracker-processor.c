@@ -834,27 +834,6 @@ process_module_files_add_legacy_options (TrackerProcessor *processor)
 	}
 }
 
-static gboolean
-process_module_is_disabled (TrackerProcessor *processor,
-			    const gchar      *module_name)
-{
-	GSList *disabled_modules;
-	
-	if (!tracker_module_config_get_enabled (module_name)) {
-		g_message ("  Module disabled by module config");
-		return TRUE;
-	} 
-
-	disabled_modules = tracker_config_get_disabled_modules (processor->private->config);
-	
-	if (g_slist_find_custom (disabled_modules, module_name, (GCompareFunc) g_strcmp0)) {
-		g_message ("  Module disabled by user");
-		return TRUE;
-	} 
-
-	return FALSE;
-}
-
 static void
 process_module (TrackerProcessor *processor,
 		const gchar	 *module_name)
@@ -862,11 +841,6 @@ process_module (TrackerProcessor *processor,
 	TrackerCrawler *crawler;
 
 	g_message ("Processing module:'%s'", module_name);
-
-	if (process_module_is_disabled (processor, module_name)) {
-		process_module_next (processor);
-		return;
-	}
 
 	/* Here we set up legacy .cfg options like watch roots */
 	tracker_status_set_and_signal (TRACKER_STATUS_WATCHING);
@@ -923,11 +897,6 @@ process_device (TrackerProcessor *processor,
 	const gchar    *module_name = "files";
 
 	g_message ("Processing device with root:'%s'", device_root);
-
-	if (process_module_is_disabled (processor, module_name)) {
-		process_device_next (processor);
-		return;
-	}
 
 	/* Here we set up legacy .cfg options like watch roots */
 	tracker_status_set_and_signal (TRACKER_STATUS_WATCHING);
