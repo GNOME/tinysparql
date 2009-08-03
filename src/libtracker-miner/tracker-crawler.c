@@ -256,21 +256,15 @@ tracker_crawler_finalize (GObject *object)
 	g_queue_foreach (priv->directories, (GFunc) g_object_unref, NULL);
 	g_queue_free (priv->directories);
 
-	g_object_unref (priv->config);
-
 	G_OBJECT_CLASS (tracker_crawler_parent_class)->finalize (object);
 }
 
 TrackerCrawler *
-tracker_crawler_new (TrackerConfig *config)
+tracker_crawler_new (void)
 {
 	TrackerCrawler *crawler;
 
-	g_return_val_if_fail (TRACKER_IS_CONFIG (config), NULL);
-
 	crawler = g_object_new (TRACKER_TYPE_CRAWLER, NULL);
-
-	crawler->private->config = g_object_ref (config);
 
 	/* Set up crawl data */
 	crawler->private->ignored_directory_patterns =
@@ -494,7 +488,9 @@ process_func (gpointer data)
 	 * took the time to crawl 130k files from 7 seconds up to 68
 	 * seconds. So it is important to get this figure right.
 	 */
+#ifdef FIX
 	tracker_throttle (priv->config, 25);
+#endif
 
 	/* Crawler files */
 	file = g_queue_pop_head (priv->files);
@@ -1021,6 +1017,7 @@ tracker_crawler_start (TrackerCrawler *crawler)
 	g_slist_foreach (l, (GFunc) g_free, NULL);
 	g_slist_free (l);
 
+#ifdef FIX
 	/* Set up legacy NoWatchDirectoryRoots so we don't have to get
 	 * them from the config for EVERY file we traverse.
 	 */
@@ -1038,6 +1035,7 @@ tracker_crawler_start (TrackerCrawler *crawler)
 	g_slist_free (priv->crawl_directory_roots);
 	l = tracker_config_get_crawl_directory_roots (priv->config);
 	priv->crawl_directory_roots = tracker_gslist_copy_with_string_data (l);
+#endif
 
 	/* Time the event */
 	if (priv->timer) {

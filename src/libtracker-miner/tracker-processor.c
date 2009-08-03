@@ -47,7 +47,6 @@ typedef enum {
 } SentType;
 
 struct TrackerProcessorPrivate {
-	TrackerConfig  *config;
 	TrackerStorage *hal;
 	TrackerMonitor *monitor;
 
@@ -291,8 +290,6 @@ tracker_processor_finalize (GObject *object)
 	}
 #endif /* HAVE_HAL */
 
-	g_object_unref (priv->config);
-
 	G_OBJECT_CLASS (tracker_processor_parent_class)->finalize (object);
 }
 
@@ -352,10 +349,12 @@ path_should_be_ignored_for_media (TrackerProcessor *processor,
 	gboolean  ignore_removable_devices;
 	gboolean  ignore = FALSE;
 
+#ifdef FIX
 	ignore_mounted_directories =
 		!tracker_config_get_index_mounted_directories (processor->private->config);
 	ignore_removable_devices =
 		!tracker_config_get_index_removable_devices (processor->private->config);
+#endif
 
 	if (ignore_mounted_directories || ignore_removable_devices) {
 		get_remote_roots (processor,
@@ -600,7 +599,6 @@ is_path_on_ignore_list (GSList	    *ignore_list,
 static void
 process_files_add_legacy_options (TrackerProcessor *processor)
 {
-	TrackerCrawler *crawler;
 	GSList	       *no_watch_roots;
 	GSList	       *watch_roots;
 	GSList	       *crawl_roots;
@@ -611,9 +609,15 @@ process_files_add_legacy_options (TrackerProcessor *processor)
 	tracker_crawler_use_module_paths (processor->private->crawler, TRUE);
 	tracker_crawler_special_paths_clear (processor->private->crawler);
 
+#ifdef FIX
 	no_watch_roots = tracker_config_get_no_watch_directory_roots (processor->private->config);
 	watch_roots = tracker_config_get_watch_directory_roots (processor->private->config);
 	crawl_roots = tracker_config_get_crawl_directory_roots (processor->private->config);
+#else
+	no_watch_roots = NULL;
+	watch_roots = g_slist_append (NULL, g_get_home_dir ());
+	crawl_roots = NULL;
+#endif
 
 	watch_root_count = 0;
 	crawl_root_count = 0;
@@ -665,7 +669,7 @@ process_files_add_legacy_options (TrackerProcessor *processor)
 		}
 
 		g_message ("    %s", (gchar*) l->data);
-		tracker_crawler_special_paths_add (crawler, l->data);
+		tracker_crawler_special_paths_add (processor->private->crawler, l->data);
 	}
 
 	for (l = crawl_roots; l; l = l->next) {
@@ -674,7 +678,7 @@ process_files_add_legacy_options (TrackerProcessor *processor)
 		}
 
 		g_message ("    %s", (gchar*) l->data);
-		tracker_crawler_special_paths_add (crawler, l->data);
+		tracker_crawler_special_paths_add (processor->private->crawler, l->data);
 
 		crawl_root_count++;
 	}
@@ -689,7 +693,6 @@ static void
 process_device (TrackerProcessor *processor,
 		const gchar	 *device_root)
 {
-	TrackerCrawler *crawler;
 	GFile          *file;
 
 	g_message ("Processing device with root:'%s'", device_root);
@@ -713,9 +716,9 @@ process_device (TrackerProcessor *processor,
 	tracker_monitor_add (processor->private->monitor, file);
 	g_object_unref (file);
 	
-	tracker_crawler_special_paths_add (crawler, device_root);
+	tracker_crawler_special_paths_add (processor->private->crawler, device_root);
 
-	if (!tracker_crawler_start (crawler)) {
+	if (!tracker_crawler_start (processor->private->crawler)) {
 		process_device_next (processor);
 	}
 }
@@ -1024,7 +1027,6 @@ processor_files_check (TrackerProcessor *processor,
 		       GFile		*file,
 		       gboolean		 is_directory)
 {
-	TrackerCrawler *crawler;
 	gboolean	ignored;
 	gchar	       *path;
 
@@ -1038,7 +1040,7 @@ processor_files_check (TrackerProcessor *processor,
 
 	if (!ignored) {
 		if (is_directory) {
-			tracker_crawler_add_unexpected_path (crawler, path);
+			tracker_crawler_add_unexpected_path (processor->private->crawler, path);
 		}
 
 		g_queue_push_tail (processor->private->items_created_queue, 
@@ -1108,7 +1110,6 @@ processor_files_move (TrackerProcessor *processor,
 		      GFile	       *other_file,
 		      gboolean		is_directory)
 {
-	TrackerCrawler *crawler;
 	gchar	       *path;
 	gchar	       *other_path;
 	gboolean	path_ignored;
@@ -1139,7 +1140,7 @@ processor_files_move (TrackerProcessor *processor,
 		}
 
 		/* If this is a directory we need to crawl it */
-		tracker_crawler_add_unexpected_path (crawler, other_path);
+		tracker_crawler_add_unexpected_path (processor->private->crawler, other_path);
 	} else if (other_path_ignored) {
 		/* Delete old file */
 		g_queue_push_tail (processor->private->items_deleted_queue, g_object_ref (file));
@@ -1374,25 +1375,22 @@ mount_point_removed_cb (TrackerStorage *hal,
 #endif /* HAVE_HAL */
 
 TrackerProcessor *
-tracker_processor_new (TrackerConfig  *config,
-		       TrackerStorage *storage)
+tracker_processor_new (TrackerStorage *storage)
 {
 	TrackerProcessor	*processor;
 	TrackerProcessorPrivate *priv;
-
-	g_return_val_if_fail (TRACKER_IS_CONFIG (config), NULL);
 
 #ifdef HAVE_HAL
 	g_return_val_if_fail (TRACKER_IS_STORAGE (storage), NULL);
 #endif /* HAVE_HAL */
 
+	tracker_status_init (NULL, tracker_power_new ());
+	tracker_module_config_init ();
+
 	tracker_status_set_and_signal (TRACKER_STATUS_INITIALIZING);
 
 	processor = g_object_new (TRACKER_TYPE_PROCESSOR, NULL);
 	priv = processor->private;
-
-	/* Set up config */
-	priv->config = g_object_ref (config);
 
 #ifdef HAVE_HAL
 	/* Set up hal */
@@ -1409,7 +1407,7 @@ tracker_processor_new (TrackerConfig  *config,
 #endif /* HAVE_HAL */
 
 	/* Set up the crawlers now we have config and hal */
-	priv->crawler = tracker_crawler_new (priv->config);
+	priv->crawler = tracker_crawler_new ();
 
 	g_signal_connect (priv->crawler, "processing-file",
 			  G_CALLBACK (crawler_processing_file_cb),
@@ -1422,7 +1420,7 @@ tracker_processor_new (TrackerConfig  *config,
 			  processor);
 
 	/* Set up the monitor */
-	priv->monitor = tracker_monitor_new (config);
+	priv->monitor = tracker_monitor_new ();
 
 	g_message ("Disabling monitor events until we have crawled the file system");
 	tracker_monitor_set_enabled (priv->monitor, FALSE);

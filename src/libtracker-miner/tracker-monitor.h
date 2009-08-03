@@ -25,8 +25,6 @@
 #include <glib-object.h>
 #include <gio/gio.h>
 
-#include "tracker-config.h"
-
 G_BEGIN_DECLS
 
 #define TRACKER_TYPE_MONITOR		(tracker_monitor_get_type ())
@@ -50,7 +48,7 @@ struct _TrackerMonitorClass {
 };
 
 GType		tracker_monitor_get_type	     (void);
-TrackerMonitor *tracker_monitor_new		     (TrackerConfig  *config);
+TrackerMonitor *tracker_monitor_new		     (void);
 gboolean	tracker_monitor_get_enabled	     (TrackerMonitor *monitor);
 void		tracker_monitor_set_enabled	     (TrackerMonitor *monitor,
 						      gboolean	      enabled);

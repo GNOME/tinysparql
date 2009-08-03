@@ -343,8 +343,6 @@ tracker_monitor_finalize (GObject *object)
 	g_hash_table_unref (priv->cached_events);
 	g_hash_table_unref (priv->event_pairs);
 
-	g_object_unref (priv->config);
-
 	G_OBJECT_CLASS (tracker_monitor_parent_class)->finalize (object);
 }
 
@@ -1181,18 +1179,14 @@ libinotify_monitor_cancel (gpointer data)
 }
 
 TrackerMonitor *
-tracker_monitor_new (TrackerConfig *config)
+tracker_monitor_new (void)
 {
 	TrackerMonitor	      *monitor;
 	TrackerMonitorPrivate *priv;
 
-	g_return_val_if_fail (TRACKER_IS_CONFIG (config), NULL);
-
 	monitor = g_object_new (TRACKER_TYPE_MONITOR, NULL);
 
 	priv = monitor->private;
-
-	priv->config = g_object_ref (config);
 
 	return monitor;
 }
@@ -1228,9 +1222,11 @@ tracker_monitor_add (TrackerMonitor *monitor,
 	g_return_val_if_fail (TRACKER_IS_MONITOR (monitor), FALSE);
 	g_return_val_if_fail (G_IS_FILE (file), FALSE);
 
+#ifdef FIX
 	if (!tracker_config_get_enable_watches (monitor->private->config)) {
 		return TRUE;
 	}
+#endif
 
 	if (!monitor->private->monitors) {
 		g_critical ("Could not add monitor, no monitors are set up");
@@ -1257,7 +1253,11 @@ tracker_monitor_add (TrackerMonitor *monitor,
 
 	path = g_file_get_path (file);
 
+#ifdef FIX
 	ignored_roots = tracker_config_get_no_watch_directory_roots (monitor->private->config);
+#else
+	ignored_roots = NULL;
+#endif
 
 	/* Check this location isn't excluded in the config */
 	for (l = ignored_roots; l; l = l->next) {

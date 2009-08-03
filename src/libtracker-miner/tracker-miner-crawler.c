@@ -148,10 +148,10 @@ tracker_miner_crawler_init (TrackerMinerCrawler *miner)
 	priv->config = tracker_config_new ();
 	priv->storage = tracker_storage_new ();
 
-	priv->processor = tracker_processor_new (priv->config, priv->storage);
+	priv->processor = tracker_processor_new (priv->storage);
 
-	g_signal_connect (priv->processor, "check-file",
-			  G_CALLBACK (processor_check_file), miner);
+	/* g_signal_connect (priv->processor, "check-file", */
+	/* 		  G_CALLBACK (processor_check_file), miner); */
 
 	priv->dirs = g_array_new (FALSE, TRUE, sizeof (DirectoryData));
 	priv->files_queue = g_queue_new ();

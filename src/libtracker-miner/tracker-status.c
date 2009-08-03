@@ -45,7 +45,6 @@ typedef struct {
 
 	gint           cpu_priority;
 
-	TrackerConfig *config;
 	TrackerPower  *hal;
 
 
@@ -87,11 +86,13 @@ private_free (gpointer data)
 		g_source_remove (private->disk_space_check_id);
 	}
 
+#ifdef FIX
 	g_signal_handlers_disconnect_by_func (private->config,
 					      low_disk_space_limit_cb,
 					      NULL);
 
 	g_object_unref (private->config);
+#endif
 
 #ifdef HAVE_HAL
 	g_signal_handlers_disconnect_by_func (private->hal,
@@ -165,11 +166,13 @@ disk_space_check (void)
 	private = g_static_private_get (&private_key);
 	g_return_val_if_fail (private != NULL, FALSE);
 
+#ifdef FIX
 	limit = tracker_config_get_low_disk_space_limit (private->config);
 
 	if (limit < 1) {
 		return FALSE;
 	}
+#endif
 
 	data_dir = g_build_filename (g_get_user_cache_dir (),
 				     "tracker",
@@ -218,6 +221,7 @@ disk_space_check_start (void)
 		return;
 	}
 
+#ifdef FIX
 	limit = tracker_config_get_low_disk_space_limit (private->config);
 
 	if (limit != -1) {
@@ -235,6 +239,7 @@ disk_space_check_start (void)
 	} else {
 		g_message ("Not setting disk space, configuration is set to -1 (disabled)");
 	}
+#endif
 }
 
 static void
@@ -275,6 +280,7 @@ set_up_throttle (gboolean debugging)
 	 * 0), then set the throttle to be higher so we don't kill
 	 * the laptop battery.
 	 */
+#ifdef FIX
 	throttle = tracker_config_get_throttle (private->config);
 
 	if (tracker_power_get_on_battery (private->hal)) {
@@ -318,6 +324,7 @@ set_up_throttle (gboolean debugging)
 			}
 		}
 	}
+#endif
 }
 
 static void
@@ -367,7 +374,9 @@ tracker_status_init (TrackerConfig *config,
 	GType		      type;
 	TrackerStatusPrivate *private;
 
+#ifdef FIX
 	g_return_val_if_fail (TRACKER_IS_CONFIG (config), FALSE);
+#endif
 
 	private = g_static_private_get (&private_key);
 	if (private) {
@@ -393,11 +402,13 @@ tracker_status_init (TrackerConfig *config,
 	type = tracker_status_get_type ();
 	private->type_class = g_type_class_ref (type);
 
+#ifdef FIX
 	private->config = g_object_ref (config);
 
 	g_signal_connect (private->config, "notify::low-disk-space-limit",
 			  G_CALLBACK (low_disk_space_limit_cb),
 			  NULL);
+#endif
 
 
 #ifdef HAVE_HAL 
