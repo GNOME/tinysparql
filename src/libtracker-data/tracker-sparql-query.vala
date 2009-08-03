@@ -54,6 +54,7 @@ public class Tracker.SparqlQuery : Object {
 		public string variable;
 		// Specified whether SQL column may contain NULL entries
 		public bool maybe_null;
+		public string type;
 	}
 
 	class VariableBindingList : Object {
@@ -976,6 +977,9 @@ public class Tracker.SparqlQuery : Object {
 				binding.variable = triple.object.as_variable ().name;
 				binding.table = table;
 				if (prop != null) {
+
+					binding.type = prop.range.uri;
+
 					if (prop.data_type == PropertyType.RESOURCE) {
 						binding.is_uri = true;
 					} else if (prop.data_type == PropertyType.BOOLEAN) {
@@ -1185,6 +1189,24 @@ public class Tracker.SparqlQuery : Object {
 				pattern_sql.append ("(0)");
 			} else {
 				pattern_sql.append ("(1)");
+			}
+			break;
+		case Rasqal.Op.DATATYPE:
+			if (expr.arg1.literal.type == Rasqal.Literal.Type.VARIABLE) {
+				string variable_name = expr.arg1.literal.as_variable ().name;
+				var binding = var_map.lookup (variable_name);
+
+				if (binding.is_uri || binding.type == null) {
+					throw new SparqlError.PARSE ("Invalid FILTER");
+				}
+
+				pattern_sql.append_printf ("(SELECT ID FROM \"rdfs:Resource\" WHERE Uri = '%s')", binding.type);
+			} else if (expr.arg1.literal.type != Rasqal.Literal.Type.URI) {
+				// Rasqal already takes care of this, but I added it here
+				// for the reader of this code to understand what goes on
+				pattern_sql.append ("(SELECT ID FROM \"rdfs:Resource\" WHERE Uri = 'http://www.w3.org/2001/XMLSchema#string'");
+			} else {
+				pattern_sql.append ("(SELECT ID FROM \"rdfs:Resource\" WHERE Uri = 'http://www.w3.org/2000/01/rdf-schema#Resource'");
 			}
 			break;
 		case Rasqal.Op.LITERAL:
