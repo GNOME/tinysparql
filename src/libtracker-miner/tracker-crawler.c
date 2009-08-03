@@ -108,8 +108,8 @@ struct _TrackerCrawlerPrivate {
 };
 
 enum {
-	PROCESSING_DIRECTORY,
-	PROCESSING_FILE,
+	PROCESS_DIRECTORY,
+	PROCESS_FILE,
 	FINISHED,
 	LAST_SIGNAL
 };
@@ -144,24 +144,24 @@ tracker_crawler_class_init (TrackerCrawlerClass *klass)
 
 	object_class->finalize = tracker_crawler_finalize;
 
-	signals[PROCESSING_DIRECTORY] =
-		g_signal_new ("processing-directory",
+	signals[PROCESS_DIRECTORY] =
+		g_signal_new ("process-directory",
 			      G_TYPE_FROM_CLASS (klass),
 			      G_SIGNAL_RUN_LAST,
 			      0,
 			      NULL, NULL,
-			      g_cclosure_marshal_VOID__OBJECT,
-			      G_TYPE_NONE,
+			      tracker_marshal_BOOLEAN__OBJECT,
+			      G_TYPE_BOOLEAN,
 			      1,
 			      G_TYPE_OBJECT);
-	signals[PROCESSING_FILE] =
-		g_signal_new ("processing-file",
+	signals[PROCESS_FILE] =
+		g_signal_new ("process-file",
 			      G_TYPE_FROM_CLASS (klass),
 			      G_SIGNAL_RUN_LAST,
 			      0,
 			      NULL, NULL,
-			      g_cclosure_marshal_VOID__OBJECT,
-			      G_TYPE_NONE,
+			      tracker_marshal_BOOLEAN__OBJECT,
+			      G_TYPE_BOOLEAN,
 			      1,
 			      G_TYPE_OBJECT);
 	signals[FINISHED] =
@@ -400,76 +400,84 @@ static void
 add_file (TrackerCrawler *crawler,
 	  GFile		 *file)
 {
-	gchar *path;
-
 	g_return_if_fail (G_IS_FILE (file));
 
-	path = g_file_get_path (file);
-
-#ifdef FIX
-	if (is_path_ignored (crawler, path, FALSE)) {
-		crawler->private->files_ignored++;
-
-		g_debug ("Ignored:'%s' (%d)",
-			 path,
-			 crawler->private->enumerations);
-	} else
-#endif
-	{
-		crawler->private->files_found++;
-
-		g_debug ("Found  :'%s' (%d)",
-			 path,
-			 crawler->private->enumerations);
-
-		g_queue_push_tail (crawler->private->files, g_object_ref (file));
-	}
-
-	g_free (path);
+	g_queue_push_tail (crawler->private->files, g_object_ref (file));
 }
 
 static void
 add_directory (TrackerCrawler *crawler,
-	       GFile	      *file)
+	       GFile	      *file,
+	       gboolean        override)
+{
+	g_return_if_fail (G_IS_FILE (file));
+
+	if (crawler->private->recurse || override) {
+		g_queue_push_tail (crawler->private->directories, g_object_ref (file));
+	}
+}
+
+static gboolean
+process_file (TrackerCrawler *crawler,
+	      GFile	     *file)
 {
 	gchar *path;
+	gboolean should_process = TRUE;
 
-	g_return_if_fail (G_IS_FILE (file));
+	g_signal_emit (crawler, signals[PROCESS_FILE], 0, file, &should_process);
 
 	path = g_file_get_path (file);
 
-#ifdef FIX
-	if (is_path_ignored (crawler, path, TRUE)) {
-		crawler->private->directories_ignored++;
+	crawler->private->files_found++;
 
-		g_debug ("Ignored:'%s' (%d)",
-			 path,
-			 crawler->private->enumerations);
-	} else 
-#endif
-	{
+	if (should_process) {
 		g_debug ("Found  :'%s' (%d)",
 			 path,
 			 crawler->private->enumerations);
 
-		g_queue_push_tail (crawler->private->directories, g_object_ref (file));
+	} else {
+		g_debug ("Ignored:'%s' (%d)",
+			 path,
+			 crawler->private->enumerations);
+
+		crawler->private->files_ignored++;
 	}
 
 	g_free (path);
+	
+	return should_process;
 }
 
-static void
-process_file (TrackerCrawler *crawler,
-	      GFile	     *file)
-{
-	g_signal_emit (crawler, signals[PROCESSING_FILE], 0, file);
-}
-
-static void
+static gboolean
 process_directory (TrackerCrawler *crawler,
 		   GFile	  *file)
 {
-	file_enumerate_children (crawler, file);
+	gchar *path;
+	gboolean should_process = TRUE;
+
+	g_signal_emit (crawler, signals[PROCESS_DIRECTORY], 0, file, &should_process);
+
+	path = g_file_get_path (file);
+
+	crawler->private->directories_found++;
+
+	if (should_process) {
+		g_debug ("Found  :'%s' (%d)",
+			 path,
+			 crawler->private->enumerations);
+
+		file_enumerate_children (crawler, file);
+	} else {
+		g_debug ("Ignored:'%s' (%d)",
+			 path,
+			 crawler->private->enumerations);
+
+		crawler->private->directories_ignored++;
+	}
+
+	g_free (path);
+
+	return should_process;
 }
 
 static gboolean
@@ -693,25 +701,11 @@ enumerator_data_process (EnumeratorData *ed)
 	}
 #endif
 
-	crawler->private->directories_found++;
-	g_signal_emit (crawler, signals[PROCESSING_DIRECTORY], 0, ed->parent);
-
 	g_hash_table_iter_init (&iter, ed->children);
 
 	while (g_hash_table_iter_next (&iter, NULL, (gpointer *) &cd)) {
 		if (cd->is_dir) {
-			/* This is a bit of a hack, but we assume this is a
-			 * recursive lookup because the current non-recursive
-			 * path is NULL, meaning they have all been traversed
-			 * already.
-			 */
-#ifdef FIX
-			if (crawler->private->paths_are_done) {
-#endif
-				add_directory (crawler, cd->child);
-#ifdef FIX
-			}
-#endif
+			add_directory (crawler, cd->child, FALSE);
 		} else {
 			add_file (crawler, cd->child);
 		}
@@ -1107,7 +1101,7 @@ tracker_crawler_start (TrackerCrawler *crawler,
 	priv->idle_id = g_idle_add (process_func, crawler);
 
 	/* Start things off */
-	add_directory (crawler, file);
+	add_directory (crawler, file, TRUE);
 	g_object_unref (file);
 
 	return TRUE;

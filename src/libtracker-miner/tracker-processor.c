@@ -128,10 +128,10 @@ static void monitor_item_moved_cb             (TrackerMonitor   *monitor,
 					       gboolean          is_directory,
 					       gboolean          is_source_monitored,
 					       gpointer          user_data);
-static void crawler_processing_file_cb        (TrackerCrawler   *crawler,
+static gboolean crawler_process_file_cb           (TrackerCrawler   *crawler,
 					       GFile            *file,
 					       gpointer          user_data);
-static void crawler_processing_directory_cb   (TrackerCrawler   *crawler,
+static gboolean crawler_process_directory_cb      (TrackerCrawler   *crawler,
 					       GFile            *file,
 					       gpointer          user_data);
 static void crawler_finished_cb               (TrackerCrawler   *crawler,
@@ -229,14 +229,14 @@ tracker_processor_finalize (GObject *object)
 								 0,
 								 0,
 								 NULL,
-								 G_CALLBACK (crawler_processing_file_cb),
+								 G_CALLBACK (crawler_process_file_cb),
 								 NULL);
 		lsignals = g_signal_handlers_disconnect_matched (priv->crawler,
 								 G_SIGNAL_MATCH_FUNC,
 								 0,
 								 0,
 								 NULL,
-								 G_CALLBACK (crawler_processing_directory_cb),
+								 G_CALLBACK (crawler_process_directory_cb),
 								 NULL);
 		lsignals = g_signal_handlers_disconnect_matched (priv->crawler,
 								 G_SIGNAL_MATCH_FUNC,
@@ -798,7 +798,7 @@ process_files_start (TrackerProcessor *processor)
 	/* Gets all files and directories */
 	tracker_status_set_and_signal (TRACKER_STATUS_PENDING);
 
-	tracker_crawler_start (processor->private->crawler, g_get_home_dir (), TRUE);
+	tracker_crawler_start (processor->private->crawler, g_get_home_dir (), FALSE);
 }
 
 static void
@@ -1227,10 +1227,10 @@ monitor_item_moved_cb (TrackerMonitor *monitor,
 	}
 }
 
-static void
-crawler_processing_file_cb (TrackerCrawler *crawler,
-			    GFile	   *file,
-			    gpointer	    user_data)
+static gboolean
+crawler_process_file_cb (TrackerCrawler *crawler,
+			 GFile	        *file,
+			 gpointer	 user_data)
 {
 	TrackerProcessor *processor;
 
@@ -1241,12 +1241,14 @@ crawler_processing_file_cb (TrackerCrawler *crawler,
 			   g_object_ref (file));
 
 	item_queue_handlers_set_up (processor);
+
+	return TRUE;
 }
 
-static void
-crawler_processing_directory_cb (TrackerCrawler *crawler,
-				 GFile		*file,
-				 gpointer	 user_data)
+static gboolean
+crawler_process_directory_cb (TrackerCrawler *crawler,
+			      GFile	     *file,
+			      gpointer	      user_data)
 {
 	TrackerProcessor *processor;
 	gboolean	  add_monitor;
@@ -1269,6 +1271,8 @@ crawler_processing_directory_cb (TrackerCrawler *crawler,
 			   g_object_ref (file));
 
 	item_queue_handlers_set_up (processor);
+
+	return TRUE;
 }
 
 static void
@@ -1428,11 +1432,11 @@ tracker_processor_new (TrackerStorage *storage)
 	/* Set up the crawlers now we have config and hal */
 	priv->crawler = tracker_crawler_new ();
 
-	g_signal_connect (priv->crawler, "processing-file",
-			  G_CALLBACK (crawler_processing_file_cb),
+	g_signal_connect (priv->crawler, "process-file",
+			  G_CALLBACK (crawler_process_file_cb),
 			  processor);
-	g_signal_connect (priv->crawler, "processing-directory",
-			  G_CALLBACK (crawler_processing_directory_cb),
+	g_signal_connect (priv->crawler, "process-directory",
+			  G_CALLBACK (crawler_process_directory_cb),
 			  processor);
 	g_signal_connect (priv->crawler, "finished",
 			  G_CALLBACK (crawler_finished_cb),
