@@ -606,10 +606,10 @@ process_files_add_legacy_options (TrackerProcessor *processor)
 	guint		watch_root_count;
 	guint		crawl_root_count;
 
+#ifdef FIX
 	tracker_crawler_use_module_paths (processor->private->crawler, TRUE);
 	tracker_crawler_special_paths_clear (processor->private->crawler);
 
-#ifdef FIX
 	no_watch_roots = tracker_config_get_no_watch_directory_roots (processor->private->config);
 	watch_roots = tracker_config_get_watch_directory_roots (processor->private->config);
 	crawl_roots = tracker_config_get_crawl_directory_roots (processor->private->config);
@@ -669,7 +669,9 @@ process_files_add_legacy_options (TrackerProcessor *processor)
 		}
 
 		g_message ("    %s", (gchar*) l->data);
+#ifdef FIX
 		tracker_crawler_special_paths_add (processor->private->crawler, l->data);
+#endif
 	}
 
 	for (l = crawl_roots; l; l = l->next) {
@@ -678,8 +680,9 @@ process_files_add_legacy_options (TrackerProcessor *processor)
 		}
 
 		g_message ("    %s", (gchar*) l->data);
+#ifdef FIX
 		tracker_crawler_special_paths_add (processor->private->crawler, l->data);
-
+#endif
 		crawl_root_count++;
 	}
 
@@ -703,8 +706,10 @@ process_device (TrackerProcessor *processor,
 	/* Gets all files and directories */
 	tracker_status_set_and_signal (TRACKER_STATUS_PENDING);
 
+#ifdef FIX
 	tracker_crawler_use_module_paths (processor->private->crawler, FALSE);
 	tracker_crawler_special_paths_clear (processor->private->crawler);
+#endif
 
 	if (path_should_be_ignored_for_media (processor, device_root)) {
 		g_message ("  Ignored due to config");
@@ -716,9 +721,11 @@ process_device (TrackerProcessor *processor,
 	tracker_monitor_add (processor->private->monitor, file);
 	g_object_unref (file);
 	
+#ifdef FIX
 	tracker_crawler_special_paths_add (processor->private->crawler, device_root);
+#endif
 
-	if (!tracker_crawler_start (processor->private->crawler)) {
+	if (!tracker_crawler_start (processor->private->crawler, device_root, TRUE)) {
 		process_device_next (processor);
 	}
 }
@@ -791,7 +798,7 @@ process_files_start (TrackerProcessor *processor)
 	/* Gets all files and directories */
 	tracker_status_set_and_signal (TRACKER_STATUS_PENDING);
 
-	tracker_crawler_start (processor->private->crawler);
+	tracker_crawler_start (processor->private->crawler, g_get_home_dir (), TRUE);
 }
 
 static void
@@ -1031,7 +1038,9 @@ processor_files_check (TrackerProcessor *processor,
 	gchar	       *path;
 
 	path = g_file_get_path (file);
+#ifdef FIX
 	ignored = tracker_crawler_is_path_ignored (processor->private->crawler, path, is_directory);
+#endif
 
 	g_debug ("%s:'%s' (%s) (create monitor event or user request)",
 		 ignored ? "Ignored" : "Found ",
@@ -1040,7 +1049,9 @@ processor_files_check (TrackerProcessor *processor,
 
 	if (!ignored) {
 		if (is_directory) {
+#ifdef FIX
 			tracker_crawler_add_unexpected_path (processor->private->crawler, path);
+#endif
 		}
 
 		g_queue_push_tail (processor->private->items_created_queue, 
@@ -1061,8 +1072,9 @@ processor_files_update (TrackerProcessor *processor,
 	gboolean	ignored;
 
 	path = g_file_get_path (file);
+#ifdef FIX
 	ignored = tracker_crawler_is_path_ignored (processor->private->crawler, path, is_directory);
-
+#endif
 	g_debug ("%s:'%s' (%s) (update monitor event or user request)",
 		 ignored ? "Ignored" : "Found ",
 		 path,
@@ -1087,8 +1099,9 @@ processor_files_delete (TrackerProcessor *processor,
 	gboolean	ignored;
 
 	path = g_file_get_path (file);
+#ifdef FIX
 	ignored = tracker_crawler_is_path_ignored (processor->private->crawler, path, is_directory);
-
+#endif
 	g_debug ("%s:'%s' (%s) (delete monitor event or user request)",
 		 ignored ? "Ignored" : "Found ",
 		 path,
@@ -1118,8 +1131,10 @@ processor_files_move (TrackerProcessor *processor,
 	path = g_file_get_path (file);
 	other_path = g_file_get_path (other_file);
 
+#ifdef FIX
 	path_ignored = tracker_crawler_is_path_ignored (processor->private->crawler, path, is_directory);
 	other_path_ignored = tracker_crawler_is_path_ignored (processor->private->crawler, other_path, is_directory);
+#endif
 
 	g_debug ("%s:'%s'->'%s':%s (%s) (move monitor event or user request)",
 		 path_ignored ? "Ignored" : "Found ",
@@ -1140,7 +1155,9 @@ processor_files_move (TrackerProcessor *processor,
 		}
 
 		/* If this is a directory we need to crawl it */
+#ifdef FIX
 		tracker_crawler_add_unexpected_path (processor->private->crawler, other_path);
+#endif
 	} else if (other_path_ignored) {
 		/* Delete old file */
 		g_queue_push_tail (processor->private->items_deleted_queue, g_object_ref (file));
@@ -1201,7 +1218,9 @@ monitor_item_moved_cb (TrackerMonitor *monitor,
 
 		/* If the source is not monitored, we need to crawl it. */
 		path = g_file_get_path (other_file);
+#ifdef FIX
 		tracker_crawler_add_unexpected_path (processor->private->crawler, path);
+#endif
 		g_free (path);
 	} else {
 		processor_files_move (user_data, file, other_file, is_directory);

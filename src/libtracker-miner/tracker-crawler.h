@@ -49,20 +49,10 @@ struct _TrackerCrawlerClass {
 
 GType           tracker_crawler_get_type            (void);
 TrackerCrawler *tracker_crawler_new                 (void);
-gboolean        tracker_crawler_start               (TrackerCrawler *crawler);
-void            tracker_crawler_stop                (TrackerCrawler *crawler);
-gboolean        tracker_crawler_is_path_ignored     (TrackerCrawler *crawler,
+gboolean        tracker_crawler_start               (TrackerCrawler *crawler,
 						     const gchar    *path,
-						     gboolean        is_directory);
-void            tracker_crawler_add_unexpected_path (TrackerCrawler *crawler,
-						     const gchar    *path);
-
-/* Convenience API for old .cfg file */
-void            tracker_crawler_special_paths_add   (TrackerCrawler *crawler,
-						     const gchar    *path);
-void            tracker_crawler_special_paths_clear (TrackerCrawler *crawler);
-void            tracker_crawler_use_module_paths    (TrackerCrawler *crawler,
-						     gboolean        use_module_paths);
+						     gboolean        recurse);
+void            tracker_crawler_stop                (TrackerCrawler *crawler);
 
 G_END_DECLS
 
