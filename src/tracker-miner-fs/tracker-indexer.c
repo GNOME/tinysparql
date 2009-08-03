@@ -976,7 +976,6 @@ static void
 indexer_load_modules (TrackerIndexer *indexer)
 {
 	TrackerIndexerPrivate *priv;
-	GSList *disabled_modules;
 	GList *modules, *l;
 
 	priv = indexer->private;
@@ -988,10 +987,6 @@ indexer_load_modules (TrackerIndexer *indexer)
 		TrackerIndexerModule *module;
 
 		if (!tracker_module_config_get_enabled (l->data)) {
-			continue;
-		}
-
-		if (tracker_string_in_gslist (l->data, disabled_modules)) {
 			continue;
 		}
 

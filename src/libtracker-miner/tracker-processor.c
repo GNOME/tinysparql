@@ -52,24 +52,20 @@ struct TrackerProcessorPrivate {
 	TrackerMonitor *monitor;
 
 	/* Crawlers */
-	GHashTable     *crawlers;
+	TrackerCrawler *crawler;
 
 	/* File queues for indexer */
 	guint		item_queues_handler_id;
 
-	GHashTable     *items_created_queues;
-	GHashTable     *items_updated_queues;
-	GHashTable     *items_deleted_queues;
-	GHashTable     *items_moved_queues;
+	GQueue         *items_created_queue;
+	GQueue         *items_updated_queue;
+	GQueue         *items_deleted_queue;
+	GQueue         *items_moved_queue;
 
 	SentType	sent_type;
 	GStrv		sent_items;
-	const gchar    *sent_module_name;
 
 	/* Status */
-	GList	       *modules;
-	GList	       *current_module;
-
 	GList          *devices;
 	GList          *current_device;
 
@@ -78,7 +74,7 @@ struct TrackerProcessorPrivate {
 	gboolean        been_started;
 	gboolean	interrupted;
 
-	gboolean	finished_modules;
+	gboolean	finished_files;
 	gboolean	finished_devices;
 	gboolean	finished_sending;
 	gboolean	finished_indexer;
@@ -101,10 +97,6 @@ enum {
 };
 
 static void tracker_processor_finalize        (GObject          *object);
-static void crawler_destroy_notify            (gpointer          data);
-static void item_queue_destroy_notify         (gpointer          data);
-static void process_module_next               (TrackerProcessor *processor);
-static void process_modules_stop              (TrackerProcessor *processor);
 static void process_device_next               (TrackerProcessor *processor);
 static void process_devices_stop              (TrackerProcessor *processor);
 static void process_check_completely_finished (TrackerProcessor *processor);
@@ -120,37 +112,30 @@ static void indexer_finished_cb               (TrackerIndexer   *indexer,
 					       gpointer          user_data);
 #endif
 static void monitor_item_created_cb           (TrackerMonitor   *monitor,
-					       const gchar      *module_name,
 					       GFile            *file,
 					       gboolean          is_directory,
 					       gpointer          user_data);
 static void monitor_item_updated_cb           (TrackerMonitor   *monitor,
-					       const gchar      *module_name,
 					       GFile            *file,
 					       gboolean          is_directory,
 					       gpointer          user_data);
 static void monitor_item_deleted_cb           (TrackerMonitor   *monitor,
-					       const gchar      *module_name,
 					       GFile            *file,
 					       gboolean          is_directory,
 					       gpointer          user_data);
 static void monitor_item_moved_cb             (TrackerMonitor   *monitor,
-					       const gchar      *module_name,
 					       GFile            *file,
 					       GFile            *other_file,
 					       gboolean          is_directory,
 					       gboolean          is_source_monitored,
 					       gpointer          user_data);
 static void crawler_processing_file_cb        (TrackerCrawler   *crawler,
-					       const gchar      *module_name,
 					       GFile            *file,
 					       gpointer          user_data);
 static void crawler_processing_directory_cb   (TrackerCrawler   *crawler,
-					       const gchar      *module_name,
 					       GFile            *file,
 					       gpointer          user_data);
 static void crawler_finished_cb               (TrackerCrawler   *crawler,
-					       const gchar      *module_name,
 					       guint             directories_found,
 					       guint             directories_ignored,
 					       guint             files_found,
@@ -194,64 +179,19 @@ static void
 tracker_processor_init (TrackerProcessor *object)
 {
 	TrackerProcessorPrivate *priv;
-	GList			*l;
 
 	object->private = TRACKER_PROCESSOR_GET_PRIVATE (object);
 
 	priv = object->private;
 
-	priv->modules = tracker_module_config_get_modules ();
-
 	/* For each module we create a TrackerCrawler and keep them in
 	 * a hash table to look up.
 	 */
-	priv->crawlers =
-		g_hash_table_new_full (g_str_hash,
-				       g_str_equal,
-				       g_free,
-				       crawler_destroy_notify);
 
-
-	/* For each module we create a hash table for queues for items
-	 * to update/create/delete in the indexer. This is sent on
-	 * when the queue is processed.
-	 */
-	priv->items_created_queues =
-		g_hash_table_new_full (g_str_hash,
-				       g_str_equal,
-				       g_free,
-				       item_queue_destroy_notify);
-	priv->items_updated_queues =
-		g_hash_table_new_full (g_str_hash,
-				       g_str_equal,
-				       g_free,
-				       item_queue_destroy_notify);
-	priv->items_deleted_queues =
-		g_hash_table_new_full (g_str_hash,
-				       g_str_equal,
-				       g_free,
-				       item_queue_destroy_notify);
-	priv->items_moved_queues =
-		g_hash_table_new_full (g_str_hash,
-				       g_str_equal,
-				       g_free,
-				       item_queue_destroy_notify);
-
-	for (l = priv->modules; l; l = l->next) {
-		/* Create queues for this module */
-		g_hash_table_insert (priv->items_created_queues,
-				     g_strdup (l->data),
-				     g_queue_new ());
-		g_hash_table_insert (priv->items_updated_queues,
-				     g_strdup (l->data),
-				     g_queue_new ());
-		g_hash_table_insert (priv->items_deleted_queues,
-				     g_strdup (l->data),
-				     g_queue_new ());
-		g_hash_table_insert (priv->items_moved_queues,
-				     g_strdup (l->data),
-				     g_queue_new ());
-	}
+	priv->items_created_queue = g_queue_new ();
+	priv->items_updated_queue = g_queue_new ();
+	priv->items_deleted_queue = g_queue_new ();
+	priv->items_moved_queue = g_queue_new ();
 }
 
 static void
@@ -270,27 +210,45 @@ tracker_processor_finalize (GObject *object)
 		priv->item_queues_handler_id = 0;
 	}
 
-	if (priv->items_moved_queues) {
-		g_hash_table_unref (priv->items_moved_queues);
-	}
+	g_queue_foreach (priv->items_moved_queue, (GFunc) g_object_unref, NULL);
+	g_queue_free (priv->items_moved_queue);
 
-	if (priv->items_deleted_queues) {
-		g_hash_table_unref (priv->items_deleted_queues);
-	}
+	g_queue_foreach (priv->items_deleted_queue, (GFunc) g_object_unref, NULL);
+	g_queue_free (priv->items_deleted_queue);
 
-	if (priv->items_updated_queues) {
-		g_hash_table_unref (priv->items_updated_queues);
-	}
+	g_queue_foreach (priv->items_updated_queue, (GFunc) g_object_unref, NULL);
+	g_queue_free (priv->items_updated_queue);
 
-	if (priv->items_created_queues) {
-		g_hash_table_unref (priv->items_created_queues);
-	}
+	g_queue_foreach (priv->items_created_queue, (GFunc) g_object_unref, NULL);
+	g_queue_free (priv->items_created_queue);
 
-	if (priv->crawlers) {
-		g_hash_table_unref (priv->crawlers);
-	}
+	if (priv->crawler) {
+		guint lsignals;
 
-	g_list_free (priv->modules);
+		lsignals = g_signal_handlers_disconnect_matched (priv->crawler,
+								 G_SIGNAL_MATCH_FUNC,
+								 0,
+								 0,
+								 NULL,
+								 G_CALLBACK (crawler_processing_file_cb),
+								 NULL);
+		lsignals = g_signal_handlers_disconnect_matched (priv->crawler,
+								 G_SIGNAL_MATCH_FUNC,
+								 0,
+								 0,
+								 NULL,
+								 G_CALLBACK (crawler_processing_directory_cb),
+								 NULL);
+		lsignals = g_signal_handlers_disconnect_matched (priv->crawler,
+								 G_SIGNAL_MATCH_FUNC,
+								 0,
+								 0,
+								 NULL,
+								 G_CALLBACK (crawler_finished_cb),
+								 NULL);
+
+		g_object_unref (priv->crawler);
+	}
 
 #if 0
 	g_signal_handlers_disconnect_by_func (priv->indexer,
@@ -435,80 +393,6 @@ path_should_be_ignored_for_media (TrackerProcessor *processor,
 	return ignore;
 }
 
-static GQueue *
-get_next_queue_with_data (GList       *modules,
-			  GHashTable  *hash_table,
-			  gchar      **module_name)
-{
-	GQueue *found_queue;
-	GQueue *queue;
-	GList  *l;
-
-	if (module_name) {
-		*module_name = NULL;
-	}
-
-	for (l = modules, found_queue = NULL; l && !found_queue; l = l->next) {
-		queue = g_hash_table_lookup (hash_table, l->data);
-
-		if (g_queue_get_length (queue) > 0) {
-			if (module_name) {
-				*module_name = l->data;
-				found_queue = queue;
-			}
-		}
-	}
-
-	return found_queue;
-}
-
-static void
-crawler_destroy_notify (gpointer data)
-{
-	TrackerCrawler *crawler;
-
-	crawler = TRACKER_CRAWLER (data);
-
-	if (crawler) {
-		guint lsignals;
-
-		lsignals = g_signal_handlers_disconnect_matched (crawler,
-								 G_SIGNAL_MATCH_FUNC,
-								 0,
-								 0,
-								 NULL,
-								 G_CALLBACK (crawler_processing_file_cb),
-								 NULL);
-		lsignals = g_signal_handlers_disconnect_matched (crawler,
-								 G_SIGNAL_MATCH_FUNC,
-								 0,
-								 0,
-								 NULL,
-								 G_CALLBACK (crawler_processing_directory_cb),
-								 NULL);
-		lsignals = g_signal_handlers_disconnect_matched (crawler,
-								 G_SIGNAL_MATCH_FUNC,
-								 0,
-								 0,
-								 NULL,
-								 G_CALLBACK (crawler_finished_cb),
-								 NULL);
-
-		g_object_unref (crawler);
-	}
-}
-
-static void
-item_queue_destroy_notify (gpointer data)
-{
-	GQueue *queue;
-
-	queue = (GQueue *) data;
-
-	g_queue_foreach (queue, (GFunc) g_object_unref, NULL);
-	g_queue_free (queue);
-}
-
 static void
 item_queue_processed_cb (TrackerProcessor *processor)
 {
@@ -516,7 +400,6 @@ item_queue_processed_cb (TrackerProcessor *processor)
 
 	/* Reset for next batch to be sent */
 	processor->private->sent_items = NULL;
-	processor->private->sent_module_name = NULL;
 	processor->private->sent_type = SENT_TYPE_NONE;
 }
 
@@ -527,7 +410,6 @@ item_queue_handlers_cb (gpointer user_data)
 	TrackerStatus     status;
 	GQueue		 *queue;
 	GStrv		  files;
-	gchar		 *module_name;
 	gboolean          should_repeat = FALSE;
 	GTimeVal          time_now;
 	static GTimeVal   time_last = { 0, 0 };
@@ -579,37 +461,26 @@ item_queue_handlers_cb (gpointer user_data)
 	}
 
 	/* Process the deleted items first */
-	queue = get_next_queue_with_data (processor->private->modules,
-					  processor->private->items_deleted_queues,
-					  &module_name);
+	queue = processor->private->items_deleted_queue;
 
 	if (queue) {
 		files = tracker_dbus_queue_gfile_to_strv (queue, -1);
 
-		g_message ("Queue for module:'%s' deleted items processed, sending %d to the indexer",
-			   module_name,
+		g_message ("Queue for deleted items processed, sending %d to the indexer",
 			   g_strv_length (files));
 
 		processor->private->finished_indexer = FALSE;
 
 		processor->private->sent_type = SENT_TYPE_DELETED;
-		processor->private->sent_module_name = module_name;
 		processor->private->sent_items = files;
 
-#if 0
-		tracker_indexer_files_check (processor->private->indexer,
-					     module_name,
-					     files);
-#endif
 		item_queue_processed_cb (processor);
 
 		return TRUE;
 	}
 
 	/* Process the created items next */
-	queue = get_next_queue_with_data (processor->private->modules,
-					  processor->private->items_created_queues,
-					  &module_name);
+	queue = processor->private->items_created_queue;
 
 	if (queue) {
 		/* Now we try to send items to the indexer */
@@ -617,30 +488,21 @@ item_queue_handlers_cb (gpointer user_data)
 
 		files = tracker_dbus_queue_gfile_to_strv (queue, -1);
 
-		g_message ("Queue for module:'%s' created items processed, sending %d to the indexer",
-			   module_name,
+		g_message ("Queue for created items processed, sending %d to the indexer",
 			   g_strv_length (files));
 
 		processor->private->finished_indexer = FALSE;
 
 		processor->private->sent_type = SENT_TYPE_CREATED;
-		processor->private->sent_module_name = module_name;
 		processor->private->sent_items = files;
 
-#if 0
-		tracker_indexer_files_check (processor->private->indexer,
-					     module_name,
-					     files);
-#endif
 		item_queue_processed_cb (processor);
 
 		return TRUE;
 	}
 
 	/* Process the updated items next */
-	queue = get_next_queue_with_data (processor->private->modules,
-					  processor->private->items_updated_queues,
-					  &module_name);
+	queue = processor->private->items_updated_queue;
 
 	if (queue) {
 		/* Now we try to send items to the indexer */
@@ -648,30 +510,21 @@ item_queue_handlers_cb (gpointer user_data)
 
 		files = tracker_dbus_queue_gfile_to_strv (queue, -1);
 
-		g_message ("Queue for module:'%s' updated items processed, sending %d to the indexer",
-			   module_name,
+		g_message ("Queue for updated items processed, sending %d to the indexer",
 			   g_strv_length (files));
 
 		processor->private->finished_indexer = FALSE;
 
 		processor->private->sent_type = SENT_TYPE_UPDATED;
-		processor->private->sent_module_name = module_name;
 		processor->private->sent_items = files;
 
-#if 0
-		tracker_indexer_files_check (processor->private->indexer,
-					     module_name,
-					     files);
-#endif
 		item_queue_processed_cb (processor);
 
 		return TRUE;
 	}
 
 	/* Process the moved items last */
-	queue = get_next_queue_with_data (processor->private->modules,
-					  processor->private->items_moved_queues,
-					  &module_name);
+	queue = processor->private->items_moved_queue;
 
 	if (queue) {
 		const gchar *source;
@@ -690,22 +543,14 @@ item_queue_handlers_cb (gpointer user_data)
 			target = NULL;
 		}
 
-		g_message ("Queue for module:'%s' moved items processed, sending %d to the indexer",
-			   module_name,
+		g_message ("Queue for moved items processed, sending %d to the indexer",
 			   g_strv_length (files));
 
 		processor->private->finished_indexer = FALSE;
 
 		processor->private->sent_type = SENT_TYPE_MOVED;
-		processor->private->sent_module_name = module_name;
 		processor->private->sent_items = files;
 
-#if 0
-		tracker_indexer_file_move (processor->private->indexer,
-					   module_name,
-					   source,
-					   target);
-#endif
 		item_queue_processed_cb (processor);
 
 		return TRUE;
@@ -753,7 +598,7 @@ is_path_on_ignore_list (GSList	    *ignore_list,
 }
 
 static void
-process_module_files_add_legacy_options (TrackerProcessor *processor)
+process_files_add_legacy_options (TrackerProcessor *processor)
 {
 	TrackerCrawler *crawler;
 	GSList	       *no_watch_roots;
@@ -762,12 +607,9 @@ process_module_files_add_legacy_options (TrackerProcessor *processor)
 	GSList	       *l;
 	guint		watch_root_count;
 	guint		crawl_root_count;
-	const gchar    *module_name = "files";
 
-	crawler = g_hash_table_lookup (processor->private->crawlers, module_name);
-
-	tracker_crawler_use_module_paths (crawler, TRUE);
-	tracker_crawler_special_paths_clear (crawler);
+	tracker_crawler_use_module_paths (processor->private->crawler, TRUE);
+	tracker_crawler_special_paths_clear (processor->private->crawler);
 
 	no_watch_roots = tracker_config_get_no_watch_directory_roots (processor->private->config);
 	watch_roots = tracker_config_get_watch_directory_roots (processor->private->config);
@@ -802,7 +644,7 @@ process_module_files_add_legacy_options (TrackerProcessor *processor)
 		g_message ("    %s", (gchar*) l->data);
 
 		file = g_file_new_for_path (l->data);
-		tracker_monitor_add (processor->private->monitor, module_name, file);
+		tracker_monitor_add (processor->private->monitor, file);
 		g_object_unref (file);
 
 		watch_root_count++;
@@ -843,100 +685,14 @@ process_module_files_add_legacy_options (TrackerProcessor *processor)
 	}
 }
 
-static gboolean
-process_module_is_disabled (TrackerProcessor *processor,
-			    const gchar      *module_name)
-{
-	GSList *disabled_modules;
-	
-	if (!tracker_module_config_get_enabled (module_name)) {
-		g_message ("  Module disabled by module config");
-		return TRUE;
-	} 
-
-	disabled_modules = tracker_config_get_disabled_modules (processor->private->config);
-	
-	if (g_slist_find_custom (disabled_modules, module_name, (GCompareFunc) g_strcmp0)) {
-		g_message ("  Module disabled by user");
-		return TRUE;
-	} 
-
-	return FALSE;
-}
-
-static void
-process_module (TrackerProcessor *processor,
-		const gchar	 *module_name)
-{
-	TrackerCrawler *crawler;
-
-	g_message ("Processing module:'%s'", module_name);
-
-	if (process_module_is_disabled (processor, module_name)) {
-		process_module_next (processor);
-		return;
-	}
-
-	/* Here we set up legacy .cfg options like watch roots */
-	tracker_status_set_and_signal (TRACKER_STATUS_WATCHING);
-
-	if (strcmp (module_name, "files") == 0) {
-		process_module_files_add_legacy_options (processor);
-	}
-
-	/* Gets all files and directories */
-	tracker_status_set_and_signal (TRACKER_STATUS_PENDING);
-
-	crawler = g_hash_table_lookup (processor->private->crawlers, module_name);
-
-	if (!tracker_crawler_start (crawler)) {
-		process_module_next (processor);
-	}
-}
-
-static void
-process_module_next (TrackerProcessor *processor)
-{
-	if (tracker_status_get_is_readonly ()) {
-		/* Block any request to process
-		 * modules if indexing is not enabled
-		 */
-		return;
-	}
-
-	/* Don't recursively iterate the modules */
-	if (!processor->private->current_module) {
-		if (!processor->private->finished_modules) {
-			processor->private->current_module = processor->private->modules;
-		}
-	} else {
-		processor->private->current_module = processor->private->current_module->next;
-	}
-
-	/* If we have no further modules to iterate */
-	if (!processor->private->current_module) {
-		process_modules_stop (processor);
-		process_next (processor);
-		return;
-	}
-
-	process_module (processor, processor->private->current_module->data);
-}
-
 static void
 process_device (TrackerProcessor *processor,
 		const gchar	 *device_root)
 {
 	TrackerCrawler *crawler;
 	GFile          *file;
-	const gchar    *module_name = "files";
 
 	g_message ("Processing device with root:'%s'", device_root);
-
-	if (process_module_is_disabled (processor, module_name)) {
-		process_device_next (processor);
-		return;
-	}
 
 	/* Here we set up legacy .cfg options like watch roots */
 	tracker_status_set_and_signal (TRACKER_STATUS_WATCHING);
@@ -944,10 +700,8 @@ process_device (TrackerProcessor *processor,
 	/* Gets all files and directories */
 	tracker_status_set_and_signal (TRACKER_STATUS_PENDING);
 
-	crawler = g_hash_table_lookup (processor->private->crawlers, module_name);
-
-	tracker_crawler_use_module_paths (crawler, FALSE);
-	tracker_crawler_special_paths_clear (crawler);
+	tracker_crawler_use_module_paths (processor->private->crawler, FALSE);
+	tracker_crawler_special_paths_clear (processor->private->crawler);
 
 	if (path_should_be_ignored_for_media (processor, device_root)) {
 		g_message ("  Ignored due to config");
@@ -956,7 +710,7 @@ process_device (TrackerProcessor *processor,
 	}
 
 	file = g_file_new_for_path (device_root);
-	tracker_monitor_add (processor->private->monitor, module_name, file);
+	tracker_monitor_add (processor->private->monitor, file);
 	g_object_unref (file);
 	
 	tracker_crawler_special_paths_add (crawler, device_root);
@@ -971,7 +725,7 @@ process_device_next (TrackerProcessor *processor)
 {
 	if (tracker_status_get_is_readonly ()) {
 		/* Block any request to process
-		 * modules if indexing is not enabled
+		 * files if indexing is not enabled
 		 */
 		return;
 	}
@@ -1007,10 +761,9 @@ process_device_next (TrackerProcessor *processor)
 }
 
 static void
-process_modules_start (TrackerProcessor *processor)
+process_files_start (TrackerProcessor *processor)
 {
-	g_message ("Processor has started iterating %d modules", 
-		   g_list_length (processor->private->modules));
+	g_message ("Processor has started iterating files");
 
 	if (processor->private->timer) {
 		g_timer_destroy (processor->private->timer);
@@ -1018,36 +771,42 @@ process_modules_start (TrackerProcessor *processor)
 
 	processor->private->timer = g_timer_new ();
 
-	processor->private->finished_modules = FALSE;
+	processor->private->finished_files = FALSE;
 
 	processor->private->directories_found = 0;
 	processor->private->directories_ignored = 0;
 	processor->private->files_found = 0;
 	processor->private->files_ignored = 0;
 
-	process_module_next (processor);
+	g_message ("Processing files");
+
+	/* Here we set up legacy .cfg options like watch roots */
+	tracker_status_set_and_signal (TRACKER_STATUS_WATCHING);
+
+	process_files_add_legacy_options (processor);
+
+	/* Gets all files and directories */
+	tracker_status_set_and_signal (TRACKER_STATUS_PENDING);
+
+	tracker_crawler_start (processor->private->crawler);
 }
 
 static void
-process_modules_stop (TrackerProcessor *processor)
+process_files_stop (TrackerProcessor *processor)
 {
-	if (processor->private->finished_modules) {
+	if (processor->private->finished_files) {
 		return;
 	}
 
 	g_message ("--------------------------------------------------");
-	g_message ("Processor has %s iterating modules",
+	g_message ("Processor has %s iterating files",
 		   processor->private->interrupted ? "been stopped while" : "finished");
 
-	processor->private->finished_modules = TRUE;
+	processor->private->finished_files = TRUE;
 
 	if (processor->private->interrupted) {
-		TrackerCrawler *crawler;
-
-		crawler = g_hash_table_lookup (processor->private->crawlers,
-					       processor->private->current_module->data);
-		if (crawler) {
-			tracker_crawler_stop (crawler);
+		if (processor->private->crawler) {
+			tracker_crawler_stop (processor->private->crawler);
 		}
 
 		if (processor->private->timer) {
@@ -1064,12 +823,12 @@ process_modules_stop (TrackerProcessor *processor)
 			elapsed = 0;
 		}
 		
-		g_message ("Module time taken : %4.4f seconds",
+		g_message ("FS time taken : %4.4f seconds",
 			   elapsed);
-		g_message ("Module directories: %d (%d ignored)",
+		g_message ("FS directories: %d (%d ignored)",
 			   processor->private->directories_found,
 			   processor->private->directories_ignored);
-		g_message ("Module files      : %d (%d ignored)",
+		g_message ("FS files      : %d (%d ignored)",
 			   processor->private->files_found,
 			   processor->private->files_ignored);
 	}
@@ -1113,11 +872,8 @@ process_devices_stop (TrackerProcessor *processor)
 	processor->private->finished_devices = TRUE;
 
 	if (processor->private->interrupted) {
-		TrackerCrawler *crawler;
-
-		crawler = g_hash_table_lookup (processor->private->crawlers, "files");
-		if (crawler) {
-			tracker_crawler_stop (crawler);
+		if (processor->private->crawler) {
+			tracker_crawler_stop (processor->private->crawler);
 		}
 
 		if (processor->private->timer) {
@@ -1150,8 +906,7 @@ process_devices_stop (TrackerProcessor *processor)
 static void
 process_continue (TrackerProcessor *processor)
 {
-	if (!processor->private->finished_modules) {
-		process_module_next (processor);
+	if (!processor->private->finished_files) {
 		return;
 	}
 
@@ -1166,8 +921,8 @@ process_continue (TrackerProcessor *processor)
 static void
 process_next (TrackerProcessor *processor)
 {
-	if (!processor->private->finished_modules) {
-		process_modules_start (processor);
+	if (!processor->private->finished_files) {
+		process_files_start (processor);
 		return;
 	}
 
@@ -1189,7 +944,7 @@ process_next (TrackerProcessor *processor)
 			   processor->private->total_files_found,
 			   processor->private->total_files_ignored);
 		g_message ("Total monitors    : %d",
-			   tracker_monitor_get_count (processor->private->monitor, NULL));
+			   tracker_monitor_get_count (processor->private->monitor));
 		g_message ("--------------------------------------------------\n");
 	}
 
@@ -1266,18 +1021,15 @@ indexer_finished_cb (TrackerIndexer *indexer,
 
 static void
 processor_files_check (TrackerProcessor *processor,
-		       const gchar	*module_name,
 		       GFile		*file,
 		       gboolean		 is_directory)
 {
 	TrackerCrawler *crawler;
-	GQueue	       *queue;
 	gboolean	ignored;
 	gchar	       *path;
 
 	path = g_file_get_path (file);
-	crawler = g_hash_table_lookup (processor->private->crawlers, module_name);
-	ignored = tracker_crawler_is_path_ignored (crawler, path, is_directory);
+	ignored = tracker_crawler_is_path_ignored (processor->private->crawler, path, is_directory);
 
 	g_debug ("%s:'%s' (%s) (create monitor event or user request)",
 		 ignored ? "Ignored" : "Found ",
@@ -1289,9 +1041,9 @@ processor_files_check (TrackerProcessor *processor,
 			tracker_crawler_add_unexpected_path (crawler, path);
 		}
 
-		queue = g_hash_table_lookup (processor->private->items_created_queues, module_name);
-		g_queue_push_tail (queue, g_object_ref (file));
-			
+		g_queue_push_tail (processor->private->items_created_queue, 
+				   g_object_ref (file));
+		
 		item_queue_handlers_set_up (processor);
 	}
 
@@ -1300,18 +1052,14 @@ processor_files_check (TrackerProcessor *processor,
 
 static void
 processor_files_update (TrackerProcessor *processor,
-			const gchar	 *module_name,
 			GFile		 *file,
 			gboolean	  is_directory)
 {
-	TrackerCrawler *crawler;
-	GQueue	       *queue;
 	gchar	       *path;
 	gboolean	ignored;
 
 	path = g_file_get_path (file);
-	crawler = g_hash_table_lookup (processor->private->crawlers, module_name);
-	ignored = tracker_crawler_is_path_ignored (crawler, path, is_directory);
+	ignored = tracker_crawler_is_path_ignored (processor->private->crawler, path, is_directory);
 
 	g_debug ("%s:'%s' (%s) (update monitor event or user request)",
 		 ignored ? "Ignored" : "Found ",
@@ -1319,8 +1067,8 @@ processor_files_update (TrackerProcessor *processor,
 		 is_directory ? "DIR" : "FILE");
 
 	if (!ignored) {
-		queue = g_hash_table_lookup (processor->private->items_updated_queues, module_name);
-		g_queue_push_tail (queue, g_object_ref (file));
+		g_queue_push_tail (processor->private->items_updated_queue, 
+				   g_object_ref (file));
 		
 		item_queue_handlers_set_up (processor);
 	}
@@ -1330,18 +1078,14 @@ processor_files_update (TrackerProcessor *processor,
 
 static void
 processor_files_delete (TrackerProcessor *processor,
-			const gchar	 *module_name,
 			GFile		 *file,
 			gboolean	  is_directory)
 {
-	TrackerCrawler *crawler;
-	GQueue	       *queue;
 	gchar	       *path;
 	gboolean	ignored;
 
 	path = g_file_get_path (file);
-	crawler = g_hash_table_lookup (processor->private->crawlers, module_name);
-	ignored = tracker_crawler_is_path_ignored (crawler, path, is_directory);
+	ignored = tracker_crawler_is_path_ignored (processor->private->crawler, path, is_directory);
 
 	g_debug ("%s:'%s' (%s) (delete monitor event or user request)",
 		 ignored ? "Ignored" : "Found ",
@@ -1349,8 +1093,8 @@ processor_files_delete (TrackerProcessor *processor,
 		 is_directory ? "DIR" : "FILE");
 
 	if (!ignored) {
-		queue = g_hash_table_lookup (processor->private->items_deleted_queues, module_name);
-		g_queue_push_tail (queue, g_object_ref (file));
+		g_queue_push_tail (processor->private->items_deleted_queue, 
+				   g_object_ref (file));
 		
 		item_queue_handlers_set_up (processor);
 	}
@@ -1360,13 +1104,11 @@ processor_files_delete (TrackerProcessor *processor,
 
 static void
 processor_files_move (TrackerProcessor *processor,
-		      const gchar      *module_name,
 		      GFile	       *file,
 		      GFile	       *other_file,
 		      gboolean		is_directory)
 {
 	TrackerCrawler *crawler;
-	GQueue	       *queue;
 	gchar	       *path;
 	gchar	       *other_path;
 	gboolean	path_ignored;
@@ -1374,10 +1116,9 @@ processor_files_move (TrackerProcessor *processor,
 
 	path = g_file_get_path (file);
 	other_path = g_file_get_path (other_file);
-	crawler = g_hash_table_lookup (processor->private->crawlers, module_name);
 
-	path_ignored = tracker_crawler_is_path_ignored (crawler, path, is_directory);
-	other_path_ignored = tracker_crawler_is_path_ignored (crawler, other_path, is_directory);
+	path_ignored = tracker_crawler_is_path_ignored (processor->private->crawler, path, is_directory);
+	other_path_ignored = tracker_crawler_is_path_ignored (processor->private->crawler, other_path, is_directory);
 
 	g_debug ("%s:'%s'->'%s':%s (%s) (move monitor event or user request)",
 		 path_ignored ? "Ignored" : "Found ",
@@ -1391,8 +1132,8 @@ processor_files_move (TrackerProcessor *processor,
 	} else if (path_ignored) {
 		/* Check new file */
 		if (!is_directory) {
-			queue = g_hash_table_lookup (processor->private->items_created_queues, module_name);
-			g_queue_push_tail (queue, g_object_ref (other_file));
+			g_queue_push_tail (processor->private->items_created_queue, 
+					   g_object_ref (other_file));
 
 			item_queue_handlers_set_up (processor);
 		}
@@ -1401,15 +1142,13 @@ processor_files_move (TrackerProcessor *processor,
 		tracker_crawler_add_unexpected_path (crawler, other_path);
 	} else if (other_path_ignored) {
 		/* Delete old file */
-		queue = g_hash_table_lookup (processor->private->items_deleted_queues, module_name);
-		g_queue_push_tail (queue, g_object_ref (file));
+		g_queue_push_tail (processor->private->items_deleted_queue, g_object_ref (file));
 
 		item_queue_handlers_set_up (processor);
 	} else {
 		/* Move old file to new file */
-		queue = g_hash_table_lookup (processor->private->items_moved_queues, module_name);
-		g_queue_push_tail (queue, g_object_ref (file));
-		g_queue_push_tail (queue, g_object_ref (other_file));
+		g_queue_push_tail (processor->private->items_moved_queue, g_object_ref (file));
+		g_queue_push_tail (processor->private->items_moved_queue, g_object_ref (other_file));
 
 		item_queue_handlers_set_up (processor);
 	}
@@ -1420,37 +1159,33 @@ processor_files_move (TrackerProcessor *processor,
 
 static void
 monitor_item_created_cb (TrackerMonitor *monitor,
-			 const gchar	*module_name,
 			 GFile		*file,
 			 gboolean	 is_directory,
 			 gpointer	 user_data)
 {
-	processor_files_check (user_data, module_name, file, is_directory);
+	processor_files_check (user_data, file, is_directory);
 }
 
 static void
 monitor_item_updated_cb (TrackerMonitor *monitor,
-			 const gchar	*module_name,
 			 GFile		*file,
 			 gboolean	 is_directory,
 			 gpointer	 user_data)
 {
-	processor_files_update (user_data, module_name, file, is_directory);
+	processor_files_update (user_data, file, is_directory);
 }
 
 static void
 monitor_item_deleted_cb (TrackerMonitor *monitor,
-			 const gchar	*module_name,
 			 GFile		*file,
 			 gboolean	 is_directory,
 			 gpointer	 user_data)
 {
-	processor_files_delete (user_data, module_name, file, is_directory);
+	processor_files_delete (user_data, file, is_directory);
 }
 
 static void
 monitor_item_moved_cb (TrackerMonitor *monitor,
-		       const gchar    *module_name,
 		       GFile	      *file,
 		       GFile	      *other_file,
 		       gboolean        is_directory,
@@ -1459,47 +1194,41 @@ monitor_item_moved_cb (TrackerMonitor *monitor,
 {
 	if (!is_source_monitored) {
 		TrackerProcessor *processor;
-		TrackerCrawler   *crawler;
 		gchar            *path;
 
 		processor = user_data;
 
 		/* If the source is not monitored, we need to crawl it. */
 		path = g_file_get_path (other_file);
-		crawler = g_hash_table_lookup (processor->private->crawlers, module_name);
-		tracker_crawler_add_unexpected_path (crawler, path);
+		tracker_crawler_add_unexpected_path (processor->private->crawler, path);
 		g_free (path);
 	} else {
-		processor_files_move (user_data, module_name, file, other_file, is_directory);
+		processor_files_move (user_data, file, other_file, is_directory);
 	}
 }
 
 static void
 crawler_processing_file_cb (TrackerCrawler *crawler,
-			    const gchar    *module_name,
 			    GFile	   *file,
 			    gpointer	    user_data)
 {
 	TrackerProcessor *processor;
-	GQueue		 *queue;
 
 	processor = user_data;
 
 	/* Add files in queue to our queues to send to the indexer */
-	queue = g_hash_table_lookup (processor->private->items_created_queues, module_name);
-	g_queue_push_tail (queue, g_object_ref (file));
+	g_queue_push_tail (processor->private->items_created_queue, 
+			   g_object_ref (file));
 
 	item_queue_handlers_set_up (processor);
 }
 
 static void
 crawler_processing_directory_cb (TrackerCrawler *crawler,
-				 const gchar	*module_name,
 				 GFile		*file,
 				 gpointer	 user_data)
 {
 	TrackerProcessor *processor;
-	GQueue		 *queue;
 	gboolean	  add_monitor;
 
 	processor = user_data;
@@ -1512,19 +1241,18 @@ crawler_processing_directory_cb (TrackerCrawler *crawler,
 
 	/* Should we add? */
 	if (add_monitor) {
-		tracker_monitor_add (processor->private->monitor, module_name, file);
+		tracker_monitor_add (processor->private->monitor, file);
 	}
 
 	/* Add files in queue to our queues to send to the indexer */
-	queue = g_hash_table_lookup (processor->private->items_created_queues, module_name);
-	g_queue_push_tail (queue, g_object_ref (file));
+	g_queue_push_tail (processor->private->items_created_queue, 
+			   g_object_ref (file));
 
 	item_queue_handlers_set_up (processor);
 }
 
 static void
 crawler_finished_cb (TrackerCrawler *crawler,
-		     const gchar    *module_name,
 		     guint	     directories_found,
 		     guint	     directories_ignored,
 		     guint	     files_found,
@@ -1651,8 +1379,6 @@ tracker_processor_new (TrackerConfig  *config,
 {
 	TrackerProcessor	*processor;
 	TrackerProcessorPrivate *priv;
-	TrackerCrawler		*crawler;
-	GList			*l;
 
 	g_return_val_if_fail (TRACKER_IS_CONFIG (config), NULL);
 
@@ -1683,23 +1409,17 @@ tracker_processor_new (TrackerConfig  *config,
 #endif /* HAVE_HAL */
 
 	/* Set up the crawlers now we have config and hal */
-	for (l = priv->modules; l; l = l->next) {
-		crawler = tracker_crawler_new (priv->config, l->data);
+	priv->crawler = tracker_crawler_new (priv->config);
 
-		g_signal_connect (crawler, "processing-file",
-				  G_CALLBACK (crawler_processing_file_cb),
-				  processor);
-		g_signal_connect (crawler, "processing-directory",
-				  G_CALLBACK (crawler_processing_directory_cb),
-				  processor);
-		g_signal_connect (crawler, "finished",
-				  G_CALLBACK (crawler_finished_cb),
-				  processor);
-
-		g_hash_table_insert (priv->crawlers,
-				     g_strdup (l->data),
-				     crawler);
-	}
+	g_signal_connect (priv->crawler, "processing-file",
+			  G_CALLBACK (crawler_processing_file_cb),
+			  processor);
+	g_signal_connect (priv->crawler, "processing-directory",
+			  G_CALLBACK (crawler_processing_directory_cb),
+			  processor);
+	g_signal_connect (priv->crawler, "finished",
+			  G_CALLBACK (crawler_finished_cb),
+			  processor);
 
 	/* Set up the monitor */
 	priv->monitor = tracker_monitor_new (config);
@@ -1745,7 +1465,7 @@ tracker_processor_start (TrackerProcessor *processor)
 
 	processor->private->interrupted = FALSE;
 
-	processor->private->finished_modules = FALSE;
+	processor->private->finished_files = FALSE;
 	processor->private->finished_devices = FALSE;
 	processor->private->finished_sending = FALSE;
 	processor->private->finished_indexer = FALSE;
@@ -1764,7 +1484,7 @@ tracker_processor_stop (TrackerProcessor *processor)
 
 	processor->private->interrupted = TRUE;
 
-	process_modules_stop (processor);
+	process_files_stop (processor);
 	process_devices_stop (processor);
 	
 	/* Queues? */

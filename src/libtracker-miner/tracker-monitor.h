@@ -55,21 +55,16 @@ gboolean	tracker_monitor_get_enabled	     (TrackerMonitor *monitor);
 void		tracker_monitor_set_enabled	     (TrackerMonitor *monitor,
 						      gboolean	      enabled);
 gboolean	tracker_monitor_add		     (TrackerMonitor *monitor,
-						      const gchar    *module_name,
 						      GFile	     *file);
 gboolean        tracker_monitor_remove               (TrackerMonitor *monitor,
-						      const gchar    *module_name,
 						      GFile          *file);
 gboolean        tracker_monitor_remove_recursively   (TrackerMonitor *monitor,
 						      GFile	     *file);
 gboolean	tracker_monitor_is_watched	     (TrackerMonitor *monitor,
-						      const gchar    *module_name,
 						      GFile	     *file);
 gboolean	tracker_monitor_is_watched_by_string (TrackerMonitor *monitor,
-						      const gchar    *module_name,
 						      const gchar    *path);
-guint		tracker_monitor_get_count	     (TrackerMonitor *monitor,
-						      const gchar    *module_name);
+guint		tracker_monitor_get_count	     (TrackerMonitor *monitor);
 guint		tracker_monitor_get_ignored	     (TrackerMonitor *monitor);
 
 G_END_DECLS

@@ -54,8 +54,8 @@
 struct _TrackerMonitorPrivate {
 	TrackerConfig *config;
 
-	GHashTable    *modules;
-
+	GHashTable    *monitors;
+	
 	gboolean       enabled;
 
 	GType	       monitor_backend;
@@ -202,7 +202,6 @@ tracker_monitor_init (TrackerMonitor *object)
 	TrackerMonitorPrivate *priv;
 	GFile		      *file;
 	GFileMonitor	      *monitor;
-	GList		      *all_modules, *l;
 	const gchar	      *name;
 
 	object->private = TRACKER_MONITOR_GET_PRIVATE (object);
@@ -211,13 +210,6 @@ tracker_monitor_init (TrackerMonitor *object)
 
 	/* By default we enable monitoring */
 	priv->enabled = TRUE;
-
-	/* For each module we create a hash table for monitors */
-	priv->modules =
-		g_hash_table_new_full (g_str_hash,
-				       g_str_equal,
-				       g_free,
-				       (GDestroyNotify) g_hash_table_unref);
 
 	/* We have a hash table with cookies so we can pair up move
 	 * events.
@@ -238,22 +230,12 @@ tracker_monitor_init (TrackerMonitor *object)
 				       g_object_unref,
 				       event_data_free);
 
-	all_modules = tracker_module_config_get_modules ();
-
-	for (l = all_modules; l; l = l->next) {
-		GHashTable *monitors;
-
-		/* Create monitors table for this module */
-		monitors =
-			g_hash_table_new_full (g_file_hash,
-					       (GEqualFunc) g_file_equal,
-					       (GDestroyNotify) g_object_unref,
-					       (GDestroyNotify) libinotify_monitor_cancel);
-
-		g_hash_table_insert (priv->modules, g_strdup (l->data), monitors);
-	}
-
-	g_list_free (all_modules);
+	/* Create monitors table for this module */
+	priv->monitors =
+		g_hash_table_new_full (g_file_hash,
+				       (GEqualFunc) g_file_equal,
+				       (GDestroyNotify) g_object_unref,
+				       (GDestroyNotify) libinotify_monitor_cancel);
 
 	/* For the first monitor we get the type and find out if we
 	 * are using inotify, FAM, polling, etc.
@@ -360,8 +342,6 @@ tracker_monitor_finalize (GObject *object)
 
 	g_hash_table_unref (priv->cached_events);
 	g_hash_table_unref (priv->event_pairs);
-
-	g_hash_table_unref (priv->modules);
 
 	g_object_unref (priv->config);
 
@@ -470,99 +450,6 @@ get_inotify_limit (void)
 	}
 
 	return limit;
-}
-
-static const gchar *
-get_queue_from_gfile (GHashTable *modules,
-		      GFile	 *file)
-{
-	GHashTableIter iter;
-	gpointer       key, value;
-
-	g_hash_table_iter_init (&iter, modules);
-
-	while (g_hash_table_iter_next (&iter, &key, &value)) {
-		GHashTable *hash_table;
-
-		hash_table = value;
-
-		if (g_hash_table_lookup (hash_table, file)) {
-			return key;
-		}
-	}
-
-	return NULL;
-}
-
-static const gchar *
-get_module_name_from_gfile (TrackerMonitor *monitor,
-			    GFile	   *file,
-			    gboolean	   *is_directory)
-{
-	const gchar *module_name;
-
-	if (is_directory) {
-		*is_directory = TRUE;
-	}
-
-	/* First try to get the module name from the file, this will
-	 * only work if the event we received is for a directory.
-	 */
-	module_name = get_queue_from_gfile (monitor->private->modules, file);
-	if (!module_name) {
-		GFile *parent;
-
-		/* Second we try to get the module name from the base
-		 * name of the file.
-		 */
-		parent = g_file_get_parent (file);
-
-		if (!parent) {
-			gchar *path;
-
-			path = g_file_get_path (file);
-
-			g_debug ("Could not get module name from GFile (path:'%s')",
-				 path);
-
-			g_free (path);
-
-			return NULL;
-		}
-
-		module_name = get_queue_from_gfile (monitor->private->modules, parent);
-
-		if (!module_name) {
-			gchar *parent_path;
-			gchar *child_path;
-
-			parent_path = g_file_get_path (parent);
-			child_path = g_file_get_path (file);
-
-			if (is_directory) {
-				*is_directory = g_file_test (child_path, G_FILE_TEST_IS_DIR);
-			}
-
-			g_debug ("Could not get module name from GFile (path:'%s' or parent:'%s')",
-				 child_path,
-				 parent_path);
-
-			g_free (parent_path);
-			g_free (child_path);
-		} else {
-			if (is_directory) {
-				gchar *child_path;
-
-				child_path = g_file_get_path (file);
-				*is_directory = g_file_test (child_path, G_FILE_TEST_IS_DIR);
-				g_free (child_path);
-			}
-		}
-
-		g_object_unref (parent);
-	}
-
-	return module_name;
 }
 
 #ifdef PAUSE_ON_IO 
@@ -683,7 +570,6 @@ libinotify_event_pairs_timeout_cb (gpointer data)
 		EventData   *event;
 		glong	     seconds;
 		glong	     seconds_then;
-		const gchar *module_name;
 		gboolean     is_directory;
 
 		event = value;
@@ -711,10 +597,6 @@ libinotify_event_pairs_timeout_cb (gpointer data)
 			 GPOINTER_TO_UINT (key),
 			 seconds);
 
-		module_name = get_module_name_from_gfile (monitor,
-							  event->file,
-							  &is_directory);
-
 		switch (event->event_type) {
 		case IN_MOVED_FROM:
 		case IN_DELETE:
@@ -724,13 +606,11 @@ libinotify_event_pairs_timeout_cb (gpointer data)
 			 */
 			if (is_directory) {
  				tracker_monitor_remove (monitor, 
-							module_name, 
 							event->file);
 			}
 
 			g_signal_emit (monitor,
 				       signals[ITEM_DELETED], 0,
-				       module_name,
 				       event->file,
 				       is_directory);
 			break;
@@ -742,7 +622,6 @@ libinotify_event_pairs_timeout_cb (gpointer data)
 			 */
 			g_signal_emit (monitor,
 				       signals[ITEM_CREATED], 0,
-				       module_name,
 				       event->file,
 				       is_directory);
 			break;
@@ -765,7 +644,6 @@ libinotify_event_pairs_timeout_cb (gpointer data)
 static void
 libinotify_cached_event_handle (TrackerMonitor *monitor,
 				EventData      *data,
-				const gchar    *module_name,
 				gboolean        is_directory)
 {
 	switch (data->event_type) {
@@ -774,7 +652,6 @@ libinotify_cached_event_handle (TrackerMonitor *monitor,
 	case IN_ATTRIB:
 		g_signal_emit (monitor,
 			       signals[ITEM_UPDATED], 0,
-			       module_name,
 			       data->file,
 			       is_directory);
 		break;
@@ -788,13 +665,11 @@ libinotify_cached_event_handle (TrackerMonitor *monitor,
 	case IN_DELETE_SELF:
 		if (is_directory) {
 			tracker_monitor_remove (monitor, 
-						module_name, 
 						data->file);
 		}
 
 		g_signal_emit (monitor,
 			       signals[ITEM_DELETED], 0,
-			       module_name,
 			       data->file,
 			       is_directory);
 
@@ -808,7 +683,6 @@ libinotify_cached_event_handle (TrackerMonitor *monitor,
 	case IN_CREATE:
 		g_signal_emit (monitor,
 			       signals[ITEM_CREATED], 0,
-			       module_name,
 			       data->file,
 			       is_directory);
 
@@ -839,7 +713,6 @@ libinotify_cached_events_timeout_cb (gpointer data)
 		glong        start_event_seconds;
 		gint         cache_timeout;
 		gint         scan_timeout;
-		const gchar *module_name;
 		gboolean     is_directory;
 		gboolean     force_emit = FALSE;
 		gboolean     timed_out = FALSE;
@@ -856,26 +729,14 @@ libinotify_cached_events_timeout_cb (gpointer data)
 			 last_event_seconds,
 			 start_event_seconds);
 
-		module_name = get_module_name_from_gfile (monitor,
-							  event->file,
-							  &is_directory);
-
-		if (!module_name) {
-			/* File was deleted before we could check its
-			 * cached events, just discard it  
-			 */
-			g_hash_table_iter_remove (&iter);
-			continue;
-		}
-
 		/* If the item has been in the cache for too long
 		 * according to the module config options, then we
 		 * force the cache to expire in order to not starve
 		 * the indexer of events for files which are ALWAYS
 		 * changing.
 		 */
-		cache_timeout = tracker_module_config_get_cache_timeout (module_name);
-		scan_timeout = tracker_module_config_get_scan_timeout (module_name);
+		cache_timeout = tracker_module_config_get_cache_timeout ("files");
+		scan_timeout = tracker_module_config_get_scan_timeout ("files");
 
 		if (cache_timeout > 0) {
 			force_emit = start_event_seconds > cache_timeout;
@@ -910,7 +771,6 @@ libinotify_cached_events_timeout_cb (gpointer data)
 		/* Signal event */
 		libinotify_cached_event_handle (monitor,
 						event,
-						module_name,
 						is_directory);
 
 
@@ -955,7 +815,6 @@ static void
 libinotify_monitor_force_emission (TrackerMonitor *monitor,
 				   GFile          *file,
 				   guint32         event_type,
-				   const gchar    *module_name,
 				   gboolean        is_directory)
 {
 	EventData *data;
@@ -974,7 +833,6 @@ libinotify_monitor_force_emission (TrackerMonitor *monitor,
 		/* Signal event */
 		libinotify_cached_event_handle (monitor,
 						data,
-						module_name,
 						is_directory);
 
 		/* Clean up */
@@ -993,7 +851,6 @@ libinotify_monitor_event_cb (INotifyHandle *handle,
 	TrackerMonitor *monitor;
 	GFile	       *file;
 	GFile	       *other_file;
-	const gchar    *module_name;
 	gchar	       *str1;
 	gchar	       *str2;
 	gboolean	is_directory;
@@ -1031,13 +888,6 @@ libinotify_monitor_event_cb (INotifyHandle *handle,
 	}
 
 	other_file = NULL;
-	module_name = get_module_name_from_gfile (monitor, file, &is_directory);
-
-	if (!module_name) {
-		g_free (str1);
-		g_object_unref (file);
-		return;
-	}
 
 	if (!str1) {
 		str1 = g_file_get_path (file);
@@ -1141,7 +991,6 @@ libinotify_monitor_event_cb (INotifyHandle *handle,
 		libinotify_monitor_force_emission (monitor, 
 						   file, 
 						   event_type,
-						   module_name, 
 						   is_directory);
 
 		/* Fall through */
@@ -1172,9 +1021,7 @@ libinotify_monitor_event_cb (INotifyHandle *handle,
 			if (is_directory) {
 				gint count;
 
-				tracker_monitor_remove (monitor,
-							module_name,
-							file);
+				tracker_monitor_remove (monitor, file);
 
 				count =	g_hash_table_foreach_remove (monitor->private->cached_events,
 								     libinotify_cached_event_delete_children_func,
@@ -1201,7 +1048,6 @@ libinotify_monitor_event_cb (INotifyHandle *handle,
 		} else if (other_file) {
 			g_signal_emit (monitor,
 				       signals[ITEM_MOVED], 0,
-				       module_name,
 				       file,
 				       other_file,
 				       is_directory, 
@@ -1232,14 +1078,12 @@ libinotify_monitor_event_cb (INotifyHandle *handle,
 		 * handle that cache first. Otherwise we have
 		 * disparity when the cache expires.
 		 */
-		libinotify_monitor_force_emission (monitor, file, event_type,
-						   module_name, is_directory);
+		libinotify_monitor_force_emission (monitor, file, event_type, is_directory);
 
 		/* Handle event */
 		if (cookie == 0) {
 			g_signal_emit (monitor,
 				       signals[ITEM_CREATED], 0,
-				       module_name,
 				       file,
 				       is_directory);
 		} else if (other_file) {
@@ -1264,7 +1108,6 @@ libinotify_monitor_event_cb (INotifyHandle *handle,
 
 			g_signal_emit (monitor,
 				       signals[ITEM_MOVED], 0,
-				       module_name,
 				       other_file,
 				       file,
 				       is_directory,
@@ -1375,36 +1218,31 @@ tracker_monitor_set_enabled (TrackerMonitor *monitor,
 
 gboolean
 tracker_monitor_add (TrackerMonitor *monitor,
-		     const gchar    *module_name,
 		     GFile	    *file)
 {
 	INotifyHandle *file_monitor;
-	GHashTable   *monitors;
 	GSList	     *ignored_roots;
 	GSList	     *l;
 	gchar	     *path;
 
 	g_return_val_if_fail (TRACKER_IS_MONITOR (monitor), FALSE);
-	g_return_val_if_fail (module_name != NULL, FALSE);
 	g_return_val_if_fail (G_IS_FILE (file), FALSE);
 
 	if (!tracker_config_get_enable_watches (monitor->private->config)) {
 		return TRUE;
 	}
 
-	monitors = g_hash_table_lookup (monitor->private->modules, module_name);
-	if (!monitors) {
-		g_warning ("No monitor hash table for module:'%s'",
-			   module_name);
+	if (!monitor->private->monitors) {
+		g_critical ("Could not add monitor, no monitors are set up");
 		return FALSE;
 	}
 
-	if (g_hash_table_lookup (monitors, file)) {
+	if (g_hash_table_lookup (monitor->private->monitors, file)) {
 		return TRUE;
 	}
 
 	/* Cap the number of monitors */
-	if (g_hash_table_size (monitors) >= monitor->private->monitor_limit) {
+	if (g_hash_table_size (monitor->private->monitors) >= monitor->private->monitor_limit) {
 		monitor->private->monitors_ignored++;
 
 		if (!monitor->private->monitor_limit_warned) {
@@ -1445,14 +1283,13 @@ tracker_monitor_add (TrackerMonitor *monitor,
 		return FALSE;
 	}
 
-	g_hash_table_insert (monitors,
+	g_hash_table_insert (monitor->private->monitors,
 			     g_object_ref (file),
 			     file_monitor);
 
-	g_debug ("Added monitor for module:'%s', path:'%s', total monitors:%d",
-		 module_name,
+	g_debug ("Added monitor for path:'%s', total monitors:%d",
 		 path,
-		 g_hash_table_size (monitors));
+		 g_hash_table_size (monitor->private->monitors));
 
 	g_free (path);
 
@@ -1461,7 +1298,6 @@ tracker_monitor_add (TrackerMonitor *monitor,
 
 gboolean
 tracker_monitor_remove (TrackerMonitor *monitor,
-			const gchar    *module_name,
 			GFile          *file)
 {
 	GHashTable *monitors;
@@ -1469,73 +1305,59 @@ tracker_monitor_remove (TrackerMonitor *monitor,
 	gboolean    removed;
 
 	g_return_val_if_fail (TRACKER_IS_MONITOR (monitor), FALSE);
-	g_return_val_if_fail (module_name != NULL, FALSE);
 	g_return_val_if_fail (G_IS_FILE (file), FALSE);
-	
-	monitors = g_hash_table_lookup (monitor->private->modules, module_name);
-	if (!monitors) {
-		g_warning ("No monitor hash table for module:'%s'",
-			   module_name);
+
+	if (!monitor->private->monitors) {
+		g_critical ("Could not remove monitor, no monitors are set up");
 		return FALSE;
 	}
-
+	
 	removed = g_hash_table_remove (monitors, file);
 	path = g_file_get_path (file);
 	
-	g_debug ("Removed monitor for module:'%s', path:'%s', total monitors:%d",
-		 module_name,
+	g_debug ("Removed monitor for path:'%s', total monitors:%d",
 		 path,
 		 g_hash_table_size (monitors));
 	
 	g_free (path);
 
-	/* tracker_monitor_remove_recursively (monitor, event->file); */
-	
 	return removed;
 }
-
 	
 gboolean
 tracker_monitor_remove_recursively (TrackerMonitor *monitor,
 				    GFile          *file)
 {
-	GHashTableIter iter1;
-	gpointer       iter_module_name, iter_hash_table;
+	GHashTableIter iter;
+	gpointer       iter_hash_table, iter_file, iter_file_monitor;
 	guint          items_removed = 0;
 
 	g_return_val_if_fail (TRACKER_IS_MONITOR (monitor), FALSE);
 	g_return_val_if_fail (G_IS_FILE (file), FALSE);
 
-	g_hash_table_iter_init (&iter1, monitor->private->modules);
-	while (g_hash_table_iter_next (&iter1, &iter_module_name, &iter_hash_table)) {
-		GHashTableIter iter2;
-		gpointer       iter_file, iter_file_monitor;
-
-		g_hash_table_iter_init (&iter2, iter_hash_table);
-		while (g_hash_table_iter_next (&iter2, &iter_file, &iter_file_monitor)) {
-			gchar *path;
+	g_hash_table_iter_init (&iter, monitor->private->monitors);
+	while (g_hash_table_iter_next (&iter, &iter_file, &iter_file_monitor)) {
+		gchar *path;
 		
-			if (!g_file_has_prefix (iter_file, file) &&
-			    !g_file_equal (iter_file, file)) {
-				continue;
-			}
-
-			path = g_file_get_path (iter_file);
-			
-			g_debug ("Removed monitor for module:'%s', path:'%s', total monitors:%d",
-				 (gchar*) iter_module_name,
-				 path,
-				 g_hash_table_size (iter_hash_table));
-
-			g_free (path);
-
-			g_hash_table_iter_remove (&iter2);
-		
-			/* We reset this because now it is possible we have limit - 1 */
-			monitor->private->monitor_limit_warned = FALSE;
-			
-			items_removed++;
+		if (!g_file_has_prefix (iter_file, file) &&
+		    !g_file_equal (iter_file, file)) {
+			continue;
 		}
+		
+		path = g_file_get_path (iter_file);
+		
+		g_debug ("Removed monitor for path:'%s', total monitors:%d",
+			 path,
+			 g_hash_table_size (iter_hash_table));
+		
+		g_free (path);
+		
+		g_hash_table_iter_remove (&iter);
+		
+		/* We reset this because now it is possible we have limit - 1 */
+		monitor->private->monitor_limit_warned = FALSE;
+		
+		items_removed++;
 	}
 
 	return items_removed > 0;
@@ -1543,84 +1365,47 @@ tracker_monitor_remove_recursively (TrackerMonitor *monitor,
 
 gboolean
 tracker_monitor_is_watched (TrackerMonitor *monitor,
-			    const gchar    *module_name,
 			    GFile	   *file)
 {
-	GHashTable *monitors;
-
 	g_return_val_if_fail (TRACKER_IS_MONITOR (monitor), FALSE);
-	g_return_val_if_fail (module_name != NULL, FALSE);
 	g_return_val_if_fail (G_IS_FILE (file), FALSE);
 
-	monitors = g_hash_table_lookup (monitor->private->modules, module_name);
-	if (!monitors) {
-		g_warning ("No monitor hash table for module:'%s'",
-			   module_name);
+	if (!monitor->private->monitors) {
+		g_critical ("Could not find out if GFile is watched, no monitors are set up");
 		return FALSE;
 	}
 
-	return g_hash_table_lookup (monitors, file) != NULL;
+	return g_hash_table_lookup (monitor->private->monitors, file) != NULL;
 }
 
 gboolean
 tracker_monitor_is_watched_by_string (TrackerMonitor *monitor,
-				      const gchar    *module_name,
 				      const gchar    *path)
 {
 	GFile	   *file;
-	GHashTable *monitors;
 	gboolean    watched;
 
 	g_return_val_if_fail (TRACKER_IS_MONITOR (monitor), FALSE);
-	g_return_val_if_fail (module_name != NULL, FALSE);
 	g_return_val_if_fail (path != NULL, FALSE);
 
-	monitors = g_hash_table_lookup (monitor->private->modules, module_name);
-	if (!monitors) {
-		g_warning ("No monitor hash table for module:'%s'",
-			   module_name);
+	if (!monitor->private->monitors) {
+		g_critical ("Could not find out if path is monitored, no monitors are set up");
 		return FALSE;
 	}
 
 	file = g_file_new_for_path (path);
-	watched = g_hash_table_lookup (monitors, file) != NULL;
+	watched = g_hash_table_lookup (monitor->private->monitors, file) != NULL;
 	g_object_unref (file);
 
 	return watched;
 }
 
 guint
-tracker_monitor_get_count (TrackerMonitor *monitor,
-			   const gchar	  *module_name)
+tracker_monitor_get_count (TrackerMonitor *monitor)
 {
-	guint count;
-
 	g_return_val_if_fail (TRACKER_IS_MONITOR (monitor), 0);
 
-	if (module_name) {
-		GHashTable *monitors;
-
-		monitors = g_hash_table_lookup (monitor->private->modules, module_name);
-		if (!monitors) {
-			g_warning ("No monitor hash table for module:'%s'",
-				   module_name);
-			return 0;
-		}
-
-		count = g_hash_table_size (monitors);
-	} else {
-		GList *all_modules, *l;
-
-		all_modules = g_hash_table_get_values (monitor->private->modules);
-
-		for (l = all_modules, count = 0; l; l = l->next) {
-			count += g_hash_table_size (l->data);
-		}
-
-		g_list_free (all_modules);
-	}
-
-	return count;
+	return g_hash_table_size (monitor->private->monitors);
 }
 
 guint

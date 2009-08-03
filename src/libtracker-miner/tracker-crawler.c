@@ -55,8 +55,6 @@
 struct _TrackerCrawlerPrivate {
 	TrackerConfig  *config;
 
-	gchar	       *module_name;
-
 	/* Found data */
 	GQueue	       *directories;
 	GQueue	       *files;
@@ -258,37 +256,31 @@ tracker_crawler_finalize (GObject *object)
 	g_queue_foreach (priv->directories, (GFunc) g_object_unref, NULL);
 	g_queue_free (priv->directories);
 
-	g_free (priv->module_name);
-
 	g_object_unref (priv->config);
 
 	G_OBJECT_CLASS (tracker_crawler_parent_class)->finalize (object);
 }
 
 TrackerCrawler *
-tracker_crawler_new (TrackerConfig *config,
-		     const gchar   *module_name)
+tracker_crawler_new (TrackerConfig *config)
 {
 	TrackerCrawler *crawler;
 
 	g_return_val_if_fail (TRACKER_IS_CONFIG (config), NULL);
-	g_return_val_if_fail (module_name != NULL, NULL);
 
 	crawler = g_object_new (TRACKER_TYPE_CRAWLER, NULL);
 
 	crawler->private->config = g_object_ref (config);
 
-	crawler->private->module_name = g_strdup (module_name);
-
 	/* Set up crawl data */
 	crawler->private->ignored_directory_patterns =
-		tracker_module_config_get_ignored_directory_patterns (module_name);
+		tracker_module_config_get_ignored_directory_patterns ("files");
 	crawler->private->ignored_file_patterns =
-		tracker_module_config_get_ignored_file_patterns (module_name);
+		tracker_module_config_get_ignored_file_patterns ("files");
 	crawler->private->index_file_patterns =
-		tracker_module_config_get_index_file_patterns (module_name);
+		tracker_module_config_get_index_file_patterns ("files");
 	crawler->private->ignored_directories_with_content =
-		tracker_module_config_get_ignored_directories_with_content (module_name);
+		tracker_module_config_get_ignored_directories_with_content ("files");
 
 	/* Should we use module config paths? If true, when we
 	 * _start() the module config paths are used to import paths
@@ -472,8 +464,7 @@ static void
 process_file (TrackerCrawler *crawler,
 	      GFile	     *file)
 {
-	g_signal_emit (crawler, signals[PROCESSING_FILE], 0,
-		       crawler->private->module_name, file);
+	g_signal_emit (crawler, signals[PROCESSING_FILE], 0, file);
 }
 
 static void
@@ -696,8 +687,7 @@ enumerator_data_process (EnumeratorData *ed)
 	}
 
 	crawler->private->directories_found++;
-	g_signal_emit (crawler, signals[PROCESSING_DIRECTORY], 0,
-		       crawler->private->module_name, ed->parent);
+	g_signal_emit (crawler, signals[PROCESSING_DIRECTORY], 0, ed->parent);
 
 	g_hash_table_iter_init (&iter, ed->children);
 
@@ -969,8 +959,7 @@ tracker_crawler_start (TrackerCrawler *crawler)
 
 	priv->was_started = TRUE;
 
-	g_message ("Crawling directories for module:'%s'",
-		   crawler->private->module_name);
+	g_message ("Crawling directories...");
 
 	if (priv->use_module_paths) {
 		GSList *new_paths;
@@ -979,8 +968,8 @@ tracker_crawler_start (TrackerCrawler *crawler)
 
 		g_message ("  Using module paths");
 
-		recurse_paths =	tracker_module_config_get_monitor_recurse_directories (priv->module_name);
-		paths = tracker_module_config_get_monitor_directories (priv->module_name);
+		recurse_paths =	tracker_module_config_get_monitor_recurse_directories ("files");
+		paths = tracker_module_config_get_monitor_directories ("files");
 
 		if (recurse_paths || paths) {
 			/* First we do non-recursive directories */
@@ -1111,7 +1100,6 @@ tracker_crawler_stop (TrackerCrawler *crawler)
 	}
 
 	g_signal_emit (crawler, signals[FINISHED], 0,
-		       priv->module_name,
 		       priv->directories_found,
 		       priv->directories_ignored,
 		       priv->files_found,
