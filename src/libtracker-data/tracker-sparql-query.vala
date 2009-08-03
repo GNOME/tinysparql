@@ -1201,12 +1201,8 @@ public class Tracker.SparqlQuery : Object {
 				}
 
 				pattern_sql.append_printf ("(SELECT ID FROM \"rdfs:Resource\" WHERE Uri = '%s')", binding.type);
-			} else if (expr.arg1.literal.type != Rasqal.Literal.Type.URI) {
-				// Rasqal already takes care of this, but I added it here
-				// for the reader of this code to understand what goes on
-				pattern_sql.append ("(SELECT ID FROM \"rdfs:Resource\" WHERE Uri = 'http://www.w3.org/2001/XMLSchema#string'");
 			} else {
-				pattern_sql.append ("(SELECT ID FROM \"rdfs:Resource\" WHERE Uri = 'http://www.w3.org/2000/01/rdf-schema#Resource'");
+				throw new SparqlError.PARSE ("Invalid FILTER");
 			}
 			break;
 		case Rasqal.Op.LITERAL:
