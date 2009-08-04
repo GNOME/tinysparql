@@ -65,8 +65,6 @@ struct TrackerProcessorPrivate {
 
 	gboolean	finished_directories;
 	gboolean	finished_devices;
-	gboolean	finished_sending;
-	gboolean	finished_indexer;
 
 	/* Statistics */
 	guint		total_directories_found;
@@ -371,9 +369,9 @@ miner_started (TrackerMiner *miner)
 	processor->private->interrupted = FALSE;
 
 	processor->private->finished_directories = FALSE;
-	processor->private->finished_devices = FALSE;
-	processor->private->finished_sending = FALSE;
-	processor->private->finished_indexer = FALSE;
+
+	/* Disabled for now */
+	processor->private->finished_devices = TRUE;
 
 	process_next (processor);
 }
@@ -495,9 +493,17 @@ monitor_item_created_cb (TrackerMonitor *monitor,
 				tracker_monitor_add (processor->private->monitor, file);	     
 			}
 
-#ifdef FIX
-			tracker_crawler_add_unexpected_path (processor->private->crawler, path);
-#endif
+			/* Add to the list */
+			processor->private->directories = 
+				g_list_append (processor->private->directories, 
+					       directory_data_new (path, TRUE));
+
+			/* Make sure we are handling that list */
+			processor->private->finished_directories = FALSE;
+
+			if (processor->private->finished_devices) {
+				process_next (processor);
+			}
 		}
 
 		g_queue_push_tail (processor->private->items_created, 
@@ -567,6 +573,27 @@ monitor_item_deleted_cb (TrackerMonitor *monitor,
 		
 		item_queue_handlers_set_up (processor);
 	}
+
+#if 0
+	/* FIXME: Should we do this for MOVE events too? */
+
+	/* Remove directory from list of directories we are going to
+	 * iterate if it is in there.
+	 */
+	l = g_list_find_custom (processor->private->directories, 
+				path, 
+				(GCompareFunc) g_strcmp0);
+
+	/* Make sure we don't remove the current device we are
+	 * processing, this is because we do this same clean up later
+	 * in process_device_next() 
+	 */
+	if (l && l != processor->private->current_directory) {
+		directory_data_free (l->data);
+		processor->private->directories = 
+			g_list_delete_link (processor->private->directories, l);
+	}
+#endif
 
 	g_free (path);
 }
@@ -803,7 +830,18 @@ process_directories_next (TrackerProcessor *processor)
 			processor->private->current_directory = processor->private->directories;
 		}
 	} else {
-		processor->private->current_directory = processor->private->current_directory->next;
+		GList *l;
+
+		l = processor->private->current_directory;
+		
+		/* Now free that device so we don't recrawl it */
+		if (l) {
+			directory_data_free (l->data);
+			
+			processor->private->current_directory = 
+			processor->private->directories = 
+				g_list_delete_link (processor->private->directories, l);
+		}
 	}
 
 	/* If we have no further modules to iterate */
