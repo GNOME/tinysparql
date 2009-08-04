@@ -33,7 +33,6 @@
 #include "tracker-monitor.h"
 #include "tracker-dbus.h"
 #include "tracker-marshal.h"
-#include "tracker-status.h"
 
 #define TRACKER_MONITOR_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_MONITOR, TrackerMonitorPrivate))
 
@@ -52,8 +51,6 @@
 #undef  PAUSE_ON_IO
 
 struct _TrackerMonitorPrivate {
-	TrackerConfig *config;
-
 	GHashTable    *monitors;
 	
 	gboolean       enabled;

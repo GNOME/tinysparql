@@ -23,9 +23,6 @@
 
 #include <glib.h>
 
-#include "tracker-config.h"
-
-void tracker_throttle (TrackerConfig *config,
-		       gint           multiplier);
+void tracker_throttle (gint multiplier);
 
 #endif /* __TRACKERD_UTILS_H__ */

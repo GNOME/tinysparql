@@ -23,8 +23,6 @@
 
 #include <glib-object.h>
 
-#include "tracker-config.h"
-
 G_BEGIN_DECLS
 
 #define TRACKER_TYPE_CRAWLER		(tracker_crawler_get_type ())

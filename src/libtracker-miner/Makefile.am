@@ -25,8 +25,6 @@ libtracker_miner_LTLIBRARIES = libtracker-miner.la
 # tracker-miner-crawler.h				
 
 libtracker_miner_la_SOURCES = 				\
-	tracker-config.c				\
-	tracker-config.h				\
 	tracker-crawler.c				\
 	tracker-crawler.h				\
 	tracker-dbus.c					\
@@ -40,8 +38,6 @@ libtracker_miner_la_SOURCES = 				\
 	tracker-monitor.h				\
 	tracker-processor.c				\
 	tracker-processor.h				\
-	tracker-status.c				\
-	tracker-status.h				\
 	tracker-utils.c					\
 	tracker-utils.h
 

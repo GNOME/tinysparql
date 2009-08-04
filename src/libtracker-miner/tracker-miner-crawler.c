@@ -23,7 +23,6 @@
 #include <libtracker-common/tracker-storage.h>
 
 #include "tracker-miner-crawler.h"
-#include "tracker-config.h"
 #include "tracker-processor.h"
 #include "tracker-marshal.h"
 
@@ -39,7 +38,6 @@ struct DirectoryData {
 };
 
 struct TrackerMinerCrawlerPrivate {
-	TrackerConfig *config;
 	TrackerStorage *storage;
 	TrackerProcessor *processor;
 
@@ -145,7 +143,6 @@ tracker_miner_crawler_init (TrackerMinerCrawler *miner)
 
 	priv = miner->_priv = TRACKER_MINER_CRAWLER_GET_PRIVATE (miner);
 
-	priv->config = tracker_config_new ();
 	priv->storage = tracker_storage_new ();
 
 	priv->processor = tracker_processor_new (priv->storage);
@@ -162,10 +159,6 @@ tracker_miner_crawler_finalize (GObject *object)
 {
 	TrackerMinerCrawler *miner = TRACKER_MINER_CRAWLER (object);
 	TrackerMinerCrawlerPrivate *priv = miner->_priv;
-
-	if (priv->config) {
-		g_object_unref (priv->config);
-	}
 
 	if (priv->storage) {
 		g_object_unref (priv->storage);

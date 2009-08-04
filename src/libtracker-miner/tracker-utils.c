@@ -23,17 +23,18 @@
 #include "tracker-utils.h"
 
 void
-tracker_throttle (TrackerConfig *config,
-		  gint		 multiplier)
+tracker_throttle (gint multiplier)
 {
 	gint throttle;
-
-	g_return_if_fail (TRACKER_IS_CONFIG (config));
 
 	/* Get the throttle, add 5 (minimum value) so we don't do
 	 * nothing and then multiply it by the factor given
 	 */
+#ifdef FIX
 	throttle  = tracker_config_get_throttle (config);
+#else 
+	throttle  = 0;
+#endif
 	/* throttle += 5; */
 	throttle *= multiplier;
 
