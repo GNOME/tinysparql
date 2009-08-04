@@ -1432,6 +1432,7 @@ AC_CONFIG_FILES([
 	src/libtracker-gtk/Makefile
 	src/libtracker/Makefile
         src/libtracker-miner/Makefile
+        src/libtracker-miner/test/Makefile
 	src/Makefile
 	src/rasqal/Makefile
 	src/tracker-applet/Makefile

@@ -1,5 +1,7 @@
 include $(top_srcdir)/Makefile.decl
 
+SUBDIRS = . test
+
 INCLUDES =						\
 	-DSHAREDIR=\""$(datadir)"\"			\
 	-DG_LOG_DOMAIN=\"Tracker\"			\
@@ -79,22 +81,3 @@ BUILT_SOURCES = $(dbus_sources) $(marshal_sources)
 CLEANFILES = $(BUILT_SOURCES)
 
 EXTRA_DIST = tracker-marshal.list
-
-libexec_PROGRAMS = tracker-miner-test
-
-tracker_miner_test_SOURCES = 	\
-	tracker-miner-test.c 	\
-	tracker-miner-test.h 	\
-	tracker-main.c
-
-tracker_miner_test_LDADD = 				\
-	libtracker-miner.la			 	\
-	$(DBUS_LIBS)					\
-	$(GMODULE_LIBS)					\
-	$(GTHREAD_LIBS)					\
-	$(GIO_LIBS)					\
-	$(GCOV_LIBS)					\
-	$(GLIB2_LIBS)					\
-	$(RAPTOR_LIBS)					\
-	-lz						\
-	-lm
