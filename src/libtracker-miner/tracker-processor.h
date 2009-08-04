@@ -42,33 +42,29 @@ typedef struct TrackerProcessorClass   TrackerProcessorClass;
 typedef struct TrackerProcessorPrivate TrackerProcessorPrivate;
 
 struct TrackerProcessor {
-	TrackerMiner parent_instance;
+	TrackerMiner parent;
 	TrackerProcessorPrivate *private;
 };
 
 struct TrackerProcessorClass {
-	TrackerMinerClass parent_class;
+	TrackerMinerClass parent;
 
-	gboolean (* check_file)   (TrackerProcessor *processor,
-				   GFile            *file);
-	gboolean (* check_dir)    (TrackerProcessor *processor,
-				   GFile            *file);
-	void     (* process_file) (TrackerProcessor *processor,
-				   GFile            *file);
-	gboolean (* monitor_dir)  (TrackerProcessor *processor,
-				   GFile            *file);
-
-	void     (* finished)     (TrackerProcessor *processor);
+	gboolean (* check_file)         (TrackerProcessor *processor,
+					 GFile            *file);
+	gboolean (* check_directory)    (TrackerProcessor *processor,
+					 GFile            *file);
+	void     (* process_file)       (TrackerProcessor *processor,
+					 GFile            *file);
+	gboolean (* monitor_directory)  (TrackerProcessor *processor,
+					 GFile            *file);
+	
+	void     (* finished)           (TrackerProcessor *processor);
 };
 
-GType		  tracker_processor_get_type	  (void) G_GNUC_CONST;
-
-TrackerProcessor *tracker_processor_new           (TrackerStorage   *storage);
-
-void              tracker_processor_stop          (TrackerProcessor *processor);
-void              tracker_processor_add_directory (TrackerProcessor *processor,
-						   const gchar      *path,
-						   gboolean          recurse);
+GType tracker_processor_get_type      (void) G_GNUC_CONST;
+void  tracker_processor_add_directory (TrackerProcessor *processor,
+				       const gchar      *path,
+				       gboolean          recurse);
 
 G_END_DECLS
 

@@ -34,17 +34,17 @@ G_BEGIN_DECLS
 #define TRACKER_IS_MONITOR_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), TRACKER_TYPE_MONITOR))
 #define TRACKER_MONITOR_GET_CLASS(obj)	(G_TYPE_INSTANCE_GET_CLASS ((obj), TRACKER_TYPE_MONITOR, TrackerMonitorClass))
 
-typedef struct _TrackerMonitor	       TrackerMonitor;
-typedef struct _TrackerMonitorClass    TrackerMonitorClass;
-typedef struct _TrackerMonitorPrivate  TrackerMonitorPrivate;
+typedef struct TrackerMonitor	      TrackerMonitor;
+typedef struct TrackerMonitorClass    TrackerMonitorClass;
+typedef struct TrackerMonitorPrivate  TrackerMonitorPrivate;
 
-struct _TrackerMonitor {
-	GObject		       parent;
+struct TrackerMonitor {
+	GObject	parent;
 	TrackerMonitorPrivate *private;
 };
 
-struct _TrackerMonitorClass {
-	GObjectClass	       parent;
+struct TrackerMonitorClass {
+	GObjectClass parent;
 };
 
 GType		tracker_monitor_get_type	     (void);

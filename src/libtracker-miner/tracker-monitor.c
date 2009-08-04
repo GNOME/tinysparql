@@ -50,7 +50,7 @@
  */
 #undef  PAUSE_ON_IO
 
-struct _TrackerMonitorPrivate {
+struct TrackerMonitorPrivate {
 	GHashTable    *monitors;
 	
 	gboolean       enabled;

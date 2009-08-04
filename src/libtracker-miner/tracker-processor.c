@@ -1,6 +1,6 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*
- * Copyright (C) 2008, Nokia
+ * Copyright (C) 2009, Nokia
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -51,7 +51,9 @@ struct TrackerProcessorPrivate {
 	GQueue         *items_deleted;
 	GQueue         *items_moved;
 
-	GArray         *dirs;
+	GList          *directories;
+	GList          *current_directory;
+
 	GList          *devices;
 	GList          *current_device;
 
@@ -61,7 +63,7 @@ struct TrackerProcessorPrivate {
 	gboolean        been_started;
 	gboolean	interrupted;
 
-	gboolean	finished_files;
+	gboolean	finished_directories;
 	gboolean	finished_devices;
 	gboolean	finished_sending;
 	gboolean	finished_indexer;
@@ -81,51 +83,59 @@ struct TrackerProcessorPrivate {
 typedef struct {
 	gchar    *path;
 	gboolean  recurse;
-} DirData;
+} DirectoryData;
 
 enum {
 	CHECK_FILE,
-	CHECK_DIR,
+	CHECK_DIRECTORY,
 	PROCESS_FILE,
-	MONITOR_DIR,
+	MONITOR_DIRECTORY,
 	FINISHED,
 	LAST_SIGNAL
 };
 
-static void     processor_finalize           (GObject          *object);
-static gboolean processor_defaults           (TrackerProcessor *processor,
-					      GFile            *file);
-static void     processor_started            (TrackerMiner     *miner);
-static void     monitor_item_created_cb      (TrackerMonitor   *monitor,
-					      GFile            *file,
-					      gboolean          is_directory,
-					      gpointer          user_data);
-static void     monitor_item_updated_cb      (TrackerMonitor   *monitor,
-					      GFile            *file,
-					      gboolean          is_directory,
-					      gpointer          user_data);
-static void     monitor_item_deleted_cb      (TrackerMonitor   *monitor,
-					      GFile            *file,
-					      gboolean          is_directory,
-					      gpointer          user_data);
-static void     monitor_item_moved_cb        (TrackerMonitor   *monitor,
-					      GFile            *file,
-					      GFile            *other_file,
-					      gboolean          is_directory,
-					      gboolean          is_source_monitored,
-					      gpointer          user_data);
-static gboolean crawler_process_file_cb      (TrackerCrawler   *crawler,
-					      GFile            *file,
-					      gpointer          user_data);
-static gboolean crawler_process_directory_cb (TrackerCrawler   *crawler,
-					      GFile            *file,
-					      gpointer          user_data);
-static void     crawler_finished_cb          (TrackerCrawler   *crawler,
-					      guint             directories_found,
-					      guint             directories_ignored,
-					      guint             files_found,
-					      guint             files_ignored,
-					      gpointer          user_data);
+static void           processor_finalize           (GObject          *object);
+static gboolean       processor_defaults           (TrackerProcessor *processor,
+						    GFile            *file);
+static void           miner_started                (TrackerMiner     *miner);
+static DirectoryData *directory_data_new           (const gchar      *path,
+						    gboolean          recurse);
+static void           directory_data_free          (DirectoryData    *dd);
+static void           monitor_item_created_cb      (TrackerMonitor   *monitor,
+						    GFile            *file,
+						    gboolean          is_directory,
+						    gpointer          user_data);
+static void           monitor_item_updated_cb      (TrackerMonitor   *monitor,
+						    GFile            *file,
+						    gboolean          is_directory,
+						    gpointer          user_data);
+static void           monitor_item_deleted_cb      (TrackerMonitor   *monitor,
+						    GFile            *file,
+						    gboolean          is_directory,
+						    gpointer          user_data);
+static void           monitor_item_moved_cb        (TrackerMonitor   *monitor,
+						    GFile            *file,
+						    GFile            *other_file,
+						    gboolean          is_directory,
+						    gboolean          is_source_monitored,
+						    gpointer          user_data);
+static gboolean       crawler_process_file_cb      (TrackerCrawler   *crawler,
+						    GFile            *file,
+						    gpointer          user_data);
+static gboolean       crawler_process_directory_cb (TrackerCrawler   *crawler,
+						    GFile            *file,
+						    gpointer          user_data);
+static void           crawler_finished_cb          (TrackerCrawler   *crawler,
+						    guint             directories_found,
+						    guint             directories_ignored,
+						    guint             files_found,
+						    guint             files_ignored,
+						    gpointer          user_data);
+static void           process_continue             (TrackerProcessor *processor);
+static void           process_next                 (TrackerProcessor *processor);
+static void           process_directories_next     (TrackerProcessor *processor);
+static void           process_directories_start    (TrackerProcessor *processor);
+static void           process_directories_stop     (TrackerProcessor *processor);
 
 static guint signals[LAST_SIGNAL] = { 0, };
 
@@ -141,18 +151,18 @@ tracker_processor_class_init (TrackerProcessorClass *klass)
 	object_class->finalize = processor_finalize;
 
 	if (0) {
-	processor_class->check_file   = processor_defaults;
-	processor_class->check_dir    = processor_defaults;
-	processor_class->monitor_dir  = processor_defaults;
+	processor_class->check_file         = processor_defaults;
+	processor_class->check_directory    = processor_defaults;
+	processor_class->monitor_directory  = processor_defaults;
 	}
 
-        miner_class->started = processor_started;
+        miner_class->started = miner_started;
+
 	/*
         miner_class->stopped = miner_crawler_stopped;
         miner_class->paused  = miner_crawler_paused;
         miner_class->resumed = miner_crawler_resumed;
 	*/
-	
 
 	signals[CHECK_FILE] =
 		g_signal_new ("check-file",
@@ -162,11 +172,11 @@ tracker_processor_class_init (TrackerProcessorClass *klass)
 			      NULL, NULL,
 			      tracker_marshal_BOOLEAN__OBJECT,
 			      G_TYPE_BOOLEAN, 1, G_TYPE_FILE);
-	signals[CHECK_DIR] =
-		g_signal_new ("check-dir",
+	signals[CHECK_DIRECTORY] =
+		g_signal_new ("check-directory",
 			      G_OBJECT_CLASS_TYPE (object_class),
 			      G_SIGNAL_RUN_LAST,
-			      G_STRUCT_OFFSET (TrackerProcessorClass, check_dir),
+			      G_STRUCT_OFFSET (TrackerProcessorClass, check_directory),
 			      NULL, NULL,
 			      tracker_marshal_BOOLEAN__OBJECT,
 			      G_TYPE_BOOLEAN, 1, G_TYPE_FILE);
@@ -178,22 +188,27 @@ tracker_processor_class_init (TrackerProcessorClass *klass)
 			      NULL, NULL,
 			      g_cclosure_marshal_VOID__OBJECT,
 			      G_TYPE_NONE, 1, G_TYPE_FILE);
-	signals[MONITOR_DIR] =
-		g_signal_new ("monitor-dir",
+	signals[MONITOR_DIRECTORY] =
+		g_signal_new ("monitor-directory",
 			      G_OBJECT_CLASS_TYPE (object_class),
 			      G_SIGNAL_RUN_LAST,
-			      G_STRUCT_OFFSET (TrackerProcessorClass, monitor_dir),
+			      G_STRUCT_OFFSET (TrackerProcessorClass, monitor_directory),
 			      NULL, NULL,
 			      tracker_marshal_BOOLEAN__OBJECT,
 			      G_TYPE_BOOLEAN, 1, G_TYPE_FILE);
 	signals[FINISHED] =
 		g_signal_new ("finished",
-			      G_OBJECT_CLASS_TYPE (object_class),
+			      G_TYPE_FROM_CLASS (object_class),
 			      G_SIGNAL_RUN_LAST,
 			      G_STRUCT_OFFSET (TrackerProcessorClass, finished),
 			      NULL, NULL,
-			      g_cclosure_marshal_VOID__VOID,
-			      G_TYPE_NONE, 0);
+			      tracker_marshal_VOID__UINT_UINT_UINT_UINT,
+			      G_TYPE_NONE,
+			      4,
+			      G_TYPE_UINT,
+			      G_TYPE_UINT,
+			      G_TYPE_UINT,
+			      G_TYPE_UINT);
 
 	g_type_class_add_private (object_class, sizeof (TrackerProcessorPrivate));
 }
@@ -215,8 +230,6 @@ tracker_processor_init (TrackerProcessor *object)
 	priv->items_updated = g_queue_new ();
 	priv->items_deleted = g_queue_new ();
 	priv->items_moved = g_queue_new ();
-
-	priv->dirs = g_array_new (FALSE, TRUE, sizeof (DirData));
 
 	/* Set up the crawlers now we have config and hal */
 	priv->crawler = tracker_crawler_new ();
@@ -311,17 +324,9 @@ processor_finalize (GObject *object)
 		g_object_unref (priv->monitor);
 	}
 
-	if (priv->dirs) {
-		gint i;
-
-		for (i = 0; i < priv->dirs->len; i++) {
-			DirData dd;
-
-			dd = g_array_index (priv->dirs, DirData, i);
-			g_free (dd.path);
-		}
-
-		g_array_free (priv->dirs, TRUE);
+	if (priv->directories) {
+		g_list_foreach (priv->directories, (GFunc) directory_data_free, NULL);
+		g_list_free (priv->directories);
 	}
 
 	g_queue_foreach (priv->items_moved, (GFunc) g_object_unref, NULL);
@@ -354,10 +359,9 @@ processor_defaults (TrackerProcessor *processor,
 }
 
 static void
-processor_started (TrackerMiner *miner)
+miner_started (TrackerMiner *miner)
 {
 	TrackerProcessor *processor;
-	gint i;
 
 	processor = TRACKER_PROCESSOR (miner);
 
@@ -365,31 +369,37 @@ processor_started (TrackerMiner *miner)
 
 	processor->private->interrupted = FALSE;
 
-	processor->private->finished_files = FALSE;
+	processor->private->finished_directories = FALSE;
 	processor->private->finished_devices = FALSE;
 	processor->private->finished_sending = FALSE;
 	processor->private->finished_indexer = FALSE;
 
-	/* Go through dirs and crawl */
-	if (!processor->private->dirs) {
-		g_message ("No directories set up for processor to handle, doing nothing");
+	process_next (processor);
+}
+
+static DirectoryData *
+directory_data_new (const gchar *path,
+		    gboolean     recurse)
+{
+	DirectoryData *dd;
+
+	dd = g_slice_new (DirectoryData);
+
+	dd->path = g_strdup (path);
+	dd->recurse = recurse;
+
+	return dd;
+}
+
+static void
+directory_data_free (DirectoryData *dd)
+{
+	if (!dd) {
 		return;
 	}
 
-	for (i = 0; i < processor->private->dirs->len; i++) {
-		DirData dd;
-		
-		dd = g_array_index (processor->private->dirs, DirData, i);
-
-		tracker_crawler_start (processor->private->crawler, 
-				       dd.path, 
-				       dd.recurse);
-	}
-
-
-#if 0
-	process_next (processor);
-#endif
+	g_free (dd->path);
+	g_slice_free (DirectoryData, dd);
 }
 
 static gboolean
@@ -476,6 +486,14 @@ monitor_item_created_cb (TrackerMonitor *monitor,
 
 	if (should_process) {
 		if (is_directory) {
+			gboolean add_monitor = TRUE;
+
+			g_signal_emit (processor, signals[MONITOR_DIRECTORY], 0, file, &add_monitor);
+			
+			if (add_monitor) {
+				tracker_monitor_add (processor->private->monitor, file);	     
+			}
+
 #ifdef FIX
 			tracker_crawler_add_unexpected_path (processor->private->crawler, path);
 #endif
@@ -565,9 +583,10 @@ monitor_item_moved_cb (TrackerMonitor *monitor,
 	if (!is_source_monitored) {
 		gchar *path;
 
-		/* If the source is not monitored, we need to crawl it. */
 		path = g_file_get_path (other_file);
+
 #ifdef FIX
+		/* If the source is not monitored, we need to crawl it. */
 		tracker_crawler_add_unexpected_path (processor->private->crawler, path);
 #endif
 		g_free (path);
@@ -599,12 +618,20 @@ monitor_item_moved_cb (TrackerMonitor *monitor,
 						   g_object_ref (other_file));
 				
 				item_queue_handlers_set_up (processor);
-			}
-			
-			/* If this is a directory we need to crawl it */
+			} else {
+				gboolean add_monitor = TRUE;
+				
+				g_signal_emit (processor, signals[MONITOR_DIRECTORY], 0, file, &add_monitor);
+				
+				if (add_monitor) {
+					tracker_monitor_add (processor->private->monitor, file);	     
+				}
+
 #ifdef FIX
-			tracker_crawler_add_unexpected_path (processor->private->crawler, other_path);
+				/* If this is a directory we need to crawl it */
+				tracker_crawler_add_unexpected_path (processor->private->crawler, other_path);
 #endif
+			}
 		} else if (!should_process_other) {
 			/* Delete old file */
 			g_queue_push_tail (processor->private->items_deleted, g_object_ref (file));
@@ -656,7 +683,7 @@ crawler_process_directory_cb (TrackerCrawler *crawler,
 
 	processor = user_data;
 
-	g_signal_emit (processor, signals[CHECK_DIR], 0, file, &should_process);
+	g_signal_emit (processor, signals[CHECK_DIRECTORY], 0, file, &should_process);
 	
 	if (should_process) {
 		/* FIXME: Do we add directories to the queue? */
@@ -666,7 +693,7 @@ crawler_process_directory_cb (TrackerCrawler *crawler,
 		item_queue_handlers_set_up (processor);
 	}
 
-	g_signal_emit (processor, signals[MONITOR_DIR], 0, file, &add_monitor);
+	g_signal_emit (processor, signals[MONITOR_DIRECTORY], 0, file, &add_monitor);
 
 	/* Should we add? */
 	if (add_monitor) {
@@ -700,71 +727,172 @@ crawler_finished_cb (TrackerCrawler *crawler,
 	processor->private->total_files_ignored += files_ignored;
 
 	/* Proceed to next thing to process */
-	/* process_continue (processor); */
+	process_continue (processor);
 }
 
-TrackerProcessor *
-tracker_processor_new (TrackerStorage *storage)
+static void
+process_continue (TrackerProcessor *processor)
 {
-	TrackerProcessor	*processor;
-	TrackerProcessorPrivate *priv;
-
-#ifdef HAVE_HAL
-	g_return_val_if_fail (TRACKER_IS_STORAGE (storage), NULL);
-#endif /* HAVE_HAL */
-
-	/* tracker_status_init (NULL, tracker_power_new ()); */
-	tracker_module_config_init ();
-
-	/* tracker_status_set_and_signal (TRACKER_STATUS_INITIALIZING); */
-
-	processor = g_object_new (TRACKER_TYPE_PROCESSOR, NULL);
-	priv = processor->private;
-
-#ifdef HAVE_HAL
-	/* Set up hal */
-	priv->hal = g_object_ref (storage);
-
-	priv->devices = tracker_storage_get_removable_device_roots (priv->hal);
-
-#endif /* HAVE_HAL */
-
-
-#if 0
-	/* Set up the indexer and signalling to know when we are
-	 * finished.
-	 */
-
-	g_signal_connect (priv->indexer, "started",
-			  G_CALLBACK (indexer_started_cb),
-			  processor);
-	g_signal_connect (priv->indexer, "finished",
-			  G_CALLBACK (indexer_finished_cb),
-			  processor);
-#endif
-
-	return processor;
-}
-
-void 
-tracker_processor_stop (TrackerProcessor *processor)
-{
-#if 0
-	g_return_if_fail (TRACKER_IS_PROCESSOR (processor));
-
-	if (!processor->private->been_started) {
+	if (!processor->private->finished_directories) {
+		process_directories_next (processor);
 		return;
 	}
 
-	processor->private->interrupted = TRUE;
-
-	process_files_stop (processor);
-	process_devices_stop (processor);
-	
-	/* Queues? */
-
-	process_finish (processor);
+#if 0
+	if (!processor->private->finished_devices) {
+		process_device_next (processor);
+		return;
+	}
 #endif
+
+	/* Nothing to do */
+}
+
+static void
+process_next (TrackerProcessor *processor)
+{
+	static gboolean shown_totals = FALSE;
+
+	if (!processor->private->finished_directories) {
+		process_directories_start (processor);
+		return;
+	}
+
+#if 0
+	if (!processor->private->finished_devices) {
+		process_devices_start (processor);
+		return;
+	}
+#endif
+
+	/* Only do this the first time, otherwise the results are
+	 * likely to be inaccurate. Devices can be added or removed so
+	 * we can't assume stats are correct.
+	 */
+	if (!shown_totals) {
+		shown_totals = TRUE;
+
+		g_message ("--------------------------------------------------");
+		g_message ("Total directories : %d (%d ignored)",
+			   processor->private->total_directories_found,
+			   processor->private->total_directories_ignored);
+		g_message ("Total files       : %d (%d ignored)",
+			   processor->private->total_files_found,
+			   processor->private->total_files_ignored);
+		g_message ("Total monitors    : %d",
+			   tracker_monitor_get_count (processor->private->monitor));
+		g_message ("--------------------------------------------------\n");
+	}
+
+	/* Now we have finished crawling, we enable monitor events */
+	g_message ("Enabling monitor events");
+	tracker_monitor_set_enabled (processor->private->monitor, TRUE);
+}
+
+static void
+process_directories_next (TrackerProcessor *processor)
+{
+	DirectoryData *dd;
+
+	/* Don't recursively iterate the modules */
+	if (!processor->private->current_directory) {
+		if (!processor->private->finished_directories) {
+			processor->private->current_directory = processor->private->directories;
+		}
+	} else {
+		processor->private->current_directory = processor->private->current_directory->next;
+	}
+
+	/* If we have no further modules to iterate */
+	if (!processor->private->current_directory) {
+		process_directories_stop (processor);
+		process_next (processor);
+		return;
+	}
+
+	dd = processor->private->current_directory->data;
+
+	tracker_crawler_start (processor->private->crawler, 
+			       dd->path, 
+			       dd->recurse);
+}
+
+static void
+process_directories_start (TrackerProcessor *processor)
+{
+	g_message ("Processor is starting to iterating directories");
+
+	/* Go through dirs and crawl */
+	if (!processor->private->directories) {
+		g_message ("No directories set up for processor to handle, doing nothing");
+		return;
+	}
+
+	if (processor->private->timer) {
+		g_timer_destroy (processor->private->timer);
+	}
+
+	processor->private->timer = g_timer_new ();
+
+	processor->private->finished_directories = FALSE;
+
+	processor->private->directories_found = 0;
+	processor->private->directories_ignored = 0;
+	processor->private->files_found = 0;
+	processor->private->files_ignored = 0;
+
+	process_directories_next (processor);
+}
+
+static void
+process_directories_stop (TrackerProcessor *processor)
+{
+	if (processor->private->finished_directories) {
+		return;
+	}
+
+	g_message ("--------------------------------------------------");
+	g_message ("Processor has %s iterating files",
+		   processor->private->interrupted ? "been stopped while" : "finished");
+
+	processor->private->finished_directories = TRUE;
+
+	if (processor->private->interrupted) {
+		if (processor->private->crawler) {
+			tracker_crawler_stop (processor->private->crawler);
+		}
+
+		if (processor->private->timer) {
+			g_timer_destroy (processor->private->timer);
+			processor->private->timer = NULL;
+		}
+	} else {
+		gdouble elapsed;
+	
+		if (processor->private->timer) {
+			g_timer_stop (processor->private->timer);
+			elapsed = g_timer_elapsed (processor->private->timer, NULL);
+		} else {
+			elapsed = 0;
+		}
+		
+		g_message ("FS time taken : %4.4f seconds",
+			   elapsed);
+		g_message ("FS directories: %d (%d ignored)",
+			   processor->private->directories_found,
+			   processor->private->directories_ignored);
+		g_message ("FS files      : %d (%d ignored)",
+			   processor->private->files_found,
+			   processor->private->files_ignored);
+	}
+
+	g_message ("--------------------------------------------------\n");
+
+	g_signal_emit (processor, signals[FINISHED], 0,
+		       processor->private->total_directories_found,
+		       processor->private->total_directories_ignored,
+		       processor->private->total_files_found,
+		       processor->private->total_files_ignored);
 }
 
 void
@@ -772,13 +900,12 @@ tracker_processor_add_directory (TrackerProcessor *processor,
 				 const gchar      *path,
 				 gboolean          recurse)
 {
-	DirData dd;
-
 	g_return_if_fail (TRACKER_IS_PROCESSOR (processor));
 	g_return_if_fail (path != NULL);
 
-	dd.path = g_strdup (path);
-	dd.recurse = recurse;
+	/* WHAT HAPPENS IF WE ADD DURING OPERATION ? */
 
-	g_array_append_val (processor->private->dirs, dd);
+	processor->private->directories = 
+		g_list_append (processor->private->directories, 
+			       directory_data_new (path, recurse));
 }

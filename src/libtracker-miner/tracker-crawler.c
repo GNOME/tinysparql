@@ -34,7 +34,6 @@
 #include "tracker-dbus.h"
 #include "tracker-monitor.h"
 #include "tracker-marshal.h"
-#include "tracker-utils.h"
 
 #define TRACKER_CRAWLER_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_CRAWLER, TrackerCrawlerPrivate))
 
@@ -50,7 +49,7 @@
  */
 #define FILES_GROUP_SIZE	     100
 
-struct _TrackerCrawlerPrivate {
+struct TrackerCrawlerPrivate {
 	/* Found data */
 	GQueue	       *directories;
 	GQueue	       *files;
@@ -59,37 +58,6 @@ struct _TrackerCrawlerPrivate {
 	guint		idle_id;
 
 	gboolean        recurse;
-
-	/* Actual paths that exist which we are crawling:
-	 *
-	 *  - 'Paths' are non-recursive.
-	 *  - 'Recurse Paths' are recursive.
-	 *  - 'Special Paths' are recursive but not in module config.
-	 */
-#ifdef FIX
-	GSList	       *paths;
-	GSList	       *paths_current;
-	gboolean	paths_are_done;
-
-	GSList	       *recurse_paths;
-	GSList	       *recurse_paths_current;
-	gboolean	recurse_paths_are_done;
-
-	GSList	       *special_paths;
-	GSList	       *special_paths_current;
-	gboolean	special_paths_are_done;
-
-	/* Ignore/Index patterns */
-	GList	       *ignored_directory_patterns;
-	GList	       *ignored_file_patterns;
-	GList	       *index_file_patterns;
-	GList          *ignored_directories_with_content;
-
-	/* Legacy NoWatchDirectoryRoots */
-	GSList	       *no_watch_directory_roots;
-	GSList	       *watch_directory_roots;
-	GSList	       *crawl_directory_roots;
-#endif
 
 	/* Statistics */
 	GTimer	       *timer;
@@ -113,8 +81,8 @@ enum {
 };
 
 typedef struct {
-	GFile *child;
-	gboolean is_dir;
+	GFile          *child;
+	gboolean        is_dir;
 } EnumeratorChildData;
 
 typedef struct {
@@ -131,7 +99,7 @@ static void file_enumerate_children  (TrackerCrawler  *crawler,
 
 static guint signals[LAST_SIGNAL] = { 0, };
 
-G_DEFINE_TYPE(TrackerCrawler, tracker_crawler, G_TYPE_OBJECT)
+G_DEFINE_TYPE (TrackerCrawler, tracker_crawler, G_TYPE_OBJECT)
 
 static void
 tracker_crawler_class_init (TrackerCrawlerClass *klass)
@@ -203,45 +171,6 @@ tracker_crawler_finalize (GObject *object)
 		g_timer_destroy (priv->timer);
 	}
 
-#ifdef FIX
-	g_slist_foreach (priv->no_watch_directory_roots, (GFunc) g_free, NULL);
-	g_slist_free (priv->no_watch_directory_roots);
-
-	g_slist_foreach (priv->watch_directory_roots, (GFunc) g_free, NULL);
-	g_slist_free (priv->watch_directory_roots);
-
-	g_slist_foreach (priv->crawl_directory_roots, (GFunc) g_free, NULL);
-	g_slist_free (priv->crawl_directory_roots);
-
-	if (priv->index_file_patterns) {
-		g_list_free (priv->index_file_patterns);
-	}
-
-	if (priv->ignored_directory_patterns) {
-		g_list_free (priv->ignored_directory_patterns);
-	}
-
-	if (priv->ignored_file_patterns) {
-		g_list_free (priv->ignored_file_patterns);
-	}
-
-	if (priv->ignored_directories_with_content) {
-		g_list_free (priv->ignored_directories_with_content);
-	}
-
-	/* Don't free the 'current_' variant of these, they are just
-	 * place holders so we know our status.
-	 */
-	g_slist_foreach (priv->paths, (GFunc) g_free, NULL);
-	g_slist_free (priv->paths);
-
-	g_slist_foreach (priv->recurse_paths, (GFunc) g_free, NULL);
-	g_slist_free (priv->recurse_paths);
-
-	g_slist_foreach (priv->special_paths, (GFunc) g_free, NULL);
-	g_slist_free (priv->special_paths);
-#endif
-
 	if (priv->idle_id) {
 		g_source_remove (priv->idle_id);
 	}
@@ -276,123 +205,6 @@ tracker_crawler_new (void)
 
 	return crawler;
 }
-
-/*
- * Functions
- */
-
-#ifdef FIX
-
-static gboolean
-is_path_ignored (TrackerCrawler *crawler,
-		 const gchar	*path,
-		 gboolean	 is_directory)
-{
-	GList	 *l;
-	gchar	 *basename;
-	gboolean  ignore;
-
-	if (tracker_is_empty_string (path)) {
-		return TRUE;
-	}
-
-	if (!g_utf8_validate (path, -1, NULL)) {
-		g_message ("Ignoring path:'%s', not valid UTF-8", path);
-		return TRUE;
-	}
-
-	if (is_directory) {
-		GSList *sl;
-
-		/* Most common things to ignore */
-		if (strcmp (path, "/dev") == 0 ||
-		    strcmp (path, "/lib") == 0 ||
-		    strcmp (path, "/proc") == 0 ||
-		    strcmp (path, "/sys") == 0) {
-			return TRUE;
-		}
-
-		if (g_str_has_prefix (path, g_get_tmp_dir ())) {
-			return TRUE;
-		}
-
-		/* Check ignored directories in config */
-		for (sl = crawler->private->no_watch_directory_roots; sl; sl = sl->next) {
-			if (strcmp (sl->data, path) == 0) {
-				return TRUE;
-			}
-		}
-	}
-
-	/* Check basename against pattern matches */
-	basename = g_path_get_basename (path);
-	ignore = TRUE;
-
-	if (!basename) {
-		goto done;
-	}
-
-	/* Test ignore types */
-	if (is_directory) {
-		GSList *sl;
-
-		/* If directory begins with ".", check it isn't one of
-		 * the top level directories to watch/crawl if it
-		 * isn't we ignore it. If it is, we don't.
-		 */
-		if (basename[0] == '.') {
-			for (sl = crawler->private->watch_directory_roots; sl; sl = sl->next) {
-				if (strcmp (sl->data, path) == 0) {
-					ignore = FALSE;
-					goto done;
-				}
-			}
-
-			for (sl = crawler->private->crawl_directory_roots; sl; sl = sl->next) {
-				if (strcmp (sl->data, path) == 0) {
-					ignore = FALSE;
-					goto done;
-				}
-			}
-
-			goto done;
-		}
-
-		/* Check module directory ignore patterns */
-		for (l = crawler->private->ignored_directory_patterns; l; l = l->next) {
-			if (g_pattern_match_string (l->data, basename)) {
-				goto done;
-			}
-		}
-	} else {
-		if (basename[0] == '.') {
-			goto done;
-		}
-
-		/* Check module file ignore patterns */
-		for (l = crawler->private->ignored_file_patterns; l; l = l->next) {
-			if (g_pattern_match_string (l->data, basename)) {
-				goto done;
-			}
-		}
-
-		/* Check module file match patterns */
-		for (l = crawler->private->index_file_patterns; l; l = l->next) {
-			if (!g_pattern_match_string (l->data, basename)) {
-				goto done;
-			}
-		}
-	}
-
-	ignore = FALSE;
-
-done:
-	g_free (basename);
-
-	return ignore;
-}
-
-#endif
 
 static void
 add_file (TrackerCrawler *crawler,
@@ -531,89 +343,6 @@ process_func (gpointer data)
 		return TRUE;
 	}
 
-#ifdef FIX
-	/* Process next path in list */
-	if (!priv->paths_are_done) {
-		/* This is done so we don't go over the list again
-		 * when we get to the end and the current item = NULL.
-		 */
-		priv->paths_are_done = TRUE;
-
-		if (!priv->paths_current) {
-			priv->paths_current = priv->paths;
-		}
-	} else {
-		if (priv->paths_current) {
-			priv->paths_current = priv->paths_current->next;
-		}
-	}
-
-	if (priv->paths_current) {
-		g_message ("  Searching directory:'%s'",
-			   (gchar*) priv->paths_current->data);
-
-		file = g_file_new_for_path (priv->paths_current->data);
-		add_directory (crawler, file);
-		g_object_unref (file);
-
-		return TRUE;
-	}
-
-	/* Process next recursive path in list */
-	if (!priv->recurse_paths_are_done) {
-		/* This is done so we don't go over the list again
-		 * when we get to the end and the current item = NULL.
-		 */
-		priv->recurse_paths_are_done = TRUE;
-
-		if (!priv->recurse_paths_current) {
-			priv->recurse_paths_current = priv->recurse_paths;
-		}
-	} else {
-		if (priv->recurse_paths_current) {
-			priv->recurse_paths_current = priv->recurse_paths_current->next;
-		}
-	}
-
-	if (priv->recurse_paths_current) {
-		g_message ("  Searching directory:'%s' (recursively)",
-			   (gchar *) priv->recurse_paths_current->data);
-
-		file = g_file_new_for_path (priv->recurse_paths_current->data);
-		add_directory (crawler, file);
-		g_object_unref (file);
-
-		return TRUE;
-	}
-
-	/* Process next special path in list */
-	if (!priv->special_paths_are_done) {
-		/* This is done so we don't go over the list again
-		 * when we get to the end and the current item = NULL.
-		 */
-		priv->special_paths_are_done = TRUE;
-
-		if (!priv->special_paths_current) {
-			priv->special_paths_current = priv->special_paths;
-		}
-	} else {
-		if (priv->special_paths_current) {
-			priv->special_paths_current = priv->special_paths_current->next;
-		}
-	}
-
-	if (priv->special_paths_current) {
-		g_message ("  Searching directory:'%s' (special)",
-			   (gchar *) priv->special_paths_current->data);
-
-		file = g_file_new_for_path (priv->special_paths_current->data);
-		add_directory (crawler, file);
-		g_object_unref (file);
-
-		return TRUE;
-	}
-#endif
-
 	priv->idle_id = 0;
 	priv->is_finished = TRUE;
 
@@ -701,7 +430,7 @@ enumerator_data_process (EnumeratorData *ed)
 
 	g_hash_table_iter_init (&iter, ed->children);
 
-	while (g_hash_table_iter_next (&iter, NULL, (gpointer *) &cd)) {
+	while (g_hash_table_iter_next (&iter, NULL, (gpointer*) &cd)) {
 		if (cd->is_dir) {
 			add_directory (crawler, cd->child, FALSE);
 		} else {
@@ -725,7 +454,7 @@ file_enumerator_close_cb (GObject      *enumerator,
 			  gpointer	user_data)
 {
 	TrackerCrawler *crawler;
-	GError         *error = NULL;
+	GError *error = NULL;
 
 	crawler = TRACKER_CRAWLER (user_data);
 	crawler->private->enumerations--;
@@ -745,13 +474,13 @@ file_enumerate_next_cb (GObject      *object,
 			GAsyncResult *result,
 			gpointer      user_data)
 {
-	TrackerCrawler	*crawler;
-	EnumeratorData	*ed;
+	TrackerCrawler *crawler;
+	EnumeratorData *ed;
 	GFileEnumerator *enumerator;
-	GFile		*parent, *child;
-	GFileInfo	*info;
-	GList		*files, *l;
-	GError          *error = NULL;
+	GFile *parent, *child;
+	GFileInfo *info;
+	GList *files, *l;
+	GError *error = NULL;
 
 	enumerator = G_FILE_ENUMERATOR (object);
 
@@ -797,7 +526,7 @@ file_enumerate_next_cb (GObject      *object,
 
 		child_name = g_file_info_get_name (info);
 		child = g_file_get_child (parent, child_name);
-		is_dir = (g_file_info_get_file_type (info) == G_FILE_TYPE_DIRECTORY);
+		is_dir = g_file_info_get_file_type (info) == G_FILE_TYPE_DIRECTORY;
 
 		enumerator_data_add_child (ed, child_name, child, is_dir);
 
@@ -828,14 +557,14 @@ file_enumerate_children_cb (GObject	 *file,
 			    GAsyncResult *result,
 			    gpointer	  user_data)
 {
-	TrackerCrawler	*crawler;
-	EnumeratorData	*ed;
+	TrackerCrawler *crawler;
+	EnumeratorData *ed;
 	GFileEnumerator *enumerator;
-	GFile		*parent;
-	GError          *error = NULL;
+	GFile *parent;
+	GError *error = NULL;
 
 	parent = G_FILE (file);
-	ed = (EnumeratorData *) user_data;
+	ed = (EnumeratorData*) user_data;
 	crawler = ed->crawler;
 	enumerator = g_file_enumerate_children_finish (parent, result, &error);
 
@@ -879,81 +608,6 @@ file_enumerate_children (TrackerCrawler *crawler,
 					 ed);
 }
 
-#ifdef FIX
-
-static GSList *
-prune_none_existing_gslist_paths (TrackerCrawler *crawler, 
-				  GSList         *paths,
-				  const gchar    *path_type)
-{
-	TrackerCrawlerPrivate *priv;
-	GSList                *new_paths = NULL;
-
-	priv = crawler->private;
-
-	if (paths) {
-		GSList	 *l;
-		GFile	 *file;
-		gchar	 *path;
-		gboolean  exists;
-
-		/* Check the currently set recurse paths are real */
-		for (l = paths; l; l = l->next) {
-			path = l->data;
-
-			/* Check location exists before we do anything */
-			file = g_file_new_for_path (path);
-			exists = g_file_query_exists (file, NULL);
-
-			if (exists) {
-				g_message ("  Directory:'%s' added to list to crawl exists %s%s%s",
-					   path,
-					   path_type ? "(" : "",
-					   path_type ? path_type : "",
-					   path_type ? ")" : "");
-				new_paths = g_slist_prepend (new_paths, g_strdup (path));
-			} else {
-				g_message ("  Directory:'%s' does not exist",
-					   path);
-			}
-
-			g_object_unref (file);
-		}
-
-		new_paths = g_slist_reverse (new_paths);
-	}
-
-	return new_paths;
-}
-
-static GSList *
-prune_none_existing_glist_paths (TrackerCrawler *crawler, 
-				 GList          *paths,
-				 const gchar    *path_type)
-{
-	GSList *temporary_paths;
-	GSList *new_paths;
-	GList  *l;
-
-	/* The only difference with this function is that it takes a
-	 * GList instead of a GSList.
-	 */
-
-	temporary_paths = NULL;
-
-	for (l = paths; l; l = l->next) {
-		temporary_paths = g_slist_prepend (temporary_paths, l->data);
-	}
-
-	temporary_paths = g_slist_reverse (temporary_paths);
-	new_paths = prune_none_existing_gslist_paths (crawler, temporary_paths, path_type);
-	g_slist_free (temporary_paths);
-
-	return new_paths;
-}
-
-#endif
-
 gboolean
 tracker_crawler_start (TrackerCrawler *crawler,
 		       const gchar    *path, 
@@ -991,86 +645,6 @@ tracker_crawler_start (TrackerCrawler *crawler,
 		   recurse ? "recursively" : "non-recursively",
 		   path);
 
-#ifdef FIX
-	if (priv->use_module_paths) {
-		GSList *new_paths;
-		GList  *recurse_paths;
-		GList  *paths;
-
-		g_message ("  Using module paths");
-
-		recurse_paths =	tracker_module_config_get_monitor_recurse_directories ("files");
-		paths = tracker_module_config_get_monitor_directories ("files");
-
-		if (recurse_paths || paths) {
-			/* First we do non-recursive directories */
-			new_paths = prune_none_existing_glist_paths (crawler, paths, NULL);
-			g_slist_foreach (priv->paths, (GFunc) g_free, NULL);
-			g_slist_free (priv->paths);
-			priv->paths = new_paths;
-
-			/* Second we do recursive directories */
-			new_paths = prune_none_existing_glist_paths (crawler, recurse_paths, "recursively");
-			g_slist_foreach (priv->recurse_paths, (GFunc) g_free, NULL);
-			g_slist_free (priv->recurse_paths);
-			priv->recurse_paths = new_paths;
-		} else {
-			g_message ("  No directories from module config");
-		}
-
-		g_list_free (paths);
-		g_list_free (recurse_paths);
-	} else {
-		GSList *new_paths;
-
-		g_message ("  Not using module config paths, using special paths added");
-
-		new_paths = prune_none_existing_gslist_paths (crawler, priv->special_paths, "special");
-		g_slist_foreach (priv->special_paths, (GFunc) g_free, NULL);
-		g_slist_free (priv->special_paths);
-		priv->special_paths = new_paths;
-	}
-
-	if (!priv->paths && !priv->recurse_paths && !priv->special_paths) {
-		g_message ("  No directories that actually exist to iterate, doing nothing");
-		return FALSE;
-	}
-
-	/* Filter duplicates */
-	l = priv->paths;
-	priv->paths = tracker_path_list_filter_duplicates (priv->paths, ".");
-	g_slist_foreach (l, (GFunc) g_free, NULL);
-	g_slist_free (l);
-
-	l = priv->recurse_paths;
-	priv->recurse_paths = tracker_path_list_filter_duplicates (priv->recurse_paths, ".");
-	g_slist_foreach (l, (GFunc) g_free, NULL);
-	g_slist_free (l);
-
-	l = priv->special_paths;
-	priv->special_paths = tracker_path_list_filter_duplicates (priv->special_paths, ".");
-	g_slist_foreach (l, (GFunc) g_free, NULL);
-	g_slist_free (l);
-
-	/* Set up legacy NoWatchDirectoryRoots so we don't have to get
-	 * them from the config for EVERY file we traverse.
-	 */
-	g_slist_foreach (priv->no_watch_directory_roots, (GFunc) g_free, NULL);
-	g_slist_free (priv->no_watch_directory_roots);
-	l = tracker_config_get_no_watch_directory_roots (priv->config);
-	priv->no_watch_directory_roots = tracker_gslist_copy_with_string_data (l);
-
-	g_slist_foreach (priv->watch_directory_roots, (GFunc) g_free, NULL);
-	g_slist_free (priv->watch_directory_roots);
-	l = tracker_config_get_watch_directory_roots (priv->config);
-	priv->watch_directory_roots = tracker_gslist_copy_with_string_data (l);
-
-	g_slist_foreach (priv->crawl_directory_roots, (GFunc) g_free, NULL);
-	g_slist_free (priv->crawl_directory_roots);
-	l = tracker_config_get_crawl_directory_roots (priv->config);
-	priv->crawl_directory_roots = tracker_gslist_copy_with_string_data (l);
-#endif
-
 	/* Time the event */
 	if (priv->timer) {
 		g_timer_destroy (priv->timer);
@@ -1087,13 +661,6 @@ tracker_crawler_start (TrackerCrawler *crawler,
 	priv->directories_ignored = 0;
 	priv->files_found = 0;
 	priv->files_ignored = 0;
-
-#ifdef FIX
-	/* Reset paths which have been iterated */
-	priv->paths_are_done = FALSE;
-	priv->recurse_paths_are_done = FALSE;
-	priv->special_paths_are_done = FALSE;
-#endif
 
 	/* Set idle handler to process directories and files found */
 	priv->idle_id = g_idle_add (process_func, crawler);
@@ -1114,8 +681,7 @@ tracker_crawler_stop (TrackerCrawler *crawler)
 
 	priv = crawler->private;
 
-
-	g_message ("  %s crawling files in %4.4f seconds",
+	g_message ("%s crawling files in %4.4f seconds",
 		   priv->is_finished ? "Finished" : "Stopped",
 		   g_timer_elapsed (priv->timer, NULL));
 	g_message ("  Found %d directories, ignored %d directories",
@@ -1143,123 +709,3 @@ tracker_crawler_stop (TrackerCrawler *crawler)
 		       priv->files_found,
 		       priv->files_ignored);
 }
-
-#ifdef FIX
-
-/* This function is a convenience for the monitor module so we can
- * just ask it to crawl another path which we didn't know about
- * before.
- */
-void
-tracker_crawler_add_unexpected_path (TrackerCrawler *crawler,
-				     const gchar    *path)
-{
-	TrackerCrawlerPrivate *priv;
-	GFile                 *file;
-
-	g_return_if_fail (TRACKER_IS_CRAWLER (crawler));
-	g_return_if_fail (path != NULL);
-
-	priv = crawler->private;
-
-	/* This check should be fine, the reason being, that if we
-	 * call this, it is because we have received a monitor event
-	 * in the first place. This means we must already have been
-	 * started at some point.
-	 */
-	g_return_if_fail (priv->was_started);
-
-	/* FIXME: Should we check paths_are_done to see if we
-	 * need to actually call add_directory()?
-	 */
-	file = g_file_new_for_path (path);
-	add_directory (crawler, file);
-	g_object_unref (file);
-	
-	/* FIXME: Should we reset the stats? */
-	if (!priv->idle_id) {
-		/* Time the event */
-		if (priv->timer) {
-			g_timer_destroy (priv->timer);
-		}
-		
-		priv->timer = g_timer_new ();
-		
-		/* Set as running now */
-		priv->is_running = TRUE;
-		priv->is_finished = FALSE;
-	
-		/* Set idle handler to process directories and files found */
-		priv->idle_id = g_idle_add (process_func, crawler);
-	}
-}
-
-/* This is a convenience function to add extra locations because
- * sometimes we want to add locations like the MMC or others to the
- * "Files" module, for example.
- */
-void
-tracker_crawler_special_paths_add (TrackerCrawler *crawler,
-				   const gchar    *path)
-{
-	TrackerCrawlerPrivate *priv;
-
-	g_return_if_fail (TRACKER_IS_CRAWLER (crawler));
-	g_return_if_fail (path != NULL);
-
-	priv = crawler->private;
-
-	g_return_if_fail (!priv->is_running);
-
-	priv->special_paths = g_slist_append (priv->special_paths, g_strdup (path));
-}
-
-void
-tracker_crawler_special_paths_clear (TrackerCrawler *crawler)
-{
-	TrackerCrawlerPrivate *priv;
-
-	g_return_if_fail (TRACKER_IS_CRAWLER (crawler));
-
-	priv = crawler->private;
-
-	g_return_if_fail (!priv->is_running);
-
-	g_slist_foreach (priv->special_paths, (GFunc) g_free, NULL);
-	g_slist_free (priv->special_paths);
-	priv->special_paths = NULL;
-}
-
-void
-tracker_crawler_use_module_paths (TrackerCrawler *crawler,
-				  gboolean        use_module_paths)
-{
-	TrackerCrawlerPrivate *priv;
-
-	g_return_if_fail (TRACKER_IS_CRAWLER (crawler));
-
-	priv = crawler->private;
-
-	g_return_if_fail (priv->is_running == FALSE);
-
-	priv->use_module_paths = use_module_paths;
-}
-
-gboolean
-tracker_crawler_is_path_ignored (TrackerCrawler *crawler,
-				 const gchar	*path,
-				 gboolean	 is_directory)
-{
-	g_return_val_if_fail (TRACKER_IS_CRAWLER (crawler), TRUE);
-
-	/* We have an internal function here we call. The reason for
-	 * this is that it is expensive to type check the Crawler
-	 * object for EVERY file we process. Internally, we don't do
-	 * that. Externally we do. Externally this is used by the
-	 * processor when we get new monitor events to know if we
-	 * should be sending new files to the indexer.
-	 */
-	return is_path_ignored (crawler, path, is_directory);
-}
-
-#endif

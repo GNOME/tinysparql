@@ -28,7 +28,7 @@
 #include "tracker-miner-test.h"
 
 static void
-on_miner_terminated (TrackerMiner *miner,
+miner_terminated_cb (TrackerMiner *miner,
 		     gpointer      user_data)
 {
         GMainLoop *main_loop = user_data;
@@ -37,8 +37,10 @@ on_miner_terminated (TrackerMiner *miner,
 }
 
 static gboolean
-on_miner_start (TrackerMiner *miner)
+miner_start_cb (gpointer user_data)
 {
+	TrackerMiner *miner = user_data;
+
 	g_message ("Starting miner");
 	tracker_miner_start (miner);
 
@@ -46,11 +48,10 @@ on_miner_start (TrackerMiner *miner)
 }
 
 static gboolean
-check_dir_cb (TrackerProcessor *processor,
-	      GFile	       *file,
-	      gpointer          user_data)
+check_directory_cb (TrackerProcessor *processor,
+		    GFile	       *file,
+		    gpointer          user_data)
 {
-	GSList *sl;
 	gchar *path;
 	gchar *basename;
 	gboolean should_process;
@@ -81,14 +82,6 @@ check_dir_cb (TrackerProcessor *processor,
 	}
 	
 	/* Check ignored directories in config */
-#ifdef FIX
-	for (sl = crawler->private->no_watch_directory_roots; sl; sl = sl->next) {
-		if (strcmp (sl->data, path) == 0) {
-			goto done;
-		}
-	}
-#endif
-
 	basename = g_file_get_basename (file);
 
 	if (!basename) {
@@ -100,33 +93,10 @@ check_dir_cb (TrackerProcessor *processor,
 	 * isn't we ignore it. If it is, we don't.
 	 */
 	if (basename[0] == '.') {
-#ifdef FIX
-		for (sl = crawler->private->watch_directory_roots; sl; sl = sl->next) {
-			if (strcmp (sl->data, path) == 0) {
-				should_process = TRUE;
-				goto done;
-			}
-		}
-		
-		for (sl = crawler->private->crawl_directory_roots; sl; sl = sl->next) {
-			if (strcmp (sl->data, path) == 0) {
-				should_process = TRUE;
-				goto done;
-			}
-		}
-#endif		
 		goto done;
 	}
 	
 	/* Check module directory ignore patterns */
-#ifdef FIX
-	for (l = crawler->private->ignored_directory_patterns; l; l = l->next) {
-		if (g_pattern_match_string (l->data, basename)) {
-			goto done;
-		}
-	}
-#endif
-
 	should_process = TRUE;
 
 done:
@@ -141,7 +111,6 @@ check_file_cb (TrackerProcessor *processor,
 	       GFile	        *file,
 	       gpointer	         user_data)
 {
-	GList *l;
 	gchar *path;
 	gchar *basename;
 	gboolean should_process;
@@ -166,22 +135,6 @@ check_file_cb (TrackerProcessor *processor,
 		goto done;
 	}
 
-#ifdef FIX
-	/* Check module file ignore patterns */
-	for (l = crawler->private->ignored_file_patterns; l; l = l->next) {
-		if (g_pattern_match_string (l->data, basename)) {
-			goto done;
-		}
-	}
-	
-	/* Check module file match patterns */
-	for (l = crawler->private->index_file_patterns; l; l = l->next) {
-		if (!g_pattern_match_string (l->data, basename)) {
-			goto done;
-		}
-	}
-#endif
-
 	should_process = TRUE;
 
 done:
@@ -196,17 +149,17 @@ process_file_cb (TrackerProcessor *processor,
 		 GFile	          *file,
 		 gpointer          user_data)
 {
-	gchar *path;
+	/* gchar *path; */
 
-	path = g_file_get_path (file);
-	g_print ("** PROCESSING FILE:'%s'\n", path);
-	g_free (path);
+	/* path = g_file_get_path (file); */
+	/* g_print ("** PROCESSING FILE:'%s'\n", path); */
+	/* g_free (path); */
 }
 
 static gboolean
-monitor_dir_cb (TrackerProcessor *processor,
-		GFile	         *file,
-		gpointer          user_data)
+monitor_directory_cb (TrackerProcessor *processor,
+		      GFile	         *file,
+		      gpointer          user_data)
 {
 	return TRUE;
 }
@@ -230,26 +183,51 @@ main (int argc, char *argv[])
 	g_signal_connect (TRACKER_PROCESSOR (miner), "check-file",
 			  G_CALLBACK (check_file_cb),
 			  NULL);
-	g_signal_connect (TRACKER_PROCESSOR (miner), "check-dir",
-			  G_CALLBACK (check_dir_cb),
+	g_signal_connect (TRACKER_PROCESSOR (miner), "check-directory",
+			  G_CALLBACK (check_directory_cb),
 			  NULL);
 	g_signal_connect (TRACKER_PROCESSOR (miner), "process-file",
 			  G_CALLBACK (process_file_cb),
 			  NULL);
-	g_signal_connect (TRACKER_PROCESSOR (miner), "monitor-dir",
-			  G_CALLBACK (monitor_dir_cb),
+	g_signal_connect (TRACKER_PROCESSOR (miner), "monitor-directory",
+			  G_CALLBACK (monitor_directory_cb),
 			  NULL);
 
 	tracker_processor_add_directory (TRACKER_PROCESSOR (miner), 
 					 g_get_home_dir (),
 					 FALSE);
+	tracker_processor_add_directory (TRACKER_PROCESSOR (miner), 
+					 g_get_tmp_dir (),
+					 TRUE);
+	tracker_processor_add_directory (TRACKER_PROCESSOR (miner), 
+					 g_get_current_dir (),
+					 TRUE);
+	tracker_processor_add_directory (TRACKER_PROCESSOR (miner), 
+					 g_get_user_special_dir (G_USER_DIRECTORY_PICTURES),
+					 TRUE);
+	tracker_processor_add_directory (TRACKER_PROCESSOR (miner), 
+					 g_get_user_special_dir (G_USER_DIRECTORY_MUSIC),
+					 TRUE);
+	tracker_processor_add_directory (TRACKER_PROCESSOR (miner), 
+					 g_get_user_special_dir (G_USER_DIRECTORY_VIDEOS),
+					 TRUE);
+	tracker_processor_add_directory (TRACKER_PROCESSOR (miner), 
+					 g_get_user_special_dir (G_USER_DIRECTORY_DOWNLOAD),
+					 FALSE);
+	tracker_processor_add_directory (TRACKER_PROCESSOR (miner), 
+					 g_get_user_special_dir (G_USER_DIRECTORY_DOCUMENTS),
+					 TRUE);
+	tracker_processor_add_directory (TRACKER_PROCESSOR (miner), 
+					 g_get_user_special_dir (G_USER_DIRECTORY_DESKTOP),
+					 TRUE);
 
         g_signal_connect (miner, "terminated",
-                          G_CALLBACK (on_miner_terminated), main_loop);
-
-	g_timeout_add_seconds (1, (GSourceFunc) on_miner_start, miner);
+                          G_CALLBACK (miner_terminated_cb), 
+			  main_loop);
+	g_timeout_add_seconds (1, miner_start_cb, miner);
 
         g_main_loop_run (main_loop);
+	g_object_unref (main_loop);
 
         return EXIT_SUCCESS;
 }

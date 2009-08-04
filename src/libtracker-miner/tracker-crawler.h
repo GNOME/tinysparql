@@ -32,25 +32,25 @@ G_BEGIN_DECLS
 #define TRACKER_IS_CRAWLER_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), TRACKER_TYPE_CRAWLER))
 #define TRACKER_CRAWLER_GET_CLASS(obj)	(G_TYPE_INSTANCE_GET_CLASS ((obj), TRACKER_TYPE_CRAWLER, TrackerCrawlerClass))
 
-typedef struct _TrackerCrawler	       TrackerCrawler;
-typedef struct _TrackerCrawlerClass    TrackerCrawlerClass;
-typedef struct _TrackerCrawlerPrivate  TrackerCrawlerPrivate;
+typedef struct TrackerCrawler	       TrackerCrawler;
+typedef struct TrackerCrawlerClass    TrackerCrawlerClass;
+typedef struct TrackerCrawlerPrivate  TrackerCrawlerPrivate;
 
-struct _TrackerCrawler {
+struct TrackerCrawler {
 	GObject		       parent;
 	TrackerCrawlerPrivate *private;
 };
 
-struct _TrackerCrawlerClass {
+struct TrackerCrawlerClass {
 	GObjectClass	       parent;
 };
 
-GType           tracker_crawler_get_type            (void);
-TrackerCrawler *tracker_crawler_new                 (void);
-gboolean        tracker_crawler_start               (TrackerCrawler *crawler,
-						     const gchar    *path,
-						     gboolean        recurse);
-void            tracker_crawler_stop                (TrackerCrawler *crawler);
+GType           tracker_crawler_get_type (void);
+TrackerCrawler *tracker_crawler_new      (void);
+gboolean        tracker_crawler_start    (TrackerCrawler *crawler,
+					  const gchar    *path,
+					  gboolean        recurse);
+void            tracker_crawler_stop     (TrackerCrawler *crawler);
 
 G_END_DECLS
 
