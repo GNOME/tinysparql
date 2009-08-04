@@ -601,18 +601,30 @@ public class Tracker.SparqlQuery : Object {
 
 					if (triple.subject.type == Rasqal.Literal.Type.VARIABLE) {
 						subject = var_value_map.lookup (triple.subject.as_variable ().name);
+
+						if (subject == null) {
+							throw new SparqlError.PARSE ("Variable %s was selected but is unused in the query", triple.subject.as_variable ().name);
+						}
 					} else {
 						subject = get_string_from_literal (triple.subject);
 					}
 
 					if (triple.predicate.type == Rasqal.Literal.Type.VARIABLE) {
 						predicate = var_value_map.lookup (triple.predicate.as_variable ().name);
+
+						if (predicate == null) {
+							throw new SparqlError.PARSE ("Variable %s was selected but is unused in the query", triple.predicate.as_variable ().name);
+						}
 					} else {
 						predicate = get_string_from_literal (triple.predicate);
 					}
 
 					if (triple.object.type == Rasqal.Literal.Type.VARIABLE) {
 						object = var_value_map.lookup (triple.object.as_variable ().name);
+
+						if (object == null) {
+							throw new SparqlError.PARSE ("Variable %s was selected but is unused in the query", triple.object.as_variable ().name);
+						}
 					} else {
 						object = get_string_from_literal (triple.object);
 					}
