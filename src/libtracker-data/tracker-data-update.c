@@ -722,6 +722,10 @@ tracker_data_delete_statement (const gchar            *subject,
 	gint		    subject_id;
 	GPtrArray          *types;
 
+	g_return_if_fail (subject != NULL);
+	g_return_if_fail (predicate != NULL);
+	g_return_if_fail (object != NULL);
+
 	tracker_data_begin_transaction ();
 
 	subject_id = query_resource_id (subject);
