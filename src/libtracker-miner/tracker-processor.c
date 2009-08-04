@@ -154,6 +154,7 @@ static void mount_point_removed_cb            (TrackerStorage   *hal,
 static guint signals[LAST_SIGNAL] = { 0, };
 
 G_DEFINE_TYPE (TrackerProcessor, tracker_processor, G_TYPE_OBJECT)
+/* G_DEFINE_ABSTRACT_TYPE (TrackerMinerCrawler, tracker_miner_crawler, TRACKER_TYPE_MINER) */
 
 static void
 tracker_processor_class_init (TrackerProcessorClass *class)

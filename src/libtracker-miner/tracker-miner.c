@@ -1,7 +1,6 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*
- * Copyright (C) 2006, Mr Jamie McCracken (jamiemcc@gnome.org)
- * Copyright (C) 2008, Nokia
+ * Copyright (C) 2009, Nokia
 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -26,8 +25,6 @@
 
 #define TRACKER_MINER_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_MINER, TrackerMinerPrivate))
 
-typedef struct TrackerMinerPrivate TrackerMinerPrivate;
-
 struct TrackerMinerPrivate {
 	gchar *name;
 	TrackerClient *client;
@@ -50,17 +47,16 @@ enum {
 static guint signals[LAST_SIGNAL] = { 0 };
 
 
-static void tracker_miner_finalize     (GObject             *object);
-
-static void tracker_miner_get_property (GObject             *object,
-					guint                param_id,
-					GValue              *value,
-					GParamSpec          *pspec);
-static void tracker_miner_set_property (GObject             *object,
-					guint                param_id,
-					const GValue        *value,
-					GParamSpec          *pspec);
-static void tracker_miner_constructed  (GObject             *object);
+static void miner_set_property (GObject      *object,
+				guint         param_id,
+				const GValue *value,
+				GParamSpec   *pspec);
+static void miner_get_property (GObject      *object,
+				guint         param_id,
+				GValue       *value,
+				GParamSpec   *pspec);
+static void miner_finalize     (GObject      *object);
+static void miner_constructed  (GObject      *object);
 
 G_DEFINE_ABSTRACT_TYPE (TrackerMiner, tracker_miner, G_TYPE_OBJECT)
 
@@ -69,10 +65,10 @@ tracker_miner_class_init (TrackerMinerClass *klass)
 {
 	GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
-	object_class->finalize = tracker_miner_finalize;
-	object_class->set_property = tracker_miner_set_property;
-	object_class->get_property = tracker_miner_get_property;
-	object_class->constructed = tracker_miner_constructed;
+	object_class->set_property = miner_set_property;
+	object_class->get_property = miner_get_property;
+	object_class->finalize     = miner_finalize;
+	object_class->constructed  = miner_constructed;
 
 	signals[STARTED] =
 		g_signal_new ("started",
@@ -131,64 +127,58 @@ tracker_miner_init (TrackerMiner *miner)
 {
 	TrackerMinerPrivate *priv;
 
-	miner->_priv = priv = TRACKER_MINER_GET_PRIVATE (miner);
+	miner->private = priv = TRACKER_MINER_GET_PRIVATE (miner);
 
 	priv->client = tracker_connect (TRUE, -1);
 }
 
 static void
-tracker_miner_finalize (GObject *object)
+miner_set_property (GObject      *object,
+		    guint         prop_id,
+		    const GValue *value,
+		    GParamSpec   *pspec)
 {
 	TrackerMiner *miner = TRACKER_MINER (object);
-	TrackerMinerPrivate *priv = miner->_priv;
 
-	if (priv->client) {
-		tracker_disconnect (priv->client);
+	switch (prop_id) {
+	case PROP_NAME:
+		g_free (miner->private->name);
+		miner->private->name = g_value_dup_string (value);
+		break;
+	default:
+		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+		break;
+	}
+}
+
+static void
+miner_get_property (GObject    *object,
+		    guint       prop_id,
+		    GValue     *value,
+		    GParamSpec *pspec)
+{
+	TrackerMiner *miner = TRACKER_MINER (object);
+
+	switch (prop_id) {
+	case PROP_NAME:
+		g_value_set_string (value, miner->private->name);
+		break;
+	default:
+		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+		break;
+	}
+}
+
+static void
+miner_finalize (GObject *object)
+{
+	TrackerMiner *miner = TRACKER_MINER (object);
+
+	if (miner->private->client) {
+		tracker_disconnect (miner->private->client);
 	}
 
 	G_OBJECT_CLASS (tracker_miner_parent_class)->finalize (object);
-}
-
-static void
-tracker_miner_get_property (GObject    *object,
-			    guint       prop_id,
-			    GValue     *value,
-			    GParamSpec *pspec)
-{
-	TrackerMiner *miner = TRACKER_MINER (object);
-	TrackerMinerPrivate *priv = miner->_priv;
-
-	switch (prop_id) {
-	case PROP_NAME:
-		g_value_set_string (value, priv->name);
-		break;
-	default:
-		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
-		break;
-	}
-}
-
-static void
-tracker_miner_set_property (GObject      *object,
-			    guint         prop_id,
-			    const GValue *value,
-			    GParamSpec   *pspec)
-{
-	TrackerMiner *miner = TRACKER_MINER (object);
-	TrackerMinerPrivate *priv = miner->_priv;
-
-	switch (prop_id) {
-	case PROP_NAME:
-		if (priv->name) {
-			g_free (priv->name);
-		}
-
-		priv->name = g_value_dup_string (value);
-		break;
-	default:
-		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
-		break;
-	}
 }
 
 static gboolean
@@ -199,12 +189,11 @@ terminate_miner_cb (TrackerMiner *miner)
 }
 
 static void
-tracker_miner_constructed (GObject *object)
+miner_constructed (GObject *object)
 {
 	TrackerMiner *miner = TRACKER_MINER (object);
-	TrackerMinerPrivate *priv = miner->_priv;
 
-	if (!priv->name) {
+	if (!miner->private->name) {
 		g_critical ("Miner should have been given a name, bailing out");
 		g_assert_not_reached ();
 	}
@@ -218,12 +207,9 @@ tracker_miner_constructed (GObject *object)
 G_CONST_RETURN gchar *
 tracker_miner_get_name (TrackerMiner *miner)
 {
-	TrackerMinerPrivate *priv;
-
 	g_return_val_if_fail (TRACKER_IS_MINER (miner), NULL);
 
-	priv = miner->_priv;
-	return priv->name;
+	return miner->private->name;
 }
 
 void
@@ -240,6 +226,8 @@ tracker_miner_pause (TrackerMiner           *miner,
 		     DBusGMethodInvocation  *context,
 		     GError                **error)
 {
+	g_return_if_fail (TRACKER_IS_MINER (miner));
+	
 }
 
 void
@@ -247,4 +235,5 @@ tracker_miner_resume (TrackerMiner           *miner,
 		      DBusGMethodInvocation  *context,
 		      GError                **error)
 {
+	g_return_if_fail (TRACKER_IS_MINER (miner));
 }
