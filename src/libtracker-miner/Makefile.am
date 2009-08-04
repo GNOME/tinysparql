@@ -31,14 +31,14 @@ libtracker_miner_la_SOURCES = 				\
 	tracker-miner-dbus.h				\
 	tracker-miner.c					\
 	tracker-miner.h					\
+	tracker-miner-process.c				\
+	tracker-miner-process.h				\
 	tracker-monitor.c				\
-	tracker-monitor.h				\
-	tracker-processor.c				\
-	tracker-processor.h
+	tracker-monitor.h^
 
 libtracker_minerinclude_HEADERS = 			\
 	tracker-miner.h 				\
-	tracker-processor.h
+	tracker-miner-process.h
 
 libtracker_miner_la_LDFLAGS = \
 	-version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE)

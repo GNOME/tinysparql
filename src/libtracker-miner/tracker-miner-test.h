@@ -23,26 +23,26 @@
 
 #include <glib-object.h>
 
-#include <libtracker-miner/tracker-processor.h>
+#include <libtracker-miner/tracker-miner-process.h>
 
 G_BEGIN_DECLS
 
 #define TRACKER_TYPE_MINER_TEST         (tracker_miner_test_get_type())
 #define TRACKER_MINER_TEST(o)           (G_TYPE_CHECK_INSTANCE_CAST ((o), TRACKER_TYPE_MINER_TEST, TrackerMinerTest))
-#define TRACKER_MINER_TEST_CLASS(c)     (G_TYPE_CHECK_CLASS_CAST ((c),    TRACKER_TYPE_MINER_TEST, TrackerMinerTestClass))
+#define TRACKER_MINER_TEST_CLASS(c)     (G_TYPE_CHECK_CLASS_CAST ((c), TRACKER_TYPE_MINER_TEST, TrackerMinerTestClass))
 #define TRACKER_IS_MINER_TEST(o)        (G_TYPE_CHECK_INSTANCE_TYPE ((o), TRACKER_TYPE_MINER_TEST))
-#define TRACKER_IS_MINER_TEST_CLASS(c)  (G_TYPE_CHECK_CLASS_TYPE ((c),    TRACKER_TYPE_MINER_TEST))
+#define TRACKER_IS_MINER_TEST_CLASS(c)  (G_TYPE_CHECK_CLASS_TYPE ((c), TRACKER_TYPE_MINER_TEST))
 #define TRACKER_MINER_TEST_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o),  TRACKER_TYPE_MINER_TEST, TrackerMinerTestClass))
 
-typedef struct TrackerMinerTest TrackerMinerTest;
+typedef struct TrackerMinerTest      TrackerMinerTest;
 typedef struct TrackerMinerTestClass TrackerMinerTestClass;
 
 struct TrackerMinerTest {
-        TrackerProcessor parent_instance;
+        TrackerMinerProcess parent_instance;
 };
 
 struct TrackerMinerTestClass {
-        TrackerProcessorClass parent_class;
+        TrackerMinerProcessClass parent_class;
 };
 
 GType          tracker_miner_test_get_type (void) G_GNUC_CONST;
