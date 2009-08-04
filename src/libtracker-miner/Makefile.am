@@ -21,6 +21,9 @@ libtracker_minerdir = $(libdir)/tracker-$(TRACKER_API_VERSION)
 libtracker_minerincludedir=$(includedir)/tracker-$(TRACKER_API_VERSION)/libtracker-miner/
 libtracker_miner_LTLIBRARIES = libtracker-miner.la
 
+# tracker-miner-crawler.c				
+# tracker-miner-crawler.h				
+
 libtracker_miner_la_SOURCES = 				\
 	tracker-config.c				\
 	tracker-config.h				\
@@ -33,8 +36,6 @@ libtracker_miner_la_SOURCES = 				\
 	tracker-miner-dbus.h				\
 	tracker-miner.c					\
 	tracker-miner.h					\
-	tracker-miner-crawler.c				\
-	tracker-miner-crawler.h				\
 	tracker-monitor.c				\
 	tracker-monitor.h				\
 	tracker-processor.c				\
@@ -46,7 +47,7 @@ libtracker_miner_la_SOURCES = 				\
 
 libtracker_minerinclude_HEADERS = 			\
 	tracker-miner.h 				\
-	tracker-miner-crawler.h
+	tracker-processor.h
 
 libtracker_miner_la_LDFLAGS = \
 	-version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE)

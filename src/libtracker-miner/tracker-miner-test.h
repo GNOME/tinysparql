@@ -1,7 +1,6 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*
- * Copyright (C) 2006, Mr Jamie McCracken (jamiemcc@gnome.org)
- * Copyright (C) 2008, Nokia
+ * Copyright (C) 2009, Nokia
 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -22,7 +21,7 @@
 #ifndef __TRACKER_MINER_TEST_H__
 #define __TRACKER_MINER_TEST_H__
 
-#include <libtracker-miner/tracker-miner-crawler.h>
+#include <libtracker-miner/tracker-processor.h>
 
 G_BEGIN_DECLS
 
@@ -37,11 +36,11 @@ typedef struct TrackerMinerTest TrackerMinerTest;
 typedef struct TrackerMinerTestClass TrackerMinerTestClass;
 
 struct TrackerMinerTest {
-        TrackerMinerCrawler parent_instance;
+        TrackerProcessor parent_instance;
 };
 
 struct TrackerMinerTestClass {
-        TrackerMinerCrawlerClass parent_class;
+        TrackerProcessorClass parent_class;
 };
 
 GType          tracker_miner_test_get_type (void) G_GNUC_CONST;

@@ -210,7 +210,7 @@ tracker_miner_crawler_started (TrackerMiner *miner)
 	miner_crawler = TRACKER_MINER_CRAWLER (miner);
 	priv = miner_crawler->_priv;
 
-	tracker_processor_start (priv->processor);
+	/* tracker_processor_start (priv->processor); */
 }
 
 /* Public API */

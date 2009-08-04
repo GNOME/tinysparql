@@ -20,7 +20,7 @@
 
 #include "tracker-miner-test.h"
 
-G_DEFINE_TYPE (TrackerMinerTest, tracker_miner_test, TRACKER_TYPE_MINER_CRAWLER)
+G_DEFINE_TYPE (TrackerMinerTest, tracker_miner_test, TRACKER_TYPE_PROCESSOR)
 
 static void
 tracker_miner_test_class_init (TrackerMinerTestClass *klass)

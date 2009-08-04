@@ -26,7 +26,7 @@
 
 #include <libtracker-common/tracker-storage.h>
 
-#include "tracker-config.h"
+#include "tracker-miner.h"
 
 G_BEGIN_DECLS
 
@@ -42,21 +42,33 @@ typedef struct TrackerProcessorClass   TrackerProcessorClass;
 typedef struct TrackerProcessorPrivate TrackerProcessorPrivate;
 
 struct TrackerProcessor {
-	GObject			 parent;
+	TrackerMiner parent_instance;
 	TrackerProcessorPrivate *private;
 };
 
 struct TrackerProcessorClass {
-	GObjectClass		 parent;
+	TrackerMinerClass parent_class;
 
-	void (*finished) (TrackerProcessor *processor);
+	gboolean (* check_file)   (TrackerProcessor *processor,
+				   GFile            *file);
+	gboolean (* check_dir)    (TrackerProcessor *processor,
+				   GFile            *file);
+	void     (* process_file) (TrackerProcessor *processor,
+				   GFile            *file);
+	gboolean (* monitor_dir)  (TrackerProcessor *processor,
+				   GFile            *file);
+
+	void     (* finished)     (TrackerProcessor *processor);
 };
 
-GType		  tracker_processor_get_type		    (void) G_GNUC_CONST;
+GType		  tracker_processor_get_type	  (void) G_GNUC_CONST;
 
-TrackerProcessor *tracker_processor_new			    (TrackerStorage   *storage);
-void		  tracker_processor_start		    (TrackerProcessor *processor);
-void		  tracker_processor_stop		    (TrackerProcessor *processor);
+TrackerProcessor *tracker_processor_new           (TrackerStorage   *storage);
+
+void              tracker_processor_stop          (TrackerProcessor *processor);
+void              tracker_processor_add_directory (TrackerProcessor *processor,
+						   const gchar      *path,
+						   gboolean          recurse);
 
 G_END_DECLS
 
