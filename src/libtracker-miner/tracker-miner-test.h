@@ -21,6 +21,8 @@
 #ifndef __TRACKER_MINER_TEST_H__
 #define __TRACKER_MINER_TEST_H__
 
+#include <glib-object.h>
+
 #include <libtracker-miner/tracker-processor.h>
 
 G_BEGIN_DECLS
@@ -44,7 +46,7 @@ struct TrackerMinerTestClass {
 };
 
 GType          tracker_miner_test_get_type (void) G_GNUC_CONST;
-TrackerMiner * tracker_miner_test_new (const gchar *name);
+TrackerMiner * tracker_miner_test_new      (const gchar *name);
 
 G_END_DECLS
 

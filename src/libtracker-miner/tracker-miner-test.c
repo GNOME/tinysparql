@@ -18,6 +18,8 @@
  * Boston, MA  02110-1301, USA.
  */
 
+#include "config.h"
+
 #include "tracker-miner-test.h"
 
 G_DEFINE_TYPE (TrackerMinerTest, tracker_miner_test, TRACKER_TYPE_PROCESSOR)
@@ -25,13 +27,11 @@ G_DEFINE_TYPE (TrackerMinerTest, tracker_miner_test, TRACKER_TYPE_PROCESSOR)
 static void
 tracker_miner_test_class_init (TrackerMinerTestClass *klass)
 {
-
 }
 
 static void
 tracker_miner_test_init (TrackerMinerTest *miner)
 {
-
 }
 
 TrackerMiner *

@@ -24,8 +24,6 @@
 #include <glib-object.h>
 #include <gio/gio.h>
 
-#include <libtracker-common/tracker-storage.h>
-
 #include "tracker-miner.h"
 
 G_BEGIN_DECLS

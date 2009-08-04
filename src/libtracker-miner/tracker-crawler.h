@@ -32,7 +32,7 @@ G_BEGIN_DECLS
 #define TRACKER_IS_CRAWLER_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), TRACKER_TYPE_CRAWLER))
 #define TRACKER_CRAWLER_GET_CLASS(obj)	(G_TYPE_INSTANCE_GET_CLASS ((obj), TRACKER_TYPE_CRAWLER, TrackerCrawlerClass))
 
-typedef struct TrackerCrawler	       TrackerCrawler;
+typedef struct TrackerCrawler	      TrackerCrawler;
 typedef struct TrackerCrawlerClass    TrackerCrawlerClass;
 typedef struct TrackerCrawlerPrivate  TrackerCrawlerPrivate;
 

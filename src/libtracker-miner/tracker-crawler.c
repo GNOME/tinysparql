@@ -20,19 +20,9 @@
 
 #include "config.h"
 
-#include <string.h>
-
 #include <gio/gio.h>
 
-#include <libtracker-common/tracker-dbus.h>
-#include <libtracker-common/tracker-file-utils.h>
-#include <libtracker-common/tracker-type-utils.h>
-#include <libtracker-common/tracker-utils.h>
-#include <libtracker-common/tracker-module-config.h>
-
 #include "tracker-crawler.h"
-#include "tracker-dbus.h"
-#include "tracker-monitor.h"
 #include "tracker-marshal.h"
 
 #define TRACKER_CRAWLER_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_CRAWLER, TrackerCrawlerPrivate))

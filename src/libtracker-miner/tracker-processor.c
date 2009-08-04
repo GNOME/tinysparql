@@ -1,6 +1,6 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*
- * Copyright (C) 2009, Nokia
+ * Copyright (C) 2008, Nokia
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -20,18 +20,9 @@
 
 #include "config.h"
 
-#include <string.h>
-
-#include <libtracker-common/tracker-dbus.h>
-#include <libtracker-common/tracker-file-utils.h>
-#include <libtracker-common/tracker-storage.h>
 #include <libtracker-common/tracker-module-config.h>
-#include <libtracker-common/tracker-utils.h>
-
-#include <libtracker-db/tracker-db-manager.h>
 
 #include "tracker-crawler.h"
-#include "tracker-dbus.h"
 #include "tracker-monitor.h"
 #include "tracker-marshal.h"
 #include "tracker-processor.h"
@@ -39,7 +30,6 @@
 #define TRACKER_PROCESSOR_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_PROCESSOR, TrackerProcessorPrivate))
 
 struct TrackerProcessorPrivate {
-	TrackerStorage *hal;
 	TrackerMonitor *monitor;
 	TrackerCrawler *crawler;
 

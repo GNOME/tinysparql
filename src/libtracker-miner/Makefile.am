@@ -21,9 +21,6 @@ libtracker_minerdir = $(libdir)/tracker-$(TRACKER_API_VERSION)
 libtracker_minerincludedir=$(includedir)/tracker-$(TRACKER_API_VERSION)/libtracker-miner/
 libtracker_miner_LTLIBRARIES = libtracker-miner.la
 
-# tracker-miner-crawler.c				
-# tracker-miner-crawler.h				
-
 libtracker_miner_la_SOURCES = 				\
 	tracker-crawler.c				\
 	tracker-crawler.h				\
