@@ -137,10 +137,9 @@ tracker_monitor_class_init (TrackerMonitorClass *klass)
 			      G_SIGNAL_RUN_LAST,
 			      0,
 			      NULL, NULL,
-			      tracker_marshal_VOID__STRING_OBJECT_BOOLEAN,
+			      tracker_marshal_VOID__OBJECT_BOOLEAN,
 			      G_TYPE_NONE,
-			      3,
-			      G_TYPE_STRING,
+			      2,
 			      G_TYPE_OBJECT,
 			      G_TYPE_BOOLEAN);
 	signals[ITEM_UPDATED] =
@@ -149,10 +148,9 @@ tracker_monitor_class_init (TrackerMonitorClass *klass)
 			      G_SIGNAL_RUN_LAST,
 			      0,
 			      NULL, NULL,
-			      tracker_marshal_VOID__STRING_OBJECT_BOOLEAN,
+			      tracker_marshal_VOID__OBJECT_BOOLEAN,
 			      G_TYPE_NONE,
-			      3,
-			      G_TYPE_STRING,
+			      2,
 			      G_TYPE_OBJECT,
 			      G_TYPE_BOOLEAN);
 	signals[ITEM_DELETED] =
@@ -161,10 +159,9 @@ tracker_monitor_class_init (TrackerMonitorClass *klass)
 			      G_SIGNAL_RUN_LAST,
 			      0,
 			      NULL, NULL,
-			      tracker_marshal_VOID__STRING_OBJECT_BOOLEAN,
+			      tracker_marshal_VOID__OBJECT_BOOLEAN,
 			      G_TYPE_NONE,
-			      3,
-			      G_TYPE_STRING,
+			      2,
 			      G_TYPE_OBJECT,
 			      G_TYPE_BOOLEAN);
 	signals[ITEM_MOVED] =
@@ -173,10 +170,9 @@ tracker_monitor_class_init (TrackerMonitorClass *klass)
 			      G_SIGNAL_RUN_LAST,
 			      0,
 			      NULL, NULL,
-			      tracker_marshal_VOID__STRING_OBJECT_OBJECT_BOOLEAN_BOOLEAN,
+			      tracker_marshal_VOID__OBJECT_OBJECT_BOOLEAN_BOOLEAN,
 			      G_TYPE_NONE,
-			      5,
-			      G_TYPE_STRING,
+			      4,
 			      G_TYPE_OBJECT,
 			      G_TYPE_OBJECT,
 			      G_TYPE_BOOLEAN,
@@ -592,6 +588,9 @@ libinotify_event_pairs_timeout_cb (gpointer data)
 			 GPOINTER_TO_UINT (key),
 			 seconds);
 
+		is_directory = 
+			g_file_query_file_type (event->file, G_FILE_QUERY_INFO_NONE, NULL) == G_FILE_TYPE_DIRECTORY;
+
 		switch (event->event_type) {
 		case IN_MOVED_FROM:
 		case IN_DELETE:
@@ -716,6 +715,9 @@ libinotify_cached_events_timeout_cb (gpointer data)
 
 		last_event_seconds = now.tv_sec - event->last_time.tv_sec;
 		start_event_seconds = now.tv_sec - event->start_time.tv_sec;
+
+		is_directory = 
+			g_file_query_file_type (event->file, G_FILE_QUERY_INFO_NONE, NULL) == G_FILE_TYPE_DIRECTORY;
 
 		g_debug ("Comparing now:%ld to then:%ld (start:%ld), diff:%ld (with start:%ld)",
 			 now.tv_sec,
@@ -893,6 +895,9 @@ libinotify_monitor_event_cb (INotifyHandle *handle,
 	} else {
 		str2 = NULL;
 	}
+
+	is_directory = 
+		g_file_query_file_type (file, G_FILE_QUERY_INFO_NONE, NULL) == G_FILE_TYPE_DIRECTORY;
 
 	event_type_str = libinotify_monitor_event_to_string (event_type);
 	g_message ("Received monitor event:%d->'%s' for file:'%s' (cookie:%d)",
@@ -1297,9 +1302,8 @@ gboolean
 tracker_monitor_remove (TrackerMonitor *monitor,
 			GFile          *file)
 {
-	GHashTable *monitors;
-	gchar      *path;
-	gboolean    removed;
+	gchar *path;
+	gboolean removed;
 
 	g_return_val_if_fail (TRACKER_IS_MONITOR (monitor), FALSE);
 	g_return_val_if_fail (G_IS_FILE (file), FALSE);
@@ -1309,12 +1313,12 @@ tracker_monitor_remove (TrackerMonitor *monitor,
 		return FALSE;
 	}
 	
-	removed = g_hash_table_remove (monitors, file);
+	removed = g_hash_table_remove (monitor->private->monitors, file);
 	path = g_file_get_path (file);
 	
 	g_debug ("Removed monitor for path:'%s', total monitors:%d",
 		 path,
-		 g_hash_table_size (monitors));
+		 g_hash_table_size (monitor->private->monitors));
 	
 	g_free (path);
 

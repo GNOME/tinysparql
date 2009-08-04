@@ -222,10 +222,11 @@ tracker_processor_init (TrackerProcessor *object)
 
 	priv = object->private;
 
+	tracker_module_config_init ();
+
 	/* For each module we create a TrackerCrawler and keep them in
 	 * a hash table to look up.
 	 */
-
 	priv->items_created = g_queue_new ();
 	priv->items_updated = g_queue_new ();
 	priv->items_deleted = g_queue_new ();
@@ -517,6 +518,8 @@ monitor_item_updated_cb (TrackerMonitor *monitor,
 	TrackerProcessor *processor;
 	gchar *path;
 	gboolean should_process = TRUE;
+
+	processor = user_data;
 
 	g_signal_emit (processor, signals[CHECK_FILE], 0, file, &should_process);
 

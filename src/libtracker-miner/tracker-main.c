@@ -149,11 +149,11 @@ process_file_cb (TrackerProcessor *processor,
 		 GFile	          *file,
 		 gpointer          user_data)
 {
-	/* gchar *path; */
+	gchar *path;
 
-	/* path = g_file_get_path (file); */
-	/* g_print ("** PROCESSING FILE:'%s'\n", path); */
-	/* g_free (path); */
+	path = g_file_get_path (file);
+	g_print ("** PROCESSING FILE:'%s'\n", path);
+	g_free (path);
 }
 
 static gboolean
