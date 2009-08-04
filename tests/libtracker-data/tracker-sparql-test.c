@@ -110,11 +110,11 @@ test_sparql_query (gconstpointer test_data)
 
 		query_filename = g_strconcat (test_prefix, ".rq", NULL);
 		g_file_get_contents (query_filename, &query, NULL, &error);
-		g_assert_no_error (error);
+		g_assert (error == NULL);
 
 		results_filename = g_strconcat (test_prefix, ".out", NULL);
 		g_file_get_contents (results_filename, &results, NULL, &error);
-		g_assert_no_error (error);
+		g_assert (error == NULL);
 
 		g_free (data_prefix);
 		g_free (test_prefix);
@@ -122,7 +122,7 @@ test_sparql_query (gconstpointer test_data)
 		/* perform actual query */
 
 		result_set = tracker_data_query_sparql (query, &error);
-		g_assert_no_error (error);
+		g_assert (error == NULL);
 
 		/* compare results with reference output */
 
