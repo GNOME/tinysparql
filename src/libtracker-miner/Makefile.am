@@ -36,7 +36,7 @@ libtracker_miner_la_SOURCES = 				\
 	tracker-miner-process.c				\
 	tracker-miner-process.h				\
 	tracker-monitor.c				\
-	tracker-monitor.h^
+	tracker-monitor.h
 
 libtracker_minerinclude_HEADERS = 			\
 	tracker-miner.h 				\
