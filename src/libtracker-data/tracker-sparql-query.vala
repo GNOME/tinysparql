@@ -342,8 +342,6 @@ public class Tracker.SparqlQuery : Object {
 	}
 #endif
 
-	private bool is_ask { get; set; }
-
 	inline bool next () {
 		index = (index + 1) % BUFFER_SIZE;
 		size--;
@@ -437,7 +435,6 @@ public class Tracker.SparqlQuery : Object {
 			} else if (current () == SparqlTokenType.DESCRIBE) {
 				throw new SparqlError.INTERNAL ("DESCRIBE is not supported");
 			} else if (current () == SparqlTokenType.ASK) {
-				is_ask = true;
 				return execute_select ();
 			} else {
 				throw new SparqlError.PARSE ("DELETE and INSERT are not supported in query mode");
@@ -513,7 +510,9 @@ public class Tracker.SparqlQuery : Object {
 	}
 
 	DBResultSet? execute_select () throws Error {
-		// SELECT query
+		bool is_ask = false;
+
+		// SELECT or ASK query
 
 		pattern_sql = new StringBuilder ();
 		var_map = new HashTable<string,VariableBinding>.full (str_hash, str_equal, g_free, g_object_unref);
@@ -525,7 +524,11 @@ public class Tracker.SparqlQuery : Object {
 		var sql = new StringBuilder ();
 		sql.append ("SELECT ");
 
-		expect (SparqlTokenType.SELECT);
+		if (accept (SparqlTokenType.ASK)) {
+			is_ask = true;
+		} else { 
+			expect (SparqlTokenType.SELECT);
+		}
 
 		if (accept (SparqlTokenType.DISTINCT)) {
 			sql.append ("DISTINCT ");
