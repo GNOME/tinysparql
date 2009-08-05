@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<node name="/org/freedesktop/Tracker">
-  <interface name="org.freedesktop.Tracker.Resources">
+<node name="/org/freedesktop/Tracker1">
+  <interface name="org.freedesktop.Tracker1.Resources">
 
     <!-- Insert single statement -->
     <method name="Insert">

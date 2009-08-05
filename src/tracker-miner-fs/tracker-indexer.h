@@ -30,10 +30,10 @@
 
 #include "tracker-config.h"
 
-#define TRACKER_DAEMON_SERVICE	     "org.freedesktop.Tracker"
-#define TRACKER_INDEXER_SERVICE      "org.freedesktop.Tracker.Indexer"
-#define TRACKER_INDEXER_PATH	     "/org/freedesktop/Tracker/Indexer"
-#define TRACKER_INDEXER_INTERFACE    "org.freedesktop.Tracker.Indexer"
+#define TRACKER_DAEMON_SERVICE	     "org.freedesktop.Tracker1"
+#define TRACKER_INDEXER_SERVICE      "org.freedesktop.Tracker1.Indexer"
+#define TRACKER_INDEXER_PATH	     "/org/freedesktop/Tracker1/Indexer"
+#define TRACKER_INDEXER_INTERFACE    "org.freedesktop.Tracker1.Indexer"
 
 /* Transaction every 'x' items */
 #define TRACKER_INDEXER_TRANSACTION_MAX	4000

@@ -146,7 +146,7 @@ dbus_register_names (void)
 					    DBUS_INTERFACE_DBUS);
 
 	/* Register the service name for org.freedesktop.Tracker */
-	if (!dbus_register_service (gproxy, "org.freedesktop.Tracker.Miner.FS")) {
+	if (!dbus_register_service (gproxy, "org.freedesktop.Tracker1.Miner.FS")) {
 		return FALSE;
 	}
 

@@ -17,7 +17,7 @@
   -->
 
 <node name="/">
-  <interface name="org.freedesktop.Tracker.Statistics">
+  <interface name="org.freedesktop.Tracker1.Statistics">
    
     <!-- Get statistics for services that have been indexed. Output is
 	 in string array format: [service, no of entities]  

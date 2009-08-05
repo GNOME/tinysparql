@@ -26,10 +26,10 @@
 
 /* Latest spec location: http://live.gnome.org/Evolution/Metadata */
 
-#define TRACKER_EVOLUTION_INDEXER_PATH		"/org/freedesktop/Tracker/Indexer/Evolution/Registrar"
+#define TRACKER_EVOLUTION_INDEXER_PATH		"/org/freedesktop/Tracker1/Indexer/Evolution/Registrar"
 
-#define TRACKER_EVOLUTION_REGISTRAR_SERVICE	"org.freedesktop.Tracker"
-#define TRACKER_EVOLUTION_REGISTRAR_PATH	"/org/freedesktop/Tracker/Evolution/Registrar"
+#define TRACKER_EVOLUTION_REGISTRAR_SERVICE	"org.freedesktop.Tracker1"
+#define TRACKER_EVOLUTION_REGISTRAR_PATH	"/org/freedesktop/Tracker1/Evolution/Registrar"
 #define TRACKER_EVOLUTION_REGISTRAR_INTERFACE	"org.freedesktop.email.metadata.Registrar"
 
 #define TRACKER_EVOLUTION_MANAGER_SERVICE	"org.gnome.evolution"

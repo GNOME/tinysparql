@@ -1,3 +1,3 @@
 [D-BUS Service]
-Name=org.freedesktop.Tracker.Indexer
+Name=org.freedesktop.Tracker1.Indexer
 Exec=@libexecdir@/tracker-miner-fs

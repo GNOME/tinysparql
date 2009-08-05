@@ -93,7 +93,7 @@ get_extractor_pid (void)
 	GPid pid;
 
 	/* Get new PID from extractor */
-	if (!org_freedesktop_Tracker_Extract_get_pid (get_dbus_extract_proxy (),
+	if (!org_freedesktop_Tracker1_Extract_get_pid (get_dbus_extract_proxy (),
 						      &pid,
 						      &error)) {
 		g_critical ("Couldn't get PID from tracker-extract, %s",
@@ -143,15 +143,15 @@ get_dbus_extract_proxy (void)
 
 	/* Get proxy for Service / Path / Interface of the indexer */
 	proxy = dbus_g_proxy_new_for_name (connection,
-					   "org.freedesktop.Tracker.Extract",
-					   "/org/freedesktop/Tracker/Extract",
-					   "org.freedesktop.Tracker.Extract");
+					   "org.freedesktop.Tracker1.Extract",
+					   "/org/freedesktop/Tracker1/Extract",
+					   "org.freedesktop.Tracker1.Extract");
 
 	if (!proxy) {
 		g_critical ("Could not create a DBusGProxy to the extract service");
 	}
 
-	tracker_dbus_add_name_monitor ("org.freedesktop.Tracker.Extract",
+	tracker_dbus_add_name_monitor ("org.freedesktop.Tracker1.Extract",
 				       extractor_changed_availability_cb,
 				       NULL, NULL);
 	return proxy;
@@ -379,7 +379,7 @@ metadata_utils_get_embedded (GFile		 *file,
 	g_object_set_data (G_OBJECT (file), "extractor-context", context);
 	uri = g_file_get_uri (file);
 
-	org_freedesktop_Tracker_Extract_get_metadata_async (get_dbus_extract_proxy (),
+	org_freedesktop_Tracker1_Extract_get_metadata_async (get_dbus_extract_proxy (),
 							    uri,
 							    mime_type,
 							    get_metadata_async_cb,

@@ -3,14 +3,14 @@
 <!--
 <busconfig>
     <policy context="default">
-      <deny send_interface="org.freedesktop.Tracker.Indexer"/>
-      <allow send_destination="org.freedesktop.Tracker"/>
+      <deny send_interface="org.freedesktop.Tracker1.Indexer"/>
+      <allow send_destination="org.freedesktop.Tracker1"/>
     </policy>
 </busconfig>
 -->
 
 <node name="/">
-  <interface name="org.freedesktop.Tracker.Extract">  
+  <interface name="org.freedesktop.Tracker1.Extract">  
     <method name="GetPid">
       <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
       <arg type="i" name="value" direction="out" />

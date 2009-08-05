@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <node name="/">
-  <interface name="org.freedesktop.Tracker.Miner.FS">
+  <interface name="org.freedesktop.Tracker1.Miner.FS">
     <method name="Pause">
       <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
     </method>

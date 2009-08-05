@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <e-plugin-list>
-	<e-plugin id="org.freedesktop.Tracker.evolution_plugin" 
+	<e-plugin id="org.freedesktop.Tracker1.evolution_plugin" 
 		type="shlib"
 		location="+PLUGIN_INSTALL_DIR+/liborg-freedesktop-Tracker-evolution-plugin.so"
 		domain="+GETTEXT_PACKAGE+"

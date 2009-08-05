@@ -26,10 +26,10 @@
 
 /* Latest spec location: http://live.kde.org/Evolution/Metadata */
 
-#define TRACKER_KMAIL_INDEXER_PATH		"/org/freedesktop/Tracker/Indexer/KMail/Registrar"
+#define TRACKER_KMAIL_INDEXER_PATH		"/org/freedesktop/Tracker1/Indexer/KMail/Registrar"
 
-#define TRACKER_KMAIL_REGISTRAR_SERVICE		"org.freedesktop.Tracker"
-#define TRACKER_KMAIL_REGISTRAR_PATH		"/org/freedesktop/Tracker/KMail/Registrar"
+#define TRACKER_KMAIL_REGISTRAR_SERVICE		"org.freedesktop.Tracker1"
+#define TRACKER_KMAIL_REGISTRAR_PATH		"/org/freedesktop/Tracker1/KMail/Registrar"
 #define TRACKER_KMAIL_REGISTRAR_INTERFACE	"org.freedesktop.email.metadata.Registrar"
 
 #define TRACKER_KMAIL_MANAGER_SERVICE		"org.kde.kmail"

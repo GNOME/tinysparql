@@ -26,9 +26,9 @@
 
 #include "tracker-indexer.h"
 
-#define TRACKER_MINER_SERVICE      "org.freedesktop.Tracker.Miner.FS"
-#define TRACKER_MINER_PATH         "/org/freedesktop/Tracker/Miner/FS"
-#define TRACKER_MINER_INTERFACE    "org.freedesktop.Tracker.Miner.FS"
+#define TRACKER_MINER_SERVICE      "org.freedesktop.Tracker1.Miner.FS"
+#define TRACKER_MINER_PATH         "/org/freedesktop/Tracker1/Miner/FS"
+#define TRACKER_MINER_INTERFACE    "org.freedesktop.Tracker1.Miner.FS"
 
 G_BEGIN_DECLS
 

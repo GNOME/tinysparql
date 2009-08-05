@@ -260,9 +260,9 @@ albumart_init (TrackerConfig *config)
 	/* Get proxy for Service / Path / Interface of the indexer */
 	proxy_for_extractor = 
                 dbus_g_proxy_new_for_name (connection,
-                                           "org.freedesktop.Tracker.Extract",
-                                           "/org/freedesktop/Tracker/Extract",
-                                           "org.freedesktop.Tracker.Extract");
+                                           "org.freedesktop.Tracker1.Extract",
+                                           "/org/freedesktop/Tracker1/Extract",
+                                           "org.freedesktop.Tracker1.Extract");
 
 	if (!proxy_for_extractor) {
 		g_critical ("Could not create a DBusGProxy to the extract service");

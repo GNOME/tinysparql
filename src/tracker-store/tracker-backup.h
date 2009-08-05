@@ -24,9 +24,9 @@
 
 #include <glib-object.h>
 
-#define TRACKER_BACKUP_SERVICE	       "org.freedesktop.Tracker"
-#define TRACKER_BACKUP_PATH	       "/org/freedesktop/Tracker/Backup"
-#define TRACKER_BACKUP_INTERFACE       "org.freedesktop.Tracker.Backup"
+#define TRACKER_BACKUP_SERVICE	       "org.freedesktop.Tracker1"
+#define TRACKER_BACKUP_PATH	       "/org/freedesktop/Tracker1/Backup"
+#define TRACKER_BACKUP_INTERFACE       "org.freedesktop.Tracker1.Backup"
 
 G_BEGIN_DECLS
 

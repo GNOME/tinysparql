@@ -306,10 +306,10 @@ class TrackerLiveSearchHandler(deskbar.Handler.SignallingHandler):
 				print "Connecting to Tracker (first search or tracker-store restarted)"
 				import dbus
 				bus = dbus.SessionBus()
-				self.tracker = bus.get_object('org.freedesktop.Tracker','/org/freedesktop/tracker')
-				self.search_iface = dbus.Interface(self.tracker, 'org.freedesktop.Tracker.Search')
-				self.keywords_iface = dbus.Interface(self.tracker, 'org.freedesktop.Tracker.Keywords')
-				self.files_iface = dbus.Interface(self.tracker, 'org.freedesktop.Tracker.Files')
+				self.tracker = bus.get_object('org.freedesktop.Tracker1','/org/freedesktop/Tracker1')
+				self.search_iface = dbus.Interface(self.tracker, 'org.freedesktop.Tracker1.Search')
+				self.keywords_iface = dbus.Interface(self.tracker, 'org.freedesktop.Tracker1.Keywords')
+				self.files_iface = dbus.Interface(self.tracker, 'org.freedesktop.Tracker1.Files')
 			except:
 				print >> sys.stderr, '*** DBus connection to tracker failed, check your settings.'
 				return
@@ -332,7 +332,7 @@ class TrackerLiveSearchHandler(deskbar.Handler.SignallingHandler):
 				proxy_obj = bus.get_object('org.freedesktop.DBus', '/org/freedesktop/DBus')
 				dbus_iface = dbus.Interface(proxy_obj, 'org.freedesktop.DBus')
 				activatables = dbus_iface.ListActivatableNames()
-				if not 'org.freedesktop.Tracker' in activatables:
+				if not 'org.freedesktop.Tracker1' in activatables:
 					return (deskbar.Handler.HANDLER_IS_NOT_APPLICABLE, 'Tracker is not activatable via dbus', None)
 			except:
 				return (deskbar.Handler.HANDLER_IS_NOT_APPLICABLE, 'Python dbus.glib bindings not found.', None)
