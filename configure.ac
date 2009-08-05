@@ -247,20 +247,6 @@ fi
 
 AC_CHECK_FUNCS(strcasecmp)
 
-AC_DEFINE_UNQUOTED(RASQAL_VERSION_MAJOR, 0, [Major version number])
-AC_DEFINE_UNQUOTED(RASQAL_VERSION_MINOR, 9, [Minor version number])
-AC_DEFINE_UNQUOTED(RASQAL_VERSION_RELEASE, 17, [Release version number])
-AC_DEFINE_UNQUOTED(RASQAL_VERSION_DECIMAL, 917, [Release version as a decimal])
-AC_DEFINE([RAPTOR_TRIPLES_SOURCE_RAPTOR], 1, [Use raptor to provide triples])
-AC_DEFINE(RASQAL_REGEX_POSIX, 1, [Use posix regex library])
-AC_DEFINE([RASQAL_DECIMAL_NONE], 1, [Decimal without a library])
-AC_DEFINE(RASQAL_QUERY_RDQL, 1, [Building RDQL query])
-AC_DEFINE(RASQAL_QUERY_LAQRS, 1, [Building LAQRS query])
-AC_DEFINE(RASQAL_QUERY_SPARQL, 1, [Building SPARQL query])
-AM_CONDITIONAL(RASQAL_QUERY_RDQL, true)
-AM_CONDITIONAL(RASQAL_QUERY_LAQRS, true)
-AM_CONDITIONAL(RASQAL_QUERY_SPARQL, true)
-
 AC_PATH_PROG(VALAC, valac, valac)
 AC_SUBST(VALAC)
 
@@ -1432,7 +1418,6 @@ AC_CONFIG_FILES([
 	src/libtracker-gtk/Makefile
 	src/libtracker/Makefile
 	src/Makefile
-	src/rasqal/Makefile
 	src/tracker-applet/Makefile
 	src/tracker-applet/tracker-applet.desktop.in
 	src/tracker-store/Makefile

@@ -10,7 +10,6 @@ INCLUDES =								\
 	$(DBUS_CFLAGS)							\
 	$(UUID_CFLAGS)							\
 	$(RAPTOR_CFLAGS)						\
-	-I$(top_srcdir)/src/rasqal					\
 	$(GCOV_CFLAGS)
 
 BUILT_SOURCES = libtracker-data.vala.stamp
@@ -40,7 +39,7 @@ noinst_HEADERS =							\
 	tracker-turtle.h
 
 libtracker-data.vala.stamp: $(libtracker_data_la_VALASOURCES)
-	$(VALAC) -C $(VALAFLAGS) -H tracker-sparql-query.h ../rasqal/rasqal.vapi ../libtracker-common/posix.vapi ../libtracker-common/libtracker-common.vapi libtracker-data.vapi ../libtracker-db/libtracker-db.vapi $^
+	$(VALAC) -C $(VALAFLAGS) -H tracker-sparql-query.h ../libtracker-common/posix.vapi ../libtracker-common/libtracker-common.vapi libtracker-data.vapi ../libtracker-db/libtracker-db.vapi $^
 	touch $@
 
 libtracker_data_la_LDFLAGS =						\
@@ -53,7 +52,6 @@ libtracker_data_la_LIBADD = 						\
 	$(GLIB2_LIBS)							\
 	$(UUID_LIBS)							\
 	$(RAPTOR_LIBS)							\
-	$(top_builddir)/src/rasqal/librasqal.la				\
 	$(GCOV_LIBS)							\
 	-lz
 

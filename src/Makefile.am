@@ -3,7 +3,6 @@ include $(top_srcdir)/Makefile.decl
 SUBDIRS = 					\
 	libstemmer				\
 	libinotify				\
-	rasqal		 			\
 	libtracker-common 			\
 	libtracker-db				\
 	libtracker-data				\
@@ -38,7 +37,6 @@ endif
 DIST_SUBDIRS = 					\
 	libstemmer				\
 	libinotify				\
-	rasqal		 			\
 	libtracker-common 			\
 	libtracker-db				\
 	libtracker-data				\
