@@ -1,2 +1,3 @@
 tracker-sparql-query.c
 tracker-sparql-query.h
+tracker-sparql-scanner.c

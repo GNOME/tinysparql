@@ -19,7 +19,8 @@ libtracker_datadir = $(libdir)/tracker-$(TRACKER_API_VERSION)
 libtracker_data_LTLIBRARIES = libtracker-data.la
 
 libtracker_data_la_VALASOURCES = 					\
-	tracker-sparql-query.vala
+	tracker-sparql-query.vala					\
+	tracker-sparql-scanner.vala
 
 libtracker_data_la_SOURCES = 						\
 	tracker-data-backup.c						\
@@ -39,7 +40,7 @@ noinst_HEADERS =							\
 	tracker-turtle.h
 
 libtracker-data.vala.stamp: $(libtracker_data_la_VALASOURCES)
-	$(VALAC) -C $(VALAFLAGS) -H tracker-sparql-query.h ../rasqal/rasqal.vapi ../libtracker-common/libtracker-common.vapi libtracker-data.vapi ../libtracker-db/libtracker-db.vapi $^
+	$(VALAC) -C $(VALAFLAGS) -H tracker-sparql-query.h ../rasqal/rasqal.vapi ../libtracker-common/posix.vapi ../libtracker-common/libtracker-common.vapi libtracker-data.vapi ../libtracker-db/libtracker-db.vapi $^
 	touch $@
 
 libtracker_data_la_LDFLAGS =						\

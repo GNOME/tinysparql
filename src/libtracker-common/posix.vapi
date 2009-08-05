@@ -21,5 +21,7 @@
 namespace Posix {
 	[CCode (cheader_filename = "string.h")]
 	public static size_t strcspn (string s1, string s2);
+	[CCode (cheader_filename = "string.h")]
+	public static unowned string strchr (string s, int c);
 }
 

@@ -46,7 +46,7 @@ public class Tracker.SparqlQuery : Object {
 	class LiteralBinding : DataBinding {
 		public bool is_fts_match;
 		public string literal;
-		public Rasqal.Literal.Type literal_type;
+		// public Rasqal.Literal.Type literal_type;
 	}
 
 	// Represents a mapping of a SPARQL variable to a SQL table and column
@@ -221,8 +221,32 @@ public class Tracker.SparqlQuery : Object {
 		}
 	}
 
+	SparqlScanner scanner;
+
+	// token buffer
+	TokenInfo[] tokens;
+	// index of current token in buffer
+	int index;
+	// number of tokens in buffer
+	int size;
+
+	const int BUFFER_SIZE = 32;
+
+	struct TokenInfo {
+		public SparqlTokenType type;
+		public SourceLocation begin;
+		public SourceLocation end;
+	}
+
 	string query_string;
 	bool update_extensions;
+
+	string current_subject;
+	bool current_subject_is_var;
+	string current_predicate;
+	bool current_predicate_is_var;
+
+	HashTable<string,string> prefix_map;
 
 	StringBuilder pattern_sql;
 
@@ -251,6 +275,9 @@ public class Tracker.SparqlQuery : Object {
 	string error_message;
 
 	public SparqlQuery (string query) {
+		tokens = new TokenInfo[BUFFER_SIZE];
+		prefix_map = new HashTable<string,string>.full (str_hash, str_equal, g_free, g_free);
+
 		this.query_string = query;
 	}
 
@@ -259,6 +286,7 @@ public class Tracker.SparqlQuery : Object {
 		this.update_extensions = true;
 	}
 
+#if 0
 	string get_sql_for_literal (Rasqal.Literal literal) {
 		assert (literal.type == Rasqal.Literal.Type.VARIABLE);
 
@@ -284,8 +312,9 @@ public class Tracker.SparqlQuery : Object {
 		}
 		return "NULL";
 	}
+#endif
 
-	string generate_bnodeid_handler (Rasqal.Query? query, string? user_bnodeid) {
+	string generate_bnodeid (string? user_bnodeid) {
 		// user_bnodeid is NULL for anonymous nodes
 		if (user_bnodeid == null) {
 			return ":%d".printf (++bnodeid);
@@ -304,51 +333,112 @@ public class Tracker.SparqlQuery : Object {
 		}
 	}
 
+#if 0
 	void error_handler (Raptor.Locator? locator, string message) {
 		if (error_message == null) {
 			// return first, not last, error message
 			error_message = message;
 		}
 	}
+#endif
 
 	private bool is_ask { get; set; }
 
-	public DBResultSet? execute () throws Error {
-		var world = new Rasqal.World ();
-		world.open ();
+	inline bool next () {
+		index = (index + 1) % BUFFER_SIZE;
+		size--;
+		if (size <= 0) {
+			SourceLocation begin, end;
+			SparqlTokenType type = scanner.read_token (out begin, out end);
+			tokens[index].type = type;
+			tokens[index].begin = begin;
+			tokens[index].end = end;
+			size = 1;
+		}
+		return (tokens[index].type != SparqlTokenType.EOF);
+	}
 
-		// use LAQRS - extension to SPARQL - to support aggregation
-		var query = new Rasqal.Query (world, "laqrs", null);
+	inline SparqlTokenType current () {
+		return tokens[index].type;
+	}
+
+	inline SparqlTokenType last () {
+		int last_index = (index + BUFFER_SIZE - 1) % BUFFER_SIZE;
+		return tokens[last_index].type;
+	}
+
+	inline bool accept (SparqlTokenType type) {
+		if (current () == type) {
+			next ();
+			return true;
+		}
+		return false;
+	}
+
+	bool expect (SparqlTokenType type) throws SparqlError {
+		if (accept (type)) {
+			return true;
+		}
+
+		throw new SparqlError.PARSE ("expected %s", type.to_string ());
+	}
+
+	inline SourceLocation get_location () {
+		return tokens[index].begin;
+	}
+
+	void set_location (SourceLocation location) {
+		scanner.seek (location);
+		size = 0;
+		index = 0;
+		next ();
+	}
+
+	string get_current_string () {
+		return ((string) tokens[index].begin.pos).ndup ((tokens[index].end.pos - tokens[index].begin.pos));
+	}
+
+	string get_last_string (int strip = 0) {
+		int last_index = (index + BUFFER_SIZE - 1) % BUFFER_SIZE;
+		return ((string) (tokens[last_index].begin.pos + strip)).ndup ((tokens[last_index].end.pos - tokens[last_index].begin.pos - 2 * strip));
+	}
+
+	void parse_prologue () throws SparqlError {
+		if (accept (SparqlTokenType.BASE)) {
+			expect (SparqlTokenType.IRI_REF);
+		}
+		while (accept (SparqlTokenType.PREFIX)) {
+			string ns = "";
+			if (accept (SparqlTokenType.PN_PREFIX)) {
+				ns = get_last_string ();
+			}
+			expect (SparqlTokenType.COLON);
+			expect (SparqlTokenType.IRI_REF);
+			string uri = get_last_string ();
+			prefix_map.insert (ns, uri.substring (1, uri.length - 2));
+		}
+	}
+
+	public DBResultSet? execute () throws Error {
+		scanner = new SparqlScanner ((char*) query_string, (long) query_string.size ());
+		next ();
 
 		foreach (Namespace ns in Ontology.get_namespaces ()) {
-			query.add_prefix (new Rasqal.Prefix (world, ns.prefix, new Raptor.Uri (ns.uri)));
+			prefix_map.insert (ns.prefix, ns.uri);
 		}
 
-		query.declare_prefixes ();
-
-		base_uuid = new uchar[16];
-		uuid_generate (base_uuid);
-		query.set_generate_bnodeid_handler (generate_bnodeid_handler);
-
-		query.set_warning_handler (error_handler);
-		query.set_error_handler (error_handler);
-		query.set_fatal_error_handler (error_handler);
-
-		query.prepare (this.query_string, null);
-		if (error_message != null) {
-			throw new SparqlError.PARSE (error_message);
-		}
+		parse_prologue ();
 
 		if (!update_extensions) {
-			if (query.get_verb () == Rasqal.QueryVerb.SELECT) {
-				return execute_select (query);
-			} else if (query.get_verb () == Rasqal.QueryVerb.CONSTRUCT) {
+			if (current () == SparqlTokenType.SELECT) {
+				return execute_select ();
+			} else if (current () == SparqlTokenType.CONSTRUCT) {
 				throw new SparqlError.INTERNAL ("CONSTRUCT is not supported");
-			} else if (query.get_verb () == Rasqal.QueryVerb.DESCRIBE) {
+			} else if (current () == SparqlTokenType.DESCRIBE) {
 				throw new SparqlError.INTERNAL ("DESCRIBE is not supported");
-			} else if (query.get_verb () == Rasqal.QueryVerb.ASK) {
+			} else if (current () == SparqlTokenType.ASK) {
 				is_ask = true;
-				return execute_select (query);
+				return execute_select ();
 			} else {
 				throw new SparqlError.PARSE ("DELETE and INSERT are not supported in query mode");
 			}
@@ -359,18 +449,16 @@ public class Tracker.SparqlQuery : Object {
 			Data.begin_transaction ();
 
 			try {
-				unowned Rasqal.Query operation = query;
-				while (operation != null) {
-					if (operation.get_verb () == Rasqal.QueryVerb.INSERT) {
-						execute_insert (operation);
-					} else if (operation.get_verb () == Rasqal.QueryVerb.DELETE) {
-						execute_delete (operation);
-					} else if (operation.get_verb () == Rasqal.QueryVerb.DROP) {
-						Data.delete_resource_description (operation.get_data_graph (0).name_uri.as_string ());
+				while (current () != SparqlTokenType.EOF) {
+					if (current () == SparqlTokenType.INSERT) {
+						execute_insert ();
+					} else if (current () == SparqlTokenType.DELETE) {
+						execute_delete ();
+					} else if (current () == SparqlTokenType.DROP) {
+						// Data.delete_resource_description (operation.get_data_graph (0).name_uri.as_string ());
 					} else {
 						throw new SparqlError.PARSE ("SELECT, CONSTRUCT, DESCRIBE, and ASK are not supported in update mode");
 					}
-					operation = operation.next ();
 				}
 			} finally {
 				Data.commit_transaction ();
@@ -411,8 +499,10 @@ public class Tracker.SparqlQuery : Object {
 				}
 			} else if (binding.is_datetime) {
 				stmt.bind_int (i, string_to_date (binding.literal));
+#if 0
 			} else if (binding.literal_type == Rasqal.Literal.Type.INTEGER) {
 				stmt.bind_int (i, binding.literal.to_int ());
+#endif
 			} else {
 				stmt.bind_text (i, binding.literal);
 			}
@@ -422,51 +512,59 @@ public class Tracker.SparqlQuery : Object {
 		return stmt.execute ();
 	}
 
-	DBResultSet? execute_select (Rasqal.Query query) throws Error {
+	DBResultSet? execute_select () throws Error {
 		// SELECT query
 
 		pattern_sql = new StringBuilder ();
 		var_map = new HashTable<string,VariableBinding>.full (str_hash, str_equal, g_free, g_object_unref);
 		predicate_variable_map = new HashTable<string,PredicateVariable>.full (str_hash, str_equal, g_free, g_object_unref);
 
-		if (query.get_query_graph_pattern () == null) {
-			throw new SparqlError.PARSE ("Missing WHERE clause");
-		}
-
-		// process WHERE clause
-		visit_graph_pattern (query.get_query_graph_pattern ());
+		var select_variables = new List<string> ();
 
 		// build SQL
 		var sql = new StringBuilder ();
-
 		sql.append ("SELECT ");
-		if (query.get_distinct ()) {
+
+		expect (SparqlTokenType.SELECT);
+
+		if (accept (SparqlTokenType.DISTINCT)) {
 			sql.append ("DISTINCT ");
+		} else if (accept (SparqlTokenType.REDUCED)) {
 		}
 
 		if (is_ask) {
 			sql.append ("COUNT(1) > 0");
 		}
 
-		bool first = true;
-		for (int var_idx = 0; true; var_idx++) {
-			weak Rasqal.Variable variable = query.get_variable (var_idx);
-			if (variable == null) {
-				break;
+		if (accept (SparqlTokenType.STAR)) {
+			// TODO
+		} else {
+			if (current () == SparqlTokenType.VAR) {
+				while (accept (SparqlTokenType.VAR)) {
+					select_variables.append (get_last_string ().substring (1));
+				}
+			} else {
+				// TODO: error
 			}
+		}
 
+		if (accept (SparqlTokenType.FROM)) {
+			accept (SparqlTokenType.NAMED);
+			expect (SparqlTokenType.IRI_REF);
+		}
+
+		accept (SparqlTokenType.WHERE);
+
+		visit_group_graph_pattern ();
+
+		bool first = true;
+		foreach (string variable in select_variables) {
 			if (!first) {
 				sql.append (", ");
 			} else {
 				first = false;
 			}
-			
-			if (variable.expression != null) {
-				// LAQRS aggregate expression
-				sql.append (get_sql_for_expression (variable.expression));
-			} else {
-				sql.append (get_sql_for_variable (variable.name));
-			}
+			sql.append (get_sql_for_variable (variable));
 		}
 
 		// select from results of WHERE clause
@@ -474,6 +572,9 @@ public class Tracker.SparqlQuery : Object {
 		sql.append (pattern_sql.str);
 		sql.append (")");
 
+		pattern_sql.truncate (0);
+
+#if 0
 		// GROUP BY (SPARQL extension, LAQRS)
 		first = true;
 		for (int group_idx = 0; true; group_idx++) {
@@ -499,55 +600,75 @@ public class Tracker.SparqlQuery : Object {
 				sql.append (" DESC");
 			}
 		}
+#endif
 
-		// ORDER BY
-		first = true;
-		for (int order_idx = 0; true; order_idx++) {
-			weak Rasqal.Expression order = query.get_order_condition (order_idx);
-			if (order == null) {
-				break;
+		if (accept (SparqlTokenType.ORDER)) {
+			expect (SparqlTokenType.BY);
+			sql.append (" ORDER BY ");
+			bool first_order = true;
+			do {
+				if (first_order) {
+					first_order = false;
+				} else {
+					sql.append (", ");
+				}
+				if (accept (SparqlTokenType.ASC)) {
+					parse_bracketted_expression ();
+					sql.append (pattern_sql.str);
+					sql.append (" ASC");
+				} else if (accept (SparqlTokenType.DESC)) {
+					parse_bracketted_expression ();
+					sql.append (pattern_sql.str);
+					sql.append (" DESC");
+				} else {
+					parse_primary_expression ();
+					sql.append (pattern_sql.str);
+				}
+				pattern_sql.truncate (0);
+			} while (current () != SparqlTokenType.LIMIT && current () != SparqlTokenType.OFFSET && current () != SparqlTokenType.EOF);
+		}
+
+		int limit = -1;
+		int offset = -1;
+
+		if (accept (SparqlTokenType.LIMIT)) {
+			expect (SparqlTokenType.INTEGER);
+			limit = get_last_string ().to_int ();
+			if (accept (SparqlTokenType.OFFSET)) {
+				expect (SparqlTokenType.INTEGER);
+				offset = get_last_string ().to_int ();
 			}
-
-			if (!first) {
-				sql.append (", ");
-			} else {
-				sql.append (" ORDER BY ");
-				first = false;
-			}
-			assert (order.op == Rasqal.Op.ORDER_COND_ASC || order.op == Rasqal.Op.ORDER_COND_DESC);
-			assert (order.arg1.op == Rasqal.Op.LITERAL);
-			assert (order.arg1.literal.type == Rasqal.Literal.Type.VARIABLE);
-			string variable_name = order.arg1.literal.as_variable ().name;
-
-			sql.append (get_sql_for_variable (variable_name));
-
-			if (order.op == Rasqal.Op.ORDER_COND_DESC) {
-				sql.append (" DESC");
+		} else if (accept (SparqlTokenType.OFFSET)) {
+			expect (SparqlTokenType.INTEGER);
+			offset = get_last_string ().to_int ();
+			if (accept (SparqlTokenType.LIMIT)) {
+				expect (SparqlTokenType.INTEGER);
+				limit = get_last_string ().to_int ();
 			}
 		}
 
 		// LIMIT and OFFSET
-		if (query.get_limit () >= 0) {
+		if (limit >= 0) {
 			sql.append (" LIMIT ?");
 
 			var binding = new LiteralBinding ();
-			binding.literal = query.get_limit ().to_string ();
+			binding.literal = limit.to_string ();
 			binding.literal_type = Rasqal.Literal.Type.INTEGER;
 			bindings.append (binding);
 
-			if (query.get_offset () >= 0) {
+			if (offset >= 0) {
 				sql.append (" OFFSET ?");
 
 				binding = new LiteralBinding ();
-				binding.literal = query.get_offset ().to_string ();
+				binding.literal = offset.to_string ();
 				binding.literal_type = Rasqal.Literal.Type.INTEGER;
 				bindings.append (binding);
 			}
-		} else if (query.get_offset () >= 0) {
+		} else if (offset >= 0) {
 			sql.append (" LIMIT -1 OFFSET ?");
 
 			var binding = new LiteralBinding ();
-			binding.literal = query.get_offset ().to_string ();
+			binding.literal = offset.to_string ();
 			binding.literal_type = Rasqal.Literal.Type.INTEGER;
 			bindings.append (binding);
 		}
@@ -555,15 +676,15 @@ public class Tracker.SparqlQuery : Object {
 		return exec_sql (sql.str);
 	}
 
-	void execute_insert (Rasqal.Query query) throws Error {
-		execute_update (query, false);
+	void execute_insert () throws Error {
+		execute_update (false);
 	}
 
-	void execute_delete (Rasqal.Query query) throws Error {
-		execute_update (query, true);
+	void execute_delete () throws Error {
+		execute_update (true);
 	}
 
-	void execute_update (Rasqal.Query query, bool delete_statements) throws Error {
+	void execute_update (bool delete_statements) throws Error {
 		// INSERT or DELETE
 
 		pattern_sql = new StringBuilder ();
@@ -572,6 +693,7 @@ public class Tracker.SparqlQuery : Object {
 
 		var sql = new StringBuilder ();
 
+#if 0
 		// process WHERE clause
 		if (query.get_query_graph_pattern () != null) {
 			visit_graph_pattern (query.get_query_graph_pattern ());
@@ -660,153 +782,625 @@ public class Tracker.SparqlQuery : Object {
 				}
 			} while (result_set.iter_next ());
 		}
+#endif
 	}
 
-	void visit_graph_pattern (Rasqal.GraphPattern graph_pattern) throws SparqlError {
-		bool first_where = true;
-		if (graph_pattern.get_operator () == Rasqal.GraphPattern.Operator.BASIC) {
-			tables = new List<DataTable> ();
-			table_map = new HashTable<string,DataTable>.full (str_hash, str_equal, g_free, g_object_unref);
+	string parse_var_or_term (out bool is_var) throws SparqlError {
+		string result = "";
+		is_var = false;
+		if (current () == SparqlTokenType.VAR) {
+			is_var = true;
+			next ();
+			result = get_last_string ().substring (1);
+		} else if (current () == SparqlTokenType.IRI_REF) {
+			next ();
+			result = get_last_string ();
+		} else if (current () == SparqlTokenType.PN_PREFIX) {
+			// prefixed name with namespace foo:bar
+			next ();
+			string ns = get_last_string ();
+			expect (SparqlTokenType.COLON);
+			result = prefix_map.lookup (ns) + get_last_string ().substring (1);
+		} else if (current () == SparqlTokenType.COLON) {
+			// prefixed name without namespace :bar
+			next ();
+			result = prefix_map.lookup ("") + get_last_string ().substring (1);
+		} else if (current () == SparqlTokenType.INTEGER) {
+			next ();
+		} else if (current () == SparqlTokenType.DECIMAL) {
+			next ();
+		} else if (current () == SparqlTokenType.DOUBLE) {
+			next ();
+		} else if (current () == SparqlTokenType.TRUE) {
+			next ();
+			result = "true";
+		} else if (current () == SparqlTokenType.FALSE) {
+			next ();
+			result = "false";
+		} else if (current () == SparqlTokenType.OPEN_BRACKET) {
+			next ();
 
-			pattern_variables = new List<string> ();
-			pattern_var_map = new HashTable<string,VariableBindingList>.full (str_hash, str_equal, g_free, g_object_unref);
+			result = generate_bnodeid (null);
 
-			pattern_bindings = new List<LiteralBinding> ();
+			string old_subject = current_subject;
+			bool old_subject_is_var = current_subject_is_var;
 
-			pattern_sql.append ("SELECT ");
+			current_subject = result;
+			current_subject_is_var = true;
+			parse_property_list_not_empty ();
+			expect (SparqlTokenType.CLOSE_BRACKET);
 
-			for (int triple_idx = 0; true; triple_idx++) {
-				weak Rasqal.Triple triple = graph_pattern.get_triple (triple_idx);
-				if (triple == null) {
-					break;
-				}
+			current_subject = old_subject;
+			current_subject_is_var = old_subject_is_var;
 
-				visit_triple (triple);
+			is_var = true;
+		} else {
+			// TODO error
+		}
+		return result;
+	}
+
+	void parse_object_list () throws SparqlError {
+		while (true) {
+			parse_object ();
+			if (accept (SparqlTokenType.COMMA)) {
+				continue;
 			}
+			break;
+		}
+	}
 
-			// remove last comma and space
-			pattern_sql.truncate (pattern_sql.len - 2);
+	void parse_property_list_not_empty () throws SparqlError {
+		while (true) {
+			var old_predicate = current_predicate;
+			var old_predicate_is_var = current_predicate_is_var;
 
-			pattern_sql.append (" FROM ");
-			bool first = true;
-			foreach (DataTable table in tables) {
-				if (!first) {
-					pattern_sql.append (", ");
-				} else {
-					first = false;
-				}
-				if (table.sql_db_tablename != null) {
-					pattern_sql.append_printf ("\"%s\"", table.sql_db_tablename);
-				} else {
-					pattern_sql.append_printf ("(%s)", table.predicate_variable.get_sql_query (this));
-				}
-				pattern_sql.append_printf (" AS \"%s\"", table.sql_query_tablename);
+			current_predicate = null;
+			current_predicate_is_var = false;
+			if (current () == SparqlTokenType.VAR) {
+				current_predicate_is_var = true;
+				next ();
+				current_predicate = get_last_string ().substring (1);
+			} else if (current () == SparqlTokenType.IRI_REF) {
+				next ();
+				current_predicate = get_last_string ();
+			} else if (current () == SparqlTokenType.PN_PREFIX) {
+				next ();
+				string ns = get_last_string ();
+				expect (SparqlTokenType.COLON);
+				current_predicate = prefix_map.lookup (ns) + get_last_string ().substring (1);
+			} else if (current () == SparqlTokenType.COLON) {
+				next ();
+				current_predicate = prefix_map.lookup ("") + get_last_string ().substring (1);
+			} else if (current () == SparqlTokenType.A) {
+				next ();
+				current_predicate = get_last_string ();
+			} else {
+				// TODO error
 			}
+			parse_object_list ();
 
-			foreach (string variable in pattern_variables) {
-				bool maybe_null = true;
-				string last_name = null;
-				foreach (VariableBinding binding in pattern_var_map.lookup (variable).list) {
-					string name = "\"%s\".\"%s\"".printf (binding.table.sql_query_tablename, binding.sql_db_column_name);
-					if (last_name != null) {
-						if (!first_where) {
-							pattern_sql.append (" AND ");
-						} else {
-							pattern_sql.append (" WHERE ");
-							first_where = false;
+			current_predicate = old_predicate;
+			current_predicate_is_var = old_predicate_is_var;
+
+			if (accept (SparqlTokenType.SEMICOLON)) {
+				continue;
+			}
+			break;
+		}
+	}
+
+
+	void parse_graph_pattern_not_triples (int group_graph_pattern_start) throws SparqlError {
+		if (current () == SparqlTokenType.OPTIONAL) {
+			parse_optional_graph_pattern (group_graph_pattern_start);
+		} else if (current () == SparqlTokenType.OPEN_BRACE) {
+			// parse_group_or_union_graph_pattern ();
+		} else if (current () == SparqlTokenType.GRAPH) {
+			// parse_graph_graph_pattern ();
+		}
+	}
+
+	void parse_bound_call () throws SparqlError {
+		expect (SparqlTokenType.BOUND);
+		expect (SparqlTokenType.OPEN_PARENS);
+		pattern_sql.append ("(");
+		parse_expression ();
+		pattern_sql.append (") IS NOT NULL");
+		expect (SparqlTokenType.CLOSE_PARENS);
+	}
+
+	void parse_regex () throws SparqlError {
+		expect (SparqlTokenType.REGEX);
+		expect (SparqlTokenType.OPEN_PARENS);
+		pattern_sql.append ("SparqlRegex(");
+		parse_expression ();
+		pattern_sql.append (", ");
+		expect (SparqlTokenType.COMMA);
+		parse_expression ();
+		pattern_sql.append (", ");
+		if (accept (SparqlTokenType.COMMA)) {
+			parse_expression ();
+		} else {
+			pattern_sql.append ("''");
+		}
+		pattern_sql.append (")");
+		expect (SparqlTokenType.CLOSE_PARENS);
+	}
+
+	void parse_primary_expression () throws SparqlError {
+		switch (current ()) {
+		case SparqlTokenType.OPEN_PARENS:
+			parse_bracketted_expression ();
+			break;
+		case SparqlTokenType.IRI_REF:
+		case SparqlTokenType.DECIMAL:
+		case SparqlTokenType.DOUBLE:
+		case SparqlTokenType.TRUE:
+		case SparqlTokenType.FALSE:
+			next ();
+			break;
+		case SparqlTokenType.STRING_LITERAL1:
+		case SparqlTokenType.STRING_LITERAL2:
+		case SparqlTokenType.STRING_LITERAL_LONG1:
+		case SparqlTokenType.STRING_LITERAL_LONG2:
+			next ();
+			pattern_sql.append ("?");
+
+			var binding = new LiteralBinding ();
+
+			switch (last ()) {
+			case SparqlTokenType.STRING_LITERAL1:
+			case SparqlTokenType.STRING_LITERAL2:
+				var sb = new StringBuilder ();
+
+				string s = get_last_string (1);
+				string* p = s;
+				string* end = p + s.size ();
+				while ((long) p < (long) end) {
+					string* q = Posix.strchr (p, '\\');
+					if (q == null) {
+						sb.append_len (p, (long) (end - p));
+						p = end;
+					} else {
+						sb.append_len (p, (long) (q - p));
+						p = q + 1;
+						switch (((char*) p)[0]) {
+						case '\'':
+						case '"':
+						case '\\':
+							sb.append_c (((char*) p)[0]);
+							break;
+						case 'b':
+							sb.append_c ('\b');
+							break;
+						case 'f':
+							sb.append_c ('\f');
+							break;
+						case 'n':
+							sb.append_c ('\n');
+							break;
+						case 'r':
+							sb.append_c ('\r');
+							break;
+						case 't':
+							sb.append_c ('\t');
+							break;
 						}
-						pattern_sql.append (last_name);
-						pattern_sql.append (" = ");
-						pattern_sql.append (name);
-					}
-					last_name = name;
-					if (!binding.maybe_null) {
-						maybe_null = false;
+						p++;
 					}
 				}
+				binding.literal = sb.str;
+				break;
+			case SparqlTokenType.STRING_LITERAL_LONG1:
+			case SparqlTokenType.STRING_LITERAL_LONG2:
+				binding.literal = get_last_string (3);
+				break;
+			}
 
-				if (maybe_null) {
-					// ensure that variable is bound in case it could return NULL in SQL
-					// assuming SPARQL variable is not optional
+			bindings.append (binding);
+
+			break;
+		case SparqlTokenType.INTEGER:
+			next ();
+			pattern_sql.append (get_last_string ());
+			break;
+		case SparqlTokenType.VAR:
+			next ();
+			string variable_name = get_last_string ().substring (1);
+			pattern_sql.append (get_sql_for_variable (variable_name));
+			break;
+		case SparqlTokenType.STR:
+		case SparqlTokenType.LANG:
+		case SparqlTokenType.LANGMATCHES:
+		case SparqlTokenType.DATATYPE:
+			next ();
+			break;
+		case SparqlTokenType.BOUND:
+			parse_bound_call ();
+			break;
+		case SparqlTokenType.SAMETERM:
+		case SparqlTokenType.ISIRI:
+		case SparqlTokenType.ISURI:
+		// case SparqlTokenType.ISBLANK:
+		case SparqlTokenType.ISLITERAL:
+			next ();
+			break;
+		case SparqlTokenType.REGEX:
+			parse_regex ();
+			break;
+		}
+	}
+
+	void parse_unary_expression () throws SparqlError {
+		if (accept (SparqlTokenType.OP_NEG)) {
+			pattern_sql.append ("NOT (");
+			parse_primary_expression ();
+			pattern_sql.append (")");
+			return;
+		}
+		parse_primary_expression ();
+	}
+
+	void parse_multiplicative_expression () throws SparqlError {
+		long begin = pattern_sql.len;
+		parse_unary_expression ();
+		while (true) {
+			if (accept (SparqlTokenType.STAR)) {
+				pattern_sql.insert (begin, "(");
+				pattern_sql.append (" * ");
+				parse_unary_expression ();
+				pattern_sql.append (")");
+			} else if (accept (SparqlTokenType.DIV)) {
+				pattern_sql.insert (begin, "(");
+				pattern_sql.append (" / ");
+				parse_unary_expression ();
+				pattern_sql.append (")");
+			} else {
+				break;
+			}
+		}
+	}
+
+	void parse_additive_expression () throws SparqlError {
+		long begin = pattern_sql.len;
+		parse_multiplicative_expression ();
+		while (true) {
+			if (accept (SparqlTokenType.PLUS)) {
+				pattern_sql.insert (begin, "(");
+				pattern_sql.append (" + ");
+				parse_multiplicative_expression ();
+				pattern_sql.append (")");
+			} else if (accept (SparqlTokenType.MINUS)) {
+				pattern_sql.insert (begin, "(");
+				pattern_sql.append (" - ");
+				parse_multiplicative_expression ();
+				pattern_sql.append (")");
+			} else {
+				break;
+			}
+		}
+	}
+
+	void parse_numeric_expression () throws SparqlError {
+		parse_additive_expression ();
+	}
+
+	void parse_relational_expression () throws SparqlError {
+		long begin = pattern_sql.len;
+		parse_numeric_expression ();
+		if (accept (SparqlTokenType.OP_GE)) {
+			pattern_sql.insert (begin, "(");
+			pattern_sql.append (" >= ");
+			parse_numeric_expression ();
+			pattern_sql.append (")");
+		} else if (accept (SparqlTokenType.OP_EQ)) {
+			pattern_sql.insert (begin, "(");
+			pattern_sql.append (" = ");
+			parse_numeric_expression ();
+			pattern_sql.append (")");
+		} else if (accept (SparqlTokenType.OP_NE)) {
+			pattern_sql.insert (begin, "(");
+			pattern_sql.append (" <> ");
+			parse_numeric_expression ();
+			pattern_sql.append (")");
+		} else if (accept (SparqlTokenType.OP_LT)) {
+			pattern_sql.insert (begin, "(");
+			pattern_sql.append (" < ");
+			parse_numeric_expression ();
+			pattern_sql.append (")");
+		} else if (accept (SparqlTokenType.OP_LE)) {
+			pattern_sql.insert (begin, "(");
+			pattern_sql.append (" <= ");
+			parse_numeric_expression ();
+			pattern_sql.append (")");
+		} else if (accept (SparqlTokenType.OP_GT)) {
+			pattern_sql.insert (begin, "(");
+			pattern_sql.append (" > ");
+			parse_numeric_expression ();
+			pattern_sql.append (")");
+		}
+	}
+
+	void parse_value_logical () throws SparqlError {
+		parse_relational_expression ();
+	}
+
+	void parse_conditional_and_expression () throws SparqlError {
+		parse_value_logical ();
+		while (accept (SparqlTokenType.OP_AND)) {
+			parse_value_logical ();
+		}
+	}
+
+	void parse_conditional_or_expression () throws SparqlError {
+		parse_conditional_and_expression ();
+		while (accept (SparqlTokenType.OP_OR)) {
+			parse_conditional_and_expression ();
+		}
+	}
+
+	void parse_expression () throws SparqlError {
+		parse_conditional_or_expression ();
+	}
+
+	void parse_bracketted_expression () throws SparqlError {
+		expect (SparqlTokenType.OPEN_PARENS);
+		parse_expression ();
+		expect (SparqlTokenType.CLOSE_PARENS);
+	}
+
+	void parse_constraint () throws SparqlError {
+		switch (current ()) {
+		case SparqlTokenType.STR:
+		case SparqlTokenType.LANG:
+		case SparqlTokenType.LANGMATCHES:
+		case SparqlTokenType.DATATYPE:
+		case SparqlTokenType.BOUND:
+		case SparqlTokenType.SAMETERM:
+		case SparqlTokenType.ISIRI:
+		case SparqlTokenType.ISURI:
+		// case SparqlTokenType.ISBLANK:
+		case SparqlTokenType.ISLITERAL:
+		case SparqlTokenType.REGEX:
+			parse_primary_expression ();
+			return;
+		}
+		parse_bracketted_expression ();
+	}
+
+	void parse_filter () throws SparqlError {
+		expect (SparqlTokenType.FILTER);
+		parse_constraint ();
+	}
+
+	void skip_filter () throws SparqlError {
+		expect (SparqlTokenType.FILTER);
+
+		switch (current ()) {
+		case SparqlTokenType.STR:
+		case SparqlTokenType.LANG:
+		case SparqlTokenType.LANGMATCHES:
+		case SparqlTokenType.DATATYPE:
+		case SparqlTokenType.BOUND:
+		case SparqlTokenType.SAMETERM:
+		case SparqlTokenType.ISIRI:
+		case SparqlTokenType.ISURI:
+		// case SparqlTokenType.ISBLANK:
+		case SparqlTokenType.ISLITERAL:
+		case SparqlTokenType.REGEX:
+			next ();
+			break;
+		}
+
+		expect (SparqlTokenType.OPEN_PARENS);
+		int n_parens = 1;
+		while (n_parens > 0) {
+			if (accept (SparqlTokenType.OPEN_PARENS)) {
+				n_parens++;
+			} else if (accept (SparqlTokenType.CLOSE_PARENS)) {
+				n_parens--;
+			} else if (current () == SparqlTokenType.EOF) {
+				throw new SparqlError.PARSE ("unexpected end of query, expected )");
+			} else {
+				// ignore everything else
+				next ();
+			}
+		}
+	}
+
+	void parse_triples_block () throws SparqlError {
+		while (true) {
+			current_subject = parse_var_or_term (out current_subject_is_var);
+			parse_property_list_not_empty ();
+
+			if (accept (SparqlTokenType.DOT)) {
+				if (current () == SparqlTokenType.VAR ||
+				    current () == SparqlTokenType.IRI_REF ||
+				    current () == SparqlTokenType.PN_PREFIX ||
+				    current () == SparqlTokenType.COLON ||
+				    current () == SparqlTokenType.OPEN_BRACKET) {
+					// optional TriplesBlock
+					continue;
+				}
+			}
+			break;
+		}
+
+		// remove last comma and space
+		pattern_sql.truncate (pattern_sql.len - 2);
+	}
+
+	void visit_group_graph_pattern () throws SparqlError {
+		SourceLocation[] filters = { };
+
+		bool first_where = true;
+
+		tables = new List<DataTable> ();
+		table_map = new HashTable<string,DataTable>.full (str_hash, str_equal, g_free, g_object_unref);
+
+		pattern_variables = new List<string> ();
+		pattern_var_map = new HashTable<string,VariableBindingList>.full (str_hash, str_equal, g_free, g_object_unref);
+
+		pattern_bindings = new List<LiteralBinding> ();
+
+		int group_graph_pattern_start = (int) pattern_sql.len;
+
+		pattern_sql.append ("SELECT ");
+
+		expect (SparqlTokenType.OPEN_BRACE);
+
+		// optional TriplesBlock
+		if (current () == SparqlTokenType.VAR ||
+		    current () == SparqlTokenType.IRI_REF ||
+		    current () == SparqlTokenType.PN_PREFIX ||
+		    current () == SparqlTokenType.COLON ||
+		    current () == SparqlTokenType.OPEN_BRACKET) {
+			parse_triples_block ();
+		}
+		/* possibly
+		else {
+			pattern_sql.append ("1");
+		}
+		*/
+
+		pattern_sql.append (" FROM ");
+		bool first = true;
+		foreach (DataTable table in tables) {
+			if (!first) {
+				pattern_sql.append (", ");
+			} else {
+				first = false;
+			}
+			if (table.sql_db_tablename != null) {
+				pattern_sql.append_printf ("\"%s\"", table.sql_db_tablename);
+			} else {
+				pattern_sql.append_printf ("(%s)", table.predicate_variable.get_sql_query (this));
+			}
+			pattern_sql.append_printf (" AS \"%s\"", table.sql_query_tablename);
+		}
+
+		foreach (string variable in pattern_variables) {
+			bool maybe_null = true;
+			string last_name = null;
+			foreach (VariableBinding binding in pattern_var_map.lookup (variable).list) {
+				string name = "\"%s\".\"%s\"".printf (binding.table.sql_query_tablename, binding.sql_db_column_name);
+				if (last_name != null) {
 					if (!first_where) {
 						pattern_sql.append (" AND ");
 					} else {
 						pattern_sql.append (" WHERE ");
 						first_where = false;
 					}
-					pattern_sql.append_printf ("\"%s_u\" IS NOT NULL", variable);
+					pattern_sql.append (last_name);
+					pattern_sql.append (" = ");
+					pattern_sql.append (name);
+				}
+				last_name = name;
+				if (!binding.maybe_null) {
+					maybe_null = false;
 				}
 			}
-			foreach (LiteralBinding binding in pattern_bindings) {
+
+			if (maybe_null) {
+				// ensure that variable is bound in case it could return NULL in SQL
+				// assuming SPARQL variable is not optional
 				if (!first_where) {
 					pattern_sql.append (" AND ");
 				} else {
 					pattern_sql.append (" WHERE ");
 					first_where = false;
 				}
-				pattern_sql.append ("\"");
-				pattern_sql.append (binding.table.sql_query_tablename);
-				pattern_sql.append ("\".\"");
-				pattern_sql.append (binding.sql_db_column_name);
-				pattern_sql.append ("\"");
-				if (binding.is_fts_match) {
-					// parameters do not work with fts MATCH
-					string escaped_literal = string.joinv ("''", binding.literal.split ("'"));
-					pattern_sql.append_printf (" IN (SELECT rowid FROM fts WHERE fts MATCH '%s')", escaped_literal);
+				pattern_sql.append_printf ("\"%s_u\" IS NOT NULL", variable);
+			}
+		}
+		foreach (LiteralBinding binding in pattern_bindings) {
+			if (!first_where) {
+				pattern_sql.append (" AND ");
+			} else {
+				pattern_sql.append (" WHERE ");
+				first_where = false;
+			}
+			pattern_sql.append ("\"");
+			pattern_sql.append (binding.table.sql_query_tablename);
+			pattern_sql.append ("\".\"");
+			pattern_sql.append (binding.sql_db_column_name);
+			pattern_sql.append ("\"");
+			if (binding.is_fts_match) {
+				// parameters do not work with fts MATCH
+				string escaped_literal = string.joinv ("''", binding.literal.split ("'"));
+				pattern_sql.append_printf (" IN (SELECT rowid FROM fts WHERE fts MATCH '%s')", escaped_literal);
+			} else {
+				pattern_sql.append (" = ");
+				if (binding.is_uri) {
+					pattern_sql.append ("(SELECT ID FROM \"rdfs:Resource\" WHERE Uri = ?)");
 				} else {
-					pattern_sql.append (" = ");
-					if (binding.is_uri) {
-						pattern_sql.append ("(SELECT ID FROM \"rdfs:Resource\" WHERE Uri = ?)");
-					} else {
-						pattern_sql.append ("?");
-					}
+					pattern_sql.append ("?");
 				}
 			}
+		}
 
-			tables = null;
-			table_map = null;
-			pattern_variables = null;
-			pattern_var_map = null;
-			pattern_bindings = null;
+		tables = null;
+		table_map = null;
+		pattern_variables = null;
+		pattern_var_map = null;
+		pattern_bindings = null;
+
+		while (true) {
+			// check whether we have GraphPatternNotTriples | Filter
+			if (current () == SparqlTokenType.OPTIONAL ||
+			    current () == SparqlTokenType.OPEN_BRACE ||
+			    current () == SparqlTokenType.GRAPH) {
+				parse_graph_pattern_not_triples (group_graph_pattern_start);
+			} else if (current () == SparqlTokenType.FILTER) {
+				filters += get_location ();
+				skip_filter ();
+			} else {
+				break;
+			}
+
+			accept (SparqlTokenType.DOT);
+
+			// optional TriplesBlock
+			if (current () == SparqlTokenType.VAR ||
+			    current () == SparqlTokenType.IRI_REF ||
+			    current () == SparqlTokenType.OPEN_BRACKET) {
+				parse_triples_block ();
+			}
+		}
+
+		expect (SparqlTokenType.CLOSE_BRACE);
+
+		// handle filters last, they apply to the pattern as a whole
+		if (filters.length > 0) {
+			var end = get_location ();
+
+			foreach (var filter_location in filters) {
+				if (!first_where) {
+					pattern_sql.append (" AND ");
+				} else {
+					pattern_sql.append (" WHERE ");
+					first_where = false;
+				}
+
+				set_location (filter_location);
+				parse_filter ();
+			}
+
+			set_location (end);
+		}
+	}
+
+	void parse_optional_graph_pattern (int group_graph_pattern_start) {
+		expect (SparqlTokenType.OPTIONAL);
+		pattern_sql.insert (group_graph_pattern_start, "SELECT * FROM (");
+		pattern_sql.append (") NATURAL LEFT JOIN (SELECT * FROM (");
+		visit_group_graph_pattern ();
+		pattern_sql.append ("))");
+#if 0
+		if (graph_pattern.get_operator () == Rasqal.GraphPattern.Operator.BASIC) {
 		} else if (graph_pattern.get_operator () == Rasqal.GraphPattern.Operator.GROUP
 		           || graph_pattern.get_operator () == Rasqal.GraphPattern.Operator.OPTIONAL) {
-			pattern_sql.append ("SELECT * FROM (");
-			long subgraph_start = pattern_sql.len;
-			int subgraph_idx = 0;
-			for (int pattern_idx = 0; true; pattern_idx++) {
-				weak Rasqal.GraphPattern sub_graph_pattern = graph_pattern.get_sub_graph_pattern (pattern_idx);
-				if (sub_graph_pattern == null) {
-					break;
-				}
-
-				if (sub_graph_pattern.get_operator () == Rasqal.GraphPattern.Operator.FILTER) {
-					// ignore filters, processed later
-					continue;
-				}
-
-				if (subgraph_idx > 1) {
-					// additional (SELECT * FROM ...) necessary
-					// when using more than two subgraphs to
-					// work around SQLite bug with NATURAL JOINs
-					pattern_sql.insert (subgraph_start, "(SELECT * FROM ");
-					pattern_sql.append (")");
-				}
-
-				if (subgraph_idx > 0) {
-					if (sub_graph_pattern.get_operator () == Rasqal.GraphPattern.Operator.OPTIONAL) {
-						pattern_sql.append (" NATURAL LEFT JOIN ");
-					} else {
-						pattern_sql.append (" NATURAL CROSS JOIN ");
-					}
-				}
-				pattern_sql.append ("(");
-				visit_graph_pattern (sub_graph_pattern);
-				pattern_sql.append (")");
-
-				// differs from pattern_idx due to filters
-				subgraph_idx++;
-			}
-			pattern_sql.append (")");
 		} else if (graph_pattern.get_operator () == Rasqal.GraphPattern.Operator.UNION) {
 			for (int pattern_idx = 0; true; pattern_idx++) {
 				weak Rasqal.GraphPattern sub_graph_pattern = graph_pattern.get_sub_graph_pattern (pattern_idx);
@@ -825,32 +1419,10 @@ public class Tracker.SparqlQuery : Object {
 				visit_graph_pattern (sub_graph_pattern);
 			}
 		}
-
-		// process filters
-		for (int pattern_idx = 0; true; pattern_idx++) {
-			weak Rasqal.GraphPattern sub_graph_pattern = graph_pattern.get_sub_graph_pattern (pattern_idx);
-			if (sub_graph_pattern == null) {
-				break;
-			}
-
-			if (sub_graph_pattern.get_operator () != Rasqal.GraphPattern.Operator.FILTER) {
-				// ignore non-filter subgraphs
-				continue;
-			}
-
-			weak Rasqal.Expression filter = sub_graph_pattern.get_filter_expression ();
-
-			if (!first_where) {
-				pattern_sql.append (" AND ");
-			} else {
-				pattern_sql.append (" WHERE ");
-				first_where = false;
-			}
-
-			visit_filter (filter);
-		}
+#endif
 	}
 
+#if 0
 	string get_string_from_literal (Rasqal.Literal lit, bool is_subject = false) {
 		if (lit.type == Rasqal.Literal.Type.BLANK) {
 			if (!is_subject && lit.as_string ().has_prefix (":")) {
@@ -858,20 +1430,17 @@ public class Tracker.SparqlQuery : Object {
 				// generate appropriate uri
 				return lit.as_string ();
 			} else {
-				return generate_bnodeid_handler (null, lit.as_string ());
+				return generate_bnodeid (lit.as_string ());
 			}
 		} else {
 			return lit.as_string ();
 		}
 	}
+#endif
 
-	void visit_triple (Rasqal.Triple triple) throws SparqlError {
-		string subject;
-		if (triple.subject.type == Rasqal.Literal.Type.VARIABLE) {
-			subject = "?" + triple.subject.as_variable ().name;
-		} else {
-			subject = get_string_from_literal (triple.subject, true);
-		}
+	void parse_object () throws SparqlError {
+		bool object_is_var;
+		string object = parse_var_or_term (out object_is_var);
 
 		string db_table;
 		bool rdftype = false;
@@ -881,38 +1450,38 @@ public class Tracker.SparqlQuery : Object {
 		DataTable table;
 		Property prop = null;
 
-		if (triple.predicate.type == Rasqal.Literal.Type.URI) {
-			prop = Ontology.get_property_by_uri (triple.predicate.as_string ());
+		if (!current_predicate_is_var) {
+			prop = Ontology.get_property_by_uri (current_predicate);
 
-			if (triple.predicate.as_string () == "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
-			    && triple.object.type == Rasqal.Literal.Type.URI) {
+			if (current_predicate == "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+			    && !object_is_var) {
 				// rdf:type query
 				rdftype = true;
-				var cl = Ontology.get_class_by_uri (triple.object.as_string ());
+				var cl = Ontology.get_class_by_uri (object);
 				if (cl == null) {
-					throw new SparqlError.UNKNOWN_CLASS ("Unknown class `%s'".printf (triple.object.as_string ()));
+					throw new SparqlError.UNKNOWN_CLASS ("Unknown class `%s'".printf (object));
 				}
 				db_table = cl.name;
 			} else if (prop == null) {
-				if (triple.predicate.as_string () == "http://www.tracker-project.org/ontologies/fts#match") {
+				if (current_predicate == "http://www.tracker-project.org/ontologies/fts#match") {
 					// fts:match
 					db_table = "rdfs:Resource";
 				} else {
-					throw new SparqlError.UNKNOWN_PROPERTY ("Unknown property `%s'".printf (triple.predicate.as_string ()));
+					throw new SparqlError.UNKNOWN_PROPERTY ("Unknown property `%s'".printf (current_predicate));
 				}
 			} else {
-				if (triple.predicate.as_string () == "http://www.w3.org/2000/01/rdf-schema#domain"
-				    && triple.subject.type == Rasqal.Literal.Type.VARIABLE
-				    && triple.object.type == Rasqal.Literal.Type.URI) {
+				if (current_predicate == "http://www.w3.org/2000/01/rdf-schema#domain"
+				    && current_subject_is_var
+				    && !object_is_var) {
 					// rdfs:domain
-					var domain = Ontology.get_class_by_uri (triple.object.as_string ());
+					var domain = Ontology.get_class_by_uri (object);
 					if (domain == null) {
-						throw new SparqlError.UNKNOWN_CLASS ("Unknown class `%s'".printf (triple.object.as_string ()));
+						throw new SparqlError.UNKNOWN_CLASS ("Unknown class `%s'".printf (object));
 					}
-					var pv = predicate_variable_map.lookup (triple.subject.as_variable ().name);
+					var pv = predicate_variable_map.lookup (current_subject);
 					if (pv == null) {
 						pv = new PredicateVariable ();
-						predicate_variable_map.insert (triple.subject.as_variable ().name, pv);
+						predicate_variable_map.insert (current_subject, pv);
 					}
 					pv.domain = domain;
 				}
@@ -926,31 +1495,31 @@ public class Tracker.SparqlQuery : Object {
 					db_table = prop.domain.name;
 				}
 			}
-			table = get_table (subject, db_table, share_table, out newtable);
+			table = get_table (current_subject, db_table, share_table, out newtable);
 		} else {
 			// variable in predicate
 			newtable = true;
 			table = new DataTable ();
-			table.predicate_variable = predicate_variable_map.lookup (triple.predicate.as_variable ().name);
+			table.predicate_variable = predicate_variable_map.lookup (current_predicate);
 			if (table.predicate_variable == null) {
 				table.predicate_variable = new PredicateVariable ();
-				predicate_variable_map.insert (triple.predicate.as_variable ().name, table.predicate_variable);
+				predicate_variable_map.insert (current_predicate, table.predicate_variable);
 			}
-			if (triple.subject.type == Rasqal.Literal.Type.URI) {
+			if (!current_subject_is_var) {
 				// single subject
-				table.predicate_variable.subject = subject;
+				table.predicate_variable.subject = current_subject;
 			}
-			if (triple.object.type == Rasqal.Literal.Type.URI) {
+			if (!current_subject_is_var) {
 				// single object
-				table.predicate_variable.object = get_string_from_literal (triple.object);
+				table.predicate_variable.object = object;
 			}
-			table.sql_query_tablename = triple.predicate.as_variable ().name + (++counter).to_string ();
+			table.sql_query_tablename = current_predicate + (++counter).to_string ();
 			tables.append (table);
 
 			// add to variable list
 			var binding = new VariableBinding ();
 			binding.is_uri = true;
-			binding.variable = triple.predicate.as_variable ().name;
+			binding.variable = current_predicate;
 			binding.table = table;
 			binding.sql_db_column_name = "predicate";
 			var binding_list = pattern_var_map.lookup (binding.variable);
@@ -971,10 +1540,10 @@ public class Tracker.SparqlQuery : Object {
 		}
 		
 		if (newtable) {
-			if (triple.subject.type == Rasqal.Literal.Type.VARIABLE) {
+			if (current_subject_is_var) {
 				var binding = new VariableBinding ();
 				binding.is_uri = true;
-				binding.variable = triple.subject.as_variable ().name;
+				binding.variable = current_subject;
 				binding.table = table;
 				binding.sql_db_column_name = "ID";
 				var binding_list = pattern_var_map.lookup (binding.variable);
@@ -995,8 +1564,8 @@ public class Tracker.SparqlQuery : Object {
 			} else {
 				var binding = new LiteralBinding ();
 				binding.is_uri = true;
-				binding.literal = get_string_from_literal (triple.subject);
-				binding.literal_type = triple.subject.type;
+				binding.literal = current_subject;
+				// binding.literal_type = triple.subject.type;
 				binding.table = table;
 				binding.sql_db_column_name = "ID";
 				pattern_bindings.append (binding);
@@ -1005,9 +1574,9 @@ public class Tracker.SparqlQuery : Object {
 		}
 		
 		if (!rdftype) {
-			if (triple.object.type == Rasqal.Literal.Type.VARIABLE) {
+			if (object_is_var) {
 				var binding = new VariableBinding ();
-				binding.variable = triple.object.as_variable ().name;
+				binding.variable = object;
 				binding.table = table;
 				if (prop != null) {
 
@@ -1049,23 +1618,23 @@ public class Tracker.SparqlQuery : Object {
 				if (var_map.lookup (binding.variable) == null) {
 					var_map.insert (binding.variable, binding);
 				}
-			} else if (triple.predicate.as_string () == "http://www.tracker-project.org/ontologies/fts#match") {
+			} else if (current_predicate == "http://www.tracker-project.org/ontologies/fts#match") {
 				var binding = new LiteralBinding ();
 				binding.is_fts_match = true;
-				binding.literal = triple.object.as_string ();
-				binding.literal_type = triple.object.type;
+				binding.literal = object;
+				// binding.literal_type = triple.object.type;
 				binding.table = table;
 				binding.sql_db_column_name = "ID";
 				pattern_bindings.append (binding);
 			} else {
 				var binding = new LiteralBinding ();
-				binding.literal = triple.object.as_string ();
-				binding.literal_type = triple.object.type;
+				binding.literal = object;
+				// binding.literal_type = triple.object.type;
 				binding.table = table;
 				if (prop != null) {
 					if (prop.data_type == PropertyType.RESOURCE) {
 						binding.is_uri = true;
-						binding.literal = get_string_from_literal (triple.object);
+						binding.literal = object;
 					} else if (prop.data_type == PropertyType.BOOLEAN) {
 						binding.is_boolean = true;
 					} else if (prop.data_type == PropertyType.DATE) {
@@ -1083,9 +1652,9 @@ public class Tracker.SparqlQuery : Object {
 			}
 		}
 
-		if (triple.subject.type != Rasqal.Literal.Type.VARIABLE &&
-		    triple.predicate.type != Rasqal.Literal.Type.VARIABLE &&
-		    triple.object.type != Rasqal.Literal.Type.VARIABLE) {
+		if (!current_subject_is_var &&
+		    !current_predicate_is_var &&
+		    !object_is_var) {
 			// no variables involved, add dummy expression to SQL
 			pattern_sql.append ("1, ");
 		}
@@ -1109,6 +1678,7 @@ public class Tracker.SparqlQuery : Object {
 		return table;
 	}
 
+#if 0
 	string sql_operator (Rasqal.Op op) {
 		switch (op) {
 		case Rasqal.Op.AND:     return " AND ";
@@ -1278,6 +1848,7 @@ public class Tracker.SparqlQuery : Object {
 			throw new SparqlError.UNSUPPORTED ("Unsupported operation");
 		}
 	}
+#endif
 
 	static string? get_string_for_value (Value value)
 	{
