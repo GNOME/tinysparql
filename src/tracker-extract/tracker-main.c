@@ -101,7 +101,7 @@ static gboolean
 quit_timeout_cb (gpointer user_data)
 {
 	quit_timeout_id = 0;
-	g_main_loop_quit (main_loop);
+//	g_main_loop_quit (main_loop);
 
 	return FALSE;
 }
@@ -109,13 +109,13 @@ quit_timeout_cb (gpointer user_data)
 void
 tracker_main_quit_timeout_reset (void)
 {
-	if (quit_timeout_id != 0) {
-		g_source_remove (quit_timeout_id);
-	}
-
-	quit_timeout_id = g_timeout_add_seconds (QUIT_TIMEOUT, 
-						 quit_timeout_cb, 
-						 NULL);
+//	if (quit_timeout_id != 0) {
+//		g_source_remove (quit_timeout_id);
+//	}
+//
+//	quit_timeout_id = g_timeout_add_seconds (QUIT_TIMEOUT, 
+//						 quit_timeout_cb, 
+//						 NULL);
 }
 
 TrackerHal *
@@ -181,7 +181,7 @@ signal_handler (int signo)
 
 	/* Die if we get re-entrant signals handler calls */
 	if (in_loop) {
-		_exit (EXIT_FAILURE);
+//		_exit (EXIT_FAILURE);
 	}
 
 	switch (signo) {
@@ -192,7 +192,7 @@ signal_handler (int signo)
 	case SIGTERM:
 	case SIGINT:
 		in_loop = TRUE;
-		quit_timeout_cb (NULL);
+//		quit_timeout_cb (NULL);
 	default:
 		if (g_strsignal (signo)) {
 			g_print ("\n");

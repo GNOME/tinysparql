@@ -223,28 +223,28 @@ extract_tiff (const gchar *filename,
 						continue;
 					}
 
-					sprintf (buffer,"%s",text);
+					snprintf (buffer, 1024, "%s",text);
 					break;
 				case TIFF_TAGTYPE_UINT16:						
 					if (!TIFFGetField (image, tag->tag, &varui16)) {
 						continue;
 					}
 
-					sprintf (buffer,"%i",varui16);
+					snprintf (buffer, 1024, "%i",varui16);
 					break;
 				case TIFF_TAGTYPE_UINT32:
 					if (!TIFFGetField (image, tag->tag, &varui32)) {
 						continue;
 					}
 
-					sprintf(buffer,"%i",varui32);
+					snprintf(buffer, 1024, "%i",varui32);
 					break;
 				case TIFF_TAGTYPE_DOUBLE:
 					if (!TIFFGetField (image, tag->tag, &vardouble)) {
 						continue;
 					}
 
-					sprintf (buffer,"%f",vardouble);
+					snprintf (buffer, 1024, "%f",vardouble);
 					break;
 				case TIFF_TAGTYPE_C16_UINT16:						
 					if (!TIFFGetField (image, tag->tag, &count16, &data)) {
@@ -252,7 +252,7 @@ extract_tiff (const gchar *filename,
 					}
 
 					/* We only take only the first for now */
-					sprintf (buffer,"%i",*(guint16 *)data);
+					snprintf (buffer, 1024, "%i",*(guint16 *)data);
 					break;	
 
 				default:
@@ -275,36 +275,39 @@ extract_tiff (const gchar *filename,
 		}
 	}
 
+	int tel=0;
 	/* We want to give native tags priority over XMP/Exif */
 	for (tag = tags; tag->name; ++tag) {
+		tel++;
+		
 		switch (tag->type) {
 			case TIFF_TAGTYPE_STRING:
 				if (!TIFFGetField (image, tag->tag, &text)) {
 					continue;
 				}
 
-				sprintf (buffer,"%s", text);
+				snprintf (buffer, 1024, "%s", text);
 				break;
 			case TIFF_TAGTYPE_UINT16:
 				if (!TIFFGetField (image, tag->tag, &varui16)) {
 					continue;
 				}
 
-				sprintf (buffer,"%i",varui16);
+				snprintf (buffer, 1024, "%i",varui16);
 				break;
 			case TIFF_TAGTYPE_UINT32:
 				if (!TIFFGetField (image, tag->tag, &varui32)) {
 					continue;
 				}
 
-				sprintf(buffer,"%i",varui32);
+				snprintf(buffer, 1024, "%i",varui32);
 				break;
 			case TIFF_TAGTYPE_DOUBLE:
 				if (!TIFFGetField (image, tag->tag, &vardouble)) {
 					continue;
 				}
 
-				sprintf (buffer,"%f",vardouble);
+				snprintf (buffer, 1024, "%f",vardouble);
 				break;
 			default:
 				continue;
