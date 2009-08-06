@@ -470,7 +470,7 @@ tracker_extract_get_metadata (TrackerExtract	     *object,
 				    "  Resetting shutdown timeout");
 	
 	tracker_main_quit_timeout_reset ();
-//	alarm (MAX_EXTRACT_TIME);
+	alarm (MAX_EXTRACT_TIME);
 
 	values = get_file_metadata (object, request_id, path, mime);
 
@@ -494,5 +494,5 @@ tracker_extract_get_metadata (TrackerExtract	     *object,
 	}
 
 	/* Unset alarm so the extractor doesn't die when it's idle */
-//	alarm (0);
+	alarm (0);
 }
