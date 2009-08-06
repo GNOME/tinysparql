@@ -16,8 +16,8 @@
 
 #include "api.h"
 
-#define MAXINT INT_MAX
-#define MININT INT_MIN
+#define MAXINT G_MAXINT
+#define MININT G_MININT
 
 #define HEAD 2*sizeof(int)
 
