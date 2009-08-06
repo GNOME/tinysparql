@@ -64,13 +64,6 @@ nmo:PermanentChannel a rdfs:Class ;
 nmo:TransientChannel a rdfs:Class ;
 	rdfs:subClassOf nmo:CommunicationChannel .
 
-nmo:FeedChannel a rdfs:Class ;
-	rdfs:subClassOf nmo:CommunicationChannel .
-
-nmo:FeedMessage a rdfs:Class ;
-	tracker:notify true ;
-	rdfs:subClassOf nmo:Message .
-
 nmo:VOIPCall a rdfs:Class ;
 	rdfs:subClassOf nmo:Message .
 
@@ -233,17 +226,6 @@ nmo:duration a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmo:VOIPCall ;
 	rdfs:range xsd:integer .
-
-nmo:feedChannelTitle a rdf:Property ;
-	nrl:maxCardinality 1 ;
-	rdfs:domain nmo:FeedChannel ;
-	rdfs:range xsd:string .
-
-# FIXME Extension to nepomuk (string... we dont want a resource)
-nmo:image a rdf:Property ;
-	nrl:maxCardinality 1 ;
-	rdfs:domain nmo:FeedChannel ;
-	rdfs:range xsd:string .
 
 # FIXME Extension to nepomuk 
 nmo:accountName a rdf:Property ;
