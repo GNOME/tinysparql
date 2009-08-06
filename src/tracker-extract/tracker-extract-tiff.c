@@ -223,28 +223,28 @@ extract_tiff (const gchar *filename,
 						continue;
 					}
 
-					snprintf (buffer, 1024, "%s",text);
+					snprintf (buffer, sizeof (buffer), "%s",text);
 					break;
 				case TIFF_TAGTYPE_UINT16:						
 					if (!TIFFGetField (image, tag->tag, &varui16)) {
 						continue;
 					}
 
-					snprintf (buffer, 1024, "%i",varui16);
+					snprintf (buffer, sizeof (buffer), "%i",varui16);
 					break;
 				case TIFF_TAGTYPE_UINT32:
 					if (!TIFFGetField (image, tag->tag, &varui32)) {
 						continue;
 					}
 
-					snprintf(buffer, 1024, "%i",varui32);
+					snprintf(buffer, sizeof (buffer), "%i",varui32);
 					break;
 				case TIFF_TAGTYPE_DOUBLE:
 					if (!TIFFGetField (image, tag->tag, &vardouble)) {
 						continue;
 					}
 
-					snprintf (buffer, 1024, "%f",vardouble);
+					snprintf (buffer, sizeof (buffer), "%f",vardouble);
 					break;
 				case TIFF_TAGTYPE_C16_UINT16:						
 					if (!TIFFGetField (image, tag->tag, &count16, &data)) {
@@ -252,7 +252,7 @@ extract_tiff (const gchar *filename,
 					}
 
 					/* We only take only the first for now */
-					snprintf (buffer, 1024, "%i",*(guint16 *)data);
+					snprintf (buffer, sizeof (buffer), "%i",*(guint16 *)data);
 					break;	
 
 				default:
@@ -275,10 +275,8 @@ extract_tiff (const gchar *filename,
 		}
 	}
 
-	int tel=0;
 	/* We want to give native tags priority over XMP/Exif */
 	for (tag = tags; tag->name; ++tag) {
-		tel++;
 		
 		switch (tag->type) {
 			case TIFF_TAGTYPE_STRING:
@@ -286,28 +284,28 @@ extract_tiff (const gchar *filename,
 					continue;
 				}
 
-				snprintf (buffer, 1024, "%s", text);
+				snprintf (buffer, sizeof (buffer), "%s", text);
 				break;
 			case TIFF_TAGTYPE_UINT16:
 				if (!TIFFGetField (image, tag->tag, &varui16)) {
 					continue;
 				}
 
-				snprintf (buffer, 1024, "%i",varui16);
+				snprintf (buffer, sizeof (buffer), "%i",varui16);
 				break;
 			case TIFF_TAGTYPE_UINT32:
 				if (!TIFFGetField (image, tag->tag, &varui32)) {
 					continue;
 				}
 
-				snprintf(buffer, 1024, "%i",varui32);
+				snprintf(buffer, sizeof (buffer), "%i",varui32);
 				break;
 			case TIFF_TAGTYPE_DOUBLE:
 				if (!TIFFGetField (image, tag->tag, &vardouble)) {
 					continue;
 				}
 
-				snprintf (buffer, 1024, "%f",vardouble);
+				snprintf (buffer, sizeof (buffer), "%f",vardouble);
 				break;
 			default:
 				continue;
