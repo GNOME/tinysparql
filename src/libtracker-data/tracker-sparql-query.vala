@@ -511,14 +511,32 @@ public class Tracker.SparqlQuery : Object {
 		return stmt.execute ();
 	}
 
+	void skip_select_variables () {
+		while (true) {
+			switch (current ()) {
+			case SparqlTokenType.FROM:
+			case SparqlTokenType.WHERE:
+			case SparqlTokenType.OPEN_BRACE:
+			case SparqlTokenType.GROUP:
+			case SparqlTokenType.ORDER:
+			case SparqlTokenType.LIMIT:
+			case SparqlTokenType.OFFSET:
+			case SparqlTokenType.EOF:
+				break;
+			default:
+				next ();
+				continue;
+			}
+			break;
+		}
+	}
+
 	DBResultSet? execute_select () throws Error {
 		// SELECT query
 
 		pattern_sql = new StringBuilder ();
 		var_map = new HashTable<string,VariableBinding>.full (str_hash, str_equal, g_free, g_object_unref);
 		predicate_variable_map = new HashTable<string,PredicateVariable>.full (str_hash, str_equal, g_free, g_object_unref);
-
-		var select_variables = new List<string> ();
 
 		// build SQL
 		var sql = new StringBuilder ();
@@ -531,17 +549,9 @@ public class Tracker.SparqlQuery : Object {
 		} else if (accept (SparqlTokenType.REDUCED)) {
 		}
 
-		if (accept (SparqlTokenType.STAR)) {
-			// TODO
-		} else {
-			if (current () == SparqlTokenType.VAR) {
-				while (accept (SparqlTokenType.VAR)) {
-					select_variables.append (get_last_string ().substring (1));
-				}
-			} else {
-				// TODO: error
-			}
-		}
+		// skip select variables (processed later)
+		var select_variables_location = get_location ();
+		skip_select_variables ();
 
 		if (accept (SparqlTokenType.FROM)) {
 			accept (SparqlTokenType.NAMED);
@@ -551,23 +561,57 @@ public class Tracker.SparqlQuery : Object {
 		accept (SparqlTokenType.WHERE);
 
 		visit_group_graph_pattern ();
+		string pattern_sql_string = pattern_sql.str;
+		pattern_sql.truncate (0);
+
+		// process select variables
+		var after_where = get_location ();
+		set_location (select_variables_location);
 
 		bool first = true;
-		foreach (string variable in select_variables) {
-			if (!first) {
-				sql.append (", ");
-			} else {
-				first = false;
+		if (accept (SparqlTokenType.STAR)) {
+			foreach (string variable_name in var_map.get_keys ()) {
+				if (!first) {
+					pattern_sql.append (", ");
+				} else {
+					first = false;
+				}
+				pattern_sql.append (get_sql_for_variable (variable_name));
 			}
-			sql.append (get_sql_for_variable (variable));
+		} else {
+			while (true) {
+				if (!first) {
+					pattern_sql.append (", ");
+				} else {
+					first = false;
+				}
+				parse_primary_expression ();
+
+				switch (current ()) {
+				case SparqlTokenType.FROM:
+				case SparqlTokenType.WHERE:
+				case SparqlTokenType.OPEN_BRACE:
+				case SparqlTokenType.GROUP:
+				case SparqlTokenType.ORDER:
+				case SparqlTokenType.LIMIT:
+				case SparqlTokenType.OFFSET:
+				case SparqlTokenType.EOF:
+					break;
+				default:
+					continue;
+				}
+				break;
+			}
 		}
+		sql.append (pattern_sql.str);
+		pattern_sql.truncate (0);
 
 		// select from results of WHERE clause
 		sql.append (" FROM (");
-		sql.append (pattern_sql.str);
+		sql.append (pattern_sql_string);
 		sql.append (")");
 
-		pattern_sql.truncate (0);
+		set_location (after_where);
 
 		if (accept (SparqlTokenType.GROUP)) {
 			expect (SparqlTokenType.BY);
