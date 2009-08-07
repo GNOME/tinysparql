@@ -720,8 +720,6 @@ public class Tracker.SparqlQuery : Object {
 		var_map = new HashTable<string,VariableBinding>.full (str_hash, str_equal, g_free, g_object_unref);
 		predicate_variable_map = new HashTable<string,PredicateVariable>.full (str_hash, str_equal, g_free, g_object_unref);
 
-		var select_variables = new List<string> ();
-
 		// build SQL
 		var sql = new StringBuilder ();
 		sql.append ("SELECT ");
@@ -1011,11 +1009,9 @@ public class Tracker.SparqlQuery : Object {
 				}
 			}
 			return sb.str;
-			break;
 		case SparqlTokenType.STRING_LITERAL_LONG1:
 		case SparqlTokenType.STRING_LITERAL_LONG2:
 			return get_last_string (3);
-			break;
 		default:
 			assert_not_reached ();
 		}
@@ -1063,6 +1059,16 @@ public class Tracker.SparqlQuery : Object {
 			parse_bound_call ();
 			break;
 		case SparqlTokenType.SAMETERM:
+			next ();
+			expect (SparqlTokenType.OPEN_PARENS);
+			pattern_sql.append ("(");
+			parse_expression ();
+			pattern_sql.append (" = ");
+			expect (SparqlTokenType.COMMA);
+			parse_expression ();
+			pattern_sql.append (")");
+			expect (SparqlTokenType.CLOSE_PARENS);
+			break;
 		case SparqlTokenType.ISIRI:
 		case SparqlTokenType.ISURI:
 		// case SparqlTokenType.ISBLANK:
@@ -1170,16 +1176,24 @@ public class Tracker.SparqlQuery : Object {
 	}
 
 	void parse_conditional_and_expression () throws SparqlError {
+		long begin = pattern_sql.len;
 		parse_value_logical ();
 		while (accept (SparqlTokenType.OP_AND)) {
+			pattern_sql.insert (begin, "(");
+			pattern_sql.append (" && ");
 			parse_value_logical ();
+			pattern_sql.append (")");
 		}
 	}
 
 	void parse_conditional_or_expression () throws SparqlError {
+		long begin = pattern_sql.len;
 		parse_conditional_and_expression ();
 		while (accept (SparqlTokenType.OP_OR)) {
+			pattern_sql.insert (begin, "(");
+			pattern_sql.append (" || ");
 			parse_conditional_and_expression ();
+			pattern_sql.append (")");
 		}
 	}
 
@@ -1870,28 +1884,6 @@ public class Tracker.SparqlQuery : Object {
 	}
 
 #if 0
-	string sql_operator (Rasqal.Op op) {
-		switch (op) {
-		case Rasqal.Op.AND:     return " AND ";
-		case Rasqal.Op.OR:      return " OR ";
-		case Rasqal.Op.EQ:      return " = ";
-		case Rasqal.Op.SAMETERM:return " = ";
-		case Rasqal.Op.NEQ:     return " <> ";
-		case Rasqal.Op.LT:      return " < ";
-		case Rasqal.Op.GT:      return " > ";
-		case Rasqal.Op.LE:      return " <= ";
-		case Rasqal.Op.GE:      return " >= ";
-		case Rasqal.Op.PLUS:    return " + ";
-		case Rasqal.Op.MINUS:   return " - ";
-		case Rasqal.Op.STAR:    return " * ";
-		case Rasqal.Op.SLASH:   return " / ";
-		case Rasqal.Op.REM:     return " % ";
-		case Rasqal.Op.STR_EQ:  return " = ";
-		case Rasqal.Op.STR_NEQ: return " <> ";
-		default:                return "";
-		}
-	}
-
 	bool is_datetime_variable (Rasqal.Expression expr) {
 		if (expr.op == Rasqal.Op.LITERAL) {
 			if (expr.literal.type == Rasqal.Literal.Type.VARIABLE) {
@@ -1908,35 +1900,8 @@ public class Tracker.SparqlQuery : Object {
 
 	void visit_filter (Rasqal.Expression expr, bool is_datetime = false) throws SparqlError {
 		switch (expr.op) {
-		case Rasqal.Op.AND:
-		case Rasqal.Op.OR:
-		case Rasqal.Op.EQ:
-		case Rasqal.Op.NEQ:
-		case Rasqal.Op.LT:
-		case Rasqal.Op.GT:
-		case Rasqal.Op.LE:
-		case Rasqal.Op.GE:
-		case Rasqal.Op.PLUS:
-		case Rasqal.Op.MINUS:
-		case Rasqal.Op.STAR:
-		case Rasqal.Op.SLASH:
-		case Rasqal.Op.REM:
-		case Rasqal.Op.STR_EQ:
-		case Rasqal.Op.STR_NEQ:
-		case Rasqal.Op.SAMETERM:
-			pattern_sql.append ("(");
-			visit_filter (expr.arg1, is_datetime_variable (expr.arg2));
-			pattern_sql.append (sql_operator (expr.op));
-			visit_filter (expr.arg2, is_datetime_variable (expr.arg1));
-			pattern_sql.append (")");
-			break;
 		case Rasqal.Op.UMINUS:
 			pattern_sql.append ("-(");
-			visit_filter (expr.arg1);
-			pattern_sql.append (")");
-			break;
-		case Rasqal.Op.BANG:
-			pattern_sql.append ("NOT (");
 			visit_filter (expr.arg1);
 			pattern_sql.append (")");
 			break;
