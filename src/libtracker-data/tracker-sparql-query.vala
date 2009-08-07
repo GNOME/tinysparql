@@ -877,7 +877,7 @@ public class Tracker.SparqlQuery : Object {
 				current_predicate = prefix_map.lookup ("") + get_last_string ().substring (1);
 			} else if (current () == SparqlTokenType.A) {
 				next ();
-				current_predicate = get_last_string ();
+				current_predicate = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
 			} else {
 				// TODO error
 			}
