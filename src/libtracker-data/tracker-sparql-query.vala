@@ -437,7 +437,7 @@ public class Tracker.SparqlQuery : Object {
 			} else if (current () == SparqlTokenType.DESCRIBE) {
 				throw new SparqlError.INTERNAL ("DESCRIBE is not supported");
 			} else if (current () == SparqlTokenType.ASK) {
-				return execute_select ();
+				return execute_ask ();
 			} else {
 				throw new SparqlError.PARSE ("DELETE and INSERT are not supported in query mode");
 			}
@@ -512,9 +512,7 @@ public class Tracker.SparqlQuery : Object {
 	}
 
 	DBResultSet? execute_select () throws Error {
-		bool is_ask = false;
-
-		// SELECT or ASK query
+		// SELECT query
 
 		pattern_sql = new StringBuilder ();
 		var_map = new HashTable<string,VariableBinding>.full (str_hash, str_equal, g_free, g_object_unref);
@@ -526,19 +524,11 @@ public class Tracker.SparqlQuery : Object {
 		var sql = new StringBuilder ();
 		sql.append ("SELECT ");
 
-		if (accept (SparqlTokenType.ASK)) {
-			is_ask = true;
-		} else { 
-			expect (SparqlTokenType.SELECT);
-		}
+		expect (SparqlTokenType.SELECT);
 
 		if (accept (SparqlTokenType.DISTINCT)) {
 			sql.append ("DISTINCT ");
 		} else if (accept (SparqlTokenType.REDUCED)) {
-		}
-
-		if (is_ask) {
-			sql.append ("COUNT(1) > 0");
 		}
 
 		if (accept (SparqlTokenType.STAR)) {
@@ -675,6 +665,37 @@ public class Tracker.SparqlQuery : Object {
 			binding.literal_type = Rasqal.Literal.Type.INTEGER;
 			bindings.append (binding);
 		}
+
+		return exec_sql (sql.str);
+	}
+
+	DBResultSet? execute_ask () throws Error {
+		// ASK query
+
+		pattern_sql = new StringBuilder ();
+		var_map = new HashTable<string,VariableBinding>.full (str_hash, str_equal, g_free, g_object_unref);
+		predicate_variable_map = new HashTable<string,PredicateVariable>.full (str_hash, str_equal, g_free, g_object_unref);
+
+		var select_variables = new List<string> ();
+
+		// build SQL
+		var sql = new StringBuilder ();
+		sql.append ("SELECT ");
+
+		expect (SparqlTokenType.ASK);
+
+		sql.append ("COUNT(1) > 0");
+
+		accept (SparqlTokenType.WHERE);
+
+		visit_group_graph_pattern ();
+
+		// select from results of WHERE clause
+		sql.append (" FROM (");
+		sql.append (pattern_sql.str);
+		sql.append (")");
+
+		pattern_sql.truncate (0);
 
 		return exec_sql (sql.str);
 	}
