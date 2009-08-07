@@ -235,18 +235,6 @@ PKG_CHECK_MODULES(RAPTOR, [raptor >= 1.4.18])
 AC_SUBST(RAPTOR_CFLAGS)
 AC_SUBST(RAPTOR_LIBS)
 
-AC_PROG_LEX
-if test "$LEX" = :; then
-        AC_MSG_ERROR([flex not found but required])
-fi
-
-AC_CHECK_PROGS(YACC, 'bison -y' byacc yacc, :)
-if test "$YACC" = :; then
-        AC_MSG_ERROR([bison not found but required])
-fi
-
-AC_CHECK_FUNCS(strcasecmp)
-
 AC_PATH_PROG(VALAC, valac, valac)
 AC_SUBST(VALAC)
 
