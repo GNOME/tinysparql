@@ -577,33 +577,31 @@ public class Tracker.SparqlQuery : Object {
 
 		pattern_sql.truncate (0);
 
-#if 0
-		// GROUP BY (SPARQL extension, LAQRS)
-		first = true;
-		for (int group_idx = 0; true; group_idx++) {
-			weak Rasqal.Expression group = query.get_group_condition (group_idx);
-			if (group == null) {
-				break;
-			}
-
-			if (!first) {
-				sql.append (", ");
-			} else {
-				sql.append (" GROUP BY ");
-				first = false;
-			}
-			assert (group.op == Rasqal.Op.GROUP_COND_ASC || group.op == Rasqal.Op.GROUP_COND_DESC);
-			assert (group.arg1.op == Rasqal.Op.LITERAL);
-			assert (group.arg1.literal.type == Rasqal.Literal.Type.VARIABLE);
-			string variable_name = group.arg1.literal.as_variable ().name;
-
-			sql.append (get_sql_for_variable (variable_name));
-
-			if (group.op == Rasqal.Op.GROUP_COND_DESC) {
-				sql.append (" DESC");
-			}
+		if (accept (SparqlTokenType.GROUP)) {
+			expect (SparqlTokenType.BY);
+			sql.append (" GROUP BY ");
+			bool first_group = true;
+			do {
+				if (first_group) {
+					first_group = false;
+				} else {
+					sql.append (", ");
+				}
+				if (accept (SparqlTokenType.ASC)) {
+					parse_bracketted_expression ();
+					sql.append (pattern_sql.str);
+					sql.append (" ASC");
+				} else if (accept (SparqlTokenType.DESC)) {
+					parse_bracketted_expression ();
+					sql.append (pattern_sql.str);
+					sql.append (" DESC");
+				} else {
+					parse_primary_expression ();
+					sql.append (pattern_sql.str);
+				}
+				pattern_sql.truncate (0);
+			} while (current () != SparqlTokenType.ORDER && current () != SparqlTokenType.LIMIT && current () != SparqlTokenType.OFFSET && current () != SparqlTokenType.EOF);
 		}
-#endif
 
 		if (accept (SparqlTokenType.ORDER)) {
 			expect (SparqlTokenType.BY);
