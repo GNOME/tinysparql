@@ -266,6 +266,8 @@ public class Tracker.SparqlQuery : Object {
 	// Variables used as predicates
 	HashTable<string,PredicateVariable> predicate_variable_map;
 
+	bool delete_statements;
+
 	int counter;
 
 	int bnodeid = 0;
@@ -678,10 +680,12 @@ public class Tracker.SparqlQuery : Object {
 	}
 
 	void execute_insert () throws Error {
+		expect (SparqlTokenType.INSERT);
 		execute_update (false);
 	}
 
 	void execute_delete () throws Error {
+		expect (SparqlTokenType.DELETE);
 		execute_update (true);
 	}
 
@@ -694,33 +698,38 @@ public class Tracker.SparqlQuery : Object {
 
 		var sql = new StringBuilder ();
 
-#if 0
-		// process WHERE clause
-		if (query.get_query_graph_pattern () != null) {
-			visit_graph_pattern (query.get_query_graph_pattern ());
+		var template_location = get_location ();
+		skip_braces ();
 
-			// build SQL
-			sql.append ("SELECT ");
-			bool first = true;
-			foreach (VariableBinding binding in var_map.get_values ()) {
-				if (!first) {
-					sql.append (", ");
-				} else {
-					first = false;
-				}
-			
-				sql.append (get_sql_for_variable (binding.variable));
+		if (accept (SparqlTokenType.WHERE)) {
+			visit_group_graph_pattern ();
+		}
+
+		// build SQL
+		sql.append ("SELECT ");
+		bool first = true;
+		foreach (VariableBinding binding in var_map.get_values ()) {
+			if (!first) {
+				sql.append (", ");
+			} else {
+				first = false;
 			}
 
+			sql.append (get_sql_for_variable (binding.variable));
+		}
+
+		if (first) {
+			sql.append ("1");
+		} else {
 			// select from results of WHERE clause
 			sql.append (" FROM (");
 			sql.append (pattern_sql.str);
 			sql.append (")");
-		} else {
-			sql.append ("SELECT 1");
 		}
 
 		var result_set = exec_sql (sql.str);
+
+		this.delete_statements = delete_statements;
 
 		// iterate over all solutions
 		if (result_set != null) {
@@ -734,56 +743,12 @@ public class Tracker.SparqlQuery : Object {
 					var_value_map.insert (var_name, get_string_for_value (value));
 				}
 
+				set_location (template_location);
+
 				// iterate over each triple in the template
-				for (int triple_idx = 0; true; triple_idx++) {
-					weak Rasqal.Triple triple = query.get_construct_triple (triple_idx);
-					if (triple == null) {
-						break;
-					}
-					
-					string subject, predicate, object;
-
-					if (triple.subject.type == Rasqal.Literal.Type.VARIABLE) {
-						subject = var_value_map.lookup (triple.subject.as_variable ().name);
-
-						if (subject == null) {
-							throw new SparqlError.PARSE ("Variable %s was selected but is unused in the query", triple.subject.as_variable ().name);
-						}
-					} else {
-						subject = get_string_from_literal (triple.subject);
-					}
-
-					if (triple.predicate.type == Rasqal.Literal.Type.VARIABLE) {
-						predicate = var_value_map.lookup (triple.predicate.as_variable ().name);
-
-						if (predicate == null) {
-							throw new SparqlError.PARSE ("Variable %s was selected but is unused in the query", triple.predicate.as_variable ().name);
-						}
-					} else {
-						predicate = get_string_from_literal (triple.predicate);
-					}
-
-					if (triple.object.type == Rasqal.Literal.Type.VARIABLE) {
-						object = var_value_map.lookup (triple.object.as_variable ().name);
-
-						if (object == null) {
-							throw new SparqlError.PARSE ("Variable %s was selected but is unused in the query", triple.object.as_variable ().name);
-						}
-					} else {
-						object = get_string_from_literal (triple.object);
-					}
-
-					if (delete_statements) {
-						// delete triple from database
-						Data.delete_statement (subject, predicate, object);
-					} else {
-						// insert triple into database
-						Data.insert_statement (subject, predicate, object);
-					}
-				}
+				parse_construct_triples_block (var_value_map);
 			} while (result_set.iter_next ());
 		}
-#endif
 	}
 
 	string parse_var_or_term (out bool is_var) throws SparqlError {
@@ -1210,6 +1175,23 @@ public class Tracker.SparqlQuery : Object {
 		}
 	}
 
+	void skip_braces () throws SparqlError {
+		expect (SparqlTokenType.OPEN_BRACE);
+		int n_braces = 1;
+		while (n_braces > 0) {
+			if (accept (SparqlTokenType.OPEN_BRACE)) {
+				n_braces++;
+			} else if (accept (SparqlTokenType.CLOSE_BRACE)) {
+				n_braces--;
+			} else if (current () == SparqlTokenType.EOF) {
+				throw new SparqlError.PARSE ("unexpected end of query, expected }");
+			} else {
+				// ignore everything else
+				next ();
+			}
+		}
+	}
+
 	void parse_triples_block () throws SparqlError {
 		while (true) {
 			current_subject = parse_var_or_term (out current_subject_is_var);
@@ -1230,6 +1212,129 @@ public class Tracker.SparqlQuery : Object {
 
 		// remove last comma and space
 		pattern_sql.truncate (pattern_sql.len - 2);
+	}
+
+	void parse_construct_triples_block (HashTable<string,string> var_value_map) throws SparqlError {
+		expect (SparqlTokenType.OPEN_BRACE);
+
+		do {
+			current_subject = parse_construct_var_or_term (var_value_map);
+			parse_construct_property_list_not_empty (var_value_map);
+		} while (accept (SparqlTokenType.DOT) && current () != SparqlTokenType.CLOSE_BRACE);
+
+		expect (SparqlTokenType.CLOSE_BRACE);
+	}
+
+
+	string parse_construct_var_or_term (HashTable<string,string> var_value_map) throws SparqlError {
+		string result = "";
+		if (current () == SparqlTokenType.VAR) {
+			next ();
+			result = var_value_map.lookup (get_last_string ().substring (1));
+		} else if (current () == SparqlTokenType.IRI_REF) {
+			next ();
+			result = get_last_string ();
+		} else if (current () == SparqlTokenType.PN_PREFIX) {
+			// prefixed name with namespace foo:bar
+			next ();
+			string ns = get_last_string ();
+			expect (SparqlTokenType.COLON);
+			result = prefix_map.lookup (ns) + get_last_string ().substring (1);
+		} else if (current () == SparqlTokenType.COLON) {
+			// prefixed name without namespace :bar
+			next ();
+			result = prefix_map.lookup ("") + get_last_string ().substring (1);
+		} else if (current () == SparqlTokenType.INTEGER) {
+			next ();
+			result = get_last_string ();
+		} else if (current () == SparqlTokenType.DECIMAL) {
+			next ();
+			result = get_last_string ();
+		} else if (current () == SparqlTokenType.DOUBLE) {
+			next ();
+			result = get_last_string ();
+		} else if (current () == SparqlTokenType.TRUE) {
+			next ();
+			result = "true";
+		} else if (current () == SparqlTokenType.FALSE) {
+			next ();
+			result = "false";
+		} else if (current () == SparqlTokenType.OPEN_BRACKET) {
+			next ();
+
+			result = generate_bnodeid (null);
+
+			string old_subject = current_subject;
+			bool old_subject_is_var = current_subject_is_var;
+
+			current_subject = result;
+			parse_construct_property_list_not_empty (var_value_map);
+			expect (SparqlTokenType.CLOSE_BRACKET);
+
+			current_subject = old_subject;
+			current_subject_is_var = old_subject_is_var;
+		} else {
+			// TODO error
+		}
+		return result;
+	}
+
+	void parse_construct_property_list_not_empty (HashTable<string,string> var_value_map) throws SparqlError {
+		while (true) {
+			var old_predicate = current_predicate;
+
+			current_predicate = null;
+			if (current () == SparqlTokenType.VAR) {
+				current_predicate_is_var = true;
+				next ();
+				current_predicate = var_value_map.lookup (get_last_string ().substring (1));
+			} else if (current () == SparqlTokenType.IRI_REF) {
+				next ();
+				current_predicate = get_last_string ();
+			} else if (current () == SparqlTokenType.PN_PREFIX) {
+				next ();
+				string ns = get_last_string ();
+				expect (SparqlTokenType.COLON);
+				current_predicate = prefix_map.lookup (ns) + get_last_string ().substring (1);
+			} else if (current () == SparqlTokenType.COLON) {
+				next ();
+				current_predicate = prefix_map.lookup ("") + get_last_string ().substring (1);
+			} else if (current () == SparqlTokenType.A) {
+				next ();
+				current_predicate = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
+			} else {
+				// TODO error
+			}
+			parse_construct_object_list (var_value_map);
+
+			current_predicate = old_predicate;
+
+			if (accept (SparqlTokenType.SEMICOLON)) {
+				continue;
+			}
+			break;
+		}
+	}
+
+	void parse_construct_object_list (HashTable<string,string> var_value_map) throws SparqlError {
+		while (true) {
+			parse_construct_object (var_value_map);
+			if (accept (SparqlTokenType.COMMA)) {
+				continue;
+			}
+			break;
+		}
+	}
+
+	void parse_construct_object (HashTable<string,string> var_value_map) throws SparqlError {
+		string object = parse_construct_var_or_term (var_value_map);
+		if (delete_statements) {
+			// delete triple from database
+			Data.delete_statement (current_subject, current_predicate, object);
+		} else {
+			// insert triple into database
+			Data.insert_statement (current_subject, current_predicate, object);
+		}
 	}
 
 	void visit_group_graph_pattern () throws SparqlError {
