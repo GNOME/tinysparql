@@ -32,14 +32,12 @@ mfo:FeedMessage a rdfs:Class ;
 mfo:Enclosure a rdfs:Class ;
 	rdfs:label "Message enclosure" ;
 	rdfs:comment "Represents an enclosure of a feed message" ;
-	rdfs:subClassOf nfo:FileDataObject .
-# ????? FileDataObject?????
+	rdfs:subClassOf mfo:FeedElement .
 
 mfo:FeedSettings a rdfs:Class ;
 	rdfs:label "Resource settings" ;
 	rdfs:comment "Represents settings applied to a feed channel or a feed entry. How often it is updated, through which connection type it is delivered, when data expires and so on" ;
-	rdfs:subClassOr rdfs:Resource.
-#	rdfs:subClassOf nie:InformationElement .
+	rdfs:subClassOf rdfs:Resource.
 
 
 # PROPERTIES OF CHANNEL
@@ -93,7 +91,14 @@ mfo:remoteLink a rdf:Property ;
 	rdfs:comment "Used to store remote URL of enclosure" ;
 	rdfs:domain mfo:Enclosure ;
 	nrl:maxCardinality 1 ;
-	rdfs:range xsd:string .
+	rdfs:range nfo:RemoteDataObject .
+
+mfo:localLink a rdf:Property ;
+	rdfs:label "Local link" ;
+	rdfs:comment "Downloaded copy of the enclosure" ;
+	rdfs:domain mfo:Enclosure ;
+	rdfs:range nfo:FileDataObject ;
+	nrl:maxCardinality 1 .
 
 # Settings available for all Feed Elements
 mfo:feedSettings a rdf:Property ;
@@ -105,14 +110,14 @@ mfo:feedSettings a rdf:Property ;
 
 mfo:updateInterval a rdf:Property ;
 	rdfs:label "Update Interval" ;
-	rdfs:comment "Update interval for a feed channel to get updated or refreshed. FIXME Set units" ;
+	rdfs:comment "Update interval for a feed channel to get updated or refreshed. Interpreted as minutes" ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain mfo:FeedSettings ;
 	rdfs:range xsd:integer .
 
 mfo:expiryInterval a rdf:Property ;
 	rdfs:label "Expiry Interval" ;
-	rdfs:comment "Expiry interval for feed channel, it tells time that a message in a channel can live. FIXME Set units" ;
+	rdfs:comment "Expiry interval for feed channel, it tells time that a message in a channel can live. Interpreted as minutes" ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain mfo:FeedSettings ;
 	rdfs:range xsd:integer .
@@ -132,8 +137,8 @@ mfo:downloadFlag a rdf:Property ;
 	nrl:maxCardinality 1 .
 
 mfo:maxSize a rdf:Property ;
-	rdfs:label "SIZE" ;
-	rdfs:comment "Maximum size of enclosure that can be downloaded. FIXME Set units " ;
+	rdfs:label "Size" ;
+	rdfs:comment "Maximum size of enclosure that can be downloaded. Interpreted as KBs " ;
 	rdfs:domain mfo:FeedSettings ;
 	rdfs:range xsd:integer ;
 	nrl:maxCardinality 1 .
