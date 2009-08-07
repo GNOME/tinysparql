@@ -1436,11 +1436,7 @@ public class Tracker.SparqlQuery : Object {
 		}
 	}
 
-	void visit_group_graph_pattern () throws SparqlError {
-		SourceLocation[] filters = { };
-
-		bool first_where = true;
-
+	void process_triples_block (ref bool first_where) throws SparqlError {
 		tables = new List<DataTable> ();
 		table_map = new HashTable<string,DataTable>.full (str_hash, str_equal, g_free, g_object_unref);
 
@@ -1449,25 +1445,9 @@ public class Tracker.SparqlQuery : Object {
 
 		pattern_bindings = new List<LiteralBinding> ();
 
-		int group_graph_pattern_start = (int) pattern_sql.len;
-
 		pattern_sql.append ("SELECT ");
 
-		expect (SparqlTokenType.OPEN_BRACE);
-
-		// optional TriplesBlock
-		if (current () == SparqlTokenType.VAR ||
-		    current () == SparqlTokenType.IRI_REF ||
-		    current () == SparqlTokenType.PN_PREFIX ||
-		    current () == SparqlTokenType.COLON ||
-		    current () == SparqlTokenType.OPEN_BRACKET) {
-			parse_triples_block ();
-		}
-		/* possibly
-		else {
-			pattern_sql.append ("1");
-		}
-		*/
+		parse_triples_block ();
 
 		pattern_sql.append (" FROM ");
 		bool first = true;
@@ -1550,12 +1530,35 @@ public class Tracker.SparqlQuery : Object {
 		pattern_variables = null;
 		pattern_var_map = null;
 		pattern_bindings = null;
+	}
+
+	void visit_group_graph_pattern () throws SparqlError {
+		expect (SparqlTokenType.OPEN_BRACE);
+
+		SourceLocation[] filters = { };
+
+		bool first_where = true;
+		int group_graph_pattern_start = (int) pattern_sql.len;
+
+		// optional TriplesBlock
+		if (current () == SparqlTokenType.VAR ||
+		    current () == SparqlTokenType.IRI_REF ||
+		    current () == SparqlTokenType.PN_PREFIX ||
+		    current () == SparqlTokenType.COLON ||
+		    current () == SparqlTokenType.OPEN_BRACKET) {
+			process_triples_block (ref first_where);
+		}
 
 		while (true) {
 			// check whether we have GraphPatternNotTriples | Filter
-			if (current () == SparqlTokenType.OPTIONAL ||
-			    current () == SparqlTokenType.OPEN_BRACE ||
-			    current () == SparqlTokenType.GRAPH) {
+			if (current () == SparqlTokenType.OPTIONAL) {
+				if (group_graph_pattern_start == (int) pattern_sql.len) {
+					// empty graph pattern => return one result without bound variables
+					pattern_sql.append ("SELECT 1");
+				}
+				parse_graph_pattern_not_triples (group_graph_pattern_start);
+			} else if (current () == SparqlTokenType.OPEN_BRACE ||
+			           current () == SparqlTokenType.GRAPH) {
 				parse_graph_pattern_not_triples (group_graph_pattern_start);
 			} else if (current () == SparqlTokenType.FILTER) {
 				filters += get_location ();
@@ -1570,11 +1573,16 @@ public class Tracker.SparqlQuery : Object {
 			if (current () == SparqlTokenType.VAR ||
 			    current () == SparqlTokenType.IRI_REF ||
 			    current () == SparqlTokenType.OPEN_BRACKET) {
-				parse_triples_block ();
+				process_triples_block (ref first_where);
 			}
 		}
 
 		expect (SparqlTokenType.CLOSE_BRACE);
+
+		if (group_graph_pattern_start == (int) pattern_sql.len) {
+			// empty graph pattern => return one result without bound variables
+			pattern_sql.append ("SELECT 1");
+		}
 
 		// handle filters last, they apply to the pattern as a whole
 		if (filters.length > 0) {
@@ -1982,26 +1990,6 @@ public class Tracker.SparqlQuery : Object {
 				bindings.append (binding);
 			}
 			break;
-		case Rasqal.Op.BOUND:
-			pattern_sql.append ("(");
-			visit_filter (expr.arg1);
-			pattern_sql.append (") IS NOT NULL");
-			break;
-		case Rasqal.Op.REGEX:
-			pattern_sql.append ("SparqlRegex(");
-			visit_filter (expr.arg1);
-			pattern_sql.append (", ");
-			visit_filter (expr.arg2);
-			pattern_sql.append (", ");
-			if (expr.arg3 != null) {
-				visit_filter (expr.arg3);
-			} else {
-				pattern_sql.append ("''");
-			}
-			pattern_sql.append (")");
-			break;
-		default:
-			throw new SparqlError.UNSUPPORTED ("Unsupported operation");
 		}
 	}
 #endif
