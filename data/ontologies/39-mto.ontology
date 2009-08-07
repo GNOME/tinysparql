@@ -76,12 +76,24 @@ mto:state-active a mto:State .
 mto:state-paused a mto:State .
 mto:state-cancelled a mto:State .
 mto:state-done a mto:State .
+mto:state-pending a mto:State .
+mto:state-error a mto:State .
+mto:state-user-paused a mto:State .
+mto:state-user-cancelled a mto:State .
+mto:state-user-started a mto:State .
 
 mto:state a rdf:Property ;
     rdfs:label "State" ;
     rdfs:comment "Captures the current state of the transfer element: Pending (not started), In Progress, Paused, Cancelled, Done" ;
     nrl:maxCardinality 1 ;
     rdfs:domain mto:TransferElement ;
+    rdfs:range mto:State .
+
+mto:transferState a rdf:Property ;
+    rdfs:label "Transfer state" ;
+    rdfs:comment "Captures the state of the transfer. This is derived from the cumulative states of the transfer elements of this transfer. Applications are responsible to keep it up-to-date" ;
+    nrl:maxCardinality 1 ;
+    rdfs:domain mto:Transfer ;
     rdfs:range mto:State .
 
 mto:TransferMethod a rdfs:Class ;
