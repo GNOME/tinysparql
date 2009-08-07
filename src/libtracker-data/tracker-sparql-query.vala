@@ -836,6 +836,14 @@ public class Tracker.SparqlQuery : Object {
 			// prefixed name without namespace :bar
 			next ();
 			result = prefix_map.lookup ("") + get_last_string ().substring (1);
+		} else if (current () == SparqlTokenType.STRING_LITERAL1) {
+			result = parse_string_literal ();
+		} else if (current () == SparqlTokenType.STRING_LITERAL2) {
+			result = parse_string_literal ();
+		} else if (current () == SparqlTokenType.STRING_LITERAL_LONG1) {
+			result = parse_string_literal ();
+		} else if (current () == SparqlTokenType.STRING_LITERAL_LONG2) {
+			result = parse_string_literal ();
 		} else if (current () == SparqlTokenType.INTEGER) {
 			next ();
 		} else if (current () == SparqlTokenType.DECIMAL) {
@@ -959,6 +967,60 @@ public class Tracker.SparqlQuery : Object {
 		expect (SparqlTokenType.CLOSE_PARENS);
 	}
 
+	string parse_string_literal () throws SparqlError {
+		next ();
+		switch (last ()) {
+		case SparqlTokenType.STRING_LITERAL1:
+		case SparqlTokenType.STRING_LITERAL2:
+			var sb = new StringBuilder ();
+
+			string s = get_last_string (1);
+			string* p = s;
+			string* end = p + s.size ();
+			while ((long) p < (long) end) {
+				string* q = Posix.strchr (p, '\\');
+				if (q == null) {
+					sb.append_len (p, (long) (end - p));
+					p = end;
+				} else {
+					sb.append_len (p, (long) (q - p));
+					p = q + 1;
+					switch (((char*) p)[0]) {
+					case '\'':
+					case '"':
+					case '\\':
+						sb.append_c (((char*) p)[0]);
+						break;
+					case 'b':
+						sb.append_c ('\b');
+						break;
+					case 'f':
+						sb.append_c ('\f');
+						break;
+					case 'n':
+						sb.append_c ('\n');
+						break;
+					case 'r':
+						sb.append_c ('\r');
+						break;
+					case 't':
+						sb.append_c ('\t');
+						break;
+					}
+					p++;
+				}
+			}
+			return sb.str;
+			break;
+		case SparqlTokenType.STRING_LITERAL_LONG1:
+		case SparqlTokenType.STRING_LITERAL_LONG2:
+			return get_last_string (3);
+			break;
+		default:
+			assert_not_reached ();
+		}
+	}
+
 	void parse_primary_expression () throws SparqlError {
 		switch (current ()) {
 		case SparqlTokenType.OPEN_PARENS:
@@ -975,60 +1037,10 @@ public class Tracker.SparqlQuery : Object {
 		case SparqlTokenType.STRING_LITERAL2:
 		case SparqlTokenType.STRING_LITERAL_LONG1:
 		case SparqlTokenType.STRING_LITERAL_LONG2:
-			next ();
 			pattern_sql.append ("?");
 
 			var binding = new LiteralBinding ();
-
-			switch (last ()) {
-			case SparqlTokenType.STRING_LITERAL1:
-			case SparqlTokenType.STRING_LITERAL2:
-				var sb = new StringBuilder ();
-
-				string s = get_last_string (1);
-				string* p = s;
-				string* end = p + s.size ();
-				while ((long) p < (long) end) {
-					string* q = Posix.strchr (p, '\\');
-					if (q == null) {
-						sb.append_len (p, (long) (end - p));
-						p = end;
-					} else {
-						sb.append_len (p, (long) (q - p));
-						p = q + 1;
-						switch (((char*) p)[0]) {
-						case '\'':
-						case '"':
-						case '\\':
-							sb.append_c (((char*) p)[0]);
-							break;
-						case 'b':
-							sb.append_c ('\b');
-							break;
-						case 'f':
-							sb.append_c ('\f');
-							break;
-						case 'n':
-							sb.append_c ('\n');
-							break;
-						case 'r':
-							sb.append_c ('\r');
-							break;
-						case 't':
-							sb.append_c ('\t');
-							break;
-						}
-						p++;
-					}
-				}
-				binding.literal = sb.str;
-				break;
-			case SparqlTokenType.STRING_LITERAL_LONG1:
-			case SparqlTokenType.STRING_LITERAL_LONG2:
-				binding.literal = get_last_string (3);
-				break;
-			}
-
+			binding.literal = parse_string_literal ();
 			bindings.append (binding);
 
 			break;
@@ -1324,6 +1336,14 @@ public class Tracker.SparqlQuery : Object {
 		} else if (current () == SparqlTokenType.FALSE) {
 			next ();
 			result = "false";
+		} else if (current () == SparqlTokenType.STRING_LITERAL1) {
+			result = parse_string_literal ();
+		} else if (current () == SparqlTokenType.STRING_LITERAL2) {
+			result = parse_string_literal ();
+		} else if (current () == SparqlTokenType.STRING_LITERAL_LONG1) {
+			result = parse_string_literal ();
+		} else if (current () == SparqlTokenType.STRING_LITERAL_LONG2) {
+			result = parse_string_literal ();
 		} else if (current () == SparqlTokenType.OPEN_BRACKET) {
 			next ();
 
