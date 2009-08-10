@@ -68,7 +68,7 @@ public class Tracker.SparqlQuery : Object {
 
 		public Class? domain;
 
-		public string get_sql_query () throws Error {
+		public string get_sql_query (SparqlQuery query) throws Error {
 			var sql = new StringBuilder ();
 
 			if (subject != null) {
@@ -118,7 +118,12 @@ public class Tracker.SparqlQuery : Object {
 									sql.append_printf ("\"%s\"", prop.domain.name);
 								}
 
-								sql.append_printf (" WHERE ID = %d", subject_id);
+								sql.append (" WHERE ID = ?");
+
+								var binding = new LiteralBinding ();
+								binding.literal = subject_id.to_string ();
+								binding.literal_type = Rasqal.Literal.Type.INTEGER;
+								query.bindings.append (binding);
 							}
 						}
 					} while (result_set.iter_next ());
@@ -677,7 +682,7 @@ public class Tracker.SparqlQuery : Object {
 				if (table.sql_db_tablename != null) {
 					pattern_sql.append_printf ("\"%s\"", table.sql_db_tablename);
 				} else {
-					pattern_sql.append_printf ("(%s)", table.predicate_variable.get_sql_query ());
+					pattern_sql.append_printf ("(%s)", table.predicate_variable.get_sql_query (this));
 				}
 				pattern_sql.append_printf (" AS \"%s\"", table.sql_query_tablename);
 			}
