@@ -27,6 +27,11 @@ public errordomain Tracker.SparqlError {
 }
 
 public class Tracker.SparqlQuery : Object {
+	enum LiteralType {
+		STRING,
+		INTEGER
+	}
+
 	// Represents a SQL table
 	class DataTable : Object {
 		public string sql_db_tablename; // as in db schema
@@ -46,7 +51,7 @@ public class Tracker.SparqlQuery : Object {
 	class LiteralBinding : DataBinding {
 		public bool is_fts_match;
 		public string literal;
-		// public Rasqal.Literal.Type literal_type;
+		public LiteralType literal_type;
 	}
 
 	// Represents a mapping of a SPARQL variable to a SQL table and column
@@ -414,8 +419,8 @@ public class Tracker.SparqlQuery : Object {
 			}
 			expect (SparqlTokenType.COLON);
 			expect (SparqlTokenType.IRI_REF);
-			string uri = get_last_string ();
-			prefix_map.insert (ns, uri.substring (1, uri.length - 2));
+			string uri = get_last_string (1);
+			prefix_map.insert (ns, uri);
 		}
 	}
 
@@ -498,10 +503,8 @@ public class Tracker.SparqlQuery : Object {
 				}
 			} else if (binding.is_datetime) {
 				stmt.bind_int (i, string_to_date (binding.literal));
-#if 0
-			} else if (binding.literal_type == Rasqal.Literal.Type.INTEGER) {
+			} else if (binding.literal_type == LiteralType.INTEGER) {
 				stmt.bind_int (i, binding.literal.to_int ());
-#endif
 			} else {
 				stmt.bind_text (i, binding.literal);
 			}
@@ -823,7 +826,7 @@ public class Tracker.SparqlQuery : Object {
 			result = get_last_string ().substring (1);
 		} else if (current () == SparqlTokenType.IRI_REF) {
 			next ();
-			result = get_last_string ();
+			result = get_last_string (1);
 		} else if (current () == SparqlTokenType.PN_PREFIX) {
 			// prefixed name with namespace foo:bar
 			next ();
@@ -900,7 +903,7 @@ public class Tracker.SparqlQuery : Object {
 				current_predicate = get_last_string ().substring (1);
 			} else if (current () == SparqlTokenType.IRI_REF) {
 				next ();
-				current_predicate = get_last_string ();
+				current_predicate = get_last_string (1);
 			} else if (current () == SparqlTokenType.PN_PREFIX) {
 				next ();
 				string ns = get_last_string ();
@@ -1023,11 +1026,47 @@ public class Tracker.SparqlQuery : Object {
 			parse_bracketted_expression ();
 			break;
 		case SparqlTokenType.IRI_REF:
+			next ();
+
+			pattern_sql.append ("(SELECT ID FROM \"rdfs:Resource\" WHERE Uri = ?)");
+
+			var binding = new LiteralBinding ();
+			binding.literal = get_last_string (1);
+			bindings.append (binding);
+
+			break;
 		case SparqlTokenType.DECIMAL:
 		case SparqlTokenType.DOUBLE:
+			next ();
+
+			pattern_sql.append ("?");
+
+			var binding = new LiteralBinding ();
+			binding.literal = get_last_string ();
+			bindings.append (binding);
+
+			break;
 		case SparqlTokenType.TRUE:
+			next ();
+
+			pattern_sql.append ("?");
+
+			var binding = new LiteralBinding ();
+			binding.literal = "1";
+			binding.literal_type = LiteralType.INTEGER;
+			bindings.append (binding);
+
+			break;
 		case SparqlTokenType.FALSE:
 			next ();
+
+			pattern_sql.append ("?");
+
+			var binding = new LiteralBinding ();
+			binding.literal = "0";
+			binding.literal_type = LiteralType.INTEGER;
+			bindings.append (binding);
+
 			break;
 		case SparqlTokenType.STRING_LITERAL1:
 		case SparqlTokenType.STRING_LITERAL2:
@@ -1042,7 +1081,14 @@ public class Tracker.SparqlQuery : Object {
 			break;
 		case SparqlTokenType.INTEGER:
 			next ();
-			pattern_sql.append (get_last_string ());
+
+			pattern_sql.append ("?");
+
+			var binding = new LiteralBinding ();
+			binding.literal = get_last_string ();
+			binding.literal_type = LiteralType.INTEGER;
+			bindings.append (binding);
+
 			break;
 		case SparqlTokenType.VAR:
 			next ();
