@@ -945,7 +945,7 @@ public class Tracker.SparqlQuery : Object {
 		if (current () == SparqlTokenType.OPTIONAL) {
 			parse_optional_graph_pattern (group_graph_pattern_start);
 		} else if (current () == SparqlTokenType.OPEN_BRACE) {
-			// parse_group_or_union_graph_pattern ();
+			parse_group_or_union_graph_pattern (group_graph_pattern_start);
 		} else if (current () == SparqlTokenType.GRAPH) {
 			// parse_graph_graph_pattern ();
 		}
@@ -1660,7 +1660,15 @@ public class Tracker.SparqlQuery : Object {
 		}
 	}
 
-	void parse_optional_graph_pattern (int group_graph_pattern_start) {
+	void parse_group_or_union_graph_pattern (int group_graph_pattern_start) throws SparqlError {
+		visit_group_graph_pattern ();
+		while (accept (SparqlTokenType.UNION)) {
+			pattern_sql.append (" UNION ALL ");
+			visit_group_graph_pattern ();
+		}
+	}
+
+	void parse_optional_graph_pattern (int group_graph_pattern_start) throws SparqlError {
 		expect (SparqlTokenType.OPTIONAL);
 		pattern_sql.insert (group_graph_pattern_start, "SELECT * FROM (");
 		pattern_sql.append (") NATURAL LEFT JOIN (SELECT * FROM (");
