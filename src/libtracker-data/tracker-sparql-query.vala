@@ -589,12 +589,7 @@ public class Tracker.SparqlQuery : Object {
 					first = false;
 				}
 
-				if (current () == SparqlTokenType.VAR) {
-					next ();
-					pattern_sql.append (get_sql_for_variable (get_last_string ().substring (1)));
-				} else {
-					parse_primary_expression ();
-				}
+				parse_primary_expression_as_string ();
 
 				switch (current ()) {
 				case SparqlTokenType.FROM:
@@ -633,15 +628,15 @@ public class Tracker.SparqlQuery : Object {
 					sql.append (", ");
 				}
 				if (accept (SparqlTokenType.ASC)) {
-					parse_bracketted_expression ();
+					parse_bracketted_expression_as_string ();
 					sql.append (pattern_sql.str);
 					sql.append (" ASC");
 				} else if (accept (SparqlTokenType.DESC)) {
-					parse_bracketted_expression ();
+					parse_bracketted_expression_as_string ();
 					sql.append (pattern_sql.str);
 					sql.append (" DESC");
 				} else {
-					parse_primary_expression ();
+					parse_primary_expression_as_string ();
 					sql.append (pattern_sql.str);
 				}
 				pattern_sql.truncate (0);
@@ -659,15 +654,15 @@ public class Tracker.SparqlQuery : Object {
 					sql.append (", ");
 				}
 				if (accept (SparqlTokenType.ASC)) {
-					parse_bracketted_expression ();
+					parse_bracketted_expression_as_string ();
 					sql.append (pattern_sql.str);
 					sql.append (" ASC");
 				} else if (accept (SparqlTokenType.DESC)) {
-					parse_bracketted_expression ();
+					parse_bracketted_expression_as_string ();
 					sql.append (pattern_sql.str);
 					sql.append (" DESC");
 				} else {
-					parse_primary_expression ();
+					parse_primary_expression_as_string ();
 					sql.append (pattern_sql.str);
 				}
 				pattern_sql.truncate (0);
@@ -1036,6 +1031,15 @@ public class Tracker.SparqlQuery : Object {
 		}
 	}
 
+	void parse_primary_expression_as_string () throws SparqlError {
+		if (current () == SparqlTokenType.VAR) {
+			next ();
+			pattern_sql.append (get_sql_for_variable (get_last_string ().substring (1)));
+		} else {
+			parse_primary_expression ();
+		}
+	}
+
 	void parse_primary_expression () throws SparqlError {
 		switch (current ()) {
 		case SparqlTokenType.OPEN_PARENS:
@@ -1261,6 +1265,17 @@ public class Tracker.SparqlQuery : Object {
 
 	void parse_expression () throws SparqlError {
 		parse_conditional_or_expression ();
+	}
+
+	void parse_bracketted_expression_as_string () throws SparqlError {
+		expect (SparqlTokenType.OPEN_PARENS);
+		if (current () == SparqlTokenType.VAR) {
+			next ();
+			pattern_sql.append (get_sql_for_variable (get_last_string ().substring (1)));
+		} else {
+			parse_expression ();
+		}
+		expect (SparqlTokenType.CLOSE_PARENS);
 	}
 
 	void parse_bracketted_expression () throws SparqlError {
