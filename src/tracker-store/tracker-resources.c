@@ -458,9 +458,9 @@ on_statement_deleted (const gchar *subject,
 		      gpointer user_data)
 {
 	if (g_strcmp0 (predicate, RDF_PREFIX "type") == 0) {
-		tracker_events_insert (subject, object, predicate, rdf_types, TRACKER_DBUS_EVENTS_TYPE_DELETE);
+		tracker_events_insert (subject, predicate, object, rdf_types, TRACKER_DBUS_EVENTS_TYPE_DELETE);
 	} else {
-		tracker_events_insert (subject, object, predicate, rdf_types, TRACKER_DBUS_EVENTS_TYPE_UPDATE);
+		tracker_events_insert (subject, predicate, object, rdf_types, TRACKER_DBUS_EVENTS_TYPE_UPDATE);
 	}
 }
 
