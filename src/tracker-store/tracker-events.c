@@ -64,6 +64,7 @@ is_allowed (EventsPrivate *private, const gchar *rdf_class)
 
 typedef struct {
 	const gchar *uri;
+	const gchar *predicate;
 	TrackerDBusEventsType type;
 } PreparableEvent;
 
@@ -73,6 +74,7 @@ prepare_event_for_rdf_types (gpointer data, gpointer user_data)
 	const gchar *rdf_class = data;
 	PreparableEvent *info = user_data;
 	const gchar *uri = info->uri;
+	const gchar *predicate = info->predicate;
 	TrackerDBusEventsType type = info->type;
 
 	EventsPrivate *private;
@@ -80,6 +82,7 @@ prepare_event_for_rdf_types (gpointer data, gpointer user_data)
 	GValue uri_value = { 0 , };
 	GValue rdfclass_value = { 0 , };
 	GValue type_value = { 0 , };
+	GValue predicate_value = { 0 , };
 
 	private = g_static_private_get (&private_key);
 	g_return_if_fail (private != NULL);
@@ -92,16 +95,19 @@ prepare_event_for_rdf_types (gpointer data, gpointer user_data)
 	}
 
 	g_value_init (&uri_value, G_TYPE_STRING);
+	g_value_init (&predicate_value, G_TYPE_STRING);
 	g_value_init (&rdfclass_value, G_TYPE_STRING);
 	g_value_init (&type_value, G_TYPE_INT);
 
-	event = g_value_array_new (3);
+	event = g_value_array_new (4);
 
 	g_value_set_string (&uri_value, uri);
+	g_value_set_string (&predicate_value, predicate);
 	g_value_set_string (&rdfclass_value, rdf_class);
 	g_value_set_int (&type_value, type);
 
 	g_value_array_append (event, &uri_value);
+	g_value_array_append (event, &predicate_value);
 	g_value_array_append (event, &rdfclass_value);
 	g_value_array_append (event, &type_value);
 
@@ -110,10 +116,12 @@ prepare_event_for_rdf_types (gpointer data, gpointer user_data)
 	g_value_unset (&uri_value);
 	g_value_unset (&rdfclass_value);
 	g_value_unset (&type_value);
+	g_value_unset (&predicate_value);
 }
 
 void 
 tracker_events_insert (const gchar *uri, 
+		       const gchar *predicate,
 		       const gchar *object, 
 		       GPtrArray *rdf_types, 
 		       TrackerDBusEventsType type)
@@ -122,6 +130,7 @@ tracker_events_insert (const gchar *uri,
 
 	info.uri = uri;
 	info.type = type;
+	info.predicate = predicate;
 
 	if (rdf_types && type == TRACKER_DBUS_EVENTS_TYPE_UPDATE) {
 		/* object is not very important for updates (we don't expose

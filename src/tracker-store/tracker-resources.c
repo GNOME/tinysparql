@@ -410,13 +410,14 @@ on_statements_committed (gpointer user_data)
 		for (i = 0; i < events->len; i++) {
 			GValueArray *event = events->pdata[i];
 			const gchar *uri = g_value_get_string (g_value_array_get_nth (event, 0));
-			const gchar *rdf_class = g_value_get_string (g_value_array_get_nth (event, 1));
-			TrackerDBusEventsType type = g_value_get_int (g_value_array_get_nth (event, 2));
+			const gchar *predicate = g_value_get_string (g_value_array_get_nth (event, 1));
+			const gchar *rdf_class = g_value_get_string (g_value_array_get_nth (event, 2));
+			TrackerDBusEventsType type = g_value_get_int (g_value_array_get_nth (event, 3));
 
 			for (l = event_sources; l; l = l->next) {
 				TrackerResourceClass *class_ = l->data;
 				if (g_strcmp0 (rdf_class, tracker_resource_class_get_rdf_class (class_)) == 0) {
-					tracker_resource_class_add_event (class_, uri, type);
+					tracker_resource_class_add_event (class_, uri, predicate, type);
 					to_emit = g_slist_prepend (to_emit, class_);
 				}
 			}
@@ -443,9 +444,9 @@ on_statement_inserted (const gchar *subject,
 		       gpointer user_data)
 {
 	if (g_strcmp0 (predicate, RDF_PREFIX "type") == 0) {
-		tracker_events_insert (subject, object, rdf_types, TRACKER_DBUS_EVENTS_TYPE_ADD);
+		tracker_events_insert (subject, predicate, object, rdf_types, TRACKER_DBUS_EVENTS_TYPE_ADD);
 	} else {
-		tracker_events_insert (subject, object, rdf_types, TRACKER_DBUS_EVENTS_TYPE_UPDATE);
+		tracker_events_insert (subject, predicate, object, rdf_types, TRACKER_DBUS_EVENTS_TYPE_UPDATE);
 	}
 }
 
@@ -457,9 +458,9 @@ on_statement_deleted (const gchar *subject,
 		      gpointer user_data)
 {
 	if (g_strcmp0 (predicate, RDF_PREFIX "type") == 0) {
-		tracker_events_insert (subject, object, rdf_types, TRACKER_DBUS_EVENTS_TYPE_DELETE);
+		tracker_events_insert (subject, object, predicate, rdf_types, TRACKER_DBUS_EVENTS_TYPE_DELETE);
 	} else {
-		tracker_events_insert (subject, object, rdf_types, TRACKER_DBUS_EVENTS_TYPE_UPDATE);
+		tracker_events_insert (subject, object, predicate, rdf_types, TRACKER_DBUS_EVENTS_TYPE_UPDATE);
 	}
 }
 
