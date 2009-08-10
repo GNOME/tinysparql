@@ -528,12 +528,28 @@ public class Tracker.SparqlQuery : Object {
 
 		// LIMIT and OFFSET
 		if (query.get_limit () >= 0) {
-			sql.append_printf (" LIMIT %d", query.get_limit ());
+			sql.append (" LIMIT ?");
+
+			var binding = new LiteralBinding ();
+			binding.literal = query.get_limit ().to_string ();
+			binding.literal_type = Rasqal.Literal.Type.INTEGER;
+			bindings.append (binding);
+
 			if (query.get_offset () >= 0) {
-				sql.append_printf (" OFFSET %d", query.get_offset ());
+				sql.append (" OFFSET ?");
+
+				binding = new LiteralBinding ();
+				binding.literal = query.get_offset ().to_string ();
+				binding.literal_type = Rasqal.Literal.Type.INTEGER;
+				bindings.append (binding);
 			}
 		} else if (query.get_offset () >= 0) {
-			sql.append_printf (" LIMIT -1 OFFSET %d", query.get_offset ());
+			sql.append (" LIMIT -1 OFFSET ?");
+
+			var binding = new LiteralBinding ();
+			binding.literal = query.get_offset ().to_string ();
+			binding.literal_type = Rasqal.Literal.Type.INTEGER;
+			bindings.append (binding);
 		}
 
 		return exec_sql (sql.str);
