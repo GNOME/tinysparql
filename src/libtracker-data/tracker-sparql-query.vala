@@ -459,7 +459,7 @@ public class Tracker.SparqlQuery : Object {
 					} else if (current () == SparqlTokenType.DELETE) {
 						execute_delete ();
 					} else if (current () == SparqlTokenType.DROP) {
-						// Data.delete_resource_description (operation.get_data_graph (0).name_uri.as_string ());
+						execute_drop_graph ();
 					} else {
 						throw new SparqlError.PARSE ("SELECT, CONSTRUCT, DESCRIBE, and ASK are not supported in update mode");
 					}
@@ -815,6 +815,16 @@ public class Tracker.SparqlQuery : Object {
 				parse_construct_triples_block (var_value_map);
 			} while (result_set.iter_next ());
 		}
+	}
+
+	void execute_drop_graph () throws Error {
+		expect (SparqlTokenType.DROP);
+		expect (SparqlTokenType.GRAPH);
+
+		bool is_var;
+		string uri = parse_var_or_term (out is_var);
+
+		Data.delete_resource_description (uri);
 	}
 
 	string parse_var_or_term (out bool is_var) throws SparqlError {
