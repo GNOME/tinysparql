@@ -29,9 +29,15 @@
 
 
 typedef struct {
-	GPtrArray *allowances;
+	GHashTable *allowances;
 	GPtrArray *events;
 } EventsPrivate;
+
+typedef struct {
+	const gchar *uri;
+	const gchar *predicate;
+	TrackerDBusEventsType type;
+} PreparableEvent;
 
 static GStaticPrivate private_key = G_STATIC_PRIVATE_INIT;
 
@@ -43,30 +49,15 @@ tracker_events_add_allow (const gchar *rdf_class)
 	private = g_static_private_get (&private_key);
 	g_return_if_fail (private != NULL);
 
-	g_ptr_array_add (private->allowances, g_strdup (rdf_class));
+	g_hash_table_insert (private->allowances, g_strdup (rdf_class),
+	                     GINT_TO_POINTER (TRUE));
 }
 
 static gboolean
 is_allowed (EventsPrivate *private, const gchar *rdf_class)
 {
-	guint i;
-	gboolean found = FALSE;
-
-	for (i = 0; i < private->allowances->len;  i++) {
-		if (g_strcmp0 (rdf_class, private->allowances->pdata[i]) == 0) {
-			found = TRUE;
-			break;
-		}
-	}
-
-	return found;
+	return (g_hash_table_lookup (private->allowances, rdf_class) != NULL) ? TRUE : FALSE;
 }
-
-typedef struct {
-	const gchar *uri;
-	const gchar *predicate;
-	TrackerDBusEventsType type;
-} PreparableEvent;
 
 static void 
 prepare_event_for_rdf_types (gpointer data, gpointer user_data)
@@ -179,8 +170,7 @@ tracker_events_get_pending (void)
 static void
 free_private (EventsPrivate *private)
 {
-	g_ptr_array_foreach (private->allowances, (GFunc)g_free, NULL);
-	g_ptr_array_free (private->allowances, TRUE);
+	g_hash_table_unref (private->allowances);
 	g_free (private);
 }
 
@@ -197,7 +187,10 @@ tracker_events_init (TrackerNotifyClassGetter callback)
 			      private,
 			      (GDestroyNotify) free_private);
 
-	private->allowances = g_ptr_array_new ();
+	private->allowances = g_hash_table_new_full (g_str_hash, g_str_equal,
+	                                             (GDestroyNotify) g_free,
+	                                             (GDestroyNotify) NULL);
+
 	private->events = NULL;
 
 	if (!callback) {
