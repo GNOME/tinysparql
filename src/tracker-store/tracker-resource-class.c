@@ -266,6 +266,25 @@ has_already (GPtrArray *array, const gchar *uri)
 	return FALSE;
 }
 
+static gboolean
+changed_has_already (GPtrArray *array, const gchar *uri, const gchar *predicate)
+{
+	guint i;
+
+	if (!array) {
+		return FALSE;
+	}
+
+	for (i = 0; i < array->len; i++) {
+		ChangedItem *item = g_ptr_array_index (array, i);
+		if (g_strcmp0 (item->uri, uri) == 0 && g_strcmp0 (item->predicate, predicate) == 0) {
+			return TRUE;
+		}
+	}
+
+	return FALSE;
+}
+
 void 
 tracker_resource_class_add_event (TrackerResourceClass  *object,
 				  const gchar           *uri,
@@ -273,7 +292,6 @@ tracker_resource_class_add_event (TrackerResourceClass  *object,
 				  TrackerDBusEventsType type)
 {
 	TrackerResourceClassPrivate *priv;
-	ChangedItem *item;
 
 	priv = TRACKER_RESOURCE_CLASS_GET_PRIVATE (object);
 
@@ -291,15 +309,18 @@ tracker_resource_class_add_event (TrackerResourceClass  *object,
 		}
 		break;
 		case TRACKER_DBUS_EVENTS_TYPE_UPDATE:
+		if (!changed_has_already (priv->ups, uri, predicate)) {
+			ChangedItem *item;
 
-		item = g_slice_new (ChangedItem);
+			item = g_slice_new (ChangedItem);
 
-		item->uri = g_string_chunk_insert_const (priv->changed_strings, uri);
-		item->predicate = g_string_chunk_insert_const (priv->changed_strings, predicate);
+			item->uri = g_string_chunk_insert_const (priv->changed_strings, uri);
+			item->predicate = g_string_chunk_insert_const (priv->changed_strings, predicate);
 
-		if (!priv->ups)
-			priv->ups = g_ptr_array_new ();
-		g_ptr_array_add (priv->ups, item);
+			if (!priv->ups)
+				priv->ups = g_ptr_array_new ();
+			g_ptr_array_add (priv->ups, item);
+		}
 		break;
 		case TRACKER_DBUS_EVENTS_TYPE_DELETE:
 		if (!has_already (priv->dels, uri)) {
