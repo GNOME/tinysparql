@@ -122,7 +122,7 @@ public class Tracker.SparqlQuery : Object {
 
 								var binding = new LiteralBinding ();
 								binding.literal = subject_id.to_string ();
-								binding.literal_type = Rasqal.Literal.Type.INTEGER;
+								// binding.literal_type = Rasqal.Literal.Type.INTEGER;
 								query.bindings.append (binding);
 							}
 						}
@@ -690,7 +690,7 @@ public class Tracker.SparqlQuery : Object {
 
 			var binding = new LiteralBinding ();
 			binding.literal = limit.to_string ();
-			binding.literal_type = Rasqal.Literal.Type.INTEGER;
+			// binding.literal_type = Rasqal.Literal.Type.INTEGER;
 			bindings.append (binding);
 
 			if (offset >= 0) {
@@ -698,7 +698,7 @@ public class Tracker.SparqlQuery : Object {
 
 				binding = new LiteralBinding ();
 				binding.literal = offset.to_string ();
-				binding.literal_type = Rasqal.Literal.Type.INTEGER;
+				// binding.literal_type = Rasqal.Literal.Type.INTEGER;
 				bindings.append (binding);
 			}
 		} else if (offset >= 0) {
@@ -706,7 +706,7 @@ public class Tracker.SparqlQuery : Object {
 
 			var binding = new LiteralBinding ();
 			binding.literal = offset.to_string ();
-			binding.literal_type = Rasqal.Literal.Type.INTEGER;
+			// binding.literal_type = Rasqal.Literal.Type.INTEGER;
 			bindings.append (binding);
 		}
 
