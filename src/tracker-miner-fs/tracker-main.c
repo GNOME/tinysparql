@@ -228,7 +228,7 @@ albumart_queue_thumbnail_cb (DBusGProxy  *proxy,
 {
         TrackerConfig *config;
 
-        g_message ("Album art received for thumbnail queue for uri:'%s' with mime:'%s'",
+        g_debug ("Album art received for thumbnail queue for uri:'%s' with mime:'%s'",
                    filename, 
                    mime);
         
