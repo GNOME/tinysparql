@@ -1380,7 +1380,7 @@ public class Tracker.SparqlQuery : Object {
 			result = var_value_map.lookup (get_last_string ().substring (1));
 		} else if (current () == SparqlTokenType.IRI_REF) {
 			next ();
-			result = get_last_string ();
+			result = get_last_string (1);
 		} else if (current () == SparqlTokenType.PN_PREFIX) {
 			// prefixed name with namespace foo:bar
 			next ();
@@ -1445,7 +1445,7 @@ public class Tracker.SparqlQuery : Object {
 				current_predicate = var_value_map.lookup (get_last_string ().substring (1));
 			} else if (current () == SparqlTokenType.IRI_REF) {
 				next ();
-				current_predicate = get_last_string ();
+				current_predicate = get_last_string (1);
 			} else if (current () == SparqlTokenType.PN_PREFIX) {
 				next ();
 				string ns = get_last_string ();
