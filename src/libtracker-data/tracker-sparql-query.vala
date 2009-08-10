@@ -127,7 +127,7 @@ public class Tracker.SparqlQuery : Object {
 
 								var binding = new LiteralBinding ();
 								binding.literal = subject_id.to_string ();
-								// binding.literal_type = Rasqal.Literal.Type.INTEGER;
+								binding.literal_type = LiteralType.INTEGER;
 								query.bindings.append (binding);
 							}
 						}
@@ -588,7 +588,13 @@ public class Tracker.SparqlQuery : Object {
 				} else {
 					first = false;
 				}
-				parse_primary_expression ();
+
+				if (current () == SparqlTokenType.VAR) {
+					next ();
+					pattern_sql.append (get_sql_for_variable (get_last_string ().substring (1)));
+				} else {
+					parse_primary_expression ();
+				}
 
 				switch (current ()) {
 				case SparqlTokenType.FROM:
@@ -693,7 +699,7 @@ public class Tracker.SparqlQuery : Object {
 
 			var binding = new LiteralBinding ();
 			binding.literal = limit.to_string ();
-			// binding.literal_type = Rasqal.Literal.Type.INTEGER;
+			binding.literal_type = LiteralType.INTEGER;
 			bindings.append (binding);
 
 			if (offset >= 0) {
@@ -701,7 +707,7 @@ public class Tracker.SparqlQuery : Object {
 
 				binding = new LiteralBinding ();
 				binding.literal = offset.to_string ();
-				// binding.literal_type = Rasqal.Literal.Type.INTEGER;
+				binding.literal_type = LiteralType.INTEGER;
 				bindings.append (binding);
 			}
 		} else if (offset >= 0) {
@@ -709,7 +715,7 @@ public class Tracker.SparqlQuery : Object {
 
 			var binding = new LiteralBinding ();
 			binding.literal = offset.to_string ();
-			// binding.literal_type = Rasqal.Literal.Type.INTEGER;
+			binding.literal_type = LiteralType.INTEGER;
 			bindings.append (binding);
 		}
 
@@ -1103,7 +1109,7 @@ public class Tracker.SparqlQuery : Object {
 		case SparqlTokenType.VAR:
 			next ();
 			string variable_name = get_last_string ().substring (1);
-			pattern_sql.append (get_sql_for_variable (variable_name));
+			pattern_sql.append_printf ("\"%s_u\"", variable_name);
 			break;
 		case SparqlTokenType.STR:
 		case SparqlTokenType.LANG:
