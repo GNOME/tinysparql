@@ -65,20 +65,51 @@ public class Tracker.SparqlScanner : Object {
 			switch (begin[0]) {
 			case 'A':
 			case 'a':
-				switch (begin[2]) {
-				case 'C':
-				case 'c':
-					if (matches (begin, "ASC")) return SparqlTokenType.ASC;
+				switch (begin[1]) {
+				case 'S':
+				case 's':
+					switch (begin[2]) {
+					case 'C':
+					case 'c':
+						if (matches (begin, "ASC")) return SparqlTokenType.ASC;
+						break;
+					case 'K':
+					case 'k':
+						if (matches (begin, "ASK")) return SparqlTokenType.ASK;
+						break;
+					}
 					break;
-				case 'K':
-				case 'k':
-					if (matches (begin, "ASK")) return SparqlTokenType.ASK;
+				case 'V':
+				case 'v':
+					if (matches (begin, "AVG")) return SparqlTokenType.AVG;
+					break;
+				}
+				break;
+			case 'M':
+			case 'm':
+				switch (begin[1]) {
+				case 'A':
+				case 'a':
+					if (matches (begin, "MAX")) return SparqlTokenType.MAX;
+					break;
+				case 'I':
+				case 'i':
+					if (matches (begin, "MIN")) return SparqlTokenType.MIN;
 					break;
 				}
 				break;
 			case 'S':
 			case 's':
-				if (matches (begin, "STR")) return SparqlTokenType.STR;
+				switch (begin[1]) {
+				case 'T':
+				case 't':
+					if (matches (begin, "STR")) return SparqlTokenType.STR;
+					break;
+				case 'U':
+				case 'u':
+					if (matches (begin, "SUM")) return SparqlTokenType.SUM;
+					break;
+				}
 				break;
 			}
 			break;
@@ -87,6 +118,10 @@ public class Tracker.SparqlScanner : Object {
 			case 'B':
 			case 'b':
 				if (matches (begin, "BASE")) return SparqlTokenType.BASE;
+				break;
+			case 'C':
+			case 'c':
+				if (matches (begin, "COUNT")) return SparqlTokenType.COUNT;
 				break;
 			case 'D':
 			case 'd':
@@ -710,6 +745,7 @@ public enum Tracker.SparqlTokenType {
 	AS,
 	ASC,
 	ASK,
+	AVG,
 	BASE,
 	BOUND,
 	BY,
@@ -719,6 +755,7 @@ public enum Tracker.SparqlTokenType {
 	COLON,
 	COMMA,
 	CONSTRUCT,
+	COUNT,
 	DATATYPE,
 	DECIMAL,
 	DELETE,
@@ -745,6 +782,8 @@ public enum Tracker.SparqlTokenType {
 	LANG,
 	LANGMATCHES,
 	LIMIT,
+	MAX,
+	MIN,
 	MINUS,
 	NAMED,
 	OFFSET,
@@ -776,6 +815,7 @@ public enum Tracker.SparqlTokenType {
 	STRING_LITERAL2,
 	STRING_LITERAL_LONG1,
 	STRING_LITERAL_LONG2,
+	SUM,
 	TRUE,
 	UNION,
 	VAR,

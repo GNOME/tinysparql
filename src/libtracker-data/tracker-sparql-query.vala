@@ -291,34 +291,6 @@ public class Tracker.SparqlQuery : Object {
 		this.update_extensions = true;
 	}
 
-#if 0
-	string get_sql_for_literal (Rasqal.Literal literal) {
-		assert (literal.type == Rasqal.Literal.Type.VARIABLE);
-
-		string variable_name = literal.as_variable ().name;
-		return "\"%s_u\"".printf (variable_name);
-	}
-
-	string get_sql_for_expression (Rasqal.Expression expr) {
-		if (expr.op == Rasqal.Op.COUNT) {
-			return "COUNT(%s)".printf (get_sql_for_expression (expr.arg1));
-		} else if (expr.op == Rasqal.Op.SUM) {
-			return "SUM(%s)".printf (get_sql_for_expression (expr.arg1));
-		} else if (expr.op == Rasqal.Op.AVG) {
-			return "AVG(%s)".printf (get_sql_for_expression (expr.arg1));
-		} else if (expr.op == Rasqal.Op.MIN) {
-			return "MIN(%s)".printf (get_sql_for_expression (expr.arg1));
-		} else if (expr.op == Rasqal.Op.MAX) {
-			return "MAX(%s)".printf (get_sql_for_expression (expr.arg1));
-		} else if (expr.op == Rasqal.Op.VARSTAR) {
-			return "*";
-		} else if (expr.op == Rasqal.Op.LITERAL) {
-			return get_sql_for_literal (expr.literal);
-		}
-		return "NULL";
-	}
-#endif
-
 	string generate_bnodeid (string? user_bnodeid) {
 		// user_bnodeid is NULL for anonymous nodes
 		if (user_bnodeid == null) {
@@ -337,15 +309,6 @@ public class Tracker.SparqlQuery : Object {
 				sha1, sha1.offset (8), sha1.offset (12), sha1.offset (16), sha1.offset (20));
 		}
 	}
-
-#if 0
-	void error_handler (Raptor.Locator? locator, string message) {
-		if (error_message == null) {
-			// return first, not last, error message
-			error_message = message;
-		}
-	}
-#endif
 
 	inline bool next () {
 		index = (index + 1) % BUFFER_SIZE;
@@ -529,6 +492,32 @@ public class Tracker.SparqlQuery : Object {
 				continue;
 			}
 			break;
+		}
+	}
+
+	void translate_select_expression (StringBuilder sql) {
+		if (accept (SparqlTokenType.COUNT)) {
+			sql.append ("COUNT(");
+			translate_bracketted_expression_as_string (sql);
+			sql.append (")");
+		} else if (accept (SparqlTokenType.SUM)) {
+			sql.append ("SUM(");
+			translate_bracketted_expression_as_string (sql);
+			sql.append (")");
+		} else if (accept (SparqlTokenType.AVG)) {
+			sql.append ("AVG(");
+			translate_bracketted_expression_as_string (sql);
+			sql.append (")");
+		} else if (accept (SparqlTokenType.MIN)) {
+			sql.append ("MIN(");
+			translate_bracketted_expression_as_string (sql);
+			sql.append (")");
+		} else if (accept (SparqlTokenType.MAX)) {
+			sql.append ("MAX(");
+			translate_bracketted_expression_as_string (sql);
+			sql.append (")");
+		} else {
+			translate_primary_expression_as_string (sql);
 		}
 	}
 
@@ -1672,46 +1661,7 @@ public class Tracker.SparqlQuery : Object {
 		sql.append (") NATURAL LEFT JOIN (SELECT * FROM (");
 		translate_group_graph_pattern (sql);
 		sql.append ("))");
-#if 0
-		if (graph_pattern.get_operator () == Rasqal.GraphPattern.Operator.BASIC) {
-		} else if (graph_pattern.get_operator () == Rasqal.GraphPattern.Operator.GROUP
-		           || graph_pattern.get_operator () == Rasqal.GraphPattern.Operator.OPTIONAL) {
-		} else if (graph_pattern.get_operator () == Rasqal.GraphPattern.Operator.UNION) {
-			for (int pattern_idx = 0; true; pattern_idx++) {
-				weak Rasqal.GraphPattern sub_graph_pattern = graph_pattern.get_sub_graph_pattern (pattern_idx);
-				if (sub_graph_pattern == null) {
-					break;
-				}
-
-				if (sub_graph_pattern.get_operator () == Rasqal.GraphPattern.Operator.FILTER) {
-					// ignore filters, processed later
-					continue;
-				}
-
-				if (pattern_idx > 0) {
-					pattern_sql.append (" UNION ALL ");
-				}
-				visit_graph_pattern (sub_graph_pattern);
-			}
-		}
-#endif
 	}
-
-#if 0
-	string get_string_from_literal (Rasqal.Literal lit, bool is_subject = false) {
-		if (lit.type == Rasqal.Literal.Type.BLANK) {
-			if (!is_subject && lit.as_string ().has_prefix (":")) {
-				// anonymous blank node, libtracker-data will
-				// generate appropriate uri
-				return lit.as_string ();
-			} else {
-				return generate_bnodeid (lit.as_string ());
-			}
-		} else {
-			return lit.as_string ();
-		}
-	}
-#endif
 
 	void parse_object (StringBuilder sql) throws SparqlError {
 		bool object_is_var;
@@ -1950,109 +1900,6 @@ public class Tracker.SparqlQuery : Object {
 		}
 		return table;
 	}
-
-#if 0
-	bool is_datetime_variable (Rasqal.Expression expr) {
-		if (expr.op == Rasqal.Op.LITERAL) {
-			if (expr.literal.type == Rasqal.Literal.Type.VARIABLE) {
-				string variable_name = expr.literal.as_variable ().name;
-				var binding = var_map.lookup (variable_name);
-				if (binding != null && binding.is_datetime) {
-					return true;
-				}
-			}
-		}
-
-		return false;
-	}
-
-	void visit_filter (Rasqal.Expression expr, bool is_datetime = false) throws SparqlError {
-		switch (expr.op) {
-		case Rasqal.Op.UMINUS:
-			pattern_sql.append ("-(");
-			visit_filter (expr.arg1);
-			pattern_sql.append (")");
-			break;
-		case Rasqal.Op.ISBLANK:
-			/* We don't store blank nodes as blank nodes atm, so we always 
-			 * return false. */
-			pattern_sql.append ("(0)");
-			break;
-		case Rasqal.Op.STR:
-			if (expr.arg1.literal.type == Rasqal.Literal.Type.VARIABLE) {
-				string variable_name = expr.arg1.literal.as_variable ().name;
-				var binding = var_map.lookup (variable_name);
-
-				if (binding.is_uri) {
-					pattern_sql.append_printf ("(SELECT \"%s\".\"Uri\" as \"STR\" FROM \"%s\" WHERE \"%s\".\"ID\" = \"%s_u\")", 
-					                           binding.table.sql_db_tablename,
-					                           binding.table.sql_db_tablename,
-					                           binding.table.sql_db_tablename,
-					                           variable_name);
-				} else {
-					visit_filter (expr.arg1);
-				}
-			} else if (expr.arg1.literal.type == Rasqal.Literal.Type.URI) {
-				// Rasqal already takes care of this, but I added it here
-				// for the reader of this code to understand what goes on
-				// Note that rasqal will have converted a str(<urn:something>)
-				// to a literal string 'urn:something'
-				pattern_sql.append_printf ("'%s'", expr.arg1.literal.as_string ());
-			} else {
-				visit_filter (expr.arg1);
-			}
-			break;
-		case Rasqal.Op.ISURI:
-			if (expr.arg1.literal.type == Rasqal.Literal.Type.VARIABLE) {
-				string variable_name = expr.arg1.literal.as_variable ().name;
-				var binding = var_map.lookup (variable_name);
-
-				if (!binding.is_uri) {
-					pattern_sql.append ("(0)");
-				} else {
-					pattern_sql.append ("(1)");
-				}
-			} else if (expr.arg1.literal.type != Rasqal.Literal.Type.URI) {
-				pattern_sql.append ("(0)");
-			} else {
-				pattern_sql.append ("(1)");
-			}
-			break;
-		case Rasqal.Op.DATATYPE:
-			if (expr.arg1.literal.type == Rasqal.Literal.Type.VARIABLE) {
-				string variable_name = expr.arg1.literal.as_variable ().name;
-				var binding = var_map.lookup (variable_name);
-
-				if (binding.is_uri || binding.type == null) {
-					throw new SparqlError.PARSE ("Invalid FILTER");
-				}
-
-				pattern_sql.append_printf ("(SELECT ID FROM \"rdfs:Resource\" WHERE Uri = '%s')", binding.type);
-			} else {
-				throw new SparqlError.PARSE ("Invalid FILTER");
-			}
-			break;
-		case Rasqal.Op.LITERAL:
-			if (expr.literal.type == Rasqal.Literal.Type.VARIABLE) {
-				string variable_name = expr.literal.as_variable ().name;
-				pattern_sql.append_printf ("\"%s_u\"", variable_name);
-			} else {
-				if (expr.literal.type == Rasqal.Literal.Type.URI) {
-					pattern_sql.append ("(SELECT ID FROM \"rdfs:Resource\" WHERE Uri = ?)");
-				} else {
-					pattern_sql.append ("?");
-				}
-
-				var binding = new LiteralBinding ();
-				binding.literal = expr.literal.as_string ();
-				binding.literal_type = expr.literal.type;
-				binding.is_datetime = is_datetime;
-				bindings.append (binding);
-			}
-			break;
-		}
-	}
-#endif
 
 	static string? get_string_for_value (Value value)
 	{
