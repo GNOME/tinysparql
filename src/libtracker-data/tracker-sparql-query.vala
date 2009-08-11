@@ -621,15 +621,7 @@ public class Tracker.SparqlQuery : Object {
 				} else {
 					sql.append (", ");
 				}
-				if (accept (SparqlTokenType.ASC)) {
-					translate_bracketted_expression_as_string (sql);
-					sql.append (" ASC");
-				} else if (accept (SparqlTokenType.DESC)) {
-					translate_bracketted_expression_as_string (sql);
-					sql.append (" DESC");
-				} else {
-					translate_primary_expression_as_string (sql);
-				}
+				translate_order_condition (sql);
 			} while (current () != SparqlTokenType.ORDER && current () != SparqlTokenType.LIMIT && current () != SparqlTokenType.OFFSET && current () != SparqlTokenType.EOF);
 		}
 
@@ -643,15 +635,7 @@ public class Tracker.SparqlQuery : Object {
 				} else {
 					sql.append (", ");
 				}
-				if (accept (SparqlTokenType.ASC)) {
-					translate_bracketted_expression_as_string (sql);
-					sql.append (" ASC");
-				} else if (accept (SparqlTokenType.DESC)) {
-					translate_bracketted_expression_as_string (sql);
-					sql.append (" DESC");
-				} else {
-					translate_primary_expression_as_string (sql);
-				}
+				translate_order_condition (sql);
 			} while (current () != SparqlTokenType.LIMIT && current () != SparqlTokenType.OFFSET && current () != SparqlTokenType.EOF);
 		}
 
@@ -701,6 +685,18 @@ public class Tracker.SparqlQuery : Object {
 		}
 
 		return exec_sql (sql.str);
+	}
+
+	void translate_order_condition (StringBuilder sql) throws SparqlError {
+		if (accept (SparqlTokenType.ASC)) {
+			translate_bracketted_expression_as_string (sql);
+			sql.append (" ASC");
+		} else if (accept (SparqlTokenType.DESC)) {
+			translate_bracketted_expression_as_string (sql);
+			sql.append (" DESC");
+		} else {
+			translate_primary_expression_as_string (sql);
+		}
 	}
 
 	DBResultSet? execute_ask () throws Error {
