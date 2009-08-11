@@ -433,9 +433,13 @@ public class Tracker.SparqlQuery : Object {
 		}
 	}
 
-	string get_sql_for_variable (string variable_name) {
+	string get_sql_for_variable (string variable_name) throws SparqlError {
 		var binding = var_map.lookup (variable_name);
-		assert (binding != null);
+
+		if (binding == null) {
+			throw new SparqlError.PARSE ("`%s' is not a valid variable".printf (variable_name));
+		}
+
 		if (binding.is_uri) {
 			return "(SELECT Uri FROM \"rdfs:Resource\" WHERE ID = \"%s_u\")".printf (variable_name);
 		} else if (binding.is_boolean) {
