@@ -24,6 +24,7 @@
 
 #include <glib.h>
 
+#include "tracker-utils.h"
 #include "tracker-escape.h"
 
 void
@@ -31,12 +32,18 @@ tracker_utils_default_check_filename (GHashTable  *metadata,
 				      gchar       *key,
 				      const gchar *filename)
 {
+	g_return_if_fail (key != NULL);
+	g_return_if_fail (filename != NULL);
+
 	if (!g_hash_table_lookup (metadata, key)) {
 		gchar  *name = g_filename_display_basename (filename);
 		gchar  *suffix = NULL;
 
 		suffix = g_strrstr (name, ".");
-		*suffix = '\0';
+
+		if (suffix) {
+			*suffix = '\0';
+		}
 		
 		g_strdelimit (name, "._", ' ');
 		
