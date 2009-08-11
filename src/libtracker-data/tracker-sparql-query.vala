@@ -562,8 +562,6 @@ public class Tracker.SparqlQuery : Object {
 		accept (SparqlTokenType.WHERE);
 
 		translate_group_graph_pattern (pattern_sql);
-		string pattern_sql_string = pattern_sql.str;
-		pattern_sql.truncate (0);
 
 		// process select variables
 		var after_where = get_location ();
@@ -573,21 +571,21 @@ public class Tracker.SparqlQuery : Object {
 		if (accept (SparqlTokenType.STAR)) {
 			foreach (string variable_name in var_map.get_keys ()) {
 				if (!first) {
-					pattern_sql.append (", ");
+					sql.append (", ");
 				} else {
 					first = false;
 				}
-				pattern_sql.append (get_sql_for_variable (variable_name));
+				sql.append (get_sql_for_variable (variable_name));
 			}
 		} else {
 			while (true) {
 				if (!first) {
-					pattern_sql.append (", ");
+					sql.append (", ");
 				} else {
 					first = false;
 				}
 
-				translate_primary_expression_as_string (pattern_sql);
+				translate_primary_expression_as_string (sql);
 
 				switch (current ()) {
 				case SparqlTokenType.FROM:
@@ -605,12 +603,10 @@ public class Tracker.SparqlQuery : Object {
 				break;
 			}
 		}
-		sql.append (pattern_sql.str);
-		pattern_sql.truncate (0);
 
 		// select from results of WHERE clause
 		sql.append (" FROM (");
-		sql.append (pattern_sql_string);
+		sql.append (pattern_sql.str);
 		sql.append (")");
 
 		set_location (after_where);
@@ -626,18 +622,14 @@ public class Tracker.SparqlQuery : Object {
 					sql.append (", ");
 				}
 				if (accept (SparqlTokenType.ASC)) {
-					translate_bracketted_expression_as_string (pattern_sql);
-					sql.append (pattern_sql.str);
+					translate_bracketted_expression_as_string (sql);
 					sql.append (" ASC");
 				} else if (accept (SparqlTokenType.DESC)) {
-					translate_bracketted_expression_as_string (pattern_sql);
-					sql.append (pattern_sql.str);
+					translate_bracketted_expression_as_string (sql);
 					sql.append (" DESC");
 				} else {
-					translate_primary_expression_as_string (pattern_sql);
-					sql.append (pattern_sql.str);
+					translate_primary_expression_as_string (sql);
 				}
-				pattern_sql.truncate (0);
 			} while (current () != SparqlTokenType.ORDER && current () != SparqlTokenType.LIMIT && current () != SparqlTokenType.OFFSET && current () != SparqlTokenType.EOF);
 		}
 
@@ -652,18 +644,14 @@ public class Tracker.SparqlQuery : Object {
 					sql.append (", ");
 				}
 				if (accept (SparqlTokenType.ASC)) {
-					translate_bracketted_expression_as_string (pattern_sql);
-					sql.append (pattern_sql.str);
+					translate_bracketted_expression_as_string (sql);
 					sql.append (" ASC");
 				} else if (accept (SparqlTokenType.DESC)) {
-					translate_bracketted_expression_as_string (pattern_sql);
-					sql.append (pattern_sql.str);
+					translate_bracketted_expression_as_string (sql);
 					sql.append (" DESC");
 				} else {
-					translate_primary_expression_as_string (pattern_sql);
-					sql.append (pattern_sql.str);
+					translate_primary_expression_as_string (sql);
 				}
-				pattern_sql.truncate (0);
 			} while (current () != SparqlTokenType.LIMIT && current () != SparqlTokenType.OFFSET && current () != SparqlTokenType.EOF);
 		}
 
@@ -738,8 +726,6 @@ public class Tracker.SparqlQuery : Object {
 		sql.append (" FROM (");
 		sql.append (pattern_sql.str);
 		sql.append (")");
-
-		pattern_sql.truncate (0);
 
 		return exec_sql (sql.str);
 	}
