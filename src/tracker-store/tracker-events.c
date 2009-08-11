@@ -60,26 +60,13 @@ is_allowed (EventsPrivate *private, const gchar *rdf_class)
 }
 
 static void 
-prepare_event_for_rdf_types (gpointer data, gpointer user_data)
+prepare_event_for_rdf_type (EventsPrivate *private, const gchar *rdf_class , const gchar *uri, TrackerDBusEventsType type, const gchar *predicate)
 {
-	const gchar *rdf_class = data;
-	PreparableEvent *info = user_data;
-	const gchar *uri = info->uri;
-	const gchar *predicate = info->predicate;
-	TrackerDBusEventsType type = info->type;
-
-	EventsPrivate *private;
 	GValueArray *event;
 	GValue uri_value = { 0 , };
 	GValue rdfclass_value = { 0 , };
 	GValue type_value = { 0 , };
 	GValue predicate_value = { 0 , };
-
-	private = g_static_private_get (&private_key);
-	g_return_if_fail (private != NULL);
-
-	if (!is_allowed (private, rdf_class))
-		return;
 
 	if (!private->events) {
 		private->events = g_ptr_array_new ();
@@ -117,23 +104,41 @@ tracker_events_insert (const gchar *uri,
 		       GPtrArray *rdf_types, 
 		       TrackerDBusEventsType type)
 {
-	PreparableEvent info;
+	EventsPrivate *private;
 
-	info.uri = uri;
-	info.type = type;
-	info.predicate = predicate;
+	private = g_static_private_get (&private_key);
+	g_return_if_fail (private != NULL);
 
 	if (rdf_types && type == TRACKER_DBUS_EVENTS_TYPE_UPDATE) {
-		/* object is not very important for updates (we don't expose
-		 * the value being set to the user's DBus API in tracker-store) */
-		g_ptr_array_foreach (rdf_types, prepare_event_for_rdf_types, &info);
+		guint i;
+
+		for (i = 0; i < rdf_types->len; i++) {
+
+			/* object is not very important for updates (we don't expose
+			 * the value being set to the user's DBus API in tracker-store) */
+			if (is_allowed (private, rdf_types->pdata[i])) {
+
+				prepare_event_for_rdf_type (private, rdf_types->pdata[i], 
+				                            uri, type, predicate);
+
+				/* Only once match is needed */
+				break;
+			}
+		}
 	} else if (type == TRACKER_DBUS_EVENTS_TYPE_UPDATE) {
 		/* In this case we had an INSERT for a resource that didn't exist 
 		 * yet, but it was not the rdf:type predicate being inserted */
-		prepare_event_for_rdf_types ((gpointer) TRACKER_RDFS_PREFIX "Resource", &info);
+		if (is_allowed (private, (gpointer) TRACKER_RDFS_PREFIX "Resource")) {
+			prepare_event_for_rdf_type (private, 
+			                            (gpointer) TRACKER_RDFS_PREFIX "Resource", 
+			                            uri, type, predicate);
+		}
 	} else {
 		/* In case of delete and create, object is the rdf:type */
-		prepare_event_for_rdf_types ((gpointer) object, &info);
+		if (is_allowed (private, (gpointer) object)) {
+			prepare_event_for_rdf_type (private, (gpointer) object, 
+			                            uri, type, predicate);
+		}
 	}
 }
 
