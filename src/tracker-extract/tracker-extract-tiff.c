@@ -169,16 +169,6 @@ extract_tiff (const gchar *filename,
 
 	TiffTag *tag;
 
-	gchar buffer[1024];
-	gchar *text;
-	guint16 varui16 = 0;
-	guint32 varui32 = 0;
-	
-	void *data;
-	guint16 count16;
-
-	gfloat vardouble;
-
 #ifdef HAVE_LIBIPTCDATA
 	gchar   *iptcOffset;
 	guint32  iptcSize;
@@ -214,115 +204,145 @@ extract_tiff (const gchar *filename,
 	}
 #endif /* HAVE_EXEMPI */
 
-	if (TIFFGetField (image, TIFFTAG_EXIFIFD, &exifOffset)) {
-		if (TIFFReadEXIFDirectory (image, exifOffset)) {
-			for (tag = exiftags; tag->name; ++tag) {
-				switch (tag->type) {
-				case TIFF_TAGTYPE_STRING:
-					if (!TIFFGetField (image, tag->tag, &text)) {
-						continue;
-					}
+	if (TIFFGetField (image, TIFFTAG_EXIFIFD, &exifOffset) &&
+	    TIFFReadEXIFDirectory (image, exifOffset)) {
+		for (tag = exiftags; tag->name; ++tag) {
+			gchar *str = NULL;
+			
+			switch (tag->type) {
+			case TIFF_TAGTYPE_STRING: {
+				gchar *var = NULL;
 
-					snprintf (buffer, sizeof (buffer), "%s",text);
-					break;
-				case TIFF_TAGTYPE_UINT16:						
-					if (!TIFFGetField (image, tag->tag, &varui16)) {
-						continue;
-					}
-
-					snprintf (buffer, sizeof (buffer), "%i",varui16);
-					break;
-				case TIFF_TAGTYPE_UINT32:
-					if (!TIFFGetField (image, tag->tag, &varui32)) {
-						continue;
-					}
-
-					snprintf(buffer, sizeof (buffer), "%i",varui32);
-					break;
-				case TIFF_TAGTYPE_DOUBLE:
-					if (!TIFFGetField (image, tag->tag, &vardouble)) {
-						continue;
-					}
-
-					snprintf (buffer, sizeof (buffer), "%f",vardouble);
-					break;
-				case TIFF_TAGTYPE_C16_UINT16:						
-					if (!TIFFGetField (image, tag->tag, &count16, &data)) {
-						continue;
-					}
-
-					/* We only take only the first for now */
-					snprintf (buffer, sizeof (buffer), "%i",*(guint16 *)data);
-					break;	
-
-				default:
-					continue;
-					break;
-				}
-
-				if (tag->post) {
-					metadata_append (metadata,
-							 g_strdup (tag->name),
-							 tracker_escape_metadata ((*tag->post) (buffer)),
-							 tag->multi);
-				} else {
-					metadata_append (metadata, 
-							 g_strdup (tag->name),
-							 tracker_escape_metadata (buffer),
-							 tag->multi);
-				}
+				if (TIFFGetField (image, tag->tag, &var) == 1) {
+					str = g_strdup_printf ("%s", var);
+				}				
+				break;
 			}
+
+			case TIFF_TAGTYPE_UINT16: {
+				guint16 var = 0;
+
+				if (TIFFGetField (image, tag->tag, &var) == 1) {
+					str = g_strdup_printf ("%i", var);
+				}				
+				break;
+			}
+
+			case TIFF_TAGTYPE_UINT32: {
+				guint32 var = 0;
+
+				if (TIFFGetField (image, tag->tag, &var) == 1) {
+					str = g_strdup_printf ("%i", var);
+				}				
+				break;
+			}
+
+			case TIFF_TAGTYPE_DOUBLE: {
+				gfloat var = 0.0;
+
+				if (TIFFGetField (image, tag->tag, &var) == 1) {
+					str = g_strdup_printf ("%f", var);
+				}
+				break;
+			}
+
+			case TIFF_TAGTYPE_C16_UINT16: {
+				void *var = NULL;
+				guint16 count;
+
+				if (TIFFGetField (image, tag->tag, &count, &var) == 1) {
+					/* We only take only the first for now */
+					str = g_strdup_printf ("%i", * (guint16*) var);
+				}
+ 				break;
+			}
+				
+			default:
+				break;
+			}
+
+			if (!str) {
+				continue;
+			}
+			
+			if (tag->post) {
+				metadata_append (metadata,
+						 g_strdup (tag->name),
+						 tracker_escape_metadata ((*tag->post) (str)),
+						 tag->multi);
+			} else {
+				metadata_append (metadata, 
+						 g_strdup (tag->name),
+						 tracker_escape_metadata (str),
+						 tag->multi);
+			}
+			
+			g_free (str);
 		}
 	}
 
 	/* We want to give native tags priority over XMP/Exif */
 	for (tag = tags; tag->name; ++tag) {
+		gchar *str = NULL;
 		
 		switch (tag->type) {
-			case TIFF_TAGTYPE_STRING:
-				if (!TIFFGetField (image, tag->tag, &text)) {
-					continue;
-				}
+		case TIFF_TAGTYPE_STRING: {
+			gchar *var = NULL;
 
-				snprintf (buffer, sizeof (buffer), "%s", text);
-				break;
-			case TIFF_TAGTYPE_UINT16:
-				if (!TIFFGetField (image, tag->tag, &varui16)) {
-					continue;
-				}
-
-				snprintf (buffer, sizeof (buffer), "%i",varui16);
-				break;
-			case TIFF_TAGTYPE_UINT32:
-				if (!TIFFGetField (image, tag->tag, &varui32)) {
-					continue;
-				}
-
-				snprintf(buffer, sizeof (buffer), "%i",varui32);
-				break;
-			case TIFF_TAGTYPE_DOUBLE:
-				if (!TIFFGetField (image, tag->tag, &vardouble)) {
-					continue;
-				}
-
-				snprintf (buffer, sizeof (buffer), "%f",vardouble);
-				break;
-			default:
-				continue;
-				break;
+			if (TIFFGetField (image, tag->tag, &var) == 1) {
+				str = g_strdup_printf ("%s", var);
 			}
+			break;
+		}
 
+		case TIFF_TAGTYPE_UINT16: {
+			guint16 var = 0;
+
+			if (TIFFGetField (image, tag->tag, &var) == 1) {
+				str = g_strdup_printf ("%i", var);
+			}
+			break;
+		}
+
+		case TIFF_TAGTYPE_UINT32: {
+			guint32 var = 0;
+
+			if (TIFFGetField (image, tag->tag, &var) == 1) {
+				str = g_strdup_printf ("%i", var);
+			}
+			break;
+		}
+
+		case TIFF_TAGTYPE_DOUBLE: {
+			gfloat var = 0.0;
+
+			if (TIFFGetField (image, tag->tag, &var) == 1) {
+				str = g_strdup_printf ("%f", var);
+			}
+			break;
+		}
+
+		default:
+			break;
+		}
+
+		if (!str) {
+			continue;
+		}
+		
 		if (tag->post) {
 			metadata_append (metadata, 
 					 g_strdup (tag->name),
-					 tracker_escape_metadata ((*tag->post) (buffer)),
+					 tracker_escape_metadata ((*tag->post) (str)),
 					 tag->multi);
 		} else {
 			metadata_append (metadata, 
 					 g_strdup (tag->name),
-					 tracker_escape_metadata (buffer),
+					 tracker_escape_metadata (str),
 					 tag->multi);
 		}
+		
+		g_free (str);
 	}
 
 	TIFFClose (image);
