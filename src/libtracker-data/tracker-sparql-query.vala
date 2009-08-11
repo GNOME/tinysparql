@@ -760,6 +760,7 @@ public class Tracker.SparqlQuery : Object {
 					} else {
 						pattern_sql.append ("?");
 					}
+					bindings.append (binding);
 				}
 			}
 
@@ -1000,7 +1001,6 @@ public class Tracker.SparqlQuery : Object {
 				binding.table = table;
 				binding.sql_db_column_name = "ID";
 				pattern_bindings.append (binding);
-				bindings.append (binding);
 			}
 		}
 		
@@ -1079,7 +1079,6 @@ public class Tracker.SparqlQuery : Object {
 					binding.sql_db_column_name = "object";
 				}
 				pattern_bindings.append (binding);
-				bindings.append (binding);
 			}
 		}
 
