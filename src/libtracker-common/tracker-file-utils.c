@@ -761,16 +761,16 @@ path_has_write_access_or_was_created (const gchar *path)
 	writable = path_has_write_access (path, &exists);
 	if (exists) {
 		if (writable) {
-			g_message ("  Path is OK");
+			g_debug ("  Path is OK");
 			return TRUE;
 		}
 
 		g_message ("  Path can not be written to");
 	} else {
-		g_message ("  Path does not exist, attempting to create...");
+		g_debug ("  Path does not exist, attempting to create...");
 
 		if (g_mkdir_with_parents (path, 0700) == 0) {
-			g_message ("  Path was created");
+			g_debug ("  Path was created");
 			return TRUE;
 		}
 
@@ -787,7 +787,7 @@ tracker_env_check_xdg_dirs (void)
 	gchar	    *new_dir;
 	gboolean     success;
 
-	g_message ("Checking XDG_DATA_HOME is writable and exists");
+	g_debug ("Checking XDG_DATA_HOME is writable and exists");
 
 	/* NOTE: We don't use g_get_user_data_dir() here because as
 	 * soon as we do, it sets the result and doesn't re-fetch the
@@ -796,9 +796,8 @@ tracker_env_check_xdg_dirs (void)
 	user_data_dir = g_getenv ("XDG_DATA_HOME");
 
 	/* Check the default XDG_DATA_HOME location */
-	g_message ("  XDG_DATA_HOME is '%s'", user_data_dir);
-
 	if (user_data_dir && path_has_write_access_or_was_created (user_data_dir)) {
+		g_message ("  XDG_DATA_HOME is '%s'", user_data_dir);
 		return TRUE;
 	}
 

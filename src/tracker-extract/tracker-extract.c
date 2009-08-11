@@ -112,6 +112,8 @@ tracker_extract_new (void)
 					  TRUE,
 					  sizeof (ModuleData));
 
+	g_message ("Loading extractor modules");
+
 	while ((name = g_dir_read_name (dir)) != NULL) {
 		TrackerExtractDataFunc func;
 		GModule *module;
@@ -141,17 +143,17 @@ tracker_extract_new (void)
 			mdata.module = module;
 			mdata.edata = (func) ();
 
-			g_message ("Adding extractor:'%s' with:",
-				   g_module_name ((GModule*) mdata.module));
+			g_debug ("Adding extractor:'%s' with:",
+				 g_module_name ((GModule*) mdata.module));
 
 			for (; mdata.edata->mime; mdata.edata++) {
 				if (G_UNLIKELY (strchr (mdata.edata->mime, '*') != NULL)) {
-					g_message ("  Generic  match for mime:'%s'",
-						   mdata.edata->mime);
+					g_debug ("  Generic  match for mime:'%s'",
+						 mdata.edata->mime);
 					g_array_append_val (generic_extractors, mdata);
 				} else {
-					g_message ("  Specific match for mime:'%s'",
-						   mdata.edata->mime);
+					g_debug ("  Specific match for mime:'%s'",
+						 mdata.edata->mime);
 					g_array_append_val (specific_extractors, mdata);
 				}
 			}

@@ -329,7 +329,7 @@ tracker_memory_set_oom_adj (void)
 	}
 
 	if (success) {
-		g_message ("OOM score has been set to %s", str);
+		g_debug ("OOM score has been set to %s", str);
 	} else {
 		g_critical ("Could not adjust OOM score");
 	}
