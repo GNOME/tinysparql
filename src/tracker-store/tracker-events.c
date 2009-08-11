@@ -33,12 +33,6 @@ typedef struct {
 	GPtrArray *events;
 } EventsPrivate;
 
-typedef struct {
-	const gchar *uri;
-	const gchar *predicate;
-	TrackerDBusEventsType type;
-} PreparableEvent;
-
 static GStaticPrivate private_key = G_STATIC_PRIVATE_INIT;
 
 static void 
@@ -60,7 +54,11 @@ is_allowed (EventsPrivate *private, const gchar *rdf_class)
 }
 
 static void 
-prepare_event_for_rdf_type (EventsPrivate *private, const gchar *rdf_class , const gchar *uri, TrackerDBusEventsType type, const gchar *predicate)
+prepare_event_for_rdf_type (EventsPrivate *private, 
+                            const gchar *rdf_class , 
+                            const gchar *uri, 
+                            TrackerDBusEventsType type, 
+                            const gchar *predicate)
 {
 	GValueArray *event;
 	GValue uri_value = { 0 , };
