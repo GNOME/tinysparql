@@ -1208,22 +1208,24 @@ public class Tracker.SparqlQuery : Object {
 		}
 	}
 
-	void translate_unary_expression (StringBuilder sql) throws SparqlError {
+	DataType translate_unary_expression (StringBuilder sql) throws SparqlError {
 		if (accept (SparqlTokenType.OP_NEG)) {
 			sql.append ("NOT (");
-			translate_primary_expression (sql);
+			var optype = translate_primary_expression (sql);
 			sql.append (")");
-			return;
+			if (optype != DataType.BOOLEAN) {
+				throw new SparqlError.PARSE ("expected boolean expression");
+			}
+			return DataType.BOOLEAN;
 		} else if (accept (SparqlTokenType.PLUS)) {
-			translate_primary_expression (sql);
-			return;
+			return translate_primary_expression (sql);
 		} else if (accept (SparqlTokenType.MINUS)) {
 			sql.append ("-(");
-			translate_primary_expression (sql);
+			var optype = translate_primary_expression (sql);
 			sql.append (")");
-			return;
+			return optype;
 		}
-		translate_primary_expression (sql);
+		return translate_primary_expression (sql);
 	}
 
 	void translate_multiplicative_expression (StringBuilder sql) throws SparqlError {
