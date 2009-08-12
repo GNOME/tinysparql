@@ -1214,6 +1214,14 @@ public class Tracker.SparqlQuery : Object {
 			translate_primary_expression (sql);
 			sql.append (")");
 			return;
+		} else if (accept (SparqlTokenType.PLUS)) {
+			translate_primary_expression (sql);
+			return;
+		} else if (accept (SparqlTokenType.MINUS)) {
+			sql.append ("-(");
+			translate_primary_expression (sql);
+			sql.append (")");
+			return;
 		}
 		translate_primary_expression (sql);
 	}
