@@ -445,6 +445,7 @@ struct rasqal_literal_s {
  * @RASQAL_EXPR_AVG: Expression for LAQRS select AVG()
  * @RASQAL_EXPR_MIN: Expression for LAQRS select MIN()
  * @RASQAL_EXPR_MAX: Expression for LAQRS select MAX()
+ * @RASQAL_EXPR_GROUP_CONCAT: Expression for LAQRS select GROUP_CONCAT()
  * @RASQAL_EXPR_UNKNOWN: Internal
  * @RASQAL_EXPR_LAST: Internal
  *
@@ -498,6 +499,7 @@ typedef enum {
   RASQAL_EXPR_AVG,
   RASQAL_EXPR_MIN,
   RASQAL_EXPR_MAX,
+  RASQAL_EXPR_GROUP_CONCAT,
   /* internal */
   RASQAL_EXPR_LAST= RASQAL_EXPR_SAMETERM
 } rasqal_op;

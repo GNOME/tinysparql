@@ -357,6 +357,7 @@ EXPONENT [eE][+-]?[0-9]+
 [Aa][Vv][Gg] { return AVERAGE; }
 [Mm][Ii][Nn] { return MINIMUM; }
 [Mm][Aa][Xx] { return MAXIMUM; }
+[Gg][Rr][Oo][Uu][Pp]_[Cc][Oo][Nn][Cc][Aa][Tt] { return GROUP_CONCAT; }
 [Aa][Ss] { BEGIN(SPID); return AS; }
 [Dd][Ee][Ll][Ee][Tt][Ee]  { return DELETE; }
 [Ii][Nn][Ss][Ee][Rr][Tt]  { return INSERT; }

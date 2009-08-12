@@ -108,7 +108,8 @@ namespace Rasqal {
 		SUM,
 		AVG,
 		MIN,
-		MAX
+		MAX,
+		GROUP_CONCAT
 	}
 
 	[Compact]

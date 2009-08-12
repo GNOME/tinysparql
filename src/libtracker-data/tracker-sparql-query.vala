@@ -266,6 +266,10 @@ public class Tracker.SparqlQuery : Object {
 		return "\"%s_u\"".printf (variable_name);
 	}
 
+	string escape_sql_string_literal (string literal) {
+		return "'%s'".printf (string.joinv ("''", literal.split ("'")));
+	}
+
 	string get_sql_for_expression (Rasqal.Expression expr) {
 		if (expr.op == Rasqal.Op.COUNT) {
 			return "COUNT(%s)".printf (get_sql_for_expression (expr.arg1));
@@ -277,6 +281,11 @@ public class Tracker.SparqlQuery : Object {
 			return "MIN(%s)".printf (get_sql_for_expression (expr.arg1));
 		} else if (expr.op == Rasqal.Op.MAX) {
 			return "MAX(%s)".printf (get_sql_for_expression (expr.arg1));
+		} else if (expr.op == Rasqal.Op.GROUP_CONCAT) {
+			var binding = new LiteralBinding ();
+			binding.literal = expr.arg2.literal.as_string ();
+			bindings.append (binding);
+			return "GROUP_CONCAT(%s,%s)".printf (get_sql_for_expression (expr.arg1), escape_sql_string_literal (expr.arg2.literal.as_string ()));
 		} else if (expr.op == Rasqal.Op.VARSTAR) {
 			return "*";
 		} else if (expr.op == Rasqal.Op.LITERAL) {

@@ -439,7 +439,7 @@ rasqal_new_0op_expression(rasqal_world* world, rasqal_op op)
  * @RASQAL_EXPR_ISLITERAL @RASQAL_EXPR_ORDER_COND_ASC
  * @RASQAL_EXPR_ORDER_COND_DESC @RASQAL_EXPR_GROUP_COND_ASC
  * @RASQAL_EXPR_GROUP_COND_DESC @RASQAL_EXPR_COUNT @RASQAL_EXPR_SUM
- * @RASQAL_EXPR_AVG @RASQAL_EXPR_MIN @RASQAL_EXPR_MAX
+ * @RASQAL_EXPR_AVG @RASQAL_EXPR_MIN @RASQAL_EXPR_MAX @RASQAL_EXPR_GROUP_CONCAT
  *
  * @RASQAL_EXPR_BANG and @RASQAL_EXPR_UMINUS are used by RDQL and
  * SPARQL.  @RASQAL_EXPR_TILDE by RDQL only.  The rest by SPARQL
@@ -773,6 +773,7 @@ rasqal_expression_clear(rasqal_expression* e)
     case RASQAL_EXPR_STR_NEQ:
     case RASQAL_EXPR_LANGMATCHES:
     case RASQAL_EXPR_SAMETERM:
+    case RASQAL_EXPR_GROUP_CONCAT:
       rasqal_free_expression(e->arg1);
       rasqal_free_expression(e->arg2);
       break;
@@ -920,6 +921,7 @@ rasqal_expression_visit(rasqal_expression* e,
     case RASQAL_EXPR_STR_NEQ:
     case RASQAL_EXPR_LANGMATCHES:
     case RASQAL_EXPR_SAMETERM:
+    case RASQAL_EXPR_GROUP_CONCAT:
       return rasqal_expression_visit(e->arg1, fn, user_data) ||
              rasqal_expression_visit(e->arg2, fn, user_data);
       break;
@@ -2104,6 +2106,7 @@ rasqal_expression_write(rasqal_expression* e, raptor_iostream* iostr)
     case RASQAL_EXPR_LANGMATCHES:
     case RASQAL_EXPR_REGEX:
     case RASQAL_EXPR_SAMETERM:
+    case RASQAL_EXPR_GROUP_CONCAT:
       raptor_iostream_write_counted_string(iostr, "op ", 3);
       rasqal_expression_write_op(e, iostr);
       raptor_iostream_write_byte(iostr, '(');
@@ -2231,6 +2234,7 @@ rasqal_expression_print(rasqal_expression* e, FILE* fh)
     case RASQAL_EXPR_LANGMATCHES:
     case RASQAL_EXPR_REGEX:
     case RASQAL_EXPR_SAMETERM:
+    case RASQAL_EXPR_GROUP_CONCAT:
       fputs("op ", fh);
       rasqal_expression_print_op(e, fh);
       fputc('(', fh);
@@ -2366,6 +2370,7 @@ rasqal_expression_is_constant(rasqal_expression* e)
     case RASQAL_EXPR_STR_NEQ:
     case RASQAL_EXPR_LANGMATCHES:
     case RASQAL_EXPR_SAMETERM:
+    case RASQAL_EXPR_GROUP_CONCAT:
       result=rasqal_expression_is_constant(e->arg1) &&
              rasqal_expression_is_constant(e->arg2);
       break;

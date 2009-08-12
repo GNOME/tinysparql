@@ -145,7 +145,7 @@ static void sparql_query_error_full(rasqal_query *rq, const char *message, ...) 
 %token ISLITERAL "isLiteral"
 %token SAMETERM "sameTerm"
 /* LAQRS */
-%token EXPLAIN GROUP COUNT SUM AVERAGE MINIMUM MAXIMUM AS
+%token EXPLAIN GROUP COUNT SUM AVERAGE MINIMUM MAXIMUM GROUP_CONCAT AS
 %token DELETE INSERT DROP
 
 
@@ -221,6 +221,7 @@ static void sparql_query_error_full(rasqal_query *rq, const char *message, ...) 
 %type <expr> OrderCondition Filter Constraint SelectExpression
 %type <expr> AggregateExpression CountAggregateExpression SumAggregateExpression
 %type <expr> AvgAggregateExpression MinAggregateExpression MaxAggregateExpression
+%type <expr> GroupConcatAggregateExpression
 
 %type <literal> GraphTerm IRIref BlankNode
 %type <literal> VarOrIRIref
@@ -300,6 +301,7 @@ BrackettedExpression PrimaryExpression
 OrderCondition Filter Constraint SelectExpression
 AggregateExpression CountAggregateExpression SumAggregateExpression
 AvgAggregateExpression MinAggregateExpression MaxAggregateExpression
+GroupConcatAggregateExpression
 
 %destructor {
   if($$)
@@ -608,6 +610,10 @@ AggregateExpression: CountAggregateExpression
 {
   $$=$1;
 }
+| GroupConcatAggregateExpression
+{
+  $$=$1;
+}
 ;
 
 
@@ -702,6 +708,22 @@ MaxAggregateExpression: MAXIMUM '(' Expression ')'
     $$=rasqal_new_1op_expression(((rasqal_query*)rq)->world, RASQAL_EXPR_MAX, $3);
     if(!$$)
       YYERROR_MSG("MaxAggregateExpression 1: cannot create expr");
+  }
+}
+;
+
+
+GroupConcatAggregateExpression: GROUP_CONCAT '(' Expression ',' Expression ')'
+{
+  rasqal_sparql_query_language* sparql=(rasqal_sparql_query_language*)(((rasqal_query*)rq)->context);
+
+  if(!sparql->extended) {
+    sparql_syntax_error((rasqal_query*)rq, "GROUP_CONCAT cannot be used with SPARQL");
+    $$=NULL;
+  } else {
+    $$=rasqal_new_2op_expression(((rasqal_query*)rq)->world, RASQAL_EXPR_GROUP_CONCAT, $3, $5);
+    if(!$$)
+      YYERROR_MSG("GroupConcatAggregateExpression: cannot create expr");
   }
 }
 ;
