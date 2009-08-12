@@ -1029,6 +1029,28 @@ public class Tracker.SparqlQuery : Object {
 		expect (SparqlTokenType.CLOSE_PARENS);
 	}
 
+	void translate_isuri (StringBuilder sql) throws SparqlError {
+		if (!accept (SparqlTokenType.ISURI)) {
+			expect (SparqlTokenType.ISIRI);
+		}
+
+		expect (SparqlTokenType.OPEN_PARENS);
+
+		sql.append ("?");
+		var new_binding = new LiteralBinding ();
+		new_binding.literal_type = DataType.INTEGER;
+
+		if (translate_expression (new StringBuilder ()) == DataType.RESOURCE) { 
+			new_binding.literal = "1";
+		} else {
+			new_binding.literal = "0";
+		}
+
+		bindings.append (new_binding);
+
+		expect (SparqlTokenType.CLOSE_PARENS);
+	}
+
 	void translate_datatype (StringBuilder sql) throws SparqlError {
 		expect (SparqlTokenType.DATATYPE);
 		expect (SparqlTokenType.OPEN_PARENS);
@@ -1233,6 +1255,8 @@ public class Tracker.SparqlQuery : Object {
 			return DataType.BOOLEAN;
 		case SparqlTokenType.ISIRI:
 		case SparqlTokenType.ISURI:
+			translate_isuri (sql);
+			return DataType.BOOLEAN;
 		// case SparqlTokenType.ISBLANK:
 		case SparqlTokenType.ISLITERAL:
 			next ();
