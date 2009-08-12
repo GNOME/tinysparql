@@ -517,31 +517,31 @@ public class Tracker.SparqlQuery : Object {
 	void translate_select_expression (StringBuilder sql) throws SparqlError {
 		if (accept (SparqlTokenType.COUNT)) {
 			sql.append ("COUNT(");
-			translate_bracketted_expression_as_string (sql);
+			translate_expression_as_string (sql);
 			sql.append (")");
 			expect (SparqlTokenType.AS);
 			expect (SparqlTokenType.PN_PREFIX);
 		} else if (accept (SparqlTokenType.SUM)) {
 			sql.append ("SUM(");
-			translate_bracketted_expression_as_string (sql);
+			translate_expression_as_string (sql);
 			sql.append (")");
 			expect (SparqlTokenType.AS);
 			expect (SparqlTokenType.PN_PREFIX);
 		} else if (accept (SparqlTokenType.AVG)) {
 			sql.append ("AVG(");
-			translate_bracketted_expression_as_string (sql);
+			translate_expression_as_string (sql);
 			sql.append (")");
 			expect (SparqlTokenType.AS);
 			expect (SparqlTokenType.PN_PREFIX);
 		} else if (accept (SparqlTokenType.MIN)) {
 			sql.append ("MIN(");
-			translate_bracketted_expression_as_string (sql);
+			translate_expression_as_string (sql);
 			sql.append (")");
 			expect (SparqlTokenType.AS);
 			expect (SparqlTokenType.PN_PREFIX);
 		} else if (accept (SparqlTokenType.MAX)) {
 			sql.append ("MAX(");
-			translate_bracketted_expression_as_string (sql);
+			translate_expression_as_string (sql);
 			sql.append (")");
 			expect (SparqlTokenType.AS);
 			expect (SparqlTokenType.PN_PREFIX);
@@ -707,10 +707,10 @@ public class Tracker.SparqlQuery : Object {
 
 	void translate_order_condition (StringBuilder sql) throws SparqlError {
 		if (accept (SparqlTokenType.ASC)) {
-			translate_bracketted_expression_as_string (sql);
+			translate_expression_as_string (sql);
 			sql.append (" ASC");
 		} else if (accept (SparqlTokenType.DESC)) {
-			translate_bracketted_expression_as_string (sql);
+			translate_expression_as_string (sql);
 			sql.append (" DESC");
 		} else {
 			translate_expression_as_string (sql);
@@ -1432,17 +1432,6 @@ public class Tracker.SparqlQuery : Object {
 
 	DataType translate_expression (StringBuilder sql) throws SparqlError {
 		return translate_conditional_or_expression (sql);
-	}
-
-	void translate_bracketted_expression_as_string (StringBuilder sql) throws SparqlError {
-		expect (SparqlTokenType.OPEN_PARENS);
-		if (current () == SparqlTokenType.VAR) {
-			next ();
-			sql.append (get_sql_for_variable (get_last_string ().substring (1)));
-		} else {
-			translate_expression (sql);
-		}
-		expect (SparqlTokenType.CLOSE_PARENS);
 	}
 
 	DataType translate_bracketted_expression (StringBuilder sql) throws SparqlError {
