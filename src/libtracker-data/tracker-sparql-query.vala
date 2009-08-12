@@ -1198,10 +1198,7 @@ public class Tracker.SparqlQuery : Object {
 				var binding = var_map.lookup (variable_name);
 
 				if (binding.is_uri) {
-					pattern_sql.append_printf ("(SELECT \"%s\".\"Uri\" as \"STR\" FROM \"%s\" WHERE \"%s\".\"ID\" = \"%s_u\")", 
-					                           binding.table.sql_db_tablename,
-					                           binding.table.sql_db_tablename,
-					                           binding.table.sql_db_tablename,
+					pattern_sql.append_printf ("(SELECT \"rdfs:Resource\".\"Uri\" as \"STR\" FROM \"rdfs:Resource\" WHERE \"rdfs:Resource\".\"ID\" = \"%s_u\")", 
 					                           variable_name);
 				} else {
 					visit_filter (expr.arg1);
