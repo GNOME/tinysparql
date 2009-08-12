@@ -1225,14 +1225,14 @@ public class Tracker.SparqlQuery : Object {
 			var binding = new LiteralBinding ();
 			binding.literal = prefix_map.lookup (ns) + get_last_string ().substring (1);
 			bindings.append (binding);
-			return DataType.BOOLEAN;
+			return DataType.RESOURCE;
 		case SparqlTokenType.COLON:
 			next ();
 			sql.append ("(SELECT ID FROM \"rdfs:Resource\" WHERE Uri = ?)");
 			var binding = new LiteralBinding ();
 			binding.literal = prefix_map.lookup ("") + get_last_string ().substring (1);
 			bindings.append (binding);
-			return DataType.BOOLEAN;
+			return DataType.RESOURCE;
 		default:
 			throw new SparqlError.PARSE ("expected primary expression");
 		}
