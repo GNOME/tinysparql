@@ -493,7 +493,7 @@ public class Tracker.SparqlQuery : Object {
 			assert (group.arg1.literal.type == Rasqal.Literal.Type.VARIABLE);
 			string variable_name = group.arg1.literal.as_variable ().name;
 
-			sql.append (get_sql_for_variable (variable_name));
+			sql.append_printf ("\"%s_u\"", variable_name);
 
 			if (group.op == Rasqal.Op.GROUP_COND_DESC) {
 				sql.append (" DESC");
