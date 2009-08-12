@@ -1289,28 +1289,39 @@ public class Tracker.SparqlQuery : Object {
 		return optype;
 	}
 
-	void translate_additive_expression (StringBuilder sql) throws SparqlError {
+	DataType translate_additive_expression (StringBuilder sql) throws SparqlError {
 		long begin = sql.len;
-		translate_multiplicative_expression (sql);
+		var optype = translate_multiplicative_expression (sql);
 		while (true) {
 			if (accept (SparqlTokenType.PLUS)) {
+				if (!optype.maybe_numeric ()) {
+					throw new SparqlError.PARSE ("expected numeric operand");
+				}
 				sql.insert (begin, "(");
 				sql.append (" + ");
-				translate_multiplicative_expression (sql);
+				if (!translate_multiplicative_expression (sql).maybe_numeric ()) {
+					throw new SparqlError.PARSE ("expected numeric operand");
+				}
 				sql.append (")");
 			} else if (accept (SparqlTokenType.MINUS)) {
+				if (!optype.maybe_numeric ()) {
+					throw new SparqlError.PARSE ("expected numeric operand");
+				}
 				sql.insert (begin, "(");
 				sql.append (" - ");
-				translate_multiplicative_expression (sql);
+				if (!translate_multiplicative_expression (sql).maybe_numeric ()) {
+					throw new SparqlError.PARSE ("expected numeric operand");
+				}
 				sql.append (")");
 			} else {
 				break;
 			}
 		}
+		return optype;
 	}
 
-	void translate_numeric_expression (StringBuilder sql) throws SparqlError {
-		translate_additive_expression (sql);
+	DataType translate_numeric_expression (StringBuilder sql) throws SparqlError {
+		return translate_additive_expression (sql);
 	}
 
 	void translate_relational_expression (StringBuilder sql) throws SparqlError {
