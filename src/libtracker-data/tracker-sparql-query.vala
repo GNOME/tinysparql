@@ -1367,34 +1367,48 @@ public class Tracker.SparqlQuery : Object {
 		return optype;
 	}
 
-	void translate_value_logical (StringBuilder sql) throws SparqlError {
-		translate_relational_expression (sql);
+	DataType translate_value_logical (StringBuilder sql) throws SparqlError {
+		return translate_relational_expression (sql);
 	}
 
-	void translate_conditional_and_expression (StringBuilder sql) throws SparqlError {
+	DataType translate_conditional_and_expression (StringBuilder sql) throws SparqlError {
 		long begin = sql.len;
-		translate_value_logical (sql);
+		var optype = translate_value_logical (sql);
 		while (accept (SparqlTokenType.OP_AND)) {
+			if (optype != DataType.BOOLEAN) {
+				throw new SparqlError.PARSE ("expected boolean expression");
+			}
 			sql.insert (begin, "(");
 			sql.append (" && ");
-			translate_value_logical (sql);
+			optype = translate_value_logical (sql);
 			sql.append (")");
+			if (optype != DataType.BOOLEAN) {
+				throw new SparqlError.PARSE ("expected boolean expression");
+			}
 		}
+		return optype;
 	}
 
-	void translate_conditional_or_expression (StringBuilder sql) throws SparqlError {
+	DataType translate_conditional_or_expression (StringBuilder sql) throws SparqlError {
 		long begin = sql.len;
-		translate_conditional_and_expression (sql);
+		var optype = translate_conditional_and_expression (sql);
 		while (accept (SparqlTokenType.OP_OR)) {
+			if (optype != DataType.BOOLEAN) {
+				throw new SparqlError.PARSE ("expected boolean expression");
+			}
 			sql.insert (begin, "(");
 			sql.append (" || ");
-			translate_conditional_and_expression (sql);
+			optype = translate_conditional_and_expression (sql);
 			sql.append (")");
+			if (optype != DataType.BOOLEAN) {
+				throw new SparqlError.PARSE ("expected boolean expression");
+			}
 		}
+		return optype;
 	}
 
-	void translate_expression (StringBuilder sql) throws SparqlError {
-		translate_conditional_or_expression (sql);
+	DataType translate_expression (StringBuilder sql) throws SparqlError {
+		return translate_conditional_or_expression (sql);
 	}
 
 	void translate_bracketted_expression_as_string (StringBuilder sql) throws SparqlError {
@@ -1410,12 +1424,12 @@ public class Tracker.SparqlQuery : Object {
 
 	DataType translate_bracketted_expression (StringBuilder sql) throws SparqlError {
 		expect (SparqlTokenType.OPEN_PARENS);
-		translate_expression (sql);
+		var optype = translate_expression (sql);
 		expect (SparqlTokenType.CLOSE_PARENS);
-		return DataType.UNKNOWN;
+		return optype;
 	}
 
-	void translate_constraint (StringBuilder sql) throws SparqlError {
+	DataType translate_constraint (StringBuilder sql) throws SparqlError {
 		switch (current ()) {
 		case SparqlTokenType.STR:
 		case SparqlTokenType.LANG:
@@ -1428,10 +1442,9 @@ public class Tracker.SparqlQuery : Object {
 		// case SparqlTokenType.ISBLANK:
 		case SparqlTokenType.ISLITERAL:
 		case SparqlTokenType.REGEX:
-			translate_primary_expression (sql);
-			return;
+			return translate_primary_expression (sql);
 		}
-		translate_bracketted_expression (sql);
+		return translate_bracketted_expression (sql);
 	}
 
 	void translate_filter (StringBuilder sql) throws SparqlError {
