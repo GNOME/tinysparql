@@ -27,9 +27,16 @@ public errordomain Tracker.SparqlError {
 }
 
 public class Tracker.SparqlQuery : Object {
-	enum LiteralType {
+	enum DataType {
+		UNKNOWN,
 		STRING,
-		INTEGER
+		INTEGER,
+		BOOLEAN,
+		DOUBLE,
+		DECIMAL,
+		DATE,
+		DATETIME,
+		RESOURCE
 	}
 
 	// Represents a SQL table
@@ -51,7 +58,7 @@ public class Tracker.SparqlQuery : Object {
 	class LiteralBinding : DataBinding {
 		public bool is_fts_match;
 		public string literal;
-		public LiteralType literal_type;
+		public DataType literal_type;
 	}
 
 	// Represents a mapping of a SPARQL variable to a SQL table and column
@@ -127,7 +134,7 @@ public class Tracker.SparqlQuery : Object {
 
 								var binding = new LiteralBinding ();
 								binding.literal = subject_id.to_string ();
-								binding.literal_type = LiteralType.INTEGER;
+								binding.literal_type = DataType.INTEGER;
 								query.bindings.append (binding);
 							}
 						}
@@ -472,7 +479,7 @@ public class Tracker.SparqlQuery : Object {
 				}
 			} else if (binding.is_datetime) {
 				stmt.bind_int (i, string_to_date (binding.literal));
-			} else if (binding.literal_type == LiteralType.INTEGER) {
+			} else if (binding.literal_type == DataType.INTEGER) {
 				stmt.bind_int (i, binding.literal.to_int ());
 			} else {
 				stmt.bind_text (i, binding.literal);
@@ -661,7 +668,7 @@ public class Tracker.SparqlQuery : Object {
 
 			var binding = new LiteralBinding ();
 			binding.literal = limit.to_string ();
-			binding.literal_type = LiteralType.INTEGER;
+			binding.literal_type = DataType.INTEGER;
 			bindings.append (binding);
 
 			if (offset >= 0) {
@@ -669,7 +676,7 @@ public class Tracker.SparqlQuery : Object {
 
 				binding = new LiteralBinding ();
 				binding.literal = offset.to_string ();
-				binding.literal_type = LiteralType.INTEGER;
+				binding.literal_type = DataType.INTEGER;
 				bindings.append (binding);
 			}
 		} else if (offset >= 0) {
@@ -677,7 +684,7 @@ public class Tracker.SparqlQuery : Object {
 
 			var binding = new LiteralBinding ();
 			binding.literal = offset.to_string ();
-			binding.literal_type = LiteralType.INTEGER;
+			binding.literal_type = DataType.INTEGER;
 			bindings.append (binding);
 		}
 
@@ -1076,11 +1083,10 @@ public class Tracker.SparqlQuery : Object {
 		}
 	}
 
-	void translate_primary_expression (StringBuilder sql) throws SparqlError {
+	DataType translate_primary_expression (StringBuilder sql) throws SparqlError {
 		switch (current ()) {
 		case SparqlTokenType.OPEN_PARENS:
-			translate_bracketted_expression (sql);
-			break;
+			return translate_bracketted_expression (sql);
 		case SparqlTokenType.IRI_REF:
 			next ();
 
@@ -1090,8 +1096,17 @@ public class Tracker.SparqlQuery : Object {
 			binding.literal = get_last_string (1);
 			bindings.append (binding);
 
-			break;
+			return DataType.RESOURCE;
 		case SparqlTokenType.DECIMAL:
+			next ();
+
+			sql.append ("?");
+
+			var binding = new LiteralBinding ();
+			binding.literal = get_last_string ();
+			bindings.append (binding);
+
+			return DataType.DECIMAL;
 		case SparqlTokenType.DOUBLE:
 			next ();
 
@@ -1101,7 +1116,7 @@ public class Tracker.SparqlQuery : Object {
 			binding.literal = get_last_string ();
 			bindings.append (binding);
 
-			break;
+			return DataType.DOUBLE;
 		case SparqlTokenType.TRUE:
 			next ();
 
@@ -1109,10 +1124,10 @@ public class Tracker.SparqlQuery : Object {
 
 			var binding = new LiteralBinding ();
 			binding.literal = "1";
-			binding.literal_type = LiteralType.INTEGER;
+			binding.literal_type = DataType.INTEGER;
 			bindings.append (binding);
 
-			break;
+			return DataType.BOOLEAN;
 		case SparqlTokenType.FALSE:
 			next ();
 
@@ -1120,10 +1135,10 @@ public class Tracker.SparqlQuery : Object {
 
 			var binding = new LiteralBinding ();
 			binding.literal = "0";
-			binding.literal_type = LiteralType.INTEGER;
+			binding.literal_type = DataType.INTEGER;
 			bindings.append (binding);
 
-			break;
+			return DataType.BOOLEAN;
 		case SparqlTokenType.STRING_LITERAL1:
 		case SparqlTokenType.STRING_LITERAL2:
 		case SparqlTokenType.STRING_LITERAL_LONG1:
@@ -1134,7 +1149,7 @@ public class Tracker.SparqlQuery : Object {
 			binding.literal = parse_string_literal ();
 			bindings.append (binding);
 
-			break;
+			return DataType.STRING;
 		case SparqlTokenType.INTEGER:
 			next ();
 
@@ -1142,28 +1157,32 @@ public class Tracker.SparqlQuery : Object {
 
 			var binding = new LiteralBinding ();
 			binding.literal = get_last_string ();
-			binding.literal_type = LiteralType.INTEGER;
+			binding.literal_type = DataType.INTEGER;
 			bindings.append (binding);
 
-			break;
+			return DataType.INTEGER;
 		case SparqlTokenType.VAR:
 			next ();
 			string variable_name = get_last_string ().substring (1);
 			sql.append_printf ("\"%s_u\"", variable_name);
-			break;
+			return DataType.UNKNOWN;
 		case SparqlTokenType.STR:
 			translate_str (sql);
-			break;
+			return DataType.STRING;
 		case SparqlTokenType.LANG:
+			next ();
+			sql.append ("''");
+			return DataType.STRING;
 		case SparqlTokenType.LANGMATCHES:
 			next ();
-			break;
+			sql.append ("0");
+			return DataType.BOOLEAN;
 		case SparqlTokenType.DATATYPE:
 			translate_datatype (sql);
-			break;
+			return DataType.RESOURCE;
 		case SparqlTokenType.BOUND:
 			translate_bound_call (sql);
-			break;
+			return DataType.BOOLEAN;
 		case SparqlTokenType.SAMETERM:
 			next ();
 			expect (SparqlTokenType.OPEN_PARENS);
@@ -1174,16 +1193,18 @@ public class Tracker.SparqlQuery : Object {
 			translate_expression (sql);
 			sql.append (")");
 			expect (SparqlTokenType.CLOSE_PARENS);
-			break;
+			return DataType.BOOLEAN;
 		case SparqlTokenType.ISIRI:
 		case SparqlTokenType.ISURI:
 		// case SparqlTokenType.ISBLANK:
 		case SparqlTokenType.ISLITERAL:
 			next ();
-			break;
+			return DataType.BOOLEAN;
 		case SparqlTokenType.REGEX:
 			translate_regex (sql);
-			break;
+			return DataType.BOOLEAN;
+		default:
+			throw new SparqlError.PARSE ("expected primary expression");
 		}
 	}
 
@@ -1318,10 +1339,11 @@ public class Tracker.SparqlQuery : Object {
 		expect (SparqlTokenType.CLOSE_PARENS);
 	}
 
-	void translate_bracketted_expression (StringBuilder sql) throws SparqlError {
+	DataType translate_bracketted_expression (StringBuilder sql) throws SparqlError {
 		expect (SparqlTokenType.OPEN_PARENS);
 		translate_expression (sql);
 		expect (SparqlTokenType.CLOSE_PARENS);
+		return DataType.UNKNOWN;
 	}
 
 	void translate_constraint (StringBuilder sql) throws SparqlError {
