@@ -546,7 +546,7 @@ public class Tracker.SparqlQuery : Object {
 			expect (SparqlTokenType.AS);
 			expect (SparqlTokenType.PN_PREFIX);
 		} else {
-			translate_primary_expression_as_string (sql);
+			translate_expression_as_string (sql);
 		}
 	}
 
@@ -713,7 +713,7 @@ public class Tracker.SparqlQuery : Object {
 			translate_bracketted_expression_as_string (sql);
 			sql.append (" DESC");
 		} else {
-			translate_primary_expression_as_string (sql);
+			translate_expression_as_string (sql);
 		}
 	}
 
@@ -977,10 +977,7 @@ public class Tracker.SparqlQuery : Object {
 		expect (SparqlTokenType.CLOSE_PARENS);
 	}
 
-	void translate_str (StringBuilder sql) throws SparqlError {
-		expect (SparqlTokenType.STR);
-		expect (SparqlTokenType.OPEN_PARENS);
-
+	void translate_expression_as_string (StringBuilder sql) throws SparqlError {
 		switch (current ()) {
 		case SparqlTokenType.IRI_REF:
 		case SparqlTokenType.PN_PREFIX:
@@ -1021,6 +1018,13 @@ public class Tracker.SparqlQuery : Object {
 			}
 			break;
 		}
+	}
+
+	void translate_str (StringBuilder sql) throws SparqlError {
+		expect (SparqlTokenType.STR);
+		expect (SparqlTokenType.OPEN_PARENS);
+
+		translate_expression_as_string (sql);
 
 		expect (SparqlTokenType.CLOSE_PARENS);
 	}
@@ -1101,15 +1105,6 @@ public class Tracker.SparqlQuery : Object {
 			return get_last_string (3);
 		default:
 			throw new SparqlError.PARSE ("expected string literal \"%s\")", get_last_string ());
-		}
-	}
-
-	void translate_primary_expression_as_string (StringBuilder sql) throws SparqlError {
-		if (current () == SparqlTokenType.VAR) {
-			next ();
-			sql.append (get_sql_for_variable (get_last_string ().substring (1)));
-		} else {
-			translate_primary_expression (sql);
 		}
 	}
 
