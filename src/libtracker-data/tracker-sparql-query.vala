@@ -988,6 +988,33 @@ public class Tracker.SparqlQuery : Object {
 		expect (SparqlTokenType.CLOSE_PARENS);
 	}
 
+	void translate_datatype (StringBuilder sql) throws SparqlError {
+		expect (SparqlTokenType.DATATYPE);
+		expect (SparqlTokenType.OPEN_PARENS);
+
+		if (accept (SparqlTokenType.VAR)) {
+			string variable_name = get_last_string().substring(1);
+			var binding = var_map.lookup (variable_name);
+
+			check_binding (binding, variable_name);
+
+			if (binding.is_uri || binding.type == null) {
+				throw new SparqlError.PARSE ("Invalid FILTER");
+			}
+
+			sql.append ("(SELECT ID FROM \"rdfs:Resource\" WHERE Uri = ?)");
+
+			var new_binding = new LiteralBinding ();
+			new_binding.literal = binding.type;
+			bindings.append (new_binding);
+
+		} else {
+			throw new SparqlError.PARSE ("Invalid FILTER");
+		}
+
+		expect (SparqlTokenType.CLOSE_PARENS);
+	}
+
 	string parse_string_literal () throws SparqlError {
 		next ();
 		switch (last ()) {
@@ -1129,8 +1156,10 @@ public class Tracker.SparqlQuery : Object {
 			break;
 		case SparqlTokenType.LANG:
 		case SparqlTokenType.LANGMATCHES:
-		case SparqlTokenType.DATATYPE:
 			next ();
+			break;
+		case SparqlTokenType.DATATYPE:
+			translate_datatype (sql);
 			break;
 		case SparqlTokenType.BOUND:
 			translate_bound_call (sql);
