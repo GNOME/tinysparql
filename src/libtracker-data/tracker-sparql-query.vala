@@ -433,12 +433,16 @@ public class Tracker.SparqlQuery : Object {
 		}
 	}
 
-	string get_sql_for_variable (string variable_name) throws SparqlError {
-		var binding = var_map.lookup (variable_name);
-
+	void check_binding (VariableBinding? binding, string variable_name) throws SparqlError {
 		if (binding == null) {
 			throw new SparqlError.PARSE ("`%s' is not a valid variable".printf (variable_name));
 		}
+	}
+
+	string get_sql_for_variable (string variable_name) throws SparqlError {
+		var binding = var_map.lookup (variable_name);
+
+		check_binding (binding, variable_name);
 
 		if (binding.is_uri) {
 			return "(SELECT Uri FROM \"rdfs:Resource\" WHERE ID = \"%s_u\")".printf (variable_name);
@@ -952,6 +956,38 @@ public class Tracker.SparqlQuery : Object {
 		expect (SparqlTokenType.CLOSE_PARENS);
 	}
 
+	void translate_str (StringBuilder sql) throws SparqlError {
+
+		expect (SparqlTokenType.STR);
+		expect (SparqlTokenType.OPEN_PARENS);
+
+		if (accept (SparqlTokenType.VAR)) {
+			string variable_name = get_last_string().substring(1);
+			var binding = var_map.lookup (variable_name);
+
+			check_binding (binding, variable_name);
+
+			if (binding.is_uri) {
+					sql.append_printf ("(SELECT \"rdfs:Resource\".\"Uri\" as \"STR\" FROM \"rdfs:Resource\" WHERE \"rdfs:Resource\".\"ID\" = \"%s_u\")", 
+					                   variable_name);
+			} else {
+				sql.append (get_sql_for_variable (get_last_string ().substring (1)));
+			}
+		} else if (accept (SparqlTokenType.IRI_REF)) {
+			sql.append ("?");
+			var binding = new LiteralBinding ();
+			binding.literal = get_last_string (1);
+			bindings.append (binding);
+		} else {
+			sql.append ("?");
+			var binding = new LiteralBinding ();
+			binding.literal = parse_string_literal ();
+			bindings.append (binding);
+		}
+
+		expect (SparqlTokenType.CLOSE_PARENS);
+	}
+
 	string parse_string_literal () throws SparqlError {
 		next ();
 		switch (last ()) {
@@ -1000,7 +1036,7 @@ public class Tracker.SparqlQuery : Object {
 		case SparqlTokenType.STRING_LITERAL_LONG2:
 			return get_last_string (3);
 		default:
-			assert_not_reached ();
+			throw new SparqlError.PARSE ("expected string literal \"%s\")", get_last_string ());
 		}
 	}
 
@@ -1089,6 +1125,8 @@ public class Tracker.SparqlQuery : Object {
 			sql.append_printf ("\"%s_u\"", variable_name);
 			break;
 		case SparqlTokenType.STR:
+			translate_str (sql);
+			break;
 		case SparqlTokenType.LANG:
 		case SparqlTokenType.LANGMATCHES:
 		case SparqlTokenType.DATATYPE:
