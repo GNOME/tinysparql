@@ -968,8 +968,8 @@ public class Tracker.SparqlQuery : Object {
 			check_binding (binding, variable_name);
 
 			if (binding.is_uri) {
-					sql.append_printf ("(SELECT \"rdfs:Resource\".\"Uri\" as \"STR\" FROM \"rdfs:Resource\" WHERE \"rdfs:Resource\".\"ID\" = \"%s_u\")", 
-					                   variable_name);
+				sql.append_printf ("(SELECT \"rdfs:Resource\".\"Uri\" as \"STR\" FROM \"rdfs:Resource\" WHERE \"rdfs:Resource\".\"ID\" = \"%s_u\")", 
+				                   variable_name);
 			} else {
 				sql.append (get_sql_for_variable (get_last_string ().substring (1)));
 			}
