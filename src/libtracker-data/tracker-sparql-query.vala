@@ -1213,6 +1213,22 @@ public class Tracker.SparqlQuery : Object {
 		case SparqlTokenType.REGEX:
 			translate_regex (sql);
 			return DataType.BOOLEAN;
+		case SparqlTokenType.PN_PREFIX:
+			next ();
+			string ns = get_last_string ();
+			expect (SparqlTokenType.COLON);
+			sql.append ("(SELECT ID FROM \"rdfs:Resource\" WHERE Uri = ?)");
+			var binding = new LiteralBinding ();
+			binding.literal = prefix_map.lookup (ns) + get_last_string ().substring (1);
+			bindings.append (binding);
+			return DataType.BOOLEAN;
+		case SparqlTokenType.COLON:
+			next ();
+			sql.append ("(SELECT ID FROM \"rdfs:Resource\" WHERE Uri = ?)");
+			var binding = new LiteralBinding ();
+			binding.literal = prefix_map.lookup ("") + get_last_string ().substring (1);
+			bindings.append (binding);
+			return DataType.BOOLEAN;
 		default:
 			throw new SparqlError.PARSE ("expected primary expression");
 		}
