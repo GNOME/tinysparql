@@ -119,10 +119,6 @@ public class Tracker.SparqlScanner : Object {
 			case 'b':
 				if (matches (begin, "BASE")) return SparqlTokenType.BASE;
 				break;
-			case 'C':
-			case 'c':
-				if (matches (begin, "COUNT")) return SparqlTokenType.COUNT;
-				break;
 			case 'D':
 			case 'd':
 				switch (begin[1]) {
@@ -159,6 +155,10 @@ public class Tracker.SparqlScanner : Object {
 			case 'B':
 			case 'b':
 				if (matches (begin, "BOUND")) return SparqlTokenType.BOUND;
+				break;
+			case 'C':
+			case 'c':
+				if (matches (begin, "COUNT")) return SparqlTokenType.COUNT;
 				break;
 			case 'G':
 			case 'g':
