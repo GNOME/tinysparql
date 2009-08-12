@@ -317,7 +317,7 @@ public class Tracker.SparqlQuery : Object {
 		}
 	}
 
-	inline bool next () {
+	inline bool next () throws SparqlError {
 		index = (index + 1) % BUFFER_SIZE;
 		size--;
 		if (size <= 0) {
@@ -340,7 +340,7 @@ public class Tracker.SparqlQuery : Object {
 		return tokens[last_index].type;
 	}
 
-	inline bool accept (SparqlTokenType type) {
+	inline bool accept (SparqlTokenType type) throws SparqlError {
 		if (current () == type) {
 			next ();
 			return true;
@@ -360,7 +360,7 @@ public class Tracker.SparqlQuery : Object {
 		return tokens[index].begin;
 	}
 
-	void set_location (SourceLocation location) {
+	void set_location (SourceLocation location) throws SparqlError {
 		scanner.seek (location);
 		size = 0;
 		index = 0;
