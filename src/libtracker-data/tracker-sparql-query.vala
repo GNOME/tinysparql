@@ -490,7 +490,7 @@ public class Tracker.SparqlQuery : Object {
 		return stmt.execute ();
 	}
 
-	void skip_select_variables () {
+	void skip_select_variables () throws SparqlError {
 		while (true) {
 			switch (current ()) {
 			case SparqlTokenType.FROM:
@@ -510,27 +510,37 @@ public class Tracker.SparqlQuery : Object {
 		}
 	}
 
-	void translate_select_expression (StringBuilder sql) {
+	void translate_select_expression (StringBuilder sql) throws SparqlError {
 		if (accept (SparqlTokenType.COUNT)) {
 			sql.append ("COUNT(");
 			translate_bracketted_expression_as_string (sql);
 			sql.append (")");
+			expect (SparqlTokenType.AS);
+			expect (SparqlTokenType.PN_PREFIX);
 		} else if (accept (SparqlTokenType.SUM)) {
 			sql.append ("SUM(");
 			translate_bracketted_expression_as_string (sql);
 			sql.append (")");
+			expect (SparqlTokenType.AS);
+			expect (SparqlTokenType.PN_PREFIX);
 		} else if (accept (SparqlTokenType.AVG)) {
 			sql.append ("AVG(");
 			translate_bracketted_expression_as_string (sql);
 			sql.append (")");
+			expect (SparqlTokenType.AS);
+			expect (SparqlTokenType.PN_PREFIX);
 		} else if (accept (SparqlTokenType.MIN)) {
 			sql.append ("MIN(");
 			translate_bracketted_expression_as_string (sql);
 			sql.append (")");
+			expect (SparqlTokenType.AS);
+			expect (SparqlTokenType.PN_PREFIX);
 		} else if (accept (SparqlTokenType.MAX)) {
 			sql.append ("MAX(");
 			translate_bracketted_expression_as_string (sql);
 			sql.append (")");
+			expect (SparqlTokenType.AS);
+			expect (SparqlTokenType.PN_PREFIX);
 		} else {
 			translate_primary_expression_as_string (sql);
 		}
@@ -589,7 +599,7 @@ public class Tracker.SparqlQuery : Object {
 					first = false;
 				}
 
-				translate_primary_expression_as_string (sql);
+				translate_select_expression (sql);
 
 				switch (current ()) {
 				case SparqlTokenType.FROM:
