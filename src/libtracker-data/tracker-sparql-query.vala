@@ -978,32 +978,48 @@ public class Tracker.SparqlQuery : Object {
 	}
 
 	void translate_str (StringBuilder sql) throws SparqlError {
-
 		expect (SparqlTokenType.STR);
 		expect (SparqlTokenType.OPEN_PARENS);
 
-		if (accept (SparqlTokenType.VAR)) {
-			string variable_name = get_last_string().substring(1);
-			var binding = var_map.lookup (variable_name);
-
-			check_binding (binding, variable_name);
-
-			if (binding.is_uri) {
-				sql.append_printf ("(SELECT \"rdfs:Resource\".\"Uri\" as \"STR\" FROM \"rdfs:Resource\" WHERE \"rdfs:Resource\".\"ID\" = \"%s_u\")", 
-				                   variable_name);
-			} else {
-				sql.append (get_sql_for_variable (get_last_string ().substring (1)));
+		switch (current ()) {
+		case SparqlTokenType.IRI_REF:
+		case SparqlTokenType.PN_PREFIX:
+		case SparqlTokenType.COLON:
+			// handle IRI literals separately as it wouldn't work for unknown IRIs otherwise
+			sql.append ("?");
+			var binding = new LiteralBinding ();
+			bool is_var;
+			binding.literal = parse_var_or_term (null, out is_var);
+			bindings.append (binding);
+			break;
+		default:
+			long begin = sql.len;
+			switch (translate_expression (sql)) {
+			case DataType.STRING:
+				// nothing to convert
+				break;
+			case DataType.RESOURCE:
+				// ID => Uri
+				sql.insert (begin, "(SELECT Uri FROM \"rdfs:Resource\" WHERE ID = ");
+				sql.append (")");
+				break;
+			case DataType.BOOLEAN:
+				// 0/1 => false/true
+				sql.insert (begin, "CASE ");
+				sql.append (" WHEN 1 THEN 'true' WHEN 0 THEN 'false' ELSE NULL END");
+				break;
+			case DataType.DATETIME:
+				// ISO 8601 format
+				sql.insert (begin, "strftime (\"%%Y-%%m-%%dT%%H:%%M:%%SZ\", ");
+				sql.append (", \"unixepoch\")");
+				break;
+			default:
+				// let sqlite convert the expression to string
+				sql.insert (begin, "CAST (");
+				sql.append ("AS TEXT)");
+				break;
 			}
-		} else if (accept (SparqlTokenType.IRI_REF)) {
-			sql.append ("?");
-			var binding = new LiteralBinding ();
-			binding.literal = get_last_string (1);
-			bindings.append (binding);
-		} else {
-			sql.append ("?");
-			var binding = new LiteralBinding ();
-			binding.literal = parse_string_literal ();
-			bindings.append (binding);
+			break;
 		}
 
 		expect (SparqlTokenType.CLOSE_PARENS);
