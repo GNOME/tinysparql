@@ -36,7 +36,11 @@ public class Tracker.SparqlQuery : Object {
 		DECIMAL,
 		DATE,
 		DATETIME,
-		RESOURCE
+		RESOURCE;
+
+		public bool maybe_numeric () {
+			return (this == INTEGER || this == DOUBLE || this == DATETIME || this == UNKNOWN);
+		}
 	}
 
 	// Represents a SQL table
@@ -1254,24 +1258,35 @@ public class Tracker.SparqlQuery : Object {
 		return translate_primary_expression (sql);
 	}
 
-	void translate_multiplicative_expression (StringBuilder sql) throws SparqlError {
+	DataType translate_multiplicative_expression (StringBuilder sql) throws SparqlError {
 		long begin = sql.len;
-		translate_unary_expression (sql);
+		var optype = translate_unary_expression (sql);
 		while (true) {
 			if (accept (SparqlTokenType.STAR)) {
+				if (!optype.maybe_numeric ()) {
+					throw new SparqlError.PARSE ("expected numeric operand");
+				}
 				sql.insert (begin, "(");
 				sql.append (" * ");
-				translate_unary_expression (sql);
+				if (!translate_unary_expression (sql).maybe_numeric ()) {
+					throw new SparqlError.PARSE ("expected numeric operand");
+				}
 				sql.append (")");
 			} else if (accept (SparqlTokenType.DIV)) {
+				if (!optype.maybe_numeric ()) {
+					throw new SparqlError.PARSE ("expected numeric operand");
+				}
 				sql.insert (begin, "(");
 				sql.append (" / ");
-				translate_unary_expression (sql);
+				if (!translate_unary_expression (sql).maybe_numeric ()) {
+					throw new SparqlError.PARSE ("expected numeric operand");
+				}
 				sql.append (")");
 			} else {
 				break;
 			}
 		}
+		return optype;
 	}
 
 	void translate_additive_expression (StringBuilder sql) throws SparqlError {
