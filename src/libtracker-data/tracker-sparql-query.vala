@@ -1324,40 +1324,47 @@ public class Tracker.SparqlQuery : Object {
 		return translate_additive_expression (sql);
 	}
 
-	void translate_relational_expression (StringBuilder sql) throws SparqlError {
+	DataType translate_relational_expression (StringBuilder sql) throws SparqlError {
 		long begin = sql.len;
-		translate_numeric_expression (sql);
+		var optype = translate_numeric_expression (sql);
 		if (accept (SparqlTokenType.OP_GE)) {
 			sql.insert (begin, "(");
 			sql.append (" >= ");
 			translate_numeric_expression (sql);
 			sql.append (")");
+			return DataType.BOOLEAN;
 		} else if (accept (SparqlTokenType.OP_EQ)) {
 			sql.insert (begin, "(");
 			sql.append (" = ");
 			translate_numeric_expression (sql);
 			sql.append (")");
+			return DataType.BOOLEAN;
 		} else if (accept (SparqlTokenType.OP_NE)) {
 			sql.insert (begin, "(");
 			sql.append (" <> ");
 			translate_numeric_expression (sql);
 			sql.append (")");
+			return DataType.BOOLEAN;
 		} else if (accept (SparqlTokenType.OP_LT)) {
 			sql.insert (begin, "(");
 			sql.append (" < ");
 			translate_numeric_expression (sql);
 			sql.append (")");
+			return DataType.BOOLEAN;
 		} else if (accept (SparqlTokenType.OP_LE)) {
 			sql.insert (begin, "(");
 			sql.append (" <= ");
 			translate_numeric_expression (sql);
 			sql.append (")");
+			return DataType.BOOLEAN;
 		} else if (accept (SparqlTokenType.OP_GT)) {
 			sql.insert (begin, "(");
 			sql.append (" > ");
 			translate_numeric_expression (sql);
 			sql.append (")");
+			return DataType.BOOLEAN;
 		}
+		return optype;
 	}
 
 	void translate_value_logical (StringBuilder sql) throws SparqlError {
