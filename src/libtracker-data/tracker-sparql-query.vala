@@ -1190,7 +1190,19 @@ public class Tracker.SparqlQuery : Object {
 			next ();
 			string variable_name = get_last_string ().substring (1);
 			sql.append_printf ("\"%s_u\"", variable_name);
-			return DataType.UNKNOWN;
+
+			var binding = var_map.lookup (variable_name);
+			if (binding == null) {
+				return DataType.UNKNOWN;
+			} else if (binding.is_uri) {
+				return DataType.RESOURCE;
+			} else if (binding.is_boolean) {
+				return DataType.BOOLEAN;
+			} else if (binding.is_datetime) {
+				return DataType.DATETIME;
+			} else {
+				return DataType.UNKNOWN;
+			}
 		case SparqlTokenType.STR:
 			translate_str (sql);
 			return DataType.STRING;
