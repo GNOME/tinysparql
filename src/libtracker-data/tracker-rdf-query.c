@@ -170,6 +170,7 @@ typedef struct {
 	GString             *sql_group;
 	GString		    *sql_order;
 	gchar		    *service;
+	gboolean             multivalued_select;
 } ParserData;
 
 static void start_element_handler (GMarkupParseContext	*context,
@@ -393,6 +394,7 @@ add_metadata_field (ParserData	*data,
 				if (!tracker_field_data_get_is_select (field_data)) {
 					tracker_field_data_set_is_select (field_data, TRUE);
 					if(tracker_field_data_get_multiple_values(field_data)) {
+						data->multivalued_select = TRUE;
 						g_string_append_printf (data->sql_select, ", GROUP_CONCAT (%s)",
 									tracker_field_data_get_select_field (field_data));
 					} else {
@@ -421,6 +423,7 @@ add_metadata_field (ParserData	*data,
 			data->fields = g_slist_prepend (data->fields, field_data);
 			if (is_select) {
 				if(tracker_field_data_get_multiple_values(field_data)) {
+					data->multivalued_select = TRUE;
 					g_string_append_printf (data->sql_select, ", GROUP_CONCAT (%s)",
 								tracker_field_data_get_select_field (field_data));
 				} else {
@@ -1231,6 +1234,9 @@ tracker_rdf_query_to_sql (TrackerDBInterface  *iface,
 	data.iface = iface;
 	data.statement_count = 0;
 	data.service = (gchar*) service;
+
+	data.multivalued_select = FALSE;
+
 	data.sql_select = get_select_header (service);
 
 	if (field_count > 0) {
@@ -1339,7 +1345,7 @@ tracker_rdf_query_to_sql (TrackerDBInterface  *iface,
 		g_string_append_printf (data.sql_where, "AND ");
 	}
 
-	data.sql_group = g_string_new (" GROUP BY S.ID ");
+	data.sql_group = g_string_new ("");
 
 	if (limit < 1) {
 		limit = 1024;
@@ -1493,6 +1499,10 @@ tracker_rdf_query_to_sql (TrackerDBInterface  *iface,
 			}
 		}
 
+		if (data.multivalued_select) {
+			g_string_append_printf (data.sql_group, " GROUP BY S.ID ");
+		}
+
 		result = g_strconcat (data.sql_select->str,
 				      " ",
 				      data.sql_from->str,
@@ -1558,6 +1568,8 @@ tracker_rdf_filter_to_sql (TrackerDBInterface *iface,
 	data.iface = iface;
 	data.statement_count = 0;
 	data.service = (gchar *) service;
+
+	data.multivalued_select = FALSE;
 
 	data.sql_from = g_string_new ("");
 	data.sql_where = g_string_new ("");
