@@ -103,7 +103,7 @@ CREATE TABLE  ServiceNumericMetaData
 	MetaDataValue		Integer not null
 );
 
-CREATE INDEX ServiceNumericMetaDataCompoundIndex ON ServiceNumericMetaData (ServiceID, MetaDataID);
+CREATE INDEX ServiceNumericMetaDataCompoundIndex ON ServiceNumericMetaData (ServiceID, MetaDataID, MetaDataValue);
 
 
 CREATE TABLE DeletedServices
