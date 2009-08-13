@@ -1260,7 +1260,14 @@ public class Tracker.SparqlQuery : Object {
 		case SparqlTokenType.ISURI:
 			translate_isuri (sql);
 			return DataType.BOOLEAN;
-		// case SparqlTokenType.ISBLANK:
+		case SparqlTokenType.ISBLANK:
+			next ();
+			expect (SparqlTokenType.OPEN_PARENS);
+			next ();
+			// TODO: support ISBLANK properly
+			sql.append ("0");
+			expect (SparqlTokenType.CLOSE_PARENS);
+			return DataType.BOOLEAN;
 		case SparqlTokenType.ISLITERAL:
 			next ();
 			return DataType.BOOLEAN;
@@ -1478,7 +1485,7 @@ public class Tracker.SparqlQuery : Object {
 		case SparqlTokenType.SAMETERM:
 		case SparqlTokenType.ISIRI:
 		case SparqlTokenType.ISURI:
-		// case SparqlTokenType.ISBLANK:
+		case SparqlTokenType.ISBLANK:
 		case SparqlTokenType.ISLITERAL:
 		case SparqlTokenType.REGEX:
 			return translate_primary_expression (sql);
@@ -1503,7 +1510,7 @@ public class Tracker.SparqlQuery : Object {
 		case SparqlTokenType.SAMETERM:
 		case SparqlTokenType.ISIRI:
 		case SparqlTokenType.ISURI:
-		// case SparqlTokenType.ISBLANK:
+		case SparqlTokenType.ISBLANK:
 		case SparqlTokenType.ISLITERAL:
 		case SparqlTokenType.REGEX:
 			next ();

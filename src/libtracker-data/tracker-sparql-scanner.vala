@@ -255,6 +255,10 @@ public class Tracker.SparqlScanner : Object {
 			case 'r':
 				if (matches (begin, "REDUCED")) return SparqlTokenType.REDUCED;
 				break;
+			case 'I':
+			case 'i':
+				if (matches (begin, "ISBLANK")) return SparqlTokenType.ISBLANK;
+				break;
 			}
 			break;
 		case 8:
@@ -779,6 +783,7 @@ public enum Tracker.SparqlTokenType {
 	ISIRI,
 	ISLITERAL,
 	ISURI,
+	ISBLANK,
 	LANG,
 	LANGMATCHES,
 	LIMIT,
@@ -849,6 +854,7 @@ public enum Tracker.SparqlTokenType {
 		case INTEGER: return "`INTEGER'";
 		case INTO: return "`INTO'";
 		case ISIRI: return "`ISIRI'";
+		case ISBLANK: return "`ISBLANK'";
 		case ISLITERAL: return "`ISLITERAL'";
 		case ISURI: return "`ISURI'";
 		case LANG: return "`LANG'";
