@@ -705,15 +705,24 @@ public class Tracker.SparqlQuery : Object {
 		return exec_sql (sql.str);
 	}
 
+	void translate_expression_as_order_condition (StringBuilder sql) throws SparqlError {
+		long begin = sql.len;
+		if (translate_expression (sql) == DataType.RESOURCE) {
+			// ID => Uri
+			sql.insert (begin, "(SELECT Uri FROM \"rdfs:Resource\" WHERE ID = ");
+			sql.append (")");
+		}
+	}
+
 	void translate_order_condition (StringBuilder sql) throws SparqlError {
 		if (accept (SparqlTokenType.ASC)) {
-			translate_expression_as_string (sql);
+			translate_expression_as_order_condition (sql);
 			sql.append (" ASC");
 		} else if (accept (SparqlTokenType.DESC)) {
-			translate_expression_as_string (sql);
+			translate_expression_as_order_condition (sql);
 			sql.append (" DESC");
 		} else {
-			translate_expression_as_string (sql);
+			translate_expression_as_order_condition (sql);
 		}
 	}
 
@@ -939,17 +948,6 @@ public class Tracker.SparqlQuery : Object {
 		}
 	}
 
-
-	void translate_graph_pattern_not_triples (StringBuilder sql, int group_graph_pattern_start) throws SparqlError {
-		if (current () == SparqlTokenType.OPTIONAL) {
-			translate_optional_graph_pattern (sql, group_graph_pattern_start);
-		} else if (current () == SparqlTokenType.OPEN_BRACE) {
-			translate_group_or_union_graph_pattern (sql, group_graph_pattern_start);
-		} else if (current () == SparqlTokenType.GRAPH) {
-			// translate_graph_graph_pattern ();
-		}
-	}
-
 	void translate_bound_call (StringBuilder sql) throws SparqlError {
 		expect (SparqlTokenType.BOUND);
 		expect (SparqlTokenType.OPEN_PARENS);
@@ -1013,7 +1011,7 @@ public class Tracker.SparqlQuery : Object {
 			default:
 				// let sqlite convert the expression to string
 				sql.insert (begin, "CAST (");
-				sql.append ("AS TEXT)");
+				sql.append (" AS TEXT)");
 				break;
 			}
 			break;
@@ -1681,7 +1679,7 @@ public class Tracker.SparqlQuery : Object {
 		}
 	}
 
-	void translate_triples_block (StringBuilder sql, ref bool first_where) throws SparqlError {
+	void start_triples_block (StringBuilder sql) throws SparqlError {
 		tables = new List<DataTable> ();
 		table_map = new HashTable<string,DataTable>.full (str_hash, str_equal, g_free, g_object_unref);
 
@@ -1691,24 +1689,9 @@ public class Tracker.SparqlQuery : Object {
 		pattern_bindings = new List<LiteralBinding> ();
 
 		sql.append ("SELECT ");
+	}
 
-		while (true) {
-			current_subject = parse_var_or_term (sql, out current_subject_is_var);
-			parse_property_list_not_empty (sql);
-
-			if (accept (SparqlTokenType.DOT)) {
-				if (current () == SparqlTokenType.VAR ||
-				    current () == SparqlTokenType.IRI_REF ||
-				    current () == SparqlTokenType.PN_PREFIX ||
-				    current () == SparqlTokenType.COLON ||
-				    current () == SparqlTokenType.OPEN_BRACKET) {
-					// optional TriplesBlock
-					continue;
-				}
-			}
-			break;
-		}
-
+	void end_triples_block (StringBuilder sql, ref bool first_where, bool in_group_graph_pattern) throws SparqlError {
 		// remove last comma and space
 		sql.truncate (sql.len - 2);
 
@@ -1789,6 +1772,10 @@ public class Tracker.SparqlQuery : Object {
 			}
 		}
 
+		if (in_group_graph_pattern) {
+			sql.append (")");
+		}
+
 		tables = null;
 		table_map = null;
 		pattern_variables = null;
@@ -1796,34 +1783,91 @@ public class Tracker.SparqlQuery : Object {
 		pattern_bindings = null;
 	}
 
+	void parse_triples (StringBuilder sql, long group_graph_pattern_start, ref bool in_triples_block, ref bool first_where, bool in_group_graph_pattern) throws SparqlError {
+		while (true) {
+			if (current () != SparqlTokenType.VAR &&
+			    current () != SparqlTokenType.IRI_REF &&
+			    current () != SparqlTokenType.PN_PREFIX &&
+			    current () != SparqlTokenType.COLON &&
+			    current () != SparqlTokenType.OPEN_BRACKET) {
+				break;
+			}
+			if (!in_triples_block) {
+				if (in_group_graph_pattern) {
+					sql.insert (group_graph_pattern_start, "(");
+					sql.append (" NATURAL INNER JOIN ");
+					translate_group_or_union_graph_pattern (sql);
+					sql.append (")");
+				}
+				in_triples_block = true;
+				first_where = true;
+				start_triples_block (sql);
+			}
+
+			current_subject = parse_var_or_term (sql, out current_subject_is_var);
+			parse_property_list_not_empty (sql);
+
+			if (!accept (SparqlTokenType.DOT)) {
+				break;
+			}
+		}
+	}
+
 	void translate_group_graph_pattern (StringBuilder sql) throws SparqlError {
 		expect (SparqlTokenType.OPEN_BRACE);
 
 		SourceLocation[] filters = { };
 
+		bool in_triples_block = false;
+		bool in_group_graph_pattern = false;
 		bool first_where = true;
-		int group_graph_pattern_start = (int) sql.len;
+		long group_graph_pattern_start = sql.len;
 
 		// optional TriplesBlock
-		if (current () == SparqlTokenType.VAR ||
-		    current () == SparqlTokenType.IRI_REF ||
-		    current () == SparqlTokenType.PN_PREFIX ||
-		    current () == SparqlTokenType.COLON ||
-		    current () == SparqlTokenType.OPEN_BRACKET) {
-			translate_triples_block (sql, ref first_where);
-		}
+		parse_triples (sql, group_graph_pattern_start, ref in_triples_block, ref first_where, in_group_graph_pattern);
 
 		while (true) {
 			// check whether we have GraphPatternNotTriples | Filter
-			if (current () == SparqlTokenType.OPTIONAL) {
-				if (group_graph_pattern_start == (int) sql.len) {
+			if (accept (SparqlTokenType.OPTIONAL)) {
+				if (!in_triples_block && !in_group_graph_pattern) {
+					// expand { OPTIONAL { ... } } into { { } OPTIONAL { ... } }
 					// empty graph pattern => return one result without bound variables
 					sql.append ("SELECT 1");
+				} else if (in_triples_block) {
+					end_triples_block (sql, ref first_where, in_group_graph_pattern);
+					in_triples_block = false;
 				}
-				translate_graph_pattern_not_triples (sql, group_graph_pattern_start);
-			} else if (current () == SparqlTokenType.OPEN_BRACE ||
-			           current () == SparqlTokenType.GRAPH) {
-				translate_graph_pattern_not_triples (sql, group_graph_pattern_start);
+				if (!in_group_graph_pattern) {
+					sql.insert (group_graph_pattern_start, "SELECT * FROM (");
+					group_graph_pattern_start += "SELECT * FROM (".len ();
+					in_group_graph_pattern = true;
+				}
+				sql.insert (group_graph_pattern_start, "(");
+				sql.append (") NATURAL LEFT JOIN (");
+				translate_group_graph_pattern (sql);
+				sql.append (")");
+			} else if (current () == SparqlTokenType.OPEN_BRACE) {
+				if (!in_triples_block && !in_group_graph_pattern) {
+					sql.append ("SELECT * FROM (");
+					group_graph_pattern_start = sql.len;
+					in_group_graph_pattern = true;
+					translate_group_or_union_graph_pattern (sql);
+				} else {
+					if (in_triples_block) {
+						end_triples_block (sql, ref first_where, in_group_graph_pattern);
+						in_triples_block = false;
+					}
+					if (!in_group_graph_pattern) {
+						sql.insert (group_graph_pattern_start, "SELECT * FROM (");
+						group_graph_pattern_start += "SELECT * FROM (".len ();
+						in_group_graph_pattern = true;
+					}
+
+					sql.insert (group_graph_pattern_start, "(");
+					sql.append (") NATURAL INNER JOIN (");
+					translate_group_or_union_graph_pattern (sql);
+					sql.append (")");
+				}
 			} else if (current () == SparqlTokenType.FILTER) {
 				filters += get_location ();
 				skip_filter ();
@@ -1834,18 +1878,23 @@ public class Tracker.SparqlQuery : Object {
 			accept (SparqlTokenType.DOT);
 
 			// optional TriplesBlock
-			if (current () == SparqlTokenType.VAR ||
-			    current () == SparqlTokenType.IRI_REF ||
-			    current () == SparqlTokenType.OPEN_BRACKET) {
-				translate_triples_block (sql, ref first_where);
-			}
+			parse_triples (sql, group_graph_pattern_start, ref in_triples_block, ref first_where, in_group_graph_pattern);
 		}
 
 		expect (SparqlTokenType.CLOSE_BRACE);
 
-		if (group_graph_pattern_start == (int) sql.len) {
+		if (!in_triples_block && !in_group_graph_pattern) {
 			// empty graph pattern => return one result without bound variables
 			sql.append ("SELECT 1");
+		} else if (in_triples_block) {
+			end_triples_block (sql, ref first_where, in_group_graph_pattern);
+			in_triples_block = false;
+		}
+
+		if (in_group_graph_pattern) {
+			// close SELECT * FROM (...
+			sql.append (")");
+			first_where = true;
 		}
 
 		// handle filters last, they apply to the pattern as a whole
@@ -1868,20 +1917,12 @@ public class Tracker.SparqlQuery : Object {
 		}
 	}
 
-	void translate_group_or_union_graph_pattern (StringBuilder sql, int group_graph_pattern_start) throws SparqlError {
+	void translate_group_or_union_graph_pattern (StringBuilder sql) throws SparqlError {
 		translate_group_graph_pattern (sql);
 		while (accept (SparqlTokenType.UNION)) {
 			sql.append (" UNION ALL ");
 			translate_group_graph_pattern (sql);
 		}
-	}
-
-	void translate_optional_graph_pattern (StringBuilder sql, int group_graph_pattern_start) throws SparqlError {
-		expect (SparqlTokenType.OPTIONAL);
-		sql.insert (group_graph_pattern_start, "SELECT * FROM (");
-		sql.append (") NATURAL LEFT JOIN (SELECT * FROM (");
-		translate_group_graph_pattern (sql);
-		sql.append ("))");
 	}
 
 	void parse_object (StringBuilder sql) throws SparqlError {
