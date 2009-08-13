@@ -1614,14 +1614,14 @@ remove_stale_children (TrackerIndexer *indexer,
 	TrackerDBInterface *iface;
 	gchar **children;
 	PathInfo *info;
-	gint i;
+	gint found, i;
 
 	iface = tracker_db_manager_get_db_interface_by_type (tracker_service_get_name (service),
 							     TRACKER_DB_CONTENT_TYPE_METADATA);
 
 	children = tracker_data_search_files_get (iface, path);
 
-	for (i = 0; children[i]; i++) {
+	for (i = 0, found = 0; children[i]; i++) {
 		GFile *file;
 
 		file = g_file_new_for_path (children[i]);
@@ -1630,10 +1630,15 @@ remove_stale_children (TrackerIndexer *indexer,
 			/* File doesn't exist, check for deletion */
 			info = path_info_new (parent_info->module, file, NULL, TRUE);
 			add_file (indexer, info);
+
+			found++;
 		}
 
 		g_object_unref (file);
 	}
+
+	g_message ("'%s' checked for stale children, found:%d", 
+		   path, found);
 
 	g_strfreev (children);
 }
@@ -2618,6 +2623,11 @@ should_change_index_for_file (TrackerIndexer *indexer,
 	 * afterwards before inserting the new data.
 	 */
 	if (!enabled) {
+		return TRUE;
+	}
+
+	/* If the service is a folder, we check it for stale children */
+	if (strcmp (tracker_service_get_name (service), "Folders") == 0) {
 		return TRUE;
 	}
 
