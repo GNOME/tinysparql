@@ -1040,7 +1040,10 @@ public class Tracker.SparqlQuery : Object {
 		var new_binding = new LiteralBinding ();
 		new_binding.literal_type = DataType.INTEGER;
 
-		if (translate_expression (new StringBuilder ()) == DataType.RESOURCE) { 
+		if (current() == SparqlTokenType.IRI_REF) {
+			new_binding.literal = "1";
+			next ();
+		} else if (translate_expression (new StringBuilder ()) == DataType.RESOURCE) { 
 			new_binding.literal = "1";
 		} else {
 			new_binding.literal = "0";
