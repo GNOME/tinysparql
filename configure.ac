@@ -1397,6 +1397,7 @@ AC_CONFIG_FILES([
 	Makefile
 	po/Makefile.in
 	python/deskbar-handler/Makefile
+	python/gtk-sparql/Makefile
 	python/Makefile
 	src/libinotify/Makefile
 	src/libstemmer/Makefile

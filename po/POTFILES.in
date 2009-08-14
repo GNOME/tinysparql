@@ -7,7 +7,7 @@ data/tracker-miner-fs.desktop.in.in
 python/deskbar-handler/tracker-handler-static.py
 python/deskbar-handler/tracker-handler.py
 python/deskbar-handler/tracker-module.py
-python/gtk-sparql/gtk-sparql.ui
+[type: gettext/glade]python/gtk-sparql/gtk-sparql.ui
 src/libtracker-common/tracker-dbus.c
 src/libtracker-common/tracker-utils.c
 src/libtracker-gtk/tracker-metadata-tile.c
