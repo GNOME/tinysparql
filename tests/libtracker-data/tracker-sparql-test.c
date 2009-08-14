@@ -49,6 +49,7 @@ const TestInfo tests[] = {
 	{ "algebra/filter-nested-1", "algebra/data-1" },
 	{ "algebra/filter-nested-2", "algebra/data-1" },
 	{ "algebra/filter-scope-1", "algebra/data-2" },
+	{ "algebra/var-scope-join-1", "algebra/var-scope-join-1" },
 	{ "bnode-coreference/query", "bnode-coreference/data" },
 	{ "bound/bound1", "bound/data" },
 	{ "expr-ops/query-ge-1", "expr-ops/data" },
