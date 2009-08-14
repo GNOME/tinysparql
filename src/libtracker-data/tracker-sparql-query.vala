@@ -384,6 +384,10 @@ public class Tracker.SparqlQuery : Object {
 		return ((string) (tokens[last_index].begin.pos + strip)).ndup ((tokens[last_index].end.pos - tokens[last_index].begin.pos - 2 * strip));
 	}
 
+	string escape_sql_string_literal (string literal) {
+		return "'%s'".printf (string.joinv ("''", literal.split ("'")));
+	}
+
 	void parse_prologue () throws SparqlError {
 		if (accept (SparqlTokenType.BASE)) {
 			expect (SparqlTokenType.IRI_REF);
@@ -547,6 +551,17 @@ public class Tracker.SparqlQuery : Object {
 			sql.append ("MAX(");
 			translate_expression_as_string (sql);
 			sql.append (")");
+			expect (SparqlTokenType.AS);
+			expect (SparqlTokenType.PN_PREFIX);
+		} else if (accept (SparqlTokenType.GROUP_CONCAT)) {
+			sql.append ("GROUP_CONCAT(");
+			expect (SparqlTokenType.OPEN_PARENS);
+			translate_expression_as_string (sql);
+			sql.append (", ");
+			expect (SparqlTokenType.COMMA);
+			sql.append (escape_sql_string_literal (parse_string_literal ()));
+			sql.append (")");
+			expect (SparqlTokenType.CLOSE_PARENS);
 			expect (SparqlTokenType.AS);
 			expect (SparqlTokenType.PN_PREFIX);
 		} else {

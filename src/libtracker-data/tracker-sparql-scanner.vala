@@ -305,6 +305,9 @@ public class Tracker.SparqlScanner : Object {
 		case 11:
 			if (matches (begin, "LANGMATCHES")) return SparqlTokenType.LANGMATCHES;
 			break;
+		case 12:
+			if (matches (begin, "GROUP_CONCAT")) return SparqlTokenType.GROUP_CONCAT;
+			break;
 		}
 		return SparqlTokenType.PN_PREFIX;
 	}
@@ -775,6 +778,7 @@ public enum Tracker.SparqlTokenType {
 	FROM,
 	GRAPH,
 	GROUP,
+	GROUP_CONCAT,
 	INSERT,
 	INTEGER,
 	INTO,
