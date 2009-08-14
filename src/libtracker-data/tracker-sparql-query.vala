@@ -953,7 +953,7 @@ public class Tracker.SparqlQuery : Object {
 		expect (SparqlTokenType.OPEN_PARENS);
 		sql.append ("(");
 		translate_expression (sql);
-		sql.append (") IS NOT NULL");
+		sql.append (" IS NOT NULL)");
 		expect (SparqlTokenType.CLOSE_PARENS);
 	}
 
