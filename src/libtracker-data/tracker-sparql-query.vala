@@ -1794,10 +1794,8 @@ public class Tracker.SparqlQuery : Object {
 			}
 			if (!in_triples_block) {
 				if (in_group_graph_pattern) {
-					sql.insert (group_graph_pattern_start, "(");
-					sql.append (" NATURAL INNER JOIN ");
-					translate_group_or_union_graph_pattern (sql);
-					sql.append (")");
+					sql.insert (group_graph_pattern_start, "SELECT * FROM (");
+					sql.append (") NATURAL INNER JOIN (");
 				}
 				in_triples_block = true;
 				first_where = true;
@@ -1838,18 +1836,14 @@ public class Tracker.SparqlQuery : Object {
 					in_triples_block = false;
 				}
 				if (!in_group_graph_pattern) {
-					sql.insert (group_graph_pattern_start, "SELECT * FROM (");
-					group_graph_pattern_start += "SELECT * FROM (".len ();
 					in_group_graph_pattern = true;
 				}
-				sql.insert (group_graph_pattern_start, "(");
+				sql.insert (group_graph_pattern_start, "SELECT * FROM (");
 				sql.append (") NATURAL LEFT JOIN (");
 				translate_group_graph_pattern (sql);
 				sql.append (")");
 			} else if (current () == SparqlTokenType.OPEN_BRACE) {
 				if (!in_triples_block && !in_group_graph_pattern) {
-					sql.append ("SELECT * FROM (");
-					group_graph_pattern_start = sql.len;
 					in_group_graph_pattern = true;
 					translate_group_or_union_graph_pattern (sql);
 				} else {
@@ -1858,12 +1852,10 @@ public class Tracker.SparqlQuery : Object {
 						in_triples_block = false;
 					}
 					if (!in_group_graph_pattern) {
-						sql.insert (group_graph_pattern_start, "SELECT * FROM (");
-						group_graph_pattern_start += "SELECT * FROM (".len ();
 						in_group_graph_pattern = true;
 					}
 
-					sql.insert (group_graph_pattern_start, "(");
+					sql.insert (group_graph_pattern_start, "SELECT * FROM (");
 					sql.append (") NATURAL INNER JOIN (");
 					translate_group_or_union_graph_pattern (sql);
 					sql.append (")");
@@ -1892,8 +1884,6 @@ public class Tracker.SparqlQuery : Object {
 		}
 
 		if (in_group_graph_pattern) {
-			// close SELECT * FROM (...
-			sql.append (")");
 			first_where = true;
 		}
 
