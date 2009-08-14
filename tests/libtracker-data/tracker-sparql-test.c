@@ -41,6 +41,7 @@ struct _TestInfo {
 
 const TestInfo tests[] = {
 	{ "algebra/two-nested-opt", "algebra/two-nested-opt" },
+	{ "algebra/two-nested-opt-alt", "algebra/two-nested-opt" },
 	{ "algebra/filter-nested-1", "algebra/data-1" },
 	{ "bnode-coreference/query", "bnode-coreference/data" },
 	{ "bound/bound1", "bound/data" },
