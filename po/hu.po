@@ -2,16 +2,17 @@
 # Copyright (C) 2007, 2008, 2009 Free Software Foundation, Inc.
 # This file is distributed under the same license as the tracker package.
 #
-#: ../src/libtracker-common/tracker-utils.c:275
+#: ../src/libtracker-common/tracker-utils.c:296
 # Gabor Kelemen <kelemeng@gnome.hu>, 2007, 2008, 2009.
+# Gabor Kelemen <kelemeng at gnome dot hu>, 2009.
 msgid ""
 msgstr ""
 "Project-Id-Version: Tracker HEAD\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-05-26 19:07+0200\n"
-"PO-Revision-Date: 2009-05-26 20:19+0200\n"
-"Last-Translator: Gabor Kelemen <kelemeng@gnome.hu>\n"
-"Language-Team: Hungarian <gnome@fsf.hu>\n"
+"POT-Creation-Date: 2009-08-14 12:53+0200\n"
+"PO-Revision-Date: 2009-08-14 12:57+0200\n"
+"Last-Translator: Gabor Kelemen <kelemeng at gnome dot hu>\n"
+"Language-Team: Hungarian <gnome at gnome dot hu>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -188,15 +189,15 @@ msgstr "Az indexel sérült"
 msgid "No error given"
 msgstr "Nincs megadva hiba"
 
-#: ../src/libtracker-common/tracker-utils.c:148
-#: ../src/libtracker-common/tracker-utils.c:155
+#: ../src/libtracker-common/tracker-utils.c:169
+#: ../src/libtracker-common/tracker-utils.c:176
 #: ../src/tracker-utils/tracker-status.c:153
 #: ../src/tracker-utils/tracker-status.c:160
 msgid "unknown time"
 msgstr "ismeretlen idő"
 
-#: ../src/libtracker-common/tracker-utils.c:173
-#: ../src/libtracker-common/tracker-utils.c:232
+#: ../src/libtracker-common/tracker-utils.c:194
+#: ../src/libtracker-common/tracker-utils.c:253
 #: ../src/tracker-utils/tracker-status.c:77
 #: ../src/tracker-utils/tracker-status.c:136
 msgid "less than one second"
@@ -789,11 +790,11 @@ msgstr "MIME-típus"
 
 #. Translators: this message will appear immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
-#: ../src/tracker-extract/tracker-main.c:272
+#: ../src/tracker-extract/tracker-main.c:275
 msgid "- Extract file meta data"
 msgstr "– Fájlok metaadatainak kinyerése"
 
-#: ../src/tracker-extract/tracker-main.c:284
+#: ../src/tracker-extract/tracker-main.c:287
 msgid "Filename and mime type must be provided together"
 msgstr "A fájlnevet és MIME-típust együtt kell megadni"
 
@@ -1792,6 +1793,7 @@ msgstr "keresőkifejezések"
 
 #: ../src/tracker-utils/tracker-search.c:61
 #: ../utils/albumart/albumart-strip.c:35
+#: ../utils/mp3-genre-leading-uppercase/mp3-genre-leading-uppercase.c:35
 msgid "EXPRESSION"
 msgstr "KIFEJEZÉS"
 
@@ -2168,7 +2170,7 @@ msgstr ""
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/trackerd/tracker-main.c:984
+#: ../src/trackerd/tracker-main.c:987
 msgid "- start the tracker daemon"
 msgstr "- a tracker démon elindítása"
 
@@ -2189,12 +2191,13 @@ msgid "No album/artist text was provided"
 msgstr "Nincs megadva lemez/előadó szöveg"
 
 #: ../utils/albumart/albumart-strip.c:82
+#: ../utils/mp3-genre-leading-uppercase/mp3-genre-leading-uppercase.c:159
 msgid "Converted to"
 msgstr "Átalakítva erre"
 
 #: ../utils/sqlite/query.c:42
-msgid "SQL query to use"
-msgstr "Használandó SQL lekérdezés"
+msgid "SQL query to use (can be used multiple times)"
+msgstr "Használandó SQL-lekérdezés (többször is használható)"
 
 #: ../utils/sqlite/query.c:43
 msgid "SQL"
@@ -2204,19 +2207,41 @@ msgstr "SQL"
 msgid "Files to attach"
 msgstr "Csatolandó fájlok"
 
-#: ../utils/sqlite/query.c:237
+#: ../utils/sqlite/query.c:239
 msgid "- Test SQLite databases with queries"
 msgstr "– SQLite adatbázisok tesztelése lekérdezésekkel"
 
-#: ../utils/sqlite/query.c:238
+#: ../utils/sqlite/query.c:240
 msgid "You can use this utility to attach DBs and run queries using the SQLite API"
-msgstr "Ezzel a segédprogrammal adatbázisokat csatolhat és lekérdezéseket futtathat az SQLite API használatával"
+msgstr ""
+"Ezzel a segédprogrammal adatbázisokat csatolhat és lekérdezéseket futtathat "
+"az SQLite API használatával"
 
-#: ../utils/sqlite/query.c:271
+#: ../utils/sqlite/query.c:273
 msgid "No query was provided"
 msgstr "Nincs megadva lekérdezés"
 
-#: ../utils/sqlite/query.c:285
+#: ../utils/sqlite/query.c:287
 msgid "No databases were provided"
 msgstr "Nincsenek megadva adatbázisok"
+
+#: ../utils/mp3-genre-leading-uppercase/mp3-genre-leading-uppercase.c:34
+msgid "genre"
+msgstr "műfaj"
+
+#: ../utils/mp3-genre-leading-uppercase/mp3-genre-leading-uppercase.c:123
+msgid "- Test MP3 handwritten genre conversion to leading uppercase"
+msgstr "– Kézzel írt MP3 műfaj kezdő nagybetűre nagybetűssé alakításának tesztelése"
+
+#: ../utils/mp3-genre-leading-uppercase/mp3-genre-leading-uppercase.c:124
+msgid "You can use this to check genre strings get converted correctly, for example:"
+msgstr "Ezzel a segédprogrammal a műfaj karakterláncok megfelelő átalakítása ellenőrizhető, például:"
+
+#: ../utils/mp3-genre-leading-uppercase/mp3-genre-leading-uppercase.c:130
+msgid "Should be converted to"
+msgstr "A következőre kell átalakulnia:"
+
+#: ../utils/mp3-genre-leading-uppercase/mp3-genre-leading-uppercase.c:144
+msgid "No genre text was provided"
+msgstr "Nincs megadva műfajszöveg"
 
