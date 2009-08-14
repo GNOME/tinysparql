@@ -88,19 +88,6 @@ static TrackerStatementCallback delete_callback = NULL;
 static gpointer delete_data;
 static TrackerCommitCallback commit_callback = NULL;
 static gpointer commit_data;
-static gint64 modification_sequence;
-
-gint64
-tracker_data_get_modification_sequence (void)
-{
-	return modification_sequence;
-}
-
-void
-tracker_data_set_modification_sequence (gint64 modseq)
-{
-	modification_sequence = modseq;
-}
 
 void 
 tracker_data_set_commit_statement_callback (TrackerCommitCallback    callback,
@@ -160,6 +147,39 @@ tracker_data_update_get_new_service_id (TrackerDBInterface *iface)
 
 	return ++max;
 }
+
+
+static guint32
+tracker_data_update_get_next_modseq (void)
+{
+	guint32		    files_max;
+	TrackerDBResultSet *result_set;
+	TrackerDBInterface *temp_iface;
+	static guint32	    max = 0;
+
+	if (G_LIKELY (max != 0)) {
+		return ++max;
+	}
+
+	temp_iface = tracker_db_manager_get_db_interface ();
+
+	result_set = tracker_db_interface_execute_query (temp_iface, NULL,
+							 "SELECT MAX(\"tracker:modified\") AS A FROM \"rdfs:Resource\"");
+
+	if (result_set) {
+		GValue val = {0, };
+		_tracker_db_result_set_get_value (result_set, 0, &val);
+		if (G_VALUE_TYPE (&val) == G_TYPE_INT) {
+			files_max = g_value_get_int (&val);
+			max = MAX (files_max, max);
+			g_value_unset (&val);
+		}
+		g_object_unref (result_set);
+	}
+
+	return ++max;
+}
+
 
 static TrackerDataUpdateBufferTable *
 cache_table_new (gboolean multiple_values)
@@ -269,7 +289,7 @@ ensure_resource_id (const gchar *uri)
 		stmt = tracker_db_interface_create_statement (iface, "INSERT INTO \"rdfs:Resource\" (ID, Uri, \"tracker:modified\", Available) VALUES (?, ?, ?, 1)");
 		tracker_db_statement_bind_int (stmt, 0, id);
 		tracker_db_statement_bind_text (stmt, 1, uri);
-		tracker_db_statement_bind_int64 (stmt, 2, ++modification_sequence);
+		tracker_db_statement_bind_int (stmt, 2, tracker_data_update_get_next_modseq ());
 		tracker_db_statement_execute (stmt, NULL);
 		g_object_unref (stmt);
 
@@ -1010,14 +1030,14 @@ tracker_data_insert_statement_common (const gchar            *subject,
 	if (update_buffer.subject == NULL) {
 		GValue gvalue = { 0 };
 
-		g_value_init (&gvalue, G_TYPE_INT64);
+		g_value_init (&gvalue, G_TYPE_INT);
 
 		/* subject not yet in cache, retrieve or create ID */
 		update_buffer.subject = g_strdup (subject);
 		update_buffer.id = ensure_resource_id (update_buffer.subject);
 		update_buffer.types = tracker_data_query_rdf_type (update_buffer.id);
 
-		g_value_set_int64 (&gvalue, ++modification_sequence);
+		g_value_set_int (&gvalue, tracker_data_update_get_next_modseq ());
 		cache_insert_value ("rdfs:Resource", "tracker:modified", &gvalue, FALSE, FALSE);
 	}
 

@@ -69,9 +69,6 @@ void     tracker_data_commit_transaction		(void);
 void     tracker_data_update_sparql			(const gchar       *update,
 							 GError	          **error);
 
-gint64    tracker_data_get_modification_sequence         (void);
-void      tracker_data_set_modification_sequence        (gint64 modseq);
-
 /* Volume handling */
 void tracker_data_update_enable_volume                  (const gchar         *udi,
                                                          const gchar         *mount_path);

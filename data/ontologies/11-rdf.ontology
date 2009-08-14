@@ -89,5 +89,5 @@ tracker:transient a rdf:Property ;
 tracker:modified a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain rdfs:Resource ;
-	rdfs:range xsd:dateTime .
+	rdfs:range xsd:integer .
 

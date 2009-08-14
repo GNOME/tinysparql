@@ -66,21 +66,6 @@ static gchar		  *ontologies_dir;
 static gboolean            initialized;
 
 static void
-tracker_data_store_modseq (void)
-{
-	tracker_data_manager_set_db_option_int64 ("ModificationSequence", 
-	                                          tracker_data_get_modification_sequence ());
-
-}
-
-static void
-tracker_data_restore_modseq (void)
-{
-	tracker_data_set_modification_sequence (tracker_data_manager_get_db_option_int64 ("ModificationSequence"));
-}
-
-
-static void
 load_ontology_file_from_path (const gchar	 *ontology_file)
 {
 	tracker_turtle_reader_init (ontology_file, NULL);
@@ -875,8 +860,6 @@ tracker_data_manager_init (TrackerDBManagerFlags       flags,
 		create_decomposed_transient_metadata_tables (iface);
 	}
 
-	tracker_data_restore_modseq ();
-
 	initialized = TRUE;
 
 	return TRUE;
@@ -888,7 +871,6 @@ tracker_data_manager_shutdown (void)
 {
 	g_return_if_fail (initialized == TRUE);
 
-	tracker_data_store_modseq ();
 	tracker_db_manager_shutdown ();
 
 	initialized = FALSE;
