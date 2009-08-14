@@ -967,7 +967,7 @@ tracker_albumart_process (const unsigned char *buffer,
 	gchar *filename_uri;
 
 	g_debug ("Processing album art, buffer is %ld bytes, artist:'%s', album:'%s', filename:'%s', mime:'%s'",
-		 len,
+		 (long int) len,
 		 artist ? artist : "", 
 		 album ? album : "",
 		 filename, 

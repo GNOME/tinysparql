@@ -100,7 +100,7 @@ void
 tracker_read_iptc (const unsigned char *buffer,
 		   size_t		len,
 		   const gchar         *uri,
-		   GPtrArray	       *metadata)
+		   TrackerSparqlBuilder   *metadata)
 {
 #ifdef HAVE_LIBIPTCDATA
 	IptcData     *iptc = NULL;
@@ -119,15 +119,15 @@ tracker_read_iptc (const unsigned char *buffer,
 		IptcDataSet *dataset = NULL;
 
 		while ( (dataset = iptc_data_get_next_dataset (iptc, dataset, p->record, p->tag) ) ) {
-			gchar buffer[1024];
+			gchar mbuffer[1024];
 			const gchar *what_i_need;
 
-			iptc_dataset_get_as_str (dataset, buffer, 1024);
+			iptc_dataset_get_as_str (dataset, mbuffer, 1024);
 			
 			if (p->post) {
-				what_i_need = (*p->post) (buffer);
+				what_i_need = (*p->post) (mbuffer);
 			} else {
-				what_i_need = buffer;
+				what_i_need = mbuffer;
 			}
 
 			if (p->urn) {

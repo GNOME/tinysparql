@@ -306,24 +306,27 @@ ensure_resource_id (const gchar *uri)
 
 static void
 statement_bind_gvalue (TrackerDBStatement *stmt,
-		       gint                index,
+		       gint                idx,
 		       const GValue       *value)
 {
 	switch (G_VALUE_TYPE (value)) {
 	case G_TYPE_STRING:
-		tracker_db_statement_bind_text (stmt, index, g_value_get_string (value));
+		tracker_db_statement_bind_text (stmt, idx, g_value_get_string (value));
 		break;
 	case G_TYPE_INT:
-		tracker_db_statement_bind_int (stmt, index, g_value_get_int (value));
+		tracker_db_statement_bind_int (stmt, idx, g_value_get_int (value));
 		break;
 	case G_TYPE_INT64:
-		tracker_db_statement_bind_int64 (stmt, index, g_value_get_int64 (value));
+		tracker_db_statement_bind_int64 (stmt, idx, g_value_get_int64 (value));
 		break;
 	case G_TYPE_BOOLEAN:
-		tracker_db_statement_bind_int (stmt, index, g_value_get_boolean (value));
+		tracker_db_statement_bind_int (stmt, idx, g_value_get_boolean (value));
 		break;
 	case G_TYPE_DOUBLE:
-		tracker_db_statement_bind_double (stmt, index, g_value_get_double (value));
+		tracker_db_statement_bind_double (stmt, idx, g_value_get_double (value));
+		break;
+	default:
+		g_warning ("Unknown type for binding: %s\n", G_VALUE_TYPE_NAME (value));
 		break;
 	}
 }
@@ -643,6 +646,9 @@ cache_set_metadata_decomposed (TrackerProperty	*property,
 		g_value_init (&gvalue, G_TYPE_INT);
 		g_value_set_int (&gvalue, object_id);
 		break;
+	case TRACKER_PROPERTY_TYPE_BLOB:
+	case TRACKER_PROPERTY_TYPE_STRUCT:
+	case TRACKER_PROPERTY_TYPE_FULLTEXT:
 	default:
 		return;
 	}
@@ -729,6 +735,9 @@ delete_metadata_decomposed (gint resource_id,
 		object_id = ensure_resource_id (value);
 		tracker_db_statement_bind_int (stmt, 1, object_id);
 		break;
+	case TRACKER_PROPERTY_TYPE_BLOB:
+	case TRACKER_PROPERTY_TYPE_STRUCT:
+	case TRACKER_PROPERTY_TYPE_FULLTEXT:
 	default:
 		g_assert_not_reached ();
 	}

@@ -482,7 +482,7 @@ main (gint argc, gchar *argv[])
 
 	if (!follow) {
 		GError *error = NULL;
-		gchar *state;
+		const gchar *state;
 
  		/* state = tracker_get_status (client, &error); */
 		state = "Idle";

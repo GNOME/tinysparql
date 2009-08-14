@@ -7,6 +7,6 @@
 void tracker_read_iptc (const unsigned char *buffer,
 			size_t		    len,
 			const gchar        *uri,
-			GPtrArray	   *metadata);
+			TrackerSparqlBuilder   *metadata);
 
 #endif
