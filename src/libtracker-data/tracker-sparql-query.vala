@@ -277,6 +277,9 @@ public class Tracker.SparqlQuery : Object {
 	List<string> pattern_variables;
 	HashTable<string,VariableBindingList> pattern_var_map;
 
+	// All SPARQL variables within a subgraph pattern (used by UNION)
+	HashTable<string,bool> subgraph_var_set;
+
 	// Variables used as predicates
 	HashTable<string,PredicateVariable> predicate_variable_map;
 
@@ -293,6 +296,7 @@ public class Tracker.SparqlQuery : Object {
 	public SparqlQuery (string query) {
 		tokens = new TokenInfo[BUFFER_SIZE];
 		prefix_map = new HashTable<string,string>.full (str_hash, str_equal, g_free, g_free);
+		subgraph_var_set = new HashTable<string,bool>.full (str_hash, str_equal, g_free, null);
 
 		this.query_string = query;
 	}
@@ -1908,11 +1912,64 @@ public class Tracker.SparqlQuery : Object {
 	}
 
 	void translate_group_or_union_graph_pattern (StringBuilder sql) throws SparqlError {
-		translate_group_graph_pattern (sql);
-		while (accept (SparqlTokenType.UNION)) {
-			sql.append (" UNION ALL ");
+		var old_subgraph_var_set = subgraph_var_set;
+
+		string[] all_vars = { };
+		HashTable<string,bool> all_var_set = new HashTable<string,bool>.full (str_hash, str_equal, g_free, null);
+
+		HashTable<string,bool>[] var_sets = { };
+		long[] offsets = { };
+
+		do {
+			subgraph_var_set = new HashTable<string,bool>.full (str_hash, str_equal, g_free, null);
+			var_sets += subgraph_var_set;
+			offsets += sql.len;
 			translate_group_graph_pattern (sql);
+		} while (accept (SparqlTokenType.UNION));
+
+		if (var_sets.length > 1) {
+			// union graph pattern
+
+			// create union of all variables
+			foreach (var var_set in var_sets) {
+				foreach (string v in var_set.get_keys ()) {
+					if (!all_var_set.lookup (v)) {
+						all_vars += v;
+						all_var_set.insert (v, true);
+						old_subgraph_var_set.insert (v, true);
+					}
+				}
+			}
+
+			long extra_offset = 0;
+			for (int i = 0; i < var_sets.length; i++) {
+				var projection = new StringBuilder ();
+				if (i > 0) {
+					projection.append (") UNION ALL ");
+				}
+				projection.append ("SELECT ");
+				foreach (string v in all_vars) {
+					if (!var_sets[i].lookup (v)) {
+						// variable not used in this subgraph
+						// use NULL
+						projection.append ("NULL AS ");
+					}
+					projection.append_printf ("\"%s_u\", ", v);
+				}
+				// delete last comma and space
+				projection.truncate (projection.len - 2);
+				projection.append (" FROM (");
+
+				sql.insert (offsets[i] + extra_offset, projection.str);
+				extra_offset += projection.len;
+			}
+			sql.append (")");
+		} else {
+			foreach (string key in subgraph_var_set.get_keys ()) {
+				old_subgraph_var_set.insert (key, true);
+			}
 		}
+		subgraph_var_set = old_subgraph_var_set;
 	}
 
 	void parse_object (StringBuilder sql) throws SparqlError {
@@ -2009,6 +2066,8 @@ public class Tracker.SparqlQuery : Object {
 					binding.table.sql_query_tablename,
 					binding.sql_db_column_name,
 					binding.variable);
+
+				subgraph_var_set.insert (binding.variable, true);
 			}
 			binding_list.list.append (binding);
 			if (var_map.lookup (binding.variable) == null) {
@@ -2033,6 +2092,8 @@ public class Tracker.SparqlQuery : Object {
 						binding.table.sql_query_tablename,
 						binding.sql_db_column_name,
 						binding.variable);
+
+					subgraph_var_set.insert (binding.variable, true);
 				}
 				binding_list.list.append (binding);
 				if (var_map.lookup (binding.variable) == null) {
@@ -2089,6 +2150,8 @@ public class Tracker.SparqlQuery : Object {
 						binding.table.sql_query_tablename,
 						binding.sql_db_column_name,
 						binding.variable);
+
+					subgraph_var_set.insert (binding.variable, true);
 				}
 				binding_list.list.append (binding);
 				if (var_map.lookup (binding.variable) == null) {
