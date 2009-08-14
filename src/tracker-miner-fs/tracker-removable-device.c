@@ -320,16 +320,16 @@ tracker_removable_device_add_metadata (TrackerIndexer        *indexer,
 				       const gchar           *uri,
 				       TrackerSparqlBuilder  *sparql)
 {
-	g_return_if_fail (TRACKER_IS_INDEXER (indexer));
-	g_return_if_fail (mount_point != NULL);
-	g_return_if_fail (uri != NULL);
-
 	AddMetadataInfo  info;
 	gchar           *filename, *muri, *tmp;
 	const gchar     *p;
 	FILE            *target_file;
 	raptor_uri      *suri;
 	GFile           *mountp_file;
+
+	g_return_if_fail (TRACKER_IS_INDEXER (indexer));
+	g_return_if_fail (mount_point != NULL);
+	g_return_if_fail (uri != NULL);
 
 	filename = g_build_filename (mount_point, 
 				     ".cache",
@@ -405,10 +405,6 @@ tracker_removable_device_add_removal (TrackerIndexer *indexer,
 				      const gchar *mount_point, 
 				      const gchar *uri)
 {
-	g_return_if_fail (TRACKER_IS_INDEXER (indexer));
-	g_return_if_fail (mount_point != NULL);
-	g_return_if_fail (uri != NULL);
-
 	gchar               *filename, *about_uri, *muri, *tmp;
 	const gchar         *p;
 	FILE                *target_file;
@@ -416,6 +412,10 @@ tracker_removable_device_add_removal (TrackerIndexer *indexer,
 	raptor_serializer   *serializer;
 	AddMetadataInfo      info;
 	GFile               *mountp_file;
+
+	g_return_if_fail (TRACKER_IS_INDEXER (indexer));
+	g_return_if_fail (mount_point != NULL);
+	g_return_if_fail (uri != NULL);
 
 	filename = g_build_filename (mount_point,
 				     ".cache",
@@ -485,11 +485,6 @@ tracker_removable_device_add_move (TrackerIndexer *indexer,
 				   const gchar *from_uri, 
 				   const gchar *to_uri)
 {
-	g_return_if_fail (TRACKER_IS_INDEXER (indexer));
-	g_return_if_fail (mount_point != NULL);
-	g_return_if_fail (from_uri != NULL);
-	g_return_if_fail (to_uri != NULL);
-
 	gchar               *filename, *about_uri, *to_urip, *muri, *tmp;
 	const gchar         *p;
 	FILE                *target_file;
@@ -497,6 +492,11 @@ tracker_removable_device_add_move (TrackerIndexer *indexer,
 	raptor_serializer   *serializer;
 	AddMetadataInfo      info;
 	GFile               *mountp_file;
+
+	g_return_if_fail (TRACKER_IS_INDEXER (indexer));
+	g_return_if_fail (mount_point != NULL);
+	g_return_if_fail (from_uri != NULL);
+	g_return_if_fail (to_uri != NULL);
 
 	filename = g_build_filename (mount_point,
 				     ".cache",

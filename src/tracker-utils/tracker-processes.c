@@ -109,6 +109,7 @@ log_handler (const gchar    *domain,
 	case G_LOG_LEVEL_INFO:
 	case G_LOG_LEVEL_DEBUG:
 	case G_LOG_LEVEL_MASK:
+	default:
 		g_fprintf (stdout, "%s\n", message);
 		fflush (stdout);
 		break;

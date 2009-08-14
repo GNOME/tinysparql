@@ -384,7 +384,7 @@ on_folder_summary_changed (CamelFolder *folder,
 				flags =   (guint)   camel_message_info_flags (linfo);
 
 				/* Camel returns a time_t, I think a uint64 is the best fit here */
-				sent = g_strdup_printf ("%"PRIu64, (guint64) camel_message_info_date_sent (linfo));
+				sent = g_strdup_printf ("%"G_GUINT64_FORMAT, (guint64) camel_message_info_date_sent (linfo));
 
 				/* Camel returns a uint32, so %u */
 				size = g_strdup_printf ("%u", camel_message_info_size (linfo));
@@ -633,7 +633,7 @@ introduce_walk_folders_in_folder (TrackerEvolutionPlugin *self,
 					        "mail_from, mail_to, mail_cc, mlist, "   /* 12 - 15 */
 					        "labels, usertags "                      /* 16 - 17 */
 					 "FROM %Q "
-					 "WHERE modified > %"PRIu64, 
+					 "WHERE modified > %"G_GUINT64_FORMAT, 
 
 					 iter->full_name, 
 					 info->last_checkout);
@@ -859,7 +859,7 @@ introduce_store_deal_with_deleted (TrackerEvolutionPlugin *self,
 	guint i, ret;
 	gchar *em_uri = em_uri_from_camel (account_uri);
 
-	query = sqlite3_mprintf ("SELECT uid, mailbox FROM Deletes WHERE modified > %" PRIu64, 
+	query = sqlite3_mprintf ("SELECT uid, mailbox FROM Deletes WHERE modified > %" G_GUINT64_FORMAT, 
 				 info->last_checkout);
 
 	/* This creates a thread apparently */

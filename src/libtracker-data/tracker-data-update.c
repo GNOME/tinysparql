@@ -148,6 +148,39 @@ tracker_data_update_get_new_service_id (TrackerDBInterface *iface)
 	return ++max;
 }
 
+
+static guint32
+tracker_data_update_get_next_modseq (void)
+{
+	guint32		    files_max;
+	TrackerDBResultSet *result_set;
+	TrackerDBInterface *temp_iface;
+	static guint32	    max = 0;
+
+	if (G_LIKELY (max != 0)) {
+		return ++max;
+	}
+
+	temp_iface = tracker_db_manager_get_db_interface ();
+
+	result_set = tracker_db_interface_execute_query (temp_iface, NULL,
+							 "SELECT MAX(\"tracker:modified\") AS A FROM \"rdfs:Resource\"");
+
+	if (result_set) {
+		GValue val = {0, };
+		_tracker_db_result_set_get_value (result_set, 0, &val);
+		if (G_VALUE_TYPE (&val) == G_TYPE_INT) {
+			files_max = g_value_get_int (&val);
+			max = MAX (files_max, max);
+			g_value_unset (&val);
+		}
+		g_object_unref (result_set);
+	}
+
+	return ++max;
+}
+
+
 static TrackerDataUpdateBufferTable *
 cache_table_new (gboolean multiple_values)
 {
@@ -256,7 +289,7 @@ ensure_resource_id (const gchar *uri)
 		stmt = tracker_db_interface_create_statement (iface, "INSERT INTO \"rdfs:Resource\" (ID, Uri, \"tracker:modified\", Available) VALUES (?, ?, ?, 1)");
 		tracker_db_statement_bind_int (stmt, 0, id);
 		tracker_db_statement_bind_text (stmt, 1, uri);
-		tracker_db_statement_bind_int64 (stmt, 2, (gint64) time(NULL));
+		tracker_db_statement_bind_int (stmt, 2, tracker_data_update_get_next_modseq ());
 		tracker_db_statement_execute (stmt, NULL);
 		g_object_unref (stmt);
 
@@ -273,24 +306,27 @@ ensure_resource_id (const gchar *uri)
 
 static void
 statement_bind_gvalue (TrackerDBStatement *stmt,
-		       gint                index,
+		       gint                idx,
 		       const GValue       *value)
 {
 	switch (G_VALUE_TYPE (value)) {
 	case G_TYPE_STRING:
-		tracker_db_statement_bind_text (stmt, index, g_value_get_string (value));
+		tracker_db_statement_bind_text (stmt, idx, g_value_get_string (value));
 		break;
 	case G_TYPE_INT:
-		tracker_db_statement_bind_int (stmt, index, g_value_get_int (value));
+		tracker_db_statement_bind_int (stmt, idx, g_value_get_int (value));
 		break;
 	case G_TYPE_INT64:
-		tracker_db_statement_bind_int64 (stmt, index, g_value_get_int64 (value));
+		tracker_db_statement_bind_int64 (stmt, idx, g_value_get_int64 (value));
 		break;
 	case G_TYPE_BOOLEAN:
-		tracker_db_statement_bind_int (stmt, index, g_value_get_boolean (value));
+		tracker_db_statement_bind_int (stmt, idx, g_value_get_boolean (value));
 		break;
 	case G_TYPE_DOUBLE:
-		tracker_db_statement_bind_double (stmt, index, g_value_get_double (value));
+		tracker_db_statement_bind_double (stmt, idx, g_value_get_double (value));
+		break;
+	default:
+		g_warning ("Unknown type for binding: %s\n", G_VALUE_TYPE_NAME (value));
 		break;
 	}
 }
@@ -610,6 +646,9 @@ cache_set_metadata_decomposed (TrackerProperty	*property,
 		g_value_init (&gvalue, G_TYPE_INT);
 		g_value_set_int (&gvalue, object_id);
 		break;
+	case TRACKER_PROPERTY_TYPE_BLOB:
+	case TRACKER_PROPERTY_TYPE_STRUCT:
+	case TRACKER_PROPERTY_TYPE_FULLTEXT:
 	default:
 		return;
 	}
@@ -696,6 +735,9 @@ delete_metadata_decomposed (gint resource_id,
 		object_id = ensure_resource_id (value);
 		tracker_db_statement_bind_int (stmt, 1, object_id);
 		break;
+	case TRACKER_PROPERTY_TYPE_BLOB:
+	case TRACKER_PROPERTY_TYPE_STRUCT:
+	case TRACKER_PROPERTY_TYPE_FULLTEXT:
 	default:
 		g_assert_not_reached ();
 	}
@@ -997,14 +1039,14 @@ tracker_data_insert_statement_common (const gchar            *subject,
 	if (update_buffer.subject == NULL) {
 		GValue gvalue = { 0 };
 
-		g_value_init (&gvalue, G_TYPE_INT64);
+		g_value_init (&gvalue, G_TYPE_INT);
 
 		/* subject not yet in cache, retrieve or create ID */
 		update_buffer.subject = g_strdup (subject);
 		update_buffer.id = ensure_resource_id (update_buffer.subject);
 		update_buffer.types = tracker_data_query_rdf_type (update_buffer.id);
 
-		g_value_set_int64 (&gvalue, (gint64) time (NULL));
+		g_value_set_int (&gvalue, tracker_data_update_get_next_modseq ());
 		cache_insert_value ("rdfs:Resource", "tracker:modified", &gvalue, FALSE, FALSE);
 	}
 

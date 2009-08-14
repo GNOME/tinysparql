@@ -374,43 +374,43 @@ tracker_db_interface_end_transaction (TrackerDBInterface *interface)
 
 void
 tracker_db_statement_bind_double (TrackerDBStatement	*stmt,
-				  int			 index,
+				  int			 idx,
 				  double		 value)
 {
 	g_return_if_fail (TRACKER_IS_DB_STATEMENT (stmt));
 
-	TRACKER_DB_STATEMENT_GET_IFACE (stmt)->bind_double (stmt, index, value);
+	TRACKER_DB_STATEMENT_GET_IFACE (stmt)->bind_double (stmt, idx, value);
 }
 
 void
 tracker_db_statement_bind_int (TrackerDBStatement	*stmt,
-			       int			 index,
+			       int			 idx,
 			       int			 value)
 {
 	g_return_if_fail (TRACKER_IS_DB_STATEMENT (stmt));
 
-	TRACKER_DB_STATEMENT_GET_IFACE (stmt)->bind_int (stmt, index, value);
+	TRACKER_DB_STATEMENT_GET_IFACE (stmt)->bind_int (stmt, idx, value);
 }
 
 
 void
 tracker_db_statement_bind_int64 (TrackerDBStatement	*stmt,
-			         int			 index,
+			         int			 idx,
 			         gint64			 value)
 {
 	g_return_if_fail (TRACKER_IS_DB_STATEMENT (stmt));
 
-	TRACKER_DB_STATEMENT_GET_IFACE (stmt)->bind_int64 (stmt, index, value);
+	TRACKER_DB_STATEMENT_GET_IFACE (stmt)->bind_int64 (stmt, idx, value);
 }
 
 void
 tracker_db_statement_bind_text (TrackerDBStatement	*stmt,
-				int			 index,
+				int			 idx,
 				const gchar		*value)
 {
 	g_return_if_fail (TRACKER_IS_DB_STATEMENT (stmt));
 
-	TRACKER_DB_STATEMENT_GET_IFACE (stmt)->bind_text (stmt, index, value);
+	TRACKER_DB_STATEMENT_GET_IFACE (stmt)->bind_text (stmt, idx, value);
 }
 
 TrackerDBResultSet *
@@ -520,6 +520,9 @@ fill_in_value (GValue	*value,
 		break;
 	case G_TYPE_STRING:
 		g_value_set_string (value, data);
+		break;
+	default:
+		g_warning ("Unknown type for resultset: %s\n", G_VALUE_TYPE_NAME (value));
 		break;
 	}
 }

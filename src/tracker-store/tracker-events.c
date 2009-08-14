@@ -29,7 +29,7 @@
 
 
 typedef struct {
-	GPtrArray *allowances;
+	GHashTable *allowances;
 	GPtrArray *events;
 } EventsPrivate;
 
@@ -43,65 +43,47 @@ tracker_events_add_allow (const gchar *rdf_class)
 	private = g_static_private_get (&private_key);
 	g_return_if_fail (private != NULL);
 
-	g_ptr_array_add (private->allowances, g_strdup (rdf_class));
+	g_hash_table_insert (private->allowances, g_strdup (rdf_class),
+	                     GINT_TO_POINTER (TRUE));
 }
 
 static gboolean
 is_allowed (EventsPrivate *private, const gchar *rdf_class)
 {
-	guint i;
-	gboolean found = FALSE;
-
-	for (i = 0; i < private->allowances->len;  i++) {
-		if (g_strcmp0 (rdf_class, private->allowances->pdata[i]) == 0) {
-			found = TRUE;
-			break;
-		}
-	}
-
-	return found;
+	return (g_hash_table_lookup (private->allowances, rdf_class) != NULL) ? TRUE : FALSE;
 }
 
-typedef struct {
-	const gchar *uri;
-	TrackerDBusEventsType type;
-} PreparableEvent;
-
 static void 
-prepare_event_for_rdf_types (gpointer data, gpointer user_data)
+prepare_event_for_rdf_type (EventsPrivate *private, 
+                            const gchar *rdf_class , 
+                            const gchar *uri, 
+                            TrackerDBusEventsType type, 
+                            const gchar *predicate)
 {
-	const gchar *rdf_class = data;
-	PreparableEvent *info = user_data;
-	const gchar *uri = info->uri;
-	TrackerDBusEventsType type = info->type;
-
-	EventsPrivate *private;
 	GValueArray *event;
 	GValue uri_value = { 0 , };
 	GValue rdfclass_value = { 0 , };
 	GValue type_value = { 0 , };
-
-	private = g_static_private_get (&private_key);
-	g_return_if_fail (private != NULL);
-
-	if (!is_allowed (private, rdf_class))
-		return;
+	GValue predicate_value = { 0 , };
 
 	if (!private->events) {
 		private->events = g_ptr_array_new ();
 	}
 
 	g_value_init (&uri_value, G_TYPE_STRING);
+	g_value_init (&predicate_value, G_TYPE_STRING);
 	g_value_init (&rdfclass_value, G_TYPE_STRING);
 	g_value_init (&type_value, G_TYPE_INT);
 
-	event = g_value_array_new (3);
+	event = g_value_array_new (4);
 
 	g_value_set_string (&uri_value, uri);
+	g_value_set_string (&predicate_value, predicate);
 	g_value_set_string (&rdfclass_value, rdf_class);
 	g_value_set_int (&type_value, type);
 
 	g_value_array_append (event, &uri_value);
+	g_value_array_append (event, &predicate_value);
 	g_value_array_append (event, &rdfclass_value);
 	g_value_array_append (event, &type_value);
 
@@ -110,30 +92,51 @@ prepare_event_for_rdf_types (gpointer data, gpointer user_data)
 	g_value_unset (&uri_value);
 	g_value_unset (&rdfclass_value);
 	g_value_unset (&type_value);
+	g_value_unset (&predicate_value);
 }
 
 void 
 tracker_events_insert (const gchar *uri, 
+		       const gchar *predicate,
 		       const gchar *object, 
 		       GPtrArray *rdf_types, 
 		       TrackerDBusEventsType type)
 {
-	PreparableEvent info;
+	EventsPrivate *private;
 
-	info.uri = uri;
-	info.type = type;
+	private = g_static_private_get (&private_key);
+	g_return_if_fail (private != NULL);
 
 	if (rdf_types && type == TRACKER_DBUS_EVENTS_TYPE_UPDATE) {
-		/* object is not very important for updates (we don't expose
-		 * the value being set to the user's DBus API in tracker-store) */
-		g_ptr_array_foreach (rdf_types, prepare_event_for_rdf_types, &info);
+		guint i;
+
+		for (i = 0; i < rdf_types->len; i++) {
+
+			/* object is not very important for updates (we don't expose
+			 * the value being set to the user's DBus API in tracker-store) */
+			if (is_allowed (private, rdf_types->pdata[i])) {
+
+				prepare_event_for_rdf_type (private, rdf_types->pdata[i], 
+				                            uri, type, predicate);
+
+				/* Only once match is needed */
+				break;
+			}
+		}
 	} else if (type == TRACKER_DBUS_EVENTS_TYPE_UPDATE) {
 		/* In this case we had an INSERT for a resource that didn't exist 
 		 * yet, but it was not the rdf:type predicate being inserted */
-		prepare_event_for_rdf_types ((gpointer) TRACKER_RDFS_PREFIX "Resource", &info);
+		if (is_allowed (private, (gpointer) TRACKER_RDFS_PREFIX "Resource")) {
+			prepare_event_for_rdf_type (private, 
+			                            (gpointer) TRACKER_RDFS_PREFIX "Resource", 
+			                            uri, type, predicate);
+		}
 	} else {
 		/* In case of delete and create, object is the rdf:type */
-		prepare_event_for_rdf_types ((gpointer) object, &info);
+		if (is_allowed (private, (gpointer) object)) {
+			prepare_event_for_rdf_type (private, (gpointer) object, 
+			                            uri, type, predicate);
+		}
 	}
 }
 
@@ -170,8 +173,7 @@ tracker_events_get_pending (void)
 static void
 free_private (EventsPrivate *private)
 {
-	g_ptr_array_foreach (private->allowances, (GFunc)g_free, NULL);
-	g_ptr_array_free (private->allowances, TRUE);
+	g_hash_table_unref (private->allowances);
 	g_free (private);
 }
 
@@ -188,7 +190,10 @@ tracker_events_init (TrackerNotifyClassGetter callback)
 			      private,
 			      (GDestroyNotify) free_private);
 
-	private->allowances = g_ptr_array_new ();
+	private->allowances = g_hash_table_new_full (g_str_hash, g_str_equal,
+	                                             (GDestroyNotify) g_free,
+	                                             (GDestroyNotify) NULL);
+
 	private->events = NULL;
 
 	if (!callback) {

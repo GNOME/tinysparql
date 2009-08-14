@@ -300,6 +300,8 @@ fix_orientation (const gchar *orientation, gboolean *free_it)
 				return (gchar *) "nfo:orientation-right-mirror";
 				case 7:
 				return (gchar *) "nfo:orientation-left";
+				default:
+				break;
 			}
 		}
 	}

@@ -27,6 +27,7 @@
 #include <stdlib.h>
 #include <fcntl.h>
 #include <zlib.h>
+#include <inttypes.h>
 
 #include <glib/gstdio.h>
 
@@ -544,6 +545,9 @@ create_decomposed_metadata_property_table (TrackerDBInterface *iface,
 	case TRACKER_PROPERTY_TYPE_DOUBLE:
 		sql_type = "REAL";
 		break;
+	case TRACKER_PROPERTY_TYPE_BLOB:
+	case TRACKER_PROPERTY_TYPE_STRUCT:
+	case TRACKER_PROPERTY_TYPE_FULLTEXT:
 	default:
 		sql_type = "";
 		break;
@@ -864,6 +868,7 @@ tracker_data_manager_init (TrackerDBManagerFlags       flags,
 	return TRUE;
 }
 
+
 void
 tracker_data_manager_shutdown (void)
 {
@@ -874,8 +879,8 @@ tracker_data_manager_shutdown (void)
 	initialized = FALSE;
 }
 
-gint
-tracker_data_manager_get_db_option_int (const gchar *option)
+gint64
+tracker_data_manager_get_db_option_int64 (const gchar *option)
 {
 	TrackerDBInterface *iface;
 	TrackerDBStatement *stmt;
@@ -896,7 +901,7 @@ tracker_data_manager_get_db_option_int (const gchar *option)
 		tracker_db_result_set_get (result_set, 0, &str, -1);
 
 		if (str) {
-			value = atoi (str);
+			value = g_ascii_strtoull (str, NULL, 10);
 			g_free (str);
 		}
 
@@ -907,8 +912,8 @@ tracker_data_manager_get_db_option_int (const gchar *option)
 }
 
 void
-tracker_data_manager_set_db_option_int (const gchar *option,
-					gint	     value)
+tracker_data_manager_set_db_option_int64 (const gchar *option,
+					  gint64       value)
 {
 	TrackerDBInterface *iface;
 	TrackerDBStatement *stmt;
@@ -921,7 +926,7 @@ tracker_data_manager_set_db_option_int (const gchar *option,
 	stmt = tracker_db_interface_create_statement (iface, "REPLACE INTO Options (OptionKey, OptionValue) VALUES (?,?)");
 	tracker_db_statement_bind_text (stmt, 0, option);
 
-	str = tracker_gint_to_string (value);
+	str = g_strdup_printf ("%"G_GINT64_FORMAT, value);
 	tracker_db_statement_bind_text (stmt, 1, str);
 	g_free (str);
 
