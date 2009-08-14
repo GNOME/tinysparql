@@ -7,6 +7,7 @@ SUBDIRS = 			\
 	expr-ops		\
 	nie			\
 	nmo			\
+	optional			\
 	regex			\
 	sort
 

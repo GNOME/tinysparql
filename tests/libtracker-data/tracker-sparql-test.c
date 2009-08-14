@@ -59,6 +59,7 @@ const TestInfo tests[] = {
 	{ "expr-ops/query-plus-1", "expr-ops/data" },
 	{ "expr-ops/query-unminus-1", "expr-ops/data" },
 	{ "expr-ops/query-unplus-1", "expr-ops/data" },
+	{ "optional/q-opt-complex-1", "optional/complex-data-1" },
 	{ "regex/regex-query-001", "regex/regex-data-01" },
 	{ "regex/regex-query-002", "regex/regex-data-01" },
 	{ "sort/query-sort-1", "sort/data-sort-1" },

@@ -1432,6 +1432,7 @@ AC_CONFIG_FILES([
 	tests/libtracker-data/expr-ops/Makefile
 	tests/libtracker-data/nie/Makefile
 	tests/libtracker-data/nmo/Makefile
+	tests/libtracker-data/optional/Makefile
 	tests/libtracker-data/regex/Makefile
 	tests/libtracker-data/sort/Makefile
 	tests/libtracker-db/Makefile
