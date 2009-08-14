@@ -39,9 +39,10 @@ gboolean            tracker_data_manager_init              (TrackerDBManagerFlag
 							    gboolean                   *first_time);
 void                tracker_data_manager_shutdown          (void);
 
-gint                tracker_data_manager_get_db_option_int (const gchar        *option);
-void                tracker_data_manager_set_db_option_int (const gchar        *option,
-							    gint                value);
+gint64              tracker_data_manager_get_db_option_int64 (const gchar        *option);
+void                tracker_data_manager_set_db_option_int64 (const gchar        *option,
+							      gint64              value);
+
 
 G_END_DECLS
 

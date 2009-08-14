@@ -27,6 +27,7 @@
 #include <stdlib.h>
 #include <fcntl.h>
 #include <zlib.h>
+#include <inttypes.h>
 
 #include <glib/gstdio.h>
 
@@ -63,6 +64,21 @@
 
 static gchar		  *ontologies_dir;
 static gboolean            initialized;
+
+static void
+tracker_data_store_modseq (void)
+{
+	tracker_data_manager_set_db_option_int64 ("ModificationSequence", 
+	                                          tracker_data_get_modification_sequence ());
+
+}
+
+static void
+tracker_data_restore_modseq (void)
+{
+	tracker_data_set_modification_sequence (tracker_data_manager_get_db_option_int64 ("ModificationSequence"));
+}
+
 
 static void
 load_ontology_file_from_path (const gchar	 *ontology_file)
@@ -859,23 +875,27 @@ tracker_data_manager_init (TrackerDBManagerFlags       flags,
 		create_decomposed_transient_metadata_tables (iface);
 	}
 
+	tracker_data_restore_modseq ();
+
 	initialized = TRUE;
 
 	return TRUE;
 }
+
 
 void
 tracker_data_manager_shutdown (void)
 {
 	g_return_if_fail (initialized == TRUE);
 
+	tracker_data_store_modseq ();
 	tracker_db_manager_shutdown ();
 
 	initialized = FALSE;
 }
 
-gint
-tracker_data_manager_get_db_option_int (const gchar *option)
+gint64
+tracker_data_manager_get_db_option_int64 (const gchar *option)
 {
 	TrackerDBInterface *iface;
 	TrackerDBStatement *stmt;
@@ -896,7 +916,7 @@ tracker_data_manager_get_db_option_int (const gchar *option)
 		tracker_db_result_set_get (result_set, 0, &str, -1);
 
 		if (str) {
-			value = atoi (str);
+			value = g_ascii_strtoull (str, NULL, 10);
 			g_free (str);
 		}
 
@@ -907,8 +927,8 @@ tracker_data_manager_get_db_option_int (const gchar *option)
 }
 
 void
-tracker_data_manager_set_db_option_int (const gchar *option,
-					gint	     value)
+tracker_data_manager_set_db_option_int64 (const gchar *option,
+					  gint64       value)
 {
 	TrackerDBInterface *iface;
 	TrackerDBStatement *stmt;
@@ -921,7 +941,7 @@ tracker_data_manager_set_db_option_int (const gchar *option,
 	stmt = tracker_db_interface_create_statement (iface, "REPLACE INTO Options (OptionKey, OptionValue) VALUES (?,?)");
 	tracker_db_statement_bind_text (stmt, 0, option);
 
-	str = tracker_gint_to_string (value);
+	str = g_strdup_printf ("%"G_GINT64_FORMAT, value);
 	tracker_db_statement_bind_text (stmt, 1, str);
 	g_free (str);
 

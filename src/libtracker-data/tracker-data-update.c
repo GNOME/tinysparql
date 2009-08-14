@@ -88,6 +88,19 @@ static TrackerStatementCallback delete_callback = NULL;
 static gpointer delete_data;
 static TrackerCommitCallback commit_callback = NULL;
 static gpointer commit_data;
+static gint64 modification_sequence;
+
+gint64
+tracker_data_get_modification_sequence (void)
+{
+	return modification_sequence;
+}
+
+void
+tracker_data_set_modification_sequence (gint64 modseq)
+{
+	modification_sequence = modseq;
+}
 
 void 
 tracker_data_set_commit_statement_callback (TrackerCommitCallback    callback,
@@ -256,7 +269,7 @@ ensure_resource_id (const gchar *uri)
 		stmt = tracker_db_interface_create_statement (iface, "INSERT INTO \"rdfs:Resource\" (ID, Uri, \"tracker:modified\", Available) VALUES (?, ?, ?, 1)");
 		tracker_db_statement_bind_int (stmt, 0, id);
 		tracker_db_statement_bind_text (stmt, 1, uri);
-		tracker_db_statement_bind_int64 (stmt, 2, (gint64) time(NULL));
+		tracker_db_statement_bind_int64 (stmt, 2, ++modification_sequence);
 		tracker_db_statement_execute (stmt, NULL);
 		g_object_unref (stmt);
 
@@ -1004,7 +1017,7 @@ tracker_data_insert_statement_common (const gchar            *subject,
 		update_buffer.id = ensure_resource_id (update_buffer.subject);
 		update_buffer.types = tracker_data_query_rdf_type (update_buffer.id);
 
-		g_value_set_int64 (&gvalue, (gint64) time (NULL));
+		g_value_set_int64 (&gvalue, ++modification_sequence);
 		cache_insert_value ("rdfs:Resource", "tracker:modified", &gvalue, FALSE, FALSE);
 	}
 
