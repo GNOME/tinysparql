@@ -10,8 +10,8 @@ msgstr ""
 "Project-Id-Version: tracker.HEAD\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&component=general\n"
-"POT-Creation-Date: 2009-07-31 09:36+0000\n"
-"PO-Revision-Date: 2009-08-04 20:12+0200\n"
+"POT-Creation-Date: 2009-08-14 14:26+0000\n"
+"PO-Revision-Date: 2009-08-15 13:29+0200\n"
 "Last-Translator: Jorge González <jorgegonz@svn.gnome.org>\n"
 "Language-Team: Español <gnome-es-list@gnome.org>\n"
 "MIME-Version: 1.0\n"
@@ -188,6 +188,31 @@ msgstr "Herramienta de búsqueda en vivo Tracker"
 #: ../python/deskbar-handler/tracker-module.py:291
 msgid "Search with Tracker, as you type"
 msgstr "Buscar con Tracker, al escribir"
+
+#: ../python/gtk-sparql/gtk-sparql.ui.h:1
+#| msgid "<b>Crawled Directories</b>"
+msgid "<b>Saved queries</b>"
+msgstr "<b>Consultas guardadas</b>"
+
+#: ../python/gtk-sparql/gtk-sparql.ui.h:2
+msgid "gtk-delete"
+msgstr "gtk-delete"
+
+#: ../python/gtk-sparql/gtk-sparql.ui.h:3
+msgid "gtk-execute"
+msgstr "gtk-execute"
+
+#: ../python/gtk-sparql/gtk-sparql.ui.h:4
+msgid "gtk-go-back"
+msgstr "gtk-go-back"
+
+#: ../python/gtk-sparql/gtk-sparql.ui.h:5
+msgid "gtk-go-forward"
+msgstr "gtk-go-forward"
+
+#: ../python/gtk-sparql/gtk-sparql.ui.h:6
+msgid "gtk-save"
+msgstr "gtk-save"
 
 #: ../src/libtracker-common/tracker-dbus.c:327
 msgid "No error given"
@@ -813,18 +838,15 @@ msgstr "Depuración (predeterminado = desactivado)"
 
 #. Translators: this message will appear immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
-#: ../src/tracker-extract/tracker-main.c:283
+#: ../src/tracker-extract/tracker-main.c:284
 msgid "- Extract file meta data"
 msgstr "- Extraer los metadatos del archivo"
 
-#: ../src/tracker-extract/tracker-main.c:295
+#: ../src/tracker-extract/tracker-main.c:296
 msgid "Filename and mime type must be provided together"
 msgstr "Se debe proporcionar tanto el nombre como el tipo MIME"
 
 #: ../src/tracker-miner-fs/tracker-main.c:84
-#| msgid ""
-#| "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug "
-#| "(default = 0)"
 msgid ""
 "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default = "
 "config)"
@@ -1482,57 +1504,57 @@ msgid "Could not open /proc"
 msgstr "No se pudo abrir /proc"
 
 #: ../src/tracker-utils/tracker-processes.c:68
-#: ../src/tracker-utils/tracker-processes.c:172
-#: ../src/tracker-utils/tracker-processes.c:202
-#: ../src/tracker-utils/tracker-processes.c:216
+#: ../src/tracker-utils/tracker-processes.c:173
+#: ../src/tracker-utils/tracker-processes.c:203
+#: ../src/tracker-utils/tracker-processes.c:217
 msgid "no error given"
 msgstr "no se proporcionó ningún error"
 
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
-#: ../src/tracker-utils/tracker-processes.c:137
+#: ../src/tracker-utils/tracker-processes.c:138
 msgid " - Manage Tracker processes and data"
 msgstr " - Gestionar los procesos y datos de Tracker"
 
-#: ../src/tracker-utils/tracker-processes.c:144
+#: ../src/tracker-utils/tracker-processes.c:145
 msgid "You can not use the --kill and --terminate arguments together"
 msgstr "No puede usar los argumentos --kill y --terminate juntos"
 
-#: ../src/tracker-utils/tracker-processes.c:148
+#: ../src/tracker-utils/tracker-processes.c:149
 msgid "You can not use the --terminate with --hard-reset, --kill is implied"
 msgstr "No puede usar --terminate con --hard-reset, --kill está implicado"
 
-#: ../src/tracker-utils/tracker-processes.c:158
+#: ../src/tracker-utils/tracker-processes.c:159
 #, c-format
 msgid "Found %d pids..."
 msgstr "%d pids encontrados…"
 
-#: ../src/tracker-utils/tracker-processes.c:169
+#: ../src/tracker-utils/tracker-processes.c:170
 #, c-format
 msgid "Could not open '%s'"
 msgstr "No se pudo abrir «%s»"
 
-#: ../src/tracker-utils/tracker-processes.c:191
+#: ../src/tracker-utils/tracker-processes.c:192
 #, c-format
 msgid "Found process ID %d for '%s'"
 msgstr "Se encontró el ID de proceso %d para «%s»"
 
-#: ../src/tracker-utils/tracker-processes.c:199
+#: ../src/tracker-utils/tracker-processes.c:200
 #, c-format
 msgid "Could not terminate process %d"
 msgstr "No se pudo terminar el proceso %d"
 
-#: ../src/tracker-utils/tracker-processes.c:205
+#: ../src/tracker-utils/tracker-processes.c:206
 #, c-format
 msgid "Terminated process %d"
 msgstr "Proceso %d terminado"
 
-#: ../src/tracker-utils/tracker-processes.c:213
+#: ../src/tracker-utils/tracker-processes.c:214
 #, c-format
 msgid "Could not kill process %d"
 msgstr "No se pudo matar el proceso %d"
 
-#: ../src/tracker-utils/tracker-processes.c:219
+#: ../src/tracker-utils/tracker-processes.c:220
 #, c-format
 msgid "Killed process %d"
 msgstr "Proceso %d matado"
