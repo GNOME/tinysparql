@@ -22,31 +22,15 @@
 #define __TRACKER_DBUS_H__
 
 #include <glib.h>
+
 #include <dbus/dbus-glib-bindings.h>
+
 #include "tracker-miner.h"
 
 G_BEGIN_DECLS
 
-#if 0
-typedef void (* TrackerDBusNameMonitorFunc) (const gchar *name,
-					     gboolean     available,
-					     gpointer     user_data);
-#endif
-
 gboolean    tracker_dbus_init		   (TrackerMiner *miner);
 void	    tracker_dbus_shutdown	   (TrackerMiner *miner);
-
-#if 0
-gboolean    tracker_dbus_register_object   (GObject               *object,
-					    const DBusGObjectInfo *info,
-					    const gchar	          *path);
-
-void        tracker_dbus_add_name_monitor     (const gchar                *name,
-					       TrackerDBusNameMonitorFunc  func,
-					       gpointer                    user_data,
-					       GDestroyNotify              destroy_func);
-void        tracker_dbus_remove_name_monitor  (const gchar                *name);
-#endif
 
 G_END_DECLS
 

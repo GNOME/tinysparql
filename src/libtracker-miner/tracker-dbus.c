@@ -32,14 +32,6 @@ typedef struct {
 	GHashTable      *name_monitors;
 } TrackerDBusData;
 
-#if 0
-typedef struct {
-	TrackerDBusNameMonitorFunc func;
-	gpointer user_data;
-	GDestroyNotify destroy_func;
-} TrackerDBusNameMonitor;
-#endif
-
 static GQuark dbus_data = 0;
 
 static gboolean
@@ -75,27 +67,6 @@ dbus_register_service (DBusGProxy  *proxy,
 	return TRUE;
 }
 
-#if 0
-static void
-name_owner_changed_cb (DBusGProxy *proxy,
-		       gchar	  *name,
-		       gchar	  *old_owner,
-		       gchar	  *new_owner,
-		       gpointer    user_data)
-{
-	TrackerDBusNameMonitor *name_monitor;
-
-	name_monitor = g_hash_table_lookup (name_monitors, name);
-
-	if (name_monitor) {
-		gboolean available;
-
-		available = (new_owner && *new_owner);
-		(name_monitor->func) (name, available, name_monitor->user_data);
-	}
-}
-#endif
-
 static gboolean
 dbus_register_object (GObject		    *object,
 		      DBusGConnection	    *connection,
@@ -110,61 +81,29 @@ dbus_register_object (GObject		    *object,
 	dbus_g_object_type_install_info (G_OBJECT_TYPE (object), info);
 	dbus_g_connection_register_g_object (connection, path, object);
 
-#if 0
-	dbus_g_proxy_add_signal (proxy, "NameOwnerChanged",
-				 G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING,
-				 G_TYPE_INVALID);
-
-	dbus_g_proxy_connect_signal (proxy, "NameOwnerChanged",
-				     G_CALLBACK (name_owner_changed_cb),
-				     object, NULL);
-#endif
 	return TRUE;
 }
 
-#if 0
-static TrackerDBusNameMonitor *
-name_monitor_new (TrackerDBusNameMonitorFunc func,
-		  gpointer                   user_data,
-		  GDestroyNotify             destroy_func)
-{
-	TrackerDBusNameMonitor *name_monitor;
-
-	name_monitor = g_slice_new (TrackerDBusNameMonitor);
-	name_monitor->func = func;
-	name_monitor->user_data = user_data;
-	name_monitor->destroy_func = destroy_func;
-
-	return name_monitor;
-}
-
 static void
-name_monitor_free (TrackerDBusNameMonitor *name_monitor)
+dbus_data_destroy (gpointer data)
 {
-	if (name_monitor->user_data && name_monitor->destroy_func) {
-		(name_monitor->destroy_func) (name_monitor->user_data);
+	TrackerDBusData *dd;
+
+	dd = data;
+
+	if (dd->gproxy) {
+		g_object_unref (dd->gproxy);
 	}
 
-	g_slice_free (TrackerDBusNameMonitor, name_monitor);
-}
-#endif
-
-static void
-dbus_data_destroy (TrackerDBusData *data)
-{
-	if (data->gproxy) {
-		g_object_unref (data->gproxy);
+	if (dd->connection) {
+		dbus_g_connection_unref (dd->connection);
 	}
 
-	if (data->connection) {
-		dbus_g_connection_unref (data->connection);
+	if (dd->name_monitors) {
+		g_hash_table_destroy (dd->name_monitors);
 	}
 
-	if (data->name_monitors) {
-		g_hash_table_destroy (data->name_monitors);
-	}
-
-	g_slice_free (TrackerDBusData, data);
+	g_slice_free (TrackerDBusData, dd);
 }
 
 static TrackerDBusData *
@@ -220,12 +159,6 @@ dbus_data_create (TrackerMiner *miner,
 	data->connection = dbus_g_connection_ref (connection);
 	data->gproxy = g_object_ref (gproxy);
 
-#if 0
-	data->name_monitors = g_hash_table_new_full (g_str_hash,
-						     g_str_equal,
-						     (GDestroyNotify) g_free,
-						     (GDestroyNotify) name_monitor_free);
-#endif
 	return data;
 }
 
@@ -253,8 +186,10 @@ tracker_dbus_init (TrackerMiner *miner)
 		return FALSE;
 	}
 
-	g_object_set_qdata_full (G_OBJECT (miner), dbus_data, data,
-				 (GDestroyNotify) dbus_data_destroy);
+	g_object_set_qdata_full (G_OBJECT (miner), 
+				 dbus_data, 
+				 data,
+				 dbus_data_destroy);
 
 	return TRUE;
 }
@@ -268,59 +203,3 @@ tracker_dbus_shutdown (TrackerMiner *miner)
 
 	g_object_set_qdata (G_OBJECT (miner), dbus_data, NULL);
 }
-
-#if 0
-gboolean
-tracker_dbus_register_object (GObject               *object,
-			      const DBusGObjectInfo *info,
-			      const gchar	    *path)
-{
-	if (!connection || !gproxy) {
-		g_critical ("DBus support must be initialized before registering objects!");
-		return FALSE;
-	}
-
-	return dbus_register_object (object,
-				     connection,
-				     gproxy,
-				     info,
-				     path);
-}
-
-void
-tracker_dbus_add_name_monitor (const gchar                *name,
-			       TrackerDBusNameMonitorFunc  func,
-			       gpointer                    user_data,
-			       GDestroyNotify              destroy_func)
-{
-	g_return_if_fail (name != NULL);
-	g_return_if_fail (func != NULL);
-
-	if (!name_monitors) {
-		g_critical ("DBus support must be initialized before adding name monitors!");
-		return;
-	}
-
-	if (g_hash_table_lookup (name_monitors, name) != NULL) {
-		g_critical ("There is already a name monitor for such name");
-		return;
-	}
-
-	g_hash_table_insert (name_monitors,
-			     g_strdup (name),
-			     name_monitor_new (func, user_data, destroy_func));
-}
-
-void
-tracker_dbus_remove_name_monitor (const gchar *name)
-{
-	g_return_if_fail (name != NULL);
-
-	if (!name_monitors) {
-		g_critical ("DBus support must be initialized before removing name monitors!");
-		return;
-	}
-
-	g_hash_table_remove (name_monitors, name);
-}
-#endif
