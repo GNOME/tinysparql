@@ -1307,18 +1307,14 @@ tracker_monitor_add (TrackerMonitor *monitor,
 		     GFile	    *file)
 {
 	INotifyHandle *file_monitor;
-	GSList	     *ignored_roots;
-	GSList	     *l;
-	gchar	     *path;
+	gchar *path;
 
 	g_return_val_if_fail (TRACKER_IS_MONITOR (monitor), FALSE);
 	g_return_val_if_fail (G_IS_FILE (file), FALSE);
 
-#ifdef FIX
-	if (!tracker_config_get_enable_watches (monitor->private->config)) {
+	if (!monitor->private->enabled) {
 		return TRUE;
 	}
-#endif
 
 	if (!monitor->private->monitors) {
 		g_critical ("Could not add monitor, no monitors are set up");
@@ -1344,22 +1340,6 @@ tracker_monitor_add (TrackerMonitor *monitor,
 	}
 
 	path = g_file_get_path (file);
-
-#ifdef FIX
-	ignored_roots = tracker_config_get_no_watch_directory_roots (monitor->private->config);
-#else
-	ignored_roots = NULL;
-#endif
-
-	/* Check this location isn't excluded in the config */
-	for (l = ignored_roots; l; l = l->next) {
-		if (strcmp (path, l->data) == 0) {
-			g_message ("Not adding monitor for:'%s', path is in config ignore list",
-				   path);
-			g_free (path);
-			return FALSE;
-		}
-	}
 
 	/* We don't check if a file exists or not since we might want
 	 * to monitor locations which don't exist yet.

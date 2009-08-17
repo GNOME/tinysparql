@@ -181,18 +181,6 @@ tracker_crawler_new (void)
 
 	crawler = g_object_new (TRACKER_TYPE_CRAWLER, NULL);
 
-#ifdef FIX
-	/* Set up crawl data */
-	crawler->private->ignored_directory_patterns =
-		tracker_module_config_get_ignored_directory_patterns ("files");
-	crawler->private->ignored_file_patterns =
-		tracker_module_config_get_ignored_file_patterns ("files");
-	crawler->private->index_file_patterns =
-		tracker_module_config_get_index_file_patterns ("files");
-	crawler->private->ignored_directories_with_content =
-		tracker_module_config_get_ignored_directories_with_content ("files");
-#endif
-
 	return crawler;
 }
 
