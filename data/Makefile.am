@@ -1,6 +1,6 @@
 include $(top_srcdir)/Makefile.decl
 
-SUBDIRS = db dbus modules languages icons ontologies
+SUBDIRS = db dbus languages icons ontologies
 
 # Should do this for *.desktop.in.in 
 tracker-store.desktop.in: tracker-store.desktop.in.in

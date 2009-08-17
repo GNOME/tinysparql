@@ -1405,7 +1405,6 @@ AC_CONFIG_FILES([
 	data/languages/Makefile
 	data/libtracker-gtk.pc
 	data/Makefile
-	data/modules/Makefile
 	data/ontologies/Makefile
 	data/tracker.pc
 	data/tracker-module.pc
