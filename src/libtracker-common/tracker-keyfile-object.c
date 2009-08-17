@@ -242,24 +242,24 @@ tracker_keyfile_object_load_string_list (gpointer     object,
 	value = g_key_file_get_string_list (key_file, group, key, NULL, NULL);
 	if (is_directory_list) {
 		l = directory_string_list_to_gslist ((const gchar **) value);
+
+		if (l) {
+			GSList *filtered;
+			
+			/* Should we make the basename (2nd argument) here
+			 * part of this function's API? 
+			 */
+			filtered = tracker_path_list_filter_duplicates (l, ".");
+			
+			g_slist_foreach (l, (GFunc) g_free, NULL);
+			g_slist_free (l);
+			
+			l = filtered;
+		}
 	} else {
 		l = tracker_string_list_to_gslist (value, -1);
 	}
 	g_strfreev (value);
-	
-	if (l) {
-		GSList *filtered;
-		
-		/* Should we make the basename (2nd argument) here
-		 * part of this function's API? 
-		 */
-		filtered = tracker_path_list_filter_duplicates (l, ".");
-		
-		g_slist_foreach (l, (GFunc) g_free, NULL);
-		g_slist_free (l);
-		
-		l = filtered;
-	}
 	
 	g_object_set (G_OBJECT (object), property, l, NULL);
 }

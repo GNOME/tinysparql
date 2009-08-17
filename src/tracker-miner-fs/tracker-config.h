@@ -47,54 +47,73 @@ struct TrackerConfigClass {
 
 GType	       tracker_config_get_type				   (void) G_GNUC_CONST;
 
-TrackerConfig *tracker_config_new				   (void);
+TrackerConfig *tracker_config_new                                  (void);
 gboolean       tracker_config_save                                 (TrackerConfig *config);
 
-gint	       tracker_config_get_verbosity			   (TrackerConfig *config);
-gint	       tracker_config_get_initial_sleep			   (TrackerConfig *config);
-GSList *       tracker_config_get_watch_directory_roots		   (TrackerConfig *config);
-GSList *       tracker_config_get_crawl_directory_roots		   (TrackerConfig *config);
-GSList *       tracker_config_get_no_watch_directory_roots	   (TrackerConfig *config);
-gboolean       tracker_config_get_enable_monitors		   (TrackerConfig *config);
-gint	       tracker_config_get_throttle			   (TrackerConfig *config);
-gboolean       tracker_config_get_enable_thumbnails		   (TrackerConfig *config);
-GSList *       tracker_config_get_disabled_modules		   (TrackerConfig *config);
-gboolean       tracker_config_get_disable_indexing_on_battery	   (TrackerConfig *config);
+gint           tracker_config_get_verbosity                        (TrackerConfig *config);
+gint           tracker_config_get_initial_sleep                    (TrackerConfig *config);
+gboolean       tracker_config_get_enable_monitors                  (TrackerConfig *config);
+GSList *       tracker_config_get_monitor_directories              (TrackerConfig *config);
+GSList *       tracker_config_get_monitor_directories_ignored      (TrackerConfig *config);
+GSList *       tracker_config_get_monitor_recurse_directories      (TrackerConfig *config);
+gint           tracker_config_get_scan_timeout                     (TrackerConfig *config);
+gint           tracker_config_get_cache_timeout                    (TrackerConfig *config);
+GSList *       tracker_config_get_watch_directory_roots            (TrackerConfig *config);
+GSList *       tracker_config_get_crawl_directory_roots            (TrackerConfig *config);
+GSList *       tracker_config_get_no_watch_directory_roots         (TrackerConfig *config);
+gint           tracker_config_get_throttle                         (TrackerConfig *config);
+gboolean       tracker_config_get_enable_thumbnails                (TrackerConfig *config);
+gboolean       tracker_config_get_disable_indexing_on_battery      (TrackerConfig *config);
 gboolean       tracker_config_get_disable_indexing_on_battery_init (TrackerConfig *config);
-gint	       tracker_config_get_low_disk_space_limit		   (TrackerConfig *config);
-gboolean       tracker_config_get_index_removable_devices	   (TrackerConfig *config);
-gboolean       tracker_config_get_index_mounted_directories	   (TrackerConfig *config);
+gint           tracker_config_get_low_disk_space_limit             (TrackerConfig *config);
+gboolean       tracker_config_get_index_removable_devices          (TrackerConfig *config);
+gboolean       tracker_config_get_index_mounted_directories        (TrackerConfig *config);
 
-void	       tracker_config_set_verbosity			   (TrackerConfig *config,
-								    gint	   value);
-void	       tracker_config_set_initial_sleep			   (TrackerConfig *config,
-								    gint	   value);
-void	       tracker_config_set_enable_monitors		   (TrackerConfig *config,
-								    gboolean	   value);
-void	       tracker_config_set_throttle			   (TrackerConfig *config,
-								    gint	   value);
-void	       tracker_config_set_enable_thumbnails		   (TrackerConfig *config,
-								    gboolean	   value);
-void	       tracker_config_set_disable_indexing_on_battery	   (TrackerConfig *config,
-								    gboolean	   value);
-void	       tracker_config_set_disable_indexing_on_battery_init (TrackerConfig *config,
-								    gboolean	   value);
-void	       tracker_config_set_low_disk_space_limit		   (TrackerConfig *config,
-								    gint	   value);
-void	       tracker_config_set_index_removable_devices	   (TrackerConfig *config,
-								    gboolean	   value);
-void	       tracker_config_set_index_mounted_directories	   (TrackerConfig *config,
-								    gboolean	   value);
-void	       tracker_config_set_watch_directory_roots		   (TrackerConfig *config,
+void           tracker_config_set_verbosity                        (TrackerConfig *config,
+								    gint           value);
+void           tracker_config_set_initial_sleep                    (TrackerConfig *config,
+								    gint           value);
+void           tracker_config_set_enable_monitors                  (TrackerConfig *config,
+								    gboolean       value);
+void           tracker_config_set_scan_timeout                     (TrackerConfig *config,
+								    gint           value);
+void           tracker_config_set_cache_timeout                    (TrackerConfig *config,
+								    gint           value);
+void	       tracker_config_set_monitor_directories              (TrackerConfig *config,
 								    GSList        *roots);
-void	       tracker_config_set_crawl_directory_roots		   (TrackerConfig *config,
+void	       tracker_config_set_monitor_directories_ignored      (TrackerConfig *config,
 								    GSList        *roots);
-void	       tracker_config_set_no_watch_directory_roots	   (TrackerConfig *config,
+void	       tracker_config_set_monitor_recurse_directories      (TrackerConfig *config,
 								    GSList        *roots);
-void	       tracker_config_set_disabled_modules		   (TrackerConfig *config,
-								    GSList        *modules);
+void           tracker_config_set_watch_directory_roots            (TrackerConfig *config,
+								    GSList        *roots);
+void           tracker_config_set_crawl_directory_roots            (TrackerConfig *config,
+								    GSList        *roots);
+void           tracker_config_set_no_watch_directory_roots         (TrackerConfig *config,
+								    GSList        *roots);
+void           tracker_config_set_throttle                         (TrackerConfig *config,
+								    gint           value);
+void           tracker_config_set_enable_thumbnails                (TrackerConfig *config,
+								    gboolean       value);
+void           tracker_config_set_disable_indexing_on_battery      (TrackerConfig *config,
+								    gboolean       value);
+void           tracker_config_set_disable_indexing_on_battery_init (TrackerConfig *config,
+								    gboolean       value);
+void           tracker_config_set_low_disk_space_limit             (TrackerConfig *config,
+								    gint           value);
+void	       tracker_config_set_index_directories                (TrackerConfig *config,
+								    GSList        *files);
+void	       tracker_config_set_ignored_directories              (TrackerConfig *config,
+								    GSList        *files);
+void	       tracker_config_set_ignored_directories_with_content (TrackerConfig *config,
+								    GSList        *files);
+void	       tracker_config_set_ignored_files                    (TrackerConfig *config,
+								    GSList        *files);
+void           tracker_config_set_index_removable_devices          (TrackerConfig *config,
+								    gboolean       value);
+void           tracker_config_set_index_mounted_directories        (TrackerConfig *config,
+								    gboolean       value);
 
 G_END_DECLS
 
 #endif /* __TRACKER_MINER_FS_CONFIG_H__ */
-
