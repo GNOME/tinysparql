@@ -459,6 +459,10 @@ public class Tracker.SparqlScanner : Object {
 				while (current < end && is_pn_local_char (current[0])) {
 					current++;
 				}
+				if (current[-1] == '.') {
+					// last character must not be a dot (conflict with SparqlTokenType.DOT)
+					current--;
+				}
 				break;
 			case ',':
 				type = SparqlTokenType.COMMA;
