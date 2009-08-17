@@ -1388,7 +1388,7 @@ tracker_monitor_add (TrackerMonitor *monitor,
 	g_return_val_if_fail (module_name != NULL, FALSE);
 	g_return_val_if_fail (G_IS_FILE (file), FALSE);
 
-	if (!tracker_config_get_enable_watches (monitor->private->config)) {
+	if (!tracker_config_get_enable_monitors (monitor->private->config)) {
 		return TRUE;
 	}
 

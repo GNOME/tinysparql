@@ -42,7 +42,7 @@
 /* Default values */
 #define DEFAULT_VERBOSITY			 0
 #define DEFAULT_INITIAL_SLEEP			 15	  /* 0->1000 */
-#define DEFAULT_ENABLE_WATCHES			 TRUE
+#define DEFAULT_ENABLE_MONITORS			 TRUE
 #define DEFAULT_THROTTLE			 0	  /* 0->20 */
 #define DEFAULT_ENABLE_THUMBNAILS		 TRUE
 #define DEFAULT_DISABLE_INDEXING_ON_BATTERY	 TRUE
@@ -56,11 +56,21 @@ typedef struct {
 	gint	  verbosity;
 	gint	  initial_sleep;
 
-	/* Watches */
-	GSList	 *watch_directory_roots;
-	GSList	 *crawl_directory_roots;
+	/* Monitors */
+	gboolean  enable_monitors;
+
+	/* To be removed */
+ 	GSList	 *watch_directory_roots;
 	GSList	 *no_watch_directory_roots;
-	gboolean  enable_watches;
+ 	GSList	 *crawl_directory_roots;
+	/* To be removed */
+
+	GSList   *monitor_directories;
+	GSList   *monitor_directories_ignored;
+	GSList   *monitor_recurse_directories;
+
+	guint     scan_timeout;
+	guint     cache_timeout;
 
 	/* Indexing */
 	gint	  throttle;
@@ -70,7 +80,16 @@ typedef struct {
 	gboolean  disable_indexing_on_battery_init;
 	gint	  low_disk_space_limit;
 	gboolean  index_mounted_directories;
-	gboolean  index_removable_devices;
+	gboolean  index_removable_devices;	
+
+	GSList	 *directory_roots;
+
+	GSList   *ignored_directories;
+	GSList   *ignored_directories_with_content;
+	GSList   *ignored_files;
+
+	GSList   *ignored_directory_patterns;
+	GSList   *ignored_file_patterns;
 } TrackerConfigPrivate;
 
 typedef struct {
@@ -103,8 +122,8 @@ enum {
 	PROP_VERBOSITY,
 	PROP_INITIAL_SLEEP,
 
-	/* Watches */
-	PROP_ENABLE_WATCHES,
+	/* Monitors */
+	PROP_ENABLE_MONITORS,
 	PROP_WATCH_DIRECTORY_ROOTS,
 	PROP_CRAWL_DIRECTORY_ROOTS,
 	PROP_NO_WATCH_DIRECTORY_ROOTS,
@@ -123,7 +142,7 @@ enum {
 static ObjectToKeyFile conversions[] = {
 	{ G_TYPE_INT,     "verbosity",                        GROUP_GENERAL,  "Verbosity"               },
 	{ G_TYPE_INT,     "initial-sleep",                    GROUP_GENERAL,  "InitialSleep"            },
-	{ G_TYPE_BOOLEAN, "enable-watches",                   GROUP_MONITORS, "EnableWatches"           },
+	{ G_TYPE_BOOLEAN, "enable-monitors",                  GROUP_MONITORS, "EnableMonitors"          },
 	{ G_TYPE_POINTER, "watch-directory-roots",            GROUP_MONITORS, "WatchDirectoryRoots"     },
 	{ G_TYPE_POINTER, "crawl-directory-roots",            GROUP_MONITORS, "CrawlDirectoryRoots"     },
 	{ G_TYPE_POINTER, "no-watch-directory-roots",         GROUP_MONITORS, "NoWatchDirectory"        },
@@ -170,11 +189,11 @@ tracker_config_class_init (TrackerConfigClass *klass)
 
 	/* Monitors */
 	g_object_class_install_property (object_class,
-					 PROP_ENABLE_WATCHES,
-					 g_param_spec_boolean ("enable-watches",
-							       "Enable watches",
-							       " Set to false to completely disable any watching",
-							       DEFAULT_ENABLE_WATCHES,
+					 PROP_ENABLE_MONITORS,
+					 g_param_spec_boolean ("enable-monitors",
+							       "Enable monitors",
+							       " Set to false to completely disable any monitoring",
+							       DEFAULT_ENABLE_MONITORS,
 							       G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
 	g_object_class_install_property (object_class,
 					 PROP_WATCH_DIRECTORY_ROOTS,
@@ -278,7 +297,11 @@ config_set_property (GObject	  *object,
 						  g_value_get_int (value));
 		break;
 
-		/* Watches */
+		/* Monitors */
+	case PROP_ENABLE_MONITORS:
+		tracker_config_set_enable_monitors (TRACKER_CONFIG (object),
+						    g_value_get_boolean (value));
+		break;
 	case PROP_WATCH_DIRECTORY_ROOTS:    
 		tracker_config_set_watch_directory_roots (TRACKER_CONFIG (object),
 							  g_value_get_pointer (value));
@@ -291,10 +314,6 @@ config_set_property (GObject	  *object,
 	case PROP_NO_WATCH_DIRECTORY_ROOTS: 
 		tracker_config_set_no_watch_directory_roots (TRACKER_CONFIG (object),
 							     g_value_get_pointer (value));
-		break;
-	case PROP_ENABLE_WATCHES:
-		tracker_config_set_enable_watches (TRACKER_CONFIG (object),
-						   g_value_get_boolean (value));
 		break;
 
 		/* Indexing */
@@ -352,7 +371,10 @@ config_get_property (GObject	*object,
 		g_value_set_int (value, priv->initial_sleep);
 		break;
 
-		/* Watches */
+		/* Montors */
+	case PROP_ENABLE_MONITORS:
+		g_value_set_boolean (value, priv->enable_monitors);
+		break;
 	case PROP_WATCH_DIRECTORY_ROOTS:
 		g_value_set_pointer (value, priv->watch_directory_roots);
 		break;
@@ -361,9 +383,6 @@ config_get_property (GObject	*object,
 		break;
 	case PROP_NO_WATCH_DIRECTORY_ROOTS:
 		g_value_set_pointer (value, priv->no_watch_directory_roots);
-		break;
-	case PROP_ENABLE_WATCHES:
-		g_value_set_boolean (value, priv->enable_watches);
 		break;
 
 		/* Indexing */
@@ -638,6 +657,18 @@ tracker_config_get_initial_sleep (TrackerConfig *config)
 	return priv->initial_sleep;
 }
 
+gboolean
+tracker_config_get_enable_monitors (TrackerConfig *config)
+{
+	TrackerConfigPrivate *priv;
+
+	g_return_val_if_fail (TRACKER_IS_CONFIG (config), DEFAULT_ENABLE_MONITORS);
+
+	priv = TRACKER_CONFIG_GET_PRIVATE (config);
+
+	return priv->enable_monitors;
+}
+
 GSList *
 tracker_config_get_watch_directory_roots (TrackerConfig *config)
 {
@@ -672,18 +703,6 @@ tracker_config_get_no_watch_directory_roots (TrackerConfig *config)
 	priv = TRACKER_CONFIG_GET_PRIVATE (config);
 
 	return priv->no_watch_directory_roots;
-}
-
-gboolean
-tracker_config_get_enable_watches (TrackerConfig *config)
-{
-	TrackerConfigPrivate *priv;
-
-	g_return_val_if_fail (TRACKER_IS_CONFIG (config), DEFAULT_ENABLE_WATCHES);
-
-	priv = TRACKER_CONFIG_GET_PRIVATE (config);
-
-	return priv->enable_watches;
 }
 
 gint
@@ -807,8 +826,8 @@ tracker_config_set_initial_sleep (TrackerConfig *config,
 }
 
 void
-tracker_config_set_enable_watches (TrackerConfig *config,
-				   gboolean	  value)
+tracker_config_set_enable_monitors (TrackerConfig *config,
+				    gboolean       value)
 {
 	TrackerConfigPrivate *priv;
 
@@ -816,8 +835,8 @@ tracker_config_set_enable_watches (TrackerConfig *config,
 
 	priv = TRACKER_CONFIG_GET_PRIVATE (config);
 
-	priv->enable_watches = value;
-	g_object_notify (G_OBJECT (config), "enable-watches");
+	priv->enable_monitors = value;
+	g_object_notify (G_OBJECT (config), "enable-monitors");
 }
 
 void

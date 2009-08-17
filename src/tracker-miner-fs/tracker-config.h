@@ -55,7 +55,7 @@ gint	       tracker_config_get_initial_sleep			   (TrackerConfig *config);
 GSList *       tracker_config_get_watch_directory_roots		   (TrackerConfig *config);
 GSList *       tracker_config_get_crawl_directory_roots		   (TrackerConfig *config);
 GSList *       tracker_config_get_no_watch_directory_roots	   (TrackerConfig *config);
-gboolean       tracker_config_get_enable_watches		   (TrackerConfig *config);
+gboolean       tracker_config_get_enable_monitors		   (TrackerConfig *config);
 gint	       tracker_config_get_throttle			   (TrackerConfig *config);
 gboolean       tracker_config_get_enable_thumbnails		   (TrackerConfig *config);
 GSList *       tracker_config_get_disabled_modules		   (TrackerConfig *config);
@@ -69,7 +69,7 @@ void	       tracker_config_set_verbosity			   (TrackerConfig *config,
 								    gint	   value);
 void	       tracker_config_set_initial_sleep			   (TrackerConfig *config,
 								    gint	   value);
-void	       tracker_config_set_enable_watches		   (TrackerConfig *config,
+void	       tracker_config_set_enable_monitors		   (TrackerConfig *config,
 								    gboolean	   value);
 void	       tracker_config_set_throttle			   (TrackerConfig *config,
 								    gint	   value);
@@ -85,25 +85,6 @@ void	       tracker_config_set_index_removable_devices	   (TrackerConfig *config
 								    gboolean	   value);
 void	       tracker_config_set_index_mounted_directories	   (TrackerConfig *config,
 								    gboolean	   value);
-
-/* List APIs*/
-void	       tracker_config_add_watch_directory_roots		   (TrackerConfig *config,
-								    gchar * const *roots);
-void	       tracker_config_add_crawl_directory_roots		   (TrackerConfig *config,
-								    gchar * const *roots);
-void	       tracker_config_add_no_watch_directory_roots	   (TrackerConfig *config,
-								    gchar * const *roots);
-void	       tracker_config_add_disabled_modules		   (TrackerConfig *config,
-								    const gchar * const *modules);
-void	       tracker_config_remove_watch_directory_roots         (TrackerConfig *config,
-								    const gchar   *root);
-void	       tracker_config_remove_crawl_directory_roots         (TrackerConfig *config,
-								    const gchar   *root);
-void	       tracker_config_remove_no_watch_directory_roots      (TrackerConfig *config,
-								    const gchar   *root);
-void	       tracker_config_remove_disabled_modules		   (TrackerConfig *config,
-								    const gchar   *module);
-
 void	       tracker_config_set_watch_directory_roots		   (TrackerConfig *config,
 								    GSList        *roots);
 void	       tracker_config_set_crawl_directory_roots		   (TrackerConfig *config,
