@@ -105,7 +105,7 @@ mfo:feedSettings a rdf:Property ;
 	rdfs:label "Feed element settings" ;
 	rdfs:comment "Settings ";
 	nrl:maxCardinality 1 ;
-	rdfs:doman mfo:FeedElement ;
+	rdfs:domain mfo:FeedElement ;
 	rdfs:range mfo:FeedSettings .
 
 mfo:updateInterval a rdf:Property ;
