@@ -28,7 +28,6 @@
 #include <libtracker-common/tracker-file-utils.h>
 #include <libtracker-common/tracker-type-utils.h>
 #include <libtracker-common/tracker-utils.h>
-#include <libtracker-common/tracker-module-config.h>
 
 #include "tracker-config.h"
 #include "tracker-crawler.h"
@@ -281,14 +280,14 @@ tracker_crawler_new (TrackerConfig *config,
 	crawler->private->module_name = g_strdup (module_name);
 
 	/* Set up crawl data */
-	crawler->private->ignored_directory_patterns =
-		tracker_module_config_get_ignored_directory_patterns (module_name);
-	crawler->private->ignored_file_patterns =
-		tracker_module_config_get_ignored_file_patterns (module_name);
-	crawler->private->index_file_patterns =
-		tracker_module_config_get_index_file_patterns (module_name);
-	crawler->private->ignored_directories_with_content =
-		tracker_module_config_get_ignored_directories_with_content (module_name);
+	/* crawler->private->ignored_directory_patterns = */
+	/* 	tracker_module_config_get_ignored_directory_patterns (module_name); */
+	/* crawler->private->ignored_file_patterns = */
+	/* 	tracker_module_config_get_ignored_file_patterns (module_name); */
+	/* crawler->private->index_file_patterns = */
+	/* 	tracker_module_config_get_index_file_patterns (module_name); */
+	/* crawler->private->ignored_directories_with_content = */
+	/* 	tracker_module_config_get_ignored_directories_with_content (module_name); */
 
 	/* Should we use module config paths? If true, when we
 	 * _start() the module config paths are used to import paths
@@ -979,8 +978,8 @@ tracker_crawler_start (TrackerCrawler *crawler)
 
 		g_message ("  Using module paths");
 
-		recurse_paths =	tracker_module_config_get_monitor_recurse_directories (priv->module_name);
-		paths = tracker_module_config_get_monitor_directories (priv->module_name);
+		/* recurse_paths =	tracker_module_config_get_monitor_recurse_directories (priv->module_name); */
+		/* paths = tracker_module_config_get_monitor_directories (priv->module_name); */
 
 		if (recurse_paths || paths) {
 			/* First we do non-recursive directories */

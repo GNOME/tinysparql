@@ -35,7 +35,6 @@ G_BEGIN_DECLS
 #include "tracker-class.h"
 #include "tracker-file-utils.h"
 #include "tracker-language.h"
-#include "tracker-module-config.h"
 #include "tracker-namespace.h"
 #include "tracker-ontology.h"
 #include "tracker-parser.h"

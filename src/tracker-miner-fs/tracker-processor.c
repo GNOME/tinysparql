@@ -25,7 +25,6 @@
 #include <libtracker-common/tracker-dbus.h>
 #include <libtracker-common/tracker-file-utils.h>
 #include <libtracker-common/tracker-storage.h>
-#include <libtracker-common/tracker-module-config.h>
 #include <libtracker-common/tracker-utils.h>
 
 #include <libtracker-db/tracker-db-manager.h>
@@ -200,8 +199,6 @@ tracker_processor_init (TrackerProcessor *object)
 	object->private = TRACKER_PROCESSOR_GET_PRIVATE (object);
 
 	priv = object->private;
-
-	priv->modules = tracker_module_config_get_modules ();
 
 	/* For each module we create a TrackerCrawler and keep them in
 	 * a hash table to look up.

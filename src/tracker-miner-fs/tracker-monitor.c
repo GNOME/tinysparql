@@ -25,7 +25,6 @@
 
 #include <libtracker-common/tracker-dbus.h>
 #include <libtracker-common/tracker-file-utils.h>
-#include <libtracker-common/tracker-module-config.h>
 
 #include <sys/inotify.h>
 #include <libinotify/libinotify.h>
@@ -237,8 +236,6 @@ tracker_monitor_init (TrackerMonitor *object)
 				       (GEqualFunc) g_file_equal,
 				       g_object_unref,
 				       event_data_free);
-
-	all_modules = tracker_module_config_get_modules ();
 
 	for (l = all_modules; l; l = l->next) {
 		GHashTable *monitors;
@@ -874,8 +871,6 @@ libinotify_cached_events_timeout_cb (gpointer data)
 		 * the indexer of events for files which are ALWAYS
 		 * changing.
 		 */
-		cache_timeout = tracker_module_config_get_cache_timeout (module_name);
-		scan_timeout = tracker_module_config_get_scan_timeout (module_name);
 
 		if (cache_timeout > 0) {
 			force_emit = start_event_seconds > cache_timeout;

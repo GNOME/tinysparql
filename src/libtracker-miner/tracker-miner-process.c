@@ -20,8 +20,6 @@
 
 #include "config.h"
 
-#include <libtracker-common/tracker-module-config.h>
-
 #include "tracker-crawler.h"
 #include "tracker-marshal.h"
 #include "tracker-miner-process.h"
@@ -209,8 +207,6 @@ tracker_miner_process_init (TrackerMinerProcess *object)
 	object->private = TRACKER_MINER_PROCESS_GET_PRIVATE (object);
 
 	priv = object->private;
-
-	tracker_module_config_init ();
 
 	/* For each module we create a TrackerCrawler and keep them in
 	 * a hash table to look up.

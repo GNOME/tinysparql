@@ -66,7 +66,6 @@ libtracker_common_la_SOURCES =	 			\
 	tracker-language.c				\
 	tracker-log.c	 				\
 	tracker-marshal-main.c				\
-	tracker-module-config.c				\
 	tracker-namespace.c				\
 	tracker-ontology.c				\
 	tracker-parser.c				\
@@ -94,7 +93,6 @@ libtracker_commoninclude_HEADERS =			\
 	tracker-file-utils.h				\
 	tracker-keyfile-object.h			\
 	tracker-language.h				\
-	tracker-module-config.h				\
 	tracker-namespace.h				\
 	tracker-ontology.h				\
 	tracker-parser.h				\

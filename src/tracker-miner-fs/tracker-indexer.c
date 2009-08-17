@@ -59,7 +59,6 @@
 #include <libtracker-common/tracker-storage.h>
 #include <libtracker-common/tracker-parser.h>
 #include <libtracker-common/tracker-ontology.h>
-#include <libtracker-common/tracker-module-config.h>
 #include <libtracker-common/tracker-utils.h>
 #include <libtracker-common/tracker-thumbnailer.h>
 
@@ -981,14 +980,12 @@ indexer_load_modules (TrackerIndexer *indexer)
 	priv = indexer->private;
 	priv->indexer_modules = g_hash_table_new (g_str_hash, g_str_equal);
 
-	modules = tracker_module_config_get_modules ();
+	/* modules = tracker_module_config_get_modules (); */
+
+	modules = g_list_prepend (NULL, g_strdup ("files"));
 
 	for (l = modules; l; l = l->next) {
 		TrackerIndexerModule *module;
-
-		if (!tracker_module_config_get_enabled (l->data)) {
-			continue;
-		}
 
 		module = tracker_indexer_module_get (l->data);
 
@@ -1664,7 +1661,11 @@ process_module (TrackerIndexer *indexer,
 		return;
 	}
 
+#ifdef FIX
 	dirs = tracker_module_config_get_monitor_recurse_directories (module_name);
+#else 
+	dirs = NULL;
+#endif
 
 	if (!dirs) {
 		return;

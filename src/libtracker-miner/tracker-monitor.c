@@ -27,7 +27,7 @@
 
 #include <libinotify/libinotify.h>
 
-#include <libtracker-common/tracker-module-config.h>
+#include <libtracker-common/tracker-keyfile-object.h>
 
 #include "tracker-monitor.h"
 #include "tracker-marshal.h"
@@ -52,6 +52,8 @@ struct TrackerMonitorPrivate {
 	GHashTable    *monitors;
 	
 	gboolean       enabled;
+	gint           scan_timeout;
+	gint           cache_timeout;
 
 	GType	       monitor_backend;
 
@@ -93,7 +95,9 @@ enum {
 
 enum {
 	PROP_0,
-	PROP_ENABLED
+	PROP_ENABLED,
+	PROP_SCAN_TIMEOUT,
+	PROP_CACHE_TIMEOUT
 };
 
 static void           tracker_monitor_finalize     (GObject        *object);
@@ -183,6 +187,24 @@ tracker_monitor_class_init (TrackerMonitorClass *klass)
 							       "Enabled",
 							       TRUE,
 							       G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
+	g_object_class_install_property (object_class,
+					 PROP_SCAN_TIMEOUT,
+					 g_param_spec_int ("scan-timeout",
+							   "Scan Timeout",
+							   "Time in seconds between same events to prevent flooding (0->1000)",
+							   0,
+							   1000,
+							   0,
+							   G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
+	g_object_class_install_property (object_class,
+					 PROP_CACHE_TIMEOUT,
+					 g_param_spec_int ("cache-timeout",
+							   "Scan Timeout",
+							   "Time in seconds for events to be cached (0->1000)",
+							   0,
+							   1000,
+							   60,
+							   G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
 
 	g_type_class_add_private (object_class, sizeof (TrackerMonitorPrivate));
 }
@@ -348,6 +370,14 @@ tracker_monitor_set_property (GObject	   *object,
 		tracker_monitor_set_enabled (TRACKER_MONITOR (object),
 					     g_value_get_boolean (value));
 		break;
+	case PROP_SCAN_TIMEOUT:
+		tracker_monitor_set_scan_timeout (TRACKER_MONITOR (object),
+						  g_value_get_int (value));
+		break;
+	case PROP_CACHE_TIMEOUT:
+		tracker_monitor_set_cache_timeout (TRACKER_MONITOR (object),
+						   g_value_get_int (value));
+		break;
 
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -367,6 +397,12 @@ tracker_monitor_get_property (GObject	   *object,
 	switch (prop_id) {
 	case PROP_ENABLED:
 		g_value_set_boolean (value, priv->enabled);
+		break;
+	case PROP_SCAN_TIMEOUT:
+		g_value_set_int (value, priv->scan_timeout);
+		break;
+	case PROP_CACHE_TIMEOUT:
+		g_value_set_int (value, priv->cache_timeout);
 		break;
 
 	default:
@@ -703,8 +739,6 @@ libinotify_cached_events_timeout_cb (gpointer data)
 		EventData   *event;
 		glong	     last_event_seconds;
 		glong        start_event_seconds;
-		gint         cache_timeout;
-		gint         scan_timeout;
 		gboolean     is_directory;
 		gboolean     force_emit = FALSE;
 		gboolean     timed_out = FALSE;
@@ -730,14 +764,12 @@ libinotify_cached_events_timeout_cb (gpointer data)
 		 * the indexer of events for files which are ALWAYS
 		 * changing.
 		 */
-		cache_timeout = tracker_module_config_get_cache_timeout ("files");
-		scan_timeout = tracker_module_config_get_scan_timeout ("files");
-
-		if (cache_timeout > 0) {
-			force_emit = start_event_seconds > cache_timeout;
+		if (monitor->private->cache_timeout > 0) {
+			force_emit = start_event_seconds > monitor->private->cache_timeout;
 		}
 
-		timed_out = last_event_seconds >= MAX (CACHE_LIFETIME_SECONDS, scan_timeout);
+		timed_out = last_event_seconds >= MAX (CACHE_LIFETIME_SECONDS, 
+						       monitor->private->scan_timeout);
 
 		/* Make sure the item is in the cache for at least 2
 		 * seconds OR the time as stated by the module config
@@ -1199,6 +1231,30 @@ tracker_monitor_get_enabled (TrackerMonitor *monitor)
 	return monitor->private->enabled;
 }
 
+gint
+tracker_monitor_get_scan_timeout (TrackerMonitor *monitor)
+{
+	TrackerMonitorPrivate *priv;
+
+	g_return_val_if_fail (TRACKER_IS_MONITOR (monitor), 0);
+
+	priv = TRACKER_MONITOR_GET_PRIVATE (monitor);
+
+	return priv->scan_timeout;
+}
+
+gint
+tracker_monitor_get_cache_timeout (TrackerMonitor *monitor)
+{
+	TrackerMonitorPrivate *priv;
+
+	g_return_val_if_fail (TRACKER_IS_MONITOR (monitor), 60);
+
+	priv = TRACKER_MONITOR_GET_PRIVATE (monitor);
+
+	return priv->cache_timeout;
+}
+
 void
 tracker_monitor_set_enabled (TrackerMonitor *monitor,
 			     gboolean	     enabled)
@@ -1208,6 +1264,42 @@ tracker_monitor_set_enabled (TrackerMonitor *monitor,
 	monitor->private->enabled = enabled;
 
 	g_object_notify (G_OBJECT (monitor), "enabled");
+}
+
+void
+tracker_monitor_set_scan_timeout (TrackerMonitor *monitor,
+				  gint            value)
+{
+	TrackerMonitorPrivate *priv;
+
+	g_return_if_fail (TRACKER_IS_MONITOR (monitor));
+
+	if (!tracker_keyfile_object_validate_int (monitor, "scan-timeout", value)) {
+		return;
+	}
+
+	priv = TRACKER_MONITOR_GET_PRIVATE (monitor);
+
+	priv->scan_timeout = value;
+	g_object_notify (G_OBJECT (monitor), "scan-timeout");
+}
+
+void
+tracker_monitor_set_cache_timeout (TrackerMonitor *monitor,
+				   gint            value)
+{
+	TrackerMonitorPrivate *priv;
+
+	g_return_if_fail (TRACKER_IS_MONITOR (monitor));
+
+	if (!tracker_keyfile_object_validate_int (monitor, "cache-timeout", value)) {
+		return;
+	}
+
+	priv = TRACKER_MONITOR_GET_PRIVATE (monitor);
+
+	priv->cache_timeout = value;
+	g_object_notify (G_OBJECT (monitor), "cache-timeout");
 }
 
 gboolean

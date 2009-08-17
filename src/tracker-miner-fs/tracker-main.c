@@ -38,7 +38,6 @@
 #include <libtracker-common/tracker-ioprio.h>
 #include <libtracker-common/tracker-log.h>
 #include <libtracker-common/tracker-ontology.h>
-#include <libtracker-common/tracker-module-config.h>
 #include <libtracker-common/tracker-file-utils.h>
 #include <libtracker-common/tracker-thumbnailer.h>
 #include <libtracker-common/tracker-storage.h>
@@ -297,8 +296,6 @@ main (gint argc, gchar *argv[])
 
 	sanity_check_option_values (config);
 
-	tracker_module_config_init ();
-
 	/* Set IO priority */
 	tracker_ioprio_init ();
 
@@ -375,7 +372,6 @@ main (gint argc, gchar *argv[])
         tracker_albumart_shutdown ();
 	tracker_thumbnailer_shutdown ();
 	tracker_dbus_shutdown ();
-	tracker_module_config_shutdown ();
 	tracker_log_shutdown ();
 
 	g_print ("\nOK\n\n");

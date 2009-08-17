@@ -63,8 +63,8 @@ typedef struct {
 	GSList   *monitor_directories;
 	GSList   *monitor_directories_ignored;
 	GSList   *monitor_recurse_directories;
-	guint     scan_timeout;
-	guint     cache_timeout;
+	gint      scan_timeout;
+	gint      cache_timeout;
 
 	/* To be removed */
  	GSList	 *watch_directory_roots;
@@ -1151,7 +1151,6 @@ tracker_config_set_cache_timeout (TrackerConfig *config,
 	priv->cache_timeout = value;
 	g_object_notify (G_OBJECT (config), "cache-timeout");
 }
-
 
 void	       
 tracker_config_set_monitor_directories (TrackerConfig *config,

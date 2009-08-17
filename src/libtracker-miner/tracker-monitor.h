@@ -46,23 +46,31 @@ struct TrackerMonitorClass {
 	GObjectClass parent;
 };
 
-GType		tracker_monitor_get_type	     (void);
-TrackerMonitor *tracker_monitor_new		     (void);
-gboolean	tracker_monitor_get_enabled	     (TrackerMonitor *monitor);
-void		tracker_monitor_set_enabled	     (TrackerMonitor *monitor,
-						      gboolean	      enabled);
-gboolean	tracker_monitor_add		     (TrackerMonitor *monitor,
-						      GFile	     *file);
+GType           tracker_monitor_get_type             (void);
+TrackerMonitor *tracker_monitor_new                  (void);
+
+gboolean        tracker_monitor_get_enabled          (TrackerMonitor *monitor);
+gint            tracker_monitor_get_scan_timeout     (TrackerMonitor *monitor);
+gint            tracker_monitor_get_cache_timeout    (TrackerMonitor *monitor);
+
+void            tracker_monitor_set_enabled          (TrackerMonitor *monitor,
+						      gboolean        enabled);
+void            tracker_monitor_set_scan_timeout     (TrackerMonitor *monitor,
+						      gint            value);
+void            tracker_monitor_set_cache_timeout    (TrackerMonitor *monitor,
+						      gint            value);
+gboolean        tracker_monitor_add                  (TrackerMonitor *monitor,
+						      GFile          *file);
 gboolean        tracker_monitor_remove               (TrackerMonitor *monitor,
 						      GFile          *file);
 gboolean        tracker_monitor_remove_recursively   (TrackerMonitor *monitor,
-						      GFile	     *file);
-gboolean	tracker_monitor_is_watched	     (TrackerMonitor *monitor,
-						      GFile	     *file);
-gboolean	tracker_monitor_is_watched_by_string (TrackerMonitor *monitor,
+						      GFile          *file);
+gboolean        tracker_monitor_is_watched           (TrackerMonitor *monitor,
+						      GFile          *file);
+gboolean        tracker_monitor_is_watched_by_string (TrackerMonitor *monitor,
 						      const gchar    *path);
-guint		tracker_monitor_get_count	     (TrackerMonitor *monitor);
-guint		tracker_monitor_get_ignored	     (TrackerMonitor *monitor);
+guint           tracker_monitor_get_count            (TrackerMonitor *monitor);
+guint           tracker_monitor_get_ignored          (TrackerMonitor *monitor);
 
 G_END_DECLS
 
