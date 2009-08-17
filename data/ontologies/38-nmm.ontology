@@ -18,7 +18,7 @@ nmm:MusicPiece a rdfs:Class ;
 	rdfs:subClassOf nfo:Media .
 
 nmm:SynchronizedText a rdfs:Class ;
-	rdfs:label "Synchronized text" ;
+	rdfs:label "Synchronized text (use nie:language to set the language)" ;
 	rdfs:subClassOf nfo:PlainTextDocument .
 
 nmm:MusicAlbum a rdfs:Class ;
@@ -69,7 +69,7 @@ nmm:performer a rdf:Property ;
 
 nmm:length a rdf:Property ;
 	rdfs:label "Length" ;
-	rdfs:comment "Length or duration" ;
+	rdfs:comment "Length or duration (in seconds)" ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmm:MusicPiece ;
 	rdfs:range xsd:integer .
@@ -99,7 +99,7 @@ nmm:trackNumber a rdf:Property ;
 
 nfo:isContentEncrypted a rdf:Property ;
 	rdfs:label "Is content encrypted" ;
-	rdfs:comment "Might change" ;
+	rdfs:comment "Might change (IE of DataObject property?)" ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nie:InformationElement ;
 	rdfs:range xsd:boolean .
@@ -136,7 +136,7 @@ nmm:albumTrackCount a rdf:Property ;
 
 nmm:albumTitle a rdf:Property ;
 	rdfs:label "Title" ;
-	rdfs:comment "The title of the document" ;
+	rdfs:comment "The title of the album" ;
 	rdfs:subPropertyOf nie:title ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmm:MusicAlbum ;
@@ -250,8 +250,13 @@ nmm:hasSubtitle a rdf:Property ;
 	rdfs:domain nmm:Video ;
 	rdfs:range xsd:boolean .
 
+nmm:subtitle a rdf:Property ;
+	rdfs:label "Subtitle file relevant for the video" ;
+	rdfs:domain nmm:Video ;
+	rdfs:range nmm:SynchronizedText .
+
 nmm:isContentEncrypted a rdf:Property ;
-	rdfs:label "Is content encrypted" ;
+	rdfs:label "Is content encrypted FIXME: defined already in IE in this ontology!" ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmm:Video ;
 	rdfs:range xsd:boolean .
