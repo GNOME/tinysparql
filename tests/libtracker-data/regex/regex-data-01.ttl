@@ -2,4 +2,4 @@
 @prefix ex: <http://example.com/#> .
 
 ex:foo rdf:value "abcDEFghiJKL" , "ABCdefGHIjkl", "0123456789",
-	<http://example.com/uri>, "http://example.com/literal" .
+	"http://example.com/literal" .
