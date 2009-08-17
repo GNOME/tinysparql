@@ -22,19 +22,25 @@
 
 #include <libtracker/tracker.h>
 
+#include "tracker-marshal.h"
 #include "tracker-miner.h"
 #include "tracker-miner-dbus.h"
 
 #define TRACKER_MINER_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_MINER, TrackerMinerPrivate))
 
 struct TrackerMinerPrivate {
-	gchar *name;
 	TrackerClient *client;
+
+	gchar *name;
+	gchar *status;
+	gdouble progress;
 };
 
 enum {
 	PROP_0,
-	PROP_NAME
+	PROP_NAME,
+	PROP_STATUS,
+	PROP_PROGRESS
 };
 
 enum {
@@ -43,6 +49,7 @@ enum {
 	PAUSED,
 	RESUMED,
 	TERMINATED,
+	PROGRESS,
 	LAST_SIGNAL
 };
 
@@ -112,14 +119,40 @@ tracker_miner_class_init (TrackerMinerClass *klass)
 			      NULL, NULL,
 			      g_cclosure_marshal_VOID__VOID,
 			      G_TYPE_NONE, 0);
+	signals[PROGRESS] =
+		g_signal_new ("progress",
+			      G_OBJECT_CLASS_TYPE (object_class),
+			      G_SIGNAL_RUN_LAST,
+			      G_STRUCT_OFFSET (TrackerMinerClass, terminated),
+			      NULL, NULL,
+			      tracker_marshal_VOID__STRING_DOUBLE,
+			      G_TYPE_NONE, 2,
+			      G_TYPE_STRING,
+			      G_TYPE_DOUBLE);
 
 	g_object_class_install_property (object_class,
 					 PROP_NAME,
 					 g_param_spec_string ("name",
-							      "Miner name",
-							      "Miner name",
+							      "Mame",
+							      "Name",
 							      NULL,
 							      G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY));
+	g_object_class_install_property (object_class,
+					 PROP_STATUS,
+					 g_param_spec_string ("status",
+							      "Status",
+							      "Status (unique to each miner)",
+							      NULL,
+							      G_PARAM_READWRITE));
+	g_object_class_install_property (object_class,
+					 PROP_PROGRESS,
+					 g_param_spec_double ("progress",
+							      "Progress",
+							      "Progress (between 0 and 1)",
+							      0.0, 
+							      1.0,
+							      0.0,
+							      G_PARAM_READWRITE));
 
 	g_type_class_add_private (object_class, sizeof (TrackerMinerPrivate));
 }
@@ -147,6 +180,14 @@ miner_set_property (GObject      *object,
 		g_free (miner->private->name);
 		miner->private->name = g_value_dup_string (value);
 		break;
+	case PROP_STATUS:
+		g_free (miner->private->status);
+		miner->private->status = g_value_dup_string (value);
+		break;
+	case PROP_PROGRESS:
+		miner->private->progress = g_value_get_double (value);
+		/* Do we signal here? */
+		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
 		break;
@@ -164,6 +205,12 @@ miner_get_property (GObject    *object,
 	switch (prop_id) {
 	case PROP_NAME:
 		g_value_set_string (value, miner->private->name);
+		break;
+	case PROP_STATUS:
+		g_value_set_string (value, miner->private->status);
+		break;
+	case PROP_PROGRESS:
+		g_value_set_double (value, miner->private->progress);
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -187,6 +234,7 @@ static gboolean
 terminate_miner_cb (TrackerMiner *miner)
 {
 	g_signal_emit (miner, signals[TERMINATED], 0);
+
 	return TRUE;
 }
 
@@ -220,6 +268,22 @@ tracker_miner_start (TrackerMiner *miner)
 	g_return_if_fail (TRACKER_IS_MINER (miner));
 
 	g_signal_emit (miner, signals[STARTED], 0);
+}
+
+gchar *
+tracker_miner_get_status (TrackerMiner *miner)
+{
+	g_return_val_if_fail (TRACKER_IS_MINER (miner), NULL);
+
+	return g_strdup ("Idle");
+}
+
+gdouble
+tracker_miner_get_progress (TrackerMiner *miner)
+{
+	g_return_val_if_fail (TRACKER_IS_MINER (miner), 0.0);
+
+	return 0.0;
 }
 
 /* DBus methods */

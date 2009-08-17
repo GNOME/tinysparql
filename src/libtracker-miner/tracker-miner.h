@@ -45,21 +45,27 @@ struct TrackerMinerClass {
         GObjectClass parent_class;
 
         /* signals */
-        void (* started) (TrackerMiner *miner);
-        void (* stopped) (TrackerMiner *miner);
+        void (* started)    (TrackerMiner *miner);
+        void (* stopped)    (TrackerMiner *miner);
 
-        void (* paused)  (TrackerMiner *miner);
-        void (* resumed) (TrackerMiner *miner);
+        void (* paused)     (TrackerMiner *miner);
+        void (* resumed)    (TrackerMiner *miner);
 
 	void (* terminated) (TrackerMiner *miner);
+
+	void (* progress)   (TrackerMiner *miner,
+			     const gchar  *status,
+			     gdouble       progress);
 };
 
 
-GType    tracker_miner_get_type    (void) G_GNUC_CONST;
+GType                 tracker_miner_get_type (void) G_GNUC_CONST;
 
-G_CONST_RETURN gchar *tracker_miner_get_name (TrackerMiner           *miner);
-void                  tracker_miner_start    (TrackerMiner           *miner);
+void                  tracker_miner_start        (TrackerMiner           *miner);
 
+G_CONST_RETURN gchar *tracker_miner_get_name     (TrackerMiner           *miner);
+gchar                *tracker_miner_get_status   (TrackerMiner           *miner);
+gdouble               tracker_miner_get_progress (TrackerMiner           *miner);
 
 G_END_DECLS
 
