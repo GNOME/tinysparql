@@ -74,7 +74,6 @@
 #include "tracker-indexer.h"
 #include "tracker-indexer-module.h"
 #include "tracker-marshal.h"
-#include "tracker-processor.h"
 #include "tracker-removable-device.h"
 #include "tracker-status.h"
 #include "tracker-utils.h"
@@ -128,8 +127,6 @@ struct TrackerIndexerPrivate {
 
 	TrackerPower   *power;
 	TrackerStorage *storage;
-
-	TrackerProcessor *processor;
 
 	TrackerClient *client;
 
@@ -577,10 +574,6 @@ tracker_indexer_finalize (GObject *object)
 	g_object_unref (priv->storage);
 #endif /* HAVE_HAL */
 
-	if (priv->processor) {
-		g_object_unref (priv->processor);
-	}
-
 	if (priv->client) {
 		tracker_disconnect (priv->client);
 	}
@@ -838,11 +831,6 @@ indexer_constructed (GObject *object)
 	 */
 	tracker_status_set_and_signal (TRACKER_STATUS_IDLE);
 
-	indexer->private->processor = 
-		tracker_processor_new (indexer->private->config, 
-				       indexer->private->storage, 
-				       indexer);
-
 	indexer_load_modules (indexer);
 
 	/* Set up idle handler to process files/directories */
@@ -1013,9 +1001,9 @@ start_cb (gpointer user_data)
 
 	indexer = TRACKER_INDEXER (user_data);
 
-	if (indexer->private->processor) {
-		tracker_processor_start (indexer->private->processor);
-	}
+#ifdef FIX
+	/* Start processor here */
+#endif
 
 	return FALSE;
 }

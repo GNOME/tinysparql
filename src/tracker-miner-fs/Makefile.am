@@ -45,8 +45,6 @@ tracker_miner_fs_SOURCES =						\
 	tracker-albumart.h						\
 	tracker-config.c						\
 	tracker-config.h						\
-	tracker-crawler.c						\
-	tracker-crawler.h						\
 	tracker-dbus.h							\
 	tracker-indexer.c						\
 	tracker-indexer.h						\
@@ -56,10 +54,6 @@ tracker_miner_fs_SOURCES =						\
 	tracker-marshal-main.c						\
 	tracker-miner.c							\
 	tracker-miner.h							\
-	tracker-monitor.c						\
-	tracker-monitor.h						\
-	tracker-processor.c						\
-	tracker-processor.h						\
 	tracker-status.c						\
 	tracker-status.h						\
 	tracker-removable-device.c					\
