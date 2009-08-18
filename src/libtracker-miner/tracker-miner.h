@@ -22,6 +22,7 @@
 #define __TRACKER_MINER_H__
 
 #include <glib-object.h>
+#include <libtracker/tracker.h>
 
 G_BEGIN_DECLS
 
@@ -70,6 +71,7 @@ G_CONST_RETURN gchar *tracker_miner_get_name     (TrackerMiner           *miner)
 gchar                *tracker_miner_get_status   (TrackerMiner           *miner);
 gdouble               tracker_miner_get_progress (TrackerMiner           *miner);
 
+TrackerClient        *tracker_miner_get_client     (TrackerMiner         *miner);
 gboolean              tracker_miner_execute_sparql (TrackerMiner         *miner,
 						    const gchar          *sparql,
 						    GError              **error);

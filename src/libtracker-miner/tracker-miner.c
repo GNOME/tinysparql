@@ -20,8 +20,6 @@
 
 #include "config.h"
 
-#include <libtracker/tracker.h>
-
 #include "tracker-marshal.h"
 #include "tracker-miner.h"
 #include "tracker-miner-dbus.h"
@@ -496,6 +494,14 @@ tracker_miner_resume (TrackerMiner           *miner,
 		      GError                **error)
 {
 	g_return_if_fail (TRACKER_IS_MINER (miner));
+}
+
+TrackerClient *
+tracker_miner_get_client (TrackerMiner *miner)
+{
+	g_return_val_if_fail (TRACKER_IS_MINER (miner), NULL);
+
+	return miner->private->client;
 }
 
 gboolean
