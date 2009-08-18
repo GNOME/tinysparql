@@ -31,44 +31,50 @@
 #include <libtracker-data/tracker-data-query.h>
 #include <libtracker-data/tracker-data-update.h>
 #include <libtracker-data/tracker-turtle.h>
+#include <libtracker-common/tracker-ontology.h>
 
 typedef struct _TestInfo TestInfo;
 
 struct _TestInfo {
 	const gchar *test_name;
 	const gchar *data;
-	const gboolean expect_error;
+	const gchar *error_needle;
 };
 
 const TestInfo tests[] = {
-	{ "algebra/two-nested-opt", "algebra/two-nested-opt", FALSE },
-	{ "algebra/two-nested-opt-alt", "algebra/two-nested-opt", FALSE },
-	{ "algebra/opt-filter-3", "algebra/opt-filter-3", FALSE },
-	{ "algebra/filter-placement-1", "algebra/data-2", FALSE },
-	{ "algebra/filter-placement-2", "algebra/data-2", FALSE },
-	{ "algebra/filter-placement-3", "algebra/data-2", FALSE },
-	{ "algebra/filter-nested-1", "algebra/data-1", FALSE },
-	{ "algebra/filter-nested-2", "algebra/data-1", FALSE },
-	{ "algebra/filter-scope-1", "algebra/data-2", FALSE },
-	{ "algebra/var-scope-join-1", "algebra/var-scope-join-1", FALSE },
-	{ "bnode-coreference/query", "bnode-coreference/data", FALSE },
-	{ "bound/bound1", "bound/data", FALSE },
-	{ "expr-ops/query-ge-1", "expr-ops/data", FALSE },
-	{ "expr-ops/query-le-1", "expr-ops/data", FALSE },
-	{ "expr-ops/query-minus-1", "expr-ops/data", FALSE },
-	{ "expr-ops/query-mul-1", "expr-ops/data", FALSE },
-	{ "expr-ops/query-plus-1", "expr-ops/data", FALSE },
-	{ "expr-ops/query-unminus-1", "expr-ops/data", FALSE },
-	{ "expr-ops/query-unplus-1", "expr-ops/data", FALSE },
-	{ "optional/q-opt-complex-1", "optional/complex-data-1", FALSE },
-	{ "regex/regex-query-001", "regex/regex-data-01", FALSE },
-	{ "regex/regex-query-002", "regex/regex-data-01", FALSE },
-	{ "sort/query-sort-1", "sort/data-sort-1", FALSE },
-	{ "sort/query-sort-2", "sort/data-sort-1", FALSE },
-	{ "sort/query-sort-3", "sort/data-sort-3", FALSE },
-	{ "sort/query-sort-4", "sort/data-sort-4", FALSE },
-	{ "sort/query-sort-5", "sort/data-sort-4", FALSE },
-	{ "error/query-error-1", "error/data-error-1", TRUE },
+	{ "algebra/two-nested-opt", "algebra/two-nested-opt", NULL },
+	{ "algebra/two-nested-opt-alt", "algebra/two-nested-opt", NULL },
+	{ "algebra/opt-filter-3", "algebra/opt-filter-3", NULL },
+	{ "algebra/filter-placement-1", "algebra/data-2", NULL },
+	{ "algebra/filter-placement-2", "algebra/data-2", NULL },
+	{ "algebra/filter-placement-3", "algebra/data-2", NULL },
+	{ "algebra/filter-nested-1", "algebra/data-1", NULL },
+	{ "algebra/filter-nested-2", "algebra/data-1", NULL },
+	{ "algebra/filter-scope-1", "algebra/data-2", NULL },
+	{ "algebra/var-scope-join-1", "algebra/var-scope-join-1", NULL },
+	{ "bnode-coreference/query", "bnode-coreference/data", NULL },
+	{ "bound/bound1", "bound/data", NULL },
+	{ "expr-ops/query-ge-1", "expr-ops/data", NULL },
+	{ "expr-ops/query-le-1", "expr-ops/data", NULL },
+	{ "expr-ops/query-minus-1", "expr-ops/data", NULL },
+	{ "expr-ops/query-mul-1", "expr-ops/data", NULL },
+	{ "expr-ops/query-plus-1", "expr-ops/data", NULL },
+	{ "expr-ops/query-unminus-1", "expr-ops/data", NULL },
+	{ "expr-ops/query-unplus-1", "expr-ops/data", NULL },
+	{ "optional/q-opt-complex-1", "optional/complex-data-1", NULL },
+	{ "regex/regex-query-001", "regex/regex-data-01", NULL },
+	{ "regex/regex-query-002", "regex/regex-data-01", NULL },
+	{ "sort/query-sort-1", "sort/data-sort-1", NULL },
+	{ "sort/query-sort-2", "sort/data-sort-1", NULL },
+	{ "sort/query-sort-3", "sort/data-sort-3", NULL },
+	{ "sort/query-sort-4", "sort/data-sort-4", NULL },
+	{ "sort/query-sort-5", "sort/data-sort-4", NULL },
+
+	/* Bracket error after WHERE */
+	{ "error/query-error-1", "error/query-error-1", "nknown token" }, 
+
+	/* Unknown property */
+	{ "error/query-error-2", "error/query-error-2", "nknown property `" TRACKER_RDF_PREFIX "nonexisting'" },
 	{ NULL }
 };
 
@@ -134,8 +140,9 @@ test_sparql_query (gconstpointer test_data)
 		/* perform actual query */
 
 		result_set = tracker_data_query_sparql (query, &error);
-		if (test_info->expect_error) {
+		if (test_info->error_needle) {
 			g_assert (error != NULL);
+			g_assert (strstr (error->message, test_info->error_needle) != NULL);
 		} else {
 			g_assert (error == NULL);
 		}
