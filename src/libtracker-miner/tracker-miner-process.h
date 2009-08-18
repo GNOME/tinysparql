@@ -23,6 +23,7 @@
 
 #include <glib-object.h>
 #include <gio/gio.h>
+#include <libtracker-common/tracker-sparql-builder.h>
 
 #include "tracker-miner.h"
 
@@ -34,6 +35,7 @@ G_BEGIN_DECLS
 #define TRACKER_IS_PROCESS(o)              (G_TYPE_CHECK_INSTANCE_TYPE ((o), TRACKER_TYPE_MINER_PROCESS))
 #define TRACKER_IS_PROCESS_CLASS(c)        (G_TYPE_CHECK_CLASS_TYPE ((c),  TRACKER_TYPE_MINER_PROCESS))
 #define TRACKER_MINER_PROCESS_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o), TRACKER_TYPE_MINER_PROCESS, TrackerMinerProcessClass))
+
 typedef struct TrackerMinerProcess        TrackerMinerProcess;
 typedef struct TrackerMinerProcessClass   TrackerMinerProcessClass;
 typedef struct TrackerMinerProcessPrivate TrackerMinerProcessPrivate;
@@ -47,14 +49,15 @@ struct TrackerMinerProcessClass {
 	TrackerMinerClass parent;
 
 	gboolean (* check_file)           (TrackerMinerProcess *process,
-					   GFile            *file);
+					   GFile               *file);
 	gboolean (* check_directory)      (TrackerMinerProcess *process,
-					   GFile            *file);
-	void     (* process_file)         (TrackerMinerProcess *process,
-					   GFile            *file);
+					   GFile               *file);
+	gboolean (* process_file)         (TrackerMinerProcess  *process,
+					   GFile                *file,
+					   TrackerSparqlBuilder *builder);
 	gboolean (* monitor_directory)    (TrackerMinerProcess *process,
-					   GFile            *file);
-	
+					   GFile               *file);
+
 	void     (* finished)             (TrackerMinerProcess *process);
 };
 

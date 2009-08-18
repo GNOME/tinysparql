@@ -172,8 +172,8 @@ tracker_miner_process_class_init (TrackerMinerProcessClass *klass)
 			      G_SIGNAL_RUN_LAST,
 			      G_STRUCT_OFFSET (TrackerMinerProcessClass, process_file),
 			      NULL, NULL,
-			      g_cclosure_marshal_VOID__OBJECT,
-			      G_TYPE_NONE, 1, G_TYPE_FILE);
+			      tracker_marshal_BOOLEAN__OBJECT_OBJECT,
+			      G_TYPE_BOOLEAN, 2, G_TYPE_FILE, TRACKER_TYPE_SPARQL_BUILDER);
 	signals[MONITOR_DIRECTORY] =
 		g_signal_new ("monitor-directory",
 			      G_OBJECT_CLASS_TYPE (object_class),
@@ -390,15 +390,18 @@ directory_data_free (DirectoryData *dd)
 static gboolean
 item_queue_handlers_cb (gpointer user_data)
 {
+	TrackerSparqlBuilder *sparql;
 	TrackerMinerProcess *process;
+	gboolean processed;
 	GFile *file;
 
 	process = user_data;
+	sparql = tracker_sparql_builder_new_update ();
 
 	/* Deleted items first */
 	file = g_queue_pop_head (process->private->items_deleted);
 	if (file) {
-		g_signal_emit (process, signals[PROCESS_FILE], 0, file);
+		g_signal_emit (process, signals[PROCESS_FILE], 0, file, sparql, &processed);
 		g_object_unref (file);
 	
 		return TRUE;
@@ -407,7 +410,7 @@ item_queue_handlers_cb (gpointer user_data)
 	/* Created items next */
 	file = g_queue_pop_head (process->private->items_created);
 	if (file) {
-		g_signal_emit (process, signals[PROCESS_FILE], 0, file);
+		g_signal_emit (process, signals[PROCESS_FILE], 0, file, sparql, &processed);
 		g_object_unref (file);
 	
 		return TRUE;
@@ -416,7 +419,7 @@ item_queue_handlers_cb (gpointer user_data)
 	/* Updated items next */
 	file = g_queue_pop_head (process->private->items_updated);
 	if (file) {
-		g_signal_emit (process, signals[PROCESS_FILE], 0, file);
+		g_signal_emit (process, signals[PROCESS_FILE], 0, file, sparql, &processed);
 		g_object_unref (file);
 	
 		return TRUE;
@@ -425,7 +428,7 @@ item_queue_handlers_cb (gpointer user_data)
 	/* Moved items next */
 	file = g_queue_pop_head (process->private->items_moved);
 	if (file) {
-		g_signal_emit (process, signals[PROCESS_FILE], 0, file);
+		g_signal_emit (process, signals[PROCESS_FILE], 0, file, sparql, &processed);
 		g_object_unref (file);
 	
 		return TRUE;
