@@ -76,9 +76,19 @@ turtle_load_ontology (void                   *user_data,
                         return;
                 }
 
+                /* Check the class hasn't already be defined
+                 *  (ignoring rdfs:Class and rdf:Property for bootstraping reasons)
+                 */
+                if (exists_or_already_reported (turtle_subject)
+                    && g_strcmp0 (turtle_subject, RDFS_CLASS)
+                    && g_strcmp0 (turtle_subject, RDF_PROPERTY)) {
+                        g_error ("%s is already defined", turtle_subject);
+                        return;
+                }
+
                 /* Check the class is already defined */
                 if (!exists_or_already_reported (turtle_object)) {
-                        g_error ("Class %s is subclass of %s but %s is not defined",
+                        g_error ("%s is a %s but %s is not defined",
                                  turtle_subject, turtle_object, turtle_object);
                 } else {
                         known_items = g_list_prepend (known_items, turtle_subject);
