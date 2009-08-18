@@ -884,10 +884,13 @@ public class Tracker.SparqlQuery : Object {
 			result = parse_string_literal ();
 		} else if (current () == SparqlTokenType.INTEGER) {
 			next ();
+			result = get_last_string ();
 		} else if (current () == SparqlTokenType.DECIMAL) {
 			next ();
+			result = get_last_string ();
 		} else if (current () == SparqlTokenType.DOUBLE) {
 			next ();
+			result = get_last_string ();
 		} else if (current () == SparqlTokenType.TRUE) {
 			next ();
 			result = "true";
