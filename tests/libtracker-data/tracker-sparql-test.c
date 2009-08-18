@@ -37,36 +37,38 @@ typedef struct _TestInfo TestInfo;
 struct _TestInfo {
 	const gchar *test_name;
 	const gchar *data;
+	const gboolean expect_error;
 };
 
 const TestInfo tests[] = {
-	{ "algebra/two-nested-opt", "algebra/two-nested-opt" },
-	{ "algebra/two-nested-opt-alt", "algebra/two-nested-opt" },
-	{ "algebra/opt-filter-3", "algebra/opt-filter-3" },
-	{ "algebra/filter-placement-1", "algebra/data-2" },
-	{ "algebra/filter-placement-2", "algebra/data-2" },
-	{ "algebra/filter-placement-3", "algebra/data-2" },
-	{ "algebra/filter-nested-1", "algebra/data-1" },
-	{ "algebra/filter-nested-2", "algebra/data-1" },
-	{ "algebra/filter-scope-1", "algebra/data-2" },
-	{ "algebra/var-scope-join-1", "algebra/var-scope-join-1" },
-	{ "bnode-coreference/query", "bnode-coreference/data" },
-	{ "bound/bound1", "bound/data" },
-	{ "expr-ops/query-ge-1", "expr-ops/data" },
-	{ "expr-ops/query-le-1", "expr-ops/data" },
-	{ "expr-ops/query-minus-1", "expr-ops/data" },
-	{ "expr-ops/query-mul-1", "expr-ops/data" },
-	{ "expr-ops/query-plus-1", "expr-ops/data" },
-	{ "expr-ops/query-unminus-1", "expr-ops/data" },
-	{ "expr-ops/query-unplus-1", "expr-ops/data" },
-	{ "optional/q-opt-complex-1", "optional/complex-data-1" },
-	{ "regex/regex-query-001", "regex/regex-data-01" },
-	{ "regex/regex-query-002", "regex/regex-data-01" },
-	{ "sort/query-sort-1", "sort/data-sort-1" },
-	{ "sort/query-sort-2", "sort/data-sort-1" },
-	{ "sort/query-sort-3", "sort/data-sort-3" },
-	{ "sort/query-sort-4", "sort/data-sort-4" },
-	{ "sort/query-sort-5", "sort/data-sort-4" },
+	{ "algebra/two-nested-opt", "algebra/two-nested-opt", FALSE },
+	{ "algebra/two-nested-opt-alt", "algebra/two-nested-opt", FALSE },
+	{ "algebra/opt-filter-3", "algebra/opt-filter-3", FALSE },
+	{ "algebra/filter-placement-1", "algebra/data-2", FALSE },
+	{ "algebra/filter-placement-2", "algebra/data-2", FALSE },
+	{ "algebra/filter-placement-3", "algebra/data-2", FALSE },
+	{ "algebra/filter-nested-1", "algebra/data-1", FALSE },
+	{ "algebra/filter-nested-2", "algebra/data-1", FALSE },
+	{ "algebra/filter-scope-1", "algebra/data-2", FALSE },
+	{ "algebra/var-scope-join-1", "algebra/var-scope-join-1", FALSE },
+	{ "bnode-coreference/query", "bnode-coreference/data", FALSE },
+	{ "bound/bound1", "bound/data", FALSE },
+	{ "expr-ops/query-ge-1", "expr-ops/data", FALSE },
+	{ "expr-ops/query-le-1", "expr-ops/data", FALSE },
+	{ "expr-ops/query-minus-1", "expr-ops/data", FALSE },
+	{ "expr-ops/query-mul-1", "expr-ops/data", FALSE },
+	{ "expr-ops/query-plus-1", "expr-ops/data", FALSE },
+	{ "expr-ops/query-unminus-1", "expr-ops/data", FALSE },
+	{ "expr-ops/query-unplus-1", "expr-ops/data", FALSE },
+	{ "optional/q-opt-complex-1", "optional/complex-data-1", FALSE },
+	{ "regex/regex-query-001", "regex/regex-data-01", FALSE },
+	{ "regex/regex-query-002", "regex/regex-data-01", FALSE },
+	{ "sort/query-sort-1", "sort/data-sort-1", FALSE },
+	{ "sort/query-sort-2", "sort/data-sort-1", FALSE },
+	{ "sort/query-sort-3", "sort/data-sort-3", FALSE },
+	{ "sort/query-sort-4", "sort/data-sort-4", FALSE },
+	{ "sort/query-sort-5", "sort/data-sort-4", FALSE },
+	{ "error/query-error-1", "error/data-error-1", TRUE },
 	{ NULL }
 };
 
@@ -132,7 +134,11 @@ test_sparql_query (gconstpointer test_data)
 		/* perform actual query */
 
 		result_set = tracker_data_query_sparql (query, &error);
-		g_assert (error == NULL);
+		if (test_info->expect_error) {
+			g_assert (error != NULL);
+		} else {
+			g_assert (error == NULL);
+		}
 
 		/* compare results with reference output */
 

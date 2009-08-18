@@ -7,9 +7,10 @@ SUBDIRS = 			\
 	expr-ops		\
 	nie			\
 	nmo			\
-	optional			\
+	optional		\
 	regex			\
-	sort
+	sort			\
+	error
 
 noinst_PROGRAMS = $(TEST_PROGS)
 
