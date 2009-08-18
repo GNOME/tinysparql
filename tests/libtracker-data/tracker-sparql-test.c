@@ -38,43 +38,43 @@ typedef struct _TestInfo TestInfo;
 struct _TestInfo {
 	const gchar *test_name;
 	const gchar *data;
-	const gchar *error_needle;
+	gboolean expect_error;
 };
 
 const TestInfo tests[] = {
-	{ "algebra/two-nested-opt", "algebra/two-nested-opt", NULL },
-	{ "algebra/two-nested-opt-alt", "algebra/two-nested-opt", NULL },
-	{ "algebra/opt-filter-3", "algebra/opt-filter-3", NULL },
-	{ "algebra/filter-placement-1", "algebra/data-2", NULL },
-	{ "algebra/filter-placement-2", "algebra/data-2", NULL },
-	{ "algebra/filter-placement-3", "algebra/data-2", NULL },
-	{ "algebra/filter-nested-1", "algebra/data-1", NULL },
-	{ "algebra/filter-nested-2", "algebra/data-1", NULL },
-	{ "algebra/filter-scope-1", "algebra/data-2", NULL },
-	{ "algebra/var-scope-join-1", "algebra/var-scope-join-1", NULL },
-	{ "bnode-coreference/query", "bnode-coreference/data", NULL },
-	{ "bound/bound1", "bound/data", NULL },
-	{ "expr-ops/query-ge-1", "expr-ops/data", NULL },
-	{ "expr-ops/query-le-1", "expr-ops/data", NULL },
-	{ "expr-ops/query-minus-1", "expr-ops/data", NULL },
-	{ "expr-ops/query-mul-1", "expr-ops/data", NULL },
-	{ "expr-ops/query-plus-1", "expr-ops/data", NULL },
-	{ "expr-ops/query-unminus-1", "expr-ops/data", NULL },
-	{ "expr-ops/query-unplus-1", "expr-ops/data", NULL },
-	{ "optional/q-opt-complex-1", "optional/complex-data-1", NULL },
-	{ "regex/regex-query-001", "regex/regex-data-01", NULL },
-	{ "regex/regex-query-002", "regex/regex-data-01", NULL },
-	{ "sort/query-sort-1", "sort/data-sort-1", NULL },
-	{ "sort/query-sort-2", "sort/data-sort-1", NULL },
-	{ "sort/query-sort-3", "sort/data-sort-3", NULL },
-	{ "sort/query-sort-4", "sort/data-sort-4", NULL },
-	{ "sort/query-sort-5", "sort/data-sort-4", NULL },
+	{ "algebra/two-nested-opt", "algebra/two-nested-opt", FALSE },
+	{ "algebra/two-nested-opt-alt", "algebra/two-nested-opt", FALSE },
+	{ "algebra/opt-filter-3", "algebra/opt-filter-3", FALSE },
+	{ "algebra/filter-placement-1", "algebra/data-2", FALSE },
+	{ "algebra/filter-placement-2", "algebra/data-2", FALSE },
+	{ "algebra/filter-placement-3", "algebra/data-2", FALSE },
+	{ "algebra/filter-nested-1", "algebra/data-1", FALSE },
+	{ "algebra/filter-nested-2", "algebra/data-1", FALSE },
+	{ "algebra/filter-scope-1", "algebra/data-2", FALSE },
+	{ "algebra/var-scope-join-1", "algebra/var-scope-join-1", FALSE },
+	{ "bnode-coreference/query", "bnode-coreference/data", FALSE },
+	{ "bound/bound1", "bound/data", FALSE },
+	{ "expr-ops/query-ge-1", "expr-ops/data", FALSE },
+	{ "expr-ops/query-le-1", "expr-ops/data", FALSE },
+	{ "expr-ops/query-minus-1", "expr-ops/data", FALSE },
+	{ "expr-ops/query-mul-1", "expr-ops/data", FALSE },
+	{ "expr-ops/query-plus-1", "expr-ops/data", FALSE },
+	{ "expr-ops/query-unminus-1", "expr-ops/data", FALSE },
+	{ "expr-ops/query-unplus-1", "expr-ops/data", FALSE },
+	{ "optional/q-opt-complex-1", "optional/complex-data-1", FALSE },
+	{ "regex/regex-query-001", "regex/regex-data-01", FALSE },
+	{ "regex/regex-query-002", "regex/regex-data-01", FALSE },
+	{ "sort/query-sort-1", "sort/data-sort-1", FALSE },
+	{ "sort/query-sort-2", "sort/data-sort-1", FALSE },
+	{ "sort/query-sort-3", "sort/data-sort-3", FALSE },
+	{ "sort/query-sort-4", "sort/data-sort-4", FALSE },
+	{ "sort/query-sort-5", "sort/data-sort-4", FALSE },
 
 	/* Bracket error after WHERE */
-	{ "error/query-error-1", "error/query-error-1", "nknown token" }, 
+	{ "error/query-error-1", "error/query-error-1", TRUE }, 
 
 	/* Unknown property */
-	{ "error/query-error-2", "error/query-error-2", "nknown property `" TRACKER_RDF_PREFIX "nonexisting'" },
+	{ "error/query-error-2", "error/query-error-2", TRUE },
 	{ NULL }
 };
 
@@ -87,6 +87,12 @@ consume_triple_storer (const gchar *subject,
 	tracker_data_insert_statement (subject, predicate, object, NULL);
 }
 
+static int
+strstr_i (const char *a, const char *b)
+{
+	return strstr (a, b) != NULL ? 1 : 0;
+}
+
 static void
 test_sparql_query (gconstpointer test_data)
 {
@@ -96,6 +102,7 @@ test_sparql_query (gconstpointer test_data)
 
 	/* fork as tracker-fts can only be initialized once per process (GType in loadable module) */
 	if (g_test_trap_fork (0, 0)) {
+		int (*comparer) (const char *a, const char *b);
 		TrackerDBResultSet *result_set;
 		GError *error;
 		GString *test_results;
@@ -140,10 +147,11 @@ test_sparql_query (gconstpointer test_data)
 		/* perform actual query */
 
 		result_set = tracker_data_query_sparql (query, &error);
-		if (test_info->error_needle) {
+		if (test_info->expect_error) {
+			comparer = strstr_i;
 			g_assert (error != NULL);
-			g_assert (strstr (error->message, test_info->error_needle) != NULL);
 		} else {
+			comparer = strcmp;
 			g_assert (error == NULL);
 		}
 
@@ -190,9 +198,12 @@ test_sparql_query (gconstpointer test_data)
 			}
 
 			g_object_unref (result_set);
+		} else if (test_info->expect_error) {
+			g_string_append (test_results, error->message);
+			g_clear_error (&error);
 		}
 
-		if (strcmp (results, test_results->str)) {
+		if (comparer (results, test_results->str)) {
 			/* print result difference */
 			gchar *quoted_results;
 			gchar *command_line;

@@ -1,0 +1,10 @@
+PREFIX  ex: <http://example.com/#>
+PREFIX  rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+SELECT ?val ?err_val
+WHERE {
+	ex:foo rdf:value ?val .
+	ex:foo rdf:nonexisting ?err_val .
+	FILTER regex(?val, "DeFghI", "i")
+}
+
