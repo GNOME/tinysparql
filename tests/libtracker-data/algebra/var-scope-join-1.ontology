@@ -20,9 +20,9 @@ example:phone a rdf:Property ;
 
 example:email a rdf:Property ;
 	rdfs:domain example:A ;
-	rdfs:range xsd:string .
+	rdfs:range rdfs:Resource .
 
 example:webPage a rdf:Property ;
 	rdfs:domain example:A ;
-	rdfs:range xsd:string .
+	rdfs:range rdfs:Resource .
 

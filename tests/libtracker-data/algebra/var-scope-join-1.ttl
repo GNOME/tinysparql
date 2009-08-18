@@ -1,9 +1,9 @@
 @prefix : <http://example/> .
 
-_:B1 a _:A .
-_:B2 a _:A .
-_:B3 a _:A .
-_:B4 a _:A .
+_:B1 a :A .
+_:B2 a :A .
+_:B3 a :A .
+_:B4 a :A .
 
 _:B1 :name "paul" .
 _:B1 :phone "777-3426". 
