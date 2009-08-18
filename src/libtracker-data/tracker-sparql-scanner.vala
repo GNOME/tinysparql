@@ -413,7 +413,7 @@ public class Tracker.SparqlScanner : Object {
 
 		if (current >= end) {
 			type = SparqlTokenType.EOF;
-		} else if (current[0].isalpha () /* || current[0] == ':' */ ) {
+		} else if (current[0].isalpha ()) {
 			// keyword or prefixed name
 			int len = 0;
 			while (current < end && is_pn_char (current[0])) {
@@ -674,6 +674,10 @@ public class Tracker.SparqlScanner : Object {
 					current += 2;
 				}
 				break;
+			case '_':
+				type = SparqlTokenType.BLANK_NODE;
+				current++;
+				break;
 			default:
 				unichar u = ((string) current).get_char_validated ((long) (end - current));
 				if (u != (unichar) (-1)) {
@@ -764,6 +768,7 @@ public enum Tracker.SparqlTokenType {
 	ASK,
 	AVG,
 	BASE,
+	BLANK_NODE,
 	BOUND,
 	BY,
 	CLOSE_BRACE,

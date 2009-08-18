@@ -298,6 +298,9 @@ public class Tracker.SparqlQuery : Object {
 		prefix_map = new HashTable<string,string>.full (str_hash, str_equal, g_free, g_free);
 		subgraph_var_set = new HashTable<string,bool>.full (str_hash, str_equal, g_free, null);
 
+		base_uuid = new uchar[16];
+		uuid_generate (base_uuid);
+
 		this.query_string = query;
 	}
 
@@ -874,6 +877,10 @@ public class Tracker.SparqlQuery : Object {
 			// prefixed name without namespace :bar
 			next ();
 			result = prefix_map.lookup ("") + get_last_string ().substring (1);
+		} else if (accept (SparqlTokenType.BLANK_NODE)) {
+			// _:foo
+			expect (SparqlTokenType.COLON);
+			result = generate_bnodeid (get_last_string ().substring (1));
 		} else if (current () == SparqlTokenType.STRING_LITERAL1) {
 			result = parse_string_literal ();
 		} else if (current () == SparqlTokenType.STRING_LITERAL2) {
