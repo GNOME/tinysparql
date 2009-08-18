@@ -70,6 +70,11 @@ G_CONST_RETURN gchar *tracker_miner_get_name     (TrackerMiner           *miner)
 gchar                *tracker_miner_get_status   (TrackerMiner           *miner);
 gdouble               tracker_miner_get_progress (TrackerMiner           *miner);
 
+gboolean              tracker_miner_execute_sparql (TrackerMiner         *miner,
+						    const gchar          *sparql,
+						    GError              **error);
+
+
 G_END_DECLS
 
 #endif /* __TRACKER_MINER_H__ */

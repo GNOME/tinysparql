@@ -497,3 +497,29 @@ tracker_miner_resume (TrackerMiner           *miner,
 {
 	g_return_if_fail (TRACKER_IS_MINER (miner));
 }
+
+gboolean
+tracker_miner_execute_sparql (TrackerMiner  *miner,
+			      const gchar   *sparql,
+			      GError       **error)
+{
+	GError *internal_error = NULL;
+
+	g_return_val_if_fail (TRACKER_IS_MINER (miner), FALSE);
+
+	tracker_resources_batch_sparql_update (miner->private->client,
+					       sparql, &internal_error);
+
+	if (!internal_error) {
+		return TRUE;
+	}
+
+	if (error) {
+		g_propagate_error (error, internal_error);
+	} else {
+		g_warning ("Error running sparql queries: %s\n", internal_error->message);
+		g_error_free (internal_error);
+	}
+
+	return FALSE;
+}
