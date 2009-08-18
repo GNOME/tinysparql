@@ -38,7 +38,7 @@ libtracker_moduleinclude_HEADERS =					\
 
 libtracker_module_la_LIBADD = $(GCOV_LIBS)
 
-libexec_PROGRAMS = tracker-miner-fs
+libexec_PROGRAMS = tracker-miner-fs tracker-miner-fs-new
 
 tracker_miner_fs_SOURCES =						\
 	tracker-albumart.c						\
@@ -70,6 +70,36 @@ tracker_miner_fs_LDADD =						\
 	$(top_builddir)/src/libtracker/libtrackerclient-@TRACKER_API_VERSION@.la \
 	$(top_builddir)/src/libstemmer/libstemmer.la	 		\
 	$(top_builddir)/src/libinotify/libinotify.la			\
+	$(tracker_store_win_libs)					\
+	$(DBUS_LIBS)							\
+	$(GDKPIXBUF_LIBS)						\
+	$(GMODULE_LIBS)							\
+	$(GTHREAD_LIBS)							\
+	$(PANGO_LIBS)							\
+	$(GIO_LIBS)							\
+	$(GCOV_LIBS)							\
+	$(GLIB2_LIBS)							\
+	$(RAPTOR_LIBS)							\
+	-lz								\
+	-lm
+
+tracker_miner_fs_new_SOURCES =						\
+	tracker-config.c						\
+	tracker-config.h						\
+	tracker-miner-applications.c					\
+	tracker-miner-applications.h					\
+	tracker-miner-main.c
+
+tracker_miner_fs_new_LDADD =						\
+	$(plugin_libs)							\
+	libtracker-module.la						\
+	$(top_builddir)/src/libtracker-data/libtracker-data.la		\
+	$(top_builddir)/src/libtracker-db/libtracker-db.la 		\
+	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
+	$(top_builddir)/src/libtracker/libtrackerclient-@TRACKER_API_VERSION@.la \
+	$(top_builddir)/src/libstemmer/libstemmer.la	 		\
+	$(top_builddir)/src/libinotify/libinotify.la			\
+	$(top_builddir)/src/libtracker-miner/libtracker-miner.la	\
 	$(tracker_store_win_libs)					\
 	$(DBUS_LIBS)							\
 	$(GDKPIXBUF_LIBS)						\
