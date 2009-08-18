@@ -31,8 +31,7 @@ INCLUDES = 								\
 	$(SQLITE3_CFLAGS)						\
 	$(GMODULE_CFLAGS)						\
 	$(GTHREAD_CFLAGS)						\
-	$(GLIB2_CFLAGS)							\
-	$(RAPTOR_CFLAGS)
+	$(GLIB2_CFLAGS)
 
 common_ldadd =								\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
@@ -42,8 +41,7 @@ common_ldadd =								\
 	$(GCOV_LIBS)							\
 	$(GMODULE_LIBS)							\
 	$(GTHREAD_LIBS)							\
-	$(GLIB2_LIBS)							\
-	$(RAPTOR_LIBS)
+	$(GLIB2_LIBS)
 
 tracker_sparql_SOURCES = 						\
 	tracker-sparql-test.c

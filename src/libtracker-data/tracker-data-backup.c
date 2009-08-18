@@ -23,10 +23,7 @@
 #include <glib.h>
 #include <glib/gstdio.h>
 
-#include <raptor.h>
-
 #include <libtracker-data/tracker-data-query.h>
-#include <libtracker-data/tracker-turtle.h>
 
 #include "tracker-data-backup.h"
 

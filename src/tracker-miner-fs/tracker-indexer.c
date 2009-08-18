@@ -65,7 +65,6 @@
 #include <libtracker-db/tracker-db-dbus.h>
 
 #include <libtracker-data/tracker-data-manager.h>
-#include <libtracker-data/tracker-turtle.h>
 #include <libtracker-data/tracker-data-backup.h>
 
 #include <libtracker/tracker.h>

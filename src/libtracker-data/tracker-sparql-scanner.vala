@@ -481,6 +481,17 @@ public class Tracker.SparqlScanner : Object {
 					current++;
 				}
 				break;
+			case '@':
+				type = SparqlTokenType.NONE;
+				current++;
+				if (current < end - "prefix".len () && matches (current, "PREFIX")) {
+					type = SparqlTokenType.ATPREFIX;
+					current += "prefix".len ();
+				} else if (current < end - "base".len () && matches (current, "BASE")) {
+					type = SparqlTokenType.ATBASE;
+					current += "base".len ();
+				}
+				break;
 			case '|':
 				type = SparqlTokenType.NONE;
 				current++;
@@ -766,6 +777,8 @@ public enum Tracker.SparqlTokenType {
 	AS,
 	ASC,
 	ASK,
+	ATBASE,
+	ATPREFIX,
 	AVG,
 	BASE,
 	BLANK_NODE,

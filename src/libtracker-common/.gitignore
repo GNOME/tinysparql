@@ -1,2 +1,3 @@
 tracker-sparql-builder.c
 tracker-sparql-builder.h
+tracker-turtle-writer.c

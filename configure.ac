@@ -230,11 +230,6 @@ if test x$have_enca == "xyes"; then
   AC_DEFINE(HAVE_ENCA, 1, [Enca language detection aid])
 fi
 
-# Check for Raptor
-PKG_CHECK_MODULES(RAPTOR, [raptor >= 1.4.18])
-AC_SUBST(RAPTOR_CFLAGS)
-AC_SUBST(RAPTOR_LIBS)
-
 AC_PATH_PROG(VALAC, valac, valac)
 AC_SUBST(VALAC)
 

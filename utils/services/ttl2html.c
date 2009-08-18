@@ -63,7 +63,6 @@ main (gint argc, gchar **argv)
         }
         g_assert (f != NULL);
 
-        ttl_loader_init ();
         description = ttl_loader_load_description (desc_file);
 
         dirname = g_path_get_dirname (desc_file);
@@ -80,7 +79,6 @@ main (gint argc, gchar **argv)
         ttl_loader_free_ontology (ontology);
         ttl_loader_free_description (description);
 
-        ttl_loader_shutdown ();
         g_option_context_free (context);
         
         fclose (f);

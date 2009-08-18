@@ -42,7 +42,7 @@
 
 #include "tracker-data-manager.h"
 #include "tracker-data-update.h"
-#include "tracker-turtle.h"
+#include "tracker-sparql-query.h"
 
 #define RDF_PREFIX TRACKER_RDF_PREFIX
 #define RDF_PROPERTY RDF_PREFIX "Property"
@@ -68,13 +68,16 @@ static gboolean            initialized;
 static void
 load_ontology_file_from_path (const gchar	 *ontology_file)
 {
-	tracker_turtle_reader_init (ontology_file, NULL);
-	while (tracker_turtle_reader_next ()) {
+	TrackerTurtleReader *reader;
+	GError              *error = NULL;
+
+	reader = tracker_turtle_reader_new (ontology_file);
+	while (error == NULL && tracker_turtle_reader_next (reader, &error)) {
 		const gchar *subject, *predicate, *object;
 
-		subject = tracker_turtle_reader_get_subject ();
-		predicate = tracker_turtle_reader_get_predicate ();
-		object = tracker_turtle_reader_get_object ();
+		subject = tracker_turtle_reader_get_subject (reader);
+		predicate = tracker_turtle_reader_get_predicate (reader);
+		object = tracker_turtle_reader_get_object (reader);
 
 		if (strcmp (predicate, RDF_TYPE) == 0) {
 			if (strcmp (object, RDFS_CLASS) == 0) {
@@ -240,6 +243,13 @@ load_ontology_file_from_path (const gchar	 *ontology_file)
 			tracker_namespace_set_prefix (namespace, object);
 		}
 	}
+
+	g_object_unref (reader);
+
+	if (error) {
+		g_critical ("Turtle parse error: %s", error->message);
+		g_error_free (error);
+	}
 }
 
 static void
@@ -253,33 +263,12 @@ load_ontology_file (const gchar	      *filename)
 }
 
 static void
-import_ontology_file_from_path (const gchar	 *ontology_file)
-{
-	tracker_turtle_reader_init (ontology_file, NULL);
-	while (tracker_turtle_reader_next ()) {
-		if (tracker_turtle_reader_object_is_uri ()) {
-			tracker_data_insert_statement_with_uri (
-				tracker_turtle_reader_get_subject (),
-				tracker_turtle_reader_get_predicate (),
-				tracker_turtle_reader_get_object (),
-				NULL);
-		} else {
-			tracker_data_insert_statement_with_string (
-				tracker_turtle_reader_get_subject (),
-				tracker_turtle_reader_get_predicate (),
-				tracker_turtle_reader_get_object (),
-				NULL);
-		}
-	}
-}
-
-static void
 import_ontology_file (const gchar	      *filename)
 {
 	gchar		*ontology_file;
 
 	ontology_file = g_build_filename (ontologies_dir, filename, NULL);
-	import_ontology_file_from_path (ontology_file);
+	tracker_turtle_reader_load (ontology_file);
 	g_free (ontology_file);
 }
 
@@ -844,7 +833,7 @@ tracker_data_manager_init (TrackerDBManagerFlags       flags,
 			import_ontology_file (l->data);
 		}
 		if (test_schema) {
-			import_ontology_file_from_path (test_schema_path);
+			tracker_turtle_reader_load (test_schema_path);
 			g_free (test_schema_path);
 		}
 
