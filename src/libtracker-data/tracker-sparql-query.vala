@@ -922,7 +922,7 @@ public class Tracker.SparqlQuery : Object {
 
 			is_var = true;
 		} else {
-			// TODO error
+			throw new SparqlError.PARSE ("expected variable or term");
 		}
 		return result;
 	}
@@ -963,7 +963,7 @@ public class Tracker.SparqlQuery : Object {
 				next ();
 				current_predicate = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
 			} else {
-				// TODO error
+				throw new SparqlError.PARSE ("expected non-empty property list");
 			}
 			parse_object_list (sql);
 
@@ -1666,7 +1666,7 @@ public class Tracker.SparqlQuery : Object {
 			current_subject = old_subject;
 			current_subject_is_var = old_subject_is_var;
 		} else {
-			// TODO error
+			throw new SparqlError.PARSE ("expected variable or term");
 		}
 		return result;
 	}
@@ -1695,7 +1695,7 @@ public class Tracker.SparqlQuery : Object {
 				next ();
 				current_predicate = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
 			} else {
-				// TODO error
+				throw new SparqlError.PARSE ("expected non-empty property list");
 			}
 			parse_construct_object_list (var_value_map);
 
