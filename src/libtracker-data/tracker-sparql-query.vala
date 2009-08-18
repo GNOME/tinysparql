@@ -1144,10 +1144,27 @@ public class Tracker.SparqlQuery : Object {
 					p++;
 				}
 			}
+
+			if (accept (SparqlTokenType.DOUBLE_CIRCUMFLEX)) {
+				if (!accept (SparqlTokenType.IRI_REF)) {
+					accept (SparqlTokenType.PN_PREFIX);
+					expect (SparqlTokenType.COLON);
+				}
+			}
+
 			return sb.str;
 		case SparqlTokenType.STRING_LITERAL_LONG1:
 		case SparqlTokenType.STRING_LITERAL_LONG2:
-			return get_last_string (3);
+			string result = get_last_string (3);
+
+			if (accept (SparqlTokenType.DOUBLE_CIRCUMFLEX)) {
+				if (!accept (SparqlTokenType.IRI_REF)) {
+					accept (SparqlTokenType.PN_PREFIX);
+					expect (SparqlTokenType.COLON);
+				}
+			}
+
+			return result;
 		default:
 			throw new SparqlError.PARSE ("expected string literal \"%s\")", get_last_string ());
 		}

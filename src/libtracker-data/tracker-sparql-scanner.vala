@@ -667,6 +667,13 @@ public class Tracker.SparqlScanner : Object {
 					throw new SparqlError.PARSE ("%d.%d: syntax error, expected %c", line, column + token_length_in_chars, begin[0]);
 				}
 				break;
+			case '^':
+				type = SparqlTokenType.NONE;
+				if (current < end - 2 && current[0] == current[1]) {
+					type = SparqlTokenType.DOUBLE_CIRCUMFLEX;
+					current += 2;
+				}
+				break;
 			default:
 				unichar u = ((string) current).get_char_validated ((long) (end - current));
 				if (u != (unichar) (-1)) {
@@ -775,6 +782,7 @@ public enum Tracker.SparqlTokenType {
 	DIV,
 	DOT,
 	DOUBLE,
+	DOUBLE_CIRCUMFLEX,
 	DROP,
 	EOF,
 	FALSE,
