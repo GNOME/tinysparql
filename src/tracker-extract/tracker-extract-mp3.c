@@ -899,7 +899,7 @@ get_id3v24_tags (const gchar *data,
 		{"TIT3", NIE_PREFIX "comment", NULL, NULL, NULL, &filedata->id3v1_info->comment},
 		{"TDRL", NIE_PREFIX "contentCreated", NULL, NULL, NULL, &filedata->id3v1_info->year},
 		{"TRCK", NMM_PREFIX "trackNumber", NULL, NULL, NULL, &filedata->id3v1_info->trackno},
-		/* TODO Nepomukify {"PCNT", "Audio:PlayCount"}, */
+		{"PCNT", NIE_PREFIX "usageCounter", NULL, NULL, NULL, NULL},
 		{"TLEN", NMM_PREFIX "length", NULL, NULL, NULL, NULL},
 		{NULL, 0, NULL, NULL, NULL},
 	};
@@ -1175,7 +1175,7 @@ get_id3v23_tags (const gchar *data,
 		{"TIT2", NIE_PREFIX "title", NULL, NULL, NULL, &filedata->id3v1_info->title},
 		{"TYER", NIE_PREFIX "contentCreated", NULL, NULL, NULL, &filedata->id3v1_info->year},
 		{"TRCK", NMM_PREFIX "trackNumber", NULL, NULL, NULL, &filedata->id3v1_info->trackno},
-		/* TODO Nepomukify {"PCNT", "Audio:PlayCount"}, */
+		{"PCNT", NIE_PREFIX "usageCounter", NULL, NULL, NULL, NULL},
 		{"TLEN", NMM_PREFIX "length", NULL, NULL, NULL, NULL},
 		{NULL, 0, NULL, NULL, NULL},
 	};
