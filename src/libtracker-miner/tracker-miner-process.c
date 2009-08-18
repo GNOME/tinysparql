@@ -338,7 +338,7 @@ process_finalize (GObject *object)
 
 static gboolean 
 process_defaults (TrackerMinerProcess *process,
-		  GFile            *file)
+		  GFile               *file)
 {
 	return TRUE;
 }

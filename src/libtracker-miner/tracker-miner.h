@@ -56,6 +56,9 @@ struct TrackerMinerClass {
 	void (* progress)   (TrackerMiner *miner,
 			     const gchar  *status,
 			     gdouble       progress);
+
+	void (* error)      (TrackerMiner *miner,
+			     GError       *error);
 };
 
 

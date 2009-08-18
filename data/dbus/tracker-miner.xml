@@ -2,11 +2,28 @@
 
 <node name="/">
   <interface name="org.freedesktop.Tracker.Miner">
+<!--
+    <method name="GetName">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
+      <arg type="s" name="name" direction="out" />
+    </method>
+    <method name="GetStatus">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
+      <arg type="s" name="status" direction="out" />
+    </method>
+    <method name="GetProgress">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
+      <arg type="d" name="progress" direction="out" />
+    </method>
+-->
     <method name="Pause">
       <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
     </method>
     <method name="Resume">
       <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
     </method>
+    <signal name="Error">
+      <arg type="s" name="reason"/>
+    </signal>
   </interface>
 </node>

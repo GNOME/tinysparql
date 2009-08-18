@@ -26,8 +26,6 @@ libtracker_miner_LTLIBRARIES = libtracker-miner.la
 libtracker_miner_la_SOURCES = 				\
 	tracker-crawler.c				\
 	tracker-crawler.h				\
-	tracker-dbus.c					\
-	tracker-dbus.h					\
 	tracker-marshal.c				\
 	tracker-marshal.h				\
 	tracker-miner-dbus.h				\

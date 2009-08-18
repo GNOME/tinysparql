@@ -23,7 +23,6 @@
 
 #include <glib-object.h>
 
-#include "tracker-dbus.h"
 #include "tracker-miner.h"
 
 G_BEGIN_DECLS
