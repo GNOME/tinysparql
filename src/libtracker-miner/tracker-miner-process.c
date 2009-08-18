@@ -20,6 +20,8 @@
 
 #include "config.h"
 
+#include <libtracker-common/tracker-dbus.h>
+
 #include "tracker-crawler.h"
 #include "tracker-marshal.h"
 #include "tracker-miner-process.h"
@@ -479,6 +481,79 @@ item_queue_handlers_set_up (TrackerMinerProcess *process)
 			    process);
 }
 
+static gboolean
+should_change_index_for_file (TrackerMinerProcess *miner,
+			      GFile               *file)
+{
+	TrackerClient      *client;
+	gboolean            uptodate;
+	GPtrArray          *sparql_result;
+	GFileInfo          *file_info;
+	guint64             time;
+	time_t              mtime;
+	struct tm           t;
+	gchar              *query, *uri;;
+
+	file_info = g_file_query_info (file, G_FILE_ATTRIBUTE_TIME_MODIFIED, G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS, NULL, NULL);
+	if (!file_info) {
+		/* NOTE: We return TRUE here because we want to update the DB
+		 * about this file, not because we want to index it.
+		 */
+		return TRUE;
+	}
+
+	time = g_file_info_get_attribute_uint64 (file_info, G_FILE_ATTRIBUTE_TIME_MODIFIED);
+	mtime = (time_t) time;
+	g_object_unref (file_info);
+
+	uri = g_file_get_uri (file);
+	client = tracker_miner_get_client (TRACKER_MINER (miner));
+
+	gmtime_r (&mtime, &t);
+
+	query = g_strdup_printf ("SELECT ?file { ?file nfo:fileLastModified \"%04d-%02d-%02dT%02d:%02d:%02d\" . FILTER (?file = <%s>) }",
+	                         t.tm_year + 1900, t.tm_mon + 1, t.tm_mday, t.tm_hour, t.tm_min, t.tm_sec, uri);
+	sparql_result = tracker_resources_sparql_query (client, query, NULL);
+
+	uptodate = (sparql_result && sparql_result->len == 1);
+
+	tracker_dbus_results_ptr_array_free (&sparql_result);
+
+	g_free (query);
+	g_free (uri);
+
+	if (uptodate) {
+		/* File already up-to-date in the database */
+		return FALSE;
+	}
+
+	/* File either not yet in the database or mtime is different
+	 * Update in database required
+	 */
+	return TRUE;
+}
+
+static gboolean
+should_process_file (TrackerMinerProcess *process,
+		     GFile               *file,
+		     gboolean             is_dir)
+{
+	gboolean should_process;
+
+	if (!should_change_index_for_file (process, file)) {
+		/* File is up-to-date in tracker-store */
+		return FALSE;
+	}
+
+	if (is_dir) {
+		g_signal_emit (process, signals[CHECK_DIRECTORY], 0, file, &should_process);
+	} else {
+		g_signal_emit (process, signals[CHECK_FILE], 0, file, &should_process);
+	}
+
+	return should_process;
+}
+
 static void
 monitor_item_created_cb (TrackerMonitor *monitor,
 			 GFile		*file,
@@ -490,8 +565,7 @@ monitor_item_created_cb (TrackerMonitor *monitor,
 	gchar *path;
 
 	process = user_data;
-
-	g_signal_emit (process, signals[CHECK_FILE], 0, file, &should_process);
+	should_process = should_process_file (process, file, is_directory);
 
 	path = g_file_get_path (file);
 
@@ -539,12 +613,11 @@ monitor_item_updated_cb (TrackerMonitor *monitor,
 			 gpointer	 user_data)
 {
 	TrackerMinerProcess *process;
+	gboolean should_process;
 	gchar *path;
-	gboolean should_process = TRUE;
 
 	process = user_data;
-
-	g_signal_emit (process, signals[CHECK_FILE], 0, file, &should_process);
+	should_process = should_process_file (process, file, is_directory);
 
 	path = g_file_get_path (file);
 
@@ -554,9 +627,9 @@ monitor_item_updated_cb (TrackerMonitor *monitor,
 		 is_directory ? "DIR" : "FILE");
 
 	if (should_process) {
-		g_queue_push_tail (process->private->items_updated, 
+		g_queue_push_tail (process->private->items_updated,
 				   g_object_ref (file));
-		
+
 		item_queue_handlers_set_up (process);
 	}
 
@@ -570,13 +643,11 @@ monitor_item_deleted_cb (TrackerMonitor *monitor,
 			 gpointer	 user_data)
 {
 	TrackerMinerProcess *process;
+	gboolean should_process;
 	gchar *path;
-	gboolean should_process = TRUE;
 
 	process = user_data;
-
-	g_signal_emit (process, signals[CHECK_FILE], 0, file, &should_process);
-
+	should_process = should_process_file (process, file, is_directory);
 	path = g_file_get_path (file);
 
 	g_debug ("%s:'%s' (%s) (delete monitor event or user request)",
@@ -585,9 +656,9 @@ monitor_item_deleted_cb (TrackerMonitor *monitor,
 		 is_directory ? "DIR" : "FILE");
 
 	if (should_process) {
-		g_queue_push_tail (process->private->items_deleted, 
+		g_queue_push_tail (process->private->items_deleted,
 				   g_object_ref (file));
-		
+
 		item_queue_handlers_set_up (process);
 	}
 
@@ -646,9 +717,9 @@ monitor_item_moved_cb (TrackerMonitor *monitor,
 		path = g_file_get_path (file);
 		other_path = g_file_get_path (other_file);
 
-		g_signal_emit (process, signals[CHECK_FILE], 0, file, &should_process);
-		g_signal_emit (process, signals[CHECK_FILE], 0, other_file, &should_process_other);
-		
+		should_process = should_process_file (process, file, is_directory);
+		should_process_other = should_process_file (process, other_file, is_directory);
+
 		g_debug ("%s:'%s'->'%s':%s (%s) (move monitor event or user request)",
 			 should_process ? "Found " : "Ignored",
 			 path,
@@ -703,15 +774,14 @@ crawler_process_file_cb (TrackerCrawler *crawler,
 			 gpointer	 user_data)
 {
 	TrackerMinerProcess *process;
-	gboolean should_process = TRUE;
+	gboolean should_process;
 
 	process = user_data;
-
-	g_signal_emit (process, signals[CHECK_FILE], 0, file, &should_process);
+	should_process = should_process_file (process, file, FALSE);
 
 	if (should_process) {
 		/* Add files in queue to our queues to send to the indexer */
-		g_queue_push_tail (process->private->items_created, 
+		g_queue_push_tail (process->private->items_created,
 				   g_object_ref (file));
 		item_queue_handlers_set_up (process);
 	}
@@ -725,18 +795,17 @@ crawler_process_directory_cb (TrackerCrawler *crawler,
 			      gpointer	      user_data)
 {
 	TrackerMinerProcess *process;
-	gboolean should_process = TRUE;
+	gboolean should_process;
 	gboolean add_monitor = TRUE;
 
 	process = user_data;
+	should_process = should_process_file (process, file, TRUE);
 
-	g_signal_emit (process, signals[CHECK_DIRECTORY], 0, file, &should_process);
-	
 	if (should_process) {
 		/* FIXME: Do we add directories to the queue? */
-		g_queue_push_tail (process->private->items_created, 
+		g_queue_push_tail (process->private->items_created,
 				   g_object_ref (file));
-		
+
 		item_queue_handlers_set_up (process);
 	}
 
