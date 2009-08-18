@@ -964,6 +964,10 @@ public class Tracker.SparqlQuery : Object {
 			current_predicate_is_var = old_predicate_is_var;
 
 			if (accept (SparqlTokenType.SEMICOLON)) {
+				if (current () == SparqlTokenType.DOT) {
+					// semicolon before dot is allowed in both, SPARQL and Turtle
+					break;
+				}
 				continue;
 			}
 			break;
