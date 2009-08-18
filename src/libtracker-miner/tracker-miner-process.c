@@ -387,54 +387,82 @@ directory_data_free (DirectoryData *dd)
 	g_slice_free (DirectoryData, dd);
 }
 
+static void
+item_add_or_update (TrackerMinerProcess  *miner,
+		    GFile                *file,
+		    TrackerSparqlBuilder *sparql)
+{
+	gchar *full_sparql, *uri;
+
+	uri = g_file_get_uri (file);
+
+	g_debug ("Adding item '%s'", uri);
+
+	tracker_sparql_builder_insert_close (sparql);
+
+	full_sparql = g_strdup_printf ("DROP GRAPH <%s> %s",
+		uri, tracker_sparql_builder_get_result (sparql));
+
+	tracker_miner_execute_sparql (TRACKER_MINER (miner), full_sparql, NULL);
+	g_free (full_sparql);
+}
+
+static GFile *
+get_next_file (TrackerMinerProcess  *miner)
+{
+	GFile *file;
+
+	/* Deleted items first */
+	file = g_queue_pop_head (miner->private->items_deleted);
+	if (file) {
+		return file;
+	}
+
+	/* Created items next */
+	file = g_queue_pop_head (miner->private->items_created);
+	if (file) {
+		return file;
+	}
+
+	/* Updated items next */
+	file = g_queue_pop_head (miner->private->items_updated);
+	if (file) {
+		return file;
+	}
+
+	/* Moved items next */
+	file = g_queue_pop_head (miner->private->items_moved);
+	if (file) {
+		return file;
+	}
+
+	return NULL;
+}
+
 static gboolean
 item_queue_handlers_cb (gpointer user_data)
 {
 	TrackerSparqlBuilder *sparql;
-	TrackerMinerProcess *process;
+	TrackerMinerProcess *miner;
 	gboolean processed;
 	GFile *file;
 
-	process = user_data;
+	miner = user_data;
 	sparql = tracker_sparql_builder_new_update ();
+	file = get_next_file (miner);
 
-	/* Deleted items first */
-	file = g_queue_pop_head (process->private->items_deleted);
 	if (file) {
-		g_signal_emit (process, signals[PROCESS_FILE], 0, file, sparql, &processed);
-		g_object_unref (file);
-	
+		g_signal_emit (miner, signals[PROCESS_FILE], 0, file, sparql, &processed);
+
+		if (processed) {
+			/* Commit sparql */
+			item_add_or_update (miner, file, sparql);
+		}
+
 		return TRUE;
 	}
 
-	/* Created items next */
-	file = g_queue_pop_head (process->private->items_created);
-	if (file) {
-		g_signal_emit (process, signals[PROCESS_FILE], 0, file, sparql, &processed);
-		g_object_unref (file);
-	
-		return TRUE;
-	}
-
-	/* Updated items next */
-	file = g_queue_pop_head (process->private->items_updated);
-	if (file) {
-		g_signal_emit (process, signals[PROCESS_FILE], 0, file, sparql, &processed);
-		g_object_unref (file);
-	
-		return TRUE;
-	}
-
-	/* Moved items next */
-	file = g_queue_pop_head (process->private->items_moved);
-	if (file) {
-		g_signal_emit (process, signals[PROCESS_FILE], 0, file, sparql, &processed);
-		g_object_unref (file);
-	
-		return TRUE;
-	}
-
-	process->private->item_queues_handler_id = 0;
+	miner->private->item_queues_handler_id = 0;
 
 	return FALSE;
 }
