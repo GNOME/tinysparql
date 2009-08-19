@@ -214,7 +214,7 @@ daemon_availability_changed_cb (const gchar *name,
                                 gpointer     user_data)
 {
         if (!available) {
-                tracker_indexer_stop (TRACKER_INDEXER (user_data));
+                /* tracker_indexer_stop (TRACKER_INDEXER (user_data)); */
         }
 }
 
