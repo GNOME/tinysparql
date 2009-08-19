@@ -1,4 +1,4 @@
-/* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
+./* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*
  * Copyright (C) 2009, Nokia
 
@@ -29,7 +29,9 @@
 
 struct TrackerMinerPrivate {
 	TrackerClient *client;
-
+	
+	gboolean started;
+	
 	gchar *name;
 	gchar *status;
 	gdouble progress;
@@ -37,8 +39,8 @@ struct TrackerMinerPrivate {
 
 typedef struct {
 	DBusGConnection *connection;
-	DBusGProxy      *gproxy;
-	GHashTable      *name_monitors;
+	DBusGProxy *gproxy;
+	GHashTable *name_monitors;
 } DBusData;
 
 enum {
@@ -63,20 +65,19 @@ static GQuark dbus_data = 0;
 
 static guint signals[LAST_SIGNAL] = { 0 };
 
-
-static void miner_set_property (GObject      *object,
-				guint         param_id,
-				const GValue *value,
-				GParamSpec   *pspec);
-static void miner_get_property (GObject      *object,
-				guint         param_id,
-				GValue       *value,
-				GParamSpec   *pspec);
-static void miner_finalize     (GObject      *object);
-static void miner_constructed  (GObject      *object);
+static void     miner_set_property (GObject      *object,
+				    guint         param_id,
+				    const GValue *value,
+				    GParamSpec   *pspec);
+static void     miner_get_property (GObject      *object,
+				    guint         param_id,
+				    GValue       *value,
+				    GParamSpec   *pspec);
+static void     miner_finalize     (GObject      *object);
+static void     miner_constructed  (GObject      *object);
 static gboolean terminate_miner_cb (TrackerMiner *miner);
-static gboolean dbus_init (TrackerMiner *miner);
-static void dbus_shutdown (TrackerMiner *miner);
+static gboolean dbus_init          (TrackerMiner *miner);
+static void     dbus_shutdown      (TrackerMiner *miner);
 
 G_DEFINE_ABSTRACT_TYPE (TrackerMiner, tracker_miner, G_TYPE_OBJECT)
 
@@ -373,7 +374,7 @@ dbus_data_create (TrackerMiner *miner,
 					    DBUS_INTERFACE_DBUS);
 
 	/* Register the service name for the miner */
-	full_name = g_strconcat ("org.freedesktop.Tracker.Miner.", name, NULL);
+	full_name = g_strconcat (TRACKER_MINER_DBUS_NAME_PREFIX, name, NULL);
 
 	if (!dbus_register_service (gproxy, full_name)) {
 		g_object_unref (gproxy);
@@ -383,7 +384,7 @@ dbus_data_create (TrackerMiner *miner,
 
 	g_free (full_name);
 
-	full_path = g_strconcat ("/org/freedesktop/Tracker/Miner/", name, NULL);
+	full_path = g_strconcat (TRACKER_MINER_DBUS_PATH_PREFIX, name, NULL);
 
 	if (!dbus_register_object (G_OBJECT (miner),
 				   connection, gproxy,
@@ -458,8 +459,22 @@ void
 tracker_miner_start (TrackerMiner *miner)
 {
 	g_return_if_fail (TRACKER_IS_MINER (miner));
+	g_return_if_fail (miner->private->started == FALSE);
+
+	miner->private->started = TRUE;
 
 	g_signal_emit (miner, signals[STARTED], 0);
+}
+
+void
+tracker_miner_stop (TrackerMiner *miner)
+{
+	g_return_if_fail (TRACKER_IS_MINER (miner));
+	g_return_if_fail (miner->private->started == TRUE);
+
+	miner->private->started = FALSE;
+
+	g_signal_emit (miner, signals[STOPPED], 0);
 }
 
 gchar *
@@ -476,24 +491,6 @@ tracker_miner_get_progress (TrackerMiner *miner)
 	g_return_val_if_fail (TRACKER_IS_MINER (miner), 0.0);
 
 	return miner->private->progress;
-}
-
-/* DBus methods */
-void
-tracker_miner_pause (TrackerMiner           *miner,
-		     DBusGMethodInvocation  *context,
-		     GError                **error)
-{
-	g_return_if_fail (TRACKER_IS_MINER (miner));
-	
-}
-
-void
-tracker_miner_resume (TrackerMiner           *miner,
-		      DBusGMethodInvocation  *context,
-		      GError                **error)
-{
-	g_return_if_fail (TRACKER_IS_MINER (miner));
 }
 
 TrackerClient *
@@ -514,7 +511,8 @@ tracker_miner_execute_sparql (TrackerMiner  *miner,
 	g_return_val_if_fail (TRACKER_IS_MINER (miner), FALSE);
 
 	tracker_resources_batch_sparql_update (miner->private->client,
-					       sparql, &internal_error);
+					       sparql, 
+					       &internal_error);
 
 	if (!internal_error) {
 		return TRUE;
@@ -523,9 +521,26 @@ tracker_miner_execute_sparql (TrackerMiner  *miner,
 	if (error) {
 		g_propagate_error (error, internal_error);
 	} else {
-		g_warning ("Error running sparql queries: %s\n", internal_error->message);
+		g_warning ("Error running sparql queries: %s", internal_error->message);
 		g_error_free (internal_error);
 	}
 
 	return FALSE;
+}
+
+/* DBus methods */
+void
+tracker_miner_pause (TrackerMiner           *miner,
+		     DBusGMethodInvocation  *context,
+		     GError                **error)
+{
+	g_return_if_fail (TRACKER_IS_MINER (miner));
+}
+
+void
+tracker_miner_resume (TrackerMiner           *miner,
+		      DBusGMethodInvocation  *context,
+		      GError                **error)
+{
+	g_return_if_fail (TRACKER_IS_MINER (miner));
 }

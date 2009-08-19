@@ -33,6 +33,9 @@ G_BEGIN_DECLS
 #define TRACKER_IS_MINER_CLASS(c)  (G_TYPE_CHECK_CLASS_TYPE ((c),    TRACKER_TYPE_MINER))
 #define TRACKER_MINER_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o),  TRACKER_TYPE_MINER, TrackerMinerClass))
 
+#define TRACKER_MINER_DBUS_NAME_PREFIX "org.freedesktop.Tracker.Miner."
+#define TRACKER_MINER_DBUS_PATH_PREFIX "/org/freedesktop/Tracker/Miner/"
+
 typedef struct TrackerMiner TrackerMiner;
 typedef struct TrackerMinerClass TrackerMinerClass;
 typedef struct TrackerMinerPrivate TrackerMinerPrivate;
@@ -66,6 +69,7 @@ struct TrackerMinerClass {
 GType                 tracker_miner_get_type (void) G_GNUC_CONST;
 
 void                  tracker_miner_start        (TrackerMiner           *miner);
+void                  tracker_miner_stop         (TrackerMiner           *miner);
 
 G_CONST_RETURN gchar *tracker_miner_get_name     (TrackerMiner           *miner);
 gchar                *tracker_miner_get_status   (TrackerMiner           *miner);
