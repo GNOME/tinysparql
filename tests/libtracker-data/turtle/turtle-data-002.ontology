@@ -1,0 +1,62 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix : <http://example.org/ns2#> .
+@prefix f: <http://example.org/ns#> .
+@prefix b: <http://example.org/b2#> .
+@prefix bz: <http://example.org/b2> .
+@prefix tracker: <http://www.tracker-project.org/ontologies/tracker#> .
+@prefix bar: <bar#> .
+
+: a tracker:Namespace ;
+	tracker:prefix "" .
+
+b: a tracker:Namespace ;
+	tracker:prefix "b" .
+
+bar: a tracker:Namespace ;
+	tracker:prefix "bar" .
+
+bz: a tracker:Namespace ;
+	tracker:prefix "bz" .
+
+f: a tracker:Namespace ;
+	tracker:prefix "a" .
+
+<http://example.org/ns2#>  a rdf:Property ;
+	rdfs:domain rdfs:Resource ;
+	rdfs:range rdfs:Resource .
+
+#<http://example.org/ns/b2>  a rdf:Property ;
+#	rdfs:domain rdfs:Resource ;
+#	rdfs:range rdfs:Resource .
+
+#<b1> a rdf:Property ;
+#	rdfs:domain rdfs:Resource ;
+#	rdfs:range rdfs:Resource .
+
+:b3 a rdf:Property ;
+	rdfs:domain rdfs:Resource ;
+	rdfs:range rdfs:Resource .
+
+bar:b4 a rdf:Property ;
+	rdfs:domain rdfs:Resource ;
+	rdfs:range rdfs:Resource .
+
+:b4 a rdf:Property ;
+	rdfs:domain rdfs:Resource ;
+	rdfs:range rdfs:Resource .
+
+bar:b5 a rdf:Property ;
+	rdfs:domain rdfs:Resource ;
+	rdfs:range rdfs:Resource .
+
+:b5 a rdf:Property ;
+	rdfs:domain rdfs:Resource ;
+	rdfs:range rdfs:Resource .
+
+<c1> a rdfs:Resource .
+<c2> a rdfs:Resource .
+<c3> a rdfs:Resource .
+:c4 a rdfs:Resource .
+:c5 a rdfs:Resource .

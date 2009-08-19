@@ -75,6 +75,7 @@ const TestInfo tests[] = {
 	{ "error/query-error-2", "error/query-error-2", TRUE },
 
 	{ "turtle/turtle-query-001", "turtle/turtle-data-001", FALSE },
+	{ "turtle/turtle-query-002", "turtle/turtle-data-002", FALSE },
 	{ NULL }
 };
 
