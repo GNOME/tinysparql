@@ -22,6 +22,7 @@
 #define __TRACKERD_CRAWLER_H__
 
 #include <glib-object.h>
+#include <gio/gio.h>
 
 G_BEGIN_DECLS
 
@@ -37,12 +38,22 @@ typedef struct TrackerCrawlerClass    TrackerCrawlerClass;
 typedef struct TrackerCrawlerPrivate  TrackerCrawlerPrivate;
 
 struct TrackerCrawler {
-	GObject		       parent;
+	GObject parent;
 	TrackerCrawlerPrivate *private;
 };
 
 struct TrackerCrawlerClass {
-	GObjectClass	       parent;
+	GObjectClass parent;
+
+	gboolean (* process_directory)   (TrackerCrawler *crawler,
+					  GFile          *file);
+	gboolean (* process_file)        (TrackerCrawler *crawler,
+					  GFile          *file);
+	void     (* finished)            (TrackerCrawler *crawler,
+					  guint           directories_found, 
+					  guint           directories_ignored, 
+					  guint           files_found, 
+					  guint           files_ignored);
 };
 
 GType           tracker_crawler_get_type (void);

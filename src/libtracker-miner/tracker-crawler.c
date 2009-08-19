@@ -20,8 +20,6 @@
 
 #include "config.h"
 
-#include <gio/gio.h>
-
 #include "tracker-crawler.h"
 #include "tracker-marshal.h"
 
@@ -81,11 +79,13 @@ typedef struct {
 	GHashTable     *children;
 } EnumeratorData;
 
-static void tracker_crawler_finalize (GObject	      *object);
-static void file_enumerate_next      (GFileEnumerator *enumerator,
-				      EnumeratorData  *ed);
-static void file_enumerate_children  (TrackerCrawler  *crawler,
-				      GFile	      *file);
+static void     crawler_finalize        (GObject         *object);
+static gboolean process_defaults        (TrackerCrawler  *crawler,
+					 GFile           *file);
+static void     file_enumerate_next     (GFileEnumerator *enumerator,
+					 EnumeratorData  *ed);
+static void     file_enumerate_children (TrackerCrawler  *crawler,
+					 GFile           *file);
 
 static guint signals[LAST_SIGNAL] = { 0, };
 
@@ -94,17 +94,19 @@ G_DEFINE_TYPE (TrackerCrawler, tracker_crawler, G_TYPE_OBJECT)
 static void
 tracker_crawler_class_init (TrackerCrawlerClass *klass)
 {
-	GObjectClass *object_class;
+	GObjectClass *object_class = G_OBJECT_CLASS (klass);
+        TrackerCrawlerClass *crawler_class = TRACKER_CRAWLER_CLASS (klass);
 
-	object_class = G_OBJECT_CLASS (klass);
+	object_class->finalize = crawler_finalize;
 
-	object_class->finalize = tracker_crawler_finalize;
+	crawler_class->process_directory = process_defaults;
+	crawler_class->process_file      = process_defaults;
 
 	signals[PROCESS_DIRECTORY] =
 		g_signal_new ("process-directory",
 			      G_TYPE_FROM_CLASS (klass),
 			      G_SIGNAL_RUN_LAST,
-			      0,
+			      G_STRUCT_OFFSET (TrackerCrawlerClass, process_directory),
 			      NULL, NULL,
 			      tracker_marshal_BOOLEAN__OBJECT,
 			      G_TYPE_BOOLEAN,
@@ -114,7 +116,7 @@ tracker_crawler_class_init (TrackerCrawlerClass *klass)
 		g_signal_new ("process-file",
 			      G_TYPE_FROM_CLASS (klass),
 			      G_SIGNAL_RUN_LAST,
-			      0,
+			      G_STRUCT_OFFSET (TrackerCrawlerClass, process_file),
 			      NULL, NULL,
 			      tracker_marshal_BOOLEAN__OBJECT,
 			      G_TYPE_BOOLEAN,
@@ -124,7 +126,7 @@ tracker_crawler_class_init (TrackerCrawlerClass *klass)
 		g_signal_new ("finished",
 			      G_TYPE_FROM_CLASS (klass),
 			      G_SIGNAL_RUN_LAST,
-			      0,
+			      G_STRUCT_OFFSET (TrackerCrawlerClass, finished),
 			      NULL, NULL,
 			      tracker_marshal_VOID__UINT_UINT_UINT_UINT,
 			      G_TYPE_NONE,
@@ -151,7 +153,7 @@ tracker_crawler_init (TrackerCrawler *object)
 }
 
 static void
-tracker_crawler_finalize (GObject *object)
+crawler_finalize (GObject *object)
 {
 	TrackerCrawlerPrivate *priv;
 
@@ -172,6 +174,13 @@ tracker_crawler_finalize (GObject *object)
 	g_queue_free (priv->directories);
 
 	G_OBJECT_CLASS (tracker_crawler_parent_class)->finalize (object);
+}
+
+static gboolean 
+process_defaults (TrackerCrawler *crawler,
+		  GFile          *file)
+{
+	return TRUE;
 }
 
 TrackerCrawler *

@@ -146,13 +146,11 @@ tracker_miner_process_class_init (TrackerMinerProcessClass *klass)
 
 	object_class->finalize = process_finalize;
 
-	if (0) {
-		process_class->check_file         = process_defaults;
-		process_class->check_directory    = process_defaults;
-		process_class->monitor_directory  = process_defaults;
-	}
-
         miner_class->started = miner_started;
+
+	process_class->check_file        = process_defaults;
+	process_class->check_directory   = process_defaults;
+	process_class->monitor_directory = process_defaults;
 
 	/*
 	  miner_class->stopped = miner_crawler_stopped;
