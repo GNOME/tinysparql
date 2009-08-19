@@ -27,12 +27,24 @@
 
 G_BEGIN_DECLS
 
-void tracker_miner_pause  (TrackerMiner           *miner,
-                           DBusGMethodInvocation  *context,
-                           GError                **error);
-void tracker_miner_resume (TrackerMiner           *miner,
-                           DBusGMethodInvocation  *context,
-                           GError                **error);
+void tracker_miner_get_name        (TrackerMiner           *miner,
+				    DBusGMethodInvocation  *context,
+				    GError                **error);
+void tracker_miner_get_description (TrackerMiner           *miner,
+				    DBusGMethodInvocation  *context,
+				    GError                **error);
+void tracker_miner_pause           (TrackerMiner           *miner,
+				    DBusGMethodInvocation  *context,
+				    GError                **error);
+void tracker_miner_resume          (TrackerMiner           *miner,
+				    DBusGMethodInvocation  *context,
+				    GError                **error);
+void tracker_miner_get_status      (TrackerMiner           *miner,
+				    DBusGMethodInvocation  *context,
+				    GError                **error);
+void tracker_miner_get_progress    (TrackerMiner           *miner,
+				    DBusGMethodInvocation  *context,
+				    GError                **error);
 
 G_END_DECLS
 

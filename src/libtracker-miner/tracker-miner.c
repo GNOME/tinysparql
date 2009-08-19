@@ -1,4 +1,4 @@
-./* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
+/* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*
  * Copyright (C) 2009, Nokia
 
@@ -20,6 +20,8 @@
 
 #include "config.h"
 
+#include <libtracker-common/tracker-dbus.h>
+
 #include "tracker-marshal.h"
 #include "tracker-miner.h"
 #include "tracker-miner-dbus.h"
@@ -33,6 +35,7 @@ struct TrackerMinerPrivate {
 	gboolean started;
 	
 	gchar *name;
+	gchar *description;
 	gchar *status;
 	gdouble progress;
 };
@@ -46,6 +49,7 @@ typedef struct {
 enum {
 	PROP_0,
 	PROP_NAME,
+	PROP_DESCRIPTION,
 	PROP_STATUS,
 	PROP_PROGRESS
 };
@@ -65,19 +69,20 @@ static GQuark dbus_data = 0;
 
 static guint signals[LAST_SIGNAL] = { 0 };
 
-static void     miner_set_property (GObject      *object,
-				    guint         param_id,
-				    const GValue *value,
-				    GParamSpec   *pspec);
-static void     miner_get_property (GObject      *object,
-				    guint         param_id,
-				    GValue       *value,
-				    GParamSpec   *pspec);
-static void     miner_finalize     (GObject      *object);
-static void     miner_constructed  (GObject      *object);
-static gboolean terminate_miner_cb (TrackerMiner *miner);
-static gboolean dbus_init          (TrackerMiner *miner);
-static void     dbus_shutdown      (TrackerMiner *miner);
+static void      miner_set_property (GObject      *object,
+				     guint         param_id,
+				     const GValue *value,
+				     GParamSpec   *pspec);
+static void      miner_get_property (GObject      *object,
+				     guint         param_id,
+				     GValue       *value,
+				     GParamSpec   *pspec);
+static void      miner_finalize     (GObject      *object);
+static void      miner_constructed  (GObject      *object);
+static gboolean  terminate_miner_cb (TrackerMiner *miner);
+static void      dbus_data_destroy  (gpointer      data);
+static DBusData *dbus_data_create   (TrackerMiner *miner,
+				     const gchar  *name);
 
 G_DEFINE_ABSTRACT_TYPE (TrackerMiner, tracker_miner, G_TYPE_OBJECT)
 
@@ -154,10 +159,17 @@ tracker_miner_class_init (TrackerMinerClass *klass)
 	g_object_class_install_property (object_class,
 					 PROP_NAME,
 					 g_param_spec_string ("name",
-							      "Mame",
+							      "Name",
 							      "Name",
 							      NULL,
 							      G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY));
+	g_object_class_install_property (object_class,
+					 PROP_DESCRIPTION,
+					 g_param_spec_string ("description",
+							      "Description",
+							      "Description",
+							      NULL,
+							      G_PARAM_READWRITE));
 	g_object_class_install_property (object_class,
 					 PROP_STATUS,
 					 g_param_spec_string ("status",
@@ -201,6 +213,10 @@ miner_set_property (GObject      *object,
 		g_free (miner->private->name);
 		miner->private->name = g_value_dup_string (value);
 		break;
+	case PROP_DESCRIPTION:
+		g_free (miner->private->description);
+		miner->private->description = g_value_dup_string (value);
+		break;
 	case PROP_STATUS:
 		g_free (miner->private->status);
 		miner->private->status = g_value_dup_string (value);
@@ -227,6 +243,9 @@ miner_get_property (GObject    *object,
 	case PROP_NAME:
 		g_value_set_string (value, miner->private->name);
 		break;
+	case PROP_DESCRIPTION:
+		g_value_set_string (value, miner->private->description);
+		break;
 	case PROP_STATUS:
 		g_value_set_string (value, miner->private->status);
 		break;
@@ -244,11 +263,17 @@ miner_finalize (GObject *object)
 {
 	TrackerMiner *miner = TRACKER_MINER (object);
 
+	g_free (miner->private->status);
+	g_free (miner->private->description);
+	g_free (miner->private->name);
+
 	if (miner->private->client) {
 		tracker_disconnect (miner->private->client);
 	}
 
-	dbus_shutdown (miner);
+	if (dbus_data != 0) {
+		g_object_set_qdata (G_OBJECT (miner), dbus_data, NULL);
+	}
 
 	G_OBJECT_CLASS (tracker_miner_parent_class)->finalize (object);
 }
@@ -256,17 +281,36 @@ miner_finalize (GObject *object)
 static void
 miner_constructed (GObject *object)
 {
-	TrackerMiner *miner = TRACKER_MINER (object);
+	TrackerMiner *miner;
+	DBusData *data;
+
+	miner = TRACKER_MINER (object);
 
 	if (!miner->private->name) {
 		g_critical ("Miner should have been given a name, bailing out");
 		g_assert_not_reached ();
 	}
 
-	if (!dbus_init (miner)) {
-		g_critical ("Could not register object to DBus");
-		g_idle_add ((GSourceFunc) terminate_miner_cb, miner);
+	if (G_UNLIKELY (dbus_data == 0)) {
+		dbus_data = g_quark_from_static_string ("tracker-miner-dbus-data");
 	}
+
+	data = g_object_get_qdata (G_OBJECT (miner), dbus_data);
+
+	if (G_LIKELY (!data)) {
+		data = dbus_data_create (miner, miner->private->name);
+	}
+
+	if (G_UNLIKELY (!data)) {
+		g_critical ("Miner could not register object on DBus session");
+		g_idle_add ((GSourceFunc) terminate_miner_cb, miner);
+		return;
+	}
+
+	g_object_set_qdata_full (G_OBJECT (miner), 
+				 dbus_data, 
+				 data,
+				 dbus_data_destroy);
 }
 
 static gboolean
@@ -405,56 +449,6 @@ dbus_data_create (TrackerMiner *miner,
 	return data;
 }
 
-static gboolean
-dbus_init (TrackerMiner *miner)
-{
-	DBusData *data;
-
-	g_return_val_if_fail (TRACKER_IS_MINER (miner), FALSE);
-
-	if (G_UNLIKELY (dbus_data == 0)) {
-		dbus_data = g_quark_from_static_string ("tracker-miner-dbus-data");
-	}
-
-	data = g_object_get_qdata (G_OBJECT (miner), dbus_data);
-
-	if (G_LIKELY (!data)) {
-		const gchar *name;
-
-		name = tracker_miner_get_name (miner);
-		data = dbus_data_create (miner, name);
-	}
-
-	if (G_UNLIKELY (!data)) {
-		return FALSE;
-	}
-
-	g_object_set_qdata_full (G_OBJECT (miner), 
-				 dbus_data, 
-				 data,
-				 dbus_data_destroy);
-
-	return TRUE;
-}
-
-static void
-dbus_shutdown (TrackerMiner *miner)
-{
-	if (dbus_data == 0) {
-		return;
-	}
-
-	g_object_set_qdata (G_OBJECT (miner), dbus_data, NULL);
-}
-
-G_CONST_RETURN gchar *
-tracker_miner_get_name (TrackerMiner *miner)
-{
-	g_return_val_if_fail (TRACKER_IS_MINER (miner), NULL);
-
-	return miner->private->name;
-}
-
 void
 tracker_miner_start (TrackerMiner *miner)
 {
@@ -475,22 +469,6 @@ tracker_miner_stop (TrackerMiner *miner)
 	miner->private->started = FALSE;
 
 	g_signal_emit (miner, signals[STOPPED], 0);
-}
-
-gchar *
-tracker_miner_get_status (TrackerMiner *miner)
-{
-	g_return_val_if_fail (TRACKER_IS_MINER (miner), NULL);
-
-	return g_strdup (miner->private->status);
-}
-
-gdouble
-tracker_miner_get_progress (TrackerMiner *miner)
-{
-	g_return_val_if_fail (TRACKER_IS_MINER (miner), 0.0);
-
-	return miner->private->progress;
 }
 
 TrackerClient *
@@ -530,11 +508,57 @@ tracker_miner_execute_sparql (TrackerMiner  *miner,
 
 /* DBus methods */
 void
+tracker_miner_get_name (TrackerMiner           *miner,
+			DBusGMethodInvocation  *context,
+			GError                **error)
+{
+	guint request_id;
+
+	request_id = tracker_dbus_get_next_request_id ();
+
+	tracker_dbus_async_return_if_fail (miner != NULL, context);
+
+	tracker_dbus_request_new (request_id, "%s()", __PRETTY_FUNCTION__);
+
+	dbus_g_method_return (context, miner->private->name);
+
+	tracker_dbus_request_success (request_id);
+}
+
+void
+tracker_miner_get_description (TrackerMiner           *miner,
+			       DBusGMethodInvocation  *context,
+			       GError                **error)
+{
+	guint request_id;
+
+	request_id = tracker_dbus_get_next_request_id ();
+
+	tracker_dbus_async_return_if_fail (miner != NULL, context);
+
+	tracker_dbus_request_new (request_id, "%s()", __PRETTY_FUNCTION__);
+
+	dbus_g_method_return (context, miner->private->description);
+
+	tracker_dbus_request_success (request_id);
+}
+
+void
 tracker_miner_pause (TrackerMiner           *miner,
 		     DBusGMethodInvocation  *context,
 		     GError                **error)
 {
-	g_return_if_fail (TRACKER_IS_MINER (miner));
+	guint request_id;
+
+	request_id = tracker_dbus_get_next_request_id ();
+
+	tracker_dbus_async_return_if_fail (miner != NULL, context);
+
+	tracker_dbus_request_new (request_id, "%s()", __PRETTY_FUNCTION__);
+
+	dbus_g_method_return (context);
+
+	tracker_dbus_request_success (request_id);
 }
 
 void
@@ -542,5 +566,51 @@ tracker_miner_resume (TrackerMiner           *miner,
 		      DBusGMethodInvocation  *context,
 		      GError                **error)
 {
-	g_return_if_fail (TRACKER_IS_MINER (miner));
+	guint request_id;
+
+	request_id = tracker_dbus_get_next_request_id ();
+
+	tracker_dbus_async_return_if_fail (miner != NULL, context);
+
+	tracker_dbus_request_new (request_id, "%s()", __PRETTY_FUNCTION__);
+
+	dbus_g_method_return (context);
+
+	tracker_dbus_request_success (request_id);
+}
+
+void
+tracker_miner_get_status (TrackerMiner           *miner,
+			  DBusGMethodInvocation  *context,
+			  GError                **error)
+{
+	guint request_id;
+
+	request_id = tracker_dbus_get_next_request_id ();
+
+	tracker_dbus_async_return_if_fail (miner != NULL, context);
+
+	tracker_dbus_request_new (request_id, "%s()", __PRETTY_FUNCTION__);
+
+	dbus_g_method_return (context, miner->private->status);
+
+	tracker_dbus_request_success (request_id);
+}
+
+void
+tracker_miner_get_progress (TrackerMiner           *miner,
+			    DBusGMethodInvocation  *context,
+			    GError                **error)
+{
+	guint request_id;
+
+	request_id = tracker_dbus_get_next_request_id ();
+
+	tracker_dbus_async_return_if_fail (miner != NULL, context);
+
+	tracker_dbus_request_new (request_id, "%s()", __PRETTY_FUNCTION__);
+
+	dbus_g_method_return (context, miner->private->progress);
+
+	tracker_dbus_request_success (request_id);
 }

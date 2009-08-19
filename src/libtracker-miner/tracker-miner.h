@@ -65,21 +65,15 @@ struct TrackerMinerClass {
 			     GError       *error);
 };
 
+GType          tracker_miner_get_type (void) G_GNUC_CONST;
 
-GType                 tracker_miner_get_type (void) G_GNUC_CONST;
+void           tracker_miner_start          (TrackerMiner  *miner);
+void           tracker_miner_stop           (TrackerMiner  *miner);
 
-void                  tracker_miner_start        (TrackerMiner           *miner);
-void                  tracker_miner_stop         (TrackerMiner           *miner);
-
-G_CONST_RETURN gchar *tracker_miner_get_name     (TrackerMiner           *miner);
-gchar                *tracker_miner_get_status   (TrackerMiner           *miner);
-gdouble               tracker_miner_get_progress (TrackerMiner           *miner);
-
-TrackerClient        *tracker_miner_get_client     (TrackerMiner         *miner);
-gboolean              tracker_miner_execute_sparql (TrackerMiner         *miner,
-						    const gchar          *sparql,
-						    GError              **error);
-
+TrackerClient *tracker_miner_get_client     (TrackerMiner  *miner);
+gboolean       tracker_miner_execute_sparql (TrackerMiner  *miner,
+					     const gchar   *sparql,
+					     GError       **error);
 
 G_END_DECLS
 
