@@ -32,6 +32,8 @@
 struct TrackerMinerPrivate {
 	TrackerClient *client;
 	
+	GHashTable *pauses;
+
 	gboolean started;
 	
 	gchar *name;
@@ -45,6 +47,12 @@ typedef struct {
 	DBusGProxy *gproxy;
 	GHashTable *name_monitors;
 } DBusData;
+
+typedef struct {
+	gint cookie;
+	gchar *application;
+	gchar *reason;	
+} PauseData;
 
 enum {
 	PROP_0,
@@ -69,20 +77,23 @@ static GQuark dbus_data = 0;
 
 static guint signals[LAST_SIGNAL] = { 0 };
 
-static void      miner_set_property (GObject      *object,
-				     guint         param_id,
-				     const GValue *value,
-				     GParamSpec   *pspec);
-static void      miner_get_property (GObject      *object,
-				     guint         param_id,
-				     GValue       *value,
-				     GParamSpec   *pspec);
-static void      miner_finalize     (GObject      *object);
-static void      miner_constructed  (GObject      *object);
-static gboolean  terminate_miner_cb (TrackerMiner *miner);
-static void      dbus_data_destroy  (gpointer      data);
-static DBusData *dbus_data_create   (TrackerMiner *miner,
-				     const gchar  *name);
+static void       miner_set_property (GObject      *object,
+				      guint         param_id,
+				      const GValue *value,
+				      GParamSpec   *pspec);
+static void       miner_get_property (GObject      *object,
+				      guint         param_id,
+				      GValue       *value,
+				      GParamSpec   *pspec);
+static void       miner_finalize     (GObject      *object);
+static void       miner_constructed  (GObject      *object);
+static gboolean   terminate_miner_cb (TrackerMiner *miner);
+static void       dbus_data_destroy  (gpointer      data);
+static DBusData * dbus_data_create   (TrackerMiner *miner,
+				      const gchar  *name);
+static void       pause_data_destroy (gpointer      data);
+static PauseData *pause_data_new     (const gchar  *application,
+				      const gchar  *reason);
 
 G_DEFINE_ABSTRACT_TYPE (TrackerMiner, tracker_miner, G_TYPE_OBJECT)
 
@@ -198,6 +209,11 @@ tracker_miner_init (TrackerMiner *miner)
 	miner->private = priv = TRACKER_MINER_GET_PRIVATE (miner);
 
 	priv->client = tracker_connect (TRUE, -1);
+
+	priv->pauses = g_hash_table_new_full (g_direct_hash,
+					      g_direct_equal,
+					      NULL,
+					      pause_data_destroy);
 }
 
 static void
@@ -449,6 +465,35 @@ dbus_data_create (TrackerMiner *miner,
 	return data;
 }
 
+static PauseData *
+pause_data_new (const gchar *application,
+		const gchar *reason)
+{
+	PauseData *data;
+	static gint cookie = 1;
+
+	data = g_slice_new0 (PauseData);
+
+	data->cookie = cookie++;
+	data->application = g_strdup (application);
+	data->reason = g_strdup (reason);
+
+	return data;
+}
+
+static void
+pause_data_destroy (gpointer data)
+{
+	PauseData *pd;
+	
+	pd = data;
+
+	g_free (pd->reason);
+	g_free (pd->application);
+
+	g_slice_free (PauseData, pd);
+}
+
 void
 tracker_miner_start (TrackerMiner *miner)
 {
@@ -548,24 +593,40 @@ tracker_miner_get_description (TrackerMiner           *miner,
 
 void
 tracker_miner_pause (TrackerMiner           *miner,
+		     const gchar            *application,
+		     const gchar            *reason,
 		     DBusGMethodInvocation  *context,
 		     GError                **error)
 {
 	guint request_id;
+	PauseData *pd;
 
 	request_id = tracker_dbus_get_next_request_id ();
 
 	tracker_dbus_async_return_if_fail (miner != NULL, context);
+	tracker_dbus_async_return_if_fail (application != NULL, context);
+	tracker_dbus_async_return_if_fail (reason != NULL, context);
 
 	tracker_dbus_request_new (request_id, "%s()", __PRETTY_FUNCTION__);
 
-	dbus_g_method_return (context);
+	pd = pause_data_new (application, reason);
+
+	g_hash_table_insert (miner->private->pauses, 
+			     GINT_TO_POINTER (pd->cookie),
+			     pd);
+
+	if (g_hash_table_size (miner->private->pauses) == 1) {
+		/* Pause */
+	}
+
+	dbus_g_method_return (context, pd->cookie);
 
 	tracker_dbus_request_success (request_id);
 }
 
 void
 tracker_miner_resume (TrackerMiner           *miner,
+		      gint                    cookie,
 		      DBusGMethodInvocation  *context,
 		      GError                **error)
 {
@@ -577,9 +638,22 @@ tracker_miner_resume (TrackerMiner           *miner,
 
 	tracker_dbus_request_new (request_id, "%s()", __PRETTY_FUNCTION__);
 
-	dbus_g_method_return (context);
+	if (!g_hash_table_remove (miner->private->pauses, GINT_TO_POINTER (cookie))) {
+		GError *actual_error = NULL;
+		
+		tracker_dbus_request_failed (request_id,
+		                             &actual_error,
+		                             "Cookie not recognised to resume paused miner");
+		dbus_g_method_return_error (context, actual_error);
+		g_error_free (actual_error);
+	} else {
+		if (g_hash_table_size (miner->private->pauses) == 0) {
+			/* Resume */
+		}
 
-	tracker_dbus_request_success (request_id);
+		dbus_g_method_return (context);
+		tracker_dbus_request_success (request_id);
+	}
 }
 
 void

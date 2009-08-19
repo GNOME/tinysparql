@@ -34,9 +34,12 @@ void tracker_miner_get_description (TrackerMiner           *miner,
 				    DBusGMethodInvocation  *context,
 				    GError                **error);
 void tracker_miner_pause           (TrackerMiner           *miner,
+				    const gchar            *application,
+				    const gchar            *name,
 				    DBusGMethodInvocation  *context,
 				    GError                **error);
 void tracker_miner_resume          (TrackerMiner           *miner,
+				    gint                    cookie,
 				    DBusGMethodInvocation  *context,
 				    GError                **error);
 void tracker_miner_get_status      (TrackerMiner           *miner,
