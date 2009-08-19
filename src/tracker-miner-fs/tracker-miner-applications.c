@@ -22,14 +22,6 @@
 #include <libtracker-common/tracker-ontology.h>
 #include "tracker-miner-applications.h"
 
-#define TRACKER_MINER_APPLICATIONS_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_MINER_APPLICATIONS, TrackerMinerApplicationsPrivate))
-
-typedef struct _TrackerMinerApplicationsPrivate TrackerMinerApplicationsPrivate;
-
-struct _TrackerMinerApplicationsPrivate {
-	gboolean foo;
-};
-
 #define RDF_TYPE 	TRACKER_RDF_PREFIX "type"
 #define NFO_PREFIX	TRACKER_NFO_PREFIX
 #define NIE_PREFIX	TRACKER_NIE_PREFIX
@@ -69,8 +61,6 @@ tracker_miner_applications_class_init (TrackerMinerApplicationsClass *klass)
 	miner_process_class->check_directory = tracker_miner_applications_check_directory;
 	miner_process_class->monitor_directory = tracker_miner_applications_monitor_directory;
         miner_process_class->process_file = tracker_miner_applications_process_file;
-
-        g_type_class_add_private (object_class, sizeof (TrackerMinerApplicationsPrivate));
 }
 
 static void
