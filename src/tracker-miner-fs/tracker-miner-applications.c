@@ -338,7 +338,7 @@ tracker_miner_applications_process_file (TrackerMinerProcess  *miner,
 
 		time = g_file_info_get_attribute_uint64 (file_info, G_FILE_ATTRIBUTE_TIME_MODIFIED);
 		tracker_sparql_builder_predicate (sparql, "nfo:fileLastModified");
-		tracker_sparql_builder_object_date (sparql, &time);
+		tracker_sparql_builder_object_date (sparql, (time_t *) &time);
 
 		g_object_unref (file_info);
 	}
