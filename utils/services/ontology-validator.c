@@ -18,13 +18,17 @@ static GOptionEntry   entries[] = {
 #define RDFS_CLASS "http://www.w3.org/2000/01/rdf-schema#Class"
 #define RDF_PROPERTY "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
 #define RDFS_SUBCLASSOF  "http://www.w3.org/2000/01/rdf-schema#subClassOf"
+#define RDFS_SUBPROPERTYOF  "http://www.w3.org/2000/01/rdf-schema#subPropertyOf"
 #define RDFS_TYPE "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
-#define TRACKER_NAMESPACE "http://www.tracker-project.org/ontologies/tracker#Namespace"
+#define TRACKER_NS "http://www.tracker-project.org/ontologies/tracker#Namespace"
+#define TRACKER_PREFIX "http://www.tracker-project.org/ontologies/tracker#prefix"
 #define RDFS_RANGE "http://www.w3.org/2000/01/rdf-schema#range"
 #define RDFS_DOMAIN "http://www.w3.org/2000/01/rdf-schema#domain"
 
+
 static GList *unknown_items = NULL;
 static GList *known_items = NULL;
+static GList *unknown_predicates = NULL;
 
 static gboolean
 exists_or_already_reported (const gchar *item)
@@ -52,12 +56,12 @@ turtle_load_ontology (const gchar *turtle_subject,
          **/
         if (!g_strcmp0 (turtle_predicate, RDFS_TYPE)) {
 
-                if (!g_strcmp0 (turtle_object, TRACKER_NAMESPACE)) {
+                if (!g_strcmp0 (turtle_object, TRACKER_NS)) {
                         /* Ignore the internal tracker namespace definitions */
                         return;
                 }
 
-                /* Check the class hasn't already be defined
+                /* Check the nmo:Email hasn't already be defined
                  *  (ignoring rdfs:Class and rdf:Property for bootstraping reasons)
                  */
                 if (exists_or_already_reported (turtle_subject)
@@ -67,13 +71,27 @@ turtle_load_ontology (const gchar *turtle_subject,
                         return;
                 }
 
-                /* Check the class is already defined */
+                /* Check the object class is already defined */
                 if (!exists_or_already_reported (turtle_object)) {
                         g_error ("%s is a %s but %s is not defined",
                                  turtle_subject, turtle_object, turtle_object);
                 } else {
+                        /* A new type defined... if it is a predicate, 
+                         *  remove it from the maybe list! 
+                         */
+                        if (!g_strcmp0 (turtle_object, RDF_PROPERTY)) {
+                                GList *link;
+                                link = g_list_find_custom (unknown_predicates, 
+                                                           turtle_subject, 
+                                                           (GCompareFunc)g_strcmp0);
+                                if (link) {
+                                        unknown_predicates = g_list_remove_link (unknown_predicates,
+                                                                                 link);
+                                } 
+                        }
                         known_items = g_list_prepend (known_items, g_strdup (turtle_subject));
                 }
+                return;
         }
 
         /*
@@ -81,6 +99,7 @@ turtle_load_ontology (const gchar *turtle_subject,
          *  Check nie:InformationElement is defined
          */
         if (!g_strcmp0 (turtle_predicate, RDFS_SUBCLASSOF)
+            || !g_strcmp0 (turtle_predicate, RDFS_SUBPROPERTYOF)
             || !g_strcmp0 (turtle_predicate, RDFS_RANGE)
             || !g_strcmp0 (turtle_predicate, RDFS_DOMAIN)) {
                 /* Check the class is already defined */
@@ -88,9 +107,20 @@ turtle_load_ontology (const gchar *turtle_subject,
                         g_error ("Class %s refers to %s but it is not defined",
                                  turtle_subject, turtle_object);
                 }
+                return;
         }
 
-
+        /*
+         * The predicate is not type, subclass, range, domain... 
+         *   Put it in maybe
+         */
+        if (!exists_or_already_reported (turtle_predicate)
+            && !g_list_find_custom (unknown_predicates, 
+                                    turtle_predicate, 
+                                    (GCompareFunc) g_strcmp0)) {
+                unknown_predicates = g_list_prepend (unknown_predicates, 
+                                                     g_strdup (turtle_predicate));
+        }
 }
 
 static void 
@@ -197,6 +227,12 @@ main (gint argc, gchar **argv)
         load_basic_classes ();
         //"/home/ivan/devel/codethink/tracker-ssh/data/services"
         load_ontology_files (ontology_dir);
+
+        GList *it;
+        for (it = unknown_predicates; it != NULL; it = it->next) {
+                g_error ("Predicate '%s' is used in the ontology, but it is not defined\n",
+                         (gchar *)it->data);
+        }
 
         return 0;
 }
