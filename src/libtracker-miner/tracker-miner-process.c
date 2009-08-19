@@ -74,6 +74,14 @@ typedef struct {
 } DirectoryData;
 
 enum {
+	QUEUE_NONE,
+	QUEUE_CREATED,
+	QUEUE_UPDATED,
+	QUEUE_DELETED,
+	QUEUE_MOVED
+};
+
+enum {
 	CHECK_FILE,
 	CHECK_DIRECTORY,
 	PROCESS_FILE,
@@ -409,35 +417,88 @@ item_add_or_update (TrackerMinerProcess  *miner,
 	g_free (full_sparql);
 }
 
+static gboolean
+query_resource_exists (TrackerMinerProcess *miner,
+		       const gchar         *uri)
+{
+	TrackerClient *client;
+	gboolean   result;
+	gchar     *sparql;
+	GPtrArray *sparql_result;
+
+	sparql = g_strdup_printf ("SELECT ?s WHERE { ?s a rdfs:Resource . FILTER (?s = <%s>) }",
+	                          uri);
+
+	client = tracker_miner_get_client (TRACKER_MINER (miner));
+	sparql_result = tracker_resources_sparql_query (client, sparql, NULL);
+
+	result = (sparql_result && sparql_result->len == 1);
+
+	tracker_dbus_results_ptr_array_free (&sparql_result);
+	g_free (sparql);
+
+	return result;
+}
+
+static void
+item_remove (TrackerMinerProcess *miner,
+	     GFile               *file)
+{
+	gchar *sparql, *uri;
+
+	uri = g_file_get_uri (file);
+
+	g_debug ("Removing item: '%s' (Deleted from filesystem)",
+		 uri);
+
+	if (!query_resource_exists (miner, uri)) {
+		g_debug ("  File does not exist anyway (uri:'%s')", uri);
+		return;
+	}
+
+	/* Delete resource */
+	sparql = g_strdup_printf ("DELETE { <%s> a rdfs:Resource }", uri);
+	tracker_miner_execute_sparql (TRACKER_MINER (miner), sparql, NULL);
+	g_free (sparql);
+
+	/* FIXME: Should delete recursively? */
+}
+
 static GFile *
-get_next_file (TrackerMinerProcess  *miner)
+get_next_file (TrackerMinerProcess  *miner,
+	       gint                 *queue)
 {
 	GFile *file;
 
 	/* Deleted items first */
 	file = g_queue_pop_head (miner->private->items_deleted);
 	if (file) {
+		*queue = QUEUE_DELETED;
 		return file;
 	}
 
 	/* Created items next */
 	file = g_queue_pop_head (miner->private->items_created);
 	if (file) {
+		*queue = QUEUE_CREATED;
 		return file;
 	}
 
 	/* Updated items next */
 	file = g_queue_pop_head (miner->private->items_updated);
 	if (file) {
+		*queue = QUEUE_UPDATED;
 		return file;
 	}
 
 	/* Moved items next */
 	file = g_queue_pop_head (miner->private->items_moved);
 	if (file) {
+		*queue = QUEUE_MOVED;
 		return file;
 	}
 
+	*queue = QUEUE_NONE;
 	return NULL;
 }
 
@@ -448,17 +509,22 @@ item_queue_handlers_cb (gpointer user_data)
 	TrackerMinerProcess *miner;
 	gboolean processed;
 	GFile *file;
+	gint queue;
 
 	miner = user_data;
 	sparql = tracker_sparql_builder_new_update ();
-	file = get_next_file (miner);
+	file = get_next_file (miner, &queue);
 
 	if (file) {
-		g_signal_emit (miner, signals[PROCESS_FILE], 0, file, sparql, &processed);
+		if (queue == QUEUE_DELETED) {
+			item_remove (miner, file);
+		} else  {
+			g_signal_emit (miner, signals[PROCESS_FILE], 0, file, sparql, &processed);
 
-		if (processed) {
-			/* Commit sparql */
-			item_add_or_update (miner, file, sparql);
+			if (processed) {
+				/* Commit sparql */
+				item_add_or_update (miner, file, sparql);
+			}
 		}
 
 		return TRUE;
