@@ -1213,14 +1213,7 @@ libinotify_monitor_cancel (gpointer data)
 TrackerMonitor *
 tracker_monitor_new (void)
 {
-	TrackerMonitor	      *monitor;
-	TrackerMonitorPrivate *priv;
-
-	monitor = g_object_new (TRACKER_TYPE_MONITOR, NULL);
-
-	priv = monitor->private;
-
-	return monitor;
+	return g_object_new (TRACKER_TYPE_MONITOR, NULL);
 }
 
 gboolean
@@ -1316,11 +1309,6 @@ tracker_monitor_add (TrackerMonitor *monitor,
 		return TRUE;
 	}
 
-	if (!monitor->private->monitors) {
-		g_critical ("Could not add monitor, no monitors are set up");
-		return FALSE;
-	}
-
 	if (g_hash_table_lookup (monitor->private->monitors, file)) {
 		return TRUE;
 	}
@@ -1378,11 +1366,6 @@ tracker_monitor_remove (TrackerMonitor *monitor,
 	g_return_val_if_fail (TRACKER_IS_MONITOR (monitor), FALSE);
 	g_return_val_if_fail (G_IS_FILE (file), FALSE);
 
-	if (!monitor->private->monitors) {
-		g_critical ("Could not remove monitor, no monitors are set up");
-		return FALSE;
-	}
-	
 	removed = g_hash_table_remove (monitor->private->monitors, file);
 	path = g_file_get_path (file);
 	
@@ -1441,11 +1424,6 @@ tracker_monitor_is_watched (TrackerMonitor *monitor,
 	g_return_val_if_fail (TRACKER_IS_MONITOR (monitor), FALSE);
 	g_return_val_if_fail (G_IS_FILE (file), FALSE);
 
-	if (!monitor->private->monitors) {
-		g_critical ("Could not find out if GFile is watched, no monitors are set up");
-		return FALSE;
-	}
-
 	return g_hash_table_lookup (monitor->private->monitors, file) != NULL;
 }
 
@@ -1458,11 +1436,6 @@ tracker_monitor_is_watched_by_string (TrackerMonitor *monitor,
 
 	g_return_val_if_fail (TRACKER_IS_MONITOR (monitor), FALSE);
 	g_return_val_if_fail (path != NULL, FALSE);
-
-	if (!monitor->private->monitors) {
-		g_critical ("Could not find out if path is monitored, no monitors are set up");
-		return FALSE;
-	}
 
 	file = g_file_new_for_path (path);
 	watched = g_hash_table_lookup (monitor->private->monitors, file) != NULL;
