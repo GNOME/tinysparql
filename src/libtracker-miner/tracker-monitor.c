@@ -1402,13 +1402,13 @@ tracker_monitor_remove (TrackerMonitor *monitor,
 
 	return removed;
 }
-	
+
 gboolean
 tracker_monitor_remove_recursively (TrackerMonitor *monitor,
 				    GFile          *file)
 {
 	GHashTableIter iter;
-	gpointer       iter_hash_table, iter_file, iter_file_monitor;
+	gpointer       iter_file, iter_file_monitor;
 	guint          items_removed = 0;
 
 	g_return_val_if_fail (TRACKER_IS_MONITOR (monitor), FALSE);
@@ -1417,25 +1417,24 @@ tracker_monitor_remove_recursively (TrackerMonitor *monitor,
 	g_hash_table_iter_init (&iter, monitor->private->monitors);
 	while (g_hash_table_iter_next (&iter, &iter_file, &iter_file_monitor)) {
 		gchar *path;
-		
+
 		if (!g_file_has_prefix (iter_file, file) &&
 		    !g_file_equal (iter_file, file)) {
 			continue;
 		}
-		
+
 		path = g_file_get_path (iter_file);
-		
+
 		g_debug ("Removed monitor for path:'%s', total monitors:%d",
 			 path,
-			 g_hash_table_size (iter_hash_table));
-		
+			 g_hash_table_size (monitor->private->monitors));
+
 		g_free (path);
-		
+
 		g_hash_table_iter_remove (&iter);
-		
+
 		/* We reset this because now it is possible we have limit - 1 */
 		monitor->private->monitor_limit_warned = FALSE;
-		
 		items_removed++;
 	}
 
