@@ -1414,8 +1414,6 @@ AC_CONFIG_FILES([
 	docs/reference/Makefile
 	docs/reference/libtracker-common/Makefile
 	docs/reference/libtracker-common/version.xml
-	docs/reference/libtracker-module/Makefile
-	docs/reference/libtracker-module/version.xml
 	filters/application/Makefile
 	filters/Makefile
 	filters/text/Makefile
@@ -1440,7 +1438,6 @@ AC_CONFIG_FILES([
 	src/tracker-extract/Makefile
 	src/tracker-fts/Makefile
 	src/tracker-miner-fs/Makefile
-	src/tracker-miner-fs/modules/Makefile
 	src/tracker-preferences/Makefile
 	src/tracker-preferences/tracker-preferences.desktop.in
 	src/tracker-search-tool/Makefile

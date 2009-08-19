@@ -1,4 +1,0 @@
-#include <tracker-miner-fs/tracker-module.h>
-
-tracker_module_file_get_type
-tracker_module_iteratable_get_type
