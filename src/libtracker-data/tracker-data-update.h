@@ -49,7 +49,8 @@ gboolean tracker_data_update_resource_uri               (const gchar         *ol
 void     tracker_data_delete_resource_description       (const gchar         *uri);
 void     tracker_data_delete_statement			(const gchar	     *subject,
 							 const gchar         *predicate,
-							 const gchar         *object);
+							 const gchar         *object,
+							 GError             **error);
 
 void     tracker_data_insert_statement			(const gchar	     *subject,
 							 const gchar         *predicate,

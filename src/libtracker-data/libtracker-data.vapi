@@ -30,7 +30,7 @@ namespace Tracker {
 		public int query_resource_id (string uri);
 		public void begin_transaction ();
 		public void commit_transaction ();
-		public void delete_statement (string subject, string predicate, string object);
+		public void delete_statement (string subject, string predicate, string object) throws DataError;
 		public void insert_statement (string subject, string predicate, string object) throws DataError;
 		public void insert_statement_with_uri (string subject, string predicate, string object) throws DataError;
 		public void insert_statement_with_string (string subject, string predicate, string object) throws DataError;

@@ -757,7 +757,8 @@ delete_metadata_decomposed (gint resource_id,
 void
 tracker_data_delete_statement (const gchar            *subject,
 			       const gchar            *predicate,
-			       const gchar            *object)
+			       const gchar            *object,
+			       GError                **error)
 {
 	TrackerClass       *class;
 	TrackerProperty    *field;
@@ -809,7 +810,7 @@ tracker_data_delete_statement (const gchar            *subject,
 					gchar *class_uri;
 
 					tracker_db_result_set_get (result_set, 0, &class_uri, -1);
-					tracker_data_delete_statement (subject, predicate, class_uri);
+					tracker_data_delete_statement (subject, predicate, class_uri, NULL);
 					g_free (class_uri);
 				} while (tracker_db_result_set_iter_next (result_set));
 
@@ -953,7 +954,8 @@ tracker_data_delete_statement (const gchar            *subject,
 			/* delete rows from class tables */
 			delete_resource_type (subject_id, class);
 		} else {
-			g_warning ("Class '%s' not found in the ontology", object);
+			g_set_error (error, TRACKER_DATA_ERROR, TRACKER_DATA_ERROR_UNKNOWN_CLASS,
+				     "Class '%s' not found in the ontology", object);
 		}
 	} else {
 		field = tracker_ontology_get_property_by_uri (predicate);
@@ -980,7 +982,8 @@ tracker_data_delete_statement (const gchar            *subject,
 				g_object_unref (stmt);
 			}
 		} else {
-			g_warning ("Property '%s' not found in the ontology", predicate);
+			g_set_error (error, TRACKER_DATA_ERROR, TRACKER_DATA_ERROR_UNKNOWN_PROPERTY,
+				     "Property '%s' not found in the ontology", predicate);
 		}
 	}
 
@@ -1212,7 +1215,7 @@ tracker_data_delete_resource (const gchar     *uri)
 {
 	g_return_if_fail (uri != NULL);
 
-	tracker_data_delete_statement (uri, RDF_PREFIX "type", RDFS_PREFIX "Resource");
+	tracker_data_delete_statement (uri, RDF_PREFIX "type", RDFS_PREFIX "Resource", NULL);
 }
 
 static void
@@ -1586,7 +1589,7 @@ tracker_data_delete_resource_description (const gchar *uri)
 					object = get_string_for_value (&value);
 					g_value_unset (&value);
 
-					tracker_data_delete_statement (uri, tracker_property_get_uri (*property), object);
+					tracker_data_delete_statement (uri, tracker_property_get_uri (*property), object, NULL);
 
 					g_free (object);
 				} else {
@@ -1617,7 +1620,7 @@ tracker_data_delete_resource_description (const gchar *uri)
 							object = get_string_for_value (&value);
 							g_value_unset (&value);
 
-							tracker_data_delete_statement (uri, tracker_property_get_uri (*property), object);
+							tracker_data_delete_statement (uri, tracker_property_get_uri (*property), object, NULL);
 
 							g_free (object);
 						} while (tracker_db_result_set_iter_next (multi_result_set));

@@ -438,7 +438,7 @@ tracker_store_delete_statement (const gchar   *subject,
 		private->batch_count = 0;
 	}
 
-	tracker_data_delete_statement (subject, predicate, object);
+	tracker_data_delete_statement (subject, predicate, object, NULL);
 }
 
 guint
