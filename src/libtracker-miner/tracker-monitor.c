@@ -1207,7 +1207,9 @@ libinotify_monitor_directory (TrackerMonitor *monitor,
 static void
 libinotify_monitor_cancel (gpointer data)
 {
-	inotify_monitor_remove (data);
+	if (data) {
+		inotify_monitor_remove (data);
+	}
 }
 
 TrackerMonitor *
@@ -1252,11 +1254,36 @@ void
 tracker_monitor_set_enabled (TrackerMonitor *monitor,
 			     gboolean	     enabled)
 {
+	GList *keys, *k;
+
 	g_return_if_fail (TRACKER_IS_MONITOR (monitor));
 
 	monitor->private->enabled = enabled;
-
 	g_object_notify (G_OBJECT (monitor), "enabled");
+
+	keys = g_hash_table_get_keys (monitor->private->monitors);
+
+	/* Update state on all monitored dirs */
+	for (k = keys; k != NULL; k = k->next) {
+		GFile *file;
+
+		file = k->data;
+
+		if (enabled) {
+			INotifyHandle *handle;
+
+			/* Create monitor for dir */
+			handle = libinotify_monitor_directory (monitor, file);
+			g_hash_table_replace (monitor->private->monitors,
+					      g_object_ref (file), handle);
+		} else {
+			/* Remove monitor */
+			g_hash_table_replace (monitor->private->monitors,
+					      g_object_ref (file), NULL);
+		}
+	}
+
+	g_list_free (keys);
 }
 
 void
@@ -1299,15 +1326,11 @@ gboolean
 tracker_monitor_add (TrackerMonitor *monitor,
 		     GFile	    *file)
 {
-	INotifyHandle *file_monitor;
+	INotifyHandle *file_monitor = NULL;
 	gchar *path;
 
 	g_return_val_if_fail (TRACKER_IS_MONITOR (monitor), FALSE);
 	g_return_val_if_fail (G_IS_FILE (file), FALSE);
-
-	if (!monitor->private->enabled) {
-		return TRUE;
-	}
 
 	if (g_hash_table_lookup (monitor->private->monitors, file)) {
 		return TRUE;
@@ -1329,18 +1352,20 @@ tracker_monitor_add (TrackerMonitor *monitor,
 
 	path = g_file_get_path (file);
 
-	/* We don't check if a file exists or not since we might want
-	 * to monitor locations which don't exist yet.
-	 *
-	 * Also, we assume ALL paths passed are directories.
-	 */
-	file_monitor = libinotify_monitor_directory (monitor, file);
+	if (monitor->private->enabled) {
+		/* We don't check if a file exists or not since we might want
+		 * to monitor locations which don't exist yet.
+		 *
+		 * Also, we assume ALL paths passed are directories.
+		 */
+		file_monitor = libinotify_monitor_directory (monitor, file);
 
-	if (!file_monitor) {
-		g_warning ("Could not add monitor for path:'%s'",
-			   path);
-		g_free (path);
-		return FALSE;
+		if (!file_monitor) {
+			g_warning ("Could not add monitor for path:'%s'",
+				   path);
+			g_free (path);
+			return FALSE;
+		}
 	}
 
 	g_hash_table_insert (monitor->private->monitors,
