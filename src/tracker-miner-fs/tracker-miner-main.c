@@ -69,8 +69,6 @@ static GMainLoop    *main_loop;
 static gboolean      version;
 static gint	     verbosity = -1;
 static gint	     initial_sleep = -1;
-static gboolean      process_all;
-static gchar       **modules;
 
 static GOptionEntry  entries[] = {
 	{ "version", 'V', 0,
@@ -87,11 +85,6 @@ static GOptionEntry  entries[] = {
 	  N_("Initial sleep time in seconds, "
 	     "0->1000 (default = config)"),
 	  NULL },
-	{ "process-all", 'p', 0,
-	  G_OPTION_ARG_NONE, &process_all,
-	  N_("Index data from all enabled modules"),
-	  NULL },
-
 	{ NULL }
 };
 
