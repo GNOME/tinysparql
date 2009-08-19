@@ -231,7 +231,7 @@ public class Tracker.SparqlQuery : Object {
 				}
 			} else {
 				// UNION over all properties would exceed SQLite limits
-				throw new SparqlError.INTERNAL ("Unrestricted predicate variables not supported");
+				throw get_internal_error ("Unrestricted predicate variables not supported");
 			}
 			return sql.str;
 		}
@@ -357,12 +357,20 @@ public class Tracker.SparqlQuery : Object {
 		return false;
 	}
 
+	SparqlError get_error (string msg) {
+		return new SparqlError.PARSE ("%d.%d: syntax error, %s".printf (tokens[index].begin.line, tokens[index].begin.column, msg));
+	}
+
+	SparqlError get_internal_error (string msg) {
+		return new SparqlError.INTERNAL ("%d.%d: %s".printf (tokens[index].begin.line, tokens[index].begin.column, msg));
+	}
+
 	bool expect (SparqlTokenType type) throws SparqlError {
 		if (accept (type)) {
 			return true;
 		}
 
-		throw new SparqlError.PARSE ("expected %s", type.to_string ());
+		throw get_error ("expected %s".printf (type.to_string ()));
 	}
 
 	inline SourceLocation get_location () {
@@ -412,16 +420,21 @@ public class Tracker.SparqlQuery : Object {
 		parse_prologue ();
 
 		if (!update_extensions) {
-			if (current () == SparqlTokenType.SELECT) {
+			switch (current ()) {
+			case SparqlTokenType.SELECT:
 				return execute_select ();
-			} else if (current () == SparqlTokenType.CONSTRUCT) {
-				throw new SparqlError.INTERNAL ("CONSTRUCT is not supported");
-			} else if (current () == SparqlTokenType.DESCRIBE) {
-				throw new SparqlError.INTERNAL ("DESCRIBE is not supported");
-			} else if (current () == SparqlTokenType.ASK) {
+			case SparqlTokenType.CONSTRUCT:
+				throw get_internal_error ("CONSTRUCT is not supported");
+			case SparqlTokenType.DESCRIBE:
+				throw get_internal_error ("DESCRIBE is not supported");
+			case SparqlTokenType.ASK:
 				return execute_ask ();
-			} else {
-				throw new SparqlError.PARSE ("DELETE and INSERT are not supported in query mode");
+			case SparqlTokenType.INSERT:
+			case SparqlTokenType.DELETE:
+			case SparqlTokenType.DROP:
+				throw get_error ("INSERT and DELETE are not supported in query mode");
+			default:
+				throw get_error ("expected SELECT or ASK");
 			}
 		} else {
 			// SPARQL update supports multiple operations in a single query
@@ -431,14 +444,23 @@ public class Tracker.SparqlQuery : Object {
 
 			try {
 				while (current () != SparqlTokenType.EOF) {
-					if (current () == SparqlTokenType.INSERT) {
+					switch (current ()) {
+					case SparqlTokenType.INSERT:
 						execute_insert ();
-					} else if (current () == SparqlTokenType.DELETE) {
+						break;
+					case SparqlTokenType.DELETE:
 						execute_delete ();
-					} else if (current () == SparqlTokenType.DROP) {
+						break;
+					case SparqlTokenType.DROP:
 						execute_drop_graph ();
-					} else {
-						throw new SparqlError.PARSE ("SELECT, CONSTRUCT, DESCRIBE, and ASK are not supported in update mode");
+						break;
+					case SparqlTokenType.SELECT:
+					case SparqlTokenType.CONSTRUCT:
+					case SparqlTokenType.DESCRIBE:
+					case SparqlTokenType.ASK:
+						throw get_error ("SELECT, CONSTRUCT, DESCRIBE, and ASK are not supported in update mode");
+					default:
+						throw get_error ("expected INSERT or DELETE");
 					}
 				}
 			} finally {
@@ -451,7 +473,7 @@ public class Tracker.SparqlQuery : Object {
 
 	void check_binding (VariableBinding? binding, string variable_name) throws SparqlError {
 		if (binding == null) {
-			throw new SparqlError.PARSE ("`%s' is not a valid variable".printf (variable_name));
+			throw get_error ("`%s' is not a valid variable".printf (variable_name));
 		}
 	}
 
@@ -718,6 +740,8 @@ public class Tracker.SparqlQuery : Object {
 			bindings.append (binding);
 		}
 
+		expect (SparqlTokenType.EOF);
+
 		return exec_sql (sql.str);
 	}
 
@@ -854,7 +878,7 @@ public class Tracker.SparqlQuery : Object {
 	string resolve_prefixed_name (string prefix, string local_name) throws SparqlError {
 		string ns = prefix_map.lookup (prefix);
 		if (ns == null) {
-			throw new SparqlError.PARSE ("use of undefined prefix `%s'", prefix);
+			throw get_error ("use of undefined prefix `%s'".printf (prefix));
 		}
 		return ns + local_name;
 	}
@@ -924,7 +948,7 @@ public class Tracker.SparqlQuery : Object {
 
 			is_var = true;
 		} else {
-			throw new SparqlError.PARSE ("expected variable or term");
+			throw get_error ("expected variable or term");
 		}
 		return result;
 	}
@@ -965,7 +989,7 @@ public class Tracker.SparqlQuery : Object {
 				next ();
 				current_predicate = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
 			} else {
-				throw new SparqlError.PARSE ("expected non-empty property list");
+				throw get_error ("expected non-empty property list");
 			}
 			parse_object_list (sql);
 
@@ -1098,7 +1122,7 @@ public class Tracker.SparqlQuery : Object {
 			check_binding (binding, variable_name);
 
 			if (binding.is_uri || binding.type == null) {
-				throw new SparqlError.PARSE ("Invalid FILTER");
+				throw get_error ("Invalid FILTER");
 			}
 
 			sql.append ("(SELECT ID FROM \"rdfs:Resource\" WHERE Uri = ?)");
@@ -1108,7 +1132,7 @@ public class Tracker.SparqlQuery : Object {
 			bindings.append (new_binding);
 
 		} else {
-			throw new SparqlError.PARSE ("Invalid FILTER");
+			throw get_error ("Invalid FILTER");
 		}
 
 		expect (SparqlTokenType.CLOSE_PARENS);
@@ -1179,7 +1203,7 @@ public class Tracker.SparqlQuery : Object {
 
 			return result;
 		default:
-			throw new SparqlError.PARSE ("expected string literal \"%s\")", get_last_string ());
+			throw get_error ("expected string literal");
 		}
 	}
 
@@ -1341,7 +1365,7 @@ public class Tracker.SparqlQuery : Object {
 			bindings.append (binding);
 			return DataType.RESOURCE;
 		default:
-			throw new SparqlError.PARSE ("expected primary expression");
+			throw get_error ("expected primary expression");
 		}
 	}
 
@@ -1351,7 +1375,7 @@ public class Tracker.SparqlQuery : Object {
 			var optype = translate_primary_expression (sql);
 			sql.append (")");
 			if (optype != DataType.BOOLEAN) {
-				throw new SparqlError.PARSE ("expected boolean expression");
+				throw get_error ("expected boolean expression");
 			}
 			return DataType.BOOLEAN;
 		} else if (accept (SparqlTokenType.PLUS)) {
@@ -1371,22 +1395,22 @@ public class Tracker.SparqlQuery : Object {
 		while (true) {
 			if (accept (SparqlTokenType.STAR)) {
 				if (!optype.maybe_numeric ()) {
-					throw new SparqlError.PARSE ("expected numeric operand");
+					throw get_error ("expected numeric operand");
 				}
 				sql.insert (begin, "(");
 				sql.append (" * ");
 				if (!translate_unary_expression (sql).maybe_numeric ()) {
-					throw new SparqlError.PARSE ("expected numeric operand");
+					throw get_error ("expected numeric operand");
 				}
 				sql.append (")");
 			} else if (accept (SparqlTokenType.DIV)) {
 				if (!optype.maybe_numeric ()) {
-					throw new SparqlError.PARSE ("expected numeric operand");
+					throw get_error ("expected numeric operand");
 				}
 				sql.insert (begin, "(");
 				sql.append (" / ");
 				if (!translate_unary_expression (sql).maybe_numeric ()) {
-					throw new SparqlError.PARSE ("expected numeric operand");
+					throw get_error ("expected numeric operand");
 				}
 				sql.append (")");
 			} else {
@@ -1402,22 +1426,22 @@ public class Tracker.SparqlQuery : Object {
 		while (true) {
 			if (accept (SparqlTokenType.PLUS)) {
 				if (!optype.maybe_numeric ()) {
-					throw new SparqlError.PARSE ("expected numeric operand");
+					throw get_error ("expected numeric operand");
 				}
 				sql.insert (begin, "(");
 				sql.append (" + ");
 				if (!translate_multiplicative_expression (sql).maybe_numeric ()) {
-					throw new SparqlError.PARSE ("expected numeric operand");
+					throw get_error ("expected numeric operand");
 				}
 				sql.append (")");
 			} else if (accept (SparqlTokenType.MINUS)) {
 				if (!optype.maybe_numeric ()) {
-					throw new SparqlError.PARSE ("expected numeric operand");
+					throw get_error ("expected numeric operand");
 				}
 				sql.insert (begin, "(");
 				sql.append (" - ");
 				if (!translate_multiplicative_expression (sql).maybe_numeric ()) {
-					throw new SparqlError.PARSE ("expected numeric operand");
+					throw get_error ("expected numeric operand");
 				}
 				sql.append (")");
 			} else {
@@ -1483,14 +1507,14 @@ public class Tracker.SparqlQuery : Object {
 		var optype = translate_value_logical (sql);
 		while (accept (SparqlTokenType.OP_AND)) {
 			if (optype != DataType.BOOLEAN) {
-				throw new SparqlError.PARSE ("expected boolean expression");
+				throw get_error ("expected boolean expression");
 			}
 			sql.insert (begin, "(");
 			sql.append (" && ");
 			optype = translate_value_logical (sql);
 			sql.append (")");
 			if (optype != DataType.BOOLEAN) {
-				throw new SparqlError.PARSE ("expected boolean expression");
+				throw get_error ("expected boolean expression");
 			}
 		}
 		return optype;
@@ -1501,14 +1525,14 @@ public class Tracker.SparqlQuery : Object {
 		var optype = translate_conditional_and_expression (sql);
 		while (accept (SparqlTokenType.OP_OR)) {
 			if (optype != DataType.BOOLEAN) {
-				throw new SparqlError.PARSE ("expected boolean expression");
+				throw get_error ("expected boolean expression");
 			}
 			sql.insert (begin, "(");
 			sql.append (" || ");
 			optype = translate_conditional_and_expression (sql);
 			sql.append (")");
 			if (optype != DataType.BOOLEAN) {
-				throw new SparqlError.PARSE ("expected boolean expression");
+				throw get_error ("expected boolean expression");
 			}
 		}
 		return optype;
@@ -1575,7 +1599,7 @@ public class Tracker.SparqlQuery : Object {
 			} else if (accept (SparqlTokenType.CLOSE_PARENS)) {
 				n_parens--;
 			} else if (current () == SparqlTokenType.EOF) {
-				throw new SparqlError.PARSE ("unexpected end of query, expected )");
+				throw get_error ("unexpected end of query, expected )");
 			} else {
 				// ignore everything else
 				next ();
@@ -1592,7 +1616,7 @@ public class Tracker.SparqlQuery : Object {
 			} else if (accept (SparqlTokenType.CLOSE_BRACE)) {
 				n_braces--;
 			} else if (current () == SparqlTokenType.EOF) {
-				throw new SparqlError.PARSE ("unexpected end of query, expected }");
+				throw get_error ("unexpected end of query, expected }");
 			} else {
 				// ignore everything else
 				next ();
@@ -1668,7 +1692,7 @@ public class Tracker.SparqlQuery : Object {
 			current_subject = old_subject;
 			current_subject_is_var = old_subject_is_var;
 		} else {
-			throw new SparqlError.PARSE ("expected variable or term");
+			throw get_error ("expected variable or term");
 		}
 		return result;
 	}
@@ -1697,7 +1721,7 @@ public class Tracker.SparqlQuery : Object {
 				next ();
 				current_predicate = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
 			} else {
-				throw new SparqlError.PARSE ("expected non-empty property list");
+				throw get_error ("expected non-empty property list");
 			}
 			parse_construct_object_list (var_value_map);
 
