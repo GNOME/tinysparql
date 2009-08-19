@@ -68,13 +68,13 @@ const TestInfo tests[] = {
 	{ "sort/query-sort-2", "sort/data-sort-1", FALSE },
 	{ "sort/query-sort-3", "sort/data-sort-3", FALSE },
 	{ "sort/query-sort-4", "sort/data-sort-4", FALSE },
-	{ "sort/query-sort-5", "sort/data-sort-4", FALSE },
-
+	{ "sort/query-sort-5", "sort/data-sort-4", FALSE }, 
 	/* Bracket error after WHERE */
 	{ "error/query-error-1", "error/query-error-1", TRUE }, 
-
 	/* Unknown property */
 	{ "error/query-error-2", "error/query-error-2", TRUE },
+
+	{ "turtle/turtle-query-001", "turtle/turtle-data-001", FALSE },
 	{ NULL }
 };
 
