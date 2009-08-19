@@ -129,6 +129,14 @@ public class Tracker.TurtleReader : Object {
 		return ((string) (tokens[last_index].begin.pos + strip)).ndup ((tokens[last_index].end.pos - tokens[last_index].begin.pos - 2 * strip));
 	}
 
+	string resolve_prefixed_name (string prefix, string local_name) throws SparqlError {
+		string ns = prefix_map.lookup (prefix);
+		if (ns == null) {
+			throw new SparqlError.PARSE ("use of undefined prefix `%s'", prefix);
+		}
+		return ns + local_name;
+	}
+
 	public bool next () throws SparqlError {
 		while (true) {
 			switch (state) {
@@ -165,12 +173,12 @@ public class Tracker.TurtleReader : Object {
 					// prefixed name with namespace foo:bar
 					string ns = get_last_string ();
 					expect (SparqlTokenType.COLON);
-					subject = prefix_map.lookup (ns) + get_last_string ().substring (1);
+					subject = resolve_prefixed_name (ns, get_last_string ().substring (1));
 					state = State.SUBJECT;
 					continue;
 				} else if (accept (SparqlTokenType.COLON)) {
 					// prefixed name without namespace :bar
-					subject = prefix_map.lookup ("") + get_last_string ().substring (1);
+					subject = resolve_prefixed_name ("", get_last_string ().substring (1));
 					state = State.SUBJECT;
 					continue;
 				} else if (accept (SparqlTokenType.BLANK_NODE)) {
@@ -191,11 +199,11 @@ public class Tracker.TurtleReader : Object {
 				} else if (accept (SparqlTokenType.PN_PREFIX)) {
 					string ns = get_last_string ();
 					expect (SparqlTokenType.COLON);
-					predicate = prefix_map.lookup (ns) + get_last_string ().substring (1);
+					predicate = resolve_prefixed_name (ns, get_last_string ().substring (1));
 					state = State.PREDICATE;
 					continue;
 				} else if (accept (SparqlTokenType.COLON)) {
-					predicate = prefix_map.lookup ("") + get_last_string ().substring (1);
+					predicate = resolve_prefixed_name ("", get_last_string ().substring (1));
 					state = State.PREDICATE;
 					continue;
 				} else if (accept (SparqlTokenType.A)) {
@@ -216,13 +224,13 @@ public class Tracker.TurtleReader : Object {
 					// prefixed name with namespace foo:bar
 					string ns = get_last_string ();
 					expect (SparqlTokenType.COLON);
-					object = prefix_map.lookup (ns) + get_last_string ().substring (1);
+					object = resolve_prefixed_name (ns, get_last_string ().substring (1));
 					object_is_uri = true;
 					state = State.OBJECT;
 					return true;
 				} else if (accept (SparqlTokenType.COLON)) {
 					// prefixed name without namespace :bar
-					object = prefix_map.lookup ("") + get_last_string ().substring (1);
+					object = resolve_prefixed_name ("", get_last_string ().substring (1));
 					object_is_uri = true;
 					state = State.OBJECT;
 					return true;
