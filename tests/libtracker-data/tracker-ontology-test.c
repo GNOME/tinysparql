@@ -106,7 +106,8 @@ test_query (gconstpointer test_data)
 
 		/* load data set */
 		data_filename = g_strconcat (data_prefix, ".ttl", NULL);
-		tracker_turtle_reader_load (data_filename);
+		tracker_turtle_reader_load (data_filename, &error);
+		g_assert (error == NULL);
 
 		query_filename = g_strconcat (test_prefix, ".rq", NULL);
 		g_file_get_contents (query_filename, &query, NULL, &error);

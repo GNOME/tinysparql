@@ -4,6 +4,7 @@ noinst_PROGRAMS = ontology-validator ttl2html data-validator
 
 INCLUDES = 				\
 	-DG_LOG_DOMAIN=\"Tracker\"	\
+	-DTRACKER_COMPILATION		\
 	-I$(top_srcdir)/src		\
 	$(WARN_CFLAGS)			\
 	$(GLIB2_CFLAGS)			\

@@ -180,8 +180,7 @@ public class Tracker.TurtleReader : Object {
 					state = State.SUBJECT;
 					continue;
 				} else {
-					// TODO throw error
-					return false;
+					throw new SparqlError.PARSE ("expected subject");
 				}
 			case State.SUBJECT:
 				// parse predicate
@@ -204,8 +203,7 @@ public class Tracker.TurtleReader : Object {
 					state = State.PREDICATE;
 					continue;
 				} else {
-					// TODO throw error
-					return false;
+					throw new SparqlError.PARSE ("expected predicate");
 				}
 			case State.PREDICATE:
 				// parse object
@@ -317,8 +315,7 @@ public class Tracker.TurtleReader : Object {
 					state = State.OBJECT;
 					return true;
 				} else {
-					// TODO throw error
-					return false;
+					throw new SparqlError.PARSE ("expected object");
 				}
 			case State.OBJECT:
 				if (accept (SparqlTokenType.COMMA)) {
@@ -336,14 +333,13 @@ public class Tracker.TurtleReader : Object {
 					state = State.BOS;
 					continue;
 				} else {
-					// TODO throw error
-					return false;
+					throw new SparqlError.PARSE ("expected comma, semicolon, or dot");
 				}
 			}
 		}
 	}
 
-	public static void load (string path) {
+	public static void load (string path) throws SparqlError, DataError {
 		try {
 			Data.begin_transaction ();
 

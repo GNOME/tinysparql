@@ -266,10 +266,16 @@ static void
 import_ontology_file (const gchar	      *filename)
 {
 	gchar		*ontology_file;
+	GError          *error = NULL;
 
 	ontology_file = g_build_filename (ontologies_dir, filename, NULL);
-	tracker_turtle_reader_load (ontology_file);
+	tracker_turtle_reader_load (ontology_file, &error);
 	g_free (ontology_file);
+
+	if (error) {
+		g_critical ("%s", error->message);
+		g_error_free (error);
+	}
 }
 
 static void
@@ -765,6 +771,7 @@ tracker_data_manager_init (TrackerDBManagerFlags       flags,
 		GList *sorted = NULL, *l;
 		gchar *test_schema_path;
 		const gchar *env_path;
+		GError *error = NULL;
 
 		env_path = g_getenv ("TRACKER_DB_ONTOLOGIES_DIR");
 		
@@ -833,8 +840,13 @@ tracker_data_manager_init (TrackerDBManagerFlags       flags,
 			import_ontology_file (l->data);
 		}
 		if (test_schema) {
-			tracker_turtle_reader_load (test_schema_path);
+			tracker_turtle_reader_load (test_schema_path, &error);
 			g_free (test_schema_path);
+
+			if (error) {
+				g_critical ("%s", error->message);
+				g_error_free (error);
+			}
 		}
 
 		tracker_data_commit_transaction ();
