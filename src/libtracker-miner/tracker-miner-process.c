@@ -540,18 +540,18 @@ should_process_file (TrackerMinerProcess *process,
 {
 	gboolean should_process;
 
-	if (!should_change_index_for_file (process, file)) {
-		/* File is up-to-date in tracker-store */
-		return FALSE;
-	}
-
 	if (is_dir) {
 		g_signal_emit (process, signals[CHECK_DIRECTORY], 0, file, &should_process);
 	} else {
 		g_signal_emit (process, signals[CHECK_FILE], 0, file, &should_process);
 	}
 
-	return should_process;
+	if (!should_process) {
+		return FALSE;
+	}
+
+	/* Check whether file is up-to-date in tracker-store */
+	return should_change_index_for_file (process, file);
 }
 
 static void
