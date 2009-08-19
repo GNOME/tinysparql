@@ -244,7 +244,7 @@ tracker_application_file_get_metadata (TrackerModuleFile *file, gchar **mime_typ
 		tracker_sparql_builder_subject_iri (sparql, uri);
 
 		tracker_sparql_builder_predicate (sparql, "a");
-		tracker_sparql_builder_object (sparql, "nfo:SoftwareApplet");
+		tracker_sparql_builder_object (sparql, "maemo:SoftwareApplet");
 
 		tracker_sparql_builder_predicate (sparql, "nie:dataSource");
 		tracker_sparql_builder_object_iri (sparql, APPLET_DATASOURCE_URN);
