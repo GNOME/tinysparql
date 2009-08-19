@@ -38,7 +38,7 @@ libtracker_moduleinclude_HEADERS =					\
 
 libtracker_module_la_LIBADD = $(GCOV_LIBS)
 
-libexec_PROGRAMS = tracker-miner-fs tracker-miner-fs-new
+libexec_PROGRAMS = tracker-miner-fs-new
 
 tracker_miner_fs_SOURCES =						\
 	tracker-albumart.c						\
@@ -52,8 +52,6 @@ tracker_miner_fs_SOURCES =						\
 	tracker-indexer-module.h					\
 	tracker-main.c							\
 	tracker-marshal-main.c						\
-	tracker-miner.c							\
-	tracker-miner.h							\
 	tracker-status.c						\
 	tracker-status.h						\
 	tracker-removable-device.c					\
