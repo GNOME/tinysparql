@@ -851,6 +851,14 @@ public class Tracker.SparqlQuery : Object {
 		Data.delete_resource_description (uri);
 	}
 
+	string resolve_prefixed_name (string prefix, string local_name) throws SparqlError {
+		string ns = prefix_map.lookup (prefix);
+		if (ns == null) {
+			throw new SparqlError.PARSE ("use of undefined prefix `%s'", prefix);
+		}
+		return ns + local_name;
+	}
+
 	string parse_var_or_term (StringBuilder? sql, out bool is_var) throws SparqlError {
 		string result = "";
 		is_var = false;
@@ -866,11 +874,11 @@ public class Tracker.SparqlQuery : Object {
 			next ();
 			string ns = get_last_string ();
 			expect (SparqlTokenType.COLON);
-			result = prefix_map.lookup (ns) + get_last_string ().substring (1);
+			result = resolve_prefixed_name (ns, get_last_string ().substring (1));
 		} else if (current () == SparqlTokenType.COLON) {
 			// prefixed name without namespace :bar
 			next ();
-			result = prefix_map.lookup ("") + get_last_string ().substring (1);
+			result = resolve_prefixed_name ("", get_last_string ().substring (1));
 		} else if (accept (SparqlTokenType.BLANK_NODE)) {
 			// _:foo
 			expect (SparqlTokenType.COLON);
@@ -949,10 +957,10 @@ public class Tracker.SparqlQuery : Object {
 				next ();
 				string ns = get_last_string ();
 				expect (SparqlTokenType.COLON);
-				current_predicate = prefix_map.lookup (ns) + get_last_string ().substring (1);
+				current_predicate = resolve_prefixed_name (ns, get_last_string ().substring (1));
 			} else if (current () == SparqlTokenType.COLON) {
 				next ();
-				current_predicate = prefix_map.lookup ("") + get_last_string ().substring (1);
+				current_predicate = resolve_prefixed_name ("", get_last_string ().substring (1));
 			} else if (current () == SparqlTokenType.A) {
 				next ();
 				current_predicate = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
@@ -1322,14 +1330,14 @@ public class Tracker.SparqlQuery : Object {
 			expect (SparqlTokenType.COLON);
 			sql.append ("(SELECT ID FROM \"rdfs:Resource\" WHERE Uri = ?)");
 			var binding = new LiteralBinding ();
-			binding.literal = prefix_map.lookup (ns) + get_last_string ().substring (1);
+			binding.literal = resolve_prefixed_name (ns, get_last_string ().substring (1));
 			bindings.append (binding);
 			return DataType.RESOURCE;
 		case SparqlTokenType.COLON:
 			next ();
 			sql.append ("(SELECT ID FROM \"rdfs:Resource\" WHERE Uri = ?)");
 			var binding = new LiteralBinding ();
-			binding.literal = prefix_map.lookup ("") + get_last_string ().substring (1);
+			binding.literal = resolve_prefixed_name ("", get_last_string ().substring (1));
 			bindings.append (binding);
 			return DataType.RESOURCE;
 		default:
@@ -1617,11 +1625,11 @@ public class Tracker.SparqlQuery : Object {
 			next ();
 			string ns = get_last_string ();
 			expect (SparqlTokenType.COLON);
-			result = prefix_map.lookup (ns) + get_last_string ().substring (1);
+			result = resolve_prefixed_name (ns, get_last_string ().substring (1));
 		} else if (current () == SparqlTokenType.COLON) {
 			// prefixed name without namespace :bar
 			next ();
-			result = prefix_map.lookup ("") + get_last_string ().substring (1);
+			result = resolve_prefixed_name ("", get_last_string ().substring (1));
 		} else if (current () == SparqlTokenType.INTEGER) {
 			next ();
 			result = get_last_string ();
@@ -1681,10 +1689,10 @@ public class Tracker.SparqlQuery : Object {
 				next ();
 				string ns = get_last_string ();
 				expect (SparqlTokenType.COLON);
-				current_predicate = prefix_map.lookup (ns) + get_last_string ().substring (1);
+				current_predicate = resolve_prefixed_name (ns, get_last_string ().substring (1));
 			} else if (current () == SparqlTokenType.COLON) {
 				next ();
-				current_predicate = prefix_map.lookup ("") + get_last_string ().substring (1);
+				current_predicate = resolve_prefixed_name ("", get_last_string ().substring (1));
 			} else if (current () == SparqlTokenType.A) {
 				next ();
 				current_predicate = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
