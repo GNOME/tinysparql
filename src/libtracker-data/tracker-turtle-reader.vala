@@ -116,12 +116,16 @@ public class Tracker.TurtleReader : Object {
 		return false;
 	}
 
+	SparqlError get_error (string msg) {
+		return new SparqlError.PARSE ("%d.%d: syntax error, %s".printf (tokens[index].begin.line, tokens[index].begin.column, msg));
+	}
+
 	bool expect (SparqlTokenType type) throws SparqlError {
 		if (accept (type)) {
 			return true;
 		}
 
-		throw new SparqlError.PARSE ("expected %s", type.to_string ());
+		throw get_error ("expected %s".printf (type.to_string ()));
 	}
 
 	string get_last_string (int strip = 0) {
@@ -132,7 +136,7 @@ public class Tracker.TurtleReader : Object {
 	string resolve_prefixed_name (string prefix, string local_name) throws SparqlError {
 		string ns = prefix_map.lookup (prefix);
 		if (ns == null) {
-			throw new SparqlError.PARSE ("use of undefined prefix `%s'", prefix);
+			throw get_error ("use of undefined prefix `%s'".printf (prefix));
 		}
 		return ns + local_name;
 	}
@@ -188,7 +192,7 @@ public class Tracker.TurtleReader : Object {
 					state = State.SUBJECT;
 					continue;
 				} else {
-					throw new SparqlError.PARSE ("expected subject");
+					throw get_error ("expected subject");
 				}
 			case State.SUBJECT:
 				// parse predicate
@@ -211,7 +215,7 @@ public class Tracker.TurtleReader : Object {
 					state = State.PREDICATE;
 					continue;
 				} else {
-					throw new SparqlError.PARSE ("expected predicate");
+					throw get_error ("expected predicate");
 				}
 			case State.PREDICATE:
 				// parse object
@@ -323,7 +327,7 @@ public class Tracker.TurtleReader : Object {
 					state = State.OBJECT;
 					return true;
 				} else {
-					throw new SparqlError.PARSE ("expected object");
+					throw get_error ("expected object");
 				}
 			case State.OBJECT:
 				if (accept (SparqlTokenType.COMMA)) {
@@ -341,7 +345,7 @@ public class Tracker.TurtleReader : Object {
 					state = State.BOS;
 					continue;
 				} else {
-					throw new SparqlError.PARSE ("expected comma, semicolon, or dot");
+					throw get_error ("expected comma, semicolon, or dot");
 				}
 			}
 		}
