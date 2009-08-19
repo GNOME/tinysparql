@@ -127,14 +127,14 @@ scal:time a rdf:Property ;
       rdfs:comment "Date and time in UTC" ;
       nrl:maxCardinality 1 ;
       rdfs:domain scal:TimePoint ;
-      rdfs:value xsd:dateTime .
+      rdfs:range xsd:dateTime .
 
 scal:ReferenceTimeZone a rdf:Property ;
       rdfs:label "Reference time zone" ;
       rdfs:comment "Timezone in the OLSON DB used as reference in the time. Use 'floating' for floating times or study the convenience of a boolean 'isFloating' attribute." ;
       nrl:maxCardinality 1 ;
       rdfs:domain scal:TimePoint ;
-      rdfs:value xsd:string .
+      rdfs:range xsd:string .
 
 # Every Calendar item has start and end time points + all-day boolean
 scal:start a rdf:Property ;
@@ -142,21 +142,21 @@ scal:start a rdf:Property ;
       rdfs:comment "Start time of a calendar item" ;
       nrl:maxCardinality 1 ;
       rdfs:domain scal:CalendarItem ;
-      rdfs:value scal:TimePoint .
+      rdfs:range scal:TimePoint .
 
 scal:end a rdf:Property ;
       rdfs:label "end time" ;
       rdfs:comment "End time of a calendar item. Set always a value to avoid OPTIONALS";
       nrl:maxCardinality 1;
       rdfs:domain scal:CalendarItem ;
-      rdfs:value scal:TimePoint .
+      rdfs:range scal:TimePoint .
 
 scal:isWholeDay a rdf:Property ;
       rdfs:label "Whole day calendar item" ;
       rdfs:comment "True if the event applies to the whole day" ;
       nrl:maxCardinality 1 ;
       rdfs:domain scal:CalendarItem ;
-      rdfs:value xsd:boolean .
+      rdfs:range xsd:boolean .
       
 
 #
