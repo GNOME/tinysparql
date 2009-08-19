@@ -24,6 +24,8 @@ tracker_miner_fs_new_SOURCES =						\
 	tracker-config.h						\
 	tracker-miner-applications.c					\
 	tracker-miner-applications.h					\
+	tracker-miner-files.c						\
+	tracker-miner-files.h						\
 	tracker-miner-main.c
 
 tracker_miner_fs_new_LDADD =						\

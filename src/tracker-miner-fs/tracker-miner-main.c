@@ -53,6 +53,7 @@
 #include "tracker-indexer.h"
 #include "tracker-marshal.h"
 #include "tracker-miner-applications.h"
+#include "tracker-miner-files.h"
 
 #define ABOUT								  \
 	"Tracker " PACKAGE_VERSION "\n"
@@ -213,7 +214,7 @@ int
 main (gint argc, gchar *argv[])
 {
 	TrackerConfig *config;
-        TrackerMiner *miner_applications;
+        TrackerMiner *miner_applications, *miner_files;
         TrackerStorage *storage;
 	GOptionContext *context;
 	GError *error = NULL;
@@ -309,6 +310,7 @@ main (gint argc, gchar *argv[])
 	storage = NULL;
 #endif
 
+        /* Create miner for applications */
         miner_applications = tracker_miner_applications_new ();
 
         tracker_miner_process_add_directory (TRACKER_MINER_PROCESS (miner_applications),
@@ -321,6 +323,11 @@ main (gint argc, gchar *argv[])
 			  NULL);
 
         tracker_miner_start (miner_applications);
+
+        /* Create miner for files */
+        miner_files = tracker_miner_files_new (config);
+
+        tracker_miner_start (miner_files);
 
 	g_message ("Starting...");
 
