@@ -492,6 +492,9 @@ tracker_miner_execute_sparql (TrackerMiner  *miner,
 					       sparql, 
 					       &internal_error);
 
+	/* FIXME: should not commit after each update */
+	tracker_resources_batch_commit (miner->private->client, NULL);
+
 	if (!internal_error) {
 		return TRUE;
 	}
