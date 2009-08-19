@@ -291,8 +291,6 @@ public class Tracker.SparqlQuery : Object {
 	// base UUID used for blank nodes
 	uchar[] base_uuid;
 
-	string error_message;
-
 	public SparqlQuery (string query) {
 		tokens = new TokenInfo[BUFFER_SIZE];
 		prefix_map = new HashTable<string,string>.full (str_hash, str_equal, g_free, g_free);
@@ -376,10 +374,6 @@ public class Tracker.SparqlQuery : Object {
 		size = 0;
 		index = 0;
 		next ();
-	}
-
-	string get_current_string () {
-		return ((string) tokens[index].begin.pos).ndup ((tokens[index].end.pos - tokens[index].begin.pos));
 	}
 
 	string get_last_string (int strip = 0) {
@@ -1598,7 +1592,7 @@ public class Tracker.SparqlQuery : Object {
 		}
 	}
 
-	void parse_construct_triples_block (HashTable<string,string> var_value_map) throws SparqlError {
+	void parse_construct_triples_block (HashTable<string,string> var_value_map) throws SparqlError, DataError {
 		expect (SparqlTokenType.OPEN_BRACE);
 
 		do {
@@ -1610,7 +1604,7 @@ public class Tracker.SparqlQuery : Object {
 	}
 
 
-	string parse_construct_var_or_term (HashTable<string,string> var_value_map) throws SparqlError {
+	string parse_construct_var_or_term (HashTable<string,string> var_value_map) throws SparqlError, DataError {
 		string result = "";
 		if (current () == SparqlTokenType.VAR) {
 			next ();
@@ -1671,7 +1665,7 @@ public class Tracker.SparqlQuery : Object {
 		return result;
 	}
 
-	void parse_construct_property_list_not_empty (HashTable<string,string> var_value_map) throws SparqlError {
+	void parse_construct_property_list_not_empty (HashTable<string,string> var_value_map) throws SparqlError, DataError {
 		while (true) {
 			var old_predicate = current_predicate;
 
@@ -1708,7 +1702,7 @@ public class Tracker.SparqlQuery : Object {
 		}
 	}
 
-	void parse_construct_object_list (HashTable<string,string> var_value_map) throws SparqlError {
+	void parse_construct_object_list (HashTable<string,string> var_value_map) throws SparqlError, DataError {
 		while (true) {
 			parse_construct_object (var_value_map);
 			if (accept (SparqlTokenType.COMMA)) {
@@ -1718,7 +1712,7 @@ public class Tracker.SparqlQuery : Object {
 		}
 	}
 
-	void parse_construct_object (HashTable<string,string> var_value_map) throws SparqlError {
+	void parse_construct_object (HashTable<string,string> var_value_map) throws SparqlError, DataError {
 		string object = parse_construct_var_or_term (var_value_map);
 		if (delete_statements) {
 			// delete triple from database
