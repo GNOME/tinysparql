@@ -1064,7 +1064,7 @@ public class Tracker.SparqlQuery : Object {
 				break;
 			case DataType.DATETIME:
 				// ISO 8601 format
-				sql.insert (begin, "strftime (\"%%Y-%%m-%%dT%%H:%%M:%%SZ\", ");
+				sql.insert (begin, "strftime (\"%Y-%m-%dT%H:%M:%SZ\", ");
 				sql.append (", \"unixepoch\")");
 				break;
 			default:
