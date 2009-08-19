@@ -1,8 +1,9 @@
-#include <raptor.h>
 #include <glib.h>
 #include <glib/gstdio.h>
 #include <gio/gio.h>
 #include <string.h>
+
+#include <libtracker-data/tracker-sparql-query.h>
 
 static gchar	     *ontology_dir = NULL;
 
@@ -14,8 +15,6 @@ static GOptionEntry   entries[] = {
 	{ NULL }
 };
 
-typedef void (* TurtleTripleCallback) (void *user_data, const raptor_statement *triple);
-
 #define RDFS_CLASS "http://www.w3.org/2000/01/rdf-schema#Class"
 #define RDF_PROPERTY "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
 #define RDFS_SUBCLASSOF  "http://www.w3.org/2000/01/rdf-schema#subClassOf"
@@ -23,16 +22,6 @@ typedef void (* TurtleTripleCallback) (void *user_data, const raptor_statement *
 #define TRACKER_NAMESPACE "http://www.tracker-project.org/ontologies/tracker#Namespace"
 #define RDFS_RANGE "http://www.w3.org/2000/01/rdf-schema#range"
 #define RDFS_DOMAIN "http://www.w3.org/2000/01/rdf-schema#domain"
-
-static void 
-raptor_error (void *user_data, raptor_locator* locator, const char *message)
-{
-	g_message ("RAPTOR parse error: %s:%d:%d: %s\n", 
-		   (gchar *) user_data,
-		   locator->line,
-		   locator->column,
-		   message);
-}
 
 static GList *unknown_items = NULL;
 static GList *known_items = NULL;
@@ -53,18 +42,10 @@ exists_or_already_reported (const gchar *item)
 }
 
 static void
-turtle_load_ontology (void                   *user_data,
-                      const raptor_statement *triple) 
+turtle_load_ontology (const gchar *turtle_subject,
+                      const gchar *turtle_predicate,
+                      const gchar *turtle_object)
 {
-
-        gchar *turtle_subject;
-        gchar *turtle_predicate;
-        char  *turtle_object;
-
-	/* set new statement */
-	turtle_subject = g_strdup ((const gchar *) raptor_uri_as_string ((raptor_uri *) triple->subject));
-	turtle_predicate = g_strdup ((const gchar *) raptor_uri_as_string ((raptor_uri *) triple->predicate));
-	turtle_object = g_strdup ((const gchar *) triple->object);
 
         /* nmo:Email a rdfs:Class 
          *  If rdfs:Class exists, add nmo:Email to the known_items 
@@ -91,7 +72,7 @@ turtle_load_ontology (void                   *user_data,
                         g_error ("%s is a %s but %s is not defined",
                                  turtle_subject, turtle_object, turtle_object);
                 } else {
-                        known_items = g_list_prepend (known_items, turtle_subject);
+                        known_items = g_list_prepend (known_items, g_strdup (turtle_subject));
                 }
         }
 
@@ -104,7 +85,7 @@ turtle_load_ontology (void                   *user_data,
             || !g_strcmp0 (turtle_predicate, RDFS_DOMAIN)) {
                 /* Check the class is already defined */
                 if (!exists_or_already_reported (turtle_object)) {
-                        g_error ("Class %s refears to %s but it is not defined",
+                        g_error ("Class %s refers to %s but it is not defined",
                                  turtle_subject, turtle_object);
                 }
         }
@@ -113,34 +94,27 @@ turtle_load_ontology (void                   *user_data,
 }
 
 static void 
-process_file (const gchar *ttl_file, TurtleTripleCallback handler)
+process_file (const gchar *ttl_file)
 {
-        FILE *file;
-        raptor_parser *parser;
-        raptor_uri *uri, *buri, *base_uri;
-	unsigned char  *uri_string;
+	TrackerTurtleReader *reader;
+	GError *error = NULL;
 
-        g_print ("Processing %s\n", ttl_file);
-        file = g_fopen (ttl_file, "r");
+	g_print ("Processing %s\n", ttl_file);
 
-	parser = raptor_new_parser ("turtle");
-	base_uri = raptor_new_uri ((unsigned char *) "/");
+	reader = tracker_turtle_reader_new (ttl_file);
 
-	raptor_set_statement_handler (parser, NULL, 
-                                      handler);
-	raptor_set_fatal_error_handler (parser, (void *)file, raptor_error);
-	raptor_set_error_handler (parser, (void *)file, raptor_error);
-	raptor_set_warning_handler (parser, (void *)file, raptor_error);
+	while (error == NULL && tracker_turtle_reader_next (reader, &error)) {
+		turtle_load_ontology (tracker_turtle_reader_get_subject (reader),
+		                      tracker_turtle_reader_get_predicate (reader),
+		                      tracker_turtle_reader_get_object (reader));
+	}
 
-	uri_string = raptor_uri_filename_to_uri_string (ttl_file);
-	uri = raptor_new_uri (uri_string);
-	buri = raptor_new_uri ((unsigned char *) base_uri);
+	g_object_unref (reader);
 
-	raptor_parse_file (parser, uri, buri);
-
-	raptor_free_uri (uri);
-	raptor_free_parser (parser);
-	fclose (file);
+	if (error) {
+		g_message ("Turtle parse error: %s", error->message);
+		g_error_free (error);
+	}
 }
 
 static void
@@ -195,7 +169,6 @@ main (gint argc, gchar **argv)
         GOptionContext *context;
 
         g_type_init ();
-        raptor_init ();
 
 
 	/* Translators: this messagge will apper immediately after the	*/
@@ -224,8 +197,6 @@ main (gint argc, gchar **argv)
         load_basic_classes ();
         //"/home/ivan/devel/codethink/tracker-ssh/data/services"
         load_ontology_files (ontology_dir);
-
-        raptor_finish ();
 
         return 0;
 }

@@ -54,7 +54,6 @@
 #include <libtracker-db/tracker-db-dbus.h>
 
 #include <libtracker-data/tracker-data-manager.h>
-#include <libtracker-data/tracker-turtle.h>
 #include <libtracker-data/tracker-data-backup.h>
 #include <libtracker-data/tracker-data-query.h>
 
@@ -748,7 +747,6 @@ main (gint argc, gchar *argv[])
 #endif /* HAVE_HAL */
 
 	tracker_store_init ();
-	tracker_turtle_init ();
 
 	flags |= TRACKER_DB_MANAGER_REMOVE_CACHE;
 
@@ -821,7 +819,6 @@ shutdown:
 
 	tracker_dbus_shutdown ();
 	tracker_data_manager_shutdown ();
-	tracker_turtle_shutdown ();
 	tracker_log_shutdown ();
 
 #ifdef HAVE_HAL

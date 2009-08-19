@@ -23,47 +23,63 @@
 #include <glib.h>
 #include <glib/gstdio.h>
 
-#include <raptor.h>
-
 #include <libtracker-data/tracker-data-query.h>
-#include <libtracker-data/tracker-turtle.h>
 
 #include "tracker-data-backup.h"
 
-gboolean
-tracker_data_backup_save (GFile   *turtle_file,
-			  GError **error)
+typedef struct {
+	TrackerBackupFinished callback;
+	gpointer user_data;
+	GDestroyNotify destroy;
+} UnImplementedInfo;
+
+GQuark
+tracker_data_backup_error_quark (void)
 {
-#if 0
-	TrackerDBResultSet *data;
-	TrackerClass *service;
-	TurtleFile *turtle_file;
+	return g_quark_from_static_string ("tracker-data-backup-error-quark");
+}
 
-	/* TODO: temporary location */
-	if (g_file_test (turtle_filename, G_FILE_TEST_EXISTS)) {
-		g_unlink (turtle_filename);
-	}
-
-	turtle_file = tracker_turtle_open (turtle_filename);
-
-	g_message ("Saving metadata backup in turtle file");
-
-	/* TODO */
-
-	service = tracker_ontology_get_service_by_name ("Files");
-	data = tracker_data_query_backup_metadata (service);
-
-	if (data) {
-		extended_result_set_to_turtle (data, turtle_file);
-		g_object_unref (data);
-	}
-
-	tracker_turtle_close (turtle_file);
-
-#endif
+static gboolean
+unimplemented (gpointer user_data)
+{
+	UnImplementedInfo *info = user_data;
 
 	g_warning ("tracker_data_backup_save is unimplemented");
 
-	return TRUE;
+	if (info->callback) {
+		GError *error = NULL;
+
+		g_set_error (&error,
+		             TRACKER_DB_BACKUP_ERROR,
+		             TRACKER_DB_BACKUP_ERROR_UNKNOWN,
+		             "tracker_data_backup_save is unimplemented");
+
+		info->callback (error, info->user_data);
+		g_clear_error (&error);
+	}
+
+	if (info->destroy) {
+		info->destroy (info->user_data);
+	}
+
 }
+
+void
+tracker_data_backup_save (GFile *turtle_file,
+                          TrackerBackupFinished callback,
+                          gpointer user_data,
+                          GDestroyNotify destroy)
+{
+	UnImplementedInfo *info = g_new(UnImplementedInfo, 1);
+
+	info->callback = callback;
+	info->user_data = user_data;
+	info->destroy = destroy;
+
+	g_idle_add_full (G_PRIORITY_DEFAULT_IDLE,
+	                 callback,
+	                 info,
+	                 NULL);
+}
+
 

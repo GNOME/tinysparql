@@ -55,55 +55,6 @@ tracker_backup_new (void)
 	return g_object_new (TRACKER_TYPE_BACKUP, NULL);
 }
 
-void
-tracker_backup_save (TrackerBackup          *object,
-                     const gchar            *uri,
-                     DBusGMethodInvocation  *context,
-                     GError                **error)
-{
-	guint request_id;
-	GError *err = NULL;
-	GFile *file;
-
-	request_id = tracker_dbus_get_next_request_id ();
-
-	tracker_dbus_request_new (request_id,
-				  "DBus request to save backup into '%s'",
-				  uri);
-
-	g_message ("Backing up metadata (unfinished, unsupported)");
-
-	/* Previous DBus API accepted paths. For this reason I decided to try
-	 * to support both paths and uris. Perhaps we should just remove the
-	 * support for paths here? */
-
-	if (!strchr (uri, ':')) {
-		file = g_file_new_for_path (uri);
-	} else {
-		file = g_file_new_for_uri (uri);
-	}
-
-	tracker_data_backup_save (file, &err);
-
-	g_object_unref (file);
-
-	if (err) {
-		GError *actual_error = NULL;
-
-		tracker_dbus_request_failed (request_id,
-		                             &actual_error,
-		                             err->message);
-
-		dbus_g_method_return_error (context, actual_error);
-
-		g_error_free (actual_error);
-		g_error_free (err);
-	} else {
-		dbus_g_method_return (context);
-		tracker_dbus_request_success (request_id);
-	}
-}
-
 static void
 destroy_method_info (gpointer user_data)
 {
@@ -129,14 +80,49 @@ backup_callback (GError *error, gpointer user_data)
 }
 
 void
+tracker_backup_save (TrackerBackup          *object,
+                     const gchar            *uri,
+                     DBusGMethodInvocation  *context,
+                     GError                **error)
+{
+	guint request_id;
+	TrackerDBusMethodInfo *info;
+	GFile *file;
+
+	request_id = tracker_dbus_get_next_request_id ();
+
+	tracker_dbus_request_new (request_id,
+	                          "DBus request to save backup into '%s'",
+	                          uri);
+
+	/* Previous DBus API accepted paths. For this reason I decided to try
+	 * to support both paths and uris. Perhaps we should just remove the
+	 * support for paths here? */
+
+	if (!strchr (uri, ':')) {
+		file = g_file_new_for_path (uri);
+	} else {
+		file = g_file_new_for_uri (uri);
+	}
+
+	info = g_slice_new (TrackerDBusMethodInfo);
+
+	info->request_id = request_id;
+	info->context = context;
+
+	tracker_data_backup_save (file, backup_callback,
+	                          info, destroy_method_info);
+
+	g_object_unref (file);
+}
+
+void
 tracker_backup_restore (TrackerBackup          *object,
                         const gchar            *uri,
                         DBusGMethodInvocation  *context,
                         GError                **error)
 {
-#if 0
 	guint request_id;
-	GError *actual_error = NULL;
 	TrackerDBusMethodInfo *info;
 	GFile *file;
 
@@ -144,24 +130,6 @@ tracker_backup_restore (TrackerBackup          *object,
 
 	tracker_dbus_request_new (request_id,
 	                          "DBus request to restore backup from '%s'",
-	                          uri);
-
-	/* First check we have disk space */
-#if 0
-	/* FIXME: MJR */
-	if (tracker_status_get_is_paused_for_space ()) {
-		tracker_dbus_request_failed (request_id,
-		                             &actual_error,
-		                             "No disk space left to write to"
-		                             " the databases");
-		dbus_g_method_return_error (context, actual_error);
-		g_error_free (actual_error);
-		return;
-	}
-#endif
-
-	tracker_dbus_request_new (request_id,
-	                          "DBus request to restore backup '%s'",
 	                          uri);
 
 	/* Previous DBus API accepted paths. For this reason I decided to try
@@ -183,5 +151,4 @@ tracker_backup_restore (TrackerBackup          *object,
 	                                   info, destroy_method_info);
 
 	g_object_unref (file);
-#endif
 }

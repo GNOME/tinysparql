@@ -45,8 +45,6 @@
 #include <libtracker-db/tracker-db-manager.h>
 #include <libtracker-db/tracker-db-dbus.h>
 
-#include <libtracker-data/tracker-turtle.h>
-
 #include "tracker-dbus.h"
 #include "tracker-config.h"
 #include "tracker-indexer.h"
@@ -438,7 +436,6 @@ main (gint argc, gchar *argv[])
                 tracker_indexer_process_modules (indexer, modules);
         }
 
-	tracker_turtle_init ();
 	tracker_volume_cleanup_init ();
 
 	g_message ("Starting...");
@@ -449,7 +446,6 @@ main (gint argc, gchar *argv[])
 	g_message ("Shutdown started");
 
 	tracker_volume_cleanup_shutdown ();
-	tracker_turtle_shutdown ();
 
         albumart_shutdown (config);
 	tracker_thumbnailer_shutdown ();

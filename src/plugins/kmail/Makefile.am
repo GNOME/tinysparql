@@ -33,7 +33,6 @@ libtracker_module_kmail_daemon_module_la_LIBADD = 			\
 	$(GTHREAD_LIBS)                                                 \
 	$(GIO_LIBS)                                                     \
 	$(GLIB2_LIBS)                                                   \
-	$(RAPTOR_LIBS)							\
 	$(GCOV_LIBS)
 
 dbus_sources = tracker-kmail-registrar-glue.h

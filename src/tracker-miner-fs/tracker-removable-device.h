@@ -23,6 +23,8 @@
 #ifndef __TRACKER_REMOVABLE_DEVICE_H__
 #define __TRACKER_REMOVABLE_DEVICE_H__
 
+#include <libtracker-common/tracker-sparql-builder.h>
+
 #include "tracker-indexer.h"
 
 G_BEGIN_DECLS

@@ -22,7 +22,6 @@
 
 #include "config.h"
 
-
 #include <stdlib.h>
 #include <string.h>
 #include <sys/statvfs.h>
@@ -32,12 +31,8 @@
 #include <gio/gio.h>
 #include <gmodule.h>
 
-#include <raptor.h>
-
 #include <libtracker-data/tracker-data-query.h>
 #include <libtracker-data/tracker-data-update.h>
-
-#include <libtracker-data/tracker-turtle.h>
 
 #include "tracker-removable-device.h"
 
@@ -55,10 +50,12 @@ typedef enum {
 	MOVE
 } StorerTask;
 
+#if 0
 typedef struct {
 	raptor_serializer *serializer;
 	gchar *about_uri;
 } AddMetadataInfo;
+#endif
 
 static void
 commit_turtle_parse_info_storer (TurtleStorerInfo *info, 
@@ -165,6 +162,7 @@ void
 tracker_removable_device_optimize (TrackerIndexer *indexer,
 				   const gchar    *mount_point)
 {
+#if 0
 	gchar *file;
 
 	file = g_build_filename (mount_point,
@@ -178,12 +176,14 @@ tracker_removable_device_optimize (TrackerIndexer *indexer,
 	}
 
 	g_free (file);
+#endif
 }
 
 void
 tracker_removable_device_load (TrackerIndexer *indexer,
 			       const gchar    *mount_point)
 {
+#if 0
 	gchar *filename;
 
 	filename = g_build_filename (mount_point,
@@ -232,8 +232,10 @@ tracker_removable_device_load (TrackerIndexer *indexer,
 	}
 
 	g_free (filename);
+#endif
 }
 
+#if 0
 static void
 set_metadata (const gchar *key, 
 	      const gchar *value, 
@@ -277,6 +279,7 @@ set_metadata (const gchar *key,
 		raptor_free_uri ((raptor_uri *) statement.object);
 	}
 }
+#endif
 
 /* static void */
 /* foreach_in_metadata_set_metadata (const gchar     *subject, */
@@ -320,6 +323,7 @@ tracker_removable_device_add_metadata (TrackerIndexer        *indexer,
 				       const gchar           *uri,
 				       TrackerSparqlBuilder  *sparql)
 {
+#if 0
 	AddMetadataInfo  info;
 	gchar           *filename, *muri, *tmp;
 	const gchar     *p;
@@ -396,6 +400,7 @@ tracker_removable_device_add_metadata (TrackerIndexer        *indexer,
 	raptor_free_uri (suri);
 
 	fclose (target_file);
+#endif
 }
 
 /* TODO URI branch: path -> uri */
@@ -405,6 +410,7 @@ tracker_removable_device_add_removal (TrackerIndexer *indexer,
 				      const gchar *mount_point, 
 				      const gchar *uri)
 {
+#if 0
 	gchar               *filename, *about_uri, *muri, *tmp;
 	const gchar         *p;
 	FILE                *target_file;
@@ -475,6 +481,7 @@ tracker_removable_device_add_removal (TrackerIndexer *indexer,
 	raptor_free_serializer (serializer);
 
 	fclose (target_file);
+#endif
 }
 
 /* TODO URI branch: path -> uri */
@@ -485,6 +492,7 @@ tracker_removable_device_add_move (TrackerIndexer *indexer,
 				   const gchar *from_uri, 
 				   const gchar *to_uri)
 {
+#if 0
 	gchar               *filename, *about_uri, *to_urip, *muri, *tmp;
 	const gchar         *p;
 	FILE                *target_file;
@@ -561,5 +569,6 @@ tracker_removable_device_add_move (TrackerIndexer *indexer,
 	raptor_free_uri (suri);
 
 	fclose (target_file);
+#endif
 }
 

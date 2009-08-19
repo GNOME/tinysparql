@@ -27,7 +27,7 @@
 
 #include <libtracker-data/tracker-data-update.h>
 #include <libtracker-data/tracker-data-query.h>
-#include <libtracker-data/tracker-turtle.h>
+#include <libtracker-data/tracker-sparql-query.h>
 
 #include "tracker-store.h"
 
@@ -88,34 +88,29 @@ store_task_free (TrackerStoreTask *task)
 }
 
 static gboolean
-process_turtle_file_part (GError **error)
+process_turtle_file_part (TrackerTurtleReader *reader, GError **error)
 {
 	int i;
-	GError *new_error;
+	GError *new_error = NULL;
 
 	/* process 10 statements at once before returning to main loop */
 
 	i = 0;
-	new_error = tracker_turtle_get_error ();
 
-	while (!new_error && tracker_turtle_reader_next ()) {
+	while (new_error == NULL && tracker_turtle_reader_next (reader, &new_error)) {
 		/* insert statement */
-		if (tracker_turtle_reader_object_is_uri ()) {
+		if (tracker_turtle_reader_get_object_is_uri (reader)) {
 			tracker_data_insert_statement_with_uri (
-				tracker_turtle_reader_get_subject (),
-				tracker_turtle_reader_get_predicate (),
-				tracker_turtle_reader_get_object (),
+				tracker_turtle_reader_get_subject (reader),
+				tracker_turtle_reader_get_predicate (reader),
+				tracker_turtle_reader_get_object (reader),
 				&new_error);
 		} else {
 			tracker_data_insert_statement_with_string (
-				tracker_turtle_reader_get_subject (),
-				tracker_turtle_reader_get_predicate (),
-				tracker_turtle_reader_get_object (),
+				tracker_turtle_reader_get_subject (reader),
+				tracker_turtle_reader_get_predicate (reader),
+				tracker_turtle_reader_get_object (reader),
 				&new_error);
-		}
-
-		if (!new_error) {
-			new_error = tracker_turtle_get_error ();
 		}
 
 		i++;
@@ -123,10 +118,6 @@ process_turtle_file_part (GError **error)
 			/* return to main loop */
 			return TRUE;
 		}
-	}
-
-	if (!new_error) {
-		new_error = tracker_turtle_get_error ();
 	}
 
 	if (new_error) {
@@ -196,15 +187,16 @@ queue_idle_handler (gpointer user_data)
 		}
 	} else if (task->type == TRACKER_STORE_TASK_TYPE_TURTLE) {
 		GError *error = NULL;
+		static TrackerTurtleReader *turtle_reader = NULL;
 
 		begin_batch (private);
 
 		if (!task->data.turtle.in_progress) {
-			tracker_turtle_reader_init (task->data.turtle.path, NULL);
+			turtle_reader = tracker_turtle_reader_new (task->data.turtle.path);
 			task->data.turtle.in_progress = TRUE;
 		}
 
-		if (process_turtle_file_part (&error)) {
+		if (process_turtle_file_part (turtle_reader, &error)) {
 			/* import still in progress */
 			private->batch_count++;
 			if (private->batch_count >= TRACKER_STORE_TRANSACTION_MAX) {
@@ -224,8 +216,9 @@ queue_idle_handler (gpointer user_data)
 				task->callback.turtle_callback (error, task->user_data);
 			}
 
+			g_object_unref (turtle_reader);
+			turtle_reader = NULL;
 			if (error) {
-				tracker_turtle_reader_cancel ();
 				g_clear_error (&error);
 			}
 		}

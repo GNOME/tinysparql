@@ -481,6 +481,17 @@ public class Tracker.SparqlScanner : Object {
 					current++;
 				}
 				break;
+			case '@':
+				type = SparqlTokenType.NONE;
+				current++;
+				if (current < end - "prefix".len () && matches (current, "PREFIX")) {
+					type = SparqlTokenType.ATPREFIX;
+					current += "prefix".len ();
+				} else if (current < end - "base".len () && matches (current, "BASE")) {
+					type = SparqlTokenType.ATBASE;
+					current += "base".len ();
+				}
+				break;
 			case '|':
 				type = SparqlTokenType.NONE;
 				current++;
@@ -766,6 +777,8 @@ public enum Tracker.SparqlTokenType {
 	AS,
 	ASC,
 	ASK,
+	ATBASE,
+	ATPREFIX,
 	AVG,
 	BASE,
 	BLANK_NODE,
@@ -800,10 +813,10 @@ public enum Tracker.SparqlTokenType {
 	INTEGER,
 	INTO,
 	IRI_REF,
+	ISBLANK,
 	ISIRI,
 	ISLITERAL,
 	ISURI,
-	ISBLANK,
 	LANG,
 	LANGMATCHES,
 	LIMIT,
@@ -852,10 +865,20 @@ public enum Tracker.SparqlTokenType {
 		case AS: return "`AS'";
 		case ASC: return "`ASC'";
 		case ASK: return "`ASK'";
+		case ATBASE: return "`@base'";
+		case ATPREFIX: return "`@prefix'";
+		case AVG: return "`AVG'";
 		case BASE: return "`BASE'";
+		case BLANK_NODE: return "blank node";
 		case BOUND: return "`BOUND'";
 		case BY: return "`BY'";
+		case CLOSE_BRACE: return "`}'";
+		case CLOSE_BRACKET: return "`]'";
+		case CLOSE_PARENS: return "`)'";
+		case COLON: return "`:'";
+		case COMMA: return "`,'";
 		case CONSTRUCT: return "`CONSTRUCT'";
+		case COUNT: return "`COUNT'";
 		case DATATYPE: return "`DATATYPE'";
 		case DECIMAL: return "`DECIMAL'";
 		case DELETE: return "`DELETE'";
@@ -863,36 +886,63 @@ public enum Tracker.SparqlTokenType {
 		case DESCRIBE: return "`DESCRIBE'";
 		case DISTINCT: return "`DISTINCT'";
 		case DOUBLE: return "`DOUBLE'";
+		case DOUBLE_CIRCUMFLEX: return "`^^'";
 		case DROP: return "`DROP'";
-		case EOF: return "`EOF'";
-		case FALSE: return "`FALSE'";
+		case EOF: return "end of file";
+		case FALSE: return "`false'";
 		case FILTER: return "`FILTER'";
 		case FROM: return "`FROM'";
 		case GRAPH: return "`GRAPH'";
 		case GROUP: return "`GROUP'";
+		case GROUP_CONCAT: return "`GROUP_CONCAT'";
 		case INSERT: return "`INSERT'";
 		case INTEGER: return "`INTEGER'";
 		case INTO: return "`INTO'";
-		case ISIRI: return "`ISIRI'";
+		case IRI_REF: return "IRI reference";
 		case ISBLANK: return "`ISBLANK'";
+		case ISIRI: return "`ISIRI'";
 		case ISLITERAL: return "`ISLITERAL'";
 		case ISURI: return "`ISURI'";
 		case LANG: return "`LANG'";
 		case LANGMATCHES: return "`LANGMATCHES'";
 		case LIMIT: return "`LIMIT'";
+		case MAX: return "`MAX'";
+		case MIN: return "`MIN'";
+		case MINUS: return "`-'";
 		case NAMED: return "`NAMED'";
 		case OFFSET: return "`OFFSET'";
+		case OP_AND: return "`&&'";
+		case OP_EQ: return "`='";
+		case OP_GE: return "`>='";
+		case OP_GT: return "`>'";
+		case OP_LE: return "`<='";
+		case OP_LT: return "`<'";
+		case OP_NE: return "`!='";
+		case OP_NEG: return "`!'";
+		case OP_OR: return "`||'";
+		case OPEN_BRACE: return "`{'";
+		case OPEN_BRACKET: return "`['";
+		case OPEN_PARENS: return "`('";
 		case OPTIONAL: return "`OPTIONAL'";
 		case ORDER: return "`ORDER'";
-		case PN_PREFIX: return "`PN_PREFIX'";
+		case PLUS: return "`+'";
+		case PN_PREFIX: return "prefixed name";
 		case PREFIX: return "`PREFIX'";
 		case REDUCED: return "`REDUCED'";
 		case REGEX: return "`REGEX'";
 		case SAMETERM: return "`SAMETERM'";
 		case SELECT: return "`SELECT'";
+		case SEMICOLON: return "`;'";
+		case STAR: return "`*'";
 		case STR: return "`STR'";
-		case TRUE: return "`TRUE'";
+		case STRING_LITERAL1: return "string literal";
+		case STRING_LITERAL2: return "string literal";
+		case STRING_LITERAL_LONG1: return "string literal";
+		case STRING_LITERAL_LONG2: return "string literal";
+		case SUM: return "`SUM'";
+		case TRUE: return "`true'";
 		case UNION: return "`UNION'";
+		case VAR: return "variable";
 		case WHERE: return "`WHERE'";
 		default: return "unknown token";
 		}

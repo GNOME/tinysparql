@@ -30,7 +30,7 @@
 #include <libtracker-data/tracker-data-manager.h>
 #include <libtracker-data/tracker-data-query.h>
 #include <libtracker-data/tracker-data-update.h>
-#include <libtracker-data/tracker-turtle.h>
+#include <libtracker-data/tracker-sparql-query.h>
 #include <libtracker-common/tracker-ontology.h>
 
 typedef struct _TestInfo TestInfo;
@@ -68,24 +68,15 @@ const TestInfo tests[] = {
 	{ "sort/query-sort-2", "sort/data-sort-1", FALSE },
 	{ "sort/query-sort-3", "sort/data-sort-3", FALSE },
 	{ "sort/query-sort-4", "sort/data-sort-4", FALSE },
-	{ "sort/query-sort-5", "sort/data-sort-4", FALSE },
-
+	{ "sort/query-sort-5", "sort/data-sort-4", FALSE }, 
 	/* Bracket error after WHERE */
 	{ "error/query-error-1", "error/query-error-1", TRUE }, 
-
 	/* Unknown property */
 	{ "error/query-error-2", "error/query-error-2", TRUE },
+
+	{ "turtle/turtle-query-001", "turtle/turtle-data-001", FALSE },
 	{ NULL }
 };
-
-static void
-consume_triple_storer (const gchar *subject,
-                       const gchar *predicate,
-                       const gchar *object,
-                       void        *user_data)
-{
-	tracker_data_insert_statement (subject, predicate, object, NULL);
-}
 
 static int
 strstr_i (const char *a, const char *b)
@@ -129,9 +120,8 @@ test_sparql_query (gconstpointer test_data)
 
 		/* load data set */
 		data_filename = g_strconcat (data_prefix, ".ttl", NULL);
-		tracker_data_begin_transaction ();
-		tracker_turtle_process (data_filename, NULL, consume_triple_storer, NULL);
-		tracker_data_commit_transaction ();
+		tracker_turtle_reader_load (data_filename, &error);
+		g_assert (error == NULL);
 
 		query_filename = g_strconcat (test_prefix, ".rq", NULL);
 		g_file_get_contents (query_filename, &query, NULL, &error);
@@ -271,8 +261,6 @@ main (int argc, char **argv)
 
 	g_free (current_dir);
 
-	tracker_turtle_init ();
-
 	/* add test cases */
 	for (i = 0; tests[i].test_name; i++) {
 		gchar *testpath;
@@ -284,8 +272,6 @@ main (int argc, char **argv)
 
 	/* run tests */
 	result = g_test_run ();
-
-	tracker_turtle_shutdown ();
 
 	/* clean up */
 	g_print ("Removing temporary data\n");

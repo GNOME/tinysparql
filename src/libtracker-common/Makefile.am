@@ -51,7 +51,8 @@ endif
 endif
 
 libtracker_common_la_VALASOURCES =			\
-	tracker-sparql-builder.vala
+	tracker-sparql-builder.vala			\
+	tracker-turtle-writer.vala
 
 libtracker_common_la_SOURCES =	 			\
 	$(marshal_sources)				\
@@ -103,7 +104,7 @@ libtracker_commoninclude_HEADERS =			\
 	tracker-utils.h
 
 libtracker-common.vala.stamp: $(libtracker_common_la_VALASOURCES)
-	$(VALAC) -C $(VALAFLAGS) -H tracker-sparql-builder.h posix.vapi $^
+	$(VALAC) -C $(VALAFLAGS) --pkg gio-2.0 -H tracker-sparql-builder.h posix.vapi $^
 	touch $@
 
 libtracker_common_la_LDFLAGS = 				\

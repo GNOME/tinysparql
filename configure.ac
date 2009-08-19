@@ -230,11 +230,6 @@ if test x$have_enca == "xyes"; then
   AC_DEFINE(HAVE_ENCA, 1, [Enca language detection aid])
 fi
 
-# Check for Raptor
-PKG_CHECK_MODULES(RAPTOR, [raptor >= 1.4.18])
-AC_SUBST(RAPTOR_CFLAGS)
-AC_SUBST(RAPTOR_LIBS)
-
 AC_PATH_PROG(VALAC, valac, valac)
 AC_SUBST(VALAC)
 
@@ -1436,6 +1431,7 @@ AC_CONFIG_FILES([
 	tests/libtracker-data/regex/Makefile
 	tests/libtracker-data/sort/Makefile
 	tests/libtracker-data/error/Makefile
+	tests/libtracker-data/turtle/Makefile
 	tests/libtracker-db/Makefile
 	tests/Makefile
 	tests/tracker-miner-fs/Makefile
