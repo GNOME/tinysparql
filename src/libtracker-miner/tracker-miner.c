@@ -607,7 +607,10 @@ tracker_miner_pause (TrackerMiner           *miner,
 	tracker_dbus_async_return_if_fail (application != NULL, context);
 	tracker_dbus_async_return_if_fail (reason != NULL, context);
 
-	tracker_dbus_request_new (request_id, "%s()", __PRETTY_FUNCTION__);
+	tracker_dbus_request_new (request_id, "%s(application:'%s', reason:'%s')",
+				  __PRETTY_FUNCTION__,
+				  application,
+				  reason);
 
 	pd = pause_data_new (application, reason);
 
@@ -617,6 +620,7 @@ tracker_miner_pause (TrackerMiner           *miner,
 
 	if (g_hash_table_size (miner->private->pauses) == 1) {
 		/* Pause */
+		g_message ("Miner is pausing");
 	}
 
 	dbus_g_method_return (context, pd->cookie);
@@ -636,7 +640,9 @@ tracker_miner_resume (TrackerMiner           *miner,
 
 	tracker_dbus_async_return_if_fail (miner != NULL, context);
 
-	tracker_dbus_request_new (request_id, "%s()", __PRETTY_FUNCTION__);
+	tracker_dbus_request_new (request_id, "%s(cookie:%d)", 
+				  __PRETTY_FUNCTION__,
+				  cookie);
 
 	if (!g_hash_table_remove (miner->private->pauses, GINT_TO_POINTER (cookie))) {
 		GError *actual_error = NULL;
@@ -649,6 +655,7 @@ tracker_miner_resume (TrackerMiner           *miner,
 	} else {
 		if (g_hash_table_size (miner->private->pauses) == 0) {
 			/* Resume */
+			g_message ("Miner is resuming");
 		}
 
 		dbus_g_method_return (context);
