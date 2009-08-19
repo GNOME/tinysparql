@@ -198,9 +198,10 @@ tracker_miner_process_class_init (TrackerMinerProcessClass *klass)
 			      G_SIGNAL_RUN_LAST,
 			      G_STRUCT_OFFSET (TrackerMinerProcessClass, finished),
 			      NULL, NULL,
-			      tracker_marshal_VOID__UINT_UINT_UINT_UINT,
+			      tracker_marshal_VOID__DOUBLE_UINT_UINT_UINT_UINT,
 			      G_TYPE_NONE,
-			      4,
+			      5,
+			      G_TYPE_DOUBLE,
 			      G_TYPE_UINT,
 			      G_TYPE_UINT,
 			      G_TYPE_UINT,
@@ -1040,6 +1041,8 @@ process_directories_start (TrackerMinerProcess *process)
 static void
 process_directories_stop (TrackerMinerProcess *process)
 {
+	gdouble elapsed = 0.0;
+		
 	if (process->private->finished_directories) {
 		return;
 	}
@@ -1056,17 +1059,14 @@ process_directories_stop (TrackerMinerProcess *process)
 		}
 
 		if (process->private->timer) {
+			elapsed = g_timer_elapsed (process->private->timer, NULL);
 			g_timer_destroy (process->private->timer);
 			process->private->timer = NULL;
 		}
 	} else {
-		gdouble elapsed;
-	
 		if (process->private->timer) {
-			g_timer_stop (process->private->timer);
 			elapsed = g_timer_elapsed (process->private->timer, NULL);
-		} else {
-			elapsed = 0;
+			g_timer_stop (process->private->timer);
 		}
 		
 		g_message ("FS time taken : %4.4f seconds",
@@ -1082,6 +1082,7 @@ process_directories_stop (TrackerMinerProcess *process)
 	g_message ("--------------------------------------------------\n");
 
 	g_signal_emit (process, signals[FINISHED], 0,
+		       elapsed,
 		       process->private->total_directories_found,
 		       process->private->total_directories_ignored,
 		       process->private->total_files_found,

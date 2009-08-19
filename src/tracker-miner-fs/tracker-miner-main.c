@@ -185,20 +185,18 @@ initialize_priority (void)
 }
 
 static void
-indexer_finished_cb (TrackerIndexer *indexer,
-		     gdouble	     seconds_elapsed,
-		     guint           items_processed,
-		     guint	     items_indexed,
-		     gboolean	     interrupted,
-		     gpointer	     user_data)
+miner_applications_finished_cb (TrackerIndexer *indexer,
+                                gdouble	        seconds_elapsed,
+                                guint           total_directories_found,
+                                guint           total_directories_ignored,
+                                guint           total_files_found,
+                                guint           total_files_ignored,
+                                gpointer	user_data)
 {
-	g_message ("Finished indexing sent items");
-
-	if (interrupted) {
-		g_message ("Indexer was told to shutdown");
-		g_main_loop_quit (main_loop);
-		return;
-	}
+	g_message ("Finished applications, seconds:%f, total directories:%d, total files:%d",
+                   seconds_elapsed,
+                   total_directories_found + total_directories_ignored,
+                   total_files_found + total_files_ignored);
 }
 
 static void
@@ -319,7 +317,7 @@ main (gint argc, gchar *argv[])
 
 	/* Create the indexer and run the main loop */
 	g_signal_connect (miner_applications, "finished",
-			  G_CALLBACK (indexer_finished_cb),
+			  G_CALLBACK (miner_applications_finished_cb),
 			  NULL);
 
         tracker_miner_start (miner_applications);
