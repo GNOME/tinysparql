@@ -20,8 +20,7 @@ INCLUDES = 									\
 	$(GMODULE_CFLAGS)							\
 	$(GTHREAD_CFLAGS)							\
 	$(PANGO_CFLAGS)								\
-	$(DBUS_CFLAGS)								\
-	$(RAPTOR_CFLAGS)
+	$(DBUS_CFLAGS)
 
 tracker_events_SOURCES = 							\
 	$(top_srcdir)/src/tracker-store/tracker-events.c			\

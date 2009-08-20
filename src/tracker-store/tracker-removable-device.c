@@ -32,8 +32,6 @@
 #include <gio/gio.h>
 #include <gmodule.h>
 
-#include <raptor.h>
-
 #include <libtracker-data/tracker-data-query.h>
 #include <libtracker-data/tracker-data-update.h>
 #include <libtracker-db/tracker-db-manager.h>

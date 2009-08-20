@@ -23,8 +23,6 @@
 #include <glib.h>
 #include <gio/gio.h>
 
-#include <raptor.h>
-
 #include <libtracker-db/tracker-db-manager.h>
 
 #include <libtracker-data/tracker-data-manager.h>

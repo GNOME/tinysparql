@@ -16,8 +16,7 @@ INCLUDES =								\
 	$(GMODULE_CFLAGS)						\
 	$(PANGO_CFLAGS)							\
 	$(DBUS_CFLAGS)							\
-	$(GCOV_CFLAGS)							\
-	$(RAPTOR_CFLAGS)
+	$(GCOV_CFLAGS)
 
 libtracker_moduledir = $(libdir)/tracker-$(TRACKER_API_VERSION)
 libtracker_moduleincludedir=$(includedir)/tracker-$(TRACKER_API_VERSION)/libtracker-module/
@@ -86,7 +85,6 @@ tracker_miner_fs_LDADD =						\
 	$(GIO_LIBS)							\
 	$(GCOV_LIBS)							\
 	$(GLIB2_LIBS)							\
-	$(RAPTOR_LIBS)							\
 	-lz								\
 	-lm
 

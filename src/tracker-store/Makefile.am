@@ -18,8 +18,7 @@ INCLUDES =								\
 	$(PANGO_CFLAGS)							\
 	$(GMIME_CFLAGS)							\
 	$(FAM_CFLAGS)							\
-	$(SQLITE3_CFLAGS)						\
-	$(RAPTOR_CFLAGS)
+	$(SQLITE3_CFLAGS)
 
 #
 # Daemon sources
@@ -70,7 +69,6 @@ tracker_store_LDADD =							\
 	$(GMODULE_LIBS)							\
 	$(GTHREAD_LIBS)							\
 	$(GLIB2_LIBS)							\
-	$(RAPTOR_LIBS)							\
 	$(GCOV_LIBS)							\
 	$(tracker_store_win_libs)					\
 	-lz								\

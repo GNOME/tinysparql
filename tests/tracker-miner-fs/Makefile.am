@@ -21,8 +21,7 @@ INCLUDES = 									\
 	$(GMODULE_CFLAGS)							\
 	$(GTHREAD_CFLAGS)							\
 	$(PANGO_CFLAGS)								\
-	$(DBUS_CFLAGS)								\
-	$(RAPTOR_CFLAGS)
+	$(DBUS_CFLAGS)
 
 tracker_metadata_utils_SOURCES = 						\
 	$(top_srcdir)/src/tracker-miner-fs/tracker-dbus.c			\
@@ -55,5 +54,4 @@ tracker_metadata_utils_LDADD =	                                        	\
 	$(GTHREAD_LIBS)								\
 	$(GIO_LIBS)								\
 	$(GCOV_LIBS)								\
-	$(RAPTOR_LIBS)								\
 	$(GLIB2_LIBS)							
