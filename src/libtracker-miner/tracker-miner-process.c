@@ -29,6 +29,13 @@
 
 #define TRACKER_MINER_PROCESS_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_MINER_PROCESS, TrackerMinerProcessPrivate))
 
+typedef struct ItemMovedData ItemMovedData;
+
+struct ItemMovedData {
+	GFile *file;
+	GFile *source_file;
+};
+
 struct TrackerMinerProcessPrivate {
 	TrackerMonitor *monitor;
 	TrackerCrawler *crawler;
@@ -258,6 +265,27 @@ tracker_miner_process_init (TrackerMinerProcess *object)
 			  object);
 }
 
+static ItemMovedData *
+item_moved_data_new (GFile *file,
+		     GFile *source_file)
+{
+	ItemMovedData *data;
+
+	data = g_slice_new (ItemMovedData);
+	data->file = g_object_ref (file);
+	data->source_file = g_object_ref (source_file);
+
+	return data;
+}
+
+static void
+item_moved_data_free (ItemMovedData *data)
+{
+	g_object_unref (data->file);
+	g_object_unref (data->source_file);
+	g_slice_free (ItemMovedData, data);
+}
+
 static void
 process_finalize (GObject *object)
 {
@@ -323,7 +351,7 @@ process_finalize (GObject *object)
 		g_list_free (priv->directories);
 	}
 
-	g_queue_foreach (priv->items_moved, (GFunc) g_object_unref, NULL);
+	g_queue_foreach (priv->items_moved, (GFunc) item_moved_data_free, NULL);
 	g_queue_free (priv->items_moved);
 
 	g_queue_foreach (priv->items_deleted, (GFunc) g_object_unref, NULL);
@@ -398,10 +426,19 @@ directory_data_free (DirectoryData *dd)
 
 static void
 item_add_or_update (TrackerMinerProcess  *miner,
-		    GFile                *file,
-		    TrackerSparqlBuilder *sparql)
+		    GFile                *file)
 {
+	TrackerSparqlBuilder *sparql;
 	gchar *full_sparql, *uri;
+	gboolean processed;
+
+	sparql = tracker_sparql_builder_new_update ();
+	g_signal_emit (miner, signals[PROCESS_FILE], 0, file, sparql, &processed);
+
+	if (!processed) {
+		g_object_unref (sparql);
+		return;
+	}
 
 	uri = g_file_get_uri (file);
 
@@ -414,17 +451,19 @@ item_add_or_update (TrackerMinerProcess  *miner,
 
 	tracker_miner_execute_sparql (TRACKER_MINER (miner), full_sparql, NULL);
 	g_free (full_sparql);
+	g_object_unref (sparql);
 }
 
 static gboolean
 query_resource_exists (TrackerMinerProcess *miner,
-		       const gchar         *uri)
+		       GFile               *file)
 {
 	TrackerClient *client;
 	gboolean   result;
-	gchar     *sparql;
+	gchar     *sparql, *uri;
 	GPtrArray *sparql_result;
 
+	uri = g_file_get_uri (file);
 	sparql = g_strdup_printf ("SELECT ?s WHERE { ?s a rdfs:Resource . FILTER (?s = <%s>) }",
 	                          uri);
 
@@ -435,6 +474,7 @@ query_resource_exists (TrackerMinerProcess *miner,
 
 	tracker_dbus_results_ptr_array_free (&sparql_result);
 	g_free (sparql);
+	g_free (uri);
 
 	return result;
 }
@@ -450,7 +490,7 @@ item_remove (TrackerMinerProcess *miner,
 	g_debug ("Removing item: '%s' (Deleted from filesystem)",
 		 uri);
 
-	if (!query_resource_exists (miner, uri)) {
+	if (!query_resource_exists (miner, file)) {
 		g_debug ("  File does not exist anyway (uri:'%s')", uri);
 		return;
 	}
@@ -463,75 +503,206 @@ item_remove (TrackerMinerProcess *miner,
 	/* FIXME: Should delete recursively? */
 }
 
-static GFile *
-get_next_file (TrackerMinerProcess  *miner,
-	       gint                 *queue)
+static void
+update_file_uri_recursively (TrackerMinerProcess *miner,
+			     GString             *sparql_update,
+			     const gchar         *source_uri,
+			     const gchar         *uri)
 {
-	GFile *file;
+	TrackerClient *client;
+	gchar *sparql;
+	GPtrArray *result_set;
+
+	g_debug ("Moving item from '%s' to '%s'",
+		 source_uri,
+		 uri);
+
+	/* FIXME: tracker:uri doesn't seem to exist */
+	/* g_string_append_printf (sparql_update, " <%s> tracker:uri <%s> .", source_uri, uri); */
+
+	client = tracker_miner_get_client (TRACKER_MINER (miner));
+	sparql = g_strdup_printf ("SELECT ?child WHERE { ?child nfo:belongsToContainer <%s> }", source_uri);
+	result_set = tracker_resources_sparql_query (client, sparql, NULL);
+	g_free (sparql);
+
+	if (result_set) {
+		gint i;
+
+		for (i = 0; i < result_set->len; i++) {
+			gchar **child_source_uri, *child_uri;
+
+			child_source_uri = g_ptr_array_index (result_set, i);
+
+			if (!g_str_has_prefix (*child_source_uri, source_uri)) {
+				g_warning ("Child URI '%s' does not start with parent URI '%s'",
+				           *child_source_uri,
+				           source_uri);
+				continue;
+			}
+
+			child_uri = g_strdup_printf ("%s%s", uri, *child_source_uri + strlen (source_uri));
+
+			update_file_uri_recursively (miner, sparql_update, *child_source_uri, child_uri);
+
+			g_free (child_source_uri);
+			g_free (child_uri);
+		}
+
+		g_ptr_array_free (result_set, TRUE);
+	}
+}
+
+static void
+item_move (TrackerMinerProcess *miner,
+	   GFile               *file,
+	   GFile               *source_file)
+{
+	gchar     *uri, *source_uri, *escaped_filename;
+	GFileInfo *file_info;
+	GString   *sparql;
+
+	uri = g_file_get_uri (file);
+	source_uri = g_file_get_uri (source_file);
+
+	/* Get 'source' ID */
+	if (!query_resource_exists (miner, source_file)) {
+		g_message ("Source file '%s' not found in store to move, indexing '%s' from scratch", source_uri, uri);
+
+		item_add_or_update (miner, file);
+
+		g_free (source_uri);
+		g_free (uri);
+
+		return;
+	}
+
+	file_info = g_file_query_info (file,
+				       G_FILE_ATTRIBUTE_STANDARD_DISPLAY_NAME,
+				       G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
+				       NULL, NULL);
+
+	if (!file_info) {
+		/* Destination file has gone away, ignore dest file and remove source if any */
+		item_remove (miner, source_file);
+
+		g_free (source_uri);
+		g_free (uri);
+
+		return;
+	}
+
+	sparql = g_string_new ("");
+
+	g_string_append_printf (sparql,
+		"DELETE { <%s> nfo:fileName ?o } WHERE { <%s> nfo:fileName ?o }",
+		source_uri, source_uri);
+
+	g_string_append (sparql, " INSERT {");
+
+	escaped_filename = g_strescape (g_file_info_get_display_name (file_info), NULL);
+
+	g_string_append_printf (sparql, " <%s> nfo:fileName \"%s\" .", source_uri, escaped_filename);
+	g_string_append_printf (sparql, " <%s> nie:isStoredAs <%s> .", source_uri, uri);
+
+	/* FIXME: This function just seemed to update the thumbnail */
+	/* update_file_uri_recursively (miner, sparql, source_uri, uri); */
+
+	g_string_append (sparql, " }");
+
+	tracker_miner_execute_sparql (TRACKER_MINER (miner), sparql->str, NULL);
+
+	g_free (uri);
+	g_free (source_uri);
+	g_object_unref (file_info);
+	g_string_free (sparql, TRUE);
+}
+
+static gint
+get_next_file (TrackerMinerProcess  *miner,
+	       GFile               **file,
+	       GFile               **source_file)
+{
+	ItemMovedData *data;
+	GFile *queue_file;
 
 	/* Deleted items first */
-	file = g_queue_pop_head (miner->private->items_deleted);
-	if (file) {
-		*queue = QUEUE_DELETED;
-		return file;
+	queue_file = g_queue_pop_head (miner->private->items_deleted);
+	if (queue_file) {
+		*file = queue_file;
+		*source_file = NULL;
+		return QUEUE_DELETED;
 	}
 
 	/* Created items next */
-	file = g_queue_pop_head (miner->private->items_created);
-	if (file) {
-		*queue = QUEUE_CREATED;
-		return file;
+	queue_file = g_queue_pop_head (miner->private->items_created);
+	if (queue_file) {
+		*file = queue_file;
+		*source_file = NULL;
+		return QUEUE_CREATED;
 	}
 
 	/* Updated items next */
-	file = g_queue_pop_head (miner->private->items_updated);
-	if (file) {
-		*queue = QUEUE_UPDATED;
-		return file;
+	queue_file = g_queue_pop_head (miner->private->items_updated);
+	if (queue_file) {
+		*file = queue_file;
+		*source_file = NULL;
+		return QUEUE_UPDATED;
 	}
 
 	/* Moved items next */
-	file = g_queue_pop_head (miner->private->items_moved);
-	if (file) {
-		*queue = QUEUE_MOVED;
-		return file;
+	data = g_queue_pop_head (miner->private->items_moved);
+	if (data) {
+		*file = g_object_ref (data->file);
+		*source_file = g_object_ref (data->source_file);
+		item_moved_data_free (data);
+
+		return QUEUE_MOVED;
 	}
 
-	*queue = QUEUE_NONE;
-	return NULL;
+	*file = NULL;
+	*source_file = NULL;
+
+	return QUEUE_NONE;
 }
 
 static gboolean
 item_queue_handlers_cb (gpointer user_data)
 {
-	TrackerSparqlBuilder *sparql;
 	TrackerMinerProcess *miner;
-	gboolean processed;
-	GFile *file;
+	GFile *file, *source_file;
 	gint queue;
 
 	miner = user_data;
-	sparql = tracker_sparql_builder_new_update ();
-	file = get_next_file (miner, &queue);
+	queue = get_next_file (miner, &file, &source_file);
 
-	if (file) {
-		if (queue == QUEUE_DELETED) {
-			item_remove (miner, file);
-		} else  {
-			g_signal_emit (miner, signals[PROCESS_FILE], 0, file, sparql, &processed);
-
-			if (processed) {
-				/* Commit sparql */
-				item_add_or_update (miner, file, sparql);
-			}
-		}
-
-		return TRUE;
+	if (queue == QUEUE_NONE) {
+		/* No more files left to process */
+		miner->private->item_queues_handler_id = 0;
+		return FALSE;
 	}
 
-	miner->private->item_queues_handler_id = 0;
+	switch (queue) {
+	case QUEUE_MOVED:
+		item_move (miner, file, source_file);
+		break;
+	case QUEUE_DELETED:
+		item_remove (miner, file);
+		break;
+	case QUEUE_CREATED:
+	case QUEUE_UPDATED:
+		item_add_or_update (miner, file);
+		break;
+	default:
+		g_assert_not_reached ();
+	}
 
-	return FALSE;
+	g_object_unref (file);
+
+	if (source_file) {
+		g_object_unref (source_file);
+	}
+
+	return TRUE;
 }
 
 static void
@@ -776,26 +947,31 @@ monitor_item_moved_cb (TrackerMonitor *monitor,
 	} else {
 		gchar *path;
 		gchar *other_path;
-		gboolean should_process;
-		gboolean should_process_other;
-		
+		gboolean source_stored, should_process_other;
+
 		path = g_file_get_path (file);
 		other_path = g_file_get_path (other_file);
 
-		should_process = should_process_file (process, file, is_directory);
+		source_stored = query_resource_exists (process, file);
 		should_process_other = should_process_file (process, other_file, is_directory);
 
 		g_debug ("%s:'%s'->'%s':%s (%s) (move monitor event or user request)",
-			 should_process ? "Found " : "Ignored",
+			 source_stored ? "In store" : "Not in store",
 			 path,
 			 other_path,
 			 should_process_other ? "Found " : "Ignored",
 			 is_directory ? "DIR" : "FILE");
-		
-		if (!should_process && !should_process_other) {
+
+		/* FIXME: Guessing this soon the queue the event should pertain
+		 *        to could introduce race conditions if events from other
+		 *        queues for the same files are processed before items_moved,
+		 *        Most of these decisions should be taken when the event is
+		 *        actually being processed.
+		 */
+		if (!source_stored && !should_process_other) {
 			/* Do nothing */
-		} else if (!should_process) {
-			/* Check new file */
+		} else if (!source_stored) {
+			/* Source file was not stored, check dest file as new */
 			if (!is_directory) {
 				g_queue_push_tail (process->private->items_created, 
 						   g_object_ref (other_file));
@@ -822,9 +998,9 @@ monitor_item_moved_cb (TrackerMonitor *monitor,
 			item_queue_handlers_set_up (process);
 		} else {
 			/* Move old file to new file */
-			g_queue_push_tail (process->private->items_moved, g_object_ref (file));
-			g_queue_push_tail (process->private->items_moved, g_object_ref (other_file));
-			
+			g_queue_push_tail (process->private->items_moved,
+					   item_moved_data_new (other_file, file));
+
 			item_queue_handlers_set_up (process);
 		}
 		
