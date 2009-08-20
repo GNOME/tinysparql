@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-07-08 10:49+0200\n"
-"PO-Revision-Date: 2009-07-08 10:59+0100\n"
+"POT-Creation-Date: 2009-08-20 22:21+0200\n"
+"PO-Revision-Date: 2009-08-20 22:22+0100\n"
 "Last-Translator: Daniel Nylander <po@danielnylander.se>\n"
 "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
 "MIME-Version: 1.0\n"
@@ -757,11 +757,11 @@ msgstr "MIME"
 
 #. Translators: this message will appear immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
-#: ../src/tracker-extract/tracker-main.c:275
+#: ../src/tracker-extract/tracker-main.c:322
 msgid "- Extract file meta data"
 msgstr "- Extrahera metadata om filer"
 
-#: ../src/tracker-extract/tracker-main.c:287
+#: ../src/tracker-extract/tracker-main.c:331
 msgid "Filename and mime type must be provided together"
 msgstr "Filnamn och mime-typ måste anges tillsammans"
 
@@ -1732,6 +1732,7 @@ msgstr "sökvillkor"
 
 #: ../src/tracker-utils/tracker-search.c:61
 #: ../utils/albumart/albumart-strip.c:35
+#: ../utils/mp3-genre-leading-uppercase/mp3-genre-leading-uppercase.c:35
 msgid "EXPRESSION"
 msgstr "UTTRYCK"
 
@@ -2108,6 +2109,7 @@ msgid "No album/artist text was provided"
 msgstr "Ingen text om album/artist tillhandahölls"
 
 #: ../utils/albumart/albumart-strip.c:82
+#: ../utils/mp3-genre-leading-uppercase/mp3-genre-leading-uppercase.c:159
 msgid "Converted to"
 msgstr "Konverterat till"
 
@@ -2138,6 +2140,26 @@ msgstr "Ingen frågesats tillhandahölls"
 #: ../utils/sqlite/query.c:287
 msgid "No databases were provided"
 msgstr "Inga databaser tillhandahölls"
+
+#: ../utils/mp3-genre-leading-uppercase/mp3-genre-leading-uppercase.c:34
+msgid "genre"
+msgstr "genre"
+
+#: ../utils/mp3-genre-leading-uppercase/mp3-genre-leading-uppercase.c:123
+msgid "- Test MP3 handwritten genre conversion to leading uppercase"
+msgstr "- Testa MP3-handskriven genrekonvertering till inledande versal"
+
+#: ../utils/mp3-genre-leading-uppercase/mp3-genre-leading-uppercase.c:124
+msgid "You can use this to check genre strings get converted correctly, for example:"
+msgstr "Du kan använda detta för att kontrollera att strängar blir konverterade korrekt. Till exempel:"
+
+#: ../utils/mp3-genre-leading-uppercase/mp3-genre-leading-uppercase.c:130
+msgid "Should be converted to"
+msgstr "Ska konverteras till"
+
+#: ../utils/mp3-genre-leading-uppercase/mp3-genre-leading-uppercase.c:144
+msgid "No genre text was provided"
+msgstr "Ingen genretext tillhandahölls"
 
 #~ msgid "Whether to process data from all configured modules to be indexed"
 #~ msgstr ""
