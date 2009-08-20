@@ -495,10 +495,10 @@ initialize_directories (void)
 	 * tracker-db-manager does that for us.
 	 */
 
-	g_message ("Checking directory exists:'%s'", private->user_data_dir);
+	/* g_message ("Checking directory exists:'%s'", private->user_data_dir); */
 	g_mkdir_with_parents (private->user_data_dir, 00755);
 
-	g_message ("Checking directory exists:'%s'", private->data_dir);
+	/* g_message ("Checking directory exists:'%s'", private->data_dir); */
 	g_mkdir_with_parents (private->data_dir, 00755);
 
 	/* Remove old tracker dirs */

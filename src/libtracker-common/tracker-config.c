@@ -763,8 +763,6 @@ config_create_with_defaults (GKeyFile *key_file,
 
 	watch_directory_roots[0] = g_get_home_dir ();
 
-	g_message ("Loading defaults into GKeyFile...");
-
 	/* General */
 	if (overwrite || !g_key_file_has_key (key_file, GROUP_GENERAL, KEY_VERBOSITY, NULL)) {
 		g_key_file_set_integer (key_file, GROUP_GENERAL, KEY_VERBOSITY, 
@@ -1334,9 +1332,6 @@ config_load (TrackerConfig *config)
 	}
 
 	if (!priv->monitor) {
-		g_message ("Setting up monitor for changes to config file:'%s'",
-			   filename);
-
 		priv->monitor = g_file_monitor_file (priv->file,
 						     G_FILE_MONITOR_NONE,
 						     NULL,
