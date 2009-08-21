@@ -63,9 +63,11 @@ struct TrackerMinerProcessClass {
 
 GType tracker_miner_process_get_type      (void) G_GNUC_CONST;
 
-void  tracker_miner_process_add_directory (TrackerMinerProcess *process,
-					   const gchar         *path,
-					   gboolean             recurse);
+void     tracker_miner_process_add_directory    (TrackerMinerProcess *process,
+						 const gchar         *path,
+						 gboolean             recurse);
+gboolean tracker_miner_process_remove_directory (TrackerMinerProcess *process,
+						 const gchar         *path);
 
 G_END_DECLS
 

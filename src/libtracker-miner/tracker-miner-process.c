@@ -36,6 +36,11 @@ struct ItemMovedData {
 	GFile *source_file;
 };
 
+typedef struct {
+	gchar    *path;
+	gboolean  recurse;
+} DirectoryData;
+
 struct TrackerMinerProcessPrivate {
 	TrackerMonitor *monitor;
 	TrackerCrawler *crawler;
@@ -49,19 +54,18 @@ struct TrackerMinerProcessPrivate {
 	GQueue         *items_moved;
 
 	GList          *directories;
-	GList          *current_directory;
+	DirectoryData  *current_directory;
 
 	GList          *devices;
 	GList          *current_device;
 
 	GTimer	       *timer;
 
-	/* Status */
-	gboolean        been_started;
-	gboolean	interrupted;
+	guint           process_dirs_id;
 
-	gboolean	finished_directories;
-	gboolean	finished_devices;
+	/* Status */
+	guint           been_started : 1;
+	guint           shown_totals : 1;
 
 	/* Statistics */
 	guint		total_directories_found;
@@ -74,11 +78,6 @@ struct TrackerMinerProcessPrivate {
 	guint		files_found;
 	guint		files_ignored;
 };
-
-typedef struct {
-	gchar    *path;
-	gboolean  recurse;
-} DirectoryData;
 
 enum {
 	QUEUE_NONE,
@@ -135,9 +134,7 @@ static void           crawler_finished_cb          (TrackerCrawler      *crawler
 						    guint                files_found,
 						    guint                files_ignored,
 						    gpointer             user_data);
-static void           process_continue             (TrackerMinerProcess *process);
-static void           process_next                 (TrackerMinerProcess *process);
-static void           process_directories_next     (TrackerMinerProcess *process);
+
 static void           process_directories_start    (TrackerMinerProcess *process);
 static void           process_directories_stop     (TrackerMinerProcess *process);
 
@@ -303,6 +300,8 @@ process_finalize (GObject *object)
 		priv->item_queues_handler_id = 0;
 	}
 
+	process_directories_stop (TRACKER_MINER_PROCESS (object));
+
 	if (priv->crawler) {
 		guint lsignals;
 
@@ -388,16 +387,7 @@ miner_started (TrackerMiner *miner)
 
 	process = TRACKER_MINER_PROCESS (miner);
 
-	process->private->been_started = TRUE;
-
-	process->private->interrupted = FALSE;
-
-	process->private->finished_directories = FALSE;
-
-	/* Disabled for now */
-	process->private->finished_devices = TRUE;
-
-	process_next (process);
+	process_directories_start (process);
 }
 
 static DirectoryData *
@@ -816,27 +806,18 @@ monitor_item_created_cb (TrackerMonitor *monitor,
 			gboolean add_monitor = TRUE;
 
 			g_signal_emit (process, signals[MONITOR_DIRECTORY], 0, file, &add_monitor);
-			
+
 			if (add_monitor) {
-				tracker_monitor_add (process->private->monitor, file);	     
+				tracker_monitor_add (process->private->monitor, file);
 			}
 
 			/* Add to the list */
-			process->private->directories = 
-				g_list_append (process->private->directories, 
-					       directory_data_new (path, TRUE));
-
-			/* Make sure we are handling that list */
-			process->private->finished_directories = FALSE;
-
-			if (process->private->finished_devices) {
-				process_next (process);
-			}
+			tracker_miner_process_add_directory (process, path, TRUE);
 		}
 
-		g_queue_push_tail (process->private->items_created, 
+		g_queue_push_tail (process->private->items_created,
 				   g_object_ref (file));
-		
+
 		item_queue_handlers_set_up (process);
 	}
 
@@ -1114,51 +1095,23 @@ crawler_finished_cb (TrackerCrawler *crawler,
 		   files_found,
 		   files_ignored);
 
+	directory_data_free (process->private->current_directory);
+	process->private->current_directory = NULL;
+
 	/* Proceed to next thing to process */
-	process_continue (process);
+	process_directories_start (process);
 }
 
 static void
-process_continue (TrackerMinerProcess *process)
+print_stats (TrackerMinerProcess *process)
 {
-	if (!process->private->finished_directories) {
-		process_directories_next (process);
-		return;
-	}
-
-#if 0
-	if (!process->private->finished_devices) {
-		process_device_next (process);
-		return;
-	}
-#endif
-
-	/* Nothing to do */
-}
-
-static void
-process_next (TrackerMinerProcess *process)
-{
-	static gboolean shown_totals = FALSE;
-
-	if (!process->private->finished_directories) {
-		process_directories_start (process);
-		return;
-	}
-
-#if 0
-	if (!process->private->finished_devices) {
-		process_devices_start (process);
-		return;
-	}
-#endif
-
 	/* Only do this the first time, otherwise the results are
 	 * likely to be inaccurate. Devices can be added or removed so
 	 * we can't assume stats are correct.
 	 */
-	if (!shown_totals) {
-		shown_totals = TRUE;
+	if (!process->private->shown_totals) {
+		process->private->shown_totals = TRUE;
+		g_timer_stop (process->private->timer);
 
 		g_message ("--------------------------------------------------");
 		g_message ("Total directories : %d (%d ignored)",
@@ -1171,127 +1124,86 @@ process_next (TrackerMinerProcess *process)
 			   tracker_monitor_get_count (process->private->monitor));
 		g_message ("--------------------------------------------------\n");
 	}
-
-	/* Now we have finished crawling, we enable monitor events */
-	g_message ("Enabling monitor events");
-	tracker_monitor_set_enabled (process->private->monitor, TRUE);
 }
 
-static void
-process_directories_next (TrackerMinerProcess *process)
+static gboolean
+process_directories_cb (gpointer user_data)
 {
-	DirectoryData *dd;
+	TrackerMinerProcess *miner = user_data;
 
-	/* Don't recursively iterate the modules */
-	if (!process->private->current_directory) {
-		if (!process->private->finished_directories) {
-			process->private->current_directory = process->private->directories;
-		}
-	} else {
-		GList *l;
-
-		l = process->private->current_directory;
-		
-		/* Now free that device so we don't recrawl it */
-		if (l) {
-			directory_data_free (l->data);
-			
-			process->private->current_directory = 
-				process->private->directories = 
-				g_list_delete_link (process->private->directories, l);
-		}
+	if (miner->private->current_directory) {
+		g_critical ("One directory is already being processed, bailing out");
+		miner->private->process_dirs_id = 0;
+		return FALSE;
 	}
 
-	/* If we have no further modules to iterate */
-	if (!process->private->current_directory) {
-		process_directories_stop (process);
-		process_next (process);
-		return;
+	if (!miner->private->directories) {
+		/* Now we have finished crawling, print stats and enable monitor events */
+		print_stats (miner);
+
+		g_message ("Enabling monitor events");
+		tracker_monitor_set_enabled (miner->private->monitor, TRUE);
+
+		miner->private->process_dirs_id = 0;
+		return FALSE;
 	}
 
-	dd = process->private->current_directory->data;
+	miner->private->current_directory = miner->private->directories->data;
+	miner->private->directories = g_list_remove (miner->private->directories,
+						     miner->private->current_directory);
 
-	tracker_crawler_start (process->private->crawler, 
-			       dd->path, 
-			       dd->recurse);
+	g_debug ("Processing path '%s'\n", miner->private->current_directory->path);
+
+	if (tracker_crawler_start (miner->private->crawler,
+				   miner->private->current_directory->path,
+				   miner->private->current_directory->recurse)) {
+		/* Crawler when restart the idle function when done */
+		miner->private->process_dirs_id = 0;
+		return FALSE;
+	}
+
+	/* Directory couldn't be processed */
+	directory_data_free (miner->private->current_directory);
+	miner->private->current_directory = NULL;
+
+	return TRUE;
 }
 
 static void
 process_directories_start (TrackerMinerProcess *process)
 {
-	g_message ("Process is starting to iterating directories");
-
-	/* Go through dirs and crawl */
-	if (!process->private->directories) {
-		g_message ("No directories set up for process to handle, doing nothing");
+	if (process->private->process_dirs_id != 0) {
 		return;
 	}
 
-	if (process->private->timer) {
-		g_timer_destroy (process->private->timer);
+	if (!process->private->been_started) {
+		process->private->been_started = TRUE;
+		process->private->timer = g_timer_new ();
+
+		process->private->total_directories_found = 0;
+		process->private->total_directories_ignored = 0;
+		process->private->total_files_found = 0;
+		process->private->total_files_ignored = 0;
+		process->private->directories_found = 0;
+		process->private->directories_ignored = 0;
+		process->private->files_found = 0;
+		process->private->files_ignored = 0;
 	}
 
-	process->private->timer = g_timer_new ();
-
-	process->private->finished_directories = FALSE;
-
-	process->private->directories_found = 0;
-	process->private->directories_ignored = 0;
-	process->private->files_found = 0;
-	process->private->files_ignored = 0;
-
-	process_directories_next (process);
+	process->private->process_dirs_id = g_idle_add (process_directories_cb, process);
 }
 
 static void
 process_directories_stop (TrackerMinerProcess *process)
 {
-	gdouble elapsed = 0.0;
-		
-	if (process->private->finished_directories) {
-		return;
+	if (process->private->current_directory) {
+		tracker_crawler_stop (process->private->crawler);
 	}
 
-	g_message ("--------------------------------------------------");
-	g_message ("Process has %s iterating files",
-		   process->private->interrupted ? "been stopped while" : "finished");
-
-	process->private->finished_directories = TRUE;
-
-	if (process->private->interrupted) {
-		if (process->private->crawler) {
-			tracker_crawler_stop (process->private->crawler);
-		}
-
-		if (process->private->timer) {
-			elapsed = g_timer_elapsed (process->private->timer, NULL);
-			g_timer_destroy (process->private->timer);
-			process->private->timer = NULL;
-		}
-	} else {
-		if (process->private->timer) {
-			elapsed = g_timer_elapsed (process->private->timer, NULL);
-			g_timer_stop (process->private->timer);
-		}
-		
-		g_message ("FS time taken : %4.4f seconds",
-			   elapsed);
-		g_message ("FS directories: %d (%d ignored)",
-			   process->private->directories_found,
-			   process->private->directories_ignored);
-		g_message ("FS files      : %d (%d ignored)",
-			   process->private->files_found,
-			   process->private->files_ignored);
+	if (process->private->process_dirs_id != 0) {
+		g_source_remove (process->private->process_dirs_id);
+		process->private->process_dirs_id = 0;
 	}
-
-	g_message ("--------------------------------------------------\n");
-
-	g_signal_emit (process, signals[FINISHED], 0,
-		       elapsed,
-		       process->private->total_directories_found,
-		       process->private->total_directories_ignored,
-		       process->private->total_files_found,
-		       process->private->total_files_ignored);
 }
 
 void
@@ -1302,9 +1214,39 @@ tracker_miner_process_add_directory (TrackerMinerProcess *process,
 	g_return_if_fail (TRACKER_IS_PROCESS (process));
 	g_return_if_fail (path != NULL);
 
-	/* WHAT HAPPENS IF WE ADD DURING OPERATION ? */
-
-	process->private->directories = 
-		g_list_append (process->private->directories, 
+	process->private->directories =
+		g_list_append (process->private->directories,
 			       directory_data_new (path, recurse));
+
+	process_directories_start (process);
+}
+
+gboolean
+tracker_miner_process_remove_directory (TrackerMinerProcess *process,
+					const gchar         *path)
+{
+	gboolean return_val = FALSE;
+	GList *l;
+
+	g_return_val_if_fail (TRACKER_IS_PROCESS (process), FALSE);
+	g_return_val_if_fail (path != NULL, FALSE);
+
+	if (process->private->current_directory &&
+	    strcmp (process->private->current_directory->path, path) == 0) {
+		/* Dir is being processed currently, cancel crawler */
+		tracker_crawler_stop (process->private->crawler);
+		return_val = TRUE;
+	}
+
+	l = g_list_find_custom (process->private->directories, path,
+				(GCompareFunc) g_strcmp0);
+
+	if (l) {
+		directory_data_free (l->data);
+		process->private->directories =
+			g_list_delete_link (process->private->directories, l);
+		return_val = TRUE;
+	}
+
+	return return_val;
 }
