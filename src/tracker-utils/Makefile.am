@@ -6,21 +6,22 @@ INCLUDES =								\
 	-DTRACKER_COMPILATION						\
 	-I$(top_srcdir)/src						\
 	$(WARN_CFLAGS)							\
-	$(GTHREAD_CFLAGS)						\
-	$(GLIB2_CFLAGS)							\
 	$(GCOV_CFLAGS)							\
+	$(DBUS_CFLAGS)							\
 	$(GIO_CFLAGS)							\
-	$(DBUS_CFLAGS)
+	$(GTHREAD_CFLAGS)						\
+	$(GLIB2_CFLAGS)
 
 libs = 									\
 	$(top_builddir)/src/libtracker-miner/libtracker-miner.la	\
 	$(top_builddir)/src/libtracker-db/libtracker-db.la		\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la	\
 	$(top_builddir)/src/libtracker/libtrackerclient-@TRACKER_API_VERSION@.la \
+	$(DBUS_LIBS)							\
 	$(GIO_LIBS)							\
-	$(GCOV_LIBS)							\
 	$(GTHREAD_LIBS)							\
-	$(GLIB2_LIBS)
+	$(GLIB2_LIBS)							\
+	$(GCOV_LIBS)
 
 bin_PROGRAMS = 								\
 	tracker-import							\
@@ -56,3 +57,13 @@ tracker_sparql_LDADD = $(libs)
 tracker_import_SOURCES = tracker-import.c
 tracker_import_LDADD = $(libs)
 
+dbus_sources = 								\
+	tracker-miner-client.h
+
+%-client.h: $(top_srcdir)/data/dbus/%.xml
+	$(DBUSBINDINGTOOL) --mode=glib-client --output=$@ --prefix=$(subst -,_,$*) $^
+
+BUILT_SOURCES = 							\
+	$(dbus_sources)
+
+CLEANFILES = $(BUILT_SOURCES)

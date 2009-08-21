@@ -20,18 +20,21 @@
 
 #include "config.h"
 
-#include <string.h>
-#include <stdlib.h>
 #include <signal.h>
-#include <time.h>
 #include <locale.h>
+#include <stdlib.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 #include <glib.h>
 #include <glib/gi18n.h>
 
 #include <libtracker/tracker.h>
 
+#include <libtracker-miner/tracker-miner.h>
 #include <libtracker-miner/tracker-miner-discover.h>
+
+#include "tracker-miner-client.h"
 
 #define TRACKER_TYPE_G_STRV_ARRAY  (dbus_g_type_get_collection ("GPtrArray", G_TYPE_STRV))
 
@@ -44,6 +47,9 @@ static GMainLoop *main_loop;
 
 static gboolean   list_miners_running;
 static gboolean   list_miners_available;
+static gchar     *mname;
+static gchar     *mpause;
+static gint       mresume = -1;
 static gboolean   follow;
 static gboolean   detailed;
 
@@ -56,13 +62,25 @@ static GOptionEntry entries[] = {
 	  N_("Include details with state updates (only applies to --follow)"),
 	  NULL 
 	},
-	{ "list-miners-running", 'r', 0, G_OPTION_ARG_NONE, &list_miners_running,
+	{ "list-miners-running", 'l', 0, G_OPTION_ARG_NONE, &list_miners_running,
 	  N_("List all miners installed"),
 	  NULL 
 	},
 	{ "list-miners-available", 'a', 0, G_OPTION_ARG_NONE, &list_miners_available,
 	  N_("List all miners installed"),
 	  NULL 
+	},
+	{ "miner", 'm', 0, G_OPTION_ARG_STRING, &mname,
+	  N_("Miner to use with other commands (you can use suffixes, e.g. FS or Applications)"),
+	  N_("MINER")
+	},
+	{ "pause", 'p', 0, G_OPTION_ARG_STRING, &mpause,
+	  N_("Pause a miner (you must use this with --miner)"),
+	  N_("REASON")
+	},
+	{ "resume", 'r', 0, G_OPTION_ARG_INT, &mresume,
+	  N_("Resume a miner (you must use this with --miner)"),
+	  N_("COOKIE")
 	},
 	{ NULL }
 };
@@ -110,6 +128,165 @@ initialize_signal_handler (void)
 	sigaction (SIGHUP, &act, NULL);
 }
 
+static gchar *
+get_dbus_name (const gchar *name_provided)
+{
+	gchar *name;
+
+	if (g_str_has_prefix (name_provided, TRACKER_MINER_DBUS_NAME_PREFIX)) {
+		name = g_strdup (name_provided);
+	} else {
+		name = g_strconcat (TRACKER_MINER_DBUS_NAME_PREFIX, 
+				    name_provided, 
+				    NULL);
+	}
+
+	return name;
+}
+
+static gchar *
+get_dbus_path (const gchar *name)
+{
+	GStrv strv;
+	gchar *path;
+	gchar *str;
+
+	/* Create path from name */
+	strv = g_strsplit (name, ".", -1);
+	str = g_strjoinv ("/", strv);
+	g_strfreev (strv);
+	path = g_strconcat ("/", str, NULL);
+	g_free (str);
+
+	return path;
+}
+
+static DBusGProxy *
+get_dbus_proxy (const gchar *name)
+{
+	GError *error = NULL;
+	DBusGConnection *connection;
+	DBusGProxy *proxy;
+	gchar *path;
+
+	connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
+	
+	if (!connection) {
+		g_printerr ("%s. %s\n",
+			    _("Could not connect to the DBus session bus"),
+			    error ? error->message : _("No error given"));
+		g_clear_error (&error);
+		return NULL;
+	}
+	
+	path = get_dbus_path (name);
+	proxy = dbus_g_proxy_new_for_name (connection,
+					   name,
+					   path,
+					   TRACKER_MINER_DBUS_INTERFACE);
+	g_free (path);
+	
+	if (!proxy) {
+		gchar *str;
+
+		str = g_strdup_printf (_("Could not DBusGProxy for that miner: %s"),
+				       name);
+		g_printerr ("%s\n", str);
+		g_free (str);
+
+		return NULL;
+	}
+
+	return proxy;
+}
+
+static int
+miner_pause (const gchar *miner,
+	     const gchar *reason)
+{
+	GError *error = NULL;
+	DBusGProxy *proxy;
+	gchar *name;
+	gchar *str;
+	gint cookie;
+	
+	name = get_dbus_name (miner);
+	
+	proxy = get_dbus_proxy (name);
+	if (!proxy) {
+		g_free (name);
+		return EXIT_FAILURE;
+	}
+
+	str = g_strdup_printf (_("Attempting to pause miner '%s' with reason '%s'"),
+			       name,
+			       reason);
+	g_print ("%s\n", str);
+	g_free (str);
+	
+	if (!org_freedesktop_Tracker_Miner_pause (proxy, 
+						  g_get_application_name (),
+						  reason,
+						  &cookie, 
+						  &error)) {
+		g_printerr ("  %s. %s\n", 
+			    _("Could not pause miner"),
+			    error ? error->message : _("No error given"));
+		g_clear_error (&error);
+		g_free (name);
+		
+		return EXIT_FAILURE;
+	}
+	
+	str = g_strdup_printf (_("Cookie is %d"), cookie);
+	g_print ("  %s\n", str);
+	g_free (str);
+	g_free (name);
+	
+	return EXIT_SUCCESS;
+}
+
+static int
+miner_resume (const gchar *miner,
+	      gint         cookie)
+{
+	GError *error = NULL;
+	DBusGProxy *proxy;
+	gchar *name;
+	gchar *str;
+	
+	name = get_dbus_name (miner);
+	
+	proxy = get_dbus_proxy (name);
+	if (!proxy) {
+		g_free (name);
+		return EXIT_FAILURE;
+	}
+
+	str = g_strdup_printf (_("Attempting to resume miner %s with cookie %d"), 
+			       name,
+			       cookie);
+	g_print ("%s\n", str);
+	g_free (str);
+	
+	if (!org_freedesktop_Tracker_Miner_resume (proxy, 
+						   cookie, 
+						   &error)) {
+		g_printerr ("  %s. %s\n", 
+			    _("Could not resume miner"),
+			    error ? error->message : _("No error given"));
+		g_clear_error (&error);
+		g_free (name);
+		
+		return EXIT_FAILURE;
+	}
+	
+	g_print ("  %s\n", _("Done"));
+	g_free (name);
+	
+	return EXIT_SUCCESS;
+}
+
 gint
 main (gint argc, gchar *argv[])
 {
@@ -123,9 +300,38 @@ main (gint argc, gchar *argv[])
 	bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
 	textdomain (GETTEXT_PACKAGE);
 
-	context = g_option_context_new (_("- Report current status"));
+	context = g_option_context_new (_("- Monitor and control status"));
 	g_option_context_add_main_entries (context, entries, NULL);
 	g_option_context_parse (context, &argc, &argv, NULL);
+
+	if (mpause && mresume != -1) {
+		gchar *help;
+
+		g_printerr ("%s\n\n",
+			    _("You can not use miner pause and resume switches together"));
+
+		help = g_option_context_get_help (context, TRUE, NULL);
+		g_option_context_free (context);
+		g_printerr ("%s", help);
+		g_free (help);
+
+		return EXIT_FAILURE;
+	}
+
+	if ((mpause || mresume != -1) && !mname) {
+		gchar *help;
+
+		g_printerr ("%s\n\n",
+			    _("You must provide the miner for pause or resume commands"));
+
+		help = g_option_context_get_help (context, TRUE, NULL);
+		g_option_context_free (context);
+		g_printerr ("%s", help);
+		g_free (help);
+
+		return EXIT_FAILURE;
+	}
+
 	g_option_context_free (context);
 
 	g_type_init ();
@@ -133,7 +339,7 @@ main (gint argc, gchar *argv[])
 	if (!g_thread_supported ()) {
 		g_thread_init (NULL);
 	}
-	
+
 	client = tracker_connect (FALSE, -1);
 
 	if (!client) {
@@ -179,6 +385,14 @@ main (gint argc, gchar *argv[])
 		g_slist_free (list);
 	}
 	
+	if (mpause) {
+		return miner_pause (mname, mpause);
+	}
+
+	if (mresume != -1) {
+		return miner_resume (mname, mresume);
+	}
+
 	if (!follow) {
 		GError *error = NULL;
 		gchar *state;
