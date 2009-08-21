@@ -18,8 +18,10 @@
  * Boston, MA  02110-1301, USA.
  */
 
+#include "config.h"
 #include "tracker-miner-files.h"
 #include "tracker-config.h"
+#include <libtracker-common/tracker-storage.h>
 
 #define TRACKER_MINER_FILES_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_MINER_FILES, TrackerMinerFilesPrivate))
 
@@ -27,6 +29,7 @@ typedef struct _TrackerMinerFilesPrivate TrackerMinerFilesPrivate;
 
 struct _TrackerMinerFilesPrivate {
         TrackerConfig *config;
+        TrackerStorage *storage;
 };
 
 enum {
@@ -86,6 +89,75 @@ tracker_miner_files_class_init (TrackerMinerFilesClass *klass)
         g_type_class_add_private (klass, sizeof (TrackerMinerFilesPrivate));
 }
 
+#ifdef HAVE_HAL
+
+static void
+mount_point_added_cb (TrackerStorage *storage,
+                      const gchar    *udi,
+                      const gchar    *mount_point,
+                      gpointer        user_data)
+{
+        TrackerMinerFilesPrivate *priv;
+        gboolean index_removable_devices;
+        TrackerMinerProcess *miner;
+
+        miner = TRACKER_MINER_PROCESS (user_data);
+        priv = TRACKER_MINER_FILES_GET_PRIVATE (user_data);
+
+        index_removable_devices = tracker_config_get_index_removable_devices (priv->config);
+
+        if (index_removable_devices) {
+                tracker_miner_process_add_directory (miner, mount_point, TRUE);
+        }
+}
+
+static void
+mount_point_removed_cb (TrackerStorage *storage,
+                        const gchar    *udi,
+                        const gchar    *mount_point,
+                        gpointer        user_data)
+{
+        /* FIXME: Remove directory from being crawled/monitored */
+}
+
+static void
+initialize_removable_devices (TrackerMinerFiles *miner)
+{
+        TrackerMinerFilesPrivate *priv;
+
+        priv = TRACKER_MINER_FILES_GET_PRIVATE (miner);
+
+        if (tracker_config_get_index_removable_devices (priv->config)) {
+                GList *mounts, *m;
+
+                mounts = tracker_storage_get_removable_device_roots (priv->storage);
+
+                for (m = mounts; m; m = m->next) {
+                        tracker_miner_process_add_directory (TRACKER_MINER_PROCESS (miner),
+                                                             m->data, TRUE);
+                }
+        }
+}
+
+#endif
+
+static void
+tracker_miner_files_init (TrackerMinerFiles *miner)
+{
+        TrackerMinerFilesPrivate *priv;
+
+        priv = TRACKER_MINER_FILES_GET_PRIVATE (miner);
+
+#ifdef HAVE_HAL
+        priv->storage = tracker_storage_new ();
+
+        g_signal_connect (priv->storage, "mount-point-added",
+                          G_CALLBACK (mount_point_added_cb), miner);
+        g_signal_connect (priv->storage, "mount-point-removed",
+                          G_CALLBACK (mount_point_removed_cb), miner);
+#endif
+}
+
 static void
 tracker_miner_files_finalize (GObject *object)
 {
@@ -94,6 +166,10 @@ tracker_miner_files_finalize (GObject *object)
         priv = TRACKER_MINER_FILES_GET_PRIVATE (object);
 
         g_object_unref (priv->config);
+
+#ifdef HAVE_HAL
+        g_object_unref (priv->storage);
+#endif
 
         G_OBJECT_CLASS (tracker_miner_files_parent_class)->finalize (object);
 }
@@ -142,11 +218,11 @@ static void
 tracker_miner_files_constructed (GObject *object)
 {
         TrackerMinerFilesPrivate *priv;
-        TrackerMiner *miner;
+        TrackerMinerProcess *miner;
         GSList *dirs;
 
         priv = TRACKER_MINER_FILES_GET_PRIVATE (object);
-        miner = TRACKER_MINER (object);
+        miner = TRACKER_MINER_PROCESS (object);
 
         if (!priv->config) {
                 g_critical ("No config. This is mandatory");
@@ -167,6 +243,10 @@ tracker_miner_files_constructed (GObject *object)
                 tracker_miner_process_add_directory (miner, dirs->data, TRUE);
                 dirs = dirs->next;
         }
+
+#ifdef HAVE_HAL
+        initialize_removable_devices (TRACKER_MINER_FILES (miner));
+#endif
 }
 
 static gboolean
@@ -268,11 +348,6 @@ tracker_miner_files_process_file (TrackerMinerProcess  *miner,
 	g_free (uri);
 
 	return TRUE;
-}
-
-static void
-tracker_miner_files_init (TrackerMinerFiles *miner)
-{
 }
 
 TrackerMiner *
