@@ -6,6 +6,10 @@
       <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
       <arg type="s" name="name" direction="out" />
     </method>
+    <method name="GetDescription">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
+      <arg type="s" name="description" direction="out" />
+    </method>
     <method name="GetStatus">
       <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
       <arg type="s" name="status" direction="out" />
