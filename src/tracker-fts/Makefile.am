@@ -10,12 +10,10 @@ INCLUDES =							\
 	$(PANGO_CFLAGS)						\
 	$(SQLITE3_CFLAGS)
 
-module_flags = -module -avoid-version -no-undefined
-
 tracker_fts_modulesdir = $(libdir)/tracker-$(TRACKER_API_VERSION)
-tracker_fts_modules_LTLIBRARIES = tracker-fts.la
+tracker_fts_modules_LTLIBRARIES = libtracker-fts.la
 
-tracker_fts_la_SOURCES = 					\
+libtracker_fts_la_SOURCES = 					\
 	tracker-fts.c						\
 	tracker-fts.h						\
 	tracker-fts-config.c					\
@@ -23,10 +21,10 @@ tracker_fts_la_SOURCES = 					\
 	tracker-fts-hash.c					\
 	tracker-fts-hash.h
 
-tracker_fts_la_LDFLAGS = $(module_flags)
+libtracker_fts_la_LDFLAGS =					\
+	-version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE)
 
-tracker_fts_la_LIBADD =						\
-	$(top_builddir)/src/libtracker-db/libtracker-db.la	\
+libtracker_fts_la_LIBADD =						\
 	$(SQLITE3_LIBS)						\
 	$(GTHREAD_LIBS)						\
 	$(GCOV_LIBS)						\

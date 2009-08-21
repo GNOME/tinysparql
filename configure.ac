@@ -598,8 +598,6 @@ AC_CHECK_HEADERS([sys/inotify.h])
 SQLITE_REQUIRED=3.5
 
 PKG_CHECK_MODULES(SQLITE3, [sqlite3 >= $SQLITE_REQUIRED])
-AC_CHECK_LIB([sqlite3], [sqlite3_enable_load_extension], [:],
-  [AC_MSG_ERROR([SQLite must be configured with --enable-load-extension.])])
 AC_SUBST(SQLITE3_CFLAGS)
 AC_SUBST(SQLITE3_LIBS)
 

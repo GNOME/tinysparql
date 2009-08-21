@@ -17,6 +17,7 @@ tracker_fts_test_SOURCES =						\
 
 tracker_fts_test_LDADD =						\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
+	$(top_builddir)/src/tracker-fts/libtracker-fts.la	 	\
 	$(SQLITE3_LIBS)							\
 	$(GTHREAD_LIBS)							\
 	$(PANGO_LIBS)							\

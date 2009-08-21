@@ -277,7 +277,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
-#include <sqlite3ext.h>
+#include <sqlite3.h>
 
 #include <libtracker-common/tracker-common.h>
 #include <libtracker-db/tracker-db-manager.h>
@@ -285,8 +285,6 @@
 #include "tracker-fts.h"
 #include "tracker-fts-config.h"
 #include "tracker-fts-hash.h"
-
-SQLITE_EXTENSION_INIT1
 
 /* TODO(shess) MAN, this thing needs some refactoring.	At minimum, it
 ** would be nice to order the file better, perhaps something along the
@@ -428,12 +426,6 @@ static int safe_tolower(char c){
 static int safe_isalnum(char c){
   return (c&0x80)==0 ? isalnum(c) : 0;
 }
-
-int sqlite3_extension_init(
-  sqlite3 *db,
-  char **pzErrMsg,
-  const sqlite3_api_routines *pApi
-);
 
 
 typedef enum DocListType {
@@ -7805,10 +7797,6 @@ int sqlite3Fts3InitHashTable(sqlite3 *, fts3Hash *, const char *);
 int sqlite3Fts3Init(sqlite3 *db){
   int rc = SQLITE_OK;
 
-  g_type_init ();
-  if (!g_thread_supported ())
-    g_thread_init (NULL);
-
   /* Create the virtual table wrapper around the hash-table and overload
   ** the two scalar functions. If this is successful, register the
   ** module with sqlite.
@@ -7832,15 +7820,5 @@ int sqlite3Fts3Init(sqlite3 *db){
   assert( rc!=SQLITE_OK );
 
   return rc;
-}
-
-
-int sqlite3_extension_init(
-  sqlite3 *db,
-  char **pzErrMsg,
-  const sqlite3_api_routines *pApi
-){
-  SQLITE_EXTENSION_INIT2(pApi)
-  return sqlite3Fts3Init(db);
 }
 

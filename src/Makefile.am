@@ -4,10 +4,10 @@ SUBDIRS = 					\
 	libstemmer				\
 	libinotify				\
 	libtracker-common 			\
+	tracker-fts				\
 	libtracker-db				\
 	libtracker-data				\
 	libtracker				\
-	tracker-fts				\
 	plugins					\
 	tracker-store				\
 	tracker-utils				\
@@ -38,10 +38,10 @@ DIST_SUBDIRS = 					\
 	libstemmer				\
 	libinotify				\
 	libtracker-common 			\
+	tracker-fts				\
 	libtracker-db				\
 	libtracker-data				\
 	libtracker				\
-	tracker-fts				\
 	tracker-store				\
 	tracker-utils				\
 	tracker-explorer			\

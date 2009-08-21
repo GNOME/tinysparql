@@ -24,6 +24,8 @@
 #include <sqlite3.h>
 #include <stdlib.h>
 
+#include <tracker-fts/tracker-fts.h>
+
 #include "tracker-db-interface-sqlite.h"
 
 #define TRACKER_DB_INTERFACE_SQLITE_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_DB_INTERFACE_SQLITE, TrackerDBInterfaceSqlitePrivate))
@@ -128,25 +130,10 @@ tracker_db_interface_sqlite_constructor (GType			type,
 	sqlite3_extended_result_codes (priv->db, 0);
 	sqlite3_busy_timeout (priv->db, 100000);
 
-	sqlite3_enable_load_extension (priv->db, 1);
-
-	env_path = g_getenv ("TRACKER_DB_MODULES_DIR");
-
-	if (G_LIKELY (!env_path)) {
-		sqlite3_load_extension (priv->db, PKGLIBDIR "/tracker-fts.so", NULL, &err_msg);
+	if (sqlite3Fts3Init (priv->db) != SQLITE_OK) {
+		g_critical ("Could not initialize tracker-fts extension");
 	} else {
-		gchar *filename;
-
-		filename = g_build_filename (env_path, "tracker-fts.so", NULL);
-		sqlite3_load_extension (priv->db, filename, NULL, &err_msg);
-		g_free (filename);
-	}
-
-	if (err_msg) {
-		g_critical ("Could not load tracker-fts extension:'%s'", err_msg);
-		sqlite3_free (err_msg);
-	} else {
-		g_message ("Loaded tracker fts extension");
+		g_message ("Initialized tracker fts extension");
 	}
 
 	return object;
