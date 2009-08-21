@@ -129,6 +129,7 @@ static gboolean       crawler_process_directory_cb (TrackerCrawler      *crawler
 						    GFile               *file,
 						    gpointer             user_data);
 static void           crawler_finished_cb          (TrackerCrawler      *crawler,
+						    gboolean             was_interrupted,
 						    guint                directories_found,
 						    guint                directories_ignored,
 						    guint                files_found,
@@ -1015,17 +1016,27 @@ crawler_process_file_cb (TrackerCrawler *crawler,
 			 gpointer	 user_data)
 {
 	TrackerMinerProcess *process;
+	gchar *path;
 	gboolean should_process;
 
 	process = user_data;
+
+	path = g_file_get_path (file);
+
 	should_process = should_process_file (process, file, FALSE);
 
 	if (should_process) {
+		g_debug ("Found  :'%s'", path);
+
 		/* Add files in queue to our queues to send to the indexer */
 		g_queue_push_tail (process->private->items_created,
 				   g_object_ref (file));
 		item_queue_handlers_set_up (process);
+	} else {
+		g_debug ("Ignored:'%s'", path);
 	}
+
+	g_free (path);
 
 	return should_process;
 }
@@ -1036,18 +1047,25 @@ crawler_process_directory_cb (TrackerCrawler *crawler,
 			      gpointer	      user_data)
 {
 	TrackerMinerProcess *process;
+	gchar *path;
 	gboolean should_process;
 	gboolean add_monitor = TRUE;
 
 	process = user_data;
+
+	path = g_file_get_path (file);
 	should_process = should_process_file (process, file, TRUE);
 
 	if (should_process) {
+		g_debug ("Found  :'%s'", path);
+
 		/* FIXME: Do we add directories to the queue? */
 		g_queue_push_tail (process->private->items_created,
 				   g_object_ref (file));
 
 		item_queue_handlers_set_up (process);
+	} else {
+		g_debug ("Ignored:'%s'", path);
 	}
 
 	g_signal_emit (process, signals[MONITOR_DIRECTORY], 0, file, &add_monitor);
@@ -1057,11 +1075,14 @@ crawler_process_directory_cb (TrackerCrawler *crawler,
 		tracker_monitor_add (process->private->monitor, file);
 	}
 
+	g_free (path);
+
 	return should_process;
 }
 
 static void
 crawler_finished_cb (TrackerCrawler *crawler,
+		     gboolean        was_interrupted,
 		     guint	     directories_found,
 		     guint	     directories_ignored,
 		     guint	     files_found,
@@ -1082,6 +1103,16 @@ crawler_finished_cb (TrackerCrawler *crawler,
 	process->private->total_directories_ignored += directories_ignored;
 	process->private->total_files_found += files_found;
 	process->private->total_files_ignored += files_ignored;
+
+	g_message ("%s crawling files after %2.2f seconds",
+		   was_interrupted ? "Stoped" : "Finished",
+		   g_timer_elapsed (process->private->timer, NULL));
+	g_message ("  Found %d directories, ignored %d directories",
+		   directories_found,
+		   directories_ignored);
+	g_message ("  Found %d files, ignored %d files",
+		   files_found,
+		   files_ignored);
 
 	/* Proceed to next thing to process */
 	process_continue (process);

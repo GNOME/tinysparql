@@ -4,6 +4,7 @@ SUBDIRS = . test
 
 INCLUDES =						\
 	-DSHAREDIR=\""$(datadir)"\"			\
+	-DDBUS_SERVICES_DIR=\""$(DBUS_SERVICES_DIR)"\"	\
 	-DG_LOG_DOMAIN=\"Tracker\"			\
 	-DTRACKER_COMPILATION				\
 	-DI_KNOW_THE_DEVICEKIT_POWER_API_IS_SUBJECT_TO_CHANGE	\
@@ -31,6 +32,8 @@ libtracker_miner_la_SOURCES = 				\
 	tracker-miner-dbus.h				\
 	tracker-miner.c					\
 	tracker-miner.h					\
+	tracker-miner-discover.c			\
+	tracker-miner-discover.h			\
 	tracker-miner-process.c				\
 	tracker-miner-process.h				\
 	tracker-monitor.c				\

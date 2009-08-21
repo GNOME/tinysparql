@@ -128,9 +128,10 @@ tracker_crawler_class_init (TrackerCrawlerClass *klass)
 			      G_SIGNAL_RUN_LAST,
 			      G_STRUCT_OFFSET (TrackerCrawlerClass, finished),
 			      NULL, NULL,
-			      tracker_marshal_VOID__UINT_UINT_UINT_UINT,
+			      tracker_marshal_VOID__BOOLEAN_UINT_UINT_UINT_UINT,
 			      G_TYPE_NONE,
-			      4,
+			      5,
+			      G_TYPE_BOOLEAN,
 			      G_TYPE_UINT,
 			      G_TYPE_UINT,
 			      G_TYPE_UINT,
@@ -218,30 +219,16 @@ static gboolean
 process_file (TrackerCrawler *crawler,
 	      GFile	     *file)
 {
-	gchar *path;
 	gboolean should_process = TRUE;
 
 	g_signal_emit (crawler, signals[PROCESS_FILE], 0, file, &should_process);
 
-	path = g_file_get_path (file);
-
 	crawler->private->files_found++;
 
-	if (should_process) {
-		g_debug ("Found  :'%s' (%d)",
-			 path,
-			 crawler->private->enumerations);
-
-	} else {
-		g_debug ("Ignored:'%s' (%d)",
-			 path,
-			 crawler->private->enumerations);
-
+	if (!should_process) {
 		crawler->private->files_ignored++;
 	}
 
-	g_free (path);
-	
 	return should_process;
 }
 
@@ -249,30 +236,17 @@ static gboolean
 process_directory (TrackerCrawler *crawler,
 		   GFile	  *file)
 {
-	gchar *path;
 	gboolean should_process = TRUE;
 
 	g_signal_emit (crawler, signals[PROCESS_DIRECTORY], 0, file, &should_process);
 
-	path = g_file_get_path (file);
-
 	crawler->private->directories_found++;
 
 	if (should_process) {
-		g_debug ("Found  :'%s' (%d)",
-			 path,
-			 crawler->private->enumerations);
-
 		file_enumerate_children (crawler, file);
 	} else {
-		g_debug ("Ignored:'%s' (%d)",
-			 path,
-			 crawler->private->enumerations);
-
 		crawler->private->directories_ignored++;
 	}
-
-	g_free (path);
 
 	return should_process;
 }
@@ -614,10 +588,9 @@ tracker_crawler_start (TrackerCrawler *crawler,
 	file = g_file_new_for_path (path);
 
 	if (!g_file_query_exists (file, NULL)) {
-		g_message ("NOT crawling directory %s:'%s' - path does not exist",
-			   recurse ? "recursively" : "non-recursively",
-			   path);
-
+		/* g_debug ("NOT crawling directory %s:'%s' - path does not exist", */
+		/* 	 recurse ? "recursively" : "non-recursively", */
+		/* 	 path); */
 		
 		g_object_unref (file);
 
@@ -628,10 +601,10 @@ tracker_crawler_start (TrackerCrawler *crawler,
 		return TRUE;
 	}
 
-	g_message ("Crawling directory %s:'%s'",
-		   recurse ? "recursively" : "non-recursively",
-		   path);
-
+	/* g_debug ("Crawling directory %s:'%s'", */
+	/* 	 recurse ? "recursively" : "non-recursively", */
+	/* 	 path); */
+	
 	/* Time the event */
 	if (priv->timer) {
 		g_timer_destroy (priv->timer);
@@ -668,16 +641,6 @@ tracker_crawler_stop (TrackerCrawler *crawler)
 
 	priv = crawler->private;
 
-	g_message ("%s crawling files in %4.4f seconds",
-		   priv->is_finished ? "Finished" : "Stopped",
-		   g_timer_elapsed (priv->timer, NULL));
-	g_message ("  Found %d directories, ignored %d directories",
-		   priv->directories_found,
-		   priv->directories_ignored);
-	g_message ("  Found %d files, ignored %d files",
-		   priv->files_found,
-		   priv->files_ignored);
-
 	priv->is_running = FALSE;
 
 	if (priv->idle_id) {
@@ -691,6 +654,7 @@ tracker_crawler_stop (TrackerCrawler *crawler)
 	}
 
 	g_signal_emit (crawler, signals[FINISHED], 0,
+		       !priv->is_finished,
 		       priv->directories_found,
 		       priv->directories_ignored,
 		       priv->files_found,

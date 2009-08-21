@@ -6,28 +6,31 @@ INCLUDES =								\
 	-DTRACKER_COMPILATION						\
 	-I$(top_srcdir)/src						\
 	$(WARN_CFLAGS)							\
+	$(GTHREAD_CFLAGS)						\
 	$(GLIB2_CFLAGS)							\
 	$(GCOV_CFLAGS)							\
 	$(GIO_CFLAGS)							\
 	$(DBUS_CFLAGS)
 
 libs = 									\
-	$(top_builddir)/src/libtracker/libtrackerclient-@TRACKER_API_VERSION@.la	\
-	$(top_builddir)/src/libtracker-common/libtracker-common.la	\
+	$(top_builddir)/src/libtracker-miner/libtracker-miner.la	\
 	$(top_builddir)/src/libtracker-db/libtracker-db.la		\
+	$(top_builddir)/src/libtracker-common/libtracker-common.la	\
+	$(top_builddir)/src/libtracker/libtrackerclient-@TRACKER_API_VERSION@.la \
 	$(GIO_LIBS)							\
 	$(GCOV_LIBS)							\
+	$(GTHREAD_LIBS)							\
 	$(GLIB2_LIBS)
 
-bin_PROGRAMS = 							\
-	tracker-search 						\
-	tracker-stats						\
-	tracker-tag						\
-	tracker-status						\
-	tracker-info						\
-	tracker-processes					\
-	tracker-sparql						\
-	tracker-import
+bin_PROGRAMS = 								\
+	tracker-import							\
+	tracker-info							\
+	tracker-processes						\
+	tracker-search 							\
+	tracker-sparql							\
+	tracker-stats							\
+	tracker-status							\
+	tracker-tag
 
 tracker_search_SOURCES = tracker-search.c
 tracker_search_LDADD = $(libs)
