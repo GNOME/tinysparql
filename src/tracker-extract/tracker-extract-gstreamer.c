@@ -657,7 +657,7 @@ poll_for_ready (MetadataExtractor *extractor,
 		gboolean ready_with_state,
 		gboolean ready_with_eos)
 {
-	gint64              timeout   = 5 * GST_SECOND;
+	gint64              timeout   = 15 * GST_SECOND;
 	GstBus             *bus       = extractor->bus;
 	GstTagList         *new_tags;
 
