@@ -12,8 +12,7 @@ INCLUDES =								\
 	$(DBUS_CFLAGS)							\
 	$(SQLITE3_CFLAGS)
 
-libtracker_dbdir = $(libdir)/tracker-$(TRACKER_API_VERSION)
-libtracker_db_LTLIBRARIES = libtracker-db.la
+noinst_LTLIBRARIES = libtracker-db.la
 
 libtracker_db_la_SOURCES = 						\
 	tracker-db-dbus.c						\
@@ -26,9 +25,6 @@ noinst_HEADERS =							\
 	tracker-db-interface.h						\
 	tracker-db-interface-sqlite.h					\
 	tracker-db-manager.h 
-
-libtracker_db_la_LDFLAGS =						\
-	-version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE)
 
 libtracker_db_la_LIBADD = 						\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la	\
