@@ -159,8 +159,6 @@ main (gint argc, gchar *argv[])
 		}
  		
 		g_slist_free (list);
-		
-		return EXIT_SUCCESS;
 	}
 
 	if (list_miners_running) {
@@ -179,8 +177,6 @@ main (gint argc, gchar *argv[])
 		}
  		
 		g_slist_free (list);
-		
-		return EXIT_SUCCESS;
 	}
 	
 	if (!follow) {
