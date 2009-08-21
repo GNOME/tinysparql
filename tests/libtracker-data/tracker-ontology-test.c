@@ -74,141 +74,128 @@ const TestInfo nmo_tests[] = {
 static void
 test_query (gconstpointer test_data)
 {
+	TrackerDBResultSet *result_set;
 	const TestInfo *test_info;
+	GError *error;
+	GString *test_results;
+	gchar *data_filename;
+	gchar *query, *query_filename;
+	gchar *results, *results_filename;
+	gchar *prefix, *data_prefix, *test_prefix;
 
+	error = NULL;
 	test_info = test_data;
 
-	/* fork as tracker-fts can only be initialized once per process (GType in loadable module) */
-	if (g_test_trap_fork (0, 0)) {
-		TrackerDBResultSet *result_set;
-		GError *error;
-		GString *test_results;
-		gchar *data_filename;
-		gchar *query, *query_filename;
-		gchar *results, *results_filename;
-		gchar *prefix, *data_prefix, *test_prefix;
-		gint exitcode;
+	prefix = g_build_path (G_DIR_SEPARATOR_S, TOP_SRCDIR, "tests", "libtracker-data", NULL);
+	data_prefix = g_build_filename (prefix, test_info->data, NULL);
+	test_prefix = g_build_filename (prefix, test_info->test_name, NULL);
+	g_free (prefix);
 
-		exitcode = 0;
-		error = NULL;
+	/* initialization */
+	tracker_data_manager_init (TRACKER_DB_MANAGER_FORCE_REINDEX,
+		                   NULL, 
+				   NULL);
 
-		prefix = g_build_path (G_DIR_SEPARATOR_S, TOP_SRCDIR, "tests", "libtracker-data", NULL);
-		data_prefix = g_build_filename (prefix, test_info->data, NULL);
-		test_prefix = g_build_filename (prefix, test_info->test_name, NULL);
-		g_free (prefix);
+	/* load data set */
+	data_filename = g_strconcat (data_prefix, ".ttl", NULL);
+	tracker_turtle_reader_load (data_filename, &error);
+	g_assert (error == NULL);
 
-		/* initialization */
-		tracker_data_manager_init (TRACKER_DB_MANAGER_FORCE_REINDEX,
-			                   NULL, 
-					   NULL);
+	query_filename = g_strconcat (test_prefix, ".rq", NULL);
+	g_file_get_contents (query_filename, &query, NULL, &error);
+	g_assert (error == NULL);
 
-		/* load data set */
-		data_filename = g_strconcat (data_prefix, ".ttl", NULL);
-		tracker_turtle_reader_load (data_filename, &error);
-		g_assert (error == NULL);
+	results_filename = g_strconcat (test_prefix, ".out", NULL);
+	g_file_get_contents (results_filename, &results, NULL, &error);
+	g_assert (error == NULL);
 
-		query_filename = g_strconcat (test_prefix, ".rq", NULL);
-		g_file_get_contents (query_filename, &query, NULL, &error);
-		g_assert (error == NULL);
+	g_free (data_prefix);
+	g_free (test_prefix);
 
-		results_filename = g_strconcat (test_prefix, ".out", NULL);
-		g_file_get_contents (results_filename, &results, NULL, &error);
-		g_assert (error == NULL);
+	/* perform actual query */
 
-		g_free (data_prefix);
-		g_free (test_prefix);
+	result_set = tracker_data_query_sparql (query, &error);
+	g_assert (error == NULL);
 
-		/* perform actual query */
+	/* compare results with reference output */
 
-		result_set = tracker_data_query_sparql (query, &error);
-		g_assert (error == NULL);
+	test_results = g_string_new ("");
 
-		/* compare results with reference output */
+	if (result_set) {
+		gboolean valid = TRUE;
+		guint col_count;
+		gint col;
 
-		test_results = g_string_new ("");
+		col_count = tracker_db_result_set_get_n_columns (result_set);
 
-		if (result_set) {
-			gboolean valid = TRUE;
-			guint col_count;
-			gint col;
+		while (valid) {
+			for (col = 0; col < col_count; col++) {
+				GValue value = { 0 };
 
-			col_count = tracker_db_result_set_get_n_columns (result_set);
+				_tracker_db_result_set_get_value (result_set, col, &value);
 
-			while (valid) {
-				for (col = 0; col < col_count; col++) {
-					GValue value = { 0 };
-
-					_tracker_db_result_set_get_value (result_set, col, &value);
-
-					switch (G_VALUE_TYPE (&value)) {
-					case G_TYPE_INT:
-						g_string_append_printf (test_results, "\"%d\"", g_value_get_int (&value));
-						break;
-					case G_TYPE_DOUBLE:
-						g_string_append_printf (test_results, "\"%f\"", g_value_get_double (&value));
-						break;
-					case G_TYPE_STRING:
-						g_string_append_printf (test_results, "\"%s\"", g_value_get_string (&value));
-						break;
-					default:
-						/* unbound variable */
-						break;
-					}
-
-					if (col < col_count - 1) {
-						g_string_append (test_results, "\t");
-					}
+				switch (G_VALUE_TYPE (&value)) {
+				case G_TYPE_INT:
+					g_string_append_printf (test_results, "\"%d\"", g_value_get_int (&value));
+					break;
+				case G_TYPE_DOUBLE:
+					g_string_append_printf (test_results, "\"%f\"", g_value_get_double (&value));
+					break;
+				case G_TYPE_STRING:
+					g_string_append_printf (test_results, "\"%s\"", g_value_get_string (&value));
+					break;
+				default:
+					/* unbound variable */
+					break;
 				}
 
-				g_string_append (test_results, "\n");
-
-				valid = tracker_db_result_set_iter_next (result_set);
+				if (col < col_count - 1) {
+					g_string_append (test_results, "\t");
+				}
 			}
 
-			g_object_unref (result_set);
+			g_string_append (test_results, "\n");
+
+			valid = tracker_db_result_set_iter_next (result_set);
 		}
 
-		if (strcmp (results, test_results->str)) {
-			/* print result difference */
-			gchar *quoted_results;
-			gchar *command_line;
-			gchar *quoted_command_line;
-			gchar *shell;
-			gchar *diff;
-
-			quoted_results = g_shell_quote (test_results->str);
-			command_line = g_strdup_printf ("echo -n %s | diff -u %s -", quoted_results, results_filename);
-			quoted_command_line = g_shell_quote (command_line);
-			shell = g_strdup_printf ("sh -c %s", quoted_command_line);
-			g_spawn_command_line_sync (shell, &diff, NULL, NULL, &error);
-			g_assert (error == NULL);
-
-			g_error ("%s", diff);
-
-			g_free (quoted_results);
-			g_free (command_line);
-			g_free (quoted_command_line);
-			g_free (shell);
-			g_free (diff);
-
-			exitcode = 1;
-		}
-
-		/* cleanup */
-
-		g_free (data_filename);
-		g_free (query_filename);
-		g_free (query);
-		g_free (results_filename);
-		g_free (results);
-		g_string_free (test_results, TRUE);
-
-		tracker_data_manager_shutdown ();
-
-		exit (exitcode);
+		g_object_unref (result_set);
 	}
 
-	g_test_trap_assert_passed ();
+	if (strcmp (results, test_results->str)) {
+		/* print result difference */
+		gchar *quoted_results;
+		gchar *command_line;
+		gchar *quoted_command_line;
+		gchar *shell;
+		gchar *diff;
+
+		quoted_results = g_shell_quote (test_results->str);
+		command_line = g_strdup_printf ("echo -n %s | diff -u %s -", quoted_results, results_filename);
+		quoted_command_line = g_shell_quote (command_line);
+		shell = g_strdup_printf ("sh -c %s", quoted_command_line);
+		g_spawn_command_line_sync (shell, &diff, NULL, NULL, &error);
+		g_assert (error == NULL);
+
+		g_error ("%s", diff);
+
+		g_free (quoted_results);
+		g_free (command_line);
+		g_free (quoted_command_line);
+		g_free (shell);
+		g_free (diff);
+	}
+
+	/* cleanup */
+
+	g_free (data_filename);
+	g_free (query_filename);
+	g_free (query);
+	g_free (results_filename);
+	g_free (results);
+	g_string_free (test_results, TRUE);
+
+	tracker_data_manager_shutdown ();
 }
 
 int
