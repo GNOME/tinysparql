@@ -25,8 +25,8 @@
 
 G_BEGIN_DECLS
 
+GSList *tracker_miner_discover_get_running   (void);
 GSList *tracker_miner_discover_get_available (void);
-GSList *tracker_miner_discover_get_all       (void);
 
 G_END_DECLS
 

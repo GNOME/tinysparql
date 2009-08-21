@@ -42,6 +42,8 @@
 
 static GMainLoop *main_loop;
 
+static gboolean   list_miners_running;
+static gboolean   list_miners_available;
 static gboolean   follow;
 static gboolean   detailed;
 
@@ -52,6 +54,14 @@ static GOptionEntry entries[] = {
 	},
 	{ "detailed", 'd', 0, G_OPTION_ARG_NONE, &detailed,
 	  N_("Include details with state updates (only applies to --follow)"),
+	  NULL 
+	},
+	{ "list-miners-running", 'r', 0, G_OPTION_ARG_NONE, &list_miners_running,
+	  N_("List all miners installed"),
+	  NULL 
+	},
+	{ "list-miners-available", 'a', 0, G_OPTION_ARG_NONE, &list_miners_available,
+	  N_("List all miners installed"),
 	  NULL 
 	},
 	{ NULL }
@@ -133,17 +143,46 @@ main (gint argc, gchar *argv[])
 		return EXIT_FAILURE;
 	}
 
-	GSList *list;
-	list = tracker_miner_discover_get_available ();
-	g_print ("Found %d names\n", g_slist_length (list));
-	g_slist_foreach (list, (GFunc) g_free, NULL);
-	g_slist_free (list);
+	if (list_miners_available) {
+		GSList *list, *l;
+		gchar *str;
+		
+		list = tracker_miner_discover_get_available ();
 
-	list = tracker_miner_discover_get_all ();
-	g_print ("Found %d total\n", g_slist_length (list));
-	g_slist_foreach (list, (GFunc) g_free, NULL);
-	g_slist_free (list);
+		str = g_strdup_printf (_("Found %d miners installed"), g_slist_length (list));
+		g_print ("%s%s\n", str, g_slist_length (list) > 0 ? ":" : "");
+		g_free (str);
 
+		for (l = list; l; l = l->next) {
+			g_print ("  %s\n", (gchar*) l->data);
+			g_free (l->data);
+		}
+ 		
+		g_slist_free (list);
+		
+		return EXIT_SUCCESS;
+	}
+
+	if (list_miners_running) {
+		GSList *list, *l;
+		gchar *str;
+		
+		list = tracker_miner_discover_get_running ();
+
+		str = g_strdup_printf (_("Found %d miners running"), g_slist_length (list));
+		g_print ("%s%s\n", str, g_slist_length (list) > 0 ? ":" : "");
+		g_free (str);
+
+		for (l = list; l; l = l->next) {
+			g_print ("  %s\n", (gchar*) l->data);
+			g_free (l->data);
+		}
+ 		
+		g_slist_free (list);
+		
+		return EXIT_SUCCESS;
+	}
+	
 	if (!follow) {
 		GError *error = NULL;
 		gchar *state;

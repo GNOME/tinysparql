@@ -28,7 +28,7 @@
 #include "tracker-miner-discover.h"
 
 GSList *
-tracker_miner_discover_get_available (void)
+tracker_miner_discover_get_running (void)
 {
 	DBusGConnection *connection;
 	DBusGProxy *gproxy;
@@ -98,11 +98,18 @@ crawler_process_file_cb (TrackerCrawler *crawler,
 	basename = g_file_get_basename (file);
 
 	if (g_str_has_prefix (basename, TRACKER_MINER_DBUS_NAME_PREFIX)) {
-		GSList **list = user_data;
+		gchar *p;
 
-		*list = g_slist_prepend (*list, g_file_get_path (file));
+		p = strstr (basename, ".service");
+		
+		if (p) {
+			GSList **list = user_data;
 
-		g_free (basename);
+			*p = '\0';
+			*list = g_slist_prepend (*list, basename);
+		} else {
+			g_free (basename);
+		}
 		
 		return TRUE;
 	} 
@@ -125,7 +132,7 @@ crawler_finished_cb (TrackerCrawler *crawler,
 }
 
 GSList *
-tracker_miner_discover_get_all (void)
+tracker_miner_discover_get_available (void)
 {
 	GSList *list = NULL;
 	GMainLoop *main_loop;
