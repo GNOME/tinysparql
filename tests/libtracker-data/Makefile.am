@@ -10,7 +10,8 @@ SUBDIRS = 			\
 	optional		\
 	regex			\
 	sort			\
-	error
+	error			\
+	turtle
 
 noinst_PROGRAMS = $(TEST_PROGS)
 
