@@ -1911,7 +1911,6 @@ msgstr "- iniciar o daemon do Tracker"
 #~ msgid "Tracker search and indexing service"
 #~ msgstr "Servizo de busca e indexación do Tracker"
 
-#~| msgid "Indexing Speed:"
 #~ msgid "Index corrupted"
 #~ msgstr "O índice está corrupto"
 
@@ -1965,11 +1964,9 @@ msgstr "- iniciar o daemon do Tracker"
 #~ msgid "Metadata to request (optional, multiple calls allowed)"
 #~ msgstr "Metadatos a solicitar (opcional, permítense múltiples chamadas)"
 
-#~| msgid "Files:"
 #~ msgid "File:Size"
 #~ msgstr "Ficheiro:Tamaño"
 
-#~| msgid "No metadata available for that uri"
 #~ msgid "No metadata available"
 #~ msgstr "Non hai metadatos dispoñíbeis"
 
@@ -1980,7 +1977,6 @@ msgstr "- iniciar o daemon do Tracker"
 #~ "Para obter unha lista de servizos e metadatos que poden se empregados "
 #~ "aquí, vexa tracker-services."
 
-#~| msgid "Uri missing"
 #~ msgid "URI missing"
 #~ msgstr "Falta o URI"
 
@@ -1995,34 +1991,27 @@ msgstr "- iniciar o daemon do Tracker"
 #~ msgid "Service type not recognized, using 'Other' ..."
 #~ msgstr "Non se recoñece o tipo de servizo, vaise usar \"Outros\"..."
 
-#~| msgid "Unable to retrieve data for uri"
 #~ msgid "Unable to retrieve data for %d uri"
 #~ msgstr "Non é posíbel obter datos para o uri %d"
 
-#~| msgid "Unable to retrieve data for uri"
 #~ msgid "Unable to retrieve data for %d uris"
 #~ msgstr "Non é posíbel obter datos para os %d uris"
 
-#~| msgid "No metadata available for that uri"
 #~ msgid "No metadata available for all %d uri"
 #~ msgstr "Non hai metadatos dispoñíbeis para todos os %d uri"
 
-#~| msgid "No metadata available for that uri"
 #~ msgid "No metadata available for all %d uris"
 #~ msgstr "Non hai metadatos dispoñíbeis para todos os %d uris"
 
-#~| msgid "Results:"
 #~ msgid "Result:"
 #~ msgstr "Resultados:"
 
 #~ msgid "Results:"
 #~ msgstr "Resultados:"
 
-#~| msgid "Result: %d"
 #~ msgid "Result: %d for '%s'"
 #~ msgstr "Resultado: %d para '%s'"
 
-#~| msgid "Results: %d"
 #~ msgid "Results: %d for '%s'"
 #~ msgstr "Resultados: %d para '%s'"
 
@@ -2194,15 +2183,12 @@ msgstr "- iniciar o daemon do Tracker"
 #~ "Vostede pode empregar esta utilidade para comprobar as cadeas de álbum/"
 #~ "artista, por exemplo:"
 
-#~| msgid "No arguments were provided"
 #~ msgid "No album/artist text was provided"
 #~ msgstr "Non se proporcionou ningún texto para o álbum/artista"
 
-#~| msgid "Conversations:"
 #~ msgid "Converted to"
 #~ msgstr "Convertido a"
 
-#~| msgid "MIME types (can be used multiple times)"
 #~ msgid "SQL query to use (can be used multiple times)"
 #~ msgstr "Consulta SQL a empregar (pode ser empregada varias veces)"
 
@@ -2222,11 +2208,9 @@ msgstr "- iniciar o daemon do Tracker"
 #~ "Vostede pode empregar esta utilidade para anexar DBs e executar consultas "
 #~ "empregando a API de SQLite"
 
-#~| msgid "No arguments were provided"
 #~ msgid "No query was provided"
 #~ msgstr "Non se proporcionou ningunha consulta"
 
-#~| msgid "No arguments were provided"
 #~ msgid "No databases were provided"
 #~ msgstr "Non se proporcionou ningunha base de datos"
 
@@ -2248,7 +2232,6 @@ msgstr "- iniciar o daemon do Tracker"
 #~ msgid "Should be converted to"
 #~ msgstr "Deben ser convertidas a"
 
-#~| msgid "No arguments were provided"
 #~ msgid "No genre text was provided"
 #~ msgstr "Non se proporcionou ningún texto de xénero"
 
