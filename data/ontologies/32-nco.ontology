@@ -51,6 +51,7 @@ nco:EmailAddress a rdfs:Class ;
 nco:IMAccount a rdfs:Class ;
 	rdfs:label "IMAccount" ;
 	rdfs:comment "An account in an Instant Messaging system." ;
+	tracker:notify true ;
 	rdfs:subClassOf nco:ContactMedium .
 
 nco:OrganizationContact a rdfs:Class ;
