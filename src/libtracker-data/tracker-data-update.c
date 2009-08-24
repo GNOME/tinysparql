@@ -30,6 +30,8 @@
 #include <libtracker-common/tracker-file-utils.h>
 #include <libtracker-common/tracker-ontology.h>
 
+#include <tracker-fts/tracker-fts.h>
+
 #include <libtracker-db/tracker-db-manager.h>
 #include <libtracker-db/tracker-db-dbus.h>
 
@@ -340,8 +342,8 @@ tracker_data_update_buffer_flush (void)
 	TrackerDataUpdateBufferProperty *property;
 	GHashTableIter                  iter;
 	const gchar                    *table_name;
-	GString                        *sql, *fts_sql;
-	int                             i, fts_index;
+	GString                        *sql;
+	int                             i;
 
 	iface = tracker_db_manager_get_db_interface ();
 
@@ -357,6 +359,11 @@ tracker_data_update_buffer_flush (void)
 		g_free (update_buffer.new_subject);
 		update_buffer.new_subject = NULL;
 	}
+
+	// TODO we need to retrieve all existing (FTS indexed) property values for
+	// this resource to properly support incremental FTS updates
+	// (like calling deleteTerms and then calling insertTerms)
+	tracker_fts_update_init (update_buffer.id);
 
 	g_hash_table_iter_init (&iter, update_buffer.tables);
 	while (g_hash_table_iter_next (&iter, (gpointer*) &table_name, (gpointer*) &table)) {
@@ -415,42 +422,12 @@ tracker_data_update_buffer_flush (void)
 			g_string_free (sql, TRUE);
 		}
 
-		fts_sql = g_string_new ("UPDATE \"fts\" SET ");
-		fts_index = 0;
-
-		/* setting columns will insert specified values and
-		 * never replace existing entries in the fulltext index 
-		 * replace should happen as a delete/insert pair */
 		for (i = 0; i < table->properties->len; i++) {
 			property = &g_array_index (table->properties, TrackerDataUpdateBufferProperty, i);
 			if (property->fts) {
-				if (fts_index > 0) {
-					g_string_append (fts_sql, ", ");
-				}
-				g_string_append_printf (fts_sql, "\"%s\" = ?", property->name);
-				fts_index++;
+				tracker_fts_update_text (update_buffer.id, 0, g_value_get_string (&property->value));
 			}
 		}
-
-		if (fts_index > 0) {
-			g_string_append (fts_sql, " WHERE rowid = ?");
-
-			stmt = tracker_db_interface_create_statement (iface, "%s", fts_sql->str);
-			tracker_db_statement_bind_int (stmt, fts_index, update_buffer.id);
-
-			fts_index = 0;
-			for (i = 0; i < table->properties->len; i++) {
-				property = &g_array_index (table->properties, TrackerDataUpdateBufferProperty, i);
-				if (property->fts) {
-					statement_bind_gvalue (stmt, fts_index, &property->value);
-					fts_index++;
-				}
-			}
-
-			tracker_db_statement_execute (stmt, NULL);
-			g_object_unref (stmt);
-		}
-		g_string_free (fts_sql, TRUE);
 	}
 
 	g_hash_table_remove_all (update_buffer.tables);
@@ -783,6 +760,11 @@ tracker_data_delete_statement (const gchar            *subject,
 
 	types = tracker_data_query_rdf_type (subject_id);
 
+	// TODO we need to retrieve all existing (FTS indexed) property values for
+	// this resource to properly support incremental FTS updates
+	// (like calling deleteTerms and then calling insertTerms)
+	tracker_fts_update_init (subject_id);
+
 	if (object && g_strcmp0 (predicate, RDF_PREFIX "type") == 0) {
 		class = tracker_ontology_get_class_by_uri (object);
 		if (class != NULL) {
@@ -863,16 +845,9 @@ tracker_data_delete_statement (const gchar            *subject,
 							g_object_unref (result_set);
 
 							if (prop_object) {
-								stmt = tracker_db_interface_create_statement (iface,
-											"UPDATE \"fts\" SET \"%s\" = ?, \"fts\" = -1 WHERE rowid = ?",
-											tracker_property_get_name (*prop));
-								tracker_db_statement_bind_text (stmt, 0, prop_object);
-								tracker_db_statement_bind_int (stmt, 1, subject_id);
-
-								tracker_db_statement_execute (stmt, NULL);
+								tracker_fts_update_text (subject_id, -1, prop_object);
 
 								g_free (prop_object);
-								g_object_unref (stmt);
 							}
 						}
 					}
@@ -915,15 +890,7 @@ tracker_data_delete_statement (const gchar            *subject,
 							tracker_db_result_set_get (result_set, c + 1, &prop_object, -1);
 
 							if (prop_object && prop_name) {
-								stmt = tracker_db_interface_create_statement (iface,
-										"UPDATE \"fts\" SET \"%s\" = ?, \"fts\" = -1 WHERE rowid = ?",
-										prop_name);
-								tracker_db_statement_bind_text (stmt, 0, prop_object);
-								tracker_db_statement_bind_int (stmt, 1, subject_id);
-
-								tracker_db_statement_execute (stmt, NULL);
-
-								g_object_unref (stmt);
+								tracker_fts_update_text (subject_id, -1, prop_object);
 							}
 
 							g_free (prop_object);
@@ -964,22 +931,7 @@ tracker_data_delete_statement (const gchar            *subject,
 			delete_metadata_decomposed (subject_id, field, object);
 
 			if (object && tracker_property_get_fulltext_indexed (field)) {
-				TrackerDBInterface *iface;
-				TrackerDBStatement *stmt;
-
-				iface = tracker_db_manager_get_db_interface ();
-
-				/* setting the magic column to -1 will delete
-				 * specified entries from the fulltext index */
-				stmt = tracker_db_interface_create_statement (iface,
-					"UPDATE \"fts\" SET \"%s\" = ?, \"fts\" = -1 WHERE rowid = ?",
-					tracker_property_get_name (field));
-				tracker_db_statement_bind_text (stmt, 0, object);
-				tracker_db_statement_bind_int (stmt, 1, subject_id);
-
-				tracker_db_statement_execute (stmt, NULL);
-
-				g_object_unref (stmt);
+				tracker_fts_update_text (subject_id, -1, object);
 			}
 		} else {
 			g_set_error (error, TRACKER_DATA_ERROR, TRACKER_DATA_ERROR_UNKNOWN_PROPERTY,

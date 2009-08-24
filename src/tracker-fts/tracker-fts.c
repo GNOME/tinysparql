@@ -2214,6 +2214,8 @@ static int sql_prepare(sqlite3 *db, const char *zDb, const char *zName,
 /* Forward reference */
 typedef struct fulltext_vtab fulltext_vtab;
 
+static fulltext_vtab *tracker_fts_vtab = NULL;
+
 /* A single term in a query is represented by an instances of
 ** the following structure. Each word which may match against
 ** document content is a term. Operators, like NEAR or OR, are
@@ -3428,6 +3430,8 @@ static int constructVtab(
 
   *ppVTab = &v->base;
   FTSTRACE(("FTS3 Connect %p\n", v));
+
+  tracker_fts_vtab = v;
 
   return rc;
 
@@ -7820,5 +7824,13 @@ int tracker_fts_init(sqlite3 *db){
   assert( rc!=SQLITE_OK );
 
   return rc;
+}
+
+int tracker_fts_update_init(int id){
+  return initPendingTerms(tracker_fts_vtab, id);
+}
+
+int tracker_fts_update_text(int id, int column_id, const char *text){
+  return buildTerms(tracker_fts_vtab, id, text, column_id);
 }
 
