@@ -22,6 +22,7 @@
 #include "tracker-miner-files.h"
 #include "tracker-config.h"
 #include <libtracker-common/tracker-storage.h>
+#include <libtracker-common/tracker-ontology.h>
 
 #define TRACKER_MINER_FILES_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_MINER_FILES, TrackerMinerFilesPrivate))
 
@@ -276,6 +277,46 @@ tracker_miner_files_monitor_directory (TrackerMinerProcess  *miner,
         return tracker_config_get_enable_monitors (priv->config);
 }
 
+static void
+item_add_to_datasource (TrackerMinerFiles    *miner,
+                        GFile                *file,
+                        TrackerSparqlBuilder *sparql)
+{
+        TrackerMinerFilesPrivate *priv;
+	const gchar *removable_device_udi;
+
+        priv = TRACKER_MINER_FILES_GET_PRIVATE (miner);
+
+#ifdef HAVE_HAL
+	removable_device_udi = tracker_storage_get_volume_udi_for_file (priv->storage, file);
+#else
+	removable_device_udi = NULL;
+#endif
+
+	if (removable_device_udi) {
+		gchar *removable_device_urn;
+
+		removable_device_urn = g_strdup_printf (TRACKER_DATASOURCE_URN_PREFIX "%s",
+						        removable_device_udi);
+
+		tracker_sparql_builder_subject_iri (sparql, removable_device_urn);
+		tracker_sparql_builder_predicate (sparql, "a");
+		tracker_sparql_builder_object (sparql, "tracker:Volume");
+
+		tracker_sparql_builder_predicate (sparql, "nie:dataSource");
+		tracker_sparql_builder_object_iri (sparql, removable_device_urn);
+
+		g_free (removable_device_urn);
+	} else {
+		tracker_sparql_builder_subject_iri (sparql, TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN);
+		tracker_sparql_builder_predicate (sparql, "a");
+		tracker_sparql_builder_object (sparql, "tracker:Volume");
+
+		tracker_sparql_builder_predicate (sparql, "nie:dataSource");
+		tracker_sparql_builder_object_iri (sparql, TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN);
+	}
+}
+
 static gboolean
 tracker_miner_files_process_file (TrackerMinerProcess  *miner,
                                   GFile                *file,
@@ -342,6 +383,8 @@ tracker_miner_files_process_file (TrackerMinerProcess  *miner,
 	time_ = g_file_info_get_attribute_uint64 (file_info, G_FILE_ATTRIBUTE_TIME_ACCESS);
         tracker_sparql_builder_predicate (sparql, "nfo:fileLastAccessed");
 	tracker_sparql_builder_object_date (sparql, (time_t *) &time_);
+
+        item_add_to_datasource (TRACKER_MINER_FILES (miner), file, sparql);
 
         /* FIXME: Missing embedded data and text */
 
