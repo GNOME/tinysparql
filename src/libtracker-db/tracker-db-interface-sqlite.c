@@ -130,7 +130,7 @@ tracker_db_interface_sqlite_constructor (GType			type,
 	sqlite3_extended_result_codes (priv->db, 0);
 	sqlite3_busy_timeout (priv->db, 100000);
 
-	if (sqlite3Fts3Init (priv->db) != SQLITE_OK) {
+	if (tracker_fts_init (priv->db) != SQLITE_OK) {
 		g_critical ("Could not initialize tracker-fts extension");
 	} else {
 		g_message ("Initialized tracker fts extension");

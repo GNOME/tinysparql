@@ -88,7 +88,7 @@ main (int argc, char **argv)
 		return EXIT_FAILURE;
 	}
 
-	if (sqlite3Fts3Init (db) != SQLITE_OK) {
+	if (tracker_fts_init (db) != SQLITE_OK) {
 		fprintf(stderr, "SQL error\n");
 	}
 	

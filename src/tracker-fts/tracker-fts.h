@@ -11,16 +11,20 @@
 ******************************************************************************
 **
 ** This header file is used by programs that want to link against the
-** FTS3 library.  All it does is declare the sqlite3Fts3Init() interface.
+** FTS3 library.
 */
+
+#ifndef __TRACKER_FTS_H__
+#define __TRACKER_FTS_H__
+
 #include <sqlite3.h>
+#include <glib.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif	/* __cplusplus */
+G_BEGIN_DECLS
 
-int sqlite3Fts3Init(sqlite3 *db);
+int tracker_fts_init (sqlite3 *db);
 
-#ifdef __cplusplus
-}  /* extern "C" */
-#endif	/* __cplusplus */
+G_END_DECLS
+
+#endif /* __TRACKER_FTS_H__ */
+

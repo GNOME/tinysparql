@@ -7794,7 +7794,7 @@ int sqlite3Fts3InitHashTable(sqlite3 *, fts3Hash *, const char *);
 ** SQLite. If fts3 is built as a dynamically loadable extension, this
 ** function is called by the sqlite3_extension_init() entry point.
 */
-int sqlite3Fts3Init(sqlite3 *db){
+int tracker_fts_init(sqlite3 *db){
   int rc = SQLITE_OK;
 
   /* Create the virtual table wrapper around the hash-table and overload
