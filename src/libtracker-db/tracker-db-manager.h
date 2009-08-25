@@ -49,19 +49,20 @@ GType	     tracker_db_get_type			    (void) G_GNUC_CONST;
 
 gboolean     tracker_db_manager_init			    (TrackerDBManagerFlags  flags,
 							     gboolean		   *first_time,
-							     gboolean 		    shared_cache);
+							     gboolean 		    shared_cache,
+							     gboolean		   *need_journal);
 void	     tracker_db_manager_shutdown		    (void);
 
-void	     tracker_db_manager_remove_all		    (void);
+void	     tracker_db_manager_remove_all		    (gboolean		    rm_backup_and_log);
 void         tracker_db_manager_optimize		    (void);
 
 const gchar *tracker_db_manager_get_file		    (TrackerDB		    db);
+
 TrackerDBInterface *
 	     tracker_db_manager_get_db_interface	    (void);
-TrackerDBInterface *
-	     tracker_db_manager_get_db_interfaces	    (gint num, ...);
-TrackerDBInterface *
-	     tracker_db_manager_get_db_interfaces_ro	    (gint num, ...);
+
+void         tracker_db_manager_disconnect		    (void);
+void         tracker_db_manager_reconnect		    (void);
 
 G_END_DECLS
 

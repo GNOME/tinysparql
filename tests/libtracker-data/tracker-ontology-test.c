@@ -94,7 +94,7 @@ test_query (gconstpointer test_data)
 	/* initialization */
 	tracker_data_manager_init (TRACKER_DB_MANAGER_FORCE_REINDEX,
 		                   NULL, 
-				   NULL);
+				   NULL, NULL);
 
 	/* load data set */
 	data_filename = g_strconcat (data_prefix, ".ttl", NULL);

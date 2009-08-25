@@ -35,6 +35,8 @@
 typedef struct {
 	DBusGMethodInvocation *context;
 	guint request_id;
+	gboolean play_journal;
+	GFile *destination, *journal;
 } TrackerDBusMethodInfo;
 
 G_DEFINE_TYPE (TrackerBackup, tracker_backup, G_TYPE_OBJECT)
@@ -58,7 +60,17 @@ tracker_backup_new (void)
 static void
 destroy_method_info (gpointer user_data)
 {
-	g_slice_free (TrackerDBusMethodInfo, user_data);
+	TrackerDBusMethodInfo *info = user_data;
+
+	if (info->destination) {
+		g_object_unref (info->destination);
+	}
+
+	if (info->journal) {
+		g_object_unref (info->journal);
+	}
+
+	g_free (info);
 }
 
 static void
@@ -74,81 +86,99 @@ backup_callback (GError *error, gpointer user_data)
 		return;
 	}
 
+	if (info->play_journal) {
+		tracker_store_play_journal ();
+	}
+
 	dbus_g_method_return (info->context);
 
 	tracker_dbus_request_success (info->request_id);
 }
 
+static void
+on_batch_commit (gpointer user_data)
+{
+	TrackerDBusMethodInfo *info = user_data;
+
+	/* At this point no transactions are left open, we can now start the
+	 * sqlite3_backup API, which will run itself as a GSource within the
+	 * mainloop after it got initialized (which will reopen the mainloop) */
+
+	tracker_data_backup_save (info->destination, info->journal,
+	                          backup_callback,
+	                          info, destroy_method_info);
+}
+
 void
 tracker_backup_save (TrackerBackup          *object,
-                     const gchar            *uri,
+                     const gchar            *destination_uri,
+                     const gchar            *journal_uri,
                      DBusGMethodInvocation  *context,
                      GError                **error)
 {
 	guint request_id;
 	TrackerDBusMethodInfo *info;
-	GFile *file;
 
 	request_id = tracker_dbus_get_next_request_id ();
 
 	tracker_dbus_request_new (request_id,
 	                          "DBus request to save backup into '%s'",
-	                          uri);
+	                          destination_uri);
 
-	/* Previous DBus API accepted paths. For this reason I decided to try
-	 * to support both paths and uris. Perhaps we should just remove the
-	 * support for paths here? */
-
-	if (!strchr (uri, ':')) {
-		file = g_file_new_for_path (uri);
-	} else {
-		file = g_file_new_for_uri (uri);
-	}
-
-	info = g_slice_new (TrackerDBusMethodInfo);
+	info = g_new0 (TrackerDBusMethodInfo, 1);
 
 	info->request_id = request_id;
 	info->context = context;
+	info->play_journal = FALSE;
+	info->destination = g_file_new_for_uri (destination_uri);
+	info->journal = g_file_new_for_uri (journal_uri);
 
-	tracker_data_backup_save (file, backup_callback,
-	                          info, destroy_method_info);
+	/* The sqlite3_backup API apparently doesn't much like open transactions,
+	 * this queue_commit will first call the currently open transaction
+	 * of the open batch (if any), and then in the callback we'll idd 
+	 * continue with making the backup itself (using sqlite3_backup's API) */
 
-	g_object_unref (file);
+	tracker_store_queue_commit (on_batch_commit, info, NULL);
 }
 
 void
 tracker_backup_restore (TrackerBackup          *object,
-                        const gchar            *uri,
+                        const gchar            *backup_uri,
+                        const gchar            *journal_uri,
                         DBusGMethodInvocation  *context,
                         GError                **error)
 {
 	guint request_id;
 	TrackerDBusMethodInfo *info;
-	GFile *file;
+	GFile *destination, *journal;
 
 	request_id = tracker_dbus_get_next_request_id ();
 
 	tracker_dbus_request_new (request_id,
 	                          "DBus request to restore backup from '%s'",
-	                          uri);
+	                          backup_uri);
 
-	/* Previous DBus API accepted paths. For this reason I decided to try
-	 * to support both paths and uris. Perhaps we should just remove the
-	 * support for paths here? */
+	destination = g_file_new_for_uri (backup_uri);
+	journal = g_file_new_for_uri (journal_uri);
 
-	if (!strchr (uri, ':')) {
-		file = g_file_new_for_path (uri);
-	} else {
-		file = g_file_new_for_uri (uri);
-	}
-
-	info = g_slice_new (TrackerDBusMethodInfo);
+	info = g_new0 (TrackerDBusMethodInfo, 1);
 
 	info->request_id = request_id;
 	info->context = context;
+	info->play_journal = TRUE;
 
-	tracker_store_queue_turtle_import (file, backup_callback,
-	                                   info, destroy_method_info);
+	/* This call is mostly synchronous, because we want to block the 
+	 * mainloop during a restore procedure (you're switching the active
+	 * database here, let's not allow queries during this time) 
+	 *
+	 * No need for commits or anything. Whatever is in the current db will
+	 * be eliminated in favor of the data in `backup_uri` and `journal_uri`. */
 
-	g_object_unref (file);
+	tracker_data_backup_restore (destination, journal,
+	                             backup_callback,
+	                             info, destroy_method_info);
+
+	g_object_unref (destination);
+	g_object_unref (journal);
 }
+

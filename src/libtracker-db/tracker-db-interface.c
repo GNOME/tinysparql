@@ -373,6 +373,24 @@ tracker_db_interface_end_transaction (TrackerDBInterface *interface)
 }
 
 void
+tracker_db_interface_disconnect (TrackerDBInterface  *interface)
+{
+	TrackerDBInterfaceIface *iface;
+	g_return_val_if_fail (TRACKER_IS_DB_INTERFACE (interface), NULL);
+	iface = TRACKER_DB_INTERFACE_GET_IFACE (interface);
+	iface->disconnect (interface);
+}
+
+void
+tracker_db_interface_reconnect (TrackerDBInterface  *interface)
+{
+	TrackerDBInterfaceIface *iface;
+	g_return_val_if_fail (TRACKER_IS_DB_INTERFACE (interface), NULL);
+	iface = TRACKER_DB_INTERFACE_GET_IFACE (interface);
+	iface->reconnect (interface);
+}
+
+void
 tracker_db_statement_bind_double (TrackerDBStatement	*stmt,
 				  int			 idx,
 				  double		 value)

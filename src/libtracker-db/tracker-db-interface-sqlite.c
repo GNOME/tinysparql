@@ -21,8 +21,10 @@
 #include "config.h"
 
 #include <glib/gstdio.h>
+
 #include <sqlite3.h>
 #include <stdlib.h>
+#include <libtracker-common/tracker-common.h>
 
 #include <tracker-fts/tracker-fts.h>
 
@@ -71,6 +73,8 @@ struct SqliteAggregateData {
 
 static void tracker_db_interface_sqlite_iface_init (TrackerDBInterfaceIface *iface);
 static void tracker_db_statement_sqlite_iface_init (TrackerDBStatementIface *iface);
+static void tracker_db_interface_sqlite_disconnect (TrackerDBInterface *db_interface);
+static void tracker_db_interface_sqlite_reconnect  (TrackerDBInterface *db_interface);
 
 static TrackerDBStatementSqlite * tracker_db_statement_sqlite_new (TrackerDBInterfaceSqlite	*db_interface,
 								   sqlite3_stmt			*sqlite_stmt);
@@ -97,20 +101,12 @@ tracker_db_interface_sqlite_enable_shared_cache (void)
   sqlite3_enable_shared_cache (1);
 }
 
-static GObject *
-tracker_db_interface_sqlite_constructor (GType			type,
-					 guint			n_construct_properties,
-					 GObjectConstructParam *construct_params)
+static void
+open_database (TrackerDBInterfaceSqlitePrivate *priv)
 {
-	GObject *object;
-	TrackerDBInterfaceSqlitePrivate *priv;
 	gchar *err_msg = NULL;
 	const gchar *env_path;
 
-	object = (* G_OBJECT_CLASS (tracker_db_interface_sqlite_parent_class)->constructor) (type,
-											     n_construct_properties,
-											     construct_params);
-	priv = TRACKER_DB_INTERFACE_SQLITE_GET_PRIVATE (object);
 	g_assert (priv->filename != NULL);
 
 	if (!priv->ro) {
@@ -135,6 +131,22 @@ tracker_db_interface_sqlite_constructor (GType			type,
 	} else {
 		g_message ("Initialized tracker fts extension");
 	}
+}
+
+static GObject *
+tracker_db_interface_sqlite_constructor (GType			type,
+					 guint			n_construct_properties,
+					 GObjectConstructParam *construct_params)
+{
+	GObject *object;
+	TrackerDBInterfaceSqlitePrivate *priv;
+
+	object = (* G_OBJECT_CLASS (tracker_db_interface_sqlite_parent_class)->constructor) (type,
+											     n_construct_properties,
+											     construct_params);
+	priv = TRACKER_DB_INTERFACE_SQLITE_GET_PRIVATE (object);
+
+	open_database (priv);
 
 	return object;
 }
@@ -190,23 +202,31 @@ tracker_db_interface_sqlite_get_property (GObject    *object,
 }
 
 static void
+close_database (TrackerDBInterfaceSqlitePrivate *priv)
+{
+	g_hash_table_destroy (priv->dynamic_statements);
+	g_hash_table_destroy (priv->statements);
+
+	g_slist_foreach (priv->function_data, (GFunc) g_free, NULL);
+	g_slist_free (priv->function_data);
+	priv->function_data = NULL;
+
+	g_slist_foreach (priv->aggregate_data, (GFunc) g_free, NULL);
+	g_slist_free (priv->aggregate_data);
+	priv->aggregate_data = NULL;
+
+	sqlite3_close (priv->db);
+}
+
+static void
 tracker_db_interface_sqlite_finalize (GObject *object)
 {
 	TrackerDBInterfaceSqlitePrivate *priv;
 
 	priv = TRACKER_DB_INTERFACE_SQLITE_GET_PRIVATE (object);
 
-	g_hash_table_destroy (priv->dynamic_statements);
+	close_database (priv);
 
-	g_hash_table_destroy (priv->statements);
-
-	g_slist_foreach (priv->function_data, (GFunc) g_free, NULL);
-	g_slist_free (priv->function_data);
-
-	g_slist_foreach (priv->aggregate_data, (GFunc) g_free, NULL);
-	g_slist_free (priv->aggregate_data);
-
-	sqlite3_close (priv->db);
 	g_message ("Closed sqlite3 database:'%s'", priv->filename);
 
 	g_free (priv->filename);
@@ -249,6 +269,18 @@ tracker_db_interface_sqlite_class_init (TrackerDBInterfaceSqliteClass *class)
 }
 
 static void
+prepare_database (TrackerDBInterfaceSqlitePrivate *priv)
+{
+	priv->dynamic_statements = g_hash_table_new_full (g_str_hash, g_str_equal,
+							  (GDestroyNotify) g_free,
+							  (GDestroyNotify) g_object_unref);
+	priv->statements = g_hash_table_new_full (g_str_hash, g_str_equal,
+						  (GDestroyNotify) g_free,
+						  (GDestroyNotify) sqlite3_finalize);
+
+}
+
+static void
 tracker_db_interface_sqlite_init (TrackerDBInterfaceSqlite *db_interface)
 {
 	TrackerDBInterfaceSqlitePrivate *priv;
@@ -256,12 +288,7 @@ tracker_db_interface_sqlite_init (TrackerDBInterfaceSqlite *db_interface)
 	priv = TRACKER_DB_INTERFACE_SQLITE_GET_PRIVATE (db_interface);
 
 	priv->ro = FALSE;
-	priv->dynamic_statements = g_hash_table_new_full (g_str_hash, g_str_equal,
-							  (GDestroyNotify) g_free,
-							  (GDestroyNotify) g_object_unref);
-	priv->statements = g_hash_table_new_full (g_str_hash, g_str_equal,
-						  (GDestroyNotify) g_free,
-						  (GDestroyNotify) sqlite3_finalize);
+	prepare_database (priv);
 }
 
 static void
@@ -586,17 +613,19 @@ create_result_set_from_stmt (TrackerDBInterfaceSqlite  *interface,
 		if (sqlite3_errcode (priv->db) == SQLITE_IOERR ||
 		    sqlite3_errcode (priv->db) == SQLITE_CORRUPT ||
 		    sqlite3_errcode (priv->db) == SQLITE_NOTADB) {
+
 			sqlite3_finalize (stmt);
 			sqlite3_close (priv->db);
-			
+
 			g_unlink (priv->filename);
-			
+
 			g_error ("SQLite experienced an error with file:'%s'. "
 				 "It is either NOT a SQLite database or it is "
 				 "corrupt or there was an IO error accessing the data. "
 				 "This file has now been removed and will be recreated on the next start. "
 				 "Shutting down now.",
 				 priv->filename);
+
 			return NULL;
 		}
 
@@ -666,6 +695,8 @@ tracker_db_interface_sqlite_iface_init (TrackerDBInterfaceIface *iface)
 {
 	iface->create_statement = tracker_db_interface_sqlite_create_statement;
 	iface->execute_query = tracker_db_interface_sqlite_execute_query;
+	iface->disconnect  = tracker_db_interface_sqlite_disconnect;
+	iface->reconnect  = tracker_db_interface_sqlite_reconnect;
 }
 
 TrackerDBInterface *
@@ -862,6 +893,27 @@ tracker_db_statement_sqlite_bind_text (TrackerDBStatement	 *stmt,
 	priv = TRACKER_DB_STATEMENT_SQLITE_GET_PRIVATE (stmt);
 
 	sqlite3_bind_text (priv->stmt, index + 1, value, -1, SQLITE_TRANSIENT);
+}
+
+static void
+tracker_db_interface_sqlite_disconnect (TrackerDBInterface *db_interface)
+{
+	TrackerDBInterfaceSqlitePrivate *priv;
+
+	priv = TRACKER_DB_INTERFACE_SQLITE_GET_PRIVATE (db_interface);
+
+	close_database (priv);
+}
+
+static void
+tracker_db_interface_sqlite_reconnect (TrackerDBInterface *db_interface)
+{
+	TrackerDBInterfaceSqlitePrivate *priv;
+
+	priv = TRACKER_DB_INTERFACE_SQLITE_GET_PRIVATE (db_interface);
+
+	open_database (priv);
+	prepare_database (priv);
 }
 
 static TrackerDBResultSet *

@@ -26,18 +26,16 @@
 
 G_BEGIN_DECLS
 
-#define TRACKER_DB_BACKUP_ERROR	    (tracker_data_backup_error_quark ())
-
-typedef enum {
-	TRACKER_DB_BACKUP_ERROR_UNKNOWN,
-} TrackerDBBackupError;
-
-typedef void (*TrackerBackupFinished)   (GError *error, gpointer user_data);
+typedef void (*TrackerDataBackupFinished)   (GError *error, gpointer user_data);
 
 GQuark    tracker_data_backup_error_quark (void);
 
-void      tracker_data_backup_save        (GFile     *turtle_file,
-                                           TrackerBackupFinished callback,
+void      tracker_data_backup_save        (GFile *destination, GFile *journal,
+                                           TrackerDataBackupFinished callback,
+                                           gpointer user_data,
+                                           GDestroyNotify destroy);
+void      tracker_data_backup_restore     (GFile *backup, GFile *journal,
+                                           TrackerDataBackupFinished callback,
                                            gpointer user_data,
                                            GDestroyNotify destroy);
 
