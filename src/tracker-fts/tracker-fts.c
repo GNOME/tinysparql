@@ -7839,3 +7839,37 @@ void tracker_fts_update_commit(void){
   fulltextCommit((sqlite3_vtab *) tracker_fts_vtab);
 }
 
+gchar *
+tracker_fts_get_drop_fts_table_query (void)
+{
+	return g_strdup ("DROP TABLE fulltext.fts");
+}
+
+gchar *
+tracker_fts_get_create_fts_table_query (void)
+{
+	GString    *sql;
+	TrackerProperty	  **properties, **property;
+	gboolean first;
+
+	sql = g_string_new ("CREATE VIRTUAL TABLE fulltext.fts USING trackerfts (");
+
+	first = TRUE;
+	properties = tracker_ontology_get_properties ();
+	for (property = properties; *property; property++) {
+		if (tracker_property_get_data_type (*property) == TRACKER_PROPERTY_TYPE_STRING &&
+		    tracker_property_get_fulltext_indexed (*property)) {
+			if (first) {
+				first = FALSE;
+			} else {
+				g_string_append (sql, ", ");
+			}
+			g_string_append_printf (sql, "\"%s\"", tracker_property_get_name (*property));
+		}
+	}
+	g_free (properties);
+
+	g_string_append (sql, ")");
+
+	return g_string_free (sql, FALSE);
+}

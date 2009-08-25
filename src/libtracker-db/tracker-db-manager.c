@@ -35,6 +35,7 @@
 #include <libtracker-common/tracker-type-utils.h>
 #include <libtracker-common/tracker-utils.h>
 
+#include "tracker-db-journal.h"
 #include "tracker-db-backup.h"
 #include "tracker-db-manager.h"
 #include "tracker-db-interface-sqlite.h"
@@ -888,6 +889,7 @@ db_manager_remove_all (gboolean rm_backup_and_log, gboolean not_meta)
 	if (rm_backup_and_log) {
 		GFile *file;
 		gchar *path;
+		const gchar *cpath;
 
 		file = tracker_db_backup_file (NULL, TRACKER_DB_BACKUP_META_FILENAME);
 		path = g_file_get_path (file);
@@ -896,10 +898,10 @@ db_manager_remove_all (gboolean rm_backup_and_log, gboolean not_meta)
 		g_free (path);
 		g_file_delete (file, NULL, NULL);
 		g_object_unref (file);
-		path = tracker_db_journal_filename ();
+		cpath = tracker_db_journal_filename ();
 		g_message ("  Removing database:'%s'",
-			   path);
-		file = g_file_new_for_path (path);
+			   cpath);
+		file = g_file_new_for_path (cpath);
 		g_file_delete (file, NULL, NULL);
 		g_object_unref (file);
 	}
@@ -1313,6 +1315,10 @@ tracker_db_manager_init (TrackerDBManagerFlags	flags,
 								    TRACKER_DB_FULLTEXT,
 								    TRACKER_DB_CONTENTS,
 								    TRACKER_DB_COMMON);
+	}
+
+	if (did_copy) {
+		tracker_db_backup_sync_fts ();
 	}
 
 	return TRUE;

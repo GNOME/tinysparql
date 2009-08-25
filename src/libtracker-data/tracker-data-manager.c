@@ -37,6 +37,8 @@
 #include <libtracker-common/tracker-utils.h>
 #include <libtracker-common/tracker-ontology.h>
 
+#include <tracker-fts/tracker-fts.h>
+
 #include <libtracker-db/tracker-db-interface-sqlite.h>
 #include <libtracker-db/tracker-db-manager.h>
 
@@ -717,31 +719,11 @@ create_decomposed_transient_metadata_tables (TrackerDBInterface *iface)
 static void
 create_fts_table (TrackerDBInterface *iface)
 {
-	GString    *sql;
-	TrackerProperty	  **properties, **property;
-	gboolean first;
+	gchar *query = tracker_fts_get_create_fts_table_query ();
 
-	sql = g_string_new ("CREATE VIRTUAL TABLE fulltext.fts USING trackerfts (");
+	tracker_db_interface_execute_query (iface, NULL, "%s", query);
 
-	first = TRUE;
-	properties = tracker_ontology_get_properties ();
-	for (property = properties; *property; property++) {
-		if (tracker_property_get_data_type (*property) == TRACKER_PROPERTY_TYPE_STRING &&
-		    tracker_property_get_fulltext_indexed (*property)) {
-			if (first) {
-				first = FALSE;
-			} else {
-				g_string_append (sql, ", ");
-			}
-			g_string_append_printf (sql, "\"%s\"", tracker_property_get_name (*property));
-		}
-	}
-	g_free (properties);
-
-	g_string_append (sql, ")");
-	tracker_db_interface_execute_query (iface, NULL, "%s", sql->str);
-
-	g_string_free (sql, TRUE);
+	g_free (query);
 }
 
 gboolean

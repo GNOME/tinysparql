@@ -32,6 +32,8 @@
 #include <libtracker-db/tracker-db-manager.h>
 #include <libtracker-db/tracker-db-interface-sqlite.h>
 
+#include <tracker-fts/tracker-fts.h>
+
 #include "tracker-db-backup.h"
 
 #define TRACKER_DB_BACKUP_META_FILENAME_T	"meta-backup.db.tmp"
@@ -265,5 +267,78 @@ tracker_db_backup_save (TrackerDBBackupFinished callback,
 }
 
 
+void
+tracker_db_backup_sync_fts (void)
+{
+	TrackerProperty   **properties, **property;
+	TrackerDBInterface *iface;
+	TrackerDBStatement *stmt;
+	TrackerDBResultSet *result_set;
+	GValue              id   = { 0 };
+	GValue              text = { 0 };
+	TrackerClass       *prop_class;
+	gchar              *query;
 
+	iface = tracker_db_manager_get_db_interface ();
 
+	query = tracker_fts_get_drop_fts_table_query ();
+	tracker_db_interface_execute_query (iface, NULL, "%s", query);
+	g_free (query);
+
+	query = tracker_fts_get_create_fts_table_query ();
+	tracker_db_interface_execute_query (iface, NULL, "%s", query);
+	g_free (query);
+
+	properties = tracker_ontology_get_properties ();
+	for (property = properties; *property; property++) {
+		if (tracker_property_get_data_type (*property) == TRACKER_PROPERTY_TYPE_STRING &&
+		    tracker_property_get_fulltext_indexed (*property)) {
+
+			prop_class  = tracker_property_get_domain (*property);
+
+			if (tracker_property_get_multiple_values (*property)) {
+				query = g_strdup_printf ("SELECT ID, \"%s\" FROM \"%s_%s\"", 
+				                         tracker_property_get_name (*property), 
+				                         tracker_class_get_name (prop_class),
+				                         tracker_property_get_name (*property));
+			} else {
+				query = g_strdup_printf ("SELECT ID, \"%s\" FROM \"%s\" WHERE \"%s\" IS NOT NULL", 
+				                         tracker_property_get_name (*property), 
+				                         tracker_class_get_name (prop_class),
+				                         tracker_property_get_name (*property));
+			}
+
+			stmt = tracker_db_interface_create_statement (iface, "%s", query);
+			result_set = tracker_db_statement_execute (stmt, NULL);
+			g_object_unref (stmt);
+
+			if (result_set) {
+				do {
+					guint32 vid;
+
+					_tracker_db_result_set_get_value (result_set, 0, &id);
+					_tracker_db_result_set_get_value (result_set, 1, &text);
+
+					vid = (guint32) g_value_get_int (&id);
+
+					// TODO we need to retrieve all existing (FTS indexed) property values for
+					// this resource to properly support incremental FTS updates
+					// (like calling deleteTerms and then calling insertTerms)
+					tracker_fts_update_init (vid);
+					tracker_fts_update_text (vid, 0,  g_value_get_string (&text));
+
+					g_value_unset (&id);
+					g_value_unset (&text);
+
+				} while (tracker_db_result_set_iter_next (result_set));
+
+				g_object_unref (result_set);
+			}
+
+			g_free (query);
+		}
+	}
+	g_free (properties);
+
+	tracker_fts_update_commit ();
+}

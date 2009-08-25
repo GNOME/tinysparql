@@ -253,5 +253,8 @@ tracker_data_backup_restore (GFile *backup,
 	tracker_db_journal_open ();
 	tracker_db_manager_reconnect ();
 
+	tracker_db_backup_sync_fts ();
+
 	g_idle_add (on_restore_done, info);
 }
+

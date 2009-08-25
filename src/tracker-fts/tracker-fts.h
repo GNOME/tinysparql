@@ -26,6 +26,8 @@ int tracker_fts_init (sqlite3 *db);
 int tracker_fts_update_init (int id);
 int tracker_fts_update_text (int id, int column_id, const char *text);
 void tracker_fts_update_commit (void);
+gchar * tracker_fts_get_create_fts_table_query (void);
+gchar * tracker_fts_get_drop_fts_table_query (void);
 
 G_END_DECLS
 

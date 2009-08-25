@@ -45,6 +45,7 @@ void      tracker_db_backup_save        (TrackerDBBackupFinished callback,
                                          GDestroyNotify destroy);
 GFile *   tracker_db_backup_file        (GFile **parent_out, 
                                          const gchar *type);
+void      tracker_db_backup_sync_fts    (void);
 
 G_END_DECLS
 
