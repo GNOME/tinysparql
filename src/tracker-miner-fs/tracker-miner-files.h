@@ -30,8 +30,8 @@ G_BEGIN_DECLS
 #define TRACKER_TYPE_MINER_FILES         (tracker_miner_files_get_type())
 #define TRACKER_MINER_FILES(o)           (G_TYPE_CHECK_INSTANCE_CAST ((o), TRACKER_TYPE_MINER_FILES, TrackerMinerFiles))
 #define TRACKER_MINER_FILES_CLASS(c)     (G_TYPE_CHECK_CLASS_CAST ((c), TRACKER_TYPE_MINER_FILES, TrackerMinerFilesClass))
-#define TRACKER_IS_FILES(o)              (G_TYPE_CHECK_INSTANCE_TYPE ((o), TRACKER_TYPE_MINER_FILES))
-#define TRACKER_IS_FILES_CLASS(c)        (G_TYPE_CHECK_CLASS_TYPE ((c),  TRACKER_TYPE_MINER_FILES))
+#define TRACKER_IS_MINER_FILES(o)        (G_TYPE_CHECK_INSTANCE_TYPE ((o), TRACKER_TYPE_MINER_FILES))
+#define TRACKER_IS_MINER_FILES_CLASS(c)  (G_TYPE_CHECK_CLASS_TYPE ((c),  TRACKER_TYPE_MINER_FILES))
 #define TRACKER_MINER_FILES_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o), TRACKER_TYPE_MINER_FILES, TrackerMinerFilesClass))
 
 typedef struct TrackerMinerFiles TrackerMinerFiles;
@@ -39,17 +39,17 @@ typedef struct TrackerMinerFilesClass TrackerMinerFilesClass;
 typedef struct TrackerMinerFilesPrivate TrackerMinerFilesPrivate;
 
 struct TrackerMinerFiles {
-        TrackerMinerProcess       parent_instance;
+        TrackerMinerFS parent_instance;
 	TrackerMinerFilesPrivate *private;
 };
 
 struct TrackerMinerFilesClass {
-        TrackerMinerProcessClass parent_class;
+        TrackerMinerFSClass parent_class;
 };
 
 GType          tracker_miner_files_get_type (void) G_GNUC_CONST;
 
-TrackerMiner * tracker_miner_files_new (TrackerConfig *config);
+TrackerMiner * tracker_miner_files_new      (TrackerConfig *config);
 
 G_END_DECLS
 

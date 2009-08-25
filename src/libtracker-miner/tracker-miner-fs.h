@@ -18,57 +18,58 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __TRACKERD_MINER_PROCESS_H__
-#define __TRACKERD_MINER_PROCESS_H__
+#ifndef __TRACKERD_MINER_FS_H__
+#define __TRACKERD_MINER_FS_H__
 
 #include <glib-object.h>
 #include <gio/gio.h>
+
 #include <libtracker-common/tracker-sparql-builder.h>
 
 #include "tracker-miner.h"
 
 G_BEGIN_DECLS
 
-#define TRACKER_TYPE_MINER_PROCESS         (tracker_miner_process_get_type())
-#define TRACKER_MINER_PROCESS(o)           (G_TYPE_CHECK_INSTANCE_CAST ((o), TRACKER_TYPE_MINER_PROCESS, TrackerMinerProcess))
-#define TRACKER_MINER_PROCESS_CLASS(c)     (G_TYPE_CHECK_CLASS_CAST ((c), TRACKER_TYPE_MINER_PROCESS, TrackerMinerProcessClass))
-#define TRACKER_IS_PROCESS(o)              (G_TYPE_CHECK_INSTANCE_TYPE ((o), TRACKER_TYPE_MINER_PROCESS))
-#define TRACKER_IS_PROCESS_CLASS(c)        (G_TYPE_CHECK_CLASS_TYPE ((c),  TRACKER_TYPE_MINER_PROCESS))
-#define TRACKER_MINER_PROCESS_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o), TRACKER_TYPE_MINER_PROCESS, TrackerMinerProcessClass))
+#define TRACKER_TYPE_MINER_FS         (tracker_miner_fs_get_type())
+#define TRACKER_MINER_FS(o)           (G_TYPE_CHECK_INSTANCE_CAST ((o), TRACKER_TYPE_MINER_FS, TrackerMinerFS))
+#define TRACKER_MINER_FS_CLASS(c)     (G_TYPE_CHECK_CLASS_CAST ((c), TRACKER_TYPE_MINER_FS, TrackerMinerFSClass))
+#define TRACKER_IS_MINER_FS(o)        (G_TYPE_CHECK_INSTANCE_TYPE ((o), TRACKER_TYPE_MINER_FS))
+#define TRACKER_IS_MINER_FS_CLASS(c)  (G_TYPE_CHECK_CLASS_TYPE ((c),  TRACKER_TYPE_MINER_FS))
+#define TRACKER_MINER_FS_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o), TRACKER_TYPE_MINER_FS, TrackerMinerFSClass))
 
-typedef struct TrackerMinerProcess        TrackerMinerProcess;
-typedef struct TrackerMinerProcessClass   TrackerMinerProcessClass;
-typedef struct TrackerMinerProcessPrivate TrackerMinerProcessPrivate;
+typedef struct TrackerMinerFS        TrackerMinerFS;
+typedef struct TrackerMinerFSClass   TrackerMinerFSClass;
+typedef struct TrackerMinerFSPrivate TrackerMinerFSPrivate;
 
-struct TrackerMinerProcess {
+struct TrackerMinerFS {
 	TrackerMiner parent;
-	TrackerMinerProcessPrivate *private;
+	TrackerMinerFSPrivate *private;
 };
 
-struct TrackerMinerProcessClass {
+struct TrackerMinerFSClass {
 	TrackerMinerClass parent;
 
-	gboolean (* check_file)           (TrackerMinerProcess *process,
-					   GFile               *file);
-	gboolean (* check_directory)      (TrackerMinerProcess *process,
-					   GFile               *file);
-	gboolean (* process_file)         (TrackerMinerProcess  *process,
-					   GFile                *file,
-					   TrackerSparqlBuilder *builder);
-	gboolean (* monitor_directory)    (TrackerMinerProcess *process,
-					   GFile               *file);
-
-	void     (* finished)             (TrackerMinerProcess *process);
+	gboolean (* check_file)            (TrackerMinerFS       *fs,
+					    GFile                *file);
+	gboolean (* check_directory)       (TrackerMinerFS       *fs,
+					    GFile                *file);
+	gboolean (* process_file)          (TrackerMinerFS       *fs,
+					    GFile                *file,
+					    TrackerSparqlBuilder *builder);
+	gboolean (* monitor_directory)     (TrackerMinerFS       *fs,
+					    GFile                *file);
+	void     (* finished)              (TrackerMinerFS       *fs);
 };
 
-GType tracker_miner_process_get_type      (void) G_GNUC_CONST;
+GType    tracker_miner_fs_get_type         (void) G_GNUC_CONST;
 
-void     tracker_miner_process_add_directory    (TrackerMinerProcess *process,
-						 const gchar         *path,
-						 gboolean             recurse);
-gboolean tracker_miner_process_remove_directory (TrackerMinerProcess *process,
-						 const gchar         *path);
+void     tracker_miner_fs_add_directory    (TrackerMinerFS *fs,
+					    const gchar    *path,
+					    gboolean        recurse);
+gboolean tracker_miner_fs_remove_directory (TrackerMinerFS *fs,
+					    const gchar    *path);
+
 
 G_END_DECLS
 
-#endif /* __TRACKERD_MINER_PROCESS_H__ */
+#endif /* __TRACKERD_MINER_FS_H__ */

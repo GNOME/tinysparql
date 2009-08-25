@@ -204,13 +204,13 @@ miner_handle_next (void)
 }
 
 static void
-miner_finished_cb (TrackerMinerProcess *miner_process,
-                   gdouble              seconds_elapsed,
-                   guint                total_directories_found,
-                   guint                total_directories_ignored,
-                   guint                total_files_found,
-                   guint                total_files_ignored,
-                   gpointer             user_data)
+miner_finished_cb (TrackerMinerFS *fs,
+                   gdouble         seconds_elapsed,
+                   guint           total_directories_found,
+                   guint           total_directories_ignored,
+                   guint           total_files_found,
+                   guint           total_files_ignored,
+                   gpointer        user_data)
 {
 	g_message ("Finished mining in seconds:%f, total directories:%d, total files:%d",
                    seconds_elapsed,
@@ -335,9 +335,9 @@ main (gint argc, gchar *argv[])
         miners = g_slist_append (miners, miner_applications);
 
         /* FIXME: use proper definition for applications dir */
-        tracker_miner_process_add_directory (TRACKER_MINER_PROCESS (miner_applications),
-                                             "/usr/share/applications/",
-					     FALSE);
+        tracker_miner_fs_add_directory (TRACKER_MINER_FS (miner_applications),
+                                        "/usr/share/applications/",
+                                        FALSE);
 
 	g_signal_connect (miner_applications, "finished",
 			  G_CALLBACK (miner_finished_cb),

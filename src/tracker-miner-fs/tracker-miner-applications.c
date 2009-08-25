@@ -18,49 +18,50 @@
  * Boston, MA  02110-1301, USA.
  */
 
+#include "config.h"
+
 #include <libtracker-common/tracker-utils.h>
 #include <libtracker-common/tracker-ontology.h>
+
 #include "tracker-miner-applications.h"
 
-#define RDF_TYPE 	TRACKER_RDF_PREFIX "type"
-#define NFO_PREFIX	TRACKER_NFO_PREFIX
-#define NIE_PREFIX	TRACKER_NIE_PREFIX
-#define MAEMO_PREFIX	TRACKER_MAEMO_PREFIX
+#define RDF_TYPE 	             TRACKER_RDF_PREFIX "type"
+#define NFO_PREFIX	             TRACKER_NFO_PREFIX
+#define NIE_PREFIX	             TRACKER_NIE_PREFIX
+#define MAEMO_PREFIX	             TRACKER_MAEMO_PREFIX
 
-#define GROUP_DESKTOP_ENTRY "Desktop Entry"
+#define GROUP_DESKTOP_ENTRY          "Desktop Entry"
 
-#define APPLICATION_DATASOURCE_URN	    "urn:nepomuk:datasource:84f20000-1241-11de-8c30-0800200c9a66"
-#define APPLET_DATASOURCE_URN		    "urn:nepomuk:datasource:192bd060-1f9a-11de-8c30-0800200c9a66"
-#define SOFTWARE_CATEGORY_URN_PREFIX	    "urn:software-category:"
-#define THEME_ICON_URN_PREFIX		    "urn:theme-icon:"
+#define APPLICATION_DATASOURCE_URN   "urn:nepomuk:datasource:84f20000-1241-11de-8c30-0800200c9a66"
+#define APPLET_DATASOURCE_URN	     "urn:nepomuk:datasource:192bd060-1f9a-11de-8c30-0800200c9a66"
+#define SOFTWARE_CATEGORY_URN_PREFIX "urn:software-category:"
+#define THEME_ICON_URN_PREFIX	     "urn:theme-icon:"
 
-static void tracker_miner_applications_finalize (GObject *object);
+static void     miner_applications_finalize          (GObject              *object);
+static gboolean miner_applications_check_file        (TrackerMinerFS       *fs,
+						      GFile                *file);
+static gboolean miner_applications_check_directory   (TrackerMinerFS       *fs,
+						      GFile                *file);
+static gboolean miner_applications_process_file      (TrackerMinerFS       *fs,
+						      GFile                *file,
+						      TrackerSparqlBuilder *sparql);
+static gboolean miner_applications_monitor_directory (TrackerMinerFS       *fs,
+						      GFile                *file);
 
-static gboolean tracker_miner_applications_check_file      (TrackerMinerProcess  *miner,
-							    GFile                *file);
-static gboolean tracker_miner_applications_check_directory (TrackerMinerProcess  *miner,
-							    GFile                *file);
-static gboolean tracker_miner_applications_process_file    (TrackerMinerProcess  *miner,
-							    GFile                *file,
-							    TrackerSparqlBuilder *sparql);
-static gboolean tracker_miner_applications_monitor_directory (TrackerMinerProcess  *miner,
-							      GFile                *file);
-
-G_DEFINE_TYPE (TrackerMinerApplications, tracker_miner_applications, TRACKER_TYPE_MINER_PROCESS)
-
+G_DEFINE_TYPE (TrackerMinerApplications, tracker_miner_applications, TRACKER_TYPE_MINER_FS)
 
 static void
 tracker_miner_applications_class_init (TrackerMinerApplicationsClass *klass)
 {
         GObjectClass *object_class = G_OBJECT_CLASS (klass);
-        TrackerMinerProcessClass *miner_process_class = TRACKER_MINER_PROCESS_CLASS (klass);
+        TrackerMinerFSClass *miner_fs_class = TRACKER_MINER_FS_CLASS (klass);
 
-        object_class->finalize = tracker_miner_applications_finalize;
+        object_class->finalize = miner_applications_finalize;
 
-	miner_process_class->check_file = tracker_miner_applications_check_file;
-	miner_process_class->check_directory = tracker_miner_applications_check_directory;
-	miner_process_class->monitor_directory = tracker_miner_applications_monitor_directory;
-        miner_process_class->process_file = tracker_miner_applications_process_file;
+	miner_fs_class->check_file = miner_applications_check_file;
+	miner_fs_class->check_directory = miner_applications_check_directory;
+	miner_fs_class->monitor_directory = miner_applications_monitor_directory;
+        miner_fs_class->process_file = miner_applications_process_file;
 }
 
 static void
@@ -69,7 +70,7 @@ tracker_miner_applications_init (TrackerMinerApplications *miner)
 }
 
 static void
-tracker_miner_applications_finalize (GObject *object)
+miner_applications_finalize (GObject *object)
 {
         G_OBJECT_CLASS (tracker_miner_applications_parent_class)->finalize (object);
 }
@@ -99,8 +100,8 @@ insert_data_from_desktop_file (TrackerSparqlBuilder *sparql,
 }
 
 static gboolean
-tracker_miner_applications_check_file (TrackerMinerProcess *miner,
-				       GFile               *file)
+miner_applications_check_file (TrackerMinerFS *fs,
+			       GFile          *file)
 {
 	gboolean retval = FALSE;
 	gchar *basename;
@@ -119,25 +120,25 @@ tracker_miner_applications_check_file (TrackerMinerProcess *miner,
 }
 
 static gboolean
-tracker_miner_applications_check_directory (TrackerMinerProcess  *miner,
-					    GFile                *file)
+miner_applications_check_directory (TrackerMinerFS *fs,
+				    GFile          *file)
 {
 	/* We want to inspect all the passed dirs and their children */
 	return TRUE;
 }
 
 static gboolean
-tracker_miner_applications_monitor_directory (TrackerMinerProcess  *miner,
-					      GFile                *file)
+miner_applications_monitor_directory (TrackerMinerFS *fs,
+				      GFile          *file)
 {
 	/* We want to monitor all the passed dirs and their children */
 	return TRUE;
 }
 
 static gboolean
-tracker_miner_applications_process_file (TrackerMinerProcess  *miner,
-					 GFile                *file,
-					 TrackerSparqlBuilder *sparql)
+miner_applications_process_file (TrackerMinerFS       *fs,
+				 GFile                *file,
+				 TrackerSparqlBuilder *sparql)
 {
 	GKeyFile *key_file;
 	gchar *path, *type, *filename, *name = NULL, *uri = NULL;

@@ -28,19 +28,19 @@ G_BEGIN_DECLS
 #define TRACKER_TYPE_MINER_APPLICATIONS         (tracker_miner_applications_get_type())
 #define TRACKER_MINER_APPLICATIONS(o)           (G_TYPE_CHECK_INSTANCE_CAST ((o), TRACKER_TYPE_MINER_APPLICATIONS, TrackerMinerApplications))
 #define TRACKER_MINER_APPLICATIONS_CLASS(c)     (G_TYPE_CHECK_CLASS_CAST ((c), TRACKER_TYPE_MINER_APPLICATIONS, TrackerMinerApplicationsClass))
-#define TRACKER_IS_APPLICATIONS(o)              (G_TYPE_CHECK_INSTANCE_TYPE ((o), TRACKER_TYPE_MINER_APPLICATIONS))
-#define TRACKER_IS_APPLICATIONS_CLASS(c)        (G_TYPE_CHECK_CLASS_TYPE ((c),  TRACKER_TYPE_MINER_APPLICATIONS))
+#define TRACKER_IS_MINER_APPLICATIONS(o)        (G_TYPE_CHECK_INSTANCE_TYPE ((o), TRACKER_TYPE_MINER_APPLICATIONS))
+#define TRACKER_IS_MINER_APPLICATIONS_CLASS(c)  (G_TYPE_CHECK_CLASS_TYPE ((c),  TRACKER_TYPE_MINER_APPLICATIONS))
 #define TRACKER_MINER_APPLICATIONS_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o), TRACKER_TYPE_MINER_APPLICATIONS, TrackerMinerApplicationsClass))
 
 typedef struct _TrackerMinerApplications TrackerMinerApplications;
 typedef struct _TrackerMinerApplicationsClass TrackerMinerApplicationsClass;
 
 struct _TrackerMinerApplications {
-        TrackerMinerProcess parent_instance;
+        TrackerMinerFS parent_instance;
 };
 
 struct _TrackerMinerApplicationsClass {
-        TrackerMinerProcessClass parent_class;
+        TrackerMinerFSClass parent_class;
 };
 
 GType          tracker_miner_applications_get_type (void) G_GNUC_CONST;

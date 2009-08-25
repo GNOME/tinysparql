@@ -57,35 +57,35 @@ static void     mount_point_added_cb          (TrackerStorage       *storage,
 					       gpointer              user_data);
 static void     mount_pre_unmount_cb          (GVolumeMonitor       *volume_monitor,
 					       GMount               *mount,
-					       TrackerMinerFiles    *miner);
-static void     initialize_removable_devices  (TrackerMinerFiles    *miner);
-static gboolean miner_files_check_file        (TrackerMinerProcess  *miner,
+					       TrackerMinerFiles    *fs);
+static void     initialize_removable_devices  (TrackerMinerFiles    *fs);
+static gboolean miner_files_check_file        (TrackerMinerFS       *fs,
 					       GFile                *file);
-static gboolean miner_files_check_directory   (TrackerMinerProcess  *miner,
+static gboolean miner_files_check_directory   (TrackerMinerFS       *fs,
 					       GFile                *file);
-static gboolean miner_files_process_file      (TrackerMinerProcess  *miner,
+static gboolean miner_files_process_file      (TrackerMinerFS       *fs,
 					       GFile                *file,
 					       TrackerSparqlBuilder *sparql);
-static gboolean miner_files_monitor_directory (TrackerMinerProcess  *miner,
+static gboolean miner_files_monitor_directory (TrackerMinerFS       *fs,
 					       GFile                *file);
 
-G_DEFINE_TYPE (TrackerMinerFiles, tracker_miner_files, TRACKER_TYPE_MINER_PROCESS)
+G_DEFINE_TYPE (TrackerMinerFiles, tracker_miner_files, TRACKER_TYPE_MINER_FS)
 
 static void
 tracker_miner_files_class_init (TrackerMinerFilesClass *klass)
 {
         GObjectClass *object_class = G_OBJECT_CLASS (klass);
-        TrackerMinerProcessClass *miner_process_class = TRACKER_MINER_PROCESS_CLASS (klass);
+        TrackerMinerFSClass *miner_fs_class = TRACKER_MINER_FS_CLASS (klass);
 
         object_class->finalize = miner_files_finalize;
         object_class->get_property = miner_files_get_property;
         object_class->set_property = miner_files_set_property;
         object_class->constructed = miner_files_constructed;
 
-        miner_process_class->check_file = miner_files_check_file;
-	miner_process_class->check_directory = miner_files_check_directory;
-	miner_process_class->monitor_directory = miner_files_monitor_directory;
-        miner_process_class->process_file = miner_files_process_file;
+        miner_fs_class->check_file = miner_files_check_file;
+	miner_fs_class->check_directory = miner_files_check_directory;
+	miner_fs_class->monitor_directory = miner_files_monitor_directory;
+        miner_fs_class->process_file = miner_files_process_file;
 
        	g_object_class_install_property (object_class,
 					 PROP_CONFIG,
@@ -185,13 +185,13 @@ static void
 miner_files_constructed (GObject *object)
 {
         TrackerMinerFilesPrivate *priv;
-        TrackerMinerProcess *miner;
+        TrackerMinerFS *fs;
         GSList *dirs;
 
 	G_OBJECT_CLASS (tracker_miner_files_parent_class)->constructed (object);
 
         priv = TRACKER_MINER_FILES_GET_PRIVATE (object);
-        miner = TRACKER_MINER_PROCESS (object);
+        fs = TRACKER_MINER_FS (object);
 
         if (!priv->config) {
                 g_critical ("No config. This is mandatory");
@@ -202,19 +202,19 @@ miner_files_constructed (GObject *object)
         dirs = tracker_config_get_index_single_directories (priv->config);
 
         while (dirs) {
-                tracker_miner_process_add_directory (miner, dirs->data, FALSE);
+                tracker_miner_fs_add_directory (fs, dirs->data, FALSE);
                 dirs = dirs->next;
         }
 
         dirs = tracker_config_get_index_recursive_directories (priv->config);
 
         while (dirs) {
-                tracker_miner_process_add_directory (miner, dirs->data, TRUE);
+                tracker_miner_fs_add_directory (fs, dirs->data, TRUE);
                 dirs = dirs->next;
         }
 
 #ifdef HAVE_HAL
-        initialize_removable_devices (TRACKER_MINER_FILES (miner));
+        initialize_removable_devices (TRACKER_MINER_FILES (fs));
 #endif
 }
 
@@ -228,24 +228,24 @@ mount_point_added_cb (TrackerStorage *storage,
 {
         TrackerMinerFilesPrivate *priv;
         gboolean index_removable_devices;
-        TrackerMinerProcess *miner;
 
-        miner = TRACKER_MINER_PROCESS (user_data);
         priv = TRACKER_MINER_FILES_GET_PRIVATE (user_data);
 
         index_removable_devices = tracker_config_get_index_removable_devices (priv->config);
 
         if (index_removable_devices) {
-                tracker_miner_process_add_directory (miner, mount_point, TRUE);
+                tracker_miner_fs_add_directory (TRACKER_MINER_FS (user_data), 
+						mount_point, 
+						TRUE);
         }
 }
 
 static void
-initialize_removable_devices (TrackerMinerFiles *miner)
+initialize_removable_devices (TrackerMinerFiles *fs)
 {
         TrackerMinerFilesPrivate *priv;
 
-        priv = TRACKER_MINER_FILES_GET_PRIVATE (miner);
+        priv = TRACKER_MINER_FILES_GET_PRIVATE (fs);
 
         if (tracker_config_get_index_removable_devices (priv->config)) {
                 GList *mounts, *m;
@@ -253,8 +253,9 @@ initialize_removable_devices (TrackerMinerFiles *miner)
                 mounts = tracker_storage_get_removable_device_roots (priv->storage);
 
                 for (m = mounts; m; m = m->next) {
-                        tracker_miner_process_add_directory (TRACKER_MINER_PROCESS (miner),
-                                                             m->data, TRUE);
+                        tracker_miner_fs_add_directory (TRACKER_MINER_FS (fs),
+							m->data, 
+							TRUE);
                 }
         }
 }
@@ -272,17 +273,17 @@ mount_pre_unmount_cb (GVolumeMonitor    *volume_monitor,
 	mount_root = g_mount_get_root (mount);
 	path = g_file_get_path (mount_root);
 
-	tracker_miner_process_remove_directory (TRACKER_MINER_PROCESS (miner), path);
+	tracker_miner_fs_remove_directory (TRACKER_MINER_FS (miner), path);
 
 	g_free (path);
 	g_object_unref (mount_root);
 }
 
 static gboolean
-miner_files_check_file (TrackerMinerProcess *miner,
-			GFile               *file)
+miner_files_check_file (TrackerMinerFS *fs,
+			GFile          *file)
 {
-	TrackerMinerFiles *miner_files;
+	TrackerMinerFiles *miner;
 	GFileInfo *file_info;
 	GSList *l;
 	gchar *path;
@@ -314,11 +315,11 @@ miner_files_check_file (TrackerMinerProcess *miner,
 	}
 
 	/* Check module file ignore patterns */
-	miner_files = TRACKER_MINER_FILES (miner);
+	miner = TRACKER_MINER_FILES (fs);
 
 	basename = g_file_get_basename (file);
 	
-	for (l = tracker_config_get_ignored_file_patterns (miner_files->private->config); l; l = l->next) {
+	for (l = tracker_config_get_ignored_file_patterns (miner->private->config); l; l = l->next) {
 		if (g_pattern_match_string (l->data, basename)) {
 			goto done;
 		}
@@ -338,8 +339,8 @@ done:
 }
 
 static gboolean
-miner_files_check_directory (TrackerMinerProcess *miner,
-			     GFile               *file)
+miner_files_check_directory (TrackerMinerFS *fs,
+			     GFile          *file)
 {
 	GFileInfo *file_info;
 	gchar *path;
@@ -376,24 +377,24 @@ miner_files_check_directory (TrackerMinerProcess *miner,
                                        NULL, NULL);
 
 	if (file_info && g_file_info_get_is_hidden (file_info)) {
-		TrackerMinerFiles *miner_files;
+		TrackerMinerFiles *miner;
 		GSList *allowed_directories;
 
-		miner_files = TRACKER_MINER_FILES (miner);
+		miner = TRACKER_MINER_FILES (fs);
 
 		/* FIXME: We need to check if the file is actually a
 		 * config specified location before blanket ignoring
 		 * all hidden files. 
 		 */
 		allowed_directories = 
-			tracker_config_get_index_recursive_directories (miner_files->private->config);
+			tracker_config_get_index_recursive_directories (miner->private->config);
 
 		if (tracker_string_in_gslist (path, allowed_directories)) {
 			should_process = TRUE;
 		}
 
 		allowed_directories = 
-			tracker_config_get_index_single_directories (miner_files->private->config);
+			tracker_config_get_index_single_directories (miner->private->config);
 
 		if (tracker_string_in_gslist (path, allowed_directories)) {
 			should_process = TRUE;
@@ -417,21 +418,21 @@ done:
 }
 
 static gboolean
-miner_files_monitor_directory (TrackerMinerProcess *miner,
-			       GFile               *file)
+miner_files_monitor_directory (TrackerMinerFS *fs,
+			       GFile          *file)
 {
-	TrackerMinerFiles *mf;
+	TrackerMinerFiles *miner;
 
-	mf = TRACKER_MINER_FILES (miner);
+	miner = TRACKER_MINER_FILES (fs);
 
-	if (tracker_config_get_enable_monitors (mf->private->config)) {
+	if (tracker_config_get_enable_monitors (miner->private->config)) {
 		return FALSE;
 	}
 		
 	/* Fallback to the check directory routine, since we don't
 	 * monitor anything we don't process. 
 	 */
-	return miner_files_check_directory (miner, file);
+	return miner_files_check_directory (fs, file);
 }
 
 static void
@@ -475,7 +476,7 @@ miner_files_add_to_datasource (TrackerMinerFiles    *miner,
 }
 
 static gboolean
-miner_files_process_file (TrackerMinerProcess  *miner,
+miner_files_process_file (TrackerMinerFS       *fs,
 			  GFile                *file,
 			  TrackerSparqlBuilder *sparql)
 {
@@ -544,7 +545,7 @@ miner_files_process_file (TrackerMinerProcess  *miner,
         tracker_sparql_builder_predicate (sparql, "nfo:fileLastAccessed");
 	tracker_sparql_builder_object_date (sparql, (time_t *) &time_);
 
-        miner_files_add_to_datasource (TRACKER_MINER_FILES (miner), file, sparql);
+        miner_files_add_to_datasource (TRACKER_MINER_FILES (fs), file, sparql);
 
         /* FIXME: Missing embedded data and text */
 
