@@ -64,6 +64,7 @@ struct TrackerMinerProcessPrivate {
 	guint           process_dirs_id;
 
 	/* Status */
+	guint           been_started : 1;
 	guint           shown_totals : 1;
 
 	/* Statistics */
@@ -386,6 +387,7 @@ miner_started (TrackerMiner *miner)
 
 	process = TRACKER_MINER_PROCESS (miner);
 
+	process->private->been_started = TRUE;
 	process_directories_start (process);
 }
 
@@ -1170,8 +1172,13 @@ process_directories_start (TrackerMinerProcess *process)
 		return;
 	}
 
+	if (!process->private->been_started) {
+		/* Miner has not been started yet */
+		return;
+	}
+
 	process->private->timer = g_timer_new ();
-	
+
 	process->private->total_directories_found = 0;
 	process->private->total_directories_ignored = 0;
 	process->private->total_files_found = 0;
