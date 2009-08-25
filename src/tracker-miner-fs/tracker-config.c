@@ -47,10 +47,10 @@
 #define DEFAULT_SCAN_TIMEOUT			 0	  /* 0->1000 */
 #define DEFAULT_CACHE_TIMEOUT			 60	  /* 0->1000 */
 #define DEFAULT_ENABLE_THUMBNAILS		 TRUE
-#define DEFAULT_INDEX_ON_BATTERY                 FALSE
-#define DEFAULT_INDEX_ON_BATTERY_FIRST_TIME      TRUE
 #define DEFAULT_INDEX_MOUNTED_DIRECTORIES	 TRUE
 #define DEFAULT_INDEX_REMOVABLE_DEVICES		 TRUE
+#define DEFAULT_INDEX_ON_BATTERY                 FALSE
+#define DEFAULT_INDEX_ON_BATTERY_FIRST_TIME      TRUE
 #define DEFAULT_LOW_DISK_SPACE_LIMIT		 1	  /* 0->100 / -1 */
 
 typedef struct {
@@ -68,6 +68,8 @@ typedef struct {
 	gboolean  enable_thumbnails;
 	gboolean  index_on_battery;
 	gboolean  index_on_battery_first_time;
+	gboolean  index_mounted_directories;
+	gboolean  index_removable_devices;	
 	gint	  low_disk_space_limit;
 	GSList   *index_recursive_directories;
 	GSList	 *index_single_directories;
@@ -76,8 +78,6 @@ typedef struct {
 	GSList   *ignored_files;
 	GSList   *ignored_directory_patterns;
 	GSList   *ignored_file_patterns;
-	gboolean  index_mounted_directories;
-	gboolean  index_removable_devices;	
 } TrackerConfigPrivate;
 
 typedef struct {
@@ -120,14 +120,14 @@ enum {
 	PROP_ENABLE_THUMBNAILS,
 	PROP_INDEX_ON_BATTERY,
 	PROP_INDEX_ON_BATTERY_FIRST_TIME,
+	PROP_INDEX_MOUNTED_DIRECTORIES,
+	PROP_INDEX_REMOVABLE_DEVICES,
 	PROP_LOW_DISK_SPACE_LIMIT,
 	PROP_INDEX_RECURSIVE_DIRECTORIES,
 	PROP_INDEX_SINGLE_DIRECTORIES,
 	PROP_IGNORED_DIRECTORIES,
 	PROP_IGNORED_DIRECTORIES_WITH_CONTENT,
 	PROP_IGNORED_FILES,
-	PROP_INDEX_MOUNTED_DIRECTORIES,
-	PROP_INDEX_REMOVABLE_DEVICES,
 };
 
 static ObjectToKeyFile conversions[] = {
@@ -143,14 +143,14 @@ static ObjectToKeyFile conversions[] = {
 	{ G_TYPE_BOOLEAN, "enable-thumbnails",                GROUP_INDEXING, "EnableThumbnails"          },
 	{ G_TYPE_BOOLEAN, "index-on-battery",                 GROUP_INDEXING, "IndexOnBattery"            },
 	{ G_TYPE_BOOLEAN, "index-on-battery-first-time",      GROUP_INDEXING, "IndexOnBatteryFirstTime"   },
+	{ G_TYPE_BOOLEAN, "index-mounted-directories",        GROUP_INDEXING, "IndexMountedDirectories"   },
+	{ G_TYPE_BOOLEAN, "index-removable-devices",          GROUP_INDEXING, "IndexRemovableMedia"       },
 	{ G_TYPE_INT,     "low-disk-space-limit",             GROUP_INDEXING, "LowDiskSpaceLimit"         },
 	{ G_TYPE_POINTER, "index-recursive-directories",      GROUP_INDEXING, "IndexRecursiveDirectories" },
 	{ G_TYPE_POINTER, "index-single-directories",         GROUP_INDEXING, "IndexSingleDirectories"    },
 	{ G_TYPE_POINTER, "ignored-directories",              GROUP_INDEXING, "IgnoredDirectories"        },
 	{ G_TYPE_POINTER, "ignored-directories-with-content", GROUP_INDEXING, "IgnoredDirectoriesWithContent" },
 	{ G_TYPE_POINTER, "ignored-files",                    GROUP_INDEXING, "IgnoredFiles"              },
-	{ G_TYPE_BOOLEAN, "index-mounted-directories",        GROUP_INDEXING, "IndexMountedDirectories"   },
-	{ G_TYPE_BOOLEAN, "index-removable-devices",          GROUP_INDEXING, "IndexRemovableMedia"       },
 };
 
 G_DEFINE_TYPE (TrackerConfig, tracker_config, TRACKER_TYPE_CONFIG_FILE);
@@ -245,6 +245,21 @@ tracker_config_class_init (TrackerConfigClass *klass)
 							       DEFAULT_INDEX_ON_BATTERY_FIRST_TIME,
 							       G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
 	g_object_class_install_property (object_class,
+					 PROP_INDEX_MOUNTED_DIRECTORIES,
+					 g_param_spec_boolean ("index-mounted-directories",
+							       "Index mounted directories",
+							       " Set to true to enable traversing mounted directories on other file systems\n"
+							       " (this excludes removable devices)",
+							       DEFAULT_INDEX_MOUNTED_DIRECTORIES,
+							       G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
+	g_object_class_install_property (object_class,
+					 PROP_INDEX_REMOVABLE_DEVICES,
+					 g_param_spec_boolean ("index-removable-devices",
+							       "index removable devices",
+							       " Set to true to enable traversing mounted directories for removable devices",
+							       DEFAULT_INDEX_REMOVABLE_DEVICES,
+							       G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
+	g_object_class_install_property (object_class,
 					 PROP_LOW_DISK_SPACE_LIMIT,
 					 g_param_spec_int ("low-disk-space-limit",
 							   "Low disk space limit",
@@ -283,21 +298,6 @@ tracker_config_class_init (TrackerConfigClass *klass)
 					 g_param_spec_pointer ("ignored-files",
 							       "Ignored files",
 							       " List of files to NOT index (separator=;)",
-							       G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
-	g_object_class_install_property (object_class,
-					 PROP_INDEX_MOUNTED_DIRECTORIES,
-					 g_param_spec_boolean ("index-mounted-directories",
-							       "Index mounted directories",
-							       " Set to true to enable traversing mounted directories on other file systems\n"
-							       " (this excludes removable devices)",
-							       DEFAULT_INDEX_MOUNTED_DIRECTORIES,
-							       G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
-	g_object_class_install_property (object_class,
-					 PROP_INDEX_REMOVABLE_DEVICES,
-					 g_param_spec_boolean ("index-removable-devices",
-							       "index removable devices",
-							       " Set to true to enable traversing mounted directories for removable devices",
-							       DEFAULT_INDEX_REMOVABLE_DEVICES,
 							       G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
 
 	g_type_class_add_private (object_class, sizeof (TrackerConfigPrivate));
@@ -356,6 +356,14 @@ config_set_property (GObject	  *object,
 		tracker_config_set_index_on_battery_first_time (TRACKER_CONFIG (object),
 								g_value_get_boolean (value));
 		break;
+	case PROP_INDEX_MOUNTED_DIRECTORIES:
+		tracker_config_set_index_mounted_directories (TRACKER_CONFIG (object),
+							      g_value_get_boolean (value));
+		break;
+	case PROP_INDEX_REMOVABLE_DEVICES:
+		tracker_config_set_index_removable_devices (TRACKER_CONFIG (object),
+							    g_value_get_boolean (value));
+		break;
 	case PROP_LOW_DISK_SPACE_LIMIT:
 		tracker_config_set_low_disk_space_limit (TRACKER_CONFIG (object),
 							 g_value_get_int (value));
@@ -379,14 +387,6 @@ config_set_property (GObject	  *object,
 	case PROP_IGNORED_FILES:    
 		tracker_config_set_ignored_files (TRACKER_CONFIG (object),
 						  g_value_get_pointer (value));
-		break;
-	case PROP_INDEX_MOUNTED_DIRECTORIES:
-		tracker_config_set_index_mounted_directories (TRACKER_CONFIG (object),
-							      g_value_get_boolean (value));
-		break;
-	case PROP_INDEX_REMOVABLE_DEVICES:
-		tracker_config_set_index_removable_devices (TRACKER_CONFIG (object),
-							    g_value_get_boolean (value));
 		break;
 
 	default:
@@ -438,6 +438,12 @@ config_get_property (GObject	*object,
 	case PROP_INDEX_ON_BATTERY_FIRST_TIME:
 		g_value_set_boolean (value, priv->index_on_battery_first_time);
 		break;
+	case PROP_INDEX_MOUNTED_DIRECTORIES:
+		g_value_set_boolean (value, priv->index_mounted_directories);
+		break;
+	case PROP_INDEX_REMOVABLE_DEVICES:
+		g_value_set_boolean (value, priv->index_removable_devices);
+		break;
 	case PROP_LOW_DISK_SPACE_LIMIT:
 		g_value_set_int (value, priv->low_disk_space_limit);
 		break;
@@ -455,12 +461,6 @@ config_get_property (GObject	*object,
 		break;
 	case PROP_IGNORED_FILES:
 		g_value_set_pointer (value, priv->ignored_files);
-		break;
-	case PROP_INDEX_MOUNTED_DIRECTORIES:
-		g_value_set_boolean (value, priv->index_mounted_directories);
-		break;
-	case PROP_INDEX_REMOVABLE_DEVICES:
-		g_value_set_boolean (value, priv->index_removable_devices);
 		break;
 
 	default:
@@ -908,6 +908,30 @@ tracker_config_get_index_on_battery_first_time (TrackerConfig *config)
 	return priv->index_on_battery_first_time;
 }
 
+gboolean
+tracker_config_get_index_mounted_directories (TrackerConfig *config)
+{
+	TrackerConfigPrivate *priv;
+
+	g_return_val_if_fail (TRACKER_IS_CONFIG (config), DEFAULT_INDEX_MOUNTED_DIRECTORIES);
+
+	priv = TRACKER_CONFIG_GET_PRIVATE (config);
+
+	return priv->index_mounted_directories;
+}
+
+gboolean
+tracker_config_get_index_removable_devices (TrackerConfig *config)
+{
+	TrackerConfigPrivate *priv;
+
+	g_return_val_if_fail (TRACKER_IS_CONFIG (config), DEFAULT_INDEX_REMOVABLE_DEVICES);
+
+	priv = TRACKER_CONFIG_GET_PRIVATE (config);
+
+	return priv->index_removable_devices;
+}
+
 gint
 tracker_config_get_low_disk_space_limit (TrackerConfig *config)
 {
@@ -978,30 +1002,6 @@ tracker_config_get_ignored_files (TrackerConfig *config)
 	priv = TRACKER_CONFIG_GET_PRIVATE (config);
 
 	return priv->ignored_files;
-}
-
-gboolean
-tracker_config_get_index_mounted_directories (TrackerConfig *config)
-{
-	TrackerConfigPrivate *priv;
-
-	g_return_val_if_fail (TRACKER_IS_CONFIG (config), DEFAULT_INDEX_MOUNTED_DIRECTORIES);
-
-	priv = TRACKER_CONFIG_GET_PRIVATE (config);
-
-	return priv->index_mounted_directories;
-}
-
-gboolean
-tracker_config_get_index_removable_devices (TrackerConfig *config)
-{
-	TrackerConfigPrivate *priv;
-
-	g_return_val_if_fail (TRACKER_IS_CONFIG (config), DEFAULT_INDEX_REMOVABLE_DEVICES);
-
-	priv = TRACKER_CONFIG_GET_PRIVATE (config);
-
-	return priv->index_removable_devices;
 }
 
 void
@@ -1138,7 +1138,7 @@ tracker_config_set_index_on_battery (TrackerConfig *config,
 
 void
 tracker_config_set_index_on_battery_first_time (TrackerConfig *config,
-						gboolean	    value)
+						gboolean       value)
 {
 	TrackerConfigPrivate *priv;
 
@@ -1148,6 +1148,34 @@ tracker_config_set_index_on_battery_first_time (TrackerConfig *config,
 
 	priv->index_on_battery_first_time = value;
 	g_object_notify (G_OBJECT (config), "index-on-battery-first-time");
+}
+
+void
+tracker_config_set_index_mounted_directories (TrackerConfig *config,
+					      gboolean	     value)
+{
+	TrackerConfigPrivate *priv;
+
+	g_return_if_fail (TRACKER_IS_CONFIG (config));
+
+	priv = TRACKER_CONFIG_GET_PRIVATE (config);
+
+	priv->index_mounted_directories = value;
+	g_object_notify (G_OBJECT (config), "index-mounted-directories");
+}
+
+void
+tracker_config_set_index_removable_devices (TrackerConfig *config,
+					    gboolean	   value)
+{
+	TrackerConfigPrivate *priv;
+
+	g_return_if_fail (TRACKER_IS_CONFIG (config));
+
+	priv = TRACKER_CONFIG_GET_PRIVATE (config);
+
+	priv->index_removable_devices = value;
+	g_object_notify (G_OBJECT (config), "index-removable-devices");
 }
 
 void
@@ -1297,34 +1325,6 @@ tracker_config_set_ignored_files (TrackerConfig *config,
 	g_slist_free (l);
 
 	g_object_notify (G_OBJECT (config), "ignored-files");
-}
-
-void
-tracker_config_set_index_mounted_directories (TrackerConfig *config,
-					      gboolean	     value)
-{
-	TrackerConfigPrivate *priv;
-
-	g_return_if_fail (TRACKER_IS_CONFIG (config));
-
-	priv = TRACKER_CONFIG_GET_PRIVATE (config);
-
-	priv->index_mounted_directories = value;
-	g_object_notify (G_OBJECT (config), "index-mounted-directories");
-}
-
-void
-tracker_config_set_index_removable_devices (TrackerConfig *config,
-					    gboolean	 value)
-{
-	TrackerConfigPrivate *priv;
-
-	g_return_if_fail (TRACKER_IS_CONFIG (config));
-
-	priv = TRACKER_CONFIG_GET_PRIVATE (config);
-
-	priv->index_removable_devices = value;
-	g_object_notify (G_OBJECT (config), "index-removable-devices");
 }
 
 /*
