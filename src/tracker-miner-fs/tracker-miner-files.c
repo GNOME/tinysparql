@@ -225,6 +225,8 @@ tracker_miner_files_constructed (GObject *object)
         TrackerMinerProcess *miner;
         GSList *dirs;
 
+	G_OBJECT_CLASS (tracker_miner_files_parent_class)->constructed (object);
+
         priv = TRACKER_MINER_FILES_GET_PRIVATE (object);
         miner = TRACKER_MINER_PROCESS (object);
 
