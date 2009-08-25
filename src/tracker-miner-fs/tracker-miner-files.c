@@ -34,6 +34,7 @@ typedef struct _TrackerMinerFilesPrivate TrackerMinerFilesPrivate;
 struct _TrackerMinerFilesPrivate {
         TrackerConfig *config;
         TrackerStorage *storage;
+	GVolumeMonitor *volume_monitor;
 };
 
 enum {
@@ -116,15 +117,6 @@ mount_point_added_cb (TrackerStorage *storage,
 }
 
 static void
-mount_point_removed_cb (TrackerStorage *storage,
-                        const gchar    *udi,
-                        const gchar    *mount_point,
-                        gpointer        user_data)
-{
-        /* FIXME: Remove directory from being crawled/monitored */
-}
-
-static void
 initialize_removable_devices (TrackerMinerFiles *miner)
 {
         TrackerMinerFilesPrivate *priv;
@@ -146,6 +138,23 @@ initialize_removable_devices (TrackerMinerFiles *miner)
 #endif
 
 static void
+mount_pre_unmount_cb (GVolumeMonitor    *volume_monitor,
+		      GMount            *mount,
+		      TrackerMinerFiles *miner)
+{
+	GFile *mount_root;
+	gchar *path;
+
+	mount_root = g_mount_get_root (mount);
+	path = g_file_get_path (mount_root);
+
+	tracker_miner_process_remove_directory (TRACKER_MINER_PROCESS (miner), path);
+
+	g_free (path);
+	g_object_unref (mount_root);
+}
+
+static void
 tracker_miner_files_init (TrackerMinerFiles *miner)
 {
         TrackerMinerFilesPrivate *priv;
@@ -157,9 +166,12 @@ tracker_miner_files_init (TrackerMinerFiles *miner)
 
         g_signal_connect (priv->storage, "mount-point-added",
                           G_CALLBACK (mount_point_added_cb), miner);
-        g_signal_connect (priv->storage, "mount-point-removed",
-                          G_CALLBACK (mount_point_removed_cb), miner);
 #endif
+
+	priv->volume_monitor = g_volume_monitor_get ();
+	g_signal_connect (priv->volume_monitor, "mount-pre-unmount",
+			  G_CALLBACK (mount_pre_unmount_cb),
+			  miner);
 }
 
 static void
@@ -174,6 +186,11 @@ tracker_miner_files_finalize (GObject *object)
 #ifdef HAVE_HAL
         g_object_unref (priv->storage);
 #endif
+
+	g_signal_handlers_disconnect_by_func (priv->volume_monitor,
+					      mount_pre_unmount_cb,
+					      object);
+	g_object_unref (priv->volume_monitor);
 
         G_OBJECT_CLASS (tracker_miner_files_parent_class)->finalize (object);
 }
