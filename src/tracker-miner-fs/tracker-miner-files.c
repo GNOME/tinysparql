@@ -253,14 +253,14 @@ tracker_miner_files_constructed (GObject *object)
         }
 
         /* Fill in directories to inspect */
-        dirs = tracker_config_get_monitor_directories (priv->config);
+        dirs = tracker_config_get_index_single_directories (priv->config);
 
         while (dirs) {
                 tracker_miner_process_add_directory (miner, dirs->data, FALSE);
                 dirs = dirs->next;
         }
 
-        dirs = tracker_config_get_monitor_recurse_directories (priv->config);
+        dirs = tracker_config_get_index_recursive_directories (priv->config);
 
         while (dirs) {
                 tracker_miner_process_add_directory (miner, dirs->data, TRUE);
