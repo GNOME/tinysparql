@@ -347,26 +347,6 @@ main (gint argc, gchar *argv[])
         miner_files = tracker_miner_files_new (config);
         miners = g_slist_append (miners, miner_files);
 
-        /* FIXME: Add from config */
-	tracker_miner_process_add_directory (TRACKER_MINER_PROCESS (miner_files), 
-					     g_get_user_special_dir (G_USER_DIRECTORY_PICTURES),
-					     TRUE);
-	tracker_miner_process_add_directory (TRACKER_MINER_PROCESS (miner_files), 
-					     g_get_user_special_dir (G_USER_DIRECTORY_MUSIC),
-					     TRUE);
-	tracker_miner_process_add_directory (TRACKER_MINER_PROCESS (miner_files), 
-					     g_get_user_special_dir (G_USER_DIRECTORY_VIDEOS),
-					     TRUE);
-	tracker_miner_process_add_directory (TRACKER_MINER_PROCESS (miner_files), 
-					     g_get_user_special_dir (G_USER_DIRECTORY_DOWNLOAD),
-					     TRUE);
-	tracker_miner_process_add_directory (TRACKER_MINER_PROCESS (miner_files), 
-					     g_get_user_special_dir (G_USER_DIRECTORY_DOCUMENTS),
-					     TRUE);
-	tracker_miner_process_add_directory (TRACKER_MINER_PROCESS (miner_files), 
-					     g_get_user_special_dir (G_USER_DIRECTORY_DESKTOP),
-					     TRUE);
-
 	g_signal_connect (miner_files, "finished",
 			  G_CALLBACK (miner_finished_cb),
 			  NULL);
