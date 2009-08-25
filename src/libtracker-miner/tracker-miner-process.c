@@ -780,8 +780,17 @@ should_process_file (TrackerMinerProcess *process,
 		return FALSE;
 	}
 
-	/* Check whether file is up-to-date in tracker-store */
-	return should_change_index_for_file (process, file);
+	if (is_dir) {
+		/* We _HAVE_ to check ALL directories because mtime
+		 * updates are not guaranteed on parents on Windows
+		 * AND we on Linux only the immediate parent directory
+		 * mtime is updated, this is not done recursively.
+		 */
+		return TRUE;
+	} else {
+		/* Check whether file is up-to-date in tracker-store */
+		return should_change_index_for_file (process, file);
+	}
 }
 
 static void
