@@ -1332,7 +1332,7 @@ tracker_config_set_ignored_files (TrackerConfig *config,
  */
 
 GSList *
-tracker_config_get_ignore_directory_patterns (TrackerConfig *config)
+tracker_config_get_ignored_directory_patterns (TrackerConfig *config)
 {
 	TrackerConfigPrivate *priv;
 
@@ -1344,7 +1344,7 @@ tracker_config_get_ignore_directory_patterns (TrackerConfig *config)
 }
 
 GSList *
-tracker_config_get_ignore_file_patterns (TrackerConfig *config)
+tracker_config_get_ignored_file_patterns (TrackerConfig *config)
 {
 	TrackerConfigPrivate *priv;
 
