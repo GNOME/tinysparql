@@ -359,7 +359,6 @@ main (gint argc, gchar *argv[])
 	g_message ("Shutdown started");
 
 	g_main_loop_unref (main_loop);
-	g_object_unref (miner_applications);
 	g_object_unref (config);
 
         if (storage) {
