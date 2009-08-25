@@ -280,6 +280,7 @@ tracker_miner_files_check_file (TrackerMinerProcess *miner,
 	gchar *path;
 	gboolean should_process;
 
+	file_info = NULL;
 	should_process = FALSE;
 	path = g_file_get_path (file);
 
@@ -297,7 +298,7 @@ tracker_miner_files_check_file (TrackerMinerProcess *miner,
                                        G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
                                        NULL, NULL);
 
-	if (g_file_info_get_is_hidden (file_info)) {
+	if (file_info && g_file_info_get_is_hidden (file_info)) {
 		/* Ignore hidden files */
 		goto done;
 	}
@@ -307,6 +308,10 @@ tracker_miner_files_check_file (TrackerMinerProcess *miner,
 	should_process = TRUE;
 
 done:
+	if (file_info) {
+		g_object_unref (file_info);
+	}
+
 	g_free (path);
 
 	return should_process;
@@ -320,6 +325,7 @@ tracker_miner_files_check_directory (TrackerMinerProcess  *miner,
 	gchar *path;
 	gboolean should_process;
 
+	file_info = NULL;
 	should_process = FALSE;
 	path = g_file_get_path (file);
 
@@ -349,7 +355,7 @@ tracker_miner_files_check_directory (TrackerMinerProcess  *miner,
                                        G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
                                        NULL, NULL);
 
-	if (g_file_info_get_is_hidden (file_info)) {
+	if (file_info && g_file_info_get_is_hidden (file_info)) {
 		/* Ignore hidden dirs */
 		goto done;
 	}
@@ -360,6 +366,10 @@ tracker_miner_files_check_directory (TrackerMinerProcess  *miner,
 	should_process = TRUE;
 
 done:
+	if (file_info) {
+		g_object_unref (file_info);
+	}
+
 	g_free (path);
 
 	return should_process;
