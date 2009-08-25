@@ -42,30 +42,27 @@ enum {
         PROP_CONFIG
 };
 
-static void tracker_miner_files_finalize     (GObject      *object);
-static void tracker_miner_files_get_property (GObject      *object,
-                                              guint         param_id,
-                                              GValue       *value,
-                                              GParamSpec   *pspec);
-static void tracker_miner_files_set_property (GObject      *object,
-                                              guint         param_id,
-                                              const GValue *value,
-                                              GParamSpec   *pspec);
-static void tracker_miner_files_constructed  (GObject      *object);
-
-static gboolean tracker_miner_files_check_file      (TrackerMinerProcess  *miner,
-                                                     GFile                *file);
-static gboolean tracker_miner_files_check_directory (TrackerMinerProcess  *miner,
-                                                     GFile                *file);
-static gboolean tracker_miner_files_process_file    (TrackerMinerProcess  *miner,
-                                                     GFile                *file,
-                                                     TrackerSparqlBuilder *sparql);
-static gboolean tracker_miner_files_monitor_directory (TrackerMinerProcess  *miner,
-                                                       GFile                *file);
-
+static void     miner_files_set_property      (GObject              *object,
+					       guint                 param_id,
+					       const GValue         *value,
+					       GParamSpec           *pspec);
+static void     miner_files_get_property      (GObject              *object,
+					       guint                 param_id,
+					       GValue               *value,
+					       GParamSpec           *pspec);
+static void     miner_files_finalize          (GObject              *object);
+static void     miner_files_constructed       (GObject              *object);
+static gboolean miner_files_check_file        (TrackerMinerProcess  *miner,
+					       GFile                *file);
+static gboolean miner_files_check_directory   (TrackerMinerProcess  *miner,
+					       GFile                *file);
+static gboolean miner_files_process_file      (TrackerMinerProcess  *miner,
+					       GFile                *file,
+					       TrackerSparqlBuilder *sparql);
+static gboolean miner_files_monitor_directory (TrackerMinerProcess  *miner,
+					       GFile                *file);
 
 G_DEFINE_TYPE (TrackerMinerFiles, tracker_miner_files, TRACKER_TYPE_MINER_PROCESS)
-
 
 static void
 tracker_miner_files_class_init (TrackerMinerFilesClass *klass)
@@ -73,15 +70,15 @@ tracker_miner_files_class_init (TrackerMinerFilesClass *klass)
         GObjectClass *object_class = G_OBJECT_CLASS (klass);
         TrackerMinerProcessClass *miner_process_class = TRACKER_MINER_PROCESS_CLASS (klass);
 
-        object_class->finalize = tracker_miner_files_finalize;
-        object_class->get_property = tracker_miner_files_get_property;
-        object_class->set_property = tracker_miner_files_set_property;
-        object_class->constructed = tracker_miner_files_constructed;
+        object_class->finalize = miner_files_finalize;
+        object_class->get_property = miner_files_get_property;
+        object_class->set_property = miner_files_set_property;
+        object_class->constructed = miner_files_constructed;
 
-        miner_process_class->check_file = tracker_miner_files_check_file;
-	miner_process_class->check_directory = tracker_miner_files_check_directory;
-	miner_process_class->monitor_directory = tracker_miner_files_monitor_directory;
-        miner_process_class->process_file = tracker_miner_files_process_file;
+        miner_process_class->check_file = miner_files_check_file;
+	miner_process_class->check_directory = miner_files_check_directory;
+	miner_process_class->monitor_directory = miner_files_monitor_directory;
+        miner_process_class->process_file = miner_files_process_file;
 
        	g_object_class_install_property (object_class,
 					 PROP_CONFIG,
@@ -175,7 +172,47 @@ tracker_miner_files_init (TrackerMinerFiles *miner)
 }
 
 static void
-tracker_miner_files_finalize (GObject *object)
+miner_files_set_property (GObject      *object,
+			  guint         prop_id,
+			  const GValue *value,
+			  GParamSpec   *pspec)
+{
+        TrackerMinerFilesPrivate *priv;
+
+        priv = TRACKER_MINER_FILES_GET_PRIVATE (object);
+
+        switch (prop_id) {
+        case PROP_CONFIG:
+                priv->config = g_value_dup_object (value);
+                break;
+        default:
+                G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+		break;
+        }
+}
+
+static void
+miner_files_get_property (GObject    *object,
+			  guint       prop_id,
+			  GValue     *value,
+			  GParamSpec *pspec)
+{
+        TrackerMinerFilesPrivate *priv;
+
+        priv = TRACKER_MINER_FILES_GET_PRIVATE (object);
+
+        switch (prop_id) {
+        case PROP_CONFIG:
+                g_value_set_object (value, priv->config);
+                break;
+        default:
+                G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+		break;
+        }
+}
+
+static void
+miner_files_finalize (GObject *object)
 {
         TrackerMinerFilesPrivate *priv;
 
@@ -196,47 +233,7 @@ tracker_miner_files_finalize (GObject *object)
 }
 
 static void
-tracker_miner_files_get_property (GObject      *object,
-                                  guint         prop_id,
-                                  GValue       *value,
-                                  GParamSpec   *pspec)
-{
-        TrackerMinerFilesPrivate *priv;
-
-        priv = TRACKER_MINER_FILES_GET_PRIVATE (object);
-
-        switch (prop_id) {
-        case PROP_CONFIG:
-                g_value_set_object (value, priv->config);
-                break;
-        default:
-                G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
-		break;
-        }
-}
-
-static void
-tracker_miner_files_set_property (GObject      *object,
-                                  guint         prop_id,
-                                  const GValue *value,
-                                  GParamSpec   *pspec)
-{
-        TrackerMinerFilesPrivate *priv;
-
-        priv = TRACKER_MINER_FILES_GET_PRIVATE (object);
-
-        switch (prop_id) {
-        case PROP_CONFIG:
-                priv->config = g_value_dup_object (value);
-                break;
-        default:
-                G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
-		break;
-        }
-}
-
-static void
-tracker_miner_files_constructed (GObject *object)
+miner_files_constructed (GObject *object)
 {
         TrackerMinerFilesPrivate *priv;
         TrackerMinerProcess *miner;
@@ -273,8 +270,8 @@ tracker_miner_files_constructed (GObject *object)
 }
 
 static gboolean
-tracker_miner_files_check_file (TrackerMinerProcess *miner,
-                                GFile               *file)
+miner_files_check_file (TrackerMinerProcess *miner,
+			GFile               *file)
 {
 	GFileInfo *file_info;
 	gchar *path;
@@ -318,8 +315,8 @@ done:
 }
 
 static gboolean
-tracker_miner_files_check_directory (TrackerMinerProcess  *miner,
-                                     GFile                *file)
+miner_files_check_directory (TrackerMinerProcess *miner,
+			     GFile               *file)
 {
 	GFileInfo *file_info;
 	gchar *path;
@@ -376,8 +373,8 @@ done:
 }
 
 static gboolean
-tracker_miner_files_monitor_directory (TrackerMinerProcess  *miner,
-                                       GFile                *file)
+miner_files_monitor_directory (TrackerMinerProcess *miner,
+			       GFile               *file)
 {
         TrackerMinerFilesPrivate *priv;
 	GFileInfo *file_info;
@@ -441,9 +438,9 @@ done:
 }
 
 static void
-item_add_to_datasource (TrackerMinerFiles    *miner,
-                        GFile                *file,
-                        TrackerSparqlBuilder *sparql)
+miner_files_add_to_datasource (TrackerMinerFiles    *miner,
+			       GFile                *file,
+			       TrackerSparqlBuilder *sparql)
 {
         TrackerMinerFilesPrivate *priv;
 	const gchar *removable_device_udi;
@@ -481,9 +478,9 @@ item_add_to_datasource (TrackerMinerFiles    *miner,
 }
 
 static gboolean
-tracker_miner_files_process_file (TrackerMinerProcess  *miner,
-                                  GFile                *file,
-                                  TrackerSparqlBuilder *sparql)
+miner_files_process_file (TrackerMinerProcess  *miner,
+			  GFile                *file,
+			  TrackerSparqlBuilder *sparql)
 {
 	gchar *uri, *mime_type;
 	GFileInfo *file_info;
@@ -550,7 +547,7 @@ tracker_miner_files_process_file (TrackerMinerProcess  *miner,
         tracker_sparql_builder_predicate (sparql, "nfo:fileLastAccessed");
 	tracker_sparql_builder_object_date (sparql, (time_t *) &time_);
 
-        item_add_to_datasource (TRACKER_MINER_FILES (miner), file, sparql);
+        miner_files_add_to_datasource (TRACKER_MINER_FILES (miner), file, sparql);
 
         /* FIXME: Missing embedded data and text */
 

@@ -103,6 +103,9 @@ static void           miner_started                (TrackerMiner        *miner);
 static DirectoryData *directory_data_new           (const gchar         *path,
 						    gboolean             recurse);
 static void           directory_data_free          (DirectoryData       *dd);
+static ItemMovedData *item_moved_data_new          (GFile               *file,
+						    GFile               *source_file);
+static void           item_moved_data_free         (ItemMovedData       *data);
 static void           monitor_item_created_cb      (TrackerMonitor      *monitor,
 						    GFile               *file,
 						    gboolean             is_directory,
@@ -134,7 +137,6 @@ static void           crawler_finished_cb          (TrackerCrawler      *crawler
 						    guint                files_found,
 						    guint                files_ignored,
 						    gpointer             user_data);
-
 static void           process_directories_start    (TrackerMinerProcess *process);
 static void           process_directories_stop     (TrackerMinerProcess *process);
 
@@ -261,27 +263,6 @@ tracker_miner_process_init (TrackerMinerProcess *object)
 	g_signal_connect (priv->monitor, "item-moved",
 			  G_CALLBACK (monitor_item_moved_cb),
 			  object);
-}
-
-static ItemMovedData *
-item_moved_data_new (GFile *file,
-		     GFile *source_file)
-{
-	ItemMovedData *data;
-
-	data = g_slice_new (ItemMovedData);
-	data->file = g_object_ref (file);
-	data->source_file = g_object_ref (source_file);
-
-	return data;
-}
-
-static void
-item_moved_data_free (ItemMovedData *data)
-{
-	g_object_unref (data->file);
-	g_object_unref (data->source_file);
-	g_slice_free (ItemMovedData, data);
 }
 
 static void
@@ -414,6 +395,27 @@ directory_data_free (DirectoryData *dd)
 
 	g_free (dd->path);
 	g_slice_free (DirectoryData, dd);
+}
+
+static ItemMovedData *
+item_moved_data_new (GFile *file,
+		     GFile *source_file)
+{
+	ItemMovedData *data;
+
+	data = g_slice_new (ItemMovedData);
+	data->file = g_object_ref (file);
+	data->source_file = g_object_ref (source_file);
+
+	return data;
+}
+
+static void
+item_moved_data_free (ItemMovedData *data)
+{
+	g_object_unref (data->file);
+	g_object_unref (data->source_file);
+	g_slice_free (ItemMovedData, data);
 }
 
 static void
