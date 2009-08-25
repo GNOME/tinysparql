@@ -31,6 +31,8 @@
 
 #include <libtracker/tracker.h>
 
+#include <libtracker-common/tracker-type-utils.h>
+
 #include <libtracker-miner/tracker-miner.h>
 #include <libtracker-miner/tracker-miner-discover.h>
 
@@ -47,9 +49,9 @@ static GMainLoop *main_loop;
 
 static gboolean   list_miners_running;
 static gboolean   list_miners_available;
-static gchar     *mname;
-static gchar     *mpause;
-static gint       mresume = -1;
+static gchar     *miner_name;
+static gchar     *pause_reason;
+static gint       resume_cookie = -1;
 static gboolean   follow;
 static gboolean   detailed;
 
@@ -70,15 +72,15 @@ static GOptionEntry entries[] = {
 	  N_("List all miners installed"),
 	  NULL 
 	},
-	{ "miner", 'm', 0, G_OPTION_ARG_STRING, &mname,
+	{ "miner", 'm', 0, G_OPTION_ARG_STRING, &miner_name,
 	  N_("Miner to use with other commands (you can use suffixes, e.g. FS or Applications)"),
 	  N_("MINER")
 	},
-	{ "pause", 'p', 0, G_OPTION_ARG_STRING, &mpause,
+	{ "pause", 'p', 0, G_OPTION_ARG_STRING, &pause_reason,
 	  N_("Pause a miner (you must use this with --miner)"),
 	  N_("REASON")
 	},
-	{ "resume", 'r', 0, G_OPTION_ARG_INT, &mresume,
+	{ "resume", 'r', 0, G_OPTION_ARG_INT, &resume_cookie,
 	  N_("Resume a miner (you must use this with --miner)"),
 	  N_("COOKIE")
 	},
@@ -229,9 +231,13 @@ miner_pause (const gchar *miner,
 						  reason,
 						  &cookie, 
 						  &error)) {
+		str = g_strdup_printf (_("Could not pause miner: %s"),
+				       name);
 		g_printerr ("  %s. %s\n", 
-			    _("Could not pause miner"),
+			    str,
 			    error ? error->message : _("No error given"));
+
+		g_free (str);
 		g_clear_error (&error);
 		g_free (name);
 		
@@ -272,9 +278,13 @@ miner_resume (const gchar *miner,
 	if (!org_freedesktop_Tracker_Miner_resume (proxy, 
 						   cookie, 
 						   &error)) {
+		str = g_strdup_printf (_("Could not resume miner: %s"),
+				       name);
 		g_printerr ("  %s. %s\n", 
-			    _("Could not resume miner"),
+			    str,
 			    error ? error->message : _("No error given"));
+
+		g_free (str);
 		g_clear_error (&error);
 		g_free (name);
 		
@@ -287,12 +297,76 @@ miner_resume (const gchar *miner,
 	return EXIT_SUCCESS;
 }
 
+static gboolean
+miner_get_details (const gchar  *miner,
+		   gchar       **status,
+		   gdouble      *progress)
+{
+	GError *error = NULL;
+	DBusGProxy *proxy;
+	gchar *name;
+
+	*status = NULL;
+	*progress = 0.0;
+	
+	name = get_dbus_name (miner);
+	
+	proxy = get_dbus_proxy (name);
+	if (!proxy) {
+		g_free (name);
+		return FALSE;
+	}
+	
+	if (!org_freedesktop_Tracker_Miner_get_status (proxy, 
+						       status,
+						       &error)) {
+		gchar *str;
+
+		str = g_strdup_printf (_("Could not get status from miner: %s"),
+				       name);
+		g_printerr ("  %s. %s\n", 
+			    str,
+			    error ? error->message : _("No error given"));
+
+		g_free (str);
+		g_clear_error (&error);
+		g_free (name);
+		
+		return FALSE;
+	}
+
+	if (!org_freedesktop_Tracker_Miner_get_progress (proxy, 
+							 progress,
+							 &error)) {
+		gchar *str;
+
+		str = g_strdup_printf (_("Could not get progress from miner: %s"),
+				       name);
+		g_printerr ("  %s. %s\n", 
+			    str,
+			    error ? error->message : _("No error given"));
+
+		g_free (str);
+		g_clear_error (&error);
+		g_free (name);
+		
+		return FALSE;
+	}
+	
+	g_free (name);
+	
+	return TRUE;
+}
+
 gint
 main (gint argc, gchar *argv[])
 {
 	GOptionContext *context;
 	DBusGProxy *proxy;
 	TrackerClient *client;
+	GSList *miners_available;
+	GSList *miners_running;
+	GSList *l;
 
 	setlocale (LC_ALL, "");
 
@@ -304,7 +378,7 @@ main (gint argc, gchar *argv[])
 	g_option_context_add_main_entries (context, entries, NULL);
 	g_option_context_parse (context, &argc, &argv, NULL);
 
-	if (mpause && mresume != -1) {
+	if (pause_reason && resume_cookie != -1) {
 		gchar *help;
 
 		g_printerr ("%s\n\n",
@@ -318,7 +392,7 @@ main (gint argc, gchar *argv[])
 		return EXIT_FAILURE;
 	}
 
-	if ((mpause || mresume != -1) && !mname) {
+	if ((pause_reason || resume_cookie != -1) && !miner_name) {
 		gchar *help;
 
 		g_printerr ("%s\n\n",
@@ -349,49 +423,81 @@ main (gint argc, gchar *argv[])
 		return EXIT_FAILURE;
 	}
 
+	miners_available = tracker_miner_discover_get_available ();
+	miners_running = tracker_miner_discover_get_running ();
+
 	if (list_miners_available) {
-		GSList *list, *l;
 		gchar *str;
 		
-		list = tracker_miner_discover_get_available ();
-
-		str = g_strdup_printf (_("Found %d miners installed"), g_slist_length (list));
-		g_print ("%s%s\n", str, g_slist_length (list) > 0 ? ":" : "");
+		str = g_strdup_printf (_("Found %d miners installed"), g_slist_length (miners_available));
+		g_print ("%s%s\n", str, g_slist_length (miners_available) > 0 ? ":" : "");
 		g_free (str);
 
-		for (l = list; l; l = l->next) {
+		for (l = miners_available; l; l = l->next) {
 			g_print ("  %s\n", (gchar*) l->data);
-			g_free (l->data);
 		}
- 		
-		g_slist_free (list);
 	}
 
 	if (list_miners_running) {
-		GSList *list, *l;
 		gchar *str;
 		
-		list = tracker_miner_discover_get_running ();
-
-		str = g_strdup_printf (_("Found %d miners running"), g_slist_length (list));
-		g_print ("%s%s\n", str, g_slist_length (list) > 0 ? ":" : "");
+		str = g_strdup_printf (_("Found %d miners running"), g_slist_length (miners_running));
+		g_print ("%s%s\n", str, g_slist_length (miners_running) > 0 ? ":" : "");
 		g_free (str);
 
-		for (l = list; l; l = l->next) {
+		for (l = miners_running; l; l = l->next) {
 			g_print ("  %s\n", (gchar*) l->data);
-			g_free (l->data);
 		}
- 		
-		g_slist_free (list);
-	}
-	
-	if (mpause) {
-		return miner_pause (mname, mpause);
 	}
 
-	if (mresume != -1) {
-		return miner_resume (mname, mresume);
+	if (pause_reason) {
+		return miner_pause (miner_name, pause_reason);
 	}
+
+	if (resume_cookie != -1) {
+		return miner_resume (miner_name, resume_cookie);
+	}
+
+	if (list_miners_available || list_miners_running) {
+		/* Don't list miners be request AND then anyway later */
+		g_slist_foreach (miners_available, (GFunc) g_free, NULL);
+		g_slist_free (miners_available);
+
+		return EXIT_SUCCESS;
+	}
+
+	/* Show status of all miners */
+	g_print ("%s: (%s)\n", 
+		 _("Miners"),
+		 _("The 'x' indicates the miner is running"));
+	
+	for (l = miners_available; l; l = l->next) {
+		gboolean is_running;
+
+		is_running = tracker_string_in_gslist (l->data, miners_running);
+
+		if (is_running) {
+			gchar *status = NULL;
+			gdouble progress;
+
+			if (!miner_get_details (l->data, &status, &progress)) {
+				continue;
+			}
+
+			g_print ("  [x] %s - status: %s, progress: %.0f%%\n", 
+				 (gchar*) l->data,
+				 status ? status : "Unknown",
+				 progress * 100);
+
+			g_free (status);
+		} else {
+			g_print ("  [ ] %s\n", 
+				 (gchar*) l->data);
+		}
+	}
+
+	g_slist_foreach (miners_available, (GFunc) g_free, NULL);
+	g_slist_free (miners_available);
 
 	if (!follow) {
 		GError *error = NULL;
