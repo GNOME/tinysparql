@@ -43,6 +43,8 @@ struct TrackerCrawlerPrivate {
 	GQueue	       *directories;
 	GQueue	       *files;
 
+	GCancellable   *cancellable;
+
 	/* Idle handler for processing found data */
 	guint		idle_id;
 
@@ -154,6 +156,7 @@ tracker_crawler_init (TrackerCrawler *object)
 
 	priv->directories = g_queue_new ();
 	priv->files = g_queue_new ();
+	priv->cancellable = g_cancellable_new ();
 }
 
 static void
@@ -170,6 +173,8 @@ crawler_finalize (GObject *object)
 	if (priv->idle_id) {
 		g_source_remove (priv->idle_id);
 	}
+
+	g_object_unref (priv->cancellable);
 
 	g_queue_foreach (priv->files, (GFunc) g_object_unref, NULL);
 	g_queue_free (priv->files);
@@ -445,19 +450,21 @@ file_enumerate_next_cb (GObject      *object,
 	GFileInfo *info;
 	GList *files, *l;
 	GError *error = NULL;
+	gboolean cancelled;
 
 	enumerator = G_FILE_ENUMERATOR (object);
 
 	ed = (EnumeratorData*) user_data;
 	crawler = ed->crawler;
 	parent = ed->parent;
+	cancelled = g_cancellable_is_cancelled (crawler->private->cancellable);
 
 	files = g_file_enumerator_next_files_finish (enumerator,
 						     result,
 						     &error);
 
 	if (error || !files || !crawler->private->is_running) {
-		if (error) {
+		if (error && !cancelled) {
 			g_critical ("Could not crawl through directory: %s", error->message);
 			g_error_free (error);
 		}
@@ -470,7 +477,10 @@ file_enumerate_next_cb (GObject      *object,
 			g_list_free (files);
 		}
 
-		enumerator_data_process (ed);
+		if (!cancelled) {
+			enumerator_data_process (ed);
+		}
+
 		enumerator_data_free (ed);
 		g_file_enumerator_close_async (enumerator,
 					       G_PRIORITY_DEFAULT,
@@ -511,7 +521,7 @@ file_enumerate_next (GFileEnumerator *enumerator,
 	g_file_enumerator_next_files_async (enumerator,
 					    FILES_GROUP_SIZE,
 					    G_PRIORITY_LOW,
-					    NULL,
+					    ed->crawler->private->cancellable,
 					    file_enumerate_next_cb,
 					    ed);
 }
@@ -526,14 +536,16 @@ file_enumerate_children_cb (GObject	 *file,
 	GFileEnumerator *enumerator;
 	GFile *parent;
 	GError *error = NULL;
+	gboolean cancelled;
 
 	parent = G_FILE (file);
 	ed = (EnumeratorData*) user_data;
 	crawler = ed->crawler;
+	cancelled = g_cancellable_is_cancelled (crawler->private->cancellable);
 	enumerator = g_file_enumerate_children_finish (parent, result, &error);
 
 	if (!enumerator) {
-		if (error) {
+		if (error && !cancelled) {
 			gchar *path;
 
 			path = g_file_get_path (parent);
@@ -567,7 +579,7 @@ file_enumerate_children (TrackerCrawler *crawler,
 					 FILE_ATTRIBUTES,
 					 G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
 					 G_PRIORITY_DEFAULT,
-					 NULL,
+					 crawler->private->cancellable,
 					 file_enumerate_children_cb,
 					 ed);
 }
@@ -587,6 +599,10 @@ tracker_crawler_start (TrackerCrawler *crawler,
 
 	priv->was_started = TRUE;
 	priv->recurse = recurse;
+
+	if (g_cancellable_is_cancelled (priv->cancellable)) {
+		g_cancellable_reset (priv->cancellable);
+	}
 
 	file = g_file_new_for_path (path);
 
@@ -645,6 +661,7 @@ tracker_crawler_stop (TrackerCrawler *crawler)
 	priv = crawler->private;
 
 	priv->is_running = FALSE;
+	g_cancellable_cancel (priv->cancellable);
 
 	if (priv->idle_id) {
 		g_source_remove (priv->idle_id);
