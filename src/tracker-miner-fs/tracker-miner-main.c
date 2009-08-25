@@ -66,6 +66,8 @@
 	"  http://www.gnu.org/licenses/gpl.txt\n"
 
 static GMainLoop    *main_loop;
+static GSList       *miners;
+static GSList       *current_miner;
 
 static gboolean      version;
 static gint	     verbosity = -1;
@@ -160,8 +162,6 @@ initialize_signal_handler (void)
 #endif /* G_OS_WIN32 */
 }
 
-
-
 static void
 initialize_priority (void)
 {
@@ -186,18 +186,38 @@ initialize_priority (void)
 }
 
 static void
-miner_applications_finished_cb (TrackerIndexer *indexer,
-                                gdouble	        seconds_elapsed,
-                                guint           total_directories_found,
-                                guint           total_directories_ignored,
-                                guint           total_files_found,
-                                guint           total_files_ignored,
-                                gpointer	user_data)
+miner_handle_next (void)
 {
-	g_message ("Finished applications, seconds:%f, total directories:%d, total files:%d",
+        if (!current_miner) {
+                current_miner = miners;
+        } else {
+                current_miner = current_miner->next;
+        }
+
+        if (!current_miner) {
+                return;
+        }
+
+        g_message ("Starting next miner...");
+
+        tracker_miner_start (current_miner->data);
+}
+
+static void
+miner_finished_cb (TrackerMinerProcess *miner_process,
+                   gdouble              seconds_elapsed,
+                   guint                total_directories_found,
+                   guint                total_directories_ignored,
+                   guint                total_files_found,
+                   guint                total_files_ignored,
+                   gpointer             user_data)
+{
+	g_message ("Finished mining in seconds:%f, total directories:%d, total files:%d",
                    seconds_elapsed,
                    total_directories_found + total_directories_ignored,
                    total_files_found + total_files_ignored);
+
+        miner_handle_next ();
 }
 
 static void
@@ -312,24 +332,46 @@ main (gint argc, gchar *argv[])
 
         /* Create miner for applications */
         miner_applications = tracker_miner_applications_new ();
+        miners = g_slist_append (miners, miner_applications);
 
+        /* FIXME: use proper definition for applications dir */
         tracker_miner_process_add_directory (TRACKER_MINER_PROCESS (miner_applications),
                                              "/usr/share/applications/",
 					     FALSE);
 
-	/* Create the indexer and run the main loop */
 	g_signal_connect (miner_applications, "finished",
-			  G_CALLBACK (miner_applications_finished_cb),
+			  G_CALLBACK (miner_finished_cb),
 			  NULL);
-
-        tracker_miner_start (miner_applications);
 
         /* Create miner for files */
         miner_files = tracker_miner_files_new (config);
+        miners = g_slist_append (miners, miner_files);
 
-        tracker_miner_start (miner_files);
+        /* FIXME: Add from config */
+	tracker_miner_process_add_directory (TRACKER_MINER_PROCESS (miner_files), 
+					     g_get_user_special_dir (G_USER_DIRECTORY_PICTURES),
+					     TRUE);
+	tracker_miner_process_add_directory (TRACKER_MINER_PROCESS (miner_files), 
+					     g_get_user_special_dir (G_USER_DIRECTORY_MUSIC),
+					     TRUE);
+	tracker_miner_process_add_directory (TRACKER_MINER_PROCESS (miner_files), 
+					     g_get_user_special_dir (G_USER_DIRECTORY_VIDEOS),
+					     TRUE);
+	tracker_miner_process_add_directory (TRACKER_MINER_PROCESS (miner_files), 
+					     g_get_user_special_dir (G_USER_DIRECTORY_DOWNLOAD),
+					     TRUE);
+	tracker_miner_process_add_directory (TRACKER_MINER_PROCESS (miner_files), 
+					     g_get_user_special_dir (G_USER_DIRECTORY_DOCUMENTS),
+					     TRUE);
+	tracker_miner_process_add_directory (TRACKER_MINER_PROCESS (miner_files), 
+					     g_get_user_special_dir (G_USER_DIRECTORY_DESKTOP),
+					     TRUE);
 
-	g_message ("Starting...");
+	g_signal_connect (miner_files, "finished",
+			  G_CALLBACK (miner_finished_cb),
+			  NULL);
+
+        miner_handle_next ();
 
 	main_loop = g_main_loop_new (NULL, FALSE);
 	g_main_loop_run (main_loop);
@@ -344,6 +386,9 @@ main (gint argc, gchar *argv[])
                 g_object_unref (storage);
         }
 
+        g_slist_foreach (miners, (GFunc) g_object_unref, NULL);
+        g_slist_free (miners);
+        
 	tracker_log_shutdown ();
 
 	g_print ("\nOK\n\n");
