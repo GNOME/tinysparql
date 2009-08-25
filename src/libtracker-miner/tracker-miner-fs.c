@@ -1121,7 +1121,6 @@ print_stats (TrackerMinerFS *fs)
 	 */
 	if (!fs->private->shown_totals) {
 		fs->private->shown_totals = TRUE;
-		g_timer_stop (fs->private->timer);
 
 		g_message ("--------------------------------------------------");
 		g_message ("Total directories : %d (%d ignored)",
@@ -1194,8 +1193,10 @@ process_directories_start (TrackerMinerFS *fs)
 	fs->private->total_directories_ignored = 0;
 	fs->private->total_files_found = 0;
 	fs->private->total_files_ignored = 0;
+
 	fs->private->directories_found = 0;
 	fs->private->directories_ignored = 0;
+
 	fs->private->files_found = 0;
 	fs->private->files_ignored = 0;
 
