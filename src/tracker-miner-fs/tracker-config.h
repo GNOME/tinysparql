@@ -57,8 +57,8 @@ gint           tracker_config_get_scan_timeout                     (TrackerConfi
 gint           tracker_config_get_cache_timeout                    (TrackerConfig *config);
 gint           tracker_config_get_throttle                         (TrackerConfig *config);
 gboolean       tracker_config_get_enable_thumbnails                (TrackerConfig *config);
-gboolean       tracker_config_get_disable_indexing_on_battery      (TrackerConfig *config);
-gboolean       tracker_config_get_disable_indexing_on_battery_init (TrackerConfig *config);
+gboolean       tracker_config_get_index_on_battery                 (TrackerConfig *config);
+gboolean       tracker_config_get_index_on_battery_first_time      (TrackerConfig *config);
 gint           tracker_config_get_low_disk_space_limit             (TrackerConfig *config);
 GSList *       tracker_config_get_index_recursive_directories      (TrackerConfig *config);
 GSList *       tracker_config_get_index_single_directories         (TrackerConfig *config);
@@ -82,9 +82,9 @@ void           tracker_config_set_throttle                         (TrackerConfi
 								    gint           value);
 void           tracker_config_set_enable_thumbnails                (TrackerConfig *config,
 								    gboolean       value);
-void           tracker_config_set_disable_indexing_on_battery      (TrackerConfig *config,
+void           tracker_config_set_index_on_battery                 (TrackerConfig *config,
 								    gboolean       value);
-void           tracker_config_set_disable_indexing_on_battery_init (TrackerConfig *config,
+void           tracker_config_set_index_on_battery_first_time      (TrackerConfig *config,
 								    gboolean       value);
 void           tracker_config_set_low_disk_space_limit             (TrackerConfig *config,
 								    gint           value);

@@ -47,8 +47,8 @@
 #define DEFAULT_SCAN_TIMEOUT			 0	  /* 0->1000 */
 #define DEFAULT_CACHE_TIMEOUT			 60	  /* 0->1000 */
 #define DEFAULT_ENABLE_THUMBNAILS		 TRUE
-#define DEFAULT_DISABLE_INDEXING_ON_BATTERY	 TRUE
-#define DEFAULT_DISABLE_INDEXING_ON_BATTERY_INIT FALSE
+#define DEFAULT_INDEX_ON_BATTERY                 FALSE
+#define DEFAULT_INDEX_ON_BATTERY_FIRST_TIME      TRUE
 #define DEFAULT_INDEX_MOUNTED_DIRECTORIES	 TRUE
 #define DEFAULT_INDEX_REMOVABLE_DEVICES		 TRUE
 #define DEFAULT_LOW_DISK_SPACE_LIMIT		 1	  /* 0->100 / -1 */
@@ -66,8 +66,8 @@ typedef struct {
 	/* Indexing */
 	gint	  throttle;
 	gboolean  enable_thumbnails;
-	gboolean  disable_indexing_on_battery;
-	gboolean  disable_indexing_on_battery_init;
+	gboolean  index_on_battery;
+	gboolean  index_on_battery_first_time;
 	gint	  low_disk_space_limit;
 	GSList   *index_recursive_directories;
 	GSList	 *index_single_directories;
@@ -118,8 +118,8 @@ enum {
 	/* Indexing */
 	PROP_THROTTLE,
 	PROP_ENABLE_THUMBNAILS,
-	PROP_DISABLE_INDEXING_ON_BATTERY,
-	PROP_DISABLE_INDEXING_ON_BATTERY_INIT,
+	PROP_INDEX_ON_BATTERY,
+	PROP_INDEX_ON_BATTERY_FIRST_TIME,
 	PROP_LOW_DISK_SPACE_LIMIT,
 	PROP_INDEX_RECURSIVE_DIRECTORIES,
 	PROP_INDEX_SINGLE_DIRECTORIES,
@@ -141,8 +141,8 @@ static ObjectToKeyFile conversions[] = {
 	/* Indexing */
 	{ G_TYPE_INT,     "throttle",                         GROUP_INDEXING, "Throttle"                  },
 	{ G_TYPE_BOOLEAN, "enable-thumbnails",                GROUP_INDEXING, "EnableThumbnails"          },
-	{ G_TYPE_BOOLEAN, "disable-indexing-on-battery",      GROUP_INDEXING, "BatteryIndex"              },
-	{ G_TYPE_BOOLEAN, "disable-indexing-on-battery-init", GROUP_INDEXING, "BatteryIndexInitial"       },
+	{ G_TYPE_BOOLEAN, "index-on-battery",                 GROUP_INDEXING, "IndexOnBattery"            },
+	{ G_TYPE_BOOLEAN, "index-on-battery-first-time",      GROUP_INDEXING, "IndexOnBatteryFirstTime"   },
 	{ G_TYPE_INT,     "low-disk-space-limit",             GROUP_INDEXING, "LowDiskSpaceLimit"         },
 	{ G_TYPE_POINTER, "index-recursive-directories",      GROUP_INDEXING, "IndexRecursiveDirectories" },
 	{ G_TYPE_POINTER, "index-single-directories",         GROUP_INDEXING, "IndexSingleDirectories"    },
@@ -231,18 +231,18 @@ tracker_config_class_init (TrackerConfigClass *klass)
 							       G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
 	;
 	g_object_class_install_property (object_class,
-					 PROP_DISABLE_INDEXING_ON_BATTERY,
-					 g_param_spec_boolean ("disable-indexing-on-battery",
-							       "Disable indexing on battery",
-							       " Set to true to disable indexing when running on battery",
-							       DEFAULT_DISABLE_INDEXING_ON_BATTERY,
+					 PROP_INDEX_ON_BATTERY,
+					 g_param_spec_boolean ("index-on-battery",
+							       "Index on battery",
+							       " Set to true to index while running on battery",
+							       DEFAULT_INDEX_ON_BATTERY,
 							       G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
 	g_object_class_install_property (object_class,
-					 PROP_DISABLE_INDEXING_ON_BATTERY_INIT,
-					 g_param_spec_boolean ("disable-indexing-on-battery-init",
-							       "Disable indexing on battery",
-							       " Set to true to disable initial indexing when running on battery",
-							       DEFAULT_DISABLE_INDEXING_ON_BATTERY_INIT,
+					 PROP_INDEX_ON_BATTERY_FIRST_TIME,
+					 g_param_spec_boolean ("index-on-battery-first-time",
+							       "Index on battery first time",
+							       " Set to true to index while running on battery for the first time only",
+							       DEFAULT_INDEX_ON_BATTERY_FIRST_TIME,
 							       G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
 	g_object_class_install_property (object_class,
 					 PROP_LOW_DISK_SPACE_LIMIT,
@@ -348,13 +348,13 @@ config_set_property (GObject	  *object,
 		tracker_config_set_enable_thumbnails (TRACKER_CONFIG (object),
 						      g_value_get_boolean (value));
 		break;
-	case PROP_DISABLE_INDEXING_ON_BATTERY:
-		tracker_config_set_disable_indexing_on_battery (TRACKER_CONFIG (object),
-								g_value_get_boolean (value));
+	case PROP_INDEX_ON_BATTERY:
+		tracker_config_set_index_on_battery (TRACKER_CONFIG (object),
+						     g_value_get_boolean (value));
 		break;
-	case PROP_DISABLE_INDEXING_ON_BATTERY_INIT:
-		tracker_config_set_disable_indexing_on_battery_init (TRACKER_CONFIG (object),
-								     g_value_get_boolean (value));
+	case PROP_INDEX_ON_BATTERY_FIRST_TIME:
+		tracker_config_set_index_on_battery_first_time (TRACKER_CONFIG (object),
+								g_value_get_boolean (value));
 		break;
 	case PROP_LOW_DISK_SPACE_LIMIT:
 		tracker_config_set_low_disk_space_limit (TRACKER_CONFIG (object),
@@ -432,11 +432,11 @@ config_get_property (GObject	*object,
 	case PROP_ENABLE_THUMBNAILS:
 		g_value_set_boolean (value, priv->enable_thumbnails);
 		break;
-	case PROP_DISABLE_INDEXING_ON_BATTERY:
-		g_value_set_boolean (value, priv->disable_indexing_on_battery);
+	case PROP_INDEX_ON_BATTERY:
+		g_value_set_boolean (value, priv->index_on_battery);
 		break;
-	case PROP_DISABLE_INDEXING_ON_BATTERY_INIT:
-		g_value_set_boolean (value, priv->disable_indexing_on_battery_init);
+	case PROP_INDEX_ON_BATTERY_FIRST_TIME:
+		g_value_set_boolean (value, priv->index_on_battery_first_time);
 		break;
 	case PROP_LOW_DISK_SPACE_LIMIT:
 		g_value_set_int (value, priv->low_disk_space_limit);
@@ -885,27 +885,27 @@ tracker_config_get_enable_thumbnails (TrackerConfig *config)
 }
 
 gboolean
-tracker_config_get_disable_indexing_on_battery (TrackerConfig *config)
+tracker_config_get_index_on_battery (TrackerConfig *config)
 {
 	TrackerConfigPrivate *priv;
 
-	g_return_val_if_fail (TRACKER_IS_CONFIG (config), DEFAULT_DISABLE_INDEXING_ON_BATTERY);
+	g_return_val_if_fail (TRACKER_IS_CONFIG (config), DEFAULT_INDEX_ON_BATTERY);
 
 	priv = TRACKER_CONFIG_GET_PRIVATE (config);
 
-	return priv->disable_indexing_on_battery;
+	return priv->index_on_battery;
 }
 
 gboolean
-tracker_config_get_disable_indexing_on_battery_init (TrackerConfig *config)
+tracker_config_get_index_on_battery_first_time (TrackerConfig *config)
 {
 	TrackerConfigPrivate *priv;
 
-	g_return_val_if_fail (TRACKER_IS_CONFIG (config), DEFAULT_DISABLE_INDEXING_ON_BATTERY_INIT);
+	g_return_val_if_fail (TRACKER_IS_CONFIG (config), DEFAULT_INDEX_ON_BATTERY_FIRST_TIME);
 
 	priv = TRACKER_CONFIG_GET_PRIVATE (config);
 
-	return priv->disable_indexing_on_battery_init;
+	return priv->index_on_battery_first_time;
 }
 
 gint
@@ -1123,8 +1123,8 @@ tracker_config_set_enable_thumbnails (TrackerConfig *config,
 }
 
 void
-tracker_config_set_disable_indexing_on_battery (TrackerConfig *config,
-						gboolean       value)
+tracker_config_set_index_on_battery (TrackerConfig *config,
+				     gboolean       value)
 {
 	TrackerConfigPrivate *priv;
 
@@ -1132,13 +1132,13 @@ tracker_config_set_disable_indexing_on_battery (TrackerConfig *config,
 
 	priv = TRACKER_CONFIG_GET_PRIVATE (config);
 
-	priv->disable_indexing_on_battery = value;
-	g_object_notify (G_OBJECT (config), "disable-indexing-on-battery");
+	priv->index_on_battery = value;
+	g_object_notify (G_OBJECT (config), "index-on-battery");
 }
 
 void
-tracker_config_set_disable_indexing_on_battery_init (TrackerConfig *config,
-						     gboolean	    value)
+tracker_config_set_index_on_battery_first_time (TrackerConfig *config,
+						gboolean	    value)
 {
 	TrackerConfigPrivate *priv;
 
@@ -1146,8 +1146,8 @@ tracker_config_set_disable_indexing_on_battery_init (TrackerConfig *config,
 
 	priv = TRACKER_CONFIG_GET_PRIVATE (config);
 
-	priv->disable_indexing_on_battery_init = value;
-	g_object_notify (G_OBJECT (config), "disable-indexing-on-battery-init");
+	priv->index_on_battery_first_time = value;
+	g_object_notify (G_OBJECT (config), "index-on-battery-first-time");
 }
 
 void
