@@ -1654,6 +1654,10 @@ public class Tracker.SparqlQuery : Object {
 			// prefixed name without namespace :bar
 			next ();
 			result = resolve_prefixed_name ("", get_last_string ().substring (1));
+		} else if (accept (SparqlTokenType.BLANK_NODE)) {
+			// _:foo
+			expect (SparqlTokenType.COLON);
+			result = generate_bnodeid (get_last_string ().substring (1));
 		} else if (current () == SparqlTokenType.INTEGER) {
 			next ();
 			result = get_last_string ();
