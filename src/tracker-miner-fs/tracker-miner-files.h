@@ -33,14 +33,16 @@ G_BEGIN_DECLS
 #define TRACKER_IS_FILES_CLASS(c)        (G_TYPE_CHECK_CLASS_TYPE ((c),  TRACKER_TYPE_MINER_FILES))
 #define TRACKER_MINER_FILES_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o), TRACKER_TYPE_MINER_FILES, TrackerMinerFilesClass))
 
-typedef struct _TrackerMinerFiles TrackerMinerFiles;
-typedef struct _TrackerMinerFilesClass TrackerMinerFilesClass;
+typedef struct TrackerMinerFiles TrackerMinerFiles;
+typedef struct TrackerMinerFilesClass TrackerMinerFilesClass;
+typedef struct TrackerMinerFilesPrivate TrackerMinerFilesPrivate;
 
-struct _TrackerMinerFiles {
-        TrackerMinerProcess parent_instance;
+struct TrackerMinerFiles {
+        TrackerMinerProcess       parent_instance;
+	TrackerMinerFilesPrivate *private;
 };
 
-struct _TrackerMinerFilesClass {
+struct TrackerMinerFilesClass {
         TrackerMinerProcessClass parent_class;
 };
 
