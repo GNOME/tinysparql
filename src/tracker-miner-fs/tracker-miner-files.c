@@ -353,14 +353,17 @@ tracker_miner_files_process_file (TrackerMinerProcess  *miner,
 	guint64 time_;
 	GFile *parent;
 	gchar *parent_uri;
+	const gchar *attrs;
+
+	attrs = G_FILE_ATTRIBUTE_STANDARD_TYPE ","
+		G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE ","
+		G_FILE_ATTRIBUTE_STANDARD_DISPLAY_NAME ","
+		G_FILE_ATTRIBUTE_STANDARD_SIZE ","
+		G_FILE_ATTRIBUTE_TIME_MODIFIED ","
+		G_FILE_ATTRIBUTE_TIME_ACCESS;
 
 	file_info = g_file_query_info (file,
-                                       "standard::type,"
-                                       "standard::content-type,"
-                                       "standard::display-name,"
-                                       "standard::size,"
-                                       "time::modified,"
-                                       "time::access",
+				       attrs,
                                        G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
                                        NULL, NULL);
 	if (!file_info) {
