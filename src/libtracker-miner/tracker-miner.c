@@ -592,6 +592,62 @@ tracker_miner_get_description (TrackerMiner           *miner,
 }
 
 void
+tracker_miner_get_status (TrackerMiner           *miner,
+			  DBusGMethodInvocation  *context,
+			  GError                **error)
+{
+	guint request_id;
+
+	request_id = tracker_dbus_get_next_request_id ();
+
+	tracker_dbus_async_return_if_fail (miner != NULL, context);
+
+	tracker_dbus_request_new (request_id, "%s()", __PRETTY_FUNCTION__);
+
+	dbus_g_method_return (context, miner->private->status);
+
+	tracker_dbus_request_success (request_id);
+}
+
+void
+tracker_miner_get_progress (TrackerMiner           *miner,
+			    DBusGMethodInvocation  *context,
+			    GError                **error)
+{
+	guint request_id;
+
+	request_id = tracker_dbus_get_next_request_id ();
+
+	tracker_dbus_async_return_if_fail (miner != NULL, context);
+
+	tracker_dbus_request_new (request_id, "%s()", __PRETTY_FUNCTION__);
+
+	dbus_g_method_return (context, miner->private->progress);
+
+	tracker_dbus_request_success (request_id);
+}
+
+void
+tracker_miner_get_is_paused (TrackerMiner           *miner,
+			     DBusGMethodInvocation  *context,
+			     GError                **error)
+{
+	guint request_id;
+	gboolean is_paused;
+
+	request_id = tracker_dbus_get_next_request_id ();
+
+	tracker_dbus_async_return_if_fail (miner != NULL, context);
+
+	tracker_dbus_request_new (request_id, "%s()", __PRETTY_FUNCTION__);
+
+	is_paused = g_hash_table_size (miner->private->pauses) > 0;
+	dbus_g_method_return (context, is_paused);
+
+	tracker_dbus_request_success (request_id);
+}
+
+void
 tracker_miner_pause (TrackerMiner           *miner,
 		     const gchar            *application,
 		     const gchar            *reason,
@@ -661,40 +717,4 @@ tracker_miner_resume (TrackerMiner           *miner,
 		dbus_g_method_return (context);
 		tracker_dbus_request_success (request_id);
 	}
-}
-
-void
-tracker_miner_get_status (TrackerMiner           *miner,
-			  DBusGMethodInvocation  *context,
-			  GError                **error)
-{
-	guint request_id;
-
-	request_id = tracker_dbus_get_next_request_id ();
-
-	tracker_dbus_async_return_if_fail (miner != NULL, context);
-
-	tracker_dbus_request_new (request_id, "%s()", __PRETTY_FUNCTION__);
-
-	dbus_g_method_return (context, miner->private->status);
-
-	tracker_dbus_request_success (request_id);
-}
-
-void
-tracker_miner_get_progress (TrackerMiner           *miner,
-			    DBusGMethodInvocation  *context,
-			    GError                **error)
-{
-	guint request_id;
-
-	request_id = tracker_dbus_get_next_request_id ();
-
-	tracker_dbus_async_return_if_fail (miner != NULL, context);
-
-	tracker_dbus_request_new (request_id, "%s()", __PRETTY_FUNCTION__);
-
-	dbus_g_method_return (context, miner->private->progress);
-
-	tracker_dbus_request_success (request_id);
 }

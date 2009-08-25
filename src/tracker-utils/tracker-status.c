@@ -47,6 +47,7 @@
 
 static GMainLoop *main_loop;
 
+static gboolean   show_key;
 static gboolean   list_miners_running;
 static gboolean   list_miners_available;
 static gchar     *miner_name;
@@ -63,6 +64,10 @@ static GOptionEntry entries[] = {
 	{ "detailed", 'd', 0, G_OPTION_ARG_NONE, &detailed,
 	  N_("Include details with state updates (only applies to --follow)"),
 	  NULL 
+	},
+	{ "show-key", 'k', 0, G_OPTION_ARG_NONE, &show_key,
+	  N_("Shows the key used when listing miners and their states"),
+	  NULL
 	},
 	{ "list-miners-running", 'l', 0, G_OPTION_ARG_NONE, &list_miners_running,
 	  N_("List all miners installed"),
@@ -300,7 +305,8 @@ miner_resume (const gchar *miner,
 static gboolean
 miner_get_details (const gchar  *miner,
 		   gchar       **status,
-		   gdouble      *progress)
+		   gdouble      *progress,
+		   gboolean     *is_paused)
 {
 	GError *error = NULL;
 	DBusGProxy *proxy;
@@ -308,6 +314,7 @@ miner_get_details (const gchar  *miner,
 
 	*status = NULL;
 	*progress = 0.0;
+	*is_paused = FALSE;
 	
 	name = get_dbus_name (miner);
 	
@@ -331,7 +338,7 @@ miner_get_details (const gchar  *miner,
 		g_free (str);
 		g_clear_error (&error);
 		g_free (name);
-		
+
 		return FALSE;
 	}
 
@@ -349,7 +356,25 @@ miner_get_details (const gchar  *miner,
 		g_free (str);
 		g_clear_error (&error);
 		g_free (name);
-		
+
+		return FALSE;
+	}
+
+	if (!org_freedesktop_Tracker_Miner_get_is_paused (proxy, 
+							  is_paused,
+							  &error)) {
+		gchar *str;
+
+		str = g_strdup_printf (_("Could not get paused state from miner: %s"),
+				       name);
+		g_printerr ("  %s. %s\n", 
+			    str,
+			    error ? error->message : _("No error given"));
+
+		g_free (str);
+		g_clear_error (&error);
+		g_free (name);
+
 		return FALSE;
 	}
 	
@@ -423,6 +448,16 @@ main (gint argc, gchar *argv[])
 		return EXIT_FAILURE;
 	}
 
+	if (show_key) {
+		/* Show status of all miners */
+		g_print ("%s:\n", _("Key"));
+		g_print ("  %s\n", _("[R] = Running"));
+		g_print ("  %s\n", _("[P] = Paused"));
+		g_print ("  %s\n", _("[ ] = Not Running"));
+
+		return EXIT_SUCCESS;
+	}
+
 	miners_available = tracker_miner_discover_get_available ();
 	miners_running = tracker_miner_discover_get_running ();
 
@@ -463,14 +498,12 @@ main (gint argc, gchar *argv[])
 		g_slist_foreach (miners_available, (GFunc) g_free, NULL);
 		g_slist_free (miners_available);
 
+		tracker_disconnect (client);
 		return EXIT_SUCCESS;
 	}
 
-	/* Show status of all miners */
-	g_print ("%s: (%s)\n", 
-		 _("Miners"),
-		 _("The 'x' indicates the miner is running"));
-	
+	g_print ("%s:\n", _("Miners"));
+
 	for (l = miners_available; l; l = l->next) {
 		gboolean is_running;
 
@@ -479,19 +512,25 @@ main (gint argc, gchar *argv[])
 		if (is_running) {
 			gchar *status = NULL;
 			gdouble progress;
+			gboolean is_paused;
 
-			if (!miner_get_details (l->data, &status, &progress)) {
+			if (!miner_get_details (l->data, &status, &progress, &is_paused)) {
 				continue;
 			}
 
-			g_print ("  [x] %s - status: %s, progress: %.0f%%\n", 
+			g_print ("  [%s] %s: %3.0f%%, %s, %s: '%s'\n", 
+				 is_paused ? "P" : "R",
+				 _("Progress"),
+				 progress * 100,
 				 (gchar*) l->data,
-				 status ? status : "Unknown",
-				 progress * 100);
-
+				 _("Status"),
+				 status ? status : _("Unknown"));
+			
 			g_free (status);
 		} else {
-			g_print ("  [ ] %s\n", 
+			g_print ("  [ ] %s: %3.0f%%, %s\n", 
+				 _("Progress"),
+				 0.0,
 				 (gchar*) l->data);
 		}
 	}
@@ -500,32 +539,8 @@ main (gint argc, gchar *argv[])
 	g_slist_free (miners_available);
 
 	if (!follow) {
-		GError *error = NULL;
-		gchar *state;
-
- 		/* state = tracker_get_status (client, &error); */
-		state = "Idle";
-		
-		if (error) {
-			g_printerr ("%s, %s\n",
-				    _("Could not get Tracker status"),
-				    error->message);
-			g_error_free (error);
-			
-			return EXIT_FAILURE;
-		}
-
-
-		if (state) {
-			gchar *str;
-			
-			str = g_strdup_printf (_("Tracker status is '%s'"), state);
-			g_print ("%s\n", str);
-			g_free (str);
-		}
-
+		/* Do nothing further */
 		tracker_disconnect (client);
-
 		return EXIT_SUCCESS;
 	}
 

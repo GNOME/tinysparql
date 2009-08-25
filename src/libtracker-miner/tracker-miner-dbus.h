@@ -33,6 +33,15 @@ void tracker_miner_get_name        (TrackerMiner           *miner,
 void tracker_miner_get_description (TrackerMiner           *miner,
 				    DBusGMethodInvocation  *context,
 				    GError                **error);
+void tracker_miner_get_status      (TrackerMiner           *miner,
+				    DBusGMethodInvocation  *context,
+				    GError                **error);
+void tracker_miner_get_progress    (TrackerMiner           *miner,
+				    DBusGMethodInvocation  *context,
+				    GError                **error);
+void tracker_miner_get_is_paused   (TrackerMiner           *miner,
+				    DBusGMethodInvocation  *context,
+				    GError                **error);
 void tracker_miner_pause           (TrackerMiner           *miner,
 				    const gchar            *application,
 				    const gchar            *name,
@@ -40,12 +49,6 @@ void tracker_miner_pause           (TrackerMiner           *miner,
 				    GError                **error);
 void tracker_miner_resume          (TrackerMiner           *miner,
 				    gint                    cookie,
-				    DBusGMethodInvocation  *context,
-				    GError                **error);
-void tracker_miner_get_status      (TrackerMiner           *miner,
-				    DBusGMethodInvocation  *context,
-				    GError                **error);
-void tracker_miner_get_progress    (TrackerMiner           *miner,
 				    DBusGMethodInvocation  *context,
 				    GError                **error);
 

@@ -18,6 +18,10 @@
       <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
       <arg type="d" name="progress" direction="out" />
     </method>
+    <method name="GetIsPaused">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
+      <arg type="b" name="is_paused" direction="out" />
+    </method>
     <method name="Pause">
       <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
       <arg type="s" name="application" direction="in" />
