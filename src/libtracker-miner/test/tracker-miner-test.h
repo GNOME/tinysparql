@@ -23,7 +23,7 @@
 
 #include <glib-object.h>
 
-#include <libtracker-miner/tracker-miner-process.h>
+#include <libtracker-miner/tracker-miner-fs.h>
 
 G_BEGIN_DECLS
 

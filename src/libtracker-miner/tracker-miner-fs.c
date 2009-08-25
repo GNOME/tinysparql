@@ -24,7 +24,7 @@
 
 #include "tracker-crawler.h"
 #include "tracker-marshal.h"
-#include "tracker-miner-process.h"
+#include "tracker-miner-fs.h"
 #include "tracker-monitor.h"
 
 #define TRACKER_MINER_PROCESS_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_MINER_PROCESS, TrackerMinerProcessPrivate))

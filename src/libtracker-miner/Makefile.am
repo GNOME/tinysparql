@@ -34,8 +34,8 @@ libtracker_miner_la_SOURCES = 				\
 	tracker-miner.h					\
 	tracker-miner-discover.c			\
 	tracker-miner-discover.h			\
-	tracker-miner-process.c				\
-	tracker-miner-process.h				\
+	tracker-miner-fs.c				\
+	tracker-miner-fs.h				\
 	tracker-monitor.c				\
 	tracker-monitor.h				\
 	tracker-utils.c					\
@@ -43,7 +43,7 @@ libtracker_miner_la_SOURCES = 				\
 
 libtracker_minerinclude_HEADERS = 			\
 	tracker-miner.h 				\
-	tracker-miner-process.h
+	tracker-miner-fs.h
 
 libtracker_miner_la_LDFLAGS = \
 	-version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE)

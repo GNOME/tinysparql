@@ -21,7 +21,8 @@
 #ifndef __TRACKER_MINER_FILES_H__
 #define __TRACKER_MINER_FILES_H__
 
-#include <libtracker-miner/tracker-miner-process.h>
+#include <libtracker-miner/tracker-miner-fs.h>
+
 #include "tracker-config.h"
 
 G_BEGIN_DECLS
