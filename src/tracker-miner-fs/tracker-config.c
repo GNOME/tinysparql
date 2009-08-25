@@ -994,6 +994,54 @@ tracker_config_get_low_disk_space_limit (TrackerConfig *config)
 	return priv->low_disk_space_limit;
 }
 
+GSList *
+tracker_config_get_index_directories (TrackerConfig *config)
+{
+	TrackerConfigPrivate *priv;
+
+	g_return_val_if_fail (TRACKER_IS_CONFIG (config), NULL);
+
+	priv = TRACKER_CONFIG_GET_PRIVATE (config);
+
+	return priv->index_directories;
+}
+
+GSList *
+tracker_config_get_ignored_directories (TrackerConfig *config)
+{
+	TrackerConfigPrivate *priv;
+
+	g_return_val_if_fail (TRACKER_IS_CONFIG (config), NULL);
+
+	priv = TRACKER_CONFIG_GET_PRIVATE (config);
+
+	return priv->ignored_directories;
+}
+
+GSList *
+tracker_config_get_ignored_directories_with_content (TrackerConfig *config)
+{
+	TrackerConfigPrivate *priv;
+
+	g_return_val_if_fail (TRACKER_IS_CONFIG (config), NULL);
+
+	priv = TRACKER_CONFIG_GET_PRIVATE (config);
+
+	return priv->ignored_directories_with_content;
+}
+
+GSList *
+tracker_config_get_ignored_files (TrackerConfig *config)
+{
+	TrackerConfigPrivate *priv;
+
+	g_return_val_if_fail (TRACKER_IS_CONFIG (config), NULL);
+
+	priv = TRACKER_CONFIG_GET_PRIVATE (config);
+
+	return priv->ignored_files;
+}
+
 gboolean
 tracker_config_get_index_mounted_directories (TrackerConfig *config)
 {
@@ -1339,7 +1387,7 @@ tracker_config_set_ignored_directories_with_content (TrackerConfig *config,
 	g_object_notify (G_OBJECT (config), "ignored-directories-with-content");
 }
 
-void	       
+void
 tracker_config_set_ignored_files (TrackerConfig *config,
 				  GSList        *files)
 {
@@ -1391,4 +1439,32 @@ tracker_config_set_index_removable_devices (TrackerConfig *config,
 
 	priv->index_removable_devices = value;
 	g_object_notify (G_OBJECT (config), "index-removable-devices");
+}
+
+/*
+ * Convenience functions
+ */
+
+GSList *
+tracker_config_get_ignore_directory_patterns (TrackerConfig *config)
+{
+	TrackerConfigPrivate *priv;
+
+	g_return_val_if_fail (TRACKER_IS_CONFIG (config), NULL);
+
+	priv = TRACKER_CONFIG_GET_PRIVATE (config);
+
+	return priv->ignored_directory_patterns;
+}
+
+GSList *
+tracker_config_get_ignore_file_patterns (TrackerConfig *config)
+{
+	TrackerConfigPrivate *priv;
+
+	g_return_val_if_fail (TRACKER_IS_CONFIG (config), NULL);
+
+	priv = TRACKER_CONFIG_GET_PRIVATE (config);
+
+	return priv->ignored_file_patterns;
 }

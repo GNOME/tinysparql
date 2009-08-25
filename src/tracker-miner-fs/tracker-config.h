@@ -63,6 +63,10 @@ gboolean       tracker_config_get_enable_thumbnails                (TrackerConfi
 gboolean       tracker_config_get_disable_indexing_on_battery      (TrackerConfig *config);
 gboolean       tracker_config_get_disable_indexing_on_battery_init (TrackerConfig *config);
 gint           tracker_config_get_low_disk_space_limit             (TrackerConfig *config);
+GSList *       tracker_config_get_index_directories                (TrackerConfig *config);
+GSList *       tracker_config_get_ignored_directories              (TrackerConfig *config);
+GSList *       tracker_config_get_ignored_directories_with_content (TrackerConfig *config);
+GSList *       tracker_config_get_ignored_files                    (TrackerConfig *config);
 gboolean       tracker_config_get_index_removable_devices          (TrackerConfig *config);
 gboolean       tracker_config_get_index_mounted_directories        (TrackerConfig *config);
 
@@ -104,6 +108,10 @@ void           tracker_config_set_index_removable_devices          (TrackerConfi
 								    gboolean       value);
 void           tracker_config_set_index_mounted_directories        (TrackerConfig *config,
 								    gboolean       value);
+
+/* Convenience functions */
+GSList *       tracker_config_get_ignore_directory_patterns        (TrackerConfig *config);
+GSList *       tracker_config_get_ignore_file_patterns             (TrackerConfig *config);
 
 G_END_DECLS
 
