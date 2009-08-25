@@ -1002,8 +1002,12 @@ tracker_data_insert_statement_common (const gchar            *subject,
 
 		/* subject not yet in cache, retrieve or create ID */
 		update_buffer.subject = g_strdup (subject);
-		update_buffer.id = ensure_resource_id (update_buffer.subject);
-		update_buffer.types = tracker_data_query_rdf_type (update_buffer.id);
+		update_buffer.id = query_resource_id (update_buffer.subject);
+		if (update_buffer.id == 0) {
+			update_buffer.id = ensure_resource_id (update_buffer.subject);
+		} else {
+			update_buffer.types = tracker_data_query_rdf_type (update_buffer.id);
+		}
 
 		g_value_set_int (&gvalue, tracker_data_update_get_next_modseq ());
 		cache_insert_value ("rdfs:Resource", "tracker:modified", &gvalue, FALSE, FALSE);
