@@ -1147,7 +1147,9 @@ process_directories_cb (gpointer user_data)
 	miner->private->directories = g_list_remove (miner->private->directories,
 						     miner->private->current_directory);
 
-	g_debug ("Processing path '%s'\n", miner->private->current_directory->path);
+	g_debug ("Processing %s path '%s'\n",
+		 miner->private->current_directory->recurse ? "recursive" : "single",
+		 miner->private->current_directory->path);
 
 	if (tracker_crawler_start (miner->private->crawler,
 				   miner->private->current_directory->path,
