@@ -17,9 +17,9 @@ INCLUDES =								\
 	$(GCOV_CFLAGS)							\
 	$(RAPTOR_CFLAGS)
 
-libexec_PROGRAMS = tracker-miner-fs-new
+libexec_PROGRAMS = tracker-miner-fs
 
-tracker_miner_fs_new_SOURCES =						\
+tracker_miner_fs_SOURCES =						\
 	tracker-config.c						\
 	tracker-config.h						\
 	tracker-miner-applications.c					\
@@ -28,7 +28,7 @@ tracker_miner_fs_new_SOURCES =						\
 	tracker-miner-files.h						\
 	tracker-miner-main.c
 
-tracker_miner_fs_new_LDADD =						\
+tracker_miner_fs_LDADD =						\
 	$(top_builddir)/src/libtracker-data/libtracker-data.la		\
 	$(top_builddir)/src/libtracker-db/libtracker-db.la 		\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
