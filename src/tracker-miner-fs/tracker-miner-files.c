@@ -254,7 +254,20 @@ static gboolean
 tracker_miner_files_check_file (TrackerMinerProcess *miner,
                                 GFile               *file)
 {
+	GFileInfo *file_info;
+
         /* FIXME: Check config */
+
+	file_info = g_file_query_info (file,
+				       "standard::is-hidden",
+                                       G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
+                                       NULL, NULL);
+
+	if (g_file_info_get_is_hidden (file_info)) {
+		/* Ignore hidden files */
+		return FALSE;
+	}
+
         return TRUE;
 }
 
@@ -262,7 +275,20 @@ static gboolean
 tracker_miner_files_check_directory (TrackerMinerProcess  *miner,
                                      GFile                *file)
 {
+	GFileInfo *file_info;
+
         /* FIXME: Check config */
+
+	file_info = g_file_query_info (file,
+				       "standard::is-hidden",
+                                       G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
+                                       NULL, NULL);
+
+	if (g_file_info_get_is_hidden (file_info)) {
+		/* Ignore hidden dirs */
+		return FALSE;
+	}
+
 	return TRUE;
 }
 
