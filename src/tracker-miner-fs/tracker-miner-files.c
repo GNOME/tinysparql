@@ -57,8 +57,8 @@ static void     mount_point_added_cb          (TrackerStorage       *storage,
 					       gpointer              user_data);
 static void     mount_pre_unmount_cb          (GVolumeMonitor       *volume_monitor,
 					       GMount               *mount,
-					       TrackerMinerFiles    *fs);
-static void     initialize_removable_devices  (TrackerMinerFiles    *fs);
+					       TrackerMinerFiles    *mf);
+static void     initialize_removable_devices  (TrackerMinerFiles    *mf);
 static gboolean miner_files_check_file        (TrackerMinerFS       *fs,
 					       GFile                *file);
 static gboolean miner_files_check_directory   (TrackerMinerFS       *fs,
@@ -99,25 +99,23 @@ tracker_miner_files_class_init (TrackerMinerFilesClass *klass)
 }
 
 static void
-tracker_miner_files_init (TrackerMinerFiles *miner)
+tracker_miner_files_init (TrackerMinerFiles *mf)
 {
         TrackerMinerFilesPrivate *priv;
 
-        miner->private = TRACKER_MINER_FILES_GET_PRIVATE (miner);
-
-	priv = miner->private;
+        priv = mf->private = TRACKER_MINER_FILES_GET_PRIVATE (mf);
 
 #ifdef HAVE_HAL
         priv->storage = tracker_storage_new ();
-
         g_signal_connect (priv->storage, "mount-point-added",
-                          G_CALLBACK (mount_point_added_cb), miner);
+                          G_CALLBACK (mount_point_added_cb), 
+			  mf);
 #endif
 
 	priv->volume_monitor = g_volume_monitor_get ();
 	g_signal_connect (priv->volume_monitor, "mount-pre-unmount",
 			  G_CALLBACK (mount_pre_unmount_cb),
-			  miner);
+			  mf);
 }
 
 static void
@@ -241,11 +239,11 @@ mount_point_added_cb (TrackerStorage *storage,
 }
 
 static void
-initialize_removable_devices (TrackerMinerFiles *fs)
+initialize_removable_devices (TrackerMinerFiles *mf)
 {
         TrackerMinerFilesPrivate *priv;
 
-        priv = TRACKER_MINER_FILES_GET_PRIVATE (fs);
+        priv = TRACKER_MINER_FILES_GET_PRIVATE (mf);
 
         if (tracker_config_get_index_removable_devices (priv->config)) {
                 GList *mounts, *m;
@@ -253,7 +251,7 @@ initialize_removable_devices (TrackerMinerFiles *fs)
                 mounts = tracker_storage_get_removable_device_roots (priv->storage);
 
                 for (m = mounts; m; m = m->next) {
-                        tracker_miner_fs_add_directory (TRACKER_MINER_FS (fs),
+                        tracker_miner_fs_add_directory (TRACKER_MINER_FS (mf),
 							m->data, 
 							TRUE);
                 }
@@ -265,7 +263,7 @@ initialize_removable_devices (TrackerMinerFiles *fs)
 static void
 mount_pre_unmount_cb (GVolumeMonitor    *volume_monitor,
 		      GMount            *mount,
-		      TrackerMinerFiles *miner)
+		      TrackerMinerFiles *mf)
 {
 	GFile *mount_root;
 	gchar *path;
@@ -273,7 +271,7 @@ mount_pre_unmount_cb (GVolumeMonitor    *volume_monitor,
 	mount_root = g_mount_get_root (mount);
 	path = g_file_get_path (mount_root);
 
-	tracker_miner_fs_remove_directory (TRACKER_MINER_FS (miner), path);
+	tracker_miner_fs_remove_directory (TRACKER_MINER_FS (mf), path);
 
 	g_free (path);
 	g_object_unref (mount_root);
@@ -283,7 +281,7 @@ static gboolean
 miner_files_check_file (TrackerMinerFS *fs,
 			GFile          *file)
 {
-	TrackerMinerFiles *miner;
+	TrackerMinerFiles *mf;
 	GFileInfo *file_info;
 	GSList *l;
 	gchar *path;
@@ -315,11 +313,11 @@ miner_files_check_file (TrackerMinerFS *fs,
 	}
 
 	/* Check module file ignore patterns */
-	miner = TRACKER_MINER_FILES (fs);
+	mf = TRACKER_MINER_FILES (fs);
 
 	basename = g_file_get_basename (file);
 	
-	for (l = tracker_config_get_ignored_file_patterns (miner->private->config); l; l = l->next) {
+	for (l = tracker_config_get_ignored_file_patterns (mf->private->config); l; l = l->next) {
 		if (g_pattern_match_string (l->data, basename)) {
 			goto done;
 		}
@@ -377,24 +375,24 @@ miner_files_check_directory (TrackerMinerFS *fs,
                                        NULL, NULL);
 
 	if (file_info && g_file_info_get_is_hidden (file_info)) {
-		TrackerMinerFiles *miner;
+		TrackerMinerFiles *mf;
 		GSList *allowed_directories;
 
-		miner = TRACKER_MINER_FILES (fs);
+		mf = TRACKER_MINER_FILES (fs);
 
 		/* FIXME: We need to check if the file is actually a
 		 * config specified location before blanket ignoring
 		 * all hidden files. 
 		 */
 		allowed_directories = 
-			tracker_config_get_index_recursive_directories (miner->private->config);
+			tracker_config_get_index_recursive_directories (mf->private->config);
 
 		if (tracker_string_in_gslist (path, allowed_directories)) {
 			should_process = TRUE;
 		}
 
 		allowed_directories = 
-			tracker_config_get_index_single_directories (miner->private->config);
+			tracker_config_get_index_single_directories (mf->private->config);
 
 		if (tracker_string_in_gslist (path, allowed_directories)) {
 			should_process = TRUE;
@@ -421,11 +419,11 @@ static gboolean
 miner_files_monitor_directory (TrackerMinerFS *fs,
 			       GFile          *file)
 {
-	TrackerMinerFiles *miner;
+	TrackerMinerFiles *mf;
 
-	miner = TRACKER_MINER_FILES (fs);
+	mf = TRACKER_MINER_FILES (fs);
 
-	if (tracker_config_get_enable_monitors (miner->private->config)) {
+	if (tracker_config_get_enable_monitors (mf->private->config)) {
 		return FALSE;
 	}
 		
@@ -436,14 +434,14 @@ miner_files_monitor_directory (TrackerMinerFS *fs,
 }
 
 static void
-miner_files_add_to_datasource (TrackerMinerFiles    *miner,
+miner_files_add_to_datasource (TrackerMinerFiles    *mf,
 			       GFile                *file,
 			       TrackerSparqlBuilder *sparql)
 {
         TrackerMinerFilesPrivate *priv;
 	const gchar *removable_device_udi;
 
-        priv = TRACKER_MINER_FILES_GET_PRIVATE (miner);
+        priv = TRACKER_MINER_FILES_GET_PRIVATE (mf);
 
 #ifdef HAVE_HAL
 	removable_device_udi = tracker_storage_get_volume_udi_for_file (priv->storage, file);

@@ -65,7 +65,7 @@ tracker_miner_applications_class_init (TrackerMinerApplicationsClass *klass)
 }
 
 static void
-tracker_miner_applications_init (TrackerMinerApplications *miner)
+tracker_miner_applications_init (TrackerMinerApplications *ma)
 {
 }
 
