@@ -1019,7 +1019,7 @@ crawler_process_file_cb (TrackerCrawler *crawler,
 
 	g_free (path);
 
-	return should_process;
+	return !should_process;
 }
 
 static gboolean
@@ -1058,7 +1058,7 @@ crawler_process_directory_cb (TrackerCrawler *crawler,
 
 	g_free (path);
 
-	return should_process;
+	return !should_process;
 }
 
 static void

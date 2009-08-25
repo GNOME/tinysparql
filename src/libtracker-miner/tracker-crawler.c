@@ -107,21 +107,23 @@ tracker_crawler_class_init (TrackerCrawlerClass *klass)
 			      G_TYPE_FROM_CLASS (klass),
 			      G_SIGNAL_RUN_LAST,
 			      G_STRUCT_OFFSET (TrackerCrawlerClass, process_directory),
-			      NULL, NULL,
+			      g_signal_accumulator_true_handled,
+			      NULL,
 			      tracker_marshal_BOOLEAN__OBJECT,
 			      G_TYPE_BOOLEAN,
 			      1,
-			      G_TYPE_OBJECT);
+			      G_TYPE_FILE);
 	signals[PROCESS_FILE] =
 		g_signal_new ("process-file",
 			      G_TYPE_FROM_CLASS (klass),
 			      G_SIGNAL_RUN_LAST,
 			      G_STRUCT_OFFSET (TrackerCrawlerClass, process_file),
-			      NULL, NULL,
+			      g_signal_accumulator_true_handled,
+			      NULL,
 			      tracker_marshal_BOOLEAN__OBJECT,
 			      G_TYPE_BOOLEAN,
 			      1,
-			      G_TYPE_OBJECT);
+			      G_TYPE_FILE);
 	signals[FINISHED] =
 		g_signal_new ("finished",
 			      G_TYPE_FROM_CLASS (klass),
@@ -181,7 +183,7 @@ static gboolean
 process_defaults (TrackerCrawler *crawler,
 		  GFile          *file)
 {
-	return TRUE;
+	return FALSE;
 }
 
 TrackerCrawler *
@@ -219,36 +221,36 @@ static gboolean
 process_file (TrackerCrawler *crawler,
 	      GFile	     *file)
 {
-	gboolean should_process = TRUE;
+	gboolean should_ignore = FALSE;
 
-	g_signal_emit (crawler, signals[PROCESS_FILE], 0, file, &should_process);
+	g_signal_emit (crawler, signals[PROCESS_FILE], 0, file, &should_ignore);
 
 	crawler->private->files_found++;
 
-	if (!should_process) {
+	if (should_ignore) {
 		crawler->private->files_ignored++;
 	}
 
-	return should_process;
+	return !should_ignore;
 }
 
 static gboolean
 process_directory (TrackerCrawler *crawler,
 		   GFile	  *file)
 {
-	gboolean should_process = TRUE;
+	gboolean should_ignore = FALSE;
 
-	g_signal_emit (crawler, signals[PROCESS_DIRECTORY], 0, file, &should_process);
+	g_signal_emit (crawler, signals[PROCESS_DIRECTORY], 0, file, &should_ignore);
 
 	crawler->private->directories_found++;
 
-	if (should_process) {
+	if (!should_ignore) {
 		file_enumerate_children (crawler, file);
 	} else {
 		crawler->private->directories_ignored++;
 	}
 
-	return should_process;
+	return !should_ignore;
 }
 
 static gboolean
