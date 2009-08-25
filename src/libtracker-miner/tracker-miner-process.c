@@ -64,7 +64,6 @@ struct TrackerMinerProcessPrivate {
 	guint           process_dirs_id;
 
 	/* Status */
-	guint           been_started : 1;
 	guint           shown_totals : 1;
 
 	/* Statistics */
@@ -1138,13 +1137,7 @@ process_directories_cb (gpointer user_data)
 	}
 
 	if (!miner->private->directories) {
-		/* Now we have finished crawling, print stats and enable monitor events */
-		print_stats (miner);
-
-		g_message ("Enabling monitor events");
-		tracker_monitor_set_enabled (miner->private->monitor, TRUE);
-
-		miner->private->process_dirs_id = 0;
+		process_directories_stop (miner);
 		return FALSE;
 	}
 
@@ -1173,22 +1166,20 @@ static void
 process_directories_start (TrackerMinerProcess *process)
 {
 	if (process->private->process_dirs_id != 0) {
+		/* Processing ALREADY going on */
 		return;
 	}
 
-	if (!process->private->been_started) {
-		process->private->been_started = TRUE;
-		process->private->timer = g_timer_new ();
-
-		process->private->total_directories_found = 0;
-		process->private->total_directories_ignored = 0;
-		process->private->total_files_found = 0;
-		process->private->total_files_ignored = 0;
-		process->private->directories_found = 0;
-		process->private->directories_ignored = 0;
-		process->private->files_found = 0;
-		process->private->files_ignored = 0;
-	}
+	process->private->timer = g_timer_new ();
+	
+	process->private->total_directories_found = 0;
+	process->private->total_directories_ignored = 0;
+	process->private->total_files_found = 0;
+	process->private->total_files_ignored = 0;
+	process->private->directories_found = 0;
+	process->private->directories_ignored = 0;
+	process->private->files_found = 0;
+	process->private->files_ignored = 0;
 
 	process->private->process_dirs_id = g_idle_add (process_directories_cb, process);
 }
@@ -1196,8 +1187,35 @@ process_directories_start (TrackerMinerProcess *process)
 static void
 process_directories_stop (TrackerMinerProcess *process)
 {
+	if (process->private->process_dirs_id == 0) {
+		/* No processing going on, nothing to stop */
+		return;
+	}
+
 	if (process->private->current_directory) {
 		tracker_crawler_stop (process->private->crawler);
+	}
+
+	/* Now we have finished crawling, print stats and enable monitor events */
+	print_stats (process);
+	
+	g_message ("Enabling monitor events");
+	tracker_monitor_set_enabled (process->private->monitor, TRUE);
+	
+	/* Is this the right time to emit FINISHED? What about
+	 * monitor events left to handle? Should they matter
+	 * here?
+	 */
+	g_signal_emit (process, signals[FINISHED], 0, 
+		       g_timer_elapsed (process->private->timer, NULL),
+		       process->private->total_directories_found,
+		       process->private->total_directories_ignored,
+		       process->private->total_files_found,
+		       process->private->total_files_ignored);
+
+	if (process->private->timer) {
+		g_timer_destroy (process->private->timer);
+		process->private->timer = NULL;
 	}
 
 	if (process->private->process_dirs_id != 0) {
