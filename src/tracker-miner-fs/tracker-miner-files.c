@@ -19,10 +19,13 @@
  */
 
 #include "config.h"
-#include "tracker-miner-files.h"
-#include "tracker-config.h"
+
 #include <libtracker-common/tracker-storage.h>
 #include <libtracker-common/tracker-ontology.h>
+#include <libtracker-common/tracker-utils.h>
+
+#include "tracker-miner-files.h"
+#include "tracker-config.h"
 
 #define TRACKER_MINER_FILES_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_MINER_FILES, TrackerMinerFilesPrivate))
 
@@ -255,8 +258,20 @@ tracker_miner_files_check_file (TrackerMinerProcess *miner,
                                 GFile               *file)
 {
 	GFileInfo *file_info;
+	gchar *path;
+	gboolean should_process;
 
-        /* FIXME: Check config */
+	should_process = FALSE;
+	path = g_file_get_path (file);
+
+	if (tracker_is_empty_string (path)) {
+		goto done;
+	}
+
+	if (!g_utf8_validate (path, -1, NULL)) {
+		g_message ("Ignoring path:'%s', not valid UTF-8", path);
+		goto done;
+	}
 
 	file_info = g_file_query_info (file,
 				       G_FILE_ATTRIBUTE_STANDARD_IS_HIDDEN,
@@ -265,10 +280,17 @@ tracker_miner_files_check_file (TrackerMinerProcess *miner,
 
 	if (g_file_info_get_is_hidden (file_info)) {
 		/* Ignore hidden files */
-		return FALSE;
+		goto done;
 	}
 
-        return TRUE;
+        /* FIXME: Check config */
+
+	should_process = TRUE;
+
+done:
+	g_free (path);
+
+	return should_process;
 }
 
 static gboolean
@@ -276,8 +298,32 @@ tracker_miner_files_check_directory (TrackerMinerProcess  *miner,
                                      GFile                *file)
 {
 	GFileInfo *file_info;
+	gchar *path;
+	gboolean should_process;
 
-        /* FIXME: Check config */
+	should_process = FALSE;
+	path = g_file_get_path (file);
+
+	if (tracker_is_empty_string (path)) {
+		goto done;
+	}
+
+	if (!g_utf8_validate (path, -1, NULL)) {
+		g_message ("Ignoring path:'%s', not valid UTF-8", path);
+		goto done;
+	}
+
+	/* Most common things to ignore */
+	if (strcmp (path, "/dev") == 0 ||
+	    strcmp (path, "/lib") == 0 ||
+	    strcmp (path, "/proc") == 0 ||
+	    strcmp (path, "/sys") == 0) {
+		goto done;
+	}
+	
+	if (g_str_has_prefix (path, g_get_tmp_dir ())) {
+		goto done;
+	}
 
 	file_info = g_file_query_info (file,
 				       G_FILE_ATTRIBUTE_STANDARD_IS_HIDDEN,
@@ -286,10 +332,18 @@ tracker_miner_files_check_directory (TrackerMinerProcess  *miner,
 
 	if (g_file_info_get_is_hidden (file_info)) {
 		/* Ignore hidden dirs */
-		return FALSE;
+		goto done;
 	}
 
-	return TRUE;
+        /* FIXME: Check config */
+
+	/* Check module directory ignore patterns */
+	should_process = TRUE;
+
+done:
+	g_free (path);
+
+	return should_process;
 }
 
 static gboolean
