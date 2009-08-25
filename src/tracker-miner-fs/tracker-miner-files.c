@@ -380,10 +380,64 @@ tracker_miner_files_monitor_directory (TrackerMinerProcess  *miner,
                                        GFile                *file)
 {
         TrackerMinerFilesPrivate *priv;
+	GFileInfo *file_info;
+	gchar *path;
+	gboolean should_process;
+
+	file_info = NULL;
+	should_process = FALSE;
+	path = g_file_get_path (file);
 
         priv = TRACKER_MINER_FILES_GET_PRIVATE (miner);
 
-        return tracker_config_get_enable_monitors (priv->config);
+        if (!tracker_config_get_enable_monitors (priv->config)) {
+		goto done;
+	}
+
+	if (tracker_is_empty_string (path)) {
+		goto done;
+	}
+
+	if (!g_utf8_validate (path, -1, NULL)) {
+		g_message ("Ignoring path:'%s', not valid UTF-8", path);
+		goto done;
+	}
+
+	/* Most common things to ignore */
+	if (strcmp (path, "/dev") == 0 ||
+	    strcmp (path, "/lib") == 0 ||
+	    strcmp (path, "/proc") == 0 ||
+	    strcmp (path, "/sys") == 0) {
+		goto done;
+	}
+	
+	if (g_str_has_prefix (path, g_get_tmp_dir ())) {
+		goto done;
+	}
+
+	file_info = g_file_query_info (file,
+				       G_FILE_ATTRIBUTE_STANDARD_IS_HIDDEN,
+                                       G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
+                                       NULL, NULL);
+
+	if (file_info && g_file_info_get_is_hidden (file_info)) {
+		/* Ignore hidden dirs */
+		goto done;
+	}
+
+        /* FIXME: Check config */
+
+	/* Check module directory ignore patterns */
+	should_process = TRUE;
+
+done:
+	if (file_info) {
+		g_object_unref (file_info);
+	}
+
+	g_free (path);
+
+	return should_process;
 }
 
 static void
