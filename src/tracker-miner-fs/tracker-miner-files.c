@@ -259,7 +259,7 @@ tracker_miner_files_check_file (TrackerMinerProcess *miner,
         /* FIXME: Check config */
 
 	file_info = g_file_query_info (file,
-				       "standard::is-hidden",
+				       G_FILE_ATTRIBUTE_STANDARD_IS_HIDDEN,
                                        G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
                                        NULL, NULL);
 
@@ -280,7 +280,7 @@ tracker_miner_files_check_directory (TrackerMinerProcess  *miner,
         /* FIXME: Check config */
 
 	file_info = g_file_query_info (file,
-				       "standard::is-hidden",
+				       G_FILE_ATTRIBUTE_STANDARD_IS_HIDDEN,
                                        G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
                                        NULL, NULL);
 
