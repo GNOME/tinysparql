@@ -7834,3 +7834,8 @@ int tracker_fts_update_text(int id, int column_id, const char *text){
   return buildTerms(tracker_fts_vtab, id, text, column_id);
 }
 
+void tracker_fts_update_commit(void){
+  fulltextSync((sqlite3_vtab *) tracker_fts_vtab);
+  fulltextCommit((sqlite3_vtab *) tracker_fts_vtab);
+}
+

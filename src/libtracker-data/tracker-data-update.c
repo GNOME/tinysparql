@@ -430,6 +430,8 @@ tracker_data_update_buffer_flush (void)
 		}
 	}
 
+	tracker_fts_update_commit ();
+
 	g_hash_table_remove_all (update_buffer.tables);
 	g_free (update_buffer.subject);
 	update_buffer.subject = NULL;
@@ -938,6 +940,8 @@ tracker_data_delete_statement (const gchar            *subject,
 				     "Property '%s' not found in the ontology", predicate);
 		}
 	}
+
+	tracker_fts_update_commit ();
 
 	if (delete_callback) {
 		delete_callback (subject, predicate, object, types, delete_data);

@@ -25,6 +25,7 @@ G_BEGIN_DECLS
 int tracker_fts_init (sqlite3 *db);
 int tracker_fts_update_init (int id);
 int tracker_fts_update_text (int id, int column_id, const char *text);
+void tracker_fts_update_commit (void);
 
 G_END_DECLS
 
