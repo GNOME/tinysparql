@@ -83,6 +83,8 @@ miner_applications_constructed (GObject *object)
 {
 	GFile *file;
 
+        G_OBJECT_CLASS (tracker_miner_applications_parent_class)->constructed (object);
+	
 	file = g_file_new_for_path ("/usr/share/applications/");
         tracker_miner_fs_add_directory (TRACKER_MINER_FS (object), file, TRUE);
 	g_object_unref (file);
