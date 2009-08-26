@@ -261,7 +261,7 @@ nmo:folderName a rdf:Property ;
 # FIXME Extension to nepomuk 
 nmo:status a rdf:Property ;
 	nrl:maxCardinality 1 ;
-	rdfs:domain nmo:Email , nmo:MailFolder , nmo:Mailbox ;
+	rdfs:domain nmo:Email ;
 	rdfs:range xsd:string .
 
 # FIXME Extension to nepomuk 
