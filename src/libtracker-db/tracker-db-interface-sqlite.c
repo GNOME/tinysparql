@@ -921,7 +921,9 @@ tracker_db_cursor_sqlite_finalize (GObject *object)
 
 	priv = TRACKER_DB_CURSOR_SQLITE_GET_PRIVATE (object);
 
-	sqlite3_finalize (priv->stmt);
+	if (priv->owns_stmt) {
+		sqlite3_finalize (priv->stmt);
+	}
 
 	G_OBJECT_CLASS (tracker_db_cursor_sqlite_parent_class)->finalize (object);
 }
