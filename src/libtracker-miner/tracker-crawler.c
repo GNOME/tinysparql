@@ -691,6 +691,7 @@ tracker_crawler_stop (TrackerCrawler *crawler)
 
 	/* Clean up queue */
 	g_queue_foreach (priv->found, (GFunc) g_object_unref, NULL);
+	g_queue_clear (priv->found);
 
 	/* We don't free the queue in case the crawler is reused, it
 	 * is only freed in finalize.
