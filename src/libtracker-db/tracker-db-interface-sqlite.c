@@ -104,9 +104,6 @@ tracker_db_interface_sqlite_enable_shared_cache (void)
 static void
 open_database (TrackerDBInterfaceSqlitePrivate *priv)
 {
-	gchar *err_msg = NULL;
-	const gchar *env_path;
-
 	g_assert (priv->filename != NULL);
 
 	if (!priv->ro) {
