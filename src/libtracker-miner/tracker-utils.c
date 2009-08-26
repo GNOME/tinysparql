@@ -31,5 +31,5 @@ tracker_accumulator_check_file (GSignalInvocationHint *hint,
         use = g_value_get_boolean (handler_return);
         g_value_set_boolean (return_accumulator, use);
 
-        return use == TRUE;
+        return (use == TRUE);
 }
