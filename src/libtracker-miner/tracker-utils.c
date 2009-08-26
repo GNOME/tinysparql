@@ -21,15 +21,15 @@
 #include "tracker-utils.h"
 
 gboolean
-tracker_accumulator_process_file (GSignalInvocationHint *hint,
-                                  GValue                *return_accumulator,
-                                  const GValue          *handler_return,
-                                  gpointer               accumulator_data)
+tracker_accumulator_check_file (GSignalInvocationHint *hint,
+				GValue                *return_accumulator,
+				const GValue          *handler_return,
+				gpointer               accumulator_data)
 {
-        gboolean process;
+        gboolean use;
 
-        process = g_value_get_boolean (handler_return);
-        g_value_set_boolean (return_accumulator, process);
+        use = g_value_get_boolean (handler_return);
+        g_value_set_boolean (return_accumulator, use);
 
-        return (process == TRUE);
+        return use == TRUE;
 }

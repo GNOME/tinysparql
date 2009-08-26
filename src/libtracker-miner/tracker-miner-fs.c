@@ -59,10 +59,11 @@ struct TrackerMinerFSPrivate {
 
 	GTimer	       *timer;
 
-	guint           process_dirs_id;
+	guint           crawl_directories_id;
 
 	/* Status */
 	guint           been_started : 1;
+	guint           been_crawled : 1;
 	guint           shown_totals : 1;
 
 	/* Statistics */
@@ -122,21 +123,22 @@ static void           monitor_item_moved_cb        (TrackerMonitor *monitor,
 						    gboolean        is_directory,
 						    gboolean        is_source_monitored,
 						    gpointer        user_data);
-static gboolean       crawler_process_file_cb      (TrackerCrawler *crawler,
+static gboolean       crawler_check_file_cb        (TrackerCrawler *crawler,
 						    GFile          *file,
 						    gpointer        user_data);
-static gboolean       crawler_process_directory_cb (TrackerCrawler *crawler,
+static gboolean       crawler_check_directory_cb   (TrackerCrawler *crawler,
 						    GFile          *file,
 						    gpointer        user_data);
 static void           crawler_finished_cb          (TrackerCrawler *crawler,
+						    GQueue         *found,
 						    gboolean        was_interrupted,
 						    guint           directories_found,
 						    guint           directories_ignored,
 						    guint           files_found,
 						    guint           files_ignored,
 						    gpointer        user_data);
-static void           process_directories_start    (TrackerMinerFS *process);
-static void           process_directories_stop     (TrackerMinerFS *fs);
+static void           crawl_directories_start      (TrackerMinerFS *fs);
+static void           crawl_directories_stop       (TrackerMinerFS *fs);
 
 static guint signals[LAST_SIGNAL] = { 0, };
 
@@ -233,11 +235,11 @@ tracker_miner_fs_init (TrackerMinerFS *object)
 	/* Set up the crawlers now we have config and hal */
 	priv->crawler = tracker_crawler_new ();
 
-	g_signal_connect (priv->crawler, "process-file",
-			  G_CALLBACK (crawler_process_file_cb),
+	g_signal_connect (priv->crawler, "check-file",
+			  G_CALLBACK (crawler_check_file_cb),
 			  object);
-	g_signal_connect (priv->crawler, "process-directory",
-			  G_CALLBACK (crawler_process_directory_cb),
+	g_signal_connect (priv->crawler, "check-directory",
+			  G_CALLBACK (crawler_check_directory_cb),
 			  object);
 	g_signal_connect (priv->crawler, "finished",
 			  G_CALLBACK (crawler_finished_cb),
@@ -279,7 +281,7 @@ fs_finalize (GObject *object)
 		priv->item_queues_handler_id = 0;
 	}
 
-	process_directories_stop (TRACKER_MINER_FS (object));
+	crawl_directories_stop (TRACKER_MINER_FS (object));
 
 	if (priv->crawler) {
 		guint lsignals;
@@ -289,14 +291,14 @@ fs_finalize (GObject *object)
 								 0,
 								 0,
 								 NULL,
-								 G_CALLBACK (crawler_process_file_cb),
+								 G_CALLBACK (crawler_check_file_cb),
 								 NULL);
 		lsignals = g_signal_handlers_disconnect_matched (priv->crawler,
 								 G_SIGNAL_MATCH_FUNC,
 								 0,
 								 0,
 								 NULL,
-								 G_CALLBACK (crawler_process_directory_cb),
+								 G_CALLBACK (crawler_check_directory_cb),
 								 NULL);
 		lsignals = g_signal_handlers_disconnect_matched (priv->crawler,
 								 G_SIGNAL_MATCH_FUNC,
@@ -367,7 +369,7 @@ miner_started (TrackerMiner *miner)
 	fs = TRACKER_MINER_FS (miner);
 
 	fs->private->been_started = TRUE;
-	process_directories_start (fs);
+	crawl_directories_start (fs);
 }
 
 static DirectoryData *
@@ -393,6 +395,50 @@ directory_data_free (DirectoryData *dd)
 
 	g_free (dd->path);
 	g_slice_free (DirectoryData, dd);
+}
+
+static void
+process_print_stats (TrackerMinerFS *fs)
+{
+	/* Only do this the first time, otherwise the results are
+	 * likely to be inaccurate. Devices can be added or removed so
+	 * we can't assume stats are correct.
+	 */
+	if (!fs->private->shown_totals) {
+		fs->private->shown_totals = TRUE;
+
+		g_message ("--------------------------------------------------");
+		g_message ("Total directories : %d (%d ignored)",
+			   fs->private->total_directories_found,
+			   fs->private->total_directories_ignored);
+		g_message ("Total files       : %d (%d ignored)",
+			   fs->private->total_files_found,
+			   fs->private->total_files_ignored);
+		g_message ("Total monitors    : %d",
+			   tracker_monitor_get_count (fs->private->monitor));
+		g_message ("--------------------------------------------------\n");
+	}
+}
+
+static void
+process_stop (TrackerMinerFS *fs) 
+{
+	/* Now we have finished crawling, print stats and enable monitor events */
+	process_print_stats (fs);
+
+	g_signal_emit (fs, signals[FINISHED], 0,
+		       g_timer_elapsed (fs->private->timer, NULL),
+		       fs->private->total_directories_found,
+		       fs->private->total_directories_ignored,
+		       fs->private->total_files_found,
+		       fs->private->total_files_ignored);
+
+	if (fs->private->timer) {
+		g_timer_destroy (fs->private->timer);
+		fs->private->timer = NULL;
+	}
+
+	fs->private->been_crawled = TRUE;
 }
 
 static ItemMovedData *
@@ -447,8 +493,8 @@ item_add_or_update (TrackerMinerFS  *miner,
 }
 
 static gboolean
-query_resource_exists (TrackerMinerFS *miner,
-		       GFile          *file)
+item_query_exists (TrackerMinerFS *miner,
+		   GFile          *file)
 {
 	TrackerClient *client;
 	gboolean   result;
@@ -472,8 +518,8 @@ query_resource_exists (TrackerMinerFS *miner,
 }
 
 static void
-item_remove (TrackerMinerFS *miner,
-	     GFile               *file)
+item_remove (TrackerMinerFS *fs,
+	     GFile          *file)
 {
 	gchar *sparql, *uri;
 
@@ -482,24 +528,24 @@ item_remove (TrackerMinerFS *miner,
 	g_debug ("Removing item: '%s' (Deleted from filesystem)",
 		 uri);
 
-	if (!query_resource_exists (miner, file)) {
+	if (!item_query_exists (fs, file)) {
 		g_debug ("  File does not exist anyway (uri:'%s')", uri);
 		return;
 	}
 
 	/* Delete resource */
 	sparql = g_strdup_printf ("DELETE { <%s> a rdfs:Resource }", uri);
-	tracker_miner_execute_sparql (TRACKER_MINER (miner), sparql, NULL);
+	tracker_miner_execute_sparql (TRACKER_MINER (fs), sparql, NULL);
 	g_free (sparql);
 
 	/* FIXME: Should delete recursively? */
 }
 
 static void
-update_file_uri_recursively (TrackerMinerFS *miner,
-			     GString             *sparql_update,
-			     const gchar         *source_uri,
-			     const gchar         *uri)
+update_file_uri_recursively (TrackerMinerFS *fs,
+			     GString        *sparql_update,
+			     const gchar    *source_uri,
+			     const gchar    *uri)
 {
 	TrackerClient *client;
 	gchar *sparql;
@@ -512,7 +558,7 @@ update_file_uri_recursively (TrackerMinerFS *miner,
 	/* FIXME: tracker:uri doesn't seem to exist */
 	/* g_string_append_printf (sparql_update, " <%s> tracker:uri <%s> .", source_uri, uri); */
 
-	client = tracker_miner_get_client (TRACKER_MINER (miner));
+	client = tracker_miner_get_client (TRACKER_MINER (fs));
 	sparql = g_strdup_printf ("SELECT ?child WHERE { ?child nfo:belongsToContainer <%s> }", source_uri);
 	result_set = tracker_resources_sparql_query (client, sparql, NULL);
 	g_free (sparql);
@@ -534,7 +580,7 @@ update_file_uri_recursively (TrackerMinerFS *miner,
 
 			child_uri = g_strdup_printf ("%s%s", uri, *child_source_uri + strlen (source_uri));
 
-			update_file_uri_recursively (miner, sparql_update, *child_source_uri, child_uri);
+			update_file_uri_recursively (fs, sparql_update, *child_source_uri, child_uri);
 
 			g_free (child_source_uri);
 			g_free (child_uri);
@@ -545,9 +591,9 @@ update_file_uri_recursively (TrackerMinerFS *miner,
 }
 
 static void
-item_move (TrackerMinerFS *miner,
-	   GFile               *file,
-	   GFile               *source_file)
+item_move (TrackerMinerFS *fs,
+	   GFile          *file,
+	   GFile          *source_file)
 {
 	gchar     *uri, *source_uri, *escaped_filename;
 	GFileInfo *file_info;
@@ -557,10 +603,10 @@ item_move (TrackerMinerFS *miner,
 	source_uri = g_file_get_uri (source_file);
 
 	/* Get 'source' ID */
-	if (!query_resource_exists (miner, source_file)) {
+	if (!item_query_exists (fs, source_file)) {
 		g_message ("Source file '%s' not found in store to move, indexing '%s' from scratch", source_uri, uri);
 
-		item_add_or_update (miner, file);
+		item_add_or_update (fs, file);
 
 		g_free (source_uri);
 		g_free (uri);
@@ -575,7 +621,7 @@ item_move (TrackerMinerFS *miner,
 
 	if (!file_info) {
 		/* Destination file has gone away, ignore dest file and remove source if any */
-		item_remove (miner, source_file);
+		item_remove (fs, source_file);
 
 		g_free (source_uri);
 		g_free (uri);
@@ -597,11 +643,11 @@ item_move (TrackerMinerFS *miner,
 	g_string_append_printf (sparql, " <%s> nie:isStoredAs <%s> .", source_uri, uri);
 
 	/* FIXME: This function just seemed to update the thumbnail */
-	/* update_file_uri_recursively (miner, sparql, source_uri, uri); */
+	/* update_file_uri_recursively (fs, sparql, source_uri, uri); */
 
 	g_string_append (sparql, " }");
 
-	tracker_miner_execute_sparql (TRACKER_MINER (miner), sparql->str, NULL);
+	tracker_miner_execute_sparql (TRACKER_MINER (fs), sparql->str, NULL);
 
 	g_free (uri);
 	g_free (source_uri);
@@ -610,15 +656,15 @@ item_move (TrackerMinerFS *miner,
 }
 
 static gint
-get_next_file (TrackerMinerFS  *miner,
-	       GFile               **file,
-	       GFile               **source_file)
+item_queue_get_next_file (TrackerMinerFS  *fs,
+			  GFile          **file,
+			  GFile          **source_file)
 {
 	ItemMovedData *data;
 	GFile *queue_file;
 
 	/* Deleted items first */
-	queue_file = g_queue_pop_head (miner->private->items_deleted);
+	queue_file = g_queue_pop_head (fs->private->items_deleted);
 	if (queue_file) {
 		*file = queue_file;
 		*source_file = NULL;
@@ -626,7 +672,7 @@ get_next_file (TrackerMinerFS  *miner,
 	}
 
 	/* Created items next */
-	queue_file = g_queue_pop_head (miner->private->items_created);
+	queue_file = g_queue_pop_head (fs->private->items_created);
 	if (queue_file) {
 		*file = queue_file;
 		*source_file = NULL;
@@ -634,7 +680,7 @@ get_next_file (TrackerMinerFS  *miner,
 	}
 
 	/* Updated items next */
-	queue_file = g_queue_pop_head (miner->private->items_updated);
+	queue_file = g_queue_pop_head (fs->private->items_updated);
 	if (queue_file) {
 		*file = queue_file;
 		*source_file = NULL;
@@ -642,7 +688,7 @@ get_next_file (TrackerMinerFS  *miner,
 	}
 
 	/* Moved items next */
-	data = g_queue_pop_head (miner->private->items_moved);
+	data = g_queue_pop_head (fs->private->items_moved);
 	if (data) {
 		*file = g_object_ref (data->file);
 		*source_file = g_object_ref (data->source_file);
@@ -660,29 +706,32 @@ get_next_file (TrackerMinerFS  *miner,
 static gboolean
 item_queue_handlers_cb (gpointer user_data)
 {
-	TrackerMinerFS *miner;
+	TrackerMinerFS *fs;
 	GFile *file, *source_file;
 	gint queue;
 
-	miner = user_data;
-	queue = get_next_file (miner, &file, &source_file);
+	fs = user_data;
+	queue = item_queue_get_next_file (fs, &file, &source_file);
 
 	if (queue == QUEUE_NONE) {
+		/* Print stats and signal finished */
+		process_stop (fs);
+
 		/* No more files left to process */
-		miner->private->item_queues_handler_id = 0;
+		fs->private->item_queues_handler_id = 0;
 		return FALSE;
 	}
 
 	switch (queue) {
 	case QUEUE_MOVED:
-		item_move (miner, file, source_file);
+		item_move (fs, file, source_file);
 		break;
 	case QUEUE_DELETED:
-		item_remove (miner, file);
+		item_remove (fs, file);
 		break;
 	case QUEUE_CREATED:
 	case QUEUE_UPDATED:
-		item_add_or_update (miner, file);
+		item_add_or_update (fs, file);
 		break;
 	default:
 		g_assert_not_reached ();
@@ -710,7 +759,7 @@ item_queue_handlers_set_up (TrackerMinerFS *fs)
 }
 
 static gboolean
-should_change_index_for_file (TrackerMinerFS *miner,
+should_change_index_for_file (TrackerMinerFS *fs,
 			      GFile          *file)
 {
 	TrackerClient      *client;
@@ -739,7 +788,7 @@ should_change_index_for_file (TrackerMinerFS *miner,
 	g_object_unref (file_info);
 
 	uri = g_file_get_uri (file);
-	client = tracker_miner_get_client (TRACKER_MINER (miner));
+	client = tracker_miner_get_client (TRACKER_MINER (fs));
 
 	gmtime_r (&mtime, &t);
 
@@ -772,33 +821,32 @@ should_change_index_for_file (TrackerMinerFS *miner,
 }
 
 static gboolean
+should_check_file (TrackerMinerFS *fs,
+		   GFile          *file,
+		   gboolean        is_dir)
+{
+	gboolean should_check;
+
+	if (is_dir) {
+		g_signal_emit (fs, signals[CHECK_DIRECTORY], 0, file, &should_check);
+	} else {
+		g_signal_emit (fs, signals[CHECK_FILE], 0, file, &should_check);
+	}
+
+	return should_check;
+}
+
+static gboolean
 should_process_file (TrackerMinerFS *fs,
 		     GFile          *file,
 		     gboolean        is_dir)
 {
-	gboolean should_process;
-
-	if (is_dir) {
-		g_signal_emit (fs, signals[CHECK_DIRECTORY], 0, file, &should_process);
-	} else {
-		g_signal_emit (fs, signals[CHECK_FILE], 0, file, &should_process);
-	}
-
-	if (!should_process) {
+	if (!should_check_file (fs, file, is_dir)) {
 		return FALSE;
 	}
 
-	if (is_dir) {
-		/* We _HAVE_ to check ALL directories because mtime
-		 * updates are not guaranteed on parents on Windows
-		 * AND we on Linux only the immediate parent directory
-		 * mtime is updated, this is not done recursively.
-		 */
-		return TRUE;
-	} else {
-		/* Check whether file is up-to-date in tracker-store */
-		return should_change_index_for_file (fs, file);
-	}
+	/* Check whether file is up-to-date in tracker-store */
+	return should_change_index_for_file (fs, file);
 }
 
 static void
@@ -954,7 +1002,7 @@ monitor_item_moved_cb (TrackerMonitor *monitor,
 		path = g_file_get_path (file);
 		other_path = g_file_get_path (other_file);
 
-		source_stored = query_resource_exists (fs, file);
+		source_stored = item_query_exists (fs, file);
 		should_process_other = should_process_file (fs, other_file, is_directory);
 
 		g_debug ("%s:'%s'->'%s':%s (%s) (move monitor event or user request)",
@@ -1012,77 +1060,49 @@ monitor_item_moved_cb (TrackerMonitor *monitor,
 }
 
 static gboolean
-crawler_process_file_cb (TrackerCrawler *crawler,
-			 GFile	        *file,
-			 gpointer	 user_data)
+crawler_check_file_cb (TrackerCrawler *crawler,
+		       GFile	      *file,
+		       gpointer        user_data)
 {
-	TrackerMinerFS *fs;
-	gchar *path;
-	gboolean should_process;
+	TrackerMinerFS *fs = user_data;
 
-	fs = user_data;
-
-	path = g_file_get_path (file);
-
-	should_process = should_process_file (fs, file, FALSE);
-
-	if (should_process) {
-		g_debug ("Found  :'%s'", path);
-
-		/* Add files in queue to our queues to send to the indexer */
-		g_queue_push_tail (fs->private->items_created,
-				   g_object_ref (file));
-		item_queue_handlers_set_up (fs);
-	} else {
-		g_debug ("Ignored:'%s'", path);
-	}
-
-	g_free (path);
-
-	return should_process;
+	return should_process_file (fs, file, FALSE);
 }
 
 static gboolean
-crawler_process_directory_cb (TrackerCrawler *crawler,
-			      GFile	     *file,
-			      gpointer	      user_data)
+crawler_check_directory_cb (TrackerCrawler *crawler,
+			    GFile	   *file,
+			    gpointer	    user_data)
 {
-	TrackerMinerFS *fs;
-	gchar *path;
-	gboolean should_process;
+	TrackerMinerFS *fs = user_data;
+	gboolean should_check;
 	gboolean add_monitor = TRUE;
 
-	fs = user_data;
-
-	path = g_file_get_path (file);
-	should_process = should_process_file (fs, file, TRUE);
-
-	if (should_process) {
-		g_debug ("Found  :'%s'", path);
-
-		/* FIXME: Do we add directories to the queue? */
-		g_queue_push_tail (fs->private->items_created,
-				   g_object_ref (file));
-
-		item_queue_handlers_set_up (fs);
-	} else {
-		g_debug ("Ignored:'%s'", path);
-	}
+	should_check = should_check_file (fs, file, TRUE);
 
 	g_signal_emit (fs, signals[MONITOR_DIRECTORY], 0, file, &add_monitor);
 
-	/* Should we add? */
+	/* FIXME: Should we add here or when we process the queue in
+	 * the finished sig? 
+	 */
 	if (add_monitor) {
 		tracker_monitor_add (fs->private->monitor, file);
 	}
 
-	g_free (path);
-
-	return should_process;
+	/* We _HAVE_ to check ALL directories because mtime updates
+	 * are not guaranteed on parents on Windows AND we on Linux
+	 * only the immediate parent directory mtime is updated, this
+	 * is not done recursively.
+	 *
+	 * As such, we only use the "check" rules here, we don't do
+	 * any database comparison with mtime. 
+	 */
+	return should_check;
 }
 
 static void
 crawler_finished_cb (TrackerCrawler *crawler,
+		     GQueue         *found,
 		     gboolean        was_interrupted,
 		     guint	     directories_found,
 		     guint	     directories_ignored,
@@ -1090,9 +1110,13 @@ crawler_finished_cb (TrackerCrawler *crawler,
 		     guint	     files_ignored,
 		     gpointer	     user_data)
 {
-	TrackerMinerFS *fs;
+	TrackerMinerFS *fs = user_data;
+	GList *l;
 
-	fs = user_data;
+	/* Add items in queue to current queues. */
+	for (l = found->head; l; l = l->next) {
+		g_queue_push_tail (fs->private->items_created, g_object_ref (l->data));
+	}
 
 	/* Update stats */
 	fs->private->directories_found += directories_found;
@@ -1119,75 +1143,57 @@ crawler_finished_cb (TrackerCrawler *crawler,
 	fs->private->current_directory = NULL;
 
 	/* Proceed to next thing to process */
-	process_directories_start (fs);
-}
-
-static void
-print_stats (TrackerMinerFS *fs)
-{
-	/* Only do this the first time, otherwise the results are
-	 * likely to be inaccurate. Devices can be added or removed so
-	 * we can't assume stats are correct.
-	 */
-	if (!fs->private->shown_totals) {
-		fs->private->shown_totals = TRUE;
-
-		g_message ("--------------------------------------------------");
-		g_message ("Total directories : %d (%d ignored)",
-			   fs->private->total_directories_found,
-			   fs->private->total_directories_ignored);
-		g_message ("Total files       : %d (%d ignored)",
-			   fs->private->total_files_found,
-			   fs->private->total_files_ignored);
-		g_message ("Total monitors    : %d",
-			   tracker_monitor_get_count (fs->private->monitor));
-		g_message ("--------------------------------------------------\n");
-	}
+	crawl_directories_start (fs);
 }
 
 static gboolean
-process_directories_cb (gpointer user_data)
+crawl_directories_cb (gpointer user_data)
 {
-	TrackerMinerFS *miner = user_data;
+	TrackerMinerFS *fs = user_data;
 
-	if (miner->private->current_directory) {
+	if (fs->private->current_directory) {
 		g_critical ("One directory is already being processed, bailing out");
-		miner->private->process_dirs_id = 0;
+		fs->private->crawl_directories_id = 0;
 		return FALSE;
 	}
 
-	if (!miner->private->directories) {
-		process_directories_stop (miner);
+	if (!fs->private->directories) {
+		/* Now we handle the queue */
+		item_queue_handlers_set_up (fs);
+		crawl_directories_stop (fs);
+
+		fs->private->crawl_directories_id = 0;
 		return FALSE;
 	}
 
-	miner->private->current_directory = miner->private->directories->data;
-	miner->private->directories = g_list_remove (miner->private->directories,
-						     miner->private->current_directory);
+
+	fs->private->current_directory = fs->private->directories->data;
+	fs->private->directories = g_list_remove (fs->private->directories,
+						  fs->private->current_directory);
 
 	g_debug ("Processing %s path '%s'\n",
-		 miner->private->current_directory->recurse ? "recursive" : "single",
-		 miner->private->current_directory->path);
+		 fs->private->current_directory->recurse ? "recursive" : "single",
+		 fs->private->current_directory->path);
 
-	if (tracker_crawler_start (miner->private->crawler,
-				   miner->private->current_directory->path,
-				   miner->private->current_directory->recurse)) {
+	if (tracker_crawler_start (fs->private->crawler,
+				   fs->private->current_directory->path,
+				   fs->private->current_directory->recurse)) {
 		/* Crawler when restart the idle function when done */
-		miner->private->process_dirs_id = 0;
+		fs->private->crawl_directories_id = 0;
 		return FALSE;
 	}
 
 	/* Directory couldn't be processed */
-	directory_data_free (miner->private->current_directory);
-	miner->private->current_directory = NULL;
+	directory_data_free (fs->private->current_directory);
+	fs->private->current_directory = NULL;
 
 	return TRUE;
 }
 
 static void
-process_directories_start (TrackerMinerFS *fs)
+crawl_directories_start (TrackerMinerFS *fs)
 {
-	if (fs->private->process_dirs_id != 0) {
+	if (fs->private->crawl_directories_id != 0) {
 		/* Processing ALREADY going on */
 		return;
 	}
@@ -1210,13 +1216,13 @@ process_directories_start (TrackerMinerFS *fs)
 	fs->private->files_found = 0;
 	fs->private->files_ignored = 0;
 
-	fs->private->process_dirs_id = g_idle_add (process_directories_cb, fs);
+	fs->private->crawl_directories_id = g_idle_add (crawl_directories_cb, fs);
 }
 
 static void
-process_directories_stop (TrackerMinerFS *fs)
+crawl_directories_stop (TrackerMinerFS *fs)
 {
-	if (fs->private->process_dirs_id == 0) {
+	if (fs->private->crawl_directories_id == 0) {
 		/* No processing going on, nothing to stop */
 		return;
 	}
@@ -1225,9 +1231,6 @@ process_directories_stop (TrackerMinerFS *fs)
 		tracker_crawler_stop (fs->private->crawler);
 	}
 
-	/* Now we have finished crawling, print stats and enable monitor events */
-	print_stats (fs);
-	
 	g_message ("Enabling monitor events");
 	tracker_monitor_set_enabled (fs->private->monitor, TRUE);
 	
@@ -1235,21 +1238,10 @@ process_directories_stop (TrackerMinerFS *fs)
 	 * monitor events left to handle? Should they matter
 	 * here?
 	 */
-	g_signal_emit (fs, signals[FINISHED], 0, 
-		       g_timer_elapsed (fs->private->timer, NULL),
-		       fs->private->total_directories_found,
-		       fs->private->total_directories_ignored,
-		       fs->private->total_files_found,
-		       fs->private->total_files_ignored);
 
-	if (fs->private->timer) {
-		g_timer_destroy (fs->private->timer);
-		fs->private->timer = NULL;
-	}
-
-	if (fs->private->process_dirs_id != 0) {
-		g_source_remove (fs->private->process_dirs_id);
-		fs->private->process_dirs_id = 0;
+	if (fs->private->crawl_directories_id != 0) {
+		g_source_remove (fs->private->crawl_directories_id);
+		fs->private->crawl_directories_id = 0;
 	}
 }
 
@@ -1265,7 +1257,7 @@ tracker_miner_fs_add_directory (TrackerMinerFS *fs,
 		g_list_append (fs->private->directories,
 			       directory_data_new (path, recurse));
 
-	process_directories_start (fs);
+	crawl_directories_start (fs);
 }
 
 gboolean

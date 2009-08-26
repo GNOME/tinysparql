@@ -45,9 +45,9 @@ struct TrackerCrawler {
 struct TrackerCrawlerClass {
 	GObjectClass parent;
 
-	gboolean (* process_directory)   (TrackerCrawler *crawler,
+	gboolean (* check_directory)     (TrackerCrawler *crawler,
 					  GFile          *file);
-	gboolean (* process_file)        (TrackerCrawler *crawler,
+	gboolean (* check_file)          (TrackerCrawler *crawler,
 					  GFile          *file);
 	void     (* finished)            (TrackerCrawler *crawler,
 					  guint           directories_found, 

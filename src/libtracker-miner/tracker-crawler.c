@@ -40,6 +40,9 @@
 
 struct TrackerCrawlerPrivate {
 	/* Found data */
+	GQueue	       *found;
+
+	/* Usable data */
 	GQueue	       *directories;
 	GQueue	       *files;
 
@@ -65,8 +68,8 @@ struct TrackerCrawlerPrivate {
 };
 
 enum {
-	PROCESS_DIRECTORY,
-	PROCESS_FILE,
+	CHECK_DIRECTORY,
+	CHECK_FILE,
 	FINISHED,
 	LAST_SIGNAL
 };
@@ -83,7 +86,7 @@ typedef struct {
 } EnumeratorData;
 
 static void     crawler_finalize        (GObject         *object);
-static gboolean process_defaults        (TrackerCrawler  *crawler,
+static gboolean check_defaults          (TrackerCrawler  *crawler,
 					 GFile           *file);
 static void     file_enumerate_next     (GFileEnumerator *enumerator,
 					 EnumeratorData  *ed);
@@ -102,26 +105,26 @@ tracker_crawler_class_init (TrackerCrawlerClass *klass)
 
 	object_class->finalize = crawler_finalize;
 
-	crawler_class->process_directory = process_defaults;
-	crawler_class->process_file      = process_defaults;
+	crawler_class->check_directory = check_defaults;
+	crawler_class->check_file      = check_defaults;
 
-	signals[PROCESS_DIRECTORY] =
-		g_signal_new ("process-directory",
+	signals[CHECK_DIRECTORY] =
+		g_signal_new ("check-directory",
 			      G_TYPE_FROM_CLASS (klass),
 			      G_SIGNAL_RUN_LAST,
-			      G_STRUCT_OFFSET (TrackerCrawlerClass, process_directory),
-			      tracker_accumulator_process_file,
+			      G_STRUCT_OFFSET (TrackerCrawlerClass, check_directory),
+			      tracker_accumulator_check_file,
 			      NULL,
 			      tracker_marshal_BOOLEAN__OBJECT,
 			      G_TYPE_BOOLEAN,
 			      1,
 			      G_TYPE_FILE);
-	signals[PROCESS_FILE] =
-		g_signal_new ("process-file",
+	signals[CHECK_FILE] =
+		g_signal_new ("check-file",
 			      G_TYPE_FROM_CLASS (klass),
 			      G_SIGNAL_RUN_LAST,
-			      G_STRUCT_OFFSET (TrackerCrawlerClass, process_file),
-			      tracker_accumulator_process_file,
+			      G_STRUCT_OFFSET (TrackerCrawlerClass, check_file),
+			      tracker_accumulator_check_file,
 			      NULL,
 			      tracker_marshal_BOOLEAN__OBJECT,
 			      G_TYPE_BOOLEAN,
@@ -133,9 +136,10 @@ tracker_crawler_class_init (TrackerCrawlerClass *klass)
 			      G_SIGNAL_RUN_LAST,
 			      G_STRUCT_OFFSET (TrackerCrawlerClass, finished),
 			      NULL, NULL,
-			      tracker_marshal_VOID__BOOLEAN_UINT_UINT_UINT_UINT,
+			      tracker_marshal_VOID__POINTER_BOOLEAN_UINT_UINT_UINT_UINT,
 			      G_TYPE_NONE,
-			      5,
+			      6,
+			      G_TYPE_POINTER,
 			      G_TYPE_BOOLEAN,
 			      G_TYPE_UINT,
 			      G_TYPE_UINT,
@@ -154,8 +158,11 @@ tracker_crawler_init (TrackerCrawler *object)
 
 	priv = object->private;
 
+	priv->found = g_queue_new ();
+
 	priv->directories = g_queue_new ();
 	priv->files = g_queue_new ();
+
 	priv->cancellable = g_cancellable_new ();
 }
 
@@ -176,6 +183,9 @@ crawler_finalize (GObject *object)
 
 	g_object_unref (priv->cancellable);
 
+	g_queue_foreach (priv->found, (GFunc) g_object_unref, NULL);
+	g_queue_free (priv->found);
+
 	g_queue_foreach (priv->files, (GFunc) g_object_unref, NULL);
 	g_queue_free (priv->files);
 
@@ -186,8 +196,8 @@ crawler_finalize (GObject *object)
 }
 
 static gboolean 
-process_defaults (TrackerCrawler *crawler,
-		  GFile          *file)
+check_defaults (TrackerCrawler *crawler,
+		GFile          *file)
 {
 	return TRUE;
 }
@@ -224,39 +234,39 @@ add_directory (TrackerCrawler *crawler,
 }
 
 static gboolean
-process_file (TrackerCrawler *crawler,
-	      GFile	     *file)
+check_file (TrackerCrawler *crawler,
+	    GFile          *file)
 {
-	gboolean should_process = FALSE;
+	gboolean use = FALSE;
 
-	g_signal_emit (crawler, signals[PROCESS_FILE], 0, file, &should_process);
+	g_signal_emit (crawler, signals[CHECK_FILE], 0, file, &use);
 
 	crawler->private->files_found++;
 
-	if (!should_process) {
+	if (!use) {
 		crawler->private->files_ignored++;
 	}
 
-	return should_process;
+	return use;
 }
 
 static gboolean
-process_directory (TrackerCrawler *crawler,
-		   GFile	  *file)
+check_directory (TrackerCrawler *crawler,
+		 GFile          *file)
 {
-	gboolean should_process = FALSE;
+	gboolean use = FALSE;
 
-	g_signal_emit (crawler, signals[PROCESS_DIRECTORY], 0, file, &should_process);
+	g_signal_emit (crawler, signals[CHECK_DIRECTORY], 0, file, &use);
 
 	crawler->private->directories_found++;
 
-	if (should_process) {
+	if (use) {
 		file_enumerate_children (crawler, file);
 	} else {
 		crawler->private->directories_ignored++;
 	}
 
-	return should_process;
+	return use;
 }
 
 static gboolean
@@ -289,8 +299,11 @@ process_func (gpointer data)
 	file = g_queue_pop_head (priv->files);
 
 	if (file) {
-		process_file (crawler, file);
-		g_object_unref (file);
+		if (check_file (crawler, file)) {
+			g_queue_push_tail (priv->found, file);
+		} else {
+			g_object_unref (file);
+		}
 
 		return TRUE;
 	}
@@ -299,8 +312,11 @@ process_func (gpointer data)
 	file = g_queue_pop_head (priv->directories);
 
 	if (file) {
-		process_directory (crawler, file);
-		g_object_unref (file);
+		if (check_directory (crawler, file)) {
+			g_queue_push_tail (priv->found, file);
+		} else {
+			g_object_unref (file);
+		}
 
 		return TRUE;
 	}
@@ -674,9 +690,17 @@ tracker_crawler_stop (TrackerCrawler *crawler)
 	}
 
 	g_signal_emit (crawler, signals[FINISHED], 0,
+		       priv->found,
 		       !priv->is_finished,
 		       priv->directories_found,
 		       priv->directories_ignored,
 		       priv->files_found,
 		       priv->files_ignored);
+
+	/* Clean up queue */
+	g_queue_foreach (priv->found, (GFunc) g_object_unref, NULL);
+
+	/* We don't free the queue in case the crawler is reused, it
+	 * is only freed in finalize.
+	 */
 }

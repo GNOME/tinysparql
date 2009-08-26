@@ -25,10 +25,10 @@
 
 G_BEGIN_DECLS
 
-gboolean tracker_accumulator_process_file (GSignalInvocationHint *hint,
-                                           GValue                *return_accumulator,
-                                           const GValue          *handler_return,
-                                           gpointer               accumulator_data);
+gboolean tracker_accumulator_check_file (GSignalInvocationHint *hint,
+					 GValue                *return_accumulator,
+					 const GValue          *handler_return,
+					 gpointer               accumulator_data);
 
 G_END_DECLS
 
