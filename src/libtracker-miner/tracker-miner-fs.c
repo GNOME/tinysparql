@@ -44,8 +44,6 @@ struct TrackerMinerFSPrivate {
 	TrackerCrawler *crawler;
 
 	/* File queues for indexer */
-	guint		item_queues_handler_id;
-
 	GQueue         *items_created;
 	GQueue         *items_updated;
 	GQueue         *items_deleted;
@@ -56,12 +54,10 @@ struct TrackerMinerFSPrivate {
 	GList          *directories;
 	DirectoryData  *current_directory;
 
-	GList          *devices;
-	GList          *current_device;
-
 	GTimer	       *timer;
 
 	guint           crawl_directories_id;
+	guint		item_queues_handler_id;
 
 	/* Status */
 	guint           been_started : 1;
@@ -308,13 +304,6 @@ fs_finalize (GObject *object)
 
 	g_queue_foreach (priv->items_created, (GFunc) g_object_unref, NULL);
 	g_queue_free (priv->items_created);
-
-#ifdef HAVE_HAL
-	if (priv->devices) {
-		g_list_foreach (priv->devices, (GFunc) g_free, NULL);
-		g_list_free (priv->devices);
-	}
-#endif /* HAVE_HAL */
 
 	G_OBJECT_CLASS (tracker_miner_fs_parent_class)->finalize (object);
 }
