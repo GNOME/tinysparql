@@ -342,7 +342,7 @@ tracker_data_update_buffer_flush (void)
 	TrackerDataUpdateBufferProperty *property;
 	GHashTableIter                  iter;
 	const gchar                    *table_name;
-	GString                        *sql;
+	GString                        *sql, *fts;
 	int                             i;
 
 	iface = tracker_db_manager_get_db_interface ();
@@ -360,10 +360,7 @@ tracker_data_update_buffer_flush (void)
 		update_buffer.new_subject = NULL;
 	}
 
-	// TODO we need to retrieve all existing (FTS indexed) property values for
-	// this resource to properly support incremental FTS updates
-	// (like calling deleteTerms and then calling insertTerms)
-	tracker_fts_update_init (update_buffer.id);
+	fts = NULL;
 
 	g_hash_table_iter_init (&iter, update_buffer.tables);
 	while (g_hash_table_iter_next (&iter, (gpointer*) &table_name, (gpointer*) &table)) {
@@ -425,12 +422,24 @@ tracker_data_update_buffer_flush (void)
 		for (i = 0; i < table->properties->len; i++) {
 			property = &g_array_index (table->properties, TrackerDataUpdateBufferProperty, i);
 			if (property->fts) {
-				tracker_fts_update_text (update_buffer.id, 0, g_value_get_string (&property->value));
+				if (fts == NULL) {
+					fts = g_string_new (g_value_get_string (&property->value));
+				} else {
+					g_string_append (fts, g_value_get_string (&property->value));
+				}
 			}
 		}
 	}
 
-	tracker_fts_update_commit ();
+	if (fts != NULL) {
+		// TODO we need to retrieve all existing (FTS indexed) property values for
+		// this resource to properly support incremental FTS updates
+		// (like calling deleteTerms and then calling insertTerms)
+		tracker_fts_update_init (update_buffer.id);
+		tracker_fts_update_text (update_buffer.id, 0, fts->str);
+		tracker_fts_update_commit ();
+		g_string_free (fts, TRUE);
+	}
 
 	g_hash_table_remove_all (update_buffer.tables);
 	g_free (update_buffer.subject);
