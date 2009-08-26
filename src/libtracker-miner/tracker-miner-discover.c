@@ -137,6 +137,7 @@ tracker_miner_discover_get_available (void)
 {
 	GSList *list = NULL;
 	GMainLoop *main_loop;
+	GFile *file;
 	TrackerCrawler *crawler;
 
 	crawler = tracker_crawler_new ();
@@ -155,7 +156,9 @@ tracker_miner_discover_get_available (void)
 			  main_loop);
 
 	/* Go through service files */
-	tracker_crawler_start (crawler, DBUS_SERVICES_DIR, TRUE);
+	file = g_file_new_for_path (DBUS_SERVICES_DIR);
+	tracker_crawler_start (crawler, file, TRUE);
+	g_object_unref (file);
 
 	g_main_loop_run (main_loop);
 
