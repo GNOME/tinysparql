@@ -99,6 +99,7 @@ static void           fs_finalize                  (GObject        *object);
 static gboolean       fs_defaults                  (TrackerMinerFS *fs,
 						    GFile          *file);
 static void           miner_started                (TrackerMiner   *miner);
+static void           miner_stopped                (TrackerMiner   *miner);
 static DirectoryData *directory_data_new           (GFile          *file,
 						    gboolean        recurse);
 static void           directory_data_free          (DirectoryData  *dd);
@@ -154,6 +155,7 @@ tracker_miner_fs_class_init (TrackerMinerFSClass *klass)
 	object_class->finalize = fs_finalize;
 
         miner_class->started = miner_started;
+        miner_class->stopped = miner_stopped;
 
 	fs_class->check_file        = fs_defaults;
 	fs_class->check_directory   = fs_defaults;
@@ -369,7 +371,22 @@ miner_started (TrackerMiner *miner)
 	fs = TRACKER_MINER_FS (miner);
 
 	fs->private->been_started = TRUE;
+
+	g_object_set (miner, 
+		      "progress", 0.0, 
+		      "status", _("Initializing"),
+		      NULL);
+
 	crawl_directories_start (fs);
+}
+
+static void
+miner_stopped (TrackerMiner *miner)
+{
+	g_object_set (miner, 
+		      "progress", 1.0, 
+		      "status", _("Idle"),
+		      NULL);
 }
 
 static DirectoryData *
@@ -426,6 +443,11 @@ process_stop (TrackerMinerFS *fs)
 	/* Now we have finished crawling, print stats and enable monitor events */
 	process_print_stats (fs);
 
+	g_object_set (fs, 
+		      "progress", 1.0, 
+		      "status", _("Idle"),
+		      NULL);
+
 	g_signal_emit (fs, signals[FINISHED], 0,
 		       g_timer_elapsed (fs->private->timer, NULL),
 		       fs->private->total_directories_found,
@@ -437,6 +459,11 @@ process_stop (TrackerMinerFS *fs)
 		g_timer_destroy (fs->private->timer);
 		fs->private->timer = NULL;
 	}
+
+	fs->private->total_directories_found = 0;
+	fs->private->total_directories_ignored = 0;
+	fs->private->total_files_found = 0;
+	fs->private->total_files_ignored = 0;
 
 	fs->private->been_crawled = TRUE;
 }
@@ -703,16 +730,52 @@ item_queue_get_next_file (TrackerMinerFS  *fs,
 	return QUEUE_NONE;
 }
 
+static gdouble
+item_queue_get_progress (TrackerMinerFS *fs)
+{
+	guint items_to_process = 0;
+	guint items_total = 0;
+	
+	items_to_process += g_queue_get_length (fs->private->items_deleted);
+	items_to_process += g_queue_get_length (fs->private->items_created);
+	items_to_process += g_queue_get_length (fs->private->items_updated);
+	items_to_process += g_queue_get_length (fs->private->items_moved);
+
+	items_total += fs->private->total_directories_found;
+	items_total += fs->private->total_files_found;
+
+	if (items_to_process == 0 && items_total > 0) {
+		return 0.0;
+	}
+
+	if (items_total == 0 || items_to_process > items_total) {
+		return 1.0;
+	}
+
+	return (gdouble) (items_total - items_to_process) / items_total;
+}
+
 static gboolean
 item_queue_handlers_cb (gpointer user_data)
 {
 	TrackerMinerFS *fs;
 	GFile *file, *source_file;
 	gint queue;
+	GTimeVal time_now;
+	static GTimeVal time_last = { 0, 0 };
 
 	fs = user_data;
 	queue = item_queue_get_next_file (fs, &file, &source_file);
 
+	/* Update progress, but don't spam it. */
+	g_get_current_time (&time_now);
+
+	if ((time_now.tv_sec - time_last.tv_sec) >= 1) {
+		time_last = time_now;
+		g_object_set (fs, "progress", item_queue_get_progress (fs), NULL);
+	}
+	
+	/* Handle queues */
 	if (queue == QUEUE_NONE) {
 		/* Print stats and signal finished */
 		process_stop (fs);
@@ -752,6 +815,8 @@ item_queue_handlers_set_up (TrackerMinerFS *fs)
 	if (fs->private->item_queues_handler_id != 0) {
 		return;
 	}
+
+	g_object_set (fs, "status", _("Processing files"), NULL);
 
 	fs->private->item_queues_handler_id =
 		g_idle_add (item_queue_handlers_cb,
@@ -1151,6 +1216,7 @@ crawl_directories_cb (gpointer user_data)
 {
 	TrackerMinerFS *fs = user_data;
 	gchar *path;
+	gchar *str;
 
 	if (fs->private->current_directory) {
 		g_critical ("One directory is already being processed, bailing out");
@@ -1172,16 +1238,23 @@ crawl_directories_cb (gpointer user_data)
 	fs->private->directories = g_list_remove (fs->private->directories,
 						  fs->private->current_directory);
 
-	path = g_file_get_path (miner->private->current_directory->file);
+	path = g_file_get_path (fs->private->current_directory->file);
+	
+	if (fs->private->current_directory->recurse) {
+		str = g_strdup_printf (_("Crawling recursively directory '%s'"), path);
+	} else {
+		str = g_strdup_printf (_("Crawling single directory '%s'"), path);
+	}
 
-	g_debug ("Processing %s path '%s'\n",
-		 fs->private->current_directory->recurse ? "recursive" : "single",
-		 path);
+	g_debug ("%s\n", str);
+
+	g_object_set (fs, "status", str, NULL);
+	g_free (str);
 
 	if (tracker_crawler_start (fs->private->crawler, path,
 				   fs->private->current_directory->recurse)) {
 		/* Crawler when restart the idle function when done */
-		fs->private->process_dirs_id = 0;
+		fs->private->crawl_directories_id = 0;
 		g_free (path);
 
 		return FALSE;
@@ -1209,16 +1282,12 @@ crawl_directories_start (TrackerMinerFS *fs)
 		return;
 	}
 
-	fs->private->timer = g_timer_new ();
+	g_object_set (fs, "status", _("Crawling"), NULL);
 
-	fs->private->total_directories_found = 0;
-	fs->private->total_directories_ignored = 0;
-	fs->private->total_files_found = 0;
-	fs->private->total_files_ignored = 0;
+	fs->private->timer = g_timer_new ();
 
 	fs->private->directories_found = 0;
 	fs->private->directories_ignored = 0;
-
 	fs->private->files_found = 0;
 	fs->private->files_ignored = 0;
 
