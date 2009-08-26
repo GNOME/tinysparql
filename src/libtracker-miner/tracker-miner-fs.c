@@ -94,47 +94,47 @@ enum {
 	LAST_SIGNAL
 };
 
-static void           fs_finalize             (GObject             *object);
-static gboolean       fs_defaults             (TrackerMinerFS *fs,
-					       GFile               *file);
-static void           miner_started                (TrackerMiner        *miner);
-static DirectoryData *directory_data_new           (const gchar         *path,
-						    gboolean             recurse);
-static void           directory_data_free          (DirectoryData       *dd);
-static ItemMovedData *item_moved_data_new          (GFile               *file,
-						    GFile               *source_file);
-static void           item_moved_data_free         (ItemMovedData       *data);
-static void           monitor_item_created_cb      (TrackerMonitor      *monitor,
-						    GFile               *file,
-						    gboolean             is_directory,
-						    gpointer             user_data);
-static void           monitor_item_updated_cb      (TrackerMonitor      *monitor,
-						    GFile               *file,
-						    gboolean             is_directory,
-						    gpointer             user_data);
-static void           monitor_item_deleted_cb      (TrackerMonitor      *monitor,
-						    GFile               *file,
-						    gboolean             is_directory,
-						    gpointer             user_data);
-static void           monitor_item_moved_cb        (TrackerMonitor      *monitor,
-						    GFile               *file,
-						    GFile               *other_file,
-						    gboolean             is_directory,
-						    gboolean             is_source_monitored,
-						    gpointer             user_data);
-static gboolean       crawler_process_file_cb      (TrackerCrawler      *crawler,
-						    GFile               *file,
-						    gpointer             user_data);
-static gboolean       crawler_process_directory_cb (TrackerCrawler      *crawler,
-						    GFile               *file,
-						    gpointer             user_data);
-static void           crawler_finished_cb          (TrackerCrawler      *crawler,
-						    gboolean             was_interrupted,
-						    guint                directories_found,
-						    guint                directories_ignored,
-						    guint                files_found,
-						    guint                files_ignored,
-						    gpointer             user_data);
+static void           fs_finalize                  (GObject        *object);
+static gboolean       fs_defaults                  (TrackerMinerFS *fs,
+						    GFile          *file);
+static void           miner_started                (TrackerMiner   *miner);
+static DirectoryData *directory_data_new           (const gchar    *path,
+						    gboolean        recurse);
+static void           directory_data_free          (DirectoryData  *dd);
+static ItemMovedData *item_moved_data_new          (GFile          *file,
+						    GFile          *source_file);
+static void           item_moved_data_free         (ItemMovedData  *data);
+static void           monitor_item_created_cb      (TrackerMonitor *monitor,
+						    GFile          *file,
+						    gboolean        is_directory,
+						    gpointer        user_data);
+static void           monitor_item_updated_cb      (TrackerMonitor *monitor,
+						    GFile          *file,
+						    gboolean        is_directory,
+						    gpointer        user_data);
+static void           monitor_item_deleted_cb      (TrackerMonitor *monitor,
+						    GFile          *file,
+						    gboolean        is_directory,
+						    gpointer        user_data);
+static void           monitor_item_moved_cb        (TrackerMonitor *monitor,
+						    GFile          *file,
+						    GFile          *other_file,
+						    gboolean        is_directory,
+						    gboolean        is_source_monitored,
+						    gpointer        user_data);
+static gboolean       crawler_process_file_cb      (TrackerCrawler *crawler,
+						    GFile          *file,
+						    gpointer        user_data);
+static gboolean       crawler_process_directory_cb (TrackerCrawler *crawler,
+						    GFile          *file,
+						    gpointer        user_data);
+static void           crawler_finished_cb          (TrackerCrawler *crawler,
+						    gboolean        was_interrupted,
+						    guint           directories_found,
+						    guint           directories_ignored,
+						    guint           files_found,
+						    guint           files_ignored,
+						    gpointer        user_data);
 static void           process_directories_start    (TrackerMinerFS *process);
 static void           process_directories_stop     (TrackerMinerFS *fs);
 
@@ -354,7 +354,7 @@ fs_finalize (GObject *object)
 
 static gboolean 
 fs_defaults (TrackerMinerFS *fs,
-	     GFile               *file)
+	     GFile          *file)
 {
 	return TRUE;
 }
@@ -418,7 +418,7 @@ item_moved_data_free (ItemMovedData *data)
 
 static void
 item_add_or_update (TrackerMinerFS  *miner,
-		    GFile                *file)
+		    GFile           *file)
 {
 	TrackerSparqlBuilder *sparql;
 	gchar *full_sparql, *uri;
@@ -448,7 +448,7 @@ item_add_or_update (TrackerMinerFS  *miner,
 
 static gboolean
 query_resource_exists (TrackerMinerFS *miner,
-		       GFile               *file)
+		       GFile          *file)
 {
 	TrackerClient *client;
 	gboolean   result;
@@ -711,7 +711,7 @@ item_queue_handlers_set_up (TrackerMinerFS *fs)
 
 static gboolean
 should_change_index_for_file (TrackerMinerFS *miner,
-			      GFile               *file)
+			      GFile          *file)
 {
 	TrackerClient      *client;
 	gboolean            uptodate;
@@ -722,7 +722,11 @@ should_change_index_for_file (TrackerMinerFS *miner,
 	struct tm           t;
 	gchar              *query, *uri;;
 
-	file_info = g_file_query_info (file, G_FILE_ATTRIBUTE_TIME_MODIFIED, G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS, NULL, NULL);
+	file_info = g_file_query_info (file, 
+				       G_FILE_ATTRIBUTE_TIME_MODIFIED, 
+				       G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS, 
+				       NULL, 
+				       NULL);
 	if (!file_info) {
 		/* NOTE: We return TRUE here because we want to update the DB
 		 * about this file, not because we want to index it.
@@ -740,10 +744,16 @@ should_change_index_for_file (TrackerMinerFS *miner,
 	gmtime_r (&mtime, &t);
 
 	query = g_strdup_printf ("SELECT ?file { ?file nfo:fileLastModified \"%04d-%02d-%02dT%02d:%02d:%02d\" . FILTER (?file = <%s>) }",
-	                         t.tm_year + 1900, t.tm_mon + 1, t.tm_mday, t.tm_hour, t.tm_min, t.tm_sec, uri);
+	                         t.tm_year + 1900, 
+				 t.tm_mon + 1, 
+				 t.tm_mday, 
+				 t.tm_hour, 
+				 t.tm_min, 
+				 t.tm_sec, 
+				 uri);
 	sparql_result = tracker_resources_sparql_query (client, query, NULL);
 
-	uptodate = (sparql_result && sparql_result->len == 1);
+	uptodate = sparql_result && sparql_result->len == 1;
 
 	tracker_dbus_results_ptr_array_free (&sparql_result);
 
@@ -763,8 +773,8 @@ should_change_index_for_file (TrackerMinerFS *miner,
 
 static gboolean
 should_process_file (TrackerMinerFS *fs,
-		     GFile               *file,
-		     gboolean             is_dir)
+		     GFile          *file,
+		     gboolean        is_dir)
 {
 	gboolean should_process;
 
