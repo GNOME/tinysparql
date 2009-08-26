@@ -623,10 +623,6 @@ tracker_crawler_start (TrackerCrawler *crawler,
 	file = g_file_new_for_path (path);
 
 	if (!g_file_query_exists (file, NULL)) {
-		/* g_debug ("NOT crawling directory %s:'%s' - path does not exist", */
-		/* 	 recurse ? "recursively" : "non-recursively", */
-		/* 	 path); */
-		
 		g_object_unref (file);
 
 		/* We return TRUE because this is likely a config
@@ -636,10 +632,6 @@ tracker_crawler_start (TrackerCrawler *crawler,
 		return TRUE;
 	}
 
-	/* g_debug ("Crawling directory %s:'%s'", */
-	/* 	 recurse ? "recursively" : "non-recursively", */
-	/* 	 path); */
-	
 	/* Time the event */
 	if (priv->timer) {
 		g_timer_destroy (priv->timer);
