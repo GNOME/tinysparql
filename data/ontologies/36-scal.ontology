@@ -78,7 +78,7 @@ scal:Event a rdfs:Class ;
       rdfs:comment "An Event according the ical definition" ;
       rdfs:subClassOf scal:CalendarItem .
 
-scal:ToDo a rdfs:Class ;
+scal:Todo a rdfs:Class ;
       rdfs:label "Todo" ;
       rdfs:comment "A ToDo according the ical definition" ;
       rdfs:subClassOf scal:CalendarItem .
@@ -122,21 +122,64 @@ scal:TimePoint a rdfs:Class ;
       rdfs:comment "Point in time" ;
       rdfs:subClassOf rdfs:Resource .
 
-scal:time a rdf:Property ;
+scal:dateTime a rdf:Property ;
       rdfs:label "Time" ;
       rdfs:comment "Date and time in UTC" ;
       nrl:maxCardinality 1 ;
       rdfs:domain scal:TimePoint ;
       rdfs:range xsd:dateTime .
 
-scal:ReferenceTimeZone a rdf:Property ;
+scal:TimeZone a rdf:Property ;
       rdfs:label "Reference time zone" ;
       rdfs:comment "Timezone in the OLSON DB used as reference in the time. Use 'floating' for floating times or study the convenience of a boolean 'isFloating' attribute." ;
       nrl:maxCardinality 1 ;
       rdfs:domain scal:TimePoint ;
       rdfs:range xsd:string .
 
+#
+# Access status
+#
+scal:AccessLevel a rdfs:Class ;
+      rdfs:label "Access level" ;
+      rdfs:comment "Access classification for a calendar item: public, private or confidential. Use the predefined instances in the ontology" .
+
+scal:access-level-private a scal:AccessLevel .
+scal:access-level-public a scal:AccessLevel .
+scal:access-level-confidential a scal:AccessLevel .
+
+scal:access a rdf:Property ;
+	rdfs:label "Access" ;
+	rdfs:comment "Access classification: public private..." ;
+	rdfs:domain scal:CalendarItem ;
+	rdfs:range scal:AccessLevel .
+
+#
+# Todo properties
+#
+scal:due a rdf:Property ;
+      rdfs:label "Due" ;
+      rdfs:comment "Due time for a task to be completed" ;
+      rdfs:domain scal:Todo ;
+      rdfs:range scal:TimePoint ;
+      nrl:maxCardinality 1 .
+
+scal:completed a rdf:Property ;
+      rdfs:label "Completed" ;
+      rdfs:comment "Time when the task was completed" ;
+      rdfs:domain scal:Todo ;
+      rdfs:range scal:TimePoint ;
+      nrl:maxCardinality 1 .
+
+scal:percentComplete a rdf:Property ;
+      rdfs:label "Percentage completed" ;
+      rdfs:comment "% of the task completed" ;
+      rdfs:domain scal:Todo ;
+      rdfs:range xsd:integer ;
+      nrl:maxCardinality 1 .
+
+#
 # Every Calendar item has start and end time points + all-day boolean
+#
 scal:start a rdf:Property ;
       rdfs:label "start time";
       rdfs:comment "Start time of a calendar item" ;
@@ -151,13 +194,24 @@ scal:end a rdf:Property ;
       rdfs:domain scal:CalendarItem ;
       rdfs:range scal:TimePoint .
 
-scal:isWholeDay a rdf:Property ;
+scal:isAllDay a rdf:Property ;
       rdfs:label "Whole day calendar item" ;
       rdfs:comment "True if the event applies to the whole day" ;
       nrl:maxCardinality 1 ;
       rdfs:domain scal:CalendarItem ;
       rdfs:range xsd:boolean .
-      
+ 
+
+#
+# General Calendar item properties
+#
+scal:priority a rdf:Property ;
+      rdfs:label "Priority" ;
+      rdfs:comment "Relative priority of th event" ;
+      nrl:maxCardinality 1 ;
+      rdfs:domain scal:CalendarItem ;
+      rdfs:range xsd:integer .
+     
 
 #
 # Recurrence rules
