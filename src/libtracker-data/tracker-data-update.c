@@ -1423,6 +1423,7 @@ tracker_data_commit_transaction (void)
 		tracker_db_interface_end_transaction (iface);
 
 		g_hash_table_unref (update_buffer.resource_cache);
+		g_hash_table_unref (update_buffer.tables);
 
 		if (commit_callback) {
 			commit_callback (commit_data);
