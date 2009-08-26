@@ -108,13 +108,21 @@ config_set_property (GObject	  *object,
 		     GParamSpec	  *pspec)
 {
 	TrackerConfigFilePrivate *priv;
+	gchar *domain;
 
 	priv = TRACKER_CONFIG_FILE_GET_PRIVATE (object);
 
 	switch (param_id) {
 	case PROP_DOMAIN:
 		g_free (priv->domain);
-		priv->domain = g_strdup (g_value_get_string (value));
+		domain = g_value_get_string (value);
+
+		/* Get rid of the "lt-" prefix if any */
+		if (g_str_has_prefix (domain, "lt-")) {
+			domain += 3;
+		}
+
+		priv->domain = g_strdup (domain);
 		g_object_notify (object, "domain");
 		break;
 
