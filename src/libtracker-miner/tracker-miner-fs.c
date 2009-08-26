@@ -51,6 +51,8 @@ struct TrackerMinerFSPrivate {
 	GQueue         *items_deleted;
 	GQueue         *items_moved;
 
+	GQuark          quark_ignore_file;
+
 	GList          *directories;
 	DirectoryData  *current_directory;
 
@@ -265,6 +267,8 @@ tracker_miner_fs_init (TrackerMinerFS *object)
 	g_signal_connect (priv->monitor, "item-moved",
 			  G_CALLBACK (monitor_item_moved_cb),
 			  object);
+
+	priv->quark_ignore_file = g_quark_from_static_string ("tracker-ignore-file");
 }
 
 static void
@@ -776,7 +780,7 @@ item_queue_handlers_cb (gpointer user_data)
 		time_last = time_now;
 		g_object_set (fs, "progress", item_queue_get_progress (fs), NULL);
 	}
-	
+
 	/* Handle queues */
 	if (queue == QUEUE_NONE) {
 		/* Print stats and signal finished */
@@ -929,7 +933,7 @@ monitor_item_created_cb (TrackerMonitor *monitor,
 	gchar *path;
 
 	fs = user_data;
-	should_process = should_process_file (fs, file, is_directory);
+	should_process = should_check_file (fs, file, is_directory);
 
 	path = g_file_get_path (file);
 
@@ -972,7 +976,7 @@ monitor_item_updated_cb (TrackerMonitor *monitor,
 	gchar *path;
 
 	fs = user_data;
-	should_process = should_process_file (fs, file, is_directory);
+	should_process = should_check_file (fs, file, is_directory);
 
 	path = g_file_get_path (file);
 
@@ -1002,7 +1006,7 @@ monitor_item_deleted_cb (TrackerMonitor *monitor,
 	gchar *path;
 
 	fs = user_data;
-	should_process = should_process_file (fs, file, is_directory);
+	should_process = should_check_file (fs, file, is_directory);
 	path = g_file_get_path (file);
 
 	g_debug ("%s:'%s' (%s) (delete monitor event or user request)",
@@ -1072,7 +1076,7 @@ monitor_item_moved_cb (TrackerMonitor *monitor,
 		other_path = g_file_get_path (other_file);
 
 		source_stored = item_query_exists (fs, file);
-		should_process_other = should_process_file (fs, other_file, is_directory);
+		should_process_other = should_check_file (fs, other_file, is_directory);
 
 		g_debug ("%s:'%s'->'%s':%s (%s) (move monitor event or user request)",
 			 source_stored ? "In store" : "Not in store",
@@ -1144,10 +1148,21 @@ crawler_check_directory_cb (TrackerCrawler *crawler,
 			    gpointer	    user_data)
 {
 	TrackerMinerFS *fs = user_data;
-	gboolean should_check;
+	gboolean should_check, should_change_index;
 	gboolean add_monitor = TRUE;
 
 	should_check = should_check_file (fs, file, TRUE);
+	should_change_index = should_change_index_for_file (fs, file);
+
+	if (!should_change_index) {
+		/* Mark the file as ignored, we still want the crawler
+		 * to iterate over its contents, but the directory hasn't
+		 * actually changed, hence this flag.
+		 */
+		g_object_set_qdata (G_OBJECT (file),
+				    fs->private->quark_ignore_file,
+				    GINT_TO_POINTER (TRUE));
+	}
 
 	g_signal_emit (fs, signals[MONITOR_DIRECTORY], 0, file, &add_monitor);
 
@@ -1184,7 +1199,11 @@ crawler_finished_cb (TrackerCrawler *crawler,
 
 	/* Add items in queue to current queues. */
 	for (l = found->head; l; l = l->next) {
-		g_queue_push_tail (fs->private->items_created, g_object_ref (l->data));
+		GFile *file = l->data;
+
+		if (!g_object_get_qdata (G_OBJECT (file), fs->private->quark_ignore_file)) {
+			g_queue_push_tail (fs->private->items_created, g_object_ref (file));
+		}
 	}
 
 	/* Update stats */
@@ -1243,7 +1262,7 @@ crawl_directories_cb (gpointer user_data)
 						  fs->private->current_directory);
 
 	path = g_file_get_path (fs->private->current_directory->file);
-	
+
 	if (fs->private->current_directory->recurse) {
 		str = g_strdup_printf (_("Crawling recursively directory '%s'"), path);
 	} else {
