@@ -602,14 +602,13 @@ file_enumerate_children (TrackerCrawler *crawler,
 
 gboolean
 tracker_crawler_start (TrackerCrawler *crawler,
-		       const gchar    *path, 
+		       GFile          *file,
 		       gboolean        recurse)
 {
 	TrackerCrawlerPrivate *priv;
-	GFile *file;
 
 	g_return_val_if_fail (TRACKER_IS_CRAWLER (crawler), FALSE);
-	g_return_val_if_fail (path != NULL, FALSE);
+	g_return_val_if_fail (G_IS_FILE (file), FALSE);
 
 	priv = crawler->private;
 
@@ -620,11 +619,7 @@ tracker_crawler_start (TrackerCrawler *crawler,
 		g_cancellable_reset (priv->cancellable);
 	}
 
-	file = g_file_new_for_path (path);
-
 	if (!g_file_query_exists (file, NULL)) {
-		g_object_unref (file);
-
 		/* We return TRUE because this is likely a config
 		 * option and we only return FALSE when we expect to
 		 * not fail.
@@ -654,7 +649,6 @@ tracker_crawler_start (TrackerCrawler *crawler,
 
 	/* Start things off */
 	add_directory (crawler, file, TRUE);
-	g_object_unref (file);
 
 	return TRUE;
 }

@@ -1273,13 +1273,13 @@ crawl_directories_cb (gpointer user_data)
 
 	g_object_set (fs, "status", str, NULL);
 	g_free (str);
+	g_free (path);
 
-	if (tracker_crawler_start (fs->private->crawler, path,
+	if (tracker_crawler_start (fs->private->crawler,
+				   fs->private->current_directory->file,
 				   fs->private->current_directory->recurse)) {
 		/* Crawler when restart the idle function when done */
 		fs->private->crawl_directories_id = 0;
-		g_free (path);
-
 		return FALSE;
 	}
 

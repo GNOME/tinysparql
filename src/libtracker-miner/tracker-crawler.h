@@ -59,7 +59,7 @@ struct TrackerCrawlerClass {
 GType           tracker_crawler_get_type (void);
 TrackerCrawler *tracker_crawler_new      (void);
 gboolean        tracker_crawler_start    (TrackerCrawler *crawler,
-					  const gchar    *path,
+					  GFile          *file,
 					  gboolean        recurse);
 void            tracker_crawler_stop     (TrackerCrawler *crawler);
 
