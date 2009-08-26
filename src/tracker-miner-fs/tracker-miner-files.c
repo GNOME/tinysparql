@@ -202,6 +202,18 @@ miner_files_constructed (GObject *object)
         while (dirs) {
 		GFile *file;
 
+		/* Do some simple checks for silly locations */
+		if (strcmp (dirs->data, "/dev") == 0 ||
+		    strcmp (dirs->data, "/lib") == 0 ||
+		    strcmp (dirs->data, "/proc") == 0 ||
+		    strcmp (dirs->data, "/sys") == 0) {
+			continue;
+		}
+
+		if (g_str_has_prefix (dirs->data, g_get_tmp_dir ())) {
+			continue;
+		}
+
 		file = g_file_new_for_path (dirs->data);
                 tracker_miner_fs_add_directory (fs, file, FALSE);
 		g_object_unref (file);
@@ -213,6 +225,18 @@ miner_files_constructed (GObject *object)
 
         while (dirs) {
 		GFile *file;
+
+		/* Do some simple checks for silly locations */
+		if (strcmp (dirs->data, "/dev") == 0 ||
+		    strcmp (dirs->data, "/lib") == 0 ||
+		    strcmp (dirs->data, "/proc") == 0 ||
+		    strcmp (dirs->data, "/sys") == 0) {
+			continue;
+		}
+
+		if (g_str_has_prefix (dirs->data, g_get_tmp_dir ())) {
+			continue;
+		}
 
 		file = g_file_new_for_path (dirs->data);
                 tracker_miner_fs_add_directory (fs, file, TRUE);
@@ -293,23 +317,12 @@ miner_files_check_file (TrackerMinerFS *fs,
 	TrackerMinerFiles *mf;
 	GFileInfo *file_info;
 	GSList *l;
-	gchar *path;
 	gchar *basename;
 	gboolean should_process;
 
 	file_info = NULL;
 	should_process = FALSE;
-	path = g_file_get_path (file);
 	basename = NULL;
-
-	if (tracker_is_empty_string (path)) {
-		goto done;
-	}
-
-	if (!g_utf8_validate (path, -1, NULL)) {
-		g_message ("Ignoring path:'%s', not valid UTF-8", path);
-		goto done;
-	}
 
 	file_info = g_file_query_info (file,
 				       G_FILE_ATTRIBUTE_STANDARD_IS_HIDDEN,
@@ -340,7 +353,6 @@ done:
 	}
 
 	g_free (basename);
-	g_free (path);
 
 	return should_process;
 }
@@ -349,35 +361,16 @@ static gboolean
 miner_files_check_directory (TrackerMinerFS *fs,
 			     GFile          *file)
 {
+	TrackerMinerFiles *mf;
 	GFileInfo *file_info;
-	gchar *path;
+	GSList *l;
+	gchar *basename;
 	gboolean should_process;
 
-	file_info = NULL;
 	should_process = FALSE;
-	path = g_file_get_path (file);
-
-	if (tracker_is_empty_string (path)) {
-		goto done;
-	}
-
-	if (!g_utf8_validate (path, -1, NULL)) {
-		g_message ("Ignoring path:'%s', not valid UTF-8", path);
-		goto done;
-	}
+	basename = NULL;
 
 	/* Most common things to ignore */
-	if (strcmp (path, "/dev") == 0 ||
-	    strcmp (path, "/lib") == 0 ||
-	    strcmp (path, "/proc") == 0 ||
-	    strcmp (path, "/sys") == 0) {
-		goto done;
-	}
-	
-	if (g_str_has_prefix (path, g_get_tmp_dir ())) {
-		goto done;
-	}
-
 	file_info = g_file_query_info (file,
 				       G_FILE_ATTRIBUTE_STANDARD_IS_HIDDEN,
                                        G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
@@ -386,8 +379,10 @@ miner_files_check_directory (TrackerMinerFS *fs,
 	if (file_info && g_file_info_get_is_hidden (file_info)) {
 		TrackerMinerFiles *mf;
 		GSList *allowed_directories;
+		gchar *path;
 
 		mf = TRACKER_MINER_FILES (fs);
+		path = g_file_get_path (file);
 
 		/* FIXME: We need to check if the file is actually a
 		 * config specified location before blanket ignoring
@@ -407,8 +402,20 @@ miner_files_check_directory (TrackerMinerFS *fs,
 			should_process = TRUE;
 		}
 
+		g_free (path);
+
 		/* Ignore hidden dirs */
 		goto done;
+	}
+
+	mf = TRACKER_MINER_FILES (fs);
+
+	basename = g_file_get_basename (file);
+
+	for (l = tracker_config_get_ignored_file_patterns (mf->private->config); l; l = l->next) {
+		if (g_pattern_match_string (l->data, basename)) {
+			goto done;
+		}
 	}
 
 	/* Check module directory ignore patterns */
@@ -419,7 +426,7 @@ done:
 		g_object_unref (file_info);
 	}
 
-	g_free (path);
+	g_free (basename);
 
 	return should_process;
 }
