@@ -86,7 +86,7 @@ public class Tracker.SparqlBuilder : Object {
 		requires (state == State.SUBJECT || state == State.OBJECT || state == State.BLANK)
 	{
 		if (state == State.OBJECT) {
-			str.append (" ;");
+			str.append (" ;\n\t");
 			states.length -= 2;
 		}
 		str.append (" ");
