@@ -443,6 +443,8 @@ process_stop (TrackerMinerFS *fs)
 	/* Now we have finished crawling, print stats and enable monitor events */
 	process_print_stats (fs);
 
+	g_message ("Idle");
+
 	g_object_set (fs, 
 		      "progress", 1.0, 
 		      "status", _("Idle"),
@@ -815,6 +817,8 @@ item_queue_handlers_set_up (TrackerMinerFS *fs)
 	if (fs->private->item_queues_handler_id != 0) {
 		return;
 	}
+
+	g_message ("Processing files...");
 
 	g_object_set (fs, "status", _("Processing files"), NULL);
 
@@ -1246,7 +1250,7 @@ crawl_directories_cb (gpointer user_data)
 		str = g_strdup_printf (_("Crawling single directory '%s'"), path);
 	}
 
-	g_debug ("%s\n", str);
+	g_message ("%s", str);
 
 	g_object_set (fs, "status", str, NULL);
 	g_free (str);
