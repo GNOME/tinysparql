@@ -334,11 +334,6 @@ main (gint argc, gchar *argv[])
         miner_applications = tracker_miner_applications_new ();
         miners = g_slist_append (miners, miner_applications);
 
-        /* FIXME: use proper definition for applications dir */
-        tracker_miner_fs_add_directory (TRACKER_MINER_FS (miner_applications),
-                                        "/usr/share/applications/",
-                                        FALSE);
-
 	g_signal_connect (miner_applications, "finished",
 			  G_CALLBACK (miner_finished_cb),
 			  NULL);

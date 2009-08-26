@@ -38,6 +38,8 @@
 #define THEME_ICON_URN_PREFIX	     "urn:theme-icon:"
 
 static void     miner_applications_finalize          (GObject              *object);
+static void     miner_applications_constructed       (GObject              *object);
+
 static gboolean miner_applications_check_file        (TrackerMinerFS       *fs,
 						      GFile                *file);
 static gboolean miner_applications_check_directory   (TrackerMinerFS       *fs,
@@ -57,6 +59,7 @@ tracker_miner_applications_class_init (TrackerMinerApplicationsClass *klass)
         TrackerMinerFSClass *miner_fs_class = TRACKER_MINER_FS_CLASS (klass);
 
         object_class->finalize = miner_applications_finalize;
+	object_class->constructed = miner_applications_constructed;
 
 	miner_fs_class->check_file = miner_applications_check_file;
 	miner_fs_class->check_directory = miner_applications_check_directory;
@@ -73,6 +76,22 @@ static void
 miner_applications_finalize (GObject *object)
 {
         G_OBJECT_CLASS (tracker_miner_applications_parent_class)->finalize (object);
+}
+
+static void
+miner_applications_constructed (GObject *object)
+{
+	GFile *file;
+
+	file = g_file_new_for_path ("/usr/share/applications/");
+        tracker_miner_fs_add_directory (TRACKER_MINER_FS (object), file, TRUE);
+	g_object_unref (file);
+
+	file = g_file_new_for_path ("/usr/share/desktop-directories/");
+        tracker_miner_fs_add_directory (TRACKER_MINER_FS (object), file, TRUE);
+	g_object_unref (file);
+
+	/* FIXME: Check XDG_DATA_DIRS and also process applications in there */
 }
 
 static void
