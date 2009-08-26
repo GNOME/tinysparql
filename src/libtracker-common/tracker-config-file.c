@@ -108,7 +108,7 @@ config_set_property (GObject	  *object,
 		     GParamSpec	  *pspec)
 {
 	TrackerConfigFilePrivate *priv;
-	gchar *domain;
+	const gchar *domain;
 
 	priv = TRACKER_CONFIG_FILE_GET_PRIVATE (object);
 
