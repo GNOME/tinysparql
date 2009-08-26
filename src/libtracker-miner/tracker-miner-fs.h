@@ -64,10 +64,10 @@ struct TrackerMinerFSClass {
 GType    tracker_miner_fs_get_type         (void) G_GNUC_CONST;
 
 void     tracker_miner_fs_add_directory    (TrackerMinerFS *fs,
-					    const gchar    *path,
+					    GFile          *file,
 					    gboolean        recurse);
 gboolean tracker_miner_fs_remove_directory (TrackerMinerFS *fs,
-					    const gchar    *path);
+					    GFile          *file);
 
 
 G_END_DECLS

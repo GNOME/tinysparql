@@ -35,7 +35,7 @@ typedef struct {
 } ItemMovedData;
 
 typedef struct {
-	gchar    *path;
+	GFile    *file;
 	gboolean  recurse;
 } DirectoryData;
 
@@ -99,7 +99,7 @@ static void           fs_finalize                  (GObject        *object);
 static gboolean       fs_defaults                  (TrackerMinerFS *fs,
 						    GFile          *file);
 static void           miner_started                (TrackerMiner   *miner);
-static DirectoryData *directory_data_new           (const gchar    *path,
+static DirectoryData *directory_data_new           (GFile          *file,
 						    gboolean        recurse);
 static void           directory_data_free          (DirectoryData  *dd);
 static ItemMovedData *item_moved_data_new          (GFile          *file,
@@ -373,14 +373,14 @@ miner_started (TrackerMiner *miner)
 }
 
 static DirectoryData *
-directory_data_new (const gchar *path,
-		    gboolean     recurse)
+directory_data_new (GFile    *file,
+		    gboolean  recurse)
 {
 	DirectoryData *dd;
 
 	dd = g_slice_new (DirectoryData);
 
-	dd->path = g_strdup (path);
+	dd->file = g_object_ref (file);
 	dd->recurse = recurse;
 
 	return dd;
@@ -393,7 +393,7 @@ directory_data_free (DirectoryData *dd)
 		return;
 	}
 
-	g_free (dd->path);
+	g_object_unref (dd->file);
 	g_slice_free (DirectoryData, dd);
 }
 
@@ -880,7 +880,7 @@ monitor_item_created_cb (TrackerMonitor *monitor,
 			}
 
 			/* Add to the list */
-			tracker_miner_fs_add_directory (fs, path, TRUE);
+			tracker_miner_fs_add_directory (fs, file, TRUE);
 		}
 
 		g_queue_push_tail (fs->private->items_created,
@@ -1150,6 +1150,7 @@ static gboolean
 crawl_directories_cb (gpointer user_data)
 {
 	TrackerMinerFS *fs = user_data;
+	gchar *path;
 
 	if (fs->private->current_directory) {
 		g_critical ("One directory is already being processed, bailing out");
@@ -1171,21 +1172,26 @@ crawl_directories_cb (gpointer user_data)
 	fs->private->directories = g_list_remove (fs->private->directories,
 						  fs->private->current_directory);
 
+	path = g_file_get_path (miner->private->current_directory->file);
+
 	g_debug ("Processing %s path '%s'\n",
 		 fs->private->current_directory->recurse ? "recursive" : "single",
-		 fs->private->current_directory->path);
+		 path);
 
-	if (tracker_crawler_start (fs->private->crawler,
-				   fs->private->current_directory->path,
+	if (tracker_crawler_start (fs->private->crawler, path,
 				   fs->private->current_directory->recurse)) {
 		/* Crawler when restart the idle function when done */
-		fs->private->crawl_directories_id = 0;
+		fs->private->process_dirs_id = 0;
+		g_free (path);
+
 		return FALSE;
 	}
 
 	/* Directory couldn't be processed */
 	directory_data_free (fs->private->current_directory);
 	fs->private->current_directory = NULL;
+
+	g_free (path);
 
 	return TRUE;
 }
@@ -1247,44 +1253,56 @@ crawl_directories_stop (TrackerMinerFS *fs)
 
 void
 tracker_miner_fs_add_directory (TrackerMinerFS *fs,
-				const gchar    *path,
+				GFile          *file,
 				gboolean        recurse)
 {
 	g_return_if_fail (TRACKER_IS_MINER_FS (fs));
-	g_return_if_fail (path != NULL);
+	g_return_if_fail (G_IS_FILE (file));
 
 	fs->private->directories =
 		g_list_append (fs->private->directories,
-			       directory_data_new (path, recurse));
+			       directory_data_new (file, recurse));
 
 	crawl_directories_start (fs);
 }
 
 gboolean
 tracker_miner_fs_remove_directory (TrackerMinerFS *fs,
-				   const gchar    *path)
+				   GFile          *file)
 {
 	gboolean return_val = FALSE;
-	GList *l;
+	GList *dirs;
 
 	g_return_val_if_fail (TRACKER_IS_MINER_FS (fs), FALSE);
-	g_return_val_if_fail (path != NULL, FALSE);
+	g_return_val_if_fail (G_IS_FILE (file), FALSE);
 
-	if (fs->private->current_directory &&
-	    strcmp (fs->private->current_directory->path, path) == 0) {
-		/* Dir is being processed currently, cancel crawler */
-		tracker_crawler_stop (fs->private->crawler);
-		return_val = TRUE;
+	if (fs->private->current_directory) {
+		GFile *current_file;
+
+		current_file = fs->private->current_directory->file;
+
+		if (g_file_equal (file, current_file) ||
+		    g_file_has_prefix (file, current_file)) {
+			/* Dir is being processed currently, cancel crawler */
+			tracker_crawler_stop (fs->private->crawler);
+			return_val = TRUE;
+		}
 	}
 
-	l = g_list_find_custom (fs->private->directories, path,
-				(GCompareFunc) g_strcmp0);
+	dirs = fs->private->directories;
 
-	if (l) {
-		directory_data_free (l->data);
-		fs->private->directories =
-			g_list_delete_link (fs->private->directories, l);
-		return_val = TRUE;
+	while (dirs) {
+		DirectoryData *data = dirs->data;
+		GList *link = dirs;
+
+		dirs = dirs->next;
+
+		if (g_file_equal (file, data->file) ||
+		    g_file_has_prefix (file, data->file)) {
+			directory_data_free (data);
+			fs->private->directories = g_list_delete_link (fs->private->directories, link);
+			return_val = TRUE;
+		}
 	}
 
 	return return_val;

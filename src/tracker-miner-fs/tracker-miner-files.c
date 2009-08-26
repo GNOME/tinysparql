@@ -200,14 +200,24 @@ miner_files_constructed (GObject *object)
         dirs = tracker_config_get_index_single_directories (priv->config);
 
         while (dirs) {
-                tracker_miner_fs_add_directory (fs, dirs->data, FALSE);
+		GFile *file;
+
+		file = g_file_new_for_path (dirs->data);
+                tracker_miner_fs_add_directory (fs, file, FALSE);
+		g_object_unref (file);
+
                 dirs = dirs->next;
         }
 
         dirs = tracker_config_get_index_recursive_directories (priv->config);
 
         while (dirs) {
-                tracker_miner_fs_add_directory (fs, dirs->data, TRUE);
+		GFile *file;
+
+		file = g_file_new_for_path (dirs->data);
+                tracker_miner_fs_add_directory (fs, file, TRUE);
+		g_object_unref (file);
+
                 dirs = dirs->next;
         }
 
@@ -232,9 +242,13 @@ mount_point_added_cb (TrackerStorage *storage,
         index_removable_devices = tracker_config_get_index_removable_devices (priv->config);
 
         if (index_removable_devices) {
-                tracker_miner_fs_add_directory (TRACKER_MINER_FS (user_data), 
-						mount_point, 
+		GFile *file;
+
+		file = g_file_new_for_path (mount_point);
+                tracker_miner_fs_add_directory (TRACKER_MINER_FS (user_data),
+						file,
 						TRUE);
+		g_object_unref (file);
         }
 }
 
@@ -266,14 +280,9 @@ mount_pre_unmount_cb (GVolumeMonitor    *volume_monitor,
 		      TrackerMinerFiles *mf)
 {
 	GFile *mount_root;
-	gchar *path;
 
 	mount_root = g_mount_get_root (mount);
-	path = g_file_get_path (mount_root);
-
-	tracker_miner_fs_remove_directory (TRACKER_MINER_FS (mf), path);
-
-	g_free (path);
+	tracker_miner_fs_remove_directory (TRACKER_MINER_FS (mf), mount_root);
 	g_object_unref (mount_root);
 }
 

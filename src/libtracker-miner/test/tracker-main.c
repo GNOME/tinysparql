@@ -164,6 +164,18 @@ monitor_directory_cb (TrackerMinerFS *fs,
 	return TRUE;
 }
 
+static void
+add_directory_path (TrackerMinerFS *fs,
+		    const gchar    *path,
+		    gboolean        recurse)
+{
+	GFile *file;
+
+	file = g_file_new_for_path (path);
+	tracker_miner_fs_add_directory (fs, file, recurse);
+	g_object_unref (file);
+}
+
 int
 main (int argc, char *argv[])
 {
@@ -193,33 +205,33 @@ main (int argc, char *argv[])
 			  G_CALLBACK (monitor_directory_cb),
 			  NULL);
 
-	tracker_miner_fs_add_directory (TRACKER_MINER_FS (miner), 
-					g_get_home_dir (),
-					FALSE);
-	tracker_miner_fs_add_directory (TRACKER_MINER_FS (miner), 
-					g_get_tmp_dir (),
-					TRUE);
-	tracker_miner_fs_add_directory (TRACKER_MINER_FS (miner), 
-					g_get_current_dir (),
-					TRUE);
-	tracker_miner_fs_add_directory (TRACKER_MINER_FS (miner), 
-					g_get_user_special_dir (G_USER_DIRECTORY_PICTURES),
-					TRUE);
-	tracker_miner_fs_add_directory (TRACKER_MINER_FS (miner), 
-					g_get_user_special_dir (G_USER_DIRECTORY_MUSIC),
-					TRUE);
-	tracker_miner_fs_add_directory (TRACKER_MINER_FS (miner), 
-					g_get_user_special_dir (G_USER_DIRECTORY_VIDEOS),
-					TRUE);
-	tracker_miner_fs_add_directory (TRACKER_MINER_FS (miner), 
-					g_get_user_special_dir (G_USER_DIRECTORY_DOWNLOAD),
-					FALSE);
-	tracker_miner_fs_add_directory (TRACKER_MINER_FS (miner), 
-					g_get_user_special_dir (G_USER_DIRECTORY_DOCUMENTS),
-					TRUE);
-	tracker_miner_fs_add_directory (TRACKER_MINER_FS (miner), 
-					g_get_user_special_dir (G_USER_DIRECTORY_DESKTOP),
-					TRUE);
+	add_directory_path (TRACKER_MINER_FS (miner),
+			    g_get_home_dir (),
+			    FALSE);
+	add_directory_path (TRACKER_MINER_FS (miner),
+			    g_get_tmp_dir (),
+			    TRUE);
+	add_directory_path (TRACKER_MINER_FS (miner),
+			    g_get_current_dir (),
+			    TRUE);
+	add_directory_path (TRACKER_MINER_FS (miner),
+			    g_get_user_special_dir (G_USER_DIRECTORY_PICTURES),
+			    TRUE);
+	add_directory_path (TRACKER_MINER_FS (miner),
+			    g_get_user_special_dir (G_USER_DIRECTORY_MUSIC),
+			    TRUE);
+	add_directory_path (TRACKER_MINER_FS (miner),
+			    g_get_user_special_dir (G_USER_DIRECTORY_VIDEOS),
+			    TRUE);
+	add_directory_path (TRACKER_MINER_FS (miner),
+			    g_get_user_special_dir (G_USER_DIRECTORY_DOWNLOAD),
+			    FALSE);
+	add_directory_path (TRACKER_MINER_FS (miner),
+			    g_get_user_special_dir (G_USER_DIRECTORY_DOCUMENTS),
+			    TRUE);
+	add_directory_path (TRACKER_MINER_FS (miner),
+			    g_get_user_special_dir (G_USER_DIRECTORY_DESKTOP),
+			    TRUE);
 
         g_signal_connect (miner, "terminated",
                           G_CALLBACK (miner_terminated_cb), 
