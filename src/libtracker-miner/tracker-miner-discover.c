@@ -89,9 +89,9 @@ tracker_miner_discover_get_running (void)
 }
 
 static gboolean
-crawler_process_file_cb (TrackerCrawler *crawler,
-			 GFile          *file,
-			 gpointer        user_data)
+crawler_check_file_cb (TrackerCrawler *crawler,
+		       GFile          *file,
+		       gpointer        user_data)
 {
 	gchar *basename;
 
@@ -121,6 +121,7 @@ crawler_process_file_cb (TrackerCrawler *crawler,
 
 static void
 crawler_finished_cb (TrackerCrawler *crawler,
+		     GQueue         *found,
 		     gboolean        was_interrupted,
 		     guint           directories_found, 
 		     guint           directories_ignored, 
@@ -146,8 +147,8 @@ tracker_miner_discover_get_available (void)
 
 	main_loop = g_main_loop_new (NULL, FALSE);
 
-	g_signal_connect (crawler, "process-file", 
-			  G_CALLBACK (crawler_process_file_cb),
+	g_signal_connect (crawler, "check-file", 
+			  G_CALLBACK (crawler_check_file_cb),
 			  &list);
 	g_signal_connect (crawler, "finished", 
 			  G_CALLBACK (crawler_finished_cb),
