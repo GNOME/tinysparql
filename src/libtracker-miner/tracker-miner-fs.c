@@ -289,49 +289,8 @@ fs_finalize (GObject *object)
 
 	crawl_directories_stop (TRACKER_MINER_FS (object));
 
-	if (priv->crawler) {
-		guint lsignals;
-
-		lsignals = g_signal_handlers_disconnect_matched (priv->crawler,
-								 G_SIGNAL_MATCH_FUNC,
-								 0,
-								 0,
-								 NULL,
-								 G_CALLBACK (crawler_check_file_cb),
-								 NULL);
-		lsignals = g_signal_handlers_disconnect_matched (priv->crawler,
-								 G_SIGNAL_MATCH_FUNC,
-								 0,
-								 0,
-								 NULL,
-								 G_CALLBACK (crawler_check_directory_cb),
-								 NULL);
-		lsignals = g_signal_handlers_disconnect_matched (priv->crawler,
-								 G_SIGNAL_MATCH_FUNC,
-								 0,
-								 0,
-								 NULL,
-								 G_CALLBACK (crawler_finished_cb),
-								 NULL);
-
-		g_object_unref (priv->crawler);
-	}
-
-	if (priv->monitor) {
-		g_signal_handlers_disconnect_by_func (priv->monitor,
-						      G_CALLBACK (monitor_item_deleted_cb),
-						      object);
-		g_signal_handlers_disconnect_by_func (priv->monitor,
-						      G_CALLBACK (monitor_item_updated_cb),
-						      object);
-		g_signal_handlers_disconnect_by_func (priv->monitor,
-						      G_CALLBACK (monitor_item_created_cb),
-						      object);
-		g_signal_handlers_disconnect_by_func (priv->monitor,
-						      G_CALLBACK (monitor_item_moved_cb),
-						      object);
-		g_object_unref (priv->monitor);
-	}
+	g_object_unref (priv->crawler);
+	g_object_unref (priv->monitor);
 
 	if (priv->directories) {
 		g_list_foreach (priv->directories, (GFunc) directory_data_free, NULL);
