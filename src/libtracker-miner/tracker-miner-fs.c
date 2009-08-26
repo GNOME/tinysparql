@@ -26,6 +26,7 @@
 #include "tracker-marshal.h"
 #include "tracker-miner-fs.h"
 #include "tracker-monitor.h"
+#include "tracker-utils.h"
 
 #define TRACKER_MINER_FS_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_MINER_FS, TrackerMinerFSPrivate))
 
@@ -170,7 +171,8 @@ tracker_miner_fs_class_init (TrackerMinerFSClass *klass)
 			      G_OBJECT_CLASS_TYPE (object_class),
 			      G_SIGNAL_RUN_LAST,
 			      G_STRUCT_OFFSET (TrackerMinerFSClass, check_file),
-			      NULL, NULL,
+			      tracker_accumulator_check_file,
+			      NULL,
 			      tracker_marshal_BOOLEAN__OBJECT,
 			      G_TYPE_BOOLEAN, 1, G_TYPE_FILE);
 	signals[CHECK_DIRECTORY] =
@@ -178,7 +180,8 @@ tracker_miner_fs_class_init (TrackerMinerFSClass *klass)
 			      G_OBJECT_CLASS_TYPE (object_class),
 			      G_SIGNAL_RUN_LAST,
 			      G_STRUCT_OFFSET (TrackerMinerFSClass, check_directory),
-			      NULL, NULL,
+			      tracker_accumulator_check_file,
+			      NULL,
 			      tracker_marshal_BOOLEAN__OBJECT,
 			      G_TYPE_BOOLEAN, 1, G_TYPE_FILE);
 	signals[PROCESS_FILE] =
@@ -186,7 +189,8 @@ tracker_miner_fs_class_init (TrackerMinerFSClass *klass)
 			      G_OBJECT_CLASS_TYPE (object_class),
 			      G_SIGNAL_RUN_LAST,
 			      G_STRUCT_OFFSET (TrackerMinerFSClass, process_file),
-			      NULL, NULL,
+			      tracker_accumulator_check_file,
+			      NULL,
 			      tracker_marshal_BOOLEAN__OBJECT_OBJECT,
 			      G_TYPE_BOOLEAN, 2, G_TYPE_FILE, TRACKER_TYPE_SPARQL_BUILDER);
 	signals[MONITOR_DIRECTORY] =
@@ -194,7 +198,8 @@ tracker_miner_fs_class_init (TrackerMinerFSClass *klass)
 			      G_OBJECT_CLASS_TYPE (object_class),
 			      G_SIGNAL_RUN_LAST,
 			      G_STRUCT_OFFSET (TrackerMinerFSClass, monitor_directory),
-			      NULL, NULL,
+			      tracker_accumulator_check_file,
+			      NULL,
 			      tracker_marshal_BOOLEAN__OBJECT,
 			      G_TYPE_BOOLEAN, 1, G_TYPE_FILE);
 	signals[FINISHED] =
