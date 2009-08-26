@@ -189,14 +189,15 @@ load_ontology_files (const gchar *services_dir)
 static void
 load_basic_classes ()
 {
-        known_items = g_list_prepend (known_items, RDFS_CLASS);
-        known_items = g_list_prepend (known_items, RDF_PROPERTY);
+        known_items = g_list_prepend (known_items, (gpointer) RDFS_CLASS);
+        known_items = g_list_prepend (known_items, (gpointer) RDF_PROPERTY);
 }
 
 gint
 main (gint argc, gchar **argv) 
 {
         GOptionContext *context;
+        GList *it;
 
         g_type_init ();
 
@@ -228,7 +229,7 @@ main (gint argc, gchar **argv)
         //"/home/ivan/devel/codethink/tracker-ssh/data/services"
         load_ontology_files (ontology_dir);
 
-        GList *it;
+
         for (it = unknown_predicates; it != NULL; it = it->next) {
                 g_error ("Predicate '%s' is used in the ontology, but it is not defined\n",
                          (gchar *)it->data);

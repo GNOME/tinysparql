@@ -61,6 +61,7 @@
 #include <libtracker-common/tracker-ontology.h>
 #include <libtracker-common/tracker-module-config.h>
 #include <libtracker-common/tracker-utils.h>
+#include <libtracker-common/tracker-type-utils.h>
 
 #include <libtracker-db/tracker-db-dbus.h>
 

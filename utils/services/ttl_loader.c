@@ -16,7 +16,7 @@
 
 #define NRL_MAX_CARDINALITY "http://www.semanticdesktop.org/ontologies/2007/08/15/nrl#maxCardinality"
 
-#define TRACKER_NAMESPACE "http://www.tracker-project.org/ontologies/tracker#Namespace"
+/* #define TRACKER_NAMESPACE "http://www.tracker-project.org/ontologies/tracker#Namespace" */
 
 /* Ontology description */
 #define DSC_PREFIX "http://www.tracker-project.org/temp/dsc#"
@@ -253,12 +253,12 @@ ttl_loader_load_ontology (const gchar *ttl_file)
 OntologyDescription *
 ttl_loader_load_description (const gchar *filename)
 {
-        OntologyDescription *desc;
-        
-        desc = ttl_model_description_new ();
-
+	OntologyDescription *desc;
 	TrackerTurtleReader *reader;
 	GError *error;
+
+	desc = ttl_model_description_new ();
+
 
 	reader = tracker_turtle_reader_new (filename);
 

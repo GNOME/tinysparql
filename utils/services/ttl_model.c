@@ -37,7 +37,7 @@ ttl_model_class_free (OntologyClass *def)
 }
 
 OntologyProperty *
-ttl_model_property_new (gchar *propname)
+ttl_model_property_new (const gchar *propname)
 {
         OntologyProperty *prop;
 

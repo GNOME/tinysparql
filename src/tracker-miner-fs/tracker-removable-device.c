@@ -57,6 +57,7 @@ typedef struct {
 } AddMetadataInfo;
 #endif
 
+#if 0
 static void
 commit_turtle_parse_info_storer (TurtleStorerInfo *info, 
 				 gboolean          may_flush, 
@@ -103,7 +104,9 @@ commit_turtle_parse_info_storer (TurtleStorerInfo *info,
 		info->amount = 0;
 	}
 }
+#endif 
 
+#if 0
 static void
 consume_triple_storer (const gchar *subject,
                        const gchar *predicate,
@@ -157,6 +160,7 @@ consume_triple_storer (const gchar *subject,
 				       g_strdup (object));
 	}
 }
+#endif
 
 void
 tracker_removable_device_optimize (TrackerIndexer *indexer,
