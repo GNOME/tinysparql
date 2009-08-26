@@ -35,6 +35,11 @@ G_BEGIN_DECLS
 #define TRACKER_IS_DB_STATEMENT(obj)	    (G_TYPE_CHECK_INSTANCE_TYPE ((obj), TRACKER_TYPE_DB_STATEMENT))
 #define TRACKER_DB_STATEMENT_GET_IFACE(obj) (G_TYPE_INSTANCE_GET_INTERFACE ((obj), TRACKER_TYPE_DB_STATEMENT, TrackerDBStatementIface))
 
+#define TRACKER_TYPE_DB_CURSOR		    (tracker_db_cursor_get_type ())
+#define TRACKER_DB_CURSOR(obj)		    (G_TYPE_CHECK_INSTANCE_CAST ((obj), TRACKER_TYPE_DB_CURSOR, TrackerDBCursor))
+#define TRACKER_IS_DB_CURSOR(obj)	    (G_TYPE_CHECK_INSTANCE_TYPE ((obj), TRACKER_TYPE_DB_CURSOR))
+#define TRACKER_DB_CURSOR_GET_IFACE(obj)    (G_TYPE_INSTANCE_GET_INTERFACE ((obj), TRACKER_TYPE_DB_CURSOR, TrackerDBCursorIface))
+
 #define TRACKER_TYPE_DB_RESULT_SET	    (tracker_db_result_set_get_type ())
 #define TRACKER_DB_RESULT_SET(o)	    (G_TYPE_CHECK_INSTANCE_CAST ((o), TRACKER_TYPE_DB_RESULT_SET, TrackerDbResultSet))
 #define TRACKER_DB_RESULT_SET_CLASS(c)	    (G_TYPE_CHECK_CLASS_CAST ((c),    TRACKER_TYPE_DB_RESULT_SET, TrackerDbResultSetClass))
@@ -57,6 +62,8 @@ typedef struct TrackerDBStatement TrackerDBStatement;
 typedef struct TrackerDBStatementIface TrackerDBStatementIface;
 typedef struct TrackerDBResultSet TrackerDBResultSet;
 typedef struct TrackerDBResultSetClass TrackerDBResultSetClass;
+typedef struct TrackerDBCursor TrackerDBCursor;
+typedef struct TrackerDBCursorIface TrackerDBCursorIface;
 
 struct TrackerDBInterfaceIface {
 	GTypeInterface iface;
@@ -64,6 +71,9 @@ struct TrackerDBInterfaceIface {
 	TrackerDBStatement * (* create_statement)      (TrackerDBInterface  *interface,
 							const gchar	    *query);
 	TrackerDBResultSet * (* execute_query)	       (TrackerDBInterface  *interface,
+							GError		   **error,
+							const gchar	    *query);
+	TrackerDBCursor    * (* start_cursor)	       (TrackerDBInterface  *interface,
 							GError		   **error,
 							const gchar	    *query);
 	void		     (* disconnect)	       (TrackerDBInterface  *interface);
@@ -88,6 +98,8 @@ struct TrackerDBStatementIface {
 	void		     (* bind_int64)	(TrackerDBStatement	 *stmt,
 						 int			  index,
 						 gint64			  value);
+	TrackerDBCursor    * (* start_cursor)	(TrackerDBStatement	 *stmt,
+						 GError			**error);
 };
 
 struct TrackerDBResultSet {
@@ -103,6 +115,7 @@ GQuark tracker_db_interface_error_quark (void);
 
 GType tracker_db_interface_get_type (void);
 GType tracker_db_statement_get_type (void);
+GType tracker_db_cursor_get_type (void);
 GType tracker_db_result_set_get_type (void);
 GType tracker_db_blob_get_type (void);
 
@@ -116,6 +129,11 @@ TrackerDBResultSet *	tracker_db_interface_execute_vquery	 (TrackerDBInterface   
 								  const gchar	       *query,
 								  va_list		args);
 TrackerDBResultSet *	tracker_db_interface_execute_query	 (TrackerDBInterface   *interface,
+								  GError	     **error,
+								  const gchar	       *query,
+								  ...) G_GNUC_PRINTF (3, 4);
+
+TrackerDBCursor *	tracker_db_interface_start_cursor	 (TrackerDBInterface   *interface,
 								  GError	     **error,
 								  const gchar	       *query,
 								  ...) G_GNUC_PRINTF (3, 4);
@@ -140,6 +158,9 @@ void			tracker_db_statement_bind_text		(TrackerDBStatement	 *stmt,
 TrackerDBResultSet *	tracker_db_statement_execute		(TrackerDBStatement	 *stmt,
 								 GError			**error);
 
+TrackerDBCursor *	tracker_db_statement_start_cursor	(TrackerDBStatement	 *stmt,
+								 GError			**error);
+
 /* Semi private TrackerDBResultSet functions */
 TrackerDBResultSet *	  _tracker_db_result_set_new	       (guint		    cols);
 void			  _tracker_db_result_set_append        (TrackerDBResultSet *result_set);
@@ -157,6 +178,26 @@ void			  tracker_db_result_set_rewind	       (TrackerDBResultSet *result_set);
 gboolean		  tracker_db_result_set_iter_next      (TrackerDBResultSet *result_set);
 guint			  tracker_db_result_set_get_n_columns  (TrackerDBResultSet *result_set);
 guint			  tracker_db_result_set_get_n_rows     (TrackerDBResultSet *result_set);
+
+
+struct TrackerDBCursorIface {
+	GTypeInterface iface;
+
+	void     (*set_rewind)      (TrackerDBCursor *cursor);
+	gboolean (*set_iter_next)   (TrackerDBCursor *cursor);
+	guint    (*get_n_columns)   (TrackerDBCursor *cursor);
+	void     (*get_value)       (TrackerDBCursor *cursor, 
+	                             guint            column,
+	                             GValue          *value);
+};
+
+/* Functions to deal with a cursor */
+void			  tracker_cursor_set_rewind         (TrackerDBCursor *cursor);
+gboolean		  tracker_cursor_set_iter_next      (TrackerDBCursor *cursor);
+guint			  tracker_db_cursor_get_n_columns   (TrackerDBCursor *cursor);
+void 			  tracker_db_cursor_get_value       (TrackerDBCursor *cursor, 
+			                                     guint            column, 
+			                                     GValue          *value);
 
 
 G_END_DECLS
