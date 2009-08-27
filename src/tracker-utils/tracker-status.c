@@ -505,7 +505,16 @@ main (gint argc, gchar *argv[])
 	g_print ("%s:\n", _("Miners"));
 
 	for (l = miners_available; l; l = l->next) {
+		const gchar *name;
 		gboolean is_running;
+
+		if (!strstr (l->data, TRACKER_MINER_DBUS_NAME_PREFIX)) {
+			g_critical ("We have a miner without the dbus name prefix? '%s'",
+				    (gchar*) l->data);
+			continue;
+		}
+
+		name = (gchar*) l->data + strlen (TRACKER_MINER_DBUS_NAME_PREFIX);
 
 		is_running = tracker_string_in_gslist (l->data, miners_running);
 
@@ -522,7 +531,7 @@ main (gint argc, gchar *argv[])
 				 is_paused ? "P" : "R",
 				 _("Progress"),
 				 progress * 100,
-				 (gchar*) l->data,
+				 name,
 				 _("Status"),
 				 status ? status : _("Unknown"));
 			
@@ -531,7 +540,7 @@ main (gint argc, gchar *argv[])
 			g_print ("  [ ] %s: %3.0f%%, %s\n", 
 				 _("Progress"),
 				 0.0,
-				 (gchar*) l->data);
+				 name);
 		}
 	}
 
@@ -546,6 +555,7 @@ main (gint argc, gchar *argv[])
 
 	g_print ("Press Ctrl+C to end follow of Tracker state\n");
 	
+#if 0
 	proxy = client->proxy_statistics;
 	
 	/* Set signal handlers */
@@ -608,6 +618,7 @@ main (gint argc, gchar *argv[])
 	/* 			     G_CALLBACK (index_service_stats_updated), */
 	/* 			     NULL, */
 	/* 			     NULL); */
+#endif
 	
 	initialize_signal_handler ();
 	
