@@ -87,21 +87,22 @@ typedef struct {
 	gchar *key;
 } ObjectToKeyFile;
 
-static void     config_set_property         (GObject       *object,
-					     guint          param_id,
-					     const GValue  *value,
-					     GParamSpec    *pspec);
-static void     config_get_property         (GObject       *object,
-					     guint          param_id,
-					     GValue        *value,
-					     GParamSpec    *pspec);
-static void     config_finalize             (GObject       *object);
-static void     config_constructed          (GObject       *object);
-static void     config_load                 (TrackerConfig *config);
-static gboolean config_save                 (TrackerConfig *config);
-static void     config_create_with_defaults (TrackerConfig *config,
-					     GKeyFile      *key_file,
-					     gboolean       overwrite);
+static void     config_set_property         (GObject           *object,
+					     guint              param_id,
+					     const GValue      *value,
+					     GParamSpec        *pspec);
+static void     config_get_property         (GObject           *object,
+					     guint              param_id,
+					     GValue            *value,
+					     GParamSpec        *pspec);
+static void     config_finalize             (GObject           *object);
+static void     config_constructed          (GObject           *object);
+static void     config_changed              (TrackerConfigFile *file);
+static void     config_load                 (TrackerConfig     *config);
+static gboolean config_save                 (TrackerConfig     *config);
+static void     config_create_with_defaults (TrackerConfig     *config,
+					     GKeyFile          *key_file,
+					     gboolean           overwrite);
 
 enum {
 	PROP_0,
@@ -159,11 +160,14 @@ static void
 tracker_config_class_init (TrackerConfigClass *klass)
 {
 	GObjectClass *object_class = G_OBJECT_CLASS (klass);
+	TrackerConfigFileClass *config_file_class = TRACKER_CONFIG_FILE_CLASS (klass);
 
 	object_class->set_property = config_set_property;
 	object_class->get_property = config_get_property;
 	object_class->finalize	   = config_finalize;
 	object_class->constructed  = config_constructed;
+
+	config_file_class->changed = config_changed;
 
 	/* General */
 	g_object_class_install_property (object_class,
@@ -510,6 +514,13 @@ config_constructed (GObject *object)
 	(G_OBJECT_CLASS (tracker_config_parent_class)->constructed) (object);
 
 	config_load (TRACKER_CONFIG (object));
+}
+
+static void
+config_changed (TrackerConfigFile *file)
+{
+	/* Reload config */
+	config_load (TRACKER_CONFIG (file));
 }
 
 static void

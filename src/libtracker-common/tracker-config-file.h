@@ -49,6 +49,8 @@ struct _TrackerConfigFile {
 
 struct _TrackerConfigFileClass {
 	GObjectClass parent_class;
+
+	void (* changed) (TrackerConfigFile *file);
 };
 
 GType	           tracker_config_file_get_type (void) G_GNUC_CONST;

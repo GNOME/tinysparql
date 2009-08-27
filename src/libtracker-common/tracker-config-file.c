@@ -51,6 +51,13 @@ enum {
 	PROP_DOMAIN
 };
 
+enum {
+	CHANGED,
+	LAST_SIGNAL
+};
+
+static guint signals[LAST_SIGNAL] = { 0, };
+
 G_DEFINE_TYPE (TrackerConfigFile, tracker_config_file, G_TYPE_OBJECT);
 
 static void
@@ -62,6 +69,18 @@ tracker_config_file_class_init (TrackerConfigFileClass *klass)
 	object_class->set_property = config_set_property;
 	object_class->finalize	   = config_finalize;
 	object_class->constructed  = config_constructed;
+
+	signals[CHANGED] =
+		g_signal_new ("changed",
+			      G_TYPE_FROM_CLASS (klass),
+			      G_SIGNAL_RUN_LAST,
+			      G_STRUCT_OFFSET (TrackerConfigFileClass, changed),
+			      NULL,
+			      NULL,
+			      g_cclosure_marshal_VOID__VOID,
+			      G_TYPE_NONE,
+			      0,
+			      G_TYPE_NONE);
 
 	g_object_class_install_property (object_class,
 					 PROP_DOMAIN,
@@ -194,14 +213,13 @@ config_changed_cb (GFileMonitor     *monitor,
 		   gpointer	     user_data)
 {
 	TrackerConfigFile *file;
-	gchar	             *filename;
+	gchar	          *filename;
 
 	file = TRACKER_CONFIG_FILE (user_data);
 
 	/* Do we recreate if the file is deleted? */
 
 	switch (event_type) {
-	case G_FILE_MONITOR_EVENT_CHANGED:
 	case G_FILE_MONITOR_EVENT_CHANGES_DONE_HINT:
 		file->file_exists = TRUE;
 
@@ -211,6 +229,8 @@ config_changed_cb (GFileMonitor     *monitor,
 		g_free (filename);
 
 		config_load (file);
+
+		g_signal_emit (file, signals[CHANGED], 0);
 		break;
 
 	case G_FILE_MONITOR_EVENT_DELETED:
