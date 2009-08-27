@@ -134,7 +134,6 @@ tracker_db_journal_get_contents (guint transaction_size)
 		mapped = g_mapped_file_new (filename, FALSE, &error);
 
 		if (error) {
-			g_warning ("Journal read: %s", error->message);
 			g_clear_error (&error);
 			mapped = NULL;
 			return NULL;
