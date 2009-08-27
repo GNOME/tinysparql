@@ -73,9 +73,6 @@ struct TrackerDBInterfaceIface {
 	TrackerDBResultSet * (* execute_query)	       (TrackerDBInterface  *interface,
 							GError		   **error,
 							const gchar	    *query);
-	TrackerDBCursor    * (* start_cursor)	       (TrackerDBInterface  *interface,
-							GError		   **error,
-							const gchar	    *query);
 	void		     (* disconnect)	       (TrackerDBInterface  *interface);
 	void		     (* reconnect)	       (TrackerDBInterface  *interface);
 
@@ -129,11 +126,6 @@ TrackerDBResultSet *	tracker_db_interface_execute_vquery	 (TrackerDBInterface   
 								  const gchar	       *query,
 								  va_list		args);
 TrackerDBResultSet *	tracker_db_interface_execute_query	 (TrackerDBInterface   *interface,
-								  GError	     **error,
-								  const gchar	       *query,
-								  ...) G_GNUC_PRINTF (3, 4);
-
-TrackerDBCursor *	tracker_db_interface_start_cursor	 (TrackerDBInterface   *interface,
 								  GError	     **error,
 								  const gchar	       *query,
 								  ...) G_GNUC_PRINTF (3, 4);

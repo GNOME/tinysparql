@@ -726,38 +726,6 @@ tracker_db_interface_sqlite_execute_query (TrackerDBInterface  *db_interface,
 	return result_set;
 }
 
-
-static TrackerDBCursor *
-tracker_db_interface_sqlite_start_cursor (TrackerDBInterface  *db_interface,
-					  GError	      **error,
-					  const gchar	       *query)
-{
-	TrackerDBInterfaceSqlitePrivate *priv;
-	TrackerDBCursor *cursor;
-	sqlite3_stmt *stmt;
-	int retval;
-
-	priv = TRACKER_DB_INTERFACE_SQLITE_GET_PRIVATE (db_interface);
-
-	retval = sqlite3_prepare_v2 (priv->db, query, -1, &stmt, NULL);
-
-	if (retval != SQLITE_OK) {
-		g_set_error (error, TRACKER_DB_INTERFACE_ERROR,
-		             TRACKER_DB_QUERY_ERROR, "%s", 
-		             sqlite3_errmsg (priv->db));
-		return NULL;
-	} else if (stmt == NULL) {
-		g_set_error (error, TRACKER_DB_INTERFACE_ERROR,
-		             TRACKER_DB_QUERY_ERROR,
-		             "Could not prepare SQL statement:'%s'", query);
-		return NULL;
-	}
-
-	cursor = tracker_db_cursor_sqlite_new (stmt, NULL);
-
-	return cursor;
-}
-
 static void
 tracker_db_interface_sqlite_iface_init (TrackerDBInterfaceIface *iface)
 {
@@ -765,7 +733,6 @@ tracker_db_interface_sqlite_iface_init (TrackerDBInterfaceIface *iface)
 	iface->execute_query = tracker_db_interface_sqlite_execute_query;
 	iface->disconnect  = tracker_db_interface_sqlite_disconnect;
 	iface->reconnect  = tracker_db_interface_sqlite_reconnect;
-	iface->start_cursor = tracker_db_interface_sqlite_start_cursor;
 }
 
 TrackerDBInterface *
