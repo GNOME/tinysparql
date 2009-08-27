@@ -20,20 +20,32 @@
 
 #include "config.h"
 
+#include <sys/statvfs.h>
+
+#include <glib/gi18n.h>
+
 #include <libtracker-common/tracker-ontology.h>
 #include <libtracker-common/tracker-storage.h>
 #include <libtracker-common/tracker-type-utils.h>
 #include <libtracker-common/tracker-utils.h>
 
+#include <libtracker-miner/tracker-miner.h>
+
 #include "tracker-miner-files.h"
 #include "tracker-config.h"
+
+#define DISK_SPACE_CHECK_FREQUENCY 10
 
 #define TRACKER_MINER_FILES_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_MINER_FILES, TrackerMinerFilesPrivate))
 
 struct TrackerMinerFilesPrivate {
         TrackerConfig *config;
         TrackerStorage *storage;
+
 	GVolumeMonitor *volume_monitor;
+
+	guint disk_space_check_id;
+	guint disk_space_pause_cookie;
 };
 
 enum {
@@ -59,6 +71,11 @@ static void     mount_pre_unmount_cb          (GVolumeMonitor       *volume_moni
 					       GMount               *mount,
 					       TrackerMinerFiles    *mf);
 static void     initialize_removable_devices  (TrackerMinerFiles    *mf);
+static void     disk_space_check_start        (TrackerMinerFiles    *mf);
+static void     disk_space_check_stop         (TrackerMinerFiles    *mf);
+static void     low_disk_space_limit_cb       (GObject              *gobject,
+					       GParamSpec           *arg1,
+					       gpointer              user_data);
 static gboolean miner_files_check_file        (TrackerMinerFS       *fs,
 					       GFile                *file);
 static gboolean miner_files_check_directory   (TrackerMinerFS       *fs,
@@ -165,6 +182,8 @@ miner_files_finalize (GObject *object)
 
         priv = TRACKER_MINER_FILES_GET_PRIVATE (object);
 
+	disk_space_check_stop (TRACKER_MINER_FILES (object));
+
         g_object_unref (priv->config);
 
 #ifdef HAVE_HAL
@@ -182,22 +201,22 @@ miner_files_finalize (GObject *object)
 static void
 miner_files_constructed (GObject *object)
 {
-        TrackerMinerFilesPrivate *priv;
+        TrackerMinerFiles *mf;
         TrackerMinerFS *fs;
         GSList *dirs;
 
 	G_OBJECT_CLASS (tracker_miner_files_parent_class)->constructed (object);
 
-        priv = TRACKER_MINER_FILES_GET_PRIVATE (object);
+        mf = TRACKER_MINER_FILES (object);
         fs = TRACKER_MINER_FS (object);
 
-        if (!priv->config) {
+        if (!mf->private->config) {
                 g_critical ("No config. This is mandatory");
                 g_assert_not_reached ();
         }
 
         /* Fill in directories to inspect */
-        dirs = tracker_config_get_index_single_directories (priv->config);
+        dirs = tracker_config_get_index_single_directories (mf->private->config);
 
         while (dirs) {
 		GFile *file;
@@ -221,7 +240,7 @@ miner_files_constructed (GObject *object)
                 dirs = dirs->next;
         }
 
-        dirs = tracker_config_get_index_recursive_directories (priv->config);
+        dirs = tracker_config_get_index_recursive_directories (mf->private->config);
 
         while (dirs) {
 		GFile *file;
@@ -246,8 +265,13 @@ miner_files_constructed (GObject *object)
         }
 
 #ifdef HAVE_HAL
-        initialize_removable_devices (TRACKER_MINER_FILES (fs));
+        initialize_removable_devices (mf);
 #endif
+	g_signal_connect (mf->private->config, "notify::low-disk-space-limit",
+			  G_CALLBACK (low_disk_space_limit_cb),
+			  mf);
+
+	disk_space_check_start (mf);
 }
 
 #ifdef HAVE_HAL
@@ -308,6 +332,108 @@ mount_pre_unmount_cb (GVolumeMonitor    *volume_monitor,
 	mount_root = g_mount_get_root (mount);
 	tracker_miner_fs_remove_directory (TRACKER_MINER_FS (mf), mount_root);
 	g_object_unref (mount_root);
+}
+
+static gboolean
+disk_space_check (TrackerMinerFiles *mf)
+{
+	struct statvfs st;
+	gint limit;
+	gchar *data_dir;
+
+	limit = tracker_config_get_low_disk_space_limit (mf->private->config);
+
+	if (limit < 1) {
+		return FALSE;
+	}
+
+	data_dir = g_build_filename (g_get_user_cache_dir (), "tracker", NULL);
+
+	if (statvfs (data_dir, &st) == -1) {
+		g_warning ("Could not statvfs() '%s'", data_dir);
+		g_free (data_dir);
+		return FALSE;
+	}
+
+	g_free (data_dir);
+
+	if (((long long) st.f_bavail * 100 / st.f_blocks) <= limit) {
+		g_message ("WARNING: Available disk space is below configured "
+			   "threshold for acceptable working (%d%%)",
+			   limit);
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
+static gboolean
+disk_space_check_cb (gpointer user_data)
+{
+	TrackerMinerFiles *mf = user_data;
+	
+	if (disk_space_check (mf)) {
+		mf->private->disk_space_pause_cookie = 
+			tracker_miner_pause (TRACKER_MINER (mf),
+					     g_get_application_name (),
+					     _("Low disk space"),
+					     NULL);
+	} else {
+		tracker_miner_resume (TRACKER_MINER (mf),
+				      mf->private->disk_space_pause_cookie,
+				      NULL);
+		mf->private->disk_space_pause_cookie = 0;
+	}
+
+	return TRUE;
+}
+
+static void
+disk_space_check_start (TrackerMinerFiles *mf)
+{
+	gint limit;
+
+	if (mf->private->disk_space_check_id != 0) {
+		return;
+	}
+
+	limit = tracker_config_get_low_disk_space_limit (mf->private->config);
+
+	if (limit != -1) {
+		g_message ("Starting disk space check for every %d seconds",
+			   DISK_SPACE_CHECK_FREQUENCY);
+		mf->private->disk_space_check_id = 
+			g_timeout_add_seconds (DISK_SPACE_CHECK_FREQUENCY,
+					       disk_space_check_cb,
+					       mf);
+
+		/* Call the function now too to make sure we have an
+		 * initial value too!
+		 */
+		disk_space_check_cb (mf);
+	} else {
+		g_message ("Not setting disk space, configuration is set to -1 (disabled)");
+	}
+}
+
+static void
+disk_space_check_stop (TrackerMinerFiles *mf)
+{
+	if (mf->private->disk_space_check_id) {
+		g_message ("Stopping disk space check");
+		g_source_remove (mf->private->disk_space_check_id);
+		mf->private->disk_space_check_id = 0;
+	}
+}
+
+static void
+low_disk_space_limit_cb (GObject    *gobject,
+			 GParamSpec *arg1,
+			 gpointer    user_data)
+{
+	TrackerMinerFiles *mf = user_data;
+
+	disk_space_check_cb (mf);
 }
 
 static gboolean
