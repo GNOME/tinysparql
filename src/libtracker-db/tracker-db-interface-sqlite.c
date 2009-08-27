@@ -956,6 +956,8 @@ tracker_db_cursor_sqlite_new (TrackerDBInterfaceSqlite	*db_interface,
 	priv->finished = FALSE;
 	priv->owns_stmt = owns_stmt;
 
+	tracker_cursor_set_iter_next (cursor);
+
 	return cursor;
 }
 
@@ -1029,7 +1031,8 @@ tracker_db_cursor_sqlite_set_iter_next (TrackerDBCursor *cursor)
 		guint result;
 
 		result = sqlite3_step (priv->stmt);
-		priv->finished = (result != SQLITE_OK || result != SQLITE_ROW);
+
+		priv->finished = (result != SQLITE_ROW);
 	}
 
 	return (!priv->finished);
