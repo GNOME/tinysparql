@@ -2,6 +2,7 @@
 
 <node name="/">
   <interface name="org.freedesktop.Tracker.Miner">
+    <annotation name="org.freedesktop.DBus.GLib.CSymbol" value="tracker_miner_dbus"/>
     <method name="GetName">
       <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
       <arg type="s" name="name" direction="out" />
@@ -23,7 +24,7 @@
       <arg type="b" name="is_paused" direction="out" />
     </method>
     <method name="Pause">
-      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
+      <annotation name="org.freedesktop.DBus.GLib.Async"  value="true"/>
       <arg type="s" name="application" direction="in" />
       <arg type="s" name="reason" direction="in" />
       <arg type="i" name="cookie" direction="out" />

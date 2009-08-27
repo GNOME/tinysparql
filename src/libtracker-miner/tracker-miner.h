@@ -37,6 +37,9 @@ G_BEGIN_DECLS
 #define TRACKER_MINER_DBUS_NAME_PREFIX "org.freedesktop.Tracker.Miner."
 #define TRACKER_MINER_DBUS_PATH_PREFIX "/org/freedesktop/Tracker/Miner/"
 
+#define TRACKER_MINER_ERROR_DOMAIN     "TrackerMiner"
+#define TRACKER_MINER_ERROR	       tracker_miner_error_quark()
+
 typedef struct TrackerMiner TrackerMiner;
 typedef struct TrackerMinerClass TrackerMinerClass;
 typedef struct TrackerMinerPrivate TrackerMinerPrivate;
@@ -66,7 +69,8 @@ struct TrackerMinerClass {
 			     GError       *error);
 };
 
-GType          tracker_miner_get_type (void) G_GNUC_CONST;
+GType          tracker_miner_get_type       (void) G_GNUC_CONST;
+GQuark	       tracker_miner_error_quark    (void);
 
 void           tracker_miner_start          (TrackerMiner  *miner);
 void           tracker_miner_stop           (TrackerMiner  *miner);
@@ -75,6 +79,14 @@ TrackerClient *tracker_miner_get_client     (TrackerMiner  *miner);
 gboolean       tracker_miner_execute_sparql (TrackerMiner  *miner,
 					     const gchar   *sparql,
 					     GError       **error);
+gint           tracker_miner_pause          (TrackerMiner  *miner,
+					     const gchar   *application,
+					     const gchar   *reason,
+					     GError       **error);
+gboolean       tracker_miner_resume         (TrackerMiner  *miner,
+					     gint           cookie,
+					     GError       **error);
+
 
 G_END_DECLS
 

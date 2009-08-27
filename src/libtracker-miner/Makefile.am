@@ -29,9 +29,9 @@ libtracker_miner_la_SOURCES = 				\
 	tracker-crawler.h				\
 	tracker-marshal.c				\
 	tracker-marshal.h				\
-	tracker-miner-dbus.h				\
 	tracker-miner.c					\
 	tracker-miner.h					\
+	tracker-miner-dbus.h				\
 	tracker-miner-discover.c			\
 	tracker-miner-discover.h			\
 	tracker-miner-fs.c				\
@@ -43,6 +43,7 @@ libtracker_miner_la_SOURCES = 				\
 
 libtracker_minerinclude_HEADERS = 			\
 	tracker-miner.h 				\
+	tracker-miner-dbus.h 				\
 	tracker-miner-fs.h
 
 libtracker_miner_la_LDFLAGS = \

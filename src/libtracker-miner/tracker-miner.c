@@ -329,6 +329,12 @@ miner_constructed (GObject *object)
 				 dbus_data_destroy);
 }
 
+GQuark
+tracker_miner_error_quark (void)
+{
+	return g_quark_from_static_string (TRACKER_MINER_ERROR_DOMAIN);
+}
+
 static gboolean
 terminate_miner_cb (TrackerMiner *miner)
 {
@@ -554,11 +560,60 @@ tracker_miner_execute_sparql (TrackerMiner  *miner,
 	return FALSE;
 }
 
+gint
+tracker_miner_pause (TrackerMiner  *miner,
+		     const gchar   *application,
+		     const gchar   *reason,
+		     GError       **error)
+{
+	PauseData *pd;
+
+	g_return_val_if_fail (TRACKER_IS_MINER (miner), -1);
+	g_return_val_if_fail (application != NULL, -1);
+	g_return_val_if_fail (reason != NULL, -1);
+
+	pd = pause_data_new (application, reason);
+
+	g_hash_table_insert (miner->private->pauses, 
+			     GINT_TO_POINTER (pd->cookie),
+			     pd);
+
+	if (g_hash_table_size (miner->private->pauses) == 1) {
+		/* Pause */
+		g_message ("Miner is pausing");
+	}
+
+	return pd->cookie;
+}
+
+gboolean 
+tracker_miner_resume (TrackerMiner  *miner,
+		      gint           cookie,
+		      GError       **error)
+{
+	g_return_val_if_fail (TRACKER_IS_MINER (miner), FALSE);
+
+	if (!g_hash_table_remove (miner->private->pauses, GINT_TO_POINTER (cookie))) {
+		g_set_error (error, TRACKER_MINER_ERROR, 0, 
+			     "%s",
+			     _("Cookie not recognised to resume paused miner"));
+		return FALSE;
+	} 
+
+	if (g_hash_table_size (miner->private->pauses) == 0) {
+		/* Resume */
+		g_message ("Miner is resuming");
+	}
+
+	return TRUE;
+}
+
+
 /* DBus methods */
 void
-tracker_miner_get_name (TrackerMiner           *miner,
-			DBusGMethodInvocation  *context,
-			GError                **error)
+tracker_miner_dbus_get_name (TrackerMiner           *miner,
+			     DBusGMethodInvocation  *context,
+			     GError                **error)
 {
 	guint request_id;
 
@@ -574,9 +629,9 @@ tracker_miner_get_name (TrackerMiner           *miner,
 }
 
 void
-tracker_miner_get_description (TrackerMiner           *miner,
-			       DBusGMethodInvocation  *context,
-			       GError                **error)
+tracker_miner_dbus_get_description (TrackerMiner           *miner,
+				    DBusGMethodInvocation  *context,
+				    GError                **error)
 {
 	guint request_id;
 
@@ -592,9 +647,9 @@ tracker_miner_get_description (TrackerMiner           *miner,
 }
 
 void
-tracker_miner_get_status (TrackerMiner           *miner,
-			  DBusGMethodInvocation  *context,
-			  GError                **error)
+tracker_miner_dbus_get_status (TrackerMiner           *miner,
+			       DBusGMethodInvocation  *context,
+			       GError                **error)
 {
 	guint request_id;
 
@@ -610,9 +665,9 @@ tracker_miner_get_status (TrackerMiner           *miner,
 }
 
 void
-tracker_miner_get_progress (TrackerMiner           *miner,
-			    DBusGMethodInvocation  *context,
-			    GError                **error)
+tracker_miner_dbus_get_progress (TrackerMiner           *miner,
+				 DBusGMethodInvocation  *context,
+				 GError                **error)
 {
 	guint request_id;
 
@@ -628,9 +683,9 @@ tracker_miner_get_progress (TrackerMiner           *miner,
 }
 
 void
-tracker_miner_get_is_paused (TrackerMiner           *miner,
-			     DBusGMethodInvocation  *context,
-			     GError                **error)
+tracker_miner_dbus_get_is_paused (TrackerMiner           *miner,
+				  DBusGMethodInvocation  *context,
+				  GError                **error)
 {
 	guint request_id;
 	gboolean is_paused;
@@ -648,14 +703,15 @@ tracker_miner_get_is_paused (TrackerMiner           *miner,
 }
 
 void
-tracker_miner_pause (TrackerMiner           *miner,
-		     const gchar            *application,
-		     const gchar            *reason,
-		     DBusGMethodInvocation  *context,
-		     GError                **error)
+tracker_miner_dbus_pause (TrackerMiner           *miner,
+			  const gchar            *application,
+			  const gchar            *reason,
+			  DBusGMethodInvocation  *context,
+			  GError                **error)
 {
+	GError *local_error = NULL;
 	guint request_id;
-	PauseData *pd;
+	gint cookie;
 
 	request_id = tracker_dbus_get_next_request_id ();
 
@@ -668,28 +724,32 @@ tracker_miner_pause (TrackerMiner           *miner,
 				  application,
 				  reason);
 
-	pd = pause_data_new (application, reason);
+	cookie = tracker_miner_pause (miner, application, reason, &local_error);
+	if (cookie == -1) {
+		GError *actual_error = NULL;
 
-	g_hash_table_insert (miner->private->pauses, 
-			     GINT_TO_POINTER (pd->cookie),
-			     pd);
+		tracker_dbus_request_failed (request_id,
+		                             &actual_error,
+		                             local_error ? local_error->message : NULL);
+		dbus_g_method_return_error (context, actual_error);
+		g_error_free (actual_error);
+		g_error_free (local_error);
 
-	if (g_hash_table_size (miner->private->pauses) == 1) {
-		/* Pause */
-		g_message ("Miner is pausing");
+		return;
 	}
 
-	dbus_g_method_return (context, pd->cookie);
+	dbus_g_method_return (context, cookie);
 
 	tracker_dbus_request_success (request_id);
 }
 
 void
-tracker_miner_resume (TrackerMiner           *miner,
-		      gint                    cookie,
-		      DBusGMethodInvocation  *context,
-		      GError                **error)
+tracker_miner_dbus_resume (TrackerMiner           *miner,
+			   gint                    cookie,
+			   DBusGMethodInvocation  *context,
+			   GError                **error)
 {
+	GError *local_error = NULL;
 	guint request_id;
 
 	request_id = tracker_dbus_get_next_request_id ();
@@ -700,21 +760,20 @@ tracker_miner_resume (TrackerMiner           *miner,
 				  __PRETTY_FUNCTION__,
 				  cookie);
 
-	if (!g_hash_table_remove (miner->private->pauses, GINT_TO_POINTER (cookie))) {
+	if (!tracker_miner_resume (miner, cookie, &local_error)) {
 		GError *actual_error = NULL;
-		
+
 		tracker_dbus_request_failed (request_id,
 		                             &actual_error,
-		                             "Cookie not recognised to resume paused miner");
+		                             local_error ? local_error->message : NULL);
 		dbus_g_method_return_error (context, actual_error);
 		g_error_free (actual_error);
-	} else {
-		if (g_hash_table_size (miner->private->pauses) == 0) {
-			/* Resume */
-			g_message ("Miner is resuming");
-		}
+		g_error_free (local_error);
 
-		dbus_g_method_return (context);
-		tracker_dbus_request_success (request_id);
+		return;
 	}
+
+	dbus_g_method_return (context);
+
+	tracker_dbus_request_success (request_id);
 }
