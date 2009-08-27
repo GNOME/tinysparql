@@ -2072,6 +2072,13 @@ public class Tracker.SparqlQuery : Object {
 					throw new SparqlError.UNKNOWN_CLASS ("Unknown class `%s'".printf (object));
 				}
 				db_table = cl.name;
+
+				if (db_table == "rdfs:Resource") {
+					// all resources are in rdfs:Resource table, no need to check
+					// add dummy expression to SQL
+					sql.append ("1, ");
+					return;
+				}
 			} else if (prop == null) {
 				if (current_predicate == "http://www.tracker-project.org/ontologies/fts#match") {
 					// fts:match
