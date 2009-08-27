@@ -30,14 +30,36 @@
 
 #include "tracker-db-interface-sqlite.h"
 
+#define TRACKER_TYPE_DB_CURSOR_SQLITE         (tracker_db_cursor_sqlite_get_type ())
+#define TRACKER_DB_CURSOR_SQLITE(o)           (G_TYPE_CHECK_INSTANCE_CAST ((o), TRACKER_TYPE_DB_CURSOR_SQLITE, TrackerDBCursorSqlite))
+#define TRACKER_DB_CURSOR_SQLITE_CLASS(c)     (G_TYPE_CHECK_CLASS_CAST ((c),    TRACKER_TYPE_DB_CURSOR_SQLITE, TrackerDBCursorSqliteClass))
+#define TRACKER_IS_DB_CURSOR_SQLITE(o)        (G_TYPE_CHECK_INSTANCE_TYPE ((o), TRACKER_TYPE_DB_CURSOR_SQLITE))
+#define TRACKER_IS_DB_CURSOR_SQLITE_CLASS(c)  (G_TYPE_CHECK_CLASS_TYPE ((o),    TRACKER_TYPE_DB_CURSOR_SQLITE))
+#define TRACKER_DB_CURSOR_SQLITE_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o),  TRACKER_TYPE_DB_CURSOR_SQLITE, TrackerDBCursorSqliteClass))
+
+
 #define TRACKER_DB_INTERFACE_SQLITE_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_DB_INTERFACE_SQLITE, TrackerDBInterfaceSqlitePrivate))
 
 #define TRACKER_DB_STATEMENT_SQLITE_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_DB_STATEMENT_SQLITE, TrackerDBStatementSqlitePrivate))
 
+#define TRACKER_DB_CURSOR_SQLITE_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_DB_CURSOR_SQLITE, TrackerDBCursorSqlitePrivate))
+
 typedef struct TrackerDBInterfaceSqlitePrivate TrackerDBInterfaceSqlitePrivate;
 typedef struct TrackerDBStatementSqlitePrivate TrackerDBStatementSqlitePrivate;
+typedef struct TrackerDBCursorSqlitePrivate TrackerDBCursorSqlitePrivate;
 typedef struct SqliteFunctionData SqliteFunctionData;
 typedef struct SqliteAggregateData SqliteAggregateData;
+typedef struct TrackerDBCursorSqlite TrackerDBCursorSqlite;
+typedef struct TrackerDBCursorSqliteClass TrackerDBCursorSqliteClass;
+
+
+struct TrackerDBCursorSqlite {
+	GObject parent_instance;
+};
+
+struct TrackerDBCursorSqliteClass {
+	GObjectClass parent_class;
+};
 
 struct TrackerDBInterfaceSqlitePrivate {
 	gchar *filename;
@@ -56,6 +78,13 @@ struct TrackerDBInterfaceSqlitePrivate {
 struct TrackerDBStatementSqlitePrivate {
 	TrackerDBInterfaceSqlite *db_interface;
 	sqlite3_stmt *stmt;
+	gboolean stmt_is_sunk;
+};
+
+struct TrackerDBCursorSqlitePrivate {
+	sqlite3_stmt *stmt;
+	TrackerDBStatementSqlite *ref_stmt;
+	gboolean finished;
 };
 
 struct SqliteFunctionData {
@@ -71,13 +100,18 @@ struct SqliteAggregateData {
 	
 };
 
+GType tracker_db_cursor_sqlite_get_type (void);
+
 static void tracker_db_interface_sqlite_iface_init (TrackerDBInterfaceIface *iface);
 static void tracker_db_statement_sqlite_iface_init (TrackerDBStatementIface *iface);
+static void tracker_db_cursor_sqlite_iface_init (TrackerDBCursorIface *iface);
 static void tracker_db_interface_sqlite_disconnect (TrackerDBInterface *db_interface);
 static void tracker_db_interface_sqlite_reconnect  (TrackerDBInterface *db_interface);
 
 static TrackerDBStatementSqlite * tracker_db_statement_sqlite_new (TrackerDBInterfaceSqlite	*db_interface,
 								   sqlite3_stmt			*sqlite_stmt);
+static TrackerDBCursor          * tracker_db_cursor_sqlite_new    (sqlite3_stmt			*sqlite_stmt,
+								   TrackerDBStatementSqlite     *ref_stmt);
 static void tracker_db_statement_sqlite_reset (TrackerDBStatementSqlite *stmt);
 
 enum {
@@ -94,6 +128,10 @@ G_DEFINE_TYPE_WITH_CODE (TrackerDBInterfaceSqlite, tracker_db_interface_sqlite, 
 G_DEFINE_TYPE_WITH_CODE (TrackerDBStatementSqlite, tracker_db_statement_sqlite, G_TYPE_OBJECT,
 			 G_IMPLEMENT_INTERFACE (TRACKER_TYPE_DB_STATEMENT,
 						tracker_db_statement_sqlite_iface_init))
+
+G_DEFINE_TYPE_WITH_CODE (TrackerDBCursorSqlite, tracker_db_cursor_sqlite, G_TYPE_OBJECT,
+			 G_IMPLEMENT_INTERFACE (TRACKER_TYPE_DB_CURSOR,
+						tracker_db_cursor_sqlite_iface_init))
 
 void 
 tracker_db_interface_sqlite_enable_shared_cache (void) 
@@ -649,6 +687,7 @@ create_result_set_from_stmt (TrackerDBInterfaceSqlite  *interface,
 	return result_set;
 }
 
+
 static TrackerDBResultSet *
 tracker_db_interface_sqlite_execute_query (TrackerDBInterface  *db_interface,
 					   GError	      **error,
@@ -809,6 +848,13 @@ tracker_db_statement_sqlite_finalize (GObject *object)
 
 	priv = TRACKER_DB_STATEMENT_SQLITE_GET_PRIVATE (object);
 
+	/* A cursor was still open while we're being finalized, because a cursor
+	 * holds its own reference, this means that somebody is unreffing a stmt
+	 * too often. We mustn't sqlite3_finalize the priv->stmt in this case,
+	 * though. It would crash&burn the cursor. */
+
+	g_assert (!priv->stmt_is_sunk);
+
 	sqlite3_finalize (priv->stmt);
 
 	G_OBJECT_CLASS (tracker_db_statement_sqlite_parent_class)->finalize (object);
@@ -838,8 +884,67 @@ tracker_db_statement_sqlite_new (TrackerDBInterfaceSqlite	*db_interface,
 
 	priv->db_interface = db_interface;
 	priv->stmt = sqlite_stmt;
+	priv->stmt_is_sunk = FALSE;
 
 	return stmt;
+}
+
+static void
+tracker_db_cursor_sqlite_finalize (GObject *object)
+{
+	TrackerDBCursorSqlitePrivate *priv;
+
+	priv = TRACKER_DB_CURSOR_SQLITE_GET_PRIVATE (object);
+
+	if (priv->ref_stmt) {
+		TrackerDBStatementSqlitePrivate *stmt_priv;
+		stmt_priv = TRACKER_DB_STATEMENT_SQLITE_GET_PRIVATE (priv->ref_stmt);
+		stmt_priv->stmt_is_sunk = FALSE;
+		g_object_unref (priv->ref_stmt);
+	} else {
+		sqlite3_finalize (priv->stmt);
+	}
+
+	G_OBJECT_CLASS (tracker_db_cursor_sqlite_parent_class)->finalize (object);
+}
+
+static void
+tracker_db_cursor_sqlite_class_init (TrackerDBCursorSqliteClass *class)
+{
+	GObjectClass *object_class = G_OBJECT_CLASS (class);
+
+	object_class->finalize = tracker_db_cursor_sqlite_finalize;
+
+	g_type_class_add_private (object_class,
+				  sizeof (TrackerDBCursorSqlitePrivate));
+}
+
+static TrackerDBCursor *
+tracker_db_cursor_sqlite_new (sqlite3_stmt		*sqlite_stmt,
+			      TrackerDBStatementSqlite  *ref_stmt)
+{
+	TrackerDBCursor *cursor;
+	TrackerDBCursorSqlitePrivate *priv;
+
+	cursor = g_object_new (TRACKER_TYPE_DB_CURSOR_SQLITE, NULL);
+
+	priv = TRACKER_DB_CURSOR_SQLITE_GET_PRIVATE (cursor);
+
+	priv->stmt = sqlite_stmt;
+	priv->finished = FALSE;
+
+	if (ref_stmt) {
+		TrackerDBStatementSqlitePrivate *stmt_priv;
+		stmt_priv = TRACKER_DB_STATEMENT_SQLITE_GET_PRIVATE (ref_stmt);
+		stmt_priv->stmt_is_sunk = TRUE;
+		priv->ref_stmt = g_object_ref (ref_stmt);
+	} else {
+		priv->ref_stmt = NULL;
+	}
+
+	tracker_db_cursor_iter_next (cursor);
+
+	return cursor;
 }
 
 static void
@@ -850,6 +955,8 @@ tracker_db_statement_sqlite_bind_double (TrackerDBStatement	 *stmt,
 	TrackerDBStatementSqlitePrivate *priv;
 
 	priv = TRACKER_DB_STATEMENT_SQLITE_GET_PRIVATE (stmt);
+
+	g_assert (!priv->stmt_is_sunk);
 
 	sqlite3_bind_double (priv->stmt, index + 1, value);
 }
@@ -862,6 +969,8 @@ tracker_db_statement_sqlite_bind_int (TrackerDBStatement	 *stmt,
 	TrackerDBStatementSqlitePrivate *priv;
 
 	priv = TRACKER_DB_STATEMENT_SQLITE_GET_PRIVATE (stmt);
+
+	g_assert (!priv->stmt_is_sunk);
 
 	sqlite3_bind_int (priv->stmt, index + 1, value);
 }
@@ -877,6 +986,8 @@ tracker_db_statement_sqlite_bind_int64 (TrackerDBStatement	 *stmt,
 
 	priv = TRACKER_DB_STATEMENT_SQLITE_GET_PRIVATE (stmt);
 
+	g_assert (!priv->stmt_is_sunk);
+
 	sqlite3_bind_int64 (priv->stmt, index + 1, value);
 }
 
@@ -889,7 +1000,78 @@ tracker_db_statement_sqlite_bind_text (TrackerDBStatement	 *stmt,
 
 	priv = TRACKER_DB_STATEMENT_SQLITE_GET_PRIVATE (stmt);
 
+	g_assert (!priv->stmt_is_sunk);
+
 	sqlite3_bind_text (priv->stmt, index + 1, value, -1, SQLITE_TRANSIENT);
+}
+
+static void
+tracker_db_cursor_sqlite_rewind (TrackerDBCursor *cursor)
+{
+	TrackerDBCursorSqlitePrivate *priv;
+
+	priv = TRACKER_DB_CURSOR_SQLITE_GET_PRIVATE (cursor);
+
+	sqlite3_reset (priv->stmt);
+}
+
+static gboolean
+tracker_db_cursor_sqlite_iter_next (TrackerDBCursor *cursor)
+{
+	TrackerDBCursorSqlitePrivate *priv;
+	priv = TRACKER_DB_CURSOR_SQLITE_GET_PRIVATE (cursor);
+
+	if (!priv->finished) {
+		guint result;
+
+		result = sqlite3_step (priv->stmt);
+
+		priv->finished = (result != SQLITE_ROW);
+	}
+
+	return (!priv->finished);
+}
+
+static guint
+tracker_db_cursor_sqlite_get_n_columns (TrackerDBCursor *cursor)
+{
+	TrackerDBCursorSqlitePrivate *priv;
+
+	priv = TRACKER_DB_CURSOR_SQLITE_GET_PRIVATE (cursor);
+
+	return sqlite3_column_count (priv->stmt);
+}
+
+static void
+tracker_db_cursor_sqlite_get_value (TrackerDBCursor *cursor,  guint column, GValue *value)
+{
+	TrackerDBCursorSqlitePrivate *priv;
+	gint col_type;
+
+	priv = TRACKER_DB_CURSOR_SQLITE_GET_PRIVATE (cursor);
+
+	col_type = sqlite3_column_type (priv->stmt, column);
+
+	switch (col_type) {
+	case SQLITE_TEXT:
+		g_value_init (value, G_TYPE_STRING);
+		g_value_set_string (value, (gchar *) sqlite3_column_text (priv->stmt, column));
+		break;
+	case SQLITE_INTEGER:
+		g_value_init (value, G_TYPE_INT);
+		g_value_set_int (value, sqlite3_column_int (priv->stmt, column));
+		break;
+	case SQLITE_FLOAT:
+		g_value_init (value, G_TYPE_DOUBLE);
+		g_value_set_double (value, sqlite3_column_double (priv->stmt, column));
+		break;
+	case SQLITE_NULL:
+		/* just ignore NULLs */
+		break;
+	default:
+		g_critical ("Unknown sqlite3 database column type:%d", col_type);
+	}
+
 }
 
 static void
@@ -921,8 +1103,24 @@ tracker_db_statement_sqlite_execute (TrackerDBStatement		 *stmt,
 
 	priv = TRACKER_DB_STATEMENT_SQLITE_GET_PRIVATE (stmt);
 
+	g_return_val_if_fail (!priv->stmt_is_sunk, NULL);
+
 	return create_result_set_from_stmt (priv->db_interface, priv->stmt, error);
 }
+
+static TrackerDBCursor *
+tracker_db_statement_sqlite_start_cursor (TrackerDBStatement		 *stmt,
+					  GError			**error)
+{
+	TrackerDBStatementSqlitePrivate *priv;
+
+	priv = TRACKER_DB_STATEMENT_SQLITE_GET_PRIVATE (stmt);
+
+	g_return_val_if_fail (!priv->stmt_is_sunk, NULL);
+
+	return tracker_db_cursor_sqlite_new (priv->stmt, TRACKER_DB_STATEMENT_SQLITE (stmt));
+}
+
 
 static void
 tracker_db_statement_sqlite_iface_init (TrackerDBStatementIface *iface)
@@ -932,10 +1130,26 @@ tracker_db_statement_sqlite_iface_init (TrackerDBStatementIface *iface)
 	iface->bind_int64 = tracker_db_statement_sqlite_bind_int64;
 	iface->bind_text = tracker_db_statement_sqlite_bind_text;
 	iface->execute = tracker_db_statement_sqlite_execute;
+	iface->start_cursor = tracker_db_statement_sqlite_start_cursor;
+}
+
+
+static void
+tracker_db_cursor_sqlite_iface_init (TrackerDBCursorIface *iface)
+{
+	iface->rewind = tracker_db_cursor_sqlite_rewind;
+	iface->iter_next = tracker_db_cursor_sqlite_iter_next;
+	iface->get_n_columns = tracker_db_cursor_sqlite_get_n_columns;
+	iface->get_value = tracker_db_cursor_sqlite_get_value;
 }
 
 static void
 tracker_db_statement_sqlite_init (TrackerDBStatementSqlite *stmt)
+{
+}
+
+static void
+tracker_db_cursor_sqlite_init (TrackerDBCursorSqlite *cursor)
 {
 }
 
@@ -945,6 +1159,8 @@ tracker_db_statement_sqlite_reset (TrackerDBStatementSqlite *stmt)
 	TrackerDBStatementSqlitePrivate *priv;
 
 	priv = TRACKER_DB_STATEMENT_SQLITE_GET_PRIVATE (stmt);
+
+	g_assert (!priv->stmt_is_sunk);
 
 	sqlite3_reset (priv->stmt);
 	sqlite3_clear_bindings (priv->stmt);

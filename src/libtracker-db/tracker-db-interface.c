@@ -95,6 +95,25 @@ tracker_db_statement_get_type (void)
 	return type;
 }
 
+GType
+tracker_db_cursor_get_type (void)
+{
+	static GType type = 0;
+
+	if (G_UNLIKELY (type == 0)) {
+		type = g_type_register_static_simple (G_TYPE_INTERFACE,
+						      "TrackerDBCursor",
+						      sizeof (TrackerDBCursorIface),
+						      NULL,
+						      0, NULL, 0);
+
+		g_type_interface_add_prerequisite (type, G_TYPE_OBJECT);
+	}
+
+	return type;
+}
+
+
 /* Boxed type for blobs */
 static gpointer
 blob_copy (gpointer boxed)
@@ -441,6 +460,50 @@ tracker_db_statement_execute (TrackerDBStatement	 *stmt,
 
 	return ensure_result_set_state (result_set);
 }
+
+TrackerDBCursor *
+tracker_db_statement_start_cursor (TrackerDBStatement	 *stmt,
+				   GError		**error)
+{
+	g_return_val_if_fail (TRACKER_IS_DB_STATEMENT (stmt), NULL);
+
+	return TRACKER_DB_STATEMENT_GET_IFACE (stmt)->start_cursor (stmt, error);
+}
+
+/* TrackerDBCursor API */
+
+void
+tracker_db_cursor_rewind (TrackerDBCursor *cursor)
+{
+	g_return_if_fail (TRACKER_IS_DB_CURSOR (cursor));
+
+	TRACKER_DB_CURSOR_GET_IFACE (cursor)->rewind (cursor);
+}
+
+gboolean
+tracker_db_cursor_iter_next (TrackerDBCursor *cursor)
+{
+	g_return_val_if_fail (TRACKER_IS_DB_CURSOR (cursor), FALSE);
+
+	return TRACKER_DB_CURSOR_GET_IFACE (cursor)->iter_next (cursor);
+}
+
+guint
+tracker_db_cursor_get_n_columns (TrackerDBCursor *cursor)
+{
+	g_return_val_if_fail (TRACKER_IS_DB_CURSOR (cursor), 0);
+
+	return TRACKER_DB_CURSOR_GET_IFACE (cursor)->get_n_columns (cursor);
+}
+
+void
+tracker_db_cursor_get_value (TrackerDBCursor *cursor,  guint column, GValue *value)
+{
+	g_return_if_fail (TRACKER_IS_DB_CURSOR (cursor));
+
+	TRACKER_DB_CURSOR_GET_IFACE (cursor)->get_value (cursor, column, value);
+}
+
 
 /* TrackerDBResultSet semiprivate API */
 TrackerDBResultSet *
