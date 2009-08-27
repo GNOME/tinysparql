@@ -183,8 +183,8 @@ guint			  tracker_db_result_set_get_n_rows     (TrackerDBResultSet *result_set);
 struct TrackerDBCursorIface {
 	GTypeInterface iface;
 
-	void     (*set_rewind)      (TrackerDBCursor *cursor);
-	gboolean (*set_iter_next)   (TrackerDBCursor *cursor);
+	void     (*rewind)          (TrackerDBCursor *cursor);
+	gboolean (*iter_next)       (TrackerDBCursor *cursor);
 	guint    (*get_n_columns)   (TrackerDBCursor *cursor);
 	void     (*get_value)       (TrackerDBCursor *cursor, 
 	                             guint            column,
@@ -192,8 +192,8 @@ struct TrackerDBCursorIface {
 };
 
 /* Functions to deal with a cursor */
-void			  tracker_cursor_set_rewind         (TrackerDBCursor *cursor);
-gboolean		  tracker_cursor_set_iter_next      (TrackerDBCursor *cursor);
+void			  tracker_db_cursor_rewind          (TrackerDBCursor *cursor);
+gboolean		  tracker_db_cursor_iter_next       (TrackerDBCursor *cursor);
 guint			  tracker_db_cursor_get_n_columns   (TrackerDBCursor *cursor);
 void 			  tracker_db_cursor_get_value       (TrackerDBCursor *cursor, 
 			                                     guint            column, 

@@ -473,19 +473,19 @@ tracker_db_statement_start_cursor (TrackerDBStatement	 *stmt,
 /* TrackerDBCursor API */
 
 void
-tracker_cursor_set_rewind (TrackerDBCursor *cursor)
+tracker_db_cursor_rewind (TrackerDBCursor *cursor)
 {
 	g_return_if_fail (TRACKER_IS_DB_CURSOR (cursor));
 
-	TRACKER_DB_CURSOR_GET_IFACE (cursor)->set_rewind (cursor);
+	TRACKER_DB_CURSOR_GET_IFACE (cursor)->rewind (cursor);
 }
 
 gboolean
-tracker_cursor_set_iter_next (TrackerDBCursor *cursor)
+tracker_db_cursor_iter_next (TrackerDBCursor *cursor)
 {
 	g_return_val_if_fail (TRACKER_IS_DB_CURSOR (cursor), FALSE);
 
-	return TRACKER_DB_CURSOR_GET_IFACE (cursor)->set_iter_next (cursor);
+	return TRACKER_DB_CURSOR_GET_IFACE (cursor)->iter_next (cursor);
 }
 
 guint
