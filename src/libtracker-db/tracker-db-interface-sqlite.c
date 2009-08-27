@@ -82,7 +82,6 @@ struct TrackerDBStatementSqlitePrivate {
 };
 
 struct TrackerDBCursorSqlitePrivate {
-	TrackerDBInterfaceSqlite *db_interface;
 	sqlite3_stmt *stmt;
 	TrackerDBStatementSqlite *ref_stmt;
 	gboolean finished;
@@ -111,8 +110,7 @@ static void tracker_db_interface_sqlite_reconnect  (TrackerDBInterface *db_inter
 
 static TrackerDBStatementSqlite * tracker_db_statement_sqlite_new (TrackerDBInterfaceSqlite	*db_interface,
 								   sqlite3_stmt			*sqlite_stmt);
-static TrackerDBCursor          * tracker_db_cursor_sqlite_new    (TrackerDBInterfaceSqlite	*db_interface,
-								   sqlite3_stmt			*sqlite_stmt,
+static TrackerDBCursor          * tracker_db_cursor_sqlite_new    (sqlite3_stmt			*sqlite_stmt,
 								   TrackerDBStatementSqlite     *ref_stmt);
 static void tracker_db_statement_sqlite_reset (TrackerDBStatementSqlite *stmt);
 
@@ -755,8 +753,7 @@ tracker_db_interface_sqlite_start_cursor (TrackerDBInterface  *db_interface,
 		return NULL;
 	}
 
-	cursor = tracker_db_cursor_sqlite_new (TRACKER_DB_INTERFACE_SQLITE (db_interface), 
-	                                       stmt, NULL);
+	cursor = tracker_db_cursor_sqlite_new (stmt, NULL);
 
 	return cursor;
 }
@@ -956,8 +953,7 @@ tracker_db_cursor_sqlite_class_init (TrackerDBCursorSqliteClass *class)
 }
 
 static TrackerDBCursor *
-tracker_db_cursor_sqlite_new (TrackerDBInterfaceSqlite	*db_interface,
-			      sqlite3_stmt		*sqlite_stmt,
+tracker_db_cursor_sqlite_new (sqlite3_stmt		*sqlite_stmt,
 			      TrackerDBStatementSqlite  *ref_stmt)
 {
 	TrackerDBCursor *cursor;
@@ -967,7 +963,6 @@ tracker_db_cursor_sqlite_new (TrackerDBInterfaceSqlite	*db_interface,
 
 	priv = TRACKER_DB_CURSOR_SQLITE_GET_PRIVATE (cursor);
 
-	priv->db_interface = db_interface;
 	priv->stmt = sqlite_stmt;
 	priv->finished = FALSE;
 
@@ -1156,8 +1151,7 @@ tracker_db_statement_sqlite_start_cursor (TrackerDBStatement		 *stmt,
 
 	g_return_val_if_fail (!priv->stmt_is_sunk, NULL);
 
-	return tracker_db_cursor_sqlite_new (priv->db_interface, priv->stmt,
-	                                     TRACKER_DB_STATEMENT_SQLITE (stmt));
+	return tracker_db_cursor_sqlite_new (priv->stmt, TRACKER_DB_STATEMENT_SQLITE (stmt));
 }
 
 
