@@ -401,8 +401,26 @@ on_battery_cb (GObject    *gobject,
 	       GParamSpec *arg1,
 	       gpointer    user_data)
 {
+	TrackerMinerFiles *mf = user_data;
+	gboolean on_battery;
+
 	/* FIXME: Get this working again */
 	/* set_up_throttle (TRUE); */
+
+	on_battery = tracker_power_get_on_battery (mf->private->power);
+
+	if (on_battery) {
+		/* We only pause on low battery */
+		return;
+	}
+
+	/* Resume if we are not on battery */
+	if (mf->private->low_battery_pause_cookie != 0) {
+		tracker_miner_resume (TRACKER_MINER (mf),
+				      mf->private->low_battery_pause_cookie,
+				      NULL);
+		mf->private->low_battery_pause_cookie = 0;
+	}
 }
 
 static void
