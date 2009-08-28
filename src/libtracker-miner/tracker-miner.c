@@ -20,6 +20,8 @@
 
 #include "config.h"
 
+#include <stdlib.h>
+
 #include <libtracker-common/tracker-dbus.h>
 
 #include "tracker-marshal.h"
@@ -87,7 +89,6 @@ static void       miner_get_property (GObject      *object,
 				      GParamSpec   *pspec);
 static void       miner_finalize     (GObject      *object);
 static void       miner_constructed  (GObject      *object);
-static gboolean   terminate_miner_cb (TrackerMiner *miner);
 static void       dbus_data_destroy  (gpointer      data);
 static DBusData * dbus_data_create   (TrackerMiner *miner,
 				      const gchar  *name);
@@ -319,7 +320,7 @@ miner_constructed (GObject *object)
 
 	if (G_UNLIKELY (!data)) {
 		g_critical ("Miner could not register object on DBus session");
-		g_idle_add ((GSourceFunc) terminate_miner_cb, miner);
+		exit (EXIT_FAILURE);
 		return;
 	}
 
@@ -333,14 +334,6 @@ GQuark
 tracker_miner_error_quark (void)
 {
 	return g_quark_from_static_string (TRACKER_MINER_ERROR_DOMAIN);
-}
-
-static gboolean
-terminate_miner_cb (TrackerMiner *miner)
-{
-	g_signal_emit (miner, signals[TERMINATED], 0);
-
-	return TRUE;
 }
 
 static gboolean
