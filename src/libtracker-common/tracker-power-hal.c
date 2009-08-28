@@ -552,4 +552,24 @@ tracker_power_get_on_low_battery (TrackerPower *power)
 	return (priv->battery_percentage < BATTERY_LOW_THRESHOLD);
 }
 
+/**
+ * tracker_power_get_battery_percentage:
+ * @power: A #TrackerPower
+ *
+ * Returns the percentage of battery power available.
+ *
+ * Returns: #gdouble representing the percentage between 0.0 and 1.0.
+ **/
+gdouble
+tracker_power_get_battery_percentage (TrackerPower *power)
+{
+	TrackerPowerPriv *priv;
+
+	g_return_val_if_fail (TRACKER_IS_POWER (power), TRUE);
+
+	priv = GET_PRIV (power);
+
+	return priv->battery_percentage;
+}
+
 #endif /* HAVE_HAL */

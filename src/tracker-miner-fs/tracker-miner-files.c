@@ -393,6 +393,14 @@ on_battery_cb (GObject    *gobject,
 	       GParamSpec *arg1,
 	       gpointer    user_data)
 {
+	TrackerMinerFiles *mf = user_data;
+	gdouble percentage;
+
+	percentage = tracker_power_get_battery_percentage (mf->private->power);
+
+	g_message ("Battery percentage is now %.0f%%",
+		   percentage * 100);
+
 	/* FIXME: Get this working again */
 	/* set_up_throttle (TRUE); */
 }
@@ -411,7 +419,13 @@ on_low_battery_cb (GObject    *object,
 	on_battery = tracker_power_get_on_battery (mf->private->power);
 
 	if (on_battery && on_low_battery) {
+		gdouble percentage;
+
 		should_pause = TRUE;
+		percentage = tracker_power_get_battery_percentage (mf->private->power);
+
+		g_message ("WARNING: Available battery power is getting low (%.0f%%)",
+			   percentage * 100);
 	}
 
 	if (should_pause) {
