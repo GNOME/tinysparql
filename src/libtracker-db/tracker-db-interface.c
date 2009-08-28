@@ -504,6 +504,31 @@ tracker_db_cursor_get_value (TrackerDBCursor *cursor,  guint column, GValue *val
 	TRACKER_DB_CURSOR_GET_IFACE (cursor)->get_value (cursor, column, value);
 }
 
+const gchar*
+tracker_db_cursor_get_string (TrackerDBCursor *cursor, guint            column)
+{
+	g_return_if_fail (TRACKER_IS_DB_CURSOR (cursor));
+
+	return TRACKER_DB_CURSOR_GET_IFACE (cursor)->get_string (cursor, column);
+}
+
+gint
+tracker_db_cursor_get_int (TrackerDBCursor *cursor, guint            column)
+{
+	g_return_if_fail (TRACKER_IS_DB_CURSOR (cursor));
+
+	return TRACKER_DB_CURSOR_GET_IFACE (cursor)->get_int (cursor, column);
+}
+
+gdouble
+tracker_db_cursor_get_double (TrackerDBCursor *cursor, guint            column)
+{
+	g_return_if_fail (TRACKER_IS_DB_CURSOR (cursor));
+
+	return TRACKER_DB_CURSOR_GET_IFACE (cursor)->get_double (cursor, column);
+}
+
+
 
 /* TrackerDBResultSet semiprivate API */
 TrackerDBResultSet *

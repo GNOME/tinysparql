@@ -274,8 +274,6 @@ tracker_db_backup_sync_fts (void)
 	TrackerDBInterface *iface;
 	TrackerDBStatement *stmt;
 	TrackerDBCursor    *cursor;
-	GValue              id   = { 0 };
-	GValue              text = { 0 };
 	TrackerClass       *prop_class;
 	gchar              *query;
 
@@ -314,22 +312,18 @@ tracker_db_backup_sync_fts (void)
 
 			if (cursor) {
 				while (tracker_db_cursor_iter_next (cursor)) {
-					guint32 vid;
+					guint32 id;
+					const gchar *text;
 
-					tracker_db_cursor_get_value (cursor, 0, &id);
-					tracker_db_cursor_get_value (cursor, 1, &text);
-
-					vid = (guint32) g_value_get_int (&id);
+					id = tracker_db_cursor_get_int (cursor, 0);
+					text = tracker_db_cursor_get_string (cursor, 1);
 
 					// TODO we need to retrieve all existing (FTS indexed) property values for
 					// this resource to properly support incremental FTS updates
 					// (like calling deleteTerms and then calling insertTerms)
 
-					tracker_fts_update_init (vid);
-					tracker_fts_update_text (vid, 0,  g_value_get_string (&text));
-
-					g_value_unset (&id);
-					g_value_unset (&text);
+					tracker_fts_update_init (id);
+					tracker_fts_update_text (id, 0,  text);
 				}
 
 				g_object_unref (cursor);

@@ -42,7 +42,8 @@
 
 #define TRACKER_DB_STATEMENT_SQLITE_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_DB_STATEMENT_SQLITE, TrackerDBStatementSqlitePrivate))
 
-#define TRACKER_DB_CURSOR_SQLITE_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_DB_CURSOR_SQLITE, TrackerDBCursorSqlitePrivate))
+#define TRACKER_DB_CURSOR_SQLITE_GET_PRIVATE_O(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_DB_CURSOR_SQLITE, TrackerDBCursorSqlitePrivate))
+#define TRACKER_DB_CURSOR_SQLITE_GET_PRIVATE(o) (((TrackerDBCursorSqlite *)o)->priv)
 
 typedef struct TrackerDBInterfaceSqlitePrivate TrackerDBInterfaceSqlitePrivate;
 typedef struct TrackerDBStatementSqlitePrivate TrackerDBStatementSqlitePrivate;
@@ -55,6 +56,7 @@ typedef struct TrackerDBCursorSqliteClass TrackerDBCursorSqliteClass;
 
 struct TrackerDBCursorSqlite {
 	GObject parent_instance;
+	TrackerDBCursorSqlitePrivate *priv;
 };
 
 struct TrackerDBCursorSqliteClass {
@@ -1074,6 +1076,32 @@ tracker_db_cursor_sqlite_get_value (TrackerDBCursor *cursor,  guint column, GVal
 
 }
 
+static gint
+tracker_db_cursor_sqlite_get_int (TrackerDBCursor *cursor,  guint column)
+{
+	TrackerDBCursorSqlitePrivate *priv;
+	priv = TRACKER_DB_CURSOR_SQLITE_GET_PRIVATE (cursor);
+	return (gint) sqlite3_column_int (priv->stmt, column);
+}
+
+
+static gdouble
+tracker_db_cursor_sqlite_get_double (TrackerDBCursor *cursor,  guint column)
+{
+	TrackerDBCursorSqlitePrivate *priv;
+	priv = TRACKER_DB_CURSOR_SQLITE_GET_PRIVATE (cursor);
+	return (gdouble) sqlite3_column_double (priv->stmt, column);
+}
+
+
+static const gchar*
+tracker_db_cursor_sqlite_get_string (TrackerDBCursor *cursor,  guint column)
+{
+	TrackerDBCursorSqlitePrivate *priv;
+	priv = TRACKER_DB_CURSOR_SQLITE_GET_PRIVATE (cursor);
+	return (const gchar *) sqlite3_column_text (priv->stmt, column);
+}
+
 static void
 tracker_db_interface_sqlite_disconnect (TrackerDBInterface *db_interface)
 {
@@ -1141,6 +1169,9 @@ tracker_db_cursor_sqlite_iface_init (TrackerDBCursorIface *iface)
 	iface->iter_next = tracker_db_cursor_sqlite_iter_next;
 	iface->get_n_columns = tracker_db_cursor_sqlite_get_n_columns;
 	iface->get_value = tracker_db_cursor_sqlite_get_value;
+	iface->get_int = tracker_db_cursor_sqlite_get_int;
+	iface->get_double = tracker_db_cursor_sqlite_get_double;
+	iface->get_string = tracker_db_cursor_sqlite_get_string;
 }
 
 static void
@@ -1151,6 +1182,8 @@ tracker_db_statement_sqlite_init (TrackerDBStatementSqlite *stmt)
 static void
 tracker_db_cursor_sqlite_init (TrackerDBCursorSqlite *cursor)
 {
+	TrackerDBCursorSqlitePrivate *priv = TRACKER_DB_CURSOR_SQLITE_GET_PRIVATE_O (cursor);
+	cursor->priv = priv;
 }
 
 static void

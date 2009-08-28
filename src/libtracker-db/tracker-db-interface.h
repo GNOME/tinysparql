@@ -181,6 +181,14 @@ struct TrackerDBCursorIface {
 	void     (*get_value)       (TrackerDBCursor *cursor, 
 	                             guint            column,
 	                             GValue          *value);
+
+	const gchar*  (*get_string) (TrackerDBCursor *cursor, 
+	                             guint            column);
+	gint          (*get_int)    (TrackerDBCursor *cursor, 
+	                             guint            column);
+	gdouble       (*get_double) (TrackerDBCursor *cursor, 
+	                             guint            column);
+
 };
 
 /* Functions to deal with a cursor */
@@ -190,6 +198,12 @@ guint			  tracker_db_cursor_get_n_columns   (TrackerDBCursor *cursor);
 void 			  tracker_db_cursor_get_value       (TrackerDBCursor *cursor, 
 			                                     guint            column, 
 			                                     GValue          *value);
+const gchar*		  tracker_db_cursor_get_string      (TrackerDBCursor *cursor, 
+			                                     guint            column);
+gint 			  tracker_db_cursor_get_int         (TrackerDBCursor *cursor, 
+			                                     guint            column);
+gdouble			  tracker_db_cursor_get_double      (TrackerDBCursor *cursor, 
+			                                     guint            column);
 
 
 G_END_DECLS
