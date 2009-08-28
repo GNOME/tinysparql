@@ -40,9 +40,7 @@
     <signal name="Stopped">
       <arg type="b" name="interrupted" />
     </signal>
-    <signal name="Paused">
-      <arg type="s" name="reason" />
-    </signal>
+    <signal name="Paused" />
     <signal name="Resumed" />
     <signal name="Progress">
       <arg type="s" name="status" />
