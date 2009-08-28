@@ -284,33 +284,27 @@ static void
 class_add_super_classes_from_db (TrackerDBInterface *iface, TrackerClass *class)
 {
 	TrackerDBStatement *stmt;
-	TrackerDBResultSet *result_set;
+	TrackerDBCursor *cursor;
 
 	stmt = tracker_db_interface_create_statement (iface,
 						      "SELECT (SELECT Uri FROM \"rdfs:Resource\" WHERE ID = \"rdfs:subClassOf\") "
 						      "FROM \"rdfs:Class_rdfs:subClassOf\" "
 						      "WHERE ID = (SELECT ID FROM \"rdfs:Resource\" WHERE Uri = ?)");
 	tracker_db_statement_bind_text (stmt, 0, tracker_class_get_uri (class));
-	result_set = tracker_db_statement_execute (stmt, NULL);
+	cursor = tracker_db_statement_start_cursor (stmt, NULL);
 	g_object_unref (stmt);
 
-	if (result_set) {
-		gboolean valid = TRUE;
-
-		while (valid) {
+	if (cursor) {
+		while (tracker_db_cursor_iter_next (cursor)) {
 			TrackerClass *super_class;
-			gchar *super_class_uri;
+			const gchar *super_class_uri;
 
-			tracker_db_result_set_get (result_set, 0, &super_class_uri, -1);
+			super_class_uri = tracker_db_cursor_get_string (cursor, 0);
 			super_class = tracker_ontology_get_class_by_uri (super_class_uri);
 			tracker_class_add_super_class (class, super_class);
-
-			g_free (super_class_uri);
-
-			valid = tracker_db_result_set_iter_next (result_set);
 		}
 
-		g_object_unref (result_set);
+		g_object_unref (cursor);
 	}
 }
 
@@ -318,33 +312,27 @@ static void
 property_add_super_properties_from_db (TrackerDBInterface *iface, TrackerProperty *property)
 {
 	TrackerDBStatement *stmt;
-	TrackerDBResultSet *result_set;
+	TrackerDBCursor *cursor;
 
 	stmt = tracker_db_interface_create_statement (iface,
 						      "SELECT (SELECT Uri FROM \"rdfs:Resource\" WHERE ID = \"rdfs:subPropertyOf\") "
 						      "FROM \"rdf:Property_rdfs:subPropertyOf\" "
 						      "WHERE ID = (SELECT ID FROM \"rdfs:Resource\" WHERE Uri = ?)");
 	tracker_db_statement_bind_text (stmt, 0, tracker_property_get_uri (property));
-	result_set = tracker_db_statement_execute (stmt, NULL);
+	cursor = tracker_db_statement_start_cursor (stmt, NULL);
 	g_object_unref (stmt);
 
-	if (result_set) {
-		gboolean valid = TRUE;
-
-		while (valid) {
+	if (cursor) {
+		while (tracker_db_cursor_iter_next (cursor)) {
 			TrackerProperty *super_property;
-			gchar *super_property_uri;
+			const gchar *super_property_uri;
 
-			tracker_db_result_set_get (result_set, 0, &super_property_uri, -1);
+			super_property_uri = tracker_db_cursor_get_string (cursor, 0);
 			super_property = tracker_ontology_get_property_by_uri (super_property_uri);
 			tracker_property_add_super_property (property, super_property);
-
-			g_free (super_property_uri);
-
-			valid = tracker_db_result_set_iter_next (result_set);
 		}
 
-		g_object_unref (result_set);
+		g_object_unref (cursor);
 	}
 }
 
