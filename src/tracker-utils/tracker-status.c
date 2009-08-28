@@ -618,7 +618,7 @@ main (gint argc, gchar *argv[])
 				continue;
 			}
 
-			is_paused = pause_applications || pause_reasons;
+			is_paused = *pause_applications || *pause_reasons;
 
 			g_print ("  [%s] %s: %3.0f%%, %s, %s: '%s'\n", 
 				 is_paused ? "P" : "R",
