@@ -1627,10 +1627,12 @@ public class Tracker.SparqlQuery : Object {
 	void parse_construct_triples_block (HashTable<string,string> var_value_map) throws SparqlError, DataError {
 		expect (SparqlTokenType.OPEN_BRACE);
 
-		do {
-			current_subject = parse_construct_var_or_term (var_value_map);
-			parse_construct_property_list_not_empty (var_value_map);
-		} while (accept (SparqlTokenType.DOT) && current () != SparqlTokenType.CLOSE_BRACE);
+		if (current () != SparqlTokenType.CLOSE_BRACE) {
+			do {
+				current_subject = parse_construct_var_or_term (var_value_map);
+				parse_construct_property_list_not_empty (var_value_map);
+			} while (accept (SparqlTokenType.DOT) && current () != SparqlTokenType.CLOSE_BRACE);
+		}
 
 		expect (SparqlTokenType.CLOSE_BRACE);
 	}
