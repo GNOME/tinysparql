@@ -99,6 +99,9 @@ static void     on_battery_cb                 (GObject              *gobject,
 static void     on_low_battery_cb             (GObject              *object,
 					       GParamSpec           *pspec,
 					       gpointer              user_data);
+static void     on_battery_percentage_cb      (GObject              *gobject,
+					       GParamSpec           *arg1,
+					       gpointer              user_data);
 static void     disk_space_check_start        (TrackerMinerFiles    *mf);
 static void     disk_space_check_stop         (TrackerMinerFiles    *mf);
 static void     low_disk_space_limit_cb       (GObject              *gobject,
@@ -173,6 +176,9 @@ tracker_miner_files_init (TrackerMinerFiles *mf)
 	g_signal_connect (priv->power, "notify::on-battery",
 			  G_CALLBACK (on_battery_cb),
 			  mf);
+	g_signal_connect (priv->power, "notify::battery-percentage",
+			  G_CALLBACK (on_battery_percentage_cb),
+			  mf);
 #endif /* HAVE_HAL */
 
 	priv->volume_monitor = g_volume_monitor_get ();
@@ -242,12 +248,14 @@ miner_files_finalize (GObject *object)
 
 #ifdef HAVE_HAL
 	g_signal_handlers_disconnect_by_func (priv->power,
+					      on_battery_percentage_cb,
+					      mf);
+	g_signal_handlers_disconnect_by_func (priv->power,
 					      on_battery_cb,
 					      mf);
 	g_signal_handlers_disconnect_by_func (priv->power,
 					      on_low_battery_cb,
 					      mf);
-
         g_object_unref (priv->power);
 
 	g_signal_handlers_disconnect_by_func (priv->storage,
@@ -393,14 +401,6 @@ on_battery_cb (GObject    *gobject,
 	       GParamSpec *arg1,
 	       gpointer    user_data)
 {
-	TrackerMinerFiles *mf = user_data;
-	gdouble percentage;
-
-	percentage = tracker_power_get_battery_percentage (mf->private->power);
-
-	g_message ("Battery percentage is now %.0f%%",
-		   percentage * 100);
-
 	/* FIXME: Get this working again */
 	/* set_up_throttle (TRUE); */
 }
@@ -449,6 +449,20 @@ on_low_battery_cb (GObject    *object,
 
 	/* FIXME: Get this working again */
 	/* set_up_throttle (FALSE); */
+}
+
+static void
+on_battery_percentage_cb (GObject    *gobject,
+			  GParamSpec *arg1,
+			  gpointer    user_data)
+{
+	TrackerMinerFiles *mf = user_data;
+	gdouble percentage;
+
+	percentage = tracker_power_get_battery_percentage (mf->private->power);
+
+	g_message ("Battery percentage is now %.0f%%",
+		   percentage * 100);
 }
 
 #endif /* HAVE_HAL */
