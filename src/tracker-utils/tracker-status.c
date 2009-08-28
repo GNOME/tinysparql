@@ -50,6 +50,7 @@ static GMainLoop *main_loop;
 static gboolean   show_key;
 static gboolean   list_miners_running;
 static gboolean   list_miners_available;
+static gboolean   pause_details;
 static gchar     *miner_name;
 static gchar     *pause_reason;
 static gint       resume_cookie = -1;
@@ -75,6 +76,10 @@ static GOptionEntry entries[] = {
 	},
 	{ "list-miners-available", 'a', 0, G_OPTION_ARG_NONE, &list_miners_available,
 	  N_("List all miners installed"),
+	  NULL 
+	},
+	{ "pause-details", 'i', 0, G_OPTION_ARG_NONE, &pause_details,
+	  N_("List pause reasons and applications for a miner (you must use this with --miner)"),
 	  NULL 
 	},
 	{ "miner", 'm', 0, G_OPTION_ARG_STRING, &miner_name,
@@ -306,15 +311,25 @@ static gboolean
 miner_get_details (const gchar  *miner,
 		   gchar       **status,
 		   gdouble      *progress,
-		   gboolean     *is_paused)
+		   GStrv        *pause_applications,
+		   GStrv        *pause_reasons)
 {
 	GError *error = NULL;
 	DBusGProxy *proxy;
 	gchar *name;
 
-	*status = NULL;
-	*progress = 0.0;
-	*is_paused = FALSE;
+	if (status) {
+		*status = NULL;
+	}
+
+	if (progress) {
+		*progress = 0.0;
+	}
+
+	if (pause_applications && pause_reasons) {
+		*pause_applications = NULL;
+		*pause_reasons = NULL;
+	}
 	
 	name = get_dbus_name (miner);
 	
@@ -324,9 +339,9 @@ miner_get_details (const gchar  *miner,
 		return FALSE;
 	}
 	
-	if (!org_freedesktop_Tracker_Miner_get_status (proxy, 
-						       status,
-						       &error)) {
+	if (status && !org_freedesktop_Tracker_Miner_get_status (proxy, 
+								 status,
+								 &error)) {
 		gchar *str;
 
 		str = g_strdup_printf (_("Could not get status from miner: %s"),
@@ -342,9 +357,9 @@ miner_get_details (const gchar  *miner,
 		return FALSE;
 	}
 
-	if (!org_freedesktop_Tracker_Miner_get_progress (proxy, 
-							 progress,
-							 &error)) {
+	if (progress && !org_freedesktop_Tracker_Miner_get_progress (proxy, 
+								     progress,
+								     &error)) {
 		gchar *str;
 
 		str = g_strdup_printf (_("Could not get progress from miner: %s"),
@@ -360,12 +375,14 @@ miner_get_details (const gchar  *miner,
 		return FALSE;
 	}
 
-	if (!org_freedesktop_Tracker_Miner_get_is_paused (proxy, 
-							  is_paused,
-							  &error)) {
+	if ((pause_applications && pause_reasons) &&
+	    !org_freedesktop_Tracker_Miner_get_pause_details (proxy, 
+							      pause_applications,
+							      pause_reasons,
+							      &error)) {
 		gchar *str;
 
-		str = g_strdup_printf (_("Could not get paused state from miner: %s"),
+		str = g_strdup_printf (_("Could not get paused details from miner: %s"),
 				       name);
 		g_printerr ("  %s. %s\n", 
 			    str,
@@ -498,7 +515,76 @@ main (gint argc, gchar *argv[])
 		g_slist_foreach (miners_available, (GFunc) g_free, NULL);
 		g_slist_free (miners_available);
 
+		g_slist_foreach (miners_running, (GFunc) g_free, NULL);
+		g_slist_free (miners_running);
+
 		tracker_disconnect (client);
+		return EXIT_SUCCESS;
+	}
+
+	if (pause_details) {
+		if (!miners_running) {
+			g_print ("%s\n", _("No miners are running"));
+
+			g_slist_foreach (miners_available, (GFunc) g_free, NULL);
+			g_slist_free (miners_available);
+			
+			g_slist_foreach (miners_running, (GFunc) g_free, NULL);
+			g_slist_free (miners_running);
+
+			return EXIT_SUCCESS;
+		}
+
+		g_print ("%s:\n", _("Miners"));
+
+		for (l = miners_running; l; l = l->next) {
+			const gchar *name;
+			GStrv pause_applications, pause_reasons;
+			gint i;
+			
+			if (!strstr (l->data, TRACKER_MINER_DBUS_NAME_PREFIX)) {
+				g_critical ("We have a miner without the dbus name prefix? '%s'",
+					    (gchar*) l->data);
+				continue;
+			}
+			
+			name = (gchar*) l->data + strlen (TRACKER_MINER_DBUS_NAME_PREFIX);
+			
+				
+			if (!miner_get_details (l->data, 
+						NULL, 
+						NULL, 
+						&pause_applications,
+						&pause_reasons)) {
+				continue;
+			}
+			
+			if (!pause_applications && pause_reasons) {
+				g_strfreev (pause_applications);
+				g_strfreev (pause_reasons);
+				continue;
+			}
+			
+			g_print ("%s:\n", name);
+			
+			for (i = 0; pause_applications[i] != NULL; i++) {
+				g_print ("  %s: '%s', %s: '%s'\n", 
+					 _("Application"),
+					 pause_applications[i],
+					 _("Reason"),
+					 pause_reasons[i]);
+			}
+			
+			g_strfreev (pause_applications);
+			g_strfreev (pause_reasons);
+		}
+
+		g_slist_foreach (miners_available, (GFunc) g_free, NULL);
+		g_slist_free (miners_available);
+
+		g_slist_foreach (miners_running, (GFunc) g_free, NULL);
+		g_slist_free (miners_running);
+		
 		return EXIT_SUCCESS;
 	}
 
@@ -519,13 +605,20 @@ main (gint argc, gchar *argv[])
 		is_running = tracker_string_in_gslist (l->data, miners_running);
 
 		if (is_running) {
+			GStrv pause_applications, pause_reasons;
 			gchar *status = NULL;
 			gdouble progress;
 			gboolean is_paused;
 
-			if (!miner_get_details (l->data, &status, &progress, &is_paused)) {
+			if (!miner_get_details (l->data, 
+						&status, 
+						&progress, 
+						&pause_applications,
+						&pause_reasons)) {
 				continue;
 			}
+
+			is_paused = pause_applications || pause_reasons;
 
 			g_print ("  [%s] %s: %3.0f%%, %s, %s: '%s'\n", 
 				 is_paused ? "P" : "R",
@@ -535,6 +628,8 @@ main (gint argc, gchar *argv[])
 				 _("Status"),
 				 status ? status : _("Unknown"));
 			
+			g_strfreev (pause_applications);
+			g_strfreev (pause_reasons);
 			g_free (status);
 		} else {
 			g_print ("  [ ] %s: %3.0f%%, %s\n", 
@@ -546,6 +641,9 @@ main (gint argc, gchar *argv[])
 
 	g_slist_foreach (miners_available, (GFunc) g_free, NULL);
 	g_slist_free (miners_available);
+
+	g_slist_foreach (miners_running, (GFunc) g_free, NULL);
+	g_slist_free (miners_running);
 
 	if (!follow) {
 		/* Do nothing further */

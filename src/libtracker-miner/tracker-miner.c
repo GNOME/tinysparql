@@ -23,6 +23,7 @@
 #include <stdlib.h>
 
 #include <libtracker-common/tracker-dbus.h>
+#include <libtracker-common/tracker-type-utils.h>
 
 #include "tracker-marshal.h"
 #include "tracker-miner.h"
@@ -676,12 +677,15 @@ tracker_miner_dbus_get_progress (TrackerMiner           *miner,
 }
 
 void
-tracker_miner_dbus_get_is_paused (TrackerMiner           *miner,
-				  DBusGMethodInvocation  *context,
-				  GError                **error)
+tracker_miner_dbus_get_pause_details (TrackerMiner           *miner,
+				      DBusGMethodInvocation  *context,
+				      GError                **error)
 {
+	GSList *applications, *reasons;
+	GStrv applications_strv, reasons_strv;
+	GHashTableIter iter;
+	gpointer key, value;
 	guint request_id;
-	gboolean is_paused;
 
 	request_id = tracker_dbus_get_next_request_id ();
 
@@ -689,10 +693,38 @@ tracker_miner_dbus_get_is_paused (TrackerMiner           *miner,
 
 	tracker_dbus_request_new (request_id, "%s()", __PRETTY_FUNCTION__);
 
-	is_paused = g_hash_table_size (miner->private->pauses) > 0;
-	dbus_g_method_return (context, is_paused);
+	applications = NULL;
+	reasons = NULL;
+
+	g_hash_table_iter_init (&iter, miner->private->pauses);
+	while (g_hash_table_iter_next (&iter, &key, &value)) {
+		PauseData *pd;
+
+		pd = value;
+
+		if (!pd) {
+			continue;
+		}
+		
+		applications = g_slist_prepend (applications, pd->application);
+		reasons = g_slist_prepend (reasons, pd->reason);
+	}
+
+	applications = g_slist_reverse (applications);
+	reasons = g_slist_reverse (reasons);
+
+	applications_strv = tracker_gslist_to_string_list (applications);
+	reasons_strv = tracker_gslist_to_string_list (reasons);
+
+	dbus_g_method_return (context, applications_strv, reasons_strv);
 
 	tracker_dbus_request_success (request_id);
+
+	g_strfreev (applications_strv);
+	g_strfreev (reasons_strv);
+	
+	g_slist_free (applications);
+	g_slist_free (reasons);
 }
 
 void
