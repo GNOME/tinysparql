@@ -34,10 +34,13 @@
 
 #include "tracker-miner-files.h"
 #include "tracker-config.h"
+#include "tracker-extract-client.h"
 
 #define DISK_SPACE_CHECK_FREQUENCY 10
 
 #define TRACKER_MINER_FILES_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_MINER_FILES, TrackerMinerFilesPrivate))
+
+static GQuark miner_files_error_quark = 0;
 
 typedef struct ProcessFileData ProcessFileData;
 
@@ -47,6 +50,8 @@ struct ProcessFileData {
 	TrackerMinerFSDoneCb callback;
 	gpointer callback_data;
 	GCancellable *cancellable;
+	GFile *file;
+	DBusGProxyCall *call;
 };
 
 struct TrackerMinerFilesPrivate {
@@ -60,6 +65,8 @@ struct TrackerMinerFilesPrivate {
 	guint disk_space_pause_cookie;
 
 	guint low_battery_pause_cookie;
+
+	DBusGProxy *extractor_proxy;
 };
 
 enum {
@@ -85,6 +92,7 @@ static void     mount_pre_unmount_cb          (GVolumeMonitor       *volume_moni
 					       GMount               *mount,
 					       TrackerMinerFiles    *mf);
 static void     initialize_removable_devices  (TrackerMinerFiles    *mf);
+
 static void     on_battery_cb                 (GObject              *gobject,
 					       GParamSpec           *arg1,
 					       gpointer              user_data);
@@ -96,6 +104,9 @@ static void     disk_space_check_stop         (TrackerMinerFiles    *mf);
 static void     low_disk_space_limit_cb       (GObject              *gobject,
 					       GParamSpec           *arg1,
 					       gpointer              user_data);
+
+static DBusGProxy * create_extractor_proxy    (void);
+
 static gboolean miner_files_check_file        (TrackerMinerFS       *fs,
 					       GFile                *file);
 static gboolean miner_files_check_directory   (TrackerMinerFS       *fs,
@@ -136,6 +147,8 @@ tracker_miner_files_class_init (TrackerMinerFilesClass *klass)
 							      G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY));
 
         g_type_class_add_private (klass, sizeof (TrackerMinerFilesPrivate));
+
+	miner_files_error_quark = g_quark_from_static_string ("TrackerMinerFiles");
 }
 
 static void
@@ -166,6 +179,8 @@ tracker_miner_files_init (TrackerMinerFiles *mf)
 	g_signal_connect (priv->volume_monitor, "mount-pre-unmount",
 			  G_CALLBACK (mount_pre_unmount_cb),
 			  mf);
+
+	priv->extractor_proxy = create_extractor_proxy ();
 }
 
 static void
@@ -434,6 +449,35 @@ mount_pre_unmount_cb (GVolumeMonitor    *volume_monitor,
 	mount_root = g_mount_get_root (mount);
 	tracker_miner_fs_remove_directory (TRACKER_MINER_FS (mf), mount_root);
 	g_object_unref (mount_root);
+}
+
+static DBusGProxy *
+create_extractor_proxy (void)
+{
+	DBusGProxy *proxy;
+	DBusGConnection *connection;
+	GError *error = NULL;
+
+	connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
+
+	if (!connection) {
+		g_critical ("Could not connect to the DBus session bus, %s",
+			    error ? error->message : "no error given.");
+		g_clear_error (&error);
+		return FALSE;
+	}
+
+	/* Get proxy for the extractor */
+	proxy = dbus_g_proxy_new_for_name (connection,
+					   "org.freedesktop.Tracker.Extract",
+					   "/org/freedesktop/Tracker/Extract",
+					   "org.freedesktop.Tracker.Extract");
+
+	if (!proxy) {
+		g_critical ("Could not create a DBusGProxy to the extract service");
+	}
+
+	return proxy;
 }
 
 static gboolean
@@ -724,12 +768,73 @@ miner_files_add_to_datasource (TrackerMinerFiles    *mf,
 }
 
 static void
-free_process_file_data (ProcessFileData *data)
+process_file_data_free (ProcessFileData *data)
 {
 	g_object_unref (data->miner);
 	g_object_unref (data->sparql);
 	g_object_unref (data->cancellable);
+	g_object_unref (data->file);
 	g_slice_free (ProcessFileData, data);
+}
+
+static void
+get_embedded_metadata_cb (DBusGProxy *proxy,
+			  gchar      *sparql,
+			  GError     *error,
+			  gpointer    user_data)
+{
+	ProcessFileData *data = user_data;
+
+	if (error) {
+		/* Something bad happened, notify about the error */
+		data->callback (TRACKER_MINER_FS (data->miner), data->file, data->sparql, error, data->callback_data);
+		process_file_data_free (data);
+		g_error_free (error);
+		return;
+	}
+
+	if (sparql) {
+		tracker_sparql_builder_insert_close (data->sparql);
+		tracker_sparql_builder_append (data->sparql, sparql);
+		tracker_sparql_builder_insert_open (data->sparql);
+		g_free (sparql);
+	}
+
+
+	/* Notify about the success */
+	data->callback (TRACKER_MINER_FS (data->miner), data->file, data->sparql, NULL, data->callback_data);
+	process_file_data_free (data);
+}
+
+static void
+get_embedded_metadata_cancel (GCancellable    *cancellable,
+			      ProcessFileData *data)
+{
+	GError *error;
+
+	/* Cancel extractor call */
+	dbus_g_proxy_cancel_call (data->miner->private->extractor_proxy,
+				  data->call);
+
+	error = g_error_new_literal (miner_files_error_quark, 0, "Embedded metadata extraction was cancelled");
+	data->callback (TRACKER_MINER_FS (data->miner), data->file, data->sparql, error, data->callback_data);
+
+	process_file_data_free (data);
+	g_error_free (error);
+}
+
+static void
+get_embedded_metadata (ProcessFileData *data,
+		       const gchar     *uri,
+		       const gchar     *mime_type)
+{
+	data->call = org_freedesktop_Tracker_Extract_get_metadata_async (data->miner->private->extractor_proxy,
+									 uri,
+									 mime_type,
+									 get_embedded_metadata_cb,
+									 data);
+	g_signal_connect (data->cancellable, "cancelled",
+			  G_CALLBACK (get_embedded_metadata_cancel), data);
 }
 
 static void
@@ -754,7 +859,7 @@ process_file_cb (GObject      *object,
 	if (error) {
 		/* Something bad happened, notify about the error */
 		data->callback (TRACKER_MINER_FS (data->miner), file, sparql, error, data->callback_data);
-		free_process_file_data (data);
+		process_file_data_free (data);
 		return;
 	}
 
@@ -803,13 +908,10 @@ process_file_cb (GObject      *object,
 
         miner_files_add_to_datasource (data->miner, file, sparql);
 
-        /* FIXME: Missing embedded data and text */
+	/* Next step, getting embedded metadata */
+	get_embedded_metadata (data, uri, mime_type);
 
 	g_free (uri);
-
-	/* Notify about the success */
-	data->callback (TRACKER_MINER_FS (data->miner), file, sparql, NULL, data->callback_data);
-	free_process_file_data (data);
 }
 
 static gboolean
@@ -829,6 +931,7 @@ miner_files_process_file (TrackerMinerFS       *fs,
 	data->miner = g_object_ref (fs);
 	data->cancellable = g_object_ref (cancellable);
 	data->sparql = g_object_ref (sparql);
+	data->file = g_object_ref (file);
 
 	attrs = G_FILE_ATTRIBUTE_STANDARD_TYPE ","
 		G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE ","
