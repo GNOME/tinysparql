@@ -60,6 +60,8 @@ struct TrackerMinerFSPrivate {
 	guint           crawl_directories_id;
 	guint		item_queues_handler_id;
 
+	GCancellable   *cancellable;
+
 	/* Status */
 	guint           been_started : 1;
 	guint           been_crawled : 1;
@@ -88,7 +90,6 @@ enum {
 enum {
 	CHECK_FILE,
 	CHECK_DIRECTORY,
-	PROCESS_FILE,
 	MONITOR_DIRECTORY,
 	FINISHED,
 	LAST_SIGNAL
@@ -140,6 +141,9 @@ static void           crawler_finished_cb          (TrackerCrawler *crawler,
 static void           crawl_directories_start      (TrackerMinerFS *fs);
 static void           crawl_directories_stop       (TrackerMinerFS *fs);
 
+static void           item_queue_handlers_set_up   (TrackerMinerFS *fs);
+
+
 static guint signals[LAST_SIGNAL] = { 0, };
 
 G_DEFINE_ABSTRACT_TYPE (TrackerMinerFS, tracker_miner_fs, TRACKER_TYPE_MINER)
@@ -184,15 +188,6 @@ tracker_miner_fs_class_init (TrackerMinerFSClass *klass)
 			      NULL,
 			      tracker_marshal_BOOLEAN__OBJECT,
 			      G_TYPE_BOOLEAN, 1, G_TYPE_FILE);
-	signals[PROCESS_FILE] =
-		g_signal_new ("process-file",
-			      G_OBJECT_CLASS_TYPE (object_class),
-			      G_SIGNAL_RUN_LAST,
-			      G_STRUCT_OFFSET (TrackerMinerFSClass, process_file),
-			      tracker_accumulator_check_file,
-			      NULL,
-			      tracker_marshal_BOOLEAN__OBJECT_OBJECT,
-			      G_TYPE_BOOLEAN, 2, G_TYPE_FILE, TRACKER_TYPE_SPARQL_BUILDER);
 	signals[MONITOR_DIRECTORY] =
 		g_signal_new ("monitor-directory",
 			      G_OBJECT_CLASS_TYPE (object_class),
@@ -270,6 +265,7 @@ tracker_miner_fs_init (TrackerMinerFS *object)
 			  object);
 
 	priv->quark_ignore_file = g_quark_from_static_string ("tracker-ignore-file");
+	priv->cancellable = g_cancellable_new ();
 }
 
 static void
@@ -292,6 +288,7 @@ fs_finalize (GObject *object)
 
 	g_object_unref (priv->crawler);
 	g_object_unref (priv->monitor);
+	g_object_unref (priv->cancellable);
 
 	if (priv->directories) {
 		g_list_foreach (priv->directories, (GFunc) directory_data_free, NULL);
@@ -449,33 +446,71 @@ item_moved_data_free (ItemMovedData *data)
 }
 
 static void
-item_add_or_update (TrackerMinerFS  *miner,
-		    GFile           *file)
+item_add_or_update_cb (TrackerMinerFS       *fs,
+		       GFile                *file,
+		       TrackerSparqlBuilder *sparql,
+		       const GError         *error,
+		       gpointer              user_data)
 {
-	TrackerSparqlBuilder *sparql;
-	gchar *full_sparql, *uri;
-	gboolean processed;
-
-	sparql = tracker_sparql_builder_new_update ();
-	g_signal_emit (miner, signals[PROCESS_FILE], 0, file, sparql, &processed);
-
-	if (!processed) {
-		g_object_unref (sparql);
-		return;
-	}
+	gchar *uri;
 
 	uri = g_file_get_uri (file);
 
-	g_debug ("Adding item '%s'", uri);
+	if (error) {
+		g_warning ("Could not process '%s': %s", uri, error->message);
 
-	tracker_sparql_builder_insert_close (sparql);
+	} else {
+		gchar *full_sparql;
 
-	full_sparql = g_strdup_printf ("DROP GRAPH <%s> %s",
-				       uri, tracker_sparql_builder_get_result (sparql));
+		g_debug ("Adding item '%s'", uri);
 
-	tracker_miner_execute_sparql (TRACKER_MINER (miner), full_sparql, NULL);
-	g_free (full_sparql);
+		tracker_sparql_builder_insert_close (sparql);
+
+		full_sparql = g_strdup_printf ("DROP GRAPH <%s> %s",
+					       uri, tracker_sparql_builder_get_result (sparql));
+
+		tracker_miner_execute_sparql (TRACKER_MINER (fs), full_sparql, NULL);
+		g_free (full_sparql);
+	}
+
+	if (fs->private->cancellable) {
+		g_object_unref (fs->private->cancellable);
+		fs->private->cancellable = NULL;
+	}
+
 	g_object_unref (sparql);
+	g_free (uri);
+
+	/* Processing is now done, continue with other files */
+	item_queue_handlers_set_up (fs);
+}
+
+static gboolean
+item_add_or_update (TrackerMinerFS *fs,
+		    GFile          *file)
+{
+	TrackerSparqlBuilder *sparql;
+	gboolean processing;
+
+	if (fs->private->cancellable) {
+		g_warning ("Cancellable for older operation still around, destroying");
+		g_object_unref (fs->private->cancellable);
+	}
+
+	fs->private->cancellable = g_cancellable_new ();
+	sparql = tracker_sparql_builder_new_update ();
+
+	processing = TRACKER_MINER_FS_GET_CLASS (fs)->process_file (fs, file, sparql,
+								    fs->private->cancellable,
+								    item_add_or_update_cb,
+								    NULL);
+
+	if (!processing) {
+		g_object_unref (sparql);
+		return TRUE;
+	}
+
+	return FALSE;
 }
 
 static gboolean
@@ -576,7 +611,7 @@ update_file_uri_recursively (TrackerMinerFS *fs,
 	}
 }
 
-static void
+static gboolean
 item_move (TrackerMinerFS *fs,
 	   GFile          *file,
 	   GFile          *source_file)
@@ -590,14 +625,16 @@ item_move (TrackerMinerFS *fs,
 
 	/* Get 'source' ID */
 	if (!item_query_exists (fs, source_file)) {
+		gboolean retval;
+
 		g_message ("Source file '%s' not found in store to move, indexing '%s' from scratch", source_uri, uri);
 
-		item_add_or_update (fs, file);
+		retval = item_add_or_update (fs, file);
 
 		g_free (source_uri);
 		g_free (uri);
 
-		return;
+		return retval;
 	}
 
 	file_info = g_file_query_info (file,
@@ -612,7 +649,7 @@ item_move (TrackerMinerFS *fs,
 		g_free (source_uri);
 		g_free (uri);
 
-		return;
+		return TRUE;
 	}
 
 	sparql = g_string_new ("");
@@ -639,6 +676,8 @@ item_move (TrackerMinerFS *fs,
 	g_free (source_uri);
 	g_object_unref (file_info);
 	g_string_free (sparql, TRUE);
+
+	return TRUE;
 }
 
 static gint
@@ -721,7 +760,8 @@ item_queue_handlers_cb (gpointer user_data)
 	GFile *file, *source_file;
 	gint queue;
 	GTimeVal time_now;
-	static GTimeVal time_last = { 0, 0 };
+	static GTimeVal time_last = { 0 };
+	gboolean keep_processing = TRUE;
 
 	fs = user_data;
 	queue = item_queue_get_next_file (fs, &file, &source_file);
@@ -735,37 +775,42 @@ item_queue_handlers_cb (gpointer user_data)
 	}
 
 	/* Handle queues */
-	if (queue == QUEUE_NONE) {
+	switch (queue) {
+	case QUEUE_NONE:
 		/* Print stats and signal finished */
 		process_stop (fs);
 
 		/* No more files left to process */
-		fs->private->item_queues_handler_id = 0;
-		return FALSE;
-	}
-
-	switch (queue) {
+		keep_processing = FALSE;
+		break;
 	case QUEUE_MOVED:
-		item_move (fs, file, source_file);
+		keep_processing = item_move (fs, file, source_file);
 		break;
 	case QUEUE_DELETED:
 		item_remove (fs, file);
 		break;
 	case QUEUE_CREATED:
 	case QUEUE_UPDATED:
-		item_add_or_update (fs, file);
+		keep_processing = item_add_or_update (fs, file);
 		break;
 	default:
 		g_assert_not_reached ();
 	}
 
-	g_object_unref (file);
+	if (file) {
+		g_object_unref (file);
+	}
 
 	if (source_file) {
 		g_object_unref (source_file);
 	}
 
-	return TRUE;
+	if (!keep_processing) {
+		fs->private->item_queues_handler_id = 0;
+		return FALSE;
+	} else {
+		return TRUE;
+	}
 }
 
 static void
@@ -795,7 +840,7 @@ should_change_index_for_file (TrackerMinerFS *fs,
 	guint64             time;
 	time_t              mtime;
 	struct tm           t;
-	gchar              *query, *uri;;
+	gchar              *query, *uri;
 
 	file_info = g_file_query_info (file, 
 				       G_FILE_ATTRIBUTE_TIME_MODIFIED, 

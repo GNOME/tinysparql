@@ -39,6 +39,16 @@
 
 #define TRACKER_MINER_FILES_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_MINER_FILES, TrackerMinerFilesPrivate))
 
+typedef struct ProcessFileData ProcessFileData;
+
+struct ProcessFileData {
+	TrackerMinerFiles *miner;
+	TrackerSparqlBuilder *sparql;
+	TrackerMinerFSDoneCb callback;
+	gpointer callback_data;
+	GCancellable *cancellable;
+};
+
 struct TrackerMinerFilesPrivate {
         TrackerConfig *config;
         TrackerStorage *storage;
@@ -92,7 +102,10 @@ static gboolean miner_files_check_directory   (TrackerMinerFS       *fs,
 					       GFile                *file);
 static gboolean miner_files_process_file      (TrackerMinerFS       *fs,
 					       GFile                *file,
-					       TrackerSparqlBuilder *sparql);
+					       TrackerSparqlBuilder *sparql,
+					       GCancellable         *cancellable,
+					       TrackerMinerFSDoneCb  done_cb,
+					       gpointer              done_cb_data);
 static gboolean miner_files_monitor_directory (TrackerMinerFS       *fs,
 					       GFile                *file);
 
@@ -710,35 +723,43 @@ miner_files_add_to_datasource (TrackerMinerFiles    *mf,
 	}
 }
 
-static gboolean
-miner_files_process_file (TrackerMinerFS       *fs,
-			  GFile                *file,
-			  TrackerSparqlBuilder *sparql)
+static void
+free_process_file_data (ProcessFileData *data)
 {
-	gchar *uri, *mime_type;
+	g_object_unref (data->miner);
+	g_object_unref (data->sparql);
+	g_object_unref (data->cancellable);
+	g_slice_free (ProcessFileData, data);
+}
+
+static void
+process_file_cb (GObject      *object,
+		 GAsyncResult *result,
+		 gpointer      user_data)
+{
+	TrackerSparqlBuilder *sparql;
+	ProcessFileData *data;
+	const gchar *mime_type;
 	GFileInfo *file_info;
 	guint64 time_;
-	GFile *parent;
-	gchar *parent_uri;
-	const gchar *attrs;
+	GFile *file, *parent;
+	gchar *uri, *parent_uri;
+	GError *error = NULL;
 
-	attrs = G_FILE_ATTRIBUTE_STANDARD_TYPE ","
-		G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE ","
-		G_FILE_ATTRIBUTE_STANDARD_DISPLAY_NAME ","
-		G_FILE_ATTRIBUTE_STANDARD_SIZE ","
-		G_FILE_ATTRIBUTE_TIME_MODIFIED ","
-		G_FILE_ATTRIBUTE_TIME_ACCESS;
+	data = user_data;
+	file = G_FILE (object);
+	sparql = data->sparql;
+	file_info = g_file_query_info_finish (file, result, &error);
 
-	file_info = g_file_query_info (file,
-				       attrs,
-                                       G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
-                                       NULL, NULL);
-	if (!file_info) {
-		return FALSE;
+	if (error) {
+		/* Something bad happened, notify about the error */
+		data->callback (TRACKER_MINER_FS (data->miner), file, sparql, error, data->callback_data);
+		free_process_file_data (data);
+		return;
 	}
 
 	uri = g_file_get_uri (file);
-	mime_type = g_strdup (g_file_info_get_content_type (file_info));
+	mime_type = g_file_info_get_content_type (file_info);
 
         tracker_sparql_builder_insert_open (sparql);
 
@@ -780,11 +801,49 @@ miner_files_process_file (TrackerMinerFS       *fs,
         tracker_sparql_builder_predicate (sparql, "nfo:fileLastAccessed");
 	tracker_sparql_builder_object_date (sparql, (time_t *) &time_);
 
-        miner_files_add_to_datasource (TRACKER_MINER_FILES (fs), file, sparql);
+        miner_files_add_to_datasource (data->miner, file, sparql);
 
         /* FIXME: Missing embedded data and text */
 
 	g_free (uri);
+
+	/* Notify about the success */
+	data->callback (TRACKER_MINER_FS (data->miner), file, sparql, NULL, data->callback_data);
+	free_process_file_data (data);
+}
+
+static gboolean
+miner_files_process_file (TrackerMinerFS       *fs,
+			  GFile                *file,
+			  TrackerSparqlBuilder *sparql,
+			  GCancellable         *cancellable,
+			  TrackerMinerFSDoneCb  done_cb,
+			  gpointer              done_cb_data)
+{
+	ProcessFileData *data;
+	const gchar *attrs;
+
+	data = g_slice_new0 (ProcessFileData);
+	data->callback = done_cb;
+	data->callback_data = done_cb_data;
+	data->miner = g_object_ref (fs);
+	data->cancellable = g_object_ref (cancellable);
+	data->sparql = g_object_ref (sparql);
+
+	attrs = G_FILE_ATTRIBUTE_STANDARD_TYPE ","
+		G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE ","
+		G_FILE_ATTRIBUTE_STANDARD_DISPLAY_NAME ","
+		G_FILE_ATTRIBUTE_STANDARD_SIZE ","
+		G_FILE_ATTRIBUTE_TIME_MODIFIED ","
+		G_FILE_ATTRIBUTE_TIME_ACCESS;
+
+	g_file_query_info_async (file,
+				 attrs,
+				 G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
+				 G_PRIORITY_DEFAULT,
+				 cancellable,
+				 process_file_cb,
+				 data);
 
 	return TRUE;
 }

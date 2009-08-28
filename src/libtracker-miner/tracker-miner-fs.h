@@ -41,6 +41,12 @@ typedef struct TrackerMinerFS        TrackerMinerFS;
 typedef struct TrackerMinerFSClass   TrackerMinerFSClass;
 typedef struct TrackerMinerFSPrivate TrackerMinerFSPrivate;
 
+typedef void (* TrackerMinerFSDoneCb) (TrackerMinerFS       *fs,
+				       GFile                *file,
+				       TrackerSparqlBuilder *builder,
+				       const GError         *error,
+				       gpointer              user_data);
+
 struct TrackerMinerFS {
 	TrackerMiner parent;
 	TrackerMinerFSPrivate *private;
@@ -55,7 +61,10 @@ struct TrackerMinerFSClass {
 					    GFile                *file);
 	gboolean (* process_file)          (TrackerMinerFS       *fs,
 					    GFile                *file,
-					    TrackerSparqlBuilder *builder);
+					    TrackerSparqlBuilder *builder,
+					    GCancellable         *cancellable,
+					    TrackerMinerFSDoneCb  done_cb,
+					    gpointer              done_cb_data);
 	gboolean (* monitor_directory)     (TrackerMinerFS       *fs,
 					    GFile                *file);
 	void     (* finished)              (TrackerMinerFS       *fs);

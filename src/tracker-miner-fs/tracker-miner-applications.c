@@ -46,9 +46,26 @@ static gboolean miner_applications_check_directory   (TrackerMinerFS       *fs,
 						      GFile                *file);
 static gboolean miner_applications_process_file      (TrackerMinerFS       *fs,
 						      GFile                *file,
-						      TrackerSparqlBuilder *sparql);
+						      TrackerSparqlBuilder *sparql,
+						      GCancellable         *cancellable,
+						      TrackerMinerFSDoneCb  done_cb,
+						      gpointer              done_cb_data);
 static gboolean miner_applications_monitor_directory (TrackerMinerFS       *fs,
 						      GFile                *file);
+
+static GQuark miner_applications_error_quark = 0;
+
+typedef struct ProcessApplicationData ProcessApplicationData;
+
+struct ProcessApplicationData {
+	TrackerMinerFS *miner;
+	GFile *file;
+	TrackerSparqlBuilder *sparql;
+	TrackerMinerFSDoneCb callback;
+	gpointer callback_data;
+	GCancellable *cancellable;
+	GKeyFile *desktop_file;
+};
 
 G_DEFINE_TYPE (TrackerMinerApplications, tracker_miner_applications, TRACKER_TYPE_MINER_FS)
 
@@ -65,6 +82,8 @@ tracker_miner_applications_class_init (TrackerMinerApplicationsClass *klass)
 	miner_fs_class->check_directory = miner_applications_check_directory;
 	miner_fs_class->monitor_directory = miner_applications_monitor_directory;
         miner_fs_class->process_file = miner_applications_process_file;
+
+	miner_applications_error_quark = g_quark_from_static_string ("TrackerMinerApplications");
 }
 
 static void
@@ -156,40 +175,63 @@ miner_applications_monitor_directory (TrackerMinerFS *fs,
 	return TRUE;
 }
 
-static gboolean
-miner_applications_process_file (TrackerMinerFS       *fs,
-				 GFile                *file,
-				 TrackerSparqlBuilder *sparql)
+static GKeyFile *
+get_desktop_key_file (GFile           *file,
+		      gchar          **type,
+		      GError         **error)
 {
 	GKeyFile *key_file;
-	gchar *path, *type, *filename, *name = NULL, *uri = NULL;
-	GFileInfo *file_info;
-	GStrv cats = NULL;
-	gsize cats_len;
+	gchar *path;
 
 	path = g_file_get_path (file);
 	key_file = g_key_file_new ();
 
 	if (!g_key_file_load_from_file (key_file, path, G_KEY_FILE_NONE, NULL)) {
-		g_debug ("Couldn't load desktop file:'%s'", path);
+		*error = g_error_new (miner_applications_error_quark, 0, "Couldn't load desktop file:'%s'", path);
 		g_key_file_free (key_file);
 		g_free (path);
-		return FALSE;
+		return NULL;
 	}
 
 	if (g_key_file_get_boolean (key_file, GROUP_DESKTOP_ENTRY, "Hidden", NULL)) {
-		g_debug ("Desktop file is 'hidden', not gathering metadata for it");
+		*error = g_error_new_literal (miner_applications_error_quark, 0, "Desktop file is 'hidden', not gathering metadata for it");
 		g_key_file_free (key_file);
 		g_free (path);
-		return FALSE;
+		return NULL;
 	}
 
-	type = g_key_file_get_string (key_file, GROUP_DESKTOP_ENTRY, "Type", NULL);
+	*type = g_key_file_get_string (key_file, GROUP_DESKTOP_ENTRY, "Type", NULL);
 
-	if (!type) {
+	if (!*type) {
+		*error = g_error_new_literal (miner_applications_error_quark, 0, "Desktop file doesn't contain type");
 		g_key_file_free (key_file);
-		g_free (type);
 		g_free (path);
+		return NULL;
+	}
+
+	g_free (path);
+
+	return key_file;
+}
+
+static gboolean
+miner_applications_process_file_cb (gpointer user_data)
+{
+	ProcessApplicationData *data = user_data;
+	TrackerSparqlBuilder *sparql;
+	GKeyFile *key_file;
+	gchar *path, *type, *filename, *name = NULL, *uri = NULL;
+	GFileInfo *file_info;
+	GStrv cats = NULL;
+	gsize cats_len;
+	GError *error = NULL;
+
+	sparql = data->sparql;
+	key_file = get_desktop_key_file (data->file, &type, &error);
+
+	if (error) {
+		data->callback (data->miner, data->file, sparql, error, data->callback_data);
+		g_error_free (error);
 		return FALSE;
 	}
 
@@ -236,7 +278,7 @@ miner_applications_process_file (TrackerMinerFS       *fs,
 
 	} else if (name && g_ascii_strcasecmp (type, "Application") == 0) {
 
-		uri = g_file_get_uri (file);
+		uri = g_file_get_uri (data->file);
 		tracker_sparql_builder_insert_open (sparql);
 
 		tracker_sparql_builder_subject_iri (sparql, APPLICATION_DATASOURCE_URN);
@@ -255,7 +297,7 @@ miner_applications_process_file (TrackerMinerFS       *fs,
 	} else if (name && g_str_has_suffix (type, "Applet")) {
 
 		/* The URI of the InformationElement should be a UUID URN */
-		uri = g_file_get_uri (file);
+		uri = g_file_get_uri (data->file);
 		tracker_sparql_builder_insert_open (sparql);
 
 		tracker_sparql_builder_subject_iri (sparql, APPLET_DATASOURCE_URN);
@@ -333,12 +375,14 @@ miner_applications_process_file (TrackerMinerFS       *fs,
 		tracker_sparql_builder_predicate (sparql, "nie:dataSource");
 		tracker_sparql_builder_object_iri (sparql, APPLICATION_DATASOURCE_URN);
 
+		path = g_file_get_path (data->file);
 		filename = g_filename_display_basename (path);
 		tracker_sparql_builder_predicate (sparql, "nfo:fileName");
 		tracker_sparql_builder_object_string (sparql, filename);
 		g_free (filename);
+		g_free (path);
 
-		desktop_file_uri = g_file_get_uri (file);
+		desktop_file_uri = g_file_get_uri (data->file);
 		tracker_sparql_builder_subject_iri (sparql, desktop_file_uri);
 		tracker_sparql_builder_predicate (sparql, "a");
 		tracker_sparql_builder_object (sparql, "nfo:FileDataObject");
@@ -350,7 +394,7 @@ miner_applications_process_file (TrackerMinerFS       *fs,
 
 	}
 
-	file_info = g_file_query_info (file,
+	file_info = g_file_query_info (data->file,
 				       G_FILE_ATTRIBUTE_TIME_MODIFIED,
 				       G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
 				       NULL, NULL);
@@ -365,6 +409,8 @@ miner_applications_process_file (TrackerMinerFS       *fs,
 		g_object_unref (file_info);
 	}
 
+	/* Notify about success */
+	data->callback (data->miner, data->file, sparql, NULL, data->callback_data);
 
 	if (cats)
 		g_strfreev (cats);
@@ -372,8 +418,43 @@ miner_applications_process_file (TrackerMinerFS       *fs,
 	g_free (uri);
 	g_key_file_free (key_file);
 	g_free (type);
-	g_free (path);
 	g_free (name);
+
+	return FALSE;
+}
+
+static void
+process_application_data_free (ProcessApplicationData *data)
+{
+	g_object_unref (data->miner);
+	g_object_unref (data->file);
+	g_object_unref (data->sparql);
+	g_object_unref (data->cancellable);
+	g_slice_free (ProcessApplicationData, data);
+}
+
+static gboolean
+miner_applications_process_file (TrackerMinerFS       *fs,
+				 GFile                *file,
+				 TrackerSparqlBuilder *sparql,
+				 GCancellable         *cancellable,
+				 TrackerMinerFSDoneCb  done_cb,
+				 gpointer              done_cb_data)
+{
+	ProcessApplicationData *data;
+
+	data = g_slice_new0 (ProcessApplicationData);
+	data->miner = g_object_ref (fs);
+	data->sparql = g_object_ref (sparql);
+	data->file = g_object_ref (file);
+	data->callback = done_cb;
+	data->callback_data = done_cb_data;
+	data->cancellable = g_object_ref (cancellable);
+
+	g_idle_add_full (G_PRIORITY_DEFAULT_IDLE,
+			 miner_applications_process_file_cb,
+			 data,
+			 (GDestroyNotify) process_application_data_free);
 
 	return TRUE;
 }
