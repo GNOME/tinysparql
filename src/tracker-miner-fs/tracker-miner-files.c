@@ -25,6 +25,7 @@
 #include <glib/gi18n.h>
 
 #include <libtracker-common/tracker-ontology.h>
+#include <libtracker-common/tracker-power.h>
 #include <libtracker-common/tracker-storage.h>
 #include <libtracker-common/tracker-type-utils.h>
 #include <libtracker-common/tracker-utils.h>
@@ -41,11 +42,14 @@
 struct TrackerMinerFilesPrivate {
         TrackerConfig *config;
         TrackerStorage *storage;
+	TrackerPower *power;
 
 	GVolumeMonitor *volume_monitor;
 
 	guint disk_space_check_id;
 	guint disk_space_pause_cookie;
+
+	guint low_battery_pause_cookie;
 };
 
 enum {
@@ -71,6 +75,12 @@ static void     mount_pre_unmount_cb          (GVolumeMonitor       *volume_moni
 					       GMount               *mount,
 					       TrackerMinerFiles    *mf);
 static void     initialize_removable_devices  (TrackerMinerFiles    *mf);
+static void     on_battery_cb                 (GObject              *gobject,
+					       GParamSpec           *arg1,
+					       gpointer              user_data);
+static void     on_low_battery_cb             (GObject              *object,
+					       GParamSpec           *pspec,
+					       gpointer              user_data);
 static void     disk_space_check_start        (TrackerMinerFiles    *mf);
 static void     disk_space_check_stop         (TrackerMinerFiles    *mf);
 static void     low_disk_space_limit_cb       (GObject              *gobject,
@@ -124,10 +134,20 @@ tracker_miner_files_init (TrackerMinerFiles *mf)
 
 #ifdef HAVE_HAL
         priv->storage = tracker_storage_new ();
+
         g_signal_connect (priv->storage, "mount-point-added",
                           G_CALLBACK (mount_point_added_cb), 
 			  mf);
-#endif
+
+	priv->power = tracker_power_new ();
+
+	g_signal_connect (priv->power, "notify::on-low-battery",
+			  G_CALLBACK (on_low_battery_cb),
+			  mf);
+	g_signal_connect (priv->power, "notify::on-battery",
+			  G_CALLBACK (on_battery_cb),
+			  mf);
+#endif /* HAVE_HAL */
 
 	priv->volume_monitor = g_volume_monitor_get ();
 	g_signal_connect (priv->volume_monitor, "mount-pre-unmount",
@@ -178,17 +198,36 @@ miner_files_get_property (GObject    *object,
 static void
 miner_files_finalize (GObject *object)
 {
-        TrackerMinerFilesPrivate *priv;
+	TrackerMinerFiles *mf;
+	TrackerMinerFilesPrivate *priv;
 
-        priv = TRACKER_MINER_FILES_GET_PRIVATE (object);
+	mf = TRACKER_MINER_FILES (object);
+	priv = mf->private;
+
+	g_signal_handlers_disconnect_by_func (priv->config,
+					      low_disk_space_limit_cb,
+					      NULL);
+
+	g_object_unref (priv->config);
 
 	disk_space_check_stop (TRACKER_MINER_FILES (object));
 
-        g_object_unref (priv->config);
-
 #ifdef HAVE_HAL
+	g_signal_handlers_disconnect_by_func (priv->power,
+					      on_battery_cb,
+					      mf);
+	g_signal_handlers_disconnect_by_func (priv->power,
+					      on_low_battery_cb,
+					      mf);
+
+        g_object_unref (priv->power);
+
+	g_signal_handlers_disconnect_by_func (priv->storage,
+					      mount_point_added_cb,
+					      mf);
+
         g_object_unref (priv->storage);
-#endif
+#endif /* HAVE_HAL */
 
 	g_signal_handlers_disconnect_by_func (priv->volume_monitor,
 					      mount_pre_unmount_cb,
@@ -266,7 +305,8 @@ miner_files_constructed (GObject *object)
 
 #ifdef HAVE_HAL
         initialize_removable_devices (mf);
-#endif
+#endif /* HAVE_HAL */
+
 	g_signal_connect (mf->private->config, "notify::low-disk-space-limit",
 			  G_CALLBACK (low_disk_space_limit_cb),
 			  mf);
@@ -320,7 +360,53 @@ initialize_removable_devices (TrackerMinerFiles *mf)
         }
 }
 
-#endif
+static void
+on_battery_cb (GObject    *gobject,
+	       GParamSpec *arg1,
+	       gpointer    user_data)
+{
+	/* FIXME: Get this working again */
+	/* set_up_throttle (TRUE); */
+}
+
+static void
+on_low_battery_cb (GObject    *object,
+		   GParamSpec *pspec,
+		   gpointer    user_data)
+{
+	TrackerMinerFiles *mf = user_data;
+	gboolean on_low_battery;
+	gboolean on_battery;
+
+	on_low_battery = tracker_power_get_on_low_battery (mf->private->power);
+	on_battery = tracker_power_get_on_battery (mf->private->power);
+
+	if (on_battery) {
+		if (on_low_battery) {
+			/* Running on low batteries, stop indexing for now */
+			mf->private->low_battery_pause_cookie = 
+				tracker_miner_pause (TRACKER_MINER (mf),
+						     g_get_application_name (),
+						     _("Low battery"),
+						     NULL);
+		} else {
+			tracker_miner_resume (TRACKER_MINER (mf),
+					      mf->private->low_battery_pause_cookie,
+					      NULL);
+			mf->private->low_battery_pause_cookie = 0;
+		}
+	} else if (mf->private->low_battery_pause_cookie != 0) {
+		tracker_miner_resume (TRACKER_MINER (mf),
+				      mf->private->low_battery_pause_cookie,
+				      NULL);
+		mf->private->low_battery_pause_cookie = 0;
+	}
+
+	/* FIXME: Get this working again */
+	/* set_up_throttle (FALSE); */
+}
+
+#endif /* HAVE_HAL */
 
 static void
 mount_pre_unmount_cb (GVolumeMonitor    *volume_monitor,
@@ -587,9 +673,9 @@ miner_files_add_to_datasource (TrackerMinerFiles    *mf,
 
 #ifdef HAVE_HAL
 	removable_device_udi = tracker_storage_get_volume_udi_for_file (priv->storage, file);
-#else
+#else  /* HAVE_HAL */
 	removable_device_udi = NULL;
-#endif
+#endif /* HAVE_HAL */
 
 	if (removable_device_udi) {
 		gchar *removable_device_urn;
