@@ -79,7 +79,7 @@ static GOptionEntry entries[] = {
 	  NULL 
 	},
 	{ "pause-details", 'i', 0, G_OPTION_ARG_NONE, &pause_details,
-	  N_("List pause reasons and applications for a miner (you must use this with --miner)"),
+	  N_("List pause reasons and applications for a miner"),
 	  NULL 
 	},
 	{ "miner", 'm', 0, G_OPTION_ARG_STRING, &miner_name,
