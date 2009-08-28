@@ -18,8 +18,8 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __TRACKER_MINER_DISCOVER_H__
-#define __TRACKER_MINER_DISCOVER_H__
+#ifndef __LIBTRACKERMINER_DISCOVER_H__
+#define __LIBTRACKERMINER_DISCOVER_H__
 
 #include <glib.h>
 
@@ -30,4 +30,4 @@ GSList *tracker_miner_discover_get_available (void);
 
 G_END_DECLS
 
-#endif /* __TRACKER_MINER_DISCOVER_H__ */
+#endif /* __LIBTRACKERMINER_DISCOVER_H__ */

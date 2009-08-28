@@ -18,8 +18,8 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __TRACKER_UTILS_H__
-#define __TRACKER_UTILS_H__
+#ifndef __LIBTRACKERMINER_UTILS_H__
+#define __LIBTRACKERMINER_UTILS_H__
 
 #include <glib-object.h>
 
@@ -32,4 +32,4 @@ gboolean tracker_accumulator_check_file (GSignalInvocationHint *hint,
 
 G_END_DECLS
 
-#endif /* __TRACKER_UTILS_H__ */
+#endif /* __LIBTRACKERMINER_UTILS_H__ */

@@ -18,8 +18,8 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __TRACKERD_MINER_FS_H__
-#define __TRACKERD_MINER_FS_H__
+#ifndef __LIBTRACKERMINER_MINER_FS_H__
+#define __LIBTRACKERMINER_MINER_FS_H__
 
 #include <glib-object.h>
 #include <gio/gio.h>
@@ -72,4 +72,4 @@ gboolean tracker_miner_fs_remove_directory (TrackerMinerFS *fs,
 
 G_END_DECLS
 
-#endif /* __TRACKERD_MINER_FS_H__ */
+#endif /* __LIBTRACKERMINER_MINER_FS_H__ */

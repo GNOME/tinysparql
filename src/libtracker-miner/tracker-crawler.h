@@ -18,8 +18,8 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __TRACKERD_CRAWLER_H__
-#define __TRACKERD_CRAWLER_H__
+#ifndef __LIBTRACKERMINER_CRAWLER_H__
+#define __LIBTRACKERMINER_CRAWLER_H__
 
 #include <glib-object.h>
 #include <gio/gio.h>
@@ -65,4 +65,4 @@ void            tracker_crawler_stop     (TrackerCrawler *crawler);
 
 G_END_DECLS
 
-#endif /* __TRACKERD_CRAWLER_H__ */
+#endif /* __LIBTRACKERMINER_CRAWLER_H__ */
