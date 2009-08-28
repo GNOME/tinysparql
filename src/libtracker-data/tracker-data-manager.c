@@ -340,73 +340,59 @@ static void
 db_get_static_data (TrackerDBInterface *iface)
 {
 	TrackerDBStatement *stmt;
-	TrackerDBResultSet *result_set;
+	TrackerDBCursor *cursor;
 
 	stmt = tracker_db_interface_create_statement (iface,
 						      "SELECT (SELECT Uri FROM \"rdfs:Resource\" WHERE ID = \"tracker:Namespace\".ID), "
 						      "\"tracker:prefix\" "
 						      "FROM \"tracker:Namespace\"");
-	result_set = tracker_db_statement_execute (stmt, NULL);
+	cursor = tracker_db_statement_start_cursor (stmt, NULL);
 	g_object_unref (stmt);
 
-	if (result_set) {
-		gboolean valid = TRUE;
-
-		while (valid) {
+	if (cursor) {
+		while (tracker_db_cursor_iter_next (cursor)) {
 			TrackerNamespace *namespace;
-			gchar	         *uri, *prefix;
+			const gchar      *uri, *prefix;
 
 			namespace = tracker_namespace_new ();
 
-			tracker_db_result_set_get (result_set,
-						   0, &uri,
-						   1, &prefix,
-						   -1);
+			uri = tracker_db_cursor_get_string (cursor, 0);
+			prefix = tracker_db_cursor_get_string (cursor, 1);
 
 			tracker_namespace_set_uri (namespace, uri);
 			tracker_namespace_set_prefix (namespace, prefix);
 			tracker_ontology_add_namespace (namespace);
 
 			g_object_unref (namespace);
-			g_free (uri);
-			g_free (prefix);
 
-			valid = tracker_db_result_set_iter_next (result_set);
 		}
 
-		g_object_unref (result_set);
+		g_object_unref (cursor);
 	}
 
 	stmt = tracker_db_interface_create_statement (iface,
 						      "SELECT (SELECT Uri FROM \"rdfs:Resource\" WHERE ID = \"rdfs:Class\".ID) "
 						      "FROM \"rdfs:Class\" ORDER BY ID");
-	result_set = tracker_db_statement_execute (stmt, NULL);
+	cursor = tracker_db_statement_start_cursor (stmt, NULL);
 	g_object_unref (stmt);
 
-	if (result_set) {
-		gboolean valid = TRUE;
-
-		while (valid) {
+	if (cursor) {
+		while (tracker_db_cursor_iter_next (cursor)) {
 			TrackerClass *class;
-			gchar	     *uri;
+			const gchar  *uri;
 
 			class = tracker_class_new ();
 
-			tracker_db_result_set_get (result_set,
-						   0, &uri,
-						   -1);
+			uri = tracker_db_cursor_get_string (cursor, 0);
 
 			tracker_class_set_uri (class, uri);
 			class_add_super_classes_from_db (iface, class);
 			tracker_ontology_add_class (class);
 
 			g_object_unref (class);
-			g_free (uri);
-
-			valid = tracker_db_result_set_iter_next (result_set);
 		}
 
-		g_object_unref (result_set);
+		g_object_unref (cursor);
 	}
 
 	stmt = tracker_db_interface_create_statement (iface,
@@ -418,28 +404,26 @@ db_get_static_data (TrackerDBInterface *iface)
 						      "\"tracker:fulltextIndexed\", "
 						      "\"tracker:transient\" "
 						      "FROM \"rdf:Property\" ORDER BY ID");
-	result_set = tracker_db_statement_execute (stmt, NULL);
+	cursor = tracker_db_statement_start_cursor (stmt, NULL);
 	g_object_unref (stmt);
 
-	if (result_set) {
-		gboolean valid = TRUE;
+	if (cursor) {
 
-		while (valid) {
+		while (tracker_db_cursor_iter_next (cursor)) {
 			GValue value = { 0 };
 			TrackerProperty *property;
-			gchar	        *uri, *domain_uri, *range_uri;
+			const gchar     *uri, *domain_uri, *range_uri;
 			gboolean         multi_valued, indexed, fulltext_indexed;
 			gboolean         transient = FALSE;
 
 			property = tracker_property_new ();
 
-			tracker_db_result_set_get (result_set,
-						   0, &uri,
-						   1, &domain_uri,
-						   2, &range_uri,
-						   -1);
+			uri = tracker_db_cursor_get_string (cursor, 0);
+			domain_uri = tracker_db_cursor_get_string (cursor, 1);
+			range_uri = tracker_db_cursor_get_string (cursor, 2);
 
-			_tracker_db_result_set_get_value (result_set, 3, &value);
+			tracker_db_cursor_get_value (cursor, 3, &value);
+
 			if (G_VALUE_TYPE (&value) != 0) {
 				multi_valued = (g_value_get_int (&value) > 1);
 				g_value_unset (&value);
@@ -449,7 +433,8 @@ db_get_static_data (TrackerDBInterface *iface)
 				multi_valued = TRUE;
 			}
 
-			_tracker_db_result_set_get_value (result_set, 4, &value);
+			tracker_db_cursor_get_value (cursor, 4, &value);
+
 			if (G_VALUE_TYPE (&value) != 0) {
 				indexed = (g_value_get_int (&value) == 1);
 				g_value_unset (&value);
@@ -458,7 +443,8 @@ db_get_static_data (TrackerDBInterface *iface)
 				indexed = FALSE;
 			}
 
-			_tracker_db_result_set_get_value (result_set, 5, &value);
+			tracker_db_cursor_get_value (cursor, 5, &value);
+
 			if (G_VALUE_TYPE (&value) != 0) {
 				fulltext_indexed = (g_value_get_int (&value) == 1);
 				g_value_unset (&value);
@@ -467,7 +453,8 @@ db_get_static_data (TrackerDBInterface *iface)
 				fulltext_indexed = FALSE;
 			}
 
-			_tracker_db_result_set_get_value (result_set, 6, &value);
+			tracker_db_cursor_get_value (cursor, 6, &value);
+
 			if (G_VALUE_TYPE (&value) != 0) {
 				transient = (g_value_get_int (&value) == 1);
 				g_value_unset (&value);
@@ -487,14 +474,10 @@ db_get_static_data (TrackerDBInterface *iface)
 			tracker_ontology_add_property (property);
 
 			g_object_unref (property);
-			g_free (uri);
-			g_free (domain_uri);
-			g_free (range_uri);
 
-			valid = tracker_db_result_set_iter_next (result_set);
 		}
 
-		g_object_unref (result_set);
+		g_object_unref (cursor);
 	}
 }
 
