@@ -523,6 +523,8 @@ main (gint argc, gchar *argv[])
 	}
 
 	if (pause_details) {
+		gint paused_miners = 0;
+
 		if (!miners_running) {
 			g_print ("%s\n", _("No miners are running"));
 
@@ -534,8 +536,6 @@ main (gint argc, gchar *argv[])
 
 			return EXIT_SUCCESS;
 		}
-
-		g_print ("%s:\n", _("Miners"));
 
 		for (l = miners_running; l; l = l->next) {
 			const gchar *name;
@@ -559,10 +559,15 @@ main (gint argc, gchar *argv[])
 				continue;
 			}
 			
-			if (!pause_applications && pause_reasons) {
+			if (!(*pause_applications) || !(*pause_reasons)) {
 				g_strfreev (pause_applications);
 				g_strfreev (pause_reasons);
 				continue;
+			}
+
+			paused_miners++;
+			if (paused_miners == 1) {
+				g_print ("%s:\n", _("Miners"));
 			}
 			
 			g_print ("  %s:\n", name);
@@ -577,6 +582,10 @@ main (gint argc, gchar *argv[])
 			
 			g_strfreev (pause_applications);
 			g_strfreev (pause_reasons);
+		}
+
+		if (paused_miners < 1) {
+			g_print ("%s\n", _("No miners are paused"));
 		}
 
 		g_slist_foreach (miners_available, (GFunc) g_free, NULL);
