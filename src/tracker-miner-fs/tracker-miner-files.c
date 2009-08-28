@@ -377,29 +377,32 @@ on_low_battery_cb (GObject    *object,
 	TrackerMinerFiles *mf = user_data;
 	gboolean on_low_battery;
 	gboolean on_battery;
+	gboolean should_pause = FALSE;
 
 	on_low_battery = tracker_power_get_on_low_battery (mf->private->power);
 	on_battery = tracker_power_get_on_battery (mf->private->power);
 
-	if (on_battery) {
-		if (on_low_battery) {
-			/* Running on low batteries, stop indexing for now */
+	if (on_battery && on_low_battery) {
+		should_pause = TRUE;
+	}
+
+	if (should_pause) {
+		/* Don't try to pause again */
+		if (mf->private->low_battery_pause_cookie == 0) {
 			mf->private->low_battery_pause_cookie = 
 				tracker_miner_pause (TRACKER_MINER (mf),
 						     g_get_application_name (),
 						     _("Low battery"),
 						     NULL);
-		} else {
+		}
+	} else {
+		/* Don't try to resume again */
+		if (mf->private->low_battery_pause_cookie != 0) {
 			tracker_miner_resume (TRACKER_MINER (mf),
 					      mf->private->low_battery_pause_cookie,
 					      NULL);
 			mf->private->low_battery_pause_cookie = 0;
 		}
-	} else if (mf->private->low_battery_pause_cookie != 0) {
-		tracker_miner_resume (TRACKER_MINER (mf),
-				      mf->private->low_battery_pause_cookie,
-				      NULL);
-		mf->private->low_battery_pause_cookie = 0;
 	}
 
 	/* FIXME: Get this working again */
@@ -459,16 +462,22 @@ disk_space_check_cb (gpointer user_data)
 	TrackerMinerFiles *mf = user_data;
 	
 	if (disk_space_check (mf)) {
-		mf->private->disk_space_pause_cookie = 
-			tracker_miner_pause (TRACKER_MINER (mf),
-					     g_get_application_name (),
-					     _("Low disk space"),
-					     NULL);
+		/* Don't try to pause again */
+		if (mf->private->disk_space_pause_cookie == 0) {
+			mf->private->disk_space_pause_cookie = 
+				tracker_miner_pause (TRACKER_MINER (mf),
+						     g_get_application_name (),
+						     _("Low disk space"),
+						     NULL);
+		}
 	} else {
-		tracker_miner_resume (TRACKER_MINER (mf),
-				      mf->private->disk_space_pause_cookie,
-				      NULL);
-		mf->private->disk_space_pause_cookie = 0;
+		/* Don't try to resume again */
+		if (mf->private->disk_space_pause_cookie != 0) {
+			tracker_miner_resume (TRACKER_MINER (mf),
+					      mf->private->disk_space_pause_cookie,
+					      NULL);
+			mf->private->disk_space_pause_cookie = 0;
+		}
 	}
 
 	return TRUE;

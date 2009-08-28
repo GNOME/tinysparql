@@ -561,10 +561,27 @@ tracker_miner_pause (TrackerMiner  *miner,
 		     GError       **error)
 {
 	PauseData *pd;
+	GHashTableIter iter;
+	gpointer key, value;
 
 	g_return_val_if_fail (TRACKER_IS_MINER (miner), -1);
 	g_return_val_if_fail (application != NULL, -1);
 	g_return_val_if_fail (reason != NULL, -1);
+
+	/* Check this is not a duplicate pause */
+	g_hash_table_iter_init (&iter, miner->private->pauses);
+	while (g_hash_table_iter_next (&iter, &key, &value)) {
+		PauseData *pd = value;
+
+		if (g_strcmp0 (application, pd->application) == 0 && 
+		    g_strcmp0 (reason, pd->reason) == 0) {
+			/* Can't use duplicate pauses */
+			g_set_error (error, TRACKER_MINER_ERROR, 0, 
+				     "%s",
+				     _("Pause application and reason match an already existing pause request"));
+			return -1;
+		}
+	}
 
 	pd = pause_data_new (application, reason);
 
@@ -700,14 +717,8 @@ tracker_miner_dbus_get_pause_details (TrackerMiner           *miner,
 
 	g_hash_table_iter_init (&iter, miner->private->pauses);
 	while (g_hash_table_iter_next (&iter, &key, &value)) {
-		PauseData *pd;
+		PauseData *pd = value;
 
-		pd = value;
-
-		if (!pd) {
-			continue;
-		}
-		
 		applications = g_slist_prepend (applications, pd->application);
 		reasons = g_slist_prepend (reasons, pd->reason);
 	}
