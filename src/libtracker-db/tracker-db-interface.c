@@ -507,7 +507,7 @@ tracker_db_cursor_get_value (TrackerDBCursor *cursor,  guint column, GValue *val
 const gchar*
 tracker_db_cursor_get_string (TrackerDBCursor *cursor, guint            column)
 {
-	g_return_if_fail (TRACKER_IS_DB_CURSOR (cursor));
+	g_return_val_if_fail (TRACKER_IS_DB_CURSOR (cursor), NULL);
 
 	return TRACKER_DB_CURSOR_GET_IFACE (cursor)->get_string (cursor, column);
 }
@@ -515,7 +515,7 @@ tracker_db_cursor_get_string (TrackerDBCursor *cursor, guint            column)
 gint
 tracker_db_cursor_get_int (TrackerDBCursor *cursor, guint            column)
 {
-	g_return_if_fail (TRACKER_IS_DB_CURSOR (cursor));
+	g_return_val_if_fail (TRACKER_IS_DB_CURSOR (cursor), -1);
 
 	return TRACKER_DB_CURSOR_GET_IFACE (cursor)->get_int (cursor, column);
 }
@@ -523,7 +523,7 @@ tracker_db_cursor_get_int (TrackerDBCursor *cursor, guint            column)
 gdouble
 tracker_db_cursor_get_double (TrackerDBCursor *cursor, guint            column)
 {
-	g_return_if_fail (TRACKER_IS_DB_CURSOR (cursor));
+	g_return_val_if_fail (TRACKER_IS_DB_CURSOR (cursor), -1);
 
 	return TRACKER_DB_CURSOR_GET_IFACE (cursor)->get_double (cursor, column);
 }
