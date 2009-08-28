@@ -816,13 +816,18 @@ item_queue_handlers_cb (gpointer user_data)
 static void
 item_queue_handlers_set_up (TrackerMinerFS *fs)
 {
+	gchar *status;
+
 	if (fs->private->item_queues_handler_id != 0) {
 		return;
 	}
-
-	g_message ("Processing files...");
-
-	g_object_set (fs, "status", _("Processing files"), NULL);
+	
+	g_object_get (fs, "status", &status, NULL);
+	if (g_strcmp0 (status, _("Processing files")) != 0) {
+		/* Don't spam this */
+		g_message ("Processing files...");
+		g_object_set (fs, "status", _("Processing files"), NULL);
+	}
 
 	fs->private->item_queues_handler_id =
 		g_idle_add (item_queue_handlers_cb,
