@@ -1440,21 +1440,6 @@ tracker_data_commit_transaction (void)
 	}
 }
 
-static gchar *
-get_string_for_value (GValue *value)
-{
-	switch (G_VALUE_TYPE (value)) {
-	case G_TYPE_INT:
-		return g_strdup_printf ("%d", g_value_get_int (value));
-	case G_TYPE_DOUBLE:
-		return g_strdup_printf ("%f", g_value_get_double (value));
-	case G_TYPE_STRING:
-		return g_strdup (g_value_get_string (value));
-	default:
-		return NULL;
-	}
-}
-
 /**
  * Removes the description of a resource (embedded metadata), but keeps
  * annotations (non-embedded/user metadata) stored about the resource.
@@ -1464,14 +1449,13 @@ tracker_data_delete_resource_description (const gchar *uri)
 {
 	TrackerDBInterface *iface;
 	TrackerDBStatement *stmt;
-	TrackerDBResultSet *result_set, *single_result_set, *multi_result_set;
+	TrackerDBCursor    *cursor, *single_cursor, *multi_cursor;
 	TrackerClass	   *class;
 	GString		   *sql;
 	TrackerProperty	  **properties, **property;
-	gchar		   *class_uri, *object;
+	const gchar	   *class_uri, *value;
 	int		    i;
 	gboolean            first;
-	GValue		    value = { 0 };
 	gint                resource_id;
 
 	resource_id = tracker_data_query_resource_id (uri);
@@ -1482,17 +1466,16 @@ tracker_data_delete_resource_description (const gchar *uri)
 
 	stmt = tracker_db_interface_create_statement (iface, "SELECT (SELECT Uri FROM \"rdfs:Resource\" WHERE ID = \"rdf:type\") FROM \"rdfs:Resource_rdf:type\" WHERE ID = ?");
 	tracker_db_statement_bind_int (stmt, 0, resource_id);
-	result_set = tracker_db_statement_execute (stmt, NULL);
+	cursor = tracker_db_statement_start_cursor (stmt, NULL);
 	g_object_unref (stmt);
 
-	if (result_set) {
-		do {
-			tracker_db_result_set_get (result_set, 0, &class_uri, -1);
+	if (cursor) {
+		while (tracker_db_cursor_iter_next (cursor)) {
+			class_uri = tracker_db_cursor_get_string (cursor, 0);
 
 			class = tracker_ontology_get_class_by_uri (class_uri);
 			if (class == NULL) {
 				g_warning ("Class '%s' not found in the ontology", class_uri);
-				g_free (class_uri);
 				continue;
 			}
 
@@ -1526,7 +1509,8 @@ tracker_data_delete_resource_description (const gchar *uri)
 				g_string_append_printf (sql, " FROM \"%s\" WHERE ID = ?", tracker_class_get_name (class));
 				stmt = tracker_db_interface_create_statement (iface, "%s", sql->str);
 				tracker_db_statement_bind_int (stmt, 0, resource_id);
-				single_result_set = tracker_db_statement_execute (stmt, NULL);
+				single_cursor = tracker_db_statement_start_cursor (stmt, NULL);
+				tracker_db_cursor_iter_next (single_cursor);
 				g_object_unref (stmt);
 			}
 
@@ -1550,18 +1534,13 @@ tracker_data_delete_resource_description (const gchar *uri)
 				if (!tracker_property_get_multiple_values (*property)) {
 					/* single value property, value in single_result_set */
 
-					_tracker_db_result_set_get_value (single_result_set, i++, &value);
-					if (G_VALUE_TYPE (&value) == 0) {
-						/* NULL, property not set */
-						continue;
-					}
+					value = tracker_db_cursor_get_string (single_cursor, i++);
 
-					object = get_string_for_value (&value);
-					g_value_unset (&value);
+					tracker_data_delete_statement (uri, 
+					                               tracker_property_get_uri (*property), 
+					                               value, 
+					                               NULL);
 
-					tracker_data_delete_statement (uri, tracker_property_get_uri (*property), object, NULL);
-
-					g_free (object);
 				} else {
 					/* multi value property, retrieve values from DB */
 
@@ -1580,22 +1559,22 @@ tracker_data_delete_resource_description (const gchar *uri)
 
 					stmt = tracker_db_interface_create_statement (iface, "%s", sql->str);
 					tracker_db_statement_bind_int (stmt, 0, resource_id);
-					multi_result_set = tracker_db_statement_execute (stmt, NULL);
+					multi_cursor = tracker_db_statement_start_cursor (stmt, NULL);
 					g_object_unref (stmt);
 
-					if (multi_result_set) {
-						do {
+					if (multi_cursor) {
+						while (tracker_db_cursor_iter_next (multi_cursor)) {
 
-							_tracker_db_result_set_get_value (multi_result_set, 0, &value);
-							object = get_string_for_value (&value);
-							g_value_unset (&value);
+							value = tracker_db_cursor_get_string (multi_cursor, 0);
 
-							tracker_data_delete_statement (uri, tracker_property_get_uri (*property), object, NULL);
+							tracker_data_delete_statement (uri, 
+							                               tracker_property_get_uri (*property), 
+							                               value,
+							                               NULL);
 
-							g_free (object);
-						} while (tracker_db_result_set_iter_next (multi_result_set));
+						}
 
-						g_object_unref (multi_result_set);
+						g_object_unref (multi_cursor);
 					}
 
 					g_string_free (sql, TRUE);
@@ -1603,13 +1582,12 @@ tracker_data_delete_resource_description (const gchar *uri)
 			}
 
 			if (!first) {
-				g_object_unref (single_result_set);
+				g_object_unref (single_cursor);
 			}
 
-			g_free (class_uri);
-		} while (tracker_db_result_set_iter_next (result_set));
+		}
 
-		g_object_unref (result_set);
+		g_object_unref (cursor);
 	}
 
 	g_free (properties);
