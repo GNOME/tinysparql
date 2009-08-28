@@ -53,7 +53,6 @@ dc:contributor a rdf:Property ;
 dc:date a rdf:Property ;
 	rdfs:label "Date" ;
 	rdfs:comment "A point or period of time associated with an event in the lifecycle of the resource." ;
-	nrl:maxCardinality 1 ;
 	rdfs:domain rdfs:Resource ;
 	rdfs:range xsd:dateTime .
 
