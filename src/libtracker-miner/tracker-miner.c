@@ -575,6 +575,7 @@ tracker_miner_pause (TrackerMiner  *miner,
 	if (g_hash_table_size (miner->private->pauses) == 1) {
 		/* Pause */
 		g_message ("Miner is pausing");
+		g_signal_emit (miner, signals[PAUSED], 0);
 	}
 
 	return pd->cookie;
@@ -597,6 +598,7 @@ tracker_miner_resume (TrackerMiner  *miner,
 	if (g_hash_table_size (miner->private->pauses) == 0) {
 		/* Resume */
 		g_message ("Miner is resuming");
+		g_signal_emit (miner, signals[RESUMED], 0);
 	}
 
 	return TRUE;
