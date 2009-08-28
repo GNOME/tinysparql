@@ -565,10 +565,10 @@ main (gint argc, gchar *argv[])
 				continue;
 			}
 			
-			g_print ("%s:\n", name);
+			g_print ("  %s:\n", name);
 			
 			for (i = 0; pause_applications[i] != NULL; i++) {
-				g_print ("  %s: '%s', %s: '%s'\n", 
+				g_print ("    %s: '%s', %s: '%s'\n", 
 					 _("Application"),
 					 pause_applications[i],
 					 _("Reason"),
