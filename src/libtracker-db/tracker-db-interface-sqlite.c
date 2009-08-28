@@ -944,8 +944,6 @@ tracker_db_cursor_sqlite_new (sqlite3_stmt		*sqlite_stmt,
 		priv->ref_stmt = NULL;
 	}
 
-	tracker_db_cursor_iter_next (cursor);
-
 	return cursor;
 }
 
