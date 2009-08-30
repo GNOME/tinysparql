@@ -10,8 +10,8 @@ msgstr ""
 "Project-Id-Version: tracker.HEAD\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&component=general\n"
-"POT-Creation-Date: 2009-08-14 14:26+0000\n"
-"PO-Revision-Date: 2009-08-15 13:29+0200\n"
+"POT-Creation-Date: 2009-08-25 13:05+0000\n"
+"PO-Revision-Date: 2009-08-30 11:11+0200\n"
 "Last-Translator: Jorge González <jorgegonz@svn.gnome.org>\n"
 "Language-Team: Español <gnome-es-list@gnome.org>\n"
 "MIME-Version: 1.0\n"
@@ -190,7 +190,6 @@ msgid "Search with Tracker, as you type"
 msgstr "Buscar con Tracker, al escribir"
 
 #: ../python/gtk-sparql/gtk-sparql.ui.h:1
-#| msgid "<b>Crawled Directories</b>"
 msgid "<b>Saved queries</b>"
 msgstr "<b>Consultas guardadas</b>"
 
@@ -798,13 +797,13 @@ msgid "Control and monitor the Tracker search and indexing service"
 msgstr "Controle y monitorice el servicio de búsqueda e indexado Tracker"
 
 #: ../src/tracker-extract/tracker-main.c:81
-#: ../src/tracker-miner-fs/tracker-main.c:80
-#: ../src/tracker-store/tracker-main.c:126
+#: ../src/tracker-miner-fs/tracker-main.c:78
+#: ../src/tracker-store/tracker-main.c:125
 msgid "Displays version information"
 msgstr "Muestra información de la versión"
 
 #: ../src/tracker-extract/tracker-main.c:85
-#: ../src/tracker-store/tracker-main.c:130
+#: ../src/tracker-store/tracker-main.c:129
 msgid ""
 "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default = "
 "0)"
@@ -846,7 +845,7 @@ msgstr "- Extraer los metadatos del archivo"
 msgid "Filename and mime type must be provided together"
 msgstr "Se debe proporcionar tanto el nombre como el tipo MIME"
 
-#: ../src/tracker-miner-fs/tracker-main.c:84
+#: ../src/tracker-miner-fs/tracker-main.c:82
 msgid ""
 "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default = "
 "config)"
@@ -854,19 +853,19 @@ msgstr ""
 "Registro, 0 = sólo errores, 1 = mínimo, 2 = detallado y 3 = depuración "
 "(predeterminado = config)"
 
-#: ../src/tracker-miner-fs/tracker-main.c:89
+#: ../src/tracker-miner-fs/tracker-main.c:87
 msgid "Initial sleep time in seconds, 0->1000 (default = config)"
 msgstr ""
 "Tiempo de reposo inicial en segundos, o->1000 (predeterminado = config)"
 
-#: ../src/tracker-miner-fs/tracker-main.c:94
+#: ../src/tracker-miner-fs/tracker-main.c:92
 msgid "Index data from all enabled modules"
 msgstr "Indexar datos de todos los módulos activados"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/tracker-miner-fs/tracker-main.c:338
+#: ../src/tracker-miner-fs/tracker-main.c:336
 msgid "- start the tracker indexer"
 msgstr "- iniciar el indexador de tracker"
 
@@ -1495,66 +1494,75 @@ msgid "Use SIGTERM to stop all tracker processes found"
 msgstr "Use SIGTERM para parar todos los procesos de tracker encontrados"
 
 #: ../src/tracker-utils/tracker-processes.c:51
+#| msgid "This will kill all Tracker processes and remove all databases"
+msgid ""
+"This will kill all Tracker processes and remove all databases except the "
+"backup and journal (a restart will restore the data)"
+msgstr ""
+"Esto matará todos los procesos de Tracker y borrará todas las bases de datos "
+"excepto el respaldo y el «journal» (reiniciarlo restaurará los datos)"
+
+#: ../src/tracker-utils/tracker-processes.c:54
 msgid "This will kill all Tracker processes and remove all databases"
 msgstr ""
 "Esto matará todos los procesos de Tracker y borrará todas las bases de datos"
 
-#: ../src/tracker-utils/tracker-processes.c:67
+#: ../src/tracker-utils/tracker-processes.c:70
 msgid "Could not open /proc"
 msgstr "No se pudo abrir /proc"
 
-#: ../src/tracker-utils/tracker-processes.c:68
-#: ../src/tracker-utils/tracker-processes.c:173
-#: ../src/tracker-utils/tracker-processes.c:203
-#: ../src/tracker-utils/tracker-processes.c:217
+#: ../src/tracker-utils/tracker-processes.c:71
+#: ../src/tracker-utils/tracker-processes.c:176
+#: ../src/tracker-utils/tracker-processes.c:206
+#: ../src/tracker-utils/tracker-processes.c:220
 msgid "no error given"
 msgstr "no se proporcionó ningún error"
 
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
-#: ../src/tracker-utils/tracker-processes.c:138
+#: ../src/tracker-utils/tracker-processes.c:141
 msgid " - Manage Tracker processes and data"
 msgstr " - Gestionar los procesos y datos de Tracker"
 
-#: ../src/tracker-utils/tracker-processes.c:145
+#: ../src/tracker-utils/tracker-processes.c:148
 msgid "You can not use the --kill and --terminate arguments together"
 msgstr "No puede usar los argumentos --kill y --terminate juntos"
 
-#: ../src/tracker-utils/tracker-processes.c:149
+#: ../src/tracker-utils/tracker-processes.c:152
 msgid "You can not use the --terminate with --hard-reset, --kill is implied"
 msgstr "No puede usar --terminate con --hard-reset, --kill está implicado"
 
-#: ../src/tracker-utils/tracker-processes.c:159
+#: ../src/tracker-utils/tracker-processes.c:162
 #, c-format
 msgid "Found %d pids..."
 msgstr "%d pids encontrados…"
 
-#: ../src/tracker-utils/tracker-processes.c:170
+#: ../src/tracker-utils/tracker-processes.c:173
 #, c-format
 msgid "Could not open '%s'"
 msgstr "No se pudo abrir «%s»"
 
-#: ../src/tracker-utils/tracker-processes.c:192
+#: ../src/tracker-utils/tracker-processes.c:195
 #, c-format
 msgid "Found process ID %d for '%s'"
 msgstr "Se encontró el ID de proceso %d para «%s»"
 
-#: ../src/tracker-utils/tracker-processes.c:200
+#: ../src/tracker-utils/tracker-processes.c:203
 #, c-format
 msgid "Could not terminate process %d"
 msgstr "No se pudo terminar el proceso %d"
 
-#: ../src/tracker-utils/tracker-processes.c:206
+#: ../src/tracker-utils/tracker-processes.c:209
 #, c-format
 msgid "Terminated process %d"
 msgstr "Proceso %d terminado"
 
-#: ../src/tracker-utils/tracker-processes.c:214
+#: ../src/tracker-utils/tracker-processes.c:217
 #, c-format
 msgid "Could not kill process %d"
 msgstr "No se pudo matar el proceso %d"
 
-#: ../src/tracker-utils/tracker-processes.c:220
+#: ../src/tracker-utils/tracker-processes.c:223
 #, c-format
 msgid "Killed process %d"
 msgstr "Proceso %d matado"
@@ -1881,22 +1889,22 @@ msgstr ""
 "NOTA: Se alcanzó el límite, existen más elementos en la base de datos que no "
 "se listan aquí"
 
-#: ../src/tracker-store/tracker-main.c:135
+#: ../src/tracker-store/tracker-main.c:134
 msgid "Minimizes the use of memory but may slow indexing down"
 msgstr "Minimiza el uso de memoria pero puede ralentizar el indexado"
 
-#: ../src/tracker-store/tracker-main.c:141
+#: ../src/tracker-store/tracker-main.c:140
 msgid "Force a re-index of all content"
 msgstr "Forzar un reindexamiento de todo el contenido"
 
-#: ../src/tracker-store/tracker-main.c:145
+#: ../src/tracker-store/tracker-main.c:144
 msgid "Only allow read based actions on the database"
 msgstr "Sólo permitir acciones de lectura en la base de datos"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/tracker-store/tracker-main.c:675
+#: ../src/tracker-store/tracker-main.c:674
 msgid "- start the tracker daemon"
 msgstr "iniciar el demonio de tracker"
 
