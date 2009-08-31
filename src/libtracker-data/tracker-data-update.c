@@ -345,6 +345,11 @@ tracker_data_update_buffer_flush (void)
 
 	iface = tracker_db_manager_get_db_interface ();
 
+	if (update_buffer.subject == NULL) {
+		/* nothing to flush */
+		return;
+	}
+
 	if (update_buffer.new_subject != NULL) {
 		/* change uri of resource */
 		stmt = tracker_db_interface_create_statement (iface,
