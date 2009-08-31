@@ -34,29 +34,12 @@
 
 G_BEGIN_DECLS
 
-gchar *              tracker_data_query_property_value        (const gchar         *subject,
-							       const gchar         *predicate);
-gchar **             tracker_data_query_property_values       (const gchar         *subject,
-							       const gchar         *predicate);
-
-/* Metadata API */
-GPtrArray *          tracker_data_query_all_metadata          (guint32              resource_id);
-
-/* TODO */
-#if 0
-TrackerDBResultSet  *tracker_data_query_backup_metadata       (TrackerService      *service);
-							       TrackerProperty        *field_def);
-#endif
-
-gboolean             tracker_data_query_resource_exists        (const gchar        *uri,
-							       guint32             *resource_id);
-
-guint32              tracker_data_query_resource_id           (const gchar         *uri);
-
-TrackerDBResultSet *tracker_data_query_sparql			(const gchar       *query,
-								 GError	          **error);
-
-GPtrArray*          tracker_data_query_rdf_type               (guint32              id);
+gboolean             tracker_data_query_resource_exists  (const gchar   *uri,
+                                                          guint32       *resource_id);
+guint32              tracker_data_query_resource_id      (const gchar   *uri);
+TrackerDBResultSet  *tracker_data_query_sparql           (const gchar   *query,
+                                                          GError       **error);
+GPtrArray*           tracker_data_query_rdf_type         (guint32        id);
 
 G_END_DECLS
 
