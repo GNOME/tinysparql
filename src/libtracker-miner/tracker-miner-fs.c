@@ -428,6 +428,8 @@ process_stop (TrackerMinerFS *fs)
 	/* Now we have finished crawling, print stats and enable monitor events */
 	process_print_stats (fs);
 
+	tracker_miner_commit (TRACKER_MINER (fs));
+
 	g_message ("Idle");
 
 	g_object_set (fs, 
@@ -502,6 +504,13 @@ item_add_or_update_cb (TrackerMinerFS       *fs,
 
 		tracker_miner_execute_sparql (TRACKER_MINER (fs), full_sparql, NULL);
 		g_free (full_sparql);
+
+		if (fs->private->been_crawled) {
+			/* Only commit immediately for
+			 * changes after initial crawling.
+			 */
+			tracker_miner_commit (TRACKER_MINER (fs));
+		}
 	}
 
 	if (fs->private->cancellable) {
@@ -847,6 +856,13 @@ item_queue_handlers_cb (gpointer user_data)
 		fs->private->item_queues_handler_id = 0;
 		return FALSE;
 	} else {
+		if (fs->private->been_crawled) {
+			/* Only commit immediately for
+			 * changes after initial crawling.
+			 */
+			tracker_miner_commit (TRACKER_MINER (fs));
+		}
+
 		return TRUE;
 	}
 }
