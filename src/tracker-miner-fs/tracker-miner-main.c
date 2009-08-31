@@ -198,9 +198,10 @@ miner_handle_next (void)
                 return;
         }
 
-        g_message ("Starting next miner...");
-
-        tracker_miner_start (current_miner->data);
+        if (!tracker_miner_is_started (current_miner->data)) {
+                g_message ("Starting next miner...");
+                tracker_miner_start (current_miner->data);
+        }
 }
 
 static void
