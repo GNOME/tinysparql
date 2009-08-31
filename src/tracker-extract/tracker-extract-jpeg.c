@@ -367,6 +367,10 @@ read_exif (const unsigned char *buffer,
 	ExifData *exif;
 	TagType  *p;
 
+	tracker_statement_list_insert (metadata, uri,
+	                               RDF_TYPE,
+	                               NMM_PREFIX "Photo");
+
 	exif = exif_data_new();
 	exif_data_set_option (exif, EXIF_DATA_OPTION_IGNORE_UNKNOWN_TAGS);
 	exif_data_unset_option (exif, EXIF_DATA_OPTION_FOLLOW_SPECIFICATION);
