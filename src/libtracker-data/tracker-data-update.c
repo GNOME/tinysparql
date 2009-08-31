@@ -656,7 +656,7 @@ cache_set_metadata_decomposed (TrackerProperty	*property,
 	if (old_values == NULL) {
 		TrackerDBInterface *iface;
 		TrackerDBStatement *stmt;
-		TrackerDBResultSet *result_set;
+		TrackerDBCursor    *cursor;
 
 		old_values = g_value_array_new (multiple_values ? 4 : 1);
 
@@ -670,17 +670,18 @@ cache_set_metadata_decomposed (TrackerProperty	*property,
 
 			stmt = tracker_db_interface_create_statement (iface, "SELECT \"%s\" FROM \"%s\" WHERE ID = ?", field_name, table_name);
 			tracker_db_statement_bind_int (stmt, 0, update_buffer.id);
-			result_set = tracker_db_statement_execute (stmt, NULL);
+			cursor = tracker_db_statement_start_cursor (stmt, NULL);
 			g_object_unref (stmt);
 
-			if (result_set) {
-				do {
-					_tracker_db_result_set_get_value (result_set, 0, &gvalue);
+			if (cursor) {
+				while (tracker_db_cursor_iter_next (cursor)) {
+					tracker_db_cursor_get_value (cursor, 0, &gvalue);
 					if (G_VALUE_TYPE (&gvalue)) {
 						g_value_array_append (old_values, &gvalue);
 						g_value_unset (&gvalue);
 					}
-				} while (tracker_db_result_set_iter_next (result_set));
+				}
+				g_object_unref (cursor);
 			}
 		}
 
