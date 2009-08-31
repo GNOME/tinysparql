@@ -126,9 +126,10 @@ GQuark tracker_data_error_quark (void) {
 static guint32
 tracker_data_update_get_new_service_id (TrackerDBInterface *iface)
 {
-	guint32		    files_max;
-	TrackerDBResultSet *result_set;
+	TrackerDBCursor    *cursor;
 	TrackerDBInterface *temp_iface;
+	TrackerDBStatement *stmt;
+
 	static guint32	    max = 0;
 
 	if (G_LIKELY (max != 0)) {
@@ -137,18 +138,15 @@ tracker_data_update_get_new_service_id (TrackerDBInterface *iface)
 
 	temp_iface = tracker_db_manager_get_db_interface ();
 
-	result_set = tracker_db_interface_execute_query (temp_iface, NULL,
-							 "SELECT MAX(ID) AS A FROM \"rdfs:Resource\"");
+	stmt = tracker_db_interface_create_statement (temp_iface,
+	                                             "SELECT MAX(ID) AS A FROM \"rdfs:Resource\"");
+	cursor = tracker_db_statement_start_cursor (stmt, NULL);
+	g_object_unref (stmt);
 
-	if (result_set) {
-		GValue val = {0, };
-		_tracker_db_result_set_get_value (result_set, 0, &val);
-		if (G_VALUE_TYPE (&val) == G_TYPE_INT) {
-			files_max = g_value_get_int (&val);
-			max = MAX (files_max, max);
-			g_value_unset (&val);
-		}
-		g_object_unref (result_set);
+	if (cursor) {
+		tracker_db_cursor_iter_next (cursor);
+		max = MAX (tracker_db_cursor_get_int (cursor, 0), max);
+		g_object_unref (cursor);
 	}
 
 	return ++max;
