@@ -266,7 +266,6 @@ tracker_miner_fs_init (TrackerMinerFS *object)
 			  object);
 
 	priv->quark_ignore_file = g_quark_from_static_string ("tracker-ignore-file");
-	priv->cancellable = g_cancellable_new ();
 }
 
 static void
