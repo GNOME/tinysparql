@@ -60,6 +60,7 @@ struct TrackerMinerFSPrivate {
 	guint           crawl_directories_id;
 	guint		item_queues_handler_id;
 
+	GFile          *current_file;
 	GCancellable   *cancellable;
 
 	/* Status */
@@ -478,6 +479,11 @@ item_add_or_update_cb (TrackerMinerFS       *fs,
 		fs->private->cancellable = NULL;
 	}
 
+	if (fs->private->current_file) {
+		g_object_unref (fs->private->current_file);
+		fs->private->current_file = NULL;
+	}
+
 	g_object_unref (sparql);
 	g_free (uri);
 
@@ -508,6 +514,8 @@ item_add_or_update (TrackerMinerFS *fs,
 	if (!processing) {
 		g_object_unref (sparql);
 		return TRUE;
+	} else {
+		fs->private->current_file = g_object_ref (file);
 	}
 
 	return FALSE;
@@ -1361,15 +1369,40 @@ tracker_miner_fs_add_directory (TrackerMinerFS *fs,
 	crawl_directories_start (fs);
 }
 
+static void
+check_files_removal (GQueue *queue,
+		     GFile  *parent)
+{
+	GList *l;
+
+	l = queue->head;
+
+	while (l) {
+		GFile *file = l->data;
+		GList *link = l;
+
+		l = l->next;
+
+		if (g_file_equal (file, parent) ||
+		    g_file_has_prefix (file, parent)) {
+			g_queue_delete_link (queue, link);
+			g_object_unref (file);
+		}
+	}
+}
+
 gboolean
 tracker_miner_fs_remove_directory (TrackerMinerFS *fs,
 				   GFile          *file)
 {
+	TrackerMinerFSPrivate *priv;
 	gboolean return_val = FALSE;
 	GList *dirs;
 
 	g_return_val_if_fail (TRACKER_IS_MINER_FS (fs), FALSE);
 	g_return_val_if_fail (G_IS_FILE (file), FALSE);
+
+	priv = fs->private;
 
 	if (fs->private->current_directory) {
 		GFile *current_file;
@@ -1398,6 +1431,22 @@ tracker_miner_fs_remove_directory (TrackerMinerFS *fs,
 			fs->private->directories = g_list_delete_link (fs->private->directories, link);
 			return_val = TRUE;
 		}
+	}
+
+	/* Remove anything contained in the removed directory
+	 * from all relevant processing queues.
+	 */
+	check_files_removal (priv->items_updated, file);
+	check_files_removal (priv->items_created, file);
+
+	if (priv->current_file &&
+	    priv->cancellable &&
+	    (g_file_equal (priv->current_file, file) ||
+	     g_file_has_prefix (priv->current_file, file))) {
+		/* Cancel processing if currently processed file is
+		 * inside the removed directory.
+		 */
+		g_cancellable_cancel (priv->cancellable);
 	}
 
 	return return_val;
