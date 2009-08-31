@@ -783,14 +783,6 @@ tracker_module_metadata_utils_get_data (GFile *file, TrackerSparqlBuilder *sparq
 	tracker_sparql_builder_predicate (sparql, "a");
 	tracker_sparql_builder_object (sparql, "nfo:FileDataObject");
 
-	if (g_file_info_get_file_type (file_info) == G_FILE_TYPE_DIRECTORY) {
-		tracker_sparql_builder_object (sparql, "nfo:Folder");
-	}
-
-	tracker_sparql_builder_subject_iri (sparql, uri); /* Change to URN */
-	tracker_sparql_builder_predicate (sparql, "nie:isStoredAs");
-	tracker_sparql_builder_object_iri (sparql, uri);
-
 	parent = g_file_get_parent (file);
 	if (parent) {
 		parent_uri = g_file_get_uri (parent);
@@ -803,9 +795,6 @@ tracker_module_metadata_utils_get_data (GFile *file, TrackerSparqlBuilder *sparq
 	tracker_sparql_builder_predicate (sparql, "nfo:fileName");
 	tracker_sparql_builder_object_string (sparql, g_file_info_get_display_name (file_info));
 
-	tracker_sparql_builder_predicate (sparql, "nie:mimeType");
-	tracker_sparql_builder_object_string (sparql, *mime_type);
-
 	tracker_sparql_builder_predicate (sparql, "nfo:fileSize");
 	tracker_sparql_builder_object_int64 (sparql, g_file_info_get_size (file_info));
 
@@ -816,6 +805,19 @@ tracker_module_metadata_utils_get_data (GFile *file, TrackerSparqlBuilder *sparq
 	tracker_sparql_builder_predicate (sparql, "nfo:fileLastAccessed");
 	
 	tracker_sparql_builder_object_date (sparql, (const time_t*) &time_);
+
+	tracker_sparql_builder_subject_iri (sparql, uri); /* Change to URN */
+	tracker_sparql_builder_predicate (sparql, "a");
+	tracker_sparql_builder_object (sparql, "nie:InformationElement");
+	if (g_file_info_get_file_type (file_info) == G_FILE_TYPE_DIRECTORY) {
+		tracker_sparql_builder_object (sparql, "nfo:Folder");
+	}
+
+	tracker_sparql_builder_predicate (sparql, "nie:isStoredAs");
+	tracker_sparql_builder_object_iri (sparql, uri);
+
+	tracker_sparql_builder_predicate (sparql, "nie:mimeType");
+	tracker_sparql_builder_object_string (sparql, *mime_type);
 
 	/* Check the size is actually non-zero */
 	if (g_file_info_get_size (file_info) > 0) {
