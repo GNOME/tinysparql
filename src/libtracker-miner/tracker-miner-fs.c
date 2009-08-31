@@ -289,7 +289,10 @@ fs_finalize (GObject *object)
 
 	g_object_unref (priv->crawler);
 	g_object_unref (priv->monitor);
-	g_object_unref (priv->cancellable);
+
+	if (priv->cancellable) {
+		g_object_unref (priv->cancellable);
+	}
 
 	if (priv->directories) {
 		g_list_foreach (priv->directories, (GFunc) directory_data_free, NULL);
