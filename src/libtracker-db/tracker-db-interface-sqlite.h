@@ -31,17 +31,8 @@ G_BEGIN_DECLS
 #define TRACKER_IS_DB_INTERFACE_SQLITE_CLASS(c)  (G_TYPE_CHECK_CLASS_TYPE ((o),    TRACKER_TYPE_DB_INTERFACE_SQLITE))
 #define TRACKER_DB_INTERFACE_SQLITE_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o),  TRACKER_TYPE_DB_INTERFACE_SQLITE, TrackerDBInterfaceSqliteClass))
 
-#define TRACKER_TYPE_DB_STATEMENT_SQLITE	 (tracker_db_statement_sqlite_get_type ())
-#define TRACKER_DB_STATEMENT_SQLITE(o)		 (G_TYPE_CHECK_INSTANCE_CAST ((o), TRACKER_TYPE_DB_STATEMENT_SQLITE, TrackerDBStatementSqlite))
-#define TRACKER_DB_STATEMENT_SQLITE_CLASS(c)	 (G_TYPE_CHECK_CLASS_CAST ((c),    TRACKER_TYPE_DB_STATEMENT_SQLITE, TrackerDBStatementSqliteClass))
-#define TRACKER_IS_DB_STATEMENT_SQLITE(o)	 (G_TYPE_CHECK_INSTANCE_TYPE ((o), TRACKER_TYPE_DB_STATEMENT_SQLITE))
-#define TRACKER_IS_DB_STATEMENT_SQLITE_CLASS(c)  (G_TYPE_CHECK_CLASS_TYPE ((o),    TRACKER_TYPE_DB_STATEMENT_SQLITE))
-#define TRACKER_DB_STATEMENT_SQLITE_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o),  TRACKER_TYPE_DB_STATEMENT_SQLITE, TrackerDBStatementSqliteClass))
-
 typedef struct TrackerDBInterfaceSqlite      TrackerDBInterfaceSqlite;
 typedef struct TrackerDBInterfaceSqliteClass TrackerDBInterfaceSqliteClass;
-typedef struct TrackerDBStatementSqlite      TrackerDBStatementSqlite;
-typedef struct TrackerDBStatementSqliteClass TrackerDBStatementSqliteClass;
 
 typedef gint (* TrackerDBCollationFunc) (gchar *str1,
 					 gint	len1,
@@ -67,16 +58,7 @@ struct TrackerDBInterfaceSqliteClass {
 	GObjectClass parent_class;
 };
 
-struct TrackerDBStatementSqlite {
-	GObject parent_instance;
-};
-
-struct TrackerDBStatementSqliteClass {
-	GObjectClass parent_class;
-};
-
 GType tracker_db_interface_sqlite_get_type (void);
-GType tracker_db_statement_sqlite_get_type (void);
 
 TrackerDBInterface * tracker_db_interface_sqlite_new (const gchar *filename);
 TrackerDBInterface * tracker_db_interface_sqlite_new_ro (const gchar *filename);

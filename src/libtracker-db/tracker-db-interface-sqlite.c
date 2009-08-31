@@ -37,6 +37,13 @@
 #define TRACKER_IS_DB_CURSOR_SQLITE_CLASS(c)  (G_TYPE_CHECK_CLASS_TYPE ((o),    TRACKER_TYPE_DB_CURSOR_SQLITE))
 #define TRACKER_DB_CURSOR_SQLITE_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o),  TRACKER_TYPE_DB_CURSOR_SQLITE, TrackerDBCursorSqliteClass))
 
+#define TRACKER_TYPE_DB_STATEMENT_SQLITE	 (tracker_db_statement_sqlite_get_type ())
+#define TRACKER_DB_STATEMENT_SQLITE(o)		 (G_TYPE_CHECK_INSTANCE_CAST ((o), TRACKER_TYPE_DB_STATEMENT_SQLITE, TrackerDBStatementSqlite))
+#define TRACKER_DB_STATEMENT_SQLITE_CLASS(c)	 (G_TYPE_CHECK_CLASS_CAST ((c),    TRACKER_TYPE_DB_STATEMENT_SQLITE, TrackerDBStatementSqliteClass))
+#define TRACKER_IS_DB_STATEMENT_SQLITE(o)	 (G_TYPE_CHECK_INSTANCE_TYPE ((o), TRACKER_TYPE_DB_STATEMENT_SQLITE))
+#define TRACKER_IS_DB_STATEMENT_SQLITE_CLASS(c)  (G_TYPE_CHECK_CLASS_TYPE ((o),    TRACKER_TYPE_DB_STATEMENT_SQLITE))
+#define TRACKER_DB_STATEMENT_SQLITE_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o),  TRACKER_TYPE_DB_STATEMENT_SQLITE, TrackerDBStatementSqliteClass))
+
 
 #define TRACKER_DB_INTERFACE_SQLITE_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_DB_INTERFACE_SQLITE, TrackerDBInterfaceSqlitePrivate))
 
@@ -52,6 +59,8 @@ typedef struct SqliteFunctionData SqliteFunctionData;
 typedef struct SqliteAggregateData SqliteAggregateData;
 typedef struct TrackerDBCursorSqlite TrackerDBCursorSqlite;
 typedef struct TrackerDBCursorSqliteClass TrackerDBCursorSqliteClass;
+typedef struct TrackerDBStatementSqlite      TrackerDBStatementSqlite;
+typedef struct TrackerDBStatementSqliteClass TrackerDBStatementSqliteClass;
 
 
 struct TrackerDBCursorSqlite {
@@ -102,7 +111,17 @@ struct SqliteAggregateData {
 	
 };
 
-GType tracker_db_cursor_sqlite_get_type (void);
+
+struct TrackerDBStatementSqlite {
+	GObject parent_instance;
+};
+
+struct TrackerDBStatementSqliteClass {
+	GObjectClass parent_class;
+};
+
+static GType tracker_db_cursor_sqlite_get_type (void);
+static GType tracker_db_statement_sqlite_get_type (void);
 
 static void tracker_db_interface_sqlite_iface_init (TrackerDBInterfaceIface *iface);
 static void tracker_db_statement_sqlite_iface_init (TrackerDBStatementIface *iface);
