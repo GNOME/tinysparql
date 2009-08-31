@@ -34,8 +34,6 @@
 
 G_BEGIN_DECLS
 
-gboolean             tracker_data_query_resource_exists  (const gchar   *uri,
-                                                          guint32       *resource_id);
 guint32              tracker_data_query_resource_id      (const gchar   *uri);
 TrackerDBResultSet  *tracker_data_query_sparql           (const gchar   *query,
                                                           GError       **error);
