@@ -56,7 +56,7 @@ struct _TrackerDataUpdateBuffer {
 	gchar *new_subject;
 	guint32 id;
 	gboolean create;
-	// TrackerProperty -> GValueArray
+	/* TrackerProperty -> GValueArray */
 	GHashTable *predicates;
 	GHashTable *tables;
 	GPtrArray *types;
@@ -352,7 +352,7 @@ tracker_data_update_buffer_flush (void)
 	iface = tracker_db_manager_get_db_interface ();
 
 	if (update_buffer.new_subject != NULL) {
-		// change uri of resource
+		/* change uri of resource */
 		stmt = tracker_db_interface_create_statement (iface,
 			"UPDATE \"rdfs:Resource\" SET Uri = ? WHERE ID = ?");
 		tracker_db_statement_bind_text (stmt, 0, update_buffer.new_subject);
@@ -436,9 +436,10 @@ tracker_data_update_buffer_flush (void)
 	}
 
 	if (fts != NULL) {
-		// TODO we need to retrieve all existing (FTS indexed) property values for
-		// this resource to properly support incremental FTS updates
-		// (like calling deleteTerms and then calling insertTerms)
+		/* TODO we need to retrieve all existing (FTS indexed) property values for
+		 * this resource to properly support incremental FTS updates
+		 * (like calling deleteTerms and then calling insertTerms)
+		 */
 		tracker_fts_update_init (update_buffer.id);
 		tracker_fts_update_text (update_buffer.id, 0, fts->str);
 		tracker_fts_update_commit ();
@@ -868,9 +869,10 @@ tracker_data_delete_statement (const gchar            *subject,
 
 	types = tracker_data_query_rdf_type (subject_id);
 
-	// TODO we need to retrieve all existing (FTS indexed) property values for
-	// this resource to properly support incremental FTS updates
-	// (like calling deleteTerms and then calling insertTerms)
+	/* TODO we need to retrieve all existing (FTS indexed) property values for
+	 * this resource to properly support incremental FTS updates
+	 * (like calling deleteTerms and then calling insertTerms)
+	 */
 	tracker_fts_update_init (subject_id);
 
 	if (object && g_strcmp0 (predicate, RDF_PREFIX "type") == 0) {
