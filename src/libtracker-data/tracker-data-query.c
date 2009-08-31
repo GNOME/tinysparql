@@ -42,7 +42,7 @@
 GPtrArray*
 tracker_data_query_rdf_type (guint32 id)
 {
-	TrackerDBResultSet *result_set;
+	TrackerDBCursor *cursor;
 	TrackerDBInterface *iface;
 	TrackerDBStatement *stmt;
 	GPtrArray *ret = NULL;
@@ -57,24 +57,20 @@ tracker_data_query_rdf_type (guint32 id)
 			"WHERE \"rdfs:Resource_rdf:type\".\"ID\" = ?");
 
 	tracker_db_statement_bind_int (stmt, 0, id);
-	result_set = tracker_db_statement_execute (stmt, NULL);
+	cursor = tracker_db_statement_start_cursor (stmt, NULL);
 	g_object_unref (stmt);
 
-	if (result_set) {
-		guint rows;
+	if (cursor) {
 
-		rows = tracker_db_result_set_get_n_rows (result_set);
-		ret = g_ptr_array_sized_new (rows);
-		do {
-			gchar *uri;
+		/* Query is usually a rather small result, but let's try to
+		 * avoid reallocs in gptrarray.c as much as possible (this 
+		 * function is called fairly often) */
 
-			tracker_db_result_set_get (result_set, 0, &uri, -1);
-
-			g_ptr_array_add (ret, uri);
-
-		} while (tracker_db_result_set_iter_next (result_set));
-
-		g_object_unref (result_set);
+		ret = g_ptr_array_sized_new (20);
+		while (tracker_db_cursor_iter_next (cursor)) {
+			g_ptr_array_add (ret, g_strdup (tracker_db_cursor_get_string (cursor, 0)));
+		}
+		g_object_unref (cursor);
 	}
 
 	return ret;
