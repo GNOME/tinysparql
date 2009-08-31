@@ -1643,6 +1643,9 @@ public class Tracker.SparqlQuery : Object {
 		if (current () == SparqlTokenType.VAR) {
 			next ();
 			result = var_value_map.lookup (get_last_string ().substring (1));
+			if (result == null) {
+				throw get_error ("undefined variable");
+			}
 		} else if (current () == SparqlTokenType.IRI_REF) {
 			next ();
 			result = get_last_string (1);
