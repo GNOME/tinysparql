@@ -445,11 +445,9 @@ tracker_data_update_buffer_flush (void)
 	g_free (update_buffer.subject);
 	update_buffer.subject = NULL;
 
-	if (update_buffer.types) {
-		g_ptr_array_foreach (update_buffer.types, (GFunc) g_free, NULL);
-		g_ptr_array_free (update_buffer.types, TRUE);
-		update_buffer.types = NULL;
-	}
+	g_ptr_array_foreach (update_buffer.types, (GFunc) g_free, NULL);
+	g_ptr_array_free (update_buffer.types, TRUE);
+	update_buffer.types = NULL;
 }
 
 static void
@@ -524,6 +522,8 @@ cache_create_service_decomposed (TrackerClass           *cl)
 		cache_create_service_decomposed (*super_classes);
 		super_classes++;
 	}
+
+	g_ptr_array_add (update_buffer.types, g_strdup (tracker_class_get_uri (cl)));
 
 	g_value_init (&gvalue, G_TYPE_INT);
 
@@ -608,6 +608,8 @@ static gboolean
 value_set_add_value (GValueArray *value_set,
                      GValue      *value)
 {
+	g_return_val_if_fail (G_VALUE_TYPE (value), FALSE);
+
 	gint i;
 
 	for (i = 0; i < value_set->n_values; i++) {
@@ -622,6 +624,70 @@ value_set_add_value (GValueArray *value_set,
 	return TRUE;
 }
 
+static GValueArray *
+get_property_values (TrackerProperty *property)
+{
+	TrackerDBInterface *iface;
+	TrackerDBStatement *stmt;
+	TrackerDBCursor    *cursor;
+	gchar              *table_name;
+	const gchar        *field_name;
+	gboolean            multiple_values;
+	GValue gvalue = { 0 };
+	GValueArray        *old_values;
+	gint                type_index;
+
+	old_values = NULL;
+
+	multiple_values = tracker_property_get_multiple_values (property);
+
+	for (type_index = 0; type_index < update_buffer.types->len; type_index++) {
+		if (strcmp (tracker_class_get_uri (tracker_property_get_domain (property)),
+		            g_ptr_array_index (update_buffer.types, type_index)) == 0) {
+			old_values = g_value_array_new (multiple_values ? 4 : 1);
+			g_hash_table_insert (update_buffer.predicates, g_object_ref (property), old_values);
+			break;
+		}
+	}
+
+	if (old_values == NULL) {
+		return NULL;
+	}
+
+	if (multiple_values) {
+		table_name = g_strdup_printf ("%s_%s",
+			tracker_class_get_name (tracker_property_get_domain (property)),
+			tracker_property_get_name (property));
+	} else {
+		table_name = g_strdup (tracker_class_get_name (tracker_property_get_domain (property)));
+	}
+	field_name = tracker_property_get_name (property);
+
+	if (!update_buffer.create) {
+		iface = tracker_db_manager_get_db_interface ();
+
+		stmt = tracker_db_interface_create_statement (iface, "SELECT \"%s\" FROM \"%s\" WHERE ID = ?", field_name, table_name);
+		tracker_db_statement_bind_int (stmt, 0, update_buffer.id);
+		cursor = tracker_db_statement_start_cursor (stmt, NULL);
+		g_object_unref (stmt);
+
+		if (cursor) {
+			while (tracker_db_cursor_iter_next (cursor)) {
+				tracker_db_cursor_get_value (cursor, 0, &gvalue);
+				if (G_VALUE_TYPE (&gvalue)) {
+					g_value_array_append (old_values, &gvalue);
+					g_value_unset (&gvalue);
+				}
+			}
+			g_object_unref (cursor);
+		}
+	}
+
+	g_free (table_name);
+
+	return old_values;
+}
+
 static void
 cache_set_metadata_decomposed (TrackerProperty	*property,
 			       const gchar	*value)
@@ -630,7 +696,7 @@ cache_set_metadata_decomposed (TrackerProperty	*property,
 	gboolean            multiple_values, fts;
 	gchar              *table_name;
 	const gchar        *field_name;
-	TrackerProperty   **super_properties;
+	TrackerProperty   **properties, **super_properties, **prop;
 	GValue gvalue = { 0 };
 	GValueArray        *old_values;
 
@@ -651,41 +717,36 @@ cache_set_metadata_decomposed (TrackerProperty	*property,
 	}
 	field_name = tracker_property_get_name (property);
 
+	fts = tracker_property_get_fulltext_indexed (property);
+
 	/* read existing property values */
 	old_values = g_hash_table_lookup (update_buffer.predicates, property);
 	if (old_values == NULL) {
-		TrackerDBInterface *iface;
-		TrackerDBStatement *stmt;
-		TrackerDBCursor    *cursor;
-
-		old_values = g_value_array_new (multiple_values ? 4 : 1);
-
-		if (!update_buffer.create) {
-			/* TODO if this is the first fulltext indexed property to be modified
-			 *      read existing values of all fulltext indexed properties and
-			 *      delete them from the fulltext index
+		if (fts) {
+			/* first fulltext indexed property to be modified
+			 * retrieve values of all fulltext indexed properties
 			 */
+			properties = tracker_ontology_get_properties ();
 
-			iface = tracker_db_manager_get_db_interface ();
-
-			stmt = tracker_db_interface_create_statement (iface, "SELECT \"%s\" FROM \"%s\" WHERE ID = ?", field_name, table_name);
-			tracker_db_statement_bind_int (stmt, 0, update_buffer.id);
-			cursor = tracker_db_statement_start_cursor (stmt, NULL);
-			g_object_unref (stmt);
-
-			if (cursor) {
-				while (tracker_db_cursor_iter_next (cursor)) {
-					tracker_db_cursor_get_value (cursor, 0, &gvalue);
-					if (G_VALUE_TYPE (&gvalue)) {
-						g_value_array_append (old_values, &gvalue);
-						g_value_unset (&gvalue);
-					}
+			for (prop = properties; *prop; prop++) {
+				if (tracker_property_get_fulltext_indexed (*prop)) {
+					old_values = get_property_values (*prop);
 				}
-				g_object_unref (cursor);
 			}
+
+			g_free (properties);
+
+			old_values = g_hash_table_lookup (update_buffer.predicates, property);
+		} else {
+			old_values = get_property_values (property);
 		}
 
-		g_hash_table_insert (update_buffer.predicates, g_object_ref (property), old_values);
+		if (old_values == NULL) {
+			/* TODO throw proper error and rollback */
+			g_warning ("Subject `%s' is not in domain `%s' of property `%s'", update_buffer.subject, tracker_class_get_name (tracker_property_get_domain (property)), field_name);
+			g_free (table_name);
+			return;
+		}
 	}
 
 	switch (tracker_property_get_data_type (property)) {
@@ -733,8 +794,6 @@ cache_set_metadata_decomposed (TrackerProperty	*property,
 		/* TODO throw proper error and rollback */
 		g_warning ("Unable to insert multiple values for subject `%s' and single valued property `%s'", update_buffer.subject, field_name);
 	} else {
-		fts = tracker_property_get_fulltext_indexed (property);
-
 		cache_insert_value (table_name, field_name, &gvalue, multiple_values, fts);
 	}
 
@@ -1109,6 +1168,7 @@ tracker_data_insert_statement_common (const gchar            *subject,
 		update_buffer.create = (update_buffer.id == 0);
 		if (update_buffer.create) {
 			update_buffer.id = ensure_resource_id (update_buffer.subject);
+			update_buffer.types = g_ptr_array_new ();
 		} else {
 			update_buffer.types = tracker_data_query_rdf_type (update_buffer.id);
 		}
@@ -1210,11 +1270,6 @@ tracker_data_insert_statement_with_uri (const gchar            *subject,
 		class = tracker_ontology_get_class_by_uri (object);
 		if (class != NULL) {
 			cache_create_service_decomposed (class);
-
-			if (!update_buffer.types)
-				update_buffer.types = g_ptr_array_new ();
-			g_ptr_array_add (update_buffer.types, g_strdup (object));
-
 		} else {
 			g_set_error (error, TRACKER_DATA_ERROR, TRACKER_DATA_ERROR_UNKNOWN_CLASS,
 				     "Class '%s' not found in the ontology", object);
