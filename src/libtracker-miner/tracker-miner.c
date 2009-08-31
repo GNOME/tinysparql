@@ -516,6 +516,14 @@ tracker_miner_stop (TrackerMiner *miner)
 	g_signal_emit (miner, signals[STOPPED], 0);
 }
 
+gboolean
+tracker_miner_is_started (TrackerMiner  *miner)
+{
+	g_return_val_if_fail (TRACKER_IS_MINER (miner), TRUE);
+
+	return miner->private->started;
+}
+
 TrackerClient *
 tracker_miner_get_client (TrackerMiner *miner)
 {

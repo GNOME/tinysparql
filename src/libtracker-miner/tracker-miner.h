@@ -75,6 +75,8 @@ GQuark	       tracker_miner_error_quark    (void);
 void           tracker_miner_start          (TrackerMiner  *miner);
 void           tracker_miner_stop           (TrackerMiner  *miner);
 
+gboolean       tracker_miner_is_started     (TrackerMiner  *miner);
+
 TrackerClient *tracker_miner_get_client     (TrackerMiner  *miner);
 gboolean       tracker_miner_execute_sparql (TrackerMiner  *miner,
 					     const gchar   *sparql,
