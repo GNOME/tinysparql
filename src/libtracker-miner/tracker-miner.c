@@ -584,9 +584,8 @@ tracker_miner_pause (TrackerMiner  *miner,
 		if (g_strcmp0 (application, pd->application) == 0 && 
 		    g_strcmp0 (reason, pd->reason) == 0) {
 			/* Can't use duplicate pauses */
-			g_set_error (error, TRACKER_MINER_ERROR, 0, 
-				     "%s",
-				     _("Pause application and reason match an already existing pause request"));
+			g_set_error_literal (error, TRACKER_MINER_ERROR, 0,
+					     _("Pause application and reason match an already existing pause request"));
 			return -1;
 		}
 	}
@@ -614,11 +613,10 @@ tracker_miner_resume (TrackerMiner  *miner,
 	g_return_val_if_fail (TRACKER_IS_MINER (miner), FALSE);
 
 	if (!g_hash_table_remove (miner->private->pauses, GINT_TO_POINTER (cookie))) {
-		g_set_error (error, TRACKER_MINER_ERROR, 0, 
-			     "%s",
-			     _("Cookie not recognised to resume paused miner"));
+		g_set_error_literal (error, TRACKER_MINER_ERROR, 0,
+				     _("Cookie not recognised to resume paused miner"));
 		return FALSE;
-	} 
+	}
 
 	if (g_hash_table_size (miner->private->pauses) == 0) {
 		/* Resume */
