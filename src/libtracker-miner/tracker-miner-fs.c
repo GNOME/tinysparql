@@ -67,6 +67,7 @@ struct TrackerMinerFSPrivate {
 	guint           been_started : 1;
 	guint           been_crawled : 1;
 	guint           shown_totals : 1;
+	guint           paused : 1;
 
 	/* Statistics */
 	guint		total_directories_found;
@@ -101,6 +102,9 @@ static gboolean       fs_defaults                  (TrackerMinerFS *fs,
 						    GFile          *file);
 static void           miner_started                (TrackerMiner   *miner);
 static void           miner_stopped                (TrackerMiner   *miner);
+static void           miner_paused                 (TrackerMiner   *miner);
+static void           miner_resumed                (TrackerMiner   *miner);
+
 static DirectoryData *directory_data_new           (GFile          *file,
 						    gboolean        recurse);
 static void           directory_data_free          (DirectoryData  *dd);
@@ -160,16 +164,12 @@ tracker_miner_fs_class_init (TrackerMinerFSClass *klass)
 
         miner_class->started = miner_started;
         miner_class->stopped = miner_stopped;
+	miner_class->paused  = miner_paused;
+	miner_class->resumed = miner_resumed;
 
 	fs_class->check_file        = fs_defaults;
 	fs_class->check_directory   = fs_defaults;
 	fs_class->monitor_directory = fs_defaults;
-
-	/*
-	  miner_class->stopped = miner_crawler_stopped;
-	  miner_class->paused  = miner_crawler_paused;
-	  miner_class->resumed = miner_crawler_resumed;
-	*/
 
 	signals[CHECK_FILE] =
 		g_signal_new ("check-file",
@@ -344,6 +344,34 @@ miner_stopped (TrackerMiner *miner)
 		      "progress", 1.0, 
 		      "status", _("Idle"),
 		      NULL);
+}
+
+static void
+miner_paused (TrackerMiner *miner)
+{
+	TrackerMinerFSPrivate *priv;
+
+	priv = TRACKER_MINER_FS (miner)->private;
+
+	priv->paused = TRUE;
+
+	/* FIXME: also pause crawler, if running */
+
+	if (priv->item_queues_handler_id) {
+		g_source_remove (priv->item_queues_handler_id);
+		priv->item_queues_handler_id = 0;
+	}
+}
+
+static void
+miner_resumed (TrackerMiner *miner)
+{
+	TrackerMinerFSPrivate *priv;
+
+	priv = TRACKER_MINER_FS (miner)->private;
+
+	priv->paused = FALSE;
+	item_queue_handlers_set_up (TRACKER_MINER_FS (miner));
 }
 
 static DirectoryData *
@@ -831,7 +859,11 @@ item_queue_handlers_set_up (TrackerMinerFS *fs)
 	if (fs->private->item_queues_handler_id != 0) {
 		return;
 	}
-	
+
+	if (fs->private->paused) {
+		return;
+	}
+
 	g_object_get (fs, "status", &status, NULL);
 	if (g_strcmp0 (status, _("Processing files")) != 0) {
 		/* Don't spam this */
