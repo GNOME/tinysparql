@@ -21,6 +21,7 @@ libtracker_fts_la_SOURCES = 					\
 	tracker-fts-hash.h
 
 libtracker_fts_la_LIBADD =						\
+	$(top_builddir)/src/libtracker-common/libtracker-common.la	\
 	$(SQLITE3_LIBS)						\
 	$(GTHREAD_LIBS)						\
 	$(GCOV_LIBS)						\
