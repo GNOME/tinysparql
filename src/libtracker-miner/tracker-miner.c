@@ -544,10 +544,6 @@ tracker_miner_execute_sparql (TrackerMiner  *miner,
 	tracker_resources_batch_sparql_update (miner->private->client,
 					       sparql, 
 					       &internal_error);
-
-	/* FIXME: should not commit after each update */
-	tracker_resources_batch_commit (miner->private->client, NULL);
-
 	if (!internal_error) {
 		return TRUE;
 	}
@@ -560,6 +556,29 @@ tracker_miner_execute_sparql (TrackerMiner  *miner,
 	}
 
 	return FALSE;
+}
+
+gboolean
+tracker_miner_commit (TrackerMiner *miner)
+{
+	GError *error = NULL;
+
+	g_return_val_if_fail (TRACKER_IS_MINER (miner), FALSE);
+
+	if (g_hash_table_size (miner->private->pauses) > 0) {
+		g_warning ("Can not commit while miner is paused");
+		return FALSE;
+	}
+
+	tracker_resources_batch_commit (miner->private->client, &error);
+
+	if (error) {
+		g_critical ("Could not commit: %s", error->message);
+		g_error_free (error);
+		return FALSE;
+	}
+
+	return TRUE;
 }
 
 gint

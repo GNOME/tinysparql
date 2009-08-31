@@ -81,6 +81,8 @@ TrackerClient *tracker_miner_get_client     (TrackerMiner  *miner);
 gboolean       tracker_miner_execute_sparql (TrackerMiner  *miner,
 					     const gchar   *sparql,
 					     GError       **error);
+gboolean       tracker_miner_commit         (TrackerMiner  *miner);
+
 gint           tracker_miner_pause          (TrackerMiner  *miner,
 					     const gchar   *application,
 					     const gchar   *reason,
