@@ -585,12 +585,10 @@ parser_next (TrackerParser *parser,
 
 			if (type == TRACKER_PARSER_WORD_NUM) {
 				is_valid = FALSE;
-				start = NULL;
 				continue;
 			} else {
 				if (type == TRACKER_PARSER_WORD_HYPHEN) {
 					is_valid = parser->parse_reserved_words;
-					start = NULL;
 					continue;
 				}
 			}
