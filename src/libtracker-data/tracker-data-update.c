@@ -322,9 +322,6 @@ statement_bind_gvalue (TrackerDBStatement *stmt,
 	case G_TYPE_INT64:
 		tracker_db_statement_bind_int64 (stmt, idx, g_value_get_int64 (value));
 		break;
-	case G_TYPE_BOOLEAN:
-		tracker_db_statement_bind_int (stmt, idx, g_value_get_boolean (value));
-		break;
 	case G_TYPE_DOUBLE:
 		tracker_db_statement_bind_double (stmt, idx, g_value_get_double (value));
 		break;
@@ -599,8 +596,6 @@ value_equal (GValue *value1,
 		return (strcmp (g_value_get_string (value1), g_value_get_string (value2)) == 0);
 	case G_TYPE_INT:
 		return g_value_get_int (value1) == g_value_get_int (value2);
-	case G_TYPE_BOOLEAN:
-		return g_value_get_boolean (value1) == g_value_get_boolean (value2);
 	case G_TYPE_DOUBLE:
 		/* does RDF define equality for floating point values? */
 		return g_value_get_double (value1) == g_value_get_double (value2);
@@ -784,8 +779,10 @@ cache_set_metadata_decomposed (TrackerProperty	*property,
 		g_value_set_int (&gvalue, atoi (value));
 		break;
 	case TRACKER_PROPERTY_TYPE_BOOLEAN:
-		g_value_init (&gvalue, G_TYPE_BOOLEAN);
-		g_value_set_boolean (&gvalue, strcmp (value, "true") == 0);
+		/* use G_TYPE_INT to be compatible with value stored in DB
+		   (important for value_equal function) */
+		g_value_init (&gvalue, G_TYPE_INT);
+		g_value_set_int (&gvalue, strcmp (value, "true") == 0);
 		break;
 	case TRACKER_PROPERTY_TYPE_DOUBLE:
 		g_value_init (&gvalue, G_TYPE_DOUBLE);
