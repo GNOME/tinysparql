@@ -237,19 +237,22 @@ add_fraction_gst_tag (GHashTable	*metadata,
 		      GstTagList	*tag_list,
 		      const gchar       *tag)
 {
-	gboolean ret;
 	GValue	 n = {0,};
-	gfloat   f;
 
-	ret = gst_tag_list_copy_value (&n, tag_list, tag);
+	if (gst_tag_list_copy_value (&n, tag_list, tag)) {
 
-	f = (gfloat)gst_value_get_fraction_numerator (&n)/
-		gst_value_get_fraction_denominator (&n);
+		if (GST_VALUE_HOLDS_FRACTION (&n)) {
+			gfloat f;
 
-	if (ret) {
-		g_hash_table_insert (metadata,
-				     g_strdup (key),
-				     tracker_escape_metadata_printf ("%f", f));
+			f = (gfloat)gst_value_get_fraction_numerator (&n)/
+				gst_value_get_fraction_denominator (&n);
+
+			g_hash_table_insert (metadata,
+					     g_strdup (key),
+					     tracker_escape_metadata_printf ("%f", f));
+		}
+		
+		g_value_unset (&n);
 	}
 }
 
