@@ -131,6 +131,7 @@ tracker_application_file_get_metadata (TrackerModuleFile *file, gchar **mime_typ
 	gchar *path, *type, *filename, *name = NULL, *uri = NULL;
 	GStrv cats = NULL;
 	gsize cats_len;
+	gboolean is_software = TRUE;
 
 	f = tracker_module_file_get_file (file);
 	path = g_file_get_path (f);
@@ -179,7 +180,7 @@ tracker_application_file_get_metadata (TrackerModuleFile *file, gchar **mime_typ
 		g_key_file_get_string (key_file, GROUP_DESKTOP_ENTRY, "Name", NULL);
 
 	if (name && g_ascii_strcasecmp (type, "Directory") == 0) {
-		gchar *canonical_uri = tracker_uri_printf_escaped (SOFTWARE_CATEGORY_URN_PREFIX "%s", name);
+		gchar *canonical_uri = tracker_uri_printf_escaped (SOFTWARE_CATEGORY_URN_PREFIX "%s", path);
 		gchar *icon = g_key_file_get_string (key_file, GROUP_DESKTOP_ENTRY, "Icon", NULL);
 
 		sparql = tracker_sparql_builder_new_update ();
@@ -191,9 +192,6 @@ tracker_application_file_get_metadata (TrackerModuleFile *file, gchar **mime_typ
 
 		tracker_sparql_builder_predicate (sparql, "a");
 		tracker_sparql_builder_object (sparql, "nfo:SoftwareCategory");
-
-		tracker_sparql_builder_predicate (sparql, "nie:title");
-		tracker_sparql_builder_object_string (sparql, name);
 
 		if (icon) {
 			gchar *icon_uri = g_strdup_printf (THEME_ICON_URN_PREFIX "%s", icon);
@@ -209,6 +207,8 @@ tracker_application_file_get_metadata (TrackerModuleFile *file, gchar **mime_typ
 			g_free (icon_uri);
 			g_free (icon);
 		}
+
+		is_software = FALSE;
 
 	} else if (name && g_ascii_strcasecmp (type, "Application") == 0) {
 
@@ -252,11 +252,14 @@ tracker_application_file_get_metadata (TrackerModuleFile *file, gchar **mime_typ
 	}
 
 	if (sparql && uri) {
-		gchar *icon;
 		gchar *desktop_file_uri;
 
 		tracker_sparql_builder_predicate (sparql, "a");
-		tracker_sparql_builder_object (sparql, "nfo:Executable");
+
+		if (is_software) {
+			tracker_sparql_builder_object (sparql, "nfo:Executable");
+		}
+
 		tracker_sparql_builder_object (sparql, "nfo:FileDataObject");
 		tracker_sparql_builder_object (sparql, "nie:DataObject");
 
@@ -267,24 +270,28 @@ tracker_application_file_get_metadata (TrackerModuleFile *file, gchar **mime_typ
 		tracker_sparql_builder_predicate (sparql, "nie:title");
 		tracker_sparql_builder_object_string (sparql, name);
 
-		insert_data_from_desktop_file (sparql, uri, NIE_PREFIX "comment", key_file, "Comment", TRUE);
-		insert_data_from_desktop_file (sparql, uri, NFO_PREFIX "softwareCmdLine", key_file, "Exec", TRUE);
+		if (is_software) {
+			gchar *icon;
 
-		icon = g_key_file_get_string (key_file, GROUP_DESKTOP_ENTRY, "Icon", NULL);
+			insert_data_from_desktop_file (sparql, uri, NIE_PREFIX "comment", key_file, "Comment", TRUE);
+			insert_data_from_desktop_file (sparql, uri, NFO_PREFIX "softwareCmdLine", key_file, "Exec", TRUE);
 
-		if (icon) {
-			gchar *icon_uri = g_strdup_printf (THEME_ICON_URN_PREFIX "%s", icon);
+			icon = g_key_file_get_string (key_file, GROUP_DESKTOP_ENTRY, "Icon", NULL);
 
-			tracker_sparql_builder_subject_iri (sparql, icon_uri);
-			tracker_sparql_builder_predicate (sparql, "a");
-			tracker_sparql_builder_object (sparql, "nfo:Image");
+			if (icon) {
+				gchar *icon_uri = g_strdup_printf (THEME_ICON_URN_PREFIX "%s", icon);
 
-			tracker_sparql_builder_subject_iri (sparql, uri);
-			tracker_sparql_builder_predicate (sparql, "nfo:softwareIcon");
-			tracker_sparql_builder_object_iri (sparql, icon_uri);
+				tracker_sparql_builder_subject_iri (sparql, icon_uri);
+				tracker_sparql_builder_predicate (sparql, "a");
+				tracker_sparql_builder_object (sparql, "nfo:Image");
 
-			g_free (icon_uri);
-			g_free (icon);
+				tracker_sparql_builder_subject_iri (sparql, uri);
+				tracker_sparql_builder_predicate (sparql, "nfo:softwareIcon");
+				tracker_sparql_builder_object_iri (sparql, icon_uri);
+
+				g_free (icon_uri);
+				g_free (icon);
+			}
 		}
 
 		if (cats) {
