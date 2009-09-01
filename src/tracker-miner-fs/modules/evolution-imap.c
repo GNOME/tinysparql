@@ -917,8 +917,9 @@ get_message_metadata (TrackerModuleFile *file)
 		tracker_sparql_builder_predicate (sparql, "rdf:type");
 		tracker_sparql_builder_object (sparql, "nmo:MailboxDataObject");
 
-		tracker_sparql_builder_predicate (sparql, "tracker:available");
-		tracker_sparql_builder_object_boolean (sparql, TRUE);
+		/* Apparently this gets added by the file-module ATM
+		   tracker_sparql_builder_predicate (sparql, "tracker:available");
+		   tracker_sparql_builder_object_boolean (sparql, TRUE); */
 
 		/* The URI of the InformationElement should be a UUID URN */
 		tracker_sparql_builder_subject_iri (sparql, uri);
@@ -1088,9 +1089,10 @@ get_attachment_metadata (TrackerModuleFile *file,
 
 	evolution_common_get_wrapper_metadata (wrapper, sparql, uri);
 
-	tracker_sparql_builder_subject_iri (sparql, uri);
-	tracker_sparql_builder_predicate (sparql, "tracker:available");
-	tracker_sparql_builder_object_boolean (sparql, TRUE);
+	/* Apparently this gets added by the file-module ATM
+	   tracker_sparql_builder_subject_iri (sparql, uri);
+	   tracker_sparql_builder_predicate (sparql, "tracker:available");
+	   tracker_sparql_builder_object_boolean (sparql, TRUE); */
 
 	g_free (uri);
 	g_free (tmp);
