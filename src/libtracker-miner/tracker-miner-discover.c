@@ -27,51 +27,108 @@
 #include "tracker-miner.h"
 #include "tracker-miner-discover.h"
 
-GSList *
-tracker_miner_discover_get_running (void)
-{
-	DBusGConnection *connection;
-	DBusGProxy *gproxy;
-	GSList *list;
-	GError *error = NULL;
-	gchar **p, **result;
-	
-	connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
+#define TRACKER_MINER_DISCOVER_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_MINER_DISCOVER, TrackerMinerDiscoverPrivate))
 
-	if (!connection) {
+typedef struct TrackerMinerDiscoverPrivate TrackerMinerDiscoverPrivate;
+
+struct TrackerMinerDiscoverPrivate {
+	DBusGConnection *connection;
+	DBusGProxy *proxy;
+	TrackerCrawler *crawler;
+};
+
+static void miner_discover_finalize (GObject *object);
+
+
+G_DEFINE_TYPE (TrackerMinerDiscover, tracker_miner_discover, G_TYPE_OBJECT)
+
+static void
+tracker_miner_discover_class_init (TrackerMinerDiscoverClass *klass)
+{
+	GObjectClass *object_class = G_OBJECT_CLASS (klass);
+
+	object_class->finalize = miner_discover_finalize;
+
+	g_type_class_add_private (object_class, sizeof (TrackerMinerDiscoverPrivate));
+}
+
+static void
+tracker_miner_discover_init (TrackerMinerDiscover *discover)
+{
+	TrackerMinerDiscoverPrivate *priv;
+	GError *error = NULL;
+
+	priv = TRACKER_MINER_DISCOVER_GET_PRIVATE (discover);
+
+	priv->connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
+
+	if (!priv->connection) {
 		g_critical ("Could not connect to the DBus session bus, %s",
 			    error ? error->message : "no error given.");
 		g_clear_error (&error);
-		return NULL;
 	}
 
-	/* The definitions below (DBUS_SERVICE_DBUS, etc) are
-	 * predefined for us to just use (dbus_g_proxy_...)
-	 */
-	gproxy = dbus_g_proxy_new_for_name (connection,
-					    DBUS_SERVICE_DBUS,
-					    DBUS_PATH_DBUS,
-					    DBUS_INTERFACE_DBUS);
+	priv->proxy = dbus_g_proxy_new_for_name (priv->connection,
+						 DBUS_SERVICE_DBUS,
+						 DBUS_PATH_DBUS,
+						 DBUS_INTERFACE_DBUS);
 
-	if (!gproxy) {
+	if (!priv->proxy) {
 		g_critical ("Could not get proxy for DBus service");
+	}
+
+	priv->crawler = tracker_crawler_new ();
+}
+
+static void
+miner_discover_finalize (GObject *object)
+{
+	TrackerMinerDiscoverPrivate *priv;
+
+	priv = TRACKER_MINER_DISCOVER_GET_PRIVATE (object);
+
+	if (priv->proxy) {
+		g_object_unref (priv->proxy);
+	}
+
+	if (priv->connection) {
+		dbus_g_connection_unref (priv->connection);
+	}
+
+	G_OBJECT_CLASS (tracker_miner_discover_parent_class)->finalize (object);
+}
+
+TrackerMinerDiscover *
+tracker_miner_discover_new (void)
+{
+	return g_object_new (TRACKER_TYPE_MINER_DISCOVER, NULL);
+}
+
+GSList *
+tracker_miner_discover_get_running (TrackerMinerDiscover *discover)
+{
+	TrackerMinerDiscoverPrivate *priv;
+	GSList *list = NULL;
+	GError *error = NULL;
+	gchar **p, **result;
+
+	g_return_val_if_fail (TRACKER_IS_MINER_DISCOVER (discover), NULL);
+
+	priv = TRACKER_MINER_DISCOVER_GET_PRIVATE (discover);
+
+	if (!priv->connection || !priv->proxy) {
 		return NULL;
 	}
 
-	if (!dbus_g_proxy_call (gproxy, "ListNames", &error, 
-				G_TYPE_INVALID, 
-				G_TYPE_STRV, &result, 
+	if (!dbus_g_proxy_call (priv->proxy, "ListNames", &error,
+				G_TYPE_INVALID,
+				G_TYPE_STRV, &result,
 				G_TYPE_INVALID)) {
 		g_critical ("Could not get a list of names registered on the session bus, %s",
 			    error ? error->message : "no error given");
 		g_clear_error (&error);
-		g_object_unref (gproxy);
 		return NULL;
 	}
-
-	g_object_unref (gproxy);
-
-	list = NULL;
 
 	if (result) {
 		for (p = result; *p; p++) {
@@ -101,7 +158,7 @@ crawler_check_file_cb (TrackerCrawler *crawler,
 		gchar *p;
 
 		p = strstr (basename, ".service");
-		
+
 		if (p) {
 			GSList **list = user_data;
 
@@ -110,9 +167,9 @@ crawler_check_file_cb (TrackerCrawler *crawler,
 		} else {
 			g_free (basename);
 		}
-		
+
 		return TRUE;
-	} 
+	}
 
 	g_free (basename);
 
@@ -123,9 +180,9 @@ static void
 crawler_finished_cb (TrackerCrawler *crawler,
 		     GQueue         *found,
 		     gboolean        was_interrupted,
-		     guint           directories_found, 
-		     guint           directories_ignored, 
-		     guint           files_found, 
+		     guint           directories_found,
+		     guint           directories_ignored,
+		     guint           files_found,
 		     guint           files_ignored,
 		     gpointer        user_data)
 {
@@ -133,7 +190,7 @@ crawler_finished_cb (TrackerCrawler *crawler,
 }
 
 GSList *
-tracker_miner_discover_get_available (void)
+tracker_miner_discover_get_available (TrackerMinerDiscover *discover)
 {
 	GSList *list = NULL;
 	GMainLoop *main_loop;
@@ -141,17 +198,12 @@ tracker_miner_discover_get_available (void)
 	TrackerCrawler *crawler;
 
 	crawler = tracker_crawler_new ();
-	if (!crawler) {
-		g_critical ("Couldn't create TrackerCrawler object");
-		return NULL;
-	}
-
 	main_loop = g_main_loop_new (NULL, FALSE);
 
-	g_signal_connect (crawler, "check-file", 
+	g_signal_connect (crawler, "check-file",
 			  G_CALLBACK (crawler_check_file_cb),
 			  &list);
-	g_signal_connect (crawler, "finished", 
+	g_signal_connect (crawler, "finished",
 			  G_CALLBACK (crawler_finished_cb),
 			  main_loop);
 

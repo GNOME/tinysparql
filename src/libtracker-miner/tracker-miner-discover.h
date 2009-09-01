@@ -21,12 +21,34 @@
 #ifndef __LIBTRACKERMINER_DISCOVER_H__
 #define __LIBTRACKERMINER_DISCOVER_H__
 
-#include <glib.h>
+#include <glib-object.h>
 
 G_BEGIN_DECLS
 
-GSList *tracker_miner_discover_get_running   (void);
-GSList *tracker_miner_discover_get_available (void);
+#define TRACKER_TYPE_MINER_DISCOVER         (tracker_miner_discover_get_type())
+#define TRACKER_MINER_DISCOVER(o)           (G_TYPE_CHECK_INSTANCE_CAST ((o), TRACKER_TYPE_MINER_DISCOVER, TrackerMinerDiscover))
+#define TRACKER_MINER_DISCOVER_CLASS(c)     (G_TYPE_CHECK_CLASS_CAST ((c),    TRACKER_TYPE_MINER_DISCOVER, TrackerMinerDiscoverClass))
+#define TRACKER_IS_MINER_DISCOVER(o)        (G_TYPE_CHECK_INSTANCE_TYPE ((o), TRACKER_TYPE_MINER_DISCOVER))
+#define TRACKER_IS_MINER_DISCOVER_CLASS(c)  (G_TYPE_CHECK_CLASS_TYPE ((c),    TRACKER_TYPE_MINER_DISCOVER))
+#define TRACKER_MINER_DISCOVER_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o),  TRACKER_TYPE_MINER_DISCOVER, TrackerMinerDiscoverClass))
+
+typedef struct TrackerMinerDiscover TrackerMinerDiscover;
+typedef struct TrackerMinerDiscoverClass TrackerMinerDiscoverClass;
+
+struct TrackerMinerDiscover {
+	GObject parent_instance;
+};
+
+struct TrackerMinerDiscoverClass {
+	GObjectClass parent_class;
+};
+
+GType   tracker_miner_discover_get_type (void) G_GNUC_CONST;
+
+TrackerMinerDiscover * tracker_miner_discover_new (void);
+
+GSList *tracker_miner_discover_get_running   (TrackerMinerDiscover *discover);
+GSList *tracker_miner_discover_get_available (TrackerMinerDiscover *discover);
 
 G_END_DECLS
 

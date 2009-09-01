@@ -403,6 +403,7 @@ miner_get_details (const gchar  *miner,
 gint
 main (gint argc, gchar *argv[])
 {
+	TrackerMinerDiscover *discover;
 	GOptionContext *context;
 	DBusGProxy *proxy;
 	TrackerClient *client;
@@ -475,8 +476,9 @@ main (gint argc, gchar *argv[])
 		return EXIT_SUCCESS;
 	}
 
-	miners_available = tracker_miner_discover_get_available ();
-	miners_running = tracker_miner_discover_get_running ();
+	discover = tracker_miner_discover_new ();
+	miners_available = tracker_miner_discover_get_available (discover);
+	miners_running = tracker_miner_discover_get_running (discover);
 
 	if (list_miners_available) {
 		gchar *str;
