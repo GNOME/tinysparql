@@ -48,8 +48,6 @@ struct _TrackerPowerClass {
 	GObjectClass parent_class;
 };
 
-#ifdef HAVE_HAL
-
 GType	      tracker_power_get_type		   (void) G_GNUC_CONST;
 
 TrackerPower *tracker_power_new                    (void);
@@ -57,8 +55,6 @@ TrackerPower *tracker_power_new                    (void);
 gboolean      tracker_power_get_on_battery         (TrackerPower *power);
 gboolean      tracker_power_get_on_low_battery     (TrackerPower *power);
 gdouble       tracker_power_get_battery_percentage (TrackerPower *power);
-
-#endif /* HAVE_HAL */
 
 G_END_DECLS
 
