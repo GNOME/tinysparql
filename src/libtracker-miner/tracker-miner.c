@@ -219,6 +219,14 @@ tracker_miner_init (TrackerMiner *miner)
 }
 
 static void
+miner_update_progress (TrackerMiner *miner)
+{
+	g_signal_emit (miner, signals[PROGRESS], 0,
+		       miner->private->status,
+		       miner->private->progress);
+}
+
+static void
 miner_set_property (GObject      *object,
 		    guint         prop_id,
 		    const GValue *value,
@@ -238,10 +246,11 @@ miner_set_property (GObject      *object,
 	case PROP_STATUS:
 		g_free (miner->private->status);
 		miner->private->status = g_value_dup_string (value);
+		miner_update_progress (miner);
 		break;
 	case PROP_PROGRESS:
 		miner->private->progress = g_value_get_double (value);
-		/* Do we signal here? */
+		miner_update_progress (miner);
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
