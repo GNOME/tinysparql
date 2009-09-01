@@ -234,14 +234,10 @@ tracker_ontology_add_property
 TrackerParser
 tracker_parser_new
 tracker_parser_free
-tracker_parser_is_stop_word
 tracker_parser_next
 tracker_parser_process_word
 tracker_parser_reset
 tracker_parser_text
-tracker_parser_text_fast
-tracker_parser_text_into_array
-tracker_parser_text_to_string
 </SECTION>
 
 <INCLUDE>libtracker-common/tracker-class.h</INCLUDE>

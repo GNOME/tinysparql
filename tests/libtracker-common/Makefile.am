@@ -10,7 +10,6 @@ noinst_PROGRAMS = $(TEST_PROGS)
 # 
 #       These tests include:
 #
-#         tracker-parser
 #	  tracker-field
 #
 
@@ -66,19 +65,6 @@ tracker_file_utils_LDADD =						\
 	$(GTHREAD_LIBS)							\
 	$(GLIB2_LIBS)							
 
-# tracker_parser_SOURCES = 						\
-# 	tracker-parser-test.c 
-#
-# tracker_parser_LDADD =						\
-# 	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
-# 	$(top_builddir)/tests/common/libtracker-testcommon.la 		\
-# 	$(top_builddir)/src/libstemmer/libstemmer.la	 		\
-# 	$(GMODULE_LIBS)							\
-# 	$(GTHREAD_LIBS)							\
-#	$(GCOV_LIBS)							\
-# 	$(PANGO_LIBS)							\
-# 	$(GLIB2_LIBS)							
-#
 # tracker_property_SOURCES = 						\
 # 	tracker-field-test.c 
 #

@@ -51,56 +51,11 @@ const gchar *  tracker_parser_next	      (TrackerParser   *parser,
 					       gboolean        *new_paragraph,
 					       gboolean        *stop_word,
 					       gint	       *word_length);
-void	       tracker_parser_set_posititon   (TrackerParser   *parser,
-					       gint		position);
-gboolean       tracker_parser_is_stop_word    (TrackerParser   *parser,
-					       const gchar     *word);
 gchar *        tracker_parser_process_word    (TrackerParser   *parser,
 					       const char      *word,
 					       gint		length,
 					       gboolean		do_strip);
 void	       tracker_parser_free	      (TrackerParser   *parser);
-
-
-/*
- * Functions to parse supplied text and break into individual words and
- * maintain a count of no of occurences of the word multiplied by a
- * "weight" factor.
- *
- * The word_table - can be NULL. It contains the accumulated parsed words
- * with weighted word counts for the text (useful for indexing stuff
- * line by line)
- *
- *   text   - the text to be parsed
- *   weight - used to multiply the count of a word's occurance to create
- *	      a weighted rank score
- *
- * Returns the word_table.
- */
-GHashTable *   tracker_parser_text	      (GHashTable      *word_table,
-					       const gchar     *txt,
-					       gint		weight,
-					       TrackerLanguage *language,
-					       gint		max_words_to_index,
-					       gint		max_word_length,
-					       gint		min_word_length,
-					       gboolean		filter_words,
-					       gboolean		delimit_words);
-GHashTable *   tracker_parser_text_fast       (GHashTable      *word_table,
-					       const char      *txt,
-					       gint		weight);
-gchar *        tracker_parser_text_to_string  (const gchar     *txt,
-					       TrackerLanguage *language,
-					       gint		max_word_length,
-					       gint		min_word_length,
-					       gboolean		filter_words,
-					       gboolean		filter_numbers,
-					       gboolean		delimit);
-gchar **       tracker_parser_text_into_array (const gchar     *text,
-					       TrackerLanguage *language,
-					       gint		max_word_length,
-					       gint		min_word_length);
-
 
 G_END_DECLS
 
