@@ -84,13 +84,16 @@ static void     miner_files_get_property      (GObject              *object,
 					       GParamSpec           *pspec);
 static void     miner_files_finalize          (GObject              *object);
 static void     miner_files_constructed       (GObject              *object);
+
+static void     mount_pre_unmount_cb          (GVolumeMonitor       *volume_monitor,
+					       GMount               *mount,
+					       TrackerMinerFiles    *mf);
+
+#ifdef HAVE_HAL
 static void     mount_point_added_cb          (TrackerStorage       *storage,
 					       const gchar          *udi,
 					       const gchar          *mount_point,
 					       gpointer              user_data);
-static void     mount_pre_unmount_cb          (GVolumeMonitor       *volume_monitor,
-					       GMount               *mount,
-					       TrackerMinerFiles    *mf);
 static void     initialize_removable_devices  (TrackerMinerFiles    *mf);
 
 static void     on_battery_cb                 (GObject              *gobject,
@@ -102,6 +105,8 @@ static void     on_low_battery_cb             (GObject              *object,
 static void     on_battery_percentage_cb      (GObject              *gobject,
 					       GParamSpec           *arg1,
 					       gpointer              user_data);
+#endif
+
 static void     disk_space_check_start        (TrackerMinerFiles    *mf);
 static void     disk_space_check_stop         (TrackerMinerFiles    *mf);
 static void     low_disk_space_limit_cb       (GObject              *gobject,
