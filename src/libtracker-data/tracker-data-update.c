@@ -1693,10 +1693,12 @@ tracker_data_delete_resource_description (const gchar *uri)
 
 					value = tracker_db_cursor_get_string (single_cursor, i++);
 
-					tracker_data_delete_statement (uri, 
-					                               tracker_property_get_uri (*property), 
-					                               value, 
-					                               NULL);
+					if (value) {
+						tracker_data_delete_statement (uri, 
+						                               tracker_property_get_uri (*property), 
+						                               value, 
+						                               NULL);
+					}
 
 				} else {
 					/* multi value property, retrieve values from DB */
