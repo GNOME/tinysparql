@@ -595,7 +595,7 @@ AC_CHECK_HEADERS([sys/inotify.h])
 #  SQLite check
 ####################################################################
 
-SQLITE_REQUIRED=3.5
+SQLITE_REQUIRED=3.6
 
 PKG_CHECK_MODULES(SQLITE3, [sqlite3 >= $SQLITE_REQUIRED])
 AC_SUBST(SQLITE3_CFLAGS)
