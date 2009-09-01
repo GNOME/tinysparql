@@ -691,7 +691,8 @@ get_property_values (TrackerProperty *property)
 
 static void
 cache_set_metadata_decomposed (TrackerProperty	*property,
-			       const gchar	*value)
+			       const gchar	*value,
+			       GError          **error)
 {
 	guint32		    object_id;
 	gboolean            multiple_values, fts;
@@ -704,7 +705,10 @@ cache_set_metadata_decomposed (TrackerProperty	*property,
 	/* also insert super property values */
 	super_properties = tracker_property_get_super_properties (property);
 	while (*super_properties) {
-		cache_set_metadata_decomposed (*super_properties, value);
+		cache_set_metadata_decomposed (*super_properties, value, error);
+		if (*error) {
+			return;
+		}
 		super_properties++;
 	}
 
@@ -724,8 +728,11 @@ cache_set_metadata_decomposed (TrackerProperty	*property,
 	old_values = g_hash_table_lookup (update_buffer.predicates, property);
 	if (old_values == NULL) {
 		if (!check_property_domain (property)) {
-			/* TODO throw proper error and rollback */
-			g_warning ("Subject `%s' is not in domain `%s' of property `%s'", update_buffer.subject, tracker_class_get_name (tracker_property_get_domain (property)), field_name);
+			g_set_error (error, TRACKER_DATA_ERROR, TRACKER_DATA_ERROR_CONSTRAINT,
+				     "Subject `%s' is not in domain `%s' of property `%s'",
+				     update_buffer.subject,
+				     tracker_class_get_name (tracker_property_get_domain (property)),
+				     field_name);
 			g_free (table_name);
 			return;
 		}
@@ -810,8 +817,10 @@ cache_set_metadata_decomposed (TrackerProperty	*property,
 
 		g_value_unset (&gvalue);
 
-		/* TODO throw proper error and rollback */
-		g_warning ("Unable to insert multiple values for subject `%s' and single valued property `%s'", update_buffer.subject, field_name);
+		g_set_error (error, TRACKER_DATA_ERROR, TRACKER_DATA_ERROR_CONSTRAINT,
+		             "Unable to insert multiple values for subject `%s' and single valued property `%s'",
+		             update_buffer.subject,
+		             field_name);
 	} else {
 		cache_insert_value (table_name, field_name, &gvalue, multiple_values, fts);
 	}
@@ -1231,6 +1240,7 @@ tracker_data_insert_statement_with_uri (const gchar            *subject,
 					const gchar            *object,
 					GError                **error)
 {
+	GError          *actual_error = NULL;
 	TrackerClass    *class;
 	TrackerProperty *property;
 
@@ -1299,7 +1309,13 @@ tracker_data_insert_statement_with_uri (const gchar            *subject,
 		update_buffer.new_subject = g_strdup (object);
 	} else {
 		/* add value to metadata database */
-		cache_set_metadata_decomposed (property, object);
+		cache_set_metadata_decomposed (property, object, &actual_error);
+		if (actual_error) {
+			/* FIXME rollback instead of commit */
+			tracker_data_commit_transaction ();
+			g_propagate_error (error, actual_error);
+			return;
+		}
 	}
 
 	if (insert_callback) {
@@ -1315,6 +1331,7 @@ tracker_data_insert_statement_with_string (const gchar            *subject,
 					   const gchar            *object,
 					   GError                **error)
 {
+	GError          *actual_error = NULL;
 	TrackerProperty *property;
 
 	g_return_if_fail (subject != NULL);
@@ -1340,7 +1357,13 @@ tracker_data_insert_statement_with_string (const gchar            *subject,
 	}
 
 	/* add value to metadata database */
-	cache_set_metadata_decomposed (property, object);
+	cache_set_metadata_decomposed (property, object, &actual_error);
+	if (actual_error) {
+		/* FIXME rollback instead of commit */
+		tracker_data_commit_transaction ();
+		g_propagate_error (error, actual_error);
+		return;
+	}
 
 	if (insert_callback) {
 		insert_callback (subject, predicate, object, update_buffer.types, insert_data);
