@@ -224,6 +224,7 @@ tracker_application_file_get_metadata (TrackerModuleFile *file, gchar **mime_typ
 
 		tracker_sparql_builder_predicate (sparql, "a");
 		tracker_sparql_builder_object (sparql, "nfo:SoftwareApplication");
+		tracker_sparql_builder_object (sparql, "nie:DataObject");
 
 		tracker_sparql_builder_predicate (sparql, "nie:dataSource");
 		tracker_sparql_builder_object_iri (sparql, APPLICATION_DATASOURCE_URN);
@@ -257,9 +258,11 @@ tracker_application_file_get_metadata (TrackerModuleFile *file, gchar **mime_typ
 		tracker_sparql_builder_predicate (sparql, "a");
 		tracker_sparql_builder_object (sparql, "nfo:Executable");
 		tracker_sparql_builder_object (sparql, "nfo:FileDataObject");
+		tracker_sparql_builder_object (sparql, "nie:DataObject");
 
-		tracker_sparql_builder_predicate (sparql, "tracker:available");
-		tracker_sparql_builder_object_boolean (sparql, TRUE);
+		/* Apparently this gets added by the file-module ATM
+		   tracker_sparql_builder_predicate (sparql, "tracker:available");
+		   tracker_sparql_builder_object_boolean (sparql, TRUE); */
 
 		tracker_sparql_builder_predicate (sparql, "nie:title");
 		tracker_sparql_builder_object_string (sparql, name);
@@ -303,7 +306,7 @@ tracker_application_file_get_metadata (TrackerModuleFile *file, gchar **mime_typ
 				tracker_sparql_builder_object_string (sparql, cats[i]);
 
 				tracker_sparql_builder_subject_iri (sparql, uri);
-				tracker_sparql_builder_predicate (sparql, "nfo:belongsToContainer");
+				tracker_sparql_builder_predicate (sparql, "nie:isLogicalPartOf");
 				tracker_sparql_builder_object_iri (sparql, cat_uri);
 
 				g_free (cat_uri);
@@ -323,6 +326,7 @@ tracker_application_file_get_metadata (TrackerModuleFile *file, gchar **mime_typ
 		tracker_sparql_builder_subject_iri (sparql, desktop_file_uri);
 		tracker_sparql_builder_predicate (sparql, "a");
 		tracker_sparql_builder_object (sparql, "nfo:FileDataObject");
+		tracker_sparql_builder_object (sparql, "nie:DataObject");
 
 		tracker_sparql_builder_subject_iri (sparql, uri);
 		tracker_sparql_builder_predicate (sparql, "nie:isStoredAs");

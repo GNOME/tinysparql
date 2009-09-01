@@ -104,7 +104,6 @@ nie:disclaimer a rdf:Property ;
 
 nie:dataSource a rdf:Property ;
 	rdfs:subPropertyOf dc:source ;
-	nrl:maxCardinality 1 ;
 	rdfs:domain nie:DataObject ;
 	rdfs:range nie:DataSource .
 
@@ -206,7 +205,6 @@ nie:hasPart a rdf:Property ;
 	rdfs:range nie:DataObject .
 
 nie:isPartOf a rdf:Property ;
-	nrl:maxCardinality 1 ;
 	rdfs:domain nie:DataObject ;
 	rdfs:range nie:InformationElement .
 
@@ -223,7 +221,6 @@ nie:characterSet a rdf:Property ;
 	rdfs:range xsd:string .
 
 nie:isLogicalPartOf a rdf:Property ;
-	nrl:maxCardinality 1 ;
 	rdfs:domain nie:InformationElement ;
 	rdfs:range nie:InformationElement .
 

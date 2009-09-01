@@ -80,7 +80,6 @@ dc:identifier a rdf:Property ;
 dc:source a rdf:Property ;
 	rdfs:label "Source" ;
 	rdfs:comment "A related resource from which the described resource is derived." ;
-	nrl:maxCardinality 1 ;
 	rdfs:domain rdfs:Resource ;
 	rdfs:range xsd:string .
 
