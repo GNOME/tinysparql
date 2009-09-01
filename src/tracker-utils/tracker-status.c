@@ -314,8 +314,8 @@ miner_get_details (const gchar  *miner,
 		   GStrv        *pause_applications,
 		   GStrv        *pause_reasons)
 {
-	GError *error = NULL;
 	DBusGProxy *proxy;
+	GError *error = NULL;
 	gchar *name;
 
 	if (status) {
@@ -400,12 +400,26 @@ miner_get_details (const gchar  *miner,
 	return TRUE;
 }
 
+static void
+discover_miner_progress_cb (TrackerMinerDiscover *discover,
+			    const gchar          *miner_name,
+			    const gchar          *status,
+			    gdouble               progress)
+{
+	miner_name += strlen (TRACKER_MINER_DBUS_NAME_PREFIX);
+	progress *= 100;
+
+	g_print ("  [R] %s: %3.0f%%, %s\n",
+		 _("Progress"),
+		 progress,
+		 miner_name);
+}
+
 gint
 main (gint argc, gchar *argv[])
 {
 	TrackerMinerDiscover *discover;
 	GOptionContext *context;
-	DBusGProxy *proxy;
 	TrackerClient *client;
 	GSList *miners_available;
 	GSList *miners_running;
@@ -663,79 +677,18 @@ main (gint argc, gchar *argv[])
 	}
 
 	g_print ("Press Ctrl+C to end follow of Tracker state\n");
-	
-#if 0
-	proxy = client->proxy_statistics;
-	
-	/* Set signal handlers */
-	/* dbus_g_object_register_marshaller (tracker_VOID__STRING_BOOLEAN_BOOLEAN_BOOLEAN_BOOLEAN_BOOLEAN, */
-	/* 				   G_TYPE_NONE, */
-	/* 				   G_TYPE_STRING, */
-	/* 				   G_TYPE_BOOLEAN, */
-	/* 				   G_TYPE_BOOLEAN, */
-	/* 				   G_TYPE_BOOLEAN, */
-	/* 				   G_TYPE_BOOLEAN, */
-	/* 				   G_TYPE_BOOLEAN, */
-	/* 				   G_TYPE_BOOLEAN, */
-	/* 				   G_TYPE_INVALID); */
-	/* dbus_g_object_register_marshaller (tracker_VOID__STRING_STRING_INT_INT_INT_DOUBLE, */
-	/* 				   G_TYPE_NONE, */
-	/* 				   G_TYPE_STRING, */
-	/* 				   G_TYPE_STRING, */
-	/* 				   G_TYPE_INT, */
-	/* 				   G_TYPE_INT, */
-	/* 				   G_TYPE_INT, */
-	/* 				   G_TYPE_DOUBLE, */
-	/* 				   G_TYPE_INVALID); */
-	
-	/* dbus_g_proxy_add_signal (proxy, */
-	/* 			 "IndexStateChange", */
-	/* 				 G_TYPE_STRING, */
-	/* 			 G_TYPE_BOOLEAN, */
-	/* 			 G_TYPE_BOOLEAN, */
-	/* 			 G_TYPE_BOOLEAN, */
-	/* 			 G_TYPE_BOOLEAN, */
-	/* 			 G_TYPE_BOOLEAN, */
-	/* 			 G_TYPE_BOOLEAN, */
-	/* 			 G_TYPE_INVALID); */
-	/* dbus_g_proxy_add_signal (proxy, */
-	/* 			 "IndexProgress", */
-	/* 			 G_TYPE_STRING, */
-	/* 			 G_TYPE_STRING, */
-	/* 			 G_TYPE_INT, */
-	/* 			 G_TYPE_INT, */
-	/* 			 G_TYPE_INT, */
-	/* 			 G_TYPE_DOUBLE, */
-	/* 			 G_TYPE_INVALID); */
-	/* dbus_g_proxy_add_signal (proxy, */
-	/* 			 "ServiceStatisticsUpdated", */
-	/* 			 TRACKER_TYPE_G_STRV_ARRAY, */
-	/* 			 G_TYPE_INVALID); */
-	
-	/* dbus_g_proxy_connect_signal (proxy, */
-	/* 			     "IndexStateChange", */
-	/* 			     G_CALLBACK (index_state_changed), */
-	/* 			     NULL, */
-	/* 			     NULL); */
-	/* dbus_g_proxy_connect_signal (proxy, */
-	/* 			     "IndexProgress", */
-	/* 			     G_CALLBACK (index_progress_changed), */
-	/* 			     NULL, */
-	/* 			     NULL); */
-	/* dbus_g_proxy_connect_signal (proxy, */
-	/* 			     "ServiceStatisticsUpdated", */
-	/* 			     G_CALLBACK (index_service_stats_updated), */
-	/* 			     NULL, */
-	/* 			     NULL); */
-#endif
-	
+
+	g_signal_connect (discover, "miner-progress",
+			  G_CALLBACK (discover_miner_progress_cb), NULL);
+
 	initialize_signal_handler ();
-	
+
 	main_loop = g_main_loop_new (NULL, FALSE);
 	g_main_loop_run (main_loop);
 	g_main_loop_unref (main_loop);
-	
+
 	tracker_disconnect (client);
+	g_object_unref (discover);
 
 	return EXIT_SUCCESS;
 }
