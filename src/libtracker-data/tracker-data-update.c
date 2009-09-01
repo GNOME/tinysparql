@@ -730,15 +730,11 @@ cache_set_metadata_decomposed (TrackerProperty	*property,
 			return;
 		}
 
-		if (fts) {
+		if (fts && !update_buffer.fts_updated && !update_buffer.create) {
 			/* first fulltext indexed property to be modified
 			 * retrieve values of all fulltext indexed properties
 			 */
-			g_assert (!update_buffer.fts_updated);
-
-			if (!update_buffer.create) {
-				tracker_fts_update_init (update_buffer.id);
-			}
+			tracker_fts_update_init (update_buffer.id);
 
 			properties = tracker_ontology_get_properties ();
 
@@ -747,25 +743,26 @@ cache_set_metadata_decomposed (TrackerProperty	*property,
 				    && check_property_domain (*prop)) {
 					old_values = get_property_values (*prop);
 
-					if (!update_buffer.create) {
-						/* delete old fts entries */
-						gint i;
-						for (i = 0; i < old_values->n_values; i++) {
-							tracker_fts_update_text (update_buffer.id, -1,
-							                         g_value_get_string (g_value_array_get_nth (old_values, i)));
-						}
+					/* delete old fts entries */
+					gint i;
+					for (i = 0; i < old_values->n_values; i++) {
+						tracker_fts_update_text (update_buffer.id, -1,
+						                         g_value_get_string (g_value_array_get_nth (old_values, i)));
 					}
 				}
 			}
 
 			g_free (properties);
 
-			update_buffer.fts_updated = TRUE;
 			update_buffer.fts_ever_updated = TRUE;
 
 			old_values = g_hash_table_lookup (update_buffer.predicates, property);
 		} else {
 			old_values = get_property_values (property);
+		}
+
+		if (fts) {
+			update_buffer.fts_updated = TRUE;
 		}
 	}
 
