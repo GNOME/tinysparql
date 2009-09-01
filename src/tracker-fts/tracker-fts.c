@@ -7839,6 +7839,10 @@ void tracker_fts_update_commit(void){
   fulltextCommit((sqlite3_vtab *) tracker_fts_vtab);
 }
 
+void tracker_fts_update_rollback(void){
+  fulltextRollback((sqlite3_vtab *) tracker_fts_vtab);
+}
+
 gchar *
 tracker_fts_get_drop_fts_table_query (void)
 {
