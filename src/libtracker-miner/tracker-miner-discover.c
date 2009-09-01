@@ -26,6 +26,7 @@
 #include "tracker-crawler.h"
 #include "tracker-miner.h"
 #include "tracker-miner-discover.h"
+#include "tracker-marshal.h"
 
 #define TRACKER_MINER_DISCOVER_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_MINER_DISCOVER, TrackerMinerDiscoverPrivate))
 
@@ -34,13 +35,20 @@ typedef struct TrackerMinerDiscoverPrivate TrackerMinerDiscoverPrivate;
 struct TrackerMinerDiscoverPrivate {
 	DBusGConnection *connection;
 	DBusGProxy *proxy;
-	TrackerCrawler *crawler;
+	GHashTable *miner_proxies;
 };
 
 static void miner_discover_finalize (GObject *object);
 
 
 G_DEFINE_TYPE (TrackerMinerDiscover, tracker_miner_discover, G_TYPE_OBJECT)
+
+enum {
+	MINER_PROGRESS,
+	LAST_SIGNAL
+};
+
+static guint signals [LAST_SIGNAL] = { 0 };
 
 static void
 tracker_miner_discover_class_init (TrackerMinerDiscoverClass *klass)
@@ -49,7 +57,36 @@ tracker_miner_discover_class_init (TrackerMinerDiscoverClass *klass)
 
 	object_class->finalize = miner_discover_finalize;
 
+	signals [MINER_PROGRESS] =
+		g_signal_new ("miner-progress",
+			      G_OBJECT_CLASS_TYPE (object_class),
+			      G_SIGNAL_RUN_LAST,
+			      G_STRUCT_OFFSET (TrackerMinerDiscoverClass, miner_progress),
+			      NULL, NULL,
+			      tracker_marshal_VOID__STRING_STRING_DOUBLE,
+			      G_TYPE_NONE, 3,
+			      G_TYPE_STRING,
+			      G_TYPE_STRING,
+			      G_TYPE_DOUBLE);
+
 	g_type_class_add_private (object_class, sizeof (TrackerMinerDiscoverPrivate));
+}
+
+static void
+miner_progress_changed (DBusGProxy  *proxy,
+			const gchar *status,
+			gdouble      progress,
+			gpointer     user_data)
+{
+	TrackerMinerDiscover *discover = user_data;
+	TrackerMinerDiscoverPrivate *priv;
+	const gchar *name;
+
+	discover = user_data;
+	priv = TRACKER_MINER_DISCOVER_GET_PRIVATE (discover);
+	name = g_hash_table_lookup (priv->miner_proxies, proxy);
+
+	g_signal_emit (discover, signals[MINER_PROGRESS], 0, name, status, progress);
 }
 
 static void
@@ -57,6 +94,7 @@ tracker_miner_discover_init (TrackerMinerDiscover *discover)
 {
 	TrackerMinerDiscoverPrivate *priv;
 	GError *error = NULL;
+	GSList *miners, *m;
 
 	priv = TRACKER_MINER_DISCOVER_GET_PRIVATE (discover);
 
@@ -77,7 +115,42 @@ tracker_miner_discover_init (TrackerMinerDiscover *discover)
 		g_critical ("Could not get proxy for DBus service");
 	}
 
-	priv->crawler = tracker_crawler_new ();
+	priv->miner_proxies = g_hash_table_new_full (NULL, NULL,
+						     (GDestroyNotify) g_object_unref,
+						     (GDestroyNotify) g_free);
+
+	dbus_g_object_register_marshaller (tracker_marshal_VOID__STRING_DOUBLE,
+					   G_TYPE_NONE,
+					   G_TYPE_STRING,
+					   G_TYPE_DOUBLE,
+					   G_TYPE_INVALID);
+
+	miners = tracker_miner_discover_get_available (discover);
+
+	for (m = miners; m; m = m->next) {
+		DBusGProxy *proxy;
+		gchar *name, *path;
+
+		name = strrchr (m->data, '.');
+		path = g_strdup_printf ("/org/freedesktop/Tracker/Miner/%s", ++name);
+
+		proxy = dbus_g_proxy_new_for_name (priv->connection,
+						   m->data, path,
+						   "org.freedesktop.Tracker.Miner");
+
+		dbus_g_proxy_add_signal (proxy,
+					 "Progress",
+					 G_TYPE_STRING,
+					 G_TYPE_DOUBLE,
+					 G_TYPE_INVALID);
+
+		dbus_g_proxy_connect_signal (proxy,
+					     "Progress",
+					     G_CALLBACK (miner_progress_changed),
+					     discover, NULL);
+
+		g_hash_table_insert (priv->miner_proxies, proxy, g_strdup (m->data));
+	}
 }
 
 static void

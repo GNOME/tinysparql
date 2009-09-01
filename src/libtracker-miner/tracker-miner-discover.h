@@ -41,6 +41,11 @@ struct TrackerMinerDiscover {
 
 struct TrackerMinerDiscoverClass {
 	GObjectClass parent_class;
+
+	void (* miner_progress) (TrackerMinerDiscover *discover,
+				 const gchar          *miner_name,
+				 const gchar          *status,
+				 gdouble               progress);
 };
 
 GType   tracker_miner_discover_get_type (void) G_GNUC_CONST;
