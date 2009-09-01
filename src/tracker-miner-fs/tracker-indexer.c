@@ -1424,6 +1424,7 @@ item_add_or_update (TrackerIndexer        *indexer,
 		    TrackerSparqlBuilder  *sparql,
 		    const gchar           *mime_type)
 {
+	GError *error = NULL;
 	gchar *full_sparql;
 	gchar *mount_point = NULL;
 
@@ -1438,10 +1439,16 @@ item_add_or_update (TrackerIndexer        *indexer,
 
 	tracker_sparql_builder_insert_close (sparql);
 
-	full_sparql = g_strdup_printf ("DROP GRAPH <%s> %s",
+	full_sparql = g_strdup_printf ("DROP GRAPH <%s>\n%s",
 		uri, tracker_sparql_builder_get_result (sparql));
 
-	tracker_resources_batch_sparql_update (indexer->private->client, full_sparql, NULL);
+	tracker_resources_batch_sparql_update (indexer->private->client, full_sparql, &error);
+
+	if (error) {
+		g_warning ("SPARQL Update failed: %s\n%s", error->message, full_sparql);
+		g_error_free (error);
+	}
+
 	g_free (full_sparql);
 
 	schedule_flush (indexer, FALSE);
