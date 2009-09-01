@@ -56,10 +56,13 @@ struct _TrackerDataUpdateBuffer {
 	gchar *new_subject;
 	guint32 id;
 	gboolean create;
+	gboolean fts_updated;
 	/* TrackerProperty -> GValueArray */
 	GHashTable *predicates;
 	GHashTable *tables;
 	GPtrArray *types;
+	/* valid per sqlite transaction, not just for same subject */
+	gboolean fts_ever_updated;
 };
 
 struct _TrackerDataUpdateBufferProperty {
@@ -363,8 +366,6 @@ tracker_data_update_buffer_flush (void)
 		update_buffer.new_subject = NULL;
 	}
 
-	fts = NULL;
-
 	g_hash_table_iter_init (&iter, update_buffer.tables);
 	while (g_hash_table_iter_next (&iter, (gpointer*) &table_name, (gpointer*) &table)) {
 		if (table->multiple_values) {
@@ -421,27 +422,26 @@ tracker_data_update_buffer_flush (void)
 
 			g_string_free (sql, TRUE);
 		}
+	}
 
-		for (i = 0; i < table->properties->len; i++) {
-			property = &g_array_index (table->properties, TrackerDataUpdateBufferProperty, i);
-			if (property->fts) {
-				if (fts == NULL) {
-					fts = g_string_new (g_value_get_string (&property->value));
-				} else {
-					g_string_append (fts, g_value_get_string (&property->value));
+	if (update_buffer.fts_updated) {
+		TrackerProperty *prop;
+		GValueArray *values;
+
+		fts = g_string_new ("");
+
+		g_hash_table_iter_init (&iter, update_buffer.predicates);
+		while (g_hash_table_iter_next (&iter, (gpointer*) &prop, (gpointer*) &values)) {
+			if (tracker_property_get_fulltext_indexed (prop)) {
+				for (i = 0; i < values->n_values; i++) {
+					g_string_append (fts, g_value_get_string (g_value_array_get_nth (values, i)));
+					g_string_append_c (fts, ' ');
 				}
 			}
 		}
-	}
 
-	if (fts != NULL) {
-		/* TODO we need to retrieve all existing (FTS indexed) property values for
-		 * this resource to properly support incremental FTS updates
-		 * (like calling deleteTerms and then calling insertTerms)
-		 */
 		tracker_fts_update_init (update_buffer.id);
 		tracker_fts_update_text (update_buffer.id, 0, fts->str);
-		tracker_fts_update_commit ();
 		g_string_free (fts, TRUE);
 	}
 
@@ -629,6 +629,20 @@ value_set_add_value (GValueArray *value_set,
 	return TRUE;
 }
 
+static gboolean
+check_property_domain (TrackerProperty *property)
+{
+	gint type_index;
+
+	for (type_index = 0; type_index < update_buffer.types->len; type_index++) {
+		if (strcmp (tracker_class_get_uri (tracker_property_get_domain (property)),
+		            g_ptr_array_index (update_buffer.types, type_index)) == 0) {
+			return TRUE;
+		}
+	}
+	return FALSE;
+}
+
 static GValueArray *
 get_property_values (TrackerProperty *property)
 {
@@ -640,24 +654,11 @@ get_property_values (TrackerProperty *property)
 	gboolean            multiple_values;
 	GValue gvalue = { 0 };
 	GValueArray        *old_values;
-	gint                type_index;
-
-	old_values = NULL;
 
 	multiple_values = tracker_property_get_multiple_values (property);
 
-	for (type_index = 0; type_index < update_buffer.types->len; type_index++) {
-		if (strcmp (tracker_class_get_uri (tracker_property_get_domain (property)),
-		            g_ptr_array_index (update_buffer.types, type_index)) == 0) {
-			old_values = g_value_array_new (multiple_values ? 4 : 1);
-			g_hash_table_insert (update_buffer.predicates, g_object_ref (property), old_values);
-			break;
-		}
-	}
-
-	if (old_values == NULL) {
-		return NULL;
-	}
+	old_values = g_value_array_new (multiple_values ? 4 : 1);
+	g_hash_table_insert (update_buffer.predicates, g_object_ref (property), old_values);
 
 	if (multiple_values) {
 		table_name = g_strdup_printf ("%s_%s",
@@ -727,30 +728,49 @@ cache_set_metadata_decomposed (TrackerProperty	*property,
 	/* read existing property values */
 	old_values = g_hash_table_lookup (update_buffer.predicates, property);
 	if (old_values == NULL) {
+		if (!check_property_domain (property)) {
+			/* TODO throw proper error and rollback */
+			g_warning ("Subject `%s' is not in domain `%s' of property `%s'", update_buffer.subject, tracker_class_get_name (tracker_property_get_domain (property)), field_name);
+			g_free (table_name);
+			return;
+		}
+
 		if (fts) {
 			/* first fulltext indexed property to be modified
 			 * retrieve values of all fulltext indexed properties
 			 */
+			g_assert (!update_buffer.fts_updated);
+
+			if (!update_buffer.create) {
+				tracker_fts_update_init (update_buffer.id);
+			}
+
 			properties = tracker_ontology_get_properties ();
 
 			for (prop = properties; *prop; prop++) {
-				if (tracker_property_get_fulltext_indexed (*prop)) {
+				if (tracker_property_get_fulltext_indexed (*prop)
+				    && check_property_domain (*prop)) {
 					old_values = get_property_values (*prop);
+
+					if (!update_buffer.create) {
+						/* delete old fts entries */
+						gint i;
+						for (i = 0; i < old_values->n_values; i++) {
+							tracker_fts_update_text (update_buffer.id, -1,
+							                         g_value_get_string (g_value_array_get_nth (old_values, i)));
+						}
+					}
 				}
 			}
 
 			g_free (properties);
 
+			update_buffer.fts_updated = TRUE;
+			update_buffer.fts_ever_updated = TRUE;
+
 			old_values = g_hash_table_lookup (update_buffer.predicates, property);
 		} else {
 			old_values = get_property_values (property);
-		}
-
-		if (old_values == NULL) {
-			/* TODO throw proper error and rollback */
-			g_warning ("Subject `%s' is not in domain `%s' of property `%s'", update_buffer.subject, tracker_class_get_name (tracker_property_get_domain (property)), field_name);
-			g_free (table_name);
-			return;
 		}
 	}
 
@@ -1108,7 +1128,7 @@ tracker_data_delete_statement (const gchar            *subject,
 		}
 	}
 
-	tracker_fts_update_commit ();
+	update_buffer.fts_ever_updated = TRUE;
 
 	if (delete_callback) {
 		delete_callback (subject, predicate, object, types, delete_data);
@@ -1171,6 +1191,7 @@ tracker_data_insert_statement_common (const gchar            *subject,
 		update_buffer.subject = g_strdup (subject);
 		update_buffer.id = query_resource_id (update_buffer.subject);
 		update_buffer.create = (update_buffer.id == 0);
+		update_buffer.fts_updated = FALSE;
 		if (update_buffer.create) {
 			update_buffer.id = ensure_resource_id (update_buffer.subject);
 			update_buffer.types = g_ptr_array_new ();
@@ -1582,6 +1603,11 @@ tracker_data_commit_transaction (void)
 
 	if (transaction_level == 0) {
 		tracker_data_update_buffer_flush ();
+
+		if (update_buffer.fts_ever_updated) {
+			tracker_fts_update_commit ();
+			update_buffer.fts_ever_updated = FALSE;
+		}
 
 		iface = tracker_db_manager_get_db_interface ();
 
