@@ -483,3 +483,32 @@ tracker_uri_printf_escaped (const gchar *format, ...)
 
   return result;
 }
+
+
+gchar *
+tracker_coalesce (gint n_values,
+                  ...)
+{
+	va_list args;
+	gint    i;
+	gchar *result = NULL;
+
+	va_start (args, n_values);
+
+	for (i = 0; i < n_values; i++) {
+		gchar *value;
+
+		value = va_arg (args, gchar *);
+		if (value) {
+			if (!result) {
+				result = value;
+			} else {
+				g_free (value);
+			}
+		}
+	}
+
+	va_end (args);
+
+	return result;
+}

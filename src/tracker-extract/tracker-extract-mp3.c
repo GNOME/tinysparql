@@ -1808,34 +1808,6 @@ parse_id3v2 (const gchar *data,
 	return offset;
 }
 
-static gchar *
-coalesce (gint n_values,
-          ...)
-{
-	va_list args;
-	gint    i;
-	gchar *result = NULL;
-
-	va_start (args, n_values);
-
-	for (i = 0; i < n_values; i++) {
-		gchar *value;
-
-		value = va_arg (args, gchar *);
-		if (value) {
-			if (!result) {
-				result = value;
-			} else {
-				g_free (value);
-			}
-		}
-	}
-
-	va_end (args);
-
-	return result;
-}
-
 static void
 extract_mp3 (const gchar *uri,
 	     TrackerSparqlBuilder  *metadata)
@@ -1911,49 +1883,49 @@ extract_mp3 (const gchar *uri,
 	/* Get other embedded tags */
 	audio_offset = parse_id3v2 (buffer, buffer_size, &filedata.id3v1_info, uri, metadata, &filedata);
 
-	filedata.title = coalesce (4, filedata.id3v24_info.title2,
-	                              filedata.id3v23_info.title2,
-	                              filedata.id3v22_info.title2,
-	                              filedata.id3v1_info.title);
-	filedata.performer = coalesce (7, filedata.id3v24_info.performer1,
-	                                  filedata.id3v24_info.performer2,
-	                                  filedata.id3v23_info.performer1,
-	                                  filedata.id3v23_info.performer2,
-	                                  filedata.id3v22_info.performer1,
-	                                  filedata.id3v22_info.performer2,
-	                                  filedata.id3v1_info.artist);
-	filedata.album = coalesce (4, filedata.id3v24_info.album,
-	                              filedata.id3v23_info.album,
-	                              filedata.id3v22_info.album,
-	                              filedata.id3v1_info.album);
-	filedata.genre = coalesce (7, filedata.id3v24_info.content_type,
-	                                  filedata.id3v24_info.title1,
-	                                  filedata.id3v23_info.content_type,
-	                                  filedata.id3v23_info.title1,
-	                                  filedata.id3v22_info.content_type,
-	                                  filedata.id3v22_info.title1,
-	                                  filedata.id3v1_info.genre);
-	filedata.recording_time = coalesce (5, filedata.id3v24_info.recording_time,
-	                                    filedata.id3v24_info.release_time,
-	                                    filedata.id3v23_info.recording_time,
-	                                    filedata.id3v22_info.recording_time,
-	                                    filedata.id3v1_info.year);
-	filedata.publisher = coalesce (3, filedata.id3v24_info.publisher,
-	                              filedata.id3v23_info.publisher,
-	                              filedata.id3v22_info.publisher);
-	filedata.text = coalesce (3, filedata.id3v24_info.text,
-	                              filedata.id3v23_info.text,
-	                              filedata.id3v22_info.text);
-	filedata.copyright = coalesce (3, filedata.id3v24_info.copyright,
-	                              filedata.id3v23_info.copyright,
-	                              filedata.id3v22_info.copyright);
-	filedata.comment = coalesce (7, filedata.id3v24_info.title3,
-	                             filedata.id3v24_info.comment,
-	                             filedata.id3v23_info.title3,
-	                             filedata.id3v23_info.comment,
-	                             filedata.id3v22_info.title3,
-	                             filedata.id3v22_info.comment,
-	                             filedata.id3v1_info.comment);
+	filedata.title = tracker_coalesce (4, filedata.id3v24_info.title2,
+	                                   filedata.id3v23_info.title2,
+	                                   filedata.id3v22_info.title2,
+	                                   filedata.id3v1_info.title);
+	filedata.performer = tracker_coalesce (7, filedata.id3v24_info.performer1,
+	                                       filedata.id3v24_info.performer2,
+	                                       filedata.id3v23_info.performer1,
+	                                       filedata.id3v23_info.performer2,
+	                                       filedata.id3v22_info.performer1,
+	                                       filedata.id3v22_info.performer2,
+	                                       filedata.id3v1_info.artist);
+	filedata.album = tracker_coalesce (4, filedata.id3v24_info.album,
+	                                   filedata.id3v23_info.album,
+	                                   filedata.id3v22_info.album,
+	                                   filedata.id3v1_info.album);
+	filedata.genre = tracker_coalesce (7, filedata.id3v24_info.content_type,
+	                                   filedata.id3v24_info.title1,
+	                                   filedata.id3v23_info.content_type,
+	                                   filedata.id3v23_info.title1,
+	                                   filedata.id3v22_info.content_type,
+	                                   filedata.id3v22_info.title1,
+	                                   filedata.id3v1_info.genre);
+	filedata.recording_time = tracker_coalesce (5, filedata.id3v24_info.recording_time,
+	                                            filedata.id3v24_info.release_time,
+	                                            filedata.id3v23_info.recording_time,
+	                                            filedata.id3v22_info.recording_time,
+	                                            filedata.id3v1_info.year);
+	filedata.publisher = tracker_coalesce (3, filedata.id3v24_info.publisher,
+	                                       filedata.id3v23_info.publisher,
+	                                       filedata.id3v22_info.publisher);
+	filedata.text = tracker_coalesce (3, filedata.id3v24_info.text,
+	                                  filedata.id3v23_info.text,
+	                                  filedata.id3v22_info.text);
+	filedata.copyright = tracker_coalesce (3, filedata.id3v24_info.copyright,
+	                                       filedata.id3v23_info.copyright,
+	                                       filedata.id3v22_info.copyright);
+	filedata.comment = tracker_coalesce (7, filedata.id3v24_info.title3,
+	                                     filedata.id3v24_info.comment,
+	                                     filedata.id3v23_info.title3,
+	                                     filedata.id3v23_info.comment,
+	                                     filedata.id3v22_info.title3,
+	                                     filedata.id3v22_info.comment,
+	                                     filedata.id3v1_info.comment);
 
 	if (filedata.performer) {
 		filedata.performer_uri = tracker_uri_printf_escaped ("urn:artist:%s", filedata.performer);
