@@ -25,20 +25,10 @@
 
 #include <glib.h>
 
-#include <libtracker-common/tracker-ontology.h>
-#include <libtracker-common/tracker-statement-list.h>
-
 #include "tracker-main.h"
 #include "tracker-xmp.h"
 
-#define RDF_PREFIX TRACKER_RDF_PREFIX
-#define RDF_TYPE RDF_PREFIX "type"
-#define NIE_PREFIX TRACKER_NIE_PREFIX
-#define NFO_PREFIX TRACKER_NFO_PREFIX
-#define NCO_PREFIX TRACKER_NCO_PREFIX
-#define NMM_PREFIX TRACKER_NMM_PREFIX
-#define DC_PREFIX TRACKER_DC_PREFIX
-
+#include <libtracker-common/tracker-type-utils.h>
 #include <libtracker-common/tracker-utils.h>
 
 #ifdef HAVE_EXEMPI
@@ -49,10 +39,10 @@
 static void tracker_xmp_iter        (XmpPtr                xmp,
 				     XmpIteratorPtr        iter,
 				     const gchar          *uri,
-				     TrackerSparqlBuilder *metadata,
+				     TrackerXmpData       *data,
 				     gboolean              append);
 static void tracker_xmp_iter_simple (const gchar          *uri,
-				     TrackerSparqlBuilder *metadata,
+				     TrackerXmpData       *data,
 				     const gchar          *schema,
 				     const gchar          *path,
 				     const gchar          *value,
@@ -117,14 +107,14 @@ fix_white_balance (const gchar *wb)
 static void 
 tracker_xmp_iter_array (XmpPtr                xmp,
 			const gchar          *uri,
-			TrackerSparqlBuilder *metadata, 
+			TrackerXmpData       *data, 
 			const gchar          *schema, 
 			const gchar          *path)
 {
 	XmpIteratorPtr iter;
 
 	iter = xmp_iterator_new (xmp, schema, path, XMP_ITER_JUSTCHILDREN);
-	tracker_xmp_iter (xmp, iter, uri, metadata, TRUE);
+	tracker_xmp_iter (xmp, iter, uri, data, TRUE);
 	xmp_iterator_free (iter);
 }
 
@@ -133,14 +123,14 @@ tracker_xmp_iter_array (XmpPtr                xmp,
 static void
 tracker_xmp_iter_alt_text (XmpPtr                xmp, 
 			   const gchar          *uri,
-			   TrackerSparqlBuilder *metadata, 
+			   TrackerXmpData       *data, 
 			   const gchar          *schema, 
 			   const gchar          *path)
 {
 	XmpIteratorPtr iter;
 
 	iter = xmp_iterator_new (xmp, schema, path, XMP_ITER_JUSTCHILDREN);
-	tracker_xmp_iter (xmp, iter, uri, metadata, FALSE);
+	tracker_xmp_iter (xmp, iter, uri, data, FALSE);
 	xmp_iterator_free (iter);
 }
 
@@ -148,7 +138,7 @@ tracker_xmp_iter_alt_text (XmpPtr                xmp,
 static void
 tracker_xmp_iter_simple_qual (XmpPtr                xmp, 
 			      const gchar          *uri,
-			      TrackerSparqlBuilder *metadata,
+			      TrackerXmpData       *data,
 			      const gchar          *schema, 
 			      const gchar          *path, 
 			      const gchar          *value, 
@@ -194,7 +184,7 @@ tracker_xmp_iter_simple_qual (XmpPtr                xmp,
 	}
 
 	if (!ignore_element) {
-		tracker_xmp_iter_simple (uri, metadata, schema, path, value, append);
+		tracker_xmp_iter_simple (uri, data, schema, path, value, append);
 	}
 
 	xmp_string_free (the_prop);
@@ -247,12 +237,12 @@ fix_orientation (const gchar *orientation)
 }
 
 
-/* We have a simple element. Add any metadata we know about to the
+/* We have a simple element. Add any data we know about to the
  * hash table.
  */
 static void
 tracker_xmp_iter_simple (const gchar          *uri,
-			 TrackerSparqlBuilder *metadata,
+			 TrackerXmpData       *data,
 			 const gchar          *schema, 
 			 const gchar          *path, 
 			 const gchar          *value, 
@@ -270,203 +260,113 @@ tracker_xmp_iter_simple (const gchar          *uri,
 
 	/* Dublin Core */
 	if (strcmp (schema, NS_DC) == 0) {
-		if (strcmp (name, "title") == 0) {
-			tracker_statement_list_insert (metadata, uri, 
-						  NIE_PREFIX "title", value);
+		if (strcmp (name, "title") == 0 && !data->title) {
+			data->title = g_strdup (value);
 		}
-		else if (strcmp (name, "rights") == 0) {
-			tracker_statement_list_insert (metadata, uri,
-						  NIE_PREFIX "copyright", value);
+		else if (strcmp (name, "rights") == 0 && !data->rights) {
+			data->rights = g_strdup (value);
 		}
-		else if (strcmp (name, "creator") == 0) {
-
-			tracker_statement_list_insert (metadata, ":", RDF_TYPE, NCO_PREFIX "Contact");
-			tracker_statement_list_insert (metadata, ":", NCO_PREFIX "fullname", value);
-			tracker_statement_list_insert (metadata, uri, NCO_PREFIX "creator", ":");
-
+		else if (strcmp (name, "creator") == 0 && !data->creator) {
+			data->creator = g_strdup (value);
 		}
-		else if (strcmp (name, "description") == 0) {
-			tracker_statement_list_insert (metadata, uri,
-						  NIE_PREFIX "description", value);
+		else if (strcmp (name, "description") == 0 && !data->description) {
+			data->description = g_strdup (value);
 		}
-		else if (strcmp (name, "date") == 0) {
-			tracker_statement_list_insert (metadata, uri,
-						  NIE_PREFIX "contentCreated", value);
+		else if (strcmp (name, "date") == 0 && !data->date) {
+			data->date = g_strdup (value);
 		}
-		else if (strcmp (name, "keywords") == 0) {
-			gchar *keywords = g_strdup (value);
-			char *lasts, *keyw;
-			size_t len;
-
-			keyw = keywords;
-			keywords = strchr (keywords, '"');
-			if (keywords)
-				keywords++;
-			else 
-				keywords = keyw;
-
-			len = strlen (keywords);
-			if (keywords[len - 1] == '"')
-				keywords[len - 1] = '\0';
-
-			for (keyw = strtok_r (keywords, ",; ", &lasts); keyw; 
-			     keyw = strtok_r (NULL, ",; ", &lasts)) {
-				tracker_statement_list_insert (metadata,
-						  uri, NIE_PREFIX "keyword",
-						  (const gchar*) keyw);
-			}
-
-			g_free (keyw);
+		else if (strcmp (name, "keywords") == 0 && !data->keywords) {
+			 data->keywords = g_strdup (value);
 		}
-		else if (strcmp (name, "subject") == 0) {
-			gchar *keywords = g_strdup (value);
-			char *lasts, *keyw;
-			size_t len;
-
-			tracker_statement_list_insert (metadata, uri, 
-						  NIE_PREFIX "subject", value);
-
-			/* The subject field may contain keywords as well */
-
-			keyw = keywords;
-			keywords = strchr (keywords, '"');
-			if (keywords)
-				keywords++;
-			else 
-				keywords = keyw;
-
-			len = strlen (keywords);
-			if (keywords[len - 1] == '"')
-				keywords[len - 1] = '\0';
-
-			for (keyw = strtok_r (keywords, ",; ", &lasts); keyw; 
-			     keyw = strtok_r (NULL, ",; ", &lasts)) {
-				tracker_statement_list_insert (metadata,
-						  uri, NIE_PREFIX "keyword",
-						  (const gchar*) keyw);
-			}
-
-			g_free (keyw);
-
+		else if (strcmp (name, "subject") == 0 && !data->subject) {
+			data->subject = g_strdup (value);
 		}
-		else if (strcmp (name, "publisher") == 0) {
-			tracker_statement_list_insert (metadata, ":", RDF_TYPE, NCO_PREFIX "Contact");
-			tracker_statement_list_insert (metadata, ":", NCO_PREFIX "fullname", value);
-			tracker_statement_list_insert (metadata, uri, NCO_PREFIX "publisher", ":");
+		else if (strcmp (name, "publisher") == 0 && !data->publisher) {
+			data->publisher = g_strdup (value);
 		}
-		else if (strcmp (name, "contributor") == 0) {
-			tracker_statement_list_insert (metadata, ":", RDF_TYPE, NCO_PREFIX "Contact");
-			tracker_statement_list_insert (metadata, ":", NCO_PREFIX "fullname", value);
-			tracker_statement_list_insert (metadata, uri, NCO_PREFIX "contributor", ":");
+		else if (strcmp (name, "contributor") == 0 && !data->contributor) {
+			data->contributor = g_strdup (value);
 		}
-		else if (strcmp (name, "type") == 0) {
-			tracker_statement_list_insert (metadata, uri, 
-						  DC_PREFIX "type", value);
+		else if (strcmp (name, "type") == 0 && !data->type) {
+			data->type = g_strdup (value);
 		}
-		else if (strcmp (name, "format") == 0) {
-			tracker_statement_list_insert (metadata, uri, 
-						  DC_PREFIX "format", value);
+		else if (strcmp (name, "format") == 0 && !data->format) {
+			data->format = g_strdup (value);
 		}
-		else if (strcmp (name, "identifier") == 0) {
-			tracker_statement_list_insert (metadata, uri, 
-						  DC_PREFIX "identifier", value);
+		else if (strcmp (name, "identifier") == 0 && !data->identifier) {
+			data->identifier = g_strdup (value);
 		}
-		else if (strcmp (name, "source") == 0) {
-			tracker_statement_list_insert (metadata, uri,
-						  DC_PREFIX "source", value);
+		else if (strcmp (name, "source") == 0 && !data->source) {
+			data->source = g_strdup (value);
 		}
-		else if (strcmp (name, "language") == 0) {
-			tracker_statement_list_insert (metadata, uri,
-						  DC_PREFIX "language", value);
+		else if (strcmp (name, "language") == 0 && !data->language) {
+			data->language = g_strdup (value);
 		}
-		else if (strcmp (name, "relation") == 0) {
-			tracker_statement_list_insert (metadata, uri,
-						  DC_PREFIX "relation", value);
+		else if (strcmp (name, "relation") == 0 && !data->relation) {
+			data->relation = g_strdup (value);
 		}
-		else if (strcmp (name, "coverage") == 0) {
-			tracker_statement_list_insert (metadata, uri, 
-						  DC_PREFIX "coverage", value);
+		else if (strcmp (name, "coverage") == 0 && !data->coverage) {
+			data->coverage = g_strdup (value);
 		}
 
 	}
 	/* Creative Commons */
 	else if (strcmp (schema, NS_CC) == 0) {
-		if (strcmp (name, "license") == 0) {
-			tracker_statement_list_insert (metadata, uri,
-						  NIE_PREFIX "license", value);
+		if (strcmp (name, "license") == 0 && !data->license) {
+			data->license = g_strdup (value);
 		}
 	}
 	/* Exif basic scheme */
 	else if (strcmp (schema, NS_EXIF) == 0) {
-		if (strcmp (name, "Title") == 0) {
-			tracker_statement_list_insert (metadata, uri,
-						  NFO_PREFIX "title", value);
+		if (strcmp (name, "Title") == 0 && !data->Title) {
+			data->Title = g_strdup (value);
 		}
-		else if (strcmp (name, "DateTimeOriginal") == 0) {
-			tracker_statement_list_insert (metadata, uri,
-						  NIE_PREFIX "contentCreated", value);
+		else if (strcmp (name, "DateTimeOriginal") == 0 && !data->DateTimeOriginal) {
+			data->DateTimeOriginal = g_strdup (value);
 		}
-		else if (strcmp (name, "Artist") == 0) {
-			tracker_statement_list_insert (metadata, ":", RDF_TYPE, NCO_PREFIX "Contact");
-			tracker_statement_list_insert (metadata, ":", NCO_PREFIX "fullname", value);
-			/* contributor is OK here? */
-			tracker_statement_list_insert (metadata, uri, NCO_PREFIX "contributor", ":");
+		else if (strcmp (name, "Artist") == 0 && !data->Artist) {
+			data->Artist = g_strdup (value);
 		}
 /*		else if (strcmp (name, "Software") == 0) {
 			tracker_statement_list_insert (metadata, uri,
 						  "Image:Software", value);
 		}*/
-		else if (strcmp (name, "Make") == 0) {
-			tracker_statement_list_insert (metadata, uri, 
-						  NMM_PREFIX "camera", value);
+		else if (strcmp (name, "Make") == 0 && !data->Make) {
+			data->Make = g_strdup (value);
 		}
-		else if (strcmp (name, "Model") == 0) {
-			tracker_statement_list_insert (metadata, uri, 
-						  NMM_PREFIX "camera", value);
+		else if (strcmp (name, "Model") == 0 && !data->Model) {
+			data->Model = g_strdup (value);
 		}
-		else if (strcmp (name, "Orientation") == 0) {
-			tracker_statement_list_insert (metadata, uri,
-						  NFO_PREFIX "orientation", 
-						  fix_orientation (value));
+		else if (strcmp (name, "Orientation") == 0 && !data->Orientation) {
+			data->Orientation = g_strdup (fix_orientation (value));
 		}
-		else if (strcmp (name, "Flash") == 0) {
-			tracker_statement_list_insert (metadata, uri,
-						  NMM_PREFIX "flash", 
-						  fix_flash (value));
+		else if (strcmp (name, "Flash") == 0 && !data->Flash) {
+			data->Flash = g_strdup (fix_flash (value));
 		}
-		else if (strcmp (name, "MeteringMode") == 0) {
-			tracker_statement_list_insert (metadata, uri,
-						  NMM_PREFIX "meteringMode", 
-						  fix_metering_mode (value));
+		else if (strcmp (name, "MeteringMode") == 0 && !data->MeteringMode) {
+			data->MeteringMode = g_strdup (fix_metering_mode (value));
 		}
 		/*else if (strcmp (name, "ExposureProgram") == 0) {
 			tracker_statement_list_insert (metadata, uri,
 						  "Image:ExposureProgram", value);
 		}*/
-		else if (strcmp (name, "ExposureTime") == 0) {
-			tracker_statement_list_insert (metadata, uri,
-						  NMM_PREFIX "exposureTime", value);
+		else if (strcmp (name, "ExposureTime") == 0 && !data->ExposureTime) {
+			data->ExposureTime = g_strdup (value);
 		}
-		else if (strcmp (name, "FNumber") == 0) {
-			tracker_statement_list_insert (metadata, uri,
-						  NMM_PREFIX "fnumber", value);
+		else if (strcmp (name, "FNumber") == 0 && !data->FNumber) {
+			data->FNumber = g_strdup (value);
 		}
-		else if (strcmp (name, "FocalLength") == 0) {
-			tracker_statement_list_insert (metadata, uri, 
-						  NMM_PREFIX "focalLength", value);
+		else if (strcmp (name, "FocalLength") == 0 && !data->FocalLength) {
+			data->FocalLength = g_strdup (value);
 		}
-		else if (strcmp (name, "ISOSpeedRatings") == 0) {
-			tracker_statement_list_insert (metadata, uri, 
-						  NMM_PREFIX "isoSpeed", value);
+		else if (strcmp (name, "ISOSpeedRatings") == 0 && !data->ISOSpeedRatings) {
+			data->ISOSpeedRatings = g_strdup (value);
 		}
-		else if (strcmp (name, "WhiteBalance") == 0) {
-			tracker_statement_list_insert (metadata, uri,
-						   NMM_PREFIX "whiteBalance",
-						   fix_white_balance (value));
+		else if (strcmp (name, "WhiteBalance") == 0 && !data->WhiteBalance) {
+			data->WhiteBalance = g_strdup (fix_white_balance (value));
 		}
-		else if (strcmp (name, "Copyright") == 0) {
-			tracker_statement_list_insert (metadata, uri,
-						  NIE_PREFIX "copyright", value);
+		else if (strcmp (name, "Copyright") == 0 && !data->Copyright) {
+			data->Copyright = g_strdup (value);
 		}
 	}
 	/* XAP (XMP)scheme */
@@ -534,7 +434,7 @@ void
 tracker_xmp_iter (XmpPtr                xmp, 
 		  XmpIteratorPtr        iter, 
 		  const gchar          *uri,
-		  TrackerSparqlBuilder *metadata, 
+		  TrackerXmpData       *data, 
 		  gboolean              append)
 {
 	XmpStringPtr the_schema = xmp_string_new ();
@@ -550,18 +450,18 @@ tracker_xmp_iter (XmpPtr                xmp,
 		if (XMP_IS_PROP_SIMPLE (opt)) {
 			if (!tracker_is_empty_string (path)) {
 				if (XMP_HAS_PROP_QUALIFIERS (opt)) {
-					tracker_xmp_iter_simple_qual (xmp, uri, metadata, schema, path, value, append);
+					tracker_xmp_iter_simple_qual (xmp, uri, data, schema, path, value, append);
 				} else {
-					tracker_xmp_iter_simple (uri, metadata, schema, path, value, append);
+					tracker_xmp_iter_simple (uri, data, schema, path, value, append);
 				}
 			}
 		}
 		else if (XMP_IS_PROP_ARRAY (opt)) {
 			if (XMP_IS_ARRAY_ALTTEXT (opt)) {
-				tracker_xmp_iter_alt_text (xmp, uri, metadata, schema, path);
+				tracker_xmp_iter_alt_text (xmp, uri, data, schema, path);
 				xmp_iterator_skip (iter, XMP_ITER_SKIPSUBTREE);
 			} else {
-				tracker_xmp_iter_array (xmp, uri, metadata, schema, path);
+				tracker_xmp_iter_array (xmp, uri, data, schema, path);
 				xmp_iterator_skip (iter, XMP_ITER_SKIPSUBTREE);
 			}
 		}
@@ -578,7 +478,7 @@ void
 tracker_read_xmp (const gchar          *buffer, 
 		  size_t                len, 
 		  const gchar          *uri,
-		  TrackerSparqlBuilder *metadata)
+		  TrackerXmpData       *data)
 {
 #ifdef HAVE_EXEMPI
 	XmpPtr xmp;
@@ -592,7 +492,7 @@ tracker_read_xmp (const gchar          *buffer,
 		XmpIteratorPtr iter;
 
 		iter = xmp_iterator_new (xmp, NULL, NULL, XMP_ITER_PROPERTIES);
-		tracker_xmp_iter (xmp, iter, uri, metadata, FALSE);
+		tracker_xmp_iter (xmp, iter, uri, data, FALSE);
 		xmp_iterator_free (iter);
 		xmp_free (xmp);
 	}

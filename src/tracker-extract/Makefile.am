@@ -100,6 +100,11 @@ xmp_sources = 								\
 	tracker-xmp.c							\
 	tracker-xmp.h
 
+# Common exif Sources
+exif_sources =								\
+	tracker-exif.c							\
+	tracker-exif.h
+
 # Common iptc Sources
 iptc_sources =								\
 	tracker-iptc.c							\
@@ -202,7 +207,7 @@ libextract_xine_la_LIBADD = $(GLIB2_LIBS) $(XINE_LIBS) $(GCOV_LIBS) \
 	$(top_builddir)/src/libtracker-common/libtracker-common.la
 
 # JPEG
-libextract_jpeg_la_SOURCES = tracker-extract-jpeg.c $(xmp_sources) $(iptc_sources)
+libextract_jpeg_la_SOURCES = tracker-extract-jpeg.c $(xmp_sources) $(iptc_sources) $(exif_sources)
 libextract_jpeg_la_LDFLAGS = $(module_flags)
 libextract_jpeg_la_LIBADD = $(GLIB2_LIBS) $(LIBJPEG_LIBS) $(LIBEXIF_LIBS) $(LIBIPTCDATA_LIBS) $(EXEMPI_LIBS) $(GCOV_LIBS) \
 	$(top_builddir)/src/libtracker-common/libtracker-common.la

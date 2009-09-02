@@ -1,4 +1,4 @@
-/* Tracker IPTC - Iptc helper functions
+/* Tracker Xmp - Xmp helper functions
  * Copyright (C) 2008, Nokia
  *
  * This program is free software; you can redistribute it and/or
@@ -19,19 +19,22 @@
  * Author: Philip Van Hoof <philip@codeminded.be>
  */
 
-#ifndef _TRACKER_IPTC_H_
-#define _TRACKER_IPTC_H_
+#ifndef _TRACKER_EXIF_H_
+#define _TRACKER_EXIF_H_
 
 #include <glib.h>
 
 typedef struct {
-	gchar *keywords, *date_created, *byline, *credit, *copyright_notice, 
-	      *image_orientation;
-} TrackerIptcData;
+	gchar *y_dimension, *x_dimension, *image_width, *document_name, *time, *time_original,
+	      *artist, *user_comment, *description, *make, *model, *orientation,
+	      *exposure_time, *fnumber, *flash, *focal_length, *iso_speed_ratings,
+	      *metering_mode, *white_balance, *copyright;
+} TrackerExifData;
 
-void tracker_read_iptc (const unsigned char *buffer,
+void tracker_read_exif (const unsigned char *buffer,
                         size_t               len,
                         const gchar         *uri,
-                        TrackerIptcData     *data);
+                        TrackerExifData     *data);
 
-#endif
+#endif /* _TRACKER_EXIF_H_ */
+

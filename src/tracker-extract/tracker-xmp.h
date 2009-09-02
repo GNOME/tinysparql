@@ -22,9 +22,30 @@
 
 #include <glib.h>
 
+typedef struct {
+	/* NS_DC */
+	gchar *title, *rights, *creator, *description, *date, *keywords, *subject,
+	      *publisher, *contributor, *type, *format, *identifier, *source,
+	      *language, *relation, *coverage;
+
+	/* NS_CC */
+	gchar *license;
+
+	/* NS_EXIF */
+	gchar *Title, *DateTimeOriginal, *Artist, *Make, *Model, *Orientation,
+	      *Flash, *MeteringMode, *ExposureTime, *FNumber, *FocalLength,
+	      *ISOSpeedRatings, *WhiteBalance, *Copyright;
+
+	/* TODO NS_XAP*/
+	/* TODO NS_IPTC4XMP */
+	/* TODO NS_PHOTOSHOP */
+
+} TrackerXmpData;
+
+
 void tracker_read_xmp (const gchar          *buffer, 
                        size_t                len, 
                        const gchar          *uri,
-                       TrackerSparqlBuilder *metadata);
+                       TrackerXmpData       *data);
 
 #endif /* _TRACKER_XMP_H_ */
