@@ -536,7 +536,7 @@ file_enumerate_next (GFileEnumerator *enumerator,
 {
 	g_file_enumerator_next_files_async (enumerator,
 					    FILES_GROUP_SIZE,
-					    G_PRIORITY_LOW,
+					    G_PRIORITY_DEFAULT,
 					    ed->crawler->private->cancellable,
 					    file_enumerate_next_cb,
 					    ed);
