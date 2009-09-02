@@ -1831,6 +1831,8 @@ coalesce (gint n_values,
 		}
 	}
 
+	va_end (args);
+
 	return result;
 }
 
