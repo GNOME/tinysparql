@@ -190,7 +190,7 @@ nie:identifier a rdf:Property ;
 	rdfs:range xsd:string .
 
 nie:keyword a rdf:Property ;
-	nrl:maxCardinality 1 ;
+	tracker:fulltextIndexed true ;
 	rdfs:domain nie:InformationElement ;
 	rdfs:range xsd:string .
 
