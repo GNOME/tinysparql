@@ -1,6 +1,7 @@
 include $(top_srcdir)/Makefile.decl
 
 INCLUDES =								\
+	-DICONS_DIR=\""$(datadir)/tracker/icons/"\"			\
 	-DSHAREDIR=\""$(datadir)"\"					\
 	-DLOCALEDIR=\""$(localedir)"\" 					\
 	-DTRACKER_LIBEXECDIR=\""$(libexecdir)"\" 			\
@@ -10,11 +11,18 @@ INCLUDES =								\
 	$(TRACKER_APPLET_CFLAGS)					\
 	$(GCOV_CFLAGS)
 
-bin_PROGRAMS = tracker-applet
+bin_PROGRAMS = tracker-applet tracker-status-icon
 
 tracker_applet_LDADD = 							\
 	$(top_builddir)/src/libtracker/libtrackerclient-@TRACKER_API_VERSION@.la \
 	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
+	$(TRACKER_APPLET_LIBS)						\
+	$(GCOV_LIBS)
+
+tracker_status_icon_LDADD = 						\
+	$(top_builddir)/src/libtracker/libtrackerclient-@TRACKER_API_VERSION@.la \
+	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
+	$(top_builddir)/src/libtracker-miner/libtracker-miner.la 	\
 	$(TRACKER_APPLET_LIBS)						\
 	$(GCOV_LIBS)
 
@@ -35,6 +43,11 @@ tracker_applet_SOURCES = 						\
 	tracker-applet.c 						\
 	tracker-applet.h						\
 	tracker-marshal-main.c
+
+tracker_status_icon_SOURCES =						\
+	tracker-status-icon.c						\
+	tracker-status-icon.h						\
+	tracker-main.c
 
 icondir = $(datadir)/tracker/icons
 
