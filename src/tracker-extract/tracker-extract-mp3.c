@@ -1056,14 +1056,14 @@ get_id3v24_tags (const gchar *data,
 							  NULL, NULL, NULL);
 					break;
 				case 0x01 :
-					word = t_convert (&data[pos + 11],
+					word = g_convert (&data[pos + 11],
 							  csize - 1,
 							  "UTF-8",
 							  info->encoding ? info->encoding : "UTF-16",
 							  NULL, NULL, NULL);
 					break;
 				case 0x02 :
-					word = t_convert (&data[pos + 11],
+					word = g_convert (&data[pos + 11],
 							  csize - 1,
 							  "UTF-8",
 							  info->encoding ? info->encoding : "UTF-16BE",
@@ -1168,14 +1168,14 @@ get_id3v24_tags (const gchar *data,
 						  NULL, NULL, NULL);
 				break;
 			case 0x01:
-				word = t_convert (text,
+				word = g_convert (text,
 						  csize - offset,
 						  "UTF-8",
 						  info->encoding ? info->encoding : "UTF-16",
 						  NULL, NULL, NULL);
 				break;
 			case 0x02:
-				word = t_convert (text,
+				word = g_convert (text,
 						  csize-offset,
 						  "UTF-8",
 						  info->encoding ? info->encoding : "UTF-16BE",
