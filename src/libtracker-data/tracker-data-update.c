@@ -608,9 +608,9 @@ static gboolean
 value_set_add_value (GValueArray *value_set,
                      GValue      *value)
 {
-	g_return_val_if_fail (G_VALUE_TYPE (value), FALSE);
-
 	gint i;
+
+	g_return_val_if_fail (G_VALUE_TYPE (value), FALSE);
 
 	for (i = 0; i < value_set->n_values; i++) {
 		if (value_equal (g_value_array_get_nth (value_set, i), value)) {
@@ -748,10 +748,11 @@ cache_set_metadata_decomposed (TrackerProperty	*property,
 			for (prop = properties; *prop; prop++) {
 				if (tracker_property_get_fulltext_indexed (*prop)
 				    && check_property_domain (*prop)) {
+					gint i;
+
 					old_values = get_property_values (*prop);
 
 					/* delete old fts entries */
-					gint i;
 					for (i = 0; i < old_values->n_values; i++) {
 						tracker_fts_update_text (update_buffer.id, -1,
 						                         g_value_get_string (g_value_array_get_nth (old_values, i)));

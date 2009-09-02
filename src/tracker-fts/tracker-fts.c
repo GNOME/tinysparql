@@ -3271,7 +3271,7 @@ static int parseSpec(TableSpec *pSpec, int argc, const char *const*argv,
     }
   }
   if( pSpec->nColumn==0 ){
-    azArg[0] = "content";
+    azArg[0] = (char *) "content";
     pSpec->nColumn = 1;
   }
 
