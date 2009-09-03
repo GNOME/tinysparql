@@ -36,7 +36,7 @@ typedef void (* TrackerStoreCommitCallback)        (gpointer         user_data);
 typedef void (* TrackerStoreTurtleCallback)        (GError          *error,
                                                     gpointer         user_data);
 
-void         tracker_store_init                   (void);
+void         tracker_store_init                   (gboolean load_journal);
 void         tracker_store_shutdown               (void);
 void         tracker_store_queue_commit           (TrackerStoreCommitCallback       callback,
                                                    gpointer       user_data,
@@ -62,6 +62,9 @@ TrackerDBResultSet*
                                                    GError       **error);
 
 guint        tracker_store_get_queue_size         (void);
+
+void         tracker_store_play_journal           (void);
+void         tracker_store_flush_journal          (void);
 
 G_END_DECLS
 

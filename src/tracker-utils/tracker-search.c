@@ -61,7 +61,7 @@ static GOptionEntry   entries[] = {
 static void
 get_meta_table_data (gpointer value, gpointer user_data)
 {
-	gboolean detailed = GPOINTER_TO_INT (user_data);
+	gboolean pdetailed = GPOINTER_TO_INT (user_data);
 	gchar **meta;
 	gchar **p;
 	gint	i;
@@ -71,7 +71,7 @@ get_meta_table_data (gpointer value, gpointer user_data)
 	for (p = meta, i = 0; *p; p++, i++) {
 		if (i == 0) {
 			g_print ("  %s", *p);
-		} else if (detailed) {
+		} else if (pdetailed) {
 			g_print (", %s", *p);
 		}
 	}

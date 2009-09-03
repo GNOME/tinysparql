@@ -48,13 +48,11 @@
 #include <libtracker-common/tracker-ioprio.h>
 #include <libtracker-common/tracker-log.h>
 #include <libtracker-common/tracker-ontology.h>
-#include <libtracker-common/tracker-thumbnailer.h>
 
 #include <libtracker-db/tracker-db-manager.h>
 #include <libtracker-db/tracker-db-dbus.h>
 
 #include <libtracker-data/tracker-data-manager.h>
-#include <libtracker-data/tracker-turtle.h>
 #include <libtracker-data/tracker-data-backup.h>
 #include <libtracker-data/tracker-data-query.h>
 
@@ -63,7 +61,6 @@
 #include "tracker-events.h"
 #include "tracker-main.h"
 #include "tracker-push.h"
-#include "tracker-volume-cleanup.h"
 #include "tracker-backup.h"
 #include "tracker-store.h"
 #include "tracker-statistics.h"
@@ -493,7 +490,7 @@ shutdown_directories (void)
 
 	/* If we are reindexing, just remove the databases */
 	if (private->reindex_on_shutdown) {
-		tracker_db_manager_remove_all ();
+		tracker_db_manager_remove_all (FALSE);
 	}
 }
 
@@ -646,7 +643,7 @@ main (gint argc, gchar *argv[])
 	TrackerPower		   *hal_power;
 	TrackerStorage		   *hal_storage;
 	TrackerDBManagerFlags	    flags = 0;
-	gboolean		    is_first_time_index;
+	gboolean		    is_first_time_index, need_journal = FALSE;
 
 	g_type_init ();
 
@@ -748,10 +745,6 @@ main (gint argc, gchar *argv[])
 			  NULL);
 #endif /* HAVE_HAL */
 
-	tracker_store_init ();
-	tracker_turtle_init ();
-	tracker_thumbnailer_init ();
-
 	flags |= TRACKER_DB_MANAGER_REMOVE_CACHE;
 
 	if (force_reindex) {
@@ -765,11 +758,12 @@ main (gint argc, gchar *argv[])
 		flags |= TRACKER_DB_MANAGER_LOW_MEMORY_MODE;
 	}
 
-	if (!tracker_data_manager_init (flags, NULL, &is_first_time_index)) {
+	if (!tracker_data_manager_init (flags, NULL, &is_first_time_index, 
+	                                &need_journal)) {
 		return EXIT_FAILURE;
 	}
 
-	tracker_volume_cleanup_init ();
+	tracker_store_init (need_journal);
 
 #ifdef HAVE_HAL
 	/* We set up the mount points here. For the mount points, this
@@ -823,11 +817,8 @@ shutdown:
 	tracker_push_shutdown ();
 	tracker_events_shutdown ();
 
-	tracker_volume_cleanup_shutdown ();
 	tracker_dbus_shutdown ();
 	tracker_data_manager_shutdown ();
-	tracker_turtle_shutdown ();
-	tracker_thumbnailer_shutdown ();
 	tracker_log_shutdown ();
 
 #ifdef HAVE_HAL

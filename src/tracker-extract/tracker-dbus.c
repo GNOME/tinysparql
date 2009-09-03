@@ -111,7 +111,7 @@ dbus_register_names (void)
 					    DBUS_PATH_DBUS,
 					    DBUS_INTERFACE_DBUS);
 
-	/* Register the service name for org.freedesktop.Tracker.Extract */
+	/* Register the service name for org.freedesktop.Tracker1.Extract */
 	if (!dbus_register_service (gproxy, TRACKER_EXTRACT_SERVICE)) {
 		return FALSE;
 	}
@@ -162,7 +162,7 @@ tracker_dbus_register_objects (void)
 		return FALSE;
 	}
 
-	/* Add org.freedesktop.Tracker.Extract */
+	/* Add org.freedesktop.Tracker1.Extract */
 	object = tracker_extract_new ();
 	if (!object) {
 		g_critical ("Could not create TrackerExtract object to register");

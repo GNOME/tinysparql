@@ -53,7 +53,6 @@ dc:contributor a rdf:Property ;
 dc:date a rdf:Property ;
 	rdfs:label "Date" ;
 	rdfs:comment "A point or period of time associated with an event in the lifecycle of the resource." ;
-	nrl:maxCardinality 1 ;
 	rdfs:domain rdfs:Resource ;
 	rdfs:range xsd:dateTime .
 
@@ -81,7 +80,6 @@ dc:identifier a rdf:Property ;
 dc:source a rdf:Property ;
 	rdfs:label "Source" ;
 	rdfs:comment "A related resource from which the described resource is derived." ;
-	nrl:maxCardinality 1 ;
 	rdfs:domain rdfs:Resource ;
 	rdfs:range xsd:string .
 

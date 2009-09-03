@@ -262,13 +262,6 @@ nfo:count a rdf:Property ;
 	rdfs:domain nfo:Media ;
 	rdfs:range xsd:integer .
 
-nfo:rate a rdf:Property ;
-	rdfs:label "rate" ;
-	rdfs:comment "A common superproperty for all properties specifying the media rate. Examples of subproperties may include frameRate for video and sampleRate for audio. This property is expressed in units per second." ;
-	nrl:maxCardinality 1 ;
-	rdfs:domain nfo:Media ;
-	rdfs:range xsd:double .
-
 nfo:channels a rdf:Property ;
 	rdfs:label "channels" ;
 	rdfs:comment "Number of channels. This property is to be used directly if no detailed information is necessary. Otherwise use more detailed subproperties." ;
@@ -287,7 +280,6 @@ nfo:sideChannels a rdf:Property ;
 nfo:frameRate a rdf:Property ;
 	rdfs:label "frameRate" ;
 	rdfs:comment "Amount of video frames per second." ;
-	rdfs:subPropertyOf nfo:rate ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nfo:Video ;
 	rdfs:range xsd:double .
@@ -667,7 +659,6 @@ nfo:isPasswordProtected a rdf:Property ;
 nfo:sampleRate a rdf:Property ;
 	rdfs:label "sampleRate" ;
 	rdfs:comment "The amount of audio samples per second." ;
-	rdfs:subPropertyOf nfo:rate ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nfo:Audio ;
 	rdfs:range xsd:double .
@@ -690,7 +681,6 @@ nfo:containsBookmark a rdf:Property ;
 nfo:averageBitrate a rdf:Property ;
 	rdfs:label "averageBitrate" ;
 	rdfs:comment "The average overall bitrate of a media container. (i.e. the size of the piece of media in bits, divided by it's duration expressed in seconds)." ;
-	rdfs:subPropertyOf nfo:rate ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nfo:Media ;
 	rdfs:range xsd:double .

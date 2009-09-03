@@ -26,10 +26,10 @@
 #include "tracker-resources-glue.h"
 #include "tracker-statistics-glue.h"
 
-#define TRACKER_SERVICE			"org.freedesktop.Tracker"
-#define TRACKER_OBJECT			"/org/freedesktop/Tracker"
-#define TRACKER_INTERFACE_RESOURCES	"org.freedesktop.Tracker.Resources"
-#define TRACKER_INTERFACE_STATISTICS	"org.freedesktop.Tracker.Statistics"
+#define TRACKER_SERVICE			"org.freedesktop.Tracker1"
+#define TRACKER_OBJECT			"/org/freedesktop/Tracker1"
+#define TRACKER_INTERFACE_RESOURCES	"org.freedesktop.Tracker1.Resources"
+#define TRACKER_INTERFACE_STATISTICS	"org.freedesktop.Tracker1.Statistics"
 
 typedef struct {
 	TrackerReplyGPtrArray callback;
@@ -197,7 +197,7 @@ tracker_statistics_get (TrackerClient  *client,
 {
 	GPtrArray *table;
 
-	if (!org_freedesktop_Tracker_Statistics_get (client->proxy_statistics, 
+	if (!org_freedesktop_Tracker1_Statistics_get (client->proxy_statistics, 
                                                      &table, 
                                                      &*error)) {
 		return NULL;
@@ -211,7 +211,7 @@ tracker_resources_load (TrackerClient  *client,
                         const gchar    *uri, 
                         GError        **error)
 {
-	org_freedesktop_Tracker_Resources_load (client->proxy_resources, 
+	org_freedesktop_Tracker1_Resources_load (client->proxy_resources, 
                                                 uri, 
                                                 &*error);
 }
@@ -223,7 +223,7 @@ tracker_resources_sparql_query (TrackerClient  *client,
 {
 	GPtrArray *table;
 
-	if (!org_freedesktop_Tracker_Resources_sparql_query (client->proxy_resources, 
+	if (!org_freedesktop_Tracker1_Resources_sparql_query (client->proxy_resources, 
                                                              query, 
                                                              &table, 
                                                              &*error)) {
@@ -238,7 +238,7 @@ tracker_resources_sparql_update (TrackerClient  *client,
                                  const gchar    *query, 
                                  GError        **error)
 {
-	org_freedesktop_Tracker_Resources_sparql_update (client->proxy_resources, 
+	org_freedesktop_Tracker1_Resources_sparql_update (client->proxy_resources, 
                                                          query, 
                                                          &*error);
 }
@@ -248,7 +248,7 @@ tracker_resources_batch_sparql_update (TrackerClient  *client,
                                        const gchar    *query, 
                                        GError        **error)
 {
-	org_freedesktop_Tracker_Resources_batch_sparql_update (client->proxy_resources, 
+	org_freedesktop_Tracker1_Resources_batch_sparql_update (client->proxy_resources, 
                                                                query, 
                                                                &*error);
 }
@@ -257,7 +257,7 @@ void
 tracker_resources_batch_commit (TrackerClient  *client, 
                                 GError        **error)
 {
-	org_freedesktop_Tracker_Resources_batch_commit (client->proxy_resources,
+	org_freedesktop_Tracker1_Resources_batch_commit (client->proxy_resources,
                                                         &*error);
 }
 
@@ -274,7 +274,7 @@ tracker_statistics_get_async (TrackerClient         *client,
 
         client->pending_proxy = client->proxy_statistics;
 	client->pending_call = 
-                org_freedesktop_Tracker_Statistics_get_async (client->proxy_statistics, 
+                org_freedesktop_Tracker1_Statistics_get_async (client->proxy_statistics, 
                                                               tracker_GPtrArray_reply, 
                                                               s);
 }
@@ -293,7 +293,7 @@ tracker_resources_load_async (TrackerClient     *client,
 
         client->pending_proxy = client->proxy_resources;
 	client->pending_call = 
-                org_freedesktop_Tracker_Resources_load_async (client->proxy_resources, 
+                org_freedesktop_Tracker1_Resources_load_async (client->proxy_resources, 
                                                               uri, 
                                                               tracker_void_reply, 
                                                               s);
@@ -313,7 +313,7 @@ tracker_resources_sparql_query_async (TrackerClient         *client,
 
         client->pending_proxy = client->proxy_resources;
 	client->pending_call = 
-                org_freedesktop_Tracker_Resources_sparql_query_async (client->proxy_resources, 
+                org_freedesktop_Tracker1_Resources_sparql_query_async (client->proxy_resources, 
                                                                       query, 
                                                                       tracker_GPtrArray_reply, 
                                                                       s);
@@ -333,7 +333,7 @@ tracker_resources_sparql_update_async (TrackerClient    *client,
 
         client->pending_proxy = client->proxy_resources;
 	client->pending_call = 
-                org_freedesktop_Tracker_Resources_sparql_update_async (client->proxy_resources, 
+                org_freedesktop_Tracker1_Resources_sparql_update_async (client->proxy_resources, 
                                                                        query, 
                                                                        tracker_void_reply, 
                                                                        s);
@@ -353,7 +353,7 @@ tracker_resources_batch_sparql_update_async (TrackerClient    *client,
 
         client->pending_proxy = client->proxy_resources;
 	client->pending_call = 
-                org_freedesktop_Tracker_Resources_batch_sparql_update_async (client->proxy_resources, 
+                org_freedesktop_Tracker1_Resources_batch_sparql_update_async (client->proxy_resources, 
                                                                              query, 
                                                                              tracker_void_reply, 
                                                                              s);
@@ -372,7 +372,7 @@ tracker_resources_batch_commit_async (TrackerClient    *client,
 
         client->pending_proxy = client->proxy_resources;
 	client->pending_call = 
-                org_freedesktop_Tracker_Resources_batch_commit_async (client->proxy_resources, 
+                org_freedesktop_Tracker1_Resources_batch_commit_async (client->proxy_resources, 
                                                                       tracker_void_reply, 
                                                                       s);
 }

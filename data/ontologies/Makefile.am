@@ -13,10 +13,12 @@ config_DATA =			\
 	33-nfo.ontology		\
 	34-nmo.ontology		\
 	35-ncal.ontology	\
+	36-scal.ontology	\
 	37-nid3.ontology	\
 	38-nmm.ontology		\
 	39-mto.ontology		\
 	40-mlo.ontology		\
+	41-mfo.ontology		\
 	90-tracker.ontology	\
 	91-maemo.ontology
 

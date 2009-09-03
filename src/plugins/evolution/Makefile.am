@@ -50,7 +50,6 @@ libtracker_module_evolution_daemon_module_la_LIBADD = 			\
 	$(GTHREAD_LIBS)                                                 \
 	$(GIO_LIBS)                                                     \
 	$(GLIB2_LIBS)                                                   \
-	$(RAPTOR_LIBS)							\
 	$(GCOV_LIBS)
 
 liborg_freedesktop_Tracker_evolution_plugin_la_SOURCES = 		\

@@ -300,6 +300,8 @@ fix_orientation (const gchar *orientation, gboolean *free_it)
 				return (gchar *) "nfo:orientation-right-mirror";
 				case 7:
 				return (gchar *) "nfo:orientation-left";
+				default:
+				break;
 			}
 		}
 	}
@@ -364,6 +366,10 @@ read_exif (const unsigned char *buffer,
 {
 	ExifData *exif;
 	TagType  *p;
+
+	tracker_statement_list_insert (metadata, uri,
+	                               RDF_TYPE,
+	                               NMM_PREFIX "Photo");
 
 	exif = exif_data_new();
 	exif_data_set_option (exif, EXIF_DATA_OPTION_IGNORE_UNKNOWN_TAGS);

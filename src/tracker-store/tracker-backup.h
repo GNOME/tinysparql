@@ -24,9 +24,9 @@
 
 #include <glib-object.h>
 
-#define TRACKER_BACKUP_SERVICE	       "org.freedesktop.Tracker"
-#define TRACKER_BACKUP_PATH	       "/org/freedesktop/Tracker/Backup"
-#define TRACKER_BACKUP_INTERFACE       "org.freedesktop.Tracker.Backup"
+#define TRACKER_BACKUP_SERVICE	       "org.freedesktop.Tracker1"
+#define TRACKER_BACKUP_PATH	       "/org/freedesktop/Tracker1/Backup"
+#define TRACKER_BACKUP_INTERFACE       "org.freedesktop.Tracker1.Backup"
 
 G_BEGIN_DECLS
 
@@ -53,11 +53,13 @@ GType	       tracker_backup_get_type		   (void) G_GNUC_CONST;
 TrackerBackup *tracker_backup_new		   (void);
 
 void           tracker_backup_save                 (TrackerBackup         *object,
-						    const gchar           *path,
+						    const gchar           *destination_uri,
+						    const gchar           *journal_uri,
 						    DBusGMethodInvocation *context,
 						    GError **error);
 void           tracker_backup_restore              (TrackerBackup         *object,
-						    const gchar           *path,
+						    const gchar           *backup_uri,
+						    const gchar           *journal_uri,
 						    DBusGMethodInvocation *context,
 						    GError **error);
 

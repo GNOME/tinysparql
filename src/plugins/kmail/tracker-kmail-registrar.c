@@ -176,16 +176,16 @@ perform_set (TrackerKMailRegistrar *object,
 	tracker_sparql_builder_predicate (sparql, "rdf:type");
 	tracker_sparql_builder_object (sparql, "nmo:Email");
 
-	tracker_sparql_builder_subject_iri (sparql, subject);
 	tracker_sparql_builder_predicate (sparql, "rdf:type");
 	tracker_sparql_builder_object (sparql, "nmo:MailboxDataObject");
 
+	tracker_sparql_builder_predicate (sparql, "tracker:available");
+	tracker_sparql_builder_object_boolean (sparql, TRUE);
+
 	/* The URI of the InformationElement should be a UUID URN */
-	tracker_sparql_builder_subject_iri (sparql, subject);
 	tracker_sparql_builder_predicate (sparql, "nie:isStoredAs");
 	tracker_sparql_builder_object_iri (sparql, uri);
 
-	tracker_sparql_builder_subject_iri (sparql, subject);
 	tracker_sparql_builder_predicate_iri (sparql, NIE_DATASOURCE_P);
 	tracker_sparql_builder_object_iri (sparql, DATASOURCE_URN);
 
@@ -376,7 +376,7 @@ perform_cleanup (TrackerKMailRegistrar *object)
 static void
 set_stored_last_modseq (guint last_modseq)
 {
-	tracker_data_manager_set_db_option_int ("KMailLastModseq", (gint) last_modseq);
+	tracker_data_manager_set_db_option_int64 ("KMailLastModseq", (gint64) last_modseq);
 }
 
 
@@ -601,10 +601,10 @@ tracker_kmail_push_registrar_enable (TrackerPushRegistrar *registrar,
 					     TRACKER_KMAIL_REGISTRAR_PATH, 
 					     object);
 
-	/* Registration of the registrar to the manager */
+	/* Registration of the registrar to the manager - the cast is fine and checked */
 	dbus_g_proxy_call_no_reply (manager_proxy, "Register",
 				    G_TYPE_OBJECT, object, 
-				    G_TYPE_UINT, (guint) tracker_data_manager_get_db_option_int ("KMailLastModseq"),
+				    G_TYPE_UINT, (guint) tracker_data_manager_get_db_option_int64 ("KMailLastModseq"),
 				    G_TYPE_INVALID,
 				    G_TYPE_INVALID);
 

@@ -1,8 +1,7 @@
 #include "ttl_loader.h"
-#include <raptor.h>
 #include <glib/gstdio.h>
 
-typedef void (* TurtleTripleCallback) (void *user_data, const raptor_statement *triple);
+#include <libtracker-data/tracker-sparql-query.h>
 
 /* Ontology classes */
 #define RDFS_CLASS "http://www.w3.org/2000/01/rdf-schema#Class"
@@ -17,7 +16,7 @@ typedef void (* TurtleTripleCallback) (void *user_data, const raptor_statement *
 
 #define NRL_MAX_CARDINALITY "http://www.semanticdesktop.org/ontologies/2007/08/15/nrl#maxCardinality"
 
-#define TRACKER_NAMESPACE "http://www.tracker-project.org/ontologies/tracker#Namespace"
+/* #define TRACKER_NAMESPACE "http://www.tracker-project.org/ontologies/tracker#Namespace" */
 
 /* Ontology description */
 #define DSC_PREFIX "http://www.tracker-project.org/temp/dsc#"
@@ -30,55 +29,13 @@ typedef void (* TurtleTripleCallback) (void *user_data, const raptor_statement *
 #define DSC_BASEURI DSC_PREFIX "baseUrl"
 #define DSC_RELPATH DSC_PREFIX "relativePath"
 
-static gboolean initialized = FALSE;
-
-void
-ttl_loader_init (void)
-{
-        if (!initialized) {
-                raptor_init ();
-                initialized = TRUE;
-        }
-}
-
-void
-ttl_loader_shutdown (void)
-{
-        if (initialized) {
-                raptor_finish ();
-                initialized = FALSE;
-        }
-}
-
-
-static void 
-raptor_error (void *user_data, raptor_locator* locator, const char *message)
-{
-	g_message ("RAPTOR parse error: %s:%d:%d: %s\n", 
-		   (gchar *) user_data,
-		   locator->line,
-		   locator->column,
-		   message);
-}
-
-
-
 static void
-load_in_memory (void                   *user_data,
-                const raptor_statement *triple) 
+load_in_memory (Ontology    *ontology,
+                const gchar *turtle_subject,
+                const gchar *turtle_predicate,
+                const gchar *turtle_object)
 {
-
-        gchar *turtle_subject;
-        gchar *turtle_predicate;
-        char  *turtle_object;
-        Ontology *ontology = (Ontology *)user_data;
-
         g_return_if_fail (ontology != NULL);
-
-	/* set new statement */
-	turtle_subject = g_strdup ((const gchar *) raptor_uri_as_string ((raptor_uri *) triple->subject));
-	turtle_predicate = g_strdup ((const gchar *) raptor_uri_as_string ((raptor_uri *) triple->predicate));
-	turtle_object = g_strdup ((const gchar *) triple->object);
 
         if (!g_strcmp0 (turtle_predicate, RDFS_TYPE)) {
                 /* It is a definition of class or property */
@@ -222,26 +179,14 @@ load_in_memory (void                   *user_data,
                 */
         }
 
-        g_free (turtle_subject);
-        g_free (turtle_predicate);
-        g_free (turtle_object);
-
 }
 
 static void
-load_description (void                   *user_data,
-                  const raptor_statement *triple) 
+load_description (OntologyDescription *desc,
+                  const gchar         *turtle_subject,
+                  const gchar         *turtle_predicate,
+                  const gchar         *turtle_object)
 {
-        gchar *turtle_subject;
-        gchar *turtle_predicate;
-        char  *turtle_object;
-        OntologyDescription *desc = (OntologyDescription *)user_data;
-
-	/* set new statement */
-	turtle_subject = g_strdup ((const gchar *) raptor_uri_as_string ((raptor_uri *) triple->subject));
-	turtle_predicate = g_strdup ((const gchar *) raptor_uri_as_string ((raptor_uri *) triple->predicate));
-	turtle_object = g_strdup ((const gchar *) triple->object);
-
         if (!g_strcmp0 (turtle_predicate, RDFS_TYPE)) {
                 g_assert (!g_strcmp0 (turtle_object, DSC_ONTOLOGY));
         } else if (!g_strcmp0 (turtle_predicate, DSC_TITLE)) {
@@ -260,47 +205,6 @@ load_description (void                   *user_data,
         } else {
                 g_critical ("Unhandled element %s", turtle_predicate);
         }
-
-        g_free (turtle_subject);
-        g_free (turtle_predicate);
-        g_free (turtle_object);
-}
-
-
-static void 
-process_file (const gchar *ttl_file, 
-              TurtleTripleCallback handler,
-              gpointer user_data)
-{
-        FILE *file;
-        raptor_parser *parser;
-        raptor_uri *uri, *buri, *base_uri;
-	unsigned char  *uri_string;
-
-        file = g_fopen (ttl_file, "r");
-
-	parser = raptor_new_parser ("turtle");
-	base_uri = raptor_new_uri ((unsigned char *) "/");
-
-	raptor_set_statement_handler (parser, user_data, 
-                                      handler);
-	raptor_set_fatal_error_handler (parser, (void *)file, raptor_error);
-	raptor_set_error_handler (parser, (void *)file, raptor_error);
-	raptor_set_warning_handler (parser, (void *)file, raptor_error);
-
-	uri_string = raptor_uri_filename_to_uri_string (ttl_file);
-	uri = raptor_new_uri (uri_string);
-	buri = raptor_new_uri ((unsigned char *) base_uri);
-
-	raptor_parse_file (parser, uri, buri);
-
-        raptor_free_uri (base_uri);
-        raptor_free_uri (buri);
-	raptor_free_uri (uri);
-	raptor_free_parser (parser);
-        g_free (uri_string);
-
-	fclose (file);
 }
 
 
@@ -321,7 +225,24 @@ ttl_loader_load_ontology (const gchar *ttl_file)
                                                       (GDestroyNotify)ttl_model_property_free);
 
         if (ttl_file) {
-                process_file (ttl_file, load_in_memory, ontology);
+		TrackerTurtleReader *reader;
+		GError *error;
+
+		reader = tracker_turtle_reader_new (ttl_file);
+
+		while (error == NULL && tracker_turtle_reader_next (reader, &error)) {
+			load_in_memory (ontology,
+			                tracker_turtle_reader_get_subject (reader),
+				        tracker_turtle_reader_get_predicate (reader),
+				        tracker_turtle_reader_get_object (reader));
+		}
+
+		g_object_unref (reader);
+
+		if (error) {
+			g_message ("Turtle parse error: %s", error->message);
+			g_error_free (error);
+		}
         } else {
                 g_warning ("Unable to open '%s'", ttl_file);
         }
@@ -332,11 +253,28 @@ ttl_loader_load_ontology (const gchar *ttl_file)
 OntologyDescription *
 ttl_loader_load_description (const gchar *filename)
 {
-        OntologyDescription *desc;
-        
-        desc = ttl_model_description_new ();
+	OntologyDescription *desc;
+	TrackerTurtleReader *reader;
+	GError *error;
 
-        process_file (filename, load_description, desc);
+	desc = ttl_model_description_new ();
+
+
+	reader = tracker_turtle_reader_new (filename);
+
+	while (error == NULL && tracker_turtle_reader_next (reader, &error)) {
+		load_description (desc,
+		                  tracker_turtle_reader_get_subject (reader),
+			          tracker_turtle_reader_get_predicate (reader),
+			          tracker_turtle_reader_get_object (reader));
+	}
+
+	g_object_unref (reader);
+
+	if (error) {
+		g_message ("Turtle parse error: %s", error->message);
+		g_error_free (error);
+	}
 
         return desc;
 }

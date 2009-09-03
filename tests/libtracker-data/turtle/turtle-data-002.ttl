@@ -1,0 +1,20 @@
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix : <http://example.org/ns2#> .
+
+<a1> a rdfs:Resource .
+
+# this is a complete turtle document
+# In-scope base URI is the document URI at this point
+<a1> :b4 <c1> .
+@base <http://example.org/ns/> .
+# In-scope base URI is http://example.org/ns/ at this point
+# <a2> <http://example.org/ns/b2> <c2> .
+@base <foo/> .
+# In-scope base URI is http://example.org/ns/foo/ at this point
+<a3> a rdfs:Resource .
+<a3> :b3 <c3> .
+@prefix : <bar#> .
+:a4 a rdfs:Resource .
+:a4 :b4 :c4 .
+:a5 a rdfs:Resource .
+:a5 :b5 :c5 .

@@ -18,8 +18,7 @@ INCLUDES =								\
 	$(PANGO_CFLAGS)							\
 	$(GMIME_CFLAGS)							\
 	$(FAM_CFLAGS)							\
-	$(SQLITE3_CFLAGS)						\
-	$(RAPTOR_CFLAGS)
+	$(SQLITE3_CFLAGS)
 
 #
 # Daemon sources
@@ -27,6 +26,8 @@ INCLUDES =								\
 libexec_PROGRAMS = tracker-store
 
 tracker_store_SOURCES =							\
+	$(marshal_sources)						\
+	$(dbus_sources)							\
 	tracker-backup.c						\
 	tracker-backup.h						\
 	tracker-config.c						\
@@ -37,11 +38,8 @@ tracker_store_SOURCES =							\
 	tracker-events.h						\
 	tracker-main.c							\
 	tracker-main.h							\
-	tracker-marshal-main.c						\
 	tracker-resources.c						\
 	tracker-resources.h						\
-	tracker-volume-cleanup.c					\
-	tracker-volume-cleanup.h					\
 	tracker-push.c							\
 	tracker-push.h							\
 	tracker-push-registrar.c					\
@@ -71,19 +69,10 @@ tracker_store_LDADD =							\
 	$(GMODULE_LIBS)							\
 	$(GTHREAD_LIBS)							\
 	$(GLIB2_LIBS)							\
-	$(RAPTOR_LIBS)							\
 	$(GCOV_LIBS)							\
-	$(tracker_store_win_libs)						\
+	$(tracker_store_win_libs)					\
 	-lz								\
 	-lm
-
-tracker-marshal.h: tracker-marshal.list
-	$(GLIB_GENMARSHAL) $< --prefix=tracker_marshal --header > $@
-
-tracker-marshal.c: tracker-marshal.list
-	$(GLIB_GENMARSHAL) $< --prefix=tracker_marshal --body > $@
-
-tracker-marshal-main.c: tracker-marshal.c tracker-marshal.h
 
 marshal_sources =                                         		\
         tracker-marshal.h                             			\
@@ -95,6 +84,13 @@ dbus_sources = 								\
 	tracker-statistics-glue.h					\
 	tracker-resources-class-glue.h
 
+tracker-marshal.h: tracker-marshal.list
+	$(GLIB_GENMARSHAL) $< --prefix=tracker_marshal --header > $@
+
+tracker-marshal.c: tracker-marshal.list
+	echo "#include \"tracker-marshal.h\"" > $@ &&			\
+	$(GLIB_GENMARSHAL) $< --prefix=tracker_marshal --body >> $@
+
 %-glue.h: $(top_srcdir)/data/dbus/%.xml
 	$(DBUSBINDINGTOOL) --mode=glib-server --output=$@ --prefix=$(subst -,_,$*) $^
 
@@ -102,8 +98,8 @@ dbus_sources = 								\
 	$(DBUSBINDINGTOOL) --mode=glib-client --output=$@ --prefix=$(subst -,_,$*) $^
 
 BUILT_SOURCES = 							\
-	$(dbus_sources)							\
-	$(marshal_sources)
+	$(marshal_sources)						\
+	$(dbus_sources)
 
 CLEANFILES = $(BUILT_SOURCES)
 

@@ -3,16 +3,16 @@
  * Copyright (C) 2008 Nokia
  *
  * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public
+ * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
- * version 2 of the License, or (at your option) any later version.
+ * version 2.1 of the License, or (at your option) any later version.
  *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * General Public License for more details.
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public
+ * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA  02110-1301, USA.
@@ -34,6 +34,11 @@ G_BEGIN_DECLS
 #define TRACKER_DB_STATEMENT(obj)	    (G_TYPE_CHECK_INSTANCE_CAST ((obj), TRACKER_TYPE_DB_STATEMENT, TrackerDBStatement))
 #define TRACKER_IS_DB_STATEMENT(obj)	    (G_TYPE_CHECK_INSTANCE_TYPE ((obj), TRACKER_TYPE_DB_STATEMENT))
 #define TRACKER_DB_STATEMENT_GET_IFACE(obj) (G_TYPE_INSTANCE_GET_INTERFACE ((obj), TRACKER_TYPE_DB_STATEMENT, TrackerDBStatementIface))
+
+#define TRACKER_TYPE_DB_CURSOR		    (tracker_db_cursor_get_type ())
+#define TRACKER_DB_CURSOR(obj)		    (G_TYPE_CHECK_INSTANCE_CAST ((obj), TRACKER_TYPE_DB_CURSOR, TrackerDBCursor))
+#define TRACKER_IS_DB_CURSOR(obj)	    (G_TYPE_CHECK_INSTANCE_TYPE ((obj), TRACKER_TYPE_DB_CURSOR))
+#define TRACKER_DB_CURSOR_GET_IFACE(obj)    (G_TYPE_INSTANCE_GET_INTERFACE ((obj), TRACKER_TYPE_DB_CURSOR, TrackerDBCursorIface))
 
 #define TRACKER_TYPE_DB_RESULT_SET	    (tracker_db_result_set_get_type ())
 #define TRACKER_DB_RESULT_SET(o)	    (G_TYPE_CHECK_INSTANCE_CAST ((o), TRACKER_TYPE_DB_RESULT_SET, TrackerDbResultSet))
@@ -57,6 +62,8 @@ typedef struct TrackerDBStatement TrackerDBStatement;
 typedef struct TrackerDBStatementIface TrackerDBStatementIface;
 typedef struct TrackerDBResultSet TrackerDBResultSet;
 typedef struct TrackerDBResultSetClass TrackerDBResultSetClass;
+typedef struct TrackerDBCursor TrackerDBCursor;
+typedef struct TrackerDBCursorIface TrackerDBCursorIface;
 
 struct TrackerDBInterfaceIface {
 	GTypeInterface iface;
@@ -66,6 +73,8 @@ struct TrackerDBInterfaceIface {
 	TrackerDBResultSet * (* execute_query)	       (TrackerDBInterface  *interface,
 							GError		   **error,
 							const gchar	    *query);
+	void		     (* disconnect)	       (TrackerDBInterface  *interface);
+	void		     (* reconnect)	       (TrackerDBInterface  *interface);
 
 };
 
@@ -86,6 +95,8 @@ struct TrackerDBStatementIface {
 	void		     (* bind_int64)	(TrackerDBStatement	 *stmt,
 						 int			  index,
 						 gint64			  value);
+	TrackerDBCursor    * (* start_cursor)	(TrackerDBStatement	 *stmt,
+						 GError			**error);
 };
 
 struct TrackerDBResultSet {
@@ -101,6 +112,7 @@ GQuark tracker_db_interface_error_quark (void);
 
 GType tracker_db_interface_get_type (void);
 GType tracker_db_statement_get_type (void);
+GType tracker_db_cursor_get_type (void);
 GType tracker_db_result_set_get_type (void);
 GType tracker_db_blob_get_type (void);
 
@@ -120,6 +132,8 @@ TrackerDBResultSet *	tracker_db_interface_execute_query	 (TrackerDBInterface   *
 
 gboolean		tracker_db_interface_start_transaction	    (TrackerDBInterface   *interface);
 gboolean		tracker_db_interface_end_transaction	    (TrackerDBInterface   *interface);
+void			tracker_db_interface_disconnect		    (TrackerDBInterface  *interface);
+void			tracker_db_interface_reconnect		    (TrackerDBInterface  *interface);
 
 void			tracker_db_statement_bind_double	(TrackerDBStatement	 *stmt,
 								 int			  index,
@@ -134,6 +148,9 @@ void			tracker_db_statement_bind_text		(TrackerDBStatement	 *stmt,
 								 int			  index,
 								 const gchar		 *value);
 TrackerDBResultSet *	tracker_db_statement_execute		(TrackerDBStatement	 *stmt,
+								 GError			**error);
+
+TrackerDBCursor *	tracker_db_statement_start_cursor	(TrackerDBStatement	 *stmt,
 								 GError			**error);
 
 /* Semi private TrackerDBResultSet functions */
@@ -153,6 +170,40 @@ void			  tracker_db_result_set_rewind	       (TrackerDBResultSet *result_set);
 gboolean		  tracker_db_result_set_iter_next      (TrackerDBResultSet *result_set);
 guint			  tracker_db_result_set_get_n_columns  (TrackerDBResultSet *result_set);
 guint			  tracker_db_result_set_get_n_rows     (TrackerDBResultSet *result_set);
+
+
+struct TrackerDBCursorIface {
+	GTypeInterface iface;
+
+	void     (*rewind)          (TrackerDBCursor *cursor);
+	gboolean (*iter_next)       (TrackerDBCursor *cursor);
+	guint    (*get_n_columns)   (TrackerDBCursor *cursor);
+	void     (*get_value)       (TrackerDBCursor *cursor, 
+	                             guint            column,
+	                             GValue          *value);
+
+	const gchar*  (*get_string) (TrackerDBCursor *cursor, 
+	                             guint            column);
+	gint          (*get_int)    (TrackerDBCursor *cursor, 
+	                             guint            column);
+	gdouble       (*get_double) (TrackerDBCursor *cursor, 
+	                             guint            column);
+
+};
+
+/* Functions to deal with a cursor */
+void			  tracker_db_cursor_rewind          (TrackerDBCursor *cursor);
+gboolean		  tracker_db_cursor_iter_next       (TrackerDBCursor *cursor);
+guint			  tracker_db_cursor_get_n_columns   (TrackerDBCursor *cursor);
+void 			  tracker_db_cursor_get_value       (TrackerDBCursor *cursor, 
+			                                     guint            column, 
+			                                     GValue          *value);
+const gchar*		  tracker_db_cursor_get_string      (TrackerDBCursor *cursor, 
+			                                     guint            column);
+gint 			  tracker_db_cursor_get_int         (TrackerDBCursor *cursor, 
+			                                     guint            column);
+gdouble			  tracker_db_cursor_get_double      (TrackerDBCursor *cursor, 
+			                                     guint            column);
 
 
 G_END_DECLS

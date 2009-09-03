@@ -24,9 +24,9 @@
 
 #include <glib-object.h>
 
-#define TRACKER_RESOURCES_SERVICE	 "org.freedesktop.Tracker"
-#define TRACKER_RESOURCES_PATH		 "/org/freedesktop/Tracker/Resources"
-#define TRACKER_RESOURCES_INTERFACE	 "org.freedesktop.Tracker.Resources"
+#define TRACKER_RESOURCES_SERVICE	 "org.freedesktop.Tracker1"
+#define TRACKER_RESOURCES_PATH		 "/org/freedesktop/Tracker1/Resources"
+#define TRACKER_RESOURCES_INTERFACE	 "org.freedesktop.Tracker1.Resources"
 
 G_BEGIN_DECLS
 

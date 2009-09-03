@@ -31,8 +31,8 @@ from abstract_text_engine import AbstractTextEngine
 import time
 import sys
 
-TRACKER = 'org.freedesktop.Tracker'
-TRACKER_OBJ = '/org/freedesktop/Tracker/Resources'
+TRACKER = 'org.freedesktop.Tracker1'
+TRACKER_OBJ = '/org/freedesktop/Tracker1/Resources'
 
 #
 # Abstract class that does the job.

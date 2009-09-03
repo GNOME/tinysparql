@@ -9,8 +9,6 @@ INCLUDES =								\
 	$(GLIB2_CFLAGS)							\
 	$(DBUS_CFLAGS)							\
 	$(UUID_CFLAGS)							\
-	$(RAPTOR_CFLAGS)						\
-	-I$(top_srcdir)/src/rasqal					\
 	$(GCOV_CFLAGS)
 
 BUILT_SOURCES = libtracker-data.vala.stamp
@@ -19,14 +17,15 @@ libtracker_datadir = $(libdir)/tracker-$(TRACKER_API_VERSION)
 libtracker_data_LTLIBRARIES = libtracker-data.la
 
 libtracker_data_la_VALASOURCES = 					\
-	tracker-sparql-query.vala
+	tracker-sparql-query.vala					\
+	tracker-sparql-scanner.vala					\
+	tracker-turtle-reader.vala
 
 libtracker_data_la_SOURCES = 						\
 	tracker-data-backup.c						\
 	tracker-data-manager.c						\
 	tracker-data-query.c						\
 	tracker-data-update.c						\
-	tracker-turtle.c						\
 	libtracker-data.vala.stamp					\
 	$(libtracker_data_la_VALASOURCES:.vala=.c)
 
@@ -35,11 +34,10 @@ noinst_HEADERS =							\
 	tracker-data-manager.h						\
 	tracker-data-query.h						\
 	tracker-data-update.h						\
-	tracker-sparql-query.h						\
-	tracker-turtle.h
+	tracker-sparql-query.h
 
 libtracker-data.vala.stamp: $(libtracker_data_la_VALASOURCES)
-	$(VALAC) -C $(VALAFLAGS) -H tracker-sparql-query.h ../rasqal/rasqal.vapi ../libtracker-common/libtracker-common.vapi libtracker-data.vapi ../libtracker-db/libtracker-db.vapi $^
+	$(VALAC) -C $(VALAFLAGS) -H tracker-sparql-query.h ../libtracker-common/posix.vapi ../libtracker-common/libtracker-common.vapi libtracker-data.vapi ../libtracker-db/libtracker-db.vapi $^
 	touch $@
 
 libtracker_data_la_LDFLAGS =						\
@@ -51,8 +49,6 @@ libtracker_data_la_LIBADD = 						\
 	$(DBUS_LIBS)							\
 	$(GLIB2_LIBS)							\
 	$(UUID_LIBS)							\
-	$(RAPTOR_LIBS)							\
-	$(top_builddir)/src/rasqal/librasqal.la				\
 	$(GCOV_LIBS)							\
 	-lz
 

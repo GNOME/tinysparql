@@ -49,9 +49,9 @@
 #include <libtracker-common/tracker-ontology.h>
 #include <libtracker-common/tracker-utils.h>
 
+#include "tracker-albumart.h"
 #include "tracker-main.h"
 #include "tracker-dbus.h"
-#include "tracker-extract.h"
 
 /* We mmap the beginning of the file and read separately the last 128 bytes
    for id3v1 tags. While these are probably cornercases the rationale is that
@@ -81,11 +81,7 @@
 
 typedef struct {
 	const gchar *text;
-	const gchar *type;
-	const gchar *urn;
-	const gchar *rdf_type;
-	const gchar *predicate;
-	gchar      **nullify;
+	gchar      **field;
 } Matches;
 
 typedef struct {
@@ -100,18 +96,49 @@ typedef struct {
 } id3tag;
 
 typedef struct {
+	gchar *album;
+	gchar *comment;
+	gchar *content_type;
+	gchar *copyright;
+	guint32 length;
+	gchar *performer1;
+	gchar *performer2;
+	gchar *publisher;
+	gchar *recording_time;
+	gchar *release_time;
+	gchar *text;
+	gchar *title1;
+	gchar *title2;
+	gchar *title3;
+	gint track_number;
+} id3v2tag;
+
+typedef struct {
 	size_t         size;
 	size_t         id3v2_size;
 
 	guint32        duration;
 
 	gchar         *title;
+	gchar         *performer;
+	gchar         *performer_uri;
+	gchar         *album;
+	gchar         *album_uri;
+	gchar         *genre;
+	gchar         *text;
+	gchar         *recording_time;
+	gchar         *copyright;
+	gchar         *publisher;
+	gchar         *comment;
 
 	unsigned char *albumartdata;
 	size_t         albumartsize;
 	gchar         *albumartmime;
 
-	id3tag        *id3v1_info;
+	id3tag         id3v1_info;
+	id3v2tag       id3v22_info;
+	id3v2tag       id3v23_info;
+	id3v2tag       id3v24_info;
 } file_data;
 
 enum {
@@ -126,6 +153,84 @@ enum {
 	LAYER_1,
 	LAYER_2,
 	LAYER_3
+};
+
+typedef enum {
+	ID3V24_UNKNOWN,
+	ID3V24_APIC,
+	ID3V24_COMM,
+	ID3V24_TALB,
+	ID3V24_TCON,
+	ID3V24_TCOP,
+	ID3V24_TDRC,
+	ID3V24_TDRL,
+	ID3V24_TEXT,
+	ID3V24_TIT1,
+	ID3V24_TIT2,
+	ID3V24_TIT3,
+	ID3V24_TLEN,
+	ID3V24_TPE1,
+	ID3V24_TPE2,
+	ID3V24_TPUB,
+	ID3V24_TRCK,
+	ID3V24_TYER,
+} id3v24frame;
+
+/* sorted array */
+static const struct { const char *name; id3v24frame frame; } id3v24_frames[] = {
+	{ "APIC", ID3V24_APIC },
+	{ "COMM", ID3V24_COMM },
+	{ "TALB", ID3V24_TALB },
+	{ "TCON", ID3V24_TCON },
+	{ "TCOP", ID3V24_TCOP },
+	{ "TDRC", ID3V24_TDRC },
+	{ "TDRL", ID3V24_TDRL },
+	{ "TEXT", ID3V24_TEXT },
+	{ "TIT1", ID3V24_TIT1 },
+	{ "TIT2", ID3V24_TIT2 },
+	{ "TIT3", ID3V24_TIT3 },
+	{ "TLEN", ID3V24_TLEN },
+	{ "TPE1", ID3V24_TPE1 },
+	{ "TPE2", ID3V24_TPE2 },
+	{ "TPUB", ID3V24_TPUB },
+	{ "TRCK", ID3V24_TRCK },
+	{ "TYER", ID3V24_TYER },
+};
+
+typedef enum {
+	ID3V2_UNKNOWN,
+	ID3V2_COM,
+	ID3V2_PIC,
+	ID3V2_TAL,
+	ID3V2_TCO,
+	ID3V2_TCR,
+	ID3V2_TLE,
+	ID3V2_TPB,
+	ID3V2_TP1,
+	ID3V2_TP2,
+	ID3V2_TT1,
+	ID3V2_TT2,
+	ID3V2_TT3,
+	ID3V2_TXT,
+	ID3V2_TYE,
+} id3v2frame;
+
+/* sorted array */
+static const struct { const char *name; id3v2frame frame; } id3v2_frames[] = {
+	{ "COM", ID3V2_COM },
+	{ "PIC", ID3V2_PIC },
+	{ "TAL", ID3V2_TAL },
+	{ "TCO", ID3V2_TCO },
+	{ "TCR", ID3V2_TCR },
+	{ "TLE", ID3V2_TLE },
+	{ "TPB", ID3V2_TPB },
+	{ "TP1", ID3V2_TP1 },
+	{ "TP2", ID3V2_TP2 },
+	{ "TT1", ID3V2_TT1 },
+	{ "TT2", ID3V2_TT2 },
+	{ "TT3", ID3V2_TT3 },
+	{ "TXT", ID3V2_TXT },
+	{ "TYE", ID3V2_TYE },
 };
 
 static void extract_mp3 (const gchar *filename,
@@ -675,7 +780,6 @@ mp3_parse_header (const gchar *data,
 	gint vbr_flag = 0;
 	guint length = 0;
 	guint sample_rate = 0;
-	gint ch = 0;
 	guint frame_size;
 	guint frames = 0;
 	size_t pos = 0;
@@ -685,85 +789,59 @@ mp3_parse_header (const gchar *data,
 	memcpy (&header, &data[pos], sizeof (header));
 
 	switch (header & mpeg_ver_mask) {
-	    case 0x800:
-		    mpeg_ver = MPEG_ERR;
-		    break;
-	    case 0x1000:
-		    tracker_statement_list_insert (metadata, uri,
-					 NFO_PREFIX "codec",
-					 "MPEG");
-/*		    tracker_statement_list_insert (metadata, uri,
-					 "Audio:CodecVersion",
-					 "2");*/
-		    mpeg_ver = MPEG_V2;
-		    break;
-	    case 0x1800:
-		    tracker_statement_list_insert (metadata, uri,
-					 NFO_PREFIX "codec",
-					 "MPEG");
-/*		    tracker_statement_list_insert (metadata, uri,
-					 "Audio:CodecVersion",
-					 "1");*/
-		    mpeg_ver = MPEG_V1;
-		    break;
-	    case 0:
-		    tracker_statement_list_insert (metadata, uri,
-					 NFO_PREFIX "codec",
-					 "MPEG");
-/*		    tracker_statement_list_insert (metadata, uri,
-					 "Audio:CodecVersion",
-					 "2.5");*/
-		    mpeg_ver = MPEG_V25;
-		    break;
-	    default:
-		    break;
+	case 0x1000:
+		tracker_sparql_builder_predicate (metadata, "nfo:codec");
+		tracker_sparql_builder_object_string (metadata, "MPEG");
+		mpeg_ver = MPEG_V2;
+		break;
+	case 0x1800:
+		tracker_sparql_builder_predicate (metadata, "nfo:codec");
+		tracker_sparql_builder_object_string (metadata, "MPEG");
+		mpeg_ver = MPEG_V1;
+		break;
+	case 0:
+		tracker_sparql_builder_predicate (metadata, "nfo:codec");
+		tracker_sparql_builder_object_string (metadata, "MPEG");
+		mpeg_ver = MPEG_V25;
+		break;
+	default:
+		/* unknown version */
+		return FALSE;
 	}
 
 	switch (header & mpeg_layer_mask) {
-	    case 0x400:
-		    layer_ver = LAYER_2;
-		    padsize = 1;
-		    break;
-	    case 0x200:
-		    layer_ver = LAYER_3;
-		    padsize = 1;
-		    break;
-	    case 0x600:
-		    layer_ver = LAYER_1;
-		    padsize = 4;
-		    break;
-	    case 0:
-		    layer_ver = LAYER_ERR;
-	    default:
-		    break;
-	}
-
-	if (!layer_ver || !mpeg_ver) {
-		/* g_debug ("Unknown mpeg type: %d, %d", mpeg_ver, layer_ver); */
-		/* Unknown mpeg type */
+	case 0x400:
+		layer_ver = LAYER_2;
+		padsize = 1;
+		break;
+	case 0x200:
+		layer_ver = LAYER_3;
+		padsize = 1;
+		break;
+	case 0x600:
+		layer_ver = LAYER_1;
+		padsize = 4;
+		break;
+	default:
+		/* unknown layer */
 		return FALSE;
 	}
 	
-	if (mpeg_ver<3) {
+	if (mpeg_ver < 3) {
 		idx_num = (mpeg_ver - 1) * 3 + layer_ver - 1;
 	} else {
 		idx_num = 2 + layer_ver;
 	}
 
 	spfp8 = spf_table[idx_num];
-	
+
+	tracker_sparql_builder_predicate (metadata, "nfo:channels");
 	if ((header & ch_mask) == ch_mask) {
-		ch = 1;
-		tracker_statement_list_insert (metadata, uri,
-				     NFO_PREFIX "channels",
-				     "1");
+		tracker_sparql_builder_object_int64 (metadata, 1);
 	} else {
-		ch=2; /*stereo non stereo select*/
-		tracker_statement_list_insert (metadata, uri,
-				     NFO_PREFIX "channels",
-				     "2");
+		tracker_sparql_builder_object_int64 (metadata, 2);
 	}
-	
+
 	/* We assume mpeg version, layer and channels are constant in frames */
 	do {
 		frames++;
@@ -775,13 +853,6 @@ mp3_parse_header (const gchar *data,
 		}
 
 		sample_rate = freq_table[(header & freq_mask) >> 18][mpeg_ver - 1];
-		/* Whoever wrote this check: it's pointless, sample_rate is a uint,
-		 so it can't ever be < 0. Hence commenting it out (pvanhoof)
-		 if (sample_rate < 0) {
-			* Error in header *
-			frames--;
-			return FALSE;
-		}*/
 
 		frame_size = spfp8 * bitrate / (sample_rate ? sample_rate : 1) + padsize*((header & pad_mask) >> 17);
 		avg_bps += bitrate / 1000;
@@ -816,7 +887,7 @@ mp3_parse_header (const gchar *data,
 
 	avg_bps /= frames;
 
-	if (filedata->duration==0) {
+	if (filedata->duration == 0) {
 		if ((!vbr_flag && frames > VBR_THRESHOLD) || (frames > MAX_FRAMES_SCAN)) {
 			/* If not all frames scanned */
 			length = (filedata->size - filedata->id3v2_size) / (avg_bps ? avg_bps : bitrate ? bitrate : 0xFFFFFFFF) / 125;
@@ -824,17 +895,14 @@ mp3_parse_header (const gchar *data,
 			length = spfp8 * 8 * frames / (sample_rate ? sample_rate : 0xFFFFFFFF);
 		}
  
-		tracker_statement_list_insert_with_int (metadata, uri,
-				     NMM_PREFIX "length",
-				     length);
+		tracker_sparql_builder_predicate (metadata, "nmm:length");
+		tracker_sparql_builder_object_int64 (metadata, length);
 	}
 
-	tracker_statement_list_insert_with_int (metadata, uri,
-			     NFO_PREFIX "sampleRate",
-			     sample_rate);
-	tracker_statement_list_insert_with_int (metadata, uri,
-			     NFO_PREFIX "averageBitrate",
-			     avg_bps*1000);
+	tracker_sparql_builder_predicate (metadata, "nfo:sampleRate");
+	tracker_sparql_builder_object_int64 (metadata, sample_rate);
+	tracker_sparql_builder_predicate (metadata, "nfo:averageBitrate");
+	tracker_sparql_builder_object_int64 (metadata, avg_bps*1000);
 
 	return TRUE;
 }
@@ -871,6 +939,142 @@ mp3_parse (const gchar *data,
 	} while (counter < MAX_MP3_SCAN_DEEP);
 }
 
+static gchar *
+id3v24_text_to_utf8 (gchar encoding, const gchar *text, gssize len)
+{
+	/* This byte describes the encoding
+	 * try to convert strings to UTF-8
+	 * if it fails, then forget it
+	 */
+
+	switch (encoding) {
+	case 0x00:
+		return t_convert (text,
+				  len,
+				  "UTF-8",
+				  "ISO-8859-1",
+				  NULL, NULL, NULL);
+	case 0x01 :
+		return t_convert (text,
+				  len,
+				  "UTF-8",
+				  "UTF-16",
+				  NULL, NULL, NULL);
+	case 0x02 :
+		return t_convert (text,
+				  len,
+				  "UTF-8",
+				  "UTF-16BE",
+				  NULL, NULL, NULL);
+	case 0x03 :
+		return strndup (text, len);
+
+	default:
+		/* Bad encoding byte,
+		 * try to convert from
+		 * iso-8859-1
+		 */
+		return t_convert (text,
+				  len,
+				  "UTF-8",
+				  "ISO-8859-1",
+				  NULL, NULL, NULL);
+	}
+}
+
+static gchar *
+id3v2_text_to_utf8 (gchar encoding, const gchar *text, gssize len)
+{
+	/* This byte describes the encoding
+	 * try to convert strings to UTF-8
+	 * if it fails, then forget it
+	 */
+
+	switch (encoding) {
+	case 0x00:
+		return t_convert (text,
+				  len,
+				  "UTF-8",
+				  "ISO-8859-1",
+				  NULL, NULL, NULL);
+	case 0x01 :
+/* 		return g_convert (text, */
+/* 				  len, */
+/* 				  "UTF-8", */
+/* 				  "UCS-2", */
+/* 				  NULL, NULL, NULL); */
+		return ucs2_to_utf8 (text,
+				     len);
+
+	default:
+		/* Bad encoding byte,
+		 * try to convert from
+		 * iso-8859-1
+		 */
+		return t_convert (text,
+				  len,
+				  "UTF-8",
+				  "ISO-8859-1",
+				  NULL, NULL, NULL);
+	}
+}
+
+static id3v24frame
+id3v24_get_frame (const gchar *name)
+{
+	int l, r, m;
+
+	/* use binary search */
+
+	l = 0;
+	r = G_N_ELEMENTS (id3v24_frames) - 1;
+	m = 0;
+
+	do {
+		m = (l + r) / 2;
+		if (strncmp (name, id3v24_frames[m].name, 4) < 0) {
+			// left half
+			r = m - 1;
+		} else {
+			// right half
+			l = m + 1;
+		}
+	} while (l <= r && strncmp (id3v24_frames[m].name, name, 4) != 0);
+	if (strncmp (id3v24_frames[m].name, name, 4) == 0) {
+		return id3v24_frames[m].frame;
+	} else {
+		return ID3V24_UNKNOWN;
+	}
+}
+
+static id3v2frame
+id3v2_get_frame (const gchar *name)
+{
+	int l, r, m;
+
+	/* use binary search */
+
+	l = 0;
+	r = G_N_ELEMENTS (id3v2_frames) - 1;
+	m = 0;
+
+	do {
+		m = (l + r) / 2;
+		if (strncmp (name, id3v2_frames[m].name, 4) < 0) {
+			// left half
+			r = m - 1;
+		} else {
+			// right half
+			l = m + 1;
+		}
+	} while (l <= r && strncmp (id3v2_frames[m].name, name, 4) != 0);
+	if (strncmp (id3v2_frames[m].name, name, 4) == 0) {
+		return id3v2_frames[m].frame;
+	} else {
+		return ID3V2_UNKNOWN;
+	}
+}
+
 static void
 get_id3v24_tags (const gchar *data,
 		 size_t       size,
@@ -879,179 +1083,83 @@ get_id3v24_tags (const gchar *data,
 		 TrackerSparqlBuilder  *metadata,
 		 file_data   *filedata)
 {
+	id3v2tag *tag = &filedata->id3v24_info;
 	guint pos = 0;
-	Matches tmap[] = {
-		{"TCOP", NIE_PREFIX "copyright", NULL, NULL, NULL, NULL},
-		{"TDRC", NIE_PREFIX "contentCreated", NULL, NULL, NULL, &filedata->id3v1_info->year},
-		{"TCON", NFO_PREFIX "genre", NULL, NULL, NULL, &filedata->id3v1_info->genre},
-		{"TIT1", NFO_PREFIX "genre", NULL, NULL, NULL, &filedata->id3v1_info->genre},
-		{"TENC", NCO_PREFIX "publisher", "publisher", NMM_PREFIX "Artist", NMM_PREFIX "artistName", NULL},
-		{"TEXT", NIE_PREFIX "plainTextContent", NULL, NULL, NULL, NULL},
-		{"TPE1", NMM_PREFIX "performer", "artist", NMM_PREFIX "Artist", NMM_PREFIX "artistName", &filedata->id3v1_info->artist},
-		{"TPE2", NMM_PREFIX "performer", "artist", NMM_PREFIX "Artist", NMM_PREFIX "artistName", &filedata->id3v1_info->artist},
-		{"TPE3", NMM_PREFIX "performer", "artist", NMM_PREFIX "Artist", NMM_PREFIX "artistName", &filedata->id3v1_info->artist},
-		/*	{"TOPE", NID3_LEAD_ARTIST}, We dont' want the original artist for now */
-		{"TPUB", NCO_PREFIX "publisher", "publisher", NMM_PREFIX "Artist", NMM_PREFIX "artistName", &filedata->id3v1_info->artist},
-		{"TOAL", NMM_PREFIX "musicAlbum", "album", NMM_PREFIX "MusicAlbum", NMM_PREFIX "albumTitle", &filedata->id3v1_info->album},
-		{"TALB", NMM_PREFIX "musicAlbum", "album", NMM_PREFIX "MusicAlbum", NMM_PREFIX "albumTitle", &filedata->id3v1_info->album},
-		{"TLAN", NIE_PREFIX "language", NULL, NULL, NULL, NULL},
-		{"TIT2", NIE_PREFIX "title", NULL, NULL, NULL, &filedata->id3v1_info->title},
-		{"TIT3", NIE_PREFIX "comment", NULL, NULL, NULL, &filedata->id3v1_info->comment},
-		{"TDRL", NIE_PREFIX "contentCreated", NULL, NULL, NULL, &filedata->id3v1_info->year},
-		{"TRCK", NMM_PREFIX "trackNumber", NULL, NULL, NULL, &filedata->id3v1_info->trackno},
-		/* TODO Nepomukify {"PCNT", "Audio:PlayCount"}, */
-		{"TLEN", NMM_PREFIX "length", NULL, NULL, NULL, NULL},
-		{NULL, 0, NULL, NULL, NULL},
-	};
 
 	while (pos < size) {
+		id3v24frame frame;
 		size_t csize;
-		gint i;
 		unsigned short flags;
 
 		if (pos + 10 > size) {
 			return;
 		}
 
+		frame = id3v24_get_frame (&data[pos]);
+
 		csize = (((data[pos+4] & 0x7F) << 21) |
 			 ((data[pos+5] & 0x7F) << 14) |
 			 ((data[pos+6] & 0x7F) << 7) |
 			 ((data[pos+7] & 0x7F) << 0));
 
-		if ((pos + 10 + csize > size) ||
-		    (csize > size) ||
-		    (csize == 0)) {
-			break;
-		}
-
 		flags = (((unsigned char) (data[pos + 8]) << 8) + 
 			 ((unsigned char) (data[pos + 9])));
-		if (((flags & 0x80) > 0) ||
-		    ((flags & 0x40) > 0)) {
-			pos += 10 + csize;
+
+		pos += 10;
+
+		if (frame == ID3V24_UNKNOWN) {
+			/* ignore unknown frames */
+			pos += csize;
 			continue;
 		}
 
-		i = 0;
-		while (tmap[i].text != NULL) {
-			if (strncmp (tmap[i].text, (const char*) &data[pos], 4) == 0) {
-				gchar * word;
-
-				if ((flags & 0x20) > 0) {
-					/* The "group" identifier, skip a byte */
-					pos++;
-					csize--;
-				}
-
-				/* This byte describes the encoding
-				 * try to convert strings to UTF-8
-				 * if it fails, then forget it
-				 */
-
-				switch (data[pos + 10]) {
-				case 0x00:
-					word = t_convert (&data[pos + 11],
-							  csize - 1,
-							  "UTF-8",
-							  info->encoding ? info->encoding : "ISO-8859-1",
-							  NULL, NULL, NULL);
-					break;
-				case 0x01 :
-					word = t_convert (&data[pos + 11],
-							  csize - 1,
-							  "UTF-8",
-							  info->encoding ? info->encoding : "UTF-16",
-							  NULL, NULL, NULL);
-					break;
-				case 0x02 :
-					word = t_convert (&data[pos + 11],
-							  csize - 1,
-							  "UTF-8",
-							  info->encoding ? info->encoding : "UTF-16BE",
-							  NULL, NULL, NULL);
-					break;
-				case 0x03 :
-					word = strndup (&data[pos + 11], csize - 1);
-					break;
-
-				default:
-					/* Bad encoding byte,
-					 * try to convert from
-					 * iso-8859-1
-					 */
-					word = t_convert (&data[pos + 11],
-							  csize - 1,
-							  "UTF-8",
-							  info->encoding ? info->encoding : "ISO-8859-1",
-							  NULL, NULL, NULL);
-					break;
-				}
-
-				pos++;
-				csize--;
-
-				if (!tracker_is_empty_string (word)) {       
-					g_strstrip (word);
-
-					if (strcmp (tmap[i].text, "TRCK") == 0) {
-						gchar **parts;
-
-						parts = g_strsplit (word, "/", 2);
-						g_free (word);
-						word = g_strdup (parts[0]);
-						g_strfreev (parts);
-					} else if (strcmp (tmap[i].text, "TCON") == 0) {
-						gint genre;
-
-						if (get_genre_number (word, &genre)) {
-							g_free (word);
-							word = g_strdup (get_genre_name (genre));
-						}
-
-						if (!word || strcasecmp (word, "unknown") == 0) {
-							break;
-						}
-					} else if (strcmp (tmap[i].text, "TLEN") == 0) {
-						guint32 duration;
-
-						duration = atoi (word);
-						g_free (word);
-						word = g_strdup_printf ("%d", duration/1000);
-						filedata->duration = duration/1000;
-					}
-
-					if (tmap[i].nullify) {
-						/* prefer ID3v2 tag over ID3v1 tag */
-						g_free (*tmap[i].nullify);
-						*tmap[i].nullify = NULL;
-
-						/* keep title around for albumart */
-						if (tmap[i].nullify == &filedata->id3v1_info->title) {
-							filedata->title = g_strdup (word);
-						}
-					}
-					if (tmap[i].urn) {
-						gchar *canonical_uri = tmap[i].urn[0]!=':'?tracker_uri_printf_escaped ("urn:%s:%s", tmap[i].urn, word):g_strdup(tmap[i].urn);
-						tracker_statement_list_insert (metadata, canonical_uri, RDF_TYPE, tmap[i].rdf_type);
-						tracker_statement_list_insert (metadata, canonical_uri, tmap[i].predicate, word);
-						tracker_statement_list_insert (metadata, uri, tmap[i].type, canonical_uri);
-						g_free (canonical_uri);
-					} else {
-						tracker_statement_list_insert (metadata, uri,
-									  tmap[i].type,
-									  word);
-					}
-				}
-
-				g_free (word);
-
-				break;
-			}
-
-			i++;
+		if (pos + csize > size) {
+			break;
+		} else if (csize == 0) {
+			continue;
 		}
 
-		if (strncmp (&data[pos], "COMM", 4) == 0) {
+		if (((flags & 0x80) > 0) ||
+		    ((flags & 0x40) > 0)) {
+			pos += csize;
+			continue;
+		}
+
+		if ((flags & 0x20) > 0) {
+			/* The "group" identifier, skip a byte */
+			pos++;
+			csize--;
+		}
+
+		switch (frame) {
+		case ID3V24_APIC:
+		{
+			/* embedded image */
+			gchar        text_type;
+			const gchar *mime;
+			gchar        pic_type;
+			const gchar *desc;
+			guint        offset;
+			gint         mime_len;
+
+			text_type =  data[pos + 0];
+			mime      = &data[pos + 1];
+			mime_len  = strlen (mime);
+			pic_type  =  data[pos + 1 + mime_len + 1];
+			desc      = &data[pos + 1 + mime_len + 1 + 1];
+
+			if (pic_type == 3 || (pic_type == 0 && filedata->albumartsize == 0)) {
+				offset = pos + 1 + mime_len + 2 + strlen (desc) + 1;
+
+				filedata->albumartdata = g_malloc0 (csize);
+				filedata->albumartmime = g_strdup (mime);
+				memcpy (filedata->albumartdata, &data[offset], csize);
+				filedata->albumartsize = csize;
+			}
+			break;
+		}
+		case ID3V24_COMM:
+		{
 			gchar       *word;
 			gchar        text_encode;
 			const gchar *text_language;
@@ -1060,91 +1168,106 @@ get_id3v24_tags (const gchar *data,
 			guint        offset;
 			gint         text_desc_len;
 
-			text_encode   =  data[pos + 10]; /* $xx */
-			text_language = &data[pos + 11]; /* $xx xx xx */
-			text_desc     = &data[pos + 14]; /* <text string according to encoding> $00 (00) */
+			text_encode   =  data[pos + 0]; /* $xx */
+			text_language = &data[pos + 1]; /* $xx xx xx */
+			text_desc     = &data[pos + 4]; /* <text string according to encoding> $00 (00) */
 			text_desc_len = strlen (text_desc);
-			text          = &data[pos + 14 + text_desc_len + 1]; /* <full text string according to encoding> */
-			
+			text          = &data[pos + 4 + text_desc_len + 1]; /* <full text string according to encoding> */
+
 			offset = 4 + text_desc_len + 1;
 
-			switch (text_encode) {
-			case 0x00:
-				word = t_convert (text,
-						  csize - offset,
-						  "UTF-8",
-						  info->encoding ? info->encoding : "ISO-8859-1",
-						  NULL, NULL, NULL);
-				break;
-			case 0x01:
-				word = t_convert (text,
-						  csize - offset,
-						  "UTF-8",
-						  info->encoding ? info->encoding : "UTF-16",
-						  NULL, NULL, NULL);
-				break;
-			case 0x02:
-				word = t_convert (text,
-						  csize-offset,
-						  "UTF-8",
-						  info->encoding ? info->encoding : "UTF-16BE",
-						  NULL, NULL, NULL);
-				break;
-			case 0x03:
-				word = g_strndup (text, csize - offset);
-				break;
-				
-			default:
-				/* Bad encoding byte,
-				 * try to convert from
-				 * iso-8859-1
-				 */
-				word = t_convert (text,
-						  csize - offset,
-						  "UTF-8",
-						  info->encoding ? info->encoding : "ISO-8859-1",
-						  NULL, NULL, NULL);
-				break;
-			}
+			word = id3v24_text_to_utf8 (text_encode, text, csize - offset);
 
 			if (!tracker_is_empty_string (word)) {
 				g_strstrip (word);
+				tag->comment = word;
+			} else {
+				g_free (word);
+			}
+			break;
+		}
+		default:
+		{
+			gchar       *word;
 
-				tracker_statement_list_insert (metadata, uri,
-						     NIE_PREFIX "comment",
-						     word);
+			/* text frames */
+			word = id3v24_text_to_utf8 (data[pos], &data[pos + 1], csize - 1);
+			if (!tracker_is_empty_string (word)) {
+				g_strstrip (word);
 			}
 
-			g_free (word);
-		}
+			switch (frame) {
+			case ID3V24_TALB:
+				tag->album = word;
+				break;
+			case ID3V24_TCON:
+			{
+				gint genre;
 
+				if (get_genre_number (word, &genre)) {
+					g_free (word);
+					word = g_strdup (get_genre_name (genre));
+				}
+				if (word && strcasecmp (word, "unknown") != 0) {
+					tag->content_type = word;
+				} else {
+					g_free (word);
+				}
+				break;
+			}
+			case ID3V24_TCOP:
+				tag->copyright = word;
+				break;
+			case ID3V24_TDRC:
+				tag->recording_time = word;
+				break;
+			case ID3V24_TDRL:
+				tag->release_time = word;
+				break;
+			case ID3V24_TEXT:
+				tag->text = word;
+				break;
+			case ID3V24_TIT1:
+				tag->title1 = word;
+				break;
+			case ID3V24_TIT2:
+				tag->title2 = word;
+				break;
+			case ID3V24_TIT3:
+				tag->title3 = word;
+				break;
+			case ID3V24_TLEN:
+				tag->length = atoi (word) / 1000;
+				break;
+			case ID3V24_TPE1:
+				tag->performer1 = word;
+				break;
+			case ID3V24_TPE2:
+				tag->performer2 = word;
+				break;
+			case ID3V24_TPUB:
+				tag->publisher = word;
+				break;
+			case ID3V24_TRCK:
+			{
+				gchar **parts;
 
-		/* Check for embedded images */
-		if (strncmp (&data[pos], "APIC", 4) == 0) {
-			gchar        text_type;
-			const gchar *mime;
-			gchar        pic_type;
-			const gchar *desc;
-			guint        offset;
-			gint         mime_len;
+				parts = g_strsplit (word, "/", 2);
+				if (parts[0]) {
+					tag->track_number = atoi (parts[0]);
+				}
+				g_strfreev (parts);
+				g_free (word);
 
-			text_type =  data[pos + 10];
-			mime      = &data[pos + 11];
-			mime_len  = strlen (mime);
-			pic_type  =  data[pos + 11 + mime_len + 1];
-			desc      = &data[pos + 11 + mime_len + 1 + 1];
-
-			if (pic_type == 3 || (pic_type == 0 && filedata->albumartsize == 0)) {
-				offset = pos + 11 + mime_len + 2 + strlen (desc) + 1;
-
-				filedata->albumartdata = g_malloc0 (csize);
-				filedata->albumartmime = g_strdup (mime);
-				memcpy (filedata->albumartdata, &data[offset], csize);
-				filedata->albumartsize = csize;
+				break;
+			}
+			default:
+				g_assert_not_reached ();
 			}
 		}
+		}
 
-		pos += 10 + csize;
+		pos += csize;
 	}
 }
 
@@ -1156,228 +1279,57 @@ get_id3v23_tags (const gchar *data,
 		 TrackerSparqlBuilder  *metadata,
 		 file_data   *filedata)
 {
+	id3v2tag *tag = &filedata->id3v23_info;
 	guint	pos = 0;
-	Matches tmap[] = {
-		{"TCOP", NIE_PREFIX "copyright", NULL, NULL, NULL, NULL},
-		{"TDAT", NIE_PREFIX "contentCreated", NULL, NULL, NULL, &filedata->id3v1_info->year},
-		{"TCON", NFO_PREFIX "genre", NULL, NULL, NULL, &filedata->id3v1_info->genre},
-		{"TIT1", NFO_PREFIX "genre", NULL, NULL, NULL, &filedata->id3v1_info->genre},
-		{"TENC", NCO_PREFIX "publisher", "publisher", NMM_PREFIX "Artist", NMM_PREFIX "artistName", &filedata->id3v1_info->artist},
-		{"TEXT", NIE_PREFIX "plainTextContent", NULL, NULL, NULL, NULL},
-		{"TPE1", NMM_PREFIX "performer", "artist", NMM_PREFIX "Artist", NMM_PREFIX "artistName", &filedata->id3v1_info->artist},
-		{"TPE2", NMM_PREFIX "performer", "artist", NMM_PREFIX "Artist", NMM_PREFIX "artistName", &filedata->id3v1_info->artist},
-		{"TPE3", NMM_PREFIX "performer", "artist", NMM_PREFIX "Artist", NMM_PREFIX "artistName", &filedata->id3v1_info->artist},
-		/*	{"TOPE", NID3_LEAD_ARTIST}, We don't want the original artist for now */
-		{"TPUB", NCO_PREFIX "publisher", "publisher", NMM_PREFIX "Artist", NMM_PREFIX "artistName", NULL},
-		{"TOAL", NMM_PREFIX "musicAlbum", "album", NMM_PREFIX "MusicAlbum", NMM_PREFIX "albumTitle", &filedata->id3v1_info->album},
-		{"TALB", NMM_PREFIX "musicAlbum", "album", NMM_PREFIX "MusicAlbum", NMM_PREFIX "albumTitle", &filedata->id3v1_info->album},
-		{"TLAN", NIE_PREFIX "language", NULL, NULL, NULL, NULL},
-		{"TIT2", NIE_PREFIX "title", NULL, NULL, NULL, &filedata->id3v1_info->title},
-		{"TYER", NIE_PREFIX "contentCreated", NULL, NULL, NULL, &filedata->id3v1_info->year},
-		{"TRCK", NMM_PREFIX "trackNumber", NULL, NULL, NULL, &filedata->id3v1_info->trackno},
-		/* TODO Nepomukify {"PCNT", "Audio:PlayCount"}, */
-		{"TLEN", NMM_PREFIX "length", NULL, NULL, NULL, NULL},
-		{NULL, 0, NULL, NULL, NULL},
-	};
 
 	while (pos < size) {
+		id3v24frame frame;
 		size_t csize;
-		gint i;
 		unsigned short flags;
 
 		if (pos + 10 > size) {
 			return;
 		}
 
+		frame = id3v24_get_frame (&data[pos]);
+
 		csize = (((unsigned char)(data[pos + 4]) << 24) |
 			 ((unsigned char)(data[pos + 5]) << 16) |
 			 ((unsigned char)(data[pos + 6]) << 8)  |
 			 ((unsigned char)(data[pos + 7]) << 0) );
 
-		if ((pos + 10 + csize > size) ||
-		    (csize > size) ||
-		    (csize == 0)) {
-			break;
-		}
-
 		flags = (((unsigned char)(data[pos + 8]) << 8) + 
 			 ((unsigned char)(data[pos + 9])));
 
-		if (((flags & 0x80) > 0) || ((flags & 0x40) > 0)) {
-			pos += 10 + csize;
+		pos += 10;
+
+		if (frame == ID3V24_UNKNOWN) {
+			/* ignore unknown frames */
+			pos += csize;
 			continue;
 		}
 
-		i = 0;
-		while (tmap[i].text != NULL) {
-			if (strncmp (tmap[i].text, (const gchar*) &data[pos], 4) == 0) {
-				gchar * word;
-
-				if ((flags & 0x20) > 0) {
-					/* The "group" identifier, skip a byte */
-					pos++;
-					csize--;
-				}
-
-				/* This byte describes the encoding
-				 * try to convert strings to UTF-8 if
-				 * it fails, then forget it./
-				 */
-
-				switch (data[pos + 10]) {
-				case 0x00:
-					word = t_convert (&data[pos + 11],
-							  csize - 1,
-							  "UTF-8",
-							  info->encoding ? info->encoding : "ISO-8859-1",
-							  NULL, NULL, NULL);
-					break;
-				case 0x01 :
-/* 					word = g_convert (&data[pos + 11], */
-/* 							  csize - 1, */
-/* 							  "UTF-8", */
-/* 							  "UCS-2", */
-/* 							  NULL, NULL, NULL); */
-					word = ucs2_to_utf8 (&data[pos + 11],
-							     csize - 1);
-					break;
-				default:
-					/* Bad encoding byte,
-					 * try to convert from
-					 * iso-8859-1
-					 */
-					word = t_convert (&data[pos + 11],
-							  csize - 1,
-							  "UTF-8",
-							  info->encoding ? info->encoding : "ISO-8859-1",
-							  NULL, NULL, NULL);
-					break;
-				}
-
-				pos++;
-				csize--;
-
-				if (!tracker_is_empty_string (word)) {
-					g_strstrip (word);
-
-					if (strcmp (tmap[i].text, "TRCK") == 0) {
-						gchar **parts;
-
-						parts = g_strsplit (word, "/", 2);
-						g_free (word);
-						word = g_strdup (parts[0]);
-						g_strfreev (parts);
-					} else if (strcmp (tmap[i].text, "TCON") == 0) {
-						gint genre;
-
-						if (get_genre_number (word, &genre)) {
-							g_free (word);
-							word = g_strdup (get_genre_name (genre));
-						}
-
-						if (!word || strcasecmp (word, "unknown") == 0) {
-							break;
-						}
-					} else if (strcmp (tmap[i].text, "TLEN") == 0) {
-						guint32 duration;
-
-						duration = atoi (word);
-						g_free (word);
-						word =  g_strdup_printf ("%d", duration/1000);
-						filedata->duration = duration/1000;
-					}
-
-					if (tmap[i].nullify) {
-						/* prefer ID3v2 tag over ID3v1 tag */
-						g_free (*tmap[i].nullify);
-						*tmap[i].nullify = NULL;
-
-						/* keep title around for albumart */
-						if (tmap[i].nullify == &filedata->id3v1_info->title) {
-							filedata->title = g_strdup (word);
-						}
-					}
-					if (tmap[i].urn) {
-						gchar *canonical_uri = tmap[i].urn[0]!=':'?tracker_uri_printf_escaped ("urn:%s:%s", tmap[i].urn, word):g_strdup(tmap[i].urn);
-						tracker_statement_list_insert (metadata, canonical_uri, RDF_TYPE, tmap[i].rdf_type);
-						tracker_statement_list_insert (metadata, canonical_uri, tmap[i].predicate, word);
-						tracker_statement_list_insert (metadata, uri, tmap[i].type, canonical_uri);
-						g_free (canonical_uri);
-					} else {
-						tracker_statement_list_insert (metadata, uri,
-									  tmap[i].type,
-									  word);
-					}
-				}
-
-				g_free (word);
-
-				break;
-			}
-
-			i++;
+		if (pos + csize > size) {
+			break;
+		} else if (csize == 0) {
+			continue;
 		}
 
-		if (strncmp (&data[pos], "COMM", 4) == 0) {
-			gchar       *word;
-			gchar        text_encode;
-			const gchar *text_language;
-			const gchar *text_desc;
-			const gchar *text;
-			guint        offset;
-			gint         text_desc_len;
-			
-			text_encode   =  data[pos + 10]; /* $xx */
-			text_language = &data[pos + 11]; /* $xx xx xx */
-			text_desc     = &data[pos + 14]; /* <text string according to encoding> $00 (00) */
-			text_desc_len = strlen (text_desc);
-			text          = &data[pos + 14 + text_desc_len + 1]; /* <full text string according to encoding> */
-			
-			offset = 4 + text_desc_len + 1;
-
-			switch (text_encode) {
-			case 0x00:
-				word = t_convert (text,
-						  csize - offset,
-						  "UTF-8",
-						  info->encoding ? info->encoding : "ISO-8859-1",
-						  NULL, NULL, NULL);
-				break;
-			case 0x01 :
-/* 				word = g_convert (text, */
-/* 						  csize-offset, */
-/* 						  "UTF-8", */
-/* 						  "UCS-2", */
-/* 						  NULL, NULL, NULL); */
-				word = ucs2_to_utf8 (&data[pos + 11],
-						     csize - offset);
-				break;
-			default:
-				/* Bad encoding byte,
-				 * try to convert from
-				 * iso-8859-1
-				 */
-				word = t_convert (text,
-						  csize - offset,
-						  "UTF-8",
-						  info->encoding ? info->encoding : "ISO-8859-1",
-						  NULL, NULL, NULL);
-				break;
-			}
-
-			if (!tracker_is_empty_string (word)) {
-				g_strstrip (word);
-
-				tracker_statement_list_insert (metadata, uri,
-						     NIE_PREFIX "comment",
-						     word);
-			}
-
-			g_free (word);
+		if (((flags & 0x80) > 0) || ((flags & 0x40) > 0)) {
+			pos += csize;
+			continue;
 		}
 
-		/* Check for embedded images */
-		if (strncmp (&data[pos], "APIC", 4) == 0) {
+		if ((flags & 0x20) > 0) {
+			/* The "group" identifier, skip a byte */
+			pos++;
+			csize--;
+		}
+
+		switch (frame) {
+		case ID3V24_APIC:
+		{
+			/* embedded image */
 			gchar        text_type;
 			const gchar *mime;
 			gchar        pic_type;
@@ -1385,23 +1337,129 @@ get_id3v23_tags (const gchar *data,
 			guint        offset;
 			gint         mime_len;
 
-			text_type =  data[pos + 10];
-			mime      = &data[pos + 11];
+			text_type =  data[pos + 0];
+			mime      = &data[pos + 1];
 			mime_len  = strlen (mime);
-			pic_type  =  data[pos + 11 + mime_len + 1];
-			desc      = &data[pos + 11 + mime_len + 1 + 1];
-			
+			pic_type  =  data[pos + 1 + mime_len + 1];
+			desc      = &data[pos + 1 + mime_len + 1 + 1];
+
 			if (pic_type == 3 || (pic_type == 0 && filedata->albumartsize == 0)) {
-				offset = pos + 11 + mime_len + 2 + strlen (desc) + 1;
-				
+				offset = pos + 1 + mime_len + 2 + strlen (desc) + 1;
+
 				filedata->albumartdata = g_malloc0 (csize);
 				filedata->albumartmime = g_strdup (mime);
 				memcpy (filedata->albumartdata, &data[offset], csize);
 				filedata->albumartsize = csize;
 			}
+			break;
+		}
+		case ID3V24_COMM:
+		{
+			gchar       *word;
+			gchar        text_encode;
+			const gchar *text_language;
+			const gchar *text_desc;
+			const gchar *text;
+			guint        offset;
+			gint         text_desc_len;
+
+			text_encode   =  data[pos + 0]; /* $xx */
+			text_language = &data[pos + 1]; /* $xx xx xx */
+			text_desc     = &data[pos + 4]; /* <text string according to encoding> $00 (00) */
+			text_desc_len = strlen (text_desc);
+			text          = &data[pos + 4 + text_desc_len + 1]; /* <full text string according to encoding> */
+			
+			offset = 4 + text_desc_len + 1;
+
+			word = id3v2_text_to_utf8 (text_encode, text, csize - offset);
+
+			if (!tracker_is_empty_string (word)) {
+				g_strstrip (word);
+				tag->comment = word;
+			} else {
+				g_free (word);
+			}
+			break;
+		}
+		default:
+		{
+			gchar       *word;
+
+			/* text frames */
+			word = id3v2_text_to_utf8 (data[pos], &data[pos + 1], csize - 1);
+			if (!tracker_is_empty_string (word)) {
+				g_strstrip (word);
+			}
+
+			switch (frame) {
+			case ID3V24_TALB:
+				tag->album = word;
+				break;
+			case ID3V24_TCON:
+			{
+				gint genre;
+
+				if (get_genre_number (word, &genre)) {
+					g_free (word);
+					word = g_strdup (get_genre_name (genre));
+				}
+				if (word && strcasecmp (word, "unknown") != 0) {
+					tag->content_type = word;
+				} else {
+					g_free (word);
+				}
+				break;
+			}
+			case ID3V24_TCOP:
+				tag->copyright = word;
+				break;
+			case ID3V24_TEXT:
+				tag->text = word;
+				break;
+			case ID3V24_TIT1:
+				tag->title1 = word;
+				break;
+			case ID3V24_TIT2:
+				tag->title2 = word;
+				break;
+			case ID3V24_TIT3:
+				tag->title3 = word;
+				break;
+			case ID3V24_TLEN:
+				tag->length = atoi (word) / 1000;
+				break;
+			case ID3V24_TPE1:
+				tag->performer1 = word;
+				break;
+			case ID3V24_TPE2:
+				tag->performer2 = word;
+				break;
+			case ID3V24_TPUB:
+				tag->publisher = word;
+				break;
+			case ID3V24_TRCK:
+			{
+				gchar **parts;
+
+				parts = g_strsplit (word, "/", 2);
+				if (parts[0]) {
+					tag->track_number = atoi (parts[0]);
+				}
+				g_strfreev (parts);
+				g_free (word);
+
+				break;
+			}
+			case ID3V24_TYER:
+				tag->recording_time = word;
+				break;
+			default:
+				g_assert_not_reached ();
+			}
+		}
 		}
 
-		pos += 10 + csize;
+		pos += csize;
 	}
 }
 
@@ -1413,180 +1471,124 @@ get_id3v20_tags (const gchar *data,
 		TrackerSparqlBuilder  *metadata,
 		 file_data   *filedata)
 {
+	id3v2tag *tag = &filedata->id3v22_info;
 	guint	pos = 0;
-	Matches tmap[] = {
-		{"TAL", NMM_PREFIX "musicAlbum", "album", NMM_PREFIX "MusicAlbum", NMM_PREFIX "albumTitle", &filedata->id3v1_info->album},
-		{"TT1", NMM_PREFIX "performer", "artist", NMM_PREFIX "Artist", NMM_PREFIX "artistName", &filedata->id3v1_info->artist},
-		{"TT2", NIE_PREFIX "title", NULL, NULL, NULL, &filedata->id3v1_info->title},
-		{"TT3", NIE_PREFIX "title", NULL, NULL, NULL, &filedata->id3v1_info->title},
-		{"TXT", NIE_PREFIX "comment", NULL, NULL, NULL, &filedata->id3v1_info->comment},
-		{"TPB", NCO_PREFIX "publisher", "publisher", NMM_PREFIX "Artist", NMM_PREFIX "artistName", &filedata->id3v1_info->artist},
-		/* TODO {"WAF", "DC:Location", NULL, NULL, NULL},
-		   TODO {"WAR", "DC:Location", NULL, NULL, NULL},
-		   TODO {"WAS", "DC:Location", NULL, NULL, NULL},
-		   TODO {"WAF", "DC:Location", NULL, NULL, NULL}, */
-		{"WCM", NIE_PREFIX "license", NULL, NULL, NULL, NULL},
-		{"TYE", NIE_PREFIX "contentCreated", NULL, NULL, NULL, &filedata->id3v1_info->year},
-		{"TLA", NIE_PREFIX "language", NULL, NULL, NULL, NULL},
-		{"TP1", NMM_PREFIX "performer", "artist", NMM_PREFIX "Artist", NMM_PREFIX "artistName", &filedata->id3v1_info->artist},
-		{"TP2", NMM_PREFIX "performer", "artist", NMM_PREFIX "Artist", NMM_PREFIX "artistName", &filedata->id3v1_info->artist},
-		{"TP3", NMM_PREFIX "performer", "artist", NMM_PREFIX "Artist", NMM_PREFIX "artistName", &filedata->id3v1_info->artist},
-		{"TEN", NMM_PREFIX "performer", "artist", NMM_PREFIX "Artist", NMM_PREFIX "artistName", &filedata->id3v1_info->artist},
-		{"TCO", NMM_PREFIX "genre", NULL, NULL, NULL, &filedata->id3v1_info->genre},
-		{"TCR", NIE_PREFIX "copyright", NULL, NULL, NULL, NULL},
-		{"SLT", NIE_PREFIX "plainTextContent", NULL, NULL, NULL, NULL}, /* Lyrics */
-		{"TOA", NMM_PREFIX "performer", "artist", NMM_PREFIX "Artist", NMM_PREFIX "artistName", &filedata->id3v1_info->artist},
-		{"TOT", NMM_PREFIX "musicAlbum", "album", NMM_PREFIX "MusicAlbum", NMM_PREFIX "albumTitle", &filedata->id3v1_info->album},
-		{"TOL", NMM_PREFIX "performer", "artist", NMM_PREFIX "Artist", NMM_PREFIX "artistName", &filedata->id3v1_info->artist},
-		{"COM", NIE_PREFIX "comment", NULL, NULL, NULL, &filedata->id3v1_info->comment},
-		{"TLE", NMM_PREFIX "length", NULL, NULL, NULL, NULL},
-		{ NULL, 0, NULL, NULL, NULL},
-	};
 
 	while (pos < size) {
+		id3v2frame frame;
 		size_t csize;
-		gint i;
 
 		if (pos + 6 > size)  {
 			return;
 		}
 
+		frame = id3v2_get_frame (&data[pos]);
+
 		csize = (((unsigned char)(data[pos + 3]) << 16) + 
 			 ((unsigned char)(data[pos + 4]) << 8) + 
 			 ((unsigned char)(data[pos + 5]) ) );
-		if ((pos + 6 + csize > size) ||
-		    (csize > size) ||
-		    (csize == 0)) {
+
+		pos += 6;
+
+		if (frame == ID3V2_UNKNOWN) {
+			/* ignore unknown frames */
+			pos += csize;
+			continue;
+		}
+
+		if (pos + csize > size) {
 			break;
+		} else if (csize == 0) {
+			continue;
 		}
 
-		i = 0;
-
-		while (tmap[i].text != NULL) {
-			if (strncmp(tmap[i].text, (const char*) &data[pos], 3) == 0) {
-				gchar * word;
-
-				/* This byte describes the encoding
-				 * try to convert strings to UTF-8 if
-				 * it fails, then forget it./
-				 */
-				switch (data[pos + 6]) {
-				case 0x00:
-					word = t_convert (&data[pos + 7],
-							  csize - 1,
-							  "UTF-8",
-							  info->encoding ? info->encoding : "ISO-8859-1",
-							  NULL, NULL, NULL);
-					break;
-				case 0x01 :
-/* 					word = g_convert (&data[pos+7], */
-/* 							  csize, */
-/* 							  "UTF-8", */
-/* 							  "UCS-2", */
-/* 							  NULL, NULL, NULL); */
-					word = ucs2_to_utf8 (&data[pos + 7],
-							     csize - 1);
-					break;
-				default:
-					/* Bad encoding byte,
-					 * try to convert from
-					 * iso-8859-1
-					 */
-					word = t_convert (&data[pos + 7],
-							  csize - 1,
-							  "UTF-8",
-							  info->encoding ? info->encoding : "ISO-8859-1",
-							  NULL, NULL, NULL);
-					break;
-				}
-
-				pos++;
-				csize--;
-
-				if (!tracker_is_empty_string (word)) {
-					g_strstrip (word);
-
-					if (strcmp (tmap[i].text, "COM") == 0) {
-						gchar *s;
-
-						s = g_strdup (word + strlen (word) + 1);
-						g_free (word);
-						word = s;
-					}
-
-					if (strcmp (tmap[i].text, "TCO") == 0) {
-						gint genre;
-						if (get_genre_number (word, &genre)) {
-							g_free (word);
-							word = g_strdup (get_genre_name (genre));
-						}
-
-						if (!word || strcasecmp (word, "unknown") == 0) {
-							g_free (word);
-							break;
-						}
-					} else if (strcmp (tmap[i].text, "TLE") == 0) {
-						guint32 duration;
-
-						duration = atoi (word);
-						g_free (word);
-						word = g_strdup_printf ("%d", duration/1000);
-						filedata->duration = duration/1000;
-					}
-
-					if (tmap[i].nullify) {
-						/* prefer ID3v2 tag over ID3v1 tag */
-						g_free (*tmap[i].nullify);
-						*tmap[i].nullify = NULL;
-
-						/* keep title around for albumart */
-						if (tmap[i].nullify == &filedata->id3v1_info->title) {
-							filedata->title = g_strdup (word);
-						}
-					}
-					if (tmap[i].urn) {
-						gchar *canonical_uri = tmap[i].urn[0]!=':'?tracker_uri_printf_escaped ("urn:%s:%s", tmap[i].urn, word):g_strdup(tmap[i].urn);
-						tracker_statement_list_insert (metadata, canonical_uri, RDF_TYPE, tmap[i].rdf_type);
-						tracker_statement_list_insert (metadata, canonical_uri, tmap[i].predicate, word);
-						tracker_statement_list_insert (metadata, uri, tmap[i].type, canonical_uri);
-						g_free (canonical_uri);
-					} else {
-						tracker_statement_list_insert (metadata, uri,
-									  tmap[i].type,
-									  word);
-					}
-				}
-
-				g_free (word);
-
-				break;
-			}
-
-			i++;
-		}
-
-		/* Check for embedded images */
-		if (strncmp (&data[pos], "PIC", 3) == 0) {
+		if (frame == ID3V2_PIC) {
+			/* embedded image */
 			gchar          pic_type;
 			const gchar   *desc;
 			guint          offset;
 			const gchar   *mime;
 
-			mime      = &data[pos + 6 + 3 + 1];
-			pic_type  =  data[pos + 6 + 3 + 1 + 3];
-			desc      = &data[pos + 6 + 3 + 1 + 3 + 1];
+			mime      = &data[pos + 3 + 1];
+			pic_type  =  data[pos + 3 + 1 + 3];
+			desc      = &data[pos + 3 + 1 + 3 + 1];
 
 			if (pic_type == 3 || (pic_type == 0 && filedata->albumartsize == 0)) {
-				offset = pos + 6 + 3 + 1 + 3  + 1 + strlen (desc) + 1;
+				offset = pos + 3 + 1 + 3 + 1 + strlen (desc) + 1;
 
 				filedata->albumartmime = g_strdup (mime);
 				filedata->albumartdata = g_malloc0 (csize);
 				memcpy (filedata->albumartdata, &data[offset], csize);
 				filedata->albumartsize = csize;
 			}
+		} else {
+			/* text frames */
+			gchar * word;
+
+			word = id3v2_text_to_utf8 (data[pos], &data[pos + 1], csize - 1);
+			if (!tracker_is_empty_string (word)) {
+				g_strstrip (word);
+			}
+
+			switch (frame) {
+			case ID3V2_COM:
+			{
+				tag->comment = g_strdup (word + strlen (word) + 1);
+				g_free (word);
+			}
+			case ID3V2_TAL:
+				tag->album = word;
+				break;
+			case ID3V2_TCO:
+			{
+				gint genre;
+				if (get_genre_number (word, &genre)) {
+					g_free (word);
+					word = g_strdup (get_genre_name (genre));
+				}
+
+				if (word && strcasecmp (word, "unknown") != 0) {
+					tag->content_type = word;
+				} else {
+					g_free (word);
+				}
+			}
+			case ID3V2_TCR:
+				tag->copyright = word;
+				break;
+			case ID3V2_TLE:
+				tag->length = atoi (word) / 1000;
+				break;
+			case ID3V2_TPB:
+				tag->publisher = word;
+				break;
+			case ID3V2_TP1:
+				tag->performer1 = word;
+				break;
+			case ID3V2_TP2:
+				tag->performer2 = word;
+				break;
+			case ID3V2_TT1:
+				tag->title1 = word;
+				break;
+			case ID3V2_TT2:
+				tag->title2 = word;
+				break;
+			case ID3V2_TT3:
+				tag->title3 = word;
+				break;
+			case ID3V2_TXT:
+				tag->text = word;
+				break;
+			case ID3V2_TYE:
+				tag->recording_time = word;
+				break;
+			default:
+				g_assert_not_reached ();
+			}
 		}
 
-		pos += 6 + csize;
+		pos += csize;
 	}
 }
 
@@ -1810,34 +1812,16 @@ static void
 extract_mp3 (const gchar *uri,
 	     TrackerSparqlBuilder  *metadata)
 {
-	GObject *object;
 	gchar *filename;
 	int fd;
 	void *buffer;
 	void *id3v1_buffer;
 	goffset size;
 	goffset  buffer_size;
-	id3tag info;
 	goffset audio_offset;
 	file_data filedata;
 
-	info.title = NULL;
-	info.artist = NULL;
-	info.album = NULL;
-	info.year = NULL;
-	info.comment = NULL;
-	info.genre = NULL;
-	info.trackno = NULL;
-	info.encoding = NULL;
-
-	filedata.size = 0;
-	filedata.id3v2_size = 0;
-	filedata.duration = 0;
-	filedata.title = NULL;
-	filedata.albumartdata = NULL;
-	filedata.albumartmime = NULL;
-	filedata.albumartsize = 0;
-	filedata.id3v1_info = &info;
+	memset (&filedata, 0, sizeof (file_data));
 
 	filename = g_filename_from_uri (uri, NULL, NULL);
 
@@ -1890,102 +1874,160 @@ extract_mp3 (const gchar *uri,
 		return;
 	}
 
-	if (!get_id3 (id3v1_buffer, ID3V1_SIZE, &info)) {
+	if (!get_id3 (id3v1_buffer, ID3V1_SIZE, &filedata.id3v1_info)) {
 		/* Do nothing? */
 	}
 	
 	g_free (id3v1_buffer);
 
-	tracker_statement_list_insert (metadata, uri, 
-	                               RDF_TYPE, 
-	                               NMM_PREFIX "MusicPiece");
-
-	tracker_statement_list_insert (metadata, uri, 
-	                               RDF_TYPE, 
-	                               NFO_PREFIX "Audio");
-
-	if (!tracker_is_empty_string (info.title)) {
-		tracker_statement_list_insert (metadata, uri,
-				     NIE_PREFIX "title",
-				     info.title);
-
-		/* keep title around for albumart */
-		filedata.title = g_strdup (info.title);
-	}
-
-	if (!tracker_is_empty_string (info.artist)) {
-		gchar *canonical_uri = tracker_uri_printf_escaped ("urn:artist:%s", info.artist);
-		tracker_statement_list_insert (metadata, canonical_uri, RDF_TYPE, NMM_PREFIX "Artist");
-		tracker_statement_list_insert (metadata, canonical_uri, NMM_PREFIX "artistName", info.artist);
-		tracker_statement_list_insert (metadata, uri, NMM_PREFIX "performer", canonical_uri);
-		g_free (canonical_uri);
-	}
-
-	if (!tracker_is_empty_string (info.album)) {
-		gchar *canonical_uri = tracker_uri_printf_escaped ("urn:album:%s", info.album);
-		tracker_statement_list_insert (metadata, canonical_uri, RDF_TYPE, NMM_PREFIX "MusicAlbum");
-		tracker_statement_list_insert (metadata, canonical_uri, NMM_PREFIX "albumTitle", info.album);
-		tracker_statement_list_insert (metadata, uri, NMM_PREFIX "musicAlbum", canonical_uri);
-		g_free (canonical_uri);
-	}
-
-	if (!tracker_is_empty_string (info.year)) {
-		tracker_statement_list_insert (metadata, uri,
-				     NIE_PREFIX "contentCreated",
-				     info.year);
-	}
-
-	if (!tracker_is_empty_string (info.genre)) {
-		tracker_statement_list_insert (metadata, uri,
-				     NFO_PREFIX "genre",
-				     info.genre);
-	}
-
-	if (!tracker_is_empty_string (info.comment)) {
-		tracker_statement_list_insert (metadata, uri,
-				     NIE_PREFIX "comment",
-				     info.comment);
-	}
-
-	if (!tracker_is_empty_string (info.trackno)) {
-		tracker_statement_list_insert (metadata, uri,
-				     NMM_PREFIX "trackNumber",
-				     info.trackno);
-	}
-
 	/* Get other embedded tags */
-	audio_offset = parse_id3v2 (buffer, buffer_size, &info, uri, metadata, &filedata);
+	audio_offset = parse_id3v2 (buffer, buffer_size, &filedata.id3v1_info, uri, metadata, &filedata);
+
+	filedata.title = tracker_coalesce (4, filedata.id3v24_info.title2,
+	                                   filedata.id3v23_info.title2,
+	                                   filedata.id3v22_info.title2,
+	                                   filedata.id3v1_info.title);
+	filedata.performer = tracker_coalesce (7, filedata.id3v24_info.performer1,
+	                                       filedata.id3v24_info.performer2,
+	                                       filedata.id3v23_info.performer1,
+	                                       filedata.id3v23_info.performer2,
+	                                       filedata.id3v22_info.performer1,
+	                                       filedata.id3v22_info.performer2,
+	                                       filedata.id3v1_info.artist);
+	filedata.album = tracker_coalesce (4, filedata.id3v24_info.album,
+	                                   filedata.id3v23_info.album,
+	                                   filedata.id3v22_info.album,
+	                                   filedata.id3v1_info.album);
+	filedata.genre = tracker_coalesce (7, filedata.id3v24_info.content_type,
+	                                   filedata.id3v24_info.title1,
+	                                   filedata.id3v23_info.content_type,
+	                                   filedata.id3v23_info.title1,
+	                                   filedata.id3v22_info.content_type,
+	                                   filedata.id3v22_info.title1,
+	                                   filedata.id3v1_info.genre);
+	filedata.recording_time = tracker_coalesce (5, filedata.id3v24_info.recording_time,
+	                                            filedata.id3v24_info.release_time,
+	                                            filedata.id3v23_info.recording_time,
+	                                            filedata.id3v22_info.recording_time,
+	                                            filedata.id3v1_info.year);
+	filedata.publisher = tracker_coalesce (3, filedata.id3v24_info.publisher,
+	                                       filedata.id3v23_info.publisher,
+	                                       filedata.id3v22_info.publisher);
+	filedata.text = tracker_coalesce (3, filedata.id3v24_info.text,
+	                                  filedata.id3v23_info.text,
+	                                  filedata.id3v22_info.text);
+	filedata.copyright = tracker_coalesce (3, filedata.id3v24_info.copyright,
+	                                       filedata.id3v23_info.copyright,
+	                                       filedata.id3v22_info.copyright);
+	filedata.comment = tracker_coalesce (7, filedata.id3v24_info.title3,
+	                                     filedata.id3v24_info.comment,
+	                                     filedata.id3v23_info.title3,
+	                                     filedata.id3v23_info.comment,
+	                                     filedata.id3v22_info.title3,
+	                                     filedata.id3v22_info.comment,
+	                                     filedata.id3v1_info.comment);
+
+	if (filedata.performer) {
+		filedata.performer_uri = tracker_uri_printf_escaped ("urn:artist:%s", filedata.performer);
+		tracker_sparql_builder_subject_iri (metadata, filedata.performer_uri);
+		tracker_sparql_builder_predicate (metadata, "a");
+		tracker_sparql_builder_object (metadata, "nmm:Artist");
+		tracker_sparql_builder_predicate (metadata, "nmm:artistName");
+		tracker_sparql_builder_object_unvalidated (metadata, filedata.performer);
+		g_free (filedata.performer);
+	}
+
+	if (filedata.album) {
+		filedata.album_uri = tracker_uri_printf_escaped ("urn:album:%s", filedata.album);
+		tracker_sparql_builder_subject_iri (metadata, filedata.album_uri);
+		tracker_sparql_builder_predicate (metadata, "a");
+		tracker_sparql_builder_object (metadata, "nmm:MusicAlbum");
+		tracker_sparql_builder_predicate (metadata, "nmm:albumTitle");
+		tracker_sparql_builder_object_unvalidated (metadata, filedata.album);
+		g_free (filedata.album);
+	}
+
+	tracker_sparql_builder_subject_iri (metadata, uri);
+	tracker_sparql_builder_predicate (metadata, "a");
+	tracker_sparql_builder_object (metadata, "nmm:MusicPiece");
+	tracker_sparql_builder_object (metadata, "nfo:Audio");
+
+	if (filedata.title) {
+		tracker_sparql_builder_predicate (metadata, "nie:title");
+		tracker_sparql_builder_object_unvalidated (metadata, filedata.title);
+		/* do not delete title, needed by albumart */
+	}
+
+	if (filedata.performer_uri) {
+		tracker_sparql_builder_predicate (metadata, "nmm:performer");
+		tracker_sparql_builder_object_iri (metadata, filedata.performer_uri);
+		g_free (filedata.performer_uri);
+	}
+
+	if (filedata.album_uri) {
+		tracker_sparql_builder_predicate (metadata, "nmm:musicAlbum");
+		tracker_sparql_builder_object_iri (metadata, filedata.album_uri);
+		g_free (filedata.album_uri);
+	}
+
+	if (filedata.recording_time) {
+		tracker_sparql_builder_predicate (metadata, "nie:contentCreated");
+		tracker_sparql_builder_object_unvalidated (metadata, filedata.recording_time);
+		g_free (filedata.recording_time);
+	}
+
+	if (filedata.text) {
+		tracker_sparql_builder_predicate (metadata, "nie:plainTextContent");
+		tracker_sparql_builder_object_unvalidated (metadata, filedata.text);
+		g_free (filedata.text);
+	}
+
+	if (filedata.genre) {
+		tracker_sparql_builder_predicate (metadata, "nfo:genre");
+		tracker_sparql_builder_object_unvalidated (metadata, filedata.genre);
+		g_free (filedata.genre);
+	}
+
+	if (filedata.copyright) {
+		tracker_sparql_builder_predicate (metadata, "nie:copyright");
+		tracker_sparql_builder_object_unvalidated (metadata, filedata.copyright);
+		g_free (filedata.copyright);
+	}
+
+	if (filedata.comment) {
+		tracker_sparql_builder_predicate (metadata, "nie:comment");
+		tracker_sparql_builder_object_unvalidated (metadata, filedata.comment);
+		g_free (filedata.comment);
+	}
+
+	if (filedata.publisher) {
+		tracker_sparql_builder_predicate (metadata, "nco:publisher");
+		tracker_sparql_builder_object_blank_open (metadata);
+		tracker_sparql_builder_predicate (metadata, "a");
+		tracker_sparql_builder_object (metadata, "nco:Contact");
+		tracker_sparql_builder_predicate (metadata, "nco:fullname");
+		tracker_sparql_builder_object_unvalidated (metadata, filedata.publisher);
+		tracker_sparql_builder_object_blank_close (metadata);
+		g_free (filedata.publisher);
+	}
 
 	/* Get mp3 stream info */
 	mp3_parse (buffer, buffer_size, audio_offset, uri, metadata, &filedata);
 
-	g_free (info.title);
-	g_free (info.year);
-	g_free (info.album);
-	g_free (info.artist);
-	g_free (info.comment);
-	g_free (info.trackno);
-	g_free (info.genre);
-
-	/* TODO */
-	object = tracker_dbus_get_object (TRACKER_TYPE_EXTRACT);
-
 #ifdef HAVE_GDKPIXBUF
-	tracker_extract_process_albumart (TRACKER_EXTRACT (object),
-					  filedata.albumartdata, 
-					  filedata.albumartsize, 
-					  filedata.albumartmime,
-					  /* tracker_statement_list_find (metadata, NMM_PREFIX "performer") */ NULL,
-					  filedata.title, 
-					  filename);
+	tracker_albumart_process (filedata.albumartdata, 
+				  filedata.albumartsize, 
+				  filedata.albumartmime,
+				  NULL,
+				  filedata.title, 
+				  filename);
 #else
-	tracker_extract_process_albumart (TRACKER_EXTRACT (object),
-					  NULL, 
-					  0, 
-					  NULL,
-					  /* tracker_statement_list_find (metadata, NMM_PREFIX "performer") */ NULL,
-					  filedata.title, 
-					  filename);
+	tracker_albumart_process (NULL, 
+				  0, 
+				  NULL,
+				  NULL,
+				  filedata.title, 
+				  filename);
 
 #endif /* HAVE_GDKPIXBUF */
 
@@ -1993,7 +2035,7 @@ extract_mp3 (const gchar *uri,
 	g_free (filedata.albumartdata);
 	g_free (filedata.albumartmime);
 
-	g_free (info.encoding);
+	g_free (filedata.id3v1_info.encoding);
 
 #ifndef G_OS_WIN32
 	munmap (buffer, buffer_size);
@@ -2007,3 +2049,4 @@ tracker_get_extract_data (void)
 {
 	return extract_data;
 }
+

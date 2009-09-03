@@ -3,13 +3,12 @@ include $(top_srcdir)/Makefile.decl
 SUBDIRS = 					\
 	libstemmer				\
 	libinotify				\
-	rasqal		 			\
 	libtracker-common 			\
+	tracker-fts				\
 	libtracker-db				\
 	libtracker-data				\
 	libtracker				\
 	libtracker-miner			\
-	tracker-fts				\
 	plugins					\
 	tracker-store				\
 	tracker-utils				\
@@ -39,12 +38,11 @@ endif
 DIST_SUBDIRS = 					\
 	libstemmer				\
 	libinotify				\
-	rasqal		 			\
 	libtracker-common 			\
+	tracker-fts				\
 	libtracker-db				\
 	libtracker-data				\
 	libtracker				\
-	tracker-fts				\
 	tracker-store				\
 	tracker-utils				\
 	tracker-explorer			\

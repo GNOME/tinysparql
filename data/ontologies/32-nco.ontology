@@ -24,6 +24,7 @@ nco:Affiliation a rdfs:Class ;
 nco:Contact a rdfs:Class ;
 	rdfs:label "Contact" ;
 	rdfs:comment "A Contact. A piece of data that can provide means to identify or communicate with an entity." ;
+	tracker:notify true ;
 	rdfs:subClassOf nie:InformationElement , nco:Role .
 
 nco:ContactGroup a rdfs:Class ;
@@ -50,6 +51,7 @@ nco:EmailAddress a rdfs:Class ;
 nco:IMAccount a rdfs:Class ;
 	rdfs:label "IMAccount" ;
 	rdfs:comment "An account in an Instant Messaging system." ;
+	tracker:notify true ;
 	rdfs:subClassOf nco:ContactMedium .
 
 nco:OrganizationContact a rdfs:Class ;
@@ -60,6 +62,7 @@ nco:OrganizationContact a rdfs:Class ;
 nco:PersonContact a rdfs:Class ;
 	rdfs:label "PersonContact" ;
 	rdfs:comment "A Contact that denotes a Person. A person can have multiple Affiliations." ;
+	tracker:notify true ;
 	rdfs:subClassOf nco:Contact .
 
 nco:PhoneNumber a rdfs:Class ;

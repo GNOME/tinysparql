@@ -3,16 +3,16 @@
  * Copyright (C) 2008 Nokia
  *
  * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public
+ * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
- * version 2 of the License, or (at your option) any later version.
+ * version 2.1 of the License, or (at your option) any later version.
  *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * General Public License for more details.
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public
+ * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA  02110-1301, USA.
@@ -94,6 +94,25 @@ tracker_db_statement_get_type (void)
 
 	return type;
 }
+
+GType
+tracker_db_cursor_get_type (void)
+{
+	static GType type = 0;
+
+	if (G_UNLIKELY (type == 0)) {
+		type = g_type_register_static_simple (G_TYPE_INTERFACE,
+						      "TrackerDBCursor",
+						      sizeof (TrackerDBCursorIface),
+						      NULL,
+						      0, NULL, 0);
+
+		g_type_interface_add_prerequisite (type, G_TYPE_OBJECT);
+	}
+
+	return type;
+}
+
 
 /* Boxed type for blobs */
 static gpointer
@@ -373,44 +392,60 @@ tracker_db_interface_end_transaction (TrackerDBInterface *interface)
 }
 
 void
+tracker_db_interface_disconnect (TrackerDBInterface  *interface)
+{
+	g_return_if_fail (TRACKER_IS_DB_INTERFACE (interface));
+
+	TRACKER_DB_INTERFACE_GET_IFACE (interface)->disconnect (interface);
+}
+
+void
+tracker_db_interface_reconnect (TrackerDBInterface  *interface)
+{
+	g_return_if_fail (TRACKER_IS_DB_INTERFACE (interface));
+
+	TRACKER_DB_INTERFACE_GET_IFACE (interface)->reconnect (interface);
+}
+
+void
 tracker_db_statement_bind_double (TrackerDBStatement	*stmt,
-				  int			 index,
+				  int			 idx,
 				  double		 value)
 {
 	g_return_if_fail (TRACKER_IS_DB_STATEMENT (stmt));
 
-	TRACKER_DB_STATEMENT_GET_IFACE (stmt)->bind_double (stmt, index, value);
+	TRACKER_DB_STATEMENT_GET_IFACE (stmt)->bind_double (stmt, idx, value);
 }
 
 void
 tracker_db_statement_bind_int (TrackerDBStatement	*stmt,
-			       int			 index,
+			       int			 idx,
 			       int			 value)
 {
 	g_return_if_fail (TRACKER_IS_DB_STATEMENT (stmt));
 
-	TRACKER_DB_STATEMENT_GET_IFACE (stmt)->bind_int (stmt, index, value);
+	TRACKER_DB_STATEMENT_GET_IFACE (stmt)->bind_int (stmt, idx, value);
 }
 
 
 void
 tracker_db_statement_bind_int64 (TrackerDBStatement	*stmt,
-			         int			 index,
+			         int			 idx,
 			         gint64			 value)
 {
 	g_return_if_fail (TRACKER_IS_DB_STATEMENT (stmt));
 
-	TRACKER_DB_STATEMENT_GET_IFACE (stmt)->bind_int64 (stmt, index, value);
+	TRACKER_DB_STATEMENT_GET_IFACE (stmt)->bind_int64 (stmt, idx, value);
 }
 
 void
 tracker_db_statement_bind_text (TrackerDBStatement	*stmt,
-				int			 index,
+				int			 idx,
 				const gchar		*value)
 {
 	g_return_if_fail (TRACKER_IS_DB_STATEMENT (stmt));
 
-	TRACKER_DB_STATEMENT_GET_IFACE (stmt)->bind_text (stmt, index, value);
+	TRACKER_DB_STATEMENT_GET_IFACE (stmt)->bind_text (stmt, idx, value);
 }
 
 TrackerDBResultSet *
@@ -425,6 +460,75 @@ tracker_db_statement_execute (TrackerDBStatement	 *stmt,
 
 	return ensure_result_set_state (result_set);
 }
+
+TrackerDBCursor *
+tracker_db_statement_start_cursor (TrackerDBStatement	 *stmt,
+				   GError		**error)
+{
+	g_return_val_if_fail (TRACKER_IS_DB_STATEMENT (stmt), NULL);
+
+	return TRACKER_DB_STATEMENT_GET_IFACE (stmt)->start_cursor (stmt, error);
+}
+
+/* TrackerDBCursor API */
+
+void
+tracker_db_cursor_rewind (TrackerDBCursor *cursor)
+{
+	g_return_if_fail (TRACKER_IS_DB_CURSOR (cursor));
+
+	TRACKER_DB_CURSOR_GET_IFACE (cursor)->rewind (cursor);
+}
+
+gboolean
+tracker_db_cursor_iter_next (TrackerDBCursor *cursor)
+{
+	g_return_val_if_fail (TRACKER_IS_DB_CURSOR (cursor), FALSE);
+
+	return TRACKER_DB_CURSOR_GET_IFACE (cursor)->iter_next (cursor);
+}
+
+guint
+tracker_db_cursor_get_n_columns (TrackerDBCursor *cursor)
+{
+	g_return_val_if_fail (TRACKER_IS_DB_CURSOR (cursor), 0);
+
+	return TRACKER_DB_CURSOR_GET_IFACE (cursor)->get_n_columns (cursor);
+}
+
+void
+tracker_db_cursor_get_value (TrackerDBCursor *cursor,  guint column, GValue *value)
+{
+	g_return_if_fail (TRACKER_IS_DB_CURSOR (cursor));
+
+	TRACKER_DB_CURSOR_GET_IFACE (cursor)->get_value (cursor, column, value);
+}
+
+const gchar*
+tracker_db_cursor_get_string (TrackerDBCursor *cursor, guint            column)
+{
+	g_return_val_if_fail (TRACKER_IS_DB_CURSOR (cursor), NULL);
+
+	return TRACKER_DB_CURSOR_GET_IFACE (cursor)->get_string (cursor, column);
+}
+
+gint
+tracker_db_cursor_get_int (TrackerDBCursor *cursor, guint            column)
+{
+	g_return_val_if_fail (TRACKER_IS_DB_CURSOR (cursor), -1);
+
+	return TRACKER_DB_CURSOR_GET_IFACE (cursor)->get_int (cursor, column);
+}
+
+gdouble
+tracker_db_cursor_get_double (TrackerDBCursor *cursor, guint            column)
+{
+	g_return_val_if_fail (TRACKER_IS_DB_CURSOR (cursor), -1);
+
+	return TRACKER_DB_CURSOR_GET_IFACE (cursor)->get_double (cursor, column);
+}
+
+
 
 /* TrackerDBResultSet semiprivate API */
 TrackerDBResultSet *
@@ -520,6 +624,9 @@ fill_in_value (GValue	*value,
 		break;
 	case G_TYPE_STRING:
 		g_value_set_string (value, data);
+		break;
+	default:
+		g_warning ("Unknown type for resultset: %s\n", G_VALUE_TYPE_NAME (value));
 		break;
 	}
 }

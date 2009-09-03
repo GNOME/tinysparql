@@ -1,5 +1,18 @@
 include $(top_srcdir)/Makefile.decl
 
+SUBDIRS = 			\
+	algebra			\
+	bnode-coreference	\
+	bound 			\
+	expr-ops		\
+	nie			\
+	nmo			\
+	optional		\
+	regex			\
+	sort			\
+	error			\
+	turtle
+
 noinst_PROGRAMS = $(TEST_PROGS)
 
 TEST_PROGS += 								\
@@ -7,8 +20,10 @@ TEST_PROGS += 								\
 	tracker-ontology
 
 INCLUDES = 								\
-	-DG_LOG_DOMAIN=\"Tracker\"					\
 	-DTRACKER_COMPILATION						\
+	-DTOP_SRCDIR=\"$(top_srcdir)\"					\
+	-DTOP_BUILDDIR=\"$(top_builddir)\"				\
+	-DG_LOG_DOMAIN=\"Tracker\"					\
 	-I$(top_srcdir)/src						\
 	-I$(top_srcdir)/tests/common					\
 	$(WARN_CFLAGS)							\
@@ -17,8 +32,7 @@ INCLUDES = 								\
 	$(SQLITE3_CFLAGS)						\
 	$(GMODULE_CFLAGS)						\
 	$(GTHREAD_CFLAGS)						\
-	$(GLIB2_CFLAGS)							\
-	$(RAPTOR_CFLAGS)
+	$(GLIB2_CFLAGS)
 
 common_ldadd =								\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
@@ -28,8 +42,7 @@ common_ldadd =								\
 	$(GCOV_LIBS)							\
 	$(GMODULE_LIBS)							\
 	$(GTHREAD_LIBS)							\
-	$(GLIB2_LIBS)							\
-	$(RAPTOR_LIBS)
+	$(GLIB2_LIBS)
 
 tracker_sparql_SOURCES = 						\
 	tracker-sparql-test.c

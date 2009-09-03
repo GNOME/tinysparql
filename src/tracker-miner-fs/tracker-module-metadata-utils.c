@@ -36,11 +36,11 @@
 #include <libtracker-common/tracker-type-utils.h>
 #include <libtracker-common/tracker-os-dependant.h>
 #include <libtracker-common/tracker-ontology.h>
-#include <libtracker-common/tracker-thumbnailer.h>
 
 #include "tracker-module-metadata-utils.h"
 #include "tracker-extract-client.h"
 #include "tracker-dbus.h"
+#include "tracker-thumbnailer.h"
 
 #define THUMBNAIL_RETRIEVAL_ENABLED
 #define HAVE_HILDON_THUMBNAIL
@@ -93,7 +93,7 @@ get_extractor_pid (void)
 	GPid pid;
 
 	/* Get new PID from extractor */
-	if (!org_freedesktop_Tracker_Extract_get_pid (get_dbus_extract_proxy (),
+	if (!org_freedesktop_Tracker1_Extract_get_pid (get_dbus_extract_proxy (),
 						      &pid,
 						      &error)) {
 		g_critical ("Couldn't get PID from tracker-extract, %s",
@@ -143,15 +143,15 @@ get_dbus_extract_proxy (void)
 
 	/* Get proxy for Service / Path / Interface of the indexer */
 	proxy = dbus_g_proxy_new_for_name (connection,
-					   "org.freedesktop.Tracker.Extract",
-					   "/org/freedesktop/Tracker/Extract",
-					   "org.freedesktop.Tracker.Extract");
+					   "org.freedesktop.Tracker1.Extract",
+					   "/org/freedesktop/Tracker1/Extract",
+					   "org.freedesktop.Tracker1.Extract");
 
 	if (!proxy) {
 		g_critical ("Could not create a DBusGProxy to the extract service");
 	}
 
-	tracker_dbus_add_name_monitor ("org.freedesktop.Tracker.Extract",
+	tracker_dbus_add_name_monitor ("org.freedesktop.Tracker1.Extract",
 				       extractor_changed_availability_cb,
 				       NULL, NULL);
 	return proxy;
@@ -379,7 +379,7 @@ metadata_utils_get_embedded (GFile		 *file,
 	g_object_set_data (G_OBJECT (file), "extractor-context", context);
 	uri = g_file_get_uri (file);
 
-	org_freedesktop_Tracker_Extract_get_metadata_async (get_dbus_extract_proxy (),
+	org_freedesktop_Tracker1_Extract_get_metadata_async (get_dbus_extract_proxy (),
 							    uri,
 							    mime_type,
 							    get_metadata_async_cb,
@@ -783,14 +783,6 @@ tracker_module_metadata_utils_get_data (GFile *file, TrackerSparqlBuilder *sparq
 	tracker_sparql_builder_predicate (sparql, "a");
 	tracker_sparql_builder_object (sparql, "nfo:FileDataObject");
 
-	tracker_sparql_builder_subject_iri (sparql, uri); /* Change to URN */
-	tracker_sparql_builder_predicate (sparql, "nie:isStoredAs");
-	tracker_sparql_builder_object_iri (sparql, uri);
-
-	if (g_file_info_get_file_type (file_info) == G_FILE_TYPE_DIRECTORY) {
-		tracker_sparql_builder_object (sparql, "nfo:Folder");
-	}
-
 	parent = g_file_get_parent (file);
 	if (parent) {
 		parent_uri = g_file_get_uri (parent);
@@ -803,19 +795,29 @@ tracker_module_metadata_utils_get_data (GFile *file, TrackerSparqlBuilder *sparq
 	tracker_sparql_builder_predicate (sparql, "nfo:fileName");
 	tracker_sparql_builder_object_string (sparql, g_file_info_get_display_name (file_info));
 
-	tracker_sparql_builder_predicate (sparql, "nie:mimeType");
-	tracker_sparql_builder_object_string (sparql, *mime_type);
-
 	tracker_sparql_builder_predicate (sparql, "nfo:fileSize");
 	tracker_sparql_builder_object_int64 (sparql, g_file_info_get_size (file_info));
 
 	time_ = g_file_info_get_attribute_uint64 (file_info, G_FILE_ATTRIBUTE_TIME_MODIFIED);
 	tracker_sparql_builder_predicate (sparql, "nfo:fileLastModified");
-	tracker_sparql_builder_object_date (sparql, &time_);
+	tracker_sparql_builder_object_date (sparql, (const time_t*) &time_);
 	time_ = g_file_info_get_attribute_uint64 (file_info, G_FILE_ATTRIBUTE_TIME_ACCESS);
 	tracker_sparql_builder_predicate (sparql, "nfo:fileLastAccessed");
 	
-	tracker_sparql_builder_object_date (sparql, &time_);
+	tracker_sparql_builder_object_date (sparql, (const time_t*) &time_);
+
+	tracker_sparql_builder_subject_iri (sparql, uri); /* Change to URN */
+	tracker_sparql_builder_predicate (sparql, "a");
+	tracker_sparql_builder_object (sparql, "nie:InformationElement");
+	if (g_file_info_get_file_type (file_info) == G_FILE_TYPE_DIRECTORY) {
+		tracker_sparql_builder_object (sparql, "nfo:Folder");
+	}
+
+	tracker_sparql_builder_predicate (sparql, "nie:isStoredAs");
+	tracker_sparql_builder_object_iri (sparql, uri);
+
+	tracker_sparql_builder_predicate (sparql, "nie:mimeType");
+	tracker_sparql_builder_object_string (sparql, *mime_type);
 
 	/* Check the size is actually non-zero */
 	if (g_file_info_get_size (file_info) > 0) {

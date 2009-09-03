@@ -6,16 +6,16 @@
  * Copyright (C) 2008, Nokia
  *
  * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public
+ * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
- * version 2 of the License, or (at your option) any later version.
+ * version 2.1 of the License, or (at your option) any later version.
  *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * General Public License for more details.
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public
+ * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA  02110-1301, USA.
@@ -27,6 +27,7 @@
 #include <stdlib.h>
 #include <fcntl.h>
 #include <zlib.h>
+#include <inttypes.h>
 
 #include <glib/gstdio.h>
 
@@ -36,12 +37,14 @@
 #include <libtracker-common/tracker-utils.h>
 #include <libtracker-common/tracker-ontology.h>
 
+#include <tracker-fts/tracker-fts.h>
+
 #include <libtracker-db/tracker-db-interface-sqlite.h>
 #include <libtracker-db/tracker-db-manager.h>
 
 #include "tracker-data-manager.h"
 #include "tracker-data-update.h"
-#include "tracker-turtle.h"
+#include "tracker-sparql-query.h"
 
 #define RDF_PREFIX TRACKER_RDF_PREFIX
 #define RDF_PROPERTY RDF_PREFIX "Property"
@@ -67,16 +70,19 @@ static gboolean            initialized;
 static void
 load_ontology_file_from_path (const gchar	 *ontology_file)
 {
-	tracker_turtle_reader_init (ontology_file, NULL);
-	while (tracker_turtle_reader_next ()) {
+	TrackerTurtleReader *reader;
+	GError              *error = NULL;
+
+	reader = tracker_turtle_reader_new (ontology_file);
+	while (error == NULL && tracker_turtle_reader_next (reader, &error)) {
 		const gchar *subject, *predicate, *object;
 
-		subject = tracker_turtle_reader_get_subject ();
-		predicate = tracker_turtle_reader_get_predicate ();
-		object = tracker_turtle_reader_get_object ();
+		subject = tracker_turtle_reader_get_subject (reader);
+		predicate = tracker_turtle_reader_get_predicate (reader);
+		object = tracker_turtle_reader_get_object (reader);
 
-		if (strcmp (predicate, RDF_TYPE) == 0) {
-			if (strcmp (object, RDFS_CLASS) == 0) {
+		if (g_strcmp0 (predicate, RDF_TYPE) == 0) {
+			if (g_strcmp0 (object, RDFS_CLASS) == 0) {
 				TrackerClass *class;
 
 				if (tracker_ontology_get_class_by_uri (subject) != NULL) {
@@ -88,7 +94,7 @@ load_ontology_file_from_path (const gchar	 *ontology_file)
 				tracker_class_set_uri (class, subject);
 				tracker_ontology_add_class (class);
 				g_object_unref (class);
-			} else if (strcmp (object, RDF_PROPERTY) == 0) {
+			} else if (g_strcmp0 (object, RDF_PROPERTY) == 0) {
 				TrackerProperty *property;
 
 				if (tracker_ontology_get_property_by_uri (subject) != NULL) {
@@ -100,7 +106,7 @@ load_ontology_file_from_path (const gchar	 *ontology_file)
 				tracker_property_set_uri (property, subject);
 				tracker_ontology_add_property (property);
 				g_object_unref (property);
-			} else if (strcmp (object, TRACKER_PREFIX "Namespace") == 0) {
+			} else if (g_strcmp0 (object, TRACKER_PREFIX "Namespace") == 0) {
 				TrackerNamespace *namespace;
 
 				if (tracker_ontology_get_namespace_by_uri (subject) != NULL) {
@@ -113,7 +119,7 @@ load_ontology_file_from_path (const gchar	 *ontology_file)
 				tracker_ontology_add_namespace (namespace);
 				g_object_unref (namespace);
 			}
-		} else if (strcmp (predicate, RDFS_SUB_CLASS_OF) == 0) {
+		} else if (g_strcmp0 (predicate, RDFS_SUB_CLASS_OF) == 0) {
 			TrackerClass *class, *super_class;
 
 			class = tracker_ontology_get_class_by_uri (subject);
@@ -129,7 +135,7 @@ load_ontology_file_from_path (const gchar	 *ontology_file)
 			}
 
 			tracker_class_add_super_class (class, super_class);
-		} else if (strcmp (predicate, RDFS_SUB_PROPERTY_OF) == 0) {
+		} else if (g_strcmp0 (predicate, RDFS_SUB_PROPERTY_OF) == 0) {
 			TrackerProperty *property, *super_property;
 
 			property = tracker_ontology_get_property_by_uri (subject);
@@ -145,7 +151,7 @@ load_ontology_file_from_path (const gchar	 *ontology_file)
 			}
 
 			tracker_property_add_super_property (property, super_property);
-		} else if (strcmp (predicate, RDFS_DOMAIN) == 0) {
+		} else if (g_strcmp0 (predicate, RDFS_DOMAIN) == 0) {
 			TrackerProperty *property;
 			TrackerClass *domain;
 
@@ -162,7 +168,7 @@ load_ontology_file_from_path (const gchar	 *ontology_file)
 			}
 
 			tracker_property_set_domain (property, domain);
-		} else if (strcmp (predicate, RDFS_RANGE) == 0) {
+		} else if (g_strcmp0 (predicate, RDFS_RANGE) == 0) {
 			TrackerProperty *property;
 			TrackerClass *range;
 
@@ -179,7 +185,7 @@ load_ontology_file_from_path (const gchar	 *ontology_file)
 			}
 
 			tracker_property_set_range (property, range);
-		} else if (strcmp (predicate, NRL_MAX_CARDINALITY) == 0) {
+		} else if (g_strcmp0 (predicate, NRL_MAX_CARDINALITY) == 0) {
 			TrackerProperty *property;
 
 			property = tracker_ontology_get_property_by_uri (subject);
@@ -191,7 +197,7 @@ load_ontology_file_from_path (const gchar	 *ontology_file)
 			if (atoi (object) == 1) {
 				tracker_property_set_multiple_values (property, FALSE);
 			}
-		} else if (strcmp (predicate, TRACKER_PREFIX "indexed") == 0) {
+		} else if (g_strcmp0 (predicate, TRACKER_PREFIX "indexed") == 0) {
 			TrackerProperty *property;
 
 			property = tracker_ontology_get_property_by_uri (subject);
@@ -203,7 +209,7 @@ load_ontology_file_from_path (const gchar	 *ontology_file)
 			if (strcmp (object, "true") == 0) {
 				tracker_property_set_indexed (property, TRUE);
 			}
-		} else if (strcmp (predicate, TRACKER_PREFIX "transient") == 0) {
+		} else if (g_strcmp0 (predicate, TRACKER_PREFIX "transient") == 0) {
 			TrackerProperty *property;
 
 			property = tracker_ontology_get_property_by_uri (subject);
@@ -212,10 +218,10 @@ load_ontology_file_from_path (const gchar	 *ontology_file)
 				continue;
 			}
 
-			if (strcmp (object, "true") == 0) {
+			if (g_strcmp0 (object, "true") == 0) {
 				tracker_property_set_transient (property, TRUE);
 			}
-		} else if (strcmp (predicate, TRACKER_PREFIX "fulltextIndexed") == 0) {
+		} else if (g_strcmp0 (predicate, TRACKER_PREFIX "fulltextIndexed") == 0) {
 			TrackerProperty *property;
 
 			property = tracker_ontology_get_property_by_uri (subject);
@@ -227,7 +233,7 @@ load_ontology_file_from_path (const gchar	 *ontology_file)
 			if (strcmp (object, "true") == 0) {
 				tracker_property_set_fulltext_indexed (property, TRUE);
 			}
-		} else if (strcmp (predicate, TRACKER_PREFIX "prefix") == 0) {
+		} else if (g_strcmp0 (predicate, TRACKER_PREFIX "prefix") == 0) {
 			TrackerNamespace *namespace;
 
 			namespace = tracker_ontology_get_namespace_by_uri (subject);
@@ -238,6 +244,13 @@ load_ontology_file_from_path (const gchar	 *ontology_file)
 
 			tracker_namespace_set_prefix (namespace, object);
 		}
+	}
+
+	g_object_unref (reader);
+
+	if (error) {
+		g_critical ("Turtle parse error: %s", error->message);
+		g_error_free (error);
 	}
 }
 
@@ -252,67 +265,46 @@ load_ontology_file (const gchar	      *filename)
 }
 
 static void
-import_ontology_file_from_path (const gchar	 *ontology_file)
-{
-	tracker_turtle_reader_init (ontology_file, NULL);
-	while (tracker_turtle_reader_next ()) {
-		if (tracker_turtle_reader_object_is_uri ()) {
-			tracker_data_insert_statement_with_uri (
-				tracker_turtle_reader_get_subject (),
-				tracker_turtle_reader_get_predicate (),
-				tracker_turtle_reader_get_object (),
-				NULL);
-		} else {
-			tracker_data_insert_statement_with_string (
-				tracker_turtle_reader_get_subject (),
-				tracker_turtle_reader_get_predicate (),
-				tracker_turtle_reader_get_object (),
-				NULL);
-		}
-	}
-}
-
-static void
 import_ontology_file (const gchar	      *filename)
 {
 	gchar		*ontology_file;
+	GError          *error = NULL;
 
 	ontology_file = g_build_filename (ontologies_dir, filename, NULL);
-	import_ontology_file_from_path (ontology_file);
+	tracker_turtle_reader_load (ontology_file, &error);
 	g_free (ontology_file);
+
+	if (error) {
+		g_critical ("%s", error->message);
+		g_error_free (error);
+	}
 }
 
 static void
 class_add_super_classes_from_db (TrackerDBInterface *iface, TrackerClass *class)
 {
 	TrackerDBStatement *stmt;
-	TrackerDBResultSet *result_set;
+	TrackerDBCursor *cursor;
 
 	stmt = tracker_db_interface_create_statement (iface,
 						      "SELECT (SELECT Uri FROM \"rdfs:Resource\" WHERE ID = \"rdfs:subClassOf\") "
 						      "FROM \"rdfs:Class_rdfs:subClassOf\" "
 						      "WHERE ID = (SELECT ID FROM \"rdfs:Resource\" WHERE Uri = ?)");
 	tracker_db_statement_bind_text (stmt, 0, tracker_class_get_uri (class));
-	result_set = tracker_db_statement_execute (stmt, NULL);
+	cursor = tracker_db_statement_start_cursor (stmt, NULL);
 	g_object_unref (stmt);
 
-	if (result_set) {
-		gboolean valid = TRUE;
-
-		while (valid) {
+	if (cursor) {
+		while (tracker_db_cursor_iter_next (cursor)) {
 			TrackerClass *super_class;
-			gchar *super_class_uri;
+			const gchar *super_class_uri;
 
-			tracker_db_result_set_get (result_set, 0, &super_class_uri, -1);
+			super_class_uri = tracker_db_cursor_get_string (cursor, 0);
 			super_class = tracker_ontology_get_class_by_uri (super_class_uri);
 			tracker_class_add_super_class (class, super_class);
-
-			g_free (super_class_uri);
-
-			valid = tracker_db_result_set_iter_next (result_set);
 		}
 
-		g_object_unref (result_set);
+		g_object_unref (cursor);
 	}
 }
 
@@ -320,33 +312,27 @@ static void
 property_add_super_properties_from_db (TrackerDBInterface *iface, TrackerProperty *property)
 {
 	TrackerDBStatement *stmt;
-	TrackerDBResultSet *result_set;
+	TrackerDBCursor *cursor;
 
 	stmt = tracker_db_interface_create_statement (iface,
 						      "SELECT (SELECT Uri FROM \"rdfs:Resource\" WHERE ID = \"rdfs:subPropertyOf\") "
 						      "FROM \"rdf:Property_rdfs:subPropertyOf\" "
 						      "WHERE ID = (SELECT ID FROM \"rdfs:Resource\" WHERE Uri = ?)");
 	tracker_db_statement_bind_text (stmt, 0, tracker_property_get_uri (property));
-	result_set = tracker_db_statement_execute (stmt, NULL);
+	cursor = tracker_db_statement_start_cursor (stmt, NULL);
 	g_object_unref (stmt);
 
-	if (result_set) {
-		gboolean valid = TRUE;
-
-		while (valid) {
+	if (cursor) {
+		while (tracker_db_cursor_iter_next (cursor)) {
 			TrackerProperty *super_property;
-			gchar *super_property_uri;
+			const gchar *super_property_uri;
 
-			tracker_db_result_set_get (result_set, 0, &super_property_uri, -1);
+			super_property_uri = tracker_db_cursor_get_string (cursor, 0);
 			super_property = tracker_ontology_get_property_by_uri (super_property_uri);
 			tracker_property_add_super_property (property, super_property);
-
-			g_free (super_property_uri);
-
-			valid = tracker_db_result_set_iter_next (result_set);
 		}
 
-		g_object_unref (result_set);
+		g_object_unref (cursor);
 	}
 }
 
@@ -354,73 +340,59 @@ static void
 db_get_static_data (TrackerDBInterface *iface)
 {
 	TrackerDBStatement *stmt;
-	TrackerDBResultSet *result_set;
+	TrackerDBCursor *cursor;
 
 	stmt = tracker_db_interface_create_statement (iface,
 						      "SELECT (SELECT Uri FROM \"rdfs:Resource\" WHERE ID = \"tracker:Namespace\".ID), "
 						      "\"tracker:prefix\" "
 						      "FROM \"tracker:Namespace\"");
-	result_set = tracker_db_statement_execute (stmt, NULL);
+	cursor = tracker_db_statement_start_cursor (stmt, NULL);
 	g_object_unref (stmt);
 
-	if (result_set) {
-		gboolean valid = TRUE;
-
-		while (valid) {
+	if (cursor) {
+		while (tracker_db_cursor_iter_next (cursor)) {
 			TrackerNamespace *namespace;
-			gchar	         *uri, *prefix;
+			const gchar      *uri, *prefix;
 
 			namespace = tracker_namespace_new ();
 
-			tracker_db_result_set_get (result_set,
-						   0, &uri,
-						   1, &prefix,
-						   -1);
+			uri = tracker_db_cursor_get_string (cursor, 0);
+			prefix = tracker_db_cursor_get_string (cursor, 1);
 
 			tracker_namespace_set_uri (namespace, uri);
 			tracker_namespace_set_prefix (namespace, prefix);
 			tracker_ontology_add_namespace (namespace);
 
 			g_object_unref (namespace);
-			g_free (uri);
-			g_free (prefix);
 
-			valid = tracker_db_result_set_iter_next (result_set);
 		}
 
-		g_object_unref (result_set);
+		g_object_unref (cursor);
 	}
 
 	stmt = tracker_db_interface_create_statement (iface,
 						      "SELECT (SELECT Uri FROM \"rdfs:Resource\" WHERE ID = \"rdfs:Class\".ID) "
 						      "FROM \"rdfs:Class\" ORDER BY ID");
-	result_set = tracker_db_statement_execute (stmt, NULL);
+	cursor = tracker_db_statement_start_cursor (stmt, NULL);
 	g_object_unref (stmt);
 
-	if (result_set) {
-		gboolean valid = TRUE;
-
-		while (valid) {
+	if (cursor) {
+		while (tracker_db_cursor_iter_next (cursor)) {
 			TrackerClass *class;
-			gchar	     *uri;
+			const gchar  *uri;
 
 			class = tracker_class_new ();
 
-			tracker_db_result_set_get (result_set,
-						   0, &uri,
-						   -1);
+			uri = tracker_db_cursor_get_string (cursor, 0);
 
 			tracker_class_set_uri (class, uri);
 			class_add_super_classes_from_db (iface, class);
 			tracker_ontology_add_class (class);
 
 			g_object_unref (class);
-			g_free (uri);
-
-			valid = tracker_db_result_set_iter_next (result_set);
 		}
 
-		g_object_unref (result_set);
+		g_object_unref (cursor);
 	}
 
 	stmt = tracker_db_interface_create_statement (iface,
@@ -432,28 +404,26 @@ db_get_static_data (TrackerDBInterface *iface)
 						      "\"tracker:fulltextIndexed\", "
 						      "\"tracker:transient\" "
 						      "FROM \"rdf:Property\" ORDER BY ID");
-	result_set = tracker_db_statement_execute (stmt, NULL);
+	cursor = tracker_db_statement_start_cursor (stmt, NULL);
 	g_object_unref (stmt);
 
-	if (result_set) {
-		gboolean valid = TRUE;
+	if (cursor) {
 
-		while (valid) {
+		while (tracker_db_cursor_iter_next (cursor)) {
 			GValue value = { 0 };
 			TrackerProperty *property;
-			gchar	        *uri, *domain_uri, *range_uri;
+			const gchar     *uri, *domain_uri, *range_uri;
 			gboolean         multi_valued, indexed, fulltext_indexed;
 			gboolean         transient = FALSE;
 
 			property = tracker_property_new ();
 
-			tracker_db_result_set_get (result_set,
-						   0, &uri,
-						   1, &domain_uri,
-						   2, &range_uri,
-						   -1);
+			uri = tracker_db_cursor_get_string (cursor, 0);
+			domain_uri = tracker_db_cursor_get_string (cursor, 1);
+			range_uri = tracker_db_cursor_get_string (cursor, 2);
 
-			_tracker_db_result_set_get_value (result_set, 3, &value);
+			tracker_db_cursor_get_value (cursor, 3, &value);
+
 			if (G_VALUE_TYPE (&value) != 0) {
 				multi_valued = (g_value_get_int (&value) > 1);
 				g_value_unset (&value);
@@ -463,7 +433,8 @@ db_get_static_data (TrackerDBInterface *iface)
 				multi_valued = TRUE;
 			}
 
-			_tracker_db_result_set_get_value (result_set, 4, &value);
+			tracker_db_cursor_get_value (cursor, 4, &value);
+
 			if (G_VALUE_TYPE (&value) != 0) {
 				indexed = (g_value_get_int (&value) == 1);
 				g_value_unset (&value);
@@ -472,7 +443,8 @@ db_get_static_data (TrackerDBInterface *iface)
 				indexed = FALSE;
 			}
 
-			_tracker_db_result_set_get_value (result_set, 5, &value);
+			tracker_db_cursor_get_value (cursor, 5, &value);
+
 			if (G_VALUE_TYPE (&value) != 0) {
 				fulltext_indexed = (g_value_get_int (&value) == 1);
 				g_value_unset (&value);
@@ -481,7 +453,8 @@ db_get_static_data (TrackerDBInterface *iface)
 				fulltext_indexed = FALSE;
 			}
 
-			_tracker_db_result_set_get_value (result_set, 6, &value);
+			tracker_db_cursor_get_value (cursor, 6, &value);
+
 			if (G_VALUE_TYPE (&value) != 0) {
 				transient = (g_value_get_int (&value) == 1);
 				g_value_unset (&value);
@@ -501,14 +474,10 @@ db_get_static_data (TrackerDBInterface *iface)
 			tracker_ontology_add_property (property);
 
 			g_object_unref (property);
-			g_free (uri);
-			g_free (domain_uri);
-			g_free (range_uri);
 
-			valid = tracker_db_result_set_iter_next (result_set);
 		}
 
-		g_object_unref (result_set);
+		g_object_unref (cursor);
 	}
 }
 
@@ -544,6 +513,9 @@ create_decomposed_metadata_property_table (TrackerDBInterface *iface,
 	case TRACKER_PROPERTY_TYPE_DOUBLE:
 		sql_type = "REAL";
 		break;
+	case TRACKER_PROPERTY_TYPE_BLOB:
+	case TRACKER_PROPERTY_TYPE_STRUCT:
+	case TRACKER_PROPERTY_TYPE_FULLTEXT:
 	default:
 		sql_type = "";
 		break;
@@ -718,37 +690,18 @@ create_decomposed_transient_metadata_tables (TrackerDBInterface *iface)
 static void
 create_fts_table (TrackerDBInterface *iface)
 {
-	GString    *sql;
-	TrackerProperty	  **properties, **property;
-	gboolean first;
+	gchar *query = tracker_fts_get_create_fts_table_query ();
 
-	sql = g_string_new ("CREATE VIRTUAL TABLE fulltext.fts USING trackerfts (");
+	tracker_db_interface_execute_query (iface, NULL, "%s", query);
 
-	first = TRUE;
-	properties = tracker_ontology_get_properties ();
-	for (property = properties; *property; property++) {
-		if (tracker_property_get_data_type (*property) == TRACKER_PROPERTY_TYPE_STRING &&
-		    tracker_property_get_fulltext_indexed (*property)) {
-			if (first) {
-				first = FALSE;
-			} else {
-				g_string_append (sql, ", ");
-			}
-			g_string_append_printf (sql, "\"%s\"", tracker_property_get_name (*property));
-		}
-	}
-	g_free (properties);
-
-	g_string_append (sql, ")");
-	tracker_db_interface_execute_query (iface, NULL, "%s", sql->str);
-
-	g_string_free (sql, TRUE);
+	g_free (query);
 }
 
 gboolean
 tracker_data_manager_init (TrackerDBManagerFlags       flags,
 			   const gchar                *test_schema,
-			   gboolean                   *first_time)
+			   gboolean                   *first_time,
+			   gboolean                   *need_journal)
 {
 	TrackerDBInterface *iface;
 	gboolean is_first_time_index;
@@ -757,7 +710,7 @@ tracker_data_manager_init (TrackerDBManagerFlags       flags,
 		return TRUE;
 	}
 
-	tracker_db_manager_init (flags, &is_first_time_index, FALSE);
+	tracker_db_manager_init (flags, &is_first_time_index, FALSE, need_journal);
 
 	if (first_time != NULL) {
 		*first_time = is_first_time_index;
@@ -768,21 +721,21 @@ tracker_data_manager_init (TrackerDBManagerFlags       flags,
 	if (is_first_time_index) {
 		TrackerClass **classes;
 		TrackerClass **cl;
-		gint           max_id = 0;
+		gint max_id = 0;
 		GList *sorted = NULL, *l;
 		gchar *test_schema_path;
+		const gchar *env_path;
+		GError *error = NULL;
 
-
-		if (flags & TRACKER_DB_MANAGER_TEST_MODE) {
-			ontologies_dir = g_build_filename ("..", "..",
-							 "data",
-							 "ontologies",
-							 NULL);
-		} else {
+		env_path = g_getenv ("TRACKER_DB_ONTOLOGIES_DIR");
+		
+		if (G_LIKELY (!env_path)) {
 			ontologies_dir = g_build_filename (SHAREDIR,
-							 "tracker",
-							 "ontologies",
-							 NULL);
+							   "tracker",
+							   "ontologies",
+							   NULL);
+		} else {
+			ontologies_dir = g_strdup (env_path);
 		}
 
 		if (test_schema) {
@@ -804,8 +757,8 @@ tracker_data_manager_init (TrackerDBManagerFlags       flags,
 			while (conf_file) {
 				if (g_str_has_suffix (conf_file, ".ontology")) {
 					sorted = g_list_insert_sorted (sorted,
-					                                   g_strdup (conf_file), 
-					                                   (GCompareFunc) strcmp);
+								       g_strdup (conf_file), 
+								       (GCompareFunc) strcmp);
 				}
 				conf_file = g_dir_read_name (ontologies);
 			}
@@ -818,7 +771,10 @@ tracker_data_manager_init (TrackerDBManagerFlags       flags,
 			g_debug ("Loading ontology %s", (char *) l->data);
 			load_ontology_file (l->data);
 		}
+
 		if (test_schema) {
+			g_debug ("Loading ontology:'%s' (TEST ONTOLOGY)", test_schema_path);
+
 			load_ontology_file_from_path (test_schema_path);
 		}
 
@@ -838,8 +794,13 @@ tracker_data_manager_init (TrackerDBManagerFlags       flags,
 			import_ontology_file (l->data);
 		}
 		if (test_schema) {
-			import_ontology_file_from_path (test_schema_path);
+			tracker_turtle_reader_load (test_schema_path, &error);
 			g_free (test_schema_path);
+
+			if (error) {
+				g_critical ("%s", error->message);
+				g_error_free (error);
+			}
 		}
 
 		tracker_data_commit_transaction ();
@@ -857,10 +818,14 @@ tracker_data_manager_init (TrackerDBManagerFlags       flags,
 		create_decomposed_transient_metadata_tables (iface);
 	}
 
+	/* ensure FTS is fully initialized */
+	tracker_db_interface_execute_query (iface, NULL, "SELECT 1 FROM fulltext.fts WHERE rowid = 0");
+
 	initialized = TRUE;
 
 	return TRUE;
 }
+
 
 void
 tracker_data_manager_shutdown (void)
@@ -872,8 +837,8 @@ tracker_data_manager_shutdown (void)
 	initialized = FALSE;
 }
 
-gint
-tracker_data_manager_get_db_option_int (const gchar *option)
+gint64
+tracker_data_manager_get_db_option_int64 (const gchar *option)
 {
 	TrackerDBInterface *iface;
 	TrackerDBStatement *stmt;
@@ -894,7 +859,7 @@ tracker_data_manager_get_db_option_int (const gchar *option)
 		tracker_db_result_set_get (result_set, 0, &str, -1);
 
 		if (str) {
-			value = atoi (str);
+			value = g_ascii_strtoull (str, NULL, 10);
 			g_free (str);
 		}
 
@@ -905,8 +870,8 @@ tracker_data_manager_get_db_option_int (const gchar *option)
 }
 
 void
-tracker_data_manager_set_db_option_int (const gchar *option,
-					gint	     value)
+tracker_data_manager_set_db_option_int64 (const gchar *option,
+					  gint64       value)
 {
 	TrackerDBInterface *iface;
 	TrackerDBStatement *stmt;
@@ -919,7 +884,7 @@ tracker_data_manager_set_db_option_int (const gchar *option,
 	stmt = tracker_db_interface_create_statement (iface, "REPLACE INTO Options (OptionKey, OptionValue) VALUES (?,?)");
 	tracker_db_statement_bind_text (stmt, 0, option);
 
-	str = tracker_gint_to_string (value);
+	str = g_strdup_printf ("%"G_GINT64_FORMAT, value);
 	tracker_db_statement_bind_text (stmt, 1, str);
 	g_free (str);
 

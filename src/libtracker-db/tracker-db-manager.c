@@ -3,16 +3,16 @@
  * Copyright (C) 2008, Nokia (urho.konttori@nokia.com)
  *
  * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public
+ * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
- * version 2 of the License, or (at your option) any later version.
+ * version 2.1 of the License, or (at your option) any later version.
  *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * General Public License for more details.
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public
+ * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA  02110-1301, USA.
@@ -35,8 +35,11 @@
 #include <libtracker-common/tracker-type-utils.h>
 #include <libtracker-common/tracker-utils.h>
 
+#include "tracker-db-journal.h"
+#include "tracker-db-backup.h"
 #include "tracker-db-manager.h"
 #include "tracker-db-interface-sqlite.h"
+#include "tracker-db-interface.h"
 
 /* ZLib buffer settings */
 #define ZLIB_BUF_SIZE		      8192
@@ -152,6 +155,8 @@ static gboolean		   db_exec_no_reply    (TrackerDBInterface *iface,
 						const gchar	   *query,
 						...);
 static TrackerDBInterface *db_interface_create (TrackerDB	    db);
+static TrackerDBInterface *tracker_db_manager_get_db_interfaces     (gint num, ...);
+static TrackerDBInterface *tracker_db_manager_get_db_interfaces_ro  (gint num, ...);
 
 static gboolean		   initialized;
 static gchar		  *sql_dir;
@@ -193,7 +198,7 @@ load_sql_file (TrackerDBInterface *iface,
 
 	if (!g_file_get_contents (path, &content, NULL, NULL)) {
 		g_critical ("Cannot read SQL file:'%s', please reinstall tracker"
-			    " or check read permissions on the file if it exists", file);
+			    " or check read permissions on the file if it exists", path);
 		g_assert_not_reached ();
 	}
 
@@ -656,7 +661,7 @@ db_set_params (TrackerDBInterface *iface,
 	       gint		   page_size,
 	       gboolean		   add_functions)
 {
-	tracker_db_interface_execute_query (iface, NULL, "PRAGMA synchronous = NORMAL;");
+	tracker_db_interface_execute_query (iface, NULL, "PRAGMA synchronous = OFF;");
 	tracker_db_interface_execute_query (iface, NULL, "PRAGMA count_changes = 0;");
 	tracker_db_interface_execute_query (iface, NULL, "PRAGMA temp_store = FILE;");
 	tracker_db_interface_execute_query (iface, NULL, "PRAGMA encoding = \"UTF-8\"");
@@ -861,7 +866,7 @@ db_interface_create (TrackerDB db)
 }
 
 static void
-db_manager_remove_all (void)
+db_manager_remove_all (gboolean rm_backup_and_log, gboolean not_meta)
 {
 	guint i;
 
@@ -871,9 +876,34 @@ db_manager_remove_all (void)
 	 * calculate the absolute directories here. 
 	 */
 	for (i = 1; i < G_N_ELEMENTS (dbs); i++) {
+
+		if (not_meta && i == TRACKER_DB_METADATA) {
+			continue;
+		}
+
 		g_message ("  Removing database:'%s'",
 			   dbs[i].abs_filename);
 		g_unlink (dbs[i].abs_filename);
+	}
+
+	if (rm_backup_and_log) {
+		GFile *file;
+		gchar *path;
+		const gchar *cpath;
+
+		file = tracker_db_backup_file (NULL, TRACKER_DB_BACKUP_META_FILENAME);
+		path = g_file_get_path (file);
+		g_message ("  Removing database:'%s'",
+			   path);
+		g_free (path);
+		g_file_delete (file, NULL, NULL);
+		g_object_unref (file);
+		cpath = tracker_db_journal_filename ();
+		g_message ("  Removing database:'%s'",
+			   cpath);
+		file = g_file_new_for_path (cpath);
+		g_file_delete (file, NULL, NULL);
+		g_object_unref (file);
 	}
 }
 
@@ -1016,16 +1046,78 @@ tracker_db_manager_ensure_locale (void)
 	g_free (stored_locale);
 }
 
+static gboolean
+check_meta_backup (gboolean *did_copy)
+{
+	const gchar *meta_filename;
+	gboolean retval = FALSE;
+
+	/* This is currently the only test for need_journal. We should add a
+	 * couple tests that test meta.db against consistenty, and if not
+	 * good, copy meta-backup.db over and set need_journal (being less 
+	 * conservative about using the backup, and not trusting the meta.db
+	 * as much as we do right now) */
+
+	meta_filename = dbs[TRACKER_DB_METADATA].abs_filename;
+
+	if (meta_filename) {
+		GFile *file;
+
+		file = g_file_new_for_path (meta_filename);
+
+		/* (more) Checks for a healthy meta.db should happen here */
+
+		if (!g_file_query_exists (file, NULL)) {
+			GFile *backup;
+
+			backup = tracker_db_backup_file (NULL, TRACKER_DB_BACKUP_META_FILENAME);
+
+			if (g_file_query_exists (backup, NULL)) {
+				GError *error = NULL;
+
+				/* Note that we leave meta-backup.db as is, it'll
+				 * be overwritten first-next time tracker-store.c's
+				 * sync_idle_handler will instruct this. */
+
+				g_file_copy (backup, file, G_FILE_COPY_OVERWRITE,
+				             NULL, NULL, NULL, &error);
+
+				if (!error && did_copy) {
+					*did_copy = TRUE;
+				}
+
+				g_clear_error (&error);
+			}
+
+			/* We always play the journal in case meta.db wasn't
+			 * healthy. Also if meta-backup.db didn't exist: that
+			 * just means that tracker-store.c's sync_idle_handler
+			 * didn't yet ran (meanwhile a first log-file is yet
+			 * already being made) */
+
+			retval = TRUE;
+
+			g_object_unref (backup);
+		}
+
+		g_object_unref (file);
+	}
+
+	return retval;
+}
+
 gboolean
 tracker_db_manager_init (TrackerDBManagerFlags	flags,
 			 gboolean	       *first_time,
-			 gboolean	        shared_cache)
+			 gboolean	        shared_cache,
+			 gboolean	       *need_journal)
 {
 	GType		    etype;
 	TrackerDBVersion    version;
 	gchar		   *filename;
 	const gchar	   *dir;
-	gboolean	    need_reindex;
+	const gchar        *env_path;
+	gboolean	    need_reindex, did_copy = FALSE;
 	guint		    i;
 
 	if (first_time) {
@@ -1057,28 +1149,24 @@ tracker_db_manager_init (TrackerDBManagerFlags	flags,
 	sys_tmp_dir = g_build_filename (g_get_tmp_dir (), filename, NULL);
 	g_free (filename);
 
-	if (flags & TRACKER_DB_MANAGER_TEST_MODE) {
-		sql_dir = g_build_filename ("..", "..",
-					    "data",
-					    "db",
-					    NULL);
-
-		user_data_dir = g_strdup (sys_tmp_dir);
-		data_dir = g_strdup (sys_tmp_dir);
-	} else {
+	env_path = g_getenv ("TRACKER_DB_SQL_DIR");
+	
+	if (G_UNLIKELY (!env_path)) {
 		sql_dir = g_build_filename (SHAREDIR,
 					    "tracker",
 					    NULL);
-
-		user_data_dir = g_build_filename (g_get_user_data_dir (),
-						  "tracker",
-						  "data",
-						  NULL);
-
-		data_dir = g_build_filename (g_get_user_cache_dir (),
-					     "tracker",
-					     NULL);
+	} else {
+		sql_dir = g_strdup (env_path);
 	}
+	
+	user_data_dir = g_build_filename (g_get_user_data_dir (),
+					  "tracker",
+					  "data",
+					  NULL);
+	
+	data_dir = g_build_filename (g_get_user_cache_dir (),
+				     "tracker",
+				     NULL);
 
 	/* Make sure the directories exist */
 	g_message ("Checking database directories exist");
@@ -1129,6 +1217,13 @@ tracker_db_manager_init (TrackerDBManagerFlags	flags,
 		}
 	}
 
+	if (need_journal) {
+		/* That did_copy is used for called db_manager_remove_all, we
+		 * don't want it to also remove our freshly copied meta.db file. */
+
+		*need_journal = check_meta_backup (&did_copy);
+	}
+
 	/* If we are just initializing to remove the databases,
 	 * return here. 
 	 */
@@ -1161,11 +1256,15 @@ tracker_db_manager_init (TrackerDBManagerFlags	flags,
 		 * will cause errors and do nothing.
 		 */
 		g_message ("Cleaning up database files for reindex");
-		db_manager_remove_all ();
+
+		/* Remove all but the meta.db in case of did_copy, else remove
+		 * all (only in case meta-backup.db was not restored) */
+
+		db_manager_remove_all (FALSE, did_copy);
 
 		/* In cases where we re-init this module, make sure
 		 * we have cleaned up the ontology before we load all
-		 * new databases.
+		* new databases.
 		 */
 		tracker_ontology_shutdown ();
 
@@ -1217,7 +1316,60 @@ tracker_db_manager_init (TrackerDBManagerFlags	flags,
 								    TRACKER_DB_CONTENTS,
 								    TRACKER_DB_COMMON);
 	}
+
+	if (did_copy) {
+		tracker_db_backup_sync_fts ();
+	}
+
 	return TRUE;
+}
+
+void 
+tracker_db_manager_disconnect (void)
+{
+	if (resources_iface) {
+		guint i;
+ 		TrackerDB attachments[3] = { TRACKER_DB_FULLTEXT,
+					     TRACKER_DB_CONTENTS,
+					     TRACKER_DB_COMMON };
+
+		for (i = 0; i < 3; i++) {
+			TrackerDB db = attachments [i];
+
+			db_exec_no_reply (resources_iface,
+					  "DETACH '%s'",
+					  dbs[db].name);
+		}
+
+		tracker_db_interface_disconnect (resources_iface);
+	}
+}
+
+void 
+tracker_db_manager_reconnect (void)
+{
+	if (resources_iface) {
+		guint i;
+ 		TrackerDB attachments[3] = { TRACKER_DB_FULLTEXT,
+					     TRACKER_DB_CONTENTS,
+					     TRACKER_DB_COMMON };
+
+		tracker_db_interface_reconnect (resources_iface);
+
+		db_set_params (resources_iface,
+			       dbs[TRACKER_DB_METADATA].cache_size,
+			       dbs[TRACKER_DB_METADATA].page_size,
+			       TRUE);
+
+		for (i = 0; i < 3; i++) {
+			TrackerDB db = attachments [i];
+
+			db_exec_no_reply (resources_iface,
+					  "ATTACH '%s' as '%s'",
+					  dbs[db].abs_filename,
+					  dbs[db].name);
+		}
+	}
 }
 
 void
@@ -1271,11 +1423,11 @@ tracker_db_manager_shutdown (void)
 }
 
 void
-tracker_db_manager_remove_all (void)
+tracker_db_manager_remove_all (gboolean rm_backup_and_log)
 {
 	g_return_if_fail (initialized != FALSE);
 	
-	db_manager_remove_all ();
+	db_manager_remove_all (rm_backup_and_log, FALSE);
 }
 
 void
@@ -1330,7 +1482,7 @@ tracker_db_manager_get_file (TrackerDB db)
  *
  * returns: (caller-owns): a database connection
  **/
-TrackerDBInterface *
+static TrackerDBInterface *
 tracker_db_manager_get_db_interfaces (gint num, ...)
 {
 	gint		    n_args;
@@ -1364,7 +1516,7 @@ tracker_db_manager_get_db_interfaces (gint num, ...)
 	return connection;
 }
 
-TrackerDBInterface *
+static TrackerDBInterface *
 tracker_db_manager_get_db_interfaces_ro (gint num, ...)
 {
 	gint		    n_args;

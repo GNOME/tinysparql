@@ -196,7 +196,7 @@ tracker_dbus_register_objects (void)
 			      TRACKER_STATISTICS_PATH);
 	objects = g_slist_prepend (objects, object);
 
-	/* Add org.freedesktop.Tracker.Resources */
+	/* Add org.freedesktop.Tracker1.Resources */
 	object = resources = tracker_resources_new ();
 	if (!object) {
 		g_critical ("Could not create TrackerResources object to register");
@@ -210,7 +210,7 @@ tracker_dbus_register_objects (void)
 			      TRACKER_RESOURCES_PATH);
 	objects = g_slist_prepend (objects, object);
 
-	/* Add org.freedesktop.Tracker.Backup */
+	/* Add org.freedesktop.Tracker1.Backup */
 	object = tracker_backup_new ();
 	if (!object) {
 		g_critical ("Could not create TrackerBackup object to register");
@@ -283,7 +283,7 @@ tracker_dbus_register_objects (void)
 					replaced);
 		g_free (replaced);
 		
-		/* Add a org.freedesktop.Tracker.Resources.Class */
+		/* Add a org.freedesktop.Tracker1.Resources.Class */
 		object = tracker_resource_class_new (rdf_class);
 		if (!object) {
 			g_critical ("Could not create TrackerResourcesClass object to register:'%s' class",

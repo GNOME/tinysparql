@@ -25,9 +25,9 @@
 
 #include <dbus/dbus-glib-bindings.h>
 
-#define TRACKER_EXTRACT_SERVICE	       "org.freedesktop.Tracker.Extract"
-#define TRACKER_EXTRACT_PATH	       "/org/freedesktop/Tracker/Extract"
-#define TRACKER_EXTRACT_INTERFACE      "org.freedesktop.Tracker.Extract"
+#define TRACKER_EXTRACT_SERVICE	       "org.freedesktop.Tracker1.Extract"
+#define TRACKER_EXTRACT_PATH	       "/org/freedesktop/Tracker1/Extract"
+#define TRACKER_EXTRACT_INTERFACE      "org.freedesktop.Tracker1.Extract"
 
 G_BEGIN_DECLS
 
@@ -64,13 +64,6 @@ void            tracker_extract_get_metadata            (TrackerExtract         
 void            tracker_extract_get_metadata_by_cmdline (TrackerExtract         *object,
 							 const gchar            *path,
 							 const gchar            *mime);
-void            tracker_extract_process_albumart        (TrackerExtract         *object,
-							 const unsigned char    *buffer,
-							 size_t                  len,
-							 const gchar            *mime,
-							 const gchar            *artist,
-							 const gchar            *album,
-							 const gchar            *filename);
 
 G_END_DECLS
 

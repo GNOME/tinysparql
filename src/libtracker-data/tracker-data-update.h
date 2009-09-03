@@ -4,16 +4,16 @@
  * Copyright (C) 2008, Nokia (urho.konttori@nokia.com)
  *
  * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public
+ * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
- * version 2 of the License, or (at your option) any later version.
+ * version 2.1 of the License, or (at your option) any later version.
  *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * General Public License for more details.
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public
+ * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA  02110-1301, USA.
@@ -33,7 +33,8 @@ G_BEGIN_DECLS
 typedef enum  {
 	TRACKER_DATA_ERROR_UNKNOWN_CLASS,
 	TRACKER_DATA_ERROR_UNKNOWN_PROPERTY,
-	TRACKER_DATA_ERROR_INVALID_TYPE
+	TRACKER_DATA_ERROR_INVALID_TYPE,
+	TRACKER_DATA_ERROR_CONSTRAINT
 } TrackerDataError;
 
 #define TRACKER_DATA_ERROR tracker_data_error_quark ()
@@ -41,7 +42,6 @@ typedef enum  {
 GQuark   tracker_data_error_quark (void);
 
 /* Services  */
-guint32  tracker_data_insert_resource                   (const gchar         *uri);
 void     tracker_data_delete_resource                   (const gchar         *uri);
 gboolean tracker_data_update_resource_uri               (const gchar         *old_uri,
 							 const gchar         *new_uri);
@@ -49,7 +49,8 @@ gboolean tracker_data_update_resource_uri               (const gchar         *ol
 void     tracker_data_delete_resource_description       (const gchar         *uri);
 void     tracker_data_delete_statement			(const gchar	     *subject,
 							 const gchar         *predicate,
-							 const gchar         *object);
+							 const gchar         *object,
+							 GError             **error);
 
 void     tracker_data_insert_statement			(const gchar	     *subject,
 							 const gchar         *predicate,

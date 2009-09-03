@@ -230,37 +230,6 @@ if test x$have_enca == "xyes"; then
   AC_DEFINE(HAVE_ENCA, 1, [Enca language detection aid])
 fi
 
-# Check for Raptor
-PKG_CHECK_MODULES(RAPTOR, [raptor >= 1.4.18])
-AC_SUBST(RAPTOR_CFLAGS)
-AC_SUBST(RAPTOR_LIBS)
-
-AC_PROG_LEX
-if test "$LEX" = :; then
-        AC_MSG_ERROR([flex not found but required])
-fi
-
-AC_CHECK_PROGS(YACC, 'bison -y' byacc yacc, :)
-if test "$YACC" = :; then
-        AC_MSG_ERROR([bison not found but required])
-fi
-
-AC_CHECK_FUNCS(strcasecmp)
-
-AC_DEFINE_UNQUOTED(RASQAL_VERSION_MAJOR, 0, [Major version number])
-AC_DEFINE_UNQUOTED(RASQAL_VERSION_MINOR, 9, [Minor version number])
-AC_DEFINE_UNQUOTED(RASQAL_VERSION_RELEASE, 17, [Release version number])
-AC_DEFINE_UNQUOTED(RASQAL_VERSION_DECIMAL, 917, [Release version as a decimal])
-AC_DEFINE([RAPTOR_TRIPLES_SOURCE_RAPTOR], 1, [Use raptor to provide triples])
-AC_DEFINE(RASQAL_REGEX_POSIX, 1, [Use posix regex library])
-AC_DEFINE([RASQAL_DECIMAL_NONE], 1, [Decimal without a library])
-AC_DEFINE(RASQAL_QUERY_RDQL, 1, [Building RDQL query])
-AC_DEFINE(RASQAL_QUERY_LAQRS, 1, [Building LAQRS query])
-AC_DEFINE(RASQAL_QUERY_SPARQL, 1, [Building SPARQL query])
-AM_CONDITIONAL(RASQAL_QUERY_RDQL, true)
-AM_CONDITIONAL(RASQAL_QUERY_LAQRS, true)
-AM_CONDITIONAL(RASQAL_QUERY_SPARQL, true)
-
 AC_PATH_PROG(VALAC, valac, valac)
 AC_SUBST(VALAC)
 
@@ -626,11 +595,11 @@ AC_CHECK_HEADERS([sys/inotify.h])
 #  SQLite check
 ####################################################################
 
-SQLITE_REQUIRED=3.5
+# .11 for sqlite_backup API
+
+SQLITE_REQUIRED=3.6.11
 
 PKG_CHECK_MODULES(SQLITE3, [sqlite3 >= $SQLITE_REQUIRED])
-AC_CHECK_LIB([sqlite3], [sqlite3_enable_load_extension], [:],
-  [AC_MSG_ERROR([SQLite must be configured with --enable-load-extension.])])
 AC_SUBST(SQLITE3_CFLAGS)
 AC_SUBST(SQLITE3_LIBS)
 
@@ -1420,6 +1389,7 @@ AC_CONFIG_FILES([
 	Makefile
 	po/Makefile.in
 	python/deskbar-handler/Makefile
+	python/gtk-sparql/Makefile
 	python/Makefile
 	src/libinotify/Makefile
 	src/libstemmer/Makefile
@@ -1431,7 +1401,6 @@ AC_CONFIG_FILES([
         src/libtracker-miner/Makefile
         src/libtracker-miner/test/Makefile
 	src/Makefile
-	src/rasqal/Makefile
 	src/tracker-applet/Makefile
 	src/tracker-applet/tracker-applet.desktop.in
 	src/tracker-store/Makefile
@@ -1450,10 +1419,22 @@ AC_CONFIG_FILES([
 	tests/common/Makefile
 	tests/libtracker-common/Makefile
 	tests/libtracker-data/Makefile
+	tests/libtracker-data/algebra/Makefile
+	tests/libtracker-data/bnode-coreference/Makefile
+	tests/libtracker-data/bound/Makefile
+	tests/libtracker-data/expr-ops/Makefile
+	tests/libtracker-data/nie/Makefile
+	tests/libtracker-data/nmo/Makefile
+	tests/libtracker-data/optional/Makefile
+	tests/libtracker-data/regex/Makefile
+	tests/libtracker-data/sort/Makefile
+	tests/libtracker-data/error/Makefile
+	tests/libtracker-data/turtle/Makefile
 	tests/libtracker-db/Makefile
 	tests/Makefile
 	tests/tracker-miner-fs/Makefile
 	tests/tracker-extract/Makefile
+	tests/tracker-store/Makefile
 	utils/Makefile
 	utils/tracker-fts/Makefile
 	utils/services/Makefile

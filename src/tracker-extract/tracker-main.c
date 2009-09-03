@@ -46,9 +46,9 @@
 #include <libtracker-common/tracker-log.h>
 #include <libtracker-common/tracker-dbus.h>
 #include <libtracker-common/tracker-os-dependant.h>
-#include <libtracker-common/tracker-thumbnailer.h>
 #include <libtracker-common/tracker-ioprio.h>
 
+#include "tracker-albumart.h"
 #include "tracker-config.h"
 #include "tracker-main.h"
 #include "tracker-dbus.h"
@@ -246,6 +246,7 @@ log_handler (const gchar    *domain,
 	case G_LOG_LEVEL_INFO:
 	case G_LOG_LEVEL_DEBUG:
 	case G_LOG_LEVEL_MASK:
+	default:
 		g_fprintf (stdout, "%s\n", message);
 		fflush (stdout);
 		break;
@@ -381,6 +382,8 @@ main (int argc, char *argv[])
 		return EXIT_FAILURE;
 	}
 
+	tracker_albumart_init ();
+
 	/* Main loop */
 	main_loop = g_main_loop_new (NULL, FALSE);
 	tracker_main_quit_timeout_reset ();
@@ -390,6 +393,7 @@ main (int argc, char *argv[])
 	g_message ("Shutdown started");
 
 	/* Shutdown subsystems */
+	tracker_albumart_shutdown ();
 	tracker_dbus_shutdown ();
 	tracker_log_shutdown ();
 

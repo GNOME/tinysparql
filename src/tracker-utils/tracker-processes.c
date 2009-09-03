@@ -37,7 +37,7 @@
 
 static gboolean     should_kill;
 static gboolean     should_terminate;
-static gboolean     hard_reset;
+static gboolean     hard_reset, soft_reset;
 
 static GOptionEntry entries[] = {
 	{ "kill", 'k', 0, G_OPTION_ARG_NONE, &should_kill,
@@ -47,6 +47,9 @@ static GOptionEntry entries[] = {
 	  N_("Use SIGTERM to stop all tracker processes found"),
 	  NULL 
 	},
+	{ "soft-reset", 's', 0, G_OPTION_ARG_NONE, &soft_reset,
+	  N_("This will kill all Tracker processes and remove all databases except the backup and journal (a restart will restore the data)"),
+	  NULL },
 	{ "hard-reset", 'r', 0, G_OPTION_ARG_NONE, &hard_reset,
 	  N_("This will kill all Tracker processes and remove all databases"),
 	  NULL },
@@ -109,6 +112,7 @@ log_handler (const gchar    *domain,
 	case G_LOG_LEVEL_INFO:
 	case G_LOG_LEVEL_DEBUG:
 	case G_LOG_LEVEL_MASK:
+	default:
 		g_fprintf (stdout, "%s\n", message);
 		fflush (stdout);
 		break;
@@ -143,13 +147,13 @@ main (int argc, char **argv)
 		g_printerr ("%s\n",
 			    _("You can not use the --kill and --terminate arguments together"));
 		return EXIT_FAILURE;
-	} else if (hard_reset && should_terminate) {
+	} else if ((hard_reset || soft_reset) && should_terminate) {
 		g_printerr ("%s\n",
 			    _("You can not use the --terminate with --hard-reset, --kill is implied"));
 		return EXIT_FAILURE;
 	}
 
-	if (hard_reset) {
+	if (hard_reset || soft_reset) {
 		/* Imply --kill */
 		should_kill = TRUE;
 	}
@@ -234,7 +238,7 @@ main (int argc, char **argv)
 	g_slist_foreach (pids, (GFunc) g_free, NULL);
 	g_slist_free (pids);
 
-	if (hard_reset) {
+	if (hard_reset || soft_reset) {
 		guint log_handler_id;
 
 		/* Set log handler for library messages */
@@ -246,11 +250,11 @@ main (int argc, char **argv)
 		g_log_set_default_handler (log_handler, NULL);
 
 		/* Clean up */
-		if (!tracker_db_manager_init (TRACKER_DB_MANAGER_REMOVE_ALL, NULL, FALSE)) {
+		if (!tracker_db_manager_init (TRACKER_DB_MANAGER_REMOVE_ALL, NULL, FALSE, NULL)) {
 			return EXIT_FAILURE;
 		}
 
-		tracker_db_manager_remove_all ();
+		tracker_db_manager_remove_all (hard_reset);
 		tracker_db_manager_shutdown ();
 
 		/* Unset log handler */

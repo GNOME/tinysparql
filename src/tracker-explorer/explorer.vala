@@ -6,7 +6,7 @@ extern static const string UIDIR;
 [CCode (cname = "SRCDIR")]
 extern static const string SRCDIR;
 
-[DBus (name = "org.freedesktop.Tracker.Resources")]
+[DBus (name = "org.freedesktop.Tracker1.Resources")]
 interface Resources : GLib.Object {
 	public abstract void Delete (string subject, string predicate, string object_) throws DBus.Error;
 	public abstract void Insert (string subject, string predicate, string object_) throws DBus.Error;
@@ -93,9 +93,9 @@ public class Explorer {
 
 		try {
 			var conn = DBus.Bus.get (DBus.BusType.SESSION);
-			tracker = (Resources) conn.get_object ("org.freedesktop.Tracker",
-							       "/org/freedesktop/Tracker/Resources",
-							       "org.freedesktop.Tracker.Resources");
+			tracker = (Resources) conn.get_object ("org.freedesktop.Tracker1",
+							       "/org/freedesktop/Tracker1/Resources",
+							       "org.freedesktop.Tracker1.Resources");
 		} catch (DBus.Error e) {
 			var msg = new MessageDialog (null, DialogFlags.MODAL,
 					 MessageType.ERROR, ButtonsType.CANCEL,

@@ -319,7 +319,7 @@ class TrackerLiveSearchHandler(deskbar.interfaces.Module):
 				proxy_obj = bus.get_object('org.freedesktop.DBus', '/org/freedesktop/DBus')
 				dbus_iface = dbus.Interface(proxy_obj, 'org.freedesktop.DBus')
 				activatables = dbus_iface.ListActivatableNames()
-				if not 'org.freedesktop.Tracker' in activatables:
+				if not 'org.freedesktop.Tracker1' in activatables:
 					TrackerLiveSearchHandler.INSTRUCTIONS = ('Tracker is not activatable via dbus')
 					return False
 			except:
@@ -447,13 +447,13 @@ class TrackerLiveSearchHandler(deskbar.interfaces.Module):
 				print "Connecting to Tracker (first search or tracker-store restarted)"
 				import dbus
 				bus = dbus.SessionBus()
-				self.tracker = bus.get_object('org.freedesktop.Tracker', '/org/freedesktop/Tracker')
-				self.tracker_search = bus.get_object('org.freedesktop.Tracker', '/org/freedesktop/Tracker/Search')
-				self.search_iface = dbus.Interface(self.tracker_search, 'org.freedesktop.Tracker.Search')
-				self.tracker_keywords = bus.get_object('org.freedesktop.Tracker', '/org/freedesktop/Tracker/Keywords')
-				self.keywords_iface = dbus.Interface(self.tracker_keywords, 'org.freedesktop.Tracker.Keywords')
-				self.tracker_files = bus.get_object('org.freedesktop.Tracker', '/org/freedesktop/Tracker/Files')
-				self.files_iface = dbus.Interface(self.tracker_files, 'org.freedesktop.Tracker.Files')
+				self.tracker = bus.get_object('org.freedesktop.Tracker1', '/org/freedesktop/Tracker1')
+				self.tracker_search = bus.get_object('org.freedesktop.Tracker1', '/org/freedesktop/Tracker1/Search')
+				self.search_iface = dbus.Interface(self.tracker_search, 'org.freedesktop.Tracker1.Search')
+				self.tracker_keywords = bus.get_object('org.freedesktop.Tracker1', '/org/freedesktop/Tracker1/Keywords')
+				self.keywords_iface = dbus.Interface(self.tracker_keywords, 'org.freedesktop.Tracker1.Keywords')
+				self.tracker_files = bus.get_object('org.freedesktop.Tracker1', '/org/freedesktop/Tracker1/Files')
+				self.files_iface = dbus.Interface(self.tracker_files, 'org.freedesktop.Tracker1.Files')
 			except:
 				print >> sys.stderr, 'DBus connection to tracker failed, check your settings.'
 				return

@@ -49,9 +49,9 @@ typedef struct {
 
 typedef struct {
 	GType  type;
-	gchar *property;
-	gchar *group;
-	gchar *key;
+	const gchar *property;
+	const gchar *group;
+	const gchar *key;
 } ObjectToKeyFile;
 
 static void config_set_property         (GObject       *object,

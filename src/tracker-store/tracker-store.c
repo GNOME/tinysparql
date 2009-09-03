@@ -22,23 +22,31 @@
 
 #include "config.h"
 
+#include <unistd.h>
+#include <sys/types.h>
+
 #include <libtracker-common/tracker-dbus.h>
 #include <libtracker-db/tracker-db-dbus.h>
+#include <libtracker-db/tracker-db-backup.h>
+#include <libtracker-db/tracker-db-journal.h>
+#include <libtracker-db/tracker-db-interface-sqlite.h>
+#include <libtracker-db/tracker-db-journal.h>
 
 #include <libtracker-data/tracker-data-update.h>
 #include <libtracker-data/tracker-data-query.h>
-#include <libtracker-data/tracker-turtle.h>
+#include <libtracker-data/tracker-sparql-query.h>
 
 #include "tracker-store.h"
 
-#define TRACKER_STORE_TRANSACTION_MAX	4000
+#define TRACKER_STORE_TRANSACTION_MAX			4000		/* At commit is journal fsynced too */
+#define TRACKER_STORE_JOURNAL_TIMEOUT_BEFORE_BACKUP	(60 * 60 * 2)	/* Two hours before backup */
 
 typedef struct {
-	gboolean  have_handler;
-	gboolean  batch_mode;
+	gboolean  have_handler, have_sync_handler;
+	gboolean  batch_mode, start_log;
 	guint     batch_count;
 	GQueue   *queue;
-	guint     handler;
+	guint     handler, sync_handler;
 } TrackerStorePrivate;
 
 typedef enum {
@@ -88,34 +96,29 @@ store_task_free (TrackerStoreTask *task)
 }
 
 static gboolean
-process_turtle_file_part (GError **error)
+process_turtle_file_part (TrackerTurtleReader *reader, GError **error)
 {
 	int i;
-	GError *new_error;
+	GError *new_error = NULL;
 
 	/* process 10 statements at once before returning to main loop */
 
 	i = 0;
-	new_error = tracker_turtle_get_error ();
 
-	while (!new_error && tracker_turtle_reader_next ()) {
+	while (new_error == NULL && tracker_turtle_reader_next (reader, &new_error)) {
 		/* insert statement */
-		if (tracker_turtle_reader_object_is_uri ()) {
+		if (tracker_turtle_reader_get_object_is_uri (reader)) {
 			tracker_data_insert_statement_with_uri (
-				tracker_turtle_reader_get_subject (),
-				tracker_turtle_reader_get_predicate (),
-				tracker_turtle_reader_get_object (),
+				tracker_turtle_reader_get_subject (reader),
+				tracker_turtle_reader_get_predicate (reader),
+				tracker_turtle_reader_get_object (reader),
 				&new_error);
 		} else {
 			tracker_data_insert_statement_with_string (
-				tracker_turtle_reader_get_subject (),
-				tracker_turtle_reader_get_predicate (),
-				tracker_turtle_reader_get_object (),
+				tracker_turtle_reader_get_subject (reader),
+				tracker_turtle_reader_get_predicate (reader),
+				tracker_turtle_reader_get_object (reader),
 				&new_error);
-		}
-
-		if (!new_error) {
-			new_error = tracker_turtle_get_error ();
 		}
 
 		i++;
@@ -123,10 +126,6 @@ process_turtle_file_part (GError **error)
 			/* return to main loop */
 			return TRUE;
 		}
-	}
-
-	if (!new_error) {
-		new_error = tracker_turtle_get_error ();
 	}
 
 	if (new_error) {
@@ -154,8 +153,32 @@ end_batch (TrackerStorePrivate *private)
 	if (private->batch_mode) {
 		/* commit pending batch items */
 		tracker_data_commit_transaction ();
+
+		/* The on_statements_committed in tracker-resources.c performs
+		 * the flush on the journal, I can only register one callback 
+		 * for this atm, so that's why it's called over there as a 
+		 * tracker_store_flush_journal */
+
 		private->batch_mode = FALSE;
 		private->batch_count = 0;
+	}
+}
+
+static void
+on_backup_done (GError *error, gpointer user_data)
+{
+	if (!error) {
+		tracker_db_journal_truncate ();
+	}
+}
+
+static void
+log_to_journal (TrackerStorePrivate *private, const gchar *query)
+{
+	tracker_db_journal_log (query);
+
+	if (tracker_db_journal_get_size () > TRACKER_DB_JOURNAL_MAX_SIZE) {
+		tracker_db_backup_save (on_backup_done, NULL, NULL);
 	}
 }
 
@@ -174,6 +197,11 @@ queue_idle_handler (gpointer user_data)
 		begin_batch (private);
 
 		tracker_data_update_sparql (task->data.query, &error);
+
+		if (private->start_log) {
+			log_to_journal (private, task->data.query);
+		}
+
 		if (!error) {
 			private->batch_count++;
 			if (private->batch_count >= TRACKER_STORE_TRANSACTION_MAX) {
@@ -196,15 +224,16 @@ queue_idle_handler (gpointer user_data)
 		}
 	} else if (task->type == TRACKER_STORE_TASK_TYPE_TURTLE) {
 		GError *error = NULL;
+		static TrackerTurtleReader *turtle_reader = NULL;
 
 		begin_batch (private);
 
 		if (!task->data.turtle.in_progress) {
-			tracker_turtle_reader_init (task->data.turtle.path, NULL);
+			turtle_reader = tracker_turtle_reader_new (task->data.turtle.path);
 			task->data.turtle.in_progress = TRUE;
 		}
 
-		if (process_turtle_file_part (&error)) {
+		if (process_turtle_file_part (turtle_reader, &error)) {
 			/* import still in progress */
 			private->batch_count++;
 			if (private->batch_count >= TRACKER_STORE_TRANSACTION_MAX) {
@@ -224,8 +253,9 @@ queue_idle_handler (gpointer user_data)
 				task->callback.turtle_callback (error, task->user_data);
 			}
 
+			g_object_unref (turtle_reader);
+			turtle_reader = NULL;
 			if (error) {
-				tracker_turtle_reader_cancel ();
 				g_clear_error (&error);
 			}
 		}
@@ -242,6 +272,14 @@ queue_idle_handler (gpointer user_data)
 	return !g_queue_is_empty (private->queue);
 }
 
+static gboolean
+sync_idle_handler (gpointer user_data)
+{
+	tracker_db_backup_save (on_backup_done, NULL, NULL);
+
+	return TRUE;
+}
+
 static void
 queue_idle_destroy (gpointer user_data)
 {
@@ -250,8 +288,65 @@ queue_idle_destroy (gpointer user_data)
 	private->have_handler = FALSE;
 }
 
+
+static void
+sync_idle_destroy (gpointer user_data)
+{
+	TrackerStorePrivate *private = user_data;
+
+	tracker_db_journal_close ();
+
+	private->have_sync_handler = FALSE;
+}
+
+void 
+tracker_store_flush_journal (void)
+{
+	TrackerStorePrivate *private;
+
+	private = g_static_private_get (&private_key);
+	g_return_if_fail (private != NULL);
+
+	tracker_db_journal_fsync ();
+}
+
+static void
+internal_play_journal (TrackerStorePrivate *private)
+{
+	TrackerJournalContents *lines;
+
+	lines = tracker_db_journal_get_contents (TRACKER_STORE_TRANSACTION_MAX);
+
+	if (lines) {
+		guint i;
+
+		tracker_data_begin_transaction ();
+		private->start_log = FALSE;
+		for (i = 0; i < lines->len; i++) {
+			const gchar *line = g_ptr_array_index (lines, i);
+			tracker_store_sparql_update (line, NULL);
+		}
+		tracker_db_journal_truncate ();
+		private->start_log = TRUE;
+		tracker_data_commit_transaction ();
+
+		tracker_db_journal_free_contents (lines);
+	}
+}
+
 void
-tracker_store_init (void)
+tracker_store_play_journal (void)
+{
+	TrackerStorePrivate *private;
+
+	private = g_static_private_get (&private_key);
+	g_return_if_fail (private != NULL);
+
+	internal_play_journal (private);
+}
+
+void
+tracker_store_init (gboolean load_journal)
 {
 	TrackerStorePrivate *private;
 
@@ -262,6 +357,20 @@ tracker_store_init (void)
 	g_static_private_set (&private_key,
 	                      private,
 	                      private_free);
+
+	if (load_journal) {
+		internal_play_journal (private);
+	}
+
+	tracker_db_journal_open ();
+
+	private->start_log = TRUE;
+
+	private->sync_handler = g_timeout_add_seconds_full (G_PRIORITY_LOW,
+	                                                    TRACKER_STORE_JOURNAL_TIMEOUT_BEFORE_BACKUP,
+	                                                    sync_idle_handler,
+	                                                    private,
+	                                                    sync_idle_destroy);
 }
 
 void
@@ -275,6 +384,11 @@ tracker_store_shutdown (void)
 	if (private->have_handler) {
 		g_source_remove (private->handler);
 		private->have_handler = FALSE;
+	}
+
+	if (private->have_sync_handler) {
+		g_source_remove (private->sync_handler);
+		private->have_sync_handler = FALSE;
 	}
 
 	g_static_private_set (&private_key, NULL, NULL);
@@ -391,6 +505,11 @@ tracker_store_sparql_update (const gchar *sparql,
 	}
 
 	tracker_data_update_sparql (sparql, error);
+
+	if (private->start_log) {
+		log_to_journal (private, sparql);
+	}
+
 }
 
 TrackerDBResultSet*
@@ -445,7 +564,7 @@ tracker_store_delete_statement (const gchar   *subject,
 		private->batch_count = 0;
 	}
 
-	tracker_data_delete_statement (subject, predicate, object);
+	tracker_data_delete_statement (subject, predicate, object, NULL);
 }
 
 guint

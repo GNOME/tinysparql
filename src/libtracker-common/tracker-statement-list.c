@@ -3,16 +3,16 @@
  * Copyright (C) 2008, Nokia
  *
  * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public
+ * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
- * version 2 of the License, or (at your option) any later version.
+ * version 2.1 of the License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * General Public License for more details.
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public
+ * You should have received a copy of the GNU Lesser General Public
  * License along with this program; if not, write to the
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA  02110-1301, USA.
@@ -36,8 +36,6 @@ tracker_statement_list_insert (TrackerSparqlBuilder *statements,
                                const gchar *predicate,
                                const gchar *value)
 {
-	const gchar *end;
-
 	g_return_if_fail (TRACKER_IS_SPARQL_BUILDER (statements));
 	g_return_if_fail (subject != NULL);
 	g_return_if_fail (predicate != NULL);
@@ -45,24 +43,38 @@ tracker_statement_list_insert (TrackerSparqlBuilder *statements,
 
 	tracker_sparql_builder_subject_iri (statements, subject);
 	tracker_sparql_builder_predicate_iri (statements, predicate);
+	tracker_sparql_builder_object_unvalidated (statements, value);
+}
+
+
+void
+tracker_sparql_builder_object_unvalidated (TrackerSparqlBuilder *sparql,
+                                           const gchar *value)
+{
+	const gchar *end;
+
+	g_return_if_fail (TRACKER_IS_SPARQL_BUILDER (sparql));
+	g_return_if_fail (value != NULL);
 
 	if (!g_utf8_validate (value, -1, &end)) {
 		gchar *valid;
 
-		g_warning ("Invalid UTF-8 in statement list insert for value");
+		/* g_message ("Only inserting %ld/%ld (valid UTF8) bytes for statement list", */
+		/* 	   end - value, */
+		/* 	   strlen (value)); */
 
 		if (value != end) {
 			valid = g_strndup (value, end - value);
-			tracker_sparql_builder_object_string (statements, valid);
+			tracker_sparql_builder_object_string (sparql, valid);
 			g_free (valid);
 		} else {
-			tracker_sparql_builder_object_string (statements, "(invalid data)");
+			tracker_sparql_builder_object_string (sparql, "(invalid data)");
 		}
 
 		return;
 	}
 
-	tracker_sparql_builder_object_string (statements, value);
+	tracker_sparql_builder_object_string (sparql, value);
 }
 
 void

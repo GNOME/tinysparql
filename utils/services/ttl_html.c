@@ -4,8 +4,8 @@
 static gchar *local_uri = NULL;
 
 typedef struct {
-        gchar *namespace;
-        gchar *uri;
+        const gchar *namespace;
+        const gchar *uri;
 } Namespace;
 
 Namespace NAMESPACES [] = {

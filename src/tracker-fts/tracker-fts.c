@@ -277,7 +277,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
-#include <sqlite3ext.h>
+#include <sqlite3.h>
 
 #include <libtracker-common/tracker-common.h>
 #include <libtracker-db/tracker-db-manager.h>
@@ -285,8 +285,6 @@
 #include "tracker-fts.h"
 #include "tracker-fts-config.h"
 #include "tracker-fts-hash.h"
-
-SQLITE_EXTENSION_INIT1
 
 /* TODO(shess) MAN, this thing needs some refactoring.	At minimum, it
 ** would be nice to order the file better, perhaps something along the
@@ -428,12 +426,6 @@ static int safe_tolower(char c){
 static int safe_isalnum(char c){
   return (c&0x80)==0 ? isalnum(c) : 0;
 }
-
-int sqlite3_extension_init(
-  sqlite3 *db,
-  char **pzErrMsg,
-  const sqlite3_api_routines *pApi
-);
 
 
 typedef enum DocListType {
@@ -2222,6 +2214,8 @@ static int sql_prepare(sqlite3 *db, const char *zDb, const char *zName,
 /* Forward reference */
 typedef struct fulltext_vtab fulltext_vtab;
 
+static fulltext_vtab *tracker_fts_vtab = NULL;
+
 /* A single term in a query is represented by an instances of
 ** the following structure. Each word which may match against
 ** document content is a term. Operators, like NEAR or OR, are
@@ -3277,7 +3271,7 @@ static int parseSpec(TableSpec *pSpec, int argc, const char *const*argv,
     }
   }
   if( pSpec->nColumn==0 ){
-    azArg[0] = "content";
+    azArg[0] = (char *) "content";
     pSpec->nColumn = 1;
   }
 
@@ -3359,7 +3353,9 @@ static int constructVtab(
   int rc;
   fulltext_vtab *v = 0;
   char *schema;
-
+  TrackerFTSConfig *config;
+  TrackerLanguage *language;
+  int min_len, max_len;
 
   v = (fulltext_vtab *) sqlite3_malloc(sizeof(fulltext_vtab));
   if( v==0 ) return SQLITE_NOMEM;
@@ -3405,12 +3401,13 @@ static int constructVtab(
 
   /* set up our parser */
 
-  TrackerFTSConfig *config = tracker_fts_config_new ();
+  config = tracker_fts_config_new ();
 
-  TrackerLanguage *language = tracker_language_new (NULL);
+  language = tracker_language_new (NULL);
 
-  int min_len = tracker_fts_config_get_min_word_length (config);
-  int max_len = tracker_fts_config_get_max_word_length (config);
+  min_len = tracker_fts_config_get_min_word_length (config);
+  max_len = tracker_fts_config_get_max_word_length (config);
+
   v->max_words = tracker_fts_config_get_max_words_to_index (config);
 
   v->parser =	tracker_parser_new (language, max_len, min_len);
@@ -3433,6 +3430,8 @@ static int constructVtab(
 
   *ppVTab = &v->base;
   FTSTRACE(("FTS3 Connect %p\n", v));
+
+  tracker_fts_vtab = v;
 
   return rc;
 
@@ -3844,6 +3843,11 @@ static void snippetAllOffsets(fulltext_cursor *p){
   int iColumn, i;
   fulltext_vtab *pFts;
 
+#ifndef STORE_CATEGORY  
+  int iFirst, iLast;
+  int nColumn;
+#endif
+
   if( p->snippet.nMatch ) return;
   if( p->q.nTerms==0 ) return;
   pFts = p->q.pFts;
@@ -3910,9 +3914,7 @@ static void snippetAllOffsets(fulltext_cursor *p){
   
   
 #else  
-  int iFirst, iLast;
-  int nColumn;
-      
+
   nColumn = pFts->nColumn;
   iColumn = (p->iCursorType - QUERY_FULLTEXT);
   if( iColumn<0 || iColumn>=nColumn ){
@@ -4156,6 +4158,8 @@ static int fulltextClose(sqlite3_vtab_cursor *pCursor){
 static int fulltextNext(sqlite3_vtab_cursor *pCursor){
   fulltext_cursor *c = (fulltext_cursor *) pCursor;
   int rc;
+  PLReader plReader;
+  gboolean first_pos = TRUE;
 
   FTSTRACE(("FTS3 Next %p\n", pCursor));
   snippetClear(&c->snippet);
@@ -4189,8 +4193,6 @@ static int fulltextNext(sqlite3_vtab_cursor *pCursor){
 
     /* (tracker) read position offsets here */
     
-    PLReader plReader;
-    gboolean first_pos = TRUE;
    
     c->offsets = g_string_assign (c->offsets, "");
     c->rank = 0;
@@ -4815,6 +4817,8 @@ int Catid,
   int iStartOffset, iEndOffset, iPosition, stop_word, new_paragraph;
   int rc;
   TrackerParser *parser = v->parser;
+  DLCollector *p;
+  int nData;			 /* Size of doclist before our update. */
 
   if (!zText) return SQLITE_OK;
 
@@ -4841,8 +4845,6 @@ int Catid,
 
 
 
-    DLCollector *p;
-    int nData;			 /* Size of doclist before our update. */
 
     /* Positions can't be negative; we use -1 as a terminator
      * internally.  Token can't be NULL or empty. */
@@ -5008,7 +5010,7 @@ static int index_update(fulltext_vtab *v, sqlite_int64 iRow,
 
   for(i = 0; i < v->nColumn ; ++i){
     char *zText = (char*)sqlite3_value_text(pValues[i]);
-    int rc = buildTerms(v, iRow, zText, delete ? -1 : i);
+    rc = buildTerms(v, iRow, zText, delete ? -1 : i);
     if( rc!=SQLITE_OK ) return rc;
   }
 
@@ -7147,7 +7149,7 @@ static int optimizeInternal(fulltext_vtab *v,
                   -1, DL_DEFAULT, &merged);
     }else{
       DLReader dlReaders[MERGE_COUNT];
-      int iReader, nReaders;
+      int iReader, pnReaders;
 
       /* Prime the pipeline with the first reader's doclist.  After
       ** one pass index 0 will reference the accumulated doclist.
@@ -7160,22 +7162,22 @@ static int optimizeInternal(fulltext_vtab *v,
       assert( iReader<i );  /* Must execute the loop at least once. */
       while( iReader<i ){
         /* Merge 16 inputs per pass. */
-        for( nReaders=1; iReader<i && nReaders<MERGE_COUNT;
-             iReader++, nReaders++ ){
-          dlrInit(&dlReaders[nReaders], DL_DEFAULT,
+        for( pnReaders=1; iReader<i && pnReaders<MERGE_COUNT;
+             iReader++, pnReaders++ ){
+          dlrInit(&dlReaders[pnReaders], DL_DEFAULT,
                   optLeavesReaderData(&readers[iReader]),
                   optLeavesReaderDataBytes(&readers[iReader]));
         }
 
         /* Merge doclists and swap result into accumulator. */
         dataBufferReset(&merged);
-        docListMerge(&merged, dlReaders, nReaders);
+        docListMerge(&merged, dlReaders, pnReaders);
         tmp = merged;
         merged = doclist;
         doclist = tmp;
 
-        while( nReaders-- > 0 ){
-          dlrDestroy(&dlReaders[nReaders]);
+        while( pnReaders-- > 0 ){
+          dlrDestroy(&dlReaders[pnReaders]);
         }
 
         /* Accumulated doclist to reader 0 for next pass. */
@@ -7796,12 +7798,8 @@ int sqlite3Fts3InitHashTable(sqlite3 *, fts3Hash *, const char *);
 ** SQLite. If fts3 is built as a dynamically loadable extension, this
 ** function is called by the sqlite3_extension_init() entry point.
 */
-int sqlite3Fts3Init(sqlite3 *db){
+int tracker_fts_init(sqlite3 *db){
   int rc = SQLITE_OK;
-
-  g_type_init ();
-  if (!g_thread_supported ())
-    g_thread_init (NULL);
 
   /* Create the virtual table wrapper around the hash-table and overload
   ** the two scalar functions. If this is successful, register the
@@ -7828,13 +7826,54 @@ int sqlite3Fts3Init(sqlite3 *db){
   return rc;
 }
 
-
-int sqlite3_extension_init(
-  sqlite3 *db,
-  char **pzErrMsg,
-  const sqlite3_api_routines *pApi
-){
-  SQLITE_EXTENSION_INIT2(pApi)
-  return sqlite3Fts3Init(db);
+int tracker_fts_update_init(int id){
+  return initPendingTerms(tracker_fts_vtab, id);
 }
 
+int tracker_fts_update_text(int id, int column_id, const char *text){
+  return buildTerms(tracker_fts_vtab, id, text, column_id);
+}
+
+void tracker_fts_update_commit(void){
+  fulltextSync((sqlite3_vtab *) tracker_fts_vtab);
+  fulltextCommit((sqlite3_vtab *) tracker_fts_vtab);
+}
+
+void tracker_fts_update_rollback(void){
+  fulltextRollback((sqlite3_vtab *) tracker_fts_vtab);
+}
+
+gchar *
+tracker_fts_get_drop_fts_table_query (void)
+{
+	return g_strdup ("DROP TABLE fulltext.fts");
+}
+
+gchar *
+tracker_fts_get_create_fts_table_query (void)
+{
+	GString    *sql;
+	TrackerProperty	  **properties, **property;
+	gboolean first;
+
+	sql = g_string_new ("CREATE VIRTUAL TABLE fulltext.fts USING trackerfts (");
+
+	first = TRUE;
+	properties = tracker_ontology_get_properties ();
+	for (property = properties; *property; property++) {
+		if (tracker_property_get_data_type (*property) == TRACKER_PROPERTY_TYPE_STRING &&
+		    tracker_property_get_fulltext_indexed (*property)) {
+			if (first) {
+				first = FALSE;
+			} else {
+				g_string_append (sql, ", ");
+			}
+			g_string_append_printf (sql, "\"%s\"", tracker_property_get_name (*property));
+		}
+	}
+	g_free (properties);
+
+	g_string_append (sql, ")");
+
+	return g_string_free (sql, FALSE);
+}

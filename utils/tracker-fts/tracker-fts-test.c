@@ -23,6 +23,7 @@
 #include <stdlib.h>
 
 #include <sqlite3.h>
+#include <tracker-fts/tracker-fts.h>
 
 #include <glib.h>
 #include <glib/gstdio.h>
@@ -66,7 +67,6 @@ main (int argc, char **argv)
 	sqlite3  *db;
 	gint      rc;
 	gboolean  db_exists = FALSE;
-	gchar    *st = NULL;
         gchar    *sql;
 
 	g_type_init ();
@@ -87,13 +87,9 @@ main (int argc, char **argv)
 		sqlite3_close(db);
 		return EXIT_FAILURE;
 	}
-	
-	sqlite3_enable_load_extension (db, 1);
-	sqlite3_load_extension (db, PKGLIBDIR "/tracker-fts.so", NULL, &st);
-	
-	if (st) {
-		fprintf(stderr, "SQL error: %s\n", st);
-		sqlite3_free(st);
+
+	if (tracker_fts_init (db) != SQLITE_OK) {
+		fprintf(stderr, "SQL error\n");
 	}
 	
 	if (!db_exists) {

@@ -27,9 +27,9 @@
 #include <glib-object.h>
 #include <libtracker-common/tracker-dbus.h>
 
-#define TRACKER_RESOURCES_CLASS_SERVICE	       "org.freedesktop.Tracker"
-#define TRACKER_RESOURCES_CLASS_PATH	       "/org/freedesktop/Tracker/Resources/Classes/%s"
-#define TRACKER_RESOURCES_CLASS_INTERFACE       "org.freedesktop.Tracker.Resources.Class"
+#define TRACKER_RESOURCES_CLASS_SERVICE	       "org.freedesktop.Tracker1"
+#define TRACKER_RESOURCES_CLASS_PATH	       "/org/freedesktop/Tracker1/Resources/Classes/%s"
+#define TRACKER_RESOURCES_CLASS_INTERFACE       "org.freedesktop.Tracker1.Resources.Class"
 
 G_BEGIN_DECLS
 
@@ -57,6 +57,7 @@ TrackerResourceClass  *tracker_resource_class_new           (const gchar *rdf_cl
 const gchar *          tracker_resource_class_get_rdf_class (TrackerResourceClass  *object);
 
 void                   tracker_resource_class_add_event     (TrackerResourceClass  *object,
+                                                             const gchar           *predicate,
                                                              const gchar           *uri,
                                                              TrackerDBusEventsType  type);
 void                   tracker_resource_class_emit_events   (TrackerResourceClass  *object);

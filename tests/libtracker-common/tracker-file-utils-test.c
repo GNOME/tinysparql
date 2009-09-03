@@ -28,7 +28,7 @@
 #include <tracker-test-helpers.h>
 
 static GSList *
-array_as_list (gchar **array)
+array_as_list (const gchar **array)
 {
 	gint i;
 	GSList *result = NULL;
@@ -56,7 +56,7 @@ string_in_list (GSList *list, const gchar *string)
 static void
 test_path_list_filter_duplicates (void)
 {
-	gchar *input_roots [] = {"/home", "/home/ivan", "/tmp", "/usr/", "/usr/share/local", NULL};
+	const gchar *input_roots [] = {"/home", "/home/ivan", "/tmp", "/usr/", "/usr/share/local", NULL};
 
 	GSList *input_as_list = NULL;
 	GSList *result;

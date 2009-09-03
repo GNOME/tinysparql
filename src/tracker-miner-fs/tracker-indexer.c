@@ -60,12 +60,11 @@
 #include <libtracker-common/tracker-parser.h>
 #include <libtracker-common/tracker-ontology.h>
 #include <libtracker-common/tracker-utils.h>
-#include <libtracker-common/tracker-thumbnailer.h>
+#include <libtracker-common/tracker-type-utils.h>
 
 #include <libtracker-db/tracker-db-dbus.h>
 
 #include <libtracker-data/tracker-data-manager.h>
-#include <libtracker-data/tracker-turtle.h>
 #include <libtracker-data/tracker-data-backup.h>
 
 #include <libtracker/tracker.h>
@@ -75,8 +74,11 @@
 #include "tracker-indexer-module.h"
 #include "tracker-marshal.h"
 #include "tracker-removable-device.h"
+#include "tracker-processor.h"
 #include "tracker-status.h"
+#include "tracker-thumbnailer.h"
 #include "tracker-utils.h"
+#include "tracker-removable-device.h"
 
 #define TRACKER_INDEXER_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_INDEXER, TrackerIndexerPrivate))
 
@@ -172,6 +174,11 @@ enum TrackerIndexerState {
 	TRACKER_INDEXER_STATE_INDEX_OVERLOADED = 1 << 0,
 	TRACKER_INDEXER_STATE_PAUSED	= 1 << 1,
 	TRACKER_INDEXER_STATE_STOPPED	= 1 << 2,
+};
+
+enum {
+	VOLUME_MOUNTED_IN_STORE = 1 << 0,
+	VOLUME_MOUNTED = 1 << 1
 };
 
 enum {
@@ -809,6 +816,229 @@ indexer_get_property (GObject	 *object,
 }
 
 static void
+set_up_mount_point (TrackerIndexer *indexer,
+		    const gchar    *removable_device_urn,
+		    const gchar    *mount_point,
+		    gboolean        mounted,
+		    GString        *accumulator)
+{
+	GString *queries;
+	GError *error = NULL;
+
+	g_debug ("Setting up mount point '%s'", removable_device_urn);
+
+	queries = g_string_new (NULL);
+
+	if (mounted) {
+		if (mount_point) {
+			GFile *file;
+			gchar *uri;
+
+			file = g_file_new_for_path (mount_point);
+			uri = g_file_get_uri (file);
+
+			g_string_append_printf (queries,
+						"INSERT { <%s> a tracker:Volume; tracker:mountPoint <%s> } ",
+						removable_device_urn, uri);
+
+			g_object_unref (file);
+			g_free (uri);
+		}
+
+		g_string_append_printf (queries,
+					"INSERT { <%s> a tracker:Volume; tracker:isMounted true } ",
+					removable_device_urn);
+
+		g_string_append_printf (queries,
+					"INSERT { ?do tracker:available true } WHERE { ?do nie:dataSource <%s> }",
+					removable_device_urn);
+	} else {
+		gchar *now;
+
+		now = tracker_date_to_string (time (NULL));
+
+		g_string_append_printf (queries,
+					"INSERT { <%s> a tracker:Volume; tracker:unmountDate \"%s\" } ",
+					removable_device_urn, now);
+
+		g_string_append_printf (queries,
+					"INSERT { <%s> a tracker:Volume; tracker:isMounted false } ",
+					removable_device_urn);
+
+		g_string_append_printf (queries,
+					"DELETE { ?do tracker:available true } WHERE { ?do nie:dataSource <%s> }",
+					removable_device_urn);
+		g_free (now);
+	}
+
+	if (accumulator) {
+		g_string_append_printf (accumulator, "%s ", queries->str);
+	} else {
+		tracker_resources_sparql_update (indexer->private->client, queries->str, &error);
+
+		if (error) {
+			g_critical ("Could not set up mount point '%s': %s",
+				    removable_device_urn, error->message);
+			g_error_free (error);
+		}
+	}
+
+	g_string_free (queries, TRUE);
+}
+
+static void
+mount_point_added_cb (TrackerStorage *storage,
+		      const gchar    *udi,
+		      const gchar    *mount_point,
+		      gpointer        user_data)
+{
+	TrackerIndexer *indexer;
+	gchar *urn;
+
+	g_debug ("Configuring added mount point '%s'", mount_point);
+
+	indexer = TRACKER_INDEXER (user_data);
+	urn = g_strdup_printf (TRACKER_DATASOURCE_URN_PREFIX "%s", udi);
+
+	set_up_mount_point (indexer, urn, mount_point, TRUE, NULL);
+	g_free (urn);
+}
+
+static void
+mount_point_removed_cb (TrackerStorage *storage,
+			const gchar    *udi,
+			const gchar    *mount_point,
+			gpointer        user_data)
+{
+	TrackerIndexer *indexer;
+	gchar *urn;
+
+	g_debug ("Removing mount point '%s'", mount_point);
+
+	indexer = TRACKER_INDEXER (user_data);
+	urn = g_strdup_printf (TRACKER_DATASOURCE_URN_PREFIX "%s", udi);
+
+	set_up_mount_point (indexer, urn, mount_point, FALSE, NULL);
+	g_free (urn);
+}
+
+static void
+init_mount_points (TrackerIndexer *indexer)
+{
+	GHashTable *volumes;
+	GHashTableIter iter;
+	gpointer key, value;
+	GPtrArray *sparql_result;
+	GError *error = NULL;
+	GString *accumulator;
+	gint i, state;
+#ifdef HAVE_HAL
+	GList *udis, *u;
+#endif
+
+	g_debug ("Initializing mount points");
+
+	volumes = g_hash_table_new_full (g_str_hash, g_str_equal,
+					 (GDestroyNotify) g_free,
+					 NULL);
+
+	/* First, get all mounted volumes, according to tracker-store */
+	sparql_result = tracker_resources_sparql_query (indexer->private->client,
+							"SELECT ?v WHERE { ?v a tracker:Volume ; tracker:isMounted true }",
+							&error);
+
+	if (error) {
+		g_critical ("Could not obtain the mounted volumes");
+		g_error_free (error);
+		return;
+	}
+
+	for (i = 0; i < sparql_result->len; i++) {
+		gchar **row;
+
+		row = g_ptr_array_index (sparql_result, i);
+		state = VOLUME_MOUNTED_IN_STORE;
+
+		g_hash_table_insert (volumes, g_strdup (row[0]), GINT_TO_POINTER (state));
+	}
+
+	g_ptr_array_foreach (sparql_result, (GFunc) g_strfreev, NULL);
+	g_ptr_array_free (sparql_result, TRUE);
+
+	/* Report non-removable media to be mounted by HAL, so it
+	 * gets added on first index, and ignored in subsequent ones
+	 */
+	state = GPOINTER_TO_INT (g_hash_table_lookup (volumes, TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN));
+	state |= VOLUME_MOUNTED;
+	g_hash_table_replace (volumes, g_strdup (TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN), GINT_TO_POINTER (state));
+
+#ifdef HAVE_HAL
+	udis = tracker_storage_get_removable_device_udis (indexer->private->storage);
+
+	/* Then, get all currently mounted volumes, according to HAL */
+	for (u = udis; u; u = u->next) {
+		const gchar *udi;
+		gchar *removable_device_urn;
+
+		udi = u->data;
+		removable_device_urn = g_strdup_printf (TRACKER_DATASOURCE_URN_PREFIX "%s", udi);
+
+		state = GPOINTER_TO_INT (g_hash_table_lookup (volumes, removable_device_urn));
+		state |= VOLUME_MOUNTED;
+
+		g_hash_table_replace (volumes, removable_device_urn, GINT_TO_POINTER (state));
+	}
+
+	g_list_free (udis);
+#endif
+
+	accumulator = g_string_new (NULL);
+
+	g_hash_table_iter_init (&iter, volumes);
+
+	/* Finally, set up volumes based on the composed info */
+	while (g_hash_table_iter_next (&iter, &key, &value)) {
+		const gchar *urn = key;
+		gint state = GPOINTER_TO_INT (value);
+
+		if ((state & VOLUME_MOUNTED) &&
+		    !(state & VOLUME_MOUNTED_IN_STORE)) {
+			const gchar *mount_point = NULL;
+
+#ifdef HAVE_HAL
+			if (g_str_has_prefix (urn, TRACKER_DATASOURCE_URN_PREFIX)) {
+				const gchar *udi;
+
+				udi = urn + strlen (TRACKER_DATASOURCE_URN_PREFIX);
+				mount_point = tracker_storage_udi_get_mount_point (indexer->private->storage, udi);
+			}
+#endif
+
+			g_debug ("URN '%s' (mount point: %s) was not reported to be mounted, but now it is, updating state",
+				 urn, mount_point);
+			set_up_mount_point (indexer, urn, mount_point, TRUE, accumulator);
+		} else if (!(state & VOLUME_MOUNTED) &&
+			   (state & VOLUME_MOUNTED_IN_STORE)) {
+			g_debug ("URN '%s' was reported to be mounted, but it isn't anymore, updating state", urn);
+			set_up_mount_point (indexer, urn, NULL, FALSE, accumulator);
+		}
+	}
+
+	if (accumulator->str[0] != '\0') {
+		tracker_resources_sparql_update (indexer->private->client, accumulator->str, &error);
+
+		if (error) {
+			g_critical ("Could not initialize currently active mount points: %s",
+				    error->message);
+			g_error_free (error);
+		}
+	}
+
+	g_string_free (accumulator, TRUE);
+	g_hash_table_destroy (volumes);
+}
+
+static void
 indexer_constructed (GObject *object)
 {
 	TrackerIndexer *indexer;
@@ -820,6 +1050,15 @@ indexer_constructed (GObject *object)
 
 	tracker_status_init (indexer->private->config, 
 			     indexer->private->power);
+
+#ifdef HAVE_HAL
+	g_signal_connect (indexer->private->storage, "mount-point-added",
+			  G_CALLBACK (mount_point_added_cb), indexer);
+	g_signal_connect (indexer->private->storage, "mount-point-removed",
+			  G_CALLBACK (mount_point_removed_cb), indexer);
+#endif /* HAVE_HAL */
+
+	init_mount_points (indexer);
 
 	/* Set our status as running, if this is FALSE, threads stop
 	 * doing what they do and shutdown.
@@ -1128,6 +1367,7 @@ item_add_to_datasource (TrackerIndexer *indexer,
 {
 	GFile *file;
 	const gchar *removable_device_udi;
+	gchar *removable_device_urn;
 
 	file = tracker_module_file_get_file (module_file);
 
@@ -1139,27 +1379,23 @@ item_add_to_datasource (TrackerIndexer *indexer,
 #endif
 
 	if (removable_device_udi) {
-		gchar *removable_device_urn;
-
-		removable_device_urn = g_strdup_printf (TRACKER_DATASOURCE_URN_PREFIX "%s", 
+		removable_device_urn = g_strdup_printf (TRACKER_DATASOURCE_URN_PREFIX "%s",
 						        removable_device_udi);
-
-		tracker_sparql_builder_subject_iri (sparql, removable_device_urn);
-		tracker_sparql_builder_predicate (sparql, "a");
-		tracker_sparql_builder_object (sparql, "tracker:Volume");
-
-		tracker_sparql_builder_predicate (sparql, "nie:dataSource");
-		tracker_sparql_builder_object_iri (sparql, removable_device_urn);
-
-		g_free (removable_device_urn);
 	} else {
-		tracker_sparql_builder_subject_iri (sparql, TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN);
-		tracker_sparql_builder_predicate (sparql, "a");
-		tracker_sparql_builder_object (sparql, "tracker:Volume");
-
-		tracker_sparql_builder_predicate (sparql, "nie:dataSource");
-		tracker_sparql_builder_object_iri (sparql, TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN);
+		removable_device_urn = g_strdup (TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN);
 	}
+
+	tracker_sparql_builder_subject_iri (sparql, uri);
+	tracker_sparql_builder_predicate (sparql, "a");
+	tracker_sparql_builder_object (sparql, "nfo:FileDataObject");
+
+	tracker_sparql_builder_predicate (sparql, "nie:dataSource");
+	tracker_sparql_builder_object_iri (sparql, removable_device_urn);
+
+	tracker_sparql_builder_predicate (sparql, "tracker:available");
+	tracker_sparql_builder_object_boolean (sparql, TRUE);
+
+	g_free (removable_device_urn);
 }
 
 static void
@@ -1169,6 +1405,7 @@ item_add_or_update (TrackerIndexer        *indexer,
 		    TrackerSparqlBuilder  *sparql,
 		    const gchar           *mime_type)
 {
+	GError *error = NULL;
 	gchar *full_sparql;
 	gchar *mount_point = NULL;
 
@@ -1183,10 +1420,16 @@ item_add_or_update (TrackerIndexer        *indexer,
 
 	tracker_sparql_builder_insert_close (sparql);
 
-	full_sparql = g_strdup_printf ("DROP GRAPH <%s> %s",
+	full_sparql = g_strdup_printf ("DROP GRAPH <%s>\n%s",
 		uri, tracker_sparql_builder_get_result (sparql));
 
-	tracker_resources_batch_sparql_update (indexer->private->client, full_sparql, NULL);
+	tracker_resources_batch_sparql_update (indexer->private->client, full_sparql, &error);
+
+	if (error) {
+		g_warning ("SPARQL Update failed: %s\n%s", error->message, full_sparql);
+		g_error_free (error);
+	}
+
 	g_free (full_sparql);
 
 	schedule_flush (indexer, FALSE);

@@ -74,7 +74,7 @@ test_string_to_date (void)
 	GDate	  *expected;
 	GDate	  *result;
 	time_t	   result_time_t;
-	gchar	  *input = "2008-06-16T11:10:10+0600";
+	const gchar  *input = "2008-06-16T11:10:10+0600";
 
 	expected = g_date_new_dmy (16, G_DATE_JUNE, 2008);
 
@@ -242,7 +242,7 @@ test_string_to_uint (void)
 static void
 test_string_in_string_list (void)
 {
-	gchar *complete = "This is an extract of text with different terms an props like Audio:Title ...";
+	const gchar *complete = "This is an extract of text with different terms an props like Audio:Title ...";
 	gchar **pieces;
 
 	pieces = g_strsplit (complete, " ", -1);
@@ -267,10 +267,10 @@ test_gslist_to_string_list (void)
 	GSList *input = NULL;
 	gchar **result;
 
-	input = g_slist_prepend (input, "four");
-	input = g_slist_prepend (input, "three");
-	input = g_slist_prepend (input, "two");
-	input = g_slist_prepend (input, "one");
+	input = g_slist_prepend (input, (gpointer) "four");
+	input = g_slist_prepend (input, (gpointer) "three");
+	input = g_slist_prepend (input, (gpointer) "two");
+	input = g_slist_prepend (input, (gpointer) "one");
 
 	result = tracker_gslist_to_string_list (input);
 
@@ -291,7 +291,7 @@ test_gslist_to_string_list (void)
 static void
 test_string_list_to_string (void)
 {
-	gchar *input = "one two three four";
+	const gchar *input = "one two three four";
 	gchar **pieces;
 	gchar *result;
 

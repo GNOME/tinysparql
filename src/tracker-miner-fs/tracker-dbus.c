@@ -91,7 +91,7 @@ name_owner_changed_cb (DBusGProxy *proxy,
 
 static gboolean
 dbus_register_object (GObject		    *object,
-		      DBusGConnection	    *connection,
+		      DBusGConnection	    *mconnection,
 		      DBusGProxy	    *proxy,
 		      const DBusGObjectInfo *info,
 		      const gchar	    *path)
@@ -101,7 +101,7 @@ dbus_register_object (GObject		    *object,
 	g_message ("  Object Type:'%s'", G_OBJECT_TYPE_NAME (object));
 
 	dbus_g_object_type_install_info (G_OBJECT_TYPE (object), info);
-	dbus_g_connection_register_g_object (connection, path, object);
+	dbus_g_connection_register_g_object (mconnection, path, object);
 
 	dbus_g_proxy_add_signal (proxy, "NameOwnerChanged",
 				 G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING,
@@ -146,7 +146,7 @@ dbus_register_names (void)
 					    DBUS_INTERFACE_DBUS);
 
 	/* Register the service name for org.freedesktop.Tracker */
-	if (!dbus_register_service (gproxy, "org.freedesktop.Tracker.Miner.FS")) {
+	if (!dbus_register_service (gproxy, "org.freedesktop.Tracker1.Miner.FS")) {
 		return FALSE;
 	}
 

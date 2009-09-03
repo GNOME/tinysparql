@@ -1,10 +1,10 @@
 include $(top_srcdir)/Makefile.decl
 
 INCLUDES =								\
-	-DSHAREDIR=\""$(datadir)"\"					\
 	-DG_LOG_DOMAIN=\"Tracker\"					\
-	-DPKGLIBDIR=\""$(libdir)/tracker-$(TRACKER_API_VERSION)"\"	\
 	-DTRACKER_COMPILATION						\
+	-DSHAREDIR=\""$(datadir)"\"					\
+	-DPKGLIBDIR=\""$(libdir)/tracker-$(TRACKER_API_VERSION)"\"	\
 	-I$(top_srcdir)/src						\
 	$(WARN_CFLAGS)							\
 	$(GLIB2_CFLAGS)							\
@@ -12,26 +12,27 @@ INCLUDES =								\
 	$(DBUS_CFLAGS)							\
 	$(SQLITE3_CFLAGS)
 
-libtracker_dbdir = $(libdir)/tracker-$(TRACKER_API_VERSION)
-libtracker_db_LTLIBRARIES = libtracker-db.la
+noinst_LTLIBRARIES = libtracker-db.la
 
 libtracker_db_la_SOURCES = 						\
 	tracker-db-dbus.c						\
 	tracker-db-interface.c						\
 	tracker-db-interface-sqlite.c					\
-	tracker-db-manager.c
+	tracker-db-manager.c						\
+	tracker-db-backup.c						\
+	tracker-db-journal.c						
 
 noinst_HEADERS =							\
 	tracker-db-dbus.h						\
 	tracker-db-interface.h						\
 	tracker-db-interface-sqlite.h					\
-	tracker-db-manager.h 
-
-libtracker_db_la_LDFLAGS =						\
-	-version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE)
+	tracker-db-manager.h 						\
+	tracker-db-backup.h						\
+	tracker-db-journal.h
 
 libtracker_db_la_LIBADD = 						\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la	\
+	$(top_builddir)/src/tracker-fts/libtracker-fts.la		\
 	$(SQLITE3_LIBS)							\
 	$(DBUS_LIBS)							\
 	$(GCOV_LIBS)							\

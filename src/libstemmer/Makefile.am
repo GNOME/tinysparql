@@ -6,8 +6,7 @@ INCLUDES =				\
 	-I$(top_srcdir)/src		\
 	$(WARN_CFLAGS)
 
-libstemmerdir = $(libdir)/tracker-$(TRACKER_API_VERSION)
-libstemmer_LTLIBRARIES = libstemmer.la
+noinst_LTLIBRARIES = libstemmer.la
 
 libstemmer_la_SOURCES = 		\
 	libstemmer.c 			\
@@ -50,6 +49,4 @@ noinst_HEADERS =			\
 
 
 libstemmer_la_LIBADD = $(GCOV_LIBS)
-libstemmer_la_LDFLAGS = 		\
-	-version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE)
 
