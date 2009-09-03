@@ -879,11 +879,11 @@ get_embedded_metadata (ProcessFileData *data,
 		       const gchar     *uri,
 		       const gchar     *mime_type)
 {
-	data->call = org_freedesktop_Tracker_Extract_get_metadata_async (data->miner->private->extractor_proxy,
-									 uri,
-									 mime_type,
-									 get_embedded_metadata_cb,
-									 data);
+	data->call = org_freedesktop_Tracker1_Extract_get_metadata_async (data->miner->private->extractor_proxy,
+									  uri,
+									  mime_type,
+									  get_embedded_metadata_cb,
+									  data);
 	g_signal_connect (data->cancellable, "cancelled",
 			  G_CALLBACK (get_embedded_metadata_cancel), data);
 }

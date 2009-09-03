@@ -225,6 +225,7 @@ miner_applications_process_file_cb (gpointer user_data)
 	GStrv cats = NULL;
 	gsize cats_len;
 	GError *error = NULL;
+	gboolean is_software = TRUE;
 
 	sparql = data->sparql;
 	key_file = get_desktop_key_file (data->file, &type, &error);

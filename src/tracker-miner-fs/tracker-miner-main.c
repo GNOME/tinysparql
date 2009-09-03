@@ -39,15 +39,11 @@
 #include <libtracker-common/tracker-log.h>
 #include <libtracker-common/tracker-ontology.h>
 #include <libtracker-common/tracker-file-utils.h>
-#include <libtracker-common/tracker-thumbnailer.h>
 #include <libtracker-common/tracker-storage.h>
 
 #include <libtracker-db/tracker-db-manager.h>
 #include <libtracker-db/tracker-db-dbus.h>
 
-#include <libtracker-data/tracker-turtle.h>
-
-#include "tracker-albumart.h"
 #include "tracker-dbus.h"
 #include "tracker-config.h"
 #include "tracker-indexer.h"

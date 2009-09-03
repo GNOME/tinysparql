@@ -236,11 +236,11 @@ miner_pause (const gchar *miner,
 	g_print ("%s\n", str);
 	g_free (str);
 	
-	if (!org_freedesktop_Tracker_Miner_pause (proxy, 
-						  g_get_application_name (),
-						  reason,
-						  &cookie, 
-						  &error)) {
+	if (!org_freedesktop_Tracker1_Miner_pause (proxy, 
+						   g_get_application_name (),
+						   reason,
+						   &cookie, 
+						   &error)) {
 		str = g_strdup_printf (_("Could not pause miner: %s"),
 				       name);
 		g_printerr ("  %s. %s\n", 
@@ -285,9 +285,9 @@ miner_resume (const gchar *miner,
 	g_print ("%s\n", str);
 	g_free (str);
 	
-	if (!org_freedesktop_Tracker_Miner_resume (proxy, 
-						   cookie, 
-						   &error)) {
+	if (!org_freedesktop_Tracker1_Miner_resume (proxy, 
+						    cookie, 
+						    &error)) {
 		str = g_strdup_printf (_("Could not resume miner: %s"),
 				       name);
 		g_printerr ("  %s. %s\n", 
@@ -339,9 +339,9 @@ miner_get_details (const gchar  *miner,
 		return FALSE;
 	}
 	
-	if (status && !org_freedesktop_Tracker_Miner_get_status (proxy, 
-								 status,
-								 &error)) {
+	if (status && !org_freedesktop_Tracker1_Miner_get_status (proxy, 
+								  status,
+								  &error)) {
 		gchar *str;
 
 		str = g_strdup_printf (_("Could not get status from miner: %s"),
@@ -357,9 +357,9 @@ miner_get_details (const gchar  *miner,
 		return FALSE;
 	}
 
-	if (progress && !org_freedesktop_Tracker_Miner_get_progress (proxy, 
-								     progress,
-								     &error)) {
+	if (progress && !org_freedesktop_Tracker1_Miner_get_progress (proxy, 
+								      progress,
+								      &error)) {
 		gchar *str;
 
 		str = g_strdup_printf (_("Could not get progress from miner: %s"),
@@ -376,10 +376,10 @@ miner_get_details (const gchar  *miner,
 	}
 
 	if ((pause_applications && pause_reasons) &&
-	    !org_freedesktop_Tracker_Miner_get_pause_details (proxy, 
-							      pause_applications,
-							      pause_reasons,
-							      &error)) {
+	    !org_freedesktop_Tracker1_Miner_get_pause_details (proxy, 
+							       pause_applications,
+							       pause_reasons,
+							       &error)) {
 		gchar *str;
 
 		str = g_strdup_printf (_("Could not get paused details from miner: %s"),

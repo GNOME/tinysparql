@@ -74,7 +74,6 @@
 #include "tracker-indexer-module.h"
 #include "tracker-marshal.h"
 #include "tracker-removable-device.h"
-#include "tracker-processor.h"
 #include "tracker-status.h"
 #include "tracker-thumbnailer.h"
 #include "tracker-utils.h"
