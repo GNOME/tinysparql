@@ -42,7 +42,6 @@ typedef enum  {
 GQuark   tracker_data_error_quark (void);
 
 /* Services  */
-guint32  tracker_data_insert_resource                   (const gchar         *uri);
 void     tracker_data_delete_resource                   (const gchar         *uri);
 gboolean tracker_data_update_resource_uri               (const gchar         *old_uri,
 							 const gchar         *new_uri);

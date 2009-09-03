@@ -535,20 +535,6 @@ cache_create_service_decomposed (TrackerClass           *cl)
 	cache_insert_value ("rdfs:Resource_rdf:type", "rdf:type", &gvalue, TRUE, FALSE);
 }
 
-guint32
-tracker_data_insert_resource (const gchar *uri)
-{
-	guint32 id;
-
-	tracker_data_begin_transaction ();
-
-	id = ensure_resource_id (uri);
-
-	tracker_data_commit_transaction ();
-
-	return id;
-}
-
 gboolean
 tracker_data_update_resource_uri (const gchar *old_uri,
 				  const gchar *new_uri)
