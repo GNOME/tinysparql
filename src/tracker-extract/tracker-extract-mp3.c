@@ -333,7 +333,7 @@ static TrackerExtractData extract_data[] = {
 	{ NULL, NULL }
 };
 
-static void
+static gchar *
 improve_handwritten_genre (gchar *genre)
 {
 	/* This function tries to make each first letter of each word
@@ -341,25 +341,30 @@ improve_handwritten_genre (gchar *genre)
 	 * example, if it is "Fusion jazz", we want "Fussion Jazz" to
 	 * make things more consistent.
 	 */
-        gchar *p;
-	gunichar c;
+
+	gunichar *str;
+	gchar    *ret;
+
+        gunichar *p;
 	gboolean set_next;
 
 	if (!genre) {
-		return;
+		return NULL;
 	}
 
-	c = g_utf8_get_char (genre);
-	*genre = g_unichar_toupper (c);
+	str = g_utf8_to_ucs4 (genre, -1, NULL, NULL, NULL);
 
-        for (p = genre, set_next = FALSE; *p; p = g_utf8_next_char (p)) {
+	if (!str) {
+		return NULL;
+	}
+
+        for (p = str, set_next = TRUE; *p; p++) {
 		GUnicodeBreakType t;
 
-                c = g_utf8_get_char (p);
-		t = g_unichar_break_type (c);
+		t = g_unichar_break_type (*p);
 
 		if (set_next) {
-			*p = g_unichar_toupper (c);
+			*p = g_unichar_toupper (*p);
 			set_next = FALSE;
 		}
 
@@ -405,6 +410,13 @@ improve_handwritten_genre (gchar *genre)
 			break;
 		}
         }
+
+	ret = g_ucs4_to_utf8 (str, -1, NULL, NULL, NULL);
+
+	g_free (str);
+
+	return ret;
+
 }
 
 static char *
@@ -1100,6 +1112,7 @@ get_id3v24_tags (const gchar *data,
 						g_strfreev (parts);
 					} else if (strcmp (tmap[i].text, "TCON") == 0) {
 						gint genre;
+						gchar *improved_genre;
 
 						if (get_genre_number (word, &genre)) {
 							g_free (word);
@@ -1108,9 +1121,12 @@ get_id3v24_tags (const gchar *data,
 							if (g_ascii_strcasecmp (word, "unknown") == 0) {
 								g_free (word);
 								break;
-							} 
-
-							improve_handwritten_genre (word);
+							} else {
+								if ((improved_genre = improve_handwritten_genre (word)) != NULL) {
+									g_free (word);
+									word = improved_genre;
+								}
+							}
 						}
 					} else if (strcmp (tmap[i].text, "TLEN") == 0) {
 						guint32 duration;
@@ -1362,6 +1378,7 @@ get_id3v23_tags (const gchar *data,
 						g_strfreev (parts);
 					} else if (strcmp (tmap[i].text, "TCON") == 0) {
 						gint genre;
+						gchar *improved_genre;
 
 						if (get_genre_number (word, &genre)) {
 							g_free (word);
@@ -1370,9 +1387,12 @@ get_id3v23_tags (const gchar *data,
 							if (g_ascii_strcasecmp (word, "unknown") == 0) {
 								g_free (word);
 								break;
+							} else {
+								if ((improved_genre = improve_handwritten_genre (word)) != NULL) {
+									g_free (word);
+									word = improved_genre;
+								}
 							} 
-
-							improve_handwritten_genre (word);
 						}
 					} else if (strcmp (tmap[i].text, "TLEN") == 0) {
 						guint32 duration;
@@ -1600,6 +1620,7 @@ get_id3v20_tags (const gchar *data,
 						word = s;
 					} else if (strcmp (tmap[i].text, "TCO") == 0) {
 						gint genre;
+						gchar *improved_genre;
 
 						if (get_genre_number (word, &genre)) {
 							g_free (word);
@@ -1608,9 +1629,12 @@ get_id3v20_tags (const gchar *data,
 							if (g_ascii_strcasecmp (word, "unknown") == 0) {
 								g_free (word);
 								break;
-							} 
-
-							improve_handwritten_genre (word);
+							} else {
+								if ((improved_genre = improve_handwritten_genre (word)) != NULL) {
+									g_free (word);
+									word = improved_genre;
+								}
+							}
 						}
 					} else if (strcmp (tmap[i].text, "TLE") == 0) {
 						guint32 duration;
