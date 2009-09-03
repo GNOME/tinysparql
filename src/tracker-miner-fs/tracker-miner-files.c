@@ -520,9 +520,9 @@ create_extractor_proxy (void)
 
 	/* Get proxy for the extractor */
 	proxy = dbus_g_proxy_new_for_name (connection,
-					   "org.freedesktop.Tracker.Extract",
-					   "/org/freedesktop/Tracker/Extract",
-					   "org.freedesktop.Tracker.Extract");
+					   "org.freedesktop.Tracker1.Extract",
+					   "/org/freedesktop/Tracker1/Extract",
+					   "org.freedesktop.Tracker1.Extract");
 
 	if (!proxy) {
 		g_critical ("Could not create a DBusGProxy to the extract service");
