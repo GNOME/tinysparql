@@ -32,6 +32,5 @@ tracker_miner_test_LDADD =                             		\
        $(GIO_LIBS)                                     		\
        $(GCOV_LIBS)                                    		\
        $(GLIB2_LIBS)                                   		\
-       $(RAPTOR_LIBS)                                  		\
        -lz                                             		\
        -lm
