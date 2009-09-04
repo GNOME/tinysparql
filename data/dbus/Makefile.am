@@ -14,8 +14,8 @@ config_DATA =							\
 servicedir = $(DBUS_SERVICES_DIR)
 service_in_files =						\
 	org.freedesktop.Tracker.service.in			\
-	org.freedesktop.Tracker.Miner.Applications.service.in	\
-	org.freedesktop.Tracker.Miner.Files.service.in		\
+	org.freedesktop.Tracker1.Miner.Applications.service.in	\
+	org.freedesktop.Tracker1.Miner.Files.service.in		\
 	org.freedesktop.Tracker.Extract.service.in
 service_DATA = $(service_in_files:.service.in=.service)
 

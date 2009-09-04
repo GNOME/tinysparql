@@ -132,11 +132,11 @@ tracker_miner_discover_init (TrackerMinerDiscover *discover)
 		gchar *name, *path;
 
 		name = strrchr (m->data, '.');
-		path = g_strdup_printf ("/org/freedesktop/Tracker/Miner/%s", ++name);
+		path = g_strdup_printf (TRACKER_MINER_DBUS_PATH_PREFIX "%s", ++name);
 
 		proxy = dbus_g_proxy_new_for_name (priv->connection,
 						   m->data, path,
-						   "org.freedesktop.Tracker.Miner");
+						   TRACKER_MINER_DBUS_INTERFACE);
 
 		dbus_g_proxy_add_signal (proxy,
 					 "Progress",
