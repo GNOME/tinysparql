@@ -119,7 +119,6 @@ static INotifyHandle *libinotify_monitor_directory (TrackerMonitor *monitor,
 static void           libinotify_monitor_cancel    (gpointer        data);
 
 static void           tracker_monitor_update       (TrackerMonitor *monitor,
-						    const gchar    *module_name,
 						    GFile          *old_file,
 						    GFile          *new_file);
 
@@ -1087,7 +1086,7 @@ libinotify_monitor_event_cb (INotifyHandle *handle,
 				       other_file,
 				       is_directory, 
 				       TRUE);
-			tracker_monitor_update (monitor, module_name, file, other_file);
+			tracker_monitor_update (monitor, file, other_file);
 			g_hash_table_remove (monitor->private->event_pairs,
 					     GUINT_TO_POINTER (cookie));
 		}
@@ -1148,7 +1147,7 @@ libinotify_monitor_event_cb (INotifyHandle *handle,
 				       file,
 				       is_directory,
 				       is_source_indexed);
-			tracker_monitor_update (monitor, module_name, other_file, file);
+			tracker_monitor_update (monitor, other_file, file);
 			g_hash_table_remove (monitor->private->event_pairs,
 					     GUINT_TO_POINTER (cookie));
 		}
@@ -1390,21 +1389,12 @@ tracker_monitor_add (TrackerMonitor *monitor,
 
 static void
 tracker_monitor_update (TrackerMonitor *monitor,
-			const gchar    *module_name,
 			GFile          *old_file,
 			GFile          *new_file)
 {
-	GHashTable *monitors;
-	gpointer    file_monitor;
+	gpointer file_monitor;
 
-	monitors = g_hash_table_lookup (monitor->private->modules, module_name);
-
-	if (!monitors) {
-		g_warning ("No monitor hash table for module:'%s'", module_name);
-		return;
-	}
-
-	file_monitor = g_hash_table_lookup (monitors, old_file);
+	file_monitor = g_hash_table_lookup (monitor->private->monitors, old_file);
 
 	if (!file_monitor) {
 		gchar *path;
@@ -1417,8 +1407,8 @@ tracker_monitor_update (TrackerMonitor *monitor,
 	}
 
 	/* Replace key in monitors hashtable */
-	g_hash_table_steal (monitors, old_file);
-	g_hash_table_insert (monitors, new_file, file_monitor);
+	g_hash_table_steal (monitor->private->monitors, old_file);
+	g_hash_table_insert (monitor->private->monitors, new_file, file_monitor);
 }
 
 gboolean
