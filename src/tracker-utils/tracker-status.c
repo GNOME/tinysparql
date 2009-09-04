@@ -34,7 +34,7 @@
 #include <libtracker-common/tracker-type-utils.h>
 
 #include <libtracker-miner/tracker-miner.h>
-#include <libtracker-miner/tracker-miner-discover.h>
+#include <libtracker-miner/tracker-miner-manager.h>
 
 #include "tracker-miner-client.h"
 
@@ -401,10 +401,10 @@ miner_get_details (const gchar  *miner,
 }
 
 static void
-discover_miner_progress_cb (TrackerMinerDiscover *discover,
-			    const gchar          *miner_name,
-			    const gchar          *status,
-			    gdouble               progress)
+miner_manager_progress_cb (TrackerMinerManager *manager,
+			   const gchar         *miner_name,
+			   const gchar         *status,
+			   gdouble              progress)
 {
 	miner_name += strlen (TRACKER_MINER_DBUS_NAME_PREFIX);
 	progress *= 100;
@@ -418,7 +418,7 @@ discover_miner_progress_cb (TrackerMinerDiscover *discover,
 gint
 main (gint argc, gchar *argv[])
 {
-	TrackerMinerDiscover *discover;
+	TrackerMinerManager *manager;
 	GOptionContext *context;
 	TrackerClient *client;
 	GSList *miners_available;
@@ -490,9 +490,9 @@ main (gint argc, gchar *argv[])
 		return EXIT_SUCCESS;
 	}
 
-	discover = tracker_miner_discover_new ();
-	miners_available = tracker_miner_discover_get_available (discover);
-	miners_running = tracker_miner_discover_get_running (discover);
+	manager = tracker_miner_manager_new ();
+	miners_available = tracker_miner_manager_get_available (manager);
+	miners_running = tracker_miner_manager_get_running (manager);
 
 	if (list_miners_available) {
 		gchar *str;
@@ -678,8 +678,8 @@ main (gint argc, gchar *argv[])
 
 	g_print ("Press Ctrl+C to end follow of Tracker state\n");
 
-	g_signal_connect (discover, "miner-progress",
-			  G_CALLBACK (discover_miner_progress_cb), NULL);
+	g_signal_connect (manager, "miner-progress",
+			  G_CALLBACK (miner_manager_progress_cb), NULL);
 
 	initialize_signal_handler ();
 
@@ -688,7 +688,7 @@ main (gint argc, gchar *argv[])
 	g_main_loop_unref (main_loop);
 
 	tracker_disconnect (client);
-	g_object_unref (discover);
+	g_object_unref (manager);
 
 	return EXIT_SUCCESS;
 }

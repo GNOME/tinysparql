@@ -32,10 +32,10 @@ libtracker_miner_la_SOURCES = 				\
 	tracker-miner.c					\
 	tracker-miner.h					\
 	tracker-miner-dbus.h				\
-	tracker-miner-discover.c			\
-	tracker-miner-discover.h			\
 	tracker-miner-fs.c				\
 	tracker-miner-fs.h				\
+	tracker-miner-manager.c				\
+	tracker-miner-manager.h				\
 	tracker-monitor.c				\
 	tracker-monitor.h				\
 	tracker-utils.c					\

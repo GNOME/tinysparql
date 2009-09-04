@@ -20,7 +20,7 @@
 
 #include "config.h"
 #include "tracker-status-icon.h"
-#include <libtracker-miner/tracker-miner-discover.h>
+#include <libtracker-miner/tracker-miner-manager.h>
 #include <string.h>
 #include <locale.h>
 #include <glib/gi18n.h>
@@ -50,7 +50,7 @@ struct TrackerStatusIconPrivate {
 	TrackerStatus current_status;
 	guint animation_id;
 
-	TrackerMinerDiscover *discover;
+	TrackerMinerManager *manager;
 	GtkWidget *miner_menu;
 	GtkWidget *context_menu;
 	GtkSizeGroup *size_group;
@@ -73,11 +73,11 @@ static void status_icon_popup_menu (GtkStatusIcon     *icon,
 				    guint              button,
 				    guint32            activate_time);
 
-static void status_icon_miner_progress (TrackerMinerDiscover *discover,
-					const gchar          *miner_name,
-					const gchar          *status,
-					gdouble               progress,
-					gpointer              user_data);
+static void status_icon_miner_progress (TrackerMinerManager *manager,
+					const gchar         *miner_name,
+					const gchar         *status,
+					gdouble              progress,
+					gpointer             user_data);
 static void        status_icon_initialize_miners_menu (TrackerStatusIcon *icon);
 static GtkWidget * status_icon_create_context_menu    (TrackerStatusIcon *icon);
 
@@ -138,8 +138,8 @@ tracker_status_icon_init (TrackerStatusIcon *icon)
 	priv->context_menu = status_icon_create_context_menu (icon);
 	priv->size_group = gtk_size_group_new (GTK_SIZE_GROUP_HORIZONTAL);
 
-	priv->discover = tracker_miner_discover_new ();
-	g_signal_connect (priv->discover, "miner-progress",
+	priv->manager = tracker_miner_manager_new ();
+	g_signal_connect (priv->manager, "miner-progress",
 			  G_CALLBACK (status_icon_miner_progress), icon);
 	status_icon_initialize_miners_menu (icon);
 }
@@ -174,7 +174,7 @@ status_icon_finalize (GObject *object)
 		priv->animation_id = 0;
 	}
 
-	g_object_unref (priv->discover);
+	g_object_unref (priv->manager);
 	g_object_unref (priv->size_group);
 
 	G_OBJECT_CLASS (tracker_status_icon_parent_class)->finalize (object);
@@ -210,11 +210,11 @@ status_icon_popup_menu (GtkStatusIcon *icon,
 }
 
 static void
-status_icon_miner_progress (TrackerMinerDiscover *discover,
-			    const gchar          *miner_name,
-			    const gchar          *status,
-			    gdouble               progress,
-			    gpointer              user_data)
+status_icon_miner_progress (TrackerMinerManager *manager,
+			    const gchar         *miner_name,
+			    const gchar         *status,
+			    gdouble              progress,
+			    gpointer             user_data)
 {
 	TrackerStatusIconPrivate *priv;
 	TrackerStatusIcon *icon;
@@ -298,7 +298,7 @@ status_icon_initialize_miners_menu (TrackerStatusIcon *icon)
 
 	priv = TRACKER_STATUS_ICON_GET_PRIVATE (icon);
 
-	miners = tracker_miner_discover_get_available (priv->discover);
+	miners = tracker_miner_manager_get_available (priv->manager);
 
 	for (m = miners; m; m = m->next) {
 		miner_menu_entry_add (icon, (const gchar *) m->data);

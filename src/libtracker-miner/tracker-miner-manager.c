@@ -25,23 +25,23 @@
 
 #include "tracker-crawler.h"
 #include "tracker-miner.h"
-#include "tracker-miner-discover.h"
+#include "tracker-miner-manager.h"
 #include "tracker-marshal.h"
 
-#define TRACKER_MINER_DISCOVER_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_MINER_DISCOVER, TrackerMinerDiscoverPrivate))
+#define TRACKER_MINER_MANAGER_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_MINER_MANAGER, TrackerMinerManagerPrivate))
 
-typedef struct TrackerMinerDiscoverPrivate TrackerMinerDiscoverPrivate;
+typedef struct TrackerMinerManagerPrivate TrackerMinerManagerPrivate;
 
-struct TrackerMinerDiscoverPrivate {
+struct TrackerMinerManagerPrivate {
 	DBusGConnection *connection;
 	DBusGProxy *proxy;
 	GHashTable *miner_proxies;
 };
 
-static void miner_discover_finalize (GObject *object);
+static void miner_manager_finalize (GObject *object);
 
 
-G_DEFINE_TYPE (TrackerMinerDiscover, tracker_miner_discover, G_TYPE_OBJECT)
+G_DEFINE_TYPE (TrackerMinerManager, tracker_miner_manager, G_TYPE_OBJECT)
 
 enum {
 	MINER_PROGRESS,
@@ -51,17 +51,17 @@ enum {
 static guint signals [LAST_SIGNAL] = { 0 };
 
 static void
-tracker_miner_discover_class_init (TrackerMinerDiscoverClass *klass)
+tracker_miner_manager_class_init (TrackerMinerManagerClass *klass)
 {
 	GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
-	object_class->finalize = miner_discover_finalize;
+	object_class->finalize = miner_manager_finalize;
 
 	signals [MINER_PROGRESS] =
 		g_signal_new ("miner-progress",
 			      G_OBJECT_CLASS_TYPE (object_class),
 			      G_SIGNAL_RUN_LAST,
-			      G_STRUCT_OFFSET (TrackerMinerDiscoverClass, miner_progress),
+			      G_STRUCT_OFFSET (TrackerMinerManagerClass, miner_progress),
 			      NULL, NULL,
 			      tracker_marshal_VOID__STRING_STRING_DOUBLE,
 			      G_TYPE_NONE, 3,
@@ -69,7 +69,7 @@ tracker_miner_discover_class_init (TrackerMinerDiscoverClass *klass)
 			      G_TYPE_STRING,
 			      G_TYPE_DOUBLE);
 
-	g_type_class_add_private (object_class, sizeof (TrackerMinerDiscoverPrivate));
+	g_type_class_add_private (object_class, sizeof (TrackerMinerManagerPrivate));
 }
 
 static void
@@ -78,25 +78,25 @@ miner_progress_changed (DBusGProxy  *proxy,
 			gdouble      progress,
 			gpointer     user_data)
 {
-	TrackerMinerDiscover *discover = user_data;
-	TrackerMinerDiscoverPrivate *priv;
+	TrackerMinerManager *manager = user_data;
+	TrackerMinerManagerPrivate *priv;
 	const gchar *name;
 
-	discover = user_data;
-	priv = TRACKER_MINER_DISCOVER_GET_PRIVATE (discover);
+	manager = user_data;
+	priv = TRACKER_MINER_MANAGER_GET_PRIVATE (manager);
 	name = g_hash_table_lookup (priv->miner_proxies, proxy);
 
-	g_signal_emit (discover, signals[MINER_PROGRESS], 0, name, status, progress);
+	g_signal_emit (manager, signals[MINER_PROGRESS], 0, name, status, progress);
 }
 
 static void
-tracker_miner_discover_init (TrackerMinerDiscover *discover)
+tracker_miner_manager_init (TrackerMinerManager *manager)
 {
-	TrackerMinerDiscoverPrivate *priv;
+	TrackerMinerManagerPrivate *priv;
 	GError *error = NULL;
 	GSList *miners, *m;
 
-	priv = TRACKER_MINER_DISCOVER_GET_PRIVATE (discover);
+	priv = TRACKER_MINER_MANAGER_GET_PRIVATE (manager);
 
 	priv->connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
 
@@ -125,7 +125,7 @@ tracker_miner_discover_init (TrackerMinerDiscover *discover)
 					   G_TYPE_DOUBLE,
 					   G_TYPE_INVALID);
 
-	miners = tracker_miner_discover_get_available (discover);
+	miners = tracker_miner_manager_get_available (manager);
 
 	for (m = miners; m; m = m->next) {
 		DBusGProxy *proxy;
@@ -147,18 +147,18 @@ tracker_miner_discover_init (TrackerMinerDiscover *discover)
 		dbus_g_proxy_connect_signal (proxy,
 					     "Progress",
 					     G_CALLBACK (miner_progress_changed),
-					     discover, NULL);
+					     manager, NULL);
 
 		g_hash_table_insert (priv->miner_proxies, proxy, g_strdup (m->data));
 	}
 }
 
 static void
-miner_discover_finalize (GObject *object)
+miner_manager_finalize (GObject *object)
 {
-	TrackerMinerDiscoverPrivate *priv;
+	TrackerMinerManagerPrivate *priv;
 
-	priv = TRACKER_MINER_DISCOVER_GET_PRIVATE (object);
+	priv = TRACKER_MINER_MANAGER_GET_PRIVATE (object);
 
 	if (priv->proxy) {
 		g_object_unref (priv->proxy);
@@ -168,26 +168,26 @@ miner_discover_finalize (GObject *object)
 		dbus_g_connection_unref (priv->connection);
 	}
 
-	G_OBJECT_CLASS (tracker_miner_discover_parent_class)->finalize (object);
+	G_OBJECT_CLASS (tracker_miner_manager_parent_class)->finalize (object);
 }
 
-TrackerMinerDiscover *
-tracker_miner_discover_new (void)
+TrackerMinerManager *
+tracker_miner_manager_new (void)
 {
-	return g_object_new (TRACKER_TYPE_MINER_DISCOVER, NULL);
+	return g_object_new (TRACKER_TYPE_MINER_MANAGER, NULL);
 }
 
 GSList *
-tracker_miner_discover_get_running (TrackerMinerDiscover *discover)
+tracker_miner_manager_get_running (TrackerMinerManager *manager)
 {
-	TrackerMinerDiscoverPrivate *priv;
+	TrackerMinerManagerPrivate *priv;
 	GSList *list = NULL;
 	GError *error = NULL;
 	gchar **p, **result;
 
-	g_return_val_if_fail (TRACKER_IS_MINER_DISCOVER (discover), NULL);
+	g_return_val_if_fail (TRACKER_IS_MINER_MANAGER (manager), NULL);
 
-	priv = TRACKER_MINER_DISCOVER_GET_PRIVATE (discover);
+	priv = TRACKER_MINER_MANAGER_GET_PRIVATE (manager);
 
 	if (!priv->connection || !priv->proxy) {
 		return NULL;
@@ -263,7 +263,7 @@ crawler_finished_cb (TrackerCrawler *crawler,
 }
 
 GSList *
-tracker_miner_discover_get_available (TrackerMinerDiscover *discover)
+tracker_miner_manager_get_available (TrackerMinerManager *manager)
 {
 	GSList *list = NULL;
 	GMainLoop *main_loop;
