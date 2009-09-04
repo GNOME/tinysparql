@@ -78,6 +78,12 @@ static void status_icon_miner_progress (TrackerMinerManager *manager,
 					const gchar         *status,
 					gdouble              progress,
 					gpointer             user_data);
+static void status_icon_miner_paused   (TrackerMinerManager *manager,
+					const gchar         *miner_name,
+					gpointer             user_data);
+static void status_icon_miner_resumed  (TrackerMinerManager *manager,
+					const gchar         *miner_name,
+					gpointer             user_data);
 static void        status_icon_initialize_miners_menu (TrackerStatusIcon *icon);
 static GtkWidget * status_icon_create_context_menu    (TrackerStatusIcon *icon);
 
@@ -141,6 +147,10 @@ tracker_status_icon_init (TrackerStatusIcon *icon)
 	priv->manager = tracker_miner_manager_new ();
 	g_signal_connect (priv->manager, "miner-progress",
 			  G_CALLBACK (status_icon_miner_progress), icon);
+	g_signal_connect (priv->manager, "miner-paused",
+			  G_CALLBACK (status_icon_miner_paused), icon);
+	g_signal_connect (priv->manager, "miner-resumed",
+			  G_CALLBACK (status_icon_miner_resumed), icon);
 	status_icon_initialize_miners_menu (icon);
 }
 
@@ -245,6 +255,52 @@ status_icon_miner_progress (TrackerMinerManager *manager,
 	} else {
 		status_icon_set_status (icon, STATUS_INDEXING);
 	}
+}
+
+static void
+status_icon_miner_paused (TrackerMinerManager *manager,
+			  const gchar         *miner_name,
+			  gpointer             user_data)
+{
+	TrackerStatusIconPrivate *priv;
+	TrackerStatusIcon *icon;
+	MinerMenuEntry *entry;
+
+	icon = TRACKER_STATUS_ICON (user_data);
+	priv = TRACKER_STATUS_ICON_GET_PRIVATE (icon);
+	entry = g_hash_table_lookup (priv->miners, miner_name);
+
+	if (G_UNLIKELY (!entry)) {
+		g_critical ("Got pause signal from unknown miner");
+		return;
+	}
+
+	gtk_image_set_from_stock (GTK_IMAGE (entry->state),
+				  GTK_STOCK_MEDIA_PAUSE,
+				  GTK_ICON_SIZE_MENU);
+}
+
+static void
+status_icon_miner_resumed (TrackerMinerManager *manager,
+			   const gchar         *miner_name,
+			   gpointer             user_data)
+{
+	TrackerStatusIconPrivate *priv;
+	TrackerStatusIcon *icon;
+	MinerMenuEntry *entry;
+
+	icon = TRACKER_STATUS_ICON (user_data);
+	priv = TRACKER_STATUS_ICON_GET_PRIVATE (icon);
+	entry = g_hash_table_lookup (priv->miners, miner_name);
+
+	if (G_UNLIKELY (!entry)) {
+		g_critical ("Got pause signal from unknown miner");
+		return;
+	}
+
+	gtk_image_set_from_stock (GTK_IMAGE (entry->state),
+				  GTK_STOCK_MEDIA_PLAY,
+				  GTK_ICON_SIZE_MENU);
 }
 
 static void
