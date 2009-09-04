@@ -46,6 +46,10 @@ struct TrackerMinerManagerClass {
 				 const gchar         *miner_name,
 				 const gchar         *status,
 				 gdouble              progress);
+	void (* miner_paused)   (TrackerMinerManager *manager,
+				 const gchar         *miner_name);
+	void (* miner_resumed)  (TrackerMinerManager *manager,
+				 const gchar         *miner_name);
 };
 
 GType   tracker_miner_manager_get_type (void) G_GNUC_CONST;
@@ -54,6 +58,7 @@ TrackerMinerManager * tracker_miner_manager_new (void);
 
 GSList *tracker_miner_manager_get_running   (TrackerMinerManager *manager);
 GSList *tracker_miner_manager_get_available (TrackerMinerManager *manager);
+
 
 G_END_DECLS
 

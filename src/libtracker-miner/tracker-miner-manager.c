@@ -45,6 +45,8 @@ G_DEFINE_TYPE (TrackerMinerManager, tracker_miner_manager, G_TYPE_OBJECT)
 
 enum {
 	MINER_PROGRESS,
+	MINER_PAUSED,
+	MINER_RESUMED,
 	LAST_SIGNAL
 };
 
@@ -68,6 +70,24 @@ tracker_miner_manager_class_init (TrackerMinerManagerClass *klass)
 			      G_TYPE_STRING,
 			      G_TYPE_STRING,
 			      G_TYPE_DOUBLE);
+	signals [MINER_PAUSED] =
+		g_signal_new ("miner-paused",
+			      G_OBJECT_CLASS_TYPE (object_class),
+			      G_SIGNAL_RUN_LAST,
+			      G_STRUCT_OFFSET (TrackerMinerManagerClass, miner_paused),
+			      NULL, NULL,
+			      g_cclosure_marshal_VOID__STRING,
+			      G_TYPE_NONE, 1,
+			      G_TYPE_STRING);
+	signals [MINER_RESUMED] =
+		g_signal_new ("miner-resumed",
+			      G_OBJECT_CLASS_TYPE (object_class),
+			      G_SIGNAL_RUN_LAST,
+			      G_STRUCT_OFFSET (TrackerMinerManagerClass, miner_resumed),
+			      NULL, NULL,
+			      g_cclosure_marshal_VOID__STRING,
+			      G_TYPE_NONE, 1,
+			      G_TYPE_STRING);
 
 	g_type_class_add_private (object_class, sizeof (TrackerMinerManagerPrivate));
 }
@@ -87,6 +107,36 @@ miner_progress_changed (DBusGProxy  *proxy,
 	name = g_hash_table_lookup (priv->miner_proxies, proxy);
 
 	g_signal_emit (manager, signals[MINER_PROGRESS], 0, name, status, progress);
+}
+
+static void
+miner_paused (DBusGProxy *proxy,
+	      gpointer    user_data)
+{
+	TrackerMinerManager *manager = user_data;
+	TrackerMinerManagerPrivate *priv;
+	const gchar *name;
+
+	manager = user_data;
+	priv = TRACKER_MINER_MANAGER_GET_PRIVATE (manager);
+	name = g_hash_table_lookup (priv->miner_proxies, proxy);
+
+	g_signal_emit (manager, signals[MINER_PAUSED], 0, name);
+}
+
+static void
+miner_resumed (DBusGProxy *proxy,
+	       gpointer    user_data)
+{
+	TrackerMinerManager *manager = user_data;
+	TrackerMinerManagerPrivate *priv;
+	const gchar *name;
+
+	manager = user_data;
+	priv = TRACKER_MINER_MANAGER_GET_PRIVATE (manager);
+	name = g_hash_table_lookup (priv->miner_proxies, proxy);
+
+	g_signal_emit (manager, signals[MINER_RESUMED], 0, name);
 }
 
 static void
@@ -143,10 +193,20 @@ tracker_miner_manager_init (TrackerMinerManager *manager)
 					 G_TYPE_STRING,
 					 G_TYPE_DOUBLE,
 					 G_TYPE_INVALID);
+		dbus_g_proxy_add_signal (proxy, "Paused", G_TYPE_INVALID);
+		dbus_g_proxy_add_signal (proxy, "Resumed", G_TYPE_INVALID);
 
 		dbus_g_proxy_connect_signal (proxy,
 					     "Progress",
 					     G_CALLBACK (miner_progress_changed),
+					     manager, NULL);
+		dbus_g_proxy_connect_signal (proxy,
+					     "Paused",
+					     G_CALLBACK (miner_paused),
+					     manager, NULL);
+		dbus_g_proxy_connect_signal (proxy,
+					     "Resumed",
+					     G_CALLBACK (miner_resumed),
 					     manager, NULL);
 
 		g_hash_table_insert (priv->miner_proxies, proxy, g_strdup (m->data));
