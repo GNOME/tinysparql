@@ -236,6 +236,7 @@ miner_applications_process_file_cb (gpointer user_data)
 		return FALSE;
 	}
 
+	path = g_file_get_path (data->file);
 	cats = g_key_file_get_locale_string_list (key_file, GROUP_DESKTOP_ENTRY, "Categories", NULL, &cats_len, NULL);
 
 	if (!cats)
@@ -388,12 +389,10 @@ miner_applications_process_file_cb (gpointer user_data)
 		tracker_sparql_builder_predicate (sparql, "nie:dataSource");
 		tracker_sparql_builder_object_iri (sparql, APPLICATION_DATASOURCE_URN);
 
-		path = g_file_get_path (data->file);
 		filename = g_filename_display_basename (path);
 		tracker_sparql_builder_predicate (sparql, "nfo:fileName");
 		tracker_sparql_builder_object_string (sparql, filename);
 		g_free (filename);
-		g_free (path);
 
 		desktop_file_uri = g_file_get_uri (data->file);
 		tracker_sparql_builder_subject_iri (sparql, desktop_file_uri);
@@ -432,6 +431,7 @@ miner_applications_process_file_cb (gpointer user_data)
 	g_free (uri);
 	g_key_file_free (key_file);
 	g_free (type);
+	g_free (path);
 	g_free (name);
 
 	return FALSE;

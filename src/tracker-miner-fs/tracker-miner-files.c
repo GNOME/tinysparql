@@ -785,8 +785,10 @@ miner_files_add_to_datasource (TrackerMinerFiles    *mf,
 {
         TrackerMinerFilesPrivate *priv;
 	const gchar *removable_device_udi;
+	gchar *removable_device_urn, *uri;
 
         priv = TRACKER_MINER_FILES_GET_PRIVATE (mf);
+	uri = g_file_get_uri (file);
 
 #ifdef HAVE_HAL
 	removable_device_udi = tracker_storage_get_volume_udi_for_file (priv->storage, file);
@@ -795,27 +797,24 @@ miner_files_add_to_datasource (TrackerMinerFiles    *mf,
 #endif /* HAVE_HAL */
 
 	if (removable_device_udi) {
-		gchar *removable_device_urn;
-
 		removable_device_urn = g_strdup_printf (TRACKER_DATASOURCE_URN_PREFIX "%s",
 						        removable_device_udi);
-
-		tracker_sparql_builder_subject_iri (sparql, removable_device_urn);
-		tracker_sparql_builder_predicate (sparql, "a");
-		tracker_sparql_builder_object (sparql, "tracker:Volume");
-
-		tracker_sparql_builder_predicate (sparql, "nie:dataSource");
-		tracker_sparql_builder_object_iri (sparql, removable_device_urn);
-
-		g_free (removable_device_urn);
 	} else {
-		tracker_sparql_builder_subject_iri (sparql, TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN);
-		tracker_sparql_builder_predicate (sparql, "a");
-		tracker_sparql_builder_object (sparql, "tracker:Volume");
-
-		tracker_sparql_builder_predicate (sparql, "nie:dataSource");
-		tracker_sparql_builder_object_iri (sparql, TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN);
+		removable_device_urn = g_strdup (TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN);
 	}
+
+	tracker_sparql_builder_subject_iri (sparql, uri);
+	tracker_sparql_builder_predicate (sparql, "a");
+	tracker_sparql_builder_object (sparql, "nfo:FileDataObject");
+
+        tracker_sparql_builder_predicate (sparql, "nie:dataSource");
+        tracker_sparql_builder_object_iri (sparql, removable_device_urn);
+
+        tracker_sparql_builder_predicate (sparql, "tracker:available");
+        tracker_sparql_builder_object_boolean (sparql, TRUE);
+
+	g_free (removable_device_urn);
+	g_free (uri);
 }
 
 static void
