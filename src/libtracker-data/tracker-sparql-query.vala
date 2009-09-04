@@ -231,7 +231,7 @@ public class Tracker.SparqlQuery : Object {
 				}
 			} else {
 				// UNION over all properties would exceed SQLite limits
-				throw get_internal_error ("Unrestricted predicate variables not supported");
+				throw query.get_internal_error ("Unrestricted predicate variables not supported");
 			}
 			return sql.str;
 		}
