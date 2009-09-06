@@ -10,13 +10,13 @@ msgstr ""
 "Project-Id-Version: tracker.HEAD\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&component=general\n"
-"POT-Creation-Date: 2009-08-25 13:05+0000\n"
-"PO-Revision-Date: 2009-08-30 11:11+0200\n"
+"POT-Creation-Date: 2009-09-04 14:16+0000\n"
+"PO-Revision-Date: 2009-09-06 13:53+0200\n"
 "Last-Translator: Jorge González <jorgegonz@svn.gnome.org>\n"
 "Language-Team: Español <gnome-es-list@gnome.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
+"Content-Transfer-Encoding: UTF-8\n"
 "Plural-Forms:  nplurals=2; plural=(n != 1);\n"
 "X-Generator: KBabel 1.11.4\n"
 
@@ -214,20 +214,22 @@ msgid "gtk-save"
 msgstr "gtk-save"
 
 #: ../src/libtracker-common/tracker-dbus.c:327
+#: ../src/tracker-utils/tracker-status.c:189
+#: ../src/tracker-utils/tracker-status.c:248
+#: ../src/tracker-utils/tracker-status.c:295
+#: ../src/tracker-utils/tracker-status.c:351
+#: ../src/tracker-utils/tracker-status.c:369
+#: ../src/tracker-utils/tracker-status.c:389
 msgid "No error given"
 msgstr "No se proporcionó ningún error"
 
 #: ../src/libtracker-common/tracker-utils.c:114
 #: ../src/libtracker-common/tracker-utils.c:121
-#: ../src/tracker-utils/tracker-status.c:153
-#: ../src/tracker-utils/tracker-status.c:160
 msgid "unknown time"
 msgstr "hora desconocida"
 
 #: ../src/libtracker-common/tracker-utils.c:139
 #: ../src/libtracker-common/tracker-utils.c:198
-#: ../src/tracker-utils/tracker-status.c:77
-#: ../src/tracker-utils/tracker-status.c:136
 msgid "less than one second"
 msgstr "menos de un segundo"
 
@@ -413,6 +415,7 @@ msgstr "%.1f GiB"
 #: ../src/libtracker-gtk/tracker-metadata-tile.c:877
 #: ../src/libtracker-gtk/tracker-metadata-tile.c:900
 #: ../src/libtracker-gtk/tracker-metadata-tile.c:922
+#: ../src/tracker-utils/tracker-status.c:654
 msgid "Unknown"
 msgstr "Desconocido"
 
@@ -797,13 +800,13 @@ msgid "Control and monitor the Tracker search and indexing service"
 msgstr "Controle y monitorice el servicio de búsqueda e indexado Tracker"
 
 #: ../src/tracker-extract/tracker-main.c:81
-#: ../src/tracker-miner-fs/tracker-main.c:78
-#: ../src/tracker-store/tracker-main.c:125
+#: ../src/tracker-miner-fs/tracker-main.c:77
+#: ../src/tracker-store/tracker-main.c:124
 msgid "Displays version information"
 msgstr "Muestra información de la versión"
 
 #: ../src/tracker-extract/tracker-main.c:85
-#: ../src/tracker-store/tracker-main.c:129
+#: ../src/tracker-store/tracker-main.c:128
 msgid ""
 "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default = "
 "0)"
@@ -845,7 +848,7 @@ msgstr "- Extraer los metadatos del archivo"
 msgid "Filename and mime type must be provided together"
 msgstr "Se debe proporcionar tanto el nombre como el tipo MIME"
 
-#: ../src/tracker-miner-fs/tracker-main.c:82
+#: ../src/tracker-miner-fs/tracker-main.c:81
 msgid ""
 "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default = "
 "config)"
@@ -853,19 +856,19 @@ msgstr ""
 "Registro, 0 = sólo errores, 1 = mínimo, 2 = detallado y 3 = depuración "
 "(predeterminado = config)"
 
-#: ../src/tracker-miner-fs/tracker-main.c:87
+#: ../src/tracker-miner-fs/tracker-main.c:86
 msgid "Initial sleep time in seconds, 0->1000 (default = config)"
 msgstr ""
 "Tiempo de reposo inicial en segundos, o->1000 (predeterminado = config)"
 
-#: ../src/tracker-miner-fs/tracker-main.c:92
+#: ../src/tracker-miner-fs/tracker-main.c:91
 msgid "Index data from all enabled modules"
 msgstr "Indexar datos de todos los módulos activados"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/tracker-miner-fs/tracker-main.c:336
+#: ../src/tracker-miner-fs/tracker-main.c:335
 msgid "- start the tracker indexer"
 msgstr "- iniciar el indexador de tracker"
 
@@ -1303,6 +1306,7 @@ msgid "Error"
 msgstr "Error"
 
 #: ../src/tracker-search-tool/tracker-search-tool.c:642
+#: ../src/tracker-utils/tracker-status.c:593
 msgid "Application"
 msgstr "Aplicación"
 
@@ -1448,6 +1452,7 @@ msgid "Unable to import Turtle file"
 msgstr "No se pudo importar el archivo Turtle"
 
 #: ../src/tracker-utils/tracker-import.c:117
+#: ../src/tracker-utils/tracker-status.c:304
 msgid "Done"
 msgstr "Hecho"
 
@@ -1494,7 +1499,6 @@ msgid "Use SIGTERM to stop all tracker processes found"
 msgstr "Use SIGTERM para parar todos los procesos de tracker encontrados"
 
 #: ../src/tracker-utils/tracker-processes.c:51
-#| msgid "This will kill all Tracker processes and remove all databases"
 msgid ""
 "This will kill all Tracker processes and remove all databases except the "
 "backup and journal (a restart will restore the data)"
@@ -1679,98 +1683,182 @@ msgstr "No hay estadísticas disponibles"
 msgid "Statistics:"
 msgstr "Estadísticas:"
 
-#: ../src/tracker-utils/tracker-status.c:58
+#: ../src/tracker-utils/tracker-status.c:62
 msgid "Follow status changes as they happen"
 msgstr "Seguir los cambios según ocurran"
 
-#: ../src/tracker-utils/tracker-status.c:62
+#: ../src/tracker-utils/tracker-status.c:66
 msgid "Include details with state updates (only applies to --follow)"
 msgstr ""
 "Incluir detalles con el estado de las actualizaciones (sólo se aplica a «--"
 "follow»)"
 
-#: ../src/tracker-utils/tracker-status.c:176
-msgid "Statistics have been updated"
-msgstr "Se han actualizado las estadísticas"
+#: ../src/tracker-utils/tracker-status.c:70
+msgid "Shows the key used when listing miners and their states"
+msgstr "Muestra la clave usada al listar los mineros y sus estados"
 
-#: ../src/tracker-utils/tracker-status.c:191
-#, c-format
-msgid "Updating '%s' with new count:%s"
-msgstr "Actualizando «%s» con el nuevo conteo: %s"
+#: ../src/tracker-utils/tracker-status.c:74
+#: ../src/tracker-utils/tracker-status.c:78
+#| msgid "List all defined tags"
+msgid "List all miners installed"
+msgstr "Listar todos los mineros instalados"
 
-#: ../src/tracker-utils/tracker-status.c:217
+#: ../src/tracker-utils/tracker-status.c:82
+msgid "List pause reasons and applications for a miner"
+msgstr "Listar las razones de pausa y aplicaciones de un minero"
+
+#: ../src/tracker-utils/tracker-status.c:86
+msgid ""
+"Miner to use with other commands (you can use suffixes, e.g. FS or "
+"Applications)"
+msgstr ""
+"Minero usado con otros comandos (puede usar sufijos, ej. FS o Applications)"
+
+#: ../src/tracker-utils/tracker-status.c:87
+#| msgid "MIME"
+msgid "MINER"
+msgstr "MINERO"
+
+#: ../src/tracker-utils/tracker-status.c:90
+msgid "Pause a miner (you must use this with --miner)"
+msgstr "Pausar un minero (debe usarlo con --miner)"
+
+#: ../src/tracker-utils/tracker-status.c:91
+#| msgid "EXPRESSION"
+msgid "REASON"
+msgstr "RAZÓN"
+
+#: ../src/tracker-utils/tracker-status.c:94
+msgid "Resume a miner (you must use this with --miner)"
+msgstr "Resumir un minero (debe usarlo con --miner)"
+
+#: ../src/tracker-utils/tracker-status.c:95
+msgid "COOKIE"
+msgstr "COOKIE"
+
+#: ../src/tracker-utils/tracker-status.c:188
+#| msgid "Could not connect to search service as it may be busy"
+msgid "Could not connect to the DBus session bus"
+msgstr "No se pudo conectar con el bus de la sesión DBus"
+
+#: ../src/tracker-utils/tracker-status.c:204
 #, c-format
-msgid "Processed %d/%d, current service:'%s', %s left, %s elapsed"
-msgstr "Procesados %d/%d, servicio actual: «%s», queda «%s», %s transcurrido"
+msgid "Could not DBusGProxy for that miner: %s"
+msgstr "No se pudo obtener el DBusGProxy para ese minero: %s"
 
 #: ../src/tracker-utils/tracker-status.c:233
 #, c-format
-msgid "Last file to be indexed was '%s'"
-msgstr "El último archivo indexado fue «%s»"
+msgid "Attempting to pause miner '%s' with reason '%s'"
+msgstr "Intentando pausar el minero «%s» con la razón «%s»"
 
-#: ../src/tracker-utils/tracker-status.c:254
+#: ../src/tracker-utils/tracker-status.c:244
 #, c-format
-msgid "Tracker status changed from '%s' --> '%s'"
-msgstr "El estado de Tracker cambió de «%s» a «%s»"
+#| msgid "Could not open '%s'"
+msgid "Could not pause miner: %s"
+msgstr "No se pudo pausar el minero: %s"
 
-#: ../src/tracker-utils/tracker-status.c:255
-msgid "None"
-msgstr "Niguno"
-
-#: ../src/tracker-utils/tracker-status.c:264
-msgid "Initial index"
-msgstr "Índice inicial"
-
-#: ../src/tracker-utils/tracker-status.c:265
-#: ../src/tracker-utils/tracker-status.c:272
-#: ../src/tracker-utils/tracker-status.c:279
-#: ../src/tracker-utils/tracker-status.c:286
-#: ../src/tracker-utils/tracker-status.c:293
-#: ../src/tracker-utils/tracker-status.c:300
-msgid "yes"
-msgstr "sí"
-
-#: ../src/tracker-utils/tracker-status.c:265
-#: ../src/tracker-utils/tracker-status.c:272
-#: ../src/tracker-utils/tracker-status.c:279
-#: ../src/tracker-utils/tracker-status.c:286
-#: ../src/tracker-utils/tracker-status.c:293
-#: ../src/tracker-utils/tracker-status.c:300
-msgid "no"
-msgstr "no"
-
-#: ../src/tracker-utils/tracker-status.c:271
-msgid "In merge"
-msgstr "En mezclas"
-
-#: ../src/tracker-utils/tracker-status.c:278
-msgid "Is paused manually"
-msgstr "Está pausado manualmente"
-
-#: ../src/tracker-utils/tracker-status.c:285
-msgid "Is paused for low battery"
-msgstr "Está pausado por batería baja"
-
-#: ../src/tracker-utils/tracker-status.c:292
-msgid "Is paused for IO"
-msgstr "Está pausado por ES"
-
-#: ../src/tracker-utils/tracker-status.c:299
-msgid "Is indexing enabled"
-msgstr "Está activado indexando"
-
-#: ../src/tracker-utils/tracker-status.c:469
-msgid "- Report current status"
-msgstr "- Informar del estado actual"
-
-#: ../src/tracker-utils/tracker-status.c:492
-msgid "Could not get Tracker status"
-msgstr "No se pudo obtener es estado de Tracker"
-
-#: ../src/tracker-utils/tracker-status.c:503
+#: ../src/tracker-utils/tracker-status.c:257
 #, c-format
-msgid "Tracker status is '%s'"
-msgstr "El estado de Tracker es «%s»"
+msgid "Cookie is %d"
+msgstr "La «cookie» es la %d"
+
+#: ../src/tracker-utils/tracker-status.c:282
+#, c-format
+msgid "Attempting to resume miner %s with cookie %d"
+msgstr "Intentando resumir el minero %s con la «cookie» %d"
+
+#: ../src/tracker-utils/tracker-status.c:291
+#, c-format
+#| msgid "Could not remove tags for '%s'"
+msgid "Could not resume miner: %s"
+msgstr "No se pudo resumir el minero: %s"
+
+#: ../src/tracker-utils/tracker-status.c:347
+#, c-format
+#| msgid "Could not get tags for file:'%s'"
+msgid "Could not get status from miner: %s"
+msgstr "No se pudo obtener el estado del minero: %s"
+
+#: ../src/tracker-utils/tracker-status.c:365
+#, c-format
+#| msgid "Could not get tags for file:'%s'"
+msgid "Could not get progress from miner: %s"
+msgstr "No se pudo obtener el progreso del minero: %s"
+
+#: ../src/tracker-utils/tracker-status.c:385
+#, c-format
+#| msgid "Could not get tags for file:'%s'"
+msgid "Could not get paused details from miner: %s"
+msgstr "No se pudieron obtener los detalles de pausa para el minero: %s"
+
+#: ../src/tracker-utils/tracker-status.c:413
+#: ../src/tracker-utils/tracker-status.c:650
+#: ../src/tracker-utils/tracker-status.c:661
+msgid "Progress"
+msgstr "Progreso"
+
+#: ../src/tracker-utils/tracker-status.c:434
+msgid "- Monitor and control status"
+msgstr "- Monitorizar y controlar el estado"
+
+#: ../src/tracker-utils/tracker-status.c:442
+#| msgid "You can not use the --kill and --terminate arguments together"
+msgid "You can not use miner pause and resume switches together"
+msgstr "No puede usar un minero pausado y resumir los cambios a la vez"
+
+#: ../src/tracker-utils/tracker-status.c:456
+msgid "You must provide the miner for pause or resume commands"
+msgstr "Debe proporcionar el minero para los comandos pausar o resumir"
+
+#. Show status of all miners
+#: ../src/tracker-utils/tracker-status.c:485
+msgid "Key"
+msgstr "Tecla"
+
+#: ../src/tracker-utils/tracker-status.c:486
+msgid "[R] = Running"
+msgstr "[R] = En ejecución"
+
+#: ../src/tracker-utils/tracker-status.c:487
+#| msgid "Paused"
+msgid "[P] = Paused"
+msgstr "[P] = Pausado"
+
+#: ../src/tracker-utils/tracker-status.c:488
+msgid "[ ] = Not Running"
+msgstr "[ ] = No está en ejecución"
+
+#: ../src/tracker-utils/tracker-status.c:500
+#, c-format
+msgid "Found %d miners installed"
+msgstr "Se encontraron %d mineros instalados"
+
+#: ../src/tracker-utils/tracker-status.c:512
+#, c-format
+msgid "Found %d miners running"
+msgstr "Se encontraron %d mineros en ejecución"
+
+#: ../src/tracker-utils/tracker-status.c:545
+msgid "No miners are running"
+msgstr "No hay ningún minero en ejecución"
+
+#: ../src/tracker-utils/tracker-status.c:586
+#: ../src/tracker-utils/tracker-status.c:616
+msgid "Miners"
+msgstr "Mineros"
+
+#: ../src/tracker-utils/tracker-status.c:595
+msgid "Reason"
+msgstr "Razón"
+
+#: ../src/tracker-utils/tracker-status.c:604
+#| msgid "No files were specified"
+msgid "No miners are paused"
+msgstr "No hay ningún minero pausado"
+
+#: ../src/tracker-utils/tracker-status.c:653
+msgid "Status"
+msgstr "Estado"
 
 #: ../src/tracker-utils/tracker-tag.c:50
 msgid "Add specified tag to a file"
@@ -1889,24 +1977,75 @@ msgstr ""
 "NOTA: Se alcanzó el límite, existen más elementos en la base de datos que no "
 "se listan aquí"
 
-#: ../src/tracker-store/tracker-main.c:134
+#: ../src/tracker-store/tracker-main.c:133
 msgid "Minimizes the use of memory but may slow indexing down"
 msgstr "Minimiza el uso de memoria pero puede ralentizar el indexado"
 
-#: ../src/tracker-store/tracker-main.c:140
+#: ../src/tracker-store/tracker-main.c:139
 msgid "Force a re-index of all content"
 msgstr "Forzar un reindexamiento de todo el contenido"
 
-#: ../src/tracker-store/tracker-main.c:144
+#: ../src/tracker-store/tracker-main.c:143
 msgid "Only allow read based actions on the database"
 msgstr "Sólo permitir acciones de lectura en la base de datos"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/tracker-store/tracker-main.c:674
+#: ../src/tracker-store/tracker-main.c:673
 msgid "- start the tracker daemon"
 msgstr "iniciar el demonio de tracker"
+
+#~ msgid "Statistics have been updated"
+#~ msgstr "Se han actualizado las estadísticas"
+
+#~ msgid "Updating '%s' with new count:%s"
+#~ msgstr "Actualizando «%s» con el nuevo conteo: %s"
+
+#~ msgid "Processed %d/%d, current service:'%s', %s left, %s elapsed"
+#~ msgstr "Procesados %d/%d, servicio actual: «%s», queda «%s», %s transcurrido"
+
+#~ msgid "Last file to be indexed was '%s'"
+#~ msgstr "El último archivo indexado fue «%s»"
+
+#~ msgid "Tracker status changed from '%s' --> '%s'"
+#~ msgstr "El estado de Tracker cambió de «%s» a «%s»"
+
+#~ msgid "None"
+#~ msgstr "Niguno"
+
+#~ msgid "Initial index"
+#~ msgstr "Índice inicial"
+
+#~ msgid "yes"
+#~ msgstr "sí"
+
+#~ msgid "no"
+#~ msgstr "no"
+
+#~ msgid "In merge"
+#~ msgstr "En mezclas"
+
+#~ msgid "Is paused manually"
+#~ msgstr "Está pausado manualmente"
+
+#~ msgid "Is paused for low battery"
+#~ msgstr "Está pausado por batería baja"
+
+#~ msgid "Is paused for IO"
+#~ msgstr "Está pausado por ES"
+
+#~ msgid "Is indexing enabled"
+#~ msgstr "Está activado indexando"
+
+#~ msgid "- Report current status"
+#~ msgstr "- Informar del estado actual"
+
+#~ msgid "Could not get Tracker status"
+#~ msgstr "No se pudo obtener es estado de Tracker"
+
+#~ msgid "Tracker status is '%s'"
+#~ msgstr "El estado de Tracker es «%s»"
 
 #~ msgid ""
 #~ "Seconds to wait before starting any crawling or indexing (default = 45)"
