@@ -41,6 +41,7 @@
 #include <libtracker-common/tracker-type-utils.h>
 #include <libtracker-common/tracker-statement-list.h>
 #include <libtracker-common/tracker-file-utils.h>
+#include <libtracker-common/tracker-utils.h>
 
 #include "tracker-main.h"
 #include "tracker-xmp.h"
@@ -54,33 +55,19 @@
 #define NCO_PREFIX TRACKER_NCO_PREFIX
 
 #define RDF_PREFIX TRACKER_RDF_PREFIX
-#define RDF_TYPE RDF_PREFIX "type"
-
-typedef gchar * (*PostProcessor) (gchar *);
 
 typedef struct {
-	const gchar   *name;
-	const gchar   *type;
-	PostProcessor  post;
-	gboolean       anon;
-} TagProcessors;
+	gchar *title, *copyright, *creator, *description, *date;
+} PngNeedsMergeData;
+
+typedef struct {
+	gchar *author, *creator, *description, *comment, *copyright, 
+	      *creation_time, *title, *disclaimer;
+} PngData;
 
 static gchar *rfc1123_to_iso8601_date (gchar	   *rfc_date);
 static void   extract_png	      (const gchar *filename,
 				       TrackerSparqlBuilder   *metadata);
-
-static TagProcessors tag_processors[] = {
-	{ "Author",		NCO_PREFIX "creator",      NULL, TRUE},
-	{ "Creator",		NCO_PREFIX "creator",      NULL, TRUE},
-	{ "Description",	NIE_PREFIX "description",  NULL, FALSE},
-	{ "Comment",		NIE_PREFIX "comment",      NULL, FALSE},
-	{ "Copyright",		NIE_PREFIX "copyright",    NULL, FALSE},
-	{ "Creation Time",	NIE_PREFIX "contentCreated", rfc1123_to_iso8601_date, FALSE},
-	{ "Title",		NIE_PREFIX "title",	    NULL, FALSE},
-	{ "Software",		"Image:Software",           NULL, FALSE},
-	{ "Disclaimer",		NIE_PREFIX "license",       NULL, FALSE},
-	{ NULL,			NULL,		            NULL, FALSE},
-};
 
 static TrackerExtractData data[] = {
 	{ "image/png", extract_png },
@@ -98,67 +85,260 @@ rfc1123_to_iso8601_date (gchar *date)
 }
 
 static void
+insert_keywords (TrackerSparqlBuilder *metadata, const gchar *uri, gchar *keywords)
+{
+	char *lasts, *keyw;
+	size_t len;
+
+	keyw = keywords;
+	keywords = strchr (keywords, '"');
+	if (keywords)
+		keywords++;
+	else 
+		keywords = keyw;
+
+	len = strlen (keywords);
+	if (keywords[len - 1] == '"')
+		keywords[len - 1] = '\0';
+
+	for (keyw = strtok_r (keywords, ",; ", &lasts); keyw; 
+	     keyw = strtok_r (NULL, ",; ", &lasts)) {
+		tracker_statement_list_insert (metadata, uri, 
+		                               NIE_PREFIX "keyword", 
+		                               (const gchar*) keyw);
+	}
+}
+
+static void
 read_metadata (png_structp png_ptr, png_infop info_ptr, const gchar *uri, TrackerSparqlBuilder *metadata)
 {
 	gint	     num_text;
 	png_textp    text_ptr;
+	PngNeedsMergeData merge_data = { 0 };
+	PngData png_data = { 0 };
+	TrackerXmpData xmp_data = { 0 };
 
 	if (png_get_text (png_ptr, info_ptr, &text_ptr, &num_text) > 0) {
 		gint i;
-		gint j;
-		
+
 		for (i = 0; i < num_text; i++) {
-			if (!text_ptr[i].key) {
+
+			if (!text_ptr[i].key || !text_ptr[i].text || text_ptr[i].text[0] == '\0') {
 				continue;
 			}
-			
+
 #if defined(HAVE_EXEMPI) && defined(PNG_iTXt_SUPPORTED)
-			if (strcmp ("XML:com.adobe.xmp", text_ptr[i].key) == 0) {
+
+			if (g_strcmp0 ("XML:com.adobe.xmp", text_ptr[i].key) == 0) {
+
+				/* ATM tracker_read_xmp supports setting xmp_data 
+				 * multiple times, keep it that way as here it's
+				 * theoretically possible that the function gets
+				 * called multiple times */
+
 				tracker_read_xmp (text_ptr[i].text,
 						  text_ptr[i].itxt_length,
-						  uri,
-						  metadata);
+						  uri, &xmp_data);
+
 				continue;
 			}
 #endif
-			
-			for (j = 0; tag_processors[j].type; j++) {
-				if (strcasecmp (tag_processors[j].name, text_ptr[i].key) != 0) {
-					continue;
-				}
-				
-				if (text_ptr[i].text && text_ptr[i].text[0] != '\0') {
-					if (tag_processors[j].post) {
-						gchar *str;
-						
-						str = (*tag_processors[j].post) (text_ptr[i].text);
-						if (str) {
-							if (tag_processors[j].anon) {
-								tracker_statement_list_insert (metadata, ":", RDF_TYPE, NCO_PREFIX "Contact");
-								tracker_statement_list_insert (metadata, ":", NCO_PREFIX "fullname", str);
-								tracker_statement_list_insert (metadata, uri, tag_processors[j].type, ":");
-							} else {
-								tracker_statement_list_insert (metadata, uri,
-											  tag_processors[j].type,
-											  str);
-							}
-							g_free (str);
-						}
-					} else {
-						if (tag_processors[j].anon) {
-							tracker_statement_list_insert (metadata, ":", RDF_TYPE, NCO_PREFIX "Contact");
-							tracker_statement_list_insert (metadata, ":", NCO_PREFIX "fullname", text_ptr[i].text);
-							tracker_statement_list_insert (metadata, uri, tag_processors[j].type, ":");
-						} else {
-							tracker_statement_list_insert (metadata, uri,
-										  tag_processors[j].type,
-										  text_ptr[i].text);
-						}
-					}
-					
-					break;
-				}
+
+			if (g_strcmp0 (text_ptr[i].key, "Author") == 0) {
+				png_data.author = g_strdup (text_ptr[i].text);
+				continue;
 			}
+
+			if (g_strcmp0 (text_ptr[i].key, "Creator") == 0) {
+				png_data.creator = g_strdup (text_ptr[i].text);
+				continue;
+			}
+
+			if (g_strcmp0 (text_ptr[i].key, "Description") == 0) {
+				png_data.description = g_strdup (text_ptr[i].text);
+				continue;
+			}
+
+			if (g_strcmp0 (text_ptr[i].key, "Comment") == 0) {
+				png_data.comment = g_strdup (text_ptr[i].text);
+				continue;
+			}
+
+			if (g_strcmp0 (text_ptr[i].key, "Copyright") == 0) {
+				png_data.copyright = g_strdup (text_ptr[i].text);
+				continue;
+			}
+
+			if (g_strcmp0 (text_ptr[i].key, "Creation Time") == 0) {
+				png_data.creation_time = rfc1123_to_iso8601_date (text_ptr[i].text);
+				continue;
+			}
+
+			if (g_strcmp0 (text_ptr[i].key, "Title") == 0) {
+				png_data.title = g_strdup (text_ptr[i].text);
+				continue;
+			}
+
+			if (g_strcmp0 (text_ptr[i].key, "Disclaimer") == 0) {
+				png_data.disclaimer = g_strdup (text_ptr[i].text);
+				continue;
+			}
+		}
+
+		merge_data.creator = tracker_coalesce (3, png_data.creator,
+		                                       png_data.author,
+		                                       xmp_data.creator);
+
+		merge_data.title = tracker_coalesce (2, png_data.title,
+		                                     xmp_data.title);
+
+		merge_data.copyright = tracker_coalesce (2, png_data.copyright,
+		                                         xmp_data.rights);
+
+		merge_data.description = tracker_coalesce (2, png_data.description,
+		                                           xmp_data.description);
+
+		merge_data.date = tracker_coalesce (3, png_data.creation_time,
+		                                    xmp_data.date, 
+		                                    xmp_data.DateTimeOriginal);
+
+		if (merge_data.creator) {
+			tracker_statement_list_insert (metadata, ":", RDF_PREFIX "type", NCO_PREFIX "Contact");
+			tracker_statement_list_insert (metadata, ":", NCO_PREFIX "fullname", merge_data.creator);
+			tracker_statement_list_insert (metadata, uri, NCO_PREFIX "creator", ":");
+			g_free (merge_data.creator);
+		}
+
+		if (merge_data.date) {
+			tracker_statement_list_insert (metadata, uri, NIE_PREFIX "contentCreated", merge_data.date);
+			g_free (merge_data.date);
+		}
+
+		if (merge_data.description) {
+			tracker_statement_list_insert (metadata, uri, NIE_PREFIX "description", merge_data.description);
+			g_free (merge_data.description);
+		}
+
+		if (merge_data.copyright) {
+			tracker_statement_list_insert (metadata, uri, NIE_PREFIX "copyright", merge_data.copyright);
+			g_free (merge_data.copyright);
+		}
+
+		if (merge_data.title) {
+			tracker_statement_list_insert (metadata, uri, NIE_PREFIX "title", merge_data.title);
+			g_free (merge_data.title);
+		}
+
+
+		if (xmp_data.keywords) {
+			insert_keywords (metadata, uri, xmp_data.keywords);
+			g_free (xmp_data.keywords);
+		}
+
+		if (xmp_data.subject) {
+			insert_keywords (metadata, uri, xmp_data.subject);
+			g_free (xmp_data.subject);
+		}
+
+		if (xmp_data.publisher) {
+			tracker_statement_list_insert (metadata, ":", RDF_PREFIX "type", NCO_PREFIX "Contact");
+			tracker_statement_list_insert (metadata, ":", NCO_PREFIX "fullname", xmp_data.publisher);
+			tracker_statement_list_insert (metadata, uri, NCO_PREFIX "publisher", ":");
+			g_free (xmp_data.publisher);
+		}
+
+		if (xmp_data.type) {
+			tracker_statement_list_insert (metadata, uri, DC_PREFIX "type", xmp_data.type);
+			g_free (xmp_data.type);
+		}
+
+		if (xmp_data.format) {
+			tracker_statement_list_insert (metadata, uri, DC_PREFIX "format", xmp_data.format);
+			g_free (xmp_data.format);
+		}
+
+		if (xmp_data.identifier) {
+			tracker_statement_list_insert (metadata, uri, DC_PREFIX "identifier", xmp_data.identifier);
+			g_free (xmp_data.identifier);
+		}
+
+		if (xmp_data.source) {
+			tracker_statement_list_insert (metadata, uri, DC_PREFIX "source", xmp_data.source);
+			g_free (xmp_data.source);
+		}
+
+		if (xmp_data.language) {
+			tracker_statement_list_insert (metadata, uri, DC_PREFIX "language", xmp_data.language);
+			g_free (xmp_data.language);
+		}
+
+		if (xmp_data.relation) {
+			tracker_statement_list_insert (metadata, uri, DC_PREFIX "relation", xmp_data.relation);
+			g_free (xmp_data.relation);
+		}
+
+		if (xmp_data.coverage) {
+			tracker_statement_list_insert (metadata, uri, DC_PREFIX "coverage", xmp_data.coverage);
+			g_free (xmp_data.coverage);
+		}
+
+		if (xmp_data.license) {
+			tracker_statement_list_insert (metadata, uri, NIE_PREFIX "license", xmp_data.license);
+			g_free (xmp_data.license);
+		}
+
+		if (xmp_data.Make || xmp_data.Model) {
+			gchar *final_camera = tracker_coalesce (2, xmp_data.Make, xmp_data.Model); 
+			tracker_statement_list_insert (metadata, uri, NMM_PREFIX "camera", final_camera);
+			g_free (final_camera);
+		}
+
+		if (xmp_data.Orientation) {
+			tracker_statement_list_insert (metadata, uri, NFO_PREFIX "orientation", xmp_data.Orientation);
+			g_free (xmp_data.Orientation);
+		}
+
+		if (xmp_data.WhiteBalance) {
+			tracker_statement_list_insert (metadata, uri, NMM_PREFIX "whiteBalance", xmp_data.WhiteBalance);
+			g_free (xmp_data.WhiteBalance);
+		}
+
+		if (xmp_data.FNumber) {
+			tracker_statement_list_insert (metadata, uri, NMM_PREFIX "fnumber", xmp_data.FNumber);
+			g_free (xmp_data.FNumber);
+		}
+
+		if (xmp_data.Flash) {
+			tracker_statement_list_insert (metadata, uri, NMM_PREFIX "flash", xmp_data.Flash);
+			g_free (xmp_data.Flash);
+		}
+
+		if (xmp_data.FocalLength) {
+			tracker_statement_list_insert (metadata, uri, NMM_PREFIX "focalLength", xmp_data.FocalLength);
+			g_free (xmp_data.FocalLength);
+		}
+
+		if (xmp_data.Artist || xmp_data.contributor) {
+			gchar *final_artist =  tracker_coalesce (2, xmp_data.Artist, xmp_data.contributor);
+			tracker_statement_list_insert (metadata, ":", RDF_PREFIX "type", NCO_PREFIX "Contact");
+			tracker_statement_list_insert (metadata, ":", NCO_PREFIX "fullname", final_artist);
+			tracker_statement_list_insert (metadata, uri, NCO_PREFIX "contributor", ":");
+			g_free (final_artist);
+		}
+
+		if (xmp_data.ExposureTime) {
+			tracker_statement_list_insert (metadata, uri, NMM_PREFIX "exposureTime", xmp_data.ExposureTime);
+			g_free (xmp_data.ExposureTime);
+		}
+
+		if (xmp_data.ISOSpeedRatings) {
+			tracker_statement_list_insert (metadata, uri, NMM_PREFIX "isoSpeed", xmp_data.ISOSpeedRatings);
+			g_free (xmp_data.ISOSpeedRatings);
+		}
+
+		if (xmp_data.MeteringMode) {
+			tracker_statement_list_insert (metadata, uri, NMM_PREFIX "meteringMode", xmp_data.MeteringMode);
+			g_free (xmp_data.MeteringMode);
 		}
 	}
 }
@@ -254,26 +434,28 @@ extract_png (const gchar *uri,
 			png_free (png_ptr, row_pointers[row]);
 		}
 
- 		g_free (row_pointers);
+		g_free (row_pointers);
 
 		png_read_end (png_ptr, end_ptr);
 
- 		read_metadata (png_ptr, info_ptr, uri, metadata);
- 		read_metadata (png_ptr, end_ptr, uri, metadata);
-
 		tracker_statement_list_insert (metadata, uri, 
-		                          RDF_TYPE, 
-		                          NFO_PREFIX "Image");
+		                               RDF_PREFIX "type", 
+		                               NFO_PREFIX "Image");
 
-		/* We want native have higher priority than XMP etc.
-		 */
-		tracker_statement_list_insert_with_int (metadata, uri,
-						  NFO_PREFIX "width",
-						  width);
+		tracker_statement_list_insert (metadata, uri,
+		                               RDF_PREFIX "type",
+		                               NMM_PREFIX "Photo");
+
+		read_metadata (png_ptr, info_ptr, uri, metadata);
+		read_metadata (png_ptr, end_ptr, uri, metadata);
 
 		tracker_statement_list_insert_with_int (metadata, uri,
-						   NFO_PREFIX "height",
-						   height);
+		                                        NFO_PREFIX "width",
+		                                        width);
+
+		tracker_statement_list_insert_with_int (metadata, uri,
+		                                        NFO_PREFIX "height",
+		                                        height);
 
 		png_destroy_read_struct (&png_ptr, &info_ptr, &end_ptr);
 		tracker_file_close (f, FALSE);
