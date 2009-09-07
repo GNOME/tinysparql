@@ -57,7 +57,7 @@
 #define RDF_PREFIX TRACKER_RDF_PREFIX
 
 typedef struct {
-	gchar *title, *copyright, *creator, *description, *date;
+	gchar *title, *copyright, *creator, *description, *date, *license;
 } PngNeedsMergeData;
 
 typedef struct {
@@ -195,12 +195,26 @@ read_metadata (png_structp png_ptr, png_infop info_ptr, const gchar *uri, Tracke
 		merge_data.copyright = tracker_coalesce (2, png_data.copyright,
 		                                         xmp_data.rights);
 
+		merge_data.license = tracker_coalesce (2, png_data.disclaimer,
+		                                         xmp_data.license);
+
 		merge_data.description = tracker_coalesce (2, png_data.description,
 		                                           xmp_data.description);
 
 		merge_data.date = tracker_coalesce (3, png_data.creation_time,
 		                                    xmp_data.date, 
 		                                    xmp_data.DateTimeOriginal);
+
+
+		if (png_data.comment) {
+			tracker_statement_list_insert (metadata, uri, NIE_PREFIX "comment", png_data.comment);
+			g_free (png_data.comment);
+		}
+
+		if (merge_data.license) {
+			tracker_statement_list_insert (metadata, uri, NIE_PREFIX "license", merge_data.license);
+			g_free (merge_data.license);
+		}
 
 		if (merge_data.creator) {
 			tracker_statement_list_insert (metadata, ":", RDF_PREFIX "type", NCO_PREFIX "Contact");
@@ -280,11 +294,6 @@ read_metadata (png_structp png_ptr, png_infop info_ptr, const gchar *uri, Tracke
 		if (xmp_data.coverage) {
 			tracker_statement_list_insert (metadata, uri, DC_PREFIX "coverage", xmp_data.coverage);
 			g_free (xmp_data.coverage);
-		}
-
-		if (xmp_data.license) {
-			tracker_statement_list_insert (metadata, uri, NIE_PREFIX "license", xmp_data.license);
-			g_free (xmp_data.license);
 		}
 
 		if (xmp_data.Make || xmp_data.Model) {
