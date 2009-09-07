@@ -14,16 +14,19 @@ endif
 
 man_MANS = 			\
 	tracker-extract.1	\
+	tracker-extract.cfg.5	\
+	tracker-fts.cfg.5	\
 	tracker-import.1	\
 	tracker-info.1		\
 	tracker-miner-fs.1	\
+	tracker-miner-fs.cfg.5	\
 	tracker-search.1	\
 	tracker-sparql.1	\
 	tracker-stats.1		\
 	tracker-status.1	\
 	tracker-store.1		\
+	tracker-store.cfg.5	\
 	tracker-tag.1		\
-	tracker.cfg.5		\
 	$(tst)			\
 	$(ta)			\
 	$(tp)

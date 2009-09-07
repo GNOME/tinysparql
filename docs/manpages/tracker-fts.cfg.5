@@ -1,0 +1,32 @@
+.TH tracker-fts.cfg 5 "September 2009" GNU "Configuration Files"
+
+.SH NAME
+tracker-fts.cfg \- Configuration file for tracker-fts.so SQLite module
+
+.SH DESCRIPTION
+This file resides in $HOME/.config/tracker/ and uses the common .ini format, i.e.
+
+.PP
+  [Group]
+  # Comment
+  Key=Value
+
+.SH SECTIONS
+
+.SS [Indexing]
+.TP
+.B MinWordLength=3
+Set the minimum length of words to index (0->30).
+
+.TP
+.B MaxWordLength=30
+Set the maximum length of words to index (0->200).
+
+.TP
+.B MaxWordsToIndex=10000
+Maximum unique words to index from a file's content.
+
+.SH SEE ALSO
+.BR tracker-extract.cfg (5),
+.BR tracker-miner-fs.cfg (5),
+.BR tracker-store.cfg (5).
