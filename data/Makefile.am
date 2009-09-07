@@ -27,9 +27,12 @@ autostart_in_files = 					\
 	tracker-miner-fs.desktop.in
 
 autostart_DATA = 					\
-	tracker-status-icon.desktop			\
 	tracker-store.desktop				\
 	tracker-miner-fs.desktop
+
+if HAVE_TRACKER_APPLET
+autostart_DATA += tracker-status-icon.desktop
+endif
 
 @INTLTOOL_DESKTOP_RULE@
 
