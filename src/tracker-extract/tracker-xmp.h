@@ -48,4 +48,8 @@ void tracker_read_xmp (const gchar          *buffer,
                        const gchar          *uri,
                        TrackerXmpData       *data);
 
+void tracker_apply_xmp (TrackerSparqlBuilder *metadata,
+                        const gchar *uri,
+                        TrackerXmpData *xmp_data);
+
 #endif /* _TRACKER_XMP_H_ */

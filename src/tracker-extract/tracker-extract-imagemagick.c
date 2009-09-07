@@ -29,7 +29,7 @@
 
 #include <libtracker-common/tracker-ontology.h>
 #include <libtracker-common/tracker-os-dependant.h>
-#include <libtracker-common/tracker-statement.h>
+#include <libtracker-common/tracker-statement-list.h>
 
 #include "tracker-main.h"
 #include "tracker-xmp.h"
@@ -89,21 +89,21 @@ extract_imagemagick (const gchar *uri,
 		if (exit_status == EXIT_SUCCESS) {
 
 
-			tracker_insert_statement (metadata, uri, 
+			tracker_statement_list_insert (metadata, uri, 
 			                          RDF_TYPE, 
 			                          NFO_PREFIX "Document");
 
 			lines = g_strsplit (identify, ";\n", 4);
 
-			tracker_insert_statement (metadata, uri,
+			tracker_statement_list_insert (metadata, uri,
 						  NFO_PREFIX "width", 
 						  lines[0]);
 
-			tracker_insert_statement (metadata, uri,
+			tracker_statement_list_insert (metadata, uri,
 						  NFO_PREFIX "height", 
 						  lines[1]);
 
-			tracker_insert_statement (metadata, uri,
+			tracker_statement_list_insert (metadata, uri,
 						  NIE_PREFIX "comment", 
 						  lines[2]);
 
@@ -124,7 +124,11 @@ extract_imagemagick (const gchar *uri,
 
 	if (tracker_spawn (argv, 10, &xmp, &exit_status)) {
 		if (exit_status == EXIT_SUCCESS && xmp) {
-			tracker_read_xmp (xmp, strlen (xmp), uri, metadata);
+			TrackerXmpData xmp_data = { 0 };
+
+			tracker_read_xmp (xmp, strlen (xmp), uri, &xmp_data);
+
+			tracker_apply_xmp (metadata, uri, &xmp_data);
 		}
 	}
 #endif /* HAVE_EXEMPI */
