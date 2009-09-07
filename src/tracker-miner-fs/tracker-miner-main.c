@@ -46,7 +46,6 @@
 
 #include "tracker-dbus.h"
 #include "tracker-config.h"
-#include "tracker-indexer.h"
 #include "tracker-marshal.h"
 #include "tracker-miner-applications.h"
 #include "tracker-miner-files.h"
