@@ -48,6 +48,8 @@ enum {
 	MINER_PROGRESS,
 	MINER_PAUSED,
 	MINER_RESUMED,
+	MINER_ACTIVATED,
+	MINER_DEACTIVATED,
 	LAST_SIGNAL
 };
 
@@ -89,6 +91,24 @@ tracker_miner_manager_class_init (TrackerMinerManagerClass *klass)
 			      g_cclosure_marshal_VOID__STRING,
 			      G_TYPE_NONE, 1,
 			      G_TYPE_STRING);
+	signals [MINER_ACTIVATED] =
+		g_signal_new ("miner-activated",
+			      G_OBJECT_CLASS_TYPE (object_class),
+			      G_SIGNAL_RUN_LAST,
+			      G_STRUCT_OFFSET (TrackerMinerManagerClass, miner_activated),
+			      NULL, NULL,
+			      g_cclosure_marshal_VOID__STRING,
+			      G_TYPE_NONE, 1,
+			      G_TYPE_STRING);
+	signals [MINER_DEACTIVATED] =
+		g_signal_new ("miner-deactivated",
+			      G_OBJECT_CLASS_TYPE (object_class),
+			      G_SIGNAL_RUN_LAST,
+			      G_STRUCT_OFFSET (TrackerMinerManagerClass, miner_deactivated),
+			      NULL, NULL,
+			      g_cclosure_marshal_VOID__STRING,
+			      G_TYPE_NONE, 1,
+			      G_TYPE_STRING);
 
 	g_type_class_add_private (object_class, sizeof (TrackerMinerManagerPrivate));
 }
@@ -111,6 +131,27 @@ find_miner_proxy (TrackerMinerManager *manager,
 	}
 
 	return NULL;
+}
+
+static void
+name_owner_changed_cb (DBusGProxy  *proxy,
+		       const gchar *name,
+		       const gchar *old_owner,
+		       const gchar *new_owner,
+		       gpointer     user_data)
+{
+	TrackerMinerManager *manager = user_data;
+	TrackerMinerManagerPrivate *priv;
+
+	priv = TRACKER_MINER_MANAGER_GET_PRIVATE (manager);
+
+	if (find_miner_proxy (manager, name) != NULL) {
+		if (new_owner && (!old_owner || !*old_owner)) {
+			g_signal_emit (manager, signals[MINER_ACTIVATED], 0, name);
+		} else if (old_owner && (!new_owner || !*new_owner)) {
+			g_signal_emit (manager, signals[MINER_DEACTIVATED], 0, name);
+		}
+	}
 }
 
 static void
@@ -195,6 +236,18 @@ tracker_miner_manager_init (TrackerMinerManager *manager)
 					   G_TYPE_STRING,
 					   G_TYPE_DOUBLE,
 					   G_TYPE_INVALID);
+
+	dbus_g_proxy_add_signal (priv->proxy,
+				 "NameOwnerChanged",
+				 G_TYPE_STRING,
+				 G_TYPE_STRING,
+				 G_TYPE_STRING,
+				 G_TYPE_INVALID);
+
+	dbus_g_proxy_connect_signal (priv->proxy,
+				     "NameOwnerChanged",
+				     G_CALLBACK (name_owner_changed_cb),
+				     manager, NULL);
 
 	miners = tracker_miner_manager_get_available (manager);
 
@@ -442,4 +495,31 @@ tracker_miner_manager_resume (TrackerMinerManager *manager,
 	}
 
 	return TRUE;
+}
+
+gboolean
+tracker_miner_manager_is_active (TrackerMinerManager *manager,
+				 const gchar         *miner)
+{
+	TrackerMinerManagerPrivate *priv;
+	GError *error = NULL;
+	gboolean active;
+
+	g_return_val_if_fail (TRACKER_IS_MINER_MANAGER (manager), FALSE);
+	g_return_val_if_fail (miner != NULL, FALSE);
+
+	priv = TRACKER_MINER_MANAGER_GET_PRIVATE (manager);
+
+	if (!dbus_g_proxy_call (priv->proxy, "NameHasOwner", &error,
+				G_TYPE_STRING, miner,
+				G_TYPE_INVALID,
+				G_TYPE_BOOLEAN, &active,
+				G_TYPE_INVALID)) {
+		g_critical ("Could not check whether miner '%s' is currently active: %s",
+			    miner, error ? error->message : "no error given");
+		g_error_free (error);
+		return FALSE;
+	}
+
+	return active;
 }

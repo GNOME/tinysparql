@@ -50,6 +50,10 @@ struct TrackerMinerManagerClass {
 				 const gchar         *miner_name);
 	void (* miner_resumed)  (TrackerMinerManager *manager,
 				 const gchar         *miner_name);
+	void (* miner_activated)   (TrackerMinerManager *manager,
+				    const gchar         *miner_name);
+	void (* miner_deactivated) (TrackerMinerManager *manager,
+				    const gchar         *miner_name);
 };
 
 GType   tracker_miner_manager_get_type (void) G_GNUC_CONST;
@@ -66,6 +70,9 @@ gboolean tracker_miner_manager_pause  (TrackerMinerManager *manager,
 gboolean tracker_miner_manager_resume (TrackerMinerManager *manager,
 				       const gchar         *miner,
 				       guint32              cookie);
+
+gboolean tracker_miner_manager_is_active (TrackerMinerManager *manager,
+					  const gchar         *miner);
 
 G_END_DECLS
 
