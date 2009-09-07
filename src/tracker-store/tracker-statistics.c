@@ -208,11 +208,11 @@ tracker_statistics_get (TrackerStatistics      *object,
 			DBusGMethodInvocation  *context,
 			GError		      **error)
 {
+	TrackerClass **classes;
+	TrackerClass **cl;
 	TrackerStatisticsPrivate *priv;
 	guint		          request_id;
 	GPtrArray                *values;
-	GHashTableIter            iter;
-	gpointer                  key, value;
 
 	request_id = tracker_dbus_get_next_request_id ();
 
@@ -223,27 +223,25 @@ tracker_statistics_get (TrackerStatistics      *object,
 
 	values = g_ptr_array_new ();
 
-	g_hash_table_iter_init (&iter, priv->cache);
-	while (g_hash_table_iter_next (&iter, &key, &value)) {
+	classes = tracker_ontology_get_classes ();
+
+	for (cl = classes; *cl; cl++) {
 		GStrv        strv;
-		const gchar *service_type;
-		gint         count;
 
-		service_type = key;
-		count = GPOINTER_TO_INT (value);
-
-		if (count == 0) {
+		if (tracker_class_get_count (*cl) == 0) {
 			/* skip classes without resources */
 			continue;
 		}
 
 		strv = g_new (gchar*, 3);
-		strv[0] = g_strdup (service_type);
-		strv[1] = g_strdup_printf ("%d", count);
+		strv[0] = g_strdup (tracker_class_get_name (*cl));
+		strv[1] = g_strdup_printf ("%d", tracker_class_get_count (*cl));
 		strv[2] = NULL;
 
 		g_ptr_array_add (values, strv);
 	}
+
+	g_free (classes);
 
 	/* Sort result so it is alphabetical */
 	g_ptr_array_sort (values, cache_sort_func);

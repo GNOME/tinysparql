@@ -536,6 +536,8 @@ cache_create_service_decomposed (TrackerClass           *cl)
 		}
 	}
 
+	tracker_class_set_count (cl, tracker_class_get_count (cl) + 1);
+
 	g_ptr_array_add (update_buffer.types, g_strdup (class_uri));
 
 	g_value_init (&gvalue, G_TYPE_INT);
@@ -1110,6 +1112,8 @@ tracker_data_delete_statement (const gchar            *subject,
 
 			/* delete rows from class tables */
 			delete_resource_type (subject_id, class);
+
+			tracker_class_set_count (class, tracker_class_get_count (class) - 1);
 		} else {
 			g_set_error (error, TRACKER_DATA_ERROR, TRACKER_DATA_ERROR_UNKNOWN_CLASS,
 				     "Class '%s' not found in the ontology", object);

@@ -341,6 +341,7 @@ db_get_static_data (TrackerDBInterface *iface)
 {
 	TrackerDBStatement *stmt;
 	TrackerDBCursor *cursor;
+	TrackerDBResultSet *result_set;
 
 	stmt = tracker_db_interface_create_statement (iface,
 						      "SELECT (SELECT Uri FROM \"rdfs:Resource\" WHERE ID = \"tracker:Namespace\".ID), "
@@ -380,6 +381,7 @@ db_get_static_data (TrackerDBInterface *iface)
 		while (tracker_db_cursor_iter_next (cursor)) {
 			TrackerClass *class;
 			const gchar  *uri;
+			gint          count;
 
 			class = tracker_class_new ();
 
@@ -388,6 +390,17 @@ db_get_static_data (TrackerDBInterface *iface)
 			tracker_class_set_uri (class, uri);
 			class_add_super_classes_from_db (iface, class);
 			tracker_ontology_add_class (class);
+
+			/* xsd classes do not derive from rdfs:Resource and do not use separate tables */
+			if (!g_str_has_prefix (tracker_class_get_name (class), "xsd:")) {
+				/* update statistics */
+				stmt = tracker_db_interface_create_statement (iface, "SELECT COUNT(1) FROM \"%s\"", tracker_class_get_name (class));
+				result_set = tracker_db_statement_execute (stmt, NULL);
+				tracker_db_result_set_get (result_set, 0, &count, -1);
+				tracker_class_set_count (class, count);
+				g_object_unref (result_set);
+				g_object_unref (stmt);
+			}
 
 			g_object_unref (class);
 		}

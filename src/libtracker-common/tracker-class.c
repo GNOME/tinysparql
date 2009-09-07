@@ -35,6 +35,7 @@ typedef struct _TrackerClassPriv TrackerClassPriv;
 struct _TrackerClassPriv {
 	gchar	      *uri;
 	gchar	      *name;
+	gint           count;
 
 	GArray        *super_classes;
 };
@@ -52,7 +53,8 @@ static void class_set_property (GObject      *object,
 enum {
 	PROP_0,
 	PROP_URI,
-	PROP_NAME
+	PROP_NAME,
+	PROP_COUNT
 };
 
 G_DEFINE_TYPE (TrackerClass, tracker_class, G_TYPE_OBJECT);
@@ -80,6 +82,15 @@ tracker_class_class_init (TrackerClassClass *klass)
 							      "Service name",
 							      NULL,
 							      G_PARAM_READABLE));
+	g_object_class_install_property (object_class,
+					 PROP_NAME,
+					 g_param_spec_int ("count",
+							      "count",
+							      "Count",
+							      0,
+							      INT_MAX,
+							      0,
+							      G_PARAM_READABLE | G_PARAM_WRITABLE));
 
 	g_type_class_add_private (object_class, sizeof (TrackerClassPriv));
 }
@@ -126,6 +137,9 @@ class_get_property (GObject	 *object,
 	case PROP_NAME:
 		g_value_set_string (value, priv->name);
 		break;
+	case PROP_COUNT:
+		g_value_set_int (value, priv->count);
+		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, param_id, pspec);
 		break;
@@ -142,6 +156,10 @@ class_set_property (GObject	   *object,
 	case PROP_URI:
 		tracker_class_set_uri (TRACKER_CLASS (object),
 					  g_value_get_string (value));
+		break;
+	case PROP_COUNT:
+		tracker_class_set_count (TRACKER_CLASS (object),
+					  g_value_get_int (value));
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, param_id, pspec);
@@ -181,6 +199,18 @@ tracker_class_get_name (TrackerClass *service)
 	priv = GET_PRIV (service);
 
 	return priv->name;
+}
+
+gint
+tracker_class_get_count (TrackerClass *service)
+{
+	TrackerClassPriv *priv;
+
+	g_return_val_if_fail (TRACKER_IS_CLASS (service), 0);
+
+	priv = GET_PRIV (service);
+
+	return priv->count;
 }
 
 TrackerClass **
@@ -236,6 +266,19 @@ tracker_class_set_uri (TrackerClass *service,
 	}
 
 	g_object_notify (G_OBJECT (service), "uri");
+}
+
+void
+tracker_class_set_count (TrackerClass *service,
+			 gint	       value)
+{
+	TrackerClassPriv *priv;
+
+	g_return_if_fail (TRACKER_IS_CLASS (service));
+
+	priv = GET_PRIV (service);
+
+	priv->count = value;
 }
 
 void
