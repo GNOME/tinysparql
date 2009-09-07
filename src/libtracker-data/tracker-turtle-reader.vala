@@ -53,6 +53,7 @@ public class Tracker.TurtleReader : Object {
 	HashTable<string,string> prefix_map;
 
 	string[] subject_stack;
+	string[] predicate_stack;
 
 	int bnodeid = 0;
 	// base UUID used for blank nodes
@@ -248,14 +249,9 @@ public class Tracker.TurtleReader : Object {
 				} else if (accept (SparqlTokenType.OPEN_BRACKET)) {
 					// begin of anonymous blank node
 					subject_stack += subject;
+					predicate_stack += predicate;
 					subject = generate_bnodeid (null);
 					state = State.SUBJECT;
-					continue;
-				} else if (accept (SparqlTokenType.CLOSE_BRACKET)) {
-					// end of anonymous blank node
-					subject = subject_stack[subject_stack.length - 1];
-					subject_stack.length--;
-					state = State.OBJECT;
 					continue;
 				} else if (accept (SparqlTokenType.STRING_LITERAL1) || accept (SparqlTokenType.STRING_LITERAL2)) {
 					var sb = new StringBuilder ();
@@ -341,6 +337,21 @@ public class Tracker.TurtleReader : Object {
 					}
 					state = state.SUBJECT;
 					continue;
+				} else if (subject_stack.length > 0) {
+					// end of anonymous blank node
+					expect (SparqlTokenType.CLOSE_BRACKET);
+
+					object = subject;
+					object_is_uri = true;
+
+					subject = subject_stack[subject_stack.length - 1];
+					subject_stack.length--;
+
+					predicate = predicate_stack[predicate_stack.length - 1];
+					predicate_stack.length--;
+
+					state = State.OBJECT;
+					return true;
 				} else if (accept (SparqlTokenType.DOT)) {
 					state = State.BOS;
 					continue;
