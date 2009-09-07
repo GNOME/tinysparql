@@ -757,6 +757,7 @@ AC_ARG_ENABLE([tracker-applet],
 if test "x$enable_tracker_applet" != "xno" ; then
    PKG_CHECK_MODULES(TRACKER_APPLET, [
 		     glib-2.0    >= $GLIB_REQUIRED
+		     gthread-2.0 >= $GLIB_REQUIRED
 		     gtk+-2.0    >= $GTK_REQUIRED
         	     dbus-1      >= $DBUS_REQUIRED
         	     dbus-glib-1 >= $DBUS_REQUIRED

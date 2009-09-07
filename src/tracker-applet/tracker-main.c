@@ -19,10 +19,13 @@
  */
 
 #include "config.h"
-#include "tracker-status-icon.h"
 
 #include <stdlib.h>
 #include <locale.h>
+
+#include "tracker-status-icon.h"
+
+#include <glib.h>
 #include <glib/gi18n.h>
 
 static gboolean disable_daemon_start;
@@ -51,6 +54,12 @@ main (int argc, char *argv[])
 	g_option_context_add_main_entries (context, entries, NULL);
 	g_option_context_parse (context, &argc, &argv, NULL);
 	g_option_context_free (context);
+
+	g_type_init ();
+	
+	if (!g_thread_supported ()) {
+		g_thread_init (NULL);
+	}
 
         gtk_init (&argc, &argv);
 
