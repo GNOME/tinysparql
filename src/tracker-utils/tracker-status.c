@@ -406,13 +406,16 @@ miner_manager_progress_cb (TrackerMinerManager *manager,
 			   const gchar         *status,
 			   gdouble              progress)
 {
-	miner_name += strlen (TRACKER_MINER_DBUS_NAME_PREFIX);
-	progress *= 100;
+	const gchar *name;
 
-	g_print ("  [R] %s: %3.0f%%, %s\n",
+	name = miner_name + strlen (TRACKER_MINER_DBUS_NAME_PREFIX);
+
+	g_print ("  [R] %s: %3.0f%%, %s, %s: '%s'\n", 
 		 _("Progress"),
-		 progress,
-		 miner_name);
+		 progress * 100,
+		 name,
+		 _("Status"),
+		 status ? status : _("Unknown"));
 }
 
 gint
