@@ -3,9 +3,9 @@ exec_prefix=@exec_prefix@
 libdir=@libdir@
 includedir=@includedir@
 
-Name: tracker-indexer-module
-Description: A library to develop tracker indexer modules
+Name: tracker-miner
+Description: A library to develop tracker data miners
 Version: @VERSION@
 Requires: glib-2.0 pango
-Libs: -L${libdir}/tracker-@TRACKER_API_VERSION@ -ltracker-module
+Libs: -L${libdir}/tracker-@TRACKER_API_VERSION@ -ltracker-miner
 Cflags: -I${includedir}/tracker-@TRACKER_API_VERSION@

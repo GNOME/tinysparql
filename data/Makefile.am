@@ -36,19 +36,19 @@ autostart_DATA = 					\
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = 					\
 	tracker-$(TRACKER_API_VERSION).pc		\
-	tracker-module-$(TRACKER_API_VERSION).pc
+	tracker-miner-$(TRACKER_API_VERSION).pc
 
 tracker-$(TRACKER_API_VERSION).pc: tracker.pc
 	cp $< $@
 
-tracker-module-$(TRACKER_API_VERSION).pc: tracker-module.pc
+tracker-miner-$(TRACKER_API_VERSION).pc: tracker-miner.pc
 	cp $< $@
 
 CLEANFILES = 						\
 	$(autostart_DATA) 				\
 	$(autostart_in_files)				\
 	tracker-$(TRACKER_API_VERSION).pc		\
-	tracker-module-$(TRACKER_API_VERSION).pc
+	tracker-miner-$(TRACKER_API_VERSION).pc
 
 if HAVE_LIBTRACKERGTK
 pkgconfig_DATA += libtracker-gtk-$(TRACKER_API_VERSION).pc
