@@ -22,11 +22,11 @@ tracker_miner_fs_SOURCES =						\
 	tracker-config.h						\
 	tracker-dbus.c							\
 	tracker-dbus.h							\
+	tracker-main.c							\
 	tracker-miner-applications.c					\
 	tracker-miner-applications.h					\
 	tracker-miner-files.c						\
 	tracker-miner-files.h						\
-	tracker-miner-main.c						\
 	tracker-thumbnailer.c						\
 	tracker-thumbnailer.h						\
 	tracker-utils.c							\
