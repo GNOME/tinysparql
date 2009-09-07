@@ -453,10 +453,12 @@ manager_miner_progress_cb (TrackerMinerManager *manager,
 			   const gchar         *status,
 			   gdouble              progress)
 {
-	GValue gvalue = { 0 };
+	GValue *gvalue;
 
-	g_value_init (&gvalue, G_TYPE_DOUBLE);
-	g_value_set_double (&gvalue, progress);
+	gvalue = g_slice_new0 (GValue);
+
+	g_value_init (gvalue, G_TYPE_DOUBLE);
+	g_value_set_double (gvalue, progress);
 
 	miner_print_state (miner_name, status, progress, TRUE, FALSE);
 	
@@ -465,7 +467,7 @@ manager_miner_progress_cb (TrackerMinerManager *manager,
 			      g_strdup (status));
 	g_hash_table_replace (miners_progress, 
 			      g_strdup (miner_name), 
-			      &gvalue);
+			      gvalue);
 }
 
 static void
@@ -473,7 +475,7 @@ manager_miner_paused_cb (TrackerMinerManager *manager,
 			 const gchar         *miner_name)
 {
 	GValue *gvalue;
-	
+
 	gvalue = g_hash_table_lookup (miners_progress, miner_name);
 
 	miner_print_state (miner_name, 
@@ -496,6 +498,16 @@ manager_miner_resumed_cb (TrackerMinerManager *manager,
 			   g_value_get_double (gvalue), 
 			   TRUE, 
 			   FALSE);
+}
+
+static void
+miners_progress_destroy_notify (gpointer data)
+{
+	GValue *value;
+
+	value = data;
+        g_value_unset (value);
+        g_slice_free (GValue, value);
 }
 
 gint
@@ -764,7 +776,7 @@ main (gint argc, gchar *argv[])
 	miners_progress = g_hash_table_new_full (g_str_hash,
 						 g_str_equal,
 						 (GDestroyNotify) g_free,
-						 (GDestroyNotify) g_value_unset);
+						 (GDestroyNotify) miners_progress_destroy_notify);
 	miners_status = g_hash_table_new_full (g_str_hash,
 					       g_str_equal,
 					       (GDestroyNotify) g_free,
