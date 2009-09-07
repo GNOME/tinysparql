@@ -740,7 +740,7 @@ main (gint argc, gchar *argv[])
 
 			is_paused = *pause_applications || *pause_reasons;
 
-			miner_print_state (miner_name, status, progress, TRUE, is_paused);
+			miner_print_state (l->data, status, progress, TRUE, is_paused);
 		
 			g_strfreev (pause_applications);
 			g_strfreev (pause_reasons);
