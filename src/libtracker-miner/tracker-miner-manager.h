@@ -59,6 +59,13 @@ TrackerMinerManager * tracker_miner_manager_new (void);
 GSList *tracker_miner_manager_get_running   (TrackerMinerManager *manager);
 GSList *tracker_miner_manager_get_available (TrackerMinerManager *manager);
 
+gboolean tracker_miner_manager_pause  (TrackerMinerManager *manager,
+				       const gchar         *miner,
+				       const gchar         *reason,
+				       guint32             *cookie);
+gboolean tracker_miner_manager_resume (TrackerMinerManager *manager,
+				       const gchar         *miner,
+				       guint32              cookie);
 
 G_END_DECLS
 

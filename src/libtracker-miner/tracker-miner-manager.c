@@ -27,6 +27,7 @@
 #include "tracker-miner.h"
 #include "tracker-miner-manager.h"
 #include "tracker-marshal.h"
+#include "tracker-miner-client.h"
 
 #define TRACKER_MINER_MANAGER_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_MINER_MANAGER, TrackerMinerManagerPrivate))
 
@@ -90,6 +91,26 @@ tracker_miner_manager_class_init (TrackerMinerManagerClass *klass)
 			      G_TYPE_STRING);
 
 	g_type_class_add_private (object_class, sizeof (TrackerMinerManagerPrivate));
+}
+
+static DBusGProxy *
+find_miner_proxy (TrackerMinerManager *manager,
+		  const gchar         *name)
+{
+	TrackerMinerManagerPrivate *priv;
+	GHashTableIter iter;
+	gpointer key, value;
+
+	priv = TRACKER_MINER_MANAGER_GET_PRIVATE (manager);
+	g_hash_table_iter_init (&iter, priv->miner_proxies);
+
+	while (g_hash_table_iter_next (&iter, &key, &value)) {
+		if (g_strcmp0 (name, (gchar *) value) == 0) {
+			return key;
+		}
+	}
+
+	return NULL;
 }
 
 static void
@@ -350,4 +371,75 @@ tracker_miner_manager_get_available (TrackerMinerManager *manager)
 	g_object_unref (crawler);
 
 	return g_slist_reverse (list);
+}
+
+gboolean
+tracker_miner_manager_pause (TrackerMinerManager *manager,
+			     const gchar         *miner,
+			     const gchar         *reason,
+			     guint32             *cookie)
+{
+	DBusGProxy *proxy;
+	const gchar *app_name;
+	GError *error = NULL;
+
+	g_return_val_if_fail (TRACKER_IS_MINER_MANAGER (manager), FALSE);
+	g_return_val_if_fail (miner != NULL, FALSE);
+	g_return_val_if_fail (reason != NULL, FALSE);
+
+	proxy = find_miner_proxy (manager, miner);
+
+	if (!proxy) {
+		g_critical ("No DBus proxy found for miner '%s'", miner);
+		return FALSE;
+	}
+
+	/* Find a reasonable app name */
+	app_name = g_get_application_name ();
+
+	if (!app_name) {
+		app_name = g_get_prgname ();
+	}
+
+	if (!app_name) {
+		app_name = "TrackerMinerManager client";
+	}
+
+	org_freedesktop_Tracker1_Miner_pause (proxy, app_name, reason, cookie, &error);
+
+	if (error) {
+		g_critical ("Could not pause miner '%s': %s", miner, error->message);
+		g_error_free (error);
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
+gboolean
+tracker_miner_manager_resume (TrackerMinerManager *manager,
+			      const gchar         *miner,
+			      guint32              cookie)
+{
+	DBusGProxy *proxy;
+	GError *error = NULL;
+
+	g_return_val_if_fail (TRACKER_IS_MINER_MANAGER (manager), FALSE);
+	g_return_val_if_fail (miner != NULL, FALSE);
+	proxy = find_miner_proxy (manager, miner);
+
+	if (!proxy) {
+		g_critical ("No DBus proxy found for miner '%s'", miner);
+		return FALSE;
+	}
+
+	org_freedesktop_Tracker1_Miner_resume (proxy, cookie, &error);
+
+	if (error) {
+		g_critical ("Could not resume miner '%s': %s", miner, error->message);
+		g_error_free (error);
+		return FALSE;
+	}
+
+	return TRUE;
 }
