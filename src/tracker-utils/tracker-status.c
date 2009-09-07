@@ -46,6 +46,8 @@
 /* #define g_marshal_value_peek_double(v)   g_value_get_double (v) */
 
 static GMainLoop *main_loop;
+static GHashTable *miners_progress;
+static GHashTable *miners_status;
 
 static gboolean   show_key;
 static gboolean   list_miners_running;
@@ -446,12 +448,54 @@ miner_print_state (const gchar *miner_name,
 }
 
 static void
-miner_manager_progress_cb (TrackerMinerManager *manager,
+manager_miner_progress_cb (TrackerMinerManager *manager,
 			   const gchar         *miner_name,
 			   const gchar         *status,
 			   gdouble              progress)
 {
+	GValue gvalue = { 0 };
+
+	g_value_init (&gvalue, G_TYPE_DOUBLE);
+	g_value_set_double (&gvalue, progress);
+
 	miner_print_state (miner_name, status, progress, TRUE, FALSE);
+	
+	g_hash_table_replace (miners_status, 
+			      g_strdup (miner_name), 
+			      g_strdup (status));
+	g_hash_table_replace (miners_progress, 
+			      g_strdup (miner_name), 
+			      &gvalue);
+}
+
+static void
+manager_miner_paused_cb (TrackerMinerManager *manager,
+			 const gchar         *miner_name)
+{
+	GValue *gvalue;
+	
+	gvalue = g_hash_table_lookup (miners_progress, miner_name);
+
+	miner_print_state (miner_name, 
+			   g_hash_table_lookup (miners_status, miner_name),
+			   g_value_get_double (gvalue), 
+			   TRUE, 
+			   TRUE);
+}
+
+static void
+manager_miner_resumed_cb (TrackerMinerManager *manager,
+			  const gchar         *miner_name)
+{
+	GValue *gvalue;
+	
+	gvalue = g_hash_table_lookup (miners_progress, miner_name);
+
+	miner_print_state (miner_name, 
+			   g_hash_table_lookup (miners_status, miner_name),
+			   g_value_get_double (gvalue), 
+			   TRUE, 
+			   FALSE);
 }
 
 gint
@@ -709,13 +753,29 @@ main (gint argc, gchar *argv[])
 	g_print ("Press Ctrl+C to end follow of Tracker state\n");
 
 	g_signal_connect (manager, "miner-progress",
-			  G_CALLBACK (miner_manager_progress_cb), NULL);
+			  G_CALLBACK (manager_miner_progress_cb), NULL);
+	g_signal_connect (manager, "miner-paused",
+			  G_CALLBACK (manager_miner_paused_cb), NULL);
+	g_signal_connect (manager, "miner-resumed",
+			  G_CALLBACK (manager_miner_resumed_cb), NULL);
 
 	initialize_signal_handler ();
+
+	miners_progress = g_hash_table_new_full (g_str_hash,
+						 g_str_equal,
+						 (GDestroyNotify) g_free,
+						 (GDestroyNotify) g_value_unset);
+	miners_status = g_hash_table_new_full (g_str_hash,
+					       g_str_equal,
+					       (GDestroyNotify) g_free,
+					       (GDestroyNotify) g_free);
 
 	main_loop = g_main_loop_new (NULL, FALSE);
 	g_main_loop_run (main_loop);
 	g_main_loop_unref (main_loop);
+
+	g_hash_table_unref (miners_progress);
+	g_hash_table_unref (miners_status);
 
 	tracker_disconnect (client);
 	g_object_unref (manager);
