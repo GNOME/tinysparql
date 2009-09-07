@@ -43,6 +43,7 @@ DIST_SUBDIRS = 					\
 	libtracker-db				\
 	libtracker-data				\
 	libtracker				\
+	libtracker-miner			\
 	tracker-store				\
 	tracker-utils				\
 	tracker-explorer			\

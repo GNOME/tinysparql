@@ -28,7 +28,9 @@ tracker_miner_fs_SOURCES =						\
 	tracker-miner-files.h						\
 	tracker-miner-main.c						\
 	tracker-thumbnailer.c						\
-	tracker-thumbnailer.h
+	tracker-thumbnailer.h						\
+	tracker-utils.c							\
+	tracker-utils.h
 
 tracker_miner_fs_LDADD =						\
 	$(top_builddir)/src/libtracker-data/libtracker-data.la		\
