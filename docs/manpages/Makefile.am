@@ -16,6 +16,7 @@ man_MANS = 			\
 	tracker-extract.1	\
 	tracker-import.1	\
 	tracker-info.1		\
+	tracker-miner-fs.1	\
 	tracker-search.1	\
 	tracker-sparql.1	\
 	tracker-stats.1		\
