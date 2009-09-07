@@ -819,6 +819,8 @@ public class Tracker.SparqlQuery : Object {
 			translate_group_graph_pattern (pattern_sql);
 		}
 
+		var after_where = get_location ();
+
 		// build SQL
 		sql.append ("SELECT ");
 		bool first = true;
@@ -863,6 +865,9 @@ public class Tracker.SparqlQuery : Object {
 				parse_construct_triples_block (var_value_map);
 			} while (result_set.iter_next ());
 		}
+
+		// reset location to the end of the update
+		set_location (after_where);
 	}
 
 	void execute_drop_graph () throws Error {
