@@ -63,9 +63,11 @@ struct MinerMenuEntry {
 	GtkWidget *box;
 	GtkWidget *state;
 	GtkWidget *name;
-	GtkWidget *progress;
+	GtkWidget *progress_bar;
 
+	gdouble progress;
 	guint32 cookie;
+	guint active : 1;
 };
 
 static void status_icon_constructed (GObject          *object);
@@ -234,6 +236,53 @@ status_icon_popup_menu (GtkStatusIcon *icon,
 }
 
 static void
+update_icon_status (TrackerStatusIcon *icon)
+{
+	TrackerStatusIconPrivate *priv;
+	GHashTableIter iter;
+	gpointer key, value;
+	gint miners_idle, miners_indexing, miners_paused;
+	TrackerStatus status;
+
+	priv = TRACKER_STATUS_ICON_GET_PRIVATE (icon);
+	g_hash_table_iter_init (&iter, priv->miners);
+	miners_idle = miners_indexing = miners_paused = 0;
+
+	while (g_hash_table_iter_next (&iter, &key, &value)) {
+		MinerMenuEntry *entry = value;
+
+		if (!entry->active) {
+			miners_idle++;
+		} else {
+			if (entry->cookie == 0) {
+				if (entry->progress != 1) {
+					miners_indexing++;
+				} else {
+					miners_idle++;
+				}
+			} else {
+				miners_paused++;
+			}
+		}
+	}
+
+	if (miners_indexing > 0) {
+		/* Some miner is indexing, the others are either
+		 * paused or inactive, so we shouldn't care about them
+		 */
+		status = STATUS_INDEXING;
+	} else if (miners_paused > 0) {
+		/* All active miners are paused */
+		status = STATUS_PAUSED;
+	} else {
+		/* No paused nor running miners */
+		status = STATUS_IDLE;
+	}
+
+	status_icon_set_status (icon, status);
+}
+
+static void
 status_icon_miner_progress (TrackerMinerManager *manager,
 			    const gchar         *miner_name,
 			    const gchar         *status,
@@ -255,20 +304,15 @@ status_icon_miner_progress (TrackerMinerManager *manager,
 	}
 
 	gtk_widget_set_tooltip_text (entry->box, status);
-	gtk_progress_bar_set_fraction (GTK_PROGRESS_BAR (entry->progress), progress);
+	gtk_progress_bar_set_fraction (GTK_PROGRESS_BAR (entry->progress_bar), progress);
 
 	progress_str = g_strdup_printf ("%3.0f%%", progress * 100);
-	gtk_progress_bar_set_text (GTK_PROGRESS_BAR (entry->progress), progress_str);
+	gtk_progress_bar_set_text (GTK_PROGRESS_BAR (entry->progress_bar), progress_str);
 	g_free (progress_str);
 
-	if (progress == 1) {
-		/* This miner has finished, check whether
-		 * there are more active ones, and set to idle
-		 * if necessary.
-		 */
-	} else {
-		status_icon_set_status (icon, STATUS_INDEXING);
-	}
+	entry->progress = progress;
+
+	update_icon_status (icon);
 }
 
 static void
@@ -292,6 +336,8 @@ status_icon_miner_paused (TrackerMinerManager *manager,
 	gtk_image_set_from_stock (GTK_IMAGE (entry->state),
 				  GTK_STOCK_MEDIA_PAUSE,
 				  GTK_ICON_SIZE_MENU);
+
+	update_icon_status (icon);
 }
 
 static void
@@ -315,6 +361,8 @@ status_icon_miner_resumed (TrackerMinerManager *manager,
 	gtk_image_set_from_stock (GTK_IMAGE (entry->state),
 				  GTK_STOCK_MEDIA_PLAY,
 				  GTK_ICON_SIZE_MENU);
+
+	update_icon_status (icon);
 }
 
 static void
@@ -336,6 +384,9 @@ status_icon_miner_activated (TrackerMinerManager *manager,
 	}
 
 	gtk_widget_set_sensitive (entry->menu_item, TRUE);
+	entry->active = TRUE;
+
+	update_icon_status (icon);
 }
 
 static void
@@ -357,6 +408,14 @@ status_icon_miner_deactivated (TrackerMinerManager *manager,
 	}
 
 	gtk_widget_set_sensitive (entry->menu_item, FALSE);
+	status_icon_miner_progress (priv->manager, miner_name,
+				    _("Miner is not running"), 0.0, icon);
+	entry->active = FALSE;
+
+	/* invalidate pause cookie */
+	entry->cookie = 0;
+
+	update_icon_status (icon);
 }
 
 static void
@@ -419,10 +478,10 @@ miner_menu_entry_add (TrackerStatusIcon *icon,
 	entry->name = gtk_label_new (name);
 	gtk_misc_set_alignment (GTK_MISC (entry->name), 0, 0.5);
 
-	entry->progress = gtk_progress_bar_new ();
+	entry->progress_bar = gtk_progress_bar_new ();
 
 	gtk_box_pack_start (GTK_BOX (entry->box), entry->name, FALSE, FALSE, 0);
-	gtk_box_pack_start (GTK_BOX (entry->box), entry->progress, TRUE, TRUE, 0);
+	gtk_box_pack_start (GTK_BOX (entry->box), entry->progress_bar, TRUE, TRUE, 0);
 
 	gtk_size_group_add_widget (priv->size_group, entry->name);
 
@@ -437,7 +496,9 @@ miner_menu_entry_add (TrackerStatusIcon *icon,
 
 	gtk_menu_shell_append (GTK_MENU_SHELL (priv->miner_menu), entry->menu_item);
 
-	if (!tracker_miner_manager_is_active (priv->manager, miner)) {
+	entry->active = tracker_miner_manager_is_active (priv->manager, miner);
+
+	if (!entry->active) {
 		gtk_widget_set_sensitive (entry->menu_item, FALSE);
 	}
 
