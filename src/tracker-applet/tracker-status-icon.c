@@ -59,10 +59,12 @@ struct TrackerStatusIconPrivate {
 };
 
 struct MinerMenuEntry {
+	GtkWidget *menu_item;
 	GtkWidget *box;
 	GtkWidget *state;
 	GtkWidget *name;
 	GtkWidget *progress;
+
 	guint32 cookie;
 };
 
@@ -85,6 +87,13 @@ static void status_icon_miner_paused   (TrackerMinerManager *manager,
 static void status_icon_miner_resumed  (TrackerMinerManager *manager,
 					const gchar         *miner_name,
 					gpointer             user_data);
+static void status_icon_miner_activated   (TrackerMinerManager *manager,
+					   const gchar         *miner_name,
+					   gpointer             user_data);
+static void status_icon_miner_deactivated (TrackerMinerManager *manager,
+					   const gchar         *miner_name,
+					   gpointer             user_data);
+
 static void        status_icon_initialize_miners_menu (TrackerStatusIcon *icon);
 static GtkWidget * status_icon_create_context_menu    (TrackerStatusIcon *icon);
 
@@ -152,6 +161,10 @@ tracker_status_icon_init (TrackerStatusIcon *icon)
 			  G_CALLBACK (status_icon_miner_paused), icon);
 	g_signal_connect (priv->manager, "miner-resumed",
 			  G_CALLBACK (status_icon_miner_resumed), icon);
+	g_signal_connect (priv->manager, "miner-activated",
+			  G_CALLBACK (status_icon_miner_activated), icon);
+	g_signal_connect (priv->manager, "miner-deactivated",
+			  G_CALLBACK (status_icon_miner_deactivated), icon);
 	status_icon_initialize_miners_menu (icon);
 }
 
@@ -305,6 +318,48 @@ status_icon_miner_resumed (TrackerMinerManager *manager,
 }
 
 static void
+status_icon_miner_activated (TrackerMinerManager *manager,
+			     const gchar         *miner_name,
+			     gpointer             user_data)
+{
+	TrackerStatusIconPrivate *priv;
+	TrackerStatusIcon *icon;
+	MinerMenuEntry *entry;
+
+	icon = TRACKER_STATUS_ICON (user_data);
+	priv = TRACKER_STATUS_ICON_GET_PRIVATE (icon);
+	entry = g_hash_table_lookup (priv->miners, miner_name);
+
+	if (G_UNLIKELY (!entry)) {
+		g_critical ("Got pause signal from unknown miner");
+		return;
+	}
+
+	gtk_widget_set_sensitive (entry->menu_item, TRUE);
+}
+
+static void
+status_icon_miner_deactivated (TrackerMinerManager *manager,
+			       const gchar         *miner_name,
+			       gpointer             user_data)
+{
+	TrackerStatusIconPrivate *priv;
+	TrackerStatusIcon *icon;
+	MinerMenuEntry *entry;
+
+	icon = TRACKER_STATUS_ICON (user_data);
+	priv = TRACKER_STATUS_ICON_GET_PRIVATE (icon);
+	entry = g_hash_table_lookup (priv->miners, miner_name);
+
+	if (G_UNLIKELY (!entry)) {
+		g_critical ("Got pause signal from unknown miner");
+		return;
+	}
+
+	gtk_widget_set_sensitive (entry->menu_item, FALSE);
+}
+
+static void
 miner_menu_entry_activate_cb (GtkMenuItem *item,
 			      gpointer     user_data)
 {
@@ -343,7 +398,6 @@ miner_menu_entry_add (TrackerStatusIcon *icon,
 {
 	TrackerStatusIconPrivate *priv;
 	MinerMenuEntry *entry;
-	GtkWidget *menu_item;
 	const gchar *name;
 	gchar *str;
 
@@ -372,16 +426,20 @@ miner_menu_entry_add (TrackerStatusIcon *icon,
 
 	gtk_size_group_add_widget (priv->size_group, entry->name);
 
-	menu_item = gtk_image_menu_item_new ();
-	gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menu_item), entry->state);
-	g_object_set_data (G_OBJECT (menu_item), "menu-entry-miner-name", str);
-	g_signal_connect (menu_item, "activate",
+	entry->menu_item = gtk_image_menu_item_new ();
+	gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (entry->menu_item), entry->state);
+	g_object_set_data (G_OBJECT (entry->menu_item), "menu-entry-miner-name", str);
+	g_signal_connect (entry->menu_item, "activate",
 			  G_CALLBACK (miner_menu_entry_activate_cb), icon);
 
-	gtk_container_add (GTK_CONTAINER (menu_item), entry->box);
-	gtk_widget_show_all (menu_item);
+	gtk_container_add (GTK_CONTAINER (entry->menu_item), entry->box);
+	gtk_widget_show_all (entry->menu_item);
 
-	gtk_menu_shell_append (GTK_MENU_SHELL (priv->miner_menu), menu_item);
+	gtk_menu_shell_append (GTK_MENU_SHELL (priv->miner_menu), entry->menu_item);
+
+	if (!tracker_miner_manager_is_active (priv->manager, miner)) {
+		gtk_widget_set_sensitive (entry->menu_item, FALSE);
+	}
 
 	g_hash_table_replace (priv->miners, str, entry);
 }
