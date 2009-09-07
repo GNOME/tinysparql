@@ -19,8 +19,8 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __LIBTRACKER_COMMON_THUMBNAILER_H__
-#define __LIBTRACKER_COMMON_THUMBNAILER_H__
+#ifndef __TRACKER_MINER_FS_THUMBNAILER_H__
+#define __TRACKER_MINER_FS_THUMBNAILER_H__
 
 G_BEGIN_DECLS
 
@@ -38,4 +38,4 @@ void tracker_thumbnailer_cleanup    (const gchar *uri_prefix);
 
 G_END_DECLS
 
-#endif /* __LIBTRACKER_COMMON_THUMBNAILER_H__ */
+#endif /* __TRACKER_MINER_FS_THUMBNAILER_H__ */

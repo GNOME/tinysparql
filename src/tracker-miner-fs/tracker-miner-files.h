@@ -18,8 +18,8 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __TRACKER_MINER_FILES_H__
-#define __TRACKER_MINER_FILES_H__
+#ifndef __TRACKER_MINER_FS_FILES_H__
+#define __TRACKER_MINER_FS_FILES_H__
 
 #include <libtracker-miner/tracker-miner-fs.h>
 
@@ -53,4 +53,4 @@ TrackerMiner * tracker_miner_files_new      (TrackerConfig *config);
 
 G_END_DECLS
 
-#endif /* __TRACKER_MINER_FILES_H__ */
+#endif /* __TRACKER_MINER_FS_FILES_H__ */

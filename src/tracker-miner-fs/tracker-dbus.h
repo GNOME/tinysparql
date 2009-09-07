@@ -19,8 +19,8 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __TRACKER_DBUS_H__
-#define __TRACKER_DBUS_H__
+#ifndef __TRACKER_MINER_FS_DBUS_H__
+#define __TRACKER_MINER_FS_DBUS_H__
 
 #include <glib.h>
 
@@ -46,4 +46,4 @@ void        tracker_dbus_remove_name_monitor  (const gchar                *name)
 
 G_END_DECLS
 
-#endif /* __TRACKER_DBUS_H__ */
+#endif /* __TRACKER_MINER_FS_DBUS_H__ */

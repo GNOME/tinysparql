@@ -18,8 +18,8 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __TRACKER_MINER_H__
-#define __TRACKER_MINER_H__
+#ifndef __TRACKER_MINER_FS_MINER_H__
+#define __TRACKER_MINER_FS_MINER_H__
 
 #include <glib-object.h>
 #include <dbus/dbus-glib.h>
@@ -71,4 +71,4 @@ void          tracker_miner_continue (TrackerMiner           *miner,
 
 G_END_DECLS
 
-#endif /* __TRACKER_MINER_H__ */
+#endif /* __TRACKER_MINER_FS_MINER_H__ */

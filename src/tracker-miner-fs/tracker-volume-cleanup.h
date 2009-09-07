@@ -18,8 +18,8 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __TRACKERD_VOLUME_CLEANUP_H__
-#define __TRACKERD_VOLUME_CLEANUP_H__
+#ifndef __TRACKER_MINER_FS_VOLUME_CLEANUP_H__
+#define __TRACKER_MINER_FS_VOLUME_CLEANUP_H__
 
 G_BEGIN_DECLS
 
@@ -28,4 +28,4 @@ void tracker_volume_cleanup_shutdown (void);
 
 G_END_DECLS
 
-#endif /* __TRACKERD_VOLUME_CLEANUP_H__ */
+#endif /* __TRACKER_MINER_FS_VOLUME_CLEANUP_H__ */

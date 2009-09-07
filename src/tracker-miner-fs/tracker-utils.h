@@ -18,8 +18,8 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __TRACKERD_UTILS_H__
-#define __TRACKERD_UTILS_H__
+#ifndef __TRACKER_MINER_FS_UTILS_H__
+#define __TRACKER_MINER_FS_UTILS_H__
 
 #include <glib.h>
 
@@ -28,4 +28,4 @@
 void tracker_throttle (TrackerConfig *config,
 		       gint           multiplier);
 
-#endif /* __TRACKERD_UTILS_H__ */
+#endif /* __TRACKER_MINER_FS_UTILS_H__ */
