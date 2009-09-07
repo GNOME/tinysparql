@@ -101,18 +101,6 @@ static TrackerDBDefinition dbs[] = {
 	  FALSE,
 	  FALSE,
  	  0 },
-	{ TRACKER_DB_COMMON,
-	  TRACKER_DB_LOCATION_USER_DATA_DIR,
-	  NULL,
-	  "common.db",
-	  "common",
-	  NULL,
-	  32,
-	  TRACKER_DB_PAGE_SIZE_DONT_SET,
-	  FALSE,
-	  FALSE,
-	  FALSE,
- 	  0 },
 	{ TRACKER_DB_METADATA,
 	  TRACKER_DB_LOCATION_DATA_DIR,
 	  NULL,
@@ -769,26 +757,6 @@ db_interface_get (TrackerDB  type,
 }
 
 static TrackerDBInterface *
-db_interface_get_common (void)
-{
-	TrackerDBInterface *iface;
-	gboolean	    create;
-
-	iface = db_interface_get (TRACKER_DB_COMMON, &create);
-
-	if (create) {
-		tracker_db_interface_start_transaction (iface);
-
-		/* Create tables */
-		load_sql_file (iface, "sqlite-tracker.sql", NULL);
-
-		tracker_db_interface_end_transaction (iface);
-	}
-
-	return iface;
-}
-
-static TrackerDBInterface *
 db_interface_get_fulltext (void)
 {
 	TrackerDBInterface *iface;
@@ -835,6 +803,15 @@ db_interface_get_metadata (void)
 
 	iface = db_interface_get (TRACKER_DB_METADATA, &create);
 
+	if (create) {
+		tracker_db_interface_start_transaction (iface);
+
+		/* Create tables */
+		load_sql_file (iface, "sqlite-tracker.sql", NULL);
+
+		tracker_db_interface_end_transaction (iface);
+	}
+
 	return iface;
 }
 
@@ -844,9 +821,6 @@ db_interface_create (TrackerDB db)
 	switch (db) {
 	case TRACKER_DB_UNKNOWN:
 		return NULL;
-
-	case TRACKER_DB_COMMON:
-		return db_interface_get_common ();
 
 	case TRACKER_DB_METADATA:
 		return db_interface_get_metadata ();
@@ -993,9 +967,6 @@ tracker_db_get_type (void)
 
 	if (etype == 0) {
 		static const GEnumValue values[] = {
-			{ TRACKER_DB_COMMON,
-			  "TRACKER_DB_COMMON",
-			  "common" },
 			{ TRACKER_DB_METADATA,
 			  "TRACKER_DB_METADATA",
 			  "metadata" },
@@ -1022,7 +993,7 @@ tracker_db_manager_ensure_locale (void)
 
 	current_locale = setlocale (LC_COLLATE, NULL);
 
-	common = dbs[TRACKER_DB_COMMON].iface;
+	common = dbs[TRACKER_DB_METADATA].iface;
 
 	stmt = tracker_db_interface_create_statement (common, "SELECT OptionValue FROM Options WHERE OptionKey = 'CollationLocale'");
 	result_set = tracker_db_statement_execute (stmt, NULL);
@@ -1304,17 +1275,15 @@ tracker_db_manager_init (TrackerDBManagerFlags	flags,
 	initialized = TRUE;
 
 	if (flags & TRACKER_DB_MANAGER_READONLY) {
-		resources_iface = tracker_db_manager_get_db_interfaces_ro (4,
+		resources_iface = tracker_db_manager_get_db_interfaces_ro (3,
 								    TRACKER_DB_METADATA,
 								    TRACKER_DB_FULLTEXT,
-								    TRACKER_DB_CONTENTS,
-								    TRACKER_DB_COMMON);
+								    TRACKER_DB_CONTENTS);
 	} else {
-		resources_iface = tracker_db_manager_get_db_interfaces (4,
+		resources_iface = tracker_db_manager_get_db_interfaces (3,
 								    TRACKER_DB_METADATA,
 								    TRACKER_DB_FULLTEXT,
-								    TRACKER_DB_CONTENTS,
-								    TRACKER_DB_COMMON);
+								    TRACKER_DB_CONTENTS);
 	}
 
 	if (did_copy) {
@@ -1329,11 +1298,10 @@ tracker_db_manager_disconnect (void)
 {
 	if (resources_iface) {
 		guint i;
- 		TrackerDB attachments[3] = { TRACKER_DB_FULLTEXT,
-					     TRACKER_DB_CONTENTS,
-					     TRACKER_DB_COMMON };
+		TrackerDB attachments[2] = { TRACKER_DB_FULLTEXT,
+					     TRACKER_DB_CONTENTS };
 
-		for (i = 0; i < 3; i++) {
+		for (i = 0; i < 2; i++) {
 			TrackerDB db = attachments [i];
 
 			db_exec_no_reply (resources_iface,
@@ -1350,9 +1318,8 @@ tracker_db_manager_reconnect (void)
 {
 	if (resources_iface) {
 		guint i;
- 		TrackerDB attachments[3] = { TRACKER_DB_FULLTEXT,
-					     TRACKER_DB_CONTENTS,
-					     TRACKER_DB_COMMON };
+		TrackerDB attachments[2] = { TRACKER_DB_FULLTEXT,
+					     TRACKER_DB_CONTENTS };
 
 		tracker_db_interface_reconnect (resources_iface);
 
@@ -1361,7 +1328,7 @@ tracker_db_manager_reconnect (void)
 			       dbs[TRACKER_DB_METADATA].page_size,
 			       TRUE);
 
-		for (i = 0; i < 3; i++) {
+		for (i = 0; i < 2; i++) {
 			TrackerDB db = attachments [i];
 
 			db_exec_no_reply (resources_iface,
