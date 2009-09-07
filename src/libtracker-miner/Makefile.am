@@ -75,10 +75,15 @@ marshal_sources = 					\
 	tracker-marshal.c				\
 	tracker-marshal.h
 
-dbus_sources = tracker-miner-glue.h
+dbus_sources = 						\
+	tracker-miner-glue.h				\
+	tracker-miner-client.h
 
 %-glue.h: $(top_srcdir)/data/dbus/%.xml
 	$(DBUSBINDINGTOOL) --mode=glib-server --output=$@ --prefix=$(subst -,_,$*) $^
+
+%-client.h: $(top_srcdir)/data/dbus/%.xml
+	$(DBUSBINDINGTOOL) --mode=glib-client --output=$@ --prefix=$(subst -,_,$*) $^
 
 BUILT_SOURCES = $(dbus_sources) $(marshal_sources)
 
