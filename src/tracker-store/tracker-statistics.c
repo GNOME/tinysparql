@@ -232,6 +232,11 @@ tracker_statistics_get (TrackerStatistics      *object,
 		service_type = key;
 		count = GPOINTER_TO_INT (value);
 
+		if (count == 0) {
+			/* skip classes without resources */
+			continue;
+		}
+
 		strv = g_new (gchar*, 3);
 		strv[0] = g_strdup (service_type);
 		strv[1] = g_strdup_printf ("%d", count);
