@@ -79,26 +79,18 @@ static GOptionEntry   entries[] = {
 };
 
 static void
-search_results_foreach (gpointer value, 
-			gpointer user_data)
+show_limit_warning (void)
 {
-	gchar **metadata;
-	gchar **p;
-	gboolean detailed;
-	gint i;
-
-	metadata = value;
-	detailed = GPOINTER_TO_INT (user_data);
-
-	for (p = metadata, i = 0; *p; p++, i++) {
-		if (i == 0) {
-			g_print ("  %s", *p);
-		} else if (detailed) {
-			g_print (", %s", *p);
-		}
-	}
-
-	g_print ("\n");
+	/* Display '...' so the user thinks there is
+	 * more items.
+	 */
+	g_print ("  ...\n");
+	
+	/* Display warning so the user knows this is
+	 * not the WHOLE data set.
+	 */
+	g_printerr ("\n%s\n",
+		    _("NOTE: Limit was reached, there are more items in the database not listed here"));
 }
 
 static void
@@ -154,6 +146,11 @@ get_music_files (TrackerClient *client,
 		g_ptr_array_foreach (results, 
 				     get_music_files_foreach, 
 				     NULL);
+
+		if (results->len >= search_limit) {
+			show_limit_warning ();
+		}
+
 		g_ptr_array_free (results, TRUE);
 	}
 
@@ -215,6 +212,11 @@ get_music_artists (TrackerClient *client,
 		g_ptr_array_foreach (results, 
 				     get_music_artists_foreach, 
 				     NULL);
+
+		if (results->len >= search_limit) {
+			show_limit_warning ();
+		}
+
 		g_ptr_array_free (results, TRUE);
 	}
 
@@ -295,10 +297,38 @@ get_music_albums (TrackerClient *client,
 		g_ptr_array_foreach (results, 
 				     get_music_albums_foreach, 
 				     NULL);
+
+		if (results->len >= search_limit) {
+			show_limit_warning ();
+		}
+
 		g_ptr_array_free (results, TRUE);
 	}
 
 	return TRUE;
+}
+
+static void
+get_all_by_search_foreach (gpointer value, 
+			   gpointer user_data)
+{
+	gchar **metadata;
+	gchar **p;
+	gboolean detailed;
+	gint i;
+
+	metadata = value;
+	detailed = GPOINTER_TO_INT (user_data);
+
+	for (p = metadata, i = 0; *p; p++, i++) {
+		if (i == 0) {
+			g_print ("  %s", *p);
+		} else if (detailed) {
+			g_print (", %s", *p);
+		}
+	}
+
+	g_print ("\n");
 }
 
 static gboolean
@@ -359,8 +389,13 @@ get_all_by_search (TrackerClient *client,
 		g_print ("\n");
 
 		g_ptr_array_foreach (results, 
-				     search_results_foreach, 
+				     get_all_by_search_foreach, 
 				     GINT_TO_POINTER (detailed_results));
+
+		if (results->len >= search_limit) {
+			show_limit_warning ();
+		}
+
 		g_ptr_array_free (results, TRUE);
 	}
 
