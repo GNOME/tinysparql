@@ -401,21 +401,57 @@ miner_get_details (const gchar  *miner,
 }
 
 static void
+miner_print_state (const gchar *miner_name,
+		   const gchar *status,
+		   gdouble      progress,
+		   gboolean     is_running,
+		   gboolean     is_paused)
+{
+	const gchar *name;
+	time_t now;
+	gchar time_str[64];
+	size_t len;
+	struct tm *local_time;
+
+	if (detailed) {
+		now = time ((time_t *) NULL);
+		local_time = localtime (&now);
+		len = strftime (time_str, 
+				sizeof (time_str) - 1, 
+				"%d %b %Y, %H:%M:%S:", 
+				local_time);
+		time_str[len] = '\0';
+	} else {
+		time_str[0] = '\0';
+	}
+
+	name = miner_name + strlen (TRACKER_MINER_DBUS_NAME_PREFIX);
+
+	if (is_running) {
+		g_print ("%s  [%s] %s: %3.0f%%, %s, %s: '%s'\n", 
+			 time_str,
+			 is_paused ? "P" : "R",
+			 _("Progress"),
+			 progress * 100,
+			 name,
+			 _("Status"),
+			 status ? status : _("Unknown"));
+	} else {
+		g_print ("%s  [ ] %s: %3.0f%%, %s\n", 
+			 time_str,
+			 _("Progress"),
+			 0.0,
+			 name);
+	}
+}
+
+static void
 miner_manager_progress_cb (TrackerMinerManager *manager,
 			   const gchar         *miner_name,
 			   const gchar         *status,
 			   gdouble              progress)
 {
-	const gchar *name;
-
-	name = miner_name + strlen (TRACKER_MINER_DBUS_NAME_PREFIX);
-
-	g_print ("  [R] %s: %3.0f%%, %s, %s: '%s'\n", 
-		 _("Progress"),
-		 progress * 100,
-		 name,
-		 _("Status"),
-		 status ? status : _("Unknown"));
+	miner_print_state (miner_name, status, progress, TRUE, FALSE);
 }
 
 gint
@@ -648,22 +684,13 @@ main (gint argc, gchar *argv[])
 
 			is_paused = *pause_applications || *pause_reasons;
 
-			g_print ("  [%s] %s: %3.0f%%, %s, %s: '%s'\n", 
-				 is_paused ? "P" : "R",
-				 _("Progress"),
-				 progress * 100,
-				 name,
-				 _("Status"),
-				 status ? status : _("Unknown"));
-			
+			miner_print_state (miner_name, status, progress, TRUE, is_paused);
+		
 			g_strfreev (pause_applications);
 			g_strfreev (pause_reasons);
 			g_free (status);
 		} else {
-			g_print ("  [ ] %s: %3.0f%%, %s\n", 
-				 _("Progress"),
-				 0.0,
-				 name);
+			miner_print_state (l->data, NULL, 0.0, FALSE, FALSE);
 		}
 	}
 
