@@ -515,6 +515,8 @@ cache_create_service_decomposed (TrackerClass           *cl)
 	TrackerDBInterface *iface;
 	TrackerClass       **super_classes;
 	GValue              gvalue = { 0 };
+	gint                i;
+	const gchar        *class_uri;
 
 	iface = tracker_db_manager_get_db_interface ();
 
@@ -525,7 +527,16 @@ cache_create_service_decomposed (TrackerClass           *cl)
 		super_classes++;
 	}
 
-	g_ptr_array_add (update_buffer.types, g_strdup (tracker_class_get_uri (cl)));
+	class_uri = tracker_class_get_uri (cl);
+
+	for (i = 0; i < update_buffer.types->len; i++) {
+		if (strcmp (g_ptr_array_index (update_buffer.types, i), class_uri) == 0) {
+			/* ignore duplicate statement */
+			return;
+		}
+	}
+
+	g_ptr_array_add (update_buffer.types, g_strdup (class_uri));
 
 	g_value_init (&gvalue, G_TYPE_INT);
 
