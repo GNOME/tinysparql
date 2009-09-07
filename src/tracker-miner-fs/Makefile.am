@@ -20,11 +20,15 @@ libexec_PROGRAMS = tracker-miner-fs
 tracker_miner_fs_SOURCES =						\
 	tracker-config.c						\
 	tracker-config.h						\
+	tracker-dbus.c							\
+	tracker-dbus.h							\
 	tracker-miner-applications.c					\
 	tracker-miner-applications.h					\
 	tracker-miner-files.c						\
 	tracker-miner-files.h						\
-	tracker-miner-main.c
+	tracker-miner-main.c						\
+	tracker-thumbnailer.c						\
+	tracker-thumbnailer.h
 
 tracker_miner_fs_LDADD =						\
 	$(top_builddir)/src/libtracker-data/libtracker-data.la		\
