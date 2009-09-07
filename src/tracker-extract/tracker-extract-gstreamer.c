@@ -27,6 +27,9 @@
 #include <stdlib.h>
 #include <math.h>
 
+/* I don't know why, but this prototype ain't in my math.h */
+long long int llroundl(long double x);
+
 #include <glib.h>
 #include <glib/gstdio.h>
 
@@ -349,7 +352,7 @@ get_embedded_album_art(MetadataExtractor *extractor)
 
 		extractor->album_art_data = buffer->data;
 		extractor->album_art_size = buffer->size;
-		extractor->album_art_mime = gst_structure_get_name (caps_struct);		
+		extractor->album_art_mime = gst_structure_get_name (caps_struct);
 
 		gst_object_unref (caps);
 
@@ -479,24 +482,13 @@ extract_metadata (MetadataExtractor *extractor,
 		}
 
 		if (extractor->mime == EXTRACT_MIME_AUDIO || extractor->mime == EXTRACT_MIME_VIDEO) {
-			s = NULL;
-			gst_tag_list_get_string (extractor->tagcache, GST_TAG_PERFORMER, &s);
-			if (s) {
-				gchar *canonical_uri = tracker_uri_printf_escaped ("urn:artist:%s", s);
-				tracker_statement_list_insert (metadata, canonical_uri, RDF_TYPE, NMM_PREFIX "Artist");
-				tracker_statement_list_insert (metadata, canonical_uri, NMM_PREFIX "artistName", s);
-				tracker_statement_list_insert (metadata, uri, 
-							       (extractor->mime == EXTRACT_MIME_AUDIO ? 
-							        NMM_PREFIX "performer" :
-							        NMM_PREFIX "leadActor"),
-							       canonical_uri);
-				g_free (canonical_uri);
-				g_free (s);
-			}
+			gchar *performer = NULL, *artist = NULL;
 
-			/* Warn, same predicate as above. Is this an err in our onto? */
-			s = NULL;
-			gst_tag_list_get_string (extractor->tagcache, GST_TAG_ARTIST, &s);
+			gst_tag_list_get_string (extractor->tagcache, GST_TAG_PERFORMER, &performer);
+			gst_tag_list_get_string (extractor->tagcache, GST_TAG_ARTIST, &artist);
+
+			s = tracker_coalesce (2, performer, artist);
+
 			if (s) {
 				gchar *canonical_uri = tracker_uri_printf_escaped ("urn:artist:%s", s);
 				tracker_statement_list_insert (metadata, canonical_uri, RDF_TYPE, NMM_PREFIX "Artist");
@@ -527,7 +519,7 @@ extract_metadata (MetadataExtractor *extractor,
 
 			s = NULL;
 			gst_tag_list_get_string (extractor->tagcache, GST_TAG_GENRE, &s);
-			if (s && strcmp (s, "Unknown") != 0) {
+			if (g_strcmp0 (s, "Unknown") != 0) {
 				tracker_statement_list_insert (metadata, uri, NFO_PREFIX "genre", s);
 			}
 			g_free (s);
