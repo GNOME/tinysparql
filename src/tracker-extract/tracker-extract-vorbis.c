@@ -46,7 +46,7 @@ static void extract_vorbis (const char *uri,
 
 
 typedef struct {
-	gchar *creator, *title;
+	gchar *creator;
 } VorbisNeedsMergeData;
 
 typedef struct {
