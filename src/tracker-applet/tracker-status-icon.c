@@ -63,6 +63,7 @@ struct MinerMenuEntry {
 	GtkWidget *state;
 	GtkWidget *name;
 	GtkWidget *progress;
+	guint32 cookie;
 };
 
 static void status_icon_constructed (GObject          *object);
@@ -304,6 +305,39 @@ status_icon_miner_resumed (TrackerMinerManager *manager,
 }
 
 static void
+miner_menu_entry_activate_cb (GtkMenuItem *item,
+			      gpointer     user_data)
+{
+	TrackerStatusIconPrivate *priv;
+	MinerMenuEntry *entry;
+	const gchar *miner;
+	guint32 cookie;
+
+	priv = TRACKER_STATUS_ICON_GET_PRIVATE (user_data);
+	miner = g_object_get_data (G_OBJECT (item), "menu-entry-miner-name");
+	entry = g_hash_table_lookup (priv->miners, miner);
+
+	g_assert (entry != NULL);
+	if (G_UNLIKELY (!entry)) {
+		g_critical ("Got pause signal from unknown miner");
+		return;
+	}
+
+	if (entry->cookie == 0) {
+		/* Miner was not paused from here */
+		if (tracker_miner_manager_pause (priv->manager, miner,
+						 _("Paused by user"), &cookie)) {
+			entry->cookie = cookie;
+		}
+	} else {
+		/* Miner was paused from here */
+		if (tracker_miner_manager_resume (priv->manager, miner, entry->cookie)) {
+			entry->cookie = 0;
+		}
+	}
+}
+
+static void
 miner_menu_entry_add (TrackerStatusIcon *icon,
 		      const gchar       *miner)
 {
@@ -311,15 +345,18 @@ miner_menu_entry_add (TrackerStatusIcon *icon,
 	MinerMenuEntry *entry;
 	GtkWidget *menu_item;
 	const gchar *name;
+	gchar *str;
 
 	name = strrchr (miner, '.');
 
 	if (!name) {
 		g_warning ("Miner name '%s' doesn't look valid", miner);
+		return;
 	}
 
 	name++;
 	priv = TRACKER_STATUS_ICON_GET_PRIVATE (icon);
+	str = g_strdup (miner);
 
 	entry = g_new0 (MinerMenuEntry, 1);
 	entry->box = gtk_hbox_new (FALSE, 6);
@@ -337,13 +374,16 @@ miner_menu_entry_add (TrackerStatusIcon *icon,
 
 	menu_item = gtk_image_menu_item_new ();
 	gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (menu_item), entry->state);
+	g_object_set_data (G_OBJECT (menu_item), "menu-entry-miner-name", str);
+	g_signal_connect (menu_item, "activate",
+			  G_CALLBACK (miner_menu_entry_activate_cb), icon);
 
 	gtk_container_add (GTK_CONTAINER (menu_item), entry->box);
 	gtk_widget_show_all (menu_item);
 
 	gtk_menu_shell_append (GTK_MENU_SHELL (priv->miner_menu), menu_item);
 
-	g_hash_table_replace (priv->miners, g_strdup (miner), entry);
+	g_hash_table_replace (priv->miners, str, entry);
 }
 
 static void
