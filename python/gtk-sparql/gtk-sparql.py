@@ -26,8 +26,9 @@ import time
 import Completion
 import tracker_completion
 
-TRACKER = 'org.freedesktop.Tracker'
-TRACKER_OBJ = '/org/freedesktop/Tracker/Resources'
+TRACKER = 'org.freedesktop.Tracker1'
+TRACKER_OBJ = '/org/freedesktop/Tracker1/Resources'
+RESOURCES_IFACE = "org.freedesktop.Tracker1.Resources"
 
 class GtkSparql:
 
@@ -75,7 +76,7 @@ class GtkSparql:
         bus = dbus.SessionBus ()
         tracker = bus.get_object (TRACKER, TRACKER_OBJ)
         self.resources = dbus.Interface (tracker,
-                                         dbus_interface="org.freedesktop.Tracker.Resources");
+                                         dbus_interface=RESOURCES_IFACE);
 
 
     def execute_query_cb (self, widget, call=0):

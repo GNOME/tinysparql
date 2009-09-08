@@ -19,8 +19,9 @@
 import dbus
 import re
 
-TRACKER = 'org.freedesktop.Tracker'
-TRACKER_OBJ = '/org/freedesktop/Tracker/Resources'
+TRACKER = 'org.freedesktop.Tracker1'
+TRACKER_OBJ = '/org/freedesktop/Tracker1/Resources'
+RESOURCES_IFACE = "org.freedesktop.Tracker1.Resources"
 
 ALL_NAMESPACES = """
 SELECT ?u ?prefix WHERE { ?u a tracker:Namespace; tracker:prefix ?prefix. }
@@ -73,7 +74,7 @@ class TrackerCompletionEngine:
         bus = dbus.SessionBus ()
         tracker = bus.get_object (TRACKER, TRACKER_OBJ)
         self.resources = dbus.Interface (tracker,
-                                         dbus_interface="org.freedesktop.Tracker.Resources");
+                                         dbus_interface=RESOURCES_IFACE);
 
     def complete_word (self, textbuffer):
         """
