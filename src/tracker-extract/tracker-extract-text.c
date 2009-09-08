@@ -33,17 +33,6 @@
 #define TEXT_MAX_SIZE   1048576  /* bytes */
 #define TEXT_CHECK_SIZE 65535    /* bytes */
 
-#if 0
-
-typedef struct {
-        GMainLoop            *main_loop;
-        GString              *data;
-	gchar                *uri;
-	TrackerSparqlBuilder *metadata;
-} ContentData;
-
-#endif
-
 static void extract_text (const gchar          *uri,
 			  TrackerSparqlBuilder *metadata);
 
@@ -294,29 +283,15 @@ extract_text (const gchar          *uri,
 
 	g_type_init ();
 
-#if 0
-	ContentData *cd;
-
-	cd = g_slice_new0 (ContentData);
-
-	cd->main_loop = g_main_loop_new (NULL, FALSE);
-	cd->data = g_string_new (NULL);
-	cd->uri = g_strdup (uri);
-	cd->metadata = g_object_ref (metadata);
-
-	g_main_loop_run (cd->main_loop);
-	g_main_loop_unref (cd->main_loop);
-
-	content = g_string_free (cd->data, FALSE);
-	g_slice_free (ContentData, cd);
-#endif
-
 	tracker_sparql_builder_subject_iri (metadata, uri);
 
 	content = get_file_content (uri);
-	tracker_sparql_builder_predicate (metadata, "nie:plainTextContent");
-	tracker_sparql_builder_object_unvalidated (metadata, content);
-	g_free (content);
+
+	if (content) {
+		tracker_sparql_builder_predicate (metadata, "nie:plainTextContent");
+		tracker_sparql_builder_object_unvalidated (metadata, content);
+		g_free (content);
+	}
 }
 
 TrackerExtractData *
