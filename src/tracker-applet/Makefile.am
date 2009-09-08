@@ -11,38 +11,12 @@ INCLUDES =								\
 	$(TRACKER_APPLET_CFLAGS)					\
 	$(GCOV_CFLAGS)
 
-bin_PROGRAMS = tracker-applet tracker-status-icon
-
-tracker_applet_LDADD = 							\
-	$(top_builddir)/src/libtracker/libtrackerclient-@TRACKER_API_VERSION@.la \
-	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
-	$(TRACKER_APPLET_LIBS)						\
-	$(GCOV_LIBS)
+bin_PROGRAMS = tracker-status-icon
 
 tracker_status_icon_LDADD = 						\
-	$(top_builddir)/src/libtracker/libtrackerclient-@TRACKER_API_VERSION@.la \
-	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
 	$(top_builddir)/src/libtracker-miner/libtracker-miner.la 	\
 	$(TRACKER_APPLET_LIBS)						\
 	$(GCOV_LIBS)
-
-tracker-marshal.h: tracker-marshal.list
-	$(GLIB_GENMARSHAL) $< --prefix=tracker_marshal --header > $@
-
-tracker-marshal.c: tracker-marshal.list
-	$(GLIB_GENMARSHAL) $< --prefix=tracker_marshal --body > $@
-
-marshal_sources =                                         		\
-        tracker-marshal.h                             			\
-        tracker-marshal.c
-
-BUILT_SOURCES = 							\
-	$(marshal_sources)
-
-tracker_applet_SOURCES = 						\
-	tracker-applet.c 						\
-	tracker-applet.h						\
-	tracker-marshal-main.c
 
 tracker_status_icon_SOURCES =						\
 	tracker-status-icon.c						\
@@ -62,9 +36,6 @@ icon_DATA = 								\
 autostartdir = $(sysconfdir)/xdg/autostart
 autostart_DATA = tracker-applet.desktop
 
-pkgdata_DATA = tracker-applet-prefs.ui
+EXTRA_DIST = $(icon_DATA)
 
-
-EXTRA_DIST = $(icon_DATA) $(pkgdata_DATA) tracker-marshal.list
-
-CLEANFILES = $(autostart_DATA) $(BUILT_SOURCES)
+CLEANFILES = $(autostart_DATA)
