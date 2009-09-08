@@ -221,9 +221,9 @@ miner_applications_process_file_cb (gpointer user_data)
 	ProcessApplicationData *data = user_data;
 	TrackerSparqlBuilder *sparql;
 	GKeyFile *key_file;
-	gchar *path, *type, *filename, *name = NULL, *uri = NULL;
+	gchar *path, *type, *filename, *name, *uri = NULL;
 	GFileInfo *file_info;
-	GStrv cats = NULL;
+	GStrv cats;
 	gsize cats_len;
 	gboolean is_software = TRUE;
 
@@ -273,7 +273,6 @@ miner_applications_process_file_cb (gpointer user_data)
 		is_software = FALSE;
 
 	} else if (name && g_ascii_strcasecmp (type, "Application") == 0) {
-
 		uri = g_file_get_uri (data->file);
 		tracker_sparql_builder_insert_open (sparql);
 
@@ -292,7 +291,6 @@ miner_applications_process_file_cb (gpointer user_data)
 
 	/* This matches SomeApplet as Type= */
 	} else if (name && g_str_has_suffix (type, "Applet")) {
-
 		/* The URI of the InformationElement should be a UUID URN */
 		uri = g_file_get_uri (data->file);
 		tracker_sparql_builder_insert_open (sparql);
@@ -399,7 +397,6 @@ miner_applications_process_file_cb (gpointer user_data)
 		tracker_sparql_builder_predicate (sparql, "nie:isStoredAs");
 		tracker_sparql_builder_object_iri (sparql, desktop_file_uri);
 		g_free (desktop_file_uri);
-
 	}
 
 	file_info = g_file_query_info (data->file,
@@ -420,8 +417,7 @@ miner_applications_process_file_cb (gpointer user_data)
 	/* Notify about success */
 	data->callback (data->miner, data->file, sparql, NULL, data->callback_data);
 
-	if (cats)
-		g_strfreev (cats);
+	g_strfreev (cats);
 
 	g_free (uri);
 	g_free (path);
