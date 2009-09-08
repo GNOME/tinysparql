@@ -491,7 +491,6 @@ item_add_or_update_cb (TrackerMinerFS       *fs,
 
 	if (error) {
 		g_warning ("Could not process '%s': %s", uri, error->message);
-
 	} else {
 		gchar *full_sparql;
 
@@ -538,7 +537,7 @@ item_add_or_update (TrackerMinerFS *fs,
 	gboolean processing;
 
 	if (fs->private->cancellable) {
-		g_warning ("Cancellable for older operation still around, destroying");
+		g_debug ("Cancellable for older operation still around, destroying");
 		g_object_unref (fs->private->cancellable);
 	}
 
@@ -552,6 +551,9 @@ item_add_or_update (TrackerMinerFS *fs,
 
 	if (!processing) {
 		g_object_unref (sparql);
+		g_object_unref (fs->private->cancellable);
+		fs->private->cancellable = NULL;
+
 		return TRUE;
 	} else {
 		fs->private->current_file = g_object_ref (file);
