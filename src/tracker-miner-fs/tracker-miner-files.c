@@ -394,9 +394,11 @@ initialize_removable_devices (TrackerMinerFiles *mf)
                 mounts = tracker_storage_get_removable_device_roots (priv->storage);
 
                 for (m = mounts; m; m = m->next) {
-                        tracker_miner_fs_add_directory (TRACKER_MINER_FS (mf),
-							m->data, 
+			GFile *as_file = g_file_new_for_path (m->data);
+			tracker_miner_fs_add_directory (TRACKER_MINER_FS (mf),
+							as_file, 
 							TRUE);
+			g_object_unref (as_file);
                 }
         }
 }
