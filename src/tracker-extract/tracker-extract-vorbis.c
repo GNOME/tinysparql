@@ -177,10 +177,10 @@ extract_vorbis (const char *uri,
 		g_free (vorbis_data.title);
 	}
 
-	if (vorbis_data.trackcount) {
+/*	if (vorbis_data.trackcount) {
 		tracker_statement_list_insert (metadata, uri, NMM_PREFIX "albumTrackCount", vorbis_data.trackcount);
 		g_free (vorbis_data.trackcount);
-	}
+	} */
 
 	if (vorbis_data.tracknumber) {
 		tracker_statement_list_insert (metadata, uri, NMM_PREFIX "tracknumber", vorbis_data.tracknumber);
