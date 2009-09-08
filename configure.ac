@@ -746,38 +746,38 @@ fi
 AM_CONDITIONAL(HAVE_LIBTRACKERGTK, test "$have_libtrackergtk" = "yes")
 
 ##################################################################
-# Enable building tracker-applet notification icon?
+# Enable building tracker-status-icon notification icon?
 ##################################################################
 
-AC_ARG_ENABLE([tracker-applet], 
-	      AS_HELP_STRING([--enable-tracker-applet], 
-	                     [enable tracker-applet [[default=auto]]]),,
-	      [enable_tracker_applet=auto])
+AC_ARG_ENABLE([tracker-status-icon],
+	      AS_HELP_STRING([--enable-tracker-status-icon],
+	                     [enable tracker-status-icon [[default=auto]]]),,
+	      [enable_tracker_status_icon=auto])
 
-if test "x$enable_tracker_applet" != "xno" ; then
-   PKG_CHECK_MODULES(TRACKER_APPLET, [
+if test "x$enable_tracker_status_icon" != "xno" ; then
+   PKG_CHECK_MODULES(TRACKER_STATUS_ICON, [
 		     glib-2.0    >= $GLIB_REQUIRED
 		     gthread-2.0 >= $GLIB_REQUIRED
 		     gtk+-2.0    >= $GTK_REQUIRED
         	     dbus-1      >= $DBUS_REQUIRED
         	     dbus-glib-1 >= $DBUS_REQUIRED
 		     libnotify   >= $LIBNOTIFY_REQUIRED],
-		     [have_tracker_applet=yes], 
-   		     [have_tracker_applet=no])
+		     [have_tracker_status_icon=yes],
+   		     [have_tracker_status_icon=no])
 
-   AC_SUBST([TRACKER_APPLET_CFLAGS])
-   AC_SUBST([TRACKER_APPLET_LIBS])
+   AC_SUBST([TRACKER_STATUS_ICON_CFLAGS])
+   AC_SUBST([TRACKER_STATUS_ICON_LIBS])
 else
-   have_tracker_applet="no  (disabled)"
+   have_tracker_status_icon="no  (disabled)"
 fi
 
-if test "x$enable_tracker_applet" = "xyes"; then
-   if test "x$have_tracker_applet" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find tracker-applet dependencies (glib-2.0 >= $GLIB_REQUIRED, gtk+-2.0 >= $GTK_REQUIRED, dbus-1 >= $DBUS_REQUIRED, dbus-glib-1 >= $DBUS_REQUIRED, libnotify >= $LIBNOTIFY_REQUIRED).])
+if test "x$enable_tracker_status_icon" = "xyes"; then
+   if test "x$have_tracker_status_icon" != "xyes"; then
+      AC_MSG_ERROR([Couldn't find tracker-status-icon dependencies (glib-2.0 >= $GLIB_REQUIRED, gtk+-2.0 >= $GTK_REQUIRED, dbus-1 >= $DBUS_REQUIRED, dbus-glib-1 >= $DBUS_REQUIRED, libnotify >= $LIBNOTIFY_REQUIRED).])
    fi
 fi
 
-AM_CONDITIONAL(HAVE_TRACKER_APPLET, test "$have_tracker_applet" = "yes")
+AM_CONDITIONAL(HAVE_TRACKER_STATUS_ICON, test "$have_tracker_status_icon" = "yes")
 
 AC_ARG_ENABLE([tracker-explorer],
 	      AS_HELP_STRING([--enable-tracker-explorer],
@@ -1468,7 +1468,7 @@ Applications:
 	Build deskbar-applet:			$have_deskbar_applet
 	Build tracker-search-tool:	        $have_tracker_search_tool
 	Build tracker-preferences:		$have_tracker_preferences
-	Build tracker-applet:	                $have_tracker_applet
+	Build tracker-status-icon:              $have_tracker_status_icon
 	Build libtracker-gtk:			$have_libtrackergtk
 	Build tracker-explorer:	                $have_tracker_explorer
 

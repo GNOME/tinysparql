@@ -30,7 +30,7 @@ autostart_DATA = 					\
 	tracker-store.desktop				\
 	tracker-miner-fs.desktop
 
-if HAVE_TRACKER_APPLET
+if HAVE_TRACKER_STATUS_ICON
 autostart_DATA += tracker-status-icon.desktop
 endif
 

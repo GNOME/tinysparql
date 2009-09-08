@@ -4,7 +4,7 @@ if HAVE_TRACKER_SEARCH_TOOL
 tst = tracker-search-tool.1
 endif
 
-if HAVE_TRACKER_APPLET
+if HAVE_TRACKER_STATUS_ICON
 ta = tracker-applet.1
 endif
 

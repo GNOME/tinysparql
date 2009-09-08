@@ -8,14 +8,14 @@ INCLUDES =								\
 	-DTRACKER_COMPILATION						\
 	-I$(top_srcdir)/src						\
 	$(WARN_CFLAGS)							\
-	$(TRACKER_APPLET_CFLAGS)					\
+	$(TRACKER_STATUS_ICON_CFLAGS)					\
 	$(GCOV_CFLAGS)
 
 bin_PROGRAMS = tracker-status-icon
 
 tracker_status_icon_LDADD = 						\
 	$(top_builddir)/src/libtracker-miner/libtracker-miner.la 	\
-	$(TRACKER_APPLET_LIBS)						\
+	$(TRACKER_STATUS_ICON_LIBS)					\
 	$(GCOV_LIBS)
 
 tracker_status_icon_SOURCES =						\

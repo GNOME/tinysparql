@@ -19,7 +19,7 @@ if HAVE_TRACKER_PREFERENCES
 # SUBDIRS += tracker-preferences
 endif
 
-if HAVE_TRACKER_APPLET
+if HAVE_TRACKER_STATUS_ICON
 SUBDIRS += tracker-status-icon
 endif
 
