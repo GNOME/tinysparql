@@ -56,15 +56,16 @@ static GOptionEntry   entries[] = {
 };
 
 static void
-get_meta_table_data (gpointer value)
+results_foreach (gpointer value,
+		 gpointer user_data)
 {
-	gchar **meta;
+	gchar **data;
 	gchar **p;
-	gint	i;
+	gint i;
 
-	meta = value;
+	data = value;
 
-	for (p = meta, i = 0; *p; p++, i++) {
+	for (p = data, i = 0; *p; p++, i++) {
 		if (i == 0) {
 			g_print ("  %s", *p);
 		} else {
@@ -78,12 +79,10 @@ get_meta_table_data (gpointer value)
 int
 main (int argc, char **argv)
 {
-	TrackerClient	*client;
-	GOptionContext	*context;
-	GError		*error = NULL;
-	gchar		*path_in_utf8;
-	gsize		 size;
-	GPtrArray	*array;
+	TrackerClient *client;
+	GOptionContext *context;
+	GError *error = NULL;
+	GPtrArray *results;
 
 	setlocale (LC_ALL, "");
 
@@ -91,13 +90,12 @@ main (int argc, char **argv)
 	bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
 	textdomain (GETTEXT_PACKAGE);
 
-	context = g_option_context_new (_("- Query using SPARQL"));
+	context = g_option_context_new (_("- Query or update using SPARQL"));
 
 	g_option_context_add_main_entries (context, entries, NULL);
 	g_option_context_parse (context, &argc, &argv, NULL);
 
-	if ((!path && !query)
-	    || (path && query)) {
+	if ((!path && !query) || (path && query)) {
 		gchar *help;
 
 		g_printerr ("%s\n\n",
@@ -122,6 +120,9 @@ main (int argc, char **argv)
 	}
 
 	if (path) {
+		gchar *path_in_utf8;
+		gsize size;
+
 		path_in_utf8 = g_filename_to_utf8 (path, -1, NULL, NULL, &error);
 		if (error) {
 			g_printerr ("%s:'%s', %s\n",
@@ -150,28 +151,37 @@ main (int argc, char **argv)
 		g_free (path_in_utf8);
 	}
 
-	if (!update) {
-		array = tracker_resources_sparql_query (client, query, &error);
-	} else {
+	if (G_UNLIKELY (update)) {
 		tracker_resources_sparql_update (client, query, &error);
+		results = NULL;
+	} else {
+		results = tracker_resources_sparql_query (client, query, &error);
 	}
 
 	if (error) {
-		g_printerr ("%s, %s\n",
-			    _("Could not query search"),
-			    error->message);
+		if (G_UNLIKELY (update)) {
+			g_printerr ("%s, %s\n",
+				    _("Could not run update"),
+				    error->message);
+		} else {
+			g_printerr ("%s, %s\n",
+				    _("Could not run query"),
+				    error->message);
+		}
+
 		g_error_free (error);
+		tracker_disconnect (client);
 
 		return EXIT_FAILURE;
 	}
 
 	if (!update) {
-		if (!array) {
+		if (!results) {
 			g_print ("%s\n",
 				 _("No results found matching your query"));
 		} else {
-			g_ptr_array_foreach (array, (GFunc) get_meta_table_data, NULL);
-			g_ptr_array_free (array, TRUE);
+			g_ptr_array_foreach (results, results_foreach, NULL);
+			g_ptr_array_free (results, TRUE);
 		}
 	}
 
