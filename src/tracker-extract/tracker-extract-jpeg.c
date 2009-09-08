@@ -264,10 +264,16 @@ extract_jpeg (const gchar *uri,
 			marker = marker->next;
 		}
 
-		merge_data.camera = tracker_coalesce (4, xmp_data.Model, 
-		                                      xmp_data.Make,
-		                                      exif_data.model,
-		                                      exif_data.make);
+		merge_data.camera = tracker_merge (" ", 2, xmp_data.Make,
+		                                   xmp_data.Model);
+
+		if (!merge_data.camera) {
+			merge_data.camera = tracker_merge (" ", 2, exif_data.make,
+			                                   exif_data.model);
+		} else {
+			g_free (exif_data.model);
+			g_free (exif_data.make);
+		}
 
 		merge_data.title = tracker_coalesce (2, xmp_data.title,
 		                                     exif_data.document_name);

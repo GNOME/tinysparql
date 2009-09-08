@@ -532,3 +532,40 @@ tracker_coalesce (gint n_values,
 
 	return result;
 }
+
+
+gchar *
+tracker_merge (const gchar *delim, gint n_values,
+               ...)
+{
+	va_list args;
+	gint    i;
+	GString *str = NULL;
+
+	va_start (args, n_values);
+
+	for (i = 0; i < n_values; i++) {
+		gchar *value;
+
+		value = va_arg (args, gchar *);
+		if (value) {
+			if (!str) {
+				str = g_string_new (value);
+			} else {
+				if (delim) {
+					g_string_append (str, delim);
+				}
+				g_string_append (str, value);
+			}
+			g_free (value);
+		}
+	}
+
+	va_end (args);
+
+	if (!str) {
+		return NULL;
+	}
+
+	return g_string_free (str, FALSE);
+}

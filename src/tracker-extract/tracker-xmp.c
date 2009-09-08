@@ -596,7 +596,7 @@ tracker_apply_xmp (TrackerSparqlBuilder *metadata, const gchar *uri, TrackerXmpD
 	}
 
 	if (xmp_data->Make || xmp_data->Model) {
-		gchar *final_camera = tracker_coalesce (2, xmp_data->Make, xmp_data->Model); 
+		gchar *final_camera = tracker_merge (" ", 2, xmp_data->Make, xmp_data->Model); 
 		tracker_statement_list_insert (metadata, uri, NMM_PREFIX "camera", final_camera);
 		g_free (final_camera);
 	}

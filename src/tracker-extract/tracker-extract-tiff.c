@@ -357,12 +357,26 @@ extract_tiff (const gchar *uri, TrackerSparqlBuilder *metadata)
 	TIFFClose (image);
 	g_free (filename);
 
-	merge_data.camera = tracker_coalesce (6, tiff_data.model,
-	                                      tiff_data.make,
-	                                      xmp_data.Model, 
-	                                      xmp_data.Make,
-	                                      exif_data.model,
-	                                      exif_data.make);
+	merge_data.camera = tracker_merge (" ", 2, tiff_data.make,
+	                                   tiff_data.model);
+
+	if (!merge_data.camera) {
+		merge_data.camera = tracker_merge (" ", 2, xmp_data.Make,
+		                                   xmp_data.Model);
+
+		if (!merge_data.camera) {
+			merge_data.camera = tracker_merge (" ", 2, exif_data.make,
+			                                   exif_data.model);
+		} else {
+			g_free (exif_data.model);
+			g_free (exif_data.make);
+		}
+	} else {
+		g_free (xmp_data.Model);
+		g_free (xmp_data.Make);
+		g_free (exif_data.model);
+		g_free (exif_data.make);
+	}
 
 	merge_data.title = tracker_coalesce (3, tiff_data.documentname,
 	                                     xmp_data.title,

@@ -47,6 +47,8 @@ gchar*   tracker_uri_printf_escaped         (const gchar *format,
 					     ...);
 gchar *  tracker_coalesce                   (gint n_values,
 					     ...);
+gchar *  tracker_merge                      (const gchar *delim, gint n_values,
+					     ...);
 
 /* Temporary: Just here until we upgrade to GLib 2.18. */
 G_CONST_RETURN gchar *
