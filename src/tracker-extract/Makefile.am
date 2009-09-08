@@ -41,7 +41,8 @@ modules_LTLIBRARIES = 							\
 	libextract-mp3.la				 		\
 	libextract-oasis.la 						\
 	libextract-png.la 						\
-	libextract-ps.la 						
+	libextract-ps.la 						\
+	libextract-text.la
 
 if HAVE_LIBVORBIS
 modules_LTLIBRARIES += libextract-vorbis.la
@@ -230,6 +231,11 @@ libextract_playlist_la_LDFLAGS = $(module_flags)
 libextract_playlist_la_LIBADD = $(GLIB2_LIBS) $(TOTEM_PL_PARSER_LIBS) $(GCOV_LIBS) \
 	$(top_builddir)/src/libtracker-common/libtracker-common.la
 
+# TIFF
+libextract_text_la_SOURCES = tracker-extract-text.c
+libextract_text_la_LDFLAGS = $(module_flags)
+libextract_text_la_LIBADD = $(GLIB2_LIBS) $(GIO_LIBS) $(GCOV_LIBS) \
+	$(top_builddir)/src/libtracker-common/libtracker-common.la
 
 #
 # Binaries
