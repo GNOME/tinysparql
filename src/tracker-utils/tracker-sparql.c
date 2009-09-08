@@ -35,22 +35,22 @@
 #include <tracker-store/mingw-compat.h>
 #endif /* G_OS_WIN32 */
 
-static gchar	     *path;
+static gchar	     *file;
 static gchar	     *query;
 static gboolean	      update;
 
 static GOptionEntry   entries[] = {
-	{ "path", 'p', 0, G_OPTION_ARG_FILENAME, &path,
-	  N_("Path to use in query"),
-	  NULL,
+	{ "file", 'f', 0, G_OPTION_ARG_FILENAME, &file,
+	  N_("Path to use to run a query or update from file"),
+	  N_("FILE"),
 	},
 	{ "query", 'q', 0, G_OPTION_ARG_STRING, &query,
 	  N_("SPARQL query"),
-	  NULL
+	  N_("SPARQL"),
 	},
 	{ "update", 'u', 0, G_OPTION_ARG_NONE, &update,
 	  N_("SPARQL update extensions"),
-	  NULL
+	  N_("SPARQL"),
 	},
 	{ NULL }
 };
@@ -95,7 +95,7 @@ main (int argc, char **argv)
 	g_option_context_add_main_entries (context, entries, NULL);
 	g_option_context_parse (context, &argc, &argv, NULL);
 
-	if ((!path && !query) || (path && query)) {
+	if ((!file && !query) || (file && query)) {
 		gchar *help;
 
 		g_printerr ("%s\n\n",
@@ -119,15 +119,15 @@ main (int argc, char **argv)
 		return EXIT_FAILURE;
 	}
 
-	if (path) {
+	if (file) {
 		gchar *path_in_utf8;
 		gsize size;
 
-		path_in_utf8 = g_filename_to_utf8 (path, -1, NULL, NULL, &error);
+		path_in_utf8 = g_filename_to_utf8 (file, -1, NULL, NULL, &error);
 		if (error) {
 			g_printerr ("%s:'%s', %s\n",
 				    _("Could not get UTF-8 path from path"),
-				    path,
+				    file,
 				    error->message);
 			g_error_free (error);
 			tracker_disconnect (client);
