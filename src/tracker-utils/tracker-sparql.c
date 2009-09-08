@@ -31,10 +31,6 @@
 
 #include <libtracker/tracker.h>
 
-#ifdef G_OS_WIN32
-#include <tracker-store/mingw-compat.h>
-#endif /* G_OS_WIN32 */
-
 static gchar	     *file;
 static gchar	     *query;
 static gboolean	      update;
