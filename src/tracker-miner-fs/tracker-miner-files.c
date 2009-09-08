@@ -770,7 +770,7 @@ miner_files_monitor_directory (TrackerMinerFS *fs,
 
 	mf = TRACKER_MINER_FILES (fs);
 
-	if (tracker_config_get_enable_monitors (mf->private->config)) {
+	if (!tracker_config_get_enable_monitors (mf->private->config)) {
 		return FALSE;
 	}
 		
