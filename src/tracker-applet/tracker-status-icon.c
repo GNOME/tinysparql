@@ -523,6 +523,69 @@ status_icon_initialize_miners_menu (TrackerStatusIcon *icon)
 }
 
 static void
+launch_application_on_screen (GdkScreen   *screen,
+			      const gchar *command_line)
+{
+	GError *error = NULL;
+
+	if (!gdk_spawn_command_line_on_screen (screen, command_line, &error)) {
+		g_critical ("Could not spawn '%s': %s", command_line, error->message);
+		g_error_free (error);
+	}
+}
+
+static void
+context_menu_pause_cb (GtkMenuItem *item,
+		       gpointer     user_data)
+{
+	TrackerStatusIcon *icon;
+	TrackerStatusIconPrivate *priv;
+	GHashTableIter iter;
+	gpointer key, value;
+	gboolean active;
+
+	icon = user_data;
+	priv = TRACKER_STATUS_ICON_GET_PRIVATE (icon);
+	active = gtk_check_menu_item_get_active (GTK_CHECK_MENU_ITEM (item));
+	g_hash_table_iter_init (&iter, priv->miners);
+
+	while (g_hash_table_iter_next (&iter, &key, &value)) {
+		MinerMenuEntry *entry = value;
+		const gchar *miner = key;
+		guint32 cookie;
+
+		if (active && entry->cookie == 0) {
+			if (tracker_miner_manager_pause (priv->manager, miner,
+							 _("Paused by user"), &cookie)) {
+				entry->cookie = cookie;
+			}
+		} else if (!active && entry->cookie != 0) {
+			if (tracker_miner_manager_resume (priv->manager, miner, entry->cookie)) {
+				entry->cookie = 0;
+			}
+		}
+	}
+
+	update_icon_status (icon);
+}
+
+static void
+context_menu_search_cb (GtkMenuItem *item,
+			gpointer     user_data)
+{
+	launch_application_on_screen (gtk_widget_get_screen (GTK_WIDGET (item)),
+				      "tracker-search-tool");
+}
+
+static void
+context_menu_preferences_cb (GtkMenuItem *item,
+			     gpointer     user_data)
+{
+	launch_application_on_screen (gtk_widget_get_screen (GTK_WIDGET (item)),
+				      "tracker-preferences");
+}
+
+static void
 context_menu_about_cb (GtkMenuItem *item,
 		       gpointer     user_data)
 {
@@ -605,10 +668,8 @@ status_icon_create_context_menu (TrackerStatusIcon *icon)
 	item = gtk_check_menu_item_new_with_mnemonic (_("_Pause All Indexing"));
 	gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (item), FALSE);
 	gtk_menu_shell_append (GTK_MENU_SHELL (menu), item);
-	/*
 	g_signal_connect (G_OBJECT (item), "toggled",
-			  G_CALLBACK (pause_menu_toggled), icon);
-	*/
+			  G_CALLBACK (context_menu_pause_cb), icon);
 
 	item = gtk_separator_menu_item_new ();
 	gtk_menu_shell_append (GTK_MENU_SHELL (menu), item);
@@ -618,48 +679,34 @@ status_icon_create_context_menu (TrackerStatusIcon *icon)
 					      GTK_ICON_SIZE_MENU);
 	gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (item), image);
 	gtk_menu_shell_append (GTK_MENU_SHELL (menu), item);
-	/*
 	g_signal_connect (G_OBJECT (item), "activate",
-			  G_CALLBACK (search_menu_activated), icon);
-	*/
-
-	item = gtk_image_menu_item_new_with_mnemonic (_("_Re-index"));
-	image = gtk_image_new_from_icon_name (GTK_STOCK_FIND,
-					      GTK_ICON_SIZE_MENU);
-	gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (item), image);
-	gtk_menu_shell_append (GTK_MENU_SHELL (menu), item);
-	/*
-	g_signal_connect (G_OBJECT (item), "activate", G_CALLBACK (reindex),
-			  icon);
-	*/
+			  G_CALLBACK (context_menu_search_cb), icon);
 
 	item = gtk_image_menu_item_new_with_mnemonic (_("_Preferences"));
 	image = gtk_image_new_from_icon_name (GTK_STOCK_PREFERENCES,
 					      GTK_ICON_SIZE_MENU);
 	gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (item), image);
 	gtk_menu_shell_append (GTK_MENU_SHELL (menu), item);
-	/*
 	g_signal_connect (G_OBJECT (item), "activate",
-			  G_CALLBACK (applet_preferences_menu_activated),
+			  G_CALLBACK (context_menu_preferences_cb),
 			  icon);
-	*/
 
+	/*
 	item = gtk_image_menu_item_new_with_mnemonic (_("_Indexer Preferences"));
 	image = gtk_image_new_from_icon_name (GTK_STOCK_PREFERENCES,
 					      GTK_ICON_SIZE_MENU);
 	gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (item), image);
 	gtk_menu_shell_append (GTK_MENU_SHELL (menu), item);
-	/*
 	g_signal_connect (G_OBJECT (item), "activate",
 			  G_CALLBACK (preferences_menu_activated), icon);
 	*/
 
+	/*
 	item = gtk_image_menu_item_new_with_mnemonic (_("S_tatistics"));
 	image = gtk_image_new_from_icon_name (GTK_STOCK_INFO,
 					      GTK_ICON_SIZE_MENU);
 	gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (item), image);
 	gtk_menu_shell_append (GTK_MENU_SHELL (menu), item);
-	/*
 	g_signal_connect (G_OBJECT (item), "activate",
 			  G_CALLBACK (statistics_menu_activated), icon);
 	*/
@@ -672,6 +719,7 @@ status_icon_create_context_menu (TrackerStatusIcon *icon)
 	g_signal_connect (G_OBJECT (item), "activate",
 			  G_CALLBACK (context_menu_about_cb), icon);
 
+	/*
 	item = gtk_separator_menu_item_new ();
 	gtk_menu_shell_append (GTK_MENU_SHELL (menu), item);
 
@@ -680,7 +728,6 @@ status_icon_create_context_menu (TrackerStatusIcon *icon)
 					      GTK_ICON_SIZE_MENU);
 	gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (item), image);
 	gtk_menu_shell_append (GTK_MENU_SHELL (menu), item);
-	/*
 	g_signal_connect (G_OBJECT (item), "activate",
 			  G_CALLBACK (quit_menu_activated), icon);
 	*/
