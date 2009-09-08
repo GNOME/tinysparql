@@ -61,15 +61,15 @@ static GOptionEntry   entries[] = {
 	  NULL
 	},
 	{ "files", 'f', 0, G_OPTION_ARG_NONE, &files,
-	  N_("List all image files"),
+	  N_("List all files"),
 	  NULL
 	},
 	{ "music-albums", 'a', 0, G_OPTION_ARG_NONE, &music_albums,
-	  N_("List all music albums"),
+	  N_("List all music albums (includes song count and duration sum)"),
 	  NULL
 	},
 	{ "music-artists", 's', 0, G_OPTION_ARG_NONE, &music_artists,
-	  N_("List all music albums"),
+	  N_("List all music artists"),
 	  NULL
 	},
 	{ "music-files", 'u', 0, G_OPTION_ARG_NONE, &music_files,
