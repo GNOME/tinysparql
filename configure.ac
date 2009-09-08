@@ -1490,7 +1490,6 @@ Metadata Extractors:
 
 Plugins:
 
-	Evolution extracter (data-pull):	yes (old)
 	Evolution plugin    (data-push):	$have_evolution_plugin
 	KMail plugin        (data-push):	$enable_kmail_push_module
 
