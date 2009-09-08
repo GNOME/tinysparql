@@ -21,11 +21,55 @@ does not have to be an absolute path.
 .B \-?, \-\-help
 Show summary of options.
 .TP
-.B \-p, \-\-path=PATH
-Use a file with sparql content to query the Tracker database.
+.B \-f, \-\-file=FILE
+Use a file with SPARQL content to query.
 .TP
-.B \-q, \-\-query=QUERY
-Use a query string with sparql content to query the Tracker database.
+.B \-q, \-\-query=SPARQL
+Use a SPARQL string to query the database with.
+.TP
+.B \-u, \-\-update=SPARQL
+Use a SPARQL string to update the database with.
+.TP
+.B \-c, \-\-list-classes
+Returns a list of classes which describe the ontology used for storing
+data. These classes are also used in queries. For example,
+.B http://www.w3.org/2000/01/rdf-schema#Resource
+is one of many classes which should be returned here.
+.TP
+.B \-x, \-\-list-class-prefixes
+Returns a list of classes and their related prefixes. Prefixes are
+used to make querying a lot simpler and are much like an alias. For
+example,
+.B http://www.w3.org/2000/01/rdf-schema#Resource
+has the prefix 
+.B rdfs
+so queries can be cut down to:
+
+"SELECT ?u WHERE { ?u a rdfs:Resource }"
+
+.TP
+.B \-p, \-\-list-properties=CLASS
+Returns a list of properties which pertain to a class. You can use
+both formats here for the class, either the full name
+.B http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Video
+or the shortened prefix name  
+.B nfo#Video.
+
+This gives the following result:
+
+.NF
+$ tracker-sparql -p nfo#Video
+
+Properties: 2
+  http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#frameRate
+  http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#frameCount
+.FI
+
+These properties
+.B nfo#frameRate
+and
+.B nfo#frameCount
+can be used in more complex queries (see --query).
 
 .SH EXAMPLES
 .TP
@@ -35,7 +79,7 @@ List all classes
 $ tracker-sparql -q "SELECT ?cl WHERE { ?cl a rdfs:Class }"
 
 .TP
-List all properties for the Resources class
+List all properties for the Resources class (see \-\-list-properties)
 
 .BR
 .NF

@@ -14,6 +14,14 @@ searches all indexed content for \fIEXPRESSION\fR.
 .TP
 \fIEXPRESSION\fR
 One or more terms to search. The default operation is a logical AND.
+For logical OR operations, see -r.
+
+You can not use the search terms with: 
+.B \-\-files,
+.B \-\-music-albums,
+.B \-\-music-artists,
+.B \-\-music-files,
+.B \-\-image-files.
 
 .SH OPTIONS
 .TP
@@ -27,8 +35,29 @@ Limit search to N results. The default is 512.
 Offset the search results by N. For example, start at item number 10
 in the results. The default is 0.
 .TP
+\-r, \-\-or-operator
+Use OR for search terms instead of AND (the default)
+.TP
 \-d, \-\-detailed
-Give more information in the search results.
+Show more detailed results (only applies to general search)
+.TP
+\-f, \-\-files
+List all files in ascending order.
+.TP
+\-a, \-\-music-albums
+List all music albums. This also lists the song count and the sum of
+the duration of all songs associated with each album.
+.TP
+\-s, \-\-music-artists
+List all music artists.
+.TP
+\-u, \-\-music-files
+List all music files. Any file which qualifies as music is listed in
+ascending order. See --files. 
+.TP
+\-l, \-\-image-files
+List all image files. Any file which qualifies as an image is listed in
+ascending order. See --files. 
 
 .SH SEE ALSO
 .BR tracker-store (1),
