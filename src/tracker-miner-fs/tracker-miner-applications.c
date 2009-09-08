@@ -433,9 +433,9 @@ process_application_data_free (ProcessApplicationData *data)
 	g_object_unref (data->file);
 	g_object_unref (data->sparql);
 	g_object_unref (data->cancellable);
-	g_slice_free (ProcessApplicationData, data);
 	g_key_file_free (data->key_file);
 	g_free (data->type);
+	g_slice_free (ProcessApplicationData, data);
 }
 
 static gboolean
