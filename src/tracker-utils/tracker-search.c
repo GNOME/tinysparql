@@ -37,9 +37,11 @@ static gint	      offset;
 static gchar	    **terms;
 static gboolean       or_operator;
 static gboolean       detailed;
+static gboolean       files;
 static gboolean       music_albums;
 static gboolean       music_artists;
 static gboolean       music_files;
+static gboolean       image_files;
 
 static GOptionEntry   entries[] = {
 	{ "limit", 'l', 0, G_OPTION_ARG_INT, &limit,
@@ -58,6 +60,10 @@ static GOptionEntry   entries[] = {
 	  N_("Show more detailed results (only applies to general search)"),
 	  NULL
 	},
+	{ "files", 'f', 0, G_OPTION_ARG_NONE, &files,
+	  N_("List all image files"),
+	  NULL
+	},
 	{ "music-albums", 'a', 0, G_OPTION_ARG_NONE, &music_albums,
 	  N_("List all music albums"),
 	  NULL
@@ -68,6 +74,10 @@ static GOptionEntry   entries[] = {
 	},
 	{ "music-files", 'u', 0, G_OPTION_ARG_NONE, &music_files,
 	  N_("List all music files"),
+	  NULL
+	},
+	{ "image-files", 'i', 0, G_OPTION_ARG_NONE, &image_files,
+	  N_("List all image files"),
 	  NULL
 	},
 	{ G_OPTION_REMAINING, 0, 0,
@@ -94,16 +104,16 @@ show_limit_warning (void)
 }
 
 static void
-get_music_files_foreach (gpointer value,
-			 gpointer user_data)
+get_files_foreach (gpointer value,
+		   gpointer user_data)
 {
 	gchar **data = value;
 
-	g_print ("  '%s'\n", data[0]);
+	g_print ("  %s\n", data[0]);
 }
 
 static gboolean
-get_music_files (TrackerClient *client,
+get_image_files (TrackerClient *client,
 		 gint           search_offset,
 		 gint           search_limit)
 {
@@ -111,10 +121,11 @@ get_music_files (TrackerClient *client,
 	GPtrArray *results;
 	gchar *query;
 
-	query = g_strdup_printf ("SELECT ?song "
+	query = g_strdup_printf ("SELECT ?image "
 				 "WHERE { "
-				 "  ?song a nmm:MusicPiece "
-				 "}"
+				 "  ?image a nfo:Image "
+				 "} "
+				 "ORDER BY ASC(?image) "
 				 "OFFSET %d "
 				 "LIMIT %d",
 				 search_offset, 
@@ -144,7 +155,64 @@ get_music_files (TrackerClient *client,
 		g_print ("\n");
 
 		g_ptr_array_foreach (results, 
-				     get_music_files_foreach, 
+				     get_files_foreach, 
+				     NULL);
+
+		if (results->len >= search_limit) {
+			show_limit_warning ();
+		}
+
+		g_ptr_array_foreach (results, (GFunc) g_strfreev, NULL);
+		g_ptr_array_free (results, TRUE);
+	}
+
+	return TRUE;
+}
+
+static gboolean
+get_music_files (TrackerClient *client,
+		 gint           search_offset,
+		 gint           search_limit)
+{
+	GError *error = NULL;
+	GPtrArray *results;
+	gchar *query;
+
+	query = g_strdup_printf ("SELECT ?song "
+				 "WHERE { "
+				 "  ?song a nmm:MusicPiece "
+				 "} "
+				 "ORDER BY ASC(?song) "
+				 "OFFSET %d "
+				 "LIMIT %d",
+				 search_offset, 
+				 search_limit);
+
+	results = tracker_resources_sparql_query (client, query, &error);
+	g_free (query);
+
+	if (error) {
+		g_printerr ("%s, %s\n",
+			    _("Could not get search results"),
+			    error->message);
+		g_error_free (error);
+
+		return FALSE;
+	}
+
+	if (!results) {
+		g_print ("%s\n",
+			 _("No files were found"));
+	} else {
+		g_print (tracker_dngettext (NULL,
+					    _("File: %d"), 
+					    _("Files: %d"),
+					    results->len),
+			 results->len);
+		g_print ("\n");
+
+		g_ptr_array_foreach (results, 
+				     get_files_foreach, 
 				     NULL);
 
 		if (results->len >= search_limit) {
@@ -179,8 +247,8 @@ get_music_artists (TrackerClient *client,
 	query = g_strdup_printf ("SELECT ?artist ?title "
 				 "WHERE {"
 				 "  ?artist a nmm:Artist ;"
-				 "  nmm:artistName ?title"
-                                 "}"
+				 "  nmm:artistName ?title "
+                                 "} "
 				 "GROUP BY ?artist "
 				 "OFFSET %d "
 				 "LIMIT %d",
@@ -265,8 +333,8 @@ get_music_albums (TrackerClient *client,
 				 "  ?album a nmm:MusicAlbum ;"
 				 "  nie:title ?title ."
 				 "  ?song nmm:musicAlbum ?album ;"
-				 "  nmm:length ?length"
-                                 "}"
+				 "  nmm:length ?length "
+                                 "} "
 				 "GROUP BY ?album "
 				 "OFFSET %d "
 				 "LIMIT %d",
@@ -298,6 +366,63 @@ get_music_albums (TrackerClient *client,
 
 		g_ptr_array_foreach (results, 
 				     get_music_albums_foreach, 
+				     NULL);
+
+		if (results->len >= search_limit) {
+			show_limit_warning ();
+		}
+
+		g_ptr_array_foreach (results, (GFunc) g_strfreev, NULL);
+		g_ptr_array_free (results, TRUE);
+	}
+
+	return TRUE;
+}
+
+static gboolean
+get_files (TrackerClient *client,
+	   gint           search_offset,
+	   gint           search_limit)
+{
+	GError *error = NULL;
+	GPtrArray *results;
+	gchar *query;
+
+	query = g_strdup_printf ("SELECT ?u "
+				 "WHERE { "
+				 "  ?u a nie:InformationElement "
+				 "} "
+				 "ORDER BY ASC(?u) "
+				 "OFFSET %d "
+				 "LIMIT %d",
+				 search_offset, 
+				 search_limit);
+
+	results = tracker_resources_sparql_query (client, query, &error);
+	g_free (query);
+
+	if (error) {
+		g_printerr ("%s, %s\n",
+			    _("Could not get search results"),
+			    error->message);
+		g_error_free (error);
+
+		return FALSE;
+	}
+
+	if (!results) {
+		g_print ("%s\n",
+			 _("No files were found"));
+	} else {
+		g_print (tracker_dngettext (NULL,
+					    _("File: %d"), 
+					    _("Files: %d"),
+					    results->len),
+			 results->len);
+		g_print ("\n");
+
+		g_ptr_array_foreach (results, 
+				     get_files_foreach, 
 				     NULL);
 
 		if (results->len >= search_limit) {
@@ -441,6 +566,8 @@ main (int argc, char **argv)
 	g_free (summary);
 	
 	if (!music_albums && !music_artists && !music_files &&
+	    !image_files &&
+	    !files &&
 	    !terms) {
 		gchar *help;
 
@@ -469,6 +596,15 @@ main (int argc, char **argv)
 		limit = 512;
 	}
 
+	if (files) {
+		gboolean success;
+
+		success = get_files (client, offset, limit);
+		tracker_disconnect (client);
+
+		return success ? EXIT_SUCCESS : EXIT_FAILURE;
+	}
+
 	if (music_albums) {
 		gboolean success;
 
@@ -491,6 +627,15 @@ main (int argc, char **argv)
 		gboolean success;
 
 		success = get_music_files (client, offset, limit);
+		tracker_disconnect (client);
+
+		return success ? EXIT_SUCCESS : EXIT_FAILURE;
+	}
+
+	if (image_files) {
+		gboolean success;
+
+		success = get_image_files (client, offset, limit);
 		tracker_disconnect (client);
 
 		return success ? EXIT_SUCCESS : EXIT_FAILURE;
