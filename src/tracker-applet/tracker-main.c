@@ -28,10 +28,8 @@
 #include <glib.h>
 #include <glib/gi18n.h>
 
-static gboolean disable_daemon_start;
-
+/* Unused at the moment */
 static GOptionEntry entries[] = {
-	{ "disable-daemon-start", 'd', 0, G_OPTION_ARG_NONE, &disable_daemon_start, NULL, NULL },
 	{ NULL }
 };
 
