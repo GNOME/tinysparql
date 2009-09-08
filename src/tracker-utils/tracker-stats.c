@@ -29,7 +29,7 @@
 #include <glib.h>
 #include <glib/gi18n.h>
 
-#include <libtracker/tracker.h>
+#include <libtracker-client/tracker.h>
 
 static void
 get_meta_table_data (gpointer value)

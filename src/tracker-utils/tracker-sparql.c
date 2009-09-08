@@ -29,7 +29,7 @@
 #include <glib.h>
 #include <glib/gi18n.h>
 
-#include <libtracker/tracker.h>
+#include <libtracker-client/tracker.h>
 #include <libtracker-common/tracker-common.h>
 
 static gchar	*file;

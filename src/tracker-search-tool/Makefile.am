@@ -8,7 +8,6 @@ INCLUDES = 	\
 	-DTRACKER_DATADIR=\""$(datadir)"\"			\
 	-DGREP_COMMAND=\""$(GREP_COMMAND)"\"			\
 	-I$(top_srcdir)/src/					\
-	-I$(top_srcdir)/src/libtracker				\
 	$(WARN_CFLAGS)						\
 	$(GLIB2_CFLAGS)						\
 	$(GCOV_CFLAGS)						\
@@ -36,7 +35,7 @@ tracker_search_tool_LDADD =   					\
 	$(GNOMEDESKTOP_LIBS) 					\
 	$(DBUS_LIBS)						\
         $(top_builddir)/src/libtracker-gtk/libtracker-gtk-@TRACKER_API_VERSION@.la 	\
-	$(top_builddir)/src/libtracker/libtrackerclient-@TRACKER_API_VERSION@.la 
+	$(top_builddir)/src/libtracker-client/libtracker-client-@TRACKER_API_VERSION@.la 
 
 
 desktopdir = $(datadir)/applications

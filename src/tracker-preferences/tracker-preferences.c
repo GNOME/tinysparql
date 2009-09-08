@@ -28,7 +28,7 @@
 #include <glib-object.h>
 #include <gtk/gtk.h>
 
-#include <libtracker/tracker.h>
+#include <libtracker-client/tracker.h>
 #include <libtracker-common/tracker-common.h>
 
 #include "tracker-preferences.h"

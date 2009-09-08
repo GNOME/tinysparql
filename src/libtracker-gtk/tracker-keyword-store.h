@@ -27,7 +27,7 @@
 
 #include <gtk/gtk.h>
 
-#include <tracker.h>
+#include <libtracker-client/tracker.h>
 
 G_BEGIN_DECLS
 

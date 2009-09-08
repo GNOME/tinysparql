@@ -44,7 +44,7 @@ extern "C" {
 
 #include <libgnomeui/libgnomeui.h>
 
-#include "../libtracker/tracker.h"
+#include <libtracker-client/tracker.h>
 
 #define MAX_SEARCH_RESULTS 10
 

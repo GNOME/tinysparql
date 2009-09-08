@@ -7,7 +7,7 @@ SUBDIRS = 					\
 	tracker-fts				\
 	libtracker-db				\
 	libtracker-data				\
-	libtracker				\
+	libtracker-client			\
 	libtracker-miner			\
 	plugins					\
 	tracker-store				\
@@ -42,7 +42,7 @@ DIST_SUBDIRS = 					\
 	tracker-fts				\
 	libtracker-db				\
 	libtracker-data				\
-	libtracker				\
+	libtracker-client			\
 	libtracker-miner			\
 	tracker-store				\
 	tracker-utils				\

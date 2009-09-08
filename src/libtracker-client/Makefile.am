@@ -9,22 +9,22 @@ INCLUDES = 					\
 	$(GCOV_CFLAGS)				\
 	$(DBUS_CFLAGS)			
 
-lib_LTLIBRARIES = libtrackerclient-@TRACKER_API_VERSION@.la
+lib_LTLIBRARIES = libtracker-client-@TRACKER_API_VERSION@.la
 
-libtrackerclientincdir = $(includedir)/tracker-$(TRACKER_API_VERSION)
+libtracker_clientincdir = $(includedir)/tracker-$(TRACKER_API_VERSION)/libtracker-client
 
-libtrackerclient_@TRACKER_API_VERSION@_la_SOURCES = tracker.c
+libtracker_client_@TRACKER_API_VERSION@_la_SOURCES = tracker.c
 
-libtrackerclient_@TRACKER_API_VERSION@_la_LDFLAGS = 	\
+libtracker_client_@TRACKER_API_VERSION@_la_LDFLAGS = 	\
 	-version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE)
 
-libtrackerclient_@TRACKER_API_VERSION@_la_LIBADD =	\
+libtracker_client_@TRACKER_API_VERSION@_la_LIBADD =	\
 	$(GLIB2_LIBS) 					\
 	$(DBUS_LIBS)					\
 	$(GCOV_LIBS)					\
 	$(GOBJECT_LIBS)
 
-libtrackerclientinc_HEADERS = 				\
+libtracker_clientinc_HEADERS = 				\
 	tracker.h
 
 # Generate DBus files from XML data.

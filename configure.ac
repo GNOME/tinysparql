@@ -1376,7 +1376,7 @@ AC_CONFIG_FILES([
 	data/libtracker-gtk.pc
 	data/Makefile
 	data/ontologies/Makefile
-	data/tracker.pc
+	data/tracker-client.pc
 	data/tracker-miner.pc
 	docs/Makefile
 	docs/design/Makefile
@@ -1398,7 +1398,7 @@ AC_CONFIG_FILES([
 	src/libtracker-data/Makefile
 	src/libtracker-db/Makefile
 	src/libtracker-gtk/Makefile
-	src/libtracker/Makefile
+	src/libtracker-client/Makefile
         src/libtracker-miner/Makefile
         src/libtracker-miner/test/Makefile
 	src/Makefile

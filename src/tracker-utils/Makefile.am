@@ -16,7 +16,7 @@ libs = 									\
 	$(top_builddir)/src/libtracker-miner/libtracker-miner.la	\
 	$(top_builddir)/src/libtracker-db/libtracker-db.la		\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la	\
-	$(top_builddir)/src/libtracker/libtrackerclient-@TRACKER_API_VERSION@.la \
+	$(top_builddir)/src/libtracker-client/libtracker-client-@TRACKER_API_VERSION@.la \
 	$(DBUS_LIBS)							\
 	$(GIO_LIBS)							\
 	$(GTHREAD_LIBS)							\

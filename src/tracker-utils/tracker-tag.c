@@ -29,7 +29,7 @@
 #include <glib/gi18n.h>
 #include <gio/gio.h>
 
-#include <libtracker/tracker.h>
+#include <libtracker-client/tracker.h>
 #include <libtracker-common/tracker-common.h>
 
 #ifdef G_OS_WIN32

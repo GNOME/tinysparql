@@ -52,7 +52,7 @@ libtracker_miner_la_LDFLAGS = \
 libtracker_miner_la_LIBADD = 				\
 	$(top_builddir)/src/libstemmer/libstemmer.la	\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la \
-	$(top_builddir)/src/libtracker/libtrackerclient-@TRACKER_API_VERSION@.la \
+	$(top_builddir)/src/libtracker-client/libtracker-client-@TRACKER_API_VERSION@.la \
 	$(top_builddir)/src/libinotify/libinotify.la	\
 	$(HAL_LIBS)					\
 	$(DEVKIT_POWER_LIBS)				\

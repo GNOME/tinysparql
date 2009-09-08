@@ -24,7 +24,7 @@
 #define TRACKER_METADATA_TILE_H
 
 #include <gtk/gtk.h>
-#include <tracker.h>
+#include <libtracker-client/tracker.h>
 
 
 #define TRACKER_TYPE_METADATA_TILE		(tracker_metadata_tile_get_type ())
