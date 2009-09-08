@@ -1373,7 +1373,7 @@ AC_CONFIG_FILES([
 	data/icons/Makefile
 	data/icons/scalable/Makefile
 	data/languages/Makefile
-	data/libtracker-gtk.pc
+	data/tracker-gtk.pc
 	data/Makefile
 	data/ontologies/Makefile
 	data/tracker-client.pc

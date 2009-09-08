@@ -54,12 +54,12 @@ CLEANFILES = 						\
 	tracker-miner-$(TRACKER_API_VERSION).pc
 
 if HAVE_LIBTRACKERGTK
-pkgconfig_DATA += libtracker-gtk-$(TRACKER_API_VERSION).pc
+pkgconfig_DATA += tracker-gtk-$(TRACKER_API_VERSION).pc
 
-libtracker-gtk-$(TRACKER_API_VERSION).pc: libtracker-gtk.pc
+tracker-gtk-$(TRACKER_API_VERSION).pc: tracker-gtk.pc
 	cp $< $@
 
-CLEANFILES += libtracker-gtk-$(TRACKER_API_VERSION).pc
+CLEANFILES += tracker-gtk-$(TRACKER_API_VERSION).pc
 endif
 
 EXTRA_DIST = $(autostart_in_in_files)
