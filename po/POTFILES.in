@@ -16,11 +16,9 @@ src/libtracker-miner/tracker-miner.c
 src/libtracker-gtk/tracker-metadata-tile.c
 src/libtracker-gtk/tracker-tag-bar.c
 src/plugins/evolution/org-freedesktop-Tracker-evolution-plugin.eplug.xml
-[type: gettext/glade]src/tracker-applet/tracker-applet-prefs.ui
-src/tracker-applet/tracker-applet.c
-src/tracker-applet/tracker-applet.desktop.in.in
-src/tracker-applet/tracker-main.c
-src/tracker-applet/tracker-status-icon.c
+src/tracker-status-icon/tracker-status-icon.c
+src/tracker-status-icon/tracker-status-icon.desktop.in.in
+src/tracker-status-icon/tracker-main.c
 src/tracker-extract/tracker-extract.c
 src/tracker-extract/tracker-main.c
 src/tracker-miner-fs/tracker-main.c
