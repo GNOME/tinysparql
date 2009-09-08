@@ -1376,8 +1376,6 @@ crawl_directories_start (TrackerMinerFS *fs)
 		return;
 	}
 
-	g_object_set (fs, "status", _("Crawling"), NULL);
-
 	fs->private->timer = g_timer_new ();
 
 	fs->private->directories_found = 0;

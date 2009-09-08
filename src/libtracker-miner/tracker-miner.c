@@ -243,15 +243,36 @@ miner_set_property (GObject      *object,
 		g_free (miner->private->description);
 		miner->private->description = g_value_dup_string (value);
 		break;
-	case PROP_STATUS:
+	case PROP_STATUS: {
+		const gchar *new_status;
+
+		new_status = g_value_get_string (value);
+		if (miner->private->status && new_status &&
+		    strcmp (miner->private->status, new_status) == 0) {
+			/* Same, do nothing */
+			break;
+		}
+
 		g_free (miner->private->status);
-		miner->private->status = g_value_dup_string (value);
+		miner->private->status = g_strdup (new_status);
 		miner_update_progress (miner);
 		break;
-	case PROP_PROGRESS:
-		miner->private->progress = g_value_get_double (value);
+	}
+	case PROP_PROGRESS: {
+		gdouble new_progress;
+
+		new_progress = g_value_get_double (value);
+
+		/* Only notify 1% changes */
+		if ((gint) (miner->private->progress * 100) == (gint) (new_progress * 100)) {
+			/* Same, do nothing */
+			break;
+		}
+
+		miner->private->progress = new_progress;
 		miner_update_progress (miner);
 		break;
+	}
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
 		break;
@@ -654,7 +675,6 @@ tracker_miner_resume (TrackerMiner  *miner,
 
 	return TRUE;
 }
-
 
 /* DBus methods */
 void
