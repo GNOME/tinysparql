@@ -56,7 +56,7 @@ static GOptionEntry   entries[] = {
 	  N_("Retrieve classes"),
 	  NULL,
 	},
-	{ "list-class-prefixes", 'n', 0, G_OPTION_ARG_NONE, &list_class_prefixes,
+	{ "list-class-prefixes", 'x', 0, G_OPTION_ARG_NONE, &list_class_prefixes,
 	  N_("Retrieve class prefixes"),
 	  NULL,
 	},
