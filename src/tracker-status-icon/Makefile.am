@@ -34,7 +34,7 @@ icon_DATA = 								\
 @INTLTOOL_DESKTOP_RULE@
 
 autostartdir = $(sysconfdir)/xdg/autostart
-autostart_DATA = tracker-applet.desktop
+autostart_DATA = tracker-status-icon.desktop
 
 EXTRA_DIST = $(icon_DATA)
 

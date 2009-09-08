@@ -20,7 +20,7 @@ if HAVE_TRACKER_PREFERENCES
 endif
 
 if HAVE_TRACKER_APPLET
-SUBDIRS += tracker-applet
+SUBDIRS += tracker-status-icon
 endif
 
 if HAVE_LIBTRACKERGTK
@@ -50,7 +50,7 @@ DIST_SUBDIRS = 					\
 	tracker-extract				\
 	tracker-miner-fs			\
 	libtracker-gtk				\
-	tracker-applet	 			\
+	tracker-status-icon 			\
 	tracker-search-tool			\
 	tracker-preferences			\
 	plugins
