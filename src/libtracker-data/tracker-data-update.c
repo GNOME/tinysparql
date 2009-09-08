@@ -1640,6 +1640,30 @@ tracker_data_commit_transaction (void)
 	}
 }
 
+static void
+format_sql_value_as_string (GString         *sql,
+                            TrackerProperty *property)
+{
+	switch (tracker_property_get_data_type (property)) {
+	case TRACKER_PROPERTY_TYPE_RESOURCE:
+		g_string_append_printf (sql, "(SELECT Uri FROM \"rdfs:Resource\" WHERE ID = \"%s\")", tracker_property_get_name (property));
+		break;
+	case TRACKER_PROPERTY_TYPE_INTEGER:
+	case TRACKER_PROPERTY_TYPE_DOUBLE:
+		g_string_append_printf (sql, "CAST (\"%s\" AS TEXT)", tracker_property_get_name (property));
+		break;
+	case TRACKER_PROPERTY_TYPE_BOOLEAN:
+		g_string_append_printf (sql, "CASE \"%s\" WHEN 1 THEN 'true' WHEN 0 THEN 'false' ELSE NULL END", tracker_property_get_name (property));
+		break;
+	case TRACKER_PROPERTY_TYPE_DATETIME:
+		g_string_append_printf (sql, "strftime (\"%%Y-%%m-%%dT%%H:%%M:%%SZ\", \"%s\", \"unixepoch\")", tracker_property_get_name (property));
+		break;
+	default:
+		g_string_append_printf (sql, "\"%s\"", tracker_property_get_name (property));
+		break;
+	}
+}
+
 /**
  * Removes the description of a resource (embedded metadata), but keeps
  * annotations (non-embedded/user metadata) stored about the resource.
@@ -1696,11 +1720,7 @@ tracker_data_delete_resource_description (const gchar *uri)
 						}
 						first = FALSE;
 
-						if (tracker_property_get_data_type (*property) == TRACKER_PROPERTY_TYPE_RESOURCE) {
-							g_string_append_printf (sql, "(SELECT Uri FROM \"rdfs:Resource\" WHERE ID = \"%s\")", tracker_property_get_name (*property));
-						} else {
-							g_string_append_printf (sql, "\"%s\"", tracker_property_get_name (*property));
-						}
+						format_sql_value_as_string (sql, *property);
 					}
 				}
 			}
@@ -1748,11 +1768,7 @@ tracker_data_delete_resource_description (const gchar *uri)
 
 					sql = g_string_new ("SELECT ");
 
-					if (tracker_property_get_data_type (*property) == TRACKER_PROPERTY_TYPE_RESOURCE) {
-						g_string_append_printf (sql, "(SELECT Uri FROM \"rdfs:Resource\" WHERE ID = \"%s\")", tracker_property_get_name (*property));
-					} else {
-						g_string_append_printf (sql, "\"%s\"", tracker_property_get_name (*property));
-					}
+					format_sql_value_as_string (sql, *property);
 
 					g_string_append_printf (sql,
 								" FROM \"%s_%s\" WHERE ID = ?",
