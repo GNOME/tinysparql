@@ -5,7 +5,7 @@ tst = tracker-search-tool.1
 endif
 
 if HAVE_TRACKER_STATUS_ICON
-ta = tracker-applet.1
+ta = tracker-status-icon.1
 endif
 
 if HAVE_TRACKER_PREFERENCES
