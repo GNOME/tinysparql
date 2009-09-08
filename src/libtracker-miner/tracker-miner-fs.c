@@ -249,9 +249,6 @@ tracker_miner_fs_init (TrackerMinerFS *object)
 	/* Set up the monitor */
 	priv->monitor = tracker_monitor_new ();
 
-	g_message ("Disabling monitor events until we have crawled the file system");
-	tracker_monitor_set_enabled (priv->monitor, FALSE);
-
 	g_signal_connect (priv->monitor, "item-created",
 			  G_CALLBACK (monitor_item_created_cb),
 			  object);
@@ -1403,14 +1400,10 @@ crawl_directories_stop (TrackerMinerFS *fs)
 		tracker_crawler_stop (fs->private->crawler);
 	}
 
-	g_message ("Enabling monitor events");
-	tracker_monitor_set_enabled (fs->private->monitor, TRUE);
-	
 	/* Is this the right time to emit FINISHED? What about
 	 * monitor events left to handle? Should they matter
 	 * here?
 	 */
-
 	if (fs->private->crawl_directories_id != 0) {
 		g_source_remove (fs->private->crawl_directories_id);
 		fs->private->crawl_directories_id = 0;
