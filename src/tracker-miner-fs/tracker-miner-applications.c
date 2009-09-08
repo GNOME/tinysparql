@@ -64,7 +64,8 @@ struct ProcessApplicationData {
 	TrackerMinerFSDoneCb callback;
 	gpointer callback_data;
 	GCancellable *cancellable;
-	GKeyFile *desktop_file;
+	GKeyFile *key_file;
+	gchar *type;
 };
 
 G_DEFINE_TYPE (TrackerMinerApplications, tracker_miner_applications, TRACKER_TYPE_MINER_FS)
@@ -176,9 +177,9 @@ miner_applications_monitor_directory (TrackerMinerFS *fs,
 }
 
 static GKeyFile *
-get_desktop_key_file (GFile           *file,
-		      gchar          **type,
-		      GError         **error)
+get_desktop_key_file (GFile   *file,
+		      gchar  **type,
+		      GError **error)
 {
 	GKeyFile *key_file;
 	gchar *path;
@@ -187,14 +188,14 @@ get_desktop_key_file (GFile           *file,
 	key_file = g_key_file_new ();
 
 	if (!g_key_file_load_from_file (key_file, path, G_KEY_FILE_NONE, NULL)) {
-		*error = g_error_new (miner_applications_error_quark, 0, "Couldn't load desktop file:'%s'", path);
+		g_set_error (error, miner_applications_error_quark, 0, "Couldn't load desktop file:'%s'", path);
 		g_key_file_free (key_file);
 		g_free (path);
 		return NULL;
 	}
 
 	if (g_key_file_get_boolean (key_file, GROUP_DESKTOP_ENTRY, "Hidden", NULL)) {
-		*error = g_error_new_literal (miner_applications_error_quark, 0, "Desktop file is 'hidden', not gathering metadata for it");
+		g_set_error_literal (error, miner_applications_error_quark, 0, "Desktop file is 'hidden', not gathering metadata for it");
 		g_key_file_free (key_file);
 		g_free (path);
 		return NULL;
@@ -203,7 +204,7 @@ get_desktop_key_file (GFile           *file,
 	*type = g_key_file_get_string (key_file, GROUP_DESKTOP_ENTRY, "Type", NULL);
 
 	if (!*type) {
-		*error = g_error_new_literal (miner_applications_error_quark, 0, "Desktop file doesn't contain type");
+		g_set_error_literal (error, miner_applications_error_quark, 0, "Desktop file doesn't contain type");
 		g_key_file_free (key_file);
 		g_free (path);
 		return NULL;
@@ -224,17 +225,11 @@ miner_applications_process_file_cb (gpointer user_data)
 	GFileInfo *file_info;
 	GStrv cats = NULL;
 	gsize cats_len;
-	GError *error = NULL;
 	gboolean is_software = TRUE;
 
 	sparql = data->sparql;
-	key_file = get_desktop_key_file (data->file, &type, &error);
-
-	if (error) {
-		data->callback (data->miner, data->file, sparql, error, data->callback_data);
-		g_error_free (error);
-		return FALSE;
-	}
+	key_file = data->key_file;
+	type = data->type;
 
 	path = g_file_get_path (data->file);
 	cats = g_key_file_get_locale_string_list (key_file, GROUP_DESKTOP_ENTRY, "Categories", NULL, &cats_len, NULL);
@@ -429,8 +424,6 @@ miner_applications_process_file_cb (gpointer user_data)
 		g_strfreev (cats);
 
 	g_free (uri);
-	g_key_file_free (key_file);
-	g_free (type);
 	g_free (path);
 	g_free (name);
 
@@ -445,6 +438,8 @@ process_application_data_free (ProcessApplicationData *data)
 	g_object_unref (data->sparql);
 	g_object_unref (data->cancellable);
 	g_slice_free (ProcessApplicationData, data);
+	g_key_file_free (data->key_file);
+	g_free (data->type);
 }
 
 static gboolean
@@ -456,6 +451,14 @@ miner_applications_process_file (TrackerMinerFS       *fs,
 				 gpointer              done_cb_data)
 {
 	ProcessApplicationData *data;
+	GKeyFile *key_file;
+	gchar *type;
+
+	key_file = get_desktop_key_file (file, &type, NULL);
+
+	if (!key_file) {
+		return FALSE;
+	}
 
 	data = g_slice_new0 (ProcessApplicationData);
 	data->miner = g_object_ref (fs);
@@ -464,6 +467,8 @@ miner_applications_process_file (TrackerMinerFS       *fs,
 	data->callback = done_cb;
 	data->callback_data = done_cb_data;
 	data->cancellable = g_object_ref (cancellable);
+	data->key_file = key_file;
+	data->type = type;
 
 	g_idle_add_full (G_PRIORITY_DEFAULT_IDLE,
 			 miner_applications_process_file_cb,
