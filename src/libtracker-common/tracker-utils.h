@@ -29,6 +29,7 @@
 #include <glib.h>
 
 gboolean tracker_is_empty_string            (const char  *str);
+gboolean tracker_is_blank_string            (const char  *str);
 gchar *  tracker_string_replace             (const gchar *haystack,
 					     const gchar *needle,
 					     const gchar *replacement);

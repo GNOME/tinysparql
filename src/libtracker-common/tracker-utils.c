@@ -33,6 +33,26 @@ tracker_is_empty_string (const char *str)
 	return str == NULL || str[0] == '\0';
 }
 
+inline gboolean
+tracker_is_blank_string (const char *str)
+{
+	register gint len, i;
+
+	if (str == NULL || str[0] == '\0') {
+		return TRUE;
+	}
+
+	len = strlen (str);
+
+	for (i = 0; i < len; i++) {
+		if (str[i] != ' ') {
+			return FALSE;
+		}
+	}
+
+	return TRUE;
+}
+
 /* Removes a substring modifing haystack in place */
 gchar *
 tracker_string_remove (gchar	   *haystack,
