@@ -37,6 +37,7 @@
 
 #include <libtracker-common/tracker-type-utils.h>
 #include <libtracker-common/tracker-file-utils.h>
+#include <libtracker-common/tracker-utils.h>
 
 #include "tracker-main.h"
 #include "tracker-xmp.h"
@@ -171,22 +172,24 @@ metadata_append (GHashTable  *metadata,
 		g_free (escaped);		
 	} else {
 		new_value = tracker_escape_metadata (value);
-		g_hash_table_insert (metadata, g_strdup (key), new_value);
+		if (!tracker_is_empty_string (new_value)) {
+			g_hash_table_insert (metadata, g_strdup (key), new_value);
 
-		/* FIXME Postprocessing is evil and should be elsewhere */
-		if (strcmp (key, "Image:Keywords") == 0) {
-			g_hash_table_insert (metadata,
-					     g_strdup ("Image:HasKeywords"),
-					     tracker_escape_metadata ("1"));			
-		}		
-	}
-
-	/* Adding certain fields also to HasKeywords FIXME Postprocessing is evil */
-	if ((strcmp (key, "Image:Title") == 0) ||
-	    (strcmp (key, "Image:Description") == 0) ) {
-		g_hash_table_insert (metadata,
-				     g_strdup ("Image:HasKeywords"),
-				     tracker_escape_metadata ("1"));
+			/* FIXME Postprocessing is evil and should be elsewhere */
+			if (strcmp (key, "Image:Keywords") == 0) {
+				g_hash_table_insert (metadata,
+						     g_strdup ("Image:HasKeywords"),
+						     tracker_escape_metadata ("1"));			
+			}
+			
+			/* Adding certain fields also to HasKeywords FIXME Postprocessing is evil */
+			if ((strcmp (key, "Image:Title") == 0) ||
+			    (strcmp (key, "Image:Description") == 0) ) {
+				g_hash_table_insert (metadata,
+						     g_strdup ("Image:HasKeywords"),
+						     tracker_escape_metadata ("1"));
+			}
+		}
 	}
 }
 
@@ -486,8 +489,6 @@ fail:
 				     tracker_escape_metadata (date));
 		g_free (date);
 	}
-
-	g_debug ("Date: %s", (char *)g_hash_table_lookup (metadata, "Image:Date"));
 }
 
 TrackerExtractData *
