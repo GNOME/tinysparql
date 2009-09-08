@@ -64,6 +64,7 @@ struct TrackerCrawlerPrivate {
 	/* Status */
 	gboolean	is_running;
 	gboolean	is_finished;
+	gboolean        is_paused;
 	gboolean        was_started;
 };
 
@@ -279,13 +280,12 @@ process_func (gpointer data)
 	crawler = TRACKER_CRAWLER (data);
 	priv = crawler->private;
 
-#ifdef FIX
-	/* If manually paused, we hold off until unpaused */
-	if (tracker_status_get_is_paused_manually () ||
-	    tracker_status_get_is_paused_for_io ()) {
-		return TRUE;
+	if (priv->is_paused) {
+		/* Stop the idle func for now until we are unpaused */
+		priv->idle_id = 0;
+
+		return FALSE;
 	}
-#endif
 
 	/* Throttle the crawler, with testing, throttling every item
 	 * took the time to crawl 130k files from 7 seconds up to 68
@@ -690,4 +690,43 @@ tracker_crawler_stop (TrackerCrawler *crawler)
 	/* We don't free the queue in case the crawler is reused, it
 	 * is only freed in finalize.
 	 */
+}
+
+void
+tracker_crawler_pause (TrackerCrawler *crawler)
+{
+	g_return_if_fail (TRACKER_IS_CRAWLER (crawler));
+	
+	crawler->private->is_paused = TRUE;
+
+	if (crawler->private->is_running) {
+		g_timer_stop (crawler->private->timer);
+		
+		if (crawler->private->idle_id != 0) {
+			g_source_remove (crawler->private->idle_id);
+			crawler->private->idle_id = 0;
+		}
+	}
+
+	g_message ("Crawler is paused, %s", 
+		   crawler->private->is_running ? "currently running" : "not running");
+}
+
+void
+tracker_crawler_resume (TrackerCrawler *crawler)
+{
+	g_return_if_fail (TRACKER_IS_CRAWLER (crawler));
+
+	crawler->private->is_paused = FALSE;
+
+	if (crawler->private->is_running) {
+		g_timer_continue (crawler->private->timer);
+
+		if (crawler->private->idle_id == 0) {
+			crawler->private->idle_id = g_idle_add (process_func, crawler);
+		}
+	}
+
+	g_message ("Crawler is resuming, %s", 
+		   crawler->private->is_running ? "currently running" : "not running");
 }

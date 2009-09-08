@@ -67,7 +67,7 @@ struct TrackerMinerFSPrivate {
 	guint           been_started : 1;
 	guint           been_crawled : 1;
 	guint           shown_totals : 1;
-	guint           paused : 1;
+	guint           is_paused : 1;
 
 	/* Statistics */
 	guint		total_directories_found;
@@ -349,29 +349,40 @@ miner_stopped (TrackerMiner *miner)
 static void
 miner_paused (TrackerMiner *miner)
 {
-	TrackerMinerFSPrivate *priv;
+	TrackerMinerFS *fs;
 
-	priv = TRACKER_MINER_FS (miner)->private;
+	fs = TRACKER_MINER_FS (miner);
 
-	priv->paused = TRUE;
+	fs->private->is_paused = TRUE;
 
-	/* FIXME: also pause crawler, if running */
+	tracker_crawler_pause (fs->private->crawler);
 
-	if (priv->item_queues_handler_id) {
-		g_source_remove (priv->item_queues_handler_id);
-		priv->item_queues_handler_id = 0;
+	if (fs->private->item_queues_handler_id) {
+		g_source_remove (fs->private->item_queues_handler_id);
+		fs->private->item_queues_handler_id = 0;
 	}
 }
 
 static void
 miner_resumed (TrackerMiner *miner)
 {
-	TrackerMinerFSPrivate *priv;
+	TrackerMinerFS *fs;
 
-	priv = TRACKER_MINER_FS (miner)->private;
+	fs = TRACKER_MINER_FS (miner);
 
-	priv->paused = FALSE;
-	item_queue_handlers_set_up (TRACKER_MINER_FS (miner));
+	fs->private->is_paused = FALSE;
+
+	tracker_crawler_resume (fs->private->crawler);
+
+	/* Only set up queue handler if we have items waiting to be
+	 * processed.
+	 */
+	if (g_queue_get_length (fs->private->items_deleted) > 0 ||
+	    g_queue_get_length (fs->private->items_created) > 0 ||
+	    g_queue_get_length (fs->private->items_updated) > 0 ||
+	    g_queue_get_length (fs->private->items_moved) > 0) {
+		item_queue_handlers_set_up (fs);
+	}
 }
 
 static DirectoryData *
@@ -878,7 +889,7 @@ item_queue_handlers_set_up (TrackerMinerFS *fs)
 		return;
 	}
 
-	if (fs->private->paused) {
+	if (fs->private->is_paused) {
 		return;
 	}
 

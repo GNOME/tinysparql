@@ -62,6 +62,8 @@ gboolean        tracker_crawler_start    (TrackerCrawler *crawler,
 					  GFile          *file,
 					  gboolean        recurse);
 void            tracker_crawler_stop     (TrackerCrawler *crawler);
+void            tracker_crawler_pause    (TrackerCrawler *crawler);
+void            tracker_crawler_resume   (TrackerCrawler *crawler);
 
 G_END_DECLS
 
