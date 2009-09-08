@@ -137,8 +137,8 @@ get_music_files (TrackerClient *client,
 			 _("No files were found"));
 	} else {
 		g_print (tracker_dngettext (NULL,
-					    _("Result: %d"), 
-					    _("Results: %d"),
+					    _("File: %d"), 
+					    _("Files: %d"),
 					    results->len),
 			 results->len);
 		g_print ("\n");
@@ -151,6 +151,7 @@ get_music_files (TrackerClient *client,
 			show_limit_warning ();
 		}
 
+		g_ptr_array_foreach (results, (GFunc) g_strfreev, NULL);
 		g_ptr_array_free (results, TRUE);
 	}
 
@@ -203,8 +204,8 @@ get_music_artists (TrackerClient *client,
 			 _("No artists were found"));
 	} else {
 		g_print (tracker_dngettext (NULL,
-					    _("Result: %d"), 
-					    _("Results: %d"),
+					    _("Artist: %d"), 
+					    _("Artists: %d"),
 					    results->len),
 			 results->len);
 		g_print ("\n");
@@ -217,6 +218,7 @@ get_music_artists (TrackerClient *client,
 			show_limit_warning ();
 		}
 
+		g_ptr_array_foreach (results, (GFunc) g_strfreev, NULL);
 		g_ptr_array_free (results, TRUE);
 	}
 
@@ -288,8 +290,8 @@ get_music_albums (TrackerClient *client,
 			 _("No music was found"));
 	} else {
 		g_print (tracker_dngettext (NULL,
-					    _("Result: %d"), 
-					    _("Results: %d"),
+					    _("Album: %d"), 
+					    _("Albums: %d"),
 					    results->len),
 			 results->len);
 		g_print ("\n");
@@ -302,6 +304,7 @@ get_music_albums (TrackerClient *client,
 			show_limit_warning ();
 		}
 
+		g_ptr_array_foreach (results, (GFunc) g_strfreev, NULL);
 		g_ptr_array_free (results, TRUE);
 	}
 
@@ -396,6 +399,7 @@ get_all_by_search (TrackerClient *client,
 			show_limit_warning ();
 		}
 
+		g_ptr_array_foreach (results, (GFunc) g_strfreev, NULL);
 		g_ptr_array_free (results, TRUE);
 	}
 
