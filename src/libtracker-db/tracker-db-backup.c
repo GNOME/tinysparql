@@ -332,7 +332,6 @@ tracker_db_backup_sync_fts (void)
 			g_free (query);
 		}
 	}
-	g_free (properties);
 
 	tracker_fts_update_commit ();
 }

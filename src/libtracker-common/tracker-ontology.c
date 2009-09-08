@@ -164,22 +164,19 @@ tracker_ontology_get_class_by_uri (const gchar *class_uri)
 TrackerNamespace **
 tracker_ontology_get_namespaces (void)
 {
-	/* copy len + 1 elements to include NULL terminator */
-	return g_memdup (namespaces->data, sizeof (TrackerNamespace *) * (namespaces->len + 1));
+	return (TrackerNamespace **) namespaces->data;
 }
 
 TrackerClass **
 tracker_ontology_get_classes (void)
 {
-	/* copy len + 1 elements to include NULL terminator */
-	return g_memdup (classes->data, sizeof (TrackerClass *) * (classes->len + 1));
+	return (TrackerClass **) classes->data;
 }
 
 TrackerProperty **
 tracker_ontology_get_properties (void)
 {
-	/* copy len + 1 elements to include NULL terminator */
-	return g_memdup (properties->data, sizeof (TrackerProperty *) * (properties->len + 1));
+	return (TrackerProperty **) properties->data;
 }
 
 /* Field mechanics */

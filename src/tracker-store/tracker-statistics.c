@@ -174,8 +174,6 @@ cache_get_latest (void)
 		g_object_unref (stmt);
 	}
 
-	g_free (classes);
-
 	return values;
 }
 
@@ -240,8 +238,6 @@ tracker_statistics_get (TrackerStatistics      *object,
 
 		g_ptr_array_add (values, strv);
 	}
-
-	g_free (classes);
 
 	/* Sort result so it is alphabetical */
 	g_ptr_array_sort (values, cache_sort_func);

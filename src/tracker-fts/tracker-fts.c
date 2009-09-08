@@ -7871,7 +7871,6 @@ tracker_fts_get_create_fts_table_query (void)
 			g_string_append_printf (sql, "\"%s\"", tracker_property_get_name (*property));
 		}
 	}
-	g_free (properties);
 
 	g_string_append (sql, ")");
 

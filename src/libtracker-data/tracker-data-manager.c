@@ -631,7 +631,6 @@ create_decomposed_metadata_tables (TrackerDBInterface *iface,
 	g_string_append (sql, ")");
 	tracker_db_interface_execute_query (iface, NULL, "%s", sql->str);
 
-	g_free (properties);
 	g_string_free (sql, TRUE);
 
 	/* create index for single-valued fields */
@@ -696,8 +695,6 @@ create_decomposed_transient_metadata_tables (TrackerDBInterface *iface)
 			
 		}
 	}
-
-	g_free (properties);
 }
 
 static void
@@ -817,8 +814,6 @@ tracker_data_manager_init (TrackerDBManagerFlags       flags,
 		}
 
 		tracker_data_commit_transaction ();
-
-		g_free (classes);
 
 		g_list_foreach (sorted, (GFunc) g_free, NULL);
 		g_list_free (sorted);

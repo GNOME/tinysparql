@@ -759,8 +759,6 @@ cache_set_metadata_decomposed (TrackerProperty	*property,
 				}
 			}
 
-			g_free (properties);
-
 			update_buffer.fts_ever_updated = TRUE;
 
 			old_values = g_hash_table_lookup (update_buffer.predicates, property);
@@ -1793,8 +1791,6 @@ tracker_data_delete_resource_description (const gchar *uri)
 
 		g_object_unref (cursor);
 	}
-
-	g_free (properties);
 }
 
 
