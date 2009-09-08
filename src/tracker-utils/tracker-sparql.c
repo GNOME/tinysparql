@@ -61,8 +61,8 @@ static GOptionEntry   entries[] = {
 	  NULL,
 	},
 	{ "list-properties", 'p', 0, G_OPTION_ARG_STRING, &list_properties,
-	  N_("Retrieve properties for a class (e.g. http://www.w3.org/2000/01/rdf-schema#Resource)"),
-	  N_("NAMESPACE"),
+	  N_("Retrieve properties for a class, prefixes can be used too (e.g. rdfs#Resource)"),
+	  N_("CLASS"),
 	},
 	{ NULL }
 };
