@@ -1191,7 +1191,23 @@ libinotify_monitor_directory (TrackerMonitor *monitor,
 
 	flags  = 0;
 	flags &= ~IN_FLAG_FILE_BASED;
-	mask   =  IN_ALL_EVENTS;
+
+	/* Instead of use IN_ALL_EVENTS, we use these so we don't get
+	 * spammed with events on downloads and big copies between
+	 * directories.
+	 *
+	 * Missing now is:
+	 *   IN_ACCESS
+	 *   IN_MODIFY
+	 *   IN_CLOSE_NOWRITE
+	 *   IN_OPEN
+	 */
+	mask   = (IN_MOVED_FROM | IN_MOVED_TO | IN_MOVE_SELF |
+		  IN_DELETE | IN_DELETE_SELF |
+		  IN_CREATE |
+		  IN_CLOSE_WRITE |
+		  IN_ATTRIB |
+		  IN_UNMOUNT);
 
 	/* For files */
 	/* flags |= IN_FLAG_FILE_BASED; */
