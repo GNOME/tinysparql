@@ -165,6 +165,7 @@ config_finalize (GObject *object)
 	}
 
 	if (file->monitor) {
+		g_file_monitor_cancel (file->monitor);
 		g_object_unref (file->monitor);
 	}
 

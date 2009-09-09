@@ -323,6 +323,8 @@ miner_finalize (GObject *object)
 		g_object_set_qdata (G_OBJECT (miner), dbus_data, NULL);
 	}
 
+	g_hash_table_destroy (miner->private->pauses);
+
 	G_OBJECT_CLASS (tracker_miner_parent_class)->finalize (object);
 }
 

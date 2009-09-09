@@ -1381,7 +1381,9 @@ crawl_directories_start (TrackerMinerFS *fs)
 		return;
 	}
 
-	fs->private->timer = g_timer_new ();
+	if (!fs->private->timer) {
+		fs->private->timer = g_timer_new ();
+	}
 
 	fs->private->directories_found = 0;
 	fs->private->directories_ignored = 0;

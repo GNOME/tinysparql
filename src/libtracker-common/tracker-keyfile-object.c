@@ -262,6 +262,10 @@ tracker_keyfile_object_load_string_list (gpointer     object,
 	g_strfreev (value);
 	
 	g_object_set (G_OBJECT (object), property, l, NULL);
+
+	/* List is copied internally */
+	g_slist_foreach (l, (GFunc) g_free, NULL);
+	g_slist_free (l);
 }
 
 void
