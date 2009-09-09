@@ -282,7 +282,7 @@ extract_tiff (const gchar *uri, TrackerSparqlBuilder *metadata)
 #endif /* HAVE_EXEMPI */
 
 	if ((image = TIFFOpen (filename, "r")) == NULL){
-		g_critical ("Could not open image:'%s'\n", filename);
+		g_warning ("Could not open image:'%s'\n", filename);
 		g_free (filename);
 		return;
 	}
