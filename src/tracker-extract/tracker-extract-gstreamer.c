@@ -329,11 +329,11 @@ get_embedded_album_art(MetadataExtractor *extractor)
 				extractor->album_art_data = buffer->data;
 				extractor->album_art_size = buffer->size;
 				extractor->album_art_mime = gst_structure_get_name (caps_struct);
-				gst_object_unref (caps);
+				gst_caps_unref (caps);
 				return TRUE;
 			}
 
-			gst_object_unref (caps);
+			gst_caps_unref (caps);
 
 			lindex++;
 		}
@@ -519,7 +519,7 @@ extract_metadata (MetadataExtractor *extractor,
 
 			s = NULL;
 			gst_tag_list_get_string (extractor->tagcache, GST_TAG_GENRE, &s);
-			if (g_strcmp0 (s, "Unknown") != 0) {
+			if (s && strcmp (s, "Unknown") != 0) {
 				tracker_statement_list_insert (metadata, uri, NFO_PREFIX "genre", s);
 			}
 			g_free (s);
