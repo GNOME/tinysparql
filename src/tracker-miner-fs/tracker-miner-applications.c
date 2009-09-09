@@ -414,6 +414,8 @@ miner_applications_process_file_cb (gpointer user_data)
 		g_object_unref (file_info);
 	}
 
+	tracker_sparql_builder_insert_close (sparql);
+
 	/* Notify about success */
 	data->callback (data->miner, data->file, sparql, NULL, data->callback_data);
 

@@ -848,7 +848,6 @@ get_embedded_metadata_cb (DBusGProxy *proxy,
 	if (sparql) {
 		tracker_sparql_builder_insert_close (data->sparql);
 		tracker_sparql_builder_append (data->sparql, sparql);
-		tracker_sparql_builder_insert_open (data->sparql);
 		g_free (sparql);
 	}
 

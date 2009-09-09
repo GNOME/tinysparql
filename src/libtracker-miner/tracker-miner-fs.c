@@ -504,8 +504,6 @@ item_add_or_update_cb (TrackerMinerFS       *fs,
 
 		g_debug ("Adding item '%s'", uri);
 
-		tracker_sparql_builder_insert_close (sparql);
-
 		full_sparql = g_strdup_printf ("DROP GRAPH <%s> %s",
 					       uri, tracker_sparql_builder_get_result (sparql));
 

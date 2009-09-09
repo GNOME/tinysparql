@@ -458,7 +458,11 @@ tracker_extract_get_metadata (TrackerExtract	     *object,
 	sparql = get_file_metadata (object, request_id, uri, mime);
 
 	if (sparql) {
-		dbus_g_method_return (context, tracker_sparql_builder_get_result (sparql));
+		if (tracker_sparql_builder_get_length (sparql) > 0) {
+			dbus_g_method_return (context, tracker_sparql_builder_get_result (sparql));
+		} else {
+			dbus_g_method_return (context, "");
+		}
 		g_object_unref (sparql);
 		tracker_dbus_request_success (request_id);
 	} else {
