@@ -566,8 +566,8 @@ file_enumerate_children_cb (GObject	 *file,
 
 			path = g_file_get_path (parent);
 
-			g_critical ("Could not open directory '%s': %s",
-				    path, error->message);
+			g_warning ("Could not open directory '%s': %s",
+				   path, error->message);
 
 			g_error_free (error);
 			g_free (path);

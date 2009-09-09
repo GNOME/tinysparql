@@ -574,7 +574,7 @@ config_create_with_defaults (TrackerConfig *config,
 							    G_N_ELEMENTS (string_list));
 			} else if (g_strcmp0 (conversions[i].property, "ignored-directories") == 0) {
 				const gchar *string_list[] = { 
-					"po", "CVS", ".svn", ".git", "core-dumps",
+					"po", "CVS", ".svn", ".git", "core-dumps", "lost+found",
 					NULL
 				};
 
