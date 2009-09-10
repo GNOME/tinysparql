@@ -947,6 +947,11 @@ tracker_data_delete_statement (const gchar            *subject,
 		return;
 	}
 
+	if (update_buffer.subject != NULL) {
+		/* delete does not use update buffer, flush it */
+		tracker_data_update_buffer_flush ();
+	}
+
 	types = tracker_data_query_rdf_type (subject_id);
 
 	/* TODO we need to retrieve all existing (FTS indexed) property values for
