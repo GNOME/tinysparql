@@ -546,6 +546,11 @@ cache_create_service_decomposed (TrackerClass           *cl)
 
 	g_value_set_int (&gvalue, ensure_resource_id (tracker_class_get_uri (cl)));
 	cache_insert_value ("rdfs:Resource_rdf:type", "rdf:type", &gvalue, TRUE, FALSE);
+
+	if (insert_callback) {
+		insert_callback (update_buffer.subject, RDF_PREFIX "type", class_uri, 
+		                 update_buffer.types, insert_data);
+	}
 }
 
 gboolean
@@ -1321,10 +1326,10 @@ tracker_data_insert_statement_with_uri (const gchar            *subject,
 			g_propagate_error (error, actual_error);
 			return;
 		}
-	}
 
-	if (insert_callback) {
-		insert_callback (subject, predicate, object, update_buffer.types, insert_data);
+		if (insert_callback) {
+			insert_callback (subject, predicate, object, update_buffer.types, insert_data);
+		}
 	}
 
 	tracker_data_commit_transaction ();
