@@ -15,11 +15,13 @@ mto: a tracker:Namespace ;
 mto:TransferElement a rdfs:Class ; 
     rdfs:label "Transfer element" ;  
     rdfs:comment "Gives information about the transfer of a single element - typically a file. The properties in this class would need to be changed if it has to handle sync elements as well" ; 
+    tracker:notify true ;
     rdfs:subClassOf nie:InformationElement .
 
 mto:Transfer a rdfs:Class ;
     rdfs:label "Transfer" ;
     rdfs:comment "Represent a single transfer task, which could have multiple transfer elements" ;
+    tracker:notify true ;
     rdfs:subClassOf nie:InformationElement .
 
 mto:UploadTransfer a rdfs:Class ;
