@@ -55,7 +55,6 @@ struct TrackerCrawlerPrivate {
 
 	/* Statistics */
 	GTimer	       *timer;
-	guint		enumerations;
 	guint		directories_found;
 	guint		directories_ignored;
 	guint		files_found;
@@ -314,18 +313,17 @@ process_func (gpointer data)
 	if (file) {
 		if (check_directory (crawler, file)) {
 			g_queue_push_tail (priv->found, file);
+
+			/* directory is being iterated, this idle function
+			 * will be re-enabled right after it finishes.
+			 */
+			priv->idle_id = 0;
+
+			return FALSE;
 		} else {
 			g_object_unref (file);
+			return TRUE;
 		}
-
-		return TRUE;
-	}
-
-	/* If we still have some async operations in progress, wait
-	 * for them to finish, if not, we are truly done.
-	 */
-	if (priv->enumerations > 0) {
-		return TRUE;
 	}
 
 	priv->idle_id = 0;
@@ -334,6 +332,33 @@ process_func (gpointer data)
 	tracker_crawler_stop (crawler);
 
 	return FALSE;
+}
+
+static gboolean
+process_func_start (TrackerCrawler *crawler)
+{
+	if (crawler->private->is_paused) {
+		return FALSE;
+	}
+
+	if (crawler->private->is_finished) {
+		return FALSE;
+	}
+
+	if (crawler->private->idle_id == 0) {
+		crawler->private->idle_id = g_idle_add (process_func, crawler);
+	}
+
+	return TRUE;
+}
+
+static void
+process_func_stop (TrackerCrawler *crawler)
+{
+	if (crawler->private->idle_id != 0) {
+		g_source_remove (crawler->private->idle_id);
+		crawler->private->idle_id = 0;
+	}
 }
 
 static EnumeratorChildData *
@@ -442,7 +467,6 @@ file_enumerator_close_cb (GObject      *enumerator,
 	GError *error = NULL;
 
 	crawler = TRACKER_CRAWLER (user_data);
-	crawler->private->enumerations--;
 
 	if (!g_file_enumerator_close_finish (G_FILE_ENUMERATOR (enumerator),
 					     result,
@@ -452,6 +476,11 @@ file_enumerator_close_cb (GObject      *enumerator,
 
 		g_clear_error (&error);
 	}
+
+	/* Processing of directory is now finished,
+	 * continue with queued files/directories.
+	 */
+	process_func_start (crawler);
 }
 
 static void
@@ -573,7 +602,8 @@ file_enumerate_children_cb (GObject	 *file,
 			g_free (path);
 		}
 
-		crawler->private->enumerations--;
+		enumerator_data_free (ed);
+		process_func_start (crawler);
 		return;
 	}
 
@@ -587,14 +617,12 @@ file_enumerate_children (TrackerCrawler *crawler,
 {
 	EnumeratorData *ed;
 
-	crawler->private->enumerations++;
-
 	ed = enumerator_data_new (crawler, file);
 
 	g_file_enumerate_children_async (file,
 					 FILE_ATTRIBUTES,
 					 G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
-					 G_PRIORITY_DEFAULT,
+					 G_PRIORITY_LOW,
 					 crawler->private->cancellable,
 					 file_enumerate_children_cb,
 					 ed);
@@ -644,11 +672,9 @@ tracker_crawler_start (TrackerCrawler *crawler,
 	priv->files_found = 0;
 	priv->files_ignored = 0;
 
-	/* Set idle handler to process directories and files found */
-	priv->idle_id = g_idle_add (process_func, crawler);
-
 	/* Start things off */
 	add_directory (crawler, file, TRUE);
+	process_func_start (crawler);
 
 	return TRUE;
 }
@@ -665,10 +691,7 @@ tracker_crawler_stop (TrackerCrawler *crawler)
 	priv->is_running = FALSE;
 	g_cancellable_cancel (priv->cancellable);
 
-	if (priv->idle_id) {
-		g_source_remove (priv->idle_id);
-		priv->idle_id = 0;
-	}
+	process_func_stop (crawler);
 
 	if (priv->timer) {
 		g_timer_destroy (priv->timer);
@@ -701,11 +724,7 @@ tracker_crawler_pause (TrackerCrawler *crawler)
 
 	if (crawler->private->is_running) {
 		g_timer_stop (crawler->private->timer);
-		
-		if (crawler->private->idle_id != 0) {
-			g_source_remove (crawler->private->idle_id);
-			crawler->private->idle_id = 0;
-		}
+		process_func_stop (crawler);
 	}
 
 	g_message ("Crawler is paused, %s", 
@@ -721,10 +740,7 @@ tracker_crawler_resume (TrackerCrawler *crawler)
 
 	if (crawler->private->is_running) {
 		g_timer_continue (crawler->private->timer);
-
-		if (crawler->private->idle_id == 0) {
-			crawler->private->idle_id = g_idle_add (process_func, crawler);
-		}
+		process_func_start (crawler);
 	}
 
 	g_message ("Crawler is resuming, %s", 
