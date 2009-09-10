@@ -868,6 +868,10 @@ public class Tracker.SparqlQuery : Object {
 
 		// reset location to the end of the update
 		set_location (after_where);
+
+		// ensure possible WHERE clause in next part gets the correct results
+		Data.update_buffer_flush ();
+		bindings = null;
 	}
 
 	void execute_drop_graph () throws Error {

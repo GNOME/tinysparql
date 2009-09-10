@@ -331,7 +331,7 @@ statement_bind_gvalue (TrackerDBStatement *stmt,
 	}
 }
 
-static void
+void
 tracker_data_update_buffer_flush (void)
 {
 	TrackerDBInterface             *iface;
