@@ -556,18 +556,65 @@ tracker_miner_is_started (TrackerMiner  *miner)
 	return miner->private->started;
 }
 
-TrackerClient *
-tracker_miner_get_client (TrackerMiner *miner)
+gboolean
+tracker_miner_execute_update (TrackerMiner  *miner,
+			      const gchar   *sparql,
+			      GError       **error)
 {
-	g_return_val_if_fail (TRACKER_IS_MINER (miner), NULL);
+	GError *internal_error = NULL;
 
-	return miner->private->client;
+	g_return_val_if_fail (TRACKER_IS_MINER (miner), FALSE);
+
+	tracker_resources_sparql_update (miner->private->client,
+					 sparql, 
+					 &internal_error);
+
+	if (!internal_error) {
+		return TRUE;
+	}
+
+	if (error) {
+		g_propagate_error (error, internal_error);
+	} else {
+		g_warning ("Error running sparql queries: %s", internal_error->message);
+		g_error_free (internal_error);
+	}
+
+	return FALSE;
 }
 
-gboolean
+GPtrArray *
 tracker_miner_execute_sparql (TrackerMiner  *miner,
 			      const gchar   *sparql,
 			      GError       **error)
+{
+	GError *internal_error = NULL;
+	GPtrArray *res;
+
+	g_return_val_if_fail (TRACKER_IS_MINER (miner), FALSE);
+
+	res = tracker_resources_sparql_query (miner->private->client,
+					      sparql, 
+					      &internal_error);
+
+	if (!internal_error) {
+		return res;
+	}
+
+	if (error) {
+		g_propagate_error (error, internal_error);
+	} else {
+		g_warning ("Error running sparql queries: %s", internal_error->message);
+		g_error_free (internal_error);
+	}
+
+	return res;
+}
+
+gboolean
+tracker_miner_execute_batch_update (TrackerMiner  *miner,
+				    const gchar   *sparql,
+				    GError       **error)
 {
 	GError *internal_error = NULL;
 

@@ -77,8 +77,14 @@ void           tracker_miner_stop           (TrackerMiner  *miner);
 
 gboolean       tracker_miner_is_started     (TrackerMiner  *miner);
 
-TrackerClient *tracker_miner_get_client     (TrackerMiner  *miner);
-gboolean       tracker_miner_execute_sparql (TrackerMiner  *miner,
+gboolean       tracker_miner_execute_update (TrackerMiner  *miner,
+					     const gchar   *sparql,
+					     GError       **error);
+GPtrArray *    tracker_miner_execute_sparql (TrackerMiner  *miner,
+					     const gchar   *sparql,
+					     GError       **error);
+gboolean       tracker_miner_execute_batch_update
+					    (TrackerMiner  *miner,
 					     const gchar   *sparql,
 					     GError       **error);
 gboolean       tracker_miner_commit         (TrackerMiner  *miner);

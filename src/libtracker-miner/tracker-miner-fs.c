@@ -507,7 +507,7 @@ item_add_or_update_cb (TrackerMinerFS       *fs,
 		full_sparql = g_strdup_printf ("DROP GRAPH <%s> %s",
 					       uri, tracker_sparql_builder_get_result (sparql));
 
-		tracker_miner_execute_sparql (TRACKER_MINER (fs), full_sparql, NULL);
+		tracker_miner_execute_batch_update (TRACKER_MINER (fs), full_sparql, NULL);
 		g_free (full_sparql);
 
 		if (fs->private->been_crawled) {
@@ -572,7 +572,6 @@ static gboolean
 item_query_exists (TrackerMinerFS *miner,
 		   GFile          *file)
 {
-	TrackerClient *client;
 	gboolean   result;
 	gchar     *sparql, *uri;
 	GPtrArray *sparql_result;
@@ -581,8 +580,7 @@ item_query_exists (TrackerMinerFS *miner,
 	sparql = g_strdup_printf ("SELECT ?s WHERE { ?s a rdfs:Resource . FILTER (?s = <%s>) }",
 	                          uri);
 
-	client = tracker_miner_get_client (TRACKER_MINER (miner));
-	sparql_result = tracker_resources_sparql_query (client, sparql, NULL);
+	sparql_result = tracker_miner_execute_sparql (TRACKER_MINER (miner), sparql, NULL);
 
 	result = (sparql_result && sparql_result->len == 1);
 
@@ -611,7 +609,7 @@ item_remove (TrackerMinerFS *fs,
 
 	/* Delete resource */
 	sparql = g_strdup_printf ("DELETE { <%s> a rdfs:Resource }", uri);
-	tracker_miner_execute_sparql (TRACKER_MINER (fs), sparql, NULL);
+	tracker_miner_execute_batch_update (TRACKER_MINER (fs), sparql, NULL);
 	g_free (sparql);
 
 	/* FIXME: Should delete recursively? */
@@ -623,7 +621,6 @@ update_file_uri_recursively (TrackerMinerFS *fs,
 			     const gchar    *source_uri,
 			     const gchar    *uri)
 {
-	TrackerClient *client;
 	gchar *sparql;
 	GPtrArray *result_set;
 
@@ -634,9 +631,8 @@ update_file_uri_recursively (TrackerMinerFS *fs,
 	/* FIXME: tracker:uri doesn't seem to exist */
 	/* g_string_append_printf (sparql_update, " <%s> tracker:uri <%s> .", source_uri, uri); */
 
-	client = tracker_miner_get_client (TRACKER_MINER (fs));
 	sparql = g_strdup_printf ("SELECT ?child WHERE { ?child nfo:belongsToContainer <%s> }", source_uri);
-	result_set = tracker_resources_sparql_query (client, sparql, NULL);
+	result_set = tracker_miner_execute_sparql (TRACKER_MINER (fs), sparql, NULL);
 	g_free (sparql);
 
 	if (result_set) {
@@ -725,7 +721,7 @@ item_move (TrackerMinerFS *fs,
 
 	g_string_append (sparql, " }");
 
-	tracker_miner_execute_sparql (TRACKER_MINER (fs), sparql->str, NULL);
+	tracker_miner_execute_batch_update (TRACKER_MINER (fs), sparql->str, NULL);
 
 	g_free (uri);
 	g_free (source_uri);
@@ -911,7 +907,6 @@ static gboolean
 should_change_index_for_file (TrackerMinerFS *fs,
 			      GFile          *file)
 {
-	TrackerClient      *client;
 	gboolean            uptodate;
 	GPtrArray          *sparql_result;
 	GFileInfo          *file_info;
@@ -937,7 +932,6 @@ should_change_index_for_file (TrackerMinerFS *fs,
 	g_object_unref (file_info);
 
 	uri = g_file_get_uri (file);
-	client = tracker_miner_get_client (TRACKER_MINER (fs));
 
 	gmtime_r (&mtime, &t);
 
@@ -949,7 +943,7 @@ should_change_index_for_file (TrackerMinerFS *fs,
 				 t.tm_min, 
 				 t.tm_sec, 
 				 uri);
-	sparql_result = tracker_resources_sparql_query (client, query, NULL);
+	sparql_result = tracker_miner_execute_sparql (TRACKER_MINER (fs), query, NULL);
 
 	uptodate = sparql_result && sparql_result->len == 1;
 

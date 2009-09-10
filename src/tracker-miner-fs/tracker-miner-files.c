@@ -70,6 +70,11 @@ struct TrackerMinerFilesPrivate {
 };
 
 enum {
+	VOLUME_MOUNTED_IN_STORE = 1 << 0,
+	VOLUME_MOUNTED = 1 << 1
+};
+
+enum {
         PROP_0,
         PROP_CONFIG
 };
@@ -94,6 +99,10 @@ static void     mount_point_added_cb          (TrackerStorage       *storage,
 					       const gchar          *udi,
 					       const gchar          *mount_point,
 					       gpointer              user_data);
+static void     mount_point_removed_cb        (TrackerStorage       *storage,
+					       const gchar          *udi,
+					       const gchar          *mount_point,
+					       gpointer              user_data);
 static void     initialize_removable_devices  (TrackerMinerFiles    *mf);
 
 static void     on_battery_cb                 (GObject              *gobject,
@@ -107,6 +116,7 @@ static void     on_battery_percentage_cb      (GObject              *gobject,
 					       gpointer              user_data);
 #endif
 
+static void     init_mount_points             (TrackerMinerFiles *miner);
 static void     disk_space_check_start        (TrackerMinerFiles    *mf);
 static void     disk_space_check_stop         (TrackerMinerFiles    *mf);
 static void     low_disk_space_limit_cb       (GObject              *gobject,
@@ -159,6 +169,7 @@ tracker_miner_files_class_init (TrackerMinerFilesClass *klass)
 	miner_files_error_quark = g_quark_from_static_string ("TrackerMinerFiles");
 }
 
+
 static void
 tracker_miner_files_init (TrackerMinerFiles *mf)
 {
@@ -172,6 +183,10 @@ tracker_miner_files_init (TrackerMinerFiles *mf)
         g_signal_connect (priv->storage, "mount-point-added",
                           G_CALLBACK (mount_point_added_cb), 
 			  mf);
+
+	g_signal_connect (priv->storage, "mount-point-removed",
+	                  G_CALLBACK (mount_point_removed_cb), 
+	                  mf);
 
 	priv->power = tracker_power_new ();
 
@@ -192,6 +207,8 @@ tracker_miner_files_init (TrackerMinerFiles *mf)
 			  mf);
 
 	priv->extractor_proxy = create_extractor_proxy ();
+
+	init_mount_points (mf);
 }
 
 static void
@@ -355,7 +372,228 @@ miner_files_constructed (GObject *object)
 	disk_space_check_start (mf);
 }
 
+static void
+set_up_mount_point (TrackerMinerFiles *miner,
+                    const gchar       *removable_device_urn,
+                    const gchar       *mount_point,
+                    gboolean           mounted,
+                    GString           *accumulator)
+{
+	GString *queries;
+	GError *error = NULL;
+
+	g_debug ("Setting up mount point '%s'", removable_device_urn);
+
+	queries = g_string_new (NULL);
+
+	if (mounted) {
+		if (mount_point) {
+			GFile *file;
+			gchar *uri;
+
+			file = g_file_new_for_path (mount_point);
+			uri = g_file_get_uri (file);
+
+			g_string_append_printf (queries,
+			                        "DROP GRAPH <%s>\nINSERT { <%s> a tracker:Volume; tracker:mountPoint <%s> } ",
+			                        removable_device_urn, removable_device_urn, uri);
+
+			g_object_unref (file);
+			g_free (uri);
+		}
+
+		g_string_append_printf (queries,
+		                        "DELETE { <%s> tracker:isMounted ?unknown } WHERE { <%s> a tracker:Volume; tracker:isMounted ?unknown } ",
+		                        removable_device_urn, removable_device_urn);
+
+		g_string_append_printf (queries,
+		                        "INSERT { <%s> a tracker:Volume; tracker:isMounted true } ",
+		                        removable_device_urn);
+
+		g_string_append_printf (queries,
+		                        "INSERT { ?do tracker:available true } WHERE { ?do nie:dataSource <%s> } ",
+		                        removable_device_urn);
+	} else {
+		gchar *now;
+
+		now = tracker_date_to_string (time (NULL));
+
+		g_string_append_printf (queries,
+		                        "DELETE { <%s> tracker:unmountDate ?unknown } WHERE { <%s> a tracker:Volume; tracker:unmountDate ?unknown } ",
+		                        removable_device_urn, removable_device_urn);
+
+		g_string_append_printf (queries,
+		                        "INSERT { <%s> a tracker:Volume; tracker:unmountDate \"%s\" } ",
+		                        removable_device_urn, now);
+
+		g_string_append_printf (queries,
+		                        "DELETE { <%s> tracker:isMounted ?unknown } WHERE { <%s> a tracker:Volume; tracker:isMounted ?unknown } ",
+		                        removable_device_urn, removable_device_urn);
+
+		g_string_append_printf (queries,
+		                        "INSERT { <%s> a tracker:Volume; tracker:isMounted false } ",
+		                        removable_device_urn);
+
+		g_string_append_printf (queries,
+		                        "DELETE { ?do tracker:available true } WHERE { ?do nie:dataSource <%s> } ",
+		                        removable_device_urn);
+		g_free (now);
+	}
+
+	if (accumulator) {
+		g_string_append_printf (accumulator, "%s ", queries->str);
+	} else {
+
+		tracker_miner_execute_update (TRACKER_MINER (miner), queries->str, &error);
+
+		if (error) {
+			g_critical ("Could not set up mount point '%s': %s",
+			            removable_device_urn, error->message);
+			g_error_free (error);
+		}
+	}
+
+	g_string_free (queries, TRUE);
+}
+
+static void
+init_mount_points (TrackerMinerFiles *miner)
+{
+	TrackerMinerFilesPrivate *priv;
+	GHashTable *volumes;
+	GHashTableIter iter;
+	gpointer key, value;
+	GPtrArray *sparql_result;
+	GError *error = NULL;
+	GString *accumulator;
+	gint i;
 #ifdef HAVE_HAL
+	GList *udis, *u;
+#endif
+
+	priv = TRACKER_MINER_FILES_GET_PRIVATE (miner);
+
+	g_debug ("Initializing mount points");
+
+	volumes = g_hash_table_new_full (g_str_hash, g_str_equal,
+	                                 (GDestroyNotify) g_free,
+	                                 NULL);
+
+	/* First, get all mounted volumes, according to tracker-store */
+	sparql_result = tracker_miner_execute_sparql (TRACKER_MINER (miner),
+	                                              "SELECT ?v WHERE { ?v a tracker:Volume ; tracker:isMounted true }",
+	                                              &error);
+
+	if (error) {
+		g_critical ("Could not obtain the mounted volumes");
+		g_error_free (error);
+		return;
+	}
+
+	for (i = 0; i < sparql_result->len; i++) {
+		gchar **row;
+		gint state;
+
+		row = g_ptr_array_index (sparql_result, i);
+		state = VOLUME_MOUNTED_IN_STORE;
+
+		if (strcmp (row[0], TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN) == 0) {
+			/* Report non-removable media to be mounted by HAL as well */
+			state |= VOLUME_MOUNTED;
+		}
+
+		g_hash_table_insert (volumes, g_strdup (row[0]), GINT_TO_POINTER (state));
+	}
+
+	g_ptr_array_foreach (sparql_result, (GFunc) g_strfreev, NULL);
+	g_ptr_array_free (sparql_result, TRUE);
+
+	g_hash_table_replace (volumes, g_strdup (TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN),
+	                      GINT_TO_POINTER (VOLUME_MOUNTED));
+
+#ifdef HAVE_HAL
+	udis = tracker_storage_get_removable_device_udis (priv->storage);
+
+	/* Then, get all currently mounted volumes, according to HAL */
+	for (u = udis; u; u = u->next) {
+		const gchar *udi;
+		gchar *removable_device_urn;
+		gint state;
+
+		udi = u->data;
+		removable_device_urn = g_strdup_printf (TRACKER_DATASOURCE_URN_PREFIX "%s", udi);
+
+		state = GPOINTER_TO_INT (g_hash_table_lookup (volumes, removable_device_urn));
+		state |= VOLUME_MOUNTED;
+
+		g_hash_table_replace (volumes, removable_device_urn, GINT_TO_POINTER (state));
+	}
+
+	g_list_free (udis);
+#endif
+
+	accumulator = g_string_new (NULL);
+	g_hash_table_iter_init (&iter, volumes);
+
+	/* Finally, set up volumes based on the composed info */
+	while (g_hash_table_iter_next (&iter, &key, &value)) {
+		const gchar *urn = key;
+		gint state = GPOINTER_TO_INT (value);
+
+		if ((state & VOLUME_MOUNTED) &&
+		    !(state & VOLUME_MOUNTED_IN_STORE)) {
+			const gchar *mount_point = NULL;
+
+#ifdef HAVE_HAL
+			if (g_str_has_prefix (urn, TRACKER_DATASOURCE_URN_PREFIX)) {
+				const gchar *udi;
+
+				udi = urn + strlen (TRACKER_DATASOURCE_URN_PREFIX);
+				mount_point = tracker_storage_udi_get_mount_point (priv->storage, udi);
+			}
+#endif
+
+			g_debug ("URN '%s' (mount point: %s) was not reported to be mounted, but now it is, updating state",
+			         mount_point, urn);
+			set_up_mount_point (miner, urn, mount_point, TRUE, accumulator);
+		} else if (!(state & VOLUME_MOUNTED) &&
+			   (state & VOLUME_MOUNTED_IN_STORE)) {
+			g_debug ("URN '%s' was reported to be mounted, but it isn't anymore, updating state", urn);
+			set_up_mount_point (miner, urn, NULL, FALSE, accumulator);
+		}
+	}
+
+	if (accumulator->str[0] != '\0') {
+		tracker_miner_execute_update (TRACKER_MINER (miner), accumulator->str, &error);
+
+		if (error) {
+			g_critical ("Could not initialize currently active mount points: %s",
+			            error->message);
+			g_error_free (error);
+		}
+	}
+
+	g_string_free (accumulator, TRUE);
+	g_hash_table_destroy (volumes);
+}
+
+#ifdef HAVE_HAL
+static void
+mount_point_removed_cb (TrackerStorage *storage,
+			const gchar    *udi,
+			const gchar    *mount_point,
+			gpointer        user_data)
+{
+	TrackerMinerFiles *miner = user_data;
+	gchar *urn;
+
+	g_debug ("Removing mount point '%s'", mount_point);
+
+	urn = g_strdup_printf (TRACKER_DATASOURCE_URN_PREFIX "%s", udi);
+
+	set_up_mount_point (miner, urn, mount_point, FALSE, NULL);
+	g_free (urn);
+}
 
 static void
 mount_point_added_cb (TrackerStorage *storage,
@@ -363,10 +601,12 @@ mount_point_added_cb (TrackerStorage *storage,
                       const gchar    *mount_point,
                       gpointer        user_data)
 {
-        TrackerMinerFilesPrivate *priv;
+	TrackerMinerFiles *miner = user_data;
+	TrackerMinerFilesPrivate *priv;
+	gchar *urn;
         gboolean index_removable_devices;
 
-        priv = TRACKER_MINER_FILES_GET_PRIVATE (user_data);
+        priv = TRACKER_MINER_FILES_GET_PRIVATE (miner);
 
         index_removable_devices = tracker_config_get_index_removable_devices (priv->config);
 
@@ -379,6 +619,13 @@ mount_point_added_cb (TrackerStorage *storage,
 						TRUE);
 		g_object_unref (file);
         }
+
+	g_debug ("Configuring added mount point '%s'", mount_point);
+
+	urn = g_strdup_printf (TRACKER_DATASOURCE_URN_PREFIX "%s", udi);
+
+	set_up_mount_point (miner, urn, mount_point, TRUE, NULL);
+	g_free (urn);
 }
 
 static void
