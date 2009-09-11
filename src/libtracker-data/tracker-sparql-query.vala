@@ -254,6 +254,8 @@ public class Tracker.SparqlQuery : Object {
 		public SourceLocation end;
 	}
 
+	const string FN_NS = "http://www.w3.org/2005/xpath-functions#";
+
 	string query_string;
 	bool update_extensions;
 
@@ -412,6 +414,9 @@ public class Tracker.SparqlQuery : Object {
 	public DBResultSet? execute () throws Error {
 		scanner = new SparqlScanner ((char*) query_string, (long) query_string.size ());
 		next ();
+
+		// declare fn prefix for XPath functions
+		prefix_map.insert ("fn", FN_NS);
 
 		foreach (Namespace ns in Ontology.get_namespaces ()) {
 			prefix_map.insert (ns.prefix, ns.uri);
@@ -1147,6 +1152,27 @@ public class Tracker.SparqlQuery : Object {
 		expect (SparqlTokenType.CLOSE_PARENS);
 	}
 
+	DataType translate_function (StringBuilder sql, string uri) throws SparqlError {
+		if (uri == FN_NS + "starts-with") {
+			// fn:starts-with('A','B') => 'A' GLOB 'B*'
+			sql.append ("(");
+			translate_expression_as_string (sql);
+			sql.append (" GLOB ");
+			expect (SparqlTokenType.COMMA);
+
+			sql.append ("?");
+			var binding = new LiteralBinding ();
+			binding.literal = "%s*".printf (parse_string_literal ());
+			bindings.append (binding);
+
+			sql.append (")");
+
+			return DataType.BOOLEAN;
+		} else {
+			throw get_error ("Unknown function");
+		}
+	}
+
 	string parse_string_literal () throws SparqlError {
 		next ();
 		switch (last ()) {
@@ -1361,11 +1387,20 @@ public class Tracker.SparqlQuery : Object {
 			next ();
 			string ns = get_last_string ();
 			expect (SparqlTokenType.COLON);
-			sql.append ("(SELECT ID FROM \"rdfs:Resource\" WHERE Uri = ?)");
-			var binding = new LiteralBinding ();
-			binding.literal = resolve_prefixed_name (ns, get_last_string ().substring (1));
-			bindings.append (binding);
-			return DataType.RESOURCE;
+			string uri = resolve_prefixed_name (ns, get_last_string ().substring (1));
+			if (accept (SparqlTokenType.OPEN_PARENS)) {
+				// function
+				var result = translate_function (sql, uri);
+				expect (SparqlTokenType.CLOSE_PARENS);
+				return result;
+			} else {
+				// resource
+				sql.append ("(SELECT ID FROM \"rdfs:Resource\" WHERE Uri = ?)");
+				var binding = new LiteralBinding ();
+				binding.literal = uri;
+				bindings.append (binding);
+				return DataType.RESOURCE;
+			}
 		case SparqlTokenType.COLON:
 			next ();
 			sql.append ("(SELECT ID FROM \"rdfs:Resource\" WHERE Uri = ?)");
