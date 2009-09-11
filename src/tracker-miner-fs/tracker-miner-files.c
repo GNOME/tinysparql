@@ -129,6 +129,9 @@ static gboolean miner_files_check_file        (TrackerMinerFS       *fs,
 					       GFile                *file);
 static gboolean miner_files_check_directory   (TrackerMinerFS       *fs,
 					       GFile                *file);
+static gboolean miner_files_check_directory_contents (TrackerMinerFS       *fs,
+						      GFile                *parent,
+						      GList                *children);
 static gboolean miner_files_process_file      (TrackerMinerFS       *fs,
 					       GFile                *file,
 					       TrackerSparqlBuilder *sparql,
@@ -153,6 +156,7 @@ tracker_miner_files_class_init (TrackerMinerFilesClass *klass)
 
         miner_fs_class->check_file = miner_files_check_file;
 	miner_fs_class->check_directory = miner_files_check_directory;
+	miner_fs_class->check_directory_contents = miner_files_check_directory_contents;
 	miner_fs_class->monitor_directory = miner_files_monitor_directory;
         miner_fs_class->process_file = miner_files_process_file;
 
@@ -1007,6 +1011,44 @@ done:
 	g_free (basename);
 
 	return should_process;
+}
+
+static gboolean
+miner_files_check_directory_contents (TrackerMinerFS *fs,
+				      GFile          *parent,
+				      GList          *children)
+{
+	TrackerMinerFiles *mf;
+	GSList *ignored_content, *l;
+
+	mf = TRACKER_MINER_FILES (fs);
+	ignored_content = tracker_config_get_ignored_directories_with_content (mf->private->config);
+
+	while (children) {
+		gchar *basename;
+
+		basename = g_file_get_basename (children->data);
+
+		for (l = ignored_content; l; l = l->next) {
+			if (g_strcmp0 (basename, l->data) == 0) {
+				gchar *parent_uri;
+
+				parent_uri = g_file_get_uri (parent);
+				g_debug ("Directory '%s' ignored since it contains a file named '%s'",
+					 parent_uri, basename);
+
+				g_free (parent_uri);
+				g_free (basename);
+
+				return FALSE;
+			}
+		}
+
+		children = children->next;
+		g_free (basename);
+	}
+
+	return TRUE;
 }
 
 static gboolean
