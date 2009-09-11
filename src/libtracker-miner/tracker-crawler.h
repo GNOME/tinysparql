@@ -49,6 +49,9 @@ struct TrackerCrawlerClass {
 					  GFile          *file);
 	gboolean (* check_file)          (TrackerCrawler *crawler,
 					  GFile          *file);
+	gboolean (* check_directory_contents) (TrackerCrawler *crawler,
+					       GFile          *file,
+					       GList          *contents);
 	void     (* finished)            (TrackerCrawler *crawler,
 					  guint           directories_found, 
 					  guint           directories_ignored, 

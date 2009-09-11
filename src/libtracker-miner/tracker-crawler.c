@@ -70,6 +70,7 @@ struct TrackerCrawlerPrivate {
 enum {
 	CHECK_DIRECTORY,
 	CHECK_FILE,
+	CHECK_DIRECTORY_CONTENTS,
 	FINISHED,
 	LAST_SIGNAL
 };
@@ -88,6 +89,9 @@ typedef struct {
 static void     crawler_finalize        (GObject         *object);
 static gboolean check_defaults          (TrackerCrawler  *crawler,
 					 GFile           *file);
+static gboolean check_contents_defaults (TrackerCrawler  *crawler,
+					 GFile           *file,
+					 GList           *contents);
 static void     file_enumerate_next     (GFileEnumerator *enumerator,
 					 EnumeratorData  *ed);
 static void     file_enumerate_children (TrackerCrawler  *crawler,
@@ -107,6 +111,7 @@ tracker_crawler_class_init (TrackerCrawlerClass *klass)
 
 	crawler_class->check_directory = check_defaults;
 	crawler_class->check_file      = check_defaults;
+	crawler_class->check_directory_contents = check_contents_defaults;
 
 	signals[CHECK_DIRECTORY] =
 		g_signal_new ("check-directory",
@@ -130,6 +135,16 @@ tracker_crawler_class_init (TrackerCrawlerClass *klass)
 			      G_TYPE_BOOLEAN,
 			      1,
 			      G_TYPE_FILE);
+	signals[CHECK_DIRECTORY_CONTENTS] =
+		g_signal_new ("check-directory-contents",
+			      G_TYPE_FROM_CLASS (klass),
+			      G_SIGNAL_RUN_LAST,
+			      G_STRUCT_OFFSET (TrackerCrawlerClass, check_directory_contents),
+			      tracker_accumulator_check_file,
+			      NULL,
+			      tracker_marshal_BOOLEAN__OBJECT_POINTER,
+			      G_TYPE_BOOLEAN,
+			      2, G_TYPE_FILE, G_TYPE_POINTER);
 	signals[FINISHED] =
 		g_signal_new ("finished",
 			      G_TYPE_FROM_CLASS (klass),
@@ -195,9 +210,17 @@ crawler_finalize (GObject *object)
 	G_OBJECT_CLASS (tracker_crawler_parent_class)->finalize (object);
 }
 
-static gboolean 
+static gboolean
 check_defaults (TrackerCrawler *crawler,
 		GFile          *file)
+{
+	return TRUE;
+}
+
+static gboolean
+check_contents_defaults (TrackerCrawler  *crawler,
+			 GFile           *file,
+			 GList           *contents)
 {
 	return TRUE;
 }
@@ -416,27 +439,24 @@ enumerator_data_process (EnumeratorData *ed)
 	TrackerCrawler *crawler;
 	GHashTableIter iter;
 	EnumeratorChildData *cd;
+	GList *children;
+	gboolean use;
 
 	crawler = ed->crawler;
 
-#ifdef FIX
-	GList *l;
+	g_hash_table_iter_init (&iter, ed->children);
 
-	/* Ignore directory if its contents match something we should ignore */
-	for (l = crawler->private->ignored_directories_with_content; l; l = l->next) {
-		if (g_hash_table_lookup (ed->children, l->data)) {
-			gchar *path;
-
-			path = g_file_get_path (ed->parent);
-
-			crawler->private->directories_ignored++;
-			g_debug ("Ignoring directory '%s' since it contains a file named '%s'", path, (gchar *) l->data);
-			g_free (path);
-
-			return;
-		}
+	while (g_hash_table_iter_next (&iter, NULL, (gpointer *) &cd)) {
+		children = g_list_prepend (children, cd->child);
 	}
-#endif
+
+	g_signal_emit (crawler, signals[CHECK_DIRECTORY_CONTENTS], 0, ed->parent, children, &use);
+
+	if (!use) {
+		/* Directory was ignored based on its content */
+		crawler->private->directories_ignored++;
+		return;
+	}
 
 	g_hash_table_iter_init (&iter, ed->children);
 
