@@ -59,6 +59,9 @@ struct TrackerMinerFSClass {
 					    GFile                *file);
 	gboolean (* check_directory)       (TrackerMinerFS       *fs,
 					    GFile                *file);
+	gboolean (* check_directory_contents) (TrackerMinerFS    *fs,
+					       GFile             *parent,
+					       GList             *children);
 	gboolean (* process_file)          (TrackerMinerFS       *fs,
 					    GFile                *file,
 					    TrackerSparqlBuilder *builder,

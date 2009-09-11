@@ -92,6 +92,7 @@ enum {
 enum {
 	CHECK_FILE,
 	CHECK_DIRECTORY,
+	CHECK_DIRECTORY_CONTENTS,
 	MONITOR_DIRECTORY,
 	FINISHED,
 	LAST_SIGNAL
@@ -100,6 +101,9 @@ enum {
 static void           fs_finalize                  (GObject        *object);
 static gboolean       fs_defaults                  (TrackerMinerFS *fs,
 						    GFile          *file);
+static gboolean       fs_contents_defaults         (TrackerMinerFS *fs,
+						    GFile          *parent,
+						    GList          *children);
 static void           miner_started                (TrackerMiner   *miner);
 static void           miner_stopped                (TrackerMiner   *miner);
 static void           miner_paused                 (TrackerMiner   *miner);
@@ -135,6 +139,10 @@ static gboolean       crawler_check_file_cb        (TrackerCrawler *crawler,
 static gboolean       crawler_check_directory_cb   (TrackerCrawler *crawler,
 						    GFile          *file,
 						    gpointer        user_data);
+static gboolean       crawler_check_directory_contents_cb (TrackerCrawler *crawler,
+							   GFile          *parent,
+							   GList          *children,
+							   gpointer        user_data);
 static void           crawler_finished_cb          (TrackerCrawler *crawler,
 						    GQueue         *found,
 						    gboolean        was_interrupted,
@@ -170,6 +178,7 @@ tracker_miner_fs_class_init (TrackerMinerFSClass *klass)
 	fs_class->check_file        = fs_defaults;
 	fs_class->check_directory   = fs_defaults;
 	fs_class->monitor_directory = fs_defaults;
+	fs_class->check_directory_contents = fs_contents_defaults;
 
 	signals[CHECK_FILE] =
 		g_signal_new ("check-file",
@@ -189,6 +198,15 @@ tracker_miner_fs_class_init (TrackerMinerFSClass *klass)
 			      NULL,
 			      tracker_marshal_BOOLEAN__OBJECT,
 			      G_TYPE_BOOLEAN, 1, G_TYPE_FILE);
+	signals[CHECK_DIRECTORY_CONTENTS] =
+		g_signal_new ("check-directory-contents",
+			      G_OBJECT_CLASS_TYPE (object_class),
+			      G_SIGNAL_RUN_LAST,
+			      G_STRUCT_OFFSET (TrackerMinerFSClass, check_directory_contents),
+			      tracker_accumulator_check_file,
+			      NULL,
+			      tracker_marshal_BOOLEAN__OBJECT_POINTER,
+			      G_TYPE_BOOLEAN, 2, G_TYPE_FILE, G_TYPE_POINTER);
 	signals[MONITOR_DIRECTORY] =
 		g_signal_new ("monitor-directory",
 			      G_OBJECT_CLASS_TYPE (object_class),
@@ -241,6 +259,9 @@ tracker_miner_fs_init (TrackerMinerFS *object)
 			  object);
 	g_signal_connect (priv->crawler, "check-directory",
 			  G_CALLBACK (crawler_check_directory_cb),
+			  object);
+	g_signal_connect (priv->crawler, "check-directory-contents",
+			  G_CALLBACK (crawler_check_directory_contents_cb),
 			  object);
 	g_signal_connect (priv->crawler, "finished",
 			  G_CALLBACK (crawler_finished_cb),
@@ -313,6 +334,14 @@ fs_finalize (GObject *object)
 static gboolean 
 fs_defaults (TrackerMinerFS *fs,
 	     GFile          *file)
+{
+	return TRUE;
+}
+
+static gboolean
+fs_contents_defaults (TrackerMinerFS *fs,
+		      GFile          *parent,
+		      GList          *children)
 {
 	return TRUE;
 }
@@ -1252,6 +1281,20 @@ crawler_check_directory_cb (TrackerCrawler *crawler,
 	 * any database comparison with mtime. 
 	 */
 	return should_check;
+}
+
+static gboolean
+crawler_check_directory_contents_cb (TrackerCrawler *crawler,
+				     GFile          *parent,
+				     GList          *children,
+				     gpointer        user_data)
+{
+	TrackerMinerFS *fs = user_data;
+	gboolean process;
+
+	g_signal_emit (fs, signals[CHECK_DIRECTORY_CONTENTS], 0, parent, children, &process);
+
+	return process;
 }
 
 static void
