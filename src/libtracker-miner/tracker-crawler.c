@@ -664,20 +664,16 @@ tracker_crawler_start (TrackerCrawler *crawler,
 
 	priv = crawler->private;
 
-	priv->was_started = TRUE;
-	priv->recurse = recurse;
+	if (!g_file_query_exists (file, NULL)) {
+		return FALSE;
+	}
 
 	if (g_cancellable_is_cancelled (priv->cancellable)) {
 		g_cancellable_reset (priv->cancellable);
 	}
 
-	if (!g_file_query_exists (file, NULL)) {
-		/* We return TRUE because this is likely a config
-		 * option and we only return FALSE when we expect to
-		 * not fail.
-		 */
-		return TRUE;
-	}
+	priv->was_started = TRUE;
+	priv->recurse = recurse;
 
 	/* Time the event */
 	if (priv->timer) {
