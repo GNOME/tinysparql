@@ -1024,6 +1024,10 @@ miner_files_check_directory_contents (TrackerMinerFS *fs,
 	mf = TRACKER_MINER_FILES (fs);
 	ignored_content = tracker_config_get_ignored_directories_with_content (mf->private->config);
 
+	if (!ignored_content) {
+		return TRUE;
+	}
+
 	while (children) {
 		gchar *basename;
 
