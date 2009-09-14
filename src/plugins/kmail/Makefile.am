@@ -7,7 +7,6 @@ INCLUDES = -I$(top_srcdir)/src						\
 	-DTRACKER_COMPILATION						\
 	$(WARN_CFLAGS)							\
 	$(DBUS_CFLAGS)							\
-	$(GMIME_CFLAGS)							\
 	$(GCOV_CFLAGS)
 
 module_flags = -module -avoid-version -no-undefined

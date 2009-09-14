@@ -16,7 +16,6 @@ INCLUDES =								\
 	$(GCOV_CFLAGS)							\
 	$(DBUS_CFLAGS)							\
 	$(PANGO_CFLAGS)							\
-	$(GMIME_CFLAGS)							\
 	$(FAM_CFLAGS)							\
 	$(SQLITE3_CFLAGS)
 
@@ -61,7 +60,6 @@ tracker_store_LDADD =							\
 	$(top_builddir)/src/libtracker-db/libtracker-db.la 		\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
 	$(top_builddir)/src/libstemmer/libstemmer.la	 		\
-	$(GMIME_LIBS)							\
 	$(SQLITE3_LIBS)							\
 	$(DBUS_LIBS)							\
 	$(PANGO_LIBS)							\

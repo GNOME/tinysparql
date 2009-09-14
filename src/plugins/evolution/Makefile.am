@@ -8,7 +8,6 @@ INCLUDES =								\
 	-DTRACKER_COMPILATION						\
 	$(WARN_CFLAGS)							\
 	$(DBUS_CFLAGS)							\
-	$(GMIME_CFLAGS)							\
 	$(EVOLUTION_PLUGIN_CFLAGS)					\
 	$(GCOV_CFLAGS)
 
