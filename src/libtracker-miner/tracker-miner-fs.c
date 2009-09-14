@@ -527,7 +527,7 @@ item_add_or_update_cb (TrackerMinerFS       *fs,
 	uri = g_file_get_uri (file);
 
 	if (error) {
-		g_warning ("Could not process '%s': %s", uri, error->message);
+		g_message ("Could not process '%s': %s", uri, error->message);
 	} else {
 		gchar *full_sparql;
 
@@ -557,7 +557,11 @@ item_add_or_update_cb (TrackerMinerFS       *fs,
 		fs->private->current_file = NULL;
 	}
 
-	g_object_unref (sparql);
+	/* Can be NULL on error */
+	if (sparql) {
+		g_object_unref (sparql);
+	}
+
 	g_free (uri);
 
 	/* Processing is now done, continue with other files */
