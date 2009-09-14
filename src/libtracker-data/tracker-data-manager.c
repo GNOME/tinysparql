@@ -659,7 +659,7 @@ create_decomposed_metadata_tables (TrackerDBInterface *iface,
 		TrackerDBStatement *stmt;
 
 		stmt = tracker_db_interface_create_statement (iface,
-							      "INSERT OR IGNORE INTO \"rdfs:Resource\" (ID, Uri, \"tracker:modified\") VALUES (?, ?, ?)");
+							      "INSERT OR IGNORE INTO \"rdfs:Resource\" (ID, Uri, \"tracker:added\", \"tracker:modified\") VALUES (?, ?, ?, 0)");
 		tracker_db_statement_bind_int (stmt, 0, ++(*max_id));
 		tracker_db_statement_bind_text (stmt, 1, tracker_class_get_uri (service));
 		tracker_db_statement_bind_int64 (stmt, 2, (gint64) time (NULL));

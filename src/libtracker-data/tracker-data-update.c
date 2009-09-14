@@ -289,10 +289,11 @@ ensure_resource_id (const gchar *uri)
 		iface = tracker_db_manager_get_db_interface ();
 
 		id = tracker_data_update_get_new_service_id (common);
-		stmt = tracker_db_interface_create_statement (iface, "INSERT INTO \"rdfs:Resource\" (ID, Uri, \"tracker:modified\", Available) VALUES (?, ?, ?, 1)");
+		stmt = tracker_db_interface_create_statement (iface, "INSERT INTO \"rdfs:Resource\" (ID, Uri, \"tracker:added\", \"tracker:modified\", Available) VALUES (?, ?, ?, ?, 1)");
 		tracker_db_statement_bind_int (stmt, 0, id);
 		tracker_db_statement_bind_text (stmt, 1, uri);
-		tracker_db_statement_bind_int (stmt, 2, tracker_data_update_get_next_modseq ());
+		tracker_db_statement_bind_int64 (stmt, 2, (gint64) time (NULL));
+		tracker_db_statement_bind_int (stmt, 3, tracker_data_update_get_next_modseq ());
 		tracker_db_statement_execute (stmt, NULL);
 		g_object_unref (stmt);
 
