@@ -446,11 +446,15 @@ enumerator_data_process (EnumeratorData *ed)
 
 	g_hash_table_iter_init (&iter, ed->children);
 
+	children = NULL;
 	while (g_hash_table_iter_next (&iter, NULL, (gpointer *) &cd)) {
 		children = g_list_prepend (children, cd->child);
 	}
 
 	g_signal_emit (crawler, signals[CHECK_DIRECTORY_CONTENTS], 0, ed->parent, children, &use);
+
+	g_list_free (children);
+	children = NULL;
 
 	if (!use) {
 		/* Directory was ignored based on its content */
