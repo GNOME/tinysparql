@@ -342,6 +342,8 @@ tracker_keyfile_object_save_string_list (gpointer     object,
 	g_return_if_fail (group != NULL);
 	g_return_if_fail (key != NULL);
 
+	g_object_get (G_OBJECT (object), property, &list, NULL);
+
 	value = tracker_gslist_to_string_list (list);
 	g_key_file_set_string_list (key_file, 
 				    group, 
