@@ -1400,8 +1400,6 @@ crawl_directories_cb (gpointer user_data)
 	directory_data_free (fs->private->current_directory);
 	fs->private->current_directory = NULL;
 
-	g_free (path);
-
 	return TRUE;
 }
 
