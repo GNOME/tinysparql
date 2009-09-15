@@ -16,7 +16,7 @@ SUBDIRS = 					\
 	tracker-miner-fs
 
 if HAVE_TRACKER_PREFERENCES
-# SUBDIRS += tracker-preferences
+SUBDIRS += tracker-preferences
 endif
 
 if HAVE_TRACKER_STATUS_ICON
