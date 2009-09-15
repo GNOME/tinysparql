@@ -83,15 +83,15 @@ public static string hscale_disk_space_limit_format_value_cb (Scale source, doub
 	config.low_disk_space_limit = (int) value;
 
 	if (((int) value) == -1) {
-		return "disabled";
+		return _("Disabled");
 	}
 
-	return "%d%%".printf ((int) value);
+	return _("%d%%").printf ((int) value);
 }
 
 public static string hscale_throttle_format_value_cb (Scale source, double value) {
 	config.throttle = (int) value;
-	return "%d/20".printf ((int) value);
+	return _("%d/20").printf ((int) value);
 }
 
 public static void add_freevalue (ListStore model) {

@@ -23,7 +23,7 @@ src/tracker-extract/tracker-extract.c
 src/tracker-extract/tracker-main.c
 src/tracker-miner-fs/tracker-main.c
 src/tracker-miner-fs/tracker-miner-files.c
-src/tracker-preferences/tracker-preferences.c
+src/tracker-preferences/tracker-preferences.vala
 src/tracker-preferences/tracker-preferences.desktop.in.in
 [type: gettext/glade]src/tracker-preferences/tracker-preferences.ui
 src/tracker-search-tool/tracker-search-tool-callbacks.c
