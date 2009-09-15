@@ -803,6 +803,13 @@ tracker_config_new (void)
 	return g_object_new (TRACKER_TYPE_CONFIG, NULL);
 }
 
+
+TrackerConfig *
+tracker_config_new_with_domain (const gchar *domain)
+{
+	return g_object_new (TRACKER_TYPE_CONFIG,  "domain", domain, NULL);
+}
+
 gboolean
 tracker_config_save (TrackerConfig *config)
 {
