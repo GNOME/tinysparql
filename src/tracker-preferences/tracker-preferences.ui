@@ -37,6 +37,8 @@
     <property name="border_width">5</property>
     <property name="type_hint">normal</property>
     <property name="has_separator">False</property>
+    <signal name="close" handler="gtk_main_quit"/>
+    <signal name="delete_event" handler="gtk_main_quit"/>
     <child internal-child="vbox">
       <object class="GtkVBox" id="dialog-vbox1">
         <property name="visible">True</property>
@@ -532,12 +534,13 @@
                                       </packing>
                                     </child>
                                     <child>
-                                      <object class="GtkToggleButton" id="togglebutton1">
+                                      <object class="GtkToggleButton" id="togglebutton_home">
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <property name="receives_default">True</property>
                                         <property name="tooltip_text" translatable="yes">When toggled, this makes sure your home directory is included in the list.</property>
                                         <property name="active">True</property>
+                                        <signal name="toggled" handler="togglebutton_home_toggled_cb"/>
                                         <child>
                                           <object class="GtkImage" id="image11">
                                             <property name="visible">True</property>
@@ -1189,13 +1192,11 @@ Most commonly this is used to ignore directories like *~, *.o, *.la, etc</proper
     <property name="value">10</property>
     <property name="upper">1000</property>
     <property name="step_increment">1</property>
-    <property name="page_increment">10</property>
-    <property name="page_size">10</property>
   </object>
   <object class="GtkSizeGroup" id="sizegroup_indexing">
     <widgets>
-      <widget name="label_disk_space_limit"/>
       <widget name="label_throttle"/>
+      <widget name="label_disk_space_limit"/>
     </widgets>
   </object>
 </interface>

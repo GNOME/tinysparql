@@ -26,6 +26,8 @@ using Tracker;
 
 public static Config config = null;
 
+public const string HOME_STRING = "$HOME";
+
 public static Window window;
 public static CheckButton checkbutton_enable_index_on_battery_first_time;
 public static CheckButton checkbutton_enable_index_on_battery;
@@ -46,6 +48,7 @@ public static TreeView treeview_index_single;
 public static TreeView treeview_ignored_directories;
 public static TreeView treeview_ignored_directories_with_content;
 public static TreeView treeview_ignored_files;
+public static ToggleButton togglebutton_home;
 
 public static void spinbutton_delay_value_changed_cb (SpinButton source) {
 	config.initial_sleep = source.get_value_as_int ();
@@ -78,6 +81,11 @@ public static void checkbutton_index_removable_media_toggled_cb (CheckButton sou
 
 public static string hscale_disk_space_limit_format_value_cb (Scale source, double value) {
 	config.low_disk_space_limit = (int) value;
+
+	if (((int) value) == -1) {
+		return "disabled";
+	}
+
 	return "%d%%".printf ((int) value);
 }
 
@@ -103,12 +111,15 @@ public static void add_freevalue (ListStore model) {
 	content_area.add (entry);
 
 	if (dialog.run () == ResponseType.ACCEPT) {
-		TreeIter iter;
+		string text = entry.get_text ();
 
-		model.append (out iter);
-		var v = Value (typeof (string));
-		v.set_string (entry.get_text ());
-		model.set_value (iter, 0, v);
+		if (text != null && text != "") {
+			TreeIter iter;
+			model.append (out iter);
+			var v = Value (typeof (string));
+			v.set_string (text);
+			model.set_value (iter, 0, v);
+		}
 	}
 
 	dialog.destroy ();
@@ -213,6 +224,22 @@ public static SList<string> model_to_slist (ListStore model)
 	return list;
 }
 
+public bool model_contains (TreeModel model, string needle) {
+	bool valid;
+	TreeIter iter;
+
+	valid = model.get_iter_first (out iter);
+	while (valid) {
+		Value value;
+		model.get_value (iter, 0, out value);
+		if (value.get_string () == needle) {
+			return true;
+		}
+		valid = model.iter_next (ref iter);
+	}
+	return false;
+}
+
 public static void button_save_clicked_cb (Button source) {
 
 	config.index_single_directories = model_to_slist (liststore_index_single);
@@ -222,10 +249,39 @@ public static void button_save_clicked_cb (Button source) {
 	config.index_recursive_directories = model_to_slist (liststore_index_recursively);
 
 	config.save ();
+
+	/* TODO: restart the Application and Files miner (no idea how to cleanly do this atm) */
 }
 
 public static void button_close_clicked_cb  (Button source) {
 	Gtk.main_quit ();
+}
+
+public static void togglebutton_home_toggled_cb (ToggleButton source) {
+	if (source.active && !model_contains (liststore_index_recursively, HOME_STRING)) {
+		TreeIter iter;
+		liststore_index_recursively.append (out iter);
+		var v = Value (typeof (string));
+		v.set_string (HOME_STRING);
+		liststore_index_recursively.set_value (iter, 0, v);
+	}
+
+	if (!source.active && model_contains (liststore_index_recursively, HOME_STRING)) {
+		bool valid;
+		TreeIter iter;
+
+		valid = liststore_index_recursively.get_iter_first (out iter);
+		while (valid) {
+			Value value;
+			liststore_index_recursively.get_value (iter, 0, out value);
+			if (value.get_string () == HOME_STRING) {
+				liststore_index_recursively.remove (iter);
+				valid = liststore_index_recursively.get_iter_first (out iter);
+			} else {
+				valid = liststore_index_recursively.iter_next (ref iter);
+			}
+		}
+	}
 }
 
 static void
@@ -275,6 +331,7 @@ static int main (string[] args) {
 		hscale_disk_space_limit.set_value ((double) config.low_disk_space_limit);
 		hscale_throttle = builder.get_object ("hscale_throttle") as Scale;
 		hscale_throttle.set_value ((double) config.throttle);
+		togglebutton_home = builder.get_object ("togglebutton_home") as ToggleButton;
 
 		treeview_index_recursively = builder.get_object ("treeview_index_recursively") as TreeView;
 		treeview_index_single = builder.get_object ("treeview_index_single") as TreeView;
@@ -290,6 +347,8 @@ static int main (string[] args) {
 
 		liststore_index_recursively = builder.get_object ("liststore_index_recursively") as ListStore;
 		fill_in_model (liststore_index_recursively, config.index_recursive_directories);
+
+		togglebutton_home.active = model_contains (liststore_index_recursively, HOME_STRING);
 
 		liststore_index_single = builder.get_object ("liststore_index_single") as ListStore;
 		fill_in_model (liststore_index_single, config.index_single_directories);
