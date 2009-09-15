@@ -16,7 +16,7 @@ interface Resources : GLib.Object {
 }
 
 public class HistoryItem {
-	HistoryItem (string uri) {
+	public HistoryItem (string uri) {
 		this.uri = uri;
 	}
 	public string uri;
