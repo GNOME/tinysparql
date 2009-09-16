@@ -1262,7 +1262,7 @@ get_id3v24_tags (const gchar *data,
 				break;
 			}
 			default:
-				g_assert_not_reached ();
+				g_warn_if_reached ();
 			}
 		}
 		}
@@ -1454,7 +1454,7 @@ get_id3v23_tags (const gchar *data,
 				tag->recording_time = word;
 				break;
 			default:
-				g_assert_not_reached ();
+				g_warn_if_reached ();
 			}
 		}
 		}
@@ -1584,7 +1584,7 @@ get_id3v20_tags (const gchar *data,
 				tag->recording_time = word;
 				break;
 			default:
-				g_assert_not_reached ();
+				g_warn_if_reached ();
 			}
 		}
 
