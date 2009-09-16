@@ -566,7 +566,7 @@ main (gint argc, gchar *argv[])
 		g_thread_init (NULL);
 	}
 
-	client = tracker_connect (FALSE, -1);
+	client = tracker_connect (FALSE, G_MAXINT);
 
 	if (!client) {
 		g_printerr ("%s\n",
