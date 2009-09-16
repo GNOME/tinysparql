@@ -1644,6 +1644,11 @@ parse_id3v24 (const gchar *data,
 			    ((data[12] & 0x7F) << 7) |
 			    ((data[13] & 0x7F) << 0));
 		pos += ehdrSize;
+
+		if (pos + tsize > size) {
+			/* invalid size: extended header longer than tag */
+			return;
+		}
 	}
 
 	if (unsync) {
@@ -1717,6 +1722,11 @@ parse_id3v23 (const gchar *data,
 		if (padding < tsize)
 			tsize -= padding;
 		else {
+			return;
+		}
+
+		if (pos + tsize > size) {
+			/* invalid size: extended header longer than tag */
 			return;
 		}
 	}
