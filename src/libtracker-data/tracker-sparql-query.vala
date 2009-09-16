@@ -1499,45 +1499,38 @@ public class Tracker.SparqlQuery : Object {
 		return translate_additive_expression (sql);
 	}
 
+	DataType process_relational_expression (StringBuilder sql, long begin, uint n_bindings, DataType op1type, string operator) throws SparqlError {
+		sql.insert (begin, "(");
+		sql.append (operator);
+		var op2type = translate_numeric_expression (sql);
+		sql.append (")");
+		if ((op1type == DataType.DATETIME && op2type == DataType.STRING)
+		    || (op1type == DataType.STRING && op2type == DataType.DATETIME)) {
+			if (bindings.length () == n_bindings + 1) {
+				// trigger string => datetime conversion
+				bindings.last ().data.is_datetime = true;
+			}
+		}
+		return DataType.BOOLEAN;
+	}
+
 	DataType translate_relational_expression (StringBuilder sql) throws SparqlError {
 		long begin = sql.len;
+		// TODO: improve performance
+		uint n_bindings = bindings.length ();
 		var optype = translate_numeric_expression (sql);
 		if (accept (SparqlTokenType.OP_GE)) {
-			sql.insert (begin, "(");
-			sql.append (" >= ");
-			translate_numeric_expression (sql);
-			sql.append (")");
-			return DataType.BOOLEAN;
+			return process_relational_expression (sql, begin, n_bindings, optype, " >= ");
 		} else if (accept (SparqlTokenType.OP_EQ)) {
-			sql.insert (begin, "(");
-			sql.append (" = ");
-			translate_numeric_expression (sql);
-			sql.append (")");
-			return DataType.BOOLEAN;
+			return process_relational_expression (sql, begin, n_bindings, optype, " = ");
 		} else if (accept (SparqlTokenType.OP_NE)) {
-			sql.insert (begin, "(");
-			sql.append (" <> ");
-			translate_numeric_expression (sql);
-			sql.append (")");
-			return DataType.BOOLEAN;
+			return process_relational_expression (sql, begin, n_bindings, optype, " <> ");
 		} else if (accept (SparqlTokenType.OP_LT)) {
-			sql.insert (begin, "(");
-			sql.append (" < ");
-			translate_numeric_expression (sql);
-			sql.append (")");
-			return DataType.BOOLEAN;
+			return process_relational_expression (sql, begin, n_bindings, optype, " < ");
 		} else if (accept (SparqlTokenType.OP_LE)) {
-			sql.insert (begin, "(");
-			sql.append (" <= ");
-			translate_numeric_expression (sql);
-			sql.append (")");
-			return DataType.BOOLEAN;
+			return process_relational_expression (sql, begin, n_bindings, optype, " <= ");
 		} else if (accept (SparqlTokenType.OP_GT)) {
-			sql.insert (begin, "(");
-			sql.append (" > ");
-			translate_numeric_expression (sql);
-			sql.append (")");
-			return DataType.BOOLEAN;
+			return process_relational_expression (sql, begin, n_bindings, optype, " > ");
 		}
 		return optype;
 	}
