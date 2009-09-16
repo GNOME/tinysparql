@@ -45,7 +45,7 @@ tracker_preferences_LDADD = 						\
 	$(GLIB_LIBS)							\
 	$(GMODULE_LIBS)
 
-EXTRA_DIST = $(pkgdata_DATA) tracker-config.vapi \
+EXTRA_DIST = $(pkgdata_DATA) config.vapi tracker-config.vapi tracker-preferences.vala.stamp \
 	$(tracker_preferences_VALASOURCES)
 
 tracker-preferences.vala.stamp: $(tracker_preferences_VALASOURCES)

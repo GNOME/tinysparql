@@ -5,5 +5,6 @@ data/tracker-status-icon.desktop.in
 data/tracker-store.desktop.in
 data/tracker-miner-fs.desktop.in
 src/tracker-status-icon/tracker-status-icon.desktop.in
+src/tracker-preferences/tracker-preferences.c
 src/tracker-preferences/tracker-preferences.desktop.in
 src/tracker-search-tool/tracker-search-tool.desktop.in
