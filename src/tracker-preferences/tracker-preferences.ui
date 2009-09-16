@@ -1128,13 +1128,13 @@ Most commonly this is used to ignore directories like *~, *.o, *.la, etc</proper
             <property name="visible">True</property>
             <property name="layout_style">end</property>
             <child>
-              <object class="GtkButton" id="button_save">
-                <property name="label">gtk-save</property>
+              <object class="GtkButton" id="button_apply">
+                <property name="label">gtk-apply</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="use_stock">True</property>
-                <signal name="clicked" handler="button_save_clicked_cb"/>
+                <signal name="clicked" handler="button_apply_clicked_cb"/>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -1167,7 +1167,7 @@ Most commonly this is used to ignore directories like *~, *.o, *.la, etc</proper
       </object>
     </child>
     <action-widgets>
-      <action-widget response="0">button_save</action-widget>
+      <action-widget response="0">button_apply</action-widget>
       <action-widget response="0">button_close</action-widget>
     </action-widgets>
   </object>
@@ -1195,8 +1195,8 @@ Most commonly this is used to ignore directories like *~, *.o, *.la, etc</proper
   </object>
   <object class="GtkSizeGroup" id="sizegroup_indexing">
     <widgets>
-      <widget name="label_throttle"/>
       <widget name="label_disk_space_limit"/>
+      <widget name="label_throttle"/>
     </widgets>
   </object>
 </interface>

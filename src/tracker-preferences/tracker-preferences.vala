@@ -240,7 +240,7 @@ public bool model_contains (TreeModel model, string needle) {
 	return false;
 }
 
-public static void button_save_clicked_cb (Button source) {
+public static void button_apply_clicked_cb (Button source) {
 
 	config.index_single_directories = model_to_slist (liststore_index_single);
 	config.ignored_directories = model_to_slist (liststore_ignored_directories);
