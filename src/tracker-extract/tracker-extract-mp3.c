@@ -1261,6 +1261,9 @@ get_id3v24_tags (const gchar *data,
 
 				break;
 			}
+			case ID3V24_TYER:
+				tag->recording_time = word;
+				break;
 			default:
 				g_warn_if_reached ();
 			}
