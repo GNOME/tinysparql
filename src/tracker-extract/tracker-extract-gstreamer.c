@@ -462,6 +462,7 @@ extract_metadata (MetadataExtractor *extractor,
 				tracker_statement_list_insert (metadata, canonical_uri, RDF_TYPE, NMM_PREFIX "MusicAlbum");
 				tracker_statement_list_insert (metadata, canonical_uri, NMM_PREFIX "albumTitle", s);
 				tracker_statement_list_insert (metadata, uri, NMM_PREFIX "musicAlbum", canonical_uri);
+				add_uint_gst_tag (metadata, canonical_uri, NMM_PREFIX "albumTrackCount", extractor->tagcache, GST_TAG_TRACK_COUNT);
 				g_free (canonical_uri);
 				*album = s;
 			}
@@ -471,7 +472,6 @@ extract_metadata (MetadataExtractor *extractor,
 				*scount = g_strdup_printf ("%d", count);
 			}
 
-			add_uint_gst_tag   (metadata, uri, NMM_PREFIX "albumTrackCount", extractor->tagcache, GST_TAG_TRACK_COUNT);
 			add_uint_gst_tag   (metadata, uri, NMM_PREFIX "trackNumber", extractor->tagcache, GST_TAG_TRACK_NUMBER);
 			add_uint_gst_tag   (metadata, uri, NMM_PREFIX "setNumber", extractor->tagcache, GST_TAG_ALBUM_VOLUME_NUMBER);
 
