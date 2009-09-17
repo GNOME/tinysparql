@@ -1547,7 +1547,7 @@ public class Tracker.SparqlQuery : Object {
 				throw get_error ("expected boolean expression");
 			}
 			sql.insert (begin, "(");
-			sql.append (" && ");
+			sql.append (" AND ");
 			optype = translate_value_logical (sql);
 			sql.append (")");
 			if (optype != DataType.BOOLEAN) {
@@ -1565,7 +1565,7 @@ public class Tracker.SparqlQuery : Object {
 				throw get_error ("expected boolean expression");
 			}
 			sql.insert (begin, "(");
-			sql.append (" || ");
+			sql.append (" OR ");
 			optype = translate_conditional_and_expression (sql);
 			sql.append (")");
 			if (optype != DataType.BOOLEAN) {
