@@ -802,6 +802,36 @@ fi
 
 AM_CONDITIONAL(HAVE_TRACKER_EXPLORER, test "$have_tracker_explorer" = "yes")
 
+AC_ARG_ENABLE([tracker-search-bar],
+	      AS_HELP_STRING([--enable-tracker-search-bar],
+	                     [enable tracker-search-bar[[default=auto]]]),,
+	      [enable_tracker_search_bar=auto])
+
+if test "x$enable_tracker_search_bar" != "xno" ; then
+   PKG_CHECK_MODULES(TRACKER_SEARCH_BAR, [
+   		libgnomeui-2.0 
+   		libpanelapplet-2.0 
+		glib-2.0    >= $GLIB_REQUIRED
+		gtk+-2.0    >= $GTK_REQUIRED
+		dbus-1      >= $DBUS_REQUIRED
+		dbus-glib-1 >= $DBUS_REQUIRED
+		gee-1.0     >= $GEE_REQUIRED],
+		[have_tracker_search_bar=yes],
+		[have_tracker_search_bar=no])
+
+   AC_SUBST([TRACKER_SEARCH_BAR_CFLAGS])
+   AC_SUBST([TRACKER_SEARCH_BAR_LIBS])
+else
+   have_tracker_search_bar="no  (disabled)"
+fi
+
+if test "x$enable_tracker_search_bar" = "xyes"; then
+   if test "x$have_tracker_search_bar" != "xyes"; then
+      AC_MSG_ERROR([Couldn't find tracker-search-bar dependencies (glib-2.0 >= $GLIB_REQUIRED, gtk+-2.0 >= $GTK_REQUIRED, dbus-1 >= $DBUS_REQUIRED, dbus-glib-1 >= $DBUS_REQUIRED, gee-1.0 >= $GEE_REQUIRED, libpanelapplet-2.0 and libgnomeui-2.0).])
+   fi
+fi
+
+AM_CONDITIONAL(HAVE_TRACKER_SEARCH_BAR, test "$have_tracker_search_bar" = "yes")
 
 ##################################################################
 # Check for GNOME/GTK dependencies to build tracker search tool
@@ -1404,9 +1434,10 @@ AC_CONFIG_FILES([
 	src/tracker-miner-fs/Makefile
 	src/tracker-preferences/Makefile
 	src/tracker-preferences/tracker-preferences.desktop.in
+	src/tracker-search-bar/Makefile
 	src/tracker-search-tool/Makefile
-	src/tracker-explorer/Makefile
 	src/tracker-search-tool/tracker-search-tool.desktop.in
+	src/tracker-explorer/Makefile
 	src/tracker-utils/Makefile
 	src/plugins/Makefile
 	src/plugins/evolution/Makefile
@@ -1464,7 +1495,8 @@ Applications:
 	Build tracker-preferences:		$have_tracker_preferences
 	Build tracker-status-icon:              $have_tracker_status_icon
 	Build libtracker-gtk:			$have_libtrackergtk
-	Build tracker-explorer:	                $have_tracker_explorer
+	Build tracker-explorer:                 $have_tracker_explorer
+	Build tracker-search-bar:               $have_tracker_search_bar
 
 Metadata Extractors:
 
@@ -1494,5 +1526,6 @@ Warning:
 	$old_exec_message
 	$old_data_message
 	$old_file_action
+
 
 "

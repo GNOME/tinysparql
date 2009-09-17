@@ -31,9 +31,14 @@ if HAVE_TRACKER_SEARCH_TOOL
 SUBDIRS += tracker-search-tool
 endif
 
+if HAVE_TRACKER_SEARCH_BAR
+SUBDIRS += tracker-search-bar
+endif
+
 if HAVE_TRACKER_EXPLORER
 SUBDIRS += tracker-explorer
 endif
+
 
 DIST_SUBDIRS = 					\
 	libstemmer				\
