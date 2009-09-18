@@ -64,7 +64,7 @@ public static void checkbutton_enable_thumbnails_toggled_cb (CheckButton source)
 
 public static void checkbutton_enable_index_on_battery_toggled_cb (CheckButton source) {
 	config.index_on_battery = source.active;
-	checkbutton_enable_index_on_battery_first_time.set_sensitive (source.active);
+	checkbutton_enable_index_on_battery_first_time.set_sensitive (!source.active);
 }
 
 public static void checkbutton_enable_index_on_battery_first_time_toggled_cb (CheckButton source) {
@@ -314,7 +314,7 @@ static int main (string[] args) {
 		checkbutton_enable_index_on_battery = builder.get_object ("checkbutton_enable_index_on_battery") as CheckButton;
 		checkbutton_enable_index_on_battery_first_time = builder.get_object ("checkbutton_enable_index_on_battery_first_time") as CheckButton;
 		checkbutton_enable_index_on_battery.active = config.index_on_battery;
-		checkbutton_enable_index_on_battery_first_time.set_sensitive (checkbutton_enable_index_on_battery.active);
+		checkbutton_enable_index_on_battery_first_time.set_sensitive (!checkbutton_enable_index_on_battery.active);
 		checkbutton_enable_index_on_battery_first_time.active = config.index_on_battery_first_time;
 		spinbutton_delay = builder.get_object ("spinbutton_delay") as SpinButton;
 		spinbutton_delay.set_increments (1, 1);

@@ -217,7 +217,6 @@
                                   <object class="GtkCheckButton" id="checkbutton_enable_index_on_battery_first_time">
                                     <property name="label" translatable="yes">Enable for _first time</property>
                                     <property name="visible">True</property>
-                                    <property name="sensitive">False</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
                                     <property name="tooltip_text" translatable="yes">This is an exception to the previous option. 
@@ -1159,8 +1158,8 @@ Most commonly this is used to ignore directories like *~, *.o, *.la, etc</proper
   </object>
   <object class="GtkSizeGroup" id="sizegroup_indexing">
     <widgets>
-      <widget name="label_throttle"/>
       <widget name="label_disk_space_limit"/>
+      <widget name="label_throttle"/>
     </widgets>
   </object>
 </interface>
