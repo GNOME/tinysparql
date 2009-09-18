@@ -33,6 +33,9 @@ G_BEGIN_DECLS
 #define TRACKER_IS_CRAWLER_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), TRACKER_TYPE_CRAWLER))
 #define TRACKER_CRAWLER_GET_CLASS(obj)	(G_TYPE_INSTANCE_GET_CLASS ((obj), TRACKER_TYPE_CRAWLER, TrackerCrawlerClass))
 
+/* Max timeouts time (in msec) */
+#define MAX_TIMEOUT_INTERVAL 1000
+
 typedef struct TrackerCrawler	      TrackerCrawler;
 typedef struct TrackerCrawlerClass    TrackerCrawlerClass;
 typedef struct TrackerCrawlerPrivate  TrackerCrawlerPrivate;
@@ -67,6 +70,9 @@ gboolean        tracker_crawler_start    (TrackerCrawler *crawler,
 void            tracker_crawler_stop     (TrackerCrawler *crawler);
 void            tracker_crawler_pause    (TrackerCrawler *crawler);
 void            tracker_crawler_resume   (TrackerCrawler *crawler);
+
+void            tracker_crawler_set_throttle (TrackerCrawler *crawler,
+					      gdouble         throttle);
 
 G_END_DECLS
 

@@ -28,9 +28,6 @@
 #include "tracker-monitor.h"
 #include "tracker-utils.h"
 
-/* Max timeouts time (in msec) */
-#define MAX_TIMEOUT_INTERVAL 1000
-
 #define TRACKER_MINER_FS_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_MINER_FS, TrackerMinerFSPrivate))
 
 typedef struct {

@@ -51,6 +51,8 @@ struct TrackerCrawlerPrivate {
 	/* Idle handler for processing found data */
 	guint		idle_id;
 
+	gdouble         throttle;
+
 	gboolean        recurse;
 
 	/* Statistics */
@@ -765,4 +767,31 @@ tracker_crawler_resume (TrackerCrawler *crawler)
 
 	g_message ("Crawler is resuming, %s", 
 		   crawler->private->is_running ? "currently running" : "not running");
+}
+
+void
+tracker_crawler_set_throttle (TrackerCrawler *crawler,
+			      gdouble         throttle)
+{
+	g_return_if_fail (TRACKER_IS_CRAWLER (crawler));
+
+	throttle = CLAMP (throttle, 0, 1);
+	crawler->private->throttle = throttle;
+
+	/* Update timeouts */
+	if (crawler->private->idle_id != 0) {
+		guint interval, idle_id;
+
+		interval = MAX_TIMEOUT_INTERVAL * crawler->private->throttle;
+
+		g_source_remove (crawler->private->idle_id);
+
+		if (interval == 0) {
+			idle_id = g_idle_add (process_func, crawler);
+		} else {
+			idle_id = g_timeout_add (interval, process_func, crawler);
+		}
+
+		crawler->private->idle_id = idle_id;
+	}
 }
