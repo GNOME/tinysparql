@@ -81,6 +81,9 @@ void     tracker_miner_fs_add_directory    (TrackerMinerFS *fs,
 gboolean tracker_miner_fs_remove_directory (TrackerMinerFS *fs,
 					    GFile          *file);
 
+void     tracker_miner_fs_set_throttle     (TrackerMinerFS *fs,
+					    gdouble         throttle);
+gdouble  tracker_miner_fs_get_throttle     (TrackerMinerFS *fs);
 
 G_END_DECLS
 

@@ -28,6 +28,9 @@
 #include "tracker-monitor.h"
 #include "tracker-utils.h"
 
+/* Max timeouts time (in msec) */
+#define MAX_TIMEOUT_INTERVAL 1000
+
 #define TRACKER_MINER_FS_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_MINER_FS, TrackerMinerFSPrivate))
 
 typedef struct {
@@ -62,6 +65,8 @@ struct TrackerMinerFSPrivate {
 
 	GFile          *current_file;
 	GCancellable   *cancellable;
+
+	gdouble         throttle;
 
 	/* Status */
 	guint           been_started : 1;
@@ -98,7 +103,21 @@ enum {
 	LAST_SIGNAL
 };
 
+enum {
+	PROP_0,
+	PROP_THROTTLE
+};
+
 static void           fs_finalize                  (GObject        *object);
+static void           fs_set_property              (GObject        *object,
+						    guint           prop_id,
+						    const GValue   *value,
+						    GParamSpec     *pspec);
+static void           fs_get_property              (GObject        *object,
+						    guint           prop_id,
+						    GValue         *value,
+						    GParamSpec     *pspec);
+
 static gboolean       fs_defaults                  (TrackerMinerFS *fs,
 						    GFile          *file);
 static gboolean       fs_contents_defaults         (TrackerMinerFS *fs,
@@ -169,6 +188,8 @@ tracker_miner_fs_class_init (TrackerMinerFSClass *klass)
         TrackerMinerClass *miner_class = TRACKER_MINER_CLASS (klass);
 
 	object_class->finalize = fs_finalize;
+	object_class->set_property = fs_set_property;
+	object_class->get_property = fs_get_property;
 
         miner_class->started = miner_started;
         miner_class->stopped = miner_stopped;
@@ -179,6 +200,14 @@ tracker_miner_fs_class_init (TrackerMinerFSClass *klass)
 	fs_class->check_directory   = fs_defaults;
 	fs_class->monitor_directory = fs_defaults;
 	fs_class->check_directory_contents = fs_contents_defaults;
+
+	g_object_class_install_property (object_class,
+					 PROP_THROTTLE,
+					 g_param_spec_double ("throttle",
+							      "Throttle",
+							      "Modifier for the indexing speed, 0 is max speed",
+							      0, 1, 0,
+							      G_PARAM_READWRITE));
 
 	signals[CHECK_FILE] =
 		g_signal_new ("check-file",
@@ -329,6 +358,43 @@ fs_finalize (GObject *object)
 	g_queue_free (priv->items_created);
 
 	G_OBJECT_CLASS (tracker_miner_fs_parent_class)->finalize (object);
+}
+
+static void
+fs_set_property (GObject      *object,
+		 guint         prop_id,
+		 const GValue *value,
+		 GParamSpec   *pspec)
+{
+	switch (prop_id) {
+	case PROP_THROTTLE:
+		tracker_miner_fs_set_throttle (TRACKER_MINER_FS (object),
+					       g_value_get_double (value));
+		break;
+	default:
+		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+		break;
+	}
+}
+
+static void
+fs_get_property (GObject    *object,
+		 guint       prop_id,
+		 GValue     *value,
+		 GParamSpec *pspec)
+{
+	TrackerMinerFS *fs;
+
+	fs = TRACKER_MINER_FS (object);
+
+	switch (prop_id) {
+	case PROP_THROTTLE:
+		g_value_set_double (value, fs->private->throttle);
+		break;
+	default:
+		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+		break;
+	}
 }
 
 static gboolean 
@@ -904,6 +970,22 @@ item_queue_handlers_cb (gpointer user_data)
 	}
 }
 
+static guint
+_tracker_idle_add (TrackerMinerFS *fs,
+		   GSourceFunc     func,
+		   gpointer        user_data)
+{
+	guint interval;
+
+	interval = MAX_TIMEOUT_INTERVAL * fs->private->throttle;
+
+	if (interval == 0) {
+		return g_idle_add (func, user_data);
+	} else {
+		return g_timeout_add (interval, func, user_data);
+	}
+}
+
 static void
 item_queue_handlers_set_up (TrackerMinerFS *fs)
 {
@@ -932,8 +1014,9 @@ item_queue_handlers_set_up (TrackerMinerFS *fs)
 	g_free (status);
 
 	fs->private->item_queues_handler_id =
-		g_idle_add (item_queue_handlers_cb,
-			    fs);
+		_tracker_idle_add (fs,
+				   item_queue_handlers_cb,
+				   fs);
 }
 
 static gboolean
@@ -1429,7 +1512,7 @@ crawl_directories_start (TrackerMinerFS *fs)
 	fs->private->files_found = 0;
 	fs->private->files_ignored = 0;
 
-	fs->private->crawl_directories_id = g_idle_add (crawl_directories_cb, fs);
+	fs->private->crawl_directories_id = _tracker_idle_add (fs, crawl_directories_cb, fs);
 }
 
 static void
@@ -1550,4 +1633,44 @@ tracker_miner_fs_remove_directory (TrackerMinerFS *fs,
 	}
 
 	return return_val;
+}
+
+void
+tracker_miner_fs_set_throttle (TrackerMinerFS *fs,
+			       gdouble         throttle)
+{
+	g_return_if_fail (TRACKER_IS_MINER_FS (fs));
+
+	throttle = CLAMP (throttle, 0, 1);
+
+	if (fs->private->throttle == throttle) {
+		return;
+	}
+
+	fs->private->throttle = throttle;
+
+	/* Update timeouts */
+	if (fs->private->item_queues_handler_id != 0) {
+		g_source_remove (fs->private->item_queues_handler_id);
+
+		fs->private->item_queues_handler_id =
+			_tracker_idle_add (fs,
+					   item_queue_handlers_cb,
+					   fs);
+	}
+
+	if (fs->private->crawl_directories_id) {
+		g_source_remove (fs->private->crawl_directories_id);
+
+		fs->private->crawl_directories_id =
+			_tracker_idle_add (fs, crawl_directories_cb, fs);
+	}
+}
+
+gdouble
+tracker_miner_fs_get_throttle (TrackerMinerFS *fs)
+{
+	g_return_val_if_fail (TRACKER_IS_MINER_FS (fs), 0);
+
+	return fs->private->throttle;
 }
