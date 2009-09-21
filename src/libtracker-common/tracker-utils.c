@@ -170,44 +170,36 @@ tracker_seconds_to_string (gdouble  seconds_elapsed,
 	s = g_string_new ("");
 
 	if (short_string) {
-		if (days) {
-			g_string_append_printf (s, " %dd", days);
+		if (days) { /* Translators: this is %d days */
+			g_string_append_printf (s, _(" %dd"), days);
 		}
 
-		if (hours) {
-			g_string_append_printf (s, " %2.2dh", hours);
+		if (hours) { /* Translators: this is %2.2d hours */
+			g_string_append_printf (s, _(" %2.2dh"), hours);
 		}
 
-		if (minutes) {
-			g_string_append_printf (s, " %2.2dm", minutes);
+		if (minutes) { /* Translators: this is %2.2d minutes */
+			g_string_append_printf (s, _(" %2.2dm"), minutes);
 		}
 
-		if (seconds) {
-			g_string_append_printf (s, " %2.2ds", seconds);
+		if (seconds) { /* Translators: this is %2.2d seconds */
+			g_string_append_printf (s, _(" %2.2ds"), seconds);
 		}
 	} else {
 		if (days) {
-			g_string_append_printf (s, " %d day%s",
-						days,
-						days == 1 ? "" : "s");
+			g_string_append_printf (s, ngettext (" %d day", " %d days", days), days);
 		}
 
 		if (hours) {
-			g_string_append_printf (s, " %2.2d hour%s",
-						hours,
-						hours == 1 ? "" : "s");
+			g_string_append_printf (s, ngettext (" %2.2d hour", " %2.2d hours", hours), hours);
 		}
 
 		if (minutes) {
-			g_string_append_printf (s, " %2.2d minute%s",
-						minutes,
-						minutes == 1 ? "" : "s");
+			g_string_append_printf (s, ngettext (" %2.2d minute", " %2.2d minutes", minutes), minutes);
 		}
 
 		if (seconds) {
-			g_string_append_printf (s, " %2.2d second%s",
-						seconds,
-						seconds == 1 ? "" : "s");
+			g_string_append_printf (s, ngettext (" %2.2d second", " %2.2d seconds", seconds), seconds);
 		}
 	}
 
