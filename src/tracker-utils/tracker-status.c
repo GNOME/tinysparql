@@ -203,7 +203,7 @@ get_dbus_proxy (const gchar *name)
 	if (!proxy) {
 		gchar *str;
 
-		str = g_strdup_printf (_("Could not DBusGProxy for that miner: %s"),
+		str = g_strdup_printf (_("Could not create a DBusGProxy for that miner: %s"),
 				       name);
 		g_printerr ("%s\n", str);
 		g_free (str);
