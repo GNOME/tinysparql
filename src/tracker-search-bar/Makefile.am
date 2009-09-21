@@ -2,19 +2,13 @@ include $(top_srcdir)/Makefile.decl
 
 libexec_PROGRAMS = tracker-search-bar
 
-tracker_search_bar_VALASOURCES = 				\
-	tracker-search-bar.vala
-
 tracker_search_bar_SOURCES = 					\
-	$(tracker_search_bar_VALASOURCES:.vala=.c)
-
-tracker_search_bar.vala.stamp: $(tracker_search_bar_VALASOURCES)
-	$(VALAC) -C -g --pkg gtk+-2.0 --pkg libgnomeui-2.0 --pkg libpanelapplet-2.0 $^
-	touch tracker_search_bar.vala.stamp
+	tracker-applet.c 					\
+	tracker-applet.h
 
 tracker_search_bar_CFLAGS = \
-	-DTRACKER_UI_DIR=\"$(datadir)/tracker/\"		\
-	-DSRCDIR=\"$(abs_srcdir)/\"				\
+	-DPKGDATADIR=\""$(pkgdatadir)"\"	 		\
+	-DGNOMELOCALEDIR=\""$(prefix)/$(DATADIRNAME)/locale"\" 	\
 	$(WARN_CFLAGS)						\
 	$(GCOV_CFLAGS)						\
 	$(TRACKER_SEARCH_BAR_CFLAGS)
@@ -33,10 +27,8 @@ server_DATA = $(server_in_files:.server.in=.server)
 
 # Misc data
 resourcesdir = $(pkgdatadir)
-resources_DATA =
-#	GNOME_Search_Bar_Applet.xml
-
-tracker_search_bar_dir = $(libexecdir)
+resources_DATA =						\
+	GNOME_Search_Bar_Applet.xml
 
 # Build rules
 @INTLTOOL_SERVER_RULE@
@@ -45,20 +37,10 @@ tracker_search_bar_dir = $(libexecdir)
 $(server_in_files): $(server_in_files:.server.in=.server.in.in)
 	sed -e "s|\@LIBEXECDIR\@|$(tracker_search_bar_dir)|" $< > $@
 
-BUILT_SOURCES = 						\
-	tracker_search_bar.vala.stamp
-
 EXTRA_DIST = 							\
-	$(tracker_search_bar_SOURCES) 				\
-	$(tracker_search_bar_VALASOURCES) 			\
 	$(resources_DATA)					\
-	tracker_search_bar.vala.stamp 				\
 	tracker-search-bar.ui					\
 	GNOME_Search_Bar_Applet.server.in.in
-
-MAINTAINERCLEANFILES = 						\
-	$(tracker_search_bar_SOURCES) 				\
-	tracker_search_bar.vala.stamp
 
 DISTCLEANFILES = 						\
 	$(server_DATA) 						\
