@@ -1,20 +1,21 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /* 
- * Copyright (C) 2006-2007 Imendio AB
+ * Copyright (C) 2009, Nokia (urho.konttori@nokia.com)
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
+ * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the
+ * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA  02110-1301, USA.
  *
  * Authors: Martyn Russell <martyn@imendio.com>
  */
@@ -25,20 +26,16 @@
 
 #include <glib/gi18n.h>
 #include <gtk/gtk.h>
+#include <gdk/gdkkeysyms.h>
+
 #include <bonobo/bonobo-ui-component.h>
 #include <panel-applet-gconf.h>
 
-typedef struct {
-	GtkBuilder *builder;
-
-	GtkWidget *widget;
-
-	GtkWidget *image;
-	GtkWidget *entry;
-} Applet;
+#include "tracker-applet.h"
+#include "tracker-results-window.h"
 
 static void applet_about_cb (BonoboUIComponent *uic,
-			     Applet            *applet,
+			     TrackerApplet     *applet,
 			     const gchar       *verb_name);
 
 static const BonoboUIVerb applet_menu_verbs [] = {
@@ -48,7 +45,7 @@ static const BonoboUIVerb applet_menu_verbs [] = {
 
 static void
 applet_about_cb (BonoboUIComponent *uic, 
-		 Applet            *applet, 
+		 TrackerApplet     *applet, 
 		 const gchar       *verb_name)
 {
 	GObject *object;
@@ -68,8 +65,8 @@ applet_about_cb (BonoboUIComponent *uic,
 }
 
 static void
-applet_entry_activate_cb (GtkEntry *entry,
-			  Applet   *applet)
+applet_entry_activate_cb (GtkEntry      *entry,
+			  TrackerApplet *applet)
 {
 	const gchar *text;
 
@@ -78,9 +75,14 @@ applet_entry_activate_cb (GtkEntry *entry,
 		return;
 	}
 
-	g_print ("Searching for: '%s'\n", text);
+	/* Need a better way to do this ? */
+	if (applet->results) {
+		gtk_widget_destroy (applet->results);
+		applet->results = NULL;
+	}
 
-	/* Do something */
+	g_print ("Searching for: '%s'\n", text);
+	applet->results = tracker_results_window_new (applet, text);
 
 	gtk_entry_set_text (entry, "");
 }
@@ -88,9 +90,26 @@ applet_entry_activate_cb (GtkEntry *entry,
 static gboolean
 applet_entry_button_press_event_cb (GtkWidget      *widget, 
 				    GdkEventButton *event, 
-				    Applet         *applet)
+				    TrackerApplet  *applet)
 {
-	panel_applet_request_focus (PANEL_APPLET (applet->widget), event->time);
+	panel_applet_request_focus (PANEL_APPLET (applet->parent), event->time);
+
+	return FALSE;
+}
+
+static gboolean
+applet_entry_key_press_event_cb (GtkWidget     *widget, 
+				 GdkEventKey   *event, 
+				 TrackerApplet *applet)
+{
+	if (!applet->results) {
+		return FALSE;
+	}
+
+	if (event->keyval == GDK_Escape) {
+		gtk_widget_destroy (applet->results);
+		applet->results = NULL;
+	}
 
 	return FALSE;
 }
@@ -98,7 +117,7 @@ applet_entry_button_press_event_cb (GtkWidget      *widget,
 static void
 applet_size_allocate_cb (GtkWidget     *widget,
 			 GtkAllocation *allocation,
-			 Applet        *applet)
+			 TrackerApplet *applet)
 {
 	PanelAppletOrient orient;
         gint size;
@@ -115,12 +134,17 @@ applet_size_allocate_cb (GtkWidget     *widget,
 }
 
 static void
-applet_destroy_cb (BonoboObject *object, 
-		   Applet       *applet)
+applet_destroy_cb (BonoboObject  *object, 
+		   TrackerApplet *applet)
 {
 	if (applet->builder) {
 		g_object_unref (applet->builder);
 		applet->builder = NULL;
+	}
+
+	if (applet->results) {
+		gtk_widget_destroy (applet->results);
+		applet->results = NULL;
 	}
 
 	g_free (applet);
@@ -129,7 +153,7 @@ applet_destroy_cb (BonoboObject *object,
 static gboolean
 applet_new (PanelApplet *parent_applet)
 {
-	Applet *applet;
+	TrackerApplet *applet;
 	GError *error = NULL;
 	GtkBuilder *builder;
 	GtkWidget *hbox;
@@ -148,9 +172,9 @@ applet_new (PanelApplet *parent_applet)
 
 	g_print ("Added builder file:'%s'\n", filename);
   
-	applet = g_new0 (Applet, 1);
+	applet = g_new0 (TrackerApplet, 1);
 
-	applet->widget = GTK_WIDGET (parent_applet);
+	applet->parent = GTK_WIDGET (parent_applet);
 	applet->builder = builder;
 
 	hbox = gtk_hbox_new (FALSE, 0);  
@@ -175,25 +199,28 @@ applet_new (PanelApplet *parent_applet)
 	g_signal_connect (applet->entry, 
 			  "button_press_event", 
 			  G_CALLBACK (applet_entry_button_press_event_cb), applet);
+	g_signal_connect (applet->entry, 
+			  "key_press_event", 
+			  G_CALLBACK (applet_entry_key_press_event_cb), applet);
 
-	panel_applet_set_flags (PANEL_APPLET (applet->widget), 
+	panel_applet_set_flags (PANEL_APPLET (applet->parent), 
 				PANEL_APPLET_EXPAND_MINOR);
-	panel_applet_set_background_widget (PANEL_APPLET (applet->widget),
-					    GTK_WIDGET (applet->widget));
+	panel_applet_set_background_widget (PANEL_APPLET (applet->parent),
+					    GTK_WIDGET (applet->parent));
 
-  	panel_applet_setup_menu_from_file (PANEL_APPLET (applet->widget),
+  	panel_applet_setup_menu_from_file (PANEL_APPLET (applet->parent),
 					   NULL,
 					   PKGDATADIR "/GNOME_Search_Bar_Applet.xml",
 					   NULL,
 					   applet_menu_verbs,
 					   applet);                               
 
-	gtk_widget_show (applet->widget);
+	gtk_widget_show (applet->parent);
 
-	g_signal_connect (applet->widget,
+	g_signal_connect (applet->parent,
 			  "size_allocate",
 			  G_CALLBACK (applet_size_allocate_cb), applet);
-	g_signal_connect (panel_applet_get_control (PANEL_APPLET (applet->widget)), 
+	g_signal_connect (panel_applet_get_control (PANEL_APPLET (applet->parent)), 
 			  "destroy",
 			  G_CALLBACK (applet_destroy_cb), applet);
 

@@ -4,16 +4,22 @@ libexec_PROGRAMS = tracker-search-bar
 
 tracker_search_bar_SOURCES = 					\
 	tracker-applet.c 					\
-	tracker-applet.h
+	tracker-applet.h					\
+	tracker-aligned-window.c				\
+	tracker-aligned-window.h				\
+	tracker-results-window.c				\
+	tracker-results-window.h
 
 tracker_search_bar_CFLAGS = \
 	-DPKGDATADIR=\""$(pkgdatadir)"\"	 		\
 	-DGNOMELOCALEDIR=\""$(prefix)/$(DATADIRNAME)/locale"\" 	\
+	-I$(top_srcdir)/src					\
 	$(WARN_CFLAGS)						\
 	$(GCOV_CFLAGS)						\
 	$(TRACKER_SEARCH_BAR_CFLAGS)
 
 tracker_search_bar_LDADD = 					\
+	$(top_builddir)/src/libtracker-client/libtracker-client-@TRACKER_API_VERSION@.la \
 	$(GCOV_LIBS)						\
 	$(TRACKER_SEARCH_BAR_LIBS)
 
