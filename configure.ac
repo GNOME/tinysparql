@@ -843,43 +843,24 @@ AC_ARG_ENABLE(tracker-search-tool,
 	      [enable_tracker_search_tool=auto])
 
 if test "x$enable_tracker_search_tool" != "xno"; then
-   PKG_CHECK_MODULES(GNOME_UTILS, 
-		     [libgnome-2.0 >= $LIBGNOME_REQUIRED
-		      libgnomeui-2.0 >= $LIBGNOMEUI_REQUIRED],
-	             [have_gnome_libs=yes], 
-		     [have_gnome_libs=no])
+   PKG_CHECK_MODULES(TRACKER_SEARCH_TOOL, [
+		glib-2.0    >= $GLIB_REQUIRED
+		gtk+-2.0    >= $GTK_REQUIRED
+		dbus-1      >= $DBUS_REQUIRED
+		dbus-glib-1 >= $DBUS_REQUIRED
+		gee-1.0     >= $GEE_REQUIRED],
+		[have_tracker_search_tool=yes],
+		[have_tracker_search_tool=no])
 
-   AC_SUBST(GNOME_UTILS_CFLAGS)
-   AC_SUBST(GNOME_UTILS_LIBS)
-
-   PKG_CHECK_MODULES(GNOMEDESKTOP, 
-  		     [gnome-desktop-2.0 >= $LIBGNOME_DESKTOP_REQUIRED],
-        	     [have_gnome_desktop=yes], 
-	 	     [have_gnome_desktop=no])
-
-   AC_SUBST(GNOMEDESKTOP_CFLAGS)
-   AC_SUBST(GNOMEDESKTOP_LIBS)
-
-   if test "x$have_gnome_libs" != "xyes"; then
-      tracker_search_tool_error="Couldn't find GNOME library dependencies (libgnome-2.0 >= $LIBGNOME_REQUIRED, libgnomeui-2.0 >= $LIBGNOMEUI_REQUIRED)."
-      have_tracker_search_tool="no"
-   elif test "x$have_gnome_desktop" != "xyes"; then
-      tracker_search_tool_error="Couldn't find GNOME desktop dependencies (gnome-desktop-2.0 >= $LIBGNOME_DESKTOP_REQUIRED)."
-      have_tracker_search_tool="no"
-   elif test "x$have_libtrackergtk" != "xyes"; then
-      tracker_search_tool_error="Not building tracker-search-tool because libtracker-gtk is disabled or missing dependencies."
-      have_tracker_search_tool="no"
-   else 
-      have_tracker_search_tool="yes"
-      GNOME_COMMON_INIT
-   fi
+   AC_SUBST([TRACKER_SEARCH_TOOL_CFLAGS])
+   AC_SUBST([TRACKER_SEARCH_TOOL_LIBS])
 else
    have_tracker_search_tool="no  (disabled)"
 fi
 
 if test "x$enable_tracker_search_tool" = "xyes"; then
    if test "x$have_tracker_search_tool" != "xyes"; then
-      AC_MSG_ERROR([$tracker_search_tool_error])
+      AC_MSG_ERROR([Couldn't find tracker-search-tool dependencies (glib-2.0 >= $GLIB_REQUIRED, gtk+-2.0 >= $GTK_REQUIRED, dbus-1 >= $DBUS_REQUIRED, dbus-glib-1 >= $DBUS_REQUIRED, gee-1.0 >= $GEE_REQUIRED).])
    fi
 fi
 
