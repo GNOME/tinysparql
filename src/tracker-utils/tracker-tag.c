@@ -310,6 +310,7 @@ main (int argc, char **argv)
 
 	if ((files && list) ||
 	    (files && (!add && !rm && !rm_all))) {
+		/* Translators: "Found" here is in terms of results found. */
 		g_print ("%s:\n", _("Found"));
 
 		for (i = 0, j = 0; files_resolved[i] != NULL; i++) {
