@@ -712,7 +712,7 @@ tracker_miner_resume (TrackerMiner  *miner,
 
 	if (!g_hash_table_remove (miner->private->pauses, GINT_TO_POINTER (cookie))) {
 		g_set_error_literal (error, TRACKER_MINER_ERROR, 0,
-				     _("Cookie not recognised to resume paused miner"));
+				     _("Cookie not recognized to resume paused miner"));
 		return FALSE;
 	}
 

@@ -159,7 +159,7 @@ main (int argc, char **argv)
 	}
 
 	pids = get_pids ();
-	str = g_strdup_printf (_("Found %d pids..."), g_slist_length (pids));
+	str = g_strdup_printf (_("Found %d pids…"), g_slist_length (pids));
 	g_print ("%s\n", str);
 	g_free (str);
 

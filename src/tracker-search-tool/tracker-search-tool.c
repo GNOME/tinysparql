@@ -221,7 +221,7 @@ static GtkActionEntry GSearchUiEntries[] = {
   { "Open",	     GTK_STOCK_OPEN,	N_("_Open"),		   NULL, NULL, NULL },
   { "OpenFolder",    GTK_STOCK_OPEN,	N_("O_pen Folder"),	   NULL, NULL, NULL },
   { "MoveToTrash",   GTK_STOCK_DELETE,	N_("Mo_ve to Trash"),	   NULL, NULL, NULL },
-  { "SaveResultsAs", GTK_STOCK_SAVE_AS, N_("_Save Results As..."), NULL, NULL, NULL },
+  { "SaveResultsAs", GTK_STOCK_SAVE_AS, N_("_Save Results As…"), NULL, NULL, NULL },
 };
 
 static const char * GSearchUiDescription =

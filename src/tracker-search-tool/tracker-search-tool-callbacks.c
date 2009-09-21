@@ -1329,7 +1329,7 @@ show_file_selector_cb (GtkAction * action,
 	GSearchWindow * gsearch = data;
 	GtkWidget * file_chooser;
 
-	file_chooser = gtk_file_chooser_dialog_new (_("Save Search Results As..."),
+	file_chooser = gtk_file_chooser_dialog_new (_("Save Search Results As…"),
 						    GTK_WINDOW (gsearch->window),
 						    GTK_FILE_CHOOSER_ACTION_SAVE,
 						    GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,

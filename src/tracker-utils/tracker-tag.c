@@ -76,8 +76,8 @@ static GOptionEntry entries[] = {
 	},
 	{ G_OPTION_REMAINING, 0,
 	  G_OPTION_FLAG_FILENAME, G_OPTION_ARG_STRING_ARRAY, &files,
-	  N_("FILE..."),
-	  N_("FILE [FILE...]")},
+	  N_("FILE…"),
+	  N_("FILE [FILE…]")},
 	{ NULL }
 };
 

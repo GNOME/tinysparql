@@ -38,7 +38,7 @@
             </child>
             <child>
               <object class="GtkButton" id="delete_button">
-                <property name="label" translatable="yes">gtk-delete</property>
+                <property name="label">gtk-delete</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
@@ -78,7 +78,7 @@
                     <property name="visible">True</property>
                     <child>
                       <object class="GtkButton" id="save_button">
-                        <property name="label" translatable="yes">gtk-save</property>
+                        <property name="label">gtk-save</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
@@ -101,7 +101,7 @@
                     </child>
                     <child>
                       <object class="GtkButton" id="previous_button">
-                        <property name="label" translatable="yes">gtk-go-back</property>
+                        <property name="label">gtk-go-back</property>
                         <property name="visible">True</property>
                         <property name="sensitive">False</property>
                         <property name="can_focus">True</property>
@@ -115,7 +115,7 @@
                     </child>
                     <child>
                       <object class="GtkButton" id="next_button">
-                        <property name="label" translatable="yes">gtk-go-forward</property>
+                        <property name="label">gtk-go-forward</property>
                         <property name="visible">True</property>
                         <property name="sensitive">False</property>
                         <property name="can_focus">True</property>
@@ -138,7 +138,7 @@
                     </child>
                     <child>
                       <object class="GtkButton" id="run_button">
-                        <property name="label" translatable="yes">gtk-execute</property>
+                        <property name="label">gtk-execute</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
