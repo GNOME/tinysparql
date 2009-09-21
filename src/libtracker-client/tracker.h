@@ -32,6 +32,9 @@ typedef struct {
 	DBusGProxyCall	*pending_call;
 } TrackerClient;
 
+typedef void (*TrackerReplyArray) (gchar    **result,
+                                   GError    *error,
+                                   gpointer   user_data);
 typedef void (*TrackerReplyGPtrArray) (GPtrArray *result, 
                                        GError    *error, 
                                        gpointer   user_data);
@@ -85,6 +88,26 @@ void           tracker_resources_batch_sparql_update_async (TrackerClient       
                                                             gpointer                user_data);
 void           tracker_resources_batch_commit_async        (TrackerClient          *client,
                                                             TrackerReplyVoid        callback,
+                                                            gpointer                user_data);
+void           tracker_search_metadata_by_text_async       (TrackerClient          *client,
+                                                            const gchar            *query,
+                                                            TrackerReplyArray       callback,
+                                                            gpointer                user_data);
+void           tracker_search_metadata_by_text_and_location_async (TrackerClient   *client,
+                                                            const gchar            *query,
+                                                            const gchar            *location,
+                                                            TrackerReplyArray       callback,
+                                                            gpointer                user_data);
+void           tracker_search_metadata_by_text_and_mime_async (TrackerClient   *client,
+                                                            const gchar            *query,
+                                                            const gchar           **mimes,
+                                                            TrackerReplyArray       callback,
+                                                            gpointer                user_data);
+void           tracker_search_metadata_by_text_and_mime_and_location_async (TrackerClient   *client,
+                                                            const gchar            *query,
+                                                            const gchar           **mimes,
+                                                            const gchar            *location,
+                                                            TrackerReplyArray       callback,
                                                             gpointer                user_data);
 
 G_END_DECLS

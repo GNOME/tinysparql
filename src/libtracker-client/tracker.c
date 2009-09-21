@@ -20,6 +20,8 @@
 #include "config.h"
 
 #include <string.h>
+#include <dbus/dbus.h>
+#include <dbus/dbus-glib-lowlevel.h>
 
 #include "tracker.h"
 
@@ -30,6 +32,11 @@
 #define TRACKER_OBJECT			"/org/freedesktop/Tracker1"
 #define TRACKER_INTERFACE_RESOURCES	"org.freedesktop.Tracker1.Resources"
 #define TRACKER_INTERFACE_STATISTICS	"org.freedesktop.Tracker1.Statistics"
+
+typedef struct {
+	TrackerReplyArray callback;
+	gpointer          data;
+} CallbackArray;
 
 typedef struct {
 	TrackerReplyGPtrArray callback;
@@ -128,6 +135,39 @@ tracker_sparql_escape (const gchar *str)
 	return escaped_string;
 }
 
+static gboolean
+start_service (DBusConnection     *connection,
+               const char         *name)
+{
+	DBusError error;
+	DBusMessage *request, *reply;
+	guint32 flags;
+
+	dbus_error_init (&error);
+
+	flags = 0;
+
+	request = dbus_message_new_method_call (DBUS_SERVICE_DBUS, DBUS_PATH_DBUS, DBUS_INTERFACE_DBUS, "StartServiceByName");
+	dbus_message_append_args (request, DBUS_TYPE_STRING, &name, DBUS_TYPE_UINT32, &flags, DBUS_TYPE_INVALID);
+
+	reply =	dbus_connection_send_with_reply_and_block (connection, request, -1, &error);
+	dbus_message_unref (request);
+
+	if (reply == NULL) {
+		dbus_error_free (&error);
+		return FALSE;
+	}
+
+	if (dbus_set_error_from_message (&error, reply)) {
+		dbus_message_unref (reply);
+		dbus_error_free (&error);
+		return FALSE;
+	}
+
+	dbus_message_unref (reply);
+	return TRUE;
+}
+
 TrackerClient *
 tracker_connect (gboolean enable_warnings, gint timeout)
 {
@@ -144,6 +184,12 @@ tracker_connect (gboolean enable_warnings, gint timeout)
 			g_warning("Unable to connect to dbus: %s\n", error->message);
 		}
 		g_error_free (error);
+		return NULL;
+	}
+
+	if (!start_service (dbus_g_connection_get_connection (connection), TRACKER_SERVICE)) {
+		/* unable to start tracker-store */
+		dbus_g_connection_unref (connection);
 		return NULL;
 	}
 
@@ -376,3 +422,224 @@ tracker_resources_batch_commit_async (TrackerClient    *client,
                                                                       tracker_void_reply, 
                                                                       s);
 }
+
+/* tracker_search_metadata_by_text_async is used by GTK+ */
+
+static void
+tracker_search_reply (DBusGProxy *proxy,
+                      GPtrArray  *OUT_result,
+                      GError     *error,
+                      gpointer    user_data)
+{
+
+	CallbackArray *s;
+	gchar        **uris;
+	gint           i;
+
+	s = user_data;
+
+	uris = g_new0 (gchar *, OUT_result->len + 1);
+	for (i = 0; i < OUT_result->len; i++) {
+		uris[i] = ((gchar **) OUT_result->pdata[i])[0];
+	}
+
+	(*(TrackerReplyArray) s->callback) (uris,
+                                            error,
+                                            s->data);
+
+	g_ptr_array_foreach (OUT_result, (GFunc) g_free, NULL);
+	g_ptr_array_free (OUT_result, TRUE);
+	g_free (s);
+}
+
+static void
+sparql_append_string_literal (GString     *sparql,
+                              const gchar *str)
+{
+	g_string_append_c (sparql, '"');
+
+	while (*str != '\0') {
+		gsize len = strcspn (str, "\t\n\r\"\\");
+		g_string_append_len (sparql, str, len);
+		str += len;
+		switch (*str) {
+		case '\t':
+			g_string_append (sparql, "\\t");
+			break;
+		case '\n':
+			g_string_append (sparql, "\\n");
+			break;
+		case '\r':
+			g_string_append (sparql, "\\r");
+			break;
+		case '"':
+			g_string_append (sparql, "\\\"");
+			break;
+		case '\\':
+			g_string_append (sparql, "\\\\");
+			break;
+		default:
+			continue;
+		}
+		str++;
+	}
+
+	g_string_append_c (sparql, '"');
+}
+
+void
+tracker_search_metadata_by_text_async (TrackerClient         *client,
+                                       const gchar           *query,
+                                       TrackerReplyArray      callback,
+                                       gpointer               user_data)
+{
+	CallbackArray *s;
+	GString *sparql;
+
+	g_return_if_fail (client != NULL);
+	g_return_if_fail (query != NULL);
+	g_return_if_fail (callback != NULL);
+
+	s = g_new0 (CallbackArray, 1);
+	s->callback = callback;
+	s->data = user_data;
+
+	sparql = g_string_new ("SELECT ?file WHERE { ?file a nfo:FileDataObject ; fts:match ");
+	sparql_append_string_literal (sparql, query);
+	g_string_append (sparql, " }");
+
+        client->pending_proxy = client->proxy_resources;
+	client->pending_call =
+                org_freedesktop_Tracker1_Resources_sparql_query_async (client->proxy_resources,
+                                                                       sparql->str,
+                                                                       tracker_search_reply,
+                                                                       s);
+
+	g_string_free (sparql, TRUE);
+}
+
+void
+tracker_search_metadata_by_text_and_location_async (TrackerClient         *client,
+                                                    const gchar           *query,
+                                                    const gchar           *location,
+                                                    TrackerReplyArray      callback,
+                                                    gpointer               user_data)
+{
+	CallbackArray *s;
+	GString *sparql;
+
+	g_return_if_fail (client != NULL);
+	g_return_if_fail (query != NULL);
+	g_return_if_fail (location != NULL);
+	g_return_if_fail (callback != NULL);
+
+	s = g_new0 (CallbackArray, 1);
+	s->callback = callback;
+	s->data = user_data;
+
+	sparql = g_string_new ("SELECT ?file WHERE { ?file a nfo:FileDataObject ; fts:match ");
+	sparql_append_string_literal (sparql, query);
+	g_string_append (sparql, " . FILTER (fn:starts-with(?file,");
+	sparql_append_string_literal (sparql, location);
+	g_string_append (sparql, ")) }");
+
+        client->pending_proxy = client->proxy_resources;
+	client->pending_call =
+                org_freedesktop_Tracker1_Resources_sparql_query_async (client->proxy_resources,
+                                                                       sparql->str,
+                                                                       tracker_search_reply,
+                                                                       s);
+
+	g_string_free (sparql, TRUE);
+}
+
+void
+tracker_search_metadata_by_text_and_mime_async (TrackerClient         *client,
+                                                    const gchar           *query,
+                                                    const gchar          **mimes,
+                                                    TrackerReplyArray      callback,
+                                                    gpointer               user_data)
+{
+	CallbackArray *s;
+	GString *sparql;
+	gint i;
+
+	g_return_if_fail (client != NULL);
+	g_return_if_fail (query != NULL);
+	g_return_if_fail (mimes != NULL);
+	g_return_if_fail (callback != NULL);
+
+	s = g_new0 (CallbackArray, 1);
+	s->callback = callback;
+	s->data = user_data;
+
+	sparql = g_string_new ("SELECT ?file WHERE { ?file a nfo:FileDataObject ; nie:mimeType ?mime ; fts:match ");
+	sparql_append_string_literal (sparql, query);
+	g_string_append (sparql, " . FILTER (");
+	for (i = 0; mimes[i]; i++) {
+		if (i > 0) {
+			g_string_append (sparql, " || ");
+		}
+		g_string_append (sparql, "?mime = ");
+		sparql_append_string_literal (sparql, mimes[i]);
+	}
+	g_string_append (sparql, ") }");
+
+        client->pending_proxy = client->proxy_resources;
+	client->pending_call =
+                org_freedesktop_Tracker1_Resources_sparql_query_async (client->proxy_resources,
+                                                                       sparql->str,
+                                                                       tracker_search_reply,
+                                                                       s);
+
+	g_string_free (sparql, TRUE);
+}
+
+void
+tracker_search_metadata_by_text_and_mime_and_location_async (TrackerClient         *client,
+                                                    const gchar           *query,
+                                                    const gchar          **mimes,
+                                                    const gchar           *location,
+                                                    TrackerReplyArray      callback,
+                                                    gpointer               user_data)
+{
+	CallbackArray *s;
+	GString *sparql;
+	gint i;
+
+	g_return_if_fail (client != NULL);
+	g_return_if_fail (query != NULL);
+	g_return_if_fail (mimes != NULL);
+	g_return_if_fail (location != NULL);
+	g_return_if_fail (callback != NULL);
+
+	s = g_new0 (CallbackArray, 1);
+	s->callback = callback;
+	s->data = user_data;
+
+	sparql = g_string_new ("SELECT ?file WHERE { ?file a nfo:FileDataObject ; nie:mimeType ?mime ; fts:match ");
+	sparql_append_string_literal (sparql, query);
+	g_string_append (sparql, " . FILTER (fn:starts-with(?file,");
+	sparql_append_string_literal (sparql, location);
+	g_string_append (sparql, ")");
+	g_string_append (sparql, " && (");
+	for (i = 0; mimes[i]; i++) {
+		if (i > 0) {
+			g_string_append (sparql, " || ");
+		}
+		g_string_append (sparql, "?mime = ");
+		sparql_append_string_literal (sparql, mimes[i]);
+	}
+	g_string_append (sparql, ")");
+	g_string_append (sparql, ") }");
+
+        client->pending_proxy = client->proxy_resources;
+	client->pending_call =
+                org_freedesktop_Tracker1_Resources_sparql_query_async (client->proxy_resources,
+                                                                       sparql->str,
+                                                                       tracker_search_reply,
+                                                                       s);
+
+	g_string_free (sparql, TRUE);
+}
+
