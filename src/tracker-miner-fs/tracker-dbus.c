@@ -44,7 +44,7 @@ dbus_register_service (DBusGProxy  *proxy,
 	GError *error = NULL;
 	guint	result;
 
-	g_message ("Registering DBus service...\n"
+	g_message ("Registering D-Bus service...\n"
 		   "  Name:'%s'",
 		   name);
 
@@ -61,7 +61,7 @@ dbus_register_service (DBusGProxy  *proxy,
 	}
 
 	if (result != DBUS_REQUEST_NAME_REPLY_PRIMARY_OWNER) {
-		g_critical ("DBus service name:'%s' is already taken, "
+		g_critical ("D-Bus service name:'%s' is already taken, "
 			    "perhaps the application is already running?",
 			    name);
 		return FALSE;
@@ -96,7 +96,7 @@ dbus_register_object (GObject		    *object,
 		      const DBusGObjectInfo *info,
 		      const gchar	    *path)
 {
-	g_message ("Registering DBus object...");
+	g_message ("Registering D-Bus object...");
 	g_message ("  Path:'%s'", path);
 	g_message ("  Object Type:'%s'", G_OBJECT_TYPE_NAME (object));
 
@@ -131,7 +131,7 @@ dbus_register_names (void)
 	connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
 
 	if (!connection) {
-		g_critical ("Could not connect to the DBus session bus, %s",
+		g_critical ("Could not connect to the D-Bus session bus, %s",
 			    error ? error->message : "no error given.");
 		g_clear_error (&error);
 		return FALSE;
@@ -218,7 +218,7 @@ tracker_dbus_register_object (GObject               *object,
 			      const gchar	    *path)
 {
 	if (!connection || !gproxy) {
-		g_critical ("DBus support must be initialized before registering objects!");
+		g_critical ("D-Bus support must be initialized before registering objects!");
 		return FALSE;
 	}
 
@@ -239,7 +239,7 @@ tracker_dbus_add_name_monitor (const gchar                *name,
 	g_return_if_fail (func != NULL);
 
 	if (!name_monitors) {
-		g_critical ("DBus support must be initialized before adding name monitors!");
+		g_critical ("D-Bus support must be initialized before adding name monitors!");
 		return;
 	}
 
@@ -259,7 +259,7 @@ tracker_dbus_remove_name_monitor (const gchar *name)
 	g_return_if_fail (name != NULL);
 
 	if (!name_monitors) {
-		g_critical ("DBus support must be initialized before removing name monitors!");
+		g_critical ("D-Bus support must be initialized before removing name monitors!");
 		return;
 	}
 

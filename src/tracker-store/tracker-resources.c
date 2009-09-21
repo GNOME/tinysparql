@@ -137,7 +137,7 @@ tracker_resources_insert (TrackerResources	     *self,
 	tracker_dbus_async_return_if_fail (object != NULL, context);
 
 	tracker_dbus_request_new (request_id,
-				  "DBus request to insert statement: "
+				  "D-Bus request to insert statement: "
 				  "'%s' '%s' '%s'",
 				  subject, predicate, object);
 
@@ -165,7 +165,7 @@ tracker_resources_delete (TrackerResources	     *self,
 	tracker_dbus_async_return_if_fail (object != NULL, context);
 
 	tracker_dbus_request_new (request_id,
-				  "DBus request to delete statement: "
+				  "D-Bus request to delete statement: "
 				  "'%s' '%s' '%s'",
 				  subject, predicate, object);
 
@@ -209,7 +209,7 @@ tracker_resources_load (TrackerResources	 *object,
 	tracker_dbus_async_return_if_fail (uri != NULL, context);
 
 	tracker_dbus_request_new (request_id,
-				  "DBus request to load turtle file "
+				  "D-Bus request to load turtle file "
 				  "'%s'",
 				  uri);
 
@@ -242,7 +242,7 @@ tracker_resources_sparql_query (TrackerResources	 *self,
 	tracker_dbus_async_return_if_fail (query != NULL, context);
 
 	tracker_dbus_request_new (request_id,
-				  "DBus request for SPARQL Query, "
+				  "D-Bus request for SPARQL Query, "
 				  "query:'%s'",
 				  query);
 
@@ -287,7 +287,7 @@ tracker_resources_sparql_update (TrackerResources	 *self,
 	tracker_dbus_async_return_if_fail (update != NULL, context);
 
 	tracker_dbus_request_new (request_id,
-				  "DBus request for SPARQL Update, "
+				  "D-Bus request for SPARQL Update, "
 				  "update:'%s'",
 				  update);
 
@@ -342,7 +342,7 @@ tracker_resources_batch_sparql_update (TrackerResources          *self,
 	tracker_dbus_async_return_if_fail (update != NULL, context);
 
 	tracker_dbus_request_new (request_id,
-				  "DBus request for batch SPARQL Update, "
+				  "D-Bus request for batch SPARQL Update, "
 				  "update:'%s'",
 				  update);
 
@@ -379,7 +379,7 @@ tracker_resources_batch_commit (TrackerResources	 *self,
 	request_id = tracker_dbus_get_next_request_id ();
 
 	tracker_dbus_request_new (request_id,
-				  "DBus request for batch commit");
+				  "D-Bus request for batch commit");
 
 	info = g_slice_new (TrackerDBusMethodInfo);
 

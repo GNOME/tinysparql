@@ -122,7 +122,7 @@ tracker_backup_save (TrackerBackup          *object,
 	request_id = tracker_dbus_get_next_request_id ();
 
 	tracker_dbus_request_new (request_id,
-	                          "DBus request to save backup into '%s'",
+	                          "D-Bus request to save backup into '%s'",
 	                          destination_uri);
 
 	info = g_new0 (TrackerDBusMethodInfo, 1);
@@ -155,7 +155,7 @@ tracker_backup_restore (TrackerBackup          *object,
 	request_id = tracker_dbus_get_next_request_id ();
 
 	tracker_dbus_request_new (request_id,
-	                          "DBus request to restore backup from '%s'",
+	                          "D-Bus request to restore backup from '%s'",
 	                          backup_uri);
 
 	destination = g_file_new_for_uri (backup_uri);

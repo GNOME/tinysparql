@@ -15,6 +15,7 @@
         <child>
           <object class="GtkHBox" id="hbox1">
             <property name="visible">True</property>
+            <property name="spacing">6</property>
             <child>
               <object class="GtkLabel" id="label1">
                 <property name="visible">True</property>
@@ -78,6 +79,7 @@
                 <child>
                   <object class="GtkHBox" id="hbox2">
                     <property name="visible">True</property>
+                    <property name="spacing">6</property>
                     <child>
                       <object class="GtkButton" id="save_button">
                         <property name="label">gtk-save</property>
@@ -98,6 +100,7 @@
                         <property name="orientation">vertical</property>
                       </object>
                       <packing>
+                        <property name="expand">False</property>
                         <property name="position">1</property>
                       </packing>
                     </child>
@@ -135,6 +138,7 @@
                         <property name="orientation">vertical</property>
                       </object>
                       <packing>
+                        <property name="expand">False</property>
                         <property name="position">4</property>
                       </packing>
                     </child>

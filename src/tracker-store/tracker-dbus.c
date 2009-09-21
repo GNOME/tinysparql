@@ -55,7 +55,7 @@ dbus_register_service (DBusGProxy  *proxy,
 	GError *error = NULL;
 	guint	result;
 
-	g_message ("Registering DBus service...\n"
+	g_message ("Registering D-Bus service...\n"
 		   "  Name:'%s'",
 		   name);
 
@@ -72,7 +72,7 @@ dbus_register_service (DBusGProxy  *proxy,
 	}
 
 	if (result != DBUS_REQUEST_NAME_REPLY_PRIMARY_OWNER) {
-		g_critical ("DBus service name:'%s' is already taken, "
+		g_critical ("D-Bus service name:'%s' is already taken, "
 			    "perhaps the daemon is already running?",
 			    name);
 		return FALSE;
@@ -88,7 +88,7 @@ dbus_register_object (DBusGConnection	    *lconnection,
 		      const DBusGObjectInfo *info,
 		      const gchar	    *path)
 {
-	g_message ("Registering DBus object...");
+	g_message ("Registering D-Bus object...");
 	g_message ("  Path:'%s'", path);
 	g_message ("  Type:'%s'", G_OBJECT_TYPE_NAME (object));
 
@@ -114,7 +114,7 @@ dbus_register_names (void)
 	connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
 
 	if (!connection) {
-		g_critical ("Could not connect to the DBus session bus, %s",
+		g_critical ("Could not connect to the D-Bus session bus, %s",
 			    error ? error->message : "no error given.");
 		g_clear_error (&error);
 		return FALSE;
@@ -178,7 +178,7 @@ tracker_dbus_register_objects (void)
 	gpointer object, resources;
 
 	if (!connection || !gproxy) {
-		g_critical ("DBus support must be initialized before registering objects!");
+		g_critical ("D-Bus support must be initialized before registering objects!");
 		return FALSE;
 	}
 
@@ -230,7 +230,7 @@ tracker_dbus_register_objects (void)
 	result_set = tracker_data_query_sparql ("SELECT ?class WHERE { ?class tracker:notify true }", NULL);
 
 	if (!result_set) {
-		g_message ("No Nepomuk classes to register on DBus");
+		g_message ("No Nepomuk classes to register on D-Bus");
 		return TRUE;
 	}
 
@@ -238,7 +238,7 @@ tracker_dbus_register_objects (void)
 	g_object_unref (result_set);
 	
 	if (!classes) {
-		g_message ("No Nepomuk classes to register on DBus");
+		g_message ("No Nepomuk classes to register on D-Bus");
 		return TRUE;
 	}
 		

@@ -400,7 +400,7 @@ tracker_kmail_registrar_set (TrackerKMailRegistrar *object,
 	request_id = tracker_dbus_get_next_request_id ();
 
 	tracker_dbus_request_new (request_id,
-				  "DBus request to set one: 'KMail' ");
+				  "D-Bus request to set one: 'KMail' ");
 
 	dbus_async_return_if_fail (subject != NULL, context);
 
@@ -445,7 +445,7 @@ tracker_kmail_registrar_set_many (TrackerKMailRegistrar *object,
 	dbus_async_return_if_fail (len == values->len, context);
 
 	tracker_dbus_request_new (request_id,
-				  "DBus request to set many: 'KMail' "
+				  "D-Bus request to set many: 'KMail' "
 				  "'%d'", len);
 
 	while (subjects[i] != NULL) {
@@ -479,7 +479,7 @@ tracker_kmail_registrar_unset_many (TrackerKMailRegistrar *object,
 	request_id = tracker_dbus_get_next_request_id ();
 
 	tracker_dbus_request_new (request_id,
-				  "DBus request to unset many: 'KMail' "
+				  "D-Bus request to unset many: 'KMail' "
 				  "'%d'", g_strv_length (subjects));
 
 	dbus_async_return_if_fail (subjects != NULL, context);
@@ -508,7 +508,7 @@ tracker_kmail_registrar_unset (TrackerKMailRegistrar *object,
 	request_id = tracker_dbus_get_next_request_id ();
 
 	tracker_dbus_request_new (request_id,
-				  "DBus request to unset one: 'KMail'");
+				  "D-Bus request to unset one: 'KMail'");
 
 	dbus_async_return_if_fail (subject != NULL, context);
 
@@ -532,7 +532,7 @@ tracker_kmail_registrar_cleanup (TrackerKMailRegistrar *object,
 	request_id = tracker_dbus_get_next_request_id ();
 
 	tracker_dbus_request_new (request_id,
-				  "DBus request to cleanup: 'KMail'");
+				  "D-Bus request to cleanup: 'KMail'");
 
 	perform_cleanup (object);
 
@@ -577,7 +577,7 @@ tracker_kmail_push_registrar_enable (TrackerPushRegistrar *registrar,
 						DBUS_NAME_FLAG_DO_NOT_QUEUE,
 						&result, &nerror)) {
 
-		g_critical ("Could not setup DBus, %s in use\n", 
+		g_critical ("Could not setup D-Bus, %s in use\n", 
 			    TRACKER_KMAIL_REGISTRAR_SERVICE);
 
 		if (nerror) {

@@ -788,7 +788,7 @@ create_extractor_proxy (void)
 	connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
 
 	if (!connection) {
-		g_critical ("Could not connect to the DBus session bus, %s",
+		g_critical ("Could not connect to the D-Bus session bus, %s",
 			    error ? error->message : "no error given.");
 		g_clear_error (&error);
 		return FALSE;

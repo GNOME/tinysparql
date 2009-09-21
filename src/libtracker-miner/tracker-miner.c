@@ -352,7 +352,7 @@ miner_constructed (GObject *object)
 	}
 
 	if (G_UNLIKELY (!data)) {
-		g_critical ("Miner could not register object on DBus session");
+		g_critical ("Miner could not register object on D-Bus session");
 		exit (EXIT_FAILURE);
 		return;
 	}
@@ -376,7 +376,7 @@ dbus_register_service (DBusGProxy  *proxy,
 	GError *error = NULL;
 	guint	result;
 
-	g_message ("Registering DBus service...\n"
+	g_message ("Registering D-Bus service...\n"
 		   "  Name:'%s'",
 		   name);
 
@@ -393,7 +393,7 @@ dbus_register_service (DBusGProxy  *proxy,
 	}
 
 	if (result != DBUS_REQUEST_NAME_REPLY_PRIMARY_OWNER) {
-		g_critical ("DBus service name:'%s' is already taken, "
+		g_critical ("D-Bus service name:'%s' is already taken, "
 			    "perhaps the application is already running?",
 			    name);
 		return FALSE;
@@ -409,7 +409,7 @@ dbus_register_object (GObject		    *object,
 		      const DBusGObjectInfo *info,
 		      const gchar	    *path)
 {
-	g_message ("Registering DBus object...");
+	g_message ("Registering D-Bus object...");
 	g_message ("  Path:'%s'", path);
 	g_message ("  Object Type:'%s'", G_OBJECT_TYPE_NAME (object));
 
@@ -454,7 +454,7 @@ dbus_data_create (TrackerMiner *miner,
 	connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
 
 	if (!connection) {
-		g_critical ("Could not connect to the DBus session bus, %s",
+		g_critical ("Could not connect to the D-Bus session bus, %s",
 			    error ? error->message : "no error given.");
 		g_error_free (error);
 		return NULL;

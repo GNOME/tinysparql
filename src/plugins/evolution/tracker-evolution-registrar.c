@@ -639,7 +639,7 @@ tracker_evolution_registrar_set (TrackerEvolutionRegistrar *object,
 	request_id = tracker_dbus_get_next_request_id ();
 
 	tracker_dbus_request_new (request_id,
-				  "DBus request to set one: 'Evolution' ");
+				  "D-Bus request to set one: 'Evolution' ");
 
 	dbus_async_return_if_fail (subject != NULL, context);
 
@@ -683,7 +683,7 @@ tracker_evolution_registrar_set_many (TrackerEvolutionRegistrar *object,
 	dbus_async_return_if_fail (len == values->len, context);
 
 	tracker_dbus_request_new (request_id,
-				  "DBus request to set many: 'Evolution' "
+				  "D-Bus request to set many: 'Evolution' "
 				  "'%d'", len);
 
 	while (subjects[i] != NULL) {
@@ -718,7 +718,7 @@ tracker_evolution_registrar_unset_many (TrackerEvolutionRegistrar *object,
 	request_id = tracker_dbus_get_next_request_id ();
 
 	tracker_dbus_request_new (request_id,
-				  "DBus request to unset many: 'Evolution' "
+				  "D-Bus request to unset many: 'Evolution' "
 				  "'%d'", g_strv_length (subjects));
 
 	dbus_async_return_if_fail (subjects != NULL, context);
@@ -747,7 +747,7 @@ tracker_evolution_registrar_unset (TrackerEvolutionRegistrar *object,
 	request_id = tracker_dbus_get_next_request_id ();
 
 	tracker_dbus_request_new (request_id,
-				  "DBus request to unset one: 'Evolution'");
+				  "D-Bus request to unset one: 'Evolution'");
 
 	dbus_async_return_if_fail (subject != NULL, context);
 
@@ -771,7 +771,7 @@ tracker_evolution_registrar_cleanup (TrackerEvolutionRegistrar *object,
 	request_id = tracker_dbus_get_next_request_id ();
 
 	tracker_dbus_request_new (request_id,
-				  "DBus request to cleanup: 'Evolution'");
+				  "D-Bus request to cleanup: 'Evolution'");
 
 	perform_cleanup (object);
 
@@ -814,7 +814,7 @@ tracker_evolution_push_registrar_enable (TrackerPushRegistrar *registrar,
 						DBUS_NAME_FLAG_DO_NOT_QUEUE,
 						&result, &nerror)) {
 
-		g_critical ("Could not setup DBus, %s in use\n", 
+		g_critical ("Could not setup D-Bus, %s in use\n", 
 			    TRACKER_EVOLUTION_REGISTRAR_SERVICE);
 
 		if (nerror) {

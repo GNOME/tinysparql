@@ -869,7 +869,7 @@ albumart_queue_cb (DBusGProxy     *proxy,
 
 		uri = g_filename_to_uri (info->art_path, NULL, NULL);
 
-		g_debug ("Downloaded album art using DBus service for uri:'%s'", 
+		g_debug ("Downloaded album art using D-Bus service for uri:'%s'", 
 			 uri);
 
 		albumart_signal_queue_thumbnail (uri, "image/jpeg");
@@ -914,7 +914,7 @@ tracker_albumart_init (void)
 	connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
 
 	if (!connection) {
-		g_critical ("Could not connect to the DBus session bus, %s",
+		g_critical ("Could not connect to the D-Bus session bus, %s",
 			    error ? error->message : "no error given.");
 		g_clear_error (&error);
 		return FALSE;

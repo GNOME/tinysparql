@@ -183,7 +183,7 @@ main (int argc, char **argv)
 
 	if (!client) {
 		g_printerr ("%s\n",
-			    _("Could not establish a DBus connection to Tracker"));
+			    _("Could not establish a D-Bus connection to Tracker"));
 		return EXIT_FAILURE;
 	}
 

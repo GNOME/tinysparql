@@ -76,12 +76,12 @@ static GOptionEntry  entries[] = {
 	{ "verbosity", 'v', 0,
 	  G_OPTION_ARG_INT, &verbosity,
 	  N_("Logging, 0 = errors only, "
-	     "1 = minimal, 2 = detailed and 3 = debug (default = config)"),
+	     "1 = minimal, 2 = detailed and 3 = debug (default=0)"),
 	  NULL },
 	{ "initial-sleep", 's', 0,
 	  G_OPTION_ARG_INT, &initial_sleep,
 	  N_("Initial sleep time in seconds, "
-	     "0->1000 (default = config)"),
+	     "0->1000 (default=15)"),
 	  NULL },
 	{ NULL }
 };

@@ -187,7 +187,7 @@ get_dbus_proxy (const gchar *name)
 	
 	if (!connection) {
 		g_printerr ("%s. %s\n",
-			    _("Could not connect to the DBus session bus"),
+			    _("Could not connect to the D-Bus session bus"),
 			    error ? error->message : _("No error given"));
 		g_clear_error (&error);
 		return NULL;
@@ -570,7 +570,7 @@ main (gint argc, gchar *argv[])
 
 	if (!client) {
 		g_printerr ("%s\n",
-			    _("Could not establish a DBus connection to Tracker"));
+			    _("Could not establish a D-Bus connection to Tracker"));
 
 		return EXIT_FAILURE;
 	}

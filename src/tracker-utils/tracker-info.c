@@ -111,7 +111,7 @@ main (int argc, char **argv)
 
 	if (!client) {
 		g_printerr ("%s\n",
-			    _("Could not establish a DBus connection to Tracker"));
+			    _("Could not establish a D-Bus connection to Tracker"));
 		return EXIT_FAILURE;
 	}
 
@@ -145,7 +145,7 @@ main (int argc, char **argv)
 
 		if (error) {
 			g_printerr ("  %s, %s\n",
-				    _("Unable to retrieve data for uri"),
+				    _("Unable to retrieve data for URI"),
 				    error->message);
 			
 			g_error_free (error);
@@ -154,7 +154,7 @@ main (int argc, char **argv)
 		
 		if (!results) {
 			g_print ("  %s\n",
-				 _("No metadata available for that uri"));
+				 _("No metadata available for that URI"));
 		} else {
 			gint length;
 			

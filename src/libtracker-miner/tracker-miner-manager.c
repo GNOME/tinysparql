@@ -213,7 +213,7 @@ tracker_miner_manager_init (TrackerMinerManager *manager)
 	priv->connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
 
 	if (!priv->connection) {
-		g_critical ("Could not connect to the DBus session bus, %s",
+		g_critical ("Could not connect to the D-Bus session bus, %s",
 			    error ? error->message : "no error given.");
 		g_clear_error (&error);
 	}
@@ -224,7 +224,7 @@ tracker_miner_manager_init (TrackerMinerManager *manager)
 						 DBUS_INTERFACE_DBUS);
 
 	if (!priv->proxy) {
-		g_critical ("Could not get proxy for DBus service");
+		g_critical ("Could not get proxy for D-Bus service");
 	}
 
 	priv->miner_proxies = g_hash_table_new_full (NULL, NULL,
@@ -443,7 +443,7 @@ tracker_miner_manager_pause (TrackerMinerManager *manager,
 	proxy = find_miner_proxy (manager, miner);
 
 	if (!proxy) {
-		g_critical ("No DBus proxy found for miner '%s'", miner);
+		g_critical ("No D-Bus proxy found for miner '%s'", miner);
 		return FALSE;
 	}
 
@@ -482,7 +482,7 @@ tracker_miner_manager_resume (TrackerMinerManager *manager,
 	proxy = find_miner_proxy (manager, miner);
 
 	if (!proxy) {
-		g_critical ("No DBus proxy found for miner '%s'", miner);
+		g_critical ("No D-Bus proxy found for miner '%s'", miner);
 		return FALSE;
 	}
 
