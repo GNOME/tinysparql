@@ -577,6 +577,10 @@ main (gint argc, gchar *argv[])
 
 	if (show_key) {
 		/* Show status of all miners */
+
+		/* Translators: "Key" is in terms of a "legend". I.e.
+		 * R=Running, P=Paused, etc.
+		 */
 		g_print ("%s:\n", _("Key"));
 		g_print ("  %s\n", _("[R] = Running"));
 		g_print ("  %s\n", _("[P] = Paused"));
