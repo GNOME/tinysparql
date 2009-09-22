@@ -15,6 +15,9 @@ enum ResultColumns
     IsDirectory
     NumOfCols
 
+
+const targets : array of TargetEntry[] = {{ "text/uri-list", 0, 1 },{ "text/plain",    0, 0 },{ "STRING",	   0, 0 }}
+
     
 class TrackerResultGrid : ScrolledWindow
     store : ListStore
@@ -49,11 +52,31 @@ class TrackerResultGrid : ScrolledWindow
         iconview = new IconView.with_model (store)
         iconview.set_pixbuf_column (ResultColumns.Icon)
         iconview.set_text_column (ResultColumns.DisplayName)	
+        iconview.set_selection_mode (SelectionMode.BROWSE)
+        iconview.enable_model_drag_source (Gdk.ModifierType.BUTTON1_MASK | Gdk.ModifierType.BUTTON2_MASK, targets, Gdk.DragAction.COPY | Gdk.DragAction.MOVE | Gdk.DragAction.ASK)
         iconview.set_item_width (150)
         iconview.set_row_spacing (10)
         iconview.item_activated += ActivateUri 
+
         iconview.selection_changed += def ()
             SelectedUriChanged ()
+
+        /* set correct uri for drag drop  */
+        iconview.drag_data_get +=  def (context, data, info, time)
+            l :  weak GLib.List of TreePath
+            l = iconview.get_selected_items ()
+            if l is not null and l.data is not null
+                iter : TreeIter
+                uri : weak string
+                path : TreePath = l.data
+                store.get_iter (out iter, path)
+                store.get (iter, ResultColumns.Uri, out uri);
+                var s = new array of string [1]
+                s[0] = uri
+                data.set_uris (s) 
+          
+        
+      
 		
         add (iconview)
 		

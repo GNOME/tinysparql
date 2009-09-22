@@ -11,6 +11,7 @@ class TrackerSearchEntry  : Gtk.Entry
     init
         set_icon_from_stock (EntryIconPosition.PRIMARY, STOCK_FIND)
         set_icon_from_stock (EntryIconPosition.SECONDARY, STOCK_CLEAR)
+        set_icon_sensitive (EntryIconPosition.PRIMARY, false)
         set_icon_sensitive (EntryIconPosition.SECONDARY, false)
         set_icon_tooltip_text (EntryIconPosition.SECONDARY, _("Clear the search text"))
         changed += entry_changed
