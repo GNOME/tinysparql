@@ -191,7 +191,7 @@ tracker_aligned_window_position (TrackerAlignedWindow *window)
         }
   
         if (entry_y + entry_height + our_height < gdk_screen_height ()) {
-                y = entry_y + entry_height - 1;
+                y = entry_y + entry_height + 1;
         } else {
                 y = entry_y - our_height + 1;
       
