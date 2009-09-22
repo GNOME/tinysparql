@@ -285,8 +285,11 @@ extract_text (const gchar          *uri,
 
 	content = get_file_content (uri);
 
+	tracker_sparql_builder_subject_iri (metadata, uri);
+	tracker_sparql_builder_predicate (metadata, "a");
+	tracker_sparql_builder_object (metadata, "nfo:PlainTextDocument");
+
 	if (content) {
-		tracker_sparql_builder_subject_iri (metadata, uri);
 		tracker_sparql_builder_predicate (metadata, "nie:plainTextContent");
 		tracker_sparql_builder_object_unvalidated (metadata, content);
 		g_free (content);
