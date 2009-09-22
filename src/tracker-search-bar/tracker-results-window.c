@@ -38,8 +38,8 @@
 #define MUSIC_SEARCH    "SELECT ?urn ?type ?title ?belongs WHERE { ?urn a nmm:MusicPiece ; rdf:type ?type ; nfo:fileName ?title ; nfo:belongsToContainer ?belongs . ?urn fts:match \"%s*\" } OFFSET 0 LIMIT 500"
 #define PHOTO_SEARCH    "SELECT ?urn ?type ?title ?belongs WHERE { ?urn a nmm:Photo ; rdf:type ?type ; nfo:fileName ?title ; nfo:belongsToContainer ?belongs . ?urn fts:match \"%s*\" } OFFSET 0 LIMIT 500"
 #define VIDEO_SEARCH    "SELECT ?urn ?type ?title ?belongs WHERE { ?urn a nmm:Video ; rdf:type ?type ; nfo:fileName ?title ; nfo:belongsToContainer ?belongs . ?urn fts:match \"%s*\" } OFFSET 0 LIMIT 500"
-
 #define DOCUMENT_SEARCH "SELECT ?urn ?type ?title ?belongs WHERE { ?urn a nfo:PaginatedTextDocument ; rdf:type ?type ; nfo:fileName ?title ; nfo:belongsToContainer ?belongs . ?urn fts:match \"%s*\" } OFFSET 0 LIMIT 500"
+#define FOLDER_SEARCH   "SELECT ?urn ?type ?title ?belongs WHERE { ?urn a nfo:Folder ; rdf:type ?type ; nfo:fileName ?title ; nfo:belongsToContainer ?belongs . ?urn fts:match \"%s*\" } OFFSET 0 LIMIT 500"
 
 #define GENERAL_SEARCH  "SELECT ?s ?type ?title WHERE { ?s fts:match \"%s*\" ; rdf:type ?type . OPTIONAL { ?s nie:title ?title } } OFFSET %d LIMIT %d"
 
@@ -893,6 +893,10 @@ tracker_results_window_new (TrackerApplet *applet,
 	g_free (sparql);
 
 	sparql = g_strdup_printf (DOCUMENT_SEARCH, query);
+	search_get (window, sparql);
+	g_free (sparql);
+
+	sparql = g_strdup_printf (FOLDER_SEARCH, query);
 	search_get (window, sparql);
 	g_free (sparql);
 
