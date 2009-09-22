@@ -99,14 +99,12 @@ extract_pdf (const gchar *uri,
 	gchar		*metadata_xml	= NULL;
 	GTime		 creation_date;
 	GError		*error		= NULL;
-	gchar		*filename = g_filename_from_uri (uri, NULL, NULL);
 
 	g_type_init ();
 
-	document = poppler_document_new_from_file (filename, NULL, &error);
+	document = poppler_document_new_from_file (uri, NULL, &error);
 
 	if (document == NULL || error) {
-		g_free (filename);
 		return;
 	}
 
@@ -321,7 +319,6 @@ extract_pdf (const gchar *uri,
 	g_free (keywords);
 	g_free (metadata_xml);
 	g_object_unref (document);
-	g_free (filename);
 }
 
 TrackerExtractData *
