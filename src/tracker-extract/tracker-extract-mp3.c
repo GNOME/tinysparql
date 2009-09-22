@@ -1900,6 +1900,18 @@ extract_mp3 (const gchar *uri,
 	                                   filedata.id3v23_info.title2,
 	                                   filedata.id3v22_info.title2,
 	                                   filedata.id3v1_info.title);
+	if (!filedata.title) {
+		gchar *p;
+		
+		/* use filename */
+		filedata.title = g_filename_display_basename (filename);
+
+		p = strrchr (filedata.title, '.');
+		if (p) {
+			*p = '\0';
+		}
+	}
+
 	filedata.performer = tracker_coalesce (7, filedata.id3v24_info.performer1,
 	                                       filedata.id3v24_info.performer2,
 	                                       filedata.id3v23_info.performer1,
