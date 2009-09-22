@@ -217,7 +217,7 @@ applet_new (PanelApplet *parent_applet)
 
 	applet->entry = gtk_entry_new ();
 	gtk_box_pack_start (GTK_BOX (hbox), applet->entry, TRUE, TRUE, 0);
-	gtk_entry_set_width_chars (GTK_ENTRY (applet->entry), 10);
+	gtk_entry_set_width_chars (GTK_ENTRY (applet->entry), 12);
  	gtk_widget_show (applet->entry); 
 
 	g_signal_connect (applet->entry, 
