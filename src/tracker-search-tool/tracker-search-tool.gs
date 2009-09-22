@@ -26,7 +26,7 @@ init
     
             var msg = new MessageDialog (null, DialogFlags.MODAL, \
                                          MessageType.ERROR, ButtonsType.OK, \
-                                        "Failed to load UI\n%s", e.message)
+                                        N_("Failed to load UI\n%s"), e.message)
             msg.run ()
             Gtk.main_quit()
     

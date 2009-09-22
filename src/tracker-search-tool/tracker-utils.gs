@@ -31,7 +31,7 @@ class TrackerUtils
             return true
         except e: Error
             var msg = new MessageDialog (null, DialogFlags.MODAL, MessageType.ERROR, ButtonsType.OK, \
-                                         "Could not lauch %s\nError: %s\n", uri, e.message)
+                                         N_("Could not lauch %s\nError: %s\n"), uri, e.message)
             msg.run ();
             return false
 

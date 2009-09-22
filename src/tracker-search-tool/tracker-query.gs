@@ -39,7 +39,7 @@ class TrackerQuery : Object
             var conn = DBus.Bus.get (DBus.BusType.SESSION)
             tracker = conn.get_object ("org.freedesktop.Tracker1", "/org/freedesktop/Tracker1/Resources", "org.freedesktop.Tracker1.Resources") as Resources
         except e : DBus.Error
-            print "Cannot connect to Session bus. Error is %s", e.message     
+            print "Cannot connect to Session bus. Error is %s", e.message
             return false
             
         return true
