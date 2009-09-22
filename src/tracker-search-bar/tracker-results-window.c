@@ -35,6 +35,14 @@
 #include "tracker-results-window.h"
 #include "tracker-aligned-window.h"
 
+#define MUSIC_SEARCH    "SELECT ?urn ?type ?title ?belongs WHERE { ?urn a nmm:MusicPiece ; rdf:type ?type ; nfo:fileName ?title ; nfo:belongsToContainer ?belongs . ?urn fts:match \"%s*\" } OFFSET 0 LIMIT 500"
+#define PHOTO_SEARCH    "SELECT ?urn ?type ?title ?belongs WHERE { ?urn a nmm:Photo ; rdf:type ?type ; nfo:fileName ?title ; nfo:belongsToContainer ?belongs . ?urn fts:match \"%s*\" } OFFSET 0 LIMIT 500"
+#define VIDEO_SEARCH    "SELECT ?urn ?type ?title ?belongs WHERE { ?urn a nmm:Video ; rdf:type ?type ; nfo:fileName ?title ; nfo:belongsToContainer ?belongs . ?urn fts:match \"%s*\" } OFFSET 0 LIMIT 500"
+
+#define DOCUMENT_SEARCH "SELECT ?urn ?type ?title ?belongs WHERE { ?urn a nfo:PaginatedTextDocument ; rdf:type ?type ; nfo:fileName ?title ; nfo:belongsToContainer ?belongs . ?urn fts:match \"%s*\" } OFFSET 0 LIMIT 500"
+
+#define GENERAL_SEARCH  "SELECT ?s ?type ?title WHERE { ?s fts:match \"%s*\" ; rdf:type ?type . OPTIONAL { ?s nie:title ?title } } OFFSET %d LIMIT %d"
+
 typedef struct {
 	GtkWidget *window;
 
@@ -69,13 +77,53 @@ enum {
 	COL_IMAGE,
 	COL_URN,
 	COL_TITLE,
+	COL_BELONGS,
 	COL_COUNT
 };
 
-struct SearchHashTables {
-	GHashTable *resources;
-	GHashTable *titles;
+typedef struct {
+	gchar *urn;
+	gchar *type;
+	gchar *title;
+	gchar *belongs;
+	guint categories;
+} ItemData;
+
+struct FindCategory {
+	const gchar *category_str;
+	gboolean found;
 };
+
+static ItemData *
+item_data_new (const gchar *urn,
+	       const gchar *type,
+	       const gchar *title,
+	       const gchar *belongs,
+	       guint        categories)
+{
+	ItemData *id;
+
+	id = g_slice_new0 (ItemData);
+
+	id->urn = g_strdup (urn);
+	id->type = g_strdup (type);
+	id->title = g_strdup (title);
+	id->belongs = g_strdup (belongs);
+	id->categories = categories;
+
+	return id;
+}
+
+static void
+item_data_free (ItemData *id)
+{
+	g_free (id->urn);
+	g_free (id->type);
+	g_free (id->title);
+	g_free (id->belongs);
+	
+	g_slice_free (ItemData, id);
+}
 
 static gchar *
 category_to_string (TrackerCategory category)
@@ -106,6 +154,11 @@ category_from_string (const gchar *type,
 {
 	if (g_str_has_suffix (type, "nao#Tag")) {
 		*categories |= CATEGORY_TAG;
+	}
+
+	if (g_str_has_suffix (type, "nfo#TextDocument") ||
+	    g_str_has_suffix (type, "nfo#PaginatedTextDocument")) {
+		*categories |= CATEGORY_DOCUMENT;
 	}
 
 	if (g_str_has_suffix (type, "nco#Contact")) {
@@ -342,7 +395,8 @@ category_from_string (const gchar *type,
 
 static GdkPixbuf *
 pixbuf_get (TrackerResultsWindow *window,
-	    const gchar          *urn)
+	    const gchar          *urn,
+	    gboolean              is_image)
 {
 	const gchar *attributes;
 	GFile *file;
@@ -350,8 +404,29 @@ pixbuf_get (TrackerResultsWindow *window,
         GIcon *icon;
 	GdkPixbuf *pixbuf = NULL;
 	GError *error = NULL;
-	
+
 	file = g_file_new_for_uri (urn);
+	
+	if (is_image) {
+		gchar *path;
+
+		path = g_file_get_path (file);
+		pixbuf = gdk_pixbuf_new_from_file_at_size (path, 24, 24, &error);
+		g_free (path);
+
+		if (error) {
+			g_printerr ("Couldn't get pixbuf for urn:'%s', %s\n", 
+				    urn,
+				    error->message);
+			g_error_free (error);
+		} else {
+			g_object_unref (file);
+			return pixbuf;
+		}
+
+		/* In event of failure, get generic icon */
+	}
+
 
 	attributes = 
 		G_FILE_ATTRIBUTE_STANDARD_ICON;
@@ -429,7 +504,7 @@ model_pixbuf_cell_data_func (GtkTreeViewColumn    *tree_column,
 			    -1);
 	
 	/* FIXME: Should use category */
-	pixbuf = pixbuf_get (window, urn);
+	pixbuf = pixbuf_get (window, urn, (category & CATEGORY_IMAGE));
 	g_free (urn);
 	
 	g_object_set (cell,
@@ -459,7 +534,8 @@ model_set_up (TrackerResultsWindow *window)
 				    G_TYPE_STRING,         /* Category */
 				    GDK_TYPE_PIXBUF,       /* Image */
 				    G_TYPE_STRING,         /* URN */
-				    G_TYPE_STRING);        /* Title */
+				    G_TYPE_STRING,         /* Title */
+				    G_TYPE_STRING);        /* Belongs */
 
 	gtk_tree_view_set_model (view, GTK_TREE_MODEL (store));
 
@@ -506,35 +582,72 @@ model_set_up (TrackerResultsWindow *window)
 					      COL_CATEGORY_ID,
 					      GTK_SORT_ASCENDING);
 
+	/* Tooltips */
+	gtk_tree_view_set_tooltip_column (view, COL_BELONGS);
+
 	/* Save */
 	window->store = G_OBJECT (store);
+}
+
+static gboolean
+model_add_category_foreach (GtkTreeModel *model,
+			    GtkTreePath  *path,
+			    GtkTreeIter  *iter,
+			    gpointer      data)
+{
+	struct FindCategory *fc = data;
+	gchar *str;
+
+	gtk_tree_model_get (model, iter, COL_CATEGORY, &str, -1);
+	
+	if (str && strcmp (fc->category_str, str) == 0) {
+		fc->found = TRUE;
+	}
+
+	g_free (str);
+
+	return fc->found;
 }
 
 static void
 model_add (TrackerResultsWindow *window,
 	   TrackerCategory       category,
 	   const gchar          *urn,
-	   const gchar          *title) 
+	   const gchar          *title,
+	   const gchar          *belongs) 
 {
+	struct FindCategory fc;
 	GtkTreeIter iter;
 	GdkPixbuf *pixbuf;
 	const gchar *category_str;
 
-	/* Get Pixbuf for category */
 	pixbuf = NULL;
 	
 	/* Get category for id */
 	category_str = category_to_string (category);
 
+	/* Hack: */
+	fc.category_str = category_str;
+	fc.found = FALSE;
+
+	gtk_tree_model_foreach (GTK_TREE_MODEL (window->store), 
+				model_add_category_foreach,
+				&fc);
+
 	gtk_list_store_append (GTK_LIST_STORE (window->store), &iter);
 	gtk_list_store_set (GTK_LIST_STORE (window->store), &iter,
 			    COL_CATEGORY_ID, category,
-			    COL_CATEGORY, category_str,
+			    COL_CATEGORY, fc.found ? NULL : category_str,
 			    COL_IMAGE, pixbuf ? pixbuf : NULL,
 			    COL_URN, urn,
 			    COL_TITLE, title,
+			    COL_BELONGS, belongs,
 			    -1);
 
+	/* path = gtk_tree_model_get_path (GTK_TREE_MODEL (window->store), &iter); */
+	/* gtk_tree_view_set_tooltip_row (GTK_TREE_VIEW (window->treeview), tooltip, path); */
+	/* gtk_tree_path_free (path); */
+		
 	/* gtk_tree_selection_select_iter (selection, &iter); */
 }
 
@@ -626,68 +739,46 @@ inline static void
 search_get_foreach (gpointer value, 
 		    gpointer user_data)
 {
-	struct SearchHashTables *sht;
+	GHashTable *resources;
+	ItemData *id;
 	gchar **metadata;
-	gpointer p;
-	guint new_categories, old_categories;
-	const gchar *urn, *type, *title;
+	const gchar *urn, *type, *title, *belongs;
 
-	sht = user_data;
+	resources = user_data;
 	metadata = value;
 
 	urn = metadata[0];
 	type = metadata[1];
 	title = metadata[2];
+	belongs = metadata[3];
+
+	if (!title) {
+		title = urn;
+	}
 	
-	p = g_hash_table_lookup (sht->resources, urn);
-	new_categories = old_categories = GPOINTER_TO_UINT (p);
+	id = g_hash_table_lookup (resources, urn);
+	if (!id) {
+		g_print ("urn:'%s' found\n", urn);
+		g_print ("  title:'%s'\n", title);
+		g_print ("  belongs to:'%s'\n", belongs);
 
-	category_from_string (type, &new_categories);
-
-	if (old_categories != new_categories) {
-		g_hash_table_replace (sht->resources, 
-				      g_strdup (urn),
-				      GUINT_TO_POINTER (new_categories));
+		id = item_data_new (urn, type, title, belongs, 0);
+		g_hash_table_insert (resources, g_strdup (urn), id);
 	}
 
-	g_hash_table_replace (sht->titles, 
-			      g_strdup (urn),
-			      g_strdup (title));
+	category_from_string (type, &id->categories);
 
-	g_print ("title:'%s' found with categories:%d\n", title, new_categories);
+	g_print ("  type:'%s', new categories:%d\n", type, id->categories);
 }
 
 static gboolean
 search_get (TrackerResultsWindow *window,
-	    const gchar          *search_phrase,
-	    gint                  search_offset,
-	    gint                  search_limit,
-	    gboolean              detailed_results)
+	    const gchar          *query)
 {
 	GError *error = NULL;
 	GPtrArray *results;
-	gchar *query;
-
-	if (detailed_results) {
-		query = g_strdup_printf ("SELECT ?s ?type ?title WHERE { ?s fts:match \"%s*\" ; rdf:type ?type; nie:title ?title }"
-					 "OFFSET %d LIMIT %d",
-					 search_phrase, 
-					 search_offset, 
-					 search_limit);
-		/* query = g_strdup_printf ("SELECT ?s ?type ?mimeType WHERE { ?s fts:match \"%s\" ; rdf:type ?type . " */
-		/* 			 "OPTIONAL { ?s nie:mimeType ?mimeType } } OFFSET %d LIMIT %d", */
-		/* 			 search_phrase,  */
-		/* 			 search_offset,  */
-		/* 			 search_limit); */
-	} else {
-		query = g_strdup_printf ("SELECT ?s WHERE { ?s fts:match \"%s\" } OFFSET %d LIMIT %d",
-					 search_phrase, 
-					 search_offset, 
-					 search_limit);
-	}
 
 	results = tracker_resources_sparql_query (window->client, query, &error);
-	g_free (query);
 
 	if (error) {
 		g_printerr ("%s, %s\n",
@@ -702,43 +793,38 @@ search_get (TrackerResultsWindow *window,
 		g_print ("%s\n",
 			 _("No results were found matching your query"));
 	} else {
-		struct SearchHashTables sht;
+		GHashTable *resources;
 		GHashTableIter iter;
 		gpointer key, value;
 
 		g_print ("Results: %d\n", results->len);
 
-		sht.resources = g_hash_table_new_full (g_str_hash,
-						       g_str_equal,
-						       (GDestroyNotify) g_free,
-						       NULL);
-		sht.titles = g_hash_table_new_full (g_str_hash,
-						    g_str_equal,
-						    (GDestroyNotify) g_free,
-						    (GDestroyNotify) g_free);
+		resources = g_hash_table_new_full (g_str_hash,
+						   g_str_equal,
+						   (GDestroyNotify) g_free,
+						   (GDestroyNotify) item_data_free);
 		
 		g_ptr_array_foreach (results,
 				     search_get_foreach,
-				     &sht);
+				     resources);
 
 		g_ptr_array_foreach (results, (GFunc) g_strfreev, NULL);
 		g_ptr_array_free (results, TRUE);
 
-		g_hash_table_iter_init (&iter, sht.resources);
+		g_hash_table_iter_init (&iter, resources);
 		while (g_hash_table_iter_next (&iter, &key, &value)) {
-			const gchar *urn;
-			const gchar *title;
-			guint categories;
+			ItemData *id;
 
-			urn = key;
-			title = g_hash_table_lookup (sht.titles, urn);
-			categories = GPOINTER_TO_UINT (value);
+			id = value;
 			
-			model_add (window, categories, urn, title);
+			model_add (window, 
+				   id->categories, 
+				   id->urn, 
+				   id->title,
+				   id->belongs);
 		}
 
-		g_hash_table_unref (sht.resources);
-		g_hash_table_unref (sht.titles);
+		g_hash_table_unref (resources);
 	}
 
 	return TRUE;
@@ -751,6 +837,7 @@ tracker_results_window_new (TrackerApplet *applet,
 	TrackerResultsWindow *window;
 	GtkWidget *scrolled_window;
 	GdkScreen *screen;
+	gchar *sparql;
 	
 	g_return_val_if_fail (applet != NULL, NULL);
 
@@ -764,10 +851,13 @@ tracker_results_window_new (TrackerApplet *applet,
 
 	window->vbox = gtk_vbox_new (FALSE, 6);
 	gtk_container_add (GTK_CONTAINER (window->window), window->vbox);
-	gtk_widget_set_size_request (window->vbox, 400, 250);
+	gtk_widget_set_size_request (window->vbox, 500, 250);
 	
 	scrolled_window = gtk_scrolled_window_new (NULL, NULL);
 	gtk_container_add (GTK_CONTAINER (window->vbox), scrolled_window);
+	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolled_window),
+					GTK_POLICY_AUTOMATIC,
+					GTK_POLICY_AUTOMATIC);
 
 	window->treeview = gtk_tree_view_new ();
 	gtk_container_add (GTK_CONTAINER (scrolled_window), window->treeview);
@@ -790,11 +880,21 @@ tracker_results_window_new (TrackerApplet *applet,
 
 	gtk_widget_show_all (GTK_WIDGET (window->window));
 
-	search_get (window, 
-		    query,
-		    0,
-		    512,
-		    TRUE);
+	sparql = g_strdup_printf (MUSIC_SEARCH, query);
+	search_get (window, sparql);
+	g_free (sparql);
+
+	sparql = g_strdup_printf (PHOTO_SEARCH, query);
+	search_get (window, sparql);
+	g_free (sparql);
+
+	sparql = g_strdup_printf (VIDEO_SEARCH, query);
+	search_get (window, sparql);
+	g_free (sparql);
+
+	sparql = g_strdup_printf (DOCUMENT_SEARCH, query);
+	search_get (window, sparql);
+	g_free (sparql);
 
 	return GTK_WIDGET (window->window);
 }

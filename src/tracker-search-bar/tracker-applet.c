@@ -64,6 +64,20 @@ applet_about_cb (BonoboUIComponent *uic,
 	gtk_widget_show_all (dialog);
 }
 
+static gboolean
+applet_event_box_button_press_event_cb (GtkWidget      *widget, 
+					GdkEventButton *event, 
+					TrackerApplet  *applet)
+{
+	if (applet->results) {
+		gtk_widget_destroy (applet->results);
+		applet->results = NULL;
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
 static void
 applet_entry_activate_cb (GtkEntry      *entry,
 			  TrackerApplet *applet)
@@ -109,6 +123,10 @@ applet_entry_key_press_event_cb (GtkWidget     *widget,
 	if (event->keyval == GDK_Escape) {
 		gtk_widget_destroy (applet->results);
 		applet->results = NULL;
+	}
+
+	if (event->keyval == GDK_Down) {
+		gtk_widget_grab_focus (applet->results);
 	}
 
 	return FALSE;
@@ -181,8 +199,17 @@ applet_new (PanelApplet *parent_applet)
 	gtk_container_add (GTK_CONTAINER (parent_applet), hbox);
 	gtk_widget_show (hbox);
 
+	applet->event_box = gtk_event_box_new ();
+	gtk_event_box_set_visible_window (GTK_EVENT_BOX (applet->event_box), TRUE);
+	gtk_widget_show (applet->event_box);
+	gtk_box_pack_start (GTK_BOX (hbox), applet->event_box, FALSE, FALSE, 0);
+
+	g_signal_connect (applet->event_box, 
+			  "button_press_event", 
+			  G_CALLBACK (applet_event_box_button_press_event_cb), applet);
+
 	applet->image = gtk_image_new ();
-	gtk_box_pack_start (GTK_BOX (hbox), applet->image, FALSE, FALSE, 0);
+	gtk_container_add (GTK_CONTAINER (applet->event_box), applet->image);
 	gtk_image_set_from_stock (GTK_IMAGE (applet->image),
 				  GTK_STOCK_FIND,
 				  GTK_ICON_SIZE_SMALL_TOOLBAR);

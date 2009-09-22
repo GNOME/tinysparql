@@ -33,6 +33,7 @@ typedef struct {
 	GtkWidget *results;
 	GtkWidget *parent;
 
+	GtkWidget *event_box;
 	GtkWidget *image;
 	GtkWidget *entry;
 } TrackerApplet;
