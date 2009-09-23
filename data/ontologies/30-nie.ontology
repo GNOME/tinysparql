@@ -195,7 +195,6 @@ nie:keyword a rdf:Property ;
 	rdfs:range xsd:string .
 
 nie:hasLogicalPart a rdf:Property ;
-	nrl:maxCardinality 1 ;
 	rdfs:domain nie:InformationElement ;
 	rdfs:range nie:InformationElement .
 
