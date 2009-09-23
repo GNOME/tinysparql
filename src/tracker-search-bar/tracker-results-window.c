@@ -46,7 +46,7 @@
 typedef struct {
 	GtkWidget *window;
 
-	GtkWidget *vbox;
+	GtkWidget *frame;
 	GtkWidget *treeview;
 	GObject *store;
 
@@ -714,7 +714,7 @@ window_show_cb (GtkWidget            *widget_to_show,
 	height = MIN (height, monitor.height / 2);
 
 	/* Set size */
-	gtk_widget_set_size_request (GTK_WIDGET (window->vbox), width, height);
+	gtk_widget_set_size_request (GTK_WIDGET (window->frame), width, height);
 }
 
 static gboolean
@@ -835,6 +835,7 @@ tracker_results_window_new (TrackerApplet *applet,
 			    const gchar   *query)
 {
 	TrackerResultsWindow *window;
+	GtkWidget *vbox;
 	GtkWidget *scrolled_window;
 	GdkScreen *screen;
 	gchar *sparql;
@@ -849,12 +850,17 @@ tracker_results_window_new (TrackerApplet *applet,
 	
 	window->window = tracker_aligned_window_new (applet->parent);
 
-	window->vbox = gtk_vbox_new (FALSE, 6);
-	gtk_container_add (GTK_CONTAINER (window->window), window->vbox);
-	gtk_widget_set_size_request (window->vbox, 500, 250);
+	window->frame = gtk_frame_new (NULL);
+	gtk_container_add (GTK_CONTAINER (window->window), window->frame);
+	gtk_frame_set_shadow_type (GTK_FRAME (window->frame), GTK_SHADOW_IN);
+	gtk_widget_set_size_request (window->frame, 500, 300);
+
+	vbox = gtk_vbox_new (FALSE, 12);
+	gtk_container_add (GTK_CONTAINER (window->frame), vbox);
+	gtk_container_set_border_width (GTK_CONTAINER (vbox), 2);
 	
 	scrolled_window = gtk_scrolled_window_new (NULL, NULL);
-	gtk_container_add (GTK_CONTAINER (window->vbox), scrolled_window);
+	gtk_container_add (GTK_CONTAINER (vbox), scrolled_window);
 	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolled_window),
 					GTK_POLICY_AUTOMATIC,
 					GTK_POLICY_AUTOMATIC);
