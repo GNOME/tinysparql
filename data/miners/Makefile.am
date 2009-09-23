@@ -1,7 +1,7 @@
 include $(top_srcdir)/Makefile.decl
 
 desktop_in_files = \
-	tracker-miner-applications.desktop.in
+	tracker-miner-applications.desktop.in \
 	tracker-miner-files.desktop.in
 
 tracker_minersdir = $(datadir)/tracker/miners
