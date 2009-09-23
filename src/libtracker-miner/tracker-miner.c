@@ -43,6 +43,8 @@ struct TrackerMinerPrivate {
 	gchar *description;
 	gchar *status;
 	gdouble progress;
+
+	gint availability_cookie;
 };
 
 typedef struct {
@@ -420,6 +422,68 @@ dbus_register_object (GObject		    *object,
 }
 
 static void
+name_owner_changed_cb (DBusGProxy *proxy,
+		       gchar	  *name,
+		       gchar	  *old_owner,
+		       gchar	  *new_owner,
+		       gpointer    user_data)
+{
+	TrackerMiner *miner;
+	gboolean available;
+	GError *error = NULL;
+
+	if (!name || !*name ||
+	    strcmp (name, "org.freedesktop.Tracker1") != 0) {
+		return;
+	}
+
+	miner = user_data;
+	available = (new_owner && *new_owner);
+
+	g_debug ("Tracker-store availability has changed to %d", available);
+
+	if (available && miner->private->availability_cookie != 0) {
+		tracker_miner_resume (miner,
+				      miner->private->availability_cookie,
+				      &error);
+
+		if (error) {
+			g_warning ("Error happened resuming miner: %s\n", error->message);
+			g_error_free (error);
+		}
+
+		miner->private->availability_cookie = 0;
+	} else if (!available && miner->private->availability_cookie == 0) {
+		gint cookie_id;
+
+		cookie_id = tracker_miner_pause (miner,
+						 g_get_application_name (),
+						 _("Data store is not available"),
+						 &error);
+
+		if (error) {
+			g_warning ("Could not pause: %s", error->message);
+			g_error_free (error);
+		} else {
+			miner->private->availability_cookie = cookie_id;
+		}
+	}
+}
+
+static void
+dbus_set_name_monitor (TrackerMiner *miner,
+		       DBusGProxy   *proxy)
+{
+	dbus_g_proxy_add_signal (proxy, "NameOwnerChanged",
+				 G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING,
+				 G_TYPE_INVALID);
+
+	dbus_g_proxy_connect_signal (proxy, "NameOwnerChanged",
+				     G_CALLBACK (name_owner_changed_cb),
+				     miner, NULL);
+}
+
+static void
 dbus_data_destroy (gpointer data)
 {
 	DBusData *dd;
@@ -486,6 +550,8 @@ dbus_data_create (TrackerMiner *miner,
 		g_free (full_path);
 		return NULL;
 	}
+
+	dbus_set_name_monitor (miner, gproxy);
 
 	g_free (full_path);
 
