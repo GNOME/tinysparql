@@ -460,15 +460,8 @@ miner_menu_entry_add (TrackerStatusIcon *icon,
 	const gchar *name;
 	gchar *str;
 
-	name = strrchr (miner, '.');
-
-	if (!name) {
-		g_warning ("Miner name '%s' doesn't look valid", miner);
-		return;
-	}
-
-	name++;
 	priv = TRACKER_STATUS_ICON_GET_PRIVATE (icon);
+	name = tracker_miner_manager_get_display_name (priv->manager, miner);
 	str = g_strdup (miner);
 
 	entry = g_new0 (MinerMenuEntry, 1);
