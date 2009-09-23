@@ -45,8 +45,8 @@
 
 #define TRACKER_TYPE_G_STRV_ARRAY  (dbus_g_type_get_collection ("GPtrArray", G_TYPE_STRV))
 
-/* In seconds (2 minutes for now) */
-#define STATS_CACHE_LIFETIME 120
+/* In seconds, if this is < 1, it is disabled */
+#define STATS_CACHE_LIFETIME 0
 
 typedef struct {
 	TrackerConfig	 *config;
@@ -159,11 +159,13 @@ indexer_started_cb (DBusGProxy *proxy,
 		return;
 	}
 
-	g_debug ("Starting statistics cache timeout");
-	priv->stats_cache_timeout_id = 
-		g_timeout_add_seconds (STATS_CACHE_LIFETIME,
-				       stats_cache_timeout,
-				       user_data);
+	if (STATS_CACHE_LIFETIME > 0) {
+		g_debug ("Starting statistics cache timeout");
+		priv->stats_cache_timeout_id = 
+			g_timeout_add_seconds (STATS_CACHE_LIFETIME,
+					       stats_cache_timeout,
+					       user_data);
+	}
 }
 
 static void
@@ -228,10 +230,12 @@ tracker_daemon_init (TrackerDaemon *object)
 						   g_free,
 						   NULL);
 
-	priv->stats_cache_timeout_id = 
-		g_timeout_add_seconds (STATS_CACHE_LIFETIME,
-				       stats_cache_timeout,
-				       object);
+	if (STATS_CACHE_LIFETIME > 0) {
+		priv->stats_cache_timeout_id = 
+			g_timeout_add_seconds (STATS_CACHE_LIFETIME,
+					       stats_cache_timeout,
+					       object);
+	}
 }
 
 static void
