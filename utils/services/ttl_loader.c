@@ -226,7 +226,7 @@ ttl_loader_load_ontology (const gchar *ttl_file)
 
         if (ttl_file) {
 		TrackerTurtleReader *reader;
-		GError *error;
+		GError *error = NULL;
 
 		reader = tracker_turtle_reader_new (ttl_file);
 
@@ -255,7 +255,7 @@ ttl_loader_load_description (const gchar *filename)
 {
 	OntologyDescription *desc;
 	TrackerTurtleReader *reader;
-	GError *error;
+	GError *error = NULL;
 
 	desc = ttl_model_description_new ();
 
