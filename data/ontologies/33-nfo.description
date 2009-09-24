@@ -1,0 +1,9 @@
+@prefix dsc: <http://www.tracker-project.org/temp/dsc#> .
+
+<virtual-ontology-uri:33-nfo.ontology> a dsc:Ontology ;
+      dsc:title "Nepomuk File Ontology (NFO)" ;
+      dsc:author "Nepomuck project" ;
+      dsc:contributor "Tracker team" ;
+      
+      dsc:baseUrl "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#" ;
+      dsc:relativePath "./33-nfo.ontology" .
