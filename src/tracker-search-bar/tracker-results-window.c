@@ -57,7 +57,7 @@ static void     results_window_screen_changed  (GtkWidget      *widget,
 						GdkScreen      *prev_screen);
 
 static void     model_set_up      (TrackerResultsWindow *window);
-static gboolean search_get        (TrackerResultsWindow *window,
+static void     search_get        (TrackerResultsWindow *window,
 				   const gchar          *query);
 
 
@@ -83,6 +83,8 @@ typedef struct {
 
 	TrackerClient *client;
 	gchar *query;
+
+	gint queries_pending;
 } TrackerResultsWindowPrivate;
 
 typedef enum {
@@ -258,6 +260,8 @@ tracker_results_window_init (TrackerResultsWindow *window)
 	priv->icon_theme = gtk_icon_theme_get_default ();
 
 	model_set_up (window);
+
+	gtk_widget_show_all (priv->scrolled_window);
 }
 
 static void
@@ -265,7 +269,6 @@ results_window_constructed (GObject *object)
 {
 	TrackerResultsWindowPrivate *priv;
 	TrackerResultsWindow *window;
-	GtkTreeIter iter;
 	gchar *sparql;
 
 	window = TRACKER_RESULTS_WINDOW (object);
@@ -290,18 +293,6 @@ results_window_constructed (GObject *object)
 	sparql = g_strdup_printf (FOLDER_SEARCH, priv->query);
 	search_get (window, sparql);
 	g_free (sparql);
-
-	if (!gtk_tree_model_get_iter_first (GTK_TREE_MODEL (priv->store), &iter)) {
-		gchar *str;
-
-		str = g_strdup_printf (_("No results found for «%s»"), priv->query);
-		gtk_label_set_text (GTK_LABEL (priv->label), str);
-		g_free (str);
-
-		gtk_widget_show (priv->label);
-	} else {
-		gtk_widget_show_all (priv->scrolled_window);
-	}
 }
 
 static void
@@ -1048,29 +1039,27 @@ search_get_foreach (gpointer value,
 	g_print ("  type:'%s', new categories:%d\n", type, id->categories);
 }
 
-static gboolean
-search_get (TrackerResultsWindow *window,
-	    const gchar          *query)
+static void
+search_get_cb (GPtrArray *results,
+	       GError    *error,
+	       gpointer   user_data)
 {
+	TrackerResultsWindow *window;
 	TrackerResultsWindowPrivate *priv;
-	GError *error = NULL;
-	GPtrArray *results;
 
+	window = user_data;
 	priv = TRACKER_RESULTS_WINDOW_GET_PRIVATE (window);
-	results = tracker_resources_sparql_query (priv->client, query, &error);
+	priv->queries_pending--;
 
 	if (error) {
-		g_printerr ("%s, %s\n",
-			    _("Could not get search results"),
-			    error->message);
+		g_printerr ("Could not get search results: %s", error->message);
 		g_error_free (error);
 
-		return FALSE;
+		return;
 	}
 
 	if (!results) {
-		g_print ("%s\n",
-			 _("No results were found matching your query"));
+		g_print ("No results were found matching the query");
 	} else {
 		GHashTable *resources;
 		GHashTableIter iter;
@@ -1082,7 +1071,7 @@ search_get (TrackerResultsWindow *window,
 						   g_str_equal,
 						   (GDestroyNotify) g_free,
 						   (GDestroyNotify) item_data_free);
-		
+
 		g_ptr_array_foreach (results,
 				     search_get_foreach,
 				     resources);
@@ -1095,10 +1084,10 @@ search_get (TrackerResultsWindow *window,
 			ItemData *id;
 
 			id = value;
-			
-			model_add (window, 
-				   id->categories, 
-				   id->urn, 
+
+			model_add (window,
+				   id->categories,
+				   id->urn,
 				   id->title,
 				   id->belongs);
 		}
@@ -1106,7 +1095,35 @@ search_get (TrackerResultsWindow *window,
 		g_hash_table_unref (resources);
 	}
 
-	return TRUE;
+	if (priv->queries_pending == 0) {
+		GtkTreeIter iter;
+
+		/* No more queries pending */
+		if (!gtk_tree_model_get_iter_first (GTK_TREE_MODEL (priv->store), &iter)) {
+			gchar *str;
+
+			str = g_strdup_printf (_("No results found for «%s»"), priv->query);
+			gtk_label_set_text (GTK_LABEL (priv->label), str);
+			g_free (str);
+
+			gtk_widget_hide (priv->scrolled_window);
+			gtk_widget_show (priv->label);
+		} else {
+			gtk_widget_show_all (priv->scrolled_window);
+		}
+	}
+}
+
+static void
+search_get (TrackerResultsWindow *window,
+	    const gchar          *query)
+{
+	TrackerResultsWindowPrivate *priv;
+
+	priv = TRACKER_RESULTS_WINDOW_GET_PRIVATE (window);
+
+	tracker_resources_sparql_query_async (priv->client, query, search_get_cb, window);
+	priv->queries_pending++;
 }
 
 GtkWidget *
