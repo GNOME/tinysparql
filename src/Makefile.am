@@ -41,21 +41,10 @@ endif
 
 
 DIST_SUBDIRS = 					\
-	libstemmer				\
-	libinotify				\
-	libtracker-common 			\
-	tracker-fts				\
-	libtracker-db				\
-	libtracker-data				\
-	libtracker-client			\
-	libtracker-miner			\
-	tracker-store				\
-	tracker-utils				\
+	$(SUBDIRS)				\
 	tracker-explorer			\
-	tracker-extract				\
-	tracker-miner-fs			\
 	libtracker-gtk				\
 	tracker-status-icon 			\
+	tracker-search-bar			\
 	tracker-search-tool			\
-	tracker-preferences			\
-	plugins
+	tracker-preferences
