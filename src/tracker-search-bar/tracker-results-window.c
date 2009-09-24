@@ -821,39 +821,36 @@ model_pixbuf_cell_data_func (GtkTreeViewColumn    *tree_column,
 			     GtkTreeIter          *iter,
 			     TrackerResultsWindow *window)
 {
-	TrackerCategory category = CATEGORY_NONE;
-	gchar *urn;
 	GdkPixbuf *pixbuf = NULL;
 
 	gtk_tree_model_get (model, iter,
 			    COL_IMAGE, &pixbuf,
 			    -1);
 
-	/* If a pixbuf, use it */
-	if (pixbuf) {
-		g_object_set (cell,
-			      "visible", TRUE,
-			      "pixbuf", pixbuf,
-			      NULL);
-		g_object_unref (pixbuf);
+	if (!pixbuf) {
+		TrackerCategory category = CATEGORY_NONE;
+		gchar *urn;
 
-		return;
+		gtk_tree_model_get (model, iter,
+				    COL_CATEGORY_ID, &category,
+				    COL_URN, &urn,
+				    -1);
+
+		/* FIXME: Should use category */
+		pixbuf = pixbuf_get (window, urn, (category & CATEGORY_IMAGE));
+		g_free (urn);
+
+		/* Cache it in the store */
+		gtk_list_store_set (GTK_LIST_STORE (model), iter,
+				    COL_IMAGE, pixbuf,
+				    -1);
 	}
 
-	gtk_tree_model_get (model, iter,
-			    COL_CATEGORY_ID, &category,
-			    COL_URN, &urn,
-			    -1);
-	
-	/* FIXME: Should use category */
-	pixbuf = pixbuf_get (window, urn, (category & CATEGORY_IMAGE));
-	g_free (urn);
-	
 	g_object_set (cell,
-		      "visible", TRUE,
+		      "visible", (pixbuf != NULL),
 		      "pixbuf", pixbuf,
 		      NULL);
-	
+
 	if (pixbuf) {
 		g_object_unref (pixbuf);
 	}
