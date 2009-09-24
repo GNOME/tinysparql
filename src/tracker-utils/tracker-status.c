@@ -187,7 +187,7 @@ get_dbus_proxy (const gchar *name)
 	
 	if (!connection) {
 		g_printerr ("%s. %s\n",
-			    _("Could not connect to the DBus session bus"),
+			    _("Could not connect to the D-Bus session bus"),
 			    error ? error->message : _("No error given"));
 		g_clear_error (&error);
 		return NULL;
@@ -203,7 +203,7 @@ get_dbus_proxy (const gchar *name)
 	if (!proxy) {
 		gchar *str;
 
-		str = g_strdup_printf (_("Could not DBusGProxy for that miner: %s"),
+		str = g_strdup_printf (_("Could not create a DBusGProxy for that miner: %s"),
 				       name);
 		g_printerr ("%s\n", str);
 		g_free (str);
@@ -570,13 +570,17 @@ main (gint argc, gchar *argv[])
 
 	if (!client) {
 		g_printerr ("%s\n",
-			    _("Could not establish a DBus connection to Tracker"));
+			    _("Could not establish a D-Bus connection to Tracker"));
 
 		return EXIT_FAILURE;
 	}
 
 	if (show_key) {
 		/* Show status of all miners */
+
+		/* Translators: "Key" is in terms of a "legend". I.e.
+		 * R=Running, P=Paused, etc.
+		 */
 		g_print ("%s:\n", _("Key"));
 		g_print ("  %s\n", _("[R] = Running"));
 		g_print ("  %s\n", _("[P] = Paused"));

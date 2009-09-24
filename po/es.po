@@ -10,8 +10,8 @@ msgstr ""
 "Project-Id-Version: tracker.HEAD\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&component=general\n"
-"POT-Creation-Date: 2009-09-11 11:31+0000\n"
-"PO-Revision-Date: 2009-09-13 13:42+0200\n"
+"POT-Creation-Date: 2009-09-18 10:37+0000\n"
+"PO-Revision-Date: 2009-09-20 16:12+0200\n"
 "Last-Translator: Jorge González <jorgegonz@svn.gnome.org>\n"
 "Language-Team: Español <gnome-es-list@gnome.org>\n"
 "MIME-Version: 1.0\n"
@@ -21,7 +21,6 @@ msgstr ""
 "X-Generator: KBabel 1.11.4\n"
 
 #: ../data/tracker-status-icon.desktop.in.in.h:1
-#| msgid "Tracker Statistics"
 msgid "Tracker Status Icon"
 msgstr "Icono de estado de Tracker"
 
@@ -251,19 +250,18 @@ msgstr "Inicializando"
 msgid "Idle"
 msgstr "Ocioso"
 
-#: ../src/libtracker-miner/tracker-miner-fs.c:922
-#: ../src/libtracker-miner/tracker-miner-fs.c:925
+#: ../src/libtracker-miner/tracker-miner-fs.c:926
+#: ../src/libtracker-miner/tracker-miner-fs.c:929
 msgid "Processing files"
 msgstr "Procesando archivos"
 
-#: ../src/libtracker-miner/tracker-miner-fs.c:1380
+#: ../src/libtracker-miner/tracker-miner-fs.c:1384
 #, c-format
 msgid "Crawling recursively directory '%s'"
 msgstr "Arrastrándose recursivamente por el directorio «%s»"
 
-#: ../src/libtracker-miner/tracker-miner-fs.c:1382
+#: ../src/libtracker-miner/tracker-miner-fs.c:1386
 #, c-format
-#| msgid "Crawling File System"
 msgid "Crawling single directory '%s'"
 msgstr "Arrastrándose sólo por el directorio «%s»"
 
@@ -490,13 +488,11 @@ msgid "TrackerEvolutionPlugin"
 msgstr "Complemento de Tracker para Evolution"
 
 #: ../src/tracker-status-icon/tracker-status-icon.c:412
-#| msgid "No miners are running"
 msgid "Miner is not running"
 msgstr "El minero no está en ejecución"
 
 #: ../src/tracker-status-icon/tracker-status-icon.c:443
 #: ../src/tracker-status-icon/tracker-status-icon.c:559
-#| msgid "by user"
 msgid "Paused by user"
 msgstr "Pausado por el usuario"
 
@@ -682,7 +678,6 @@ msgid "- start the tracker indexer"
 msgstr "- iniciar el indexador de tracker"
 
 #: ../src/tracker-miner-fs/tracker-miner-files.c:713
-#| msgid "low battery"
 msgid "Low battery"
 msgstr "Batería baja"
 
@@ -690,39 +685,40 @@ msgstr "Batería baja"
 msgid "Low disk space"
 msgstr "Espacio en disco bajo"
 
-#: ../src/tracker-preferences/tracker-preferences.c:653
-msgid "Data must be reindexed"
-msgstr "Los datos deben ser reindexados"
+#: ../src/tracker-preferences/tracker-preferences.vala:86
+msgid "Disabled"
+msgstr "Desactivado"
 
-#: ../src/tracker-preferences/tracker-preferences.c:654
-msgid ""
-"In order for your changes to take effect, Tracker must reindex your files. "
-"Click the Reindex button to start reindexing now, otherwise this action will "
-"be performed the next time the Tracker daemon is restarted."
-msgstr ""
-"Para que sus cambios tengan efecto, Tracker debe reindexar sus archivos. "
-"Pulse el botón Reindexar para comenzar el reindexado ahora, de otra forma "
-"esta acción se realizará la próxima vez que se inicie el demonio de Tracker."
+#: ../src/tracker-preferences/tracker-preferences.vala:89
+#, c-format
+msgid "%d%%"
+msgstr "%d%%"
 
-#: ../src/tracker-preferences/tracker-preferences.c:661
-msgid "_Reindex"
-msgstr "_Reindexar"
+#: ../src/tracker-preferences/tracker-preferences.vala:94
+#, c-format
+msgid "%d/20"
+msgstr "%d/20"
 
-#: ../src/tracker-preferences/tracker-preferences.c:664
-msgid "Tracker daemon must be restarted"
-msgstr "Se debe reiniciar el demonio de Tracker"
+#: ../src/tracker-preferences/tracker-preferences.vala:102
+msgid "Enter value"
+msgstr "Introducir un valor"
 
-#: ../src/tracker-preferences/tracker-preferences.c:666
-msgid ""
-"In order for your changes to take effect, the Tracker daemon has to be "
-"restarted. Click the Restart button to restart the daemon now."
-msgstr ""
-"Para que sus cambios tengan efecto se debe reiniciar el demonio de Tracker. "
-"Pulse el botón Reiniciar para reiniciar el demonio ahora."
+#: ../src/tracker-preferences/tracker-preferences.vala:131
+#| msgid "Select more _options"
+msgid "Select directory"
+msgstr "Seleccionar directorio"
 
-#: ../src/tracker-preferences/tracker-preferences.c:671
-msgid "_Restart"
-msgstr "_Reiniciar"
+#: ../src/tracker-preferences/tracker-preferences.vala:342
+#: ../src/tracker-preferences/tracker-preferences.vala:343
+#: ../src/tracker-preferences/tracker-preferences.vala:344
+#: ../src/tracker-preferences/tracker-preferences.vala:345
+msgid "Directory"
+msgstr "Directorio"
+
+#: ../src/tracker-preferences/tracker-preferences.vala:346
+#| msgid "Files"
+msgid "File"
+msgstr "Archivo"
 
 #: ../src/tracker-preferences/tracker-preferences.desktop.in.in.h:1
 msgid "Configure file indexing with Tracker"
@@ -733,181 +729,197 @@ msgid "Search and Indexing"
 msgstr "Búsqueda e indexado"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:1
-msgid "<b>Crawled Directories</b>"
-msgstr "<b>Directorios en los que se ha arrastrado</b>"
+#| msgid "<b>Watch Directories</b>"
+msgid "<b>Directories</b>"
+msgstr "<b>Directorios</b>"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:2
-msgid "<b>Ignored File Patterns</b>"
-msgstr "<b>Patrones de archivo ignorados</b>"
+#| msgid "<b>Saved queries</b>"
+msgid "<b>Files</b>"
+msgstr "<b>Archivos</b>"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:3
-msgid "<b>Ignored Paths</b>"
-msgstr "<b>Rutas ignoradas</b>"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:4
-msgid "<b>Index Merging</b>"
-msgstr "<b>Mezclado de índices</b>"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:5
-msgid "<b>Indexing Limits (per file)</b>"
-msgstr "<b>Límites de indexado (por archivo)</b>"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:6
-msgid "<b>Indexing Options</b>"
-msgstr "<b>Opciones de indexado</b>"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:7
 msgid "<b>Indexing</b>"
 msgstr "<b>Indexado</b>"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:8
-msgid "<b>Power management</b>"
-msgstr "<b>Gestión de energía</b>"
+#: ../src/tracker-preferences/tracker-preferences.ui.h:4
+msgid "<b>Non-Recursively Indexed</b>"
+msgstr "<b>Indexados de forma no recursiva</b>"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:9
-msgid "<b>Resource Usage</b>"
-msgstr "<b>Uso de recursos</b>"
+#: ../src/tracker-preferences/tracker-preferences.ui.h:5
+msgid "<b>Recursively Indexed</b>"
+msgstr "<b>Indexados de forma recursiva</b>"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:10
-msgid "<b>Startup</b>"
+#: ../src/tracker-preferences/tracker-preferences.ui.h:6
+#| msgid "<b>Startup</b>"
+msgid "<b>Start up</b>"
 msgstr "<b>Inicio</b>"
 
+#: ../src/tracker-preferences/tracker-preferences.ui.h:7
+msgid "Create thumbnails from images and videos"
+msgstr "Crear miniaturas de las imágenes y vídeos"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:8
+msgid "Directories (no sub-directories are indexed):"
+msgstr "Directorios (no se indexan los subdirectorios):"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:9
+#| msgid "<b>Watch Directories</b>"
+msgid "Directories:"
+msgstr "Directorios:"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:10
+msgid "Disk space _limit:"
+msgstr "_Límite de espacio en disco:"
+
 #: ../src/tracker-preferences/tracker-preferences.ui.h:11
-msgid "<b>Stemming</b>"
-msgstr "<b>Ramificaciones</b>"
+#| msgid "Enable i_ndexing"
+msgid "Enable _monitoring"
+msgstr "Activar _monitorización"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:12
-msgid "<b>Throttling</b>"
-msgstr "<b>Aceleración</b>"
+#| msgid "Generate thum_bnails"
+msgid "Enable _thumbnails"
+msgstr "Activar mi_niaturas"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:13
-msgid "<b>Watch Directories</b>"
-msgstr "<b>Directorios vigilados</b>"
+#| msgid "Unable to import Turtle file"
+msgid "Enable for _first time"
+msgstr "Activar por p_rimera vez"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:14
-msgid "Additional mbox style mailboxes to index:"
-msgstr "Buzones de correo adicionales mbox para indexar:"
+#| msgid "Disable all Indexing when on battery"
+msgid "Enable when running on _battery"
+msgstr "Activar al funcionar con _batería"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:15
-msgid "Additional paths to index and watch:"
-msgstr "Rutas adicionales que indexar y vigilar:"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:16
-msgid "Additional paths to index on startup (but not watch for updates):"
-msgstr ""
-"Rutas adicionales que indexar al inicio (pero no vigilar actualizaciones):"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:17
-msgid "Disable all Indexing when on battery"
-msgstr "Desactivar cualquier indexado al funcionar con la batería"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:18
-msgid "Disable initial index sweep when on battery"
-msgstr "Desactivar la indexación inicial al funcionar con la batería"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:19
-msgid "Email"
-msgstr "Correo-e"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:20
-msgid "Enable _Evolution email indexing"
-msgstr "Activar el indexado de correos-e de _Evolution"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:21
-msgid "Enable i_ndexing"
-msgstr "Activar i_ndexado"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:22
 msgid "Faster"
 msgstr "Más rápido"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:23
-msgid "File patterns to ignore during indexing:"
-msgstr "Patrones de archivo que ignorar durante el indexado:"
+#: ../src/tracker-preferences/tracker-preferences.ui.h:16
+msgid ""
+"Follow changes made to files and new files created by watching directories"
+msgstr ""
+"Seguir los cambios realizados sobre archivos y nuevos archivos creados al "
+"vigilar directorios"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:24
-msgid "Files"
-msgstr "Archivos"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:25
+#: ../src/tracker-preferences/tracker-preferences.ui.h:17
 msgid "General"
 msgstr "General"
 
+#: ../src/tracker-preferences/tracker-preferences.ui.h:18
+#| msgid "File patterns to ignore during indexing:"
+msgid "Glob patterns to ignore:"
+msgstr "Patrones de coincidencias que ignorar:"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:19
+msgid ""
+"Globbing patterns can be used here, for example: \"*bar*\".\n"
+"Most commonly this is used to ignore directories like *~, *.o, *.la, etc"
+msgstr ""
+"Aquí se pueden usar patrones de coincidencia, por ejemplo: «*bar*».\n"
+"Esto se suele usar para ignorar directorios como *~, *.o, *.la, etc"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:21
+msgid ""
+"If this is unchecked, then Tracker will be paused while the device is using "
+"battery instead of AC power"
+msgstr ""
+"Si está sin marcar, entonces Tracker se pausará cuando el dispositivo esté "
+"funcionando con baterías en lugar de conectado a la corriente alterna."
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:22
+#| msgid "Ignored Files"
+msgid "Ignored Content"
+msgstr "Contenido ignorado"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:23
+msgid "Include _removable media"
+msgstr "Incluir dispositivos _extraíbles"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:24
+#| msgid "Index _mounted directories"
+msgid "Include mou_nted directories"
+msgstr "Incluir directorios mon_tados"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:25
+#| msgid "Applications"
+msgid "Locations"
+msgstr "Ubicaciones"
+
 #: ../src/tracker-preferences/tracker-preferences.ui.h:26
-msgid "Generate thum_bnails"
-msgstr "Generar minia_turas"
+msgid ""
+"Removable devices are always considered separately. This applies to "
+"directories mounted within the file system which are NOT removable devices"
+msgstr ""
+"Los dispositivos extraíbles siempre se consideran de forma separada. Esto se "
+"aplica a directorios montados dentro del sistema de archivos que NO son "
+"dispositivos extraíbles."
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:27
-msgid "Ignored Files"
-msgstr "Archivos ignorados"
+msgid "Removable devices include memory cards and USB sticks for example"
+msgstr ""
+"Los dispositivos extraíbles incluyen, por ejemplo, tarjetas de memoria y "
+"dispositivos USB"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:28
-msgid "Index _delay:"
-msgstr "_Retardo de indexado: "
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:29
-msgid "Index _file contents"
-msgstr "Indexar el contenido de los _archivos"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:30
-msgid "Index _mounted directories"
-msgstr "Indexar directorios _montados"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:31
-msgid "Index and watch my home _directory"
-msgstr "Indexar y vigilar mi ca_rpeta personal"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:32
-msgid "Indexing Speed:"
-msgstr "Velocidad de indexado:"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:33
-msgid "Maximum _amount of text to index:"
-msgstr "Máxima _cantidad de texto para indexar:"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:34
-msgid "Maximum number of unique _words to index:"
-msgstr "Máximo número de _palabras únicas que indexar:"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:35
-msgid "Path roots to be ignored during indexing:"
-msgstr "Rutas para ser ignoradas durante el indexado:"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:36
-msgid "Perform fast index merges (may affect system performance)"
-msgstr ""
-"Realizar mezclas de índices rápidas (puede afectar al rendimiento del "
-"sistema)"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:37
-msgid "Performance"
-msgstr "Rendimiento"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:38
 msgid "Slower"
 msgstr "Más lento"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:39
-msgid "Tracker Preferences"
-msgstr "Preferencias de Tracker"
+#: ../src/tracker-preferences/tracker-preferences.ui.h:29
+msgid ""
+"This is a way for the user to make Tracker use less system resources and to "
+"appear as more of a background task if it consumes too much processing power"
+msgstr ""
+"Esta es una forma para que el usuario haga que Tracker consuma menos "
+"recursos y parezca más una tarea de fondo en caso de que consuma mucha "
+"potencia de procesado"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:40
-msgid "_Language:"
-msgstr "_Idioma:"
+#: ../src/tracker-preferences/tracker-preferences.ui.h:30
+msgid ""
+"This is an exception to the previous option. \n"
+"\n"
+"Checking this means that when Tracker is run for the first time, it will not "
+"pause if running on battery instead of AC power"
+msgstr ""
+"Esta es una excepción a la opción anterior.\n"
+"\n"
+"Activar esto significa que cuando Tracker se ejecuta por primera vez no se "
+"pausará si se está funcionando con baterías en lugar de con corriente "
+"alterna."
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:41
-msgid "_Minimize memory usage (slower indexing)"
-msgstr "_Minimizar el uso de memoria (indexado más lento)"
+#: ../src/tracker-preferences/tracker-preferences.ui.h:33
+msgid ""
+"This represents a percentage of disk capacity which MUST be free to be able "
+"to index content. If there is less space than the percentage represented "
+"here, Tracker will pause until such time as there is enough space to continue"
+msgstr ""
+"Representa el porcentaje de capacidad de disco que DEBE quedar libre para "
+"permitir indexar contenido. Si existe menos espacio que el porcentaje aquí "
+"representado, Tracker se pausará hasta que haya suficiente espacio para "
+"continuar."
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:42
-msgid "_Use additional memory for faster indexing"
-msgstr "_Usar memoria adicional para indexar más rápidamente"
+#: ../src/tracker-preferences/tracker-preferences.ui.h:34
+msgid "Thr_ottle:"
+msgstr "_Umbral:"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:43
-msgid "kB"
-msgstr "KiB"
+#: ../src/tracker-preferences/tracker-preferences.ui.h:35
+msgid ""
+"When toggled, this makes sure your home directory is included in the list."
+msgstr ""
+"Cuando está conmutado se asegura de que se incluya su carpeta personal en la "
+"lista."
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:44
+#: ../src/tracker-preferences/tracker-preferences.ui.h:36
+#| msgid "List all music files"
+msgid "With specific files:"
+msgstr "Con los archivos específicos:"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:37
+msgid "_Delay"
+msgstr "_Retardo"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:38
 msgid "seconds"
 msgstr "segundos"
 
@@ -1420,13 +1432,11 @@ msgid "Use OR for search terms instead of AND (the default)"
 msgstr "Use OR para buscar términos en lugar de AND (lo predeterminado)"
 
 #: ../src/tracker-utils/tracker-search.c:60
-#| msgid "Show more detailed results with service and mime type"
 msgid "Show more detailed results (only applies to general search)"
 msgstr ""
 "Mostrar resultados más detallados (sólo se aplica a la búsqueda general)"
 
 #: ../src/tracker-utils/tracker-search.c:64
-#| msgid "List all defined tags"
 msgid "List all files"
 msgstr "Listar todis los archivos"
 
@@ -1437,17 +1447,14 @@ msgstr ""
 "duración)"
 
 #: ../src/tracker-utils/tracker-search.c:72
-#| msgid "List all miners installed"
 msgid "List all music artists"
 msgstr "Listar todos los artistas musicales"
 
 #: ../src/tracker-utils/tracker-search.c:76
-#| msgid "List all miners installed"
 msgid "List all music files"
 msgstr "Listar todos los archivos de música"
 
 #: ../src/tracker-utils/tracker-search.c:80
-#| msgid "List all defined tags"
 msgid "List all image files"
 msgstr "Listar todos los archivos de imágenes"
 
@@ -1473,14 +1480,12 @@ msgstr ""
 #: ../src/tracker-utils/tracker-search.c:349
 #: ../src/tracker-utils/tracker-search.c:406
 #: ../src/tracker-utils/tracker-search.c:501
-#| msgid "Could not search tags"
 msgid "Could not get search results"
 msgstr "No se pudieron obtener los resultados"
 
 #: ../src/tracker-utils/tracker-search.c:148
 #: ../src/tracker-utils/tracker-search.c:205
 #: ../src/tracker-utils/tracker-search.c:415
-#| msgid "No files were specified"
 msgid "No files were found"
 msgstr "No se encontró ningún archivo"
 
@@ -1488,7 +1493,6 @@ msgstr "No se encontró ningún archivo"
 #: ../src/tracker-utils/tracker-search.c:208
 #: ../src/tracker-utils/tracker-search.c:418
 #, c-format
-#| msgid "Files:"
 msgid "File: %d"
 msgstr "Archivo: %d"
 
@@ -1496,24 +1500,20 @@ msgstr "Archivo: %d"
 #: ../src/tracker-utils/tracker-search.c:209
 #: ../src/tracker-utils/tracker-search.c:419
 #, c-format
-#| msgid "Files:"
 msgid "Files: %d"
 msgstr "Archivos: %d"
 
 #: ../src/tracker-utils/tracker-search.c:272
-#| msgid "No tags found"
 msgid "No artists were found"
 msgstr "No se encontró ningún artista"
 
 #: ../src/tracker-utils/tracker-search.c:275
 #, c-format
-#| msgid "Result: %d"
 msgid "Artist: %d"
 msgstr "Artista: %d"
 
 #: ../src/tracker-utils/tracker-search.c:276
 #, c-format
-#| msgid "Results: %d"
 msgid "Artists: %d"
 msgstr "Artistas: %d"
 
@@ -1529,13 +1529,11 @@ msgstr "%d canciones"
 
 #: ../src/tracker-utils/tracker-search.c:311
 #, c-format
-#| msgid " in %d seconds"
 msgid "%d Second"
 msgstr "%d segundo"
 
 #: ../src/tracker-utils/tracker-search.c:312
 #, c-format
-#| msgid " in %d seconds"
 msgid "%d Seconds"
 msgstr "%d segundos"
 
@@ -1545,7 +1543,6 @@ msgid "Album '%s'"
 msgstr "Álbum «%s»"
 
 #: ../src/tracker-utils/tracker-search.c:358
-#| msgid "No tags found"
 msgid "No music was found"
 msgstr "No se encontró música"
 
@@ -1560,7 +1557,6 @@ msgid "Albums: %d"
 msgstr "Álbumes: %d"
 
 #: ../src/tracker-utils/tracker-search.c:510
-#| msgid "No results found matching your query"
 msgid "No results were found matching your query"
 msgstr "No se encontró ningún resultado coincidente con su consulta"
 
@@ -1568,7 +1564,6 @@ msgstr "No se encontró ningún resultado coincidente con su consulta"
 #. * usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
 #.
 #: ../src/tracker-utils/tracker-search.c:550
-#| msgid "- Search files for certain terms"
 msgid "- Search for terms in all data"
 msgstr "- Buscar términos en todos los datos"
 
@@ -1583,7 +1578,6 @@ msgstr ""
 "(consulte --or-operator)"
 
 #: ../src/tracker-utils/tracker-search.c:559
-#| msgid "This means if you search for 'foo' and 'bar', they must BOTH exist"
 msgid ""
 "This means if you search for 'foo' and 'bar', they must BOTH exist (unless "
 "you use --or-operator)"
@@ -1604,7 +1598,6 @@ msgid "SPARQL query"
 msgstr "Consulta SPARQL"
 
 #: ../src/tracker-utils/tracker-sparql.c:49
-#| msgid "SPARQL query"
 msgid "SPARQL"
 msgstr "SPARQL"
 
@@ -1633,7 +1626,6 @@ msgid "CLASS"
 msgstr "CLASE"
 
 #: ../src/tracker-utils/tracker-sparql.c:91
-#| msgid "Could not get Tracker properties"
 msgid "Could not get namespace prefixes"
 msgstr "No se pudieron obtener los prefijos de espacios de nombres"
 
@@ -1642,28 +1634,23 @@ msgid "No namespace prefixes were found"
 msgstr "No se encontró ningún prefijo de espacio de nombres"
 
 #: ../src/tracker-utils/tracker-sparql.c:160
-#| msgid "- Query using SPARQL"
 msgid "- Query or update using SPARQL"
 msgstr "- Consulta o actualización usando SPARQL"
 
 #: ../src/tracker-utils/tracker-sparql.c:170
-#| msgid "Either path or query needs to be specified"
 msgid "Either a file or query needs to be specified"
 msgstr "Se debe especificar un archivo o la consulta"
 
 #: ../src/tracker-utils/tracker-sparql.c:199
-#| msgid "Could not search tags"
 msgid "Could not list classes"
 msgstr "No se pudieron listar las clases"
 
 #: ../src/tracker-utils/tracker-sparql.c:209
-#| msgid "No tags found"
 msgid "No classes were found"
 msgstr "No se encontró ninguna clase"
 
 #: ../src/tracker-utils/tracker-sparql.c:212
 #, c-format
-#| msgid "Results: %d"
 msgid "Class: %d"
 msgstr "Clase: %d"
 
@@ -1673,7 +1660,6 @@ msgid "Classes: %d"
 msgstr "Clases: %d"
 
 #: ../src/tracker-utils/tracker-sparql.c:237
-#| msgid "Could not get tags for file:'%s'"
 msgid "Could not list class prefixes"
 msgstr "No se pudieron listar los prefijos de clases"
 
@@ -1699,12 +1685,10 @@ msgstr ""
 "«rdfs#Recurso»"
 
 #: ../src/tracker-utils/tracker-sparql.c:316
-#| msgid "Could not get Tracker properties"
 msgid "Could not list properties"
 msgstr "No se pudieron listar las propiedades"
 
 #: ../src/tracker-utils/tracker-sparql.c:326
-#| msgid "No properties available"
 msgid "No properties were found"
 msgstr "No se encontró ninguna propiedad"
 
@@ -1727,12 +1711,10 @@ msgid "Could not read file"
 msgstr "No se pudo leer el archivo"
 
 #: ../src/tracker-utils/tracker-sparql.c:379
-#| msgid "Could not read file"
 msgid "Could not run update"
 msgstr "No se pudo ejecutar la actualización"
 
 #: ../src/tracker-utils/tracker-sparql.c:390
-#| msgid "Could not query search"
 msgid "Could not run query"
 msgstr "No se pudo ejecutar la consulta"
 
@@ -2050,6 +2032,128 @@ msgstr "Sólo permitir acciones de lectura en la base de datos"
 #: ../src/tracker-store/tracker-main.c:673
 msgid "- start the tracker daemon"
 msgstr "iniciar el demonio de tracker"
+
+#~ msgid "Data must be reindexed"
+#~ msgstr "Los datos deben ser reindexados"
+
+#~ msgid ""
+#~ "In order for your changes to take effect, Tracker must reindex your "
+#~ "files. Click the Reindex button to start reindexing now, otherwise this "
+#~ "action will be performed the next time the Tracker daemon is restarted."
+#~ msgstr ""
+#~ "Para que sus cambios tengan efecto, Tracker debe reindexar sus archivos. "
+#~ "Pulse el botón Reindexar para comenzar el reindexado ahora, de otra forma "
+#~ "esta acción se realizará la próxima vez que se inicie el demonio de "
+#~ "Tracker."
+
+#~ msgid "_Reindex"
+#~ msgstr "_Reindexar"
+
+#~ msgid "Tracker daemon must be restarted"
+#~ msgstr "Se debe reiniciar el demonio de Tracker"
+
+#~ msgid ""
+#~ "In order for your changes to take effect, the Tracker daemon has to be "
+#~ "restarted. Click the Restart button to restart the daemon now."
+#~ msgstr ""
+#~ "Para que sus cambios tengan efecto se debe reiniciar el demonio de "
+#~ "Tracker. Pulse el botón Reiniciar para reiniciar el demonio ahora."
+
+#~ msgid "_Restart"
+#~ msgstr "_Reiniciar"
+
+#~ msgid "<b>Crawled Directories</b>"
+#~ msgstr "<b>Directorios en los que se ha arrastrado</b>"
+
+#~ msgid "<b>Ignored File Patterns</b>"
+#~ msgstr "<b>Patrones de archivo ignorados</b>"
+
+#~ msgid "<b>Ignored Paths</b>"
+#~ msgstr "<b>Rutas ignoradas</b>"
+
+#~ msgid "<b>Index Merging</b>"
+#~ msgstr "<b>Mezclado de índices</b>"
+
+#~ msgid "<b>Indexing Limits (per file)</b>"
+#~ msgstr "<b>Límites de indexado (por archivo)</b>"
+
+#~ msgid "<b>Indexing Options</b>"
+#~ msgstr "<b>Opciones de indexado</b>"
+
+#~ msgid "<b>Power management</b>"
+#~ msgstr "<b>Gestión de energía</b>"
+
+#~ msgid "<b>Resource Usage</b>"
+#~ msgstr "<b>Uso de recursos</b>"
+
+#~ msgid "<b>Stemming</b>"
+#~ msgstr "<b>Ramificaciones</b>"
+
+#~ msgid "<b>Throttling</b>"
+#~ msgstr "<b>Aceleración</b>"
+
+#~ msgid "Additional mbox style mailboxes to index:"
+#~ msgstr "Buzones de correo adicionales mbox para indexar:"
+
+#~ msgid "Additional paths to index and watch:"
+#~ msgstr "Rutas adicionales que indexar y vigilar:"
+
+#~ msgid "Additional paths to index on startup (but not watch for updates):"
+#~ msgstr ""
+#~ "Rutas adicionales que indexar al inicio (pero no vigilar actualizaciones):"
+
+#~ msgid "Disable initial index sweep when on battery"
+#~ msgstr "Desactivar la indexación inicial al funcionar con la batería"
+
+#~ msgid "Email"
+#~ msgstr "Correo-e"
+
+#~ msgid "Enable _Evolution email indexing"
+#~ msgstr "Activar el indexado de correos-e de _Evolution"
+
+#~ msgid "Index _delay:"
+#~ msgstr "_Retardo de indexado: "
+
+#~ msgid "Index _file contents"
+#~ msgstr "Indexar el contenido de los _archivos"
+
+#~ msgid "Index and watch my home _directory"
+#~ msgstr "Indexar y vigilar mi ca_rpeta personal"
+
+#~ msgid "Indexing Speed:"
+#~ msgstr "Velocidad de indexado:"
+
+#~ msgid "Maximum _amount of text to index:"
+#~ msgstr "Máxima _cantidad de texto para indexar:"
+
+#~ msgid "Maximum number of unique _words to index:"
+#~ msgstr "Máximo número de _palabras únicas que indexar:"
+
+#~ msgid "Path roots to be ignored during indexing:"
+#~ msgstr "Rutas para ser ignoradas durante el indexado:"
+
+#~ msgid "Perform fast index merges (may affect system performance)"
+#~ msgstr ""
+#~ "Realizar mezclas de índices rápidas (puede afectar al rendimiento del "
+#~ "sistema)"
+
+#~ msgid "Performance"
+#~ msgstr "Rendimiento"
+
+#~ msgid "Tracker Preferences"
+#~ msgstr "Preferencias de Tracker"
+
+#~ msgid "_Language:"
+#~ msgstr "_Idioma:"
+
+#~ msgid "_Minimize memory usage (slower indexing)"
+#~ msgstr "_Minimizar el uso de memoria (indexado más lento)"
+
+#~ msgid "_Use additional memory for faster indexing"
+#~ msgstr "_Usar memoria adicional para indexar más rápidamente"
+
+#~ msgid "kB"
+#~ msgstr "KiB"
 
 #~ msgid "<b>Animation</b>"
 #~ msgstr "<b>Animación</b>"

@@ -33,6 +33,8 @@
 #include <glib/gi18n.h>
 #include <glib/gprintf.h>
 
+#include <libtracker-common/tracker-common.h>
+
 #include <libtracker-db/tracker-db-manager.h>
 
 static gboolean     should_kill;
@@ -159,7 +161,11 @@ main (int argc, char **argv)
 	}
 
 	pids = get_pids ();
-	str = g_strdup_printf (_("Found %d pids..."), g_slist_length (pids));
+	str = g_strdup_printf (tracker_dngettext (NULL,
+						  _("Found %d PID…"), 
+						  _("Found %d PIDs…"),
+						  g_slist_length (pids)),
+			       g_slist_length (pids));
 	g_print ("%s\n", str);
 	g_free (str);
 

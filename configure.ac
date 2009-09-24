@@ -1399,6 +1399,7 @@ AC_CONFIG_FILES([
 	data/languages/Makefile
 	data/tracker-gtk.pc
 	data/Makefile
+	data/miners/Makefile
 	data/ontologies/Makefile
 	data/tracker-client.pc
 	data/tracker-miner.pc

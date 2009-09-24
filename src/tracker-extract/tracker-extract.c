@@ -416,7 +416,7 @@ tracker_extract_get_pid (TrackerExtract	        *object,
 	request_id = tracker_dbus_get_next_request_id ();
 
 	tracker_dbus_request_new (request_id,
-				  "DBus request to get PID");
+				  "D-Bus request to get PID");
 	
 	value = getpid ();
 	tracker_dbus_request_debug (request_id,
@@ -442,7 +442,7 @@ tracker_extract_get_metadata (TrackerExtract	     *object,
 	tracker_dbus_async_return_if_fail (uri != NULL, context);
 
 	tracker_dbus_request_new (request_id,
-				  "DBus request to extract metadata, "
+				  "D-Bus request to extract metadata, "
 				  "uri:'%s', mime:%s",
 				  uri,
 				  mime);

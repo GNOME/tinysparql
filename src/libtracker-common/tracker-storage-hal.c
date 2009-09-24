@@ -165,7 +165,7 @@ tracker_storage_init (TrackerStorage *storage)
 
 	priv->connection = dbus_bus_get (DBUS_BUS_SYSTEM, &error);
 	if (dbus_error_is_set (&error)) {
-		g_critical ("Could not get the system DBus connection, %s",
+		g_critical ("Could not get the system D-Bus connection, %s",
 			    error.message);
 		dbus_error_free (&error);
 		return;

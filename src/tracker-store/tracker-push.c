@@ -316,7 +316,7 @@ tracker_push_init (void)
 					 G_TYPE_INVALID);
 
 	} else {
-		g_critical ("Could not setup DBus, %s\n", error->message);
+		g_critical ("Could not setup D-Bus, %s\n", error->message);
 		g_error_free (error);
 	}
 }

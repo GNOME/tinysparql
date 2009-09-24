@@ -1,5 +1,4 @@
 *.desktop
-*.desktop.in
 *.la
 *.lo
 *.o

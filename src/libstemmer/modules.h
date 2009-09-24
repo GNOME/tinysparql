@@ -27,6 +27,7 @@
 #include "stem_UTF_8_finnish.h"
 #include "stem_UTF_8_french.h"
 #include "stem_UTF_8_german.h"
+#include "stem_UTF_8_hungarian.h"
 #include "stem_UTF_8_italian.h"
 #include "stem_UTF_8_norwegian.h"
 #include "stem_UTF_8_porter.h"
@@ -82,6 +83,9 @@ static struct stemmer_modules modules[] = {
   {"french", ENC_UTF_8, french_UTF_8_create_env, french_UTF_8_close_env, french_UTF_8_stem},
   {"ger", ENC_UTF_8, german_UTF_8_create_env, german_UTF_8_close_env, german_UTF_8_stem},
   {"german", ENC_UTF_8, german_UTF_8_create_env, german_UTF_8_close_env, german_UTF_8_stem},
+  {"hu", ENC_UTF_8, hungarian_UTF_8_create_env, hungarian_UTF_8_close_env, hungarian_UTF_8_stem},
+  {"hun", ENC_UTF_8, hungarian_UTF_8_create_env, hungarian_UTF_8_close_env, hungarian_UTF_8_stem},
+  {"hungarian", ENC_UTF_8, hungarian_UTF_8_create_env, hungarian_UTF_8_close_env, hungarian_UTF_8_stem},
   {"it", ENC_UTF_8, italian_UTF_8_create_env, italian_UTF_8_close_env, italian_UTF_8_stem},
   {"ita", ENC_UTF_8, italian_UTF_8_create_env, italian_UTF_8_close_env, italian_UTF_8_stem},
   {"italian", ENC_UTF_8, italian_UTF_8_create_env, italian_UTF_8_close_env, italian_UTF_8_stem},
@@ -111,6 +115,7 @@ static const char * algorithm_names[] = {
   "finnish",
   "french",
   "german",
+  "hungarian",
   "italian",
   "norwegian",
   "porter",

@@ -76,8 +76,8 @@ static GOptionEntry entries[] = {
 	},
 	{ G_OPTION_REMAINING, 0,
 	  G_OPTION_FLAG_FILENAME, G_OPTION_ARG_STRING_ARRAY, &files,
-	  N_("FILE..."),
-	  N_("FILE [FILE...]")},
+	  N_("FILE…"),
+	  N_("FILE [FILE…]")},
 	{ NULL }
 };
 
@@ -176,7 +176,7 @@ main (int argc, char **argv)
 
 	if (!client) {
 		g_printerr ("%s\n",
-			    _("Could not establish a DBus connection to Tracker"));
+			    _("Could not establish a D-Bus connection to Tracker"));
 		return EXIT_FAILURE;
 	}
 
@@ -310,6 +310,7 @@ main (int argc, char **argv)
 
 	if ((files && list) ||
 	    (files && (!add && !rm && !rm_all))) {
+		/* Translators: "Found" here is in terms of results found. */
 		g_print ("%s:\n", _("Found"));
 
 		for (i = 0, j = 0; files_resolved[i] != NULL; i++) {

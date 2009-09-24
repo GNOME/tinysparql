@@ -43,6 +43,12 @@ public class Tracker.SparqlQuery : Object {
 		}
 	}
 
+	enum VariableState {
+		NONE,
+		BOUND,
+		OPTIONAL
+	}
+
 	// Represents a SQL table
 	class DataTable : Object {
 		public string sql_db_tablename; // as in db schema
@@ -264,6 +270,8 @@ public class Tracker.SparqlQuery : Object {
 	string current_predicate;
 	bool current_predicate_is_var;
 
+	int next_table_index;
+
 	HashTable<string,string> prefix_map;
 
 	// All SQL tables
@@ -280,7 +288,7 @@ public class Tracker.SparqlQuery : Object {
 	HashTable<string,VariableBindingList> pattern_var_map;
 
 	// All SPARQL variables within a subgraph pattern (used by UNION)
-	HashTable<string,bool> subgraph_var_set;
+	HashTable<string,int> subgraph_var_set;
 
 	// Variables used as predicates
 	HashTable<string,PredicateVariable> predicate_variable_map;
@@ -296,7 +304,7 @@ public class Tracker.SparqlQuery : Object {
 	public SparqlQuery (string query) {
 		tokens = new TokenInfo[BUFFER_SIZE];
 		prefix_map = new HashTable<string,string>.full (str_hash, str_equal, g_free, g_free);
-		subgraph_var_set = new HashTable<string,bool>.full (str_hash, str_equal, g_free, null);
+		subgraph_var_set = new HashTable<string,int>.full (str_hash, str_equal, g_free, null);
 
 		base_uuid = new uchar[16];
 		uuid_generate (base_uuid);
@@ -1547,7 +1555,7 @@ public class Tracker.SparqlQuery : Object {
 				throw get_error ("expected boolean expression");
 			}
 			sql.insert (begin, "(");
-			sql.append (" && ");
+			sql.append (" AND ");
 			optype = translate_value_logical (sql);
 			sql.append (")");
 			if (optype != DataType.BOOLEAN) {
@@ -1565,7 +1573,7 @@ public class Tracker.SparqlQuery : Object {
 				throw get_error ("expected boolean expression");
 			}
 			sql.insert (begin, "(");
-			sql.append (" || ");
+			sql.append (" OR ");
 			optype = translate_conditional_and_expression (sql);
 			sql.append (")");
 			if (optype != DataType.BOOLEAN) {
@@ -1960,10 +1968,75 @@ public class Tracker.SparqlQuery : Object {
 				if (!in_group_graph_pattern) {
 					in_group_graph_pattern = true;
 				}
-				sql.insert (group_graph_pattern_start, "SELECT * FROM (");
-				sql.append (") NATURAL LEFT JOIN (");
+
+				var select = new StringBuilder ("SELECT ");
+
+				int left_index = ++next_table_index;
+				int right_index = ++next_table_index;
+
+				sql.append_printf (") AS t%d_g LEFT JOIN (", left_index);
+
+				var old_subgraph_var_set = subgraph_var_set;
+				subgraph_var_set = new HashTable<string,int>.full (str_hash, str_equal, g_free, null);
+
 				translate_group_graph_pattern (sql);
-				sql.append (")");
+
+				sql.append_printf (") AS t%d_g", right_index);
+
+				bool first = true;
+				bool first_common = true;
+				foreach (string v in subgraph_var_set.get_keys ()) {
+					if (first) {
+						first = false;
+					} else {
+						select.append (", ");
+					}
+
+					var old_state = old_subgraph_var_set.lookup (v);
+					if (old_state == 0) {
+						// first used in optional part
+						old_subgraph_var_set.insert (v, VariableState.OPTIONAL);
+						select.append_printf ("t%d_g.\"%s_u\"", right_index, v);
+					} else {
+						if (first_common) {
+							sql.append (" ON ");
+							first_common = false;
+						} else {
+							sql.append (" AND ");
+						}
+
+						if (old_state == VariableState.BOUND) {
+							// variable definitely bound in non-optional part
+							sql.append_printf ("t%d_g.\"%s_u\" = t%d_g.\"%s_u\"", left_index, v, right_index, v);
+							select.append_printf ("t%d_g.\"%s_u\"", left_index, v);
+						} else if (old_state == VariableState.OPTIONAL) {
+							// variable maybe bound in non-optional part
+							sql.append_printf ("(t%d_g.\"%s_u\" IS NULL OR t%d_g.\"%s_u\" = t%d_g.\"%s_u\")", left_index, v, left_index, v, right_index, v);
+							select.append_printf ("COALESCE (t%d_g.\"%s_u\", t%d_g.\"%s_u\") AS \"%s_u\"", left_index, v, right_index, v, v);
+						}
+					}
+				}
+				foreach (string v in old_subgraph_var_set.get_keys ()) {
+					if (subgraph_var_set.lookup (v) == 0) {
+						// only used in non-optional part
+						if (first) {
+							first = false;
+						} else {
+							select.append (", ");
+						}
+
+						select.append_printf ("t%d_g.\"%s_u\"", left_index, v);
+					}
+				}
+				if (first) {
+					// no variables used at all
+					select.append ("1");
+				}
+
+				subgraph_var_set = old_subgraph_var_set;
+
+				select.append (" FROM (");
+				sql.insert (group_graph_pattern_start, select.str);
 			} else if (current () == SparqlTokenType.OPEN_BRACE) {
 				if (!in_triples_block && !in_group_graph_pattern) {
 					in_group_graph_pattern = true;
@@ -2033,13 +2106,13 @@ public class Tracker.SparqlQuery : Object {
 		var old_subgraph_var_set = subgraph_var_set;
 
 		string[] all_vars = { };
-		HashTable<string,bool> all_var_set = new HashTable<string,bool>.full (str_hash, str_equal, g_free, null);
+		HashTable<string,int> all_var_set = new HashTable<string,int>.full (str_hash, str_equal, g_free, null);
 
-		HashTable<string,bool>[] var_sets = { };
+		HashTable<string,int>[] var_sets = { };
 		long[] offsets = { };
 
 		do {
-			subgraph_var_set = new HashTable<string,bool>.full (str_hash, str_equal, g_free, null);
+			subgraph_var_set = new HashTable<string,int>.full (str_hash, str_equal, g_free, null);
 			var_sets += subgraph_var_set;
 			offsets += sql.len;
 			translate_group_graph_pattern (sql);
@@ -2051,10 +2124,10 @@ public class Tracker.SparqlQuery : Object {
 			// create union of all variables
 			foreach (var var_set in var_sets) {
 				foreach (string v in var_set.get_keys ()) {
-					if (!all_var_set.lookup (v)) {
+					if (all_var_set.lookup (v) == 0) {
 						all_vars += v;
-						all_var_set.insert (v, true);
-						old_subgraph_var_set.insert (v, true);
+						all_var_set.insert (v, VariableState.BOUND);
+						old_subgraph_var_set.insert (v, VariableState.BOUND);
 					}
 				}
 			}
@@ -2067,7 +2140,7 @@ public class Tracker.SparqlQuery : Object {
 				}
 				projection.append ("SELECT ");
 				foreach (string v in all_vars) {
-					if (!var_sets[i].lookup (v)) {
+					if (var_sets[i].lookup (v) == 0) {
 						// variable not used in this subgraph
 						// use NULL
 						projection.append ("NULL AS ");
@@ -2084,7 +2157,7 @@ public class Tracker.SparqlQuery : Object {
 			sql.append (")");
 		} else {
 			foreach (string key in subgraph_var_set.get_keys ()) {
-				old_subgraph_var_set.insert (key, true);
+				old_subgraph_var_set.insert (key, VariableState.BOUND);
 			}
 		}
 		subgraph_var_set = old_subgraph_var_set;
@@ -2185,7 +2258,7 @@ public class Tracker.SparqlQuery : Object {
 					binding.sql_db_column_name,
 					binding.variable);
 
-				subgraph_var_set.insert (binding.variable, true);
+				subgraph_var_set.insert (binding.variable, VariableState.BOUND);
 			}
 			binding_list.list.append (binding);
 			if (var_map.lookup (binding.variable) == null) {
@@ -2211,7 +2284,7 @@ public class Tracker.SparqlQuery : Object {
 						binding.sql_db_column_name,
 						binding.variable);
 
-					subgraph_var_set.insert (binding.variable, true);
+					subgraph_var_set.insert (binding.variable, VariableState.BOUND);
 				}
 				binding_list.list.append (binding);
 				if (var_map.lookup (binding.variable) == null) {
@@ -2269,7 +2342,7 @@ public class Tracker.SparqlQuery : Object {
 						binding.sql_db_column_name,
 						binding.variable);
 
-					subgraph_var_set.insert (binding.variable, true);
+					subgraph_var_set.insert (binding.variable, VariableState.BOUND);
 				}
 				binding_list.list.append (binding);
 				if (var_map.lookup (binding.variable) == null) {

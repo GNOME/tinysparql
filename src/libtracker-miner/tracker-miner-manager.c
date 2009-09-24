@@ -31,15 +31,30 @@
 
 #define TRACKER_MINER_MANAGER_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_MINER_MANAGER, TrackerMinerManagerPrivate))
 
+#define DESKTOP_ENTRY_GROUP "Desktop Entry"
+#define DBUS_NAME_KEY "DBusName"
+#define DBUS_PATH_KEY "DBusPath"
+#define DISPLAY_NAME_KEY "Name"
+
 typedef struct TrackerMinerManagerPrivate TrackerMinerManagerPrivate;
+typedef struct MinerData MinerData;
+
+struct MinerData {
+	gchar *dbus_name;
+	gchar *dbus_path;
+	gchar *display_name;
+};
 
 struct TrackerMinerManagerPrivate {
 	DBusGConnection *connection;
 	DBusGProxy *proxy;
+
+	GList *miners;
 	GHashTable *miner_proxies;
 };
 
 static void miner_manager_finalize (GObject *object);
+static void initialize_miners_data (TrackerMinerManager *manager);
 
 
 G_DEFINE_TYPE (TrackerMinerManager, tracker_miner_manager, G_TYPE_OBJECT)
@@ -206,14 +221,14 @@ tracker_miner_manager_init (TrackerMinerManager *manager)
 {
 	TrackerMinerManagerPrivate *priv;
 	GError *error = NULL;
-	GSList *miners, *m;
+	GList *m;
 
 	priv = TRACKER_MINER_MANAGER_GET_PRIVATE (manager);
 
 	priv->connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
 
 	if (!priv->connection) {
-		g_critical ("Could not connect to the DBus session bus, %s",
+		g_critical ("Could not connect to the D-Bus session bus, %s",
 			    error ? error->message : "no error given.");
 		g_clear_error (&error);
 	}
@@ -224,7 +239,7 @@ tracker_miner_manager_init (TrackerMinerManager *manager)
 						 DBUS_INTERFACE_DBUS);
 
 	if (!priv->proxy) {
-		g_critical ("Could not get proxy for DBus service");
+		g_critical ("Could not get proxy for D-Bus service");
 	}
 
 	priv->miner_proxies = g_hash_table_new_full (NULL, NULL,
@@ -249,17 +264,17 @@ tracker_miner_manager_init (TrackerMinerManager *manager)
 				     G_CALLBACK (name_owner_changed_cb),
 				     manager, NULL);
 
-	miners = tracker_miner_manager_get_available (manager);
+	initialize_miners_data (manager);
 
-	for (m = miners; m; m = m->next) {
+	for (m = priv->miners; m; m = m->next) {
 		DBusGProxy *proxy;
-		gchar *name, *path;
+		MinerData *data;
 
-		name = strrchr (m->data, '.');
-		path = g_strdup_printf (TRACKER_MINER_DBUS_PATH_PREFIX "%s", ++name);
+		data = m->data;
 
 		proxy = dbus_g_proxy_new_for_name (priv->connection,
-						   m->data, path,
+						   data->dbus_name,
+						   data->dbus_path,
 						   TRACKER_MINER_DBUS_INTERFACE);
 
 		dbus_g_proxy_add_signal (proxy,
@@ -288,6 +303,14 @@ tracker_miner_manager_init (TrackerMinerManager *manager)
 }
 
 static void
+miner_data_free (MinerData *data)
+{
+	g_free (data->dbus_path);
+	g_free (data->display_name);
+	g_slice_free (MinerData, data);
+}
+
+static void
 miner_manager_finalize (GObject *object)
 {
 	TrackerMinerManagerPrivate *priv;
@@ -301,6 +324,9 @@ miner_manager_finalize (GObject *object)
 	if (priv->connection) {
 		dbus_g_connection_unref (priv->connection);
 	}
+
+	g_list_foreach (priv->miners, (GFunc) miner_data_free, NULL);
+	g_list_free (priv->miners);
 
 	G_OBJECT_CLASS (tracker_miner_manager_parent_class)->finalize (object);
 }
@@ -357,30 +383,56 @@ crawler_check_file_cb (TrackerCrawler *crawler,
 		       GFile          *file,
 		       gpointer        user_data)
 {
-	gchar *basename;
+	TrackerMinerManager *manager;
+	TrackerMinerManagerPrivate *priv;
+	GKeyFile *key_file;
+	gchar *path, *dbus_path, *dbus_name, *display_name;
+	GError *error = NULL;
+	MinerData *data;
 
-	basename = g_file_get_basename (file);
+	manager = user_data;
+	path = g_file_get_path (file);
+	priv = TRACKER_MINER_MANAGER_GET_PRIVATE (manager);
 
-	if (g_str_has_prefix (basename, TRACKER_MINER_DBUS_NAME_PREFIX)) {
-		gchar *p;
-
-		p = strstr (basename, ".service");
-
-		if (p) {
-			GSList **list = user_data;
-
-			*p = '\0';
-			*list = g_slist_prepend (*list, basename);
-		} else {
-			g_free (basename);
-		}
-
-		return TRUE;
+	if (!g_str_has_suffix (path, ".desktop")) {
+	    return FALSE;
 	}
 
-	g_free (basename);
+	key_file = g_key_file_new ();
+	g_key_file_load_from_file (key_file, path, G_KEY_FILE_NONE, &error);
 
-	return FALSE;
+	if (error) {
+		g_warning ("Error parsing miner .desktop file: %s", error->message);
+		g_error_free (error);
+		g_key_file_free (key_file);
+
+		return FALSE;
+	}
+
+	dbus_path = g_key_file_get_string (key_file, DESKTOP_ENTRY_GROUP, DBUS_PATH_KEY, NULL);
+	dbus_name = g_key_file_get_string (key_file, DESKTOP_ENTRY_GROUP, DBUS_NAME_KEY, NULL);
+	display_name = g_key_file_get_locale_string (key_file, DESKTOP_ENTRY_GROUP, DISPLAY_NAME_KEY, NULL, NULL);
+
+	if (!dbus_path || !dbus_name || !display_name) {
+		g_warning ("Essential data (DBusPath or Name) are missing in miner .desktop file");
+		g_key_file_free (key_file);
+		g_free (dbus_path);
+		g_free (display_name);
+		g_free (dbus_name);
+
+		return FALSE;
+	}
+
+	data = g_slice_new0 (MinerData);
+	data->dbus_path = dbus_path;
+	data->dbus_name = dbus_name;
+	data->display_name = display_name;
+
+	priv->miners = g_list_prepend (priv->miners, data);
+
+	g_free (path);
+
+	return TRUE;
 }
 
 static void
@@ -396,10 +448,9 @@ crawler_finished_cb (TrackerCrawler *crawler,
 	g_main_loop_quit (user_data);
 }
 
-GSList *
-tracker_miner_manager_get_available (TrackerMinerManager *manager)
+static void
+initialize_miners_data (TrackerMinerManager *manager)
 {
-	GSList *list = NULL;
 	GMainLoop *main_loop;
 	GFile *file;
 	TrackerCrawler *crawler;
@@ -409,19 +460,35 @@ tracker_miner_manager_get_available (TrackerMinerManager *manager)
 
 	g_signal_connect (crawler, "check-file",
 			  G_CALLBACK (crawler_check_file_cb),
-			  &list);
+			  manager);
 	g_signal_connect (crawler, "finished",
 			  G_CALLBACK (crawler_finished_cb),
 			  main_loop);
 
 	/* Go through service files */
-	file = g_file_new_for_path (DBUS_SERVICES_DIR);
+	file = g_file_new_for_path (TRACKER_MINERS_DIR);
 	tracker_crawler_start (crawler, file, TRUE);
 	g_object_unref (file);
 
 	g_main_loop_run (main_loop);
 
 	g_object_unref (crawler);
+}
+
+GSList *
+tracker_miner_manager_get_available (TrackerMinerManager *manager)
+{
+	TrackerMinerManagerPrivate *priv;
+	GSList *list = NULL;
+	GList *m;
+
+	priv = TRACKER_MINER_MANAGER_GET_PRIVATE (manager);
+
+	for (m = priv->miners; m; m = m->next) {
+		MinerData *data = m->data;
+
+		list = g_slist_prepend (list, g_strdup (data->dbus_name));
+	}
 
 	return g_slist_reverse (list);
 }
@@ -443,7 +510,7 @@ tracker_miner_manager_pause (TrackerMinerManager *manager,
 	proxy = find_miner_proxy (manager, miner);
 
 	if (!proxy) {
-		g_critical ("No DBus proxy found for miner '%s'", miner);
+		g_critical ("No D-Bus proxy found for miner '%s'", miner);
 		return FALSE;
 	}
 
@@ -482,7 +549,7 @@ tracker_miner_manager_resume (TrackerMinerManager *manager,
 	proxy = find_miner_proxy (manager, miner);
 
 	if (!proxy) {
-		g_critical ("No DBus proxy found for miner '%s'", miner);
+		g_critical ("No D-Bus proxy found for miner '%s'", miner);
 		return FALSE;
 	}
 
@@ -522,4 +589,27 @@ tracker_miner_manager_is_active (TrackerMinerManager *manager,
 	}
 
 	return active;
+}
+
+const gchar *
+tracker_miner_manager_get_display_name (TrackerMinerManager *manager,
+					const gchar         *miner)
+{
+	TrackerMinerManagerPrivate *priv;
+	GList *m;
+
+	g_return_val_if_fail (TRACKER_IS_MINER_MANAGER (manager), NULL);
+	g_return_val_if_fail (miner != NULL, NULL);
+
+	priv = TRACKER_MINER_MANAGER_GET_PRIVATE (manager);
+
+	for (m = priv->miners; m; m = m->next) {
+		MinerData *data = m->data;
+
+		if (strcmp (miner, data->dbus_name) == 0) {
+			return data->display_name;
+		}
+	}
+
+	return NULL;
 }

@@ -305,6 +305,7 @@ miner_files_constructed (GObject *object)
         TrackerMinerFiles *mf;
         TrackerMinerFS *fs;
         GSList *dirs;
+	gint throttle;
 
 	G_OBJECT_CLASS (tracker_miner_files_parent_class)->constructed (object);
 
@@ -364,6 +365,11 @@ miner_files_constructed (GObject *object)
 
                 dirs = dirs->next;
         }
+
+	throttle = tracker_config_get_throttle (mf->private->config);
+
+	/* Throttle in config goes from 0 to 20, translate to 0.0 -> 1.0 */
+	tracker_miner_fs_set_throttle (TRACKER_MINER_FS (mf), (1.0 / 20) * throttle);
 
 #ifdef HAVE_HAL
         initialize_removable_devices (mf);
@@ -655,6 +661,26 @@ initialize_removable_devices (TrackerMinerFiles *mf)
 }
 
 static void
+set_up_throttle (TrackerMinerFiles *mf,
+		 gboolean           enable)
+{
+	gdouble throttle;
+	gint config_throttle;
+
+	config_throttle = tracker_config_get_throttle (mf->private->config);
+	throttle = (1.0 / 20) * config_throttle;
+
+	if (enable) {
+		throttle += 0.25;
+	}
+
+	throttle = CLAMP (throttle, 0, 1);
+
+	g_debug ("Setting new throttle to %0.3f", throttle);
+	tracker_miner_fs_set_throttle (TRACKER_MINER_FS (mf), throttle);
+}
+
+static void
 on_battery_cb (GObject    *gobject,
 	       GParamSpec *arg1,
 	       gpointer    user_data)
@@ -662,9 +688,7 @@ on_battery_cb (GObject    *gobject,
 	TrackerMinerFiles *mf = user_data;
 	gboolean on_battery;
 
-	/* FIXME: Get this working again */
-	/* set_up_throttle (TRUE); */
-
+	set_up_throttle (mf, TRUE);
 	on_battery = tracker_power_get_on_battery (mf->private->power);
 
 	if (on_battery) {
@@ -723,8 +747,7 @@ on_low_battery_cb (GObject    *object,
 		}
 	}
 
-	/* FIXME: Get this working again */
-	/* set_up_throttle (FALSE); */
+	set_up_throttle (mf, FALSE);
 }
 
 static void
@@ -765,7 +788,7 @@ create_extractor_proxy (void)
 	connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
 
 	if (!connection) {
-		g_critical ("Could not connect to the DBus session bus, %s",
+		g_critical ("Could not connect to the D-Bus session bus, %s",
 			    error ? error->message : "no error given.");
 		g_clear_error (&error);
 		return FALSE;

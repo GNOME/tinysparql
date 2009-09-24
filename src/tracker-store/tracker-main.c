@@ -786,7 +786,7 @@ main (gint argc, gchar *argv[])
 	tracker_events_init (tracker_daemon_get_notifiable_classes);
 	tracker_push_init ();
 
-	g_message ("Waiting for DBus requests...");
+	g_message ("Waiting for D-Bus requests...");
 
 	/* Set our status as running, if this is FALSE, threads stop
 	 * doing what they do and shutdown.

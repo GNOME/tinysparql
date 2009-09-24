@@ -1746,7 +1746,7 @@ disable_plugin (void)
 			dbus_proxy = NULL;
 		}
 	} else {
-		g_warning ("Could not setup DBus, ReleaseName of %s: %s\n", 
+		g_warning ("Could not setup D-Bus, ReleaseName of %s: %s\n", 
 			   TRACKER_EVOLUTION_MANAGER_SERVICE, error->message);
 
 		g_error_free (error);
@@ -1783,7 +1783,7 @@ enable_plugin (void)
 						DBUS_NAME_FLAG_DO_NOT_QUEUE,
 						&result, &error)) {
 
-		g_warning ("Could not setup DBus, failed at RequestName for %s\n", 
+		g_warning ("Could not setup D-Bus, failed at RequestName for %s\n", 
 			   TRACKER_EVOLUTION_MANAGER_SERVICE);
 
 		goto error_handler;
@@ -1791,7 +1791,7 @@ enable_plugin (void)
 
 	if (result != DBUS_REQUEST_NAME_REPLY_PRIMARY_OWNER) {
 
-		g_warning ("Could not setup DBus, can't become primary owner of %s\n", 
+		g_warning ("Could not setup D-Bus, can't become primary owner of %s\n", 
 			   TRACKER_EVOLUTION_MANAGER_SERVICE);
 
 		goto error_handler;
@@ -1813,7 +1813,7 @@ enable_plugin (void)
 	error_handler:
 
 	if (error) {
-		g_warning ("Could not setup DBus, %s\n", error->message);
+		g_warning ("Could not setup D-Bus, %s\n", error->message);
 		disable_plugin();
 		g_error_free (error);
 	}

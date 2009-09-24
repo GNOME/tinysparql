@@ -147,7 +147,7 @@ public class Tracker.TurtleWriter : Object {
 		object (literal.to_string ());
 	}
 
-	public void object_date (time_t literal) {
+	public void object_date (ref time_t literal) {
 		var tm = Time.gm (literal);
 
 		object_string ("%04d-%02d-%02dT%02d:%02d:%02d".printf (tm.year + 1900, tm.month + 1, tm.day, tm.hour, tm.minute, tm.second));
