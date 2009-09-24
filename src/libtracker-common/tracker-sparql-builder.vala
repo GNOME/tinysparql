@@ -45,6 +45,12 @@ public class Tracker.SparqlBuilder : Object {
 		states += State.UPDATE;
 	}
 
+	public void drop_graph (string iri)
+		requires (state == State.UPDATE)
+	{
+		str.append ("DROP GRAPH <%s>\n".printf (iri));
+	}
+
 	public void insert_open ()
 		requires (state == State.UPDATE)
 	{

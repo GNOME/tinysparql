@@ -11,6 +11,9 @@ INCLUDES =								\
 	$(EVOLUTION_PLUGIN_CFLAGS)					\
 	$(GCOV_CFLAGS)
 
+servicedir = $(DBUS_SERVICES_DIR)
+service_DATA = org.freedesktop.Tracker1.Miner.EMails.service
+
 %.eplug.in: %.eplug.xml
 	LC_ALL=C $(INTLTOOL_MERGE) -x -u /tmp $< $@
 
@@ -28,55 +31,40 @@ eplugin_LTLIBRARIES = liborg-freedesktop-Tracker-evolution-plugin.la
 
 module_flags = -module -avoid-version -no-undefined
 
-pushd_modulesdir = $(libdir)/tracker-$(TRACKER_API_VERSION)/push-modules/daemon
-
-pushd_modules_LTLIBRARIES = libtracker-module-evolution-daemon-module.la
-
-libtracker_module_evolution_daemon_module_la_SOURCES =	 		\
-	tracker-evolution-registrar.c					\
-	tracker-evolution-registrar.h					\
-	tracker-evolution-common.h					\
-	tracker-evolution-registrar-glue.h
-
-libtracker_module_evolution_daemon_module_la_LDFLAGS = $(module_flags)
-
-libtracker_module_evolution_daemon_module_la_LIBADD = 			\
-	$(top_builddir)/src/libtracker-data/libtracker-data.la          \
-	$(top_builddir)/src/libtracker-db/libtracker-db.la              \
-	$(top_builddir)/src/libtracker-common/libtracker-common.la      \
-	$(GMODULE_LIBS)							\
-	$(DBUS_LIBS)                                                    \
-	$(GTHREAD_LIBS)                                                 \
-	$(GIO_LIBS)                                                     \
-	$(GLIB2_LIBS)                                                   \
-	$(GCOV_LIBS)
-
 liborg_freedesktop_Tracker_evolution_plugin_la_SOURCES = 		\
 	tracker-evolution-plugin.c 			 		\
-	tracker-evolution-plugin.h					\
-	tracker-evolution-common.h					\
-	tracker-evolution-plugin-glue.h
+	tracker-evolution-plugin.h					
 
 liborg_freedesktop_Tracker_evolution_plugin_la_LDFLAGS = -module -avoid-version
-liborg_freedesktop_Tracker_evolution_plugin_la_LDLIBS = 		\
+liborg_freedesktop_Tracker_evolution_plugin_la_LIBADD = 		\
+	$(top_builddir)/src/libtracker-client/libtracker-client-@TRACKER_API_VERSION@.la \
+	$(top_builddir)/src/libtracker-common/libtracker-common.la	\
+	$(top_builddir)/src/libtracker-miner/libtracker-miner.la	\
 	$(EVOLUTION_PLUGIN_LIBS)					\
 	$(DBUS_LIBS)							\
 	$(GCOV_LIBS)
 
-dbus_sources = 								\
-	tracker-evolution-plugin-glue.h					\
-	tracker-evolution-registrar-glue.h
+desktop_in_files = tracker-miner-emails.desktop.in
+
+tracker_minersdir = $(datadir)/tracker/miners
+
+tracker_miners_DATA = tracker-miner-emails.desktop
+
+@INTLTOOL_DESKTOP_RULE@
+
+EXTRA_DIST = $(desktop_in_files)
+CLEANFILES = $(tracker_miners_DATA)
+
 
 %-glue.h: %.xml
 	$(DBUSBINDINGTOOL) --mode=glib-server --output=$@ --prefix=$(subst -,_,$*) $^
 
 BUILT_SOURCES = 							\
-	$(dbus_sources)							\
 	$(eplugin_DATA)
 
 CLEANFILES = 								\
 	$(BUILT_SOURCES) 						\
 	org-freedesktop-Tracker-evolution-plugin.eplug
 
-EXTRA_DIST = 								\
+EXTRA_DIST = $(service_DATA)						\
 	org-freedesktop-Tracker-evolution-plugin.eplug.xml

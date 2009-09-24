@@ -1,7 +1,6 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*
- * Copyright (C) 2006, Mr Jamie McCracken (jamiemcc@gnome.org)
- * Copyright (C) 2008, Nokia
+ * Copyright (C) 2009, Nokia
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -38,10 +37,13 @@ static gchar	    **terms;
 static gboolean       or_operator;
 static gboolean       detailed;
 static gboolean       files;
+static gboolean       folders;
 static gboolean       music_albums;
 static gboolean       music_artists;
 static gboolean       music_files;
 static gboolean       image_files;
+static gboolean       video_files;
+static gboolean       document_files;
 
 static GOptionEntry   entries[] = {
 	{ "limit", 'l', 0, G_OPTION_ARG_INT, &limit,
@@ -61,23 +63,35 @@ static GOptionEntry   entries[] = {
 	  NULL
 	},
 	{ "files", 'f', 0, G_OPTION_ARG_NONE, &files,
-	  N_("List all files"),
+	  N_("Search for files"),
+	  NULL
+	},
+	{ "folders", 'e', 0, G_OPTION_ARG_NONE, &folders,
+	  N_("Search for folders"),
 	  NULL
 	},
 	{ "music-albums", 'a', 0, G_OPTION_ARG_NONE, &music_albums,
-	  N_("List all music albums (includes song count and duration sum)"),
+	  N_("Search for music albums (includes song count and duration sum)"),
 	  NULL
 	},
 	{ "music-artists", 's', 0, G_OPTION_ARG_NONE, &music_artists,
-	  N_("List all music artists"),
+	  N_("Search for music artists"),
 	  NULL
 	},
-	{ "music-files", 'u', 0, G_OPTION_ARG_NONE, &music_files,
-	  N_("List all music files"),
+	{ "music", 'u', 0, G_OPTION_ARG_NONE, &music_files,
+	  N_("Search for music files"),
 	  NULL
 	},
-	{ "image-files", 'i', 0, G_OPTION_ARG_NONE, &image_files,
-	  N_("List all image files"),
+	{ "images", 'i', 0, G_OPTION_ARG_NONE, &image_files,
+	  N_("Search for image files"),
+	  NULL
+	},
+	{ "videos", 'v', 0, G_OPTION_ARG_NONE, &video_files,
+	  N_("Search for video files"),
+	  NULL
+	},
+	{ "documents", 't', 0, G_OPTION_ARG_NONE, &document_files,
+	  N_("Search for document files"),
 	  NULL
 	},
 	{ G_OPTION_REMAINING, 0, 0,
@@ -103,6 +117,36 @@ show_limit_warning (void)
 		    _("NOTE: Limit was reached, there are more items in the database not listed here"));
 }
 
+static gchar *
+get_fts_string (GStrv    search_words,
+		gboolean use_or_operator)
+{
+	GString *fts;
+	gint i, len;
+
+	if (!search_words) {
+		return NULL;
+	}
+
+	fts = g_string_new ("");
+	len = g_strv_length (search_words);
+
+	for (i = 0; i < len; i++) {
+		g_string_append (fts, search_words[i]);
+		g_string_append_c (fts, '*');
+
+		if (i < len - 1) { 
+			if (use_or_operator) {
+				g_string_append (fts, " OR ");
+			} else {
+				g_string_append (fts, " ");
+			}
+		}
+	}
+
+	return g_string_free (fts, FALSE);
+}
+
 static void
 get_files_foreach (gpointer value,
 		   gpointer user_data)
@@ -113,26 +157,14 @@ get_files_foreach (gpointer value,
 }
 
 static gboolean
-get_image_files (TrackerClient *client,
-		 gint           search_offset,
-		 gint           search_limit)
+get_files_results (TrackerClient *client,
+		   const gchar   *query,
+		   gint           search_limit)
 {
 	GError *error = NULL;
 	GPtrArray *results;
-	gchar *query;
-
-	query = g_strdup_printf ("SELECT ?image "
-				 "WHERE { "
-				 "  ?image a nfo:Image "
-				 "} "
-				 "ORDER BY ASC(?image) "
-				 "OFFSET %d "
-				 "LIMIT %d",
-				 search_offset, 
-				 search_limit);
 
 	results = tracker_resources_sparql_query (client, query, &error);
-	g_free (query);
 
 	if (error) {
 		g_printerr ("%s, %s\n",
@@ -170,60 +202,179 @@ get_image_files (TrackerClient *client,
 }
 
 static gboolean
-get_music_files (TrackerClient *client,
-		 gint           search_offset,
-		 gint           search_limit)
+get_document_files (TrackerClient *client,
+		    GStrv          search_terms,
+		    gint           search_offset,
+		    gint           search_limit,
+		    gboolean       use_or_operator)
 {
-	GError *error = NULL;
-	GPtrArray *results;
+	gchar *fts;
 	gchar *query;
+	gboolean success;
 
-	query = g_strdup_printf ("SELECT ?song "
-				 "WHERE { "
-				 "  ?song a nmm:MusicPiece "
-				 "} "
-				 "ORDER BY ASC(?song) "
-				 "OFFSET %d "
-				 "LIMIT %d",
-				 search_offset, 
-				 search_limit);
+	fts = get_fts_string (search_terms, use_or_operator);
 
-	results = tracker_resources_sparql_query (client, query, &error);
-	g_free (query);
-
-	if (error) {
-		g_printerr ("%s, %s\n",
-			    _("Could not get search results"),
-			    error->message);
-		g_error_free (error);
-
-		return FALSE;
-	}
-
-	if (!results) {
-		g_print ("%s\n",
-			 _("No files were found"));
+	if (fts) {
+		query = g_strdup_printf ("SELECT ?document "
+					 "WHERE { "
+					 "  ?document a nfo:PaginatedTextDocument ."
+					 "  ?document fts:match \"%s\" "
+					 "} "
+					 "ORDER BY ASC(?document) "
+					 "OFFSET %d "
+					 "LIMIT %d",
+					 fts,
+					 search_offset, 
+					 search_limit);
 	} else {
-		g_print (tracker_dngettext (NULL,
-					    _("File: %d"), 
-					    _("Files: %d"),
-					    results->len),
-			 results->len);
-		g_print ("\n");
-
-		g_ptr_array_foreach (results, 
-				     get_files_foreach, 
-				     NULL);
-
-		if (results->len >= search_limit) {
-			show_limit_warning ();
-		}
-
-		g_ptr_array_foreach (results, (GFunc) g_strfreev, NULL);
-		g_ptr_array_free (results, TRUE);
+		query = g_strdup_printf ("SELECT ?document "
+					 "WHERE { "
+					 "  ?document a nfo:PaginatedTextDocument "
+					 "} "
+					 "ORDER BY ASC(?document) "
+					 "OFFSET %d "
+					 "LIMIT %d",
+					 search_offset, 
+					 search_limit);
 	}
 
-	return TRUE;
+	success = get_files_results (client, query, search_limit);
+	g_free (query);
+	g_free (fts);
+
+	return success;
+}
+
+static gboolean
+get_video_files (TrackerClient *client,
+		 GStrv          search_terms,
+		 gint           search_offset,
+		 gint           search_limit,
+		 gboolean       use_or_operator)
+{
+	gchar *fts;
+	gchar *query;
+	gboolean success;
+
+	fts = get_fts_string (search_terms, use_or_operator);
+
+	if (fts) {
+		query = g_strdup_printf ("SELECT ?video "
+					 "WHERE { "
+					 "  ?video a nfo:Video ."
+					 "  ?video fts:match \"%s\" "
+					 "} "
+					 "ORDER BY ASC(?video) "
+					 "OFFSET %d "
+					 "LIMIT %d",
+					 fts,
+					 search_offset, 
+					 search_limit);
+	} else {
+		query = g_strdup_printf ("SELECT ?video "
+					 "WHERE { "
+					 "  ?video a nfo:Video "
+					 "} "
+					 "ORDER BY ASC(?video) "
+					 "OFFSET %d "
+					 "LIMIT %d",
+					 search_offset, 
+					 search_limit);
+	}
+
+	success = get_files_results (client, query, search_limit);
+	g_free (query);
+	g_free (fts);
+
+	return success;
+}
+
+static gboolean
+get_image_files (TrackerClient *client,
+		 GStrv          search_terms,
+		 gint           search_offset,
+		 gint           search_limit,
+		 gboolean       use_or_operator)
+{
+	gchar *fts;
+	gchar *query;
+	gboolean success;
+
+	fts = get_fts_string (search_terms, use_or_operator);
+
+	if (fts) {
+		query = g_strdup_printf ("SELECT ?image "
+					 "WHERE { "
+					 "  ?image a nfo:Image ."
+					 "  ?image fts:match \"%s\" "
+					 "} "
+					 "ORDER BY ASC(?image) "
+					 "OFFSET %d "
+					 "LIMIT %d",
+					 fts,
+					 search_offset, 
+					 search_limit);
+	} else {
+		query = g_strdup_printf ("SELECT ?image "
+					 "WHERE { "
+					 "  ?image a nfo:Image "
+					 "} "
+					 "ORDER BY ASC(?image) "
+					 "OFFSET %d "
+					 "LIMIT %d",
+					 search_offset, 
+					 search_limit);
+	}
+
+	success = get_files_results (client, query, search_limit);
+	g_free (query);
+	g_free (fts);
+
+	return success;
+}
+
+static gboolean
+get_music_files (TrackerClient *client,
+		 GStrv          search_terms,
+		 gint           search_offset,
+		 gint           search_limit,
+		 gboolean       use_or_operator)
+{
+	gchar *fts;
+	gchar *query;
+	gboolean success;
+
+	fts = get_fts_string (search_terms, use_or_operator);
+
+	if (fts) {
+		query = g_strdup_printf ("SELECT ?song "
+					 "WHERE { "
+					 "  ?song a nmm:MusicPiece ."
+					 "  ?song fts:match \"%s\" "
+					 "} "
+					 "ORDER BY ASC(?song) "
+					 "OFFSET %d "
+					 "LIMIT %d",
+					 fts,
+					 search_offset, 
+					 search_limit);
+	} else {
+		query = g_strdup_printf ("SELECT ?song "
+					 "WHERE { "
+					 "  ?song a nmm:MusicPiece "
+					 "} "
+					 "ORDER BY ASC(?song) "
+					 "OFFSET %d "
+					 "LIMIT %d",
+					 search_offset, 
+					 search_limit);
+	}
+
+	success = get_files_results (client, query, search_limit);
+	g_free (query);
+	g_free (fts);
+
+	return success;
 }
 
 static void
@@ -237,23 +388,45 @@ get_music_artists_foreach (gpointer value,
 
 static gboolean
 get_music_artists (TrackerClient *client,
+		   GStrv          search_terms,
 		   gint           search_offset,
-		   gint           search_limit)
+		   gint           search_limit,
+		   gboolean       use_or_operator)
 {
 	GError *error = NULL;
 	GPtrArray *results;
+	gchar *fts;
 	gchar *query;
 
-	query = g_strdup_printf ("SELECT ?artist ?title "
-				 "WHERE {"
-				 "  ?artist a nmm:Artist ;"
-				 "  nmm:artistName ?title "
-                                 "} "
-				 "GROUP BY ?artist "
-				 "OFFSET %d "
-				 "LIMIT %d",
-				 search_offset, 
-				 search_limit);
+	fts = get_fts_string (search_terms, use_or_operator);
+
+	if (fts) {
+		query = g_strdup_printf ("SELECT ?artist ?title "
+					 "WHERE {"
+					 "  ?artist a nmm:Artist ;"
+					 "  nmm:artistName ?title ."
+					 "  ?artist fts:match \"%s\" "
+					 "} "
+					 "GROUP BY ?artist "
+					 "OFFSET %d "
+					 "LIMIT %d",
+					 fts,
+					 search_offset, 
+					 search_limit);
+	} else {
+		query = g_strdup_printf ("SELECT ?artist ?title "
+					 "WHERE {"
+					 "  ?artist a nmm:Artist ;"
+					 "  nmm:artistName ?title "
+					 "} "
+					 "GROUP BY ?artist "
+					 "OFFSET %d "
+					 "LIMIT %d",
+					 search_offset, 
+					 search_limit);
+	}
+
+	g_free (fts);
 
 	results = tracker_resources_sparql_query (client, query, &error);
 	g_free (query);
@@ -319,27 +492,53 @@ get_music_albums_foreach (gpointer value,
 
 static gboolean
 get_music_albums (TrackerClient *client,
+		  GStrv          search_words,
 		  gint           search_offset,
-		  gint           search_limit)
+		  gint           search_limit,
+		  gboolean       use_or_operator)
 {
 	GError *error = NULL;
 	GPtrArray *results;
+	gchar *fts;
 	gchar *query;
 
-	query = g_strdup_printf ("SELECT ?album ?title COUNT(?song) "
-				 "AS songs "
-				 "SUM(?length) AS totallength "
-				 "WHERE {"
-				 "  ?album a nmm:MusicAlbum ;"
-				 "  nie:title ?title ."
-				 "  ?song nmm:musicAlbum ?album ;"
-				 "  nmm:length ?length "
-                                 "} "
-				 "GROUP BY ?album "
-				 "OFFSET %d "
-				 "LIMIT %d",
-				 search_offset, 
-				 search_limit);
+	fts = get_fts_string (search_words, use_or_operator);
+
+	if (fts) {
+		query = g_strdup_printf ("SELECT ?album ?title COUNT(?song) "
+					 "AS songs "
+					 "SUM(?length) AS totallength "
+					 "WHERE {"
+					 "  ?album a nmm:MusicAlbum ;"
+					 "  nie:title ?title ."
+					 "  ?song nmm:musicAlbum ?album ;"
+					 "  nmm:length ?length ."
+					 "  ?album fts:match \"%s\" "
+					 "} "
+					 "GROUP BY ?album "
+					 "OFFSET %d "
+					 "LIMIT %d",
+					 fts,
+					 search_offset, 
+					 search_limit);
+	} else {
+		query = g_strdup_printf ("SELECT ?album ?title COUNT(?song) "
+					 "AS songs "
+					 "SUM(?length) AS totallength "
+					 "WHERE {"
+					 "  ?album a nmm:MusicAlbum ;"
+					 "  nie:title ?title ."
+					 "  ?song nmm:musicAlbum ?album ;"
+					 "  nmm:length ?length ."
+					 "} "
+					 "GROUP BY ?album "
+					 "OFFSET %d "
+					 "LIMIT %d",
+					 search_offset, 
+					 search_limit);
+	}
+
+	g_free (fts);
 
 	results = tracker_resources_sparql_query (client, query, &error);
 	g_free (query);
@@ -381,59 +580,90 @@ get_music_albums (TrackerClient *client,
 
 static gboolean
 get_files (TrackerClient *client,
+	   GStrv          search_terms,
 	   gint           search_offset,
-	   gint           search_limit)
+	   gint           search_limit,
+	   gboolean       use_or_operator)
 {
-	GError *error = NULL;
-	GPtrArray *results;
+	gchar *fts;
 	gchar *query;
+	gboolean success;
 
-	query = g_strdup_printf ("SELECT ?u "
-				 "WHERE { "
-				 "  ?u a nie:InformationElement "
-				 "} "
-				 "ORDER BY ASC(?u) "
-				 "OFFSET %d "
-				 "LIMIT %d",
-				 search_offset, 
-				 search_limit);
+	fts = get_fts_string (search_terms, use_or_operator);
 
-	results = tracker_resources_sparql_query (client, query, &error);
-	g_free (query);
-
-	if (error) {
-		g_printerr ("%s, %s\n",
-			    _("Could not get search results"),
-			    error->message);
-		g_error_free (error);
-
-		return FALSE;
-	}
-
-	if (!results) {
-		g_print ("%s\n",
-			 _("No files were found"));
+	if (fts) {
+		query = g_strdup_printf ("SELECT ?u "
+					 "WHERE { "
+					 "  ?u a nie:InformationElement ."
+					 "  ?u fts:match \"%s\" "
+					 "} "
+					 "ORDER BY ASC(?u) "
+					 "OFFSET %d "
+					 "LIMIT %d",
+					 fts,
+					 search_offset, 
+					 search_limit);
 	} else {
-		g_print (tracker_dngettext (NULL,
-					    _("File: %d"), 
-					    _("Files: %d"),
-					    results->len),
-			 results->len);
-		g_print ("\n");
-
-		g_ptr_array_foreach (results, 
-				     get_files_foreach, 
-				     NULL);
-
-		if (results->len >= search_limit) {
-			show_limit_warning ();
-		}
-
-		g_ptr_array_foreach (results, (GFunc) g_strfreev, NULL);
-		g_ptr_array_free (results, TRUE);
+		query = g_strdup_printf ("SELECT ?u "
+					 "WHERE { "
+					 "  ?u a nie:InformationElement "
+					 "} "
+					 "ORDER BY ASC(?u) "
+					 "OFFSET %d "
+					 "LIMIT %d",
+					 search_offset, 
+					 search_limit);
 	}
 
-	return TRUE;
+	success = get_files_results (client, query, search_limit);
+	g_free (query);
+	g_free (fts);
+
+	return success;
+}
+
+static gboolean
+get_folders (TrackerClient *client,
+	     GStrv          search_terms,
+	     gint           search_offset,
+	     gint           search_limit,
+	     gboolean       use_or_operator)
+{
+	gchar *fts;
+	gchar *query;
+	gboolean success;
+
+	fts = get_fts_string (search_terms, use_or_operator);
+
+	if (fts) {
+		query = g_strdup_printf ("SELECT ?u "
+					 "WHERE { "
+					 "  ?u a nfo:Folder ."
+					 "  ?u fts:match \"%s\" "
+					 "} "
+					 "ORDER BY ASC(?u) "
+					 "OFFSET %d "
+					 "LIMIT %d",
+					 fts,
+					 search_offset, 
+					 search_limit);
+	} else {
+		query = g_strdup_printf ("SELECT ?u "
+					 "WHERE { "
+					 "  ?u a nfo:Folder "
+					 "} "
+					 "ORDER BY ASC(?u) "
+					 "OFFSET %d "
+					 "LIMIT %d",
+					 search_offset, 
+					 search_limit);
+	}
+
+	success = get_files_results (client, query, search_limit);
+	g_free (query);
+	g_free (fts);
+
+	return success;
 }
 
 static void
@@ -469,29 +699,28 @@ get_all_by_search (TrackerClient *client,
 {
 	GError *error = NULL;
 	GPtrArray *results;
-	gchar *search_words_joined;
+	gchar *fts;
 	gchar *query;
 
-	if (use_or_operator) {
-		search_words_joined = g_strjoinv (" OR ", search_words);
-	} else {
-		search_words_joined = g_strjoinv (" ", search_words);
+	fts = get_fts_string (search_words, use_or_operator);
+	if (!fts) {
+		return FALSE;
 	}
 
 	if (detailed_results) {
 		query = g_strdup_printf ("SELECT ?s ?type ?mimeType WHERE { ?s fts:match \"%s\" ; rdf:type ?type . "
 					 "OPTIONAL { ?s nie:mimeType ?mimeType } } OFFSET %d LIMIT %d",
-					 search_words_joined, 
+					 fts, 
 					 search_offset, 
 					 search_limit);
 	} else {
 		query = g_strdup_printf ("SELECT ?s WHERE { ?s fts:match \"%s\" } OFFSET %d LIMIT %d",
-					 search_words_joined, 
+					 fts, 
 					 search_offset, 
 					 search_limit);
 	}
 
-	g_free (search_words_joined);
+	g_free (fts);
 
 	results = tracker_resources_sparql_query (client, query, &error);
 	g_free (query);
@@ -567,7 +796,9 @@ main (int argc, char **argv)
 	
 	if (!music_albums && !music_artists && !music_files &&
 	    !image_files &&
-	    !files &&
+	    !video_files &&
+	    !document_files &&
+	    !files && !folders &&
 	    !terms) {
 		gchar *help;
 
@@ -599,7 +830,16 @@ main (int argc, char **argv)
 	if (files) {
 		gboolean success;
 
-		success = get_files (client, offset, limit);
+		success = get_files (client, terms, offset, limit, or_operator);
+		tracker_disconnect (client);
+
+		return success ? EXIT_SUCCESS : EXIT_FAILURE;
+	}
+
+	if (folders) {
+		gboolean success;
+
+		success = get_folders (client, terms, offset, limit, or_operator);
 		tracker_disconnect (client);
 
 		return success ? EXIT_SUCCESS : EXIT_FAILURE;
@@ -608,7 +848,7 @@ main (int argc, char **argv)
 	if (music_albums) {
 		gboolean success;
 
-		success = get_music_albums (client, offset, limit);
+		success = get_music_albums (client, terms, offset, limit, or_operator);
 		tracker_disconnect (client);
 
 		return success ? EXIT_SUCCESS : EXIT_FAILURE;
@@ -617,7 +857,7 @@ main (int argc, char **argv)
 	if (music_artists) {
 		gboolean success;
 
-		success = get_music_artists (client, offset, limit);
+		success = get_music_artists (client, terms, offset, limit, or_operator);
 		tracker_disconnect (client);
 
 		return success ? EXIT_SUCCESS : EXIT_FAILURE;
@@ -626,7 +866,7 @@ main (int argc, char **argv)
 	if (music_files) {
 		gboolean success;
 
-		success = get_music_files (client, offset, limit);
+		success = get_music_files (client, terms, offset, limit, or_operator);
 		tracker_disconnect (client);
 
 		return success ? EXIT_SUCCESS : EXIT_FAILURE;
@@ -635,7 +875,25 @@ main (int argc, char **argv)
 	if (image_files) {
 		gboolean success;
 
-		success = get_image_files (client, offset, limit);
+		success = get_image_files (client, terms, offset, limit, or_operator);
+		tracker_disconnect (client);
+
+		return success ? EXIT_SUCCESS : EXIT_FAILURE;
+	}
+
+	if (video_files) {
+		gboolean success;
+
+		success = get_video_files (client, terms, offset, limit, or_operator);
+		tracker_disconnect (client);
+
+		return success ? EXIT_SUCCESS : EXIT_FAILURE;
+	}
+
+	if (document_files) {
+		gboolean success;
+
+		success = get_document_files (client, terms, offset, limit, or_operator);
 		tracker_disconnect (client);
 
 		return success ? EXIT_SUCCESS : EXIT_FAILURE;

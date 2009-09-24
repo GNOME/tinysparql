@@ -16,12 +16,16 @@ searches all indexed content for \fIEXPRESSION\fR.
 One or more terms to search. The default operation is a logical AND.
 For logical OR operations, see -r.
 
-You can not use the search terms with: 
+The search terms can also be applied to the following options: 
 .B \-\-files,
+.B \-\-folders,
 .B \-\-music-albums,
 .B \-\-music-artists,
-.B \-\-music-files,
-.B \-\-image-files.
+.B \-\-music,
+.B \-\-images,
+.B \-\-videos 
+and
+.B \-\-documents.
 
 .SH OPTIONS
 .TP
@@ -42,22 +46,29 @@ Use OR for search terms instead of AND (the default)
 Show more detailed results (only applies to general search)
 .TP
 \-f, \-\-files
-List all files in ascending order.
+Search for files in ascending order.
+.TP
+\-e, \-\-folders
+Search for folders in ascending order.
 .TP
 \-a, \-\-music-albums
-List all music albums. This also lists the song count and the sum of
+Search for music albums. This also lists the song count and the sum of
 the duration of all songs associated with each album.
 .TP
 \-s, \-\-music-artists
-List all music artists.
+Search for music artists.
 .TP
-\-u, \-\-music-files
-List all music files. Any file which qualifies as music is listed in
-ascending order. See --files. 
+\-u, \-\-music
+Search for music in ascending order. This returns a list of files.
 .TP
-\-l, \-\-image-files
-List all image files. Any file which qualifies as an image is listed in
-ascending order. See --files. 
+\-l, \-\-images
+Search for images in ascending order. This returns a list of files.
+.TP
+\-v, \-\-videos
+Search for videos in ascending order. This returns a list of files.
+.TP
+\-u, \-\-documents
+Search for documents in ascending order. This returns a list of files.
 
 .SH SEE ALSO
 .BR tracker-store (1),

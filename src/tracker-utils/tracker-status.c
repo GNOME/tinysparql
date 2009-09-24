@@ -73,7 +73,7 @@ static GOptionEntry entries[] = {
 	  NULL
 	},
 	{ "list-miners-running", 'l', 0, G_OPTION_ARG_NONE, &list_miners_running,
-	  N_("List all miners installed"),
+	  N_("List all miners currently running"),
 	  NULL 
 	},
 	{ "list-miners-available", 'a', 0, G_OPTION_ARG_NONE, &list_miners_available,
