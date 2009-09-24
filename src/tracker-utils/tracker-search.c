@@ -217,7 +217,7 @@ get_document_files (TrackerClient *client,
 	if (fts) {
 		query = g_strdup_printf ("SELECT ?document "
 					 "WHERE { "
-					 "  ?document a nfo:PaginatedTextDocument ."
+					 "  ?document a nfo:Document ."
 					 "  ?document fts:match \"%s\" "
 					 "} "
 					 "ORDER BY ASC(?document) "
@@ -229,7 +229,7 @@ get_document_files (TrackerClient *client,
 	} else {
 		query = g_strdup_printf ("SELECT ?document "
 					 "WHERE { "
-					 "  ?document a nfo:PaginatedTextDocument "
+					 "  ?document a nfo:Document "
 					 "} "
 					 "ORDER BY ASC(?document) "
 					 "OFFSET %d "
