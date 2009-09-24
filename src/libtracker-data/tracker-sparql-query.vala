@@ -76,6 +76,7 @@ public class Tracker.SparqlQuery : Object {
 		public string variable;
 		// Specified whether SQL column may contain NULL entries
 		public bool maybe_null;
+		public bool in_simple_optional;
 		public string type;
 	}
 
@@ -387,11 +388,16 @@ public class Tracker.SparqlQuery : Object {
 		return tokens[index].begin;
 	}
 
-	void set_location (SourceLocation location) throws SparqlError {
+	void set_location (SourceLocation location) {
 		scanner.seek (location);
 		size = 0;
 		index = 0;
-		next ();
+		try {
+			next ();
+		} catch (SparqlError e) {
+			// this should never happen as this is the second time we scan this token
+			critical ("internal error: next in set_location failed");
+		}
 	}
 
 	string get_last_string (int strip = 0) {
@@ -975,9 +981,9 @@ public class Tracker.SparqlQuery : Object {
 		return result;
 	}
 
-	void parse_object_list (StringBuilder sql) throws SparqlError {
+	void parse_object_list (StringBuilder sql, bool in_simple_optional = false) throws SparqlError {
 		while (true) {
-			parse_object (sql);
+			parse_object (sql, in_simple_optional);
 			if (accept (SparqlTokenType.COMMA)) {
 				continue;
 			}
@@ -985,7 +991,7 @@ public class Tracker.SparqlQuery : Object {
 		}
 	}
 
-	void parse_property_list_not_empty (StringBuilder sql) throws SparqlError {
+	void parse_property_list_not_empty (StringBuilder sql, bool in_simple_optional = false) throws SparqlError {
 		while (true) {
 			var old_predicate = current_predicate;
 			var old_predicate_is_var = current_predicate_is_var;
@@ -1013,7 +1019,7 @@ public class Tracker.SparqlQuery : Object {
 			} else {
 				throw get_error ("expected non-empty property list");
 			}
-			parse_object_list (sql);
+			parse_object_list (sql, in_simple_optional);
 
 			current_predicate = old_predicate;
 			current_predicate_is_var = old_predicate_is_var;
@@ -1843,6 +1849,7 @@ public class Tracker.SparqlQuery : Object {
 
 		foreach (string variable in pattern_variables) {
 			bool maybe_null = true;
+			bool in_simple_optional = false;
 			string last_name = null;
 			foreach (VariableBinding binding in pattern_var_map.lookup (variable).list) {
 				string name = "\"%s\".\"%s\"".printf (binding.table.sql_query_tablename, binding.sql_db_column_name);
@@ -1861,9 +1868,10 @@ public class Tracker.SparqlQuery : Object {
 				if (!binding.maybe_null) {
 					maybe_null = false;
 				}
+				in_simple_optional = binding.in_simple_optional;
 			}
 
-			if (maybe_null) {
+			if (maybe_null && !in_simple_optional) {
 				// ensure that variable is bound in case it could return NULL in SQL
 				// assuming SPARQL variable is not optional
 				if (!first_where) {
@@ -1913,7 +1921,7 @@ public class Tracker.SparqlQuery : Object {
 		pattern_bindings = null;
 	}
 
-	void parse_triples (StringBuilder sql, long group_graph_pattern_start, ref bool in_triples_block, ref bool first_where, bool in_group_graph_pattern) throws SparqlError {
+	void parse_triples (StringBuilder sql, long group_graph_pattern_start, ref bool in_triples_block, ref bool first_where, ref bool in_group_graph_pattern, bool found_simple_optional) throws SparqlError {
 		while (true) {
 			if (current () != SparqlTokenType.VAR &&
 			    current () != SparqlTokenType.IRI_REF &&
@@ -1921,6 +1929,13 @@ public class Tracker.SparqlQuery : Object {
 			    current () != SparqlTokenType.COLON &&
 			    current () != SparqlTokenType.OPEN_BRACKET) {
 				break;
+			}
+			if (in_triples_block && !in_group_graph_pattern && found_simple_optional) {
+				// if there is a regular triple pattern after a simple optional
+				// we need to use a separate triple block to avoid possible conflicts
+				// due to not using a JOIN for the simple optional
+				end_triples_block (sql, ref first_where, in_group_graph_pattern);
+				in_triples_block = false;
 			}
 			if (!in_triples_block) {
 				if (in_group_graph_pattern) {
@@ -1941,6 +1956,69 @@ public class Tracker.SparqlQuery : Object {
 		}
 	}
 
+	bool is_simple_optional () {
+		var optional_start = get_location ();
+		try {
+			// check that we have { ?v foo:bar ?o }
+			// where ?v is an already BOUND variable
+			//       foo:bar is single-valued property
+			//       ?o has not been used before
+			expect (SparqlTokenType.OPEN_BRACE);
+
+			// check subject
+			if (!accept (SparqlTokenType.VAR)) {
+				return false;
+			}
+			string var_name = get_last_string ().substring (1);
+			if (subgraph_var_set.lookup (var_name) != VariableState.BOUND) {
+				return false;
+			}
+
+			// check predicate
+			string predicate;
+			if (accept (SparqlTokenType.IRI_REF)) {
+				predicate = get_last_string (1);
+			} else if (accept (SparqlTokenType.PN_PREFIX)) {
+				string ns = get_last_string ();
+				expect (SparqlTokenType.COLON);
+				predicate = resolve_prefixed_name (ns, get_last_string ().substring (1));
+			} else if (accept (SparqlTokenType.COLON)) {
+				predicate = resolve_prefixed_name ("", get_last_string ().substring (1));
+			} else {
+				return false;
+			}
+			var prop = Ontology.get_property_by_uri (predicate);
+			if (prop == null) {
+				return false;
+			}
+			if (prop.multiple_values) {
+				return false;
+			}
+
+			// check object
+			if (!accept (SparqlTokenType.VAR)) {
+				return false;
+			}
+			var_name = get_last_string ().substring (1);
+			if (subgraph_var_set.lookup (var_name) != 0) {
+				// object variable already used before in this graph pattern
+				return false;
+			}
+
+			// check it is only one triple pattern
+			if (!accept (SparqlTokenType.CLOSE_BRACE)) {
+				return false;
+			}
+
+			return true;
+		} catch (SparqlError e) {
+			return false;
+		} finally {
+			// in any case, go back to the start of the optional
+			set_location (optional_start);
+		}
+	}
+
 	void translate_group_graph_pattern (StringBuilder sql) throws SparqlError {
 		expect (SparqlTokenType.OPEN_BRACE);
 
@@ -1949,94 +2027,106 @@ public class Tracker.SparqlQuery : Object {
 		bool in_triples_block = false;
 		bool in_group_graph_pattern = false;
 		bool first_where = true;
+		bool found_simple_optional = false;
 		long group_graph_pattern_start = sql.len;
 
 		// optional TriplesBlock
-		parse_triples (sql, group_graph_pattern_start, ref in_triples_block, ref first_where, in_group_graph_pattern);
+		parse_triples (sql, group_graph_pattern_start, ref in_triples_block, ref first_where, ref in_group_graph_pattern, found_simple_optional);
 
 		while (true) {
 			// check whether we have GraphPatternNotTriples | Filter
 			if (accept (SparqlTokenType.OPTIONAL)) {
-				if (!in_triples_block && !in_group_graph_pattern) {
-					// expand { OPTIONAL { ... } } into { { } OPTIONAL { ... } }
-					// empty graph pattern => return one result without bound variables
-					sql.append ("SELECT 1");
-				} else if (in_triples_block) {
-					end_triples_block (sql, ref first_where, in_group_graph_pattern);
-					in_triples_block = false;
-				}
-				if (!in_group_graph_pattern) {
-					in_group_graph_pattern = true;
-				}
+				if (!in_group_graph_pattern && is_simple_optional ()) {
+					// perform join-less optional (like non-optional except for the IS NOT NULL check)
+					found_simple_optional = true;
+					expect (SparqlTokenType.OPEN_BRACE);
 
-				var select = new StringBuilder ("SELECT ");
+					current_subject = parse_var_or_term (sql, out current_subject_is_var);
+					parse_property_list_not_empty (sql, true);
 
-				int left_index = ++next_table_index;
-				int right_index = ++next_table_index;
-
-				sql.append_printf (") AS t%d_g LEFT JOIN (", left_index);
-
-				var old_subgraph_var_set = subgraph_var_set;
-				subgraph_var_set = new HashTable<string,int>.full (str_hash, str_equal, g_free, null);
-
-				translate_group_graph_pattern (sql);
-
-				sql.append_printf (") AS t%d_g", right_index);
-
-				bool first = true;
-				bool first_common = true;
-				foreach (string v in subgraph_var_set.get_keys ()) {
-					if (first) {
-						first = false;
-					} else {
-						select.append (", ");
+					expect (SparqlTokenType.CLOSE_BRACE);
+				} else {
+					if (!in_triples_block && !in_group_graph_pattern) {
+						// expand { OPTIONAL { ... } } into { { } OPTIONAL { ... } }
+						// empty graph pattern => return one result without bound variables
+						sql.append ("SELECT 1");
+					} else if (in_triples_block) {
+						end_triples_block (sql, ref first_where, in_group_graph_pattern);
+						in_triples_block = false;
+					}
+					if (!in_group_graph_pattern) {
+						in_group_graph_pattern = true;
 					}
 
-					var old_state = old_subgraph_var_set.lookup (v);
-					if (old_state == 0) {
-						// first used in optional part
-						old_subgraph_var_set.insert (v, VariableState.OPTIONAL);
-						select.append_printf ("t%d_g.\"%s_u\"", right_index, v);
-					} else {
-						if (first_common) {
-							sql.append (" ON ");
-							first_common = false;
-						} else {
-							sql.append (" AND ");
-						}
+					var select = new StringBuilder ("SELECT ");
 
-						if (old_state == VariableState.BOUND) {
-							// variable definitely bound in non-optional part
-							sql.append_printf ("t%d_g.\"%s_u\" = t%d_g.\"%s_u\"", left_index, v, right_index, v);
-							select.append_printf ("t%d_g.\"%s_u\"", left_index, v);
-						} else if (old_state == VariableState.OPTIONAL) {
-							// variable maybe bound in non-optional part
-							sql.append_printf ("(t%d_g.\"%s_u\" IS NULL OR t%d_g.\"%s_u\" = t%d_g.\"%s_u\")", left_index, v, left_index, v, right_index, v);
-							select.append_printf ("COALESCE (t%d_g.\"%s_u\", t%d_g.\"%s_u\") AS \"%s_u\"", left_index, v, right_index, v, v);
-						}
-					}
-				}
-				foreach (string v in old_subgraph_var_set.get_keys ()) {
-					if (subgraph_var_set.lookup (v) == 0) {
-						// only used in non-optional part
+					int left_index = ++next_table_index;
+					int right_index = ++next_table_index;
+
+					sql.append_printf (") AS t%d_g LEFT JOIN (", left_index);
+
+					var old_subgraph_var_set = subgraph_var_set;
+					subgraph_var_set = new HashTable<string,int>.full (str_hash, str_equal, g_free, null);
+
+					translate_group_graph_pattern (sql);
+
+					sql.append_printf (") AS t%d_g", right_index);
+
+					bool first = true;
+					bool first_common = true;
+					foreach (string v in subgraph_var_set.get_keys ()) {
 						if (first) {
 							first = false;
 						} else {
 							select.append (", ");
 						}
 
-						select.append_printf ("t%d_g.\"%s_u\"", left_index, v);
+						var old_state = old_subgraph_var_set.lookup (v);
+						if (old_state == 0) {
+							// first used in optional part
+							old_subgraph_var_set.insert (v, VariableState.OPTIONAL);
+							select.append_printf ("t%d_g.\"%s_u\"", right_index, v);
+						} else {
+							if (first_common) {
+								sql.append (" ON ");
+								first_common = false;
+							} else {
+								sql.append (" AND ");
+							}
+
+							if (old_state == VariableState.BOUND) {
+								// variable definitely bound in non-optional part
+								sql.append_printf ("t%d_g.\"%s_u\" = t%d_g.\"%s_u\"", left_index, v, right_index, v);
+								select.append_printf ("t%d_g.\"%s_u\"", left_index, v);
+							} else if (old_state == VariableState.OPTIONAL) {
+								// variable maybe bound in non-optional part
+								sql.append_printf ("(t%d_g.\"%s_u\" IS NULL OR t%d_g.\"%s_u\" = t%d_g.\"%s_u\")", left_index, v, left_index, v, right_index, v);
+								select.append_printf ("COALESCE (t%d_g.\"%s_u\", t%d_g.\"%s_u\") AS \"%s_u\"", left_index, v, right_index, v, v);
+							}
+						}
 					}
-				}
-				if (first) {
-					// no variables used at all
-					select.append ("1");
-				}
+					foreach (string v in old_subgraph_var_set.get_keys ()) {
+						if (subgraph_var_set.lookup (v) == 0) {
+							// only used in non-optional part
+							if (first) {
+								first = false;
+							} else {
+								select.append (", ");
+							}
 
-				subgraph_var_set = old_subgraph_var_set;
+							select.append_printf ("t%d_g.\"%s_u\"", left_index, v);
+						}
+					}
+					if (first) {
+						// no variables used at all
+						select.append ("1");
+					}
 
-				select.append (" FROM (");
-				sql.insert (group_graph_pattern_start, select.str);
+					subgraph_var_set = old_subgraph_var_set;
+
+					select.append (" FROM (");
+					sql.insert (group_graph_pattern_start, select.str);
+				}
 			} else if (current () == SparqlTokenType.OPEN_BRACE) {
 				if (!in_triples_block && !in_group_graph_pattern) {
 					in_group_graph_pattern = true;
@@ -2065,7 +2155,7 @@ public class Tracker.SparqlQuery : Object {
 			accept (SparqlTokenType.DOT);
 
 			// optional TriplesBlock
-			parse_triples (sql, group_graph_pattern_start, ref in_triples_block, ref first_where, in_group_graph_pattern);
+			parse_triples (sql, group_graph_pattern_start, ref in_triples_block, ref first_where, ref in_group_graph_pattern, found_simple_optional);
 		}
 
 		expect (SparqlTokenType.CLOSE_BRACE);
@@ -2163,7 +2253,7 @@ public class Tracker.SparqlQuery : Object {
 		subgraph_var_set = old_subgraph_var_set;
 	}
 
-	void parse_object (StringBuilder sql) throws SparqlError {
+	void parse_object (StringBuilder sql, bool in_simple_optional = false) throws SparqlError {
 		bool object_is_var;
 		string object = parse_var_or_term (sql, out object_is_var);
 
@@ -2324,6 +2414,7 @@ public class Tracker.SparqlQuery : Object {
 						// for single value properties, row may have NULL
 						// in any column except the ID column
 						binding.maybe_null = true;
+						binding.in_simple_optional = in_simple_optional;
 					}
 				} else {
 					// variable as predicate
@@ -2342,7 +2433,7 @@ public class Tracker.SparqlQuery : Object {
 						binding.sql_db_column_name,
 						binding.variable);
 
-					subgraph_var_set.insert (binding.variable, VariableState.BOUND);
+					subgraph_var_set.insert (binding.variable, in_simple_optional ? VariableState.OPTIONAL : VariableState.BOUND);
 				}
 				binding_list.list.append (binding);
 				if (var_map.lookup (binding.variable) == null) {
