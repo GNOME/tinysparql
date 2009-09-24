@@ -13,6 +13,7 @@ enum ResultColumns
     Category
     Snippet
     IsDirectory
+    Path
     NumOfCols
 
 
@@ -24,7 +25,7 @@ class TrackerResultGrid : ScrolledWindow
     iconview: IconView
     _query : TrackerQuery
     
-    event SelectedUriChanged ()    
+    event SelectionChanged (path : TreePath?)    
     
     prop Query : TrackerQuery
         get
@@ -36,16 +37,39 @@ class TrackerResultGrid : ScrolledWindow
                     RefreshQuery ()
                 _query.ClearSearchResults += def ()
                     store.clear ()
-                        
+        
+    def GetSelectedPath () : TreePath?
+        l :  weak GLib.List of TreePath
 
+        l = iconview.get_selected_items ()
+
+        if l is not null and l.data is not null
+            return l.data
+            
+        return null
+            
+            
+    def GetSelectedUri () : weak string
+        iter : TreeIter
+        uri : weak string
+        
+        var path = GetSelectedPath ()
+        if path is not null
+            store.get_iter (out iter, path)
+            store.get (iter, ResultColumns.Uri, out uri);
+            return uri
+            
+        return ""    
+    
+    
     init
     
-        hscrollbar_policy = PolicyType.NEVER
+        hscrollbar_policy = PolicyType.AUTOMATIC
         vscrollbar_policy = PolicyType.AUTOMATIC
         shadow_type = ShadowType.ETCHED_OUT
            
         store = new ListStore (ResultColumns.NumOfCols, typeof (string), typeof (Gdk.Pixbuf), typeof (string), \
-                               typeof (string), typeof (string), typeof (string), typeof (bool))
+                               typeof (int), typeof (string), typeof (string), typeof (bool), typeof (string))
 
         // to do add treeview        
 						
@@ -59,39 +83,35 @@ class TrackerResultGrid : ScrolledWindow
         iconview.item_activated += ActivateUri 
 
         iconview.selection_changed += def ()
-            SelectedUriChanged ()
+            var path = GetSelectedPath ()
+            SelectionChanged (path)
 
         /* set correct uri for drag drop  */
         iconview.drag_data_get +=  def (context, data, info, time)
-            l :  weak GLib.List of TreePath
-            l = iconview.get_selected_items ()
-            if l is not null and l.data is not null
-                iter : TreeIter
-                uri : weak string
-                path : TreePath = l.data
-                store.get_iter (out iter, path)
-                store.get (iter, ResultColumns.Uri, out uri);
+            var uri = GetSelectedUri ()
+            if uri is not null
                 var s = new array of string [1]
                 s[0] = uri
                 data.set_uris (s) 
-          
-        
-      
-		
+
         add (iconview)
-		
         show_all ()
 
                 
     def RefreshQuery ()
         if _query is not null
             var results = _query.Search ()
+            var has_results = false
             iter : TreeIter
 
             store.clear ()
             
+            if results is null do return
+            
             for uri in results
                 if uri.has_prefix ("file://")
+                
+                    has_results = true
                     
                     var file = File.new_for_uri (uri)
                     
@@ -106,6 +126,12 @@ class TrackerResultGrid : ScrolledWindow
                                   (filetype is FileType.DIRECTORY) , -1);
                     except e:Error
                         print "Could not get file info for %s", uri
+                        
+            /* select first result */
+            if has_results
+                var path = new TreePath.from_string ("0:0:0")
+                if path is not null
+                    iconview.select_path (path)
             
                     
     

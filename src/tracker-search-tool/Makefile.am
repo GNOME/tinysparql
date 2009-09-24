@@ -10,6 +10,7 @@ tracker_search_tool_VALASOURCES = \
 	tracker-result-grid.gs \	
     tracker-search-tool.gs \
     tracker-category-view.gs \
+    tracker-metadata-tile.gs \
     tracker-utils.gs \
 	$(NULL)
 

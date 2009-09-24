@@ -3,9 +3,35 @@
 uses
     Gtk
     
+
+enum Categories
+    Application
+    Contact
+    Email
+    EmailAttachment
+    File
+    Folder
+    Music
+    Video
+    Image
+    Document
+    Text
+    Development
+    Web
+    WebHistory    
+    
+[CCode (cname = "TRACKER_UI_DIR")]
+const  extern static  UIDIR : string
+    
+[CCode (cname = "SRCDIR")]
+const  extern static  SRCDIR : string
+
     
 class TrackerUtils
 /* static methods only as this is a utility class that wont ever get substantiated */
+
+
+
 
     def static OpenUri (uri : string, is_dir :bool) : bool
         command : string

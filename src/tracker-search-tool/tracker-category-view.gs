@@ -17,6 +17,8 @@ const icon_size : int = 16
 class TrackerCategoryView : ScrolledWindow
     store : ListStore
     treeview : TreeView
+    lab : Label
+    catergory : Categories
     
     prop Query : TrackerQuery
     

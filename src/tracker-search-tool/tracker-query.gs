@@ -56,7 +56,7 @@ class TrackerQuery : Object
 
         // to do : add Fields, Category and SortField
         return tracker.SparqlQuery (query)
-        
+
         
     def Query (sparql : string) : array of string[,] 
         return tracker.SparqlQuery (sparql)

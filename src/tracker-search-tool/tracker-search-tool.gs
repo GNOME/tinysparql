@@ -3,11 +3,6 @@
 uses
     Gtk
 
-[CCode (cname = "TRACKER_UI_DIR")]
-const  extern static  UIDIR : string
-    
-[CCode (cname = "SRCDIR")]
-const  extern static  SRCDIR : string
 
 init  
     Gtk.init (ref args)
@@ -41,10 +36,12 @@ init
         entry = new TrackerSearchEntry ()
         grid = new TrackerResultGrid ()
         categories = new TrackerCategoryView ()
+        tile = new TrackerMetadataTile ()
         
         entry_box = builder.get_object ("EntryBox") as Container
         grid_box = builder.get_object ("GridBox") as Container
         category_box = builder.get_object ("CategoryBox") as Container
+        detail_box = builder.get_object ("DetailBox") as Container
         
         
     query.Connect ()    
@@ -56,6 +53,10 @@ init
     
     categories.Query = query
     category_box.add (categories)
+    
+    tile.ResultGrid = grid
+    tile.Query = query
+    detail_box.add (tile)
 
     window.show_all ()
         
