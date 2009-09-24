@@ -1,33 +1,6 @@
 #include "ttl_html.h"
 #include <glib/gprintf.h>
-
-static gchar *local_uri = NULL;
-
-typedef struct {
-        const gchar *namespace;
-        const gchar *uri;
-} Namespace;
-
-Namespace NAMESPACES [] = {
-        {"dc", "http://purl.org/dc/elements/1.1/"},
-        {"fts", "http://www.tracker-project.org/ontologies/fts#"},
-        {"mto", "http://www.tracker-project.org/temp/mto#"},
-        {"mlo", "http://www.tracker-project.org/temp/mlo#"},
-        {"nao", "http://www.semanticdesktop.org/ontologies/2007/08/15/nao#"},
-        {"ncal", "http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#"},
-        {"nco", "http://www.semanticdesktop.org/ontologies/2007/03/22/nco#"},
-        {"nfo", "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#"},
-        {"nid3", "http://www.semanticdesktop.org/ontologies/2007/05/10/nid3#"},
-        {"nie", "http://www.semanticdesktop.org/ontologies/2007/01/19/nie#"},
-        {"nmm", "http://www.tracker-project.org/temp/nmm#"},
-        {"nmo", "http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#"},
-        {"nrl", "http://www.semanticdesktop.org/ontologies/2007/08/15/nrl#"},
-        {"rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#"},
-        {"rdfs", "http://www.w3.org/2000/01/rdf-schema#"},
-        {"tracker", "http://www.tracker-project.org/ontologies/tracker#"},
-        {"xsd", "http://www.w3.org/2001/XMLSchema#"},
-        {NULL, NULL}
-};
+#include "qname.h"
 
 typedef struct {
         Ontology *ontology;
@@ -35,55 +8,6 @@ typedef struct {
         FILE *output;
 } CallbackInfo;
 
-static gchar *
-qname_to_link (const gchar *qname)
-{
-        gchar **pieces;
-        gchar *name;
-
-        if (local_uri) {
-                /* There is a local URI! */
-                if (g_str_has_prefix (qname, local_uri)) {
-                        pieces = g_strsplit (qname, "#", 2);
-                        g_assert (g_strv_length (pieces) == 2);
-                        name = g_strdup_printf ("#%s", pieces[1]);
-                        g_strfreev (pieces);
-                        return name;
-                }
-        }
-        
-        return g_strdup (qname);
-}
-
-static gchar *
-qname_to_shortname (const gchar *qname)
-{
-        gchar **pieces;
-        gchar  *name = NULL;
-        gint    i;
-
-        for (i = 0; NAMESPACES[i].namespace != NULL; i++) {
-                if (g_str_has_prefix (qname, NAMESPACES[i].uri)) {
-                        pieces = g_strsplit (qname, "#", 2);
-                        if (g_strv_length (pieces) != 2) {
-                                g_warning ("Unable to get the shortname for %s", qname);
-                                break;
-                        }
-
-                        name = g_strdup_printf ("%s:%s", 
-                                                NAMESPACES[i].namespace, 
-                                                pieces[1]);
-                        g_strfreev (pieces);
-                        break;
-                }
-        }
-
-        if (!name) {
-                return g_strdup (qname);
-        } else {
-                return name;
-        }
-}
 
 static void
 print_author (gpointer item, gpointer user_data) {
@@ -286,7 +210,7 @@ ttl_html_print (OntologyDescription *description,
                 FILE *f)
 {
 
-        local_uri = description->baseUrl;
+        qname_init (description->baseUrl);
         print_html_header (f, description);
         g_fprintf (f,"<h2>Ontology Classes Descriptions</h2>");
         g_hash_table_foreach (ontology->classes, print_ontology_class, f);
