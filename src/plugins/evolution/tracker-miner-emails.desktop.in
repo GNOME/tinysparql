@@ -1,0 +1,6 @@
+[Desktop Entry]
+Encoding=UTF-8
+_Name=E-mails
+_Comment=Evolution E-mails miner
+DBusName=org.freedesktop.Tracker1.Miner.EMails
+DBusPath=/org/freedesktop/Tracker1/Miner/EMails
