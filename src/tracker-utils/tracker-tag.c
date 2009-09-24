@@ -55,7 +55,7 @@ static GOptionEntry entries[] = {
 	},
 	{ "list", 't', 0, G_OPTION_ARG_NONE, &list,
 	  N_("List all tags (using FILTER if specified)"),
-	  N_("FILTER")
+	  NULL,
 	},
 	{ "show-files", 's', 0, G_OPTION_ARG_NONE, &show_files,
 	  N_("Show files associated with each tag (this is only used with --list)"),
