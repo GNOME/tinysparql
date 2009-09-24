@@ -74,7 +74,10 @@ static gboolean search_get        (TrackerResultsWindow *window,
 typedef struct {
 	GtkWidget *frame;
 	GtkWidget *treeview;
+	GtkWidget *scrolled_window;
 	GObject *store;
+
+	GtkWidget *label;
 
 	GtkIconTheme *icon_theme;
 
@@ -220,7 +223,6 @@ tracker_results_window_init (TrackerResultsWindow *window)
 {
 	TrackerResultsWindowPrivate *priv;
 	GtkWidget *vbox;
-	GtkWidget *scrolled_window;
 
 	priv = TRACKER_RESULTS_WINDOW_GET_PRIVATE (window);
 
@@ -230,29 +232,32 @@ tracker_results_window_init (TrackerResultsWindow *window)
 	gtk_container_add (GTK_CONTAINER (window), priv->frame);
 	gtk_frame_set_shadow_type (GTK_FRAME (priv->frame), GTK_SHADOW_IN);
 	gtk_widget_set_size_request (priv->frame, 500, 300);
+	gtk_widget_show (priv->frame);
 
 	vbox = gtk_vbox_new (FALSE, 12);
 	gtk_container_add (GTK_CONTAINER (priv->frame), vbox);
 	gtk_container_set_border_width (GTK_CONTAINER (vbox), 2);
+	gtk_widget_show (vbox);
 
-	scrolled_window = gtk_scrolled_window_new (NULL, NULL);
-	gtk_container_add (GTK_CONTAINER (vbox), scrolled_window);
-	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolled_window),
+	priv->scrolled_window = gtk_scrolled_window_new (NULL, NULL);
+	gtk_container_add (GTK_CONTAINER (vbox), priv->scrolled_window);
+	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (priv->scrolled_window),
 					GTK_POLICY_AUTOMATIC,
 					GTK_POLICY_AUTOMATIC);
 
 	priv->treeview = gtk_tree_view_new ();
-	gtk_container_add (GTK_CONTAINER (scrolled_window), priv->treeview);
+	gtk_container_add (GTK_CONTAINER (priv->scrolled_window), priv->treeview);
+	gtk_tree_view_set_headers_visible (GTK_TREE_VIEW (priv->treeview), FALSE);
 	g_signal_connect (priv->treeview, "row-activated",
 			  G_CALLBACK (tree_view_row_activated_cb), window);
 
-	gtk_tree_view_set_headers_visible (GTK_TREE_VIEW (priv->treeview), FALSE);
+	priv->label = gtk_label_new (NULL);
+	gtk_widget_set_sensitive (priv->label, FALSE);
+	gtk_container_add (GTK_CONTAINER (vbox), priv->label);
 
 	priv->icon_theme = gtk_icon_theme_get_default ();
 
 	model_set_up (window);
-
-	gtk_widget_show_all (priv->frame);
 }
 
 static void
@@ -260,6 +265,7 @@ results_window_constructed (GObject *object)
 {
 	TrackerResultsWindowPrivate *priv;
 	TrackerResultsWindow *window;
+	GtkTreeIter iter;
 	gchar *sparql;
 
 	window = TRACKER_RESULTS_WINDOW (object);
@@ -284,6 +290,18 @@ results_window_constructed (GObject *object)
 	sparql = g_strdup_printf (FOLDER_SEARCH, priv->query);
 	search_get (window, sparql);
 	g_free (sparql);
+
+	if (!gtk_tree_model_get_iter_first (GTK_TREE_MODEL (priv->store), &iter)) {
+		gchar *str;
+
+		str = g_strdup_printf (_("No results found for «%s»"), priv->query);
+		gtk_label_set_text (GTK_LABEL (priv->label), str);
+		g_free (str);
+
+		gtk_widget_show (priv->label);
+	} else {
+		gtk_widget_show_all (priv->scrolled_window);
+	}
 }
 
 static void
@@ -1125,7 +1143,7 @@ grab_popup_window (TrackerResultsWindow *window)
 	}
 
 	if (status == GDK_GRAB_SUCCESS) {
-		gtk_widget_grab_focus (priv->treeview);
+		gtk_widget_grab_focus (widget);
 	} else if (status == GDK_GRAB_NOT_VIEWABLE) {
 		/* window is not viewable yet, retry */
 		return TRUE;
@@ -1141,6 +1159,7 @@ tracker_results_window_popup (TrackerResultsWindow *window)
 {
 	g_return_if_fail (TRACKER_IS_RESULTS_WINDOW (window));
 
+	gtk_widget_realize (GTK_WIDGET (window));
 	gtk_widget_show (GTK_WIDGET (window));
 
 	g_idle_add ((GSourceFunc) grab_popup_window, window);
