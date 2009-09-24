@@ -1,38 +1,69 @@
-.TH tracker-tag 1 "July 2007" GNU "User Commands"
+.TH tracker-tag 1 "July 2009" GNU "User Commands"
 
 .SH NAME
-tracker-tag \- Tool to get/set and search for tags and keywords
+tracker-tag \- Add, remove and list tags.
 
 .SH SYNOPSIS
-\fBtracker-tag\fR [\fIOPTIONS\fR] \fIFILE\fR...
+\fBtracker-tag\fR 
+[\fIOPTION...\fR] FILE [\fIFILE...\fR]
 
 .SH DESCRIPTION
 .B tracker-tag
-allows you to change and search for tags associated with a file.
+allows the caller add tags, remove tags and list tags by URN or to
+list all tags and the files associated with them.
+
+The \fIFILE\fR argument can be either a local path or a URI. It also
+does not have to be an absolute path. 
 
 .SH OPTIONS
 .TP
 .B \-?, \-\-help
 Show summary of options.
 .TP
+.B \-l, \-\-limit=N
+Limit search to N results. The default is 512.
+.TP
+.B \-o, \-\-offset=N
+Offset the search results by N. For example, start at item number 10
+in the results. The default is 0.
+.TP
+.B \-r, \-\-or-operator
+Use OR for search terms instead of AND (the default)
+.TP
+.B \-t, \-\-list
+List all tags. Results include the number of files associated with
+that tag and the tag's unique identifier. You can show the files
+associated with each tag by using --show-files.
+.TP
+.B \-s, \-\-show-files
+Show the files associated with each tag. This option is ONLY available
+WITH the 
+.B --list 
+option.
+.TP
 .B \-a, \-\-add=TAG
-Add specified tag to a file.
+Add a tag with the name 
+.B TAG.
+If no 
+.B FILE
+arguments are specified, the tag is simply created (if it didn't
+already exist) and no files are associated with it. Multiple
+.B FILE
+arguments can be specified.
 .TP
-.B \-r, \-\-remove=TAG
-Remove specified tag from a file.
-.TP
-.B \-R, \-\-remove-all
-Remove all tags associated with a file.
-.TP
-.B \-l, \-\-list
-List all tags associated with a file.
-.br
-If no file name is given, all known tags and their count is listed.
-.TP
-.B \-s, \-\-search=TAG
-Search for files matching the given tag.
+.B \-d, \-\-delete=TAG
+Delete a tag with the name 
+.B TAG.
+If no 
+.B FILE
+arguments are specified, the tag is deleted for ALL files. If 
+.B FILE
+arguments are specified, only those files have the
+.B TAG
+deleted.
 
 .SH SEE ALSO
 .BR tracker-store (1),
-.BR tracker-stats (1),
+.BR tracker-sparql (1),
+.BR tracker-search (1),
 .BR tracker-info (1).
