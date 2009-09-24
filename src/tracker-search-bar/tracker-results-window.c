@@ -156,6 +156,66 @@ tracker_results_window_class_init (TrackerResultsWindowClass *klass)
 }
 
 static void
+launch_application_for_uri (GtkWidget   *widget,
+			    const gchar *uri)
+{
+	GdkAppLaunchContext *launch_context;
+	GdkScreen *screen;
+	GError *error = NULL;
+
+	launch_context = gdk_app_launch_context_new ();
+
+	screen = gtk_widget_get_screen (widget);
+	gdk_app_launch_context_set_screen (launch_context, screen);
+
+	g_app_info_launch_default_for_uri (uri,
+					   G_APP_LAUNCH_CONTEXT (launch_context),
+					   &error);
+
+	if (error) {
+		g_critical ("Could not launch application for uri '%s': %s",
+			    uri, error->message);
+		g_error_free (error);
+	}
+
+	g_object_unref (launch_context);
+}
+
+static void
+tree_view_row_activated_cb (GtkTreeView       *treeview,
+			    GtkTreePath       *path,
+			    GtkTreeViewColumn *column,
+			    gpointer           user_data)
+{
+	TrackerResultsWindowPrivate *priv;
+	TrackerResultsWindow *window;
+	GtkTreeModel *model;
+	GtkTreeIter iter;
+	gchar *urn;
+
+	window = user_data;
+	priv = TRACKER_RESULTS_WINDOW_GET_PRIVATE (window);
+	model = GTK_TREE_MODEL (priv->store);
+
+	if (!gtk_tree_model_get_iter (model, &iter, path)) {
+		return;
+	}
+
+	gtk_tree_model_get (model, &iter,
+			    COL_URN, &urn,
+			    -1);
+
+	if (!urn) {
+		return;
+	}
+
+	launch_application_for_uri (GTK_WIDGET (window), urn);
+	gtk_widget_hide (GTK_WIDGET (window));
+
+	g_free (urn);
+}
+
+static void
 tracker_results_window_init (TrackerResultsWindow *window)
 {
 	TrackerResultsWindowPrivate *priv;
@@ -183,6 +243,8 @@ tracker_results_window_init (TrackerResultsWindow *window)
 
 	priv->treeview = gtk_tree_view_new ();
 	gtk_container_add (GTK_CONTAINER (scrolled_window), priv->treeview);
+	g_signal_connect (priv->treeview, "row-activated",
+			  G_CALLBACK (tree_view_row_activated_cb), window);
 
 	gtk_tree_view_set_headers_visible (GTK_TREE_VIEW (priv->treeview), FALSE);
 
