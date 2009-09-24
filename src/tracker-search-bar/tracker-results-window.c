@@ -49,6 +49,8 @@ static void results_window_get_property (GObject      *object,
 
 static gboolean results_window_key_press_event (GtkWidget      *widget,
 						GdkEventKey    *event);
+static gboolean results_window_button_press_event (GtkWidget      *widget,
+						   GdkEventButton *event);
 static void     results_window_size_request    (GtkWidget      *widget,
 						GtkRequisition *requisition);
 static void     results_window_screen_changed  (GtkWidget      *widget,
@@ -138,6 +140,7 @@ tracker_results_window_class_init (TrackerResultsWindowClass *klass)
 	object_class->get_property = results_window_get_property;
 
 	widget_class->key_press_event = results_window_key_press_event;
+	widget_class->button_press_event = results_window_button_press_event;
 	widget_class->size_request = results_window_size_request;
 	widget_class->screen_changed = results_window_screen_changed;
 
@@ -282,9 +285,35 @@ static gboolean
 results_window_key_press_event (GtkWidget   *widget,
 				GdkEventKey *event)
 {
+	TrackerResultsWindowPrivate *priv;
+
 	if (event->keyval == GDK_Escape) {
 		gtk_widget_hide (widget);
 
+		return TRUE;
+	}
+
+	priv = TRACKER_RESULTS_WINDOW_GET_PRIVATE (widget);
+
+	if (GTK_WIDGET_CLASS (tracker_results_window_parent_class)->key_press_event (widget, event)) {
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
+static gboolean
+results_window_button_press_event (GtkWidget      *widget,
+				   GdkEventButton *event)
+{
+	if (event->x < 0 || event->x > widget->allocation.width ||
+	    event->y < 0 || event->y > widget->allocation.height) {
+		/* Click happened outside window, pop it down */
+		gtk_widget_hide (widget);
+		return TRUE;
+	}
+
+	if (GTK_WIDGET_CLASS (tracker_results_window_parent_class)->button_press_event (widget, event)) {
 		return TRUE;
 	}
 
@@ -339,6 +368,8 @@ results_window_screen_changed (GtkWidget *widget,
 		priv->icon_theme = gtk_icon_theme_get_for_screen (screen);
 		/* FIXME: trigger the model to update icons */
 	}
+
+	GTK_WIDGET_CLASS (tracker_results_window_parent_class)->screen_changed (widget, prev_screen);
 }
 
 static ItemData *
@@ -1009,4 +1040,49 @@ tracker_results_window_new (GtkWidget   *parent,
 			     "align-widget", parent,
 			     "query", query,
 			     NULL);
+}
+
+void
+tracker_results_window_popup (TrackerResultsWindow *window)
+{
+	TrackerResultsWindowPrivate *priv;
+	GdkGrabStatus status;
+	GtkWidget *widget;
+	guint32 time;
+
+	g_return_if_fail (TRACKER_IS_RESULTS_WINDOW (window));
+
+	widget = GTK_WIDGET (window);
+	time = gtk_get_current_event_time ();
+	priv = TRACKER_RESULTS_WINDOW_GET_PRIVATE (window);
+
+	gtk_widget_show (widget);
+
+	/* Process events to ensure the window
+	 * is viewable so the grab does not fail
+	 */
+	while (gtk_events_pending ()) {
+		gtk_main_iteration ();
+	}
+
+	/* Grab pointer */
+	status = gdk_pointer_grab (widget->window,
+				   TRUE,
+				   GDK_POINTER_MOTION_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK,
+				   NULL, NULL,
+				   time);
+
+	if (status != GDK_GRAB_SUCCESS) {
+		gtk_widget_hide (widget);
+	} else {
+		status = gdk_keyboard_grab (widget->window, TRUE, time);
+
+		if (status != GDK_GRAB_SUCCESS) {
+			gtk_widget_hide (widget);
+		}
+	}
+
+	if (status == GDK_GRAB_SUCCESS) {
+		gtk_widget_grab_focus (priv->treeview);
+	}
 }

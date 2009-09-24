@@ -100,7 +100,7 @@ applet_entry_activate_cb (GtkEntry      *entry,
 
 	gtk_entry_set_text (entry, "");
 
-	gtk_widget_show (GTK_WIDGET (applet->results));
+	tracker_results_window_popup (TRACKER_RESULTS_WINDOW (applet->results));
 }
 
 static gboolean

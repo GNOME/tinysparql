@@ -49,6 +49,7 @@ GType       tracker_results_window_get_type (void) G_GNUC_CONST;
 
 GtkWidget * tracker_results_window_new      (GtkWidget   *parent,
 					     const gchar *query);
+void        tracker_results_window_popup    (TrackerResultsWindow *window);
 
 G_END_DECLS
 
