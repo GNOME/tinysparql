@@ -35,6 +35,30 @@
 #include "tracker-results-window.h"
 #include "tracker-aligned-window.h"
 
+static void results_window_constructed (GObject *object);
+static void results_window_finalize    (GObject *object);
+
+static void results_window_set_property (GObject      *object,
+					 guint         prop_id,
+					 const GValue *value,
+					 GParamSpec   *pspec);
+static void results_window_get_property (GObject      *object,
+					 guint         prop_id,
+					 GValue       *value,
+					 GParamSpec   *pspec);
+
+static gboolean results_window_key_press_event (GtkWidget      *widget,
+						GdkEventKey    *event);
+static void     results_window_size_request    (GtkWidget      *widget,
+						GtkRequisition *requisition);
+static void     results_window_screen_changed  (GtkWidget      *widget,
+						GdkScreen      *prev_screen);
+
+static void     model_set_up      (TrackerResultsWindow *window);
+static gboolean search_get        (TrackerResultsWindow *window,
+				   const gchar          *query);
+
+
 #define MUSIC_SEARCH    "SELECT ?urn ?type ?title ?belongs WHERE { ?urn a nmm:MusicPiece ; rdf:type ?type ; nfo:fileName ?title ; nfo:belongsToContainer ?belongs . ?urn fts:match \"%s*\" } OFFSET 0 LIMIT 500"
 #define PHOTO_SEARCH    "SELECT ?urn ?type ?title ?belongs WHERE { ?urn a nmm:Photo ; rdf:type ?type ; nfo:fileName ?title ; nfo:belongsToContainer ?belongs . ?urn fts:match \"%s*\" } OFFSET 0 LIMIT 500"
 #define VIDEO_SEARCH    "SELECT ?urn ?type ?title ?belongs WHERE { ?urn a nmm:Video ; rdf:type ?type ; nfo:fileName ?title ; nfo:belongsToContainer ?belongs . ?urn fts:match \"%s*\" } OFFSET 0 LIMIT 500"
@@ -43,9 +67,9 @@
 
 #define GENERAL_SEARCH  "SELECT ?s ?type ?title WHERE { ?s fts:match \"%s*\" ; rdf:type ?type . OPTIONAL { ?s nie:title ?title } } OFFSET %d LIMIT %d"
 
-typedef struct {
-	GtkWidget *window;
+#define TRACKER_RESULTS_WINDOW_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_RESULTS_WINDOW, TrackerResultsWindowPrivate))
 
+typedef struct {
 	GtkWidget *frame;
 	GtkWidget *treeview;
 	GObject *store;
@@ -53,7 +77,8 @@ typedef struct {
 	GtkIconTheme *icon_theme;
 
 	TrackerClient *client;
-} TrackerResultsWindow;
+	gchar *query;
+} TrackerResultsWindowPrivate;
 
 typedef enum {
 	CATEGORY_NONE                  = 1 << 0,
@@ -93,6 +118,228 @@ struct FindCategory {
 	const gchar *category_str;
 	gboolean found;
 };
+
+enum {
+	PROP_0,
+	PROP_QUERY
+};
+
+G_DEFINE_TYPE (TrackerResultsWindow, tracker_results_window, TRACKER_TYPE_ALIGNED_WINDOW)
+
+static void
+tracker_results_window_class_init (TrackerResultsWindowClass *klass)
+{
+	GObjectClass *object_class = G_OBJECT_CLASS (klass);
+	GtkWidgetClass *widget_class = GTK_WIDGET_CLASS (klass);
+
+	object_class->constructed = results_window_constructed;
+	object_class->finalize = results_window_finalize;
+	object_class->set_property = results_window_set_property;
+	object_class->get_property = results_window_get_property;
+
+	widget_class->key_press_event = results_window_key_press_event;
+	widget_class->size_request = results_window_size_request;
+	widget_class->screen_changed = results_window_screen_changed;
+
+	g_object_class_install_property (object_class,
+					 PROP_QUERY,
+					 g_param_spec_string ("query",
+							      "Query",
+							      "Query",
+							      NULL,
+							      G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY));
+
+	g_type_class_add_private (object_class, sizeof (TrackerResultsWindowPrivate));
+}
+
+static void
+tracker_results_window_init (TrackerResultsWindow *window)
+{
+	TrackerResultsWindowPrivate *priv;
+	GtkWidget *vbox;
+	GtkWidget *scrolled_window;
+
+	priv = TRACKER_RESULTS_WINDOW_GET_PRIVATE (window);
+
+	priv->client = tracker_connect (FALSE, G_MAXINT);
+
+	priv->frame = gtk_frame_new (NULL);
+	gtk_container_add (GTK_CONTAINER (window), priv->frame);
+	gtk_frame_set_shadow_type (GTK_FRAME (priv->frame), GTK_SHADOW_IN);
+	gtk_widget_set_size_request (priv->frame, 500, 300);
+
+	vbox = gtk_vbox_new (FALSE, 12);
+	gtk_container_add (GTK_CONTAINER (priv->frame), vbox);
+	gtk_container_set_border_width (GTK_CONTAINER (vbox), 2);
+
+	scrolled_window = gtk_scrolled_window_new (NULL, NULL);
+	gtk_container_add (GTK_CONTAINER (vbox), scrolled_window);
+	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolled_window),
+					GTK_POLICY_AUTOMATIC,
+					GTK_POLICY_AUTOMATIC);
+
+	priv->treeview = gtk_tree_view_new ();
+	gtk_container_add (GTK_CONTAINER (scrolled_window), priv->treeview);
+
+	gtk_tree_view_set_headers_visible (GTK_TREE_VIEW (priv->treeview), FALSE);
+
+	priv->icon_theme = gtk_icon_theme_get_default ();
+
+	model_set_up (window);
+
+	gtk_widget_show_all (priv->frame);
+}
+
+static void
+results_window_constructed (GObject *object)
+{
+	TrackerResultsWindowPrivate *priv;
+	TrackerResultsWindow *window;
+	gchar *sparql;
+
+	window = TRACKER_RESULTS_WINDOW (object);
+	priv = TRACKER_RESULTS_WINDOW_GET_PRIVATE (window);
+
+	sparql = g_strdup_printf (MUSIC_SEARCH, priv->query);
+	search_get (window, sparql);
+	g_free (sparql);
+
+	sparql = g_strdup_printf (PHOTO_SEARCH, priv->query);
+	search_get (window, sparql);
+	g_free (sparql);
+
+	sparql = g_strdup_printf (VIDEO_SEARCH, priv->query);
+	search_get (window, sparql);
+	g_free (sparql);
+
+	sparql = g_strdup_printf (DOCUMENT_SEARCH, priv->query);
+	search_get (window, sparql);
+	g_free (sparql);
+
+	sparql = g_strdup_printf (FOLDER_SEARCH, priv->query);
+	search_get (window, sparql);
+	g_free (sparql);
+}
+
+static void
+results_window_finalize (GObject *object)
+{
+	TrackerResultsWindowPrivate *priv;
+
+	priv = TRACKER_RESULTS_WINDOW_GET_PRIVATE (object);
+
+	g_free (priv->query);
+
+	if (priv->client) {
+		tracker_disconnect (priv->client);
+	}
+
+	G_OBJECT_CLASS (tracker_results_window_parent_class)->finalize (object);
+}
+
+static void
+results_window_set_property (GObject      *object,
+			     guint         prop_id,
+			     const GValue *value,
+			     GParamSpec   *pspec)
+{
+	TrackerResultsWindowPrivate *priv;
+
+	priv = TRACKER_RESULTS_WINDOW_GET_PRIVATE (object);
+
+	switch (prop_id) {
+	case PROP_QUERY:
+		g_free (priv->query);
+		priv->query = g_value_dup_string (value);
+		break;
+	default:
+                G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+                break;
+	}
+}
+
+static void
+results_window_get_property (GObject    *object,
+			     guint       prop_id,
+			     GValue     *value,
+			     GParamSpec *pspec)
+{
+	TrackerResultsWindowPrivate *priv;
+
+	priv = TRACKER_RESULTS_WINDOW_GET_PRIVATE (object);
+
+	switch (prop_id) {
+	case PROP_QUERY:
+		g_value_set_string (value, priv->query);
+		break;
+	default:
+                G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+                break;
+	}
+}
+
+static gboolean
+results_window_key_press_event (GtkWidget   *widget,
+				GdkEventKey *event)
+{
+	if (event->keyval == GDK_Escape) {
+		gtk_widget_hide (widget);
+
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
+static void
+results_window_size_request (GtkWidget      *widget,
+			     GtkRequisition *requisition)
+{
+	GtkRequisition child_req;
+	guint border_width;
+
+	gtk_widget_size_request (GTK_BIN (widget)->child, &child_req);
+	border_width = gtk_container_get_border_width (GTK_CONTAINER (widget));
+
+	requisition->width = child_req.width + (2 * border_width);
+	requisition->height = child_req.height + (2 * border_width);
+
+	if (GTK_WIDGET_REALIZED (widget)) {
+		GdkScreen *screen;
+		GdkRectangle monitor_geom;
+		guint monitor_num;
+
+		/* make it no larger than half the monitor size */
+		screen = gtk_widget_get_screen (widget);
+		monitor_num = gdk_screen_get_monitor_at_window (screen, widget->window);
+
+		gdk_screen_get_monitor_geometry (screen, monitor_num, &monitor_geom);
+
+		requisition->width = MIN (requisition->width, monitor_geom.width / 2);
+		requisition->height = MIN (requisition->height, monitor_geom.height / 2);
+	}
+}
+
+static void
+results_window_screen_changed (GtkWidget *widget,
+			       GdkScreen *prev_screen)
+{
+	TrackerResultsWindowPrivate *priv;
+	GdkScreen *screen;
+
+	priv = TRACKER_RESULTS_WINDOW_GET_PRIVATE (widget);
+
+	if (priv->icon_theme) {
+		priv->icon_theme = NULL;
+	}
+
+	screen = gtk_widget_get_screen (widget);
+
+	if (screen) {
+		priv->icon_theme = gtk_icon_theme_get_for_screen (screen);
+		/* FIXME: trigger the model to update icons */
+	}
+}
 
 static ItemData *
 item_data_new (const gchar *urn,
@@ -398,6 +645,7 @@ pixbuf_get (TrackerResultsWindow *window,
 	    const gchar          *urn,
 	    gboolean              is_image)
 {
+	TrackerResultsWindowPrivate *priv;
 	const gchar *attributes;
 	GFile *file;
 	GFileInfo *info;
@@ -405,8 +653,9 @@ pixbuf_get (TrackerResultsWindow *window,
 	GdkPixbuf *pixbuf = NULL;
 	GError *error = NULL;
 
+	priv = TRACKER_RESULTS_WINDOW_GET_PRIVATE (window);
 	file = g_file_new_for_uri (urn);
-	
+
 	if (is_image) {
 		gchar *path;
 
@@ -455,7 +704,7 @@ pixbuf_get (TrackerResultsWindow *window,
 		const gchar **names;
 
 		names = (const gchar**) g_themed_icon_get_names (G_THEMED_ICON (icon));
-		icon_info = gtk_icon_theme_choose_icon (window->icon_theme,
+		icon_info = gtk_icon_theme_choose_icon (priv->icon_theme,
                                                         names,
                                                         24,
 							GTK_ICON_LOOKUP_USE_BUILTIN);
@@ -520,13 +769,15 @@ model_pixbuf_cell_data_func (GtkTreeViewColumn    *tree_column,
 static void
 model_set_up (TrackerResultsWindow *window)
 {
+	TrackerResultsWindowPrivate *priv;
 	GtkTreeView *view;
 	GtkTreeViewColumn *column;
 	GtkTreeSelection *selection;
 	GtkListStore *store;
 	GtkCellRenderer *cell;
 
-	view = GTK_TREE_VIEW (window->treeview);
+	priv = TRACKER_RESULTS_WINDOW_GET_PRIVATE (window);
+	view = GTK_TREE_VIEW (priv->treeview);
 
 	/* Store */
 	store = gtk_list_store_new (COL_COUNT,
@@ -586,7 +837,7 @@ model_set_up (TrackerResultsWindow *window)
 	gtk_tree_view_set_tooltip_column (view, COL_BELONGS);
 
 	/* Save */
-	window->store = G_OBJECT (store);
+	priv->store = G_OBJECT (store);
 }
 
 static gboolean
@@ -614,15 +865,17 @@ model_add (TrackerResultsWindow *window,
 	   TrackerCategory       category,
 	   const gchar          *urn,
 	   const gchar          *title,
-	   const gchar          *belongs) 
+	   const gchar          *belongs)
 {
+	TrackerResultsWindowPrivate *priv;
 	struct FindCategory fc;
 	GtkTreeIter iter;
 	GdkPixbuf *pixbuf;
 	const gchar *category_str;
 
+	priv = TRACKER_RESULTS_WINDOW_GET_PRIVATE (window);
 	pixbuf = NULL;
-	
+
 	/* Get category for id */
 	category_str = category_to_string (category);
 
@@ -630,12 +883,12 @@ model_add (TrackerResultsWindow *window,
 	fc.category_str = category_str;
 	fc.found = FALSE;
 
-	gtk_tree_model_foreach (GTK_TREE_MODEL (window->store), 
+	gtk_tree_model_foreach (GTK_TREE_MODEL (priv->store),
 				model_add_category_foreach,
 				&fc);
 
-	gtk_list_store_append (GTK_LIST_STORE (window->store), &iter);
-	gtk_list_store_set (GTK_LIST_STORE (window->store), &iter,
+	gtk_list_store_append (GTK_LIST_STORE (priv->store), &iter);
+	gtk_list_store_set (GTK_LIST_STORE (priv->store), &iter,
 			    COL_CATEGORY_ID, category,
 			    COL_CATEGORY, fc.found ? NULL : category_str,
 			    COL_IMAGE, pixbuf ? pixbuf : NULL,
@@ -649,90 +902,6 @@ model_add (TrackerResultsWindow *window,
 	/* gtk_tree_path_free (path); */
 		
 	/* gtk_tree_selection_select_iter (selection, &iter); */
-}
-
-static gboolean
-window_key_press_event_cb (GtkWidget   *widget,
-			   GdkEventKey *event,
-			   gpointer     user_data)
-{
-	TrackerApplet *applet = user_data;
-	
-	if (event->keyval == GDK_Escape) {
-		gtk_widget_hide (widget);
-		
-		return TRUE;
-	} else if ((event->keyval == GDK_l) && (event->state & GDK_CONTROL_MASK)) {
-		gtk_widget_grab_focus (applet->entry);
-		
-		return TRUE;
-	}
-	
-	return FALSE;
-}
-
-static void
-window_show_cb (GtkWidget            *widget_to_show,
-		TrackerResultsWindow *window)
-{
-	GtkWidget *widget;
-	gint width, height;
-	GdkScreen *screen;
-	gint monitor_num;
-	GtkRequisition req;
-	GdkRectangle monitor;
-
-	/* if (!priv->window) { */
-	/* 	return; */
-	/* } */
-  
-	widget = window->window;
-
-#if 0
-	gint font_size;
-
-	/* Size based on the font size */
-	font_size = pango_font_description_get_size (defbox->style->font_desc);
-	font_size = PANGO_PIXELS (font_size);
-
-	width = font_size * WINDOW_NUM_COLUMNS;
-	height = font_size * WINDOW_NUM_ROWS;
-#endif
-
-	/* Use at least the requisition size of the window... */
-	gtk_widget_size_request (widget, &req);
-	width = MAX (width, req.width);
-	height = MAX (height, req.height);
-
-	/* ... but make it no larger than half the monitor size */
-	screen = gtk_widget_get_screen (widget);
-	monitor_num = gdk_screen_get_monitor_at_window (screen, widget->window);
-
-	gdk_screen_get_monitor_geometry (screen, monitor_num, &monitor);
-
-	width = MIN (width, monitor.width / 2);
-	height = MIN (height, monitor.height / 2);
-
-	/* Set size */
-	gtk_widget_set_size_request (GTK_WIDGET (window->frame), width, height);
-}
-
-static gboolean
-window_delete_event_cb (GtkWidget *widget,
-			GdkEvent  *event,
-			gpointer   user_data)
-{
-	TrackerResultsWindow *window = user_data;
-
-	window = user_data;
-	
-	if (window->client) {
-		tracker_disconnect (window->client);
-	}
-
-	g_free (window);
-
-	return FALSE;
 }
 
 inline static void
@@ -775,10 +944,12 @@ static gboolean
 search_get (TrackerResultsWindow *window,
 	    const gchar          *query)
 {
+	TrackerResultsWindowPrivate *priv;
 	GError *error = NULL;
 	GPtrArray *results;
 
-	results = tracker_resources_sparql_query (window->client, query, &error);
+	priv = TRACKER_RESULTS_WINDOW_GET_PRIVATE (window);
+	results = tracker_resources_sparql_query (priv->client, query, &error);
 
 	if (error) {
 		g_printerr ("%s, %s\n",
@@ -831,80 +1002,11 @@ search_get (TrackerResultsWindow *window,
 }
 
 GtkWidget *
-tracker_results_window_new (TrackerApplet *applet,
-			    const gchar   *query)
+tracker_results_window_new (GtkWidget   *parent,
+			    const gchar *query)
 {
-	TrackerResultsWindow *window;
-	GtkWidget *vbox;
-	GtkWidget *scrolled_window;
-	GdkScreen *screen;
-	gchar *sparql;
-	
-	g_return_val_if_fail (applet != NULL, NULL);
-
-	window = g_new0 (TrackerResultsWindow, 1);
-
-	window->client = tracker_connect (FALSE, G_MAXINT);
-
-	/* window->window = gtk_builder_get_object (builder, "window_results"); */
-	
-	window->window = tracker_aligned_window_new (applet->parent);
-
-	window->frame = gtk_frame_new (NULL);
-	gtk_container_add (GTK_CONTAINER (window->window), window->frame);
-	gtk_frame_set_shadow_type (GTK_FRAME (window->frame), GTK_SHADOW_IN);
-	gtk_widget_set_size_request (window->frame, 500, 300);
-
-	vbox = gtk_vbox_new (FALSE, 12);
-	gtk_container_add (GTK_CONTAINER (window->frame), vbox);
-	gtk_container_set_border_width (GTK_CONTAINER (vbox), 2);
-	
-	scrolled_window = gtk_scrolled_window_new (NULL, NULL);
-	gtk_container_add (GTK_CONTAINER (vbox), scrolled_window);
-	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolled_window),
-					GTK_POLICY_AUTOMATIC,
-					GTK_POLICY_AUTOMATIC);
-
-	window->treeview = gtk_tree_view_new ();
-	gtk_container_add (GTK_CONTAINER (scrolled_window), window->treeview);
-
-	gtk_tree_view_set_headers_visible (GTK_TREE_VIEW (window->treeview), FALSE);
-
-	g_signal_connect (window->window, "key-press-event",
-			  G_CALLBACK (window_key_press_event_cb),
-			  window);
-	g_signal_connect (window->window, "show",
-			  G_CALLBACK (window_show_cb),
-			  window);
-	g_signal_connect (window->window, "delete-event", 
-			  G_CALLBACK (window_delete_event_cb), window);
-	
-	screen = gtk_widget_get_screen (window->treeview);
-	window->icon_theme = gtk_icon_theme_get_for_screen (screen);
-
-	model_set_up (window);
-
-	gtk_widget_show_all (GTK_WIDGET (window->window));
-
-	sparql = g_strdup_printf (MUSIC_SEARCH, query);
-	search_get (window, sparql);
-	g_free (sparql);
-
-	sparql = g_strdup_printf (PHOTO_SEARCH, query);
-	search_get (window, sparql);
-	g_free (sparql);
-
-	sparql = g_strdup_printf (VIDEO_SEARCH, query);
-	search_get (window, sparql);
-	g_free (sparql);
-
-	sparql = g_strdup_printf (DOCUMENT_SEARCH, query);
-	search_get (window, sparql);
-	g_free (sparql);
-
-	sparql = g_strdup_printf (FOLDER_SEARCH, query);
-	search_get (window, sparql);
-	g_free (sparql);
-
-	return GTK_WIDGET (window->window);
+	return g_object_new (TRACKER_TYPE_RESULTS_WINDOW,
+			     "align-widget", parent,
+			     "query", query,
+			     NULL);
 }

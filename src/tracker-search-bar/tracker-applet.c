@@ -96,9 +96,11 @@ applet_entry_activate_cb (GtkEntry      *entry,
 	}
 
 	g_print ("Searching for: '%s'\n", text);
-	applet->results = tracker_results_window_new (applet, text);
+	applet->results = tracker_results_window_new (applet->parent, text);
 
 	gtk_entry_set_text (entry, "");
+
+	gtk_widget_show (GTK_WIDGET (applet->results));
 }
 
 static gboolean
