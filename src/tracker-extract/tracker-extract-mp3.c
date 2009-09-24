@@ -790,18 +790,12 @@ mp3_parse_header (const gchar *data,
 
 	switch (header & mpeg_ver_mask) {
 	case 0x1000:
-		tracker_sparql_builder_predicate (metadata, "nfo:codec");
-		tracker_sparql_builder_object_string (metadata, "MPEG");
 		mpeg_ver = MPEG_V2;
 		break;
 	case 0x1800:
-		tracker_sparql_builder_predicate (metadata, "nfo:codec");
-		tracker_sparql_builder_object_string (metadata, "MPEG");
 		mpeg_ver = MPEG_V1;
 		break;
 	case 0:
-		tracker_sparql_builder_predicate (metadata, "nfo:codec");
-		tracker_sparql_builder_object_string (metadata, "MPEG");
 		mpeg_ver = MPEG_V25;
 		break;
 	default:
@@ -834,13 +828,6 @@ mp3_parse_header (const gchar *data,
 	}
 
 	spfp8 = spf_table[idx_num];
-
-	tracker_sparql_builder_predicate (metadata, "nfo:channels");
-	if ((header & ch_mask) == ch_mask) {
-		tracker_sparql_builder_object_int64 (metadata, 1);
-	} else {
-		tracker_sparql_builder_object_int64 (metadata, 2);
-	}
 
 	/* We assume mpeg version, layer and channels are constant in frames */
 	do {
@@ -883,6 +870,16 @@ mp3_parse_header (const gchar *data,
 	if (frames < 2) { /* At least 2 frames to check the right position */
 		/* No valid frames */
 		return FALSE;
+	}
+
+	tracker_sparql_builder_predicate (metadata, "nfo:codec");
+	tracker_sparql_builder_object_string (metadata, "MPEG");
+
+	tracker_sparql_builder_predicate (metadata, "nfo:channels");
+	if ((header & ch_mask) == ch_mask) {
+		tracker_sparql_builder_object_int64 (metadata, 1);
+	} else {
+		tracker_sparql_builder_object_int64 (metadata, 2);
 	}
 
 	avg_bps /= frames;
