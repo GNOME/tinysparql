@@ -1101,28 +1101,17 @@ tracker_results_window_new (GtkWidget   *parent,
 			     NULL);
 }
 
-void
-tracker_results_window_popup (TrackerResultsWindow *window)
+static gboolean
+grab_popup_window (TrackerResultsWindow *window)
 {
 	TrackerResultsWindowPrivate *priv;
 	GdkGrabStatus status;
 	GtkWidget *widget;
 	guint32 time;
 
-	g_return_if_fail (TRACKER_IS_RESULTS_WINDOW (window));
-
 	widget = GTK_WIDGET (window);
 	time = gtk_get_current_event_time ();
 	priv = TRACKER_RESULTS_WINDOW_GET_PRIVATE (window);
-
-	gtk_widget_show (widget);
-
-	/* Process events to ensure the window
-	 * is viewable so the grab does not fail
-	 */
-	while (gtk_events_pending ()) {
-		gtk_main_iteration ();
-	}
 
 	/* Grab pointer */
 	status = gdk_pointer_grab (widget->window,
@@ -1131,17 +1120,28 @@ tracker_results_window_popup (TrackerResultsWindow *window)
 				   NULL, NULL,
 				   time);
 
-	if (status != GDK_GRAB_SUCCESS) {
-		gtk_widget_hide (widget);
-	} else {
+	if (status == GDK_GRAB_SUCCESS) {
 		status = gdk_keyboard_grab (widget->window, TRUE, time);
-
-		if (status != GDK_GRAB_SUCCESS) {
-			gtk_widget_hide (widget);
-		}
 	}
 
 	if (status == GDK_GRAB_SUCCESS) {
 		gtk_widget_grab_focus (priv->treeview);
+	} else if (status == GDK_GRAB_NOT_VIEWABLE) {
+		/* window is not viewable yet, retry */
+		return TRUE;
+	} else {
+		gtk_widget_hide (widget);
 	}
+
+	return FALSE;
+}
+
+void
+tracker_results_window_popup (TrackerResultsWindow *window)
+{
+	g_return_if_fail (TRACKER_IS_RESULTS_WINDOW (window));
+
+	gtk_widget_show (GTK_WIDGET (window));
+
+	g_idle_add ((GSourceFunc) grab_popup_window, window);
 }
