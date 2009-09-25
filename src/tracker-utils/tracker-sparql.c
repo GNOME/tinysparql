@@ -209,8 +209,8 @@ main (int argc, char **argv)
 				 _("No classes were found"));
 		} else {
 			g_print (tracker_dngettext (NULL,
-						    _("Class: %d"), 
-						    _("Classes: %d"),
+						    "Class: %d", 
+						    "Classes: %d",
 						    results->len),
 				 results->len);
 			g_print ("\n");
@@ -247,8 +247,8 @@ main (int argc, char **argv)
 				 _("No class prefixes were found"));
 		} else {
 			g_print (tracker_dngettext (NULL,
-						    _("Prefix: %d"), 
-						    _("Prefixes: %d"),
+						    "Prefix: %d", 
+						    "Prefixes: %d",
 						    results->len),
 				 results->len);
 			g_print ("\n");
@@ -326,8 +326,8 @@ main (int argc, char **argv)
 				 _("No properties were found"));
 		} else {
 			g_print (tracker_dngettext (NULL,
-						    _("Property: %d"), 
-						    _("Properties: %d"),
+						    "Property: %d", 
+						    "Properties: %d",
 						    results->len),
 				 results->len);
 			g_print ("\n");
@@ -399,8 +399,8 @@ main (int argc, char **argv)
 					 _("No results found matching your query"));
 			} else {
 				g_print (tracker_dngettext (NULL,
-							    _("Result: %d"), 
-							    _("Results: %d"),
+							    "Result: %d", 
+							    "Results: %d",
 							    results->len),
 					 results->len);
 				g_print ("\n");

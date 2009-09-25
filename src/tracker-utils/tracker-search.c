@@ -180,8 +180,8 @@ get_files_results (TrackerClient *client,
 			 _("No files were found"));
 	} else {
 		g_print (tracker_dngettext (NULL,
-					    _("File: %d"), 
-					    _("Files: %d"),
+					    "File: %d", 
+					    "Files: %d",
 					    results->len),
 			 results->len);
 		g_print ("\n");
@@ -445,8 +445,8 @@ get_music_artists (TrackerClient *client,
 			 _("No artists were found"));
 	} else {
 		g_print (tracker_dngettext (NULL,
-					    _("Artist: %d"), 
-					    _("Artists: %d"),
+					    "Artist: %d", 
+					    "Artists: %d",
 					    results->len),
 			 results->len);
 		g_print ("\n");
@@ -474,15 +474,15 @@ get_music_albums_foreach (gpointer value,
 
 	g_print ("  "); /*'%s', ", data[1]);*/
 	g_print (tracker_dngettext (NULL,
-				    _("%d Song"), 
-				    _("%d Songs"),
+				    "%d Song", 
+				    "%d Songs",
 				    atoi (data[2])),
 		 atoi (data[2]));
 
 	g_print (", ");
 	g_print (tracker_dngettext (NULL,
-				    _("%d Second"), 
-				    _("%d Seconds"),
+				    "%d Second", 
+				    "%d Seconds",
 				    atoi (data[3])),
 		 atoi (data[3]));
 	g_print (", ");
@@ -557,8 +557,8 @@ get_music_albums (TrackerClient *client,
 			 _("No music was found"));
 	} else {
 		g_print (tracker_dngettext (NULL,
-					    _("Album: %d"), 
-					    _("Albums: %d"),
+					    "Album: %d", 
+					    "Albums: %d",
 					    results->len),
 			 results->len);
 		g_print ("\n");
@@ -739,8 +739,8 @@ get_all_by_search (TrackerClient *client,
 			 _("No results were found matching your query"));
 	} else {
 		g_print (tracker_dngettext (NULL,
-					    _("Result: %d"), 
-					    _("Results: %d"),
+					    "Result: %d", 
+					    "Results: %d",
 					    results->len),
 			 results->len);
 		g_print ("\n");

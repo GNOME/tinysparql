@@ -162,8 +162,8 @@ main (int argc, char **argv)
 
 	pids = get_pids ();
 	str = g_strdup_printf (tracker_dngettext (NULL,
-						  _("Found %d PID…"), 
-						  _("Found %d PIDs…"),
+						  "Found %d PID…", 
+						  "Found %d PIDs…",
 						  g_slist_length (pids)),
 			       g_slist_length (pids));
 	g_print ("%s\n", str);
