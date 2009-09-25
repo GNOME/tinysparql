@@ -4519,9 +4519,9 @@ static int parseQuery(
   }
 
   if( inPhrase ){
-    /* unmatched quote */
-    queryClear(pQuery);
-    return SQLITE_ERROR;
+    /* unmatched quote
+       proceed as if there is an extra quote at the end
+       do not report error as this may be user input */
   }
 
   /* Modify the values of the QueryTerm.nPhrase variables to account for
