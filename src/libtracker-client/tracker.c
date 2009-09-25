@@ -34,19 +34,32 @@
 #define TRACKER_INTERFACE_STATISTICS	"org.freedesktop.Tracker1.Statistics"
 
 typedef struct {
-	TrackerReplyArray callback;
-	gpointer          data;
+        DBusGProxy     *proxy;
+        DBusGProxyCall *pending_call;
+} PendingCallData;
+
+typedef struct {
+	TrackerReplyArray  callback;
+	gpointer           data;
+        TrackerClient     *client;
+        guint              id;
 } CallbackArray;
 
 typedef struct {
-	TrackerReplyGPtrArray callback;
-	gpointer	      data;
+	TrackerReplyGPtrArray  callback;
+	gpointer	       data;
+        TrackerClient         *client;
+        guint                  id;
 } CallbackGPtrArray;
 
 typedef struct {
-	TrackerReplyVoid callback;
-	gpointer	 data;
+	TrackerReplyVoid  callback;
+	gpointer	  data;
+        TrackerClient    *client;
+        guint             id;
 } CallbackVoid;
+
+static guint pending_call_id = 0;
 
 static void
 tracker_GPtrArray_reply (DBusGProxy *proxy,  
@@ -58,6 +71,9 @@ tracker_GPtrArray_reply (DBusGProxy *proxy,
 	CallbackGPtrArray *s;
 
 	s = user_data;
+
+        g_hash_table_remove (s->client->pending_calls,
+                             GUINT_TO_POINTER (s->id));
 
 	(*(TrackerReplyGPtrArray) s->callback) (OUT_result, 
                                                 error, 
@@ -75,6 +91,9 @@ tracker_void_reply (DBusGProxy *proxy,
 	CallbackVoid *s;
 
 	s = user_data;
+
+        g_hash_table_remove (s->client->pending_calls,
+                             GUINT_TO_POINTER (s->id));
 
 	(*(TrackerReplyVoid) s->callback) (error, 
                                            s->data);
@@ -168,6 +187,35 @@ start_service (DBusConnection     *connection,
 	return TRUE;
 }
 
+static guint
+pending_call_new (TrackerClient  *client,
+                  DBusGProxy     *proxy,
+                  DBusGProxyCall *pending_call)
+{
+        PendingCallData *data;
+        guint id;
+
+        id = ++pending_call_id;
+
+        data = g_slice_new (PendingCallData);
+        data->proxy = proxy;
+        data->pending_call = pending_call;
+
+        g_hash_table_insert (client->pending_calls,
+                             GUINT_TO_POINTER (id),
+                             data);
+
+        client->last_call = id;
+
+        return id;
+}
+
+static void
+pending_call_free (PendingCallData *data)
+{
+        g_slice_free (PendingCallData, data);
+}
+
 TrackerClient *
 tracker_connect (gboolean enable_warnings, gint timeout)
 {
@@ -194,6 +242,9 @@ tracker_connect (gboolean enable_warnings, gint timeout)
 	}
 
 	client = g_new0 (TrackerClient, 1);
+
+        client->pending_calls = g_hash_table_new_full (NULL, NULL, NULL,
+                                                       (GDestroyNotify) pending_call_free);
 
 	client->proxy_statistics = 
                 dbus_g_proxy_new_for_name (connection,
@@ -228,12 +279,33 @@ tracker_disconnect (TrackerClient *client)
 	g_free (client);
 }
 
+gboolean
+tracker_cancel_call (TrackerClient *client,
+                     guint          call_id)
+{
+        PendingCallData *data;
+
+        data = g_hash_table_lookup (client->pending_calls,
+                                    GUINT_TO_POINTER (call_id));
+
+        if (!data) {
+                return FALSE;
+        }
+
+        dbus_g_proxy_cancel_call (data->proxy, data->pending_call);
+        g_hash_table_remove (client->pending_calls,
+                             GUINT_TO_POINTER (call_id));
+
+        return TRUE;
+}
+
 void
 tracker_cancel_last_call (TrackerClient *client)
 {
-        
-	dbus_g_proxy_cancel_call (client->pending_proxy, 
-                                  client->pending_call);
+        if (client->last_call != 0) {
+                tracker_cancel_call (client, client->last_call);
+                client->last_call = 0;
+        }
 }
 
 /* dbus synchronous calls */
@@ -307,120 +379,156 @@ tracker_resources_batch_commit (TrackerClient  *client,
                                                         &*error);
 }
 
-void
+guint
 tracker_statistics_get_async (TrackerClient         *client,  
                               TrackerReplyGPtrArray  callback, 
                               gpointer               user_data)
 {
 	CallbackGPtrArray *s;
+        DBusGProxyCall *call;
+        guint id;
 
 	s = g_new0 (CallbackGPtrArray, 1);
 	s->callback = callback;
 	s->data = user_data;
+        s->client = client;
 
-        client->pending_proxy = client->proxy_statistics;
-	client->pending_call = 
-                org_freedesktop_Tracker1_Statistics_get_async (client->proxy_statistics, 
-                                                              tracker_GPtrArray_reply, 
+	call = org_freedesktop_Tracker1_Statistics_get_async (client->proxy_statistics,
+                                                              tracker_GPtrArray_reply,
                                                               s);
+
+        id = pending_call_new (client, client->proxy_statistics, call);
+        s->id = id;
+
+        return id;
 }
 
-void
+guint
 tracker_resources_load_async (TrackerClient     *client, 
                               const gchar       *uri, 
                               TrackerReplyVoid  callback, 
                               gpointer user_data)
 {
 	CallbackVoid *s;
+        DBusGProxyCall *call;
+        guint id;
 
 	s = g_new0 (CallbackVoid, 1);
 	s->callback = callback;
 	s->data = user_data;
+        s->client = client;
 
-        client->pending_proxy = client->proxy_resources;
-	client->pending_call = 
-                org_freedesktop_Tracker1_Resources_load_async (client->proxy_resources, 
-                                                              uri, 
-                                                              tracker_void_reply, 
+	call = org_freedesktop_Tracker1_Resources_load_async (client->proxy_resources,
+                                                              uri,
+                                                              tracker_void_reply,
                                                               s);
+
+        id = pending_call_new (client, client->proxy_resources, call);
+        s->id = id;
+
+        return id;
 }
 
-void
+guint
 tracker_resources_sparql_query_async (TrackerClient         *client, 
                                       const gchar           *query, 
                                       TrackerReplyGPtrArray  callback, 
                                       gpointer               user_data)
 {
 	CallbackGPtrArray *s;
+        DBusGProxyCall *call;
+        guint id;
 
 	s = g_new0 (CallbackGPtrArray, 1);
 	s->callback = callback;
 	s->data = user_data;
+        s->client = client;
 
-        client->pending_proxy = client->proxy_resources;
-	client->pending_call = 
-                org_freedesktop_Tracker1_Resources_sparql_query_async (client->proxy_resources, 
-                                                                      query, 
-                                                                      tracker_GPtrArray_reply, 
+	call = org_freedesktop_Tracker1_Resources_sparql_query_async (client->proxy_resources,
+                                                                      query,
+                                                                      tracker_GPtrArray_reply,
                                                                       s);
+
+        id = pending_call_new (client, client->proxy_resources, call);
+        s->id = id;
+
+        return id;
 }
 
-void
+guint
 tracker_resources_sparql_update_async (TrackerClient    *client, 
                                        const gchar      *query, 
                                        TrackerReplyVoid  callback, 
                                        gpointer          user_data)
 {
 	CallbackVoid *s;
+        DBusGProxyCall *call;
+        guint id;
 
 	s = g_new0 (CallbackVoid, 1);
 	s->callback = callback;
 	s->data = user_data;
+        s->client = client;
 
-        client->pending_proxy = client->proxy_resources;
-	client->pending_call = 
-                org_freedesktop_Tracker1_Resources_sparql_update_async (client->proxy_resources, 
-                                                                       query, 
-                                                                       tracker_void_reply, 
+	call = org_freedesktop_Tracker1_Resources_sparql_update_async (client->proxy_resources,
+                                                                       query,
+                                                                       tracker_void_reply,
                                                                        s);
+
+        id = pending_call_new (client, client->proxy_resources, call);
+        s->id = id;
+
+        return id;
 }
 
-void
+guint
 tracker_resources_batch_sparql_update_async (TrackerClient    *client, 
                                              const gchar      *query, 
                                              TrackerReplyVoid  callback, 
                                              gpointer          user_data)
 {
 	CallbackVoid *s;
+        DBusGProxyCall *call;
+        guint id;
 
 	s = g_new0 (CallbackVoid, 1);
 	s->callback = callback;
 	s->data = user_data;
+        s->client = client;
 
-        client->pending_proxy = client->proxy_resources;
-	client->pending_call = 
-                org_freedesktop_Tracker1_Resources_batch_sparql_update_async (client->proxy_resources, 
-                                                                             query, 
-                                                                             tracker_void_reply, 
+	call = org_freedesktop_Tracker1_Resources_batch_sparql_update_async (client->proxy_resources,
+                                                                             query,
+                                                                             tracker_void_reply,
                                                                              s);
+
+        id = pending_call_new (client, client->proxy_resources, call);
+        s->id = id;
+
+        return id;
 }
 
-void
+guint
 tracker_resources_batch_commit_async (TrackerClient    *client, 
                                       TrackerReplyVoid  callback, 
                                       gpointer          user_data)
 {
 	CallbackVoid *s;
+        DBusGProxyCall *call;
+        guint id;
 
 	s = g_new0 (CallbackVoid, 1);
 	s->callback = callback;
 	s->data = user_data;
+        s->client = client;
 
-        client->pending_proxy = client->proxy_resources;
-	client->pending_call = 
-                org_freedesktop_Tracker1_Resources_batch_commit_async (client->proxy_resources, 
-                                                                      tracker_void_reply, 
+	call = org_freedesktop_Tracker1_Resources_batch_commit_async (client->proxy_resources,
+                                                                      tracker_void_reply,
                                                                       s);
+
+        id = pending_call_new (client, client->proxy_resources, call);
+        s->id = id;
+
+        return id;
 }
 
 /* tracker_search_metadata_by_text_async is used by GTK+ */
@@ -437,6 +545,9 @@ tracker_search_reply (DBusGProxy *proxy,
 	gint           i;
 
 	s = user_data;
+
+        g_hash_table_remove (s->client->pending_calls,
+                             GUINT_TO_POINTER (s->id));
 
 	uris = g_new0 (gchar *, OUT_result->len + 1);
 	for (i = 0; i < OUT_result->len; i++) {
@@ -487,7 +598,7 @@ sparql_append_string_literal (GString     *sparql,
 	g_string_append_c (sparql, '"');
 }
 
-void
+guint
 tracker_search_metadata_by_text_async (TrackerClient         *client,
                                        const gchar           *query,
                                        TrackerReplyArray      callback,
@@ -495,30 +606,36 @@ tracker_search_metadata_by_text_async (TrackerClient         *client,
 {
 	CallbackArray *s;
 	GString *sparql;
+        DBusGProxyCall *call;
+        guint id;
 
-	g_return_if_fail (client != NULL);
-	g_return_if_fail (query != NULL);
-	g_return_if_fail (callback != NULL);
+	g_return_val_if_fail (client != NULL, 0);
+	g_return_val_if_fail (query != NULL, 0);
+	g_return_val_if_fail (callback != NULL, 0);
 
 	s = g_new0 (CallbackArray, 1);
 	s->callback = callback;
 	s->data = user_data;
+        s->client = client;
 
 	sparql = g_string_new ("SELECT ?file WHERE { ?file a nfo:FileDataObject ; fts:match ");
 	sparql_append_string_literal (sparql, query);
 	g_string_append (sparql, " }");
 
-        client->pending_proxy = client->proxy_resources;
-	client->pending_call =
-                org_freedesktop_Tracker1_Resources_sparql_query_async (client->proxy_resources,
-                                                                       sparql->str,
-                                                                       tracker_search_reply,
-                                                                       s);
+	call = org_freedesktop_Tracker1_Resources_sparql_query_async (client->proxy_resources,
+                                                                      sparql->str,
+                                                                      tracker_search_reply,
+                                                                      s);
+
+        id = pending_call_new (client, client->proxy_resources, call);
+        s->id = id;
 
 	g_string_free (sparql, TRUE);
+
+        return id;
 }
 
-void
+guint
 tracker_search_metadata_by_text_and_location_async (TrackerClient         *client,
                                                     const gchar           *query,
                                                     const gchar           *location,
@@ -527,15 +644,18 @@ tracker_search_metadata_by_text_and_location_async (TrackerClient         *clien
 {
 	CallbackArray *s;
 	GString *sparql;
+        DBusGProxyCall *call;
+        guint id;
 
-	g_return_if_fail (client != NULL);
-	g_return_if_fail (query != NULL);
-	g_return_if_fail (location != NULL);
-	g_return_if_fail (callback != NULL);
+	g_return_val_if_fail (client != NULL, 0);
+	g_return_val_if_fail (query != NULL, 0);
+	g_return_val_if_fail (location != NULL, 0);
+	g_return_val_if_fail (callback != NULL, 0);
 
 	s = g_new0 (CallbackArray, 1);
 	s->callback = callback;
 	s->data = user_data;
+        s->client = client;
 
 	sparql = g_string_new ("SELECT ?file WHERE { ?file a nfo:FileDataObject ; fts:match ");
 	sparql_append_string_literal (sparql, query);
@@ -543,35 +663,41 @@ tracker_search_metadata_by_text_and_location_async (TrackerClient         *clien
 	sparql_append_string_literal (sparql, location);
 	g_string_append (sparql, ")) }");
 
-        client->pending_proxy = client->proxy_resources;
-	client->pending_call =
-                org_freedesktop_Tracker1_Resources_sparql_query_async (client->proxy_resources,
-                                                                       sparql->str,
-                                                                       tracker_search_reply,
-                                                                       s);
+	call = org_freedesktop_Tracker1_Resources_sparql_query_async (client->proxy_resources,
+                                                                      sparql->str,
+                                                                      tracker_search_reply,
+                                                                      s);
+
+        id = pending_call_new (client, client->proxy_resources, call);
+        s->id = id;
 
 	g_string_free (sparql, TRUE);
+
+        return id;
 }
 
-void
+guint
 tracker_search_metadata_by_text_and_mime_async (TrackerClient         *client,
-                                                    const gchar           *query,
-                                                    const gchar          **mimes,
-                                                    TrackerReplyArray      callback,
-                                                    gpointer               user_data)
+                                                const gchar           *query,
+                                                const gchar          **mimes,
+                                                TrackerReplyArray      callback,
+                                                gpointer               user_data)
 {
 	CallbackArray *s;
 	GString *sparql;
+        DBusGProxyCall *call;
+        guint id;
 	gint i;
 
-	g_return_if_fail (client != NULL);
-	g_return_if_fail (query != NULL);
-	g_return_if_fail (mimes != NULL);
-	g_return_if_fail (callback != NULL);
+	g_return_val_if_fail (client != NULL, 0);
+	g_return_val_if_fail (query != NULL, 0);
+	g_return_val_if_fail (mimes != NULL, 0);
+	g_return_val_if_fail (callback != NULL, 0);
 
 	s = g_new0 (CallbackArray, 1);
 	s->callback = callback;
 	s->data = user_data;
+        s->client = client;
 
 	sparql = g_string_new ("SELECT ?file WHERE { ?file a nfo:FileDataObject ; nie:mimeType ?mime ; fts:match ");
 	sparql_append_string_literal (sparql, query);
@@ -585,37 +711,43 @@ tracker_search_metadata_by_text_and_mime_async (TrackerClient         *client,
 	}
 	g_string_append (sparql, ") }");
 
-        client->pending_proxy = client->proxy_resources;
-	client->pending_call =
-                org_freedesktop_Tracker1_Resources_sparql_query_async (client->proxy_resources,
-                                                                       sparql->str,
-                                                                       tracker_search_reply,
-                                                                       s);
+	call = org_freedesktop_Tracker1_Resources_sparql_query_async (client->proxy_resources,
+                                                                      sparql->str,
+                                                                      tracker_search_reply,
+                                                                      s);
+
+        id = pending_call_new (client, client->proxy_resources, call);
+        s->id = id;
 
 	g_string_free (sparql, TRUE);
+
+        return id;
 }
 
-void
+guint
 tracker_search_metadata_by_text_and_mime_and_location_async (TrackerClient         *client,
-                                                    const gchar           *query,
-                                                    const gchar          **mimes,
-                                                    const gchar           *location,
-                                                    TrackerReplyArray      callback,
-                                                    gpointer               user_data)
+                                                             const gchar           *query,
+                                                             const gchar          **mimes,
+                                                             const gchar           *location,
+                                                             TrackerReplyArray      callback,
+                                                             gpointer               user_data)
 {
 	CallbackArray *s;
 	GString *sparql;
+        DBusGProxyCall *call;
+        guint id;
 	gint i;
 
-	g_return_if_fail (client != NULL);
-	g_return_if_fail (query != NULL);
-	g_return_if_fail (mimes != NULL);
-	g_return_if_fail (location != NULL);
-	g_return_if_fail (callback != NULL);
+	g_return_val_if_fail (client != NULL, 0);
+	g_return_val_if_fail (query != NULL, 0);
+	g_return_val_if_fail (mimes != NULL, 0);
+	g_return_val_if_fail (location != NULL, 0);
+	g_return_val_if_fail (callback != NULL, 0);
 
 	s = g_new0 (CallbackArray, 1);
 	s->callback = callback;
 	s->data = user_data;
+        s->client = client;
 
 	sparql = g_string_new ("SELECT ?file WHERE { ?file a nfo:FileDataObject ; nie:mimeType ?mime ; fts:match ");
 	sparql_append_string_literal (sparql, query);
@@ -633,13 +765,16 @@ tracker_search_metadata_by_text_and_mime_and_location_async (TrackerClient      
 	g_string_append (sparql, ")");
 	g_string_append (sparql, ") }");
 
-        client->pending_proxy = client->proxy_resources;
-	client->pending_call =
-                org_freedesktop_Tracker1_Resources_sparql_query_async (client->proxy_resources,
-                                                                       sparql->str,
-                                                                       tracker_search_reply,
-                                                                       s);
+	call = org_freedesktop_Tracker1_Resources_sparql_query_async (client->proxy_resources,
+                                                                      sparql->str,
+                                                                      tracker_search_reply,
+                                                                      s);
+
+        id = pending_call_new (client, client->proxy_resources, call);
+        s->id = id;
 
 	g_string_free (sparql, TRUE);
+
+        return id;
 }
 

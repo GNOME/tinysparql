@@ -28,8 +28,8 @@ typedef struct {
 	DBusGProxy	*proxy_statistics;
 	DBusGProxy	*proxy_resources;
 
-	DBusGProxy	*pending_proxy;
-	DBusGProxyCall	*pending_call;
+        GHashTable      *pending_calls;
+        guint            last_call;
 } TrackerClient;
 
 typedef void (*TrackerReplyArray) (gchar    **result,
@@ -41,6 +41,8 @@ typedef void (*TrackerReplyGPtrArray) (GPtrArray *result,
 typedef void (*TrackerReplyVoid)      (GError    *error, 
                                        gpointer   user_data);
 
+gboolean       tracker_cancel_call                         (TrackerClient          *client,
+                                                            guint                   call_id);
 void           tracker_cancel_last_call                    (TrackerClient          *client);
 
 gchar *        tracker_sparql_escape                       (const gchar            *str);
@@ -67,43 +69,43 @@ void           tracker_resources_batch_sparql_update       (TrackerClient       
 void           tracker_resources_batch_commit              (TrackerClient          *client,
                                                             GError                **error);
 /* Asynchronous API */
-void           tracker_statistics_get_async                (TrackerClient          *client,
+guint          tracker_statistics_get_async                (TrackerClient          *client,
                                                             TrackerReplyGPtrArray   callback,
                                                             gpointer                user_data);
-void           tracker_resources_load_async                (TrackerClient          *client,
+guint          tracker_resources_load_async                (TrackerClient          *client,
                                                             const gchar            *uri,
                                                             TrackerReplyVoid        callback,
                                                             gpointer                user_data);
-void           tracker_resources_sparql_query_async        (TrackerClient          *client,
+guint          tracker_resources_sparql_query_async        (TrackerClient          *client,
                                                             const gchar            *query,
                                                             TrackerReplyGPtrArray   callback,
                                                             gpointer                user_data);
-void           tracker_resources_sparql_update_async       (TrackerClient          *client,
+guint          tracker_resources_sparql_update_async       (TrackerClient          *client,
                                                             const gchar            *query,
                                                             TrackerReplyVoid        callback,
                                                             gpointer                user_data);
-void           tracker_resources_batch_sparql_update_async (TrackerClient          *client,
+guint          tracker_resources_batch_sparql_update_async (TrackerClient          *client,
                                                             const gchar            *query,
                                                             TrackerReplyVoid        callback,
                                                             gpointer                user_data);
-void           tracker_resources_batch_commit_async        (TrackerClient          *client,
+guint          tracker_resources_batch_commit_async        (TrackerClient          *client,
                                                             TrackerReplyVoid        callback,
                                                             gpointer                user_data);
-void           tracker_search_metadata_by_text_async       (TrackerClient          *client,
+guint          tracker_search_metadata_by_text_async       (TrackerClient          *client,
                                                             const gchar            *query,
                                                             TrackerReplyArray       callback,
                                                             gpointer                user_data);
-void           tracker_search_metadata_by_text_and_location_async (TrackerClient   *client,
+guint          tracker_search_metadata_by_text_and_location_async (TrackerClient   *client,
                                                             const gchar            *query,
                                                             const gchar            *location,
                                                             TrackerReplyArray       callback,
                                                             gpointer                user_data);
-void           tracker_search_metadata_by_text_and_mime_async (TrackerClient   *client,
+guint          tracker_search_metadata_by_text_and_mime_async (TrackerClient   *client,
                                                             const gchar            *query,
                                                             const gchar           **mimes,
                                                             TrackerReplyArray       callback,
                                                             gpointer                user_data);
-void           tracker_search_metadata_by_text_and_mime_and_location_async (TrackerClient   *client,
+guint          tracker_search_metadata_by_text_and_mime_and_location_async (TrackerClient   *client,
                                                             const gchar            *query,
                                                             const gchar           **mimes,
                                                             const gchar            *location,
