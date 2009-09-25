@@ -119,63 +119,6 @@ destroy_method_info (gpointer user_data)
 	g_slice_free (TrackerDBusMethodInfo, user_data);
 }
 
-
-void
-tracker_resources_insert (TrackerResources	     *self,
-			  const gchar                *subject,
-			  const gchar                *predicate,
-			  const gchar                *object,
-			  DBusGMethodInvocation      *context,
-			  GError		    **error)
-{
-	guint		    request_id;
-
-	request_id = tracker_dbus_get_next_request_id ();
-
-	tracker_dbus_async_return_if_fail (subject != NULL, context);
-	tracker_dbus_async_return_if_fail (predicate != NULL, context);
-	tracker_dbus_async_return_if_fail (object != NULL, context);
-
-	tracker_dbus_request_new (request_id,
-				  "D-Bus request to insert statement: "
-				  "'%s' '%s' '%s'",
-				  subject, predicate, object);
-
-	tracker_store_insert_statement (subject, predicate, object);
-
-	dbus_g_method_return (context);
-
-	tracker_dbus_request_success (request_id);
-}
-
-void
-tracker_resources_delete (TrackerResources	     *self,
-			  const gchar                *subject,
-			  const gchar                *predicate,
-			  const gchar                *object,
-			  DBusGMethodInvocation      *context,
-			  GError		    **error)
-{
-	guint		    request_id;
-
-	request_id = tracker_dbus_get_next_request_id ();
-
-	tracker_dbus_async_return_if_fail (subject != NULL, context);
-	tracker_dbus_async_return_if_fail (predicate != NULL, context);
-	tracker_dbus_async_return_if_fail (object != NULL, context);
-
-	tracker_dbus_request_new (request_id,
-				  "D-Bus request to delete statement: "
-				  "'%s' '%s' '%s'",
-				  subject, predicate, object);
-
-	tracker_store_delete_statement (subject, predicate, object);
-
-	dbus_g_method_return (context);
-
-	tracker_dbus_request_success (request_id);
-}
-
 static void
 turtle_import_callback (GError *error, gpointer user_data)
 {

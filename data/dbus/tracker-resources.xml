@@ -3,22 +3,6 @@
 <node name="/org/freedesktop/Tracker1">
   <interface name="org.freedesktop.Tracker1.Resources">
 
-    <!-- Insert single statement -->
-    <method name="Insert">
-      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/> 
-      <arg type="s" name="subject" direction="in" />
-      <arg type="s" name="predicate" direction="in" />
-      <arg type="s" name="object" direction="in" />
-    </method>
-
-    <!-- Delete single statement -->
-    <method name="Delete">
-      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/> 
-      <arg type="s" name="subject" direction="in" />
-      <arg type="s" name="predicate" direction="in" />
-      <arg type="s" name="object" direction="in" />
-    </method>
-
     <!-- Load statements from Turtle file -->
     <method name="Load">
       <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/> 

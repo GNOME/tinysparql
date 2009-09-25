@@ -55,18 +55,6 @@ void		 tracker_resources_prepare	 (TrackerResources       *object,
 						  GSList                 *event_sources);
 
 /* DBus methods */
-void		 tracker_resources_insert		 (TrackerResources	 *self,
-							  const gchar		 *subject,
-							  const gchar		 *predicate,
-							  const gchar		 *object,
-							  DBusGMethodInvocation  *context,
-							  GError		**error);
-void		 tracker_resources_delete		 (TrackerResources	 *self,
-							  const gchar		 *subject,
-							  const gchar		 *predicate,
-							  const gchar		 *object,
-							  DBusGMethodInvocation  *context,
-							  GError		**error);
 void		 tracker_resources_load			 (TrackerResources	 *object,
 							  const gchar		 *uri,
 							  DBusGMethodInvocation  *context,
