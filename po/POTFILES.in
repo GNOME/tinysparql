@@ -18,6 +18,8 @@ src/libtracker-miner/tracker-miner.c
 src/libtracker-gtk/tracker-metadata-tile.c
 src/libtracker-gtk/tracker-tag-bar.c
 src/plugins/evolution/org-freedesktop-Tracker-evolution-plugin.eplug.xml
+src/plugins/evolution/tracker-evolution-plugin.c
+src/plugins/evolution/tracker-miner-emails.desktop.in
 src/tracker-status-icon/tracker-status-icon.c
 src/tracker-status-icon/tracker-status-icon.desktop.in.in
 src/tracker-status-icon/tracker-main.c
@@ -28,6 +30,10 @@ src/tracker-miner-fs/tracker-miner-files.c
 src/tracker-preferences/tracker-preferences.vala
 src/tracker-preferences/tracker-preferences.desktop.in.in
 [type: gettext/glade]src/tracker-preferences/tracker-preferences.ui
+[type: gettext/glade]src/tracker-search-bar/tracker-search-bar.ui
+src/tracker-search-bar/GNOME_Search_Bar_Applet.server.in.in
+src/tracker-search-bar/GNOME_Search_Bar_Applet.xml
+src/tracker-search-bar/tracker-results-window.c
 src/tracker-search-tool/tracker-search-tool-callbacks.c
 src/tracker-search-tool/tracker-search-tool-support.c
 src/tracker-search-tool/tracker-search-tool.c
