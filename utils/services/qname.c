@@ -36,7 +36,7 @@ qname_init (const gchar *luri)
                 g_warning ("Reinitializing qname_module");
                 g_free (local_uri);
         }
-        local_uri = g_strdup (local_uri);
+        local_uri = g_strdup (luri);
 }
 
 void   
@@ -50,7 +50,7 @@ qname_to_link (const gchar *qname)
 {
         gchar **pieces;
         gchar *name;
-
+        g_debug ("link for qname '%s' (local_uri = '%s')\n", qname, local_uri);
         if (local_uri) {
                 /* There is a local URI! */
                 if (g_str_has_prefix (qname, local_uri)) {
