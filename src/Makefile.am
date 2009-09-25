@@ -39,12 +39,3 @@ if HAVE_TRACKER_EXPLORER
 SUBDIRS += tracker-explorer
 endif
 
-
-DIST_SUBDIRS = 					\
-	$(SUBDIRS)				\
-	tracker-explorer			\
-	libtracker-gtk				\
-	tracker-status-icon 			\
-	tracker-search-bar			\
-	tracker-search-tool			\
-	tracker-preferences
