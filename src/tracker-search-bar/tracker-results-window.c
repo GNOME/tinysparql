@@ -35,32 +35,6 @@
 #include "tracker-results-window.h"
 #include "tracker-aligned-window.h"
 
-static void results_window_constructed (GObject *object);
-static void results_window_finalize    (GObject *object);
-
-static void results_window_set_property (GObject      *object,
-					 guint         prop_id,
-					 const GValue *value,
-					 GParamSpec   *pspec);
-static void results_window_get_property (GObject      *object,
-					 guint         prop_id,
-					 GValue       *value,
-					 GParamSpec   *pspec);
-
-static gboolean results_window_key_press_event (GtkWidget      *widget,
-						GdkEventKey    *event);
-static gboolean results_window_button_press_event (GtkWidget      *widget,
-						   GdkEventButton *event);
-static void     results_window_size_request    (GtkWidget      *widget,
-						GtkRequisition *requisition);
-static void     results_window_screen_changed  (GtkWidget      *widget,
-						GdkScreen      *prev_screen);
-
-static void     model_set_up      (TrackerResultsWindow *window);
-static void     search_get        (TrackerResultsWindow *window,
-				   const gchar          *query);
-
-
 #define MUSIC_SEARCH    "SELECT ?urn ?type ?title ?belongs WHERE { ?urn a nmm:MusicPiece ; rdf:type ?type ; nfo:fileName ?title ; nfo:belongsToContainer ?belongs . ?urn fts:match \"%s*\" } OFFSET 0 LIMIT 500"
 #define PHOTO_SEARCH    "SELECT ?urn ?type ?title ?belongs WHERE { ?urn a nmm:Photo ; rdf:type ?type ; nfo:fileName ?title ; nfo:belongsToContainer ?belongs . ?urn fts:match \"%s*\" } OFFSET 0 LIMIT 500"
 #define VIDEO_SEARCH    "SELECT ?urn ?type ?title ?belongs WHERE { ?urn a nmm:Video ; rdf:type ?type ; nfo:fileName ?title ; nfo:belongsToContainer ?belongs . ?urn fts:match \"%s*\" } OFFSET 0 LIMIT 500"
@@ -68,6 +42,28 @@ static void     search_get        (TrackerResultsWindow *window,
 #define FOLDER_SEARCH   "SELECT ?urn ?type ?title ?belongs WHERE { ?urn a nfo:Folder ; rdf:type ?type ; nfo:fileName ?title ; nfo:belongsToContainer ?belongs . ?urn fts:match \"%s*\" } OFFSET 0 LIMIT 500"
 
 #define GENERAL_SEARCH  "SELECT ?s ?type ?title WHERE { ?s fts:match \"%s*\" ; rdf:type ?type . OPTIONAL { ?s nie:title ?title } } OFFSET %d LIMIT %d"
+
+static void     results_window_constructed        (GObject              *object);
+static void     results_window_finalize           (GObject              *object);
+static void     results_window_set_property       (GObject              *object,
+						   guint                 prop_id,
+						   const GValue         *value,
+						   GParamSpec           *pspec);
+static void     results_window_get_property       (GObject              *object,
+						   guint                 prop_id,
+						   GValue               *value,
+						   GParamSpec           *pspec);
+static gboolean results_window_key_press_event    (GtkWidget            *widget,
+						   GdkEventKey          *event);
+static gboolean results_window_button_press_event (GtkWidget            *widget,
+						   GdkEventButton       *event);
+static void     results_window_size_request       (GtkWidget            *widget,
+						   GtkRequisition       *requisition);
+static void     results_window_screen_changed     (GtkWidget            *widget,
+						   GdkScreen            *prev_screen);
+static void     model_set_up                      (TrackerResultsWindow *window);
+static void     search_get                        (TrackerResultsWindow *window,
+						   const gchar          *query);
 
 #define TRACKER_RESULTS_WINDOW_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_RESULTS_WINDOW, TrackerResultsWindowPrivate))
 
@@ -107,6 +103,7 @@ enum {
 	COL_CATEGORY_ID,
 	COL_CATEGORY,
 	COL_IMAGE,
+	COL_IMAGE_REQUESTED,
 	COL_URN,
 	COL_TITLE,
 	COL_BELONGS,
@@ -550,196 +547,6 @@ category_from_string (const gchar *type,
 	if (g_str_has_suffix (type, "nfo#Website")) {
 		*categories |= CATEGORY_WEBSITE;
 	}
-
-/*   http://www.semanticdesktop.org/ontologies/2007/01/19/nie#DataObject */
-/*   http://www.semanticdesktop.org/ontologies/2007/01/19/nie#DataSource */
-/*   http://www.semanticdesktop.org/ontologies/2007/01/19/nie#InformationElement */
-/*   http://www.semanticdesktop.org/ontologies/2007/08/15/nao#Tag */
-/*   http://www.semanticdesktop.org/ontologies/2007/08/15/nao#Property */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nco#Role */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nco#Affiliation */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nco#Contact */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nco#ContactGroup */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nco#ContactList */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nco#ContactMedium */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nco#EmailAddress */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nco#IMAccount */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nco#OrganizationContact */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nco#PersonContact */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nco#PhoneNumber */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nco#PostalAddress */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nco#ModemNumber */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nco#MessagingNumber */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nco#PagerNumber */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nco#Gender */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nco#VoicePhoneNumber */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nco#VideoTelephoneNumber */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nco#IsdnNumber */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nco#ParcelDeliveryAddress */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nco#AudioIMAccount */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nco#FaxNumber */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nco#CarPhoneNumber */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nco#ContactListDataObject */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nco#PcsNumber */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nco#InternationalDeliveryAddress */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nco#VideoIMAccount */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nco#BbsNumber */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nco#CellPhoneNumber */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nco#DomesticDeliveryAddress */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Document */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#FileDataObject */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Software */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Media */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Visual */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Image */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#RasterImage */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#DataContainer */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#RemotePortAddress */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#MediaFileListEntry */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#VectorImage */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Audio */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#CompressionType */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Icon */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#TextDocument */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#PlainTextDocument */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#HtmlDocument */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#OperatingSystem */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#MediaList */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Executable */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Folder */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Font */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Filesystem */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#SoftwareService */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#SoftwareItem */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Presentation */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#RemoteDataObject */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#PaginatedTextDocument */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Video */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Spreadsheet */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Trash */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#FileHash */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#SourceCode */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Application */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#EmbeddedFileDataObject */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Attachment */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#ArchiveItem */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Archive */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#MindMap */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#MediaStream */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#BookmarkFolder */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#FilesystemImage */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#HardDiskPartition */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Cursor */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Bookmark */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#DeletedResource */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Website */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#WebHistory */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#SoftwareCategory */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#SoftwareApplication */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Orientation */
-/*   http://www.tracker-project.org/ontologies/poi#ObjectOfInterest */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#MimePart */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#Multipart */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#Message */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#Email */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#Attachment */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#Mailbox */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#MailboxDataObject */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#MessageHeader */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#IMMessage */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#CommunicationChannel */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#PermanentChannel */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#TransientChannel */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#VOIPCall */
-/*   http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#MailFolder */
-/*   http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#UnionParentClass */
-/*   http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#RecurrenceIdentifier */
-/*   http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#AttachmentEncoding */
-/*   http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#EventStatus */
-/*   http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#RecurrenceFrequency */
-/*   http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#Attachment */
-/*   http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#AccessClassification */
-/*   http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#CalendarDataObject */
-/*   http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#JournalStatus */
-/*   http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#RecurrenceIdentifierRange */
-/*   http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#AttendeeOrOrganizer */
-/*   http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#AlarmAction */
-/*   http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#RecurrenceRule */
-/*   http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#TodoStatus */
-/*   http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#TimeTransparency */
-/*   http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#NcalTimeEntity */
-/*   http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#CalendarScale */
-/*   http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#AttendeeRole */
-/*   http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#BydayRulePart */
-/*   http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#Weekday */
-/*   http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#Trigger */
-/*   http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#FreebusyType */
-/*   http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#CalendarUserType */
-/*   http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#ParticipationStatus */
-/*   http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#RequestStatus */
-/*   http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#NcalDateTime */
-/*   http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#TimezoneObservance */
-/*   http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#Organizer */
-/*   http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#Attendee */
-/*   http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#NcalPeriod */
-/*   http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#Calendar */
-/*   http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#FreebusyPeriod */
-/*   http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#TriggerRelation */
-/*   http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#Alarm */
-/*   http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#Event */
-/*   http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#Todo */
-/*   http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#Freebusy */
-/*   http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#Journal */
-/*   http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#Timezone */
-/*   http://www.tracker-project.org/temp/scal#Calendar */
-/*   http://www.tracker-project.org/temp/scal#CalendarItem */
-/*   http://www.tracker-project.org/temp/scal#Attendee */
-/*   http://www.tracker-project.org/temp/scal#AttendanceStatus */
-/*   http://www.tracker-project.org/temp/scal#Event */
-/*   http://www.tracker-project.org/temp/scal#Todo */
-/*   http://www.tracker-project.org/temp/scal#Journal */
-/*   http://www.tracker-project.org/temp/scal#CalendarAlarm */
-/*   http://www.tracker-project.org/temp/scal#TimePoint */
-/*   http://www.tracker-project.org/temp/scal#AccessLevel */
-/*   http://www.tracker-project.org/temp/scal#RecurrenceRule */
-/*   http://www.semanticdesktop.org/ontologies/2007/05/10/nid3#ID3Audio */
-/*   http://www.tracker-project.org/temp/nmm#MusicPiece */
-/*   http://www.tracker-project.org/temp/nmm#SynchronizedText */
-/*   http://www.tracker-project.org/temp/nmm#MusicAlbum */
-/*   http://www.tracker-project.org/temp/nmm#Video */
-/*   http://www.tracker-project.org/temp/nmm#Artist */
-/*   http://www.tracker-project.org/temp/nmm#ImageList */
-/*   http://www.tracker-project.org/temp/nmm#Photo */
-/*   http://www.tracker-project.org/temp/nmm#Flash */
-/*   http://www.tracker-project.org/temp/nmm#MeteringMode */
-/*   http://www.tracker-project.org/temp/nmm#WhiteBalance */
-/*   http://www.tracker-project.org/temp/nmm#RadioStation */
-/*   http://www.tracker-project.org/temp/nmm#DigitalRadio */
-/*   http://www.tracker-project.org/temp/nmm#AnalogRadio */
-/*   http://www.tracker-project.org/temp/nmm#RadioModulation */
-/*   http://www.tracker-project.org/temp/mto#TransferElement */
-/*   http://www.tracker-project.org/temp/mto#Transfer */
-/*   http://www.tracker-project.org/temp/mto#UploadTransfer */
-/*   http://www.tracker-project.org/temp/mto#DownloadTransfer */
-/*   http://www.tracker-project.org/temp/mto#SyncTransfer */
-/*   http://www.tracker-project.org/temp/mto#State */
-/*   http://www.tracker-project.org/temp/mto#TransferMethod */
-/*   http://www.tracker-project.org/temp/mlo#GeoPoint */
-/*   http://www.tracker-project.org/temp/mlo#PointOfInterest */
-/*   http://www.tracker-project.org/temp/mlo#LocationBoundingBox */
-/*   http://www.tracker-project.org/temp/mlo#Route */
-/*   http://www.tracker-project.org/temp/mfo#FeedElement */
-/*   http://www.tracker-project.org/temp/mfo#FeedChannel */
-/*   http://www.tracker-project.org/temp/mfo#FeedMessage */
-/*   http://www.tracker-project.org/temp/mfo#Enclosure */
-/*   http://www.tracker-project.org/temp/mfo#FeedSettings */
-/*   http://www.tracker-project.org/temp/mfo#Action */
-/*   http://www.tracker-project.org/temp/mfo#FeedType */
-/*   http://www.tracker-project.org/ontologies/tracker#Volume */
-/*   http://maemo.org/ontologies/tracker#SoftwareWidget */
-/*   http://maemo.org/ontologies/tracker#SoftwareApplet */
-/*   http://maemo.org/ontologies/tracker#DesktopBookmark */
-
 }
 
 static GdkPixbuf *
@@ -769,7 +576,7 @@ pixbuf_get (TrackerResultsWindow *window,
 			g_printerr ("Couldn't get pixbuf for urn:'%s', %s\n", 
 				    urn,
 				    error->message);
-			g_error_free (error);
+			g_clear_error (&error);
 		} else {
 			g_object_unref (file);
 			return pixbuf;
@@ -831,12 +638,11 @@ model_pixbuf_cell_data_func (GtkTreeViewColumn    *tree_column,
 			     TrackerResultsWindow *window)
 {
 	GdkPixbuf *pixbuf = NULL;
+	gboolean requested = FALSE;
 
-	gtk_tree_model_get (model, iter,
-			    COL_IMAGE, &pixbuf,
-			    -1);
+	gtk_tree_model_get (model, iter, COL_IMAGE_REQUESTED, &requested, -1);
 
-	if (!pixbuf) {
+	if (!requested) {
 		TrackerCategory category = CATEGORY_NONE;
 		gchar *urn;
 
@@ -852,11 +658,18 @@ model_pixbuf_cell_data_func (GtkTreeViewColumn    *tree_column,
 		/* Cache it in the store */
 		gtk_list_store_set (GTK_LIST_STORE (model), iter,
 				    COL_IMAGE, pixbuf,
+				    COL_IMAGE_REQUESTED, TRUE,
 				    -1);
+	} else {
+		/* We do this because there may be no image for a file
+		 * and we don't want to keep requesting the same
+		 * file's image.  
+		 */
+		gtk_tree_model_get (model, iter, COL_IMAGE, &pixbuf, -1);
 	}
 
 	g_object_set (cell,
-		      "visible", (pixbuf != NULL),
+		      "visible", TRUE,
 		      "pixbuf", pixbuf,
 		      NULL);
 
@@ -883,6 +696,7 @@ model_set_up (TrackerResultsWindow *window)
 				    G_TYPE_INT,            /* Category ID */
 				    G_TYPE_STRING,         /* Category */
 				    GDK_TYPE_PIXBUF,       /* Image */
+				    G_TYPE_BOOLEAN,        /* Image requested */
 				    G_TYPE_STRING,         /* URN */
 				    G_TYPE_STRING,         /* Title */
 				    G_TYPE_STRING);        /* Belongs */
@@ -898,7 +712,7 @@ model_set_up (TrackerResultsWindow *window)
 	column = gtk_tree_view_column_new_with_attributes (_("Category"), cell, 
 							   "text", COL_CATEGORY, 
 							   NULL);
-	gtk_tree_view_column_set_sizing (column, GTK_TREE_VIEW_COLUMN_AUTOSIZE);
+	gtk_tree_view_column_set_sizing (column, GTK_TREE_VIEW_COLUMN_GROW_ONLY);
 	gtk_tree_view_column_set_sort_column_id (column, COL_CATEGORY_ID);
 	gtk_tree_view_append_column (view, column);
 
@@ -1003,6 +817,32 @@ model_add (TrackerResultsWindow *window,
 	/* gtk_tree_selection_select_iter (selection, &iter); */
 }
 
+static void
+search_window_ensure_not_blank (TrackerResultsWindow *window)
+{
+	TrackerResultsWindowPrivate *priv;
+
+	priv = TRACKER_RESULTS_WINDOW_GET_PRIVATE (window);
+
+	if (priv->queries_pending == 0) {
+		GtkTreeIter iter;
+
+		/* No more queries pending */
+		if (!gtk_tree_model_get_iter_first (GTK_TREE_MODEL (priv->store), &iter)) {
+			gchar *str;
+
+			str = g_strdup_printf (_("No results found for «%s»"), priv->query);
+			gtk_label_set_text (GTK_LABEL (priv->label), str);
+			g_free (str);
+
+			gtk_widget_hide (priv->scrolled_window);
+			gtk_widget_show (priv->label);
+		} else {
+			gtk_widget_show_all (priv->scrolled_window);
+		}
+	}
+}
+
 inline static void
 search_get_foreach (gpointer value, 
 		    gpointer user_data)
@@ -1052,14 +892,15 @@ search_get_cb (GPtrArray *results,
 	priv->queries_pending--;
 
 	if (error) {
-		g_printerr ("Could not get search results: %s", error->message);
+		g_printerr ("Could not get search results, %s\n", error->message);
 		g_error_free (error);
-
+		
+		search_window_ensure_not_blank (window);
 		return;
 	}
 
 	if (!results) {
-		g_print ("No results were found matching the query");
+		g_print ("No results were found matching the query\n");
 	} else {
 		GHashTable *resources;
 		GHashTableIter iter;
@@ -1095,23 +936,7 @@ search_get_cb (GPtrArray *results,
 		g_hash_table_unref (resources);
 	}
 
-	if (priv->queries_pending == 0) {
-		GtkTreeIter iter;
-
-		/* No more queries pending */
-		if (!gtk_tree_model_get_iter_first (GTK_TREE_MODEL (priv->store), &iter)) {
-			gchar *str;
-
-			str = g_strdup_printf (_("No results found for «%s»"), priv->query);
-			gtk_label_set_text (GTK_LABEL (priv->label), str);
-			g_free (str);
-
-			gtk_widget_hide (priv->scrolled_window);
-			gtk_widget_show (priv->label);
-		} else {
-			gtk_widget_show_all (priv->scrolled_window);
-		}
-	}
+	search_window_ensure_not_blank (window);
 }
 
 static void
@@ -1124,16 +949,6 @@ search_get (TrackerResultsWindow *window,
 
 	tracker_resources_sparql_query_async (priv->client, query, search_get_cb, window);
 	priv->queries_pending++;
-}
-
-GtkWidget *
-tracker_results_window_new (GtkWidget   *parent,
-			    const gchar *query)
-{
-	return g_object_new (TRACKER_TYPE_RESULTS_WINDOW,
-			     "align-widget", parent,
-			     "query", query,
-			     NULL);
 }
 
 static gboolean
@@ -1169,6 +984,16 @@ grab_popup_window (TrackerResultsWindow *window)
 	}
 
 	return FALSE;
+}
+
+GtkWidget *
+tracker_results_window_new (GtkWidget   *parent,
+			    const gchar *query)
+{
+	return g_object_new (TRACKER_TYPE_RESULTS_WINDOW,
+			     "align-widget", parent,
+			     "query", query,
+			     NULL);
 }
 
 void
