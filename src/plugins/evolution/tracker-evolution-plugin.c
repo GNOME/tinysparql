@@ -1713,14 +1713,15 @@ static void
 register_client (TrackerEvolutionPlugin *self)
 {
 	TrackerEvolutionPluginPrivate *priv = TRACKER_EVOLUTION_PLUGIN_GET_PRIVATE (self);
-	ClientRegistry *info = g_slice_new0 (ClientRegistry);
+	ClientRegistry *info;
 	const gchar *query;
-
-	info->self = self; /* weak */
 
 	if (!priv->client) {
 		return;
 	}
+
+	info = g_slice_new0 (ClientRegistry);
+	info->self = self; /* weak */
 
 	priv->total_popped = 0;
 	priv->of_total = 0;
