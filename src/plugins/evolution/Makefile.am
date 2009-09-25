@@ -52,9 +52,6 @@ tracker_miners_DATA = tracker-miner-emails.desktop
 
 @INTLTOOL_DESKTOP_RULE@
 
-EXTRA_DIST = $(desktop_in_files)
-CLEANFILES = $(tracker_miners_DATA)
-
 
 %-glue.h: %.xml
 	$(DBUSBINDINGTOOL) --mode=glib-server --output=$@ --prefix=$(subst -,_,$*) $^
@@ -64,7 +61,10 @@ BUILT_SOURCES = 							\
 
 CLEANFILES = 								\
 	$(BUILT_SOURCES) 						\
+	$(tracker_miners_DATA)						\
 	org-freedesktop-Tracker-evolution-plugin.eplug
 
-EXTRA_DIST = $(service_DATA)						\
+EXTRA_DIST =								\
+	$(service_DATA)							\
+	$(desktop_in_files)						\
 	org-freedesktop-Tracker-evolution-plugin.eplug.xml
