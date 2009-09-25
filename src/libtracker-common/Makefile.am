@@ -135,7 +135,13 @@ BUILT_SOURCES =						\
 	$(marshal_sources)				\
 	libtracker-common.vala.stamp
 
-CLEANFILES = $(BUILT_SOURCES)
+CLEANFILES = $(marshal_sources)
+
+MAINTAINERCLEANFILES =					\
+	libtracker-common.vala.stamp			\
+	$(libtracker_common_la_VALASOURCES:.vala=.c)	\
+	tracker-sparql-builder.h			\
+	$(NULL)
 
 EXTRA_DIST = 						\
 	tracker-marshal.list				\

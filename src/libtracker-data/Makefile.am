@@ -52,6 +52,12 @@ libtracker_data_la_LIBADD = 						\
 	$(GCOV_LIBS)							\
 	-lz
 
+MAINTAINERCLEANFILES =							\
+	libtracker-data.vala.stamp					\
+	$(libtracker_data_la_VALASOURCES:.vala=.c)			\
+	tracker-sparql-query.h					\
+	$(NULL)
+
 EXTRA_DIST = $(libtracker_data_la_VALASOURCES)				\
 	libtracker-data.vala.stamp					\
 	libtracker-data.vapi

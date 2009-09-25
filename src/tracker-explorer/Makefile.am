@@ -34,15 +34,14 @@ ui_DATA = \
 
 
 EXTRA_DIST = \
-	$(tracker_explorer_SOURCES) \
 	$(tracker_explorer_VALASOURCES) \
 	tracker_explorer.vala.stamp \
 	explorer.ui \
 	$(NULL)
 
 MAINTAINERCLEANFILES = \
-	$(tracker_explorer_SOURCES) \
 	tracker_explorer.vala.stamp \
+	$(tracker_explorer_VALASOURCES:.vala=.c) \
 	$(NULL)
 
 BUILT_SOURCES = \

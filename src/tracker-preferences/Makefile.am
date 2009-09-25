@@ -45,11 +45,16 @@ tracker_preferences_LDADD = 						\
 	$(GLIB_LIBS)							\
 	$(GMODULE_LIBS)
 
+MAINTAINERCLEANFILES =							\
+	tracker-preferences.vala.stamp					\
+	$(tracker_preferences_VALASOURCES:.vala=.c)			\
+	$(NULL)
+
 EXTRA_DIST = $(pkgdata_DATA) config.vapi tracker-config.vapi tracker-preferences.vala.stamp \
 	$(tracker_preferences_VALASOURCES)
 
 tracker-preferences.vala.stamp: $(tracker_preferences_VALASOURCES)
-	$(VALAC) --pkg gtk+-2.0 --pkg gmodule-2.0 -C $(VALAFLAGS) -H tracker-preferences.h tracker-config.vapi config.vapi $^
+	$(VALAC) --pkg gtk+-2.0 --pkg gmodule-2.0 -C $(VALAFLAGS) tracker-config.vapi config.vapi $^
 	touch $@
 
-CLEANFILES = $(desktop_DATA) tracker-preferences.h tracker-preferences.c tracker-preferences.vala.stamp
+CLEANFILES = $(desktop_DATA)

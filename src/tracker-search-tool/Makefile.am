@@ -50,7 +50,6 @@ icon_DATA = thumbnail_frame.png
 CLEANFILES = $(desktop_DATA)
 
 EXTRA_DIST = \
-	$(tracker_search_tool_SOURCES) \
 	$(tracker_search_tool_VALASOURCES) \
 	$(icon_DATA) \
 	tracker_search_tool.gs.stamp \
@@ -58,8 +57,8 @@ EXTRA_DIST = \
 	$(NULL)
 
 MAINTAINERCLEANFILES = \
-	$(tracker_search_tool_SOURCES) \
 	tracker_search_tool.gs.stamp \
+	$(tracker_search_tool_VALASOURCES:.gs=.c) \
 	$(NULL)
 
 BUILT_SOURCES = \
