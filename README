@@ -103,24 +103,14 @@ Table of Contents
   around other freedesktop technologies like D-Bus and XDGMime
   but contains no GNOME-specific dependencies besides GLib).
 
-  * Very memory efficient and non-leaking (typical RAM usage 4 - 30
-  MB). Unlike some other indexers, Tracker is designed and built
-  to run well on systems with lower memory (256MB or less). It
-  should even be efficient enough to use on some mobile devices.
+  * Very memory efficient. Unlike some other indexers, Tracker is
+  designed and built to run well on mobile and desktop systems with
+  lower memory (256MB or less).  
 
   * Non-bloated and written in C for maximum efficiency.
 
   * Small size and minimal dependencies makes it easy to bundle
   into various distros, including live cds.
-
-  * Fast indexing and unobtrusive - no need to index stuff
-  overnight. Tracker runs at nice+10 so it should have a minimal
-  impact on your system. With the addition of detection of mouse
-  and keyboard events via tracker-applet (described below), there
-  is an option to auto-pause indexing in order to improve
-  responsiveness. This is in addition to Tracker's built-in check
-  if there's heavy disk I/O in order to auto-pause, so not to
-  slow other processes.
 
   * Provides option to disable indexing when running on battery.
 
@@ -146,45 +136,11 @@ Table of Contents
 
   * Can extract a file's contents as plain text and index them.
 
-  * Provides text filters for PDF, MS Office, OpenOffice (all
-  versions), HTML and PS files.
-
   * Can provide thumbnailing on the fly.
 
   * It auto-pauses indexing when running low on diskspace.
 
-4 Dependencies
-
-4.1 Recommended dependencies
-
-  * GStreamer 0.10 + plugins for audio/video file indexing
-  * xsltproc
-  * w3m
-  * wv 1.0.2
-  * poppler (pdftotext)
-  * odt2txt 0.4 (indexing OpenOffice/ODF documents)
-  * libvorbis
-  * libpng
-  * libexif
-  * libgsf
-  * libglade 2.5
-  * libxml2
-  * libxml2 (for extracting html/xml content)
-  * unac (accent stripper)
-  * exempi
-  * hal 0.5 (for detection of removable devices, mounted
-    directories, as well as whether the computer is running on
-    battery)
-  * GTK and GNOME stack (for GUI tools)
-  * totem-plparser (for playlist extraction)
-
-4.2 For building Tracker's Deskbar-applet backend
-
-  * python-dev 2.3
-  * python-gtk2-dev 2.3
-  * deskbar-applet 2.16
-
-5 Compilation
+4 Compilation
 
   To compile and install Tracker, use the following commands :
 
@@ -198,7 +154,7 @@ Table of Contents
   might need to update ld_conf if you install into non-standard
   directories.)
 
-5.1 Notes on Solaris
+4.1 Notes on Solaris
 
   To compile Tracker with GCC on Solaris uses the following
   commands :
@@ -226,7 +182,7 @@ Table of Contents
         make
         sudo make install
 
-5.2 Compile Options
+4.2 Compile Options
 
   Tracker has several compiler options to enable/disable certain
   features. You can get a full listing by running
@@ -237,77 +193,29 @@ Table of Contents
 
 6.1 Usage
 
-  To run Tracker, you can manually start the Tracker daemon, 
-  trackerd. This is run for you if you issue a DBus call to the daemon
-  API.
+  Tracker normally starts itself when users log in. You can indexing by running:
+  
+    $prefix/libexec/tracker-miner-fs
 
-  You can also pass a directory root to be indexed as a command
-  line parameter if you dont want your entire home directory
-  indexed, e.g. "trackerd -i /home/jamie/Documents" (if you want
-  your home directory indexed when explicily specifying index
-  directory roots then you must add your home directory to the
-  arguments: e.g. trackerd -i /home/jamie -i /mnt/share)
+  You can configure how this works using:
 
-  You can disable indexing by passing "--no-indexing"
+    $prefix/bin/tracker-preferences
 
-  You can enable a low memory usage mode (recommended for
-  machines with less than 256MB of RAM) by passing
-  "--enable-low-memory"
+  You can monitor data miners using:
+  
+    $prefix/bin/tracker-status-icon
 
-  You can artificially throttle indexing by passing
-  "--throttle=VALUE" where VALUE is in the range 0-20 (with 0,
-  the default, being fastest and 20 being slowest). Default is
-  0. You should only change this value if you want to prevent
-  noisy fans or hot laptops arising from cpu intensive indexing.
-  Tracker should have a negligible impact on the system (as it
-  is scheduled) so you can safely work with it on full throttle
-  without experiencing slow downs.
+  You can do simple searching using an applet:
 
-  You can specify directory roots to be excluded from being
-  watched or indexed by passing "--exclude=DIRECTORY" for each
-  directory root.
+    $prefix/libexec/tracker-search-bar
 
-  You can specify logging verbosity by passing "--verbosity". Valid
-  values are from 0 to 3, ranging from least to most verbose
-  respectively.
+  You can do more extensive searching using:
 
-  Yet another option is "--language" which allows for specifying
-  the language to use for stemmer and stop-words list.
-
-  All the above options (and more) can be set by editing Tracker
-  config file "~/.config/tracker/tracker.cfg" which is created
-  with specific defaults when non-existent (e.g. when trackerd is
-  ran for the first time). Ensure that you restart trackerd for
-  the changes to take effect. "tracker.cfg" also provides options
-  that allows Tracker to only index a subset of your home
-  directory as well as other folders not in your home directory
-  by setting WatchDirectoryRoots to a semicolon-delimited list of
-  directories (full path required!)
-
-  e.g.:
-
-  "WatchDirectoryRoots=directory1;directory2;directory3""
-
-  An additional option is "--reindex" which indexes user data from
-  scratch, removing the need to delete Tracker's database manually.
-  Keywords and metadata definitions are preserved however.
-
-  On the first run, Tracker will automatically create a new
-  database and start populating it with metadata by browsing
-  through the user's home directory and/or the root folder(s)
-  specified.
-
-  On subsequent runs, Tracker will start up much much faster and
-  will only ever incrementally index files (IE files that have
-  changed since last index).
-
-  If installed correctly, the Tracker daemon (trackerd) can also
-  be started automatically via Dbus activation (e.g. by running
-  tracker-search SEARCHTERM)
+    $prefix/bin/tracker-search-tool
 
 6.2 Setting Inotify Watch Limit
 
-  When watching large numbers of folders, its ppossible to exceed
+  When watching large numbers of folders, its possible to exceed
   the default number of inotify watches. In order to get real time
   updates when this value is exceeded it is necessary to increase
   the number of allowed watches. This can be done as follows:
@@ -319,63 +227,14 @@ Table of Contents
   2. Reboot the system OR (on a Debian-like system) run
      "sudo /etc/init.d/procps restart"
 
-6.3 Tracker files
+7 Further Help
 
-  Here are some of the files that Tracker creates and uses for its
-  operation, apart from "~/.config/tracker/tracker.cfg" which is stated
-  in Sec 6.1 above:
+7.1 Man pages
 
-  * "~/.local/share/tracker" is used for non-expendable content,
-    like keywords and metadata definitions.
+  Every config file and every binary has a man page. If you start with
+  tracker-store, you should be able to find out about most other
+  commands the SEE ALSO section.
 
-  * "~/.cache/tracker" is used for the expendable indexes and
-    expendable metadata that can be rebuilt if deleted (this is the
-    purpose of the ".cache" - its more a permanent tmp directory than
-    sys tmp but can be deleted if more disk space is needed).
+7.2 Utilities
 
-  * The system tmp ("/var/tmp" and "/tmp") is used for short-lived
-    session data.
-
-7 Integration with other tools
-
-7.1 Nautilus Search
-
-  Once you have installed Tracker and have some indexed contents,
-  you should now compile Nautilus (ver 2.13.4 or higher) which
-  should auto-detect that Tracker is installed and automatically
-  compile in Tracker support. You are now ready to appreciate a
-  powerful and super efficient C-based indexer in all its
-  glory... happy hunting!
-
-  To make sure trackerd always starts when you login to GNOME,
-  you will need to add it to gnome-session (select sessions from
-  preferences menu, select startup program tab and then add
-  /usr/bin/trackerd). For non-GNOME installations, see the
-  desktop docs for how to achieve similar.
-
-7.2 Deskbar applet
-
-  Tracker is also integrated into GNOME's deskbar applet.
-  
-  Here are the compile options on how to get it built:
-
-    --enable-deskbar-applet=(auto/handler/module)
-
-      Enables Deskbar-applet support; 'auto' should do since it
-      automatically chooses whether to install the 'handler' (for
-      Deskbar-applet >=2.16) or the 'module' (for Deskbar-applet
-      >=2.19) 	  	  	 
-
-    --with-deskbar-applet-dir=(directory)
-    
-      This sets where Deskbar-applet should find the tracker-handler;
-      this should be automatically detected, perhaps in
-      /usr/lib/deskbar-applet/{handlers,modules-2.20-compatible} 
-
-8 Tracker Tools
-
-  The Tracker distribution comes with a number of useful utilities which
-  are listed at the bottom of trackerd man page, "man trackerd". It's
-  recommended that you use the "--help" command line switch
-  (e.g., "tracker-services --help") for more up-to-date usage
-  information.
+  There are a range of tracker utilities that help you query for data.
