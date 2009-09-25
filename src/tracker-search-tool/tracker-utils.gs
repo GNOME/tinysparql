@@ -2,6 +2,7 @@
 
 uses
     Gtk
+
     
 
 enum Categories
@@ -30,6 +31,30 @@ const  extern static  SRCDIR : string
 class TrackerUtils
 /* static methods only as this is a utility class that wont ever get substantiated */
 
+    def static EscapeSparql (sparql : string) : string
+        var str = new StringBuilder ()
+        
+        if sparql is null
+            return ""
+            
+        var len = sparql.length   
+        
+        if len < 3 
+            return sparql    
+        
+        p : char*  = sparql
+
+        while *p is not '\0'
+            if *p is '"'
+                str.append ("\\\"")
+            else if *p is '\\'
+                str.append ("\\\\")
+            else
+                str.append_c (*p)
+            p++
+
+        return str.str
+		
 
 
 

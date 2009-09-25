@@ -2,10 +2,10 @@
 
 uses
     Gtk
+    TrackerUtils
     
     
 class TrackerSearchEntry  : Gtk.Entry
-
     prop Query : TrackerQuery 
 
     init
@@ -27,7 +27,7 @@ class TrackerSearchEntry  : Gtk.Entry
                 Query.SearchTerms = ""
             else
                 set_icon_sensitive (EntryIconPosition.SECONDARY, true)
-                Query.SearchTerms = text
+                Query.SearchTerms = EscapeSparql (text)
         
     
     

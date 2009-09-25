@@ -55,7 +55,13 @@ class TrackerQuery : Object
             query = "SELECT ?s WHERE { ?s fts:match \"%s\". ?s a %s} limit 100 ".printf(SearchTerms, Category)   
 
         // to do : add Fields, Category and SortField
-        return tracker.SparqlQuery (query)
+        try
+            return tracker.SparqlQuery (query)
+        except e:DBus.Error
+            print "Dbus error : %s", e.message
+            
+        return null    
+
 
         
     def Query (sparql : string) : array of string[,] 
