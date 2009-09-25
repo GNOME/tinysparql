@@ -101,7 +101,6 @@ typedef enum {
 
 enum {
 	COL_CATEGORY_ID,
-	COL_CATEGORY,
 	COL_IMAGE,
 	COL_IMAGE_REQUESTED,
 	COL_URN,
@@ -631,6 +630,44 @@ pixbuf_get (TrackerResultsWindow *window,
 }
 
 static void
+model_category_cell_data_func (GtkTreeViewColumn    *tree_column,
+			       GtkCellRenderer      *cell,
+			       GtkTreeModel         *model,
+			       GtkTreeIter          *iter,
+			       TrackerResultsWindow *window)
+{
+	GtkTreePath *path;
+	GtkTreeIter prev_iter;
+	TrackerCategory category, prev_category;
+	gboolean print = TRUE;
+
+	gtk_tree_model_get (model, iter,
+			    COL_CATEGORY_ID, &category,
+			    -1);
+
+	/* Get the previous iter */
+	path = gtk_tree_model_get_path (model, iter);
+
+	if (gtk_tree_path_prev (path) &&
+	    gtk_tree_model_get_iter (model, &prev_iter, path)) {
+		gtk_tree_model_get (model, &prev_iter,
+				    COL_CATEGORY_ID, &prev_category,
+				    -1);
+
+		if (category == prev_category) {
+			print = FALSE;
+		}
+	}
+
+	g_object_set (cell,
+		      "text", print ? category_to_string (category) : "",
+		      "visible", print,
+		      NULL);
+
+	gtk_tree_path_free (path);
+}
+
+static void
 model_pixbuf_cell_data_func (GtkTreeViewColumn    *tree_column,
 			     GtkCellRenderer      *cell,
 			     GtkTreeModel         *model,
@@ -694,7 +731,6 @@ model_set_up (TrackerResultsWindow *window)
 	/* Store */
 	store = gtk_list_store_new (COL_COUNT,
 				    G_TYPE_INT,            /* Category ID */
-				    G_TYPE_STRING,         /* Category */
 				    GDK_TYPE_PIXBUF,       /* Image */
 				    G_TYPE_BOOLEAN,        /* Image requested */
 				    G_TYPE_STRING,         /* URN */
@@ -708,10 +744,17 @@ model_set_up (TrackerResultsWindow *window)
 	gtk_tree_selection_set_mode (selection, GTK_SELECTION_SINGLE);
 
 	/* Column: Category */
+	column = gtk_tree_view_column_new ();
 	cell = gtk_cell_renderer_text_new ();
-	column = gtk_tree_view_column_new_with_attributes (_("Category"), cell, 
-							   "text", COL_CATEGORY, 
-							   NULL);
+
+	gtk_tree_view_column_pack_start (column, cell, FALSE);
+	gtk_tree_view_column_set_cell_data_func (column, cell,
+						 (GtkTreeCellDataFunc)
+						 model_category_cell_data_func,
+						 window,
+						 NULL);
+
+	gtk_tree_view_column_set_title (column, _("Category"));
 	gtk_tree_view_column_set_sizing (column, GTK_TREE_VIEW_COLUMN_GROW_ONLY);
 	gtk_tree_view_column_set_sort_column_id (column, COL_CATEGORY_ID);
 	gtk_tree_view_append_column (view, column);
@@ -753,26 +796,6 @@ model_set_up (TrackerResultsWindow *window)
 	priv->store = G_OBJECT (store);
 }
 
-static gboolean
-model_add_category_foreach (GtkTreeModel *model,
-			    GtkTreePath  *path,
-			    GtkTreeIter  *iter,
-			    gpointer      data)
-{
-	struct FindCategory *fc = data;
-	gchar *str;
-
-	gtk_tree_model_get (model, iter, COL_CATEGORY, &str, -1);
-	
-	if (str && strcmp (fc->category_str, str) == 0) {
-		fc->found = TRUE;
-	}
-
-	g_free (str);
-
-	return fc->found;
-}
-
 static void
 model_add (TrackerResultsWindow *window,
 	   TrackerCategory       category,
@@ -781,29 +804,15 @@ model_add (TrackerResultsWindow *window,
 	   const gchar          *belongs)
 {
 	TrackerResultsWindowPrivate *priv;
-	struct FindCategory fc;
 	GtkTreeIter iter;
 	GdkPixbuf *pixbuf;
-	const gchar *category_str;
 
 	priv = TRACKER_RESULTS_WINDOW_GET_PRIVATE (window);
 	pixbuf = NULL;
 
-	/* Get category for id */
-	category_str = category_to_string (category);
-
-	/* Hack: */
-	fc.category_str = category_str;
-	fc.found = FALSE;
-
-	gtk_tree_model_foreach (GTK_TREE_MODEL (priv->store),
-				model_add_category_foreach,
-				&fc);
-
 	gtk_list_store_append (GTK_LIST_STORE (priv->store), &iter);
 	gtk_list_store_set (GTK_LIST_STORE (priv->store), &iter,
 			    COL_CATEGORY_ID, category,
-			    COL_CATEGORY, fc.found ? NULL : category_str,
 			    COL_IMAGE, pixbuf ? pixbuf : NULL,
 			    COL_URN, urn,
 			    COL_TITLE, title,
