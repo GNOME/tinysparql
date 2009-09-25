@@ -1,3 +1,77 @@
+NEW in 0.7
+==========
+
+Improvements / New:
+
+  * Library: libtracker-miner
+    A common library for data miners to use allowing easy integration
+    with Tracker. This provides D-Bus integration, state and progress
+    APIs and a means to pause / resume your miner.
+
+  * Library: libtracker-client
+    This API has been completely changed. It is much simpler now and
+    relies more on the SPARQL language than specific APIs to query
+    Tracker. 
+
+  * Daemon: tracker-store
+    Completely reworked to accept SPARQL queries and updates.
+    Implements Nepomuk ontology instead of flawed own brand.
+
+  * Database: Completely redesigned ALL databases.
+    These now support triple store and allow much faster querying.
+
+  * Application: tracker-miner-fs
+    Implements libtracker-miner and facilitates the old roles of
+    tracker-indexer and some of the old roles from trackerd like file
+    system crawling. This mines data and sends it to tracker-store to
+    put in the database about files AND applications.
+
+  * Application: tracker-sparql
+    A command line tool to query or update the databases using SPARQL.
+
+  * Application: tracker-import
+    A command line tool to import data kept in Turtle files.
+
+  * Application: tracker-search-bar
+    An applet for quickly searching for music, videos, images,
+    documents and folders.
+
+  * Application: tracker-status-icon
+    Previously tracker-applet, but rewritten and now much simpler.
+    This provides state and progress information about all miners
+    which are running. This also allows the user to pause / resume
+    data miners.
+
+  * Application: tracker-search-tool
+    This has been completely rewritten using vala and the new
+    architecture underneath it. Support for the old features are not
+    quite there yet, but it is similar to its predecessor!
+
+  * Application: tracker-explore
+    This is an application written to explore data in the database and
+    each item's relationship to the next. This really demonstrates
+    Tracker's ontology and provides it through full text searching.
+
+  * Plugin: Evolution
+    Now the evolution plugin is supported by the developers instead of
+    us dipping into their databases (as previously) which is dangerous
+    and unsafe. Also this implements the libtracker-miner API so it
+    can be controlled using tracker-status-icon.
+
+Bugs:
+
+  Too many to list here and so much development some are even obsolete.
+
+Notes:
+
+  There is currently no migration path from 0.6. to 0.7. So all
+  configurations will have to be re-set up for now. This is planned to
+  be added before a 0.8 release. 
+
+  Man pages have all been revamped providing information about all new
+  commands too.
+
+
 NEW in 0.6.93:
 ==============
 Improvements:
