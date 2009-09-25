@@ -16,7 +16,7 @@ Improvements / New:
   * Daemon: tracker-store
     Completely reworked to accept SPARQL queries and updates.
     Implements Nepomuk ontology instead of flawed own brand. This
-    ontology is implemented following the W3C RDF standards.
+    ontology is implemented following the W3C RDF semantics.
 
   * Database: Completely redesigned ALL databases.
     These now support triple store and allow much faster querying.
