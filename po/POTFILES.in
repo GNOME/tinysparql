@@ -4,40 +4,39 @@
 
 data/miners/tracker-miner-applications.desktop.in
 data/miners/tracker-miner-files.desktop.in
+data/tracker-miner-fs.desktop.in.in
 data/tracker-status-icon.desktop.in.in
 data/tracker-store.desktop.in.in
-data/tracker-miner-fs.desktop.in.in
-python/deskbar-handler/tracker-handler-static.py
 python/deskbar-handler/tracker-handler.py
+python/deskbar-handler/tracker-handler-static.py
 python/deskbar-handler/tracker-module.py
-[type: gettext/glade]python/gtk-sparql/gtk-sparql.ui
 src/libtracker-common/tracker-dbus.c
 src/libtracker-common/tracker-utils.c
-src/libtracker-miner/tracker-miner-fs.c
-src/libtracker-miner/tracker-miner.c
 src/libtracker-gtk/tracker-metadata-tile.c
 src/libtracker-gtk/tracker-tag-bar.c
+src/libtracker-miner/tracker-miner.c
+src/libtracker-miner/tracker-miner-fs.c
 src/plugins/evolution/org-freedesktop-Tracker-evolution-plugin.eplug.xml
 src/plugins/evolution/tracker-evolution-plugin.c
 src/plugins/evolution/tracker-miner-emails.desktop.in
-src/tracker-status-icon/tracker-status-icon.c
-src/tracker-status-icon/tracker-status-icon.desktop.in.in
-src/tracker-status-icon/tracker-main.c
+src/tracker-explorer/explorer.ui
 src/tracker-extract/tracker-extract.c
 src/tracker-extract/tracker-main.c
 src/tracker-miner-fs/tracker-main.c
 src/tracker-miner-fs/tracker-miner-files.c
-src/tracker-preferences/tracker-preferences.vala
 src/tracker-preferences/tracker-preferences.desktop.in.in
-[type: gettext/glade]src/tracker-preferences/tracker-preferences.ui
-[type: gettext/glade]src/tracker-search-bar/tracker-search-bar.ui
+src/tracker-preferences/tracker-preferences.vala
 src/tracker-search-bar/GNOME_Search_Bar_Applet.server.in.in
 src/tracker-search-bar/GNOME_Search_Bar_Applet.xml
 src/tracker-search-bar/tracker-results-window.c
-src/tracker-search-tool/tracker-search-tool-callbacks.c
-src/tracker-search-tool/tracker-search-tool-support.c
 src/tracker-search-tool/tracker-search-tool.c
+src/tracker-search-tool/tracker-search-tool-callbacks.c
 src/tracker-search-tool/tracker-search-tool.desktop.in.in
+src/tracker-search-tool/tracker-search-tool-support.c
+src/tracker-status-icon/tracker-main.c
+src/tracker-status-icon/tracker-status-icon.c
+src/tracker-status-icon/tracker-status-icon.desktop.in.in
+src/tracker-store/tracker-main.c
 src/tracker-utils/tracker-import.c
 src/tracker-utils/tracker-info.c
 src/tracker-utils/tracker-processes.c
@@ -46,5 +45,6 @@ src/tracker-utils/tracker-sparql.c
 src/tracker-utils/tracker-stats.c
 src/tracker-utils/tracker-status.c
 src/tracker-utils/tracker-tag.c
-src/tracker-store/tracker-main.c
-src/tracker-explorer/explorer.ui
+[type: gettext/glade]python/gtk-sparql/gtk-sparql.ui
+[type: gettext/glade]src/tracker-preferences/tracker-preferences.ui
+[type: gettext/glade]src/tracker-search-bar/tracker-search-bar.ui
