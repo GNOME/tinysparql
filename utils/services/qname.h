@@ -5,7 +5,9 @@
 
 G_BEGIN_DECLS
 
-void     qname_init          (const gchar *local_uri);
+void     qname_init          (const gchar *local_uri, 
+                              const gchar *local_prefix,
+                              const gchar *class_location);
 void     qname_shutdown      (void);
 
 gchar *  qname_to_link       (const gchar *qname);

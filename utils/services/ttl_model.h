@@ -31,6 +31,7 @@ typedef struct {
         GList *editors;
         GList *contributors;
         gchar *baseUrl;
+        gchar *localPrefix;
         gchar *relativePath;
 } OntologyDescription;
 

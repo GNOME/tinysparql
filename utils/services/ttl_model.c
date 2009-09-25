@@ -91,6 +91,7 @@ ttl_model_description_new (void)
         desc->contributors = NULL;
         desc->baseUrl = NULL;
         desc->relativePath = NULL;
+        desc->localPrefix = NULL;
 
         return desc;
 }
@@ -98,21 +99,15 @@ ttl_model_description_new (void)
 void
 ttl_model_description_free (OntologyDescription *desc)
 {
-        if (desc->title) {
-                g_free (desc->title);
-        }
+        g_free (desc->title);
 
         g_list_foreach (desc->authors, (GFunc)g_free, NULL);
         g_list_foreach (desc->editors, (GFunc)g_free, NULL);
         g_list_foreach (desc->contributors, (GFunc)g_free, NULL);
 
-        if (desc->baseUrl) {
-                g_free (desc->baseUrl);
-        }
-
-        if (desc->relativePath) {
-                g_free (desc->relativePath);
-        }
+        g_free (desc->baseUrl);
+        g_free (desc->relativePath);
+        g_free (desc->localPrefix);
 
         g_free (desc);
 }

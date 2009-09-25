@@ -207,10 +207,11 @@ print_ontology_property (gpointer key, gpointer value, gpointer user_data)
 void 
 ttl_html_print (OntologyDescription *description,
                 Ontology *ontology,
-                FILE *f)
+                FILE *f,
+                const gchar *class_location_file)
 {
 
-        qname_init (description->baseUrl);
+        qname_init (description->baseUrl, description->localPrefix, class_location_file);
         print_html_header (f, description);
         g_fprintf (f,"<h2>Ontology Classes Descriptions</h2>");
         g_hash_table_foreach (ontology->classes, print_ontology_class, f);

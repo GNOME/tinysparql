@@ -8,6 +8,7 @@
 
 static gchar *desc_file = NULL;
 static gchar *output_file = NULL;
+static gchar *class_location_file = NULL;
 
 static GOptionEntry   entries[] = {
 	{ "desc", 'd', 0, G_OPTION_ARG_FILENAME, &desc_file,
@@ -18,6 +19,10 @@ static GOptionEntry   entries[] = {
 	  "File to write the output (default stdout)",
 	  NULL
 	},
+        { "links", 'l', 0, G_OPTION_ARG_FILENAME, &class_location_file,
+          "File with pairs: (prefix where the class is defined, class)",
+          NULL
+        },
 	{ NULL }
 };
 
@@ -30,6 +35,7 @@ main (gint argc, gchar **argv)
         gchar *ttl_file = NULL;
         gchar *dirname = NULL;
         FILE *f = NULL;
+        gchar *class_location = NULL;
 
         g_type_init ();
 
@@ -74,7 +80,7 @@ main (gint argc, gchar **argv)
         g_free (ttl_file);
         g_free (dirname);
 
-        ttl_html_print (description, ontology, f);
+        ttl_html_print (description, ontology, f, class_location);
 
         ttl_loader_free_ontology (ontology);
         ttl_loader_free_description (description);

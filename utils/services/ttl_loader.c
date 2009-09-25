@@ -28,6 +28,7 @@
 #define DSC_CONTRIBUTOR DSC_PREFIX "contributor"
 #define DSC_BASEURI DSC_PREFIX "baseUrl"
 #define DSC_RELPATH DSC_PREFIX "relativePath"
+#define DSC_LOCALPREFIX DSC_PREFIX "localPrefix"
 
 static void
 load_in_memory (Ontology    *ontology,
@@ -202,6 +203,8 @@ load_description (OntologyDescription *desc,
                 desc->baseUrl = g_strdup (turtle_object);
         } else if (!g_strcmp0 (turtle_predicate, DSC_RELPATH)) {
                 desc->relativePath = g_strdup (turtle_object);
+        } else if (!g_strcmp0 (turtle_predicate, DSC_LOCALPREFIX)) {
+                desc->localPrefix = g_strdup (turtle_object);
         } else {
                 g_critical ("Unhandled element %s", turtle_predicate);
         }

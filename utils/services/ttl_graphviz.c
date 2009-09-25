@@ -63,7 +63,7 @@ ttl_graphviz_print (OntologyDescription *description,
                     Ontology *ontology,
                     FILE *output)
 {
-
+        qname_init (description->baseUrl, description->localPrefix, NULL);
         g_fprintf (output, "digraph \"%s\" {\n",  description->title);
         g_fprintf (output, "    label=\"%s\";\n", description->title);
         g_fprintf (output, "    rankdir=BT;\n");

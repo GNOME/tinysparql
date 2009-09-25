@@ -1,13 +1,15 @@
 #include "qname.h"
 
-static gchar *local_uri = NULL;
+//static gchar *local_uri = NULL;
+//static gchar *local_prefix = NULL;
 
 typedef struct {
-        const gchar *namespace;
-        const gchar *uri;
+        gchar *namespace;
+        gchar *uri;
 } Namespace;
 
 Namespace NAMESPACES [] = {
+        {NULL, NULL}, /* Save this for the local_uri and prefix */
         {"dc", "http://purl.org/dc/elements/1.1/"},
         {"xsd", "http://www.w3.org/2001/XMLSchema#"},
         {"fts", "http://www.tracker-project.org/ontologies/fts#"},
@@ -30,19 +32,29 @@ Namespace NAMESPACES [] = {
 
 
 void   
-qname_init (const gchar *luri)
+qname_init (const gchar *luri, const gchar *lprefix, const gchar *class_location)
 {
-        if (local_uri) {
+        g_return_if_fail (luri != NULL);
+
+        if (NAMESPACES[0].namespace || NAMESPACES[0].uri) {
                 g_warning ("Reinitializing qname_module");
-                g_free (local_uri);
+                g_free (NAMESPACES[0].namespace);
+                g_free (NAMESPACES[0].uri);
         }
-        local_uri = g_strdup (luri);
+        NAMESPACES[0].uri = g_strdup (luri);
+        NAMESPACES[0].namespace = (lprefix != NULL ? g_strdup (lprefix) : g_strdup (""));
+
+        if (class_location) {
+                /* TODO */
+        }
+
 }
 
 void   
 qname_shutdown (void)
 {
-        g_free (local_uri);
+        g_free (NAMESPACES[0].namespace);
+        g_free (NAMESPACES[0].uri);
 }
 
 gchar *
@@ -51,9 +63,9 @@ qname_to_link (const gchar *qname)
         gchar **pieces;
         gchar *name;
 
-        if (local_uri) {
+        if (NAMESPACES[0].uri) {
                 /* There is a local URI! */
-                if (g_str_has_prefix (qname, local_uri)) {
+                if (g_str_has_prefix (qname, NAMESPACES[0].uri)) {
                         pieces = g_strsplit (qname, "#", 2);
                         g_assert (g_strv_length (pieces) == 2);
                         name = g_strdup_printf ("#%s", pieces[1]);
@@ -100,7 +112,7 @@ qname_is_basic_type (const gchar *qname)
 {
         gint i; 
         /* dc: or xsd: are basic types */
-        for (i = 0; NAMESPACES[i].namespace != NULL && i < 3; i++) {
+        for (i = 1; NAMESPACES[i].namespace != NULL && i < 3; i++) {
                 if (g_str_has_prefix (qname, NAMESPACES[i].uri)) {
                         return TRUE;
                 }
