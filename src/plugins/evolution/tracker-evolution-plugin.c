@@ -1672,6 +1672,7 @@ on_register_client_qry (GPtrArray *results,
                         gpointer   user_data)
 {
 	ClientRegistry *info = user_data;
+	TrackerEvolutionPluginPrivate *priv = TRACKER_EVOLUTION_PLUGIN_GET_PRIVATE (info->self);
 	guint i;
 
 	if (error) {
@@ -1682,12 +1683,24 @@ on_register_client_qry (GPtrArray *results,
 	}
 
 	if (!results) {
-		info->last_checkout = 0;
+		if (priv->resuming) {
+			info->last_checkout = priv->last_time;
+		} else {
+			info->last_checkout = 0;
+		}
 	} else {
-		for (i = 0; i < results->len; i++) {
-			const gchar **str = g_ptr_array_index (results, i);
-			info->last_checkout = (guint64) tracker_string_to_date (str[0]);
-			break;
+		if (results->len == 0 && priv->resuming && priv->last_time != 0) {
+			info->last_checkout = priv->last_time;
+		} else {
+			if (results->len == 0) {
+				info->last_checkout = 0;
+			} else {
+				for (i = 0; i < results->len; i++) {
+					const gchar **str = g_ptr_array_index (results, i);
+					info->last_checkout = (guint64) tracker_string_to_date (str[0]);
+					break;
+				}
+			}
 		}
 		g_ptr_array_foreach (results, (GFunc) g_strfreev, NULL);
 		g_ptr_array_free (results, TRUE);
@@ -1701,6 +1714,7 @@ register_client (TrackerEvolutionPlugin *self)
 {
 	TrackerEvolutionPluginPrivate *priv = TRACKER_EVOLUTION_PLUGIN_GET_PRIVATE (self);
 	ClientRegistry *info = g_slice_new0 (ClientRegistry);
+	const gchar *query;
 
 	info->self = self; /* weak */
 
@@ -1711,28 +1725,13 @@ register_client (TrackerEvolutionPlugin *self)
 	priv->total_popped = 0;
 	priv->of_total = 0;
 
-	if (!priv->resuming) {
-		const gchar *query;
+	query = "SELECT ?c "
+	        "WHERE { <" DATASOURCE_URN "> nie:contentLastModified ?c }";
 
-		query = "SELECT ?c "
-			"WHERE { <" DATASOURCE_URN "> nie:contentLastModified ?c }";
-
-		tracker_resources_sparql_query_async (priv->client, query, 
-		                                      on_register_client_qry,
-		                                      info);
-
-	} else {
-		/* This happens in case of resume, for example (which is just a 
-		 * complete restart. So we just get the same E-mails that we had
-		 * already) */
-
-		info->last_checkout = priv->last_time;
-		register_client_second_half (info);
-	}
-
-
+	tracker_resources_sparql_query_async (priv->client, query, 
+	                                      on_register_client_qry,
+	                                      info);
 }
-
 
 
 static void
@@ -2283,11 +2282,21 @@ miner_paused (TrackerMiner *miner)
 
 }
 
+static gboolean
+unset_resuming (gpointer data)
+{
+	TrackerEvolutionPluginPrivate *priv = TRACKER_EVOLUTION_PLUGIN_GET_PRIVATE (data);
+	priv->resuming = FALSE;
+	g_object_unref (data);
+	return FALSE;
+}
+
 static void
 resuming_fini (gpointer data)
 {
 	TrackerEvolutionPluginPrivate *priv = TRACKER_EVOLUTION_PLUGIN_GET_PRIVATE (data);
-	priv->resuming = FALSE;
+
+	g_timeout_add_seconds (1, unset_resuming, g_object_ref (data));
 
 	dbus_g_proxy_connect_signal (priv->dbus_proxy, "NameOwnerChanged",
 	                             G_CALLBACK (name_owner_changed_cb),
