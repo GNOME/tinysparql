@@ -299,7 +299,7 @@ status_icon_miner_progress (TrackerMinerManager *manager,
 	entry = g_hash_table_lookup (priv->miners, miner_name);
 
 	if (G_UNLIKELY (!entry)) {
-		g_critical ("Got progress signal from unknown miner");
+		g_critical ("Got progress signal from unknown miner '%s'", miner_name);
 		return;
 	}
 

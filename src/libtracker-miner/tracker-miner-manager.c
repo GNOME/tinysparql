@@ -298,7 +298,7 @@ tracker_miner_manager_init (TrackerMinerManager *manager)
 					     G_CALLBACK (miner_resumed),
 					     manager, NULL);
 
-		g_hash_table_insert (priv->miner_proxies, proxy, g_strdup (m->data));
+		g_hash_table_insert (priv->miner_proxies, proxy, g_strdup (data->dbus_name));
 	}
 }
 
