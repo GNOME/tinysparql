@@ -45,8 +45,7 @@ main (int argc, char *argv[])
 
 	setlocale (LC_ALL, "");
 
-	context = g_option_context_new (_("- Tracker applet for quick control of "
-					  "your desktop search tools"));
+	context = g_option_context_new (_("- Miner status and control notification area icon"));
 
 	g_option_context_set_translation_domain(context, GETTEXT_PACKAGE);
 	g_option_context_add_main_entries (context, entries, NULL);
