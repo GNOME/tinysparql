@@ -58,6 +58,10 @@ Improvements / New:
     and unsafe. Also this implements the libtracker-miner API so it
     can be controlled using tracker-status-icon.
 
+  * Patches: Nautilus & GtkFileChooser
+    These are currently submitted upstream to support the new APIs for
+    continued integration between Tracker and GNOME.
+
 Bugs:
 
   Too many to list here and so much development some are even obsolete.
