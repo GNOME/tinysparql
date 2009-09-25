@@ -4,7 +4,7 @@
 tracker-extract \- Extract metadata from a file.
 
 .SH SYNOPSYS
-\fBtracker-extract\fR [\fIOPTIONS\fR] \fIFILE\fR...
+\fBtracker-extract\fR [\fIOPTION\fR...] \fIFILE\fR...
 
 .SH DESCRIPTION
 .B tracker-extract
@@ -45,6 +45,9 @@ going on during the extraction.
 Using tracker-extract from command line to extract metadata from one file:
 .BR
 $ echo -e "/x/y/z.mp3\\naudio/mpeg" | tracker-extract
+
+.SH FILES
+.I $HOME/.config/tracker/tracker-extract.cfg
 
 .SH SEE ALSO
 .BR tracker-store (1),

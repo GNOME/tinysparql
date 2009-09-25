@@ -4,9 +4,7 @@
 tracker-search \- Search all content for keywords
 
 .SH SYNOPSIS
-.B tracker-search 
-[OPTIONS]
-.I EXPRESSION
+\fBtracker-search\fR [\fIOPTION\fR...] \fIEXPRESSION\fR [\fIEXPRESSION\fR...]
 
 .SH DESCRIPTION
 .B tracker-search
@@ -29,45 +27,45 @@ and
 
 .SH OPTIONS
 .TP
-\-?, \-\-help
+.B \-?, \-\-help
 Give a short help message.
 .TP
-\-l, \-\-limit=N
+.B \-l, \-\-limit=N
 Limit search to N results. The default is 512.
 .TP
-\-o, \-\-offset=N
+.B \-o, \-\-offset=N
 Offset the search results by N. For example, start at item number 10
 in the results. The default is 0.
 .TP
-\-r, \-\-or-operator
+.B \-r, \-\-or-operator
 Use OR for search terms instead of AND (the default)
 .TP
-\-d, \-\-detailed
+.B \-d, \-\-detailed
 Show more detailed results (only applies to general search)
 .TP
-\-f, \-\-files
+.B \-f, \-\-files
 Search for files in ascending order.
 .TP
-\-e, \-\-folders
+.B \-e, \-\-folders
 Search for folders in ascending order.
 .TP
-\-a, \-\-music-albums
+.B \-a, \-\-music-albums
 Search for music albums. This also lists the song count and the sum of
 the duration of all songs associated with each album.
 .TP
-\-s, \-\-music-artists
+.B \-s, \-\-music-artists
 Search for music artists.
 .TP
-\-u, \-\-music
+.B \-u, \-\-music
 Search for music in ascending order. This returns a list of files.
 .TP
-\-l, \-\-images
+.B \-l, \-\-images
 Search for images in ascending order. This returns a list of files.
 .TP
-\-v, \-\-videos
+.B \-v, \-\-videos
 Search for videos in ascending order. This returns a list of files.
 .TP
-\-u, \-\-documents
+.B \-u, \-\-documents
 Search for documents in ascending order. This returns a list of files.
 
 .SH SEE ALSO

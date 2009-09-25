@@ -1,0 +1,48 @@
+.TH tracker-processes 1 "September 2009" GNU "User Commands"
+
+.SH NAME
+tracker-processes \- Manage Tracker processes and data
+
+.SH SYNOPSIS
+\fBtracker-processes\fR [\fIOPTION\fR...]
+
+.SH DESCRIPTION
+.B tracker-processes
+lists all tracker related processes when no
+\fIOPTION\fRs are specified.
+
+.SH OPTIONS
+.TP
+.B \-?, \-\-help
+Show summary of options.
+.TP
+.B \-k, \-\-kill
+This uses SIGKILL to stop all Tracker processes found. This is not
+advised unless you are having problems stopping Tracker in the first
+place. This 
+.B GUARANTEES
+death.
+.TP
+.B \-t, \-\-terminate
+This uses SIGTERM to stop all Tracker processes found. This is
+recommended over \-\-kill because it gives the processes time to
+shutdown cleanly.
+.TP
+.B \-s, \-\-soft-reset
+A soft reset works exactly the same way that 
+.B \-\-hard-reset 
+does, with the exception that the backup and journal are not removed.
+These are restored when 
+.B tracker-store
+is restarted.
+
+.TP
+.B \-h, \-\-hard-reset
+This kills all processes in the same way that 
+.B \-\-kill
+does but it also removes all databases. Restarting 
+.B tracker-store
+re-creates the databases.
+
+.SH SEE ALSO
+.BR tracker-store (1).

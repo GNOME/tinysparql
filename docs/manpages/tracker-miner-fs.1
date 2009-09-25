@@ -4,8 +4,7 @@
 tracker-miner-fs \- Used to crawl the file system to mine data.
 
 .SH SYNOPSIS
-\fBtracker-miner-fs\fR 
-[-v \fIVERBOSITY\fR] [-s \fISLEEP\fR]
+\fBtracker-miner-fs\fR [\fIOPTION\fR...]
 
 .SH DESCRIPTION
 .B tracker-miner-fs
@@ -30,6 +29,9 @@ Sets the logging level, 0=errors, 1=minimal, 2=detailed, 3=debug.
 .TP
 .B \-s, \-\-initial-sleep=SECONDS
 Sets the initial sleep time before crawling the file system is started.
+
+.SH FILES
+.I $HOME/.config/tracker/tracker-miner-fs.cfg
 
 .SH SEE ALSO
 .BR tracker-store (1),
