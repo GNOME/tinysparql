@@ -19,10 +19,6 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef DBUS_API_SUBJECT_TO_CHANGE
-#define DBUS_API_SUBJECT_TO_CHANGE
-#endif
-
 #include "config.h"
 
 #include <stdlib.h>

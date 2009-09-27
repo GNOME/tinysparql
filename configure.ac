@@ -127,7 +127,8 @@ if test "x$have_function" = "xno" ; then
 fi
 
 # Library required versions
-DBUS_REQUIRED=0.60
+DBUS_REQUIRED=1.0
+DBUS_GLIB_REQUIRED=0.80
 GLIB_REQUIRED=2.16.0
 PANGO_REQUIRED=1.0.0
 GTK_REQUIRED=2.16.0
@@ -183,8 +184,8 @@ PKG_CHECK_MODULES(PANGO, [pango >= $PANGO_REQUIRED])
 AC_SUBST(PANGO_CFLAGS)
 AC_SUBST(PANGO_LIBS)
 
-# Check for Dbus 0.50 or higher
-PKG_CHECK_MODULES(DBUS, [dbus-1 >= $DBUS_REQUIRED dbus-glib-1 >= $DBUS_REQUIRED])
+# Check for dbus and dbus-glib or higher
+PKG_CHECK_MODULES(DBUS, [dbus-1 >= $DBUS_REQUIRED dbus-glib-1 >= $DBUS_GLIB_REQUIRED])
 AC_SUBST(DBUS_CFLAGS)
 AC_SUBST(DBUS_LIBS)
 

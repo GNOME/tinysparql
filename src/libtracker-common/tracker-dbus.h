@@ -26,10 +26,6 @@
 #error "only <libtracker-common/tracker-common.h> must be included directly."
 #endif
 
-#ifndef DBUS_API_SUBJECT_TO_CHANGE
-#define DBUS_API_SUBJECT_TO_CHANGE
-#endif
-
 #include <glib/gi18n.h>
 
 #include <dbus/dbus.h>
