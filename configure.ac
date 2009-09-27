@@ -722,7 +722,7 @@ if test "x$enable_libtrackergtk" != "xno" ; then
 		     glib-2.0    >= $GLIB_REQUIRED
 		     gtk+-2.0    >= $GTK_REQUIRED
         	     dbus-1      >= $DBUS_REQUIRED
-        	     dbus-glib-1 >= $DBUS_REQUIRED],
+        	     dbus-glib-1 >= $DBUS_GLIB_REQUIRED],
 		     [have_libtrackergtk=yes], 
    		     [have_libtrackergtk=no])
 
@@ -734,7 +734,7 @@ fi
 
 if test "x$enable_libtrackergtk" = "xyes"; then
    if test "x$have_libtrackergtk" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find libtracker_gtk dependencies (glib-2.0 >= $GLIB_REQUIRED, gtk+-2.0 >= $GTK_REQUIRED, dbus-1 >= $DBUS_REQUIRED, dbus-glib-1 >= $DBUS_REQUIRED).])
+      AC_MSG_ERROR([Couldn't find libtracker_gtk dependencies (glib-2.0 >= $GLIB_REQUIRED, gtk+-2.0 >= $GTK_REQUIRED, dbus-1 >= $DBUS_REQUIRED, dbus-glib-1 >= $DBUS_GLIB_REQUIRED).])
    fi
 fi
 
@@ -755,7 +755,7 @@ if test "x$enable_tracker_status_icon" != "xno" ; then
 		     gthread-2.0 >= $GLIB_REQUIRED
 		     gtk+-2.0    >= $GTK_REQUIRED
         	     dbus-1      >= $DBUS_REQUIRED
-        	     dbus-glib-1 >= $DBUS_REQUIRED
+        	     dbus-glib-1 >= $DBUS_GLIB_REQUIRED
 		     libnotify   >= $LIBNOTIFY_REQUIRED],
 		     [have_tracker_status_icon=yes],
    		     [have_tracker_status_icon=no])
@@ -768,7 +768,7 @@ fi
 
 if test "x$enable_tracker_status_icon" = "xyes"; then
    if test "x$have_tracker_status_icon" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find tracker-status-icon dependencies (glib-2.0 >= $GLIB_REQUIRED, gtk+-2.0 >= $GTK_REQUIRED, dbus-1 >= $DBUS_REQUIRED, dbus-glib-1 >= $DBUS_REQUIRED, libnotify >= $LIBNOTIFY_REQUIRED).])
+      AC_MSG_ERROR([Couldn't find tracker-status-icon dependencies (glib-2.0 >= $GLIB_REQUIRED, gtk+-2.0 >= $GTK_REQUIRED, dbus-1 >= $DBUS_REQUIRED, dbus-glib-1 >= $DBUS_GLIB_REQUIRED, libnotify >= $LIBNOTIFY_REQUIRED).])
    fi
 fi
 
@@ -784,7 +784,7 @@ if test "x$enable_tracker_explorer" != "xno" ; then
 		glib-2.0    >= $GLIB_REQUIRED
 		gtk+-2.0    >= $GTK_REQUIRED
 		dbus-1      >= $DBUS_REQUIRED
-		dbus-glib-1 >= $DBUS_REQUIRED
+		dbus-glib-1 >= $DBUS_GLIB_REQUIRED
 		gee-1.0     >= $GEE_REQUIRED],
 		[have_tracker_explorer=yes],
 		[have_tracker_explorer=no])
@@ -797,7 +797,7 @@ fi
 
 if test "x$enable_tracker_explorer" = "xyes"; then
    if test "x$have_tracker_explorer" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find tracker-explorer dependencies (glib-2.0 >= $GLIB_REQUIRED, gtk+-2.0 >= $GTK_REQUIRED, dbus-1 >= $DBUS_REQUIRED, dbus-glib-1 >= $DBUS_REQUIRED, gee-1.0 >= $GEE_REQUIRED).])
+      AC_MSG_ERROR([Couldn't find tracker-explorer dependencies (glib-2.0 >= $GLIB_REQUIRED, gtk+-2.0 >= $GTK_REQUIRED, dbus-1 >= $DBUS_REQUIRED, dbus-glib-1 >= $DBUS_GLIB_REQUIRED, gee-1.0 >= $GEE_REQUIRED).])
    fi
 fi
 
@@ -815,7 +815,7 @@ if test "x$enable_tracker_search_bar" != "xno" ; then
 		glib-2.0    >= $GLIB_REQUIRED
 		gtk+-2.0    >= $GTK_REQUIRED
 		dbus-1      >= $DBUS_REQUIRED
-		dbus-glib-1 >= $DBUS_REQUIRED
+		dbus-glib-1 >= $DBUS_GLIB_REQUIRED
 		gee-1.0     >= $GEE_REQUIRED],
 		[have_tracker_search_bar=yes],
 		[have_tracker_search_bar=no])
@@ -828,7 +828,7 @@ fi
 
 if test "x$enable_tracker_search_bar" = "xyes"; then
    if test "x$have_tracker_search_bar" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find tracker-search-bar dependencies (glib-2.0 >= $GLIB_REQUIRED, gtk+-2.0 >= $GTK_REQUIRED, dbus-1 >= $DBUS_REQUIRED, dbus-glib-1 >= $DBUS_REQUIRED, gee-1.0 >= $GEE_REQUIRED, libpanelapplet-2.0 and libgnomeui-2.0).])
+      AC_MSG_ERROR([Couldn't find tracker-search-bar dependencies (glib-2.0 >= $GLIB_REQUIRED, gtk+-2.0 >= $GTK_REQUIRED, dbus-1 >= $DBUS_REQUIRED, dbus-glib-1 >= $DBUS_GLIB_REQUIRED, gee-1.0 >= $GEE_REQUIRED, libpanelapplet-2.0 and libgnomeui-2.0).])
    fi
 fi
 
@@ -848,7 +848,7 @@ if test "x$enable_tracker_search_tool" != "xno"; then
 		glib-2.0    >= $GLIB_REQUIRED
 		gtk+-2.0    >= $GTK_REQUIRED
 		dbus-1      >= $DBUS_REQUIRED
-		dbus-glib-1 >= $DBUS_REQUIRED
+		dbus-glib-1 >= $DBUS_GLIB_REQUIRED
 		gee-1.0     >= $GEE_REQUIRED],
 		[have_tracker_search_tool=yes],
 		[have_tracker_search_tool=no])
@@ -861,7 +861,7 @@ fi
 
 if test "x$enable_tracker_search_tool" = "xyes"; then
    if test "x$have_tracker_search_tool" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find tracker-search-tool dependencies (glib-2.0 >= $GLIB_REQUIRED, gtk+-2.0 >= $GTK_REQUIRED, dbus-1 >= $DBUS_REQUIRED, dbus-glib-1 >= $DBUS_REQUIRED, gee-1.0 >= $GEE_REQUIRED).])
+      AC_MSG_ERROR([Couldn't find tracker-search-tool dependencies (glib-2.0 >= $GLIB_REQUIRED, gtk+-2.0 >= $GTK_REQUIRED, dbus-1 >= $DBUS_REQUIRED, dbus-glib-1 >= $DBUS_GLIB_REQUIRED, gee-1.0 >= $GEE_REQUIRED).])
    fi
 fi
 
