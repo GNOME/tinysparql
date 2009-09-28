@@ -780,17 +780,23 @@ albumart_copy_to_local (TrackerStorage *hal,
 	gboolean on_removable_device = FALSE;
 	guint flen;
 
-	flen = strlen (filename);
-
 	/* Determining if we are on a removable device */
 #ifdef HAVE_HAL
-	g_return_if_fail (hal != NULL);
+	if (!hal) {
+		/* This is usually because we are running on the
+		 * command line, so we don't error here with
+		 * g_return_if_fail().
+		 */
+		return;
+	}
 
 	removable_roots = tracker_storage_get_removable_device_roots (hal);
 #else
 	removable_roots = g_list_append (removable_roots, "/media");
 	removable_roots = g_list_append (removable_roots, "/mnt");
 #endif
+
+	flen = strlen (filename);
 
 	for (l = removable_roots; l; l = l->next) {
 		guint len;
