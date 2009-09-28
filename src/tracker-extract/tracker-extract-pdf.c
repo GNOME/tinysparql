@@ -85,6 +85,64 @@ insert_keywords (TrackerSparqlBuilder *metadata, const gchar *uri, gchar *keywor
 	}
 }
 
+static gchar *
+extract_content (PopplerDocument *document,
+		 guint            n_words)
+{
+	PopplerPage *page;
+	PopplerRectangle rect;
+	GString *string;
+	gint n_pages, i, words;
+	gchar *text, *t;
+	gboolean in_break = TRUE;
+	gunichar ch;
+
+	n_pages = poppler_document_get_n_pages (document);
+	string = g_string_new ("");
+	words = 0;
+	i = 0;
+
+	while (i < n_pages && words < n_words) {
+		page = poppler_document_get_page (document, i);
+		i++;
+
+		rect.x1 = rect.y1 = 0;
+		poppler_page_get_size (page, &rect.x2, &rect.y2);
+
+		text = t = poppler_page_get_text (page, POPPLER_SELECTION_WORD, &rect);
+
+		while ((ch = g_utf8_get_char_validated (t, -1)) > 0) {
+			GUnicodeType type;
+
+			type = g_unichar_type (ch);
+
+			if (type == G_UNICODE_LOWERCASE_LETTER ||
+			    type == G_UNICODE_MODIFIER_LETTER ||
+			    type == G_UNICODE_OTHER_LETTER ||
+			    type == G_UNICODE_TITLECASE_LETTER ||
+			    type == G_UNICODE_UPPERCASE_LETTER) {
+				/* Append regular chars */
+				g_string_append_unichar (string, ch);
+				in_break = FALSE;
+			} else if (!in_break) {
+				/* Non-regular char found, treat as word break */
+				g_string_append_c (string, ' ');
+				in_break = TRUE;
+				words++;
+
+				if (words > n_words) {
+					break;
+				}
+			}
+
+			t = g_utf8_find_next_char (t, NULL);
+		}
+
+		g_free (text);
+	}
+
+	return g_string_free (string, FALSE);
+}
 
 static void
 extract_pdf (const gchar *uri,
@@ -94,7 +152,7 @@ extract_pdf (const gchar *uri,
 	PdfNeedsMergeData merge_data = { 0 };
 	TrackerXmpData xmp_data = { 0 };
 	PopplerDocument *document;
-	gchar		*author, *title, *subject;
+	gchar		*author, *title, *subject, *content;
 	gchar		*keywords	= NULL;
 	gchar		*metadata_xml	= NULL;
 	GTime		 creation_date;
@@ -310,6 +368,15 @@ extract_pdf (const gchar *uri,
 					  uri, NIE_PREFIX "keyword",
 					  (const gchar*) keyw);
 		}
+	}
+
+	/* FIXME: Fixed word limit at the moment */
+	content = extract_content (document, 1000);
+
+	if (content) {
+		tracker_sparql_builder_predicate (metadata, "nie:plainTextContent");
+		tracker_sparql_builder_object_unvalidated (metadata, content);
+		g_free (content);
 	}
 
 	tracker_statement_list_insert_with_int (metadata, uri,
