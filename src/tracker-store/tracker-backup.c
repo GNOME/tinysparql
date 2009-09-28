@@ -138,7 +138,7 @@ tracker_backup_save (TrackerBackup          *object,
 	 * of the open batch (if any), and then in the callback we'll idd 
 	 * continue with making the backup itself (using sqlite3_backup's API) */
 
-	tracker_store_queue_commit (on_batch_commit, info, NULL);
+	tracker_store_queue_commit (on_batch_commit, NULL, info, NULL);
 }
 
 void

@@ -58,7 +58,10 @@ typedef enum {
 typedef struct {
 	TrackerStoreTaskType  type;
 	union {
-	  gchar                   *query;
+	  struct {
+		gchar                   *query;
+		gchar                   *client_id;
+	  } update;
 	  struct {
 		gboolean           in_progress;
 		gchar             *path;
@@ -90,7 +93,8 @@ store_task_free (TrackerStoreTask *task)
 	if (task->type == TRACKER_STORE_TASK_TYPE_TURTLE) {
 		g_free (task->data.turtle.path);
 	} else {
-		g_free (task->data.query);
+		g_free (task->data.update.query);
+		g_free (task->data.update.client_id);
 	}
 	g_slice_free (TrackerStoreTask, task);
 }
@@ -196,10 +200,10 @@ queue_idle_handler (gpointer user_data)
 
 		begin_batch (private);
 
-		tracker_data_update_sparql (task->data.query, &error);
+		tracker_data_update_sparql (task->data.update.query, &error);
 
 		if (private->start_log) {
-			log_to_journal (private, task->data.query);
+			log_to_journal (private, task->data.update.query);
 		}
 
 		if (!error) {
@@ -407,6 +411,7 @@ start_handler (TrackerStorePrivate *private)
 
 void
 tracker_store_queue_commit (TrackerStoreCommitCallback callback,
+                            const gchar *client_id,
                             gpointer user_data,
                             GDestroyNotify destroy)
 {
@@ -421,6 +426,8 @@ tracker_store_queue_commit (TrackerStoreCommitCallback callback,
 	task->user_data = user_data;
 	task->callback.commit_callback = callback;
 	task->destroy = destroy;
+	task->data.update.client_id = g_strdup (client_id);
+	task->data.update.query = NULL;
 
 	g_queue_push_tail (private->queue, task);
 
@@ -433,6 +440,7 @@ tracker_store_queue_commit (TrackerStoreCommitCallback callback,
 void
 tracker_store_queue_sparql_update (const gchar *sparql,
                                    TrackerStoreSparqlUpdateCallback callback,
+                                   const gchar *client_id,
                                    gpointer user_data,
                                    GDestroyNotify destroy)
 {
@@ -446,10 +454,11 @@ tracker_store_queue_sparql_update (const gchar *sparql,
 
 	task = g_slice_new0 (TrackerStoreTask);
 	task->type = TRACKER_STORE_TASK_TYPE_UPDATE;
-	task->data.query = g_strdup (sparql);
+	task->data.update.query = g_strdup (sparql);
 	task->user_data = user_data;
 	task->callback.update_callback = callback;
 	task->destroy = destroy;
+	task->data.update.client_id = g_strdup (client_id);
 
 	g_queue_push_tail (private->queue, task);
 
@@ -576,4 +585,48 @@ tracker_store_get_queue_size (void)
 	g_return_val_if_fail (private != NULL, 0);
 
 	return g_queue_get_length (private->queue);
+}
+
+void
+tracker_store_unreg_batches (const gchar *client_id)
+{
+	TrackerStorePrivate *private;
+	static GError *error = NULL;
+	GList *list, *cur;
+
+	private = g_static_private_get (&private_key);
+	g_return_if_fail (private != NULL);
+
+	list = private->queue->head;
+
+	while (list) {
+		TrackerStoreTask *task;
+
+		cur = list;
+		list = list->next;
+		task = cur->data;
+
+		if (task && task->type != TRACKER_STORE_TASK_TYPE_TURTLE) {
+			if (g_strcmp0 (task->data.update.client_id, client_id) == 0) {
+				if (task->type == TRACKER_STORE_TASK_TYPE_UPDATE) {
+					if (!error) {
+						g_set_error (&error, TRACKER_DBUS_ERROR, 0,
+						             "Client disappeared");
+					}
+					task->callback.update_callback (error, task->user_data);
+				} else {
+					task->callback.commit_callback (task->user_data);
+				}
+				task->destroy (task->user_data);
+
+				g_queue_delete_link (private->queue, cur);
+
+				store_task_free (task);
+			}
+		}
+	}
+
+	if (error) {
+		g_clear_error (&error);
+	}
 }

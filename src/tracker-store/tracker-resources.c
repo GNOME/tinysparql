@@ -277,6 +277,7 @@ tracker_resources_batch_sparql_update (TrackerResources          *self,
 	TrackerDBusMethodInfo   *info;
 	TrackerResourcesPrivate *priv;
 	guint		      request_id;
+	gchar		      *sender;
 
 	priv = TRACKER_RESOURCES_GET_PRIVATE (self);
 
@@ -294,9 +295,12 @@ tracker_resources_batch_sparql_update (TrackerResources          *self,
 	info->request_id = request_id;
 	info->context = context;
 
-	tracker_store_queue_sparql_update (update, batch_update_callback,
-	                                   info, destroy_method_info);
+	sender = dbus_g_method_get_sender (context);
 
+	tracker_store_queue_sparql_update (update, batch_update_callback,
+	                                   sender, info, destroy_method_info);
+
+	g_free (sender);
 }
 
 static void
@@ -316,6 +320,7 @@ tracker_resources_batch_commit (TrackerResources	 *self,
 	TrackerDBusMethodInfo *info;
 	TrackerResourcesPrivate *priv;
 	guint		      request_id;
+	gchar		      *sender;
 
 	priv = TRACKER_RESOURCES_GET_PRIVATE (self);
 
@@ -329,8 +334,12 @@ tracker_resources_batch_commit (TrackerResources	 *self,
 	info->request_id = request_id;
 	info->context = context;
 
-	tracker_store_queue_commit (batch_commit_callback, info,
+	sender = dbus_g_method_get_sender (context);
+
+	tracker_store_queue_commit (batch_commit_callback, sender, info,
 	                            destroy_method_info);
+
+	g_free (sender);
 }
 
 
@@ -427,4 +436,11 @@ tracker_resources_prepare (TrackerResources *object,
 	tracker_data_set_commit_statement_callback (on_statements_committed, object);
 
 	priv->event_sources = event_sources;
+}
+
+void
+tracker_resources_unreg_batches (TrackerResources *object,
+                                 const gchar      *old_owner)
+{
+	tracker_store_unreg_batches (old_owner);
 }

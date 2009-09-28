@@ -350,7 +350,7 @@ perform_set (TrackerKMailRegistrar *object,
 	tracker_sparql_builder_insert_close (sparql);
 
 	tracker_store_queue_sparql_update (tracker_sparql_builder_get_result (sparql),
-	                                   NULL, NULL, NULL);
+	                                   NULL, NULL, NULL, NULL);
 
 	g_object_unref (sparql);
 }
@@ -361,7 +361,7 @@ perform_unset (TrackerKMailRegistrar *object,
 {
 	gchar *sparql = g_strdup_printf ("DELETE { <%s> a rdfs:Resource }", subject);
 
-	tracker_store_queue_sparql_update (sparql, NULL, NULL, NULL);
+	tracker_store_queue_sparql_update (sparql, NULL, NULL, NULL, NULL);
 
 	g_free (sparql);
 }
@@ -369,7 +369,7 @@ perform_unset (TrackerKMailRegistrar *object,
 static void
 perform_cleanup (TrackerKMailRegistrar *object)
 {
-	tracker_store_queue_sparql_update ("DELETE { ?s a rdfs:Resource } WHERE { ?s nie:dataSource <" DATASOURCE_URN "> }", NULL, NULL, NULL);
+	tracker_store_queue_sparql_update ("DELETE { ?s a rdfs:Resource } WHERE { ?s nie:dataSource <" DATASOURCE_URN "> }", NULL, NULL, NULL, NULL);
 	/* tracker_store_queue_sparql_update ("DELETE { ?s ?p ?o } WHERE { ?s nie:dataSource <" DATASOURCE_URN "> }", NULL, NULL, NULL, NULL); */
 }
 
@@ -412,7 +412,7 @@ tracker_kmail_registrar_set (TrackerKMailRegistrar *object,
 		perform_set (object, subject, predicates, values);
 	}
 
-	tracker_store_queue_commit (on_commit, 
+	tracker_store_queue_commit (on_commit, NULL,
 	                            GUINT_TO_POINTER (modseq), 
 	                            NULL);
 
@@ -456,7 +456,7 @@ tracker_kmail_registrar_set_many (TrackerKMailRegistrar *object,
 		i++;
 	}
 
-	tracker_store_queue_commit (on_commit, 
+	tracker_store_queue_commit (on_commit, NULL,
 	                            GUINT_TO_POINTER (modseq), 
 	                            NULL);
 
@@ -489,7 +489,7 @@ tracker_kmail_registrar_unset_many (TrackerKMailRegistrar *object,
 		i++;
 	}
 
-	tracker_store_queue_commit (on_commit, GUINT_TO_POINTER (modseq), NULL);
+	tracker_store_queue_commit (on_commit, NULL, GUINT_TO_POINTER (modseq), NULL);
 
 	dbus_g_method_return (context);
 
@@ -514,7 +514,7 @@ tracker_kmail_registrar_unset (TrackerKMailRegistrar *object,
 
 	perform_unset (object, subject);
 
-	tracker_store_queue_commit (on_commit, GUINT_TO_POINTER (modseq), NULL);
+	tracker_store_queue_commit (on_commit, NULL, GUINT_TO_POINTER (modseq), NULL);
 
 	dbus_g_method_return (context);
 
@@ -536,7 +536,7 @@ tracker_kmail_registrar_cleanup (TrackerKMailRegistrar *object,
 
 	perform_cleanup (object);
 
-	tracker_store_queue_commit (on_commit, 
+	tracker_store_queue_commit (on_commit, NULL,
 	                            GUINT_TO_POINTER (modseq), 
 	                            NULL);
 

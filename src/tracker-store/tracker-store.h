@@ -39,10 +39,12 @@ typedef void (* TrackerStoreTurtleCallback)        (GError          *error,
 void         tracker_store_init                   (gboolean load_journal);
 void         tracker_store_shutdown               (void);
 void         tracker_store_queue_commit           (TrackerStoreCommitCallback       callback,
+                                                   const gchar   *client_id,
                                                    gpointer       user_data,
                                                    GDestroyNotify destroy);
 void         tracker_store_queue_sparql_update    (const gchar   *sparql,
                                                    TrackerStoreSparqlUpdateCallback callback,
+                                                   const gchar   *client_id,
                                                    gpointer       user_data,
                                                    GDestroyNotify destroy);
 void         tracker_store_queue_turtle_import    (GFile         *file,
@@ -65,6 +67,7 @@ guint        tracker_store_get_queue_size         (void);
 
 void         tracker_store_play_journal           (void);
 void         tracker_store_flush_journal          (void);
+void         tracker_store_unreg_batches          (const gchar *client_id);
 
 G_END_DECLS
 

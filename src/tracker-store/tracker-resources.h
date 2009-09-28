@@ -54,6 +54,9 @@ TrackerResources *tracker_resources_new			 (void);
 void		 tracker_resources_prepare	 (TrackerResources       *object,
 						  GSList                 *event_sources);
 
+void		 tracker_resources_unreg_batches (TrackerResources       *object,
+						  const gchar            *old_owner);
+
 /* DBus methods */
 void		 tracker_resources_load			 (TrackerResources	 *object,
 							  const gchar		 *uri,

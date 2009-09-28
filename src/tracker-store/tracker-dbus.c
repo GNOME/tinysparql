@@ -169,6 +169,24 @@ tracker_dbus_shutdown (void)
 	connection = NULL;
 }
 
+static void
+name_owner_changed_cb (DBusGProxy *proxy, 
+                       gchar *name, 
+                       gchar *old_owner, 
+                       gchar *new_owner, 
+                       gpointer user_data)
+{
+	if (tracker_is_empty_string (new_owner) && !tracker_is_empty_string (old_owner)) {
+		/* This means that old_owner got removed */
+		tracker_resources_unreg_batches (user_data, old_owner);
+	}
+}
+
+static void
+name_owner_changed_closure (gpointer data, GClosure *closure)
+{
+}
+
 gboolean
 tracker_dbus_register_objects (void)
 {
@@ -202,6 +220,17 @@ tracker_dbus_register_objects (void)
 		g_critical ("Could not create TrackerResources object to register");
 		return FALSE;
 	}
+
+	dbus_g_proxy_add_signal (gproxy, "NameOwnerChanged",
+	                         G_TYPE_STRING, 
+	                         G_TYPE_STRING, 
+	                         G_TYPE_STRING,
+	                         G_TYPE_INVALID);
+
+	dbus_g_proxy_connect_signal (gproxy, "NameOwnerChanged",
+	                             G_CALLBACK (name_owner_changed_cb),
+	                             object,
+	                             name_owner_changed_closure);
 
 	dbus_register_object (connection,
 			      gproxy,
