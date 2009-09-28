@@ -7,4 +7,5 @@
       dsc:contributor "Example of contributor" ;
       
       dsc:baseUrl "http://www.tracker-project.org/temp/mlo#" ;
+      dsc:localPrefix "mlo" ;
       dsc:relativePath "./40-mlo.ontology" .
