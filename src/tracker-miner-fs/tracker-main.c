@@ -49,6 +49,7 @@
 #include "tracker-marshal.h"
 #include "tracker-miner-applications.h"
 #include "tracker-miner-files.h"
+#include "tracker-thumbnailer.h"
 
 #define ABOUT								  \
 	"Tracker " PACKAGE_VERSION "\n"
@@ -326,6 +327,8 @@ main (gint argc, gchar *argv[])
 	storage = NULL;
 #endif
 
+        tracker_thumbnailer_init ();
+
         /* Create miner for applications */
         miner_applications = tracker_miner_applications_new ();
         miners = g_slist_append (miners, miner_applications);
@@ -359,6 +362,7 @@ main (gint argc, gchar *argv[])
         g_slist_foreach (miners, (GFunc) g_object_unref, NULL);
         g_slist_free (miners);
         
+        tracker_thumbnailer_shutdown ();
 	tracker_log_shutdown ();
 
 	g_print ("\nOK\n\n");
