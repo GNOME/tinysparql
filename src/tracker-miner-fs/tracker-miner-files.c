@@ -35,6 +35,8 @@
 #include "tracker-miner-files.h"
 #include "tracker-config.h"
 #include "tracker-extract-client.h"
+#include "tracker-thumbnailer.h"
+#include "tracker-marshal.h"
 
 #define DISK_SPACE_CHECK_FREQUENCY 10
 
@@ -123,8 +125,12 @@ static void     low_disk_space_limit_cb       (GObject              *gobject,
 					       GParamSpec           *arg1,
 					       gpointer              user_data);
 
-static DBusGProxy * create_extractor_proxy    (void);
-
+static DBusGProxy * extractor_create_proxy    (void);
+static void    extractor_queue_thumbnail_cb   (DBusGProxy           *proxy,
+					       const gchar          *filename, 
+					       const gchar          *mime_type,
+					       gpointer              user_data);
+	
 static gboolean miner_files_check_file        (TrackerMinerFS       *fs,
 					       GFile                *file);
 static gboolean miner_files_check_directory   (TrackerMinerFS       *fs,
@@ -173,7 +179,6 @@ tracker_miner_files_class_init (TrackerMinerFilesClass *klass)
 	miner_files_error_quark = g_quark_from_static_string ("TrackerMinerFiles");
 }
 
-
 static void
 tracker_miner_files_init (TrackerMinerFiles *mf)
 {
@@ -210,8 +215,24 @@ tracker_miner_files_init (TrackerMinerFiles *mf)
 			  G_CALLBACK (mount_pre_unmount_cb),
 			  mf);
 
-	priv->extractor_proxy = create_extractor_proxy ();
+	/* Set up extractor and signals */
+	priv->extractor_proxy = extractor_create_proxy ();
 
+	dbus_g_object_register_marshaller (tracker_marshal_VOID__STRING_STRING,
+					   G_TYPE_NONE,
+					   G_TYPE_STRING,
+					   G_TYPE_STRING,
+					   G_TYPE_INVALID);
+
+	dbus_g_proxy_add_signal (priv->extractor_proxy, "QueueThumbnail",
+				 G_TYPE_STRING,
+				 G_TYPE_STRING, 
+				 G_TYPE_INVALID);
+
+	dbus_g_proxy_connect_signal (priv->extractor_proxy, "QueueThumbnail",
+				     G_CALLBACK (extractor_queue_thumbnail_cb),
+				     NULL, NULL);
+	
 	init_mount_points (mf);
 }
 
@@ -263,6 +284,12 @@ miner_files_finalize (GObject *object)
 
 	mf = TRACKER_MINER_FILES (object);
 	priv = mf->private;
+
+	dbus_g_proxy_disconnect_signal (priv->extractor_proxy, "QueueThumbnail",
+					G_CALLBACK (extractor_queue_thumbnail_cb),
+					NULL);
+	
+	g_object_unref (priv->extractor_proxy);
 
 	g_signal_handlers_disconnect_by_func (priv->config,
 					      low_disk_space_limit_cb,
@@ -778,35 +805,6 @@ mount_pre_unmount_cb (GVolumeMonitor    *volume_monitor,
 	g_object_unref (mount_root);
 }
 
-static DBusGProxy *
-create_extractor_proxy (void)
-{
-	DBusGProxy *proxy;
-	DBusGConnection *connection;
-	GError *error = NULL;
-
-	connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
-
-	if (!connection) {
-		g_critical ("Could not connect to the D-Bus session bus, %s",
-			    error ? error->message : "no error given.");
-		g_clear_error (&error);
-		return FALSE;
-	}
-
-	/* Get proxy for the extractor */
-	proxy = dbus_g_proxy_new_for_name (connection,
-					   "org.freedesktop.Tracker1.Extract",
-					   "/org/freedesktop/Tracker1/Extract",
-					   "org.freedesktop.Tracker1.Extract");
-
-	if (!proxy) {
-		g_critical ("Could not create a DBusGProxy to the extract service");
-	}
-
-	return proxy;
-}
-
 static gboolean
 disk_space_check (TrackerMinerFiles *mf)
 {
@@ -1145,11 +1143,49 @@ process_file_data_free (ProcessFileData *data)
 	g_slice_free (ProcessFileData, data);
 }
 
+static DBusGProxy *
+extractor_create_proxy (void)
+{
+	DBusGProxy *proxy;
+	DBusGConnection *connection;
+	GError *error = NULL;
+
+	connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
+
+	if (!connection) {
+		g_critical ("Could not connect to the D-Bus session bus, %s",
+			    error ? error->message : "no error given.");
+		g_clear_error (&error);
+		return FALSE;
+	}
+
+	/* Get proxy for the extractor */
+	proxy = dbus_g_proxy_new_for_name (connection,
+					   "org.freedesktop.Tracker1.Extract",
+					   "/org/freedesktop/Tracker1/Extract",
+					   "org.freedesktop.Tracker1.Extract");
+
+	if (!proxy) {
+		g_critical ("Could not create a DBusGProxy to the extract service");
+	}
+
+	return proxy;
+}
+
 static void
-get_embedded_metadata_cb (DBusGProxy *proxy,
-			  gchar      *sparql,
-			  GError     *error,
-			  gpointer    user_data)
+extractor_queue_thumbnail_cb (DBusGProxy  *proxy,
+			      const gchar *filename, 
+			      const gchar *mime_type,
+			      gpointer     user_data)
+{
+	tracker_thumbnailer_queue_add (filename, mime_type);
+}
+
+static void
+extractor_get_embedded_metadata_cb (DBusGProxy *proxy,
+				    gchar      *sparql,
+				    GError     *error,
+				    gpointer    user_data)
 {
 	ProcessFileData *data = user_data;
 
@@ -1174,8 +1210,8 @@ get_embedded_metadata_cb (DBusGProxy *proxy,
 }
 
 static void
-get_embedded_metadata_cancel (GCancellable    *cancellable,
-			      ProcessFileData *data)
+extractor_get_embedded_metadata_cancel (GCancellable    *cancellable,
+					ProcessFileData *data)
 {
 	GError *error;
 
@@ -1191,17 +1227,17 @@ get_embedded_metadata_cancel (GCancellable    *cancellable,
 }
 
 static void
-get_embedded_metadata (ProcessFileData *data,
-		       const gchar     *uri,
-		       const gchar     *mime_type)
+extractor_get_embedded_metadata (ProcessFileData *data,
+				 const gchar     *uri,
+				 const gchar     *mime_type)
 {
 	data->call = org_freedesktop_Tracker1_Extract_get_metadata_async (data->miner->private->extractor_proxy,
 									  uri,
 									  mime_type,
-									  get_embedded_metadata_cb,
+									  extractor_get_embedded_metadata_cb,
 									  data);
 	g_signal_connect (data->cancellable, "cancelled",
-			  G_CALLBACK (get_embedded_metadata_cancel), data);
+			  G_CALLBACK (extractor_get_embedded_metadata_cancel), data);
 }
 
 static void
@@ -1279,8 +1315,13 @@ process_file_cb (GObject      *object,
 
         miner_files_add_to_datasource (data->miner, file, sparql);
 
+	/* Send file/mime data to thumbnailer (which adds it to the
+	 * queue if the thumbnailer handles those mime types).
+	 */
+	tracker_thumbnailer_queue_add (uri, mime_type);
+
 	/* Next step, getting embedded metadata */
-	get_embedded_metadata (data, uri, mime_type);
+	extractor_get_embedded_metadata (data, uri, mime_type);
 
 	g_object_unref (file_info);
 	g_free (uri);

@@ -190,6 +190,8 @@ miner_handle_next (void)
         }
 
         if (!current_miner) {
+                g_message ("All miners are now finished");
+                tracker_thumbnailer_queue_send ();
                 return;
         }
 

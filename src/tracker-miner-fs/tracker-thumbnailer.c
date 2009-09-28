@@ -77,7 +77,7 @@ private_free (gpointer data)
 	g_free (private);
 }
 
-static gboolean
+inline static gboolean
 should_be_thumbnailed (GStrv        list, 
 		       const gchar *mime)
 {
@@ -109,6 +109,9 @@ tracker_thumbnailer_init (void)
 
 	private = g_new0 (TrackerThumbnailerPrivate, 1);
 
+	/* Don't start at 0, start at 1. */
+	private->request_id = 1;
+
 	g_static_private_set (&private_key,
 			      private,
 			      private_free);
@@ -139,22 +142,6 @@ tracker_thumbnailer_init (void)
 					   THUMBMAN_PATH,
 					   THUMBMAN_INTERFACE);
 	
-
-	/* It's known that this relatively small GStrv is leaked: it contains
-	 * the MIME types that the DBus thumbnailer supports. If a MIME type
-	 * is not within this list, yet we retrieved it once, then we decide
-	 * not to perform thumbnail actions over DBus. This is a performance
-	 * improvement and the GStrv can be resident in memory until the end
-	 * of the application - it's a cache - 
-	 *
-	 * It doesn't support detecting when the DBus thumbnailer starts 
-	 * supporting more formats (which can indeed start happening). This is
-	 * a known tradeoff and limitation of this cache. We could enhance this
-	 * cache to listen for changes on the bus, and invalidate it once we
-	 * know that more MIME types have become supported. It has no high
-	 * priority now, though (therefore, is this a TODO). 
-	 */
-
 	dbus_g_proxy_call (private->manager_proxy,
 			   "GetSupported", &error, 
 			   G_TYPE_INVALID,
@@ -218,8 +205,6 @@ tracker_thumbnailer_move (const gchar *from_uri,
 	}
 
 	if (!should_be_thumbnailed (private->supported_mime_types, mime_type)) {
-		g_debug ("Thumbnailer ignoring mime type:'%s'",
-			 mime_type);
 		return FALSE;
 	}
 
@@ -278,9 +263,6 @@ tracker_thumbnailer_remove (const gchar *uri,
 	}
 
 	if (mime_type && !should_be_thumbnailed (private->supported_mime_types, mime_type)) {
-		g_debug ("Thumbnailer ignoring uri:'%s', mime type:'%s'",
-			 uri,
-			 mime_type);
 		return FALSE;
 	}
 
@@ -360,13 +342,8 @@ tracker_thumbnailer_queue_add (const gchar *uri,
 	}
 
 	if (!should_be_thumbnailed (private->supported_mime_types, mime_type)) {
-		g_debug ("Thumbnailer ignoring uri:'%s', mime type:'%s'",
-			 uri,
-			 mime_type);
 		return FALSE;
 	}
-
-	private->request_id++;
 
 	/* Add new URI (detect if we got passed a path) */
 	if (!strstr (uri, "://")) {
@@ -384,10 +361,9 @@ tracker_thumbnailer_queue_add (const gchar *uri,
 	private->uris = g_slist_append (private->uris, used_uri);
 	private->mime_types = g_slist_append (private->mime_types, used_mime_type);
 
-	g_debug ("Thumbnailer queue appended with uri:'%s', mime type:'%s', request_id:%d...",
+	g_debug ("Thumbnailer queue appended with uri:'%s', mime type:'%s'",
 		 used_uri,
-		 used_mime_type,
-		 private->request_id); 
+		 used_mime_type);
 
 	return TRUE;
 }
