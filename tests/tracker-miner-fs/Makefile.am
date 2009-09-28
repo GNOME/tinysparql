@@ -27,7 +27,6 @@ tracker_metadata_utils_SOURCES = 						\
 	$(top_srcdir)/src/tracker-miner-fs/tracker-config.c			\
 	$(top_srcdir)/src/tracker-miner-fs/tracker-marshal.c			\
 	$(top_srcdir)/src/tracker-miner-fs/tracker-thumbnailer.c		\
-	$(top_srcdir)/src/tracker-miner-fs/tracker-utils.c			\
 	tracker-metadata-utils-test.c 					
 
 tracker_metadata_utils_LDADD =	                                        	\
