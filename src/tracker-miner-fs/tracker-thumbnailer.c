@@ -24,7 +24,6 @@
 
 #include <libtracker-common/tracker-dbus.h>
 
-#include "tracker-dbus.h"
 #include "tracker-thumbnailer.h"
 
 #define THUMBNAILER_SERVICE	 "org.freedesktop.thumbnailer"

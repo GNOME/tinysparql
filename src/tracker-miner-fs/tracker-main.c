@@ -44,7 +44,6 @@
 #include <libtracker-db/tracker-db-manager.h>
 #include <libtracker-db/tracker-db-dbus.h>
 
-#include "tracker-dbus.h"
 #include "tracker-config.h"
 #include "tracker-marshal.h"
 #include "tracker-miner-applications.h"
@@ -217,16 +216,6 @@ miner_finished_cb (TrackerMinerFS *fs,
         miner_handle_next ();
 }
 
-static void
-daemon_availability_changed_cb (const gchar *name,
-                                gboolean     available,
-                                gpointer     user_data)
-{
-        if (!available) {
-                /* tracker_indexer_stop (TRACKER_INDEXER (user_data)); */
-        }
-}
-
 int
 main (gint argc, gchar *argv[])
 {
@@ -292,12 +281,6 @@ main (gint argc, gchar *argv[])
 	/* Make sure we initialize DBus, this shows we are started
 	 * successfully when called upon from the daemon.
 	 */
-#if 0
-	if (!tracker_dbus_init ()) {
-		return EXIT_FAILURE;
-	}
-#endif
-
 	tracker_log_init (tracker_config_get_verbosity (config),
                           &log_filename);
 	g_print ("Starting log:\n  File:'%s'\n", log_filename);

@@ -24,7 +24,6 @@ INCLUDES = 									\
 	$(DBUS_CFLAGS)
 
 tracker_metadata_utils_SOURCES = 						\
-	$(top_srcdir)/src/tracker-miner-fs/tracker-dbus.c			\
 	$(top_srcdir)/src/tracker-miner-fs/tracker-config.c			\
 	$(top_srcdir)/src/tracker-miner-fs/tracker-marshal.c			\
 	$(top_srcdir)/src/tracker-miner-fs/tracker-thumbnailer.c		\
