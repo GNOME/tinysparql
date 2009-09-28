@@ -100,7 +100,7 @@ should_be_thumbnailed (GStrv        list,
 	return should_thumbnail;
 }
 
-void
+gboolean
 tracker_thumbnailer_init (void)
 {
 	TrackerThumbnailerPrivate *private;
@@ -125,7 +125,7 @@ tracker_thumbnailer_init (void)
 
 		private->service_is_available = FALSE;
 
-		return;
+		return FALSE;
 	}
 
 	private->requester_proxy = 
@@ -167,13 +167,25 @@ tracker_thumbnailer_init (void)
 			   error->message);
 
 		g_error_free (error);
+
+		if (private->requester_proxy) {
+			g_object_unref (private->requester_proxy);
+		}
+		
+		if (private->manager_proxy) {
+			g_object_unref (private->manager_proxy);
+		}
+
+		return FALSE;
 	} else if (mime_types) {
 		g_message ("Thumbnailer supports %d mime types", 
 			   g_strv_length (mime_types));
 
 		private->supported_mime_types = mime_types;
 		private->service_is_available = TRUE;
-	}	
+	}
+
+	return TRUE;
 }
 
 void
@@ -182,7 +194,7 @@ tracker_thumbnailer_shutdown (void)
 	g_static_private_set (&private_key, NULL, NULL);
 }
 
-void
+gboolean
 tracker_thumbnailer_move (const gchar *from_uri,
 			  const gchar *mime_type,
 			  const gchar *to_uri)
@@ -191,25 +203,25 @@ tracker_thumbnailer_move (const gchar *from_uri,
 	gchar *to[2] = { NULL, NULL };
 	gchar *from[2] = { NULL, NULL };
 
-	g_return_if_fail (from_uri != NULL);
-	g_return_if_fail (mime_type != NULL);
-	g_return_if_fail (to_uri != NULL);
+	g_return_val_if_fail (from_uri != NULL, FALSE);
+	g_return_val_if_fail (mime_type != NULL, FALSE);
+	g_return_val_if_fail (to_uri != NULL, FALSE);
 
 	private = g_static_private_get (&private_key);
-	g_return_if_fail (private != NULL);
+	g_return_val_if_fail (private != NULL, FALSE);
 
 	/* NOTE: We don't check the service_is_enabled flag here
 	 * because we might want to manage thumbnails even if we are
 	 * not creating any new ones. 
 	 */
 	if (!private->service_is_available) {
-		return;
+		return FALSE;
 	}
 
 	if (!should_be_thumbnailed (private->supported_mime_types, mime_type)) {
 		g_debug ("Thumbnailer ignoring mime type:'%s'",
 			 mime_type);
-		return;
+		return FALSE;
 	}
 
 	private->request_id++;
@@ -240,9 +252,11 @@ tracker_thumbnailer_move (const gchar *from_uri,
 
 	g_free (from[0]);
 	g_free (to[0]);
+
+	return TRUE;
 }
 
-void
+gboolean
 tracker_thumbnailer_remove (const gchar *uri, 
 			    const gchar *mime_type)
 {
@@ -251,24 +265,24 @@ tracker_thumbnailer_remove (const gchar *uri,
 
 	/* mime_type can be NULL */
 
-	g_return_if_fail (uri != NULL);
+	g_return_val_if_fail (uri != NULL, FALSE);
 
 	private = g_static_private_get (&private_key);
-	g_return_if_fail (private != NULL);
+	g_return_val_if_fail (private != NULL, FALSE);
 
 	/* NOTE: We don't check the service_is_enabled flag here
 	 * because we might want to manage thumbnails even if we are
 	 * not creating any new ones. 
 	 */
 	if (!private->service_is_available) {
-		return;
+		return FALSE;
 	}
 
 	if (mime_type && !should_be_thumbnailed (private->supported_mime_types, mime_type)) {
 		g_debug ("Thumbnailer ignoring uri:'%s', mime type:'%s'",
 			 uri,
 			 mime_type);
-		return;
+		return FALSE;
 	}
 
 	private->request_id++;
@@ -290,24 +304,26 @@ tracker_thumbnailer_remove (const gchar *uri,
 				    G_TYPE_INVALID);
 
 	g_free (uris[0]);
+
+	return TRUE;
 }
 
-void 
+gboolean 
 tracker_thumbnailer_cleanup (const gchar *uri_prefix)
 {
 	TrackerThumbnailerPrivate *private;
 
-	g_return_if_fail (uri_prefix != NULL);
+	g_return_val_if_fail (uri_prefix != NULL, FALSE);
 
 	private = g_static_private_get (&private_key);
-	g_return_if_fail (private != NULL);
+	g_return_val_if_fail (private != NULL, FALSE);
 
 	/* NOTE: We don't check the service_is_enabled flag here
 	 * because we might want to manage thumbnails even if we are
 	 * not creating any new ones. 
 	 */
 	if (!private->service_is_available) {
-		return;
+		return FALSE;
 	}
 
 	private->request_id++;
@@ -322,9 +338,11 @@ tracker_thumbnailer_cleanup (const gchar *uri_prefix)
 				    G_TYPE_UINT, 0,
 				    G_TYPE_INVALID,
 				    G_TYPE_INVALID);
+
+	return TRUE;
 }
 
-void
+gboolean
 tracker_thumbnailer_queue_add (const gchar *uri,
 			       const gchar *mime_type)
 {
@@ -332,21 +350,21 @@ tracker_thumbnailer_queue_add (const gchar *uri,
 	gchar *used_uri;
 	gchar *used_mime_type;
 
-	g_return_if_fail (uri != NULL);
-	g_return_if_fail (mime_type != NULL);
+	g_return_val_if_fail (uri != NULL, FALSE);
+	g_return_val_if_fail (mime_type != NULL, FALSE);
 
 	private = g_static_private_get (&private_key);
-	g_return_if_fail (private != NULL);
+	g_return_val_if_fail (private != NULL, FALSE);
 
 	if (!private->service_is_available) {
-		return;
+		return FALSE;
 	}
 
 	if (!should_be_thumbnailed (private->supported_mime_types, mime_type)) {
 		g_debug ("Thumbnailer ignoring uri:'%s', mime type:'%s'",
 			 uri,
 			 mime_type);
-		return;
+		return FALSE;
 	}
 
 	private->request_id++;
@@ -371,6 +389,8 @@ tracker_thumbnailer_queue_add (const gchar *uri,
 		 used_uri,
 		 used_mime_type,
 		 private->request_id); 
+
+	return TRUE;
 }
 
 void
