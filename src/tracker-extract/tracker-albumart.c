@@ -1063,8 +1063,9 @@ tracker_albumart_process (const unsigned char *buffer,
 			albumart_signal_queue_thumbnail (filename_uri, "image/jpeg");
 		}
 	} else {
-		g_debug ("Album art already exists for uri:'%s'", 
-			 filename_uri);
+		g_debug ("Album art already exists for uri:'%s' as '%s'", 
+			 filename_uri, 
+			 art_path);
 	}
 
 	if (local_uri && !g_file_test (local_uri, G_FILE_TEST_EXISTS)) {
