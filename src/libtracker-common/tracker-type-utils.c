@@ -81,11 +81,9 @@ get_remainder_multiplier (gint remainder)
 	return mult;
 }
 
-/* FIXME This function is crap and it doing unnecessary
- * allocations (splits) all over the place.
- * FIXME We still don't handle large years or year-week
+/* FIXME We still do not handle large years or year-week
  * or year-day-formats (not that they would be common in 
- * file formats 
+ * file formats)
  */
 static gboolean
 tracker_simplify_8601 (const gchar *date_string,
@@ -131,7 +129,13 @@ tracker_simplify_8601 (const gchar *date_string,
 		}
 
 		if (!timezone_sep) {
-			time = g_strdup (time_part);
+			/* Remove a trailing Z */
+			len = strlen (time_part);
+			
+			if (time_part[len-1] == 'Z')
+				len--;
+
+			time = g_strndup (time_part, len);
 			zone = g_strdup ("+00:00");
 		} else {
 			pieces = g_strsplit_set (time_part, "+-", -1);
