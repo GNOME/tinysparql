@@ -70,7 +70,7 @@ static GMainLoop  *main_loop;
 static guint       quit_timeout_id = 0;
 
 static gboolean    version;
-gboolean           debug = FALSE;
+static gboolean    disable_shutdown;
 static gint        verbosity = -1;
 static gchar      *filename;
 static gchar      *mime_type;
@@ -95,9 +95,9 @@ static GOptionEntry  entries[] = {
 	  N_("MIME") },
 	/* Debug run is used to avoid that the mainloop exits, so that
 	 * as a developer you can be relax when running the tool in gdb */
-	{ "debug", 'd', 0,
-	  G_OPTION_ARG_NONE, &debug,
-	  N_("Debug (default = off)"),
+	{ "disable-shutdown", 'd', 0,
+	  G_OPTION_ARG_NONE, &disable_shutdown,
+	  N_("Disable shutting down after 30 seconds of inactivity"),
 	  NULL },
 
 	{ NULL }
@@ -108,7 +108,7 @@ quit_timeout_cb (gpointer user_data)
 {
 	quit_timeout_id = 0;
 	
-	if (!debug) {
+	if (!disable_shutdown) {
 		g_main_loop_quit (main_loop);
 	} else {
 		g_debug ("Would have quit the mainloop");
@@ -189,11 +189,12 @@ signal_handler (int signo)
 	case SIGTERM:
 	case SIGINT:
 		in_loop = TRUE;
+		disable_shutdown = FALSE;
 		quit_timeout_cb (NULL);
 	default:
 		if (g_strsignal (signo)) {
 			g_print ("\n");
-			g_print ("Received signal:%d->'%s'",
+			g_print ("Received signal:%d->'%s'\n",
 				 signo,
 				 g_strsignal (signo));
 		}
@@ -310,7 +311,9 @@ main (int argc, char *argv[])
 		return EXIT_SUCCESS;
 	}
 
-	g_print ("Initializing tracker-extract...%s\n", debug ? "Running in debug mode" : "");
+	g_print ("Initializing tracker-extract...\n");
+	g_print ("  Shutdown after 30 seconds of inactivitiy is %s\n",
+		 disable_shutdown ? "disabled" : "enabled");
 
 	initialize_signal_handler ();
 
@@ -339,7 +342,7 @@ main (int argc, char *argv[])
 		GFile *file;
 		gchar *uri;
 
-		extract = tracker_extract_new ();
+		extract = tracker_extract_new (disable_shutdown);
 		if (!extract) {
 			return EXIT_FAILURE;
 		}
@@ -376,7 +379,7 @@ main (int argc, char *argv[])
 	g_free (log_filename);
 
 	/* Make Tracker available for introspection */
-	if (!tracker_dbus_register_objects ()) {
+	if (!tracker_dbus_register_objects (disable_shutdown)) {
 		g_object_unref (config);
 
 		return EXIT_FAILURE;

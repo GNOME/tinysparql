@@ -47,6 +47,7 @@ extern gboolean debug;
 typedef struct {
 	GArray *specific_extractors;
 	GArray *generic_extractors;
+	gboolean disable_shutdown;
 } TrackerExtractPrivate;
 
 typedef struct { 
@@ -115,7 +116,7 @@ tracker_extract_finalize (GObject *object)
 }
 
 TrackerExtract *
-tracker_extract_new (void)
+tracker_extract_new (gboolean disable_shutdown)
 {
 	TrackerExtract *object;
 	TrackerExtractPrivate *priv;
@@ -201,6 +202,8 @@ tracker_extract_new (void)
 	object = g_object_new (TRACKER_TYPE_EXTRACT, NULL);
 
 	priv = TRACKER_EXTRACT_GET_PRIVATE (object);
+
+	priv->disable_shutdown = disable_shutdown;
 
 	priv->specific_extractors = specific_extractors;
 	priv->generic_extractors = generic_extractors;
@@ -434,7 +437,8 @@ tracker_extract_get_metadata (TrackerExtract	     *object,
 			      DBusGMethodInvocation  *context,
 			      GError		    **error)
 {
-	guint       request_id;
+	guint request_id;
+	TrackerExtractPrivate *priv;
 	TrackerSparqlBuilder *sparql = NULL;
 
 	request_id = tracker_dbus_get_next_request_id ();
@@ -449,9 +453,11 @@ tracker_extract_get_metadata (TrackerExtract	     *object,
 
 	tracker_dbus_request_debug (request_id,
 				    "  Resetting shutdown timeout");
+
+	priv = TRACKER_EXTRACT_GET_PRIVATE (object);
 	
 	tracker_main_quit_timeout_reset ();
-	if (!debug) {
+	if (!priv->disable_shutdown) {
 		alarm (MAX_EXTRACT_TIME);
 	}
 
@@ -477,7 +483,7 @@ tracker_extract_get_metadata (TrackerExtract	     *object,
 		g_error_free (actual_error);
 	}
 
-	if (!debug) {
+	if (!priv->disable_shutdown) {
 		/* Unset alarm so the extractor doesn't die when it's idle */
 		alarm (0);
 	}

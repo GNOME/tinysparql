@@ -50,7 +50,7 @@ struct TrackerExtractClass {
 };
 
 GType           tracker_extract_get_type                (void);
-TrackerExtract *tracker_extract_new                     (void);
+TrackerExtract *tracker_extract_new                     (gboolean                disable_shutdown);
 void            tracker_extract_get_pid                 (TrackerExtract         *object,
 							 DBusGMethodInvocation  *context,
 							 GError                **error);
