@@ -921,11 +921,13 @@ miner_files_check_file (TrackerMinerFS *fs,
 	GFileInfo *file_info;
 	GSList *l;
 	gchar *basename;
+	gchar *path;
 	gboolean should_process;
 
 	file_info = NULL;
 	should_process = FALSE;
 	basename = NULL;
+	path = NULL;
 
 	file_info = g_file_query_info (file,
 				       G_FILE_ATTRIBUTE_STANDARD_IS_HIDDEN,
@@ -940,6 +942,14 @@ miner_files_check_file (TrackerMinerFS *fs,
 	/* Check module file ignore patterns */
 	mf = TRACKER_MINER_FILES (fs);
 
+	path = g_file_get_path (file);
+
+	for (l = tracker_config_get_ignored_file_paths (mf->private->config); l; l = l->next) {
+		if (strcmp (l->data, path) == 0) {
+			goto done;
+		}
+	}
+
 	basename = g_file_get_basename (file);
 	
 	for (l = tracker_config_get_ignored_file_patterns (mf->private->config); l; l = l->next) {
@@ -951,11 +961,12 @@ miner_files_check_file (TrackerMinerFS *fs,
 	should_process = TRUE;
 
 done:
+	g_free (basename);
+	g_free (path);
+
 	if (file_info) {
 		g_object_unref (file_info);
 	}
-
-	g_free (basename);
 
 	return should_process;
 }
@@ -968,6 +979,7 @@ miner_files_check_directory (TrackerMinerFS *fs,
 	GFileInfo *file_info;
 	GSList *l;
 	gchar *basename;
+	gchar *path;
 	gboolean should_process;
 
 	should_process = FALSE;
@@ -979,13 +991,13 @@ miner_files_check_directory (TrackerMinerFS *fs,
                                        G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
                                        NULL, NULL);
 
+	path = g_file_get_path (file);
+
 	if (file_info && g_file_info_get_is_hidden (file_info)) {
 		TrackerMinerFiles *mf;
 		GSList *allowed_directories;
-		gchar *path;
 
 		mf = TRACKER_MINER_FILES (fs);
-		path = g_file_get_path (file);
 
 		/* FIXME: We need to check if the file is actually a
 		 * config specified location before blanket ignoring
@@ -1005,13 +1017,17 @@ miner_files_check_directory (TrackerMinerFS *fs,
 			should_process = TRUE;
 		}
 
-		g_free (path);
-
 		/* Ignore hidden dirs */
 		goto done;
 	}
 
 	mf = TRACKER_MINER_FILES (fs);
+
+	for (l = tracker_config_get_ignored_directory_paths (mf->private->config); l; l = l->next) {
+		if (strcmp (l->data, path) == 0) {
+			goto done;
+		}
+	}
 
 	basename = g_file_get_basename (file);
 
@@ -1025,11 +1041,12 @@ miner_files_check_directory (TrackerMinerFS *fs,
 	should_process = TRUE;
 
 done:
+	g_free (basename);
+	g_free (path);
+
 	if (file_info) {
 		g_object_unref (file_info);
 	}
-
-	g_free (basename);
 
 	return should_process;
 }

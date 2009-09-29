@@ -105,9 +105,19 @@ void	       tracker_config_set_ignored_directories_with_content (TrackerConfig *
 void	       tracker_config_set_ignored_files                    (TrackerConfig *config,
 								    GSList        *files);
 
-/* Convenience functions */
+/*
+ * Convenience functions:
+ */
+
+/* The _patterns() APIs return GPatternSpec pointers for basename
+ * pattern matching.
+ */
 GSList *       tracker_config_get_ignored_directory_patterns        (TrackerConfig *config);
 GSList *       tracker_config_get_ignored_file_patterns             (TrackerConfig *config);
+
+/* The _paths() APIs return string pointers for full paths matching */
+GSList *       tracker_config_get_ignored_directory_paths           (TrackerConfig *config);
+GSList *       tracker_config_get_ignored_file_paths                (TrackerConfig *config);
 
 G_END_DECLS
 
