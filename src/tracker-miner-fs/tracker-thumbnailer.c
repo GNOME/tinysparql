@@ -196,10 +196,6 @@ tracker_thumbnailer_move (const gchar *from_uri,
 	private = g_static_private_get (&private_key);
 	g_return_val_if_fail (private != NULL, FALSE);
 
-	/* NOTE: We don't check the service_is_enabled flag here
-	 * because we might want to manage thumbnails even if we are
-	 * not creating any new ones. 
-	 */
 	if (!private->service_is_available) {
 		return FALSE;
 	}
@@ -254,10 +250,6 @@ tracker_thumbnailer_remove (const gchar *uri,
 	private = g_static_private_get (&private_key);
 	g_return_val_if_fail (private != NULL, FALSE);
 
-	/* NOTE: We don't check the service_is_enabled flag here
-	 * because we might want to manage thumbnails even if we are
-	 * not creating any new ones. 
-	 */
 	if (!private->service_is_available) {
 		return FALSE;
 	}
@@ -299,10 +291,6 @@ tracker_thumbnailer_cleanup (const gchar *uri_prefix)
 	private = g_static_private_get (&private_key);
 	g_return_val_if_fail (private != NULL, FALSE);
 
-	/* NOTE: We don't check the service_is_enabled flag here
-	 * because we might want to manage thumbnails even if we are
-	 * not creating any new ones. 
-	 */
 	if (!private->service_is_available) {
 		return FALSE;
 	}
@@ -377,6 +365,10 @@ tracker_thumbnailer_queue_send (void)
 
 	private = g_static_private_get (&private_key);
 	g_return_if_fail (private != NULL);
+
+	if (!private->service_is_available) {
+		return;
+	}
 
 	if (g_slist_length (private->uris) < 1) {
 		/* Nothing to do */
