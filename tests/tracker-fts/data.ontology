@@ -1,0 +1,23 @@
+@prefix fts: <http://www.tracker-project.org/ontologies/fts#> .
+@prefix nrl: <http://www.semanticdesktop.org/ontologies/2007/08/15/nrl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix test: <http://www.example.org/test#> .
+@prefix tracker: <http://www.tracker-project.org/ontologies/tracker#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+fts: a tracker:Namespace ;
+	tracker:prefix "fts" .
+
+test: a tracker:Namespace ;
+	tracker:prefix "test" .
+
+test:A a rdfs:Class ;
+	rdfs:subClassOf rdfs:Resource .
+
+test:p a rdf:Property ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain test:A ;
+	rdfs:range xsd:string ;
+	tracker:fulltextIndexed true .
+

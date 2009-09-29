@@ -2409,6 +2409,7 @@ struct fulltext_vtab {
   char **azColumn;		   /* column names.  malloced */
   char **azContentColumn;	   /* column names in content table; malloced */
   TrackerParser *parser;	   /* tokenizer for inserts and queries */
+  gboolean stop_words;
   int max_words;
 
   /* Precompiled statements which we keep as long as the table is
@@ -3412,6 +3413,9 @@ static int constructVtab(
 
   v->parser =	tracker_parser_new (language, max_len, min_len);
 
+  /* disable stop words if TRACKER_FTS_STOP_WORDS is set to 0 - used by tests */
+  v->stop_words = g_strcmp0 (g_getenv ("TRACKER_FTS_STOP_WORDS"), "0") != 0;
+
   g_object_unref (language);
 
 
@@ -3677,7 +3681,7 @@ static void snippetOffsetsOfColumn(
   pVtab = pQuery->pFts;
   nColumn = pVtab->nColumn;
 
-  tracker_parser_reset (pVtab->parser, zDoc, nDoc, FALSE, TRUE, TRUE, FALSE);
+  tracker_parser_reset (pVtab->parser, zDoc, nDoc, FALSE, TRUE, pVtab->stop_words, FALSE);
 
   aTerm = pQuery->pTerms;
   nTerm = pQuery->nTerms;
@@ -4367,16 +4371,17 @@ static int checkColumnSpecifier(
 ** term found is marked with nPhrase=0 and OR and "-" syntax is significant.
 */
 static int tokenizeSegment(
-  TrackerParser *parser,		  /* The tokenizer to use */
+  fulltext_vtab *v,		  /* The tokenizer to use */
   const char *pSegment, int nSegment,	  /* Query expression being parsed */
   int inPhrase,				  /* True if within "..." */
   Query *pQuery				  /* Append results here */
 ){
+  TrackerParser *parser = v->parser;
   int firstIndex = pQuery->nTerms;
   int iCol;
   int nTerm = 1;
 
-  tracker_parser_reset (parser, pSegment, nSegment, FALSE, TRUE, TRUE, TRUE);
+  tracker_parser_reset (parser, pSegment, nSegment, FALSE, TRUE, v->stop_words, TRUE);
 
   while( 1 ){
     const char *pToken;
@@ -4508,7 +4513,7 @@ static int parseQuery(
     int i;
     for(i=iInput; i<nInput && zInput[i]!='"'; ++i){}
     if( i>iInput ){
-      tokenizeSegment(v->parser, zInput+iInput, i-iInput, inPhrase,
+      tokenizeSegment(v, zInput+iInput, i-iInput, inPhrase,
 		       pQuery);
     }
     iInput = i;
@@ -4822,7 +4827,7 @@ int Catid,
 
   if (!zText) return SQLITE_OK;
 
-  tracker_parser_reset (parser, zText, strlen (zText), FALSE, TRUE, TRUE, FALSE);
+  tracker_parser_reset (parser, zText, strlen (zText), FALSE, TRUE, v->stop_words, FALSE);
 
   while( 1 ){
 

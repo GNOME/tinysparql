@@ -1441,6 +1441,7 @@ AC_CONFIG_FILES([
 	tests/libtracker-data/turtle/Makefile
 	tests/libtracker-db/Makefile
 	tests/Makefile
+	tests/tracker-fts/Makefile
 	tests/tracker-miner-fs/Makefile
 	tests/tracker-extract/Makefile
 	tests/tracker-store/Makefile

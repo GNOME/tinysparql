@@ -1,0 +1,34 @@
+INSERT {
+	test:1 a test:A ; test:p "one" .
+	test:2 a test:A ; test:p "two" .
+	test:3 a test:A ; test:p "one two" .
+	test:4 a test:A ; test:p "three" .
+	test:5 a test:A ; test:p "one three" .
+	test:6 a test:A ; test:p "two three" .
+	test:7 a test:A ; test:p "one two three" .
+	test:8 a test:A ; test:p "four" .
+	test:9 a test:A ; test:p "one four" .
+	test:10 a test:A ; test:p "two four" .
+	test:11 a test:A ; test:p "one two four" .
+	test:12 a test:A ; test:p "three four" .
+	test:13 a test:A ; test:p "one three four" .
+	test:14 a test:A ; test:p "two three four" .
+	test:15 a test:A ; test:p "one two three four" .
+	test:16 a test:A ; test:p "five" .
+	test:17 a test:A ; test:p "one five" .
+	test:18 a test:A ; test:p "two five" .
+	test:19 a test:A ; test:p "one two five" .
+	test:20 a test:A ; test:p "three five" .
+	test:21 a test:A ; test:p "one three five" .
+	test:22 a test:A ; test:p "two three five" .
+	test:23 a test:A ; test:p "one two three five" .
+	test:24 a test:A ; test:p "four five" .
+	test:25 a test:A ; test:p "one four five" .
+	test:26 a test:A ; test:p "two four five" .
+	test:27 a test:A ; test:p "one two four five" .
+	test:28 a test:A ; test:p "three four five" .
+	test:29 a test:A ; test:p "one three four five" .
+	test:30 a test:A ; test:p "two three four five" .
+	test:31 a test:A ; test:p "one two three four five" .
+}
+
