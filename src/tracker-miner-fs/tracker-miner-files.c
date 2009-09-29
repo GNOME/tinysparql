@@ -1320,7 +1320,6 @@ process_file_cb (GObject      *object,
 		/* Something bad happened, notify about the error */
 		data->callback (TRACKER_MINER_FS (data->miner), file, sparql, error, data->callback_data);
 		process_file_data_free (data);
-		g_object_unref (file_info);
 		return;
 	}
 
