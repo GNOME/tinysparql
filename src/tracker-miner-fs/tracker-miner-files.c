@@ -349,7 +349,6 @@ miner_files_constructed (GObject *object)
 
         while (dirs) {
 		GFile *file;
-		const gchar *path_to_use;
 
 		/* Do some simple checks for silly locations */
 		if (strcmp (dirs->data, "/dev") == 0 ||
@@ -363,34 +362,7 @@ miner_files_constructed (GObject *object)
 			continue;
 		}
 
-		path_to_use = NULL;
-
-		if (g_str_has_prefix (dirs->data, "%G_USER_DIRECTORY_")) {
-			/* Must be a special dir */
-			if (strcmp (dirs->data, "%G_USER_DIRECTORY_DESKTOP") == 0) {
-				path_to_use = g_get_user_special_dir (G_USER_DIRECTORY_DESKTOP);
-			} else if (strcmp (dirs->data, "%G_USER_DIRECTORY_DOCUMENTS") == 0) {
-				path_to_use = g_get_user_special_dir (G_USER_DIRECTORY_DOCUMENTS);
-			} else if (strcmp (dirs->data, "%G_USER_DIRECTORY_DOWNLOAD") == 0) {
-				path_to_use = g_get_user_special_dir (G_USER_DIRECTORY_DOWNLOAD);
-			} else if (strcmp (dirs->data, "%G_USER_DIRECTORY_MUSIC") == 0) {
-				path_to_use = g_get_user_special_dir (G_USER_DIRECTORY_MUSIC);
-			} else if (strcmp (dirs->data, "%G_USER_DIRECTORY_PICTURES") == 0) {
-				path_to_use = g_get_user_special_dir (G_USER_DIRECTORY_PICTURES);
-			} else if (strcmp (dirs->data, "%G_USER_DIRECTORY_PUBLIC_SHARE") == 0) {
-				path_to_use = g_get_user_special_dir (G_USER_DIRECTORY_PUBLIC_SHARE);
-			} else if (strcmp (dirs->data, "%G_USER_DIRECTORY_TEMPLATES") == 0) {
-				path_to_use = g_get_user_special_dir (G_USER_DIRECTORY_TEMPLATES);
-			} else if (strcmp (dirs->data, "%G_USER_DIRECTORY_VIDEOS") == 0) {
-				path_to_use = g_get_user_special_dir (G_USER_DIRECTORY_VIDEOS);
-			}
-		}
-
-		if (!path_to_use) {
-			path_to_use = dirs->data;
-		}
-
-		file = g_file_new_for_path (path_to_use);
+		file = g_file_new_for_path (dirs->data);
                 tracker_miner_fs_add_directory (fs, file, FALSE);
 		g_object_unref (file);
 
@@ -401,7 +373,6 @@ miner_files_constructed (GObject *object)
 
         while (dirs) {
 		GFile *file;
-		const gchar *path_to_use;
 
 		/* Do some simple checks for silly locations */
 		if (strcmp (dirs->data, "/dev") == 0 ||
@@ -415,34 +386,7 @@ miner_files_constructed (GObject *object)
 			continue;
 		}
 
-		path_to_use = NULL;
-
-		if (g_str_has_prefix (dirs->data, "%G_USER_DIRECTORY_")) {
-			/* Must be a special dir */
-			if (strcmp (dirs->data, "%G_USER_DIRECTORY_DESKTOP") == 0) {
-				path_to_use = g_get_user_special_dir (G_USER_DIRECTORY_DESKTOP);
-			} else if (strcmp (dirs->data, "%G_USER_DIRECTORY_DOCUMENTS") == 0) {
-				path_to_use = g_get_user_special_dir (G_USER_DIRECTORY_DOCUMENTS);
-			} else if (strcmp (dirs->data, "%G_USER_DIRECTORY_DOWNLOAD") == 0) {
-				path_to_use = g_get_user_special_dir (G_USER_DIRECTORY_DOWNLOAD);
-			} else if (strcmp (dirs->data, "%G_USER_DIRECTORY_MUSIC") == 0) {
-				path_to_use = g_get_user_special_dir (G_USER_DIRECTORY_MUSIC);
-			} else if (strcmp (dirs->data, "%G_USER_DIRECTORY_PICTURES") == 0) {
-				path_to_use = g_get_user_special_dir (G_USER_DIRECTORY_PICTURES);
-			} else if (strcmp (dirs->data, "%G_USER_DIRECTORY_PUBLIC_SHARE") == 0) {
-				path_to_use = g_get_user_special_dir (G_USER_DIRECTORY_PUBLIC_SHARE);
-			} else if (strcmp (dirs->data, "%G_USER_DIRECTORY_TEMPLATES") == 0) {
-				path_to_use = g_get_user_special_dir (G_USER_DIRECTORY_TEMPLATES);
-			} else if (strcmp (dirs->data, "%G_USER_DIRECTORY_VIDEOS") == 0) {
-				path_to_use = g_get_user_special_dir (G_USER_DIRECTORY_VIDEOS);
-			}
-		}
-
-		if (!path_to_use) {
-			path_to_use = dirs->data;
-		}
-
-		file = g_file_new_for_path (path_to_use);
+		file = g_file_new_for_path (dirs->data);
                 tracker_miner_fs_add_directory (fs, file, TRUE);
 		g_object_unref (file);
 
@@ -1052,7 +996,6 @@ miner_files_check_directory (TrackerMinerFS *fs,
 
 		if (tracker_string_in_gslist (path, allowed_directories)) {
 			should_process = TRUE;
-		} else {
 		}
 
 		allowed_directories = 
