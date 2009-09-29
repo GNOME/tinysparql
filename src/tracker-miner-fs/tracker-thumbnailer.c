@@ -378,6 +378,16 @@ tracker_thumbnailer_queue_send (void)
 	private = g_static_private_get (&private_key);
 	g_return_if_fail (private != NULL);
 
+	if (g_slist_length (private->uris) < 1) {
+		/* Nothing to do */
+		g_message ("Thumbnailer queue is empty, nothing to send to thumbnailer");
+		return;
+	}
+
+	g_message ("Thumbnailer queue sent with %d items to thumbnailer daemon, request ID:%d...", 
+		   g_slist_length (private->uris),
+		   private->request_id++);
+
 	uri_strv = tracker_dbus_slist_to_strv (private->uris);
 	mime_type_strv = tracker_dbus_slist_to_strv (private->mime_types);
 
@@ -388,10 +398,6 @@ tracker_thumbnailer_queue_send (void)
 				    G_TYPE_UINT, 0,
 				    G_TYPE_INVALID,
 				    G_TYPE_INVALID);
-
-	g_message ("Thumbnailer queue sent with %d items to thumbnailer daemon, request ID:%d...", 
-		   g_slist_length (private->uris),
-		   private->request_id);
 	
 	/* Clean up newly created GStrv */
 	g_strfreev (uri_strv);
