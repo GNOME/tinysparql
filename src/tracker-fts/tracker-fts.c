@@ -4189,7 +4189,6 @@ static int fulltextNext(sqlite3_vtab_cursor *pCursor){
       c->eof = 1;
       return SQLITE_OK;
     }
-    rc = sqlite3_bind_int64(c->pStmt, 1, dlrDocid(&c->reader));
     c->currentDocid = dlrDocid(&c->reader);
 #ifdef STORE_CATEGORY
     c->currentCatid = dlrCatid(&c->reader);
@@ -4223,14 +4222,8 @@ static int fulltextNext(sqlite3_vtab_cursor *pCursor){
     dlrStep(&c->reader);
     
     if( rc!=SQLITE_OK ) return rc;
-    /* TODO(shess) Handle SQLITE_SCHEMA AND SQLITE_BUSY. */
-    rc = sqlite3_step(c->pStmt);
-    if( rc==SQLITE_ROW ){   /* the case we expect */
-      c->eof = 0;
-      return SQLITE_OK;
-    }
-    /* an error occurred; abort */
-    return rc==SQLITE_DONE ? SQLITE_ERROR : rc;
+    c->eof = 0;
+    return SQLITE_OK;
   }
 }
 
@@ -4802,7 +4795,7 @@ static int fulltextColumn(sqlite3_vtab_cursor *pCursor,
 static int fulltextRowid(sqlite3_vtab_cursor *pCursor, sqlite_int64 *pRowid){
   fulltext_cursor *c = (fulltext_cursor *) pCursor;
 
-  *pRowid = sqlite3_column_int64(c->pStmt, 0);
+  *pRowid = c->currentDocid;
   return SQLITE_OK;
 }
 
