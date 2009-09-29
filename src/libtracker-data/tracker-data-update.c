@@ -297,11 +297,6 @@ ensure_resource_id (const gchar *uri)
 		tracker_db_statement_execute (stmt, NULL);
 		g_object_unref (stmt);
 
-		stmt = tracker_db_interface_create_statement (iface, "INSERT INTO \"fts\" (rowid) VALUES (?)");
-		tracker_db_statement_bind_int (stmt, 0, id);
-		tracker_db_statement_execute (stmt, NULL);
-		g_object_unref (stmt);
-
 		g_hash_table_insert (update_buffer.resource_cache, g_strdup (uri), GUINT_TO_POINTER (id));
 	}
 
@@ -1111,13 +1106,6 @@ tracker_data_delete_statement (const gchar            *subject,
 			tracker_db_statement_bind_int (stmt, 0, subject_id);
 			tracker_db_statement_execute (stmt, NULL);
 			g_object_unref (stmt);
-
-			if (strcmp (tracker_class_get_name (class), "rdfs:Resource") == 0) {
-				stmt = tracker_db_interface_create_statement (iface, "DELETE FROM \"fts\" WHERE rowid = ?");
-				tracker_db_statement_bind_int (stmt, 0, subject_id);
-				tracker_db_statement_execute (stmt, NULL);
-				g_object_unref (stmt);
-			}
 
 			/* delete rows from class tables */
 			delete_resource_type (subject_id, class);
