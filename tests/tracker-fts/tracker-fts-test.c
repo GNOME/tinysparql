@@ -40,6 +40,7 @@ struct _TestInfo {
 
 const TestInfo tests[] = {
 	{ "fts3aa", 2 },
+	{ "fts3ae", 1 },
 	{ NULL }
 };
 

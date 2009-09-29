@@ -1,0 +1,45 @@
+INSERT {
+	test:1 a test:A ; test:p "one" .
+	test:2 a test:A ; test:p "two" .
+	test:3 a test:A ; test:p "one two" .
+	test:4 a test:A ; test:p "three" .
+}
+DELETE { test:1 a rdfs:Resource }
+INSERT {
+	test:5 a test:A ; test:p "one three" .
+	test:6 a test:A ; test:p "two three" .
+	test:7 a test:A ; test:p "one two three" .
+}
+DELETE { test:4 a rdfs:Resource }
+INSERT {
+	test:8 a test:A ; test:p "four" .
+	test:9 a test:A ; test:p "one four" .
+	test:10 a test:A ; test:p "two four" .
+}
+DELETE { test:7 a rdfs:Resource }
+INSERT {
+	test:11 a test:A ; test:p "one two four" .
+	test:12 a test:A ; test:p "three four" .
+	test:13 a test:A ; test:p "one three four" .
+}
+DELETE { test:10 a rdfs:Resource }
+INSERT {
+	test:14 a test:A ; test:p "two three four" .
+	test:15 a test:A ; test:p "one two three four" .
+	test:16 a test:A ; test:p "five" .
+}
+DELETE { test:13 a rdfs:Resource }
+INSERT {
+	test:17 a test:A ; test:p "one five" .
+	test:18 a test:A ; test:p "two five" .
+	test:19 a test:A ; test:p "one two five" .
+}
+DELETE { test:16 a rdfs:Resource }
+INSERT {
+	test:20 a test:A ; test:p "three five" .
+	test:21 a test:A ; test:p "one three five" .
+	test:22 a test:A ; test:p "two three five" .
+}
+DELETE { test:19 a rdfs:Resource }
+DELETE { test:22 a rdfs:Resource }
+

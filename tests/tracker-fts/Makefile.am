@@ -41,5 +41,8 @@ EXTRA_DIST = 				\
 	fts3aa-1.rq			\
 	fts3aa-1.out			\
 	fts3aa-2.rq			\
-	fts3aa-2.out
+	fts3aa-2.out			\
+	fts3ae-data.rq			\
+	fts3ae-1.rq			\
+	fts3ae-1.out
 
