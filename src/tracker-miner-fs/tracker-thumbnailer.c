@@ -156,10 +156,12 @@ tracker_thumbnailer_init (void)
 
 		if (private->requester_proxy) {
 			g_object_unref (private->requester_proxy);
+			private->requester_proxy = NULL;
 		}
 		
 		if (private->manager_proxy) {
 			g_object_unref (private->manager_proxy);
+			private->manager_proxy = NULL;
 		}
 
 		return FALSE;
