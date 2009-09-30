@@ -1167,7 +1167,22 @@ public class Tracker.SparqlQuery : Object {
 	}
 
 	DataType translate_function (StringBuilder sql, string uri) throws SparqlError {
-		if (uri == FN_NS + "starts-with") {
+		if (uri == FN_NS + "contains") {
+			// fn:contains('A','B') => 'A' GLOB '*B*'
+			sql.append ("(");
+			translate_expression_as_string (sql);
+			sql.append (" GLOB ");
+			expect (SparqlTokenType.COMMA);
+
+			sql.append ("?");
+			var binding = new LiteralBinding ();
+			binding.literal = "*%s*".printf (parse_string_literal ());
+			bindings.append (binding);
+
+			sql.append (")");
+
+			return DataType.BOOLEAN;
+		} else if (uri == FN_NS + "starts-with") {
 			// fn:starts-with('A','B') => 'A' GLOB 'B*'
 			sql.append ("(");
 			translate_expression_as_string (sql);
@@ -1177,6 +1192,21 @@ public class Tracker.SparqlQuery : Object {
 			sql.append ("?");
 			var binding = new LiteralBinding ();
 			binding.literal = "%s*".printf (parse_string_literal ());
+			bindings.append (binding);
+
+			sql.append (")");
+
+			return DataType.BOOLEAN;
+		} else if (uri == FN_NS + "ends-with") {
+			// fn:ends-with('A','B') => 'A' GLOB '*B'
+			sql.append ("(");
+			translate_expression_as_string (sql);
+			sql.append (" GLOB ");
+			expect (SparqlTokenType.COMMA);
+
+			sql.append ("?");
+			var binding = new LiteralBinding ();
+			binding.literal = "*%s".printf (parse_string_literal ());
 			bindings.append (binding);
 
 			sql.append (")");
