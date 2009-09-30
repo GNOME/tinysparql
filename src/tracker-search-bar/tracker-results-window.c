@@ -380,7 +380,8 @@ results_window_button_press_event (GtkWidget      *widget,
 		return TRUE;
 	}
 
-	if (GTK_WIDGET_CLASS (tracker_results_window_parent_class)->button_press_event (widget, event)) {
+	if (GTK_WIDGET_CLASS (tracker_results_window_parent_class)->button_press_event &&
+	    GTK_WIDGET_CLASS (tracker_results_window_parent_class)->button_press_event (widget, event)) {
 		return TRUE;
 	}
 
