@@ -111,7 +111,7 @@ load_ontology_files (const gchar *services_dir)
                 
                 fullpath = g_build_filename (dir_uri, conf_file, NULL);
 
-		reader = tracker_turtle_reader_new (fullpath);
+		reader = tracker_turtle_reader_new (fullpath, NULL);
 
 		while (error == NULL && tracker_turtle_reader_next (reader, &error)) {
 			turtle_load_ontology (tracker_turtle_reader_get_subject (reader),
@@ -179,7 +179,7 @@ main (gint argc, gchar **argv)
 	TrackerTurtleReader *reader;
 	GError *error = NULL;
 
-	reader = tracker_turtle_reader_new (ttl_file);
+	reader = tracker_turtle_reader_new (ttl_file, NULL);
 
 	while (error == NULL && tracker_turtle_reader_next (reader, &error)) {
 		turtle_statement_handler (tracker_turtle_reader_get_subject (reader),

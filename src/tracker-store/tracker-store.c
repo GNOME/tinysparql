@@ -230,12 +230,22 @@ queue_idle_handler (gpointer user_data)
 		GError *error = NULL;
 		static TrackerTurtleReader *turtle_reader = NULL;
 
-		begin_batch (private);
-
 		if (!task->data.turtle.in_progress) {
-			turtle_reader = tracker_turtle_reader_new (task->data.turtle.path);
+			turtle_reader = tracker_turtle_reader_new (task->data.turtle.path, &error);
+			if (error) {
+				if (task->callback.turtle_callback) {
+					task->callback.turtle_callback (error, task->user_data);
+				}
+
+				turtle_reader = NULL;
+				g_clear_error (&error);
+
+				goto out;
+			}
 			task->data.turtle.in_progress = TRUE;
 		}
+
+		begin_batch (private);
 
 		if (process_turtle_file_part (turtle_reader, &error)) {
 			/* import still in progress */
@@ -265,6 +275,7 @@ queue_idle_handler (gpointer user_data)
 		}
 	}
 
+out:
 	g_queue_pop_head (private->queue);
 
 	if (task->destroy) {

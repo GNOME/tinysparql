@@ -231,7 +231,7 @@ ttl_loader_load_ontology (const gchar *ttl_file)
 		TrackerTurtleReader *reader;
 		GError *error = NULL;
 
-		reader = tracker_turtle_reader_new (ttl_file);
+		reader = tracker_turtle_reader_new (ttl_file, NULL);
 
 		while (error == NULL && tracker_turtle_reader_next (reader, &error)) {
 			load_in_memory (ontology,
@@ -263,7 +263,7 @@ ttl_loader_load_description (const gchar *filename)
 	desc = ttl_model_description_new ();
 
 
-	reader = tracker_turtle_reader_new (filename);
+	reader = tracker_turtle_reader_new (filename, NULL);
 
 	while (error == NULL && tracker_turtle_reader_next (reader, &error)) {
 		load_description (desc,

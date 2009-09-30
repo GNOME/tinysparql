@@ -131,7 +131,7 @@ process_file (const gchar *ttl_file)
 
 	g_print ("Processing %s\n", ttl_file);
 
-	reader = tracker_turtle_reader_new (ttl_file);
+	reader = tracker_turtle_reader_new (ttl_file, NULL);
 
 	while (error == NULL && tracker_turtle_reader_next (reader, &error)) {
 		turtle_load_ontology (tracker_turtle_reader_get_subject (reader),

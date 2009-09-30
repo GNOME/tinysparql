@@ -73,7 +73,13 @@ load_ontology_file_from_path (const gchar	 *ontology_file)
 	TrackerTurtleReader *reader;
 	GError              *error = NULL;
 
-	reader = tracker_turtle_reader_new (ontology_file);
+	reader = tracker_turtle_reader_new (ontology_file, &error);
+	if (error) {
+		g_critical ("Turtle parse error: %s", error->message);
+		g_error_free (error);
+		return;
+	}
+
 	while (error == NULL && tracker_turtle_reader_next (reader, &error)) {
 		const gchar *subject, *predicate, *object;
 

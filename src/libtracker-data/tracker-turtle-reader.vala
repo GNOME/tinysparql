@@ -61,7 +61,7 @@ public class Tracker.TurtleReader : Object {
 
 	MappedFile? mapped_file;
 
-	public TurtleReader (string path) {
+	public TurtleReader (string path) throws FileError {
 		mapped_file = new MappedFile (path, false);
 		scanner = new SparqlScanner (mapped_file.get_contents (), mapped_file.get_length ());
 
@@ -362,7 +362,7 @@ public class Tracker.TurtleReader : Object {
 		}
 	}
 
-	public static void load (string path) throws SparqlError, DataError {
+	public static void load (string path) throws FileError, SparqlError, DataError {
 		try {
 			Data.begin_transaction ();
 
