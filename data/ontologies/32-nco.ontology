@@ -531,7 +531,6 @@ nco:hasPostalAddress a rdf:Property ;
 	rdfs:label "hasPostalAddress" ;
 	rdfs:comment "The default Address for a Contact. An equivalent of the 'ADR' property as defined in RFC 2426 Sec. 3.2.1." ;
 	rdfs:subPropertyOf nco:hasContactMedium ;
-	nrl:maxCardinality 1 ;
 	rdfs:domain nco:Role ;
 	rdfs:range nco:PostalAddress .
 
