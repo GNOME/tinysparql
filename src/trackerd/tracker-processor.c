@@ -826,8 +826,9 @@ item_queue_handlers_cb (gpointer user_data)
 						continue;
 					}
 					
-					strv_from[j++] = path_from;
-					strv_to[j++] = path_to;
+					strv_from[j] = path_from;
+					strv_to[j] = path_to;
+					j++;
 				}
 				
 				strv_from[j] = NULL;
@@ -835,7 +836,7 @@ item_queue_handlers_cb (gpointer user_data)
 
 				g_message ("Queue for module:'%s' moved items processed, sending first %d to the indexer",
 					   module_name,
-					   max_items);
+					   j);
 				
 				processor->private->finished_indexer = FALSE;
 				
