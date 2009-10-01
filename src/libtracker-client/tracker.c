@@ -276,6 +276,10 @@ tracker_disconnect (TrackerClient *client)
                 g_object_unref (client->proxy_resources);
         }
 
+        if (client->pending_calls) {
+                g_hash_table_unref (client->pending_calls);
+        }
+
 	g_free (client);
 }
 

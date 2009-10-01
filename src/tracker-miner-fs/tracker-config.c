@@ -848,6 +848,9 @@ config_load (TrackerConfig *config)
 
 				filtered = tracker_path_list_filter_duplicates (dirs, ".");
 				g_object_set (config, conversions[i].property, filtered, NULL);
+
+				g_slist_foreach (filtered, (GFunc) g_free, NULL);
+				g_slist_free (filtered);
 			}
 
 			break;
