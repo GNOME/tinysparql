@@ -561,8 +561,12 @@ item_queue_count_all (TrackerProcessor *processor)
 		q = g_hash_table_lookup (processor->private->items_deleted_queues, l->data);
 		items += g_queue_get_length (q);
 
+		/* This queue has 2 items per transaction, from and
+		 * to files so we half the length for the number of
+		 * items to do in it.
+		 */
 		q = g_hash_table_lookup (processor->private->items_moved_queues, l->data);
-		items += g_queue_get_length (q);
+		items += (g_queue_get_length (q) / 2);
 	}
 
 	return items;
@@ -770,38 +774,112 @@ item_queue_handlers_cb (gpointer user_data)
 					  &module_name);
 
 	if (queue) {
-		const gchar *source;
-		const gchar *target;
+		guint length;
 
 		/* Now we try to send items to the indexer */
 		tracker_status_set_and_signal (TRACKER_STATUS_INDEXING);
 
-		files = tracker_dbus_queue_gfile_to_strv (queue, 2);
+		/* Get queue length, if length is indicates more than
+		 * one file has changed, then we call the
+		 * indexer_files_move() API instead which can handle
+		 * multiple files.
+		 */
+		length = g_queue_get_length (queue);
 
-		if (files) {
-			source = files[0];
-			target = files[1];
-		} else {
-			source = NULL;
-			target = NULL;
+		if (length > 0) {
+			gint max_items;
+			gint multiples;
+
+			multiples = length / 2;
+			max_items = MIN (length, ITEMS_QUEUE_PROCESS_MAX * 2);
+
+			if (multiples > 1) {
+				files = tracker_dbus_queue_gfile_to_strv (queue, max_items);
+			} else {
+				files = tracker_dbus_queue_gfile_to_strv (queue, 2);
+			}
+
+			if (multiples > 1) {
+				GStrv strv_from, strv_to;
+				gint i, j;
+
+				strv_from = g_new0 (gchar*, length + 1);
+				strv_to = g_new0 (gchar*, length + 1);
+
+				/* Split items into two separate GStrvs */
+				for (i = 0, j = 0; i < max_items;) {
+					gchar *path_from, *path_to;
+
+					path_from = files[i++];
+					path_to   = files[i++];
+					
+					if (!g_utf8_validate (path_from, -1, NULL)) {
+						g_message ("Could not add string:'%s' to GStrv, invalid UTF-8", path_from);
+						g_free (path_from);
+						continue;
+					}
+
+					if (!g_utf8_validate (path_to, -1, NULL)) {
+						g_message ("Could not add string:'%s' to GStrv, invalid UTF-8", path_to);
+						g_free (path_from);
+						g_free (path_to);
+						continue;
+					}
+					
+					strv_from[j++] = path_from;
+					strv_to[j++] = path_to;
+				}
+				
+				strv_from[j] = NULL;
+				strv_to[j] = NULL;
+
+				g_message ("Queue for module:'%s' moved items processed, sending first %d to the indexer",
+					   module_name,
+					   max_items);
+				
+				processor->private->finished_indexer = FALSE;
+				
+				processor->private->sent_type = SENT_TYPE_MOVED;
+				processor->private->sent_module_name = module_name;
+				processor->private->sent_items = files;
+
+				org_freedesktop_Tracker_Indexer_files_move_async (processor->private->indexer_proxy,
+										  module_name,
+										  (const gchar**) strv_from,
+										  (const gchar**) strv_to,
+										  item_queue_processed_cb,
+										  processor);
+			} else {
+				const gchar *source;
+				const gchar *target;
+
+				if (files) {
+					source = files[0];
+					target = files[1];
+				} else {
+					source = NULL;
+					target = NULL;
+				}
+
+				g_message ("Queue for module:'%s' moved items processed, sending first %d to the indexer",
+					   module_name,
+					   g_strv_length (files));
+
+				processor->private->finished_indexer = FALSE;
+				
+				processor->private->sent_type = SENT_TYPE_MOVED;
+				processor->private->sent_module_name = module_name;
+				processor->private->sent_items = files;
+
+				org_freedesktop_Tracker_Indexer_file_move_async (processor->private->indexer_proxy,
+										 module_name,
+										 source,
+										 target,
+										 item_queue_processed_cb,
+										 processor);
+
+			}
 		}
-
-		g_message ("Queue for module:'%s' moved items processed, sending first %d to the indexer",
-			   module_name,
-			   g_strv_length (files));
-
-		processor->private->finished_indexer = FALSE;
-
-		processor->private->sent_type = SENT_TYPE_MOVED;
-		processor->private->sent_module_name = module_name;
-		processor->private->sent_items = files;
-
-		org_freedesktop_Tracker_Indexer_file_move_async (processor->private->indexer_proxy,
-								 module_name,
-								 source,
-								 target,
-								 item_queue_processed_cb,
-								 processor);
 
 		return TRUE;
 	}

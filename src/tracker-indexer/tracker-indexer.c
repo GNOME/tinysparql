@@ -3393,6 +3393,65 @@ tracker_indexer_files_delete (TrackerIndexer *indexer,
 }
 
 void
+tracker_indexer_files_move (TrackerIndexer *indexer,
+			    const gchar *module_name,
+			    GStrv from_files,
+			    GStrv to_files,
+			    DBusGMethodInvocation *context,
+			    GError **error)
+{
+	TrackerIndexerModule *module;
+	guint request_id;
+	gint i;
+	GError *actual_error;
+
+	request_id = tracker_dbus_get_next_request_id ();
+
+	tracker_dbus_async_return_if_fail (TRACKER_IS_INDEXER (indexer), context);
+	tracker_dbus_async_return_if_fail (from_files != NULL, context);
+	tracker_dbus_async_return_if_fail (to_files != NULL, context);
+	tracker_dbus_async_return_if_fail (g_strv_length (from_files) == g_strv_length (to_files), context);
+
+	tracker_dbus_request_new (request_id,
+				  "DBus request to move %d files",
+				  g_strv_length (from_files));
+
+	module = g_hash_table_lookup (indexer->private->indexer_modules, module_name);
+
+	if (!module) {
+		tracker_dbus_request_failed (request_id,
+					     &actual_error,
+					     "The module '%s' is not loaded",
+					     module_name);
+		dbus_g_method_return_error (context, actual_error);
+		g_error_free (actual_error);
+		return;
+	}
+
+	for (i = 0; i < g_strv_length (from_files); i++) {
+		GFile *file_from, *file_to;
+		PathInfo *info;
+		const gchar *str_from, *str_to;
+
+		str_from = from_files[i];
+		str_to = to_files[i];
+
+		file_from = g_file_new_for_path (str_from);
+		file_to = g_file_new_for_path (str_to);
+		
+		/* Add files to the queue */
+		info = path_info_new (module, file_to, file_from, TRUE);
+		add_file (indexer, info);
+		
+		g_object_unref (file_from);
+		g_object_unref (file_to);
+	}
+
+	dbus_g_method_return (context);
+	tracker_dbus_request_success (request_id);
+}
+
+void
 tracker_indexer_file_move (TrackerIndexer	  *indexer,
 			   const gchar		  *module_name,
 			   gchar		  *from,

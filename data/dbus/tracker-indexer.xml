@@ -26,6 +26,12 @@
       <arg type="s" name="module" direction="in" />
       <arg type="as" name="files" direction="in" />
     </method>
+    <method name="FilesMove">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
+      <arg type="s" name="module" direction="in" />
+      <arg type="as" name="files_from" direction="in" />
+      <arg type="as" name="files_to" direction="in" />
+    </method>
     <method name="FileMove">
       <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
       <arg type="s" name="module" direction="in" />
