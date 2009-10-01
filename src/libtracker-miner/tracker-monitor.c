@@ -1087,7 +1087,11 @@ libinotify_monitor_event_cb (INotifyHandle *handle,
 				       other_file,
 				       is_directory, 
 				       TRUE);
-			tracker_monitor_update (monitor, file, other_file);
+			
+			if (is_directory) {
+				tracker_monitor_update (monitor, file, other_file);
+			}
+
 			g_hash_table_remove (monitor->private->event_pairs,
 					     GUINT_TO_POINTER (cookie));
 		}
@@ -1148,7 +1152,11 @@ libinotify_monitor_event_cb (INotifyHandle *handle,
 				       file,
 				       is_directory,
 				       is_source_indexed);
-			tracker_monitor_update (monitor, other_file, file);
+
+			if (is_directory) {
+				tracker_monitor_update (monitor, other_file, file);
+			}
+
 			g_hash_table_remove (monitor->private->event_pairs,
 					     GUINT_TO_POINTER (cookie));
 		}
