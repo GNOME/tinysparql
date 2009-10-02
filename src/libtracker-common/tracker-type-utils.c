@@ -407,6 +407,7 @@ tracker_string_to_date (const gchar *date_string)
 	}
 
 	if (!g_regex_match (regex, date_string, 0, &match_info)) {
+		g_match_info_free (match_info);
 		return -1;
 	}
 
