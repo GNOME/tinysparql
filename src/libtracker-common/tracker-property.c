@@ -90,6 +90,9 @@ tracker_property_type_get_type (void)
 
 	if (etype == 0) {
 		static const GEnumValue values[] = {
+			{ TRACKER_PROPERTY_TYPE_UNKNOWN,
+			  "TRACKER_PROPERTY_TYPE_UNKNOWN",
+			  "unknown" },
 			{ TRACKER_PROPERTY_TYPE_STRING,
 			  "TRACKER_PROPERTY_TYPE_STRING",
 			  "string" },
@@ -108,18 +111,9 @@ tracker_property_type_get_type (void)
 			{ TRACKER_PROPERTY_TYPE_DATETIME,
 			  "TRACKER_PROPERTY_TYPE_DATETIME",
 			  "datetime" },
-			{ TRACKER_PROPERTY_TYPE_BLOB,
-			  "TRACKER_PROPERTY_TYPE_BLOB",
-			  "blob" },
-			{ TRACKER_PROPERTY_TYPE_STRUCT,
-			  "TRACKER_PROPERTY_TYPE_STRUCT",
-			  "struct" },
 			{ TRACKER_PROPERTY_TYPE_RESOURCE,
 			  "TRACKER_PROPERTY_TYPE_RESOURCE",
 			  "resource" },
-			{ TRACKER_PROPERTY_TYPE_FULLTEXT,
-			  "TRACKER_PROPERTY_TYPE_FULLTEXT",
-			  "fulltext" },
 			{ 0, NULL, NULL }
 		};
 

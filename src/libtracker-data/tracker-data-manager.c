@@ -528,9 +528,6 @@ create_decomposed_metadata_property_table (TrackerDBInterface *iface,
 	case TRACKER_PROPERTY_TYPE_DOUBLE:
 		sql_type = "REAL";
 		break;
-	case TRACKER_PROPERTY_TYPE_BLOB:
-	case TRACKER_PROPERTY_TYPE_STRUCT:
-	case TRACKER_PROPERTY_TYPE_FULLTEXT:
 	default:
 		sql_type = "";
 		break;

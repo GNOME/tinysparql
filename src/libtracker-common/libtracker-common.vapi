@@ -42,16 +42,14 @@ namespace Tracker {
 
 	[CCode (cheader_filename = "libtracker-common/tracker-property.h")]
 	public enum PropertyType {
+		UNKNOWN,
 		STRING,
 		BOOLEAN,
 		INTEGER,
 		DOUBLE,
 		DATE,
 		DATETIME,
-		BLOB,
-		STRUCT,
-		RESOURCE,
-		FULLTEXT
+		RESOURCE
 	}
 
 	[CCode (cheader_filename = "libtracker-common/tracker-ontology.h")]
