@@ -142,263 +142,74 @@ initialize_signal_handler (void)
 	sigaction (SIGHUP, &act, NULL);
 }
 
-static gchar *
-get_dbus_name (const gchar *name_provided)
-{
-	gchar *name;
-
-	if (g_str_has_prefix (name_provided, TRACKER_MINER_DBUS_NAME_PREFIX)) {
-		name = g_strdup (name_provided);
-	} else {
-		name = g_strconcat (TRACKER_MINER_DBUS_NAME_PREFIX, 
-				    name_provided, 
-				    NULL);
-	}
-
-	return name;
-}
-
-static gchar *
-get_dbus_path (const gchar *name)
-{
-	GStrv strv;
-	gchar *path;
-	gchar *str;
-
-	/* Create path from name */
-	strv = g_strsplit (name, ".", -1);
-	str = g_strjoinv ("/", strv);
-	g_strfreev (strv);
-	path = g_strconcat ("/", str, NULL);
-	g_free (str);
-
-	return path;
-}
-
-static DBusGProxy *
-get_dbus_proxy (const gchar *name)
-{
-	GError *error = NULL;
-	DBusGConnection *connection;
-	DBusGProxy *proxy;
-	gchar *path;
-
-	connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
-	
-	if (!connection) {
-		g_printerr ("%s. %s\n",
-			    _("Could not connect to the D-Bus session bus"),
-			    error ? error->message : _("No error given"));
-		g_clear_error (&error);
-		return NULL;
-	}
-	
-	path = get_dbus_path (name);
-	proxy = dbus_g_proxy_new_for_name (connection,
-					   name,
-					   path,
-					   TRACKER_MINER_DBUS_INTERFACE);
-	g_free (path);
-	
-	if (!proxy) {
-		gchar *str;
-
-		str = g_strdup_printf (_("Could not create a DBusGProxy for that miner: %s"),
-				       name);
-		g_printerr ("%s\n", str);
-		g_free (str);
-
-		return NULL;
-	}
-
-	return proxy;
-}
-
 static int
-miner_pause (const gchar *miner,
-	     const gchar *reason)
+miner_pause (TrackerMinerManager *manager,
+	     const gchar         *miner,
+	     const gchar         *reason)
 {
-	GError *error = NULL;
-	DBusGProxy *proxy;
-	gchar *name;
 	gchar *str;
 	gint cookie;
-	
-	name = get_dbus_name (miner);
-	
-	proxy = get_dbus_proxy (name);
-	if (!proxy) {
-		g_free (name);
-		return EXIT_FAILURE;
-	}
 
 	str = g_strdup_printf (_("Attempting to pause miner '%s' with reason '%s'"),
-			       name,
+			       miner,
 			       reason);
 	g_print ("%s\n", str);
 	g_free (str);
-	
-	if (!org_freedesktop_Tracker1_Miner_pause (proxy, 
-						   g_get_application_name (),
-						   reason,
-						   &cookie, 
-						   &error)) {
-		str = g_strdup_printf (_("Could not pause miner: %s"),
-				       name);
-		g_printerr ("  %s. %s\n", 
-			    str,
-			    error ? error->message : _("No error given"));
 
-		g_free (str);
-		g_clear_error (&error);
-		g_free (name);
-		
+	if (!tracker_miner_manager_pause (manager, miner, reason, &cookie)) {
+		g_printerr (_("Could not pause miner: %s"), miner);
 		return EXIT_FAILURE;
 	}
-	
+
 	str = g_strdup_printf (_("Cookie is %d"), cookie);
 	g_print ("  %s\n", str);
 	g_free (str);
-	g_free (name);
-	
+
 	return EXIT_SUCCESS;
 }
 
 static int
-miner_resume (const gchar *miner,
-	      gint         cookie)
+miner_resume (TrackerMinerManager *manager,
+	      const gchar         *miner,
+	      gint                 cookie)
 {
-	GError *error = NULL;
-	DBusGProxy *proxy;
-	gchar *name;
 	gchar *str;
-	
-	name = get_dbus_name (miner);
-	
-	proxy = get_dbus_proxy (name);
-	if (!proxy) {
-		g_free (name);
-		return EXIT_FAILURE;
-	}
 
-	str = g_strdup_printf (_("Attempting to resume miner %s with cookie %d"), 
-			       name,
+	str = g_strdup_printf (_("Attempting to resume miner %s with cookie %d"),
+			       miner,
 			       cookie);
 	g_print ("%s\n", str);
 	g_free (str);
-	
-	if (!org_freedesktop_Tracker1_Miner_resume (proxy, 
-						    cookie, 
-						    &error)) {
-		str = g_strdup_printf (_("Could not resume miner: %s"),
-				       name);
-		g_printerr ("  %s. %s\n", 
-			    str,
-			    error ? error->message : _("No error given"));
 
-		g_free (str);
-		g_clear_error (&error);
-		g_free (name);
-		
+	if (!tracker_miner_manager_resume (manager, miner, cookie)) {
+		g_printerr (_("Could not resume miner: %s"), miner);
 		return EXIT_FAILURE;
 	}
-	
+
 	g_print ("  %s\n", _("Done"));
-	g_free (name);
-	
+
 	return EXIT_SUCCESS;
 }
 
 static gboolean
-miner_get_details (const gchar  *miner,
-		   gchar       **status,
-		   gdouble      *progress,
-		   GStrv        *pause_applications,
-		   GStrv        *pause_reasons)
+miner_get_details (TrackerMinerManager  *manager,
+		   const gchar          *miner,
+		   gchar               **status,
+		   gdouble              *progress,
+		   GStrv                *pause_applications,
+		   GStrv                *pause_reasons)
 {
-	DBusGProxy *proxy;
-	GError *error = NULL;
-	gchar *name;
-
-	if (status) {
-		*status = NULL;
-	}
-
-	if (progress) {
-		*progress = 0.0;
-	}
-
-	if (pause_applications && pause_reasons) {
-		*pause_applications = NULL;
-		*pause_reasons = NULL;
-	}
-	
-	name = get_dbus_name (miner);
-	
-	proxy = get_dbus_proxy (name);
-	if (!proxy) {
-		g_free (name);
-		return FALSE;
-	}
-	
-	if (status && !org_freedesktop_Tracker1_Miner_get_status (proxy, 
-								  status,
-								  &error)) {
-		gchar *str;
-
-		str = g_strdup_printf (_("Could not get status from miner: %s"),
-				       name);
-		g_printerr ("  %s. %s\n", 
-			    str,
-			    error ? error->message : _("No error given"));
-
-		g_free (str);
-		g_clear_error (&error);
-		g_free (name);
-
+	if ((status || progress) &&
+	    !tracker_miner_manager_get_status (manager, miner,
+					       status, progress)) {
+		g_printerr (_("Could not get status from miner: %s"), miner);
 		return FALSE;
 	}
 
-	if (progress && !org_freedesktop_Tracker1_Miner_get_progress (proxy, 
-								      progress,
-								      &error)) {
-		gchar *str;
+	tracker_miner_manager_is_paused (manager, miner,
+					 pause_applications,
+					 pause_reasons);
 
-		str = g_strdup_printf (_("Could not get progress from miner: %s"),
-				       name);
-		g_printerr ("  %s. %s\n", 
-			    str,
-			    error ? error->message : _("No error given"));
-
-		g_free (str);
-		g_clear_error (&error);
-		g_free (name);
-
-		return FALSE;
-	}
-
-	if ((pause_applications && pause_reasons) &&
-	    !org_freedesktop_Tracker1_Miner_get_pause_details (proxy, 
-							       pause_applications,
-							       pause_reasons,
-							       &error)) {
-		gchar *str;
-
-		str = g_strdup_printf (_("Could not get paused details from miner: %s"),
-				       name);
-		g_printerr ("  %s. %s\n", 
-			    str,
-			    error ? error->message : _("No error given"));
-
-		g_free (str);
-		g_clear_error (&error);
-		g_free (name);
-
-		return FALSE;
-	}
-	
-	g_free (name);
-	
 	return TRUE;
 }
 
@@ -618,11 +429,11 @@ main (gint argc, gchar *argv[])
 	}
 
 	if (pause_reason) {
-		return miner_pause (miner_name, pause_reason);
+		return miner_pause (manager, miner_name, pause_reason);
 	}
 
 	if (resume_cookie != -1) {
-		return miner_resume (miner_name, resume_cookie);
+		return miner_resume (manager, miner_name, resume_cookie);
 	}
 
 	if (list_miners_available || list_miners_running) {
@@ -662,13 +473,13 @@ main (gint argc, gchar *argv[])
 					    (gchar*) l->data);
 				continue;
 			}
-			
+
 			name = (gchar*) l->data + strlen (TRACKER_MINER_DBUS_NAME_PREFIX);
-			
-				
-			if (!miner_get_details (l->data, 
-						NULL, 
-						NULL, 
+
+			if (!miner_get_details (manager,
+						l->data,
+						NULL,
+						NULL,
 						&pause_applications,
 						&pause_reasons)) {
 				continue;
@@ -734,9 +545,10 @@ main (gint argc, gchar *argv[])
 			gdouble progress;
 			gboolean is_paused;
 
-			if (!miner_get_details (l->data, 
-						&status, 
-						&progress, 
+			if (!miner_get_details (manager,
+						l->data,
+						&status,
+						&progress,
 						&pause_applications,
 						&pause_reasons)) {
 				continue;
