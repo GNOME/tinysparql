@@ -25,13 +25,14 @@
 #include <glib.h>
 #include <gio/gio.h>
 
+#include <libtracker-common/tracker-ontology.h>
+
 #include <libtracker-db/tracker-db.h>
 
 #include <libtracker-data/tracker-data-manager.h>
 #include <libtracker-data/tracker-data-query.h>
 #include <libtracker-data/tracker-data-update.h>
 #include <libtracker-data/tracker-sparql-query.h>
-#include <libtracker-common/tracker-ontology.h>
 
 typedef struct _TestInfo TestInfo;
 
@@ -63,7 +64,7 @@ test_sparql_query (gconstpointer test_data)
 	test_info = test_data;
 
 	/* initialization */
-	prefix = g_build_path (G_DIR_SEPARATOR_S, TOP_SRCDIR, "tests", "tracker-fts", NULL);
+	prefix = g_build_path (G_DIR_SEPARATOR_S, TOP_SRCDIR, "tests", "libtracker-fts", NULL);
 	data_prefix = g_build_filename (prefix, "data", NULL);
 	test_prefix = g_build_filename (prefix, test_info->test_name, NULL);
 	g_free (prefix);
@@ -211,7 +212,7 @@ main (int argc, char **argv)
 	for (i = 0; tests[i].test_name; i++) {
 		gchar *testpath;
 
-		testpath = g_strconcat ("/tracker-fts/", tests[i].test_name, NULL);
+		testpath = g_strconcat ("/libtracker-fts/", tests[i].test_name, NULL);
 		g_test_add_data_func (testpath, &tests[i], test_sparql_query);
 		g_free (testpath);
 	}
