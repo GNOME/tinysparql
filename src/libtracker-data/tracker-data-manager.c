@@ -33,7 +33,7 @@
 
 #include <libtracker-common/tracker-common.h>
 
-#include <tracker-fts/tracker-fts.h>
+#include <libtracker-fts/tracker-fts.h>
 
 #include <libtracker-db/tracker-db-interface-sqlite.h>
 #include <libtracker-db/tracker-db-manager.h>

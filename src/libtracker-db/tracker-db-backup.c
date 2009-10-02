@@ -31,7 +31,7 @@
 
 #include <libtracker-common/tracker-common.h>
 #include <libtracker-db/tracker-db.h>
-#include <tracker-fts/tracker-fts.h>
+#include <libtracker-fts/tracker-fts.h>
 
 #include "tracker-db-backup.h"
 

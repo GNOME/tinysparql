@@ -5,7 +5,7 @@ SUBDIRS = 			\
 	libtracker-common	\
 	libtracker-data		\
 	libtracker-db 		\
-	tracker-fts 		\
+	libtracker-fts 		\
 	tracker-miner-fs	\
 	tracker-extract		\
 	tracker-store

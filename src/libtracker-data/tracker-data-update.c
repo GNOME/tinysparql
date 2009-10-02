@@ -30,7 +30,7 @@
 #include <libtracker-common/tracker-file-utils.h>
 #include <libtracker-common/tracker-ontology.h>
 
-#include <tracker-fts/tracker-fts.h>
+#include <libtracker-fts/tracker-fts.h>
 
 #include <libtracker-db/tracker-db-manager.h>
 #include <libtracker-db/tracker-db-dbus.h>

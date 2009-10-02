@@ -17,9 +17,9 @@ tracker_fts_test_SOURCES =						\
 
 tracker_fts_test_LDADD =						\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
-	$(top_builddir)/src/tracker-fts/libtracker-fts.la	 	\
+	$(top_builddir)/src/libtracker-fts/libtracker-fts.la	 	\
+	$(top_builddir)/src/libstemmer/libstemmer.la	 		\
 	$(SQLITE3_LIBS)							\
 	$(GTHREAD_LIBS)							\
 	$(PANGO_LIBS)							\
-	$(GLIB2_LIBS)							\
-	$(top_builddir)/src/libstemmer/libstemmer.la	 		
+	$(GLIB2_LIBS)

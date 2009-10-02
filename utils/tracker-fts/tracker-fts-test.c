@@ -23,7 +23,8 @@
 #include <stdlib.h>
 
 #include <sqlite3.h>
-#include <tracker-fts/tracker-fts.h>
+
+#include <libtracker-fts/tracker-fts.h>
 
 #include <glib.h>
 #include <glib/gstdio.h>

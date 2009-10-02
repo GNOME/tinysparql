@@ -33,7 +33,7 @@ noinst_HEADERS =							\
 
 libtracker_db_la_LIBADD = 						\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la	\
-	$(top_builddir)/src/tracker-fts/libtracker-fts.la		\
+	$(top_builddir)/src/libtracker-fts/libtracker-fts.la		\
 	$(SQLITE3_LIBS)							\
 	$(DBUS_LIBS)							\
 	$(GCOV_LIBS)							\

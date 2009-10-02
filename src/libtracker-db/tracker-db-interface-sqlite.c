@@ -24,9 +24,9 @@
 
 #include <sqlite3.h>
 #include <stdlib.h>
-#include <libtracker-common/tracker-common.h>
 
-#include <tracker-fts/tracker-fts.h>
+#include <libtracker-common/tracker-common.h>
+#include <libtracker-fts/tracker-fts.h>
 
 #include "tracker-db-interface-sqlite.h"
 

@@ -4,7 +4,7 @@ SUBDIRS = 					\
 	libstemmer				\
 	libinotify				\
 	libtracker-common 			\
-	tracker-fts				\
+	libtracker-fts				\
 	libtracker-db				\
 	libtracker-data				\
 	libtracker-client			\

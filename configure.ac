@@ -1404,6 +1404,7 @@ AC_CONFIG_FILES([
 	src/libtracker-common/Makefile
 	src/libtracker-data/Makefile
 	src/libtracker-db/Makefile
+	src/libtracker-fts/Makefile
 	src/libtracker-gtk/Makefile
 	src/libtracker-client/Makefile
         src/libtracker-miner/Makefile
@@ -1413,7 +1414,6 @@ AC_CONFIG_FILES([
         src/tracker-status-icon/tracker-status-icon.desktop.in
 	src/tracker-store/Makefile
 	src/tracker-extract/Makefile
-	src/tracker-fts/Makefile
 	src/tracker-miner-fs/Makefile
 	src/tracker-preferences/Makefile
 	src/tracker-preferences/tracker-preferences.desktop.in
@@ -1440,8 +1440,8 @@ AC_CONFIG_FILES([
 	tests/libtracker-data/error/Makefile
 	tests/libtracker-data/turtle/Makefile
 	tests/libtracker-db/Makefile
+	tests/libtracker-fts/Makefile
 	tests/Makefile
-	tests/tracker-fts/Makefile
 	tests/tracker-miner-fs/Makefile
 	tests/tracker-extract/Makefile
 	tests/tracker-store/Makefile
