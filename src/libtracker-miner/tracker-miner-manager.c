@@ -591,6 +591,116 @@ tracker_miner_manager_is_active (TrackerMinerManager *manager,
 	return active;
 }
 
+gboolean
+tracker_miner_manager_get_status (TrackerMinerManager  *manager,
+				  const gchar          *miner,
+				  gchar               **status,
+				  gdouble              *progress)
+{
+	DBusGProxy *proxy;
+	GError *error = NULL;
+	gdouble p;
+	gchar *st;
+
+	g_return_val_if_fail (TRACKER_IS_MINER_MANAGER (manager), FALSE);
+	g_return_val_if_fail (miner != NULL, FALSE);
+
+	proxy = find_miner_proxy (manager, miner);
+
+	if (!proxy) {
+		g_critical ("No D-Bus proxy found for miner '%s'", miner);
+		return FALSE;
+	}
+
+	org_freedesktop_Tracker1_Miner_get_progress (proxy, &p, &error);
+
+	if (error) {
+		g_critical ("Could not get miner progress for '%s': %s", miner,
+			    error->message);
+		g_error_free (error);
+
+		return FALSE;
+	}
+
+	org_freedesktop_Tracker1_Miner_get_status (proxy, &st, &error);
+
+	if (error) {
+		g_critical ("Could not get miner status for '%s': %s", miner,
+			    error->message);
+		g_error_free (error);
+
+		return FALSE;
+	}
+
+	if (status) {
+		*status = st;
+	} else {
+		g_free (st);
+	}
+
+	if (progress) {
+		*progress = p;
+	}
+
+	return TRUE;
+}
+
+gboolean
+tracker_miner_manager_is_paused (TrackerMinerManager *manager,
+				 const gchar         *miner,
+				 GStrv               *applications,
+				 GStrv               *reasons)
+{
+	DBusGProxy *proxy;
+	GStrv apps, r;
+	GError *error = NULL;
+	gboolean paused;
+
+	if (applications) {
+		*applications = NULL;
+	}
+
+	if (reasons) {
+		*reasons = NULL;
+	}
+
+	g_return_val_if_fail (TRACKER_IS_MINER_MANAGER (manager), TRUE);
+	g_return_val_if_fail (miner != NULL, TRUE);
+
+	proxy = find_miner_proxy (manager, miner);
+
+	if (!proxy) {
+		g_critical ("No D-Bus proxy found for miner '%s'", miner);
+		return FALSE;
+	}
+
+	org_freedesktop_Tracker1_Miner_get_pause_details (proxy, &apps, &r, &error);
+
+	if (error) {
+		g_critical ("Could not get pause details for miner '%s': %s", miner,
+			    error->message);
+		g_error_free (error);
+
+		return TRUE;
+	}
+
+	paused = (g_strv_length (apps) > 0);
+
+	if (applications) {
+		*applications = apps;
+	} else {
+		g_strfreev (apps);
+	}
+
+	if (reasons) {
+		*reasons = r;
+	} else  {
+		g_strfreev (r);
+	}
+
+	return paused;
+}
+
 const gchar *
 tracker_miner_manager_get_display_name (TrackerMinerManager *manager,
 					const gchar         *miner)

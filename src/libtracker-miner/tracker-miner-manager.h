@@ -74,6 +74,16 @@ gboolean tracker_miner_manager_resume (TrackerMinerManager *manager,
 gboolean tracker_miner_manager_is_active (TrackerMinerManager *manager,
 					  const gchar         *miner);
 
+gboolean tracker_miner_manager_is_paused (TrackerMinerManager *manager,
+					  const gchar         *miner,
+					  GStrv               *applications,
+					  GStrv               *reasons);
+
+gboolean tracker_miner_manager_get_status (TrackerMinerManager  *manager,
+					   const gchar          *miner,
+					   gchar               **status,
+					   gdouble              *progress);
+
 const gchar * tracker_miner_manager_get_display_name (TrackerMinerManager *manager,
 						      const gchar         *miner);
 
