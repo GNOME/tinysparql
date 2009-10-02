@@ -815,8 +815,7 @@ if test "x$enable_tracker_search_bar" != "xno" ; then
 		glib-2.0    >= $GLIB_REQUIRED
 		gtk+-2.0    >= $GTK_REQUIRED
 		dbus-1      >= $DBUS_REQUIRED
-		dbus-glib-1 >= $DBUS_GLIB_REQUIRED
-		gee-1.0     >= $GEE_REQUIRED],
+		dbus-glib-1 >= $DBUS_GLIB_REQUIRED],
 		[have_tracker_search_bar=yes],
 		[have_tracker_search_bar=no])
 
