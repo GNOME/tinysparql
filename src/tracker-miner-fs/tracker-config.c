@@ -282,15 +282,16 @@ tracker_config_class_init (TrackerConfigClass *klass)
 					 g_param_spec_pointer ("index-recursive-directories",
 							       "Index recursive directories",
 							       " List of directories to crawl recursively for indexing (separator=;)\n"
-							       " Special values include: (see /etc/xdg/user-dirs.defaults)\n"
-							       "   &USER_DIRECTORY_DESKTOP\n"
-							       "   &USER_DIRECTORY_DOCUMENTS\n"
-							       "   &USER_DIRECTORY_DOWNLOAD\n"
-							       "   &USER_DIRECTORY_MUSIC\n"
-							       "   &USER_DIRECTORY_PICTURES\n"
-							       "   &USER_DIRECTORY_PUBLIC_SHARE\n"
-							       "   &USER_DIRECTORY_TEMPLATES\n"
-							       "   &USER_DIRECTORY_VIDEOS",
+							       " Special values include: (see /etc/xdg/user-dirs.defaults & $HOME/.config/user-dirs.default)\n"
+							       "   &DESKTOP\n"
+							       "   &DOCUMENTS\n"
+							       "   &DOWNLOAD\n"
+							       "   &MUSIC\n"
+							       "   &PICTURES\n"
+							       "   &PUBLIC_SHARE\n"
+							       "   &TEMPLATES\n"
+							       "   &VIDEOS\n"
+							       " If $HOME is the default below, it is because $HOME/.config/user-dirs.default was missing.",
 							       G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
 	g_object_class_install_property (object_class,
 					 PROP_INDEX_SINGLE_DIRECTORIES,
@@ -587,21 +588,76 @@ config_create_with_defaults (TrackerConfig *config,
 		case G_TYPE_POINTER:
 			/* Special case string lists */
 			if (g_strcmp0 (conversions[i].property, "index-recursive-directories") == 0) {
-				const gchar *string_list[] = { 
-					"&USER_DIRECTORY_DESKTOP", 
-					"&USER_DIRECTORY_DOCUMENTS",
-					"&USER_DIRECTORY_DOWNLOAD",
-					"&USER_DIRECTORY_PICTURES",
-					"&USER_DIRECTORY_MUSIC",
-					"&USER_DIRECTORY_VIDEOS",
-					NULL, 
-				};
+				/* Since we can't know if
+				 * $HOME/.config/user-dirs.dirs exists
+				 * or not, we check that the GLib API
+				 * returns meaningful data.
+				 */
+				GUserDirectory dir;
+				GSList *paths = NULL;
+				GStrv string_list;
+
+				for (dir = 0; dir < G_USER_N_DIRECTORIES; dir++) {
+					const gchar *path;
+
+					path = g_get_user_special_dir (dir);
+					if (path == NULL || *path == '\0') {
+						continue;
+					}
+
+					switch (dir) {
+					case G_USER_DIRECTORY_DESKTOP:
+						path = "&DESKTOP";
+						break;
+					case G_USER_DIRECTORY_DOCUMENTS:
+						path = "&DOCUMENTS";
+						break;
+					case G_USER_DIRECTORY_DOWNLOAD:
+						path = "&DOWNLOAD";
+						break;
+					case G_USER_DIRECTORY_MUSIC:
+						path = "&MUSIC";
+						break;
+					case G_USER_DIRECTORY_PICTURES:
+						path = "&PICTURES";
+						break;
+					case G_USER_DIRECTORY_VIDEOS:
+						path = "&VIDEOS";
+						break;
+
+					/* We are not interested in
+					 * TEMPLATES or PUBLIC_SHAREs
+					 */
+					case G_USER_DIRECTORY_PUBLIC_SHARE:
+					case G_USER_DIRECTORY_TEMPLATES:
+					case G_USER_N_DIRECTORIES:
+						continue;
+					}
+
+					paths = g_slist_prepend (paths, (gpointer) path);
+				}
+
+				paths = g_slist_reverse (paths);
+
+				/* If we only found DESKTOP which is
+				 * always defined it seems, then add
+				 * $HOME.
+				 */
+				if (g_slist_length (paths) < 2) {
+					g_slist_free (paths);
+					paths = g_slist_prepend (NULL, "$HOME");
+				}
+
+				string_list = tracker_gslist_to_string_list (paths);
+				g_slist_free (paths);
 
 				g_key_file_set_string_list (key_file, 
 							    conversions[i].group, 
 							    conversions[i].key, 
-							    string_list, 
-							    G_N_ELEMENTS (string_list));
+							    (const gchar * const *) string_list, 
+							    g_strv_length (string_list));
+
+				g_strfreev (string_list);
 			} else if (g_strcmp0 (conversions[i].property, "ignored-directories") == 0) {
 				const gchar *string_list[] = { 
 					"po", "CVS", ".svn", ".git", "core-dumps", "lost+found",
@@ -810,34 +866,29 @@ config_load (TrackerConfig *config)
 			for (l = dirs; l; l = l->next) {
 				const gchar *path_to_use;
 
-				if (!g_str_has_prefix (l->data, "&USER_DIRECTORY_")) {
-					continue;
-				}
-
-				check_for_duplicates = TRUE;
-
 				/* Must be a special dir */
-				if (strcmp (l->data, "&USER_DIRECTORY_DESKTOP") == 0) {
+				if (strcmp (l->data, "&DESKTOP") == 0) {
 					path_to_use = g_get_user_special_dir (G_USER_DIRECTORY_DESKTOP);
-				} else if (strcmp (l->data, "&USER_DIRECTORY_DOCUMENTS") == 0) {
+				} else if (strcmp (l->data, "&DOCUMENTS") == 0) {
 					path_to_use = g_get_user_special_dir (G_USER_DIRECTORY_DOCUMENTS);
-				} else if (strcmp (l->data, "&USER_DIRECTORY_DOWNLOAD") == 0) {
+				} else if (strcmp (l->data, "&DOWNLOAD") == 0) {
 					path_to_use = g_get_user_special_dir (G_USER_DIRECTORY_DOWNLOAD);
-				} else if (strcmp (l->data, "&USER_DIRECTORY_MUSIC") == 0) {
+				} else if (strcmp (l->data, "&MUSIC") == 0) {
 					path_to_use = g_get_user_special_dir (G_USER_DIRECTORY_MUSIC);
-				} else if (strcmp (l->data, "&USER_DIRECTORY_PICTURES") == 0) {
+				} else if (strcmp (l->data, "&PICTURES") == 0) {
 					path_to_use = g_get_user_special_dir (G_USER_DIRECTORY_PICTURES);
-				} else if (strcmp (l->data, "&USER_DIRECTORY_PUBLIC_SHARE") == 0) {
+				} else if (strcmp (l->data, "&PUBLIC_SHARE") == 0) {
 					path_to_use = g_get_user_special_dir (G_USER_DIRECTORY_PUBLIC_SHARE);
-				} else if (strcmp (l->data, "&USER_DIRECTORY_TEMPLATES") == 0) {
+				} else if (strcmp (l->data, "&TEMPLATES") == 0) {
 					path_to_use = g_get_user_special_dir (G_USER_DIRECTORY_TEMPLATES);
-				} else if (strcmp (l->data, "&USER_DIRECTORY_VIDEOS") == 0) {
+				} else if (strcmp (l->data, "&VIDEOS") == 0) {
 					path_to_use = g_get_user_special_dir (G_USER_DIRECTORY_VIDEOS);
 				} else {
 					path_to_use = NULL;
 				}
 
 				if (path_to_use) {
+					check_for_duplicates = TRUE;
 					g_free (l->data);
 					l->data = g_strdup (path_to_use);
 				}
@@ -917,21 +968,21 @@ config_save (TrackerConfig *config)
 
 					dir = g_get_user_special_dir (G_USER_DIRECTORY_DESKTOP);
 					if (g_strcmp0 (l->data, g_get_user_special_dir (G_USER_DIRECTORY_DESKTOP)) == 0) {
-						path_to_use = "&USER_DIRECTORY_DESKTOP";
+						path_to_use = "&DESKTOP";
 					} else if (g_strcmp0 (l->data, g_get_user_special_dir (G_USER_DIRECTORY_DOCUMENTS)) == 0) {
-						path_to_use = "&USER_DIRECTORY_DOCUMENTS";
+						path_to_use = "&DOCUMENTS";
 					} else if (g_strcmp0 (l->data, g_get_user_special_dir (G_USER_DIRECTORY_DOWNLOAD)) == 0) {
-						path_to_use = "&USER_DIRECTORY_DOWNLOAD";
+						path_to_use = "&DOWNLOAD";
 					} else if (g_strcmp0 (l->data, g_get_user_special_dir (G_USER_DIRECTORY_MUSIC)) == 0) {
-						path_to_use = "&USER_DIRECTORY_MUSIC";
+						path_to_use = "&MUSIC";
 					} else if (g_strcmp0 (l->data, g_get_user_special_dir (G_USER_DIRECTORY_PICTURES)) == 0) {
-						path_to_use = "&USER_DIRECTORY_PICTURES";
+						path_to_use = "&PICTURES";
 					} else if (g_strcmp0 (l->data, g_get_user_special_dir (G_USER_DIRECTORY_PUBLIC_SHARE)) == 0) {
-						path_to_use = "&USER_DIRECTORY_PUBLIC_SHARE";
+						path_to_use = "&PUBLIC_SHARE";
 					} else if (g_strcmp0 (l->data, g_get_user_special_dir (G_USER_DIRECTORY_TEMPLATES)) == 0) {
-						path_to_use = "&USER_DIRECTORY_TEMPLATES";
+						path_to_use = "&TEMPLATES";
 					} else if (g_strcmp0 (l->data, g_get_user_special_dir (G_USER_DIRECTORY_VIDEOS)) == 0) {
-						path_to_use = "&USER_DIRECTORY_VIDEOS";
+						path_to_use = "&VIDEOS";
 					} else {
 						path_to_use = NULL;
 					}
