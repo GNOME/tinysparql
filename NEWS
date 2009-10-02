@@ -1,3 +1,105 @@
+NEW in 0.7.1
+============
+
+Improvements / New:
+
+  General:
+  * Updated version of dbus and dbus-glib and removed
+    SUBJECT_TO_CHANGE use everywhere.
+  * Updated version of libxml to something realistic.
+  * Updated version of libgee to 0.3.
+  * Updated vala requirement suggestion in autogen.sh to 0.7.6.
+  
+  Ontology:
+  * Added prefix "mlo" for http://www.tracker-project.org/temp/mlo
+  * Updated scal ontology to cover ical standard.
+
+  Documentation: 
+  * Added initial documentation for libtracker-miner.
+  * Fixed typo in tracker-processes man page.
+  * Fixed warnings when building documenation for libtracker-common
+  * Regenerated documentation sections for libtracker-common
+
+  libtracker-common:
+  * Fixed memory leak in tracker_string_to_date().
+  * Moved TrackerParser API to libtracker-fts, only used there.
+
+  libtracker-db:
+  * Updated headers so only one header can be included if used externally
+
+  libtracker-data:
+  * Added support for fn:contains and fn:ends-with for SPARQL.
+  * Removed unnecessary FTS INSERT and DELETE statements.
+  * Updated to avoid unnecessary SQL CAST expressions.
+
+  libtracker-fts:
+  * Added to unit tests
+  * Removed broken and unused paragraph detection.
+  * Moved this from "tracker-fts" everywhere in code base since it is
+    a library not an application.
+
+  libtracker-miner:
+  * Added get_status() and is_paused() APIs.
+  * Removed GetName and GetDescription DBus methods, now in desktop
+    files and exposed through TrackerMinerManager API.
+
+  tracker-store:
+  * Clean up queued batch updates to the database when clients
+    disconnect.
+  * Do not use JOIN for simple OPTIONAL patterns in SPARQL
+    (significant speed improvement).
+
+  tracker-miner-fs:
+  * Added support back for thumbnailing.
+  * Added support for full paths in config for IgnoredFiles and
+    IgnoredDirectories.
+  * Added support for XDG spec. for special user directories. So now
+    in the config, IndexRecursiveDirectories and
+    IndexSingleDirectories can include "&DOCUMENTS", or "&MUSIC", etc. 
+    The list of special locations is listed in the config and
+    documented. This falls back to $HOME when not available for some
+    distributions.
+  * Removed unused files.
+  * Updated the default indexed locations to DESKTOP, DOCUMENTS,
+    DOWNLOADS, MUSIC, PICTURES and VIDEOS as per the XDG spec (this
+    was $HOME).
+  * Fixed trying to send thumbnail queues of size 0.
+  * Fixed trying to send thumbnails when service is not available.
+  * Fixed double unref in thumbnailer code.
+  * Fixed 2 memory leaks found while valgrinding.
+
+  tracker-extract:
+  * Fixed assertion in HAL is NULL from starting on the command line.
+  * Fixed Ctrl+C not working with -d.
+    
+  tracker-status:
+  * Use libtracker-miner APIs instead of DBus calls.
+  * Use libtracker-miner API to get display names (translatable).
+
+  tracker-search-bar:
+  * Fixed crash when clicking on the results window with the "no
+    results found..." message.
+
+  tracker-search-tool:
+  * Added smart wildcards when last character is not a space.
+  * Fixed category selector.
+  * Fixed crasher when selecting categories.
+
+Bugs:
+
+  * Fixes NB#141309, Remove nco:hasPostalAddress cardinality limitation
+  * Fixes NB#132655, Tracker-import error handling jams
+  * Fixes GB#595976, Message 'SQL logic error or missing database'
+  * Fixes GB#592400, String translation issues
+  * Fixes GB#595752, Minor string fixes
+
+Notes:
+
+  The Deskbar applet packaged with Tracker is currently out of date
+  and needs some love to get it working with the new APIs. It is in
+  the same state as it was for 0.6. As such it isn't expected to work.
+
+
 NEW in 0.7
 ==========
 
