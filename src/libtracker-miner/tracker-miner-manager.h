@@ -86,6 +86,8 @@ gboolean tracker_miner_manager_get_status (TrackerMinerManager  *manager,
 
 const gchar * tracker_miner_manager_get_display_name (TrackerMinerManager *manager,
 						      const gchar         *miner);
+const gchar * tracker_miner_manager_get_description  (TrackerMinerManager *manager,
+						      const gchar         *miner);
 
 G_END_DECLS
 

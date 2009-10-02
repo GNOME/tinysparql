@@ -36,6 +36,7 @@
 #define DBUS_NAME_KEY "DBusName"
 #define DBUS_PATH_KEY "DBusPath"
 #define DISPLAY_NAME_KEY "Name"
+#define DESCRIPTION_KEY "Comment"
 
 typedef struct TrackerMinerManagerPrivate TrackerMinerManagerPrivate;
 typedef struct MinerData MinerData;
@@ -44,6 +45,7 @@ struct MinerData {
 	gchar *dbus_name;
 	gchar *dbus_path;
 	gchar *display_name;
+	gchar *description;
 };
 
 struct TrackerMinerManagerPrivate {
@@ -387,7 +389,7 @@ crawler_check_file_cb (TrackerCrawler *crawler,
 	TrackerMinerManager *manager;
 	TrackerMinerManagerPrivate *priv;
 	GKeyFile *key_file;
-	gchar *path, *dbus_path, *dbus_name, *display_name;
+	gchar *path, *dbus_path, *dbus_name, *display_name, *description;
 	GError *error = NULL;
 	MinerData *data;
 
@@ -415,7 +417,7 @@ crawler_check_file_cb (TrackerCrawler *crawler,
 	display_name = g_key_file_get_locale_string (key_file, DESKTOP_ENTRY_GROUP, DISPLAY_NAME_KEY, NULL, NULL);
 
 	if (!dbus_path || !dbus_name || !display_name) {
-		g_warning ("Essential data (DBusPath or Name) are missing in miner .desktop file");
+		g_warning ("Essential data (DBusPath, DBusName or Name) are missing in miner .desktop file");
 		g_key_file_free (key_file);
 		g_free (dbus_path);
 		g_free (display_name);
@@ -424,10 +426,13 @@ crawler_check_file_cb (TrackerCrawler *crawler,
 		return FALSE;
 	}
 
+	description = g_key_file_get_locale_string (key_file, DESKTOP_ENTRY_GROUP, DESCRIPTION_KEY, NULL, NULL);
+
 	data = g_slice_new0 (MinerData);
 	data->dbus_path = dbus_path;
 	data->dbus_name = dbus_name;
 	data->display_name = display_name;
+	data->description = description;
 
 	priv->miners = g_list_prepend (priv->miners, data);
 
@@ -719,6 +724,29 @@ tracker_miner_manager_get_display_name (TrackerMinerManager *manager,
 
 		if (strcmp (miner, data->dbus_name) == 0) {
 			return data->display_name;
+		}
+	}
+
+	return NULL;
+}
+
+const gchar *
+tracker_miner_manager_get_description (TrackerMinerManager *manager,
+				       const gchar         *miner)
+{
+	TrackerMinerManagerPrivate *priv;
+	GList *m;
+
+	g_return_val_if_fail (TRACKER_IS_MINER_MANAGER (manager), NULL);
+	g_return_val_if_fail (miner != NULL, NULL);
+
+	priv = TRACKER_MINER_MANAGER_GET_PRIVATE (manager);
+
+	for (m = priv->miners; m; m = m->next) {
+		MinerData *data = m->data;
+
+		if (strcmp (miner, data->dbus_name) == 0) {
+			return data->description;
 		}
 	}
 
