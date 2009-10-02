@@ -30,6 +30,7 @@ libtracker_data_la_SOURCES = 						\
 	$(libtracker_data_la_VALASOURCES:.vala=.c)
 
 noinst_HEADERS =							\
+	tracker-data.h							\
 	tracker-data-backup.h						\
 	tracker-data-manager.h						\
 	tracker-data-query.h						\

@@ -21,8 +21,8 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __TRACKER_DATA_QUERY_H__
-#define __TRACKER_DATA_QUERY_H__
+#ifndef __LIBTRACKER_DATA_QUERY_H__
+#define __LIBTRACKER_DATA_QUERY_H__
 
 #include <glib.h>
 
@@ -34,11 +34,15 @@
 
 G_BEGIN_DECLS
 
-guint32              tracker_data_query_resource_id      (const gchar   *uri);
-TrackerDBResultSet  *tracker_data_query_sparql           (const gchar   *query,
-                                                          GError       **error);
-GPtrArray*           tracker_data_query_rdf_type         (guint32        id);
+#if !defined (__LIBTRACKER_DATA_INSIDE__) && !defined (TRACKER_COMPILATION)
+#error "only <libtracker-data/tracker-data.h> must be included directly."
+#endif
+
+guint32              tracker_data_query_resource_id (const gchar  *uri);
+TrackerDBResultSet  *tracker_data_query_sparql      (const gchar  *query,
+						     GError      **error);
+GPtrArray*           tracker_data_query_rdf_type    (guint32       id);
 
 G_END_DECLS
 
-#endif /* __TRACKER_DATA_QUERY_H__ */
+#endif /* __LIBTRACKER_DATA_QUERY_H__ */

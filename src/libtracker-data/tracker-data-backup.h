@@ -18,27 +18,33 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA  02110-1301, USA.
  */
-#ifndef __TRACKER_DATA_BACKUP_H__
-#define __TRACKER_DATA_BACKUP_H__
+
+#ifndef __LIBTRACKER_DATA_BACKUP_H__
+#define __LIBTRACKER_DATA_BACKUP_H__
 
 #include <glib.h>
 #include <gio/gio.h>
 
 G_BEGIN_DECLS
 
-typedef void (*TrackerDataBackupFinished)   (GError *error, gpointer user_data);
+#if !defined (__LIBTRACKER_DATA_INSIDE__) && !defined (TRACKER_COMPILATION)
+#error "only <libtracker-data/tracker-data.h> must be included directly."
+#endif
 
-GQuark    tracker_data_backup_error_quark (void);
+typedef void (*TrackerDataBackupFinished) (GError *error, gpointer user_data);
 
-void      tracker_data_backup_save        (GFile *destination, GFile *journal,
-                                           TrackerDataBackupFinished callback,
-                                           gpointer user_data,
-                                           GDestroyNotify destroy);
-void      tracker_data_backup_restore     (GFile *backup, GFile *journal,
-                                           TrackerDataBackupFinished callback,
-                                           gpointer user_data,
-                                           GDestroyNotify destroy);
+GQuark tracker_data_backup_error_quark (void);
+void   tracker_data_backup_save        (GFile                     *destination,
+					GFile                     *journal,
+					TrackerDataBackupFinished  callback,
+					gpointer                   user_data,
+					GDestroyNotify             destroy);
+void   tracker_data_backup_restore     (GFile                     *backup,
+					GFile                     *journal,
+					TrackerDataBackupFinished  callback,
+					gpointer                   user_data,
+					GDestroyNotify             destroy);
 
 G_END_DECLS
 
-#endif /* __TRACKER_DATA_BACKUP_H__ */
+#endif /* __LIBTRACKER_DATA_BACKUP_H__ */

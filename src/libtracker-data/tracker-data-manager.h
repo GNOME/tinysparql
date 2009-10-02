@@ -21,8 +21,8 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __TRACKER_DATA_MANAGER_H__
-#define __TRACKER_DATA_MANAGER_H__
+#ifndef __LIBTRACKER_DATA_MANAGER_H__
+#define __LIBTRACKER_DATA_MANAGER_H__
 
 #include <glib.h>
 
@@ -34,17 +34,19 @@
 
 G_BEGIN_DECLS
 
-gboolean            tracker_data_manager_init              (TrackerDBManagerFlags       flags,
-							    const gchar                *test_schema,
-							    gboolean                   *first_time,
-							    gboolean                   *need_journal);
-void                tracker_data_manager_shutdown          (void);
+#if !defined (__LIBTRACKER_DATA_INSIDE__) && !defined (TRACKER_COMPILATION)
+#error "only <libtracker-data/tracker-data.h> must be included directly."
+#endif
 
-gint64              tracker_data_manager_get_db_option_int64 (const gchar        *option);
-void                tracker_data_manager_set_db_option_int64 (const gchar        *option,
-							      gint64              value);
-
+gboolean tracker_data_manager_init                (TrackerDBManagerFlags  flags,
+						   const gchar           *test_schema,
+						   gboolean              *first_time,
+						   gboolean              *need_journal);
+void     tracker_data_manager_shutdown            (void);
+gint64   tracker_data_manager_get_db_option_int64 (const gchar           *option);
+void     tracker_data_manager_set_db_option_int64 (const gchar           *option,
+						   gint64                 value);
 
 G_END_DECLS
 
-#endif /* __TRACKER_DATA_MANAGER_H__ */
+#endif /* __LIBTRACKER_DATA_MANAGER_H__ */

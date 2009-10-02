@@ -60,46 +60,46 @@ typedef enum {
 	TRACKER_DB_CORRUPT
 } TrackerDBInterfaceError;
 
-typedef struct TrackerDBInterface TrackerDBInterface;
+typedef struct TrackerDBInterface      TrackerDBInterface;
 typedef struct TrackerDBInterfaceIface TrackerDBInterfaceIface;
-typedef struct TrackerDBStatement TrackerDBStatement;
+typedef struct TrackerDBStatement      TrackerDBStatement;
 typedef struct TrackerDBStatementIface TrackerDBStatementIface;
-typedef struct TrackerDBResultSet TrackerDBResultSet;
+typedef struct TrackerDBResultSet      TrackerDBResultSet;
 typedef struct TrackerDBResultSetClass TrackerDBResultSetClass;
-typedef struct TrackerDBCursor TrackerDBCursor;
-typedef struct TrackerDBCursorIface TrackerDBCursorIface;
+typedef struct TrackerDBCursor         TrackerDBCursor;
+typedef struct TrackerDBCursorIface    TrackerDBCursorIface;
 
 struct TrackerDBInterfaceIface {
 	GTypeInterface iface;
 
-	TrackerDBStatement * (* create_statement)      (TrackerDBInterface  *interface,
-							const gchar	    *query);
-	TrackerDBResultSet * (* execute_query)	       (TrackerDBInterface  *interface,
-							GError		   **error,
-							const gchar	    *query);
-	void		     (* disconnect)	       (TrackerDBInterface  *interface);
-	void		     (* reconnect)	       (TrackerDBInterface  *interface);
+	TrackerDBStatement * (* create_statement) (TrackerDBInterface  *interface,
+						   const gchar	       *query);
+	TrackerDBResultSet * (* execute_query)	  (TrackerDBInterface  *interface,
+						   GError	      **error,
+						   const gchar	       *query);
+	void		     (* disconnect)	  (TrackerDBInterface  *interface);
+	void		     (* reconnect)	  (TrackerDBInterface  *interface);
 };
 
 struct TrackerDBStatementIface {
 	GTypeInterface iface;
 
-	void		     (* bind_double)	(TrackerDBStatement	 *stmt,
-						 int			  index,
-						 double			  value);
-	void		     (* bind_int)	(TrackerDBStatement	 *stmt,
-						 int			  index,
-						 int			  value);
-	void		     (* bind_text)	(TrackerDBStatement	 *stmt,
-						 int			  index,
-						 const gchar		 *value);
-	TrackerDBResultSet * (* execute)	(TrackerDBStatement	 *stmt,
-						 GError			**error);
-	void		     (* bind_int64)	(TrackerDBStatement	 *stmt,
-						 int			  index,
-						 gint64			  value);
-	TrackerDBCursor    * (* start_cursor)	(TrackerDBStatement	 *stmt,
-						 GError			**error);
+	void		     (* bind_double)	(TrackerDBStatement  *stmt,
+						 int		      index,
+						 double		      value);
+	void		     (* bind_int)	(TrackerDBStatement  *stmt,
+						 int		      index,
+						 int		      value);
+	void		     (* bind_text)	(TrackerDBStatement  *stmt,
+						 int		      index,
+						 const gchar	     *value);
+	TrackerDBResultSet * (* execute)	(TrackerDBStatement  *stmt,
+						 GError		    **error);
+	void		     (* bind_int64)	(TrackerDBStatement  *stmt,
+						 int		      index,
+						 gint64		      value);
+	TrackerDBCursor    * (* start_cursor)	(TrackerDBStatement  *stmt,
+						 GError		    **error);
 };
 
 struct TrackerDBResultSet {
@@ -113,19 +113,18 @@ struct TrackerDBResultSetClass {
 struct TrackerDBCursorIface {
 	GTypeInterface iface;
 
-	void          (*rewind)       (TrackerDBCursor *cursor);
-	gboolean      (*iter_next)    (TrackerDBCursor *cursor);
-	guint         (*get_n_columns)(TrackerDBCursor *cursor);
-	void          (*get_value)    (TrackerDBCursor *cursor, 
-					  guint            column,
-					  GValue          *value);
-
-	const gchar*  (*get_string)   (TrackerDBCursor *cursor, 
-				       guint            column);
-	gint          (*get_int)      (TrackerDBCursor *cursor, 
-				       guint            column);
-	gdouble       (*get_double)   (TrackerDBCursor *cursor, 
-				       guint            column);
+	void          (*rewind)        (TrackerDBCursor *cursor);
+	gboolean      (*iter_next)     (TrackerDBCursor *cursor);
+	guint         (*get_n_columns) (TrackerDBCursor *cursor);
+	void          (*get_value)     (TrackerDBCursor *cursor, 
+				        guint            column,
+				        GValue          *value);
+	const gchar*  (*get_string)    (TrackerDBCursor *cursor, 
+				        guint            column);
+	gint          (*get_int)       (TrackerDBCursor *cursor, 
+				        guint            column);
+	gdouble       (*get_double)    (TrackerDBCursor *cursor, 
+				        guint            column);
 };
 
 GQuark              tracker_db_interface_error_quark       (void);

@@ -19,8 +19,8 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __TRACKER_DATA_UPDATE_H__
-#define __TRACKER_DATA_UPDATE_H__
+#ifndef __LIBTRACKER_DATA_UPDATE_H__
+#define __LIBTRACKER_DATA_UPDATE_H__
 
 #include <glib.h>
 
@@ -30,6 +30,12 @@
 
 G_BEGIN_DECLS
 
+#if !defined (__LIBTRACKER_DATA_INSIDE__) && !defined (TRACKER_COMPILATION)
+#error "only <libtracker-data/tracker-data.h> must be included directly."
+#endif
+
+#define TRACKER_DATA_ERROR tracker_data_error_quark ()
+
 typedef enum  {
 	TRACKER_DATA_ERROR_UNKNOWN_CLASS,
 	TRACKER_DATA_ERROR_UNKNOWN_PROPERTY,
@@ -37,62 +43,59 @@ typedef enum  {
 	TRACKER_DATA_ERROR_CONSTRAINT
 } TrackerDataError;
 
-#define TRACKER_DATA_ERROR tracker_data_error_quark ()
+typedef void (*TrackerStatementCallback) (const gchar *subject, 
+					  const gchar *predicate, 
+					  const gchar *object,
+					  GPtrArray   *rdf_types,
+					  gpointer     user_data);
+typedef void (*TrackerCommitCallback)    (gpointer     user_data);
 
-GQuark   tracker_data_error_quark (void);
+GQuark   tracker_data_error_quark                   (void);
 
 /* Services  */
-void     tracker_data_delete_resource                   (const gchar         *uri);
-gboolean tracker_data_update_resource_uri               (const gchar         *old_uri,
-							 const gchar         *new_uri);
+void     tracker_data_delete_resource               (const gchar               *uri);
+gboolean tracker_data_update_resource_uri           (const gchar               *old_uri,
+						     const gchar               *new_uri);
+
 /* Metadata */
-void     tracker_data_delete_resource_description       (const gchar         *uri);
-void     tracker_data_delete_statement			(const gchar	     *subject,
-							 const gchar         *predicate,
-							 const gchar         *object,
-							 GError             **error);
-
-void     tracker_data_insert_statement			(const gchar	     *subject,
-							 const gchar         *predicate,
-							 const gchar         *object,
-							 GError             **error);
-void     tracker_data_insert_statement_with_uri		(const gchar	     *subject,
-							 const gchar         *predicate,
-							 const gchar         *object,
-							 GError             **error);
-void     tracker_data_insert_statement_with_string	(const gchar	     *subject,
-							 const gchar         *predicate,
-							 const gchar         *object,
-							 GError             **error);
-void     tracker_data_begin_transaction			(void);
-void     tracker_data_commit_transaction		(void);
-
-void     tracker_data_update_sparql			(const gchar       *update,
-							 GError	          **error);
-void     tracker_data_update_buffer_flush		(void);
+void     tracker_data_delete_resource_description   (const gchar               *uri);
+void     tracker_data_delete_statement              (const gchar               *subject,
+						     const gchar               *predicate,
+						     const gchar               *object,
+						     GError                   **error);
+void     tracker_data_insert_statement              (const gchar               *subject,
+						     const gchar               *predicate,
+						     const gchar               *object,
+						     GError                   **error);
+void     tracker_data_insert_statement_with_uri     (const gchar               *subject,
+						     const gchar               *predicate,
+						     const gchar               *object,
+						     GError                   **error);
+void     tracker_data_insert_statement_with_string  (const gchar               *subject,
+						     const gchar               *predicate,
+						     const gchar               *object,
+						     GError                   **error);
+void     tracker_data_begin_transaction             (void);
+void     tracker_data_commit_transaction            (void);
+void     tracker_data_update_sparql                 (const gchar               *update,
+						     GError                   **error);
+void     tracker_data_update_buffer_flush           (void);
 
 /* Volume handling */
-void tracker_data_update_enable_volume                  (const gchar         *udi,
-                                                         const gchar         *mount_path);
-void tracker_data_update_disable_volume                 (const gchar         *udi);
-void tracker_data_update_disable_all_volumes            (void);
-void tracker_data_update_reset_volume                   (const gchar         *uri);
+void     tracker_data_update_enable_volume          (const gchar               *udi,
+						     const gchar               *mount_path);
+void     tracker_data_update_disable_volume         (const gchar               *udi);
+void     tracker_data_update_disable_all_volumes    (void);
+void     tracker_data_update_reset_volume           (const gchar               *uri);
 
 /* Calling back */
-typedef void (*TrackerStatementCallback)                (const gchar *subject, 
-							 const gchar *predicate, 
-							 const gchar *object,
-							 GPtrArray   *rdf_types,
-							 gpointer user_data);
-typedef void (*TrackerCommitCallback)                   (gpointer user_data);
-
-void tracker_data_set_insert_statement_callback         (TrackerStatementCallback callback,
-							 gpointer                 user_data);
-void tracker_data_set_delete_statement_callback         (TrackerStatementCallback callback,
-							 gpointer                 user_data);
-void tracker_data_set_commit_statement_callback         (TrackerCommitCallback    callback,
-							 gpointer                 user_data);
+void     tracker_data_set_insert_statement_callback (TrackerStatementCallback   callback,
+						     gpointer                   user_data);
+void     tracker_data_set_delete_statement_callback (TrackerStatementCallback   callback,
+						     gpointer                   user_data);
+void     tracker_data_set_commit_statement_callback (TrackerCommitCallback      callback,
+						     gpointer                   user_data);
 
 G_END_DECLS
 
-#endif /* __TRACKER_DATA_UPDATE_H__ */
+#endif /* __LIBTRACKER_DATA_UPDATE_H__ */
