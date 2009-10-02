@@ -334,12 +334,28 @@ miner_manager_finalize (GObject *object)
 	G_OBJECT_CLASS (tracker_miner_manager_parent_class)->finalize (object);
 }
 
+/**
+ * tracker_miner_manager_new:
+ *
+ * Creates a new #TrackerMinerManager instance.
+ *
+ * Returns: a #TrackerMinerManager.
+ **/
 TrackerMinerManager *
 tracker_miner_manager_new (void)
 {
 	return g_object_new (TRACKER_TYPE_MINER_MANAGER, NULL);
 }
 
+/**
+ * tracker_miner_manager_get_running:
+ * @manager: a #trackerMinerManager
+ *
+ * Returns a list of references for all active miners.
+ *
+ * Returns: a #GSList of miner references. This list must be freed
+ *          through g_slist_free(), and all contained data with g_free().
+ **/
 GSList *
 tracker_miner_manager_get_running (TrackerMinerManager *manager)
 {
@@ -481,6 +497,15 @@ initialize_miners_data (TrackerMinerManager *manager)
 	g_object_unref (crawler);
 }
 
+/**
+ * tracker_miner_manager_get_available:
+ * @manager: a #TrackerMinerManager
+ *
+ * Returns a list of references for all available miners.
+ *
+ * Returns: a #GSList of miner references. This list must be freed
+ *          through g_slist_free(), and all contained data with g_free().
+ **/
 GSList *
 tracker_miner_manager_get_available (TrackerMinerManager *manager)
 {
@@ -499,6 +524,19 @@ tracker_miner_manager_get_available (TrackerMinerManager *manager)
 	return g_slist_reverse (list);
 }
 
+/**
+ * tracker_miner_manager_pause:
+ * @manager: a #TrackerMinerManager.
+ * @miner: miner reference
+ * @reason: reason to pause
+ * @cookie: return location for the pause cookie ID
+ *
+ * Asks @miner to pause. a miner could be paused by
+ * several reasons, and its activity won't be resumed
+ * until all pause requests have been resumed.
+ *
+ * Returns: %TRUE if the miner was paused successfully.
+ **/
 gboolean
 tracker_miner_manager_pause (TrackerMinerManager *manager,
 			     const gchar         *miner,
@@ -542,6 +580,17 @@ tracker_miner_manager_pause (TrackerMinerManager *manager,
 	return TRUE;
 }
 
+/**
+ * tracker_miner_manager_resume:
+ * @manager: a #TrackerMinerManager
+ * @miner: miner reference
+ * @cookie: pause cookie
+ *
+ * Tells @miner to resume activity. The miner won't actually resume
+ * operations until all pause requests have been resumed.
+ *
+ * Returns: %TRUE if the miner was successfully resumed.
+ **/
 gboolean
 tracker_miner_manager_resume (TrackerMinerManager *manager,
 			      const gchar         *miner,
@@ -570,6 +619,15 @@ tracker_miner_manager_resume (TrackerMinerManager *manager,
 	return TRUE;
 }
 
+/**
+ * tracker_miner_manager_is_active:
+ * @manager: a #TrackerMinerManager
+ * @miner: miner reference
+ *
+ * Returns %TRUE if @miner is currently active.
+ *
+ * Returns: %TRUE if @miner is active.
+ **/
 gboolean
 tracker_miner_manager_is_active (TrackerMinerManager *manager,
 				 const gchar         *miner)
@@ -597,6 +655,17 @@ tracker_miner_manager_is_active (TrackerMinerManager *manager,
 	return active;
 }
 
+/**
+ * tracker_miner_manager_get_status:
+ * @manager: a #TrackerMinerManager
+ * @miner: miner reference
+ * @status: return location for status
+ * @progress: return location for progress
+ *
+ * Returns the current status and progress for @miner.
+ *
+ * Returns: %TRUE if the status could be retrieved successfully.
+ **/
 gboolean
 tracker_miner_manager_get_status (TrackerMinerManager  *manager,
 				  const gchar          *miner,
@@ -651,6 +720,21 @@ tracker_miner_manager_get_status (TrackerMinerManager  *manager,
 	return TRUE;
 }
 
+/**
+ * tracker_miner_manager_is_paused:
+ * @manager: a #TrackerMinerManager
+ * @miner: miner reference
+ * @applications: return location for application names.
+ * @reasons: return location for pause reasons.
+ *
+ * This function either returns %FALSE if the miner is not paused,
+ * or returns %TRUE and fills in @applications and @reasons with
+ * the pause reasons and the applications that asked for it. Both
+ * arrays will have the same lengh, and will be sorted so the
+ * application/pause reason pairs have the same index.
+ *
+ * Returns: %TRUE if @miner is paused.
+ **/
 gboolean
 tracker_miner_manager_is_paused (TrackerMinerManager *manager,
 				 const gchar         *miner,
@@ -707,6 +791,15 @@ tracker_miner_manager_is_paused (TrackerMinerManager *manager,
 	return paused;
 }
 
+/**
+ * tracker_miner_manager_get_display_name:
+ * @manager: a #TrackerMinerManager
+ * @miner: miner reference
+ *
+ * Returns a translated display name for @miner.
+ *
+ * Returns: The miner display name.
+ **/
 const gchar *
 tracker_miner_manager_get_display_name (TrackerMinerManager *manager,
 					const gchar         *miner)
@@ -730,6 +823,15 @@ tracker_miner_manager_get_display_name (TrackerMinerManager *manager,
 	return NULL;
 }
 
+/**
+ * tracker_miner_manager_get_description:
+ * @manager: a #TrackerMinerManager
+ * @miner: miner reference
+ *
+ * Returns the description for @miner, or %NULL if none is specified.
+ *
+ * Returns: The miner description.
+ **/
 const gchar *
 tracker_miner_manager_get_description (TrackerMinerManager *manager,
 				       const gchar         *miner)
