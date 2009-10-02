@@ -69,7 +69,6 @@ libtracker_common_la_SOURCES =	 			\
 	tracker-log.c	 				\
 	tracker-namespace.c				\
 	tracker-ontology.c				\
-	tracker-parser.c				\
 	tracker-property.c				\
 	tracker-statement-list.c			\
 	tracker-type-utils.c				\
@@ -94,7 +93,6 @@ libtracker_commoninclude_HEADERS =			\
 	tracker-language.h				\
 	tracker-namespace.h				\
 	tracker-ontology.h				\
-	tracker-parser.h				\
 	tracker-property.h				\
 	tracker-sparql-builder.h			\
 	tracker-statement-list.h			\

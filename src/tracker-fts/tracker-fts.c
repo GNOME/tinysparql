@@ -285,6 +285,7 @@
 #include "tracker-fts.h"
 #include "tracker-fts-config.h"
 #include "tracker-fts-hash.h"
+#include "tracker-parser.h"
 
 /* TODO(shess) MAN, this thing needs some refactoring.	At minimum, it
 ** would be nice to order the file better, perhaps something along the
@@ -3411,7 +3412,7 @@ static int constructVtab(
 
   v->max_words = tracker_fts_config_get_max_words_to_index (config);
 
-  v->parser =	tracker_parser_new (language, max_len, min_len);
+  v->parser = tracker_parser_new (language, max_len, min_len);
 
   /* disable stop words if TRACKER_FTS_STOP_WORDS is set to 0 - used by tests */
   v->stop_words = g_strcmp0 (g_getenv ("TRACKER_FTS_STOP_WORDS"), "0") != 0;

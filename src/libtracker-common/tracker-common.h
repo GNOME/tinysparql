@@ -37,7 +37,6 @@ G_BEGIN_DECLS
 #include "tracker-language.h"
 #include "tracker-namespace.h"
 #include "tracker-ontology.h"
-#include "tracker-parser.h"
 #include "tracker-power.h"
 #include "tracker-property.h"
 #include "tracker-sparql-builder.h"

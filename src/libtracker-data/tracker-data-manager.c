@@ -31,11 +31,7 @@
 
 #include <glib/gstdio.h>
 
-#include <libtracker-common/tracker-file-utils.h>
-#include <libtracker-common/tracker-parser.h>
-#include <libtracker-common/tracker-type-utils.h>
-#include <libtracker-common/tracker-utils.h>
-#include <libtracker-common/tracker-ontology.h>
+#include <libtracker-common/tracker-common.h>
 
 #include <tracker-fts/tracker-fts.h>
 

@@ -29,8 +29,6 @@
 #endif
 
 #include "tracker-parser.h"
-#include "tracker-log.h"
-#include "tracker-utils.h"
 
 #define INDEX_NUMBER_MIN_LENGTH 6
 

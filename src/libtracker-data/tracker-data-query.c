@@ -26,10 +26,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include <libtracker-common/tracker-file-utils.h>
-#include <libtracker-common/tracker-parser.h>
-#include <libtracker-common/tracker-type-utils.h>
-#include <libtracker-common/tracker-utils.h>
+#include <libtracker-common/tracker-common.h>
 
 #include <libtracker-db/tracker-db-dbus.h>
 #include <libtracker-db/tracker-db-interface-sqlite.h>

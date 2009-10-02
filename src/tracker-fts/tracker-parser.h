@@ -19,18 +19,14 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __LIBTRACKER_TRACKER_COMMON_PARSER_H__
-#define __LIBTRACKER_TRACKER_COMMON_PARSER_H__
+#ifndef __LIBTRACKER_FTS_PARSER_H__
+#define __LIBTRACKER_FTS_PARSER_H__
 
 #include <glib.h>
 
-#include "tracker-language.h"
+#include <libtracker-common/tracker-language.h>
 
 G_BEGIN_DECLS
-
-#if !defined (__LIBTRACKER_COMMON_INSIDE__) && !defined (TRACKER_COMPILATION)
-#error "only <libtracker-common/tracker-common.h> must be included directly."
-#endif
 
 typedef struct TrackerParser TrackerParser;
 
@@ -59,4 +55,4 @@ void	       tracker_parser_free	      (TrackerParser   *parser);
 
 G_END_DECLS
 
-#endif /* __TRACKERD_PARSER_H__ */
+#endif /* __LIBTRACKER_FTS_PARSER_H__ */
