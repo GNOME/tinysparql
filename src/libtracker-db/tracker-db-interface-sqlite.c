@@ -260,8 +260,11 @@ tracker_db_interface_sqlite_get_property (GObject    *object,
 static void
 close_database (TrackerDBInterfaceSqlitePrivate *priv)
 {
-	g_hash_table_destroy (priv->dynamic_statements);
-	g_hash_table_destroy (priv->statements);
+	g_hash_table_unref (priv->dynamic_statements);
+	priv->dynamic_statements = NULL;
+
+	g_hash_table_unref (priv->statements);
+	priv->statements = NULL;
 
 	g_slist_foreach (priv->function_data, (GFunc) g_free, NULL);
 	g_slist_free (priv->function_data);

@@ -611,7 +611,7 @@ init_mount_points (TrackerMinerFiles *miner)
 	}
 
 	g_string_free (accumulator, TRUE);
-	g_hash_table_destroy (volumes);
+	g_hash_table_unref (volumes);
 }
 
 #ifdef HAVE_HAL

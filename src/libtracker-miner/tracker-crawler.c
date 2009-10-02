@@ -480,7 +480,7 @@ enumerator_data_free (EnumeratorData *ed)
 {
 	g_object_unref (ed->parent);
 	g_object_unref (ed->crawler);
-	g_hash_table_destroy (ed->children);
+	g_hash_table_unref (ed->children);
 	g_slice_free (EnumeratorData, ed);
 }
 

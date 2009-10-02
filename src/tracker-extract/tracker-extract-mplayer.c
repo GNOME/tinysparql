@@ -263,7 +263,8 @@ extract_mplayer (const gchar *uri,
 				g_hash_table_foreach (tmp_metadata_video, 
 						      copy_hash_table_entry, 
 						      &info);
-				g_hash_table_destroy (tmp_metadata_video);
+				g_hash_table_unref (tmp_metadata_video);
+				tmp_metadata_video = NULL;
 			}
 
 			if (duration) {
@@ -285,7 +286,8 @@ extract_mplayer (const gchar *uri,
 				g_hash_table_foreach (tmp_metadata_audio, 
 						      copy_hash_table_entry, 
 						      &info);
-				g_hash_table_destroy (tmp_metadata_audio);
+				g_hash_table_unref (tmp_metadata_audio);
+				tmp_metadata_audio = NULL;
 			}
 
 			if (duration) {

@@ -308,7 +308,7 @@ miner_finalize (GObject *object)
 		g_object_set_qdata (G_OBJECT (miner), dbus_data, NULL);
 	}
 
-	g_hash_table_destroy (miner->private->pauses);
+	g_hash_table_unref (miner->private->pauses);
 
 	G_OBJECT_CLASS (tracker_miner_parent_class)->finalize (object);
 }
@@ -489,7 +489,7 @@ dbus_data_destroy (gpointer data)
 	}
 
 	if (dd->name_monitors) {
-		g_hash_table_destroy (dd->name_monitors);
+		g_hash_table_unref (dd->name_monitors);
 	}
 
 	g_slice_free (DBusData, dd);

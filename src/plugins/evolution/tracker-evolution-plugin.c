@@ -2095,14 +2095,14 @@ tracker_evolution_plugin_finalize (GObject *plugin)
 	g_static_rec_mutex_lock (priv->mutex);
 
 	if (priv->registered_folders) {
-		g_hash_table_destroy (priv->registered_folders);
-		g_hash_table_destroy (priv->cached_folders);
+		g_hash_table_unref (priv->registered_folders);
+		g_hash_table_unref (priv->cached_folders);
 		priv->cached_folders = NULL;
 		priv->registered_folders = NULL;
 	}
 
 	if (priv->registered_stores) {
-		g_hash_table_destroy (priv->registered_stores);
+		g_hash_table_unref (priv->registered_stores);
 		priv->registered_stores = NULL;
 	}
 
