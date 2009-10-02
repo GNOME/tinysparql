@@ -28,6 +28,7 @@
 #include "tracker-miner-manager.h"
 #include "tracker-marshal.h"
 #include "tracker-miner-client.h"
+#include "tracker-miner-dbus.h"
 
 #define TRACKER_MINER_MANAGER_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_MINER_MANAGER, TrackerMinerManagerPrivate))
 

@@ -27,6 +27,10 @@
 
 G_BEGIN_DECLS
 
+#define TRACKER_MINER_DBUS_INTERFACE   "org.freedesktop.Tracker1.Miner"
+#define TRACKER_MINER_DBUS_NAME_PREFIX "org.freedesktop.Tracker1.Miner."
+#define TRACKER_MINER_DBUS_PATH_PREFIX "/org/freedesktop/Tracker1/Miner/"
+
 void tracker_miner_dbus_get_name          (TrackerMiner           *miner,
 					   DBusGMethodInvocation  *context,
 					   GError                **error);
