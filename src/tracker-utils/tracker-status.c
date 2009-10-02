@@ -38,13 +38,6 @@
 
 #include "tracker-miner-client.h"
 
-#define TRACKER_TYPE_G_STRV_ARRAY  (dbus_g_type_get_collection ("GPtrArray", G_TYPE_STRV))
-
-/* #define g_marshal_value_peek_boolean(v)  g_value_get_boolean (v) */
-/* #define g_marshal_value_peek_string(v)	 (char*) g_value_get_string (v) */
-/* #define g_marshal_value_peek_int(v)      g_value_get_int (v) */
-/* #define g_marshal_value_peek_double(v)   g_value_get_double (v) */
-
 static GMainLoop *main_loop;
 static GHashTable *miners_progress;
 static GHashTable *miners_status;
@@ -214,11 +207,12 @@ miner_get_details (TrackerMinerManager  *manager,
 }
 
 static void
-miner_print_state (const gchar *miner_name,
-		   const gchar *status,
-		   gdouble      progress,
-		   gboolean     is_running,
-		   gboolean     is_paused)
+miner_print_state (TrackerMinerManager *manager,
+		   const gchar         *miner_name,
+		   const gchar         *status,
+		   gdouble              progress,
+		   gboolean             is_running,
+		   gboolean             is_paused)
 {
 	const gchar *name;
 	time_t now;
@@ -238,7 +232,7 @@ miner_print_state (const gchar *miner_name,
 		time_str[0] = '\0';
 	}
 
-	name = miner_name + strlen (TRACKER_MINER_DBUS_NAME_PREFIX);
+	name = tracker_miner_manager_get_display_name (manager, miner_name);
 
 	if (is_running) {
 		g_print ("%s  [%s] %s: %3.0f%%, %s, %s: '%s'\n", 
@@ -271,8 +265,8 @@ manager_miner_progress_cb (TrackerMinerManager *manager,
 	g_value_init (gvalue, G_TYPE_DOUBLE);
 	g_value_set_double (gvalue, progress);
 
-	miner_print_state (miner_name, status, progress, TRUE, FALSE);
-	
+	miner_print_state (manager, miner_name, status, progress, TRUE, FALSE);
+
 	g_hash_table_replace (miners_status, 
 			      g_strdup (miner_name), 
 			      g_strdup (status));
@@ -289,7 +283,7 @@ manager_miner_paused_cb (TrackerMinerManager *manager,
 
 	gvalue = g_hash_table_lookup (miners_progress, miner_name);
 
-	miner_print_state (miner_name, 
+	miner_print_state (manager, miner_name,
 			   g_hash_table_lookup (miners_status, miner_name),
 			   g_value_get_double (gvalue), 
 			   TRUE, 
@@ -304,7 +298,7 @@ manager_miner_resumed_cb (TrackerMinerManager *manager,
 	
 	gvalue = g_hash_table_lookup (miners_progress, miner_name);
 
-	miner_print_state (miner_name, 
+	miner_print_state (manager, miner_name,
 			   g_hash_table_lookup (miners_status, miner_name),
 			   g_value_get_double (gvalue), 
 			   TRUE, 
@@ -467,14 +461,13 @@ main (gint argc, gchar *argv[])
 			const gchar *name;
 			GStrv pause_applications, pause_reasons;
 			gint i;
-			
-			if (!strstr (l->data, TRACKER_MINER_DBUS_NAME_PREFIX)) {
-				g_critical ("We have a miner without the dbus name prefix? '%s'",
-					    (gchar*) l->data);
+
+			name = tracker_miner_manager_get_display_name (manager, l->data);
+
+			if (!name) {
+				g_critical ("Could not get name for '%s'", (gchar *) l->data);
 				continue;
 			}
-
-			name = (gchar*) l->data + strlen (TRACKER_MINER_DBUS_NAME_PREFIX);
 
 			if (!miner_get_details (manager,
 						l->data,
@@ -529,13 +522,12 @@ main (gint argc, gchar *argv[])
 		const gchar *name;
 		gboolean is_running;
 
-		if (!strstr (l->data, TRACKER_MINER_DBUS_NAME_PREFIX)) {
-			g_critical ("We have a miner without the dbus name prefix? '%s'",
-				    (gchar*) l->data);
+		name = tracker_miner_manager_get_display_name (manager, l->data);
+
+		if (!name) {
+			g_critical ("Could not get name for '%s'", (gchar *) l->data);
 			continue;
 		}
-
-		name = (gchar*) l->data + strlen (TRACKER_MINER_DBUS_NAME_PREFIX);
 
 		is_running = tracker_string_in_gslist (l->data, miners_running);
 
@@ -556,13 +548,13 @@ main (gint argc, gchar *argv[])
 
 			is_paused = *pause_applications || *pause_reasons;
 
-			miner_print_state (l->data, status, progress, TRUE, is_paused);
+			miner_print_state (manager, l->data, status, progress, TRUE, is_paused);
 		
 			g_strfreev (pause_applications);
 			g_strfreev (pause_reasons);
 			g_free (status);
 		} else {
-			miner_print_state (l->data, NULL, 0.0, FALSE, FALSE);
+			miner_print_state (manager, l->data, NULL, 0.0, FALSE, FALSE);
 		}
 	}
 
