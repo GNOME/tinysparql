@@ -27,20 +27,8 @@ public errordomain Tracker.SparqlError {
 }
 
 public class Tracker.SparqlQuery : Object {
-	enum DataType {
-		UNKNOWN,
-		STRING,
-		INTEGER,
-		BOOLEAN,
-		DOUBLE,
-		DECIMAL,
-		DATE,
-		DATETIME,
-		RESOURCE;
-
-		public bool maybe_numeric () {
-			return (this == INTEGER || this == DOUBLE || this == DATETIME || this == UNKNOWN);
-		}
+	bool maybe_numeric (PropertyType type) {
+		return (type == PropertyType.INTEGER || type == PropertyType.DOUBLE || type == PropertyType.DATETIME || type == PropertyType.UNKNOWN);
 	}
 
 	enum VariableState {
@@ -57,9 +45,7 @@ public class Tracker.SparqlQuery : Object {
 	}
 
 	abstract class DataBinding : Object {
-		public bool is_uri;
-		public bool is_boolean;
-		public bool is_datetime;
+		public PropertyType data_type;
 		public DataTable table;
 		public string sql_db_column_name;
 	}
@@ -68,7 +54,6 @@ public class Tracker.SparqlQuery : Object {
 	class LiteralBinding : DataBinding {
 		public bool is_fts_match;
 		public string literal;
-		public DataType literal_type;
 	}
 
 	// Represents a mapping of a SPARQL variable to a SQL table and column
@@ -145,7 +130,7 @@ public class Tracker.SparqlQuery : Object {
 
 								var binding = new LiteralBinding ();
 								binding.literal = subject_id.to_string ();
-								binding.literal_type = DataType.INTEGER;
+								binding.data_type = PropertyType.INTEGER;
 								query.bindings.append (binding);
 							}
 						}
@@ -501,11 +486,11 @@ public class Tracker.SparqlQuery : Object {
 
 		check_binding (binding, variable_name);
 
-		if (binding.is_uri) {
+		if (binding.data_type == PropertyType.RESOURCE) {
 			return "(SELECT Uri FROM \"rdfs:Resource\" WHERE ID = \"%s_u\")".printf (variable_name);
-		} else if (binding.is_boolean) {
+		} else if (binding.data_type == PropertyType.BOOLEAN) {
 			return "(CASE \"%s_u\" WHEN 1 THEN 'true' WHEN 0 THEN 'false' ELSE NULL END)".printf (variable_name);
-		} else if (binding.is_datetime) {
+		} else if (binding.data_type == PropertyType.DATETIME) {
 			return "strftime (\"%%Y-%%m-%%dT%%H:%%M:%%SZ\", \"%s_u\", \"unixepoch\")".printf (variable_name);
 		} else {
 			return "\"%s_u\"".printf (variable_name);
@@ -519,7 +504,7 @@ public class Tracker.SparqlQuery : Object {
 		// set literals specified in query
 		int i = 0;
 		foreach (LiteralBinding binding in bindings) {
-			if (binding.is_boolean) {
+			if (binding.data_type == PropertyType.BOOLEAN) {
 				if (binding.literal == "true" || binding.literal == "1") {
 					stmt.bind_int (i, 1);
 				} else if (binding.literal == "false" || binding.literal == "0") {
@@ -527,9 +512,9 @@ public class Tracker.SparqlQuery : Object {
 				} else {
 					throw new SparqlError.TYPE ("`%s' is not a valid boolean".printf (binding.literal));
 				}
-			} else if (binding.is_datetime) {
+			} else if (binding.data_type == PropertyType.DATETIME) {
 				stmt.bind_int (i, string_to_date (binding.literal));
-			} else if (binding.literal_type == DataType.INTEGER) {
+			} else if (binding.data_type == PropertyType.INTEGER) {
 				stmt.bind_int (i, binding.literal.to_int ());
 			} else {
 				stmt.bind_text (i, binding.literal);
@@ -739,7 +724,7 @@ public class Tracker.SparqlQuery : Object {
 
 			var binding = new LiteralBinding ();
 			binding.literal = limit.to_string ();
-			binding.literal_type = DataType.INTEGER;
+			binding.data_type = PropertyType.INTEGER;
 			bindings.append (binding);
 
 			if (offset >= 0) {
@@ -747,7 +732,7 @@ public class Tracker.SparqlQuery : Object {
 
 				binding = new LiteralBinding ();
 				binding.literal = offset.to_string ();
-				binding.literal_type = DataType.INTEGER;
+				binding.data_type = PropertyType.INTEGER;
 				bindings.append (binding);
 			}
 		} else if (offset >= 0) {
@@ -755,7 +740,7 @@ public class Tracker.SparqlQuery : Object {
 
 			var binding = new LiteralBinding ();
 			binding.literal = offset.to_string ();
-			binding.literal_type = DataType.INTEGER;
+			binding.data_type = PropertyType.INTEGER;
 			bindings.append (binding);
 		}
 
@@ -766,7 +751,7 @@ public class Tracker.SparqlQuery : Object {
 
 	void translate_expression_as_order_condition (StringBuilder sql) throws SparqlError {
 		long begin = sql.len;
-		if (translate_expression (sql) == DataType.RESOURCE) {
+		if (translate_expression (sql) == PropertyType.RESOURCE) {
 			// ID => Uri
 			sql.insert (begin, "(SELECT Uri FROM \"rdfs:Resource\" WHERE ID = ");
 			sql.append (")");
@@ -1077,20 +1062,20 @@ public class Tracker.SparqlQuery : Object {
 		default:
 			long begin = sql.len;
 			switch (translate_expression (sql)) {
-			case DataType.STRING:
+			case PropertyType.STRING:
 				// nothing to convert
 				break;
-			case DataType.RESOURCE:
+			case PropertyType.RESOURCE:
 				// ID => Uri
 				sql.insert (begin, "(SELECT Uri FROM \"rdfs:Resource\" WHERE ID = ");
 				sql.append (")");
 				break;
-			case DataType.BOOLEAN:
+			case PropertyType.BOOLEAN:
 				// 0/1 => false/true
 				sql.insert (begin, "CASE ");
 				sql.append (" WHEN 1 THEN 'true' WHEN 0 THEN 'false' ELSE NULL END");
 				break;
-			case DataType.DATETIME:
+			case PropertyType.DATETIME:
 				// ISO 8601 format
 				sql.insert (begin, "strftime (\"%Y-%m-%dT%H:%M:%SZ\", ");
 				sql.append (", \"unixepoch\")");
@@ -1123,12 +1108,12 @@ public class Tracker.SparqlQuery : Object {
 
 		sql.append ("?");
 		var new_binding = new LiteralBinding ();
-		new_binding.literal_type = DataType.INTEGER;
+		new_binding.data_type = PropertyType.INTEGER;
 
 		if (current() == SparqlTokenType.IRI_REF) {
 			new_binding.literal = "1";
 			next ();
-		} else if (translate_expression (new StringBuilder ()) == DataType.RESOURCE) { 
+		} else if (translate_expression (new StringBuilder ()) == PropertyType.RESOURCE) { 
 			new_binding.literal = "1";
 		} else {
 			new_binding.literal = "0";
@@ -1149,7 +1134,7 @@ public class Tracker.SparqlQuery : Object {
 
 			check_binding (binding, variable_name);
 
-			if (binding.is_uri || binding.type == null) {
+			if (binding.data_type == PropertyType.RESOURCE || binding.type == null) {
 				throw get_error ("Invalid FILTER");
 			}
 
@@ -1166,7 +1151,7 @@ public class Tracker.SparqlQuery : Object {
 		expect (SparqlTokenType.CLOSE_PARENS);
 	}
 
-	DataType translate_function (StringBuilder sql, string uri) throws SparqlError {
+	PropertyType translate_function (StringBuilder sql, string uri) throws SparqlError {
 		if (uri == FN_NS + "contains") {
 			// fn:contains('A','B') => 'A' GLOB '*B*'
 			sql.append ("(");
@@ -1181,7 +1166,7 @@ public class Tracker.SparqlQuery : Object {
 
 			sql.append (")");
 
-			return DataType.BOOLEAN;
+			return PropertyType.BOOLEAN;
 		} else if (uri == FN_NS + "starts-with") {
 			// fn:starts-with('A','B') => 'A' GLOB 'B*'
 			sql.append ("(");
@@ -1196,7 +1181,7 @@ public class Tracker.SparqlQuery : Object {
 
 			sql.append (")");
 
-			return DataType.BOOLEAN;
+			return PropertyType.BOOLEAN;
 		} else if (uri == FN_NS + "ends-with") {
 			// fn:ends-with('A','B') => 'A' GLOB '*B'
 			sql.append ("(");
@@ -1211,7 +1196,7 @@ public class Tracker.SparqlQuery : Object {
 
 			sql.append (")");
 
-			return DataType.BOOLEAN;
+			return PropertyType.BOOLEAN;
 		} else {
 			throw get_error ("Unknown function");
 		}
@@ -1286,7 +1271,7 @@ public class Tracker.SparqlQuery : Object {
 		}
 	}
 
-	DataType translate_primary_expression (StringBuilder sql) throws SparqlError {
+	PropertyType translate_primary_expression (StringBuilder sql) throws SparqlError {
 		switch (current ()) {
 		case SparqlTokenType.OPEN_PARENS:
 			return translate_bracketted_expression (sql);
@@ -1299,17 +1284,8 @@ public class Tracker.SparqlQuery : Object {
 			binding.literal = get_last_string (1);
 			bindings.append (binding);
 
-			return DataType.RESOURCE;
+			return PropertyType.RESOURCE;
 		case SparqlTokenType.DECIMAL:
-			next ();
-
-			sql.append ("?");
-
-			var binding = new LiteralBinding ();
-			binding.literal = get_last_string ();
-			bindings.append (binding);
-
-			return DataType.DECIMAL;
 		case SparqlTokenType.DOUBLE:
 			next ();
 
@@ -1319,7 +1295,7 @@ public class Tracker.SparqlQuery : Object {
 			binding.literal = get_last_string ();
 			bindings.append (binding);
 
-			return DataType.DOUBLE;
+			return PropertyType.DOUBLE;
 		case SparqlTokenType.TRUE:
 			next ();
 
@@ -1327,10 +1303,10 @@ public class Tracker.SparqlQuery : Object {
 
 			var binding = new LiteralBinding ();
 			binding.literal = "1";
-			binding.literal_type = DataType.INTEGER;
+			binding.data_type = PropertyType.INTEGER;
 			bindings.append (binding);
 
-			return DataType.BOOLEAN;
+			return PropertyType.BOOLEAN;
 		case SparqlTokenType.FALSE:
 			next ();
 
@@ -1338,10 +1314,10 @@ public class Tracker.SparqlQuery : Object {
 
 			var binding = new LiteralBinding ();
 			binding.literal = "0";
-			binding.literal_type = DataType.INTEGER;
+			binding.data_type = PropertyType.INTEGER;
 			bindings.append (binding);
 
-			return DataType.BOOLEAN;
+			return PropertyType.BOOLEAN;
 		case SparqlTokenType.STRING_LITERAL1:
 		case SparqlTokenType.STRING_LITERAL2:
 		case SparqlTokenType.STRING_LITERAL_LONG1:
@@ -1352,7 +1328,7 @@ public class Tracker.SparqlQuery : Object {
 			binding.literal = parse_string_literal ();
 			bindings.append (binding);
 
-			return DataType.STRING;
+			return PropertyType.STRING;
 		case SparqlTokenType.INTEGER:
 			next ();
 
@@ -1360,10 +1336,10 @@ public class Tracker.SparqlQuery : Object {
 
 			var binding = new LiteralBinding ();
 			binding.literal = get_last_string ();
-			binding.literal_type = DataType.INTEGER;
+			binding.data_type = PropertyType.INTEGER;
 			bindings.append (binding);
 
-			return DataType.INTEGER;
+			return PropertyType.INTEGER;
 		case SparqlTokenType.VAR:
 			next ();
 			string variable_name = get_last_string ().substring (1);
@@ -1371,33 +1347,27 @@ public class Tracker.SparqlQuery : Object {
 
 			var binding = var_map.lookup (variable_name);
 			if (binding == null) {
-				return DataType.UNKNOWN;
-			} else if (binding.is_uri) {
-				return DataType.RESOURCE;
-			} else if (binding.is_boolean) {
-				return DataType.BOOLEAN;
-			} else if (binding.is_datetime) {
-				return DataType.DATETIME;
+				return PropertyType.UNKNOWN;
 			} else {
-				return DataType.UNKNOWN;
+				return binding.data_type;
 			}
 		case SparqlTokenType.STR:
 			translate_str (sql);
-			return DataType.STRING;
+			return PropertyType.STRING;
 		case SparqlTokenType.LANG:
 			next ();
 			sql.append ("''");
-			return DataType.STRING;
+			return PropertyType.STRING;
 		case SparqlTokenType.LANGMATCHES:
 			next ();
 			sql.append ("0");
-			return DataType.BOOLEAN;
+			return PropertyType.BOOLEAN;
 		case SparqlTokenType.DATATYPE:
 			translate_datatype (sql);
-			return DataType.RESOURCE;
+			return PropertyType.RESOURCE;
 		case SparqlTokenType.BOUND:
 			translate_bound_call (sql);
-			return DataType.BOOLEAN;
+			return PropertyType.BOOLEAN;
 		case SparqlTokenType.SAMETERM:
 			next ();
 			expect (SparqlTokenType.OPEN_PARENS);
@@ -1408,11 +1378,11 @@ public class Tracker.SparqlQuery : Object {
 			translate_expression (sql);
 			sql.append (")");
 			expect (SparqlTokenType.CLOSE_PARENS);
-			return DataType.BOOLEAN;
+			return PropertyType.BOOLEAN;
 		case SparqlTokenType.ISIRI:
 		case SparqlTokenType.ISURI:
 			translate_isuri (sql);
-			return DataType.BOOLEAN;
+			return PropertyType.BOOLEAN;
 		case SparqlTokenType.ISBLANK:
 			next ();
 			expect (SparqlTokenType.OPEN_PARENS);
@@ -1420,13 +1390,13 @@ public class Tracker.SparqlQuery : Object {
 			// TODO: support ISBLANK properly
 			sql.append ("0");
 			expect (SparqlTokenType.CLOSE_PARENS);
-			return DataType.BOOLEAN;
+			return PropertyType.BOOLEAN;
 		case SparqlTokenType.ISLITERAL:
 			next ();
-			return DataType.BOOLEAN;
+			return PropertyType.BOOLEAN;
 		case SparqlTokenType.REGEX:
 			translate_regex (sql);
-			return DataType.BOOLEAN;
+			return PropertyType.BOOLEAN;
 		case SparqlTokenType.PN_PREFIX:
 			next ();
 			string ns = get_last_string ();
@@ -1443,7 +1413,7 @@ public class Tracker.SparqlQuery : Object {
 				var binding = new LiteralBinding ();
 				binding.literal = uri;
 				bindings.append (binding);
-				return DataType.RESOURCE;
+				return PropertyType.RESOURCE;
 			}
 		case SparqlTokenType.COLON:
 			next ();
@@ -1451,21 +1421,21 @@ public class Tracker.SparqlQuery : Object {
 			var binding = new LiteralBinding ();
 			binding.literal = resolve_prefixed_name ("", get_last_string ().substring (1));
 			bindings.append (binding);
-			return DataType.RESOURCE;
+			return PropertyType.RESOURCE;
 		default:
 			throw get_error ("expected primary expression");
 		}
 	}
 
-	DataType translate_unary_expression (StringBuilder sql) throws SparqlError {
+	PropertyType translate_unary_expression (StringBuilder sql) throws SparqlError {
 		if (accept (SparqlTokenType.OP_NEG)) {
 			sql.append ("NOT (");
 			var optype = translate_primary_expression (sql);
 			sql.append (")");
-			if (optype != DataType.BOOLEAN) {
+			if (optype != PropertyType.BOOLEAN) {
 				throw get_error ("expected boolean expression");
 			}
-			return DataType.BOOLEAN;
+			return PropertyType.BOOLEAN;
 		} else if (accept (SparqlTokenType.PLUS)) {
 			return translate_primary_expression (sql);
 		} else if (accept (SparqlTokenType.MINUS)) {
@@ -1477,27 +1447,27 @@ public class Tracker.SparqlQuery : Object {
 		return translate_primary_expression (sql);
 	}
 
-	DataType translate_multiplicative_expression (StringBuilder sql) throws SparqlError {
+	PropertyType translate_multiplicative_expression (StringBuilder sql) throws SparqlError {
 		long begin = sql.len;
 		var optype = translate_unary_expression (sql);
 		while (true) {
 			if (accept (SparqlTokenType.STAR)) {
-				if (!optype.maybe_numeric ()) {
+				if (!maybe_numeric (optype)) {
 					throw get_error ("expected numeric operand");
 				}
 				sql.insert (begin, "(");
 				sql.append (" * ");
-				if (!translate_unary_expression (sql).maybe_numeric ()) {
+				if (!maybe_numeric (translate_unary_expression (sql))) {
 					throw get_error ("expected numeric operand");
 				}
 				sql.append (")");
 			} else if (accept (SparqlTokenType.DIV)) {
-				if (!optype.maybe_numeric ()) {
+				if (!maybe_numeric (optype)) {
 					throw get_error ("expected numeric operand");
 				}
 				sql.insert (begin, "(");
 				sql.append (" / ");
-				if (!translate_unary_expression (sql).maybe_numeric ()) {
+				if (!maybe_numeric (translate_unary_expression (sql))) {
 					throw get_error ("expected numeric operand");
 				}
 				sql.append (")");
@@ -1508,27 +1478,27 @@ public class Tracker.SparqlQuery : Object {
 		return optype;
 	}
 
-	DataType translate_additive_expression (StringBuilder sql) throws SparqlError {
+	PropertyType translate_additive_expression (StringBuilder sql) throws SparqlError {
 		long begin = sql.len;
 		var optype = translate_multiplicative_expression (sql);
 		while (true) {
 			if (accept (SparqlTokenType.PLUS)) {
-				if (!optype.maybe_numeric ()) {
+				if (!maybe_numeric (optype)) {
 					throw get_error ("expected numeric operand");
 				}
 				sql.insert (begin, "(");
 				sql.append (" + ");
-				if (!translate_multiplicative_expression (sql).maybe_numeric ()) {
+				if (!maybe_numeric (translate_multiplicative_expression (sql))) {
 					throw get_error ("expected numeric operand");
 				}
 				sql.append (")");
 			} else if (accept (SparqlTokenType.MINUS)) {
-				if (!optype.maybe_numeric ()) {
+				if (!maybe_numeric (optype)) {
 					throw get_error ("expected numeric operand");
 				}
 				sql.insert (begin, "(");
 				sql.append (" - ");
-				if (!translate_multiplicative_expression (sql).maybe_numeric ()) {
+				if (!maybe_numeric (translate_multiplicative_expression (sql))) {
 					throw get_error ("expected numeric operand");
 				}
 				sql.append (")");
@@ -1539,26 +1509,26 @@ public class Tracker.SparqlQuery : Object {
 		return optype;
 	}
 
-	DataType translate_numeric_expression (StringBuilder sql) throws SparqlError {
+	PropertyType translate_numeric_expression (StringBuilder sql) throws SparqlError {
 		return translate_additive_expression (sql);
 	}
 
-	DataType process_relational_expression (StringBuilder sql, long begin, uint n_bindings, DataType op1type, string operator) throws SparqlError {
+	PropertyType process_relational_expression (StringBuilder sql, long begin, uint n_bindings, PropertyType op1type, string operator) throws SparqlError {
 		sql.insert (begin, "(");
 		sql.append (operator);
 		var op2type = translate_numeric_expression (sql);
 		sql.append (")");
-		if ((op1type == DataType.DATETIME && op2type == DataType.STRING)
-		    || (op1type == DataType.STRING && op2type == DataType.DATETIME)) {
+		if ((op1type == PropertyType.DATETIME && op2type == PropertyType.STRING)
+		    || (op1type == PropertyType.STRING && op2type == PropertyType.DATETIME)) {
 			if (bindings.length () == n_bindings + 1) {
 				// trigger string => datetime conversion
-				bindings.last ().data.is_datetime = true;
+				bindings.last ().data.data_type = PropertyType.DATETIME;
 			}
 		}
-		return DataType.BOOLEAN;
+		return PropertyType.BOOLEAN;
 	}
 
-	DataType translate_relational_expression (StringBuilder sql) throws SparqlError {
+	PropertyType translate_relational_expression (StringBuilder sql) throws SparqlError {
 		long begin = sql.len;
 		// TODO: improve performance
 		uint n_bindings = bindings.length ();
@@ -1579,58 +1549,58 @@ public class Tracker.SparqlQuery : Object {
 		return optype;
 	}
 
-	DataType translate_value_logical (StringBuilder sql) throws SparqlError {
+	PropertyType translate_value_logical (StringBuilder sql) throws SparqlError {
 		return translate_relational_expression (sql);
 	}
 
-	DataType translate_conditional_and_expression (StringBuilder sql) throws SparqlError {
+	PropertyType translate_conditional_and_expression (StringBuilder sql) throws SparqlError {
 		long begin = sql.len;
 		var optype = translate_value_logical (sql);
 		while (accept (SparqlTokenType.OP_AND)) {
-			if (optype != DataType.BOOLEAN) {
+			if (optype != PropertyType.BOOLEAN) {
 				throw get_error ("expected boolean expression");
 			}
 			sql.insert (begin, "(");
 			sql.append (" AND ");
 			optype = translate_value_logical (sql);
 			sql.append (")");
-			if (optype != DataType.BOOLEAN) {
+			if (optype != PropertyType.BOOLEAN) {
 				throw get_error ("expected boolean expression");
 			}
 		}
 		return optype;
 	}
 
-	DataType translate_conditional_or_expression (StringBuilder sql) throws SparqlError {
+	PropertyType translate_conditional_or_expression (StringBuilder sql) throws SparqlError {
 		long begin = sql.len;
 		var optype = translate_conditional_and_expression (sql);
 		while (accept (SparqlTokenType.OP_OR)) {
-			if (optype != DataType.BOOLEAN) {
+			if (optype != PropertyType.BOOLEAN) {
 				throw get_error ("expected boolean expression");
 			}
 			sql.insert (begin, "(");
 			sql.append (" OR ");
 			optype = translate_conditional_and_expression (sql);
 			sql.append (")");
-			if (optype != DataType.BOOLEAN) {
+			if (optype != PropertyType.BOOLEAN) {
 				throw get_error ("expected boolean expression");
 			}
 		}
 		return optype;
 	}
 
-	DataType translate_expression (StringBuilder sql) throws SparqlError {
+	PropertyType translate_expression (StringBuilder sql) throws SparqlError {
 		return translate_conditional_or_expression (sql);
 	}
 
-	DataType translate_bracketted_expression (StringBuilder sql) throws SparqlError {
+	PropertyType translate_bracketted_expression (StringBuilder sql) throws SparqlError {
 		expect (SparqlTokenType.OPEN_PARENS);
 		var optype = translate_expression (sql);
 		expect (SparqlTokenType.CLOSE_PARENS);
 		return optype;
 	}
 
-	DataType translate_constraint (StringBuilder sql) throws SparqlError {
+	PropertyType translate_constraint (StringBuilder sql) throws SparqlError {
 		switch (current ()) {
 		case SparqlTokenType.STR:
 		case SparqlTokenType.LANG:
@@ -1931,7 +1901,7 @@ public class Tracker.SparqlQuery : Object {
 				sql.append_printf (" IN (SELECT rowid FROM fts WHERE fts MATCH '%s')", escaped_literal);
 			} else {
 				sql.append (" = ");
-				if (binding.is_uri) {
+				if (binding.data_type == PropertyType.RESOURCE) {
 					sql.append ("(SELECT ID FROM \"rdfs:Resource\" WHERE Uri = ?)");
 				} else {
 					sql.append ("?");
@@ -2363,7 +2333,7 @@ public class Tracker.SparqlQuery : Object {
 
 			// add to variable list
 			var binding = new VariableBinding ();
-			binding.is_uri = true;
+			binding.data_type = PropertyType.RESOURCE;
 			binding.variable = current_predicate;
 			binding.table = table;
 			binding.sql_db_column_name = "predicate";
@@ -2389,7 +2359,7 @@ public class Tracker.SparqlQuery : Object {
 		if (newtable) {
 			if (current_subject_is_var) {
 				var binding = new VariableBinding ();
-				binding.is_uri = true;
+				binding.data_type = PropertyType.RESOURCE;
 				binding.variable = current_subject;
 				binding.table = table;
 				binding.sql_db_column_name = "ID";
@@ -2412,9 +2382,9 @@ public class Tracker.SparqlQuery : Object {
 				}
 			} else {
 				var binding = new LiteralBinding ();
-				binding.is_uri = true;
+				binding.data_type = PropertyType.RESOURCE;
 				binding.literal = current_subject;
-				// binding.literal_type = triple.subject.type;
+				// binding.data_type = triple.subject.type;
 				binding.table = table;
 				binding.sql_db_column_name = "ID";
 				pattern_bindings.append (binding);
@@ -2430,15 +2400,7 @@ public class Tracker.SparqlQuery : Object {
 
 					binding.type = prop.range.uri;
 
-					if (prop.data_type == PropertyType.RESOURCE) {
-						binding.is_uri = true;
-					} else if (prop.data_type == PropertyType.BOOLEAN) {
-						binding.is_boolean = true;
-					} else if (prop.data_type == PropertyType.DATE) {
-						binding.is_datetime = true;
-					} else if (prop.data_type == PropertyType.DATETIME) {
-						binding.is_datetime = true;
-					}
+					binding.data_type = prop.data_type;
 					binding.sql_db_column_name = prop.name;
 					if (!prop.multiple_values) {
 						// for single value properties, row may have NULL
@@ -2473,26 +2435,17 @@ public class Tracker.SparqlQuery : Object {
 				var binding = new LiteralBinding ();
 				binding.is_fts_match = true;
 				binding.literal = object;
-				// binding.literal_type = triple.object.type;
+				// binding.data_type = triple.object.type;
 				binding.table = table;
 				binding.sql_db_column_name = "ID";
 				pattern_bindings.append (binding);
 			} else {
 				var binding = new LiteralBinding ();
 				binding.literal = object;
-				// binding.literal_type = triple.object.type;
+				// binding.data_type = triple.object.type;
 				binding.table = table;
 				if (prop != null) {
-					if (prop.data_type == PropertyType.RESOURCE) {
-						binding.is_uri = true;
-						binding.literal = object;
-					} else if (prop.data_type == PropertyType.BOOLEAN) {
-						binding.is_boolean = true;
-					} else if (prop.data_type == PropertyType.DATE) {
-						binding.is_datetime = true;
-					} else if (prop.data_type == PropertyType.DATETIME) {
-						binding.is_datetime = true;
-					}
+					binding.data_type = prop.data_type;
 					binding.sql_db_column_name = prop.name;
 				} else {
 					// variable as predicate
