@@ -61,8 +61,7 @@ typedef enum {
 	TRACKER_PARSER_WORD_ALPHA_LOWER,
 	TRACKER_PARSER_WORD_ALPHA,
 	TRACKER_PARSER_WORD_ALPHA_NUM,
-	TRACKER_PARSER_WORD_IGNORE,
-	TRACKER_PARSER_WORD_NEWLINE
+	TRACKER_PARSER_WORD_IGNORE
 } TrackerParserWordType;
 
 typedef enum {
@@ -125,10 +124,6 @@ get_word_type (gunichar c)
 
 		if (IS_UNDERSCORE (c)) {
 			return TRACKER_PARSER_WORD_UNDERSCORE;
-		}
-
-		if (IS_NEWLINE (c)) {
-			return TRACKER_PARSER_WORD_NEWLINE;
 		}
 	} else {
 		if (g_unichar_isalpha (c)) {
@@ -210,16 +205,13 @@ is_stop_word (TrackerLanguage *language,
 static gboolean
 pango_next (TrackerParser *parser,
 	    gint	  *byte_offset_start,
-	    gint	  *byte_offset_end,
-	    gboolean	  *is_new_paragraph)
+	    gint	  *byte_offset_end)
 
 {
 	/* CJK text does not need stemming or other treatment */
 	gint	word_start = -1;
 	gint	old_word_start = -1;
 	guint	i;
-
-	*is_new_paragraph = FALSE;
 
 	for (i = parser->attr_pos; i < parser->attr_length; i++) {
 		if (parser->attrs[i].is_word_start) {
@@ -252,10 +244,6 @@ pango_next (TrackerParser *parser,
 					continue;
 				}
 
-				if (word_start > 1 && parser->attrs[word_start -1].is_sentence_boundary) {
-					*is_new_paragraph = TRUE;
-				}
-
 				parser->word_length = strlen (index_word);
 				parser->word = index_word;
 
@@ -281,8 +269,7 @@ pango_next (TrackerParser *parser,
 static gboolean
 parser_next (TrackerParser *parser,
 	     gint	   *byte_offset_start,
-	     gint	   *byte_offset_end,
-	     gboolean	   *is_new_paragraph)
+	     gint	   *byte_offset_end)
 {
 	TrackerParserWordType word_type;
 	gunichar	      word[64];
@@ -297,7 +284,6 @@ parser_next (TrackerParser *parser,
 
 	*byte_offset_start = 0;
 	*byte_offset_end = 0;
-	*is_new_paragraph = FALSE;
 
 	g_return_val_if_fail (parser, FALSE);
 
@@ -321,11 +307,7 @@ parser_next (TrackerParser *parser,
 		c = g_utf8_get_char (p);
 		type = get_word_type (c);
 
-		if (type == TRACKER_PARSER_WORD_NEWLINE) {
-			*is_new_paragraph = TRUE;
-		}
-
-		if (type == TRACKER_PARSER_WORD_IGNORE || type == TRACKER_PARSER_WORD_NEWLINE ||
+		if (type == TRACKER_PARSER_WORD_IGNORE ||
 		    (parser->delimit_words &&
 		     (type == TRACKER_PARSER_WORD_HYPHEN ||
 		      type == TRACKER_PARSER_WORD_UNDERSCORE))) {
@@ -344,8 +326,6 @@ parser_next (TrackerParser *parser,
 				if (!is_valid ||
 				    length < parser->min_word_length ||
 				    word_type == TRACKER_PARSER_WORD_NUM) {
-					*is_new_paragraph = FALSE;
-
 					word_type = TRACKER_PARSER_WORD_IGNORE;
 					is_valid = TRUE;
 					length = 0;
@@ -434,7 +414,6 @@ parser_next (TrackerParser *parser,
 		case TRACKER_PARSER_WORD_ALPHA:
 		case TRACKER_PARSER_WORD_ALPHA_NUM:
 		case TRACKER_PARSER_WORD_IGNORE:
-		case TRACKER_PARSER_WORD_NEWLINE:
 		default:
 			break;
 		}
@@ -639,13 +618,11 @@ tracker_parser_next (TrackerParser *parser,
 		     gint	   *position,
 		     gint	   *byte_offset_start,
 		     gint	   *byte_offset_end,
-		     gboolean	   *new_paragraph,
 		     gboolean	   *stop_word,
 		     gint	   *word_length)
 {
 	const gchar  *str;
 	gint	 byte_start = 0, byte_end = 0;
-	gboolean  new_para;
 
 	str = NULL;
 
@@ -653,14 +630,14 @@ tracker_parser_next (TrackerParser *parser,
 	parser->word = NULL;
 
 	if (parser->encoding == TRACKER_PARSER_ENCODING_CJK) {
-		if (pango_next (parser, &byte_start, &byte_end, &new_para)) {
+		if (pango_next (parser, &byte_start, &byte_end)) {
 			str = parser->word;
 		}
 		parser->word_position++;
 
 		*stop_word = FALSE;
 	} else {
-		if (parser_next (parser, &byte_start, &byte_end, &new_para)) {
+		if (parser_next (parser, &byte_start, &byte_end)) {
 			str = parser->word;
 		}
 
@@ -676,7 +653,6 @@ tracker_parser_next (TrackerParser *parser,
 	*position = parser->word_position;
 	*byte_offset_start = byte_start;
 	*byte_offset_end = byte_end;
-	*new_paragraph = new_para;
 
 	return str;
 }

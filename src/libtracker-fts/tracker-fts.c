@@ -3671,7 +3671,7 @@ static void snippetOffsetsOfColumn(
   const char *zToken;		       /* Next token from the tokenizer */
   int nToken;			       /* Size of zToken */
   int iBegin, iEnd, iPos;	       /* Offsets of beginning and end */
-  gboolean new_paragraph, stop_word;
+  gboolean stop_word;
 
   /* The following variables keep a circular buffer of the last
   ** few tokens */
@@ -3701,7 +3701,6 @@ static void snippetOffsetsOfColumn(
     				  &iPos,
 				  &iBegin,
 				  &iEnd,
-				  &new_paragraph,
 				  &stop_word,
 				  &nToken);
 
@@ -4379,13 +4378,12 @@ static int tokenizeSegment(
 
   while( 1 ){
     const char *pToken;
-    int nToken, iBegin, iEnd, iPos, stop_word, new_paragraph;
+    int nToken, iBegin, iEnd, iPos, stop_word;
 
 
     pToken = tracker_parser_next (parser, &iPos,
 				     &iBegin,
 				     &iEnd,
-				     &new_paragraph,
 				     &stop_word,
 				     &nToken);
     if (!pToken) {
@@ -4434,7 +4432,6 @@ static int tokenizeSegment(
 	pToken = tracker_parser_next (parser, &iPos,
 				     &iBegin,
 				     &iEnd,
-				     &new_paragraph,
 				     &stop_word,
 				     &nToken);
 	if (!pToken) {
@@ -4813,7 +4810,7 @@ int Catid,
 		      
   const char *pToken;
   int nTokenBytes;
-  int iStartOffset, iEndOffset, iPosition, stop_word, new_paragraph;
+  int iStartOffset, iEndOffset, iPosition, stop_word;
   int rc;
   TrackerParser *parser = v->parser;
   DLCollector *p;
@@ -4828,7 +4825,6 @@ int Catid,
     pToken = tracker_parser_next (parser, &iPosition,
 				     &iStartOffset,
 				     &iEndOffset,
-				     &new_paragraph,
 				     &stop_word,
 				     &nTokenBytes);
    if (!pToken) {

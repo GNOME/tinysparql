@@ -44,7 +44,6 @@ const gchar *  tracker_parser_next	      (TrackerParser   *parser,
 					       gint	       *position,
 					       gint	       *byte_offset_start,
 					       gint	       *byte_offset_end,
-					       gboolean        *new_paragraph,
 					       gboolean        *stop_word,
 					       gint	       *word_length);
 gchar *        tracker_parser_process_word    (TrackerParser   *parser,
