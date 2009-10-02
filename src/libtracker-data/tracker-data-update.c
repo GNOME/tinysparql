@@ -508,13 +508,10 @@ tracker_data_blank_buffer_flush (void)
 static void
 cache_create_service_decomposed (TrackerClass           *cl)
 {
-	TrackerDBInterface *iface;
 	TrackerClass       **super_classes;
 	GValue              gvalue = { 0 };
 	gint                i;
 	const gchar        *class_uri;
-
-	iface = tracker_db_manager_get_db_interface ();
 
 	/* also create instance of all super classes */
 	super_classes = tracker_class_get_super_classes (cl);
