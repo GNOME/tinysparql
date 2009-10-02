@@ -365,6 +365,7 @@ config_save (TrackerConfigFile *file)
 
 /**
  * tracker_config_file_new:
+ * @domain: a string used for the 'domain.cfg' file.
  *
  * Creates a new GObject for handling Tracker's config file.
  *

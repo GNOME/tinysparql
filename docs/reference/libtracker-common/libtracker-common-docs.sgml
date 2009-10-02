@@ -1,22 +1,27 @@
 <?xml version="1.0"?>
 <!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN" 
                "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd" [
-<!ENTITY tracker-utils SYSTEM "xml/tracker-utils.xml">
-<!ENTITY tracker-type-utils SYSTEM "xml/tracker-type-utils.xml">
 <!ENTITY tracker-class SYSTEM "xml/tracker-class.xml">
-<!ENTITY tracker-parser SYSTEM "xml/tracker-parser.xml">
-<!ENTITY tracker-ontology SYSTEM "xml/tracker-ontology.xml">
-<!ENTITY tracker-module-config SYSTEM "xml/tracker-module-config.xml">
-<!ENTITY tracker-log SYSTEM "xml/tracker-log.xml">
-<!ENTITY tracker-language SYSTEM "xml/tracker-language.xml">
-<!ENTITY tracker-ioprio SYSTEM "xml/tracker-ioprio.xml">
-<!ENTITY tracker-power SYSTEM "xml/tracker-power.xml">
-<!ENTITY tracker-storage SYSTEM "xml/tracker-storage.xml">
-<!ENTITY tracker-file-utils SYSTEM "xml/tracker-file-utils.xml">
-<!ENTITY tracker-property SYSTEM "xml/tracker-property.xml">
+<!ENTITY tracker-config-file SYSTEM "xml/tracker-config-file.xml">
 <!ENTITY tracker-dbus SYSTEM "xml/tracker-dbus.xml">
+<!ENTITY tracker-file-utils SYSTEM "xml/tracker-file-utils.xml">
+<!ENTITY tracker-ioprio SYSTEM "xml/tracker-ioprio.xml">
+<!ENTITY tracker-keyfile-object SYSTEM "xml/tracker-keyfile-object.xml">
+<!ENTITY tracker-language SYSTEM "xml/tracker-language.xml">
+<!ENTITY tracker-log SYSTEM "xml/tracker-log.xml">
+<!ENTITY tracker-namespace SYSTEM "xml/tracker-namespace.xml">
+<!ENTITY tracker-ontology SYSTEM "xml/tracker-ontology.xml">
+<!ENTITY tracker-os-dependant SYSTEM "xml/tracker-os-dependant.xml">
+<!ENTITY tracker-power SYSTEM "xml/tracker-power.xml">
+<!ENTITY tracker-property SYSTEM "xml/tracker-property.xml">
+<!ENTITY tracker-sparql-builder SYSTEM "xml/tracker-sparql-builder.xml">
+<!ENTITY tracker-statement-list SYSTEM "xml/tracker-statement-list.xml">
+<!ENTITY tracker-storage SYSTEM "xml/tracker-storage.xml">
+<!ENTITY tracker-type-utils SYSTEM "xml/tracker-type-utils.xml">
+<!ENTITY tracker-utils SYSTEM "xml/tracker-utils.xml">
 <!ENTITY version SYSTEM "version.xml">
 ]>
+
 <book id="index">
   <bookinfo>
     <title>Tracker Common Library Reference Manual</title>
@@ -36,37 +41,39 @@
   </part>
 
     <chapter>
-      <title>Utilities</title>
-      &tracker-file-utils;
-      &tracker-ioprio;
-      &tracker-log;
-      &tracker-type-utils;
-      &tracker-utils;
-    </chapter>
-
-    <chapter>
       <title>Ontology</title>
-      &tracker-ontology;
       &tracker-class;
       &tracker-property;
+      &tracker-ontology;
+      &tracker-namespace;
     </chapter>
 
     <chapter>
       <title>Configuration</title>
+      &tracker-config-file;
+      &tracker-language;
       &tracker-power;
       &tracker-storage;
-      &tracker-language;
-      &tracker-module-config;
-    </chapter>
-
-    <chapter>
-      <title>Indexing</title>
-      &tracker-parser;
     </chapter>
 
     <chapter>
       <title>Communication</title>
       &tracker-dbus;
+      &tracker-log;
+    </chapter>
+
+    <chapter>
+      <title>Utilities</title>
+      &tracker-type-utils;
+      &tracker-file-utils;
+      &tracker-utils;
+      &tracker-keyfile-object;
+      &tracker-os-dependant;
+    </chapter>
+
+    <chapter>
+      <title>Performance</title>
+      &tracker-ioprio;
     </chapter>
 
 </book>
