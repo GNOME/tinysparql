@@ -1715,6 +1715,7 @@ tracker_data_delete_resource_description (const gchar *uri)
 				}
 			}
 
+			single_cursor = NULL;
 			if (!first) {
 				g_string_append_printf (sql, " FROM \"%s\" WHERE ID = ?", tracker_class_get_name (class));
 				stmt = tracker_db_interface_create_statement (iface, "%s", sql->str);
