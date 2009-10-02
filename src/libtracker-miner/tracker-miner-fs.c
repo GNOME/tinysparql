@@ -1534,6 +1534,14 @@ crawl_directories_stop (TrackerMinerFS *fs)
 	}
 }
 
+/**
+ * tracker_miner_fs_add_directory:
+ * @fs: a #TrackerMinerFS
+ * @file: #GFile for the directory to inspect
+ * @recurse: whether the directory should be inspected recursively
+ *
+ * Tells the filesystem miner to inspect a directory.
+ **/
 void
 tracker_miner_fs_add_directory (TrackerMinerFS *fs,
 				GFile          *file,
@@ -1571,6 +1579,15 @@ check_files_removal (GQueue *queue,
 	}
 }
 
+/**
+ * tracker_miner_fs_remove_directory:
+ * @fs: a #TrackerMinerFS
+ * @file: #GFile for the directory to be removed
+ *
+ * Removes a directory from being inspected by @fs.
+ *
+ * Returns: %TRUE if the directory was successfully removed.
+ **/
 gboolean
 tracker_miner_fs_remove_directory (TrackerMinerFS *fs,
 				   GFile          *file)
@@ -1632,6 +1649,16 @@ tracker_miner_fs_remove_directory (TrackerMinerFS *fs,
 	return return_val;
 }
 
+/**
+ * tracker_miner_fs_set_throttle:
+ * @fs: a #TrackerMinerFS
+ * @throttle: throttle value, between 0 and 1
+ *
+ * Tells the filesystem miner to throttle its operations.
+ * a value of 0 means no throttling at all, so the miner
+ * will perform operations at full speed, 1 is the slowest
+ * value.
+ **/
 void
 tracker_miner_fs_set_throttle (TrackerMinerFS *fs,
 			       gdouble         throttle)
@@ -1664,6 +1691,14 @@ tracker_miner_fs_set_throttle (TrackerMinerFS *fs,
 	}
 }
 
+/**
+ * tracker_miner_fs_get_throttle:
+ * @fs: a #TrackerMinerFS
+ *
+ * Gets the current throttle value. see tracker_miner_fs_set_throttle().
+ *
+ * Returns: current throttle value.
+ **/
 gdouble
 tracker_miner_fs_get_throttle (TrackerMinerFS *fs)
 {
