@@ -47,7 +47,7 @@ class TrackerSearchEntry  : Gtk.Entry
                 Query.SearchTerms = ""
             else
                 set_icon_sensitive (EntryIconPosition.SECONDARY, true)
-                Query.SearchTerms = EscapeSparql (text)
+                Query.SearchTerms = EscapeSparql (text, true)
         
     
     

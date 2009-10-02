@@ -29,11 +29,18 @@ interface Resources : GLib.Object
 class TrackerQuery : Object
 
     tracker : Resources;
+    _SearchTerms : string
 
     event SearchSettingsChanged ()   
     event ClearSearchResults () 
 
     prop SearchTerms : string
+        get
+            return  _SearchTerms
+        set
+            if value is not null
+                _SearchTerms = value
+                 
     prop Category : string
     prop SortField : string
     prop Fields : array of string
@@ -47,7 +54,7 @@ class TrackerQuery : Object
                 SearchSettingsChanged ()
             else 
                 if propety.name is "SearchTerms" 
-                    if SearchTerms is null or SearchTerms.length < 3    
+                    if SearchTerms is null or SearchTerms.length < 3   
                         ClearSearchResults ()
                     else 
                         SearchSettingsChanged ()
@@ -67,12 +74,14 @@ class TrackerQuery : Object
        
     def Search () : array of string[,] 
     
-        query : string
+        cat, query : string
     
         if Category is null or Category is "All"    
-            query = "SELECT ?s WHERE { ?s fts:match \"%s\". ?s a nie:InformationElement } limit 100 ".printf(SearchTerms)
+            cat = "nfo:FileDataObject"
         else
-            query = "SELECT ?s WHERE { ?s fts:match \"%s\". ?s a %s} limit 100 ".printf(SearchTerms, Category)   
+            cat = Category
+            
+        query = "SELECT ?s WHERE { ?s fts:match \"%s\". ?s a %s } limit 100 ".printf (SearchTerms, cat)   
 
         // to do : add Fields, Category and SortField
         try

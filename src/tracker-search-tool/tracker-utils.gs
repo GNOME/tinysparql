@@ -51,7 +51,7 @@ const  extern static  SRCDIR : string
 class TrackerUtils
 /* static methods only as this is a utility class that wont ever get substantiated */
 
-    def static EscapeSparql (sparql : string) : string
+    def static EscapeSparql (sparql : string, add_wildcard : bool) : string
         var str = new StringBuilder ()
         
         if sparql is null
@@ -72,8 +72,14 @@ class TrackerUtils
             else
                 str.append_c (*p)
             p++
-
-        return str.str
+          
+        if add_wildcard    
+            p--
+            if *p is not ' '
+                str.append_c ('*')
+                
+                            
+        return str.str     
 		
 
 
