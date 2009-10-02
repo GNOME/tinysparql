@@ -1,0 +1,196 @@
+<!-- ##### SECTION Title ##### -->
+Tracker Miner
+
+<!-- ##### SECTION Short_Description ##### -->
+
+
+<!-- ##### SECTION Long_Description ##### -->
+<para>
+
+</para>
+
+<!-- ##### SECTION See_Also ##### -->
+<para>
+
+</para>
+
+<!-- ##### SECTION Stability_Level ##### -->
+
+
+<!-- ##### TYPEDEF TrackerMiner ##### -->
+<para>
+
+</para>
+
+
+<!-- ##### SIGNAL TrackerMiner::error ##### -->
+<para>
+
+</para>
+
+@trackerminer: the object which received the signal.
+@arg1: 
+
+<!-- ##### SIGNAL TrackerMiner::paused ##### -->
+<para>
+
+</para>
+
+@trackerminer: the object which received the signal.
+
+<!-- ##### SIGNAL TrackerMiner::progress ##### -->
+<para>
+
+</para>
+
+@trackerminer: the object which received the signal.
+@arg1: 
+@arg2: 
+
+<!-- ##### SIGNAL TrackerMiner::resumed ##### -->
+<para>
+
+</para>
+
+@trackerminer: the object which received the signal.
+
+<!-- ##### SIGNAL TrackerMiner::started ##### -->
+<para>
+
+</para>
+
+@trackerminer: the object which received the signal.
+
+<!-- ##### SIGNAL TrackerMiner::stopped ##### -->
+<para>
+
+</para>
+
+@trackerminer: the object which received the signal.
+
+<!-- ##### SIGNAL TrackerMiner::terminated ##### -->
+<para>
+
+</para>
+
+@trackerminer: the object which received the signal.
+
+<!-- ##### ARG TrackerMiner:name ##### -->
+<para>
+
+</para>
+
+<!-- ##### ARG TrackerMiner:progress ##### -->
+<para>
+
+</para>
+
+<!-- ##### ARG TrackerMiner:status ##### -->
+<para>
+
+</para>
+
+<!-- ##### TYPEDEF TrackerMinerClass ##### -->
+<para>
+
+</para>
+
+
+<!-- ##### FUNCTION tracker_miner_error_quark ##### -->
+<para>
+
+</para>
+
+@Returns: 
+
+
+<!-- ##### FUNCTION tracker_miner_start ##### -->
+<para>
+
+</para>
+
+@miner: 
+
+
+<!-- ##### FUNCTION tracker_miner_stop ##### -->
+<para>
+
+</para>
+
+@miner: 
+
+
+<!-- ##### FUNCTION tracker_miner_is_started ##### -->
+<para>
+
+</para>
+
+@miner: 
+@Returns: 
+
+
+<!-- ##### FUNCTION tracker_miner_execute_update ##### -->
+<para>
+
+</para>
+
+@miner: 
+@sparql: 
+@error: 
+@Returns: 
+
+
+<!-- ##### FUNCTION tracker_miner_execute_sparql ##### -->
+<para>
+
+</para>
+
+@miner: 
+@sparql: 
+@error: 
+@Returns: 
+
+
+<!-- ##### FUNCTION tracker_miner_execute_batch_update ##### -->
+<para>
+
+</para>
+
+@miner: 
+@sparql: 
+@error: 
+@Returns: 
+
+
+<!-- ##### FUNCTION tracker_miner_commit ##### -->
+<para>
+
+</para>
+
+@miner: 
+@Returns: 
+
+
+<!-- ##### FUNCTION tracker_miner_pause ##### -->
+<para>
+
+</para>
+
+@miner: 
+@application: 
+@reason: 
+@error: 
+@Returns: 
+
+
+<!-- ##### FUNCTION tracker_miner_resume ##### -->
+<para>
+
+</para>
+
+@miner: 
+@cookie: 
+@error: 
+@Returns: 
+
+

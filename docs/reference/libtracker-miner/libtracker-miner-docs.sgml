@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN" 
+               "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd" [
+<!ENTITY tracker-miner SYSTEM "xml/tracker-miner.xml">
+<!ENTITY tracker-miner-fs SYSTEM "xml/tracker-miner-fs.xml">
+<!ENTITY tracker-miner-manager SYSTEM "xml/tracker-miner-manager.xml">
+<!ENTITY version SYSTEM "version.xml">
+]>
+<book id="index">
+  <bookinfo>
+    <title>Tracker Miner Library Reference Manual</title>
+    <releaseinfo>for libtracker-miner &version;</releaseinfo>
+  </bookinfo>
+
+  <part id="libtracker-miner">
+    <title>Overview</title>
+    <partintro>
+      <para>
+        The libtracker-miner library is the foundation for Tracker data miners,
+        these miners will extract metadata and insert it in SPARQL form to
+        tracker-store, following the Nepomuk ontology.
+      </para>
+      <para>
+      </para>
+    </partintro>
+  </part>
+
+    <chapter>
+      <title>Base abstract miner class</title>
+      &tracker-miner;
+    </chapter>
+
+    <chapter>
+      <title>Helper implementations</title>
+      &tracker-miner-fs;
+    </chapter>
+
+    <chapter>
+      <title>Managing miners</title>
+      &tracker-miner-manager;
+    </chapter>
+</book>

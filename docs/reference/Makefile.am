@@ -1,5 +1,6 @@
 include $(top_srcdir)/Makefile.decl
 
 SUBDIRS = 			\
-	libtracker-common
+	libtracker-common	\
+	libtracker-miner
 
