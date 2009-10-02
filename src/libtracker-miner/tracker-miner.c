@@ -348,6 +348,13 @@ miner_constructed (GObject *object)
 				 dbus_data_destroy);
 }
 
+/**
+ * tracker_miner_error_quark:
+ *
+ * Returns the #GQuark used to identify miner errors in GError structures.
+ *
+ * Returns: the error #GQuark
+ **/
 GQuark
 tracker_miner_error_quark (void)
 {
@@ -575,6 +582,12 @@ pause_data_destroy (gpointer data)
 	g_slice_free (PauseData, pd);
 }
 
+/**
+ * tracker_miner_start:
+ * @miner: a #TrackerMiner
+ *
+ * Tells the miner to start processing data.
+ **/
 void
 tracker_miner_start (TrackerMiner *miner)
 {
@@ -586,6 +599,12 @@ tracker_miner_start (TrackerMiner *miner)
 	g_signal_emit (miner, signals[STARTED], 0);
 }
 
+/**
+ * tracker_miner_stop:
+ * @miner: a #TrackerMiner
+ *
+ * Tells the miner to stop processing data.
+ **/
 void
 tracker_miner_stop (TrackerMiner *miner)
 {
@@ -597,6 +616,14 @@ tracker_miner_stop (TrackerMiner *miner)
 	g_signal_emit (miner, signals[STOPPED], 0);
 }
 
+/**
+ * tracker_miner_is_started:
+ * @miner: a #TrackerMiner
+ *
+ * Returns #TRUE if the miner has been started.
+ *
+ * Returns: #TRUE if the miner is already started.
+ **/
 gboolean
 tracker_miner_is_started (TrackerMiner  *miner)
 {
@@ -605,6 +632,17 @@ tracker_miner_is_started (TrackerMiner  *miner)
 	return miner->private->started;
 }
 
+/**
+ * tracker_miner_execute_update:
+ * @miner: a #TrackerMiner
+ * @sparql: a SPARQL query
+ * @error: return location for errors
+ *
+ * Executes an update SPARQL query on tracker-store, use this
+ * whenever you want to perform data insertions or modifications.
+ *
+ * Returns: #TRUE if the SPARQL query was executed successfully.
+ **/
 gboolean
 tracker_miner_execute_update (TrackerMiner  *miner,
 			      const gchar   *sparql,
@@ -632,6 +670,18 @@ tracker_miner_execute_update (TrackerMiner  *miner,
 	return FALSE;
 }
 
+/**
+ * tracker_miner_execute_sparql:
+ * @miner: a #TrackerMiner
+ * @sparql: a SPARQL query
+ * @error: return location for errors
+ *
+ * Executes the SPARQL query on tracker-store and returns the
+ * queried data. Use this whenever you need to get data from
+ * already stored information.
+ *
+ * Returns: a #GPtrArray with the returned data.
+ **/
 GPtrArray *
 tracker_miner_execute_sparql (TrackerMiner  *miner,
 			      const gchar   *sparql,
@@ -660,6 +710,18 @@ tracker_miner_execute_sparql (TrackerMiner  *miner,
 	return res;
 }
 
+/**
+ * tracker_miner_execute_batch_update:
+ * @miner: a #TrackerMiner
+ * @sparql: a set of SPARQL updates
+ * @error: return location for errors
+ *
+ * Executes a batch of update SPARQL queries on tracker-store, use this
+ * whenever you want to perform data insertions or modifications in
+ * batches.
+ *
+ * Returns: #TRUE if the SPARQL query was executed successfully.
+ **/
 gboolean
 tracker_miner_execute_batch_update (TrackerMiner  *miner,
 				    const gchar   *sparql,
@@ -686,6 +748,14 @@ tracker_miner_execute_batch_update (TrackerMiner  *miner,
 	return FALSE;
 }
 
+/**
+ * tracker_miner_commit:
+ * @miner: a #TrackerMiner
+ *
+ * Commits all pending batch updates. see tracker_miner_execute_batch_update()
+ *
+ * Returns: #TRUE if the data was committed successfully.
+ **/
 gboolean
 tracker_miner_commit (TrackerMiner *miner)
 {
@@ -752,6 +822,18 @@ tracker_miner_pause (TrackerMiner  *miner,
 	return pd->cookie;
 }
 
+/**
+ * tracker_miner_resume:
+ * @miner: a #TrackerMiner
+ * @cookie: pause cookie
+ * @error: return location for errors
+ *
+ * Asks the miner to resume processing. The cookie must be something
+ * returned by tracker_miner_pause(). The miner won't actually resume
+ * operations until all pause requests have been resumed.
+ *
+ * Returns: #TRUE if the cookie was valid.
+ **/
 gboolean 
 tracker_miner_resume (TrackerMiner  *miner,
 		      gint           cookie,
