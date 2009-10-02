@@ -23,6 +23,7 @@ libtracker_db_la_SOURCES = 						\
 	tracker-db-journal.c						
 
 noinst_HEADERS =							\
+	tracker-db.h							\
 	tracker-db-dbus.h						\
 	tracker-db-interface.h						\
 	tracker-db-interface-sqlite.h					\
