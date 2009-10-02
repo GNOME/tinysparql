@@ -17,10 +17,13 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA  02110-1301, USA.
  */
+
+#include "config.h"
+
 #include <glib.h>
 
-#include <libtracker-db/tracker-db-dbus.h>
-#include <libtracker-db/tracker-db-interface.h>
+#include <libtracker-db/tracker-db.h>
+
 #include "tracker-test-helpers.h"
 
 static TrackerDBResultSet *

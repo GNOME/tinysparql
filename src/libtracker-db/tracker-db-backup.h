@@ -20,33 +20,36 @@
  * Author: Philip Van Hoof <philip@codeminded.be>
  */
 
-#ifndef __TRACKER_DB_BACKUP_H__
-#define __TRACKER_DB_BACKUP_H__
+#ifndef __LIBTRACKER_DB_BACKUP_H__
+#define __LIBTRACKER_DB_BACKUP_H__
 
 #include <glib.h>
 #include <gio/gio.h>
 
-#define TRACKER_DB_BACKUP_META_FILENAME		"meta-backup.db"
-
 G_BEGIN_DECLS
 
-#define TRACKER_DB_BACKUP_ERROR	    (tracker_db_backup_error_quark ())
+#if !defined (__LIBTRACKER_DB_INSIDE__) && !defined (TRACKER_COMPILATION)
+#error "only <libtracker-db/tracker-db.h> must be included directly."
+#endif
+
+#define TRACKER_DB_BACKUP_META_FILENAME	"meta-backup.db"
+#define TRACKER_DB_BACKUP_ERROR	        (tracker_db_backup_error_quark ())
 
 typedef enum {
 	TRACKER_DB_BACKUP_ERROR_UNKNOWN,
 } TrackerDBBackupError;
 
-typedef void (*TrackerDBBackupFinished)   (GError *error, gpointer user_data);
+typedef void (*TrackerDBBackupFinished) (GError   *error, 
+					 gpointer  user_data);
 
-GQuark    tracker_db_backup_error_quark (void);
-
-void      tracker_db_backup_save        (TrackerDBBackupFinished callback,
-                                         gpointer user_data,
-                                         GDestroyNotify destroy);
-GFile *   tracker_db_backup_file        (GFile **parent_out, 
-                                         const gchar *type);
-void      tracker_db_backup_sync_fts    (void);
+GQuark tracker_db_backup_error_quark (void);
+void   tracker_db_backup_save        (TrackerDBBackupFinished   callback,
+				      gpointer                  user_data,
+				      GDestroyNotify            destroy);
+GFile *tracker_db_backup_file        (GFile                   **parent_out,
+				      const gchar              *type);
+void   tracker_db_backup_sync_fts    (void);
 
 G_END_DECLS
 
-#endif /* __TRACKER_DB_BACKUP_H__ */
+#endif /* __LIBTRACKER_DB_BACKUP_H__ */

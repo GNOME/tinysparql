@@ -17,11 +17,14 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA  02110-1301, USA.
  */
+
+#include "config.h"
+
 #include <glib.h>
 
-#include <libtracker-db/tracker-db-manager.h>
-#include "tracker-db-manager-common.h"
+#include <libtracker-db/tracker-db.h>
 
+#include "tracker-db-manager-common.h"
 
 typedef enum {
 	NO_INIT,

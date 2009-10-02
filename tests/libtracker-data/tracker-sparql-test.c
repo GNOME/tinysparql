@@ -18,18 +18,20 @@
  * Boston, MA  02110-1301, USA.
  */
 
+#include "config.h"
+
 #include <string.h>
 
 #include <glib.h>
 #include <gio/gio.h>
 
-#include <libtracker-db/tracker-db-manager.h>
+#include <libtracker-common/tracker-common.h>
+#include <libtracker-db/tracker-db.h>
 
 #include <libtracker-data/tracker-data-manager.h>
 #include <libtracker-data/tracker-data-query.h>
 #include <libtracker-data/tracker-data-update.h>
 #include <libtracker-data/tracker-sparql-query.h>
-#include <libtracker-common/tracker-ontology.h>
 
 typedef struct _TestInfo TestInfo;
 

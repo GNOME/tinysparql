@@ -8,6 +8,7 @@ INCLUDES =								\
 	$(GLIB2_CFLAGS)							\
 	$(GCOV_CFLAGS)							\
 	$(PANGO_CFLAGS)							\
+	$(DBUS_CFLAGS)							\
 	$(SQLITE3_CFLAGS)
 
 noinst_LTLIBRARIES = libtracker-fts.la
@@ -25,6 +26,7 @@ libtracker_fts_la_SOURCES = 						\
 libtracker_fts_la_LIBADD =						\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la	\
 	$(SQLITE3_LIBS)							\
+	$(DBUS_LIBS)							\
 	$(GTHREAD_LIBS)							\
 	$(GCOV_LIBS)							\
 	$(PANGO_LIBS)							\

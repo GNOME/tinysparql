@@ -1,4 +1,5 @@
-/* Tracker - Sqlite implementation
+/* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
+/*
  * Copyright (C) 2008 Nokia
  *
  * This library is free software; you can redistribute it and/or
@@ -17,12 +18,16 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __TRACKER_DB_INTERFACE_SQLITE_H__
-#define __TRACKER_DB_INTERFACE_SQLITE_H__
+#ifndef __LIBTRACKER_DB_INTERFACE_SQLITE_H__
+#define __LIBTRACKER_DB_INTERFACE_SQLITE_H__
 
 #include "tracker-db-interface.h"
 
 G_BEGIN_DECLS
+
+#if !defined (__LIBTRACKER_DB_INSIDE__) && !defined (TRACKER_COMPILATION)
+#error "only <libtracker-db/tracker-db.h> must be included directly."
+#endif
 
 #define TRACKER_TYPE_DB_INTERFACE_SQLITE	 (tracker_db_interface_sqlite_get_type ())
 #define TRACKER_DB_INTERFACE_SQLITE(o)		 (G_TYPE_CHECK_INSTANCE_CAST ((o), TRACKER_TYPE_DB_INTERFACE_SQLITE, TrackerDBInterfaceSqlite))
@@ -58,29 +63,26 @@ struct TrackerDBInterfaceSqliteClass {
 	GObjectClass parent_class;
 };
 
-GType tracker_db_interface_sqlite_get_type (void);
+GType               tracker_db_interface_sqlite_get_type               (void);
 
-TrackerDBInterface * tracker_db_interface_sqlite_new (const gchar *filename);
-TrackerDBInterface * tracker_db_interface_sqlite_new_ro (const gchar *filename);
-
-void		     tracker_db_interface_sqlite_create_function	(TrackerDBInterface	  *interface,
-									 const gchar		  *name,
-									 TrackerDBFunc		   func,
-									 gint			   n_args);
-void                 tracker_db_interface_sqlite_create_aggregate       (TrackerDBInterface       *interface,
-									 const gchar	          *name,
-									 TrackerDBFuncStep         step,
-									 gint		           n_args,
-									 TrackerDBFuncFinal        final,
-									 guint                     context_size);
-gboolean	     tracker_db_interface_sqlite_set_collation_function (TrackerDBInterfaceSqlite *interface,
-									 const gchar		  *name,
-									 TrackerDBCollationFunc    func);
-
-gint64		     tracker_db_interface_sqlite_get_last_insert_id	(TrackerDBInterfaceSqlite *interface);
-
-void		     tracker_db_interface_sqlite_enable_shared_cache (void);
+TrackerDBInterface *tracker_db_interface_sqlite_new                    (const gchar              *filename);
+TrackerDBInterface *tracker_db_interface_sqlite_new_ro                 (const gchar              *filename);
+void                tracker_db_interface_sqlite_create_function        (TrackerDBInterface       *interface,
+                                                                        const gchar              *name,
+                                                                        TrackerDBFunc             func,
+                                                                        gint                      n_args);
+void                tracker_db_interface_sqlite_create_aggregate       (TrackerDBInterface       *interface,
+                                                                        const gchar              *name,
+                                                                        TrackerDBFuncStep         step,
+                                                                        gint                      n_args,
+                                                                        TrackerDBFuncFinal        final,
+                                                                        guint                     context_size);
+gboolean            tracker_db_interface_sqlite_set_collation_function (TrackerDBInterfaceSqlite *interface,
+                                                                        const gchar              *name,
+                                                                        TrackerDBCollationFunc    func);
+gint64              tracker_db_interface_sqlite_get_last_insert_id     (TrackerDBInterfaceSqlite *interface);
+void                tracker_db_interface_sqlite_enable_shared_cache    (void);
 
 G_END_DECLS
 
-#endif /* __TRACKER_DB_INTERFACE_SQLITE_H__ */
+#endif /* __LIBTRACKER_DB_INTERFACE_SQLITE_H__ */

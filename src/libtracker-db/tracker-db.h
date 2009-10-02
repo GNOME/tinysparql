@@ -1,7 +1,6 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*
- * Copyright (C) 2006, Mr Jamie McCracken (jamiemcc@gnome.org)
- * Copyright (C) 2008, Nokia (urho.konttori@nokia.com)
+ * Copyright (C) 2009, Nokia (urho.konttori@nokia.com)
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,10 +18,8 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __LIBTRACKER_COMMON_H__
-#define __LIBTRACKER_COMMON_H__
-
-#include <glib.h>
+#ifndef __LIBTRACKER_DB_H__
+#define __LIBTRACKER_DB_H__
 
 G_BEGIN_DECLS
 
@@ -30,26 +27,17 @@ G_BEGIN_DECLS
 #error "TRACKER_ENABLE_INTERNALS not defined, this must be defined to use tracker's internal functions"
 #endif
 
-#define __LIBTRACKER_COMMON_INSIDE__
+#define __LIBTRACKER_DB_INSIDE__
 
-#include "tracker-dbus.h"
-#include "tracker-class.h"
-#include "tracker-file-utils.h"
-#include "tracker-ioprio.h"
-#include "tracker-log.h"
-#include "tracker-language.h"
-#include "tracker-namespace.h"
-#include "tracker-ontology.h"
-#include "tracker-power.h"
-#include "tracker-property.h"
-#include "tracker-sparql-builder.h"
-#include "tracker-storage.h"
-#include "tracker-type-utils.h"
-#include "tracker-utils.h"
+#include "tracker-db-backup.h"
+#include "tracker-db-dbus.h"
+#include "tracker-db-interface.h"
+#include "tracker-db-interface-sqlite.h"
+#include "tracker-db-journal.h"
+#include "tracker-db-manager.h"
 
-#undef __LIBTRACKER_COMMON_INSIDE__
-
+#undef __LIBTRACKER_DB_INSIDE__
 
 G_END_DECLS
 
-#endif /* __LIBTRACKER_COMMON_H__ */
+#endif /* __LIBTRACKER_DB_H__ */

@@ -20,28 +20,32 @@
  * Author: Philip Van Hoof <philip@codeminded.be>
  */
 
-#ifndef __TRACKER_DB_JOURNAL_H__
-#define __TRACKER_DB_JOURNAL_H__
+#ifndef __LIBTRACKER_DB_JOURNAL_H__
+#define __LIBTRACKER_DB_JOURNAL_H__
 
 #include <glib.h>
 #include <gio/gio.h>
 
-#define TRACKER_DB_JOURNAL_MAX_SIZE	52428800
-
 G_BEGIN_DECLS
+
+#if !defined (__LIBTRACKER_DB_INSIDE__) && !defined (TRACKER_COMPILATION)
+#error "only <libtracker-db/tracker-db.h> must be included directly."
+#endif
+
+#define TRACKER_DB_JOURNAL_MAX_SIZE 52428800
 
 typedef GPtrArray TrackerJournalContents;
 
-const gchar* tracker_db_journal_filename (void);
-void tracker_db_journal_open (void);
-void tracker_db_journal_log (const gchar *query);
-void tracker_db_journal_truncate (void);
-void tracker_db_journal_close (void);
-TrackerJournalContents* tracker_db_journal_get_contents (guint transaction_size);
-void tracker_db_journal_free_contents (TrackerJournalContents *contents);
-void tracker_db_journal_fsync (void);
-gsize tracker_db_journal_get_size (void);
+const gchar*            tracker_db_journal_filename      (void);
+void                    tracker_db_journal_open          (void);
+void                    tracker_db_journal_log           (const gchar            *query);
+void                    tracker_db_journal_truncate      (void);
+void                    tracker_db_journal_close         (void);
+TrackerJournalContents* tracker_db_journal_get_contents  (guint                   transaction_size);
+void                    tracker_db_journal_free_contents (TrackerJournalContents *contents);
+void                    tracker_db_journal_fsync         (void);
+gsize                   tracker_db_journal_get_size      (void);
 
 G_END_DECLS
 
-#endif /* __TRACKER_DB_JOURNAL_H__ */
+#endif /* __LIBTRACKER_DB_JOURNAL_H__ */

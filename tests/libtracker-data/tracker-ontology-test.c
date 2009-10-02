@@ -18,12 +18,14 @@
  * Boston, MA  02110-1301, USA.
  */
 
+#include "config.h"
+
 #include <string.h>
 
 #include <glib.h>
 #include <gio/gio.h>
 
-#include <libtracker-db/tracker-db-manager.h>
+#include <libtracker-db/tracker-db.h>
 
 #include <libtracker-data/tracker-data-manager.h>
 #include <libtracker-data/tracker-data-query.h>

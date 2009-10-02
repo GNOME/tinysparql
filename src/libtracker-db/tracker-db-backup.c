@@ -23,15 +23,14 @@
 #include "config.h"
 
 #include <string.h>
+
 #include <glib.h>
 #include <glib/gstdio.h>
 
 #include <sqlite3.h>
 
-#include <libtracker-common/tracker-ontology.h>
-#include <libtracker-db/tracker-db-manager.h>
-#include <libtracker-db/tracker-db-interface-sqlite.h>
-
+#include <libtracker-common/tracker-common.h>
+#include <libtracker-db/tracker-db.h>
 #include <tracker-fts/tracker-fts.h>
 
 #include "tracker-db-backup.h"

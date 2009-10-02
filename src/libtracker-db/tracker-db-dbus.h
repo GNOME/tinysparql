@@ -22,11 +22,15 @@
 #ifndef __LIBTRACKER_DB_DBUS_H__
 #define __LIBTRACKER_DB_DBUS_H__
 
-G_BEGIN_DECLS
-
 #include <glib.h>
 
 #include "tracker-db-interface.h"
+
+G_BEGIN_DECLS
+
+#if !defined (__LIBTRACKER_DB_INSIDE__) && !defined (TRACKER_COMPILATION)
+#error "only <libtracker-db/tracker-db.h> must be included directly."
+#endif
 
 gchar **    tracker_dbus_query_result_to_strv            (TrackerDBResultSet *result_set,
 							  gint                column,

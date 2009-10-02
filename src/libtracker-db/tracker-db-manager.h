@@ -18,14 +18,18 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __TRACKER_DB_MANAGER_H__
-#define __TRACKER_DB_MANAGER_H__
+#ifndef __LIBTRACKER_DB_MANAGER_H__
+#define __LIBTRACKER_DB_MANAGER_H__
 
 #include <glib-object.h>
 
 #include "tracker-db-interface.h"
 
 G_BEGIN_DECLS
+
+#if !defined (__LIBTRACKER_DB_INSIDE__) && !defined (TRACKER_COMPILATION)
+#error "only <libtracker-db/tracker-db.h> must be included directly."
+#endif
 
 #define TRACKER_TYPE_DB (tracker_db_get_type ())
 
@@ -44,25 +48,19 @@ typedef enum {
 	TRACKER_DB_MANAGER_READONLY         = 1 << 5
 } TrackerDBManagerFlags;
 
-GType	     tracker_db_get_type			    (void) G_GNUC_CONST;
-
-gboolean     tracker_db_manager_init			    (TrackerDBManagerFlags  flags,
-							     gboolean		   *first_time,
-							     gboolean 		    shared_cache,
-							     gboolean		   *need_journal);
-void	     tracker_db_manager_shutdown		    (void);
-
-void	     tracker_db_manager_remove_all		    (gboolean		    rm_backup_and_log);
-void         tracker_db_manager_optimize		    (void);
-
-const gchar *tracker_db_manager_get_file		    (TrackerDB		    db);
-
-TrackerDBInterface *
-	     tracker_db_manager_get_db_interface	    (void);
-
-void         tracker_db_manager_disconnect		    (void);
-void         tracker_db_manager_reconnect		    (void);
+GType	            tracker_db_get_type			(void) G_GNUC_CONST;
+gboolean            tracker_db_manager_init             (TrackerDBManagerFlags  flags,
+							 gboolean              *first_time,
+							 gboolean               shared_cache,
+							 gboolean              *need_journal);
+void                tracker_db_manager_shutdown         (void);
+void                tracker_db_manager_remove_all       (gboolean               rm_backup_and_log);
+void                tracker_db_manager_optimize         (void);
+const gchar *       tracker_db_manager_get_file         (TrackerDB              db);
+TrackerDBInterface *tracker_db_manager_get_db_interface (void);
+void                tracker_db_manager_disconnect       (void);
+void                tracker_db_manager_reconnect        (void);
 
 G_END_DECLS
 
-#endif /* __TRACKER_DB_MANAGER_H__ */
+#endif /* __LIBTRACKER_DB_MANAGER_H__ */
