@@ -12,8 +12,8 @@ msgstr ""
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&component=general\n"
 "POT-Creation-Date: 2009-05-06 14:44+0000\n"
-"PO-Revision-Date: 2009-05-16 23:59+0300\n"
-"Last-Translator: Ivar Smolin <okul@linux.ee>\n"
+"PO-Revision-Date: 2009-10-01 11:37+0300\n"
+"Last-Translator: Mattias Põldaru <mahfiaz gmail com>\n"
 "Language-Team: Estonian <gnome-et@linux.ee>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -21,21 +21,21 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 msgid "Tracker"
-msgstr ""
+msgstr "Tracker"
 
 msgid "Tracker search and indexing service"
-msgstr ""
+msgstr "Trackeri otsing ja indekseerimisteenus"
 
 #, python-format
 msgid "Search for %s with Tracker Search Tool"
-msgstr ""
+msgstr "%s otsimine Trackeri otsijaga"
 
 msgid "Search all of your documents with Tracker Search Tool"
-msgstr ""
+msgstr "Kõigi dokumentide otsimine Trackeri otsijaga"
 
 #, python-format
 msgid "Launch %s (%s)"
-msgstr ""
+msgstr "Käivita %s (%s)"
 
 #, python-format
 msgid ""
@@ -43,46 +43,61 @@ msgid ""
 "%s %s\n"
 "from %s"
 msgstr ""
+"Ava %s vestlus\n"
+"%s %s\n"
+"kasutajalt %s"
 
 #, python-format
 msgid "Email from %s"
-msgstr ""
+msgstr "Kiri kasutajalt %s"
 
 #, python-format
 msgid ""
 "Listen to music %s\n"
 "in %s"
 msgstr ""
+"Kuula muusikat %s\n"
+"kaustast %s"
 
 #, python-format
 msgid ""
 "See document %s\n"
 "in %s"
 msgstr ""
+"Vaata dokumenti %s\n"
+"kaustast %s"
 
 #, python-format
 msgid ""
 "Open file %s\n"
 "in %s"
 msgstr ""
+"Ava fail %s\n"
+"kaustast %s"
 
 #, python-format
 msgid ""
 "View image %s\n"
 "in %s"
 msgstr ""
+"Kuva pilti %s\n"
+"kaustast %s"
 
 #, python-format
 msgid ""
 "Watch video  %s\n"
 "in %s"
 msgstr ""
+"Vaata videot  %s\n"
+"kaustast %s"
 
 #, python-format
 msgid ""
 "Open folder %s\n"
 "%s"
 msgstr ""
+"Ava kataloog %s\n"
+"%s"
 
 msgid "with"
 msgstr ""
@@ -91,7 +106,7 @@ msgid "in channel"
 msgstr ""
 
 msgid "Search all of your documents, <b>as you type</b>"
-msgstr ""
+msgstr "Kõiki dokumente otsitakse, <b>tippimise ajal</b>"
 
 msgid "Development Files"
 msgstr "Arendusfailid"
@@ -106,10 +121,10 @@ msgid "Videos"
 msgstr "Videod"
 
 msgid "Tracker Search"
-msgstr ""
+msgstr "Trackeri otsing"
 
 msgid "Search with Tracker Search Tool"
-msgstr ""
+msgstr "Otsi Trackeri otsijaga"
 
 msgid "Tracker Live Search"
 msgstr ""
@@ -118,7 +133,7 @@ msgid "Search with Tracker, as you type"
 msgstr ""
 
 msgid "No error given"
-msgstr ""
+msgstr "Ühtegi viga ei edastatud"
 
 msgid "unknown time"
 msgstr "tundmatu aeg"
@@ -276,17 +291,17 @@ msgstr "Sildid :"
 
 #. Search For Tag
 msgid "_Search For Tag"
-msgstr ""
+msgstr "Märksõna _otsimine"
 
 #. Remove Tag
 msgid "_Remove Tag"
 msgstr "_Eemalda silt"
 
 msgid "Support for Tracker."
-msgstr ""
+msgstr "Trackeri tugi."
 
 msgid "TrackerEvolutionPlugin"
-msgstr ""
+msgstr "TrackeriEvolutioniPlugin"
 
 msgid "<b>Animation</b>"
 msgstr "<b>Animatsioon</b>"
@@ -298,7 +313,7 @@ msgid "<b>Visibility</b>"
 msgstr "<b>Nähtavus</b>"
 
 msgid "Animate _icon when indexing"
-msgstr "_Indekseerimise ajal animeeritakse ikooni"
+msgstr "_Indekseerimise ikoon on animatsiooniga"
 
 msgid "Applet Preferences"
 msgstr "Rakendi eelistused"
@@ -307,8 +322,7 @@ msgid "_Automatically pause all indexing when computer is in active use"
 msgstr "_Arvuti aktiivse kasutamise ajal indekseerimine peatatakse"
 
 msgid "_Hide Icon (except when displaying messages to user)"
-msgstr ""
-"Ikoon on pei_dus (välja arvatud juhul, kui kasutajale kuvatakse teadet)"
+msgstr "Ikoon on pei_dus (v.a kui kasutajale kuvatakse teadet)"
 
 msgid "_Off"
 msgstr "_Puuduvad"
@@ -422,6 +436,8 @@ msgstr "Kas indekseerida süsteem uuesti?"
 
 msgid "Indexing can take a long time. Are you sure you want to re-index?"
 msgstr ""
+"Indekseerimiseks võib kuluda palju aega. Kas oled kindel, et tahad uuesti "
+"indekseerida?"
 
 msgid "Tracker Statistics"
 msgstr "Trackeri statistika"
@@ -461,6 +477,8 @@ msgid ""
 "Tracker is a tool designed to extract info and metadata about your personal "
 "data so that it can be searched easily and quickly"
 msgstr ""
+"Tracker on tööriist andmete ja metaandmete leidmiseks isiklike andmete "
+"seest, et selle otsimine oleks lihtne ja kiire"
 
 msgid "Copyright © 2005-2009 The Tracker authors"
 msgstr "Autoriõigused © 2002-2009 Trackeri autorid"
@@ -500,7 +518,7 @@ msgid "_Quit"
 msgstr "Sul_ge"
 
 msgid "Tracker has finished indexing your system"
-msgstr ""
+msgstr "Tracker on lõpetanud sinu süsteemi indekseerimise"
 
 msgid "You can now perform searches by clicking here"
 msgstr "Nüüd on võimalik siin klõpsates otsinguid läbi viia"
@@ -512,11 +530,15 @@ msgid ""
 "Your computer is about to be indexed so you can perform fast searches of "
 "your files and emails"
 msgstr ""
+"Sinu arvutit indekseeritakse, et failide ja meilide otsimine toimuks "
+"kiiresti."
 
 msgid ""
 "You can pause indexing at any time and configure index settings by right "
 "clicking here"
 msgstr ""
+"Indekseerimist saab igal ajal peatada muutes indekseerimise sätteid või "
+"tehes trackeri ikoonil paremklõpsu."
 
 msgid "Reindex all contents"
 msgstr "Kogu sisu uuestiindekseerimine"
@@ -612,7 +634,7 @@ msgid "- start the tracker indexer"
 msgstr ""
 
 msgid "Data must be reindexed"
-msgstr ""
+msgstr "Andmed tuleb uuesti indekseerida"
 
 msgid ""
 "In order for your changes to take effect, Tracker must reindex your files. "
@@ -671,10 +693,10 @@ msgid "<b>Startup</b>"
 msgstr "<b>Käivitamisel</b>"
 
 msgid "<b>Stemming</b>"
-msgstr ""
+msgstr "<b>Stemmad</b>"
 
 msgid "<b>Throttling</b>"
-msgstr ""
+msgstr "<b>Kiirus</b>"
 
 msgid "<b>Watch Directories</b>"
 msgstr "<b>Jälgitavad kataloogid</b>"
@@ -688,13 +710,13 @@ msgstr "Täiendavalt indekseeritavad ja jälgitavad rajad:"
 msgid "Additional paths to index on startup (but not watch for updates):"
 msgstr ""
 "Käivitamisel täiendavalt indekseeritavad rajad (kuid nende uuendusi ei "
-"jälgita:"
+"jälgita):"
 
 msgid "Disable all Indexing when on battery"
 msgstr "Akutoitel olles keelatakse igasugune indekseerimine"
 
 msgid "Disable initial index sweep when on battery"
-msgstr ""
+msgstr "Esialgne indekseerimise ring keelatud, kui akutoitel"
 
 msgid "Email"
 msgstr "E-post"
@@ -786,8 +808,8 @@ msgstr[1] "Kas sa soovid avada %d dokumenti?"
 #, c-format
 msgid "This will open %d separate window."
 msgid_plural "This will open %d separate windows."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "See avaneb %d eraldi aknas."
+msgstr[1] "See avaneb %d eraldi aknas."
 
 #, c-format
 msgid "Could not open document \"%s\"."
@@ -801,13 +823,13 @@ msgid "The nautilus file manager is not running."
 msgstr "Nautiluse failihaldur ei tööta."
 
 msgid "Application could not be opened"
-msgstr ""
+msgstr "Rakendust pole võimalik avada"
 
 msgid "The document does not exist."
 msgstr "Dokumenti pole olemas"
 
 msgid "There is no installed viewer capable of displaying the document."
-msgstr ""
+msgstr "Pole paigaldatud ühtegi kuvajat, mis suudaks seda dokumenti kuvada."
 
 #, c-format
 msgid "Are you sure you want to open %d folder?"
@@ -817,7 +839,7 @@ msgstr[1] "Kas soovid avada %d kataloogi?"
 
 #, c-format
 msgid "Could not move \"%s\" to trash."
-msgstr ""
+msgstr "\"%s\" pole võimalik prügikasti tõsta."
 
 #, c-format
 msgid "Moving \"%s\" failed: %s."
@@ -911,7 +933,7 @@ msgid "Applications"
 msgstr "Rakendused"
 
 msgid "WebHistory"
-msgstr ""
+msgstr "VeebiAjalugu"
 
 msgid "_Open"
 msgstr "_Ava"
@@ -978,7 +1000,7 @@ msgstr ""
 #. Translators: this will appear like "Search results: 5 - 10 of 30 items"
 #, c-format
 msgid "%d - %d of %d items"
-msgstr ""
+msgstr "%d - %d %d-st kirjest"
 
 #. Translators: this will appear like "Search results: 7 items"
 #, c-format
@@ -995,6 +1017,7 @@ msgstr "_Otsing:"
 
 msgid "Tracker is still indexing so not all search results are available yet"
 msgstr ""
+"Tracker endiselt indeksekseerib, kõik otsitulemused ei ole veel saadaval"
 
 msgid "Enter a search term with multiple words seperated with spaces."
 msgstr ""
@@ -1019,7 +1042,7 @@ msgid "- Import files"
 msgstr ""
 
 msgid "File missing"
-msgstr ""
+msgstr "Fail puudub"
 
 msgid "Could not establish a DBus connection to Tracker"
 msgstr ""
@@ -1040,11 +1063,11 @@ msgstr ""
 
 #, c-format
 msgid "Result: %d"
-msgstr ""
+msgstr "Tulemus: %d"
 
 #, c-format
 msgid "Results: %d"
-msgstr ""
+msgstr "Tulemused: %d"
 
 msgid "Use SIGKILL to stop all tracker processes found - guarantees death :)"
 msgstr ""
@@ -1214,28 +1237,28 @@ msgid "None"
 msgstr "Puudub"
 
 msgid "Initial index"
-msgstr ""
+msgstr "Esialgne indekseerimine"
 
 msgid "yes"
-msgstr ""
+msgstr "jah"
 
 msgid "no"
-msgstr ""
+msgstr "ei"
 
 msgid "In merge"
-msgstr ""
+msgstr "Liitmisel"
 
 msgid "Is paused manually"
-msgstr ""
+msgstr "On käsitsi peatatud"
 
 msgid "Is paused for low battery"
-msgstr ""
+msgstr "On tühjeneva aku tõttu peatatud"
 
 msgid "Is paused for IO"
-msgstr ""
+msgstr "On kettaaktiivsuse tõttu peatatud"
 
 msgid "Is indexing enabled"
-msgstr ""
+msgstr "Indekseerimine on lubatud"
 
 msgid "- Report current status"
 msgstr ""
@@ -1313,20 +1336,20 @@ msgid "Could not get tag list"
 msgstr ""
 
 msgid "No tags found"
-msgstr ""
+msgstr "Märksõnu ei leitud"
 
 msgid "All tags"
 msgstr "Kõik sildid"
 
 msgid "Found"
-msgstr ""
+msgstr "Leitud"
 
 #, c-format
 msgid "Could not get tags for file:'%s'"
 msgstr ""
 
 msgid "Could not search tags"
-msgstr ""
+msgstr "Märksõnu pole võimalik otsida"
 
 msgid ""
 "NOTE: Limit was reached, there are more items in the database not listed here"
@@ -1360,10 +1383,10 @@ msgid ""
 msgstr ""
 
 msgid "Force a re-index of all content"
-msgstr ""
+msgstr "Kõigi andmete kordusindekseerimise sundimine"
 
 msgid "Disable any indexing and monitoring"
-msgstr ""
+msgstr "Indekseerimise ja monitooringu keelamine"
 
 msgid ""
 "Language to use for stemmer and stop words (ISO 639-1 2 characters code)"
