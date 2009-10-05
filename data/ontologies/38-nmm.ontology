@@ -18,7 +18,7 @@ nmm:MusicPiece a rdfs:Class ;
 	rdfs:subClassOf nfo:Media .
 
 nmm:SynchronizedText a rdfs:Class ;
-	rdfs:label "Synchronized text (use nie:language to set the language)" ;
+	rdfs:label "Synchronized text (use nie:language to set the language). Valid for subtitles and lyrics" ;
 	rdfs:subClassOf nfo:PlainTextDocument .
 
 nmm:MusicAlbum a rdfs:Class ;
@@ -90,6 +90,11 @@ nmm:lyricist a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmm:MusicPiece ;
 	rdfs:range nmm:Artist .
+
+nmm:lyrics a rdf:Property ;
+	rdfs:label "File with the lyrics for the music piece" ;
+	rdfs:domain nmm:MusicPiece ;
+	rdfs:range nmm:SynchronizedText .
 
 nmm:trackNumber a rdf:Property ;
 	rdfs:label "Track number" ;
@@ -172,12 +177,13 @@ nmm:setNumber a rdf:Property ;
 	rdfs:domain nmm:MusicAlbum ;
 	rdfs:range xsd:integer .
 
-# At the moment resource until clarify how to handle video Albums
+# This property doesn't make sense... it is the other way around
+# From the list ot the item, not from the item to the list
 nmm:album a rdf:Property ;
 	rdfs:label "Album" ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmm:Video ;
-	rdfs:range rdfs:Resource .
+	rdfs:range nfo:MediaList .
 
 nmm:isSeries a rdf:Property ;
 	rdfs:label "Is series" ;
@@ -262,6 +268,11 @@ nmm:isContentEncrypted a rdf:Property ;
 	rdfs:domain nmm:Video ;
 	rdfs:range xsd:boolean .
 
+nmm:skipCounter a rdf:Property ;
+	rdfs:label "Increase if the media is skip while playing" ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nfo:Media ;
+	rdfs:range xsd:integer .
 
 ## Image ontology
 
@@ -357,6 +368,15 @@ nmm:whiteBalance a rdf:Property ;
 	rdfs:domain nmm:Photo ;
 	rdfs:range nmm:WhiteBalance .
 
+nmm:isCropped a rdf:Property ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmm:Photo ;
+	rdfs:range xsd:boolean .
+
+nmm:isColorCorrected a rdf:Property ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmm:Photo ;
+	rdfs:range xsd:boolean .
 
 # Radio (IE part)
 nmm:RadioStation a rdfs:Class ;
