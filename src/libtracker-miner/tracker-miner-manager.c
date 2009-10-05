@@ -80,6 +80,16 @@ tracker_miner_manager_class_init (TrackerMinerManagerClass *klass)
 
 	object_class->finalize = miner_manager_finalize;
 
+	/**
+	 * TrackerMinerManager::miner-progress
+	 * @manager: the #TrackerMinerManager
+	 * @miner: miner reference
+	 * @status: miner status
+	 * @progress: miner progress, from 0 to 1
+	 *
+	 * The ::miner-progress signal is meant to report status/progress changes
+	 * in any tracked miner.
+	 **/
 	signals [MINER_PROGRESS] =
 		g_signal_new ("miner-progress",
 			      G_OBJECT_CLASS_TYPE (object_class),
@@ -91,6 +101,14 @@ tracker_miner_manager_class_init (TrackerMinerManagerClass *klass)
 			      G_TYPE_STRING,
 			      G_TYPE_STRING,
 			      G_TYPE_DOUBLE);
+	/**
+	 * TrackerMinerManager::miner-paused
+	 * @manager: the #TrackerMinerManager
+	 * @miner: miner reference
+	 *
+	 * The ::miner-paused signal will be emitted whenever a miner
+	 * (referenced by @miner) is paused.
+	 **/
 	signals [MINER_PAUSED] =
 		g_signal_new ("miner-paused",
 			      G_OBJECT_CLASS_TYPE (object_class),
@@ -100,6 +118,14 @@ tracker_miner_manager_class_init (TrackerMinerManagerClass *klass)
 			      g_cclosure_marshal_VOID__STRING,
 			      G_TYPE_NONE, 1,
 			      G_TYPE_STRING);
+	/**
+	 * TrackerMinerManager::miner-resumed
+	 * @manager: the #TrackerMinerManager
+	 * @miner: miner reference
+	 *
+	 * The ::miner-resumed signal will be emitted whenever a miner
+	 * (referenced by @miner) is resumed.
+	 **/
 	signals [MINER_RESUMED] =
 		g_signal_new ("miner-resumed",
 			      G_OBJECT_CLASS_TYPE (object_class),
@@ -109,6 +135,15 @@ tracker_miner_manager_class_init (TrackerMinerManagerClass *klass)
 			      g_cclosure_marshal_VOID__STRING,
 			      G_TYPE_NONE, 1,
 			      G_TYPE_STRING);
+	/**
+	 * TrackerMinerManager::miner-activated
+	 * @manager: the #TrackerMinerManager
+	 * @miner: miner reference
+	 *
+	 * The ::miner-activated signal will be emitted whenever a miner
+	 * (referenced by @miner) is activated (technically, this means
+	 * the miner has appeared in the session bus).
+	 **/
 	signals [MINER_ACTIVATED] =
 		g_signal_new ("miner-activated",
 			      G_OBJECT_CLASS_TYPE (object_class),
@@ -118,6 +153,15 @@ tracker_miner_manager_class_init (TrackerMinerManagerClass *klass)
 			      g_cclosure_marshal_VOID__STRING,
 			      G_TYPE_NONE, 1,
 			      G_TYPE_STRING);
+	/**
+	 * TrackerMinerManager::miner-deactivated
+	 * @manager: the #TrackerMinerManager
+	 * @miner: miner reference
+	 *
+	 * The ::miner-deactivated signal will be emitted whenever a miner
+	 * (referenced by @miner) is deactivated (technically, this means
+	 * the miner has disappeared from the session bus).
+	 **/
 	signals [MINER_DEACTIVATED] =
 		g_signal_new ("miner-deactivated",
 			      G_OBJECT_CLASS_TYPE (object_class),
