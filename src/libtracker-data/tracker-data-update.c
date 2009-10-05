@@ -1242,7 +1242,7 @@ tracker_data_insert_statement_with_uri (const gchar            *subject,
 
 	property = tracker_ontology_get_property_by_uri (predicate);
 	if (property == NULL) {
-		if (strcmp (predicate, TRACKER_PREFIX "uri") != 0) {
+		if (strcmp (predicate, TRACKER_PREFIX "uri") == 0) {
 			/* virtual tracker:uri property */
 		} else {
 			g_set_error (error, TRACKER_DATA_ERROR, TRACKER_DATA_ERROR_UNKNOWN_PROPERTY,
