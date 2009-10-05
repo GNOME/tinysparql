@@ -81,6 +81,7 @@ struct TrackerMinerFSPrivate {
 	guint           been_crawled : 1;
 	guint           shown_totals : 1;
 	guint           is_paused : 1;
+	guint           is_crawling : 1;
 
 	/* Statistics */
 	guint		total_directories_found;
@@ -982,6 +983,10 @@ item_queue_handlers_cb (gpointer user_data)
 	fs = user_data;
 	queue = item_queue_get_next_file (fs, &file, &source_file);
 
+	if (!fs->private->timer) {
+		fs->private->timer = g_timer_new ();
+	}
+
 	/* Update progress, but don't spam it. */
 	g_get_current_time (&time_now);
 
@@ -994,7 +999,9 @@ item_queue_handlers_cb (gpointer user_data)
 	switch (queue) {
 	case QUEUE_NONE:
 		/* Print stats and signal finished */
-		process_stop (fs);
+		if (!fs->private->is_crawling) {
+			process_stop (fs);
+		}
 
 		/* No more files left to process */
 		keep_processing = FALSE;
@@ -1063,10 +1070,6 @@ item_queue_handlers_set_up (TrackerMinerFS *fs)
 
 	if (fs->private->is_paused) {
 		return;
-	}
-
-	if (!fs->private->timer) {
-		fs->private->timer = g_timer_new ();
 	}
 
 	g_object_get (fs, "status", &status, NULL);
@@ -1196,22 +1199,13 @@ monitor_item_created_cb (TrackerMonitor *monitor,
 
 	if (should_process) {
 		if (is_directory) {
-			gboolean add_monitor = TRUE;
-
-			g_signal_emit (fs, signals[MONITOR_DIRECTORY], 0, file, &add_monitor);
-
-			if (add_monitor) {
-				tracker_monitor_add (fs->private->monitor, file);
-			}
-
-			/* Add to the list */
 			tracker_miner_fs_add_directory (fs, file, TRUE);
+		} else {
+			g_queue_push_tail (fs->private->items_created,
+					   g_object_ref (file));
+			
+			item_queue_handlers_set_up (fs);
 		}
-
-		g_queue_push_tail (fs->private->items_created,
-				   g_object_ref (file));
-
-		item_queue_handlers_set_up (fs);
 	}
 
 	g_free (path);
@@ -1311,8 +1305,17 @@ monitor_item_moved_cb (TrackerMonitor *monitor,
 
 	if (!is_source_monitored) {
 		if (is_directory) {
+			gchar *path;
+
+			path = g_file_get_path (other_file);
+
+			g_debug ("Not in store:'?'->'%s' (DIR) (move monitor event, source unknown)", 
+				 path);
+
 			/* If the source is not monitored, we need to crawl it. */
-			tracker_miner_fs_add_directory (fs, file, TRUE);
+			tracker_miner_fs_add_directory (fs, other_file, TRUE);
+
+			g_free (path);
 		}
 	} else {
 		gchar *path;
@@ -1348,13 +1351,8 @@ monitor_item_moved_cb (TrackerMonitor *monitor,
 				
 				item_queue_handlers_set_up (fs);
 			} else {
-				gboolean add_monitor = TRUE;
-				
-				g_signal_emit (fs, signals[MONITOR_DIRECTORY], 0, file, &add_monitor);
-				
-				if (add_monitor) {
-					tracker_monitor_add (fs->private->monitor, file);	     
-				}
+				g_debug ("Not in store:'?'->'%s' (DIR) (move monitor event, source monitored)", 
+					 path);
 
 				tracker_miner_fs_add_directory (fs, other_file, TRUE);
 			}
@@ -1464,6 +1462,8 @@ crawler_finished_cb (TrackerCrawler *crawler,
 		}
 	}
 
+	fs->private->is_crawling = FALSE;
+
 	/* Update stats */
 	fs->private->directories_found += directories_found;
 	fs->private->directories_ignored += directories_ignored;
@@ -1514,7 +1514,6 @@ crawl_directories_cb (gpointer user_data)
 		return FALSE;
 	}
 
-
 	fs->private->current_directory = fs->private->directories->data;
 	fs->private->directories = g_list_remove (fs->private->directories,
 						  fs->private->current_directory);
@@ -1537,6 +1536,7 @@ crawl_directories_cb (gpointer user_data)
 				   fs->private->current_directory->file,
 				   fs->private->current_directory->recurse)) {
 		/* Crawler when restart the idle function when done */
+		fs->private->is_crawling = TRUE;
 		fs->private->crawl_directories_id = 0;
 		return FALSE;
 	}
