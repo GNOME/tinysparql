@@ -1310,15 +1310,10 @@ monitor_item_moved_cb (TrackerMonitor *monitor,
 	fs = user_data;
 
 	if (!is_source_monitored) {
-		gchar *path;
-
-		path = g_file_get_path (other_file);
-
-#ifdef FIX
-		/* If the source is not monitored, we need to crawl it. */
-		tracker_crawler_add_unexpected_path (fs->private->crawler, path);
-#endif
-		g_free (path);
+		if (is_directory) {
+			/* If the source is not monitored, we need to crawl it. */
+			tracker_miner_fs_add_directory (fs, file, TRUE);
+		}
 	} else {
 		gchar *path;
 		gchar *other_path;
@@ -1361,10 +1356,7 @@ monitor_item_moved_cb (TrackerMonitor *monitor,
 					tracker_monitor_add (fs->private->monitor, file);	     
 				}
 
-#ifdef FIX
-				/* If this is a directory we need to crawl it */
-				tracker_crawler_add_unexpected_path (fs->private->crawler, other_path);
-#endif
+				tracker_miner_fs_add_directory (fs, other_file, TRUE);
 			}
 		} else if (!should_process_other) {
 			/* Delete old file */
