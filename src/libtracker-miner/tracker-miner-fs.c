@@ -205,7 +205,17 @@ tracker_miner_fs_class_init (TrackerMinerFSClass *klass)
 							      "Modifier for the indexing speed, 0 is max speed",
 							      0, 1, 0,
 							      G_PARAM_READWRITE));
-
+	/**
+	 * TrackerMinerFS::check-file:
+	 * @miner_fs: the #TrackerMinerFS
+	 * @file: a #GFile
+	 *
+	 * The ::check-file signal is emitted either on the filesystem crawling
+	 * phase or whenever a new file appears in a monitored directory
+	 * in order to check whether @file must be inspected my @miner_fs.
+	 *
+	 * Returns: %TRUE if @file must be inspected.
+	 **/
 	signals[CHECK_FILE] =
 		g_signal_new ("check-file",
 			      G_OBJECT_CLASS_TYPE (object_class),
@@ -215,6 +225,17 @@ tracker_miner_fs_class_init (TrackerMinerFSClass *klass)
 			      NULL,
 			      tracker_marshal_BOOLEAN__OBJECT,
 			      G_TYPE_BOOLEAN, 1, G_TYPE_FILE);
+	/**
+	 * TrackerMinerFS::check-directory:
+	 * @miner_fs: the #TrackerMinerFS
+	 * @directory: a #GFile
+	 *
+	 * The ::check-directory signal is emitted either on the filesystem crawling
+	 * phase or whenever a new directory appears in a monitored directory
+	 * in order to check whether @directory must be inspected my @miner_fs.
+	 *
+	 * Returns: %TRUE if @directory must be inspected.
+	 **/
 	signals[CHECK_DIRECTORY] =
 		g_signal_new ("check-directory",
 			      G_OBJECT_CLASS_TYPE (object_class),
@@ -224,6 +245,20 @@ tracker_miner_fs_class_init (TrackerMinerFSClass *klass)
 			      NULL,
 			      tracker_marshal_BOOLEAN__OBJECT,
 			      G_TYPE_BOOLEAN, 1, G_TYPE_FILE);
+	/**
+	 * TrackerMinerFS::check-directory-contents:
+	 * @miner_fs: the #TrackerMinerFS
+	 * @directory: a #GFile
+	 * @children: #GList of #GFile<!-- -->s
+	 *
+	 * The ::check-directory-contents signal is emitted either on the filesystem
+	 * crawling phase or whenever a new directory appears in a monitored directory
+	 * in order to check whether @directory must be inspected my @miner_fs based on
+	 * the directory contents, for some implementations this signal may be useful
+	 * to discard backup directories for example.
+	 *
+	 * Returns: %TRUE if @directory must be inspected.
+	 **/
 	signals[CHECK_DIRECTORY_CONTENTS] =
 		g_signal_new ("check-directory-contents",
 			      G_OBJECT_CLASS_TYPE (object_class),
@@ -233,6 +268,17 @@ tracker_miner_fs_class_init (TrackerMinerFSClass *klass)
 			      NULL,
 			      tracker_marshal_BOOLEAN__OBJECT_POINTER,
 			      G_TYPE_BOOLEAN, 2, G_TYPE_FILE, G_TYPE_POINTER);
+	/**
+	 * TrackerMinerFS::monitor-directory:
+	 * @miner_fs: the #TrackerMinerFS
+	 * @directory: a #GFile
+	 *
+	 * The ::monitor-directory is emitted either on the filesystem crawling phase
+	 * or whenever a new directory appears in a monitored directory in order to
+	 * check whether @directory must be monitored for filesystem changes or not.
+	 *
+	 * Returns: %TRUE if the directory must be monitored for changes.
+	 **/
 	signals[MONITOR_DIRECTORY] =
 		g_signal_new ("monitor-directory",
 			      G_OBJECT_CLASS_TYPE (object_class),
@@ -242,6 +288,18 @@ tracker_miner_fs_class_init (TrackerMinerFSClass *klass)
 			      NULL,
 			      tracker_marshal_BOOLEAN__OBJECT,
 			      G_TYPE_BOOLEAN, 1, G_TYPE_FILE);
+	/**
+	 * TrackerMinerFS::finished:
+	 * @miner_fs: the #TrackerMinerFS
+	 * @elapsed: elapsed time since mining was started
+	 * @directories_found: number of directories found
+	 * @directories_ignored: number of ignored directories
+	 * @files_found: number of files found
+	 * @files_ignored: number of ignored files
+	 *
+	 * The ::finished signal is emitted when @miner_fs has finished
+	 * all pending processing.
+	 **/
 	signals[FINISHED] =
 		g_signal_new ("finished",
 			      G_TYPE_FROM_CLASS (object_class),
