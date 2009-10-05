@@ -782,7 +782,7 @@ item_remove (TrackerMinerFS *fs,
 }
 
 static void
-update_file_uri_recursively (TrackerMinerFS *fs,
+item_update_uri_recursively (TrackerMinerFS *fs,
 			     GString        *sparql_update,
 			     const gchar    *source_uri,
 			     const gchar    *uri)
@@ -794,8 +794,7 @@ update_file_uri_recursively (TrackerMinerFS *fs,
 		 source_uri,
 		 uri);
 
-	/* FIXME: tracker:uri doesn't seem to exist */
-	/* g_string_append_printf (sparql_update, " <%s> tracker:uri <%s> .", source_uri, uri); */
+	g_string_append_printf (sparql_update, " <%s> tracker:uri <%s> .", source_uri, uri);
 
 	sparql = g_strdup_printf ("SELECT ?child WHERE { ?child nfo:belongsToContainer <%s> }", source_uri);
 	result_set = tracker_miner_execute_sparql (TRACKER_MINER (fs), sparql, NULL);
@@ -818,7 +817,7 @@ update_file_uri_recursively (TrackerMinerFS *fs,
 
 			child_uri = g_strdup_printf ("%s%s", uri, *child_source_uri + strlen (source_uri));
 
-			update_file_uri_recursively (fs, sparql_update, *child_source_uri, child_uri);
+			item_update_uri_recursively (fs, sparql_update, *child_source_uri, child_uri);
 
 			g_free (child_source_uri);
 			g_free (child_uri);
@@ -880,10 +879,8 @@ item_move (TrackerMinerFS *fs,
 	escaped_filename = g_strescape (g_file_info_get_display_name (file_info), NULL);
 
 	g_string_append_printf (sparql, " <%s> nfo:fileName \"%s\" .", source_uri, escaped_filename);
-	g_string_append_printf (sparql, " <%s> nie:isStoredAs <%s> .", source_uri, uri);
 
-	/* FIXME: This function just seemed to update the thumbnail */
-	/* update_file_uri_recursively (fs, sparql, source_uri, uri); */
+	item_update_uri_recursively (fs, sparql, source_uri, uri);
 
 	g_string_append (sparql, " }");
 
