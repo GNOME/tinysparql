@@ -109,6 +109,14 @@ tracker_miner_class_init (TrackerMinerClass *klass)
 	object_class->finalize     = miner_finalize;
 	object_class->constructed  = miner_constructed;
 
+	/**
+	 * TrackerMiner::started:
+	 * @miner: the #TrackerMiner
+	 *
+	 * the ::started signal is emitted in the miner
+	 * right after it has been started through
+	 * tracker_miner_start().
+	 **/
 	signals[STARTED] =
 		g_signal_new ("started",
 			      G_OBJECT_CLASS_TYPE (object_class),
@@ -117,6 +125,14 @@ tracker_miner_class_init (TrackerMinerClass *klass)
 			      NULL, NULL,
 			      g_cclosure_marshal_VOID__VOID,
 			      G_TYPE_NONE, 0);
+	/**
+	 * TrackerMiner::stopped:
+	 * @miner: the #TrackerMiner
+	 *
+	 * the ::stopped signal is emitted in the miner
+	 * right after it has been stopped through
+	 * tracker_miner_stop().
+	 **/
 	signals[STOPPED] =
 		g_signal_new ("stopped",
 			      G_OBJECT_CLASS_TYPE (object_class),
@@ -125,6 +141,15 @@ tracker_miner_class_init (TrackerMinerClass *klass)
 			      NULL, NULL,
 			      g_cclosure_marshal_VOID__VOID,
 			      G_TYPE_NONE, 0);
+	/**
+	 * TrackerMiner::paused:
+	 * @miner: the #TrackerMiner
+	 *
+	 * the ::paused signal is emitted whenever
+	 * there is any reason to pause, either
+	 * internal (through tracker_miner_pause()) or
+	 * external (through DBus, see #TrackerMinerManager).
+	 **/
 	signals[PAUSED] =
 		g_signal_new ("paused",
 			      G_OBJECT_CLASS_TYPE (object_class),
@@ -133,6 +158,14 @@ tracker_miner_class_init (TrackerMinerClass *klass)
 			      NULL, NULL,
 			      g_cclosure_marshal_VOID__VOID,
 			      G_TYPE_NONE, 0);
+	/**
+	 * TrackerMiner::resumed:
+	 * @miner: the #TrackerMiner
+	 *
+	 * the ::resumed signal is emitted whenever
+	 * all reasons to pause have disappeared, see
+	 * tracker_miner_resume() and #TrackerMinerManager.
+	 **/
 	signals[RESUMED] =
 		g_signal_new ("resumed",
 			      G_OBJECT_CLASS_TYPE (object_class),
@@ -149,6 +182,17 @@ tracker_miner_class_init (TrackerMinerClass *klass)
 			      NULL, NULL,
 			      g_cclosure_marshal_VOID__VOID,
 			      G_TYPE_NONE, 0);
+	/**
+	 * TrackerMiner::progress:
+	 * @miner: the #TrackerMiner
+	 * @status: 
+	 * @progress: a #gdouble indicating miner progress, from 0 to 1.
+	 *
+	 * the ::progress signal will be emitted by TrackerMiner implementations
+	 * to indicate progress about the data mining process. @status will
+	 * contain a translated string with the current miner status and @progress
+	 * will indicate how much has been processed so far.
+	 **/
 	signals[PROGRESS] =
 		g_signal_new ("progress",
 			      G_OBJECT_CLASS_TYPE (object_class),
