@@ -63,6 +63,7 @@
 static GMainLoop    *main_loop;
 static GSList       *miners;
 static GSList       *current_miner;
+static gboolean      finished_miners;
 
 static gboolean      version;
 static gint	     verbosity = -1;
@@ -183,6 +184,10 @@ initialize_priority (void)
 static void
 miner_handle_next (void)
 {
+        if (finished_miners) {
+                return;
+        }
+
         if (!current_miner) {
                 current_miner = miners;
         } else {
@@ -190,6 +195,8 @@ miner_handle_next (void)
         }
 
         if (!current_miner) {
+                finished_miners = TRUE;
+
                 g_message ("All miners are now finished");
                 tracker_thumbnailer_queue_send ();
                 return;
