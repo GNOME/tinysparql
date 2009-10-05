@@ -1218,6 +1218,8 @@ tracker_data_insert_statement (const gchar            *subject,
 		} else {
 			tracker_data_insert_statement_with_string (subject, predicate, object, error);
 		}
+	} else if (strcmp (predicate, TRACKER_PREFIX "uri") == 0) {
+		tracker_data_insert_statement_with_uri (subject, predicate, object, error);
 	} else {
 		g_set_error (error, TRACKER_DATA_ERROR, TRACKER_DATA_ERROR_UNKNOWN_PROPERTY,
 		             "Property '%s' not found in the ontology", predicate);
@@ -1240,9 +1242,13 @@ tracker_data_insert_statement_with_uri (const gchar            *subject,
 
 	property = tracker_ontology_get_property_by_uri (predicate);
 	if (property == NULL) {
-		g_set_error (error, TRACKER_DATA_ERROR, TRACKER_DATA_ERROR_UNKNOWN_PROPERTY,
-		             "Property '%s' not found in the ontology", predicate);
-		return;
+		if (strcmp (predicate, TRACKER_PREFIX "uri") != 0) {
+			/* virtual tracker:uri property */
+		} else {
+			g_set_error (error, TRACKER_DATA_ERROR, TRACKER_DATA_ERROR_UNKNOWN_PROPERTY,
+				     "Property '%s' not found in the ontology", predicate);
+			return;
+		}
 	} else if (tracker_property_get_data_type (property) != TRACKER_PROPERTY_TYPE_RESOURCE) {
 		g_set_error (error, TRACKER_DATA_ERROR, TRACKER_DATA_ERROR_INVALID_TYPE,
 		             "Property '%s' does not accept URIs", predicate);
