@@ -311,14 +311,6 @@ process_func (gpointer data)
 		return FALSE;
 	}
 
-	/* Throttle the crawler, with testing, throttling every item
-	 * took the time to crawl 130k files from 7 seconds up to 68
-	 * seconds. So it is important to get this figure right.
-	 */
-#ifdef FIX
-	tracker_throttle (priv->config, 25);
-#endif
-
 	/* Crawler files */
 	file = g_queue_pop_head (priv->files);
 
