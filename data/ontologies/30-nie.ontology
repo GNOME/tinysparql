@@ -54,7 +54,7 @@ nie:byteSize a rdf:Property ;
 
 nie:language a rdf:Property ;
 	rdfs:label "Language" ;
-	rdfs:comment "File language" ;
+	rdfs:comment "Language the InformationElement is expressed in. Users are encouraged to use the two-letter code specified in the RFC 3066" ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nie:InformationElement ;
 	rdfs:range xsd:string .
