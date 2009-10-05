@@ -17,71 +17,18 @@ Tracker Filesystem Miner
 <!-- ##### SECTION Stability_Level ##### -->
 
 
-<!-- ##### TYPEDEF TrackerMinerFS ##### -->
+<!-- ##### STRUCT TrackerMinerFSClass ##### -->
 <para>
 
 </para>
 
-
-<!-- ##### SIGNAL TrackerMinerFS::check-directory ##### -->
-<para>
-
-</para>
-
-@trackerminerfs: the object which received the signal.
-@arg1: 
-@Returns: 
-
-<!-- ##### SIGNAL TrackerMinerFS::check-directory-contents ##### -->
-<para>
-
-</para>
-
-@trackerminerfs: the object which received the signal.
-@arg1: 
-@arg2: 
-@Returns: 
-
-<!-- ##### SIGNAL TrackerMinerFS::check-file ##### -->
-<para>
-
-</para>
-
-@trackerminerfs: the object which received the signal.
-@arg1: 
-@Returns: 
-
-<!-- ##### SIGNAL TrackerMinerFS::finished ##### -->
-<para>
-
-</para>
-
-@trackerminerfs: the object which received the signal.
-@arg1: 
-@arg2: 
-@arg3: 
-@arg4: 
-@arg5: 
-
-<!-- ##### SIGNAL TrackerMinerFS::monitor-directory ##### -->
-<para>
-
-</para>
-
-@trackerminerfs: the object which received the signal.
-@arg1: 
-@Returns: 
-
-<!-- ##### ARG TrackerMinerFS:throttle ##### -->
-<para>
-
-</para>
-
-<!-- ##### TYPEDEF TrackerMinerFSClass ##### -->
-<para>
-
-</para>
-
+@parent: 
+@check_file: 
+@check_directory: 
+@check_directory_contents: 
+@process_file: 
+@monitor_directory: 
+@finished: 
 
 <!-- ##### USER_FUNCTION TrackerMinerFSDoneCb ##### -->
 <para>

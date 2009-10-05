@@ -38,9 +38,21 @@ G_BEGIN_DECLS
 #define TRACKER_MINER_FS_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o), TRACKER_TYPE_MINER_FS, TrackerMinerFSClass))
 
 typedef struct TrackerMinerFS        TrackerMinerFS;
-typedef struct TrackerMinerFSClass   TrackerMinerFSClass;
 typedef struct TrackerMinerFSPrivate TrackerMinerFSPrivate;
 
+/**
+ * TrackerMinerFSDoneCb:
+ * @fs: The #TrackerMinerFS
+ * @file: The #GFile corresponding to the asynchronous call
+ * @builder: a #TrackerSparqlBuilder to collect data
+ * @error: #GError with the extraction error, or %NULL if none
+ * @user_data: passed user data to the asynchronous call
+ *
+ * This callback is passed for each inspected #GFile in the
+ * TrackerMinerFS::process_file() vmethod, it's the implementation
+ * responsibility to call it as soon as all metadata extraction has
+ * been performed on @file.
+ **/
 typedef void (* TrackerMinerFSDoneCb) (TrackerMinerFS       *fs,
 				       GFile                *file,
 				       TrackerSparqlBuilder *builder,
@@ -52,7 +64,21 @@ struct TrackerMinerFS {
 	TrackerMinerFSPrivate *private;
 };
 
-struct TrackerMinerFSClass {
+/**
+ * TrackerMinerFSClass:
+ * @parent: parent object class
+ * @check_file: Called when a file should be checked for further processing
+ * @check_directory: Called when a directory should be checked for further processing
+ * @check_directory_contents: Called when a directory should be checked for further processing, based on the directory contents.
+ * @process_file: Called when the metadata associated to a file is requested.
+ * @monitor_directory: Called to check whether a directory should be modified.
+ * @finished: Called when all processing has been performed.
+ *
+ * Prototype for the abstract class, @check_file, @check_directory, @check_directory_contents,
+ * @process_file and @monitor_directory must be implemented in the deriving class in order to
+ * actually extract data.
+ **/
+typedef struct {
 	TrackerMinerClass parent;
 
 	gboolean (* check_file)            (TrackerMinerFS       *fs,
@@ -71,7 +97,7 @@ struct TrackerMinerFSClass {
 	gboolean (* monitor_directory)     (TrackerMinerFS       *fs,
 					    GFile                *file);
 	void     (* finished)              (TrackerMinerFS       *fs);
-};
+} TrackerMinerFSClass;
 
 GType    tracker_miner_fs_get_type         (void) G_GNUC_CONST;
 

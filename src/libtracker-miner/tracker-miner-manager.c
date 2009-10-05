@@ -30,6 +30,16 @@
 #include "tracker-miner-client.h"
 #include "tracker-miner-dbus.h"
 
+/**
+ * SECTION:tracker-miner-manager
+ * @short_description: External control and monitoring of miners
+ * @include: libtracker-miner/tracker-miner-manager.h
+ *
+ * #TrackerMinerManager keeps track of available miners, their current
+ * progress/status, and also allows basic external control on them, such
+ * as pausing or resuming data processing.
+ **/
+
 #define TRACKER_MINER_MANAGER_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_MINER_MANAGER, TrackerMinerManagerPrivate))
 
 #define DESKTOP_ENTRY_GROUP "Desktop Entry"

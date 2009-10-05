@@ -37,7 +37,6 @@ G_BEGIN_DECLS
 #define TRACKER_MINER_ERROR	       tracker_miner_error_quark()
 
 typedef struct TrackerMiner TrackerMiner;
-typedef struct TrackerMinerClass TrackerMinerClass;
 typedef struct TrackerMinerPrivate TrackerMinerPrivate;
 
 struct TrackerMiner {
@@ -45,7 +44,20 @@ struct TrackerMiner {
         TrackerMinerPrivate *private;
 };
 
-struct TrackerMinerClass {
+/**
+ * TrackerMinerClass:
+ * @parent_class: parent object class.
+ * @started: Called when the miner is told to start collecting data.
+ * @stopped: Called when the miner is told to stop collecting data.
+ * @paused: Called when the miner is told to pause.
+ * @resumed: Called when the miner is told to resume activity.
+ * @terminated: terminated.
+ * @progress: progress.
+ * @error: error.
+ *
+ * Virtual methods left to implement.
+ **/
+typedef struct {
         GObjectClass parent_class;
 
         /* signals */
@@ -63,7 +75,7 @@ struct TrackerMinerClass {
 
 	void (* error)      (TrackerMiner *miner,
 			     GError       *error);
-};
+} TrackerMinerClass;
 
 GType          tracker_miner_get_type       (void) G_GNUC_CONST;
 GQuark	       tracker_miner_error_quark    (void);

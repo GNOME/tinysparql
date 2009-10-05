@@ -2,7 +2,6 @@
 <SECTION>
 <FILE>tracker-miner</FILE>
 <TITLE>Tracker Miner</TITLE>
-TrackerMiner
 TrackerMinerClass
 tracker_miner_error_quark
 tracker_miner_start
@@ -20,7 +19,6 @@ tracker_miner_resume
 <SECTION>
 <FILE>tracker-miner-fs</FILE>
 <TITLE>Tracker Filesystem Miner</TITLE>
-TrackerMinerFS
 TrackerMinerFSClass
 TrackerMinerFSDoneCb
 tracker_miner_fs_add_directory
@@ -33,8 +31,6 @@ tracker_miner_fs_get_throttle
 <SECTION>
 <FILE>tracker-miner-manager</FILE>
 <TITLE>Tracker Miner Manager</TITLE>
-TrackerMinerManager
-TrackerMinerManagerClass
 tracker_miner_manager_new
 tracker_miner_manager_get_running
 tracker_miner_manager_get_available

@@ -30,6 +30,18 @@
 #include "tracker-miner-dbus.h"
 #include "tracker-miner-glue.h"
 
+/**
+ * SECTION:tracker-miner
+ * @short_description: Abstract base class for data miners
+ * @include: libtracker-miner/tracker-miner.h
+ *
+ * #TrackerMiner is an abstract base class to help developing data miners
+ * for tracker-store, being an abstract class it doesn't do much by itself,
+ * but provides the basic signaling and operation control so the miners
+ * implementing this class are properly recognized by Tracker, and can be
+ * controlled properly by external means such as #TrackerMinerManager.
+ **/
+
 #define TRACKER_MINER_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_MINER, TrackerMinerPrivate))
 
 struct TrackerMinerPrivate {
@@ -185,7 +197,7 @@ tracker_miner_class_init (TrackerMinerClass *klass)
 	/**
 	 * TrackerMiner::progress:
 	 * @miner: the #TrackerMiner
-	 * @status: 
+	 * @status: miner status
 	 * @progress: a #gdouble indicating miner progress, from 0 to 1.
 	 *
 	 * the ::progress signal will be emitted by TrackerMiner implementations
@@ -823,6 +835,19 @@ tracker_miner_commit (TrackerMiner *miner)
 	return TRUE;
 }
 
+/**
+ * tracker_miner_pause:
+ * @miner: a #TrackerMiner
+ * @application: application name
+ * @reason: reason to pause
+ * @error: return location for errors
+ *
+ * Asks @miner to pause. On success the cookie ID is returned,
+ * this is what must be used in tracker_miner_resume() to resume
+ * operations. On failure @error will be set and -1 will be returned.
+ *
+ * Returns: The pause cookie ID.
+ **/
 gint
 tracker_miner_pause (TrackerMiner  *miner,
 		     const gchar   *application,

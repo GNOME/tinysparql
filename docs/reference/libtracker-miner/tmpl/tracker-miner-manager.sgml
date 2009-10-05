@@ -17,60 +17,6 @@ Tracker Miner Manager
 <!-- ##### SECTION Stability_Level ##### -->
 
 
-<!-- ##### TYPEDEF TrackerMinerManager ##### -->
-<para>
-
-</para>
-
-
-<!-- ##### SIGNAL TrackerMinerManager::miner-activated ##### -->
-<para>
-
-</para>
-
-@trackerminermanager: the object which received the signal.
-@arg1: 
-
-<!-- ##### SIGNAL TrackerMinerManager::miner-deactivated ##### -->
-<para>
-
-</para>
-
-@trackerminermanager: the object which received the signal.
-@arg1: 
-
-<!-- ##### SIGNAL TrackerMinerManager::miner-paused ##### -->
-<para>
-
-</para>
-
-@trackerminermanager: the object which received the signal.
-@arg1: 
-
-<!-- ##### SIGNAL TrackerMinerManager::miner-progress ##### -->
-<para>
-
-</para>
-
-@trackerminermanager: the object which received the signal.
-@arg1: 
-@arg2: 
-@arg3: 
-
-<!-- ##### SIGNAL TrackerMinerManager::miner-resumed ##### -->
-<para>
-
-</para>
-
-@trackerminermanager: the object which received the signal.
-@arg1: 
-
-<!-- ##### TYPEDEF TrackerMinerManagerClass ##### -->
-<para>
-
-</para>
-
-
 <!-- ##### FUNCTION tracker_miner_manager_new ##### -->
 <para>
 

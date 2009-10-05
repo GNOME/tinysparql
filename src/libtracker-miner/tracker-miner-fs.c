@@ -28,6 +28,17 @@
 #include "tracker-monitor.h"
 #include "tracker-utils.h"
 
+/**
+ * SECTION:tracker-miner-fs
+ * @short_description: Abstract base class for filesystem miners
+ * @include: libtracker-miner/tracker-miner-fs.h
+ *
+ * #TrackerMinerFS is an abstract base class for miners that collect data
+ * from the filesystem, all the filesystem crawling and monitoring is
+ * abstracted away, leaving to implementations the decisions of what
+ * directories/files should it process, and the actual data extraction.
+ **/
+
 #define TRACKER_MINER_FS_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_MINER_FS, TrackerMinerFSPrivate))
 
 typedef struct {
