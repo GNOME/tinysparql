@@ -75,6 +75,15 @@ test_string_to_date (void)
 	GDate	  *result;
 	time_t	   result_time_t;
 	const gchar  *input = "2008-06-16T11:10:10+0600";
+	gchar  *timezone = g_strdup (g_getenv ("TZ"));
+
+	if (! g_setenv ("TZ", "UTC", TRUE)) {
+		g_test_message ("unable to set timezone, test results are invalid, skipping\n");
+		if (timezone) {
+			g_free (timezone);
+		}
+		return;
+	}
 
 	expected = g_date_new_dmy (16, G_DATE_JUNE, 2008);
 
@@ -82,6 +91,11 @@ test_string_to_date (void)
 
 	result = g_date_new ();
 	g_date_set_time_t (result, result_time_t);
+
+	g_setenv ("TZ", timezone, TRUE);
+	if (timezone) {
+		g_free (timezone);
+	}
 
 	g_assert_cmpint (g_date_get_year (expected), ==, g_date_get_year (result));
 	g_assert_cmpint (g_date_get_day (expected), ==, g_date_get_day (result));
