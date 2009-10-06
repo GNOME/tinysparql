@@ -685,6 +685,20 @@ nfo:averageBitrate a rdf:Property ;
 	rdfs:domain nfo:Media ;
 	rdfs:range xsd:double .
 
+nfo:averageVideoBitrate a rdf:Property ;
+	rdfs:label "averageBitrate" ;
+	rdfs:comment "The average overall bitrate of a media container. (i.e. the size of the piece of media in bits, divided by it's duration expressed in seconds)." ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nfo:Video ;
+	rdfs:range xsd:double .
+
+nfo:averageAudioBitrate a rdf:Property ;
+	rdfs:label "averageBitrate" ;
+	rdfs:comment "The average overall bitrate of a media container. (i.e. the size of the piece of media in bits, divided by it's duration expressed in seconds)." ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nfo:Audio ;
+	rdfs:range xsd:double .
+
 nfo:deletionDate a rdf:Property ;
 	rdfs:label "deletionDate" ;
 	rdfs:comment "The date and time of the deletion." ;
