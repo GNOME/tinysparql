@@ -630,12 +630,12 @@ main (int argc, char **argv)
 	}
 
 	if (files) {
-		gboolean success;
+		gboolean success = TRUE;
 		gchar **p;
 
 		for (p = files; *p; p++) {
 			g_print ("<%s>\n", *p);
-			success = get_tags_by_file (client, *p);
+			success = (success && get_tags_by_file (client, *p));
 			g_print ("\n");
 		}
 

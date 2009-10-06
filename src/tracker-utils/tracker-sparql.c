@@ -149,7 +149,6 @@ main (int argc, char **argv)
 	GOptionContext *context;
 	GError *error = NULL;
 	GPtrArray *results;
-	gboolean success;
 
 	setlocale (LC_ALL, "");
 
@@ -414,5 +413,6 @@ main (int argc, char **argv)
 
 	tracker_disconnect (client);
 
-	return success ? EXIT_SUCCESS : EXIT_FAILURE;
+	return EXIT_SUCCESS;
 }
+
