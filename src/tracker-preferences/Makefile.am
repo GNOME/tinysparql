@@ -17,12 +17,9 @@ INCLUDES = 								\
 	-DTRACKER_COMPILATION 						\
 	-DGETTEXT_PACKAGE=\"$(GETTEXT_PACKAGE)\"			\
 	-I$(top_srcdir)/src						\
+	$(TRACKER_APPS_CFLAGS)						\
 	$(WARN_CFLAGS)							\
-	$(GLIB_CFLAGS) 							\
-	$(GCOV_CFLAGS) 							\
-	$(GTK2_CFLAGS) 							\
-	$(DBUS_CFLAGS)							\
-	$(GMODULE_CFLAGS)
+	$(GCOV_CFLAGS)
 
 BUILT_SOURCES = tracker-preferences.vala.stamp
 
@@ -39,11 +36,8 @@ tracker_preferences_SOURCES = 						\
 tracker_preferences_LDADD = 						\
 	$(top_builddir)/src/libtracker-client/libtracker-client-@TRACKER_API_VERSION@.la	\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
-	$(GTK2_LIBS) 							\
-	$(DBUS_LIBS) 							\
-	$(GCOV_LIBS) 							\
-	$(GLIB_LIBS)							\
-	$(GMODULE_LIBS)
+	$(TRACKER_APPS_LIBS)						\
+	$(GCOV_LIBS)
 
 MAINTAINERCLEANFILES =							\
 	tracker-preferences.vala.stamp					\

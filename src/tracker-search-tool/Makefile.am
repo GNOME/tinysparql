@@ -23,15 +23,17 @@ tracker_search_tool.gs.stamp: $(tracker_search_tool_VALASOURCES)
 tracker_search_tool_CFLAGS = \
 	-DTRACKER_UI_DIR=\"$(datadir)/tracker/\"		\
 	-DSRCDIR=\"$(abs_srcdir)/\"				\
+	$(TRACKER_APPS_CFLAGS)					\
+	$(TRACKER_VALA_CFLAGS)					\
 	$(WARN_CFLAGS)						\
 	$(GCOV_CFLAGS)						\
-	$(TRACKER_SEARCH_TOOL_CFLAGS)				\
 	-include$(top_srcdir)/config.h  			\
 	$(NULL)
 
 tracker_search_tool_LDADD = 					\
+	$(TRACKER_APPS_LIBS)					\
+	$(TRACKER_VALA_LIBS)					\
 	$(GCOV_LIBS)						\
-	$(TRACKER_SEARCH_TOOL_LIBS)				\
 	$(NULL)
 
 uidir = $(datadir)/tracker

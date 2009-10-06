@@ -14,14 +14,16 @@ tracker_search_bar_CFLAGS = \
 	-DPKGDATADIR=\""$(pkgdatadir)"\"	 		\
 	-DGNOMELOCALEDIR=\""$(prefix)/$(DATADIRNAME)/locale"\" 	\
 	-I$(top_srcdir)/src					\
+	$(TRACKER_APPS_CFLAGS)					\
+	$(TRACKER_APPLET_CFLAGS)				\
 	$(WARN_CFLAGS)						\
-	$(GCOV_CFLAGS)						\
-	$(TRACKER_SEARCH_BAR_CFLAGS)
+	$(GCOV_CFLAGS)
 
 tracker_search_bar_LDADD = 					\
 	$(top_builddir)/src/libtracker-client/libtracker-client-@TRACKER_API_VERSION@.la \
-	$(GCOV_LIBS)						\
-	$(TRACKER_SEARCH_BAR_LIBS)
+	$(TRACKER_APPS_CFLAGS)					\
+	$(TRACKER_APPLET_CFLAGS)				\
+	$(GCOV_LIBS)
 
 uidir = $(datadir)/tracker
 ui_DATA = tracker-search-bar.ui

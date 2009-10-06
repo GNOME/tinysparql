@@ -707,6 +707,40 @@ fi
 DESKBAR_APPLET_DIR="$deskbar_applet_dir"
 AC_SUBST(DESKBAR_APPLET_DIR)
 
+APP_REQUIREMENTS="glib-2.0    >= $GLIB_REQUIRED
+                  gthread-2.0 >= $GLIB_REQUIRED
+                  gtk+-2.0    >= $GTK_REQUIRED
+                  dbus-1      >= $DBUS_REQUIRED
+                  dbus-glib-1 >= $DBUS_GLIB_REQUIRED"
+
+APPLET_REQUIREMENTS="libgnomeui-2.0 libpanelapplet-2.0"
+VALA_REQUIREMENTS="gee-1.0 >= $GEE_REQUIRED"
+
+PKG_CHECK_MODULES(TRACKER_APPS,
+                  [ $APP_REQUIREMENTS ],
+                  [have_app_requirements=yes],
+                  [have_app_requirements=no])
+
+AC_SUBST(TRACKER_APPS_CFLAGS)
+AC_SUBST(TRACKER_APPS_LIBS)
+
+PKG_CHECK_MODULES(TRACKER_APPLETS,
+                  [ $APPLET_REQUIREMENTS ],
+                  [have_applet_requirements=yes],
+                  [have_applet_requirements=no])
+
+AC_SUBST(TRACKER_APPLETS_CFLAGS)
+AC_SUBST(TRACKER_APPLETS_LIBS)
+
+PKG_CHECK_MODULES(TRACKER_VALA,
+                  [ $VALA_REQUIREMENTS ],
+                  [have_vala_requirements=yes],
+                  [have_vala_requirements=no])
+
+AC_SUBST(TRACKER_VALA_CFLAGS)
+AC_SUBST(TRACKER_VALA_LIBS)
+
+
 ##################################################################
 # Enable building libtracker-gtk?
 ##################################################################
@@ -717,24 +751,13 @@ AC_ARG_ENABLE([libtrackergtk],
 	      [enable_libtrackergtk=auto])
 
 if test "x$enable_libtrackergtk" != "xno" ; then
-   PKG_CHECK_MODULES(LIBTRACKERGTK, [
-		     glib-2.0    >= $GLIB_REQUIRED
-		     gtk+-2.0    >= $GTK_REQUIRED
-        	     dbus-1      >= $DBUS_REQUIRED
-        	     dbus-glib-1 >= $DBUS_GLIB_REQUIRED],
-		     [have_libtrackergtk=yes], 
-   		     [have_libtrackergtk=no])
-
-   AC_SUBST([LIBTRACKERGTK_CFLAGS])
-   AC_SUBST([LIBTRACKERGTK_LIBS])
+   if test "x$have_app_requirements" != "xyes"; then
+      AC_MSG_ERROR([Couldn't find libtracker_gtk dependencies ($APP_REQUIREMENTS).])
+   else
+      have_libtrackergtk="yes"
+   fi
 else
    have_libtrackergtk="no  (disabled)"
-fi
-
-if test "x$enable_libtrackergtk" = "xyes"; then
-   if test "x$have_libtrackergtk" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find libtracker_gtk dependencies (glib-2.0 >= $GLIB_REQUIRED, gtk+-2.0 >= $GTK_REQUIRED, dbus-1 >= $DBUS_REQUIRED, dbus-glib-1 >= $DBUS_GLIB_REQUIRED).])
-   fi
 fi
 
 AM_CONDITIONAL(HAVE_LIBTRACKERGTK, test "$have_libtrackergtk" = "yes")
@@ -749,29 +772,17 @@ AC_ARG_ENABLE([tracker-status-icon],
 	      [enable_tracker_status_icon=auto])
 
 if test "x$enable_tracker_status_icon" != "xno" ; then
-   PKG_CHECK_MODULES(TRACKER_STATUS_ICON, [
-		     glib-2.0    >= $GLIB_REQUIRED
-		     gthread-2.0 >= $GLIB_REQUIRED
-		     gtk+-2.0    >= $GTK_REQUIRED
-        	     dbus-1      >= $DBUS_REQUIRED
-        	     dbus-glib-1 >= $DBUS_GLIB_REQUIRED
-		     libnotify   >= $LIBNOTIFY_REQUIRED],
-		     [have_tracker_status_icon=yes],
-   		     [have_tracker_status_icon=no])
-
-   AC_SUBST([TRACKER_STATUS_ICON_CFLAGS])
-   AC_SUBST([TRACKER_STATUS_ICON_LIBS])
+   if test "x$have_app_requirements" != "xyes"; then
+      AC_MSG_ERROR([Couldn't find tracker-status-icon dependencies ($APP_REQUIREMENTS).])
+   else
+      have_tracker_status_icon="yes"
+   fi
 else
    have_tracker_status_icon="no  (disabled)"
 fi
 
-if test "x$enable_tracker_status_icon" = "xyes"; then
-   if test "x$have_tracker_status_icon" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find tracker-status-icon dependencies (glib-2.0 >= $GLIB_REQUIRED, gtk+-2.0 >= $GTK_REQUIRED, dbus-1 >= $DBUS_REQUIRED, dbus-glib-1 >= $DBUS_GLIB_REQUIRED, libnotify >= $LIBNOTIFY_REQUIRED).])
-   fi
-fi
-
 AM_CONDITIONAL(HAVE_TRACKER_STATUS_ICON, test "$have_tracker_status_icon" = "yes")
+
 
 AC_ARG_ENABLE([tracker-explorer],
 	      AS_HELP_STRING([--enable-tracker-explorer],
@@ -779,28 +790,18 @@ AC_ARG_ENABLE([tracker-explorer],
 	      [enable_tracker_explorer=auto])
 
 if test "x$enable_tracker_explorer" != "xno" ; then
-   PKG_CHECK_MODULES(TRACKER_EXPLORER, [
-		glib-2.0    >= $GLIB_REQUIRED
-		gtk+-2.0    >= $GTK_REQUIRED
-		dbus-1      >= $DBUS_REQUIRED
-		dbus-glib-1 >= $DBUS_GLIB_REQUIRED
-		gee-1.0     >= $GEE_REQUIRED],
-		[have_tracker_explorer=yes],
-		[have_tracker_explorer=no])
-
-   AC_SUBST([TRACKER_EXPLORER_CFLAGS])
-   AC_SUBST([TRACKER_EXPLORER_LIBS])
+   if test "x$have_app_requirements" != "xyes" -o \
+           "x$have_vala_requirements" != "xyes"; then
+      AC_MSG_ERROR([Couldn't find tracker-explorer dependencies ($APP_REQUIREMENTS $VALA_REQUIREMENTS).])
+   else
+      have_tracker_explorer="yes"
+   fi
 else
    have_tracker_explorer="no  (disabled)"
 fi
 
-if test "x$enable_tracker_explorer" = "xyes"; then
-   if test "x$have_tracker_explorer" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find tracker-explorer dependencies (glib-2.0 >= $GLIB_REQUIRED, gtk+-2.0 >= $GTK_REQUIRED, dbus-1 >= $DBUS_REQUIRED, dbus-glib-1 >= $DBUS_GLIB_REQUIRED, gee-1.0 >= $GEE_REQUIRED).])
-   fi
-fi
-
 AM_CONDITIONAL(HAVE_TRACKER_EXPLORER, test "$have_tracker_explorer" = "yes")
+
 
 AC_ARG_ENABLE([tracker-search-bar],
 	      AS_HELP_STRING([--enable-tracker-search-bar],
@@ -808,26 +809,14 @@ AC_ARG_ENABLE([tracker-search-bar],
 	      [enable_tracker_search_bar=auto])
 
 if test "x$enable_tracker_search_bar" != "xno" ; then
-   PKG_CHECK_MODULES(TRACKER_SEARCH_BAR, [
-   		libgnomeui-2.0 
-   		libpanelapplet-2.0 
-		glib-2.0    >= $GLIB_REQUIRED
-		gtk+-2.0    >= $GTK_REQUIRED
-		dbus-1      >= $DBUS_REQUIRED
-		dbus-glib-1 >= $DBUS_GLIB_REQUIRED],
-		[have_tracker_search_bar=yes],
-		[have_tracker_search_bar=no])
-
-   AC_SUBST([TRACKER_SEARCH_BAR_CFLAGS])
-   AC_SUBST([TRACKER_SEARCH_BAR_LIBS])
+   if test "x$have_app_requirements" != "xyes" -o \
+           "x$have_applet_requirements" != "xyes"; then
+      AC_MSG_ERROR([Couldn't find tracker-search-bar dependencies ($APP_REQUIREMENTS $APPLET_REQUIREMENTS).])
+   else
+      have_tracker_search_bar="yes"
+   fi
 else
    have_tracker_search_bar="no  (disabled)"
-fi
-
-if test "x$enable_tracker_search_bar" = "xyes"; then
-   if test "x$have_tracker_search_bar" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find tracker-search-bar dependencies (glib-2.0 >= $GLIB_REQUIRED, gtk+-2.0 >= $GTK_REQUIRED, dbus-1 >= $DBUS_REQUIRED, dbus-glib-1 >= $DBUS_GLIB_REQUIRED, gee-1.0 >= $GEE_REQUIRED, libpanelapplet-2.0 and libgnomeui-2.0).])
-   fi
 fi
 
 AM_CONDITIONAL(HAVE_TRACKER_SEARCH_BAR, test "$have_tracker_search_bar" = "yes")
@@ -842,25 +831,14 @@ AC_ARG_ENABLE(tracker-search-tool,
 	      [enable_tracker_search_tool=auto])
 
 if test "x$enable_tracker_search_tool" != "xno"; then
-   PKG_CHECK_MODULES(TRACKER_SEARCH_TOOL, [
-		glib-2.0    >= $GLIB_REQUIRED
-		gtk+-2.0    >= $GTK_REQUIRED
-		dbus-1      >= $DBUS_REQUIRED
-		dbus-glib-1 >= $DBUS_GLIB_REQUIRED
-		gee-1.0     >= $GEE_REQUIRED],
-		[have_tracker_search_tool=yes],
-		[have_tracker_search_tool=no])
-
-   AC_SUBST([TRACKER_SEARCH_TOOL_CFLAGS])
-   AC_SUBST([TRACKER_SEARCH_TOOL_LIBS])
+   if test "x$have_app_requirements" != "xyes" -o \
+           "x$have_vala_requirements" != "xyes"; then
+      AC_MSG_ERROR([Couldn't find tracker-search-tool dependencies ($APP_REQUIREMENTS $VALA_REQUIREMENTS).])
+   else
+      have_tracker_search_tool="yes"
+   fi
 else
    have_tracker_search_tool="no  (disabled)"
-fi
-
-if test "x$enable_tracker_search_tool" = "xyes"; then
-   if test "x$have_tracker_search_tool" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find tracker-search-tool dependencies (glib-2.0 >= $GLIB_REQUIRED, gtk+-2.0 >= $GTK_REQUIRED, dbus-1 >= $DBUS_REQUIRED, dbus-glib-1 >= $DBUS_GLIB_REQUIRED, gee-1.0 >= $GEE_REQUIRED).])
-   fi
 fi
 
 AM_CONDITIONAL(HAVE_TRACKER_SEARCH_TOOL, test "$have_tracker_search_tool" = "yes")
@@ -875,31 +853,13 @@ AC_ARG_ENABLE([tracker-preferences],
               [enable_tracker_preferences=auto])
 
 if test "x$enable_tracker_preferences" != "xno" ; then
-   PKG_CHECK_MODULES(GLIB2, 
-   	             [glib-2.0 >= $GLIB_REQUIRED],
-		     [have_tracker_preferences=yes], 
-		     [have_tracker_preferences=no])
-
-   AC_SUBST([GLIB2_CFLAGS])
-   AC_SUBST([GLIB2_LIBS])
-
-   if test "$have_tracker_preferences" = "yes"; then
-      PKG_CHECK_MODULES(GTK2, 
-      			[gtk+-2.0 >= $GTK_REQUIRED],
-			[have_tracker_preferences=yes], 
-			[have_tracker_preferences=no])
-
-      AC_SUBST([GTK2_CFLAGS])
-      AC_SUBST([GTK2_LIBS])
+   if test "x$have_app_requirements" != "xyes"; then
+      AC_MSG_ERROR([Couldn't find tracker-preferences dependencies ($APP_REQUIREMENTS).])
+   else
+      have_tracker_preferences="yes"
    fi
 else
    have_tracker_preferences="no  (disabled)"
-fi
-
-if test "x$enable_tracker_preferences" = "xyes"; then
-   if test "x$have_tracker_preferences" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find tracker-preferences dependencies (GLib >= $GLIB_REQUIRED, GTK+ >= $GTK_REQUIRED).])
-   fi
 fi
 
 AM_CONDITIONAL(HAVE_TRACKER_PREFERENCES, test "$have_tracker_preferences" = "yes")

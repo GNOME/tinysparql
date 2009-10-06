@@ -18,14 +18,16 @@ tracker_explorer.vala.stamp: $(tracker_explorer_VALASOURCES)
 tracker_explorer_CFLAGS = \
 	-DTRACKER_UI_DIR=\"$(datadir)/tracker/\"		\
 	-DSRCDIR=\"$(abs_srcdir)/\"				\
+	$(TRACKER_APPS_CFLAGS)					\
+	$(TRACKER_VALA_CFLAGS)					\
 	$(WARN_CFLAGS)						\
 	$(GCOV_CFLAGS)						\
-	$(TRACKER_EXPLORER_CFLAGS)				\
 	$(NULL)
 
 tracker_explorer_LDADD = \
+	$(TRACKER_APPS_LIBS)					\
+	$(TRACKER_VALA_LIBS)					\
 	$(GCOV_LIBS)						\
-	$(TRACKER_EXPLORER_LIBS)				\
 	$(NULL)
 
 uidir = $(datadir)/tracker
