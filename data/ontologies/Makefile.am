@@ -19,6 +19,7 @@ config_DATA =			\
 	39-mto.ontology		\
 	40-mlo.ontology		\
 	41-mfo.ontology		\
+	89-mtp.ontology		\
 	90-tracker.ontology	\
 	91-maemo.ontology
 

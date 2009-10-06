@@ -1,0 +1,67 @@
+@prefix nrl: <http://www.semanticdesktop.org/ontologies/2007/08/15/nrl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix mtp: <http://www.tracker-project.org/temp/mtp#> .
+@prefix tracker: <http://www.tracker-project.org/ontologies/tracker#> .
+
+@prefix nie: <http://www.semanticdesktop.org/ontologies/2007/01/19/nie#> .
+@prefix nmm: <http://www.tracker-project.org/temp/nmm#> .
+@prefix nfo: <http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#> .
+
+
+#
+# This ontology "decorates" nmm and nfo to include properties required
+# by the MTP protocol
+#
+
+mtp: a tracker:Namespace ;
+	tracker:prefix "mtp" .
+
+mtp:ScanType a rdfs:Class ;
+	rdfs:label "Scan types" ;
+	rdfs:comment "pre-defined set of scan types instances" ;
+	rdfs:subClassOf rdfs:Resource .
+
+mtp:scantype-FieldInterleavedUpperFirst a mtp:ScanType ;
+	nie:description "Line interleaved Frames with the Upper field on the first line." .
+mtp:scantype-FieldInterleavedLowerFirst a mtp:ScanType ;
+	nie:description "Line interleaved frames with the Lower field on the first line." .
+mtp:scantype-FieldSingleUpperFirst a mtp:ScanType;
+	nie:description "Fields are sent as independent samples. The field is indicated (on a per sample basis)".
+mtp:scantype-FieldSingleLowerFirst a mtp:ScanType ; 
+	nie:description "Fields are sent as independent samples. The field is indicated (on a per sample basis".
+mtp:scantype-MixedInterlace a mtp:ScanType;
+	nie:description "The content may contain a mix of interlaced modes".	
+mtp:scantype-MixedInterlaceAndProgressive a mtp:ScanType ;
+	nie:description "The content may contain a mix of interlaced and progressive modes.".
+
+mtp:scantype a rdf:Property ;
+	rdfs:label "Scan type";
+	rdfs:comment "Scan type of a video file (MTP requirement. FIXME Maybe should be move to a different ontology)" ;
+	rdfs:domain nmm:Video ;
+	rdfs:range mtp:ScanType .
+
+
+
+mtp:hidden a rdf:Property ;
+	 rdfs:label "Hidden" ;
+	 rdfs:comment "Hidden for the MTP protocol" ;
+	 rdfs:range nfo:Media ;
+	 rdfs:domain xsd:boolean .
+
+mtp:credits a rdf:Property ;
+	rdfs:label "MTP credits" ;
+	rdfs:comment "Following MTP spec, credits contains... FIXME" ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nfo:Media ;
+	rdfs:range xsd:string .
+
+mtp:creator a rdf:Property ;
+	rdfs:label "MTP Creator" ;
+	rdfs:comment "Following MTP spec, this property can contain a free text taking about creator of the Media" ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nfo:Media ;
+	rdfs:range xsd:string .
+
+
