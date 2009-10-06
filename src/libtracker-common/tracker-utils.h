@@ -1,7 +1,7 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*
  * Copyright (C) 2006, Mr Jamie McCracken (jamiemcc@gnome.org)
- * Copyright (C) 2008, Nokia
+ * Copyright (C) 2008, Nokia (urho.konttori@nokia.com)
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -22,11 +22,11 @@
 #ifndef __LIBTRACKER_COMMON_UTILS_H__
 #define __LIBTRACKER_COMMON_UTILS_H__
 
+#include <glib.h>
+
 #if !defined (__LIBTRACKER_COMMON_INSIDE__) && !defined (TRACKER_COMPILATION)
 #error "only <libtracker-common/tracker-common.h> must be included directly."
 #endif
-
-#include <glib.h>
 
 gboolean tracker_is_empty_string            (const char  *str);
 gboolean tracker_is_blank_string            (const char  *str);

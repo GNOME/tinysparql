@@ -57,9 +57,6 @@
 #define TRACKER_KMAIL_PREDICATE_SPAM		"KMail:MessageSpam"
 #define TRACKER_KMAIL_PREDICATE_HAM		"KMail:MessageHam"
 
-
-#define TRACKER_TYPE_G_STRV_ARRAY		(dbus_g_type_get_collection ("GPtrArray", G_TYPE_STRV))
-
 #define dbus_async_return_if_fail(expr,context)				\
 	G_STMT_START {							\
 		if G_LIKELY(expr) { } else {				\

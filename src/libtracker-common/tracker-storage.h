@@ -1,6 +1,5 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*
- * Copyright (C) 2006, Mr Jamie McCracken (jamiemcc@gnome.org)
  * Copyright (C) 2008, Nokia (urho.konttori@nokia.com)
  *
  * This library is free software; you can redistribute it and/or
@@ -19,8 +18,8 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __LIBTRACKER_STORAGE_H__
-#define __LIBTRACKER_STORAGE_H__
+#ifndef __LIBTRACKER_COMMON_STORAGE_H__
+#define __LIBTRACKER_COMMON_STORAGE_H__
 
 #include <glib-object.h>
 #include <gio/gio.h>
@@ -38,11 +37,11 @@ G_BEGIN_DECLS
 #define TRACKER_IS_STORAGE_CLASS(k)  (G_TYPE_CHECK_CLASS_TYPE ((k), TRACKER_TYPE_STORAGE))
 #define TRACKER_STORAGE_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o), TRACKER_TYPE_STORAGE, TrackerStorageClass))
 
-typedef struct _TrackerStorage	TrackerStorage;
+typedef struct _TrackerStorage TrackerStorage;
 typedef struct _TrackerStorageClass TrackerStorageClass;
 
 struct _TrackerStorage {
-	GObject      parent;
+	GObject parent;
 };
 
 struct _TrackerStorageClass {
@@ -51,28 +50,24 @@ struct _TrackerStorageClass {
 
 #ifdef HAVE_HAL
 
-GType	     tracker_storage_get_type		             (void) G_GNUC_CONST;
-
-TrackerStorage * tracker_storage_new                         (void);
-
-GList *      tracker_storage_get_mounted_directory_roots     (TrackerStorage *storage);
-GList *      tracker_storage_get_removable_device_roots      (TrackerStorage *storage);
-GList *      tracker_storage_get_removable_device_udis       (TrackerStorage *storage);
-
-const gchar *tracker_storage_udi_get_mount_point             (TrackerStorage *storage,
-							      const gchar    *udi);
-gboolean     tracker_storage_udi_get_is_mounted              (TrackerStorage *storage,
-							      const gchar    *udi);
-gboolean     tracker_storage_uri_is_on_removable_device      (TrackerStorage *storage,
-							      const gchar    *uri,
-							      gchar         **mount_point,
-							      gboolean       *available);
-
-const gchar* tracker_storage_get_volume_udi_for_file	     (TrackerStorage *storage,
-							      GFile          *file);
+GType	        tracker_storage_get_type		    (void) G_GNUC_CONST;
+TrackerStorage *tracker_storage_new                         (void);
+GList *         tracker_storage_get_mounted_directory_roots (TrackerStorage  *storage);
+GList *         tracker_storage_get_removable_device_roots  (TrackerStorage  *storage);
+GList *         tracker_storage_get_removable_device_udis   (TrackerStorage  *storage);
+const gchar *   tracker_storage_udi_get_mount_point         (TrackerStorage  *storage,
+							     const gchar     *udi);
+gboolean        tracker_storage_udi_get_is_mounted          (TrackerStorage  *storage,
+							     const gchar     *udi);
+gboolean        tracker_storage_uri_is_on_removable_device  (TrackerStorage  *storage,
+							     const gchar     *uri,
+							     gchar          **mount_point,
+							     gboolean        *available);
+const gchar*    tracker_storage_get_volume_udi_for_file     (TrackerStorage  *storage,
+							     GFile           *file);
 
 #endif /* HAVE_HAL */
 
 G_END_DECLS
 
-#endif /* __LIBTRACKER_STORAGE_H__ */
+#endif /* __LIBTRACKER_COMMON_STORAGE_H__ */

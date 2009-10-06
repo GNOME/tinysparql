@@ -41,8 +41,6 @@
 
 #define TRACKER_STATISTICS_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_STATISTICS, TrackerStatisticsPrivate))
 
-#define TRACKER_TYPE_G_STRV_ARRAY  (dbus_g_type_get_collection ("GPtrArray", G_TYPE_STRV))
-
 /* In seconds (5 minutes for now) */
 #define CACHE_LIFETIME 300
 

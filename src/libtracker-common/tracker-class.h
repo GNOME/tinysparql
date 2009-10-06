@@ -30,41 +30,38 @@ G_BEGIN_DECLS
 #error "only <libtracker-common/tracker-common.h> must be included directly."
 #endif
 
-#define TRACKER_TYPE_CLASS	     (tracker_class_get_type ())
-#define TRACKER_CLASS(o)	     (G_TYPE_CHECK_INSTANCE_CAST ((o), TRACKER_TYPE_CLASS, TrackerClass))
+#define TRACKER_TYPE_CLASS	   (tracker_class_get_type ())
+#define TRACKER_CLASS(o)	   (G_TYPE_CHECK_INSTANCE_CAST ((o), TRACKER_TYPE_CLASS, TrackerClass))
 #define TRACKER_CLASS_CLASS(k)     (G_TYPE_CHECK_CLASS_CAST ((k), TRACKER_TYPE_CLASS, TrackerClassClass))
-#define TRACKER_IS_CLASS(o)	     (G_TYPE_CHECK_INSTANCE_TYPE ((o), TRACKER_TYPE_CLASS))
+#define TRACKER_IS_CLASS(o)	   (G_TYPE_CHECK_INSTANCE_TYPE ((o), TRACKER_TYPE_CLASS))
 #define TRACKER_IS_CLASS_CLASS(k)  (G_TYPE_CHECK_CLASS_TYPE ((k), TRACKER_TYPE_CLASS))
 #define TRACKER_CLASS_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o), TRACKER_TYPE_CLASS, TrackerClassClass))
 
-typedef struct _TrackerClass	    TrackerClass;
+typedef struct _TrackerClass TrackerClass;
 typedef struct _TrackerClassClass TrackerClassClass;
 
 struct _TrackerClass {
-	GObject      parent;
+	GObject parent;
 };
 
 struct _TrackerClassClass {
 	GObjectClass parent_class;
 };
 
-GType		tracker_class_get_type		     (void) G_GNUC_CONST;
-
-TrackerClass *tracker_class_new			     (void);
-
-const gchar *	tracker_class_get_uri			     (TrackerClass *service);
-const gchar *	tracker_class_get_name		     (TrackerClass *service);
-gint		tracker_class_get_count			     (TrackerClass *service);
-TrackerClass  **tracker_class_get_super_classes		     (TrackerClass *service);
-
-void		tracker_class_set_uri			     (TrackerClass *service,
-							      const gchar    *value);
-void		tracker_class_set_count			     (TrackerClass *service,
-							      gint            value);
-void		tracker_class_set_super_classes		     (TrackerClass  *self,
-							      TrackerClass **super_classes);
-void		tracker_class_add_super_class		     (TrackerClass  *self,
-							      TrackerClass  *value);
+GType		tracker_class_get_type		(void) G_GNUC_CONST;
+TrackerClass *  tracker_class_new               (void);
+const gchar *   tracker_class_get_uri           (TrackerClass  *service);
+const gchar *   tracker_class_get_name          (TrackerClass  *service);
+gint            tracker_class_get_count         (TrackerClass  *service);
+TrackerClass  **tracker_class_get_super_classes (TrackerClass  *service);
+void            tracker_class_set_uri           (TrackerClass  *service,
+						 const gchar   *value);
+void            tracker_class_set_count         (TrackerClass  *service,
+						 gint           value);
+void            tracker_class_set_super_classes (TrackerClass  *self,
+						 TrackerClass **super_classes);
+void            tracker_class_add_super_class   (TrackerClass  *self,
+						 TrackerClass  *value);
 
 G_END_DECLS
 

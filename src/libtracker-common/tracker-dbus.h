@@ -1,7 +1,6 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*
- * Copyright (C) 2006, Mr Jamie McCracken (jamiemcc@gnome.org)
- * Copyright (C) 2008, Nokia
+ * Copyright (C) 2008, Nokia (urho.konttori@nokia.com)
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -22,10 +21,6 @@
 #ifndef __LIBTRACKER_COMMON_DBUS_H__
 #define __LIBTRACKER_COMMON_DBUS_H__
 
-#if !defined (__LIBTRACKER_COMMON_INSIDE__) && !defined (TRACKER_COMPILATION)
-#error "only <libtracker-common/tracker-common.h> must be included directly."
-#endif
-
 #include <glib/gi18n.h>
 
 #include <dbus/dbus.h>
@@ -34,8 +29,22 @@
 
 G_BEGIN_DECLS
 
+#if !defined (__LIBTRACKER_COMMON_INSIDE__) && !defined (TRACKER_COMPILATION)
+#error "only <libtracker-common/tracker-common.h> must be included directly."
+#endif
+
 #define TRACKER_DBUS_ERROR_DOMAIN "TrackerDBus"
 #define TRACKER_DBUS_ERROR	  tracker_dbus_error_quark()
+
+#define TRACKER_TYPE_EVENT_ARRAY					        \
+	dbus_g_type_get_collection ("GPtrArray",			        \
+				    dbus_g_type_get_struct ("GValueArray",      \
+							    G_TYPE_STRING,      \
+							    G_TYPE_STRING,      \
+							    G_TYPE_INT,         \
+							    G_TYPE_INVALID))
+#define TRACKER_TYPE_G_STRV_ARRAY 				                \
+	dbus_g_type_get_collection ("GPtrArray", G_TYPE_STRV)
 
 #define tracker_dbus_async_return_if_fail(expr,context)				\
 	G_STMT_START {								\
@@ -55,37 +64,35 @@ G_BEGIN_DECLS
 		};								\
 	} G_STMT_END
 
-#define tracker_dbus_return_val_if_fail(expr,val,error)			\
-	G_STMT_START {							\
-		if G_LIKELY(expr) { } else {				\
-			g_set_error (error,				\
-				     TRACKER_DBUS_ERROR,		\
-				     0,					\
-				     _("Assertion `%s' failed"),	\
-				     #expr);				\
-									\
-			return val;					\
-		};							\
+#define tracker_dbus_return_val_if_fail(expr,val,error)			        \
+	G_STMT_START {							        \
+		if G_LIKELY(expr) { } else {				        \
+			g_set_error (error,				        \
+				     TRACKER_DBUS_ERROR,	   	        \
+				     0,					        \
+				     _("Assertion `%s' failed"),	        \
+				     #expr);				        \
+									        \
+			return val;					        \
+		};							        \
 	} G_STMT_END
-
-typedef enum {
-	TRACKER_DBUS_EVENTS_TYPE_ADD,
-	TRACKER_DBUS_EVENTS_TYPE_UPDATE,
-	TRACKER_DBUS_EVENTS_TYPE_DELETE
-} TrackerDBusEventsType;
-
-#define TRACKER_TYPE_EVENT_ARRAY	dbus_g_type_get_collection ("GPtrArray", dbus_g_type_get_struct ("GValueArray", G_TYPE_STRING, G_TYPE_STRING, G_TYPE_INT, G_TYPE_INVALID))
 
 typedef struct TrackerDBusRequestHandler TrackerDBusRequestHandler;
 
-typedef void (*TrackerDBusRequestFunc)	 (guint    request_id,
-					  gpointer user_data);
+typedef void (*TrackerDBusRequestFunc) (guint    request_id,
+					gpointer user_data);
 
 typedef struct {
 	guint	 id;
 	gpointer data1;
 	gpointer data2;
 } TrackerDBusData;
+
+typedef enum {
+	TRACKER_DBUS_EVENTS_TYPE_ADD,
+	TRACKER_DBUS_EVENTS_TYPE_UPDATE,
+	TRACKER_DBUS_EVENTS_TYPE_DELETE
+} TrackerDBusEventsType;
 
 GQuark		 tracker_dbus_error_quark	     (void);
 TrackerDBusData *tracker_dbus_data_new		     (const gpointer		  arg1,

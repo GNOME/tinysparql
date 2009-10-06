@@ -54,26 +54,26 @@ G_BEGIN_DECLS
 /* Temporary */
 #define TRACKER_NMM_PREFIX	"http://www.tracker-project.org/temp/nmm#"
 
-#define TRACKER_DATASOURCE_URN_PREFIX "urn:nepomuk:datasource:"
-#define TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN TRACKER_DATASOURCE_URN_PREFIX "9291a450-1d49-11de-8c30-0800200c9a66"
+#define TRACKER_DATASOURCE_URN_PREFIX \
+	                        "urn:nepomuk:datasource:"
+#define TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN \
+	                        TRACKER_DATASOURCE_URN_PREFIX "9291a450-1d49-11de-8c30-0800200c9a66"
 
-void		tracker_ontology_init				(void);
-void		tracker_ontology_shutdown			(void);
+void               tracker_ontology_init                 (void);
+void               tracker_ontology_shutdown             (void);
 
 /* Service mechanics */
-void		tracker_ontology_add_class			(TrackerClass *service);
-TrackerClass *tracker_ontology_get_class_by_uri		(const gchar	*service_uri);
-
-TrackerNamespace **tracker_ontology_get_namespaces               (void);
-TrackerClass  **tracker_ontology_get_classes                    (void);
-TrackerProperty **tracker_ontology_get_properties               (void);
+void               tracker_ontology_add_class            (TrackerClass     *service);
+TrackerClass *     tracker_ontology_get_class_by_uri     (const gchar      *service_uri);
+TrackerNamespace **tracker_ontology_get_namespaces       (void);
+TrackerClass  **   tracker_ontology_get_classes          (void);
+TrackerProperty ** tracker_ontology_get_properties       (void);
 
 /* Field mechanics */
-void		tracker_ontology_add_property			(TrackerProperty	*field);
-TrackerProperty *	tracker_ontology_get_property_by_uri		(const gchar	*uri);
-
-void		tracker_ontology_add_namespace			(TrackerNamespace	*namespace_);
-TrackerNamespace *tracker_ontology_get_namespace_by_uri		(const gchar	*namespace_uri);
+void               tracker_ontology_add_property         (TrackerProperty  *field);
+TrackerProperty *  tracker_ontology_get_property_by_uri  (const gchar      *uri);
+void               tracker_ontology_add_namespace        (TrackerNamespace *namespace_);
+TrackerNamespace * tracker_ontology_get_namespace_by_uri (const gchar      *namespace_uri);
 
 G_END_DECLS
 

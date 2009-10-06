@@ -1,6 +1,6 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*
- * Copyright (C) 2009 Nokia
+ * Copyright (C) 2009 Nokia (urho.konttori@nokia.com)
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -18,12 +18,16 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __TRACKER_KEYFILE_OBJECT_H__
-#define __TRACKER_KEYFILE_OBJECT_H__
+#ifndef __LIBTRACKER_COMMON_KEYFILE_OBJECT_H__
+#define __LIBTRACKER_COMMON_KEYFILE_OBJECT_H__
 
 #include <glib.h>
 
 G_BEGIN_DECLS
+
+#if !defined (__LIBTRACKER_COMMON_INSIDE__) && !defined (TRACKER_COMPILATION)
+#error "only <libtracker-common/tracker-common.h> must be included directly."
+#endif
 
 const gchar *tracker_keyfile_object_blurb            (gpointer     object,
 						      const gchar *property);
@@ -78,4 +82,4 @@ void         tracker_keyfile_object_save_string_list (gpointer     object,
 
 G_END_DECLS
 
-#endif /* __TRACKER_KEYFILE_OBJECT_H__ */
+#endif /* __LIBTRACKER_COMMON_KEYFILE_OBJECT_H__ */

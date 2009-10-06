@@ -1,6 +1,6 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*
- * Copyright (C) 2008, Nokia
+ * Copyright (C) 2009, Nokia (urho.konttori@nokia.com)
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -18,45 +18,48 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __TRACKER_STATEMENT_H__
-#define __TRACKER_STATEMENT_H__
+#ifndef __LIBTRACKER_COMMON_STATEMENT_H__
+#define __LIBTRACKER_COMMON_STATEMENT_H__
 
 #include <glib.h>
-#include "tracker-sparql-builder.h"
 
-#define SHOULD_VALIDATE_UTF8
+#include "tracker-sparql-builder.h"
 
 G_BEGIN_DECLS
 
-void   tracker_sparql_builder_object_unvalidated (TrackerSparqlBuilder *sparql,
-                                                  const gchar *value);
+#if !defined (__LIBTRACKER_COMMON_INSIDE__) && !defined (TRACKER_COMPILATION)
+#error "only <libtracker-common/tracker-common.h> must be included directly."
+#endif
 
-void   tracker_statement_list_insert             (TrackerSparqlBuilder   *statements, 
-                                             const gchar *subject,
-                                             const gchar *predicate,
-                                             const gchar *value);
-void   tracker_statement_list_insert_with_int    (TrackerSparqlBuilder   *statements,
-                                             const gchar *subject,
-                                             const gchar *predicate,
-                                             gint         value);
-void   tracker_statement_list_insert_with_int64  (TrackerSparqlBuilder   *statements,
-                                             const gchar *subject,
-                                             const gchar *predicate,
-                                             gint64       value);
-void   tracker_statement_list_insert_with_uint  (TrackerSparqlBuilder *statements,
-						 const gchar *subject,
-						 const gchar *predicate,
-						 guint32      value);
-void   tracker_statement_list_insert_with_double (TrackerSparqlBuilder   *statements,
-                                             const gchar *subject,
-                                             const gchar *predicate,
-                                             gdouble      value);
-void   tracker_statement_list_insert_with_float  (TrackerSparqlBuilder   *statements,
-                                             const gchar *subject,
-                                             const gchar *predicate,
-                                             gfloat      value);
+#define SHOULD_VALIDATE_UTF8
 
+void tracker_sparql_builder_object_unvalidated (TrackerSparqlBuilder *sparql,
+						const gchar          *value);
+void tracker_statement_list_insert             (TrackerSparqlBuilder *statements,
+						const gchar          *subject,
+						const gchar          *predicate,
+						const gchar          *value);
+void tracker_statement_list_insert_with_int    (TrackerSparqlBuilder *statements,
+						const gchar          *subject,
+						const gchar          *predicate,
+						gint                  value);
+void tracker_statement_list_insert_with_int64  (TrackerSparqlBuilder *statements,
+						const gchar          *subject,
+						const gchar          *predicate,
+						gint64                value);
+void tracker_statement_list_insert_with_uint   (TrackerSparqlBuilder *statements,
+						const gchar          *subject,
+						const gchar          *predicate,
+						guint32               value);
+void tracker_statement_list_insert_with_double (TrackerSparqlBuilder *statements,
+						const gchar          *subject,
+						const gchar          *predicate,
+						gdouble               value);
+void tracker_statement_list_insert_with_float  (TrackerSparqlBuilder *statements,
+						const gchar          *subject,
+						const gchar          *predicate,
+						gfloat                value);
 
 G_END_DECLS
 
-#endif /* __TRACKER_ESCAPE_H__ */
+#endif /* __LIBTRACKER_COMMON_STATEMENT_H__ */

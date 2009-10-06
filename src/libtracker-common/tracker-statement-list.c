@@ -1,6 +1,6 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*
- * Copyright (C) 2008, Nokia
+ * Copyright (C) 2008, Nokia (urho.konttori@nokia.com)
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -16,9 +16,6 @@
  * License along with this program; if not, write to the
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA  02110-1301, USA.
- *
- *  tracker_uri_vprintf_escaped, tracker_uri_printf_escaped got copied from 
- *  GLib's gmarkup.c
  */
 
 #include "config.h"
@@ -30,11 +27,16 @@
 
 #include <libtracker-common/tracker-statement-list.h>
 
+/* NOTE:
+ *   tracker_uri_vprintf_escaped(), tracker_uri_printf_escaped() are
+ *   copied from GLib's gmarkup.c.
+ */
+
 void
 tracker_statement_list_insert (TrackerSparqlBuilder *statements, 
-                               const gchar *subject,
-                               const gchar *predicate,
-                               const gchar *value)
+                               const gchar          *subject,
+                               const gchar          *predicate,
+                               const gchar          *value)
 {
 	g_return_if_fail (TRACKER_IS_SPARQL_BUILDER (statements));
 	g_return_if_fail (subject != NULL);
@@ -46,10 +48,9 @@ tracker_statement_list_insert (TrackerSparqlBuilder *statements,
 	tracker_sparql_builder_object_unvalidated (statements, value);
 }
 
-
 void
 tracker_sparql_builder_object_unvalidated (TrackerSparqlBuilder *sparql,
-                                           const gchar *value)
+                                           const gchar          *value)
 {
 	const gchar *end;
 
@@ -78,10 +79,10 @@ tracker_sparql_builder_object_unvalidated (TrackerSparqlBuilder *sparql,
 }
 
 void
-tracker_statement_list_insert_with_int64 (TrackerSparqlBuilder   *statements,
-                                     const gchar *subject,
-                                     const gchar *predicate,
-                                     gint64       value)
+tracker_statement_list_insert_with_int64 (TrackerSparqlBuilder *statements,
+					  const gchar          *subject,
+					  const gchar          *predicate,
+					  gint64                value)
 {
 	gchar *value_str;
 
@@ -91,10 +92,10 @@ tracker_statement_list_insert_with_int64 (TrackerSparqlBuilder   *statements,
 }
 
 void
-tracker_statement_list_insert_with_uint (TrackerSparqlBuilder   *statements,
-					 const gchar *subject,
-					 const gchar *predicate,
-					 guint32      value)
+tracker_statement_list_insert_with_uint (TrackerSparqlBuilder *statements,
+					 const gchar          *subject,
+					 const gchar          *predicate,
+					 guint32               value)
 {
 	gchar *value_str;
 
@@ -103,12 +104,11 @@ tracker_statement_list_insert_with_uint (TrackerSparqlBuilder   *statements,
 	g_free (value_str);
 }
 
-
 void
-tracker_statement_list_insert_with_double  (TrackerSparqlBuilder   *statements,
-                                       const gchar *subject,
-                                       const gchar *predicate,
-                                       gdouble      value)
+tracker_statement_list_insert_with_double  (TrackerSparqlBuilder *statements,
+					    const gchar          *subject,
+					    const gchar          *predicate,
+					    gdouble               value)
 {
 	gchar *value_str;
 
@@ -117,12 +117,11 @@ tracker_statement_list_insert_with_double  (TrackerSparqlBuilder   *statements,
 	g_free (value_str);
 }
 
-
 void
-tracker_statement_list_insert_with_float  (TrackerSparqlBuilder   *statements,
-                                       const gchar *subject,
-                                       const gchar *predicate,
-                                       gfloat      value)
+tracker_statement_list_insert_with_float  (TrackerSparqlBuilder *statements,
+					   const gchar          *subject,
+					   const gchar          *predicate,
+					   gfloat                value)
 {
 	gchar *value_str;
 
@@ -132,10 +131,10 @@ tracker_statement_list_insert_with_float  (TrackerSparqlBuilder   *statements,
 }
 
 void
-tracker_statement_list_insert_with_int (TrackerSparqlBuilder   *statements,
-                                   const gchar *subject,
-                                   const gchar *predicate,
-                                   gint         value)
+tracker_statement_list_insert_with_int (TrackerSparqlBuilder  *statements,
+					const gchar           *subject,
+					const gchar           *predicate,
+					gint                   value)
 {
 	gchar *value_str;
 

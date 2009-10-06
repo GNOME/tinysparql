@@ -1,6 +1,5 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*
- * Copyright (C) 2006, Mr Jamie McCracken (jamiemcc@gnome.org)
  * Copyright (C) 2008, Nokia (urho.konttori@nokia.com)
  *
  * This library is free software; you can redistribute it and/or
@@ -19,8 +18,8 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __LIBTRACKER_POWER_H__
-#define __LIBTRACKER_POWER_H__
+#ifndef __LIBTRACKER_COMMON_POWER_H__
+#define __LIBTRACKER_COMMON_POWER_H__
 
 #include <glib-object.h>
 
@@ -30,18 +29,18 @@ G_BEGIN_DECLS
 #error "only <libtracker-common/tracker-common.h> must be included directly."
 #endif
 
-#define TRACKER_TYPE_POWER	 	(tracker_power_get_type ())
-#define TRACKER_POWER(o)		(G_TYPE_CHECK_INSTANCE_CAST ((o), TRACKER_TYPE_POWER, TrackerPower))
-#define TRACKER_POWER_CLASS(k)		(G_TYPE_CHECK_CLASS_CAST ((k), TRACKER_TYPE_POWER, TrackerPowerClass))
-#define TRACKER_IS_POWER(o)	 	(G_TYPE_CHECK_INSTANCE_TYPE ((o), TRACKER_TYPE_POWER))
-#define TRACKER_IS_POWER_CLASS(k)	(G_TYPE_CHECK_CLASS_TYPE ((k), TRACKER_TYPE_POWER))
-#define TRACKER_POWER_GET_CLASS(o)	(G_TYPE_INSTANCE_GET_CLASS ((o), TRACKER_TYPE_POWER, TrackerPowerClass))
+#define TRACKER_TYPE_POWER	   (tracker_power_get_type ())
+#define TRACKER_POWER(o)	   (G_TYPE_CHECK_INSTANCE_CAST ((o), TRACKER_TYPE_POWER, TrackerPower))
+#define TRACKER_POWER_CLASS(k)	   (G_TYPE_CHECK_CLASS_CAST ((k), TRACKER_TYPE_POWER, TrackerPowerClass))
+#define TRACKER_IS_POWER(o)	   (G_TYPE_CHECK_INSTANCE_TYPE ((o), TRACKER_TYPE_POWER))
+#define TRACKER_IS_POWER_CLASS(k)  (G_TYPE_CHECK_CLASS_TYPE ((k), TRACKER_TYPE_POWER))
+#define TRACKER_POWER_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o), TRACKER_TYPE_POWER, TrackerPowerClass))
 
-typedef struct _TrackerPower	TrackerPower;
+typedef struct _TrackerPower TrackerPower;
 typedef struct _TrackerPowerClass TrackerPowerClass;
 
 struct _TrackerPower {
-	GObject      parent;
+	GObject parent;
 };
 
 struct _TrackerPowerClass {
@@ -58,4 +57,4 @@ gdouble       tracker_power_get_battery_percentage (TrackerPower *power);
 
 G_END_DECLS
 
-#endif /* __LIBTRACKER_POWER_H__ */
+#endif /* __LIBTRACKER_COMMON_POWER_H__ */

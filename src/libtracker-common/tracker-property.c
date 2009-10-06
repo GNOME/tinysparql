@@ -1,7 +1,6 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*
- * Copyright (C) 2006, Mr Jamie McCracken (jamiemcc@gnome.org)
- * Copyright (C) 2008, Nokia (urho.konttori@nokia.com)
+ * Copyright (C) 2009, Nokia (urho.konttori@nokia.com)
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,6 +18,8 @@
  * Boston, MA  02110-1301, USA.
  */
 
+#include "config.h"
+
 #include <string.h>
 #include <stdlib.h>
 
@@ -28,12 +29,12 @@
 #include "tracker-ontology.h"
 #include "tracker-property.h"
 
-#define XSD_BOOLEAN TRACKER_XSD_PREFIX "boolean"
-#define XSD_DATE TRACKER_XSD_PREFIX "date"
+#define XSD_BOOLEAN  TRACKER_XSD_PREFIX "boolean"
+#define XSD_DATE     TRACKER_XSD_PREFIX "date"
 #define XSD_DATETIME TRACKER_XSD_PREFIX "dateTime"
-#define XSD_DOUBLE TRACKER_XSD_PREFIX "double"
-#define XSD_INTEGER TRACKER_XSD_PREFIX "integer"
-#define XSD_STRING TRACKER_XSD_PREFIX "string"
+#define XSD_DOUBLE   TRACKER_XSD_PREFIX "double"
+#define XSD_INTEGER  TRACKER_XSD_PREFIX "integer"
+#define XSD_STRING   TRACKER_XSD_PREFIX "string"
 
 #define GET_PRIV(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_PROPERTY, TrackerPropertyPriv))
 
@@ -59,13 +60,13 @@ struct _TrackerPropertyPriv {
 
 static void property_finalize     (GObject      *object);
 static void property_get_property (GObject      *object,
-				guint	      param_id,
-				GValue	     *value,
-				GParamSpec   *pspec);
+				   guint         param_id,
+				   GValue       *value,
+				   GParamSpec   *pspec);
 static void property_set_property (GObject      *object,
-				guint	      param_id,
-				const GValue *value,
-				GParamSpec   *pspec);
+				   guint         param_id,
+				   const GValue *value,
+				   GParamSpec   *pspec);
 
 enum {
 	PROP_0,
@@ -128,7 +129,7 @@ G_DEFINE_TYPE (TrackerProperty, tracker_property, G_TYPE_OBJECT);
 const gchar *
 tracker_property_type_to_string (TrackerPropertyType fieldtype)
 {
-	GType	    type;
+	GType type;
 	GEnumClass *enum_class;
 	GEnumValue *enum_value;
 
@@ -275,9 +276,9 @@ property_finalize (GObject *object)
 
 static void
 property_get_property (GObject    *object,
-		    guint	param_id,
-		    GValue     *value,
-		    GParamSpec *pspec)
+		       guint	   param_id,
+		       GValue     *value,
+		       GParamSpec *pspec)
 {
 	TrackerPropertyPriv *priv;
 
@@ -327,10 +328,10 @@ property_get_property (GObject    *object,
 }
 
 static void
-property_set_property (GObject	 *object,
-		    guint	  param_id,
-		    const GValue *value,
-		    GParamSpec	 *pspec)
+property_set_property (GObject	    *object,
+		       guint	     param_id,
+		       const GValue *value,
+		       GParamSpec   *pspec)
 {
 	switch (param_id) {
 	case PROP_URI:
@@ -385,13 +386,13 @@ property_set_property (GObject	 *object,
 
 static gboolean
 field_int_validate (TrackerProperty *field,
-		    const gchar   *property,
-		    gint	    value)
+		    const gchar     *property,
+		    gint	     value)
 {
 #ifdef G_DISABLE_CHECKS
 	GParamSpec *spec;
-	GValue	    value = { 0 };
-	gboolean    valid;
+	GValue value = { 0 };
+	gboolean valid;
 
 	spec = g_object_class_find_property (G_OBJECT_CLASS (field), property);
 	g_return_val_if_fail (spec != NULL, FALSE);
@@ -587,7 +588,7 @@ tracker_property_get_super_properties (TrackerProperty *property)
 
 void
 tracker_property_set_uri (TrackerProperty *field,
-		       const gchar  *value)
+			  const gchar     *value)
 {
 	TrackerPropertyPriv *priv;
 
@@ -601,8 +602,8 @@ tracker_property_set_uri (TrackerProperty *field,
 	priv->name = NULL;
 
 	if (value) {
-		gchar *namespace_uri, *hash;
 		TrackerNamespace *namespace;
+		gchar *namespace_uri, *hash;
 
 		priv->uri = g_strdup (value);
 
@@ -630,7 +631,7 @@ tracker_property_set_uri (TrackerProperty *field,
 
 void
 tracker_property_set_transient (TrackerProperty *field,
-			        gboolean value)
+			        gboolean         value)
 {
 	TrackerPropertyPriv *priv;
 
@@ -646,7 +647,7 @@ tracker_property_set_transient (TrackerProperty *field,
 
 void
 tracker_property_set_data_type (TrackerProperty     *field,
-			     TrackerPropertyType  value)
+				TrackerPropertyType  value)
 {
 	TrackerPropertyPriv *priv;
 
@@ -659,8 +660,8 @@ tracker_property_set_data_type (TrackerProperty     *field,
 }
 
 void
-tracker_property_set_domain (TrackerProperty   *field,
-			   TrackerClass *value)
+tracker_property_set_domain (TrackerProperty *field,
+			     TrackerClass    *value)
 {
 	TrackerPropertyPriv *priv;
 
@@ -681,11 +682,11 @@ tracker_property_set_domain (TrackerProperty   *field,
 }
 
 void
-tracker_property_set_range (TrackerProperty   *property,
-			   TrackerClass *value)
+tracker_property_set_range (TrackerProperty *property,
+			   TrackerClass     *value)
 {
 	TrackerPropertyPriv *priv;
-	const gchar         *range_uri;
+	const gchar *range_uri;
 
 	g_return_if_fail (TRACKER_IS_PROPERTY (property));
 	g_return_if_fail (TRACKER_IS_CLASS (value));
@@ -720,7 +721,7 @@ tracker_property_set_range (TrackerProperty   *property,
 
 void
 tracker_property_set_weight (TrackerProperty *field,
-			  gint		value)
+			     gint	      value)
 {
 	TrackerPropertyPriv *priv;
 	g_return_if_fail (TRACKER_IS_PROPERTY (field));
@@ -737,7 +738,7 @@ tracker_property_set_weight (TrackerProperty *field,
 
 void
 tracker_property_set_indexed (TrackerProperty *field,
-			   gboolean	  value)
+			      gboolean         value)
 {
 	TrackerPropertyPriv *priv;
 
@@ -751,7 +752,7 @@ tracker_property_set_indexed (TrackerProperty *field,
 
 void
 tracker_property_set_fulltext_indexed (TrackerProperty *field,
-				    gboolean	  value)
+				       gboolean	        value)
 {
 	TrackerPropertyPriv *priv;
 
@@ -765,7 +766,7 @@ tracker_property_set_fulltext_indexed (TrackerProperty *field,
 
 void
 tracker_property_set_embedded (TrackerProperty *field,
-			    gboolean	  value)
+			       gboolean	        value)
 {
 	TrackerPropertyPriv *priv;
 
@@ -779,7 +780,7 @@ tracker_property_set_embedded (TrackerProperty *field,
 
 void
 tracker_property_set_multiple_values (TrackerProperty *field,
-				   gboolean	 value)
+				      gboolean         value)
 {
 	TrackerPropertyPriv *priv;
 
@@ -798,7 +799,7 @@ tracker_property_set_multiple_values (TrackerProperty *field,
 
 void
 tracker_property_set_filtered (TrackerProperty *field,
-			    gboolean	  value)
+			       gboolean	        value)
 {
 	TrackerPropertyPriv *priv;
 
@@ -811,11 +812,11 @@ tracker_property_set_filtered (TrackerProperty *field,
 }
 
 void
-tracker_property_set_super_properties (TrackerProperty *property,
-			         TrackerProperty **value)
+tracker_property_set_super_properties (TrackerProperty  *property,
+				       TrackerProperty **value)
 {
 	TrackerPropertyPriv *priv;
-	TrackerProperty     **super_property;
+	TrackerProperty **super_property;
 
 	g_return_if_fail (TRACKER_IS_PROPERTY (property));
 
@@ -831,7 +832,7 @@ tracker_property_set_super_properties (TrackerProperty *property,
 
 void
 tracker_property_add_super_property (TrackerProperty *property,
-			         TrackerProperty *value)
+				     TrackerProperty *value)
 {
 	TrackerPropertyPriv *priv;
 

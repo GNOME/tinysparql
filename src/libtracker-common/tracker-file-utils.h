@@ -1,7 +1,6 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*
- * Copyright (C) 2006, Mr Jamie McCracken (jamiemcc@gnome.org)
- * Copyright (C) 2008, Nokia
+ * Copyright (C) 2008, Nokia (urho.konttori@nokia.com)
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -22,13 +21,16 @@
 #ifndef __LIBTRACKER_COMMON_FILE_UTILS_H__
 #define __LIBTRACKER_COMMON_FILE_UTILS_H__
 
+#include <stdio.h>
+
+#include <glib.h>
+#include <gio/gio.h>
+
+G_BEGIN_DECLS
+
 #if !defined (__LIBTRACKER_COMMON_INSIDE__) && !defined (TRACKER_COMPILATION)
 #error "only <libtracker-common/tracker-common.h> must be included directly."
 #endif
-
-#include <stdio.h>
-#include <glib.h>
-#include <gio/gio.h>
 
 FILE*    tracker_file_open                         (const gchar  *uri,
 						    const gchar  *how,
@@ -49,5 +51,7 @@ GSList * tracker_path_list_filter_duplicates       (GSList       *roots,
 gchar *  tracker_path_evaluate_name                (const gchar  *uri);
 
 gboolean tracker_env_check_xdg_dirs                (void);
+
+G_END_DECLS
 
 #endif /* __LIBTRACKER_COMMON_FILE_UTILS_H__ */

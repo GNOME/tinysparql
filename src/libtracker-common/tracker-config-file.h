@@ -1,6 +1,6 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*
- * Copyright (C) 2009 Nokia
+ * Copyright (C) 2009 Nokia (urho.konttori@nokia.com)
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -18,13 +18,17 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __TRACKER_CONFIG_FILE_H__
-#define __TRACKER_CONFIG_FILE_H__
+#ifndef __LIBTRACKER_CONFIG_FILE_H__
+#define __LIBTRACKER_CONFIG_FILE_H__
 
 #include <glib-object.h>
 #include <gio/gio.h>
 
 G_BEGIN_DECLS
+
+#if !defined (__LIBTRACKER_COMMON_INSIDE__) && !defined (TRACKER_COMPILATION)
+#error "only <libtracker-common/tracker-common.h> must be included directly."
+#endif
 
 #define TRACKER_TYPE_CONFIG_FILE	 (tracker_config_file_get_type ())
 #define TRACKER_CONFIG_FILE(o)	         (G_TYPE_CHECK_INSTANCE_CAST ((o), TRACKER_TYPE_CONFIG_FILE, TrackerConfigFile))
@@ -33,18 +37,18 @@ G_BEGIN_DECLS
 #define TRACKER_IS_CONFIG_FILE_CLASS(k)  (G_TYPE_CHECK_CLASS_TYPE ((k), TRACKER_TYPE_CONFIG_FILE))
 #define TRACKER_CONFIG_FILE_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o), TRACKER_TYPE_CONFIG_FILE, TrackerConfigFileClass))
 
-typedef struct _TrackerConfigFile      TrackerConfigFile;
+typedef struct _TrackerConfigFile TrackerConfigFile;
 typedef struct _TrackerConfigFileClass TrackerConfigFileClass;
 
 struct _TrackerConfigFile {
-	GObject       parent;
+	GObject parent;
 
-	GFile	     *file;
+	GFile *file;
 	GFileMonitor *monitor;
 
-	gboolean      file_exists;
+	gboolean file_exists;
 
-	GKeyFile     *key_file;
+	GKeyFile *key_file;
 };
 
 struct _TrackerConfigFileClass {
@@ -60,4 +64,4 @@ gboolean           tracker_config_file_save     (TrackerConfigFile *config);
 
 G_END_DECLS
 
-#endif /* __TRACKER_CONFIG_FILE_H__ */
+#endif /* __LIBTRACKER_CONFIG_FILE_H__ */

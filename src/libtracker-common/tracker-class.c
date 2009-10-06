@@ -19,6 +19,8 @@
  * Boston, MA  02110-1301, USA.
  */
 
+#include "config.h"
+
 #include <string.h>
 #include <stdlib.h>
 
@@ -33,22 +35,22 @@
 typedef struct _TrackerClassPriv TrackerClassPriv;
 
 struct _TrackerClassPriv {
-	gchar	      *uri;
-	gchar	      *name;
-	gint           count;
+	gchar *uri;
+	gchar *name;
+	gint count;
 
-	GArray        *super_classes;
+	GArray *super_classes;
 };
 
-static void class_finalize	 (GObject      *object);
+static void class_finalize     (GObject      *object);
 static void class_get_property (GObject      *object,
-				  guint		param_id,
-				  GValue       *value,
-				  GParamSpec   *pspec);
+				guint         param_id,
+				GValue       *value,
+				GParamSpec   *pspec);
 static void class_set_property (GObject      *object,
-				  guint		param_id,
-				  const GValue *value,
-				  GParamSpec   *pspec);
+				guint         param_id,
+				const GValue *value,
+				GParamSpec   *pspec);
 
 enum {
 	PROP_0,
@@ -121,10 +123,10 @@ class_finalize (GObject *object)
 }
 
 static void
-class_get_property (GObject	 *object,
-		      guint	  param_id,
-		      GValue	 *value,
-		      GParamSpec *pspec)
+class_get_property (GObject    *object,
+		    guint       param_id,
+		    GValue     *value,
+		    GParamSpec *pspec)
 {
 	TrackerClassPriv *priv;
 
@@ -147,10 +149,10 @@ class_get_property (GObject	 *object,
 }
 
 static void
-class_set_property (GObject	   *object,
-		      guint	    param_id,
-		      const GValue *value,
-		      GParamSpec   *pspec)
+class_set_property (GObject      *object,
+		    guint         param_id,
+		    const GValue *value,
+		    GParamSpec   *pspec)
 {
 	switch (param_id) {
 	case PROP_URI:
@@ -227,7 +229,7 @@ tracker_class_get_super_classes (TrackerClass *service)
 
 void
 tracker_class_set_uri (TrackerClass *service,
-			  const gchar	 *value)
+		       const gchar  *value)
 {
 	TrackerClassPriv *priv;
 
@@ -301,8 +303,8 @@ tracker_class_set_super_classes (TrackerClass  *service,
 }
 
 void
-tracker_class_add_super_class (TrackerClass  *service,
-			         TrackerClass *value)
+tracker_class_add_super_class (TrackerClass *service,
+			       TrackerClass *value)
 {
 	TrackerClassPriv *priv;
 

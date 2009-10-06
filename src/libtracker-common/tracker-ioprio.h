@@ -1,6 +1,7 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*
  * Copyright (C) 2006, Anders Aagaard
+ * Copyright (C) 2008, Nokia (urho.konttori@nokia.com)
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -18,8 +19,8 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __LIBTRACKER_IOPRIO_H__
-#define __LIBTRACKER_IOPRIO_H__
+#ifndef __LIBTRACKER_COMMON_IOPRIO_H__
+#define __LIBTRACKER_COMMON_IOPRIO_H__
 
 G_BEGIN_DECLS
 
@@ -31,4 +32,4 @@ void tracker_ioprio_init (void);
 
 G_END_DECLS
 
-#endif /* __LIBTRACKER_IOPRIO_H__ */
+#endif /* __LIBTRACKER_COMMON_IOPRIO_H__ */

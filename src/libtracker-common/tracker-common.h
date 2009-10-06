@@ -1,6 +1,5 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*
- * Copyright (C) 2006, Mr Jamie McCracken (jamiemcc@gnome.org)
  * Copyright (C) 2008, Nokia (urho.konttori@nokia.com)
  *
  * This library is free software; you can redistribute it and/or
@@ -32,17 +31,21 @@ G_BEGIN_DECLS
 
 #define __LIBTRACKER_COMMON_INSIDE__
 
-#include "tracker-dbus.h"
 #include "tracker-class.h"
+#include "tracker-config-file.h"
+#include "tracker-dbus.h"
 #include "tracker-file-utils.h"
 #include "tracker-ioprio.h"
-#include "tracker-log.h"
+#include "tracker-keyfile-object.h"
 #include "tracker-language.h"
+#include "tracker-log.h"
 #include "tracker-namespace.h"
 #include "tracker-ontology.h"
+#include "tracker-os-dependant.h"
 #include "tracker-power.h"
 #include "tracker-property.h"
 #include "tracker-sparql-builder.h"
+#include "tracker-statement-list.h"
 #include "tracker-storage.h"
 #include "tracker-type-utils.h"
 #include "tracker-utils.h"

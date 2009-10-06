@@ -1,7 +1,7 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*
  * Copyright (C) 2007, Mr Jamie McCracken (jamiemcc@gnome.org)
- * Copyright (C) 2008, Nokia
+ * Copyright (C) 2008, Nokia (urho.konttori@nokia.com)
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -22,12 +22,14 @@
 #ifndef __LIBTRACKER_COMMON_OS_DEPENDANT_H__
 #define __LIBTRACKER_COMMON_OS_DEPENDANT_H__
 
+#include <glib.h>
+#include <glib/gstdio.h>
+
+G_BEGIN_DECLS
+
 #if !defined (__LIBTRACKER_COMMON_INSIDE__) && !defined (TRACKER_COMPILATION)
 #error "only <libtracker-common/tracker-common.h> must be included directly."
 #endif
-
-#include <glib.h>
-#include <glib/gstdio.h>
 
 /* Process spawning */
 gboolean tracker_spawn			   (gchar	**argv,
@@ -47,5 +49,7 @@ gchar *  tracker_create_permission_string  (struct stat   finfo);
 
 /* Memory limits */
 gboolean tracker_memory_setrlimits (void);
+
+G_END_DECLS
 
 #endif /* __LIBTRACKER_COMMON_OS_DEPENDANT_H__ */

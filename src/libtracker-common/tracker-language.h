@@ -1,7 +1,7 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*
  * Copyright (C) 2006, Mr Jamie McCracken (jamiemcc@gnome.org)
- * Copyright (C) 2008, Nokia
+ * Copyright (C) 2008, Nokia (urho.konttori@nokia.com)
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -37,11 +37,11 @@ G_BEGIN_DECLS
 #define TRACKER_IS_LANGUAGE_CLASS(k)  (G_TYPE_CHECK_CLASS_TYPE ((k), TRACKER_TYPE_LANGUAGE))
 #define TRACKER_LANGUAGE_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o), TRACKER_TYPE_LANGUAGE, TrackerLanguageClass))
 
-typedef struct _TrackerLanguage      TrackerLanguage;
+typedef struct _TrackerLanguage TrackerLanguage;
 typedef struct _TrackerLanguageClass TrackerLanguageClass;
 
 struct _TrackerLanguage {
-	GObject      parent;
+	GObject parent;
 };
 
 struct _TrackerLanguageClass {
