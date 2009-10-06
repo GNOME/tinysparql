@@ -64,4 +64,20 @@ mtp:creator a rdf:Property ;
 	rdfs:domain nfo:Media ;
 	rdfs:range xsd:string .
 
+# http://msdn.microsoft.com/en-us/library/ms867195.aspx#waveformats
+mtp:fourCC a rdf:Property ;
+	rdfs:label "MTP fourCC code";
+	rdfs:comment "These codes are used to uniquely identify video formats, and are used in various legacy and current software development kits (SDKs), including those for Microsoft Video for Windows (VfW), Microsoft DirectShow, and Microsoft Windows Media Format.";
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmm:Video ;
+	rdfs:range xsd:string .
+
+# http://msdn.microsoft.com/en-us/library/ms867195.aspx#waveformats
+mtp:waveformat a rdf:Property ;
+	rdfs:label "Wave format" ;
+	rdfs:comment "the WAVE formats reserved with Microsoft as of June 1, 2003. These codes are used to uniquely identify audio formats, and are used in various legacy and current software development kits (SDKs), including MCI, Microsoft Video for Windows, Microsoft DirectShow, Microsoft DirectSound, and Microsoft Windows Media Format.";
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmm:Video ;
+	rdfs:range xsd:string .
+
 
