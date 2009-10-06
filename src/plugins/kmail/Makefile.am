@@ -37,7 +37,7 @@ libtracker_module_kmail_daemon_module_la_LIBADD = 			\
 dbus_sources = tracker-kmail-registrar-glue.h
 
 %-glue.h: %.xml
-	$(DBUSBINDINGTOOL) --mode=glib-server --output=$@ --prefix=$(subst -,_,$*) $^
+	$(AM_V_GEN)$(DBUSBINDINGTOOL) --mode=glib-server --output=$@ --prefix=$(subst -,_,$*) $^
 
 BUILT_SOURCES = $(dbus_sources)
 

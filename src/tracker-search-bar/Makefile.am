@@ -43,7 +43,7 @@ resources_DATA =						\
 @INTLTOOL_SCHEMAS_RULE@
 
 $(server_in_files): $(server_in_files:.server.in=.server.in.in)
-	sed -e "s|\@LIBEXECDIR\@|$(libexecdir)|" $< > $@
+	$(AM_V_GEN)sed -e "s|\@LIBEXECDIR\@|$(libexecdir)|" $< > $@
 
 EXTRA_DIST = 							\
 	$(resources_DATA)					\

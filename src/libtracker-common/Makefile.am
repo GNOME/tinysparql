@@ -100,8 +100,8 @@ libtracker_commoninclude_HEADERS =			\
 	tracker-utils.h
 
 libtracker-common.vala.stamp: $(libtracker_common_la_VALASOURCES)
-	$(VALAC) -C $(VALAFLAGS) --pkg gio-2.0 -H tracker-sparql-builder.h posix.vapi $^
-	touch $@
+	$(AM_V_GEN)$(VALAC) -C $(VALAFLAGS) --pkg gio-2.0 -H tracker-sparql-builder.h posix.vapi $^
+	$(AM_V_GEN)touch $@
 
 libtracker_common_la_LDFLAGS = 				\
 	-version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE)
@@ -123,11 +123,11 @@ marshal_sources =                              		\
         tracker-marshal.c
 
 tracker-marshal.h: tracker-marshal.list
-	$(GLIB_GENMARSHAL) $< --prefix=tracker_marshal --header > $@
+	$(AM_V_GEN)$(GLIB_GENMARSHAL) $< --prefix=tracker_marshal --header > $@
 
 tracker-marshal.c: tracker-marshal.list
-	echo "#include \"tracker-marshal.h\"" > $@ &&	\
-	$(GLIB_GENMARSHAL) $< --prefix=tracker_marshal --body >> $@
+	$(AM_V_GEN)echo "#include \"tracker-marshal.h\"" > $@ &&	\
+		   $(GLIB_GENMARSHAL) $< --prefix=tracker_marshal --body >> $@
 
 BUILT_SOURCES =						\
 	$(marshal_sources)				\

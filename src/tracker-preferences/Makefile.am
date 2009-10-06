@@ -48,7 +48,7 @@ EXTRA_DIST = $(pkgdata_DATA) config.vapi tracker-config.vapi tracker-preferences
 	$(tracker_preferences_VALASOURCES)
 
 tracker-preferences.vala.stamp: $(tracker_preferences_VALASOURCES)
-	$(VALAC) --pkg gtk+-2.0 --pkg gmodule-2.0 -C $(VALAFLAGS) tracker-config.vapi config.vapi $^
-	touch $@
+	$(AM_V_GEN)$(VALAC) --pkg gtk+-2.0 --pkg gmodule-2.0 -C $(VALAFLAGS) tracker-config.vapi config.vapi $^
+	$(AM_V_GEN)touch $@
 
 CLEANFILES = $(desktop_DATA)

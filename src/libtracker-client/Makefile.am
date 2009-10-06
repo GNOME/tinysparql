@@ -33,7 +33,7 @@ dbus_sources = 						\
 	tracker-statistics-glue.h
 
 %-glue.h: $(top_srcdir)/data/dbus/%.xml
-	$(DBUSBINDINGTOOL) --mode=glib-client --output=$@ --prefix=$(subst -,_,$*) $^
+	$(AM_V_GEN)$(DBUSBINDINGTOOL) --mode=glib-client --output=$@ --prefix=$(subst -,_,$*) $^
 
 BUILT_SOURCES = $(dbus_sources)
 

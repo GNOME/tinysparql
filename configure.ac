@@ -49,6 +49,8 @@ AC_CONFIG_SRCDIR([src/tracker-store/tracker-main.c])
 AM_INIT_AUTOMAKE([no-define tar-ustar])
 AM_CONFIG_HEADER(config.h)
 
+m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
+
 IDT_COMPILE_WARNINGS
 
 TRACKER_MAJOR_VERSION=tracker_major_version

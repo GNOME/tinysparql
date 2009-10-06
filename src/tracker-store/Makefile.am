@@ -83,17 +83,17 @@ dbus_sources = 								\
 	tracker-resources-class-glue.h
 
 tracker-marshal.h: tracker-marshal.list
-	$(GLIB_GENMARSHAL) $< --prefix=tracker_marshal --header > $@
+	$(AM_V_GEN)$(GLIB_GENMARSHAL) $< --prefix=tracker_marshal --header > $@
 
 tracker-marshal.c: tracker-marshal.list
-	echo "#include \"tracker-marshal.h\"" > $@ &&			\
-	$(GLIB_GENMARSHAL) $< --prefix=tracker_marshal --body >> $@
+	$(AM_V_GEN)echo "#include \"tracker-marshal.h\"" > $@ &&	\
+		   $(GLIB_GENMARSHAL) $< --prefix=tracker_marshal --body >> $@
 
 %-glue.h: $(top_srcdir)/data/dbus/%.xml
-	$(DBUSBINDINGTOOL) --mode=glib-server --output=$@ --prefix=$(subst -,_,$*) $^
+	$(AM_V_GEN)$(DBUSBINDINGTOOL) --mode=glib-server --output=$@ --prefix=$(subst -,_,$*) $^
 
 %-client.h: $(top_srcdir)/data/dbus/%.xml
-	$(DBUSBINDINGTOOL) --mode=glib-client --output=$@ --prefix=$(subst -,_,$*) $^
+	$(AM_V_GEN)$(DBUSBINDINGTOOL) --mode=glib-client --output=$@ --prefix=$(subst -,_,$*) $^
 
 BUILT_SOURCES = 							\
 	$(marshal_sources)						\

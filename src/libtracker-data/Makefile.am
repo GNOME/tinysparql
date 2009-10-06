@@ -38,7 +38,7 @@ noinst_HEADERS =							\
 	tracker-sparql-query.h
 
 libtracker-data.vala.stamp: $(libtracker_data_la_VALASOURCES)
-	$(VALAC) -C $(VALAFLAGS) -H tracker-sparql-query.h ../libtracker-common/posix.vapi ../libtracker-common/libtracker-common.vapi libtracker-data.vapi ../libtracker-db/libtracker-db.vapi $^
+	$(AM_V_GEN)$(VALAC) -C $(VALAFLAGS) -H tracker-sparql-query.h ../libtracker-common/posix.vapi ../libtracker-common/libtracker-common.vapi libtracker-data.vapi ../libtracker-db/libtracker-db.vapi $^
 	touch $@
 
 libtracker_data_la_LDFLAGS =						\
