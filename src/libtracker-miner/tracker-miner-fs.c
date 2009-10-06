@@ -761,7 +761,8 @@ static void
 item_remove (TrackerMinerFS *fs,
 	     GFile          *file)
 {
-	gchar *sparql, *uri;
+	GString *sparql;
+	gchar *uri, *slash_uri;
 
 	uri = g_file_get_uri (file);
 
@@ -773,12 +774,30 @@ item_remove (TrackerMinerFS *fs,
 		return;
 	}
 
-	/* Delete resource */
-	sparql = g_strdup_printf ("DELETE { <%s> a rdfs:Resource }", uri);
-	tracker_miner_execute_batch_update (TRACKER_MINER (fs), sparql, NULL);
-	g_free (sparql);
+	if (!g_str_has_suffix (uri, "/")) {
+		slash_uri = g_strconcat (uri, "/", NULL);
+	} else {
+		slash_uri = g_strdup (uri);
+	}
 
-	/* FIXME: Should delete recursively? */
+	sparql = g_string_new ("");
+
+	/* Delete all children */
+	g_string_append_printf (sparql,
+				"DELETE { ?u a rdfs:Resource } "
+				"WHERE { ?u nfo:belongsToContainer ?p . FILTER (fn:starts-with (?p, \"%s\")) } ",
+				slash_uri);
+
+	/* Delete resource itself */
+	g_string_append_printf (sparql,
+				"DELETE { <%s> a rdfs:Resource }",
+				uri);
+
+	tracker_miner_execute_batch_update (TRACKER_MINER (fs), sparql->str, NULL);
+
+	g_string_free (sparql, TRUE);
+	g_free (slash_uri);
+	g_free (uri);
 }
 
 static void
