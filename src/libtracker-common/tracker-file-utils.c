@@ -500,7 +500,12 @@ tracker_path_evaluate_name (const gchar *path)
 
 	/* First check the simple case of using tilder */
 	if (path[0] == '~') {
-		const char *home = g_get_home_dir ();
+		const gchar *home;
+
+		home = g_getenv ("HOME");
+		if (! home) {
+			home = g_get_home_dir ();
+		}
 
 		if (!home || home[0] == '\0') {
 			return NULL;
