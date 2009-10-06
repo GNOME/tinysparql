@@ -85,8 +85,8 @@ noinst_HEADERS =					\
 	tracker-os-dependant.h
 
 libtracker_commoninclude_HEADERS =			\
-	tracker-config-file.h				\
 	tracker-class.h					\
+	tracker-config-file.h				\
 	tracker-common.h				\
 	tracker-file-utils.h				\
 	tracker-keyfile-object.h			\
