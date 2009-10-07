@@ -2,8 +2,8 @@ include $(top_srcdir)/Makefile.decl
 
 INCLUDES = 							\
 	-I$(top_srcdir)/src				 	\
+	$(TRACKER_APPS_CFLAGS)					\
 	$(WARN_CFLAGS)						\
-	$(LIBTRACKERGTK_CFLAGS)					\
 	$(GCOV_CFLAGS)
 
 libtracker_gtkincdir = $(includedir)/tracker-@TRACKER_API_VERSION@/libtracker-gtk
@@ -27,7 +27,7 @@ libtracker_gtk_@TRACKER_API_VERSION@_la_SOURCES =					\
 
 libtracker_gtk_@TRACKER_API_VERSION@_la_LIBADD = 					\
 	$(top_builddir)/src/libtracker-client/libtracker-client-@TRACKER_API_VERSION@.la 	\
-	$(LIBTRACKERGTK_LIBS) 					\
+	$(TRACKER_APPS_LIBS)					\
 	$(GCOV_LIBS)
 
 libtracker_gtk_@TRACKER_API_VERSION@_la_LDFLAGS = 					\
