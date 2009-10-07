@@ -503,7 +503,6 @@ name_owner_changed_cb (DBusGProxy *proxy,
 		gint cookie_id;
 
 		cookie_id = tracker_miner_pause (miner,
-						 g_get_application_name (),
 						 _("Data store is not available"),
 						 &error);
 
@@ -835,32 +834,15 @@ tracker_miner_commit (TrackerMiner *miner)
 	return TRUE;
 }
 
-/**
- * tracker_miner_pause:
- * @miner: a #TrackerMiner
- * @application: application name
- * @reason: reason to pause
- * @error: return location for errors
- *
- * Asks @miner to pause. On success the cookie ID is returned,
- * this is what must be used in tracker_miner_resume() to resume
- * operations. On failure @error will be set and -1 will be returned.
- *
- * Returns: The pause cookie ID.
- **/
-gint
-tracker_miner_pause (TrackerMiner  *miner,
-		     const gchar   *application,
-		     const gchar   *reason,
-		     GError       **error)
+static gint
+tracker_miner_pause_internal (TrackerMiner  *miner,
+			      const gchar   *application,
+			      const gchar   *reason,
+			      GError       **error)
 {
 	PauseData *pd;
 	GHashTableIter iter;
 	gpointer key, value;
-
-	g_return_val_if_fail (TRACKER_IS_MINER (miner), -1);
-	g_return_val_if_fail (application != NULL, -1);
-	g_return_val_if_fail (reason != NULL, -1);
 
 	/* Check this is not a duplicate pause */
 	g_hash_table_iter_init (&iter, miner->private->pauses);
@@ -889,6 +871,37 @@ tracker_miner_pause (TrackerMiner  *miner,
 	}
 
 	return pd->cookie;
+}
+
+/**
+ * tracker_miner_pause:
+ * @miner: a #TrackerMiner
+ * @reason: reason to pause
+ * @error: return location for errors
+ *
+ * Asks @miner to pause. On success the cookie ID is returned,
+ * this is what must be used in tracker_miner_resume() to resume
+ * operations. On failure @error will be set and -1 will be returned.
+ *
+ * Returns: The pause cookie ID.
+ **/
+gint
+tracker_miner_pause (TrackerMiner  *miner,
+		     const gchar   *reason,
+		     GError       **error)
+{
+	const gchar *application;
+
+	g_return_val_if_fail (TRACKER_IS_MINER (miner), -1);
+	g_return_val_if_fail (reason != NULL, -1);
+
+	application = g_get_application_name ();
+
+	if (!application) {
+		application = miner->private->name;
+	}
+
+	return tracker_miner_pause_internal (miner, application, reason, error);
 }
 
 /**
@@ -1029,7 +1042,7 @@ tracker_miner_dbus_pause (TrackerMiner           *miner,
 				  application,
 				  reason);
 
-	cookie = tracker_miner_pause (miner, application, reason, &local_error);
+	cookie = tracker_miner_pause_internal (miner, application, reason, &local_error);
 	if (cookie == -1) {
 		GError *actual_error = NULL;
 

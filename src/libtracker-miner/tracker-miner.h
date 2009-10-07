@@ -98,7 +98,6 @@ gboolean       tracker_miner_execute_batch_update
 gboolean       tracker_miner_commit         (TrackerMiner  *miner);
 
 gint           tracker_miner_pause          (TrackerMiner  *miner,
-					     const gchar   *application,
 					     const gchar   *reason,
 					     GError       **error);
 gboolean       tracker_miner_resume         (TrackerMiner  *miner,
