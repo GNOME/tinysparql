@@ -1898,7 +1898,7 @@ public class Tracker.SparqlQuery : Object {
 			if (binding.is_fts_match) {
 				// parameters do not work with fts MATCH
 				string escaped_literal = string.joinv ("''", binding.literal.split ("'"));
-				sql.append_printf (" IN (SELECT rowid FROM fts WHERE fts MATCH '%s')", escaped_literal);
+				sql.append_printf (" MATCH '%s'", escaped_literal);
 			} else {
 				sql.append (" = ");
 				if (binding.data_type == PropertyType.RESOURCE) {
@@ -2265,6 +2265,7 @@ public class Tracker.SparqlQuery : Object {
 		string db_table;
 		bool rdftype = false;
 		bool share_table = true;
+		bool is_fts_match = false;
 
 		bool newtable;
 		DataTable table;
@@ -2285,7 +2286,9 @@ public class Tracker.SparqlQuery : Object {
 			} else if (prop == null) {
 				if (current_predicate == "http://www.tracker-project.org/ontologies/fts#match") {
 					// fts:match
-					db_table = "rdfs:Resource";
+					db_table = "fts";
+					share_table = false;
+					is_fts_match = true;
 				} else {
 					throw new SparqlError.UNKNOWN_PROPERTY ("Unknown property `%s'".printf (current_predicate));
 				}
@@ -2367,7 +2370,11 @@ public class Tracker.SparqlQuery : Object {
 				binding.data_type = PropertyType.RESOURCE;
 				binding.variable = current_subject;
 				binding.table = table;
-				binding.sql_db_column_name = "ID";
+				if (is_fts_match) {
+					binding.sql_db_column_name = "rowid";
+				} else {
+					binding.sql_db_column_name = "ID";
+				}
 				var binding_list = pattern_var_map.lookup (binding.variable);
 				if (binding_list == null) {
 					binding_list = new VariableBindingList ();
@@ -2436,13 +2443,13 @@ public class Tracker.SparqlQuery : Object {
 				if (var_map.lookup (binding.variable) == null) {
 					var_map.insert (binding.variable, binding);
 				}
-			} else if (current_predicate == "http://www.tracker-project.org/ontologies/fts#match") {
+			} else if (is_fts_match) {
 				var binding = new LiteralBinding ();
 				binding.is_fts_match = true;
 				binding.literal = object;
 				// binding.data_type = triple.object.type;
 				binding.table = table;
-				binding.sql_db_column_name = "ID";
+				binding.sql_db_column_name = "fts";
 				pattern_bindings.append (binding);
 			} else {
 				var binding = new LiteralBinding ();
