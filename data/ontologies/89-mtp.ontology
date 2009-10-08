@@ -21,7 +21,7 @@ mtp: a tracker:Namespace ;
 mtp:ScanType a rdfs:Class ;
 	rdfs:label "Scan types" ;
 	rdfs:comment "pre-defined set of scan types instances" ;
-	rdfs:subClassOf rdfs:Resource .
+	rdfs:subClassOf nie:InformationElement .
 
 mtp:scantype-FieldInterleavedUpperFirst a mtp:ScanType ;
 	nie:description "Line interleaved Frames with the Upper field on the first line." .
