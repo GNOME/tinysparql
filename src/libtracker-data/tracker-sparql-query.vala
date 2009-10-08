@@ -2126,6 +2126,11 @@ public class Tracker.SparqlQuery : Object {
 
 					select.append (" FROM (");
 					sql.insert (group_graph_pattern_start, select.str);
+
+					// surround with SELECT * FROM (...) to avoid ambiguous column names
+					// in SQL generated for FILTER (triggered by using table aliases for join sources)
+					sql.insert (group_graph_pattern_start, "SELECT * FROM (");
+					sql.append (")");
 				}
 			} else if (current () == SparqlTokenType.OPEN_BRACE) {
 				if (!in_triples_block && !in_group_graph_pattern) {
