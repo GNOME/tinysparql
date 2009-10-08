@@ -542,7 +542,7 @@ set_up_mount_points (TrackerStorage *hal)
 
 	TrackerMainPrivate *private;
 	GError *error = NULL;
-	GList *roots, *l;
+	GSList *roots, *l;
 
 	private = g_static_private_get (&private_key);
 

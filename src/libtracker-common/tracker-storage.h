@@ -52,9 +52,9 @@ struct _TrackerStorageClass {
 
 GType	        tracker_storage_get_type		    (void) G_GNUC_CONST;
 TrackerStorage *tracker_storage_new                         (void);
-GList *         tracker_storage_get_mounted_directory_roots (TrackerStorage  *storage);
-GList *         tracker_storage_get_removable_device_roots  (TrackerStorage  *storage);
-GList *         tracker_storage_get_removable_device_udis   (TrackerStorage  *storage);
+GSList *        tracker_storage_get_mounted_directory_roots (TrackerStorage  *storage);
+GSList *        tracker_storage_get_removable_device_roots  (TrackerStorage  *storage);
+GSList *        tracker_storage_get_removable_device_udis   (TrackerStorage  *storage);
 const gchar *   tracker_storage_udi_get_mount_point         (TrackerStorage  *storage,
 							     const gchar     *udi);
 gboolean        tracker_storage_udi_get_is_mounted          (TrackerStorage  *storage,

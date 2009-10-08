@@ -501,7 +501,7 @@ init_mount_points (TrackerMinerFiles *miner)
 	GString *accumulator;
 	gint i;
 #ifdef HAVE_HAL
-	GList *udis, *u;
+	GSList *udis, *u;
 #endif
 
 	priv = TRACKER_MINER_FILES_GET_PRIVATE (miner);
@@ -562,7 +562,7 @@ init_mount_points (TrackerMinerFiles *miner)
 		g_hash_table_replace (volumes, removable_device_urn, GINT_TO_POINTER (state));
 	}
 
-	g_list_free (udis);
+	g_slist_free (udis);
 #endif
 
 	accumulator = g_string_new (NULL);
@@ -611,6 +611,7 @@ init_mount_points (TrackerMinerFiles *miner)
 }
 
 #ifdef HAVE_HAL
+
 static void
 mount_point_removed_cb (TrackerStorage *storage,
 			const gchar    *udi,
@@ -669,16 +670,17 @@ initialize_removable_devices (TrackerMinerFiles *mf)
         priv = TRACKER_MINER_FILES_GET_PRIVATE (mf);
 
         if (tracker_config_get_index_removable_devices (priv->config)) {
-                GList *mounts, *m;
+                GSList *mounts, *m;
 
                 mounts = tracker_storage_get_removable_device_roots (priv->storage);
 
                 for (m = mounts; m; m = m->next) {
-			GFile *as_file = g_file_new_for_path (m->data);
+			GFile *file = g_file_new_for_path (m->data);
+
 			tracker_miner_fs_add_directory (TRACKER_MINER_FS (mf),
-							as_file, 
+							file, 
 							TRUE);
-			g_object_unref (as_file);
+			g_object_unref (file);
                 }
         }
 }

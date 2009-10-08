@@ -776,7 +776,7 @@ albumart_copy_to_local (TrackerStorage *hal,
 			const gchar    *filename, 
 			const gchar    *local_uri)
 {
-	GList *removable_roots, *l;
+	GSList *removable_roots, *l;
 	gboolean on_removable_device = FALSE;
 	guint flen;
 
@@ -792,8 +792,8 @@ albumart_copy_to_local (TrackerStorage *hal,
 
 	removable_roots = tracker_storage_get_removable_device_roots (hal);
 #else
-	removable_roots = g_list_append (removable_roots, "/media");
-	removable_roots = g_list_append (removable_roots, "/mnt");
+	removable_roots = g_slist_append (removable_roots, "/media");
+	removable_roots = g_slist_append (removable_roots, "/mnt");
 #endif
 
 	flen = strlen (filename);
@@ -810,10 +810,10 @@ albumart_copy_to_local (TrackerStorage *hal,
 	}
 
 #ifdef HAVE_HAL
-	g_list_foreach (removable_roots, (GFunc) g_free, NULL);
+	g_slist_foreach (removable_roots, (GFunc) g_free, NULL);
 #endif
 
-	g_list_free (removable_roots);
+	g_slist_free (removable_roots);
 
 	if (on_removable_device) {
 		GFile *local_file, *from;

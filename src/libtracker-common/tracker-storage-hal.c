@@ -66,7 +66,7 @@ typedef struct {
 
 typedef struct {
 	LibHalContext *context;
-	GList	      *roots;
+	GSList	      *roots;
 	gboolean       only_removable;
 } GetRoots;
 
@@ -842,7 +842,7 @@ hal_get_mount_point_by_udi_foreach (gpointer key,
 	info = node->data;
 
 	if (!gr->only_removable || info->removable) {
-		gr->roots = g_list_prepend (gr->roots, g_strdup (info->mount_point));
+		gr->roots = g_slist_prepend (gr->roots, g_strdup (info->mount_point));
 	}
 }
 
@@ -850,12 +850,15 @@ hal_get_mount_point_by_udi_foreach (gpointer key,
  * tracker_storage_get_mounted_directory_roots:
  * @storage: A #TrackerStorage
  *
- * Returns a #Glist of strings containing the root directories for mounted devices.
- * Each element must be freed using g_free() and the list itself using g_list_free().
+ * Returns a #GSList of strings containing the root directories for
+ * mounted devices. 
+ *
+ * Each element must be freed using g_free() and the list itself using
+ * g_slist_free().
  *
  * Returns: The list of root directories.
  **/
-GList *
+GSList *
 tracker_storage_get_mounted_directory_roots (TrackerStorage *storage)
 {
 	TrackerStoragePriv *priv;
@@ -873,19 +876,22 @@ tracker_storage_get_mounted_directory_roots (TrackerStorage *storage)
 			      hal_get_mount_point_by_udi_foreach,
 			      &gr);
 
-	return g_list_reverse (gr.roots);
+	return g_slist_reverse (gr.roots);
 }
 
 /**
  * tracker_storage_get_removable_device_roots:
  * @storage: A #TrackerStorage
  *
- * Returns a #GList of strings containing the root directories for removable devices.
- * Each element must be freed using g_free() and the list itself through g_list_free().
+ * Returns a #GSList of strings containing the root directories for
+ * removable devices. 
+ *
+ * Each element must be freed using g_free() and the list itself
+ * through g_slist_free().
  *
  * Returns: The list of root directories.
  **/
-GList *
+GSList *
 tracker_storage_get_removable_device_roots (TrackerStorage *storage)
 {
 	TrackerStoragePriv *priv;
@@ -903,7 +909,7 @@ tracker_storage_get_removable_device_roots (TrackerStorage *storage)
 			      hal_get_mount_point_by_udi_foreach,
 			      &gr);
 
-	return g_list_reverse (gr.roots);
+	return g_slist_reverse (gr.roots);
 }
 
 /**
@@ -974,19 +980,19 @@ tracker_storage_uri_is_on_removable_device (TrackerStorage *storage,
  * tracker_storage_get_removable_device_udis:
  * @storage: A #TrackerStorage
  *
- * Returns a #GList of strings containing the UDI for removable devices.
+ * Returns a #GSList of strings containing the UDI for removable devices.
  * Each element is owned by the #GHashTable internally, the list
- * itself through should be freed using g_list_free().
+ * itself through should be freed using g_slist_free().
  *
  * Returns: The list of UDIs.
  **/
-GList *
+GSList *
 tracker_storage_get_removable_device_udis (TrackerStorage *storage)
 {
 	TrackerStoragePriv *priv;
 	GHashTableIter iter;
 	gpointer key, value;
-	GList *udis;
+	GSList *udis;
 
 	g_return_val_if_fail (TRACKER_IS_STORAGE (storage), NULL);
 
@@ -1006,11 +1012,11 @@ tracker_storage_get_removable_device_udis (TrackerStorage *storage)
 		info = node->data;
 
 		if (info->removable) {
-			udis = g_list_prepend (udis, (gpointer) udi);
+			udis = g_slist_prepend (udis, (gpointer) udi);
 		}
 	}
 
-	return g_list_reverse (udis);
+	return g_slist_reverse (udis);
 }
 
 /**
