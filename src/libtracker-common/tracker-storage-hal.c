@@ -1012,7 +1012,7 @@ tracker_storage_get_removable_device_udis (TrackerStorage *storage)
 		info = node->data;
 
 		if (info->removable) {
-			udis = g_slist_prepend (udis, (gpointer) udi);
+			udis = g_slist_prepend (udis, g_strdup (udi));
 		}
 	}
 

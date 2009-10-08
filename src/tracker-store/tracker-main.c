@@ -600,7 +600,8 @@ set_up_mount_points (TrackerStorage *hal)
 		l = l->next;
 	}
 
-	g_list_free (roots);
+	g_slist_foreach (roots, (GFunc) g_free, NULL);
+	g_slist_free (roots);
 	 */
 
 	/* Merging: tracker-0.6 appears to have code here that we don't have

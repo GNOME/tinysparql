@@ -562,6 +562,7 @@ init_mount_points (TrackerMinerFiles *miner)
 		g_hash_table_replace (volumes, removable_device_urn, GINT_TO_POINTER (state));
 	}
 
+	g_slist_foreach (udis, (GFunc) g_free, NULL);
 	g_slist_free (udis);
 #endif
 
@@ -682,6 +683,9 @@ initialize_removable_devices (TrackerMinerFiles *mf)
 							TRUE);
 			g_object_unref (file);
                 }
+
+		g_slist_foreach (mounts, (GFunc) g_free, NULL);
+		g_slist_free (mounts);
         }
 }
 
