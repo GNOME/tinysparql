@@ -94,51 +94,28 @@ extract_content (PopplerDocument *document,
 	GString *string;
 	gint n_pages, i, words;
 	gchar *text, *t;
-	gboolean in_break = TRUE;
-	gunichar ch;
 
 	n_pages = poppler_document_get_n_pages (document);
 	string = g_string_new ("");
-	words = 0;
-	i = 0;
+	words = i = 0;
 
 	while (i < n_pages && words < n_words) {
+		gint normalized_words;
+
 		page = poppler_document_get_page (document, i);
 		i++;
 
 		rect.x1 = rect.y1 = 0;
 		poppler_page_get_size (page, &rect.x2, &rect.y2);
 
-		text = t = poppler_page_get_text (page, POPPLER_SELECTION_WORD, &rect);
+		text = poppler_page_get_text (page, POPPLER_SELECTION_WORD, &rect);
+		t = tracker_text_normalize (text, n_words - words, &normalized_words);
 
-		while ((ch = g_utf8_get_char_validated (t, -1)) > 0) {
-			GUnicodeType type;
-
-			type = g_unichar_type (ch);
-
-			if (type == G_UNICODE_LOWERCASE_LETTER ||
-			    type == G_UNICODE_MODIFIER_LETTER ||
-			    type == G_UNICODE_OTHER_LETTER ||
-			    type == G_UNICODE_TITLECASE_LETTER ||
-			    type == G_UNICODE_UPPERCASE_LETTER) {
-				/* Append regular chars */
-				g_string_append_unichar (string, ch);
-				in_break = FALSE;
-			} else if (!in_break) {
-				/* Non-regular char found, treat as word break */
-				g_string_append_c (string, ' ');
-				in_break = TRUE;
-				words++;
-
-				if (words > n_words) {
-					break;
-				}
-			}
-
-			t = g_utf8_find_next_char (t, NULL);
-		}
+		words += normalized_words;
+		g_string_append (string, t);
 
 		g_free (text);
+		g_free (t);
 	}
 
 	return g_string_free (string, FALSE);
