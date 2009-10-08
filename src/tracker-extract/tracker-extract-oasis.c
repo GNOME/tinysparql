@@ -27,6 +27,7 @@
 #include <libtracker-common/tracker-os-dependant.h>
 #include <libtracker-common/tracker-statement-list.h>
 #include <libtracker-common/tracker-ontology.h>
+#include <libtracker-common/tracker-utils.h>
 
 #include "tracker-main.h"
 
@@ -77,6 +78,31 @@ static TrackerExtractData extract_data[] = {
 	{ NULL, NULL }
 };
 
+static gchar *
+extract_content (const gchar *path,
+		 guint        n_words)
+{
+	gchar *command, *output, *text;
+	GError *error = NULL;
+
+	command = g_strdup_printf ("odt2txt --encoding=utf-8 %s", path);
+
+	if (!g_spawn_command_line_sync (command, &output, NULL, NULL, &error)) {
+		g_warning ("Could not extract text from '%s': %s", path, error->message);
+		g_error_free (error);
+		g_free (command);
+
+		return NULL;
+	}
+
+	text = tracker_text_normalize (output, n_words, NULL);
+
+	g_free (command);
+	g_free (output);
+
+	return text;
+}
+
 static void
 extract_oasis (const gchar *uri,
 	       TrackerSparqlBuilder   *metadata)
@@ -84,6 +110,7 @@ extract_oasis (const gchar *uri,
 	gchar	      *argv[5];
 	gchar	      *xml;
 	gchar *filename = g_filename_from_uri (uri, NULL, NULL);
+	gchar *content;
 	ODTParseInfo   info = {
 		metadata,
 		-1,
@@ -115,6 +142,14 @@ extract_oasis (const gchar *uri,
 
 		g_markup_parse_context_free (context);
 		g_free (xml);
+	}
+
+	content = extract_content (filename, 1000);
+
+	if (content) {
+		tracker_sparql_builder_predicate (metadata, "nie:plainTextContent");
+		tracker_sparql_builder_object_unvalidated (metadata, content);
+		g_free (content);
 	}
 
 	g_free (argv[3]);

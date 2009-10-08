@@ -208,6 +208,39 @@ doc_metadata_cb (gpointer key,
 	}
 }
 
+static gchar *
+extract_content (const gchar *uri,
+		 guint        n_words)
+{
+	gchar *path, *command, *output, *text;
+	GError *error = NULL;
+
+	path = g_filename_from_uri (uri, NULL, NULL);
+
+	if (!path) {
+		return NULL;
+	}
+
+	command = g_strdup_printf ("wvWare --charset utf-8 -1 -x wvText.xml %s", path);
+
+	g_free (path);
+
+	if (!g_spawn_command_line_sync (command, &output, NULL, NULL, &error)) {
+		g_warning ("Could not extract text from '%s': %s", uri, error->message);
+		g_error_free (error);
+		g_free (command);
+
+		return NULL;
+	}
+
+	text = tracker_text_normalize (output, n_words, NULL);
+
+	g_free (command);
+	g_free (output);
+
+	return text;
+}
+
 static void
 extract_msoffice (const gchar *uri,
 		  TrackerSparqlBuilder   *metadata)
@@ -215,7 +248,7 @@ extract_msoffice (const gchar *uri,
 	GsfInput  *input;
 	GsfInfile *infile;
 	GsfInput  *stream;
-	gchar     *filename;
+	gchar     *filename, *content;
 	gboolean   rdf_type_added = FALSE;
 
 	gsf_init ();
@@ -294,7 +327,16 @@ extract_msoffice (const gchar *uri,
 		g_object_unref (stream);
 	}
 
+	content = extract_content (uri, 1000);
+
+	if (content) {
+		tracker_sparql_builder_predicate (metadata, "nie:plainTextContent");
+		tracker_sparql_builder_object_unvalidated (metadata, content);
+		g_free (content);
+	}
+
 	g_object_unref (infile);
+	g_free (filename);
 
 	gsf_shutdown ();
 }
