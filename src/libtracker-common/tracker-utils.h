@@ -50,6 +50,10 @@ gchar *  tracker_coalesce                   (gint n_values,
 gchar *  tracker_merge                      (const gchar *delim, gint n_values,
 					     ...);
 
+gchar *  tracker_text_normalize             (const gchar *text,
+					     guint        max_words,
+					     guint       *n_words);
+
 /* Temporary: Just here until we upgrade to GLib 2.18. */
 G_CONST_RETURN gchar *
          tracker_dngettext                  (const gchar *domain,

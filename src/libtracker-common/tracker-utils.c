@@ -563,3 +563,49 @@ tracker_merge (const gchar *delim, gint n_values,
 
 	return g_string_free (str, FALSE);
 }
+
+gchar *
+tracker_text_normalize (const gchar *text,
+			guint        max_words,
+			guint       *n_words)
+{
+	GString *string;
+	gboolean in_break = TRUE;
+	gunichar ch;
+	gint words = 0;
+
+	string = g_string_new (NULL);
+
+	while ((ch = g_utf8_get_char_validated (text, -1)) > 0) {
+		GUnicodeType type;
+
+		type = g_unichar_type (ch);
+
+		if (type == G_UNICODE_LOWERCASE_LETTER ||
+		    type == G_UNICODE_MODIFIER_LETTER ||
+		    type == G_UNICODE_OTHER_LETTER ||
+		    type == G_UNICODE_TITLECASE_LETTER ||
+		    type == G_UNICODE_UPPERCASE_LETTER) {
+			/* Append regular chars */
+			g_string_append_unichar (string, ch);
+			in_break = FALSE;
+		} else if (!in_break) {
+			/* Non-regular char found, treat as word break */
+			g_string_append_c (string, ' ');
+			in_break = TRUE;
+			words++;
+
+			if (words > max_words) {
+				break;
+			}
+		}
+
+		text = g_utf8_find_next_char (text, NULL);
+	}
+
+	if (n_words) {
+		*n_words = words;
+	}
+
+	return g_string_free (string, FALSE);
+}
