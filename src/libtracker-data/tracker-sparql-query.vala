@@ -1047,45 +1047,60 @@ public class Tracker.SparqlQuery : Object {
 		expect (SparqlTokenType.CLOSE_PARENS);
 	}
 
+	void convert_expression_to_string (StringBuilder sql, PropertyType type, long begin) {
+		switch (type) {
+		case PropertyType.STRING:
+			// nothing to convert
+			break;
+		case PropertyType.RESOURCE:
+			// ID => Uri
+			sql.insert (begin, "(SELECT Uri FROM \"rdfs:Resource\" WHERE ID = ");
+			sql.append (")");
+			break;
+		case PropertyType.BOOLEAN:
+			// 0/1 => false/true
+			sql.insert (begin, "CASE ");
+			sql.append (" WHEN 1 THEN 'true' WHEN 0 THEN 'false' ELSE NULL END");
+			break;
+		case PropertyType.DATETIME:
+			// ISO 8601 format
+			sql.insert (begin, "strftime (\"%Y-%m-%dT%H:%M:%SZ\", ");
+			sql.append (", \"unixepoch\")");
+			break;
+		default:
+			// let sqlite convert the expression to string
+			sql.insert (begin, "CAST (");
+			sql.append (" AS TEXT)");
+			break;
+		}
+	}
+
 	void translate_expression_as_string (StringBuilder sql) throws SparqlError {
 		switch (current ()) {
 		case SparqlTokenType.IRI_REF:
 		case SparqlTokenType.PN_PREFIX:
 		case SparqlTokenType.COLON:
 			// handle IRI literals separately as it wouldn't work for unknown IRIs otherwise
-			sql.append ("?");
 			var binding = new LiteralBinding ();
 			bool is_var;
 			binding.literal = parse_var_or_term (null, out is_var);
-			bindings.append (binding);
+			if (accept (SparqlTokenType.OPEN_PARENS)) {
+				// function call
+				long begin = sql.len;
+				var type = translate_function (sql, binding.literal);
+				expect (SparqlTokenType.CLOSE_PARENS);
+				expect (SparqlTokenType.AS);
+				expect (SparqlTokenType.PN_PREFIX);
+				convert_expression_to_string (sql, type, begin);
+			} else {
+				sql.append ("?");
+				bindings.append (binding);
+			}
 			break;
 		default:
 			long begin = sql.len;
-			switch (translate_expression (sql)) {
-			case PropertyType.STRING:
-				// nothing to convert
-				break;
-			case PropertyType.RESOURCE:
-				// ID => Uri
-				sql.insert (begin, "(SELECT Uri FROM \"rdfs:Resource\" WHERE ID = ");
-				sql.append (")");
-				break;
-			case PropertyType.BOOLEAN:
-				// 0/1 => false/true
-				sql.insert (begin, "CASE ");
-				sql.append (" WHEN 1 THEN 'true' WHEN 0 THEN 'false' ELSE NULL END");
-				break;
-			case PropertyType.DATETIME:
-				// ISO 8601 format
-				sql.insert (begin, "strftime (\"%Y-%m-%dT%H:%M:%SZ\", ");
-				sql.append (", \"unixepoch\")");
-				break;
-			default:
-				// let sqlite convert the expression to string
-				sql.insert (begin, "CAST (");
-				sql.append (" AS TEXT)");
-				break;
-			}
+			var type = translate_expression (sql);
+			convert_expression_to_string (sql, type, begin);
 			break;
 		}
 	}
