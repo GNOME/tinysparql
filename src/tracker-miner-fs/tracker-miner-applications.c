@@ -47,9 +47,7 @@ static gboolean miner_applications_check_directory   (TrackerMinerFS       *fs,
 static gboolean miner_applications_process_file      (TrackerMinerFS       *fs,
 						      GFile                *file,
 						      TrackerSparqlBuilder *sparql,
-						      GCancellable         *cancellable,
-						      TrackerMinerFSDoneCb  done_cb,
-						      gpointer              done_cb_data);
+						      GCancellable         *cancellable);
 static gboolean miner_applications_monitor_directory (TrackerMinerFS       *fs,
 						      GFile                *file);
 
@@ -61,8 +59,6 @@ struct ProcessApplicationData {
 	TrackerMinerFS *miner;
 	GFile *file;
 	TrackerSparqlBuilder *sparql;
-	TrackerMinerFSDoneCb callback;
-	gpointer callback_data;
 	GCancellable *cancellable;
 	GKeyFile *key_file;
 	gchar *type;
@@ -417,7 +413,7 @@ miner_applications_process_file_cb (gpointer user_data)
 	tracker_sparql_builder_insert_close (sparql);
 
 	/* Notify about success */
-	data->callback (data->miner, data->file, sparql, NULL, data->callback_data);
+	tracker_miner_fs_notify_file (data->miner, data->file, NULL);
 
 	g_strfreev (cats);
 
@@ -444,9 +440,7 @@ static gboolean
 miner_applications_process_file (TrackerMinerFS       *fs,
 				 GFile                *file,
 				 TrackerSparqlBuilder *sparql,
-				 GCancellable         *cancellable,
-				 TrackerMinerFSDoneCb  done_cb,
-				 gpointer              done_cb_data)
+				 GCancellable         *cancellable)
 {
 	ProcessApplicationData *data;
 	GKeyFile *key_file;
@@ -462,8 +456,6 @@ miner_applications_process_file (TrackerMinerFS       *fs,
 	data->miner = g_object_ref (fs);
 	data->sparql = g_object_ref (sparql);
 	data->file = g_object_ref (file);
-	data->callback = done_cb;
-	data->callback_data = done_cb_data;
 	data->cancellable = g_object_ref (cancellable);
 	data->key_file = key_file;
 	data->type = type;

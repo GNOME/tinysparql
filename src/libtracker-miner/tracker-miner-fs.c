@@ -54,6 +54,7 @@ typedef struct {
 typedef struct {
 	GFile *file;
 	GCancellable *cancellable;
+	TrackerSparqlBuilder *builder;
 } ProcessData;
 
 struct TrackerMinerFSPrivate {
@@ -113,6 +114,7 @@ enum {
 	CHECK_DIRECTORY,
 	CHECK_DIRECTORY_CONTENTS,
 	MONITOR_DIRECTORY,
+	PROCESS_FILE,
 	FINISHED,
 	LAST_SIGNAL
 };
@@ -314,6 +316,38 @@ tracker_miner_fs_class_init (TrackerMinerFSClass *klass)
 			      tracker_marshal_BOOLEAN__OBJECT,
 			      G_TYPE_BOOLEAN, 1, G_TYPE_FILE);
 	/**
+	 * TrackerMinerFS::process-file:
+	 * @miner_fs: the #TrackerMinerFS
+	 * @file: a #GFile
+	 * @builder: a #TrackerSparqlBuilder
+	 * @cancellable: a #GCancellable
+	 *
+	 * The ::process-file signal is emitted whenever a file should
+	 * be processed, and it's metadata extracted.
+	 *
+	 * @builder is the #TrackerSparqlBuilder where all sparql updates
+	 * to be performed for @file will be appended.
+	 *
+	 * This signal allows both synchronous and asynchronous extraction,
+	 * in the synchronous case @cancellable can be safely ignored. In
+	 * either case, on successful metadata extraction, implementations
+	 * must call tracker_miner_fs_notify_file() to indicate that
+	 * processing has finished on @file, so the miner can execute
+	 * the SPARQL updates and continue processing other files.
+	 *
+	 * Returns: %TRUE if the file is accepted for processing,
+	 *          %FALSE if the file should be ignored.
+	 **/
+	signals[PROCESS_FILE] =
+		g_signal_new ("process-file",
+			      G_OBJECT_CLASS_TYPE (object_class),
+			      G_SIGNAL_RUN_LAST,
+			      G_STRUCT_OFFSET (TrackerMinerFSClass, process_file),
+			      NULL, NULL,
+			      tracker_marshal_BOOLEAN__OBJECT_OBJECT_OBJECT,
+			      G_TYPE_BOOLEAN,
+			      3, G_TYPE_FILE, TRACKER_TYPE_SPARQL_BUILDER, G_TYPE_CANCELLABLE),
+	/**
 	 * TrackerMinerFS::finished:
 	 * @miner_fs: the #TrackerMinerFS
 	 * @elapsed: elapsed time since mining was started
@@ -351,6 +385,7 @@ tracker_miner_fs_init (TrackerMinerFS *object)
 	object->private = TRACKER_MINER_FS_GET_PRIVATE (object);
 
 	priv = object->private;
+	priv->pool_limit = 1;
 
 	/* For each module we create a TrackerCrawler and keep them in
 	 * a hash table to look up.
@@ -396,14 +431,16 @@ tracker_miner_fs_init (TrackerMinerFS *object)
 }
 
 static ProcessData *
-process_data_new (GFile        *file,
-		  GCancellable *cancellable)
+process_data_new (GFile                *file,
+		  GCancellable         *cancellable,
+		  TrackerSparqlBuilder *builder)
 {
 	ProcessData *data;
 
 	data = g_slice_new (ProcessData);
 	data->file = g_object_ref (file);
 	data->cancellable = g_object_ref (cancellable);
+	data->builder = g_object_ref (builder);
 
 	return data;
 }
@@ -413,6 +450,7 @@ process_data_free (ProcessData *data)
 {
 	g_object_unref (data->file);
 	g_object_unref (data->cancellable);
+	g_object_unref (data->builder);
 	g_slice_free (ProcessData, data);
 }
 
@@ -707,16 +745,13 @@ item_moved_data_free (ItemMovedData *data)
 }
 
 static void
-item_add_or_update_cb (TrackerMinerFS       *fs,
-		       GFile                *file,
-		       TrackerSparqlBuilder *sparql,
-		       const GError         *error,
-		       gpointer              user_data)
+item_add_or_update_cb (TrackerMinerFS *fs,
+		       ProcessData    *data,
+		       const GError   *error)
 {
-	ProcessData *data;
 	gchar *uri;
 
-	uri = g_file_get_uri (file);
+	uri = g_file_get_uri (data->file);
 
 	if (error) {
 		g_message ("Could not process '%s': %s", uri, error->message);
@@ -726,7 +761,7 @@ item_add_or_update_cb (TrackerMinerFS       *fs,
 		g_debug ("Adding item '%s'", uri);
 
 		full_sparql = g_strdup_printf ("DROP GRAPH <%s> %s",
-					       uri, tracker_sparql_builder_get_result (sparql));
+					       uri, tracker_sparql_builder_get_result (data->builder));
 
 		tracker_miner_execute_batch_update (TRACKER_MINER (fs), full_sparql, NULL);
 		g_free (full_sparql);
@@ -739,25 +774,13 @@ item_add_or_update_cb (TrackerMinerFS       *fs,
 		}
 	}
 
-	data = process_data_find (fs, file);
-
-	if (data) {
-		process_data_free (data);
-		fs->private->processing_pool =
-			g_list_remove (fs->private->processing_pool, data);
-	}
-
-	/* Can be NULL on error */
-	if (sparql) {
-		g_object_unref (sparql);
-	}
+	fs->private->processing_pool =
+		g_list_remove (fs->private->processing_pool, data);
+	process_data_free (data);
 
 	g_free (uri);
 
-	if (g_list_length (fs->private->processing_pool) < fs->private->pool_limit) {
-		/* There is room in the pool for more files */
-		item_queue_handlers_set_up (fs);
-	}
+	item_queue_handlers_set_up (fs);
 }
 
 static gboolean
@@ -767,38 +790,57 @@ item_add_or_update (TrackerMinerFS *fs,
 	TrackerMinerFSPrivate *priv;
 	TrackerSparqlBuilder *sparql;
 	GCancellable *cancellable;
-	gboolean processing;
+	gboolean processing, retval;
+	ProcessData *data;
 
 	priv = fs->private;
+	retval = TRUE;
+
 	cancellable = g_cancellable_new ();
 	sparql = tracker_sparql_builder_new_update ();
+	g_object_ref (file);
 
-	processing = TRACKER_MINER_FS_GET_CLASS (fs)->process_file (fs, file, sparql,
-								    cancellable,
-								    item_add_or_update_cb,
-								    NULL);
+	data = process_data_new (file, cancellable, sparql);
+	priv->processing_pool = g_list_prepend (priv->processing_pool, data);
+
+	g_signal_emit (fs, signals[PROCESS_FILE], 0,
+		       file, sparql, cancellable,
+		       &processing);
 
 	if (!processing) {
-		g_object_unref (sparql);
-		g_object_unref (cancellable);
+		/* Re-fetch data, since it might have been
+		 * removed in broken implementations
+		 */
+		data = process_data_find (fs, file);
 
-		return TRUE;
+		if (!data) {
+			gchar *uri;
+
+			uri = g_file_get_uri (file);
+			g_critical ("%s has returned FALSE in ::process-file for '%s', "
+				    "but it seems that this file has been processed through "
+				    "tracker_miner_fs_notify_file(), this is an "
+				    "implementation error", G_OBJECT_TYPE_NAME (fs), uri);
+			g_free (uri);
+		} else {
+			priv->processing_pool = g_list_remove (priv->processing_pool, data);
+			process_data_free (data);
+		}
 	} else {
-		ProcessData *data;
 		guint length;
 
-		data = process_data_new (file, cancellable);
-		priv->processing_pool = g_list_prepend (priv->processing_pool, data);
 		length = g_list_length (priv->processing_pool);
 
-		g_object_unref (cancellable);
-
 		if (length >= priv->pool_limit) {
-			return FALSE;
-		} else {
-			return TRUE;
+			retval = FALSE;
 		}
 	}
+
+	g_object_unref (file);
+	g_object_unref (cancellable);
+	g_object_unref (sparql);
+
+	return retval;
 }
 
 static gboolean
@@ -1153,6 +1195,11 @@ item_queue_handlers_set_up (TrackerMinerFS *fs)
 	}
 
 	if (fs->private->is_paused) {
+		return;
+	}
+
+	if (g_list_length (fs->private->processing_pool) >= fs->private->pool_limit) {
+		/* There is no room in the pool for more files */
 		return;
 	}
 
@@ -1851,4 +1898,44 @@ tracker_miner_fs_get_throttle (TrackerMinerFS *fs)
 	g_return_val_if_fail (TRACKER_IS_MINER_FS (fs), 0);
 
 	return fs->private->throttle;
+}
+
+/**
+ * tracker_miner_fs_notify_file:
+ * @fs: a #TrackerMinerFS
+ * @file: a #GFile
+ * @error: a #GError with the error that happened during processing, or %NULL.
+ *
+ * Notifies @fs that all processing on @file has been finished, if any error
+ * happened during file data processing, it should be passed in @error, else
+ * that parameter will contain %NULL to reflect success.
+ **/
+void
+tracker_miner_fs_notify_file (TrackerMinerFS *fs,
+			      GFile          *file,
+			      const GError   *error)
+{
+	ProcessData *data;
+
+	g_return_if_fail (TRACKER_IS_MINER_FS (fs));
+	g_return_if_fail (G_IS_FILE (file));
+
+	data = process_data_find (fs, file);
+
+	if (!data) {
+		gchar *uri;
+
+		uri = g_file_get_uri (file);
+		g_critical ("%s has notified that file '%s' has been processed, "
+			    "but that file was not in the processing queue. "
+			    "This is an implementation error, please ensure that "
+			    "tracker_miner_fs_notify_file() is called on the right "
+			    "file and that the ::process-file signal didn't return "
+			    "FALSE for it", G_OBJECT_TYPE_NAME (fs), uri);
+		g_free (uri);
+
+		return;
+	}
+
+	item_add_or_update_cb (fs, data, error);
 }

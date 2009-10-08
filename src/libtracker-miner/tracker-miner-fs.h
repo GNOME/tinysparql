@@ -40,25 +40,6 @@ G_BEGIN_DECLS
 typedef struct TrackerMinerFS        TrackerMinerFS;
 typedef struct TrackerMinerFSPrivate TrackerMinerFSPrivate;
 
-/**
- * TrackerMinerFSDoneCb:
- * @fs: The #TrackerMinerFS
- * @file: The #GFile corresponding to the asynchronous call
- * @builder: a #TrackerSparqlBuilder to collect data
- * @error: #GError with the extraction error, or %NULL if none
- * @user_data: passed user data to the asynchronous call
- *
- * This callback is passed for each inspected #GFile in the
- * TrackerMinerFS::process_file() vmethod, it's the implementation
- * responsibility to call it as soon as all metadata extraction has
- * been performed on @file.
- **/
-typedef void (* TrackerMinerFSDoneCb) (TrackerMinerFS       *fs,
-				       GFile                *file,
-				       TrackerSparqlBuilder *builder,
-				       const GError         *error,
-				       gpointer              user_data);
-
 struct TrackerMinerFS {
 	TrackerMiner parent;
 	TrackerMinerFSPrivate *private;
@@ -91,9 +72,7 @@ typedef struct {
 	gboolean (* process_file)          (TrackerMinerFS       *fs,
 					    GFile                *file,
 					    TrackerSparqlBuilder *builder,
-					    GCancellable         *cancellable,
-					    TrackerMinerFSDoneCb  done_cb,
-					    gpointer              done_cb_data);
+					    GCancellable         *cancellable);
 	gboolean (* monitor_directory)     (TrackerMinerFS       *fs,
 					    GFile                *file);
 	void     (* finished)              (TrackerMinerFS       *fs);
@@ -110,6 +89,10 @@ gboolean tracker_miner_fs_remove_directory (TrackerMinerFS *fs,
 void     tracker_miner_fs_set_throttle     (TrackerMinerFS *fs,
 					    gdouble         throttle);
 gdouble  tracker_miner_fs_get_throttle     (TrackerMinerFS *fs);
+
+void     tracker_miner_fs_notify_file      (TrackerMinerFS *fs,
+					    GFile          *file,
+					    const GError   *error);
 
 G_END_DECLS
 

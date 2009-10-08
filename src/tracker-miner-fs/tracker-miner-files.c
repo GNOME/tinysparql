@@ -49,8 +49,6 @@ typedef struct ProcessFileData ProcessFileData;
 struct ProcessFileData {
 	TrackerMinerFiles *miner;
 	TrackerSparqlBuilder *sparql;
-	TrackerMinerFSDoneCb callback;
-	gpointer callback_data;
 	GCancellable *cancellable;
 	GFile *file;
 	DBusGProxyCall *call;
@@ -141,9 +139,7 @@ static gboolean miner_files_check_directory_contents (TrackerMinerFS       *fs,
 static gboolean miner_files_process_file      (TrackerMinerFS       *fs,
 					       GFile                *file,
 					       TrackerSparqlBuilder *sparql,
-					       GCancellable         *cancellable,
-					       TrackerMinerFSDoneCb  done_cb,
-					       gpointer              done_cb_data);
+					       GCancellable         *cancellable);
 static gboolean miner_files_monitor_directory (TrackerMinerFS       *fs,
 					       GFile                *file);
 
@@ -760,7 +756,6 @@ on_low_battery_cb (GObject    *object,
 		if (mf->private->low_battery_pause_cookie == 0) {
 			mf->private->low_battery_pause_cookie = 
 				tracker_miner_pause (TRACKER_MINER (mf),
-						     g_get_application_name (),
 						     _("Low battery"),
 						     NULL);
 		}
@@ -848,7 +843,6 @@ disk_space_check_cb (gpointer user_data)
 		if (mf->private->disk_space_pause_cookie == 0) {
 			mf->private->disk_space_pause_cookie = 
 				tracker_miner_pause (TRACKER_MINER (mf),
-						     g_get_application_name (),
 						     _("Low disk space"),
 						     NULL);
 		}
@@ -1208,7 +1202,7 @@ extractor_get_embedded_metadata_cb (DBusGProxy *proxy,
 
 	if (error) {
 		/* Something bad happened, notify about the error */
-		data->callback (TRACKER_MINER_FS (data->miner), data->file, data->sparql, error, data->callback_data);
+		tracker_miner_fs_notify_file (TRACKER_MINER_FS (data->miner), data->file, error);
 		process_file_data_free (data);
 		g_error_free (error);
 		return;
@@ -1220,9 +1214,8 @@ extractor_get_embedded_metadata_cb (DBusGProxy *proxy,
 		g_free (sparql);
 	}
 
-
 	/* Notify about the success */
-	data->callback (TRACKER_MINER_FS (data->miner), data->file, data->sparql, NULL, data->callback_data);
+	tracker_miner_fs_notify_file (TRACKER_MINER_FS (data->miner), data->file, NULL);
 	process_file_data_free (data);
 }
 
@@ -1237,7 +1230,7 @@ extractor_get_embedded_metadata_cancel (GCancellable    *cancellable,
 				  data->call);
 
 	error = g_error_new_literal (miner_files_error_quark, 0, "Embedded metadata extraction was cancelled");
-	data->callback (TRACKER_MINER_FS (data->miner), data->file, data->sparql, error, data->callback_data);
+	tracker_miner_fs_notify_file (TRACKER_MINER_FS (data->miner), data->file, error);
 
 	process_file_data_free (data);
 	g_error_free (error);
@@ -1278,7 +1271,7 @@ process_file_cb (GObject      *object,
 
 	if (error) {
 		/* Something bad happened, notify about the error */
-		data->callback (TRACKER_MINER_FS (data->miner), file, sparql, error, data->callback_data);
+		tracker_miner_fs_notify_file (TRACKER_MINER_FS (data->miner), file, error);
 		process_file_data_free (data);
 		return;
 	}
@@ -1347,16 +1340,12 @@ static gboolean
 miner_files_process_file (TrackerMinerFS       *fs,
 			  GFile                *file,
 			  TrackerSparqlBuilder *sparql,
-			  GCancellable         *cancellable,
-			  TrackerMinerFSDoneCb  done_cb,
-			  gpointer              done_cb_data)
+			  GCancellable         *cancellable)
 {
 	ProcessFileData *data;
 	const gchar *attrs;
 
 	data = g_slice_new0 (ProcessFileData);
-	data->callback = done_cb;
-	data->callback_data = done_cb_data;
 	data->miner = g_object_ref (fs);
 	data->cancellable = g_object_ref (cancellable);
 	data->sparql = g_object_ref (sparql);
