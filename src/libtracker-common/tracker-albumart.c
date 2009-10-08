@@ -465,7 +465,8 @@ tracker_albumart_heuristic (const gchar *artist_,
 		/* Try to find cover art in the directory */
 		for (name = g_dir_read_name (dir); name; name = g_dir_read_name (dir)) {
 			if ((artist && strcasestr (name, artist)) || 
-			    (album && strcasestr (name, album))   || 
+			    (album && strcasestr (name, album))   ||
+			    (strcasestr (name, "folder"))         ||
 			    (strcasestr (name, "cover"))) {
 				GError *error = NULL;
 				
