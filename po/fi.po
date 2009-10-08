@@ -6,27 +6,77 @@
 #
 # Ilkka Tuohela <hile@iki.fi>, 2006-2008.
 # Timo Jyrinki <timo.jyrinki@iki.fi>, 2007-2008.
+# Jiri Grönroos <jiri.gronroos@iki.fi>, 2009.
 #
+#: ../src/libtracker-common/tracker-utils.c:235
 msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-09-22 13:32+0300\n"
-"PO-Revision-Date: 2008-09-22 13:33+0300\n"
-"Last-Translator: Timo Jyrinki <timo.jyrinki@iki.fi>\n"
+"POT-Creation-Date: 2009-10-08 13:01+0300\n"
+"PO-Revision-Date: 2009-10-08 13:01+0300\n"
+"Last-Translator: Jiri Grönroos <jiri.gronroos@iki.fi>\n"
 "Language-Team: Finnish <gnome-fi-laatu@lists.sourceforge.net>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Launchpad-Export-Date: 2009-10-08 06:28+0000\n"
+"X-Generator: Launchpad (build Unknown)\n"
 
-#: ../python/deskbar-handler/tracker-handler.py:36
+#: ../data/miners/tracker-miner-applications.desktop.in.h:1
+#: ../src/tracker-search-tool/tracker-category-view.gs:78
+msgid "Applications"
+msgstr "Sovellukset"
+
+#: ../data/miners/tracker-miner-applications.desktop.in.h:2
+#, fuzzy
+msgid "Applications data miner"
+msgstr "Sovellukset"
+
+#: ../data/miners/tracker-miner-files.desktop.in.h:1
+#, fuzzy
+msgid "File System"
+msgstr "Indeksoidaan tiedostojärjestelmää"
+
+#: ../data/miners/tracker-miner-files.desktop.in.h:2
+msgid "File system data miner"
+msgstr ""
+
+#: ../data/tracker-miner-fs.desktop.in.in.h:1
+msgid "Crawls and processes files on the file system"
+msgstr ""
+
+#: ../data/tracker-miner-fs.desktop.in.in.h:2
+#, fuzzy
+msgid "Tracker File System Miner"
+msgstr "Tracker live-haku"
+
+#: ../data/tracker-status-icon.desktop.in.in.h:1
+#, fuzzy
+msgid "Tracker Status Icon"
+msgstr "Tracker-tilastoja"
+
+#: ../data/tracker-status-icon.desktop.in.in.h:2
+msgid "Tracker Status Notification Application"
+msgstr ""
+
+#: ../data/tracker-store.desktop.in.in.h:1
+msgid "Metadata database store and lookup manager"
+msgstr ""
+
+#: ../data/tracker-store.desktop.in.in.h:2
+#, fuzzy
+msgid "Tracker Store"
+msgstr "Tracker-WWW-sivusto"
+
+#: ../python/deskbar-handler/tracker-handler.py:37
 #: ../python/deskbar-handler/tracker-module.py:100
 #, python-format
 msgid "Launch %s (%s)"
 msgstr "Käynnistä %s (%s)"
 
-#: ../python/deskbar-handler/tracker-handler.py:41
+#: ../python/deskbar-handler/tracker-handler.py:42
 #: ../python/deskbar-handler/tracker-module.py:105
 #, python-format
 msgid ""
@@ -38,13 +88,13 @@ msgstr ""
 "%s %s\n"
 "lähteestä %s"
 
-#: ../python/deskbar-handler/tracker-handler.py:47
+#: ../python/deskbar-handler/tracker-handler.py:48
 #: ../python/deskbar-handler/tracker-module.py:110
 #, python-format
 msgid "Email from %s"
 msgstr "Sähköposti lähettäjältä %s"
 
-#: ../python/deskbar-handler/tracker-handler.py:60
+#: ../python/deskbar-handler/tracker-handler.py:61
 #: ../python/deskbar-handler/tracker-module.py:122
 #, python-format
 msgid ""
@@ -54,7 +104,7 @@ msgstr ""
 "Kuuntele musiikkia %s\n"
 "ohjelmassa %s"
 
-#: ../python/deskbar-handler/tracker-handler.py:65
+#: ../python/deskbar-handler/tracker-handler.py:66
 #: ../python/deskbar-handler/tracker-module.py:128
 #, python-format
 msgid ""
@@ -64,9 +114,9 @@ msgstr ""
 "Näytä asiakirja %s\n"
 "ohjelmassa %s"
 
-#: ../python/deskbar-handler/tracker-handler.py:70
-#: ../python/deskbar-handler/tracker-handler.py:87
-#: ../python/deskbar-handler/tracker-handler.py:124
+#: ../python/deskbar-handler/tracker-handler.py:71
+#: ../python/deskbar-handler/tracker-handler.py:88
+#: ../python/deskbar-handler/tracker-handler.py:125
 #: ../python/deskbar-handler/tracker-module.py:133
 #: ../python/deskbar-handler/tracker-module.py:155
 #: ../python/deskbar-handler/tracker-module.py:207
@@ -79,7 +129,7 @@ msgstr ""
 "Avaa tiedosto %s\n"
 "ohjelmassa %s"
 
-#: ../python/deskbar-handler/tracker-handler.py:75
+#: ../python/deskbar-handler/tracker-handler.py:76
 #: ../python/deskbar-handler/tracker-module.py:138
 #, python-format
 msgid ""
@@ -89,7 +139,7 @@ msgstr ""
 "Näytä kuva %s\n"
 "ohjelmassa %s"
 
-#: ../python/deskbar-handler/tracker-handler.py:81
+#: ../python/deskbar-handler/tracker-handler.py:82
 #: ../python/deskbar-handler/tracker-module.py:144
 #, python-format
 msgid ""
@@ -99,7 +149,7 @@ msgstr ""
 "Näytä video %s\n"
 "ohjelmassa %s"
 
-#: ../python/deskbar-handler/tracker-handler.py:92
+#: ../python/deskbar-handler/tracker-handler.py:93
 #: ../python/deskbar-handler/tracker-module.py:150
 #, python-format
 msgid ""
@@ -109,40 +159,42 @@ msgstr ""
 "Avaa kansio %s\n"
 "%s"
 
-#: ../python/deskbar-handler/tracker-handler.py:210
+#: ../python/deskbar-handler/tracker-handler.py:211
 #: ../python/deskbar-handler/tracker-module.py:351
 msgid "with"
 msgstr "kanssa"
 
-#: ../python/deskbar-handler/tracker-handler.py:218
+#: ../python/deskbar-handler/tracker-handler.py:219
 #: ../python/deskbar-handler/tracker-module.py:359
 msgid "in channel"
 msgstr "kanavassa"
 
-#: ../python/deskbar-handler/tracker-handler.py:385
+#: ../python/deskbar-handler/tracker-handler.py:386
 msgid "Search all of your documents, <b>as you type</b>"
 msgstr "Hae kaikista asiakirjoista <b>kirjoitettaessa</b>"
 
-#: ../python/deskbar-handler/tracker-handler.py:389
+#: ../python/deskbar-handler/tracker-handler.py:390
 #: ../python/deskbar-handler/tracker-module.py:295
 msgid "Development Files"
 msgstr "Kehitystiedostot"
 
-#: ../python/deskbar-handler/tracker-handler.py:392
+#: ../python/deskbar-handler/tracker-handler.py:393
 #: ../python/deskbar-handler/tracker-module.py:298
-#: ../src/tracker-search-tool/tracker-search-tool.c:141
+#: ../src/tracker-search-tool/tracker-category-view.gs:70
 msgid "Music"
 msgstr "Musiikki"
 
-#: ../python/deskbar-handler/tracker-handler.py:395
+#: ../python/deskbar-handler/tracker-handler.py:396
 #: ../python/deskbar-handler/tracker-module.py:301
-#: ../src/tracker-search-tool/tracker-search-tool.c:140
+#: ../src/tracker-search-bar/tracker-results-window.c:482
+#: ../src/tracker-search-tool/tracker-category-view.gs:66
 msgid "Images"
 msgstr "Kuvat"
 
-#: ../python/deskbar-handler/tracker-handler.py:398
+#: ../python/deskbar-handler/tracker-handler.py:399
 #: ../python/deskbar-handler/tracker-module.py:304
-#: ../src/tracker-search-tool/tracker-search-tool.c:142
+#: ../src/tracker-search-bar/tracker-results-window.c:486
+#: ../src/tracker-search-tool/tracker-category-view.gs:74
 msgid "Videos"
 msgstr "Videot"
 
@@ -173,508 +225,648 @@ msgstr "Tracker live-haku"
 msgid "Search with Tracker, as you type"
 msgstr "Etsi Trackerilla samalla kun kirjoitat"
 
+#: ../src/libtracker-common/tracker-dbus.c:328
+msgid "No error given"
+msgstr ""
+
+#: ../src/libtracker-common/tracker-utils.c:136
+#: ../src/libtracker-common/tracker-utils.c:143
+msgid "unknown time"
+msgstr "tuntematon aika"
+
+#: ../src/libtracker-common/tracker-utils.c:161
+#: ../src/libtracker-common/tracker-utils.c:212
+msgid "less than one second"
+msgstr "alle yksi sekunti"
+
+#. Translators: this is %d days
+#: ../src/libtracker-common/tracker-utils.c:176
+#, c-format
+msgid " %dd"
+msgstr ""
+
+#. Translators: this is %2.2d hours
+#: ../src/libtracker-common/tracker-utils.c:180
+#, c-format
+msgid " %2.2dh"
+msgstr ""
+
+#. Translators: this is %2.2d minutes
+#: ../src/libtracker-common/tracker-utils.c:184
+#, c-format
+msgid " %2.2dm"
+msgstr ""
+
+#. Translators: this is %2.2d seconds
+#: ../src/libtracker-common/tracker-utils.c:188
+#, c-format
+msgid " %2.2ds"
+msgstr ""
+
+#: ../src/libtracker-common/tracker-utils.c:192
+#, c-format
+msgid " %d day"
+msgid_plural " %d days"
+msgstr[0] ""
+msgstr[1] ""
+
+#: ../src/libtracker-common/tracker-utils.c:196
+#, c-format
+msgid " %2.2d hour"
+msgid_plural " %2.2d hours"
+msgstr[0] ""
+msgstr[1] ""
+
+#: ../src/libtracker-common/tracker-utils.c:200
+#, fuzzy, c-format
+msgid " %2.2d minute"
+msgid_plural " %2.2d minutes"
+msgstr[0] "%d osuma"
+msgstr[1] "%d osumaa"
+
+#: ../src/libtracker-common/tracker-utils.c:204
+#, fuzzy, c-format
+msgid " %2.2d second"
+msgid_plural " %2.2d seconds"
+msgstr[0] "sekuntia"
+msgstr[1] "sekuntia"
+
 #. then set the remaining properties
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:472
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:363
 #, c-format
 msgid "Path : <b>%s</b>"
 msgstr "Polku : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:473
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:364
 #, c-format
 msgid "Modified : <b>%s</b>"
 msgstr "Muokattu : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:474
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:660
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:365
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:547
 #, c-format
 msgid "Size : <b>%s</b>"
 msgstr "Koko : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:475
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:366
 #, c-format
 msgid "Accessed : <b>%s</b>"
 msgstr "Käytetty : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:476
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:367
 #, c-format
 msgid "Mime : <b>%s</b>"
 msgstr "Mime : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:528
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:419
 #, c-format
 msgid "Sender : <b>%s</b>"
 msgstr "Lähettäjä : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:529
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:420
 #, c-format
 msgid "Date : <b>%s</b>"
 msgstr "Päiväys : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:569
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:459
 #, c-format
 msgid "Comment : <b>%s</b>"
 msgstr "Kommentti : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:570
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:460
 #, c-format
 msgid "Categories : <b>%s</b>"
 msgstr "Luokat : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:656
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:761
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:543
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:642
 #, c-format
 msgid "Duration : <b>%s</b>"
 msgstr "Kesto : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:657
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:544
 #, c-format
 msgid "Genre : <b>%s</b>"
 msgstr "Tyyli : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:658
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:545
 #, c-format
 msgid "Bitrate : <b>%s Kbs</b>"
 msgstr "Laatu : <b>%s Kbit/s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:659
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:546
 #, c-format
 msgid "Year : <b>%s</b>"
 msgstr "Vuosi : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:661
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:548
 #, c-format
 msgid "Codec : <b>%s</b>"
 msgstr "Koodekki : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:702
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:586
 #, c-format
 msgid " taken with a <span size='large'><i>%s</i></span>"
 msgstr " otettu laitteella <span size='large'><i>%s</i></span>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:707
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:591
 #, c-format
 msgid " <span size='large'><i>%s</i></span>"
 msgstr " <span size='large'><i>%s</i></span>"
 
 #. then set the remaining properties
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:727
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:759
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:611
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:640
 #, c-format
 msgid "Dimensions : <b>%d x %d</b>"
 msgstr "Mitat : <b>%d x %d</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:728
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:612
 #, c-format
 msgid "Date Taken : <b>%s</b>"
 msgstr "Päiväys : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:729
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:613
 #, c-format
 msgid "Orientation : <b>%s</b>"
 msgstr "Suunta : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:730
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:614
 #, c-format
 msgid "Flash : <b>%s</b>"
 msgstr "Salama : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:731
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:615
 #, c-format
 msgid "Focal Length : <b>%s</b>"
 msgstr "Polttoväli : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:732
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:616
 #, c-format
 msgid "Exposure Time : <b>%s</b>"
 msgstr "Valotusaika : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:760
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:793
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:641
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:671
 #, c-format
 msgid "Author : <b>%s</b>"
 msgstr "Tekijä : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:762
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:643
 #, c-format
 msgid "Bitrate : <b>%s</b>"
 msgstr "Laatu : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:763
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:644
 #, c-format
 msgid "Encoded In : <b>%s</b>"
 msgstr "Koodausmuoto : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:764
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:645
 #, c-format
 msgid "Framerate : <b>%s</b>"
 msgstr "Kuvanopeus : <b>%s</b>"
 
 #. then set the remaining properties
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:792
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:824
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:670
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:700
 #, c-format
 msgid "Subject : <b>%s</b>"
 msgstr "Aihe : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:794
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:672
 #, c-format
 msgid "Page Count : <b>%s</b>"
 msgstr "Sivujen määrä : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:795
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:673
 #, c-format
 msgid "Word Count : <b>%s</b>"
 msgstr "Sanojen määrä : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:796
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:674
 #, c-format
 msgid "Created : <b>%s</b>"
 msgstr "Luotu : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:797
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:675
 #, c-format
 msgid "Comments : <b>%s</b>"
 msgstr "Kommentit : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:917
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:790
 #, c-format
 msgid "%.1f KB"
 msgstr "%.1f KB"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:921
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:794
 #, c-format
 msgid "%.1f MB"
 msgstr "%.1f MB"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:925
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:798
 #, c-format
 msgid "%.1f GB"
 msgstr "%.1f GB"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:964
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:1004
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:1027
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:1049
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:837
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:877
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:900
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:922
+#: ../src/tracker-utils/tracker-status.c:245
 msgid "Unknown"
 msgstr "Tuntematon"
 
-#: ../src/libtracker-gtk/tracker-tag-bar.c:250
+#: ../src/libtracker-gtk/tracker-tag-bar.c:270
 msgid "Type tags you want to add here, separated by commas"
 msgstr "Syötä lisättävät merkinnät, eroteltuina pilkuilla"
 
-#: ../src/libtracker-gtk/tracker-tag-bar.c:365
+#: ../src/libtracker-gtk/tracker-tag-bar.c:390
 msgid "Tags :"
 msgstr "Merkinnät :"
 
 #. Search For Tag
-#: ../src/libtracker-gtk/tracker-tag-bar.c:392
+#: ../src/libtracker-gtk/tracker-tag-bar.c:417
 msgid "_Search For Tag"
 msgstr "_Etsi merkinnällä"
 
 #. Remove Tag
-#: ../src/libtracker-gtk/tracker-tag-bar.c:404
+#: ../src/libtracker-gtk/tracker-tag-bar.c:429
 msgid "_Remove Tag"
 msgstr "_Poista merkintä"
 
-#: ../src/libtracker/tracker-search.c:34
-msgid "Limit the number of results showed to N"
-msgstr "Rajaa näytettyjen tulosten lukumäärä arvoon N"
+#: ../src/libtracker-miner/tracker-miner.c:507
+#, fuzzy
+msgid "Data store is not available"
+msgstr "Tilastoja ei saatavilla"
 
-#: ../src/libtracker/tracker-search.c:34
-msgid "N"
-msgstr "N"
-
-#: ../src/libtracker/tracker-search.c:35
-msgid "Search for a specific service"
-msgstr "Etsi annettua palvelua"
-
-#: ../src/libtracker/tracker-search.c:35
-#: ../src/tracker-search-tool/tracker-search-tool.c:65
-msgid "SERVICE"
-msgstr "PALVELU"
-
-#: ../src/libtracker/tracker-search.c:36
-msgid "Show more detailed results with service and mime type as well"
-msgstr "Näytä yksityiskohtaiset tiedot myös palveluille ja MIME-tyypeille"
-
-#. Translators: this messagge will apper immediately after the
-#. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
-#: ../src/libtracker/tracker-search.c:89
-msgid "TERM... - search files for certain terms"
-msgstr "TERMI... - etsi tiedostoista tiettyjä termejä"
-
-#. Translators: this message will appear after the usage string
-#. and before the list of options.
-#: ../src/libtracker/tracker-search.c:93
-msgid ""
-"Specifying more then one term, will be showed items containing ALL the "
-"specified terms (term1 AND term2 - logical conjunction)"
+#: ../src/libtracker-miner/tracker-miner.c:874
+msgid "Pause application and reason match an already existing pause request"
 msgstr ""
-"Useampia sanoja annettaessa näyttää kaikki kohteet, jotka sisältävät kaikki "
-"annetut sanat (sana1 JA sana2 - looginen konjuktio)"
 
-#: ../src/libtracker/tracker-search.c:97
-msgid "The list of recognized services is:"
-msgstr "Seuraavat palvelut on määritelty:"
-
-#: ../src/libtracker/tracker-search.c:114
-#: ../src/libtracker/tracker-search.c:122 ../src/libtracker/tracker-stats.c:82
-#: ../src/libtracker/tracker-tag.c:115 ../src/libtracker/tracker-tag.c:123
-#, c-format
-msgid "Try \"%s --help\" for more information."
-msgstr "Komennolla \"%s --help\" saat lisää ohjeita."
-
-#: ../src/libtracker/tracker-search.c:120
-#, c-format
-msgid "%s: missing search terms"
-msgstr "%s: puuttuvat hakuehdot"
-
-#: ../src/libtracker/tracker-search.c:133 ../src/libtracker/tracker-stats.c:90
-#: ../src/libtracker/tracker-status.c:46 ../src/libtracker/tracker-tag.c:132
-#, c-format
-msgid "%s: no connection to tracker daemon"
-msgstr "%s: ei yhteyttä tracker-palvelimeen"
-
-#: ../src/libtracker/tracker-search.c:135 ../src/libtracker/tracker-stats.c:92
-#: ../src/libtracker/tracker-status.c:48 ../src/libtracker/tracker-tag.c:134
-#, c-format
-msgid "Ensure \"tracker-store\" is running before launch this command."
-msgstr "Varmista, että \"tracker-store\" on käynnissä ennen komennon suorittamista."
-
-#: ../src/libtracker/tracker-search.c:147
-#, c-format
-msgid "Service not recognized, searching in Other Files...\n"
-msgstr "Palvelua ei tunnistettu, etsitään muista tiedostoista...\n"
-
-#: ../src/libtracker/tracker-search.c:164
-#: ../src/libtracker/tracker-status.c:56 ../src/libtracker/tracker-tag.c:180
-#: ../src/libtracker/tracker-tag.c:189 ../src/libtracker/tracker-tag.c:198
-#: ../src/libtracker/tracker-tag.c:233 ../src/libtracker/tracker-tag.c:283
-#, c-format
-msgid "%s: internal tracker error: %s"
-msgstr "%s: sisäinen trackerin virhe: %s"
-
-#. FIXME!! coreutilus don't print anything on no-results
-#: ../src/libtracker/tracker-search.c:173 ../src/libtracker/tracker-tag.c:268
-#, c-format
-msgid "No results found matching your query"
-msgstr "Hakuehtoja vastaavia tuloksia ei löytynyt"
-
-#. Translators: this messagge will apper immediately after the
-#. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
-#: ../src/libtracker/tracker-stats.c:73
-msgid " - show number of indexed files for each service"
-msgstr " - näytä kunkin palvelun indeksoimien tiedostojen lukumäärä"
-
-#: ../src/libtracker/tracker-stats.c:108
-msgid "fetching index stats"
-msgstr "noudetaan indeksitilastoja"
-
-#: ../src/libtracker/tracker-tag.c:41
-msgid "Add specified tag to a file"
-msgstr "Lisää annettu merkintä tiedostoon"
-
-#: ../src/libtracker/tracker-tag.c:41 ../src/libtracker/tracker-tag.c:42
-#: ../src/libtracker/tracker-tag.c:45 ../src/libtracker/tracker-tag.c:92
-msgid "TAG"
-msgstr "MERKINTÄ"
-
-#: ../src/libtracker/tracker-tag.c:42
-msgid "Remove specified tag from a file"
-msgstr "Poistaa annetun merkinnän tiedostosta"
-
-#: ../src/libtracker/tracker-tag.c:43
-msgid "Remove all tags from a file"
-msgstr "Poistaa kaikki merkinnät tiedostosta"
-
-#: ../src/libtracker/tracker-tag.c:44
-msgid "List all defined tags"
-msgstr "Näyttää kaikki määritellyt merkinnät"
-
-#: ../src/libtracker/tracker-tag.c:45
-msgid "Search for files with specified tag"
-msgstr "Etsi tiedostoja, joissa on annettu merkintä"
-
-#: ../src/libtracker/tracker-tag.c:46
-msgid "FILE..."
-msgstr "TIEDOSTO..."
-
-#. Translators: this messagge will apper immediately after the
-#. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
-#: ../src/libtracker/tracker-tag.c:90
-msgid "FILE... - manipulate tags on files"
-msgstr "TIEDOSTO... - muokkaa tiedostojen merkintöjä"
-
-#: ../src/libtracker/tracker-tag.c:99
-msgid ""
-"To add, remove, or search for multiple tags at the same time, join multiple "
-"options like:"
+#: ../src/libtracker-miner/tracker-miner.c:915
+msgid "Cookie not recognized to resume paused miner"
 msgstr ""
-"Voit lisätä, poistaa tai hakea useita merkintöjä samanaikaisesti "
-"yhdistämällä valitsimia seuraavasti:"
 
-#: ../src/libtracker/tracker-tag.c:121
-#, c-format
-msgid "%s: invalid arguments"
-msgstr "%s: virheellisiä argumentteja"
-
-#: ../src/libtracker/tracker-tag.c:148
-#, c-format
-msgid "%s: file %s not found"
-msgstr "%s: tiedostoa %s ei löydy"
-
-#: ../src/tracker-store/tracker-store.c:120
-msgid "Directory to exclude from indexing"
-msgstr "Indeksoitaessa ohitettava kansio"
-
-#: ../src/tracker-store/tracker-store.c:120 ../src/tracker-store/tracker-store.c:121
-#: ../src/tracker-store/tracker-store.c:122
-msgid "/PATH/DIR"
-msgstr "/POLKU/KANSIO"
-
-#: ../src/tracker-store/tracker-store.c:121
-msgid "Directory to include in indexing"
-msgstr "Indeksoitavaksi liitettävä kansio"
-
-#: ../src/tracker-store/tracker-store.c:122
-msgid "Directory to crawl for indexing at start up only"
-msgstr "Käynnistettäessä indeksointia varten läpikäytävä kansio"
-
-#: ../src/tracker-store/tracker-store.c:123
-msgid "Disable any indexing or watching taking place"
-msgstr "Poista kaikki indeksointi ja tarkkailu käytöstä"
-
-#: ../src/tracker-store/tracker-store.c:124
-msgid ""
-"Value that controls the level of logging. Valid values are 0 (displays/logs "
-"only errors), 1 (minimal), 2 (detailed), and 3 (debug)"
+#: ../src/libtracker-miner/tracker-miner-fs.c:493
+#: ../src/plugins/evolution/tracker-evolution-plugin.c:2244
+msgid "Initializing"
 msgstr ""
-"Arvo joka määrittelee lokiin kirjoitettavan tiedon määrän. Hyväksyttäviä "
-"arvoja ovat 0 (näyttää/kirjoittaa lokiin vain virheet), 1 (minimaalinen), 2 "
-"(yksityiskohtainen), ja 3 (virheenjäljitys)"
 
-#: ../src/tracker-store/tracker-store.c:124 ../src/tracker-store/tracker-store.c:125
-msgid "VALUE"
-msgstr "ARVO"
-
-#: ../src/tracker-store/tracker-store.c:125
-msgid ""
-"Value to use for throttling indexing. Value must be in range 0-99 (default "
-"0) with lower values increasing indexing speed"
-msgstr ""
-"Arvo jota käytetään indeksoinnin nopeuden säätelyyn. Arvon tulee olla "
-"välillä 0-99 (oletus 0), pienempien arvojen lisätessä indeksointinopeutta"
-
-#: ../src/tracker-store/tracker-store.c:126
-msgid "Minimizes the use of memory but may slow indexing down"
-msgstr "Minimoi käytettävän muistin määrän, mutta voi hidastaa indeksointia"
-
-#: ../src/tracker-store/tracker-store.c:127
-msgid "Initial sleep time, just before indexing, in seconds"
-msgstr "Odotusaika aluksi ennen indeksointia, sekunneissa"
-
-#: ../src/tracker-store/tracker-store.c:128
-msgid ""
-"Language to use for stemmer and stop words list (ISO 639-1 2 characters code)"
-msgstr ""
-"Kieli jota käytetään louhinta- ja hukkasanaluetteloihin (ISO 639-1 "
-"kaksikirjaiminen koodi)"
-
-#: ../src/tracker-store/tracker-store.c:128
-msgid "LANG"
-msgstr "KIELI"
-
-#: ../src/tracker-store/tracker-store.c:129
-msgid "Force a re-index of all content"
-msgstr "Pakota kaiken sisällön uudelleenindeksointi"
-
-#: ../src/tracker-store/tracker-store.c:130
-msgid "Make tracker errors fatal"
-msgstr "Tee trackerin virheistä kriittisiä"
-
-#. Translators: this messagge will apper immediately after the
-#. usage string - Usage: COMMAND <THIS_MESSAGE>
-#: ../src/tracker-store/tracker-store.c:668
-msgid "- start the tracker daemon"
-msgstr "- käynnistä tracker-seurantapalvelin"
-
-#: ../src/tracker-store/tracker-store.c:669 ../src/tracker-store/tracker-store.c:670
-msgid "DIRECTORY"
-msgstr "KANSIO"
-
-#: ../src/tracker-store/tracker-store.c:677
-msgid ""
-"To include or exclude multiple directories at the same time, join multiple "
-"options like:"
-msgstr ""
-"Sisällyttääksesi tai poissulkeaksesi useita kansioita samanaikaisesti, "
-"yhdistä useita valitsimia kuten:"
-
-#: ../src/tracker-applet/tracker-applet.desktop.in.in.h:1
-msgid "Control and monitor the Tracker search and indexing service"
-msgstr "Hallitse ja seuraa haku- ja indeksointipalvelu Trackerin toimintaa"
-
-#: ../src/tracker-applet/tracker-applet.desktop.in.in.h:2
-#: ../src/tracker-applet/tracker-applet.c:54
-msgid "Tracker Applet"
-msgstr "Tracker-sovelma"
-
-#. Translators: this will appear like "Tracker : Idle"
-#: ../src/tracker-applet/tracker-applet.c:238
-msgid "Tracker : "
-msgstr "Tracker : "
-
-#: ../src/tracker-applet/tracker-applet.c:243
+#: ../src/libtracker-miner/tracker-miner-fs.c:504
+#: ../src/libtracker-miner/tracker-miner-fs.c:607
 msgid "Idle"
 msgstr "Jouten"
 
-#: ../src/tracker-applet/tracker-applet.c:247
-msgid "Indexing"
-msgstr "Indeksoidaan"
-
-#: ../src/tracker-applet/tracker-applet.c:251
-msgid "Merging"
-msgstr "Yhdistetään"
-
-#: ../src/tracker-applet/tracker-applet.c:261
-msgid " (paused by user)"
-msgstr " (käyttäjän pysäyttämänä)"
-
-#: ../src/tracker-applet/tracker-applet.c:263
-#: ../src/tracker-applet/tracker-applet.c:274
-msgid " (paused by system)"
-msgstr " (järjestelmän pysäyttämänä)"
-
-#: ../src/tracker-applet/tracker-applet.c:278
-msgid " (paused by battery)"
-msgstr " (akkukäytön pysäyttämänä)"
-
-#: ../src/tracker-applet/tracker-applet.c:291
-msgid "folders"
-msgstr "kansiot"
-
-#: ../src/tracker-applet/tracker-applet.c:293
-msgid "mailboxes"
-msgstr "sähköpostilaatikot"
-
-#: ../src/tracker-applet/tracker-applet.c:1021
-msgid "Re-index your system?"
-msgstr "Indeksoidaanko tietokone uudestaan?"
-
-#: ../src/tracker-applet/tracker-applet.c:1024
-msgid "Indexing can take a long time. Are you sure you want to re-index?"
+#: ../src/libtracker-miner/tracker-miner-fs.c:1093
+#: ../src/libtracker-miner/tracker-miner-fs.c:1096
+msgid "Processing files"
 msgstr ""
-"Indeksointi voi kestää pitkään. Haluatko varmasti indeksoida uudestaan?"
 
-#: ../src/tracker-applet/tracker-applet.c:1162
-msgid "Statistics"
-msgstr "Tilastot"
+#: ../src/libtracker-miner/tracker-miner-fs.c:1540
+#, c-format
+msgid "Crawling recursively directory '%s'"
+msgstr ""
 
-#: ../src/tracker-applet/tracker-applet.c:1188
-msgid "<span weight=\"bold\" size=\"larger\">Index statistics</span>"
-msgstr "<span weight=\"bold\" size=\"larger\">Indeksointitilastot</span>"
+#: ../src/libtracker-miner/tracker-miner-fs.c:1542
+#, fuzzy, c-format
+msgid "Crawling single directory '%s'"
+msgstr "Indeksoidaan tiedostojärjestelmää"
 
-#: ../src/tracker-applet/tracker-applet.c:1313
+#: ../src/plugins/evolution/org-freedesktop-Tracker-evolution-plugin.eplug.xml.h:1
+msgid "Support for Tracker."
+msgstr ""
+
+#: ../src/plugins/evolution/org-freedesktop-Tracker-evolution-plugin.eplug.xml.h:2
+msgid "TrackerEvolutionPlugin"
+msgstr ""
+
+#: ../src/plugins/evolution/tracker-evolution-plugin.c:811
+msgid "Updating"
+msgstr ""
+
+#: ../src/plugins/evolution/tracker-evolution-plugin.c:2326
+msgid "Resuming"
+msgstr ""
+
+#: ../src/plugins/evolution/tracker-miner-emails.desktop.in.h:1
+#, fuzzy
+msgid "E-mails"
+msgstr "Sähköpostit"
+
+#: ../src/plugins/evolution/tracker-miner-emails.desktop.in.h:2
+#, fuzzy
+msgid "Evolution E-mails miner"
+msgstr "Käytä _Evolutionin sähköpostien indeksointia"
+
+#: ../src/tracker-extract/tracker-main.c:81
+#: ../src/tracker-miner-fs/tracker-main.c:75
+#: ../src/tracker-store/tracker-main.c:120
+msgid "Displays version information"
+msgstr "Näyttää versiotiedot"
+
+#: ../src/tracker-extract/tracker-main.c:85
+#: ../src/tracker-store/tracker-main.c:124
+msgid ""
+"Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default = "
+"0)"
+msgstr ""
+
+#: ../src/tracker-extract/tracker-main.c:90
+msgid "File to extract metadata for"
+msgstr ""
+
+#: ../src/tracker-extract/tracker-main.c:91
+#: ../src/tracker-utils/tracker-import.c:40
+#: ../src/tracker-utils/tracker-import.c:41
+#: ../src/tracker-utils/tracker-info.c:39
+#: ../src/tracker-utils/tracker-info.c:40
+#: ../src/tracker-utils/tracker-sparql.c:45
+msgid "FILE"
+msgstr ""
+
+#: ../src/tracker-extract/tracker-main.c:94
+msgid "MIME type for file (if not provided, this will be guessed)"
+msgstr ""
+
+#: ../src/tracker-extract/tracker-main.c:95
+msgid "MIME"
+msgstr ""
+
+#: ../src/tracker-extract/tracker-main.c:100
+msgid "Disable shutting down after 30 seconds of inactivity"
+msgstr ""
+
+#. Translators: this message will appear immediately after the
+#. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
+#: ../src/tracker-extract/tracker-main.c:285
+msgid "- Extract file meta data"
+msgstr ""
+
+#: ../src/tracker-extract/tracker-main.c:297
+msgid "Filename and mime type must be provided together"
+msgstr ""
+
+#: ../src/tracker-miner-fs/tracker-main.c:79
+msgid ""
+"Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default=0)"
+msgstr ""
+
+#: ../src/tracker-miner-fs/tracker-main.c:84
+msgid "Initial sleep time in seconds, 0->1000 (default=15)"
+msgstr ""
+
+#. Translators: this messagge will apper immediately after the
+#. * usage string - Usage: COMMAND <THIS_MESSAGE>
+#.
+#: ../src/tracker-miner-fs/tracker-main.c:256
+msgid "- start the tracker indexer"
+msgstr ""
+
+#: ../src/tracker-miner-fs/tracker-miner-files.c:764
+#, fuzzy
+msgid "Low battery"
+msgstr "akku vähissä"
+
+#: ../src/tracker-miner-fs/tracker-miner-files.c:852
+msgid "Low disk space"
+msgstr ""
+
+#: ../src/tracker-preferences/tracker-preferences.desktop.in.in.h:1
+msgid "Configure file indexing with Tracker"
+msgstr "Muuta Tracker-tiedostoindeksoinnin asetuksia"
+
+#: ../src/tracker-preferences/tracker-preferences.desktop.in.in.h:2
+msgid "Search and Indexing"
+msgstr "Haku ja indeksointi"
+
+#: ../src/tracker-preferences/tracker-preferences.vala:86
+msgid "Disabled"
+msgstr ""
+
+#: ../src/tracker-preferences/tracker-preferences.vala:89
+#, c-format
+msgid "%d%%"
+msgstr ""
+
+#: ../src/tracker-preferences/tracker-preferences.vala:94
+#, c-format
+msgid "%d/20"
+msgstr ""
+
+#: ../src/tracker-preferences/tracker-preferences.vala:102
+msgid "Enter value"
+msgstr ""
+
+#: ../src/tracker-preferences/tracker-preferences.vala:131
+msgid "Select directory"
+msgstr ""
+
+#: ../src/tracker-preferences/tracker-preferences.vala:342
+#: ../src/tracker-preferences/tracker-preferences.vala:343
+#: ../src/tracker-preferences/tracker-preferences.vala:344
+#: ../src/tracker-preferences/tracker-preferences.vala:345
+msgid "Directory"
+msgstr ""
+
+#: ../src/tracker-preferences/tracker-preferences.vala:346
+#, fuzzy
+msgid "File"
+msgstr "Tiedostot"
+
+#: ../src/tracker-search-bar/GNOME_Search_Bar_Applet.server.in.in.h:1
+msgid "Desktop search tool using Tracker"
+msgstr ""
+
+#: ../src/tracker-search-bar/GNOME_Search_Bar_Applet.server.in.in.h:2
+#, fuzzy
+msgid "Search Bar"
+msgstr "_Etsi"
+
+#.
+#. item = gtk_image_menu_item_new_with_mnemonic (_("_Indexer Preferences"));
+#. image = gtk_image_new_from_icon_name (GTK_STOCK_PREFERENCES,
+#. GTK_ICON_SIZE_MENU);
+#. gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (item), image);
+#. gtk_menu_shell_append (GTK_MENU_SHELL (menu), item);
+#. g_signal_connect (G_OBJECT (item), "activate",
+#. G_CALLBACK (preferences_menu_activated), icon);
+#.
+#.
+#. item = gtk_image_menu_item_new_with_mnemonic (_("S_tatistics"));
+#. image = gtk_image_new_from_icon_name (GTK_STOCK_INFO,
+#. GTK_ICON_SIZE_MENU);
+#. gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (item), image);
+#. gtk_menu_shell_append (GTK_MENU_SHELL (menu), item);
+#. g_signal_connect (G_OBJECT (item), "activate",
+#. G_CALLBACK (statistics_menu_activated), icon);
+#.
+#: ../src/tracker-search-bar/GNOME_Search_Bar_Applet.xml.h:1
+#: ../src/tracker-status-icon/tracker-status-icon.c:728
+msgid "_About"
+msgstr "Tietoj_a"
+
+#: ../src/tracker-search-bar/tracker-results-window.c:478
+msgid "Contacts"
+msgstr ""
+
+#: ../src/tracker-search-bar/tracker-results-window.c:479
+#, fuzzy
+msgid "Tags"
+msgstr "Merkinnät :"
+
+#: ../src/tracker-search-bar/tracker-results-window.c:480
+msgid "Email Addresses"
+msgstr ""
+
+#: ../src/tracker-search-bar/tracker-results-window.c:481
+msgid "Documents"
+msgstr "Asiakirjat"
+
+#: ../src/tracker-search-bar/tracker-results-window.c:483
+msgid "Audio"
+msgstr ""
+
+#: ../src/tracker-search-bar/tracker-results-window.c:484
+msgid "Folders"
+msgstr "Kansiot"
+
+#: ../src/tracker-search-bar/tracker-results-window.c:485
+msgid "Fonts"
+msgstr ""
+
+#: ../src/tracker-search-bar/tracker-results-window.c:487
+msgid "Archives"
+msgstr ""
+
+#: ../src/tracker-search-bar/tracker-results-window.c:488
+msgid "Websites"
+msgstr ""
+
+#: ../src/tracker-search-bar/tracker-results-window.c:494
+#, fuzzy
+msgid "Other"
+msgstr "    Muu:"
+
+#: ../src/tracker-search-bar/tracker-results-window.c:758
+#, fuzzy
+msgid "Category"
+msgstr "_Luokat"
+
+#: ../src/tracker-search-bar/tracker-results-window.c:782
+#, fuzzy
+msgid "Title"
+msgstr "Tiedostot"
+
+#: ../src/tracker-search-bar/tracker-results-window.c:844
+#, fuzzy, c-format
+msgid "No results found for «%s»"
+msgstr "Hakuehtoja vastaavia tuloksia ei löytynyt"
+
+#: ../src/tracker-search-tool/tracker-category-view.gs:54
+msgid "All Files"
+msgstr "Kaikki tiedostot"
+
+#: ../src/tracker-search-tool/tracker-category-view.gs:58
+#, fuzzy
+msgid "Office Documents"
+msgstr "Asiakirjat"
+
+#: ../src/tracker-search-tool/tracker-category-view.gs:62
+#, fuzzy
+msgid "Text Documents"
+msgstr "Asiakirjat"
+
+#: ../src/tracker-search-tool/tracker-entry.gs:36
+#, fuzzy
+msgid "Clear the search text"
+msgstr "Tunnisteita ei voitu etsiä"
+
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:94
+msgid "Type : "
+msgstr ""
+
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:100
+#, fuzzy
+msgid "Size : "
+msgstr "Koko : <b>%s</b>"
+
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:106
+#, fuzzy
+msgid "Modified : "
+msgstr "Muokattu : <b>%s</b>"
+
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:112
+msgid "Title : "
+msgstr ""
+
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:118
+msgid "Author/Artist : "
+msgstr ""
+
+#: ../src/tracker-search-tool/tracker-search-tool.desktop.in.in.h:1
+msgid ""
+"Locate documents and folders on this computer by name or content using "
+"Tracker"
+msgstr ""
+"Paikanna asiakirjoja ja kansioita tällä tietokoneella nimen tai sisällön "
+"perusteella käyttämällä Trackeria"
+
+#: ../src/tracker-search-tool/tracker-search-tool.desktop.in.in.h:2
+#: ../src/tracker-search-tool/tst.ui.h:2
+msgid "Tracker Search Tool"
+msgstr "Tracker-hakutyökalu"
+
+#: ../src/tracker-search-tool/tracker-search-tool.gs:43
+#, c-format
+msgid ""
+"Failed to load UI\n"
+"%s"
+msgstr ""
+
+#: ../src/tracker-search-tool/tracker-utils.gs:97
+#, c-format
+msgid ""
+"Could not get application info for %s\n"
+"Error: %s\n"
+msgstr ""
+
+#: ../src/tracker-search-tool/tracker-utils.gs:111
+#, fuzzy, c-format
+msgid ""
+"Could not lauch %s\n"
+"Error: %s\n"
+msgstr "Kohteelle '%s' ei voitu lisätä tunnisteita"
+
+#: ../src/tracker-search-tool/tst.ui.h:1
+#, fuzzy
+msgid "Details"
+msgstr "Sähköpostit"
+
+#: ../src/tracker-search-tool/tst.ui.h:3
+msgid "_Search:"
+msgstr "_Haku:"
+
+#: ../src/tracker-status-icon/tracker-main.c:48
+msgid "- Miner status and control notification area icon"
+msgstr ""
+
+#: ../src/tracker-status-icon/tracker-main.c:64
+msgid "Tracker"
+msgstr "Tracker"
+
+#: ../src/tracker-status-icon/tracker-status-icon.c:412
+#, fuzzy
+msgid "Miner is not running"
+msgstr "Nautilus-tiedostonhallinta ei ole käynnissä."
+
+#: ../src/tracker-status-icon/tracker-status-icon.c:443
+#: ../src/tracker-status-icon/tracker-status-icon.c:552
+#, fuzzy
+msgid "Paused by user"
+msgstr "käyttäjän toimesta"
+
+#: ../src/tracker-status-icon/tracker-status-icon.c:633
 msgid ""
 "Tracker is free software; you can redistribute it and/or modify it under the "
 "terms of the GNU General Public License as published by the Free Software "
@@ -686,7 +878,7 @@ msgstr ""
 "on sen määritellyt; voit halutessasi käyttää lisenssin versiota 2 taikka "
 "mitä tahansa tämän jälkeen ilmestynyttä versiota."
 
-#: ../src/tracker-applet/tracker-applet.c:1314
+#: ../src/tracker-status-icon/tracker-status-icon.c:637
 msgid ""
 "Tracker is distributed in the hope that it will be useful, but WITHOUT ANY "
 "WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS "
@@ -698,903 +890,1377 @@ msgstr ""
 "SOVELTUMISESTA TIETTYYN ERITYISEEN TARKOITUKSEEN. Yksityiskohtien osalta "
 "katso GNU:n GPL-lisenssiä."
 
-#: ../src/tracker-applet/tracker-applet.c:1315
+#: ../src/tracker-status-icon/tracker-status-icon.c:641
 msgid ""
 "You should have received a copy of the GNU General Public License along with "
-"Tracker; if not, write to the Free Software Foundation, Inc., 59 Temple "
-"Place, Suite 330, Boston, MA  02111-1307  USA"
+"Tracker; if not, write to the Free Software Foundation, Inc., 51 Franklin "
+"Street, Fifth Floor, Boston, MA  02110-1301, USA."
 msgstr ""
-"Sinun olisi pitänyt saada kopio GNU:n GPL-lisenssistä tämän ohjelman mukana; "
-"jos et sitä saanut, niin lähetä kirje Free Software Foundation, Inc. :lle, "
-"59 Temple Place, Suite 330, Boston, MA  02111-1307  USA"
 
-#: ../src/tracker-applet/tracker-applet.c:1330
-msgid ""
-"Tracker is a tool designed to extract info and metadata about your personal "
-"data so that it can be searched easily and quickly"
+#: ../src/tracker-status-icon/tracker-status-icon.c:656
+msgid "A notification icon application to monitor data miners for Tracker"
 msgstr ""
-"Tracker on työkalu, joka on suunniteltu erottamaan tietoja ja metatietoja "
-"henkilökohtaisista tiedostoistasi, jotta niitä hakea helposti ja nopeasti"
 
-#: ../src/tracker-applet/tracker-applet.c:1332
-msgid "Copyright © 2005-2008 The Tracker authors"
-msgstr "Tekijänoikeudet © 2005-2008 Trackerin tekijät"
+#: ../src/tracker-status-icon/tracker-status-icon.c:657
+#: ../src/tracker-search-bar/tracker-search-bar.ui.h:2
+msgid "Copyright Tracker Authors 2005-2009"
+msgstr ""
 
 #. Translators should localize the following string
 #. * which will be displayed at the bottom of the about
 #. * box to give credit to the translator(s).
 #.
-#: ../src/tracker-applet/tracker-applet.c:1340
+#: ../src/tracker-status-icon/tracker-status-icon.c:666
 msgid "translator-credits"
 msgstr ""
 "Timo Jyrinki, 2007-2008.\n"
 "Ilkka Tuohela, 2006-2008.\n"
 "\n"
-"http://gnome.fi/"
+"http://gnome.fi/\n"
+"\n"
+"Launchpad Contributions:\n"
+"  Jiri Grönroos https://launchpad.net/~jiri-gronroos\n"
+"  Timo Jyrinki https://launchpad.net/~timo-jyrinki\n"
+"  Timo Jyrinki https://launchpad.net/~timo-jyrinki-iki"
 
-#: ../src/tracker-applet/tracker-applet.c:1343
-msgid "Tracker Web Site"
-msgstr "Tracker-WWW-sivusto"
-
-#: ../src/tracker-applet/tracker-applet.c:1363
+#: ../src/tracker-status-icon/tracker-status-icon.c:682
 msgid "_Pause All Indexing"
 msgstr "_Pysäytä kaikki indeksointi"
 
-#: ../src/tracker-applet/tracker-applet.c:1374
+#: ../src/tracker-status-icon/tracker-status-icon.c:691
 msgid "_Search"
 msgstr "_Etsi"
 
-#: ../src/tracker-applet/tracker-applet.c:1384
-msgid "_Re-index"
-msgstr "_Indeksoi uudelleen"
-
-#: ../src/tracker-applet/tracker-applet.c:1393
+#: ../src/tracker-status-icon/tracker-status-icon.c:699
 msgid "_Preferences"
 msgstr "A_setukset"
 
-#: ../src/tracker-applet/tracker-applet.c:1404
-msgid "_Indexer Preferences"
-msgstr "_Indeksoinnin asetukset"
+#: ../src/tracker-status-icon/tracker-status-icon.desktop.in.in.h:1
+msgid "Control and monitor the Tracker search and indexing service"
+msgstr "Hallitse ja seuraa haku- ja indeksointipalvelu Trackerin toimintaa"
 
-#: ../src/tracker-applet/tracker-applet.c:1413
-msgid "S_tatistics"
-msgstr "_Tilastot"
+#: ../src/tracker-status-icon/tracker-status-icon.desktop.in.in.h:2
+msgid "Tracker Applet"
+msgstr "Tracker-sovelma"
 
-#: ../src/tracker-applet/tracker-applet.c:1422
-msgid "_About"
-msgstr "Tietoj_a"
+#: ../src/tracker-store/tracker-main.c:129
+msgid "Minimizes the use of memory but may slow indexing down"
+msgstr "Minimoi käytettävän muistin määrän, mutta voi hidastaa indeksointia"
 
-#: ../src/tracker-applet/tracker-applet.c:1434
-msgid "_Quit"
-msgstr "_Poistu"
+#: ../src/tracker-store/tracker-main.c:135
+msgid "Force a re-index of all content"
+msgstr "Pakota kaiken sisällön uudelleenindeksointi"
 
-#: ../src/tracker-applet/tracker-applet.c:1997 ../tracker-store.desktop.in.in.h:1
-msgid "Tracker"
-msgstr "Tracker"
-
-#: ../src/tracker-applet/tracker-applet.c:2004
-msgid ""
-"Your computer is about to be indexed so you can perform fast searches of "
-"your files and emails"
+#: ../src/tracker-store/tracker-main.c:139
+msgid "Only allow read based actions on the database"
 msgstr ""
-"Tietokone indeksoidaan, jotta tiedostoista ja sähköposteista voidaan tehdä "
-"nopeita hakuja"
 
-#: ../src/tracker-applet/tracker-applet.c:2007
-msgid ""
-"You can pause indexing at any time and configure index settings by right "
-"clicking here"
+#. Translators: this messagge will apper immediately after the
+#. * usage string - Usage: COMMAND <THIS_MESSAGE>
+#.
+#: ../src/tracker-store/tracker-main.c:669
+msgid "- start the tracker daemon"
+msgstr "- käynnistä tracker-seurantapalvelin"
+
+#. Translators: this messagge will apper immediately after the
+#. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
+#: ../src/tracker-utils/tracker-import.c:60
+msgid "- Import data using Turtle files"
 msgstr ""
-"Indeksoinnin voi pysäyttää milloin vain, ja indeksointiasetuksia voi muuttaa "
-"napsauttamalla oikealla hiiren painikkeella"
 
-#: ../src/tracker-applet/tracker-applet.c:2010
-msgid "Tracker has finished indexing your system"
-msgstr "Tracker on nyt indeksoinut järjestelmän"
+#: ../src/tracker-utils/tracker-import.c:71
+#: ../src/tracker-utils/tracker-info.c:98
+#, fuzzy
+msgid "One or more files have not been specified"
+msgstr "Tiedostoja ei valittu"
 
-#: ../src/tracker-applet/tracker-applet.c:2011
+#: ../src/tracker-utils/tracker-import.c:87
+#: ../src/tracker-utils/tracker-info.c:114
+#: ../src/tracker-utils/tracker-sparql.c:185
+#: ../src/tracker-utils/tracker-stats.c:78
+#: ../src/tracker-utils/tracker-status.c:378
+#: ../src/tracker-utils/tracker-tag.c:659
+#, fuzzy
+msgid "Could not establish a D-Bus connection to Tracker"
+msgstr "DBus-yhteyttä Trackeriin ei voitu muodostaa"
+
+#: ../src/tracker-utils/tracker-import.c:97
+msgid "Importing Turtle file"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-import.c:110
+msgid "Unable to import Turtle file"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-import.c:117
+#: ../src/tracker-utils/tracker-status.c:182
+msgid "Done"
+msgstr ""
+
+#. Translators: this messagge will apper immediately after the
+#. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
+#: ../src/tracker-utils/tracker-info.c:87
+msgid "- Get all information about one or more files"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-info.c:125
+msgid "Querying information for file"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-info.c:148
+msgid "Unable to retrieve data for URI"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-info.c:157
+msgid "No metadata available for that URI"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-processes.c:46
+msgid "Use SIGKILL to stop all tracker processes found - guarantees death :)"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-processes.c:49
+msgid "Use SIGTERM to stop all tracker processes found"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-processes.c:53
+msgid ""
+"This will kill all Tracker processes and remove all databases except the "
+"backup and journal (a restart will restore the data)"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-processes.c:56
+msgid "This will kill all Tracker processes and remove all databases"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-processes.c:72
+msgid "Could not open /proc"
+msgstr "Ei voitu avata kohdetta /proc"
+
+#: ../src/tracker-utils/tracker-processes.c:73
+#: ../src/tracker-utils/tracker-processes.c:182
+#: ../src/tracker-utils/tracker-processes.c:212
+#: ../src/tracker-utils/tracker-processes.c:226
+msgid "no error given"
+msgstr ""
+
+#. Translators: this messagge will apper immediately after the
+#. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
+#: ../src/tracker-utils/tracker-processes.c:143
+msgid " - Manage Tracker processes and data"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-processes.c:150
+msgid "You can not use the --kill and --terminate arguments together"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-processes.c:154
+msgid "You can not use the --terminate with --hard-reset, --kill is implied"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-processes.c:179
 #, c-format
-msgid " in %d hours and %d minutes"
-msgstr " %d tuntia ja %d minuuttia"
+msgid "Could not open '%s'"
+msgstr ""
 
-#: ../src/tracker-applet/tracker-applet.c:2012
+#: ../src/tracker-utils/tracker-processes.c:201
 #, c-format
-msgid " in %d minutes and %d seconds"
-msgstr " %d minuuttia ja %d sekuntia"
+msgid "Found process ID %d for '%s'"
+msgstr ""
 
-#: ../src/tracker-applet/tracker-applet.c:2013
+#: ../src/tracker-utils/tracker-processes.c:209
 #, c-format
-msgid " in %d seconds"
-msgstr " %d sekuntia"
+msgid "Could not terminate process %d"
+msgstr ""
 
-#: ../src/tracker-applet/tracker-applet.c:2015
-msgid "You can now perform searches by clicking here"
-msgstr "Voit tehdä hakuja napsauttamalla tästä"
+#: ../src/tracker-utils/tracker-processes.c:215
+#, c-format
+msgid "Terminated process %d"
+msgstr ""
 
-#: ../src/tracker-applet/tracker-applet.c:2018
-msgid "Files:"
-msgstr "Tiedostot:"
+#: ../src/tracker-utils/tracker-processes.c:223
+#, c-format
+msgid "Could not kill process %d"
+msgstr "Prosessia %d ei voitu tappaa"
 
-#: ../src/tracker-applet/tracker-applet.c:2019
-msgid "    Folders:"
-msgstr "    Kansiot:"
+#: ../src/tracker-utils/tracker-processes.c:229
+#, c-format
+msgid "Killed process %d"
+msgstr "Prosessi %d tapettiin"
 
-#: ../src/tracker-applet/tracker-applet.c:2020
-msgid "    Documents:"
-msgstr "    Asiakirjat:"
+#: ../src/tracker-utils/tracker-search.c:50
+#: ../src/tracker-utils/tracker-tag.c:45
+msgid "Limit the number of results shown"
+msgstr "Rajaa näytettävien tulosten lukumäärää"
 
-#: ../src/tracker-applet/tracker-applet.c:2021
-msgid "    Images:"
-msgstr "    Kuvat:"
+#: ../src/tracker-utils/tracker-search.c:51
+#: ../src/tracker-utils/tracker-tag.c:46
+msgid "512"
+msgstr ""
 
-#: ../src/tracker-applet/tracker-applet.c:2022
-msgid "    Music:"
-msgstr "    Musiikki:"
+#: ../src/tracker-utils/tracker-search.c:54
+#: ../src/tracker-utils/tracker-tag.c:49
+msgid "Offset the results"
+msgstr ""
 
-#: ../src/tracker-applet/tracker-applet.c:2023
-msgid "    Videos:"
-msgstr "    Videot:"
+#: ../src/tracker-utils/tracker-search.c:55
+#: ../src/tracker-utils/tracker-tag.c:50
+msgid "0"
+msgstr ""
 
-#: ../src/tracker-applet/tracker-applet.c:2024
-msgid "    Text:"
-msgstr "    Teksti:"
+#: ../src/tracker-utils/tracker-search.c:58
+#: ../src/tracker-utils/tracker-tag.c:53
+msgid "Use OR for search terms instead of AND (the default)"
+msgstr ""
 
-#: ../src/tracker-applet/tracker-applet.c:2025
-msgid "    Development:"
-msgstr "    Kehitys:"
+#: ../src/tracker-utils/tracker-search.c:62
+msgid "Show more detailed results (only applies to general search)"
+msgstr ""
 
-#: ../src/tracker-applet/tracker-applet.c:2026
-msgid "    Other:"
-msgstr "    Muu:"
+#: ../src/tracker-utils/tracker-search.c:66
+#, fuzzy
+msgid "Search for files"
+msgstr "Etsi tiettyä palvelua"
 
-#: ../src/tracker-applet/tracker-applet.c:2027
-msgid "Applications:"
-msgstr "Sovellukset:"
+#: ../src/tracker-utils/tracker-search.c:70
+#, fuzzy
+msgid "Search for folders"
+msgstr "Etsi tiettyä palvelua"
 
-#: ../src/tracker-applet/tracker-applet.c:2028
-msgid "Conversations:"
-msgstr "Keskustelut:"
+#: ../src/tracker-utils/tracker-search.c:74
+msgid "Search for music albums (includes song count and duration sum)"
+msgstr ""
 
-#: ../src/tracker-applet/tracker-applet.c:2029
-msgid "Emails:"
-msgstr "Sähköpostit"
+#: ../src/tracker-utils/tracker-search.c:78
+#, fuzzy
+msgid "Search for music artists"
+msgstr "Hakuehtoja puuttuu"
 
-#: ../src/tracker-applet/tracker-applet-prefs.glade.h:1
-msgid "<b>Animation</b>"
-msgstr "<b>Animaatio</b>"
+#: ../src/tracker-utils/tracker-search.c:82
+#, fuzzy
+msgid "Search for music files"
+msgstr "Etsi tiettyä palvelua"
 
-#: ../src/tracker-applet/tracker-applet-prefs.glade.h:2
-msgid "<b>Smart Pausing</b>"
-msgstr "<b>Älykäs pysäytys</b>"
+#: ../src/tracker-utils/tracker-search.c:86
+#, fuzzy
+msgid "Search for image files"
+msgstr "_Etsi merkinnällä"
 
-#: ../src/tracker-applet/tracker-applet-prefs.glade.h:3
-msgid "<b>Visibility</b>"
+#: ../src/tracker-utils/tracker-search.c:90
+#, fuzzy
+msgid "Search for video files"
+msgstr "Etsi tiettyä palvelua"
+
+#: ../src/tracker-utils/tracker-search.c:94
+#, fuzzy
+msgid "Search for document files"
+msgstr ""
+"Näytä asiakirja %s\n"
+"ohjelmassa %s"
+
+#: ../src/tracker-utils/tracker-search.c:99
+msgid "search terms"
+msgstr "hakuehdot"
+
+#: ../src/tracker-utils/tracker-search.c:100
+msgid "EXPRESSION"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-search.c:117
+#: ../src/tracker-utils/tracker-tag.c:92
+msgid ""
+"NOTE: Limit was reached, there are more items in the database not listed here"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-search.c:171
+#: ../src/tracker-utils/tracker-search.c:436
+#: ../src/tracker-utils/tracker-search.c:548
+#: ../src/tracker-utils/tracker-search.c:730
+#, fuzzy
+msgid "Could not get search results"
+msgstr "Tunnisteita ei voitu etsiä"
+
+#: ../src/tracker-utils/tracker-search.c:180
+#, fuzzy
+msgid "No files were found"
+msgstr "Tiedostoja ei valittu"
+
+#: ../src/tracker-utils/tracker-search.c:445
+msgid "No artists were found"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-search.c:489
+#, c-format
+msgid "Album '%s'"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-search.c:557
+msgid "No music was found"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-search.c:739
+#, fuzzy
+msgid "No results were found matching your query"
+msgstr "Hakuehtoja vastaavia tuloksia ei löytynyt"
+
+#. Translators: this messagge will apper immediately after the
+#. * usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
+#.
+#: ../src/tracker-utils/tracker-search.c:779
+msgid "- Search for terms in all data"
+msgstr ""
+
+#. Translators: this message will appear after the usage string
+#. * and before the list of options.
+#.
+#: ../src/tracker-utils/tracker-search.c:784
+msgid ""
+"Applies an AND operator to all terms separated by a space (see --or-operator)"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-search.c:788
+msgid ""
+"This means if you search for 'foo' and 'bar', they must BOTH exist (unless "
+"you use --or-operator)"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-search.c:806
+msgid "Search terms are missing"
+msgstr "Hakuehtoja puuttuu"
+
+#: ../src/tracker-utils/tracker-search.c:822
+msgid "Could not establish a DBus connection to Tracker"
+msgstr "DBus-yhteyttä Trackeriin ei voitu muodostaa"
+
+#: ../src/tracker-utils/tracker-sparql.c:44
+msgid "Path to use to run a query or update from file"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-sparql.c:48
+msgid "SPARQL query"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-sparql.c:49
+msgid "SPARQL"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-sparql.c:52
+msgid "This is used with --query and for database updates only."
+msgstr ""
+
+#: ../src/tracker-utils/tracker-sparql.c:56
+msgid "Retrieve classes"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-sparql.c:60
+msgid "Retrieve class prefixes"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-sparql.c:64
+msgid ""
+"Retrieve properties for a class, prefixes can be used too (e.g. "
+"rdfs#Resource)"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-sparql.c:65
+msgid "CLASS"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-sparql.c:91
+#, fuzzy
+msgid "Could not get namespace prefixes"
+msgstr "Tunnistelistaa ei saatavilla"
+
+#: ../src/tracker-utils/tracker-sparql.c:100
+msgid "No namespace prefixes were found"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-sparql.c:159
+msgid "- Query or update using SPARQL"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-sparql.c:169
+msgid "Either a file or query needs to be specified"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-sparql.c:198
+#, fuzzy
+msgid "Could not list classes"
+msgstr "Tunnisteita ei voitu etsiä"
+
+#: ../src/tracker-utils/tracker-sparql.c:208
+#, fuzzy
+msgid "No classes were found"
+msgstr "Tiedostoja ei valittu"
+
+#: ../src/tracker-utils/tracker-sparql.c:236
+#, fuzzy
+msgid "Could not list class prefixes"
+msgstr "Prosessia %d ei voitu tappaa"
+
+#: ../src/tracker-utils/tracker-sparql.c:246
+msgid "No class prefixes were found"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-sparql.c:278
+msgid ""
+"Could not find property for class prefix, e.g. #Resource in 'rdfs#Resource'"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-sparql.c:315
+#, fuzzy
+msgid "Could not list properties"
+msgstr "Prosessia %d ei voitu tappaa"
+
+#: ../src/tracker-utils/tracker-sparql.c:325
+#, fuzzy
+msgid "No properties were found"
+msgstr "Ominaisuuksia ei ole saatavilla"
+
+#: ../src/tracker-utils/tracker-sparql.c:347
+msgid "Could not get UTF-8 path from path"
+msgstr "Polusta ei voitu muodostaa UTF-8:n mukaista polkua"
+
+#: ../src/tracker-utils/tracker-sparql.c:359
+msgid "Could not read file"
+msgstr "Tiedoston lukeminen ei onnistunut"
+
+#: ../src/tracker-utils/tracker-sparql.c:378
+#, fuzzy
+msgid "Could not run update"
+msgstr "Tiedoston lukeminen ei onnistunut"
+
+#: ../src/tracker-utils/tracker-sparql.c:389
+#, fuzzy
+msgid "Could not run query"
+msgstr "Tiedoston lukeminen ei onnistunut"
+
+#: ../src/tracker-utils/tracker-sparql.c:398
+msgid "No results found matching your query"
+msgstr "Hakuehtoja vastaavia tuloksia ei löytynyt"
+
+#. Translators: this messagge will apper immediately after the
+#. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
+#: ../src/tracker-utils/tracker-stats.c:70
+msgid " - Show statistics for all Nepomuk defined ontology classes"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-stats.c:86
+msgid "Could not get Tracker statistics"
+msgstr "Tracker-tilastoja ei saatavilla"
+
+#: ../src/tracker-utils/tracker-stats.c:95
+msgid "No statistics available"
+msgstr "Tilastoja ei saatavilla"
+
+#: ../src/tracker-utils/tracker-stats.c:98
+msgid "Statistics:"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-status.c:57
+msgid "Follow status changes as they happen"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-status.c:61
+msgid "Include details with state updates (only applies to --follow)"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-status.c:65
+msgid "Shows the key used when listing miners and their states"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-status.c:69
+msgid "List all miners currently running"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-status.c:73
+#, fuzzy
+msgid "List all miners installed"
+msgstr "Näyttää kaikki määritellyt merkinnät"
+
+#: ../src/tracker-utils/tracker-status.c:77
+msgid "List pause reasons and applications for a miner"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-status.c:81
+msgid ""
+"Miner to use with other commands (you can use suffixes, e.g. FS or "
+"Applications)"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-status.c:82
+msgid "MINER"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-status.c:85
+msgid "Pause a miner (you must use this with --miner)"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-status.c:86
+msgid "REASON"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-status.c:89
+msgid "Resume a miner (you must use this with --miner)"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-status.c:90
+msgid "COOKIE"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-status.c:146
+#, c-format
+msgid "Attempting to pause miner '%s' with reason '%s'"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-status.c:153
+#, fuzzy, c-format
+msgid "Could not pause miner: %s"
+msgstr "Kansiota \"%s\" ei voi avata."
+
+#: ../src/tracker-utils/tracker-status.c:157
+#, c-format
+msgid "Cookie is %d"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-status.c:171
+#, c-format
+msgid "Attempting to resume miner %s with cookie %d"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-status.c:178
+#, fuzzy, c-format
+msgid "Could not resume miner: %s"
+msgstr "Kohteen '%s' tunnisteita ei voitu poistaa"
+
+#: ../src/tracker-utils/tracker-status.c:198
+#, fuzzy, c-format
+msgid "Could not get status from miner: %s"
+msgstr "Kohteelle '%s' ei voitu lisätä tunnisteita"
+
+#: ../src/tracker-utils/tracker-status.c:241
+#: ../src/tracker-utils/tracker-status.c:249
+msgid "Progress"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-status.c:244
+msgid "Status"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-status.c:334
+msgid "- Monitor and control status"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-status.c:342
+msgid "You can not use miner pause and resume switches together"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-status.c:356
+msgid "You must provide the miner for pause or resume commands"
+msgstr ""
+
+#. Show status of all miners
+#. Translators: "Key" is in terms of a "legend". I.e.
+#. * R=Running, P=Paused, etc.
+#.
+#: ../src/tracker-utils/tracker-status.c:389
+msgid "Key"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-status.c:390
+msgid "[R] = Running"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-status.c:391
+msgid "[P] = Paused"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-status.c:392
+msgid "[ ] = Not Running"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-status.c:404
+#, c-format
+msgid "Found %d miners installed"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-status.c:416
+#, c-format
+msgid "Found %d miners running"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-status.c:449
+msgid "No miners are running"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-status.c:489
+#: ../src/tracker-utils/tracker-status.c:519
+msgid "Miners"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-status.c:496
+msgid "Application"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-status.c:498
+msgid "Reason"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-status.c:507
+#, fuzzy
+msgid "No miners are paused"
+msgstr "Tiedostoja ei valittu"
+
+#: ../src/tracker-utils/tracker-tag.c:57
+msgid "List all tags (using FILTER if specified)"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-tag.c:61
+msgid "Show files associated with each tag (this is only used with --list)"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-tag.c:65
+msgid "Add a tag (if FILEs are omitted, TAG is not associated with any files)"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-tag.c:66 ../src/tracker-utils/tracker-tag.c:70
+msgid "TAG"
+msgstr "MERKINTÄ"
+
+#: ../src/tracker-utils/tracker-tag.c:69
+msgid "Delete a tag (if FILEs are omitted, TAG is removed for all files)"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-tag.c:75
+msgid "FILE…"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-tag.c:76
+msgid "FILE [FILE…]"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-tag.c:263
+#, fuzzy
+msgid "Could not get files related to tag"
+msgstr "Trackerin tilaa ei voitu määrittää"
+
+#: ../src/tracker-utils/tracker-tag.c:336
+#: ../src/tracker-utils/tracker-tag.c:586
+#, fuzzy
+msgid "Could not get all tags"
+msgstr "Tunnistelistaa ei saatavilla"
+
+#: ../src/tracker-utils/tracker-tag.c:345
+#: ../src/tracker-utils/tracker-tag.c:595
+msgid "No tags were found"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-tag.c:435
+#, fuzzy
+msgid "Could not add tag"
+msgstr "Tunnisteita ei voitu etsiä"
+
+#: ../src/tracker-utils/tracker-tag.c:443
+msgid "Tag was added successfully"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-tag.c:477
+#, fuzzy
+msgid "Could not get tag by label"
+msgstr "Tunnistelistaa ei saatavilla"
+
+#: ../src/tracker-utils/tracker-tag.c:487
+msgid "No tags were found by that name"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-tag.c:541
+#, fuzzy
+msgid "Could not remove tag"
+msgstr "Kohteen '%s' tunnisteita ei voitu poistaa"
+
+#: ../src/tracker-utils/tracker-tag.c:549
+msgid "Tag was removed successfully"
+msgstr ""
+
+#. Translators: this messagge will apper immediately after the
+#. * usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
+#.
+#: ../src/tracker-utils/tracker-tag.c:624
+#, fuzzy
+msgid "Add, remove or list tags"
+msgstr "Lisää, poista tai etsi tunnisteita"
+
+#: ../src/tracker-utils/tracker-tag.c:633
+msgid "The --list option is required for --show-files"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-tag.c:635
+msgid "Add and delete actions can not be used together"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-tag.c:637
+msgid "No arguments were provided"
+msgstr ""
+
+#: ../python/gtk-sparql/gtk-sparql.ui.h:1
+msgid "Saved queries"
+msgstr ""
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:1
+#, fuzzy
+msgid "<b>Directories</b>"
+msgstr "<b>Tarkkaile kansioita</b>"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:2
+#, fuzzy
+msgid "<b>Files</b>"
 msgstr "<b>Näkyvyys</b>"
 
-#: ../src/tracker-applet/tracker-applet-prefs.glade.h:4
-msgid "Animate _icon when indexing"
-msgstr "Animoi _kuvake indeksointaessa"
-
-#: ../src/tracker-applet/tracker-applet-prefs.glade.h:5
-msgid "Applet Preferences"
-msgstr "Sovelman asetukset"
-
-#: ../src/tracker-applet/tracker-applet-prefs.glade.h:6
-msgid ""
-"Automatically _pause if indexing may degrade performance of other "
-"applications in active use"
-msgstr ""
-"K_eskeytä automaattisesti, jos indeksointi saattaisi vaikuttaa muiden "
-"käytössä olevien ohjelmien suorituskykyyn"
-
-#: ../src/tracker-applet/tracker-applet-prefs.glade.h:7
-msgid "_Automatically pause all indexing when computer is in active use"
-msgstr "Keskeytä indeksointi _automaattisesti tietokoneen ollessa käytössä"
-
-#: ../src/tracker-applet/tracker-applet-prefs.glade.h:8
-msgid "_Hide Icon (except when displaying messages to user)"
-msgstr "P_iiilota kuvake (paitsi näytettäessä viestejä käyttäjälle)"
-
-#: ../src/tracker-applet/tracker-applet-prefs.glade.h:9
-msgid "_Off"
-msgstr "Ei _käytössä"
-
-#: ../src/tracker-preferences/tracker-preferences.c:829
-msgid "Data must be reindexed"
-msgstr "Tiedot tulee indeksoida uudelleen"
-
-#: ../src/tracker-preferences/tracker-preferences.c:830
-msgid ""
-"In order for your changes to take effect, Tracker must reindex your files. "
-"Click the Reindex button to start reindexing now, otherwise this action will "
-"be performed the next time the Tracker daemon is restarted."
-msgstr ""
-"Jotta muutokset tulisivat voimaan, Trackerin tulee indeksoida tiedostot "
-"uudelleen. Napsauta Indeksoi uudelleen -painiketta aloittaaksesi sen nyt. "
-"Muussa tapauksessa tämä suoritetaan kun Tracker-palvelu käynnistetään "
-"seuraavan kerran uudelleen."
-
-#: ../src/tracker-preferences/tracker-preferences.c:837
-msgid "_Reindex"
-msgstr "_Indeksoi uudelleen"
-
-#: ../src/tracker-preferences/tracker-preferences.c:840
-msgid "Tracker daemon must be restarted"
-msgstr "Tracker-palvelu tulee käynnistää uudelleen"
-
-#: ../src/tracker-preferences/tracker-preferences.c:842
-msgid ""
-"In order for your changes to take effect, the Tracker daemon has to be "
-"restarted. Click the Restart button to restart the daemon now."
-msgstr ""
-"Jotta muutokset tulisivat voimaan, Tracker-palvelu tulee käynnistää "
-"uudelleen. Napsauta Käynnistä uudelleen -painiketta käynnistääksesi palvelun "
-"uudelleen nyt."
-
-#: ../src/tracker-preferences/tracker-preferences.c:847
-msgid "_Restart"
-msgstr "_Käynnistä uudelleen"
-
-#: ../src/tracker-preferences/tracker-preferences.desktop.in.in.h:1
-msgid "Configure file indexing with Tracker"
-msgstr "Muuta Tracker-tiedostoindeksoinnin asetuksia"
-
-#: ../src/tracker-preferences/tracker-preferences.desktop.in.in.h:2
-msgid "Search and Indexing"
-msgstr "Haku ja indeksointi"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:1
-msgid "<b>Crawled Directories</b>"
-msgstr "<b>Läpikäydyt kansiot</b>"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:2
-msgid "<b>Ignored File Patterns</b>"
-msgstr "<b>Sivuutetut tiedostonimityypit</b>"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:3
-msgid "<b>Ignored Paths</b>"
-msgstr "<b>Sivuutetut polut</b>"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:4
-msgid "<b>Index Merging</b>"
-msgstr "<b>Indeksien yhdistäminen</b>"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:5
-msgid "<b>Indexing Limits (per file)</b>"
-msgstr "<b>Indeksoinnin rajoitukset (tiedostoa kohden)</b>"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:6
-msgid "<b>Indexing Options</b>"
-msgstr "<b>Indeksoinnin valinnat</b>"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:7
+#: ../src/tracker-preferences/tracker-preferences.ui.h:3
 msgid "<b>Indexing</b>"
 msgstr "<b>Indeksointi</b>"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:8
-msgid "<b>Power management</b>"
-msgstr "<b>Virranhallinta</b>"
+#: ../src/tracker-preferences/tracker-preferences.ui.h:4
+msgid "<b>Non-Recursively Indexed</b>"
+msgstr ""
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:9
-msgid "<b>Resource Usage</b>"
-msgstr "<b>Resurssien käyttö</b>"
+#: ../src/tracker-preferences/tracker-preferences.ui.h:5
+msgid "<b>Recursively Indexed</b>"
+msgstr ""
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:10
-msgid "<b>Startup</b>"
+#: ../src/tracker-preferences/tracker-preferences.ui.h:6
+#, fuzzy
+msgid "<b>Start up</b>"
 msgstr "<b>Käynnistys</b>"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:11
-msgid "<b>Stemming</b>"
-msgstr "<b>Stemmaus</b>"
+#: ../src/tracker-preferences/tracker-preferences.ui.h:7
+msgid "Create thumbnails from images and videos"
+msgstr ""
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:12
-msgid "<b>Throttling</b>"
-msgstr "<b>Nopeuden säätö</b>"
+#: ../src/tracker-preferences/tracker-preferences.ui.h:8
+msgid "Directories (no sub-directories are indexed):"
+msgstr ""
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:13
-msgid "<b>Watch Directories</b>"
+#: ../src/tracker-preferences/tracker-preferences.ui.h:9
+#, fuzzy
+msgid "Directories:"
 msgstr "<b>Tarkkaile kansioita</b>"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:14
-msgid "Additional mbox style mailboxes to index:"
-msgstr "Ylimääräiset indeksoitavat mbox-postilaatikot:"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:15
-msgid "Additional paths to index and watch:"
-msgstr "Ylimääräiset indeksoitavat ja tarkkailtavat polut:"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:16
-msgid "Additional paths to index on startup (but not watch for updates):"
+#: ../src/tracker-preferences/tracker-preferences.ui.h:10
+msgid "Disk space _limit:"
 msgstr ""
-"Ylimääräiset käynnistettäessä indeksoitavat polut (mutta joiden muutoksia ei "
-"tarkkailla):"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:17
-msgid ""
-"Danish\n"
-"Dutch\n"
-"English\n"
-"Finnish\n"
-"French\n"
-"German\n"
-"Hungarian\n"
-"Italian\n"
-"Norwegian\n"
-"Portuguese\n"
-"Russian\n"
-"Spanish\n"
-"Swedish"
-msgstr ""
-"tanska\n"
-"hollanti\n"
-"englanti\n"
-"suomi\n"
-"ranska\n"
-"saksa\n"
-"unkari\n"
-"italia\n"
-"norja\n"
-"portugali\n"
-"venäjä\n"
-"espanja\n"
-"ruotsi"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:30
-msgid "Disable all Indexing when on battery"
-msgstr "Poista kaikki indeksointi käytöstä, kun ollaan akun varassa"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:31
-msgid "Disable initial index sweep when on battery"
-msgstr ""
-"Poista ensimmäinen indeksointiläpikäynti käytöstä, kun ollaan akun varassa"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:32
-msgid "Email"
-msgstr "Sähköposti"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:33
-msgid "Enable _Evolution email indexing"
-msgstr "Käytä _Evolutionin sähköpostien indeksointia"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:34
-msgid "Enable _KMail email indexing"
-msgstr "Käytä _KMailin sähköpostien indeksointia"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:35
-msgid "Enable _Modest email indexing"
-msgstr "Käytä _Modestin sähköpostien indeksointia"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:36
-msgid "Enable _Thunderbird email indexing"
-msgstr "Käytä _Thunderbirdin sähköpostien indeksointia"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:37
-msgid "Enable _watching"
-msgstr "Käytä _tarkkailua"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:38
-msgid "Enable i_ndexing"
+#: ../src/tracker-preferences/tracker-preferences.ui.h:11
+#, fuzzy
+msgid "Enable _monitoring"
 msgstr "Käytä _indeksointia"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:39
+#: ../src/tracker-preferences/tracker-preferences.ui.h:12
+#, fuzzy
+msgid "Enable _thumbnails"
+msgstr "Luo _pienoiskuvat"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:13
+msgid "Enable for _first time"
+msgstr ""
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:14
+#, fuzzy
+msgid "Enable when running on _battery"
+msgstr "Poista kaikki indeksointi käytöstä, kun ollaan akun varassa"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:15
 msgid "Faster"
 msgstr "Nopeammin"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:40
-msgid "File patterns to ignore during indexing:"
-msgstr "Indeksoitaessa huomiotta jätettävät tiedostonimityypit:"
+#: ../src/tracker-preferences/tracker-preferences.ui.h:16
+msgid ""
+"Follow changes made to files and new files created by watching directories"
+msgstr ""
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:41
-msgid "Files"
-msgstr "Tiedostot"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:42
+#: ../src/tracker-preferences/tracker-preferences.ui.h:17
 msgid "General"
 msgstr "Yleiset"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:43
-msgid "Generate thum_bnails"
-msgstr "Luo _pienoiskuvat"
+#: ../src/tracker-preferences/tracker-preferences.ui.h:18
+#, fuzzy
+msgid "Glob patterns to ignore:"
+msgstr "Indeksoitaessa huomiotta jätettävät tiedostonimityypit:"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:44
-msgid "Ignored Files"
+#: ../src/tracker-preferences/tracker-preferences.ui.h:19
+msgid ""
+"Globbing patterns can be used here, for example: \"*bar*\".\n"
+"Most commonly this is used to ignore directories like *~, *.o, *.la, etc"
+msgstr ""
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:21
+msgid ""
+"If this is unchecked, then Tracker will be paused while the device is using "
+"battery instead of AC power"
+msgstr ""
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:22
+#, fuzzy
+msgid "Ignored Content"
 msgstr "Sivuutetut tiedostot"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:45
-msgid "Index _delay: "
-msgstr "Indeksoinnin _viive: "
+#: ../src/tracker-preferences/tracker-preferences.ui.h:23
+msgid "Include _removable media"
+msgstr ""
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:46
-msgid "Index _file contents"
-msgstr "Indeksoi _tiedostojen sisältö"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:47
-msgid "Index _mounted directories"
+#: ../src/tracker-preferences/tracker-preferences.ui.h:24
+#, fuzzy
+msgid "Include mou_nted directories"
 msgstr "Indeksoi _liitetyt kansiot"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:48
-msgid "Index and watch my home _directory"
-msgstr "Indeksoi ja tarkkaile koti_kansiotani"
+#: ../src/tracker-preferences/tracker-preferences.ui.h:25
+#, fuzzy
+msgid "Locations"
+msgstr "Sovellukset"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:49
-msgid "Indexing speed:"
-msgstr "Indeksoinnin nopeus:"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:50
-msgid "Maximum _amount of text to index:"
-msgstr "Suurin indeksoitav_a tekstin määrä:"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:51
-msgid "Maximum number of unique _words to index:"
-msgstr "Suurin indeksoitava uniikkien _sanojen määrä:"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:52
-msgid "Path roots to be ignored during indexing:"
-msgstr "Indeksoitaessa huomiotta jätettävät juuripolut:"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:53
-msgid "Perform fast index merges (may affect system performance)"
+#: ../src/tracker-preferences/tracker-preferences.ui.h:26
+msgid ""
+"Removable devices are always considered separately. This applies to "
+"directories mounted within the file system which are NOT removable devices"
 msgstr ""
-"Tee nopeita indeksien yhdistämisiä (voi vaikuttaa järjestelmän nopeuteen)"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:54
-msgid "Performance"
-msgstr "Suorituskyky"
+#: ../src/tracker-preferences/tracker-preferences.ui.h:27
+msgid "Removable devices include memory cards and USB sticks for example"
+msgstr ""
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:55
+#: ../src/tracker-preferences/tracker-preferences.ui.h:28
 msgid "Slower"
 msgstr "Hitaammin"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:56
-msgid "Tracker Preferences"
-msgstr "Trackerin asetukset"
+#: ../src/tracker-preferences/tracker-preferences.ui.h:29
+msgid ""
+"This is a way for the user to make Tracker use less system resources and to "
+"appear as more of a background task if it consumes too much processing power"
+msgstr ""
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:57
-msgid "_Language:"
-msgstr "_Kieli:"
+#: ../src/tracker-preferences/tracker-preferences.ui.h:30
+msgid ""
+"This is an exception to the previous option. \n"
+"\n"
+"Checking this means that when Tracker is run for the first time, it will not "
+"pause if running on battery instead of AC power"
+msgstr ""
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:58
-msgid "_Minimize memory usage (slower indexing)"
-msgstr "_Minimoi muistin käyttö (hitaampi indeksointi)"
+#: ../src/tracker-preferences/tracker-preferences.ui.h:33
+msgid ""
+"This represents a percentage of disk capacity which MUST be free to be able "
+"to index content. If there is less space than the percentage represented "
+"here, Tracker will pause until such time as there is enough space to continue"
+msgstr ""
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:59
-msgid "_Use additional memory for faster indexing"
-msgstr "_Käytä enemmän muistia nopeampaa indeksointia varten"
+#: ../src/tracker-preferences/tracker-preferences.ui.h:34
+msgid "Thr_ottle:"
+msgstr ""
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:60
-msgid "kB"
-msgstr "kB"
+#: ../src/tracker-preferences/tracker-preferences.ui.h:35
+msgid ""
+"When toggled, this makes sure your home directory is included in the list."
+msgstr ""
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:61
+#: ../src/tracker-preferences/tracker-preferences.ui.h:36
+msgid "With specific files:"
+msgstr ""
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:37
+msgid "_Delay"
+msgstr ""
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:38
 msgid "seconds"
 msgstr "sekuntia"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:65
-msgid "Search from a specific service"
-msgstr "Etsi tietystä palvelusta"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:136
-msgid "Emails"
-msgstr "Sähköpostit"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:137
-msgid "All Files"
-msgstr "Kaikki tiedostot"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:138
-msgid "Folders"
-msgstr "Kansiot"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:139
-msgid "Documents"
-msgstr "Asiakirjat"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:143
-#: ../src/tracker-search-tool/tracker-search-tool.c:1213
-msgid "Text"
-msgstr "Teksti"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:144
-msgid "Development"
-msgstr "Kehitys"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:145
-msgid "Chat Logs"
-msgstr "Keskustelulokit"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:146
-msgid "Applications"
-msgstr "Sovellukset"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:147
-msgid "WebHistory"
-msgstr "Selaushistoria"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:207
-msgid "_Open"
-msgstr "_Avaa"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:208
-msgid "O_pen Folder"
-msgstr "A_vaa kansio"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:209
-msgid "Mo_ve to Trash"
-msgstr "Siirrä _roskakoriin"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:210
-msgid "_Save Results As..."
-msgstr "_Tallenna tulokset nimellä..."
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:238
-#, c-format
-msgid "Character set conversion failed for \"%s\""
-msgstr "Merkistömuunnos epäonnistui kohteelle \"%s\""
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:265
-msgid "The following error has occurred :"
-msgstr "Tapahtui virhe:"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:269
-msgid "Error"
-msgstr "Virhe"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:644
-msgid "Did you mean"
-msgstr "Tarkoititko"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:675
-msgid "Your search returned no results."
-msgstr "Haku ei tuottanut tuloksia."
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:690
-msgid "Tracker Search Tool-"
-msgstr "Tracker-hakutyökalu-"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:851
-#: ../src/tracker-search-tool/tracker-search-tool.c:2221
-#: ../src/tracker-search-tool/tracker-search-tool.desktop.in.in.h:2
-msgid "Tracker Search Tool"
-msgstr "Tracker-hakutyökalu"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:1041
-msgid "Search _results: "
-msgstr "Haku_tulokset: "
-
-#. Translators: this will appears as "Search results: no search performed"
-#: ../src/tracker-search-tool/tracker-search-tool.c:1047
-msgid "no search performed"
-msgstr "hakua ei suoritettu"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:1107
-#: ../src/tracker-search-tool/tracker-search-tool.c:1267
-msgid "List View"
-msgstr "Listanäkymä"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:1179
-msgid "Icon"
-msgstr "Kuvake"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:1191
-msgid "Name"
-msgstr "Nimi"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:1285
-msgid "_Categories"
-msgstr "_Luokat"
-
-#. Translators: this will appear like "Search results: 5 - 10 of 30 items"
-#: ../src/tracker-search-tool/tracker-search-tool.c:1565
-#, c-format
-msgid "%d - %d of %d items"
-msgstr "%d - %d yhteensä %d osumasta"
-
-#. Translators: this will appear like "Search results: 7 items"
-#: ../src/tracker-search-tool/tracker-search-tool.c:1568
-#, c-format
-msgid "%d item"
-msgid_plural "%d items"
-msgstr[0] "%d osuma"
-msgstr[1] "%d osumaa"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:1616
-#: ../src/tracker-search-tool/tracker-search-tool.c:1811
-msgid "Could not connect to search service as it may be busy"
-msgstr "Hakupalveluun ei voitu yhdistää, se voi olla varattu"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:2012
-msgid "_Search:"
-msgstr "_Haku:"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:2026
-msgid "Tracker is still indexing so not all search results are available yet"
+#: ../src/tracker-search-bar/tracker-search-bar.ui.h:1
+msgid "A search bar applet for finding content stored in Tracker"
 msgstr ""
-"Tracker indeksoi edelleen, joten kaikki haun tulokset eivät ole vielä "
-"saatavilla"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:2040
-#: ../src/tracker-search-tool/tracker-search-tool.c:2041
-msgid "Enter a search term with multiple words seperated with spaces."
-msgstr "Syötä monisainen hakuehto välilyönneillä erotettuina sanoina."
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:2041
-msgid "search_entry"
-msgstr "haku_kohta"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:2087
-msgid "Click to perform a search."
-msgstr "Suorita haku napsauttamalla."
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:131
-msgid "Could not open help document."
-msgstr "Ohjetta ei voi avata."
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:326
-#, c-format
-msgid "Are you sure you want to open %d document?"
-msgid_plural "Are you sure you want to open %d documents?"
-msgstr[0] "Haluatko varmasti avata %d asiakirjan?"
-msgstr[1] "Haluatko varmasti avata %d asiakirjaa?"
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:331
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:689
-#, c-format
-msgid "This will open %d separate window."
-msgid_plural "This will open %d separate windows."
-msgstr[0] "Tämä avaa %d ikkunan"
-msgstr[1] "Tämä avaa %d ikkunaa"
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:371
-#, c-format
-msgid "Could not open document \"%s\"."
-msgstr "Asiakirjaa \"%s\" ei voi avata."
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:400
-#, c-format
-msgid "Could not open folder \"%s\"."
-msgstr "Kansiota \"%s\" ei voi avata."
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:408
-msgid "The nautilus file manager is not running."
-msgstr "Nautilus-tiedostonhallinta ei ole käynnissä."
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:628
-msgid "Application could not be opened"
-msgstr "Sovellusta ei voi avata"
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:643
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:963
-msgid "The document does not exist."
-msgstr "Asiakirja ei ole olemassa."
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:659
-msgid "There is no installed viewer capable of displaying the document."
-msgstr ""
-"Asennettuna ei ole katseluohjelmaa, jolla asiakirja voitaisiin näyttää."
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:684
-#, c-format
-msgid "Are you sure you want to open %d folder?"
-msgid_plural "Are you sure you want to open %d folders?"
-msgstr[0] "Haluatko varmasti avata %d kansion?"
-msgstr[1] "Haluatko varmasti avata %d kansiota?"
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:788
-#, c-format
-msgid "Could not move \"%s\" to trash."
-msgstr "Kohdetta \"%s\" ei voi siirtää roskakoriin."
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:819
-#, c-format
-msgid "Do you want to delete \"%s\" permanently?"
-msgstr "Haluatko poistaa kohteen \"%s\" pysyvästi?"
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:822
-#, c-format
-msgid "Trash is unavailable.  Could not move \"%s\" to the trash."
-msgstr ""
-"Roskakori ei ole käytettävissä. Kohdetta \"%s\" ei voi siirtää roskakoriin."
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:861
-#, c-format
-msgid "Could not delete \"%s\"."
-msgstr "Kohdetta \"%s\" ei voi poistaa."
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:985
-#, c-format
-msgid "Moving \"%s\" failed: %s."
-msgstr "Kohteen \"%s\" siirtäminen epäonnistui: %s."
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1019
-#, c-format
-msgid "Deleting \"%s\" failed: %s."
-msgstr "Kohteen \"%s\" poistaminen epäonnistui: %s."
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1305
-msgid "Activate to view this email"
-msgstr "Aktivoi näyttääksesi tämän sähköpostin"
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1481
-msgid "Save Search Results As..."
-msgstr "_Tallenna hakutulokset nimellä..."
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1516
-msgid "Could not save document."
-msgstr "Asiakirjaa ei voi tallentaa."
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1517
-msgid "You did not select a document name."
-msgstr "Asiakirjan nimeä ei valittu."
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1547
-#, c-format
-msgid "Could not save \"%s\" document to \"%s\"."
-msgstr "Ei voitu tallentaa asiakirjaa \"%s\" kohteeseen \"%s\"."
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1581
-#, c-format
-msgid "The document \"%s\" already exists.  Would you like to replace it?"
-msgstr "Asiakirja \"%s\" on jo olemassa. Haluatko korvata sen?"
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1585
-msgid "If you replace an existing file, its contents will be overwritten."
-msgstr "Jos olemassa oleva tiedosto korvataan, sen sisältö ylikirjoitetaan."
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1600
-msgid "_Replace"
-msgstr "_Korvaa"
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1650
-msgid "The document name you selected is a folder."
-msgstr "Valittu asiakirjan nimi on kansio."
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1699
-msgid "You may not have write permissions to the document."
-msgstr "Asiakirjaan ei ehkä ole kirjoitusoikeuksia."
-
-#: ../src/tracker-search-tool/tracker-search-tool.desktop.in.in.h:1
+#: ../src/tracker-search-bar/tracker-search-bar.ui.h:3
 msgid ""
-"Locate documents and folders on this computer by name or content using "
-"Tracker"
+"Tracker is free software; you can redistribute it and/or modify it under the "
+"terms of the GNU General Public License as published by the Free Software "
+"Foundation; either version 2 of the License, or (at your option) any later "
+"version.\n"
+"\n"
+"Tracker is distributed in the hope that it will be useful, but WITHOUT ANY "
+"WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS "
+"FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more "
+"details.\n"
+"\n"
+"You should have received a copy of the GNU General Public License along with "
+"Tracker; if not, write to the Free Software Foundation, Inc., 51 Franklin "
+"Street, Fifth Floor, Boston, MA  02110-1301, USA."
 msgstr ""
-"Paikanna asiakirjoja ja kansioita tällä tietokoneella nimen tai sisällön "
-"perusteella käyttämällä Trackeria"
 
-#: ../src/tracker-search-tool/tracker-search-tool-support.c:72
-#, c-format
-msgid ""
-"GConf error:\n"
-"  %s"
+#: ../src/tracker-search-bar/tracker-search-bar.ui.h:8
+msgid "http://www.tracker-project.org/"
 msgstr ""
-"GConf-virhe:\n"
-"  %s"
 
-#. Translators:  Below are the strings displayed in the 'Date Modified'
-#. column of the list view.  The format of this string can vary depending
-#. on age of a file.  Please modify the format of the timestamp to match
-#. your locale.  For example, to display 24 hour time replace the '%-I'
-#. with '%-H' and remove the '%p'.  (See bugzilla report #120434.)
-#: ../src/tracker-search-tool/tracker-search-tool-support.c:674
-msgid "today at %-I:%M %p"
-msgstr "tänään %-H.%M"
+#~ msgid "Tracker search and indexing service"
+#~ msgstr "Haku- ja indeksointipalvelu"
 
-#: ../src/tracker-search-tool/tracker-search-tool-support.c:676
-msgid "yesterday at %-I:%M %p"
-msgstr "eilen %-H.%M"
+#~ msgid "Index corrupted"
+#~ msgstr "Indeksi korruptoitunut"
 
-#: ../src/tracker-search-tool/tracker-search-tool-support.c:678
-#: ../src/tracker-search-tool/tracker-search-tool-support.c:680
-msgid "%A, %B %-d %Y at %-I:%M:%S %p"
-msgstr "%A, %-d. %Bta, %-H.%M.%S"
+#~ msgid "<b>Animation</b>"
+#~ msgstr "<b>Animaatio</b>"
 
-#: ../src/tracker-search-tool/tracker-search-tool-support.c:860
-msgid "link (broken)"
-msgstr "linkki (rikki)"
+#~ msgid "<b>Smart Pausing</b>"
+#~ msgstr "<b>Älykäs pysäytys</b>"
 
-#: ../src/tracker-search-tool/tracker-search-tool-support.c:864
-#, c-format
-msgid "link to %s"
-msgstr "linkki kohteeseen %s"
+#~ msgid "Animate _icon when indexing"
+#~ msgstr "Animoi _kuvake indeksointaessa"
 
-#: ../tracker-store.desktop.in.in.h:2
-msgid "Tracker search and indexing service"
-msgstr "Haku- ja indeksointipalvelu"
+#~ msgid "Applet Preferences"
+#~ msgstr "Sovelman asetukset"
 
-#~ msgid "gtk-close"
-#~ msgstr "gtk-close"
+#~ msgid "_Automatically pause all indexing when computer is in active use"
+#~ msgstr "Keskeytä indeksointi _automaattisesti tietokoneen ollessa käytössä"
 
-#~ msgid "S_mart Pause"
-#~ msgstr "Ä_lykäs pysäytys"
+#~ msgid "_Hide Icon (except when displaying messages to user)"
+#~ msgstr "P_iiilota kuvake (paitsi näytettäessä viestejä käyttäjälle)"
 
-#~ msgid "Auto _hide"
-#~ msgstr "_Piilota automaattisesti"
+#~ msgid "_Off"
+#~ msgstr "Ei _käytössä"
 
-#~ msgid "_Search..."
-#~ msgstr "_Haku..."
+#~ msgid "Indexing"
+#~ msgstr "Indeksoidaan"
 
-#~ msgid "Search:"
-#~ msgstr "Haku:"
+#~ msgid "Optimizing Databases"
+#~ msgstr "Optimoidaan tietokantoja"
 
-#~ msgid "Status:"
-#~ msgstr "Tila:"
+#~ msgid "Shutting Down"
+#~ msgstr "Sammutetaan"
 
-#~ msgid "Progress:"
-#~ msgstr "Edistyminen:"
+#~ msgid "by system"
+#~ msgstr "järjestelmän toimesta"
 
-#~ msgid "Paused while on battery power"
-#~ msgstr "Pysäytetty akkukäytön vuoksi"
+#~ msgid "Re-index your system?"
+#~ msgstr "Indeksoidaanko tietokone uudestaan?"
 
-#~ msgid "Paused temporarily"
-#~ msgstr "Pysäytetty väliaikaisesti"
+#~ msgid "Indexing can take a long time. Are you sure you want to re-index?"
+#~ msgstr ""
+#~ "Indeksointi voi kestää pitkään. Haluatko varmasti indeksoida uudestaan?"
 
 #~ msgid ""
-#~ "Tracker is now merging indexes which can degrade system performance for "
-#~ "serveral minutes\n"
-#~ "\n"
-#~ "You can pause this by right clicking here"
+#~ "Tracker is a tool designed to extract info and metadata about your "
+#~ "personal data so that it can be searched easily and quickly"
 #~ msgstr ""
-#~ "Tracker yhdistää nyt indeksejä, mikä voi hidastaa tietokoneen toimintaa "
-#~ "usean minuutin ajaksi\n"
-#~ "\n"
-#~ "Voit pysäyttää tämän napsauttamalla täällä hiiren oikealla painikeella"
+#~ "Tracker on työkalu, joka on suunniteltu erottamaan tietoja ja metatietoja "
+#~ "henkilökohtaisista tiedostoistasi, jotta niitä hakea helposti ja nopeasti"
 
-#~ msgid "Indexes are being merged"
-#~ msgstr "Indeksejä yhdistetään"
+#~ msgid "_Re-index"
+#~ msgstr "_Indeksoi uudelleen"
 
-#~ msgid "Indexing completed"
-#~ msgstr "Indeksointi valmis"
+#~ msgid "_Indexer Preferences"
+#~ msgstr "_Indeksoinnin asetukset"
 
-#~ msgid "Indexing in progress"
-#~ msgstr "Indeksointi käynnissä"
+#~ msgid "S_tatistics"
+#~ msgstr "_Tilastot"
 
-#~ msgid "<b>Mailboxes</b>"
-#~ msgstr "<b>Postilaatikot</b>"
+#~ msgid "_Quit"
+#~ msgstr "_Poistu"
 
-#~ msgid "<b>Services</b>"
-#~ msgstr "<b>Palvelut</b>"
+#~ msgid "Tracker has finished indexing your system"
+#~ msgstr "Tracker on nyt indeksoinut järjestelmän"
 
-#~ msgid "_Emails"
-#~ msgstr "_Sähköpostit"
+#~ msgid "You can now perform searches by clicking here"
+#~ msgstr "Voit tehdä hakuja napsauttamalla tästä"
 
-#~ msgid "Plain text"
-#~ msgstr "Tekstitiedosto"
+#~ msgid ""
+#~ "Your computer is about to be indexed so you can perform fast searches of "
+#~ "your files and emails"
+#~ msgstr ""
+#~ "Tietokone indeksoidaan, jotta tiedostoista ja sähköposteista voidaan "
+#~ "tehdä nopeita hakuja"
 
-#~ msgid "No files found"
-#~ msgstr "Tiedostoja ei löytynyt"
+#~ msgid ""
+#~ "You can pause indexing at any time and configure index settings by right "
+#~ "clicking here"
+#~ msgstr ""
+#~ "Indeksoinnin voi pysäyttää milloin vain, ja indeksointiasetuksia voi "
+#~ "muuttaa napsauttamalla oikealla hiiren painikkeella"
 
-#~ msgid "_Previous"
-#~ msgstr "E_dellinen"
+#~ msgid "Files:"
+#~ msgstr "Tiedostot:"
 
-#~ msgid "_Next"
-#~ msgstr "_Seuraava"
+#~ msgid "    Folders:"
+#~ msgstr "    Kansiot:"
 
-#~ msgid "Invalid service type: %s\n"
-#~ msgstr "Virheellinen palvelutyyppi: %s\n"
+#~ msgid "    Documents:"
+#~ msgstr "    Asiakirjat:"
 
-#~ msgid "Enables more verbose debug messages"
-#~ msgstr "Ottaa käyttöön suulaammat vianetsintäviestit"
+#~ msgid "    Images:"
+#~ msgstr "    Kuvat:"
 
-#~ msgid "Faster indexing, use more memory and CPU"
-#~ msgstr "Nopeampi indeksointi, käyttää enemmän muistia ja prosessoria"
+#~ msgid "    Music:"
+#~ msgstr "    Musiikki:"
 
-#~ msgid "Slower indexing, use less memory and CPU"
-#~ msgstr "Hitaampi indeksointi, käyttää vähemmän muistia ja prosessoria"
+#~ msgid "    Videos:"
+#~ msgstr "    Videot:"
 
-#~ msgid "Desktop Search"
-#~ msgstr "Työpöytähaku"
+#~ msgid "    Text:"
+#~ msgstr "    Teksti:"
 
-#~ msgid "(stopped)"
-#~ msgstr "(pysäytetty)"
+#~ msgid "    Development:"
+#~ msgstr "    Kehitys:"
 
-#~ msgid "No Files Found"
-#~ msgstr "Tiedostoja ei löytynyt"
+#~ msgid "Applications:"
+#~ msgstr "Sovellukset:"
 
-#~ msgid "%d File Found"
-#~ msgid_plural "%d Files Found"
-#~ msgstr[0] "löytyi %d tiedosto"
-#~ msgstr[1] "löytyi %d tiedostoa"
+#~ msgid "Conversations:"
+#~ msgstr "Keskustelut:"
 
-#~ msgid "%d file found"
-#~ msgid_plural "%d files found"
-#~ msgstr[0] "löytyi %d tiedosto"
-#~ msgstr[1] "löytyi %d tiedosto"
+#~ msgid "Emails:"
+#~ msgstr "Sähköpostit"
+
+#~ msgid "Data must be reindexed"
+#~ msgstr "Tiedot tulee indeksoida uudelleen"
+
+#~ msgid ""
+#~ "In order for your changes to take effect, Tracker must reindex your "
+#~ "files. Click the Reindex button to start reindexing now, otherwise this "
+#~ "action will be performed the next time the Tracker daemon is restarted."
+#~ msgstr ""
+#~ "Jotta muutokset tulisivat voimaan, Trackerin tulee indeksoida tiedostot "
+#~ "uudelleen. Napsauta Indeksoi uudelleen -painiketta aloittaaksesi sen nyt. "
+#~ "Muussa tapauksessa tämä suoritetaan kun Tracker-palvelu käynnistetään "
+#~ "seuraavan kerran uudelleen."
+
+#~ msgid "_Reindex"
+#~ msgstr "_Indeksoi uudelleen"
+
+#~ msgid "Tracker daemon must be restarted"
+#~ msgstr "Tracker-palvelu tulee käynnistää uudelleen"
+
+#~ msgid ""
+#~ "In order for your changes to take effect, the Tracker daemon has to be "
+#~ "restarted. Click the Restart button to restart the daemon now."
+#~ msgstr ""
+#~ "Jotta muutokset tulisivat voimaan, Tracker-palvelu tulee käynnistää "
+#~ "uudelleen. Napsauta Käynnistä uudelleen -painiketta käynnistääksesi "
+#~ "palvelun uudelleen nyt."
+
+#~ msgid "_Restart"
+#~ msgstr "_Käynnistä uudelleen"
+
+#~ msgid "<b>Crawled Directories</b>"
+#~ msgstr "<b>Läpikäydyt kansiot</b>"
+
+#~ msgid "<b>Ignored File Patterns</b>"
+#~ msgstr "<b>Sivuutetut tiedostonimityypit</b>"
+
+#~ msgid "<b>Ignored Paths</b>"
+#~ msgstr "<b>Sivuutetut polut</b>"
+
+#~ msgid "<b>Index Merging</b>"
+#~ msgstr "<b>Indeksien yhdistäminen</b>"
+
+#~ msgid "<b>Indexing Limits (per file)</b>"
+#~ msgstr "<b>Indeksoinnin rajoitukset (tiedostoa kohden)</b>"
+
+#~ msgid "<b>Indexing Options</b>"
+#~ msgstr "<b>Indeksoinnin valinnat</b>"
+
+#~ msgid "<b>Power management</b>"
+#~ msgstr "<b>Virranhallinta</b>"
+
+#~ msgid "<b>Resource Usage</b>"
+#~ msgstr "<b>Resurssien käyttö</b>"
+
+#~ msgid "<b>Stemming</b>"
+#~ msgstr "<b>Stemmaus</b>"
+
+#~ msgid "<b>Throttling</b>"
+#~ msgstr "<b>Nopeuden säätö</b>"
+
+#~ msgid "Additional mbox style mailboxes to index:"
+#~ msgstr "Ylimääräiset indeksoitavat mbox-postilaatikot:"
+
+#~ msgid "Additional paths to index and watch:"
+#~ msgstr "Ylimääräiset indeksoitavat ja tarkkailtavat polut:"
+
+#~ msgid "Additional paths to index on startup (but not watch for updates):"
+#~ msgstr ""
+#~ "Ylimääräiset käynnistettäessä indeksoitavat polut (mutta joiden muutoksia "
+#~ "ei tarkkailla):"
+
+#~ msgid "Disable initial index sweep when on battery"
+#~ msgstr ""
+#~ "Poista ensimmäinen indeksointiläpikäynti käytöstä, kun ollaan akun varassa"
+
+#~ msgid "Email"
+#~ msgstr "Sähköposti"
+
+#~ msgid "Index _file contents"
+#~ msgstr "Indeksoi _tiedostojen sisältö"
+
+#~ msgid "Index and watch my home _directory"
+#~ msgstr "Indeksoi ja tarkkaile koti_kansiotani"
+
+#~ msgid "Indexing Speed:"
+#~ msgstr "Indeksointinopeus:"
+
+#~ msgid "Maximum _amount of text to index:"
+#~ msgstr "Suurin indeksoitav_a tekstin määrä:"
+
+#~ msgid "Maximum number of unique _words to index:"
+#~ msgstr "Suurin indeksoitava uniikkien _sanojen määrä:"
+
+#~ msgid "Path roots to be ignored during indexing:"
+#~ msgstr "Indeksoitaessa huomiotta jätettävät juuripolut:"
+
+#~ msgid "Perform fast index merges (may affect system performance)"
+#~ msgstr ""
+#~ "Tee nopeita indeksien yhdistämisiä (voi vaikuttaa järjestelmän nopeuteen)"
+
+#~ msgid "Performance"
+#~ msgstr "Suorituskyky"
+
+#~ msgid "Tracker Preferences"
+#~ msgstr "Trackerin asetukset"
+
+#~ msgid "_Language:"
+#~ msgstr "_Kieli:"
+
+#~ msgid "_Minimize memory usage (slower indexing)"
+#~ msgstr "_Minimoi muistin käyttö (hitaampi indeksointi)"
+
+#~ msgid "_Use additional memory for faster indexing"
+#~ msgstr "_Käytä enemmän muistia nopeampaa indeksointia varten"
+
+#~ msgid "kB"
+#~ msgstr "kB"
+
+#~ msgid "Could not open help document."
+#~ msgstr "Ohjetta ei voi avata."
+
+#~ msgid "Are you sure you want to open %d document?"
+#~ msgid_plural "Are you sure you want to open %d documents?"
+#~ msgstr[0] "Haluatko varmasti avata %d asiakirjan?"
+#~ msgstr[1] "Haluatko varmasti avata %d asiakirjaa?"
+
+#~ msgid "This will open %d separate window."
+#~ msgid_plural "This will open %d separate windows."
+#~ msgstr[0] "Tämä avaa %d ikkunan"
+#~ msgstr[1] "Tämä avaa %d ikkunaa"
+
+#~ msgid "Could not open document \"%s\"."
+#~ msgstr "Asiakirjaa \"%s\" ei voi avata."
+
+#~ msgid "Application could not be opened"
+#~ msgstr "Sovellusta ei voi avata"
+
+#~ msgid "The document does not exist."
+#~ msgstr "Asiakirja ei ole olemassa."
+
+#~ msgid "There is no installed viewer capable of displaying the document."
+#~ msgstr ""
+#~ "Asennettuna ei ole katseluohjelmaa, jolla asiakirja voitaisiin näyttää."
+
+#~ msgid "Are you sure you want to open %d folder?"
+#~ msgid_plural "Are you sure you want to open %d folders?"
+#~ msgstr[0] "Haluatko varmasti avata %d kansion?"
+#~ msgstr[1] "Haluatko varmasti avata %d kansiota?"
+
+#~ msgid "Could not move \"%s\" to trash."
+#~ msgstr "Kohdetta \"%s\" ei voi siirtää roskakoriin."
+
+#~ msgid "Moving \"%s\" failed: %s."
+#~ msgstr "Kohteen \"%s\" siirtäminen epäonnistui: %s."
+
+#~ msgid "Activate to view this email"
+#~ msgstr "Aktivoi näyttääksesi tämän sähköpostin"
+
+#~ msgid "Save Search Results As..."
+#~ msgstr "_Tallenna hakutulokset nimellä..."
+
+#~ msgid "Could not save document."
+#~ msgstr "Asiakirjaa ei voi tallentaa."
+
+#~ msgid "You did not select a document name."
+#~ msgstr "Asiakirjan nimeä ei valittu."
+
+#~ msgid "Could not save \"%s\" document to \"%s\"."
+#~ msgstr "Ei voitu tallentaa asiakirjaa \"%s\" kohteeseen \"%s\"."
+
+#~ msgid "The document \"%s\" already exists.  Would you like to replace it?"
+#~ msgstr "Asiakirja \"%s\" on jo olemassa. Haluatko korvata sen?"
+
+#~ msgid "If you replace an existing file, its contents will be overwritten."
+#~ msgstr "Jos olemassa oleva tiedosto korvataan, sen sisältö ylikirjoitetaan."
+
+#~ msgid "_Replace"
+#~ msgstr "_Korvaa"
+
+#~ msgid "The document name you selected is a folder."
+#~ msgstr "Valittu asiakirjan nimi on kansio."
+
+#~ msgid "You may not have write permissions to the document."
+#~ msgstr "Asiakirjaan ei ehkä ole kirjoitusoikeuksia."
+
+#~ msgid ""
+#~ "GConf error:\n"
+#~ "  %s"
+#~ msgstr ""
+#~ "GConf-virhe:\n"
+#~ "  %s"
+
+#~ msgid "today at %-I:%M %p"
+#~ msgstr "tänään %-H.%M"
+
+#~ msgid "yesterday at %-I:%M %p"
+#~ msgstr "eilen %-H.%M"
+
+#~ msgid "%A, %B %-d %Y at %-I:%M:%S %p"
+#~ msgstr "%A, %-d. %Bta, %-H.%M.%S"
+
+#~ msgid "Search from a specific service"
+#~ msgstr "Etsi tietystä palvelusta"
+
+#~ msgid "SERVICE"
+#~ msgstr "PALVELU"
+
+#~ msgid "Text"
+#~ msgstr "Teksti"
+
+#~ msgid "Development"
+#~ msgstr "Kehitys"
+
+#~ msgid "Chat Logs"
+#~ msgstr "Keskustelulokit"
+
+#~ msgid "WebHistory"
+#~ msgstr "Selaushistoria"
+
+#~ msgid "_Open"
+#~ msgstr "_Avaa"
+
+#~ msgid "O_pen Folder"
+#~ msgstr "A_vaa kansio"
+
+#~ msgid "Mo_ve to Trash"
+#~ msgstr "Siirrä _roskakoriin"
+
+#~ msgid "_Save Results As..."
+#~ msgstr "_Tallenna tulokset nimellä..."
+
+#~ msgid "Character set conversion failed for \"%s\""
+#~ msgstr "Merkistömuunnos epäonnistui kohteelle \"%s\""
+
+#~ msgid "The following error has occurred :"
+#~ msgstr "Tapahtui virhe:"
+
+#~ msgid "Error"
+#~ msgstr "Virhe"
+
+#~ msgid "Did you mean"
+#~ msgstr "Tarkoititko"
+
+#~ msgid "Your search returned no results."
+#~ msgstr "Haku ei tuottanut tuloksia."
+
+#~ msgid "Tracker Search Tool-"
+#~ msgstr "Tracker-hakutyökalu-"
+
+#~ msgid "Search _results: "
+#~ msgstr "Haku_tulokset: "
+
+#~ msgid "no search performed"
+#~ msgstr "hakua ei suoritettu"
+
+#~ msgid "List View"
+#~ msgstr "Listanäkymä"
+
+#~ msgid "Icon"
+#~ msgstr "Kuvake"
+
+#~ msgid "Name"
+#~ msgstr "Nimi"
+
+#~ msgid "Unknown email subject"
+#~ msgstr "Tuntematon sähköpostiviestin otsikko"
+
+#~ msgid "Unknown email sender"
+#~ msgstr "Tuntematon sähköpostiviestin lähettäjä"
+
+#~ msgid "%d - %d of %d items"
+#~ msgstr "%d - %d yhteensä %d osumasta"
+
+#~ msgid "Could not connect to search service as it may be busy"
+#~ msgstr "Hakupalveluun ei voitu yhdistää, se voi olla varattu"
+
+#~ msgid ""
+#~ "Tracker is still indexing so not all search results are available yet"
+#~ msgstr ""
+#~ "Tracker indeksoi edelleen, joten kaikki haun tulokset eivät ole vielä "
+#~ "saatavilla"
+
+#~ msgid "Enter a search term with multiple words seperated with spaces."
+#~ msgstr "Syötä monisainen hakuehto välilyönneillä erotettuina sanoina."
+
+#~ msgid "search_entry"
+#~ msgstr "haku_kohta"
+
+#~ msgid "Click to perform a search."
+#~ msgstr "Suorita haku napsauttamalla."
+
+#~ msgid "Result: %d"
+#~ msgstr "Tulos: %d"
+
+#~ msgid "Results: %d"
+#~ msgstr "Tulokset: %d"
+
+#~ msgid "File:Size"
+#~ msgstr "Tiedosto:Koko"
+
+#~ msgid "FILE..."
+#~ msgstr "TIEDOSTO..."
+
+#~ msgid "No path was given"
+#~ msgstr "Polkua ei annettu"
+
+#~ msgid "No fields were given"
+#~ msgstr "Kenttiä ei annettu"
+
+#~ msgid "MIME-type"
+#~ msgstr "MIME-tyyppi"
+
+#~ msgid "No services available"
+#~ msgstr "Palveluita ei ole saatavilla"
+
+#~ msgid "Statistics have been updated"
+#~ msgstr "Tilastot on päivitetty"
+
+#~ msgid "Is indexing enabled"
+#~ msgstr "Onko indeksointi käytössä"
+
+#~ msgid "- Report current status"
+#~ msgstr "- Raportoi nykyinen tila"
+
+#~ msgid "Tracker status is '%s'"
+#~ msgstr "Trackerin tila on '%s'"
+
+#~ msgid "Add specified tag to a file"
+#~ msgstr "Lisää annettu merkintä tiedostoon"
+
+#~ msgid "Remove specified tag from a file"
+#~ msgstr "Poistaa annetun merkinnän tiedostosta"
+
+#~ msgid "Remove all tags from a file"
+#~ msgstr "Poistaa kaikki merkinnät tiedostosta"
+
+#~ msgid "Search for files with specified tag"
+#~ msgstr "Etsi tiedostoja, joissa on annettu merkintä"
+
+#~ msgid "Could not remove all tags for '%s'"
+#~ msgstr "Kohteen '%s' kaikkia tunnisteita ei voitu poistaa"
+
+#~ msgid "All tags"
+#~ msgstr "Kaikki tunnisteet"
+
+#~ msgid "Sort to descending order"
+#~ msgstr "Lajittele laskevaan järjestykseen"
