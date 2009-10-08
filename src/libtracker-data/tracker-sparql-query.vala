@@ -2005,6 +2005,9 @@ public class Tracker.SparqlQuery : Object {
 				return false;
 			}
 
+			// optional .
+			accept (SparqlTokenType.DOT);
+
 			// check it is only one triple pattern
 			if (!accept (SparqlTokenType.CLOSE_BRACE)) {
 				return false;
@@ -2044,6 +2047,7 @@ public class Tracker.SparqlQuery : Object {
 					current_subject = parse_var_or_term (sql, out current_subject_is_var);
 					parse_property_list_not_empty (sql, true);
 
+					accept (SparqlTokenType.DOT);
 					expect (SparqlTokenType.CLOSE_BRACE);
 				} else {
 					if (!in_triples_block && !in_group_graph_pattern) {
