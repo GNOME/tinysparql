@@ -103,8 +103,6 @@ static void     mount_point_removed_cb        (TrackerStorage       *storage,
 					       const gchar          *udi,
 					       const gchar          *mount_point,
 					       gpointer              user_data);
-static void     initialize_removable_devices  (TrackerMinerFiles    *mf);
-
 static void     on_battery_cb                 (GObject              *gobject,
 					       GParamSpec           *arg1,
 					       gpointer              user_data);
@@ -328,6 +326,7 @@ miner_files_constructed (GObject *object)
         TrackerMinerFiles *mf;
         TrackerMinerFS *fs;
         GSList *dirs;
+	GSList *mounts = NULL, *m;
 	gint throttle;
 
 	G_OBJECT_CLASS (tracker_miner_files_parent_class)->constructed (object);
@@ -340,10 +339,18 @@ miner_files_constructed (GObject *object)
                 g_assert_not_reached ();
         }
 
+#ifdef HAVE_HAL
+        if (tracker_config_get_index_removable_devices (mf->private->config)) {
+                mounts = tracker_storage_get_removable_device_roots (mf->private->storage);
+        }
+#endif /* HAVE_HAL */
+
+	g_message ("Setting up directories to iterate from config (IndexSingleDirectory)");
+
         /* Fill in directories to inspect */
         dirs = tracker_config_get_index_single_directories (mf->private->config);
 
-        while (dirs) {
+        for (; dirs; dirs = dirs->next) {
 		GFile *file;
 
 		/* Do some simple checks for silly locations */
@@ -358,16 +365,32 @@ miner_files_constructed (GObject *object)
 			continue;
 		}
 
+		/* Make sure we don't crawl volumes. */
+		if (mounts) {
+			gboolean found = FALSE;
+
+			for (m = mounts; m && !found; m = m->next) {
+				found = strcmp (m->data, dirs->data) == 0;
+			}
+
+			if (found) {
+				g_message ("  Duplicate found:'%s' - same as removable device path",
+					   (gchar*) dirs->data);
+				continue;
+			}
+		}
+
+		g_message ("  Adding:'%s'", (gchar*) dirs->data);
 		file = g_file_new_for_path (dirs->data);
                 tracker_miner_fs_add_directory (fs, file, FALSE);
 		g_object_unref (file);
-
-                dirs = dirs->next;
         }
+
+	g_message ("Setting up directories to iterate from config (IndexRecursiveDirectory)");
 
         dirs = tracker_config_get_index_recursive_directories (mf->private->config);
 
-        while (dirs) {
+        for (; dirs; dirs = dirs->next) {
 		GFile *file;
 
 		/* Do some simple checks for silly locations */
@@ -382,11 +405,25 @@ miner_files_constructed (GObject *object)
 			continue;
 		}
 
+		/* Make sure we don't crawl volumes. */
+		if (mounts) {
+			gboolean found = FALSE;
+
+			for (m = mounts; m && !found; m = m->next) {
+				found = strcmp (m->data, dirs->data) == 0;
+			}
+
+			if (found) {
+				g_message ("  Duplicate found:'%s' - same as removable device path",
+					   (gchar*) dirs->data);
+				continue;
+			}
+		}
+
+		g_message ("  Adding:'%s'", (gchar*) dirs->data);
 		file = g_file_new_for_path (dirs->data);
                 tracker_miner_fs_add_directory (fs, file, TRUE);
 		g_object_unref (file);
-
-                dirs = dirs->next;
         }
 
 	throttle = tracker_config_get_throttle (mf->private->config);
@@ -394,13 +431,25 @@ miner_files_constructed (GObject *object)
 	/* Throttle in config goes from 0 to 20, translate to 0.0 -> 1.0 */
 	tracker_miner_fs_set_throttle (TRACKER_MINER_FS (mf), (1.0 / 20) * throttle);
 
-#ifdef HAVE_HAL
-        initialize_removable_devices (mf);
-#endif /* HAVE_HAL */
+	/* Add removable media */
+	g_message ("Setting up directories to iterate which are removable devices");
+
+	for (m = mounts; m; m = m->next) {
+		GFile *file = g_file_new_for_path (m->data);
+		
+		g_message ("  Adding:'%s'", (gchar*) m->data);
+		tracker_miner_fs_add_directory (TRACKER_MINER_FS (mf),
+						file, 
+						TRUE);
+		g_object_unref (file);
+	}
 
 	g_signal_connect (mf->private->config, "notify::low-disk-space-limit",
 			  G_CALLBACK (low_disk_space_limit_cb),
 			  mf);
+
+	g_slist_foreach (mounts, (GFunc) g_free, NULL);
+	g_slist_free (mounts);
 
 	disk_space_check_start (mf);
 }
@@ -661,32 +710,6 @@ mount_point_added_cb (TrackerStorage *storage,
 
 	set_up_mount_point (miner, urn, mount_point, TRUE, NULL);
 	g_free (urn);
-}
-
-static void
-initialize_removable_devices (TrackerMinerFiles *mf)
-{
-        TrackerMinerFilesPrivate *priv;
-
-        priv = TRACKER_MINER_FILES_GET_PRIVATE (mf);
-
-        if (tracker_config_get_index_removable_devices (priv->config)) {
-                GSList *mounts, *m;
-
-                mounts = tracker_storage_get_removable_device_roots (priv->storage);
-
-                for (m = mounts; m; m = m->next) {
-			GFile *file = g_file_new_for_path (m->data);
-
-			tracker_miner_fs_add_directory (TRACKER_MINER_FS (mf),
-							file, 
-							TRUE);
-			g_object_unref (file);
-                }
-
-		g_slist_foreach (mounts, (GFunc) g_free, NULL);
-		g_slist_free (mounts);
-        }
 }
 
 static void
