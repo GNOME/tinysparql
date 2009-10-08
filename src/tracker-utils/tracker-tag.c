@@ -693,7 +693,7 @@ main (int argc, char **argv)
 
 		for (p = files; *p; p++) {
 			g_print ("<%s>\n", *p);
-			success = (success && get_tags_by_file (client, *p));
+			success &= get_tags_by_file (client, *p);
 			g_print ("\n");
 		}
 
@@ -704,5 +704,8 @@ main (int argc, char **argv)
 
 	tracker_disconnect (client);
 
-	return EXIT_SUCCESS;
+	/* This is a failure because we should have done something.
+	 * This code should never be reached in practise. 
+	 */ 
+	return EXIT_FAILURE;
 }
