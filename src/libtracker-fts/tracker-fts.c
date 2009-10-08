@@ -450,6 +450,8 @@ typedef enum DocListType {
 # define DL_DEFAULT DL_POSITIONS
 #endif
 
+#define RANK
+
 enum {
   POS_END = 0,        /* end of this position list */
   POS_COLUMN,         /* followed by new column number */
@@ -944,6 +946,7 @@ static void dlwCopy(DLWriter *pWriter, DLReader *pReader){
 }
 
 
+#ifndef RANK
 #ifdef STORE_CATEGORY    
 static void dlwAdd(DLWriter *pWriter, sqlite_int64 iDocid, int Catid){
   char c[VARINT_MAX];
@@ -980,6 +983,7 @@ static void dlwAdd(DLWriter *pWriter, sqlite_int64 iDocid){
 #endif
 }
 
+#endif
 #endif
 
 /*******************************************************************/
@@ -1874,7 +1878,7 @@ static void docListPhraseMerge(
 ** Write the intersection of these two doclists into pOut as a
 ** DL_DOCIDS doclist.
 */
-#ifdef STORE_CATEGORY
+#ifdef RANK
 static void docListAndMerge(
   const char *pLeft, int nLeft,
   const char *pRight, int nRight,
@@ -1947,7 +1951,7 @@ static void docListAndMerge(
 ** DL_DOCIDS doclist.
 */
 
-#ifdef STORE_CATEGORY        
+#ifdef RANK
 static void docListOrMerge(
   const char *pLeft, int nLeft,
   const char *pRight, int nRight,
@@ -2068,7 +2072,7 @@ static void docListOrMerge(
 ** Write into pOut as DL_DOCIDS doclist containing all documents that
 ** occur in pLeft but not in pRight.
 */
-#ifdef STORE_CATEGORY   
+#ifdef RANK
 static void docListExceptMerge(
   const char *pLeft, int nLeft,
   const char *pRight, int nRight,
@@ -4259,7 +4263,7 @@ static int docListOfTerm(
 
   dataBufferInit(&left, 0);
   
-  #ifdef STORE_CATEGORY
+  #ifdef RANK
   rc = termSelect(v, iColumn, pQTerm->pTerm, pQTerm->nTerm, pQTerm->isPrefix,
                   DL_POSITIONS, &left);
   #else
@@ -4289,7 +4293,7 @@ static int docListOfTerm(
     }
     dataBufferInit(&new, 0);
 
-    #ifdef STORE_CATEGORY
+    #ifdef RANK
     docListPhraseMerge(left.pData, left.nData, right.pData, right.nData,
                        pQTerm[i-1].nNear, pQTerm[i-1].iPhrase + nPhraseRight,
                        DL_POSITIONS,
@@ -4727,7 +4731,7 @@ static int fulltextFilter(
       if( rc!=SQLITE_OK ) return rc;
       if( c->result.nData!=0 ){
 
-#ifdef STORE_CATEGORY
+#ifdef RANK
         dlrInit(&c->reader, DL_POSITIONS, c->result.pData, c->result.nData);
 #else      
         dlrInit(&c->reader, DL_DOCIDS, c->result.pData, c->result.nData);
