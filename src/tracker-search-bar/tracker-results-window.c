@@ -841,7 +841,7 @@ search_window_ensure_not_blank (TrackerResultsWindow *window)
 		if (!gtk_tree_model_get_iter_first (GTK_TREE_MODEL (priv->store), &iter)) {
 			gchar *str;
 
-			str = g_strdup_printf (_("No results found for «%s»"), priv->query);
+			str = g_strdup_printf (_("No results found for “%s”"), priv->query);
 			gtk_label_set_text (GTK_LABEL (priv->label), str);
 			g_free (str);
 
