@@ -40,6 +40,12 @@ G_BEGIN_DECLS
 typedef struct TrackerMinerFS        TrackerMinerFS;
 typedef struct TrackerMinerFSPrivate TrackerMinerFSPrivate;
 
+/**
+ * TrackerMinerFS:
+ *
+ * Abstract miner abstract implementation to get data
+ * from the filesystem.
+ **/
 struct TrackerMinerFS {
 	TrackerMiner parent;
 	TrackerMinerFSPrivate *private;

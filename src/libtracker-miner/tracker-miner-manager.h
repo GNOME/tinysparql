@@ -35,10 +35,20 @@ G_BEGIN_DECLS
 typedef struct TrackerMinerManager TrackerMinerManager;
 typedef struct TrackerMinerManagerClass TrackerMinerManagerClass;
 
+/**
+ * TrackerMinerManager:
+ *
+ * Object to query and control miners.
+ **/
 struct TrackerMinerManager {
 	GObject parent_instance;
 };
 
+/**
+ * TrackerMinerManagerClass:
+ *
+ * #TrackerMinerManager class.
+ **/
 struct TrackerMinerManagerClass {
 	GObjectClass parent_class;
 

@@ -39,6 +39,11 @@ G_BEGIN_DECLS
 typedef struct TrackerMiner TrackerMiner;
 typedef struct TrackerMinerPrivate TrackerMinerPrivate;
 
+/**
+ * TrackerMiner:
+ *
+ * Abstract miner object.
+ **/
 struct TrackerMiner {
         GObject parent_instance;
         TrackerMinerPrivate *private;
