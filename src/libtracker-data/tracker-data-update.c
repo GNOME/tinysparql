@@ -421,21 +421,20 @@ tracker_data_update_buffer_flush (void)
 		TrackerProperty *prop;
 		GValueArray *values;
 
-		fts = g_string_new ("");
+		tracker_fts_update_init (update_buffer.id);
 
 		g_hash_table_iter_init (&iter, update_buffer.predicates);
 		while (g_hash_table_iter_next (&iter, (gpointer*) &prop, (gpointer*) &values)) {
 			if (tracker_property_get_fulltext_indexed (prop)) {
+				fts = g_string_new ("");
 				for (i = 0; i < values->n_values; i++) {
 					g_string_append (fts, g_value_get_string (g_value_array_get_nth (values, i)));
 					g_string_append_c (fts, ' ');
 				}
+				tracker_fts_update_text (update_buffer.id, tracker_data_query_resource_id (tracker_property_get_uri (prop)), fts->str);
+				g_string_free (fts, TRUE);
 			}
 		}
-
-		tracker_fts_update_init (update_buffer.id);
-		tracker_fts_update_text (update_buffer.id, 0, fts->str);
-		g_string_free (fts, TRUE);
 	}
 
 	g_hash_table_remove_all (update_buffer.predicates);
