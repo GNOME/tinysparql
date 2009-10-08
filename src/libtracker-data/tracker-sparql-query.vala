@@ -228,6 +228,7 @@ public class Tracker.SparqlQuery : Object {
 	}
 
 	const string FN_NS = "http://www.w3.org/2005/xpath-functions#";
+	const string FTS_NS = "http://www.tracker-project.org/ontologies/fts#";
 
 	string query_string;
 	bool update_extensions;
@@ -1207,6 +1208,18 @@ public class Tracker.SparqlQuery : Object {
 			sql.append (")");
 
 			return PropertyType.BOOLEAN;
+		} else if (uri == FTS_NS + "rank") {
+			bool is_var;
+			string v = parse_var_or_term (null, out is_var);
+			sql.append_printf ("\"%s_u_rank\"", v);
+
+			return PropertyType.DOUBLE;
+		} else if (uri == FTS_NS + "offsets") {
+			bool is_var;
+			string v = parse_var_or_term (null, out is_var);
+			sql.append_printf ("\"%s_u_offsets\"", v);
+
+			return PropertyType.STRING;
 		} else {
 			// support properties as functions
 			var prop = Ontology.get_property_by_uri (uri);
@@ -2420,6 +2433,15 @@ public class Tracker.SparqlQuery : Object {
 						binding.table.sql_query_tablename,
 						binding.sql_db_column_name,
 						binding.variable.sql_expression);
+
+					if (is_fts_match) {
+						sql.append_printf ("rank(\"%s\".\"fts\") AS \"%s_u_rank\", ",
+							binding.table.sql_query_tablename,
+							binding.variable.name);
+						sql.append_printf ("offsets(\"%s\".\"fts\") AS \"%s_u_offsets\", ",
+							binding.table.sql_query_tablename,
+							binding.variable.name);
+					}
 
 					subgraph_var_set.insert (binding.variable, VariableState.BOUND);
 				}
