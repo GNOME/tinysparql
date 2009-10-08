@@ -46,7 +46,7 @@ typedef struct {
 	LibHalContext *context;
 	DBusConnection *connection;
 
-	GHashTable    *all_devices;
+	GHashTable *all_devices;
 
 	GNode *mounts;
 	GHashTable *mounts_by_udi;
@@ -66,8 +66,8 @@ typedef struct {
 
 typedef struct {
 	LibHalContext *context;
-	GSList	      *roots;
-	gboolean       only_removable;
+	GSList *roots;
+	gboolean only_removable;
 } GetRoots;
 
 static void	tracker_storage_finalize	(GObject	 *object);
@@ -842,7 +842,18 @@ hal_get_mount_point_by_udi_foreach (gpointer key,
 	info = node->data;
 
 	if (!gr->only_removable || info->removable) {
-		gr->roots = g_slist_prepend (gr->roots, g_strdup (info->mount_point));
+		gchar *normalized_mount_point;
+		gint len;
+		
+		normalized_mount_point = g_strdup (info->mount_point);
+		len = strlen (normalized_mount_point);
+		
+		/* Don't include trailing slashes */
+		if (len > 2 && normalized_mount_point[len - 1] == G_DIR_SEPARATOR) {
+			normalized_mount_point[len - 1] = '\0';
+		}
+		
+		gr->roots = g_slist_prepend (gr->roots, normalized_mount_point);
 	}
 }
 
