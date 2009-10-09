@@ -545,38 +545,6 @@ cache_create_service_decomposed (TrackerClass           *cl)
 	}
 }
 
-gboolean
-tracker_data_update_resource_uri (const gchar *old_uri,
-				  const gchar *new_uri)
-{
-	guint32 resource_id;
-	TrackerDBInterface  *iface;
-	TrackerDBStatement  *stmt;
-
-	resource_id = tracker_data_query_resource_id (old_uri);
-	if (resource_id == 0) {
-		/* old uri does not exist */
-		return FALSE;
-	}
-
-	if (tracker_data_query_resource_id (new_uri) > 0) {
-		/* new uri already exists */
-		return FALSE;
-	}
-
-	iface = tracker_db_manager_get_db_interface ();
-
-	/* update URI in rdfs:Resource table */
-
-	stmt = tracker_db_interface_create_statement (iface, "UPDATE \"rdfs:Resource\" SET Uri = ? WHERE ID = ?");
-	tracker_db_statement_bind_text (stmt, 0, new_uri);
-	tracker_db_statement_bind_int (stmt, 1, resource_id);
-	tracker_db_statement_execute (stmt, NULL);
-	g_object_unref (stmt);
-
-	return TRUE;
-}
-
 static gboolean
 value_equal (GValue *value1,
              GValue *value2)
@@ -1365,14 +1333,6 @@ tracker_data_insert_statement_with_string (const gchar            *subject,
 	}
 
 	tracker_data_commit_transaction ();
-}
-
-void
-tracker_data_delete_resource (const gchar     *uri)
-{
-	g_return_if_fail (uri != NULL);
-
-	tracker_data_delete_statement (uri, RDF_PREFIX "type", RDFS_PREFIX "Resource", NULL);
 }
 
 static void

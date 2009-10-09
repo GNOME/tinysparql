@@ -52,11 +52,6 @@ typedef void (*TrackerCommitCallback)    (gpointer     user_data);
 
 GQuark   tracker_data_error_quark                   (void);
 
-/* Services  */
-void     tracker_data_delete_resource               (const gchar               *uri);
-gboolean tracker_data_update_resource_uri           (const gchar               *old_uri,
-						     const gchar               *new_uri);
-
 /* Metadata */
 void     tracker_data_delete_resource_description   (const gchar               *uri);
 void     tracker_data_delete_statement              (const gchar               *subject,
