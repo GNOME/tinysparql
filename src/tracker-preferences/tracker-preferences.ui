@@ -132,8 +132,10 @@
                     <child type="label">
                       <object class="GtkLabel" id="label_general">
                         <property name="visible">True</property>
-                        <property name="label" translatable="yes">&lt;b&gt;Start up&lt;/b&gt;</property>
-                        <property name="use_markup">True</property>
+                        <property name="label" translatable="yes">Start up</property>
+                        <attributes>
+                          <attribute name="weight" value="bold"/>
+                        </attributes>
                       </object>
                     </child>
                   </object>
@@ -392,8 +394,10 @@ Checking this means that when Tracker is run for the first time, it will not pau
                     <child type="label">
                       <object class="GtkLabel" id="label_indexing">
                         <property name="visible">True</property>
-                        <property name="label" translatable="yes">&lt;b&gt;Indexing&lt;/b&gt;</property>
-                        <property name="use_markup">True</property>
+                        <property name="label" translatable="yes">Indexing</property>
+                        <attributes>
+                          <attribute name="weight" value="bold"/>
+                        </attributes>
                       </object>
                     </child>
                   </object>
@@ -551,8 +555,10 @@ Checking this means that when Tracker is run for the first time, it will not pau
                     <child type="label">
                       <object class="GtkLabel" id="label1">
                         <property name="visible">True</property>
-                        <property name="label" translatable="yes">&lt;b&gt;Recursively Indexed&lt;/b&gt;</property>
-                        <property name="use_markup">True</property>
+                        <property name="label" translatable="yes">Recursively Indexed</property>
+                        <attributes>
+                          <attribute name="weight" value="bold"/>
+                        </attributes>
                       </object>
                     </child>
                   </object>
@@ -676,8 +682,10 @@ Checking this means that when Tracker is run for the first time, it will not pau
                     <child type="label">
                       <object class="GtkLabel" id="label7">
                         <property name="visible">True</property>
-                        <property name="label" translatable="yes">&lt;b&gt;Non-Recursively Indexed&lt;/b&gt;</property>
-                        <property name="use_markup">True</property>
+                        <property name="label" translatable="yes">Non-Recursively Indexed</property>
+                        <attributes>
+                          <attribute name="weight" value="bold"/>
+                        </attributes>
                       </object>
                     </child>
                   </object>
@@ -932,8 +940,10 @@ Checking this means that when Tracker is run for the first time, it will not pau
                     <child type="label">
                       <object class="GtkLabel" id="label6">
                         <property name="visible">True</property>
-                        <property name="label" translatable="yes">&lt;b&gt;Directories&lt;/b&gt;</property>
-                        <property name="use_markup">True</property>
+                        <property name="label" translatable="yes">Directories</property>
+                        <attributes>
+                          <attribute name="weight" value="bold"/>
+                        </attributes>
                       </object>
                     </child>
                   </object>
@@ -1058,8 +1068,10 @@ Most commonly this is used to ignore directories like *~, *.o, *.la, etc</proper
                     <child type="label">
                       <object class="GtkLabel" id="label9">
                         <property name="visible">True</property>
-                        <property name="label" translatable="yes">&lt;b&gt;Files&lt;/b&gt;</property>
-                        <property name="use_markup">True</property>
+                        <property name="label" translatable="yes">Files</property>
+                        <attributes>
+                          <attribute name="weight" value="bold"/>
+                        </attributes>
                       </object>
                     </child>
                   </object>
