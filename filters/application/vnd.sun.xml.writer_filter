@@ -1,3 +1,0 @@
-#!/bin/sh
-
-nice -n19 odt2txt "$1"

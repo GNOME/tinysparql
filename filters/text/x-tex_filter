@@ -1,5 +1,0 @@
-#!/bin/sh
-UNTEX=`which untex`
-if [ -n "$UNTEX" ]; then nice -n19 $UNTEX "$1";
-else cat "$1";
-fi

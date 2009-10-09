@@ -1361,9 +1361,6 @@ AC_CONFIG_FILES([
 	docs/reference/libtracker-common/version.xml
 	docs/reference/libtracker-miner/Makefile
 	docs/reference/libtracker-miner/version.xml
-	filters/application/Makefile
-	filters/Makefile
-	filters/text/Makefile
 	Makefile
 	po/Makefile.in
 	python/deskbar-handler/Makefile
