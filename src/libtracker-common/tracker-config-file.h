@@ -59,7 +59,6 @@ struct _TrackerConfigFileClass {
 
 GType	           tracker_config_file_get_type (void) G_GNUC_CONST;
 
-TrackerConfigFile *tracker_config_file_new      (const gchar       *domain);
 gboolean           tracker_config_file_save     (TrackerConfigFile *config);
 
 G_END_DECLS

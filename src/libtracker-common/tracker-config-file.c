@@ -58,7 +58,7 @@ enum {
 
 static guint signals[LAST_SIGNAL] = { 0, };
 
-G_DEFINE_TYPE (TrackerConfigFile, tracker_config_file, G_TYPE_OBJECT);
+G_DEFINE_ABSTRACT_TYPE (TrackerConfigFile, tracker_config_file, G_TYPE_OBJECT);
 
 static void
 tracker_config_file_class_init (TrackerConfigFileClass *klass)
@@ -361,27 +361,6 @@ config_save (TrackerConfigFile *file)
 	g_free (filename);
 
 	return TRUE;
-}
-
-/**
- * tracker_config_file_new:
- * @domain: a string used for the 'domain.cfg' file.
- *
- * Creates a new GObject for handling Tracker's config file.
- *
- * Return value: A new TrackerConfigFile object. Must be unreferenced when
- * finished with.
- */
-TrackerConfigFile *
-tracker_config_file_new (const gchar *domain)
-{
-	TrackerConfigFile *config;
-
-	config = g_object_new (TRACKER_TYPE_CONFIG_FILE, 
-			       "domain", domain,
-			       NULL);
-
-	return config;
 }
 
 /**
