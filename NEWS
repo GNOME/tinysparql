@@ -1,3 +1,109 @@
+NEW in 0.7.2
+============
+
+Improvements / New:
+
+  General:
+  * Added support for AM_SILENT_RULES (used for producing nice build
+    output), see http://live.gnome.org/GnomeGoals/NicerBuilds
+  * Removed filters/ - they are no longer used, was for full text
+    search abilities. We now do this in tracker-extract.
+  * Simplify CFLAGS/LIBS for applications and generally all Makefiles.
+
+  Ontology:
+  * Added average{audio|video}bitrate for nmm:Video. This allows the
+    audio and video to have different bit rates in the same URN.
+  * Added properties for newly added MTP.
+  * Added properties fourCC and waveformat for MTP.
+  * Added properties to NMM to support MTP (nmm:lyrics,
+    mmm:skipCounter, nmm:isCropped, nmm:isColorCorrected).
+  * Added nmm and mto prefixes.
+  * Updated mtp:ScanType to subclass nie:InformationElement allowing
+    nie:description on instances.
+  * Renamed nmm:album to nmm:videoAlbum to be consistent with
+    nmm:audioAlbum.
+
+  Test Cases:
+
+  libstemmer:
+  * Fix API to return const/non-const more consistently.
+
+  libtracker-common:
+  * Fixed TrackerConfigFile to make it an abstract type object.
+  * Fixed storage (HAL) APIs to return const/non-const more
+    consistently.
+  * Fixed tracker_path_evaluate_name() so we use the HOME environment
+    variable with g_getenv() instead of g_get_home_dir(). This fixes
+    issues seen with NFS mounted home directories.
+  * Fixed storage (HAL) APIs to normalise directories returned.
+  * Fixed timezone test case for tracker-type-utils.
+  * Improve documentation.
+
+  libtracker-data:
+  * Fixed virtual property tracker:uri.
+
+  libtracker-miner:
+  * Added "process-pool-limit" to TrackerMinerFS, this allows us to
+    process more than one file at once. Previously each file was
+    extracted in tracker-extract and stored in tracker-store
+    sequentially. Now data is extracted while it is being stored if
+    process-pool-limit is > 1. Now it is set to 10.
+  * Added support for deleting recursively when a directory is removed.
+  * Updated the documentation.
+  * Removed "application" parameter in tracker_miner_pause(), since
+    it now uses g_get_application_name() or TrackerMiner::name
+    internally. 
+  * Update vtable function process_file() for TrackerMinerFS into a
+    signal to be consistent with the rest of the API.
+  * Fixed pkg-config file to include dbus-glib.
+  * Fixed moving items between two monitored directories. Was unsupported.
+  * Fixed g_timer_destroy() warning with timer != NULL.
+  
+  tracker-store:
+  * Updated the Dia documentation for trackerd to detail how
+    tracker-store works.
+  * Updated SQL generated for FTS queries by SPARQL.
+  * Added support for function calls as select expressions in SPARQL.
+  * Added support dots at the end of simple OPTIONAL statements in
+    SPARQL.
+
+  tracker-miner-fs:
+  * Fixed crawling duplicate directories if one is in the config file
+    and the other is a removable media.
+  * Fixed memory leak with returned removable devices from storage (HAL).
+  * Updated the Dia documentation for tracker-indexer to detail how
+    tracker-miner-fs works.
+  * Fixed so we don't print "miners all finished" more than once.
+
+  tracker-extract:
+  * Added tracker_text_normalize() to clean up content used for FTS.
+    This function effectively strips non-text characters, extra spaces,
+    carriage returns, etc.
+  * Added FTS support for MS and ODF document formats.
+  * Fixed PDF extractor to use tracker_text_normalize().
+
+  tracker-tag:
+  * Added support for removing a tag on a per URN basis instead of
+    for all content.
+  * Fixed return value
+
+Bugs:
+
+  * Fixes GB#570608 - Translation of firefox-extension
+  * Fixes GB#592400 - String translation issues
+  * Fixes GB#589059 - Add option to set evolution plugins directory in configure
+  * Fixes GB#591814 - Clean up .ui files
+  * Fixes GB#581984 - Get rid of deprecated libgnome(ui)
+  * Fixes GB#595752 - Minor string fixes
+  * Fixes NB#142257 - Query from QtTracker causes error
+
+Notes:
+
+  The Deskbar applet packaged with Tracker is currently out of date
+  and needs some love to get it working with the new APIs. It is in
+  the same state as it was for 0.6. As such it isn't expected to work.
+
+
 NEW in 0.7.1
 ============
 
