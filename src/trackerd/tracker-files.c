@@ -384,13 +384,13 @@ tracker_files_get_text_contents (TrackerFiles		*object,
 	offset_str = tracker_gint_to_string (offset);
 	max_length_str = tracker_gint_to_string (max_length);
 
-	iface = tracker_db_manager_get_db_interface_by_service (service_type);
+ 	iface = tracker_db_manager_get_db_interface_by_service (service_type);
 	service_id_str = g_strdup_printf ("%d", service_id);
 	result_set = tracker_data_manager_exec_proc (iface,
 					   "GetFileContents",
 					   offset_str,
 					   max_length_str,
-					   service_id,
+					   service_id_str,
 					   NULL);
 
 	g_free (max_length_str);
