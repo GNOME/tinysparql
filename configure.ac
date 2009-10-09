@@ -152,8 +152,6 @@ EVO_REQUIRED=2.25.5
 EDS_REQUIRED=2.25.5
 # Unlikely version for now, Nepomuk integration isn't finished in streamanalyzer atm
 STREAMANALYZER_REQUIRED=9.9.9
-LIBGNOME_REQUIRED=2.13.2
-LIBGNOMEUI_REQUIRED=2.13.7
 GEE_REQUIRED=0.3
 
 # Library Checks
@@ -715,7 +713,7 @@ APP_REQUIREMENTS="glib-2.0    >= $GLIB_REQUIRED
                   dbus-1      >= $DBUS_REQUIRED
                   dbus-glib-1 >= $DBUS_GLIB_REQUIRED"
 
-APPLET_REQUIREMENTS="libgnomeui-2.0 libpanelapplet-2.0"
+APPLET_REQUIREMENTS="libpanelapplet-2.0"
 VALA_REQUIREMENTS="gee-1.0 >= $GEE_REQUIRED"
 
 PKG_CHECK_MODULES(TRACKER_APPS,
