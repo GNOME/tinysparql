@@ -1548,6 +1548,7 @@ get_id3v20_tags (const gchar *data,
 		{ "COM", "Audio:Comment" },
 #endif /* ENABLE_DETAILED_METADATA */
 		{ "TLE", "Audio:Duration" },
+		{ "TRK", "Audio:TrackNo" },
 		{ NULL, 0 },
 	};
 
@@ -1643,8 +1644,15 @@ get_id3v20_tags (const gchar *data,
 						g_free (word);
 						word = g_strdup_printf ("%d", duration/1000);
 						filedata->duration = duration/1000;
-					}	
-					
+					} else if (strcmp (tmap[i].text, "TRK") == 0) {
+						gchar **parts;
+
+						parts = g_strsplit (word, "/", 2);
+						g_free (word);
+
+						word = g_strdup (parts[0]);
+						g_strfreev (parts);
+					}
 					g_hash_table_insert (metadata,
 							     g_strdup (tmap[i].type),
 							     tracker_escape_metadata (word));
