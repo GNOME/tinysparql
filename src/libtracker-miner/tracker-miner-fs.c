@@ -231,7 +231,7 @@ tracker_miner_fs_class_init (TrackerMinerFSClass *klass)
 							    "Processing pool limit",
 							    "Number of files that can be concurrently processed",
 							    1, G_MAXUINT, 1,
-							    G_PARAM_READWRITE));
+							    G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
 	/**
 	 * TrackerMinerFS::check-file:
 	 * @miner_fs: the #TrackerMinerFS
@@ -385,7 +385,6 @@ tracker_miner_fs_init (TrackerMinerFS *object)
 	object->private = TRACKER_MINER_FS_GET_PRIVATE (object);
 
 	priv = object->private;
-	priv->pool_limit = 1;
 
 	/* For each module we create a TrackerCrawler and keep them in
 	 * a hash table to look up.
@@ -530,6 +529,7 @@ fs_set_property (GObject      *object,
 		break;
 	case PROP_POOL_LIMIT:
 		fs->private->pool_limit = g_value_get_uint (value);
+		g_message ("Miner process pool limit is set to %d", fs->private->pool_limit);
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
