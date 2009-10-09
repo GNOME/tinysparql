@@ -60,7 +60,7 @@ void             tracker_language_set_enable_stemmer (TrackerLanguage *language,
 void             tracker_language_set_language_code  (TrackerLanguage *language,
 						      const gchar     *language_code);
 
-const gchar *    tracker_language_stem_word          (TrackerLanguage *language,
+gchar *          tracker_language_stem_word          (TrackerLanguage *language,
 						      const gchar     *word,
 						      gint             word_length);
 

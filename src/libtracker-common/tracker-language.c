@@ -461,7 +461,7 @@ tracker_language_set_language_code (TrackerLanguage *language,
  * Returns: a string with the processed word. This string must be
  *          freed with g_free()
  **/
-const gchar *
+gchar *
 tracker_language_stem_word (TrackerLanguage *language,
 			    const gchar     *word,
 			    gint	     word_length)
@@ -471,10 +471,14 @@ tracker_language_stem_word (TrackerLanguage *language,
 
 	g_return_val_if_fail (TRACKER_IS_LANGUAGE (language), NULL);
 
+	if (word_length < 0) {
+		word_length = strlen (word);
+	}
+
 	priv = GET_PRIV (language);
 
 	if (!priv->enable_stemmer) {
-		return g_strdup (word);
+		return g_strndup (word, word_length);
 	}
 
 	g_mutex_lock (priv->stemmer_mutex);
@@ -485,7 +489,7 @@ tracker_language_stem_word (TrackerLanguage *language,
 
 	g_mutex_unlock (priv->stemmer_mutex);
 
-	return stem_word;
+	return g_strdup (stem_word);
 }
 
 /**

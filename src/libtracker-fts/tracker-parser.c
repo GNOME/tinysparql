@@ -557,10 +557,10 @@ tracker_parser_process_word (TrackerParser *parser,
 			     gint	    length,
 			     gboolean	    do_strip)
 {
-	const gchar *stem_word;
-	gchar	    *str;
-	gchar	    *stripped_word;
-	guint	     bytes, len;
+	gchar *stem_word;
+	gchar *str;
+	gchar *stripped_word;
+	guint  bytes, len;
 
 	g_return_val_if_fail (parser != NULL, NULL);
 	g_return_val_if_fail (word != NULL, NULL);
@@ -601,12 +601,9 @@ tracker_parser_process_word (TrackerParser *parser,
 		stem_word = tracker_language_stem_word (parser->language, str, len);
 
 		if (stem_word) {
-			gchar *result;
-
-			result = g_strdup (stem_word);
 			g_free (str);
 
-			return result;
+			return stem_word;
 		}
 	}
 
