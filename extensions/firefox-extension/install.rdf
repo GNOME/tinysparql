@@ -26,6 +26,14 @@
       </Description>
     </em:targetApplication>
 
+    <em:localized>
+      <Description>
+        <em:locale>fr-FR</em:locale>
+        <em:name>Extension Firefox pour moteur d'indexation Xesam (beagle, tracker)</em:name>
+        <em:description>Indexation des pages Web visitées en utilisant Beagle ou Tracker</em:description>
+      </Description>
+    </em:localized>
+
   </Description>
 
 </RDF>
