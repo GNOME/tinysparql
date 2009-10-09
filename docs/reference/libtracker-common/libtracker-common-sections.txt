@@ -2,7 +2,6 @@
 <FILE>tracker-config-file</FILE>
 <TITLE>TrackerConfigFile</TITLE>
 TrackerConfigFile
-tracker_config_file_new
 tracker_config_file_save
 <SUBSECTION Standard>
 TRACKER_CONFIG_FILE

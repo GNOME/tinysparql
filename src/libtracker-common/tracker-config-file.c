@@ -25,6 +25,16 @@
 
 #include "tracker-config-file.h"
 
+/**
+ * SECTION:tracker-config-file
+ * @short_description: Abstract base class for configuration files
+ * @include: libtracker-common/tracker-common.h
+ *
+ * #TrackerConfigFile is an abstract base class to help creating objects
+ * that proxy a configuration file, mirroring settings to disk and notifying
+ * of changes.
+ **/
+
 #define TRACKER_CONFIG_FILE_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_CONFIG_FILE, TrackerConfigFilePrivate))
 
 typedef struct _TrackerConfigFilePrivate TrackerConfigFilePrivate;
@@ -70,6 +80,13 @@ tracker_config_file_class_init (TrackerConfigFileClass *klass)
 	object_class->finalize	   = config_finalize;
 	object_class->constructed  = config_constructed;
 
+	/**
+	 * TrackerConfigFile::changed:
+	 * @config: the #TrackerConfigFile.
+	 *
+	 * the ::changed signal is emitted whenever
+	 * the configuration file has changed on disk.
+	 **/
 	signals[CHANGED] =
 		g_signal_new ("changed",
 			      G_TYPE_FROM_CLASS (klass),

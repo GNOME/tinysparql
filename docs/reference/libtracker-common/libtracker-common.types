@@ -1,0 +1,5 @@
+#include <libtracker-common/tracker-config-file.h>
+#include <libtracker-common/tracker-language.h>
+
+tracker_config_file_get_type
+tracker_language_get_type

@@ -314,6 +314,14 @@ language_set_stopword_list (TrackerLanguage *language,
 	g_free (stem_language_lower);
 }
 
+/**
+ * tracker_language_new:
+ * @language_code: language code in ISO 639-1 format
+ *
+ * Creates a new #TrackerLanguage instance for the passed language code.
+ *
+ * Returns: a newly created #TrackerLanguage
+ **/
 TrackerLanguage *
 tracker_language_new (const gchar *language_code)
 {
@@ -326,6 +334,14 @@ tracker_language_new (const gchar *language_code)
 	return language;
 }
 
+/**
+ * tracker_language_get_enable_stemmer:
+ * @language: a #TrackerLanguage
+ *
+ * Returns whether words stemming is enabled for @language.
+ *
+ * Returns: %TRUE if word stemming is enabled.
+ **/
 gboolean
 tracker_language_get_enable_stemmer (TrackerLanguage *language)
 {
@@ -338,6 +354,16 @@ tracker_language_get_enable_stemmer (TrackerLanguage *language)
 	return priv->enable_stemmer;
 }
 
+/**
+ * tracker_language_get_stop_words:
+ * @language: a #TrackerLanguage
+ *
+ * Returns the stop words for @language. Stop words are really common
+ * words that are not worth to index for the language handled by @language.
+ *
+ * Returns: A #GHashTable with the stop words as the value, this memory
+ *          is owned by @language and should not be modified nor freed.
+ **/
 GHashTable *
 tracker_language_get_stop_words (TrackerLanguage *language)
 {
@@ -350,6 +376,14 @@ tracker_language_get_stop_words (TrackerLanguage *language)
 	return priv->stop_words;
 }
 
+/**
+ * tracker_language_get_language_code:
+ * @language: a #TrackerLanguage
+ *
+ * Returns the language code in ISO 639-1 handled by @language.
+ *
+ * Returns: the language code.
+ **/
 const gchar *
 tracker_language_get_language_code (TrackerLanguage *language)
 {
@@ -361,7 +395,14 @@ tracker_language_get_language_code (TrackerLanguage *language)
 
 	return priv->language_code;
 }
-	
+
+/**
+ * tracker_language_set_enable_stemmer:
+ * @language: a #TrackerLanguage
+ * @value: %TRUE to enable word stemming
+ *
+ * Enables or disables word stemming for @language.
+ **/
 void
 tracker_language_set_enable_stemmer (TrackerLanguage *language,
 				     gboolean         value)
@@ -377,6 +418,14 @@ tracker_language_set_enable_stemmer (TrackerLanguage *language,
 	g_object_notify (G_OBJECT (language), "enable-stemmer");
 }
 
+/**
+ * tracker_language_set_language_code:
+ * @language: a #TrackerLanguage
+ * @value: a ISO 639-1 language code, or %NULL to reset to english
+ *
+ * Sets the language handled by @language, a %NULL value will reset
+ * to "en"
+ **/
 void
 tracker_language_set_language_code (TrackerLanguage *language,
 				    const gchar     *value)
@@ -400,6 +449,18 @@ tracker_language_set_language_code (TrackerLanguage *language,
 	g_object_notify (G_OBJECT (language), "language-code");
 }
 
+/**
+ * tracker_language_stem_word:
+ * @language: a #TrackerLanguage
+ * @word: string pointing to a word
+ * @word_length: word ascii length
+ *
+ * If the stemmer is enabled, it will return the stem word for @word.
+ * If it's disabled, it will return the passed word.
+ *
+ * Returns: a string with the processed word. This string must be
+ *          freed with g_free()
+ **/
 const gchar *
 tracker_language_stem_word (TrackerLanguage *language,
 			    const gchar     *word,
@@ -427,6 +488,14 @@ tracker_language_stem_word (TrackerLanguage *language,
 	return stem_word;
 }
 
+/**
+ * tracker_language_check_exists:
+ * @language_code: language code in ISO 639-1 format
+ *
+ * Checks whether the language is supported by #TrackerLanguage
+ *
+ * Returns: %TRUE if the language is supported.
+ **/
 gboolean
 tracker_language_check_exists (const gchar *language_code)
 {
@@ -445,13 +514,22 @@ tracker_language_check_exists (const gchar *language_code)
 	return FALSE;
 }
 
+/**
+ * tracker_language_get_default_code:
+ *
+ * Returns the ISO 639-1 language code for the current locale settings.
+ * As a fallback it will return the english language code.
+ *
+ * Returns: ISO 639-1 language code for the default settings. This
+ *          string must be freed with g_free().
+ **/
 gchar *
 tracker_language_get_default_code (void)
 {
 	const gchar **local_languages;
 	const gchar **p;
 
-	/* Get langauges for user's locale */
+	/* Get languages for user's locale */
 	local_languages = (const gchar**) g_get_language_names ();
 
 	for (p = local_languages; *p; p++) {
@@ -476,6 +554,14 @@ tracker_language_get_default_code (void)
 	return g_strdup ("en");
 }
 
+/**
+ * tracker_language_get_all_by_code:
+ *
+ * Returns all supported languages by #TrackerLanguage
+ *
+ * Returns: a list of ISO 639-1 language codes. This list must be
+ *          freed through g_list_free().
+ **/
 GSList *
 tracker_language_get_all_by_code (void)
 {
@@ -493,6 +579,15 @@ tracker_language_get_all_by_code (void)
 	return list;
 }
 
+/**
+ * tracker_language_get_name_by_code:
+ * @language_code: a ISO 639-1 language code.
+ *
+ * Returns a human readable language name for the given
+ * ISO 639-1 code, if supported by #TrackerLanguage
+ *
+ * Returns: the language name.
+ **/
 const gchar *
 tracker_language_get_name_by_code (const gchar *language_code)
 {
@@ -511,6 +606,15 @@ tracker_language_get_name_by_code (const gchar *language_code)
 	return "";
 }
 
+/**
+ * tracker_language_get_code_by_name:
+ * @language_name: language name
+ *
+ * Returns the ISO 639-1 code corresponding to the language name,
+ * if supported by #TrackerLanguage.
+ *
+ * Returns: the ISO 639-1 code.
+ **/
 const gchar *
 tracker_language_get_code_by_name (const gchar *language_name)
 {
