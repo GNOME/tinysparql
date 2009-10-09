@@ -709,6 +709,7 @@ AC_SUBST(DESKBAR_APPLET_DIR)
 
 APP_REQUIREMENTS="glib-2.0    >= $GLIB_REQUIRED
                   gthread-2.0 >= $GLIB_REQUIRED
+                  gmodule-2.0 >= $GLIB_REQUIRED
                   gtk+-2.0    >= $GTK_REQUIRED
                   dbus-1      >= $DBUS_REQUIRED
                   dbus-glib-1 >= $DBUS_GLIB_REQUIRED"
