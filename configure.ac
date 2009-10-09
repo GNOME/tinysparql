@@ -1253,7 +1253,17 @@ if test "x$enable_evolution_push_module" != "xno" ; then
    AC_SUBST(EVOLUTION_PLUGIN_LIBS)
 
    if test x$have_evolution_plugin == "xyes"; then
-      EVOLUTION_PLUGIN_INSTALL_DIR=`$PKG_CONFIG evolution-plugin --variable=plugindir`
+      dnl Evolution plugins dir
+      AC_ARG_WITH([evolution_plugins_dir],
+                  AS_HELP_STRING([--with-evolution-plugins-dir], 
+	                         [Path to Evolution plugins directory]))
+      if test "x$with_evolution_plugins_dir" = "x" ; then
+         evolution_plugins_dir=`$PKG_CONFIG evolution-plugin --variable=plugindir`
+      else
+         evolution_plugins_dir="$with_evolution_plugins_dir"
+      fi
+
+      EVOLUTION_PLUGIN_INSTALL_DIR=$evolution_plugins_dir
    else
       EVOLUTION_PLUGIN_INSTALL_DIR=/dev/null
    fi
