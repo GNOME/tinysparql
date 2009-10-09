@@ -175,7 +175,10 @@ tracker_process_albumart (const unsigned char *buffer,
 			dirf = g_file_get_parent (file);
 			dirname = g_file_get_path (dirf);
 			g_object_unref (file);
-			g_object_unref (dirf);
+
+			if (dirf) {
+				g_object_unref (dirf);
+			}
 
 			key = g_strdup_printf ("%s-%s-%s", artist ? artist : "",
 					       album ? album : "",

@@ -182,8 +182,9 @@ print_file_metadata_item (gpointer key,
 {
 	gchar *value_utf8;
 
-	g_return_if_fail (key != NULL);
-	g_return_if_fail (value != NULL);
+	if (!key || !value) {
+		return;
+	}
 
 	value_utf8 = g_locale_to_utf8 (value, -1, NULL, NULL, NULL);
 

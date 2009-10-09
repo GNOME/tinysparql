@@ -146,6 +146,14 @@ caps_set_video (GObject		  *object,
 }
 
 static void
+free_stream_info (gpointer data)
+{
+	if (data) {
+		g_object_unref (data);
+	}
+}
+
+static void
 update_stream_info (MetadataExtractor *extractor)
 {
 	GList  *streaminfo;
@@ -209,7 +217,7 @@ update_stream_info (MetadataExtractor *extractor)
 		}
 	}
 
-	g_list_foreach (streaminfo, (GFunc) g_object_unref, NULL);
+	g_list_foreach (streaminfo, (GFunc) free_stream_info, NULL);
 	g_list_free (streaminfo);
 }
 
