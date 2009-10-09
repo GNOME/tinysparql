@@ -363,19 +363,13 @@ public class Tracker.TurtleReader : Object {
 	}
 
 	public static void load (string path) throws FileError, SparqlError, DataError {
-		try {
-			Data.begin_transaction ();
-
-			var reader = new TurtleReader (path);
-			while (reader.next ()) {
-				if (reader.object_is_uri) {
-					Data.insert_statement_with_uri (reader.subject, reader.predicate, reader.object);
-				} else {
-					Data.insert_statement_with_string (reader.subject, reader.predicate, reader.object);
-				}
+		var reader = new TurtleReader (path);
+		while (reader.next ()) {
+			if (reader.object_is_uri) {
+				Data.insert_statement_with_uri (reader.subject, reader.predicate, reader.object);
+			} else {
+				Data.insert_statement_with_string (reader.subject, reader.predicate, reader.object);
 			}
-		} finally {
-			Data.commit_transaction ();
 		}
 	}
 

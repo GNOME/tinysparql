@@ -524,7 +524,9 @@ tracker_store_sparql_update (const gchar *sparql,
 		private->batch_count = 0;
 	}
 
+	tracker_data_begin_transaction ();
 	tracker_data_update_sparql (sparql, error);
+	tracker_data_commit_transaction ();
 
 	if (private->start_log) {
 		log_to_journal (private, sparql);

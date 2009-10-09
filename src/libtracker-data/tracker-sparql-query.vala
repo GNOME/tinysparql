@@ -443,32 +443,25 @@ public class Tracker.SparqlQuery : Object {
 		} else {
 			// SPARQL update supports multiple operations in a single query
 
-			// all updates should be committed in one transaction
-			Data.begin_transaction ();
-
-			try {
-				while (current () != SparqlTokenType.EOF) {
-					switch (current ()) {
-					case SparqlTokenType.INSERT:
-						execute_insert ();
-						break;
-					case SparqlTokenType.DELETE:
-						execute_delete ();
-						break;
-					case SparqlTokenType.DROP:
-						execute_drop_graph ();
-						break;
-					case SparqlTokenType.SELECT:
-					case SparqlTokenType.CONSTRUCT:
-					case SparqlTokenType.DESCRIBE:
-					case SparqlTokenType.ASK:
-						throw get_error ("SELECT, CONSTRUCT, DESCRIBE, and ASK are not supported in update mode");
-					default:
-						throw get_error ("expected INSERT or DELETE");
-					}
+			while (current () != SparqlTokenType.EOF) {
+				switch (current ()) {
+				case SparqlTokenType.INSERT:
+					execute_insert ();
+					break;
+				case SparqlTokenType.DELETE:
+					execute_delete ();
+					break;
+				case SparqlTokenType.DROP:
+					execute_drop_graph ();
+					break;
+				case SparqlTokenType.SELECT:
+				case SparqlTokenType.CONSTRUCT:
+				case SparqlTokenType.DESCRIBE:
+				case SparqlTokenType.ASK:
+					throw get_error ("SELECT, CONSTRUCT, DESCRIBE, and ASK are not supported in update mode");
+				default:
+					throw get_error ("expected INSERT or DELETE");
 				}
-			} finally {
-				Data.commit_transaction ();
 			}
 
 			return null;

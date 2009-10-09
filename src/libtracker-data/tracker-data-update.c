@@ -86,8 +86,7 @@ struct _TrackerDataBlankBuffer {
 	GArray *objects;
 };
 
-
-static gint transaction_level = 0;
+static gboolean in_transaction = FALSE;
 static TrackerDataUpdateBuffer update_buffer;
 static TrackerDataBlankBuffer blank_buffer;
 
@@ -445,6 +444,30 @@ tracker_data_update_buffer_flush (void)
 	g_ptr_array_foreach (update_buffer.types, (GFunc) g_free, NULL);
 	g_ptr_array_free (update_buffer.types, TRUE);
 	update_buffer.types = NULL;
+}
+
+static void
+tracker_data_update_buffer_clear (void)
+{
+	if (update_buffer.subject == NULL) {
+		/* nothing to clear */
+		return;
+	}
+
+	g_free (update_buffer.new_subject);
+	update_buffer.new_subject = NULL;
+
+	g_hash_table_remove_all (update_buffer.predicates);
+	g_hash_table_remove_all (update_buffer.tables);
+	g_free (update_buffer.subject);
+	update_buffer.subject = NULL;
+
+	g_ptr_array_foreach (update_buffer.types, (GFunc) g_free, NULL);
+	g_ptr_array_free (update_buffer.types, TRUE);
+	update_buffer.types = NULL;
+
+	tracker_fts_update_rollback ();
+	update_buffer.fts_ever_updated = FALSE;
 }
 
 static void
@@ -893,16 +916,12 @@ tracker_data_delete_statement (const gchar            *subject,
 	g_return_if_fail (subject != NULL);
 	g_return_if_fail (predicate != NULL);
 	g_return_if_fail (object != NULL);
-
-	tracker_data_begin_transaction ();
+	g_return_if_fail (in_transaction);
 
 	subject_id = query_resource_id (subject);
 	
 	if (subject_id == 0) {
 		/* subject not in database */
-
-		tracker_data_commit_transaction ();
-
 		return;
 	}
 
@@ -1098,8 +1117,6 @@ tracker_data_delete_statement (const gchar            *subject,
 		g_ptr_array_foreach (types, (GFunc) g_free, NULL);
 		g_ptr_array_free (types, TRUE);
 	}
-
-	tracker_data_commit_transaction ();
 }
 
 static gboolean
@@ -1177,6 +1194,7 @@ tracker_data_insert_statement (const gchar            *subject,
 	g_return_if_fail (subject != NULL);
 	g_return_if_fail (predicate != NULL);
 	g_return_if_fail (object != NULL);
+	g_return_if_fail (in_transaction);
 
 	property = tracker_ontology_get_property_by_uri (predicate);
 	if (property != NULL) {
@@ -1206,6 +1224,7 @@ tracker_data_insert_statement_with_uri (const gchar            *subject,
 	g_return_if_fail (subject != NULL);
 	g_return_if_fail (predicate != NULL);
 	g_return_if_fail (object != NULL);
+	g_return_if_fail (in_transaction);
 
 	property = tracker_ontology_get_property_by_uri (predicate);
 	if (property == NULL) {
@@ -1221,8 +1240,6 @@ tracker_data_insert_statement_with_uri (const gchar            *subject,
 		             "Property '%s' does not accept URIs", predicate);
 		return;
 	}
-
-	tracker_data_begin_transaction ();
 
 	/* subjects and objects starting with `:' are anonymous blank nodes */
 	if (g_str_has_prefix (object, ":")) {
@@ -1244,8 +1261,6 @@ tracker_data_insert_statement_with_uri (const gchar            *subject,
 
 			g_hash_table_remove (blank_buffer.table, object);
 
-			tracker_data_commit_transaction ();
-
 			return;
 		} else {
 			g_critical ("Blank node '%s' not found", object);
@@ -1253,7 +1268,6 @@ tracker_data_insert_statement_with_uri (const gchar            *subject,
 	}
 
 	if (!tracker_data_insert_statement_common (subject, predicate, object)) {
-		tracker_data_commit_transaction ();
 		return;
 	}
 
@@ -1274,8 +1288,7 @@ tracker_data_insert_statement_with_uri (const gchar            *subject,
 		/* add value to metadata database */
 		cache_set_metadata_decomposed (property, object, &actual_error);
 		if (actual_error) {
-			/* FIXME rollback instead of commit */
-			tracker_data_commit_transaction ();
+			tracker_data_update_buffer_clear ();
 			g_propagate_error (error, actual_error);
 			return;
 		}
@@ -1284,8 +1297,6 @@ tracker_data_insert_statement_with_uri (const gchar            *subject,
 			insert_callback (subject, predicate, object, update_buffer.types, insert_data);
 		}
 	}
-
-	tracker_data_commit_transaction ();
 }
 
 void
@@ -1300,6 +1311,7 @@ tracker_data_insert_statement_with_string (const gchar            *subject,
 	g_return_if_fail (subject != NULL);
 	g_return_if_fail (predicate != NULL);
 	g_return_if_fail (object != NULL);
+	g_return_if_fail (in_transaction);
 
 	property = tracker_ontology_get_property_by_uri (predicate);
 	if (property == NULL) {
@@ -1312,18 +1324,14 @@ tracker_data_insert_statement_with_string (const gchar            *subject,
 		return;
 	}
 
-	tracker_data_begin_transaction ();
-
 	if (!tracker_data_insert_statement_common (subject, predicate, object)) {
-		tracker_data_commit_transaction ();
 		return;
 	}
 
 	/* add value to metadata database */
 	cache_set_metadata_decomposed (property, object, &actual_error);
 	if (actual_error) {
-		/* FIXME rollback instead of commit */
-		tracker_data_commit_transaction ();
+		tracker_data_update_buffer_clear ();
 		g_propagate_error (error, actual_error);
 		return;
 	}
@@ -1331,8 +1339,6 @@ tracker_data_insert_statement_with_string (const gchar            *subject,
 	if (insert_callback) {
 		insert_callback (subject, predicate, object, update_buffer.types, insert_data);
 	}
-
-	tracker_data_commit_transaction ();
 }
 
 static void
@@ -1549,21 +1555,21 @@ tracker_data_begin_transaction (void)
 {
 	TrackerDBInterface *iface;
 
-	if (transaction_level == 0) {
-		update_buffer.resource_cache = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
-		update_buffer.predicates = g_hash_table_new_full (g_direct_hash, g_direct_equal, g_object_unref, (GDestroyNotify) g_value_array_free);
-		update_buffer.tables = g_hash_table_new_full (g_str_hash, g_str_equal,
-							      g_free, (GDestroyNotify) cache_table_free);
-		if (blank_buffer.table == NULL) {
-			blank_buffer.table = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
-		}
+	g_return_if_fail (!in_transaction);
 
-		iface = tracker_db_manager_get_db_interface ();
-
-		tracker_db_interface_start_transaction (iface);
+	update_buffer.resource_cache = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
+	update_buffer.predicates = g_hash_table_new_full (g_direct_hash, g_direct_equal, g_object_unref, (GDestroyNotify) g_value_array_free);
+	update_buffer.tables = g_hash_table_new_full (g_str_hash, g_str_equal,
+						      g_free, (GDestroyNotify) cache_table_free);
+	if (blank_buffer.table == NULL) {
+		blank_buffer.table = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
 	}
 
-	transaction_level++;
+	iface = tracker_db_manager_get_db_interface ();
+
+	tracker_db_interface_start_transaction (iface);
+
+	in_transaction = TRUE;
 }
 
 void
@@ -1571,27 +1577,27 @@ tracker_data_commit_transaction (void)
 {
 	TrackerDBInterface *iface;
 
-	transaction_level--;
+	g_return_if_fail (in_transaction);
 
-	if (transaction_level == 0) {
-		tracker_data_update_buffer_flush ();
+	in_transaction = FALSE;
 
-		if (update_buffer.fts_ever_updated) {
-			tracker_fts_update_commit ();
-			update_buffer.fts_ever_updated = FALSE;
-		}
+	tracker_data_update_buffer_flush ();
 
-		iface = tracker_db_manager_get_db_interface ();
+	if (update_buffer.fts_ever_updated) {
+		tracker_fts_update_commit ();
+		update_buffer.fts_ever_updated = FALSE;
+	}
 
-		tracker_db_interface_end_transaction (iface);
+	iface = tracker_db_manager_get_db_interface ();
 
-		g_hash_table_unref (update_buffer.resource_cache);
-		g_hash_table_unref (update_buffer.predicates);
-		g_hash_table_unref (update_buffer.tables);
+	tracker_db_interface_end_transaction (iface);
 
-		if (commit_callback) {
-			commit_callback (commit_data);
-		}
+	g_hash_table_unref (update_buffer.resource_cache);
+	g_hash_table_unref (update_buffer.predicates);
+	g_hash_table_unref (update_buffer.tables);
+
+	if (commit_callback) {
+		commit_callback (commit_data);
 	}
 }
 
@@ -1770,13 +1776,25 @@ void
 tracker_data_update_sparql (const gchar  *update,
 			    GError      **error)
 {
+	TrackerDBInterface *iface;
 	TrackerSparqlQuery *sparql_query;
 
 	g_return_if_fail (update != NULL);
 
+	iface = tracker_db_manager_get_db_interface ();
+
 	sparql_query = tracker_sparql_query_new_update (update);
 
+	tracker_db_interface_execute_query (iface, NULL, "SAVEPOINT sparql");
+
 	tracker_sparql_query_execute (sparql_query, error);
+
+	if (*error) {
+		tracker_data_update_buffer_clear ();
+		tracker_db_interface_execute_query (iface, NULL, "ROLLBACK TO sparql");
+	}
+
+	tracker_db_interface_execute_query (iface, NULL, "RELEASE sparql");
 
 	g_object_unref (sparql_query);
 }

@@ -79,7 +79,9 @@ test_sparql_query (gconstpointer test_data)
 	g_file_get_contents (update_filename, &update, NULL, &error);
 	g_assert (error == NULL);
 
+	tracker_data_begin_transaction ();
 	tracker_data_update_sparql (update, &error);
+	tracker_data_commit_transaction ();
 	g_assert (error == NULL);
 
 	g_free (update_filename);
