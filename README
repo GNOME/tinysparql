@@ -1,23 +1,3 @@
-Table of Contents
-
-    1 Introduction
-    2 Use cases
-    3 Features
-    4 Dependencies
-        4.1 Recommended dependencies
-        4.2 For building Tracker's Deskbar-applet backend
-    5 Compilation
-        5.1 Notes on Solaris
-        5.2 Compile options
-    6 Running Tracker
-        6.1 Usage
-        6.2 Setting inotify watch limit
-        6.3 Tracker files
-    7 Integration with other tools
-        7.1 Nautilus search
-        7.2 Deskbar applet
-    8 Tracker tools
-
 1 Introduction
 
   Tracker is a powerful desktop-neutral first class object
@@ -189,9 +169,9 @@ Table of Contents
 
   	./configure --help
 
-6 Running Tracker
+5 Running Tracker
 
-6.1 Usage
+5.1 Usage
 
   Tracker normally starts itself when users log in. You can indexing by running:
   
@@ -213,7 +193,7 @@ Table of Contents
 
     $prefix/bin/tracker-search-tool
 
-6.2 Setting Inotify Watch Limit
+5.2 Setting Inotify Watch Limit
 
   When watching large numbers of folders, its possible to exceed
   the default number of inotify watches. In order to get real time
@@ -227,14 +207,14 @@ Table of Contents
   2. Reboot the system OR (on a Debian-like system) run
      "sudo /etc/init.d/procps restart"
 
-7 Further Help
+6 Further Help
 
-7.1 Man pages
+6.1 Man pages
 
   Every config file and every binary has a man page. If you start with
   tracker-store, you should be able to find out about most other
   commands the SEE ALSO section.
 
-7.2 Utilities
+6.2 Utilities
 
   There are a range of tracker utilities that help you query for data.
