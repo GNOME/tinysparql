@@ -69,7 +69,6 @@ nie:plainTextContent a rdf:Property ;
 
 nie:informationElementDate a rdf:Property ;
 	rdfs:subPropertyOf dc:date ;
-	nrl:maxCardinality 1 ;
 	rdfs:domain nie:InformationElement ;
 	rdfs:range xsd:dateTime .
 
