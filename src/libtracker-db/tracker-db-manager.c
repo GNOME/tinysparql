@@ -2305,8 +2305,6 @@ tracker_db_manager_init (TrackerDBManagerFlags	flags,
 		 * new databases.
 		 */
 		tracker_ontology_shutdown ();
-
-		/* Make sure we initialize all other modules we depend on */
 		tracker_ontology_init ();
 
 		/* Now create the databases and close them */
@@ -2326,6 +2324,13 @@ tracker_db_manager_init (TrackerDBManagerFlags	flags,
 				dbs[i].iface = NULL;
 			}
 		}
+
+		/* Reset ontology - we do this so we repopulate our
+		 * ontology caches with the db_interface_create()
+		 * calls below.
+		 */
+		tracker_ontology_shutdown ();
+		tracker_ontology_init ();
 	} else {
 		if ((flags & TRACKER_DB_MANAGER_FORCE_NO_REINDEX) && need_reindex) {
 			g_message ("Reindex was needed, but has been forbidden by NO_REINDEX flag");
@@ -2341,7 +2346,11 @@ tracker_db_manager_init (TrackerDBManagerFlags	flags,
 			g_unlink (dbs[TRACKER_DB_CACHE].abs_filename);
 		}
 
-		/* Make sure we initialize all other modules we depend on */
+		/* In cases where we re-init this module, make sure
+		 * we have cleaned up the ontology before we load all
+		 * new databases.
+		 */
+		tracker_ontology_shutdown ();
 		tracker_ontology_init ();
 	}
 
