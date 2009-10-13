@@ -20,7 +20,8 @@ nao:prefLabel a rdf:Property ;
 nao:hasTag a rdf:Property ;
 	rdfs:domain rdfs:Resource ;
 	rdfs:range rdfs:Resource ;
-	tracker:indexed true .
+	tracker:indexed true ;
+	tracker:isAnnotation true .
 
 nao:identifier a rdf:Property ;
 	nrl:maxCardinality 1 ;

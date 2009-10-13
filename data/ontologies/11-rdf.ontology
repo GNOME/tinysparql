@@ -85,6 +85,11 @@ tracker:transient a rdf:Property ;
 	rdfs:domain rdf:Property ;
 	rdfs:range xsd:boolean .
 
+tracker:isAnnotation a rdf:Property ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain rdf:Property ;
+	rdfs:range xsd:boolean .
+
 tracker:added a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain rdfs:Resource ;

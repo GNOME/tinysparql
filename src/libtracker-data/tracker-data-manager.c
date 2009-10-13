@@ -223,6 +223,18 @@ load_ontology_file_from_path (const gchar	 *ontology_file)
 			if (g_strcmp0 (object, "true") == 0) {
 				tracker_property_set_transient (property, TRUE);
 			}
+		} else if (g_strcmp0 (predicate, TRACKER_PREFIX "isAnnotation") == 0) {
+			TrackerProperty *property;
+
+			property = tracker_ontology_get_property_by_uri (subject);
+			if (property == NULL) {
+				g_critical ("%s: Unknown property %s", ontology_file, subject);
+				continue;
+			}
+
+			if (g_strcmp0 (object, "true") == 0) {
+				tracker_property_set_embedded (property, FALSE);
+			}
 		} else if (g_strcmp0 (predicate, TRACKER_PREFIX "fulltextIndexed") == 0) {
 			TrackerProperty *property;
 
@@ -417,7 +429,8 @@ db_get_static_data (TrackerDBInterface *iface)
 						      "\"nrl:maxCardinality\", "
 						      "\"tracker:indexed\", "
 						      "\"tracker:fulltextIndexed\", "
-						      "\"tracker:transient\" "
+						      "\"tracker:transient\", "
+						      "\"tracker:isAnnotation\" "
 						      "FROM \"rdf:Property\" ORDER BY ID");
 	cursor = tracker_db_statement_start_cursor (stmt, NULL);
 	g_object_unref (stmt);
@@ -429,7 +442,7 @@ db_get_static_data (TrackerDBInterface *iface)
 			TrackerProperty *property;
 			const gchar     *uri, *domain_uri, *range_uri;
 			gboolean         multi_valued, indexed, fulltext_indexed;
-			gboolean         transient = FALSE;
+			gboolean         transient, annotation;
 
 			property = tracker_property_new ();
 
@@ -478,6 +491,16 @@ db_get_static_data (TrackerDBInterface *iface)
 				transient = FALSE;
 			}
 
+			tracker_db_cursor_get_value (cursor, 7, &value);
+
+			if (G_VALUE_TYPE (&value) != 0) {
+				annotation = (g_value_get_int (&value) == 1);
+				g_value_unset (&value);
+			} else {
+				/* NULL */
+				annotation = FALSE;
+			}
+
 			tracker_property_set_transient (property, transient);
 			tracker_property_set_uri (property, uri);
 			tracker_property_set_domain (property, tracker_ontology_get_class_by_uri (domain_uri));
@@ -485,6 +508,7 @@ db_get_static_data (TrackerDBInterface *iface)
 			tracker_property_set_multiple_values (property, multi_valued);
 			tracker_property_set_indexed (property, indexed);
 			tracker_property_set_fulltext_indexed (property, fulltext_indexed);
+			tracker_property_set_embedded (property, !annotation);
 			property_add_super_properties_from_db (iface, property);
 			tracker_ontology_add_property (property);
 

@@ -235,4 +235,6 @@ nie:rootElementOf a rdf:Property ;
 nie:usageCounter a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nie:InformationElement ;
-	rdfs:range xsd:integer.
+	rdfs:range xsd:integer ;
+	tracker:isAnnotation true .
+
