@@ -20,15 +20,15 @@
 import dbus
 import os
 
-TRACKER = 'org.freedesktop.Tracker'
-TRACKER_OBJ = '/org/freedesktop/Tracker/Resources'
+TRACKER = 'org.freedesktop.Tracker1'
+TRACKER_OBJ = '/org/freedesktop/Tracker1/Resources'
 
 FALSE = "false"
 TRUE = "true"
 
 QUERY_FIRST_ENTRIES = """
     SELECT ?entry ?title ?date ?isRead WHERE {
-      ?entry a nmo:FeedMessage ;
+      ?entry a mfo:FeedMessage ;
          nie:title ?title ;
          nie:contentLastModified ?date .
     OPTIONAL {
@@ -43,16 +43,16 @@ SET_URI_AS_READED = """
 
 QUERY_ALL_SUBSCRIBED_FEEDS ="""
     SELECT ?feeduri ?title COUNT (?entries) AS e WHERE {
-       ?feeduri a nmo:FeedChannel ;
+       ?feeduri a mfo:FeedChannel ;
                 nie:title ?title.
-       ?entries a nmo:FeedMessage ;
+       ?entries a mfo:FeedMessage ;
                 nmo:communicationChannel ?feeduri.
     } GROUP BY ?feeduri
 """
 
 QUERY_FOR_URI = """
     SELECT ?title ?date ?isRead ?channel WHERE {
-      <%s> a nmo:FeedMessage ;
+      <%s> a mfo:FeedMessage ;
              nie:title ?title ;
              nie:contentLastModified ?date ;
              nmo:communicationChannel ?channel .
@@ -70,7 +70,7 @@ class TrackerRSS:
         bus = dbus.SessionBus ()
         self.tracker = bus.get_object (TRACKER, TRACKER_OBJ)
         self.iface = dbus.Interface (self.tracker,
-                                     "org.freedesktop.Tracker.Resources")
+                                     "org.freedesktop.Tracker1.Resources")
         self.invisible_feeds = []
         self.load_config ()
         
@@ -90,7 +90,7 @@ class TrackerRSS:
             f.close ()
         
     def get_post_sorted_by_date (self, amount):
-        results = self.iface.Query (QUERY_FIRST_ENTRIES % (amount))
+        results = self.iface.SparqlQuery (QUERY_FIRST_ENTRIES % (amount))
         return results
     
     def set_is_read (self, uri, value):
@@ -106,7 +106,7 @@ class TrackerRSS:
         """ Returns [(uri, feed channel name, entries, visible)]
         """
         componed = []
-        results = self.iface.Query (QUERY_ALL_SUBSCRIBED_FEEDS)
+        results = self.iface.SparqlQuery (QUERY_ALL_SUBSCRIBED_FEEDS)
         for result in results:
             print "Looking for", result[0]
             if (result[0] in self.invisible_feeds):
@@ -121,7 +121,7 @@ class TrackerRSS:
     def get_info_for_entry (self, uri):
         """  Returns (?title ?date ?isRead)
         """
-        details = self.iface.Query (QUERY_FOR_URI % (uri, uri))
+        details = self.iface.SparqlQuery (QUERY_FOR_URI % (uri, uri))
         if (len (details) < 1):
             print "No details !??!!"
             return None

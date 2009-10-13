@@ -25,13 +25,13 @@ import dbus.service
 from dbus.mainloop.glib import DBusGMainLoop
 import datetime, random
 
-TRACKER = 'org.freedesktop.Tracker'
-TRACKER_OBJ = '/org/freedesktop/Tracker/Resources'
+TRACKER = 'org.freedesktop.Tracker1'
+TRACKER_OBJ = '/org/freedesktop/Tracker1/Resources'
 
 # We are not inserting content, nor contributor!
 INSERT_SPARQL = """
 INSERT {
-<%s> a nmo:FeedMessage ;
+<%s> a mfo:FeedMessage ;
  nie:contentLastModified "%s" ;
  nmo:communicationChannel <http://maemo.org/news/planet-maemo/atom.xml>;
  nie:title "%s".
@@ -39,7 +39,7 @@ INSERT {
 """
 
 DELETE_SPARQL = """
-  DELETE { <%s> a nmo:FeedMessage. }
+  DELETE { <%s> a mfo:FeedMessage. }
 """
 
 class SignalerUI (gtk.Window):
@@ -50,7 +50,7 @@ class SignalerUI (gtk.Window):
         bus = dbus.SessionBus ()
         tracker = bus.get_object (TRACKER, TRACKER_OBJ)
         self.iface = dbus.Interface (tracker,
-                                     "org.freedesktop.Tracker.Resources")
+                                     "org.freedesktop.Tracker1.Resources")
 
         vbox = gtk.VBox ()
     
