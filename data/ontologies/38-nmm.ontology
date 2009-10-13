@@ -53,6 +53,15 @@ nmm:musicAlbum a rdf:Property ;
 	rdfs:domain nmm:MusicPiece ;
 	rdfs:range nmm:MusicAlbum .
 
+# Cardinality could be > 1 if we create one for album collectiosn
+nmm:albumArtist a rdf:Property ;
+	rdfs:label "artist" ;
+	rdfs:comment "main artists of the album" ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmm:MusicAlbum ;
+	rdfs:range nmm:Artist .
+
+
 nmm:beatsPerMinute a rdf:Property ;
 	rdfs:label "Beats per minute" ;
 	rdfs:comment "beats per minute" ;
