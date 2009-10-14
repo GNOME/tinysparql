@@ -924,6 +924,7 @@ tracker_db_cursor_sqlite_finalize (GObject *object)
 		TrackerDBStatementSqlitePrivate *stmt_priv;
 		stmt_priv = TRACKER_DB_STATEMENT_SQLITE_GET_PRIVATE (priv->ref_stmt);
 		stmt_priv->stmt_is_sunk = FALSE;
+		tracker_db_statement_sqlite_reset (priv->ref_stmt);
 		g_object_unref (priv->ref_stmt);
 	} else {
 		sqlite3_finalize (priv->stmt);
