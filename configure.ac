@@ -589,9 +589,10 @@ AC_CHECK_HEADERS([sys/inotify.h])
 #  SQLite check
 ####################################################################
 
-# .11 for sqlite_backup API
+# 3.6.11 for sqlite_backup API
+# 3.6.16 to fix test failures
 
-SQLITE_REQUIRED=3.6.11
+SQLITE_REQUIRED=3.6.16
 
 PKG_CHECK_MODULES(SQLITE3, [sqlite3 >= $SQLITE_REQUIRED])
 AC_SUBST(SQLITE3_CFLAGS)
