@@ -36,6 +36,11 @@ nmm:Artist a rdfs:Class ;
 	rdfs:comment "An artist." ;
 	rdfs:subClassOf nie:InformationElement , nco:Role .
 
+nmm:Playlist a rdfs:Class ;
+	rdfs:label "Media playlist" ;
+	rdfs:comment "Specific class to split MediaList in Albums and playlists." ;
+	rdfs:subClassOf nfo:MediaList .
+
 nmm:artistName a rdf:Property ;
 	rdfs:label "fullname" ;
 	rdfs:comment "Name of the artist" ;
