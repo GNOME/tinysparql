@@ -1697,10 +1697,10 @@ processor_files_move (TrackerProcessor *processor,
 			g_queue_push_tail (queue, g_object_ref (other_file));
 
 			item_queue_handlers_set_up (processor);
+		} else {
+			/* If this is a directory we need to crawl it */
+			tracker_crawler_add_unexpected_path (crawler, other_path);
 		}
-
-		/* If this is a directory we need to crawl it */
-		tracker_crawler_add_unexpected_path (crawler, other_path);
 	} else if (other_path_ignored) {
 		/* Delete old file */
 		queue = g_hash_table_lookup (processor->private->items_deleted_queues, module_name);
@@ -1760,17 +1760,19 @@ monitor_item_moved_cb (TrackerMonitor *monitor,
 		       gpointer        user_data)
 {
 	if (!is_source_monitored) {
-		TrackerProcessor *processor;
-		TrackerCrawler   *crawler;
-		gchar            *path;
+		if (is_directory) {
+			TrackerProcessor *processor;
+			TrackerCrawler   *crawler;
+			gchar            *path;
 
-		processor = user_data;
+			processor = user_data;
 
-		/* If the source is not monitored, we need to crawl it. */
-		path = g_file_get_path (other_file);
-		crawler = g_hash_table_lookup (processor->private->crawlers, module_name);
-		tracker_crawler_add_unexpected_path (crawler, path);
-		g_free (path);
+			/* If the source is not monitored, we need to crawl it. */
+			path = g_file_get_path (other_file);
+			crawler = g_hash_table_lookup (processor->private->crawlers, module_name);
+			tracker_crawler_add_unexpected_path (crawler, path);
+			g_free (path);
+		}
 	} else {
 		processor_files_move (user_data, module_name, file, other_file, is_directory);
 	}
