@@ -466,6 +466,7 @@ status_icon_miner_activated (TrackerMinerManager *manager,
 
 	gtk_widget_set_sensitive (entry->menu_item, TRUE);
 	gtk_widget_show (entry->progress_bar);
+	gtk_widget_show (entry->progress_percentage);
 	entry->active = TRUE;
 
 	update_icon_status (icon);
@@ -491,6 +492,7 @@ status_icon_miner_deactivated (TrackerMinerManager *manager,
 
 	gtk_widget_set_sensitive (entry->menu_item, FALSE);
 	gtk_widget_hide (entry->progress_bar);
+	gtk_widget_hide (entry->progress_percentage);
 
 	status_icon_miner_progress (priv->manager, miner_name,
 				    _("Miner is not running"), 0.0, icon);
@@ -572,13 +574,14 @@ miner_menu_entry_add (TrackerStatusIcon *icon,
 	gtk_misc_set_alignment (GTK_MISC (entry->name), 0.0, 0.5);
 	gtk_box_pack_start (GTK_BOX (entry->box), entry->name, TRUE, TRUE, 0);
 
-	entry->progress_percentage = gtk_label_new ("");
+	entry->progress_percentage = gtk_label_new ("100%");
 	gtk_misc_set_alignment (GTK_MISC (entry->progress_percentage), 1.0, 0.5);
 	gtk_box_pack_start (GTK_BOX (entry->box), entry->progress_percentage, FALSE, TRUE, 0);
 
 	entry->progress_bar = gtk_progress_bar_new ();
 	gtk_progress_bar_set_pulse_step (GTK_PROGRESS_BAR (entry->progress_bar), 0.02);
 	gtk_progress_bar_set_ellipsize (GTK_PROGRESS_BAR (entry->progress_bar), PANGO_ELLIPSIZE_END);
+	gtk_progress_bar_set_fraction (GTK_PROGRESS_BAR (entry->progress_bar), 1.00);
 
         /* Get the font ascent for the current font and language */
         context = gtk_widget_get_pango_context (entry->progress_bar);
@@ -611,6 +614,7 @@ miner_menu_entry_add (TrackerStatusIcon *icon,
 	if (!entry->active) {
 		gtk_widget_set_sensitive (entry->menu_item, FALSE);
 		gtk_widget_hide (entry->progress_bar);
+		gtk_widget_hide (entry->progress_percentage);
 	}
 
 	g_hash_table_replace (priv->miners, str, entry);
