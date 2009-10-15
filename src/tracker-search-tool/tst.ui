@@ -10,10 +10,13 @@
     <child>
       <object class="GtkVBox" id="vbox1">
         <property name="visible">True</property>
+        <property name="border_width">6</property>
         <property name="orientation">vertical</property>
+        <property name="spacing">6</property>
         <child>
           <object class="GtkHBox" id="SearchBox">
             <property name="visible">True</property>
+            <property name="spacing">12</property>
             <child>
               <object class="GtkLabel" id="label1">
                 <property name="visible">True</property>
@@ -23,7 +26,6 @@
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">False</property>
-                <property name="padding">8</property>
                 <property name="position">0</property>
               </packing>
             </child>
@@ -35,14 +37,12 @@
                 </child>
               </object>
               <packing>
-                <property name="padding">12</property>
                 <property name="position">1</property>
               </packing>
             </child>
           </object>
           <packing>
             <property name="expand">False</property>
-            <property name="padding">12</property>
             <property name="position">0</property>
           </packing>
         </child>
@@ -50,7 +50,8 @@
           <object class="GtkHPaned" id="hpaned1">
             <property name="visible">True</property>
             <property name="can_focus">True</property>
-            <property name="position">126</property>
+            <property name="position">130</property>
+            <property name="position_set">True</property>
             <child>
               <object class="GtkHBox" id="CategoryBox">
                 <property name="visible">True</property>
@@ -64,43 +65,11 @@
               </packing>
             </child>
             <child>
-              <object class="GtkVBox" id="vbox2">
+              <object class="GtkVBox" id="GridBox">
                 <property name="visible">True</property>
                 <property name="orientation">vertical</property>
                 <child>
                   <placeholder/>
-                </child>
-                <child>
-                  <object class="GtkVBox" id="GridBox">
-                    <property name="visible">True</property>
-                    <property name="orientation">vertical</property>
-                    <child>
-                      <placeholder/>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="position">1</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkExpander" id="DetailBox">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="expanded">True</property>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child type="label">
-                      <object class="GtkLabel" id="label2">
-                        <property name="visible">True</property>
-                        <property name="label" translatable="yes">Details</property>
-                      </object>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="position">2</property>
-                  </packing>
                 </child>
               </object>
               <packing>
@@ -114,16 +83,23 @@
           </packing>
         </child>
         <child>
-          <placeholder/>
-        </child>
-        <child>
-          <object class="GtkStatusbar" id="statusbar1">
+          <object class="GtkExpander" id="DetailBox">
             <property name="visible">True</property>
-            <property name="spacing">2</property>
+            <property name="can_focus">True</property>
+            <property name="expanded">True</property>
+            <child>
+              <placeholder/>
+            </child>
+            <child type="label">
+              <object class="GtkLabel" id="label2">
+                <property name="visible">True</property>
+                <property name="label" translatable="yes">Details</property>
+              </object>
+            </child>
           </object>
           <packing>
             <property name="expand">False</property>
-            <property name="position">3</property>
+            <property name="position">2</property>
           </packing>
         </child>
       </object>

@@ -77,70 +77,71 @@ class TrackerMetadataTile : HBox
     init
         border_width = 8
     
-        table = new Table (3, 7, true)
+        table = new Table (3, 7, false)
+        table.set_col_spacings (6)
+        table.set_row_spacings (6)
         
-        table.column_spacing = 0
-        table.row_spacing = 1
-
         add (table)
 
         image = new Image.from_icon_name ("text-x-generic", IconSize.DIALOG)
-        table.attach_defaults (image, 0, 1, 0, 3)
+        table.attach (image, 0, 1, 0, 3, AttachOptions.FILL, AttachOptions.FILL, 12, 0)
         
         name_link = new LinkButton ("")
         name_link.xalign = 0
-        table.attach_defaults (name_link, 1, 7, 0, 1)
+        table.attach (name_link, 1, 7, 0, 1, AttachOptions.FILL, AttachOptions.FILL, 0, 0)
+       
+        info_label1 = CreateLabel (N_("Type:"), false)
+        AttachToTable (info_label1, 1, 2, 1, 2, false)
         
-        info_label1 = CreateLabel (N_("Type : "))
-        AttachToTable (info_label1, 1, 2, 1, 2)
+        info_value1 = CreateLabel ("-", true)
+        AttachToTable (info_value1, 2, 3, 1, 2, true)
         
-        info_value1 = CreateLabel ("")
-        AttachToTable (info_value1, 2, 3, 1, 2)
+        info_label2 = CreateLabel (N_("Size:"), false)
+        AttachToTable (info_label2, 3, 4, 1, 2, false)
         
-        info_label2 = CreateLabel (N_("Size : "))
-        AttachToTable (info_label2, 3, 4, 1, 2)
+        info_value2 = CreateLabel ("-", true)        
+        AttachToTable (info_value2, 4, 5, 1, 2, true)
         
-        info_value2 = CreateLabel ("")        
-        AttachToTable (info_value2, 4, 5, 1, 2)
+        info_label3 = CreateLabel (N_("Modified:"), false)        
+        AttachToTable (info_label3, 5, 6, 1, 2, false)
         
-        info_label3 = CreateLabel (N_("Modified : "))        
-        AttachToTable (info_label3, 5, 6, 1, 2)
+        info_value3 = CreateLabel ("-", true)        
+        AttachToTable (info_value3, 6, 7, 1, 2, true)
         
-        info_value3 = CreateLabel ("")        
-        AttachToTable (info_value3, 6, 7, 1, 2)
+        info_label4 = CreateLabel (N_("Title:"), false)
+        AttachToTable (info_label4, 1, 2, 2, 3, false)
         
-        info_label4 = CreateLabel (N_("Title : "))
-        AttachToTable (info_label4, 1, 2, 2, 3)
+        info_value4 = CreateLabel ("-", true)        
+        AttachToTable (info_value4, 2, 3, 2, 3, true)
         
-        info_value4 = CreateLabel ("")        
-        AttachToTable (info_value4, 2, 3, 2, 3)
+        info_label5 = CreateLabel (N_("Author/Artist:"), false)        
+        AttachToTable (info_label5, 3, 4, 2, 3, false)
         
-        info_label5 = CreateLabel (N_("Author/Artist : "))        
-        AttachToTable (info_label5, 3, 4, 2, 3)
+        info_value5 = CreateLabel ("-", true)        
+        AttachToTable (info_value5, 4, 5, 2, 3, true)
         
-        info_value5 = CreateLabel ("")        
-        AttachToTable (info_value5, 4, 5, 2, 3)
+        info_label6 = CreateLabel ("Comments:", false)        
+        AttachToTable (info_label6, 5, 6, 2, 3, false)
         
-        info_label6 = CreateLabel ("Comments : ")        
-        AttachToTable (info_label6, 5, 6, 2, 3)
-        
-        info_value6 = CreateLabel ("")        
-        AttachToTable (info_value6, 6, 7, 2, 3)
+        info_value6 = CreateLabel ("-", true)        
+        AttachToTable (info_value6, 6, 7, 2, 3, true)
         
         show_all ()
         
         
         
-    def private AttachToTable (lab : Label, l : int, r : int, t : int, b : int)
-        table.attach (lab, l, r, t, b, AttachOptions.FILL | AttachOptions.SHRINK , AttachOptions.FILL, 0, 0)
+    def private AttachToTable (lab : Label, l : int, r : int, t : int, b : int, e : bool)
+        if e is true
+            table.attach (lab, l, r, t, b, AttachOptions.FILL | AttachOptions.EXPAND , AttachOptions.FILL, 0, 0)
+        else
+            table.attach (lab, l, r, t, b, AttachOptions.FILL, AttachOptions.FILL, 0, 0)
         
-        
-    def private CreateLabel (s : string) : Label
+    def private CreateLabel (s : string, e : bool) : Label
         var l = new Label (s)
         l.xalign = 0
         l.set_use_markup (true)
-        
-        if s is ""
+
+        if e is true
             l.ellipsize = Pango.EllipsizeMode.END
         
         return l
@@ -177,7 +178,7 @@ class TrackerMetadataTile : HBox
         image.set_from_pixbuf (icon)
         
         var file = File.new_for_uri (uri)
-        var filepath = file.get_path ()
+        var filepath = file.get_basename ()
         name_link.uri = uri
         name_link.label = filepath
         
