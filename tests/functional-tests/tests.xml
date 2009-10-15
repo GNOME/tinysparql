@@ -11,13 +11,13 @@
       <!-- At least one case per set, name mandatory, description mandatory, other optional -->
       <case name="test_simple_insertion" type="unit" 
             description="Insert and check results" requirement="01" timeout="5" subfeature="">
-        <!-- At least one step per test, expected_result optional - tells which return code is considered passed -->
-        <step expected_result="0">python /usr/share/tracker-tests/01-insertion.py</step>
+        <!-- dbus env variables defined here. This works. -->
+        <step expected_result="0">. /tmp/session_bus_address.user; python2.5 /usr/share/tracker-tests/01-insertion.py</step>
       </case>
  
       <!-- Environments optional - tells where the tests are run -->
       <environments>
-        <scratchbox>false</scratchbox>
+        <scratchbox>true</scratchbox>
         <hardware>true</hardware>    
       </environments>
  
