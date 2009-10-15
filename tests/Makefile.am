@@ -8,4 +8,5 @@ SUBDIRS = 			\
 	libtracker-fts 		\
 	tracker-miner-fs	\
 	tracker-extract		\
-	tracker-store
+	tracker-store		\
+	functional-tests	
