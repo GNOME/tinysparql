@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<testdefinition version="0.1">
+  <suite name="tracker-tests" domain="tracker-store"> 
+    <!-- At least one set per suite, name and description mandatory -->
+    <set name="testset1" description="Basic sparql tests" feature="sparql-insert">   
+      <pre_steps>
+        <!-- This doesn't seem to work -->
+        <step>. /tmp/session_bus_address.user</step>
+      </pre_steps>
+
+      <!-- At least one case per set, name mandatory, description mandatory, other optional -->
+      <case name="test_simple_insertion" type="unit" 
+            description="Insert and check results" requirement="01" timeout="5" subfeature="">
+        <!-- At least one step per test, expected_result optional - tells which return code is considered passed -->
+        <step expected_result="0">python /usr/share/tracker-tests/01-insertion.py</step>
+      </case>
+ 
+      <!-- Environments optional - tells where the tests are run -->
+      <environments>
+        <scratchbox>false</scratchbox>
+        <hardware>true</hardware>    
+      </environments>
+ 
+    </set>
+  </suite>
+</testdefinition>
