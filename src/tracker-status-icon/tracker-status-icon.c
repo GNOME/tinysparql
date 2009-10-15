@@ -68,8 +68,12 @@ struct MinerMenuEntry {
 	GtkWidget *state;
 	GtkWidget *name;
 	GtkWidget *progress_bar;
+	GtkWidget *progress_percentage;
 
+	gchar *status;
 	gdouble progress;
+	gboolean paused;
+	guint pulse_id;
 	guint32 cookie;
 	guint active : 1;
 };
@@ -127,6 +131,18 @@ tracker_status_icon_class_init (TrackerStatusIconClass *klass)
 }
 
 static void
+miner_menu_entry_free (MinerMenuEntry *entry)
+{
+	if (entry->pulse_id) {
+		g_source_remove (entry->pulse_id);
+		entry->pulse_id = 0;
+	}
+
+	g_free (entry->status);
+	g_free (entry);
+}
+
+static void
 tracker_status_icon_init (TrackerStatusIcon *icon)
 {
 	TrackerStatusIconPrivate *priv;
@@ -157,7 +173,7 @@ tracker_status_icon_init (TrackerStatusIcon *icon)
 
 	priv->miners = g_hash_table_new_full (g_str_hash, g_str_equal,
 					      (GDestroyNotify) g_free,
-					      (GDestroyNotify) g_free);
+					      (GDestroyNotify) miner_menu_entry_free);
 
 	priv->miner_menu = gtk_menu_new ();
 	priv->context_menu = status_icon_create_context_menu (icon);
@@ -291,7 +307,59 @@ update_icon_status (TrackerStatusIcon *icon)
 		status = STATUS_IDLE;
 	}
 
+	/* entry = g_hash_table_lookup (priv->miners, miner_name); */
+
 	status_icon_set_status (icon, status);
+}
+
+static gboolean
+status_icon_miner_pulse (gpointer user_data)
+{
+	MinerMenuEntry *entry = user_data;
+
+	gtk_progress_bar_pulse (GTK_PROGRESS_BAR (entry->progress_bar));
+
+	return TRUE;
+}
+
+static void
+status_icon_miner_pulse_start (MinerMenuEntry *entry)
+{
+	if (entry->pulse_id == 0) {
+		entry->pulse_id = g_timeout_add (100, status_icon_miner_pulse, entry);
+	}
+}
+
+static void
+status_icon_miner_pulse_stop (MinerMenuEntry *entry)
+{
+	if (entry->pulse_id != 0) {
+		g_source_remove (entry->pulse_id);
+		entry->pulse_id = 0;
+	}
+}
+
+static void
+status_icon_miner_progress_set (MinerMenuEntry *entry)
+{
+	gchar *progress_str;
+
+	if (!entry->paused) {
+		if (entry->progress == 0.00) {
+			status_icon_miner_pulse_start (entry);
+		} else {
+			status_icon_miner_pulse_stop (entry);
+			gtk_progress_bar_set_fraction (GTK_PROGRESS_BAR (entry->progress_bar), entry->progress);
+		}
+	} else {
+		status_icon_miner_pulse_stop (entry);
+	}
+
+	progress_str = g_strdup_printf ("%3.0f%%", entry->progress * 100);
+	gtk_label_set_text (GTK_LABEL (entry->progress_percentage), progress_str);
+	g_free (progress_str);
+	
+	gtk_widget_set_tooltip_text (entry->box, entry->status);
 }
 
 static void
@@ -304,7 +372,6 @@ status_icon_miner_progress (TrackerMinerManager *manager,
 	TrackerStatusIconPrivate *priv;
 	TrackerStatusIcon *icon;
 	MinerMenuEntry *entry;
-	gchar *progress_str;
 
 	icon = TRACKER_STATUS_ICON (user_data);
 	priv = TRACKER_STATUS_ICON_GET_PRIVATE (icon);
@@ -315,15 +382,11 @@ status_icon_miner_progress (TrackerMinerManager *manager,
 		return;
 	}
 
-	gtk_widget_set_tooltip_text (entry->box, status);
-	gtk_progress_bar_set_fraction (GTK_PROGRESS_BAR (entry->progress_bar), progress);
-
-	progress_str = g_strdup_printf ("%3.0f%%", progress * 100);
-	gtk_progress_bar_set_text (GTK_PROGRESS_BAR (entry->progress_bar), progress_str);
-	g_free (progress_str);
-
+	g_free (entry->status);
+	entry->status = g_strdup (status);
 	entry->progress = progress;
 
+	status_icon_miner_progress_set (entry);
 	update_icon_status (icon);
 }
 
@@ -344,6 +407,9 @@ status_icon_miner_paused (TrackerMinerManager *manager,
 		g_critical ("Got pause signal from unknown miner");
 		return;
 	}
+
+	entry->paused = TRUE;
+	status_icon_miner_progress_set (entry);
 
 	gtk_image_set_from_stock (GTK_IMAGE (entry->state),
 				  GTK_STOCK_MEDIA_PAUSE,
@@ -369,6 +435,9 @@ status_icon_miner_resumed (TrackerMinerManager *manager,
 		g_critical ("Got pause signal from unknown miner");
 		return;
 	}
+
+	entry->paused = FALSE;
+	status_icon_miner_progress_set (entry);
 
 	gtk_image_set_from_stock (GTK_IMAGE (entry->state),
 				  GTK_STOCK_MEDIA_PLAY,
@@ -396,6 +465,7 @@ status_icon_miner_activated (TrackerMinerManager *manager,
 	}
 
 	gtk_widget_set_sensitive (entry->menu_item, TRUE);
+	gtk_widget_show (entry->progress_bar);
 	entry->active = TRUE;
 
 	update_icon_status (icon);
@@ -420,6 +490,8 @@ status_icon_miner_deactivated (TrackerMinerManager *manager,
 	}
 
 	gtk_widget_set_sensitive (entry->menu_item, FALSE);
+	gtk_widget_hide (entry->progress_bar);
+
 	status_icon_miner_progress (priv->manager, miner_name,
 				    _("Miner is not running"), 0.0, icon);
 	entry->active = FALSE;
@@ -479,24 +551,47 @@ miner_menu_entry_add (TrackerStatusIcon *icon,
 {
 	TrackerStatusIconPrivate *priv;
 	MinerMenuEntry *entry;
+        PangoFontDescription *fontdesc;
+        PangoFontMetrics *metrics;
+        PangoContext *context;
+        PangoLanguage *lang;
 	const gchar *name;
 	gchar *str;
+        gint ascent;
 
 	priv = TRACKER_STATUS_ICON_GET_PRIVATE (icon);
 	name = tracker_miner_manager_get_display_name (priv->manager, miner);
 	str = g_strdup (miner);
 
 	entry = g_new0 (MinerMenuEntry, 1);
+
 	entry->box = gtk_hbox_new (FALSE, 6);
 	entry->state = gtk_image_new_from_stock (GTK_STOCK_MEDIA_PLAY,
 						 GTK_ICON_SIZE_MENU);
 	entry->name = gtk_label_new (name);
-	gtk_misc_set_alignment (GTK_MISC (entry->name), 0, 0.5);
+	gtk_misc_set_alignment (GTK_MISC (entry->name), 0.0, 0.5);
+	gtk_box_pack_start (GTK_BOX (entry->box), entry->name, TRUE, TRUE, 0);
+
+	entry->progress_percentage = gtk_label_new ("");
+	gtk_misc_set_alignment (GTK_MISC (entry->progress_percentage), 1.0, 0.5);
+	gtk_box_pack_start (GTK_BOX (entry->box), entry->progress_percentage, FALSE, TRUE, 0);
 
 	entry->progress_bar = gtk_progress_bar_new ();
+	gtk_progress_bar_set_pulse_step (GTK_PROGRESS_BAR (entry->progress_bar), 0.02);
+	gtk_progress_bar_set_ellipsize (GTK_PROGRESS_BAR (entry->progress_bar), PANGO_ELLIPSIZE_END);
 
-	gtk_box_pack_start (GTK_BOX (entry->box), entry->name, FALSE, FALSE, 0);
-	gtk_box_pack_start (GTK_BOX (entry->box), entry->progress_bar, TRUE, TRUE, 0);
+        /* Get the font ascent for the current font and language */
+        context = gtk_widget_get_pango_context (entry->progress_bar);
+        fontdesc = pango_context_get_font_description (context);
+        lang = pango_context_get_language (context);
+        metrics = pango_context_get_metrics (context, fontdesc, lang);
+        ascent = pango_font_metrics_get_ascent (metrics) * 1.5 / PANGO_SCALE;
+        pango_font_metrics_unref (metrics);
+
+        /* Size our progress bar to be five ascents long */
+        gtk_widget_set_size_request (entry->progress_bar, ascent * 5, -1);
+
+	gtk_box_pack_start (GTK_BOX (entry->box), entry->progress_bar, FALSE, TRUE, 0);
 
 	gtk_size_group_add_widget (priv->size_group, entry->name);
 
@@ -515,6 +610,7 @@ miner_menu_entry_add (TrackerStatusIcon *icon,
 
 	if (!entry->active) {
 		gtk_widget_set_sensitive (entry->menu_item, FALSE);
+		gtk_widget_hide (entry->progress_bar);
 	}
 
 	g_hash_table_replace (priv->miners, str, entry);
