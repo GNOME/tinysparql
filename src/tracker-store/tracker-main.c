@@ -39,8 +39,6 @@
 #include <glib/gstdio.h>
 
 #include <libtracker-common/tracker-file-utils.h>
-#include <libtracker-common/tracker-power.h>
-#include <libtracker-common/tracker-storage.h>
 #include <libtracker-common/tracker-ioprio.h>
 #include <libtracker-common/tracker-log.h>
 #include <libtracker-common/tracker-ontology.h>
@@ -77,17 +75,6 @@
 	"\n"								  \
 	"  http://www.gnu.org/licenses/gpl.txt\n"
 
-#ifdef HAVE_HAL
-
-typedef struct {
-	gchar *udi;
-	gchar *mount_point;
-	gboolean no_crawling;
-	gboolean was_added;
-} MountPointUpdate;
-
-#endif /* HAVE_HAL */
-
 typedef struct {
 	GMainLoop	 *main_loop;
 	gchar		 *log_filename;
@@ -96,7 +83,7 @@ typedef struct {
 	gchar		 *user_data_dir;
 	gchar		 *sys_tmp_dir;
 	gchar            *ttl_backup_file;
-	
+
 	gboolean          first_time_index;
 	gboolean	  reindex_on_shutdown;
 	gboolean          shutdown;
@@ -158,156 +145,6 @@ private_free (gpointer data)
 
 	g_free (private);
 }
-
-#ifdef HAVE_HAL
-
-#if 0
-static MountPointUpdate *
-mount_point_update_new (const gchar *udi,
-			const gchar *mount_point,
-			gboolean no_crawling,
-			gboolean was_added)
-{
-	MountPointUpdate *mpu;
-
-	mpu = g_slice_new0 (MountPointUpdate);
-
-	mpu->udi = g_strdup (udi);
-	mpu->mount_point = g_strdup (mount_point);
-
-	mpu->no_crawling = no_crawling;
-	mpu->was_added = was_added;
-
-	return mpu;
-}
-
-static void
-mount_point_update_free (MountPointUpdate *mpu)
-{
-	if (!mpu) {
-		return;
-	}
-
-	g_free (mpu->mount_point);
-	g_free (mpu->udi);
-
-	g_slice_free (MountPointUpdate, mpu);
-}
-
-static void
-mount_point_set (MountPointUpdate *mpu)
-{
-	g_message ("Indexer has now set the state for the volume with UDI:");
-	g_message (" %s", mpu->udi);
-}
-
-static void
-mount_point_set_cb (DBusGProxy *proxy,
-		    GError *error,
-		    gpointer user_data)
-{
-	MountPointUpdate *mpu;
-
-	mpu = user_data;
-
-	if (error) {
-		g_critical ("Indexer couldn't set volume state for:'%s' in database, %s",
-			    mpu->udi,
-			    error ? error->message : "no error given");
-
-		g_error_free (error);
-
-		tracker_shutdown ();
-	} else {
-		mount_point_set (mpu);
-	}
-
-	mount_point_update_free (mpu);
-}
-#endif
-
-static void
-mount_point_added_cb (TrackerStorage *hal,
-		      const gchar    *udi,
-		      const gchar    *mount_point,
-		      gpointer	      user_data)
-{
-	/* TODO: Fix volume handling in tracker-store / tracker-indexer
-
-	TrackerMainPrivate *private;
-	MountPointUpdate *mpu;
-
-	private = g_static_private_get (&private_key);
-
-	g_message ("Indexer is being notified about added UDI:");
-	g_message ("  %s", udi);
-
-	mpu = mount_point_update_new (udi, mount_point, FALSE, TRUE);
-	org_freedesktop_Tracker_Indexer_volume_update_state_async (tracker_dbus_indexer_get_proxy (), 
-								   udi,
-								   mount_point,
-								   TRUE,
-								   mount_point_set_cb,
-								   mpu);
-	 */
-}
-
-#if 0
-static void
-mount_point_set_and_signal_cb (DBusGProxy *proxy, 
-			       GError     *error, 
-			       gpointer    user_data)
-{
-	if (error) {
-		g_critical ("Couldn't set mount point state, %s", 
-			    error->message);
-		g_error_free (error);
-		g_free (user_data);
-		return;
-	}
-
-	g_message ("Indexer now knows about UDI state:");
-	g_message ("  %s", (gchar*) user_data);
-
-
-	/* This is a special case, because we don't get the
-	 * "Finished" signal from the indexer when we set something
-	 * in the volumes table, we have to signal all clients from
-	 * here that the statistics may have changed.
-	 */
-	tracker_statistics_signal ();
-
-	g_free (user_data);
-}
-#endif
-
-static void
-mount_point_removed_cb (TrackerStorage  *hal,
-			const gchar     *udi,
-			const gchar     *mount_point,
-			gpointer         user_data)
-{
-	/* TODO: Fix volume handling in tracker-store / tracker-indexer
-
-	TrackerMainPrivate *private;
-	MountPointUpdate *mpu;
-
-	private = g_static_private_get (&private_key);
-
-	g_message ("Indexer is being notified about removed UDI:");
-	g_message ("  %s", udi);
-
-	mpu = mount_point_update_new (udi, mount_point, FALSE, FALSE);
-	org_freedesktop_Tracker_Indexer_volume_update_state_async (tracker_dbus_indexer_get_proxy (), 
-								   udi,
-								   mount_point,
-								   FALSE,
-								   mount_point_set_and_signal_cb,
-								   mpu);
-	 */
-}
-
-#endif /* HAVE_HAL */
 
 static void
 sanity_check_option_values (TrackerConfig *config)
@@ -533,85 +370,6 @@ backup_user_metadata (TrackerConfig   *config,
 }
 #endif
 
-#ifdef HAVE_HAL
-
-static void
-set_up_mount_points (TrackerStorage *hal)
-{
-	/* TODO: Fix volume handling in tracker-store / tracker-indexer
-
-	TrackerMainPrivate *private;
-	GError *error = NULL;
-	GSList *roots, *l;
-
-	private = g_static_private_get (&private_key);
-
-	 * Merging: This has something to do with "mount_points_to_set", which apparently
-	 * we  don't have here in master apparently (but which tracker-0.6 uses)
-	 *
-	 * tracker_status_set_is_paused_for_dbus (TRUE);
-
-	g_message ("Indexer is being notified to disable all volumes");
-	org_freedesktop_Tracker_Indexer_volume_disable_all (tracker_dbus_indexer_get_proxy (), &error);
-
-	if (error) {
-		g_critical ("Indexer couldn't disable all volumes, %s",
-			    error->message);
-		g_error_free (error);
-		tracker_shutdown ();
-		return;
-	}
-
-	g_message ("   Done");
-
-	roots = tracker_storage_get_removable_device_udis (hal);
-	
-	l = roots;
-
-	while (l && !private->shutdown) {
-		MountPointUpdate *mpu;
-
-		mpu = mount_point_update_new (l->data,
-					      tracker_storage_udi_get_mount_point (hal, l->data),
-					      TRUE,
-					      tracker_storage_udi_get_is_mounted (hal, l->data));
-
-		g_message (" %s", mpu->udi);
-
-		org_freedesktop_Tracker_Indexer_volume_update_state (tracker_dbus_indexer_get_proxy (),
-									   mpu->udi,
-									   mpu->mount_point,
-									   mpu->was_added,
-									   &error);
-		if (error) {
-			g_critical ("Indexer couldn't set volume state for:'%s' in database, %s",
-				    mpu->udi,
-				    error->message);
-
-			g_error_free (error);
-
-			tracker_shutdown ();
-			break;
-		} else {
-			mount_point_set (mpu);
-		}
-
-		mount_point_update_free (mpu);
-		l = l->next;
-	}
-
-	g_slist_foreach (roots, (GFunc) g_free, NULL);
-	g_slist_free (roots);
-	 */
-
-	/* Merging: tracker-0.6 appears to have code here that we don't have
-	 *
-	 * About "mount_points_up" */
-}
-
-
-#endif /* HAVE_HAL */
-
 static GStrv
 tracker_daemon_get_notifiable_classes (void)
 {
@@ -637,8 +395,6 @@ main (gint argc, gchar *argv[])
 	GError			   *error = NULL;
 	TrackerMainPrivate	   *private;
 	TrackerConfig		   *config;
-	TrackerPower		   *hal_power;
-	TrackerStorage		   *hal_storage;
 	TrackerDBManagerFlags	    flags = 0;
 	gboolean		    is_first_time_index, need_journal = FALSE;
 
@@ -730,18 +486,6 @@ main (gint argc, gchar *argv[])
 
 	sanity_check_option_values (config);
 
-#ifdef HAVE_HAL
-	hal_power = tracker_power_new ();
-	hal_storage = tracker_storage_new ();
-
-	g_signal_connect (hal_storage, "mount-point-added",
-			  G_CALLBACK (mount_point_added_cb),
-			  NULL);
-	g_signal_connect (hal_storage, "mount-point-removed",
-			  G_CALLBACK (mount_point_removed_cb),
-			  NULL);
-#endif /* HAVE_HAL */
-
 	flags |= TRACKER_DB_MANAGER_REMOVE_CACHE;
 
 	if (force_reindex) {
@@ -761,15 +505,6 @@ main (gint argc, gchar *argv[])
 	}
 
 	tracker_store_init (need_journal);
-
-#ifdef HAVE_HAL
-	/* We set up the mount points here. For the mount points, this
-	 * means contacting the Indexer. This means that we have to
-	 * have already initialised the databases if we are going to
-	 * do that.
-	 */
-	set_up_mount_points (hal_storage);
-#endif /* HAVE_HAL */
 
 	if (private->shutdown) {
 		goto shutdown;
@@ -817,18 +552,6 @@ shutdown:
 	tracker_dbus_shutdown ();
 	tracker_data_manager_shutdown ();
 	tracker_log_shutdown ();
-
-#ifdef HAVE_HAL
-	g_signal_handlers_disconnect_by_func (hal_storage,
-					      mount_point_added_cb,
-					      NULL);
-	g_signal_handlers_disconnect_by_func (hal_storage,
-					      mount_point_removed_cb,
-					      NULL);
-
-	g_object_unref (hal_power);
-	g_object_unref (hal_storage);
-#endif /* HAVE_HAL */
 
 	g_object_unref (config);
 
