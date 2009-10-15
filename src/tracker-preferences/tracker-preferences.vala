@@ -25,6 +25,7 @@ using GLib;
 using Tracker;
 
 public static Config config = null;
+public static IconConfig icon_config = null;
 
 public const string HOME_STRING = "$HOME";
 
@@ -49,6 +50,29 @@ public static TreeView treeview_ignored_directories;
 public static TreeView treeview_ignored_directories_with_content;
 public static TreeView treeview_ignored_files;
 public static ToggleButton togglebutton_home;
+public static RadioButton radiobutton_display_never;
+public static RadioButton radiobutton_display_active;
+public static RadioButton radiobutton_display_always;
+
+public static void radiobutton_visibility_toggled_cb (RadioButton source) {
+	if (radiobutton_display_never.active) {
+		icon_config.visibility = 0;
+	} else if (radiobutton_display_active.active) {
+		icon_config.visibility = 1;
+	} else {
+		icon_config.visibility = 2;
+	}
+}
+
+public static void initialize_visibility_radiobutton () {
+	if (icon_config.visibility == 0) {
+		radiobutton_display_never.active = true;
+	} else if (icon_config.visibility == 1) {
+		radiobutton_display_active.active = true;
+	} else {
+		radiobutton_display_always.active = true;
+	}
+}
 
 public static void spinbutton_delay_value_changed_cb (SpinButton source) {
 	config.initial_sleep = source.get_value_as_int ();
@@ -249,6 +273,7 @@ public static void button_apply_clicked_cb (Button source) {
 	config.index_recursive_directories = model_to_slist (liststore_index_recursively);
 
 	config.save ();
+	icon_config.save ();
 
 	/* TODO: restart the Application and Files miner (no idea how to cleanly do this atm) */
 }
@@ -307,6 +332,8 @@ static int main (string[] args) {
 
 	try {
 		config = new Config.with_domain ("tracker-miner-fs");
+		icon_config = new IconConfig.with_domain ("tracker-status-icon");
+
 		var builder = new Builder ();
 		builder.add_from_file (TRACKER_DATADIR + Path.DIR_SEPARATOR_S + "tracker-preferences.ui");
 
@@ -332,6 +359,11 @@ static int main (string[] args) {
 		hscale_throttle = builder.get_object ("hscale_throttle") as Scale;
 		hscale_throttle.set_value ((double) config.throttle);
 		togglebutton_home = builder.get_object ("togglebutton_home") as ToggleButton;
+
+		radiobutton_display_never = builder.get_object ("radiobutton_display_never") as RadioButton;
+		radiobutton_display_active = builder.get_object ("radiobutton_display_active") as RadioButton;
+		radiobutton_display_always = builder.get_object ("radiobutton_display_always") as RadioButton;
+		initialize_visibility_radiobutton ();
 
 		treeview_index_recursively = builder.get_object ("treeview_index_recursively") as TreeView;
 		treeview_index_single = builder.get_object ("treeview_index_single") as TreeView;

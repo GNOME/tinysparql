@@ -25,7 +25,9 @@ BUILT_SOURCES = tracker-preferences.vala.stamp
 
 config_class_sources = \
 	$(top_srcdir)/src/tracker-miner-fs/tracker-config.h		\
-	$(top_srcdir)/src/tracker-miner-fs/tracker-config.c
+	$(top_srcdir)/src/tracker-miner-fs/tracker-config.c		\
+	$(top_srcdir)/src/tracker-status-icon/tracker-icon-config.h	\
+	$(top_srcdir)/src/tracker-status-icon/tracker-icon-config.c
 
 tracker_preferences_VALASOURCES = tracker-preferences.vala
 
@@ -44,11 +46,16 @@ MAINTAINERCLEANFILES =							\
 	$(tracker_preferences_VALASOURCES:.vala=.c)			\
 	$(NULL)
 
-EXTRA_DIST = $(pkgdata_DATA) config.vapi tracker-config.vapi tracker-preferences.vala.stamp \
+EXTRA_DIST = \
+	$(pkgdata_DATA) 						\
+	config.vapi							\
+	tracker-config.vapi						\
+	tracker-status-icon-config.vala					\
+	tracker-preferences.vala.stamp 					\
 	$(tracker_preferences_VALASOURCES)
 
 tracker-preferences.vala.stamp: $(tracker_preferences_VALASOURCES)
-	$(AM_V_GEN)$(VALAC) --pkg gtk+-2.0 --pkg gmodule-2.0 -C $(VALAFLAGS) tracker-config.vapi config.vapi $^
+	$(AM_V_GEN)$(VALAC) --pkg gtk+-2.0 --pkg gmodule-2.0 -C $(VALAFLAGS) tracker-config.vapi tracker-status-icon-config.vapi config.vapi $^
 	$(AM_V_GEN)touch $@
 
 CLEANFILES = $(desktop_DATA)
