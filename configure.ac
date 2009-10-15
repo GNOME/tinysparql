@@ -1287,6 +1287,21 @@ fi
 
 AM_CONDITIONAL(HAVE_EVOLUTION_PLUGIN, test "$have_evolution_plugin" = "yes")
 
+
+####################################################################
+# Include/Exclude functional tests
+####################################################################
+AC_ARG_ENABLE([functional-tests], 
+              AS_HELP_STRING([--enable-functional-tests], 
+	                     [enable functional tests [[default=no]]]),,
+	     [enable_functional_tests=no])
+
+if test x$enable_functional_tests != "xno"; then
+  AC_DEFINE(DIST_FUNCTIONAL_TESTS, 1, [Include functional tests in the installation])
+fi
+
+AM_CONDITIONAL(DIST_FUNCTIONAL_TESTS, test "x$enable_functional_tests" != "xno")
+
 ####################################################################
 # Checks for gtk-doc and docbook-tools
 ####################################################################
@@ -1451,6 +1466,8 @@ Applications:
 	Build libtracker-gtk:			$have_libtrackergtk
 	Build tracker-explorer:                 $have_tracker_explorer
 	Build tracker-search-bar:               $have_tracker_search_bar
+
+	Functional tests:			$enable_functional_tests
 
 Metadata Extractors:
 
