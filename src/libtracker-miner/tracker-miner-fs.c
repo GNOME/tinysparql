@@ -1837,6 +1837,8 @@ tracker_miner_fs_remove_directory (TrackerMinerFS *fs,
 		    g_file_has_prefix (data->file, file)) {
 			g_cancellable_cancel (data->cancellable);
 		}
+
+		pool = pool->next;
 	}
 
 	return return_val;
