@@ -61,7 +61,7 @@ main (int argc, char *argv[])
         gtk_init (&argc, &argv);
 
 	gtk_window_set_default_icon_name ("tracker");
-	g_set_application_name (_("Tracker"));
+	g_set_application_name ("tracker-status-icon");
 
         icon = tracker_status_icon_new ();
 

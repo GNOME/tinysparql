@@ -19,6 +19,8 @@ tracker_status_icon_LDADD = 						\
 	$(GCOV_LIBS)
 
 tracker_status_icon_SOURCES =						\
+	tracker-icon-config.c						\
+	tracker-icon-config.h						\
 	tracker-status-icon.c						\
 	tracker-status-icon.h						\
 	tracker-main.c

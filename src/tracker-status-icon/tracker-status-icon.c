@@ -20,6 +20,7 @@
 
 #include "config.h"
 #include "tracker-status-icon.h"
+#include "tracker-icon-config.h"
 #include <libtracker-miner/tracker-miner-manager.h>
 #include <string.h>
 #include <locale.h>
@@ -48,6 +49,7 @@ typedef enum {
 struct TrackerStatusIconPrivate {
 	GdkPixbuf *icons [ICON_LAST];
 	TrackerStatus current_status;
+	TrackerVisibility current_visibility;
 	guint animation_id;
 
 	TrackerMinerManager *manager;
@@ -56,6 +58,8 @@ struct TrackerStatusIconPrivate {
 	GtkSizeGroup *size_group;
 
 	GHashTable *miners;
+
+	TrackerIconConfig *config;
 };
 
 struct MinerMenuEntry {
@@ -94,6 +98,9 @@ static void status_icon_miner_activated   (TrackerMinerManager *manager,
 					   gpointer             user_data);
 static void status_icon_miner_deactivated (TrackerMinerManager *manager,
 					   const gchar         *miner_name,
+					   gpointer             user_data);
+static void status_icon_visibility_notify (TrackerIconConfig   *config,
+					   GParamSpec          *pspec,
 					   gpointer             user_data);
 
 static void        status_icon_initialize_miners_menu (TrackerStatusIcon *icon);
@@ -168,6 +175,10 @@ tracker_status_icon_init (TrackerStatusIcon *icon)
 	g_signal_connect (priv->manager, "miner-deactivated",
 			  G_CALLBACK (status_icon_miner_deactivated), icon);
 	status_icon_initialize_miners_menu (icon);
+
+	priv->config = tracker_icon_config_new ();
+	g_signal_connect (priv->config, "notify::visibility",
+			  G_CALLBACK (status_icon_visibility_notify), icon);
 }
 
 static void
@@ -202,6 +213,7 @@ status_icon_finalize (GObject *object)
 
 	g_object_unref (priv->manager);
 	g_object_unref (priv->size_group);
+	g_object_unref (priv->config);
 
 	G_OBJECT_CLASS (tracker_status_icon_parent_class)->finalize (object);
 }
@@ -414,6 +426,16 @@ status_icon_miner_deactivated (TrackerMinerManager *manager,
 
 	/* invalidate pause cookie */
 	entry->cookie = 0;
+
+	update_icon_status (icon);
+}
+
+static void
+status_icon_visibility_notify (TrackerIconConfig *config,
+			       GParamSpec        *pspec,
+			       gpointer           user_data)
+{
+	TrackerStatusIcon *icon = user_data;
 
 	update_icon_status (icon);
 }
@@ -799,16 +821,32 @@ status_icon_set_status (TrackerStatusIcon *icon,
 			TrackerStatus      status)
 {
 	TrackerStatusIconPrivate *priv;
+	TrackerVisibility visibility;
 
 	priv = TRACKER_STATUS_ICON_GET_PRIVATE (icon);
+	visibility = tracker_icon_config_get_visibility (priv->config);
 
-	if (priv->current_status == status) {
+	if (priv->current_status == status &&
+	    priv->current_visibility == visibility) {
+		return;
+	}
+
+	priv->current_status = status;
+	priv->current_visibility = visibility;
+
+	if (visibility == TRACKER_SHOW_NEVER) {
+		gtk_menu_popdown (GTK_MENU (priv->miner_menu));
+		gtk_status_icon_set_visible (GTK_STATUS_ICON (icon), FALSE);
 		return;
 	}
 
 	switch (status) {
 	case STATUS_IDLE:
 		animate_indexing (icon, FALSE);
+
+		gtk_status_icon_set_visible (GTK_STATUS_ICON (icon),
+					     (visibility == TRACKER_SHOW_ALWAYS));
+
 		gtk_status_icon_set_from_pixbuf (GTK_STATUS_ICON (icon),
 						 priv->icons [ICON_IDLE]);
 		break;
@@ -818,14 +856,13 @@ status_icon_set_status (TrackerStatusIcon *icon,
 						 priv->icons [ICON_PAUSED]);
 		break;
 	case STATUS_INDEXING:
+		gtk_status_icon_set_visible (GTK_STATUS_ICON (icon), TRUE);
 		animate_indexing (icon, TRUE);
 		break;
 	default:
 		g_critical ("Unknown status '%d'", status);
 		g_assert_not_reached ();
 	}
-
-	priv->current_status = status;
 }
 
 GtkStatusIcon *
