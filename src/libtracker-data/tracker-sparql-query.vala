@@ -1206,7 +1206,17 @@ public class Tracker.SparqlQuery : Object {
 
 			return PropertyType.BOOLEAN;
 		} else {
-			throw get_error ("Unknown function");
+			// support single valued properties as functions
+			var prop = Ontology.get_property_by_uri (uri);
+			if (prop == null || prop.multiple_values) {
+				throw get_error ("Unknown function");
+			}
+
+			sql.append_printf ("(SELECT \"%s\" FROM \"%s\" WHERE ID = ", prop.name, prop.domain.name);
+			translate_expression (sql);
+			sql.append (")");
+
+			return prop.data_type;
 		}
 	}
 
