@@ -21,7 +21,8 @@ INCLUDES = 								\
 	$(WARN_CFLAGS)							\
 	$(GCOV_CFLAGS)
 
-BUILT_SOURCES = tracker-preferences.vala.stamp
+BUILT_SOURCES = 							\
+	tracker-preferences.vala.stamp
 
 config_class_sources = \
 	$(top_srcdir)/src/tracker-miner-fs/tracker-config.h		\
@@ -46,11 +47,11 @@ MAINTAINERCLEANFILES =							\
 	$(tracker_preferences_VALASOURCES:.vala=.c)			\
 	$(NULL)
 
-EXTRA_DIST = \
+EXTRA_DIST = 								\
 	$(pkgdata_DATA) 						\
 	config.vapi							\
 	tracker-config.vapi						\
-	tracker-status-icon-config.vala					\
+	tracker-status-icon-config.vapi					\
 	tracker-preferences.vala.stamp 					\
 	$(tracker_preferences_VALASOURCES)
 
