@@ -1780,8 +1780,11 @@ item_add_or_update (TrackerIndexer        *indexer,
 		/* Service wasn't previously indexed */
 		id = tracker_data_update_get_new_service_id (indexer->private->common);
 		data = tracker_module_metadata_get_hash_table (metadata);
+#ifdef HAVE_HAL
 		udi = tracker_hal_udi_get_for_path (indexer->private->hal, service_path);
-
+#else
+		udi = NULL;
+#endif
 		context = tracker_data_update_metadata_context_new (TRACKER_CONTEXT_TYPE_INSERT,
 								    service, id);
 
