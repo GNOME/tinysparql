@@ -21,7 +21,10 @@
 
 #include "config.h"
 
+#if !defined(__OpenBSD__)
 #define _XOPEN_SOURCE
+#endif
+#include <sys/types.h>
 #include <time.h>
 
 #include <strings.h>
@@ -591,11 +594,15 @@ tracker_string_to_date (const gchar *date_string)
 		tm.tm_sec = strtoul (date_string, (gchar**) &date_string, 10);
 	}
 
+#if !(defined(__FreeBSD__) || defined(__OpenBSD__))
 	/* mktime() always assumes that "tm" is in locale time but we
 	 * want to keep control on time, so we go to UTC
 	 */
 	t  = mktime (&tm);
 	t -= timezone;
+#else
+	t = timegm (&tm);
+#endif
 
 	if (*date_string == '+' ||
 	    *date_string == '-') {
