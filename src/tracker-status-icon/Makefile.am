@@ -19,6 +19,10 @@ tracker_status_icon_LDADD = 						\
 	$(GCOV_LIBS)
 
 tracker_status_icon_SOURCES =						\
+	eggaccelerators.c						\
+	eggaccelerators.h						\
+	tomboykeybinder.c						\
+	tomboykeybinder.h						\
 	tracker-icon-config.c						\
 	tracker-icon-config.h						\
 	tracker-status-icon.c						\

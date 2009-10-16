@@ -24,6 +24,7 @@
 #include <locale.h>
 
 #include "tracker-status-icon.h"
+#include "tomboykeybinder.h"
 
 #include <glib.h>
 #include <glib/gi18n.h>
@@ -53,12 +54,13 @@ main (int argc, char *argv[])
 	g_option_context_free (context);
 
 	g_type_init ();
-	
+
 	if (!g_thread_supported ()) {
 		g_thread_init (NULL);
 	}
 
         gtk_init (&argc, &argv);
+	tomboy_keybinder_init ();
 
 	gtk_window_set_default_icon_name ("tracker");
 	g_set_application_name ("tracker-status-icon");

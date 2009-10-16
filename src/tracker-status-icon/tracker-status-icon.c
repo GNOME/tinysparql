@@ -21,6 +21,7 @@
 #include "config.h"
 #include "tracker-status-icon.h"
 #include "tracker-icon-config.h"
+#include "tomboykeybinder.h"
 #include <libtracker-miner/tracker-miner-manager.h>
 #include <string.h>
 #include <locale.h>
@@ -113,6 +114,9 @@ static GtkWidget * status_icon_create_context_menu    (TrackerStatusIcon *icon);
 static void status_icon_set_status (TrackerStatusIcon *icon,
 				    TrackerStatus      status);
 
+static void launch_application_on_screen (GdkScreen   *screen,
+					  const gchar *command_line);
+
 G_DEFINE_TYPE (TrackerStatusIcon, tracker_status_icon, GTK_TYPE_STATUS_ICON)
 
 static void
@@ -140,6 +144,26 @@ miner_menu_entry_free (MinerMenuEntry *entry)
 
 	g_free (entry->status);
 	g_free (entry);
+}
+
+static void
+keybinding_activated_cb (gchar    *keybinding,
+			 gpointer  user_data)
+{
+	TrackerStatusIcon *icon = user_data;
+	GdkScreen *screen;
+
+	screen = gtk_status_icon_get_screen (GTK_STATUS_ICON (icon));
+	launch_application_on_screen (screen, "tracker-search-tool");
+}
+
+static void
+set_global_keybinding (TrackerStatusIcon *icon,
+		       const gchar       *keybinding)
+{
+	tomboy_keybinder_bind (keybinding,
+			       keybinding_activated_cb,
+			       icon);
 }
 
 static void
@@ -195,6 +219,9 @@ tracker_status_icon_init (TrackerStatusIcon *icon)
 	priv->config = tracker_icon_config_new ();
 	g_signal_connect (priv->config, "notify::visibility",
 			  G_CALLBACK (status_icon_visibility_notify), icon);
+
+	/* FIXME: Make this configurable */
+	set_global_keybinding (icon, "<Ctrl><Alt>S");
 }
 
 static void
