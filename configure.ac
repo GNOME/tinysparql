@@ -300,11 +300,6 @@ if test "x$enable_unit_tests" != "xno" ; then
 
    AC_DEFINE(HAVE_UNIT_TEST, 1, [Define if we have GLib unit test framework])
 
-   AC_PATH_PROG(sqlite_exec, sqlite3)
-   if test -z $sqlite_exec; then
-      AC_MSG_ERROR([Could not find 'sqlite3'])
-   fi
-
    AC_PATH_PROG(gtester, gtester)
    if test -z $gtester; then
       AC_MSG_ERROR([Could not find 'gtester'])
