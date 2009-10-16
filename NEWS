@@ -1,3 +1,68 @@
+NEW in 0.7.3
+============
+
+Improvements / New:
+
+  General:
+  * Require SQLite >= 3.6.16. Required for test cases to pass.
+  * Removed requirement for 'sqlite_exec' in configure.ac.
+
+  RSS Reader:
+  * Updated Python example to use new Tracker APIs.
+
+  Ontology:
+  * Added nmm:albumArtist property.
+  * Added nmm:Playlist class.
+  * Removed cardinality restriction for nie:informationElementDate.
+
+  SPARQL:
+  * Fixed time zone handling when inserting time_t.
+  * Support single-valued properties as functions.
+  * Support multi-valued properties as functions.
+  * Improved to not require 'AS' when using SELECT functions. 
+  * Support rollback for updates when one or more errors occur.
+
+  libtracker-db:
+  * Make sure SQLite statements are reset when using cursors. This was
+    leading to DB locks.
+
+  libtracker-miner:
+  * Fixed infinite loop when unmounting.
+  
+  tracker-store:
+  * Removed all use of tracker-storage for volume handling. This is
+    now done in tracker-miner-fs.
+
+  tracker-preferences:
+  * Added visibility options for tracker-search-tool.
+
+  tracker-status-icon:
+  * Added tracker-status-icon.cfg for visibility settings.
+  * Added global binding to launch tracker-search-tool (<Ctrl><Alt>S).
+  * Improved so progress bars are not so tall and the now pulses when
+    at 0% (used for crawling or initialising usually).
+  * Improved so the progress bar is not displayed for miners not
+    running.
+  * Fixed so the default progress is 100% (in cases where the
+    tracker-status-icon is restarted).
+
+  tracker-search-tool:
+  * Fixed UI to be more HIG compliant.
+
+Bugs:
+
+  * Fixes GB#590501, Album art heuristic always fails
+  * Fixes NB#137046, Properties Are Not Retained Upon File Modific...
+  * Fixes NB#141698, List of saved playlist has names of albums too
+  * Fixes NB#134107, Optional properties with orderby causes signi...
+
+Notes:
+
+  The Deskbar applet packaged with Tracker is currently out of date
+  and needs some love to get it working with the new APIs. It is in
+  the same state as it was for 0.6. As such it isn't expected to work.
+
+
 NEW in 0.7.2
 ============
 
