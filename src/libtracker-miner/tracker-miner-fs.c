@@ -1251,13 +1251,13 @@ should_change_index_for_file (TrackerMinerFS *fs,
 
 	gmtime_r (&mtime, &t);
 
-	query = g_strdup_printf ("SELECT ?file { ?file nfo:fileLastModified \"%04d-%02d-%02dT%02d:%02d:%02d\" . FILTER (?file = <%s>) }",
-	                         t.tm_year + 1900, 
-				 t.tm_mon + 1, 
-				 t.tm_mday, 
-				 t.tm_hour, 
-				 t.tm_min, 
-				 t.tm_sec, 
+	query = g_strdup_printf ("SELECT ?file { ?file nfo:fileLastModified \"%04d-%02d-%02dT%02d:%02d:%02dZ\" . FILTER (?file = <%s>) }",
+	                         t.tm_year + 1900,
+				 t.tm_mon + 1,
+				 t.tm_mday,
+				 t.tm_hour,
+				 t.tm_min,
+				 t.tm_sec,
 				 uri);
 	sparql_result = tracker_miner_execute_sparql (TRACKER_MINER (fs), query, NULL);
 
