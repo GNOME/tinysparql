@@ -239,6 +239,7 @@ config_changed_cb (GFileMonitor     *monitor,
 
 	switch (event_type) {
 	case G_FILE_MONITOR_EVENT_CHANGES_DONE_HINT:
+	case G_FILE_MONITOR_EVENT_CREATED:
 		file->file_exists = TRUE;
 
 		filename = g_file_get_path (this_file);
@@ -255,7 +256,6 @@ config_changed_cb (GFileMonitor     *monitor,
 		file->file_exists = FALSE;
 		break;
 
-	case G_FILE_MONITOR_EVENT_CREATED:
 	case G_FILE_MONITOR_EVENT_ATTRIBUTE_CHANGED:
 	case G_FILE_MONITOR_EVENT_PRE_UNMOUNT:
 	case G_FILE_MONITOR_EVENT_UNMOUNTED:
