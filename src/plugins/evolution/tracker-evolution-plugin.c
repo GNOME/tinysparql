@@ -697,9 +697,9 @@ on_folder_summary_changed (CamelFolder *folder,
 			in strcmp of g_object_set (maybe multi-threading
 			of Camel is involved?)
 
-			g_object_set (info->self, "progress", 
-			              (gdouble) (merged->len - i) / merged->len,
-			              "status", _("Updating"), 
+			g_object_set (info->self, "progress",
+			              (gdouble) i / merged->len,
+			              "status", _("Updating"),
 			              NULL);
 */
 
@@ -739,8 +739,8 @@ on_folder_summary_changed (CamelFolder *folder,
 
 	send_sparql_commit (info->self, TRUE);
 
-	/* g_object_set (info->self, "progress", 
-	              1.0, NULL); */
+	g_object_set (info->self, "progress",
+	              1.0, NULL);
 
 	g_free (em_uri);
 }
@@ -806,9 +806,9 @@ many_idle_handler (gpointer user_data)
 				priv->total_popped = priv->of_total;
 			}
 
-			g_object_set (user_data, "progress", 
-			              (gdouble) (priv->of_total - priv->total_popped) / priv->of_total,
-			              "status", _("Updating"), 
+			g_object_set (user_data, "progress",
+			              (gdouble) priv->total_popped / priv->of_total,
+			              "status", _("Updating"),
 			              NULL);
 
 			send_sparql_update (user_data, query);
@@ -1076,8 +1076,8 @@ introduce_walk_folders_in_folder (TrackerEvolutionPlugin *self,
 				priv->of_total++;
 
 				if (priv->of_total > priv->total_popped) {
-					g_object_set (self, "progress", 
-					              (gdouble) (priv->of_total - priv->total_popped) / priv->of_total,
+					g_object_set (self, "progress",
+					              (gdouble) priv->total_popped / priv->of_total,
 					              NULL);
 				}
 
