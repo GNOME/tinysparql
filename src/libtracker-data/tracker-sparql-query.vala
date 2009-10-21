@@ -622,13 +622,17 @@ public class Tracker.SparqlQuery : Object {
 		}
 	}
 
+	void begin_query () {
+		var_map = new HashTable<string,Variable>.full (str_hash, str_equal, g_free, g_object_unref);
+		predicate_variable_map = new HashTable<Variable,PredicateVariable>.full (direct_hash, direct_equal, g_object_unref, g_object_unref);
+		used_sql_identifiers = new HashTable<string,bool>.full (str_hash, str_equal, g_free, null);
+	}
+
 	DBResultSet? execute_select () throws Error {
 		// SELECT query
 
 		var pattern_sql = new StringBuilder ();
-		var_map = new HashTable<string,Variable>.full (str_hash, str_equal, g_free, g_object_unref);
-		predicate_variable_map = new HashTable<Variable,PredicateVariable>.full (direct_hash, direct_equal, g_object_unref, g_object_unref);
-		used_sql_identifiers = new HashTable<string,bool>.full (str_hash, str_equal, g_free, null);
+		begin_query ();
 
 		// build SQL
 		var sql = new StringBuilder ();
@@ -805,9 +809,7 @@ public class Tracker.SparqlQuery : Object {
 		// ASK query
 
 		var pattern_sql = new StringBuilder ();
-		var_map = new HashTable<string,Variable>.full (str_hash, str_equal, g_free, g_object_unref);
-		predicate_variable_map = new HashTable<Variable,PredicateVariable>.full (direct_hash, direct_equal, g_object_unref, g_object_unref);
-		used_sql_identifiers = new HashTable<string,bool>.full (str_hash, str_equal, g_free, null);
+		begin_query ();
 
 		// build SQL
 		var sql = new StringBuilder ();
@@ -843,9 +845,7 @@ public class Tracker.SparqlQuery : Object {
 		// INSERT or DELETE
 
 		var pattern_sql = new StringBuilder ();
-		var_map = new HashTable<string,Variable>.full (str_hash, str_equal, g_free, g_object_unref);
-		predicate_variable_map = new HashTable<Variable,PredicateVariable>.full (direct_hash, direct_equal, g_object_unref, g_object_unref);
-		used_sql_identifiers = new HashTable<string,bool>.full (str_hash, str_equal, g_free, null);
+		begin_query ();
 
 		var sql = new StringBuilder ();
 
