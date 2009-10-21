@@ -58,7 +58,7 @@ public class Tracker.SparqlQuery : Object {
 
 	// Represents a mapping of a SPARQL variable to a SQL table and column
 	class VariableBinding : DataBinding {
-		public string variable;
+		public Variable variable;
 		// Specified whether SQL column may contain NULL entries
 		public bool maybe_null;
 		public bool in_simple_optional;
@@ -67,6 +67,17 @@ public class Tracker.SparqlQuery : Object {
 
 	class VariableBindingList : Object {
 		public List<VariableBinding> list;
+	}
+
+	class Variable : Object {
+		public string name { get; private set; }
+		public string sql_expression { get; private set; }
+		public VariableBinding binding;
+
+		public Variable (string name, string sql_identifier) {
+			this.name = name;
+			this.sql_expression = "\"%s\"".printf (sql_identifier);
+		}
 	}
 
 	// Represents a variable used as a predicate
@@ -269,15 +280,18 @@ public class Tracker.SparqlQuery : Object {
 	List<LiteralBinding> pattern_bindings;
 
 	// All SPARQL variables
-	HashTable<string,VariableBinding> var_map;
-	List<string> pattern_variables;
-	HashTable<string,VariableBindingList> pattern_var_map;
+	HashTable<string,Variable> var_map;
+	List<Variable> pattern_variables;
+	HashTable<Variable,VariableBindingList> pattern_var_map;
 
 	// All SPARQL variables within a subgraph pattern (used by UNION)
-	HashTable<string,int> subgraph_var_set;
+	HashTable<Variable,int> subgraph_var_set;
 
 	// Variables used as predicates
-	HashTable<string,PredicateVariable> predicate_variable_map;
+	HashTable<Variable,PredicateVariable> predicate_variable_map;
+
+	// Keep track of used sql identifiers to avoid using the same for multiple SPARQL variables
+	HashTable<string,bool> used_sql_identifiers;
 
 	bool delete_statements;
 
@@ -290,7 +304,7 @@ public class Tracker.SparqlQuery : Object {
 	public SparqlQuery (string query) {
 		tokens = new TokenInfo[BUFFER_SIZE];
 		prefix_map = new HashTable<string,string>.full (str_hash, str_equal, g_free, g_free);
-		subgraph_var_set = new HashTable<string,int>.full (str_hash, str_equal, g_free, null);
+		subgraph_var_set = new HashTable<Variable,int>.full (direct_hash, direct_equal, g_object_unref, null);
 
 		base_uuid = new uchar[16];
 		uuid_generate (base_uuid);
@@ -394,6 +408,25 @@ public class Tracker.SparqlQuery : Object {
 		return "'%s'".printf (string.joinv ("''", literal.split ("'")));
 	}
 
+	Variable get_variable (string name) {
+		var result = var_map.lookup (name);
+		if (result == null) {
+			// use lowercase as SQLite is never case sensitive (not conforming to SQL)
+			string sql_identifier = "%s_u".printf (name).down ();
+
+			// ensure SQL identifier is unique to avoid conflicts between
+			// case sensitive SPARQL and case insensitive SQLite
+			for (int i = 1; used_sql_identifiers.lookup (sql_identifier); i++) {
+				sql_identifier = "%s_%d_u".printf (name, i).down ();
+			}
+			used_sql_identifiers.insert (sql_identifier, true);
+
+			result = new Variable (name, sql_identifier);
+			var_map.insert (name, result);
+		}
+		return result;
+	}
+
 	void parse_prologue () throws SparqlError {
 		if (accept (SparqlTokenType.BASE)) {
 			expect (SparqlTokenType.IRI_REF);
@@ -468,25 +501,23 @@ public class Tracker.SparqlQuery : Object {
 		}
 	}
 
-	void check_binding (VariableBinding? binding, string variable_name) throws SparqlError {
-		if (binding == null) {
-			throw get_error ("`%s' is not a valid variable".printf (variable_name));
+	void check_binding (Variable variable) throws SparqlError {
+		if (variable.binding == null) {
+			throw get_error ("`%s' is not a valid variable".printf (variable.name));
 		}
 	}
 
-	string get_sql_for_variable (string variable_name) throws SparqlError {
-		var binding = var_map.lookup (variable_name);
+	string get_sql_for_variable (Variable variable) throws SparqlError {
+		check_binding (variable);
 
-		check_binding (binding, variable_name);
-
-		if (binding.data_type == PropertyType.RESOURCE) {
-			return "(SELECT Uri FROM \"rdfs:Resource\" WHERE ID = \"%s_u\")".printf (variable_name);
-		} else if (binding.data_type == PropertyType.BOOLEAN) {
-			return "(CASE \"%s_u\" WHEN 1 THEN 'true' WHEN 0 THEN 'false' ELSE NULL END)".printf (variable_name);
-		} else if (binding.data_type == PropertyType.DATETIME) {
-			return "strftime (\"%%Y-%%m-%%dT%%H:%%M:%%SZ\", \"%s_u\", \"unixepoch\")".printf (variable_name);
+		if (variable.binding.data_type == PropertyType.RESOURCE) {
+			return "(SELECT Uri FROM \"rdfs:Resource\" WHERE ID = %s)".printf (variable.sql_expression);
+		} else if (variable.binding.data_type == PropertyType.BOOLEAN) {
+			return "(CASE %s WHEN 1 THEN 'true' WHEN 0 THEN 'false' ELSE NULL END)".printf (variable.sql_expression);
+		} else if (variable.binding.data_type == PropertyType.DATETIME) {
+			return "strftime (\"%%Y-%%m-%%dT%%H:%%M:%%SZ\", %s, \"unixepoch\")".printf (variable.sql_expression);
 		} else {
-			return "\"%s_u\"".printf (variable_name);
+			return variable.sql_expression;
 		}
 	}
 
@@ -595,8 +626,9 @@ public class Tracker.SparqlQuery : Object {
 		// SELECT query
 
 		var pattern_sql = new StringBuilder ();
-		var_map = new HashTable<string,VariableBinding>.full (str_hash, str_equal, g_free, g_object_unref);
-		predicate_variable_map = new HashTable<string,PredicateVariable>.full (str_hash, str_equal, g_free, g_object_unref);
+		var_map = new HashTable<string,Variable>.full (str_hash, str_equal, g_free, g_object_unref);
+		predicate_variable_map = new HashTable<Variable,PredicateVariable>.full (direct_hash, direct_equal, g_object_unref, g_object_unref);
+		used_sql_identifiers = new HashTable<string,bool>.full (str_hash, str_equal, g_free, null);
 
 		// build SQL
 		var sql = new StringBuilder ();
@@ -628,13 +660,13 @@ public class Tracker.SparqlQuery : Object {
 
 		bool first = true;
 		if (accept (SparqlTokenType.STAR)) {
-			foreach (string variable_name in var_map.get_keys ()) {
+			foreach (var variable in var_map.get_values ()) {
 				if (!first) {
 					sql.append (", ");
 				} else {
 					first = false;
 				}
-				sql.append (get_sql_for_variable (variable_name));
+				sql.append (get_sql_for_variable (variable));
 			}
 		} else {
 			while (true) {
@@ -773,8 +805,9 @@ public class Tracker.SparqlQuery : Object {
 		// ASK query
 
 		var pattern_sql = new StringBuilder ();
-		var_map = new HashTable<string,VariableBinding>.full (str_hash, str_equal, g_free, g_object_unref);
-		predicate_variable_map = new HashTable<string,PredicateVariable>.full (str_hash, str_equal, g_free, g_object_unref);
+		var_map = new HashTable<string,Variable>.full (str_hash, str_equal, g_free, g_object_unref);
+		predicate_variable_map = new HashTable<Variable,PredicateVariable>.full (direct_hash, direct_equal, g_object_unref, g_object_unref);
+		used_sql_identifiers = new HashTable<string,bool>.full (str_hash, str_equal, g_free, null);
 
 		// build SQL
 		var sql = new StringBuilder ();
@@ -810,8 +843,9 @@ public class Tracker.SparqlQuery : Object {
 		// INSERT or DELETE
 
 		var pattern_sql = new StringBuilder ();
-		var_map = new HashTable<string,VariableBinding>.full (str_hash, str_equal, g_free, g_object_unref);
-		predicate_variable_map = new HashTable<string,PredicateVariable>.full (str_hash, str_equal, g_free, g_object_unref);
+		var_map = new HashTable<string,Variable>.full (str_hash, str_equal, g_free, g_object_unref);
+		predicate_variable_map = new HashTable<Variable,PredicateVariable>.full (direct_hash, direct_equal, g_object_unref, g_object_unref);
+		used_sql_identifiers = new HashTable<string,bool>.full (str_hash, str_equal, g_free, null);
 
 		var sql = new StringBuilder ();
 
@@ -827,14 +861,14 @@ public class Tracker.SparqlQuery : Object {
 		// build SQL
 		sql.append ("SELECT ");
 		bool first = true;
-		foreach (VariableBinding binding in var_map.get_values ()) {
+		foreach (var variable in var_map.get_values ()) {
 			if (!first) {
 				sql.append (", ");
 			} else {
 				first = false;
 			}
 
-			sql.append (get_sql_for_variable (binding.variable));
+			sql.append (get_sql_for_variable (variable));
 		}
 
 		if (first) {
@@ -1145,18 +1179,18 @@ public class Tracker.SparqlQuery : Object {
 
 		if (accept (SparqlTokenType.VAR)) {
 			string variable_name = get_last_string().substring(1);
-			var binding = var_map.lookup (variable_name);
+			var variable = get_variable (variable_name);
 
-			check_binding (binding, variable_name);
+			check_binding (variable);
 
-			if (binding.data_type == PropertyType.RESOURCE || binding.type == null) {
+			if (variable.binding.data_type == PropertyType.RESOURCE || variable.binding.type == null) {
 				throw get_error ("Invalid FILTER");
 			}
 
 			sql.append ("(SELECT ID FROM \"rdfs:Resource\" WHERE Uri = ?)");
 
 			var new_binding = new LiteralBinding ();
-			new_binding.literal = binding.type;
+			new_binding.literal = variable.binding.type;
 			bindings.append (new_binding);
 
 		} else {
@@ -1376,13 +1410,13 @@ public class Tracker.SparqlQuery : Object {
 		case SparqlTokenType.VAR:
 			next ();
 			string variable_name = get_last_string ().substring (1);
-			sql.append_printf ("\"%s_u\"", variable_name);
+			var variable = get_variable (variable_name);
+			sql.append (variable.sql_expression);
 
-			var binding = var_map.lookup (variable_name);
-			if (binding == null) {
+			if (variable.binding == null) {
 				return PropertyType.UNKNOWN;
 			} else {
-				return binding.data_type;
+				return variable.binding.data_type;
 			}
 		case SparqlTokenType.STR:
 			translate_str (sql);
@@ -1647,8 +1681,9 @@ public class Tracker.SparqlQuery : Object {
 		case SparqlTokenType.ISLITERAL:
 		case SparqlTokenType.REGEX:
 			return translate_primary_expression (sql);
+		default:
+			return translate_bracketted_expression (sql);
 		}
-		return translate_bracketted_expression (sql);
 	}
 
 	void translate_filter (StringBuilder sql) throws SparqlError {
@@ -1672,6 +1707,8 @@ public class Tracker.SparqlQuery : Object {
 		case SparqlTokenType.ISLITERAL:
 		case SparqlTokenType.REGEX:
 			next ();
+			break;
+		default:
 			break;
 		}
 
@@ -1852,8 +1889,8 @@ public class Tracker.SparqlQuery : Object {
 		tables = new List<DataTable> ();
 		table_map = new HashTable<string,DataTable>.full (str_hash, str_equal, g_free, g_object_unref);
 
-		pattern_variables = new List<string> ();
-		pattern_var_map = new HashTable<string,VariableBindingList>.full (str_hash, str_equal, g_free, g_object_unref);
+		pattern_variables = new List<Variable> ();
+		pattern_var_map = new HashTable<Variable,VariableBindingList>.full (direct_hash, direct_equal, g_object_unref, g_object_unref);
 
 		pattern_bindings = new List<LiteralBinding> ();
 
@@ -1880,7 +1917,7 @@ public class Tracker.SparqlQuery : Object {
 			sql.append_printf (" AS \"%s\"", table.sql_query_tablename);
 		}
 
-		foreach (string variable in pattern_variables) {
+		foreach (var variable in pattern_variables) {
 			bool maybe_null = true;
 			bool in_simple_optional = false;
 			string last_name = null;
@@ -1913,7 +1950,7 @@ public class Tracker.SparqlQuery : Object {
 					sql.append (" WHERE ");
 					first_where = false;
 				}
-				sql.append_printf ("\"%s_u\" IS NOT NULL", variable);
+				sql.append_printf ("%s IS NOT NULL", variable.sql_expression);
 			}
 		}
 		foreach (LiteralBinding binding in pattern_bindings) {
@@ -2003,7 +2040,7 @@ public class Tracker.SparqlQuery : Object {
 				return false;
 			}
 			string var_name = get_last_string ().substring (1);
-			if (subgraph_var_set.lookup (var_name) != VariableState.BOUND) {
+			if (subgraph_var_set.lookup (get_variable (var_name)) != VariableState.BOUND) {
 				return false;
 			}
 
@@ -2033,7 +2070,7 @@ public class Tracker.SparqlQuery : Object {
 				return false;
 			}
 			var_name = get_last_string ().substring (1);
-			if (subgraph_var_set.lookup (var_name) != 0) {
+			if (subgraph_var_set.lookup (get_variable (var_name)) != 0) {
 				// object variable already used before in this graph pattern
 				return false;
 			}
@@ -2103,7 +2140,7 @@ public class Tracker.SparqlQuery : Object {
 					sql.append_printf (") AS t%d_g LEFT JOIN (", left_index);
 
 					var old_subgraph_var_set = subgraph_var_set;
-					subgraph_var_set = new HashTable<string,int>.full (str_hash, str_equal, g_free, null);
+					subgraph_var_set = new HashTable<Variable,int>.full (direct_hash, direct_equal, g_object_unref, null);
 
 					translate_group_graph_pattern (sql);
 
@@ -2111,7 +2148,7 @@ public class Tracker.SparqlQuery : Object {
 
 					bool first = true;
 					bool first_common = true;
-					foreach (string v in subgraph_var_set.get_keys ()) {
+					foreach (var v in subgraph_var_set.get_keys ()) {
 						if (first) {
 							first = false;
 						} else {
@@ -2122,7 +2159,7 @@ public class Tracker.SparqlQuery : Object {
 						if (old_state == 0) {
 							// first used in optional part
 							old_subgraph_var_set.insert (v, VariableState.OPTIONAL);
-							select.append_printf ("t%d_g.\"%s_u\"", right_index, v);
+							select.append_printf ("t%d_g.%s", right_index, v.sql_expression);
 						} else {
 							if (first_common) {
 								sql.append (" ON ");
@@ -2133,16 +2170,16 @@ public class Tracker.SparqlQuery : Object {
 
 							if (old_state == VariableState.BOUND) {
 								// variable definitely bound in non-optional part
-								sql.append_printf ("t%d_g.\"%s_u\" = t%d_g.\"%s_u\"", left_index, v, right_index, v);
-								select.append_printf ("t%d_g.\"%s_u\"", left_index, v);
+								sql.append_printf ("t%d_g.%s = t%d_g.%s", left_index, v.sql_expression, right_index, v.sql_expression);
+								select.append_printf ("t%d_g.%s", left_index, v.sql_expression);
 							} else if (old_state == VariableState.OPTIONAL) {
 								// variable maybe bound in non-optional part
-								sql.append_printf ("(t%d_g.\"%s_u\" IS NULL OR t%d_g.\"%s_u\" = t%d_g.\"%s_u\")", left_index, v, left_index, v, right_index, v);
-								select.append_printf ("COALESCE (t%d_g.\"%s_u\", t%d_g.\"%s_u\") AS \"%s_u\"", left_index, v, right_index, v, v);
+								sql.append_printf ("(t%d_g.%s IS NULL OR t%d_g.%s = t%d_g.%s)", left_index, v.sql_expression, left_index, v.sql_expression, right_index, v.sql_expression);
+								select.append_printf ("COALESCE (t%d_g.%s, t%d_g.%s) AS %s", left_index, v.sql_expression, right_index, v.sql_expression, v.sql_expression);
 							}
 						}
 					}
-					foreach (string v in old_subgraph_var_set.get_keys ()) {
+					foreach (var v in old_subgraph_var_set.get_keys ()) {
 						if (subgraph_var_set.lookup (v) == 0) {
 							// only used in non-optional part
 							if (first) {
@@ -2151,7 +2188,7 @@ public class Tracker.SparqlQuery : Object {
 								select.append (", ");
 							}
 
-							select.append_printf ("t%d_g.\"%s_u\"", left_index, v);
+							select.append_printf ("t%d_g.%s", left_index, v.sql_expression);
 						}
 					}
 					if (first) {
@@ -2237,14 +2274,14 @@ public class Tracker.SparqlQuery : Object {
 	void translate_group_or_union_graph_pattern (StringBuilder sql) throws SparqlError {
 		var old_subgraph_var_set = subgraph_var_set;
 
-		string[] all_vars = { };
-		HashTable<string,int> all_var_set = new HashTable<string,int>.full (str_hash, str_equal, g_free, null);
+		Variable[] all_vars = { };
+		HashTable<Variable,int> all_var_set = new HashTable<Variable,int>.full (direct_hash, direct_equal, g_object_unref, null);
 
-		HashTable<string,int>[] var_sets = { };
+		HashTable<Variable,int>[] var_sets = { };
 		long[] offsets = { };
 
 		do {
-			subgraph_var_set = new HashTable<string,int>.full (str_hash, str_equal, g_free, null);
+			subgraph_var_set = new HashTable<Variable,int>.full (direct_hash, direct_equal, g_object_unref, null);
 			var_sets += subgraph_var_set;
 			offsets += sql.len;
 			translate_group_graph_pattern (sql);
@@ -2255,7 +2292,7 @@ public class Tracker.SparqlQuery : Object {
 
 			// create union of all variables
 			foreach (var var_set in var_sets) {
-				foreach (string v in var_set.get_keys ()) {
+				foreach (var v in var_set.get_keys ()) {
 					if (all_var_set.lookup (v) == 0) {
 						all_vars += v;
 						all_var_set.insert (v, VariableState.BOUND);
@@ -2271,13 +2308,13 @@ public class Tracker.SparqlQuery : Object {
 					projection.append (") UNION ALL ");
 				}
 				projection.append ("SELECT ");
-				foreach (string v in all_vars) {
+				foreach (var v in all_vars) {
 					if (var_sets[i].lookup (v) == 0) {
 						// variable not used in this subgraph
 						// use NULL
 						projection.append ("NULL AS ");
 					}
-					projection.append_printf ("\"%s_u\", ", v);
+					projection.append_printf ("%s, ", v.sql_expression);
 				}
 				// delete last comma and space
 				projection.truncate (projection.len - 2);
@@ -2288,7 +2325,7 @@ public class Tracker.SparqlQuery : Object {
 			}
 			sql.append (")");
 		} else {
-			foreach (string key in subgraph_var_set.get_keys ()) {
+			foreach (var key in subgraph_var_set.get_keys ()) {
 				old_subgraph_var_set.insert (key, VariableState.BOUND);
 			}
 		}
@@ -2338,10 +2375,10 @@ public class Tracker.SparqlQuery : Object {
 					if (domain == null) {
 						throw new SparqlError.UNKNOWN_CLASS ("Unknown class `%s'".printf (object));
 					}
-					var pv = predicate_variable_map.lookup (current_subject);
+					var pv = predicate_variable_map.lookup (get_variable (current_subject));
 					if (pv == null) {
 						pv = new PredicateVariable ();
-						predicate_variable_map.insert (current_subject, pv);
+						predicate_variable_map.insert (get_variable (current_subject), pv);
 					}
 					pv.domain = domain;
 				}
@@ -2360,10 +2397,10 @@ public class Tracker.SparqlQuery : Object {
 			// variable in predicate
 			newtable = true;
 			table = new DataTable ();
-			table.predicate_variable = predicate_variable_map.lookup (current_predicate);
+			table.predicate_variable = predicate_variable_map.lookup (get_variable (current_predicate));
 			if (table.predicate_variable == null) {
 				table.predicate_variable = new PredicateVariable ();
-				predicate_variable_map.insert (current_predicate, table.predicate_variable);
+				predicate_variable_map.insert (get_variable (current_predicate), table.predicate_variable);
 			}
 			if (!current_subject_is_var) {
 				// single subject
@@ -2379,7 +2416,7 @@ public class Tracker.SparqlQuery : Object {
 			// add to variable list
 			var binding = new VariableBinding ();
 			binding.data_type = PropertyType.RESOURCE;
-			binding.variable = current_predicate;
+			binding.variable = get_variable (current_predicate);
 			binding.table = table;
 			binding.sql_db_column_name = "predicate";
 			var binding_list = pattern_var_map.lookup (binding.variable);
@@ -2388,16 +2425,16 @@ public class Tracker.SparqlQuery : Object {
 				pattern_variables.append (binding.variable);
 				pattern_var_map.insert (binding.variable, binding_list);
 
-				sql.append_printf ("\"%s\".\"%s\" AS \"%s_u\", ",
+				sql.append_printf ("\"%s\".\"%s\" AS %s, ",
 					binding.table.sql_query_tablename,
 					binding.sql_db_column_name,
-					binding.variable);
+					binding.variable.sql_expression);
 
 				subgraph_var_set.insert (binding.variable, VariableState.BOUND);
 			}
 			binding_list.list.append (binding);
-			if (var_map.lookup (binding.variable) == null) {
-				var_map.insert (binding.variable, binding);
+			if (binding.variable.binding == null) {
+				binding.variable.binding = binding;
 			}
 		}
 		
@@ -2405,7 +2442,7 @@ public class Tracker.SparqlQuery : Object {
 			if (current_subject_is_var) {
 				var binding = new VariableBinding ();
 				binding.data_type = PropertyType.RESOURCE;
-				binding.variable = current_subject;
+				binding.variable = get_variable (current_subject);
 				binding.table = table;
 				if (is_fts_match) {
 					binding.sql_db_column_name = "rowid";
@@ -2418,16 +2455,16 @@ public class Tracker.SparqlQuery : Object {
 					pattern_variables.append (binding.variable);
 					pattern_var_map.insert (binding.variable, binding_list);
 
-					sql.append_printf ("\"%s\".\"%s\" AS \"%s_u\", ",
+					sql.append_printf ("\"%s\".\"%s\" AS %s, ",
 						binding.table.sql_query_tablename,
 						binding.sql_db_column_name,
-						binding.variable);
+						binding.variable.sql_expression);
 
 					subgraph_var_set.insert (binding.variable, VariableState.BOUND);
 				}
 				binding_list.list.append (binding);
-				if (var_map.lookup (binding.variable) == null) {
-					var_map.insert (binding.variable, binding);
+				if (binding.variable.binding == null) {
+					binding.variable.binding = binding;
 				}
 			} else {
 				var binding = new LiteralBinding ();
@@ -2443,7 +2480,7 @@ public class Tracker.SparqlQuery : Object {
 		if (!rdftype) {
 			if (object_is_var) {
 				var binding = new VariableBinding ();
-				binding.variable = object;
+				binding.variable = get_variable (object);
 				binding.table = table;
 				if (prop != null) {
 
@@ -2469,16 +2506,16 @@ public class Tracker.SparqlQuery : Object {
 					pattern_variables.append (binding.variable);
 					pattern_var_map.insert (binding.variable, binding_list);
 
-					sql.append_printf ("\"%s\".\"%s\" AS \"%s_u\", ",
+					sql.append_printf ("\"%s\".\"%s\" AS %s, ",
 						binding.table.sql_query_tablename,
 						binding.sql_db_column_name,
-						binding.variable);
+						binding.variable.sql_expression);
 
 					subgraph_var_set.insert (binding.variable, in_simple_optional ? VariableState.OPTIONAL : VariableState.BOUND);
 				}
 				binding_list.list.append (binding);
-				if (var_map.lookup (binding.variable) == null) {
-					var_map.insert (binding.variable, binding);
+				if (binding.variable.binding == null) {
+					binding.variable.binding = binding;
 				}
 			} else if (is_fts_match) {
 				var binding = new LiteralBinding ();
