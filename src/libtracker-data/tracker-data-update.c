@@ -45,6 +45,7 @@
 #define TRACKER_PREFIX TRACKER_TRACKER_PREFIX
 
 typedef struct _TrackerDataUpdateBuffer TrackerDataUpdateBuffer;
+typedef struct _TrackerDataUpdateBufferResource TrackerDataUpdateBufferResource;
 typedef struct _TrackerDataUpdateBufferPredicate TrackerDataUpdateBufferPredicate;
 typedef struct _TrackerDataUpdateBufferProperty TrackerDataUpdateBufferProperty;
 typedef struct _TrackerDataUpdateBufferTable TrackerDataUpdateBufferTable;
@@ -52,6 +53,13 @@ typedef struct _TrackerDataBlankBuffer TrackerDataBlankBuffer;
 
 struct _TrackerDataUpdateBuffer {
 	GHashTable *resource_cache;
+	/* string -> TrackerDataUpdateBufferResource */
+	GHashTable *resources;
+	/* valid per sqlite transaction, not just for same subject */
+	gboolean fts_ever_updated;
+};
+
+struct _TrackerDataUpdateBufferResource {
 	gchar *subject;
 	gchar *new_subject;
 	guint32 id;
@@ -61,8 +69,6 @@ struct _TrackerDataUpdateBuffer {
 	GHashTable *predicates;
 	GHashTable *tables;
 	GPtrArray *types;
-	/* valid per sqlite transaction, not just for same subject */
-	gboolean fts_ever_updated;
 };
 
 struct _TrackerDataUpdateBufferProperty {
@@ -88,6 +94,8 @@ struct _TrackerDataBlankBuffer {
 
 static gboolean in_transaction = FALSE;
 static TrackerDataUpdateBuffer update_buffer;
+/* current resource */
+static TrackerDataUpdateBufferResource *resource_buffer;
 static TrackerDataBlankBuffer blank_buffer;
 
 static TrackerStatementCallback insert_callback = NULL;
@@ -217,10 +225,10 @@ cache_ensure_table (const gchar            *table_name,
 {
 	TrackerDataUpdateBufferTable *table;
 
-	table = g_hash_table_lookup (update_buffer.tables, table_name);
+	table = g_hash_table_lookup (resource_buffer->tables, table_name);
 	if (table == NULL) {
 		table = cache_table_new (multiple_values);
-		g_hash_table_insert (update_buffer.tables, g_strdup (table_name), table);
+		g_hash_table_insert (resource_buffer->tables, g_strdup (table_name), table);
 		table->insert = multiple_values;
 	}
 
@@ -326,8 +334,8 @@ statement_bind_gvalue (TrackerDBStatement *stmt,
 	}
 }
 
-void
-tracker_data_update_buffer_flush (void)
+static void
+tracker_data_resource_buffer_flush (void)
 {
 	TrackerDBInterface             *iface;
 	TrackerDBStatement             *stmt;
@@ -340,25 +348,20 @@ tracker_data_update_buffer_flush (void)
 
 	iface = tracker_db_manager_get_db_interface ();
 
-	if (update_buffer.subject == NULL) {
-		/* nothing to flush */
-		return;
-	}
-
-	if (update_buffer.new_subject != NULL) {
+	if (resource_buffer->new_subject != NULL) {
 		/* change uri of resource */
 		stmt = tracker_db_interface_create_statement (iface,
 			"UPDATE \"rdfs:Resource\" SET Uri = ? WHERE ID = ?");
-		tracker_db_statement_bind_text (stmt, 0, update_buffer.new_subject);
-		tracker_db_statement_bind_int (stmt, 1, update_buffer.id);
+		tracker_db_statement_bind_text (stmt, 0, resource_buffer->new_subject);
+		tracker_db_statement_bind_int (stmt, 1, resource_buffer->id);
 		tracker_db_statement_execute (stmt, NULL);
 		g_object_unref (stmt);
 
-		g_free (update_buffer.new_subject);
-		update_buffer.new_subject = NULL;
+		g_free (resource_buffer->new_subject);
+		resource_buffer->new_subject = NULL;
 	}
 
-	g_hash_table_iter_init (&iter, update_buffer.tables);
+	g_hash_table_iter_init (&iter, resource_buffer->tables);
 	while (g_hash_table_iter_next (&iter, (gpointer*) &table_name, (gpointer*) &table)) {
 		if (table->multiple_values) {
 			for (i = 0; i < table->properties->len; i++) {
@@ -368,7 +371,7 @@ tracker_data_update_buffer_flush (void)
 					"INSERT OR IGNORE INTO \"%s\" (ID, \"%s\") VALUES (?, ?)",
 					table_name,
 					property->name);
-				tracker_db_statement_bind_int (stmt, 0, update_buffer.id);
+				tracker_db_statement_bind_int (stmt, 0, resource_buffer->id);
 				statement_bind_gvalue (stmt, 1, &property->value);
 				tracker_db_statement_execute (stmt, NULL);
 				g_object_unref (stmt);
@@ -379,7 +382,7 @@ tracker_data_update_buffer_flush (void)
 				stmt = tracker_db_interface_create_statement (iface,
 					"INSERT OR IGNORE INTO \"%s\" (ID) VALUES (?)",
 					table_name);
-				tracker_db_statement_bind_int (stmt, 0, update_buffer.id);
+				tracker_db_statement_bind_int (stmt, 0, resource_buffer->id);
 				tracker_db_statement_execute (stmt, NULL);
 				g_object_unref (stmt);
 			}
@@ -402,7 +405,7 @@ tracker_data_update_buffer_flush (void)
 			g_string_append (sql, " WHERE ID = ?");
 
 			stmt = tracker_db_interface_create_statement (iface, "%s", sql->str);
-			tracker_db_statement_bind_int (stmt, i, update_buffer.id);
+			tracker_db_statement_bind_int (stmt, i, resource_buffer->id);
 
 			for (i = 0; i < table->properties->len; i++) {
 				property = &g_array_index (table->properties, TrackerDataUpdateBufferProperty, i);
@@ -416,13 +419,13 @@ tracker_data_update_buffer_flush (void)
 		}
 	}
 
-	if (update_buffer.fts_updated) {
+	if (resource_buffer->fts_updated) {
 		TrackerProperty *prop;
 		GValueArray *values;
 
-		tracker_fts_update_init (update_buffer.id);
+		tracker_fts_update_init (resource_buffer->id);
 
-		g_hash_table_iter_init (&iter, update_buffer.predicates);
+		g_hash_table_iter_init (&iter, resource_buffer->predicates);
 		while (g_hash_table_iter_next (&iter, (gpointer*) &prop, (gpointer*) &values)) {
 			if (tracker_property_get_fulltext_indexed (prop)) {
 				fts = g_string_new ("");
@@ -430,41 +433,49 @@ tracker_data_update_buffer_flush (void)
 					g_string_append (fts, g_value_get_string (g_value_array_get_nth (values, i)));
 					g_string_append_c (fts, ' ');
 				}
-				tracker_fts_update_text (update_buffer.id, tracker_data_query_resource_id (tracker_property_get_uri (prop)), fts->str);
+				tracker_fts_update_text (resource_buffer->id, tracker_data_query_resource_id (tracker_property_get_uri (prop)), fts->str);
 				g_string_free (fts, TRUE);
 			}
 		}
 	}
+}
 
-	g_hash_table_remove_all (update_buffer.predicates);
-	g_hash_table_remove_all (update_buffer.tables);
-	g_free (update_buffer.subject);
-	update_buffer.subject = NULL;
+static void resource_buffer_free (TrackerDataUpdateBufferResource *resource)
+{
+	g_free (resource->new_subject);
+	resource->new_subject = NULL;
 
-	g_ptr_array_foreach (update_buffer.types, (GFunc) g_free, NULL);
-	g_ptr_array_free (update_buffer.types, TRUE);
-	update_buffer.types = NULL;
+	g_hash_table_unref (resource->predicates);
+	g_hash_table_unref (resource->tables);
+	g_free (resource->subject);
+	resource->subject = NULL;
+
+	g_ptr_array_foreach (resource->types, (GFunc) g_free, NULL);
+	g_ptr_array_free (resource->types, TRUE);
+	resource->types = NULL;
+
+	g_slice_free (TrackerDataUpdateBufferResource, resource);
+}
+
+void
+tracker_data_update_buffer_flush (void)
+{
+	GHashTableIter iter;
+
+	g_hash_table_iter_init (&iter, update_buffer.resources);
+	while (g_hash_table_iter_next (&iter, NULL, (gpointer*) &resource_buffer)) {
+		tracker_data_resource_buffer_flush ();
+	}
+
+	g_hash_table_remove_all (update_buffer.resources);
+	resource_buffer = NULL;
 }
 
 static void
 tracker_data_update_buffer_clear (void)
 {
-	if (update_buffer.subject == NULL) {
-		/* nothing to clear */
-		return;
-	}
-
-	g_free (update_buffer.new_subject);
-	update_buffer.new_subject = NULL;
-
-	g_hash_table_remove_all (update_buffer.predicates);
-	g_hash_table_remove_all (update_buffer.tables);
-	g_free (update_buffer.subject);
-	update_buffer.subject = NULL;
-
-	g_ptr_array_foreach (update_buffer.types, (GFunc) g_free, NULL);
-	g_ptr_array_free (update_buffer.types, TRUE);
-	update_buffer.types = NULL;
+	g_hash_table_remove_all (update_buffer.resources);
+	resource_buffer = NULL;
 
 	tracker_fts_update_rollback ();
 	update_buffer.fts_ever_updated = FALSE;
@@ -512,7 +523,6 @@ tracker_data_blank_buffer_flush (void)
 				g_array_index (blank_buffer.objects, gchar *, i),
 				NULL);
 		}
-		tracker_data_update_buffer_flush ();
 	}
 
 	/* free piled up statements */
@@ -544,8 +554,8 @@ cache_create_service_decomposed (TrackerClass           *cl)
 
 	class_uri = tracker_class_get_uri (cl);
 
-	for (i = 0; i < update_buffer.types->len; i++) {
-		if (strcmp (g_ptr_array_index (update_buffer.types, i), class_uri) == 0) {
+	for (i = 0; i < resource_buffer->types->len; i++) {
+		if (strcmp (g_ptr_array_index (resource_buffer->types, i), class_uri) == 0) {
 			/* ignore duplicate statement */
 			return;
 		}
@@ -553,7 +563,7 @@ cache_create_service_decomposed (TrackerClass           *cl)
 
 	tracker_class_set_count (cl, tracker_class_get_count (cl) + 1);
 
-	g_ptr_array_add (update_buffer.types, g_strdup (class_uri));
+	g_ptr_array_add (resource_buffer->types, g_strdup (class_uri));
 
 	g_value_init (&gvalue, G_TYPE_INT);
 
@@ -563,8 +573,8 @@ cache_create_service_decomposed (TrackerClass           *cl)
 	cache_insert_value ("rdfs:Resource_rdf:type", "rdf:type", &gvalue, TRUE, FALSE);
 
 	if (insert_callback) {
-		insert_callback (update_buffer.subject, RDF_PREFIX "type", class_uri, 
-		                 update_buffer.types, insert_data);
+		insert_callback (resource_buffer->subject, RDF_PREFIX "type", class_uri, 
+		                 resource_buffer->types, insert_data);
 	}
 }
 
@@ -616,9 +626,9 @@ check_property_domain (TrackerProperty *property)
 {
 	gint type_index;
 
-	for (type_index = 0; type_index < update_buffer.types->len; type_index++) {
+	for (type_index = 0; type_index < resource_buffer->types->len; type_index++) {
 		if (strcmp (tracker_class_get_uri (tracker_property_get_domain (property)),
-		            g_ptr_array_index (update_buffer.types, type_index)) == 0) {
+		            g_ptr_array_index (resource_buffer->types, type_index)) == 0) {
 			return TRUE;
 		}
 	}
@@ -640,7 +650,7 @@ get_property_values (TrackerProperty *property)
 	multiple_values = tracker_property_get_multiple_values (property);
 
 	old_values = g_value_array_new (multiple_values ? 4 : 1);
-	g_hash_table_insert (update_buffer.predicates, g_object_ref (property), old_values);
+	g_hash_table_insert (resource_buffer->predicates, g_object_ref (property), old_values);
 
 	if (multiple_values) {
 		table_name = g_strdup_printf ("%s_%s",
@@ -651,11 +661,11 @@ get_property_values (TrackerProperty *property)
 	}
 	field_name = tracker_property_get_name (property);
 
-	if (!update_buffer.create) {
+	if (!resource_buffer->create) {
 		iface = tracker_db_manager_get_db_interface ();
 
 		stmt = tracker_db_interface_create_statement (iface, "SELECT \"%s\" FROM \"%s\" WHERE ID = ?", field_name, table_name);
-		tracker_db_statement_bind_int (stmt, 0, update_buffer.id);
+		tracker_db_statement_bind_int (stmt, 0, resource_buffer->id);
 		cursor = tracker_db_statement_start_cursor (stmt, NULL);
 		g_object_unref (stmt);
 
@@ -712,23 +722,23 @@ cache_set_metadata_decomposed (TrackerProperty	*property,
 	fts = tracker_property_get_fulltext_indexed (property);
 
 	/* read existing property values */
-	old_values = g_hash_table_lookup (update_buffer.predicates, property);
+	old_values = g_hash_table_lookup (resource_buffer->predicates, property);
 	if (old_values == NULL) {
 		if (!check_property_domain (property)) {
 			g_set_error (error, TRACKER_DATA_ERROR, TRACKER_DATA_ERROR_CONSTRAINT,
 				     "Subject `%s' is not in domain `%s' of property `%s'",
-				     update_buffer.subject,
+				     resource_buffer->subject,
 				     tracker_class_get_name (tracker_property_get_domain (property)),
 				     field_name);
 			g_free (table_name);
 			return;
 		}
 
-		if (fts && !update_buffer.fts_updated && !update_buffer.create) {
+		if (fts && !resource_buffer->fts_updated && !resource_buffer->create) {
 			/* first fulltext indexed property to be modified
 			 * retrieve values of all fulltext indexed properties
 			 */
-			tracker_fts_update_init (update_buffer.id);
+			tracker_fts_update_init (resource_buffer->id);
 
 			properties = tracker_ontology_get_properties ();
 
@@ -741,7 +751,7 @@ cache_set_metadata_decomposed (TrackerProperty	*property,
 
 					/* delete old fts entries */
 					for (i = 0; i < old_values->n_values; i++) {
-						tracker_fts_update_text (update_buffer.id, -1,
+						tracker_fts_update_text (resource_buffer->id, -1,
 						                         g_value_get_string (g_value_array_get_nth (old_values, i)));
 					}
 				}
@@ -749,13 +759,13 @@ cache_set_metadata_decomposed (TrackerProperty	*property,
 
 			update_buffer.fts_ever_updated = TRUE;
 
-			old_values = g_hash_table_lookup (update_buffer.predicates, property);
+			old_values = g_hash_table_lookup (resource_buffer->predicates, property);
 		} else {
 			old_values = get_property_values (property);
 		}
 
 		if (fts) {
-			update_buffer.fts_updated = TRUE;
+			resource_buffer->fts_updated = TRUE;
 		}
 	}
 
@@ -802,7 +812,7 @@ cache_set_metadata_decomposed (TrackerProperty	*property,
 
 		g_set_error (error, TRACKER_DATA_ERROR, TRACKER_DATA_ERROR_CONSTRAINT,
 		             "Unable to insert multiple values for subject `%s' and single valued property `%s'",
-		             update_buffer.subject,
+		             resource_buffer->subject,
 		             field_name);
 	} else {
 		cache_insert_value (table_name, field_name, &gvalue, multiple_values, fts);
@@ -925,10 +935,8 @@ tracker_data_delete_statement (const gchar            *subject,
 		return;
 	}
 
-	if (update_buffer.subject != NULL) {
-		/* delete does not use update buffer, flush it */
-		tracker_data_update_buffer_flush ();
-	}
+	/* delete does not use update buffer, flush it */
+	tracker_data_update_buffer_flush ();
 
 	types = tracker_data_query_rdf_type (subject_id);
 
@@ -1151,33 +1159,36 @@ tracker_data_insert_statement_common (const gchar            *subject,
 		return FALSE;
 	}
 
-	if (update_buffer.subject != NULL) {
-		/* active subject in cache */
-		if (strcmp (update_buffer.subject, subject) != 0) {
-			/* subject changed, need to flush cache */
-			tracker_data_update_buffer_flush ();
-		}
+	if (resource_buffer == NULL || strcmp (resource_buffer->subject, subject) != 0) {
+		/* switch subject */
+		resource_buffer = g_hash_table_lookup (update_buffer.resources, subject);
 	}
 
-	if (update_buffer.subject == NULL) {
+	if (resource_buffer == NULL) {
 		GValue gvalue = { 0 };
 
 		g_value_init (&gvalue, G_TYPE_INT);
 
 		/* subject not yet in cache, retrieve or create ID */
-		update_buffer.subject = g_strdup (subject);
-		update_buffer.id = query_resource_id (update_buffer.subject);
-		update_buffer.create = (update_buffer.id == 0);
-		update_buffer.fts_updated = FALSE;
-		if (update_buffer.create) {
-			update_buffer.id = ensure_resource_id (update_buffer.subject);
-			update_buffer.types = g_ptr_array_new ();
+		resource_buffer = g_slice_new0 (TrackerDataUpdateBufferResource);
+		resource_buffer->subject = g_strdup (subject);
+		resource_buffer->id = query_resource_id (resource_buffer->subject);
+		resource_buffer->create = (resource_buffer->id == 0);
+		resource_buffer->fts_updated = FALSE;
+		if (resource_buffer->create) {
+			resource_buffer->id = ensure_resource_id (resource_buffer->subject);
+			resource_buffer->types = g_ptr_array_new ();
 		} else {
-			update_buffer.types = tracker_data_query_rdf_type (update_buffer.id);
+			resource_buffer->types = tracker_data_query_rdf_type (resource_buffer->id);
 		}
+		resource_buffer->predicates = g_hash_table_new_full (g_direct_hash, g_direct_equal, g_object_unref, (GDestroyNotify) g_value_array_free);
+		resource_buffer->tables = g_hash_table_new_full (g_str_hash, g_str_equal,
+							      g_free, (GDestroyNotify) cache_table_free);
 
 		g_value_set_int (&gvalue, tracker_data_update_get_next_modseq ());
 		cache_insert_value ("rdfs:Resource", "tracker:modified", &gvalue, FALSE, FALSE);
+
+		g_hash_table_insert (update_buffer.resources, g_strdup (subject), resource_buffer);
 	}
 
 	return TRUE;
@@ -1283,7 +1294,7 @@ tracker_data_insert_statement_with_uri (const gchar            *subject,
 		}
 	} else if (strcmp (predicate, TRACKER_PREFIX "uri") == 0) {
 		/* internal property tracker:uri, used to change uri of existing element */
-		update_buffer.new_subject = g_strdup (object);
+		resource_buffer->new_subject = g_strdup (object);
 	} else {
 		/* add value to metadata database */
 		cache_set_metadata_decomposed (property, object, &actual_error);
@@ -1294,7 +1305,7 @@ tracker_data_insert_statement_with_uri (const gchar            *subject,
 		}
 
 		if (insert_callback) {
-			insert_callback (subject, predicate, object, update_buffer.types, insert_data);
+			insert_callback (subject, predicate, object, resource_buffer->types, insert_data);
 		}
 	}
 }
@@ -1337,7 +1348,7 @@ tracker_data_insert_statement_with_string (const gchar            *subject,
 	}
 
 	if (insert_callback) {
-		insert_callback (subject, predicate, object, update_buffer.types, insert_data);
+		insert_callback (subject, predicate, object, resource_buffer->types, insert_data);
 	}
 }
 
@@ -1558,9 +1569,8 @@ tracker_data_begin_transaction (void)
 	g_return_if_fail (!in_transaction);
 
 	update_buffer.resource_cache = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
-	update_buffer.predicates = g_hash_table_new_full (g_direct_hash, g_direct_equal, g_object_unref, (GDestroyNotify) g_value_array_free);
-	update_buffer.tables = g_hash_table_new_full (g_str_hash, g_str_equal,
-						      g_free, (GDestroyNotify) cache_table_free);
+	update_buffer.resources = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, (GDestroyNotify) resource_buffer_free);
+	resource_buffer = NULL;
 	if (blank_buffer.table == NULL) {
 		blank_buffer.table = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
 	}
@@ -1592,9 +1602,8 @@ tracker_data_commit_transaction (void)
 
 	tracker_db_interface_end_transaction (iface);
 
+	g_hash_table_unref (update_buffer.resources);
 	g_hash_table_unref (update_buffer.resource_cache);
-	g_hash_table_unref (update_buffer.predicates);
-	g_hash_table_unref (update_buffer.tables);
 
 	if (commit_callback) {
 		commit_callback (commit_data);

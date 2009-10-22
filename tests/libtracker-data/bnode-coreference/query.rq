@@ -5,3 +5,4 @@ SELECT ?x ?y
 WHERE {
   [ foaf:name ?x ] foaf:knows [ foaf:name ?y ] .
 }
+ORDER BY ?x

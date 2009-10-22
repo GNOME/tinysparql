@@ -4,3 +4,4 @@ SELECT ?s WHERE {
     ?s2 :p ?o2 .
     FILTER(?o + ?o2 = 3) .
 }
+ORDER BY ?s
