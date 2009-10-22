@@ -118,17 +118,7 @@ public class Tracker.SparqlQuery : Object {
 								}
 								sql.append_printf ("SELECT ID, (SELECT ID FROM \"rdfs:Resource\" WHERE Uri = '%s') AS \"predicate\", ", prop.uri);
 
-								if (prop.data_type == PropertyType.RESOURCE) {
-									sql.append_printf ("(SELECT Uri FROM \"rdfs:Resource\" WHERE ID = \"%s\")", prop.name);
-								} else if (prop.data_type == PropertyType.INTEGER || prop.data_type == PropertyType.DOUBLE) {
-									sql.append_printf ("CAST (\"%s\" AS TEXT)", prop.name);
-								} else if (prop.data_type == PropertyType.BOOLEAN) {
-									sql.append_printf ("CASE \"%s\" WHEN 1 THEN 'true' WHEN 0 THEN 'false' ELSE NULL END", prop.name);
-								} else if (prop.data_type == PropertyType.DATETIME) {
-									sql.append_printf ("strftime (\"%%Y-%%m-%%dT%%H:%%M:%%SZ\", \"%s\", \"unixepoch\")", prop.name);
-								} else {
-									sql.append_printf ("\"%s\"", prop.name);
-								}
+								append_expression_as_string (sql, "\"%s\"".printf (prop.name), prop.data_type);
 
 								sql.append (" AS \"object\" FROM ");
 								if (prop.multiple_values) {
@@ -175,17 +165,7 @@ public class Tracker.SparqlQuery : Object {
 								}
 								sql.append_printf ("SELECT ID, (SELECT ID FROM \"rdfs:Resource\" WHERE Uri = '%s') AS \"predicate\", ", prop.uri);
 
-								if (prop.data_type == PropertyType.RESOURCE) {
-									sql.append_printf ("(SELECT Uri FROM \"rdfs:Resource\" WHERE ID = \"%s\")", prop.name);
-								} else if (prop.data_type == PropertyType.INTEGER || prop.data_type == PropertyType.DOUBLE) {
-									sql.append_printf ("CAST (\"%s\" AS TEXT)", prop.name);
-								} else if (prop.data_type == PropertyType.BOOLEAN) {
-									sql.append_printf ("CASE \"%s\" WHEN 1 THEN 'true' WHEN 0 THEN 'false' ELSE NULL END", prop.name);
-								} else if (prop.data_type == PropertyType.DATETIME) {
-									sql.append_printf ("strftime (\"%%Y-%%m-%%dT%%H:%%M:%%SZ\", \"%s\", \"unixepoch\")", prop.name);
-								} else {
-									sql.append_printf ("\"%s\"", prop.name);
-								}
+								append_expression_as_string (sql, "\"%s\"".printf (prop.name), prop.data_type);
 
 								sql.append (" AS \"object\" FROM ");
 								if (prop.multiple_values) {
@@ -212,17 +192,7 @@ public class Tracker.SparqlQuery : Object {
 						}
 						sql.append_printf ("SELECT ID, (SELECT ID FROM \"rdfs:Resource\" WHERE Uri = '%s') AS \"predicate\", ", prop.uri);
 
-						if (prop.data_type == PropertyType.RESOURCE) {
-							sql.append_printf ("(SELECT Uri FROM \"rdfs:Resource\" WHERE ID = \"%s\")", prop.name);
-						} else if (prop.data_type == PropertyType.INTEGER || prop.data_type == PropertyType.DOUBLE) {
-							sql.append_printf ("CAST (\"%s\" AS TEXT)", prop.name);
-						} else if (prop.data_type == PropertyType.BOOLEAN) {
-							sql.append_printf ("CASE \"%s\" WHEN 1 THEN 'true' WHEN 0 THEN 'false' ELSE NULL END", prop.name);
-						} else if (prop.data_type == PropertyType.DATETIME) {
-							sql.append_printf ("strftime (\"%%Y-%%m-%%dT%%H:%%M:%%SZ\", \"%s\", \"unixepoch\")", prop.name);
-						} else {
-							sql.append_printf ("\"%s\"", prop.name);
-						}
+						append_expression_as_string (sql, "\"%s\"".printf (prop.name), prop.data_type);
 
 						sql.append (" AS \"object\" FROM ");
 						if (prop.multiple_values) {
@@ -501,26 +471,6 @@ public class Tracker.SparqlQuery : Object {
 		}
 	}
 
-	void check_binding (Variable variable) throws SparqlError {
-		if (variable.binding == null) {
-			throw get_error ("`%s' is not a valid variable".printf (variable.name));
-		}
-	}
-
-	string get_sql_for_variable (Variable variable) throws SparqlError {
-		check_binding (variable);
-
-		if (variable.binding.data_type == PropertyType.RESOURCE) {
-			return "(SELECT Uri FROM \"rdfs:Resource\" WHERE ID = %s)".printf (variable.sql_expression);
-		} else if (variable.binding.data_type == PropertyType.BOOLEAN) {
-			return "(CASE %s WHEN 1 THEN 'true' WHEN 0 THEN 'false' ELSE NULL END)".printf (variable.sql_expression);
-		} else if (variable.binding.data_type == PropertyType.DATETIME) {
-			return "strftime (\"%%Y-%%m-%%dT%%H:%%M:%%SZ\", %s, \"unixepoch\")".printf (variable.sql_expression);
-		} else {
-			return variable.sql_expression;
-		}
-	}
-
 	DBResultSet? exec_sql (string sql) throws Error {
 		var iface = DBManager.get_db_interface ();
 		var stmt = iface.create_statement ("%s", sql);
@@ -670,7 +620,7 @@ public class Tracker.SparqlQuery : Object {
 				} else {
 					first = false;
 				}
-				sql.append (get_sql_for_variable (variable));
+				append_expression_as_string (sql, variable.sql_expression, variable.binding.data_type);
 			}
 		} else {
 			while (true) {
@@ -868,7 +818,7 @@ public class Tracker.SparqlQuery : Object {
 				first = false;
 			}
 
-			sql.append (get_sql_for_variable (variable));
+			append_expression_as_string (sql, variable.sql_expression, variable.binding.data_type);
 		}
 
 		if (first) {
@@ -1080,6 +1030,12 @@ public class Tracker.SparqlQuery : Object {
 		expect (SparqlTokenType.CLOSE_PARENS);
 	}
 
+	void append_expression_as_string (StringBuilder sql, string expression, PropertyType type) {
+		long begin = sql.len;
+		sql.append (expression);
+		convert_expression_to_string (sql, type, begin);
+	}
+
 	void convert_expression_to_string (StringBuilder sql, PropertyType type, long begin) {
 		switch (type) {
 		case PropertyType.STRING:
@@ -1181,7 +1137,9 @@ public class Tracker.SparqlQuery : Object {
 			string variable_name = get_last_string().substring(1);
 			var variable = get_variable (variable_name);
 
-			check_binding (variable);
+			if (variable.binding == null) {
+				throw get_error ("`%s' is not a valid variable".printf (variable.name));
+			}
 
 			if (variable.binding.data_type == PropertyType.RESOURCE || variable.binding.type == null) {
 				throw get_error ("Invalid FILTER");
@@ -2511,7 +2469,13 @@ public class Tracker.SparqlQuery : Object {
 						binding.sql_db_column_name,
 						binding.variable.sql_expression);
 
-					subgraph_var_set.insert (binding.variable, in_simple_optional ? VariableState.OPTIONAL : VariableState.BOUND);
+					VariableState state;
+					if (in_simple_optional) {
+						state = VariableState.OPTIONAL;
+					} else {
+						state = VariableState.BOUND;
+					}
+					subgraph_var_set.insert (binding.variable, state);
 				}
 				binding_list.list.append (binding);
 				if (binding.variable.binding == null) {
