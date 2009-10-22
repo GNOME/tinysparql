@@ -164,7 +164,7 @@ tracker_power_client_changed_cb (DkpClient *client, TrackerPower *power)
 	}
 
 	/* get the on-low-battery state */
-	on_low_battery = dkp_client_on_battery (priv->client);
+	on_low_battery = dkp_client_on_low_battery (priv->client);
 	if (on_low_battery != priv->on_low_battery) {
 		priv->on_low_battery = on_low_battery;
 		g_object_notify (G_OBJECT (power), "on-low-battery");
