@@ -698,16 +698,9 @@ on_folder_summary_changed (CamelFolder *folder,
 
 			send_sparql_update (info->self, tracker_sparql_builder_get_result (sparql));
 
-/*
-			I saw a crash here, can't figure out why, it was
-			in strcmp of g_object_set (maybe multi-threading
-			of Camel is involved?)
-
 			g_object_set (info->self, "progress",
 			              (gdouble) i / merged->len,
-			              "status", _("Updating"),
 			              NULL);
-*/
 
 			g_object_unref (sparql);
 
@@ -812,10 +805,12 @@ many_idle_handler (gpointer user_data)
 				priv->total_popped = priv->of_total;
 			}
 
+#if 0
 			g_object_set (user_data, "progress",
 			              (gdouble) priv->total_popped / priv->of_total,
 			              "status", _("Updating"),
 			              NULL);
+#endif
 
 			send_sparql_update (user_data, query);
 		} else {
@@ -1083,11 +1078,13 @@ introduce_walk_folders_in_folder (TrackerEvolutionPlugin *self,
 
 				priv->of_total++;
 
+#if 0
 				if (priv->of_total > priv->total_popped) {
 					g_object_set (self, "progress",
 					              (gdouble) priv->total_popped / priv->of_total,
 					              NULL);
 				}
+#endif
 
 				if (start_handler) {
 					start_many_handler (self);
