@@ -1023,6 +1023,8 @@ introduce_walk_folders_in_folder (TrackerEvolutionPlugin *self,
 						g_free(name);
 						g_free(value);
 					}
+
+					g_free (uri);
 					g_free (p);
 
 					tracker_sparql_builder_insert_close (sparql);
