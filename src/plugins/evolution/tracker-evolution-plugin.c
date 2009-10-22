@@ -308,8 +308,14 @@ folder_registry_new (const gchar *account_uri,
 }
 
 static void
-on_replied (GError *error, gpointer user_data) 
-{ 
+on_replied (GError   *error,
+	    gpointer  user_data)
+{
+	if (error) {
+		g_warning ("Error updating data: %s\n", error->message);
+		g_error_free (error);
+	}
+
 	g_object_unref (user_data);
 }
 
