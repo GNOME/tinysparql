@@ -325,9 +325,10 @@ send_sparql_update (TrackerEvolutionPlugin *self, const gchar *sparql)
 	TrackerEvolutionPluginPrivate *priv = TRACKER_EVOLUTION_PLUGIN_GET_PRIVATE (self);
 
 	if (priv->client) {
-		tracker_resources_batch_sparql_update_async (priv->client, sparql,
-		                                             on_replied, 
-		                                             g_object_ref (self));
+		dbus_g_proxy_call_no_reply (priv->client->proxy_resources,
+					    "SparqlUpdate",
+					    G_TYPE_STRING, sparql,
+					    G_TYPE_INVALID);
 	}
 }
 
@@ -343,12 +344,11 @@ send_sparql_commit (TrackerEvolutionPlugin *self, gboolean update)
 			                                 "WHERE { <" DATASOURCE_URN "> a nie:InformationElement ; nie:contentLastModified ?d } \n"
 			                                 "INSERT { <" DATASOURCE_URN "> nie:contentLastModified \"%s\" }",
 			                                 date_s);
-			g_free (date_s);
-			tracker_resources_batch_sparql_update_async (priv->client, update, 
-			                                             on_replied, 
-			                                             g_object_ref (self));
+
+			send_sparql_update (self, update);
 
 			g_free (update);
+			g_free (date_s);
 		}
 
 		tracker_resources_batch_commit_async (priv->client, on_replied, 
