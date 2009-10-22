@@ -253,6 +253,8 @@ tracker_extract_SOURCES = 						\
 	tracker-dbus.h							\
 	tracker-extract.c						\
 	tracker-extract.h						\
+	tracker-fts-config.c						\
+	tracker-fts.config.h						\
 	tracker-main.c							\
 	tracker-main.h
 

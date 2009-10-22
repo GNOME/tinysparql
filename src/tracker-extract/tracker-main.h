@@ -26,6 +26,7 @@
 
 #include <libtracker-common/tracker-storage.h>
 #include <libtracker-common/tracker-statement-list.h>
+#include "tracker-fts-config.h"
 
 G_BEGIN_DECLS
 
@@ -47,6 +48,8 @@ TrackerExtractData *tracker_get_extract_data        (void);
  * get more work to do.
  */
 void                tracker_main_quit_timeout_reset (void);
+
+TrackerFTSConfig   *tracker_main_get_fts_config (void);
 
 G_END_DECLS
 

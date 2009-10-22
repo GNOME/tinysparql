@@ -250,6 +250,8 @@ extract_msoffice (const gchar *uri,
 	GsfInput  *stream;
 	gchar     *filename, *content;
 	gboolean   rdf_type_added = FALSE;
+	TrackerFTSConfig *fts_config;
+	guint n_words;
 
 	gsf_init ();
 
@@ -327,7 +329,9 @@ extract_msoffice (const gchar *uri,
 		g_object_unref (stream);
 	}
 
-	content = extract_content (uri, 1000);
+	fts_config = tracker_main_get_fts_config ();
+	n_words = tracker_fts_config_get_max_words_to_index (fts_config);
+	content = extract_content (uri, n_words);
 
 	if (content) {
 		tracker_sparql_builder_predicate (metadata, "nie:plainTextContent");

@@ -74,6 +74,7 @@ static gboolean    disable_shutdown;
 static gint        verbosity = -1;
 static gchar      *filename;
 static gchar      *mime_type;
+static TrackerFTSConfig *fts_config;
 
 static GOptionEntry  entries[] = {
 	{ "version", 'V', 0,
@@ -252,6 +253,16 @@ log_handler (const gchar    *domain,
 		fflush (stdout);
 		break;
 	}	
+}
+
+TrackerFTSConfig *
+tracker_main_get_fts_config (void)
+{
+	if (G_UNLIKELY (!fts_config)) {
+		fts_config = tracker_fts_config_new ();
+	}
+
+	return fts_config;
 }
 
 int

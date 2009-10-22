@@ -134,6 +134,8 @@ extract_pdf (const gchar *uri,
 	gchar		*metadata_xml	= NULL;
 	GTime		 creation_date;
 	GError		*error		= NULL;
+	TrackerFTSConfig *fts_config;
+	guint             n_words;
 
 	g_type_init ();
 
@@ -347,8 +349,9 @@ extract_pdf (const gchar *uri,
 		}
 	}
 
-	/* FIXME: Fixed word limit at the moment */
-	content = extract_content (document, 1000);
+	fts_config = tracker_main_get_fts_config ();
+	n_words = tracker_fts_config_get_max_words_to_index (fts_config);
+	content = extract_content (document, n_words);
 
 	if (content) {
 		tracker_sparql_builder_predicate (metadata, "nie:plainTextContent");

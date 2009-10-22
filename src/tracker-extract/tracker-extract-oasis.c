@@ -111,6 +111,8 @@ extract_oasis (const gchar *uri,
 	gchar	      *xml;
 	gchar *filename = g_filename_from_uri (uri, NULL, NULL);
 	gchar *content;
+	TrackerFTSConfig *fts_config;
+	guint n_words;
 	ODTParseInfo   info = {
 		metadata,
 		-1,
@@ -144,7 +146,9 @@ extract_oasis (const gchar *uri,
 		g_free (xml);
 	}
 
-	content = extract_content (filename, 1000);
+	fts_config = tracker_main_get_fts_config ();
+	n_words = tracker_fts_config_get_max_words_to_index (fts_config);
+	content = extract_content (filename, n_words);
 
 	if (content) {
 		tracker_sparql_builder_predicate (metadata, "nie:plainTextContent");
