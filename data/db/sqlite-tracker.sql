@@ -4,7 +4,6 @@ CREATE TABLE Options (
 	OptionValue	Text COLLATE NOCASE
 );
 
-insert Into Options (OptionKey, OptionValue) values ('EvolutionLastModseq', '0');
 insert Into Options (OptionKey, OptionValue) values ('KMailLastModseq', '0');
 insert Into Options (OptionKey, OptionValue) values ('CollationLocale', '');
 
