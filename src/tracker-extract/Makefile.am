@@ -254,7 +254,7 @@ tracker_extract_SOURCES = 						\
 	tracker-extract.c						\
 	tracker-extract.h						\
 	tracker-fts-config.c						\
-	tracker-fts.config.h						\
+	tracker-fts-config.h						\
 	tracker-main.c							\
 	tracker-main.h
 
