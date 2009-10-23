@@ -22,13 +22,47 @@
 uses
     Gtk
 
+window : Window
 
-init  
+[DBus (name = "org.freedesktop.Tracker1.SearchTool")]
+class TrackerSearchToolServer : GLib.Object
+    def Show ()
+        window.present ()
+
+init
     Gtk.init (ref args)
-    
+
+    var server = new TrackerSearchToolServer
+
+    try
+        bus : dynamic DBus.Object
+        result : uint
+
+        var conn = DBus.Bus.get (DBus.BusType.SESSION)
+
+        bus = conn.get_object ("org.freedesktop.DBus", \
+                               "/org/freedesktop/DBus", \
+                               "org.freedesktop.DBus")
+
+        result = bus.request_name ("org.freedesktop.Tracker1.SearchTool", (uint) 0)
+
+        if (result is DBus.RequestNameReply.PRIMARY_OWNER)
+            conn.register_object ("/org/freedesktop/Tracker1/SearchTool", server)
+        else
+            /* There's another instance, pop it up */
+            remote : dynamic DBus.Object
+            remote = conn.get_object ("org.freedesktop.Tracker1.SearchTool", \
+                                      "/org/freedesktop/Tracker1/SearchTool", \
+                                      "org.freedesktop.Tracker1.SearchTool")
+
+            remote.show ()
+            return
+    except e : DBus.Error
+        warning ("%s", e.message)
+
     var builder = new Builder ()
-        
-    try 
+
+    try
         builder.add_from_file (SRCDIR + "tst.ui")
         
     except e : GLib.Error 
@@ -45,7 +79,7 @@ init
             Gtk.main_quit()
     
               
-    var window = builder.get_object ("window") as Window
+    window = builder.get_object ("window") as Window
     window.destroy += Gtk.main_quit
         
     /* create tracker widgets */    
@@ -78,9 +112,5 @@ init
     detail_box.add (tile)
 
     window.show_all ()
-        
+
     Gtk.main ()
-
-
-
-
