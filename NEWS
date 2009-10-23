@@ -1,3 +1,63 @@
+NEW in 0.7.4
+============
+
+Improvements / New:
+
+  General:
+  * Bumped database schema version (we were not doing this for 0.7.x
+    until now) which makes sure a reindex occurs when the database
+    schema changes. This is to prevent bugs like: GB#598224.
+
+  Ontology:
+  * Added maemo:relevance to provide additional hit scoring.
+
+  SPARQL:
+  * Updated to refactor code duplication.
+  * Fixed case sensitivity for variables
+
+  Database:
+  * Removed EvolutionModseq from the Options table - unused.
+
+  libtracker-common:
+  * Fixed typo in devicekit low battery functionality, this lead to
+    indexing being paused in the wrong conditions.
+  * Fixed TrackerConfigFile so inotify CREATE events trigger changed
+    signal.
+
+  libtracker-data:
+  * Updated to support multiple resources in queries to improve
+    performance for specific inserts requests.
+
+  libtracker-miner:
+  * Fixed re-index every time tracker-miner-fs was started due to
+    mtime query error since introducing timezones.
+
+  tracker-extract:
+  * Fixed so words indexed for FTS is based on tracker-fts.cfg, not
+    just static at 1000.
+
+  tracker-search-tool:
+  * Fixed so only one instance can be run at a time.
+
+  tracker-evolution-plugin:
+  * Fixed so we don't spam status updates about the miner.
+  * Fixed OOM situation by using D-Bus noreply functions instead.
+  * Fixed memory leak when receiving errors from D-Bus responses.
+  * Fixed memory leak when processing folders.
+  * Fixed progress reporting to go forward not jump around.
+
+Bugs:
+
+  * Fixes GB#570608, Translation of firefox-extension
+  * Fixes NB#135969, Artist and Album query returns reults other than...
+
+Notes:
+
+  The Deskbar applet packaged with Tracker is currently out of date
+  and needs some love to get it working with the new APIs. It is in
+  the same state as it was for 0.6. As such it isn't expected to work.
+
+
 NEW in 0.7.3
 ============
 
