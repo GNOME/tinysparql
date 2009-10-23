@@ -35,3 +35,9 @@ maemo:BrowserBookmarkFolder a nfo:BookmarkFolder .
 maemo:bookmarkThumbnail a rdf:Property ;
    rdfs:domain nfo:Bookmark ;
    rdfs:range  xsd:string .
+
+# Denotes how relevant an item is for the user
+maemo:relevance a rdf:Property ;
+	rdfs:domain nie:InformationElement ;
+	rdfs:range xsd:double .
+
