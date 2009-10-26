@@ -200,20 +200,6 @@ AC_SUBST(GCONF_LIBS)
 
 AM_CONDITIONAL(HAVE_GCONF, test "$have_gconf" = "yes")
 
-# Check for Streamanalyzer
-PKG_CHECK_MODULES(LIBSTREAMANALYZER, 
-	          [libstreamanalyzer >= $LIBSTREAMANALYZER_REQUIRED],
-		  [have_libstreamanalyzer=yes], 
-		  [have_libstreamanalyzer=no])
-AC_SUBST(LIBSTREAMANALYZER_CFLAGS)
-AC_SUBST(LIBSTREAMANALYZER_LIBS)
-
-AM_CONDITIONAL(HAVE_LIBSTREAMANALYZER, test "$have_libstreamanalyzer" = "yes")
-
-if test x$have_libstreamanalyzer == "xyes"; then
-  AC_DEFINE(HAVE_LIBSTREAMANALYZER, 1, [libstreamanalyzer is available])
-fi
-
 # Check for libuuid
 PKG_CHECK_MODULES(UUID, [uuid])
 AC_SUBST(UUID_CFLAGS)
@@ -241,6 +227,39 @@ fi
 
 GLIB_GENMARSHAL=`$PKG_CONFIG glib-2.0 --variable=glib_genmarshal`
 AC_SUBST(GLIB_GENMARSHAL)
+
+
+####################################################################
+# Stream Analyzer
+####################################################################
+
+AC_ARG_ENABLE(libstreamanalyzer,
+	      AS_HELP_STRING([--enable-libstreamanalyzer],
+			     [enable libstreamananalyzer [[default=no]]]), ,
+	      [enable_libstreamanalyzer=no])
+
+if test "x$enable_libstreamanalyzer" != "xno"; then
+   PKG_CHECK_MODULES(LIBSTREAMANALYZER, 
+    	  	     [libstreamanalyzer >= $LIBSTREAMANALYZER_REQUIRED], 
+		     [have_libstreamanalyzer=yes], 
+		     [have_libstreamanalyzer=no])
+   AC_SUBST(LIBSTREAMANALYZER_CFLAGS)
+   AC_SUBST(LIBSTREAMANALYZER_LIBS)
+
+   if test "x$have_libstreamanalyzer" = "xyes"; then
+      AC_DEFINE(HAVE_LIBSTREAMANALYZER, [], [Define if we have libstreamanalyzer])
+   fi
+else
+   have_libstreamanalyzer="no  (disabled)"
+fi
+
+if test "x$enable_libstreamanalyzer" = "xyes"; then
+   if test "x$have_libstreamanalyzer" != "xyes"; then
+      AC_MSG_ERROR([Couldn't find libstreamanalyzer >= $LIBSTREAMANALYZER_REQUIRED and libstreamanalyzer.])
+   fi
+fi
+
+AM_CONDITIONAL(HAVE_LIBSTREAMANALYZER, test "$have_libstreamanalyzer" = "yes")
 
 ####################################################################
 # DBus Service
