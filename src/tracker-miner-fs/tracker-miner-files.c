@@ -306,7 +306,6 @@ miner_files_constructed (GObject *object)
         TrackerMinerFS *fs;
         GSList *dirs;
 	GSList *mounts = NULL, *m;
-	gint throttle;
 
 	G_OBJECT_CLASS (tracker_miner_files_parent_class)->constructed (object);
 
@@ -406,11 +405,6 @@ miner_files_constructed (GObject *object)
                 tracker_miner_fs_add_directory (fs, file, TRUE);
 		g_object_unref (file);
         }
-
-	throttle = tracker_config_get_throttle (mf->private->config);
-
-	/* Throttle in config goes from 0 to 20, translate to 0.0 -> 1.0 */
-	tracker_miner_fs_set_throttle (TRACKER_MINER_FS (mf), (1.0 / 20) * throttle);
 
 	/* Add removable media */
 	g_message ("Setting up directories to iterate which are removable devices");
