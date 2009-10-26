@@ -757,11 +757,52 @@ get_old_property_values (TrackerProperty  *property,
 }
 
 static void
+string_to_gvalue (const gchar         *value,
+                  TrackerPropertyType  type,
+                  GValue              *gvalue)
+{
+	guint32		    object_id;
+
+	switch (type) {
+	case TRACKER_PROPERTY_TYPE_STRING:
+		g_value_init (gvalue, G_TYPE_STRING);
+		g_value_set_string (gvalue, value);
+		break;
+	case TRACKER_PROPERTY_TYPE_INTEGER:
+		g_value_init (gvalue, G_TYPE_INT);
+		g_value_set_int (gvalue, atoi (value));
+		break;
+	case TRACKER_PROPERTY_TYPE_BOOLEAN:
+		/* use G_TYPE_INT to be compatible with value stored in DB
+		   (important for value_equal function) */
+		g_value_init (gvalue, G_TYPE_INT);
+		g_value_set_int (gvalue, strcmp (value, "true") == 0);
+		break;
+	case TRACKER_PROPERTY_TYPE_DOUBLE:
+		g_value_init (gvalue, G_TYPE_DOUBLE);
+		g_value_set_double (gvalue, atof (value));
+		break;
+	case TRACKER_PROPERTY_TYPE_DATE:
+	case TRACKER_PROPERTY_TYPE_DATETIME:
+		g_value_init (gvalue, G_TYPE_INT);
+		g_value_set_int (gvalue, tracker_string_to_date (value));
+		break;
+	case TRACKER_PROPERTY_TYPE_RESOURCE:
+		object_id = ensure_resource_id (value);
+		g_value_init (gvalue, G_TYPE_INT);
+		g_value_set_int (gvalue, object_id);
+		break;
+	default:
+		g_warn_if_reached ();
+		break;
+	}
+}
+
+static void
 cache_set_metadata_decomposed (TrackerProperty	*property,
 			       const gchar	*value,
 			       GError          **error)
 {
-	guint32		    object_id;
 	gboolean            multiple_values, fts;
 	gchar              *table_name;
 	const gchar        *field_name;
@@ -798,38 +839,7 @@ cache_set_metadata_decomposed (TrackerProperty	*property,
 		return;
 	}
 
-	switch (tracker_property_get_data_type (property)) {
-	case TRACKER_PROPERTY_TYPE_STRING:
-		g_value_init (&gvalue, G_TYPE_STRING);
-		g_value_set_string (&gvalue, value);
-		break;
-	case TRACKER_PROPERTY_TYPE_INTEGER:
-		g_value_init (&gvalue, G_TYPE_INT);
-		g_value_set_int (&gvalue, atoi (value));
-		break;
-	case TRACKER_PROPERTY_TYPE_BOOLEAN:
-		/* use G_TYPE_INT to be compatible with value stored in DB
-		   (important for value_equal function) */
-		g_value_init (&gvalue, G_TYPE_INT);
-		g_value_set_int (&gvalue, strcmp (value, "true") == 0);
-		break;
-	case TRACKER_PROPERTY_TYPE_DOUBLE:
-		g_value_init (&gvalue, G_TYPE_DOUBLE);
-		g_value_set_double (&gvalue, atof (value));
-		break;
-	case TRACKER_PROPERTY_TYPE_DATE:
-	case TRACKER_PROPERTY_TYPE_DATETIME:
-		g_value_init (&gvalue, G_TYPE_INT);
-		g_value_set_int (&gvalue, tracker_string_to_date (value));
-		break;
-	case TRACKER_PROPERTY_TYPE_RESOURCE:
-		object_id = ensure_resource_id (value);
-		g_value_init (&gvalue, G_TYPE_INT);
-		g_value_set_int (&gvalue, object_id);
-		break;
-	default:
-		return;
-	}
+	string_to_gvalue (value, tracker_property_get_data_type (property), &gvalue);
 
 	if (!value_set_add_value (old_values, &gvalue)) {
 		/* value already inserted */
