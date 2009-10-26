@@ -869,6 +869,9 @@ public class Tracker.SparqlQuery : Object {
 		string uri = parse_var_or_term (null, out is_var);
 
 		Data.delete_resource_description (uri);
+
+		// ensure possible WHERE clause in next part gets the correct results
+		Data.update_buffer_flush ();
 	}
 
 	string resolve_prefixed_name (string prefix, string local_name) throws SparqlError {
