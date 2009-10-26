@@ -28,8 +28,8 @@ INCLUDES = 								\
 	$(XINE_CFLAGS) 							\
 	$(TOTEM_PL_PARSER_CFLAGS)					
 
-if HAVE_STREAMANALYZER
-INCLUDES += $(STREAMANALYZER_CFLAGS) -DHAVE_STREAMANALYZER
+if HAVE_LIBSTREAMANALYZER
+INCLUDES += $(LIBSTREAMANALYZER_CFLAGS)
 endif
 
 if HAVE_ENCA
@@ -264,12 +264,11 @@ tracker_extract_LDADD = 						\
 	$(GMODULE_LIBS)							\
 	$(GTHREAD_LIBS)							\
 	$(GCOV_LIBS)							\
-	$(GLIB2_LIBS)							\
-	$(STREAMANALYZER_LIBS)
+	$(GLIB2_LIBS)
 
-if HAVE_STREAMANALYZER
+if HAVE_LIBSTREAMANALYZER
 tracker_extract_SOURCES += tracker-topanalyzer.cpp tracker-topanalyzer.h
-tracker_extract_LDADD += $(STREAMANALYZER_LIBS)
+tracker_extract_LDADD += $(LIBSTREAMANALYZER_LIBS)
 endif
 
 if HAVE_GDKPIXBUF

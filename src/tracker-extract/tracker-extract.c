@@ -34,9 +34,9 @@
 #include "tracker-main.h"
 #include "tracker-marshal.h"
 
-#ifdef HAVE_STREAMANALYZER
+#ifdef HAVE_LIBSTREAMANALYZER
 #include "tracker-topanalyzer.h"
-#endif
+#endif /* HAVE_STREAMANALYZER */
 
 #define MAX_EXTRACT_TIME 10
 
@@ -93,9 +93,9 @@ tracker_extract_class_init (TrackerExtractClass *klass)
 static void
 tracker_extract_init (TrackerExtract *object)
 {
-#ifdef HAVE_STREAMANALYZER
+#ifdef HAVE_LIBSTREAMANALYZER
 	tracker_topanalyzer_init ();
-#endif
+#endif /* HAVE_STREAMANALYZER */
 }
 
 static void
@@ -105,9 +105,9 @@ tracker_extract_finalize (GObject *object)
 
 	priv = TRACKER_EXTRACT_GET_PRIVATE (object);
 
-#ifdef HAVE_STREAMANALYZER
+#ifdef HAVE_LIBSTREAMANALYZER
 	tracker_topanalyzer_shutdown ();
-#endif
+#endif /* HAVE_STREAMANALYZER */
 
 	g_array_free (priv->specific_extractors, TRUE);
 	g_array_free (priv->generic_extractors, TRUE);
@@ -140,6 +140,11 @@ tracker_extract_new (gboolean disable_shutdown)
 		return NULL;
 	}
 
+#ifdef HAVE_LIBSTREAMANALYZER
+	g_message ("Adding extractor for libstreamanalyzer");
+	g_message ("  Generic  match for ALL (tried first before our module)");
+	g_message ("  Specific match for NONE (fallback to our modules)");
+#endif /* HAVE_STREAMANALYZER */
 	specific_extractors = g_array_new (FALSE,
 					   TRUE,
 					   sizeof (ModuleData));
@@ -226,13 +231,17 @@ get_file_metadata (TrackerExtract *extract,
 
 	tracker_sparql_builder_insert_open (statements);
 
-#ifdef HAVE_STREAMANALYZER
+#ifdef HAVE_LIBSTREAMANALYZER
+	tracker_dbus_request_comment (request_id,
+				      "  Extracting with libstreamanalyzer...");
+
 	tracker_topanalyzer_extract (uri, statements, &content_type);
 
-	if ((!mime || mime[0]=='\0') && content_type) {
-		mime = content_type;
+	if (tracker_sparql_builder_get_length (statements) > 0) {
+		tracker_sparql_builder_insert_close (statements);
+		return statements;
 	}
-#endif
+#endif /* HAVE_LIBSTREAMANALYZER */
 
 	if (mime && *mime) {
 		/* We know the mime */

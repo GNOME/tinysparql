@@ -233,7 +233,7 @@ namespace Tracker {
 		                               value.c_str());
 	}
 
-	void Tracker::TripleCollector::finishAnalysis (const AnalysisResult* ) { }
+	void Tracker::TripleCollector::finishAnalysis (const AnalysisResult*) { }
 }
 
 typedef struct {
@@ -245,7 +245,7 @@ typedef struct {
 static void
 private_free (gpointer data)
 {
-	TrackerTopanalyzerPrivate *priv = (TrackerTopanalyzerPrivate *) data;
+	TrackerTopanalyzerPrivate *priv = (TrackerTopanalyzerPrivate*) data;
 
 	delete priv->mconfig;
 	delete priv->streamindexer;
@@ -263,7 +263,7 @@ tracker_topanalyzer_init (void)
 	 * filetype or file, you can inherit a Strigi::AnalyzerConfiguration
 	 * and have some tuning this way. */
 
-	FieldRegister::FieldRegister();
+	FieldRegister::FieldRegister ();
 
 	priv = g_new0 (TrackerTopanalyzerPrivate, 1);
 
@@ -285,12 +285,14 @@ tracker_topanalyzer_shutdown (void)
 }
 
 void
-tracker_topanalyzer_extract (const gchar *uri, TrackerSparqlBuilder  *metadata, gchar **content_type)
+tracker_topanalyzer_extract (const gchar           *uri, 
+			     TrackerSparqlBuilder  *metadata, 
+			     gchar                **content_type)
 {
-	gchar *filename;
 	TrackerTopanalyzerPrivate *priv;
+	gchar *filename;
 
-	priv = (TrackerTopanalyzerPrivate *) g_static_private_get (&private_key);
+	priv = (TrackerTopanalyzerPrivate*) g_static_private_get (&private_key);
 	g_return_if_fail (priv != NULL);
 
 	/* We need the filename from the URI because we'll use stat() and because
@@ -307,7 +309,7 @@ tracker_topanalyzer_extract (const gchar *uri, TrackerSparqlBuilder  *metadata, 
 		 * implementation does (collecting triples) */
 
 		priv->m_writer->setParams (uri, metadata);
-		stat(filename, &s);
+		stat (filename, &s);
 
 		/* The first parameter that we pass here will influence what 
 		 * idx->path() will be above. StreamAnalyzer only ever appends
@@ -339,10 +341,11 @@ tracker_topanalyzer_extract (const gchar *uri, TrackerSparqlBuilder  *metadata, 
 		FileInputStream resource (filename);
 
 		if (resource.status() == Ok) {
-			analysisresult.index(&resource);
+			analysisresult.index (&resource);
 
-			if (content_type && priv->m_writer->content_type)
+			if (content_type && priv->m_writer->content_type) {
 				*content_type = g_strdup (priv->m_writer->content_type);
+			}
 		}
 
 		g_free (filename);

@@ -151,7 +151,7 @@ HILDON_THUMBNAIL_REQUIRED=3.0.10
 EVO_REQUIRED=2.25.5
 EDS_REQUIRED=2.25.5
 # Unlikely version for now, Nepomuk integration isn't finished in streamanalyzer atm
-STREAMANALYZER_REQUIRED=9.9.9
+LIBSTREAMANALYZER_REQUIRED=0.7.0
 GEE_REQUIRED=0.3
 
 # Library Checks
@@ -201,12 +201,18 @@ AC_SUBST(GCONF_LIBS)
 AM_CONDITIONAL(HAVE_GCONF, test "$have_gconf" = "yes")
 
 # Check for Streamanalyzer
-PKG_CHECK_MODULES(STREAMANALYZER, [libstreamanalyzer >= $STREAMANALYZER_REQUIRED],
-		  [have_streamanalyzer=yes], [have_streamanalyzer=no])
-AC_SUBST(STREAMANALYZER_CFLAGS)
-AC_SUBST(STREAMANALYZER_LIBS)
+PKG_CHECK_MODULES(LIBSTREAMANALYZER, 
+	          [libstreamanalyzer >= $LIBSTREAMANALYZER_REQUIRED],
+		  [have_libstreamanalyzer=yes], 
+		  [have_libstreamanalyzer=no])
+AC_SUBST(LIBSTREAMANALYZER_CFLAGS)
+AC_SUBST(LIBSTREAMANALYZER_LIBS)
 
-AM_CONDITIONAL(HAVE_STREAMANALYZER, test "$have_streamanalyzer" = "yes")
+AM_CONDITIONAL(HAVE_LIBSTREAMANALYZER, test "$have_libstreamanalyzer" = "yes")
+
+if test x$have_libstreamanalyzer == "xyes"; then
+  AC_DEFINE(HAVE_LIBSTREAMANALYZER, 1, [libstreamanalyzer is available])
+fi
 
 # Check for libuuid
 PKG_CHECK_MODULES(UUID, [uuid])
@@ -1466,7 +1472,7 @@ Applications:
 
 Metadata Extractors:
 
-	Support StreamAnalyzer:			$have_streamanalyzer
+	Support libstreamanalyzer:		$have_libstreamanalyzer
 	Support PNG:				yes
 	Support PDF:				$have_poppler_glib
 	Support JPEG:				$have_libjpeg (xmp: $have_exempi, exif: $have_libexif, iptc: $have_libiptcdata)
