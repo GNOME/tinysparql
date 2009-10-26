@@ -103,14 +103,10 @@ static void     mount_point_removed_cb        (TrackerStorage       *storage,
 					       const gchar          *udi,
 					       const gchar          *mount_point,
 					       gpointer              user_data);
-static void     on_battery_cb                 (GObject              *gobject,
-					       GParamSpec           *arg1,
-					       gpointer              user_data);
-static void     on_low_battery_cb             (GObject              *object,
+
+static void     check_battery_status          (TrackerMinerFiles    *fs);
+static void     battery_status_cb             (GObject              *object,
 					       GParamSpec           *pspec,
-					       gpointer              user_data);
-static void     on_battery_percentage_cb      (GObject              *gobject,
-					       GParamSpec           *arg1,
 					       gpointer              user_data);
 #endif
 
@@ -194,13 +190,10 @@ tracker_miner_files_init (TrackerMinerFiles *mf)
 	priv->power = tracker_power_new ();
 
 	g_signal_connect (priv->power, "notify::on-low-battery",
-			  G_CALLBACK (on_low_battery_cb),
+			  G_CALLBACK (battery_status_cb),
 			  mf);
 	g_signal_connect (priv->power, "notify::on-battery",
-			  G_CALLBACK (on_battery_cb),
-			  mf);
-	g_signal_connect (priv->power, "notify::battery-percentage",
-			  G_CALLBACK (on_battery_percentage_cb),
+			  G_CALLBACK (battery_status_cb),
 			  mf);
 #endif /* HAVE_HAL */
 
@@ -294,21 +287,7 @@ miner_files_finalize (GObject *object)
 	disk_space_check_stop (TRACKER_MINER_FILES (object));
 
 #ifdef HAVE_HAL
-	g_signal_handlers_disconnect_by_func (priv->power,
-					      on_battery_percentage_cb,
-					      mf);
-	g_signal_handlers_disconnect_by_func (priv->power,
-					      on_battery_cb,
-					      mf);
-	g_signal_handlers_disconnect_by_func (priv->power,
-					      on_low_battery_cb,
-					      mf);
         g_object_unref (priv->power);
-
-	g_signal_handlers_disconnect_by_func (priv->storage,
-					      mount_point_added_cb,
-					      mf);
-
         g_object_unref (priv->storage);
 #endif /* HAVE_HAL */
 
@@ -343,6 +322,8 @@ miner_files_constructed (GObject *object)
         if (tracker_config_get_index_removable_devices (mf->private->config)) {
                 mounts = tracker_storage_get_removable_device_roots (mf->private->storage);
         }
+
+	check_battery_status (mf);
 #endif /* HAVE_HAL */
 
 	g_message ("Setting up directories to iterate from config (IndexSingleDirectory)");
@@ -733,57 +714,34 @@ set_up_throttle (TrackerMinerFiles *mf,
 }
 
 static void
-on_battery_cb (GObject    *gobject,
-	       GParamSpec *arg1,
-	       gpointer    user_data)
+check_battery_status (TrackerMinerFiles *mf)
 {
-	TrackerMinerFiles *mf = user_data;
-	gboolean on_battery;
-
-	set_up_throttle (mf, TRUE);
-	on_battery = tracker_power_get_on_battery (mf->private->power);
-
-	if (on_battery) {
-		/* We only pause on low battery */
-		return;
-	}
-
-	/* Resume if we are not on battery */
-	if (mf->private->low_battery_pause_cookie != 0) {
-		tracker_miner_resume (TRACKER_MINER (mf),
-				      mf->private->low_battery_pause_cookie,
-				      NULL);
-		mf->private->low_battery_pause_cookie = 0;
-	}
-}
-
-static void
-on_low_battery_cb (GObject    *object,
-		   GParamSpec *pspec,
-		   gpointer    user_data)
-{
-	TrackerMinerFiles *mf = user_data;
-	gboolean on_low_battery;
-	gboolean on_battery;
+	gboolean on_battery, on_low_battery;
 	gboolean should_pause = FALSE;
+	gboolean should_throttle = FALSE;
 
 	on_low_battery = tracker_power_get_on_low_battery (mf->private->power);
 	on_battery = tracker_power_get_on_battery (mf->private->power);
 
-	if (on_battery && on_low_battery) {
-		gdouble percentage;
+	if (!on_battery) {
+		g_message ("Running on AC power");
+		should_pause = FALSE;
+		should_throttle = FALSE;
+	} else {
+		g_message ("Running on battery");
 
-		should_pause = TRUE;
-		percentage = tracker_power_get_battery_percentage (mf->private->power);
+		should_throttle = TRUE;
 
-		g_message ("WARNING: Available battery power is getting low (%.0f%%)",
-			   percentage * 100);
+		if (on_low_battery) {
+			g_message ("  Battery is LOW, pausing");
+			should_pause = TRUE;
+		}
 	}
 
 	if (should_pause) {
 		/* Don't try to pause again */
 		if (mf->private->low_battery_pause_cookie == 0) {
-			mf->private->low_battery_pause_cookie = 
+			mf->private->low_battery_pause_cookie =
 				tracker_miner_pause (TRACKER_MINER (mf),
 						     _("Low battery"),
 						     NULL);
@@ -798,21 +756,17 @@ on_low_battery_cb (GObject    *object,
 		}
 	}
 
-	set_up_throttle (mf, FALSE);
+	set_up_throttle (mf, should_throttle);
 }
 
 static void
-on_battery_percentage_cb (GObject    *gobject,
-			  GParamSpec *arg1,
-			  gpointer    user_data)
+battery_status_cb (GObject    *object,
+		   GParamSpec *pspec,
+		   gpointer    user_data)
 {
 	TrackerMinerFiles *mf = user_data;
-	gdouble percentage;
 
-	percentage = tracker_power_get_battery_percentage (mf->private->power);
-
-	g_message ("Battery percentage is now %.0f%%",
-		   percentage * 100);
+	check_battery_status (mf);
 }
 
 #endif /* HAVE_HAL */
