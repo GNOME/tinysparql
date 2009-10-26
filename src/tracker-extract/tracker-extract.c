@@ -250,6 +250,7 @@ get_file_metadata (TrackerExtract *extract,
 		tracker_topanalyzer_extract (uri, statements, &content_type);
 		
 		if (tracker_sparql_builder_get_length (statements) > 0) {
+			g_free (content_type);
 			tracker_sparql_builder_insert_close (statements);
 			return statements;
 		}
@@ -263,6 +264,10 @@ get_file_metadata (TrackerExtract *extract,
 		/* We know the mime */
 		mime_used = g_strdup (mime);
 		g_strstrip (mime_used);
+	} else if (content_type && *content_type) {
+		/* We know the mime from LSA */
+		mime_used = content_type;
+		g_strstrip (mime_used);
 	} else {
 		GFile *file;
 		GFileInfo *info;
@@ -272,7 +277,6 @@ get_file_metadata (TrackerExtract *extract,
 		if (!file) {
 			g_warning ("Could not create GFile for uri:'%s'",
 				   uri);
-			g_free (content_type);
 			g_object_unref (statements);
 			return NULL;
 		}
@@ -294,7 +298,6 @@ get_file_metadata (TrackerExtract *extract,
 			}
 
 			g_object_unref (file);
-			g_free (content_type);
 			g_object_unref (statements);
 			return NULL;
 		}
@@ -344,7 +347,6 @@ get_file_metadata (TrackerExtract *extract,
 				tracker_sparql_builder_insert_close (statements);
 
 				g_free (mime_used);
-				g_free (content_type);
 
 				return statements;
 			}
@@ -378,7 +380,6 @@ get_file_metadata (TrackerExtract *extract,
 				tracker_sparql_builder_insert_close (statements);
 
 				g_free (mime_used);
-				g_free (content_type);
 
 				return statements;
 			}
@@ -394,8 +395,6 @@ get_file_metadata (TrackerExtract *extract,
 	}
 
 	tracker_sparql_builder_insert_close (statements);
-
-	g_free (content_type);
 
 	return statements;
 }
