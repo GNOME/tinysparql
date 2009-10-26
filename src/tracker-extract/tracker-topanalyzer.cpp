@@ -58,41 +58,53 @@ namespace Tracker {
 	class TripleCollector : public Strigi::IndexWriter
 	{
 	public:
-		TripleCollector ();
-		~TripleCollector ();
+		TripleCollector        ();
+		~TripleCollector       ();
 
-		void commit();
-		void deleteEntries( const std::vector<std::string>& entries );
-		void deleteAllEntries();
-		void initWriterData( const Strigi::FieldRegister& );
-		void releaseWriterData( const Strigi::FieldRegister& );
-		void startAnalysis( const AnalysisResult* );
-		void addText( const AnalysisResult*, const char* text, int32_t length );
-		void addValue( const AnalysisResult*, const RegisteredField* field,
-			       const std::string& value );
-		void addValue( const AnalysisResult*, const RegisteredField* field,
-			       const unsigned char* data, uint32_t size );
-		void addValue( const AnalysisResult*, const RegisteredField* field,
-			       int32_t value );
-		void addValue( const AnalysisResult*, const RegisteredField* field,
-			       uint32_t value );
-		void addValue( const AnalysisResult*, const RegisteredField* field,
-			       double value );
-		void addTriplet( const std::string& subject,
-				 const std::string& predicate, const std::string& object );
-		void addValue( const AnalysisResult*, const RegisteredField* field,
-			       const std::string& name, const std::string& value );
-		void finishAnalysis( const AnalysisResult* );
-		void setParams (const gchar *uri_, TrackerSparqlBuilder *metadata_);
+		void commit            ();
+		void deleteEntries     (const std::vector<std::string>& entries);
+		void deleteAllEntries  ();
+		void initWriterData    (const Strigi::FieldRegister&);
+		void releaseWriterData (const Strigi::FieldRegister&);
+		void startAnalysis     (const AnalysisResult*);
+		void addText           (const AnalysisResult*, 
+		                        const char* text, 
+		                        int32_t length);
+		void addValue          (const AnalysisResult*, 
+		                        const RegisteredField* field,
+		                        const std::string& value);
+		void addValue          (const AnalysisResult*, 
+		                        const RegisteredField* field,
+		                        const unsigned char* data, 
+		                        uint32_t size);
+		void addValue          (const AnalysisResult*, 
+		                        const RegisteredField* field,
+		                        int32_t value);
+		void addValue          (const AnalysisResult*, 
+		                        const RegisteredField* field,
+		                        uint32_t value);
+		void addValue          (const AnalysisResult*, 
+		                        const RegisteredField* field,
+		                        double value);
+		void addTriplet        (const std::string& subject,
+		                        const std::string& predicate, 
+		                        const std::string& object);
+		void addValue          (const AnalysisResult*, 
+		                        const RegisteredField* field,
+		                        const std::string& name, 
+		                        const std::string& value);
+		void finishAnalysis    (const AnalysisResult*);
+		void setParams         (const gchar *uri_, 
+		                        TrackerSparqlBuilder *metadata_);
 
-		gchar *content_type;
+		gchar                  *content_type;
 
 	private:
 		const gchar* PredicateMapping (const RegisteredField *field);
 		const gchar* PredicateMapping (const std::string &key);
 
-		const gchar *uri;
-		TrackerSparqlBuilder *metadata;
+		const gchar                   *uri;
+		TrackerSparqlBuilder          *metadata;
 	};
 
 	Tracker::TripleCollector::TripleCollector () 
@@ -127,8 +139,8 @@ namespace Tracker {
 	                                        int32_t length)
 	{
 		tracker_statement_list_insert (metadata, idx->path().c_str(),
-		                          NIE_PREFIX "plainTextContent",
-		                          text);
+		                               NIE_PREFIX "plainTextContent",
+		                               text);
 	}
 
 	const gchar* Tracker::TripleCollector::PredicateMapping (const std::string &key)
@@ -155,8 +167,8 @@ namespace Tracker {
 		}
 
 		tracker_statement_list_insert (metadata, idx->path().c_str(), 
-		                          PredicateMapping (field),
-		                          value.c_str());
+		                               PredicateMapping (field),
+		                               value.c_str());
 	}
 
 	void Tracker::TripleCollector::addValue (const AnalysisResult* idx, 
@@ -165,8 +177,8 @@ namespace Tracker {
 	                                         uint32_t size )
 	{
 		tracker_statement_list_insert (metadata, idx->path().c_str(),
-		                          PredicateMapping (field),
-		                          (const gchar*) data);
+		                               PredicateMapping (field),
+		                               (const gchar*) data);
 	}
 
 	void Tracker::TripleCollector::addValue (const AnalysisResult* idx, 
@@ -174,8 +186,8 @@ namespace Tracker {
 	                                         int32_t value)
 	{
 		tracker_statement_list_insert_with_int (metadata, idx->path().c_str(), 
-		                                   PredicateMapping (field),
-		                                   (gint) value);
+		                                        PredicateMapping (field),
+		                                        (gint) value);
 	}
 
 	void Tracker::TripleCollector::addValue (const AnalysisResult* idx, 
@@ -183,8 +195,8 @@ namespace Tracker {
 	                                         uint32_t value ) 
 	{
 		tracker_statement_list_insert_with_int (metadata, idx->path().c_str(),
-		                                   PredicateMapping (field),
-		                                   (gint) value);
+		                                        PredicateMapping (field),
+		                                        (gint) value);
 	}
 
 	void Tracker::TripleCollector::addValue (const AnalysisResult* idx, 
@@ -192,8 +204,8 @@ namespace Tracker {
 	                                         double value ) 
 	{
 		tracker_statement_list_insert_with_double (metadata, idx->path().c_str(), 
-		                                      PredicateMapping (field),
-		                                      (gdouble) value);
+		                                           PredicateMapping (field),
+		                                           (gdouble) value);
 	}
 
 	void Tracker::TripleCollector::addTriplet (const std::string& subject,
@@ -201,8 +213,8 @@ namespace Tracker {
 	                                           const std::string& object ) 
 	{
 		tracker_statement_list_insert (metadata, subject.c_str(), 
-		                          PredicateMapping (predicate),
-		                          object.c_str());
+		                               PredicateMapping (predicate),
+		                               object.c_str());
 	}
 
 	void Tracker::TripleCollector::addValue (const AnalysisResult* idx, 
@@ -217,8 +229,8 @@ namespace Tracker {
 		}
 
 		tracker_statement_list_insert (metadata, idx->path().c_str(),
-		                          PredicateMapping (name),
-		                          value.c_str());
+		                               PredicateMapping (name),
+		                               value.c_str());
 	}
 
 	void Tracker::TripleCollector::finishAnalysis (const AnalysisResult* ) { }
@@ -229,7 +241,6 @@ typedef struct {
 	Strigi::StreamAnalyzer *streamindexer;
 	Tracker::TripleCollector *m_writer;
 } TrackerTopanalyzerPrivate;
-
 
 static void
 private_free (gpointer data)
@@ -263,8 +274,8 @@ tracker_topanalyzer_init (void)
 	priv->streamindexer->setIndexWriter (*priv->m_writer);
 
 	g_static_private_set (&private_key,
-			      priv,
-			      private_free);
+	                      priv,
+	                      private_free);
 }
 
 void
@@ -310,8 +321,8 @@ tracker_topanalyzer_extract (const gchar *uri, TrackerSparqlBuilder  *metadata, 
 		 * For example the URI of a tar.gz will go like this:
 		 *
 		 * file:///path/to/my.tar.gz
-		 * file:///path/to.my.tar.gz/dir_in_tar/file1.txt
-		 * file:///path/to.my.tar.gz/dir_in_tar/file2.txt
+		 * file:///path/to/my.tar.gz/dir_in_tar/file1.txt
+		 * file:///path/to/my.tar.gz/dir_in_tar/file2.txt
 		 *
 		 * The URI passed here doesn't mean the stream passed later must
 		 * not really resemble the URI. Usually it will of course.
