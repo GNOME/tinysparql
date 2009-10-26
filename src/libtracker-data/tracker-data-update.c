@@ -696,38 +696,13 @@ get_property_values (TrackerProperty *property)
 	return old_values;
 }
 
-static void
-cache_set_metadata_decomposed (TrackerProperty	*property,
-			       const gchar	*value,
-			       GError          **error)
+static GValueArray *
+get_old_property_values (TrackerProperty  *property,
+                         GError          **error)
 {
-	guint32		    object_id;
-	gboolean            multiple_values, fts;
-	gchar              *table_name;
-	const gchar        *field_name;
-	TrackerProperty   **properties, **super_properties, **prop;
-	GValue gvalue = { 0 };
+	gboolean            fts;
+	TrackerProperty   **properties, **prop;
 	GValueArray        *old_values;
-
-	/* also insert super property values */
-	super_properties = tracker_property_get_super_properties (property);
-	while (*super_properties) {
-		cache_set_metadata_decomposed (*super_properties, value, error);
-		if (*error) {
-			return;
-		}
-		super_properties++;
-	}
-
-	multiple_values = tracker_property_get_multiple_values (property);
-	if (multiple_values) {
-		table_name = g_strdup_printf ("%s_%s",
-			tracker_class_get_name (tracker_property_get_domain (property)),
-			tracker_property_get_name (property));
-	} else {
-		table_name = g_strdup (tracker_class_get_name (tracker_property_get_domain (property)));
-	}
-	field_name = tracker_property_get_name (property);
 
 	fts = tracker_property_get_fulltext_indexed (property);
 
@@ -739,9 +714,8 @@ cache_set_metadata_decomposed (TrackerProperty	*property,
 				     "Subject `%s' is not in domain `%s' of property `%s'",
 				     resource_buffer->subject,
 				     tracker_class_get_name (tracker_property_get_domain (property)),
-				     field_name);
-			g_free (table_name);
-			return;
+				     tracker_property_get_name (property));
+			return NULL;
 		}
 
 		if (fts && !resource_buffer->fts_updated && !resource_buffer->create) {
@@ -777,6 +751,51 @@ cache_set_metadata_decomposed (TrackerProperty	*property,
 		if (fts) {
 			resource_buffer->fts_updated = TRUE;
 		}
+	}
+
+	return old_values;
+}
+
+static void
+cache_set_metadata_decomposed (TrackerProperty	*property,
+			       const gchar	*value,
+			       GError          **error)
+{
+	guint32		    object_id;
+	gboolean            multiple_values, fts;
+	gchar              *table_name;
+	const gchar        *field_name;
+	TrackerProperty   **super_properties;
+	GValue gvalue = { 0 };
+	GValueArray        *old_values;
+
+	/* also insert super property values */
+	super_properties = tracker_property_get_super_properties (property);
+	while (*super_properties) {
+		cache_set_metadata_decomposed (*super_properties, value, error);
+		if (*error) {
+			return;
+		}
+		super_properties++;
+	}
+
+	multiple_values = tracker_property_get_multiple_values (property);
+	if (multiple_values) {
+		table_name = g_strdup_printf ("%s_%s",
+			tracker_class_get_name (tracker_property_get_domain (property)),
+			tracker_property_get_name (property));
+	} else {
+		table_name = g_strdup (tracker_class_get_name (tracker_property_get_domain (property)));
+	}
+	field_name = tracker_property_get_name (property);
+
+	fts = tracker_property_get_fulltext_indexed (property);
+
+	/* read existing property values */
+	old_values = get_old_property_values (property, error);
+	if (*error) {
+		g_free (table_name);
+		return;
 	}
 
 	switch (tracker_property_get_data_type (property)) {
