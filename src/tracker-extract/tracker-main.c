@@ -70,10 +70,12 @@ static GMainLoop  *main_loop;
 static guint       quit_timeout_id = 0;
 
 static gboolean    version;
-static gboolean    disable_shutdown;
 static gint        verbosity = -1;
 static gchar      *filename;
 static gchar      *mime_type;
+static gboolean    disable_shutdown;
+static gboolean    force_internal_extractors;
+
 static TrackerFTSConfig *fts_config;
 
 static GOptionEntry  entries[] = {
@@ -100,7 +102,10 @@ static GOptionEntry  entries[] = {
 	  G_OPTION_ARG_NONE, &disable_shutdown,
 	  N_("Disable shutting down after 30 seconds of inactivity"),
 	  NULL },
-
+	{ "force-internal-extractors", 'i', 0,
+	  G_OPTION_ARG_NONE, &force_internal_extractors,
+	  N_("Force internal extractors over 3rd parties like libstreamanalyzer"),
+	  NULL },
 	{ NULL }
 };
 
@@ -353,7 +358,8 @@ main (int argc, char *argv[])
 		GFile *file;
 		gchar *uri;
 
-		extract = tracker_extract_new (disable_shutdown);
+		extract = tracker_extract_new (disable_shutdown, 
+					       force_internal_extractors);
 		if (!extract) {
 			return EXIT_FAILURE;
 		}
@@ -390,7 +396,8 @@ main (int argc, char *argv[])
 	g_free (log_filename);
 
 	/* Make Tracker available for introspection */
-	if (!tracker_dbus_register_objects (disable_shutdown)) {
+	if (!tracker_dbus_register_objects (disable_shutdown,
+					    force_internal_extractors)) {
 		g_object_unref (config);
 
 		return EXIT_FAILURE;

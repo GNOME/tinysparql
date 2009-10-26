@@ -48,6 +48,7 @@ typedef struct {
 	GArray *specific_extractors;
 	GArray *generic_extractors;
 	gboolean disable_shutdown;
+	gboolean force_internal_extractors;
 } TrackerExtractPrivate;
 
 typedef struct { 
@@ -116,7 +117,8 @@ tracker_extract_finalize (GObject *object)
 }
 
 TrackerExtract *
-tracker_extract_new (gboolean disable_shutdown)
+tracker_extract_new (gboolean disable_shutdown,
+		     gboolean force_internal_extractors)
 {
 	TrackerExtract *object;
 	TrackerExtractPrivate *priv;
@@ -141,9 +143,14 @@ tracker_extract_new (gboolean disable_shutdown)
 	}
 
 #ifdef HAVE_LIBSTREAMANALYZER
-	g_message ("Adding extractor for libstreamanalyzer");
-	g_message ("  Generic  match for ALL (tried first before our module)");
-	g_message ("  Specific match for NONE (fallback to our modules)");
+	if (!force_internal_extractors) {
+		g_message ("Adding extractor for libstreamanalyzer");
+		g_message ("  Generic  match for ALL (tried first before our module)");
+		g_message ("  Specific match for NONE (fallback to our modules)");
+	} else {
+		g_message ("Not using libstreamanalyzer");
+		g_message ("  It is available but disabled by command line");
+	}
 #endif /* HAVE_STREAMANALYZER */
 	specific_extractors = g_array_new (FALSE,
 					   TRUE,
@@ -209,6 +216,7 @@ tracker_extract_new (gboolean disable_shutdown)
 	priv = TRACKER_EXTRACT_GET_PRIVATE (object);
 
 	priv->disable_shutdown = disable_shutdown;
+	priv->force_internal_extractors = force_internal_extractors;
 
 	priv->specific_extractors = specific_extractors;
 	priv->generic_extractors = generic_extractors;
@@ -222,9 +230,12 @@ get_file_metadata (TrackerExtract *extract,
 		   const gchar    *uri,
 		   const gchar    *mime)
 {
+	TrackerExtractPrivate *priv;
 	TrackerSparqlBuilder *statements;
 	gchar *mime_used = NULL;
 	gchar *content_type = NULL;
+
+	priv = TRACKER_EXTRACT_GET_PRIVATE (extract);
 
 	/* Create hash table to send back */
 	statements = tracker_sparql_builder_new_update ();
@@ -232,14 +243,19 @@ get_file_metadata (TrackerExtract *extract,
 	tracker_sparql_builder_insert_open (statements);
 
 #ifdef HAVE_LIBSTREAMANALYZER
-	tracker_dbus_request_comment (request_id,
-				      "  Extracting with libstreamanalyzer...");
-
-	tracker_topanalyzer_extract (uri, statements, &content_type);
-
-	if (tracker_sparql_builder_get_length (statements) > 0) {
-		tracker_sparql_builder_insert_close (statements);
-		return statements;
+	if (!priv->force_internal_extractors) {
+		tracker_dbus_request_comment (request_id,
+					      "  Extracting with libstreamanalyzer...");
+		
+		tracker_topanalyzer_extract (uri, statements, &content_type);
+		
+		if (tracker_sparql_builder_get_length (statements) > 0) {
+			tracker_sparql_builder_insert_close (statements);
+			return statements;
+		}
+	} else {
+		tracker_dbus_request_comment (request_id,
+					      "  Extracting with internal extractors ONLY...");
 	}
 #endif /* HAVE_LIBSTREAMANALYZER */
 
@@ -298,10 +314,7 @@ get_file_metadata (TrackerExtract *extract,
 	 * data we need from the extractors.
 	 */
 	if (mime_used) {
-		TrackerExtractPrivate *priv;
 		guint i;
-
-		priv = TRACKER_EXTRACT_GET_PRIVATE (extract);
 
 		for (i = 0; i < priv->specific_extractors->len; i++) {
 			const TrackerExtractData *edata;

@@ -153,7 +153,8 @@ tracker_dbus_shutdown (void)
 }
 
 gboolean
-tracker_dbus_register_objects (gboolean disable_shutdown)
+tracker_dbus_register_objects (gboolean disable_shutdown,
+			       gboolean internal_extractors)
 {
 	gpointer object;
 
@@ -163,7 +164,8 @@ tracker_dbus_register_objects (gboolean disable_shutdown)
 	}
 
 	/* Add org.freedesktop.Tracker1.Extract */
-	object = tracker_extract_new (disable_shutdown);
+	object = tracker_extract_new (disable_shutdown,
+				      internal_extractors);
 	if (!object) {
 		g_critical ("Could not create TrackerExtract object to register");
 		return FALSE;
