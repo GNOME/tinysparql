@@ -90,14 +90,16 @@ struct TrackerDBStatementIface {
 	void		     (* bind_int)	(TrackerDBStatement  *stmt,
 						 int		      index,
 						 int		      value);
+	void		     (* bind_int64)	(TrackerDBStatement  *stmt,
+						 int		      index,
+						 gint64		      value);
+	void		     (* bind_null)	(TrackerDBStatement  *stmt,
+						 int		      index);
 	void		     (* bind_text)	(TrackerDBStatement  *stmt,
 						 int		      index,
 						 const gchar	     *value);
 	TrackerDBResultSet * (* execute)	(TrackerDBStatement  *stmt,
 						 GError		    **error);
-	void		     (* bind_int64)	(TrackerDBStatement  *stmt,
-						 int		      index,
-						 gint64		      value);
 	TrackerDBCursor    * (* start_cursor)	(TrackerDBStatement  *stmt,
 						 GError		    **error);
 };
@@ -161,6 +163,8 @@ void                tracker_db_statement_bind_int          (TrackerDBStatement  
 void                tracker_db_statement_bind_int64        (TrackerDBStatement  *stmt,
 							    int                  index,
 							    gint64               value);
+void                tracker_db_statement_bind_null         (TrackerDBStatement  *stmt,
+							    int                  index);
 void                tracker_db_statement_bind_text         (TrackerDBStatement  *stmt,
 							    int                  index,
 							    const gchar         *value);

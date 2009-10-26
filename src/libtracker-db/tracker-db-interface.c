@@ -439,6 +439,15 @@ tracker_db_statement_bind_int64 (TrackerDBStatement	*stmt,
 }
 
 void
+tracker_db_statement_bind_null (TrackerDBStatement	*stmt,
+				int			 idx)
+{
+	g_return_if_fail (TRACKER_IS_DB_STATEMENT (stmt));
+
+	TRACKER_DB_STATEMENT_GET_IFACE (stmt)->bind_null (stmt, idx);
+}
+
+void
 tracker_db_statement_bind_text (TrackerDBStatement	*stmt,
 				int			 idx,
 				const gchar		*value)
