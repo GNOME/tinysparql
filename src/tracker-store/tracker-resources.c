@@ -392,6 +392,13 @@ on_statements_committed (gpointer user_data)
 	tracker_events_reset ();
 }
 
+
+static void
+on_statements_rolled_back (gpointer user_data)
+{
+	tracker_events_reset ();
+}
+
 static void
 on_statement_inserted (const gchar *subject,
 		       const gchar *predicate,
@@ -434,6 +441,7 @@ tracker_resources_prepare (TrackerResources *object,
 	tracker_data_set_insert_statement_callback (on_statement_inserted, object);
 	tracker_data_set_delete_statement_callback (on_statement_deleted, object);
 	tracker_data_set_commit_statement_callback (on_statements_committed, object);
+	tracker_data_set_rollback_statement_callback (on_statements_rolled_back, object);
 
 	priv->event_sources = event_sources;
 }

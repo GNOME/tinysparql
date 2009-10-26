@@ -104,6 +104,8 @@ static TrackerStatementCallback delete_callback = NULL;
 static gpointer delete_data;
 static TrackerCommitCallback commit_callback = NULL;
 static gpointer commit_data;
+static TrackerCommitCallback rollback_callback = NULL;
+static gpointer rollback_data;
 
 void 
 tracker_data_set_commit_statement_callback (TrackerCommitCallback    callback,
@@ -111,6 +113,14 @@ tracker_data_set_commit_statement_callback (TrackerCommitCallback    callback,
 {
 	commit_callback = callback;
 	commit_data = user_data;
+}
+
+void
+tracker_data_set_rollback_statement_callback (TrackerCommitCallback    callback,
+					      gpointer                 user_data)
+{
+	rollback_callback = callback;
+	rollback_data = user_data;
 }
 
 void
@@ -1801,6 +1811,10 @@ tracker_data_update_sparql (const gchar  *update,
 	if (*error) {
 		tracker_data_update_buffer_clear ();
 		tracker_db_interface_execute_query (iface, NULL, "ROLLBACK TO sparql");
+
+		if (rollback_callback) {
+			rollback_callback (commit_data);
+		}
 	}
 
 	tracker_db_interface_execute_query (iface, NULL, "RELEASE sparql");

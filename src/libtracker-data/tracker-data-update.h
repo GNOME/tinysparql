@@ -90,6 +90,8 @@ void     tracker_data_set_delete_statement_callback (TrackerStatementCallback   
 						     gpointer                   user_data);
 void     tracker_data_set_commit_statement_callback (TrackerCommitCallback      callback,
 						     gpointer                   user_data);
+void     tracker_data_set_rollback_statement_callback (TrackerCommitCallback      callback,
+						       gpointer                   user_data);
 
 G_END_DECLS
 
