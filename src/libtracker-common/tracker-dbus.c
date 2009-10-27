@@ -23,6 +23,7 @@
 #include <gio/gio.h>
 
 #include "tracker-dbus.h"
+#include "tracker-log.h"
 
 struct TrackerDBusRequestHandler {
 	TrackerDBusRequestFunc new;
@@ -332,6 +333,24 @@ tracker_dbus_request_failed (gint	   request_id,
 	g_message ("---> [%d] Failed, %s",
 		   request_id,
 		   str);
+	g_free (str);
+}
+
+void
+tracker_dbus_request_info (gint	        request_id,
+			   const gchar *format,
+			   ...)
+{
+	gchar	*str;
+	va_list  args;
+
+	va_start (args, format);
+	str = g_strdup_vprintf (format, args);
+	va_end (args);
+
+	tracker_info ("---- [%d] %s",
+		      request_id,
+		      str);
 	g_free (str);
 }
 
