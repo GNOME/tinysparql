@@ -3,7 +3,7 @@ include $(top_srcdir)/Makefile.decl
 bin_PROGRAMS = tracker-explorer
 
 tracker_explorer_VALASOURCES = 					\
-	explorer.vala
+	tracker-explorer.vala
 
 tracker_explorer_SOURCES = 					\
 	$(tracker_explorer_VALASOURCES:.vala=.c)
