@@ -421,8 +421,8 @@ tracker_extract_get_metadata_by_cmdline (TrackerExtract *object,
 	statements = get_file_metadata (object, request_id, uri, mime);
 
 	if (statements) {
-		tracker_dbus_request_debug (request_id, "%s",
-		                            tracker_sparql_builder_get_result (statements));
+		tracker_dbus_request_info (request_id, "%s",
+					   tracker_sparql_builder_get_result (statements));
 		g_object_unref (statements);
 	}
 
