@@ -75,7 +75,7 @@ public class History {
 
 public class Explorer {
 
-	private const string UI_FILE = "explorer.ui";
+	private const string UI_FILE = "tracker-explorer.ui";
 	private Resources tracker;
 	private History history = new History();
 	private ListStore uris;
