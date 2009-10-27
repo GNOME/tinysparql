@@ -52,12 +52,11 @@ tracker_info (const gchar *format,
 }
 #endif  /* !__GNUC__ */
 
-
-
-
-gboolean tracker_log_init     (gint    verbosity,
-			       gchar **used_filename);
-void	 tracker_log_shutdown (void);
+gboolean tracker_log_init          (gint             verbosity,
+				    gchar          **used_filename);
+void     tracker_log_shutdown      (void);
+gboolean tracker_log_should_handle (GLogLevelFlags   log_level,
+				    gint             verbosity);
 
 G_END_DECLS
 

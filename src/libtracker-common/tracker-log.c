@@ -126,9 +126,7 @@ tracker_log_handler (const gchar    *domain,
 		     const gchar    *message,
 		     gpointer	     user_data)
 {
-	if (((log_level & G_LOG_LEVEL_DEBUG) && verbosity < 3) ||
-	    ((log_level & G_LOG_LEVEL_INFO) && verbosity < 2) ||
-	    ((log_level & G_LOG_LEVEL_MESSAGE) && verbosity < 1)) {
+	if (!tracker_log_should_handle (log_level, verbosity)) {
 		return;
 	}
 
@@ -173,7 +171,7 @@ tracker_log_init (gint    this_verbosity,
 			   "All logging will go to stderr\n");
 	}
 
-	verbosity = this_verbosity;
+	verbosity = CLAMP (this_verbosity, 0, 3);
 	mutex = g_mutex_new ();
 
 	/* Add log handler function */
@@ -212,4 +210,51 @@ tracker_log_shutdown (void)
 	g_mutex_free (mutex);
 
 	initialized = FALSE;
+}
+
+gboolean
+tracker_log_should_handle (GLogLevelFlags log_level,
+			   gint           this_verbosity)
+{
+	switch (this_verbosity) {
+	/* Log level 3: EVERYTHING */
+	case 3:
+		break;
+
+	/* Log level 2: CRITICAL/ERROR/WARNING/INFO/MESSAGE only */
+	case 2:
+		if (!(log_level & G_LOG_LEVEL_MESSAGE) &&
+		    !(log_level & G_LOG_LEVEL_INFO) &&
+		    !(log_level & G_LOG_LEVEL_WARNING) &&
+		    !(log_level & G_LOG_LEVEL_ERROR) &&
+		    !(log_level & G_LOG_LEVEL_CRITICAL)) {
+			return FALSE;
+		}
+
+		break;
+
+	/* Log level 1: CRITICAL/ERROR/WARNING/INFO only */
+	case 1:
+		if (!(log_level & G_LOG_LEVEL_INFO) &&
+		    !(log_level & G_LOG_LEVEL_WARNING) &&
+		    !(log_level & G_LOG_LEVEL_ERROR) &&
+		    !(log_level & G_LOG_LEVEL_CRITICAL)) {
+			return FALSE;
+		}
+
+		break;
+
+	/* Log level 0: CRITICAL/ERROR/WARNING only (default) */
+	default:
+	case 0:
+		if (!(log_level & G_LOG_LEVEL_WARNING) &&
+		    !(log_level & G_LOG_LEVEL_ERROR) &&
+		    !(log_level & G_LOG_LEVEL_CRITICAL)) {
+			return FALSE;
+		}
+
+		break;
+	}
+
+	return TRUE;
 }
