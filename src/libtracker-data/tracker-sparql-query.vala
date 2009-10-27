@@ -58,7 +58,7 @@ public class Tracker.SparqlQuery : Object {
 
 	// Represents a mapping of a SPARQL variable to a SQL table and column
 	class VariableBinding : DataBinding {
-		public Variable variable;
+		public weak Variable variable;
 		// Specified whether SQL column may contain NULL entries
 		public bool maybe_null;
 		public bool in_simple_optional;
@@ -379,8 +379,8 @@ public class Tracker.SparqlQuery : Object {
 		return "'%s'".printf (string.joinv ("''", literal.split ("'")));
 	}
 
-	Variable get_variable (string name) {
-		var result = var_map.lookup (name);
+	unowned Variable get_variable (string name) {
+		unowned Variable result = var_map.lookup (name);
 		if (result == null) {
 			// use lowercase as SQLite is never case sensitive (not conforming to SQL)
 			string sql_identifier = "%s_u".printf (name).down ();
@@ -392,8 +392,10 @@ public class Tracker.SparqlQuery : Object {
 			}
 			used_sql_identifiers.insert (sql_identifier, true);
 
-			result = new Variable (name, sql_identifier);
-			var_map.insert (name, result);
+			var variable = new Variable (name, sql_identifier);
+			var_map.insert (name, variable);
+
+			result = variable;
 		}
 		return result;
 	}
