@@ -171,7 +171,7 @@ initialize_directories (void)
 					  "tracker",
 					  NULL);
 	
-	g_message ("Checking directory exists:'%s'", user_data_dir);
+	/* g_message ("Checking directory exists:'%s'", user_data_dir); */
 	g_mkdir_with_parents (user_data_dir, 00755);
 
 	g_free (user_data_dir);
@@ -234,9 +234,7 @@ log_handler (const gchar    *domain,
 	     const gchar    *message,
 	     gpointer	     user_data)
 {
-	if (((log_level & G_LOG_LEVEL_DEBUG) && verbosity < 3) ||
-	    ((log_level & G_LOG_LEVEL_INFO) && verbosity < 2) ||
-	    ((log_level & G_LOG_LEVEL_MESSAGE) && verbosity < 1)) {
+	if (!tracker_log_should_handle (log_level, verbosity)) {
 		return;
 	}
 
@@ -270,27 +268,66 @@ tracker_main_get_fts_config (void)
 	return fts_config;
 }
 
+
+static int
+run_standalone (void)
+{
+	TrackerExtract *object;
+	GFile *file;
+	gchar *uri;
+	guint log_handler_id;
+
+	/* Set log handler for library messages */
+	log_handler_id = g_log_set_handler (NULL,
+					    G_LOG_LEVEL_MASK | G_LOG_FLAG_FATAL,
+					    log_handler,
+					    NULL);
+
+	g_log_set_default_handler (log_handler, NULL);
+
+	/* Set the default verbosity if unset */
+	if (verbosity == -1) {
+		verbosity = 3;
+	}
+
+	/* This makes sure we don't steal all the system's resources */
+	initialize_priority ();
+
+	file = g_file_new_for_commandline_arg (filename);
+	uri = g_file_get_uri (file);
+
+	object = tracker_extract_new (disable_shutdown,
+				      force_internal_extractors);
+
+	if (!object) {
+		g_free (uri);
+		return EXIT_FAILURE;
+	}
+
+	tracker_memory_setrlimits ();
+
+	tracker_extract_get_metadata_by_cmdline (object, uri, mime_type);
+
+	g_object_unref (object);
+	g_object_unref (file);
+	g_free (uri);
+
+	if (log_handler_id != 0) {
+		/* Unset log handler */
+		g_log_remove_handler (NULL, log_handler_id);
+	}
+
+	return EXIT_SUCCESS;
+}
+ 
 int
 main (int argc, char *argv[])
 {
 	GOptionContext *context;
 	GError         *error = NULL;
 	TrackerConfig  *config;
-	gchar          *log_filename = NULL;
-	gboolean        stand_alone = FALSE;
-	guint           log_handler_id = 0;
-
-	g_type_init ();
-
-	if (!g_thread_supported ()) {
-		g_thread_init (NULL);
-	}
-
-	dbus_g_thread_init ();
-
-	g_set_application_name ("tracker-extract");
-
-	setlocale (LC_ALL, "");
+        TrackerExtract *object;
+	gchar          *log_filename;
 
 	bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
 	bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
@@ -302,9 +339,6 @@ main (int argc, char *argv[])
 
 	g_option_context_add_main_entries (context, entries, NULL);
 	g_option_context_parse (context, &argc, &argv, &error);
-
-	/* This makes sure we don't steal all the system's resources */
-	initialize_priority ();
 
 	if (!filename && mime_type) {
 		gchar *help;
@@ -328,53 +362,33 @@ main (int argc, char *argv[])
 	}
 
 	g_print ("Initializing tracker-extract...\n");
-	g_print ("  Shutdown after 30 seconds of inactivitiy is %s\n",
-		 disable_shutdown ? "disabled" : "enabled");
+
+	if (!filename) {
+		g_print ("  Shutdown after 30 seconds of inactivitiy is %s\n",
+			 disable_shutdown ? "disabled" : "enabled");
+	}
 
 	initialize_signal_handler ();
 
-	tracker_memory_setrlimits ();
+	g_type_init ();
+
+	if (!g_thread_supported ()) {
+		g_thread_init (NULL);
+	}
+
+	dbus_g_thread_init ();
+
+	g_set_application_name ("tracker-extract");
+
+	setlocale (LC_ALL, "");
 
 	/* Set conditions when we use stand alone settings */
-	stand_alone |= filename != NULL;
-
-	if (stand_alone) {
-		/* Set log handler for library messages */
-		log_handler_id = g_log_set_handler (NULL,
-						    G_LOG_LEVEL_MASK | G_LOG_FLAG_FATAL,
-						    log_handler,
-						    NULL);
-		
-		g_log_set_default_handler (log_handler, NULL);
-
-		/* Set the default verbosity if unset */
-		if (verbosity == -1) {
-			verbosity = 3;
-		}
-	}
-
 	if (filename) {
-		TrackerExtract *extract;
-		GFile *file;
-		gchar *uri;
+		return run_standalone ();
+	} 
 
-		extract = tracker_extract_new (disable_shutdown, 
-					       force_internal_extractors);
-		if (!extract) {
-			return EXIT_FAILURE;
-		}
-
-		file = g_file_new_for_commandline_arg (filename);
-		uri = g_file_get_uri (file);
-
-		tracker_extract_get_metadata_by_cmdline (extract, uri, mime_type);
-
-		g_object_unref (extract);
-		g_object_unref (file);
-		g_free (uri);
-
-		goto done;
-	}
+	/* Initialize subsystems */
+	initialize_directories ();
 
 	config = tracker_config_new ();
 
@@ -383,22 +397,43 @@ main (int argc, char *argv[])
 		tracker_config_set_verbosity (config, verbosity);
 	}
 
-	if (!tracker_dbus_init ()) {
-		return EXIT_FAILURE;
-	}
+	log_filename =
+		g_build_filename (g_get_user_data_dir (),
+				  "tracker",
+				  "tracker-extract.log",
+				  NULL);
 
-	/* Initialize subsystems */
-	initialize_directories ();
-
-	tracker_log_init (tracker_config_get_verbosity (config),
-			  &log_filename);
+	tracker_log_init (tracker_config_get_verbosity (config), NULL);
 	g_print ("Starting log:\n  File:'%s'\n", log_filename);
 	g_free (log_filename);
 
-	/* Make Tracker available for introspection */
-	if (!tracker_dbus_register_objects (disable_shutdown,
-					    force_internal_extractors)) {
+	/* This makes sure we don't steal all the system's resources */
+	initialize_priority ();
+
+	if (!tracker_dbus_init ()) {
 		g_object_unref (config);
+		tracker_log_shutdown ();
+
+		return EXIT_FAILURE;
+	}
+
+	object = tracker_extract_new (disable_shutdown,
+				      force_internal_extractors);
+
+	if (!object) {
+		g_object_unref (config);
+		tracker_log_shutdown ();
+
+		return EXIT_FAILURE;
+	}
+
+	tracker_memory_setrlimits ();
+
+	/* Make Tracker available for introspection */
+	if (!tracker_dbus_register_objects (object)) {
+		g_object_unref (object);
+		g_object_unref (config);
+		tracker_log_shutdown ();
 
 		return EXIT_FAILURE;
 	}
@@ -419,13 +454,6 @@ main (int argc, char *argv[])
 	tracker_log_shutdown ();
 
 	g_object_unref (config);
-
-done:
-
-	if (log_handler_id != 0) {
-		/* Unset log handler */
-		g_log_remove_handler (NULL, log_handler_id);
-	}
 
 	return EXIT_SUCCESS;
 }
