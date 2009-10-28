@@ -31,16 +31,19 @@
 #include <glib.h>
 #include <glib/gi18n.h>
 #include <glib/gprintf.h>
+#include <glib/gstdio.h>
 
 #include <libtracker-common/tracker-common.h>
 #include <libtracker-db/tracker-db.h>
 #include <libtracker-miner/tracker-miner-manager.h>
+#include <libtracker-miner/tracker-crawler.h>
 
 static gboolean     should_kill;
 static gboolean     should_terminate;
 static gboolean     hard_reset;
 static gboolean     soft_reset;
 static gboolean     start;
+static gboolean     remove_config;
 
 static GOptionEntry entries[] = {
 	{ "kill", 'k', 0, G_OPTION_ARG_NONE, &should_kill,
@@ -51,10 +54,13 @@ static GOptionEntry entries[] = {
 	  NULL 
 	},
 	{ "hard-reset", 'r', 0, G_OPTION_ARG_NONE, &hard_reset,
-	  N_("This will kill all Tracker processes and remove all databases"),
+	  N_("Kill all Tracker processes and remove all databases"),
 	  NULL },
 	{ "soft-reset", 'e', 0, G_OPTION_ARG_NONE, &soft_reset,
 	  N_("Same as --hard-reset but the backup & journal are restored after restart"),
+	  NULL },
+	{ "remove-config", 'c', 0, G_OPTION_ARG_NONE, &remove_config,
+	  N_("Remove all configuration files so they are re-generated on next start"),
 	  NULL },
 	{ "start", 's', 0, G_OPTION_ARG_NONE, &start,
 	  N_("Starts miners (which indirectly starts tracker-store too)"),
@@ -125,6 +131,45 @@ log_handler (const gchar    *domain,
 	}	
 }
 
+static gboolean
+remove_config_crawler_check_file_cb (TrackerCrawler *crawler,
+				     GFile          *file,
+				     gpointer        user_data)
+{
+	gchar *path;
+	gboolean has_suffix;
+
+	path = g_file_get_path (file);
+	has_suffix = g_str_has_suffix (path, ".cfg");
+
+	if (!has_suffix) {
+		g_free (path);
+		return FALSE;
+	}
+
+	/* Remove file */
+	if (g_unlink (path) == 0) {
+		g_print ("  %s\n", path);
+	}
+
+	g_free (path);
+
+	return has_suffix;
+}
+
+static void
+remove_config_crawler_finished_cb (TrackerCrawler *crawler,
+				   GQueue         *found,
+				   gboolean        was_interrupted,
+				   guint           directories_found,
+				   guint           directories_ignored,
+				   guint           files_found,
+				   guint           files_ignored,
+				   gpointer        user_data)
+{
+	g_main_loop_quit (user_data);
+}
+
 int
 main (int argc, char **argv)
 {
@@ -141,6 +186,10 @@ main (int argc, char **argv)
 	textdomain (GETTEXT_PACKAGE);
 
 	g_type_init ();
+	
+	if (!g_thread_supported ()) {
+		g_thread_init (NULL);
+	}
 
 	/* Translators: this messagge will apper immediately after the	*/
 	/* usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>	*/
@@ -168,89 +217,95 @@ main (int argc, char **argv)
 		should_kill = TRUE;
 	}
 
-	pids = get_pids ();
-	str = g_strdup_printf (tracker_dngettext (NULL,
-						  "Found %d PID…", 
-						  "Found %d PIDs…",
-						  g_slist_length (pids)),
-			       g_slist_length (pids));
-	g_print ("%s\n", str);
-	g_free (str);
-
-	for (l = pids; l; l = l->next) {
-		gchar *filename;
-		gchar *contents = NULL;
-		gchar **strv;
-
-		filename = g_build_filename ("/proc", l->data, "cmdline", NULL);
-		if (!g_file_get_contents (filename, &contents, NULL, &error)) {
-			str = g_strdup_printf (_("Could not open '%s'"), filename);
-			g_printerr ("%s, %s\n", 
-				    str,
-				    error ? error->message : _("no error given"));
-			g_free (str);
-			g_clear_error (&error);
-			g_free (contents);
-			g_free (filename);
-
-			continue;
-		}
+	/* Unless we are stopping processes or listing processes,
+	 * don't iterate them.
+	 */
+	if (should_kill || should_terminate ||
+	    (!start && !remove_config)) {
+		pids = get_pids ();
+		str = g_strdup_printf (tracker_dngettext (NULL,
+							  "Found %d PID…", 
+							  "Found %d PIDs…",
+							  g_slist_length (pids)),
+				       g_slist_length (pids));
+		g_print ("%s\n", str);
+		g_free (str);
 		
-		strv = g_strsplit (contents, "^@", 2);
-		if (strv && strv[0]) {
-			gchar *basename;
-
-			basename = g_path_get_basename (strv[0]);
-			if (g_str_has_prefix (basename, "tracker") == TRUE &&
-			    g_str_has_suffix (basename, "-processes") == FALSE) {
-				pid_t pid;
-
-				pid = atoi (l->data);
-				str = g_strdup_printf (_("Found process ID %d for '%s'"), pid, basename);
-				g_print ("%s\n", str);
+		for (l = pids; l; l = l->next) {
+			gchar *filename;
+			gchar *contents = NULL;
+			gchar **strv;
+			
+			filename = g_build_filename ("/proc", l->data, "cmdline", NULL);
+			if (!g_file_get_contents (filename, &contents, NULL, &error)) {
+				str = g_strdup_printf (_("Could not open '%s'"), filename);
+				g_printerr ("%s, %s\n", 
+					    str,
+					    error ? error->message : _("no error given"));
 				g_free (str);
-
-				if (should_terminate) {
-					if (kill (pid, SIGTERM) == -1) {
-						const gchar *errstr = g_strerror (errno);
-						
-						str = g_strdup_printf (_("Could not terminate process %d"), pid);
-						g_printerr ("  %s, %s\n", 
-							    str,
-							    errstr ? errstr : _("no error given"));
-						g_free (str);
-					} else {
-						str = g_strdup_printf (_("Terminated process %d"), pid);
-						g_print ("  %s\n", str);
-						g_free (str);
-					}
-				} else if (should_kill) {
-					if (kill (pid, SIGKILL) == -1) {
-						const gchar *errstr = g_strerror (errno);
-						
-						str = g_strdup_printf (_("Could not kill process %d"), pid);
-						g_printerr ("  %s, %s\n", 
-							    str,
-							    errstr ? errstr : _("no error given"));
-						g_free (str);
-					} else {
-						str = g_strdup_printf (_("Killed process %d"), pid);
-						g_print ("  %s\n", str);
-						g_free (str);
+				g_clear_error (&error);
+				g_free (contents);
+				g_free (filename);
+				
+				continue;
+			}
+			
+			strv = g_strsplit (contents, "^@", 2);
+			if (strv && strv[0]) {
+				gchar *basename;
+				
+				basename = g_path_get_basename (strv[0]);
+				if (g_str_has_prefix (basename, "tracker") == TRUE &&
+				    g_str_has_suffix (basename, "-control") == FALSE) {
+					pid_t pid;
+					
+					pid = atoi (l->data);
+					str = g_strdup_printf (_("Found process ID %d for '%s'"), pid, basename);
+					g_print ("%s\n", str);
+					g_free (str);
+					
+					if (should_terminate) {
+						if (kill (pid, SIGTERM) == -1) {
+							const gchar *errstr = g_strerror (errno);
+							
+							str = g_strdup_printf (_("Could not terminate process %d"), pid);
+							g_printerr ("  %s, %s\n", 
+								    str,
+								    errstr ? errstr : _("no error given"));
+							g_free (str);
+						} else {
+							str = g_strdup_printf (_("Terminated process %d"), pid);
+							g_print ("  %s\n", str);
+							g_free (str);
+						}
+					} else if (should_kill) {
+						if (kill (pid, SIGKILL) == -1) {
+							const gchar *errstr = g_strerror (errno);
+							
+							str = g_strdup_printf (_("Could not kill process %d"), pid);
+							g_printerr ("  %s, %s\n", 
+								    str,
+								    errstr ? errstr : _("no error given"));
+							g_free (str);
+						} else {
+							str = g_strdup_printf (_("Killed process %d"), pid);
+							g_print ("  %s\n", str);
+							g_free (str);
+						}
 					}
 				}
+				
+				g_free (basename);
 			}
-
-			g_free (basename);
+			
+			g_strfreev (strv);
+			g_free (contents);
+			g_free (filename);
 		}
 
-		g_strfreev (strv);
-		g_free (contents);
-		g_free (filename);
+		g_slist_foreach (pids, (GFunc) g_free, NULL);
+		g_slist_free (pids);
 	}
-
-	g_slist_foreach (pids, (GFunc) g_free, NULL);
-	g_slist_free (pids);
 
 	if (hard_reset || soft_reset) {
 		guint log_handler_id;
@@ -273,6 +328,43 @@ main (int argc, char **argv)
 
 		/* Unset log handler */
 		g_log_remove_handler (NULL, log_handler_id);
+	}
+
+	if (remove_config) {
+		GMainLoop *main_loop;
+		GFile *file;
+		TrackerCrawler *crawler;
+		const gchar *home_dir;
+		gchar *path;
+		
+		crawler = tracker_crawler_new ();
+		main_loop = g_main_loop_new (NULL, FALSE);
+		
+		g_signal_connect (crawler, "check-file",
+				  G_CALLBACK (remove_config_crawler_check_file_cb),
+				  NULL);
+		g_signal_connect (crawler, "finished",
+				  G_CALLBACK (remove_config_crawler_finished_cb),
+				  main_loop);
+
+		/* Go through service files */
+		home_dir = g_getenv ("HOME");
+
+		if (!home_dir) {
+			home_dir = g_get_home_dir ();
+		}
+
+		path = g_build_path (G_DIR_SEPARATOR_S, home_dir, ".config", "tracker", NULL);
+		file = g_file_new_for_path (path);
+		g_free (path);
+
+		g_print ("%s\n", _("Removing configuration files…"));
+
+		tracker_crawler_start (crawler, file, FALSE);
+		g_object_unref (file);
+		
+		g_main_loop_run (main_loop);
+		g_object_unref (crawler);
 	}
 
 	if (start) {
