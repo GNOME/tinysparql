@@ -744,8 +744,14 @@ tracker_miner_manager_get_status (TrackerMinerManager  *manager,
 	org_freedesktop_Tracker1_Miner_get_progress (proxy, &p, &error);
 
 	if (error) {
-		g_critical ("Could not get miner progress for '%s': %s", miner,
-			    error->message);
+		/* We handle this error as a special case, some
+		 * plugins don't have .service files. 
+		 */
+		if (error->code != DBUS_GERROR_SERVICE_UNKNOWN) {
+			g_critical ("Could not get miner progress for '%s': %s", miner,
+				    error->message);
+		}
+
 		g_error_free (error);
 
 		return FALSE;
