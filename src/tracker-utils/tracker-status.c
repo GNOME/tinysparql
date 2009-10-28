@@ -285,7 +285,7 @@ manager_miner_paused_cb (TrackerMinerManager *manager,
 
 	miner_print_state (manager, miner_name,
 			   g_hash_table_lookup (miners_status, miner_name),
-			   g_value_get_double (gvalue), 
+			   gvalue ? g_value_get_double (gvalue) : 0.0, 
 			   TRUE, 
 			   TRUE);
 }
@@ -300,7 +300,7 @@ manager_miner_resumed_cb (TrackerMinerManager *manager,
 
 	miner_print_state (manager, miner_name,
 			   g_hash_table_lookup (miners_status, miner_name),
-			   g_value_get_double (gvalue), 
+			   gvalue ? g_value_get_double (gvalue) : 0.0, 
 			   TRUE, 
 			   FALSE);
 }
