@@ -1179,6 +1179,7 @@ get_id3v24_tags (const gchar *data,
 
 			if (!tracker_is_empty_string (word)) {
 				g_strstrip (word);
+				g_free (tag->comment);
 				tag->comment = word;
 			} else {
 				g_free (word);
@@ -1237,6 +1238,7 @@ get_id3v24_tags (const gchar *data,
 				break;
 			case ID3V24_TLEN:
 				tag->length = atoi (word) / 1000;
+				g_free (word);
 				break;
 			case ID3V24_TPE1:
 				tag->performer1 = word;
@@ -1264,6 +1266,7 @@ get_id3v24_tags (const gchar *data,
 				tag->recording_time = word;
 				break;
 			default:
+				g_free (word);
 				g_warn_if_reached ();
 			}
 		}
@@ -1377,10 +1380,12 @@ get_id3v23_tags (const gchar *data,
 
 			if (!tracker_is_empty_string (word)) {
 				g_strstrip (word);
+				g_free (tag->comment);
 				tag->comment = word;
 			} else {
 				g_free (word);
 			}
+
 			break;
 		}
 		default:
@@ -1429,6 +1434,7 @@ get_id3v23_tags (const gchar *data,
 				break;
 			case ID3V24_TLEN:
 				tag->length = atoi (word) / 1000;
+				g_free (word);
 				break;
 			case ID3V24_TPE1:
 				tag->performer1 = word;
@@ -1456,6 +1462,7 @@ get_id3v23_tags (const gchar *data,
 				tag->recording_time = word;
 				break;
 			default:
+				g_free (word);
 				g_warn_if_reached ();
 			}
 		}
@@ -1563,6 +1570,7 @@ get_id3v20_tags (const gchar *data,
 				break;
 			case ID3V2_TLE:
 				tag->length = atoi (word) / 1000;
+				g_free (word);
 				break;
 			case ID3V2_TPB:
 				tag->publisher = word;
@@ -1589,6 +1597,7 @@ get_id3v20_tags (const gchar *data,
 				tag->recording_time = word;
 				break;
 			default:
+				g_free (word);
 				g_warn_if_reached ();
 			}
 		}
@@ -1932,10 +1941,12 @@ extract_mp3 (const gchar *uri,
 	                                   filedata.id3v22_info.content_type,
 	                                   filedata.id3v22_info.title1,
 	                                   filedata.id3v1_info.genre);
-	filedata.recording_time = tracker_coalesce (5, filedata.id3v24_info.recording_time,
+	filedata.recording_time = tracker_coalesce (7, filedata.id3v24_info.recording_time,
 	                                            filedata.id3v24_info.release_time,
 	                                            filedata.id3v23_info.recording_time,
+	                                            filedata.id3v23_info.release_time,
 	                                            filedata.id3v22_info.recording_time,
+	                                            filedata.id3v22_info.release_time,
 	                                            filedata.id3v1_info.year);
 	filedata.publisher = tracker_coalesce (3, filedata.id3v24_info.publisher,
 	                                       filedata.id3v23_info.publisher,
