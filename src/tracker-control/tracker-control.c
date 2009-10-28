@@ -33,12 +33,14 @@
 #include <glib/gprintf.h>
 
 #include <libtracker-common/tracker-common.h>
-
-#include <libtracker-db/tracker-db-manager.h>
+#include <libtracker-db/tracker-db.h>
+#include <libtracker-miner/tracker-miner-manager.h>
 
 static gboolean     should_kill;
 static gboolean     should_terminate;
-static gboolean     hard_reset, soft_reset;
+static gboolean     hard_reset;
+static gboolean     soft_reset;
+static gboolean     start;
 
 static GOptionEntry entries[] = {
 	{ "kill", 'k', 0, G_OPTION_ARG_NONE, &should_kill,
@@ -48,11 +50,14 @@ static GOptionEntry entries[] = {
 	  N_("Use SIGTERM to stop all tracker processes found"),
 	  NULL 
 	},
-	{ "soft-reset", 's', 0, G_OPTION_ARG_NONE, &soft_reset,
-	  N_("This will kill all Tracker processes and remove all databases except the backup and journal (a restart will restore the data)"),
-	  NULL },
 	{ "hard-reset", 'r', 0, G_OPTION_ARG_NONE, &hard_reset,
 	  N_("This will kill all Tracker processes and remove all databases"),
+	  NULL },
+	{ "soft-reset", 'e', 0, G_OPTION_ARG_NONE, &soft_reset,
+	  N_("Same as --hard-reset but the backup & journal are restored after restart"),
+	  NULL },
+	{ "start", 's', 0, G_OPTION_ARG_NONE, &start,
+	  N_("Starts miners (which indirectly starts tracker-store too)"),
 	  NULL },
 	{ NULL }
 };
@@ -150,7 +155,11 @@ main (int argc, char **argv)
 		return EXIT_FAILURE;
 	} else if ((hard_reset || soft_reset) && should_terminate) {
 		g_printerr ("%s\n",
-			    _("You can not use the --terminate with --hard-reset, --kill is implied"));
+			    _("You can not use the --terminate with --hard-reset or --soft-reset, --kill is implied"));
+		return EXIT_FAILURE;
+	} else if (hard_reset && soft_reset) {
+		g_printerr ("%s\n",
+			    _("You can not use the --hard-reset and --soft-reset arguments together"));
 		return EXIT_FAILURE;
 	}
 
@@ -264,6 +273,43 @@ main (int argc, char **argv)
 
 		/* Unset log handler */
 		g_log_remove_handler (NULL, log_handler_id);
+	}
+
+	if (start) {
+		TrackerMinerManager *manager;
+		GSList *miners, *l;
+
+		manager = tracker_miner_manager_new ();
+		miners = tracker_miner_manager_get_available (manager);
+		
+		g_print ("%s\n", _("Starting miners…"));
+
+		/* Get the status of all miners, this will start all
+		 * miners not already running.
+		 */
+
+		for (l = miners; l; l = l->next) {
+			const gchar *display_name;
+			gdouble progress = 0.0;
+
+			display_name = tracker_miner_manager_get_display_name (manager, l->data);
+
+			if (!tracker_miner_manager_get_status (manager, l->data, NULL, &progress)) {
+				g_printerr ("  %s: %s (%s)\n", 
+					    _("Failed"),
+					    display_name,
+					    _("Could not get miner status"));
+			} else {
+				g_print ("  %s: %s (%3.0f%%)\n", 
+					 _("Done"),
+					 display_name, 
+					 progress * 100);
+			}
+
+			g_free (l->data);
+		}
+
+		g_slist_free (miners);
 	}
 
 	return EXIT_SUCCESS;
