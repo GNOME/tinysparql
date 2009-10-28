@@ -28,6 +28,7 @@
 
 #include <libtracker-common/tracker-dbus.h>
 #include <libtracker-common/tracker-sparql-builder.h>
+#include <libtracker-common/tracker-log.h>
 
 #include "tracker-dbus.h"
 #include "tracker-extract.h"
@@ -486,6 +487,7 @@ tracker_extract_get_metadata (TrackerExtract	     *object,
 
 	if (sparql) {
 		if (tracker_sparql_builder_get_length (sparql) > 0) {
+			/* tracker_info ("%s", tracker_sparql_builder_get_result (sparql)); */
 			dbus_g_method_return (context, tracker_sparql_builder_get_result (sparql));
 		} else {
 			dbus_g_method_return (context, "");
