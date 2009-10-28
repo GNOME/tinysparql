@@ -56,9 +56,11 @@ struct TrackerCrawlerClass {
 					       GFile          *file,
 					       GList          *contents);
 	void     (* finished)            (TrackerCrawler *crawler,
-					  guint           directories_found, 
-					  guint           directories_ignored, 
-					  guint           files_found, 
+					  GQueue         *found_files,
+					  gboolean        interrupted,
+					  guint           directories_found,
+					  guint           directories_ignored,
+					  guint           files_found,
 					  guint           files_ignored);
 };
 
