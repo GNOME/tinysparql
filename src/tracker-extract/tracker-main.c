@@ -290,6 +290,8 @@ run_standalone (void)
 		verbosity = 3;
 	}
 
+	tracker_albumart_init ();
+
 	/* This makes sure we don't steal all the system's resources */
 	initialize_priority ();
 
@@ -316,6 +318,8 @@ run_standalone (void)
 		/* Unset log handler */
 		g_log_remove_handler (NULL, log_handler_id);
 	}
+
+	tracker_albumart_shutdown ();
 
 	return EXIT_SUCCESS;
 }
