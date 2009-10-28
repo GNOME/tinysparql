@@ -1542,6 +1542,7 @@ get_id3v20_tags (const gchar *data,
 			case ID3V2_TCO:
 			{
 				gint genre;
+
 				if (get_genre_number (word, &genre)) {
 					g_free (word);
 					word = g_strdup (get_genre_name (genre));
@@ -1552,6 +1553,8 @@ get_id3v20_tags (const gchar *data,
 				} else {
 					g_free (word);
 				}
+
+				break;
 			}
 			case ID3V2_TCR:
 				tag->copyright = word;
