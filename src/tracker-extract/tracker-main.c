@@ -327,7 +327,7 @@ main (int argc, char *argv[])
 	GError         *error = NULL;
 	TrackerConfig  *config;
         TrackerExtract *object;
-	gchar          *log_filename;
+	gchar          *log_filename = NULL;
 
 	bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
 	bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
@@ -397,13 +397,7 @@ main (int argc, char *argv[])
 		tracker_config_set_verbosity (config, verbosity);
 	}
 
-	log_filename =
-		g_build_filename (g_get_user_data_dir (),
-				  "tracker",
-				  "tracker-extract.log",
-				  NULL);
-
-	tracker_log_init (tracker_config_get_verbosity (config), NULL);
+	tracker_log_init (tracker_config_get_verbosity (config), &log_filename);
 	g_print ("Starting log:\n  File:'%s'\n", log_filename);
 	g_free (log_filename);
 
@@ -437,6 +431,8 @@ main (int argc, char *argv[])
 
 		return EXIT_FAILURE;
 	}
+
+	g_message ("Waiting for D-Bus requests...");
 
 	tracker_albumart_init ();
 
