@@ -90,9 +90,9 @@ typedef struct {
 	gchar *album;
 	gchar *year;
 	gchar *comment;
-	gchar *trackno;
 	gchar *genre;
 	gchar *encoding;
+	gint   track_number;
 } id3tag;
 
 typedef struct {
@@ -130,6 +130,8 @@ typedef struct {
 	gchar         *copyright;
 	gchar         *publisher;
 	gchar         *comment;
+
+	gint           track_number;
 
 	unsigned char *albumartdata;
 	size_t         albumartsize;
@@ -736,14 +738,14 @@ get_id3 (const gchar *data,
 
 	if (pos[28] != 0) {
 		id3->comment = g_convert (pos, 30, "UTF-8", encoding, NULL, NULL, NULL);
-		id3->trackno = NULL;
+		id3->track_number = 0;
 	} else {
 		gchar buf[5];
 
 		id3->comment = g_convert (pos, 28, "UTF-8", encoding, NULL, NULL, NULL);
 
 		snprintf (buf, 5, "%d", pos[29]);
-		id3->trackno = g_strdup (buf);
+		id3->track_number = atoi (buf);
 	}
 
 	pos += 30;
@@ -1952,6 +1954,16 @@ extract_mp3 (const gchar *uri,
 	                                     filedata.id3v22_info.comment,
 	                                     filedata.id3v1_info.comment);
 
+	if (filedata.id3v24_info.track_number != 0) {
+		filedata.track_number = filedata.id3v24_info.track_number;
+	} else if (filedata.id3v23_info.track_number != 0) {
+		filedata.track_number = filedata.id3v23_info.track_number;
+	} else if (filedata.id3v22_info.track_number != 0) {
+		filedata.track_number = filedata.id3v22_info.track_number;
+	} else if (filedata.id3v1_info.track_number != 0) {
+		filedata.track_number = filedata.id3v1_info.track_number;
+	}
+
 	if (!tracker_is_blank_string (filedata.performer)) {
 		filedata.performer_uri = tracker_uri_printf_escaped ("urn:artist:%s", filedata.performer);
 		tracker_sparql_builder_subject_iri (metadata, filedata.performer_uri);
@@ -2035,6 +2047,11 @@ extract_mp3 (const gchar *uri,
 		tracker_sparql_builder_object_blank_close (metadata);
 	}
 	g_free (filedata.publisher);
+
+	if (filedata.track_number > 0) {
+		tracker_sparql_builder_predicate (metadata, "nmm:trackNumber");
+		tracker_sparql_builder_object_int64 (metadata, filedata.track_number);
+	}
 
 	/* Get mp3 stream info */
 	mp3_parse (buffer, buffer_size, audio_offset, uri, metadata, &filedata);
