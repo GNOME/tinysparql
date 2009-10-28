@@ -310,99 +310,6 @@
 static int default_column = 0;
 #endif
 
-/* Functions from Tracker */
-#if 0
-static TrackerDBResultSet *
-db_metadata_get (TrackerDBInterface *iface, 
-		 const gchar        *id, 
-		 const gchar        *key)
-{
-	TrackerProperty *def;
-	const gchar  *proc = NULL;
-
-	g_return_val_if_fail (TRACKER_IS_DB_INTERFACE (iface), NULL);
-	g_return_val_if_fail (id, NULL);
-	g_return_val_if_fail (key, NULL);
-
-	def = tracker_ontology_get_property_by_name (key);
-	
-	if (!def) {
-		g_warning ("Metadata not found for id:'%s' and type:'%s'", id, key);
-		return NULL;
-	}
-
-	switch (tracker_property_get_data_type (def)) {
-	/*case TRACKER_PROPERTY_TYPE_STRING:
-	case TRACKER_PROPERTY_TYPE_DOUBLE:
-		proc = "GetMetadata";
-		break;
-
-	case TRACKER_PROPERTY_TYPE_INTEGER:
-	case TRACKER_PROPERTY_TYPE_DATE:
-		proc = "GetMetadataNumeric";
-		break;
-
-	case TRACKER_PROPERTY_TYPE_FULLTEXT:
-		proc = "GetContents";
-		break;*/
-		
-	default:
-		g_warning ("Metadata could not be retrieved as type:%d is not supported", 
-			   tracker_property_get_data_type (def)); 
-		return NULL;
-	}
-
-	/*return tracker_db_interface_execute_procedure (iface,
-						       NULL, 
-				     		       proc, 
-				     		       id, 
-				     		       tracker_property_get_id (def),
-				     		       NULL);*/
-}
-
-static gchar *
-db_get_text (const char     *service,
-	     const char     *key,    
-	     const char     *id) 
-{
-	TrackerDBInterface *iface;
-	gchar              *contents = NULL;
-	TrackerDBResultSet *result_set;
-	
-	if (strcmp (key, "File:Contents") == 0) {
-		iface = tracker_db_manager_get_db_interface_by_type (service,
-								     TRACKER_DB_CONTENT_TYPE_CONTENTS);
-	} else {
-		iface = tracker_db_manager_get_db_interface_by_type (service,
-								     TRACKER_DB_CONTENT_TYPE_METADATA);
-	}
-
-	result_set = db_metadata_get (iface, id, key);
-
-	if (result_set) {
-		tracker_db_result_set_get (result_set, 0, &contents, -1);
-		g_object_unref (result_set);
-	}
-
-	return contents;
-}
-#endif
-
-static inline int
-get_metadata_weight (int id)
-{
-	/* TODO */
-  /*if (id == 0)*/ return 1;
-
-  /*TrackerProperty *field = tracker_ontology_get_property_by_id (id);
-  
-  if (!field) return 1;
-
-  return tracker_property_get_weight (field);*/
-
-}
-
-
 
 /*
  * ** Default span for NEAR operators.
@@ -2483,6 +2390,42 @@ static const char *contentInsertStatement(fulltext_vtab *v){
   append(&sb, "insert into %_content (docid) values (?)");
   return stringBufferData(&sb);
 }
+
+
+/* Functions from Tracker */
+static inline int
+get_metadata_weight (int id)
+{
+  static sqlite3_stmt *stmt = NULL;
+
+  int rc;
+  int weight;
+
+  weight = 1;
+
+  /* We may want to cache this if this proofs to be a performance issue */
+
+  if (!stmt) {
+    rc = sqlite3_prepare_v2 (tracker_fts_vtab->db, "SELECT \"tracker:weight\" FROM \"rdf:Property\" WHERE ID = ?", -1, &stmt, NULL);
+    if (rc != SQLITE_OK) return weight;
+  } else {
+    sqlite3_reset (stmt);
+  }
+
+  rc = sqlite3_bind_int (stmt, 1, id);
+  if (rc != SQLITE_OK) return weight;
+
+  rc = sqlite3_step (stmt);
+  if (rc != SQLITE_ROW) return weight;
+
+  weight = sqlite3_column_int (stmt, 0);
+  if (weight == 0) {
+    weight = 1;
+  }
+
+  return weight;
+}
+
 
 /* Return a dynamically generated statement of the form
  *   select <content columns> from %_content where docid = ?

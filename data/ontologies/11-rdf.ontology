@@ -90,6 +90,11 @@ tracker:isAnnotation a rdf:Property ;
 	rdfs:domain rdf:Property ;
 	rdfs:range xsd:boolean .
 
+tracker:weight a rdf:Property ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain rdf:Property ;
+	rdfs:range xsd:integer .
+
 tracker:added a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain rdfs:Resource ;
