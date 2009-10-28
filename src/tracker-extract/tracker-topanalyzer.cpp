@@ -100,8 +100,9 @@ namespace Tracker {
 		gchar                  *content_type;
 
 	private:
-		const gchar* PredicateMapping (const RegisteredField *field);
-		const gchar* PredicateMapping (const std::string &key);
+		const gchar *predicateMapping (const RegisteredField *field);
+		const gchar *predicateMapping (const std::string &key);
+		gboolean     predicateNeeded  (const gchar *predicate);
 
 		const gchar                   *uri;
 		TrackerSparqlBuilder          *metadata;
@@ -116,15 +117,13 @@ namespace Tracker {
 	{
 		uri = uri_;
 		metadata = metadata_;
-		if (content_type)
-			g_free (content_type);
+		g_free (content_type);
 		content_type = NULL;
 	}
 
 	Tracker::TripleCollector::~TripleCollector ()
 	{
-		if (content_type)
-			g_free (content_type);
+		g_free (content_type);
 	}
 
 	void Tracker::TripleCollector::commit () { }
@@ -143,14 +142,73 @@ namespace Tracker {
 		                               text);
 	}
 
-	const gchar* Tracker::TripleCollector::PredicateMapping (const std::string &key)
+	const gchar* Tracker::TripleCollector::predicateMapping (const std::string &key)
 	{
-		return (const gchar *) key.c_str();
+		/* const gchar *original; */
+		/* gchar *str, *p; */
+		
+		/* original = key.c_str(); */
+
+		/* p = strrchr (original, '/'); */
+		/* if (G_UNLIKELY (!p)) { */
+		/* 	return g_strdup (original); */
+		/* } */
+
+		/* if (G_UNLIKELY (!strchr (p, '#'))) { */
+		/* 	return g_strdup (original); */
+		/* } */
+
+		/* str = g_strdup (p + 1); */
+		/* p = strchr (str, '#'); */
+		/* *p = ':'; */
+
+		return key.c_str();
 	}
 
-	const gchar* Tracker::TripleCollector::PredicateMapping (const RegisteredField *field)
+	const gchar* Tracker::TripleCollector::predicateMapping (const RegisteredField *field)
 	{
-		return (const gchar *) field->key().c_str();
+		/* const gchar *original; */
+		/* gchar *str, *p; */
+		
+		/* original = field->key().c_str(); */
+
+		/* p = strrchr (original, '/'); */
+		/* if (G_UNLIKELY (!p)) { */
+		/* 	return g_strdup (original); */
+		/* } */
+
+		/* if (G_UNLIKELY (!strchr (p, '#'))) { */
+		/* 	return g_strdup (original); */
+		/* } */
+
+		/* str = g_strdup (p + 1); */
+		/* p = strchr (str, '#'); */
+		/* *p = ':'; */
+
+		return field->key().c_str();
+	}
+
+	gboolean Tracker::TripleCollector::predicateNeeded (const gchar *predicate)
+	{
+		if (!predicate) {
+			return FALSE;
+		}
+
+		/* We already cover these in the miner-fs */
+		if (strstr (predicate, "nfo#FileDataObject") ||
+		    strstr (predicate, "nfo#belongsToContainer") ||
+		    strstr (predicate, "nfo#fileName") ||
+		    strstr (predicate, "nfo#fileSize") ||
+		    strstr (predicate, "nfo#fileLastModified") ||
+		    strstr (predicate, "nfo#fileLastAccessed") ||
+		    strstr (predicate, "nie#InformationElement") ||
+		    strstr (predicate, "nie#isStoredAs") ||
+		    strstr (predicate, "nie#mimeType") ||
+		    strstr (predicate, "nie#dataSource")) {
+			return FALSE;
+		}
+
+		return TRUE;
 	}
 
 	/* The methods below basically just convert the C++ world to the C world
@@ -160,15 +218,21 @@ namespace Tracker {
 	                                         const RegisteredField* field,
 	                                         const std::string& value)
 	{
+		const gchar *predicate = predicateMapping (field);
+
 		if (field->key() == FieldRegister::mimetypeFieldName && idx->depth() == 0) {
-			if (content_type)
-				g_free (content_type);
+			g_free (content_type);
 			content_type = g_strdup (value.c_str());
 		}
 
-		tracker_statement_list_insert (metadata, idx->path().c_str(), 
-		                               PredicateMapping (field),
-		                               value.c_str());
+		if (!predicateNeeded (predicate)) {
+			return;
+		}
+
+		tracker_statement_list_insert (metadata, 
+					       idx->path().c_str(), 
+		                               predicate,
+					       value.c_str());
 	}
 
 	void Tracker::TripleCollector::addValue (const AnalysisResult* idx, 
@@ -176,8 +240,15 @@ namespace Tracker {
 	                                         const unsigned char* data, 
 	                                         uint32_t size )
 	{
-		tracker_statement_list_insert (metadata, idx->path().c_str(),
-		                               PredicateMapping (field),
+		const gchar *predicate = predicateMapping (field);
+
+		if (!predicateNeeded (predicate)) {
+			return;
+		}
+
+		tracker_statement_list_insert (metadata, 
+					       idx->path().c_str(),
+		                               predicate,
 		                               (const gchar*) data);
 	}
 
@@ -185,8 +256,15 @@ namespace Tracker {
 	                                         const RegisteredField* field,
 	                                         int32_t value)
 	{
-		tracker_statement_list_insert_with_int (metadata, idx->path().c_str(), 
-		                                        PredicateMapping (field),
+		const gchar *predicate = predicateMapping (field);
+
+		if (!predicateNeeded (predicate)) {
+			return;
+		}
+
+		tracker_statement_list_insert_with_int (metadata, 
+							idx->path().c_str(), 
+		                                        predicate,
 		                                        (gint) value);
 	}
 
@@ -194,8 +272,15 @@ namespace Tracker {
 	                                         const RegisteredField* field,
 	                                         uint32_t value ) 
 	{
-		tracker_statement_list_insert_with_int (metadata, idx->path().c_str(),
-		                                        PredicateMapping (field),
+		const gchar *predicate = predicateMapping (field);
+
+		if (!predicateNeeded (predicate)) {
+			return;
+		}
+
+		tracker_statement_list_insert_with_int (metadata, 
+							idx->path().c_str(),
+		                                        predicate,
 		                                        (gint) value);
 	}
 
@@ -203,8 +288,15 @@ namespace Tracker {
 	                                         const RegisteredField* field,
 	                                         double value ) 
 	{
-		tracker_statement_list_insert_with_double (metadata, idx->path().c_str(), 
-		                                           PredicateMapping (field),
+		const gchar *predicate = predicateMapping (field);
+
+		if (!predicateNeeded (predicate)) {
+			return;
+		}
+
+		tracker_statement_list_insert_with_double (metadata, 
+							   idx->path().c_str(), 
+		                                           predicate,
 		                                           (gdouble) value);
 	}
 
@@ -212,8 +304,15 @@ namespace Tracker {
 	                                           const std::string& predicate, 
 	                                           const std::string& object ) 
 	{
-		tracker_statement_list_insert (metadata, subject.c_str(), 
-		                               PredicateMapping (predicate),
+		const gchar *predicate_str = predicateMapping (predicate);
+
+		if (!predicateNeeded (predicate_str)) {
+			return;
+		}
+
+		tracker_statement_list_insert (metadata, 
+					       subject.c_str(), 
+		                               predicate_str,
 		                               object.c_str());
 	}
 
@@ -222,14 +321,20 @@ namespace Tracker {
 	                                         const std::string& name, 
 	                                         const std::string& value )
 	{
+		const gchar *predicate = predicateMapping (field);
+
 		if (field->key() == FieldRegister::mimetypeFieldName && idx->depth() == 0) {
-			if (content_type)
-				g_free (content_type);
+			g_free (content_type);
 			content_type = g_strdup (value.c_str());
 		}
 
-		tracker_statement_list_insert (metadata, idx->path().c_str(),
-		                               PredicateMapping (name),
+		if (!predicateNeeded (predicate)) {
+			return;
+		}
+
+		tracker_statement_list_insert (metadata, 
+					       idx->path().c_str(),
+		                               predicate,
 		                               value.c_str());
 	}
 
