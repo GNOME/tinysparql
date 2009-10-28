@@ -20,7 +20,7 @@ man_MANS = 				\
 	tracker-info.1			\
 	tracker-miner-fs.1		\
 	tracker-miner-fs.cfg.5		\
-	tracker-processes.1		\
+	tracker-control.1		\
 	tracker-search.1		\
 	tracker-search-bar.1		\
 	tracker-sparql.1		\

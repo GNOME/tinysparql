@@ -26,7 +26,6 @@ libs = 									\
 bin_PROGRAMS = 								\
 	tracker-import							\
 	tracker-info							\
-	tracker-processes						\
 	tracker-search 							\
 	tracker-sparql							\
 	tracker-stats							\
@@ -47,9 +46,6 @@ tracker_status_LDADD = $(libs)
 
 tracker_info_SOURCES = tracker-info.c
 tracker_info_LDADD = $(libs)
-
-tracker_processes_SOURCES = tracker-processes.c
-tracker_processes_LDADD = $(libs)
 
 tracker_sparql_SOURCES = tracker-sparql.c
 tracker_sparql_LDADD = $(libs)

@@ -11,6 +11,7 @@ SUBDIRS = 					\
 	libtracker-miner			\
 	plugins					\
 	tracker-store				\
+	tracker-control				\
 	tracker-utils				\
 	tracker-extract				\
 	tracker-miner-fs

@@ -1417,6 +1417,7 @@ AC_CONFIG_FILES([
         src/tracker-status-icon/Makefile
         src/tracker-status-icon/tracker-status-icon.desktop.in
 	src/tracker-store/Makefile
+	src/tracker-control/Makefile
 	src/tracker-extract/Makefile
 	src/tracker-miner-fs/Makefile
 	src/tracker-preferences/Makefile
