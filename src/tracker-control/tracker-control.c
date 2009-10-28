@@ -42,8 +42,9 @@ static gboolean     should_kill;
 static gboolean     should_terminate;
 static gboolean     hard_reset;
 static gboolean     soft_reset;
-static gboolean     start;
 static gboolean     remove_config;
+static gboolean     remove_thumbnails;
+static gboolean     start;
 
 static GOptionEntry entries[] = {
 	{ "kill", 'k', 0, G_OPTION_ARG_NONE, &should_kill,
@@ -61,6 +62,9 @@ static GOptionEntry entries[] = {
 	  NULL },
 	{ "remove-config", 'c', 0, G_OPTION_ARG_NONE, &remove_config,
 	  N_("Remove all configuration files so they are re-generated on next start"),
+	  NULL },
+	{ "remove-thumbnails", 'h', 0, G_OPTION_ARG_NONE, &remove_thumbnails,
+	  N_("Remove all thumbnail files so they are re-generated"),
 	  NULL },
 	{ "start", 's', 0, G_OPTION_ARG_NONE, &start,
 	  N_("Starts miners (which indirectly starts tracker-store too)"),
@@ -132,17 +136,24 @@ log_handler (const gchar    *domain,
 }
 
 static gboolean
-remove_config_crawler_check_file_cb (TrackerCrawler *crawler,
-				     GFile          *file,
-				     gpointer        user_data)
+crawler_check_file_cb (TrackerCrawler *crawler,
+		       GFile          *file,
+		       gpointer        user_data)
 {
+	const gchar **suffix;
 	gchar *path;
-	gboolean has_suffix;
+	gboolean should_remove;
 
+	suffix = user_data;
 	path = g_file_get_path (file);
-	has_suffix = g_str_has_suffix (path, ".cfg");
 
-	if (!has_suffix) {
+	if (suffix) {
+		should_remove = g_str_has_suffix (path, *suffix);
+	} else {
+		should_remove = TRUE;
+	}
+
+	if (!should_remove) {
 		g_free (path);
 		return FALSE;
 	}
@@ -154,18 +165,18 @@ remove_config_crawler_check_file_cb (TrackerCrawler *crawler,
 
 	g_free (path);
 
-	return has_suffix;
+	return should_remove;
 }
 
 static void
-remove_config_crawler_finished_cb (TrackerCrawler *crawler,
-				   GQueue         *found,
-				   gboolean        was_interrupted,
-				   guint           directories_found,
-				   guint           directories_ignored,
-				   guint           files_found,
-				   guint           files_ignored,
-				   gpointer        user_data)
+crawler_finished_cb (TrackerCrawler *crawler,
+		     GQueue         *found,
+		     gboolean        was_interrupted,
+		     guint           directories_found,
+		     guint           directories_ignored,
+		     guint           files_found,
+		     guint           files_ignored,
+		     gpointer        user_data)
 {
 	g_main_loop_quit (user_data);
 }
@@ -221,7 +232,7 @@ main (int argc, char **argv)
 	 * don't iterate them.
 	 */
 	if (should_kill || should_terminate ||
-	    (!start && !remove_config)) {
+	    (!start && !remove_config && !remove_thumbnails)) {
 		pids = get_pids ();
 		str = g_strdup_printf (tracker_dngettext (NULL,
 							  "Found %d PID…", 
@@ -334,6 +345,7 @@ main (int argc, char **argv)
 		GMainLoop *main_loop;
 		GFile *file;
 		TrackerCrawler *crawler;
+		const gchar *suffix = ".cfg";
 		const gchar *home_dir;
 		gchar *path;
 		
@@ -341,10 +353,10 @@ main (int argc, char **argv)
 		main_loop = g_main_loop_new (NULL, FALSE);
 		
 		g_signal_connect (crawler, "check-file",
-				  G_CALLBACK (remove_config_crawler_check_file_cb),
-				  NULL);
+				  G_CALLBACK (crawler_check_file_cb),
+				  &suffix);
 		g_signal_connect (crawler, "finished",
-				  G_CALLBACK (remove_config_crawler_finished_cb),
+				  G_CALLBACK (crawler_finished_cb),
 				  main_loop);
 
 		/* Go through service files */
@@ -361,6 +373,43 @@ main (int argc, char **argv)
 		g_print ("%s\n", _("Removing configuration files…"));
 
 		tracker_crawler_start (crawler, file, FALSE);
+		g_object_unref (file);
+		
+		g_main_loop_run (main_loop);
+		g_object_unref (crawler);
+	}
+
+	if (remove_thumbnails) {
+		GMainLoop *main_loop;
+		GFile *file;
+		TrackerCrawler *crawler;
+		const gchar *home_dir;
+		gchar *path;
+		
+		crawler = tracker_crawler_new ();
+		main_loop = g_main_loop_new (NULL, FALSE);
+		
+		g_signal_connect (crawler, "check-file",
+				  G_CALLBACK (crawler_check_file_cb),
+				  NULL);
+		g_signal_connect (crawler, "finished",
+				  G_CALLBACK (crawler_finished_cb),
+				  main_loop);
+
+		/* Go through service files */
+		home_dir = g_getenv ("HOME");
+
+		if (!home_dir) {
+			home_dir = g_get_home_dir ();
+		}
+
+		path = g_build_path (G_DIR_SEPARATOR_S, home_dir, ".thumbnails", NULL);
+		file = g_file_new_for_path (path);
+		g_free (path);
+
+		g_print ("%s\n", _("Removing thumbnails files…"));
+
+		tracker_crawler_start (crawler, file, TRUE);
 		g_object_unref (file);
 		
 		g_main_loop_run (main_loop);
