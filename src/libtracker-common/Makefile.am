@@ -99,8 +99,8 @@ libtracker_commoninclude_HEADERS =			\
 	tracker-type-utils.h				\
 	tracker-utils.h
 
-libtracker-common.vala.stamp: $(libtracker_common_la_VALASOURCES)
-	$(AM_V_GEN)$(VALAC) -C $(VALAFLAGS) --pkg gio-2.0 -H tracker-sparql-builder.h posix.vapi $^
+libtracker-common.vala.stamp: $(libtracker_common_la_VALASOURCES) posix.vapi
+	$(AM_V_GEN)$(VALAC) -C $(VALAFLAGS) --pkg gio-2.0 -H tracker-sparql-builder.h $^
 	$(AM_V_GEN)touch $@
 
 libtracker_common_la_LDFLAGS = 				\
