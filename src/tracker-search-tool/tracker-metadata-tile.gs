@@ -184,7 +184,7 @@ class TrackerMetadataTile : HBox
         
         // get metadata
         // var query = "SELECT ?mimetype ?size ?mtime WHERE {<%s> nie:byteSize ?size; nie:contentLastModified ?mtime; nie:mimeType ?mimeType.}".printf(uri)
-        var query = "SELECT ?mimetype WHERE {<%s> nie:mimeType ?mimeType.}".printf(uri)
+        var query = "SELECT ?mimetype WHERE {<%s> nie:mimeType ?mimetype.}".printf(uri)
         if Query is not null
             var result = Query.Query (query)
             
