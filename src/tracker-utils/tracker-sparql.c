@@ -61,7 +61,7 @@ static GOptionEntry   entries[] = {
 	  NULL,
 	},
 	{ "list-properties", 'p', 0, G_OPTION_ARG_STRING, &list_properties,
-	  N_("Retrieve properties for a class, prefixes can be used too (e.g. rdfs#Resource)"),
+	  N_("Retrieve properties for a class, prefixes can be used too (e.g. rdfs:Resource)"),
 	  N_("CLASS"),
 	},
 	{ NULL }
@@ -271,12 +271,12 @@ main (int argc, char **argv)
 			gchar *class_name_no_property;
 
 			prefix = g_strdup (list_properties);
-			p = strchr (prefix, '#');
+			p = strchr (prefix, ':');
 			
 			if (!p) {
 				g_printerr ("%s\n", 
 					    _("Could not find property for class prefix, "
-					      "e.g. #Resource in 'rdfs#Resource'"));
+					      "e.g. :Resource in 'rdfs:Resource'"));
 				g_free (prefix);
 				tracker_disconnect (client);
 				return EXIT_FAILURE;
