@@ -358,8 +358,9 @@ on_statements_committed (gpointer user_data)
 	events = tracker_events_get_pending ();
 
 	if (events) {
-		GSList *event_sources, *l, *to_emit = NULL;
+		GSList *event_sources, *l;
 		guint i;
+		GHashTable *to_emit = NULL;
 
 		event_sources =priv->event_sources;
 
@@ -374,18 +375,26 @@ on_statements_committed (gpointer user_data)
 				TrackerResourceClass *class_ = l->data;
 				if (g_strcmp0 (rdf_class, tracker_resource_class_get_rdf_class (class_)) == 0) {
 					tracker_resource_class_add_event (class_, uri, predicate, type);
-					to_emit = g_slist_prepend (to_emit, class_);
+					if (!to_emit) {
+						to_emit = g_hash_table_new (NULL, NULL);
+					}
+					g_hash_table_insert (to_emit, class_, class_);
 				}
 			}
 		}
 
 		if (to_emit) {
-			for (l = to_emit; l; l = l->next) {
-				TrackerResourceClass *class_ = l->data;
+			GHashTableIter iter;
+			gpointer key, value;
+
+			g_hash_table_iter_init (&iter, to_emit);
+
+			while (g_hash_table_iter_next (&iter, &key, &value)) {
+				TrackerResourceClass *class_ = key;
 				tracker_resource_class_emit_events (class_);
 			}
 
-			g_slist_free (to_emit);
+			g_hash_table_destroy (to_emit);
 		}
 	}
 
