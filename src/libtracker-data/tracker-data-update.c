@@ -971,7 +971,7 @@ delete_metadata_decomposed (TrackerProperty  *property,
 
 	/* read existing property values */
 	old_values = get_old_property_values (property, error);
-	if (*error) {
+	if (error && *error) {
 		g_free (table_name);
 		return;
 	}
@@ -1669,7 +1669,7 @@ format_sql_value_as_string (GString         *sql,
  * annotations (non-embedded/user metadata) stored about the resource.
  */
 void
-tracker_data_delete_resource_description (const gchar *uri)
+tracker_data_delete_resource_description (const gchar *uri, GError **error)
 {
 	TrackerDBInterface *iface;
 	TrackerDBStatement *stmt;
@@ -1761,7 +1761,7 @@ tracker_data_delete_resource_description (const gchar *uri)
 						tracker_data_delete_statement (uri, 
 						                               tracker_property_get_uri (*property), 
 						                               value, 
-						                               NULL);
+						                               error);
 					}
 
 				} else {
