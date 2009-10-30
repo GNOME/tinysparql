@@ -22,6 +22,7 @@
 #define __LIBTRACKERMINER_MINER_H__
 
 #include <glib-object.h>
+#include <gio/gio.h>
 #include <libtracker-client/tracker.h>
 
 G_BEGIN_DECLS
@@ -82,6 +83,14 @@ typedef struct {
 			     GError       *error);
 } TrackerMinerClass;
 
+typedef void (* TrackerMinerUpdateCallback) (TrackerMiner *miner,
+					     const GError *error,
+					     gpointer      user_data);
+typedef void (* TrackerMinerQueryCallback)  (TrackerMiner *miner,
+					     GPtrArray    *result,
+					     const GError *error,
+					     gpointer      user_data);
+
 GType          tracker_miner_get_type       (void) G_GNUC_CONST;
 GQuark	       tracker_miner_error_quark    (void);
 
@@ -90,24 +99,32 @@ void           tracker_miner_stop           (TrackerMiner  *miner);
 
 gboolean       tracker_miner_is_started     (TrackerMiner  *miner);
 
-gboolean       tracker_miner_execute_update (TrackerMiner  *miner,
-					     const gchar   *sparql,
-					     GError       **error);
-GPtrArray *    tracker_miner_execute_sparql (TrackerMiner  *miner,
-					     const gchar   *sparql,
-					     GError       **error);
-gboolean       tracker_miner_execute_batch_update
-					    (TrackerMiner  *miner,
-					     const gchar   *sparql,
-					     GError       **error);
-gboolean       tracker_miner_commit         (TrackerMiner  *miner);
-
 gint           tracker_miner_pause          (TrackerMiner  *miner,
 					     const gchar   *reason,
 					     GError       **error);
 gboolean       tracker_miner_resume         (TrackerMiner  *miner,
 					     gint           cookie,
 					     GError       **error);
+
+void           tracker_miner_execute_update       (TrackerMiner               *miner,
+						   const gchar                *sparql,
+						   GCancellable               *cancellable,
+						   TrackerMinerUpdateCallback  callback,
+						   gpointer                    user_data);
+void           tracker_miner_execute_sparql       (TrackerMiner               *miner,
+						   const gchar                *sparql,
+						   GCancellable               *cancellable,
+						   TrackerMinerQueryCallback   callback,
+						   gpointer                    user_data);
+void           tracker_miner_execute_batch_update (TrackerMiner               *miner,
+						   const gchar                *sparql,
+						   GCancellable               *cancellable,
+						   TrackerMinerUpdateCallback  callback,
+						   gpointer                    user_data);
+void           tracker_miner_commit               (TrackerMiner               *miner,
+						   GCancellable               *cancellable,
+						   TrackerMinerUpdateCallback  callback,
+						   gpointer                    user_data);
 
 
 G_END_DECLS

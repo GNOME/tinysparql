@@ -430,6 +430,21 @@ miner_files_constructed (GObject *object)
 }
 
 static void
+set_up_mount_point_cb (TrackerMiner *miner,
+		       const GError *error,
+		       gpointer      user_data)
+{
+	gchar *removable_device_urn = user_data;
+
+	if (error) {
+		g_critical ("Could not set up mount point '%s': %s",
+			    removable_device_urn, error->message);
+	}
+
+	g_free (removable_device_urn);
+}
+
+static void
 set_up_mount_point (TrackerMinerFiles *miner,
                     const gchar       *removable_device_urn,
                     const gchar       *mount_point,
@@ -437,7 +452,6 @@ set_up_mount_point (TrackerMinerFiles *miner,
                     GString           *accumulator)
 {
 	GString *queries;
-	GError *error = NULL;
 
 	g_debug ("Setting up mount point '%s'", removable_device_urn);
 
@@ -500,58 +514,59 @@ set_up_mount_point (TrackerMinerFiles *miner,
 	if (accumulator) {
 		g_string_append_printf (accumulator, "%s ", queries->str);
 	} else {
-
-		tracker_miner_execute_update (TRACKER_MINER (miner), queries->str, &error);
-
-		if (error) {
-			g_critical ("Could not set up mount point '%s': %s",
-			            removable_device_urn, error->message);
-			g_error_free (error);
-		}
+		tracker_miner_execute_update (TRACKER_MINER (miner),
+					      queries->str,
+					      NULL,
+					      set_up_mount_point_cb,
+					      g_strdup (removable_device_urn));
 	}
 
 	g_string_free (queries, TRUE);
 }
 
 static void
-init_mount_points (TrackerMinerFiles *miner)
+init_mount_points_cb (TrackerMiner *miner,
+		      const GError *error,
+		      gpointer      user_data)
+{
+	if (error) {
+		g_critical ("Could not initialize currently active mount points: %s",
+			    error->message);
+	}
+}
+
+static void
+query_mount_points_cb (TrackerMiner *miner,
+		       GPtrArray    *result,
+		       const GError *error,
+		       gpointer      user_data)
 {
 	TrackerMinerFilesPrivate *priv;
 	GHashTable *volumes;
 	GHashTableIter iter;
 	gpointer key, value;
-	GPtrArray *sparql_result;
-	GError *error = NULL;
 	GString *accumulator;
 	gint i;
 #ifdef HAVE_HAL
 	GSList *udis, *u;
 #endif
 
-	priv = TRACKER_MINER_FILES_GET_PRIVATE (miner);
+	if (error) {
+		g_critical ("Could not obtain the mounted volumes");
+		return;
+	}
 
-	g_debug ("Initializing mount points");
+	priv = TRACKER_MINER_FILES_GET_PRIVATE (miner);
 
 	volumes = g_hash_table_new_full (g_str_hash, g_str_equal,
 	                                 (GDestroyNotify) g_free,
 	                                 NULL);
 
-	/* First, get all mounted volumes, according to tracker-store */
-	sparql_result = tracker_miner_execute_sparql (TRACKER_MINER (miner),
-	                                              "SELECT ?v WHERE { ?v a tracker:Volume ; tracker:isMounted true }",
-	                                              &error);
-
-	if (error) {
-		g_critical ("Could not obtain the mounted volumes");
-		g_error_free (error);
-		return;
-	}
-
-	for (i = 0; i < sparql_result->len; i++) {
+	for (i = 0; i < result->len; i++) {
 		gchar **row;
 		gint state;
 
-		row = g_ptr_array_index (sparql_result, i);
+		row = g_ptr_array_index (result, i);
 		state = VOLUME_MOUNTED_IN_STORE;
 
 		if (strcmp (row[0], TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN) == 0) {
@@ -561,9 +576,6 @@ init_mount_points (TrackerMinerFiles *miner)
 
 		g_hash_table_insert (volumes, g_strdup (row[0]), GINT_TO_POINTER (state));
 	}
-
-	g_ptr_array_foreach (sparql_result, (GFunc) g_strfreev, NULL);
-	g_ptr_array_free (sparql_result, TRUE);
 
 	g_hash_table_replace (volumes, g_strdup (TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN),
 	                      GINT_TO_POINTER (VOLUME_MOUNTED));
@@ -613,26 +625,37 @@ init_mount_points (TrackerMinerFiles *miner)
 
 			g_debug ("URN '%s' (mount point: %s) was not reported to be mounted, but now it is, updating state",
 			         mount_point, urn);
-			set_up_mount_point (miner, urn, mount_point, TRUE, accumulator);
+			set_up_mount_point (TRACKER_MINER_FILES (miner), urn, mount_point, TRUE, accumulator);
 		} else if (!(state & VOLUME_MOUNTED) &&
 			   (state & VOLUME_MOUNTED_IN_STORE)) {
 			g_debug ("URN '%s' was reported to be mounted, but it isn't anymore, updating state", urn);
-			set_up_mount_point (miner, urn, NULL, FALSE, accumulator);
+			set_up_mount_point (TRACKER_MINER_FILES (miner), urn, NULL, FALSE, accumulator);
 		}
 	}
 
 	if (accumulator->str[0] != '\0') {
-		tracker_miner_execute_update (TRACKER_MINER (miner), accumulator->str, &error);
-
-		if (error) {
-			g_critical ("Could not initialize currently active mount points: %s",
-			            error->message);
-			g_error_free (error);
-		}
+		tracker_miner_execute_update (miner,
+					      accumulator->str,
+					      NULL,
+					      init_mount_points_cb,
+					      NULL);
 	}
 
 	g_string_free (accumulator, TRUE);
 	g_hash_table_unref (volumes);
+}
+
+static void
+init_mount_points (TrackerMinerFiles *miner)
+{
+	g_debug ("Initializing mount points");
+
+	/* First, get all mounted volumes, according to tracker-store */
+	tracker_miner_execute_sparql (TRACKER_MINER (miner),
+				      "SELECT ?v WHERE { ?v a tracker:Volume ; tracker:isMounted true }",
+				      NULL,
+				      query_mount_points_cb,
+				      NULL);
 }
 
 #ifdef HAVE_HAL

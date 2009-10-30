@@ -57,6 +57,19 @@ typedef struct {
 	TrackerSparqlBuilder *builder;
 } ProcessData;
 
+typedef struct {
+	GMainLoop *main_loop;
+	gboolean value;
+} SparqlQueryData;
+
+typedef struct {
+	GMainLoop *main_loop;
+	gint       level;
+	GString   *sparql;
+	const gchar *source_uri;
+	const gchar *uri;
+} RecursiveMoveData;
+
 struct TrackerMinerFSPrivate {
 	TrackerMonitor *monitor;
 	TrackerCrawler *crawler;
@@ -192,6 +205,10 @@ static void           crawl_directories_stop       (TrackerMinerFS *fs);
 
 static void           item_queue_handlers_set_up   (TrackerMinerFS *fs);
 
+static void           item_update_uri_recursively (TrackerMinerFS    *fs,
+						   RecursiveMoveData *data,
+						   const gchar       *source_uri,
+						   const gchar       *uri);
 
 static guint signals[LAST_SIGNAL] = { 0, };
 
@@ -436,10 +453,16 @@ process_data_new (GFile                *file,
 {
 	ProcessData *data;
 
-	data = g_slice_new (ProcessData);
+	data = g_slice_new0 (ProcessData);
 	data->file = g_object_ref (file);
-	data->cancellable = g_object_ref (cancellable);
-	data->builder = g_object_ref (builder);
+
+	if (cancellable) {
+		data->cancellable = g_object_ref (cancellable);
+	}
+
+	if (builder) {
+		data->builder = g_object_ref (builder);
+	}
 
 	return data;
 }
@@ -448,8 +471,15 @@ static void
 process_data_free (ProcessData *data)
 {
 	g_object_unref (data->file);
-	g_object_unref (data->cancellable);
-	g_object_unref (data->builder);
+
+	if (data->cancellable) {
+		g_object_unref (data->cancellable);
+	}
+
+	if (data->builder) {
+		g_object_unref (data->builder);
+	}
+
 	g_slice_free (ProcessData, data);
 }
 
@@ -689,12 +719,22 @@ process_print_stats (TrackerMinerFS *fs)
 }
 
 static void
+commit_cb (TrackerMiner *miner,
+	   const GError *error,
+	   gpointer      user_data)
+{
+	if (error) {
+		g_critical ("Could not commit: %s", error->message);
+	}
+}
+
+static void
 process_stop (TrackerMinerFS *fs) 
 {
 	/* Now we have finished crawling, print stats and enable monitor events */
 	process_print_stats (fs);
 
-	tracker_miner_commit (TRACKER_MINER (fs));
+	tracker_miner_commit (TRACKER_MINER (fs), NULL, commit_cb, NULL);
 
 	g_message ("Idle");
 
@@ -745,6 +785,48 @@ item_moved_data_free (ItemMovedData *data)
 }
 
 static void
+sparql_update_cb (TrackerMiner *miner,
+		  const GError *error,
+		  gpointer      user_data)
+{
+	TrackerMinerFS *fs;
+	TrackerMinerFSPrivate *priv;
+	ProcessData *data;
+
+	fs = TRACKER_MINER_FS (miner);
+	priv = fs->private;
+	data = user_data;
+
+	if (error) {
+		g_critical ("Could not execute sparql: %s", error->message);
+	} else {
+		if (fs->private->been_crawled) {
+			/* Only commit immediately for
+			 * changes after initial crawling.
+			 */
+			tracker_miner_commit (TRACKER_MINER (fs), NULL, commit_cb, NULL);
+		}
+	}
+
+	priv->processing_pool = g_list_remove (priv->processing_pool, data);
+	process_data_free (data);
+
+	item_queue_handlers_set_up (fs);
+}
+
+static void
+sparql_query_cb (TrackerMiner *miner,
+		 GPtrArray    *result,
+		 const GError *error,
+		 gpointer      user_data)
+{
+	SparqlQueryData *data = user_data;
+
+	data->value = result && result->len == 1;
+	g_main_loop_quit (data->main_loop);
+}
+
+static void
 item_add_or_update_cb (TrackerMinerFS *fs,
 		       ProcessData    *data,
 		       const GError   *error)
@@ -755,6 +837,12 @@ item_add_or_update_cb (TrackerMinerFS *fs,
 
 	if (error) {
 		g_message ("Could not process '%s': %s", uri, error->message);
+
+		fs->private->processing_pool =
+			g_list_remove (fs->private->processing_pool, data);
+		process_data_free (data);
+
+		item_queue_handlers_set_up (fs);
 	} else {
 		gchar *full_sparql;
 
@@ -763,24 +851,15 @@ item_add_or_update_cb (TrackerMinerFS *fs,
 		full_sparql = g_strdup_printf ("DROP GRAPH <%s> %s",
 					       uri, tracker_sparql_builder_get_result (data->builder));
 
-		tracker_miner_execute_batch_update (TRACKER_MINER (fs), full_sparql, NULL);
+		tracker_miner_execute_batch_update (TRACKER_MINER (fs),
+						    full_sparql,
+						    NULL,
+						    sparql_update_cb,
+						    data);
 		g_free (full_sparql);
-
-		if (fs->private->been_crawled) {
-			/* Only commit immediately for
-			 * changes after initial crawling.
-			 */
-			tracker_miner_commit (TRACKER_MINER (fs));
-		}
 	}
 
-	fs->private->processing_pool =
-		g_list_remove (fs->private->processing_pool, data);
-	process_data_free (data);
-
 	g_free (uri);
-
-	item_queue_handlers_set_up (fs);
 }
 
 static gboolean
@@ -849,29 +928,39 @@ item_query_exists (TrackerMinerFS *miner,
 {
 	gboolean   result;
 	gchar     *sparql, *uri;
-	GPtrArray *sparql_result;
+	SparqlQueryData data;
 
 	uri = g_file_get_uri (file);
 	sparql = g_strdup_printf ("SELECT ?s WHERE { ?s a rdfs:Resource . FILTER (?s = <%s>) }",
 	                          uri);
 
-	sparql_result = tracker_miner_execute_sparql (TRACKER_MINER (miner), sparql, NULL);
+	data.main_loop = g_main_loop_new (NULL, FALSE);
+	data.value = FALSE;
 
-	result = (sparql_result && sparql_result->len == 1);
+	tracker_miner_execute_sparql (TRACKER_MINER (miner),
+				      sparql,
+				      NULL,
+				      sparql_query_cb,
+				      &data);
 
-	tracker_dbus_results_ptr_array_free (&sparql_result);
+	g_main_loop_run (data.main_loop);
+	result = data.value;
+
+	g_main_loop_unref (data.main_loop);
+
 	g_free (sparql);
 	g_free (uri);
 
 	return result;
 }
 
-static void
+static gboolean
 item_remove (TrackerMinerFS *fs,
 	     GFile          *file)
 {
 	GString *sparql;
 	gchar *uri, *slash_uri;
+	ProcessData *data;
 
 	uri = g_file_get_uri (file);
 
@@ -880,7 +969,7 @@ item_remove (TrackerMinerFS *fs,
 
 	if (!item_query_exists (fs, file)) {
 		g_debug ("  File does not exist anyway (uri:'%s')", uri);
-		return;
+		return TRUE;
 	}
 
 	if (!g_str_has_suffix (uri, "/")) {
@@ -902,57 +991,82 @@ item_remove (TrackerMinerFS *fs,
 				"DELETE { <%s> a rdfs:Resource }",
 				uri);
 
-	tracker_miner_execute_batch_update (TRACKER_MINER (fs), sparql->str, NULL);
+	data = process_data_new (file, NULL, NULL);
+	fs->private->processing_pool = g_list_prepend (fs->private->processing_pool, data);
+
+	tracker_miner_execute_batch_update (TRACKER_MINER (fs),
+					    sparql->str,
+					    NULL,
+					    sparql_update_cb,
+					    data);
 
 	g_string_free (sparql, TRUE);
 	g_free (slash_uri);
 	g_free (uri);
+
+	return FALSE;
 }
 
 static void
-item_update_uri_recursively (TrackerMinerFS *fs,
-			     GString        *sparql_update,
-			     const gchar    *source_uri,
-			     const gchar    *uri)
+item_update_uri_recursively_cb (TrackerMiner *miner,
+				GPtrArray    *result,
+				const GError *error,
+				gpointer      user_data)
 {
-	gchar *sparql;
-	GPtrArray *result_set;
+	TrackerMinerFS *fs = TRACKER_MINER_FS (miner);
+	RecursiveMoveData *data = user_data;
 
-	g_debug ("Moving item from '%s' to '%s'",
-		 source_uri,
-		 uri);
-
-	g_string_append_printf (sparql_update, " <%s> tracker:uri <%s> .", source_uri, uri);
-
-	sparql = g_strdup_printf ("SELECT ?child WHERE { ?child nfo:belongsToContainer <%s> }", source_uri);
-	result_set = tracker_miner_execute_sparql (TRACKER_MINER (fs), sparql, NULL);
-	g_free (sparql);
-
-	if (result_set) {
+	if (result) {
 		gint i;
 
-		for (i = 0; i < result_set->len; i++) {
+		for (i = 0; i < result->len; i++) {
 			gchar **child_source_uri, *child_uri;
 
-			child_source_uri = g_ptr_array_index (result_set, i);
+			child_source_uri = g_ptr_array_index (result, i);
 
-			if (!g_str_has_prefix (*child_source_uri, source_uri)) {
+			if (!g_str_has_prefix (*child_source_uri, data->source_uri)) {
 				g_warning ("Child URI '%s' does not start with parent URI '%s'",
 				           *child_source_uri,
-				           source_uri);
+				           data->source_uri);
 				continue;
 			}
 
-			child_uri = g_strdup_printf ("%s%s", uri, *child_source_uri + strlen (source_uri));
+			child_uri = g_strdup_printf ("%s%s", data->uri, *child_source_uri + strlen (data->source_uri));
 
-			item_update_uri_recursively (fs, sparql_update, *child_source_uri, child_uri);
+			item_update_uri_recursively (fs, data, *child_source_uri, child_uri);
 
-			g_free (child_source_uri);
 			g_free (child_uri);
 		}
-
-		g_ptr_array_free (result_set, TRUE);
 	}
+
+	data->level--;
+
+	g_assert (data->level >= 0);
+
+	if (data->level == 0) {
+		g_main_loop_quit (data->main_loop);
+	}
+}
+
+static void
+item_update_uri_recursively (TrackerMinerFS    *fs,
+			     RecursiveMoveData *move_data,
+			     const gchar       *source_uri,
+			     const gchar       *uri)
+{
+	gchar *sparql;
+
+	move_data->level++;
+
+	g_string_append_printf (move_data->sparql, " <%s> tracker:uri <%s> .", source_uri, uri);
+
+	sparql = g_strdup_printf ("SELECT ?child WHERE { ?child nfo:belongsToContainer <%s> }", source_uri);
+	tracker_miner_execute_sparql (TRACKER_MINER (fs),
+				      sparql,
+				      NULL,
+				      item_update_uri_recursively_cb,
+				      move_data);
+	g_free (sparql);
 }
 
 static gboolean
@@ -963,6 +1077,8 @@ item_move (TrackerMinerFS *fs,
 	gchar     *uri, *source_uri, *escaped_filename;
 	GFileInfo *file_info;
 	GString   *sparql;
+	RecursiveMoveData move_data;
+	ProcessData *data;
 
 	uri = g_file_get_uri (file);
 	source_uri = g_file_get_uri (source_file);
@@ -987,14 +1103,20 @@ item_move (TrackerMinerFS *fs,
 				       NULL, NULL);
 
 	if (!file_info) {
+		gboolean retval;
+
 		/* Destination file has gone away, ignore dest file and remove source if any */
-		item_remove (fs, source_file);
+		retval = item_remove (fs, source_file);
 
 		g_free (source_uri);
 		g_free (uri);
 
-		return TRUE;
+		return retval;
 	}
+
+	g_debug ("Moving item from '%s' to '%s'",
+		 source_uri,
+		 uri);
 
 	sparql = g_string_new ("");
 
@@ -1008,11 +1130,28 @@ item_move (TrackerMinerFS *fs,
 
 	g_string_append_printf (sparql, " <%s> nfo:fileName \"%s\" .", source_uri, escaped_filename);
 
-	item_update_uri_recursively (fs, sparql, source_uri, uri);
+	move_data.main_loop = g_main_loop_new (NULL, FALSE);
+	move_data.level = 0;
+	move_data.sparql = sparql;
+	move_data.source_uri = source_uri;
+	move_data.uri = uri;
+
+	item_update_uri_recursively (fs, &move_data, source_uri, uri);
+
+	g_main_loop_run (move_data.main_loop);
+
+	g_main_loop_unref (move_data.main_loop);
 
 	g_string_append (sparql, " }");
 
-	tracker_miner_execute_batch_update (TRACKER_MINER (fs), sparql->str, NULL);
+	data = process_data_new (file, NULL, NULL);
+	fs->private->processing_pool = g_list_prepend (fs->private->processing_pool, data);
+
+	tracker_miner_execute_batch_update (TRACKER_MINER (fs),
+					    sparql->str,
+					    NULL,
+					    sparql_update_cb,
+					    data);
 
 	g_free (uri);
 	g_free (source_uri);
@@ -1136,7 +1275,7 @@ item_queue_handlers_cb (gpointer user_data)
 		keep_processing = item_move (fs, file, source_file);
 		break;
 	case QUEUE_DELETED:
-		item_remove (fs, file);
+		keep_processing = item_remove (fs, file);
 		break;
 	case QUEUE_CREATED:
 	case QUEUE_UPDATED:
@@ -1162,7 +1301,7 @@ item_queue_handlers_cb (gpointer user_data)
 			/* Only commit immediately for
 			 * changes after initial crawling.
 			 */
-			tracker_miner_commit (TRACKER_MINER (fs));
+			tracker_miner_commit (TRACKER_MINER (fs), NULL, commit_cb, NULL);
 		}
 
 		return TRUE;
@@ -1224,12 +1363,12 @@ should_change_index_for_file (TrackerMinerFS *fs,
 			      GFile          *file)
 {
 	gboolean            uptodate;
-	GPtrArray          *sparql_result;
 	GFileInfo          *file_info;
 	guint64             time;
 	time_t              mtime;
 	struct tm           t;
 	gchar              *query, *uri;
+	SparqlQueryData     data;
 
 	file_info = g_file_query_info (file, 
 				       G_FILE_ATTRIBUTE_TIME_MODIFIED, 
@@ -1259,12 +1398,20 @@ should_change_index_for_file (TrackerMinerFS *fs,
 				 t.tm_min,
 				 t.tm_sec,
 				 uri);
-	sparql_result = tracker_miner_execute_sparql (TRACKER_MINER (fs), query, NULL);
 
-	uptodate = sparql_result && sparql_result->len == 1;
+	data.main_loop = g_main_loop_new (NULL, FALSE);
+	data.value = FALSE;
 
-	tracker_dbus_results_ptr_array_free (&sparql_result);
+	tracker_miner_execute_sparql (TRACKER_MINER (fs),
+						      query,
+						      NULL,
+						      sparql_query_cb,
+						      &data);
 
+	g_main_loop_run (data.main_loop);
+	uptodate = data.value;
+
+	g_main_loop_unref (data.main_loop);
 	g_free (query);
 	g_free (uri);
 
