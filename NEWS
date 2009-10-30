@@ -1,3 +1,106 @@
+NEW in 0.7.5
+============
+
+Improvements / New:
+
+  SPARQL:
+  * Fixed to flush update buffer after DROP GRAPH.
+  * Fixed leaking variables in reference cycle.
+  * Support fts:rank and fts:offsets in function queries.
+
+  libtracker-common:
+  * Fixed battery handling so we don't throttle indexing when on low
+    battery in cases where we are charging on AC power.
+  * Fixed logging so that verbosity=1 displays all G_LOG_LEVEL_INFO
+    messages. Previously it was unused.
+  * Fixed vapi dependencies in Makefile.am
+  * Added tracker_info() and tracker_dbus_request_info() to use
+    G_LOG_LEVEL_INFO logging.
+
+  libtracker-db:
+  * Added tracker_db_statement_bind_null(). This allows use of ?
+    parameters in SQL to be set to NULL. No longer special casing NULL
+    when used as a value when deleting single valued property values.
+
+  libtracker-data:
+  * Fixed crash from dereferencing GError when NULL in
+    delete_metadata_decomposed(). 
+  * Added a rollback callback to prevent sending update events which
+    are rolled back.
+
+  libtracker-fts:
+  * Use tracker:weight for per-property weight.
+
+  libtracker-miner:
+  * Fixed overwriting throttle in TrackerMinerFiles class
+    construction.
+  * Fixed TrackerCrawler class vtable definition of ::finished.
+  * Fixed g_critical() if .service files are not available for some
+    miners (this is the case for the Evolution plugin which is not
+    started by D-Bus but Evolution).
+  * Fixed tracker_connect() call to disable D-Bus timeouts.
+  * Fixed D-Bus calls to tracker-store to be async so we avoid
+    blocking when tracker-store is unavailable. Calls to the miners were
+    timing out.
+
+  tracker-store:
+  * Compress multiple ClassSignals for predicate-values into a single
+    signal.
+
+  tracker-extract:
+  * Fixed libstreamanalyzer plugin so it doesn't report file ontology
+    information which miner-fs already provides.
+  * Fixed configure script so libstreamanalyzer is disabled by default
+    but can be forced with --enable-libstreamanalyzer. Previously it
+    was just compiled if it was available.
+  * Fixed log spamming on start up, based on the fix for NB#126773 for
+    0.6. See commit 65adc16dc0183a1a9b08eb85440312399748262a.
+  * Fixed missing "break;" when parsing id3v20 tags leading to a
+    double free with genre/copyright assignment.
+  * Fixed MP3 extractor memory leaks in id3v24 comment tag and tlen
+    tag.
+  * Fixed so we initialize album art when running stand alone with -f
+    command line switch (fixes critical warnings from non-initialized
+    caches).
+  * Added support for nmm:trackNumber for MP3 extractor. Also uses an
+    integer not a string which was leaking too.
+  * Added command line switch -i to force in-house extractors over
+    libstreamanalyzer.
+  * Removed use of g_build_filename() for log filename, instead use the
+    string returned by tracker_log_init().
+
+  tracker-control:
+  * Created from tracker-processes (which no longer exists).
+  * Added support for removing all thumbnails.
+  * Added support for removing all config files.
+  * Added support for starting Tracker's miners.
+
+  tracker-status:
+  * Fixed crash when GValue is NULL when getting status/progress.
+
+  tracker-sparql:
+  * Fixed use of '#' and use ':' instead. For example nfo#Video.
+
+  tracker-explorer:
+  * Improved UI layout to be more inline with the HIG.
+
+  tracker-status-icon:
+  * Added man page for the .cfg file.
+
+  tracker-search-tool:
+  * Fixed mimetype query.
+
+Bugs:
+
+  None.
+
+Notes:
+
+  The Deskbar applet packaged with Tracker is currently out of date
+  and needs some love to get it working with the new APIs. It is in
+  the same state as it was for 0.6. As such it isn't expected to work.
+
+
 NEW in 0.7.4
 ============
 
