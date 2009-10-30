@@ -39,9 +39,6 @@ Improvements / New:
     miners (this is the case for the Evolution plugin which is not
     started by D-Bus but Evolution).
   * Fixed tracker_connect() call to disable D-Bus timeouts.
-  * Fixed D-Bus calls to tracker-store to be async so we avoid
-    blocking when tracker-store is unavailable. Calls to the miners were
-    timing out.
 
   tracker-store:
   * Compress multiple ClassSignals for predicate-values into a single
