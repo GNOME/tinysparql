@@ -19,7 +19,7 @@ src/libtracker-miner/tracker-miner-fs.c
 src/plugins/evolution/org-freedesktop-Tracker-evolution-plugin.eplug.xml
 src/plugins/evolution/tracker-evolution-plugin.c
 src/plugins/evolution/tracker-miner-emails.desktop.in
-src/tracker-explorer/explorer.ui
+src/tracker-explorer/tracker-explorer.ui
 src/tracker-extract/tracker-extract.c
 src/tracker-extract/tracker-main.c
 src/tracker-miner-fs/tracker-main.c
