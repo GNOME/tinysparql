@@ -92,7 +92,7 @@ Improvements / New:
 
 Bugs:
 
-  None.
+  * Fixes NB#120255, Tracker doesn't read "year" tag from the mp3...
 
 Notes:
 
