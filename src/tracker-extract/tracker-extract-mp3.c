@@ -48,6 +48,7 @@
 #include <libtracker-common/tracker-statement-list.h>
 #include <libtracker-common/tracker-ontology.h>
 #include <libtracker-common/tracker-utils.h>
+#include <libtracker-common/tracker-type-utils.h>
 
 #include "tracker-albumart.h"
 #include "tracker-main.h"
@@ -88,7 +89,7 @@ typedef struct {
 	gchar *title;
 	gchar *artist;
 	gchar *album;
-	gchar *year;
+	gchar *recording_time;
 	gchar *comment;
 	gchar *genre;
 	gchar *encoding;
@@ -683,7 +684,7 @@ get_id3 (const gchar *data,
 	GString *s;
 	gboolean encoding_was_found;
 #endif /* HAVE_ENCA */
-	gchar *encoding;
+	gchar *encoding, *year;
 	const gchar *pos;
 
 	if (!data) {
@@ -732,7 +733,11 @@ get_id3 (const gchar *data,
 	id3->album = g_convert (pos, 30, "UTF-8", encoding, NULL, NULL, NULL);
 
 	pos += 30;
-	id3->year = g_convert (pos, 4, "UTF-8", encoding, NULL, NULL, NULL);
+	year = g_convert (pos, 4, "UTF-8", encoding, NULL, NULL, NULL);
+	if (atoi (year) > 0) {
+		id3->recording_time = tracker_date_format (year);
+	}
+	g_free (year);
 
 	pos += 4;
 
@@ -1219,7 +1224,8 @@ get_id3v24_tags (const gchar *data,
 				tag->copyright = word;
 				break;
 			case ID3V24_TDRC:
-				tag->recording_time = word;
+				tag->recording_time = tracker_date_format (word);
+				g_free (word);
 				break;
 			case ID3V24_TDRL:
 				tag->release_time = word;
@@ -1263,7 +1269,10 @@ get_id3v24_tags (const gchar *data,
 				break;
 			}
 			case ID3V24_TYER:
-				tag->recording_time = word;
+				if (atoi (word) > 0) {
+					tag->recording_time = tracker_date_format (word);
+				}
+				g_free (word);
 				break;
 			default:
 				g_free (word);
@@ -1459,7 +1468,10 @@ get_id3v23_tags (const gchar *data,
 				break;
 			}
 			case ID3V24_TYER:
-				tag->recording_time = word;
+				if (atoi (word) > 0) {
+					tag->recording_time = tracker_date_format (word);
+				}
+				g_free (word);
 				break;
 			default:
 				g_free (word);
@@ -1594,7 +1606,10 @@ get_id3v20_tags (const gchar *data,
 				tag->text = word;
 				break;
 			case ID3V2_TYE:
-				tag->recording_time = word;
+				if (atoi (word) > 0) {
+					tag->recording_time = tracker_date_format (word);
+				}
+				g_free (word);
 				break;
 			default:
 				g_free (word);
@@ -1947,7 +1962,7 @@ extract_mp3 (const gchar *uri,
 	                                            filedata.id3v23_info.release_time,
 	                                            filedata.id3v22_info.recording_time,
 	                                            filedata.id3v22_info.release_time,
-	                                            filedata.id3v1_info.year);
+	                                            filedata.id3v1_info.recording_time);
 	filedata.publisher = tracker_coalesce (3, filedata.id3v24_info.publisher,
 	                                       filedata.id3v23_info.publisher,
 	                                       filedata.id3v22_info.publisher);

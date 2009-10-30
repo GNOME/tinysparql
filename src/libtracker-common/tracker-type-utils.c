@@ -125,7 +125,8 @@ tracker_date_format (const gchar *date_string)
 			buf[16] = ':';
 			buf[17] = '0';
 			buf[18] = '0';
-			buf[19] = '\0';
+			buf[19] = 'Z';
+			buf[20] = '\0';
 
 			return g_strdup (buf);
 		} else {
