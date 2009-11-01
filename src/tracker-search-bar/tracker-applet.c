@@ -134,23 +134,142 @@ applet_entry_key_press_event_cb (GtkWidget     *widget,
 	return FALSE;
 }
 
+static gboolean
+applet_draw (gpointer user_data)
+{
+	TrackerApplet *applet = user_data;
+
+	if (applet->box) {
+		gtk_widget_destroy (applet->box);
+	}
+	
+	switch (applet->orient) {
+	case GTK_ORIENTATION_VERTICAL:
+		applet->box = gtk_vbox_new (FALSE, 0);
+		break;
+	case GTK_ORIENTATION_HORIZONTAL:
+		applet->box = gtk_hbox_new (FALSE, 0);
+		break;
+	default:
+		g_assert_not_reached ();
+		break;
+	}  
+
+	gtk_container_add (GTK_CONTAINER (PANEL_APPLET (applet->parent)), applet->box);
+	gtk_widget_show (applet->box);
+
+	applet->event_box = gtk_event_box_new ();
+	gtk_event_box_set_visible_window (GTK_EVENT_BOX (applet->event_box), FALSE);
+	gtk_widget_show (applet->event_box);
+	gtk_box_pack_start (GTK_BOX (applet->box), applet->event_box, FALSE, FALSE, 0);
+
+	g_signal_connect (applet->event_box, 
+			  "button_press_event", 
+			  G_CALLBACK (applet_event_box_button_press_event_cb), applet);
+
+	applet->image = gtk_image_new ();
+	gtk_container_add (GTK_CONTAINER (applet->event_box), applet->image);
+	gtk_image_set_from_stock (GTK_IMAGE (applet->image),
+				  GTK_STOCK_FIND,
+				  GTK_ICON_SIZE_SMALL_TOOLBAR);
+	gtk_widget_show (applet->image);
+
+	applet->entry = gtk_entry_new ();
+	gtk_box_pack_start (GTK_BOX (applet->box), applet->entry, TRUE, TRUE, 0);
+	gtk_entry_set_width_chars (GTK_ENTRY (applet->entry), 12);
+ 	gtk_widget_show (applet->entry); 
+
+	g_signal_connect (applet->entry, 
+			  "activate",
+			  G_CALLBACK (applet_entry_activate_cb), applet);
+	g_signal_connect (applet->entry, 
+			  "button_press_event", 
+			  G_CALLBACK (applet_entry_button_press_event_cb), applet);
+	g_signal_connect (applet->entry, 
+			  "key_press_event", 
+			  G_CALLBACK (applet_entry_key_press_event_cb), applet);
+
+	applet->idle_draw_id = 0;
+
+	return FALSE;
+}
+
+static void
+applet_queue_draw (TrackerApplet *applet)
+{
+	if (!applet->idle_draw_id)
+		applet->idle_draw_id = g_idle_add (applet_draw, applet);
+}
+
+static void
+applet_change_orient_cb (GtkWidget         *widget,
+			 PanelAppletOrient  orient,
+			 gpointer           user_data)
+{
+	TrackerApplet *applet;
+	guint new_size;
+
+	applet = user_data;
+
+	switch (orient) {
+	case PANEL_APPLET_ORIENT_LEFT:
+	case PANEL_APPLET_ORIENT_RIGHT:
+		applet->orient = GTK_ORIENTATION_VERTICAL;
+		new_size = GTK_WIDGET (applet->parent)->allocation.width;
+		break;
+
+	case PANEL_APPLET_ORIENT_UP:
+	case PANEL_APPLET_ORIENT_DOWN:
+		applet->orient = GTK_ORIENTATION_HORIZONTAL;
+		new_size = GTK_WIDGET (applet->parent)->allocation.height;
+		break;
+	}
+
+	if (new_size != applet->size) {
+		applet->size = new_size;
+	}
+
+	applet_queue_draw (applet);
+}
+
 static void
 applet_size_allocate_cb (GtkWidget     *widget,
 			 GtkAllocation *allocation,
-			 TrackerApplet *applet)
+			 gpointer       user_data)
 {
+	TrackerApplet *applet;
 	PanelAppletOrient orient;
-        gint size;
-	
+        gint new_size;
+
+	applet = user_data;
+
 	orient = panel_applet_get_orient (PANEL_APPLET (widget));
         if (orient == PANEL_APPLET_ORIENT_LEFT ||
             orient == PANEL_APPLET_ORIENT_RIGHT) {
-                size = allocation->width;
+                new_size = allocation->width;
         } else {
-                size = allocation->height;
+                new_size = allocation->height;
         }
 
-        gtk_image_set_pixel_size (GTK_IMAGE (applet->image), size - 2);
+	if (applet->size != new_size) {
+		applet->size = new_size;
+		
+		gtk_image_set_pixel_size (GTK_IMAGE (applet->image), applet->size - 2);
+		
+		/* re-scale the icon, if it was found */
+		if (applet->icon)	{
+			GdkPixbuf *scaled;
+			
+			scaled = gdk_pixbuf_scale_simple (applet->icon,
+							  applet->size - 5,
+							  applet->size - 5,
+							  GDK_INTERP_BILINEAR);
+	  
+			gtk_image_set_from_pixbuf (GTK_IMAGE (applet->image), scaled);
+			g_object_unref (scaled);
+		}
+	}
+
 }
 
 static void
@@ -167,6 +286,16 @@ applet_destroy_cb (BonoboObject  *object,
 		applet->results = NULL;
 	}
 
+	if (applet->icon) {
+		g_object_unref (applet->icon);
+		applet->icon = NULL;
+	}
+
+	if (applet->idle_draw_id) {
+		g_source_remove (applet->idle_draw_id);
+		applet->idle_draw_id = 0;
+	}
+
 	g_free (applet);
 }
 
@@ -176,7 +305,6 @@ applet_new (PanelApplet *parent_applet)
 	TrackerApplet *applet;
 	GError *error = NULL;
 	GtkBuilder *builder;
-	GtkWidget *hbox;
 	const gchar *filename;
 
 	builder = gtk_builder_new ();
@@ -197,40 +325,13 @@ applet_new (PanelApplet *parent_applet)
 	applet->parent = GTK_WIDGET (parent_applet);
 	applet->builder = builder;
 
-	hbox = gtk_hbox_new (FALSE, 0);  
-	gtk_container_add (GTK_CONTAINER (parent_applet), hbox);
-	gtk_widget_show (hbox);
+	applet->icon = gtk_icon_theme_load_icon (gtk_icon_theme_get_default (),
+						 GTK_STOCK_FIND,
+						 48,
+						 0,
+						 NULL);
 
-	applet->event_box = gtk_event_box_new ();
-	gtk_event_box_set_visible_window (GTK_EVENT_BOX (applet->event_box), TRUE);
-	gtk_widget_show (applet->event_box);
-	gtk_box_pack_start (GTK_BOX (hbox), applet->event_box, FALSE, FALSE, 0);
-
-	g_signal_connect (applet->event_box, 
-			  "button_press_event", 
-			  G_CALLBACK (applet_event_box_button_press_event_cb), applet);
-
-	applet->image = gtk_image_new ();
-	gtk_container_add (GTK_CONTAINER (applet->event_box), applet->image);
-	gtk_image_set_from_stock (GTK_IMAGE (applet->image),
-				  GTK_STOCK_FIND,
-				  GTK_ICON_SIZE_SMALL_TOOLBAR);
-	gtk_widget_show (applet->image);
-
-	applet->entry = gtk_entry_new ();
-	gtk_box_pack_start (GTK_BOX (hbox), applet->entry, TRUE, TRUE, 0);
-	gtk_entry_set_width_chars (GTK_ENTRY (applet->entry), 12);
- 	gtk_widget_show (applet->entry); 
-
-	g_signal_connect (applet->entry, 
-			  "activate",
-			  G_CALLBACK (applet_entry_activate_cb), applet);
-	g_signal_connect (applet->entry, 
-			  "button_press_event", 
-			  G_CALLBACK (applet_entry_button_press_event_cb), applet);
-	g_signal_connect (applet->entry, 
-			  "key_press_event", 
-			  G_CALLBACK (applet_entry_key_press_event_cb), applet);
+	applet_queue_draw (applet);
 
 	panel_applet_set_flags (PANEL_APPLET (applet->parent), 
 				PANEL_APPLET_EXPAND_MINOR);
@@ -246,11 +347,11 @@ applet_new (PanelApplet *parent_applet)
 
 	gtk_widget_show (applet->parent);
 
-	g_signal_connect (applet->parent,
-			  "size_allocate",
+	g_signal_connect (applet->parent, "size_allocate",
 			  G_CALLBACK (applet_size_allocate_cb), applet);
-	g_signal_connect (panel_applet_get_control (PANEL_APPLET (applet->parent)), 
-			  "destroy",
+	g_signal_connect (applet->parent, "change_orient",
+			  G_CALLBACK (applet_change_orient_cb), applet);
+	g_signal_connect (panel_applet_get_control (PANEL_APPLET (applet->parent)), "destroy",
 			  G_CALLBACK (applet_destroy_cb), applet);
 
 	/* Initialise other modules */

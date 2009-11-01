@@ -33,9 +33,16 @@ typedef struct {
 	GtkWidget *results;
 	GtkWidget *parent;
 
+	GtkWidget *box;
 	GtkWidget *event_box;
 	GtkWidget *image;
 	GtkWidget *entry;
+
+	guint idle_draw_id;
+
+	GtkOrientation orient;
+	GdkPixbuf *icon;
+	guint size;
 } TrackerApplet;
 
 G_END_DECLS
