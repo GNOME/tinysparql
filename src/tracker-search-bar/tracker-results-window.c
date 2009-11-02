@@ -35,12 +35,14 @@
 #include "tracker-results-window.h"
 #include "tracker-aligned-window.h"
 
-#define MUSIC_QUERY    "SELECT ?urn ?title ?belongs WHERE { ?urn a nfo:Audio ; nfo:fileName ?title ; nfo:belongsToContainer ?belongs . ?urn fts:match \"%s*\" } ORDER BY DESC(fts:rank(?urn)) OFFSET 0 LIMIT 5"
-#define IMAGE_QUERY    "SELECT ?urn ?title ?belongs WHERE { ?urn a nfo:Image ; nfo:fileName ?title ; nfo:belongsToContainer ?belongs . ?urn fts:match \"%s*\" } ORDER BY DESC(fts:rank(?urn)) OFFSET 0 LIMIT 5"
-#define VIDEO_QUERY    "SELECT ?urn ?title ?belongs WHERE { ?urn a nmm:Video ; nfo:fileName ?title ; nfo:belongsToContainer ?belongs . ?urn fts:match \"%s*\" } ORDER BY DESC(fts:rank(?urn)) OFFSET 0 LIMIT 5"
-#define DOCUMENT_QUERY "SELECT ?urn ?title ?belongs WHERE { ?urn a nfo:Document ; nfo:fileName ?title ; nfo:belongsToContainer ?belongs . ?urn fts:match \"%s*\" } ORDER BY DESC(fts:rank(?urn)) OFFSET 0 LIMIT 5"
-#define FOLDER_QUERY   "SELECT ?urn ?title ?belongs WHERE { ?urn a nfo:Folder ; nfo:fileName ?title ; nfo:belongsToContainer ?belongs . ?urn fts:match \"%s*\" } ORDER BY DESC(fts:rank(?urn)) OFFSET 0 LIMIT 5"
-#define APP_QUERY      "SELECT ?urn ?title WHERE { ?urn a nfo:Software ; nie:title ?title . FILTER regex (?title, \"%s\") } ORDER BY ASC(?title) OFFSET 0 LIMIT 5"
+#define MAX_ITEMS 5
+
+#define MUSIC_QUERY    "SELECT ?urn ?title ?belongs WHERE { ?urn a nfo:Audio ; nfo:fileName ?title ; nfo:belongsToContainer ?belongs . ?urn fts:match \"%s*\" } ORDER BY DESC(fts:rank(?urn)) OFFSET 0 LIMIT %d"
+#define IMAGE_QUERY    "SELECT ?urn ?title ?belongs WHERE { ?urn a nfo:Image ; nfo:fileName ?title ; nfo:belongsToContainer ?belongs . ?urn fts:match \"%s*\" } ORDER BY DESC(fts:rank(?urn)) OFFSET 0 LIMIT %d"
+#define VIDEO_QUERY    "SELECT ?urn ?title ?belongs WHERE { ?urn a nmm:Video ; nfo:fileName ?title ; nfo:belongsToContainer ?belongs . ?urn fts:match \"%s*\" } ORDER BY DESC(fts:rank(?urn)) OFFSET 0 LIMIT %d"
+#define DOCUMENT_QUERY "SELECT ?urn ?title ?belongs WHERE { ?urn a nfo:Document ; nfo:fileName ?title ; nfo:belongsToContainer ?belongs . ?urn fts:match \"%s*\" } ORDER BY DESC(fts:rank(?urn)) OFFSET 0 LIMIT %d"
+#define FOLDER_QUERY   "SELECT ?urn ?title ?belongs WHERE { ?urn a nfo:Folder ; nfo:fileName ?title ; nfo:belongsToContainer ?belongs . ?urn fts:match \"%s*\" } ORDER BY DESC(fts:rank(?urn)) OFFSET 0 LIMIT %d"
+#define APP_QUERY      "SELECT ?urn ?title WHERE { ?urn a nfo:Software ; nie:title ?title . FILTER regex (?title, \"%s\") } ORDER BY ASC(?title) OFFSET 0 LIMIT %d"
 
 #define GENERAL_SEARCH  "SELECT ?s ?type ?title WHERE { ?s fts:match \"%s*\" ; rdf:type ?type . OPTIONAL { ?s nie:title ?title } } OFFSET %d LIMIT %d"
 
@@ -60,6 +62,7 @@ typedef struct {
 	gchar *query;
 
 	gint queries_pending;
+	gint request_id;
 } TrackerResultsWindowPrivate;
 
 typedef enum {
@@ -87,6 +90,7 @@ typedef struct {
 } ItemData;
 
 typedef struct {
+	gint request_id;
 	TrackerCategory category;
 	TrackerResultsWindow *window;
 	GHashTable *results;
@@ -118,6 +122,8 @@ static void     results_window_screen_changed     (GtkWidget            *widget,
 static void     model_set_up                      (TrackerResultsWindow *window);
 static void     search_get                        (TrackerResultsWindow *window,
 						   TrackerCategory       category);
+static void     search_start                      (TrackerResultsWindow *window);
+
 enum {
 	COL_CATEGORY_ID,
 	COL_IMAGE,
@@ -157,7 +163,7 @@ tracker_results_window_class_init (TrackerResultsWindowClass *klass)
 							      "Query",
 							      "Query",
 							      NULL,
-							      G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY));
+							      G_PARAM_READWRITE));
 
 	g_type_class_add_private (object_class, sizeof (TrackerResultsWindowPrivate));
 }
@@ -269,18 +275,11 @@ tracker_results_window_init (TrackerResultsWindow *window)
 static void
 results_window_constructed (GObject *object)
 {
-	TrackerResultsWindowPrivate *priv;
 	TrackerResultsWindow *window;
 
 	window = TRACKER_RESULTS_WINDOW (object);
-	priv = TRACKER_RESULTS_WINDOW_GET_PRIVATE (window);
 
-	search_get (window, CATEGORY_IMAGE);
-	search_get (window, CATEGORY_AUDIO);
-	search_get (window, CATEGORY_VIDEO);
-	search_get (window, CATEGORY_DOCUMENT);
-	search_get (window, CATEGORY_FOLDER);
-	search_get (window, CATEGORY_APPLICATION);
+	search_start (window);
 }
 
 static void
@@ -311,8 +310,12 @@ results_window_set_property (GObject      *object,
 
 	switch (prop_id) {
 	case PROP_QUERY:
+		/* Don't do the search_start() call if the window was
+		 * just set up. 
+		 */
 		g_free (priv->query);
 		priv->query = g_value_dup_string (value);
+		search_start (TRACKER_RESULTS_WINDOW (object));
 		break;
 	default:
                 G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -461,13 +464,15 @@ item_data_free (ItemData *id)
 }
 
 static SearchQuery *
-search_query_new (TrackerCategory       category,
+search_query_new (gint                  request_id,
+		  TrackerCategory       category,
 		  TrackerResultsWindow *window)
 {
 	SearchQuery *sq;
 
 	sq = g_slice_new0 (SearchQuery);
 
+	sq->request_id = request_id;
 	sq->category = category;
 	sq->window = window;
 	sq->results = g_hash_table_new_full (g_str_hash,
@@ -743,6 +748,9 @@ model_set_up (TrackerResultsWindow *window)
 	priv = TRACKER_RESULTS_WINDOW_GET_PRIVATE (window);
 	view = GTK_TREE_VIEW (priv->treeview);
 
+	/* View */
+	gtk_tree_view_set_enable_search (view, FALSE);
+
 	/* Store */
 	store = gtk_list_store_new (COL_COUNT,
 				    G_TYPE_INT,            /* Category ID */
@@ -919,6 +927,15 @@ search_get_cb (GPtrArray *results,
 	priv = TRACKER_RESULTS_WINDOW_GET_PRIVATE (window);
 	priv->queries_pending--;
 
+	/* If request IDs don't match, data is no longer needed */
+	if (priv->request_id != sq->request_id) {
+		g_message ("Received data from request id:%d, now on request id:%d", 
+			   sq->request_id,
+			   priv->request_id);
+		search_query_free (sq);
+		return;
+	}
+
 	if (error) {
 		g_printerr ("Could not get search results, %s\n", error->message);
 		g_error_free (error);
@@ -1001,13 +1018,45 @@ search_get (TrackerResultsWindow *window,
 		return;
 	}
 
-	sq = search_query_new (category, window);
+	sq = search_query_new (priv->request_id, category, window);
 
-	sparql = g_strdup_printf (format, priv->query);
+	sparql = g_strdup_printf (format, priv->query, MAX_ITEMS);
 	tracker_resources_sparql_query_async (priv->client, sparql, search_get_cb, sq);
 	g_free (sparql);
 
 	priv->queries_pending++;
+}
+
+static void
+search_start (TrackerResultsWindow *window)
+{
+	TrackerResultsWindowPrivate *priv;
+	GtkTreeModel *model;
+	GtkListStore *store;
+
+	priv = TRACKER_RESULTS_WINDOW_GET_PRIVATE (window);
+	
+	/* Cancel current requests */
+	priv->request_id++;
+	g_message ("Incrementing request ID to %d", priv->request_id);
+
+	/* Clear current data */
+	g_message ("Clearing previous results");
+	model = gtk_tree_view_get_model (GTK_TREE_VIEW (priv->treeview));
+	store = GTK_LIST_STORE (model);
+	gtk_list_store_clear (store);
+
+	if (!priv->query || strlen (priv->query) < 1) {
+		return;
+	}
+	
+	/* SPARQL requests */
+	search_get (window, CATEGORY_IMAGE);
+	search_get (window, CATEGORY_AUDIO);
+	search_get (window, CATEGORY_VIDEO);
+	search_get (window, CATEGORY_DOCUMENT);
+	search_get (window, CATEGORY_FOLDER);
+	search_get (window, CATEGORY_APPLICATION);
 }
 
 static gboolean
@@ -1063,5 +1112,7 @@ tracker_results_window_popup (TrackerResultsWindow *window)
 	gtk_widget_realize (GTK_WIDGET (window));
 	gtk_widget_show (GTK_WIDGET (window));
 
-	g_idle_add ((GSourceFunc) grab_popup_window, window);
+	if (0) {
+		g_idle_add ((GSourceFunc) grab_popup_window, window);
+	}
 }

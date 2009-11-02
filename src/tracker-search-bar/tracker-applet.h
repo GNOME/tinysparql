@@ -38,6 +38,7 @@ typedef struct {
 	GtkWidget *image;
 	GtkWidget *entry;
 
+	guint new_search_id;
 	guint idle_draw_id;
 
 	GtkOrientation orient;

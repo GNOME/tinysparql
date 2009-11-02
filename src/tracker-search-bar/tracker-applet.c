@@ -78,28 +78,50 @@ applet_event_box_button_press_event_cb (GtkWidget      *widget,
 }
 
 static void
-applet_entry_activate_cb (GtkEntry      *entry,
-			  TrackerApplet *applet)
+applet_entry_start_search (TrackerApplet *applet)
 {
 	const gchar *text;
 
-	text = gtk_entry_get_text (entry);
-	if (strlen (text) < 1) {
-		return;
-	}
-
-	/* Need a better way to do this ? */
-	if (applet->results) {
-		gtk_widget_destroy (applet->results);
-		applet->results = NULL;
-	}
+	text = gtk_entry_get_text (GTK_ENTRY (applet->entry));
 
 	g_print ("Searching for: '%s'\n", text);
-	applet->results = tracker_results_window_new (applet->parent, text);
 
-	gtk_entry_set_text (entry, "");
+	if (!applet->results) {
+		/* gtk_widget_destroy (applet->results); */
+		/* applet->results = NULL; */
 
-	tracker_results_window_popup (TRACKER_RESULTS_WINDOW (applet->results));
+		applet->results = tracker_results_window_new (applet->parent, text);
+
+		tracker_results_window_popup (TRACKER_RESULTS_WINDOW (applet->results));	
+	} else {
+		g_object_set (applet->results, "query", text, NULL);
+	}
+}
+
+static gboolean
+applet_entry_start_search_cb (gpointer user_data)
+{
+	TrackerApplet *applet;
+
+	applet = user_data;
+
+	applet->new_search_id = 0;
+
+	applet_entry_start_search (applet);
+
+	return FALSE;
+}
+
+static void
+applet_entry_activate_cb (GtkEntry      *entry,
+			  TrackerApplet *applet)
+{
+	if (applet->new_search_id) {
+		g_source_remove (applet->new_search_id);
+		applet->new_search_id = 0;
+	}
+
+	applet_entry_start_search (applet);
 }
 
 static gboolean
@@ -117,17 +139,28 @@ applet_entry_key_press_event_cb (GtkWidget     *widget,
 				 GdkEventKey   *event, 
 				 TrackerApplet *applet)
 {
-	if (!applet->results) {
-		return FALSE;
-	}
-
 	if (event->keyval == GDK_Escape) {
+		if (!applet->results) {
+			return FALSE;
+		}
+
 		gtk_widget_destroy (applet->results);
 		applet->results = NULL;
-	}
+	} else if (event->keyval == GDK_Down) {
+		if (!applet->results) {
+			return FALSE;
+		}
 
-	if (event->keyval == GDK_Down) {
 		gtk_widget_grab_focus (applet->results);
+	} else {
+		if (applet->new_search_id) {
+			g_source_remove (applet->new_search_id);
+		}
+
+		applet->new_search_id = 
+			g_timeout_add (300, 
+				       applet_entry_start_search_cb, 
+				       applet);
 	}
 
 	return FALSE;
@@ -293,6 +326,11 @@ applet_destroy_cb (BonoboObject  *object,
 	if (applet->idle_draw_id) {
 		g_source_remove (applet->idle_draw_id);
 		applet->idle_draw_id = 0;
+	}
+
+	if (applet->new_search_id) {
+		g_source_remove (applet->new_search_id);
+		applet->new_search_id = 0;
 	}
 
 	g_free (applet);
