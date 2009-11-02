@@ -871,6 +871,7 @@ search_window_ensure_not_blank (TrackerResultsWindow *window)
 			gtk_widget_show (priv->label);
 		} else {
 			gtk_widget_show_all (priv->scrolled_window);
+			gtk_widget_hide (priv->label);
 		}
 	}
 }
@@ -1047,6 +1048,8 @@ search_start (TrackerResultsWindow *window)
 	gtk_list_store_clear (store);
 
 	if (!priv->query || strlen (priv->query) < 1) {
+		gtk_widget_show (priv->scrolled_window);
+		gtk_widget_hide (priv->label);
 		return;
 	}
 	
