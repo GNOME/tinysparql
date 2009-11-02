@@ -243,7 +243,7 @@ tracker_results_window_init (TrackerResultsWindow *window)
 	priv->frame = gtk_frame_new (NULL);
 	gtk_container_add (GTK_CONTAINER (window), priv->frame);
 	gtk_frame_set_shadow_type (GTK_FRAME (priv->frame), GTK_SHADOW_IN);
-	gtk_widget_set_size_request (priv->frame, 500, 300);
+	gtk_widget_set_size_request (priv->frame, 500, 600);
 	gtk_widget_show (priv->frame);
 
 	vbox = gtk_vbox_new (FALSE, 12);
