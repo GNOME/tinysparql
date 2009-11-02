@@ -803,16 +803,12 @@ sparql_query_cb (GPtrArray *result,
 
 	run_query_callback (data, result, error);
 
-	if (result) {
-		tracker_dbus_results_ptr_array_free (&result);
-	}
-
 	if (error) {
 		g_error_free (error);
-	}
-
-	if (result) {
-		tracker_dbus_results_ptr_array_free (&result);
+	} else {
+		if (result) {
+			tracker_dbus_results_ptr_array_free (&result);
+		}
 	}
 
 	async_call_data_destroy (data, TRUE);
