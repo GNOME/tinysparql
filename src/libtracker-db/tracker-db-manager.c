@@ -1092,8 +1092,13 @@ tracker_db_manager_init (TrackerDBManagerFlags	flags,
 	gboolean	    need_reindex, did_copy = FALSE;
 	guint		    i;
 
+	/* First set defaults for return values */
 	if (first_time) {
 		*first_time = FALSE;
+	}
+
+	if (need_journal) {
+		*need_journal = FALSE;
 	}
 
 	if (initialized) {
