@@ -731,13 +731,22 @@ create_fts_table (TrackerDBInterface *iface)
 }
 
 gboolean
-tracker_data_manager_init (TrackerDBManagerFlags       flags,
-			   const gchar                *test_schema,
-			   gboolean                   *first_time,
-			   gboolean                   *need_journal)
+tracker_data_manager_init (TrackerDBManagerFlags  flags,
+			   const gchar           *test_schema,
+			   gboolean              *first_time,
+			   gboolean              *need_journal)
 {
 	TrackerDBInterface *iface;
 	gboolean is_first_time_index;
+
+	/* First set defaults for return values */
+	if (first_time) {
+		*first_time = FALSE;
+	}
+
+	if (need_journal) {
+		*need_journal = FALSE;
+	}
 
 	if (initialized) {
 		return TRUE;
