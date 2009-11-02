@@ -127,7 +127,8 @@ static PauseData *pause_data_new     (const gchar  *application,
 static void       async_call_notify_error (AsyncCallData *data,
 					   gint           code,
 					   const gchar   *message);
-static void       async_call_data_destroy (AsyncCallData *data);
+static void       async_call_data_destroy (AsyncCallData *data,
+					   gboolean       remove);
 
 
 G_DEFINE_ABSTRACT_TYPE (TrackerMiner, tracker_miner, G_TYPE_OBJECT)
@@ -378,7 +379,7 @@ async_call_finalize_foreach (AsyncCallData *data,
 			     gpointer       user_data)
 {
 	async_call_notify_error (data, 0, "Miner is being finalized");
-	async_call_data_destroy (data);
+	async_call_data_destroy (data, FALSE);
 }
 
 static void
@@ -726,7 +727,8 @@ tracker_miner_is_started (TrackerMiner  *miner)
 }
 
 static void
-async_call_data_destroy (AsyncCallData *data)
+async_call_data_destroy (AsyncCallData *data,
+			 gboolean       remove)
 {
 	TrackerMiner *miner = data->miner;
 
@@ -741,6 +743,10 @@ async_call_data_destroy (AsyncCallData *data)
 	if (data->id != 0) {
 		tracker_cancel_call (miner->private->client, data->id);
 		data->id = 0;
+	}
+
+	if (remove) {
+		g_ptr_array_remove_fast (miner->private->async_calls, data);
 	}
 
 	g_slice_free (AsyncCallData, data);
@@ -781,7 +787,11 @@ sparql_update_cb (GError   *error,
 
 	run_update_callback (data, error);
 
-	async_call_data_destroy (data);
+	async_call_data_destroy (data, TRUE);
+
+	if (error) {
+		g_error_free (error);
+	}
 }
 
 static void
@@ -797,7 +807,15 @@ sparql_query_cb (GPtrArray *result,
 		tracker_dbus_results_ptr_array_free (&result);
 	}
 
-	async_call_data_destroy (data);
+	if (error) {
+		g_error_free (error);
+	}
+
+	if (result) {
+		tracker_dbus_results_ptr_array_free (&result);
+	}
+
+	async_call_data_destroy (data, TRUE);
 }
 
 static void
@@ -810,8 +828,7 @@ sparql_cancelled_cb (GCancellable  *cancellable,
 
 	priv = TRACKER_MINER_GET_PRIVATE (data->miner);
 
-	g_ptr_array_remove (priv->async_calls, data);
-	async_call_data_destroy (data);
+	async_call_data_destroy (data, TRUE);
 }
 
 static AsyncCallData *
