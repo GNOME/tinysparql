@@ -35,35 +35,14 @@
 #include "tracker-results-window.h"
 #include "tracker-aligned-window.h"
 
-#define MUSIC_SEARCH    "SELECT ?urn ?type ?title ?belongs WHERE { ?urn a nmm:MusicPiece ; rdf:type ?type ; nfo:fileName ?title ; nfo:belongsToContainer ?belongs . ?urn fts:match \"%s*\" } OFFSET 0 LIMIT 500"
-#define PHOTO_SEARCH    "SELECT ?urn ?type ?title ?belongs WHERE { ?urn a nmm:Photo ; rdf:type ?type ; nfo:fileName ?title ; nfo:belongsToContainer ?belongs . ?urn fts:match \"%s*\" } OFFSET 0 LIMIT 500"
-#define VIDEO_SEARCH    "SELECT ?urn ?type ?title ?belongs WHERE { ?urn a nmm:Video ; rdf:type ?type ; nfo:fileName ?title ; nfo:belongsToContainer ?belongs . ?urn fts:match \"%s*\" } OFFSET 0 LIMIT 500"
-#define DOCUMENT_SEARCH "SELECT ?urn ?type ?title ?belongs WHERE { ?urn a nfo:Document ; rdf:type ?type ; nfo:fileName ?title ; nfo:belongsToContainer ?belongs . ?urn fts:match \"%s*\" } OFFSET 0 LIMIT 500"
-#define FOLDER_SEARCH   "SELECT ?urn ?type ?title ?belongs WHERE { ?urn a nfo:Folder ; rdf:type ?type ; nfo:fileName ?title ; nfo:belongsToContainer ?belongs . ?urn fts:match \"%s*\" } OFFSET 0 LIMIT 500"
+#define MUSIC_QUERY    "SELECT ?urn ?title ?belongs WHERE { ?urn a nfo:Audio ; nfo:fileName ?title ; nfo:belongsToContainer ?belongs . ?urn fts:match \"%s*\" } ORDER BY DESC(fts:rank(?urn)) OFFSET 0 LIMIT 5"
+#define IMAGE_QUERY    "SELECT ?urn ?title ?belongs WHERE { ?urn a nfo:Image ; nfo:fileName ?title ; nfo:belongsToContainer ?belongs . ?urn fts:match \"%s*\" } ORDER BY DESC(fts:rank(?urn)) OFFSET 0 LIMIT 5"
+#define VIDEO_QUERY    "SELECT ?urn ?title ?belongs WHERE { ?urn a nmm:Video ; nfo:fileName ?title ; nfo:belongsToContainer ?belongs . ?urn fts:match \"%s*\" } ORDER BY DESC(fts:rank(?urn)) OFFSET 0 LIMIT 5"
+#define DOCUMENT_QUERY "SELECT ?urn ?title ?belongs WHERE { ?urn a nfo:Document ; nfo:fileName ?title ; nfo:belongsToContainer ?belongs . ?urn fts:match \"%s*\" } ORDER BY DESC(fts:rank(?urn)) OFFSET 0 LIMIT 5"
+#define FOLDER_QUERY   "SELECT ?urn ?title ?belongs WHERE { ?urn a nfo:Folder ; nfo:fileName ?title ; nfo:belongsToContainer ?belongs . ?urn fts:match \"%s*\" } ORDER BY DESC(fts:rank(?urn)) OFFSET 0 LIMIT 5"
+#define APP_QUERY      "SELECT ?urn ?title WHERE { ?urn a nfo:Software ; nie:title ?title . FILTER regex (?title, \"%s\") } ORDER BY ASC(?title) OFFSET 0 LIMIT 5"
 
 #define GENERAL_SEARCH  "SELECT ?s ?type ?title WHERE { ?s fts:match \"%s*\" ; rdf:type ?type . OPTIONAL { ?s nie:title ?title } } OFFSET %d LIMIT %d"
-
-static void     results_window_constructed        (GObject              *object);
-static void     results_window_finalize           (GObject              *object);
-static void     results_window_set_property       (GObject              *object,
-						   guint                 prop_id,
-						   const GValue         *value,
-						   GParamSpec           *pspec);
-static void     results_window_get_property       (GObject              *object,
-						   guint                 prop_id,
-						   GValue               *value,
-						   GParamSpec           *pspec);
-static gboolean results_window_key_press_event    (GtkWidget            *widget,
-						   GdkEventKey          *event);
-static gboolean results_window_button_press_event (GtkWidget            *widget,
-						   GdkEventButton       *event);
-static void     results_window_size_request       (GtkWidget            *widget,
-						   GtkRequisition       *requisition);
-static void     results_window_screen_changed     (GtkWidget            *widget,
-						   GdkScreen            *prev_screen);
-static void     model_set_up                      (TrackerResultsWindow *window);
-static void     search_get                        (TrackerResultsWindow *window,
-						   const gchar          *query);
 
 #define TRACKER_RESULTS_WINDOW_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_RESULTS_WINDOW, TrackerResultsWindowPrivate))
 
@@ -99,6 +78,46 @@ typedef enum {
 	CATEGORY_WEBSITE               = 1 << 12
 } TrackerCategory;
 
+typedef struct {
+	gchar *urn;
+	gchar *type;
+	gchar *title;
+	gchar *belongs;
+	TrackerCategory category;
+} ItemData;
+
+typedef struct {
+	TrackerCategory category;
+	TrackerResultsWindow *window;
+	GHashTable *results;
+} SearchQuery;
+
+struct FindCategory {
+	const gchar *category_str;
+	gboolean found;
+};
+
+static void     results_window_constructed        (GObject              *object);
+static void     results_window_finalize           (GObject              *object);
+static void     results_window_set_property       (GObject              *object,
+						   guint                 prop_id,
+						   const GValue         *value,
+						   GParamSpec           *pspec);
+static void     results_window_get_property       (GObject              *object,
+						   guint                 prop_id,
+						   GValue               *value,
+						   GParamSpec           *pspec);
+static gboolean results_window_key_press_event    (GtkWidget            *widget,
+						   GdkEventKey          *event);
+static gboolean results_window_button_press_event (GtkWidget            *widget,
+						   GdkEventButton       *event);
+static void     results_window_size_request       (GtkWidget            *widget,
+						   GtkRequisition       *requisition);
+static void     results_window_screen_changed     (GtkWidget            *widget,
+						   GdkScreen            *prev_screen);
+static void     model_set_up                      (TrackerResultsWindow *window);
+static void     search_get                        (TrackerResultsWindow *window,
+						   TrackerCategory       category);
 enum {
 	COL_CATEGORY_ID,
 	COL_IMAGE,
@@ -107,19 +126,6 @@ enum {
 	COL_TITLE,
 	COL_BELONGS,
 	COL_COUNT
-};
-
-typedef struct {
-	gchar *urn;
-	gchar *type;
-	gchar *title;
-	gchar *belongs;
-	guint categories;
-} ItemData;
-
-struct FindCategory {
-	const gchar *category_str;
-	gboolean found;
 };
 
 enum {
@@ -265,30 +271,16 @@ results_window_constructed (GObject *object)
 {
 	TrackerResultsWindowPrivate *priv;
 	TrackerResultsWindow *window;
-	gchar *sparql;
 
 	window = TRACKER_RESULTS_WINDOW (object);
 	priv = TRACKER_RESULTS_WINDOW_GET_PRIVATE (window);
 
-	sparql = g_strdup_printf (MUSIC_SEARCH, priv->query);
-	search_get (window, sparql);
-	g_free (sparql);
-
-	sparql = g_strdup_printf (PHOTO_SEARCH, priv->query);
-	search_get (window, sparql);
-	g_free (sparql);
-
-	sparql = g_strdup_printf (VIDEO_SEARCH, priv->query);
-	search_get (window, sparql);
-	g_free (sparql);
-
-	sparql = g_strdup_printf (DOCUMENT_SEARCH, priv->query);
-	search_get (window, sparql);
-	g_free (sparql);
-
-	sparql = g_strdup_printf (FOLDER_SEARCH, priv->query);
-	search_get (window, sparql);
-	g_free (sparql);
+	search_get (window, CATEGORY_IMAGE);
+	search_get (window, CATEGORY_AUDIO);
+	search_get (window, CATEGORY_VIDEO);
+	search_get (window, CATEGORY_DOCUMENT);
+	search_get (window, CATEGORY_FOLDER);
+	search_get (window, CATEGORY_APPLICATION);
 }
 
 static void
@@ -441,21 +433,19 @@ results_window_screen_changed (GtkWidget *widget,
 }
 
 static ItemData *
-item_data_new (const gchar *urn,
-	       const gchar *type,
-	       const gchar *title,
-	       const gchar *belongs,
-	       guint        categories)
+item_data_new (const gchar     *urn,
+	       const gchar     *title,
+	       const gchar     *belongs,
+	       TrackerCategory  category)
 {
 	ItemData *id;
 
 	id = g_slice_new0 (ItemData);
 
 	id->urn = g_strdup (urn);
-	id->type = g_strdup (type);
 	id->title = g_strdup (title);
 	id->belongs = g_strdup (belongs);
-	id->categories = categories;
+	id->category = category;
 
 	return id;
 }
@@ -464,21 +454,48 @@ static void
 item_data_free (ItemData *id)
 {
 	g_free (id->urn);
-	g_free (id->type);
 	g_free (id->title);
 	g_free (id->belongs);
 	
 	g_slice_free (ItemData, id);
 }
 
+static SearchQuery *
+search_query_new (TrackerCategory       category,
+		  TrackerResultsWindow *window)
+{
+	SearchQuery *sq;
+
+	sq = g_slice_new0 (SearchQuery);
+
+	sq->category = category;
+	sq->window = window;
+	sq->results = g_hash_table_new_full (g_str_hash,
+					     g_str_equal,
+					     (GDestroyNotify) g_free,
+					     (GDestroyNotify) item_data_free);
+
+	return sq;
+}
+
+static void
+search_query_free (SearchQuery *sq)
+{
+	g_hash_table_unref (sq->results);
+
+	g_slice_free (SearchQuery, sq);
+}
+
 static gchar *
 category_to_string (TrackerCategory category)
 {
 	switch (category) {
+	case CATEGORY_NONE: return _("Other");
 	case CATEGORY_CONTACT: return _("Contacts");
 	case CATEGORY_TAG: return _("Tags");
 	case CATEGORY_EMAIL_ADDRESS: return _("Email Addresses");
 	case CATEGORY_DOCUMENT: return _("Documents");
+	case CATEGORY_APPLICATION: return _("Applications");
 	case CATEGORY_IMAGE: return _("Images");
 	case CATEGORY_AUDIO: return _("Audio");
 	case CATEGORY_FOLDER: return _("Folders");
@@ -486,9 +503,6 @@ category_to_string (TrackerCategory category)
 	case CATEGORY_VIDEO: return _("Videos");
 	case CATEGORY_ARCHIVE: return _("Archives");
 	case CATEGORY_WEBSITE: return _("Websites");
-
-	default:
-		break;
 	}
 
 	return _("Other");
@@ -857,36 +871,37 @@ inline static void
 search_get_foreach (gpointer value, 
 		    gpointer user_data)
 {
-	GHashTable *resources;
+	GHashTable *results;
+	SearchQuery *sq;
 	ItemData *id;
 	gchar **metadata;
-	const gchar *urn, *type, *title, *belongs;
+	const gchar *urn, *title, *belongs;
 
-	resources = user_data;
+	sq = user_data;
+	results = sq->results;
 	metadata = value;
 
 	urn = metadata[0];
-	type = metadata[1];
-	title = metadata[2];
-	belongs = metadata[3];
+	title = metadata[1];
+	belongs = metadata[2];
 
 	if (!title) {
 		title = urn;
 	}
 	
-	id = g_hash_table_lookup (resources, urn);
+	id = g_hash_table_lookup (results, urn);
 	if (!id) {
 		g_print ("urn:'%s' found\n", urn);
 		g_print ("  title:'%s'\n", title);
 		g_print ("  belongs to:'%s'\n", belongs);
 
-		id = item_data_new (urn, type, title, belongs, 0);
-		g_hash_table_insert (resources, g_strdup (urn), id);
+		id = item_data_new (urn, title, belongs, sq->category);
+
+		g_hash_table_insert (results, g_strdup (urn), id);
 	}
 
-	category_from_string (type, &id->categories);
-
-	g_print ("  type:'%s', new categories:%d\n", type, id->categories);
+	/* category_from_string (type, &id->categories); */
+	/* g_print ("  type:'%s', new categories:%d\n", type, id->categories); */
 }
 
 static void
@@ -896,68 +911,102 @@ search_get_cb (GPtrArray *results,
 {
 	TrackerResultsWindow *window;
 	TrackerResultsWindowPrivate *priv;
+	SearchQuery *sq;
 
-	window = user_data;
+	sq = user_data;
+	window = sq->window;
+
 	priv = TRACKER_RESULTS_WINDOW_GET_PRIVATE (window);
 	priv->queries_pending--;
 
 	if (error) {
 		g_printerr ("Could not get search results, %s\n", error->message);
 		g_error_free (error);
-		
+
+		search_query_free (sq);
 		search_window_ensure_not_blank (window);
+
 		return;
 	}
 
 	if (!results) {
 		g_print ("No results were found matching the query\n");
 	} else {
-		GHashTable *resources;
 		GHashTableIter iter;
 		gpointer key, value;
 
 		g_print ("Results: %d\n", results->len);
 
-		resources = g_hash_table_new_full (g_str_hash,
-						   g_str_equal,
-						   (GDestroyNotify) g_free,
-						   (GDestroyNotify) item_data_free);
-
 		g_ptr_array_foreach (results,
 				     search_get_foreach,
-				     resources);
+				     sq);
 
 		g_ptr_array_foreach (results, (GFunc) g_strfreev, NULL);
 		g_ptr_array_free (results, TRUE);
 
-		g_hash_table_iter_init (&iter, resources);
+		g_hash_table_iter_init (&iter, sq->results);
 		while (g_hash_table_iter_next (&iter, &key, &value)) {
 			ItemData *id;
 
 			id = value;
 
 			model_add (window,
-				   id->categories,
+				   id->category,
 				   id->urn,
 				   id->title,
 				   id->belongs);
 		}
-
-		g_hash_table_unref (resources);
 	}
 
+	search_query_free (sq);
 	search_window_ensure_not_blank (window);
 }
 
 static void
 search_get (TrackerResultsWindow *window,
-	    const gchar          *query)
+	    TrackerCategory       category)
 {
 	TrackerResultsWindowPrivate *priv;
+	SearchQuery *sq;
+	gchar *sparql;
+	const gchar *format;
 
 	priv = TRACKER_RESULTS_WINDOW_GET_PRIVATE (window);
 
-	tracker_resources_sparql_query_async (priv->client, query, search_get_cb, window);
+	switch (category) {
+	case CATEGORY_IMAGE:
+		format = IMAGE_QUERY;
+		break;
+	case CATEGORY_AUDIO:
+		format = MUSIC_QUERY;
+		break;
+	case CATEGORY_VIDEO:
+		format = VIDEO_QUERY;
+		break;
+	case CATEGORY_DOCUMENT:
+		format = DOCUMENT_QUERY;
+		break;
+	case CATEGORY_FOLDER:
+		format = FOLDER_QUERY;
+		break;
+	case CATEGORY_APPLICATION:
+		format = APP_QUERY;
+		break;
+	default:
+		format = NULL;
+		break;
+	}
+
+	if (!format) {
+		return;
+	}
+
+	sq = search_query_new (category, window);
+
+	sparql = g_strdup_printf (format, priv->query);
+	tracker_resources_sparql_query_async (priv->client, sparql, search_get_cb, sq);
+	g_free (sparql);
+
 	priv->queries_pending++;
 }
 
