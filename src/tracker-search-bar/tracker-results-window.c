@@ -721,9 +721,11 @@ model_pixbuf_cell_data_func (GtkTreeViewColumn    *tree_column,
 				    COL_URN, &urn,
 				    -1);
 
-		/* FIXME: Should use category */
-		pixbuf = pixbuf_get (window, urn, (category & CATEGORY_IMAGE));
-		g_free (urn);
+		if (urn) {
+			/* FIXME: Should use category */
+			pixbuf = pixbuf_get (window, urn, category);
+			g_free (urn);
+		}
 
 		/* Cache it in the store */
 		gtk_list_store_set (GTK_LIST_STORE (model), iter,
