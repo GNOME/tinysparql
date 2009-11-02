@@ -79,9 +79,6 @@ typedef struct {
 	GMainLoop	 *main_loop;
 	gchar		 *log_filename;
 
-	gchar		 *data_dir;
-	gchar		 *user_data_dir;
-	gchar		 *sys_tmp_dir;
 	gchar            *ttl_backup_file;
 
 	gboolean          first_time_index;
@@ -133,10 +130,6 @@ private_free (gpointer data)
 	TrackerMainPrivate *private;
 
 	private = data;
-
-	g_free (private->sys_tmp_dir);
-	g_free (private->user_data_dir);
-	g_free (private->data_dir);
 
 	g_free (private->ttl_backup_file);
 	g_free (private->log_filename);
@@ -227,69 +220,11 @@ initialize_priority (void)
 }
 
 static void
-initialize_locations (void)
-{
-	TrackerMainPrivate *private;
-	gchar		   *filename;
-
-	private = g_static_private_get (&private_key);
-
-	/* Public locations */
-	private->user_data_dir =
-		g_build_filename (g_get_user_data_dir (),
-				  "tracker",
-				  "data",
-				  NULL);
-
-	private->data_dir =
-		g_build_filename (g_get_user_cache_dir (),
-				  "tracker",
-				  NULL);
-
-	filename = g_strdup_printf ("tracker-%s", g_get_user_name ());
-	private->sys_tmp_dir =
-		g_build_filename (g_get_tmp_dir (),
-				  filename,
-				  NULL);
-	g_free (filename);
-
-	private->ttl_backup_file = 
-		g_build_filename (private->user_data_dir, 
-				  "tracker-userdata-backup.ttl",
-				  NULL);
-}
-
-static void
 initialize_directories (void)
 {
-	TrackerMainPrivate *private;
-	gchar		   *filename;
-
-	private = g_static_private_get (&private_key);
-
 	/* NOTE: We don't create the database directories here, the
 	 * tracker-db-manager does that for us.
 	 */
-
-	g_message ("Checking directory exists:'%s'", private->user_data_dir);
-	g_mkdir_with_parents (private->user_data_dir, 00755);
-
-	g_message ("Checking directory exists:'%s'", private->data_dir);
-	g_mkdir_with_parents (private->data_dir, 00755);
-
-	/* Remove old tracker dirs */
-	filename = g_build_filename (g_get_home_dir (), ".Tracker", NULL);
-
-	if (g_file_test (filename, G_FILE_TEST_EXISTS)) {
-		tracker_path_remove (filename);
-	}
-
-	g_free (filename);
-
-	/* Remove database if we are reindexing */
-	filename = g_build_filename (private->sys_tmp_dir, "Attachments", NULL);
-	g_mkdir_with_parents (filename, 00700);
-	g_free (filename);
 }
 
 static void
@@ -306,12 +241,6 @@ shutdown_databases (void)
 		tracker_data_backup_save (private->ttl_backup_file, NULL);
 	}
 #endif
-}
-
-static void
-shutdown_locations (void)
-{
-	/* Nothing to do here, this is done by the private free func */
 }
 
 static void
@@ -452,14 +381,13 @@ main (gint argc, gchar *argv[])
 	/* This makes sure we don't steal all the system's resources */
 	initialize_priority ();
 
-	/* This makes sure we have all the locations like the data
-	 * dir, user data dir, etc all configured.
-	 *
-	 * The initialize_directories() function makes sure everything
-	 * exists physically and/or is reset depending on various
-	 * options (like if we reindex, we remove the data dir).
-	 */
-	initialize_locations ();
+	/* Public locations */
+	private->ttl_backup_file = 
+		g_build_filename (g_get_user_data_dir (),
+				  "tracker",
+				  "data",
+				  "tracker-userdata-backup.ttl",
+				  NULL);
 
 	/* Initialize major subsystems */
 	config = tracker_config_new ();
@@ -555,8 +483,6 @@ shutdown:
 
 	g_object_unref (config);
 
-	shutdown_locations ();
-
 	g_print ("\nOK\n\n");
 
 	return EXIT_SUCCESS;
@@ -576,26 +502,6 @@ tracker_shutdown (void)
 
 		private->shutdown = TRUE;
 	}
-}
-
-const gchar *
-tracker_get_data_dir (void)
-{
-	TrackerMainPrivate *private;
-
-	private = g_static_private_get (&private_key);
-
-	return private->data_dir;
-}
-
-const gchar *
-tracker_get_sys_tmp_dir (void)
-{
-	TrackerMainPrivate *private;
-
-	private = g_static_private_get (&private_key);
-
-	return private->sys_tmp_dir;
 }
 
 void
