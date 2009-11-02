@@ -76,28 +76,27 @@
 	"  http://www.gnu.org/licenses/gpl.txt\n"
 
 typedef struct {
-	GMainLoop	 *main_loop;
-	gchar		 *log_filename;
+	GMainLoop *main_loop;
+	gchar *log_filename;
 
-	gchar            *ttl_backup_file;
+	gchar *ttl_backup_file;
 
-	gboolean          first_time_index;
-	gboolean	  reindex_on_shutdown;
-	gboolean          shutdown;
+	gboolean first_time_index;
+	gboolean reindex_on_shutdown;
+	gboolean shutdown;
 } TrackerMainPrivate;
 
 /* Private */
-static GStaticPrivate	     private_key = G_STATIC_PRIVATE_INIT;
+static GStaticPrivate private_key = G_STATIC_PRIVATE_INIT;
 
 /* Private command line parameters */
-static gboolean		     version;
-static gint		     verbosity = -1;
-static gboolean		     low_memory;
+static gboolean version;
+static gint verbosity = -1;
+static gboolean low_memory;
+static gboolean force_reindex;
+static gboolean readonly_mode;
 
-static gboolean		     force_reindex;
-static gboolean		     readonly_mode;
-
-static GOptionEntry	     entries[] = {
+static GOptionEntry  entries[] = {
 	/* Daemon options */
 	{ "version", 'V', 0,
 	  G_OPTION_ARG_NONE, &version,
@@ -300,10 +299,10 @@ backup_user_metadata (TrackerConfig   *config,
 #endif
 
 static GStrv
-tracker_daemon_get_notifiable_classes (void)
+get_notifiable_classes (void)
 {
 	TrackerDBResultSet *result_set;
-	GStrv               classes_to_signal = NULL;
+	GStrv classes_to_signal = NULL;
 
 	result_set = tracker_data_query_sparql ("SELECT ?class WHERE { ?class tracker:notify true }", NULL);
 
@@ -320,12 +319,13 @@ tracker_daemon_get_notifiable_classes (void)
 gint
 main (gint argc, gchar *argv[])
 {
-	GOptionContext		   *context = NULL;
-	GError			   *error = NULL;
-	TrackerMainPrivate	   *private;
-	TrackerConfig		   *config;
-	TrackerDBManagerFlags	    flags = 0;
-	gboolean		    is_first_time_index, need_journal = FALSE;
+	GOptionContext *context = NULL;
+	GError *error = NULL;
+	TrackerMainPrivate *private;
+	TrackerConfig *config;
+	TrackerDBManagerFlags flags = 0;
+	gboolean is_first_time_index;
+	gboolean need_journal;
 
 	g_type_init ();
 
@@ -427,7 +427,9 @@ main (gint argc, gchar *argv[])
 		flags |= TRACKER_DB_MANAGER_LOW_MEMORY_MODE;
 	}
 
-	if (!tracker_data_manager_init (flags, NULL, &is_first_time_index, 
+	if (!tracker_data_manager_init (flags, 
+					NULL, 
+					&is_first_time_index, 
 	                                &need_journal)) {
 		return EXIT_FAILURE;
 	}
@@ -443,7 +445,7 @@ main (gint argc, gchar *argv[])
 		return EXIT_FAILURE;
 	}
 
-	tracker_events_init (tracker_daemon_get_notifiable_classes);
+	tracker_events_init (get_notifiable_classes);
 	tracker_push_init ();
 
 	g_message ("Waiting for D-Bus requests...");
@@ -466,14 +468,12 @@ shutdown:
 
 	g_timeout_add_full (G_PRIORITY_LOW, 5000, shutdown_timeout_cb, NULL, NULL);
 
-
 	g_message ("Cleaning up");
 
 	shutdown_databases ();
 	shutdown_directories ();
 
 	/* Shutdown major subsystems */
-
 	tracker_push_shutdown ();
 	tracker_events_shutdown ();
 
