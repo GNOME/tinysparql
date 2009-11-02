@@ -255,49 +255,6 @@ shutdown_directories (void)
 	}
 }
 
-#if 0
-
-static const gchar *
-get_ttl_backup_filename (void) 
-{
-	TrackerMainPrivate *private;
-
-	private = g_static_private_get (&private_key);
-
-	return private->ttl_backup_file;
-}
-
-static void
-backup_user_metadata (TrackerConfig   *config, 
-		      TrackerLanguage *language)
-{
-	gboolean is_first_time_index;
-
-	g_message ("Saving metadata in %s", get_ttl_backup_filename ());
-	
-	/*
-	 *  Init the DB stack to get the user metadata
-	 */
-
-	tracker_data_manager_init (0, NULL, &is_first_time_index);
-	
-	/*
-	 * If some database is missing or the dbs dont exists, we dont need
-	 * to backup anything.
-	 */
-	if (is_first_time_index) {
-		tracker_data_manager_shutdown ();
-		return;
-	}
-
-	/* Actual save of the metadata */
-	tracker_data_backup_save (get_ttl_backup_filename (), NULL);
-	
-	/* Shutdown the DB stack */
-	tracker_data_manager_shutdown ();
-}
-#endif
-
 static GStrv
 get_notifiable_classes (void)
 {
