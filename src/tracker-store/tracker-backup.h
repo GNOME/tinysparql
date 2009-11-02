@@ -19,8 +19,8 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __TRACKERD_BACKUP_H__
-#define __TRACKERD_BACKUP_H__
+#ifndef __TRACKER_STORE_BACKUP_H__
+#define __TRACKER_STORE_BACKUP_H__
 
 #include <glib-object.h>
 
@@ -37,7 +37,7 @@ G_BEGIN_DECLS
 #define TRACKER_IS_BACKUP_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), TRACKER_TYPE_BACKUP))
 #define TRACKER_BACKUP_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), TRACKER_TYPE_BACKUP, TrackerBackupClass))
 
-typedef struct TrackerBackup	  TrackerBackup;
+typedef struct TrackerBackup TrackerBackup;
 typedef struct TrackerBackupClass TrackerBackupClass;
 
 struct TrackerBackup {
@@ -48,21 +48,20 @@ struct TrackerBackupClass {
 	GObjectClass parent;
 };
 
-GType	       tracker_backup_get_type		   (void) G_GNUC_CONST;
+GType	       tracker_backup_get_type (void) G_GNUC_CONST;
 
-TrackerBackup *tracker_backup_new		   (void);
-
-void           tracker_backup_save                 (TrackerBackup         *object,
-						    const gchar           *destination_uri,
-						    const gchar           *journal_uri,
-						    DBusGMethodInvocation *context,
-						    GError **error);
-void           tracker_backup_restore              (TrackerBackup         *object,
-						    const gchar           *backup_uri,
-						    const gchar           *journal_uri,
-						    DBusGMethodInvocation *context,
-						    GError **error);
+TrackerBackup *tracker_backup_new      (void);
+void           tracker_backup_save     (TrackerBackup          *object,
+					const gchar            *destination_uri,
+					const gchar            *journal_uri,
+					DBusGMethodInvocation  *context,
+					GError                **error);
+void           tracker_backup_restore  (TrackerBackup          *object,
+					const gchar            *backup_uri,
+					const gchar            *journal_uri,
+					DBusGMethodInvocation  *context,
+					GError                **error);
 
 G_END_DECLS
 
-#endif /* __TRACKERD_BACKUP_H__ */
+#endif /* __TRACKER_STORE_BACKUP_H__ */

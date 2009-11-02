@@ -21,11 +21,10 @@
  *  Philip Van Hoof <philip@codeminded.be>
  */
 
-#ifndef __TRACKER_PUSH_REGISTRAR_H__
-#define __TRACKER_PUSH_REGISTRAR_H__
+#ifndef __TRACKER_STORE_PUSH_REGISTRAR_H__
+#define __TRACKER_STORE_PUSH_REGISTRAR_H__
 
 #include <glib-object.h>
-#include <gmodule.h>
 #include <dbus/dbus-glib-bindings.h>
 
 G_BEGIN_DECLS
@@ -80,4 +79,4 @@ void                    tracker_push_module_shutdown         (TrackerPushRegistr
 
 G_END_DECLS
 
-#endif /* __TRACKER_PUSH_REGISTRAR_H__ */
+#endif /* __TRACKER_STORE_PUSH_REGISTRAR_H__ */

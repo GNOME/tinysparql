@@ -21,8 +21,8 @@
  *  Philip Van Hoof <philip@codeminded.be>
  */
 
-#ifndef __TRACKERD_RESOURCES_CLASS_H__
-#define __TRACKERD_RESOURCES_CLASS_H__
+#ifndef __TRACKER_STORE_RESOURCES_CLASS_H__
+#define __TRACKER_STORE_RESOURCES_CLASS_H__
 
 #include <glib-object.h>
 #include <libtracker-common/tracker-dbus.h>
@@ -64,4 +64,4 @@ void                   tracker_resource_class_emit_events   (TrackerResourceClas
 
 G_END_DECLS
 
-#endif /* __TRACKERD_RESOURCES_CLASS_H__ */
+#endif /* __TRACKER_STORE_RESOURCES_CLASS_H__ */

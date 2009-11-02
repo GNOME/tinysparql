@@ -19,14 +19,14 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __TRACKERD_DBUS_STATISTICS_H__
-#define __TRACKERD_DBUS_STATISTICS_H__
+#ifndef __TRACKER_STORE_STATISTICS_H__
+#define __TRACKER_STORE_STATISTICS_H__
 
 #include <glib-object.h>
 
-#define TRACKER_STATISTICS_SERVICE     "org.freedesktop.Tracker1"
-#define TRACKER_STATISTICS_PATH	       "/org/freedesktop/Tracker1/Statistics"
-#define TRACKER_STATISTICS_INTERFACE   "org.freedesktop.Tracker1.Statistics"
+#define TRACKER_STATISTICS_SERVICE         "org.freedesktop.Tracker1"
+#define TRACKER_STATISTICS_PATH	           "/org/freedesktop/Tracker1/Statistics"
+#define TRACKER_STATISTICS_INTERFACE       "org.freedesktop.Tracker1.Statistics"
 
 G_BEGIN_DECLS
 
@@ -37,7 +37,7 @@ G_BEGIN_DECLS
 #define TRACKER_IS_STATISTICS_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), TRACKER_TYPE_STATISTICS))
 #define TRACKER_STATISTICS_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), TRACKER_TYPE_STATISTICS, TrackerStatisticsClass))
 
-typedef struct TrackerStatistics	  TrackerStatistics;
+typedef struct TrackerStatistics TrackerStatistics;
 typedef struct TrackerStatisticsClass TrackerStatisticsClass;
 
 struct TrackerStatistics {
@@ -57,4 +57,4 @@ void               tracker_statistics_signal   (void);
 
 G_END_DECLS
 
-#endif /* __TRACKERD_STATISTICS_H__ */
+#endif /* __TRACKER_STORE_STATISTICS_H__ */

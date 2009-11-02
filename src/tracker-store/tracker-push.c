@@ -26,6 +26,8 @@
 #include <string.h>
 #include <time.h>
 
+#include <gmodule.h>
+
 #include <dbus/dbus-glib-lowlevel.h>
 
 #include <libtracker-common/tracker-utils.h>

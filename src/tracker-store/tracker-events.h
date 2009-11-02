@@ -1,6 +1,6 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*
- * Copyright (C) 2008, Nokia
+ * Copyright (C) 2009, Nokia
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -21,8 +21,8 @@
  *  Philip Van Hoof <philip@codeminded.be>
  */
 
-#ifndef __TRACKER_INDEXER_EVENTS_H__
-#define __TRACKER_INDEXER_EVENTS_H__
+#ifndef __TRACKER_STORE_EVENTS_H__
+#define __TRACKER_STORE_EVENTS_H__
 
 #include <libtracker-common/tracker-dbus.h>
 
@@ -30,17 +30,16 @@ G_BEGIN_DECLS
 
 typedef GStrv (*TrackerNotifyClassGetter) (void);
 
-void       tracker_events_init        (TrackerNotifyClassGetter callback);
+void       tracker_events_init        (TrackerNotifyClassGetter  callback);
 void       tracker_events_shutdown    (void);
-void       tracker_events_insert      (const gchar           *uri,
-				       const gchar           *predicate,
-				       const gchar           *object,
-				       GPtrArray             *rdf_types,
-				       TrackerDBusEventsType  type);
+void       tracker_events_insert      (const gchar              *uri,
+				       const gchar              *predicate,
+				       const gchar              *object,
+				       GPtrArray                *rdf_types,
+				       TrackerDBusEventsType     type);
 GPtrArray *tracker_events_get_pending (void);
 void       tracker_events_reset       (void);
 
-
 G_END_DECLS
 
-#endif /* __TRACKER_INDEXER_PUSH_H__ */
+#endif /* __TRACKER_STORE_EVENTS_H__ */

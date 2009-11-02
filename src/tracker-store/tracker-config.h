@@ -34,7 +34,7 @@ G_BEGIN_DECLS
 #define TRACKER_IS_CONFIG_CLASS(k)  (G_TYPE_CHECK_CLASS_TYPE ((k), TRACKER_TYPE_CONFIG))
 #define TRACKER_CONFIG_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o), TRACKER_TYPE_CONFIG, TrackerConfigClass))
 
-typedef struct TrackerConfig	  TrackerConfig;
+typedef struct TrackerConfig TrackerConfig;
 typedef struct TrackerConfigClass TrackerConfigClass;
 
 struct TrackerConfig {

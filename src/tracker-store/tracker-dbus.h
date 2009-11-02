@@ -19,16 +19,14 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __TRACKERD_DBUS_H__
-#define __TRACKERD_DBUS_H__
+#ifndef __TRACKER_STORE_DBUS_H__
+#define __TRACKER_STORE_DBUS_H__
 
 #include <glib.h>
 
 #include <dbus/dbus-glib-bindings.h>
 
 G_BEGIN_DECLS
-
-#define TRACKER_INDEXER_PAUSE_TIME_FOR_REQUESTS 5 /* seconds */
 
 gboolean    tracker_dbus_init                    (void);
 void        tracker_dbus_shutdown                (void);
@@ -40,4 +38,4 @@ DBusGProxy *tracker_dbus_indexer_get_proxy       (void);
 
 G_END_DECLS
 
-#endif /* __TRACKERD_DBUS_H__ */
+#endif /* __TRACKER_STORE_DBUS_H__ */

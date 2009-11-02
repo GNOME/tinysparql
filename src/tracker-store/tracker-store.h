@@ -20,8 +20,8 @@
  * Author: Philip Van Hoof <philip@codeminded.be>
  */
 
-#ifndef __TRACKER_STORE_H__
-#define __TRACKER_STORE_H__
+#ifndef __TRACKER_STORE_STORE_H__
+#define __TRACKER_STORE_STORE_H__
 
 #include <stdio.h>
 
@@ -30,15 +30,15 @@
 
 G_BEGIN_DECLS
 
-typedef void (* TrackerStoreSparqlUpdateCallback)  (GError          *error,
-                                                    gpointer         user_data);
-typedef void (* TrackerStoreCommitCallback)        (gpointer         user_data);
-typedef void (* TrackerStoreTurtleCallback)        (GError          *error,
-                                                    gpointer         user_data);
+typedef void (* TrackerStoreSparqlUpdateCallback) (GError          *error,
+						   gpointer         user_data);
+typedef void (* TrackerStoreCommitCallback)       (gpointer         user_data);
+typedef void (* TrackerStoreTurtleCallback)       (GError          *error,
+						   gpointer         user_data);
 
 void         tracker_store_init                   (gboolean load_journal);
 void         tracker_store_shutdown               (void);
-void         tracker_store_queue_commit           (TrackerStoreCommitCallback       callback,
+void         tracker_store_queue_commit           (TrackerStoreCommitCallback callback,
                                                    const gchar   *client_id,
                                                    gpointer       user_data,
                                                    GDestroyNotify destroy);
@@ -67,8 +67,8 @@ guint        tracker_store_get_queue_size         (void);
 
 void         tracker_store_play_journal           (void);
 void         tracker_store_flush_journal          (void);
-void         tracker_store_unreg_batches          (const gchar *client_id);
+void         tracker_store_unreg_batches          (const gchar   *client_id);
 
 G_END_DECLS
 
-#endif /* __TRACKER_STORE_H__ */
+#endif /* __TRACKER_STORE_STORE_H__ */
