@@ -552,7 +552,7 @@ query_mount_points_cb (TrackerMiner *miner,
 #endif
 
 	if (error) {
-		g_critical ("Could not obtain the mounted volumes");
+		g_critical ("Could not obtain the mounted volumes: %s", error->message);
 		return;
 	}
 
