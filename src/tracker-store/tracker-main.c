@@ -53,7 +53,6 @@
 #include "tracker-dbus.h"
 #include "tracker-config.h"
 #include "tracker-events.h"
-#include "tracker-main.h"
 #include "tracker-push.h"
 #include "tracker-backup.h"
 #include "tracker-store.h"
@@ -152,6 +151,22 @@ sanity_check_option_values (TrackerConfig *config)
 		   readonly_mode ? "yes" : "no");
 }
 
+static void
+shutdown (void)
+{
+	TrackerMainPrivate *private;
+
+	private = g_static_private_get (&private_key);
+
+	if (private) {
+		if (private->main_loop) {
+			g_main_loop_quit (private->main_loop);
+		}
+
+		private->shutdown = TRUE;
+	}
+}
+
 static gboolean
 shutdown_timeout_cb (gpointer user_data)
 {
@@ -175,7 +190,7 @@ signal_handler (int signo)
 	case SIGTERM:
 	case SIGINT:
 		in_loop = TRUE;
-		tracker_shutdown ();
+		shutdown ();
 
 	default:
 		if (g_strsignal (signo)) {
@@ -444,30 +459,3 @@ shutdown:
 
 	return EXIT_SUCCESS;
 }
-
-void
-tracker_shutdown (void)
-{
-	TrackerMainPrivate *private;
-
-	private = g_static_private_get (&private_key);
-
-	if (private) {
-		if (private->main_loop) {
-			g_main_loop_quit (private->main_loop);
-		}
-
-		private->shutdown = TRUE;
-	}
-}
-
-void
-tracker_set_reindex_on_shutdown (gboolean value)
-{
-	TrackerMainPrivate *private;
-
-	private = g_static_private_get (&private_key);
-
-	private->reindex_on_shutdown = value;
-}
-

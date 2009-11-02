@@ -34,7 +34,6 @@
 #include <libtracker-data/tracker-data-manager.h>
 
 #include "tracker-dbus.h"
-#include "tracker-main.h"
 #include "tracker-marshal.h"
 #include "tracker-store.h"
 #include "tracker-statistics.h"

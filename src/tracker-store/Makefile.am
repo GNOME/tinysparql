@@ -36,7 +36,6 @@ tracker_store_SOURCES =							\
 	tracker-events.c						\
 	tracker-events.h						\
 	tracker-main.c							\
-	tracker-main.h							\
 	tracker-resources.c						\
 	tracker-resources.h						\
 	tracker-push.c							\
