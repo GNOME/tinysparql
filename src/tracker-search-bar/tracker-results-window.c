@@ -46,6 +46,8 @@
 
 #define GENERAL_SEARCH  "SELECT ?s ?type ?title WHERE { ?s fts:match \"%s*\" ; rdf:type ?type . OPTIONAL { ?s nie:title ?title } } OFFSET %d LIMIT %d"
 
+#undef USE_SEPARATOR_FOR_SPACING
+
 #define TRACKER_RESULTS_WINDOW_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_RESULTS_WINDOW, TrackerResultsWindowPrivate))
 
 typedef struct {
@@ -659,11 +661,21 @@ model_category_cell_data_func (GtkTreeViewColumn    *tree_column,
 	GtkTreePath *path;
 	GtkTreeIter prev_iter;
 	TrackerCategory category, prev_category;
+	gchar *urn;
+	gint cell_padding;
 	gboolean print = TRUE;
 
 	gtk_tree_model_get (model, iter,
 			    COL_CATEGORY_ID, &category,
+			    COL_URN, &urn,
 			    -1);
+
+	if (!urn) {
+		cell_padding = 6;
+	} else {
+		cell_padding = 0;
+		g_free (urn);
+	}
 
 	/* Get the previous iter */
 	path = gtk_tree_model_get_path (model, iter);
@@ -680,6 +692,7 @@ model_category_cell_data_func (GtkTreeViewColumn    *tree_column,
 	}
 
 	g_object_set (cell,
+		      "ypad", cell_padding,
 		      "text", print ? category_to_string (category) : "",
 		      "visible", print,
 		      NULL);
@@ -735,6 +748,34 @@ model_pixbuf_cell_data_func (GtkTreeViewColumn    *tree_column,
 	}
 }
 
+static gboolean
+model_separator_func (GtkTreeModel *model,
+		      GtkTreeIter  *iter,
+		      gpointer      user_data)
+{
+#ifdef USE_SEPARATOR_FOR_SPACING
+	TrackerResultsWindow *window;
+	TrackerCategory category = CATEGORY_NONE;
+	gchar *urn;
+
+	window = user_data;
+	gtk_tree_model_get (model, iter,
+			    COL_CATEGORY_ID, &category,
+			    COL_URN, &urn,
+			    -1);
+
+	if (!urn) {
+		return TRUE;
+	}
+
+	g_free (urn);
+
+	return FALSE;
+#else  /* USE_SEPARATOR_FOR_SPACING */
+	return FALSE;
+#endif /* USE_SEPARATOR_FOR_SPACING */
+}
+
 static void
 model_set_up (TrackerResultsWindow *window)
 {
@@ -761,6 +802,11 @@ model_set_up (TrackerResultsWindow *window)
 				    G_TYPE_STRING);        /* Belongs */
 
 	gtk_tree_view_set_model (view, GTK_TREE_MODEL (store));
+
+	gtk_tree_view_set_row_separator_func (view, 
+					      model_separator_func,
+					      window,
+					      NULL);
 
 	/* Selection */ 
 	selection = gtk_tree_view_get_selection (view);
@@ -969,10 +1015,15 @@ search_get_cb (GPtrArray *results,
 			id = value;
 
 			model_add (window,
-				   id->category,
+				   sq->category,
 				   id->urn,
 				   id->title,
 				   id->belongs);
+		}
+
+		if (g_hash_table_size (sq->results) > 0) {
+			/* Add separator */
+			model_add (window, sq->category, NULL, NULL, NULL);
 		}
 	}
 
