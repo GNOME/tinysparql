@@ -19,13 +19,17 @@
  */
 
 #include "config.h"
+
+#include <string.h>
+#include <locale.h>
+
+#include <glib/gi18n.h>
+
+#include <libtracker-miner/tracker-miner-manager.h>
+
 #include "tracker-status-icon.h"
 #include "tracker-icon-config.h"
 #include "tomboykeybinder.h"
-#include <libtracker-miner/tracker-miner-manager.h>
-#include <string.h>
-#include <locale.h>
-#include <glib/gi18n.h>
 
 #define TRACKER_STATUS_ICON_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_STATUS_ICON, TrackerStatusIconPrivate))
 
@@ -79,43 +83,38 @@ struct MinerMenuEntry {
 	guint active : 1;
 };
 
-static void status_icon_constructed (GObject          *object);
-static void status_icon_finalize    (GObject          *object);
-
-static void status_icon_activate   (GtkStatusIcon     *icon);
-static void status_icon_popup_menu (GtkStatusIcon     *icon,
-				    guint              button,
-				    guint32            activate_time);
-
-static void status_icon_miner_progress (TrackerMinerManager *manager,
-					const gchar         *miner_name,
-					const gchar         *status,
-					gdouble              progress,
-					gpointer             user_data);
-static void status_icon_miner_paused   (TrackerMinerManager *manager,
-					const gchar         *miner_name,
-					gpointer             user_data);
-static void status_icon_miner_resumed  (TrackerMinerManager *manager,
-					const gchar         *miner_name,
-					gpointer             user_data);
-static void status_icon_miner_activated   (TrackerMinerManager *manager,
-					   const gchar         *miner_name,
-					   gpointer             user_data);
-static void status_icon_miner_deactivated (TrackerMinerManager *manager,
-					   const gchar         *miner_name,
-					   gpointer             user_data);
-static void status_icon_visibility_notify (TrackerIconConfig   *config,
-					   GParamSpec          *pspec,
-					   gpointer             user_data);
-
-static void        status_icon_initialize_miners_menu (TrackerStatusIcon *icon);
-static GtkWidget * status_icon_create_context_menu    (TrackerStatusIcon *icon);
-
-static void status_icon_set_status (TrackerStatusIcon *icon,
-				    TrackerStatus      status);
-
-static void launch_application_on_screen (GdkScreen   *screen,
-					  const gchar *command_line);
+static void       status_icon_constructed            (GObject             *object);
+static void       status_icon_finalize               (GObject             *object);
+static void       status_icon_activate               (GtkStatusIcon       *icon);
+static void       status_icon_popup_menu             (GtkStatusIcon       *icon,
+						      guint                button,
+						      guint32              activate_time);
+static void       status_icon_miner_progress         (TrackerMinerManager *manager,
+						      const gchar         *miner_name,
+						      const gchar         *status,
+						      gdouble              progress,
+						      gpointer             user_data);
+static void       status_icon_miner_paused           (TrackerMinerManager *manager,
+						      const gchar         *miner_name,
+						      gpointer             user_data);
+static void       status_icon_miner_resumed          (TrackerMinerManager *manager,
+						      const gchar         *miner_name,
+						      gpointer             user_data);
+static void       status_icon_miner_activated        (TrackerMinerManager *manager,
+						      const gchar         *miner_name,
+						      gpointer             user_data);
+static void       status_icon_miner_deactivated      (TrackerMinerManager *manager,
+						      const gchar         *miner_name,
+						      gpointer             user_data);
+static void       status_icon_visibility_notify      (TrackerIconConfig   *config,
+						      GParamSpec          *pspec,
+						      gpointer             user_data);
+static void       status_icon_initialize_miners_menu (TrackerStatusIcon   *icon);
+static GtkWidget *status_icon_create_context_menu    (TrackerStatusIcon   *icon);
+static void       status_icon_set_status             (TrackerStatusIcon   *icon,
+						      TrackerStatus        status);
+static void       launch_application_on_screen       (GdkScreen           *screen,
+						      const gchar         *command_line);
 
 G_DEFINE_TYPE (TrackerStatusIcon, tracker_status_icon, GTK_TYPE_STATUS_ICON)
 
