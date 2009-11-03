@@ -108,6 +108,16 @@ load_ontology_file_from_path (const gchar	 *ontology_file)
 				tracker_property_set_uri (property, subject);
 				tracker_ontology_add_property (property);
 				g_object_unref (property);
+			} else if (g_strcmp0 (object, NRL_PREFIX "InverseFunctionalProperty") == 0) {
+				TrackerProperty *property;
+
+				property = tracker_ontology_get_property_by_uri (subject);
+				if (property == NULL) {
+					g_critical ("%s: Unknown property %s", ontology_file, subject);
+					continue;
+				}
+
+				tracker_property_set_is_inverse_functional_property (property, TRUE);
 			} else if (g_strcmp0 (object, TRACKER_PREFIX "Namespace") == 0) {
 				TrackerNamespace *namespace;
 
@@ -434,7 +444,9 @@ db_get_static_data (TrackerDBInterface *iface)
 						      "\"tracker:indexed\", "
 						      "\"tracker:fulltextIndexed\", "
 						      "\"tracker:transient\", "
-						      "\"tracker:isAnnotation\" "
+						      "\"tracker:isAnnotation\", "
+						      "(SELECT 1 FROM \"rdfs:Resource_rdf:type\" WHERE ID = \"rdf:Property\".ID AND "
+						              "\"rdf:type\" = (Select ID FROM \"rdfs:Resource\" WHERE Uri = '" NRL_PREFIX "InverseFunctionalProperty')) "
 						      "FROM \"rdf:Property\" ORDER BY ID");
 	cursor = tracker_db_statement_start_cursor (stmt, NULL);
 	g_object_unref (stmt);
@@ -446,7 +458,7 @@ db_get_static_data (TrackerDBInterface *iface)
 			TrackerProperty *property;
 			const gchar     *uri, *domain_uri, *range_uri;
 			gboolean         multi_valued, indexed, fulltext_indexed;
-			gboolean         transient, annotation;
+			gboolean         transient, annotation, is_inverse_functional_property;
 			gint             id;
 
 			property = tracker_property_new ();
@@ -507,6 +519,16 @@ db_get_static_data (TrackerDBInterface *iface)
 				annotation = FALSE;
 			}
 
+			tracker_db_cursor_get_value (cursor, 8, &value);
+
+			if (G_VALUE_TYPE (&value) != 0) {
+				is_inverse_functional_property = (g_value_get_int (&value) == 1);
+				g_value_unset (&value);
+			} else {
+				/* NULL */
+				is_inverse_functional_property = FALSE;
+			}
+
 			tracker_property_set_transient (property, transient);
 			tracker_property_set_uri (property, uri);
 			tracker_property_set_domain (property, tracker_ontology_get_class_by_uri (domain_uri));
@@ -515,6 +537,7 @@ db_get_static_data (TrackerDBInterface *iface)
 			tracker_property_set_indexed (property, indexed);
 			tracker_property_set_fulltext_indexed (property, fulltext_indexed);
 			tracker_property_set_embedded (property, !annotation);
+			tracker_property_set_is_inverse_functional_property (property, is_inverse_functional_property);
 			property_add_super_properties_from_db (iface, property);
 
 			tracker_ontology_add_property (property);

@@ -54,6 +54,7 @@ struct _TrackerPropertyPriv {
 	gboolean       multiple_values;
 	gboolean       filtered;
 	gboolean       transient;
+	gboolean       is_inverse_functional_property;
 
 	GArray        *super_properties;
 };
@@ -81,7 +82,8 @@ enum {
 	PROP_EMBEDDED,
 	PROP_MULTIPLE_VALUES,
 	PROP_FILTERED,
-	PROP_TRANSIENT
+	PROP_TRANSIENT,
+	PROP_IS_INVERSE_FUNCTIONAL_PROPERTY
 };
 
 GType
@@ -240,6 +242,14 @@ tracker_property_class_init (TrackerPropertyClass *klass)
 							       "Transient",
 							       FALSE,
 							       G_PARAM_READWRITE));
+	g_object_class_install_property (object_class,
+					 PROP_IS_INVERSE_FUNCTIONAL_PROPERTY,
+					 g_param_spec_boolean ("is-inverse-functional-property",
+							       "is-inverse-functional-property",
+							       "Is inverse functional property",
+							       FALSE,
+							       G_PARAM_READWRITE));
+
 
 	g_type_class_add_private (object_class, sizeof (TrackerPropertyPriv));
 }
@@ -321,6 +331,9 @@ property_get_property (GObject    *object,
 	case PROP_TRANSIENT:
 		g_value_set_boolean (value, priv->transient);
 		break;
+	case PROP_IS_INVERSE_FUNCTIONAL_PROPERTY:
+		g_value_set_boolean (value, priv->is_inverse_functional_property);
+		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, param_id, pspec);
 		break;
@@ -377,6 +390,10 @@ property_set_property (GObject	    *object,
 	case PROP_TRANSIENT:
 		tracker_property_set_transient (TRACKER_PROPERTY (object),
 					    g_value_get_boolean (value));
+		break;
+	case PROP_IS_INVERSE_FUNCTIONAL_PROPERTY:
+		tracker_property_set_is_inverse_functional_property (TRACKER_PROPERTY (object),
+		                                                     g_value_get_boolean (value));
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, param_id, pspec);
@@ -572,6 +589,18 @@ tracker_property_get_filtered (TrackerProperty *field)
 	priv = GET_PRIV (field);
 
 	return priv->filtered;
+}
+
+gboolean
+tracker_property_get_is_inverse_functional_property (TrackerProperty *property)
+{
+	TrackerPropertyPriv *priv;
+
+	g_return_val_if_fail (TRACKER_IS_PROPERTY (property), FALSE);
+
+	priv = GET_PRIV (property);
+
+	return priv->is_inverse_functional_property;
 }
 
 TrackerProperty **
@@ -809,6 +838,20 @@ tracker_property_set_filtered (TrackerProperty *field,
 
 	priv->filtered = value;
 	g_object_notify (G_OBJECT (field), "filtered");
+}
+
+void
+tracker_property_set_is_inverse_functional_property (TrackerProperty *property,
+                                                     gboolean         value)
+{
+	TrackerPropertyPriv *priv;
+
+	g_return_if_fail (TRACKER_IS_PROPERTY (property));
+
+	priv = GET_PRIV (property);
+
+	priv->is_inverse_functional_property = value;
+	g_object_notify (G_OBJECT (property), "is-inverse-functional-property");
 }
 
 void

@@ -7,6 +7,8 @@
 nrl: a tracker:Namespace ;
 	tracker:prefix "nrl" .
 
+nrl:InverseFunctionalProperty a rdfs:Class .
+
 nrl:maxCardinality a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain rdf:Property ;
