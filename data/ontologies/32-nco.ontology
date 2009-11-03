@@ -319,6 +319,7 @@ nco:hasLocation a rdf:Property ;
 	rdfs:range rdfs:Resource .
 
 nco:phoneNumber a rdf:Property ;
+	a nrl:InverseFunctionalProperty ;
 	rdfs:label "phoneNumber" ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nco:PhoneNumber ;
