@@ -825,28 +825,15 @@ tracker_extract_gstreamer_helix (const gchar *uri,
 
 	extract_metadata (extractor, uri, metadata, &artist, &album, &scount);
 
-	/* Save embedded art */
-	if (extractor->album_art_data && extractor->album_art_size) {
+	tracker_process_albumart (extractor->album_art_data, extractor->album_art_size, NULL,
+			       /* artist */ NULL ,
+			       album,
+			       scount,
+			       uri);
 
-#ifdef HAVE_GDKPIXBUF
-		tracker_process_albumart (extractor->album_art_data, extractor->album_art_size, NULL,
-				       /* artist */ NULL ,
-				       album,
-				       scount,
-				       uri);
-#else
-		tracker_process_albumart (NULL, 0, NULL,
-				       /* artist */ NULL ,
-				       album,
-				       scount,
-				       uri);
-
-#endif /* HAVE_GDKPIXBUF */
-		g_free (album);
-		g_free (artist);
-		g_free (scount);
-	}
-
+	g_free (album);
+	g_free (artist);
+	g_free (scount);
 
 	/* Also clean up */
 	gst_element_set_state (extractor->playbin, GST_STATE_NULL);

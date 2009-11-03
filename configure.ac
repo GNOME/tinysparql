@@ -139,6 +139,7 @@ LIBNOTIFY_REQUIRED=0.4.3
 HAL_REQUIRED=0.5
 DEVKIT_POWER_REQUIRED=007
 GDKPIXBUF_REQUIRED=2.12.0
+QUILL_REQUIRED=1.0.0
 UNAC_REQUIRED=1.0.0
 POPPLER_GLIB_REQUIRED=0.4.5
 CAIRO_REQUIRED=1.0
@@ -451,11 +452,56 @@ AM_CONDITIONAL(HAVE_LIBXML2, test "x$have_libxml2" = "xyes")
 ##################################################################
 
 AC_ARG_ENABLE(gdkpixbuf, 
-	      AS_HELP_STRING([--enable-gdkpixbuf],
-			     [enable GdkPixbuf support, (MP3 album art) [[default=auto]]]),,
-	      [enable_gdkpixbuf=auto])
+              AS_HELP_STRING([--enable-gdkpixbuf],
+                             [enable GdkPixbuf support, (MP3 album art) [[default=auto]]]),,
+              [enable_gdkpixbuf=auto])
 
-if test "x$enable_gdkpixbuf" != "xno"; then
+##################################################################
+# Check for QUILL needed for the MP3 album art extractor
+##################################################################
+
+AC_ARG_ENABLE(quill,
+              AS_HELP_STRING([--enable-quill],
+                             [enable QUILL support, (MP3 album art) [[default=auto]]]),,
+              [enable_quill=auto])
+
+selected_for_albumart="no  (disabled)"
+
+
+##################################################################
+# Check for QUILL needed for the MP3 album art extractor cont
+##################################################################
+
+
+if test "x$enable_quill" != "xno" && test "x$enable_gdkpixbuf" != "xyes"; then
+   PKG_CHECK_MODULES(QUILL,
+		     [quill >= $QUILL_REQUIRED],
+		     [have_quill=yes],
+		     [have_quill=no])
+   AC_SUBST(QUILL_LIBS)
+   AC_SUBST(QUILL_CFLAGS)
+
+   if test "x$have_quill" = "xyes"; then
+      AC_DEFINE(HAVE_QUILL, [], [Define if we have QUILL])
+      selected_for_albumart="yes (libquill)"
+   fi
+else
+   have_quill="no  (disabled)"
+fi
+
+if test "x$enable_quill" = "xyes"; then
+   if test "x$have_quill" != "xyes"; then
+      AC_MSG_ERROR([Couldn't find QUILL >= $QUILL_REQUIRED.])
+   fi
+fi
+
+AM_CONDITIONAL(HAVE_QUILL, test "x$have_quill" = "xyes")
+
+##################################################################
+# Check for GdkPixbuf, needed for the MP3 album art extractor cont
+##################################################################
+
+if test "x$enable_gdkpixbuf" != "xno" && test "x$enable_quill" != "xyes"; then
    PKG_CHECK_MODULES(GDKPIXBUF,
 		     [gdk-pixbuf-2.0 >= $GDKPIXBUF_REQUIRED],
 		     [have_gdkpixbuf=yes],
@@ -465,6 +511,7 @@ if test "x$enable_gdkpixbuf" != "xno"; then
 
    if test "x$have_gdkpixbuf" = "xyes"; then
       AC_DEFINE(HAVE_GDKPIXBUF, [], [Define if we have GdkPixbuf])
+      selected_for_albumart="yes (GdkPixbuf)"
    fi
 else
    have_gdkpixbuf="no  (disabled)"
@@ -1501,7 +1548,7 @@ Metadata Extractors:
 	Support embedded / sidecar XMP:		$have_exempi
 	Support video formats:			$have_video_handler ($have_video_handler_app) (tagreadbin: $enable_tagreadbin)
 	Support helix formats (RPM/RM/etc):     $have_gstreamer_helix
-	Support MP3 album art (w/ GdkPixbuf):	$have_gdkpixbuf
+	Support MP3 album art:                  $selected_for_albumart
 	Support playlists (w/ Totem):           $have_playlist
 
 Plugins:

@@ -894,25 +894,12 @@ tracker_extract_gstreamer (const gchar *uri,
 
 	extract_metadata (extractor, uri, metadata, &album, &scount);
 
-	/* Save embedded art */
-	if (extractor->album_art_data && extractor->album_art_size) {
-#ifdef HAVE_GDKPIXBUF
-		tracker_albumart_process (extractor->album_art_data, 
-					  extractor->album_art_size, 
-					  extractor->album_art_mime,
-					  /* g_hash_table_lookup (metadata, "Audio:Artist") */ NULL,
-					  album,
-					  uri);
-#else
-		tracker_albumart_process (NULL,
-					  0, 
-					  NULL,
-					  /* g_hash_table_lookup (metadata, "Audio:Artist") */ NULL,
-					  album,
-					  uri);
-		
-#endif /* HAVE_GDKPIXBUF */
-	}
+	tracker_albumart_process (extractor->album_art_data, 
+				  extractor->album_art_size, 
+				  extractor->album_art_mime,
+				  /* g_hash_table_lookup (metadata, "Audio:Artist") */ NULL,
+				  album,
+				  uri);
 
 	g_free (scount);
 	g_free (album);

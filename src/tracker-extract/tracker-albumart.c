@@ -32,10 +32,6 @@
 #include <glib/gstdio.h>
 #include <gio/gio.h>
 
-#ifdef HAVE_GDKPIXBUF
-#include <gdk-pixbuf/gdk-pixbuf.h>
-#endif /* HAVE_GDKPIXBUF */
-
 #include <dbus/dbus-glib-bindings.h>
 
 #include <libtracker-common/tracker-storage.h>
@@ -44,14 +40,11 @@
 #include "tracker-dbus.h"
 #include "tracker-extract.h"
 #include "tracker-marshal.h"
+#include "tracker-albumart-generic.h"
 
 #define ALBUMARTER_SERVICE    "com.nokia.albumart"
 #define ALBUMARTER_PATH       "/com/nokia/albumart/Requester"
 #define ALBUMARTER_INTERFACE  "com.nokia.albumart.Requester"
-
-#define THUMBNAILER_SERVICE   "org.freedesktop.thumbnailer"
-#define THUMBNAILER_PATH      "/org/freedesktop/thumbnailer/Generic"
-#define THUMBNAILER_INTERFACE "org.freedesktop.thumbnailer.Generic"
 
 typedef struct {
 	TrackerStorage *hal;
@@ -549,37 +542,22 @@ albumart_heuristic (const gchar *artist,
 					retval = error != NULL;
 					g_clear_error (&error);
 				}
-#ifdef HAVE_GDKPIXBUF
 			} else if (g_str_has_suffix (name, "png")) {
-				GdkPixbuf *pixbuf;
 				gchar *found;
+
+				if (!target) {
+					albumart_get_path (artist_stripped, 
+					                   album_stripped, 
+					                   "album", 
+					                   NULL, 
+					                   &target, 
+					                   NULL);
+				}
 
 				found = g_build_filename (dirname, name, NULL);
 				g_debug ("Album art (PNG) found in same directory being used:'%s'", found);
-
-				pixbuf = gdk_pixbuf_new_from_file (found, &error);
+				retval = tracker_albumart_file_to_jpeg (found, target);
 				g_free (found);
-
-				if (error) {
-					g_clear_error (&error);
-					retval = FALSE;
-				} else {
-					if (!target) {
-						albumart_get_path (artist_stripped, 
-								   album_stripped, 
-								   "album", 
-								   NULL, 
-								   &target, 
-								   NULL);
-					}
-					
-					gdk_pixbuf_save (pixbuf, target, "jpeg", &error, NULL);
-					g_object_unref (pixbuf);
-					
-					retval = error != NULL;
-					g_clear_error (&error);
-				}
-#endif /* HAVE_GDKPIXBUF */
 			}
 		}
 	}
@@ -624,8 +602,6 @@ albumart_signal_queue_thumbnail (const gchar *file,
 	g_signal_emit_by_name (object, "queue-thumbnail", file, mime);
 }
 
-#ifdef HAVE_GDKPIXBUF
-
 static gboolean
 albumart_set (const unsigned char *buffer,
 	      size_t               len,
@@ -635,6 +611,7 @@ albumart_set (const unsigned char *buffer,
 	      const gchar         *uri)
 {
 	gchar *local_path;
+	gboolean retval;
 
 	if (!artist && !album) {
 		g_warning ("Could not save embedded album art, no artist or album supplied");
@@ -643,63 +620,13 @@ albumart_set (const unsigned char *buffer,
 
 	albumart_get_path (artist, album, "album", NULL, &local_path, NULL);
 
-	if (g_strcmp0 (mime, "image/jpeg") == 0 ||
-	    g_strcmp0 (mime, "JPG") == 0) {
-		g_debug ("Saving album art using raw data as uri:'%s'", 
-			 local_path);
-
-		g_file_set_contents (local_path, buffer, (gssize) len, NULL);
-	} else {
-		GdkPixbuf *pixbuf;
-		GdkPixbufLoader *loader;
-		GError *error = NULL;
-
-		g_debug ("Saving album art using GdkPixbufLoader for uri:'%s'", 
-			 local_path);
-
-		loader = gdk_pixbuf_loader_new ();
-
-		if (!gdk_pixbuf_loader_write (loader, buffer, len, &error)) {
-			g_warning ("Could not write with GdkPixbufLoader when setting album art, %s", 
-				   error ? error->message : "no error given");
-
-			g_clear_error (&error);
-			gdk_pixbuf_loader_close (loader, NULL);
-			g_free (local_path);
-
-			return FALSE;
-		}
-
-		pixbuf = gdk_pixbuf_loader_get_pixbuf (loader);
-
-		if (!gdk_pixbuf_save (pixbuf, local_path, "jpeg", &error, NULL)) {
-			g_warning ("Could not save GdkPixbuf when setting album art, %s", 
-				   error ? error->message : "no error given");
-
-			g_clear_error (&error);
-			g_free (local_path);
-			g_object_unref (pixbuf);
-			gdk_pixbuf_loader_close (loader, NULL);
-
-			return FALSE;
-		}
-
-		g_object_unref (pixbuf);
-
-		if (!gdk_pixbuf_loader_close (loader, &error)) {
-			g_warning ("Could not close GdkPixbufLoader when setting album art, %s", 
-				   error ? error->message : "no error given");
-			g_clear_error (&error);
-		}
-	}
+	retval = tracker_albumart_buffer_to_jpeg (buffer, len, mime, local_path);
 
 	albumart_signal_queue_thumbnail (local_path, mime);
 	g_free (local_path);
 
 	return TRUE;
 }
-
-#endif /* HAVE_GDKPIXBUF */
 
 static void
 albumart_request_download (TrackerStorage *hal,
@@ -984,7 +911,6 @@ tracker_albumart_process (const unsigned char *buffer,
 	}
 
 	if (!g_file_test (art_path, G_FILE_TEST_EXISTS)) {
-#ifdef HAVE_GDKPIXBUF
 		/* If we have embedded album art */
 		if (buffer && len > 0) {
 			processed = albumart_set (buffer,
@@ -994,7 +920,6 @@ tracker_albumart_process (const unsigned char *buffer,
 						  album,
 						  filename_uri);
 		} else {
-#endif /* HAVE_GDK_PIXBUF */
 			/* If not, we perform a heuristic on the dir */
 			gchar *key;
 			gchar *dirname;
@@ -1037,9 +962,7 @@ tracker_albumart_process (const unsigned char *buffer,
 			} else {
 				g_free (key);
 			}
-#ifdef HAVE_GDKPIXBUF
 		}
-#endif /* HAVE_GDKPIXBUF */
 
 		if (processed) {
 			albumart_signal_queue_thumbnail (filename_uri, "image/jpeg");

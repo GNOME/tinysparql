@@ -2082,22 +2082,12 @@ extract_mp3 (const gchar *uri,
 	/* Get mp3 stream info */
 	mp3_parse (buffer, buffer_size, audio_offset, uri, metadata, &filedata);
 
-#ifdef HAVE_GDKPIXBUF
 	tracker_albumart_process (filedata.albumartdata, 
 				  filedata.albumartsize, 
 				  filedata.albumartmime,
 				  NULL,
 				  filedata.title, 
 				  filename);
-#else
-	tracker_albumart_process (NULL, 
-				  0, 
-				  NULL,
-				  NULL,
-				  filedata.title, 
-				  filename);
-
-#endif /* HAVE_GDKPIXBUF */
 
 	g_free (filedata.title);
 	g_free (filedata.albumartdata);

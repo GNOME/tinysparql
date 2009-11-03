@@ -256,7 +256,8 @@ tracker_extract_SOURCES = 						\
 	tracker-fts-config.c						\
 	tracker-fts-config.h						\
 	tracker-main.c							\
-	tracker-main.h
+	tracker-main.h							\
+	tracker-albumart-generic.h
 
 tracker_extract_LDADD = 						\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la	\
@@ -273,6 +274,15 @@ endif
 
 if HAVE_GDKPIXBUF
 tracker_extract_LDADD += $(GDKPIXBUF_LIBS)
+tracker_extract_SOURCES += tracker-albumart-pixbuf.c
+else
+if HAVE_QUILL
+INCLUDES += $(QUILL_CFLAGS)
+tracker_extract_SOURCES += tracker-albumart-quill.c
+tracker_extract_LDADD += $(QUILL_LIBS)
+else
+tracker_extract_SOURCES += tracker-albumart-dummy.c
+endif
 endif
 
 marshal_sources =                                         		\
