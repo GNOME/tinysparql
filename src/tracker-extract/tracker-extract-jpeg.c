@@ -83,7 +83,7 @@ typedef struct {
 	gchar *camera, *title, *orientation, *copyright, *white_balance, 
 	      *fnumber, *flash, *focal_length, *artist, 
 	      *exposure_time, *iso_speed_ratings, *date, *description,
-	      *metering_mode, *creator;
+	      *metering_mode, *creator, *comment;
 } JpegNeedsMergeData;
 
 static void extract_jpeg (const gchar *filename,
@@ -158,7 +158,7 @@ extract_jpeg (const gchar *uri,
 		TrackerExifData exif_data = { 0 };
 		TrackerIptcData iptc_data = { 0 };
 		JpegNeedsMergeData merge_data = { 0 };
-		gchar *str;
+		gchar *str, *comment = NULL;
 		gsize  len;
 #ifdef HAVE_LIBIPTCDATA
 		gsize  offset;
@@ -204,14 +204,7 @@ extract_jpeg (const gchar *uri,
 			switch (marker->marker) {
 			case JPEG_COM:
 				len = marker->data_length;
-				str = g_strndup ((gchar*) marker->data, len);
-
-				tracker_statement_list_insert (metadata, uri,
-				                               NIE_PREFIX "comment",
-				                               str);
-
-				g_free (str);
-
+				comment = g_strndup ((gchar*) marker->data, len);
 				break;
 
 			case JPEG_APP0+1:
@@ -324,11 +317,8 @@ extract_jpeg (const gchar *uri,
 		merge_data.creator =  tracker_coalesce (3, iptc_data.byline,
 		                                        xmp_data.creator,
 		                                        iptc_data.credit);
-
-		if (exif_data.user_comment) {
-			tracker_statement_list_insert (metadata, uri, NIE_PREFIX "comment", exif_data.user_comment);
-			g_free (exif_data.user_comment);
-		}
+		merge_data.comment = tracker_coalesce (2, exif_data.user_comment,
+						       comment);
 
 		/* Prioritize on native dimention in all cases */
 		tracker_statement_list_insert_with_int (metadata, uri,
@@ -480,6 +470,11 @@ extract_jpeg (const gchar *uri,
 			tracker_statement_list_insert (metadata, ":", NCO_PREFIX "fullname", merge_data.creator);
 			tracker_statement_list_insert (metadata, uri, NCO_PREFIX "creator", ":");
 			g_free (merge_data.creator);
+		}
+
+		if (merge_data.comment) {
+			tracker_statement_list_insert (metadata, uri, NIE_PREFIX "comment", merge_data.comment);
+			g_free (merge_data.comment);
 		}
 
 		jpeg_destroy_decompress (&cinfo);
