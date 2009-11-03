@@ -16,6 +16,7 @@ nao:prefLabel a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nao:Tag ;
 	rdfs:range xsd:string ;
+	tracker:fulltextIndexed true ;
 	tracker:weight 10 .
 
 nao:hasTag a rdf:Property ;

@@ -245,13 +245,16 @@ nmm:category a rdf:Property ;
 	rdfs:label "Category" ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmm:Video ;
-	rdfs:range xsd:string .
+	rdfs:range xsd:string ;
+	tracker:fulltextIndexed true ;
+	tracker:weight 4 .
 
 nmm:genre a rdf:Property ;
 	rdfs:label "Genre" ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nfo:Media ;
 	rdfs:range xsd:string ;
+	tracker:fulltextIndexed true ;
 	tracker:weight 4 .
 
 nmm:director a rdf:Property ;

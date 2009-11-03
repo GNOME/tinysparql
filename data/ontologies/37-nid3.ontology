@@ -21,6 +21,7 @@ nid3:title a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nid3:ID3Audio ;
 	rdfs:range xsd:string ;
+	tracker:fulltextIndexed true ;
 	tracker:weight 10 .
 
 nid3:leadArtist a rdf:Property ;
@@ -36,6 +37,7 @@ nid3:albumTitle a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nid3:ID3Audio ;
 	rdfs:range xsd:string ;
+	tracker:fulltextIndexed true ;
 	tracker:weight 10 .
 
 nid3:contentType a rdf:Property ;
@@ -44,6 +46,7 @@ nid3:contentType a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nid3:ID3Audio ;
 	rdfs:range xsd:string ;
+	tracker:fulltextIndexed true ;
 	tracker:weight 5 .
 
 nid3:length a rdf:Property ;

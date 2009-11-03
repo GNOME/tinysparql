@@ -28,8 +28,8 @@ nie:title a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nie:InformationElement ;
 	rdfs:range xsd:string ;
-	tracker:weight 10 ;
-	tracker:fulltextIndexed true .
+	tracker:fulltextIndexed true ;
+	tracker:weight 10 .
 
 nie:subject a rdf:Property ;
 	rdfs:label "Subject" ;
@@ -66,7 +66,8 @@ nie:plainTextContent a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nie:InformationElement ;
 	rdfs:range xsd:string ;
-	tracker:fulltextIndexed true .
+	tracker:fulltextIndexed true ;
+	tracker:weight 2 .
 
 nie:informationElementDate a rdf:Property ;
 	rdfs:subPropertyOf dc:date ;
@@ -94,6 +95,7 @@ nie:description a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nie:InformationElement ;
 	rdfs:range xsd:string ;
+	tracker:fulltextIndexed true ;
 	tracker:weight 3 .
 
 # Bug in nepomuk specification. Taking domain from superproperty
@@ -132,6 +134,7 @@ nie:comment a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nie:InformationElement ;
 	rdfs:range xsd:string ;
+	tracker:fulltextIndexed true ;
 	tracker:weight 2 .
 
 nie:interpretedAs a rdf:Property ;
@@ -192,9 +195,9 @@ nie:identifier a rdf:Property ;
 	rdfs:range xsd:string .
 
 nie:keyword a rdf:Property ;
-	tracker:fulltextIndexed true ;
 	rdfs:domain nie:InformationElement ;
 	rdfs:range xsd:string ;
+	tracker:fulltextIndexed true ;
 	tracker:weight 5 .
 
 nie:hasLogicalPart a rdf:Property ;

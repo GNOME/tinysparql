@@ -64,6 +64,7 @@ mtp:creator a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nfo:Media ;
 	rdfs:range xsd:string ;
+	tracker:fulltextIndexed true ;
 	tracker:weight 3 .
 
 # http://msdn.microsoft.com/en-us/library/ms867195.aspx#waveformats

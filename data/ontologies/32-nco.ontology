@@ -204,6 +204,7 @@ nco:region a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nco:PostalAddress ;
 	rdfs:range xsd:string ;
+	tracker:fulltextIndexed true ;
 	tracker:weight 3 .
 
 nco:key a rdf:Property ;
@@ -228,6 +229,7 @@ nco:nameFamily a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nco:PersonContact ;
 	rdfs:range xsd:string ;
+	tracker:fulltextIndexed true ;
 	tracker:weight 4 .
 
 nco:contactUID a rdf:Property ;
@@ -254,6 +256,7 @@ nco:country a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nco:PostalAddress ;
 	rdfs:range xsd:string ;
+	tracker:fulltextIndexed true ;
 	tracker:weight 3 .
 
 nco:nameHonorificPrefix a rdf:Property ;
@@ -270,6 +273,7 @@ nco:extendedAddress a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nco:PostalAddress ;
 	rdfs:range xsd:string ;
+	tracker:fulltextIndexed true ;
 	tracker:weight 6 .
 
 nco:hasIMAccount a rdf:Property ;
@@ -292,6 +296,7 @@ nco:phoneNumber a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nco:PhoneNumber ;
 	rdfs:range xsd:string ;
+	tracker:fulltextIndexed true ;
 	tracker:weight 5 .
 
 nco:nickname a rdf:Property ;
@@ -300,6 +305,7 @@ nco:nickname a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nco:Contact ;
 	rdfs:range xsd:string ;
+	tracker:fulltextIndexed true ;
 	tracker:weight 5 .
 
 nco:containsContact a rdf:Property ;
@@ -321,6 +327,7 @@ nco:department a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nco:Affiliation ;
 	rdfs:range xsd:string ;
+	tracker:fulltextIndexed true ;
 	tracker:weight 4 .
 
 nco:imID a rdf:Property ;
@@ -330,6 +337,7 @@ nco:imID a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nco:IMAccount ;
 	rdfs:range xsd:string ;
+	tracker:fulltextIndexed true ;
 	tracker:weight 5 .
 
 # FIXME Range geo:Point but we dont have that class
@@ -348,6 +356,7 @@ nco:note a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nco:Contact ;
 	rdfs:range xsd:string ;
+	tracker:fulltextIndexed true ;
 	tracker:weight 4 .
 
 nco:representative a rdf:Property ;
@@ -363,6 +372,7 @@ nco:nameGiven a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nco:PersonContact ;
 	rdfs:range xsd:string ;
+	tracker:fulltextIndexed true ;
 	tracker:weight 5 .
 
 nco:nameAdditional a rdf:Property ;
@@ -371,6 +381,7 @@ nco:nameAdditional a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nco:PersonContact ;
 	rdfs:range xsd:string ;
+	tracker:fulltextIndexed true ;
 	tracker:weight 5 .
 
 nco:fullname a rdf:Property ;
@@ -389,6 +400,7 @@ nco:streetAddress a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nco:PostalAddress ;
 	rdfs:range xsd:string ;
+	tracker:fulltextIndexed true ;
 	tracker:weight 6 .
 
 nco:hasPhoneNumber a rdf:Property ;
@@ -448,6 +460,7 @@ nco:postalcode a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nco:PostalAddress ;
 	rdfs:range xsd:string ;
+	tracker:fulltextIndexed true ;
 	tracker:weight 6 .
 
 nco:org a rdf:Property ;
@@ -463,6 +476,7 @@ nco:title a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nco:Affiliation ;
 	rdfs:range xsd:string ;
+	tracker:fulltextIndexed true ;
 	tracker:weight 10 .
 
 nco:voiceMail a rdf:Property ;
@@ -485,6 +499,7 @@ nco:contactGroupName a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nco:ContactGroup ;
 	rdfs:range xsd:string ;
+	tracker:fulltextIndexed true ;
 	tracker:weight 4 .
 
 nco:contactMediumComment a rdf:Property ;
@@ -515,6 +530,7 @@ nco:locality a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nco:PostalAddress ;
 	rdfs:range xsd:string ;
+	tracker:fulltextIndexed true ;
 	tracker:weight 4 .
 
 nco:sound a rdf:Property ;
@@ -531,6 +547,7 @@ nco:imNickname a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nco:IMAccount ;
 	rdfs:range xsd:string ;
+	tracker:fulltextIndexed true ;
 	tracker:weight 5 .
 
 nco:hobby a rdf:Property ;
@@ -539,6 +556,7 @@ nco:hobby a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nco:PersonContact ;
 	rdfs:range xsd:string ;
+	tracker:fulltextIndexed true ;
 	tracker:weight 2 .
 
 # Same remarks as in url
@@ -555,6 +573,7 @@ nco:role a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nco:Affiliation ;
 	rdfs:range xsd:string ;
+	tracker:fulltextIndexed true ;
 	tracker:weight 2 .
 
 nco:hasPostalAddress a rdf:Property ;
@@ -584,6 +603,7 @@ nco:pobox a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nco:PostalAddress ;
 	rdfs:range xsd:string ;
+	tracker:fulltextIndexed true ;
 	tracker:weight 5 .
 
 nco:imStatusMessage a rdf:Property ;

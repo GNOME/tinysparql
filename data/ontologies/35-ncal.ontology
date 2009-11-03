@@ -296,6 +296,7 @@ ncal:comment a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain ncal:UnionParentClass ;
 	rdfs:range xsd:string ;
+	tracker:fulltextIndexed true ;
 	tracker:weight 3 .
 
 # Range Resource in nepomuk
@@ -374,6 +375,7 @@ ncal:location a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain ncal:UnionParentClass ;
 	rdfs:range xsd:string ;
+	tracker:fulltextIndexed true ;
 	tracker:weight 3 .
 
 ncal:eventStatus a rdf:Property ;
@@ -622,6 +624,7 @@ ncal:summary a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain ncal:UnionParentClass ;
 	rdfs:range xsd:string ;
+	tracker:fulltextIndexed true ;
 	tracker:weight 5 .
 
 ncal:role a rdf:Property ;
@@ -708,6 +711,7 @@ ncal:contact a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain ncal:UnionParentClass ;
 	rdfs:range xsd:string ;
+	tracker:fulltextIndexed true ;
 	tracker:weight 4 .
 
 ncal:repeat a rdf:Property ;

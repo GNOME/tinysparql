@@ -589,6 +589,7 @@ nfo:fontFamily a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nfo:Font ;
 	rdfs:range xsd:string ;
+	tracker:fulltextIndexed true ;
 	tracker:weight 5 .
 
 nfo:frontChannels a rdf:Property ;
@@ -737,6 +738,7 @@ nfo:genre a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nfo:Media ;
 	rdfs:range xsd:string ;
+	tracker:fulltextIndexed true ;
 	tracker:weight 4 .
 
 nfo:gain a rdf:Property ;
