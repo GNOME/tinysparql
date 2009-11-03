@@ -625,7 +625,7 @@ albumart_set (const unsigned char *buffer,
 	albumart_signal_queue_thumbnail (local_path, mime);
 	g_free (local_path);
 
-	return TRUE;
+	return retval;
 }
 
 static void
