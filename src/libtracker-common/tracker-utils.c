@@ -514,7 +514,7 @@ tracker_coalesce (gint n_values,
 
 		value = va_arg (args, gchar *);
 		if (value) {
-			if (!result) {
+			if (*value && !result) {
 				result = value;
 			} else {
 				g_free (value);
