@@ -55,14 +55,16 @@ mtp:credits a rdf:Property ;
 	rdfs:comment "Following MTP spec, credits contains... FIXME" ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nfo:Media ;
-	rdfs:range xsd:string .
+	rdfs:range xsd:string ;
+	tracker:weight 2 .
 
 mtp:creator a rdf:Property ;
 	rdfs:label "MTP Creator" ;
 	rdfs:comment "Following MTP spec, this property can contain a free text taking about creator of the Media" ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nfo:Media ;
-	rdfs:range xsd:string .
+	rdfs:range xsd:string ;
+	tracker:weight 3 .
 
 # http://msdn.microsoft.com/en-us/library/ms867195.aspx#waveformats
 mtp:fourCC a rdf:Property ;

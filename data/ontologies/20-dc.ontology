@@ -13,42 +13,48 @@ dc:title a rdf:Property ;
 	rdfs:comment "A name given to the resource." ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain rdfs:Resource ;
-	rdfs:range xsd:string .
+	rdfs:range xsd:string ;
+	tracker:weight 10 .
 
 dc:creator a rdf:Property ;
 	rdfs:label "Creator" ;
 	rdfs:comment "An entity primarily responsible for making the resource." ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain rdfs:Resource ;
-	rdfs:range xsd:string .
+	rdfs:range xsd:string ;
+	tracker:weight 4 .
 
 dc:subject a rdf:Property ;
 	rdfs:label "Subject" ;
 	rdfs:comment "The topic of the resource." ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain rdfs:Resource ;
-	rdfs:range xsd:string .
+	rdfs:range xsd:string ;
+	tracker:weight 5 .
 
 dc:description a rdf:Property ;
 	rdfs:label "Description" ;
 	rdfs:comment "An account of the resource." ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain rdfs:Resource ;
-	rdfs:range xsd:string .
+	rdfs:range xsd:string ;
+	tracker:weight 3 .
 
 dc:publisher a rdf:Property ;
 	rdfs:label "Publisher" ;
 	rdfs:comment "An entity responsible for making the resource available." ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain rdfs:Resource ;
-	rdfs:range xsd:string .
+	rdfs:range xsd:string ;
+	tracker:weight 4 .
 
 dc:contributor a rdf:Property ;
 	rdfs:label "Contributor" ;
 	rdfs:comment "An entity responsible for making contributions to the resource." ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain rdfs:Resource ;
-	rdfs:range xsd:string .
+	rdfs:range xsd:string ;
+	tracker:weight 4 .
 
 dc:date a rdf:Property ;
 	rdfs:label "Date" ;

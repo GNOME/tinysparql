@@ -469,7 +469,8 @@ nfo:fileName a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nfo:FileDataObject ;
 	rdfs:range xsd:string ;
-	tracker:fulltextIndexed true .
+	tracker:fulltextIndexed true ;
+	tracker:weight 7 .
 
 nfo:encoding a rdf:Property ;
 	rdfs:label "encoding" ;
@@ -587,7 +588,8 @@ nfo:fontFamily a rdf:Property ;
 	rdfs:comment "The name of the font family." ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nfo:Font ;
-	rdfs:range xsd:string .
+	rdfs:range xsd:string ;
+	tracker:weight 5 .
 
 nfo:frontChannels a rdf:Property ;
 	rdfs:label "frontChannels" ;
@@ -734,7 +736,8 @@ nfo:genre a rdf:Property ;
 	rdfs:comment "Genre of media" ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nfo:Media ;
-	rdfs:range xsd:string .
+	rdfs:range xsd:string ;
+	tracker:weight 4 .
 
 nfo:gain a rdf:Property ;
 	rdfs:label "Gain" ;
@@ -778,13 +781,15 @@ nfo:domain a rdf:Property ;
 	rdfs:label "Domain for a web history entry" ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nfo:WebHistory ;
-	rdfs:range xsd:string .
+	rdfs:range xsd:string ;
+	tracker:weight 3 .
 
 nfo:uri a rdf:Property ;
 	rdfs:label "Uri for a web history entry" ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nfo:WebHistory ;
-	rdfs:range xsd:string .
+	rdfs:range xsd:string ;
+	tracker:weight 5 .
 
 # Added
 
@@ -817,7 +822,8 @@ nfo:softwareCmdLine a rdf:Property ;
 	rdfs:comment "Commando to launch the software" ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nfo:Software ;
-	rdfs:range xsd:string .
+	rdfs:range xsd:string ;
+	tracker:weight 3 .
 
 # Also added 
 

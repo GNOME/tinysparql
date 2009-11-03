@@ -48,7 +48,8 @@ nmm:artistName a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmm:Artist ;
 	rdfs:range xsd:string ;
-	tracker:fulltextIndexed true .
+	tracker:fulltextIndexed true ;
+	tracker:weight 6 .
 
 nmm:musicAlbum a rdf:Property ;
 	rdfs:label "album" ;
@@ -56,7 +57,8 @@ nmm:musicAlbum a rdf:Property ;
 	rdfs:subPropertyOf nie:isLogicalPartOf ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmm:MusicPiece ;
-	rdfs:range nmm:MusicAlbum .
+	rdfs:range nmm:MusicAlbum ;
+	tracker:weight 6 .
 
 # Cardinality could be > 1 if we create one for album collectiosn
 nmm:albumArtist a rdf:Property ;
@@ -64,8 +66,8 @@ nmm:albumArtist a rdf:Property ;
 	rdfs:comment "main artists of the album" ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmm:MusicAlbum ;
-	rdfs:range nmm:Artist .
-
+	rdfs:range nmm:Artist ;
+	tracker:weight 6 .
 
 nmm:beatsPerMinute a rdf:Property ;
 	rdfs:label "Beats per minute" ;
@@ -80,7 +82,8 @@ nmm:performer a rdf:Property ;
 	rdfs:subPropertyOf nco:contributor ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmm:MusicPiece ;
-	rdfs:range nmm:Artist .
+	rdfs:range nmm:Artist ;
+	tracker:weight 4 .
 
 nmm:length a rdf:Property ;
 	rdfs:label "Length" ;
@@ -95,7 +98,8 @@ nmm:composer a rdf:Property ;
 	rdfs:subPropertyOf nco:contributor ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmm:MusicPiece ;
-	rdfs:range nmm:Artist .
+	rdfs:range nmm:Artist ;
+	tracker:weight 4 .
 
 nmm:lyricist a rdf:Property ;
 	rdfs:label "Lyricist" ;
@@ -103,7 +107,8 @@ nmm:lyricist a rdf:Property ;
 	rdfs:subPropertyOf nco:contributor ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmm:MusicPiece ;
-	rdfs:range nmm:Artist .
+	rdfs:range nmm:Artist ;
+	tracker:weight 4 .
 
 nmm:lyrics a rdf:Property ;
 	rdfs:label "File with the lyrics for the music piece" ;
@@ -161,7 +166,8 @@ nmm:albumTitle a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmm:MusicAlbum ;
 	rdfs:range xsd:string ;
-	tracker:fulltextIndexed true .
+	tracker:fulltextIndexed true ;
+	tracker:weight 6 .
 
 nmm:albumDuration a rdf:Property ;
 	rdfs:label "Album duration" ;
@@ -245,25 +251,29 @@ nmm:genre a rdf:Property ;
 	rdfs:label "Genre" ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nfo:Media ;
-	rdfs:range xsd:string .
+	rdfs:range xsd:string ;
+	tracker:weight 4 .
 
 nmm:director a rdf:Property ;
 	rdfs:label "Director" ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmm:Video ;
-	rdfs:range nmm:Artist .
+	rdfs:range nmm:Artist ;
+	tracker:weight 4 .
 
 nmm:producedBy a rdf:Property ;
 	rdfs:label "Produced by" ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmm:Video ;
-	rdfs:range nmm:Artist .
+	rdfs:range nmm:Artist ;
+	tracker:weight 3 .
 
 nmm:leadActor a rdf:Property ;
 	rdfs:label "Lead actor" ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmm:Video ;
-	rdfs:range nmm:Artist .
+	rdfs:range nmm:Artist ;
+	tracker:weight 4 .
 
 nmm:hasSubtitle a rdf:Property ;
 	rdfs:label "Has subtitle" ;
@@ -274,7 +284,8 @@ nmm:hasSubtitle a rdf:Property ;
 nmm:subtitle a rdf:Property ;
 	rdfs:label "Subtitle file relevant for the video" ;
 	rdfs:domain nmm:Video ;
-	rdfs:range nmm:SynchronizedText .
+	rdfs:range nmm:SynchronizedText ;
+	tracker:weight 5 .
 
 nmm:isContentEncrypted a rdf:Property ;
 	rdfs:label "Is content encrypted FIXME: defined already in IE in this ontology!" ;
@@ -308,7 +319,8 @@ nmm:camera a rdf:Property ;
 	rdfs:comment "The maker and model of the camera used to take the photograph" ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmm:Photo ;
-	rdfs:range xsd:string .
+	rdfs:range xsd:string ;
+	tracker:weight 3 .
 
 nmm:exposureTime a rdf:Property ;
 	rdfs:label "Exposure time" ;

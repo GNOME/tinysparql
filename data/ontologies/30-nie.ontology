@@ -93,7 +93,8 @@ nie:description a rdf:Property ;
 	rdfs:subPropertyOf dc:description ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nie:InformationElement ;
-	rdfs:range xsd:string .
+	rdfs:range xsd:string ;
+	tracker:weight 3 .
 
 # Bug in nepomuk specification. Taking domain from superproperty
 nie:disclaimer a rdf:Property ;
@@ -130,7 +131,8 @@ nie:copyright a rdf:Property ;
 nie:comment a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nie:InformationElement ;
-	rdfs:range xsd:string .
+	rdfs:range xsd:string ;
+	tracker:weight 2 .
 
 nie:interpretedAs a rdf:Property ;
 	nrl:maxCardinality 1 ;
@@ -192,20 +194,24 @@ nie:identifier a rdf:Property ;
 nie:keyword a rdf:Property ;
 	tracker:fulltextIndexed true ;
 	rdfs:domain nie:InformationElement ;
-	rdfs:range xsd:string .
+	rdfs:range xsd:string ;
+	tracker:weight 5 .
 
 nie:hasLogicalPart a rdf:Property ;
 	rdfs:domain nie:InformationElement ;
-	rdfs:range nie:InformationElement .
+	rdfs:range nie:InformationElement ;
+	tracker:weight 2 .
 
 nie:hasPart a rdf:Property ;
 	rdfs:subPropertyOf nie:relatedTo ;
 	rdfs:domain nie:InformationElement ;
-	rdfs:range nie:DataObject .
+	rdfs:range nie:DataObject ;
+	tracker:weight 2 .
 
 nie:isPartOf a rdf:Property ;
 	rdfs:domain nie:DataObject ;
-	rdfs:range nie:InformationElement .
+	rdfs:range nie:InformationElement ;
+	tracker:weight 2 .
 
 # Bug in nepomuk specification. Taking domain from superproperty
 nie:licenseType a rdf:Property ;
@@ -221,7 +227,8 @@ nie:characterSet a rdf:Property ;
 
 nie:isLogicalPartOf a rdf:Property ;
 	rdfs:domain nie:InformationElement ;
-	rdfs:range nie:InformationElement .
+	rdfs:range nie:InformationElement ;
+	tracker:weight 2 .
 
 nie:contentSize a rdf:Property ;
 	nrl:maxCardinality 1 ;
@@ -231,11 +238,13 @@ nie:contentSize a rdf:Property ;
 nie:rootElementOf a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nie:InformationElement ;
-	rdfs:range nie:DataSource .
+	rdfs:range nie:DataSource ;
+	tracker:weight 2 .
 
 nie:usageCounter a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nie:InformationElement ;
 	rdfs:range xsd:integer ;
-	tracker:isAnnotation true .
+	tracker:isAnnotation true ;
+	tracker:weight 3 .
 

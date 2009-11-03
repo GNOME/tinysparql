@@ -82,12 +82,14 @@ nmo:from a rdf:Property ;
 nmo:headerName a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmo:MessageHeader ;
-	rdfs:range xsd:string .
+	rdfs:range xsd:string ;
+	tracker:weight 3 .
 
 nmo:headerValue a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmo:MessageHeader ;
-	rdfs:range xsd:string .
+	rdfs:range xsd:string ;
+	tracker:weight 4 .
 
 nmo:isAnswered a rdf:Property ;
 	nrl:maxCardinality 1 ;
@@ -182,7 +184,8 @@ nmo:messageSubject a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmo:Message ;
 	rdfs:range xsd:string ;
-	tracker:fulltextIndexed true .
+	tracker:fulltextIndexed true ;
+	tracker:weight 5 .
 
 nmo:receivedDate a rdf:Property ;
 	nrl:maxCardinality 1 ;
@@ -231,13 +234,15 @@ nmo:duration a rdf:Property ;
 nmo:accountName a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmo:Mailbox ;
-	rdfs:range xsd:string .
+	rdfs:range xsd:string ;
+	tracker:weight 3 .
 
 # FIXME Extension to nepomuk 
 nmo:accountDisplayName a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmo:Mailbox ;
-	rdfs:range xsd:string .
+	rdfs:range xsd:string ;
+	tracker:weight 3 .
 
 # FIXME Extension to nepomuk 
 nmo:fromAddress a rdf:Property ;
@@ -250,13 +255,15 @@ nmo:fromAddress a rdf:Property ;
 nmo:signature a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmo:Mailbox ;
-	rdfs:range xsd:string .
+	rdfs:range xsd:string ;
+	tracker:weight 2 .
 
 # FIXME Extension to nepomuk 
 nmo:folderName a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmo:MailFolder ;
-	rdfs:range xsd:string .
+	rdfs:range xsd:string ;
+	tracker:weight 4 .
 
 # FIXME Extension to nepomuk 
 nmo:status a rdf:Property ;

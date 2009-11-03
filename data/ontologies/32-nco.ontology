@@ -178,7 +178,8 @@ nco:url a rdf:Property ;
 	rdfs:comment "A uniform resource locator associated with the given role of a Contact. Inspired by the 'URL' property defined in RFC 2426 Sec. 3.6.8." ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nco:Role ;
-	rdfs:range rdfs:Resource .
+	rdfs:range rdfs:Resource ;
+	tracker:weight 4 .
 
 nco:contributor a rdf:Property ;
 	rdfs:label "contributor" ;
@@ -194,14 +195,16 @@ nco:creator a rdf:Property ;
 	rdfs:subPropertyOf dc:creator , nco:contributor ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nie:InformationElement ;
-	rdfs:range nco:Contact .
+	rdfs:range nco:Contact ;
+	tracker:weight 4 .
 
 nco:region a rdf:Property ;
 	rdfs:label "region" ;
 	rdfs:comment "Region. Inspired by the fifth part of the value of the 'ADR' property as defined in RFC 2426, sec. 3.2.1" ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nco:PostalAddress ;
-	rdfs:range xsd:string .
+	rdfs:range xsd:string ;
+	tracker:weight 3 .
 
 nco:key a rdf:Property ;
 	rdfs:label "key" ;
@@ -216,14 +219,16 @@ nco:nameHonorificSuffix a rdf:Property ;
 	rdfs:comment "A suffix for the name of the Object represented by the given object. See documentation for the 'nameFamily' for details." ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nco:PersonContact ;
-	rdfs:range xsd:string .
+	rdfs:range xsd:string ;
+	tracker:weight 3 .
 
 nco:nameFamily a rdf:Property ;
 	rdfs:label "nameFamily" ;
 	rdfs:comment "The family name of an Object represented by this Contact. These applies to people that have more than one given name. The 'first' one is considered 'the' given name (see nameGiven) property. All additional ones are considered 'additional' names. The name inherited from parents is the 'family name'. e.g. For Dr. John Phil Paul Stevenson Jr. M.D. A.C.P. we have contact with: honorificPrefix: 'Dr.', nameGiven: 'John', nameAdditional: 'Phil', nameAdditional: 'Paul', nameFamily: 'Stevenson', honorificSuffix: 'Jr.', honorificSuffix: 'M.D.', honorificSuffix: 'A.C.P.'. These properties form an equivalent of the compound 'N' property as defined in RFC 2426 Sec. 3.1.2" ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nco:PersonContact ;
-	rdfs:range xsd:string .
+	rdfs:range xsd:string ;
+	tracker:weight 4 .
 
 nco:contactUID a rdf:Property ;
 	rdfs:label "contactUID" ;
@@ -231,7 +236,8 @@ nco:contactUID a rdf:Property ;
 	rdfs:subPropertyOf nie:identifier ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nco:Contact ;
-	rdfs:range xsd:string .
+	rdfs:range xsd:string ;
+	tracker:weight 5 .
 
 nco:publisher a rdf:Property ;
 	rdfs:label "publisher" ;
@@ -239,28 +245,32 @@ nco:publisher a rdf:Property ;
 	rdfs:subPropertyOf dc:publisher ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nie:InformationElement ;
-	rdfs:range nco:Contact .
+	rdfs:range nco:Contact ;
+	tracker:weight 2 .
 
 nco:country a rdf:Property ;
 	rdfs:label "country" ;
 	rdfs:comment "A part of an address specyfing the country. Inspired by the seventh part of the value of the 'ADR' property as defined in RFC 2426, sec. 3.2.1" ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nco:PostalAddress ;
-	rdfs:range xsd:string .
+	rdfs:range xsd:string ;
+	tracker:weight 3 .
 
 nco:nameHonorificPrefix a rdf:Property ;
 	rdfs:label "nameHonorificPrefix" ;
 	rdfs:comment "A prefix for the name of the object represented by this Contact. See documentation for the 'nameFamily' property for details." ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nco:PersonContact ;
-	rdfs:range xsd:string .
+	rdfs:range xsd:string ;
+	tracker:weight 3 .
 
 nco:extendedAddress a rdf:Property ;
 	rdfs:label "extendedAddress" ;
 	rdfs:comment "An extended part of an address. This field might be used to express parts of an address that aren't include in the name of the Contact but also aren't part of the actual location. Usually the streed address and following fields are enough for a postal letter to arrive. Examples may include ('University of California Campus building 45', 'Sears Tower 34th floor' etc.) Inspired by the second part of the value of the 'ADR' property as defined in RFC 2426, sec. 3.2.1" ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nco:PostalAddress ;
-	rdfs:range xsd:string .
+	rdfs:range xsd:string ;
+	tracker:weight 6 .
 
 nco:hasIMAccount a rdf:Property ;
 	rdfs:label "hasIMAccount" ;
@@ -281,14 +291,16 @@ nco:phoneNumber a rdf:Property ;
 	rdfs:label "phoneNumber" ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nco:PhoneNumber ;
-	rdfs:range xsd:string .
+	rdfs:range xsd:string ;
+	tracker:weight 5 .
 
 nco:nickname a rdf:Property ;
 	rdfs:label "nickname" ;
 	rdfs:comment "A nickname of the Object represented by this Contact. This is an equivalen of the 'NICKNAME' property as defined in RFC 2426 Sec. 3.1.3." ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nco:Contact ;
-	rdfs:range xsd:string .
+	rdfs:range xsd:string ;
+	tracker:weight 5 .
 
 nco:containsContact a rdf:Property ;
 	rdfs:label "containsContact" ;
@@ -308,7 +320,8 @@ nco:department a rdf:Property ;
 	rdfs:comment "Department. The organizational unit within the organization." ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nco:Affiliation ;
-	rdfs:range xsd:string .
+	rdfs:range xsd:string ;
+	tracker:weight 4 .
 
 nco:imID a rdf:Property ;
 	rdfs:label "imID" ;
@@ -316,7 +329,8 @@ nco:imID a rdf:Property ;
 	rdfs:subPropertyOf nao:identifier ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nco:IMAccount ;
-	rdfs:range xsd:string .
+	rdfs:range xsd:string ;
+	tracker:weight 5 .
 
 # FIXME Range geo:Point but we dont have that class
 nco:addressLocation a rdf:Property ;
@@ -324,7 +338,8 @@ nco:addressLocation a rdf:Property ;
 	rdfs:comment "The geographical location of a postal address." ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nco:PostalAddress ;
-	rdfs:range rdfs:Resource .
+	rdfs:range rdfs:Resource ;
+	tracker:weight 3 .
 
 nco:note a rdf:Property ;
 	rdfs:label "note" ;
@@ -332,7 +347,8 @@ nco:note a rdf:Property ;
 	rdfs:subPropertyOf nie:description ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nco:Contact ;
-	rdfs:range xsd:string .
+	rdfs:range xsd:string ;
+	tracker:weight 4 .
 
 nco:representative a rdf:Property ;
 	rdfs:label "representative" ;
@@ -346,14 +362,16 @@ nco:nameGiven a rdf:Property ;
 	rdfs:comment "The given name for the object represented by this Contact. See documentation for 'nameFamily' property for details." ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nco:PersonContact ;
-	rdfs:range xsd:string .
+	rdfs:range xsd:string ;
+	tracker:weight 5 .
 
 nco:nameAdditional a rdf:Property ;
 	rdfs:label "nameAdditional" ;
 	rdfs:comment "Additional given name of an object represented by this contact. See documentation for 'nameFamily' property for details." ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nco:PersonContact ;
-	rdfs:range xsd:string .
+	rdfs:range xsd:string ;
+	tracker:weight 5 .
 
 nco:fullname a rdf:Property ;
 	rdfs:label "fullname" ;
@@ -362,14 +380,16 @@ nco:fullname a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nco:Contact ;
 	rdfs:range xsd:string ;
-	tracker:fulltextIndexed true .
+	tracker:fulltextIndexed true ;
+	tracker:weight 6 .
 
 nco:streetAddress a rdf:Property ;
 	rdfs:label "streetAddress" ;
 	rdfs:comment "The streed address. Inspired by the third part of the value of the 'ADR' property as defined in RFC 2426, sec. 3.2.1" ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nco:PostalAddress ;
-	rdfs:range xsd:string .
+	rdfs:range xsd:string ;
+	tracker:weight 6 .
 
 nco:hasPhoneNumber a rdf:Property ;
 	rdfs:label "hasPhoneNumber" ;
@@ -403,7 +423,8 @@ nco:websiteUrl a rdf:Property ;
 	rdfs:subPropertyOf nco:url ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nco:Role ;
-	rdfs:range rdfs:Resource .
+	rdfs:range rdfs:Resource ;
+	tracker:weight 5 .
 
 nco:birthDate a rdf:Property ;
 	rdfs:label "birthDate" ;
@@ -411,7 +432,8 @@ nco:birthDate a rdf:Property ;
 	rdfs:subPropertyOf dc:date ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nco:Contact ;
-	rdfs:range xsd:dateTime .
+	rdfs:range xsd:dateTime ;
+	tracker:weight 5 .
 
 nco:hasEmailAddress a rdf:Property ;
 	rdfs:label "hasEmailAddress" ;
@@ -425,20 +447,23 @@ nco:postalcode a rdf:Property ;
 	rdfs:comment "Postal Code. Inspired by the sixth part of the value of the 'ADR' property as defined in RFC 2426, sec. 3.2.1" ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nco:PostalAddress ;
-	rdfs:range xsd:string .
+	rdfs:range xsd:string ;
+	tracker:weight 6 .
 
 nco:org a rdf:Property ;
 	rdfs:label "org" ;
 	rdfs:comment "Name of an organization or a unit within an organization the object represented by a Contact is associated with. An equivalent of the 'ORG' property defined in RFC 2426 Sec. 3.5.5" ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nco:Affiliation ;
-	rdfs:range nco:OrganizationContact .
+	rdfs:range nco:OrganizationContact ;
+	tracker:weight 4 .
 
 nco:title a rdf:Property ;
 	rdfs:label "title" ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nco:Affiliation ;
-	rdfs:range xsd:string .
+	rdfs:range xsd:string ;
+	tracker:weight 10 .
 
 nco:voiceMail a rdf:Property ;
 	rdfs:label "voiceMail" ;
@@ -459,7 +484,8 @@ nco:contactGroupName a rdf:Property ;
 	rdfs:subPropertyOf dc:title ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nco:ContactGroup ;
-	rdfs:range xsd:string .
+	rdfs:range xsd:string ;
+	tracker:weight 4 .
 
 nco:contactMediumComment a rdf:Property ;
 	rdfs:label "contactMediumComment" ;
@@ -488,7 +514,8 @@ nco:locality a rdf:Property ;
 	rdfs:comment "Locality or City. Inspired by the fourth part of the value of the 'ADR' property as defined in RFC 2426, sec. 3.2.1" ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nco:PostalAddress ;
-	rdfs:range xsd:string .
+	rdfs:range xsd:string ;
+	tracker:weight 4 .
 
 nco:sound a rdf:Property ;
 	rdfs:label "sound" ;
@@ -503,14 +530,16 @@ nco:imNickname a rdf:Property ;
 	rdfs:comment "A nickname attached to a particular IM Account." ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nco:IMAccount ;
-	rdfs:range xsd:string .
+	rdfs:range xsd:string ;
+	tracker:weight 5 .
 
 nco:hobby a rdf:Property ;
 	rdfs:label "hobby" ;
 	rdfs:comment "A hobby associated with a PersonContact. This property can be used to express hobbies and interests." ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nco:PersonContact ;
-	rdfs:range xsd:string .
+	rdfs:range xsd:string ;
+	tracker:weight 2 .
 
 # Same remarks as in url
 nco:blogUrl a rdf:Property ;
@@ -525,7 +554,8 @@ nco:role a rdf:Property ;
 	rdfs:label "role" ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nco:Affiliation ;
-	rdfs:range xsd:string .
+	rdfs:range xsd:string ;
+	tracker:weight 2 .
 
 nco:hasPostalAddress a rdf:Property ;
 	rdfs:label "hasPostalAddress" ;
@@ -553,7 +583,8 @@ nco:pobox a rdf:Property ;
 	rdfs:comment "Post office box. This is the first part of the value of the 'ADR' property as defined in RFC 2426, sec. 3.2.1" ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nco:PostalAddress ;
-	rdfs:range xsd:string .
+	rdfs:range xsd:string ;
+	tracker:weight 5 .
 
 nco:imStatusMessage a rdf:Property ;
 	rdfs:label "imStatusMessage" ;

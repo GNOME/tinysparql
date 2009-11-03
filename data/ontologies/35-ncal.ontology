@@ -295,7 +295,8 @@ ncal:comment a rdf:Property ;
 	rdfs:comment "Non-processing information intended to provide a comment to the calendar user. Inspired by RFC 2445 sec. 4.8.1.4 with the following reservations:  the LANGUAGE parameter has been discarded. Please use xml:lang literals to express language. For the ALTREP parameter use the commentAltRep property." ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain ncal:UnionParentClass ;
-	rdfs:range xsd:string .
+	rdfs:range xsd:string ;
+	tracker:weight 3 .
 
 # Range Resource in nepomuk
 ncal:summaryAltRep a rdf:Property ;
@@ -372,7 +373,8 @@ ncal:location a rdf:Property ;
 	rdfs:comment "Defines the intended venue for the activity defined by a calendar component. Inspired by RFC 2445 sec 4.8.1.7 with the following reservations:  the LANGUAGE parameter has been discarded. Please use xml:lang literals to express language.  For the ALTREP parameter use the locationAltRep property." ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain ncal:UnionParentClass ;
-	rdfs:range xsd:string .
+	rdfs:range xsd:string ;
+	tracker:weight 3 .
 
 ncal:eventStatus a rdf:Property ;
 	rdfs:label "status" ;
@@ -619,7 +621,8 @@ ncal:summary a rdf:Property ;
 	rdfs:comment "Defines a short summary or subject for the calendar component. Inspired by RFC 2445 sec 4.8.1.12 with the following reservations: the LANGUAGE parameter has been discarded. Please use xml:lang literals to express language. For the ALTREP parameter use the summaryAltRep property." ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain ncal:UnionParentClass ;
-	rdfs:range xsd:string .
+	rdfs:range xsd:string ;
+	tracker:weight 5 .
 
 ncal:role a rdf:Property ;
 	rdfs:label "role" ;
@@ -704,7 +707,8 @@ ncal:contact a rdf:Property ;
 	rdfs:comment "The property is used to represent contact information or alternately a reference to contact information associated with the calendar component. Inspired by RFC 2445 sec. 4.8.4.2 with the following reservations: the LANGUAGE parameter has been discarded. Please use xml:lang literals to express language. For the ALTREP parameter use the contactAltRep property.RFC doesn't define any format for the string." ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain ncal:UnionParentClass ;
-	rdfs:range xsd:string .
+	rdfs:range xsd:string ;
+	tracker:weight 4 .
 
 ncal:repeat a rdf:Property ;
 	rdfs:label "repeat" ;
