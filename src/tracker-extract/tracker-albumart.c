@@ -579,8 +579,8 @@ albumart_heuristic (const gchar *artist,
 					retval = error != NULL;
 					g_clear_error (&error);
 				}
-			}
 #endif /* HAVE_GDKPIXBUF */
+			}
 		}
 	}
 
