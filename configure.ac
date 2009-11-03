@@ -1185,7 +1185,7 @@ AC_ARG_ENABLE(libvorbis,
 
 if test "x$enable_libvorbis" != "xno" ; then
    PKG_CHECK_MODULES(LIBVORBIS,
-		     [vorbis >= $LIBVORBIS_REQUIRED],
+		     [vorbisfile >= $LIBVORBIS_REQUIRED],
 		     [have_libvorbis=yes], 
 		     [have_libvorbis=no])
 
