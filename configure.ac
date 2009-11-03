@@ -1164,17 +1164,15 @@ AM_CONDITIONAL(HAVE_LIBVORBIS, test "x$have_libvorbis" = "xyes")
 # Check ioprio support
 ####################################################################
 
-AC_MSG_CHECKING([[ioprio support]])
-have_ioprio=no
-
-AC_RUN_IFELSE(
-[AC_LANG_PROGRAM([[
+AC_CACHE_CHECK([if we have ioprio],[tracker_cv_have_ioprio],
+  [AC_RUN_IFELSE(
+    [AC_LANG_PROGRAM([[
 	#include <stdlib.h>
 	#include <errno.h>
 	#include <sys/syscall.h>
 	#include <unistd.h>
-]], 
-[[
+      ]], 
+      [[
         inline int ioprio_get (int which, int who) 
 	{
 	       return syscall (__NR_ioprio_get, which, who);
@@ -1184,15 +1182,15 @@ AC_RUN_IFELSE(
 	{
 	       return ioprio_get (1, 0);
 	}
-]]
-)],
-[have_ioprio=yes],[])
+      ]])],
+    [tracker_cv_have_ioprio=yes],
+    [tracker_cv_have_ioprio=no],
+    [AC_MSG_ERROR([cross-compiling: please set 'tracker_cv_have_ioprio'])])
+  ])
 
-if test "$have_ioprio" = "yes" ; then
+if test "x$tracker_cv_have_ioprio" = "xyes" ; then
    AC_DEFINE(HAVE_IOPRIO, 1, [Define if we have ioprio])
 fi
-
-AC_MSG_RESULT([$have_ioprio])
 
 ##################################################################
 # Check for exempi
