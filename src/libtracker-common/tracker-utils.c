@@ -38,18 +38,20 @@ tracker_is_empty_string (const char *str)
 inline gboolean
 tracker_is_blank_string (const char *str)
 {
-	register gint len, i;
+	register const gchar *p;
 
 	if (str == NULL || str[0] == '\0') {
 		return TRUE;
 	}
 
-	len = strlen (str);
+        for (p = str; *p; p = g_utf8_next_char (p)) {
+		register gunichar c;
 
-	for (i = 0; i < len; i++) {
-		if (str[i] != ' ') {
-			return FALSE;
-		}
+                c = g_utf8_get_char (p);
+
+                if (!g_unichar_isspace (c)) {
+                        return FALSE;
+                }
 	}
 
 	return TRUE;
