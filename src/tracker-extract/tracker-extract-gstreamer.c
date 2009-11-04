@@ -146,7 +146,8 @@ add_int64_info (TrackerSparqlBuilder *metadata,
 		const gchar *key,
 		gint64	    info)
 {
-	tracker_statement_list_insert_with_int64 (metadata, uri, key, info);
+	tracker_sparql_builder_predicate (metadata, key);
+	tracker_sparql_builder_object_int64 (metadata, info);
 }
 
 static void
@@ -155,15 +156,16 @@ add_uint_info (TrackerSparqlBuilder *metadata,
 	       const gchar *key,
 	       guint	   info)
 {
-	tracker_statement_list_insert_with_int (metadata, uri, key, info);
+	tracker_sparql_builder_predicate (metadata, key);
+	tracker_sparql_builder_object_int64 (metadata, info);
 }
 
 static void
-add_string_gst_tag (TrackerSparqlBuilder	*metadata,
-		    const gchar *uri,
-		    const gchar *key,
-		    GstTagList	*tag_list,
-		    const gchar *tag)
+add_string_gst_tag (TrackerSparqlBuilder *metadata,
+		    const gchar          *uri,
+		    const gchar          *key,
+		    GstTagList	         *tag_list,
+		    const gchar          *tag)
 {
 	gchar	 *s;
 	gboolean  ret;
@@ -173,7 +175,8 @@ add_string_gst_tag (TrackerSparqlBuilder	*metadata,
 
 	if (s) {
 		if (ret && s[0] != '\0') {
-			tracker_statement_list_insert (metadata, uri, key, s);
+			tracker_sparql_builder_predicate (metadata, key);
+			tracker_sparql_builder_object_unvalidated (metadata, s);
 		}
 
 		g_free (s);
@@ -193,7 +196,8 @@ add_uint_gst_tag (TrackerSparqlBuilder   *metadata,
 	ret = gst_tag_list_get_uint (tag_list, tag, &n);
 
 	if (ret) {
-		tracker_statement_list_insert_with_int (metadata, uri, key, n);
+		tracker_sparql_builder_predicate (metadata, key);
+		tracker_sparql_builder_object_int64 (metadata, n);
 	}
 }
 
@@ -210,7 +214,8 @@ add_int_gst_tag (TrackerSparqlBuilder   *metadata,
 	ret = gst_tag_list_get_int (tag_list, tag, &n);
 
 	if (ret) {
-		tracker_statement_list_insert_with_int (metadata, uri, key, n);	
+		tracker_sparql_builder_predicate (metadata, key);
+		tracker_sparql_builder_object_int64 (metadata, n);
 	}
 }
 
@@ -227,7 +232,8 @@ add_double_gst_tag (TrackerSparqlBuilder	*metadata,
 	ret = gst_tag_list_get_double (tag_list, tag, &n);
 
 	if (ret) {
-		tracker_statement_list_insert_with_double (metadata, uri, key, n);
+		tracker_sparql_builder_predicate (metadata, key);
+		tracker_sparql_builder_object_int64 (metadata, (gint64) n);
 	}
 }
 
@@ -248,7 +254,8 @@ add_fraction_gst_tag (TrackerSparqlBuilder         *metadata,
 		gst_value_get_fraction_denominator (&n);
 
 	if (ret) {
-		tracker_statement_list_insert_with_float (metadata, uri, key, f);
+		tracker_sparql_builder_predicate (metadata, key);
+		tracker_sparql_builder_object_double (metadata, (gdouble) f);
 	}
 }
 
@@ -269,8 +276,8 @@ add_y_date_gst_tag (TrackerSparqlBuilder  *metadata,
 		gchar buf[10];
 
 		if (g_date_strftime (buf, 10, "%Y", date)) {
-			tracker_statement_list_insert (metadata, uri,
-						       key, buf);
+			tracker_sparql_builder_predicate (metadata, key);
+			tracker_sparql_builder_object_unvalidated (metadata, buf);
 		}
 	}
 
@@ -292,9 +299,12 @@ add_time_gst_tag (TrackerSparqlBuilder   *metadata,
 	ret = gst_tag_list_get_uint64 (tag_list, tag, &n);
 
 	if (ret) {
-		gchar *str = g_strdup_printf ("%lld", llroundl ((long double)n/(long double)GST_SECOND));
-		tracker_statement_list_insert (metadata, uri, key, str);
-		g_free (str);
+		gint64 duration;
+
+		duration = llroundl ((long double) n / (long double) GST_SECOND);
+
+		tracker_sparql_builder_predicate (metadata, key);
+		tracker_sparql_builder_object_int64 (metadata, duration);
 	}
 }
 
@@ -368,16 +378,16 @@ extract_stream_metadata_tagreadbin (MetadataExtractor *extractor,
 				    TrackerSparqlBuilder         *metadata)
 {
 	if (extractor->mime != EXTRACT_MIME_IMAGE) {
-		add_uint_gst_tag (metadata, uri, NFO_PREFIX "channels", extractor->tagcache, GST_TAG_CHANNEL);
-		add_uint_gst_tag (metadata, uri, NFO_PREFIX "sampleRate", extractor->tagcache, GST_TAG_RATE);
-		add_time_gst_tag (metadata, uri, NFO_PREFIX "duration", extractor->tagcache, GST_TAG_DURATION); 
+		add_uint_gst_tag (metadata, uri, "nfo:channels", extractor->tagcache, GST_TAG_CHANNEL);
+		add_uint_gst_tag (metadata, uri, "nfo:sampleRate", extractor->tagcache, GST_TAG_RATE);
+		add_time_gst_tag (metadata, uri, "nfo:duration", extractor->tagcache, GST_TAG_DURATION);
 	}
 
-	add_int_gst_tag (metadata, uri, NFO_PREFIX "height", extractor->tagcache, GST_TAG_HEIGHT);
-	add_int_gst_tag (metadata, uri, NFO_PREFIX "width", extractor->tagcache, GST_TAG_WIDTH);
+	add_int_gst_tag (metadata, uri, "nfo:height", extractor->tagcache, GST_TAG_HEIGHT);
+	add_int_gst_tag (metadata, uri, "nfo:width", extractor->tagcache, GST_TAG_WIDTH);
 
 	if (extractor->mime == EXTRACT_MIME_VIDEO) {
-		add_fraction_gst_tag   (metadata, uri, NFO_PREFIX "frameRate", extractor->tagcache, GST_TAG_FRAMERATE);	
+		add_fraction_gst_tag (metadata, uri, "nfo:frameRate", extractor->tagcache, GST_TAG_FRAMERATE);
 	}
 }
 
@@ -388,49 +398,42 @@ extract_stream_metadata_decodebin (MetadataExtractor *extractor,
 {
 	if (extractor->mime != EXTRACT_MIME_IMAGE) {
 		if (extractor->audio_channels >= 0) {
-			add_uint_info (metadata,
-				       uri, NFO_PREFIX "channels",
-				       extractor->audio_channels);
+			add_uint_info (metadata, uri, "nfo:channels", extractor->audio_channels);
 		}
 
 		if (extractor->audio_samplerate >= 0) {
-			add_uint_info (metadata,
-				       uri, NFO_PREFIX "sampleRate",
-				       extractor->audio_samplerate);
+			add_uint_info (metadata, uri, "nfo:sampleRate", extractor->audio_samplerate);
 		}
 
 		if (extractor->duration >= 0) {
-			add_int64_info (metadata, uri, NFO_PREFIX "duration", extractor->duration);
+			add_int64_info (metadata, uri, "nfo:duration", extractor->duration);
 		}
 	}
 
 	if (extractor->video_height >= 0) {
-		add_uint_info (metadata,
-			       uri, NFO_PREFIX "height",
-			       extractor->video_height);
+		add_uint_info (metadata, uri, "nfo:height", extractor->video_height);
 	}
 
 	if (extractor->video_width >= 0) {
-		add_uint_info (metadata,
-			       uri, NFO_PREFIX "width",
-			       extractor->video_width);
+		add_uint_info (metadata, uri, "nfo:width", extractor->video_width);
 	}
 
 	if (extractor->mime == EXTRACT_MIME_VIDEO) {
 		if (extractor->video_fps_n >= 0 && extractor->video_fps_d >= 0) {
 			add_uint_info (metadata,
-				       uri, NFO_PREFIX "frameRate",
-				       ((extractor->video_fps_n + extractor->video_fps_d / 2) / 
+				       uri, "nfo:frameRate",
+				       ((extractor->video_fps_n + extractor->video_fps_d / 2) /
 					extractor->video_fps_d));
 		}
 	}
 }
 
 static void
-extract_metadata (MetadataExtractor *extractor,
-		  const gchar       *uri,
-		  TrackerSparqlBuilder         *metadata,
-		  gchar **album, gchar **scount)
+extract_metadata (MetadataExtractor      *extractor,
+		  const gchar            *uri,
+		  TrackerSparqlBuilder   *metadata,
+		  gchar                 **album,
+		  gchar                 **scount)
 {
 	gchar *s;
 	gboolean ret;
@@ -441,46 +444,6 @@ extract_metadata (MetadataExtractor *extractor,
 
 	if (extractor->tagcache) {
 		/* General */
-
-		add_string_gst_tag (metadata, uri, NIE_PREFIX "title", extractor->tagcache, GST_TAG_TITLE);
-		add_string_gst_tag (metadata, uri, NIE_PREFIX "copyright", extractor->tagcache, GST_TAG_COPYRIGHT);
-		add_string_gst_tag (metadata, uri, NIE_PREFIX "license", extractor->tagcache, GST_TAG_LICENSE);
-		add_string_gst_tag (metadata, uri, DC_PREFIX "coverage", extractor->tagcache, GST_TAG_LOCATION);
-		add_y_date_gst_tag (metadata, uri, NIE_PREFIX "contentCreated", extractor->tagcache, GST_TAG_DATE);
-		add_string_gst_tag (metadata, uri, NIE_PREFIX "comment", extractor->tagcache, GST_TAG_COMMENT);
-
-		if (extractor->mime == EXTRACT_MIME_VIDEO) {
-			add_string_gst_tag (metadata, uri, DC_PREFIX "source", extractor->tagcache, GST_TAG_CLASSIFICATION);
-		}
-
-		if (extractor->mime == EXTRACT_MIME_AUDIO) {
-			/* Audio */
-			s = NULL;
-			gst_tag_list_get_string (extractor->tagcache, GST_TAG_ALBUM, &s);
-			if (s) {
-				gchar *canonical_uri = tracker_uri_printf_escaped ("urn:album:%s", s);
-				tracker_statement_list_insert (metadata, canonical_uri, RDF_TYPE, NMM_PREFIX "MusicAlbum");
-				tracker_statement_list_insert (metadata, canonical_uri, NMM_PREFIX "albumTitle", s);
-				tracker_statement_list_insert (metadata, uri, NMM_PREFIX "musicAlbum", canonical_uri);
-				add_uint_gst_tag (metadata, canonical_uri, NMM_PREFIX "albumTrackCount", extractor->tagcache, GST_TAG_TRACK_COUNT);
-				g_free (canonical_uri);
-				*album = s;
-			}
-
-			ret = gst_tag_list_get_uint (extractor->tagcache, GST_TAG_TRACK_COUNT, &count);
-			if (ret) {
-				*scount = g_strdup_printf ("%d", count);
-			}
-
-			add_uint_gst_tag   (metadata, uri, NMM_PREFIX "trackNumber", extractor->tagcache, GST_TAG_TRACK_NUMBER);
-			add_uint_gst_tag   (metadata, uri, NMM_PREFIX "setNumber", extractor->tagcache, GST_TAG_ALBUM_VOLUME_NUMBER);
-
-			add_double_gst_tag (metadata, uri, NFO_PREFIX "gain", extractor->tagcache, GST_TAG_TRACK_GAIN);
-			add_double_gst_tag (metadata, uri, NFO_PREFIX "peakGain", extractor->tagcache, GST_TAG_TRACK_PEAK);
-			add_double_gst_tag (metadata, uri, NFO_PREFIX "albumGain", extractor->tagcache, GST_TAG_ALBUM_GAIN);
-			add_double_gst_tag (metadata, uri, NFO_PREFIX "albumPeakGain", extractor->tagcache, GST_TAG_ALBUM_PEAK);
-		}
-
 		if (extractor->mime == EXTRACT_MIME_AUDIO || extractor->mime == EXTRACT_MIME_VIDEO) {
 			gchar *performer = NULL, *artist = NULL;
 
@@ -491,28 +454,43 @@ extract_metadata (MetadataExtractor *extractor,
 
 			if (s) {
 				gchar *canonical_uri = tracker_uri_printf_escaped ("urn:artist:%s", s);
-				tracker_statement_list_insert (metadata, canonical_uri, RDF_TYPE, NMM_PREFIX "Artist");
-				tracker_statement_list_insert (metadata, canonical_uri, NMM_PREFIX "artistName", s);
-				tracker_statement_list_insert (metadata, uri, 
-							       (extractor->mime == EXTRACT_MIME_AUDIO ? 
-							        NMM_PREFIX "performer" :
-							        NMM_PREFIX "leadActor"),
-							       canonical_uri);
+
+				tracker_sparql_builder_subject_iri (metadata, canonical_uri);
+				tracker_sparql_builder_predicate (metadata, "a");
+				tracker_sparql_builder_object (metadata, "nmm:Artist");
+
+				if (extractor->mime == EXTRACT_MIME_AUDIO) {
+					tracker_sparql_builder_object (metadata, "nmm:performer");
+				} else {
+					tracker_sparql_builder_object (metadata, "nmm:leadActor");
+				}
+
+				tracker_sparql_builder_predicate (metadata, "nmm:artistName");
+				tracker_sparql_builder_object_unvalidated (metadata, s);
+
 				g_free (canonical_uri);
 				g_free (s);
 			}
 
 			s = NULL;
 			gst_tag_list_get_string (extractor->tagcache, GST_TAG_COMPOSER, &s);
+
 			if (s) {
 				gchar *canonical_uri = tracker_uri_printf_escaped ("urn:artist:%s", s);
-				tracker_statement_list_insert (metadata, canonical_uri, RDF_TYPE, NMM_PREFIX "Artist");
-				tracker_statement_list_insert (metadata, canonical_uri, NMM_PREFIX "artistName", s);
-				tracker_statement_list_insert (metadata, uri, 
-							       (extractor->mime == EXTRACT_MIME_AUDIO ? 
-							        NMM_PREFIX "composer" :
-							        NMM_PREFIX "director"),
-							       canonical_uri);
+
+				tracker_sparql_builder_subject_iri (metadata, canonical_uri);
+				tracker_sparql_builder_predicate (metadata, "a");
+				tracker_sparql_builder_object (metadata, "nmm:Artist");
+
+				if (extractor->mime == EXTRACT_MIME_AUDIO) {
+					tracker_sparql_builder_object (metadata, "nmm:composer");
+				} else {
+					tracker_sparql_builder_object (metadata, "nmm:director");
+				}
+
+				tracker_sparql_builder_predicate (metadata, "nmm:artistName");
+				tracker_sparql_builder_object_unvalidated (metadata, s);
+
 				g_free (canonical_uri);
 				g_free (s);
 			}
@@ -520,13 +498,72 @@ extract_metadata (MetadataExtractor *extractor,
 			s = NULL;
 			gst_tag_list_get_string (extractor->tagcache, GST_TAG_GENRE, &s);
 			if (s && strcmp (s, "Unknown") != 0) {
-				tracker_statement_list_insert (metadata, uri, NFO_PREFIX "genre", s);
+				tracker_sparql_builder_predicate (metadata, "nfo:genre");
+				tracker_sparql_builder_object_unvalidated (metadata, s);
 			}
 			g_free (s);
-
-			add_string_gst_tag (metadata, uri, NFO_PREFIX "codec", extractor->tagcache, GST_TAG_AUDIO_CODEC);
-
 		}
+
+		if (extractor->mime == EXTRACT_MIME_AUDIO) {
+			/* Audio */
+			s = NULL;
+			gst_tag_list_get_string (extractor->tagcache, GST_TAG_ALBUM, &s);
+			if (s) {
+				gchar *urn;
+
+				urn = tracker_uri_printf_escaped ("urn:album:%s", s);
+				tracker_sparql_builder_subject_iri (metadata, urn);
+				tracker_sparql_builder_predicate (metadata, "a");
+				tracker_sparql_builder_object (metadata, "nmm:MusicAlbum");
+				tracker_sparql_builder_predicate (metadata, "nmm:albumTitle");
+				tracker_sparql_builder_object_unvalidated (metadata, s);
+				add_uint_gst_tag (metadata, urn, "nmm:albumTrackCount", extractor->tagcache, GST_TAG_TRACK_COUNT);
+				*album = s;
+
+				g_free (urn);
+			}
+		}
+
+		tracker_sparql_builder_subject_iri (metadata, uri);
+		tracker_sparql_builder_predicate (metadata, "a");
+
+		if (extractor->mime == EXTRACT_MIME_AUDIO) {
+			tracker_sparql_builder_object (metadata, "nmm:MusicPiece");
+			tracker_sparql_builder_object (metadata, "nfo:Audio");
+		} else if (extractor->mime == EXTRACT_MIME_VIDEO) {
+			tracker_sparql_builder_object (metadata, "nmm:Video");
+		} else {
+			tracker_sparql_builder_object (metadata, "nfo:Image");
+		}
+
+		add_string_gst_tag (metadata, uri, "nie:title", extractor->tagcache, GST_TAG_TITLE);
+		add_string_gst_tag (metadata, uri, "nie:copyright", extractor->tagcache, GST_TAG_COPYRIGHT);
+		add_string_gst_tag (metadata, uri, "nie:license", extractor->tagcache, GST_TAG_LICENSE);
+		add_string_gst_tag (metadata, uri, "dc:coverage", extractor->tagcache, GST_TAG_LOCATION);
+		add_y_date_gst_tag (metadata, uri, "nie:contentCreated", extractor->tagcache, GST_TAG_DATE);
+		add_string_gst_tag (metadata, uri, "nie:comment", extractor->tagcache, GST_TAG_COMMENT);
+
+		if (extractor->mime == EXTRACT_MIME_VIDEO) {
+			add_string_gst_tag (metadata, uri, "dc:source", extractor->tagcache, GST_TAG_CLASSIFICATION);
+		}
+
+		if (extractor->mime == EXTRACT_MIME_AUDIO) {
+			/* Audio */
+			ret = gst_tag_list_get_uint (extractor->tagcache, GST_TAG_TRACK_COUNT, &count);
+			if (ret) {
+				*scount = g_strdup_printf ("%d", count);
+			}
+
+			add_uint_gst_tag   (metadata, uri, "nmm:trackNumber", extractor->tagcache, GST_TAG_TRACK_NUMBER);
+			add_uint_gst_tag   (metadata, uri, "nmm:setNumber", extractor->tagcache, GST_TAG_ALBUM_VOLUME_NUMBER);
+
+			add_double_gst_tag (metadata, uri, "nfo:gain", extractor->tagcache, GST_TAG_TRACK_GAIN);
+			add_double_gst_tag (metadata, uri, "nfo:peakGain", extractor->tagcache, GST_TAG_TRACK_PEAK);
+			add_double_gst_tag (metadata, uri, "nfo:albumGain", extractor->tagcache, GST_TAG_ALBUM_GAIN);
+			add_double_gst_tag (metadata, uri, "nfo:albumPeakGain", extractor->tagcache, GST_TAG_ALBUM_PEAK);
+		}
+
+		add_string_gst_tag (metadata, uri, "nfo:codec", extractor->tagcache, GST_TAG_AUDIO_CODEC);
 	}
 
 	if (use_tagreadbin) {
@@ -920,34 +957,18 @@ tracker_extract_gstreamer (const gchar *uri,
 static void
 extract_gstreamer_audio (const gchar *uri, TrackerSparqlBuilder *metadata)
 {
-	tracker_statement_list_insert (metadata, uri, 
-				       RDF_TYPE, 
-				       NMM_PREFIX "MusicPiece");
-
-	tracker_statement_list_insert (metadata, uri, 
-				       RDF_TYPE, 
-				       NFO_PREFIX "Audio");
-
 	tracker_extract_gstreamer (uri, metadata, EXTRACT_MIME_AUDIO);
 }
 
 static void
 extract_gstreamer_video (const gchar *uri, TrackerSparqlBuilder *metadata)
 {
-	tracker_statement_list_insert (metadata, uri, 
-				       RDF_TYPE, 
-				       NMM_PREFIX "Video");
-
 	tracker_extract_gstreamer (uri, metadata, EXTRACT_MIME_VIDEO);
 }
 
 static void
 extract_gstreamer_image (const gchar *uri, TrackerSparqlBuilder *metadata)
 {
-	tracker_statement_list_insert (metadata, uri, 
-				       RDF_TYPE, 
-				       NFO_PREFIX "Image");
-
 	tracker_extract_gstreamer (uri, metadata, EXTRACT_MIME_IMAGE);
 }
 
