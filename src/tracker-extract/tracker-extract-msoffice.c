@@ -36,7 +36,6 @@
 
 #include <libtracker-common/tracker-utils.h>
 
-#include <libtracker-common/tracker-statement-list.h>
 #include <libtracker-common/tracker-ontology.h>
 
 #include "tracker-main.h"
@@ -63,67 +62,80 @@ typedef struct {
 } ForeachInfo;
 
 static void
-add_gvalue_in_metadata (TrackerSparqlBuilder    *table,
-			const gchar  *uri,
-			const gchar  *key,
-			GValue const *val,
-			const gchar *urn,
-			const gchar *type,
-			const gchar *predicate)
+add_gvalue_in_metadata (TrackerSparqlBuilder *metadata,
+			const gchar          *uri,
+			const gchar          *key,
+			GValue const         *val,
+			const gchar          *type,
+			const gchar          *predicate)
 {
-	g_return_if_fail (table != NULL);
+	gchar *s;
+
+	g_return_if_fail (metadata != NULL);
 	g_return_if_fail (key != NULL);
 
-	if (val) {
-		gchar *s = g_strdup_value_contents (val);
+	if (!val) {
+		return;
+	}
 
-		if (s) {
-			if (!tracker_is_empty_string (s)) {
-				gchar *str_val;
+	s = g_strdup_value_contents (val);
 
-				/* Some fun: strings are always
-				 * written "str" with double quotes
-				 * around, but not numbers!
+	if (!s) {
+		return;
+	}
+
+	if (!tracker_is_empty_string (s)) {
+		gchar *str_val;
+
+		/* Some fun: strings are always
+		 * written "str" with double quotes
+		 * around, but not numbers!
+		 */
+		if (s[0] == '"') {
+			size_t len;
+
+			len = strlen (s);
+
+			if (s[len - 1] == '"') {
+				str_val = (len > 2 ? g_strndup (s + 1, len - 2) : NULL);
+			} else {
+				/* We have a string
+				 * that begins with a
+				 * double quote but
+				 * which finishes by
+				 * something different...
+				 * We copy the string
+				 * from the
+				 * beginning.
 				 */
-				if (s[0] == '"') {
-					size_t len;
+				str_val = g_strdup (s);
+			}
+		} else {
+			/* Here, we probably have a number */
+			str_val = g_strdup (s);
+		}
 
-					len = strlen (s);
+		if (str_val) {
+			if (type && predicate) {
+				tracker_sparql_builder_predicate (metadata, key);
 
-					if (s[len - 1] == '"') {
-						str_val = (len > 2 ? g_strndup (s + 1, len - 2) : NULL);
-					} else {
-						/* We have a string
-						 * that begins with a
-						 * double quote but
-						 * which finishes by
-						 * something different...
-						 * We copy the string
-						 * from the
-						 * beginning.
-						 */
-						str_val = g_strdup (s);
-					}
-				} else {
-					/* Here, we probably have a number */
-					str_val = g_strdup (s);
-				}
+				tracker_sparql_builder_object_blank_open (metadata);
+				tracker_sparql_builder_predicate (metadata, "a");
+				tracker_sparql_builder_object (metadata, type);
 
-				if (str_val) {
-					if (urn) {
-						tracker_statement_list_insert (table, urn, RDF_TYPE, type);
-						tracker_statement_list_insert (table, urn, predicate, str_val);
-						tracker_statement_list_insert (table, uri, key, urn);
-					} else {
-						tracker_statement_list_insert (table, uri, key, str_val);
-					}
-					g_free (str_val);
-				}
+				tracker_sparql_builder_predicate (metadata, predicate);
+				tracker_sparql_builder_object_unvalidated (metadata, str_val);
+				tracker_sparql_builder_object_blank_close (metadata);
+			} else {
+				tracker_sparql_builder_predicate (metadata, key);
+				tracker_sparql_builder_object_unvalidated (metadata, str_val);
 			}
 
-			g_free (s);
+			g_free (str_val);
 		}
 	}
+
+	g_free (s);
 }
 
 static void
@@ -140,15 +152,15 @@ metadata_cb (gpointer key,
 
 	name = key;
 	property = value;
-	metadata = user_data;
+	metadata = info->metadata;
 	val = gsf_doc_prop_get_val (property);
 
 	if (strcmp (name, "dc:title") == 0) {
-		add_gvalue_in_metadata (metadata, uri, NIE_PREFIX "title", val, NULL, NULL, NULL);
+		add_gvalue_in_metadata (metadata, uri, NIE_PREFIX "title", val, NULL, NULL);
 	} else if (strcmp (name, "dc:subject") == 0) {
-		add_gvalue_in_metadata (metadata, uri, NIE_PREFIX "subject", val, NULL, NULL, NULL);
+		add_gvalue_in_metadata (metadata, uri, NIE_PREFIX "subject", val, NULL, NULL);
 	} else if (strcmp (name, "dc:creator") == 0) {
-		add_gvalue_in_metadata (metadata, uri, NCO_PREFIX "creator", val, ":", NCO_PREFIX "Contact", NCO_PREFIX "fullname");
+		add_gvalue_in_metadata (metadata, uri, NCO_PREFIX "creator", val, NCO_PREFIX "Contact", NCO_PREFIX "fullname");
 	} else if (strcmp (name, "dc:keywords") == 0) {
 		gchar *keywords = g_strdup_value_contents (val);
 		char *lasts, *keyw;
@@ -167,22 +179,21 @@ metadata_cb (gpointer key,
 
 		for (keyw = strtok_r (keywords, ",; ", &lasts); keyw; 
 		     keyw = strtok_r (NULL, ",; ", &lasts)) {
-			tracker_statement_list_insert (metadata,
-					  uri, NIE_PREFIX "keyword",
-					  (const gchar*) keyw);
+			tracker_sparql_builder_predicate (metadata, "nie:keyword");
+			tracker_sparql_builder_object_unvalidated (metadata, keyw);
 		}
 
 		g_free (keyw);
 	} else if (strcmp (name, "dc:description") == 0) {
-		add_gvalue_in_metadata (metadata, uri, NIE_PREFIX "comment", val, NULL, NULL, NULL);
+		add_gvalue_in_metadata (metadata, uri, NIE_PREFIX "comment", val, NULL, NULL);
 	} else if (strcmp (name, "gsf:page-count") == 0) {
-		add_gvalue_in_metadata (metadata, uri, NFO_PREFIX "pageCount", val, NULL, NULL, NULL);
+		add_gvalue_in_metadata (metadata, uri, NFO_PREFIX "pageCount", val, NULL, NULL);
 	} else if (strcmp (name, "gsf:word-count") == 0) {
-		add_gvalue_in_metadata (metadata, uri, NFO_PREFIX "wordCount", val, NULL, NULL, NULL);
+		add_gvalue_in_metadata (metadata, uri, NFO_PREFIX "wordCount", val, NULL, NULL);
 	} else if (strcmp (name, "meta:creation-date") == 0) {
-		add_gvalue_in_metadata (metadata, uri, NIE_PREFIX "contentCreated", val, NULL, NULL, NULL);
+		add_gvalue_in_metadata (metadata, uri, NIE_PREFIX "contentCreated", val, NULL, NULL);
 	} else if (strcmp (name, "meta:generator") == 0) {
-		add_gvalue_in_metadata (metadata, uri, NIE_PREFIX "generator", val, NULL, NULL, NULL);
+		add_gvalue_in_metadata (metadata, uri, NIE_PREFIX "generator", val, NULL, NULL);
 	}
 }
 
@@ -204,7 +215,7 @@ doc_metadata_cb (gpointer key,
 	val = gsf_doc_prop_get_val (property);
 
 	if (strcmp (name, "CreativeCommons_LicenseURL") == 0) {
-		add_gvalue_in_metadata (metadata, uri, NIE_PREFIX "license", val, NULL, NULL, NULL);
+		add_gvalue_in_metadata (metadata, uri, NIE_PREFIX "license", val, NULL, NULL);
 	}
 }
 
@@ -249,7 +260,6 @@ extract_msoffice (const gchar *uri,
 	GsfInfile *infile;
 	GsfInput  *stream;
 	gchar     *filename, *content;
-	gboolean   rdf_type_added = FALSE;
 	TrackerFTSConfig *fts_config;
 	guint n_words;
 
@@ -274,6 +284,10 @@ extract_msoffice (const gchar *uri,
 		return;
 	}
 
+	tracker_sparql_builder_subject_iri (metadata, uri);
+	tracker_sparql_builder_predicate (metadata, "a");
+	tracker_sparql_builder_object (metadata, "nfo:PaginatedTextDocument");
+
 	stream = gsf_infile_child_by_name (infile, "\05SummaryInformation");
 	if (stream) {
 		GsfDocMetaData *md;
@@ -288,12 +302,6 @@ extract_msoffice (const gchar *uri,
 			gsf_shutdown ();
 			return;
 		}
-
-		tracker_statement_list_insert (metadata, uri, 
-		                          RDF_TYPE, 
-		                          NFO_PREFIX "PaginatedTextDocument");
-
-		rdf_type_added = TRUE;
 
 		gsf_doc_meta_data_foreach (md, metadata_cb, &info);
 
@@ -314,13 +322,6 @@ extract_msoffice (const gchar *uri,
 			gsf_shutdown ();
 			g_free (filename);
 			return;
-		}
-
-		if (!rdf_type_added) {
-			tracker_statement_list_insert (metadata, uri, 
-			                          RDF_TYPE, 
-			                          NFO_PREFIX "PaginatedTextDocument");
-			rdf_type_added = TRUE;
 		}
 
 		gsf_doc_meta_data_foreach (md, doc_metadata_cb, &info);
