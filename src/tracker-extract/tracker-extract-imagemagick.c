@@ -85,30 +85,24 @@ extract_imagemagick (const gchar *uri,
 
 	argv[5] = NULL;
 
-	if (tracker_spawn (argv, 10, &identify, &exit_status)) {
-		if (exit_status == EXIT_SUCCESS) {
+	tracker_sparql_builder_subject_iri (metadata, uri);
+	tracker_sparql_builder_predicate (metadata, "a");
+	tracker_sparql_builder_predicate (metadata, "nfo:Image");
 
+	if (tracker_spawn (argv, 10, &identify, &exit_status) &&
+	    exit_status == EXIT_SUCCESS) {
+		lines = g_strsplit (identify, ";\n", 4);
 
-			tracker_statement_list_insert (metadata, uri, 
-			                          RDF_TYPE, 
-			                          NFO_PREFIX "Document");
+		tracker_sparql_builder_predicate (metadata, "nfo:width");
+		tracker_sparql_builder_object_unvalidated (metadata, lines[0]);
 
-			lines = g_strsplit (identify, ";\n", 4);
+		tracker_sparql_builder_predicate (metadata, "nfo:height");
+		tracker_sparql_builder_object_unvalidated (metadata, lines[1]);
 
-			tracker_statement_list_insert (metadata, uri,
-						  NFO_PREFIX "width", 
-						  lines[0]);
+		tracker_sparql_builder_predicate (metadata, "nie:comment");
+		tracker_sparql_builder_object_unvalidated (metadata, lines[2]);
 
-			tracker_statement_list_insert (metadata, uri,
-						  NFO_PREFIX "height", 
-						  lines[1]);
-
-			tracker_statement_list_insert (metadata, uri,
-						  NIE_PREFIX "comment", 
-						  lines[2]);
-
-			g_strfreev (lines);
-		}
+		g_strfreev (lines);
 	}
 
 #ifdef HAVE_EXEMPI
