@@ -330,7 +330,7 @@ nmm:exposureTime a rdf:Property ;
 	rdfs:comment "Exposure time of the photo" ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmm:Photo ;
-	rdfs:range xsd:integer .
+	rdfs:range xsd:double .
 
 nmm:Flash a rdfs:Class ;
 	rdfs:label "Flash values" ;
