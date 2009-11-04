@@ -176,6 +176,10 @@ public class Tracker.SparqlBuilder : Object {
 		object_string ("%04d-%02d-%02dT%02d:%02d:%02dZ".printf (tm.year + 1900, tm.month + 1, tm.day, tm.hour, tm.minute, tm.second));
 	}
 
+        public void object_double (double literal) {
+                object (literal.to_string ());
+        }
+
 	public void object_blank_open ()
 		requires (state == State.PREDICATE || state == State.OBJECT)
 	{
