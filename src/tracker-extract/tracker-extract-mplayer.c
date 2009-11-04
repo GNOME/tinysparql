@@ -28,7 +28,6 @@
 
 #include <libtracker-common/tracker-ontology.h>
 #include <libtracker-common/tracker-os-dependant.h>
-#include <libtracker-common/tracker-statement-list.h>
 #include <libtracker-common/tracker-utils.h>
 
 #include "tracker-main.h"
@@ -52,20 +51,20 @@ static TrackerExtractData extract_data[] = {
 };
 
 static const gchar *video_tags[][2] = {
-	{ "ID_VIDEO_HEIGHT",	NFO_PREFIX "height"	},
-	{ "ID_VIDEO_WIDTH",	NFO_PREFIX "width"	},
-	{ "ID_VIDEO_FPS",	NFO_PREFIX "frameRate"	},
-	{ "ID_VIDEO_CODEC",	NFO_PREFIX "codec"	},
-	{ "ID_VIDEO_BITRATE",	NFO_PREFIX "averageBitrate" },
-	{ NULL,			NULL			}
+	{ "ID_VIDEO_HEIGHT",	"nfo:height"         },
+	{ "ID_VIDEO_WIDTH",	"nfo:width"          },
+	{ "ID_VIDEO_FPS",	"nfo:frameRate"      },
+	{ "ID_VIDEO_CODEC",	"nfo:codec"          },
+	{ "ID_VIDEO_BITRATE",	"nfo:averageBitrate" },
+	{ NULL,			NULL                 }
 };
 
 static const gchar *audio_tags[][2] = {
-	{ "ID_AUDIO_BITRATE",	NFO_PREFIX "averageBitrate" },
-	{ "ID_AUDIO_RATE",	NFO_PREFIX "sampleRate"	},
-	{ "ID_AUDIO_CODEC",	NFO_PREFIX "codec"	},
-	{ "ID_AUDIO_NCH",	NFO_PREFIX "channels"	},
-	{ NULL,			NULL			}
+	{ "ID_AUDIO_BITRATE",	"nfo:averageBitrate" },
+	{ "ID_AUDIO_RATE",	"nfo:sampleRate"     },
+	{ "ID_AUDIO_CODEC",	"nfo:codec"          },
+	{ "ID_AUDIO_NCH",	"nfo:channels"       },
+	{ NULL,			NULL                 }
 };
 
 /* Some of "info_tags" tags can belong to Audio or/and video or none, so 3 cases :
@@ -74,16 +73,16 @@ static const gchar *audio_tags[][2] = {
  * 3/ tag can belong to audio and video. If current media has video we will associate
  *    tag to Video, otherwise to Audio if it has audio.
  */
-static const gchar *info_tags[][3] = {
-	{ "Comment",		NIE_PREFIX "comment",	NIE_PREFIX "comment"	},
-	{ "Title",		NIE_PREFIX "title",	NIE_PREFIX "title"	},
-	{ "Genre",		NFO_PREFIX "genre",	NFO_PREFIX "genre"	},
-	{ "Track",		NMM_PREFIX "trackNumber", NMM_PREFIX "trackNumber" },
-	{ "Artist",		NMM_PREFIX "performer",	NMM_PREFIX "performer"	},
-	{ "Album",		NIE_PREFIX "title",	NIE_PREFIX "title"	},
-	{ "Year",		NIE_PREFIX "contentCreated", NIE_PREFIX "contentCreated" },
-	{ "copyright",		NIE_PREFIX "copyright", NIE_PREFIX "copyright"	},
-	{ NULL,			NULL,			NULL		}
+static const gchar *info_tags[][2] = {
+	{ "Comment",		"nie:comment"        },
+	{ "Title",		"nie:title"          },
+	{ "Genre",		"nfo:genre"          },
+	{ "Track",		"nmm:trackNumber"    },
+	{ "Artist",		"nmm:performer"      },
+	{ "Album",		"nie:title"          },
+	{ "Year",		"nie:contentCreated" },
+	{ "copyright",		"nie:copyright"      },
+	{ NULL,			NULL,                }
 };
 
 typedef struct {
@@ -98,14 +97,21 @@ copy_hash_table_entry (gpointer key,
 {
 	ForeachCopyInfo *info = user_data;
 
-	if (g_strcmp0 (key, NMM_PREFIX "performer") == 0) {
+	if (g_strcmp0 (key, "nmm:performer") == 0) {
 		gchar *canonical_uri = tracker_uri_printf_escaped ("urn:artist:%s", value);
-		tracker_statement_list_insert (info->metadata, canonical_uri, RDF_TYPE, NCO_PREFIX "Contact");
-		tracker_statement_list_insert (info->metadata, canonical_uri, NCO_PREFIX "fullname", value);
-		tracker_statement_list_insert (info->metadata, info->uri, key, canonical_uri);
+
+		tracker_sparql_builder_subject_iri (info->metadata, canonical_uri);
+		tracker_sparql_builder_predicate (info->metadata, "a");
+		tracker_sparql_builder_object (info->metadata, "nmm:Artist");
+
+		tracker_sparql_builder_predicate (info->metadata, "nmm:artistName");
+		tracker_sparql_builder_object_unvalidated (info->metadata, value);
+
+		tracker_sparql_builder_subject_iri (info->metadata, info->uri);
 		g_free (canonical_uri);
 	} else {
-		tracker_statement_list_insert (info->metadata, info->uri, key, value);
+		tracker_sparql_builder_predicate (info->metadata, key);
+		tracker_sparql_builder_object_unvalidated (info->metadata, value);
 	}
 }
 
@@ -172,9 +178,9 @@ extract_mplayer (const gchar *uri,
 
 				for (i = 0; audio_tags[i][0]; i++) {
 					if (g_str_has_prefix (*line, audio_tags[i][0])) {
-						tracker_statement_list_insert (metadata, uri,
-								     audio_tags[i][1],
-								     (*line) + strlen (audio_tags[i][0]) + 1);
+						g_hash_table_insert (tmp_metadata_audio,
+								     g_strdup (audio_tags[i][1]),
+								     g_strdup ((*line) + strlen (audio_tags[i][0]) + 1));
 						break;
 					}
 				}
@@ -185,9 +191,9 @@ extract_mplayer (const gchar *uri,
 
 				for (i = 0; video_tags[i][0]; i++) {
 					if (g_str_has_prefix (*line, video_tags[i][0])) {
-						tracker_statement_list_insert (metadata, uri,
-								     video_tags[i][1],
-								     (*line) + strlen (video_tags[i][0]) + 1);
+						g_hash_table_insert (tmp_metadata_video,
+								     g_strdup (video_tags[i][1]),
+								     g_strdup ((*line) + strlen (video_tags[i][0]) + 1));
 						break;
 					}
 				}
@@ -215,12 +221,6 @@ extract_mplayer (const gchar *uri,
 										g_hash_table_insert (tmp_metadata_audio,
 												     g_strdup (info_tags[i][1]),
 												     data);
-
-										if (info_tags[i][2]) {
-											g_hash_table_insert (tmp_metadata_video,
-													     g_strdup (info_tags[i][2]),
-													     g_strdup (data));
-										}
 									} else {
 										g_free (data);
 									}
@@ -253,10 +253,9 @@ extract_mplayer (const gchar *uri,
 		g_pattern_spec_free (pattern_ID_LENGTH);
 
 		if (has_video) {
-
-			tracker_statement_list_insert (metadata, uri, 
-			                          RDF_TYPE, 
-			                          NMM_PREFIX "Video");
+			tracker_sparql_builder_subject_iri (metadata, uri);
+			tracker_sparql_builder_predicate (metadata, "a");
+			tracker_sparql_builder_object (metadata, "nmm:Video");
 
 			if (tmp_metadata_video) {
 				ForeachCopyInfo info = { metadata, uri };
@@ -268,20 +267,17 @@ extract_mplayer (const gchar *uri,
 			}
 
 			if (duration) {
-				tracker_statement_list_insert (metadata, uri, NFO_PREFIX "duration", duration);
+				tracker_sparql_builder_predicate (metadata, "nfo:duration");
+				tracker_sparql_builder_object_unvalidated (metadata, duration);
 				g_free (duration);
 			}
 		} else if (has_audio) {
+			tracker_sparql_builder_subject_iri (metadata, uri);
+			tracker_sparql_builder_predicate (metadata, "a");
+			tracker_sparql_builder_object (metadata, "nmm:MusicPiece");
+			tracker_sparql_builder_object (metadata, "nfo:Audio");
 
-			tracker_statement_list_insert (metadata, uri, 
-			                               RDF_TYPE, 
-			                               NMM_PREFIX "MusicPiece");
-
-			tracker_statement_list_insert (metadata, uri, 
-			                               RDF_TYPE, 
-			                               NFO_PREFIX "Audio");
-
-			if (tmp_metadata_video) {
+			if (tmp_metadata_audio) {
 				ForeachCopyInfo info = { metadata, uri };
 				g_hash_table_foreach (tmp_metadata_audio, 
 						      copy_hash_table_entry, 
@@ -291,13 +287,14 @@ extract_mplayer (const gchar *uri,
 			}
 
 			if (duration) {
-				tracker_statement_list_insert (metadata, uri, NFO_PREFIX "duration", duration);
+				tracker_sparql_builder_predicate (metadata, "nfo:duration");
+				tracker_sparql_builder_object_unvalidated (metadata, duration);
 				g_free (duration);
 			}
 		} else {
-			tracker_statement_list_insert (metadata, uri, 
-			                          RDF_TYPE, 
-			                          NFO_PREFIX "FileDataObject");
+			tracker_sparql_builder_subject_iri (metadata, uri);
+			tracker_sparql_builder_predicate (metadata, "a");
+			tracker_sparql_builder_object (metadata, "nfo:FileDataObject");
 		}
 
 	}
