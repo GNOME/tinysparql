@@ -25,7 +25,6 @@
 #include <glib.h>
 
 #include <libtracker-common/tracker-os-dependant.h>
-#include <libtracker-common/tracker-statement-list.h>
 #include <libtracker-common/tracker-ontology.h>
 #include <libtracker-common/tracker-utils.h>
 
@@ -125,6 +124,10 @@ extract_oasis (const gchar *uri,
 	argv[3] = g_strdup ("meta.xml");
 	argv[4] = NULL;
 
+	tracker_sparql_builder_subject_iri (metadata, uri);
+	tracker_sparql_builder_predicate (metadata, "a");
+	tracker_sparql_builder_object (metadata, "nfo:PaginatedTextDocument");
+
 	if (tracker_spawn (argv, 10, &xml, NULL)) {
 		GMarkupParseContext *context;
 		GMarkupParser	     parser = {
@@ -134,10 +137,6 @@ extract_oasis (const gchar *uri,
 			NULL,
 			NULL
 		};
-
-		tracker_statement_list_insert (metadata, uri, 
-		                          RDF_TYPE, 
-		                          NFO_PREFIX "PaginatedTextDocument");
 
 		context = g_markup_parse_context_new (&parser, 0, &info, NULL);
 		g_markup_parse_context_parse (context, xml, -1, NULL);
@@ -198,14 +197,11 @@ start_element_handler (GMarkupParseContext  *context,
 
 		for (a = attribute_names, v = attribute_values; *a; ++a, ++v) {
 			if (strcmp (*a, "meta:word-count") == 0) {
-				tracker_statement_list_insert (metadata, uri,
-							  NFO_PREFIX "wordCount",
-							  *v);
-			}
-			else if (strcmp (*a, "meta:page-count") == 0) {
-				tracker_statement_list_insert (metadata, uri,
-							  NFO_PREFIX "pageCount",
-							  *v);
+				tracker_sparql_builder_predicate (metadata, "nfo:wordCount");
+				tracker_sparql_builder_object_unvalidated (metadata, *v);
+			} else if (strcmp (*a, "meta:page-count") == 0) {
+				tracker_sparql_builder_predicate (metadata, "nfo:pageCount");
+				tracker_sparql_builder_object_unvalidated (metadata, *v);
 			}
 		}
 
@@ -248,46 +244,46 @@ text_handler (GMarkupParseContext  *context,
 
 	switch (data->current) {
 	case READ_TITLE:
-		tracker_statement_list_insert (metadata, uri,
-					  NIE_PREFIX "title",
-					  text);
+		tracker_sparql_builder_predicate (metadata, "nie:title");
+		tracker_sparql_builder_object_unvalidated (metadata, text);
 		break;
 	case READ_SUBJECT:
-		tracker_statement_list_insert (metadata, uri,
-					  NIE_PREFIX "subject",
-					  text);
+		tracker_sparql_builder_predicate (metadata, "nie:subject");
+		tracker_sparql_builder_object_unvalidated (metadata, text);
 		break;
 	case READ_AUTHOR:
-		tracker_statement_list_insert (metadata, ":", RDF_TYPE, NCO_PREFIX "Contact");
-		tracker_statement_list_insert (metadata, ":", NCO_PREFIX "fullname", text);
-		tracker_statement_list_insert (metadata, uri, NCO_PREFIX "creator", ":");
+		tracker_sparql_builder_predicate (metadata, "nco:publisher");
+
+		tracker_sparql_builder_object_blank_open (metadata);
+		tracker_sparql_builder_predicate (metadata, "a");
+		tracker_sparql_builder_object (metadata, "nco:Contact");
+
+		tracker_sparql_builder_predicate (metadata, "nco:fullname");
+		tracker_sparql_builder_object_unvalidated (metadata, text);
+		tracker_sparql_builder_object_blank_close (metadata);
 		break;
 	case READ_KEYWORDS: {
 		gchar *keywords = g_strdup (text);
 		char *lasts, *keyw;
 		for (keyw = strtok_r (keywords, ",; ", &lasts); keyw; 
 		     keyw = strtok_r (NULL, ",; ", &lasts)) {
-			tracker_statement_list_insert (metadata,
-					  uri, NIE_PREFIX "keyword",
-					  (const gchar*) keyw);
+			tracker_sparql_builder_predicate (metadata, "nie:keyword");
+			tracker_sparql_builder_object_unvalidated (metadata, keyw);
 		}
 		g_free (keywords);
 	}
 		break;
 	case READ_COMMENTS:
-		tracker_statement_list_insert (metadata, uri,
-					  NIE_PREFIX "comment",
-					  text);
+		tracker_sparql_builder_predicate (metadata, "nie:comment");
+		tracker_sparql_builder_object_unvalidated (metadata, text);
 		break;
 	case READ_CREATED:
-		tracker_statement_list_insert (metadata, uri,
-					  NIE_PREFIX "contentCreated",
-					  text);
+		tracker_sparql_builder_predicate (metadata, "nie:contentCreated");
+		tracker_sparql_builder_object_unvalidated (metadata, text);
 		break;
 	case READ_GENERATOR:
-		tracker_statement_list_insert (metadata, uri,
-					  NIE_PREFIX "generator",
-					  text);
+		tracker_sparql_builder_predicate (metadata, "nie:generator");
+		tracker_sparql_builder_object_unvalidated (metadata, text);
 		break;
 
 	default:
