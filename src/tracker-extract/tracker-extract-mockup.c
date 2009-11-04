@@ -20,30 +20,16 @@
 
 #include "config.h"
 
-#include <fcntl.h>
-#include <string.h>
-#include <stdlib.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <unistd.h>
-
-#include <png.h>
-
-#include <glib.h>
-#include <glib/gstdio.h>
-
-#include <libtracker-common/tracker-file-utils.h>
 #include <libtracker-common/tracker-statement-list.h>
-#include <libtracker-common/tracker-type-utils.h>
 
 #include "tracker-main.h"
 
-static void extract_mockup (const gchar *uri,
-			    TrackerSparqlBuilder   *metadata);
+static void extract_mockup (const gchar          *uri,
+			    TrackerSparqlBuilder *metadata);
 
 typedef struct {
-	gchar	     *key;
-	gchar        *value;
+	gchar *key;
+	gchar *value;
 } MockupTag;
 
 static MockupTag tags[] = {
@@ -54,6 +40,8 @@ static MockupTag tags[] = {
 	{ "Audio:Genre", "Genre" },
 	{ "Image:Location", "Here" },
 	{ "Image:Software", "Softa" },
+	{ "Image:Height", "480" },
+	{ "Image:ExposureTime", "0.223" },
 	{ NULL, NULL }
 };
 
@@ -65,13 +53,40 @@ static TrackerExtractData data[] = {
 };
 
 static void
-extract_mockup (const gchar *uri,
-		TrackerSparqlBuilder   *metadata)
+extract_mockup (const gchar           *uri,
+		TrackerSparqlBuilder  *metadata)
 {
 	MockupTag *p;
 
-	for (p=tags;p->key;++p) {		
-		tracker_statement_list_insert (metadata, uri, p->key, p->value);
+	tracker_sparql_builder_subject_iri (metadata, uri);
+	tracker_sparql_builder_predicate (metadata, "a");
+	tracker_sparql_builder_object (metadata, "nfo:Document");
+
+	for (p = tags; p->key; ++p) {
+		if (!p->key) {
+			continue;
+		}
+
+		if (strcmp (p->key, "Image:Height") == 0) {
+			gint64 value;
+
+			value = g_ascii_strtoll (p->value, NULL, 10);
+			tracker_sparql_builder_predicate (metadata, p->key);
+			tracker_sparql_builder_object_int64 (metadata, value);
+		} else if (strcmp (p->key, "Image:ExposureTime") == 0) {
+			gdouble value;
+
+			value = g_strtod (p->value, NULL);
+			tracker_sparql_builder_predicate (metadata, p->key);
+			tracker_sparql_builder_object_double (metadata, value);
+		} else {
+			/* If property is a raw string undefined in
+			 * ontology use object_unvalidated() API, otherwise,
+			 * just _object() API:
+			 */
+			tracker_sparql_builder_predicate (metadata, p->key);
+			tracker_sparql_builder_object_unvalidated (metadata, p->value);
+		}
 	}
 }
 
