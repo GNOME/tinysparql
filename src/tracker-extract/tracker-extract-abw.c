@@ -35,7 +35,6 @@
 #include <glib/gstdio.h>
 
 #include <libtracker-common/tracker-file-utils.h>
-#include <libtracker-common/tracker-statement-list.h>
 #include <libtracker-common/tracker-ontology.h>
 
 #include "tracker-main.h"
@@ -75,46 +74,38 @@ extract_abw (const gchar *uri,
 		line = NULL;
 		length = 0;
 
-		tracker_statement_list_insert (metadata, uri, 
-		                          RDF_TYPE, 
-		                          NFO_PREFIX "Document");
+		tracker_sparql_builder_subject_iri (metadata, uri);
+		tracker_sparql_builder_predicate (metadata, "a");
+		tracker_sparql_builder_object (metadata, "nfo:Document");
 
 		while ((read_char = getline (&line, &length, f)) != -1) {
 			if (g_str_has_suffix (line, "</m>\n")) {
 				line[read_char - 5] = '\0';
 			}
+
 			if (g_str_has_prefix (line, "<m key=\"dc.title\">")) {
-				tracker_statement_list_insert (metadata, uri,
-							  NIE_PREFIX "title",
-							  line + 18);
-			}
-			else if (g_str_has_prefix (line, "<m key=\"dc.subject\">")) {
-				tracker_statement_list_insert (metadata, uri,
-							  NIE_PREFIX "subject",
-							  line + 20);
-			}
-			else if (g_str_has_prefix (line, "<m key=\"dc.creator\">")) {
-				tracker_statement_list_insert (metadata, uri,
-							  NCO_PREFIX "creator",
-							  line + 20);
-			}
-			else if (g_str_has_prefix (line, "<m key=\"abiword.keywords\">")) {
+				tracker_sparql_builder_predicate (metadata, "nie:title");
+				tracker_sparql_builder_object_unvalidated (metadata, line + 18);
+			} else if (g_str_has_prefix (line, "<m key=\"dc.subject\">")) {
+				tracker_sparql_builder_predicate (metadata, "nie:subject");
+				tracker_sparql_builder_object_unvalidated (metadata, line + 20);
+			} else if (g_str_has_prefix (line, "<m key=\"dc.creator\">")) {
+				tracker_sparql_builder_predicate (metadata, "nco:creator");
+				tracker_sparql_builder_object_unvalidated (metadata, line + 20);
+			} else if (g_str_has_prefix (line, "<m key=\"abiword.keywords\">")) {
 				gchar *keywords = g_strdup (line + 26);
 				char *lasts, *keyw;
 
 				for (keyw = strtok_r (keywords, ",; ", &lasts); keyw; 
 				     keyw = strtok_r (NULL, ",; ", &lasts)) {
-					tracker_statement_list_insert (metadata,
-							  uri, NIE_PREFIX "keyword",
-							  (const gchar*) keyw);
+					tracker_sparql_builder_predicate (metadata, "nie:keyword");
+					tracker_sparql_builder_object_unvalidated (metadata, keyw);
 				}
 
 				g_free (keywords);
-			}
-			else if (g_str_has_prefix (line, "<m key=\"dc.description\">")) {
-				tracker_statement_list_insert (metadata, uri,
-							  NIE_PREFIX "comment",
-							  line + 24);
+			} else if (g_str_has_prefix (line, "<m key=\"dc.description\">")) {
+				tracker_sparql_builder_predicate (metadata, "nie:comment");
+				tracker_sparql_builder_object_unvalidated (metadata, line + 24);
 			}
 
 			g_free (line);
