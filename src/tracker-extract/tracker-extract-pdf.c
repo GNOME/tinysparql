@@ -22,19 +22,18 @@
 #include "config.h"
 
 #include <string.h>
-#include <poppler.h>
 
 #include <glib.h>
+#include <poppler.h>
 
 #include <libtracker-common/tracker-statement-list.h>
-
-#include "tracker-main.h"
-#include "tracker-xmp.h"
-
 #include <libtracker-common/tracker-ontology.h>
 #include <libtracker-common/tracker-type-utils.h>
 #include <libtracker-common/tracker-utils.h>
 #include <libtracker-common/tracker-type-utils.h>
+
+#include "tracker-main.h"
+#include "tracker-xmp.h"
 
 typedef struct {
 	gchar *title;
