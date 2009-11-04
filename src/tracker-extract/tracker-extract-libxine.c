@@ -22,7 +22,6 @@
 #include <xine.h>
 #include <glib.h>
 
-#include <libtracker-common/tracker-statement-list.h>
 #include <libtracker-common/tracker-ontology.h>
 #include <libtracker-common/tracker-utils.h>
 
@@ -37,8 +36,6 @@
 #define RDF_PREFIX TRACKER_RDF_PREFIX
 #define RDF_TYPE RDF_PREFIX "type"
 
-/* Take an absolute path to a file and fill a hashtable with metadata.
- */
 static void
 tracker_extract_xine (const gchar *uri, TrackerSparqlBuilder *metadata)
 {
@@ -106,6 +103,41 @@ tracker_extract_xine (const gchar *uri, TrackerSparqlBuilder *metadata)
 	has_audio = xine_get_stream_info (stream, XINE_STREAM_INFO_HAS_AUDIO);
 	has_video = xine_get_stream_info (stream, XINE_STREAM_INFO_HAS_VIDEO);
 
+        author = xine_get_meta_info (stream, XINE_META_INFO_ARTIST);
+	if (author) {
+		gchar *canonical_uri = tracker_uri_printf_escaped ("urn:artist:%s", author);
+
+                tracker_sparql_builder_subject_iri (metadata, canonical_uri);
+                tracker_sparql_builder_predicate (metadata, "a");
+                tracker_sparql_builder_object (metadata, "nmm:Artist");
+
+		g_free (canonical_uri);
+	}
+
+	album = xine_get_meta_info (stream, XINE_META_INFO_ALBUM);
+	if (album) {
+                gchar *canonical_uri = tracker_uri_printf_escaped ("urn:album:%s", album);
+
+                tracker_sparql_builder_subject_iri (metadata, canonical_uri);
+                tracker_sparql_builder_predicate (metadata, "a");
+                tracker_sparql_builder_object (metadata, "nmm:MusicAlbum");
+                tracker_sparql_builder_predicate (metadata, "nmm:albumTitle");
+                tracker_sparql_builder_object_unvalidated (metadata, album);
+
+                g_free (canonical_uri);
+	}
+
+        tracker_sparql_builder_subject_iri (metadata, uri);
+        tracker_sparql_builder_predicate (metadata, "a");
+
+        if (has_video) {
+                tracker_sparql_builder_object (metadata, "nmm:Video");
+        } else if (has_audio) {
+                tracker_sparql_builder_object (metadata, "nmm:MusicPiece");
+                tracker_sparql_builder_object (metadata, "nfo:Audio");
+        } else {
+                tracker_sparql_builder_object (metadata, "nfo:FileDataObject");
+        }
 
 	if (xine_get_pos_length (stream, &pos_stream, &pos_time, &length_time)) {
 		if (length_time >= 0) {
@@ -113,85 +145,73 @@ tracker_extract_xine (const gchar *uri, TrackerSparqlBuilder *metadata)
 
 			duration = (guint32) length_time / 1000; /* from miliseconds to seconds */
 
-			if (has_video) {
-				tracker_statement_list_insert_with_int (metadata, uri, NFO_PREFIX "duration", duration);
-			} else if (has_audio) {
-				tracker_statement_list_insert_with_int (metadata, uri, NFO_PREFIX "duration", duration);
-			}
+			if (has_video || has_audio) {
+                                tracker_sparql_builder_predicate (metadata, "nfo:duration");
+                                tracker_sparql_builder_object_int64 (metadata, (gint64) duration);
+                        }
 		}
 	}
-
-
-	/* Video */
 
 	if (has_video) {
 		guint32 n, n0;
 		const char *video_codec;
 
-		tracker_statement_list_insert (metadata, uri, 
-		                          RDF_TYPE, 
-		                          NMM_PREFIX "Video");
-
 		n  = xine_get_stream_info (stream, XINE_STREAM_INFO_VIDEO_HEIGHT);
 		n0 = xine_get_stream_info (stream, XINE_STREAM_INFO_VIDEO_WIDTH);
 		if (n > 0 && n0 > 0) {
-			tracker_statement_list_insert_with_int (metadata, uri, NFO_PREFIX "height", n);
-			tracker_statement_list_insert_with_int (metadata, uri, NFO_PREFIX "width", n0);
+                        tracker_sparql_builder_predicate (metadata, "nfo:height");
+                        tracker_sparql_builder_object_int64 (metadata, (gint64) n);
+
+                        tracker_sparql_builder_predicate (metadata, "nfo:width");
+                        tracker_sparql_builder_object_int64 (metadata, (gint64) n0);
 		}
 
 		n = xine_get_stream_info (stream, XINE_STREAM_INFO_FRAME_DURATION);
 		if (n > 0) {
 			/* 90000 because it is how is done in Xine! */
-			tracker_statement_list_insert_with_int (metadata, uri, NFO_PREFIX "frameRate", 90000 / n);
+                        tracker_sparql_builder_predicate (metadata, "nfo:frameRate");
+                        tracker_sparql_builder_object_double (metadata, (gdouble) 90000 / n);
 		}
 
 		n = xine_get_stream_info (stream, XINE_STREAM_INFO_VIDEO_BITRATE);
 		if (n > 0) {
-			tracker_statement_list_insert_with_int (metadata, uri, NFO_PREFIX "averageBitrate", n);
+                        tracker_sparql_builder_predicate (metadata, "nfo:averageBitrate");
+                        tracker_sparql_builder_object_int64 (metadata, (gint64) n);
 		}
 
 		video_codec = xine_get_meta_info (stream, XINE_META_INFO_VIDEOCODEC);
 		if (video_codec) {
-			tracker_statement_list_insert (metadata, uri, NFO_PREFIX "codec", video_codec);
+                        tracker_sparql_builder_predicate (metadata, "nfo:codec");
+                        tracker_sparql_builder_object_unvalidated (metadata, video_codec);
 		}
-	} else if (has_audio) {
-		tracker_statement_list_insert (metadata, uri, 
-		                               RDF_TYPE, 
-		                               NMM_PREFIX "MusicPiece");
-		tracker_statement_list_insert (metadata, uri, 
-		                               RDF_TYPE, 
-		                               NFO_PREFIX "Audio");
-	} else {
-		tracker_statement_list_insert (metadata, uri, 
-		                          RDF_TYPE, 
-		                          NFO_PREFIX "FileDataObject");
 	}
 
-
-	/* Audio */
-
-	if (has_audio) {
+        if (has_audio) {
 		guint32   n;
 		const char *audio_codec;
 
 		n = xine_get_stream_info (stream, XINE_STREAM_INFO_AUDIO_BITRATE);
 		if (n > 0) {
-			tracker_statement_list_insert_with_int (metadata, uri, NFO_PREFIX "averageBitrate", n);
+                        tracker_sparql_builder_predicate (metadata, "nfo:averageBitrate");
+                        tracker_sparql_builder_object_int64 (metadata, (gint64) n);
 		}
 
 		n = xine_get_stream_info (stream, XINE_STREAM_INFO_AUDIO_SAMPLERATE);
 		if (n > 0) {
-			tracker_statement_list_insert_with_int (metadata, uri, NFO_PREFIX "samplerate", n);
+                        tracker_sparql_builder_predicate (metadata, "nfo:samplerate");
+                        tracker_sparql_builder_object_int64 (metadata, (gint64) n);
 		}
 
 		n = xine_get_stream_info (stream, XINE_STREAM_INFO_AUDIO_CHANNELS);
 		if (n > 0) {
-			tracker_statement_list_insert_with_int (metadata, uri, NFO_PREFIX "channels", n);
+                        tracker_sparql_builder_predicate (metadata, "nfo:channels");
+                        tracker_sparql_builder_object_int64 (metadata, (gint64) n);
 		}
 
 		audio_codec = xine_get_meta_info (stream, XINE_META_INFO_AUDIOCODEC);
 		if (audio_codec) {
-			tracker_statement_list_insert (metadata, uri, NFO_PREFIX "codec", audio_codec);
+                        tracker_sparql_builder_predicate (metadata, "nfo:codec");
+                        tracker_sparql_builder_object_unvalidated (metadata, audio_codec);
 		}
 	}
 
@@ -199,55 +219,40 @@ tracker_extract_xine (const gchar *uri, TrackerSparqlBuilder *metadata)
 	/* Tags */
 
 	comment = xine_get_meta_info (stream, XINE_META_INFO_COMMENT);
-	if (comment) {
-		if (has_video) {
-			tracker_statement_list_insert (metadata, uri, NIE_PREFIX "comment", comment);
-		} else if (has_audio) {
-			tracker_statement_list_insert (metadata, uri, NIE_PREFIX "comment", comment);
-		}
+	if (comment && (has_video || has_audio)) {
+                tracker_sparql_builder_predicate (metadata, "nie:comment");
+                tracker_sparql_builder_object_unvalidated (metadata, comment);
 	}
 
 	title = xine_get_meta_info (stream, XINE_META_INFO_TITLE);
-	if (title) {
-		if (has_video) {
-			tracker_statement_list_insert (metadata, uri, NIE_PREFIX "title", title);
-		} else if (has_audio) {
-			tracker_statement_list_insert (metadata, uri, NIE_PREFIX "title", title);
-		}
-	}
-
-	author = xine_get_meta_info (stream, XINE_META_INFO_ARTIST);
-	if (author) {
-		gchar *canonical_uri = tracker_uri_printf_escaped ("urn:artist:%s", author);
-		tracker_statement_list_insert (metadata, canonical_uri, RDF_TYPE, NCO_PREFIX "Contact");
-		tracker_statement_list_insert (metadata, canonical_uri, NCO_PREFIX "fullname", author);
-		tracker_statement_list_insert (metadata, uri, NCO_PREFIX "creator", canonical_uri);
-		g_free (canonical_uri);
-	}
-
-	album = xine_get_meta_info (stream, XINE_META_INFO_ALBUM);
-	if (album) {
-		tracker_statement_list_insert (metadata, uri, NIE_PREFIX "title", album);
+	if (title && (has_video || has_audio)) {
+                tracker_sparql_builder_predicate (metadata, "nie:title");
+                tracker_sparql_builder_object_unvalidated (metadata, title);
 	}
 
 	year = xine_get_meta_info (stream, XINE_META_INFO_YEAR);
 	if (year) {
-	/*	tracker_statement_list_insert (metadata, uri, "Audio:Year", year); */
+                tracker_sparql_builder_predicate (metadata, "nie:contentCreated");
+                tracker_sparql_builder_object_unvalidated (metadata, year);
 	}
 
 	genre = xine_get_meta_info (stream, XINE_META_INFO_GENRE);
 	if (genre) {
-		tracker_statement_list_insert (metadata, uri, NFO_PREFIX "genre" , genre);
+                tracker_sparql_builder_predicate (metadata, "nfo:genre");
+                tracker_sparql_builder_object_unvalidated (metadata, genre);
 	}
 
 	track = xine_get_meta_info (stream, XINE_META_INFO_TRACK_NUMBER);
 	if (track) {
-		tracker_statement_list_insert (metadata, uri, NMM_PREFIX "trackNumber", track);
+                tracker_sparql_builder_predicate (metadata, "nmm:trackNumber");
+                tracker_sparql_builder_object_unvalidated (metadata, track);
 	}
 
+#if 0
 	/* FIXME: "Video.Copyright" seems missing */
-	/* tracker_statement_list_insert (metadata, uri, "Video.Copyright", NULL); */
-
+        tracker_sparql_builder_predicate (metadata, "nie:copyright");
+        tracker_sparql_builder_object_unvalidated (metadata, NULL);
+#endif
 
 	xine_dispose (stream);
 
