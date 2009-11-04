@@ -240,7 +240,7 @@ extract_html (const gchar          *uri,
 
 	tracker_sparql_builder_subject_iri (metadata, uri);
 	tracker_sparql_builder_predicate (metadata, "a");
-	tracker_sparql_builder_object_unvalidated (metadata, "nfo:Document");
+	tracker_sparql_builder_object (metadata, "nfo:Document");
 
 	pd.metadata = metadata;
 	pd.current = -1;
