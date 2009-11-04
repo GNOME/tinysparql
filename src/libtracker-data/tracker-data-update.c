@@ -1682,14 +1682,17 @@ tracker_data_delete_resource_description (const gchar *uri, GError **error)
 {
 	TrackerDBInterface *iface;
 	TrackerDBStatement *stmt;
-	TrackerDBCursor    *cursor, *single_cursor, *multi_cursor;
+	TrackerDBResultSet *result_set, *single_result, *multi_result;
 	TrackerClass	   *class;
 	GString		   *sql;
 	TrackerProperty	  **properties, **property;
-	const gchar	   *class_uri, *value;
 	int		    i;
 	gboolean            first;
 	gint                resource_id;
+
+	/* We use result_sets instead of cursors here because it's possible
+	 * that otherwise the query of the outer cursor would be reused by the
+	 * cursors of the inner queries. */
 
 	resource_id = tracker_data_query_resource_id (uri);
 
@@ -1699,18 +1702,23 @@ tracker_data_delete_resource_description (const gchar *uri, GError **error)
 
 	stmt = tracker_db_interface_create_statement (iface, "SELECT (SELECT Uri FROM \"rdfs:Resource\" WHERE ID = \"rdf:type\") FROM \"rdfs:Resource_rdf:type\" WHERE ID = ?");
 	tracker_db_statement_bind_int (stmt, 0, resource_id);
-	cursor = tracker_db_statement_start_cursor (stmt, NULL);
+	result_set = tracker_db_statement_execute (stmt, NULL);
 	g_object_unref (stmt);
 
-	if (cursor) {
-		while (tracker_db_cursor_iter_next (cursor)) {
-			class_uri = tracker_db_cursor_get_string (cursor, 0);
+	if (result_set) {
+		do {
+			gchar *class_uri;
+
+			tracker_db_result_set_get (result_set, 0, &class_uri, -1);
 
 			class = tracker_ontology_get_class_by_uri (class_uri);
+
 			if (class == NULL) {
 				g_warning ("Class '%s' not found in the ontology", class_uri);
+				g_free (class_uri);
 				continue;
 			}
+			g_free (class_uri);
 
 			/* retrieve single value properties for current class */
 
@@ -1734,13 +1742,12 @@ tracker_data_delete_resource_description (const gchar *uri, GError **error)
 				}
 			}
 
-			single_cursor = NULL;
+			single_result = NULL;
 			if (!first) {
 				g_string_append_printf (sql, " FROM \"%s\" WHERE ID = ?", tracker_class_get_name (class));
 				stmt = tracker_db_interface_create_statement (iface, "%s", sql->str);
 				tracker_db_statement_bind_int (stmt, 0, resource_id);
-				single_cursor = tracker_db_statement_start_cursor (stmt, NULL);
-				tracker_db_cursor_iter_next (single_cursor);
+				single_result = tracker_db_statement_execute (stmt, NULL);
 				g_object_unref (stmt);
 			}
 
@@ -1762,15 +1769,18 @@ tracker_data_delete_resource_description (const gchar *uri, GError **error)
 				}
 
 				if (!tracker_property_get_multiple_values (*property)) {
+					gchar *value;
+
 					/* single value property, value in single_result_set */
 
-					value = tracker_db_cursor_get_string (single_cursor, i++);
+					tracker_db_result_set_get (single_result, i++, &value, -1);
 
 					if (value) {
 						tracker_data_delete_statement (uri, 
 						                               tracker_property_get_uri (*property), 
 						                               value, 
 						                               error);
+						g_free (value);
 					}
 
 				} else {
@@ -1787,22 +1797,25 @@ tracker_data_delete_resource_description (const gchar *uri, GError **error)
 
 					stmt = tracker_db_interface_create_statement (iface, "%s", sql->str);
 					tracker_db_statement_bind_int (stmt, 0, resource_id);
-					multi_cursor = tracker_db_statement_start_cursor (stmt, NULL);
+					multi_result = tracker_db_statement_execute (stmt, NULL);
 					g_object_unref (stmt);
 
-					if (multi_cursor) {
-						while (tracker_db_cursor_iter_next (multi_cursor)) {
+					if (multi_result) {
+						do {
+							gchar *value;
 
-							value = tracker_db_cursor_get_string (multi_cursor, 0);
+							tracker_db_result_set_get (multi_result, 0, &value, -1);
 
 							tracker_data_delete_statement (uri, 
 							                               tracker_property_get_uri (*property), 
 							                               value,
 							                               NULL);
 
-						}
+							g_free (value);
 
-						g_object_unref (multi_cursor);
+						} while (tracker_db_result_set_iter_next (multi_result));
+
+						g_object_unref (multi_result);
 					}
 
 					g_string_free (sql, TRUE);
@@ -1810,12 +1823,12 @@ tracker_data_delete_resource_description (const gchar *uri, GError **error)
 			}
 
 			if (!first) {
-				g_object_unref (single_cursor);
+				g_object_unref (single_result);
 			}
 
-		}
+		} while (tracker_db_result_set_iter_next (result_set));
 
-		g_object_unref (cursor);
+		g_object_unref (result_set);
 	}
 }
 
