@@ -1899,7 +1899,14 @@ public class Tracker.SparqlQuery : Object {
 			bool in_simple_optional = false;
 			string last_name = null;
 			foreach (VariableBinding binding in pattern_var_map.lookup (variable).list) {
-				string name = "\"%s\".\"%s\"".printf (binding.table.sql_query_tablename, binding.sql_db_column_name);
+				string name;
+				if (binding.table != null) {
+					name = "\"%s\".\"%s\"".printf (binding.table.sql_query_tablename, binding.sql_db_column_name);
+				} else {
+					// simple optional with inverse functional property
+					// always first in loop as variable is required to be unbound
+					name = variable.sql_expression;
+				}
 				if (last_name != null) {
 					if (!first_where) {
 						sql.append (" AND ");
@@ -2008,8 +2015,13 @@ public class Tracker.SparqlQuery : Object {
 		try {
 			// check that we have { ?v foo:bar ?o }
 			// where ?v is an already BOUND variable
-			//       foo:bar is single-valued property
+			//       foo:bar is a single-valued property
 			//       ?o has not been used before
+			// or
+			// where ?v has not been used before
+			//       foo:bar is an inverse functional property
+			//       ?o is an already ?BOUND variable
+
 			expect (SparqlTokenType.OPEN_BRACE);
 
 			// check subject
@@ -2017,9 +2029,7 @@ public class Tracker.SparqlQuery : Object {
 				return false;
 			}
 			string var_name = get_last_string ().substring (1);
-			if (subgraph_var_set.lookup (get_variable (var_name)) != VariableState.BOUND) {
-				return false;
-			}
+			var left_variable_state = subgraph_var_set.lookup (get_variable (var_name));
 
 			// check predicate
 			string predicate;
@@ -2038,19 +2048,13 @@ public class Tracker.SparqlQuery : Object {
 			if (prop == null) {
 				return false;
 			}
-			if (prop.multiple_values) {
-				return false;
-			}
 
 			// check object
 			if (!accept (SparqlTokenType.VAR)) {
 				return false;
 			}
 			var_name = get_last_string ().substring (1);
-			if (subgraph_var_set.lookup (get_variable (var_name)) != 0) {
-				// object variable already used before in this graph pattern
-				return false;
-			}
+			var right_variable_state = subgraph_var_set.lookup (get_variable (var_name));
 
 			// optional .
 			accept (SparqlTokenType.DOT);
@@ -2060,7 +2064,16 @@ public class Tracker.SparqlQuery : Object {
 				return false;
 			}
 
-			return true;
+			if (left_variable_state == VariableState.BOUND && !prop.multiple_values && right_variable_state == 0) {
+				// first valid case described in above comment
+				return true;
+			} else if (left_variable_state == 0 && prop.is_inverse_functional_property && right_variable_state == VariableState.BOUND) {
+				// second valid case described in above comment
+				return true;
+			} else {
+				// no match
+				return false;
+			}
 		} catch (SparqlError e) {
 			return false;
 		} finally {
@@ -2367,6 +2380,36 @@ public class Tracker.SparqlQuery : Object {
 					share_table = false;
 				} else {
 					db_table = prop.domain.name;
+				}
+
+				if (in_simple_optional && subgraph_var_set.lookup (get_variable (current_subject)) == 0) {
+					// use subselect instead of join in simple optional where the subject is the unbound variable
+					// this can only happen with inverse functional properties
+					var binding = new VariableBinding ();
+					binding.data_type = PropertyType.RESOURCE;
+					binding.variable = get_variable (current_subject);
+
+					assert (pattern_var_map.lookup (binding.variable) == null);
+					var binding_list = new VariableBindingList ();
+					pattern_variables.append (binding.variable);
+					pattern_var_map.insert (binding.variable, binding_list);
+
+					// need to use table and column name for object, can't refer to variable in nested select
+					var object_binding = pattern_var_map.lookup (get_variable (object)).list.data;
+
+					sql.append_printf ("(SELECT ID FROM \"%s\" WHERE \"%s\" = \"%s\".\"%s\") AS %s, ",
+						db_table,
+						prop.name,
+						object_binding.table.sql_query_tablename, object_binding.sql_db_column_name,
+						binding.variable.sql_expression);
+
+					subgraph_var_set.insert (binding.variable, VariableState.OPTIONAL);
+					binding_list.list.append (binding);
+
+					assert (binding.variable.binding == null);
+					binding.variable.binding = binding;
+
+					return;
 				}
 			}
 			table = get_table (current_subject, db_table, share_table, out newtable);
