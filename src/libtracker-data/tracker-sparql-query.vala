@@ -2436,15 +2436,6 @@ public class Tracker.SparqlQuery : Object {
 						binding.sql_db_column_name,
 						binding.variable.sql_expression);
 
-					if (is_fts_match) {
-						sql.append_printf ("rank(\"%s\".\"fts\") AS \"%s_u_rank\", ",
-							binding.table.sql_query_tablename,
-							binding.variable.name);
-						sql.append_printf ("offsets(\"%s\".\"fts\") AS \"%s_u_offsets\", ",
-							binding.table.sql_query_tablename,
-							binding.variable.name);
-					}
-
 					subgraph_var_set.insert (binding.variable, VariableState.BOUND);
 				}
 				binding_list.list.append (binding);
@@ -2516,6 +2507,13 @@ public class Tracker.SparqlQuery : Object {
 				binding.table = table;
 				binding.sql_db_column_name = "fts";
 				pattern_bindings.append (binding);
+
+				sql.append_printf ("rank(\"%s\".\"fts\") AS \"%s_u_rank\", ",
+					binding.table.sql_query_tablename,
+					get_variable (current_subject).name);
+				sql.append_printf ("offsets(\"%s\".\"fts\") AS \"%s_u_offsets\", ",
+					binding.table.sql_query_tablename,
+					get_variable (current_subject).name);
 			} else {
 				var binding = new LiteralBinding ();
 				binding.literal = object;
