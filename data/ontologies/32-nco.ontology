@@ -359,6 +359,7 @@ nco:department a rdf:Property ;
 	tracker:weight 4 .
 
 nco:imID a rdf:Property ;
+	a nrl:InverseFunctionalProperty ;
 	rdfs:label "imID" ;
 	rdfs:comment "Identifier of the IM account. Examples of such identifier might include ICQ UINs, Jabber IDs, Skype names etc." ;
 	rdfs:subPropertyOf nao:identifier ;
@@ -547,6 +548,7 @@ nco:foafUrl a rdf:Property ;
 	rdfs:range rdfs:Resource .
 
 nco:emailAddress a rdf:Property ;
+	a nrl:InverseFunctionalProperty ;
 	rdfs:label "emailAddress" ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nco:EmailAddress ;
