@@ -40,8 +40,9 @@ class TestFTSFunctions (unittest.TestCase):
         """
         1. Insert a Contact1 with 'abcdefxyz' as fullname and nickname
         2. Insert a Contact2 with 'abcdefxyz' as fullname
+        2. Insert a Contact3 with 'abcdefxyz' as fullname and twice in nickname
         3. Query sorting by fts:rank
-           EXPECTED: Contact 1 as first result
+           EXPECTED: The 3 contacts in order: 3, 1, 2
         4. Remove the created resources
         """
         insert_sparql = """
@@ -63,7 +64,7 @@ class TestFTSFunctions (unittest.TestCase):
         query = """
         SELECT ?contact WHERE {
            ?contact a nco:PersonContact ;
-                fts:match 'abcdefxyz*' .
+                fts:match 'abcdefxyz' .
         } ORDER BY DESC (fts:rank(?contact))
         """
         results = self.resources.SparqlQuery (query)
@@ -77,9 +78,12 @@ class TestFTSFunctions (unittest.TestCase):
         DELETE {
         <contact://test/fts-function/rank/1> a rdf:Resource .
         <contact://test/fts-function/rank/2> a rdf:Resource .
+        <contact://test/fts-function/rank/3> a rdf:Resource .
         }
         """
 
+    def test_fts_weight (self):
+        pass
         
         
 
