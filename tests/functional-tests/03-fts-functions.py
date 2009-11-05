@@ -82,8 +82,50 @@ class TestFTSFunctions (unittest.TestCase):
         }
         """
 
-    def test_fts_weight (self):
-        pass
+    def test_fts_offsets (self):
+        """
+        1. Insert a Contact1 with 'abcdefxyz' as fullname and nickname
+        2. Insert a Contact2 with 'abcdefxyz' as fullname
+        2. Insert a Contact3 with 'abcdefxyz' as fullname and twice in nickname
+        3. Query fts:offsets for 'abcdefxyz'
+           EXPECTED: The 3 contacts in insertion order, with 2, 1 and 3 pairs (prop, offset=1) each
+        4. Remove the created resources
+        """
+        insert_sparql = """
+        INSERT {
+        <contact://test/fts-function/rank/1> a nco:PersonContact ;
+                       nco:fullname 'abcdefxyz' ;
+                       nco:nickname 'abcdefxyz' .
+
+        <contact://test/fts-function/rank/2> a nco:PersonContact ;
+                       nco:fullname 'abcdefxyz' .
+
+        <contact://test/fts-function/rank/3> a nco:PersonContact ;
+                       nco:fullname 'abcdefxyz' ;
+                       nco:nickname 'abcdefxyz abcdefxyz' .
+        }
+        """
+        self.resources.SparqlUpdate (insert_sparql)
+
+        query = """
+        SELECT fts:offsets (?contact) WHERE {
+           ?contact a nco:PersonContact ;
+                fts:match 'abcdefxyz' .
+        } 
+        """
+        results = self.resources.SparqlQuery (query)
+        self.assertEquals (len(results), 3)
+        self.assertEquals (len (results[0][0].split(",")), 4) # (u'151,1,161,1')
+        self.assertEquals (len (results[1][0].split(",")), 2) # (u'161,1')
+        self.assertEquals (len (results[2][0].split(",")), 6) # (u'151,1,151,2,161,1')
+
+        delete_sparql = """
+        DELETE {
+        <contact://test/fts-function/rank/1> a rdf:Resource .
+        <contact://test/fts-function/rank/2> a rdf:Resource .
+        <contact://test/fts-function/rank/3> a rdf:Resource .
+        }
+        """
         
         
 

@@ -14,6 +14,18 @@
         <!-- dbus env variables defined here. This works. -->
         <step expected_result="0">. /tmp/session_bus_address.user; python2.5 /usr/share/tracker-tests/01-insertion.py</step>
       </case>
+
+      <case name="test_metacontact" type="unit" 
+            description="Metacontacts in the ontology" requirement="01" timeout="5" subfeature="">
+        <!-- dbus env variables defined here. This works. -->
+        <step expected_result="0">. /tmp/session_bus_address.user; python2.5 /usr/share/tracker-tests/02-metacontacts.py</step>
+      </case>
+
+      <case name="test_fts" type="unit" 
+            description="Exposed FTS functions in sparql" requirement="01" timeout="5" subfeature="">
+        <!-- dbus env variables defined here. This works. -->
+        <step expected_result="0">. /tmp/session_bus_address.user; python2.5 /usr/share/tracker-tests/03-fts-functions.py</step>
+      </case>
  
       <!-- Environments optional - tells where the tests are run -->
       <environments>
