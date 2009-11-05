@@ -1,0 +1,82 @@
+What is this
+============
+
+ We have created some scripts using the "barnum" code, to generate
+ data according to the Nepomuk ontology serialized in turtle format.
+
+ There is also an script to import that data into tracker.
+
+
+How to use it
+=============
+
+ There are two options, the easy and the detailed:
+
+Easy method:
+
+./all_generate_and_import.sh
+
+That's it. All turtle file generators are run, and their contents 
+are imported to tracker.
+
+
+
+
+Detailed method:
+
+
+*  To generate information from _N_ contacts and mails:
+
+  ./gen_contacts_messages.py _N_
+
+   This will write a 'contacts.ttl' file.
+
+
+
+*  To generate information about music:
+
+  ./id32ttl.py directory/
+
+  This script will crawl "directory" extracting the id3 information of
+  the files there.
+
+	* To generate information about music according to nmm specification:
+
+		python id32nmmTurtle.py dir_of_music_files/
+
+		The output is 'songlist.ttl'
+
+* To generate a collection of bookmarks:
+
+  ./gen_bookmarks.py > bookmarks.ttl
+
+  This script uses bookmarks.in to get the data and prints the output in the stdout.
+
+
+
+* To generate some feeds information:
+
+  ./get-fresh-planets.sh  (This script gets the atom feeds of planet.maemo and planet.gnome. 
+                           Be sure you have internet connection, the proxy correctly setted, ...)
+
+  ./atom2ttl.py planet-gnome.atom > planet-gnome.ttl (Turn the retrieved atom files into TTL)
+  ./atom2ttl.py planet-maemo.atom > planet-maemo.ttl
+
+
+
+*  To import a generated ttl file:
+
+ ./import_ttl.sh file.ttl
+
+
+
+Other files
+===========
+
+Dont touch these files, they are included in the generation scripts described before:
+
+* tools.py: some common functionality
+* bookmarks.in: Input information to generate bookmarks
+* songlist.ttl: The id3 information is harvested from mp3 files in the filesystem. This is a file
+                with pre-generated information, so can be used to test even when you dont have
+                a huge mp3 collection in your computer.
