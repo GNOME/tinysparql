@@ -32,8 +32,6 @@
 #include <gio/gio.h>
 
 #include <totem-pl-parser.h>
-#include <libtracker-common/tracker-statement-list.h>
-
 #include <libtracker-common/tracker-ontology.h>
 
 #include "tracker-main.h"
@@ -80,29 +78,24 @@ static void
 entry_parsed (TotemPlParser *parser, const gchar *to_uri, GHashTable *to_metadata, gpointer user_data)
 {
 	gchar *duration;
-	gchar *anon_node;
 	PlaylistMetadata *data;
 
 	data = (PlaylistMetadata *)user_data;
 	data->track_counter++;
 
-	anon_node = g_strdup_printf (":%" G_GUINT32_FORMAT, data->track_counter);
+	tracker_sparql_builder_predicate (data->metadata, "nfo:hasMediaFileListEntry");
 
-	tracker_statement_list_insert (data->metadata, anon_node, RDF_TYPE,
-	                               NFO_PREFIX "MediaFileListEntry");
+	tracker_sparql_builder_object_blank_open (data->metadata);
+	tracker_sparql_builder_predicate (data->metadata, "a");
+	tracker_sparql_builder_object (data->metadata, "nfo:MediaFileListEntry");
 
-	tracker_statement_list_insert (data->metadata, anon_node, 
-	                               NFO_PREFIX "entryContent",
-	                               to_uri);
+	tracker_sparql_builder_predicate (data->metadata, "nfo:entryContent");
+	tracker_sparql_builder_object_unvalidated (data->metadata, to_uri);
 
-	tracker_statement_list_insert_with_int (data->metadata, anon_node,
-	                                        NFO_PREFIX "listPosition", 
-	                                        data->track_counter);
+	tracker_sparql_builder_predicate (data->metadata, "nfo:listPosition");
+	tracker_sparql_builder_object_int64 (data->metadata, (gint64) data->track_counter);
 
-
-	tracker_statement_list_insert (data->metadata, data->uri,
-	                               NFO_PREFIX "hasMediaFileListEntry", 
-	                               anon_node);
+	tracker_sparql_builder_object_blank_close (data->metadata);
 
 	duration = g_hash_table_lookup (to_metadata, TOTEM_PL_PARSER_FIELD_DURATION);
 
@@ -115,7 +108,7 @@ entry_parsed (TotemPlParser *parser, const gchar *to_uri, GHashTable *to_metadat
 		if (secs > 0) {
 			data->total_time += secs;
 		}
-	} 
+	}
 }
 
 static void
@@ -130,12 +123,12 @@ extract_playlist (const gchar *uri,
 
 	g_object_set (pl, "recurse", FALSE, "disable-unsafe", TRUE, NULL);
 
-	g_signal_connect (G_OBJECT (pl), "entry-parsed", 
+	g_signal_connect (G_OBJECT (pl), "entry-parsed",
 			  G_CALLBACK (entry_parsed), &data);
 
-	tracker_statement_list_insert (metadata, uri, 
-	                               RDF_TYPE, 
-	                               NFO_PREFIX "MediaList");
+        tracker_sparql_builder_subject_iri (metadata, uri);
+	tracker_sparql_builder_predicate (metadata, "a");
+	tracker_sparql_builder_object (metadata, "nfo:MediaList");
 
 	result = totem_pl_parser_parse (pl, uri, FALSE);
 
@@ -152,19 +145,15 @@ extract_playlist (const gchar *uri,
 		g_warning ("Undefined result in totem-plparser");
 	}
 
-	tracker_statement_list_insert_with_int64 (metadata, uri,
-					   NFO_PREFIX PLAYLIST_PROPERTY_DURATION, 
-					   data.total_time);
+	if (data.total_time > 0) {
+		tracker_sparql_builder_predicate (metadata, "nfo:listDuration");
+		tracker_sparql_builder_object_int64 (metadata, data.total_time);
+	}
 
-	tracker_statement_list_insert_with_uint (metadata, uri,
-					   NFO_PREFIX PLAYLIST_PROPERTY_NO_TRACKS, 
-					   data.track_counter);
-/*
-  TODO
-	tracker_statement_list_insert_with_int64 (metadata, uri,
-					   PLAYLIST_PROPERTY_CALCULATED,
-					   data.total_time);
-	*/
+	if (data.track_counter > 0) {
+		tracker_sparql_builder_predicate (metadata, "nfo:entryCounter");
+		tracker_sparql_builder_object_int64 (metadata, data.track_counter);
+	}
 
 	g_object_unref (pl);
 }
