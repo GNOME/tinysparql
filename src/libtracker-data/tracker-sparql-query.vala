@@ -233,6 +233,7 @@ public class Tracker.SparqlQuery : Object {
 	string query_string;
 	bool update_extensions;
 
+	string current_graph;
 	string current_subject;
 	bool current_subject_is_var;
 	string current_predicate;
@@ -784,13 +785,34 @@ public class Tracker.SparqlQuery : Object {
 		return exec_sql (sql.str);
 	}
 
+	private void parse_from_or_into_param () throws Error {
+		if (accept (SparqlTokenType.IRI_REF)) {
+			current_graph = get_last_string (1);
+		} else if (accept (SparqlTokenType.PN_PREFIX)) {
+			string ns = get_last_string ();
+			expect (SparqlTokenType.COLON);
+			current_graph = resolve_prefixed_name (ns, get_last_string ().substring (1));
+		} else {
+			expect (SparqlTokenType.COLON);
+			current_graph = resolve_prefixed_name ("", get_last_string ().substring (1));
+		}
+	}
+
 	void execute_insert () throws Error {
 		expect (SparqlTokenType.INSERT);
+		if (accept (SparqlTokenType.INTO)) {
+			parse_from_or_into_param ();
+		} else
+			current_graph = null;
 		execute_update (false);
 	}
 
 	void execute_delete () throws Error {
 		expect (SparqlTokenType.DELETE);
+		if (accept (SparqlTokenType.FROM)) {
+			parse_from_or_into_param ();
+		} else
+			current_graph = null;
 		execute_update (true);
 	}
 
@@ -871,7 +893,7 @@ public class Tracker.SparqlQuery : Object {
 		bool is_var;
 		string uri = parse_var_or_term (null, out is_var);
 
-		Data.delete_resource_description (uri);
+		Data.delete_resource_description (uri, uri);
 
 		// ensure possible WHERE clause in next part gets the correct results
 		Data.update_buffer_flush ();
@@ -1855,10 +1877,10 @@ public class Tracker.SparqlQuery : Object {
 		string object = parse_construct_var_or_term (var_value_map);
 		if (delete_statements) {
 			// delete triple from database
-			Data.delete_statement (current_subject, current_predicate, object);
+			Data.delete_statement (current_graph, current_subject, current_predicate, object);
 		} else {
 			// insert triple into database
-			Data.insert_statement (current_subject, current_predicate, object);
+			Data.insert_statement (current_graph, current_subject, current_predicate, object);
 		}
 	}
 

@@ -45,6 +45,9 @@ public class Tracker.TurtleReader : Object {
 
 	State state;
 
+	// todo: support non-default graph with ntrig files
+	public string graph { get; private set; }
+
 	public string subject { get; private set; }
 	public string predicate { get; private set; }
 	public string object { get; private set; }
@@ -366,9 +369,9 @@ public class Tracker.TurtleReader : Object {
 		var reader = new TurtleReader (path);
 		while (reader.next ()) {
 			if (reader.object_is_uri) {
-				Data.insert_statement_with_uri (reader.subject, reader.predicate, reader.object);
+				Data.insert_statement_with_uri (reader.graph, reader.subject, reader.predicate, reader.object);
 			} else {
-				Data.insert_statement_with_string (reader.subject, reader.predicate, reader.object);
+				Data.insert_statement_with_string (reader.graph, reader.subject, reader.predicate, reader.object);
 			}
 		}
 	}

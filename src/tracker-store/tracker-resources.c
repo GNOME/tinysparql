@@ -409,11 +409,12 @@ on_statements_rolled_back (gpointer user_data)
 }
 
 static void
-on_statement_inserted (const gchar *subject,
-		       const gchar *predicate,
-		       const gchar *object,
-		       GPtrArray   *rdf_types,
-		       gpointer user_data)
+on_statement_inserted (const gchar *graph,
+                       const gchar *subject,
+                       const gchar *predicate,
+                       const gchar *object,
+                       GPtrArray   *rdf_types,
+                       gpointer user_data)
 {
 	if (g_strcmp0 (predicate, RDF_PREFIX "type") == 0) {
 		tracker_events_insert (subject, predicate, object, rdf_types, TRACKER_DBUS_EVENTS_TYPE_ADD);
@@ -423,11 +424,12 @@ on_statement_inserted (const gchar *subject,
 }
 
 static void
-on_statement_deleted (const gchar *subject,
-		      const gchar *predicate,
-		      const gchar *object,
-		      GPtrArray   *rdf_types,
-		      gpointer user_data)
+on_statement_deleted (const gchar *graph,
+                      const gchar *subject,
+                      const gchar *predicate,
+                      const gchar *object,
+                      GPtrArray   *rdf_types,
+                      gpointer user_data)
 {
 	if (g_strcmp0 (predicate, RDF_PREFIX "type") == 0) {
 		tracker_events_insert (subject, predicate, object, rdf_types, TRACKER_DBUS_EVENTS_TYPE_DELETE);
@@ -447,10 +449,10 @@ tracker_resources_prepare (TrackerResources *object,
 
 	free_event_sources (priv);
 
-	tracker_data_set_insert_statement_callback (on_statement_inserted, object);
-	tracker_data_set_delete_statement_callback (on_statement_deleted, object);
-	tracker_data_set_commit_statement_callback (on_statements_committed, object);
-	tracker_data_set_rollback_statement_callback (on_statements_rolled_back, object);
+	tracker_data_add_insert_statement_callback (on_statement_inserted, object);
+	tracker_data_add_delete_statement_callback (on_statement_deleted, object);
+	tracker_data_add_commit_statement_callback (on_statements_committed, object);
+	tracker_data_add_rollback_statement_callback (on_statements_rolled_back, object);
 
 	priv->event_sources = event_sources;
 }

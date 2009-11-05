@@ -53,12 +53,6 @@ void         tracker_store_queue_turtle_import    (GFile         *file,
                                                    GDestroyNotify destroy);
 void         tracker_store_sparql_update          (const gchar   *sparql,
                                                    GError       **error);
-void         tracker_store_insert_statement       (const gchar   *subject,
-                                                   const gchar   *predicate,
-                                                   const gchar   *object);
-void         tracker_store_delete_statement       (const gchar   *subject,
-                                                   const gchar   *predicate,
-                                                   const gchar   *object);
 TrackerDBResultSet*
              tracker_store_sparql_query           (const gchar   *sparql,
                                                    GError       **error);

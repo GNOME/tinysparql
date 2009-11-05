@@ -113,12 +113,14 @@ process_turtle_file_part (TrackerTurtleReader *reader, GError **error)
 		/* insert statement */
 		if (tracker_turtle_reader_get_object_is_uri (reader)) {
 			tracker_data_insert_statement_with_uri (
+				tracker_turtle_reader_get_graph (reader),
 				tracker_turtle_reader_get_subject (reader),
 				tracker_turtle_reader_get_predicate (reader),
 				tracker_turtle_reader_get_object (reader),
 				&new_error);
 		} else {
 			tracker_data_insert_statement_with_string (
+				tracker_turtle_reader_get_graph (reader),
 				tracker_turtle_reader_get_subject (reader),
 				tracker_turtle_reader_get_predicate (reader),
 				tracker_turtle_reader_get_object (reader),
@@ -539,54 +541,6 @@ tracker_store_sparql_query (const gchar *sparql,
                             GError     **error)
 {
 	return tracker_data_query_sparql (sparql, error);
-}
-
-void
-tracker_store_insert_statement (const gchar   *subject,
-                                const gchar   *predicate,
-                                const gchar   *object)
-{
-	TrackerStorePrivate *private;
-
-	g_return_if_fail (subject != NULL);
-	g_return_if_fail (predicate != NULL);
-	g_return_if_fail (object != NULL);
-
-	private = g_static_private_get (&private_key);
-	g_return_if_fail (private != NULL);
-
-	if (private->batch_mode) {
-		/* commit pending batch items */
-		tracker_data_commit_transaction ();
-		private->batch_mode = FALSE;
-		private->batch_count = 0;
-	}
-
-	tracker_data_insert_statement (subject, predicate, object, NULL);
-}
-
-void
-tracker_store_delete_statement (const gchar   *subject,
-                                const gchar   *predicate,
-                                const gchar   *object)
-{
-	TrackerStorePrivate *private;
-
-	g_return_if_fail (subject != NULL);
-	g_return_if_fail (predicate != NULL);
-	g_return_if_fail (object != NULL);
-
-	private = g_static_private_get (&private_key);
-	g_return_if_fail (private != NULL);
-
-	if (private->batch_mode) {
-		/* commit pending batch items */
-		tracker_data_commit_transaction ();
-		private->batch_mode = FALSE;
-		private->batch_count = 0;
-	}
-
-	tracker_data_delete_statement (subject, predicate, object, NULL);
 }
 
 guint
