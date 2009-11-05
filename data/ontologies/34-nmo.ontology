@@ -64,7 +64,7 @@ nmo:PermanentChannel a rdfs:Class ;
 nmo:TransientChannel a rdfs:Class ;
 	rdfs:subClassOf nmo:CommunicationChannel .
 
-nmo:VOIPCall a rdfs:Class ;
+nmo:Call a rdfs:Class ;
 	rdfs:subClassOf nmo:Message .
 
 nmo:MailFolder a rdfs:Class ;
@@ -226,8 +226,9 @@ nmo:communicationChannel a rdf:Property ;
 	rdfs:range nmo:CommunicationChannel .
 
 nmo:duration a rdf:Property ;
+        rdfs:comment "Duration of the call in seconds" ;
 	nrl:maxCardinality 1 ;
-	rdfs:domain nmo:VOIPCall ;
+	rdfs:domain nmo:Call ;
 	rdfs:range xsd:integer .
 
 # FIXME Extension to nepomuk 
