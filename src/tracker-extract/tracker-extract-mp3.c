@@ -1,7 +1,7 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*
  * Copyright (C) 2006, Mr Jamie McCracken (jamiemcc@gnome.org)
- * Copyright (C) 2008, Nokia
+ * Copyright (C) 2008-2009, Nokia
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -54,14 +54,16 @@
 #include "tracker-main.h"
 #include "tracker-dbus.h"
 
-/* We mmap the beginning of the file and read separately the last 128 bytes
-   for id3v1 tags. While these are probably cornercases the rationale is that
-   we don't want to fault a whole page for the last 128 bytes and on the other
-   we don't want to mmap the whole file with unlimited size (might need to create
-   private copy in some special cases, finding continuous space etc). We now take
-   5 first MB of the file and assume that this is enough. In theory there is no
-   maximum size as someone could embed 50 gigabytes of albumart there.
-*/
+/* We mmap the beginning of the file and read separately the last 128
+ * bytes for id3v1 tags. While these are probably cornercases the
+ * rationale is that we don't want to fault a whole page for the last
+ * 128 bytes and on the other we don't want to mmap the whole file
+ * with unlimited size (might need to create private copy in some
+ * special cases, finding continuous space etc). We now take 5 first
+ * MB of the file and assume that this is enough. In theory there is
+ * no maximum size as someone could embed 50 gigabytes of albumart
+ * there. 
+ */
 
 #define MAX_FILE_READ	  1024 * 1024 * 5
 #define MAX_MP3_SCAN_DEEP 16768
@@ -70,20 +72,6 @@
 #define VBR_THRESHOLD     16
 
 #define ID3V1_SIZE        128
-
-#define NMM_PREFIX TRACKER_NMM_PREFIX
-#define NFO_PREFIX TRACKER_NFO_PREFIX
-#define NIE_PREFIX TRACKER_NIE_PREFIX
-#define DC_PREFIX TRACKER_DC_PREFIX
-#define NCO_PREFIX TRACKER_NCO_PREFIX
-
-#define RDF_PREFIX TRACKER_RDF_PREFIX
-#define RDF_TYPE RDF_PREFIX "type"
-
-typedef struct {
-	const gchar *text;
-	gchar      **field;
-} Matches;
 
 typedef struct {
 	gchar *title;
@@ -114,49 +102,23 @@ typedef struct {
 	gint track_number;
 } id3v2tag;
 
-typedef struct {
-	size_t         size;
-	size_t         id3v2_size;
-
-	guint32        duration;
-
-	gchar         *title;
-	gchar         *performer;
-	gchar         *performer_uri;
-	gchar         *album;
-	gchar         *album_uri;
-	gchar         *genre;
-	gchar         *text;
-	gchar         *recording_time;
-	gchar         *copyright;
-	gchar         *publisher;
-	gchar         *comment;
-
-	gint           track_number;
-
-	unsigned char *albumartdata;
-	size_t         albumartsize;
-	gchar         *albumartmime;
-
-	id3tag         id3v1_info;
-	id3v2tag       id3v22_info;
-	id3v2tag       id3v23_info;
-	id3v2tag       id3v24_info;
-} file_data;
-
-enum {
-	MPEG_ERR,
-	MPEG_V1,
-	MPEG_V2,
-	MPEG_V25
-};
-
-enum {
-	LAYER_ERR,
-	LAYER_1,
-	LAYER_2,
-	LAYER_3
-};
+typedef enum {
+	ID3V2_UNKNOWN,
+	ID3V2_COM,
+	ID3V2_PIC,
+	ID3V2_TAL,
+	ID3V2_TCO,
+	ID3V2_TCR,
+	ID3V2_TLE,
+	ID3V2_TPB,
+	ID3V2_TP1,
+	ID3V2_TP2,
+	ID3V2_TT1,
+	ID3V2_TT2,
+	ID3V2_TT3,
+	ID3V2_TXT,
+	ID3V2_TYE,
+} id3v2frame;
 
 typedef enum {
 	ID3V24_UNKNOWN,
@@ -179,8 +141,58 @@ typedef enum {
 	ID3V24_TYER,
 } id3v24frame;
 
+typedef struct {
+	size_t size;
+	size_t id3v2_size;
+
+	guint32 duration;
+
+	gchar *title;
+	gchar *performer;
+	gchar *performer_uri;
+	gchar *album;
+	gchar *album_uri;
+	gchar *genre;
+	gchar *text;
+	gchar *recording_time;
+	gchar *copyright;
+	gchar *publisher;
+	gchar *comment;
+
+	gint track_number;
+
+	unsigned char *albumart_data;
+	size_t albumart_size;
+	gchar *albumart_mime;
+
+	id3tag id3v1;
+	id3v2tag id3v22;
+	id3v2tag id3v23;
+	id3v2tag id3v24;
+} MP3Data;
+
+static void extract_mp3 (const gchar           *filename,
+			 TrackerSparqlBuilder  *metadata);
+
+enum {
+	MPEG_ERR,
+	MPEG_V1,
+	MPEG_V2,
+	MPEG_V25
+};
+
+enum {
+	LAYER_ERR,
+	LAYER_1,
+	LAYER_2,
+	LAYER_3
+};
+
 /* sorted array */
-static const struct { const char *name; id3v24frame frame; } id3v24_frames[] = {
+static const struct { 
+	const char *name; 
+	id3v24frame frame; 
+} id3v24_frames[] = {
 	{ "APIC", ID3V24_APIC },
 	{ "COMM", ID3V24_COMM },
 	{ "TALB", ID3V24_TALB },
@@ -200,26 +212,11 @@ static const struct { const char *name; id3v24frame frame; } id3v24_frames[] = {
 	{ "TYER", ID3V24_TYER },
 };
 
-typedef enum {
-	ID3V2_UNKNOWN,
-	ID3V2_COM,
-	ID3V2_PIC,
-	ID3V2_TAL,
-	ID3V2_TCO,
-	ID3V2_TCR,
-	ID3V2_TLE,
-	ID3V2_TPB,
-	ID3V2_TP1,
-	ID3V2_TP2,
-	ID3V2_TT1,
-	ID3V2_TT2,
-	ID3V2_TT3,
-	ID3V2_TXT,
-	ID3V2_TYE,
-} id3v2frame;
-
 /* sorted array */
-static const struct { const char *name; id3v2frame frame; } id3v2_frames[] = {
+static const struct { 
+	const char *name; 
+	id3v2frame frame; 
+} id3v2_frames[] = {
 	{ "COM", ID3V2_COM },
 	{ "PIC", ID3V2_PIC },
 	{ "TAL", ID3V2_TAL },
@@ -235,9 +232,6 @@ static const struct { const char *name; id3v2frame frame; } id3v2_frames[] = {
 	{ "TXT", ID3V2_TXT },
 	{ "TYE", ID3V2_TYE },
 };
-
-static void extract_mp3 (const gchar *filename,
-			 TrackerSparqlBuilder  *metadata);
 
 static const char *const genre_names[] = {
 	"Blues",
@@ -418,12 +412,14 @@ static guint bitrate_table[16][6] = {
 };
 
 static gint freq_table[4][3] = {
-	{44100, 22050, 11025},
-	{48000, 24000, 12000},
-	{32000, 16000, 8000}
+	{ 44100, 22050, 11025 },
+	{ 48000, 24000, 12000 },
+	{ 32000, 16000, 8000  }
 };
 
-static gint spf_table[6] = { 48, 144, 144, 48, 144,  72 };
+static gint spf_table[6] = { 
+	48, 144, 144, 48, 144,  72 
+};
 
 static TrackerExtractData extract_data[] = {
 	{ "audio/mpeg", extract_mp3 },
@@ -432,17 +428,18 @@ static TrackerExtractData extract_data[] = {
 };
 
 static char *
-read_id3v1_buffer (int fd, goffset size)
+read_id3v1_buffer (int     fd, 
+		   goffset size)
 {
 	char *buffer;
 	guint bytes_read;
 	guint rc;
 
-	if (size<128) {
+	if (size < 128) {
 		return NULL;
 	}
 
-	if (lseek (fd, size-ID3V1_SIZE, SEEK_SET) < 0) {
+	if (lseek (fd, size - ID3V1_SIZE, SEEK_SET) < 0) {
 		return NULL;
 	}
 
@@ -455,19 +452,19 @@ read_id3v1_buffer (int fd, goffset size)
 	bytes_read = 0;
 	
 	while (bytes_read < ID3V1_SIZE) {
-		rc = read(fd,
-			  buffer + bytes_read,
-			  ID3V1_SIZE - bytes_read);
+		rc = read (fd,
+			   buffer + bytes_read,
+			   ID3V1_SIZE - bytes_read);
 		if (rc == -1) {
 			if (errno != EINTR) {
 				g_free (buffer);
 				return NULL;
 			}
-		}
-		else if (rc == 0)
+		} else if (rc == 0) {
 			break;
-		else
+		} else {
 			bytes_read += rc;
+		}
 	}
 	
 	return buffer;
@@ -512,11 +509,13 @@ get_genre_number (const char *str, guint *genre)
 	GMatchInfo *info = NULL;
 	gchar *result = NULL;
 
-	if (!regex1)
+	if (!regex1) {
 		regex1 = g_regex_new ("\\(([0-9]+)\\)", 0, 0, NULL);
+	}
 
-	if (!regex2)
+	if (!regex2) {
 		regex2 = g_regex_new ("([0-9]+)\\z", 0, 0, NULL);
+	}
 
 	if (g_regex_match (regex1, str, 0, &info)) {
 		result = g_match_info_fetch (info, 1);
@@ -561,10 +560,11 @@ un_unsync (const unsigned char *source,
 	   unsigned char      **destination,
 	   size_t              *dest_size)
 {
-	size_t   offset  = 0;
-	gchar   *dest;
-	size_t   new_size;
+	size_t offset;
+	gchar *dest;
+	size_t new_size;
 
+	offset       = 0;
 	*destination = g_malloc0 (size);
 	dest         = *destination;
 	new_size     = size;
@@ -600,7 +600,6 @@ get_encoding (const char *data,
 	}
 	
 #ifdef HAVE_ENCA
-
 	langs = enca_get_languages (&s);
 
 	for (i = 0; i < s && !encoding; i++) {
@@ -632,14 +631,14 @@ get_encoding (const char *data,
 	return encoding;
 }
 
-static gchar*
-t_convert (const gchar  *str,
-           gssize        len,
-           const gchar  *to_codeset,
-           const gchar  *from_codeset,
-           gsize        *bytes_read,
-           gsize        *bytes_written,
-           GError      **error_out)
+static gchar *
+convert_to_encoding (const gchar  *str,
+		     gssize        len,
+		     const gchar  *to_codeset,
+		     const gchar  *from_codeset,
+		     gsize        *bytes_read,
+		     gsize        *bytes_written,
+		     GError      **error_out)
 {
 	GError *error = NULL;
 	gchar *word;
@@ -704,9 +703,10 @@ get_id3 (const gchar *data,
 	/* Now convert all the data separately */
 	pos += 3;
 
-	/* We don't use our magic t_convert here because we have a better way
-	 * to collect a bit more data before we let enca loose on it for v1. */
-
+	/* We don't use our magic convert_to_encoding here because we
+	 * have a better way to collect a bit more data before we let
+	 * enca loose on it for v1.
+	 */
 #ifdef HAVE_ENCA
 	/* Get the encoding for ALL the data we are extracting here */
 	s = g_string_new_len (pos, 30);
@@ -769,12 +769,12 @@ get_id3 (const gchar *data,
 
 
 static gboolean
-mp3_parse_header (const gchar *data,
-		  size_t       size,
-		  size_t       seek_pos,
-		  const gchar *uri,
-		  TrackerSparqlBuilder   *metadata,
-		  file_data   *filedata)
+mp3_parse_header (const gchar          *data,
+		  size_t                size,
+		  size_t                seek_pos,
+		  const gchar          *uri,
+		  TrackerSparqlBuilder *metadata,
+		  MP3Data              *filedata)
 {
 	guint header;
 	gchar mpeg_ver = 0;
@@ -874,7 +874,8 @@ mp3_parse_header (const gchar *data,
 		memcpy(&header, &data[pos], sizeof (header));
 	} while ((header & sync_mask) == sync_mask);
 
-	if (frames < 2) { /* At least 2 frames to check the right position */
+	/* At least 2 frames to check the right position */
+	if (frames < 2) {
 		/* No valid frames */
 		return FALSE;
 	}
@@ -912,12 +913,12 @@ mp3_parse_header (const gchar *data,
 }
 
 static void
-mp3_parse (const gchar *data,
-	   size_t       size,
-	   size_t       offset,
-	   const gchar *uri,
-	   TrackerSparqlBuilder  *metadata,
-	   file_data   *filedata)
+mp3_parse (const gchar          *data,
+	   size_t                size,
+	   size_t                offset,
+	   const gchar          *uri,
+	   TrackerSparqlBuilder *metadata,
+	   MP3Data              *filedata)
 {
 	guint header;
 	guint counter = 0;
@@ -944,7 +945,9 @@ mp3_parse (const gchar *data,
 }
 
 static gchar *
-id3v24_text_to_utf8 (gchar encoding, const gchar *text, gssize len)
+id3v24_text_to_utf8 (const gchar  encoding,
+		     const gchar *text, 
+		     gssize       len)
 {
 	/* This byte describes the encoding
 	 * try to convert strings to UTF-8
@@ -953,23 +956,23 @@ id3v24_text_to_utf8 (gchar encoding, const gchar *text, gssize len)
 
 	switch (encoding) {
 	case 0x00:
-		return t_convert (text,
-				  len,
-				  "UTF-8",
-				  "ISO-8859-1",
-				  NULL, NULL, NULL);
+		return convert_to_encoding (text,
+					    len,
+					    "UTF-8",
+					    "ISO-8859-1",
+					    NULL, NULL, NULL);
 	case 0x01 :
-		return t_convert (text,
-				  len,
-				  "UTF-8",
-				  "UTF-16",
-				  NULL, NULL, NULL);
+		return convert_to_encoding (text,
+					    len,
+					    "UTF-8",
+					    "UTF-16",
+					    NULL, NULL, NULL);
 	case 0x02 :
-		return t_convert (text,
-				  len,
-				  "UTF-8",
-				  "UTF-16BE",
-				  NULL, NULL, NULL);
+		return convert_to_encoding (text,
+					    len,
+					    "UTF-8",
+					    "UTF-16BE",
+					    NULL, NULL, NULL);
 	case 0x03 :
 		return strndup (text, len);
 
@@ -978,16 +981,18 @@ id3v24_text_to_utf8 (gchar encoding, const gchar *text, gssize len)
 		 * try to convert from
 		 * iso-8859-1
 		 */
-		return t_convert (text,
-				  len,
-				  "UTF-8",
-				  "ISO-8859-1",
-				  NULL, NULL, NULL);
+		return convert_to_encoding (text,
+					    len,
+					    "UTF-8",
+					    "ISO-8859-1",
+					    NULL, NULL, NULL);
 	}
 }
 
 static gchar *
-id3v2_text_to_utf8 (gchar encoding, const gchar *text, gssize len)
+id3v2_text_to_utf8 (const gchar  encoding, 
+		    const gchar *text, 
+		    gssize       len)
 {
 	/* This byte describes the encoding
 	 * try to convert strings to UTF-8
@@ -996,37 +1001,36 @@ id3v2_text_to_utf8 (gchar encoding, const gchar *text, gssize len)
 
 	switch (encoding) {
 	case 0x00:
-		return t_convert (text,
-				  len,
-				  "UTF-8",
-				  "ISO-8859-1",
-				  NULL, NULL, NULL);
+		return convert_to_encoding (text,
+					    len,
+					    "UTF-8",
+					    "ISO-8859-1",
+					    NULL, NULL, NULL);
 	case 0x01 :
 /* 		return g_convert (text, */
 /* 				  len, */
 /* 				  "UTF-8", */
 /* 				  "UCS-2", */
 /* 				  NULL, NULL, NULL); */
-		return ucs2_to_utf8 (text,
-				     len);
+		return ucs2_to_utf8 (text, len);
 
 	default:
 		/* Bad encoding byte,
 		 * try to convert from
 		 * iso-8859-1
 		 */
-		return t_convert (text,
-				  len,
-				  "UTF-8",
-				  "ISO-8859-1",
-				  NULL, NULL, NULL);
+		return convert_to_encoding (text,
+					    len,
+					    "UTF-8",
+					    "ISO-8859-1",
+					    NULL, NULL, NULL);
 	}
 }
 
 static id3v24frame
 id3v24_get_frame (const gchar *name)
 {
-	int l, r, m;
+	gint l, r, m;
 
 	/* use binary search */
 
@@ -1044,6 +1048,7 @@ id3v24_get_frame (const gchar *name)
 			l = m + 1;
 		}
 	} while (l <= r && strncmp (id3v24_frames[m].name, name, 4) != 0);
+
 	if (strncmp (id3v24_frames[m].name, name, 4) == 0) {
 		return id3v24_frames[m].frame;
 	} else {
@@ -1054,7 +1059,7 @@ id3v24_get_frame (const gchar *name)
 static id3v2frame
 id3v2_get_frame (const gchar *name)
 {
-	int l, r, m;
+	gint l, r, m;
 
 	/* use binary search */
 
@@ -1072,6 +1077,7 @@ id3v2_get_frame (const gchar *name)
 			l = m + 1;
 		}
 	} while (l <= r && strncmp (id3v2_frames[m].name, name, 4) != 0);
+
 	if (strncmp (id3v2_frames[m].name, name, 4) == 0) {
 		return id3v2_frames[m].frame;
 	} else {
@@ -1080,14 +1086,14 @@ id3v2_get_frame (const gchar *name)
 }
 
 static void
-get_id3v24_tags (const gchar *data,
-		 size_t       size,
- 		 id3tag      *info,
-		 const gchar *uri,
-		 TrackerSparqlBuilder  *metadata,
-		 file_data   *filedata)
+get_id3v24_tags (const gchar          *data,
+		 size_t                size,
+ 		 id3tag               *info,
+		 const gchar          *uri,
+		 TrackerSparqlBuilder *metadata,
+		 MP3Data              *filedata)
 {
-	id3v2tag *tag = &filedata->id3v24_info;
+	id3v2tag *tag = &filedata->id3v24;
 	guint pos = 0;
 
 	while (pos < size) {
@@ -1136,15 +1142,14 @@ get_id3v24_tags (const gchar *data,
 		}
 
 		switch (frame) {
-		case ID3V24_APIC:
-		{
+		case ID3V24_APIC: {
 			/* embedded image */
-			gchar        text_type;
+			gchar text_type;
 			const gchar *mime;
-			gchar        pic_type;
+			gchar pic_type;
 			const gchar *desc;
-			guint        offset;
-			gint         mime_len;
+			guint offset;
+			gint mime_len;
 
 			text_type =  data[pos + 0];
 			mime      = &data[pos + 1];
@@ -1152,25 +1157,25 @@ get_id3v24_tags (const gchar *data,
 			pic_type  =  data[pos + 1 + mime_len + 1];
 			desc      = &data[pos + 1 + mime_len + 1 + 1];
 
-			if (pic_type == 3 || (pic_type == 0 && filedata->albumartsize == 0)) {
+			if (pic_type == 3 || (pic_type == 0 && filedata->albumart_size == 0)) {
 				offset = pos + 1 + mime_len + 2 + strlen (desc) + 1;
 
-				filedata->albumartdata = g_malloc0 (csize);
-				filedata->albumartmime = g_strdup (mime);
-				memcpy (filedata->albumartdata, &data[offset], csize);
-				filedata->albumartsize = csize;
+				filedata->albumart_data = g_malloc0 (csize);
+				filedata->albumart_mime = g_strdup (mime);
+				memcpy (filedata->albumart_data, &data[offset], csize);
+				filedata->albumart_size = csize;
 			}
 			break;
 		}
-		case ID3V24_COMM:
-		{
-			gchar       *word;
-			gchar        text_encode;
+
+		case ID3V24_COMM: {
+			gchar *word;
+			gchar text_encode;
 			const gchar *text_language;
 			const gchar *text_desc;
 			const gchar *text;
-			guint        offset;
-			gint         text_desc_len;
+			guint offset;
+			gint text_desc_len;
 
 			text_encode   =  data[pos + 0]; /* $xx */
 			text_language = &data[pos + 1]; /* $xx xx xx */
@@ -1191,9 +1196,9 @@ get_id3v24_tags (const gchar *data,
 			}
 			break;
 		}
-		default:
-		{
-			gchar       *word;
+
+		default: {
+			gchar *word;
 
 			/* text frames */
 			word = id3v24_text_to_utf8 (data[pos], &data[pos + 1], csize - 1);
@@ -1205,8 +1210,7 @@ get_id3v24_tags (const gchar *data,
 			case ID3V24_TALB:
 				tag->album = word;
 				break;
-			case ID3V24_TCON:
-			{
+			case ID3V24_TCON: {
 				gint genre;
 
 				if (get_genre_number (word, &genre)) {
@@ -1255,8 +1259,7 @@ get_id3v24_tags (const gchar *data,
 			case ID3V24_TPUB:
 				tag->publisher = word;
 				break;
-			case ID3V24_TRCK:
-			{
+			case ID3V24_TRCK: {
 				gchar **parts;
 
 				parts = g_strsplit (word, "/", 2);
@@ -1286,15 +1289,15 @@ get_id3v24_tags (const gchar *data,
 }
 
 static void
-get_id3v23_tags (const gchar *data,
-		 size_t       size,
-		 id3tag      *info,
-		 const gchar *uri,
-		 TrackerSparqlBuilder  *metadata,
-		 file_data   *filedata)
+get_id3v23_tags (const gchar          *data,
+		 size_t                size,
+		 id3tag               *info,
+		 const gchar          *uri,
+		 TrackerSparqlBuilder *metadata,
+		 MP3Data              *filedata)
 {
-	id3v2tag *tag = &filedata->id3v23_info;
-	guint	pos = 0;
+	id3v2tag *tag = &filedata->id3v23;
+	guint pos = 0;
 
 	while (pos < size) {
 		id3v24frame frame;
@@ -1341,15 +1344,14 @@ get_id3v23_tags (const gchar *data,
 		}
 
 		switch (frame) {
-		case ID3V24_APIC:
-		{
+		case ID3V24_APIC: {
 			/* embedded image */
-			gchar        text_type;
+			gchar text_type;
 			const gchar *mime;
-			gchar        pic_type;
+			gchar pic_type;
 			const gchar *desc;
-			guint        offset;
-			gint         mime_len;
+			guint offset;
+			gint  mime_len;
 
 			text_type =  data[pos + 0];
 			mime      = &data[pos + 1];
@@ -1357,25 +1359,25 @@ get_id3v23_tags (const gchar *data,
 			pic_type  =  data[pos + 1 + mime_len + 1];
 			desc      = &data[pos + 1 + mime_len + 1 + 1];
 
-			if (pic_type == 3 || (pic_type == 0 && filedata->albumartsize == 0)) {
+			if (pic_type == 3 || (pic_type == 0 && filedata->albumart_size == 0)) {
 				offset = pos + 1 + mime_len + 2 + strlen (desc) + 1;
 
-				filedata->albumartdata = g_malloc0 (csize);
-				filedata->albumartmime = g_strdup (mime);
-				memcpy (filedata->albumartdata, &data[offset], csize);
-				filedata->albumartsize = csize;
+				filedata->albumart_data = g_malloc0 (csize);
+				filedata->albumart_mime = g_strdup (mime);
+				memcpy (filedata->albumart_data, &data[offset], csize);
+				filedata->albumart_size = csize;
 			}
 			break;
 		}
-		case ID3V24_COMM:
-		{
-			gchar       *word;
-			gchar        text_encode;
+
+		case ID3V24_COMM: {
+			gchar *word;
+			gchar text_encode;
 			const gchar *text_language;
 			const gchar *text_desc;
 			const gchar *text;
-			guint        offset;
-			gint         text_desc_len;
+			guint offset;
+			gint text_desc_len;
 
 			text_encode   =  data[pos + 0]; /* $xx */
 			text_language = &data[pos + 1]; /* $xx xx xx */
@@ -1397,9 +1399,9 @@ get_id3v23_tags (const gchar *data,
 
 			break;
 		}
-		default:
-		{
-			gchar       *word;
+
+		default: {
+			gchar *word;
 
 			/* text frames */
 			word = id3v2_text_to_utf8 (data[pos], &data[pos + 1], csize - 1);
@@ -1411,8 +1413,7 @@ get_id3v23_tags (const gchar *data,
 			case ID3V24_TALB:
 				tag->album = word;
 				break;
-			case ID3V24_TCON:
-			{
+			case ID3V24_TCON: {
 				gint genre;
 
 				if (get_genre_number (word, &genre)) {
@@ -1454,8 +1455,7 @@ get_id3v23_tags (const gchar *data,
 			case ID3V24_TPUB:
 				tag->publisher = word;
 				break;
-			case ID3V24_TRCK:
-			{
+			case ID3V24_TRCK: {
 				gchar **parts;
 
 				parts = g_strsplit (word, "/", 2);
@@ -1485,15 +1485,15 @@ get_id3v23_tags (const gchar *data,
 }
 
 static void
-get_id3v20_tags (const gchar *data,
-		size_t	     size,
-		id3tag      *info,
-		const gchar *uri,
-		TrackerSparqlBuilder  *metadata,
-		 file_data   *filedata)
+get_id3v20_tags (const gchar          *data,
+		 size_t	               size,
+		 id3tag               *info,
+		 const gchar          *uri,
+		 TrackerSparqlBuilder *metadata,
+		 MP3Data              *filedata)
 {
-	id3v2tag *tag = &filedata->id3v22_info;
-	guint	pos = 0;
+	id3v2tag *tag = &filedata->id3v22;
+	guint pos = 0;
 
 	while (pos < size) {
 		id3v2frame frame;
@@ -1534,13 +1534,13 @@ get_id3v20_tags (const gchar *data,
 			pic_type  =  data[pos + 3 + 1 + 3];
 			desc      = &data[pos + 3 + 1 + 3 + 1];
 
-			if (pic_type == 3 || (pic_type == 0 && filedata->albumartsize == 0)) {
+			if (pic_type == 3 || (pic_type == 0 && filedata->albumart_size == 0)) {
 				offset = pos + 3 + 1 + 3 + 1 + strlen (desc) + 1;
 
-				filedata->albumartmime = g_strdup (mime);
-				filedata->albumartdata = g_malloc0 (csize);
-				memcpy (filedata->albumartdata, &data[offset], csize);
-				filedata->albumartsize = csize;
+				filedata->albumart_mime = g_strdup (mime);
+				filedata->albumart_data = g_malloc0 (csize);
+				memcpy (filedata->albumart_data, &data[offset], csize);
+				filedata->albumart_size = csize;
 			}
 		} else {
 			/* text frames */
@@ -1558,8 +1558,7 @@ get_id3v20_tags (const gchar *data,
 			case ID3V2_TAL:
 				tag->album = word;
 				break;
-			case ID3V2_TCO:
-			{
+			case ID3V2_TCO: {
 				gint genre;
 
 				if (get_genre_number (word, &genre)) {
@@ -1620,22 +1619,22 @@ get_id3v20_tags (const gchar *data,
 }
 
 static void
-parse_id3v24 (const gchar *data,
-	      size_t       size,
-	      id3tag      *info,
-	      const gchar *uri,
+parse_id3v24 (const gchar           *data,
+	      size_t                 size,
+	      id3tag                *info,
+	      const gchar           *uri,
 	      TrackerSparqlBuilder  *metadata,
-	      file_data   *filedata,
-	      size_t      *offset_delta)
+	      MP3Data               *filedata,
+	      size_t                *offset_delta)
 {
-	gint	unsync;
-	gint	extendedHdr;
-	gint	experimental;
-	gint	footer;
-	guint	tsize;
-	guint	pos;
-	guint	ehdrSize;
-	guint	padding;
+	gint unsync;
+	gint ext_header;
+	gint experimental;
+	gint footer;
+	guint tsize;
+	guint pos;
+	guint ext_header_size;
+	guint padding;
 
 	if ((size < 16) ||
 	    (data[0] != 0x49) ||
@@ -1647,7 +1646,7 @@ parse_id3v24 (const gchar *data,
 	}
 
 	unsync = (data[5] & 0x80) > 0;
-	extendedHdr = (data[5] & 0x40) > 0;
+	ext_header = (data[5] & 0x40) > 0;
 	experimental = (data[5] & 0x20) > 0;
 	footer = (data[5] & 0x10) > 0;
 	tsize = (((data[6] & 0x7F) << 21) |
@@ -1662,12 +1661,12 @@ parse_id3v24 (const gchar *data,
 	pos = 10;
 	padding = 0;
 
-	if (extendedHdr) {
-		ehdrSize = (((data[10] & 0x7F) << 21) |
-			    ((data[11] & 0x7F) << 14) |
-			    ((data[12] & 0x7F) << 7) |
-			    ((data[13] & 0x7F) << 0));
-		pos += ehdrSize;
+	if (ext_header) {
+		ext_header_size = (((data[10] & 0x7F) << 21) |
+				   ((data[11] & 0x7F) << 14) |
+				   ((data[12] & 0x7F) << 7) |
+				   ((data[13] & 0x7F) << 0));
+		pos += ext_header_size;
 
 		if (pos + tsize > size) {
 			/* invalid size: extended header longer than tag */
@@ -1676,10 +1675,10 @@ parse_id3v24 (const gchar *data,
 	}
 
 	if (unsync) {
-		size_t  unsync_size;
-		gchar  *body;
+		size_t unsync_size;
+		gchar *body;
 
-		un_unsync (&data[pos], tsize, (unsigned char **)&body, &unsync_size);
+		un_unsync (&data[pos], tsize, (unsigned char **) &body, &unsync_size);
 		get_id3v24_tags (body, unsync_size, info, uri, metadata, filedata);
 		g_free (body);
 	} else {
@@ -1690,21 +1689,21 @@ parse_id3v24 (const gchar *data,
 }
 
 static void
-parse_id3v23 (const gchar *data,
-	      size_t       size,
-	      id3tag      *info,
-	      const gchar *uri,
-	      TrackerSparqlBuilder  *metadata,
-	      file_data   *filedata,
-	      size_t      *offset_delta)
+parse_id3v23 (const gchar          *data,
+	      size_t                size,
+	      id3tag               *info,
+	      const gchar          *uri,
+	      TrackerSparqlBuilder *metadata,
+	      MP3Data              *filedata,
+	      size_t               *offset_delta)
 {
-	gint	unsync;
-	gint	extendedHdr;
-	gint	experimental;
-	guint	tsize;
-	guint	pos;
-	guint	ehdrSize;
-	guint	padding;
+	gint unsync;
+	gint ext_header;
+	gint experimental;
+	guint tsize;
+	guint pos;
+	guint ext_header_size;
+	guint padding;
 
 	if ((size < 16) ||
 	    (data[0] != 0x49) ||
@@ -1716,7 +1715,7 @@ parse_id3v23 (const gchar *data,
 	}
 
 	unsync = (data[5] & 0x80) > 0;
-	extendedHdr = (data[5] & 0x40) > 0;
+	ext_header = (data[5] & 0x40) > 0;
 	experimental = (data[5] & 0x20) > 0;
 	tsize = (((data[6] & 0x7F) << 21) |
 		 ((data[7] & 0x7F) << 14) |
@@ -1730,18 +1729,18 @@ parse_id3v23 (const gchar *data,
 	pos = 10;
 	padding = 0;
 
-	if (extendedHdr) {
-		ehdrSize = (((unsigned char)(data[10]) << 24) |
-			    ((unsigned char)(data[11]) << 16) |
-			    ((unsigned char)(data[12]) << 8) |
-			    ((unsigned char)(data[12]) << 0));
+	if (ext_header) {
+		ext_header_size = (((unsigned char)(data[10]) << 24) |
+				   ((unsigned char)(data[11]) << 16) |
+				   ((unsigned char)(data[12]) << 8) |
+				   ((unsigned char)(data[12]) << 0));
 
 		padding	= (((unsigned char)(data[15]) << 24) |
 			   ((unsigned char)(data[16]) << 16) |
 			   ((unsigned char)(data[17]) << 8) |
 			   ((unsigned char)(data[18]) << 0));
 
-		pos += 4 + ehdrSize;
+		pos += 4 + ext_header_size;
 
 		if (padding < tsize)
 			tsize -= padding;
@@ -1756,10 +1755,10 @@ parse_id3v23 (const gchar *data,
 	}
 
 	if (unsync) {
-		size_t  unsync_size;
-		gchar  *body;
+		size_t unsync_size;
+		gchar *body;
 
-		un_unsync (&data[pos], tsize, (unsigned char **)&body, &unsync_size);
+		un_unsync (&data[pos], tsize, (unsigned char **) &body, &unsync_size);
 		get_id3v23_tags (body, unsync_size, info, uri, metadata, filedata);
 		g_free (body);
 	} else {
@@ -1770,17 +1769,17 @@ parse_id3v23 (const gchar *data,
 }
 
 static void
-parse_id3v20 (const gchar *data,
-	      size_t	      size,
-	      id3tag      *info,
-	      const gchar *uri,
-	      TrackerSparqlBuilder  *metadata,
-	      file_data   *filedata,
-	      size_t      *offset_delta)
+parse_id3v20 (const gchar          *data,
+	      size_t                size,
+	      id3tag               *info,
+	      const gchar          *uri,
+	      TrackerSparqlBuilder *metadata,
+	      MP3Data              *filedata,
+	      size_t               *offset_delta)
 {
-	gint	unsync;
-	guint	tsize;
-	guint	pos;
+	gint unsync;
+	guint tsize;
+	guint pos;
 
 	if ((size < 16) ||
 	    (data[0] != 0x49) ||
@@ -1806,7 +1805,7 @@ parse_id3v20 (const gchar *data,
 		size_t  unsync_size;
 		gchar  *body;
 
-		un_unsync (&data[pos], tsize, (unsigned char **)&body, &unsync_size);
+		un_unsync (&data[pos], tsize, (unsigned char **) &body, &unsync_size);
 		get_id3v20_tags (body, unsync_size, info, uri, metadata, filedata);
 		g_free (body);
 	} else {
@@ -1817,21 +1816,21 @@ parse_id3v20 (const gchar *data,
 }
 
 static goffset
-parse_id3v2 (const gchar *data,
-	     size_t	     size,
-	     id3tag      *info,
-	     const gchar *uri,
-	     TrackerSparqlBuilder  *metadata,
-	     file_data   *filedata)
+parse_id3v2 (const gchar          *data,
+	     size_t	           size,
+	     id3tag               *info,
+	     const gchar          *uri,
+	     TrackerSparqlBuilder *metadata,
+	     MP3Data              *filedata)
 {
 	gboolean done = FALSE;
-	size_t   offset = 0;
+	size_t offset = 0;
 
 	do {
 		size_t offset_delta = 0;
-		parse_id3v24 (data+offset, size-offset, info, uri, metadata, filedata, &offset_delta);
-		parse_id3v23 (data+offset, size-offset, info, uri, metadata, filedata, &offset_delta);
-		parse_id3v20 (data+offset, size-offset, info, uri, metadata, filedata, &offset_delta);
+		parse_id3v24 (data + offset, size - offset, info, uri, metadata, filedata, &offset_delta);
+		parse_id3v23 (data + offset, size - offset, info, uri, metadata, filedata, &offset_delta);
+		parse_id3v20 (data + offset, size - offset, info, uri, metadata, filedata, &offset_delta);
 
 		if (offset_delta == 0) {
 			done = TRUE;
@@ -1846,8 +1845,8 @@ parse_id3v2 (const gchar *data,
 }
 
 static void
-extract_mp3 (const gchar *uri,
-	     TrackerSparqlBuilder  *metadata)
+extract_mp3 (const gchar          *uri,
+	     TrackerSparqlBuilder *metadata)
 {
 	gchar *filename;
 	int fd;
@@ -1856,9 +1855,9 @@ extract_mp3 (const gchar *uri,
 	goffset size;
 	goffset  buffer_size;
 	goffset audio_offset;
-	file_data filedata;
+	MP3Data md;
 
-	memset (&filedata, 0, sizeof (file_data));
+	memset (&md, 0, sizeof (MP3Data));
 
 	filename = g_filename_from_uri (uri, NULL, NULL);
 
@@ -1869,7 +1868,7 @@ extract_mp3 (const gchar *uri,
 		return;
 	}
 
-	filedata.size = size;
+	md.size = size;
 	buffer_size = MIN (size, MAX_FILE_READ);
 
 #if defined(__linux__)
@@ -1911,187 +1910,167 @@ extract_mp3 (const gchar *uri,
 		return;
 	}
 
-	if (!get_id3 (id3v1_buffer, ID3V1_SIZE, &filedata.id3v1_info)) {
+	if (!get_id3 (id3v1_buffer, ID3V1_SIZE, &md.id3v1)) {
 		/* Do nothing? */
 	}
 	
 	g_free (id3v1_buffer);
 
 	/* Get other embedded tags */
-	audio_offset = parse_id3v2 (buffer, buffer_size, &filedata.id3v1_info, uri, metadata, &filedata);
+	audio_offset = parse_id3v2 (buffer, buffer_size, &md.id3v1, uri, metadata, &md);
 
-	filedata.title = tracker_coalesce (4, filedata.id3v24_info.title2,
-	                                   filedata.id3v23_info.title2,
-	                                   filedata.id3v22_info.title2,
-	                                   filedata.id3v1_info.title);
-	if (!filedata.title) {
+	md.title = tracker_coalesce (4, md.id3v24.title2, md.id3v23.title2, md.id3v22.title2, md.id3v1.title);
+	if (!md.title) {
 		gchar *p;
 		
 		/* use filename */
-		filedata.title = g_filename_display_basename (filename);
+		md.title = g_filename_display_basename (filename);
 
-		p = strrchr (filedata.title, '.');
+		p = strrchr (md.title, '.');
 		if (p) {
 			*p = '\0';
 		}
 	}
 
-	filedata.performer = tracker_coalesce (7, filedata.id3v24_info.performer1,
-	                                       filedata.id3v24_info.performer2,
-	                                       filedata.id3v23_info.performer1,
-	                                       filedata.id3v23_info.performer2,
-	                                       filedata.id3v22_info.performer1,
-	                                       filedata.id3v22_info.performer2,
-	                                       filedata.id3v1_info.artist);
-	filedata.album = tracker_coalesce (4, filedata.id3v24_info.album,
-	                                   filedata.id3v23_info.album,
-	                                   filedata.id3v22_info.album,
-	                                   filedata.id3v1_info.album);
-	filedata.genre = tracker_coalesce (7, filedata.id3v24_info.content_type,
-	                                   filedata.id3v24_info.title1,
-	                                   filedata.id3v23_info.content_type,
-	                                   filedata.id3v23_info.title1,
-	                                   filedata.id3v22_info.content_type,
-	                                   filedata.id3v22_info.title1,
-	                                   filedata.id3v1_info.genre);
-	filedata.recording_time = tracker_coalesce (7, filedata.id3v24_info.recording_time,
-	                                            filedata.id3v24_info.release_time,
-	                                            filedata.id3v23_info.recording_time,
-	                                            filedata.id3v23_info.release_time,
-	                                            filedata.id3v22_info.recording_time,
-	                                            filedata.id3v22_info.release_time,
-	                                            filedata.id3v1_info.recording_time);
-	filedata.publisher = tracker_coalesce (3, filedata.id3v24_info.publisher,
-	                                       filedata.id3v23_info.publisher,
-	                                       filedata.id3v22_info.publisher);
-	filedata.text = tracker_coalesce (3, filedata.id3v24_info.text,
-	                                  filedata.id3v23_info.text,
-	                                  filedata.id3v22_info.text);
-	filedata.copyright = tracker_coalesce (3, filedata.id3v24_info.copyright,
-	                                       filedata.id3v23_info.copyright,
-	                                       filedata.id3v22_info.copyright);
-	filedata.comment = tracker_coalesce (7, filedata.id3v24_info.title3,
-	                                     filedata.id3v24_info.comment,
-	                                     filedata.id3v23_info.title3,
-	                                     filedata.id3v23_info.comment,
-	                                     filedata.id3v22_info.title3,
-	                                     filedata.id3v22_info.comment,
-	                                     filedata.id3v1_info.comment);
+	md.performer = tracker_coalesce (7, 
+					 md.id3v24.performer1, md.id3v24.performer2,
+					 md.id3v23.performer1, md.id3v23.performer2,
+					 md.id3v22.performer1, md.id3v22.performer2,
+					 md.id3v1.artist);
+	md.album = tracker_coalesce (4, md.id3v24.album, md.id3v23.album, md.id3v22.album, md.id3v1.album);
+	md.genre = tracker_coalesce (7, 
+				     md.id3v24.content_type, md.id3v24.title1, 
+				     md.id3v23.content_type, md.id3v23.title1,
+				     md.id3v22.content_type, md.id3v22.title1,
+				     md.id3v1.genre);
+	md.recording_time = tracker_coalesce (7, 
+					      md.id3v24.recording_time, md.id3v24.release_time,
+					      md.id3v23.recording_time, md.id3v23.release_time,
+					      md.id3v22.recording_time, md.id3v22.release_time,
+					      md.id3v1.recording_time);
+	md.publisher = tracker_coalesce (3, md.id3v24.publisher, md.id3v23.publisher, md.id3v22.publisher);
+	md.text = tracker_coalesce (3, md.id3v24.text, md.id3v23.text, md.id3v22.text);
+	md.copyright = tracker_coalesce (3, md.id3v24.copyright, md.id3v23.copyright, md.id3v22.copyright);
+	md.comment = tracker_coalesce (7, 
+				       md.id3v24.title3, md.id3v24.comment,
+				       md.id3v23.title3, md.id3v23.comment,
+				       md.id3v22.title3, md.id3v22.comment,
+				       md.id3v1.comment);
 
-	if (filedata.id3v24_info.track_number != 0) {
-		filedata.track_number = filedata.id3v24_info.track_number;
-	} else if (filedata.id3v23_info.track_number != 0) {
-		filedata.track_number = filedata.id3v23_info.track_number;
-	} else if (filedata.id3v22_info.track_number != 0) {
-		filedata.track_number = filedata.id3v22_info.track_number;
-	} else if (filedata.id3v1_info.track_number != 0) {
-		filedata.track_number = filedata.id3v1_info.track_number;
+	if (md.id3v24.track_number != 0) {
+		md.track_number = md.id3v24.track_number;
+	} else if (md.id3v23.track_number != 0) {
+		md.track_number = md.id3v23.track_number;
+	} else if (md.id3v22.track_number != 0) {
+		md.track_number = md.id3v22.track_number;
+	} else if (md.id3v1.track_number != 0) {
+		md.track_number = md.id3v1.track_number;
 	}
 
-	if (!tracker_is_blank_string (filedata.performer)) {
-		filedata.performer_uri = tracker_uri_printf_escaped ("urn:artist:%s", filedata.performer);
-		tracker_sparql_builder_subject_iri (metadata, filedata.performer_uri);
+	if (md.performer) {
+		md.performer_uri = tracker_uri_printf_escaped ("urn:artist:%s", md.performer);
+		tracker_sparql_builder_subject_iri (metadata, md.performer_uri);
 		tracker_sparql_builder_predicate (metadata, "a");
 		tracker_sparql_builder_object (metadata, "nmm:Artist");
 		tracker_sparql_builder_predicate (metadata, "nmm:artistName");
-		tracker_sparql_builder_object_unvalidated (metadata, filedata.performer);
+		tracker_sparql_builder_object_unvalidated (metadata, md.performer);
+		g_free (md.performer);
 	}
-	g_free (filedata.performer);
 
-	if (!tracker_is_blank_string (filedata.album)) {
-		filedata.album_uri = tracker_uri_printf_escaped ("urn:album:%s", filedata.album);
-		tracker_sparql_builder_subject_iri (metadata, filedata.album_uri);
+	if (md.album) {
+		md.album_uri = tracker_uri_printf_escaped ("urn:album:%s", md.album);
+		tracker_sparql_builder_subject_iri (metadata, md.album_uri);
 		tracker_sparql_builder_predicate (metadata, "a");
 		tracker_sparql_builder_object (metadata, "nmm:MusicAlbum");
 		tracker_sparql_builder_predicate (metadata, "nmm:albumTitle");
-		tracker_sparql_builder_object_unvalidated (metadata, filedata.album);
+		tracker_sparql_builder_object_unvalidated (metadata, md.album);
+		g_free (md.album);
 	}
-	g_free (filedata.album);
 
 	tracker_sparql_builder_subject_iri (metadata, uri);
 	tracker_sparql_builder_predicate (metadata, "a");
 	tracker_sparql_builder_object (metadata, "nmm:MusicPiece");
 	tracker_sparql_builder_object (metadata, "nfo:Audio");
 
-	if (!tracker_is_blank_string (filedata.title)) {
+	if (md.title) {
 		tracker_sparql_builder_predicate (metadata, "nie:title");
-		tracker_sparql_builder_object_unvalidated (metadata, filedata.title);
+		tracker_sparql_builder_object_unvalidated (metadata, md.title);
 		/* do not delete title, needed by albumart */
 	}
 
-	if (filedata.performer_uri) {
+	if (md.performer_uri) {
 		tracker_sparql_builder_predicate (metadata, "nmm:performer");
-		tracker_sparql_builder_object_iri (metadata, filedata.performer_uri);
-		g_free (filedata.performer_uri);
+		tracker_sparql_builder_object_iri (metadata, md.performer_uri);
+		g_free (md.performer_uri);
 	}
 
-	if (filedata.album_uri) {
+	if (md.album_uri) {
 		tracker_sparql_builder_predicate (metadata, "nmm:musicAlbum");
-		tracker_sparql_builder_object_iri (metadata, filedata.album_uri);
-		g_free (filedata.album_uri);
+		tracker_sparql_builder_object_iri (metadata, md.album_uri);
+		g_free (md.album_uri);
 	}
 
-	if (!tracker_is_blank_string (filedata.recording_time)) {
+	if (md.recording_time) {
 		tracker_sparql_builder_predicate (metadata, "nie:contentCreated");
-		tracker_sparql_builder_object_unvalidated (metadata, filedata.recording_time);
+		tracker_sparql_builder_object_unvalidated (metadata, md.recording_time);
+		g_free (md.recording_time);
 	}
-	g_free (filedata.recording_time);
 
-	if (!tracker_is_blank_string (filedata.text)) {
+	if (md.text) {
 		tracker_sparql_builder_predicate (metadata, "nie:plainTextContent");
-		tracker_sparql_builder_object_unvalidated (metadata, filedata.text);
+		tracker_sparql_builder_object_unvalidated (metadata, md.text);
+		g_free (md.text);
 	}
-	g_free (filedata.text);
 
-	if (!tracker_is_blank_string (filedata.genre)) {
+	if (md.genre) {
 		tracker_sparql_builder_predicate (metadata, "nfo:genre");
-		tracker_sparql_builder_object_unvalidated (metadata, filedata.genre);
+		tracker_sparql_builder_object_unvalidated (metadata, md.genre);
+		g_free (md.genre);
 	}
-	g_free (filedata.genre);
 
-	if (!tracker_is_blank_string (filedata.copyright)) {
+	if (md.copyright) {
 		tracker_sparql_builder_predicate (metadata, "nie:copyright");
-		tracker_sparql_builder_object_unvalidated (metadata, filedata.copyright);
+		tracker_sparql_builder_object_unvalidated (metadata, md.copyright);
+		g_free (md.copyright);
 	}
-	g_free (filedata.copyright);
 
-	if (!tracker_is_blank_string (filedata.comment)) {
+	if (md.comment) {
 		tracker_sparql_builder_predicate (metadata, "nie:comment");
-		tracker_sparql_builder_object_unvalidated (metadata, filedata.comment);
+		tracker_sparql_builder_object_unvalidated (metadata, md.comment);
+		g_free (md.comment);
 	}
-	g_free (filedata.comment);
 
-	if (!tracker_is_blank_string (filedata.publisher)) {
+	if (md.publisher) {
 		tracker_sparql_builder_predicate (metadata, "nco:publisher");
 		tracker_sparql_builder_object_blank_open (metadata);
 		tracker_sparql_builder_predicate (metadata, "a");
 		tracker_sparql_builder_object (metadata, "nco:Contact");
 		tracker_sparql_builder_predicate (metadata, "nco:fullname");
-		tracker_sparql_builder_object_unvalidated (metadata, filedata.publisher);
+		tracker_sparql_builder_object_unvalidated (metadata, md.publisher);
 		tracker_sparql_builder_object_blank_close (metadata);
+		g_free (md.publisher);
 	}
-	g_free (filedata.publisher);
 
-	if (filedata.track_number > 0) {
+	if (md.track_number > 0) {
 		tracker_sparql_builder_predicate (metadata, "nmm:trackNumber");
-		tracker_sparql_builder_object_int64 (metadata, filedata.track_number);
+		tracker_sparql_builder_object_int64 (metadata, md.track_number);
 	}
 
 	/* Get mp3 stream info */
-	mp3_parse (buffer, buffer_size, audio_offset, uri, metadata, &filedata);
+	mp3_parse (buffer, buffer_size, audio_offset, uri, metadata, &md);
 
-	tracker_albumart_process (filedata.albumartdata, 
-				  filedata.albumartsize, 
-				  filedata.albumartmime,
+	tracker_albumart_process (md.albumart_data, 
+				  md.albumart_size, 
+				  md.albumart_mime,
 				  NULL,
-				  filedata.title, 
+				  md.title, 
 				  filename);
 
-	g_free (filedata.title);
-	g_free (filedata.albumartdata);
-	g_free (filedata.albumartmime);
+	g_free (md.title);
+	g_free (md.albumart_data);
+	g_free (md.albumart_mime);
 
-	g_free (filedata.id3v1_info.encoding);
+	g_free (md.id3v1.encoding);
 
 #ifndef G_OS_WIN32
 	munmap (buffer, buffer_size);
