@@ -1544,7 +1544,7 @@ get_id3v20_tags (const gchar *data,
 			}
 		} else {
 			/* text frames */
-			gchar * word;
+			gchar *word;
 
 			word = id3v2_text_to_utf8 (data[pos], &data[pos + 1], csize - 1);
 			if (!tracker_is_empty_string (word)) {
@@ -1553,10 +1553,9 @@ get_id3v20_tags (const gchar *data,
 
 			switch (frame) {
 			case ID3V2_COM:
-			{
 				tag->comment = g_strdup (word + strlen (word) + 1);
 				g_free (word);
-			}
+				break;
 			case ID3V2_TAL:
 				tag->album = word;
 				break;
