@@ -1553,8 +1553,7 @@ get_id3v20_tags (const gchar *data,
 
 			switch (frame) {
 			case ID3V2_COM:
-				tag->comment = g_strdup (word + strlen (word) + 1);
-				g_free (word);
+				tag->comment = word;
 				break;
 			case ID3V2_TAL:
 				tag->album = word;
