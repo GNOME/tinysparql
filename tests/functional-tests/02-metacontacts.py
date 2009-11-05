@@ -102,6 +102,65 @@ class TestMetacontacts (unittest.TestCase):
         """ 
         self.resources.SparqlUpdate (delete)
         
+    def test_metacontact_merge (self):
+        """
+        1. Insert Person  (metacontact A)
+        2. Insert IM Contact (no metacontact)
+        3. Merge IM Contact into PersonContact (sharing metacontact A)
+        4. Remove 
+        3. Remove the instances added
+        """
+        
+        initial_data = """
+        INSERT {
+        <telephaty:///o/f/t/accounts/ivan_frade_gmail_com> a nco:IMAccount .
+        
+        nco:default-contact-me nco:hasIMAccount <telephaty:///o/f/t/accounts/ivan_frade_gmail_com>.
+
+        <urn:uuid:metacontact-ivan> a nco:MetaContact.
+
+        <contact://test_metacontacts/person1> a nco:PersonContact ;
+                         nco:metacontact <urn:uuid:metacontact-ivan> ;
+                         nco:fullname 'Ivan in local addressbook'.
+                         
+        <contact://test_metacontacts/im1> a nco:IMContact ;
+                         nco:fromIMAccount <telephaty:///o/f/t/accounts/ivan_frade_gmail_com> ;
+                         nco:fullname 'Ivan at gmail'.
+                         }
+        """
+        self.resources.SparqlUpdate (initial_data)
+
+        query = """
+        SELECT ?c WHERE {
+           ?c nco:metacontact <urn:uuid:metacontact-ivan> .
+        }
+        """ 
+        results = self.resources.SparqlQuery (query)
+        self.assertEquals (len(results), 1)
+        
+        merge = """
+        INSERT {
+        <contact://test_metacontacts/im1> nco:metacontact <urn:uuid:metacontact-ivan> .
+        }
+        """ 
+        self.resources.SparqlUpdate (merge)
+
+        results = self.resources.SparqlQuery (query)
+        self.assertEquals (len(results), 2)
+
+        delete = """
+        DELETE { 
+        <telephaty:///o/f/t/accounts/ivan_frade_gmail_com> a rdfs:Resource .
+        
+        nco:default-contact-me nco:hasIMAccount <telephaty:///o/f/t/accounts/ivan_frade_gmail_com>.
+
+        <urn:uuid:metacontact-ivan> a rdfs:Resource.
+
+        <contact://test_metacontacts/person1> a rdfs:Resource.
+        <contact://test_metacontacts/im1> a rdfs:Resource .
+        }
+        """ 
+        self.resources.SparqlUpdate (delete)
 
 if __name__ == '__main__':
     unittest.main()
