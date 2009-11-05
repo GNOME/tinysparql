@@ -51,7 +51,6 @@ dc:publisher a rdf:Property ;
 dc:contributor a rdf:Property ;
 	rdfs:label "Contributor" ;
 	rdfs:comment "An entity responsible for making contributions to the resource." ;
-	nrl:maxCardinality 1 ;
 	rdfs:domain rdfs:Resource ;
 	rdfs:range xsd:string ;
 	tracker:weight 4 .
