@@ -207,7 +207,6 @@ nco:contributor a rdf:Property ;
 	rdfs:label "contributor" ;
 	rdfs:comment "An entity responsible for making contributions to the content of the InformationElement." ;
 	rdfs:subPropertyOf dc:contributor ;
-	nrl:maxCardinality 1 ;
 	rdfs:domain nie:InformationElement ;
 	rdfs:range nco:Contact .
 
@@ -215,7 +214,6 @@ nco:creator a rdf:Property ;
 	rdfs:label "creator" ;
 	rdfs:comment "Creator of a data object, an entity primarily responsible for the creation of the content of the data object.]" ;
 	rdfs:subPropertyOf dc:creator , nco:contributor ;
-	nrl:maxCardinality 1 ;
 	rdfs:domain nie:InformationElement ;
 	rdfs:range nco:Contact ;
 	tracker:weight 4 .
