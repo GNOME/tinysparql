@@ -50,7 +50,7 @@ nco:EmailAddress a rdfs:Class ;
 
 nco:IMAccount a rdfs:Class ;
 	rdfs:label "IMAccount" ;
-	rdfs:comment "An account in an Instant Messaging system." ;
+	rdfs:comment "An account in an Instant Messaging system. Only user 'me' can have IM Accounts (check hasIMAccount). All other contacts in the address book can come from one (check nco:fromIMAccount)." ;
 	tracker:notify true ;
 	rdfs:subClassOf nco:ContactMedium .
 
@@ -64,6 +64,18 @@ nco:PersonContact a rdfs:Class ;
 	rdfs:comment "A Contact that denotes a Person. A person can have multiple Affiliations." ;
 	tracker:notify true ;
 	rdfs:subClassOf nco:Contact .
+
+nco:default-contact-me a nco:PersonContact.
+
+nco:IMContact a rdfs:Class ;
+	rdfs:label "IM Contact" ;
+	rdfs:comment "Contact coming from an IM Account" ;
+	rdfs:subClassOf nco:PersonContact .
+
+nco:MetaContact a rdfs:Class ;
+        rdfs:label "MetaContact" ;
+	rdfs:comment "A metacontact groups PersonContacts and IMContacts coming from different sources, indicating that are the same entity in the real world." ;
+	rdfs:subClassOf rdfs:Resource.
 
 nco:PhoneNumber a rdfs:Class ;
 	rdfs:label "PhoneNumber" ;
@@ -90,11 +102,13 @@ nco:PagerNumber a rdfs:Class ;
 	rdfs:comment "A pager phone number. Inspired by the (TYPE=pager) parameter of the TEL property as defined in RFC 2426 sec  3.3.1." ;
 	rdfs:subClassOf nco:MessagingNumber .
 
-# FIXME Add instances for male/female (i18n?)
 nco:Gender a rdfs:Class ;
 	rdfs:label "Gender" ;
 	rdfs:comment "Gender. Instances of this class may include male and female." ;
 	rdfs:subClassOf rdfs:Resource .
+
+nco:gender-male a nco:Gender .
+nco:gender-female a nco:Gender .
 
 nco:VoicePhoneNumber a rdfs:Class ;
 	rdfs:label "VoicePhoneNumber" ;
@@ -116,10 +130,11 @@ nco:ParcelDeliveryAddress a rdfs:Class ;
 	rdfs:comment "Parcel Delivery Addresse. Class inspired by TYPE=parcel parameter of the ADR property defined in RFC 2426 sec. 3.2.1" ;
 	rdfs:subClassOf nco:PostalAddress .
 
-nco:AudioIMAccount a rdfs:Class ;
-	rdfs:label "AudioIMAccount" ;
-	rdfs:comment "An account in an InstantMessaging system capable of real-time audio conversations." ;
-	rdfs:subClassOf nco:IMAccount .
+# Useless class.
+#nco:AudioIMAccount a rdfs:Class ;
+#	rdfs:label "AudioIMAccount" ;
+#	rdfs:comment "An account in an InstantMessaging system capable of real-time audio conversations." ;
+#	rdfs:subClassOf nco:IMAccount .
 
 nco:FaxNumber a rdfs:Class ;
 	rdfs:label "FaxNumber" ;
@@ -146,10 +161,10 @@ nco:InternationalDeliveryAddress a rdfs:Class ;
 	rdfs:comment "International Delivery Addresse. Class inspired by TYPE=intl parameter of the ADR property defined in RFC 2426 sec. 3.2.1" ;
 	rdfs:subClassOf nco:PostalAddress .
 
-nco:VideoIMAccount a rdfs:Class ;
-	rdfs:label "VideoIMAccount" ;
-	rdfs:comment "An account in an instant messaging system capable of video conversations." ;
-	rdfs:subClassOf nco:AudioIMAccount .
+#nco:VideoIMAccount a rdfs:Class ;
+#	rdfs:label "VideoIMAccount" ;
+#	rdfs:comment "An account in an instant messaging system capable of video conversations." ;
+#	rdfs:subClassOf nco:AudioIMAccount .
 
 nco:BbsNumber a rdfs:Class ;
 	rdfs:label "BbsNumber" ;
@@ -180,6 +195,13 @@ nco:url a rdf:Property ;
 	rdfs:domain nco:Role ;
 	rdfs:range rdfs:Resource ;
 	tracker:weight 4 .
+
+nco:metacontact a rdf:Property ;
+        rdfs:label "metacontact" ;
+	rdfs:comment "Link a single contact with a metacontact" ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nco:PersonContact ;
+	rdfs:range nco:MetaContact .
 
 nco:contributor a rdf:Property ;
 	rdfs:label "contributor" ;
@@ -280,7 +302,14 @@ nco:hasIMAccount a rdf:Property ;
 	rdfs:label "hasIMAccount" ;
 	rdfs:comment "Indicates that an Instant Messaging account owned by an entity represented by this contact." ;
 	rdfs:subPropertyOf nco:hasContactMedium ;
-	rdfs:domain nco:Role ;
+	rdfs:domain nco:PersonContact ;
+	rdfs:range nco:IMAccount .
+
+nco:fromIMAccount a rdf:Property ;
+	rdfs:label "hasIMAccount" ;
+	rdfs:comment "Indicates that an Instant Messaging account owned by an entity represented by this contact." ;
+	rdfs:subPropertyOf nco:hasContactMedium ;
+	rdfs:domain nco:IMContact ;
 	rdfs:range nco:IMAccount .
 
 # FIXME Range geo:Point but we dont have that class
