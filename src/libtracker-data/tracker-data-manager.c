@@ -711,6 +711,9 @@ create_decomposed_metadata_tables (TrackerDBInterface *iface,
 				g_string_append_printf (sql, ", \"%s\" %s", 
 							tracker_property_get_name (*property), 
 							sql_type_for_single_value);
+				if (tracker_property_get_is_inverse_functional_property (*property)) {
+					g_string_append (sql, " UNIQUE");
+				}
 			}
 		}
 	}
