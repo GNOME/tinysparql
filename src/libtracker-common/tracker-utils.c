@@ -511,16 +511,14 @@ tracker_coalesce (gint n_values,
 
 	va_start (args, n_values);
 
-	for (i = 0; i < n_values; i++) {
+	for (i = 0; i < n_values && !result; i++) {
 		gchar *value;
 
 		value = va_arg (args, gchar *);
-		if (value) {
-			if (*value && !result) {
-				result = value;
-			} else {
-				g_free (value);
-			}
+		if (!tracker_is_blank_string (value)) {
+			result = g_strstrip (value);
+		} else {
+			g_free (value);
 		}
 	}
 
