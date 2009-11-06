@@ -29,7 +29,7 @@ Tracker Miner
 </para>
 
 @trackerminer: the object which received the signal.
-@arg1:
+@arg1: 
 
 <!-- ##### SIGNAL TrackerMiner::paused ##### -->
 <para>
@@ -44,8 +44,8 @@ Tracker Miner
 </para>
 
 @trackerminer: the object which received the signal.
-@arg1:
-@arg2:
+@arg1: 
+@arg2: 
 
 <!-- ##### SIGNAL TrackerMiner::resumed ##### -->
 <para>
@@ -95,14 +95,14 @@ Tracker Miner
 
 </para>
 
-@parent_class:
-@started:
-@stopped:
-@paused:
-@resumed:
-@terminated:
-@progress:
-@error:
+@parent_class: 
+@started: 
+@stopped: 
+@paused: 
+@resumed: 
+@terminated: 
+@progress: 
+@error: 
 
 <!-- ##### FUNCTION tracker_miner_error_quark ##### -->
 <para>
@@ -117,7 +117,7 @@ Tracker Miner
 
 </para>
 
-@miner:
+@miner: 
 
 
 <!-- ##### FUNCTION tracker_miner_stop ##### -->
@@ -125,7 +125,7 @@ Tracker Miner
 
 </para>
 
-@miner:
+@miner: 
 
 
 <!-- ##### FUNCTION tracker_miner_is_started ##### -->
@@ -133,8 +133,8 @@ Tracker Miner
 
 </para>
 
-@miner:
-@Returns:
+@miner: 
+@Returns: 
 
 
 <!-- ##### FUNCTION tracker_miner_execute_update ##### -->
@@ -142,11 +142,11 @@ Tracker Miner
 
 </para>
 
-@miner:
-@sparql:
-@cancellable:
-@callback:
-@user_data:
+@miner: 
+@sparql: 
+@cancellable: 
+@callback: 
+@user_data: 
 
 
 <!-- ##### FUNCTION tracker_miner_execute_sparql ##### -->
@@ -154,11 +154,11 @@ Tracker Miner
 
 </para>
 
-@miner:
-@sparql:
-@cancellable:
-@callback:
-@user_data:
+@miner: 
+@sparql: 
+@cancellable: 
+@callback: 
+@user_data: 
 
 
 <!-- ##### FUNCTION tracker_miner_execute_batch_update ##### -->
@@ -166,11 +166,11 @@ Tracker Miner
 
 </para>
 
-@miner:
-@sparql:
-@cancellable:
-@callback:
-@user_data:
+@miner: 
+@sparql: 
+@cancellable: 
+@callback: 
+@user_data: 
 
 
 <!-- ##### FUNCTION tracker_miner_commit ##### -->
@@ -178,10 +178,10 @@ Tracker Miner
 
 </para>
 
-@miner:
-@cancellable:
-@callback:
-@user_data:
+@miner: 
+@cancellable: 
+@callback: 
+@user_data: 
 
 
 <!-- ##### FUNCTION tracker_miner_pause ##### -->
@@ -189,10 +189,10 @@ Tracker Miner
 
 </para>
 
-@miner:
-@reason:
-@error:
-@Returns:
+@miner: 
+@reason: 
+@error: 
+@Returns: 
 
 
 <!-- ##### FUNCTION tracker_miner_resume ##### -->
@@ -200,9 +200,9 @@ Tracker Miner
 
 </para>
 
-@miner:
-@cookie:
-@error:
-@Returns:
+@miner: 
+@cookie: 
+@error: 
+@Returns: 
 
 
