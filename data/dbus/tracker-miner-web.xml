@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<node name="/">
+  <interface name="org.freedesktop.Tracker1.Miner.Web">
+    <method name="Authenticate">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
+      <doc:doc>
+        <doc:description>
+          <doc:para>
+            Tries to authenticate the miner against the remote web service.
+          </doc:para>
+        </doc:description>
+      </doc:doc>
+    </method>
+    <method name="GetAssociationData">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
+      <doc:doc>
+        <doc:description>
+          <doc:para>
+            Returns a hash containing the information necessary to know how to
+            associate the miner to its web service.
+          </doc:para>
+        </doc:description>
+      </doc:doc>
+      <arg name="result" type="a{ss}" direction="out">
+        <doc:doc>
+          <doc:summary>
+            <doc:para>
+              A hash containing the association information. Its keys depend on
+              the type of association.
+              For a token based association, the following keys are always
+              defined:
+              * url: A url where the user can follow the association procedure
+              For a token based association, the following keys might be
+              defined:
+              * post_message: A message to display after he returns from the
+                              association procedure
+              * post_url: A url to point the user to after he returns from the
+                          association procedure
+              If both post_message and post_url are defined, the message will
+              shown to the user before he is pointer to post_url.
+              For a user/pass based based association, the hash table should be
+              empty.
+            </doc:para>
+          </doc:summary>
+        </doc:doc>
+      </arg>
+    </method>
+    <method name="Associate">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
+      <doc:doc>
+        <doc:description>
+          <doc:para>
+            Associates the miner with its web service.
+          </doc:para>
+        </doc:description>
+      </doc:doc>
+      <arg name="data" type="a{ss}" direction="in">
+        <doc:doc>
+          <doc:summary>
+            <doc:para>
+              A hash containing the association information. Its keys depend on
+              the type of association.
+              For a token based association, the hash should be empty.
+              For a user/pass based based association, the following keys
+              should be defined:
+              * url: A url where the user can follow the association procedure
+              For a token based association, the following keys might be
+              defined:
+              * username: The username provided by the user
+              * password: The password provided by the user
+            </doc:para>
+          </doc:summary>
+        </doc:doc>
+      </arg>
+    </method>
+    <method name="Dissociate">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
+      <doc:doc>
+        <doc:description>
+          <doc:para>
+            Dissociates the miner from its web service.
+          </doc:para>
+        </doc:description>
+      </doc:doc>
+    </method>
+    <property name="AssociationStatus" type="u" access="read">
+      <doc:doc>
+        <doc:description>
+          <doc:para>
+            Holds the current association status of the miner. The possible values are
+            defined in tracker-miner-web.h.
+          </doc:para>
+        </doc:description>
+      </doc:doc>
+    </property>
+  </interface>
+</node>

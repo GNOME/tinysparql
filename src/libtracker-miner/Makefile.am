@@ -36,6 +36,8 @@ libtracker_miner_@TRACKER_API_VERSION@_la_SOURCES = 	\
 	tracker-miner-dbus.h				\
 	tracker-miner-fs.c				\
 	tracker-miner-fs.h				\
+	tracker-miner-web.c				\
+	tracker-miner-web.h				\
 	tracker-miner-manager.c				\
 	tracker-miner-manager.h				\
 	tracker-monitor.c				\
@@ -43,8 +45,9 @@ libtracker_miner_@TRACKER_API_VERSION@_la_SOURCES = 	\
 	tracker-storage.c				\
 	tracker-storage.h				\
 	tracker-utils.c					\
+	tracker-thumbnailer.c				\
 	tracker-utils.h					\
-	tracker-thumbnailer.c
+	tracker-password-provider.c
 
 libtracker_minerinclude_HEADERS = 			\
 	tracker-crawler.h				\
@@ -53,11 +56,13 @@ libtracker_minerinclude_HEADERS = 			\
 	tracker-miner-fs.h				\
 	tracker-miner-manager.h				\
 	tracker-storage.h				\
-	tracker-thumbnailer.h
+	tracker-thumbnailer.h				\
+	tracker-miner-web.h				\
+	tracker-password-provider.h
 
 libtracker_miner_@TRACKER_API_VERSION@_la_LDFLAGS = 	\
 	-version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE) \
-	-export-symbols-regex '^tracker_(miner|thumbnailer|crawler|storage)_.*'
+	-export-symbols-regex '^tracker_(miner|thumbnailer|crawler|storage|password_provider)_.*'
 
 libtracker_miner_@TRACKER_API_VERSION@_la_LIBADD = 	\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la \
@@ -73,6 +78,28 @@ libtracker_miner_@TRACKER_API_VERSION@_la_LIBADD = 	\
 	$(GLIB2_LIBS)					\
 	$(GDKPIXBUF_LIBS)
 
+if HAVE_GNOME_KEYRING
+libtracker_miner_@TRACKER_API_VERSION@_la_SOURCES += 	\
+	tracker-gnome-password-provider.c
+
+libtracker_miner_@TRACKER_API_VERSION@_la_LIBADD +=	\
+	$(GNOME_KEYRING_LIBS)
+
+INCLUDES +=						\
+	$(GNOME_KEYRING_CFLAGS)
+else
+libtracker_miner_@TRACKER_API_VERSION@_la_SOURCES += 	\
+	tracker-keyfile-password-provider.c
+endif
+
+vapidir=$(datadir)/vala/vapi
+vapi_DATA =                     \
+	tracker-miner-$(TRACKER_API_VERSION).vapi
+
+tracker-miner-web-$(TRACKER_API_VERSION).deps: tracker-miner-web.deps.in
+	$(SED) -e "s|@VERSION[@]|${TRACKER_API_VERSION}|" $< > $@
+
+
 tracker-marshal.h: tracker-marshal.list
 	$(AM_V_GEN)$(GLIB_GENMARSHAL) $< --prefix=tracker_marshal --header > $@
 
@@ -86,7 +113,19 @@ marshal_sources = 					\
 
 dbus_sources = 						\
 	tracker-miner-glue.h				\
+	tracker-miner-web-glue.h			\
 	tracker-miner-client.h
+
+# Custom rule to avoid API duplication. There is also a workaround for bug
+# in dbus-binding-tool where it generates bad code when two files are passed
+# on the command line (though the man page says it supports it)
+# This bug is reported at https://bugs.freedesktop.org/show_bug.cgi?id=25056
+tracker-miner-web-glue.h: $(top_srcdir)/data/dbus/tracker-miner-web.xml $(top_srcdir)/data/dbus/tracker-miner.xml
+	echo '<?xml version="1.0" encoding="UTF-8"?>'        > $(top_srcdir)/src/libtracker-miner/tracker-miner-web-full.xml
+	echo '<node name="/">'                              >> $(top_srcdir)/src/libtracker-miner/tracker-miner-web-full.xml
+	cat $^ | grep -v -e '<node' -e '<?xml' -e '</node>' >> $(top_srcdir)/src/libtracker-miner/tracker-miner-web-full.xml
+	echo '</node>'                                      >> $(top_srcdir)/src/libtracker-miner/tracker-miner-web-full.xml
+	$(AM_V_GEN)$(DBUSBINDINGTOOL) --mode=glib-server --output=$@ --prefix=tracker_miner_web_dbus $(top_srcdir)/src/libtracker-miner/tracker-miner-web-full.xml
 
 %-glue.h: $(top_srcdir)/data/dbus/%.xml
 	$(AM_V_GEN)$(DBUSBINDINGTOOL) --mode=glib-server --output=$@ --prefix=$(subst -,_,$*) $^
@@ -94,7 +133,7 @@ dbus_sources = 						\
 %-client.h: $(top_srcdir)/data/dbus/%.xml
 	$(AM_V_GEN)$(DBUSBINDINGTOOL) --mode=glib-client --output=$@ --prefix=$(subst -,_,$*) $^
 
-BUILT_SOURCES = $(dbus_sources) $(marshal_sources)
+BUILT_SOURCES = $(dbus_sources) $(marshal_sources) tracker-miner-web-full.xml
 
 CLEANFILES = $(BUILT_SOURCES)
 

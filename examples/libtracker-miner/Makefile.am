@@ -17,7 +17,7 @@ INCLUDES =							\
 	$(DBUS_CFLAGS)						\
 	$(UNAC_CFLAGS)
 
-noinst_PROGRAMS = tracker-miner-test
+noinst_PROGRAMS = tracker-miner-test password-provider-test
 
 tracker_miner_test_SOURCES =   					\
 	tracker-miner-test.c    				\
@@ -36,3 +36,17 @@ tracker_miner_test_LDADD =                             		\
        $(GLIB2_LIBS)                                   		\
        -lz                                             		\
        -lm
+
+password_provider_test_SOURCES =      \
+	password-provider-test.c
+
+password_provider_test_LDADD =        \
+	$(top_builddir)/src/libtracker-miner/libtracker-miner-@TRACKER_API_VERSION@.la	\
+	$(DBUS_LIBS)                                    		\
+	$(GMODULE_LIBS)                                 		\
+	$(GTHREAD_LIBS)                                 		\
+	$(GIO_LIBS)                                     		\
+	$(GCOV_LIBS)                                    		\
+	$(GLIB2_LIBS)                                   		\
+	-lz                                             		\
+	-lm

@@ -435,8 +435,8 @@ miner_constructed (GObject *object)
 
 static void
 store_name_monitor_cb (TrackerMiner *miner,
-		       const gchar  *name,
-		       gboolean      available)
+                       const gchar  *name,
+                       gboolean      available)
 {
 	GError *error = NULL;
 

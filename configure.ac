@@ -157,6 +157,7 @@ EDS_REQUIRED=2.25.5
 LIBSTREAMANALYZER_REQUIRED=0.7.0
 GEE_REQUIRED=0.3
 ID3LIB_REQUIRED=3.8.3
+GNOME_KEYRING_REQUIRED=2.26
 
 # Library Checks
 PKG_CHECK_MODULES(GLIB2, [glib-2.0 >= $GLIB_REQUIRED])
@@ -760,6 +761,36 @@ if test "x$enable_unac" = "xyes"; then
 fi
 
 AM_CONDITIONAL(HAVE_UNAC, test "x$have_unac" = "xyes")
+
+##################################################################
+# Enable Gnome Keyring support to store credentials (for web miners)
+##################################################################
+
+AC_ARG_ENABLE(gnome_keyring,
+	      AS_HELP_STRING([--enable-gnome-keyring],
+			     [enable Gnome Keyring support to store credentials [[default=auto]]]),,
+	      [enable_gnome_keyring=auto])
+
+if test "x$enable_gnome_keyring" != "xno"; then
+	PKG_CHECK_MODULES(GNOME_KEYRING,
+	                  [ gnome-keyring-1 >= $GNOME_KEYRING_REQUIRED ],
+	                  [have_gnome_keyring=yes],
+	                  [have_gnome_keyring=no])
+	AC_SUBST(GNOME_KEYRING_LIBS)
+	AC_SUBST(GNOME_KEYRING_CFLAGS)
+
+	if test "x$have_gnome_keyring" = "xyes"; then
+		AC_DEFINE(HAVE_GNOME_KEYRING, [], [Define if we have Gnome Keyring for password storage])
+	fi
+fi
+
+if test "x$enable_gnome_keyring" = "xyes"; then
+   if test "x$have_gnome_keyring" != "xyes"; then
+      AC_MSG_ERROR([Couldn't find Gnome Keyring >= $GNOME_KEYRING_REQUIRED.])
+   fi
+fi
+
+AM_CONDITIONAL(HAVE_GNOME_KEYRING, test "x$have_gnome_keyring" = "xyes")
 
 ####################################################################
 # Mail miners

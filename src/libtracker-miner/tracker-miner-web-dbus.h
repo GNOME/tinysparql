@@ -1,0 +1,47 @@
+/* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
+/*
+ * Copyright (C) 2010, Adrien Bustany <abustany@gnome.org>
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the
+ * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA  02110-1301, USA.
+ */
+
+#ifndef __LIBTRACKERMINER_WEB_DBUS_H__
+#define __LIBTRACKERMINER_WEB_DBUS_H__
+
+#include <glib-object.h>
+
+#include "tracker-miner-dbus.h"
+#include "tracker-miner-web.h"
+
+G_BEGIN_DECLS
+
+void tracker_miner_web_dbus_authenticate         (TrackerMinerWeb        *miner,
+                                                  DBusGMethodInvocation  *context,
+                                                  GError                **error);
+void tracker_miner_web_dbus_get_association_data (TrackerMinerWeb        *miner,
+                                                  DBusGMethodInvocation  *context,
+                                                  GError                **error);
+void tracker_miner_web_dbus_associate            (TrackerMinerWeb        *miner,
+                                                  const GHashTable       *association_data,
+                                                  DBusGMethodInvocation  *context,
+                                                  GError                **error);
+void tracker_miner_web_dbus_dissociate           (TrackerMinerWeb        *miner,
+                                                  DBusGMethodInvocation  *context,
+                                                  GError                **error);
+
+G_END_DECLS
+
+#endif /* __LIBTRACKERMINER_DBUS_H__ */
