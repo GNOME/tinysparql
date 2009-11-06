@@ -37,12 +37,12 @@
 
 #define MAX_ITEMS 5
 
-#define MUSIC_QUERY    "SELECT ?urn ?title ?belongs WHERE { ?urn a nfo:Audio ; nfo:fileName ?title ; nfo:belongsToContainer ?belongs . ?urn fts:match \"%s*\" } ORDER BY ASC(fts:rank(?title)) OFFSET 0 LIMIT %d"
-#define IMAGE_QUERY    "SELECT ?urn ?title ?belongs WHERE { ?urn a nfo:Image ; nfo:fileName ?title ; nfo:belongsToContainer ?belongs . ?urn fts:match \"%s*\" } ORDER BY ASC(fts:rank(?title)) OFFSET 0 LIMIT %d"
-#define VIDEO_QUERY    "SELECT ?urn ?title ?belongs WHERE { ?urn a nmm:Video ; nfo:fileName ?title ; nfo:belongsToContainer ?belongs . ?urn fts:match \"%s*\" } ORDER BY ASC(fts:rank(?title)) OFFSET 0 LIMIT %d"
-#define DOCUMENT_QUERY "SELECT ?urn ?title ?belongs WHERE { ?urn a nfo:Document ; nfo:fileName ?title ; nfo:belongsToContainer ?belongs . ?urn fts:match \"%s*\" } ORDER BY ASC(fts:rank(?title)) OFFSET 0 LIMIT %d"
-#define FOLDER_QUERY   "SELECT ?urn ?title ?belongs WHERE { ?urn a nfo:Folder ; nfo:fileName ?title ; nfo:belongsToContainer ?belongs . ?urn fts:match \"%s*\" } ORDER BY ASC(fts:rank(?title)) OFFSET 0 LIMIT %d"
-#define APP_QUERY      "SELECT ?urn ?title WHERE { ?urn a nfo:Software ; nie:title ?title . FILTER regex (?title, \"%s\") } ORDER BY ASC(?title) OFFSET 0 LIMIT %d"
+#define MUSIC_QUERY    "SELECT ?urn ?title ?belongs fts:rank(?urn) WHERE { ?urn a nfo:Audio ; nfo:fileName ?title ; nfo:belongsToContainer ?belongs . ?urn fts:match \"%s*\" } ORDER BY DESC(fts:rank(?urn)) OFFSET 0 LIMIT %d"
+#define IMAGE_QUERY    "SELECT ?urn ?title ?belongs fts:rank(?urn) WHERE { ?urn a nfo:Image ; nfo:fileName ?title ; nfo:belongsToContainer ?belongs . ?urn fts:match \"%s*\" } ORDER BY DESC(fts:rank(?urn)) OFFSET 0 LIMIT %d"
+#define VIDEO_QUERY    "SELECT ?urn ?title ?belongs fts:rank(?urn) WHERE { ?urn a nmm:Video ; nfo:fileName ?title ; nfo:belongsToContainer ?belongs . ?urn fts:match \"%s*\" } ORDER BY DESC(fts:rank(?urn)) OFFSET 0 LIMIT %d"
+#define DOCUMENT_QUERY "SELECT ?urn ?title ?belongs fts:rank(?urn) WHERE { ?urn a nfo:Document ; nfo:fileName ?title ; nfo:belongsToContainer ?belongs . ?urn fts:match \"%s*\" } ORDER BY DESC(fts:rank(?urn)) OFFSET 0 LIMIT %d"
+#define FOLDER_QUERY   "SELECT ?urn ?title ?belongs fts:rank(?urn) WHERE { ?urn a nfo:Folder ; nfo:fileName ?title ; nfo:belongsToContainer ?belongs . ?urn fts:match \"%s*\" } ORDER BY DESC(fts:rank(?urn)) OFFSET 0 LIMIT %d"
+#define APP_QUERY      "SELECT ?urn ?title WHERE { ?urn a nfo:Software ; nie:title ?title . FILTER regex (?title, \"%s\") } ORDER BY DESC(?title) OFFSET 0 LIMIT %d"
 
 #define GENERAL_SEARCH  "SELECT ?s ?type ?title WHERE { ?s fts:match \"%s*\" ; rdf:type ?type . OPTIONAL { ?s nie:title ?title } } OFFSET %d LIMIT %d"
 
@@ -62,6 +62,8 @@ typedef struct {
 
 	TrackerClient *client;
 	gchar *query;
+
+	gboolean first_category_populated;
 
 	gint queries_pending;
 	gint request_id;
@@ -95,7 +97,7 @@ typedef struct {
 	gint request_id;
 	TrackerCategory category;
 	TrackerResultsWindow *window;
-	GHashTable *results;
+	GSList *results;
 } SearchQuery;
 
 struct FindCategory {
@@ -477,10 +479,7 @@ search_query_new (gint                  request_id,
 	sq->request_id = request_id;
 	sq->category = category;
 	sq->window = window;
-	sq->results = g_hash_table_new_full (g_str_hash,
-					     g_str_equal,
-					     (GDestroyNotify) g_free,
-					     (GDestroyNotify) item_data_free);
+	sq->results = NULL;
 
 	return sq;
 }
@@ -488,7 +487,8 @@ search_query_new (gint                  request_id,
 static void
 search_query_free (SearchQuery *sq)
 {
-	g_hash_table_unref (sq->results);
+	g_slist_foreach (sq->results, (GFunc) item_data_free, NULL);
+	g_slist_free (sq->results);
 
 	g_slice_free (SearchQuery, sq);
 }
@@ -661,38 +661,29 @@ model_category_cell_data_func (GtkTreeViewColumn    *tree_column,
 	GtkTreePath *path;
 	GtkTreeIter prev_iter;
 	TrackerCategory category, prev_category;
-	gchar *urn;
-	gint cell_padding;
-	gboolean print = TRUE;
+	gboolean previous_path;
+	gboolean print = FALSE;
 
-	gtk_tree_model_get (model, iter,
-			    COL_CATEGORY_ID, &category,
-			    COL_URN, &urn,
-			    -1);
-
-	if (!urn) {
-		cell_padding = 6;
-	} else {
-		cell_padding = 0;
-		g_free (urn);
-	}
+	gtk_tree_model_get (model, iter, COL_CATEGORY_ID, &category, -1);
 
 	/* Get the previous iter */
 	path = gtk_tree_model_get_path (model, iter);
 
-	if (gtk_tree_path_prev (path) &&
-	    gtk_tree_model_get_iter (model, &prev_iter, path)) {
+	previous_path = gtk_tree_path_prev (path);
+
+	if (!previous_path) {
+		print = TRUE;
+	} else if (previous_path && gtk_tree_model_get_iter (model, &prev_iter, path)) {
 		gtk_tree_model_get (model, &prev_iter,
 				    COL_CATEGORY_ID, &prev_category,
 				    -1);
 
-		if (category == prev_category) {
-			print = FALSE;
+		if (prev_category == CATEGORY_NONE) {
+			print = TRUE;
 		}
 	}
 
 	g_object_set (cell,
-		      "ypad", cell_padding,
 		      "text", print ? category_to_string (category) : "",
 		      "visible", print,
 		      NULL);
@@ -756,15 +747,9 @@ model_separator_func (GtkTreeModel *model,
 		      gpointer      user_data)
 {
 #ifdef USE_SEPARATOR_FOR_SPACING
-	TrackerResultsWindow *window;
-	TrackerCategory category = CATEGORY_NONE;
 	gchar *urn;
 
-	window = user_data;
-	gtk_tree_model_get (model, iter,
-			    COL_CATEGORY_ID, &category,
-			    COL_URN, &urn,
-			    -1);
+	gtk_tree_model_get (model, iter, COL_URN, &urn, -1);
 
 	if (!urn) {
 		return TRUE;
@@ -776,6 +761,28 @@ model_separator_func (GtkTreeModel *model,
 #else  /* USE_SEPARATOR_FOR_SPACING */
 	return FALSE;
 #endif /* USE_SEPARATOR_FOR_SPACING */
+}
+
+static gboolean
+model_selection_func (GtkTreeSelection *selection,
+		      GtkTreeModel     *model,
+		      GtkTreePath      *path,
+		      gboolean          path_currently_selected,
+		      gpointer          data)
+{
+	GtkTreeIter iter;
+	gchar *urn;
+
+	gtk_tree_model_get_iter (model, &iter, path);
+	gtk_tree_model_get (model, &iter, COL_URN, &urn, -1);
+
+	if (!urn) {
+		return FALSE;
+	}
+
+	g_free (urn);
+
+	return TRUE;
 }
 
 static void
@@ -813,6 +820,10 @@ model_set_up (TrackerResultsWindow *window)
 	/* Selection */ 
 	selection = gtk_tree_view_get_selection (view);
 	gtk_tree_selection_set_mode (selection, GTK_SELECTION_SINGLE);
+        gtk_tree_selection_set_select_function (selection, 
+						model_selection_func,
+						window,
+						NULL);
 
 	/* Column: Category */
 	column = gtk_tree_view_column_new ();
@@ -856,9 +867,9 @@ model_set_up (TrackerResultsWindow *window)
 	gtk_tree_view_append_column (view, column);
 
 	/* Sorting */
-	gtk_tree_sortable_set_sort_column_id (GTK_TREE_SORTABLE (store),
-					      COL_CATEGORY_ID,
-					      GTK_SORT_ASCENDING);
+	/* gtk_tree_sortable_set_sort_column_id (GTK_TREE_SORTABLE (store), */
+	/* 				      COL_CATEGORY_ID, */
+	/* 				      GTK_SORT_ASCENDING); */
 
 	/* Tooltips */
 	gtk_tree_view_set_tooltip_column (view, COL_BELONGS);
@@ -928,34 +939,36 @@ inline static void
 search_get_foreach (gpointer value, 
 		    gpointer user_data)
 {
-	GHashTable *results;
 	SearchQuery *sq;
 	ItemData *id;
 	gchar **metadata;
-	const gchar *urn, *title, *belongs;
+	const gchar *urn, *title, *belongs, *rank;
 
 	sq = user_data;
-	results = sq->results;
 	metadata = value;
 
 	urn = metadata[0];
 	title = metadata[1];
 	belongs = metadata[2];
 
+	/* App queries don't return rank or belongs */
+	if (belongs) {
+		rank = metadata[3];
+	} else {
+		rank = "0.0";
+	}
+
 	if (!title) {
 		title = urn;
 	}
-	
-	id = g_hash_table_lookup (results, urn);
-	if (!id) {
-		g_print ("urn:'%s' found\n", urn);
-		g_print ("  title:'%s'\n", title);
-		g_print ("  belongs to:'%s'\n", belongs);
 
-		id = item_data_new (urn, title, belongs, sq->category);
+	g_print ("urn:'%s' found\n", urn);
+	g_print ("  title:'%s'\n", title);
+	g_print ("  belongs to:'%s'\n", belongs);
+	g_print ("  rank:'%s'\n", rank);
 
-		g_hash_table_insert (results, g_strdup (urn), id);
-	}
+	id = item_data_new (urn, title, belongs, sq->category);
+	sq->results = g_slist_append (sq->results, id);
 
 	/* category_from_string (type, &id->categories); */
 	/* g_print ("  type:'%s', new categories:%d\n", type, id->categories); */
@@ -998,34 +1011,34 @@ search_get_cb (GPtrArray *results,
 	if (!results) {
 		g_print ("No results were found matching the query\n");
 	} else {
-		GHashTableIter iter;
-		gpointer key, value;
+		GSList *l;
 
 		g_print ("Results: %d\n", results->len);
 
-		g_ptr_array_foreach (results,
-				     search_get_foreach,
-				     sq);
+		if (results->len > 0) {
+			g_ptr_array_foreach (results,
+					     search_get_foreach,
+					     sq);
 
-		g_ptr_array_foreach (results, (GFunc) g_strfreev, NULL);
-		g_ptr_array_free (results, TRUE);
+			g_ptr_array_foreach (results, (GFunc) g_strfreev, NULL);
+			g_ptr_array_free (results, TRUE);
 
-		g_hash_table_iter_init (&iter, sq->results);
-		while (g_hash_table_iter_next (&iter, &key, &value)) {
-			ItemData *id;
-
-			id = value;
-
-			model_add (window,
-				   sq->category,
-				   id->urn,
-				   id->title,
-				   id->belongs);
-		}
-
-		if (g_hash_table_size (sq->results) > 0) {
 			/* Add separator */
-			model_add (window, sq->category, NULL, NULL, NULL);
+			if (priv->first_category_populated) {
+				model_add (window, CATEGORY_NONE, NULL, NULL, NULL);
+			}
+
+			for (l = sq->results; l; l = l->next) {
+				ItemData *id = l->data;
+
+				model_add (window,
+					   sq->category,
+					   id->urn,
+					   id->title,
+					   id->belongs);
+			}
+
+			priv->first_category_populated = TRUE;
 		}
 	}
 
@@ -1105,7 +1118,9 @@ search_start (TrackerResultsWindow *window)
 		gtk_widget_hide (priv->label);
 		return;
 	}
-	
+
+	priv->first_category_populated = FALSE;
+
 	/* SPARQL requests */
 	search_get (window, CATEGORY_IMAGE);
 	search_get (window, CATEGORY_AUDIO);
@@ -1171,4 +1186,5 @@ tracker_results_window_popup (TrackerResultsWindow *window)
 	if (0) {
 		g_idle_add ((GSourceFunc) grab_popup_window, window);
 	}
+
 }
