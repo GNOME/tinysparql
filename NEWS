@@ -1,3 +1,90 @@
+NEW in 0.7.6
+============
+
+Improvements / New:
+
+  General:
+  * Fixed libvorbis detection in configure.
+  * Fixed data/.gitignore to not exclude .desktop.in files.
+  * Added AC_CACHE_CHECK for ioprio in configure for cross-platform
+    compilation.
+  * Imported data generation scripts from old repository.
+
+  Ontology:
+  * Fixed nmm:exposureTime to be a double not integer.
+  * Added tracker:weight to ontology properties (was only used on few
+    properties before like nie:title). Used for scoring/ranking.
+  * Added more FTS fields so FTS matching occurs on more useful data.
+  * Added nco:metacontact concept
+    (see http://live.gnome.org/Tracker/Documentation/ContactsOntology)
+  * Removed cardinality restriction for dc:contributor.
+  * Removed cardinality maximum from nco:contrbutor & nco:creator.
+  * Renamed nmo:VOIPCall to nmo:Call.
+
+  SPARQL:
+  * Fixed fts:rank when fts:match is not first predicate in query.
+
+  Functional Tests:
+  * Added for fts:rank
+  * Added for nco:metacontact
+
+  libtracker-common:
+  * Fixed tracker_coalesce() to not use empty/blank strings.
+  * Fixed tracker_is_blank_string() to be UTF-8 compliant.
+  * Added tracker_sparql_builder_object_double() method.
+
+  libtracker-data:
+  * Fixed assertion using cursors open twice (tracker-store crash).
+  * Fixed outer query cursors being used by inner queries.
+
+  libtracker-miner:
+  * Fixed calls to tracker-store to be completely async (no blocking
+    when tracker-store is not available)
+  * Fixed trying to free invalid GPtrArray pointers.
+  * Updated reference documentation.
+  * Improve error reporting when initializing volumes.
+
+  tracker-store:
+
+  tracker-extract:
+  * Fixed return value in albumart_set().
+  * Fixed JPEG to coalesce nie:comment.
+  * Fixed JPEG leak if file size is < 18 bytes.
+  * Fixed MP3 id3v20/v22 memory corruption.
+  * Fixed MP3 id3v20/v22 comments retrieval.
+  * Fixed cases where _object_unvalidated() was used over _object().
+  * Added album art support with libquill (alternative to GdkPixbuf).
+  * Updated ALL plugins to use TrackerSparqlBuilder API (from older
+    variant), this produces less D-Bus traffic and the output is
+    generally nicer.
+
+  tracker-search-bar:
+  * Fixed to show all documents, not just paginated ones.
+  * Fixed icon background to be transparent.
+  * Fixed showing results and no results label at the same time.
+  * Fixed window height to be a lot longer by default.
+  * Fixed selecting blank rows for separators.
+  * Fixed showing blank rows after all results.
+  * Fixed sorting (broken by use of hash table).
+  * Added vertical orientation for applet.
+  * Added ranked sorting for searches.
+  * Added limit for each category to 5.
+  * Added interactive searching on a 300ms delay.
+
+  tracker-search-tool:
+  * Added interactive searching.
+
+Bugs:
+
+  * Fixes GB#600081, Get rid of Bonobo
+
+Notes:
+
+  The Deskbar applet packaged with Tracker is currently out of date
+  and needs some love to get it working with the new APIs. It is in
+  the same state as it was for 0.6. As such it isn't expected to work.
+
+
 NEW in 0.7.5
 ============
 
