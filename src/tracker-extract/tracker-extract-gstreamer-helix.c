@@ -36,7 +36,7 @@
 #include <libtracker-common/tracker-statement-list.h>
 
 #include "tracker-main.h"
-#include "tracker-extract-albumart.h"
+#include "tracker-albumart.h"
 
 typedef enum {
 	EXTRACT_MIME_UNDEFINED=0,
@@ -825,11 +825,12 @@ tracker_extract_gstreamer_helix (const gchar *uri,
 
 	extract_metadata (extractor, uri, metadata, &artist, &album, &scount);
 
-	tracker_process_albumart (extractor->album_art_data, extractor->album_art_size, NULL,
-			       /* artist */ NULL ,
-			       album,
-			       scount,
-			       uri);
+	tracker_albumart_process (extractor->album_art_data,
+				  extractor->album_art_size,
+				  NULL,
+				  /* g_hash_table_lookup (metadata, "Audio:Artist") */ NULL,
+				  album,
+				  uri);
 
 	g_free (album);
 	g_free (artist);
