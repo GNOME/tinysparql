@@ -148,7 +148,7 @@ strip_word (const gchar *str,
 #ifdef HAVE_UNAC
 	gchar *s = NULL;
 
-	if (unac_string ("UTF-8", str, length, &s, &*len) != 0) {
+	if (unac_string ("UTF-8", str, length, &s, (size_t *) len) != 0) {
 		g_warning ("UNAC failed to strip accents");
 	}
 
