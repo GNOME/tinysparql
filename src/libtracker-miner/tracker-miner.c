@@ -19,10 +19,6 @@
 
 #include "config.h"
 
-#include <stdlib.h>
-
-#include <dbus/dbus-glib-bindings.h>
-
 #include <libtracker-common/tracker-dbus.h>
 #include <libtracker-common/tracker-type-utils.h>
 
@@ -30,6 +26,7 @@
 #include "tracker-miner.h"
 #include "tracker-miner-dbus.h"
 #include "tracker-miner-glue.h"
+#include "tracker-dbus.h"
 
 /**
  * SECTION:tracker-miner
@@ -62,13 +59,6 @@ struct TrackerMinerPrivate {
 
 	GPtrArray *async_calls;
 };
-
-typedef struct {
-	gchar *registered_name;
-	DBusGConnection *connection;
-	DBusGProxy *proxy;
-	GHashTable *name_monitors;
-} DBusData;
 
 typedef struct {
 	gint cookie;
@@ -105,8 +95,6 @@ enum {
 	LAST_SIGNAL
 };
 
-static GQuark dbus_data = 0;
-
 static guint signals[LAST_SIGNAL] = { 0 };
 
 static void       miner_set_property           (GObject       *object,
@@ -120,9 +108,6 @@ static void       miner_get_property           (GObject       *object,
 static void       miner_finalize               (GObject       *object);
 static void       miner_dispose                (GObject       *object);
 static void       miner_constructed            (GObject       *object);
-static void       dbus_data_destroy            (gpointer       data);
-static DBusData * dbus_data_new                (TrackerMiner  *miner,
-                                                const gchar   *name);
 static void       pause_data_destroy           (gpointer       data);
 static PauseData *pause_data_new               (const gchar   *application,
                                                 const gchar   *reason);
@@ -133,6 +118,9 @@ static void       async_call_data_destroy      (AsyncCallData *data,
                                                 gboolean       remove);
 static void       sparql_cancelled_cb          (GCancellable  *cancellable,
                                                 AsyncCallData *data);
+static void       store_name_monitor_cb (TrackerMiner *miner,
+                                         const gchar  *name,
+                                         gboolean      available);
 
 G_DEFINE_ABSTRACT_TYPE (TrackerMiner, tracker_miner, G_TYPE_OBJECT)
 
@@ -427,10 +415,6 @@ miner_finalize (GObject *object)
 		g_object_unref (miner->private->client);
 	}
 
-	if (dbus_data != 0) {
-		g_object_set_qdata (G_OBJECT (miner), dbus_data, NULL);
-	}
-
 	g_hash_table_unref (miner->private->pauses);
 	g_ptr_array_free (miner->private->async_calls, TRUE);
 
@@ -440,145 +424,19 @@ miner_finalize (GObject *object)
 static void
 miner_constructed (GObject *object)
 {
-	TrackerMiner *miner;
-	DBusData *data;
+	TrackerMiner *miner = TRACKER_MINER (object);
 
-	miner = TRACKER_MINER (object);
-
-	if (!miner->private->name) {
-		g_critical ("Miner should have been given a name, bailing out");
-		g_assert_not_reached ();
-	}
-
-	if (G_UNLIKELY (dbus_data == 0)) {
-		dbus_data = g_quark_from_static_string ("tracker-miner-dbus-data");
-	}
-
-	data = g_object_get_qdata (G_OBJECT (miner), dbus_data);
-
-	if (G_LIKELY (!data)) {
-		data = dbus_data_new (miner, miner->private->name);
-	}
-
-	if (G_UNLIKELY (!data)) {
-		g_critical ("Miner could not register object on D-Bus session");
-		exit (EXIT_FAILURE);
-		return;
-	}
-
-	g_object_set_qdata_full (G_OBJECT (miner),
-	                         dbus_data,
-	                         data,
-	                         dbus_data_destroy);
-}
-
-static gboolean
-dbus_register_service (DBusGProxy  *proxy,
-                       const gchar *name)
-{
-	GError *error = NULL;
-	guint result;
-
-	g_message ("Registering D-Bus service...\n"
-	           "  Name:'%s'",
-	           name);
-
-	if (!org_freedesktop_DBus_request_name (proxy,
-	                                        name,
-	                                        DBUS_NAME_FLAG_DO_NOT_QUEUE,
-	                                        &result, &error)) {
-		g_critical ("Could not register name:'%s', %s",
-		            name,
-		            error ? error->message : "no error given");
-		g_error_free (error);
-
-		return FALSE;
-	}
-
-	if (result != DBUS_REQUEST_NAME_REPLY_PRIMARY_OWNER) {
-		g_critical ("D-Bus service name:'%s' is already taken, "
-		            "perhaps the application is already running?",
-		            name);
-		return FALSE;
-	}
-
-	return TRUE;
-}
-
-static gboolean
-dbus_release_service (DBusGProxy  *proxy,
-                      const gchar *name)
-{
-	GError *error = NULL;
-	guint result;
-
-	g_message ("Releasing D-Bus service...\n"
-	           "  Name:'%s'",
-	           name);
-
-	if (!org_freedesktop_DBus_release_name (proxy, name, &result, &error)) {
-		g_critical ("Could not release name:'%s', %s",
-		            name,
-		            error ? error->message : "no error given");
-		g_error_free (error);
-
-		return FALSE;
-	}
-
-	switch (result) {
-	case DBUS_RELEASE_NAME_REPLY_RELEASED:
-		break;
-
-	case DBUS_RELEASE_NAME_REPLY_NON_EXISTENT:
-		g_critical ("D-Bus service name:'%s' does not exist?",
-		            name);
-		return FALSE;
-
-	case DBUS_RELEASE_NAME_REPLY_NOT_OWNER:
-		g_critical ("D-Bus service name:'%s' was not started by us, "
-		            "we can not release the name!",
-		            name);
-		return FALSE;
-	}
-
-	return TRUE;
-}
-
-static gboolean
-dbus_register_object (GObject               *object,
-                      DBusGConnection       *connection,
-                      DBusGProxy            *proxy,
-                      const DBusGObjectInfo *info,
-                      const gchar           *path)
-{
-	g_message ("Registering D-Bus object...");
-	g_message ("  Path:'%s'", path);
-	g_message ("  Object Type:'%s'", G_OBJECT_TYPE_NAME (object));
-
-	dbus_g_object_type_install_info (G_OBJECT_TYPE (object), info);
-	dbus_g_connection_register_g_object (connection, path, object);
-
-	return TRUE;
+	tracker_miner_dbus_init (miner, &dbus_glib_tracker_miner_object_info);
+	tracker_miner_dbus_add_name_watch (miner, "org.freedesktop.Tracker1",
+                                       store_name_monitor_cb);
 }
 
 static void
-name_owner_changed_cb (DBusGProxy *proxy,
-                       gchar      *name,
-                       gchar      *old_owner,
-                       gchar      *new_owner,
-                       gpointer    user_data)
+store_name_monitor_cb (TrackerMiner *miner,
+		       const gchar  *name,
+		       gboolean      available)
 {
-	TrackerMiner *miner;
-	gboolean available;
 	GError *error = NULL;
-
-	if (!name || !*name ||
-	    strcmp (name, "org.freedesktop.Tracker1") != 0) {
-		return;
-	}
-
-	miner = user_data;
-	available = (new_owner && *new_owner);
 
 	g_debug ("Tracker-store availability has changed to %d", available);
 
@@ -607,102 +465,6 @@ name_owner_changed_cb (DBusGProxy *proxy,
 			miner->private->availability_cookie = cookie_id;
 		}
 	}
-}
-
-static void
-dbus_set_name_monitor (TrackerMiner *miner,
-                       DBusGProxy   *proxy)
-{
-	dbus_g_proxy_add_signal (proxy, "NameOwnerChanged",
-	                         G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING,
-	                         G_TYPE_INVALID);
-
-	dbus_g_proxy_connect_signal (proxy, "NameOwnerChanged",
-	                             G_CALLBACK (name_owner_changed_cb),
-	                             miner, NULL);
-}
-
-static void
-dbus_data_destroy (gpointer data)
-{
-	DBusData *dd;
-
-	dd = data;
-
-	/* Release the service name for the miner */
-	dbus_release_service (dd->proxy, dd->registered_name);
-
-	if (dd->proxy) {
-		g_object_unref (dd->proxy);
-	}
-
-	if (dd->connection) {
-		dbus_g_connection_unref (dd->connection);
-	}
-
-	if (dd->name_monitors) {
-		g_hash_table_unref (dd->name_monitors);
-	}
-
-	g_slice_free (DBusData, dd);
-}
-
-static DBusData *
-dbus_data_new (TrackerMiner *miner,
-               const gchar  *name)
-{
-	DBusData *data;
-	DBusGConnection *connection;
-	DBusGProxy *proxy;
-	GError *error = NULL;
-	gchar *full_name, *full_path;
-
-	connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
-
-	if (!connection) {
-		g_critical ("Could not connect to the D-Bus session bus, %s",
-		            error ? error->message : "no error given.");
-		g_error_free (error);
-		return NULL;
-	}
-
-	proxy = dbus_g_proxy_new_for_name (connection,
-	                                    DBUS_SERVICE_DBUS,
-	                                    DBUS_PATH_DBUS,
-	                                    DBUS_INTERFACE_DBUS);
-
-	/* Register the service name for the miner */
-	full_name = g_strconcat (TRACKER_MINER_DBUS_NAME_PREFIX, name, NULL);
-
-	if (!dbus_register_service (proxy, full_name)) {
-		g_object_unref (proxy);
-		g_free (full_name);
-		return NULL;
-	}
-
-	full_path = g_strconcat (TRACKER_MINER_DBUS_PATH_PREFIX, name, NULL);
-
-	if (!dbus_register_object (G_OBJECT (miner),
-	                           connection, proxy,
-	                           &dbus_glib_tracker_miner_object_info,
-	                           full_path)) {
-		g_object_unref (proxy);
-		g_free (full_name);
-		g_free (full_path);
-		return NULL;
-	}
-
-	dbus_set_name_monitor (miner, proxy);
-
-	g_free (full_path);
-
-	/* Now we're successfully connected and registered, create the data */
-	data = g_slice_new0 (DBusData);
-	data->registered_name = full_name;
-	data->connection = dbus_g_connection_ref (connection);
-	data->proxy = g_object_ref (proxy);
-
-	return data;
 }
 
 static PauseData *
