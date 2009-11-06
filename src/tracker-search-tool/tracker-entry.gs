@@ -25,7 +25,11 @@ uses
     TrackerUtils
     
     
+const static RUN_DELAY : int = 500
+    
 class TrackerSearchEntry  : Gtk.Entry
+    id_invoker : uint = 0
+
     prop Query : TrackerQuery 
 
     init
@@ -43,12 +47,23 @@ class TrackerSearchEntry  : Gtk.Entry
     def private entry_changed (editable : Editable) 
         if Query is not null
             if text is null
+                Query.SearchTerms = ""
+                if id_invoker != 0
+                    Source.remove (id_invoker)
+                    id_invoker = 0
+                set_icon_sensitive (EntryIconPosition.SECONDARY, false)
+            else
+                if id_invoker != 0
+                    Source.remove (id_invoker)
+                id_invoker = Timeout.add (RUN_DELAY, run_query)
+        
+    def private run_query () : bool
+        if Query is not null
+            if text is null
                 set_icon_sensitive (EntryIconPosition.SECONDARY, false)
                 Query.SearchTerms = ""
             else
                 set_icon_sensitive (EntryIconPosition.SECONDARY, true)
                 Query.SearchTerms = EscapeSparql (text, true)
-        
+        return false
     
-    
-
