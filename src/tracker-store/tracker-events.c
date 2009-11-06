@@ -201,6 +201,10 @@ tracker_events_init (TrackerNotifyClassGetter callback)
 	}
 
 	classes_to_signal = (*callback)();
+
+	if (!classes_to_signal)
+		return;
+
 	count = g_strv_length (classes_to_signal);
 	for (i = 0; i < count; i++) {
 		tracker_events_add_allow (classes_to_signal[i]);

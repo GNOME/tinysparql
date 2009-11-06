@@ -46,6 +46,9 @@ struct TrackerResources {
 
 struct TrackerResourcesClass {
 	GObjectClass parent;
+
+	void     (*writeback)                          (TrackerResources *resources,
+	                                                GStrv subjects);
 };
 
 GType             tracker_resources_get_type            (void);
@@ -79,7 +82,7 @@ void              tracker_resources_batch_sparql_update (TrackerResources       
 void              tracker_resources_batch_commit        (TrackerResources       *object,
 							 DBusGMethodInvocation  *context,
 							 GError                **error);
- 
+
 G_END_DECLS
 
 #endif /* __TRACKER_STORE_RESOURCES_H__ */

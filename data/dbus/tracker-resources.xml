@@ -45,5 +45,9 @@
       <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
     </method>
 
+   <signal name="Writeback">
+      <arg type="as" name="subjects" />
+   </signal>
+
   </interface>
 </node>

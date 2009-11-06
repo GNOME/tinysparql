@@ -41,6 +41,7 @@
 #include "tracker-resources.h"
 #include "tracker-resource-class.h"
 #include "tracker-events.h"
+#include "tracker-writeback.h"
 #include "tracker-store.h"
 
 #define RDF_PREFIX TRACKER_RDF_PREFIX
@@ -51,15 +52,22 @@ G_DEFINE_TYPE(TrackerResources, tracker_resources, G_TYPE_OBJECT)
 
 #define TRACKER_RESOURCES_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_RESOURCES, TrackerResourcesPrivate))
 
+enum {
+	WRITEBACK,
+	LAST_SIGNAL
+};
 
 typedef struct {
-	GSList     *event_sources;
+	GSList *event_sources;
 } TrackerResourcesPrivate;
 
 typedef struct {
 	DBusGMethodInvocation *context;
 	guint request_id;
 } TrackerDBusMethodInfo;
+
+
+static guint signals[LAST_SIGNAL] = { 0 };
 
 static void
 free_event_sources (TrackerResourcesPrivate *priv)
@@ -93,6 +101,16 @@ tracker_resources_class_init (TrackerResourcesClass *klass)
 	object_class = G_OBJECT_CLASS (klass);
 
 	object_class->finalize = tracker_resources_finalize;
+
+	signals[WRITEBACK] =
+		g_signal_new ("writeback",
+			      G_OBJECT_CLASS_TYPE (object_class),
+			      G_SIGNAL_RUN_LAST,
+			      G_STRUCT_OFFSET (TrackerResourcesClass, writeback),
+			      NULL, NULL,
+			      tracker_marshal_VOID__BOXED,
+			      G_TYPE_NONE, 1,
+			      G_TYPE_STRV);
 
 	g_type_class_add_private (object_class, sizeof (TrackerResourcesPrivate));
 }
@@ -384,15 +402,18 @@ tracker_resources_batch_commit (TrackerResources	 *self,
 static void
 on_statements_committed (gpointer user_data)
 {
+	TrackerResources *resources = user_data;
 	GPtrArray *events;
+	const gchar **writebacks;
 	TrackerResourcesPrivate *priv;
 
-	priv = TRACKER_RESOURCES_GET_PRIVATE (user_data);
+	priv = TRACKER_RESOURCES_GET_PRIVATE (resources);
 
 	/* For more information about this call, look at the function end_batch
 	 * of tracker-store.c */
 	tracker_store_flush_journal ();
 
+	/* Class signals feature */
 	events = tracker_events_get_pending ();
 
 	if (events) {
@@ -400,7 +421,7 @@ on_statements_committed (gpointer user_data)
 		guint i;
 		GHashTable *to_emit = NULL;
 
-		event_sources =priv->event_sources;
+		event_sources = priv->event_sources;
 
 		for (i = 0; i < events->len; i++) {
 			GValueArray *event = events->pdata[i];
@@ -437,6 +458,17 @@ on_statements_committed (gpointer user_data)
 	}
 
 	tracker_events_reset ();
+
+	/* Writeback feature */
+	writebacks = tracker_writeback_get_pending ();
+
+	if (writebacks) {
+		g_signal_emit (resources, signals[WRITEBACK], 0, writebacks);
+		g_free (writebacks);
+
+	}
+
+	tracker_writeback_reset ();
 }
 
 
@@ -444,6 +476,7 @@ static void
 on_statements_rolled_back (gpointer user_data)
 {
 	tracker_events_reset ();
+	tracker_writeback_reset ();
 }
 
 static void
@@ -459,6 +492,9 @@ on_statement_inserted (const gchar *graph,
 	} else {
 		tracker_events_insert (subject, predicate, object, rdf_types, TRACKER_DBUS_EVENTS_TYPE_UPDATE);
 	}
+
+	/* For predicates it's always update here */
+	tracker_writeback_check (graph, subject, predicate, object);
 }
 
 static void
@@ -474,8 +510,10 @@ on_statement_deleted (const gchar *graph,
 	} else {
 		tracker_events_insert (subject, predicate, object, rdf_types, TRACKER_DBUS_EVENTS_TYPE_UPDATE);
 	}
-}
 
+	/* For predicates it's always delete here */
+	tracker_writeback_check (graph, subject, predicate, object);
+}
 
 void 
 tracker_resources_prepare (TrackerResources *object,
@@ -501,3 +539,4 @@ tracker_resources_unreg_batches (TrackerResources *object,
 {
 	tracker_store_unreg_batches (old_owner);
 }
+

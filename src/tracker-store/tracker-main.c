@@ -53,6 +53,7 @@
 #include "tracker-dbus.h"
 #include "tracker-config.h"
 #include "tracker-events.h"
+#include "tracker-writeback.h"
 #include "tracker-push.h"
 #include "tracker-backup.h"
 #include "tracker-store.h"
@@ -288,6 +289,25 @@ get_notifiable_classes (void)
 	return classes_to_signal;
 }
 
+
+static GStrv
+get_writeback_predicates (void)
+{
+	TrackerDBResultSet *result_set;
+	GStrv predicates_to_signal = NULL;
+
+	result_set = tracker_data_query_sparql ("SELECT ?predicate WHERE { ?predicate tracker:writeback true }", NULL);
+
+	if (result_set) {
+		guint count = 0;
+
+		predicates_to_signal = tracker_dbus_query_result_to_strv (result_set, 0, &count);
+		g_object_unref (result_set);
+	}
+
+	return predicates_to_signal;
+}
+
 gint
 main (gint argc, gchar *argv[])
 {
@@ -418,6 +438,8 @@ main (gint argc, gchar *argv[])
 	}
 
 	tracker_events_init (get_notifiable_classes);
+	tracker_writeback_init (get_writeback_predicates);
+
 	tracker_push_init ();
 
 	g_message ("Waiting for D-Bus requests...");
@@ -447,6 +469,7 @@ shutdown:
 
 	/* Shutdown major subsystems */
 	tracker_push_shutdown ();
+	tracker_writeback_shutdown ();
 	tracker_events_shutdown ();
 
 	tracker_dbus_shutdown ();

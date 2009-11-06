@@ -41,8 +41,20 @@ tracker:mountPoint a rdf:Property ;
 
 tracker:available a rdf:Property ;
 	nrl:maxCardinality 1 ;
-        rdfs:domain nie:DataObject ;
-        rdfs:range xsd:boolean .
+	rdfs:domain nie:DataObject ;
+	rdfs:range xsd:boolean .
+
+tracker:writeback a rdf:Property ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain rdf:Property ;
+	rdfs:range xsd:boolean .
+
+# Remove this afterward
+tracker:writebackTestField a rdf:Property ;
+	nrl:maxCardinality 1 ;
+	tracker:writeback true ;
+	rdfs:domain rdfs:Resource ;
+	rdfs:range xsd:string .
 
 fts: a tracker:Namespace ;
 	tracker:prefix "fts" .

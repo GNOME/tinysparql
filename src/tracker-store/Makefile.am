@@ -35,6 +35,8 @@ tracker_store_SOURCES =							\
 	tracker-dbus.h							\
 	tracker-events.c						\
 	tracker-events.h						\
+	tracker-writeback.c						\
+	tracker-writeback.h						\
 	tracker-main.c							\
 	tracker-resources.c						\
 	tracker-resources.h						\
