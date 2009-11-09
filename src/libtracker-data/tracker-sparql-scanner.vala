@@ -683,6 +683,8 @@ public class Tracker.SparqlScanner : Object {
 				if (current < end - 2 && current[0] == current[1]) {
 					type = SparqlTokenType.DOUBLE_CIRCUMFLEX;
 					current += 2;
+				} else {
+					throw new SparqlError.PARSE ("%d.%d: syntax error, unexpected character", line, column);
 				}
 				break;
 			case '_':
