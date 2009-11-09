@@ -56,6 +56,9 @@ static GHashTable *property_uris;
 /* FieldType enum class */
 static gpointer    property_type_enum_class;
 
+/* Hash (int id, const gchar *uri) */
+static GHashTable *id_uri_pairs;
+
 void
 tracker_ontology_init (void)
 {
@@ -76,6 +79,10 @@ tracker_ontology_init (void)
 					      g_str_equal,
 					      g_free,
 					      g_object_unref);
+
+	id_uri_pairs = g_hash_table_new_full (g_direct_hash, g_direct_equal,
+	                                      NULL,
+	                                      g_free);
 
 	properties = g_array_new (TRUE, TRUE, sizeof (TrackerProperty *));
 
@@ -118,6 +125,9 @@ tracker_ontology_shutdown (void)
 	g_hash_table_unref (class_uris);
 	class_uris = NULL;
 
+	g_hash_table_unref (id_uri_pairs);
+	id_uri_pairs = NULL;
+
 	for (i = 0; i < properties->len; i++) {
 		g_object_unref (g_array_index (properties, TrackerProperty *, i));
 	}
@@ -130,6 +140,14 @@ tracker_ontology_shutdown (void)
 	property_type_enum_class = NULL;
 
 	initialized = FALSE;
+}
+
+const gchar*
+tracker_ontology_get_uri_by_id (gint id)
+{
+	g_return_val_if_fail (id != -1, NULL);
+
+	return g_hash_table_lookup (id_uri_pairs, GINT_TO_POINTER (id));
 }
 
 void
@@ -195,6 +213,14 @@ tracker_ontology_add_property (TrackerProperty *field)
 	g_hash_table_insert (property_uris,
 			     g_strdup (uri),
 			     g_object_ref (field));
+}
+
+void
+tracker_ontology_add_id_uri_pair (gint id, const gchar *uri)
+{
+	g_hash_table_insert (id_uri_pairs,
+			     GINT_TO_POINTER (id),
+			     g_strdup (uri));
 }
 
 TrackerProperty *

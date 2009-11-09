@@ -386,7 +386,7 @@ db_get_static_data (TrackerDBInterface *iface)
 	}
 
 	stmt = tracker_db_interface_create_statement (iface,
-						      "SELECT (SELECT Uri FROM \"rdfs:Resource\" WHERE ID = \"rdfs:Class\".ID) "
+						      "SELECT \"rdfs:Class\".ID, (SELECT Uri FROM \"rdfs:Resource\" WHERE ID = \"rdfs:Class\".ID) "
 						      "FROM \"rdfs:Class\" ORDER BY ID");
 	cursor = tracker_db_statement_start_cursor (stmt, NULL);
 	g_object_unref (stmt);
@@ -395,15 +395,19 @@ db_get_static_data (TrackerDBInterface *iface)
 		while (tracker_db_cursor_iter_next (cursor)) {
 			TrackerClass *class;
 			const gchar  *uri;
+			gint          id;
 			gint          count;
 
 			class = tracker_class_new ();
 
-			uri = tracker_db_cursor_get_string (cursor, 0);
+			id = tracker_db_cursor_get_int (cursor, 0);
+			uri = tracker_db_cursor_get_string (cursor, 1);
 
 			tracker_class_set_uri (class, uri);
 			class_add_super_classes_from_db (iface, class);
+
 			tracker_ontology_add_class (class);
+			tracker_ontology_add_id_uri_pair (id, uri);
 
 			/* xsd classes do not derive from rdfs:Resource and do not use separate tables */
 			if (!g_str_has_prefix (tracker_class_get_name (class), "xsd:")) {
@@ -423,7 +427,7 @@ db_get_static_data (TrackerDBInterface *iface)
 	}
 
 	stmt = tracker_db_interface_create_statement (iface,
-						      "SELECT (SELECT Uri FROM \"rdfs:Resource\" WHERE ID = \"rdf:Property\".ID), "
+						      "SELECT \"rdf:Property\".ID, (SELECT Uri FROM \"rdfs:Resource\" WHERE ID = \"rdf:Property\".ID), "
 						      "(SELECT Uri FROM \"rdfs:Resource\" WHERE ID = \"rdfs:domain\"), "
 						      "(SELECT Uri FROM \"rdfs:Resource\" WHERE ID = \"rdfs:range\"), "
 						      "\"nrl:maxCardinality\", "
@@ -443,14 +447,16 @@ db_get_static_data (TrackerDBInterface *iface)
 			const gchar     *uri, *domain_uri, *range_uri;
 			gboolean         multi_valued, indexed, fulltext_indexed;
 			gboolean         transient, annotation;
+			gint             id;
 
 			property = tracker_property_new ();
 
-			uri = tracker_db_cursor_get_string (cursor, 0);
-			domain_uri = tracker_db_cursor_get_string (cursor, 1);
-			range_uri = tracker_db_cursor_get_string (cursor, 2);
+			id = tracker_db_cursor_get_int (cursor, 0);
+			uri = tracker_db_cursor_get_string (cursor, 1);
+			domain_uri = tracker_db_cursor_get_string (cursor, 2);
+			range_uri = tracker_db_cursor_get_string (cursor, 3);
 
-			tracker_db_cursor_get_value (cursor, 3, &value);
+			tracker_db_cursor_get_value (cursor, 4, &value);
 
 			if (G_VALUE_TYPE (&value) != 0) {
 				multi_valued = (g_value_get_int (&value) > 1);
@@ -461,7 +467,7 @@ db_get_static_data (TrackerDBInterface *iface)
 				multi_valued = TRUE;
 			}
 
-			tracker_db_cursor_get_value (cursor, 4, &value);
+			tracker_db_cursor_get_value (cursor, 5, &value);
 
 			if (G_VALUE_TYPE (&value) != 0) {
 				indexed = (g_value_get_int (&value) == 1);
@@ -471,7 +477,7 @@ db_get_static_data (TrackerDBInterface *iface)
 				indexed = FALSE;
 			}
 
-			tracker_db_cursor_get_value (cursor, 5, &value);
+			tracker_db_cursor_get_value (cursor, 6, &value);
 
 			if (G_VALUE_TYPE (&value) != 0) {
 				fulltext_indexed = (g_value_get_int (&value) == 1);
@@ -481,7 +487,7 @@ db_get_static_data (TrackerDBInterface *iface)
 				fulltext_indexed = FALSE;
 			}
 
-			tracker_db_cursor_get_value (cursor, 6, &value);
+			tracker_db_cursor_get_value (cursor, 7, &value);
 
 			if (G_VALUE_TYPE (&value) != 0) {
 				transient = (g_value_get_int (&value) == 1);
@@ -491,7 +497,7 @@ db_get_static_data (TrackerDBInterface *iface)
 				transient = FALSE;
 			}
 
-			tracker_db_cursor_get_value (cursor, 7, &value);
+			tracker_db_cursor_get_value (cursor, 8, &value);
 
 			if (G_VALUE_TYPE (&value) != 0) {
 				annotation = (g_value_get_int (&value) == 1);
@@ -510,7 +516,9 @@ db_get_static_data (TrackerDBInterface *iface)
 			tracker_property_set_fulltext_indexed (property, fulltext_indexed);
 			tracker_property_set_embedded (property, !annotation);
 			property_add_super_properties_from_db (iface, property);
+
 			tracker_ontology_add_property (property);
+			tracker_ontology_add_id_uri_pair (id, uri);
 
 			g_object_unref (property);
 
@@ -520,11 +528,41 @@ db_get_static_data (TrackerDBInterface *iface)
 	}
 }
 
+
+static void
+insert_uri_in_resource_table (TrackerDBInterface *iface, const gchar *uri, gint *max_id)
+{
+	TrackerDBStatement *stmt;
+	gint id = ++(*max_id);
+	GError *error = NULL;
+
+	stmt = tracker_db_interface_create_statement (iface,
+	                                              "INSERT  "
+	                                              "INTO \"rdfs:Resource\" "
+	                                              "(ID, Uri, \"tracker:added\", "
+	                                                "\"tracker:modified\", Available) "
+	                                              "VALUES (?, ?, ?, 0, 1)");
+	tracker_db_statement_bind_int (stmt, 0, id);
+	tracker_db_statement_bind_text (stmt, 1, uri);
+	tracker_db_statement_bind_int64 (stmt, 2, (gint64) time (NULL));
+	tracker_db_statement_execute (stmt, &error);
+
+	if (error) {
+		g_critical ("%s\n", error->message);
+		g_clear_error (&error);
+	}
+
+	tracker_ontology_add_id_uri_pair (id, uri);
+	g_object_unref (stmt);
+
+}
+
 static void
 create_decomposed_metadata_property_table (TrackerDBInterface *iface, 
 					   TrackerProperty   **property, 
 					   const gchar        *service_name,
-					   const gchar       **sql_type_for_single_value)
+					   const gchar       **sql_type_for_single_value,
+					   gint               *max_id)
 {
 	const char *field_name;
 	const char *sql_type;
@@ -599,6 +637,11 @@ create_decomposed_metadata_property_table (TrackerDBInterface *iface,
 		*sql_type_for_single_value = sql_type;
 	}
 
+	/* insert property uri in rdfs:Resource table */
+	if (max_id && tracker_property_get_uri (*property) != NULL) {
+		insert_uri_in_resource_table (iface, tracker_property_get_uri (*property),
+		                              max_id);
+	}
 }
 
 static void
@@ -634,7 +677,8 @@ create_decomposed_metadata_tables (TrackerDBInterface *iface,
 
 			create_decomposed_metadata_property_table (iface, property, 
 								   service_name, 
-								   &sql_type_for_single_value);
+								   &sql_type_for_single_value,
+								   main_class ? NULL : max_id);
 
 			if (sql_type_for_single_value) {
 				/* single value */
@@ -675,20 +719,14 @@ create_decomposed_metadata_tables (TrackerDBInterface *iface,
 		}
 	}
 
-	g_slist_free (class_properties);
-
 	/* insert class uri in rdfs:Resource table */
 	if (tracker_class_get_uri (service) != NULL) {
-		TrackerDBStatement *stmt;
-
-		stmt = tracker_db_interface_create_statement (iface,
-							      "INSERT OR IGNORE INTO \"rdfs:Resource\" (ID, Uri, \"tracker:added\", \"tracker:modified\") VALUES (?, ?, ?, 0)");
-		tracker_db_statement_bind_int (stmt, 0, ++(*max_id));
-		tracker_db_statement_bind_text (stmt, 1, tracker_class_get_uri (service));
-		tracker_db_statement_bind_int64 (stmt, 2, (gint64) time (NULL));
-		tracker_db_statement_execute (stmt, NULL);
-		g_object_unref (stmt);
+		insert_uri_in_resource_table (iface, tracker_class_get_uri (service),
+		                              max_id);
 	}
+
+	g_slist_free (class_properties);
+
 }
 
 static void
@@ -714,8 +752,7 @@ create_decomposed_transient_metadata_tables (TrackerDBInterface *iface)
 			/* create the TEMPORARY table */
 			create_decomposed_metadata_property_table (iface, property,
 								   service_name,
-								   NULL);
-			
+								   NULL, NULL);
 		}
 	}
 }

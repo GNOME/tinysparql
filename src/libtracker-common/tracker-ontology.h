@@ -74,6 +74,9 @@ void               tracker_ontology_add_property         (TrackerProperty  *fiel
 TrackerProperty *  tracker_ontology_get_property_by_uri  (const gchar      *uri);
 void               tracker_ontology_add_namespace        (TrackerNamespace *namespace_);
 TrackerNamespace * tracker_ontology_get_namespace_by_uri (const gchar      *namespace_uri);
+const gchar*       tracker_ontology_get_uri_by_id        (gint              id);
+void               tracker_ontology_add_id_uri_pair      (gint              id,
+                                                          const gchar      *uri);
 
 G_END_DECLS
 

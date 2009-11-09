@@ -4151,16 +4151,19 @@ static int fulltextNext(sqlite3_vtab_cursor *pCursor){
   
     
     for ( ; !plrAtEnd(&plReader); plrStep(&plReader) ){
-     
+      const gchar *uri;
       int col = plrColumn (&plReader);
-      
+
+      uri = tracker_ontology_get_uri_by_id (col);
       c->rank += get_metadata_weight (col);
-      
-      if (first_pos) {
-        g_string_append_printf (c->offsets, "%d,%d", col, plrPosition (&plReader));
+
+      if (uri && first_pos) {
+        g_string_append_printf (c->offsets, "%s,%d", uri, plrPosition (&plReader));
         first_pos = FALSE;
+      } else if (uri) {
+        g_string_append_printf (c->offsets, ",%s,%d", uri, plrPosition (&plReader));
       } else {
-        g_string_append_printf (c->offsets, ",%d,%d", col, plrPosition (&plReader));
+        g_warning ("Type '%d' for FTS offset doesn't exist in ontology", col);
       }
     }
        
