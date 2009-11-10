@@ -8,7 +8,8 @@ config_DATA =							\
 	tracker-miner.xml					\
 	tracker-resources.xml					\
 	tracker-resources-class.xml				\
-	tracker-statistics.xml
+	tracker-statistics.xml					\
+	tracker-writeback.xml
 
 # Services
 servicedir = $(DBUS_SERVICES_DIR)

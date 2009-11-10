@@ -14,7 +14,8 @@ SUBDIRS = 					\
 	tracker-control				\
 	tracker-utils				\
 	tracker-extract				\
-	tracker-miner-fs
+	tracker-miner-fs			\
+	tracker-writeback
 
 if HAVE_TRACKER_PREFERENCES
 SUBDIRS += tracker-preferences

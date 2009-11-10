@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<node name="/">
+  <interface name="org.freedesktop.Tracker1.Writeback">
+    <annotation name="org.freedesktop.DBus.GLib.CSymbol" value="tracker_writeback_dbus"/>
+
+    <method name="UpdateMetadata">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
+      <arg type="s" name="uri" direction="in" />
+    </method>
+  </interface>
+</node>
