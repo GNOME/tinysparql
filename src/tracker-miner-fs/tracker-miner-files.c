@@ -430,11 +430,16 @@ miner_files_constructed (GObject *object)
 }
 
 static void
-set_up_mount_point_cb (TrackerMiner *miner,
-		       const GError *error,
-		       gpointer      user_data)
+set_up_mount_point_cb (GObject      *source,
+                       GAsyncResult *result,
+                       gpointer      user_data)
 {
 	gchar *removable_device_urn = user_data;
+
+	GError *error = NULL;
+	tracker_miner_execute_update_finish (TRACKER_MINER (source),
+	                                     result,
+	                                     &error);
 
 	if (error) {
 		g_critical ("Could not set up mount point '%s': %s",
@@ -525,10 +530,15 @@ set_up_mount_point (TrackerMinerFiles *miner,
 }
 
 static void
-init_mount_points_cb (TrackerMiner *miner,
-		      const GError *error,
-		      gpointer      user_data)
+init_mount_points_cb (GObject      *source,
+                      GAsyncResult *result,
+                      gpointer      user_data)
 {
+	GError *error = NULL;
+	tracker_miner_execute_update_finish (TRACKER_MINER (source),
+	                                     result,
+	                                     &error);
+
 	if (error) {
 		g_critical ("Could not initialize currently active mount points: %s",
 			    error->message);
@@ -536,21 +546,26 @@ init_mount_points_cb (TrackerMiner *miner,
 }
 
 static void
-query_mount_points_cb (TrackerMiner *miner,
-		       GPtrArray    *result,
-		       const GError *error,
-		       gpointer      user_data)
+query_mount_points_cb (GObject      *source,
+                       GAsyncResult *result,
+                       gpointer      user_data)
 {
+	TrackerMiner *miner = TRACKER_MINER (source);
 	TrackerMinerFilesPrivate *priv;
 	GHashTable *volumes;
 	GHashTableIter iter;
 	gpointer key, value;
 	GString *accumulator;
 	gint i;
+	GError *error = NULL;
+	GPtrArray *query_results;
 #ifdef HAVE_HAL
 	GSList *udis, *u;
 #endif
 
+	query_results = tracker_miner_execute_sparql_finish (miner,
+	                                                     result,
+	                                                     &error);
 	if (error) {
 		g_critical ("Could not obtain the mounted volumes: %s", error->message);
 		return;
@@ -562,11 +577,11 @@ query_mount_points_cb (TrackerMiner *miner,
 	                                 (GDestroyNotify) g_free,
 	                                 NULL);
 
-	for (i = 0; i < result->len; i++) {
+	for (i = 0; i < query_results->len; i++) {
 		gchar **row;
 		gint state;
 
-		row = g_ptr_array_index (result, i);
+		row = g_ptr_array_index (query_results, i);
 		state = VOLUME_MOUNTED_IN_STORE;
 
 		if (strcmp (row[0], TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN) == 0) {

@@ -590,7 +590,7 @@ fs_get_property (GObject    *object,
 	}
 }
 
-static gboolean 
+static gboolean
 fs_defaults (TrackerMinerFS *fs,
 	     GFile          *file)
 {
@@ -614,8 +614,8 @@ miner_started (TrackerMiner *miner)
 
 	fs->private->been_started = TRUE;
 
-	g_object_set (miner, 
-		      "progress", 0.0, 
+	g_object_set (miner,
+		      "progress", 0.0,
 		      "status", _("Initializing"),
 		      NULL);
 
@@ -625,8 +625,8 @@ miner_started (TrackerMiner *miner)
 static void
 miner_stopped (TrackerMiner *miner)
 {
-	g_object_set (miner, 
-		      "progress", 1.0, 
+	g_object_set (miner,
+		      "progress", 1.0,
 		      "status", _("Idle"),
 		      NULL);
 }
@@ -719,17 +719,22 @@ process_print_stats (TrackerMinerFS *fs)
 }
 
 static void
-commit_cb (TrackerMiner *miner,
-	   const GError *error,
-	   gpointer      user_data)
+commit_cb (GObject      *object,
+           GAsyncResult *result,
+           gpointer      user_data)
 {
+	TrackerMiner *miner = TRACKER_MINER (object);
+	GError *error = NULL;
+
+	tracker_miner_commit_finish (miner, result, &error);
+
 	if (error) {
 		g_critical ("Could not commit: %s", error->message);
 	}
 }
 
 static void
-process_stop (TrackerMinerFS *fs) 
+process_stop (TrackerMinerFS *fs)
 {
 	/* Now we have finished crawling, print stats and enable monitor events */
 	process_print_stats (fs);
@@ -738,8 +743,8 @@ process_stop (TrackerMinerFS *fs)
 
 	g_message ("Idle");
 
-	g_object_set (fs, 
-		      "progress", 1.0, 
+	g_object_set (fs,
+		      "progress", 1.0,
 		      "status", _("Idle"),
 		      NULL);
 
@@ -785,15 +790,19 @@ item_moved_data_free (ItemMovedData *data)
 }
 
 static void
-sparql_update_cb (TrackerMiner *miner,
-		  const GError *error,
-		  gpointer      user_data)
+sparql_update_cb (GObject      *object,
+                  GAsyncResult *result,
+                  gpointer      user_data)
 {
 	TrackerMinerFS *fs;
 	TrackerMinerFSPrivate *priv;
 	ProcessData *data;
 
-	fs = TRACKER_MINER_FS (miner);
+	GError *error = NULL;
+
+	tracker_miner_execute_update_finish (TRACKER_MINER (object), result, &error);
+
+	fs = TRACKER_MINER_FS (object);
 	priv = fs->private;
 	data = user_data;
 
@@ -815,14 +824,18 @@ sparql_update_cb (TrackerMiner *miner,
 }
 
 static void
-sparql_query_cb (TrackerMiner *miner,
-		 GPtrArray    *result,
-		 const GError *error,
-		 gpointer      user_data)
+sparql_query_cb (GObject      *object,
+                 GAsyncResult *result,
+                 gpointer      user_data)
 {
 	SparqlQueryData *data = user_data;
+	TrackerMiner *miner = TRACKER_MINER (object);
 
-	data->value = result && result->len == 1;
+	GError *error = NULL;
+
+	const GPtrArray *query_results = tracker_miner_execute_sparql_finish (miner, result, &error);
+
+	data->value = query_results && query_results->len == 1;
 	g_main_loop_quit (data->main_loop);
 }
 
@@ -1012,24 +1025,26 @@ item_remove (TrackerMinerFS *fs,
 }
 
 static void
-item_update_uri_recursively_cb (TrackerMiner *miner,
-				GPtrArray    *result,
-				const GError *error,
-				gpointer      user_data)
+item_update_uri_recursively_cb (GObject      *object,
+                                GAsyncResult *result,
+                                gpointer      user_data)
 {
-	TrackerMinerFS *fs = TRACKER_MINER_FS (miner);
+	TrackerMinerFS *fs = TRACKER_MINER_FS (object);
 	RecursiveMoveData *data = user_data;
+	GError *error = NULL;
+
+	const GPtrArray *query_results = tracker_miner_execute_sparql_finish (TRACKER_MINER (object), result, &error);
 
 	if (error) {
 		g_critical ("Could not query children: %s", error->message);
 	} else {
-		if (result) {
+		if (query_results) {
 			gint i;
 
-			for (i = 0; i < result->len; i++) {
+			for (i = 0; i < query_results->len; i++) {
 				gchar **child_source_uri, *child_uri;
 
-				child_source_uri = g_ptr_array_index (result, i);
+				child_source_uri = g_ptr_array_index (query_results, i);
 
 				if (!g_str_has_prefix (*child_source_uri, data->source_uri)) {
 					g_warning ("Child URI '%s' does not start with parent URI '%s'",
@@ -1222,7 +1237,7 @@ item_queue_get_progress (TrackerMinerFS *fs)
 {
 	guint items_to_process = 0;
 	guint items_total = 0;
-	
+
 	items_to_process += g_queue_get_length (fs->private->items_deleted);
 	items_to_process += g_queue_get_length (fs->private->items_created);
 	items_to_process += g_queue_get_length (fs->private->items_updated);
@@ -1378,10 +1393,10 @@ should_change_index_for_file (TrackerMinerFS *fs,
 	gchar              *query, *uri;
 	SparqlQueryData     data;
 
-	file_info = g_file_query_info (file, 
-				       G_FILE_ATTRIBUTE_TIME_MODIFIED, 
-				       G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS, 
-				       NULL, 
+	file_info = g_file_query_info (file,
+				       G_FILE_ATTRIBUTE_TIME_MODIFIED,
+				       G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
+				       NULL,
 				       NULL);
 	if (!file_info) {
 		/* NOTE: We return TRUE here because we want to update the DB
@@ -1489,7 +1504,7 @@ monitor_item_created_cb (TrackerMonitor *monitor,
 		} else {
 			g_queue_push_tail (fs->private->items_created,
 					   g_object_ref (file));
-			
+
 			item_queue_handlers_set_up (fs);
 		}
 	}
@@ -1559,17 +1574,17 @@ monitor_item_deleted_cb (TrackerMonitor *monitor,
 	/* Remove directory from list of directories we are going to
 	 * iterate if it is in there.
 	 */
-	l = g_list_find_custom (fs->private->directories, 
-				path, 
+	l = g_list_find_custom (fs->private->directories,
+				path,
 				(GCompareFunc) g_strcmp0);
 
 	/* Make sure we don't remove the current device we are
 	 * processing, this is because we do this same clean up later
-	 * in process_device_next() 
+	 * in process_device_next()
 	 */
 	if (l && l != fs->private->current_directory) {
 		directory_data_free (l->data);
-		fs->private->directories = 
+		fs->private->directories =
 			g_list_delete_link (fs->private->directories, l);
 	}
 #endif
@@ -1595,7 +1610,7 @@ monitor_item_moved_cb (TrackerMonitor *monitor,
 
 			path = g_file_get_path (other_file);
 
-			g_debug ("Not in store:'?'->'%s' (DIR) (move monitor event, source unknown)", 
+			g_debug ("Not in store:'?'->'%s' (DIR) (move monitor event, source unknown)",
 				 path);
 
 			/* If the source is not monitored, we need to crawl it. */
@@ -1632,12 +1647,12 @@ monitor_item_moved_cb (TrackerMonitor *monitor,
 		} else if (!source_stored) {
 			/* Source file was not stored, check dest file as new */
 			if (!is_directory) {
-				g_queue_push_tail (fs->private->items_created, 
+				g_queue_push_tail (fs->private->items_created,
 						   g_object_ref (other_file));
-				
+
 				item_queue_handlers_set_up (fs);
 			} else {
-				g_debug ("Not in store:'?'->'%s' (DIR) (move monitor event, source monitored)", 
+				g_debug ("Not in store:'?'->'%s' (DIR) (move monitor event, source monitored)",
 					 path);
 
 				tracker_miner_fs_add_directory (fs, other_file, TRUE);
@@ -1645,7 +1660,7 @@ monitor_item_moved_cb (TrackerMonitor *monitor,
 		} else if (!should_process_other) {
 			/* Delete old file */
 			g_queue_push_tail (fs->private->items_deleted, g_object_ref (file));
-			
+
 			item_queue_handlers_set_up (fs);
 		} else {
 			/* Move old file to new file */
@@ -1654,7 +1669,7 @@ monitor_item_moved_cb (TrackerMonitor *monitor,
 
 			item_queue_handlers_set_up (fs);
 		}
-		
+
 		g_free (other_path);
 		g_free (path);
 	}
@@ -1695,7 +1710,7 @@ crawler_check_directory_cb (TrackerCrawler *crawler,
 	g_signal_emit (fs, signals[MONITOR_DIRECTORY], 0, file, &add_monitor);
 
 	/* FIXME: Should we add here or when we process the queue in
-	 * the finished sig? 
+	 * the finished sig?
 	 */
 	if (add_monitor) {
 		tracker_monitor_add (fs->private->monitor, file);
@@ -1707,7 +1722,7 @@ crawler_check_directory_cb (TrackerCrawler *crawler,
 	 * is not done recursively.
 	 *
 	 * As such, we only use the "check" rules here, we don't do
-	 * any database comparison with mtime. 
+	 * any database comparison with mtime.
 	 */
 	return should_check;
 }

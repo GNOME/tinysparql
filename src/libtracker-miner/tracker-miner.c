@@ -48,11 +48,11 @@ static GQuark miner_error_quark = 0;
 
 struct TrackerMinerPrivate {
 	TrackerClient *client;
-	
+
 	GHashTable *pauses;
 
 	gboolean started;
-	
+
 	gchar *name;
 	gchar *status;
 	gdouble progress;
@@ -71,7 +71,7 @@ typedef struct {
 typedef struct {
 	gint cookie;
 	gchar *application;
-	gchar *reason;	
+	gchar *reason;
 } PauseData;
 
 typedef struct {
@@ -79,10 +79,10 @@ typedef struct {
 	GCancellable *cancellable;
 	gpointer callback;
 	gpointer user_data;
+	gpointer source_function;
 
 	guint id;
 	guint signal_id;
-	gboolean update;
 } AsyncCallData;
 
 enum {
@@ -667,7 +667,7 @@ static void
 pause_data_destroy (gpointer data)
 {
 	PauseData *pd;
-	
+
 	pd = data;
 
 	g_free (pd->reason);
@@ -754,29 +754,54 @@ async_call_data_destroy (AsyncCallData *data,
 
 static void
 run_update_callback (AsyncCallData *data,
-		     const GError  *error)
+                     GError        *error)
 {
-	TrackerMinerUpdateCallback callback;
-
+	GAsyncReadyCallback callback;
 	callback = data->callback;
+	GSimpleAsyncResult *result = NULL;
 
-	if (callback) {
-		(callback) (data->miner, error, data->user_data);
+	if (error) {
+		result = g_simple_async_result_new_from_error (G_OBJECT (data->miner),
+		                                               callback,
+		                                               data->user_data,
+		                                               error);
+	} else {
+		result = g_simple_async_result_new (G_OBJECT (data->miner),
+                                            callback,
+                                            data->user_data,
+                                            data->source_function);
 	}
+
+	g_simple_async_result_complete (result);
+	g_object_unref (result);
 }
 
 static void
-run_query_callback (AsyncCallData *data,
-		    GPtrArray     *result,
-		    const GError  *error)
+run_query_callback (AsyncCallData   *data,
+                    const GPtrArray *query_results,
+                    GError          *error)
 {
-	TrackerMinerQueryCallback callback;
+	GAsyncReadyCallback callback;
 
 	callback = data->callback;
 
-	if (callback) {
-		(callback) (data->miner, result, error, data->user_data);
+	GSimpleAsyncResult *result = NULL;
+
+	if (error) {
+		result = g_simple_async_result_new_from_error (G_OBJECT (data->miner),
+		                                               callback,
+		                                               data->user_data,
+		                                               error);
+	} else {
+		result = g_simple_async_result_new (G_OBJECT (data->miner),
+		                                    callback,
+		                                    data->user_data,
+		                                    data->source_function);
 	}
+
+	g_simple_async_result_set_op_res_gpointer (result, query_results, NULL);
+	g_simple_async_result_complete (result);
+	g_object_unref (result);
 }
 
 static void
@@ -832,7 +857,7 @@ async_call_data_new (TrackerMiner *miner,
 		     GCancellable *cancellable,
 		     gpointer      callback,
 		     gpointer      user_data,
-		     gboolean      update)
+             gpointer      source_function)
 {
 	AsyncCallData *data;
 
@@ -840,7 +865,7 @@ async_call_data_new (TrackerMiner *miner,
 	data->miner = miner;
 	data->callback = callback;
 	data->user_data = user_data;
-	data->update = update;
+	data->source_function = source_function;
 
 	if (cancellable) {
 		data->cancellable = g_object_ref (cancellable);
@@ -872,7 +897,9 @@ async_call_notify_error (AsyncCallData *data,
 	if (data->callback) {
 		error = g_error_new_literal (miner_error_quark, code, message);
 
-		if (data->update) {
+		if (data->source_function == tracker_miner_execute_update ||
+		    data->source_function == tracker_miner_execute_batch_update ||
+		    data->source_function == tracker_miner_commit) {
 			run_update_callback (data, error);
 		} else {
 			run_query_callback (data, NULL, error);
@@ -887,21 +914,25 @@ async_call_notify_error (AsyncCallData *data,
  * @miner: a #TrackerMiner
  * @sparql: a SPARQL query
  * @cancellable: a #GCancellable to control the operation
- * @callback: a #TrackerMinerUpdateCallback to call when the operation is finished
+ * @callback: a #GAsyncReadyCallback to call when the operation is finished
  * @user_data: data to pass to @callback
  *
  * Executes an update SPARQL query on tracker-store, use this
  * whenever you want to perform data insertions or modifications.
  *
- * When the operation is finished, @callback will be called, providing the error, if any.
- * If the operation is cancelled, @callback will be called anyways, with error filled in.
+ * When the operation is finished, @callback will be called, providing a #GAsyncResult
+ * object. Call tracker_miner_execute_sparql_finish on it to get the returned #GError,
+ * if there is one.
+ *
+ * If the operation is cancelled, @callback will be called anyway, with the #GAsyncResult
+ * object containing an error.
  **/
 void
-tracker_miner_execute_update (TrackerMiner               *miner,
-			      const gchar                *sparql,
-			      GCancellable               *cancellable,
-			      TrackerMinerUpdateCallback  callback,
-			      gpointer                    user_data)
+tracker_miner_execute_update (TrackerMiner        *miner,
+                              const gchar         *sparql,
+                              GCancellable        *cancellable,
+                              GAsyncReadyCallback  callback,
+                              gpointer             user_data)
 {
 	TrackerMinerPrivate *priv;
 	AsyncCallData *data;
@@ -911,11 +942,36 @@ tracker_miner_execute_update (TrackerMiner               *miner,
 	g_return_if_fail (!cancellable || G_IS_CANCELLABLE (cancellable));
 
 	priv = TRACKER_MINER_GET_PRIVATE (miner);
-	data = async_call_data_new (miner, cancellable, callback, user_data, TRUE);
+	data = async_call_data_new (miner,
+	                            cancellable,
+	                            callback,
+	                            user_data,
+	                            tracker_miner_execute_sparql);
 
 	data->id = tracker_resources_sparql_update_async (miner->private->client,
-							  sparql, sparql_update_cb,
-							  data);
+	                                                  sparql,
+	                                                  sparql_update_cb,
+	                                                  data);
+}
+
+/**
+ * tracker_miner_execute_update_finish:
+ * @miner: a #TrackerMiner
+ * @result: a #GAsyncResult
+ * @error: a #GError
+ *
+ * Finishes the async update operation. If an error occured during the update,
+ * @error will be set.
+ *
+ **/
+void
+tracker_miner_execute_update_finish (TrackerMiner *miner,
+                                     GAsyncResult *result,
+                                     GError      **error)
+{
+	GSimpleAsyncResult *r = G_SIMPLE_ASYNC_RESULT (result);
+
+	g_simple_async_result_propagate_error (r, error);
 }
 
 /**
@@ -923,23 +979,26 @@ tracker_miner_execute_update (TrackerMiner               *miner,
  * @miner: a #TrackerMiner
  * @sparql: a SPARQL query
  * @cancellable: a #GCancellable to control the operation
- * @callback: a #TrackerMinerQueryCallback to call when the operation is finished
+ * @callback: a #GAsyncReadyCallback to call when the operation is finished
  * @user_data: data to pass to @callback
  *
  * Executes the SPARQL query on tracker-store and returns asynchronously
  * the queried data. Use this whenever you need to get data from
  * already stored information.
  *
- * When the operation is finished, @callback will be called, providing the queried data,
- * or the error, if any. If the operation is cancelled, @callback will be called with the
- * error parameter filled in.
+ * When the operation is finished, @callback will be called, providing a #GAsyncResult
+ * object. Call tracker_miner_execute_sparql_finish on it to get the query results, or
+ * the GError object if an error occured.
+ *
+ * If the operation is cancelled, @callback will be called anyway, with the #GAsyncResult
+ * object containing an error.
  **/
 void
 tracker_miner_execute_sparql (TrackerMiner              *miner,
-			      const gchar               *sparql,
-			      GCancellable              *cancellable,
-			      TrackerMinerQueryCallback  callback,
-			      gpointer                   user_data)
+                              const gchar               *sparql,
+                              GCancellable              *cancellable,
+                              GAsyncReadyCallback        callback,
+                              gpointer                   user_data)
 {
 	TrackerMinerPrivate *priv;
 	AsyncCallData *data;
@@ -950,7 +1009,7 @@ tracker_miner_execute_sparql (TrackerMiner              *miner,
 	g_return_if_fail (callback != NULL);
 
 	priv = TRACKER_MINER_GET_PRIVATE (miner);
-	data = async_call_data_new (miner, cancellable, callback, user_data, FALSE);
+	data = async_call_data_new (miner, cancellable, callback, user_data, tracker_miner_execute_sparql);
 
 	data->id = tracker_resources_sparql_query_async (miner->private->client,
 							 sparql, sparql_query_cb,
@@ -958,26 +1017,54 @@ tracker_miner_execute_sparql (TrackerMiner              *miner,
 }
 
 /**
+ * tracker_miner_execute_sparql_finish:
+ * @miner: a #TrackerMiner
+ * @result: a #GAsyncResult object holding the result of the query
+ * @error: a #GError
+ *
+ * Finishes the async operation and returns the query results. If an error
+ * occured during the query, @error will be set.
+ *
+ **/
+const GPtrArray*
+tracker_miner_execute_sparql_finish (TrackerMiner *miner,
+                                     GAsyncResult *result,
+                                     GError      **error)
+{
+	GSimpleAsyncResult *r = G_SIMPLE_ASYNC_RESULT (result);
+
+	if (g_simple_async_result_propagate_error (r, error)) {
+		return NULL;
+	}
+
+	return (const GPtrArray*) g_simple_async_result_get_op_res_gpointer (r);
+}
+
+/**
  * tracker_miner_execute_batch_update:
  * @miner: a #TrackerMiner
  * @sparql: a set of SPARQL updates
  * @cancellable: a #GCancellable to control the operation
- * @callback: a #TrackerMinerUpdateCallback to call when the operation is finished
+ * @callback: a #GAsyncReadyCallback to call when the operation is finished
  * @user_data: data to pass to @callback
  *
  * Executes a batch of update SPARQL queries on tracker-store, use this
  * whenever you want to perform data insertions or modifications in
  * batches.
  *
- * When the operation is finished, @callback will be called, providing the error, if any.
- * If the operation is cancelled, @callback will be called anyways, with error filled in.
+ * When the operation is finished, @callback will be called, providing a #GAsyncResult
+ * object. Call tracker_miner_execute_batch_update_finish on it to get the returned #GError,
+ * if there is one.
+ *
+ * If the operation is cancelled, @callback will be called anyway, with the #GAsyncResult
+ * object containing an error.
  **/
 void
 tracker_miner_execute_batch_update (TrackerMiner               *miner,
-				    const gchar                *sparql,
-				    GCancellable               *cancellable,
-				    TrackerMinerUpdateCallback  callback,
-				    gpointer                    user_data)
+                                    const gchar                *sparql,
+                                    GCancellable               *cancellable,
+                                    GAsyncReadyCallback         callback,
+                                    gpointer                    user_data)
 {
 	TrackerMinerPrivate *priv;
 	AsyncCallData *data;
@@ -987,7 +1074,7 @@ tracker_miner_execute_batch_update (TrackerMiner               *miner,
 	g_return_if_fail (!cancellable || G_IS_CANCELLABLE (cancellable));
 
 	priv = TRACKER_MINER_GET_PRIVATE (miner);
-	data = async_call_data_new (miner, cancellable, callback, user_data, TRUE);
+	data = async_call_data_new (miner, cancellable, callback, user_data, tracker_miner_execute_batch_update);
 
 	data->id = tracker_resources_batch_sparql_update_async (miner->private->client,
 								sparql, sparql_update_cb,
@@ -995,22 +1082,47 @@ tracker_miner_execute_batch_update (TrackerMiner               *miner,
 }
 
 /**
+ * tracker_miner_execute_batch_update_finish:
+ * @miner: a #TrackerMiner
+ * @result: a #GAsyncResult
+ * @error: a #GError
+ *
+ * Finishes the async batch update operation. If an error occured during the update,
+ * @error will be set.
+ *
+ **/
+void
+tracker_miner_execute_batch_update_finish (TrackerMiner *miner,
+                                           GAsyncResult *result,
+                                           GError      **error)
+{
+	GSimpleAsyncResult *r = G_SIMPLE_ASYNC_RESULT (result);
+
+	g_simple_async_result_propagate_error (r, error);
+}
+
+/**
  * tracker_miner_commit:
  * @miner: a #TrackerMiner
  * @cancellable: a #GCancellable to control the operation
- * @callback: a #TrackerMinerUpdateCallback to call when the operation is finished
+ * @callback: a #GAsyncReadyCallback to call when the operation is finished
  * @user_data: data to pass to @callback
  *
- * Commits all pending batch updates. see tracker_miner_execute_batch_update(). When
- * the operation is finished, @callback will be called, with the error parameter filled
- * in, if any. If the operation is cancelled through @cancellable, the callback will be
- * called anyways with error filled in.
+ * Commits all pending batch updates. See tracker_miner_execute_batch_update().
+ *
+ * When the operation is finished, @callback will be called, providing a #GAsyncResult
+ * object. Call tracker_miner_commit_finish on it to get the returned #GError,
+ * if there is one.
+ *
+ * If the operation is cancelled, @callback will be called anyway, with the #GAsyncResult
+ * object containing an error.
  **/
+
 void
 tracker_miner_commit (TrackerMiner               *miner,
-		      GCancellable               *cancellable,
-		      TrackerMinerUpdateCallback  callback,
-		      gpointer                    user_data)
+                      GCancellable               *cancellable,
+                      GAsyncReadyCallback         callback,
+                      gpointer                    user_data)
 
 {
 	TrackerMinerPrivate *priv;
@@ -1020,11 +1132,31 @@ tracker_miner_commit (TrackerMiner               *miner,
 	g_return_if_fail (!cancellable || G_IS_CANCELLABLE (cancellable));
 
 	priv = TRACKER_MINER_GET_PRIVATE (miner);
-	data = async_call_data_new (miner, cancellable, callback, user_data, TRUE);
+	data = async_call_data_new (miner, cancellable, callback, user_data, tracker_miner_commit);
 
 	data->id = tracker_resources_batch_commit_async (miner->private->client,
 							 sparql_update_cb,
 							 data);
+}
+
+/**
+ * tracker_miner_commit_finish:
+ * @miner: a #TrackerMiner
+ * @result: a #GAsyncResult
+ * @error: a #GError
+ *
+ * Finishes the async comit operation. If an error occured during the commit,
+ * @error will be set.
+ *
+ **/
+void
+tracker_miner_commit_finish (TrackerMiner *miner,
+                             GAsyncResult *result,
+                             GError      **error)
+{
+	GSimpleAsyncResult *r = G_SIMPLE_ASYNC_RESULT (result);
+
+	g_simple_async_result_propagate_error (r, error);
 }
 
 static gint
@@ -1042,7 +1174,7 @@ tracker_miner_pause_internal (TrackerMiner  *miner,
 	while (g_hash_table_iter_next (&iter, &key, &value)) {
 		PauseData *pd = value;
 
-		if (g_strcmp0 (application, pd->application) == 0 && 
+		if (g_strcmp0 (application, pd->application) == 0 &&
 		    g_strcmp0 (reason, pd->reason) == 0) {
 			/* Can't use duplicate pauses */
 			g_set_error_literal (error, TRACKER_MINER_ERROR, 0,
@@ -1053,7 +1185,7 @@ tracker_miner_pause_internal (TrackerMiner  *miner,
 
 	pd = pause_data_new (application, reason);
 
-	g_hash_table_insert (miner->private->pauses, 
+	g_hash_table_insert (miner->private->pauses,
 			     GINT_TO_POINTER (pd->cookie),
 			     pd);
 
@@ -1109,7 +1241,7 @@ tracker_miner_pause (TrackerMiner  *miner,
  *
  * Returns: #TRUE if the cookie was valid.
  **/
-gboolean 
+gboolean
 tracker_miner_resume (TrackerMiner  *miner,
 		      gint           cookie,
 		      GError       **error)
@@ -1208,7 +1340,7 @@ tracker_miner_dbus_get_pause_details (TrackerMiner           *miner,
 
 	g_strfreev (applications_strv);
 	g_strfreev (reasons_strv);
-	
+
 	g_slist_free (applications);
 	g_slist_free (reasons);
 }
@@ -1267,7 +1399,7 @@ tracker_miner_dbus_resume (TrackerMiner           *miner,
 
 	tracker_dbus_async_return_if_fail (miner != NULL, context);
 
-	tracker_dbus_request_new (request_id, "%s(cookie:%d)", 
+	tracker_dbus_request_new (request_id, "%s(cookie:%d)",
 				  __PRETTY_FUNCTION__,
 				  cookie);
 
