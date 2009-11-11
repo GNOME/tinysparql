@@ -1016,26 +1016,30 @@ item_update_uri_recursively_cb (TrackerMiner *miner,
 	TrackerMinerFS *fs = TRACKER_MINER_FS (miner);
 	RecursiveMoveData *data = user_data;
 
-	if (result) {
-		gint i;
+	if (error) {
+		g_critical ("Could not query children: %s", error->message);
+	} else {
+		if (result) {
+			gint i;
 
-		for (i = 0; i < result->len; i++) {
-			gchar **child_source_uri, *child_uri;
+			for (i = 0; i < result->len; i++) {
+				gchar **child_source_uri, *child_uri;
 
-			child_source_uri = g_ptr_array_index (result, i);
+				child_source_uri = g_ptr_array_index (result, i);
 
-			if (!g_str_has_prefix (*child_source_uri, data->source_uri)) {
-				g_warning ("Child URI '%s' does not start with parent URI '%s'",
-				           *child_source_uri,
-				           data->source_uri);
-				continue;
+				if (!g_str_has_prefix (*child_source_uri, data->source_uri)) {
+					g_warning ("Child URI '%s' does not start with parent URI '%s'",
+						   *child_source_uri,
+						   data->source_uri);
+					continue;
+				}
+
+				child_uri = g_strdup_printf ("%s%s", data->uri, *child_source_uri + strlen (data->source_uri));
+
+				item_update_uri_recursively (fs, data, *child_source_uri, child_uri);
+
+				g_free (child_uri);
 			}
-
-			child_uri = g_strdup_printf ("%s%s", data->uri, *child_source_uri + strlen (data->source_uri));
-
-			item_update_uri_recursively (fs, data, *child_source_uri, child_uri);
-
-			g_free (child_uri);
 		}
 	}
 
