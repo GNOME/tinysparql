@@ -38,6 +38,11 @@ typedef struct {
 	TrackerClient *client;
 } TrackerWritebackDispatcherPrivate;
 
+typedef struct {
+        TrackerWritebackDispatcher *dispatcher;
+        GFile *file;
+} QueryData;
+
 #define TRACKER_WRITEBACK_DISPATCHER_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_WRITEBACK_DISPATCHER, TrackerWritebackDispatcherPrivate))
 
 #define TRACKER_SERVICE			"org.freedesktop.Tracker1"
@@ -196,7 +201,7 @@ tracker_writeback_dispatcher_init (TrackerWritebackDispatcher *dispatcher)
 	                                                     TRACKER_INTERFACE_RESOURCES);
 
 	dbus_g_proxy_add_signal (priv->dbus_data->tproxy, "Writeback",
-	                         TRACKER_TYPE_STR_STRV_MAP,
+	                         G_TYPE_STRV,
 	                         G_TYPE_INVALID);
 
 	dbus_g_proxy_connect_signal (priv->dbus_data->tproxy, "Writeback",
@@ -250,36 +255,48 @@ tracker_writeback_dispatcher_new ()
 }
 
 static void
-on_sparql_result_received (GPtrArray *result, 
-                           GError    *error, 
+on_sparql_result_received (GPtrArray *result,
+                           GError    *error,
                            gpointer   user_data)
 {
+	TrackerWritebackDispatcherPrivate *priv;
+        TrackerWritebackModule *module;
+        TrackerWriteback *writeback;
 	gchar *subject = user_data;
-	guint n;
+        GHashTableIter iter;
+        gpointer key, value;
+        QueryData *data;
 
-	g_print ("<%s> ", subject);
+        data = user_data;
+        priv = TRACKER_WRITEBACK_DISPATCHER_GET_PRIVATE (data->dispatcher);
 
-	for (n = 0; n < result->len; n++) {
-		const GStrv row = g_ptr_array_index (result, n);
+        /* FIXME: Lookup module by mimetype */
+        g_hash_table_iter_init (&iter, priv->modules);
 
-		if (n != 0)
-			g_print (";\n\t<%s> \"%s\"", row[0], row[1]);
-		else
-			g_print ("<%s> \"%s\"", row[0], row[1]);
-	}
+        if (!g_hash_table_iter_next (&iter, &key, &value)) {
+                return;
+        }
 
-	g_print (" .\n");
+        module = value;
+        writeback = tracker_writeback_module_create (module);
 
+        tracker_writeback_update_metadata (writeback, data->file, result);
+
+        g_object_unref (writeback);
+
+        g_object_unref (data->file);
+        g_slice_free (QueryData, data);
 	g_free (subject);
 }
 
-static void 
-on_writeback_cb (DBusGProxy                *proxy,
-                const gchar *const         *subjects,
-                TrackerWritebackDispatcher *object)
+static void
+on_writeback_cb (DBusGProxy                 *proxy,
+                 const gchar *const         *subjects,
+                 TrackerWritebackDispatcher *object)
 {
-	guint n;
 	TrackerWritebackDispatcherPrivate *priv;
+        QueryData *data;
+	guint n;
 
 	priv = TRACKER_WRITEBACK_DISPATCHER_GET_PRIVATE (object);
 
@@ -292,12 +309,14 @@ on_writeback_cb (DBusGProxy                *proxy,
 		                                "?predicate tracker:writeback true "
 		                         "}", subjects[n]);
 
+                data = g_slice_new (QueryData);
+                data->dispatcher = object;
+                data->file = g_file_new_for_uri (subjects[n]);
+
 		tracker_resources_sparql_query_async (priv->client,
 		                                      query,
 		                                      on_sparql_result_received,
-		                                      g_strdup (subjects[n]));
-
+                                                      data);
 		g_free (query);
 	}
 }
-

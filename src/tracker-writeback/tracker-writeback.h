@@ -19,6 +19,7 @@
  */
 
 #include <glib-object.h>
+#include <gio/gio.h>
 
 #ifndef __TRACKER_WRITEBACK_H__
 #define __TRACKER_WRITEBACK_H__
@@ -41,12 +42,22 @@ struct TrackerWriteback {
 
 struct TrackerWritebackClass {
         GObjectClass parent_class;
+
+        gboolean (* update_metadata) (TrackerWriteback *writeback,
+                                      GFile            *file,
+                                      GPtrArray        *values);
 };
 
 GType          tracker_writeback_get_type (void) G_GNUC_CONST;
 
-/* Entry function to be defined by modules */
-TrackerWriteback * writeback_module_get (GTypeModule *module);
+/* Entry functions to be defined by modules */
+TrackerWriteback * writeback_module_create        (GTypeModule *module);
+const GStrv        writeback_module_get_mimetypes (void);
+
+gboolean tracker_writeback_update_metadata (TrackerWriteback *writeback,
+                                            GFile            *file,
+                                            GPtrArray        *values);
+
 
 G_END_DECLS
 
