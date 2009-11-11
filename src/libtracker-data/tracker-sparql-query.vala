@@ -1045,6 +1045,7 @@ public class Tracker.SparqlQuery : Object {
 	void convert_expression_to_string (StringBuilder sql, PropertyType type, long begin) {
 		switch (type) {
 		case PropertyType.STRING:
+		case PropertyType.INTEGER:
 			// nothing to convert
 			break;
 		case PropertyType.RESOURCE:
