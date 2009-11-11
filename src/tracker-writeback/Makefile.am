@@ -14,15 +14,18 @@ INCLUDES = 								\
 	$(GLIB2_CFLAGS)							\
 	$(GCOV_CFLAGS)							\
 	$(GMODULE_CFLAGS) 						\
-	$(DBUS_CFLAGS)
+	$(DBUS_CFLAGS)							\
+	$(ID3LIB_CFLAGS)
 
-modules_LTLIBRARIES = 							\
-	libwriteback-dummy.la
+modules_LTLIBRARIES =
 
-# dummy
-libwriteback_dummy_la_SOURCES = tracker-writeback-dummy.c
-libwriteback_dummy_la_LDFLAGS = $(module_flags)
-libwriteback_dummy_la_LIBADD = $(GLIB2_LIBS) $(GCOV_LIBS)
+# MP3
+if HAVE_ID3LIB
+modules_LTLIBRARIES+=libwriteback-mp3.la
+libwriteback_mp3_la_SOURCES = tracker-writeback-mp3.c
+libwriteback_mp3_la_LDFLAGS = $(module_flags)
+libwriteback_mp3_la_LIBADD = $(GLIB2_LIBS) $(GCOV_LIBS) $(ID3LIB_LIBS)
+endif
 
 #
 # Binaries

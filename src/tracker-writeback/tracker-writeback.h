@@ -44,7 +44,6 @@ struct TrackerWritebackClass {
         GObjectClass parent_class;
 
         gboolean (* update_metadata) (TrackerWriteback *writeback,
-                                      GFile            *file,
                                       GPtrArray        *values);
 };
 
@@ -55,7 +54,6 @@ TrackerWriteback * writeback_module_create        (GTypeModule *module);
 const GStrv        writeback_module_get_mimetypes (void);
 
 gboolean tracker_writeback_update_metadata (TrackerWriteback *writeback,
-                                            GFile            *file,
                                             GPtrArray        *values);
 
 

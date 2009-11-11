@@ -154,6 +154,7 @@ EDS_REQUIRED=2.25.5
 # Unlikely version for now, Nepomuk integration isn't finished in streamanalyzer atm
 LIBSTREAMANALYZER_REQUIRED=0.7.0
 GEE_REQUIRED=0.3
+ID3LIB_REQUIRED=3.8.3
 
 # Library Checks
 PKG_CHECK_MODULES(GLIB2, [glib-2.0 >= $GLIB_REQUIRED])
@@ -229,6 +230,52 @@ fi
 GLIB_GENMARSHAL=`$PKG_CONFIG glib-2.0 --variable=glib_genmarshal`
 AC_SUBST(GLIB_GENMARSHAL)
 
+####################################################################
+# ID3lib for MP3 writeback support
+####################################################################
+
+# FIXME This should be package based. Unfortunately in several main
+# distros, it is not.
+
+OLD_CFLAGS="$CFLAGS"
+OLD_LIBS="$LIBS"
+CFLAGS=""
+LIBS=""
+
+AC_ARG_ENABLE(id3lib, 
+	      AS_HELP_STRING([--enable-id3lib], 
+	                     [enable writeback for MP3 data [[default=auto]]]),,
+	      [enable_id3lib=auto])
+
+if test "x$enable_id3lib" != "xno" ; then
+   AC_CHECK_HEADER(id3.h,
+   AC_CHECK_LIB(id3, ID3Tag_New))
+
+   have_id3lib=${ac_cv_lib_id3_ID3Tag_New:-no}
+
+   ID3LIB_CFLAGS="$CFLAGS"
+   ID3LIB_LIBS="$LIBS"
+
+   AC_SUBST(ID3LIB_CFLAGS)
+   AC_SUBST(ID3LIB_LIBS)
+
+   if test "x$have_libjpeg" = "xyes"; then
+      AC_DEFINE(HAVE_ID3LIB, [], [Define if we have id3lib])
+   fi
+else
+   have_id3lib="no  (disabled)"
+fi
+
+if test "x$enable_id3lib" = "xyes"; then
+   if test "x$have_id3lib" != "xyes"; then
+      AC_MSG_ERROR([Couldn't find id3lib >= $ID3LIB_REQUIRED.])
+   fi
+fi
+
+AM_CONDITIONAL(HAVE_ID3LIB, test "x$have_id3lib" = "xyes")
+
+CFLAGS="$OLD_CFLAGS"
+LIBS="$OLD_LIBS"
 
 ####################################################################
 # Stream Analyzer
@@ -1565,6 +1612,10 @@ Plugins:
 
 	Evolution plugin    (data-push):	$enable_evolution_miner
 	KMail plugin        (data-push):	$enable_kmail_miner
+
+Writeback:
+
+	MP3 writeback:                          $have_id3lib
 
 Warning:
 

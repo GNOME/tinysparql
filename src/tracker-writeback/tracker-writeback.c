@@ -36,15 +36,13 @@ tracker_writeback_init (TrackerWriteback *writeback)
 
 gboolean
 tracker_writeback_update_metadata (TrackerWriteback *writeback,
-                                   GFile            *file,
                                    GPtrArray        *values)
 {
         g_return_val_if_fail (TRACKER_IS_WRITEBACK (writeback), FALSE);
-        g_return_val_if_fail (G_IS_FILE (file), FALSE);
         g_return_val_if_fail (values != NULL, FALSE);
 
         if (TRACKER_WRITEBACK_GET_CLASS (writeback)->update_metadata) {
-                return TRACKER_WRITEBACK_GET_CLASS (writeback)->update_metadata (writeback, file, values);
+                return TRACKER_WRITEBACK_GET_CLASS (writeback)->update_metadata (writeback, values);
         }
 
         return FALSE;

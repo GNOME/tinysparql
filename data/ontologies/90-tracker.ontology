@@ -49,12 +49,5 @@ tracker:writeback a rdf:Property ;
 	rdfs:domain rdf:Property ;
 	rdfs:range xsd:boolean .
 
-# Remove this afterward
-tracker:writebackTestField a rdf:Property ;
-	nrl:maxCardinality 1 ;
-	tracker:writeback true ;
-	rdfs:domain rdfs:Resource ;
-	rdfs:range xsd:string .
-
 fts: a tracker:Namespace ;
 	tracker:prefix "fts" .
