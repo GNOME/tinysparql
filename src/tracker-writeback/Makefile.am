@@ -30,6 +30,7 @@ INCLUDES = 								\
 libexec_PROGRAMS = tracker-writeback
 
 tracker_writeback_SOURCES = 						\
+	$(marshal_sources)						\
 	$(dbus_sources)							\
 	tracker-writeback-dispatcher.c					\
 	tracker-writeback-dispatcher.h					\
@@ -41,6 +42,7 @@ tracker_writeback_SOURCES = 						\
 
 tracker_writeback_LDADD = 						\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la	\
+	$(top_builddir)/src/libtracker-client/libtracker-client-@TRACKER_API_VERSION@.la \
 	$(DBUS_LIBS)							\
 	$(GMODULE_LIBS)							\
 	$(GTHREAD_LIBS)							\
@@ -50,10 +52,25 @@ tracker_writeback_LDADD = 						\
 dbus_sources = 								\
 	tracker-writeback-glue.h
 
+marshal_sources =							\
+	tracker-marshal.h						\
+	tracker-marshal.c
+
+tracker-marshal.h: tracker-marshal.list
+	$(AM_V_GEN)$(GLIB_GENMARSHAL) $< --prefix=tracker_marshal --header > $@
+
+tracker-marshal.c: tracker-marshal.list
+	$(AM_V_GEN)echo "#include \"tracker-marshal.h\"" > $@ &&        \
+		$(GLIB_GENMARSHAL) $< --prefix=tracker_marshal --body >> $@
+
 %-glue.h: $(top_srcdir)/data/dbus/%.xml
 	$(AM_V_GEN)$(DBUSBINDINGTOOL) --mode=glib-server --output=$@ --prefix=$(subst -,_,$*) $^
 
 BUILT_SOURCES = 							\
-	$(dbus_sources)
+	$(dbus_sources)							\
+	$(marshal_sources)
 
 CLEANFILES = $(BUILT_SOURCES)
+
+EXTRA_DIST = tracker-marshal.list
+

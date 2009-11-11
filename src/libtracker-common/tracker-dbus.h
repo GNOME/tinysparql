@@ -27,6 +27,8 @@
 #include <dbus/dbus-glib-lowlevel.h>
 #include <dbus/dbus-glib.h>
 
+#define TRACKER_TYPE_STR_STRV_MAP (dbus_g_type_get_map ("GHashTable", G_TYPE_STRING, G_TYPE_STRV))
+
 G_BEGIN_DECLS
 
 #if !defined (__LIBTRACKER_COMMON_INSIDE__) && !defined (TRACKER_COMPILATION)

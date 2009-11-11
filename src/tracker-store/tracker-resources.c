@@ -110,7 +110,7 @@ tracker_resources_class_init (TrackerResourcesClass *klass)
 			      NULL, NULL,
 			      tracker_marshal_VOID__BOXED,
 			      G_TYPE_NONE, 1,
-			      G_TYPE_STRV);
+			      TRACKER_TYPE_STR_STRV_MAP);
 
 	g_type_class_add_private (object_class, sizeof (TrackerResourcesPrivate));
 }

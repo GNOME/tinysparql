@@ -29,10 +29,6 @@ G_BEGIN_DECLS
 #define TRACKER_WRITEBACK_DBUS_NAME      "org.freedesktop.Tracker1.Writeback"
 #define TRACKER_WRITEBACK_DBUS_PATH      "/org/freedesktop/Tracker1/Writeback"
 
-void tracker_writeback_dbus_update_metadata  (TrackerWritebackDispatcher  *dispatcher,
-                                              const gchar                 *uri,
-                                              DBusGMethodInvocation       *context,
-                                              GError                     **error);
 
 G_END_DECLS
 
