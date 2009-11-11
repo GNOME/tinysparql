@@ -623,13 +623,17 @@ query_mount_points_cb (TrackerMiner *miner,
 			}
 #endif
 
-			g_debug ("URN '%s' (mount point: %s) was not reported to be mounted, but now it is, updating state",
-			         mount_point, urn);
-			set_up_mount_point (TRACKER_MINER_FILES (miner), urn, mount_point, TRUE, accumulator);
+			if (urn) {
+				g_debug ("URN '%s' (mount point: %s) was not reported to be mounted, but now it is, updating state",
+				         mount_point, urn);
+				set_up_mount_point (TRACKER_MINER_FILES (miner), urn, mount_point, TRUE, accumulator);
+			}
 		} else if (!(state & VOLUME_MOUNTED) &&
 			   (state & VOLUME_MOUNTED_IN_STORE)) {
-			g_debug ("URN '%s' was reported to be mounted, but it isn't anymore, updating state", urn);
-			set_up_mount_point (TRACKER_MINER_FILES (miner), urn, NULL, FALSE, accumulator);
+			if (urn) {
+				g_debug ("URN '%s' was reported to be mounted, but it isn't anymore, updating state", urn);
+				set_up_mount_point (TRACKER_MINER_FILES (miner), urn, NULL, FALSE, accumulator);
+			}
 		}
 	}
 
