@@ -25,6 +25,13 @@ import dbus.service
 from dbus.mainloop.glib import DBusGMainLoop
 import datetime, random
 
+try:
+    import barnum.gen_data as gen_data
+    barnum_available = True
+except ImportException:
+    print "No barnum. Crappy random"
+    barnum_available = False
+
 TRACKER = 'org.freedesktop.Tracker1'
 TRACKER_OBJ = '/org/freedesktop/Tracker1/Resources'
 
@@ -34,6 +41,7 @@ INSERT {
 <%s> a mfo:FeedMessage ;
  nie:contentLastModified "%s" ;
  nmo:communicationChannel <http://maemo.org/news/planet-maemo/atom.xml>;
+ nmo:plainTextMessageContent "%s" ;
  nie:title "%s".
  }
 """
@@ -71,8 +79,9 @@ class SignalerUI (gtk.Window):
         hbox_uri = gtk.HBox ()
         hbox_uri.add (uri_label)
         hbox_uri.add (self.uri_entry)
-        #self.uri_entry.set_property ("editable", False)
+        self.uri_entry.set_property ("sensitive", False)
         post_frame_vbox.add (hbox_uri)
+        
         date_label = gtk.Label ("Date")
         self.date_entry = gtk.Entry ()
         self.date_entry.set_property ("editable", False)
@@ -80,6 +89,10 @@ class SignalerUI (gtk.Window):
         date_hbox.add (date_label)
         date_hbox.add (self.date_entry)
         post_frame_vbox.add (date_hbox)
+
+        self.post_text = gtk.TextView ()
+        post_frame_vbox.add (self.post_text)
+        
         button_gen = gtk.Button (stock=gtk.STOCK_NEW)
         button_gen.connect ("clicked", self.gen_new_post_cb)
         post_frame_vbox.add (button_gen)
@@ -89,11 +102,11 @@ class SignalerUI (gtk.Window):
 
         button_new = gtk.Button (stock=gtk.STOCK_ADD)
         button_new.connect ("clicked", self.clicked_add_cb)
-        vbox.add (button_new)
+        vbox.pack_start (button_new, expand=False)
 
         button_remove = gtk.Button (stock=gtk.STOCK_REMOVE)
         button_remove.connect ("clicked", self.clicked_remove_cb)
-        vbox.add (button_remove)
+        vbox.pack_start (button_remove, expand=False)
 
         self.add (vbox)
         self.connect ("destroy", gtk.main_quit)
@@ -108,7 +121,9 @@ class SignalerUI (gtk.Window):
         date = self.date_entry.get_text ()
         uri = self.uri_entry.get_text ()
         title = self.title_entry.get_text ()
-
+        buf = self.post_text.get_buffer()
+        init, end = buf.get_bounds ()
+        text = buf.get_text (init, end).replace ("\n", "\\n")
         if (not date or (len(date) == 0)):
             pass
         if (not uri or (len(uri) == 0)):
@@ -120,7 +135,7 @@ class SignalerUI (gtk.Window):
             print "Generate a new URI!"
             return
         
-        sparql_insert = INSERT_SPARQL % (uri, date, title)
+        sparql_insert = INSERT_SPARQL % (uri, date, text, title)
         print sparql_insert
 
         self.iface.SparqlUpdate (sparql_insert)
@@ -141,6 +156,11 @@ class SignalerUI (gtk.Window):
         post_no = str(random.randint (100, 1000000))
         self.uri_entry.set_text ("http://test.maemo.org/feed/" + post_no)
         self.title_entry.set_text ("Title %s" % (post_no))
+        if barnum_available :
+            buf = gtk.TextBuffer ()
+            buf.set_text (gen_data.create_paragraphs (2, 5, 5))
+            self.post_text.set_wrap_mode (gtk.WRAP_WORD)
+            self.post_text.set_buffer (buf)
 
 if __name__ == "__main__":
 

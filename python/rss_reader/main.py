@@ -33,7 +33,7 @@ channels_model = gtk.ListStore (str, str, str, bool)
 
 posts_treeview = None
 channels_treeview = None
-
+text_view = None
 sources_dialog = None
 
 # Convenience defines
@@ -43,6 +43,19 @@ NORMAL = pango.WEIGHT_NORMAL
 BOLD = pango.WEIGHT_BOLD
 
 tracker = TrackerRSS ()
+
+class SimpleTextView (gtk.TextView):
+
+    def __init__ (self, buffer=None):
+        gtk.TextView.__init__ (self, buffer)
+        self.set_wrap_mode (gtk.WRAP_WORD)
+
+    def set_plain_text (self, text):
+        self.get_buffer().set_text (text)
+
+    def get_plain_text (self):
+        ini, end = self.get_buffer().get_bounds ()
+        return self.get_buffer ().get_text (ini, end)
 
 def populate_initial_posts ():
     results = tracker.get_post_sorted_by_date (10)
@@ -66,6 +79,8 @@ def create_posts_tree_view ():
 
     treeview.append_column (column_title)
     treeview.append_column (column_date)
+
+    treeview.connect ("cursor-changed", cursor_changed_cb)
 
     return treeview
 
@@ -117,6 +132,14 @@ def clicked_toggle_cb (widget):
 
     selected.selected_foreach (toggle_row_foreach)
 
+def cursor_changed_cb (tv):
+    selection = tv.get_selection ()
+    if (selection.count_selected_rows () > 0):
+        model, it = selection.get_selected ()
+        uri = model.get_value (it, 0)
+        text = tracker.get_text_for_uri (uri)
+        text_view.set_plain_text (text)
+
 def clicked_sources_cb (widget, dialog):
     # Dont do this all the time!
     if (len (channels_model) == 0):
@@ -132,7 +155,6 @@ def clicked_sources_cb (widget, dialog):
     dialog.hide ()
 
 def notification_addition (added_uris):
-    print "Received signal"
     print "%d add: %s" % (len(added_uris), [str(n) for n in added_uris])
     for uri in added_uris:
         details = tracker.get_info_for_entry (uri)
@@ -152,16 +174,13 @@ def remove_uris (model, path, iter, user_data):
         return True
 
 def notification_removal (removed_uris):
-    print "Received signal"
     print "%d remove: %s" % (len(removed_uris), [str(n) for n in removed_uris])
     posts_model.foreach (remove_uris, removed_uris)
 
 def update_uri (model, path, iter, user_data):
     updated_uri = user_data [0]
     uri = model.get (iter, 0)
-    print "Comparing ", uri[0], "with", updated_uri
     if (uri[0] == updated_uri):
-        print "Setting new values", user_data
         model.set(iter,
                   1, user_data[1],
                   2, user_data[2],
@@ -170,8 +189,7 @@ def update_uri (model, path, iter, user_data):
         return True
     
 
-def notification_update (updated_uris):
-    print "Received signal"
+def notification_update (updated_uris, update_predicates):
     print "%d update: %s" % (len(updated_uris), [str(n) for n in updated_uris])
     for uri in updated_uris:
         details = tracker.get_info_for_entry (uri)
@@ -212,6 +230,11 @@ if __name__ == "__main__":
     posts_treeview.set_model (posts_model)
     vbox.add (posts_treeview)
 
+    frame = gtk.Frame ()
+    text_view = SimpleTextView ()
+    frame.add (text_view)
+    vbox.add (frame)
+
     channels_treeview = create_channels_tree_view ()
     channels_treeview.set_model (channels_model)
     
@@ -230,7 +253,7 @@ if __name__ == "__main__":
     button_sources.connect ("clicked", clicked_sources_cb, dialog)
     button_box.add (button_sources)
     
-    vbox.add (button_box)
+    vbox.pack_start (button_box, expand=False)
     window.add (vbox)
 
     populate_initial_posts ()

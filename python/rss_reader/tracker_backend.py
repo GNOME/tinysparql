@@ -38,6 +38,7 @@ QUERY_FIRST_ENTRIES = """
     """
 
 SET_URI_AS_READED = """
+    DELETE {<%s> nmo:isRead "%s".}
     INSERT {<%s> nmo:isRead "%s".}
     """
 
@@ -59,6 +60,12 @@ QUERY_FOR_URI = """
       OPTIONAL {
       <%s> nmo:isRead ?isRead.
       }
+    }
+"""
+
+QUERY_FOR_TEXT = """
+    SELECT ?text WHERE {
+    <%s> nmo:plainTextMessageContent ?text .
     }
 """
 
@@ -96,11 +103,13 @@ class TrackerRSS:
     def set_is_read (self, uri, value):
         if (value):
             dbus_value = TRUE
+            anti_value = FALSE
         else:
             dbus_value = FALSE
+            anti_value = TRUE
 
-        print "Sending ", SET_URI_AS_READED % (uri, dbus_value)
-        self.iface.SparqlUpdate (SET_URI_AS_READED % (uri, dbus_value))
+        print "Sending ", SET_URI_AS_READED % (uri, anti_value, uri, dbus_value)
+        self.iface.SparqlUpdate (SET_URI_AS_READED % (uri, anti_value, uri, dbus_value))
 
     def get_all_subscribed_feeds (self):
         """ Returns [(uri, feed channel name, entries, visible)]
@@ -139,6 +148,13 @@ class TrackerRSS:
             else:
                 return (info[0], info[1], False)
 
+    def get_text_for_uri (self, uri):
+        text = self.iface.SparqlQuery (QUERY_FOR_TEXT % (uri))
+        if (text[0]):
+            text = text[0][0].replace ("\\n", "\n")
+        else:
+            text = ""
+        return text
 
     def mark_as_invisible (self, uri):
         self.invisible_feeds.append (uri)
