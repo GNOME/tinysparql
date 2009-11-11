@@ -18,6 +18,8 @@
  * Boston, MA  02110-1301, USA.
  */
 
+#include <glib-object.h>
+
 #ifndef __TRACKER_WRITEBACK_H__
 #define __TRACKER_WRITEBACK_H__
 
@@ -42,6 +44,9 @@ struct TrackerWritebackClass {
 };
 
 GType          tracker_writeback_get_type (void) G_GNUC_CONST;
+
+/* Entry function to be defined by modules */
+TrackerWriteback * writeback_module_get (GTypeModule *module);
 
 G_END_DECLS
 

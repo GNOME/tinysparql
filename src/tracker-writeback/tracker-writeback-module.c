@@ -65,18 +65,14 @@ tracker_writeback_module_load (GTypeModule *module)
 
 	g_module_make_resident (writeback_module->module);
 
-	if (!g_module_symbol (writeback_module->module, "writeback_module_initialize",
-			      (gpointer *) &writeback_module->initialize) ||
-	    !g_module_symbol (writeback_module->module, "writeback_module_shutdown",
-			      (gpointer *) &writeback_module->shutdown)) {
+	if (!g_module_symbol (writeback_module->module, "writeback_module_get",
+			      (gpointer *) &writeback_module->get)) {
 		g_warning ("Could not load module symbols for '%s': %s",
 			   writeback_module->name,
 			   g_module_error ());
 
 		return FALSE;
 	}
-
-	writeback_module->initialize (module);
 
 	return TRUE;
 }
@@ -87,13 +83,9 @@ tracker_writeback_module_unload (GTypeModule *module)
 	TrackerWritebackModule *writeback_module;
 
 	writeback_module = TRACKER_WRITEBACK_MODULE (module);
-	writeback_module->shutdown ();
 
 	g_module_close (writeback_module->module);
 	writeback_module->module = NULL;
-
-	writeback_module->initialize = NULL;
-	writeback_module->shutdown = NULL;
 }
 
 TrackerWritebackModule *

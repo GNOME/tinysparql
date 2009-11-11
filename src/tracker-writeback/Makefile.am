@@ -16,13 +16,13 @@ INCLUDES = 								\
 	$(GMODULE_CFLAGS) 						\
 	$(DBUS_CFLAGS)
 
-#modules_LTLIBRARIES = 							\
-#	libwriteback-dummy.la
+modules_LTLIBRARIES = 							\
+	libwriteback-dummy.la
 
 # dummy
-#libwriteback_dummy_la_SOURCES = tracker-writeback-dummy.c
-#libwriteback_dummy_la_LDFLAGS = $(module_flags)
-#libwriteback_dummy_la_LIBADD = $(GLIB2_LIBS) $(GCOV_LIBS)
+libwriteback_dummy_la_SOURCES = tracker-writeback-dummy.c
+libwriteback_dummy_la_LDFLAGS = $(module_flags)
+libwriteback_dummy_la_LIBADD = $(GLIB2_LIBS) $(GCOV_LIBS)
 
 #
 # Binaries

@@ -18,3 +18,18 @@
  * Boston, MA  02110-1301, USA.
  */
 
+#include "tracker-writeback.h"
+
+G_DEFINE_ABSTRACT_TYPE (TrackerWriteback, tracker_writeback, G_TYPE_OBJECT)
+
+static void
+tracker_writeback_class_init (TrackerWritebackClass *klass)
+{
+
+}
+
+static void
+tracker_writeback_init (TrackerWriteback *writeback)
+{
+
+}

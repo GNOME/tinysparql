@@ -24,6 +24,7 @@
 
 #include <glib.h>
 #include <glib-object.h>
+#include "tracker-writeback.h"
 
 G_BEGIN_DECLS
 
@@ -39,8 +40,7 @@ struct TrackerWritebackModule {
 	GModule *module;
 	gchar *name;
 
-        void (* initialize) (GTypeModule *module);
-        void (* shutdown)   (void);
+        TrackerWriteback * (* get) (GTypeModule *module);
 };
 
 struct TrackerWritebackModuleClass {
