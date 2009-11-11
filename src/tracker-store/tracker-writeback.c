@@ -60,6 +60,14 @@ tracker_writeback_check (const gchar *graph,
 {
 	WritebackPrivate *private;
 
+	/* When graph is NULL, the graph is the default one. We only do 
+	 * writeback reporting in the default graph (update queries that
+	 * aren't coming from the miner) */
+
+	if (graph != NULL) {
+		return;
+	}
+
 	private = g_static_private_get (&private_key);
 	g_return_if_fail (private != NULL);
 
