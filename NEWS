@@ -1,3 +1,23 @@
+NEW in 0.7.7
+============
+
+Improvements / New:
+
+  Ontology:
+  * Mark nco:phoneNumber, nco:imID, and nco:emailAddress as inverse
+    functional properties.
+
+  SPARQL:
+  * Optimize simple optionals with inverse functional properties.
+  * Return property URI instead of internal uri for fts:offsets().
+
+  libtracker-data:
+  * Propagate SQLite errors on updates.
+
+  tracker-miner-fs:
+  * Handle errors when moving items recursively.
+
+
 NEW in 0.7.6
 ============
 
