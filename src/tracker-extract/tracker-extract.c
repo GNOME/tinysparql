@@ -241,7 +241,7 @@ get_file_metadata (TrackerExtract *extract,
 	/* Create hash table to send back */
 	statements = tracker_sparql_builder_new_update ();
 
-	tracker_sparql_builder_insert_open (statements);
+	tracker_sparql_builder_insert_open (statements, uri);
 
 #ifdef HAVE_LIBSTREAMANALYZER
 	if (!priv->force_internal_extractors) {

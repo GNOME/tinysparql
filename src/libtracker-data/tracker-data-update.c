@@ -1563,10 +1563,10 @@ tracker_data_update_enable_volume (const gchar *udi,
 	mount_path_file = g_file_new_for_path (mount_path);
 	mount_path_uri = g_file_get_uri (mount_path_file);
 
-	delete_q = g_strdup_printf ("DELETE { <%s> tracker:mountPoint ?d } WHERE { <%s> tracker:mountPoint ?d }", 
-				    removable_device_urn, removable_device_urn);
-	set_q = g_strdup_printf ("INSERT { <%s> a tracker:Volume; tracker:mountPoint <%s> }", 
-				 removable_device_urn, mount_path_uri);
+	delete_q = g_strdup_printf ("DELETE FROM <%s> { <%s> tracker:mountPoint ?d } WHERE { <%s> tracker:mountPoint ?d }", 
+	                            removable_device_urn, removable_device_urn, removable_device_urn);
+	set_q = g_strdup_printf ("INSERT INTO <%s> { <%s> a tracker:Volume; tracker:mountPoint <%s> }", 
+	                         removable_device_urn, removable_device_urn, mount_path_uri);
 
 	tracker_data_update_sparql (delete_q, &error);
 
@@ -1586,10 +1586,10 @@ tracker_data_update_enable_volume (const gchar *udi,
 	g_free (set_q);
 	g_free (delete_q);
 
-	delete_q = g_strdup_printf ("DELETE { <%s> tracker:isMounted ?d } WHERE { <%s> tracker:isMounted ?d }", 
-				    removable_device_urn, removable_device_urn);
-	set_q = g_strdup_printf ("INSERT { <%s> a tracker:Volume; tracker:isMounted true }", 
-				 removable_device_urn);
+	delete_q = g_strdup_printf ("DELETE FROM <%s> { <%s> tracker:isMounted ?d } WHERE { <%s> tracker:isMounted ?d }", 
+	                            removable_device_urn, removable_device_urn, removable_device_urn);
+	set_q = g_strdup_printf ("INSERT INTO <%s> { <%s> a tracker:Volume; tracker:isMounted true }", 
+	                         removable_device_urn, removable_device_urn);
 
 	tracker_data_update_sparql (delete_q, &error);
 
@@ -1625,9 +1625,10 @@ tracker_data_update_reset_volume (const gchar *uri)
 
 	mnow = time (NULL);
 	now_as_string = tracker_date_to_string (mnow);
-	delete_q = g_strdup_printf ("DELETE { <%s> tracker:unmountDate ?d } WHERE { <%s> tracker:unmountDate ?d }", uri, uri);
-	set_q = g_strdup_printf ("INSERT { <%s> a tracker:Volume; tracker:unmountDate \"%s\" }", 
-				 uri, now_as_string);
+	delete_q = g_strdup_printf ("DELETE FROM <%s> { <%s> tracker:unmountDate ?d } WHERE { <%s> tracker:unmountDate ?d }", 
+	                            uri, uri, uri);
+	set_q = g_strdup_printf ("INSERT INTO <%s> { <%s> a tracker:Volume; tracker:unmountDate \"%s\" }", 
+	                         uri, uri, now_as_string);
 
 	tracker_data_update_sparql (delete_q, &error);
 
@@ -1665,10 +1666,10 @@ tracker_data_update_disable_volume (const gchar *udi)
 
 	tracker_data_update_reset_volume (removable_device_urn);
 
-	delete_q = g_strdup_printf ("DELETE { <%s> tracker:isMounted ?d } WHERE { <%s> tracker:isMounted ?d }", 
-				    removable_device_urn, removable_device_urn);
-	set_q = g_strdup_printf ("INSERT { <%s> a tracker:Volume; tracker:isMounted false }", 
-				 removable_device_urn);
+	delete_q = g_strdup_printf ("DELETE FROM <%s> { <%s> tracker:isMounted ?d } WHERE { <%s> tracker:isMounted ?d }", 
+	                            removable_device_urn, removable_device_urn, removable_device_urn);
+	set_q = g_strdup_printf ("INSERT INTO <%s> { <%s> a tracker:Volume; tracker:isMounted false }", 
+	                         removable_device_urn, removable_device_urn);
 
 	tracker_data_update_sparql (delete_q, &error);
 
@@ -1713,8 +1714,11 @@ tracker_data_update_disable_all_volumes (void)
 	tracker_db_statement_execute (stmt, NULL);
 	g_object_unref (stmt);
 
-	delete_q = g_strdup_printf ("DELETE { ?o tracker:isMounted ?d } WHERE { ?o tracker:isMounted ?d  FILTER (?o != <"TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN"> ) }");
-	set_q = g_strdup_printf ("INSERT { ?o a tracker:Volume; tracker:isMounted false } WHERE { ?o a tracker:Volume FILTER (?o != <"TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN"> ) }");
+	/* The INTO and FROM uris are not really right, but it should be harmless:
+	 * we just want graph to be != NULL in tracker-store/tracker-writeback.c */
+
+	delete_q = g_strdup_printf ("DELETE FROM <"TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN"> { ?o tracker:isMounted ?d } WHERE { ?o tracker:isMounted ?d  FILTER (?o != <"TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN"> ) }");
+	set_q = g_strdup_printf ("INSERT INTO <"TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN"> { ?o a tracker:Volume; tracker:isMounted false } WHERE { ?o a tracker:Volume FILTER (?o != <"TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN"> ) }");
 
 	tracker_data_update_sparql (delete_q, &error);
 

@@ -54,11 +54,14 @@ public class Tracker.SparqlBuilder : Object {
 		str.append ("DROP GRAPH <%s>\n".printf (iri));
 	}
 
-	public void insert_open ()
+	public void insert_open (string? graph)
 		requires (state == State.UPDATE)
 	{
 		states += State.INSERT;
-		str.append ("INSERT {\n");
+		if (graph != null)
+			str.append ("INSERT INTO <%s> {\n".printf (graph));
+		else
+			str.append ("INSERT {\n");
 	}
 
 	public void insert_close ()

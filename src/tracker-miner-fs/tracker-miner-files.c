@@ -471,48 +471,49 @@ set_up_mount_point (TrackerMinerFiles *miner,
 			uri = g_file_get_uri (file);
 
 			g_string_append_printf (queries,
-			                        "DROP GRAPH <%s>\nINSERT { <%s> a tracker:Volume; tracker:mountPoint <%s> } ",
-			                        removable_device_urn, removable_device_urn, uri);
+			                        "DROP GRAPH <%s>\n "
+			                        "INSERT INTO <%s> { <%s> a tracker:Volume; tracker:mountPoint <%s> } ",
+			                        removable_device_urn, removable_device_urn, removable_device_urn, uri);
 
 			g_object_unref (file);
 			g_free (uri);
 		}
 
 		g_string_append_printf (queries,
-		                        "DELETE { <%s> tracker:isMounted ?unknown } WHERE { <%s> a tracker:Volume; tracker:isMounted ?unknown } ",
+		                        "DELETE FROM <%s> { <%s> tracker:isMounted ?unknown } WHERE { <%s> a tracker:Volume; tracker:isMounted ?unknown } ",
+		                        removable_device_urn, removable_device_urn, removable_device_urn);
+
+		g_string_append_printf (queries,
+		                        "INSERT INTO <%s> { <%s> a tracker:Volume; tracker:isMounted true } ",
 		                        removable_device_urn, removable_device_urn);
 
 		g_string_append_printf (queries,
-		                        "INSERT { <%s> a tracker:Volume; tracker:isMounted true } ",
-		                        removable_device_urn);
-
-		g_string_append_printf (queries,
-		                        "INSERT { ?do tracker:available true } WHERE { ?do nie:dataSource <%s> } ",
-		                        removable_device_urn);
+		                        "INSERT INTO <%s> { ?do tracker:available true } WHERE { ?do nie:dataSource <%s> } ",
+		                        removable_device_urn, removable_device_urn);
 	} else {
 		gchar *now;
 
 		now = tracker_date_to_string (time (NULL));
 
 		g_string_append_printf (queries,
-		                        "DELETE { <%s> tracker:unmountDate ?unknown } WHERE { <%s> a tracker:Volume; tracker:unmountDate ?unknown } ",
+		                        "DELETE FROM <%s> { <%s> tracker:unmountDate ?unknown } WHERE { <%s> a tracker:Volume; tracker:unmountDate ?unknown } ",
+		                        removable_device_urn, removable_device_urn, removable_device_urn);
+
+		g_string_append_printf (queries,
+		                        "INSERT INTO <%s> { <%s> a tracker:Volume; tracker:unmountDate \"%s\" } ",
+		                        removable_device_urn, removable_device_urn, now);
+
+		g_string_append_printf (queries,
+		                        "DELETE FROM <%s> { <%s> tracker:isMounted ?unknown } WHERE { <%s> a tracker:Volume; tracker:isMounted ?unknown } ",
+		                        removable_device_urn, removable_device_urn, removable_device_urn);
+
+		g_string_append_printf (queries,
+		                        "INSERT INTO <%s> { <%s> a tracker:Volume; tracker:isMounted false } ",
 		                        removable_device_urn, removable_device_urn);
 
 		g_string_append_printf (queries,
-		                        "INSERT { <%s> a tracker:Volume; tracker:unmountDate \"%s\" } ",
-		                        removable_device_urn, now);
-
-		g_string_append_printf (queries,
-		                        "DELETE { <%s> tracker:isMounted ?unknown } WHERE { <%s> a tracker:Volume; tracker:isMounted ?unknown } ",
+		                        "DELETE FROM <%s> { ?do tracker:available true } WHERE { ?do nie:dataSource <%s> } ",
 		                        removable_device_urn, removable_device_urn);
-
-		g_string_append_printf (queries,
-		                        "INSERT { <%s> a tracker:Volume; tracker:isMounted false } ",
-		                        removable_device_urn);
-
-		g_string_append_printf (queries,
-		                        "DELETE { ?do tracker:available true } WHERE { ?do nie:dataSource <%s> } ",
-		                        removable_device_urn);
 		g_free (now);
 	}
 
@@ -1301,7 +1302,7 @@ process_file_cb (GObject      *object,
 	uri = g_file_get_uri (file);
 	mime_type = g_file_info_get_content_type (file_info);
 
-        tracker_sparql_builder_insert_open (sparql);
+        tracker_sparql_builder_insert_open (sparql, uri);
 
         tracker_sparql_builder_subject_iri (sparql, uri);
 	tracker_sparql_builder_predicate (sparql, "a");

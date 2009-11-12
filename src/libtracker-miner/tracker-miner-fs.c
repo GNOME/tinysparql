@@ -999,14 +999,14 @@ item_remove (TrackerMinerFS *fs,
 
 	/* Delete all children */
 	g_string_append_printf (sparql,
-				"DELETE { ?u a rdfs:Resource } "
+				"DELETE FROM <%s> { ?u a rdfs:Resource } "
 				"WHERE { ?u nfo:belongsToContainer ?p . FILTER (fn:starts-with (?p, \"%s\")) } ",
-				slash_uri);
+				uri, slash_uri);
 
 	/* Delete resource itself */
 	g_string_append_printf (sparql,
-				"DELETE { <%s> a rdfs:Resource }",
-				uri);
+				"DELETE FROM <%s> { <%s> a rdfs:Resource }",
+				uri, uri);
 
 	data = process_data_new (file, NULL, NULL);
 	fs->private->processing_pool = g_list_prepend (fs->private->processing_pool, data);
@@ -1144,10 +1144,10 @@ item_move (TrackerMinerFS *fs,
 	sparql = g_string_new ("");
 
 	g_string_append_printf (sparql,
-				"DELETE { <%s> nfo:fileName ?o } WHERE { <%s> nfo:fileName ?o }",
-				source_uri, source_uri);
+				"DELETE FROM <%s> { <%s> nfo:fileName ?o } WHERE { <%s> nfo:fileName ?o }",
+				source_uri, source_uri, source_uri);
 
-	g_string_append (sparql, " INSERT {");
+	g_string_append_printf (sparql, " INSERT INTO <%s> {", uri);
 
 	escaped_filename = g_strescape (g_file_info_get_display_name (file_info), NULL);
 

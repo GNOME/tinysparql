@@ -340,9 +340,9 @@ send_sparql_commit (TrackerEvolutionPlugin *self, gboolean update)
 	if (priv->client) {
 		if (update) {
 			gchar *date_s = tracker_date_to_string (time (NULL));
-			gchar *update = g_strdup_printf ("DELETE { <" DATASOURCE_URN "> nie:contentLastModified ?d } "
+			gchar *update = g_strdup_printf ("DELETE FROM <"DATASOURCE_URN"> { <" DATASOURCE_URN "> nie:contentLastModified ?d } "
 			                                 "WHERE { <" DATASOURCE_URN "> a nie:InformationElement ; nie:contentLastModified ?d } \n"
-			                                 "INSERT { <" DATASOURCE_URN "> nie:contentLastModified \"%s\" }",
+			                                 "INSERT INTO <"DATASOURCE_URN"> { <" DATASOURCE_URN "> nie:contentLastModified \"%s\" }",
 			                                 date_s);
 
 			send_sparql_update (self, update);
@@ -652,7 +652,7 @@ on_folder_summary_changed (CamelFolder *folder,
 
 			tracker_sparql_builder_drop_graph (sparql, uri);
 
-			tracker_sparql_builder_insert_open (sparql);
+			tracker_sparql_builder_insert_open (sparql, uri);
 
 			process_fields (sparql, uid, flags, sent, subject, 
 			                from, to, cc, size, folder, uri);
@@ -717,20 +717,25 @@ on_folder_summary_changed (CamelFolder *folder,
 	/* the uid_removed member contains the removed-from-the-summary items */
 
 	if (changes->uid_removed && changes->uid_removed->len > 0) {
-		GString *sparql = g_string_new ("DELETE { \n");
+
+		/* The FROM uri is not exactly right here, but we just want 
+		 * graph != NULL in tracker-store/tracker-writeback.c */
+
+		GString *sparql = g_string_new ("");
 
 		for (i = 0; i< changes->uid_removed->len; i++) {
 
 			/* This is not a path but a URI, don't use the OS's 
 			 * directory separator here */
 
-			g_string_append_printf (sparql, "\t<%s%s/%s> a rdfs:Resource . \n", 
+			g_string_append_printf (sparql, "DELETE FROM <%s%s/%s> { <%s%s/%s> a rdfs:Resource }\n ", 
+			                        em_uri, 
+			                        camel_folder_get_full_name (folder),
+			                        (char*) changes->uid_removed->pdata[i],
 			                        em_uri, 
 			                        camel_folder_get_full_name (folder),
 			                        (char*) changes->uid_removed->pdata[i]);
 		}
-
-		g_string_append_c (sparql, '}');
 
 		send_sparql_update (info->self, sparql->str);
 		g_string_free (sparql, TRUE);
@@ -954,7 +959,7 @@ introduce_walk_folders_in_folder (TrackerEvolutionPlugin *self,
 
 					tracker_sparql_builder_drop_graph (sparql, uri);
 
-					tracker_sparql_builder_insert_open (sparql);
+					tracker_sparql_builder_insert_open (sparql, uri);
 
 					process_fields (sparql, uid, flags, sent, 
 					                subject, from, to, cc, size, 
@@ -1191,10 +1196,14 @@ introduce_store_deal_with_deleted (TrackerEvolutionPlugin *self,
 		}
 
 		if (count > 0) {
-			GString *sparql = g_string_new ("DELETE { \n");
+			/* The FROM uri is not exactly right here, but we just want 
+			 * graph != NULL in tracker-store/tracker-writeback.c */
+
+			GString *sparql = g_string_new ("");
 
 			for (i = 0; i < subjects_a->len; i++) {
-				g_string_append_printf (sparql, "\t<%s> a rdfs:Resource . \n", 
+				g_string_append_printf (sparql, "DELETE FROM <%s> { <%s> a rdfs:Resource } \n", 
+				                        (gchar *) g_ptr_array_index (subjects_a, i),
 				                        (gchar *) g_ptr_array_index (subjects_a, i));
 			}
 
@@ -1656,7 +1665,7 @@ register_client_second_half (ClientRegistry *info)
 
 	if (info->last_checkout < too_old) {
 
-		send_sparql_update (info->self, "DELETE { ?s a rdfs:Resource } "
+		send_sparql_update (info->self, "DELETE FROM <"DATASOURCE_URN"> { ?s a rdfs:Resource } "
 		                                "WHERE { ?s nie:dataSource <" DATASOURCE_URN "> }");
 		send_sparql_commit (info->self, FALSE);
 
