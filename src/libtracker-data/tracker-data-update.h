@@ -75,7 +75,7 @@ void     tracker_data_begin_transaction             (void);
 void     tracker_data_commit_transaction            (void);
 void     tracker_data_update_sparql                 (const gchar               *update,
 						     GError                   **error);
-void     tracker_data_update_buffer_flush           (void);
+void     tracker_data_update_buffer_flush           (GError                   **error);
 
 /* Volume handling */
 void     tracker_data_update_enable_volume          (const gchar               *udi,

@@ -378,7 +378,7 @@ statement_bind_gvalue (TrackerDBStatement *stmt,
 }
 
 static void
-tracker_data_resource_buffer_flush (void)
+tracker_data_resource_buffer_flush (GError **error)
 {
 	TrackerDBInterface             *iface;
 	TrackerDBStatement             *stmt;
@@ -388,6 +388,7 @@ tracker_data_resource_buffer_flush (void)
 	const gchar                    *table_name;
 	GString                        *sql, *fts;
 	int                             i;
+	GError                         *actual_error = NULL;
 
 	iface = tracker_db_manager_get_db_interface ();
 
@@ -397,11 +398,16 @@ tracker_data_resource_buffer_flush (void)
 			"UPDATE \"rdfs:Resource\" SET Uri = ? WHERE ID = ?");
 		tracker_db_statement_bind_text (stmt, 0, resource_buffer->new_subject);
 		tracker_db_statement_bind_int (stmt, 1, resource_buffer->id);
-		tracker_db_statement_execute (stmt, NULL);
+		tracker_db_statement_execute (stmt, &actual_error);
 		g_object_unref (stmt);
 
 		g_free (resource_buffer->new_subject);
 		resource_buffer->new_subject = NULL;
+
+		if (actual_error) {
+			g_propagate_error (error, actual_error);
+			return;
+		}
 	}
 
 	g_hash_table_iter_init (&iter, resource_buffer->tables);
@@ -425,8 +431,13 @@ tracker_data_resource_buffer_flush (void)
 
 				tracker_db_statement_bind_int (stmt, 0, resource_buffer->id);
 				statement_bind_gvalue (stmt, 1, &property->value);
-				tracker_db_statement_execute (stmt, NULL);
+				tracker_db_statement_execute (stmt, &actual_error);
 				g_object_unref (stmt);
+
+				if (actual_error) {
+					g_propagate_error (error, actual_error);
+					return;
+				}
 			}
 		} else {
 			if (table->delete_row) {
@@ -434,14 +445,24 @@ tracker_data_resource_buffer_flush (void)
 				stmt = tracker_db_interface_create_statement (iface, "DELETE FROM \"rdfs:Resource_rdf:type\" WHERE ID = ? AND \"rdf:type\" = ?");
 				tracker_db_statement_bind_int (stmt, 0, resource_buffer->id);
 				tracker_db_statement_bind_int (stmt, 1, ensure_resource_id (tracker_class_get_uri (table->class)));
-				tracker_db_statement_execute (stmt, NULL);
+				tracker_db_statement_execute (stmt, &actual_error);
 				g_object_unref (stmt);
+
+				if (actual_error) {
+					g_propagate_error (error, actual_error);
+					return;
+				}
 
 				/* remove row from class table */
 				stmt = tracker_db_interface_create_statement (iface, "DELETE FROM \"%s\" WHERE ID = ?", table_name);
 				tracker_db_statement_bind_int (stmt, 0, resource_buffer->id);
-				tracker_db_statement_execute (stmt, NULL);
+				tracker_db_statement_execute (stmt, &actual_error);
 				g_object_unref (stmt);
+
+				if (actual_error) {
+					g_propagate_error (error, actual_error);
+					return;
+				}
 
 				continue;
 			}
@@ -452,8 +473,13 @@ tracker_data_resource_buffer_flush (void)
 					"INSERT OR IGNORE INTO \"%s\" (ID) VALUES (?)",
 					table_name);
 				tracker_db_statement_bind_int (stmt, 0, resource_buffer->id);
-				tracker_db_statement_execute (stmt, NULL);
+				tracker_db_statement_execute (stmt, &actual_error);
 				g_object_unref (stmt);
+
+				if (actual_error) {
+					g_propagate_error (error, actual_error);
+					return;
+				}
 			}
 
 			if (table->properties->len == 0) {
@@ -486,10 +512,15 @@ tracker_data_resource_buffer_flush (void)
 				}
 			}
 
-			tracker_db_statement_execute (stmt, NULL);
+			tracker_db_statement_execute (stmt, &actual_error);
 			g_object_unref (stmt);
 
 			g_string_free (sql, TRUE);
+
+			if (actual_error) {
+				g_propagate_error (error, actual_error);
+				return;
+			}
 		}
 	}
 
@@ -532,13 +563,18 @@ static void resource_buffer_free (TrackerDataUpdateBufferResource *resource)
 }
 
 void
-tracker_data_update_buffer_flush (void)
+tracker_data_update_buffer_flush (GError **error)
 {
 	GHashTableIter iter;
+	GError *actual_error = NULL;
 
 	g_hash_table_iter_init (&iter, update_buffer.resources);
 	while (g_hash_table_iter_next (&iter, NULL, (gpointer*) &resource_buffer)) {
-		tracker_data_resource_buffer_flush ();
+		tracker_data_resource_buffer_flush (&actual_error);
+		if (actual_error) {
+			g_propagate_error (error, actual_error);
+			break;
+		}
 	}
 
 	g_hash_table_remove_all (update_buffer.resources);
@@ -1630,7 +1666,7 @@ tracker_data_commit_transaction (void)
 
 	in_transaction = FALSE;
 
-	tracker_data_update_buffer_flush ();
+	tracker_data_update_buffer_flush (NULL);
 
 	if (update_buffer.fts_ever_updated) {
 		tracker_fts_update_commit ();
