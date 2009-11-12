@@ -54,6 +54,7 @@
 #define RDFS_SUB_PROPERTY_OF RDFS_PREFIX "subPropertyOf"
 
 #define NRL_PREFIX TRACKER_NRL_PREFIX
+#define NRL_INVERSE_FUNCTIONAL_PROPERTY TRACKER_NRL_PREFIX "InverseFunctionalProperty"
 #define NRL_MAX_CARDINALITY NRL_PREFIX "maxCardinality"
 
 #define TRACKER_PREFIX TRACKER_TRACKER_PREFIX
@@ -108,7 +109,7 @@ load_ontology_file_from_path (const gchar	 *ontology_file)
 				tracker_property_set_uri (property, subject);
 				tracker_ontology_add_property (property);
 				g_object_unref (property);
-			} else if (g_strcmp0 (object, NRL_PREFIX "InverseFunctionalProperty") == 0) {
+			} else if (g_strcmp0 (object, NRL_INVERSE_FUNCTIONAL_PROPERTY) == 0) {
 				TrackerProperty *property;
 
 				property = tracker_ontology_get_property_by_uri (subject);
@@ -446,7 +447,7 @@ db_get_static_data (TrackerDBInterface *iface)
 						      "\"tracker:transient\", "
 						      "\"tracker:isAnnotation\", "
 						      "(SELECT 1 FROM \"rdfs:Resource_rdf:type\" WHERE ID = \"rdf:Property\".ID AND "
-						              "\"rdf:type\" = (Select ID FROM \"rdfs:Resource\" WHERE Uri = '" NRL_PREFIX "InverseFunctionalProperty')) "
+						              "\"rdf:type\" = (Select ID FROM \"rdfs:Resource\" WHERE Uri = '" NRL_INVERSE_FUNCTIONAL_PROPERTY "')) "
 						      "FROM \"rdf:Property\" ORDER BY ID");
 	cursor = tracker_db_statement_start_cursor (stmt, NULL);
 	g_object_unref (stmt);
