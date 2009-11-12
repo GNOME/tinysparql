@@ -523,7 +523,7 @@ db_get_static_data (TrackerDBInterface *iface)
 			tracker_db_cursor_get_value (cursor, 8, &value);
 
 			if (G_VALUE_TYPE (&value) != 0) {
-				is_inverse_functional_property = (g_value_get_int (&value) == 1);
+				is_inverse_functional_property = TRUE;
 				g_value_unset (&value);
 			} else {
 				/* NULL */
