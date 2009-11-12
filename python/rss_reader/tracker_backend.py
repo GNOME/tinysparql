@@ -99,7 +99,7 @@ class TrackerRSS:
     def get_post_sorted_by_date (self, amount):
         results = self.iface.SparqlQuery (QUERY_FIRST_ENTRIES % (amount))
         return results
-    
+
     def set_is_read (self, uri, value):
         if (value):
             dbus_value = TRUE

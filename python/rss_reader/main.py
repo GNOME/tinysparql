@@ -24,16 +24,31 @@ import pango
 import dbus
 from dbus.mainloop.glib import DBusGMainLoop
 from tracker_backend import TrackerRSS
+try:
+    from zeitgeist_backend import ZeitgeistBackend
+    zg = ZeitgeistBackend ()
+except ImportError:
+    class MockZeitgeistBackend:
+            def view_event (self, uri):
+                pass
+            def get_rss_by_usage (self):
+                return []
+            def clean_events (self):
+                pass
+    zg = MockZeitgeistBackend ()
+    
 
 # uri, title, date, isread, pango.Weight
+# Be careful, we use this also in the code for the zg_model!
 posts_model = gtk.ListStore (str, str, str, bool, int)
 
 # uri, title, entries, enabled
 channels_model = gtk.ListStore (str, str, str, bool)
 
-posts_treeview = None
+ui = gtk.Builder ()
+ui.add_from_file ("./rss_viewer.ui")
+
 channels_treeview = None
-text_view = None
 sources_dialog = None
 
 # Convenience defines
@@ -43,19 +58,6 @@ NORMAL = pango.WEIGHT_NORMAL
 BOLD = pango.WEIGHT_BOLD
 
 tracker = TrackerRSS ()
-
-class SimpleTextView (gtk.TextView):
-
-    def __init__ (self, buffer=None):
-        gtk.TextView.__init__ (self, buffer)
-        self.set_wrap_mode (gtk.WRAP_WORD)
-
-    def set_plain_text (self, text):
-        self.get_buffer().set_text (text)
-
-    def get_plain_text (self):
-        ini, end = self.get_buffer().get_bounds ()
-        return self.get_buffer ().get_text (ini, end)
 
 def populate_initial_posts ():
     results = tracker.get_post_sorted_by_date (10)
@@ -69,20 +71,21 @@ def populate_initial_posts ():
         posts_model.append (row)
 
 def create_posts_tree_view ():
-    treeview = gtk.TreeView ()
-    column_title = gtk.TreeViewColumn ("Title",
-                                       gtk.CellRendererText (),
-                                       text=1, weight=4)
-    column_date = gtk.TreeViewColumn ("Date",
-                                       gtk.CellRendererText (),
-                                       text=2)
 
-    treeview.append_column (column_title)
-    treeview.append_column (column_date)
+    for treeview in [ui.get_object ("posts_treeview"),
+                     ui.get_object ("posts_treeview_by_usage")]:
+        column_title = gtk.TreeViewColumn ("Title",
+                                           gtk.CellRendererText (),
+                                           text=1, weight=4)
+        column_date = gtk.TreeViewColumn ("Date",
+                                          gtk.CellRendererText (),
+                                          text=2)
 
-    treeview.connect ("cursor-changed", cursor_changed_cb)
+        treeview.append_column (column_title)
+        treeview.append_column (column_date)
 
-    return treeview
+        treeview.connect ("cursor-changed", cursor_changed_cb)
+
 
 def create_channels_tree_view ():
     treeview = gtk.TreeView ()
@@ -126,7 +129,7 @@ def toggle_row_foreach (treemodel, path, iter):
         tracker.set_is_read (uri, True)
 
 def clicked_toggle_cb (widget):
-    selected = posts_treeview.get_selection ()
+    selected = ui.get_object ("posts_treeview").get_selection ()
     if (selected.count_selected_rows () == 0):
         return
 
@@ -138,7 +141,10 @@ def cursor_changed_cb (tv):
         model, it = selection.get_selected ()
         uri = model.get_value (it, 0)
         text = tracker.get_text_for_uri (uri)
-        text_view.set_plain_text (text)
+        tv = ui.get_object ("text_view")
+        tv.get_buffer ().set_text (text)
+        zg.view_event (uri)
+
 
 def clicked_sources_cb (widget, dialog):
     # Dont do this all the time!
@@ -187,6 +193,22 @@ def update_uri (model, path, iter, user_data):
                   3, user_data[3],
                   4, user_data[4])
         return True
+
+def change_tab_cb (notebook, page, page_num):
+    print "Change to tab", page_num
+    if (page_num == 1):
+        uris = zg.get_rss_by_usage ()
+        zg_model = gtk.ListStore (str, str, str, bool, int)
+        for uri in uris:
+            for row in posts_model:
+                print uri, map (str,row)
+                if row[0] == uri :
+                    print "Add to the model!"
+                    zg_model.append (row)
+
+        ui.get_object ("posts_treeview_by_usage").set_model (zg_model)
+    else:
+        ui.get_object ("posts_treeview").set_model (posts_model)
     
 
 def notification_update (updated_uris, update_predicates):
@@ -222,18 +244,10 @@ if __name__ == "__main__":
                              dbus_interface="org.freedesktop.Tracker1.Resources.Class",
                              path="/org/freedesktop/Tracker1/Resources/Classes/mfo/FeedMessage")
 
+    window = ui.get_object ("main_window")
     gobject.set_application_name ("Rss/tracker")
-    window = gtk.Window ()
-    
-    vbox = gtk.VBox ()
-    posts_treeview = create_posts_tree_view ()
-    posts_treeview.set_model (posts_model)
-    vbox.add (posts_treeview)
-
-    frame = gtk.Frame ()
-    text_view = SimpleTextView ()
-    frame.add (text_view)
-    vbox.add (frame)
+    create_posts_tree_view ()
+    ui.get_object("posts_treeview").set_model (posts_model)
 
     channels_treeview = create_channels_tree_view ()
     channels_treeview.set_model (channels_model)
@@ -245,17 +259,9 @@ if __name__ == "__main__":
     dialog.vbox.add (channels_treeview)
 
 
-    button_box = gtk.HBox ()
-    button_toggle = gtk.Button (label="Read/Unread")
-    button_toggle.connect ("clicked", clicked_toggle_cb)
-    button_box.add (button_toggle)
-    button_sources = gtk.Button (stock=gtk.STOCK_HOME)
-    button_sources.connect ("clicked", clicked_sources_cb, dialog)
-    button_box.add (button_sources)
+    ui.get_object ("button_toggle").connect ("clicked", clicked_toggle_cb)
+    ui.get_object ("notebook1").connect ("switch-page", change_tab_cb)
     
-    vbox.pack_start (button_box, expand=False)
-    window.add (vbox)
-
     populate_initial_posts ()
 
     window.show_all ()
