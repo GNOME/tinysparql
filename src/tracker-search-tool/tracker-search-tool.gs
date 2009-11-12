@@ -23,6 +23,9 @@ uses
     Gtk
 
 window : Window
+service : string?
+terms : array of string?
+const options : array of OptionEntry = {{"service", 's', 0, OptionArg.STRING, ref service, "Search from a specific service", "SERVICE" }, {"", 0, 0, OptionArg.STRING_ARRAY, ref terms, "search terms", null}, { null }}
 
 [DBus (name = "org.freedesktop.Tracker1.SearchTool")]
 class TrackerSearchToolServer : GLib.Object
@@ -31,6 +34,21 @@ class TrackerSearchToolServer : GLib.Object
 
 init
     Gtk.init (ref args)
+
+    /* get options */
+
+    var option_context = new OptionContext ("tracker-search-tool")
+    option_context.set_help_enabled (true)
+    option_context.add_main_entries (options, null)
+
+    try
+        option_context.parse (ref args)
+
+    except e : GLib.OptionError
+
+        stdout.printf ("%s\n", e.message)
+        stdout.printf ("Run '%s --help' to see a full list of available command line options.\n", args[0])
+        return
 
     var server = new TrackerSearchToolServer
 
