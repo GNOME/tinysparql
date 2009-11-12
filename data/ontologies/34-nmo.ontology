@@ -67,6 +67,10 @@ nmo:TransientChannel a rdfs:Class ;
 nmo:Call a rdfs:Class ;
 	rdfs:subClassOf nmo:Message .
 
+# required for backward compatibility
+nmo:VOIPCall a rdfs:Class ;
+	rdfs:subClassOf nmo:Call .
+
 nmo:MailFolder a rdfs:Class ;
 	rdfs:subClassOf nfo:Folder .
 
