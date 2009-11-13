@@ -79,7 +79,10 @@ qname_init (const gchar *luri, const gchar *lprefix, const gchar *class_location
 
                         pieces = g_strsplit (lines[i], " ", -1);
                         g_assert (g_strv_length (pieces) == 2);
-                        g_hash_table_insert (class_deffile, pieces[1], pieces[0]);
+                        g_hash_table_insert (class_deffile, 
+                                             g_strdup(pieces[1]), 
+                                             g_strdup(pieces[0]));
+                        g_strfreev (pieces);
 
                 }
                 g_strfreev (lines);
@@ -92,10 +95,46 @@ void
 qname_shutdown (void)
 {
         g_free (NAMESPACES[0].namespace);
+        NAMESPACES[0].namespace = NULL;
+
         g_free (NAMESPACES[0].uri);
+        NAMESPACES[0].uri = NULL;
+
         if (class_deffile) {
                 g_hash_table_destroy (class_deffile);
+                class_deffile = NULL;
         }
+}
+
+static gchar **
+split_qname (const gchar *qname, GError **error)
+{
+        gchar **pieces;
+        gint    i;
+
+        /* Try by '#' */
+        pieces = g_strsplit (qname, "#", 2);
+        if (g_strv_length (pieces) == 2) {
+                return pieces;
+        }
+        g_strfreev (pieces);
+        pieces = NULL;
+
+        /* Try by last '/' */
+        for (i = strlen (qname); i >= 0; i--) {
+                if (qname[i] == '/') {
+                        pieces = g_new0 (gchar*, 3);
+                        pieces[0] = g_strndup (qname, i);
+                        pieces[1] = g_strdup (&qname[i+1]);
+                        pieces[2] = NULL;
+                        break;
+                } 
+        }
+
+        if (pieces == NULL) {
+                g_warning ("Unable to split '%s' in prefix and class", qname);
+        }
+        return pieces;
 }
 
 gchar *
@@ -105,10 +144,10 @@ qname_to_link (const gchar *qname)
         gchar *name;
 
         if (NAMESPACES[0].uri) {
+
                 /* There is a local URI! */
                 if (g_str_has_prefix (qname, NAMESPACES[0].uri)) {
-                        pieces = g_strsplit (qname, "#", 2);
-                        g_assert (g_strv_length (pieces) == 2);
+                        pieces = split_qname (qname, NULL);
                         name = g_strdup_printf ("#%s", pieces[1]);
                         g_strfreev (pieces);
                         return name;
@@ -129,6 +168,7 @@ qname_to_link (const gchar *qname)
         return g_strdup (qname);
 }
 
+
 gchar *
 qname_to_shortname (const gchar *qname)
 {
@@ -139,27 +179,7 @@ qname_to_shortname (const gchar *qname)
         for (i = 0; NAMESPACES[i].namespace != NULL; i++) {
                 if (g_str_has_prefix (qname, NAMESPACES[i].uri)) {
 
-
-                        pieces = g_strsplit (qname, "#", 2);
-                        if (g_strv_length (pieces) != 2) {
-
-                                /* Special case for DC. It doesnt use # in the namespace */
-                                if ( g_strcmp0 (NAMESPACES[i].namespace, "dc") == 0) {
-                                        gchar *classname;
-
-                                        g_strfreev (pieces);
-                                        pieces = g_new0 (gchar*, 3);
-
-                                        classname = g_strrstr (qname, "/");
-                                        pieces[0] =  g_strdup ("");
-                                        pieces[1] =  g_strdup (&classname[1]);
-                                        pieces[2] = NULL;
-                                } else {
-                                        g_warning ("Unable to get the shortname for %s", qname);
-                                        break;
-                                }
-                        }
-
+                        pieces = split_qname (qname, NULL);
                         name = g_strdup_printf ("%s:%s", 
                                                 NAMESPACES[i].namespace, 
                                                 pieces[1]);

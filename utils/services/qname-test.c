@@ -7,6 +7,8 @@ test_qname_to_shortname (void)
 {
         gchar *result = NULL;
 
+        qname_init ("test://local_uri#", "local", "./file-class.cache.test");
+
         result = qname_to_shortname ("http://purl.org/dc/elements/1.1/source");
         g_assert_cmpstr (result, ==, "dc:source");
         g_free (result);
@@ -22,12 +24,16 @@ test_qname_to_shortname (void)
         result = qname_to_shortname ("test://doesnt_exists#Class");
         g_assert_cmpstr (result, ==, "test://doesnt_exists#Class");
         g_free (result);
+
+        qname_shutdown ();
 }
 
 static void
 test_qname_to_classname (void) 
 {
         gchar *result = NULL;
+
+        qname_init ("test://local_uri#", "local", "./file-class.cache.test");
 
         result = qname_to_classname ("http://purl.org/dc/elements/1.1/source");
         g_assert_cmpstr (result, ==, "source");
@@ -44,12 +50,16 @@ test_qname_to_classname (void)
         result = qname_to_classname ("test://doesnt_exists#Class");
         g_assert_cmpstr (result, ==, "test://doesnt_exists#Class");
         g_free (result);
+        
+        qname_shutdown ();
 }
 
 static void
 test_qname_to_link (void)
 {
         gchar *result = NULL;
+
+        qname_init ("test://local_uri#", "local", "./file-class.cache.test");
 
         result = qname_to_link ("test://local_uri#Class");
         g_assert_cmpstr (result, ==, "#Class");
@@ -65,7 +75,40 @@ test_qname_to_link (void)
         result = qname_to_link ("http://www.tracker-project.org/ontologies/tracker#Namespace");
         g_assert_cmpstr (result, ==, "../rdf/index.html#Namespace");
         g_free (result);
-                                
+
+        qname_shutdown ();
+}
+
+static void
+test_process_dc (void)
+{
+        /* DC is the only ontology namespaces without '#' at the end
+           This force us to handle it as special case in a lot of places
+         */
+
+        gchar *result = NULL;
+
+        qname_init ("test://dc_style/", "local", "./file-class.cache.test");
+
+        /* local */
+        result = qname_to_link ("test://dc_style/Class");
+        g_assert_cmpstr (result, ==, "#Class");
+        g_free (result);
+
+        /* out of this file */
+        result = qname_to_link ("http://purl.org/dc/elements/1.1/creator");
+        g_assert_cmpstr (result, ==, "../dc/index.html#creator");
+        g_free (result);
+
+        result = qname_to_shortname ("http://purl.org/dc/elements/1.1/creator");
+        g_assert_cmpstr (result, ==, "dc:creator");
+        g_free (result);
+
+        result = qname_to_classname ("http://purl.org/dc/elements/1.1/creator");
+        g_assert_cmpstr (result, ==, "creator");
+        g_free (result);
+
+        qname_shutdown ();
 }
 
 int
@@ -76,8 +119,6 @@ main (int argc, char **argv)
 	g_type_init ();
 	g_test_init (&argc, &argv, NULL);
 
-        qname_init ("test://local_uri#", "local", "./file-class.cache.test");
-
 	g_test_add_func ("/html_generator/qname/qname_to_shortname",
 			 test_qname_to_shortname);
 
@@ -87,9 +128,10 @@ main (int argc, char **argv)
 	g_test_add_func ("/html_generator/qname/qname_to_link",
 			 test_qname_to_link);
 
-	result = g_test_run ();
+	g_test_add_func ("/html_generator/qname/dc_alike_namespaces",
+			 test_process_dc);
 
-        qname_shutdown ();
+	result = g_test_run ();
 
 	return result;
 }
