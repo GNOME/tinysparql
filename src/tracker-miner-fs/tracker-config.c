@@ -645,7 +645,7 @@ config_create_with_defaults (TrackerConfig *config,
 				 */
 				if (g_slist_length (paths) < 2) {
 					g_slist_free (paths);
-					paths = g_slist_prepend (NULL, "$HOME");
+					paths = g_slist_prepend (NULL, (gpointer) "$HOME");
 				}
 
 				string_list = tracker_gslist_to_string_list (paths);

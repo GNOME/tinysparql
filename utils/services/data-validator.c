@@ -146,6 +146,8 @@ gint
 main (gint argc, gchar **argv) 
 {
         GOptionContext *context;
+	TrackerTurtleReader *reader;
+	GError *error = NULL;
 
         g_type_init ();
 
@@ -175,9 +177,6 @@ main (gint argc, gchar **argv)
 
         //"/home/ivan/devel/codethink/tracker-ssh/data/services"
         load_ontology_files (ontology_dir);
-
-	TrackerTurtleReader *reader;
-	GError *error = NULL;
 
 	reader = tracker_turtle_reader_new (ttl_file, NULL);
 

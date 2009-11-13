@@ -32,7 +32,7 @@
  * dragging and dropping keywords
  **/
 const GtkTargetEntry KEYWORD_DRAG_TYPES[] = {
-	{"property/keyword", 0, 0 }
+	{ (gchar *) "property/keyword", 0, 0 }
 };
 
 void
