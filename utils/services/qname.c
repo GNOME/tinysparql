@@ -1,5 +1,6 @@
 #include "qname.h"
-#include <gio/gio.h>
+#include <glib/gstdio.h>
+#include <string.h>
 
 //static gchar *local_uri = NULL;
 //static gchar *local_prefix = NULL;
@@ -8,6 +9,8 @@ typedef struct {
         gchar *namespace;
         gchar *uri;
 } Namespace;
+
+static GHashTable *class_deffile = NULL;
 
 Namespace NAMESPACES [] = {
         {NULL, NULL}, /* Save this for the local_uri and prefix */
@@ -41,26 +44,46 @@ qname_init (const gchar *luri, const gchar *lprefix, const gchar *class_location
                 g_warning ("Reinitializing qname_module");
                 g_free (NAMESPACES[0].namespace);
                 g_free (NAMESPACES[0].uri);
+                if (class_deffile) {
+                        g_hash_table_destroy (class_deffile);
+                }
         }
+
         NAMESPACES[0].uri = g_strdup (luri);
         NAMESPACES[0].namespace = (lprefix != NULL ? g_strdup (lprefix) : g_strdup (""));
 
         if (class_location) {
-                /* TODO */
-                GFile *file;
+                /* Process a file that contains: dir class pairs by line 
+                 */
                 gint   i;
-                gchar **contents;
+                gchar  *raw_content = NULL;
+                gchar **lines;
                 gsize   length;
-
-                file = g_file_new_for_commandline_arg (class_location);
-                if (!g_file_load_contents (file, NULL, contents, &length, NULL, NULL)) {
+                
+                if (!g_file_get_contents (class_location, &raw_content, &length, NULL)) {
                         g_error ("Unable to load '%s'", class_location);
                 }
-                
-                for (i = 0; contents[i] != NULL; i++) {
-                        g_print ("%s\n", contents[i]);
+
+                class_deffile = g_hash_table_new_full (g_str_hash,
+                                                       g_str_equal,
+                                                       g_free,
+                                                       g_free);
+
+                lines = g_strsplit (raw_content, "\n", -1);
+                for (i = 0; lines[i] != NULL; i++) {
+                        if (strlen (lines[i]) < 1) {
+                                continue;
+                        }
+
+                        gchar **pieces = NULL;
+
+                        pieces = g_strsplit (lines[i], " ", -1);
+                        g_assert (g_strv_length (pieces) == 2);
+                        g_hash_table_insert (class_deffile, pieces[1], pieces[0]);
+
                 }
-                
+                g_strfreev (lines);
+                g_free (raw_content);
         }
 
 }
@@ -70,6 +93,9 @@ qname_shutdown (void)
 {
         g_free (NAMESPACES[0].namespace);
         g_free (NAMESPACES[0].uri);
+        if (class_deffile) {
+                g_hash_table_destroy (class_deffile);
+        }
 }
 
 gchar *
@@ -86,6 +112,17 @@ qname_to_link (const gchar *qname)
                         name = g_strdup_printf ("#%s", pieces[1]);
                         g_strfreev (pieces);
                         return name;
+                }
+        }
+
+        if (class_deffile) {
+                gchar *dir, *shortname;
+                shortname = qname_to_shortname (qname);
+                dir = g_hash_table_lookup (class_deffile, shortname);
+                g_free (shortname);
+                if (dir) {
+                        return g_strdup_printf ("../%s/index.html#%s",
+                                                dir, qname_to_classname (qname));
                 }
         }
         
@@ -136,6 +173,26 @@ qname_to_shortname (const gchar *qname)
         } else {
                 return name;
         }
+}
+
+gchar *
+qname_to_classname (const gchar *qname) {
+
+        gchar  *shortname;
+        gchar **pieces;
+        gchar  *classname = NULL;
+
+        shortname = qname_to_shortname (qname);
+        if (g_strcmp0 (qname, shortname) == 0) {
+                return shortname;
+        }
+        pieces = g_strsplit (shortname, ":", -1);
+        g_assert (g_strv_length (pieces) == 2);
+
+        classname = g_strdup (pieces[1]);
+        g_strfreev (pieces);
+        g_free (shortname);
+        return classname;
 }
 
 gboolean 
