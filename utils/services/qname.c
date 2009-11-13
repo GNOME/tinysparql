@@ -1,4 +1,5 @@
 #include "qname.h"
+#include <gio/gio.h>
 
 //static gchar *local_uri = NULL;
 //static gchar *local_prefix = NULL;
@@ -46,6 +47,20 @@ qname_init (const gchar *luri, const gchar *lprefix, const gchar *class_location
 
         if (class_location) {
                 /* TODO */
+                GFile *file;
+                gint   i;
+                gchar **contents;
+                gsize   length;
+
+                file = g_file_new_for_commandline_arg (class_location);
+                if (!g_file_load_contents (file, NULL, contents, &length, NULL, NULL)) {
+                        g_error ("Unable to load '%s'", class_location);
+                }
+                
+                for (i = 0; contents[i] != NULL; i++) {
+                        g_print ("%s\n", contents[i]);
+                }
+                
         }
 
 }
@@ -86,10 +101,26 @@ qname_to_shortname (const gchar *qname)
 
         for (i = 0; NAMESPACES[i].namespace != NULL; i++) {
                 if (g_str_has_prefix (qname, NAMESPACES[i].uri)) {
+
+
                         pieces = g_strsplit (qname, "#", 2);
                         if (g_strv_length (pieces) != 2) {
-                                g_warning ("Unable to get the shortname for %s", qname);
-                                break;
+
+                                /* Special case for DC. It doesnt use # in the namespace */
+                                if ( g_strcmp0 (NAMESPACES[i].namespace, "dc") == 0) {
+                                        gchar *classname;
+
+                                        g_strfreev (pieces);
+                                        pieces = g_new0 (gchar*, 3);
+
+                                        classname = g_strrstr (qname, "/");
+                                        pieces[0] =  g_strdup ("");
+                                        pieces[1] =  g_strdup (&classname[1]);
+                                        pieces[2] = NULL;
+                                } else {
+                                        g_warning ("Unable to get the shortname for %s", qname);
+                                        break;
+                                }
                         }
 
                         name = g_strdup_printf ("%s:%s", 

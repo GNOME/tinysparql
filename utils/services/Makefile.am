@@ -1,6 +1,8 @@
 include $(top_srcdir)/Makefile.decl
 
-noinst_PROGRAMS = ontology-validator ttl2html data-validator ttl2graphviz
+noinst_PROGRAMS = ontology-validator ttl2html data-validator ttl2graphviz $(TEST_PROGS)
+
+TEST_PROGS += qname-test
 
 INCLUDES = 								\
 	-DG_LOG_DOMAIN=\"Tracker\"					\
@@ -66,3 +68,8 @@ ttl2graphviz_LDADD = 							\
 	$(DBUS_LIBS)							\
 	$(GLIB2_LIBS)							\
 	$(GIO_LIBS)	
+
+qname_test_SOURCES = qname-test.c qname.c
+qname_test_LDADD = 	$(DBUS_LIBS)					\
+			$(GLIB2_LIBS)					\
+			$(GIO_LIBS)
