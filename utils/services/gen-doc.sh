@@ -17,7 +17,7 @@ mkdir -p $BUILD_DIR
 echo "Compiling the tools"
 make
 
-echo "Generating list of classes-properties and files"
+echo "Generating list of classes-properties and files (file-class.cache)"
 if [ -e file-class.cache ]; then
    rm -f file-class.cache ;
 fi
@@ -34,7 +34,7 @@ for f in `find ../../data/ontologies -name "*.description"` ; do
       PREFIX=${TMPNAME#*-}
       echo "Generating $PREFIX"
       mkdir -p $BUILD_DIR/$PREFIX
-      ./ttl2html -d $f -o $BUILD_DIR/$PREFIX/index.html
+      ./ttl2html -d $f -o $BUILD_DIR/$PREFIX/index.html -l file-class.cache
 done
 
 echo "Copying resources"

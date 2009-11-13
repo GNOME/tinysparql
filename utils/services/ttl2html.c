@@ -35,7 +35,6 @@ main (gint argc, gchar **argv)
         gchar *ttl_file = NULL;
         gchar *dirname = NULL;
         FILE *f = NULL;
-        gchar *class_location = NULL;
 
         g_type_init ();
 
@@ -80,7 +79,7 @@ main (gint argc, gchar **argv)
         g_free (ttl_file);
         g_free (dirname);
 
-        ttl_html_print (description, ontology, f, class_location);
+        ttl_html_print (description, ontology, f, class_location_file);
 
         ttl_loader_free_ontology (ontology);
         ttl_loader_free_description (description);
