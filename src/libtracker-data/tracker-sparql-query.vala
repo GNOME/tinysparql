@@ -1874,7 +1874,7 @@ public class Tracker.SparqlQuery : Object {
 		sql.append ("SELECT ");
 	}
 
-	void end_triples_block (StringBuilder sql, ref bool first_where, bool in_group_graph_pattern) throws SparqlError {
+	void end_triples_block (StringBuilder sql, ref bool first_where, bool in_group_graph_pattern) throws Error {
 		// remove last comma and space
 		sql.truncate (sql.len - 2);
 
@@ -1975,7 +1975,7 @@ public class Tracker.SparqlQuery : Object {
 		pattern_bindings = null;
 	}
 
-	void parse_triples (StringBuilder sql, long group_graph_pattern_start, ref bool in_triples_block, ref bool first_where, ref bool in_group_graph_pattern, bool found_simple_optional) throws SparqlError {
+	void parse_triples (StringBuilder sql, long group_graph_pattern_start, ref bool in_triples_block, ref bool first_where, ref bool in_group_graph_pattern, bool found_simple_optional) throws Error {
 		while (true) {
 			if (current () != SparqlTokenType.VAR &&
 			    current () != SparqlTokenType.IRI_REF &&
@@ -2082,7 +2082,7 @@ public class Tracker.SparqlQuery : Object {
 		}
 	}
 
-	void translate_group_graph_pattern (StringBuilder sql) throws SparqlError {
+	void translate_group_graph_pattern (StringBuilder sql) throws Error {
 		expect (SparqlTokenType.OPEN_BRACE);
 
 		SourceLocation[] filters = { };
@@ -2261,7 +2261,7 @@ public class Tracker.SparqlQuery : Object {
 		}
 	}
 
-	void translate_group_or_union_graph_pattern (StringBuilder sql) throws SparqlError {
+	void translate_group_or_union_graph_pattern (StringBuilder sql) throws Error {
 		var old_subgraph_var_set = subgraph_var_set;
 
 		Variable[] all_vars = { };
