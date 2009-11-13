@@ -1,0 +1,10 @@
+@prefix dsc: <http://www.tracker-project.org/temp/dsc#> .
+
+<virtual-ontology-uri:30-nie.ontology> a dsc:Ontology ;
+      dsc:title "Nepomuk Information Element (NIE)" ;
+      dsc:author "Nepomuk people" ;
+      dsc:editor "Nepomuk people" ;
+
+      dsc:localPrefix "nie" ;  
+      dsc:baseUrl "http://www.semanticdesktop.org/ontologies/2007/01/19/nie#";    
+      dsc:relativePath "./30-nie.ontology" .

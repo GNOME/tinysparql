@@ -1,0 +1,10 @@
+@prefix dsc: <http://www.tracker-project.org/temp/dsc#> .
+
+<virtual-ontology-uri:10-xsd.ontology> a dsc:Ontology ;
+      dsc:title "X S D (XSD)" ;
+      dsc:author "W3C" ;
+      dsc:editor "Tracker developers (translation into turtle)" ;
+
+      dsc:localPrefix "xsd" ;  
+      dsc:baseUrl "http://www.w3.org/2001/XMLSchema#" ;
+      dsc:relativePath "./10-xsd.ontology" .

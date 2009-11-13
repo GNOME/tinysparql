@@ -1,0 +1,10 @@
+@prefix dsc: <http://www.tracker-project.org/temp/dsc#> .
+
+<virtual-ontology-uri:36-scal.ontology> a dsc:Ontology ;
+      dsc:title "Simplified Calendar Ontology (SCAL)" ;
+      dsc:author "Tracker Developers" ;
+      dsc:editor "Tracker Developers" ;
+
+      dsc:localPrefix "scal" ;
+      dsc:baseUrl "http://www.tracker-project.org/temp/scal#" ;
+      dsc:relativePath "./36-scal.ontology" .

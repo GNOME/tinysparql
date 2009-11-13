@@ -1,0 +1,11 @@
+@prefix dsc: <http://www.tracker-project.org/temp/dsc#> .
+
+<virtual-ontology-uri:35-ncal.ontology> a dsc:Ontology ;
+      dsc:title "Nepomuk Calendar Ontology (NCAL)" ;
+      dsc:author "Nepomuck people (script)" ;
+      dsc:author "Tracker Developers" ;
+      dsc:editor "Tracker developers (translation into turtle)" ;
+
+      dsc:localPrefix "ncal" ;
+      dsc:baseUrl "http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#" ;
+      dsc:relativePath "./35-ncal.ontology" .

@@ -1,0 +1,11 @@
+@prefix dsc: <http://www.tracker-project.org/temp/dsc#> .
+
+<virtual-ontology-uri:34-nmo.ontology> a dsc:Ontology ;
+      dsc:title "Nepomuk Messaging Ontology (NCO)" ;
+      dsc:author "Nepomuck people" ;
+      dsc:author "Tracker Developers" ;
+      dsc:editor "Tracker developers (translation into turtle)" ;
+
+      dsc:localPrefix "nmo" ;
+      dsc:baseUrl "http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#" ;
+      dsc:relativePath "./34-nmo.ontology" .
