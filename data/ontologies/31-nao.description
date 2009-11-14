@@ -4,6 +4,7 @@
       dsc:title "Nepomuk Annotation Ontology (NAO)" ;
       dsc:author "Nepomuck people (not sure)" ;
       dsc:editor "Tracker developers (translation into turtle)" ;
+      dsc:gitlog "http://git.gnome.org/cgit/tracker/log/data/ontologies/31-nao.ontology";
 
       dsc:localPrefix "nao" ;
       dsc:baseUrl "http://www.semanticdesktop.org/ontologies/2007/08/15/nao#" ;

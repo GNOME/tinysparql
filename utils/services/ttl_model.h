@@ -30,6 +30,7 @@ typedef struct {
         GList *authors;
         GList *editors;
         GList *contributors;
+        gchar *gitlog;
         gchar *baseUrl;
         gchar *localPrefix;
         gchar *relativePath;

@@ -4,6 +4,7 @@
       dsc:title "X S D (XSD)" ;
       dsc:author "W3C" ;
       dsc:editor "Tracker developers (translation into turtle)" ;
+      dsc:gitlog "http://git.gnome.org/cgit/tracker/log/data/ontologies/10-xsd.ontology";
 
       dsc:localPrefix "xsd" ;  
       dsc:baseUrl "http://www.w3.org/2001/XMLSchema#" ;

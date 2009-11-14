@@ -5,6 +5,7 @@
       dsc:author "Urho Konttori &lt;urho.konttori@nokia.com&gt;" ;
       dsc:editor "Urho Konttori &lt;urho.konttori@nokia.com&gt;" ;
       dsc:contributor "Example of contributor" ;
+      dsc:gitlog "http://git.gnome.org/cgit/tracker/log/data/ontologies/38-nmm.ontology";
 
       dsc:localPrefix "nmm" ;      
       dsc:baseUrl "http://www.tracker-project.org/temp/nmm#" ;

@@ -4,6 +4,7 @@
       dsc:title "Nepomuk File Ontology (NFO)" ;
       dsc:author "Nepomuck project" ;
       dsc:contributor "Tracker team" ;
+      dsc:gitlog "http://git.gnome.org/cgit/tracker/log/data/ontologies/33-nfo.ontology";
       
       dsc:baseUrl "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#" ;
       dsc:relativePath "./33-nfo.ontology" .

@@ -75,6 +75,9 @@ print_html_header (FILE *f, OntologyDescription *desc)
         g_list_foreach (desc->editors, print_author, f);
         g_fprintf (f,"  <dt>Contributors:</dt>\n");
         g_list_foreach (desc->contributors, print_author, f);
+        g_fprintf (f,"  <dt>Changelog:</dt>\n");
+        g_fprintf (f,"  <dd><a href=\"%s\">Tracker changes</a>", 
+                   (desc->gitlog ? desc->gitlog : "#"));
         g_fprintf (f," </dl>\n");
         g_fprintf (f,"</div>\n");
         g_fprintf (f,"<p class=\"copyright\"> Copyright &copy; 2009 <a href=\"http://www.nokia.com/\">Nokia</a><sup>&reg;</sup> The ontologies are made available under the terms of FIXME<a href=\"LICENSE.txt\">software license</a></p>\n");

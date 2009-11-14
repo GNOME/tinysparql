@@ -4,6 +4,7 @@
       dsc:title "Maemo Feeds Ontology (MFO)" ;
       dsc:author "Ivan Frade <ivan.frade@nokia.com>" ;
       dsc:editor "Ivan Frade <ivan.frade@nokia.com>" ;
+      dsc:gitlog "http://git.gnome.org/cgit/tracker/log/data/ontologies/41-mfo.ontology";
 
       dsc:localPrefix "mfo" ;
       dsc:baseUrl "http://www.tracker-project.org/temp/mfo#" ;

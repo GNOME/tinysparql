@@ -4,6 +4,7 @@
       dsc:title "Simplified Calendar Ontology (SCAL)" ;
       dsc:author "Tracker Developers" ;
       dsc:editor "Tracker Developers" ;
+      dsc:gitlog "http://git.gnome.org/cgit/tracker/log/data/ontologies/36-scal.ontology";
 
       dsc:localPrefix "scal" ;
       dsc:baseUrl "http://www.tracker-project.org/temp/scal#" ;

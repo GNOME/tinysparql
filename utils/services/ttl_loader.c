@@ -26,6 +26,7 @@
 #define DSC_AUTHOR DSC_PREFIX "author"
 #define DSC_EDITOR DSC_PREFIX "editor"
 #define DSC_CONTRIBUTOR DSC_PREFIX "contributor"
+#define DSC_GITLOG DSC_PREFIX "gitlog"
 #define DSC_BASEURI DSC_PREFIX "baseUrl"
 #define DSC_RELPATH DSC_PREFIX "relativePath"
 #define DSC_LOCALPREFIX DSC_PREFIX "localPrefix"
@@ -199,6 +200,8 @@ load_description (OntologyDescription *desc,
         } else if (!g_strcmp0 (turtle_predicate, DSC_CONTRIBUTOR)) {
                 desc->contributors = g_list_prepend (desc->contributors, 
                                                      g_strdup (turtle_object));
+        } else if (!g_strcmp0 (turtle_predicate, DSC_GITLOG)) {
+                desc->gitlog = g_strdup (turtle_object);
         } else if (!g_strcmp0 (turtle_predicate, DSC_BASEURI)) {
                 desc->baseUrl = g_strdup (turtle_object);
         } else if (!g_strcmp0 (turtle_predicate, DSC_RELPATH)) {

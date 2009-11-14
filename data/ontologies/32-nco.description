@@ -5,6 +5,7 @@
       dsc:author "Nepomuck people (not sure)" ;
       dsc:author "Tracker Developers" ;
       dsc:editor "Tracker developers (translation into turtle)" ;
+      dsc:gitlog "http://git.gnome.org/cgit/tracker/log/data/ontologies/32-nco.ontology";
 
       dsc:localPrefix "nco" ;
       dsc:baseUrl "http://www.semanticdesktop.org/ontologies/2007/03/22/nco#" ;

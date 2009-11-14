@@ -5,6 +5,7 @@
       dsc:author "Nepomuck people" ;
       dsc:author "Tracker Developers" ;
       dsc:editor "Tracker developers (translation into turtle)" ;
+      dsc:gitlog "http://git.gnome.org/cgit/tracker/log/data/ontologies/34-nmo.ontology";
 
       dsc:localPrefix "nmo" ;
       dsc:baseUrl "http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#" ;

@@ -4,6 +4,7 @@
       dsc:title "Nepomuk Information Element (NIE)" ;
       dsc:author "Nepomuk people" ;
       dsc:editor "Nepomuk people" ;
+      dsc:gitlog "http://git.gnome.org/cgit/tracker/log/data/ontologies/30-nie.ontology";
 
       dsc:localPrefix "nie" ;  
       dsc:baseUrl "http://www.semanticdesktop.org/ontologies/2007/01/19/nie#";    
