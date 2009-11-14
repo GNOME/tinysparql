@@ -65,9 +65,9 @@ print_html_header (FILE *f, OntologyDescription *desc)
 
         g_fprintf (f,"<h1>%s</h1>\n", desc->title);
         g_fprintf (f," <dl>\n");
-        g_fprintf (f,"  <dt>Latest Version</dt><dd>FIXME</dd>\n");
+        g_fprintf (f,"  <dt>Upstream:</dt><dd><a href=\"%s\">Upstream version</a></dd>\n",
+                   (desc->upstream ? desc->upstream : "#"));
         g_fprintf (f,"  <dt></dt>\n");
-        g_fprintf (f,"  <dt>This Version</dt><dd>FIXME</dd>\n");
         g_fprintf (f,"  <dt></dt>\n");
         g_fprintf (f,"  <dt>Authors:</dt>\n");
         g_list_foreach (desc->authors, print_author, f);
