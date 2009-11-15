@@ -80,7 +80,7 @@ print_html_header (FILE *f, OntologyDescription *desc)
                    (desc->gitlog ? desc->gitlog : "#"));
         g_fprintf (f," </dl>\n");
         g_fprintf (f,"</div>\n");
-        g_fprintf (f,"<p class=\"copyright\"> Copyright &copy; 2009 <a href=\"http://www.nokia.com/\">Nokia</a><sup>&reg;</sup> The ontologies are made available under the terms of FIXME<a href=\"LICENSE.txt\">software license</a></p>\n");
+        g_fprintf (f,"<p class=\"copyright\"> Copyright &copy 2007 <a href=\"http://www.dfki.de/\">DFKI</a> &copy; 2009 <a href=\"http://www.nokia.com/\">Nokia</a><sup>&reg;</sup> The ontologies are made available under the terms of NEPOMUK <a href=\"../resources/LICENSE.txt\">software license</a> (FIXME verify)</p>\n");
 
         g_fprintf (f,"<hr />\n");
 
