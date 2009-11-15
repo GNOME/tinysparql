@@ -9,6 +9,7 @@
 static gchar *desc_file = NULL;
 static gchar *output_file = NULL;
 static gchar *class_location_file = NULL;
+static gchar *explanation_file = NULL;
 
 static GOptionEntry   entries[] = {
 	{ "desc", 'd', 0, G_OPTION_ARG_FILENAME, &desc_file,
@@ -21,6 +22,10 @@ static GOptionEntry   entries[] = {
 	},
         { "links", 'l', 0, G_OPTION_ARG_FILENAME, &class_location_file,
           "File with pairs: (prefix where the class is defined, class)",
+          NULL
+        },
+        { "explanation", 'e', 0, G_OPTION_ARG_FILENAME, &explanation_file,
+          "Verbosy explanation file in HTML format to include in the webpage",
           NULL
         },
 	{ NULL }
@@ -79,7 +84,7 @@ main (gint argc, gchar **argv)
         g_free (ttl_file);
         g_free (dirname);
 
-        ttl_html_print (description, ontology, f, class_location_file);
+        ttl_html_print (description, ontology, f, class_location_file, explanation_file);
 
         ttl_loader_free_ontology (ontology);
         ttl_loader_free_description (description);

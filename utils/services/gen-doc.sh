@@ -34,7 +34,12 @@ for f in `find ../../data/ontologies -name "*.description"` ; do
       PREFIX=${TMPNAME#*-}
       echo "Generating $PREFIX"
       mkdir -p $BUILD_DIR/$PREFIX
-      ./ttl2html -d $f -o $BUILD_DIR/$PREFIX/index.html -l file-class.cache
+      # Copy before because we check in the code if the documentation exists
+      if [ -e ../../docs/ontologies/$PREFIX ]; then
+	  cp -r ../../docs/ontologies/$PREFIX/* $BUILD_DIR/$PREFIX/ ;
+      fi
+      ./ttl2html -d $f -o $BUILD_DIR/$PREFIX/index.html -l file-class.cache \
+	  -e ../../docs/ontologies/$PREFIX/explanation.html
 done
 
 echo "Copying resources"

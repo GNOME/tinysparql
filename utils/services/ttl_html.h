@@ -10,7 +10,8 @@ G_BEGIN_DECLS
 void ttl_html_print (OntologyDescription *description,
                      Ontology *ontology,
                      FILE *output,
-                     const gchar *class_location);
+                     const gchar *class_location,
+                     const gchar *explanation_file);
 
 
 

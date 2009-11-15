@@ -84,6 +84,21 @@ print_html_header (FILE *f, OntologyDescription *desc)
 
         g_fprintf (f,"<hr />\n");
 
+}
+
+static void
+print_html_explanation (FILE *f, const gchar *explanation_file)
+{
+        gchar *raw_content;
+        gint   length;
+        
+        if (explanation_file && g_file_test (explanation_file, G_FILE_TEST_EXISTS)) {
+                if (!g_file_get_contents (explanation_file, &raw_content, &length, NULL)) {
+                        g_error ("Unable to load '%s'", explanation_file );
+                }
+                g_fprintf (f, "%s", raw_content);
+        } 
+        g_fprintf (f,"<hr />\n");
 
 }
 
@@ -211,11 +226,13 @@ void
 ttl_html_print (OntologyDescription *description,
                 Ontology *ontology,
                 FILE *f,
-                const gchar *class_location_file)
+                const gchar *class_location_file,
+                const gchar *explanation_file)
 {
 
         qname_init (description->baseUrl, description->localPrefix, class_location_file);
         print_html_header (f, description);
+        print_html_explanation (f, explanation_file);
         g_fprintf (f,"<h2>Ontology Classes Descriptions</h2>");
         g_hash_table_foreach (ontology->classes, print_ontology_class, f);
         g_fprintf (f,"<h2>Ontology Properties Descriptions</h2>");
