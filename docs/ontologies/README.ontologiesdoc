@@ -19,4 +19,7 @@ This must be a file in HTML format with <h2> as "biggest" elements (i.e. section
 It will be copied as-it-is into the ontology HTML page, so it shouldn't include all 
 HTML headers (i.e. it is NOT a valid HTML document).
 
+The classes inside the ontology can be linked using <a
+href="#ClassName">. 
+
 the file "explanation.html.template" can be used as starting point.
