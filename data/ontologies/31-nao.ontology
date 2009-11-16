@@ -10,7 +10,8 @@ nao: a tracker:Namespace ;
 	tracker:prefix "nao" .
 
 nao:Tag a rdfs:Class ;
-	rdfs:subClassOf rdfs:Resource .
+	rdfs:subClassOf rdfs:Resource ;
+	tracker:notify true .
 
 nao:prefLabel a rdf:Property ;
 	nrl:maxCardinality 1 ;
