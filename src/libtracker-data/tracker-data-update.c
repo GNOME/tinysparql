@@ -1055,6 +1055,7 @@ delete_metadata_decomposed (TrackerProperty  *property,
 	TrackerProperty   **super_properties;
 	GValue gvalue = { 0 };
 	GValueArray        *old_values;
+	GError             *new_error = NULL;
 
 	multiple_values = tracker_property_get_multiple_values (property);
 	if (multiple_values) {
@@ -1069,9 +1070,10 @@ delete_metadata_decomposed (TrackerProperty  *property,
 	fts = tracker_property_get_fulltext_indexed (property);
 
 	/* read existing property values */
-	old_values = get_old_property_values (property, error);
-	if (error && *error) {
+	old_values = get_old_property_values (property, &new_error);
+	if (new_error) {
 		g_free (table_name);
+		g_propagate_error (error, new_error);
 		return;
 	}
 
@@ -1827,7 +1829,7 @@ tracker_data_delete_resource_description (const gchar *graph,
 	GString		   *sql;
 	TrackerProperty	  **properties, **property;
 	int		    i;
-	gboolean            first;
+	gboolean            first, bail_out = FALSE;
 	gint                resource_id;
 
 	/* We use result_sets instead of cursors here because it's possible
@@ -1910,6 +1912,7 @@ tracker_data_delete_resource_description (const gchar *graph,
 
 				if (!tracker_property_get_multiple_values (*property)) {
 					gchar *value;
+					GError *new_error = NULL;
 
 					/* single value property, value in single_result_set */
 
@@ -1920,7 +1923,11 @@ tracker_data_delete_resource_description (const gchar *graph,
 						tracker_data_delete_statement (graph, uri, 
 						                               tracker_property_get_uri (*property), 
 						                               value, 
-						                               error);
+						                               &new_error);
+						if (new_error) {
+							g_propagate_error (error, new_error);
+							bail_out = TRUE;
+						}
 						g_free (value);
 					}
 
@@ -1944,15 +1951,22 @@ tracker_data_delete_resource_description (const gchar *graph,
 					if (multi_result) {
 						do {
 							gchar *value;
+							GError *new_error = NULL;
 
 							tracker_db_result_set_get (multi_result, 0, &value, -1);
 
 							tracker_data_delete_statement (graph, uri, 
 							                               tracker_property_get_uri (*property), 
 							                               value,
-							                               NULL);
+							                               &new_error);
 
 							g_free (value);
+
+							if (new_error) {
+								g_propagate_error (error, new_error);
+								bail_out = TRUE;
+								break;
+							}
 
 						} while (tracker_db_result_set_iter_next (multi_result));
 
@@ -1967,7 +1981,7 @@ tracker_data_delete_resource_description (const gchar *graph,
 				g_object_unref (single_result);
 			}
 
-		} while (tracker_db_result_set_iter_next (result_set));
+		} while (!bail_out && tracker_db_result_set_iter_next (result_set));
 
 		g_object_unref (result_set);
 	}
