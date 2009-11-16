@@ -624,8 +624,12 @@ query_mount_points_cb (TrackerMiner *miner,
 #endif
 
 			if (urn) {
-				g_debug ("URN '%s' (mount point: %s) was not reported to be mounted, but now it is, updating state",
-				         mount_point, urn);
+				if (mount_point) {
+					g_debug ("URN '%s' (mount point: %s) was not reported to be mounted, but now it is, updating state",
+						 urn, mount_point);
+				} else {
+					g_debug ("URN '%s' was not reported to be mounted, but now it is, updating state", urn);
+				}
 				set_up_mount_point (TRACKER_MINER_FILES (miner), urn, mount_point, TRUE, accumulator);
 			}
 		} else if (!(state & VOLUME_MOUNTED) &&
