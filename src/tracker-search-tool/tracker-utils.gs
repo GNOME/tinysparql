@@ -113,21 +113,24 @@ class TrackerUtils
             return false
 
 
-    def static inline GetThemePixbufByName (icon_name : string, size : int, screen : Gdk.Screen) :  Gdk.Pixbuf
+    def static inline GetThemePixbufByName (icon_name : string, size : int, screen : Gdk.Screen) :  Gdk.Pixbuf?
     
         var icon = new ThemedIcon (icon_name);  
         
         return GetThemeIconPixbuf (icon, size, screen)
 
 
-    def static GetThumbNail (info : FileInfo, thumb_size : int, icon_size : int, screen : Gdk.Screen) : Gdk.Pixbuf
+    def static GetThumbNail (info : FileInfo, thumb_size : int, icon_size : int, screen : Gdk.Screen) : Gdk.Pixbuf?
     
         pixbuf : Gdk.Pixbuf = null
+
+        try
+            var thumbpath = info.get_attribute_byte_string (FILE_ATTRIBUTE_THUMBNAIL_PATH)
     
-        var thumbpath = info.get_attribute_byte_string (FILE_ATTRIBUTE_THUMBNAIL_PATH)
-    
-        if thumbpath is not null
-            pixbuf = new Gdk.Pixbuf.from_file_at_size (thumbpath, thumb_size, thumb_size)
+            if thumbpath is not null
+                pixbuf = new Gdk.Pixbuf.from_file_at_size (thumbpath, thumb_size, thumb_size)
+        except e: Error
+            pass
             
         if pixbuf is null
             pixbuf = GetThemeIconPixbuf (info.get_icon (), icon_size, screen)    
@@ -138,7 +141,7 @@ class TrackerUtils
         return pixbuf
 
 
-    def static GetThemeIconPixbuf (icon : Icon, size : int, screen : Gdk.Screen) : Gdk.Pixbuf
+    def static GetThemeIconPixbuf (icon : Icon, size : int, screen : Gdk.Screen) : Gdk.Pixbuf?
     
         icon_info : IconInfo
     
@@ -146,7 +149,10 @@ class TrackerUtils
         
         icon_info = theme.lookup_by_gicon (icon, size, IconLookupFlags.USE_BUILTIN)
 
-        return icon_info.load_icon ()
+        try
+            return icon_info.load_icon ()
+        except e: Error
+            return null
         
     
         
