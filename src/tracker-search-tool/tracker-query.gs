@@ -72,7 +72,7 @@ class TrackerQuery : Object
         return true
        
        
-    def Search () : array of string[,] 
+    def Search () : array of string[,]?
     
         cat, query : string
     
@@ -93,8 +93,13 @@ class TrackerQuery : Object
 
 
         
-    def Query (sparql : string) : array of string[,] 
-        return tracker.SparqlQuery (sparql)
+    def Query (sparql : string) : array of string[,]?
+        try
+            return tracker.SparqlQuery (sparql)
+        except e:DBus.Error
+            print "Dbus error : %s", e.message
+
+        return null
         
         
         
