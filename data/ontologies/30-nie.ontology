@@ -11,14 +11,17 @@ nie: a tracker:Namespace ;
 
 nie:DataObject a rdfs:Class ;
 	rdfs:label "Data Object" ;
+	rdfs:comment "A unit of data that is created, annotated and processed on the user desktop. It represents a native structure the user works with. The usage of the term 'native'	is important. It means that a DataObject can be directly mapped to a data structure maintained by a native application.	This may be a file, a set of files or a part of a file. The granularity depends on the user. This class is not intended to be instantiated by itself. Use more specific subclasses." ;
 	rdfs:subClassOf rdfs:Resource .
 
 nie:DataSource a rdfs:Class ;
 	rdfs:label "Data Source" ;
+	rdfs:comment "A superclass for all entities from which DataObjects can be extracted. Each entity represents a native application or some other system that manages information that may be of interest to the user of the Semantic Desktop. Subclasses may include FileSystems, Mailboxes, Calendars, websites etc. The exact choice of subclasses and their properties is considered application-specific. Each data extraction application is supposed to provide it's own DataSource ontology. Such an ontology should contain supported data source types coupled with properties necessary for the application to gain access to the data sources. (paths, urls, passwords etc...)";
 	rdfs:subClassOf rdfs:Resource .
 
 nie:InformationElement a rdfs:Class ;
 	rdfs:label "Information Element" ;
+	rdfs:comment "A unit of content the user works with. This is a superclass for all interpretations of a DataObject." ;
 	rdfs:subClassOf rdfs:Resource .
 
 nie:title a rdf:Property ;
@@ -62,7 +65,7 @@ nie:language a rdf:Property ;
 
 nie:plainTextContent a rdf:Property ;
 	rdfs:label "Plain-text content" ;
-	rdfs:comment "Plain-text representation of the content" ;
+	rdfs:comment "Plain-text representation of the content of a InformationElement with all markup removed. The main purpose of this property is full-text indexing and search. Its exact content is considered application-specific. The user can make no assumptions about what is and what is not contained within. Applications should use more specific properties wherever possible.";
 	nrl:maxCardinality 1 ;
 	rdfs:domain nie:InformationElement ;
 	rdfs:range xsd:string ;
@@ -75,12 +78,14 @@ nie:informationElementDate a rdf:Property ;
 	rdfs:range xsd:dateTime .
 
 nie:legal a rdf:Property ;
+	rdfs:comment "A common superproperty for all properties that point at legal information about an Information Element";
 	rdfs:subPropertyOf dc:rights ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nie:InformationElement ;
 	rdfs:range xsd:string .
 
 nie:relatedTo a rdf:Property ;
+	rdfs:comment "A common superproperty for all relations between a piece of content and other pieces of data (which may be interpreted as other pieces of content).";
 	rdfs:subPropertyOf dc:relation ;
 	rdfs:domain nie:InformationElement ;
 	rdfs:range nie:DataObject .
@@ -119,6 +124,7 @@ nie:depends a rdf:Property ;
 
 nie:links a rdf:Property ;
 	rdfs:subPropertyOf nie:relatedTo ;
+	rdfs:comment "A linking relation. A piece of content links/mentions a piece of data";
 	nrl:maxCardinality 1 ;
 	rdfs:domain nie:InformationElement ;
 	rdfs:range nie:DataObject .
@@ -178,6 +184,7 @@ nie:lastRefreshed a rdf:Property ;
 
 # Bug in nepomuk specification. Taking domain from superproperty
 nie:license a rdf:Property ;
+        rdfs:comment "Terms and intellectual property rights licensing conditions.";
 	rdfs:subPropertyOf dc:rights , nie:legal ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nie:InformationElement ;
