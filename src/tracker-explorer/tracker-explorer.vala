@@ -8,9 +8,7 @@ extern static const string SRCDIR;
 
 [DBus (name = "org.freedesktop.Tracker1.Resources")]
 interface Resources : GLib.Object {
-	public abstract void Load (string url) throws DBus.Error;
 	public abstract string[,] SparqlQuery (string query) throws DBus.Error;
-	public abstract void SparqlUpdate (string query) throws DBus.Error;
 }
 
 public class HistoryItem {
