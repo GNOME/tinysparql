@@ -698,22 +698,22 @@ fi
 AM_CONDITIONAL(HAVE_UNAC, test "x$have_unac" = "xyes")
 
 ####################################################################
-# Push modules
+# Mail miners
 ####################################################################
 
-AC_ARG_ENABLE([evolution_push_module],
-              AS_HELP_STRING([--enable-evolution-push-module],
-                             [enable support for Evolution push mechanism [[default=yes]]]),,
-              [enable_evolution_push_module=yes])
+AC_ARG_ENABLE([evolution_miner],
+              AS_HELP_STRING([--enable-evolution-miner],
+                             [enable support for Evolution data miner [[default=yes]]]),,
+              [enable_evolution_miner=yes])
 
-AM_CONDITIONAL(USING_EVOLUTION_PUSH_MODULE, test "x$enable_evolution_push_module" = "xyes")
+AM_CONDITIONAL(USING_EVOLUTION_MINER, test "x$enable_evolution_miner" = "xyes")
 
-AC_ARG_ENABLE([kmail_push_module],
-              AS_HELP_STRING([--enable-kmail-push-module],
-                             [enable support for KMail push mechanism [[default=yes]]]),,
-              [enable_kmail_push_module=yes])
+AC_ARG_ENABLE([kmail_miner],
+              AS_HELP_STRING([--enable-kmail-miner],
+                             [enable support for KMail data miner [[default=yes]]]),,
+              [enable_kmail_miner=yes])
 
-AM_CONDITIONAL(USING_KMAIL_PUSH_MODULE, test "x$enable_kmail_push_module" = "xyes")
+AM_CONDITIONAL(USING_KMAIL_MINER, test "x$enable_kmail_miner" = "xyes")
 
 
 ####################################################################
@@ -1309,7 +1309,7 @@ AM_CONDITIONAL(HAVE_TOTEM_PL_PARSER, test "x$have_playlist" = "xyes")
 # Enable Evolution plugin support?
 ##################################################################
 
-if test "x$enable_evolution_push_module" != "xno" ; then
+if test "x$enable_evolution_miner" != "xno" ; then
    PKG_CHECK_MODULES(EVOLUTION_PLUGIN, [
    		     evolution-plugin >= $EVO_REQUIRED
 		     evolution-data-server-1.2 >= $EDS_REQUIRED], 
@@ -1553,8 +1553,8 @@ Metadata Extractors:
 
 Plugins:
 
-	Evolution plugin    (data-push):	$have_evolution_plugin
-	KMail plugin        (data-push):	$enable_kmail_push_module
+	Evolution plugin    (data-push):	$enable_evolution_miner
+	KMail plugin        (data-push):	$enable_kmail_miner
 
 Warning:
 
