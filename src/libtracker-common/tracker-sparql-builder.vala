@@ -29,7 +29,10 @@ public class Tracker.SparqlBuilder : Object {
 	}
 
 	public string result {
-		get { return str.str; }
+		get {
+			warn_if_fail (states.length == 1);
+			return str.str;
+		}
 	}
 
 	public int length { get; private set; }
