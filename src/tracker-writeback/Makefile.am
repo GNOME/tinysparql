@@ -37,6 +37,8 @@ tracker_writeback_SOURCES = 						\
 	$(dbus_sources)							\
 	tracker-writeback-dispatcher.c					\
 	tracker-writeback-dispatcher.h					\
+	tracker-writeback-file.c					\
+	tracker-writeback-file.h					\
 	tracker-writeback-module.c					\
 	tracker-writeback-module.h					\
 	tracker-writeback.c						\

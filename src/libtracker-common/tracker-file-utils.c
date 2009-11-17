@@ -699,7 +699,7 @@ flock_file (GFile *file,
 
 	g_return_val_if_fail (G_IS_FILE (file), -1);
 
-	if (g_file_is_native (file)) {
+	if (!g_file_is_native (file)) {
 		return -1;
 	}
 
@@ -777,7 +777,7 @@ tracker_file_is_locked (GFile *file)
 
 	g_return_val_if_fail (G_IS_FILE (file), FALSE);
 
-	if (g_file_is_native (file)) {
+	if (!g_file_is_native (file)) {
 		return FALSE;
 	}
 

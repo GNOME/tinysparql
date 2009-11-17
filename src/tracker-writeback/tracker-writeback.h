@@ -19,7 +19,6 @@
  */
 
 #include <glib-object.h>
-#include <gio/gio.h>
 
 #ifndef __TRACKER_WRITEBACK_H__
 #define __TRACKER_WRITEBACK_H__
@@ -27,7 +26,7 @@
 G_BEGIN_DECLS
 
 #define TRACKER_TYPE_WRITEBACK         (tracker_writeback_get_type())
-#define TRACKER_WRITEBACK(o)           (G_TYPE_CHECK_INSTANCE_CAST ((o), TRACKER_TYPE_WRITEBAK, TrackerWriteback))
+#define TRACKER_WRITEBACK(o)           (G_TYPE_CHECK_INSTANCE_CAST ((o), TRACKER_TYPE_WRITEBACK, TrackerWriteback))
 #define TRACKER_WRITEBACK_CLASS(c)     (G_TYPE_CHECK_CLASS_CAST ((c), TRACKER_TYPE_WRITEBACK, TrackerWritebackClass))
 #define TRACKER_IS_WRITEBACK(o)        (G_TYPE_CHECK_INSTANCE_TYPE ((o), TRACKER_TYPE_WRITEBACK))
 #define TRACKER_IS_WRITEBACK_CLASS(c)  (G_TYPE_CHECK_CLASS_TYPE ((c),  TRACKER_TYPE_WRITEBACK))
