@@ -1217,7 +1217,6 @@ extractor_get_embedded_metadata_cb (DBusGProxy *proxy,
 	}
 
 	if (sparql) {
-		tracker_sparql_builder_insert_close (data->sparql);
 		tracker_sparql_builder_append (data->sparql, sparql);
 		g_free (sparql);
 	}
@@ -1331,6 +1330,8 @@ process_file_cb (GObject      *object,
 	tracker_sparql_builder_object_string (sparql, mime_type);
 
         miner_files_add_to_datasource (data->miner, file, sparql);
+
+	tracker_sparql_builder_insert_close (sparql);
 
 	/* Send file/mime data to thumbnailer (which adds it to the
 	 * queue if the thumbnailer handles those mime types).
