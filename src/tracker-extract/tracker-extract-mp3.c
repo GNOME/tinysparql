@@ -100,6 +100,7 @@ typedef struct {
 	gchar *title2;
 	gchar *title3;
 	gint track_number;
+	gint track_count;
 } id3v2tag;
 
 typedef enum {
@@ -160,6 +161,7 @@ typedef struct {
 	gchar *comment;
 
 	gint track_number;
+	gint track_count;
 
 	unsigned char *albumart_data;
 	size_t albumart_size;
@@ -1266,6 +1268,9 @@ get_id3v24_tags (const gchar          *data,
 				if (parts[0]) {
 					tag->track_number = atoi (parts[0]);
 				}
+				if (parts[1]) {
+					tag->track_count = atoi (parts[1]);
+				}
 				g_strfreev (parts);
 				g_free (word);
 
@@ -1461,6 +1466,9 @@ get_id3v23_tags (const gchar          *data,
 				parts = g_strsplit (word, "/", 2);
 				if (parts[0]) {
 					tag->track_number = atoi (parts[0]);
+				}
+				if (parts[1]) {
+					tag->track_count = atoi (parts[1]);
 				}
 				g_strfreev (parts);
 				g_free (word);
@@ -1967,6 +1975,14 @@ extract_mp3 (const gchar          *uri,
 		md.track_number = md.id3v1.track_number;
 	}
 
+	if (md.id3v24.track_count != 0) {
+		md.track_count = md.id3v24.track_count;
+	} else if (md.id3v23.track_count != 0) {
+		md.track_count = md.id3v23.track_count;
+	} else if (md.id3v22.track_count != 0) {
+		md.track_count = md.id3v22.track_count;
+	}
+
 	if (md.performer) {
 		md.performer_uri = tracker_uri_printf_escaped ("urn:artist:%s", md.performer);
 		tracker_sparql_builder_subject_iri (metadata, md.performer_uri);
@@ -1984,6 +2000,12 @@ extract_mp3 (const gchar          *uri,
 		tracker_sparql_builder_object (metadata, "nmm:MusicAlbum");
 		tracker_sparql_builder_predicate (metadata, "nmm:albumTitle");
 		tracker_sparql_builder_object_unvalidated (metadata, md.album);
+
+		if (md.track_count > 0) {
+			tracker_sparql_builder_predicate (metadata, "nmm:albumTrackCount");
+			tracker_sparql_builder_object_int64 (metadata, md.track_count);
+		}
+
 		g_free (md.album);
 	}
 
