@@ -24,7 +24,7 @@ static GOptionEntry   entries[] = {
 #define TRACKER_PREFIX "http://www.tracker-project.org/ontologies/tracker#prefix"
 #define RDFS_RANGE "http://www.w3.org/2000/01/rdf-schema#range"
 #define RDFS_DOMAIN "http://www.w3.org/2000/01/rdf-schema#domain"
-
+#define NRL_IFP "http://www.semanticdesktop.org/ontologies/2007/08/15/nrl#InverseFunctionalProperty"
 
 static GList *unknown_items = NULL;
 static GList *known_items = NULL;
@@ -58,6 +58,11 @@ turtle_load_ontology (const gchar *turtle_subject,
 
                 if (!g_strcmp0 (turtle_object, TRACKER_NS)) {
                         /* Ignore the internal tracker namespace definitions */
+                        return;
+                }
+
+                if (!g_strcmp0 (turtle_object, NRL_IFP)) {
+                        /* Ignore the InverseFunctionalProperty subclassing */
                         return;
                 }
 
