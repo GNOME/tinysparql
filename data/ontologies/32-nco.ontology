@@ -50,7 +50,7 @@ nco:EmailAddress a rdfs:Class ;
 
 nco:IMAccount a rdfs:Class ;
 	rdfs:label "IMAccount" ;
-	rdfs:comment "An account in an Instant Messaging system. Only user 'me' can have IM Accounts (check hasIMAccount). All other contacts in the address book can come from one (check nco:fromIMAccount)." ;
+	rdfs:comment "An account in an Instant Messaging system. Only user 'me' can have IM Accounts (check hasIMAccount). All other contacts in the address book can come from one (check nco:fromIMAccount). The properties in this class (id, status,...) refers only to 'me'. The specific details of contacts coming from that account are properties of IMContact." ;
 	tracker:notify true ;
 	rdfs:subClassOf nco:ContactMedium .
 
@@ -342,12 +342,6 @@ nco:containsContact a rdf:Property ;
 	rdfs:subPropertyOf nie:hasPart ;
 	rdfs:domain nco:ContactList ;
 	rdfs:range nco:ContactListDataObject .
-
-nco:imStatus a rdf:Property ;
-	rdfs:label "imStatus" ;
-	nrl:maxCardinality 1 ;
-	rdfs:domain nco:IMAccount ;
-	rdfs:range xsd:string .
 
 nco:department a rdf:Property ;
 	rdfs:label "department" ;
@@ -657,3 +651,54 @@ nco:hasAffiliation a rdf:Property ;
 	rdfs:domain nco:PersonContact ;
 	rdfs:range nco:Affiliation .
 
+#
+# IM related properties
+#
+nco:imContactId a rdf:Property ;
+	rdfs:label "imContactId" ;
+	rdfs:comment "ID of the contact in the service like my.friend@xmail.com" ;
+	nrl:maxCardinality 1;
+	rdfs:domain nco:IMContact ;
+	rdfs:range xsd:string .
+
+nco:imContactNickname a rdf:Property ;
+	rdfs:label "imContactNickname" ;
+	rdfs:comment "Visible nickname of the user in a service";
+	nrl:maxCardinality 1;
+	rdfs:domain nco:IMContact ;
+	rdfs:range xsd:string .
+
+nco:imContactStatusMessage a rdf:Property ;
+	rdfs:label "imContactStatusMessage" ;
+	rdfs:comment "Status message of the user in a service";
+	nrl:maxCardinality 1;
+	rdfs:domain nco:IMContact ;
+	rdfs:range xsd:string .
+
+nco:PresenceStatus a rdfs:Class ;
+        rdfs:label "Presence statuses"; 
+	rdfs:comment "Predefined set of status level instances" ;
+	rdfs:subClassOf rdfs:Resource .
+
+nco:presence-status-unset a nco:PresenceStatus .
+nco:presence-status-offline a nco:PresenceStatus .
+nco:presence-status-available a nco:PresenceStatus .
+nco:presence-status-away a nco:PresenceStatus .
+nco:presence-status-extended-away a nco:PresenceStatus .
+nco:presence-status-hidden a nco:PresenceStatus .
+nco:presence-status-busy a nco:PresenceStatus .
+nco:presence-status-unknown a nco:PresenceStatus .
+nco:presence-status-error a nco:PresenceStatus .
+
+nco:imContactPresence a rdf:Property ;
+	rdfs:label "imContactPresence" ;
+	rdfs:comment "Online availability of the user in a service";
+	nrl:maxCardinality 1;
+	rdfs:domain nco:IMContact ;
+	rdfs:range nco:PresenceStatus .
+
+nco:imPresence a rdf:Property ;
+	rdfs:label "imPresence" ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nco:IMAccount ;
+	rdfs:range nco:PresenceStatus .
