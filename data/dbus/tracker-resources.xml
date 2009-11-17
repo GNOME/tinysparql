@@ -46,7 +46,7 @@
     </method>
 
    <signal name="Writeback">
-      <arg type="as" name="subjects" />
+      <arg type="a{sas}" name="subjects" />
    </signal>
 
   </interface>

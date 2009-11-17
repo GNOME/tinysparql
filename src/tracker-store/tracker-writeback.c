@@ -52,11 +52,27 @@ is_allowed (WritebackPrivate *private, const gchar *rdf_predicate)
 	return (g_hash_table_lookup (private->allowances, rdf_predicate) != NULL) ? TRUE : FALSE;
 }
 
+
+static GStrv
+copy_rdf_types (GPtrArray *rdf_types)
+{
+	GStrv new_types = g_new0 (gchar*, rdf_types->len + 1);
+	guint n;
+
+	for (n = 0; n < rdf_types->len; n++) {
+		new_types[n] = g_strdup (rdf_types->pdata[n]);
+	}
+
+	return new_types;
+}
+
+
 void 
 tracker_writeback_check (const gchar *graph,
                          const gchar *subject, 
                          const gchar *predicate,
-                         const gchar *object)
+                         const gchar *object,
+                         GPtrArray *rdf_types)
 {
 	WritebackPrivate *private;
 
@@ -72,13 +88,15 @@ tracker_writeback_check (const gchar *graph,
 	g_return_if_fail (private != NULL);
 
 	if (is_allowed (private, predicate)) {
+
 		if (!private->events) {
 			private->events = g_hash_table_new_full (g_str_hash, g_str_equal,
 			                                         (GDestroyNotify) g_free,
-			                                         NULL);
+			                                         (GDestroyNotify) g_strfreev);
 		}
+
 		g_hash_table_insert (private->events, g_strdup (subject),
-		                     GINT_TO_POINTER (TRUE));
+		                     copy_rdf_types (rdf_types));
 	}
 }
 
@@ -96,28 +114,15 @@ tracker_writeback_reset (void)
 	}
 }
 
-const gchar **
+GHashTable *
 tracker_writeback_get_pending (void)
 {
 	WritebackPrivate *private;
-	GHashTableIter iter;
-	gpointer key, value;
-	const gchar **writebacks = NULL;
-	guint i = 0;
 
 	private = g_static_private_get (&private_key);
 	g_return_val_if_fail (private != NULL, NULL);
 
-	if (private->events) {
-		writebacks = g_new0 (const gchar *, g_hash_table_size (private->events) + 1);
-		g_hash_table_iter_init (&iter, private->events);
-
-		while (g_hash_table_iter_next (&iter, &key, &value)) {
-			writebacks[i++] = (gchar *) key;
-		}
-	}
-
-	return writebacks;
+	return private->events ? g_hash_table_ref (private->events) : NULL;
 }
 
 static void

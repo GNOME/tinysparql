@@ -51,7 +51,7 @@ typedef struct {
 static void tracker_writeback_dispatcher_finalize    (GObject                    *object);
 static void tracker_writeback_dispatcher_constructed (GObject                    *object);
 static void on_writeback_cb                          (DBusGProxy                 *proxy,
-                                                      const gchar *const         *subjects,
+                                                      GHashTable                 *subjects,
                                                       TrackerWritebackDispatcher *object);
 
 
@@ -200,7 +200,7 @@ tracker_writeback_dispatcher_init (TrackerWritebackDispatcher *dispatcher)
 	                                                     TRACKER_INTERFACE_RESOURCES);
 
 	dbus_g_proxy_add_signal (priv->dbus_data->tproxy, "Writeback",
-	                         G_TYPE_STRV,
+	                         TRACKER_TYPE_STR_STRV_MAP,
 	                         G_TYPE_INVALID);
 
 	dbus_g_proxy_connect_signal (priv->dbus_data->tproxy, "Writeback",
@@ -287,23 +287,29 @@ on_sparql_result_received (GPtrArray *result,
 
 static void
 on_writeback_cb (DBusGProxy                 *proxy,
-                 const gchar *const         *subjects,
+                 GHashTable                 *subjects,
                  TrackerWritebackDispatcher *object)
 {
 	TrackerWritebackDispatcherPrivate *priv;
 	QueryData *data;
 	guint n;
+	GHashTableIter iter;
+	gpointer key, value;
 
 	priv = TRACKER_WRITEBACK_DISPATCHER_GET_PRIVATE (object);
 
-	for (n = 0; subjects[n] != NULL; n++) {
+	g_hash_table_iter_init (&iter, subjects);
+
+	while (g_hash_table_iter_next (&iter, &key, &value)) {
+		const gchar *subject = key;
+		const GStrv rdf_types = value;
 		gchar *query;
 
 		query = g_strdup_printf ("SELECT ?url ?predicate ?object { "
 		                                "<%s> ?predicate ?object ; "
 		                                     "nie:isStoredAs ?url . "
 		                                "?predicate tracker:writeback true "
-		                         "}", subjects[n]);
+		                         "}", subject);
 
 		data = g_slice_new (QueryData);
 		data->dispatcher = object;

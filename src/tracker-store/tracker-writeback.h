@@ -35,8 +35,9 @@ void            tracker_writeback_shutdown    (void);
 void            tracker_writeback_check       (const gchar              *graph,
                                                const gchar              *subject,
                                                const gchar              *predicate,
-                                               const gchar              *object);
-const gchar **  tracker_writeback_get_pending (void);
+                                               const gchar              *object,
+                                               GPtrArray                *rdf_types);
+GHashTable*     tracker_writeback_get_pending (void);
 void            tracker_writeback_reset       (void);
 
 G_END_DECLS

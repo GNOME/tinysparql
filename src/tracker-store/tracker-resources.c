@@ -108,7 +108,7 @@ tracker_resources_class_init (TrackerResourcesClass *klass)
 			      G_SIGNAL_RUN_LAST,
 			      G_STRUCT_OFFSET (TrackerResourcesClass, writeback),
 			      NULL, NULL,
-			      tracker_marshal_VOID__BOXED,
+			      g_cclosure_marshal_VOID__BOXED,
 			      G_TYPE_NONE, 1,
 			      TRACKER_TYPE_STR_STRV_MAP);
 
@@ -404,7 +404,7 @@ on_statements_committed (gpointer user_data)
 {
 	TrackerResources *resources = user_data;
 	GPtrArray *events;
-	const gchar **writebacks;
+	GHashTable *writebacks;
 	TrackerResourcesPrivate *priv;
 
 	priv = TRACKER_RESOURCES_GET_PRIVATE (resources);
@@ -464,7 +464,7 @@ on_statements_committed (gpointer user_data)
 
 	if (writebacks) {
 		g_signal_emit (resources, signals[WRITEBACK], 0, writebacks);
-		g_free (writebacks);
+		g_hash_table_unref (writebacks);
 
 	}
 
@@ -494,7 +494,7 @@ on_statement_inserted (const gchar *graph,
 	}
 
 	/* For predicates it's always update here */
-	tracker_writeback_check (graph, subject, predicate, object);
+	tracker_writeback_check (graph, subject, predicate, object, rdf_types);
 }
 
 static void
@@ -512,7 +512,7 @@ on_statement_deleted (const gchar *graph,
 	}
 
 	/* For predicates it's always delete here */
-	tracker_writeback_check (graph, subject, predicate, object);
+	tracker_writeback_check (graph, subject, predicate, object, rdf_types);
 }
 
 void 
