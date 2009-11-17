@@ -102,8 +102,16 @@ insert_keywords (TrackerSparqlBuilder *metadata, const gchar *uri, gchar *keywor
 
 	for (keyw = strtok_r (keywords, ",; ", &lasts); keyw;
 	     keyw = strtok_r (NULL, ",; ", &lasts)) {
-		tracker_sparql_builder_predicate (metadata, "nie:keyword");
+		tracker_sparql_builder_predicate (metadata, "nao:hasTag");
+
+		tracker_sparql_builder_object_blank_open (metadata);
+		tracker_sparql_builder_predicate (metadata, "a");
+		tracker_sparql_builder_object (metadata, "nao:Tag");
+
+		tracker_sparql_builder_predicate (metadata, "nao:prefLabel");
 		tracker_sparql_builder_object_unvalidated (metadata, keyw);
+
+		tracker_sparql_builder_object_blank_close (metadata);
 	}
 }
 

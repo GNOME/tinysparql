@@ -180,11 +180,11 @@ tracker_xmp_iter_simple_qual (XmpPtr                xmp,
 		const gchar *qual_path = xmp_string_cstr (the_path);
 		const gchar *qual_value = xmp_string_cstr (the_prop);
 
-		if (strcmp (qual_path, "xml:lang") == 0) {
+		if (g_ascii_strcasecmp (qual_path, "xml:lang") == 0) {
 			/* Is this a language we should ignore? */
-			if (strcmp (qual_value, "x-default") != 0 && 
-			    strcmp (qual_value, "x-repair") != 0 && 
-			    strcmp (qual_value, locale) != 0) {
+			if (g_ascii_strcasecmp (qual_value, "x-default") != 0 && 
+			    g_ascii_strcasecmp (qual_value, "x-repair") != 0 && 
+			    g_ascii_strcasecmp (qual_value, locale) != 0) {
 				ignore_element = TRUE;
 				break;
 			}
@@ -218,7 +218,7 @@ fix_orientation (const gchar *orientation)
 	};
 
 	for (i=0; i < 8; i++) {
-		if (g_strcmp0 (orientation,ostr[i]) == 0) {
+		if (orientation && ostr[i] && g_ascii_strcasecmp (orientation, ostr[i]) == 0) {
 			switch (i) {
 				default:
 				case 0:
@@ -267,123 +267,128 @@ tracker_xmp_iter_simple (const gchar          *uri,
 	}
 
 	/* Dublin Core */
-	if (strcmp (schema, NS_DC) == 0) {
-		if (strcmp (name, "title") == 0 && !data->title) {
+	if (g_ascii_strcasecmp (schema, NS_DC) == 0) {
+		if (g_ascii_strcasecmp (name, "title") == 0 && !data->title) {
 			data->title = g_strdup (value);
 		}
-		else if (strcmp (name, "rights") == 0 && !data->rights) {
+		else if (g_ascii_strcasecmp (name, "rights") == 0 && !data->rights) {
 			data->rights = g_strdup (value);
 		}
-		else if (strcmp (name, "creator") == 0 && !data->creator) {
+		else if (g_ascii_strcasecmp (name, "creator") == 0 && !data->creator) {
 			data->creator = g_strdup (value);
 		}
-		else if (strcmp (name, "description") == 0 && !data->description) {
+		else if (g_ascii_strcasecmp (name, "description") == 0 && !data->description) {
 			data->description = g_strdup (value);
 		}
-		else if (strcmp (name, "date") == 0 && !data->date) {
+		else if (g_ascii_strcasecmp (name, "date") == 0 && !data->date) {
 			data->date = g_strdup (value);
 		}
-		else if (strcmp (name, "keywords") == 0 && !data->keywords) {
+		else if (g_ascii_strcasecmp (name, "keywords") == 0 && !data->keywords) {
 			 data->keywords = g_strdup (value);
 		}
-		else if (strcmp (name, "subject") == 0 && !data->subject) {
+		else if (g_ascii_strcasecmp (name, "subject") == 0 && !data->subject) {
 			data->subject = g_strdup (value);
 		}
-		else if (strcmp (name, "publisher") == 0 && !data->publisher) {
+		else if (g_ascii_strcasecmp (name, "publisher") == 0 && !data->publisher) {
 			data->publisher = g_strdup (value);
 		}
-		else if (strcmp (name, "contributor") == 0 && !data->contributor) {
+		else if (g_ascii_strcasecmp (name, "contributor") == 0 && !data->contributor) {
 			data->contributor = g_strdup (value);
 		}
-		else if (strcmp (name, "type") == 0 && !data->type) {
+		else if (g_ascii_strcasecmp (name, "type") == 0 && !data->type) {
 			data->type = g_strdup (value);
 		}
-		else if (strcmp (name, "format") == 0 && !data->format) {
+		else if (g_ascii_strcasecmp (name, "format") == 0 && !data->format) {
 			data->format = g_strdup (value);
 		}
-		else if (strcmp (name, "identifier") == 0 && !data->identifier) {
+		else if (g_ascii_strcasecmp (name, "identifier") == 0 && !data->identifier) {
 			data->identifier = g_strdup (value);
 		}
-		else if (strcmp (name, "source") == 0 && !data->source) {
+		else if (g_ascii_strcasecmp (name, "source") == 0 && !data->source) {
 			data->source = g_strdup (value);
 		}
-		else if (strcmp (name, "language") == 0 && !data->language) {
+		else if (g_ascii_strcasecmp (name, "language") == 0 && !data->language) {
 			data->language = g_strdup (value);
 		}
-		else if (strcmp (name, "relation") == 0 && !data->relation) {
+		else if (g_ascii_strcasecmp (name, "relation") == 0 && !data->relation) {
 			data->relation = g_strdup (value);
 		}
-		else if (strcmp (name, "coverage") == 0 && !data->coverage) {
+		else if (g_ascii_strcasecmp (name, "coverage") == 0 && !data->coverage) {
 			data->coverage = g_strdup (value);
 		}
 
 	}
 	/* Creative Commons */
-	else if (strcmp (schema, NS_CC) == 0) {
-		if (strcmp (name, "license") == 0 && !data->license) {
+	else if (g_ascii_strcasecmp (schema, NS_CC) == 0) {
+		if (g_ascii_strcasecmp (name, "license") == 0 && !data->license) {
 			data->license = g_strdup (value);
 		}
 	}
 	/* Exif basic scheme */
-	else if (strcmp (schema, NS_EXIF) == 0) {
-		if (strcmp (name, "Title") == 0 && !data->Title) {
+	else if (g_ascii_strcasecmp (schema, NS_EXIF) == 0) {
+		if (g_ascii_strcasecmp (name, "Title") == 0 && !data->Title) {
 			data->Title = g_strdup (value);
 		}
-		else if (strcmp (name, "DateTimeOriginal") == 0 && !data->DateTimeOriginal) {
+		else if (g_ascii_strcasecmp (name, "DateTimeOriginal") == 0 && !data->DateTimeOriginal) {
 			data->DateTimeOriginal = g_strdup (value);
 		}
-		else if (strcmp (name, "Artist") == 0 && !data->Artist) {
+		else if (g_ascii_strcasecmp (name, "Artist") == 0 && !data->Artist) {
 			data->Artist = g_strdup (value);
 		}
-/*		else if (strcmp (name, "Software") == 0) {
+/*		else if (g_ascii_strcasecmp (name, "Software") == 0) {
 			tracker_statement_list_insert (metadata, uri,
 						  "Image:Software", value);
 		}*/
-		else if (strcmp (name, "Make") == 0 && !data->Make) {
+		else if (g_ascii_strcasecmp (name, "Make") == 0 && !data->Make) {
 			data->Make = g_strdup (value);
 		}
-		else if (strcmp (name, "Model") == 0 && !data->Model) {
+		else if (g_ascii_strcasecmp (name, "Model") == 0 && !data->Model) {
 			data->Model = g_strdup (value);
 		}
-		else if (strcmp (name, "Orientation") == 0 && !data->Orientation) {
+		else if (g_ascii_strcasecmp (name, "Orientation") == 0 && !data->Orientation) {
 			data->Orientation = g_strdup (fix_orientation (value));
 		}
-		else if (strcmp (name, "Flash") == 0 && !data->Flash) {
+		else if (g_ascii_strcasecmp (name, "Flash") == 0 && !data->Flash) {
 			data->Flash = g_strdup (fix_flash (value));
 		}
-		else if (strcmp (name, "MeteringMode") == 0 && !data->MeteringMode) {
+		else if (g_ascii_strcasecmp (name, "MeteringMode") == 0 && !data->MeteringMode) {
 			data->MeteringMode = g_strdup (fix_metering_mode (value));
 		}
-		/*else if (strcmp (name, "ExposureProgram") == 0) {
+		/*else if (g_ascii_strcasecmp (name, "ExposureProgram") == 0) {
 			tracker_statement_list_insert (metadata, uri,
 						  "Image:ExposureProgram", value);
 		}*/
-		else if (strcmp (name, "ExposureTime") == 0 && !data->ExposureTime) {
+		else if (g_ascii_strcasecmp (name, "ExposureTime") == 0 && !data->ExposureTime) {
 			data->ExposureTime = g_strdup (value);
 		}
-		else if (strcmp (name, "FNumber") == 0 && !data->FNumber) {
+		else if (g_ascii_strcasecmp (name, "FNumber") == 0 && !data->FNumber) {
 			data->FNumber = g_strdup (value);
 		}
-		else if (strcmp (name, "FocalLength") == 0 && !data->FocalLength) {
+		else if (g_ascii_strcasecmp (name, "FocalLength") == 0 && !data->FocalLength) {
 			data->FocalLength = g_strdup (value);
 		}
-		else if (strcmp (name, "ISOSpeedRatings") == 0 && !data->ISOSpeedRatings) {
+		else if (g_ascii_strcasecmp (name, "ISOSpeedRatings") == 0 && !data->ISOSpeedRatings) {
 			data->ISOSpeedRatings = g_strdup (value);
 		}
-		else if (strcmp (name, "WhiteBalance") == 0 && !data->WhiteBalance) {
+		else if (g_ascii_strcasecmp (name, "WhiteBalance") == 0 && !data->WhiteBalance) {
 			data->WhiteBalance = g_strdup (fix_white_balance (value));
 		}
-		else if (strcmp (name, "Copyright") == 0 && !data->Copyright) {
+		else if (g_ascii_strcasecmp (name, "Copyright") == 0 && !data->Copyright) {
 			data->Copyright = g_strdup (value);
 		}
+	} else 	/* PDF*/ if (g_ascii_strcasecmp (schema, NS_PDF) == 0) {
+		if (g_ascii_strcasecmp (name, "keywords") == 0 && !data->keywords) {
+			data->keywords = g_strdup (value);
+		}
 	}
+
 	/* XAP (XMP)scheme */
-	/*else if (strcmp (schema, NS_XAP) == 0) {
-	        if (strcmp (name, "Rating") == 0) {
+	/*else if (g_ascii_strcasecmp (schema, NS_XAP) == 0) {
+	        if (g_ascii_strcasecmp (name, "Rating") == 0) {
 		        tracker_statement_list_insert (metadata, uri,
 						  "Image:Rating", value);
 		}
-		if (strcmp (name, "MetadataDate") == 0) {
+		if (g_ascii_strcasecmp (name, "MetadataDate") == 0) {
 		        tracker_statement_list_insert (metadata, uri,
 						  "Image:Date", value);
 		}
@@ -392,8 +397,8 @@ tracker_xmp_iter_simple (const gchar          *uri,
 
 	/*
 	 GeoClue / location stuff, TODO
-	 else if (strcmp (schema,  NS_IPTC4XMP) == 0) {
-	        if (strcmp (name, "Location") == 0) {
+	 else if (g_ascii_strcasecmp (schema,  NS_IPTC4XMP) == 0) {
+	        if (g_ascii_strcasecmp (name, "Location") == 0) {
 		        tracker_statement_list_insert (metadata, uri,
 						  "Image:Location", value);
 
@@ -401,7 +406,7 @@ tracker_xmp_iter_simple (const gchar          *uri,
 		        tracker_statement_list_insert (metadata, uri,
 						  "Image:Keywords", value);
 		}
-		if (strcmp (name, "Sublocation") == 0) {
+		if (g_ascii_strcasecmp (name, "Sublocation") == 0) {
 		        tracker_statement_list_insert (metadata, uri,
 						  "Image:Sublocation", value);
 
@@ -411,8 +416,8 @@ tracker_xmp_iter_simple (const gchar          *uri,
 		}
 	}
 	/ Photoshop scheme *
-	else if (strcmp (schema,  NS_PHOTOSHOP) == 0) {
-	        if (strcmp (name, "City") == 0) {
+	else if (g_ascii_strcasecmp (schema,  NS_PHOTOSHOP) == 0) {
+	        if (g_ascii_strcasecmp (name, "City") == 0) {
 		        tracker_statement_list_insert (metadata, uri,
 						  "Image:City", value);
 
@@ -420,7 +425,7 @@ tracker_xmp_iter_simple (const gchar          *uri,
 		        tracker_statement_list_insert (metadata, uri,
 						  "Image:Keywords", value);
 		}
-		else if (strcmp (name, "Country") == 0) {
+		else if (g_ascii_strcasecmp (name, "Country") == 0) {
 			tracker_statement_list_insert (metadata, uri,
 						  "Image:Country", value);
 
@@ -529,8 +534,16 @@ insert_keywords (TrackerSparqlBuilder *metadata, const gchar *uri, gchar *keywor
 
 	for (keyw = strtok_r (keywords, ",; ", &lasts); keyw;
 	     keyw = strtok_r (NULL, ",; ", &lasts)) {
-		tracker_sparql_builder_predicate (metadata, "nie:keyword");
+		tracker_sparql_builder_predicate (metadata, "nao:hasTag");
+
+		tracker_sparql_builder_object_blank_open (metadata);
+		tracker_sparql_builder_predicate (metadata, "a");
+		tracker_sparql_builder_object (metadata, "nao:Tag");
+
+		tracker_sparql_builder_predicate (metadata, "nao:prefLabel");
 		tracker_sparql_builder_object_unvalidated (metadata, keyw);
+
+		tracker_sparql_builder_object_blank_close (metadata);
 	}
 }
 

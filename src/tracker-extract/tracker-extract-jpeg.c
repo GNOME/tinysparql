@@ -125,8 +125,16 @@ insert_keywords (TrackerSparqlBuilder *metadata,
 	for (p = strtok_r (keywords, ",; ", &saveptr);
 	     p;
 	     p = strtok_r (NULL, ",; ", &saveptr)) {
-		tracker_sparql_builder_predicate (metadata, "nie:keyword");
+		tracker_sparql_builder_predicate (metadata, "nao:hasTag");
+
+		tracker_sparql_builder_object_blank_open (metadata);
+		tracker_sparql_builder_predicate (metadata, "a");
+		tracker_sparql_builder_object (metadata, "nao:Tag");
+
+		tracker_sparql_builder_predicate (metadata, "nao:prefLabel");
 		tracker_sparql_builder_object_unvalidated (metadata, p);
+
+		tracker_sparql_builder_object_blank_close (metadata);
 	}
 }
 
@@ -229,8 +237,6 @@ extract_jpeg (const gchar          *uri,
 
 #ifdef HAVE_EXEMPI
 				if (strncmp (XMP_NAMESPACE, str, XMP_NAMESPACE_LENGTH) == 0) {
-					TrackerXmpData xd = { 0 };
-
 					tracker_read_xmp (str + XMP_NAMESPACE_LENGTH,
 							  len - XMP_NAMESPACE_LENGTH,
 							  uri,
