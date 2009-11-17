@@ -51,7 +51,7 @@ GType          tracker_writeback_get_type (void) G_GNUC_CONST;
 
 /* Entry functions to be defined by modules */
 TrackerWriteback * writeback_module_create        (GTypeModule *module);
-const GStrv        writeback_module_get_mimetypes (void);
+const gchar**      writeback_module_get_rdftypes  (void);
 
 gboolean tracker_writeback_update_metadata (TrackerWriteback *writeback,
                                             GPtrArray        *values);

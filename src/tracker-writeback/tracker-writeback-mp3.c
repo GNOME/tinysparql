@@ -65,7 +65,7 @@ tracker_writeback_mp3_init (TrackerWritebackMP3 *mp3)
 
 static gboolean
 tracker_writeback_mp3_update_metadata (TrackerWriteback *writeback,
-                                         GPtrArray        *values)
+                                       GPtrArray        *values)
 {
 	guint n;
 	const gchar *uri = NULL;
@@ -76,9 +76,32 @@ tracker_writeback_mp3_update_metadata (TrackerWriteback *writeback,
 		const GStrv row = g_ptr_array_index (values, n);
 
 		if (uri == NULL) {
+			GFileInfo *file_info;
+			const gchar *mime_type;
+
 			uri = row[0];
 			file = g_file_new_for_uri (uri);
-			path = g_file_get_path (file);
+
+			file_info = g_file_query_info (file, G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE,
+			                               G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
+			                               NULL, NULL);
+
+			if (!file_info) {
+				g_object_unref (file);
+				return FALSE;
+			}
+
+			mime_type = g_file_info_get_content_type (file_info);
+
+			if (g_strcmp0 (mime_type, "audio/mpeg") == 0 ||
+			    g_strcmp0 (mime_type, "audio/x-mp3") == 0) {
+				g_object_unref (file_info);
+				path = g_file_get_path (file);
+			} else {
+				g_object_unref (file);
+				g_object_unref (file_info);
+				return FALSE;
+			}
 		}
 
 		if (g_strcmp0 (row[1], TRACKER_NIE_PREFIX "title") == 0) {
@@ -123,10 +146,12 @@ writeback_module_create (GTypeModule *module)
 	return g_object_new (TRACKER_TYPE_WRITEBACK_MP3, NULL);
 }
 
-const GStrv
-writeback_module_get_mimetypes (void)
+const gchar**
+writeback_module_get_rdftypes (void)
 {
-	static const gchar *mimetypes[] = { "*", NULL };
+	static const gchar *rdftypes[] = { TRACKER_NFO_PREFIX "Document",
+	                                   TRACKER_NMM_PREFIX "MusicPiece",
+	                                   NULL };
 
-	return (GStrv) mimetypes;
+	return rdftypes;
 }

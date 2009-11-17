@@ -40,6 +40,7 @@ typedef struct {
 
 typedef struct {
 	TrackerWritebackDispatcher *dispatcher;
+	GStrv rdf_types;
 } QueryData;
 
 #define TRACKER_WRITEBACK_DISPATCHER_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_WRITEBACK_DISPATCHER, TrackerWritebackDispatcherPrivate))
@@ -253,6 +254,24 @@ tracker_writeback_dispatcher_new ()
 	return g_object_new (TRACKER_TYPE_WRITEBACK_DISPATCHER, NULL);
 }
 
+static gboolean
+types_match (const gchar **module_types, gchar **rdf_types)
+{
+	guint n;
+
+	for (n = 0; rdf_types[n] != NULL; n++) {
+		guint i;
+
+		for (i = 0; module_types[i] != NULL; i++) {
+			if (g_strcmp0 (module_types[i], rdf_types[n]) == 0) {
+				return TRUE;
+			}
+		}
+	}
+
+	return FALSE;
+}
+
 static void
 on_sparql_result_received (GPtrArray *result,
                            GError    *error,
@@ -260,28 +279,34 @@ on_sparql_result_received (GPtrArray *result,
 {
 	TrackerWritebackDispatcherPrivate *priv;
 	TrackerWritebackModule *module;
-	TrackerWriteback *writeback;
 	GHashTableIter iter;
 	gpointer key, value;
 	QueryData *data;
+	const gchar **module_types;
+	gchar **rdf_types;
 
 	data = user_data;
+	rdf_types = data->rdf_types;
 	priv = TRACKER_WRITEBACK_DISPATCHER_GET_PRIVATE (data->dispatcher);
 
-	/* FIXME: Lookup module by mimetype */
 	g_hash_table_iter_init (&iter, priv->modules);
 
-	if (!g_hash_table_iter_next (&iter, &key, &value)) {
-		return;
+	while (g_hash_table_iter_next (&iter, &key, &value)) {
+		module = value;
+
+		module_types = tracker_writeback_module_get_rdftypes (module);
+
+		if (types_match (module_types, rdf_types)) {
+			TrackerWriteback *writeback;
+
+			writeback = tracker_writeback_module_create (module);
+			tracker_writeback_update_metadata (writeback, result);
+			g_object_unref (writeback);
+		}
+
 	}
 
-	module = value;
-	writeback = tracker_writeback_module_create (module);
-
-	tracker_writeback_update_metadata (writeback, result);
-
-	g_object_unref (writeback);
-
+	g_strfreev (data->rdf_types);
 	g_slice_free (QueryData, data);
 }
 
@@ -292,7 +317,6 @@ on_writeback_cb (DBusGProxy                 *proxy,
 {
 	TrackerWritebackDispatcherPrivate *priv;
 	QueryData *data;
-	guint n;
 	GHashTableIter iter;
 	gpointer key, value;
 
@@ -313,6 +337,7 @@ on_writeback_cb (DBusGProxy                 *proxy,
 
 		data = g_slice_new (QueryData);
 		data->dispatcher = object;
+		data->rdf_types = g_strdupv (rdf_types);
 
 		tracker_resources_sparql_query_async (priv->client,
 		                                      query,

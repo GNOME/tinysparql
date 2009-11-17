@@ -67,8 +67,8 @@ tracker_writeback_module_load (GTypeModule *module)
 
 	if (!g_module_symbol (writeback_module->module, "writeback_module_create",
 			      (gpointer *) &writeback_module->create) ||
-	    !g_module_symbol (writeback_module->module, "writeback_module_get_mimetypes",
-			      (gpointer *) &writeback_module->get_mimetypes)) {
+	    !g_module_symbol (writeback_module->module, "writeback_module_get_rdftypes",
+			      (gpointer *) &writeback_module->get_rdftypes)) {
 		g_warning ("Could not load module symbols for '%s': %s",
 			   writeback_module->name,
 			   g_module_error ());
@@ -152,4 +152,10 @@ TrackerWriteback *
 tracker_writeback_module_create (TrackerWritebackModule *module)
 {
         return (module->create) (G_TYPE_MODULE (module));
+}
+
+const gchar**
+tracker_writeback_module_get_rdftypes (TrackerWritebackModule *module)
+{
+        return (module->get_rdftypes) ();
 }

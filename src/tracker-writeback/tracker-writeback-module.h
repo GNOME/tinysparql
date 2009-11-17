@@ -41,7 +41,7 @@ struct TrackerWritebackModule {
 	gchar *name;
 
         TrackerWriteback * (* create)        (GTypeModule *module);
-        GStrv              (* get_mimetypes) (void);
+        const gchar **     (* get_rdftypes)  (void);
 };
 
 struct TrackerWritebackModuleClass {
@@ -54,6 +54,8 @@ GType                     tracker_writeback_module_get_type               (void)
 TrackerWritebackModule *  tracker_writeback_module_get                    (const gchar *name);
 
 TrackerWriteback *        tracker_writeback_module_create                 (TrackerWritebackModule *module);
+const gchar**             tracker_writeback_module_get_rdftypes           (TrackerWritebackModule *module);
+
 GList *                   tracker_writeback_modules_list                  (void);
 
 
