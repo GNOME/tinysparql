@@ -52,6 +52,10 @@ gchar *  tracker_path_evaluate_name                (const gchar  *uri);
 
 gboolean tracker_env_check_xdg_dirs                (void);
 
+gboolean tracker_file_lock                         (GFile *file);
+gboolean tracker_file_unlock                       (GFile *file);
+gboolean tracker_file_is_locked                    (GFile *file);
+
 G_END_DECLS
 
 #endif /* __LIBTRACKER_COMMON_FILE_UTILS_H__ */

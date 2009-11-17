@@ -30,8 +30,10 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/statvfs.h>
+#include <sys/file.h>
 #include <fcntl.h>
 #include <limits.h>
+#include <errno.h>
 
 #include <glib.h>
 #include <gio/gio.h>
@@ -686,4 +688,128 @@ tracker_env_check_xdg_dirs (void)
 	g_free (new_dir);
 
 	return success;
+}
+
+static int
+flock_file (GFile *file,
+	    gint   flags)
+{
+	gchar *path;
+	gint fd, retval;
+
+	g_return_val_if_fail (G_IS_FILE (file), -1);
+
+	if (g_file_is_native (file)) {
+		return -1;
+	}
+
+	path = g_file_get_path (file);
+
+	if (!path) {
+		return -1;
+	}
+
+	fd = open (path, O_RDONLY);
+
+	if (fd < 0) {
+		g_warning ("Could not open '%s'", path);
+		retval = -1;
+	} else {
+		retval = flock (fd, flags);
+		close (fd);
+	}
+
+	g_free (path);
+
+	return retval;
+}
+
+gboolean
+tracker_file_lock (GFile *file)
+{
+	gint retval;
+
+	g_return_val_if_fail (G_IS_FILE (file), FALSE);
+
+	retval = flock_file (file, LOCK_EX);
+
+	if (retval < 0) {
+		gchar *path;
+
+		path = g_file_get_path (file);
+		g_warning ("Could not lock file '%s'", path);
+		g_free (path);
+
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
+gboolean
+tracker_file_unlock (GFile *file)
+{
+	gint retval;
+
+	g_return_val_if_fail (G_IS_FILE (file), FALSE);
+
+	retval = flock_file (file, LOCK_UN);
+
+	if (retval < 0) {
+		gchar *path;
+
+		path = g_file_get_path (file);
+		g_warning ("Could not unlock file '%s'", path);
+		g_free (path);
+
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
+gboolean
+tracker_file_is_locked (GFile *file)
+{
+	gboolean retval = FALSE;
+	gchar *path;
+	gint fd;
+
+	g_return_val_if_fail (G_IS_FILE (file), FALSE);
+
+	if (g_file_is_native (file)) {
+		return FALSE;
+	}
+
+	path = g_file_get_path (file);
+
+	if (!path) {
+		return FALSE;
+	}
+
+	fd = open (path, O_RDONLY);
+
+	if (fd < 0) {
+		g_warning ("Could not open '%s'", path);
+		g_free (path);
+
+		return FALSE;
+	}
+
+	/* Check for locks */
+	retval = flock (fd, LOCK_EX | LOCK_NB);
+
+	if (retval < 0) {
+		if (errno == EWOULDBLOCK) {
+			retval = TRUE;
+		}
+	} else {
+		/* Oops, call was successful, unlock again the file */
+		flock (fd, LOCK_UN);
+	}
+
+	close (fd);
+	g_free (path);
+
+	return retval;
 }
