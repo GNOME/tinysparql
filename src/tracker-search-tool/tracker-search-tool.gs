@@ -22,10 +22,14 @@
 uses
     Gtk
 
+[CCode (cheader_filename = "config.h")]
+const extern static PACKAGE_STRING : string
+
 window : Window
 service : string?
 terms : array of string?
-const options : array of OptionEntry = {{"service", 's', 0, OptionArg.STRING, ref service, "Search from a specific service", "SERVICE" }, {"", 0, 0, OptionArg.STRING_ARRAY, ref terms, "search terms", null}, { null }}
+print_version: bool
+const options : array of OptionEntry = {{"service", 's', 0, OptionArg.STRING, ref service, "Search from a specific service", "SERVICE" }, {"version", 'v', 0, OptionArg.NONE, ref print_version, "Print version", null }, {"", 0, 0, OptionArg.STRING_ARRAY, ref terms, "search terms", null}, { null }}
 
 [DBus (name = "org.freedesktop.Tracker1.SearchTool")]
 class TrackerSearchToolServer : GLib.Object
@@ -48,6 +52,10 @@ init
 
         stdout.printf ("%s\n", e.message)
         stdout.printf ("Run '%s --help' to see a full list of available command line options.\n", args[0])
+        return
+
+    if (print_version)
+        stdout.printf ("%s\n", PACKAGE_STRING)
         return
 
     var server = new TrackerSearchToolServer
