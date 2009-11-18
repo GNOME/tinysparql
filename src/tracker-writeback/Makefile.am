@@ -15,16 +15,25 @@ INCLUDES = 								\
 	$(GCOV_CFLAGS)							\
 	$(GMODULE_CFLAGS) 						\
 	$(DBUS_CFLAGS)							\
-	$(ID3LIB_CFLAGS)
+	$(ID3LIB_CFLAGS)						\
+	$(EXEMPI_CFLAGS)
 
 modules_LTLIBRARIES =
 
 # MP3
 if HAVE_ID3LIB
-modules_LTLIBRARIES+=libwriteback-mp3.la
+modules_LTLIBRARIES += libwriteback-mp3.la
 libwriteback_mp3_la_SOURCES = tracker-writeback-mp3.c
 libwriteback_mp3_la_LDFLAGS = $(module_flags)
 libwriteback_mp3_la_LIBADD = $(GLIB2_LIBS) $(GCOV_LIBS) $(ID3LIB_LIBS)
+endif
+
+# XMP
+if HAVE_EXEMPI
+modules_LTLIBRARIES += libwriteback-xmp.la
+libwriteback_xmp_la_SOURCES = tracker-writeback-xmp.c
+libwriteback_xmp_la_LDFLAGS = $(module_flags)
+libwriteback_xmp_la_LIBADD = $(GLIB2_LIBS) $(GCOV_LIBS) $(EXEMPI_LIBS)
 endif
 
 #
