@@ -33,8 +33,13 @@
 #include <libtracker-common/tracker-common.h>
 
 static gchar        **filenames = NULL;
+static gboolean       print_version;
 
 static GOptionEntry   entries[] = {
+	{ "version", 'v', 0, G_OPTION_ARG_NONE, &print_version,
+	  N_("Print version"),
+	  NULL,
+	},
 	{ G_OPTION_REMAINING, 0, 0, G_OPTION_ARG_FILENAME_ARRAY, &filenames,
 	  N_("FILE"),
 	  N_("FILE")},
@@ -90,6 +95,13 @@ main (int argc, char **argv)
 	/* and before the list of options.				*/
 	g_option_context_add_main_entries (context, entries, NULL);
 	g_option_context_parse (context, &argc, &argv, NULL);
+
+     	if (print_version) {
+		g_print ("%s\n", PACKAGE_STRING);
+		g_option_context_free (context);
+
+		return EXIT_SUCCESS;
+	}
 
 	if (!filenames) {
 		gchar *help;
