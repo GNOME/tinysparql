@@ -38,6 +38,7 @@ static gboolean	 update;
 static gboolean  list_classes;
 static gboolean  list_class_prefixes;
 static gchar    *list_properties;
+static gboolean  print_version;
 
 static GOptionEntry   entries[] = {
 	{ "file", 'f', 0, G_OPTION_ARG_FILENAME, &file,
@@ -63,6 +64,10 @@ static GOptionEntry   entries[] = {
 	{ "list-properties", 'p', 0, G_OPTION_ARG_STRING, &list_properties,
 	  N_("Retrieve properties for a class, prefixes can be used too (e.g. rdfs:Resource)"),
 	  N_("CLASS"),
+	},
+	{ "version", 'v', 0, G_OPTION_ARG_NONE, &print_version,
+	  N_("Print version"),
+	  NULL,
 	},
 	{ NULL }
 };
@@ -160,6 +165,13 @@ main (int argc, char **argv)
 
 	g_option_context_add_main_entries (context, entries, NULL);
 	g_option_context_parse (context, &argc, &argv, NULL);
+
+	if (print_version) {
+		g_print ("%s\n", PACKAGE_STRING);
+		g_option_context_free (context);
+
+		return EXIT_SUCCESS;
+	}
 
 	if (!list_classes && !list_class_prefixes && !list_properties &&
 	    ((!file && !query) || (file && query))) {
