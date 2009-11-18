@@ -44,6 +44,7 @@ static gboolean       music_files;
 static gboolean       image_files;
 static gboolean       video_files;
 static gboolean       document_files;
+static gboolean       print_version;
 
 static GOptionEntry   entries[] = {
 	{ "limit", 'l', 0, G_OPTION_ARG_INT, &limit,
@@ -92,6 +93,10 @@ static GOptionEntry   entries[] = {
 	},
 	{ "documents", 't', 0, G_OPTION_ARG_NONE, &document_files,
 	  N_("Search for document files"),
+	  NULL
+	},
+	{ "version", 'V', 0, G_OPTION_ARG_NONE, &print_version,
+	  N_("Print version"),
 	  NULL
 	},
 	{ G_OPTION_REMAINING, 0, 0,
@@ -793,7 +798,14 @@ main (int argc, char **argv)
 	g_option_context_parse (context, &argc, &argv, NULL);
 
 	g_free (summary);
-	
+
+	if (print_version) {
+		g_print ("%s\n", PACKAGE_STRING);
+		g_option_context_free (context);
+
+		return EXIT_SUCCESS;
+	}
+
 	if (!music_albums && !music_artists && !music_files &&
 	    !image_files &&
 	    !video_files &&
