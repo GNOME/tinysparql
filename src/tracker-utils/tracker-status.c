@@ -51,6 +51,7 @@ static gchar     *pause_reason;
 static gint       resume_cookie = -1;
 static gboolean   follow;
 static gboolean   detailed;
+static gboolean   print_version;
 
 static GOptionEntry entries[] = {
 	{ "follow", 'f', 0, G_OPTION_ARG_NONE, &follow,
@@ -88,6 +89,10 @@ static GOptionEntry entries[] = {
 	{ "resume", 'r', 0, G_OPTION_ARG_INT, &resume_cookie,
 	  N_("Resume a miner (you must use this with --miner)"),
 	  N_("COOKIE")
+	},
+	{ "version", 'v', 0, G_OPTION_ARG_NONE, &print_version,
+	  N_("Print version"),
+	  NULL 
 	},
 	{ NULL }
 };
@@ -334,6 +339,13 @@ main (gint argc, gchar *argv[])
 	context = g_option_context_new (_("- Monitor and control status"));
 	g_option_context_add_main_entries (context, entries, NULL);
 	g_option_context_parse (context, &argc, &argv, NULL);
+
+	if (print_version) {
+		g_print ("%s\n", PACKAGE_STRING);
+		g_option_context_free (context);
+
+		return EXIT_SUCCESS;
+	}
 
 	if (pause_reason && resume_cookie != -1) {
 		gchar *help;
