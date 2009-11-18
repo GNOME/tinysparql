@@ -39,6 +39,7 @@ static gchar	    *add_tag;
 static gchar	    *remove_tag;
 static gboolean     *list;
 static gboolean      show_files;
+static gboolean      print_version;
 
 static GOptionEntry entries[] = {
 	{ "limit", 'l', 0, G_OPTION_ARG_INT, &limit,
@@ -68,6 +69,10 @@ static GOptionEntry entries[] = {
 	{ "delete", 'd', 0, G_OPTION_ARG_STRING, &remove_tag,
 	  N_("Delete a tag (if FILEs are omitted, TAG is removed for all files)"),
 	  N_("TAG")
+	},
+	{ "version", 'v', 0, G_OPTION_ARG_NONE, &print_version,
+	  N_("Print version"),
+	  NULL
 	},
 	{ G_OPTION_REMAINING, 0, 
 	  G_OPTION_FLAG_FILENAME,
@@ -628,6 +633,13 @@ main (int argc, char **argv)
 	 */
 	g_option_context_add_main_entries (context, entries, NULL);
 	g_option_context_parse (context, &argc, &argv, NULL);
+
+	if (print_version) {
+		g_print ("%s\n", PACKAGE_STRING);
+		g_option_context_free (context);
+
+		return EXIT_SUCCESS;
+	}
 
 	if (!list && show_files) {
 		failed = _("The --list option is required for --show-files");
