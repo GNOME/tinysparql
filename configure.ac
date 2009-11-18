@@ -1501,6 +1501,46 @@ fi
 
 AM_CONDITIONAL(HAVE_EVOLUTION_PLUGIN, test "$have_evolution_plugin" = "yes")
 
+####################################################################
+# Enable Nautilus extension support?
+####################################################################
+
+AC_ARG_ENABLE([nautilus-extension],
+              AS_HELP_STRING([--enable-nautilus-extension],
+                             [Enable the nautilus extension [[default=no]]]),
+              [enable_nautilus_extension=yes],
+              [enable_nautilus_extension=no])
+
+AM_CONDITIONAL([ENABLE_NAUTILUS_EXTENSION], [test "x$enable_nautilus_extension" != "xno"])
+
+AC_ARG_WITH([nautilus-extensions-dir],
+            AS_HELP_STRING([--with-nautilus-extensions-dir],
+                           [Path to Nautilus extensions directory]))
+
+NAUTILUS_EXTENSION_INSTALL_DIR="/dev/null"
+
+if test "x$enable_nautilus_extension" != "xno"; then
+   PKG_CHECK_MODULES([NAUTILUS_EXTENSION],
+                     [libnautilus-extension],
+                     [have_nautilus_extension=yes],
+                     [have_nautilus_extension=no])
+
+   if test "x$have_nautilus_extension" = "xyes"; then
+      if test "x$with_nautilus_extensions_dir" = "x"; then
+         nautilus_extensions_dir=`$PKG_CONFIG --variable=extensiondir libnautilus-extension`
+      else
+         nautilus_extensions_dir="$with_nautilus_extensions_dir"
+      fi
+      NAUTILUS_EXTENSION_INSTALL_DIR="$nautilus_extensions_dir"
+
+      AC_DEFINE([HAVE_NAUTILUS_EXTENSION], [], [Define if we have libnautilus-extension])
+   else
+      AC_MSG_ERROR([Couldn't find Nautilus extension requirements (libnautilus-extension).])
+   fi
+fi
+
+AC_SUBST([NAUTILUS_EXTENSION_INSTALL_DIR])
+
 
 ####################################################################
 # Include/Exclude functional tests
@@ -1627,6 +1667,7 @@ AC_CONFIG_FILES([
 	src/plugins/deskbar/Makefile
 	src/plugins/evolution/Makefile
 	src/plugins/kmail/Makefile
+	src/plugins/nautilus/Makefile
 	tests/common/Makefile
 	tests/libtracker-common/Makefile
 	tests/libtracker-data/Makefile
@@ -1709,6 +1750,10 @@ Metadata Extractors:
 	Support helix formats (RPM/RM/etc):     $have_gstreamer_helix
 	Support MP3 album art:                  $selected_for_albumart
 	Support playlists (w/ Totem):           $have_playlist
+
+Extensions:
+
+	Nautilus extension:			$enable_nautilus_extension
 
 Plugins:
 
