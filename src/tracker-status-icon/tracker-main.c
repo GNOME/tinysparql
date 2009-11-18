@@ -29,8 +29,13 @@
 #include <glib.h>
 #include <glib/gi18n.h>
 
+static gboolean print_version;
+
 /* Unused at the moment */
 static GOptionEntry entries[] = {
+	{ "version", 'v', 0, G_OPTION_ARG_NONE, &print_version,
+	  N_("Print version"),
+	  NULL},
 	{ NULL }
 };
 
@@ -52,6 +57,11 @@ main (int argc, char *argv[])
 	g_option_context_add_main_entries (context, entries, NULL);
 	g_option_context_parse (context, &argc, &argv, NULL);
 	g_option_context_free (context);
+
+	if (print_version) {
+		g_print ("%s\n", PACKAGE_STRING);
+		return EXIT_SUCCESS;
+	}
 
 	g_type_init ();
 
