@@ -836,7 +836,11 @@ item_add_or_update_cb (TrackerMinerFS *fs,
 	uri = g_file_get_uri (data->file);
 
 	if (error) {
-		g_message ("Could not process '%s': %s", uri, error->message);
+		if (error->code == G_IO_ERROR_NOT_FOUND) {
+			g_message ("Could not process '%s': %s", uri, error->message);
+		} else {
+			g_critical ("Could not process '%s': %s", uri, error->message);
+		}
 
 		fs->private->processing_pool =
 			g_list_remove (fs->private->processing_pool, data);
