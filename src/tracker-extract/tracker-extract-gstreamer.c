@@ -837,7 +837,6 @@ static GstElement *
 create_tagreadbin_pipeline (MetadataExtractor *extractor, const gchar *uri)
 {
 	GstElement *pipeline = NULL;
-	gchar      *complete_uri = NULL;
 
 	pipeline = gst_element_factory_make ("tagreadbin", "tagreadbin");
 	if (!pipeline) {
@@ -845,14 +844,7 @@ create_tagreadbin_pipeline (MetadataExtractor *extractor, const gchar *uri)
 		return NULL;
 	}
 
-	complete_uri = g_filename_to_uri (uri, NULL, NULL);
-	if (!complete_uri) {
-		g_warning ("Failed to convert filename to uri");
-		return NULL;
-	}
-
-	g_object_set (G_OBJECT (pipeline), "uri", complete_uri, NULL);
-	g_free (complete_uri);
+	g_object_set (G_OBJECT (pipeline), "uri", uri, NULL);
 	return pipeline;
 }
 
