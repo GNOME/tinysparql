@@ -89,7 +89,8 @@ long long int llroundl(long double x);
 typedef enum {
 	EXTRACT_MIME_AUDIO,
 	EXTRACT_MIME_VIDEO,
-	EXTRACT_MIME_IMAGE
+	EXTRACT_MIME_IMAGE,
+	EXTRACT_MIME_3GPP,
 } ExtractMime;
 
 typedef struct {
@@ -125,11 +126,14 @@ typedef struct {
 static void extract_gstreamer_audio (const gchar *uri, TrackerSparqlBuilder *metadata);
 static void extract_gstreamer_video (const gchar *uri, TrackerSparqlBuilder *metadata);
 static void extract_gstreamer_image (const gchar *uri, TrackerSparqlBuilder *metadata);
+static void extract_gstreamer_3gpp (const gchar *uri, TrackerSparqlBuilder *metadata);
 
 static TrackerExtractData data[] = {
 	{ "audio/*", extract_gstreamer_audio },
 	{ "video/*", extract_gstreamer_video },
 	{ "image/*", extract_gstreamer_image },
+	/* mime type guessing returns video/3gpp also for 3gpp audio files */
+	{ "video/3gpp", extract_gstreamer_3gpp },
 	{ NULL, NULL }
 };
 
@@ -443,6 +447,23 @@ extract_metadata (MetadataExtractor      *extractor,
 	g_return_if_fail (metadata != NULL);
 
 	if (extractor->tagcache) {
+		if (extractor->mime == EXTRACT_MIME_3GPP) {
+			gchar *video_codec = NULL, *audio_codec = NULL;
+
+			gst_tag_list_get_string (extractor->tagcache, GST_TAG_VIDEO_CODEC, &video_codec);
+			gst_tag_list_get_string (extractor->tagcache, GST_TAG_AUDIO_CODEC, &audio_codec);
+
+			if (audio_codec && !video_codec) {
+				extractor->mime = EXTRACT_MIME_AUDIO;
+			} else {
+				/* default to video */
+				extractor->mime = EXTRACT_MIME_VIDEO;
+			}
+
+			g_free (video_codec);
+			g_free (audio_codec);
+		}
+
 		/* General */
 		if (extractor->mime == EXTRACT_MIME_AUDIO || extractor->mime == EXTRACT_MIME_VIDEO) {
 			gchar *performer = NULL, *artist = NULL;
@@ -962,6 +983,12 @@ static void
 extract_gstreamer_image (const gchar *uri, TrackerSparqlBuilder *metadata)
 {
 	tracker_extract_gstreamer (uri, metadata, EXTRACT_MIME_IMAGE);
+}
+
+static void
+extract_gstreamer_3gpp (const gchar *uri, TrackerSparqlBuilder *metadata)
+{
+	tracker_extract_gstreamer (uri, metadata, EXTRACT_MIME_3GPP);
 }
 
 TrackerExtractData *
