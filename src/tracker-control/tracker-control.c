@@ -45,6 +45,7 @@ static gboolean     soft_reset;
 static gboolean     remove_config;
 static gboolean     remove_thumbnails;
 static gboolean     start;
+static gboolean     print_version;
 
 static GOptionEntry entries[] = {
 	{ "kill", 'k', 0, G_OPTION_ARG_NONE, &should_kill,
@@ -68,6 +69,9 @@ static GOptionEntry entries[] = {
 	  NULL },
 	{ "start", 's', 0, G_OPTION_ARG_NONE, &start,
 	  N_("Starts miners (which indirectly starts tracker-store too)"),
+	  NULL },
+	{ "version", 'v', 0, G_OPTION_ARG_NONE, &print_version,
+	  N_("Print version"),
 	  NULL },
 	{ NULL }
 };
@@ -208,6 +212,11 @@ main (int argc, char **argv)
 	g_option_context_add_main_entries (context, entries, NULL);
 	g_option_context_parse (context, &argc, &argv, NULL);
 	g_option_context_free (context);
+
+	if (print_version) {
+		g_print ("%s\n", PACKAGE_STRING);
+		return EXIT_SUCCESS;
+	}
 
 	if (should_kill && should_terminate) {
 		g_printerr ("%s\n",
