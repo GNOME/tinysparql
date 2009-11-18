@@ -24,7 +24,7 @@
 
 #include <libtracker-common/tracker-ontology.h>
 
-#include "tracker-writeback.h"
+#include "tracker-writeback-file.h"
 
 #define TRACKER_TYPE_WRITEBACK_MP3    (tracker_writeback_mp3_get_type ())
 
@@ -32,25 +32,26 @@ typedef struct TrackerWritebackMP3 TrackerWritebackMP3;
 typedef struct TrackerWritebackMP3Class TrackerWritebackMP3Class;
 
 struct TrackerWritebackMP3 {
-        TrackerWriteback parent_instance;
+        TrackerWritebackFile parent_instance;
 };
 
 struct TrackerWritebackMP3Class {
-        TrackerWritebackClass parent_class;
+        TrackerWritebackFileClass parent_class;
 };
 
 static GType    tracker_writeback_mp3_get_type        (void) G_GNUC_CONST;
-static gboolean tracker_writeback_mp3_update_metadata (TrackerWriteback *writeback,
-                                                         GPtrArray        *values);
+static gboolean tracker_writeback_mp3_update_file_metadata (TrackerWritebackFile *writeback_file,
+							    GFile                *file,
+							    GPtrArray            *values);
 
-G_DEFINE_DYNAMIC_TYPE (TrackerWritebackMP3, tracker_writeback_mp3, TRACKER_TYPE_WRITEBACK);
+G_DEFINE_DYNAMIC_TYPE (TrackerWritebackMP3, tracker_writeback_mp3, TRACKER_TYPE_WRITEBACK_FILE);
 
 static void
 tracker_writeback_mp3_class_init (TrackerWritebackMP3Class *klass)
 {
-        TrackerWritebackClass *writeback_class = TRACKER_WRITEBACK_CLASS (klass);
+        TrackerWritebackFileClass *writeback_file_class = TRACKER_WRITEBACK_FILE_CLASS (klass);
 
-        writeback_class->update_metadata = tracker_writeback_mp3_update_metadata;
+        writeback_file_class->update_file_metadata = tracker_writeback_mp3_update_file_metadata;
 }
 
 static void
@@ -64,45 +65,35 @@ tracker_writeback_mp3_init (TrackerWritebackMP3 *mp3)
 }
 
 static gboolean
-tracker_writeback_mp3_update_metadata (TrackerWriteback *writeback,
-                                       GPtrArray        *values)
+tracker_writeback_mp3_update_file_metadata (TrackerWritebackFile *writeback_file,
+					    GFile                *file,
+					    GPtrArray            *values)
 {
+	GFileInfo *file_info;
+	const gchar *mime_type;
+	gchar *path;
 	guint n;
-	const gchar *uri = NULL;
-	GFile *file = NULL;
-	gchar *path = NULL;
+
+	file_info = g_file_query_info (file, G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE,
+				       G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
+				       NULL, NULL);
+
+	if (!file_info) {
+		return FALSE;
+	}
+
+	mime_type = g_file_info_get_content_type (file_info);
+	g_object_unref (file_info);
+
+	if (g_strcmp0 (mime_type, "audio/mpeg") != 0 &&
+	    g_strcmp0 (mime_type, "audio/x-mp3") != 0) {
+		return FALSE;
+	}
+
+	path = g_file_get_path (file);
 
 	for (n = 0; n < values->len; n++) {
 		const GStrv row = g_ptr_array_index (values, n);
-
-		if (uri == NULL) {
-			GFileInfo *file_info;
-			const gchar *mime_type;
-
-			uri = row[0];
-			file = g_file_new_for_uri (uri);
-
-			file_info = g_file_query_info (file, G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE,
-			                               G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
-			                               NULL, NULL);
-
-			if (!file_info) {
-				g_object_unref (file);
-				return FALSE;
-			}
-
-			mime_type = g_file_info_get_content_type (file_info);
-
-			if (g_strcmp0 (mime_type, "audio/mpeg") == 0 ||
-			    g_strcmp0 (mime_type, "audio/x-mp3") == 0) {
-				g_object_unref (file_info);
-				path = g_file_get_path (file);
-			} else {
-				g_object_unref (file);
-				g_object_unref (file_info);
-				return FALSE;
-			}
-		}
 
 		if (g_strcmp0 (row[1], TRACKER_NIE_PREFIX "title") == 0) {
 			ID3Tag *tag = ID3Tag_New ();
@@ -129,11 +120,7 @@ tracker_writeback_mp3_update_metadata (TrackerWriteback *writeback,
 		}
 	}
 
-	if (path)
-		g_free (path);
-
-	if (file)
-		g_object_unref (file);
+	g_free (path);
 
 	return TRUE;
 }

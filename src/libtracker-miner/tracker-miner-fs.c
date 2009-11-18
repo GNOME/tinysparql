@@ -21,6 +21,7 @@
 #include "config.h"
 
 #include <libtracker-common/tracker-dbus.h>
+#include <libtracker-common/tracker-file-utils.h>
 
 #include "tracker-crawler.h"
 #include "tracker-marshal.h"
@@ -1269,6 +1270,17 @@ item_queue_handlers_cb (gpointer user_data)
 
 	fs = user_data;
 	queue = item_queue_get_next_file (fs, &file, &source_file);
+
+	if (file && tracker_file_is_locked (file)) {
+		/* File is locked, ignore any updates on it */
+		g_object_unref (file);
+
+		if (source_file) {
+			g_object_unref (source_file);
+		}
+
+		return TRUE;
+	}
 
 	if (!fs->private->timer) {
 		fs->private->timer = g_timer_new ();
