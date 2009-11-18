@@ -375,7 +375,7 @@ tracker_tags_view_row_activated_cb (GtkTreeView *tree_view, GtkTreePath *path, G
 	tag_label_escaped = get_escaped_sparql_string (view->priv->selected_tag_label);
 
 	num = g_list_length (view->priv->files);
-	arg = files = g_new0 (char *, num + 1);
+	arg = files = g_new0 (gchar *, num + 1);
 	g_list_foreach (view->priv->files, tracker_tags_view_copy_uri_foreach, &arg);
 	filter = get_filter_string (files, NULL);
 
