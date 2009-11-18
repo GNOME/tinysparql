@@ -286,24 +286,27 @@ on_sparql_result_received (GPtrArray *result,
 	gchar **rdf_types;
 
 	data = user_data;
-	rdf_types = data->rdf_types;
-	priv = TRACKER_WRITEBACK_DISPATCHER_GET_PRIVATE (data->dispatcher);
 
-	g_hash_table_iter_init (&iter, priv->modules);
+	if (result && result->len > 0) {
+		rdf_types = data->rdf_types;
+		priv = TRACKER_WRITEBACK_DISPATCHER_GET_PRIVATE (data->dispatcher);
 
-	while (g_hash_table_iter_next (&iter, &key, &value)) {
-		module = value;
+		g_hash_table_iter_init (&iter, priv->modules);
 
-		module_types = tracker_writeback_module_get_rdftypes (module);
+		while (g_hash_table_iter_next (&iter, &key, &value)) {
+			module = value;
 
-		if (types_match (module_types, rdf_types)) {
-			TrackerWriteback *writeback;
+			module_types = tracker_writeback_module_get_rdftypes (module);
 
-			writeback = tracker_writeback_module_create (module);
-			tracker_writeback_update_metadata (writeback, result);
-			g_object_unref (writeback);
+			if (types_match (module_types, rdf_types)) {
+				TrackerWriteback *writeback;
+
+				writeback = tracker_writeback_module_create (module);
+				tracker_writeback_update_metadata (writeback, result);
+				g_object_unref (writeback);
+			}
+
 		}
-
 	}
 
 	g_strfreev (data->rdf_types);
