@@ -656,7 +656,7 @@ nco:imAccountAvatar a rdf:Property ;
 	rdfs:comment "The picture the user wants to show to others in this account";
 	nrl:maxCardinality 1 ;
 	rdfs:domain nco:IMAccount ;
-	rdfs:range nfo:FileDataObject .
+	rdfs:range nie:DataObject .
 
 nco:gender a rdf:Property ;
 	rdfs:label "gender" ;
