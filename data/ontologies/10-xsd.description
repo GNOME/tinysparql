@@ -1,11 +1,15 @@
 @prefix dsc: <http://www.tracker-project.org/temp/dsc#> .
 
 <virtual-ontology-uri:10-xsd.ontology> a dsc:Ontology ;
-      dsc:title "X S D (XSD)" ;
-      dsc:author "W3C" ;
+      dsc:title "XML schema (XSD)" ;
+      dsc:author "W3C XML Schema Working group" ;
+      dsc:editor "David C. Fallside, IBM &lt;fallside@us.ibm.com&gt;";
+      dsc:editor "Priscilla Walmsley &lt;pwalmsley@datypic.com&gt; - Second Edition";
       dsc:editor "Tracker developers (translation into turtle)" ;
       dsc:gitlog "http://git.gnome.org/cgit/tracker/log/data/ontologies/10-xsd.ontology";
 
       dsc:localPrefix "xsd" ;  
       dsc:baseUrl "http://www.w3.org/2001/XMLSchema#" ;
-      dsc:relativePath "./10-xsd.ontology" .
+      dsc:relativePath "./10-xsd.ontology" ;
+
+      dsc:copyright "<a href=\"http://www.w3.org/Consortium/Legal/ipr-notice#Copyright\">Copyright</a>&#xa0;&#xa9;&#xa0;2004&#xa0;<a href=\"http://www.w3.org/\"><acronym title=\"World Wide Web Consortium\">W3C</acronym></a><sup>&#xae;</sup> (<a href=\"http://www.csail.mit.edu/\"><acronym title=\"Massachusetts Institute of Technology\">MIT</acronym></a>, <a href=\"http://www.ercim.org/\"><acronym title=\"European Research Consortium for Informatics and Mathematics\">ERCIM</acronym></a>, <a href=\"http://www.keio.ac.jp/\">Keio</a>), All Rights Reserved. W3C <a href=\"http://www.w3.org/Consortium/Legal/ipr-notice#Legal_Disclaimer\">liability</a>, <a href=\"http://www.w3.org/Consortium/Legal/ipr-notice#W3C_Trademarks\">trademark</a> and <a href=\"http://www.w3.org/Consortium/Legal/copyright-documents\">document use</a>" .
