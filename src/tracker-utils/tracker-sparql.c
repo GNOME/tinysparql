@@ -65,7 +65,7 @@ static GOptionEntry   entries[] = {
 	  N_("Retrieve properties for a class, prefixes can be used too (e.g. rdfs:Resource)"),
 	  N_("CLASS"),
 	},
-	{ "version", 'v', 0, G_OPTION_ARG_NONE, &print_version,
+	{ "version", 'V', 0, G_OPTION_ARG_NONE, &print_version,
 	  N_("Print version"),
 	  NULL,
 	},

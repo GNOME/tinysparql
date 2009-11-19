@@ -90,7 +90,7 @@ static GOptionEntry entries[] = {
 	  N_("Resume a miner (you must use this with --miner)"),
 	  N_("COOKIE")
 	},
-	{ "version", 'v', 0, G_OPTION_ARG_NONE, &print_version,
+	{ "version", 'V', 0, G_OPTION_ARG_NONE, &print_version,
 	  N_("Print version"),
 	  NULL 
 	},

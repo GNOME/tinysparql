@@ -70,7 +70,7 @@ static GOptionEntry entries[] = {
 	{ "start", 's', 0, G_OPTION_ARG_NONE, &start,
 	  N_("Starts miners (which indirectly starts tracker-store too)"),
 	  NULL },
-	{ "version", 'v', 0, G_OPTION_ARG_NONE, &print_version,
+	{ "version", 'V', 0, G_OPTION_ARG_NONE, &print_version,
 	  N_("Print version"),
 	  NULL },
 	{ NULL }

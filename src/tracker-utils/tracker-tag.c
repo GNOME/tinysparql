@@ -70,7 +70,7 @@ static GOptionEntry entries[] = {
 	  N_("Delete a tag (if FILEs are omitted, TAG is removed for all files)"),
 	  N_("TAG")
 	},
-	{ "version", 'v', 0, G_OPTION_ARG_NONE, &print_version,
+	{ "version", 'V', 0, G_OPTION_ARG_NONE, &print_version,
 	  N_("Print version"),
 	  NULL
 	},
