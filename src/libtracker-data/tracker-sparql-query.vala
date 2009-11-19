@@ -862,6 +862,10 @@ public class Tracker.SparqlQuery : Object {
 		// iterate over all solutions
 		if (result_set != null) {
 			do {
+				// blank nodes in construct templates are per solution
+
+				uuid_generate (base_uuid);
+
 				// get values of all variables to be bound
 				var var_value_map = new HashTable<string,string>.full (str_hash, str_equal, g_free, g_free);
 				int var_idx = 0;
