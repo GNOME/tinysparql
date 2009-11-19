@@ -5,3 +5,10 @@
 <h2>Related information</h2>
 
 <h2>Graphical overview</h2>
+
+<p>Example of raw sparQL<p>
+<pre>
+  INSERT {
+    &lt;test://1&gt; a nco:PersonContact .
+  }
+</pre>
