@@ -10,19 +10,40 @@
 <p>We have a new subclass of message to represent a SMS Message. It is worth to remark that we are talking about a <emph>simple</emph> text message. Things like MMS are more complex (more similar to an email than a simple message), and will have their own classes.
 </p>
 
-<p>An SMS Message comes from the network in vcard format, and it is represented in the ontology with
+<p>An SMS Message comes from the network in vmessage format and contains to/from recipients in vcards. It is represented in the ontology with the following properties:
 </p>
 <ul>
- <li>A nmo:SMSMessage instance to represent the message itself</li>
- <li>nmo:to and nmo:from linking the contacts (one of them "me", the other a nco:Contact or even a nco:PersonContact if the software is able to identify him).</li>
- <li>nmo:plainTextMessageContent inherited from nmo:Message.</li>
- <li>nmo:containsSMS property will link the message with the relevant nmo:SMSFolder.</li>
- <li>If needed, language and characterSet are inherited from NIE (nie:language, nie:characterSet), but there is a specific nmo:encoding property.</li>
- <li>The original vcard can be stored as string under nmo:originalVCard. Still undecided if the full text or just a reference to a file in the filesystem.</li>
+ <li>A <a href="#SMSMessage">nmo:SMSMessage</a> instance to represent the message itself</li>
+ <li><a href="#to">nmo:to</a> and <a href="#from">nmo:from</a> linking the contacts (one of them "me", the other a nco:Contact or even a nco:PersonContact if the software is able to identify him).</li>
+ <li>For some implementations, is usefull to save the original vcards. For that <a href="#fromVCard">nmo:fromVCard</a> and <a href="#toVCard">nmo:toVCard</a> properties can be used. Those properties point to files in the file system with the vcards</li>
+ <li><a href="#plainTextMessageContent">nmo:plainTextMessageContent</a> inherited from <a href="#Message.">nmo:Message for the content.</a></li>
+ <li><a href="#containsSMS">nmo:containsSMS</a> property will link the message with the relevant nmo:SMSFolder.</li>
+ <li>If needed, language and characterSet are inherited from NIE (<a href="../nie/index.html#language">nie:language</a>, <a href="../nie/index.html#characterSet">nie:characterSet</a>), but there is a specific <a href="#encoding">nmo:encoding</a> property.</li>
+ <li>Note that nmo:SMSMessage is a subclass of <a href="#Message">nmo:Message</a> and inherits all its properties, including <a href="#isDeleted">nmo:isDeleted</a></li>
 </ul>
+
+<p>Here is an example of an SMS Message in Tracker/Nepomuk: </p>
+<pre>
+ 
+ # There are some predefined folder for SMS, like
+ #    nmo:default-sms-folder-inbox 
+ #
+ # We also know the 'to' uri from a previous query
+ 
+ # File containing the 'to' vcard
+ &lt;file:///home/user/.sms/vcards/123098.vcard&gt; a nfo:FileDataObject
+
+ &lt;test://1&gt; a nmo:SMSMessage ;
+        nmo:from &lt;nco:default-contact-me&gt; ;
+        nmo:to  &lt;urn:uuid:here-some-uri-of-a-contact&gt; ;
+        nmo:plainTextMessageContent "Forgot the keys. Are you at home?" ;
+        nie:characterSet "utf-8" ;
+        nmo:toVCard &lt;file:///home/user/.sms/vcards/123098.vcard&gt; ;
+        nmo:isDeleted false .
+ 
+ &lt;nmo:default-sms-folder-inbox&gt; nmo:containsSMS  &lt;test://1&gt;
+
+</pre>
 
 <h2>Call domain</h2>
 <p>FIXME Explain call and VoIP call classes</p>
-<h2>Related information</h2>
-
-<h2>Graphical overview</h2>
