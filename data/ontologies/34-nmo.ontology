@@ -304,3 +304,51 @@ nmo:contentMimeType a rdf:Property ;
 	rdfs:domain nmo:Email ;
 	rdfs:range xsd:string ;
 	rdfs:subPropertyOf nie:mimeType .
+
+
+#
+# SMS support
+#
+nmo:SMSMessage a rdfs:Class ;
+	rdfs:label "SMS Message";
+	rdfs:comment "Plain SMS Message" ;
+	rdfs:subClassOf nmo:Message.
+
+nmo:originalVCard a rdf:Property ;
+	rdfs:label "fromVCard" ;
+	rdfs:comment "Raw VCard string, as received from the network" ;
+        nrl:maxCardinality 1 ;
+        rdfs:domain nmo:SMSMessage ;
+        rdfs:range xsd:string .
+
+#FIXME unify encoding representation... this is the third encoding property in nepomuk
+nmo:encoding a rdf:Property ;
+	rdfs:label "enconding";
+	rdfs:comment "Encoding of the message" ;
+        nrl:maxCardinality 1 ;
+        rdfs:domain nmo:SMSMessage ;
+        rdfs:range xsd:string .
+
+nmo:smsId a rdf:Property ;
+        rdfs:label "sms Id";
+	rdfs:comment "Id assigned in the system when the sms is received" ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmo:SMSMessage;
+	rdfs:range xsd:integer.
+
+nmo:SMSFolder a rdfs:Class ;
+	rdfs:label "SMS Folder";
+	rdfs:comment "Folder for SMS. Not a subclass of nfo:Folder because it would confuse filesystem folders" ;
+	rdfs:subClassOf nie:InformationElement .
+
+nmo:containsSMSFolder a rdf:Property ;
+	rdfs:label "contains SMS Folder";
+	rdfs:comment "To link and reconstruct a hierarchy of folders" ;
+	rdfs:domain nmo:SMSFolder;
+	rdfs:range nmo:SMSFolder .
+
+nmo:containsSMS a rdf:Property ;
+	rdfs:label "Contains SMS";
+	rdfs:comment "Link between an SMS Message and a Folder" ;
+	rdfs:domain nmo:SMSFolder;
+	rdfs:range nmo:SMSMessage .

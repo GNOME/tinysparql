@@ -1,0 +1,28 @@
+<h2>Overview</h2>
+<p>NEPOMUK Message Ontology extends the NEPOMUK Information Element framework into the domain of messages. This ontology has been heavily extended by Tracker team to include real support for Emails, IM Accounts, SMS and Calls relevant in environments like <a href="http://maemo.nokia.com">Maemo</a>.</p>
+
+<h2>Email domain</h2>
+<p>This complex issues is explained in great details in <a href="http://live.gnome.org/Tracker/Documentation/EmailSparql">this wiki page</a></p>
+
+<p>FIXME add a diagram of the Email classes and main properties</p>
+
+<h2>SMS domain</h2>
+<p>We have a new subclass of message to represent a SMS Message. It is worth to remark that we are talking about a <emph>simple</emph> text message. Things like MMS are more complex (more similar to an email than a simple message), and will have their own classes.
+</p>
+
+<p>An SMS Message comes from the network in vcard format, and it is represented in the ontology with
+</p>
+<ul>
+ <li>A nmo:SMSMessage instance to represent the message itself</li>
+ <li>nmo:to and nmo:from linking the contacts (one of them "me", the other a nco:Contact or even a nco:PersonContact if the software is able to identify him).</li>
+ <li>nmo:plainTextMessageContent inherited from nmo:Message.</li>
+ <li>nmo:containsSMS property will link the message with the relevant nmo:SMSFolder.</li>
+ <li>If needed, language and characterSet are inherited from NIE (nie:language, nie:characterSet), but there is a specific nmo:encoding property.</li>
+ <li>The original vcard can be stored as string under nmo:originalVCard. Still undecided if the full text or just a reference to a file in the filesystem.</li>
+</ul>
+
+<h2>Call domain</h2>
+<p>FIXME Explain call and VoIP call classes</p>
+<h2>Related information</h2>
+
+<h2>Graphical overview</h2>
