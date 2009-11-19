@@ -23,8 +23,17 @@ uses
     Gtk
 
 [CCode (cheader_filename = "config.h")]
-const extern static PACKAGE_STRING : string
+const extern static PACKAGE_VERSION : string
 
+const static ABOUT : string = "Tracker " + PACKAGE_VERSION + "\n"
+
+const static LICENSE : string =\
+"This program is free software and comes without any warranty.\n" +\
+"It is licensed under version 2 or later of the General Public "  +\
+"License which can be viewed at:\n"                               +\
+"\n"                                                              +\
+"  http://www.gnu.org/licenses/gpl.txt\n"
+      
 window : Window
 service : string?
 terms : array of string?
@@ -55,7 +64,7 @@ init
         return
 
     if (print_version)
-        stdout.printf ("%s\n", PACKAGE_STRING)
+        stdout.printf ("\n" + ABOUT + "\n" + LICENSE + "\n");
         return
 
     var server = new TrackerSearchToolServer

@@ -38,6 +38,16 @@
 
 #include "tracker-miner-client.h"
 
+#define ABOUT                                                             \
+        "Tracker " PACKAGE_VERSION "\n"
+
+#define LICENSE                                                           \
+        "This program is free software and comes without any warranty.\n" \
+        "It is licensed under version 2 or later of the General Public "  \
+        "License which can be viewed at:\n"                               \
+        "\n"                                                              \
+        "  http://www.gnu.org/licenses/gpl.txt\n"
+
 static GMainLoop *main_loop;
 static GHashTable *miners_progress;
 static GHashTable *miners_status;
@@ -341,7 +351,7 @@ main (gint argc, gchar *argv[])
 	g_option_context_parse (context, &argc, &argv, NULL);
 
 	if (print_version) {
-		g_print ("%s\n", PACKAGE_STRING);
+                g_print ("\n" ABOUT "\n" LICENSE "\n");
 		g_option_context_free (context);
 
 		return EXIT_SUCCESS;

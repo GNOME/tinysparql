@@ -38,6 +38,16 @@
 #include <libtracker-miner/tracker-miner-manager.h>
 #include <libtracker-miner/tracker-crawler.h>
 
+#define ABOUT                                                             \
+        "Tracker " PACKAGE_VERSION "\n"
+
+#define LICENSE                                                           \
+        "This program is free software and comes without any warranty.\n" \
+        "It is licensed under version 2 or later of the General Public "  \
+        "License which can be viewed at:\n"                               \
+        "\n"                                                              \
+        "  http://www.gnu.org/licenses/gpl.txt\n"
+
 static gboolean     should_kill;
 static gboolean     should_terminate;
 static gboolean     hard_reset;
@@ -214,7 +224,7 @@ main (int argc, char **argv)
 	g_option_context_free (context);
 
 	if (print_version) {
-		g_print ("%s\n", PACKAGE_STRING);
+                g_print ("\n" ABOUT "\n" LICENSE "\n");
 		return EXIT_SUCCESS;
 	}
 
