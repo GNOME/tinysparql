@@ -6,5 +6,6 @@
       dsc:contributor "Tracker team" ;
       dsc:gitlog "http://git.gnome.org/cgit/tracker/log/data/ontologies/33-nfo.ontology";
       
+      dsc:localPrefix "nfo" ;
       dsc:baseUrl "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#" ;
       dsc:relativePath "./33-nfo.ontology" .
