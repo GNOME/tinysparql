@@ -32,6 +32,7 @@ typedef struct {
         GList *contributors;
         gchar *gitlog;
         gchar *upstream;
+        gchar *copyright;
         gchar *baseUrl;
         gchar *localPrefix;
         gchar *relativePath;

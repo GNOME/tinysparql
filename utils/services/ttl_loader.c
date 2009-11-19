@@ -31,6 +31,7 @@
 #define DSC_BASEURI DSC_PREFIX "baseUrl"
 #define DSC_RELPATH DSC_PREFIX "relativePath"
 #define DSC_LOCALPREFIX DSC_PREFIX "localPrefix"
+#define DSC_COPYRIGHT DSC_PREFIX "copyright"
 
 static void
 load_in_memory (Ontology    *ontology,
@@ -211,6 +212,8 @@ load_description (OntologyDescription *desc,
                 desc->relativePath = g_strdup (turtle_object);
         } else if (!g_strcmp0 (turtle_predicate, DSC_LOCALPREFIX)) {
                 desc->localPrefix = g_strdup (turtle_object);
+        } else if (!g_strcmp0 (turtle_predicate, DSC_COPYRIGHT)) {
+                desc->copyright = g_strdup (turtle_object);
         } else {
                 g_critical ("Unhandled element %s", turtle_predicate);
         }
