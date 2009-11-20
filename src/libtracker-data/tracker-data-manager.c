@@ -585,8 +585,7 @@ static void
 create_decomposed_metadata_property_table (TrackerDBInterface *iface, 
 					   TrackerProperty   **property, 
 					   const gchar        *service_name,
-					   const gchar       **sql_type_for_single_value,
-					   gint               *max_id)
+					   const gchar       **sql_type_for_single_value)
 {
 	const char *field_name;
 	const char *sql_type;
@@ -660,12 +659,6 @@ create_decomposed_metadata_property_table (TrackerDBInterface *iface,
 	} else if (sql_type_for_single_value) {
 		*sql_type_for_single_value = sql_type;
 	}
-
-	/* insert property uri in rdfs:Resource table */
-	if (max_id && tracker_property_get_uri (*property) != NULL) {
-		insert_uri_in_resource_table (iface, tracker_property_get_uri (*property),
-		                              max_id);
-	}
 }
 
 static void
@@ -701,8 +694,7 @@ create_decomposed_metadata_tables (TrackerDBInterface *iface,
 
 			create_decomposed_metadata_property_table (iface, property, 
 								   service_name, 
-								   &sql_type_for_single_value,
-								   main_class ? NULL : max_id);
+								   &sql_type_for_single_value);
 
 			if (sql_type_for_single_value) {
 				/* single value */
@@ -779,7 +771,7 @@ create_decomposed_transient_metadata_tables (TrackerDBInterface *iface)
 			/* create the TEMPORARY table */
 			create_decomposed_metadata_property_table (iface, property,
 								   service_name,
-								   NULL, NULL);
+								   NULL);
 		}
 	}
 }
@@ -827,6 +819,8 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 	if (is_first_time_index) {
 		TrackerClass **classes;
 		TrackerClass **cl;
+		TrackerProperty **properties;
+		TrackerProperty **property;
 		gint max_id = 0;
 		GList *sorted = NULL, *l;
 		gchar *test_schema_path;
@@ -891,6 +885,13 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 		/* create tables */
 		for (cl = classes; *cl; cl++) {
 			create_decomposed_metadata_tables (iface, *cl, &max_id);
+		}
+
+		/* insert properties into rdfs:Resource table */
+		properties = tracker_ontology_get_properties ();
+		for (property = properties; *property; property++) {
+			insert_uri_in_resource_table (iface, tracker_property_get_uri (*property),
+				                      &max_id);
 		}
 
 		create_fts_table (iface);
