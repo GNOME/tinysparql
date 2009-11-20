@@ -3,11 +3,23 @@
 
 
 static void
+srcdir_qname_init (const gchar *luri, const gchar *lprefix)
+{
+        gchar *class_location;
+
+        class_location = g_build_filename (TOP_SRCDIR, "utils", "services", "file-class.cache.test", NULL);
+
+        qname_init (luri, lprefix, class_location);
+
+         g_free (class_location);
+}
+
+static void
 test_qname_to_shortname (void) 
 {
         gchar *result = NULL;
 
-        qname_init ("test://local_uri#", "local", "./file-class.cache.test");
+        srcdir_qname_init ("test://local_uri#", "local");
 
         result = qname_to_shortname ("http://purl.org/dc/elements/1.1/source");
         g_assert_cmpstr (result, ==, "dc:source");
@@ -33,7 +45,7 @@ test_qname_to_classname (void)
 {
         gchar *result = NULL;
 
-        qname_init ("test://local_uri#", "local", "./file-class.cache.test");
+        srcdir_qname_init ("test://local_uri#", "local");
 
         result = qname_to_classname ("http://purl.org/dc/elements/1.1/source");
         g_assert_cmpstr (result, ==, "source");
@@ -59,7 +71,7 @@ test_qname_to_link (void)
 {
         gchar *result = NULL;
 
-        qname_init ("test://local_uri#", "local", "./file-class.cache.test");
+        srcdir_qname_init ("test://local_uri#", "local");
 
         result = qname_to_link ("test://local_uri#Class");
         g_assert_cmpstr (result, ==, "#Class");
@@ -88,7 +100,7 @@ test_process_dc (void)
 
         gchar *result = NULL;
 
-        qname_init ("test://dc_style/", "local", "./file-class.cache.test");
+        srcdir_qname_init ("test://dc_style/", "local");
 
         /* local */
         result = qname_to_link ("test://dc_style/Class");

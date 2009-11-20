@@ -7,6 +7,7 @@ TEST_PROGS += qname-test
 INCLUDES = 								\
 	-DG_LOG_DOMAIN=\"Tracker\"					\
 	-DTRACKER_COMPILATION						\
+	-DTOP_SRCDIR=\"$(top_srcdir)\"					\
 	-I$(top_srcdir)/src						\
 	$(WARN_CFLAGS)							\
 	$(GLIB2_CFLAGS)							\
@@ -73,3 +74,6 @@ qname_test_SOURCES = qname-test.c qname.c
 qname_test_LDADD = 	$(DBUS_LIBS)					\
 			$(GLIB2_LIBS)					\
 			$(GIO_LIBS)
+
+EXTRA_DIST = file-class.cache.test
+
