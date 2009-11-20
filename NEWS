@@ -1,3 +1,39 @@
+NEW in 0.7.8
+============
+
+Improvements / New:
+
+  General:
+  * Add --version option to command line tools.
+
+  Ontology:
+  * NCO: Add more IM properties.
+  * NMO: Add first draft of SMS support.
+  * Work on ontology description and documentation.
+
+  SPARQL:
+  * Limit scope of blank nodes to conform to specification.
+  * Fix missing results due to OPTIONAL optimization.
+
+  libtracker-data:
+  * Fix critical warning on tracker-store startup.
+
+  tracker-extract:
+  * Fix use of tagreadbin in GStreamer extractor.
+  * Use NAO tags for image keywords.
+  * Correctly detect 3GPP audio files in GStreamer extractor.
+  * Extract nmm:albumTrackCount from MP3 files.
+
+  RSS Reader:
+  * Add some Zeitgeist interaction to the RSS Reader example.
+
+Notes:
+
+  The Deskbar applet packaged with Tracker is currently out of date
+  and needs some love to get it working with the new APIs. It is in
+  the same state as it was for 0.6. As such it isn't expected to work.
+
+
 NEW in 0.7.7
 ============
 
