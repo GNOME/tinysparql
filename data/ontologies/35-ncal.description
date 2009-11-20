@@ -2,11 +2,23 @@
 
 <virtual-ontology-uri:35-ncal.ontology> a dsc:Ontology ;
       dsc:title "Nepomuk Calendar Ontology (NCAL)" ;
-      dsc:author "Nepomuck people (script)" ;
-      dsc:author "Tracker Developers" ;
+
+      dsc:author "Antoni Mylka, DFKI, &lt;antoni.mylka@dfki.de&gt;";
+      dsc:author "Leo Sauermann, DFKI,  &lt;leo.sauermann@dfki.de&gt;";
+      dsc:author "Michael Sintek, DFKI,  &lt;michael.sintek@dfki.de&gt;";
+      dsc:author "Ludger van Elst, DFKI,  &lt;elst@dfki.uni-kl.de&gt;";
+
       dsc:editor "Tracker developers (translation into turtle)" ;
+      dsc:editor "Antoni Mylka, DFKI, &lt;antoni.mylka@dfki.de&gt;";
+
+      dsc:contributor "Evgeny 'phreedom' Egorochkin, KDE Strigi Developer, &lt;stexx@mail.ru&gt;";
+      dsc:contributor "Christiaan Fluit, Aduna, &lt;christiaan.fluit@aduna-software.com&gt;";
+
       dsc:gitlog "http://git.gnome.org/cgit/tracker/log/data/ontologies/35-ncal.ontology";
+      dsc:upstream "http://www.semanticdesktop.org/ontologies/ncal/";
 
       dsc:localPrefix "ncal" ;
       dsc:baseUrl "http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#" ;
-      dsc:relativePath "./35-ncal.ontology" .
+      dsc:relativePath "./35-ncal.ontology" ;
+
+      dsc:copyright "Copyright &copy 2007 <a href=\"http://www.dfki.de/\">DFKI</a> The ontologies are made available under the terms of NEPOMUK <a href=\"../resources/LICENSE.txt\">software license</a> (FIXME verify)".
