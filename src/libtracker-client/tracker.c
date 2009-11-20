@@ -365,6 +365,23 @@ tracker_resources_sparql_update (TrackerClient  *client,
                                                          &*error);
 }
 
+GPtrArray *
+tracker_resources_sparql_update_blank (TrackerClient  *client,
+                                       const gchar    *query,
+                                       GError        **error)
+{
+	GPtrArray *result;
+
+	if (!org_freedesktop_Tracker1_Resources_sparql_update_blank (client->proxy_resources,
+                                                                     query,
+                                                                     &result,
+                                                                     &*error)) {
+		return NULL;
+	}
+
+	return result;
+}
+
 void
 tracker_resources_batch_sparql_update (TrackerClient  *client, 
                                        const gchar    *query, 
@@ -478,6 +495,32 @@ tracker_resources_sparql_update_async (TrackerClient    *client,
                                                                        query,
                                                                        tracker_void_reply,
                                                                        s);
+
+        id = pending_call_new (client, client->proxy_resources, call);
+        s->id = id;
+
+        return id;
+}
+
+guint
+tracker_resources_sparql_update_blank_async (TrackerClient         *client,
+                                             const gchar           *query,
+                                             TrackerReplyGPtrArray  callback,
+                                             gpointer               user_data)
+{
+	CallbackGPtrArray *s;
+        DBusGProxyCall *call;
+        guint id;
+
+	s = g_new0 (CallbackGPtrArray, 1);
+	s->callback = callback;
+	s->data = user_data;
+        s->client = client;
+
+	call = org_freedesktop_Tracker1_Resources_sparql_update_blank_async (client->proxy_resources,
+                                                                             query,
+                                                                             tracker_GPtrArray_reply,
+                                                                             s);
 
         id = pending_call_new (client, client->proxy_resources, call);
         s->id = id;

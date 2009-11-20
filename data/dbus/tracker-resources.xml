@@ -24,6 +24,14 @@
       <arg type="s" name="query" direction="in" />
     </method>
 
+    <!-- SPARQL Update extensions, insert and delete,
+         return generated URIs for inserted blank nodes -->
+    <method name="SparqlUpdateBlank">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
+      <arg type="s" name="query" direction="in" />
+      <arg type="aaa{ss}" name="result" direction="out" />
+    </method>
+
     <!-- SPARQL Update as part of a batch, use this method when sending a
          possibly large amount of updates to improve performance, may delay
          database commit until receiving BatchCommit -->

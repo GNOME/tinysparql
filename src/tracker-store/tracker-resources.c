@@ -250,6 +250,44 @@ tracker_resources_sparql_update (TrackerResources	 *self,
 	tracker_dbus_request_success (request_id);
 }
 
+void
+tracker_resources_sparql_update_blank (TrackerResources	      *self,
+				       const gchar	      *update,
+				       DBusGMethodInvocation  *context,
+				       GError		     **error)
+{
+	TrackerResourcesPrivate *priv;
+	GError 		     *actual_error = NULL;
+	guint		      request_id;
+	GPtrArray            *blank_nodes;
+
+	priv = TRACKER_RESOURCES_GET_PRIVATE (self);
+
+	request_id = tracker_dbus_get_next_request_id ();
+
+	tracker_dbus_async_return_if_fail (update != NULL, context);
+
+	tracker_dbus_request_new (request_id,
+				  "D-Bus request for SPARQL Update, "
+				  "update:'%s'",
+				  update);
+
+	blank_nodes = tracker_store_sparql_update_blank (update, &actual_error);
+
+	if (actual_error) {
+		tracker_dbus_request_failed (request_id,
+					     &actual_error,
+					     NULL);
+		dbus_g_method_return_error (context, actual_error);
+		g_error_free (actual_error);
+		return;
+	}
+
+	dbus_g_method_return (context, blank_nodes);
+
+	tracker_dbus_request_success (request_id);
+}
+
 static void
 batch_update_callback (GError *error, gpointer user_data)
 {

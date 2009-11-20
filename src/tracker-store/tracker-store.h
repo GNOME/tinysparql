@@ -53,6 +53,8 @@ void         tracker_store_queue_turtle_import    (GFile         *file,
                                                    GDestroyNotify destroy);
 void         tracker_store_sparql_update          (const gchar   *sparql,
                                                    GError       **error);
+GPtrArray *  tracker_store_sparql_update_blank    (const gchar   *sparql,
+                                                   GError       **error);
 TrackerDBResultSet*
              tracker_store_sparql_query           (const gchar   *sparql,
                                                    GError       **error);

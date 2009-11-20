@@ -2003,7 +2003,7 @@ tracker_data_update_sparql (const gchar  *update,
 
 	tracker_db_interface_execute_query (iface, NULL, "SAVEPOINT sparql");
 
-	tracker_sparql_query_execute (sparql_query, error);
+	tracker_sparql_query_execute_update (sparql_query, FALSE, error);
 
 	if (*error) {
 		tracker_data_update_buffer_clear ();
@@ -2022,5 +2022,45 @@ tracker_data_update_sparql (const gchar  *update,
 	tracker_db_interface_execute_query (iface, NULL, "RELEASE sparql");
 
 	g_object_unref (sparql_query);
+}
+
+
+GPtrArray *
+tracker_data_update_sparql_blank (const gchar  *update,
+			          GError      **error)
+{
+	TrackerDBInterface *iface;
+	TrackerSparqlQuery *sparql_query;
+	GPtrArray *blank_nodes;
+
+	g_return_val_if_fail (update != NULL, NULL);
+
+	iface = tracker_db_manager_get_db_interface ();
+
+	sparql_query = tracker_sparql_query_new_update (update);
+
+	tracker_db_interface_execute_query (iface, NULL, "SAVEPOINT sparql");
+
+	blank_nodes = tracker_sparql_query_execute_update (sparql_query, TRUE, error);
+
+	if (*error) {
+		tracker_data_update_buffer_clear ();
+		tracker_db_interface_execute_query (iface, NULL, "ROLLBACK TO sparql");
+
+		if (rollback_callbacks) {
+			guint n;
+			for (n = 0; n < rollback_callbacks->len; n++) {
+				TrackerCommitDelegate *delegate;
+				delegate = g_ptr_array_index (rollback_callbacks, n);
+				delegate->callback (delegate->user_data);
+			}
+		}
+	}
+
+	tracker_db_interface_execute_query (iface, NULL, "RELEASE sparql");
+
+	g_object_unref (sparql_query);
+
+	return blank_nodes;
 }
 

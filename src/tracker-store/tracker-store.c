@@ -536,6 +536,36 @@ tracker_store_sparql_update (const gchar *sparql,
 
 }
 
+GPtrArray *
+tracker_store_sparql_update_blank (const gchar *sparql,
+                                   GError     **error)
+{
+	TrackerStorePrivate *private;
+	GPtrArray *blank_nodes;
+
+	g_return_val_if_fail (sparql != NULL, NULL);
+
+	private = g_static_private_get (&private_key);
+	g_return_val_if_fail (private != NULL, NULL);
+
+	if (private->batch_mode) {
+		/* commit pending batch items */
+		tracker_data_commit_transaction ();
+		private->batch_mode = FALSE;
+		private->batch_count = 0;
+	}
+
+	tracker_data_begin_transaction ();
+	blank_nodes = tracker_data_update_sparql_blank (sparql, error);
+	tracker_data_commit_transaction ();
+
+	if (private->start_log) {
+		log_to_journal (private, sparql);
+	}
+
+	return blank_nodes;
+}
+
 TrackerDBResultSet*
 tracker_store_sparql_query (const gchar *sparql,
                             GError     **error)

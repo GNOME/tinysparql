@@ -272,6 +272,7 @@ public class Tracker.SparqlQuery : Object {
 	int bnodeid = 0;
 	// base UUID used for blank nodes
 	uchar[] base_uuid;
+	HashTable<string,string> blank_nodes;
 
 	public SparqlQuery (string query) {
 		tokens = new TokenInfo[BUFFER_SIZE];
@@ -289,22 +290,49 @@ public class Tracker.SparqlQuery : Object {
 		this.update_extensions = true;
 	}
 
+	string get_uuid_for_name (uchar[] base_uuid, string name) {
+		var checksum = new Checksum (ChecksumType.SHA1);
+		// base UUID, unique per file
+		checksum.update (base_uuid, 16);
+
+		// node ID
+		checksum.update ((uchar[]) name, -1);
+
+		string sha1 = checksum.get_string ();
+
+		// generate name based uuid
+		return "urn:uuid:%.8s-%.4s-%.4s-%.4s-%.12s".printf (
+			sha1, sha1.offset (8), sha1.offset (12), sha1.offset (16), sha1.offset (20));
+	}
+
 	string generate_bnodeid (string? user_bnodeid) {
 		// user_bnodeid is NULL for anonymous nodes
 		if (user_bnodeid == null) {
 			return ":%d".printf (++bnodeid);
 		} else {
-			var checksum = new Checksum (ChecksumType.SHA1);
-			// base UUID, unique per file
-			checksum.update (base_uuid, 16);
-			// node ID
-			checksum.update ((uchar[]) user_bnodeid, -1);
+			string uri = null;
 
-			string sha1 = checksum.get_string ();
+			if (blank_nodes != null) {
+				uri = blank_nodes.lookup (user_bnodeid);
+				if (uri != null) {
+					return uri;
+				}
+			}
 
-			// generate name based uuid
-			return "urn:uuid:%.8s-%.4s-%.4s-%.4s-%.12s".printf (
-				sha1, sha1.offset (8), sha1.offset (12), sha1.offset (16), sha1.offset (20));
+			uri = get_uuid_for_name (base_uuid, user_bnodeid);
+
+			if (blank_nodes != null) {
+				while (Data.query_resource_id (uri) > 0) {
+					// uri collision, generate new UUID
+					uchar[] new_base_uuid = new uchar[16];
+					uuid_generate (new_base_uuid);
+					uri = get_uuid_for_name (new_base_uuid, user_bnodeid);
+				}
+
+				blank_nodes.insert (user_bnodeid, uri);
+			}
+
+			return uri;
 		}
 	}
 
@@ -418,6 +446,8 @@ public class Tracker.SparqlQuery : Object {
 	}
 
 	public DBResultSet? execute () throws Error {
+		assert (!update_extensions);
+
 		scanner = new SparqlScanner ((char*) query_string, (long) query_string.size ());
 		next ();
 
@@ -430,49 +460,71 @@ public class Tracker.SparqlQuery : Object {
 
 		parse_prologue ();
 
-		if (!update_extensions) {
-			switch (current ()) {
-			case SparqlTokenType.SELECT:
-				return execute_select ();
-			case SparqlTokenType.CONSTRUCT:
-				throw get_internal_error ("CONSTRUCT is not supported");
-			case SparqlTokenType.DESCRIBE:
-				throw get_internal_error ("DESCRIBE is not supported");
-			case SparqlTokenType.ASK:
-				return execute_ask ();
-			case SparqlTokenType.INSERT:
-			case SparqlTokenType.DELETE:
-			case SparqlTokenType.DROP:
-				throw get_error ("INSERT and DELETE are not supported in query mode");
-			default:
-				throw get_error ("expected SELECT or ASK");
-			}
-		} else {
-			// SPARQL update supports multiple operations in a single query
-
-			while (current () != SparqlTokenType.EOF) {
-				switch (current ()) {
-				case SparqlTokenType.INSERT:
-					execute_insert ();
-					break;
-				case SparqlTokenType.DELETE:
-					execute_delete ();
-					break;
-				case SparqlTokenType.DROP:
-					execute_drop_graph ();
-					break;
-				case SparqlTokenType.SELECT:
-				case SparqlTokenType.CONSTRUCT:
-				case SparqlTokenType.DESCRIBE:
-				case SparqlTokenType.ASK:
-					throw get_error ("SELECT, CONSTRUCT, DESCRIBE, and ASK are not supported in update mode");
-				default:
-					throw get_error ("expected INSERT or DELETE");
-				}
-			}
-
-			return null;
+		switch (current ()) {
+		case SparqlTokenType.SELECT:
+			return execute_select ();
+		case SparqlTokenType.CONSTRUCT:
+			throw get_internal_error ("CONSTRUCT is not supported");
+		case SparqlTokenType.DESCRIBE:
+			throw get_internal_error ("DESCRIBE is not supported");
+		case SparqlTokenType.ASK:
+			return execute_ask ();
+		case SparqlTokenType.INSERT:
+		case SparqlTokenType.DELETE:
+		case SparqlTokenType.DROP:
+			throw get_error ("INSERT and DELETE are not supported in query mode");
+		default:
+			throw get_error ("expected SELECT or ASK");
 		}
+	}
+
+	public PtrArray? execute_update (bool blank) throws Error {
+		assert (update_extensions);
+
+		scanner = new SparqlScanner ((char*) query_string, (long) query_string.size ());
+		next ();
+
+		// declare fn prefix for XPath functions
+		prefix_map.insert ("fn", FN_NS);
+
+		foreach (Namespace ns in Ontology.get_namespaces ()) {
+			prefix_map.insert (ns.prefix, ns.uri);
+		}
+
+		parse_prologue ();
+
+		PtrArray blank_nodes = null;
+		if (blank) {
+			blank_nodes = new PtrArray ();
+		}
+
+		// SPARQL update supports multiple operations in a single query
+
+		while (current () != SparqlTokenType.EOF) {
+			switch (current ()) {
+			case SparqlTokenType.INSERT:
+				PtrArray* ptr = execute_insert (blank);
+				if (blank) {
+					blank_nodes.add (ptr);
+				}
+				break;
+			case SparqlTokenType.DELETE:
+				execute_delete ();
+				break;
+			case SparqlTokenType.DROP:
+				execute_drop_graph ();
+				break;
+			case SparqlTokenType.SELECT:
+			case SparqlTokenType.CONSTRUCT:
+			case SparqlTokenType.DESCRIBE:
+			case SparqlTokenType.ASK:
+				throw get_error ("SELECT, CONSTRUCT, DESCRIBE, and ASK are not supported in update mode");
+			default:
+				throw get_error ("expected INSERT or DELETE");
+			}
+		}
+
+		return blank_nodes;
 	}
 
 	DBResultSet? exec_sql (string sql) throws Error {
@@ -798,25 +850,27 @@ public class Tracker.SparqlQuery : Object {
 		}
 	}
 
-	void execute_insert () throws Error {
+	PtrArray? execute_insert (bool blank) throws Error {
 		expect (SparqlTokenType.INSERT);
 		if (accept (SparqlTokenType.INTO)) {
 			parse_from_or_into_param ();
-		} else
+		} else {
 			current_graph = null;
-		execute_update (false);
+		}
+		return execute_insert_or_delete (false, blank);
 	}
 
 	void execute_delete () throws Error {
 		expect (SparqlTokenType.DELETE);
 		if (accept (SparqlTokenType.FROM)) {
 			parse_from_or_into_param ();
-		} else
+		} else {
 			current_graph = null;
-		execute_update (true);
+		}
+		execute_insert_or_delete (true, false);
 	}
 
-	void execute_update (bool delete_statements) throws Error {
+	PtrArray? execute_insert_or_delete (bool delete_statements, bool blank) throws Error {
 		// INSERT or DELETE
 
 		var pattern_sql = new StringBuilder ();
@@ -859,12 +913,19 @@ public class Tracker.SparqlQuery : Object {
 
 		this.delete_statements = delete_statements;
 
+		PtrArray update_blank_nodes = null;
+
+		if (blank) {
+			update_blank_nodes = new PtrArray ();
+		}
+
 		// iterate over all solutions
 		if (result_set != null) {
 			do {
 				// blank nodes in construct templates are per solution
 
 				uuid_generate (base_uuid);
+				blank_nodes = new HashTable<string,string>.full (str_hash, str_equal, g_free, g_free);
 
 				// get values of all variables to be bound
 				var var_value_map = new HashTable<string,string>.full (str_hash, str_equal, g_free, g_free);
@@ -879,6 +940,11 @@ public class Tracker.SparqlQuery : Object {
 
 				// iterate over each triple in the template
 				parse_construct_triples_block (var_value_map);
+
+				if (blank) {
+					HashTable<string,string>* ptr = (owned) blank_nodes;
+					update_blank_nodes.add (ptr);
+				}
 			} while (result_set.iter_next ());
 		}
 
@@ -888,6 +954,8 @@ public class Tracker.SparqlQuery : Object {
 		// ensure possible WHERE clause in next part gets the correct results
 		Data.update_buffer_flush ();
 		bindings = null;
+
+		return update_blank_nodes;
 	}
 
 	void execute_drop_graph () throws Error {

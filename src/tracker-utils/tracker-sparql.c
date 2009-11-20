@@ -393,7 +393,7 @@ main (int argc, char **argv)
 
 	if (query) {
 		if (G_UNLIKELY (update)) {
-			tracker_resources_sparql_update (client, query, &error);
+			results = tracker_resources_sparql_update_blank (client, query, &error);
 
 			if (error) {
 				g_printerr ("%s, %s\n",
@@ -402,6 +402,30 @@ main (int argc, char **argv)
 				g_error_free (error);
 				
 				return FALSE;
+			}
+
+			if (results) {
+				GPtrArray *insert;
+				GHashTable *solution;
+				GHashTableIter iter;
+				gpointer key, value;
+				gint i, s, n;
+
+				for (i = 0; i < results->len; i++) {
+					insert = results->pdata[i];
+
+					for (s = 0; s < insert->len; s++) {
+						solution = insert->pdata[s];
+
+						g_hash_table_iter_init (&iter, solution);
+						n = 0;
+						while (g_hash_table_iter_next (&iter, &key, &value)) {
+							g_print ("%s%s: %s", n > 0 ? ", " : "", (const gchar *) key, (const gchar *) value);
+							n++;
+						}
+						g_print ("\n");
+					}
+				}
 			}
 		} else {
 			results = tracker_resources_sparql_query (client, query, &error);

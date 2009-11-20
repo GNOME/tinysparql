@@ -63,6 +63,9 @@ GPtrArray *    tracker_resources_sparql_query              (TrackerClient       
 void           tracker_resources_sparql_update             (TrackerClient          *client,
                                                             const gchar            *query,
                                                             GError                **error);
+GPtrArray *    tracker_resources_sparql_update_blank       (TrackerClient          *client,
+                                                            const gchar            *query,
+                                                            GError                **error);
 void           tracker_resources_batch_sparql_update       (TrackerClient          *client,
                                                             const gchar            *query,
                                                             GError                **error);
@@ -83,6 +86,10 @@ guint          tracker_resources_sparql_query_async        (TrackerClient       
 guint          tracker_resources_sparql_update_async       (TrackerClient          *client,
                                                             const gchar            *query,
                                                             TrackerReplyVoid        callback,
+                                                            gpointer                user_data);
+guint          tracker_resources_sparql_update_blank_async (TrackerClient          *client,
+                                                            const gchar            *query,
+                                                            TrackerReplyGPtrArray   callback,
                                                             gpointer                user_data);
 guint          tracker_resources_batch_sparql_update_async (TrackerClient          *client,
                                                             const gchar            *query,
