@@ -60,8 +60,8 @@ print_html_header (FILE *f, OntologyDescription *desc)
         g_fprintf (f,"<body>\n");
         g_fprintf (f,"<div class=\"head\">\n");
         g_fprintf (f," <div class=\"nav\">\n");
-        /* Three logos at the top. Tracker, maemo, nepomuk */
 
+        /* Three logos at the top. Tracker, maemo, nepomuk */
         g_fprintf (f, " <a href=\"http://www.tracker-project.org\">");
         g_fprintf (f, "<img alt=\"Tracker logo\" src=\"../resources/tracker-logo.png\" /></a> \n");
         g_fprintf (f, " <a href=\"http://www.maemo.org\"> <img alt=\"MAEMO logo\" ");
@@ -74,16 +74,26 @@ print_html_header (FILE *f, OntologyDescription *desc)
 
         g_fprintf (f,"<h1>%s</h1>\n", desc->title);
         g_fprintf (f," <dl>\n");
-        g_fprintf (f,"  <dt>Upstream:</dt><dd><a href=\"%s\">Upstream version</a></dd>\n",
-                   (desc->upstream ? desc->upstream : "#"));
+        if (desc->upstream) {
+                g_fprintf (f,"  <dt>Upstream:</dt><dd><a href=\"%s\">Upstream version</a></dd>\n",
+                           desc->upstream);
+        } else {
+                g_fprintf (f,"  <dt>Upstream:</dt><dd>Not available</dd>\n");
+        }
         g_fprintf (f,"  <dt></dt>\n");
         g_fprintf (f,"  <dt></dt>\n");
+        g_fprintf (f, "</dl>\n <dl>\n");
         g_fprintf (f,"  <dt>Authors:</dt>\n");
         g_list_foreach (desc->authors, print_author, f);
+        g_fprintf (f, "</dl>\n <dl>\n");
         g_fprintf (f,"  <dt>Editors:</dt>\n");
         g_list_foreach (desc->editors, print_author, f);
-        g_fprintf (f,"  <dt>Contributors:</dt>\n");
-        g_list_foreach (desc->contributors, print_author, f);
+        if (desc->contributors) {
+                g_fprintf (f, "</dl>\n <dl>\n");
+                g_fprintf (f,"  <dt>Contributors:</dt>\n");
+                g_list_foreach (desc->contributors, print_author, f);
+        }
+        g_fprintf (f, "</dl>\n <dl>\n");
         g_fprintf (f,"  <dt>Changelog:</dt>\n");
         g_fprintf (f,"  <dd><a href=\"%s\">Tracker changes</a>", 
                    (desc->gitlog ? desc->gitlog : "#"));
