@@ -62,7 +62,7 @@ public class Tracker.SparqlQuery : Object {
 		// Specified whether SQL column may contain NULL entries
 		public bool maybe_null;
 		public bool in_simple_optional;
-		public string type;
+		public Class? type;
 	}
 
 	class VariableBindingList : Object {
@@ -1181,7 +1181,7 @@ public class Tracker.SparqlQuery : Object {
 			sql.append ("(SELECT ID FROM \"rdfs:Resource\" WHERE Uri = ?)");
 
 			var new_binding = new LiteralBinding ();
-			new_binding.literal = variable.binding.type;
+			new_binding.literal = variable.binding.type.uri;
 			bindings.append (new_binding);
 
 		} else {
@@ -2036,12 +2036,25 @@ public class Tracker.SparqlQuery : Object {
 		}
 	}
 
+	bool is_subclass (Class class1, Class class2) {
+		if (class1 == class2) {
+			return true;
+		}
+		foreach (var superclass in class1.get_super_classes ()) {
+			if (is_subclass (superclass, class2)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	bool is_simple_optional () {
 		var optional_start = get_location ();
 		try {
 			// check that we have { ?v foo:bar ?o }
 			// where ?v is an already BOUND variable
 			//       foo:bar is a single-valued property
+			//               that is known to be in domain of ?v
 			//       ?o has not been used before
 			// or
 			// where ?v has not been used before
@@ -2054,8 +2067,8 @@ public class Tracker.SparqlQuery : Object {
 			if (!accept (SparqlTokenType.VAR)) {
 				return false;
 			}
-			string var_name = get_last_string ().substring (1);
-			var left_variable_state = subgraph_var_set.lookup (get_variable (var_name));
+			var left_variable = get_variable (get_last_string ().substring (1));
+			var left_variable_state = subgraph_var_set.lookup (left_variable);
 
 			// check predicate
 			string predicate;
@@ -2079,8 +2092,8 @@ public class Tracker.SparqlQuery : Object {
 			if (!accept (SparqlTokenType.VAR)) {
 				return false;
 			}
-			var_name = get_last_string ().substring (1);
-			var right_variable_state = subgraph_var_set.lookup (get_variable (var_name));
+			var right_variable = get_variable (get_last_string ().substring (1));
+			var right_variable_state = subgraph_var_set.lookup (right_variable);
 
 			// optional .
 			accept (SparqlTokenType.DOT);
@@ -2091,15 +2104,25 @@ public class Tracker.SparqlQuery : Object {
 			}
 
 			if (left_variable_state == VariableState.BOUND && !prop.multiple_values && right_variable_state == 0) {
-				// first valid case described in above comment
-				return true;
+				bool in_domain = false;
+				foreach (VariableBinding binding in pattern_var_map.lookup (left_variable).list) {
+					if (binding.type != null && is_subclass (binding.type, prop.domain)) {
+						in_domain = true;
+						break;
+					}
+				}
+
+				if (in_domain) {
+					// first valid case described in above comment
+					return true;
+				}
 			} else if (left_variable_state == 0 && prop.is_inverse_functional_property && right_variable_state == VariableState.BOUND) {
 				// second valid case described in above comment
 				return true;
-			} else {
-				// no match
-				return false;
 			}
+
+			// no match
+			return false;
 		} catch (SparqlError e) {
 			return false;
 		} finally {
@@ -2361,6 +2384,8 @@ public class Tracker.SparqlQuery : Object {
 		DataTable table;
 		Property prop = null;
 
+		Class subject_type = null;
+
 		if (!current_predicate_is_var) {
 			prop = Ontology.get_property_by_uri (current_predicate);
 
@@ -2373,6 +2398,7 @@ public class Tracker.SparqlQuery : Object {
 					throw new SparqlError.UNKNOWN_CLASS ("Unknown class `%s'".printf (object));
 				}
 				db_table = cl.name;
+				subject_type = cl;
 			} else if (prop == null) {
 				if (current_predicate == "http://www.tracker-project.org/ontologies/fts#match") {
 					// fts:match
@@ -2407,6 +2433,7 @@ public class Tracker.SparqlQuery : Object {
 				} else {
 					db_table = prop.domain.name;
 				}
+				subject_type = prop.domain;
 
 				if (in_simple_optional && subgraph_var_set.lookup (get_variable (current_subject)) == 0) {
 					// use subselect instead of join in simple optional where the subject is the unbound variable
@@ -2490,6 +2517,7 @@ public class Tracker.SparqlQuery : Object {
 				binding.data_type = PropertyType.RESOURCE;
 				binding.variable = get_variable (current_subject);
 				binding.table = table;
+				binding.type = subject_type;
 				if (is_fts_match) {
 					binding.sql_db_column_name = "rowid";
 				} else {
@@ -2530,7 +2558,7 @@ public class Tracker.SparqlQuery : Object {
 				binding.table = table;
 				if (prop != null) {
 
-					binding.type = prop.range.uri;
+					binding.type = prop.range;
 
 					binding.data_type = prop.data_type;
 					binding.sql_db_column_name = prop.name;
