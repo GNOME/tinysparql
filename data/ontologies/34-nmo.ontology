@@ -314,12 +314,18 @@ nmo:SMSMessage a rdfs:Class ;
 	rdfs:comment "Plain SMS Message" ;
 	rdfs:subClassOf nmo:Message.
 
-nmo:originalVCard a rdf:Property ;
+nmo:toVCard a rdf:Property ;
 	rdfs:label "fromVCard" ;
-	rdfs:comment "Raw VCard string, as received from the network" ;
+	rdfs:comment "Reference to a VCard in the filesystem, containing the Contact information of 'to' recipients" ;
+        rdfs:domain nmo:SMSMessage ;
+        rdfs:range nfo:FileDataObject .
+
+nmo:fromVCard a rdf:Property ;
+	rdfs:label "fromVCard" ;
+	rdfs:comment "Reference to a VCard in the filesystem, containing the Contact information of the 'from' recipient";
         nrl:maxCardinality 1 ;
         rdfs:domain nmo:SMSMessage ;
-        rdfs:range xsd:string .
+        rdfs:range nfo:FileDataObject .
 
 #FIXME unify encoding representation... this is the third encoding property in nepomuk
 nmo:encoding a rdf:Property ;
@@ -341,6 +347,15 @@ nmo:SMSFolder a rdfs:Class ;
 	rdfs:comment "Folder for SMS. Not a subclass of nfo:Folder because it would confuse filesystem folders" ;
 	rdfs:subClassOf nie:InformationElement .
 
+nmo:smsFolderId a rdf:Property ;
+	rdfs:label "folder id";
+	rdfs:comment "Id assigned to the folder for sync purpouses" ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmo:SMSFolder ;
+	rdfs:range xsd:string ;
+	rdfs:subPropertyOf nie:identifier .
+	
+
 nmo:containsSMSFolder a rdf:Property ;
 	rdfs:label "contains SMS Folder";
 	rdfs:comment "To link and reconstruct a hierarchy of folders" ;
@@ -352,3 +367,24 @@ nmo:containsSMS a rdf:Property ;
 	rdfs:comment "Link between an SMS Message and a Folder" ;
 	rdfs:domain nmo:SMSFolder;
 	rdfs:range nmo:SMSMessage .
+
+nmo:default-sms-folder-inbox a nmo:SMSFolder ;
+			     nie:title "Inbox" ;
+			     nmo:smsFolderId "0x1002" .
+
+nmo:default-sms-folder-outbox a nmo:SMSFolder ;
+			     nie:title "Outbox" ;
+			     nmo:smsFolderId "0x1003" .
+
+nmo:default-sms-folder-draft a nmo:SMSFolder ;
+			     nie:title "Draft" ;
+			     nmo:smsFolderId "0x1004" .
+
+nmo:default-sms-folder-sent a nmo:SMSFolder ;
+			     nie:title "Sent" ;
+			     nmo:smsFolderId "0x1005" .
+
+
+nmo:default-sms-folder-myfolder a nmo:SMSFolder ;
+			     nie:title "MyFolder" ;
+			     nmo:smsFolderId "0x1008" .
