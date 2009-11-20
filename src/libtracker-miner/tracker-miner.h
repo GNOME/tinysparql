@@ -81,6 +81,9 @@ typedef struct {
 
 	void (* error)      (TrackerMiner *miner,
 			     GError       *error);
+	void (* writeback)  (TrackerMiner *miner,
+			     const GStrv   subjects);
+
 } TrackerMinerClass;
 
 GType            tracker_miner_get_type       (void) G_GNUC_CONST;

@@ -22,6 +22,8 @@
 
 G_DEFINE_ABSTRACT_TYPE (TrackerWriteback, tracker_writeback, G_TYPE_OBJECT)
 
+static TrackerMinerManager *manager = NULL;
+
 static void
 tracker_writeback_class_init (TrackerWritebackClass *klass)
 {
@@ -46,4 +48,14 @@ tracker_writeback_update_metadata (TrackerWriteback *writeback,
         }
 
         return FALSE;
+}
+
+TrackerMinerManager*
+tracker_writeback_get_miner_manager (void)
+{
+	if (!manager) {
+		manager = tracker_miner_manager_new ();
+	}
+
+	return manager;
 }

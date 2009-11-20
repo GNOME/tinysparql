@@ -19,6 +19,7 @@
  */
 
 #include <gio/gio.h>
+
 #include "tracker-writeback.h"
 
 #ifndef __TRACKER_WRITEBACK_FILE_H__
@@ -37,15 +38,15 @@ typedef struct TrackerWritebackFile TrackerWritebackFile;
 typedef struct TrackerWritebackFileClass TrackerWritebackFileClass;
 
 struct TrackerWritebackFile {
-        TrackerWriteback parent_instance;
+	TrackerWriteback parent_instance;
 };
 
 struct TrackerWritebackFileClass {
-        TrackerWritebackClass parent_class;
+	TrackerWritebackClass parent_class;
 
-        gboolean (* update_file_metadata) (TrackerWritebackFile *writeback_file,
-                                           GFile                *file,
-                                           GPtrArray            *values);
+	gboolean (* update_file_metadata) (TrackerWritebackFile *writeback_file,
+	                                   GFile                *file,
+	                                   GPtrArray            *values);
 };
 
 GType tracker_writeback_file_get_type (void) G_GNUC_CONST;

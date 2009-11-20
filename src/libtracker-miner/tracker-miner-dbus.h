@@ -55,6 +55,10 @@ void tracker_miner_dbus_resume            (TrackerMiner           *miner,
 					   gint                    cookie,
 					   DBusGMethodInvocation  *context,
 					   GError                **error);
+void tracker_miner_dbus_writeback         (TrackerMiner           *miner,
+					   const GStrv             subjects,
+					   DBusGMethodInvocation  *context,
+					   GError                **error);
 
 G_END_DECLS
 

@@ -19,6 +19,7 @@
  */
 
 #include <libtracker-common/tracker-file-utils.h>
+
 #include "tracker-writeback-file.h"
 
 static gboolean tracker_writeback_file_update_metadata (TrackerWriteback *writeback,
@@ -26,49 +27,59 @@ static gboolean tracker_writeback_file_update_metadata (TrackerWriteback *writeb
 
 G_DEFINE_ABSTRACT_TYPE (TrackerWritebackFile, tracker_writeback_file, TRACKER_TYPE_WRITEBACK)
 
+
+
 static void
 tracker_writeback_file_class_init (TrackerWritebackFileClass *klass)
 {
-        TrackerWritebackClass *writeback_class = TRACKER_WRITEBACK_CLASS (klass);
+	TrackerWritebackClass *writeback_class = TRACKER_WRITEBACK_CLASS (klass);
 
-        writeback_class->update_metadata = tracker_writeback_file_update_metadata;
+	writeback_class->update_metadata = tracker_writeback_file_update_metadata;
 }
 
 static void
 tracker_writeback_file_init (TrackerWritebackFile *writeback_file)
 {
-
 }
 
 static gboolean
 tracker_writeback_file_update_metadata (TrackerWriteback *writeback,
                                         GPtrArray        *values)
 {
-        TrackerWritebackFileClass *writeback_file_class;
-        gboolean retval;
-        GFile *file;
-        GStrv row;
+	TrackerWritebackFileClass *writeback_file_class;
+	gboolean retval;
+	GFile *file;
+	const gchar *subjects[2] = { NULL, NULL };
+	GStrv row;
+	TrackerWritebackFile *self;
 
-        writeback_file_class = TRACKER_WRITEBACK_FILE_GET_CLASS (writeback);
+	writeback_file_class = TRACKER_WRITEBACK_FILE_GET_CLASS (writeback);
+	self = TRACKER_WRITEBACK_FILE (writeback);
 
-        if (!writeback_file_class->update_file_metadata) {
-                g_critical ("%s doesn't implement update_file_metadata()",
-                            G_OBJECT_TYPE_NAME (writeback));
-                return FALSE;
-        }
+	if (!writeback_file_class->update_file_metadata) {
+		g_critical ("%s doesn't implement update_file_metadata()",
+		            G_OBJECT_TYPE_NAME (writeback));
+		return FALSE;
+	}
 
-        /* Get the file from the first row */
-        row = g_ptr_array_index (values, 0);
-        file = g_file_new_for_uri (row[0]);
+	/* Get the file from the first row */
+	row = g_ptr_array_index (values, 0);
+	file = g_file_new_for_uri (row[0]);
 
-        tracker_file_lock (file);
+	tracker_file_lock (file);
 
-        retval = (writeback_file_class->update_file_metadata) (TRACKER_WRITEBACK_FILE (writeback),
-                                                               file, values);
+	subjects[0] = row[0];
 
-        tracker_file_unlock (file);
+	tracker_miner_manager_writeback (tracker_writeback_get_miner_manager (),
+	                                 "org.freedesktop.Tracker1.Miner.Files",
+	                                 subjects);
 
-        g_object_unref (file);
+	retval = (writeback_file_class->update_file_metadata) (TRACKER_WRITEBACK_FILE (writeback),
+	                                                       file, values);
 
-        return retval;
+	tracker_file_unlock (file);
+
+	g_object_unref (file);
+
+	return retval;
 }

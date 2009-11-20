@@ -36,6 +36,7 @@ typedef struct {
 	GHashTable *modules;
 	DBusData *dbus_data;
 	TrackerClient *client;
+	TrackerMinerManager *manager;
 } TrackerWritebackDispatcherPrivate;
 
 typedef struct {
@@ -208,6 +209,8 @@ tracker_writeback_dispatcher_init (TrackerWritebackDispatcher *dispatcher)
 	                             G_CALLBACK (on_writeback_cb),
 	                             dispatcher,
 	                             NULL);
+
+	priv->manager = tracker_writeback_get_miner_manager ();
 }
 
 static void
@@ -220,6 +223,8 @@ tracker_writeback_dispatcher_finalize (GObject *object)
 	if (priv->client) {
 		tracker_disconnect (priv->client);
 	}
+
+	g_object_unref (priv->manager);
 
 	dbus_data_free (priv->dbus_data);
 

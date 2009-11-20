@@ -100,6 +100,7 @@ enum {
 	TERMINATED,
 	PROGRESS,
 	ERROR,
+	WRITEBACK,
 	LAST_SIGNAL
 };
 
@@ -246,6 +247,25 @@ tracker_miner_class_init (TrackerMinerClass *klass)
 			      g_cclosure_marshal_VOID__POINTER,
 			      G_TYPE_NONE, 1,
 			      G_TYPE_POINTER);
+
+	/**
+	 * TrackerMiner::writeback:
+	 * @miner: the #TrackerMiner
+	 * @subjects: the subjects to mark as writeback
+	 *
+	 * the ::writeback signal is emitted in the miner
+	 * right after it has been asked to mark @subjects as writeback through
+	 * tracker_miner_writeback().
+	 **/
+	signals[WRITEBACK] =
+		g_signal_new ("writeback",
+			      G_OBJECT_CLASS_TYPE (object_class),
+			      G_SIGNAL_RUN_LAST,
+			      G_STRUCT_OFFSET (TrackerMinerClass, writeback),
+			      NULL, NULL,
+			      g_cclosure_marshal_VOID__BOXED,
+			      G_TYPE_NONE, 1,
+			      G_TYPE_STRV);
 
 	g_object_class_install_property (object_class,
 					 PROP_NAME,
@@ -708,6 +728,21 @@ tracker_miner_stop (TrackerMiner *miner)
 	miner->private->started = FALSE;
 
 	g_signal_emit (miner, signals[STOPPED], 0);
+}
+
+/**
+ * tracker_miner_writeback:
+ * @miner: a #TrackerMiner
+ * @subjects: the subjects to mark as writeback
+ *
+ * Tells the miner to mark @subjects are writeback.
+ **/
+void
+tracker_miner_writeback (TrackerMiner *miner, const GStrv subjects)
+{
+	g_return_if_fail (TRACKER_IS_MINER (miner));
+
+	g_signal_emit (miner, signals[WRITEBACK], 0, subjects);
 }
 
 /**
@@ -1415,6 +1450,27 @@ tracker_miner_dbus_resume (TrackerMiner           *miner,
 
 		return;
 	}
+
+	dbus_g_method_return (context);
+
+	tracker_dbus_request_success (request_id);
+}
+
+void
+tracker_miner_dbus_writeback (TrackerMiner           *miner,
+                              const GStrv             subjects,
+                              DBusGMethodInvocation  *context,
+                              GError                **error)
+{
+	guint request_id;
+
+	request_id = tracker_dbus_get_next_request_id ();
+
+	tracker_dbus_async_return_if_fail (miner != NULL, context);
+
+	tracker_dbus_request_new (request_id, "%s()", __PRETTY_FUNCTION__);
+
+	tracker_miner_writeback (miner, subjects);
 
 	dbus_g_method_return (context);
 

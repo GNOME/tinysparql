@@ -20,6 +20,8 @@
 
 #include <glib-object.h>
 
+#include <libtracker-miner/tracker-miner-manager.h>
+
 #ifndef __TRACKER_WRITEBACK_H__
 #define __TRACKER_WRITEBACK_H__
 
@@ -36,14 +38,14 @@ typedef struct TrackerWriteback TrackerWriteback;
 typedef struct TrackerWritebackClass TrackerWritebackClass;
 
 struct TrackerWriteback {
-        GObject parent_instance;
+	GObject parent_instance;
 };
 
 struct TrackerWritebackClass {
-        GObjectClass parent_class;
+	GObjectClass parent_class;
 
-        gboolean (* update_metadata) (TrackerWriteback *writeback,
-                                      GPtrArray        *values);
+	gboolean (* update_metadata) (TrackerWriteback *writeback,
+	                              GPtrArray        *values);
 };
 
 GType          tracker_writeback_get_type (void) G_GNUC_CONST;
@@ -54,7 +56,7 @@ const gchar**      writeback_module_get_rdftypes  (void);
 
 gboolean tracker_writeback_update_metadata (TrackerWriteback *writeback,
                                             GPtrArray        *values);
-
+TrackerMinerManager* tracker_writeback_get_miner_manager (void);
 
 G_END_DECLS
 

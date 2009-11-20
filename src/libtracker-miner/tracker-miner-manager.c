@@ -914,3 +914,55 @@ tracker_miner_manager_get_description (TrackerMinerManager *manager,
 
 	return NULL;
 }
+
+
+/**
+ * tracker_miner_manager_writeback:
+ * @manager: a #TrackerMinerManager.
+ * @miner: miner reference
+ * @subjects: subjects to mark as writeback
+ *
+ * Asks @miner to mark @subjects as writeback
+ *
+ * Returns: %TRUE if the miner was asked to writeback successfully.
+ **/
+gboolean
+tracker_miner_manager_writeback (TrackerMinerManager *manager,
+                                 const gchar         *miner,
+                                 const gchar        **subjects)
+{
+	DBusGProxy *proxy;
+	const gchar *app_name;
+	GError *error = NULL;
+
+	g_return_val_if_fail (TRACKER_IS_MINER_MANAGER (manager), FALSE);
+	g_return_val_if_fail (miner != NULL, FALSE);
+
+	proxy = find_miner_proxy (manager, miner);
+
+	if (!proxy) {
+		g_warning ("No D-Bus proxy found for miner '%s'", miner);
+		return FALSE;
+	}
+
+	/* Find a reasonable app name */
+	app_name = g_get_application_name ();
+
+	if (!app_name) {
+		app_name = g_get_prgname ();
+	}
+
+	if (!app_name) {
+		app_name = "TrackerMinerManager client";
+	}
+
+	org_freedesktop_Tracker1_Miner_writeback (proxy, subjects, &error);
+
+	if (error) {
+		g_warning ("Could not writeback miner '%s': %s", miner, error->message);
+		g_error_free (error);
+		return FALSE;
+	}
+
+	return TRUE;
+}

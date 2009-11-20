@@ -27,6 +27,11 @@
       <arg type="i" name="cookie" direction="in" />
     </method>
 
+    <method name="Writeback">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
+      <arg type="as" name="subjects" direction="in" />
+    </method>
+
     <!-- Signals -->
     <signal name="Started" />
     <signal name="Stopped">
