@@ -62,6 +62,8 @@ a:link img,a:visited img {
 /* no border on img links */
 a img {
 	color: white;
+	vertical-align: middle;
+	margin: 20;
 }
 
 /* trick to hide the border in Netscape 4 */
