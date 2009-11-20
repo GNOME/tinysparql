@@ -60,10 +60,17 @@ print_html_header (FILE *f, OntologyDescription *desc)
         g_fprintf (f,"<body>\n");
         g_fprintf (f,"<div class=\"head\">\n");
         g_fprintf (f," <div class=\"nav\">\n");
-        g_fprintf (f," <a href=\"http://www.maemo.org\"> <img alt=\"MAEMO logo\" ");
-        g_fprintf (f," src=\"../resources/maemo-logo.gif\" /></a>\n");
+        /* Three logos at the top. Tracker, maemo, nepomuk */
+
+        g_fprintf (f, " <a href=\"http://www.tracker-project.org\">");
+        g_fprintf (f, "<img alt=\"Tracker logo\" src=\"../resources/tracker-logo.png\" /></a> \n");
+        g_fprintf (f, " <a href=\"http://www.maemo.org\"> <img alt=\"MAEMO logo\" ");
+        g_fprintf (f, " src=\"../resources/maemo-logo.gif\" /></a>\n");
+        g_fprintf (f, " <a href=\"http://nepomuk.semanticdesktop.org\"> ");
+        g_fprintf (f, "<img alt=\"Nepomuk logo\"  src=\"../resources/nepomuk-logo.png\"/></a>\n");
+
         g_fprintf (f,"</div>\n");
-// style="border: 0px solid ; width: 180px; height: 88px;"  /> </a> </div>
+        g_fprintf (f,"</div>\n");
 
         g_fprintf (f,"<h1>%s</h1>\n", desc->title);
         g_fprintf (f," <dl>\n");
