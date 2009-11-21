@@ -28,7 +28,7 @@ import datetime, random
 try:
     import barnum.gen_data as gen_data
     barnum_available = True
-except ImportException:
+except ImportError:
     print "No barnum. Crappy random"
     barnum_available = False
 
