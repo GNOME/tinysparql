@@ -118,7 +118,7 @@ static INotifyHandle *libinotify_monitor_directory (TrackerMonitor *monitor,
 						    GFile          *file);
 static void           libinotify_monitor_cancel    (gpointer        data);
 
-static void           tracker_monitor_update       (TrackerMonitor *monitor,
+static gboolean       monitor_move                 (TrackerMonitor *monitor,
 						    GFile          *old_file,
 						    GFile          *new_file);
 
@@ -1089,7 +1089,7 @@ libinotify_monitor_event_cb (INotifyHandle *handle,
 				       TRUE);
 			
 			if (is_directory) {
-				tracker_monitor_update (monitor, file, other_file);
+				monitor_move (monitor, file, other_file);
 			}
 
 			g_hash_table_remove (monitor->private->event_pairs,
@@ -1154,7 +1154,7 @@ libinotify_monitor_event_cb (INotifyHandle *handle,
 				       is_source_indexed);
 
 			if (is_directory) {
-				tracker_monitor_update (monitor, other_file, file);
+				monitor_move (monitor, other_file, file);
 			}
 
 			g_hash_table_remove (monitor->private->event_pairs,
@@ -1243,6 +1243,102 @@ libinotify_monitor_cancel (gpointer data)
 	}
 }
 
+static gboolean
+monitor_move (TrackerMonitor *monitor,
+	      GFile          *old_file,
+	      GFile          *new_file)
+{
+	GHashTableIter iter;
+	GHashTable *new_monitors;
+	gchar *old_prefix;
+	gpointer iter_file, iter_file_monitor;
+	guint items_moved = 0;
+
+	/* So this is tricky. What we have to do is, remove all
+	 * monitors recursively for the OLD directory and add new
+	 * monitors recursively for the NEW directory.
+	 */
+	new_monitors = g_hash_table_new_full (g_file_hash,
+					      (GEqualFunc) g_file_equal,
+					      (GDestroyNotify) g_object_unref,
+					      NULL);
+	old_prefix = g_file_get_path (old_file);
+
+	/* Remove the monitor for the top level directory */
+	tracker_monitor_remove (monitor, old_file);
+
+	/* Remove the monitor for the subdirectories */
+	g_hash_table_iter_init (&iter, monitor->private->monitors);
+	while (g_hash_table_iter_next (&iter, &iter_file, &iter_file_monitor)) {
+		GFile *f;
+		gchar *old_path, *new_path;
+		gchar *new_prefix;
+		gchar *p;
+
+		if (!g_file_has_prefix (iter_file, old_file) &&
+		    !g_file_equal (iter_file, old_file)) {
+			continue;
+		}
+
+		old_path = g_file_get_path (iter_file);
+		p = strstr (old_path, old_prefix);
+
+		if (!p || strcmp (p, old_prefix) == 0) {
+			g_free (old_path);
+			continue;
+		}
+
+		/* Move to end of prefix */
+		p += strlen (old_prefix) + 1;
+
+		/* Check this is not the end of the string */
+		if (*p == '\0') {
+			g_free (old_path);
+			continue;
+		}
+		
+		new_prefix = g_file_get_path (new_file);
+		new_path = g_build_path (G_DIR_SEPARATOR_S, new_prefix, p, NULL);
+		g_free (new_prefix);
+
+		f = g_file_new_for_path (new_path);
+		g_free (new_path);
+
+		if (!g_hash_table_lookup (new_monitors, f)) {
+			g_hash_table_insert (new_monitors, f, GINT_TO_POINTER (1));
+		} else {
+			g_object_unref (f);
+		}
+
+		g_hash_table_iter_remove (&iter);
+
+		g_debug ("Removed monitor for path:'%s', total monitors:%d",
+			 old_path,
+			 g_hash_table_size (monitor->private->monitors));
+
+		g_free (old_path);
+
+		/* We reset this because now it is possible we have limit - 1 */
+		monitor->private->monitor_limit_warned = FALSE;
+		items_moved++;
+	}
+
+	/* Add a new monitor for the top level directory */
+	tracker_monitor_add (monitor, new_file);
+
+	/* Add a new monitor for all subdirectories */
+	g_hash_table_iter_init (&iter, new_monitors);
+	while (g_hash_table_iter_next (&iter, &iter_file, NULL)) {
+		tracker_monitor_add (monitor, iter_file);
+		g_hash_table_iter_remove (&iter);
+	}
+
+	g_hash_table_unref (new_monitors);
+	g_free (old_prefix);
+
+	return items_moved > 0;
+}
+
 TrackerMonitor *
 tracker_monitor_new (void)
 {
@@ -1288,6 +1384,13 @@ tracker_monitor_set_enabled (TrackerMonitor *monitor,
 	GList *keys, *k;
 
 	g_return_if_fail (TRACKER_IS_MONITOR (monitor));
+
+	/* Don't replace all monitors if we are already
+	 * enabled/disabled. 
+	 */
+	if (monitor->private->enabled == enabled) {
+		return;
+	}
 
 	monitor->private->enabled = enabled;
 	g_object_notify (G_OBJECT (monitor), "enabled");
@@ -1399,6 +1502,10 @@ tracker_monitor_add (TrackerMonitor *monitor,
 		}
 	}
 
+	/* NOTE: it is ok to add a NULL file_monitor, when our
+	 * enabled/disabled state changes, we iterate all keys and
+	 * add or remove monitors.
+	 */
 	g_hash_table_insert (monitor->private->monitors,
 			     g_object_ref (file),
 			     file_monitor);
@@ -1410,30 +1517,6 @@ tracker_monitor_add (TrackerMonitor *monitor,
 	g_free (path);
 
 	return TRUE;
-}
-
-static void
-tracker_monitor_update (TrackerMonitor *monitor,
-			GFile          *old_file,
-			GFile          *new_file)
-{
-	gpointer file_monitor;
-
-	file_monitor = g_hash_table_lookup (monitor->private->monitors, old_file);
-
-	if (!file_monitor) {
-		gchar *path;
-
-		path = g_file_get_path (old_file);
-		g_warning ("No monitor was found for directory:'%s'", path);
-		g_free (path);
-
-		return;
-	}
-
-	/* Replace key in monitors hashtable */
-	g_hash_table_steal (monitor->private->monitors, old_file);
-	g_hash_table_insert (monitor->private->monitors, new_file, file_monitor);
 }
 
 gboolean
@@ -1463,8 +1546,8 @@ tracker_monitor_remove_recursively (TrackerMonitor *monitor,
 				    GFile          *file)
 {
 	GHashTableIter iter;
-	gpointer       iter_file, iter_file_monitor;
-	guint          items_removed = 0;
+	gpointer iter_file, iter_file_monitor;
+	guint items_removed = 0;
 
 	g_return_val_if_fail (TRACKER_IS_MONITOR (monitor), FALSE);
 	g_return_val_if_fail (G_IS_FILE (file), FALSE);
@@ -1480,13 +1563,13 @@ tracker_monitor_remove_recursively (TrackerMonitor *monitor,
 
 		path = g_file_get_path (iter_file);
 
+		g_hash_table_iter_remove (&iter);
+
 		g_debug ("Removed monitor for path:'%s', total monitors:%d",
 			 path,
 			 g_hash_table_size (monitor->private->monitors));
 
 		g_free (path);
-
-		g_hash_table_iter_remove (&iter);
 
 		/* We reset this because now it is possible we have limit - 1 */
 		monitor->private->monitor_limit_warned = FALSE;
