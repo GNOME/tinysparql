@@ -25,6 +25,7 @@ tracker_miner_test_SOURCES =   					\
 	tracker-main.c
 
 tracker_miner_test_LDADD =                             		\
+       $(top_builddir)/src/libtracker-common/libtracker-common.la \
        $(top_builddir)/src/libtracker-miner/libtracker-miner.la	\
        $(DBUS_LIBS)                                    		\
        $(GMODULE_LIBS)                                 		\
