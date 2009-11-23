@@ -94,7 +94,9 @@ modules_LTLIBRARIES += libextract-playlist.la
 endif
 
 # A mockup extractor for testing purposes
-#modules_LTLIBRARIES += libextract-mockup.la
+if HAVE_MOCKUP
+modules_LTLIBRARIES += libextract-mockup.la
+endif
 
 # Common XMP Sources
 xmp_sources = 								\
@@ -220,10 +222,12 @@ libextract_tiff_la_LIBADD = $(GLIB2_LIBS) $(LIBTIFF_LIBS) $(LIBIPTCDATA_LIBS) $(
 	$(top_builddir)/src/libtracker-common/libtracker-common.la
 
 # MOCKUP
+if HAVE_MOCKUP
 libextract_mockup_la_SOURCES = tracker-extract-mockup.c
 libextract_mockup_la_LDFLAGS = $(module_flags)
 libextract_mockup_la_LIBADD = $(GLIB2_LIBS) $(GCOV_LIBS) \
 	$(top_builddir)/src/libtracker-common/libtracker-common.la
+endif
 
 # Playlists using totem-pl-parser
 libextract_playlist_la_SOURCES = tracker-extract-playlist.c

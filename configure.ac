@@ -1306,6 +1306,14 @@ fi
 AM_CONDITIONAL(HAVE_TOTEM_PL_PARSER, test "x$have_playlist" = "xyes")
 
 ##################################################################
+# Enable mockup extractor module?
+##################################################################
+
+have_mockup="no  (disabled)"
+
+AM_CONDITIONAL(HAVE_MOCKUP, test "x$have_mockup" = "xyes")
+
+##################################################################
 # Enable Evolution plugin support?
 ##################################################################
 
