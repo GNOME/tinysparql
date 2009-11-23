@@ -23,15 +23,27 @@
 #include <string.h>
 #include <stdlib.h>
 
+#include <glib.h>
+
 #include <libtracker-common/tracker-utils.h>
 
 #include "tracker-miner-test.h"
 
 static void
-miner_terminated_cb (TrackerMiner *miner,
-		     gpointer      user_data)
+miner_finished_cb (TrackerMiner *miner,
+                   gdouble       seconds_elapsed,
+                   guint         total_directories_found,
+                   guint         total_directories_ignored,
+                   guint         total_files_found,
+                   guint         total_files_ignored,
+		   gpointer      user_data)
 {
         GMainLoop *main_loop = user_data;
+
+	g_message ("Finished mining in seconds:%f, total directories:%d, total files:%d",
+                   seconds_elapsed,
+                   total_directories_found + total_directories_ignored,
+                   total_files_found + total_files_ignored);
 
         g_main_loop_quit (main_loop);
 }
@@ -212,9 +224,6 @@ main (int argc, char *argv[])
 			    g_get_tmp_dir (),
 			    TRUE);
 	add_directory_path (TRACKER_MINER_FS (miner),
-			    g_get_current_dir (),
-			    TRUE);
-	add_directory_path (TRACKER_MINER_FS (miner),
 			    g_get_user_special_dir (G_USER_DIRECTORY_PICTURES),
 			    TRUE);
 	add_directory_path (TRACKER_MINER_FS (miner),
@@ -233,13 +242,12 @@ main (int argc, char *argv[])
 			    g_get_user_special_dir (G_USER_DIRECTORY_DESKTOP),
 			    TRUE);
 
-        g_signal_connect (miner, "terminated",
-                          G_CALLBACK (miner_terminated_cb), 
+        g_signal_connect (miner, "finished",
+                          G_CALLBACK (miner_finished_cb), 
 			  main_loop);
 	g_timeout_add_seconds (1, miner_start_cb, miner);
 
         g_main_loop_run (main_loop);
-	g_object_unref (main_loop);
 
         return EXIT_SUCCESS;
 }
