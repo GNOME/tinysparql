@@ -39,7 +39,6 @@
 #include <libtracker-common/tracker-log.h>
 #include <libtracker-common/tracker-ontology.h>
 #include <libtracker-common/tracker-file-utils.h>
-#include <libtracker-common/tracker-storage.h>
 
 #include <libtracker-db/tracker-db-manager.h>
 #include <libtracker-db/tracker-db-dbus.h>
@@ -230,7 +229,6 @@ main (gint argc, gchar *argv[])
 {
 	TrackerConfig *config;
         TrackerMiner *miner_applications, *miner_files;
-        TrackerStorage *storage;
 	GOptionContext *context;
 	GError *error = NULL;
 	gchar *log_filename = NULL;
@@ -313,12 +311,6 @@ main (gint argc, gchar *argv[])
 			   str ? str : "no error given");
 	}
 
-#ifdef HAVE_HAL
-	storage = tracker_storage_new ();
-#else 
-	storage = NULL;
-#endif
-
         tracker_thumbnailer_init ();
 
         /* Create miner for applications */
@@ -346,10 +338,6 @@ main (gint argc, gchar *argv[])
 
 	g_main_loop_unref (main_loop);
 	g_object_unref (config);
-
-        if (storage) {
-                g_object_unref (storage);
-        }
 
         g_slist_foreach (miners, (GFunc) g_object_unref, NULL);
         g_slist_free (miners);
