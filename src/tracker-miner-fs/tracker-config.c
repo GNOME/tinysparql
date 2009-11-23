@@ -553,6 +553,7 @@ config_create_with_defaults (TrackerConfig *config,
 			     GKeyFile      *key_file, 
 			     gboolean       overwrite)
 {
+	gboolean added_home_recursively = FALSE;
 	gint i;
 
 	g_message ("Loading defaults into GKeyFile...");
@@ -646,6 +647,25 @@ config_create_with_defaults (TrackerConfig *config,
 				if (g_slist_length (paths) < 2) {
 					g_slist_free (paths);
 					paths = g_slist_prepend (NULL, (gpointer) "$HOME");
+					added_home_recursively = TRUE;
+				}
+
+				string_list = tracker_gslist_to_string_list (paths);
+				g_slist_free (paths);
+
+				g_key_file_set_string_list (key_file, 
+							    conversions[i].group, 
+							    conversions[i].key, 
+							    (const gchar * const *) string_list, 
+							    g_strv_length (string_list));
+
+				g_strfreev (string_list);
+			} else if (g_strcmp0 (conversions[i].property, "index-single-directories") == 0) {
+				GSList *paths = NULL;
+				GStrv string_list;
+
+				if (!added_home_recursively) {
+					paths = g_slist_prepend (paths, (gpointer) "$HOME");
 				}
 
 				string_list = tracker_gslist_to_string_list (paths);
