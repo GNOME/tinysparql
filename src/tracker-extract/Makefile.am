@@ -268,6 +268,7 @@ tracker_extract_LDADD = 						\
 	$(DBUS_LIBS)							\
 	$(GMODULE_LIBS)							\
 	$(GTHREAD_LIBS)							\
+	$(GIO_LIBS)							\
 	$(GCOV_LIBS)							\
 	$(GLIB2_LIBS)
 
