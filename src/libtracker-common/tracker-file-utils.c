@@ -45,6 +45,8 @@
 
 #define TEXT_SNIFF_SIZE 4096
 
+static GHashTable *file_locks = NULL;
+
 FILE *
 tracker_file_open (const gchar *uri,
 		   const gchar *how,
@@ -690,70 +692,80 @@ tracker_env_check_xdg_dirs (void)
 	return success;
 }
 
-static int
-flock_file (GFile *file,
-	    gint   flags)
+gboolean
+tracker_file_lock (GFile *file)
 {
-	gchar *path;
 	gint fd, retval;
+	gchar *path;
 
-	g_return_val_if_fail (G_IS_FILE (file), -1);
+	g_return_val_if_fail (G_IS_FILE (file), FALSE);
+
+	if (G_UNLIKELY (!file_locks)) {
+		file_locks = g_hash_table_new_full ((GHashFunc) g_file_hash,
+						    (GEqualFunc) g_file_equal,
+						    (GDestroyNotify) g_object_unref,
+						    NULL);
+	}
+
+	/* Don't try to lock twice */
+	if (g_hash_table_lookup (file_locks, file) != NULL) {
+		return TRUE;
+	}
 
 	if (!g_file_is_native (file)) {
-		return -1;
+		return FALSE;
 	}
 
 	path = g_file_get_path (file);
 
 	if (!path) {
-		return -1;
+		return FALSE;
 	}
 
 	fd = open (path, O_RDONLY);
 
 	if (fd < 0) {
-		g_warning ("Could not open '%s'", path);
-		retval = -1;
-	} else {
-		retval = flock (fd, flags);
-		close (fd);
-	}
-
-	g_free (path);
-
-	return retval;
-}
-
-gboolean
-tracker_file_lock (GFile *file)
-{
-	gint retval;
-
-	g_return_val_if_fail (G_IS_FILE (file), FALSE);
-
-	retval = flock_file (file, LOCK_EX);
-
-	if (retval < 0) {
-		gchar *path;
-
-		path = g_file_get_path (file);
-		g_warning ("Could not lock file '%s'", path);
+ 		g_warning ("Could not open '%s'", path);
 		g_free (path);
 
 		return FALSE;
 	}
 
-	return TRUE;
+	retval = flock (fd, LOCK_EX);
+
+	if (retval == 0) {
+		g_hash_table_insert (file_locks,
+				     g_object_ref (file),
+				     GINT_TO_POINTER (fd));
+	} else {
+		g_warning ("Could not lock file '%s'", path);
+ 		close (fd);
+	}
+
+	g_free (path);
+
+	return (retval == 0);
 }
 
 gboolean
 tracker_file_unlock (GFile *file)
 {
-	gint retval;
+	gint retval, fd;
 
-	g_return_val_if_fail (G_IS_FILE (file), FALSE);
+	g_return_val_if_fail (G_IS_FILE (file), TRUE);
 
-	retval = flock_file (file, LOCK_UN);
+	if (!file_locks) {
+		return TRUE;
+ 	}
+
+	fd = GPOINTER_TO_INT (g_hash_table_lookup (file_locks, file));
+
+	if (fd == 0) {
+		/* File wasn't actually locked */
+		return TRUE;
+	}
+
+	retval = flock (fd, LOCK_UN);
 
 	if (retval < 0) {
 		gchar *path;
@@ -764,6 +776,9 @@ tracker_file_unlock (GFile *file)
 
 		return FALSE;
 	}
+
+	g_hash_table_remove (file_locks, file);
+	close (fd);
 
 	return TRUE;
 }
@@ -797,7 +812,7 @@ tracker_file_is_locked (GFile *file)
 	}
 
 	/* Check for locks */
-	retval = flock (fd, LOCK_EX | LOCK_NB);
+	retval = flock (fd, LOCK_SH | LOCK_NB);
 
 	if (retval < 0) {
 		if (errno == EWOULDBLOCK) {

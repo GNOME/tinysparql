@@ -43,6 +43,21 @@ tracker_writeback_file_init (TrackerWritebackFile *writeback_file)
 }
 
 static gboolean
+unlock_file_cb (GFile *file)
+{
+	gchar *path;
+
+	path = g_file_get_path (file);
+	g_message ("Unlocking file '%s'", path);
+	g_free (path);
+
+	tracker_file_unlock (file);
+	g_object_unref (file);
+
+	return FALSE;
+}
+
+static gboolean
 tracker_writeback_file_update_metadata (TrackerWriteback *writeback,
                                         GPtrArray        *values)
 {
@@ -77,7 +92,7 @@ tracker_writeback_file_update_metadata (TrackerWriteback *writeback,
 	retval = (writeback_file_class->update_file_metadata) (TRACKER_WRITEBACK_FILE (writeback),
 	                                                       file, values);
 
-	tracker_file_unlock (file);
+	g_timeout_add_seconds (3, (GSourceFunc) unlock_file_cb, g_object_ref (file));
 
 	g_object_unref (file);
 
