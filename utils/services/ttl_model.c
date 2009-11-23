@@ -13,7 +13,7 @@ ttl_model_class_new (const gchar *classname)
         def->in_domain_of = NULL;
         def->in_range_of = NULL;
         def->description = NULL;
-
+        def->instances = NULL;
         return def;
 }
 
@@ -32,6 +32,7 @@ ttl_model_class_free (OntologyClass *def)
         if (def->description) {
                 g_free (def->description);
         }
+        g_list_foreach (def->instances, (GFunc) g_free, NULL);
 
         g_free (def);
 }
@@ -89,10 +90,12 @@ ttl_model_description_new (void)
         desc->authors = NULL;
         desc->editors = NULL;
         desc->contributors = NULL;
+        desc->gitlog = NULL;
+        desc->upstream = NULL;
+        desc->copyright = NULL;
         desc->baseUrl = NULL;
-        desc->relativePath = NULL;
         desc->localPrefix = NULL;
-
+        desc->relativePath = NULL;
         return desc;
 }
 
@@ -104,6 +107,10 @@ ttl_model_description_free (OntologyDescription *desc)
         g_list_foreach (desc->authors, (GFunc)g_free, NULL);
         g_list_foreach (desc->editors, (GFunc)g_free, NULL);
         g_list_foreach (desc->contributors, (GFunc)g_free, NULL);
+
+        g_free (desc->gitlog);
+        g_free (desc->upstream);
+        g_free (desc->copyright);
 
         g_free (desc->baseUrl);
         g_free (desc->relativePath);
