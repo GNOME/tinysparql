@@ -49,3 +49,4 @@ done
 
 echo "Copying resources"
 cp -R resources/ $BUILD_DIR
+cp ../../docs/ontologies/index.html $BUILD_DIR

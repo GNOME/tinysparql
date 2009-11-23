@@ -1,0 +1,51 @@
+<html>
+<head>
+ <link rel="stylesheet" type="text/css" href="./resources/nie-maemo.css" />
+ <title>Nepomuk & Tracker ontologies</title>
+</head>
+<body>
+ <div class="head">
+  <div class="nav">
+   <a href="http://www.tracker-project.org"> <img alt="Tracker logo"  src="./resources/tracker-logo.png" /></a>
+   <a href="http://www.maemo.org"> <img alt="MAEMO logo"  src="./resources/maemo-logo.gif" /></a>
+   <a href="http://nepomuk.semanticdesktop.org"> <img alt="Nepomuk logo"  src="./resources/nepomuk-logo.png" /></a>
+  </div>
+ </div>
+
+<h1>Tracker & Nepomuk</h1>
+
+<p><a href="http://www.tracker-project.org">Tracker</a> is a central repository of user information, that provides two big benefits for the desktop: <emph>Share</emph> data between applications (it doesn't matter the source once it is stored in the repository) and <emph>Link</emph> information from different sources (mixing contacts with files, location, activities and whatnot).</p>
+
+<p>This central repository can work only with a very well defined data model, that applications can rely to store and recover their information. That data model is defined using a semantic web artifact called <emph>ontology</emph>. An ontology defines the concepts (classes) and properties (attributes) that the items in the repository can be/have.</p>
+
+<p>There is an EU-funded project called <a href="http://nepomuk.semanticdesktop.org/">Nepomuk</a>, where a core of ontologies to model the Desktop were defined. This set was a very good starting point for Tracker but new requirements and heavy development in collaboration with applications provided a very valuable feedback, in form of fixes and extensions. Some of this work is already submitted for approval in the upstream version, but the process is long and hard, so the Tracker ontologies are diverging slowly.</p>
+
+<p>This documentation describes the Tracker flavour of Nepomuk ontologies. The big picture and basic concepts are the same as in the original Nepomuk, but "hell and heaven are in the details". All classes, properties and restrictions included in these pages should work in Tracker. Any error in this documentation can be reported in the Tracker <a href="http://mail.gnome.org/mailman/listinfo/tracker-list">Mailing list</a> or <a href="https://bugzilla.gnome.org/enter_bug.cgi?product=tracker">bugzilla</a>.</p>
+
+<p>This is just documentation about the ontologies. For more information about Tracker technical details and implementation, please refer to the Tracker <a href="http://live.gnome.org/Tracker/Documentation/">Documentation wiki</a> page in GNOME</p>.
+
+<h1>Ontologies</h1>
+
+<p>Tracker uses a some patched Nepomuk ontologies, with other extensions developed in Maemo:</p>
+
+<ul>
+ <li><a href="./nie/index.html">NIE</a>: Nepomuk Information Element. The "super" ontology that defines the basic blocks. It contains the most generic superclasses, and all other ontologies refine those concepts in different domains. </li>
+ <li><a href="./nco/index.html">NCO</a>: Nepomuk Contacts Ontology, talking about the Contacts domain (including phone numbers). Extended by tracker to support IM Contacts.</li>
+ <li><a href="./nmo/index.html">NMO</a>: Nepomuk Messaging Ontology, defining the messaging model. Extended by tracker to support calls, SMS and complete Email message representation.</li>
+ <li><a href="./nfo/index.html">NFO</a>: Nepomuk File Ontology. Basic file description. Extended by tracker to improve playlists support.</li>
+ <li><a href="./nao/index.html">NAO</a>: Nepomuk Annotation Ontology. Tag support everywhere in the ontologies.</li>
+ <li><a href="./mto/index.html">MTO</a>: Maemo Transfers Ontology, to represent uploads/downloads.</li>
+ <li><a href="./nmm/index.html">NMM</a>: Nepomuk Multimedia Ontology (Maemo proposal to replace/complement NID3)</li>
+ <li><a href="./mfo/index.html">MFO</a>: Maemo Feeds Ontology, for feeds and podcasts</li>
+ <li><a href="./mlo/index.html">MLO</a>: Maemo Location Ontology: Very Early Draft of a location ontology.</li>
+ <li><a href="./tracker/index.html">Tracker</a>/<a href="./maemo/index.html">maemo</a>: Specific tracker/maemo internal properties</li>
+</ul>
+
+<p>There is a special case with the calendar ontology. We have two possible solutions and still is not clear which one works better:</p>
+<ul>
+ <li><a href="./ncal/index.html">NCAL</a>: Nepomuk Calendar Ontology. Original Nepomuk ontology, translation in ontology form of the ical spec. It is 100% compatible with ical but very difficult to use.</li>
+ <li><a href="./scal/index.html">SCAL</a>: Simplified Calendar Ontology. Custom made ontology for calendar. Compatible with ical (maybe some rough edges to fix), easier to handle, and probably more efficient in some scenarios.</li>
+</ul>
+
+
+</html>
