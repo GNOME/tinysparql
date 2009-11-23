@@ -35,46 +35,48 @@ tracker_dbus_SOURCES = 							\
 	tracker-dbus-test.c
 
 tracker_dbus_LDADD =							\
-	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
 	$(top_builddir)/tests/common/libtracker-testcommon.la 		\
+	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
 	$(DBUS_LIBS)							\
-	$(GCOV_LIBS)							\
 	$(GMODULE_LIBS)							\
 	$(GTHREAD_LIBS)							\
-	$(GLIB2_LIBS)							
+	$(GLIB2_LIBS)							\
+	$(GCOV_LIBS)
 
 tracker_type_utils_SOURCES = \
 	tracker-type-utils-test.c 
 
 tracker_type_utils_LDADD =						\
-	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
 	$(top_builddir)/tests/common/libtracker-testcommon.la 		\
+	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
 	$(GMODULE_LIBS)							\
-	$(GCOV_LIBS)							\
 	$(GTHREAD_LIBS)							\
-	$(GLIB2_LIBS)							
+	$(GOBJECT_LIBS)							\
+	$(GLIB2_LIBS)							\
+	$(GCOV_LIBS)
 
 tracker_file_utils_SOURCES = 						\
 	tracker-file-utils-test.c 
 
 tracker_file_utils_LDADD =						\
-	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
 	$(top_builddir)/tests/common/libtracker-testcommon.la 		\
+	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
 	$(GMODULE_LIBS)							\
-	$(GCOV_LIBS)							\
 	$(GTHREAD_LIBS)							\
-	$(GLIB2_LIBS)							
+	$(GIO_LIBS)							\
+	$(GLIB2_LIBS)							\
+	$(GCOV_LIBS)
 
 # tracker_property_SOURCES = 						\
 # 	tracker-field-test.c 
 #
 # tracker_property_LDADD =							\
-# 	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
 # 	$(top_builddir)/tests/common/libtracker-testcommon.la 		\
-# 	$(GMODULE_LIBS)							\
-#	$(GCOV_LIBS)							\
-# 	$(GTHREAD_LIBS)							\
+# 	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
 # 	$(PANGO_LIBS)							\
-# 	$(GLIB2_LIBS)							
+# 	$(GMODULE_LIBS)							\
+# 	$(GTHREAD_LIBS)							\
+# 	$(GLIB2_LIBS)							\
+#	$(GCOV_LIBS)
 
 EXTRA_DIST = non-utf8.txt

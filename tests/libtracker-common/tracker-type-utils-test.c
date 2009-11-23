@@ -21,7 +21,6 @@
 #include <time.h>
 #include <string.h>
 
-#include <glib.h>
 #include <glib-object.h>
 
 #include <libtracker-common/tracker-type-utils.h>
