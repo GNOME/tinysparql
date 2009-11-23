@@ -33,7 +33,6 @@ class TrackerSearchEntry  : Gtk.Entry
     prop Query : TrackerQuery 
 
     init
-        set_icon_from_stock (EntryIconPosition.PRIMARY, STOCK_FIND)
         set_icon_from_stock (EntryIconPosition.SECONDARY, STOCK_CLEAR)
         set_icon_sensitive (EntryIconPosition.PRIMARY, false)
         set_icon_sensitive (EntryIconPosition.SECONDARY, false)
@@ -59,7 +58,7 @@ class TrackerSearchEntry  : Gtk.Entry
         
     def private run_query () : bool
         if Query is not null
-            if text is null
+            if (text is null) or (text is "")
                 set_icon_sensitive (EntryIconPosition.SECONDARY, false)
                 Query.SearchTerms = ""
             else
