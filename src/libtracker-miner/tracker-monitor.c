@@ -920,15 +920,10 @@ libinotify_monitor_event_cb (INotifyHandle *handle,
 	}
 
 	other_file = NULL;
+	str2 = NULL;
 
 	if (!str1) {
 		str1 = g_file_get_path (file);
-	}
-
-	if (other_file) {
-		str2 = g_file_get_path (other_file);
-	} else {
-		str2 = NULL;
 	}
 
 	is_directory = 
