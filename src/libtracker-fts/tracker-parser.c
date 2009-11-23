@@ -299,7 +299,7 @@ parser_next (TrackerParser *parser,
 	start = NULL;
 	end = NULL;
 
-	for (p = parser->cursor; *p; p = g_utf8_next_char (p)) {
+	for (p = parser->cursor; *p && *p != '\0'; p = g_utf8_next_char (p)) {
 		TrackerParserWordType type;
 		gunichar	      c;
 
