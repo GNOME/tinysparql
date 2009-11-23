@@ -488,3 +488,10 @@ nmm:protocol a rdf:Property ;
 	rdfs:domain nmm:DigitalRadio ;
 	rdfs:range xsd:string .
 
+
+# Upnp related resources
+nmm:alternativeMedia a rdf:Property ;
+        rdfs:label "Alternative media" ;
+	rdfs:comment "Link between to different version of the same media. This is used for instances in uPnp where the server can provide the same video in different resolutions and codecs" ;
+	rdfs:domain nfo:Media ;
+	rdfs:range nfo:Media .
