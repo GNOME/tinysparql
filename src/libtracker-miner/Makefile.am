@@ -1,7 +1,5 @@
 include $(top_srcdir)/Makefile.decl
 
-SUBDIRS = . test
-
 INCLUDES =						\
 	-DSHAREDIR=\""$(datadir)"\"			\
 	-DDBUS_SERVICES_DIR=\""$(DBUS_SERVICES_DIR)"\"	\

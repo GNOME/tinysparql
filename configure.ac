@@ -1457,7 +1457,6 @@ AC_CONFIG_FILES([
 	src/libtracker-gtk/Makefile
 	src/libtracker-client/Makefile
         src/libtracker-miner/Makefile
-        src/libtracker-miner/test/Makefile
 	src/Makefile
         src/tracker-status-icon/Makefile
         src/tracker-status-icon/tracker-status-icon.desktop.in
@@ -1500,6 +1499,8 @@ AC_CONFIG_FILES([
 	utils/tracker-fts/Makefile
 	utils/services/Makefile
 	utils/playlists/Makefile
+	examples/Makefile
+        examples/libtracker-miner/Makefile
 ])
 
 AC_OUTPUT
