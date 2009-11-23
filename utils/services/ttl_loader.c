@@ -54,6 +54,14 @@ load_in_memory (Ontology    *ontology,
                                              ttl_model_property_new (turtle_subject));
 
                 } else {
+                        /* xxx:a-default-instance a xxx:Class */
+                        OntologyClass *def;
+
+                        def = g_hash_table_lookup (ontology->classes, turtle_object);
+                        if (def) {
+                                def->instances = g_list_prepend (def->instances,
+                                                                 g_strdup (turtle_subject));
+                        }
                         /* g_print ("FIXME Ignoring %s %s %s\n",
                                  turtle_subject, turtle_predicate, turtle_object);
                         */

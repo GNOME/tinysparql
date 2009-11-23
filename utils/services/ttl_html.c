@@ -47,6 +47,21 @@ print_references_list (FILE *f, GList *list)
         g_fprintf (f,"</td>");
 }
 
+static void
+print_list (FILE *f, GList *list)
+{
+        GList *it;
+        gchar *shortname;
+
+
+        g_fprintf (f, "<td>");
+        for (it = list; it != NULL; it = it->next) {
+                shortname = qname_to_shortname ((gchar *)it->data);
+                g_fprintf (f, "%s%s", shortname, (it->next ? ", " : ""));
+                g_free (shortname);
+        }
+        g_fprintf (f, "</td>");
+}
 
 static void
 print_html_header (FILE *f, OntologyDescription *desc)
@@ -175,6 +190,14 @@ print_ontology_class (gpointer key, gpointer value, gpointer user_data)
         g_fprintf (f,"<td class=\"rowheader\">Description</td>");
         g_fprintf (f,"<td>%s</td>\n", (def->description ? def->description : "--"));
         g_fprintf (f,"</tr>\n");
+
+        if (def->instances) {
+                g_fprintf (f,"<tr>");
+                g_fprintf (f,"<td class=\"rowheader\">Predefined instances</td>");
+                print_list (f, def->instances);
+                g_fprintf (f,"</tr>\n");
+        }
+
 
         g_fprintf (f,"</table>\n\n");
 
