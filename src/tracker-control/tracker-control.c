@@ -74,7 +74,7 @@ static GOptionEntry entries[] = {
 	{ "remove-config", 'c', 0, G_OPTION_ARG_NONE, &remove_config,
 	  N_("Remove all configuration files so they are re-generated on next start"),
 	  NULL },
-	{ "remove-thumbnails", 'h', 0, G_OPTION_ARG_NONE, &remove_thumbnails,
+	{ "remove-thumbnails", 'i', 0, G_OPTION_ARG_NONE, &remove_thumbnails,
 	  N_("Remove all thumbnail files so they are re-generated"),
 	  NULL },
 	{ "start", 's', 0, G_OPTION_ARG_NONE, &start,
