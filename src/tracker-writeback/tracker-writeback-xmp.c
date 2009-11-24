@@ -53,10 +53,11 @@ struct TrackerWritebackXMPClass {
 };
 
 
-static GType    tracker_writeback_xmp_get_type             (void) G_GNUC_CONST;
-static gboolean tracker_writeback_xmp_update_file_metadata (TrackerWritebackFile *writeback_file,
-                                                            GFile                *file,
-                                                            GPtrArray            *values);
+static GType         tracker_writeback_xmp_get_type             (void) G_GNUC_CONST;
+static gboolean      tracker_writeback_xmp_update_file_metadata (TrackerWritebackFile *writeback_file,
+                                                                 GFile                *file,
+                                                                 GPtrArray            *values);
+static const gchar** tracker_writeback_xmp_content_types        (TrackerWritebackFile *writeback_file);
 
 G_DEFINE_DYNAMIC_TYPE (TrackerWritebackXMP, tracker_writeback_xmp, TRACKER_TYPE_WRITEBACK_FILE);
 
@@ -67,6 +68,7 @@ tracker_writeback_xmp_class_init (TrackerWritebackXMPClass *klass)
 
 	xmp_init ();
 	writeback_file_class->update_file_metadata = tracker_writeback_xmp_update_file_metadata;
+	writeback_file_class->content_types = tracker_writeback_xmp_content_types;
 }
 
 static void
@@ -80,13 +82,32 @@ tracker_writeback_xmp_init (TrackerWritebackXMP *xmp)
 {
 }
 
+static const gchar**
+tracker_writeback_xmp_content_types (TrackerWritebackFile *writeback_file)
+{
+	static const gchar *content_types[] = { "image/png",   /* .png files */
+	                                        "sketch/png",  /* .sketch.png files on Maemo*/
+	                                        "image/jpeg",  /* .jpg & .jpeg files */
+	                                        "image/tiff",  /* .tiff & .tif files */
+	                                        NULL };
+
+	/* "image/gif"                        .gif files 
+	   "application/pdf"                  .pdf files 
+	   "application/rdf+xml"              .xmp files 
+	   "application/postscript"           .ps files  
+	   "application/x-shockwave-flash"    .swf files 
+	   "video/quicktime"                  .mov files 
+	   "video/mpeg"                       .mpeg & .mpg files 
+	   "audio/mpeg"                       .mp3, etc files */
+
+	return content_types;
+}
+
 static gboolean
 tracker_writeback_xmp_update_file_metadata (TrackerWritebackFile *writeback_file,
                                             GFile                *file,
                                             GPtrArray            *values)
 {
-	GFileInfo *file_info;
-	const gchar *mime_type;
 	gchar *path;
 	guint n;
 	XmpFilePtr xmp_files;
@@ -95,35 +116,6 @@ tracker_writeback_xmp_update_file_metadata (TrackerWritebackFile *writeback_file
 	XmpStringPtr str;
 #endif
 
-	file_info = g_file_query_info (file, G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE,
-	                               G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
-	                               NULL, NULL);
-
-	if (!file_info) {
-		return FALSE;
-	}
-
-	mime_type = g_file_info_get_content_type (file_info);
-
-	if (g_strcmp0 (mime_type, "image/png") != 0                     && /* .png files */
-	    g_strcmp0 (mime_type, "sketch/png") != 0                    && /* .sketch.png files on Maemo*/
-	    g_strcmp0 (mime_type, "image/jpeg") != 0                    && /* .jpg & .jpeg files */
-	    g_strcmp0 (mime_type, "image/tiff") != 0                   ) { /* .tiff & .tif files */
-
-	/*  g_strcmp0 (mime_type, "image/gif") != 0                     && * .gif files *
-	    g_strcmp0 (mime_type, "application/pdf") != 0               && * .pdf files *
-	    g_strcmp0 (mime_type, "application/rdf+xml") != 0           && * .xmp files *
-	    g_strcmp0 (mime_type, "application/postscript") != 0        && * .ps files *
-	    g_strcmp0 (mime_type, "application/x-shockwave-flash") != 0 && * .swf files *
-	    g_strcmp0 (mime_type, "video/quicktime") != 0               && * .mov files *
-	    g_strcmp0 (mime_type, "video/mpeg") != 0                    && * .mpeg & .mpg files *
-	    g_strcmp0 (mime_type, "audio/mpeg") != 0 ) {                   * .mp3, etc files */
-
-		g_object_unref (file_info);
-		return FALSE;
-	}
-
-	g_object_unref (file_info);
 	path = g_file_get_path (file);
 
 	xmp_files = xmp_files_open_new (path, XMP_OPEN_FORUPDATE);

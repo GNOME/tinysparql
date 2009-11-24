@@ -64,9 +64,13 @@ tracker_writeback_file_update_metadata (TrackerWriteback *writeback,
 	TrackerWritebackFileClass *writeback_file_class;
 	gboolean retval;
 	GFile *file;
+	GFileInfo *file_info;
 	const gchar *subjects[2] = { NULL, NULL };
 	GStrv row;
 	TrackerWritebackFile *self;
+	const gchar **content_types;
+	const gchar *mime_type;
+	guint n;
 
 	writeback_file_class = TRACKER_WRITEBACK_FILE_GET_CLASS (writeback);
 	self = TRACKER_WRITEBACK_FILE (writeback);
@@ -77,22 +81,52 @@ tracker_writeback_file_update_metadata (TrackerWriteback *writeback,
 		return FALSE;
 	}
 
+	if (!writeback_file_class->content_types) {
+		g_critical ("%s doesn't implement content_types()",
+		            G_OBJECT_TYPE_NAME (writeback));
+		return FALSE;
+	}
+
 	/* Get the file from the first row */
 	row = g_ptr_array_index (values, 0);
 	file = g_file_new_for_uri (row[0]);
 
-	tracker_file_lock (file);
+	file_info = g_file_query_info (file, G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE,
+	                               G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
+	                               NULL, NULL);
 
-	subjects[0] = row[0];
+	if (!file_info) {
+		return FALSE;
+	}
 
-	tracker_miner_manager_writeback (tracker_writeback_get_miner_manager (),
-	                                 "org.freedesktop.Tracker1.Miner.Files",
-	                                 subjects);
+	mime_type = g_file_info_get_content_type (file_info);
+	content_types = (writeback_file_class->content_types) (TRACKER_WRITEBACK_FILE (writeback));
 
-	retval = (writeback_file_class->update_file_metadata) (TRACKER_WRITEBACK_FILE (writeback),
-	                                                       file, values);
+	retval = FALSE;
 
-	g_timeout_add_seconds (3, (GSourceFunc) unlock_file_cb, g_object_ref (file));
+	for (n = 0; content_types[n] != NULL; n++) {
+		if (g_strcmp0 (mime_type, content_types[n]) == 0) {
+			retval = TRUE;
+			break;
+		}
+	}
+
+	g_object_unref (file_info);
+
+	if (retval) {
+		tracker_file_lock (file);
+
+		subjects[0] = row[0];
+
+		tracker_miner_manager_writeback (tracker_writeback_get_miner_manager (),
+		                                 "org.freedesktop.Tracker1.Miner.Files",
+		                                 subjects);
+
+		retval = (writeback_file_class->update_file_metadata) (TRACKER_WRITEBACK_FILE (writeback),
+		                                                       file, values);
+
+		g_timeout_add_seconds (3, (GSourceFunc) unlock_file_cb, g_object_ref (file));
+	}
 
 	g_object_unref (file);
 

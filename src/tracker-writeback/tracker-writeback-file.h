@@ -44,9 +44,11 @@ struct TrackerWritebackFile {
 struct TrackerWritebackFileClass {
 	TrackerWritebackClass parent_class;
 
-	gboolean (* update_file_metadata) (TrackerWritebackFile *writeback_file,
-	                                   GFile                *file,
-	                                   GPtrArray            *values);
+	gboolean      (* update_file_metadata) (TrackerWritebackFile *writeback_file,
+	                                        GFile                *file,
+	                                        GPtrArray            *values);
+	const gchar** (* content_types)        (TrackerWritebackFile *writeback_file);
+
 };
 
 GType tracker_writeback_file_get_type (void) G_GNUC_CONST;

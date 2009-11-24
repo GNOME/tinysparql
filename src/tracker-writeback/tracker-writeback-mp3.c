@@ -39,10 +39,11 @@ struct TrackerWritebackMP3Class {
 	TrackerWritebackFileClass parent_class;
 };
 
-static GType    tracker_writeback_mp3_get_type             (void) G_GNUC_CONST;
-static gboolean tracker_writeback_mp3_update_file_metadata (TrackerWritebackFile *writeback_file,
-                                                            GFile                *file,
-                                                            GPtrArray            *values);
+static GType         tracker_writeback_mp3_get_type             (void) G_GNUC_CONST;
+static gboolean      tracker_writeback_mp3_update_file_metadata (TrackerWritebackFile *writeback_file,
+                                                                 GFile                *file,
+                                                                 GPtrArray            *values);
+static const gchar** tracker_writeback_mp3_content_types        (TrackerWritebackFile *writeback_file);
 
 G_DEFINE_DYNAMIC_TYPE (TrackerWritebackMP3, tracker_writeback_mp3, TRACKER_TYPE_WRITEBACK_FILE);
 
@@ -52,6 +53,7 @@ tracker_writeback_mp3_class_init (TrackerWritebackMP3Class *klass)
 	TrackerWritebackFileClass *writeback_file_class = TRACKER_WRITEBACK_FILE_CLASS (klass);
 
 	writeback_file_class->update_file_metadata = tracker_writeback_mp3_update_file_metadata;
+	writeback_file_class->content_types = tracker_writeback_mp3_content_types;
 }
 
 static void
@@ -64,34 +66,24 @@ tracker_writeback_mp3_init (TrackerWritebackMP3 *mp3)
 {
 }
 
+static const gchar**
+tracker_writeback_mp3_content_types (TrackerWritebackFile *writeback_file)
+{
+	static const gchar *content_types[] = { "audio/mpeg", 
+	                                        "audio/x-mp3",
+	                                        NULL };
+
+	return content_types;
+}
+
 static gboolean
 tracker_writeback_mp3_update_file_metadata (TrackerWritebackFile *writeback_file,
-					    GFile                *file,
-					    GPtrArray            *values)
+                                            GFile                *file,
+                                            GPtrArray            *values)
 {
-	GFileInfo *file_info;
-	const gchar *mime_type;
 	gchar *path;
 	guint n;
 
-	file_info = g_file_query_info (file, G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE,
-	                               G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
-	                               NULL, NULL);
-
-	if (!file_info) {
-		return FALSE;
-	}
-
-	mime_type = g_file_info_get_content_type (file_info);
-
-	if (g_strcmp0 (mime_type, "audio/mpeg") != 0     && /* .mp3 files */
-	    g_strcmp0 (mime_type, "audio/x-mp3") != 0) {    /* .mp3 files */
-
-		g_object_unref (file_info);
-		return FALSE;
-	}
-
-	g_object_unref (file_info);
 	path = g_file_get_path (file);
 
 	for (n = 0; n < values->len; n++) {
