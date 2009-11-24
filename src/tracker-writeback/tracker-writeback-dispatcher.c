@@ -17,6 +17,7 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA  02110-1301, USA.
  */
+#include <stdlib.h>
 
 #include <libtracker-common/tracker-dbus.h>
 #include <libtracker-client/tracker.h>
@@ -93,9 +94,9 @@ dbus_register_service (DBusGProxy  *proxy,
 	}
 
 	if (result != DBUS_REQUEST_NAME_REPLY_PRIMARY_OWNER) {
-		g_critical ("D-Bus service name:'%s' is already taken, "
-		            "perhaps the application is already running?",
-		            name);
+		g_message ("D-Bus service name:'%s' is already taken, "
+		           "perhaps the application is already running?",
+		           name);
 		return FALSE;
 	}
 
@@ -191,6 +192,12 @@ tracker_writeback_dispatcher_init (TrackerWritebackDispatcher *dispatcher)
 
 	priv->client = tracker_connect (TRUE, 0);
 	priv->dbus_data = dbus_data_create (G_OBJECT (dispatcher));
+
+	if (!priv->dbus_data) {
+		tracker_disconnect (priv->client);
+		exit (EXIT_FAILURE);
+	}
+
 	priv->modules = g_hash_table_new_full (g_str_hash,
 	                                       g_str_equal,
 	                                       (GDestroyNotify) g_free,
