@@ -22,6 +22,13 @@
 
 #include <string.h>
 
+/* VFAT check, FIXME should we move this elsewhere? */
+#include <fcntl.h>
+#include <sys/ioctl.h>
+#include <linux/msdos_fs.h>
+#include <unistd.h>
+/* End of VFAT check includes */
+
 #include <gio/gio.h>
 
 #include <libtracker-common/tracker-dbus.h>
@@ -375,6 +382,37 @@ is_path_ignored (TrackerCrawler *crawler,
 			}
 
 			goto done;
+		}
+
+		/* If the file is on FAT and if the hidden attribute is set, we
+		 * consider the directory to be hidden */
+
+		int fd = open (path, O_RDONLY, FALSE);
+		if (fd != -1) {
+			__u32 attrs;
+			gboolean is_hidden = FALSE;
+
+			if (ioctl(fd, FAT_IOCTL_GET_ATTRIBUTES, &attrs) == 0)
+				is_hidden = attrs & ATTR_HIDDEN ? TRUE : FALSE;
+			close (fd);
+
+			if (is_hidden) {
+				for (sl = crawler->private->watch_directory_roots; sl; sl = sl->next) {
+					if (strcmp (sl->data, path) == 0) {
+					ignore = FALSE;
+					goto done;
+					}
+				}
+
+				for (sl = crawler->private->crawl_directory_roots; sl; sl = sl->next) {
+					if (strcmp (sl->data, path) == 0) {
+						ignore = FALSE;
+						goto done;
+					}
+				}
+
+				goto done;
+			}
 		}
 
 		/* Check module directory ignore patterns */
