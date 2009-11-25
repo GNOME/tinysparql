@@ -379,6 +379,8 @@ tracker_xmp_iter_simple (const gchar          *uri,
 	} else 	/* PDF*/ if (g_ascii_strcasecmp (schema, NS_PDF) == 0) {
 		if (g_ascii_strcasecmp (name, "keywords") == 0 && !data->keywords) {
 			data->keywords = g_strdup (value);
+		} else if (g_ascii_strcasecmp (name, "title") == 0 && !data->title) {
+			data->title = g_strdup (value);
 		}
 	}
 
@@ -629,10 +631,11 @@ tracker_apply_xmp (TrackerSparqlBuilder *metadata, const gchar *uri, TrackerXmpD
 		g_free (final_camera);
 	}
 
-	if (xmp_data->title) {
+	if (xmp_data->title || xmp_data->Title) {
+		gchar *final_title = tracker_coalesce (2, xmp_data->title, xmp_data->Title); 
 		tracker_sparql_builder_predicate (metadata, "nie:title");
-		tracker_sparql_builder_object_unvalidated (metadata, xmp_data->title);
-		g_free (xmp_data->title);
+		tracker_sparql_builder_object_unvalidated (metadata, final_title);
+		g_free (final_title);
 	}
 
 	if (xmp_data->Orientation) {

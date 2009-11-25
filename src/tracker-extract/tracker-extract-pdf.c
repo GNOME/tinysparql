@@ -225,7 +225,7 @@ extract_pdf (const gchar          *uri,
 		g_free (xml);
 		xml = NULL;
 
-		md.title = tracker_coalesce (2, pd.title, xd.title);
+		md.title = tracker_coalesce (2, pd.title, xd.title, xd.Title);
 		md.subject = tracker_coalesce (2, pd.subject, xd.subject);
 		md.date = tracker_coalesce (3, pd.creation_date, xd.date, xd.DateTimeOriginal);
 		md.author = tracker_coalesce (2, pd.author, xd.creator);

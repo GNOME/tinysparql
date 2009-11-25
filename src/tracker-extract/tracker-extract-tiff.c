@@ -382,7 +382,7 @@ extract_tiff (const gchar *uri, TrackerSparqlBuilder *metadata)
 	}
 
 	merge_data.title = tracker_coalesce (3, tiff_data.documentname,
-	                                     xmp_data.title,
+	                                     xmp_data.title, xmp_data.Title,
 	                                     exif_data.document_name);
 
 	merge_data.orientation = tracker_coalesce (4, tiff_data.orientation,
