@@ -327,7 +327,7 @@ sparql_query_cb (GPtrArray *result,
 				           module->name);
 
 				writeback = tracker_writeback_module_create (module);
-				tracker_writeback_update_metadata (writeback, result);
+				tracker_writeback_update_metadata (writeback, result, priv->client);
 				g_object_unref (writeback);
 			}
 		}

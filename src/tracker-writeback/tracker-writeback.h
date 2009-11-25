@@ -24,6 +24,7 @@
 #include <glib-object.h>
 
 #include <libtracker-miner/tracker-miner-manager.h>
+#include <libtracker-client/tracker.h>
 
 G_BEGIN_DECLS
 
@@ -45,12 +46,14 @@ struct TrackerWritebackClass {
 	GObjectClass parent_class;
 
 	gboolean (* update_metadata) (TrackerWriteback *writeback,
-	                              GPtrArray        *values);
+	                              GPtrArray        *values,
+	                              TrackerClient    *client);
 };
 
 GType                tracker_writeback_get_type          (void) G_GNUC_CONST;
 gboolean             tracker_writeback_update_metadata   (TrackerWriteback *writeback,
-                                                          GPtrArray        *values);
+                                                          GPtrArray        *values,
+                                                          TrackerClient    *client);
 TrackerMinerManager* tracker_writeback_get_miner_manager (void);
 
 /* Entry functions to be defined by modules */

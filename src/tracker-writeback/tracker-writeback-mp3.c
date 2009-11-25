@@ -44,7 +44,8 @@ struct TrackerWritebackMP3Class {
 static GType                tracker_writeback_mp3_get_type             (void) G_GNUC_CONST;
 static gboolean             writeback_mp3_update_file_metadata (TrackerWritebackFile *wbf,
                                                                 GFile                *file,
-                                                                GPtrArray            *values);
+                                                                GPtrArray            *values,
+                                                                TrackerClient        *client);
 static const gchar * const *writeback_mp3_content_types        (TrackerWritebackFile *wbf);
 
 G_DEFINE_DYNAMIC_TYPE (TrackerWritebackMP3, tracker_writeback_mp3, TRACKER_TYPE_WRITEBACK_FILE);
@@ -83,7 +84,8 @@ writeback_mp3_content_types (TrackerWritebackFile *wbf)
 static gboolean
 writeback_mp3_update_file_metadata (TrackerWritebackFile *writeback_file,
                                     GFile                *file,
-                                    GPtrArray            *values)
+                                    GPtrArray            *values,
+                                    TrackerClient        *client)
 {
 	gchar *path;
 	guint n;

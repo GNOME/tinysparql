@@ -25,7 +25,8 @@
 #include "tracker-writeback-file.h"
 
 static gboolean tracker_writeback_file_update_metadata (TrackerWriteback *writeback,
-							GPtrArray        *values);
+                                                        GPtrArray        *values,
+                                                        TrackerClient    *client);
 
 G_DEFINE_ABSTRACT_TYPE (TrackerWritebackFile, tracker_writeback_file, TRACKER_TYPE_WRITEBACK)
 
@@ -61,7 +62,8 @@ file_unlock_cb (gpointer user_data)
 
 static gboolean
 tracker_writeback_file_update_metadata (TrackerWriteback *writeback,
-                                        GPtrArray        *values)
+                                        GPtrArray        *values,
+                                        TrackerClient    *client)
 {
 	TrackerWritebackFileClass *writeback_file_class;
 	gboolean retval;
@@ -130,7 +132,7 @@ tracker_writeback_file_update_metadata (TrackerWriteback *writeback,
 		                                 subjects);
 
 		retval = (writeback_file_class->update_file_metadata) (TRACKER_WRITEBACK_FILE (writeback),
-		                                                       file, values);
+		                                                       file, values, client);
 
 		g_timeout_add_seconds (3, file_unlock_cb, g_object_ref (file));
 	}

@@ -51,7 +51,8 @@ struct TrackerWritebackXMPClass {
 static GType                tracker_writeback_xmp_get_type     (void) G_GNUC_CONST;
 static gboolean             writeback_xmp_update_file_metadata (TrackerWritebackFile *writeback_file,
                                                                 GFile                *file,
-                                                                GPtrArray            *values);
+                                                                GPtrArray            *values,
+                                                                TrackerClient        *client);
 static const gchar * const *writeback_xmp_content_types        (TrackerWritebackFile *writeback_file);
 
 G_DEFINE_DYNAMIC_TYPE (TrackerWritebackXMP, tracker_writeback_xmp, TRACKER_TYPE_WRITEBACK_FILE);
@@ -103,8 +104,9 @@ writeback_xmp_content_types (TrackerWritebackFile *wbf)
 
 static gboolean
 writeback_xmp_update_file_metadata (TrackerWritebackFile *wbf,
-				    GFile                *file,
-				    GPtrArray            *values)
+                                    GFile                *file,
+                                    GPtrArray            *values,
+                                    TrackerClient        *client)
 {
 	gchar *path;
 	guint n;
@@ -113,6 +115,7 @@ writeback_xmp_update_file_metadata (TrackerWritebackFile *wbf,
 #ifdef DEBUG_XMP
 	XmpStringPtr str;
 #endif
+	GString *keywords = NULL;
 
 	path = g_file_get_path (file);
 
@@ -144,14 +147,138 @@ writeback_xmp_update_file_metadata (TrackerWritebackFile *wbf,
 		if (g_strcmp0 (row[1], TRACKER_NIE_PREFIX "title") == 0) {
 			xmp_delete_property (xmp, NS_EXIF, "Title");
 			xmp_set_property (xmp, NS_EXIF, "Title", row[2], 0);
-
-			/* I have no idea why I have to set this, but without
-			 * it seems that exiftool doesn't see the change */
-			 xmp_set_array_item (xmp, NS_DC, "title", 1, row[2], 0); 
-
+			xmp_delete_property (xmp, NS_DC, "title");
+			xmp_set_property (xmp, NS_DC, "title", row[2], 0);
 		}
 
-		/* TODO: Add more */
+		if (g_strcmp0 (row[1], TRACKER_NCO_PREFIX "creator") == 0) {
+			GPtrArray *name_array;
+			GError *error = NULL;
+			gchar *query;
+
+			query = g_strdup_printf ("SELECT ?fullname { "
+			                         "  <%s> nco:fullname ?fullname "
+			                         "}", row[2]);
+
+			name_array = tracker_resources_sparql_query (client, query, &error);
+
+			g_free (query);
+
+			if (!error) {
+				if (name_array && name_array->len > 0) {
+					GStrv name_row;
+
+					name_row = g_ptr_array_index (name_array, 0);
+
+					if (name_row[0]) {
+						xmp_delete_property (xmp, NS_DC, "creator");
+						xmp_set_property (xmp, NS_DC, "creator", name_row[0], 0);
+					}
+				}
+
+				if (name_array) {
+					g_ptr_array_foreach (name_array, (GFunc) g_strfreev, NULL);
+					g_ptr_array_free (name_array, TRUE);
+				}
+
+			} else {
+				g_clear_error (&error);
+			}
+		}
+
+		if (g_strcmp0 (row[1], TRACKER_NIE_PREFIX "description") == 0) {
+			xmp_delete_property (xmp, NS_DC, "description");
+			xmp_set_property (xmp, NS_DC, "description", row[2], 0);
+		}
+
+		if (g_strcmp0 (row[1], TRACKER_NIE_PREFIX "keyword") == 0) {
+			if (!keywords) {
+				keywords = g_string_new (row[2]);
+			} else {
+				g_string_append_printf (keywords, ", %s", row[2]);
+			}
+		}
+
+		if (g_strcmp0 (row[1], TRACKER_NIE_PREFIX "contentCreated") == 0) {
+			xmp_delete_property (xmp, NS_EXIF, "Date");
+			xmp_set_property (xmp, NS_EXIF, "Date", row[2], 0);
+		}
+
+		if (g_strcmp0 (row[1], TRACKER_NFO_PREFIX "orientation") == 0) {
+			guint i;
+
+			static const gchar *ostr[8] = {
+				/* 0 */ TRACKER_NFO_PREFIX "orientation-top",
+				/* 1 */ TRACKER_NFO_PREFIX "orientation-top-mirror",
+				/* 2 */ TRACKER_NFO_PREFIX "orientation-bottom",
+				/* 3 */ TRACKER_NFO_PREFIX "orientation-bottom-mirror",
+				/* 4 */ TRACKER_NFO_PREFIX "orientation-left-mirror",
+				/* 5 */ TRACKER_NFO_PREFIX "orientation-right",
+				/* 6 */ TRACKER_NFO_PREFIX "orientation-right-mirror",
+				/* 7 */ TRACKER_NFO_PREFIX "orientation-left"
+			};
+
+			xmp_delete_property (xmp, NS_EXIF, "Orientation");
+
+			for (i=0; i < 8; i++) {
+				if (g_strcmp0 (row[2], ostr[i]) == 0) {
+					switch (i) {
+						case 0:
+						xmp_set_property (xmp, NS_EXIF, "Orientation", "top - left", 0);
+						break;
+						case 1:
+						xmp_set_property (xmp, NS_EXIF, "Orientation", "top - right", 0);
+						break;
+						case 2:
+						xmp_set_property (xmp, NS_EXIF, "Orientation", "bottom - right", 0);
+						break;
+						case 3:
+						xmp_set_property (xmp, NS_EXIF, "Orientation", "bottom - left", 0);
+						break;
+						case 4:
+						xmp_set_property (xmp, NS_EXIF, "Orientation", "left - top", 0);
+						break;
+						case 5:
+						xmp_set_property (xmp, NS_EXIF, "Orientation", "right - top", 0);
+						break;
+						case 6:
+						xmp_set_property (xmp, NS_EXIF, "Orientation", "right - bottom", 0);
+						break;
+						case 7:
+						xmp_set_property (xmp, NS_EXIF, "Orientation", "left - bottom", 0);
+						break;
+						default:
+						break;
+					}
+				}
+			}
+		}
+
+
+		/* 
+		if (g_strcmp0 (row[1], PHOTO_HAS "contact") == 0) {
+			Face recognition on the photos
+			xmp_delete_property (xmp, FACE, "contact");
+			Fetch full name of the contact?
+			xmp_set_array_item (xmp, FACE, "contact", 1, fetched, 0); 
+		}
+
+		if (g_strcmp0 (row[1], LOCATION_PREFIX "country") == 0) {
+			xmp_delete_property (xmp, NS_PHOTOSHOP, "Country");
+			xmp_set_array_item (xmp, NS_PHOTOSHOP, "Country", 1, row[2], 0); 
+		}
+
+		if (g_strcmp0 (row[1], LOCATION_PREFIX "city") == 0) {
+			xmp_delete_property (xmp, NS_PHOTOSHOP, "City");
+			xmp_set_array_item (xmp, NS_PHOTOSHOP, "City", 1, row[2], 0); 
+		} */
+
+	}
+
+	if (keywords) {
+		xmp_delete_property (xmp, NS_DC, "subject");
+		xmp_set_property (xmp, NS_DC, "subject", keywords->str, 0);
+		g_string_free (keywords, TRUE);
 	}
 
 #ifdef DEBUG_XMP

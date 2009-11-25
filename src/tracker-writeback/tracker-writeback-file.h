@@ -46,7 +46,8 @@ struct TrackerWritebackFileClass {
 
 	gboolean              (* update_file_metadata) (TrackerWritebackFile *writeback_file,
 	                                                GFile                *file,
-	                                                GPtrArray            *values);
+	                                                GPtrArray            *values,
+	                                                TrackerClient        *client);
 	const gchar * const * (* content_types)        (TrackerWritebackFile *writeback_file);
 
 };

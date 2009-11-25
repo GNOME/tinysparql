@@ -216,7 +216,8 @@ nco:creator a rdf:Property ;
 	rdfs:subPropertyOf dc:creator , nco:contributor ;
 	rdfs:domain nie:InformationElement ;
 	rdfs:range nco:Contact ;
-	tracker:weight 4 .
+	tracker:weight 4 ;
+	tracker:writeback true .
 
 nco:region a rdf:Property ;
 	rdfs:label "region" ;

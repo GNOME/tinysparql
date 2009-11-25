@@ -102,7 +102,8 @@ nie:description a rdf:Property ;
 	rdfs:domain nie:InformationElement ;
 	rdfs:range xsd:string ;
 	tracker:fulltextIndexed true ;
-	tracker:weight 3 .
+	tracker:weight 3 ;
+	tracker:writeback true .
 
 # Bug in nepomuk specification. Taking domain from superproperty
 nie:disclaimer a rdf:Property ;
@@ -169,7 +170,8 @@ nie:contentCreated a rdf:Property ;
 	rdfs:subPropertyOf nie:informationElementDate ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nie:InformationElement ;
-	rdfs:range xsd:dateTime .
+	rdfs:range xsd:dateTime ;
+	tracker:writeback true .
 
 nie:contentAccessed a rdf:Property ;
         rdfs:subPropertyOf nie:informationElementDate ;
@@ -206,7 +208,8 @@ nie:keyword a rdf:Property ;
 	rdfs:domain nie:InformationElement ;
 	rdfs:range xsd:string ;
 	tracker:fulltextIndexed true ;
-	tracker:weight 5 .
+	tracker:weight 5 ;
+	tracker:writeback true .
 
 nie:hasLogicalPart a rdf:Property ;
 	rdfs:domain nie:InformationElement ;
