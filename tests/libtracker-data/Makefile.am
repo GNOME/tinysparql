@@ -17,6 +17,7 @@ noinst_PROGRAMS = $(TEST_PROGS)
 
 TEST_PROGS += 								\
 	tracker-sparql							\
+	tracker-sparql-blank						\
 	tracker-ontology
 
 INCLUDES = 								\
@@ -48,6 +49,11 @@ tracker_sparql_SOURCES = 						\
 	tracker-sparql-test.c
 
 tracker_sparql_LDADD = $(common_ldadd)
+
+tracker_sparql_blank_SOURCES = 						\
+	tracker-sparql-blank-test.c
+
+tracker_sparql_blank_LDADD = $(common_ldadd)
 
 tracker_ontology_SOURCES =						\
 	tracker-ontology-test.c
