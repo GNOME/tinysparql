@@ -75,6 +75,14 @@ Tracker Miner
 
 @trackerminer: the object which received the signal.
 
+<!-- ##### SIGNAL TrackerMiner::writeback ##### -->
+<para>
+
+</para>
+
+@trackerminer: the object which received the signal.
+@arg1: 
+
 <!-- ##### ARG TrackerMiner:name ##### -->
 <para>
 
@@ -103,6 +111,7 @@ Tracker Miner
 @terminated: 
 @progress: 
 @error: 
+@writeback: 
 
 <!-- ##### FUNCTION tracker_miner_error_quark ##### -->
 <para>

@@ -1,6 +1,6 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*
- * Copyright (C) 2008, Nokia
+ * Copyright (C) 2009, Nokia
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -18,6 +18,8 @@
  * Boston, MA  02110-1301, USA.
  */
 
+#include "config.h"
+
 #include "tracker-writeback.h"
 
 G_DEFINE_ABSTRACT_TYPE (TrackerWriteback, tracker_writeback, G_TYPE_OBJECT)
@@ -27,13 +29,11 @@ static TrackerMinerManager *manager = NULL;
 static void
 tracker_writeback_class_init (TrackerWritebackClass *klass)
 {
-
 }
 
 static void
 tracker_writeback_init (TrackerWriteback *writeback)
 {
-
 }
 
 gboolean

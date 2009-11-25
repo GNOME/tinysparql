@@ -1,6 +1,6 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*
- * Copyright (C) 2008, Nokia
+ * Copyright (C) 2009, Nokia
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -18,16 +18,16 @@
  * Boston, MA  02110-1301, USA.
  */
 
+#include "config.h"
+
 #include <libtracker-common/tracker-file-utils.h>
 
 #include "tracker-writeback-file.h"
 
 static gboolean tracker_writeback_file_update_metadata (TrackerWriteback *writeback,
-                                                        GPtrArray        *values);
+							GPtrArray        *values);
 
 G_DEFINE_ABSTRACT_TYPE (TrackerWritebackFile, tracker_writeback_file, TRACKER_TYPE_WRITEBACK)
-
-
 
 static void
 tracker_writeback_file_class_init (TrackerWritebackFileClass *klass)
@@ -43,10 +43,12 @@ tracker_writeback_file_init (TrackerWritebackFile *writeback_file)
 }
 
 static gboolean
-unlock_file_cb (GFile *file)
+file_unlock_cb (gpointer user_data)
 {
+	GFile *file;
 	gchar *path;
 
+	file = user_data;
 	path = g_file_get_path (file);
 	g_message ("Unlocking file '%s'", path);
 	g_free (path);
@@ -68,7 +70,7 @@ tracker_writeback_file_update_metadata (TrackerWriteback *writeback,
 	const gchar *subjects[2] = { NULL, NULL };
 	GStrv row;
 	TrackerWritebackFile *self;
-	const gchar **content_types;
+	const gchar * const *content_types;
 	const gchar *mime_type;
 	guint n;
 
@@ -91,11 +93,16 @@ tracker_writeback_file_update_metadata (TrackerWriteback *writeback,
 	row = g_ptr_array_index (values, 0);
 	file = g_file_new_for_uri (row[0]);
 
-	file_info = g_file_query_info (file, G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE,
+	file_info = g_file_query_info (file, 
+	                               G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE,
 	                               G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
 	                               NULL, NULL);
 
 	if (!file_info) {
+		if (file) {
+			g_object_unref (file);
+		}
+
 		return FALSE;
 	}
 
@@ -125,7 +132,7 @@ tracker_writeback_file_update_metadata (TrackerWriteback *writeback,
 		retval = (writeback_file_class->update_file_metadata) (TRACKER_WRITEBACK_FILE (writeback),
 		                                                       file, values);
 
-		g_timeout_add_seconds (3, (GSourceFunc) unlock_file_cb, g_object_ref (file));
+		g_timeout_add_seconds (3, file_unlock_cb, g_object_ref (file));
 	}
 
 	g_object_unref (file);

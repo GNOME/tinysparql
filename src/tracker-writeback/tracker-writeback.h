@@ -1,6 +1,6 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*
- * Copyright (C) 2008, Nokia
+ * Copyright (C) 2009, Nokia
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -18,12 +18,12 @@
  * Boston, MA  02110-1301, USA.
  */
 
+#ifndef __TRACKER_WRITEBACK_WRITEBACK_H__
+#define __TRACKER_WRITEBACK_WRITEBACK_H__
+
 #include <glib-object.h>
 
 #include <libtracker-miner/tracker-miner-manager.h>
-
-#ifndef __TRACKER_WRITEBACK_H__
-#define __TRACKER_WRITEBACK_H__
 
 G_BEGIN_DECLS
 
@@ -48,16 +48,15 @@ struct TrackerWritebackClass {
 	                              GPtrArray        *values);
 };
 
-GType          tracker_writeback_get_type (void) G_GNUC_CONST;
+GType                tracker_writeback_get_type          (void) G_GNUC_CONST;
+gboolean             tracker_writeback_update_metadata   (TrackerWriteback *writeback,
+                                                          GPtrArray        *values);
+TrackerMinerManager* tracker_writeback_get_miner_manager (void);
 
 /* Entry functions to be defined by modules */
-TrackerWriteback * writeback_module_create        (GTypeModule *module);
-const gchar**      writeback_module_get_rdftypes  (void);
-
-gboolean tracker_writeback_update_metadata (TrackerWriteback *writeback,
-                                            GPtrArray        *values);
-TrackerMinerManager* tracker_writeback_get_miner_manager (void);
+TrackerWriteback *   writeback_module_create             (GTypeModule      *module);
+const gchar * const *writeback_module_get_rdf_types      (void);
 
 G_END_DECLS
 
-#endif /* __TRACKER_WRITEBACK_H__ */
+#endif /* __TRACKER_WRITEBACK_WRITEBACK_H__ */

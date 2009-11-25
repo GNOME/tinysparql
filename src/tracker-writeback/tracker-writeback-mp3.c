@@ -1,6 +1,6 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*
- * Copyright (C) 2008, Nokia
+ * Copyright (C) 2009, Nokia
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -20,13 +20,15 @@
  * Authors: Philip Van Hoof <philip@codeminded.be>
  */
 
+#include "config.h"
+
 #include <id3.h>
 
 #include <libtracker-common/tracker-ontology.h>
 
 #include "tracker-writeback-file.h"
 
-#define TRACKER_TYPE_WRITEBACK_MP3    (tracker_writeback_mp3_get_type ())
+#define TRACKER_TYPE_WRITEBACK_MP3 (tracker_writeback_mp3_get_type ())
 
 typedef struct TrackerWritebackMP3 TrackerWritebackMP3;
 typedef struct TrackerWritebackMP3Class TrackerWritebackMP3Class;
@@ -39,11 +41,11 @@ struct TrackerWritebackMP3Class {
 	TrackerWritebackFileClass parent_class;
 };
 
-static GType         tracker_writeback_mp3_get_type             (void) G_GNUC_CONST;
-static gboolean      tracker_writeback_mp3_update_file_metadata (TrackerWritebackFile *writeback_file,
-                                                                 GFile                *file,
-                                                                 GPtrArray            *values);
-static const gchar** tracker_writeback_mp3_content_types        (TrackerWritebackFile *writeback_file);
+static GType                tracker_writeback_mp3_get_type             (void) G_GNUC_CONST;
+static gboolean             writeback_mp3_update_file_metadata (TrackerWritebackFile *wbf,
+                                                                GFile                *file,
+                                                                GPtrArray            *values);
+static const gchar * const *writeback_mp3_content_types        (TrackerWritebackFile *wbf);
 
 G_DEFINE_DYNAMIC_TYPE (TrackerWritebackMP3, tracker_writeback_mp3, TRACKER_TYPE_WRITEBACK_FILE);
 
@@ -52,8 +54,8 @@ tracker_writeback_mp3_class_init (TrackerWritebackMP3Class *klass)
 {
 	TrackerWritebackFileClass *writeback_file_class = TRACKER_WRITEBACK_FILE_CLASS (klass);
 
-	writeback_file_class->update_file_metadata = tracker_writeback_mp3_update_file_metadata;
-	writeback_file_class->content_types = tracker_writeback_mp3_content_types;
+	writeback_file_class->update_file_metadata = writeback_mp3_update_file_metadata;
+	writeback_file_class->content_types = writeback_mp3_content_types;
 }
 
 static void
@@ -62,24 +64,26 @@ tracker_writeback_mp3_class_finalize (TrackerWritebackMP3Class *klass)
 }
 
 static void
-tracker_writeback_mp3_init (TrackerWritebackMP3 *mp3)
+tracker_writeback_mp3_init (TrackerWritebackMP3 *wbm)
 {
 }
 
-static const gchar**
-tracker_writeback_mp3_content_types (TrackerWritebackFile *writeback_file)
+static const gchar * const *
+writeback_mp3_content_types (TrackerWritebackFile *wbf)
 {
-	static const gchar *content_types[] = { "audio/mpeg", 
-	                                        "audio/x-mp3",
-	                                        NULL };
+	static const gchar *content_types[] = { 
+	        "audio/mpeg", 
+	        "audio/x-mp3",
+	        NULL 
+	};
 
 	return content_types;
 }
 
 static gboolean
-tracker_writeback_mp3_update_file_metadata (TrackerWritebackFile *writeback_file,
-                                            GFile                *file,
-                                            GPtrArray            *values)
+writeback_mp3_update_file_metadata (TrackerWritebackFile *writeback_file,
+                                    GFile                *file,
+                                    GPtrArray            *values)
 {
 	gchar *path;
 	guint n;
@@ -90,18 +94,21 @@ tracker_writeback_mp3_update_file_metadata (TrackerWritebackFile *writeback_file
 		const GStrv row = g_ptr_array_index (values, n);
 
 		if (g_strcmp0 (row[1], TRACKER_NIE_PREFIX "title") == 0) {
-			ID3Tag *tag = ID3Tag_New ();
+			ID3Tag *tag;
 			ID3Frame *frame;
 
+			tag = ID3Tag_New ();
 			ID3Tag_Link (tag, path);
 
  			frame = ID3Tag_FindFrameWithID (tag, ID3FID_TITLE);
 			if (frame) {
 				ID3Field *field;
+
 				field = ID3Frame_GetField (frame, ID3FN_TEXT);
 				ID3Field_SetASCII (field, row[2]);
 			} else {
 				ID3Field *field;
+
 				frame = ID3Frame_NewID (ID3FID_TITLE);
 				field = ID3Frame_GetField (frame, ID3FN_TEXT);
 				ID3Field_SetASCII (field, row[2]);
@@ -110,7 +117,8 @@ tracker_writeback_mp3_update_file_metadata (TrackerWritebackFile *writeback_file
 
 			ID3Tag_Update (tag);
 			/* Apparently this ain't needed (and crashes)
-			 * ID3Frame_Delete (frame); */
+			 * ID3Frame_Delete (frame); 
+			 */
 			ID3Tag_Delete (tag);
 		}
 
@@ -130,11 +138,13 @@ writeback_module_create (GTypeModule *module)
 	return g_object_new (TRACKER_TYPE_WRITEBACK_MP3, NULL);
 }
 
-const gchar**
-writeback_module_get_rdftypes (void)
+const gchar * const *
+writeback_module_get_rdf_types (void)
 {
-	static const gchar *rdftypes[] = { TRACKER_NFO_PREFIX "Audio",
-	                                   NULL };
+	static const gchar *rdftypes[] = { 
+	        TRACKER_NFO_PREFIX "Audio",
+	        NULL 
+	};
 
 	return rdftypes;
 }

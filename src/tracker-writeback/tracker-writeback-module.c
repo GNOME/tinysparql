@@ -1,7 +1,6 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*
- * Copyright (C) 2008, Mr Jamie McCracken (jamiemcc@gnome.org)
- * Copyright (C) 2008, Nokia
+ * Copyright (C) 2009, Nokia
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -19,23 +18,24 @@
  * Boston, MA  02110-1301, USA.
  */
 
+#include "config.h"
+
 #include <gmodule.h>
+
 #include "tracker-writeback-module.h"
 
-
-static gboolean tracker_writeback_module_load   (GTypeModule *module);
-static void     tracker_writeback_module_unload (GTypeModule *module);
-
+static gboolean writeback_module_load   (GTypeModule *module);
+static void     writeback_module_unload (GTypeModule *module);
 
 G_DEFINE_TYPE (TrackerWritebackModule, tracker_writeback_module, G_TYPE_TYPE_MODULE)
 
 static void
 tracker_writeback_module_class_init (TrackerWritebackModuleClass *klass)
 {
-  GTypeModuleClass *module_class = G_TYPE_MODULE_CLASS (klass);
+	GTypeModuleClass *module_class = G_TYPE_MODULE_CLASS (klass);
 
-  module_class->load = tracker_writeback_module_load;
-  module_class->unload = tracker_writeback_module_unload;
+	module_class->load = writeback_module_load;
+	module_class->unload = writeback_module_unload;
 }
 
 static void
@@ -44,7 +44,7 @@ tracker_writeback_module_init (TrackerWritebackModule *module)
 }
 
 static gboolean
-tracker_writeback_module_load (GTypeModule *module)
+writeback_module_load (GTypeModule *module)
 {
 	TrackerWritebackModule *writeback_module;
 	gchar *path;
@@ -57,8 +57,8 @@ tracker_writeback_module_load (GTypeModule *module)
 
 	if (G_UNLIKELY (!writeback_module->module)) {
 		g_warning ("Could not load writeback module '%s': %s\n",
-			   writeback_module->name,
-			   g_module_error ());
+		           writeback_module->name,
+		           g_module_error ());
 
 		return FALSE;
 	}
@@ -66,21 +66,23 @@ tracker_writeback_module_load (GTypeModule *module)
 	g_module_make_resident (writeback_module->module);
 
 	if (!g_module_symbol (writeback_module->module, "writeback_module_create",
-			      (gpointer *) &writeback_module->create) ||
-	    !g_module_symbol (writeback_module->module, "writeback_module_get_rdftypes",
-			      (gpointer *) &writeback_module->get_rdftypes)) {
+	                      (gpointer *) &writeback_module->create) ||
+	    !g_module_symbol (writeback_module->module, "writeback_module_get_rdf_types",
+	                      (gpointer *) &writeback_module->get_rdf_types)) {
 		g_warning ("Could not load module symbols for '%s': %s",
-			   writeback_module->name,
-			   g_module_error ());
+		           writeback_module->name,
+		           g_module_error ());
 
 		return FALSE;
 	}
+
+	g_message ("Loaded module:'%s'", writeback_module->name);
 
 	return TRUE;
 }
 
 static void
-tracker_writeback_module_unload (GTypeModule *module)
+writeback_module_unload (GTypeModule *module)
 {
 	TrackerWritebackModule *writeback_module;
 
@@ -88,12 +90,14 @@ tracker_writeback_module_unload (GTypeModule *module)
 
 	g_module_close (writeback_module->module);
 	writeback_module->module = NULL;
+
+	g_message ("Unloaded module:'%s'", writeback_module->name);
 }
 
 TrackerWritebackModule *
 tracker_writeback_module_get (const gchar *name)
 {
-	static GHashTable *modules;
+	static GHashTable *modules = NULL;
 	TrackerWritebackModule *module;
 
 	g_return_val_if_fail (name != NULL, NULL);
@@ -145,7 +149,7 @@ tracker_writeback_modules_list (void)
 
         g_dir_close (dir);
 
-        return list;
+        return g_list_reverse (list);
 }
 
 TrackerWriteback *
@@ -154,8 +158,8 @@ tracker_writeback_module_create (TrackerWritebackModule *module)
         return (module->create) (G_TYPE_MODULE (module));
 }
 
-const gchar**
-tracker_writeback_module_get_rdftypes (TrackerWritebackModule *module)
+const gchar * const *
+tracker_writeback_module_get_rdf_types (TrackerWritebackModule *module)
 {
-        return (module->get_rdftypes) ();
+        return (module->get_rdf_types) ();
 }

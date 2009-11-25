@@ -1,6 +1,6 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*
- * Copyright (C) 2008, Nokia
+ * Copyright (C) 2009, Nokia
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -18,12 +18,12 @@
  * Boston, MA  02110-1301, USA.
  */
 
+#ifndef __TRACKER_WRITEBACK_FILE_H__
+#define __TRACKER_WRITEBACK_FILE_H__
+
 #include <gio/gio.h>
 
 #include "tracker-writeback.h"
-
-#ifndef __TRACKER_WRITEBACK_FILE_H__
-#define __TRACKER_WRITEBACK_FILE_H__
 
 G_BEGIN_DECLS
 
@@ -44,15 +44,14 @@ struct TrackerWritebackFile {
 struct TrackerWritebackFileClass {
 	TrackerWritebackClass parent_class;
 
-	gboolean      (* update_file_metadata) (TrackerWritebackFile *writeback_file,
-	                                        GFile                *file,
-	                                        GPtrArray            *values);
-	const gchar** (* content_types)        (TrackerWritebackFile *writeback_file);
+	gboolean              (* update_file_metadata) (TrackerWritebackFile *writeback_file,
+	                                                GFile                *file,
+	                                                GPtrArray            *values);
+	const gchar * const * (* content_types)        (TrackerWritebackFile *writeback_file);
 
 };
 
 GType tracker_writeback_file_get_type (void) G_GNUC_CONST;
-
 
 G_END_DECLS
 

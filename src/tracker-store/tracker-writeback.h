@@ -21,25 +21,25 @@
  *  Philip Van Hoof <philip@codeminded.be>
  */
 
-#ifndef __TRACKER_WRITEBACK_H__
-#define __TRACKER_WRITEBACK_H__
+#ifndef __TRACKER_STORE_WRITEBACK_H__
+#define __TRACKER_STORE_WRITEBACK_H__
 
 #include <libtracker-common/tracker-dbus.h>
 
 G_BEGIN_DECLS
 
-typedef GStrv (*TrackerWritebackPredicateGetter) (void);
+typedef GStrv (*TrackerWritebackGetPredicatesFunc) (void);
 
-void            tracker_writeback_init        (TrackerWritebackPredicateGetter  callback);
-void            tracker_writeback_shutdown    (void);
-void            tracker_writeback_check       (const gchar              *graph,
-                                               const gchar              *subject,
-                                               const gchar              *predicate,
-                                               const gchar              *object,
-                                               GPtrArray                *rdf_types);
-GHashTable*     tracker_writeback_get_pending (void);
-void            tracker_writeback_reset       (void);
+void        tracker_writeback_init        (TrackerWritebackGetPredicatesFunc  callback);
+void        tracker_writeback_shutdown    (void);
+void        tracker_writeback_check       (const gchar                       *graph,
+					   const gchar                       *subject,
+					   const gchar                       *predicate,
+					   const gchar                       *object,
+					   GPtrArray                         *rdf_types);
+GHashTable* tracker_writeback_get_pending (void);
+void        tracker_writeback_reset       (void);
 
 G_END_DECLS
 
-#endif /* __TRACKER_WRITEBACK_H__ */
+#endif /* __TRACKER_STORE_WRITEBACK_H__ */

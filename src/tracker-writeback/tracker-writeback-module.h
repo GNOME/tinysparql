@@ -1,7 +1,6 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*
- * Copyright (C) 2008, Mr Jamie McCracken (jamiemcc@gnome.org)
- * Copyright (C) 2008, Nokia
+ * Copyright (C) 2009, Nokia
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -24,6 +23,7 @@
 
 #include <glib.h>
 #include <glib-object.h>
+
 #include "tracker-writeback.h"
 
 G_BEGIN_DECLS
@@ -40,24 +40,20 @@ struct TrackerWritebackModule {
 	GModule *module;
 	gchar *name;
 
-        TrackerWriteback * (* create)        (GTypeModule *module);
-        const gchar **     (* get_rdftypes)  (void);
+        TrackerWriteback *    (* create)        (GTypeModule *module);
+        const gchar * const * (* get_rdf_types) (void);
 };
 
 struct TrackerWritebackModuleClass {
 	GTypeModuleClass parent_class;
 };
 
+GType                   tracker_writeback_module_get_type      (void) G_GNUC_CONST;
 
-GType                     tracker_writeback_module_get_type               (void) G_GNUC_CONST;
-
-TrackerWritebackModule *  tracker_writeback_module_get                    (const gchar *name);
-
-TrackerWriteback *        tracker_writeback_module_create                 (TrackerWritebackModule *module);
-const gchar**             tracker_writeback_module_get_rdftypes           (TrackerWritebackModule *module);
-
-GList *                   tracker_writeback_modules_list                  (void);
-
+TrackerWritebackModule *tracker_writeback_module_get           (const gchar            *name);
+TrackerWriteback *      tracker_writeback_module_create        (TrackerWritebackModule *module);
+const gchar * const *   tracker_writeback_module_get_rdf_types (TrackerWritebackModule *module);
+GList *                 tracker_writeback_modules_list         (void);
 
 G_END_DECLS
 

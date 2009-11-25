@@ -1,6 +1,6 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*
- * Copyright (C) 2008, Nokia
+ * Copyright (C) 2009, Nokia
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -25,7 +25,8 @@
 #include <locale.h>
 #include <string.h>
 
-#include <glib.h>
+#include <exempi/xmp.h>
+#include <exempi/xmpconsts.h>
 
 #include <glib-object.h>
 #include <gio/gio.h>
@@ -34,12 +35,7 @@
 
 #include "tracker-writeback-file.h"
 
-#ifdef HAVE_EXEMPI
-
-#include <exempi/xmp.h>
-#include <exempi/xmpconsts.h>
-
-#define TRACKER_TYPE_WRITEBACK_XMP    (tracker_writeback_xmp_get_type ())
+#define TRACKER_TYPE_WRITEBACK_XMP (tracker_writeback_xmp_get_type ())
 
 typedef struct TrackerWritebackXMP TrackerWritebackXMP;
 typedef struct TrackerWritebackXMPClass TrackerWritebackXMPClass;
@@ -52,12 +48,11 @@ struct TrackerWritebackXMPClass {
 	TrackerWritebackFileClass parent_class;
 };
 
-
-static GType         tracker_writeback_xmp_get_type             (void) G_GNUC_CONST;
-static gboolean      tracker_writeback_xmp_update_file_metadata (TrackerWritebackFile *writeback_file,
-                                                                 GFile                *file,
-                                                                 GPtrArray            *values);
-static const gchar** tracker_writeback_xmp_content_types        (TrackerWritebackFile *writeback_file);
+static GType                tracker_writeback_xmp_get_type     (void) G_GNUC_CONST;
+static gboolean             writeback_xmp_update_file_metadata (TrackerWritebackFile *writeback_file,
+                                                                GFile                *file,
+                                                                GPtrArray            *values);
+static const gchar * const *writeback_xmp_content_types        (TrackerWritebackFile *writeback_file);
 
 G_DEFINE_DYNAMIC_TYPE (TrackerWritebackXMP, tracker_writeback_xmp, TRACKER_TYPE_WRITEBACK_FILE);
 
@@ -67,8 +62,9 @@ tracker_writeback_xmp_class_init (TrackerWritebackXMPClass *klass)
 	TrackerWritebackFileClass *writeback_file_class = TRACKER_WRITEBACK_FILE_CLASS (klass);
 
 	xmp_init ();
-	writeback_file_class->update_file_metadata = tracker_writeback_xmp_update_file_metadata;
-	writeback_file_class->content_types = tracker_writeback_xmp_content_types;
+
+	writeback_file_class->update_file_metadata = writeback_xmp_update_file_metadata;
+	writeback_file_class->content_types = writeback_xmp_content_types;
 }
 
 static void
@@ -78,18 +74,20 @@ tracker_writeback_xmp_class_finalize (TrackerWritebackXMPClass *klass)
 }
 
 static void
-tracker_writeback_xmp_init (TrackerWritebackXMP *xmp)
+tracker_writeback_xmp_init (TrackerWritebackXMP *wbx)
 {
 }
 
-static const gchar**
-tracker_writeback_xmp_content_types (TrackerWritebackFile *writeback_file)
+static const gchar * const *
+writeback_xmp_content_types (TrackerWritebackFile *wbf)
 {
-	static const gchar *content_types[] = { "image/png",   /* .png files */
-	                                        "sketch/png",  /* .sketch.png files on Maemo*/
-	                                        "image/jpeg",  /* .jpg & .jpeg files */
-	                                        "image/tiff",  /* .tiff & .tif files */
-	                                        NULL };
+	static const gchar *content_types[] = {
+	        "image/png",   /* .png files */
+	        "sketch/png",  /* .sketch.png files on Maemo*/
+	        "image/jpeg",  /* .jpg & .jpeg files */
+	        "image/tiff",  /* .tiff & .tif files */
+	        NULL 
+	};
 
 	/* "image/gif"                        .gif files 
 	   "application/pdf"                  .pdf files 
@@ -104,9 +102,9 @@ tracker_writeback_xmp_content_types (TrackerWritebackFile *writeback_file)
 }
 
 static gboolean
-tracker_writeback_xmp_update_file_metadata (TrackerWritebackFile *writeback_file,
-                                            GFile                *file,
-                                            GPtrArray            *values)
+writeback_xmp_update_file_metadata (TrackerWritebackFile *wbf,
+				    GFile                *file,
+				    GPtrArray            *values)
 {
 	gchar *path;
 	guint n;
@@ -133,10 +131,10 @@ tracker_writeback_xmp_update_file_metadata (TrackerWritebackFile *writeback_file
 	}
 
 #ifdef DEBUG_XMP
-	str = xmp_string_new();
+	str = xmp_string_new ();
 	g_print ("\nBEFORE: ---- \n");
-	xmp_serialize_and_format(xmp, str, 0, 0, "\n", "\t", 1);
-	printf ("%s\n", xmp_string_cstr (str));
+	xmp_serialize_and_format (xmp, str, 0, 0, "\n", "\t", 1);
+	g_print ("%s\n", xmp_string_cstr (str));
 	xmp_string_free (str);
 #endif
 
@@ -145,11 +143,11 @@ tracker_writeback_xmp_update_file_metadata (TrackerWritebackFile *writeback_file
 
 		if (g_strcmp0 (row[1], TRACKER_NIE_PREFIX "title") == 0) {
 			xmp_delete_property (xmp, NS_EXIF, "Title");
-			xmp_set_property(xmp, NS_EXIF, "Title", row[2], 0);
+			xmp_set_property (xmp, NS_EXIF, "Title", row[2], 0);
 
 			/* I have no idea why I have to set this, but without
 			 * it seems that exiftool doesn't see the change */
-			 xmp_set_array_item(xmp, NS_DC, "title", 1, row[2], 0); 
+			 xmp_set_array_item (xmp, NS_DC, "title", 1, row[2], 0); 
 
 		}
 
@@ -158,15 +156,15 @@ tracker_writeback_xmp_update_file_metadata (TrackerWritebackFile *writeback_file
 
 #ifdef DEBUG_XMP
 	g_print ("\nAFTER: ---- \n");
-	str = xmp_string_new();
-	xmp_serialize_and_format(xmp, str, 0, 0, "\n", "\t", 1);
-	printf ("%s\n", xmp_string_cstr (str));
+	str = xmp_string_new ();
+	xmp_serialize_and_format (xmp, str, 0, 0, "\n", "\t", 1);
+	g_print ("%s\n", xmp_string_cstr (str));
 	xmp_string_free (str);
 	g_print ("\n --------- \n");
 #endif
 
-	if (xmp_files_can_put_xmp(xmp_files, xmp)) {
-		xmp_files_put_xmp(xmp_files, xmp);
+	if (xmp_files_can_put_xmp (xmp_files, xmp)) {
+		xmp_files_put_xmp (xmp_files, xmp);
 	}
 
 	xmp_files_close (xmp_files, XMP_CLOSE_SAFEUPDATE);
@@ -186,15 +184,15 @@ writeback_module_create (GTypeModule *module)
 	return g_object_new (TRACKER_TYPE_WRITEBACK_XMP, NULL);
 }
 
-const gchar**
-writeback_module_get_rdftypes (void)
+const gchar * const *
+writeback_module_get_rdf_types (void)
 {
-	static const gchar *rdftypes[] = { TRACKER_NFO_PREFIX "Image",
-	                                   TRACKER_NFO_PREFIX "Audio",
-	                                   TRACKER_NFO_PREFIX "Video",
-	                                   NULL };
+	static const gchar *rdf_types[] = { 
+	        TRACKER_NFO_PREFIX "Image",
+	        TRACKER_NFO_PREFIX "Audio",
+	        TRACKER_NFO_PREFIX "Video",
+	        NULL 
+	};
 
-	return rdftypes;
+	return rdf_types;
 }
-
-#endif /* HAVE_EXEMPI */

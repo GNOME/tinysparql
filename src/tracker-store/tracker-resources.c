@@ -464,7 +464,6 @@ on_statements_committed (gpointer user_data)
 
 	if (writebacks) {
 		g_signal_emit (resources, signals[WRITEBACK], 0, writebacks);
-		g_hash_table_unref (writebacks);
 
 	}
 

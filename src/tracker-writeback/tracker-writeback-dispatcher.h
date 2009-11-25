@@ -1,6 +1,6 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*
- * Copyright (C) 2008, Nokia
+ * Copyright (C) 2009, Nokia
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -21,9 +21,9 @@
 #ifndef __TRACKER_WRITEBACK_DISPATCHER_H__
 #define __TRACKER_WRITEBACK_DISPATCHER_H__
 
-
 #include <glib-object.h>
 #include <gio/gio.h>
+
 #include <libtracker-client/tracker.h>
 
 G_BEGIN_DECLS
@@ -46,9 +46,8 @@ struct TrackerWritebackDispatcherClass {
         GObjectClass parent_class;
 };
 
-GType          tracker_writeback_dispatcher_get_type (void) G_GNUC_CONST;
-
-TrackerWritebackDispatcher * tracker_writeback_dispatcher_new (void);
+GType                        tracker_writeback_dispatcher_get_type (void) G_GNUC_CONST;
+TrackerWritebackDispatcher * tracker_writeback_dispatcher_new      (void);
 
 G_END_DECLS
 

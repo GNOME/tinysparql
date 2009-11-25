@@ -83,6 +83,17 @@ Tracker Filesystem Miner
 @arg3: 
 @Returns: 
 
+<!-- ##### SIGNAL TrackerMinerFS::writeback-file ##### -->
+<para>
+
+</para>
+
+@trackerminerfs: the object which received the signal.
+@arg1: 
+@arg2: 
+@arg3: 
+@Returns: 
+
 <!-- ##### ARG TrackerMinerFS:process-pool-limit ##### -->
 <para>
 
@@ -103,6 +114,7 @@ Tracker Filesystem Miner
 @check_directory: 
 @check_directory_contents: 
 @process_file: 
+@writeback_file: 
 @monitor_directory: 
 @finished: 
 

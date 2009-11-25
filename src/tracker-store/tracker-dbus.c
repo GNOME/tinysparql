@@ -170,10 +170,10 @@ tracker_dbus_shutdown (void)
 
 static void
 name_owner_changed_cb (DBusGProxy *proxy, 
-                       gchar *name, 
-                       gchar *old_owner, 
-                       gchar *new_owner, 
-                       gpointer user_data)
+                       gchar      *name, 
+                       gchar      *old_owner, 
+                       gchar      *new_owner, 
+                       gpointer    user_data)
 {
 	if (tracker_is_empty_string (new_owner) && !tracker_is_empty_string (old_owner)) {
 		/* This means that old_owner got removed */
@@ -182,7 +182,8 @@ name_owner_changed_cb (DBusGProxy *proxy,
 }
 
 static void
-name_owner_changed_closure (gpointer data, GClosure *closure)
+name_owner_changed_closure (gpointer  data, 
+                            GClosure *closure)
 {
 }
 

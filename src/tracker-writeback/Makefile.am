@@ -3,20 +3,20 @@ include $(top_srcdir)/Makefile.decl
 module_flags = -module -avoid-version -no-undefined
 modulesdir = $(libdir)/tracker-$(TRACKER_API_VERSION)/writeback-modules
 
-INCLUDES = 							\
-	-DLOCALEDIR=\""$(localedir)"\" 				\
-	-DMODULESDIR=\"$(modulesdir)\"				\
-	-DG_LOG_DOMAIN=\"Tracker\"				\
-	-DTRACKER_COMPILATION					\
-	-DWRITEBACK_MODULES_DIR=\""$(modulesdir)"\" 		\
-	-I$(top_srcdir)/src 					\
-	$(TRACKER_APPS_CFLAGS)					\
-	$(WARN_CFLAGS)						\
-	$(GLIB2_CFLAGS)						\
-	$(GCOV_CFLAGS)						\
-	$(GMODULE_CFLAGS) 					\
-	$(DBUS_CFLAGS)						\
-	$(ID3LIB_CFLAGS)					\
+INCLUDES = 								\
+	-DLOCALEDIR=\""$(localedir)"\" 					\
+	-DMODULESDIR=\"$(modulesdir)\"					\
+	-DG_LOG_DOMAIN=\"Tracker\"					\
+	-DTRACKER_COMPILATION						\
+	-DWRITEBACK_MODULES_DIR=\""$(modulesdir)"\" 			\
+	-I$(top_srcdir)/src 						\
+	$(TRACKER_APPS_CFLAGS)						\
+	$(WARN_CFLAGS)							\
+	$(GLIB2_CFLAGS)							\
+	$(GCOV_CFLAGS)							\
+	$(GMODULE_CFLAGS) 						\
+	$(DBUS_CFLAGS)							\
+	$(ID3LIB_CFLAGS)						\
 	$(EXEMPI_CFLAGS)
 
 modules_LTLIBRARIES =
@@ -42,23 +42,23 @@ endif
 #
 libexec_PROGRAMS = tracker-writeback
 
-tracker_writeback_SOURCES = 				\
-	$(marshal_sources)				\
-	$(dbus_sources)					\
-	tracker-writeback-dispatcher.c			\
-	tracker-writeback-dispatcher.h			\
-	tracker-writeback-file.c			\
-	tracker-writeback-file.h			\
-	tracker-writeback-module.c			\
-	tracker-writeback-module.h			\
-	tracker-writeback.c				\
-	tracker-writeback.h				\
+tracker_writeback_SOURCES = 						\
+	$(marshal_sources)						\
+	$(dbus_sources)							\
+	tracker-writeback-dispatcher.c					\
+	tracker-writeback-dispatcher.h					\
+	tracker-writeback-file.c					\
+	tracker-writeback-file.h					\
+	tracker-writeback-module.c					\
+	tracker-writeback-module.h					\
+	tracker-writeback.c						\
+	tracker-writeback.h						\
 	tracker-main.c
 
 tracker_writeback_LDADD = 						\
-	$(top_builddir)/src/libtracker-common/libtracker-common.la	\
-	$(top_builddir)/src/libtracker-client/libtracker-client-@TRACKER_API_VERSION@.la \
 	$(top_builddir)/src/libtracker-miner/libtracker-miner.la 	\
+	$(top_builddir)/src/libtracker-client/libtracker-client-@TRACKER_API_VERSION@.la \
+	$(top_builddir)/src/libtracker-common/libtracker-common.la	\
 	$(TRACKER_APPS_LIBS)						\
 	$(DBUS_LIBS)							\
 	$(GMODULE_LIBS)							\

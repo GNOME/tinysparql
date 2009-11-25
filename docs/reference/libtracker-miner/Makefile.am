@@ -44,6 +44,7 @@ INCLUDES = 								\
 
 GTKDOC_LIBS =								\
 	$(top_builddir)/src/libtracker-miner/libtracker-miner.la	\
+	$(top_builddir)/src/libtracker-common/libtracker-common.la	\
 	$(HAL_LIBS)							\
 	$(DBUS_LIBS)							\
 	$(UNAC_LIBS)							\

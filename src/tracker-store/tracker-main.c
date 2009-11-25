@@ -277,12 +277,17 @@ get_notifiable_classes (void)
 	TrackerDBResultSet *result_set;
 	GStrv classes_to_signal = NULL;
 
-	result_set = tracker_data_query_sparql ("SELECT ?class WHERE { ?class tracker:notify true }", NULL);
+	result_set = tracker_data_query_sparql ("SELECT ?class WHERE { "
+	                                        "  ?class tracker:notify true "
+	                                        "}", 
+	                                        NULL);
 
 	if (result_set) {
 		guint count = 0;
 
-		classes_to_signal = tracker_dbus_query_result_to_strv (result_set, 0, &count);
+		classes_to_signal = tracker_dbus_query_result_to_strv (result_set, 
+		                                                       0, 
+		                                                       &count);
 		g_object_unref (result_set);
 	}
 
@@ -296,12 +301,17 @@ get_writeback_predicates (void)
 	TrackerDBResultSet *result_set;
 	GStrv predicates_to_signal = NULL;
 
-	result_set = tracker_data_query_sparql ("SELECT ?predicate WHERE { ?predicate tracker:writeback true }", NULL);
+	result_set = tracker_data_query_sparql ("SELECT ?predicate WHERE { "
+	                                        "  ?predicate tracker:writeback true "
+	                                        "}", 
+	                                        NULL);
 
 	if (result_set) {
 		guint count = 0;
 
-		predicates_to_signal = tracker_dbus_query_result_to_strv (result_set, 0, &count);
+		predicates_to_signal = tracker_dbus_query_result_to_strv (result_set, 
+		                                                          0, 
+		                                                          &count);
 		g_object_unref (result_set);
 	}
 

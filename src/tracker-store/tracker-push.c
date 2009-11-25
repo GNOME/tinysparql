@@ -97,10 +97,10 @@ load_modules (PushSupportPrivate *private)
 
 static void
 name_owner_changed_cb (DBusGProxy *proxy, 
-		       gchar *name, 
-		       gchar *old_owner, 
-		       gchar *new_owner, 
-		       gpointer user_data)
+                       gchar *name, 
+                       gchar *old_owner, 
+                       gchar *new_owner, 
+                       gpointer user_data)
 {
 	GList *copy;
 	PushSupportPrivate *private;
