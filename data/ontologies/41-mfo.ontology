@@ -100,6 +100,13 @@ mfo:localLink a rdf:Property ;
 	rdfs:range nfo:FileDataObject ;
 	nrl:maxCardinality 1 .
 
+mfo:optional a rdf:Property ;
+	rdfs:label "Optional";	
+	rdfs:comment "The enclosure is mandatory to download or only optional" ;
+	rdfs:domain mfo:Enclosure; 
+	rdfs:range xsd:boolean ;
+	nrl:maxCardinality 1 .
+
 # Settings available for all Feed Elements
 mfo:feedSettings a rdf:Property ;
 	rdfs:label "Feed element settings" ;
