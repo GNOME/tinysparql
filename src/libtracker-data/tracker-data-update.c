@@ -1992,6 +1992,7 @@ void
 tracker_data_update_sparql (const gchar  *update,
 			    GError      **error)
 {
+	GError *actual_error = NULL;
 	TrackerDBInterface *iface;
 	TrackerSparqlQuery *sparql_query;
 
@@ -2003,9 +2004,9 @@ tracker_data_update_sparql (const gchar  *update,
 
 	tracker_db_interface_execute_query (iface, NULL, "SAVEPOINT sparql");
 
-	tracker_sparql_query_execute_update (sparql_query, FALSE, error);
+	tracker_sparql_query_execute_update (sparql_query, FALSE, &actual_error);
 
-	if (*error) {
+	if (actual_error) {
 		tracker_data_update_buffer_clear ();
 		tracker_db_interface_execute_query (iface, NULL, "ROLLBACK TO sparql");
 
@@ -2017,6 +2018,9 @@ tracker_data_update_sparql (const gchar  *update,
 				delegate->callback (delegate->user_data);
 			}
 		}
+
+		g_propagate_error (error, actual_error);
+		return;
 	}
 
 	tracker_db_interface_execute_query (iface, NULL, "RELEASE sparql");
@@ -2029,6 +2033,7 @@ GPtrArray *
 tracker_data_update_sparql_blank (const gchar  *update,
 			          GError      **error)
 {
+	GError *actual_error = NULL;
 	TrackerDBInterface *iface;
 	TrackerSparqlQuery *sparql_query;
 	GPtrArray *blank_nodes;
@@ -2041,9 +2046,9 @@ tracker_data_update_sparql_blank (const gchar  *update,
 
 	tracker_db_interface_execute_query (iface, NULL, "SAVEPOINT sparql");
 
-	blank_nodes = tracker_sparql_query_execute_update (sparql_query, TRUE, error);
+	blank_nodes = tracker_sparql_query_execute_update (sparql_query, TRUE, &actual_error);
 
-	if (*error) {
+	if (actual_error) {
 		tracker_data_update_buffer_clear ();
 		tracker_db_interface_execute_query (iface, NULL, "ROLLBACK TO sparql");
 
@@ -2055,6 +2060,9 @@ tracker_data_update_sparql_blank (const gchar  *update,
 				delegate->callback (delegate->user_data);
 			}
 		}
+
+		g_propagate_error (error, actual_error);
+		return NULL;
 	}
 
 	tracker_db_interface_execute_query (iface, NULL, "RELEASE sparql");
