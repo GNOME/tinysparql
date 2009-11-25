@@ -527,8 +527,9 @@ hal_drive_type_to_string (LibHalDriveType type)
 }
 
 static gboolean
-hal_device_is_removable (TrackerStorage *storage,
-			 const gchar    *device_file)
+hal_device_is_user_removable (TrackerStorage *storage,
+                              const gchar    *device_file,
+                              const gchar    *mount_point)
 {
 	TrackerStoragePriv *priv;
 	LibHalDrive *drive;
@@ -546,6 +547,18 @@ hal_device_is_removable (TrackerStorage *storage,
 	}
 
 	removable = libhal_drive_uses_removable_media (drive);
+
+	if (libhal_drive_get_type (drive) == LIBHAL_DRIVE_TYPE_SD_MMC) {
+		/* mmc block devices are not considered removable according to
+		   linux kernel as they do not contain removable media, they
+		   are simply hotpluggable
+		   consider all SD/MMC volumes mounted in /media as user removable
+		 */
+		if (g_str_has_prefix (mount_point, "/media/")) {
+			removable = TRUE;
+		}
+	}
+
 	libhal_drive_free (drive);
 
 	return removable;
@@ -665,7 +678,7 @@ hal_device_add (TrackerStorage *storage,
 		hal_mount_point_add (storage,
 				     udi,
 				     mount_point,
-				     hal_device_is_removable (storage, device_file));
+				     hal_device_is_user_removable (storage, device_file, mount_point));
 	}
 
 	return TRUE;
@@ -800,7 +813,7 @@ hal_device_property_modified_cb (LibHalContext *context,
 			hal_mount_point_add (storage,
 					     udi,
 					     mount_point,
-					     hal_device_is_removable (storage, device_file));
+					     hal_device_is_user_removable (storage, device_file, mount_point));
 
 			libhal_volume_free (volume);
 		} else {
