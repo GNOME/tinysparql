@@ -123,6 +123,8 @@ tracker_writeback_file_update_metadata (TrackerWriteback *writeback,
 	g_object_unref (file_info);
 
 	if (retval) {
+		g_message ("Locking file '%s' in order to write metadata", row[0]);
+
 		tracker_file_lock (file);
 
 		subjects[0] = row[0];

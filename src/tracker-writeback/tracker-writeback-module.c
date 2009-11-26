@@ -126,40 +126,40 @@ tracker_writeback_module_get (const gchar *name)
 GList *
 tracker_writeback_modules_list (void)
 {
-        GError *error = NULL;
-        const gchar *name;
-        GList *list = NULL;
-        GDir *dir;
+	GError *error = NULL;
+	const gchar *name;
+	GList *list = NULL;
+	GDir *dir;
 
-        dir = g_dir_open (WRITEBACK_MODULES_DIR, 0, &error);
+	dir = g_dir_open (WRITEBACK_MODULES_DIR, 0, &error);
 
-        if (error) {
-                g_critical ("Could not get writeback modules list: %s", error->message);
-                g_error_free (error);
-                return NULL;
-        }
+	if (error) {
+		g_critical ("Could not get writeback modules list: %s", error->message);
+		g_error_free (error);
+		return NULL;
+	}
 
-        while ((name = g_dir_read_name (dir)) != NULL) {
-                if (!g_str_has_suffix (name, G_MODULE_SUFFIX)) {
-                        continue;
-                }
+	while ((name = g_dir_read_name (dir)) != NULL) {
+		if (!g_str_has_suffix (name, G_MODULE_SUFFIX)) {
+			continue;
+		}
 
-                list = g_list_prepend (list, g_strdup (name));
-        }
+		list = g_list_prepend (list, g_strdup (name));
+	}
 
-        g_dir_close (dir);
+	g_dir_close (dir);
 
-        return g_list_reverse (list);
+	return g_list_reverse (list);
 }
 
 TrackerWriteback *
 tracker_writeback_module_create (TrackerWritebackModule *module)
 {
-        return (module->create) (G_TYPE_MODULE (module));
+	return (module->create) (G_TYPE_MODULE (module));
 }
 
 const gchar * const *
 tracker_writeback_module_get_rdf_types (TrackerWritebackModule *module)
 {
-        return (module->get_rdf_types) ();
+	return (module->get_rdf_types) ();
 }

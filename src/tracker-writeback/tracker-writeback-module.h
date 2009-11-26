@@ -40,8 +40,8 @@ struct TrackerWritebackModule {
 	GModule *module;
 	gchar *name;
 
-        TrackerWriteback *    (* create)        (GTypeModule *module);
-        const gchar * const * (* get_rdf_types) (void);
+	TrackerWriteback *    (* create)        (GTypeModule *module);
+	const gchar * const * (* get_rdf_types) (void);
 };
 
 struct TrackerWritebackModuleClass {

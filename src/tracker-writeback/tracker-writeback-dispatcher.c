@@ -1,6 +1,6 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*
- * Copyright (C) 2009, Nokia
+ * Copyright (C) 2008, Nokia
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -18,48 +18,55 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#include "config.h"
-
-#include <stdlib.h>
-
 #include <libtracker-common/tracker-dbus.h>
 #include <libtracker-client/tracker.h>
 
 #include "tracker-writeback-dispatcher.h"
 #include "tracker-writeback-dbus.h"
-#include "tracker-writeback-glue.h"
-#include "tracker-writeback-module.h"
 #include "tracker-marshal.h"
 
 #define TRACKER_WRITEBACK_DISPATCHER_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_WRITEBACK_DISPATCHER, TrackerWritebackDispatcherPrivate))
 
-#define TRACKER_SERVICE		    "org.freedesktop.Tracker1"
-#define TRACKER_RESOURCES_OBJECT    "/org/freedesktop/Tracker1/Resources"
-#define TRACKER_INTERFACE_RESOURCES "org.freedesktop.Tracker1.Resources"
+#define TRACKER_SERVICE                 "org.freedesktop.Tracker1"
+#define TRACKER_RESOURCES_OBJECT        "/org/freedesktop/Tracker1/Resources"
+#define TRACKER_INTERFACE_RESOURCES     "org.freedesktop.Tracker1.Resources"
+
+#define DBUS_MATCH_STR \
+	"type='signal', " \
+	"sender='" TRACKER_SERVICE "', " \
+	"path='" TRACKER_RESOURCES_OBJECT "', " \
+	"interface='" TRACKER_INTERFACE_RESOURCES "'"
 
 typedef struct {
-	DBusGConnection *connection;
-	DBusGProxy *proxy_dbus;
-	DBusGProxy *proxy_resources;
-} DBusData;
-
-typedef struct {
-	TrackerWritebackDispatcher *dispatcher;
-	GStrv rdf_types;
-} QueryData;
-
-typedef struct {
-	GHashTable *modules;
-	DBusData *dbus_data;
-	TrackerClient *client;
-	TrackerMinerManager *manager;
+	GMainContext *context;
+	DBusConnection *connection;
 } TrackerWritebackDispatcherPrivate;
 
-static void tracker_writeback_dispatcher_finalize    (GObject                    *object);
-static void tracker_writeback_dispatcher_constructed (GObject                    *object);
-static void sparql_writeback_cb                      (DBusGProxy                 *proxy,
-                                                      GHashTable                 *subjects,
-                                                      TrackerWritebackDispatcher *object);
+enum {
+	PROP_0,
+	PROP_MAIN_CONTEXT
+};
+
+enum {
+	WRITEBACK,
+	LAST_SIGNAL
+};
+
+static guint signals[LAST_SIGNAL] = { 0 };
+
+
+static void tracker_writeback_dispatcher_finalize     (GObject      *object);
+static void tracker_writeback_dispatcher_constructed  (GObject      *object);
+
+static void tracker_writeback_dispatcher_get_property (GObject      *object,
+                                                       guint         param_id,
+                                                       GValue       *value,
+                                                       GParamSpec   *pspec);
+static void tracker_writeback_dispatcher_set_property (GObject      *object,
+                                                       guint         param_id,
+                                                       const GValue *value,
+                                                       GParamSpec   *pspec);
+
 
 G_DEFINE_TYPE (TrackerWritebackDispatcher, tracker_writeback_dispatcher, G_TYPE_OBJECT)
 
@@ -70,177 +77,201 @@ tracker_writeback_dispatcher_class_init (TrackerWritebackDispatcherClass *klass)
 
 	object_class->finalize = tracker_writeback_dispatcher_finalize;
 	object_class->constructed = tracker_writeback_dispatcher_constructed;
+	object_class->get_property = tracker_writeback_dispatcher_get_property;
+	object_class->set_property = tracker_writeback_dispatcher_set_property;
+
+	g_object_class_install_property (object_class,
+	                                 PROP_MAIN_CONTEXT,
+	                                 g_param_spec_pointer ("context",
+	                                                       "Main context",
+	                                                       "Main context to run the DBus service on",
+	                                                       G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY));
+
+	signals[WRITEBACK] =
+		g_signal_new ("writeback",
+		              G_OBJECT_CLASS_TYPE (object_class),
+		              G_SIGNAL_RUN_LAST,
+		              G_STRUCT_OFFSET (TrackerWritebackDispatcherClass, writeback),
+		              NULL, NULL,
+		              tracker_marshal_VOID__STRING_BOXED,
+		              G_TYPE_NONE, 2, G_TYPE_STRING, G_TYPE_STRV);
 
 	g_type_class_add_private (object_class, sizeof (TrackerWritebackDispatcherPrivate));
 }
 
-static gboolean
-dbus_register_service (DBusGProxy  *proxy,
-                       const gchar *name)
+static void
+handle_writeback_signal (TrackerWritebackDispatcher *dispatcher,
+                         DBusMessage                *message)
 {
-	GError *error = NULL;
-	guint result;
+	DBusMessageIter iter;
+	gchar *signature;
+	int arg_type;
 
-	g_message ("Registering D-Bus service '%s'...", name);
+	g_message ("Got writeback DBus signal");
 
-	if (!org_freedesktop_DBus_request_name (proxy,
-	                                        name,
-	                                        DBUS_NAME_FLAG_DO_NOT_QUEUE,
-	                                        &result, &error)) {
+	if (!dbus_message_iter_init (message, &iter)) {
+		g_critical ("  Message had no arguments");
+		return;
+	}
+
+	signature = dbus_message_iter_get_signature (&iter);
+
+	if (g_strcmp0 (signature, "a{sas}") != 0) {
+		g_critical ("  Unexpected message signature '%s'", signature);
+		g_free (signature);
+		return;
+	}
+
+	g_free (signature);
+
+	while ((arg_type = dbus_message_iter_get_arg_type (&iter)) != DBUS_TYPE_INVALID) {
+		DBusMessageIter arr, dict, types_arr;
+		const gchar *subject;
+		GArray *rdf_types;
+
+		rdf_types = g_array_new (TRUE, TRUE, sizeof (gchar *));
+
+		dbus_message_iter_recurse (&iter, &arr);
+		dbus_message_iter_recurse (&arr, &dict);
+
+		dbus_message_iter_get_basic (&dict, &subject);
+
+		dbus_message_iter_next (&dict);
+		dbus_message_iter_recurse (&dict, &types_arr);
+
+		while ((arg_type = dbus_message_iter_get_arg_type (&types_arr)) != DBUS_TYPE_INVALID) {
+			const gchar *type;
+
+			dbus_message_iter_get_basic (&types_arr, &type);
+
+			g_array_append_val (rdf_types, type);
+
+			dbus_message_iter_next (&types_arr);
+		}
+
+		g_signal_emit (dispatcher, signals[WRITEBACK], 0, subject, rdf_types->data);
+		g_array_free (rdf_types, TRUE);
+
+		dbus_message_iter_next (&iter);
+	}
+}
+
+static DBusHandlerResult
+message_filter (DBusConnection *connection,
+		DBusMessage    *message,
+		gpointer        user_data)
+{
+	if (dbus_message_is_signal (message,
+	                            TRACKER_INTERFACE_RESOURCES,
+	                            "Writeback")) {
+		TrackerWritebackDispatcher *dispatcher = user_data;
+
+		handle_writeback_signal (dispatcher, message);
+
+		return DBUS_HANDLER_RESULT_HANDLED;
+	}
+
+	return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
+}
+
+static DBusConnection *
+setup_dbus_connection (TrackerWritebackDispatcher *dispatcher,
+                       GMainContext               *context)
+{
+	DBusConnection *connection;
+	DBusError error;
+	gint result;
+
+	dbus_error_init (&error);
+
+	/* Create DBus connection */
+	connection = dbus_bus_get_private (DBUS_BUS_SESSION, &error);
+
+	if (dbus_error_is_set (&error)) {
+		g_critical ("Could not connect to the D-Bus session bus, %s",
+		            error.message);
+		dbus_error_free (&error);
+		return NULL;
+	}
+
+	dbus_connection_set_exit_on_disconnect (connection, FALSE);
+
+	/* Request writeback service name */
+	g_message ("Registering D-Bus service '%s'...", TRACKER_WRITEBACK_DBUS_NAME);
+	result = dbus_bus_request_name (connection,
+	                                TRACKER_WRITEBACK_DBUS_NAME, 0,
+	                                &error);
+
+	if (dbus_error_is_set (&error)) {
 		g_critical ("Could not acquire name:'%s', %s",
-		            name,
-		            error ? error->message : "no error given");
-		g_error_free (error);
+		            TRACKER_WRITEBACK_DBUS_NAME, error.message);
+		dbus_error_free (&error);
+		dbus_connection_close (connection);
+		dbus_connection_unref (connection);
 
-		return FALSE;
+		return NULL;
 	}
 
 	if (result != DBUS_REQUEST_NAME_REPLY_PRIMARY_OWNER) {
 		g_critical ("D-Bus service name:'%s' is already taken, "
 		            "perhaps the application is already running?",
-		            name);
-		return FALSE;
-	}
+		            TRACKER_WRITEBACK_DBUS_NAME);
+		dbus_connection_close (connection);
+		dbus_connection_unref (connection);
 
-	return TRUE;
-}
-
-static gboolean
-dbus_register_object (GObject		    *object,
-                      DBusGConnection	    *connection,
-                      DBusGProxy	    *proxy,
-                      const DBusGObjectInfo *info,
-                      const gchar	    *path)
-{
-	g_message ("Registering D-Bus object...");
-	g_message ("  Path:'%s'", path);
-	g_message ("  Object Type:'%s'", G_OBJECT_TYPE_NAME (object));
-
-	dbus_g_object_type_install_info (G_OBJECT_TYPE (object), info);
-	dbus_g_connection_register_g_object (connection, path, object);
-
-	return TRUE;
-}
-
-static DBusData *
-dbus_data_new (GObject *object)
-{
-	DBusData *data;
-	DBusGConnection *connection;
-	DBusGProxy *gproxy;
-	GError *error = NULL;
-
-	connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
-
-	if (!connection) {
-		g_critical ("Could not connect to the D-Bus session bus, %s",
-		            error ? error->message : "no error given.");
-		g_error_free (error);
 		return NULL;
 	}
 
-	gproxy = dbus_g_proxy_new_for_name (connection,
-	                                    DBUS_SERVICE_DBUS,
-	                                    DBUS_PATH_DBUS,
-	                                    DBUS_INTERFACE_DBUS);
+	/* Add message filter function */
+	if (!dbus_connection_add_filter (connection, message_filter, dispatcher, NULL)) {
+		g_critical ("Could not add message filter");
+		dbus_connection_close (connection);
+		dbus_connection_unref (connection);
 
-	if (!dbus_register_service (gproxy,
-	                            TRACKER_WRITEBACK_DBUS_NAME)) {
-		g_object_unref (gproxy);
 		return NULL;
 	}
 
-	if (!dbus_register_object (object,
-	                           connection, gproxy,
-	                           &dbus_glib_tracker_writeback_object_info,
-	                           TRACKER_WRITEBACK_DBUS_PATH)) {
-		g_object_unref (gproxy);
+	/* Add match to receive writeback signals */
+	dbus_bus_add_match (connection, DBUS_MATCH_STR, &error);
+
+	if (dbus_error_is_set (&error)) {
+		g_critical ("Could not add match rules, %s", error.message);
+		dbus_error_free (&error);
+		dbus_connection_close (connection);
+		dbus_connection_unref (connection);
+
 		return NULL;
 	}
 
-	dbus_g_object_register_marshaller (tracker_marshal_VOID__BOXED,
-	                                   G_TYPE_NONE,
-	                                   TRACKER_TYPE_STR_STRV_MAP,
-	                                   G_TYPE_INVALID);
+	/* Set up with the thread context */
+	dbus_connection_setup_with_g_main (connection, context);
 
-	/* Now we're successfully connected and registered, create the data */
-	data = g_new0 (DBusData, 1);
-	data->connection = dbus_g_connection_ref (connection);
-	data->proxy_dbus = gproxy;
-
-	return data;
-}
-
-static void
-dbus_data_free (DBusData *data)
-{
-	dbus_g_connection_unref (data->connection);
-
-	if (data->proxy_dbus) {
-		g_object_unref (data->proxy_dbus);
-	}
-
-	if (data->proxy_resources) {
-		g_object_unref (data->proxy_resources);
-	}
-
-	g_free (data);
+	return connection;
 }
 
 static void
 tracker_writeback_dispatcher_init (TrackerWritebackDispatcher *dispatcher)
 {
-	TrackerWritebackDispatcherPrivate *priv;
-
-	priv = TRACKER_WRITEBACK_DISPATCHER_GET_PRIVATE (dispatcher);
-
-	priv->client = tracker_connect (TRUE, 0);
-	priv->dbus_data = dbus_data_new (G_OBJECT (dispatcher));
-
-	if (!priv->dbus_data) {
-		tracker_disconnect (priv->client);
-		exit (EXIT_FAILURE);
-	}
-
-	priv->modules = g_hash_table_new_full (g_str_hash,
-	                                       g_str_equal,
-	                                       (GDestroyNotify) g_free,
-	                                       NULL);
-
-	priv->dbus_data->proxy_resources = 
-		dbus_g_proxy_new_for_name (priv->dbus_data->connection,
-		                           TRACKER_SERVICE,
-		                           TRACKER_RESOURCES_OBJECT,
-		                           TRACKER_INTERFACE_RESOURCES);
-
-	dbus_g_proxy_add_signal (priv->dbus_data->proxy_resources, 
-	                         "Writeback",
-	                         TRACKER_TYPE_STR_STRV_MAP,
-	                         G_TYPE_INVALID);
-
-	dbus_g_proxy_connect_signal (priv->dbus_data->proxy_resources, 
-	                             "Writeback",
-	                             G_CALLBACK (sparql_writeback_cb),
-	                             dispatcher,
-	                             NULL);
-
-	priv->manager = tracker_writeback_get_miner_manager ();
 }
 
 static void
 tracker_writeback_dispatcher_finalize (GObject *object)
 {
 	TrackerWritebackDispatcherPrivate *priv;
+	DBusError error;
 
 	priv = TRACKER_WRITEBACK_DISPATCHER_GET_PRIVATE (object);
+	dbus_error_init (&error);
 
-	if (priv->client) {
-		tracker_disconnect (priv->client);
+	dbus_bus_remove_match (priv->connection, DBUS_MATCH_STR, &error);
+
+	if (dbus_error_is_set (&error)) {
+		g_critical ("Could not remove match rules, %s", error.message);
+		dbus_error_free (&error);
 	}
 
-	g_object_unref (priv->manager);
-
-	dbus_data_free (priv->dbus_data);
+	dbus_connection_remove_filter (priv->connection, message_filter, object);
+	dbus_connection_unref (priv->connection);
 
 	G_OBJECT_CLASS (tracker_writeback_dispatcher_parent_class)->finalize (object);
 }
@@ -249,134 +280,78 @@ static void
 tracker_writeback_dispatcher_constructed (GObject *object)
 {
 	TrackerWritebackDispatcherPrivate *priv;
-	GList *modules;
+	TrackerWritebackDispatcher *dispatcher;
+	DBusConnection *connection;
+
+	dispatcher = TRACKER_WRITEBACK_DISPATCHER (object);
+	priv = TRACKER_WRITEBACK_DISPATCHER_GET_PRIVATE (dispatcher);
+
+	connection = setup_dbus_connection (dispatcher, priv->context);
+	g_assert (connection != NULL);
+
+	priv->connection = connection;
+}
+
+static void
+tracker_writeback_dispatcher_get_property (GObject    *object,
+                                           guint       param_id,
+                                           GValue     *value,
+                                           GParamSpec *pspec)
+{
+	TrackerWritebackDispatcherPrivate *priv;
 
 	priv = TRACKER_WRITEBACK_DISPATCHER_GET_PRIVATE (object);
-	modules = tracker_writeback_modules_list ();
 
-	while (modules) {
-		TrackerWritebackModule *module;
-		const gchar *path;
+	switch (param_id) {
+	case PROP_MAIN_CONTEXT:
+		g_value_set_pointer (value, priv->context);
+		break;
+	default:
+		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, param_id, pspec);
+		break;
+	}
+}
 
-		path = modules->data;
-		module = tracker_writeback_module_get (path);
+static void
+tracker_writeback_dispatcher_set_property (GObject       *object,
+                                           guint          param_id,
+                                           const GValue  *value,
+                                           GParamSpec    *pspec)
+{
+	TrackerWritebackDispatcherPrivate *priv;
 
-		g_hash_table_insert (priv->modules, g_strdup (path), module);
-		modules = modules->next;
+	priv = TRACKER_WRITEBACK_DISPATCHER_GET_PRIVATE (object);
+
+	switch (param_id) {
+	case PROP_MAIN_CONTEXT:
+		{
+			GMainContext *context;
+
+			context = g_value_get_pointer (value);
+
+			if (context != priv->context) {
+				if (priv->context) {
+					g_main_context_unref (priv->context);
+					priv->context = NULL;
+				}
+
+				if (context) {
+					priv->context = g_main_context_ref (context);
+				}
+			}
+		}
+
+		break;
+	default:
+		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, param_id, pspec);
+		break;
 	}
 }
 
 TrackerWritebackDispatcher *
-tracker_writeback_dispatcher_new (void)
+tracker_writeback_dispatcher_new (GMainContext *context)
 {
-	return g_object_new (TRACKER_TYPE_WRITEBACK_DISPATCHER, NULL);
-}
-
-static gboolean
-sparql_rdf_types_match (const gchar * const *module_types, 
-                        const gchar * const *rdf_types)
-{
-	guint n;
-
-	for (n = 0; rdf_types[n] != NULL; n++) {
-		guint i;
-
-		for (i = 0; module_types[i] != NULL; i++) {
-			if (g_strcmp0 (module_types[i], rdf_types[n]) == 0) {
-				return TRUE;
-			}
-		}
-	}
-
-	return FALSE;
-}
-
-static void
-sparql_query_cb (GPtrArray *result,
-                 GError    *error,
-                 gpointer   user_data)
-{
-	TrackerWritebackDispatcherPrivate *priv;
-	QueryData *data;
-
-	data = user_data;
-
-	if (result && result->len > 0) {
-		GHashTableIter iter;
-		gpointer key, value;
-		GStrv rdf_types;
-
-		priv = TRACKER_WRITEBACK_DISPATCHER_GET_PRIVATE (data->dispatcher);
-
-		rdf_types = data->rdf_types;
-
-		g_hash_table_iter_init (&iter, priv->modules);
-
-		while (g_hash_table_iter_next (&iter, &key, &value)) {
-			TrackerWritebackModule *module;
-			const gchar * const *module_types;
-
-			module = value;
-			module_types = tracker_writeback_module_get_rdf_types (module);
-
-			if (sparql_rdf_types_match (module_types, (const gchar * const *) rdf_types)) {
-				TrackerWriteback *writeback;
-
-				g_message ("  Updating metadata for file:'%s' using module:'%s'",
-				           "unknown",
-				           module->name);
-
-				writeback = tracker_writeback_module_create (module);
-				tracker_writeback_update_metadata (writeback, result, priv->client);
-				g_object_unref (writeback);
-			}
-		}
-	} else {
-		g_message ("  No files qualify for updates");
-	}
-
-	g_strfreev (data->rdf_types);
-	g_slice_free (QueryData, data);
-}
-
-static void
-sparql_writeback_cb (DBusGProxy                 *proxy,
-                     GHashTable                 *subjects,
-                     TrackerWritebackDispatcher *object)
-{
-	TrackerWritebackDispatcherPrivate *priv;
-	QueryData *data;
-	GHashTableIter iter;
-	gpointer key, value;
-
-	priv = TRACKER_WRITEBACK_DISPATCHER_GET_PRIVATE (object);
-
-	g_message ("Writeback signalled with %d subjects...",
-		   g_hash_table_size (subjects));
-
-	g_hash_table_iter_init (&iter, subjects);
-
-	while (g_hash_table_iter_next (&iter, &key, &value)) {
-		const gchar *subject = key;
-		const gchar * const *rdf_types = value;
-		gchar *query;
-
-		query = g_strdup_printf ("SELECT ?url ?predicate ?object {"
-		                         "  <%s> ?predicate ?object ;"
-		                         "  nie:isStoredAs ?url ."
-		                         "  ?predicate tracker:writeback true "
-		                         "}", 
-		                         subject);
-
-		data = g_slice_new (QueryData);
-		data->dispatcher = object;
-		data->rdf_types = g_strdupv ((gchar **) rdf_types);
-
-		tracker_resources_sparql_query_async (priv->client,
-		                                      query,
-		                                      sparql_query_cb,
-		                                      data);
-
-		g_free (query);
-	}
+	return g_object_new (TRACKER_TYPE_WRITEBACK_DISPATCHER,
+	                     "context", context,
+	                     NULL);
 }
