@@ -259,9 +259,6 @@ if test "x$enable_id3lib" != "xno" ; then
    AC_SUBST(ID3LIB_CFLAGS)
    AC_SUBST(ID3LIB_LIBS)
 
-   if test "x$have_libjpeg" = "xyes"; then
-      AC_DEFINE(HAVE_ID3LIB, [], [Define if we have id3lib])
-   fi
 else
    have_id3lib="no  (disabled)"
 fi
@@ -1616,6 +1613,7 @@ Plugins:
 Writeback:
 
 	MP3 writeback:                          $have_id3lib
+	XMP writeback:                          $have_exempi
 
 Warning:
 

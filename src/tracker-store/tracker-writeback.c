@@ -64,7 +64,7 @@ tracker_writeback_check (const gchar *graph,
 	 */
 
 	if (graph != NULL) {
-		g_debug ("Not doing writeback check, no graph");
+		/* g_debug ("Not doing writeback check, no graph"); */
 		return;
 	}
 
