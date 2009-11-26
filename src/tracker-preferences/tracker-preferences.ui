@@ -35,6 +35,7 @@
   <object class="GtkDialog" id="tracker-preferences">
     <property name="width_request">500</property>
     <property name="border_width">5</property>
+    <property name="title" translatable="yes">Tracker Preferences</property>
     <property name="type_hint">normal</property>
     <property name="has_separator">False</property>
     <signal name="close" handler="gtk_main_quit"/>
@@ -78,6 +79,7 @@
                                     <property name="visible">True</property>
                                     <property name="label" translatable="yes">_Delay</property>
                                     <property name="use_underline">True</property>
+                                    <property name="mnemonic_widget">spinbutton_delay</property>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -145,6 +147,107 @@
                   </packing>
                 </child>
                 <child>
+                  <object class="GtkFrame" id="frame1">
+                    <property name="visible">True</property>
+                    <property name="label_xalign">0</property>
+                    <property name="shadow_type">none</property>
+                    <child>
+                      <object class="GtkAlignment" id="alignment2">
+                        <property name="visible">True</property>
+                        <property name="top_padding">6</property>
+                        <property name="left_padding">12</property>
+                        <child>
+                          <object class="GtkVBox" id="vbox9">
+                            <property name="visible">True</property>
+                            <property name="orientation">vertical</property>
+                            <child>
+                              <object class="GtkRadioButton" id="radiobutton_display_never">
+                                <property name="label" translatable="yes">_Never display icon</property>
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="receives_default">False</property>
+                                <property name="use_underline">True</property>
+                                <property name="draw_indicator">True</property>
+                                <signal name="toggled" handler="radiobutton_visibility_toggled_cb"/>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="position">0</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkRadioButton" id="radiobutton_display_active">
+                                <property name="label" translatable="yes">_Only display when indexing content</property>
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="receives_default">False</property>
+                                <property name="use_underline">True</property>
+                                <property name="active">True</property>
+                                <property name="draw_indicator">True</property>
+                                <property name="group">radiobutton_display_never</property>
+                                <signal name="toggled" handler="radiobutton_visibility_toggled_cb"/>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="position">1</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkRadioButton" id="radiobutton_display_always">
+                                <property name="label" translatable="yes">Al_ways display icon</property>
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="receives_default">False</property>
+                                <property name="use_underline">True</property>
+                                <property name="active">True</property>
+                                <property name="draw_indicator">True</property>
+                                <property name="group">radiobutton_display_never</property>
+                                <signal name="toggled" handler="radiobutton_visibility_toggled_cb"/>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="position">2</property>
+                              </packing>
+                            </child>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child type="label">
+                      <object class="GtkLabel" id="label8">
+                        <property name="visible">True</property>
+                        <property name="xpad">3</property>
+                        <property name="label" translatable="yes">&lt;b&gt;Notification area&lt;/b&gt;</property>
+                        <property name="use_markup">True</property>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+              </object>
+            </child>
+            <child type="tab">
+              <object class="GtkLabel" id="label3">
+                <property name="visible">True</property>
+                <property name="label" translatable="yes">General</property>
+              </object>
+              <packing>
+                <property name="tab_fill">False</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkVBox" id="vbox10">
+                <property name="visible">True</property>
+                <property name="border_width">12</property>
+                <property name="orientation">vertical</property>
+                <property name="spacing">18</property>
+                <child>
                   <object class="GtkFrame" id="frame_indexing">
                     <property name="visible">True</property>
                     <property name="label_xalign">0</property>
@@ -165,7 +268,6 @@
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="receives_default">False</property>
-                                <property name="tooltip_text" translatable="yes">Follow changes made to files and new files created by watching directories</property>
                                 <property name="use_underline">True</property>
                                 <property name="active">True</property>
                                 <property name="draw_indicator">True</property>
@@ -182,7 +284,6 @@
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="receives_default">False</property>
-                                <property name="tooltip_text" translatable="yes">Create thumbnails from images and videos</property>
                                 <property name="use_underline">True</property>
                                 <property name="active">True</property>
                                 <property name="draw_indicator">True</property>
@@ -199,7 +300,6 @@
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="receives_default">False</property>
-                                <property name="tooltip_text" translatable="yes">If this is unchecked, then Tracker will be paused while the device is using battery instead of AC power</property>
                                 <property name="use_underline">True</property>
                                 <property name="active">True</property>
                                 <property name="draw_indicator">True</property>
@@ -221,9 +321,6 @@
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
-                                    <property name="tooltip_text" translatable="yes">This is an exception to the previous option. 
-
-Checking this means that when Tracker is run for the first time, it will not pause if running on battery instead of AC power</property>
                                     <property name="use_underline">True</property>
                                     <property name="active">True</property>
                                     <property name="draw_indicator">True</property>
@@ -242,7 +339,6 @@ Checking this means that when Tracker is run for the first time, it will not pau
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="receives_default">False</property>
-                                <property name="tooltip_text" translatable="yes">Removable devices are always considered separately. This applies to directories mounted within the file system which are NOT removable devices</property>
                                 <property name="use_underline">True</property>
                                 <property name="active">True</property>
                                 <property name="draw_indicator">True</property>
@@ -260,7 +356,6 @@ Checking this means that when Tracker is run for the first time, it will not pau
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="receives_default">False</property>
-                                <property name="tooltip_text" translatable="yes">Removable devices include memory cards and USB sticks for example</property>
                                 <property name="use_underline">True</property>
                                 <property name="active">True</property>
                                 <property name="draw_indicator">True</property>
@@ -272,121 +367,6 @@ Checking this means that when Tracker is run for the first time, it will not pau
                                 <property name="position">5</property>
                               </packing>
                             </child>
-                            <child>
-                              <object class="GtkHBox" id="hbox_disk_space_limit">
-                                <property name="visible">True</property>
-                                <property name="spacing">12</property>
-                                <child>
-                                  <object class="GtkLabel" id="label_disk_space_limit">
-                                    <property name="visible">True</property>
-                                    <property name="xalign">0</property>
-                                    <property name="yalign">0</property>
-                                    <property name="label" translatable="yes">Disk space _limit:</property>
-                                    <property name="use_underline">True</property>
-                                    <property name="mnemonic_widget">hscale_disk_space_limit</property>
-                                  </object>
-                                  <packing>
-                                    <property name="expand">False</property>
-                                    <property name="position">0</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <object class="GtkHScale" id="hscale_disk_space_limit">
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">True</property>
-                                    <property name="tooltip_text" translatable="yes">This represents a percentage of disk capacity which MUST be free to be able to index content. If there is less space than the percentage represented here, Tracker will pause until such time as there is enough space to continue</property>
-                                    <property name="adjustment">adjustment_disk_space_limit</property>
-                                    <property name="digits">0</property>
-                                    <signal name="format_value" handler="hscale_disk_space_limit_format_value_cb"/>
-                                  </object>
-                                  <packing>
-                                    <property name="position">1</property>
-                                  </packing>
-                                </child>
-                              </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="padding">12</property>
-                                <property name="position">6</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkHBox" id="hbox_throttle">
-                                <property name="visible">True</property>
-                                <property name="spacing">12</property>
-                                <child>
-                                  <object class="GtkLabel" id="label_throttle">
-                                    <property name="visible">True</property>
-                                    <property name="xalign">0</property>
-                                    <property name="yalign">0</property>
-                                    <property name="label" translatable="yes">Thr_ottle:</property>
-                                    <property name="use_underline">True</property>
-                                    <property name="mnemonic_widget">hscale_throttle</property>
-                                  </object>
-                                  <packing>
-                                    <property name="expand">False</property>
-                                    <property name="position">0</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <object class="GtkTable" id="table_throttle">
-                                    <property name="visible">True</property>
-                                    <property name="n_rows">2</property>
-                                    <property name="n_columns">2</property>
-                                    <property name="column_spacing">12</property>
-                                    <property name="row_spacing">6</property>
-                                    <child>
-                                      <object class="GtkLabel" id="label_slower">
-                                        <property name="visible">True</property>
-                                        <property name="xalign">1</property>
-                                        <property name="label" translatable="yes">Slower</property>
-                                        <property name="justify">right</property>
-                                      </object>
-                                      <packing>
-                                        <property name="left_attach">1</property>
-                                        <property name="right_attach">2</property>
-                                        <property name="top_attach">1</property>
-                                        <property name="bottom_attach">2</property>
-                                        <property name="y_options"></property>
-                                      </packing>
-                                    </child>
-                                    <child>
-                                      <object class="GtkLabel" id="label_faster">
-                                        <property name="visible">True</property>
-                                        <property name="xalign">0</property>
-                                        <property name="label" translatable="yes">Faster</property>
-                                      </object>
-                                      <packing>
-                                        <property name="top_attach">1</property>
-                                        <property name="bottom_attach">2</property>
-                                        <property name="y_options"></property>
-                                      </packing>
-                                    </child>
-                                    <child>
-                                      <object class="GtkHScale" id="hscale_throttle">
-                                        <property name="visible">True</property>
-                                        <property name="can_focus">True</property>
-                                        <property name="tooltip_text" translatable="yes">This is a way for the user to make Tracker use less system resources and to appear as more of a background task if it consumes too much processing power</property>
-                                        <property name="adjustment">adjustment_throttle</property>
-                                        <property name="digits">0</property>
-                                        <signal name="format_value" handler="hscale_throttle_format_value_cb"/>
-                                      </object>
-                                      <packing>
-                                        <property name="right_attach">2</property>
-                                      </packing>
-                                    </child>
-                                  </object>
-                                  <packing>
-                                    <property name="position">1</property>
-                                  </packing>
-                                </child>
-                              </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="padding">6</property>
-                                <property name="position">7</property>
-                              </packing>
-                            </child>
                           </object>
                         </child>
                       </object>
@@ -394,7 +374,7 @@ Checking this means that when Tracker is run for the first time, it will not pau
                     <child type="label">
                       <object class="GtkLabel" id="label_indexing">
                         <property name="visible">True</property>
-                        <property name="label" translatable="yes">Indexing</property>
+                        <property name="label" translatable="yes">Semantics</property>
                         <attributes>
                           <attribute name="weight" value="bold"/>
                         </attributes>
@@ -402,63 +382,144 @@ Checking this means that when Tracker is run for the first time, it will not pau
                     </child>
                   </object>
                   <packing>
-                    <property name="position">1</property>
+                    <property name="expand">False</property>
+                    <property name="position">0</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkFrame" id="frame1">
+                  <object class="GtkFrame" id="frame_general1">
                     <property name="visible">True</property>
                     <property name="label_xalign">0</property>
                     <property name="shadow_type">none</property>
                     <child>
-                      <object class="GtkAlignment" id="alignment2">
+                      <object class="GtkAlignment" id="alignment7">
                         <property name="visible">True</property>
+                        <property name="top_padding">6</property>
                         <property name="left_padding">12</property>
                         <child>
-                          <object class="GtkVBox" id="vbox9">
+                          <object class="GtkVBox" id="vbox_general1">
                             <property name="visible">True</property>
                             <property name="orientation">vertical</property>
                             <child>
-                              <object class="GtkRadioButton" id="radiobutton_display_never">
-                                <property name="label" translatable="yes">Never display icon</property>
+                              <object class="GtkVBox" id="vbox11">
                                 <property name="visible">True</property>
-                                <property name="can_focus">True</property>
-                                <property name="receives_default">False</property>
-                                <property name="draw_indicator">True</property>
-                                <signal name="toggled" handler="radiobutton_visibility_toggled_cb"/>
+                                <property name="orientation">vertical</property>
+                                <child>
+                                  <object class="GtkHBox" id="hbox_disk_space_limit">
+                                    <property name="visible">True</property>
+                                    <property name="spacing">12</property>
+                                    <child>
+                                      <object class="GtkLabel" id="label_disk_space_limit">
+                                        <property name="visible">True</property>
+                                        <property name="xalign">0</property>
+                                        <property name="yalign">0</property>
+                                        <property name="label" translatable="yes">_Disk space:</property>
+                                        <property name="use_underline">True</property>
+                                        <property name="mnemonic_widget">hscale_disk_space_limit</property>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">False</property>
+                                        <property name="position">0</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkHScale" id="hscale_disk_space_limit">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">True</property>
+                                        <property name="adjustment">adjustment_disk_space_limit</property>
+                                        <property name="digits">0</property>
+                                        <signal name="format_value" handler="hscale_disk_space_limit_format_value_cb"/>
+                                      </object>
+                                      <packing>
+                                        <property name="position">1</property>
+                                      </packing>
+                                    </child>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="padding">12</property>
+                                    <property name="position">0</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkHBox" id="hbox_throttle">
+                                    <property name="visible">True</property>
+                                    <property name="spacing">12</property>
+                                    <child>
+                                      <object class="GtkLabel" id="label_throttle">
+                                        <property name="visible">True</property>
+                                        <property name="xalign">0</property>
+                                        <property name="yalign">0</property>
+                                        <property name="label" translatable="yes">Thr_ottle:</property>
+                                        <property name="use_underline">True</property>
+                                        <property name="mnemonic_widget">hscale_throttle</property>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">False</property>
+                                        <property name="position">0</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkTable" id="table_throttle">
+                                        <property name="visible">True</property>
+                                        <property name="n_rows">2</property>
+                                        <property name="n_columns">2</property>
+                                        <property name="column_spacing">12</property>
+                                        <property name="row_spacing">6</property>
+                                        <child>
+                                          <object class="GtkLabel" id="label_slower">
+                                            <property name="visible">True</property>
+                                            <property name="xalign">1</property>
+                                            <property name="label" translatable="yes">Slower</property>
+                                            <property name="justify">right</property>
+                                          </object>
+                                          <packing>
+                                            <property name="left_attach">1</property>
+                                            <property name="right_attach">2</property>
+                                            <property name="top_attach">1</property>
+                                            <property name="bottom_attach">2</property>
+                                            <property name="y_options"></property>
+                                          </packing>
+                                        </child>
+                                        <child>
+                                          <object class="GtkLabel" id="label_faster">
+                                            <property name="visible">True</property>
+                                            <property name="xalign">0</property>
+                                            <property name="label" translatable="yes">Faster</property>
+                                          </object>
+                                          <packing>
+                                            <property name="top_attach">1</property>
+                                            <property name="bottom_attach">2</property>
+                                            <property name="y_options"></property>
+                                          </packing>
+                                        </child>
+                                        <child>
+                                          <object class="GtkHScale" id="hscale_throttle">
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">True</property>
+                                            <property name="adjustment">adjustment_throttle</property>
+                                            <property name="digits">0</property>
+                                            <signal name="format_value" handler="hscale_throttle_format_value_cb"/>
+                                          </object>
+                                          <packing>
+                                            <property name="right_attach">2</property>
+                                          </packing>
+                                        </child>
+                                      </object>
+                                      <packing>
+                                        <property name="position">1</property>
+                                      </packing>
+                                    </child>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="padding">6</property>
+                                    <property name="position">1</property>
+                                  </packing>
+                                </child>
                               </object>
                               <packing>
                                 <property name="position">0</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkRadioButton" id="radiobutton_display_active">
-                                <property name="label" translatable="yes">Only display when indexing content</property>
-                                <property name="visible">True</property>
-                                <property name="can_focus">True</property>
-                                <property name="receives_default">False</property>
-                                <property name="active">True</property>
-                                <property name="draw_indicator">True</property>
-                                <property name="group">radiobutton_display_never</property>
-                                <signal name="toggled" handler="radiobutton_visibility_toggled_cb"/>
-                              </object>
-                              <packing>
-                                <property name="position">1</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkRadioButton" id="radiobutton_display_always">
-                                <property name="label" translatable="yes">Always display icon</property>
-                                <property name="visible">True</property>
-                                <property name="can_focus">True</property>
-                                <property name="receives_default">False</property>
-                                <property name="active">True</property>
-                                <property name="draw_indicator">True</property>
-                                <property name="group">radiobutton_display_never</property>
-                                <signal name="toggled" handler="radiobutton_visibility_toggled_cb"/>
-                              </object>
-                              <packing>
-                                <property name="position">2</property>
                               </packing>
                             </child>
                           </object>
@@ -466,26 +527,32 @@ Checking this means that when Tracker is run for the first time, it will not pau
                       </object>
                     </child>
                     <child type="label">
-                      <object class="GtkLabel" id="label8">
+                      <object class="GtkLabel" id="label">
                         <property name="visible">True</property>
-                        <property name="xpad">3</property>
-                        <property name="label" translatable="yes">&lt;b&gt;Notification area&lt;/b&gt;</property>
-                        <property name="use_markup">True</property>
+                        <property name="label" translatable="yes">Limitations</property>
+                        <attributes>
+                          <attribute name="weight" value="bold"/>
+                        </attributes>
                       </object>
                     </child>
                   </object>
                   <packing>
-                    <property name="position">2</property>
+                    <property name="expand">False</property>
+                    <property name="position">1</property>
                   </packing>
                 </child>
               </object>
+              <packing>
+                <property name="position">1</property>
+              </packing>
             </child>
             <child type="tab">
-              <object class="GtkLabel" id="label3">
+              <object class="GtkLabel" id="label12">
                 <property name="visible">True</property>
-                <property name="label" translatable="yes">General</property>
+                <property name="label" translatable="yes">Indexing</property>
               </object>
               <packing>
+                <property name="position">1</property>
                 <property name="tab_fill">False</property>
               </packing>
             </child>
@@ -768,7 +835,7 @@ Checking this means that when Tracker is run for the first time, it will not pau
                 </child>
               </object>
               <packing>
-                <property name="position">1</property>
+                <property name="position">2</property>
               </packing>
             </child>
             <child type="tab">
@@ -777,7 +844,7 @@ Checking this means that when Tracker is run for the first time, it will not pau
                 <property name="label" translatable="yes">Locations</property>
               </object>
               <packing>
-                <property name="position">1</property>
+                <property name="position">2</property>
                 <property name="tab_fill">False</property>
               </packing>
             </child>
@@ -1154,7 +1221,7 @@ Most commonly this is used to ignore directories like *~, *.o, *.la, etc</proper
                 </child>
               </object>
               <packing>
-                <property name="position">2</property>
+                <property name="position">3</property>
               </packing>
             </child>
             <child type="tab">
@@ -1163,7 +1230,7 @@ Most commonly this is used to ignore directories like *~, *.o, *.la, etc</proper
                 <property name="label" translatable="yes">Ignored Content</property>
               </object>
               <packing>
-                <property name="position">2</property>
+                <property name="position">3</property>
                 <property name="tab_fill">False</property>
               </packing>
             </child>
@@ -1244,8 +1311,8 @@ Most commonly this is used to ignore directories like *~, *.o, *.la, etc</proper
   </object>
   <object class="GtkSizeGroup" id="sizegroup_indexing">
     <widgets>
-      <widget name="label_disk_space_limit"/>
       <widget name="label_throttle"/>
+      <widget name="label_disk_space_limit"/>
     </widgets>
   </object>
 </interface>
