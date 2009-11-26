@@ -495,3 +495,15 @@ nmm:alternativeMedia a rdf:Property ;
 	rdfs:comment "Link between to different version of the same media. This is used for instances in uPnp where the server can provide the same video in different resolutions and codecs" ;
 	rdfs:domain nfo:Media ;
 	rdfs:range nfo:Media .
+
+nmm:dlnaProfile a rdf:Property ;
+	rdfs:label "DLNA profile" ;
+	rdfs:comment "DLNA profile of the content, like MP3, MPEG_TS_HD_US, LPCM etc" ;
+	rdfs:domain nfo:Media ;
+	rdfs:range xsd:string .
+
+nmm:uPnPShared a rdf:Property ;
+	rdfs:label "uPnP shared" ;
+	rdfs:comment "Tells the uPnP MediaServer (e.g. Rygel) whether to export/share the resource or not" ;
+	rdfs:domain nfo:Media ;
+	rdfs:range xsd:boolean .
