@@ -24,7 +24,7 @@ public class Tracker.SparqlScanner : Object {
 	int line;
 	int column;
 
-	public SparqlScanner (char* input, long len) {
+	public SparqlScanner (char* input, size_t len) {
 		char* begin = input;
 		end = begin + len;
 
