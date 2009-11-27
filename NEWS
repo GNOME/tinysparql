@@ -1,3 +1,79 @@
+NEW in 0.7.9
+============
+
+Improvements / New:
+
+  General:
+  * Bumped libexempi requirement from 1.99.2 to 2.1.0 for NS_PDF.
+  * Fixed linking errors found with binutils-gold ld. 
+
+  Ontology:
+  * New property tracker:writeback used to know if ontology should be
+    written back to their original files (if supported by
+    tracker-writeback).
+  * Added nmm documentation.
+  * Added nmm:dlnaProfile and nmm:uPnPShared properties.
+  * Added mfo documentation.
+  * Added mfo:optional property.
+  * Added nmm:alternativeMedia property.
+  * Renamed nmm:meteringMode-* to nmm:metering-mode-*.
+  * Renamed nmm:whiteBalance-* to nmm:white-balance-*.
+  * Updated mlo, ncal, mfo, nmm, mto, nao, nfo + nco documentation.
+
+  SPARQL:
+  * Updated to return generated URIs for inserted blank nodes.
+
+  libtracker-common:
+  * Fixed removable device code to include volumes mounted in /media
+
+  libtracker-data:
+  * Fixed build with vala master.
+  * Fixed to accept NULL for GErrors.
+  * Added support for returning generated uuid URIs for updates.
+
+  libtracker-fts:
+  * Fixed crash in TrackerParser's parser_next() function.
+
+  libtracker-miner:
+  * Updated to use standard GIO callbacks (GAsyncResult, etc).
+  * Removed redundant monitor code.
+  * Fixed memory corruption for directory moves in monitor code.
+  * Fixed test/ to use ::finished not ::terminated which is unused.
+  * Moved test/ directory to examples/libtracker-miner.
+
+  tracker-miner-fs:
+  * Added $HOME as a single level directory to index by default.
+  * Removed duplicate call to tracker_storage_new() / hal debug dump.
+
+  tracker-preferences:
+  * Fixed title, use "Tracker Preferences" not "tracker-preferences".
+  * Moved "Indexing" options to their own tab.
+  * Added mnemonics for notification area options.
+
+  tracker-writeback:
+  * New binary for writing metadata back to files. Initial support for
+    XMP and MP3 for now.
+
+  tracker-extract:
+  * Fixed XMP coalescing for TIFF/PNG/PDF/JPEG.
+  * Fixed build warning with mockup_SOURCES.
+
+  rss_reader:
+  * Fixed exception handling on import.
+
+Bugs:
+
+  * Fixes NB#135360, Images from all memory location are not disp...
+  * Fixes GB#598470, Search entry icons grayed out
+  * Fixes GB#600973, tracker-control: don't use "-h" to remove th...
+
+Notes:
+
+  The Deskbar applet packaged with Tracker is currently out of date
+  and needs some love to get it working with the new APIs. It is in
+  the same state as it was for 0.6. As such it isn't expected to work.
+
+
 NEW in 0.7.8
 ============
 
