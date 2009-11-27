@@ -49,6 +49,7 @@ tracker_writeback_SOURCES = 						\
 	tracker-config.h						\
 	tracker-writeback-consumer.c					\
 	tracker-writeback-consumer.h					\
+	tracker-writeback-dbus.h					\
 	tracker-writeback-dispatcher.c					\
 	tracker-writeback-dispatcher.h					\
 	tracker-writeback-file.c					\
