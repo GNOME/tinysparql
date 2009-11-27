@@ -48,6 +48,7 @@ src/tracker-utils/tracker-sparql.c
 src/tracker-utils/tracker-stats.c
 src/tracker-utils/tracker-status.c
 src/tracker-utils/tracker-tag.c
+src/tracker-writeback/tracker-main.c
 [type: gettext/glade]python/gtk-sparql/gtk-sparql.ui
 [type: gettext/glade]src/tracker-preferences/tracker-preferences.ui
 [type: gettext/glade]src/tracker-search-bar/tracker-search-bar.ui
