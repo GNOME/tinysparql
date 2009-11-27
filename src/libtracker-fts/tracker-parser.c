@@ -442,7 +442,7 @@ parser_next (TrackerParser *parser,
 		*byte_offset_start = start-parser->txt;
 		*byte_offset_end = *byte_offset_start + bytes;
 
-		parser->cursor = g_utf8_next_char (parser->txt + *byte_offset_end);
+		parser->cursor = parser->txt + *byte_offset_end;
 
 		processed_word = tracker_parser_process_word (parser, utf8, bytes, do_strip);
 
