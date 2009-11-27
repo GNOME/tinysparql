@@ -21,9 +21,38 @@
 #include "config.h"
 
 #include <stdlib.h>
+#include <libtracker-common/tracker-log.h>
+#include <glib/gi18n.h>
 
 #include "tracker-writeback-dispatcher.h"
 #include "tracker-writeback-consumer.h"
+#include "tracker-config.h"
+
+#define ABOUT								  \
+	"Tracker " PACKAGE_VERSION "\n"
+
+#define LICENSE								  \
+	"This program is free software and comes without any warranty.\n" \
+	"It is licensed under version 2 or later of the General Public "  \
+	"License which can be viewed at:\n"				  \
+	"\n"								  \
+	"  http://www.gnu.org/licenses/gpl.txt\n"
+
+static gboolean      version;
+static gint	     verbosity = -1;
+
+static GOptionEntry  entries[] = {
+	{ "version", 'V', 0,
+	  G_OPTION_ARG_NONE, &version,
+	  N_("Displays version information"),
+	  NULL },
+	{ "verbosity", 'v', 0,
+	  G_OPTION_ARG_INT, &verbosity,
+	  N_("Logging, 0 = errors only, "
+	     "1 = minimal, 2 = detailed and 3 = debug (default=0)"),
+	  NULL },
+	{ NULL }
+};
 
 typedef struct {
 	gchar *subject;
@@ -107,17 +136,64 @@ dispatcher_thread_func (gpointer data)
 	return NULL;
 }
 
+static void
+sanity_check_option_values (TrackerConfig *config)
+{
+	g_message ("General options:");
+	g_message ("  Verbosity  ............................  %d",
+		   tracker_config_get_verbosity (config));
+}
+
 int
 main (int   argc,
       char *argv[])
 {
+	TrackerConfig *config;
+	GOptionContext *context;
 	GMainLoop *loop;
 	GError *error = NULL;
+	gchar *log_filename;
 
 	g_thread_init (NULL);
 	dbus_g_thread_init ();
 
 	g_type_init ();
+
+	/* Set up locale */
+	setlocale (LC_ALL, "");
+
+	bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
+	bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
+	textdomain (GETTEXT_PACKAGE);
+
+	/* Translators: this messagge will apper immediately after the
+	 * usage string - Usage: COMMAND <THIS_MESSAGE>
+	 */
+	context = g_option_context_new (_("- start the tracker writeback service"));
+
+	g_option_context_add_main_entries (context, entries, NULL);
+	g_option_context_parse (context, &argc, &argv, &error);
+	g_option_context_free (context);
+
+        if (version) {
+                g_print ("\n" ABOUT "\n" LICENSE "\n");
+                return EXIT_SUCCESS;
+        }
+
+	/* Initialize logging */
+	config = tracker_config_new ();
+
+	if (verbosity > -1) {
+		tracker_config_set_verbosity (config, verbosity);
+	}
+
+	tracker_log_init (tracker_config_get_verbosity (config),
+                          &log_filename);
+	g_print ("Starting log:\n  File:'%s'\n", log_filename);
+	g_free (log_filename);
+
+	sanity_check_option_values (config);
+
 
 	consumer = tracker_writeback_consumer_new ();
 
@@ -143,8 +219,12 @@ main (int   argc,
 	loop = g_main_loop_new (NULL, FALSE);
 	g_main_loop_run (loop);
 
+	tracker_log_shutdown ();
+
 	g_object_unref (consumer);
 	g_main_loop_unref (loop);
+
+	g_object_unref (config);
 
 	return EXIT_SUCCESS;
 }

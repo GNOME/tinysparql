@@ -45,6 +45,8 @@ libexec_PROGRAMS = tracker-writeback
 tracker_writeback_SOURCES = 						\
 	$(marshal_sources)						\
 	$(dbus_sources)							\
+	tracker-config.c						\
+	tracker-config.h						\
 	tracker-writeback-consumer.c					\
 	tracker-writeback-consumer.h					\
 	tracker-writeback-dispatcher.c					\
