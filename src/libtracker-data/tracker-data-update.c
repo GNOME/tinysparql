@@ -633,7 +633,7 @@ tracker_data_update_buffer_clear (void)
 }
 
 static void
-tracker_data_blank_buffer_flush (void)
+tracker_data_blank_buffer_flush (GError **error)
 {
 	/* end of blank node */
 	gint i, id;
@@ -641,6 +641,7 @@ tracker_data_blank_buffer_flush (void)
 	gchar *blank_uri;
 	const gchar *sha1;
 	GChecksum *checksum;
+	GError *actual_error = NULL;
 
 	subject = blank_buffer.subject;
 	blank_buffer.subject = NULL;
@@ -673,7 +674,10 @@ tracker_data_blank_buffer_flush (void)
 			                               blank_uri,
 			                               g_array_index (blank_buffer.predicates, gchar *, i),
 			                               g_array_index (blank_buffer.objects, gchar *, i),
-			                               NULL);
+			                               &actual_error);
+			if (actual_error) {
+				break;
+			}
 		}
 	}
 
@@ -689,6 +693,8 @@ tracker_data_blank_buffer_flush (void)
 
 	g_hash_table_insert (blank_buffer.table, subject, blank_uri);
 	g_checksum_free (checksum);
+
+	g_propagate_error (error, actual_error);
 }
 
 static void
@@ -1282,18 +1288,25 @@ static gboolean
 tracker_data_insert_statement_common (const gchar            *graph,
                                       const gchar            *subject,
                                       const gchar            *predicate,
-                                      const gchar            *object)
+                                      const gchar            *object,
+                                      GError                **error)
 {
 	if (g_str_has_prefix (subject, ":")) {
 		/* blank node definition
 		   pile up statements until the end of the blank node */
 		gchar *value;
+		GError *actual_error = NULL;
 
 		if (blank_buffer.subject != NULL) {
 			/* active subject in buffer */
 			if (strcmp (blank_buffer.subject, subject) != 0) {
 				/* subject changed, need to flush buffer */
-				tracker_data_blank_buffer_flush ();
+				tracker_data_blank_buffer_flush (&actual_error);
+
+				if (actual_error) {
+					g_propagate_error (error, actual_error);
+					return FALSE;
+				}
 			}
 		}
 
@@ -1417,7 +1430,12 @@ tracker_data_insert_statement_with_uri (const gchar            *graph,
 		if (blank_buffer.subject != NULL) {
 			if (strcmp (blank_buffer.subject, object) == 0) {
 				/* object still in blank buffer, need to flush buffer */
-				tracker_data_blank_buffer_flush ();
+				tracker_data_blank_buffer_flush (&actual_error);
+
+				if (actual_error) {
+					g_propagate_error (error, actual_error);
+					return;
+				}
 			}
 		}
 
@@ -1425,9 +1443,14 @@ tracker_data_insert_statement_with_uri (const gchar            *graph,
 
 		if (blank_uri != NULL) {
 			/* now insert statement referring to blank node */
-			tracker_data_insert_statement (graph, subject, predicate, blank_uri, error);
+			tracker_data_insert_statement (graph, subject, predicate, blank_uri, &actual_error);
 
 			g_hash_table_remove (blank_buffer.table, object);
+
+			if (actual_error) {
+				g_propagate_error (error, actual_error);
+				return;
+			}
 
 			return;
 		} else {
@@ -1435,7 +1458,12 @@ tracker_data_insert_statement_with_uri (const gchar            *graph,
 		}
 	}
 
-	if (!tracker_data_insert_statement_common (graph, subject, predicate, object)) {
+	if (!tracker_data_insert_statement_common (graph, subject, predicate, object, &actual_error)) {
+		if (actual_error) {
+			g_propagate_error (error, actual_error);
+			return;
+		}
+
 		return;
 	}
 
@@ -1501,7 +1529,12 @@ tracker_data_insert_statement_with_string (const gchar            *graph,
 		return;
 	}
 
-	if (!tracker_data_insert_statement_common (graph, subject, predicate, object)) {
+	if (!tracker_data_insert_statement_common (graph, subject, predicate, object, &actual_error)) {
+		if (actual_error) {
+			g_propagate_error (error, actual_error);
+			return;
+		}
+
 		return;
 	}
 
