@@ -5,7 +5,7 @@ Improvements / New:
 
   General:
   * Bumped libexempi requirement from 1.99.2 to 2.1.0 for NS_PDF.
-  * Fixed linking errors found with binutils-gold ld. 
+  * Fixed linking errors found with binutils-gold ld.
 
   Ontology:
   * New property tracker:writeback used to know if ontology should be
@@ -33,6 +33,7 @@ Improvements / New:
 
   libtracker-fts:
   * Fixed crash in TrackerParser's parser_next() function.
+  * Fixed invalid read in TrackerParser.
 
   libtracker-miner:
   * Updated to use standard GIO callbacks (GAsyncResult, etc).
