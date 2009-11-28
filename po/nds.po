@@ -1,0 +1,1775 @@
+# Low German translation for tracker.
+# Copyright (C) 2009 tracker's COPYRIGHT HOLDER
+# This file is distributed under the same license as the tracker package.
+# Nils-Christoph Fiedler <fiedler@medienkompanie.de>, 2009.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: tracker master\n"
+"Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=tracker&component=general\n"
+"POT-Creation-Date: 2009-11-28 11:59+0000\n"
+"PO-Revision-Date: 2009-11-28 13:15+0100\n"
+"Last-Translator: Nils-Christoph Fiedler <fiedler@medienkompanie.de>\n"
+"Language-Team: Low German <nds-lowgerman@lists.sourceforge.net>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"plural-Forms: nplurals=2; plural=(n!=1);\n"
+
+#: ../data/miners/tracker-miner-applications.desktop.in.h:1
+#: ../src/tracker-search-bar/tracker-results-window.c:505
+#: ../src/tracker-search-tool/tracker-category-view.gs:78
+msgid "Applications"
+msgstr "Programme"
+
+#: ../data/miners/tracker-miner-applications.desktop.in.h:2
+msgid "Applications data miner"
+msgstr ""
+
+#: ../data/miners/tracker-miner-files.desktop.in.h:1
+msgid "File System"
+msgstr "Dateisystem"
+
+#: ../data/miners/tracker-miner-files.desktop.in.h:2
+msgid "File system data miner"
+msgstr ""
+
+#: ../data/tracker-miner-fs.desktop.in.in.h:1
+msgid "Crawls and processes files on the file system"
+msgstr ""
+
+#: ../data/tracker-miner-fs.desktop.in.in.h:2
+msgid "Tracker File System Miner"
+msgstr ""
+
+#: ../data/tracker-status-icon.desktop.in.in.h:1
+msgid "Tracker Status Icon"
+msgstr ""
+
+#: ../data/tracker-status-icon.desktop.in.in.h:2
+msgid "Tracker Status Notification Application"
+msgstr ""
+
+#: ../data/tracker-store.desktop.in.in.h:1
+msgid "Metadata database store and lookup manager"
+msgstr ""
+
+#: ../data/tracker-store.desktop.in.in.h:2
+msgid "Tracker Store"
+msgstr ""
+
+#: ../python/deskbar-handler/tracker-handler.py:37
+#: ../python/deskbar-handler/tracker-module.py:100
+#, python-format
+msgid "Launch %s (%s)"
+msgstr ""
+
+#: ../python/deskbar-handler/tracker-handler.py:42
+#: ../python/deskbar-handler/tracker-module.py:105
+#, python-format
+msgid ""
+"See %s conversation\n"
+"%s %s\n"
+"from %s"
+msgstr ""
+
+#: ../python/deskbar-handler/tracker-handler.py:48
+#: ../python/deskbar-handler/tracker-module.py:110
+#, python-format
+msgid "Email from %s"
+msgstr "E-Post vun %s"
+
+#: ../python/deskbar-handler/tracker-handler.py:61
+#: ../python/deskbar-handler/tracker-module.py:122
+#, python-format
+msgid ""
+"Listen to music %s\n"
+"in %s"
+msgstr ""
+
+#: ../python/deskbar-handler/tracker-handler.py:66
+#: ../python/deskbar-handler/tracker-module.py:128
+#, python-format
+msgid ""
+"See document %s\n"
+"in %s"
+msgstr ""
+
+#: ../python/deskbar-handler/tracker-handler.py:71
+#: ../python/deskbar-handler/tracker-handler.py:88
+#: ../python/deskbar-handler/tracker-handler.py:125
+#: ../python/deskbar-handler/tracker-module.py:133
+#: ../python/deskbar-handler/tracker-module.py:155
+#: ../python/deskbar-handler/tracker-module.py:207
+#: ../python/deskbar-handler/tracker-module.py:243
+#, python-format
+msgid ""
+"Open file %s\n"
+"in %s"
+msgstr ""
+
+#: ../python/deskbar-handler/tracker-handler.py:76
+#: ../python/deskbar-handler/tracker-module.py:138
+#, python-format
+msgid ""
+"View image %s\n"
+"in %s"
+msgstr ""
+
+#: ../python/deskbar-handler/tracker-handler.py:82
+#: ../python/deskbar-handler/tracker-module.py:144
+#, python-format
+msgid ""
+"Watch video  %s\n"
+"in %s"
+msgstr ""
+
+#: ../python/deskbar-handler/tracker-handler.py:93
+#: ../python/deskbar-handler/tracker-module.py:150
+#, python-format
+msgid ""
+"Open folder %s\n"
+"%s"
+msgstr ""
+
+#: ../python/deskbar-handler/tracker-handler.py:211
+#: ../python/deskbar-handler/tracker-module.py:351
+msgid "with"
+msgstr "mit"
+
+#: ../python/deskbar-handler/tracker-handler.py:219
+#: ../python/deskbar-handler/tracker-module.py:359
+msgid "in channel"
+msgstr "in Kanal"
+
+#: ../python/deskbar-handler/tracker-handler.py:386
+msgid "Search all of your documents, <b>as you type</b>"
+msgstr ""
+
+#: ../python/deskbar-handler/tracker-handler.py:390
+#: ../python/deskbar-handler/tracker-module.py:295
+msgid "Development Files"
+msgstr ""
+
+#: ../python/deskbar-handler/tracker-handler.py:393
+#: ../python/deskbar-handler/tracker-module.py:298
+#: ../src/tracker-search-tool/tracker-category-view.gs:70
+msgid "Music"
+msgstr "Musik"
+
+#: ../python/deskbar-handler/tracker-handler.py:396
+#: ../python/deskbar-handler/tracker-module.py:301
+#: ../src/tracker-search-bar/tracker-results-window.c:506
+#: ../src/tracker-search-tool/tracker-category-view.gs:66
+msgid "Images"
+msgstr "Billers"
+
+#: ../python/deskbar-handler/tracker-handler.py:399
+#: ../python/deskbar-handler/tracker-module.py:304
+#: ../src/tracker-search-bar/tracker-results-window.c:510
+#: ../src/tracker-search-tool/tracker-category-view.gs:74
+msgid "Videos"
+msgstr "Filme"
+
+#: ../python/deskbar-handler/tracker-handler-static.py:37
+#: ../python/deskbar-handler/tracker-module.py:65
+#: ../python/deskbar-handler/tracker-module.py:160
+#, python-format
+msgid "Search for %s with Tracker Search Tool"
+msgstr ""
+
+#: ../python/deskbar-handler/tracker-handler-static.py:68
+msgid "Search all of your documents with Tracker Search Tool"
+msgstr ""
+
+#: ../python/deskbar-handler/tracker-module.py:79
+msgid "Tracker Search"
+msgstr "Tracker-Sök"
+
+#: ../python/deskbar-handler/tracker-module.py:80
+msgid "Search with Tracker Search Tool"
+msgstr ""
+
+#: ../python/deskbar-handler/tracker-module.py:290
+msgid "Tracker Live Search"
+msgstr ""
+
+#: ../python/deskbar-handler/tracker-module.py:291
+msgid "Search with Tracker, as you type"
+msgstr ""
+
+#: ../src/libtracker-common/tracker-dbus.c:329
+msgid "No error given"
+msgstr ""
+
+#: ../src/libtracker-common/tracker-utils.c:138
+#: ../src/libtracker-common/tracker-utils.c:145
+msgid "unknown time"
+msgstr "unbekannte Tied"
+
+#: ../src/libtracker-common/tracker-utils.c:163
+#: ../src/libtracker-common/tracker-utils.c:214
+msgid "less than one second"
+msgstr ""
+
+#. Translators: this is %d days
+#: ../src/libtracker-common/tracker-utils.c:178
+#, c-format
+msgid " %dd"
+msgstr ""
+
+#. Translators: this is %2.2d hours
+#: ../src/libtracker-common/tracker-utils.c:182
+#, c-format
+msgid " %2.2dh"
+msgstr ""
+
+#. Translators: this is %2.2d minutes
+#: ../src/libtracker-common/tracker-utils.c:186
+#, c-format
+msgid " %2.2dm"
+msgstr ""
+
+#. Translators: this is %2.2d seconds
+#: ../src/libtracker-common/tracker-utils.c:190
+#, c-format
+msgid " %2.2ds"
+msgstr ""
+
+#: ../src/libtracker-common/tracker-utils.c:194
+#, c-format
+msgid " %d day"
+msgid_plural " %d days"
+msgstr[0] "%d Dag"
+msgstr[1] "%d Dage"
+
+#: ../src/libtracker-common/tracker-utils.c:198
+#, c-format
+msgid " %2.2d hour"
+msgid_plural " %2.2d hours"
+msgstr[0] "%2.2d Stunn"
+msgstr[1] "%2.2d Stunnen"
+
+#: ../src/libtracker-common/tracker-utils.c:202
+#, c-format
+msgid " %2.2d minute"
+msgid_plural " %2.2d minutes"
+msgstr[0] "%2.2d Minuut"
+msgstr[1] "%2.2d Minuuten"
+
+#: ../src/libtracker-common/tracker-utils.c:206
+#, c-format
+msgid " %2.2d second"
+msgid_plural " %2.2d seconds"
+msgstr[0] "%2.2d Sekunn"
+msgstr[1] "%2.2d Sekunnen"
+
+#. then set the remaining properties
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:363
+#, c-format
+msgid "Path : <b>%s</b>"
+msgstr "Pad : <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:364
+#, c-format
+msgid "Modified : <b>%s</b>"
+msgstr "Ännert : <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:365
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:547
+#, c-format
+msgid "Size : <b>%s</b>"
+msgstr "Gröte: <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:366
+#, c-format
+msgid "Accessed : <b>%s</b>"
+msgstr "Togrip: <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:367
+#, c-format
+msgid "Mime : <b>%s</b>"
+msgstr ""
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:419
+#, c-format
+msgid "Sender : <b>%s</b>"
+msgstr "Senner: <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:420
+#, c-format
+msgid "Date : <b>%s</b>"
+msgstr "Dag: <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:459
+#, c-format
+msgid "Comment : <b>%s</b>"
+msgstr "Kommentar: <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:460
+#, c-format
+msgid "Categories : <b>%s</b>"
+msgstr ""
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:543
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:642
+#, c-format
+msgid "Duration : <b>%s</b>"
+msgstr "Düer: <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:544
+#, c-format
+msgid "Genre : <b>%s</b>"
+msgstr "Rebeet: <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:545
+#, c-format
+msgid "Bitrate : <b>%s Kbs</b>"
+msgstr ""
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:546
+#, c-format
+msgid "Year : <b>%s</b>"
+msgstr "Johr: <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:548
+#, c-format
+msgid "Codec : <b>%s</b>"
+msgstr ""
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:586
+#, c-format
+msgid " taken with a <span size='large'><i>%s</i></span>"
+msgstr ""
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:591
+#, c-format
+msgid " <span size='large'><i>%s</i></span>"
+msgstr ""
+
+#. then set the remaining properties
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:611
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:640
+#, c-format
+msgid "Dimensions : <b>%d x %d</b>"
+msgstr "Dimenschoonen: <b>%d x %d</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:612
+#, c-format
+msgid "Date Taken : <b>%s</b>"
+msgstr ""
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:613
+#, c-format
+msgid "Orientation : <b>%s</b>"
+msgstr ""
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:614
+#, c-format
+msgid "Flash : <b>%s</b>"
+msgstr ""
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:615
+#, c-format
+msgid "Focal Length : <b>%s</b>"
+msgstr ""
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:616
+#, c-format
+msgid "Exposure Time : <b>%s</b>"
+msgstr ""
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:641
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:671
+#, c-format
+msgid "Author : <b>%s</b>"
+msgstr ""
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:643
+#, c-format
+msgid "Bitrate : <b>%s</b>"
+msgstr ""
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:644
+#, c-format
+msgid "Encoded In : <b>%s</b>"
+msgstr ""
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:645
+#, c-format
+msgid "Framerate : <b>%s</b>"
+msgstr ""
+
+#. then set the remaining properties
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:670
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:700
+#, c-format
+msgid "Subject : <b>%s</b>"
+msgstr ""
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:672
+#, c-format
+msgid "Page Count : <b>%s</b>"
+msgstr ""
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:673
+#, c-format
+msgid "Word Count : <b>%s</b>"
+msgstr ""
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:674
+#, c-format
+msgid "Created : <b>%s</b>"
+msgstr ""
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:675
+#, c-format
+msgid "Comments : <b>%s</b>"
+msgstr ""
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:790
+#, c-format
+msgid "%.1f KB"
+msgstr ""
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:794
+#, c-format
+msgid "%.1f MB"
+msgstr ""
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:798
+#, c-format
+msgid "%.1f GB"
+msgstr ""
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:837
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:877
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:900
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:922
+#: ../src/tracker-utils/tracker-status.c:260
+msgid "Unknown"
+msgstr "Unbekannt"
+
+#: ../src/libtracker-gtk/tracker-tag-bar.c:270
+msgid "Type tags you want to add here, separated by commas"
+msgstr ""
+
+#: ../src/libtracker-gtk/tracker-tag-bar.c:390
+msgid "Tags :"
+msgstr "Slötelwöör:"
+
+#. Search For Tag
+#: ../src/libtracker-gtk/tracker-tag-bar.c:417
+msgid "_Search For Tag"
+msgstr "_Sök nah Slötelwoord"
+
+#. Remove Tag
+#: ../src/libtracker-gtk/tracker-tag-bar.c:429
+msgid "_Remove Tag"
+msgstr "Slötelwoord _löschen"
+
+#: ../src/libtracker-miner/tracker-miner.c:565
+msgid "Data store is not available"
+msgstr ""
+
+#: ../src/libtracker-miner/tracker-miner.c:1216
+msgid "Pause application and reason match an already existing pause request"
+msgstr ""
+
+#: ../src/libtracker-miner/tracker-miner.c:1288
+msgid "Cookie not recognized to resume paused miner"
+msgstr ""
+
+#: ../src/libtracker-miner/tracker-miner-fs.c:658
+#: ../src/plugins/evolution/tracker-evolution-plugin.c:2258
+msgid "Initializing"
+msgstr ""
+
+#: ../src/libtracker-miner/tracker-miner-fs.c:669
+#: ../src/libtracker-miner/tracker-miner-fs.c:806
+msgid "Idle"
+msgstr ""
+
+#: ../src/libtracker-miner/tracker-miner-fs.c:1560
+#: ../src/libtracker-miner/tracker-miner-fs.c:1563
+msgid "Processing files"
+msgstr ""
+
+#: ../src/libtracker-miner/tracker-miner-fs.c:2015
+#, c-format
+msgid "Crawling recursively directory '%s'"
+msgstr ""
+
+#: ../src/libtracker-miner/tracker-miner-fs.c:2017
+#, c-format
+msgid "Crawling single directory '%s'"
+msgstr ""
+
+#: ../src/plugins/evolution/org-freedesktop-Tracker-evolution-plugin.eplug.xml.h:1
+msgid "Support for Tracker."
+msgstr ""
+
+#: ../src/plugins/evolution/org-freedesktop-Tracker-evolution-plugin.eplug.xml.h:2
+msgid "TrackerEvolutionPlugin"
+msgstr ""
+
+#: ../src/plugins/evolution/tracker-evolution-plugin.c:816
+msgid "Updating"
+msgstr "Frisch op"
+
+#: ../src/plugins/evolution/tracker-evolution-plugin.c:2340
+msgid "Resuming"
+msgstr ""
+
+#: ../src/plugins/evolution/tracker-miner-emails.desktop.in.h:1
+msgid "Emails"
+msgstr "E-Posten"
+
+#: ../src/plugins/evolution/tracker-miner-emails.desktop.in.h:2
+msgid "Evolution Email miner"
+msgstr ""
+
+#: ../src/tracker-extract/tracker-main.c:84
+#: ../src/tracker-miner-fs/tracker-main.c:74
+#: ../src/tracker-store/tracker-main.c:103
+msgid "Displays version information"
+msgstr ""
+
+#: ../src/tracker-extract/tracker-main.c:88
+#: ../src/tracker-store/tracker-main.c:107
+msgid "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default = 0)"
+msgstr ""
+
+#: ../src/tracker-extract/tracker-main.c:93
+msgid "File to extract metadata for"
+msgstr ""
+
+#: ../src/tracker-extract/tracker-main.c:94
+#: ../src/tracker-utils/tracker-import.c:56
+#: ../src/tracker-utils/tracker-import.c:57
+#: ../src/tracker-utils/tracker-info.c:54
+#: ../src/tracker-utils/tracker-info.c:55
+#: ../src/tracker-utils/tracker-sparql.c:56
+msgid "FILE"
+msgstr ""
+
+#: ../src/tracker-extract/tracker-main.c:97
+msgid "MIME type for file (if not provided, this will be guessed)"
+msgstr ""
+
+#: ../src/tracker-extract/tracker-main.c:98
+msgid "MIME"
+msgstr ""
+
+#: ../src/tracker-extract/tracker-main.c:103
+msgid "Disable shutting down after 30 seconds of inactivity"
+msgstr ""
+
+#: ../src/tracker-extract/tracker-main.c:107
+msgid "Force internal extractors over 3rd parties like libstreamanalyzer"
+msgstr ""
+
+#. Translators: this message will appear immediately after the
+#. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
+#: ../src/tracker-extract/tracker-main.c:342
+msgid "- Extract file meta data"
+msgstr ""
+
+#: ../src/tracker-extract/tracker-main.c:351
+msgid "Filename and mime type must be provided together"
+msgstr ""
+
+#: ../src/tracker-miner-fs/tracker-main.c:78
+msgid "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default=0)"
+msgstr ""
+
+#: ../src/tracker-miner-fs/tracker-main.c:83
+msgid "Initial sleep time in seconds, 0->1000 (default=15)"
+msgstr ""
+
+#. Translators: this messagge will apper immediately after the
+#. * usage string - Usage: COMMAND <THIS_MESSAGE>
+#.
+#: ../src/tracker-miner-fs/tracker-main.c:254
+msgid "- start the tracker indexer"
+msgstr ""
+
+#: ../src/tracker-miner-fs/tracker-miner-files.c:792
+msgid "Low battery"
+msgstr "Wenig Saft"
+
+#: ../src/tracker-miner-fs/tracker-miner-files.c:875
+msgid "Low disk space"
+msgstr "Wenig Spieker"
+
+#: ../src/tracker-preferences/tracker-preferences.desktop.in.in.h:1
+msgid "Configure file indexing with Tracker"
+msgstr ""
+
+#: ../src/tracker-preferences/tracker-preferences.desktop.in.in.h:2
+msgid "Search and Indexing"
+msgstr ""
+
+#: ../src/tracker-preferences/tracker-preferences.vala:110
+msgid "Disabled"
+msgstr ""
+
+#: ../src/tracker-preferences/tracker-preferences.vala:113
+#, c-format
+msgid "%d%%"
+msgstr ""
+
+#: ../src/tracker-preferences/tracker-preferences.vala:118
+#, c-format
+msgid "%d/20"
+msgstr ""
+
+#: ../src/tracker-preferences/tracker-preferences.vala:126
+msgid "Enter value"
+msgstr ""
+
+#: ../src/tracker-preferences/tracker-preferences.vala:155
+msgid "Select directory"
+msgstr ""
+
+#: ../src/tracker-preferences/tracker-preferences.vala:374
+#: ../src/tracker-preferences/tracker-preferences.vala:375
+#: ../src/tracker-preferences/tracker-preferences.vala:376
+#: ../src/tracker-preferences/tracker-preferences.vala:377
+msgid "Directory"
+msgstr "Verteeknispad"
+
+#: ../src/tracker-preferences/tracker-preferences.vala:378
+msgid "File"
+msgstr "Datei"
+
+#: ../src/tracker-search-bar/GNOME_Search_Bar_Applet.server.in.in.h:1
+msgid "Desktop search tool using Tracker"
+msgstr ""
+
+#: ../src/tracker-search-bar/GNOME_Search_Bar_Applet.server.in.in.h:2
+msgid "Search Bar"
+msgstr "Sökbalken"
+
+#.
+#. item = gtk_image_menu_item_new_with_mnemonic (_("_Indexer Preferences"));
+#. image = gtk_image_new_from_icon_name (GTK_STOCK_PREFERENCES,
+#. GTK_ICON_SIZE_MENU);
+#. gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (item), image);
+#. gtk_menu_shell_append (GTK_MENU_SHELL (menu), item);
+#. g_signal_connect (G_OBJECT (item), "activate",
+#. G_CALLBACK (preferences_menu_activated), icon);
+#.
+#.
+#. item = gtk_image_menu_item_new_with_mnemonic (_("S_tatistics"));
+#. image = gtk_image_new_from_icon_name (GTK_STOCK_INFO,
+#. GTK_ICON_SIZE_MENU);
+#. gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (item), image);
+#. gtk_menu_shell_append (GTK_MENU_SHELL (menu), item);
+#. g_signal_connect (G_OBJECT (item), "activate",
+#. G_CALLBACK (statistics_menu_activated), icon);
+#.
+#: ../src/tracker-search-bar/GNOME_Search_Bar_Applet.xml.h:1
+#: ../src/tracker-status-icon/tracker-status-icon.c:876
+msgid "_About"
+msgstr "_Över"
+
+#: ../src/tracker-search-bar/tracker-results-window.c:500
+#: ../src/tracker-search-bar/tracker-results-window.c:515
+msgid "Other"
+msgstr "Annere"
+
+#: ../src/tracker-search-bar/tracker-results-window.c:501
+msgid "Contacts"
+msgstr "Kontakte"
+
+#: ../src/tracker-search-bar/tracker-results-window.c:502
+msgid "Tags"
+msgstr "Slötelwöör"
+
+#: ../src/tracker-search-bar/tracker-results-window.c:503
+msgid "Email Addresses"
+msgstr "E-Post-Anskrivten"
+
+#: ../src/tracker-search-bar/tracker-results-window.c:504
+msgid "Documents"
+msgstr "Dokumente"
+
+#: ../src/tracker-search-bar/tracker-results-window.c:507
+msgid "Audio"
+msgstr "Ton"
+
+#: ../src/tracker-search-bar/tracker-results-window.c:508
+msgid "Folders"
+msgstr "Verteeknisse"
+
+#: ../src/tracker-search-bar/tracker-results-window.c:509
+msgid "Fonts"
+msgstr "Schriftarten"
+
+#: ../src/tracker-search-bar/tracker-results-window.c:511
+msgid "Archives"
+msgstr "Archive"
+
+#: ../src/tracker-search-bar/tracker-results-window.c:512
+msgid "Websites"
+msgstr "Netsieten"
+
+#: ../src/tracker-search-bar/tracker-results-window.c:839
+msgid "Category"
+msgstr "Kategorie"
+
+#: ../src/tracker-search-bar/tracker-results-window.c:863
+msgid "Title"
+msgstr "Titel"
+
+#: ../src/tracker-search-bar/tracker-results-window.c:925
+#, c-format
+msgid "No results found for “%s”"
+msgstr ""
+
+#: ../src/tracker-search-tool/tracker-category-view.gs:54
+msgid "All Files"
+msgstr "All Dateien"
+
+#: ../src/tracker-search-tool/tracker-category-view.gs:58
+msgid "Office Documents"
+msgstr "Kontordokumente"
+
+#: ../src/tracker-search-tool/tracker-category-view.gs:62
+msgid "Text Documents"
+msgstr "textdokumente"
+
+#: ../src/tracker-search-tool/tracker-entry.gs:39
+msgid "Clear the search text"
+msgstr "Söktext opklaren"
+
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:93
+msgid "Type:"
+msgstr "Typ:"
+
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:99
+msgid "Size:"
+msgstr "Gröte:"
+
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:105
+msgid "Modified:"
+msgstr "Ännert:"
+
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:111
+msgid "Title:"
+msgstr "Titel:"
+
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:117
+msgid "Author/Artist:"
+msgstr ""
+
+#: ../src/tracker-search-tool/tracker-search-tool.desktop.in.in.h:1
+msgid "Locate documents and folders on this computer by name or content using Tracker"
+msgstr ""
+
+#: ../src/tracker-search-tool/tracker-search-tool.desktop.in.in.h:2
+#: ../src/tracker-search-tool/tst.ui.h:2
+msgid "Tracker Search Tool"
+msgstr ""
+
+#: ../src/tracker-search-tool/tracker-search-tool.gs:112
+#, c-format
+msgid ""
+"Failed to load UI\n"
+"%s"
+msgstr ""
+
+#: ../src/tracker-search-tool/tracker-utils.gs:97
+#, c-format
+msgid ""
+"Could not get application info for %s\n"
+"Error: %s\n"
+msgstr ""
+
+#: ../src/tracker-search-tool/tracker-utils.gs:111
+#, c-format
+msgid ""
+"Could not lauch %s\n"
+"Error: %s\n"
+msgstr ""
+
+#: ../src/tracker-search-tool/tst.ui.h:1
+msgid "Details"
+msgstr "Details"
+
+#: ../src/tracker-search-tool/tst.ui.h:3
+msgid "_Search:"
+msgstr "_Sök:"
+
+#: ../src/tracker-status-icon/tracker-main.c:47
+#: ../src/tracker-control/tracker-control.c:84
+#: ../src/tracker-utils/tracker-import.c:52
+#: ../src/tracker-utils/tracker-info.c:50
+#: ../src/tracker-utils/tracker-search.c:109
+#: ../src/tracker-utils/tracker-sparql.c:79
+#: ../src/tracker-utils/tracker-stats.c:48
+#: ../src/tracker-utils/tracker-status.c:104
+#: ../src/tracker-utils/tracker-tag.c:84
+msgid "Print version"
+msgstr "Druckverschoon"
+
+#: ../src/tracker-status-icon/tracker-main.c:64
+msgid "- Miner status and control notification area icon"
+msgstr ""
+
+#: ../src/tracker-status-icon/tracker-status-icon.c:524
+msgid "Miner is not running"
+msgstr ""
+
+#: ../src/tracker-status-icon/tracker-status-icon.c:565
+#: ../src/tracker-status-icon/tracker-status-icon.c:700
+msgid "Paused by user"
+msgstr ""
+
+#: ../src/tracker-status-icon/tracker-status-icon.c:781
+msgid "Tracker is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version."
+msgstr ""
+
+#: ../src/tracker-status-icon/tracker-status-icon.c:785
+msgid "Tracker is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details."
+msgstr ""
+
+#: ../src/tracker-status-icon/tracker-status-icon.c:789
+msgid "You should have received a copy of the GNU General Public License along with Tracker; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA."
+msgstr ""
+
+#: ../src/tracker-status-icon/tracker-status-icon.c:804
+msgid "A notification icon application to monitor data miners for Tracker"
+msgstr ""
+
+#: ../src/tracker-status-icon/tracker-status-icon.c:805
+#: ../src/tracker-search-bar/tracker-search-bar.ui.h:2
+msgid "Copyright Tracker Authors 2005-2009"
+msgstr ""
+
+#. Translators should localize the following string
+#. * which will be displayed at the bottom of the about
+#. * box to give credit to the translator(s).
+#.
+#: ../src/tracker-status-icon/tracker-status-icon.c:814
+msgid "translator-credits"
+msgstr "Nils-Christoph Fiedler <fiedler@medienkompanie.de>"
+
+#: ../src/tracker-status-icon/tracker-status-icon.c:830
+msgid "_Pause All Indexing"
+msgstr ""
+
+#: ../src/tracker-status-icon/tracker-status-icon.c:839
+msgid "_Search"
+msgstr "_Sök"
+
+#: ../src/tracker-status-icon/tracker-status-icon.c:847
+msgid "_Preferences"
+msgstr "_Eegenschapten"
+
+#: ../src/tracker-status-icon/tracker-status-icon.desktop.in.in.h:1
+msgid "Control and monitor the Tracker search and indexing service"
+msgstr ""
+
+#: ../src/tracker-status-icon/tracker-status-icon.desktop.in.in.h:2
+msgid "Tracker Applet"
+msgstr ""
+
+#: ../src/tracker-store/tracker-main.c:112
+msgid "Minimizes the use of memory but may slow indexing down"
+msgstr ""
+
+#: ../src/tracker-store/tracker-main.c:118
+msgid "Force a re-index of all content"
+msgstr ""
+
+#: ../src/tracker-store/tracker-main.c:122
+msgid "Only allow read based actions on the database"
+msgstr ""
+
+#. Translators: this messagge will apper immediately after the
+#. * usage string - Usage: COMMAND <THIS_MESSAGE>
+#.
+#: ../src/tracker-store/tracker-main.c:357
+msgid "- start the tracker daemon"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control.c:62
+msgid "Use SIGKILL to stop all tracker processes found - guarantees death :)"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control.c:65
+msgid "Use SIGTERM to stop all tracker processes found"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control.c:69
+msgid "Kill all Tracker processes and remove all databases"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control.c:72
+msgid "Same as --hard-reset but the backup & journal are restored after restart"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control.c:75
+msgid "Remove all configuration files so they are re-generated on next start"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control.c:78
+msgid "Remove all thumbnail files so they are re-generated"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control.c:81
+msgid "Starts miners (which indirectly starts tracker-store too)"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control.c:100
+msgid "Could not open /proc"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control.c:101
+#: ../src/tracker-control/tracker-control.c:274
+#: ../src/tracker-control/tracker-control.c:304
+#: ../src/tracker-control/tracker-control.c:318
+msgid "no error given"
+msgstr ""
+
+#. Translators: this messagge will apper immediately after the
+#. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
+#: ../src/tracker-control/tracker-control.c:221
+msgid " - Manage Tracker processes and data"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control.c:233
+msgid "You can not use the --kill and --terminate arguments together"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control.c:237
+msgid "You can not use the --terminate with --hard-reset or --soft-reset, --kill is implied"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control.c:241
+msgid "You can not use the --hard-reset and --soft-reset arguments together"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control.c:257
+#, c-format
+msgid "Found %d PID…"
+msgid_plural "Found %d PIDs…"
+msgstr[0] "%d PID funnen…"
+msgstr[1] "%d PIDs funnen…"
+
+#: ../src/tracker-control/tracker-control.c:271
+#, c-format
+msgid "Could not open '%s'"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control.c:293
+#, c-format
+msgid "Found process ID %d for '%s'"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control.c:301
+#, c-format
+msgid "Could not terminate process %d"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control.c:307
+#, c-format
+msgid "Terminated process %d"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control.c:315
+#, c-format
+msgid "Could not kill process %d"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control.c:321
+#, c-format
+msgid "Killed process %d"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control.c:392
+msgid "Removing configuration files…"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control.c:429
+msgid "Removing thumbnails files…"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control.c:445
+msgid "Starting miners…"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control.c:459
+msgid "Failed"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control.c:461
+msgid "Could not get miner status"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control.c:464
+#: ../src/tracker-utils/tracker-import.c:140
+#: ../src/tracker-utils/tracker-status.c:197
+msgid "Done"
+msgstr "Doon"
+
+#. Translators: this messagge will apper immediately after the
+#. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
+#: ../src/tracker-utils/tracker-import.c:76
+msgid "- Import data using Turtle files"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-import.c:94
+#: ../src/tracker-utils/tracker-info.c:120
+msgid "One or more files have not been specified"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-import.c:110
+#: ../src/tracker-utils/tracker-info.c:136
+#: ../src/tracker-utils/tracker-sparql.c:207
+#: ../src/tracker-utils/tracker-stats.c:107
+#: ../src/tracker-utils/tracker-status.c:400
+#: ../src/tracker-utils/tracker-tag.c:681
+msgid "Could not establish a D-Bus connection to Tracker"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-import.c:120
+msgid "Importing Turtle file"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-import.c:133
+msgid "Unable to import Turtle file"
+msgstr ""
+
+#. Translators: this messagge will apper immediately after the
+#. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
+#: ../src/tracker-utils/tracker-info.c:102
+msgid "- Get all information about one or more files"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-info.c:147
+msgid "Querying information for file"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-info.c:170
+msgid "Unable to retrieve data for URI"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-info.c:179
+msgid "No metadata available for that URI"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-info.c:186
+#: ../src/tracker-utils/tracker-search.c:757
+#: ../src/tracker-utils/tracker-sparql.c:447
+#, c-format
+msgid "Result: %d"
+msgid_plural "Results: %d"
+msgstr[0] "Rutkamen: %d"
+msgstr[1] "Rutkamen: %d"
+
+#: ../src/tracker-utils/tracker-search.c:61
+#: ../src/tracker-utils/tracker-tag.c:56
+msgid "Limit the number of results shown"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-search.c:62
+#: ../src/tracker-utils/tracker-tag.c:57
+msgid "512"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-search.c:65
+#: ../src/tracker-utils/tracker-tag.c:60
+msgid "Offset the results"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-search.c:66
+#: ../src/tracker-utils/tracker-tag.c:61
+msgid "0"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-search.c:69
+#: ../src/tracker-utils/tracker-tag.c:64
+msgid "Use OR for search terms instead of AND (the default)"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-search.c:73
+msgid "Show more detailed results (only applies to general search)"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-search.c:77
+msgid "Search for files"
+msgstr "Nah Dateien söken"
+
+#: ../src/tracker-utils/tracker-search.c:81
+msgid "Search for folders"
+msgstr "Nah Verteeknissen söken"
+
+#: ../src/tracker-utils/tracker-search.c:85
+msgid "Search for music albums (includes song count and duration sum)"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-search.c:89
+msgid "Search for music artists"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-search.c:93
+msgid "Search for music files"
+msgstr "Nah Musikdateien söken"
+
+#: ../src/tracker-utils/tracker-search.c:97
+msgid "Search for image files"
+msgstr "Nah Billers söken"
+
+#: ../src/tracker-utils/tracker-search.c:101
+msgid "Search for video files"
+msgstr "Nah Filmen söken"
+
+#: ../src/tracker-utils/tracker-search.c:105
+msgid "Search for document files"
+msgstr "Nah Dokumenten söken"
+
+#: ../src/tracker-utils/tracker-search.c:114
+msgid "search terms"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-search.c:115
+msgid "EXPRESSION"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-search.c:132
+#: ../src/tracker-utils/tracker-tag.c:107
+msgid "NOTE: Limit was reached, there are more items in the database not listed here"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-search.c:186
+#: ../src/tracker-utils/tracker-search.c:451
+#: ../src/tracker-utils/tracker-search.c:563
+#: ../src/tracker-utils/tracker-search.c:745
+msgid "Could not get search results"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-search.c:195
+msgid "No files were found"
+msgstr "Keene Dateien funnen"
+
+#: ../src/tracker-utils/tracker-search.c:198
+#, c-format
+msgid "File: %d"
+msgid_plural "Files: %d"
+msgstr[0] "Datei: %d"
+msgstr[1] "Dateien: %d"
+
+#: ../src/tracker-utils/tracker-search.c:460
+msgid "No artists were found"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-search.c:463
+#, c-format
+msgid "Artist: %d"
+msgid_plural "Artists: %d"
+msgstr[0] "Artist: %d"
+msgstr[1] "Artisten: %d"
+
+#: ../src/tracker-utils/tracker-search.c:492
+#, c-format
+msgid "%d Song"
+msgid_plural "%d Songs"
+msgstr[0] "%d Leed"
+msgstr[1] "%d Leeders"
+
+#: ../src/tracker-utils/tracker-search.c:499
+#, c-format
+msgid "%d Second"
+msgid_plural "%d Seconds"
+msgstr[0] "%d Sekunn"
+msgstr[1] "%d Sekunnen"
+
+#: ../src/tracker-utils/tracker-search.c:504
+#, c-format
+msgid "Album '%s'"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-search.c:572
+msgid "No music was found"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-search.c:575
+#, c-format
+msgid "Album: %d"
+msgid_plural "Albums: %d"
+msgstr[0] "Pladde: %d"
+msgstr[1] "Pladden: %d"
+
+#: ../src/tracker-utils/tracker-search.c:754
+msgid "No results were found matching your query"
+msgstr ""
+
+#. Translators: this messagge will apper immediately after the
+#. * usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
+#.
+#: ../src/tracker-utils/tracker-search.c:794
+msgid "- Search for terms in all data"
+msgstr ""
+
+#. Translators: this message will appear after the usage string
+#. * and before the list of options.
+#.
+#: ../src/tracker-utils/tracker-search.c:799
+msgid "Applies an AND operator to all terms separated by a space (see --or-operator)"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-search.c:803
+msgid "This means if you search for 'foo' and 'bar', they must BOTH exist (unless you use --or-operator)"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-search.c:828
+msgid "Search terms are missing"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-search.c:844
+msgid "Could not establish a DBus connection to Tracker"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-sparql.c:55
+msgid "Path to use to run a query or update from file"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-sparql.c:59
+msgid "SPARQL query"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-sparql.c:60
+msgid "SPARQL"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-sparql.c:63
+msgid "This is used with --query and for database updates only."
+msgstr ""
+
+#: ../src/tracker-utils/tracker-sparql.c:67
+msgid "Retrieve classes"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-sparql.c:71
+msgid "Retrieve class prefixes"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-sparql.c:75
+msgid "Retrieve properties for a class, prefixes can be used too (e.g. rdfs:Resource)"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-sparql.c:76
+msgid "CLASS"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-sparql.c:106
+msgid "Could not get namespace prefixes"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-sparql.c:115
+msgid "No namespace prefixes were found"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-sparql.c:174
+msgid "- Query or update using SPARQL"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-sparql.c:191
+msgid "Either a file or query needs to be specified"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-sparql.c:220
+msgid "Could not list classes"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-sparql.c:230
+msgid "No classes were found"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-sparql.c:233
+#, c-format
+msgid "Class: %d"
+msgid_plural "Classes: %d"
+msgstr[0] "Klasse: %d"
+msgstr[1] "Klassen: %d"
+
+#: ../src/tracker-utils/tracker-sparql.c:258
+msgid "Could not list class prefixes"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-sparql.c:268
+msgid "No class prefixes were found"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-sparql.c:271
+#, c-format
+msgid "Prefix: %d"
+msgid_plural "Prefixes: %d"
+msgstr[0] "Prefix: %d"
+msgstr[1] "Prefixe: %d"
+
+#: ../src/tracker-utils/tracker-sparql.c:300
+msgid "Could not find property for class prefix, e.g. :Resource in 'rdfs:Resource'"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-sparql.c:337
+msgid "Could not list properties"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-sparql.c:347
+msgid "No properties were found"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-sparql.c:350
+#, c-format
+msgid "Property: %d"
+msgid_plural "Properties: %d"
+msgstr[0] "Eegenschapt: %d"
+msgstr[1] "Eegenschapten: %d"
+
+#: ../src/tracker-utils/tracker-sparql.c:369
+msgid "Could not get UTF-8 path from path"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-sparql.c:381
+msgid "Could not read file"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-sparql.c:400
+msgid "Could not run update"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-sparql.c:435
+msgid "Could not run query"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-sparql.c:444
+msgid "No results found matching your query"
+msgstr ""
+
+#. Translators: this messagge will apper immediately after the
+#. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
+#: ../src/tracker-utils/tracker-stats.c:90
+msgid " - Show statistics for all Nepomuk defined ontology classes"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-stats.c:115
+msgid "Could not get Tracker statistics"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-stats.c:124
+msgid "No statistics available"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-stats.c:127
+msgid "Statistics:"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-status.c:68
+msgid "Follow status changes as they happen"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-status.c:72
+msgid "Include details with state updates (only applies to --follow)"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-status.c:76
+msgid "Shows the key used when listing miners and their states"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-status.c:80
+msgid "List all miners currently running"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-status.c:84
+msgid "List all miners installed"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-status.c:88
+msgid "List pause reasons and applications for a miner"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-status.c:92
+msgid "Miner to use with other commands (you can use suffixes, e.g. FS or Applications)"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-status.c:93
+msgid "MINER"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-status.c:96
+msgid "Pause a miner (you must use this with --miner)"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-status.c:97
+msgid "REASON"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-status.c:100
+msgid "Resume a miner (you must use this with --miner)"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-status.c:101
+msgid "COOKIE"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-status.c:161
+#, c-format
+msgid "Attempting to pause miner '%s' with reason '%s'"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-status.c:168
+#, c-format
+msgid "Could not pause miner: %s"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-status.c:172
+#, c-format
+msgid "Cookie is %d"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-status.c:186
+#, c-format
+msgid "Attempting to resume miner %s with cookie %d"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-status.c:193
+#, c-format
+msgid "Could not resume miner: %s"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-status.c:213
+#, c-format
+msgid "Could not get status from miner: %s"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-status.c:256
+#: ../src/tracker-utils/tracker-status.c:264
+msgid "Progress"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-status.c:259
+msgid "Status"
+msgstr "Status"
+
+#: ../src/tracker-utils/tracker-status.c:349
+msgid "- Monitor and control status"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-status.c:364
+msgid "You can not use miner pause and resume switches together"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-status.c:378
+msgid "You must provide the miner for pause or resume commands"
+msgstr ""
+
+#. Show status of all miners
+#. Translators: "Key" is in terms of a "legend". I.e.
+#. * R=Running, P=Paused, etc.
+#.
+#: ../src/tracker-utils/tracker-status.c:411
+msgid "Key"
+msgstr "Slötel"
+
+#: ../src/tracker-utils/tracker-status.c:412
+msgid "[R] = Running"
+msgstr "[R] = Lööpt"
+
+#: ../src/tracker-utils/tracker-status.c:413
+msgid "[P] = Paused"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-status.c:414
+msgid "[ ] = Not Running"
+msgstr "[ ] = Lööpt nich"
+
+#: ../src/tracker-utils/tracker-status.c:426
+#, c-format
+msgid "Found %d miners installed"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-status.c:438
+#, c-format
+msgid "Found %d miners running"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-status.c:471
+msgid "No miners are running"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-status.c:511
+#: ../src/tracker-utils/tracker-status.c:541
+msgid "Miners"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-status.c:518
+msgid "Application"
+msgstr "Programm"
+
+#: ../src/tracker-utils/tracker-status.c:520
+msgid "Reason"
+msgstr "Grund"
+
+#: ../src/tracker-utils/tracker-status.c:529
+msgid "No miners are paused"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-tag.c:68
+msgid "List all tags (using FILTER if specified)"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-tag.c:72
+msgid "Show files associated with each tag (this is only used with --list)"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-tag.c:76
+msgid "Add a tag (if FILEs are omitted, TAG is not associated with any files)"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-tag.c:77
+#: ../src/tracker-utils/tracker-tag.c:81
+msgid "TAG"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-tag.c:80
+msgid "Delete a tag (if FILEs are omitted, TAG is removed for all files)"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-tag.c:90
+msgid "FILE…"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-tag.c:91
+msgid "FILE [FILE…]"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-tag.c:256
+#, c-format
+msgid "%d file"
+msgid_plural "%d files"
+msgstr[0] "%d Datei"
+msgstr[1] "%d Dateien"
+
+#: ../src/tracker-utils/tracker-tag.c:278
+msgid "Could not get files related to tag"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-tag.c:351
+#: ../src/tracker-utils/tracker-tag.c:601
+msgid "Could not get all tags"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-tag.c:360
+#: ../src/tracker-utils/tracker-tag.c:610
+msgid "No tags were found"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-tag.c:363
+#, c-format
+msgid "Tag: %d (shown by name)"
+msgid_plural "Tags: %d (shown by name)"
+msgstr[0] "Tag: %d (opwiest nah Naam)"
+msgstr[1] "Tags: %d (opwiest nah Naam)"
+
+#: ../src/tracker-utils/tracker-tag.c:450
+msgid "Could not add tag"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-tag.c:458
+msgid "Tag was added successfully"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-tag.c:492
+msgid "Could not get tag by label"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-tag.c:502
+msgid "No tags were found by that name"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-tag.c:556
+msgid "Could not remove tag"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-tag.c:564
+msgid "Tag was removed successfully"
+msgstr ""
+
+#. Translators: this messagge will apper immediately after the
+#. * usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
+#.
+#: ../src/tracker-utils/tracker-tag.c:639
+msgid "Add, remove or list tags"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-tag.c:655
+msgid "The --list option is required for --show-files"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-tag.c:657
+msgid "Add and delete actions can not be used together"
+msgstr ""
+
+#: ../src/tracker-utils/tracker-tag.c:659
+msgid "No arguments were provided"
+msgstr ""
+
+#: ../python/gtk-sparql/gtk-sparql.ui.h:1
+msgid "Saved queries"
+msgstr ""
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:1
+msgid "<b>Notification area</b>"
+msgstr ""
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:2
+msgid "Al_ways display icon"
+msgstr ""
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:3
+msgid "Directories"
+msgstr ""
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:4
+msgid "Directories (no sub-directories are indexed):"
+msgstr ""
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:5
+msgid "Directories:"
+msgstr ""
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:6
+msgid "Enable _monitoring"
+msgstr ""
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:7
+msgid "Enable _thumbnails"
+msgstr ""
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:8
+msgid "Enable for _first time"
+msgstr ""
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:9
+msgid "Enable when running on _battery"
+msgstr ""
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:10
+msgid "Faster"
+msgstr ""
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:11
+msgid "Files"
+msgstr ""
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:12
+msgid "General"
+msgstr "Allgemeen"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:13
+msgid "Glob patterns to ignore:"
+msgstr ""
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:14
+msgid ""
+"Globbing patterns can be used here, for example: \"*bar*\".\n"
+"Most commonly this is used to ignore directories like *~, *.o, *.la, etc"
+msgstr ""
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:16
+msgid "Ignored Content"
+msgstr ""
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:17
+msgid "Include _removable media"
+msgstr ""
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:18
+msgid "Include mou_nted directories"
+msgstr ""
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:19
+msgid "Indexing"
+msgstr ""
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:20
+msgid "Limitations"
+msgstr ""
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:21
+msgid "Locations"
+msgstr "Orte"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:22
+msgid "Non-Recursively Indexed"
+msgstr ""
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:23
+msgid "Recursively Indexed"
+msgstr ""
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:24
+msgid "Semantics"
+msgstr ""
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:25
+msgid "Slower"
+msgstr ""
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:26
+msgid "Start up"
+msgstr ""
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:27
+msgid "Thr_ottle:"
+msgstr ""
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:28
+msgid "Tracker Preferences"
+msgstr ""
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:29
+msgid "When toggled, this makes sure your home directory is included in the list."
+msgstr ""
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:30
+msgid "With specific files:"
+msgstr ""
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:31
+msgid "_Delay"
+msgstr ""
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:32
+msgid "_Disk space:"
+msgstr ""
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:33
+msgid "_Never display icon"
+msgstr ""
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:34
+msgid "_Only display when indexing content"
+msgstr ""
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:35
+msgid "seconds"
+msgstr "Sekunnen"
+
+#: ../src/tracker-search-bar/tracker-search-bar.ui.h:1
+msgid "A search bar applet for finding content stored in Tracker"
+msgstr ""
+
+#: ../src/tracker-search-bar/tracker-search-bar.ui.h:3
+msgid ""
+"Tracker is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.\n"
+"\n"
+"Tracker is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.\n"
+"\n"
+"You should have received a copy of the GNU General Public License along with Tracker; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA."
+msgstr ""
+
