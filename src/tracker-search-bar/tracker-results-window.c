@@ -35,7 +35,7 @@
 #include "tracker-results-window.h"
 #include "tracker-aligned-window.h"
 
-#define MAX_ITEMS 5
+#define MAX_ITEMS 10
 
 #define MUSIC_QUERY    "SELECT ?urn ?title ?belongs fts:rank(?urn) WHERE { ?urn a nfo:Audio ; nfo:fileName ?title ; nfo:belongsToContainer ?belongs . ?urn fts:match \"%s*\" } ORDER BY DESC(fts:rank(?urn)) OFFSET 0 LIMIT %d"
 #define IMAGE_QUERY    "SELECT ?urn ?title ?belongs fts:rank(?urn) WHERE { ?urn a nfo:Image ; nfo:fileName ?title ; nfo:belongsToContainer ?belongs . ?urn fts:match \"%s*\" } ORDER BY DESC(fts:rank(?urn)) OFFSET 0 LIMIT %d"
@@ -1010,15 +1010,13 @@ search_get_cb (GPtrArray *results,
 	}
 
 	if (!results) {
-		g_print ("No results were found matching the query in category:%d->'%s'\n",
-			 sq->category,
+		g_print ("No results were found matching the query in category:'%s'\n",
 			 category_to_string (sq->category));
 	} else {
 		GSList *l;
 
-		g_print ("Results: %d for category:%d->'%s'\n", 
+		g_print ("Results: %d for category:'%s'\n", 
 			 results->len,
-			 sq->category,
 			 category_to_string (sq->category));
 
 		if (results->len > 0) {
