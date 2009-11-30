@@ -92,8 +92,14 @@ get_focal_length(ExifData *exif, ExifTag tag)
 
 	if (entry) {
 		gchar buf[1024];
+		const gchar *end;
 		exif_entry_get_value (entry, buf, 1024);
-		return g_strndup (buf, strstr (buf, " mm") - buf);
+		end = g_strstr_len (buf, 1024, " mm");
+		if (end) {
+			return g_strndup (buf, end - buf);
+		} else {
+			return NULL;
+		}
 	}
 
 	return NULL;
