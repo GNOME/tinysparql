@@ -127,6 +127,7 @@ static void     model_set_up                      (TrackerResultsWindow *window)
 static void     search_get                        (TrackerResultsWindow *window,
 						   TrackerCategory       category);
 static void     search_start                      (TrackerResultsWindow *window);
+static gchar *  category_to_string                (TrackerCategory       category);
 
 enum {
 	COL_CATEGORY_ID,
@@ -1009,11 +1010,16 @@ search_get_cb (GPtrArray *results,
 	}
 
 	if (!results) {
-		g_print ("No results were found matching the query\n");
+		g_print ("No results were found matching the query in category:%d->'%s'\n",
+			 sq->category,
+			 category_to_string (sq->category));
 	} else {
 		GSList *l;
 
-		g_print ("Results: %d\n", results->len);
+		g_print ("Results: %d for category:%d->'%s'\n", 
+			 results->len,
+			 sq->category,
+			 category_to_string (sq->category));
 
 		if (results->len > 0) {
 			g_ptr_array_foreach (results,
@@ -1044,6 +1050,10 @@ search_get_cb (GPtrArray *results,
 
 	search_query_free (sq);
 	search_window_ensure_not_blank (window);
+
+	if (priv->queries_pending < 1) {
+		g_print ("\n\n\n");
+	}
 }
 
 static void
