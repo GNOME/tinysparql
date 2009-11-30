@@ -42,7 +42,7 @@
 #define VIDEO_QUERY    "SELECT ?urn ?title ?belongs fts:rank(?urn) WHERE { ?urn a nmm:Video ; nfo:fileName ?title ; nfo:belongsToContainer ?belongs . ?urn fts:match \"%s*\" } ORDER BY DESC(fts:rank(?urn)) OFFSET 0 LIMIT %d"
 #define DOCUMENT_QUERY "SELECT ?urn ?title ?belongs fts:rank(?urn) WHERE { ?urn a nfo:Document ; nfo:fileName ?title ; nfo:belongsToContainer ?belongs . ?urn fts:match \"%s*\" } ORDER BY DESC(fts:rank(?urn)) OFFSET 0 LIMIT %d"
 #define FOLDER_QUERY   "SELECT ?urn ?title ?belongs fts:rank(?urn) WHERE { ?urn a nfo:Folder ; nfo:fileName ?title ; nfo:belongsToContainer ?belongs . ?urn fts:match \"%s*\" } ORDER BY DESC(fts:rank(?urn)) OFFSET 0 LIMIT %d"
-#define APP_QUERY      "SELECT ?urn ?title WHERE { ?urn a nfo:Software ; nie:title ?title . FILTER regex (?title, \"%s\") } ORDER BY DESC(?title) OFFSET 0 LIMIT %d"
+#define APP_QUERY      "SELECT ?urn ?title WHERE { ?urn a nfo:Software ; nie:title ?title . FILTER regex (?title, \"%s\", \"i\") } ORDER BY DESC(?title) OFFSET 0 LIMIT %d"
 
 #define GENERAL_SEARCH  "SELECT ?s ?type ?title WHERE { ?s fts:match \"%s*\" ; rdf:type ?type . OPTIONAL { ?s nie:title ?title } } OFFSET %d LIMIT %d"
 
