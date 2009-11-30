@@ -694,7 +694,9 @@ tracker_data_blank_buffer_flush (GError **error)
 	g_hash_table_insert (blank_buffer.table, subject, blank_uri);
 	g_checksum_free (checksum);
 
-	g_propagate_error (error, actual_error);
+	if (actual_error) {
+		g_propagate_error (error, actual_error);
+	}
 }
 
 static void
