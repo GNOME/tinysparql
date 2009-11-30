@@ -211,7 +211,15 @@ get_filter_string (GStrv        files,
 	}
 
 	for (i = 0; i < len; i++) {
-		g_string_append_printf (filter, "?f = <%s>", files[i]);
+		GFile *file;
+		gchar *uri;
+
+		file = g_file_new_for_commandline_arg (files[i]);
+		uri = g_file_get_uri (file);
+		g_object_unref (file);
+
+		g_string_append_printf (filter, "?f = <%s>", uri);
+		g_free (uri);
 
 		if (i < len - 1) { 
 			g_string_append (filter, " || ");
