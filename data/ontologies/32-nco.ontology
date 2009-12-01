@@ -724,3 +724,24 @@ nco:imPresence a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nco:IMAccount ;
 	rdfs:range nco:PresenceStatus .
+
+
+nco:IMCapability a rdfs:Class ;
+        rdfs:label "IM Capabilities" ;
+	rdfs:comment "Features of a certain IM connection (depends on the IMAccount implementation used by the Contact)" ;
+	rdfs:subClassOf rdfs:Resource .
+
+nco:im-capability-media-calls a nco:IMCapability .
+nco:im-capability-audio-calls a nco:IMCapability .
+nco:im-capability-video-calls a nco:IMCapability .
+nco:im-capability-upgrading-calls a nco:IMCapability .
+nco:im-capability-file-transfers a nco:IMCapability .
+nco:im-capability-stream-tubes a nco:IMCapability .
+nco:im-capability-dbus-tubes a nco:IMCapability .
+
+
+nco:imContactCapability a rdf:Property ;
+	rdfs:label "imContact Capability";
+	rdfs:comment "Capabilities of an IM Contact, what can we interact with him";
+	rdfs:domain nco:IMContact ;
+	rdfs:range nco:IMCapability .
