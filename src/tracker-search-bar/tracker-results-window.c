@@ -44,8 +44,8 @@
 #define FOLDER_QUERY   "SELECT ?urn ?title ?belongs fts:rank(?urn) WHERE { ?urn a nfo:Folder ; nfo:fileName ?title ; nfo:belongsToContainer ?belongs . ?urn fts:match \"%s*\" } ORDER BY DESC(fts:rank(?urn)) OFFSET 0 LIMIT %d"
 #define APP_QUERY      "SELECT ?urn ?title WHERE { ?urn a nfo:Software ; nie:title ?title . FILTER regex (?title, \"%s\", \"i\") } ORDER BY DESC(?title) OFFSET 0 LIMIT %d"
 #define TAGS_QUERY     "SELECT ?urn ?title WHERE { ?urn a nao:Tag ; nao:prefLabel ?title . FILTER regex (?title, \"%s\", \"i\") } ORDER BY DESC(?title) OFFSET 0 LIMIT %d"
-
-#define GENERAL_SEARCH  "SELECT ?s ?type ?title WHERE { ?s fts:match \"%s*\" ; rdf:type ?type . OPTIONAL { ?s nie:title ?title } } OFFSET %d LIMIT %d"
+#define BOOKMARK_QUERY "SELECT ?urn ?title WHERE { ?urn a nfo:Bookmark ; nie:title ?title . FILTER regex (?title, \"%s\", \"i\") } ORDER BY DESC(?title) OFFSET 0 LIMIT %d"
+#define WEBSITE_QUERY  "SELECT ?urn ?title WHERE { ?urn a nfo:Website ; nie:title ?title . FILTER regex (?title, \"%s\", \"i\") } ORDER BY DESC(?title) OFFSET 0 LIMIT %d"
 
 #undef USE_SEPARATOR_FOR_SPACING
 
@@ -83,7 +83,8 @@ typedef enum {
 	CATEGORY_FONT                  = 1 << 9,
 	CATEGORY_VIDEO                 = 1 << 10,
 	CATEGORY_ARCHIVE               = 1 << 11,
-	CATEGORY_WEBSITE               = 1 << 12
+	CATEGORY_BOOKMARK              = 1 << 12,
+	CATEGORY_WEBSITE               = 1 << 13
 } TrackerCategory;
 
 typedef struct {
@@ -511,7 +512,8 @@ category_to_string (TrackerCategory category)
 	case CATEGORY_FONT: return _("Fonts");
 	case CATEGORY_VIDEO: return _("Videos");
 	case CATEGORY_ARCHIVE: return _("Archives");
-	case CATEGORY_WEBSITE: return _("Websites");
+	case CATEGORY_BOOKMARK: return _("Bookmarks");
+	case CATEGORY_WEBSITE: return _("Links");
 	}
 
 	return _("Other");
@@ -565,6 +567,10 @@ category_from_string (const gchar *type,
 
 	if (g_str_has_suffix (type, "nfo#Archive")) {
 		*categories |= CATEGORY_ARCHIVE;
+	}
+
+	if (g_str_has_suffix (type, "nfo#Bookmark")) {
+		*categories |= CATEGORY_BOOKMARK;
 	}
 
 	if (g_str_has_suffix (type, "nfo#Website")) {
@@ -1088,6 +1094,12 @@ search_get (TrackerResultsWindow *window,
 	case CATEGORY_TAG:
 		format = TAGS_QUERY;
 		break;
+	case CATEGORY_BOOKMARK:
+		format = BOOKMARK_QUERY;
+		break;
+	case CATEGORY_WEBSITE:
+		format = WEBSITE_QUERY;
+		break;
 	default:
 		format = NULL;
 		break;
@@ -1141,6 +1153,8 @@ search_start (TrackerResultsWindow *window)
 	search_get (window, CATEGORY_FOLDER);
 	search_get (window, CATEGORY_APPLICATION);
 	search_get (window, CATEGORY_TAG);
+	search_get (window, CATEGORY_BOOKMARK);
+	search_get (window, CATEGORY_WEBSITE);
 }
 
 static gboolean
@@ -1199,5 +1213,4 @@ tracker_results_window_popup (TrackerResultsWindow *window)
 	if (0) {
 		g_idle_add ((GSourceFunc) grab_popup_window, window);
 	}
-
 }
