@@ -21,6 +21,7 @@
 #include "config.h"
 
 #include <stdlib.h>
+#include <locale.h>
 #include <libtracker-common/tracker-log.h>
 #include <glib/gi18n.h>
 
