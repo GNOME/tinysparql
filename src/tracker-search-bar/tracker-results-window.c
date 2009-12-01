@@ -43,6 +43,7 @@
 #define DOCUMENT_QUERY "SELECT ?urn ?title ?belongs fts:rank(?urn) WHERE { ?urn a nfo:Document ; nfo:fileName ?title ; nfo:belongsToContainer ?belongs . ?urn fts:match \"%s*\" } ORDER BY DESC(fts:rank(?urn)) OFFSET 0 LIMIT %d"
 #define FOLDER_QUERY   "SELECT ?urn ?title ?belongs fts:rank(?urn) WHERE { ?urn a nfo:Folder ; nfo:fileName ?title ; nfo:belongsToContainer ?belongs . ?urn fts:match \"%s*\" } ORDER BY DESC(fts:rank(?urn)) OFFSET 0 LIMIT %d"
 #define APP_QUERY      "SELECT ?urn ?title WHERE { ?urn a nfo:Software ; nie:title ?title . FILTER regex (?title, \"%s\", \"i\") } ORDER BY DESC(?title) OFFSET 0 LIMIT %d"
+#define TAGS_QUERY     "SELECT ?urn ?title WHERE { ?urn a nao:Tag ; nao:prefLabel ?title . FILTER regex (?title, \"%s\", \"i\") } ORDER BY DESC(?title) OFFSET 0 LIMIT %d"
 
 #define GENERAL_SEARCH  "SELECT ?s ?type ?title WHERE { ?s fts:match \"%s*\" ; rdf:type ?type . OPTIONAL { ?s nie:title ?title } } OFFSET %d LIMIT %d"
 
@@ -1084,6 +1085,9 @@ search_get (TrackerResultsWindow *window,
 	case CATEGORY_APPLICATION:
 		format = APP_QUERY;
 		break;
+	case CATEGORY_TAG:
+		format = TAGS_QUERY;
+		break;
 	default:
 		format = NULL;
 		break;
@@ -1136,6 +1140,7 @@ search_start (TrackerResultsWindow *window)
 	search_get (window, CATEGORY_DOCUMENT);
 	search_get (window, CATEGORY_FOLDER);
 	search_get (window, CATEGORY_APPLICATION);
+	search_get (window, CATEGORY_TAG);
 }
 
 static gboolean
