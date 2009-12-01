@@ -788,6 +788,7 @@ commit_cb (GObject      *object,
 
 	if (error) {
 		g_critical ("Could not commit: %s", error->message);
+		g_error_free (error);
 	}
 }
 
@@ -866,6 +867,7 @@ sparql_update_cb (GObject      *object,
 
 	if (error) {
 		g_critical ("Could not execute sparql: %s", error->message);
+		g_error_free (error);
 	} else {
 		if (fs->private->been_crawled) {
 			/* Only commit immediately for
@@ -887,14 +889,21 @@ sparql_query_cb (GObject      *object,
                  gpointer      user_data)
 {
 	SparqlQueryData *data = user_data;
-	TrackerMiner *miner = TRACKER_MINER (object);
-
+	const GPtrArray *query_results;
+	TrackerMiner *miner;
 	GError *error = NULL;
 
-	const GPtrArray *query_results = tracker_miner_execute_sparql_finish (miner, result, &error);
+	miner = TRACKER_MINER (object);
+	query_results = tracker_miner_execute_sparql_finish (miner, result, &error);
+
+	if (error) {
+		g_critical ("Could not execute sparql query: %s", error->message);
+		g_error_free (error);
+	}
 
 	data->value = query_results && query_results->len == 1;
 	g_main_loop_quit (data->main_loop);
+
 }
 
 static void
@@ -1189,6 +1198,7 @@ item_update_uri_recursively_cb (GObject      *object,
 
 	if (error) {
 		g_critical ("Could not query children: %s", error->message);
+		g_error_free (error);
 	} else {
 		if (query_results) {
 			gint i;

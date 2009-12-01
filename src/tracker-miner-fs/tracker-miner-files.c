@@ -449,6 +449,7 @@ set_up_mount_point_cb (GObject      *source,
 	if (error) {
 		g_critical ("Could not set up mount point '%s': %s",
 			    removable_device_urn, error->message);
+		g_error_free (error);
 	}
 
 	g_free (removable_device_urn);
@@ -548,6 +549,7 @@ init_mount_points_cb (GObject      *source,
 	if (error) {
 		g_critical ("Could not initialize currently active mount points: %s",
 			    error->message);
+		g_error (error);
 	}
 }
 
@@ -574,6 +576,7 @@ query_mount_points_cb (GObject      *source,
 	                                                     &error);
 	if (error) {
 		g_critical ("Could not obtain the mounted volumes: %s", error->message);
+		g_error_free (error);
 		return;
 	}
 
@@ -1301,6 +1304,7 @@ process_file_cb (GObject      *object,
 		/* Something bad happened, notify about the error */
 		tracker_miner_fs_notify_file (TRACKER_MINER_FS (data->miner), file, error);
 		process_file_data_free (data);
+		g_error_free (error);
 		return;
 	}
 

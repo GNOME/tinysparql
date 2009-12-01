@@ -789,11 +789,12 @@ async_call_data_destroy (AsyncCallData *data,
 
 static void
 run_update_callback (AsyncCallData *data,
-                     GError        *error)
+                     const GError  *error)
 {
 	GAsyncReadyCallback callback;
+	GSimpleAsyncResult *result;
+
 	callback = data->callback;
-	GSimpleAsyncResult *result = NULL;
 
 	if (error) {
 		result = g_simple_async_result_new_from_error (G_OBJECT (data->miner),
@@ -802,9 +803,9 @@ run_update_callback (AsyncCallData *data,
 		                                               error);
 	} else {
 		result = g_simple_async_result_new (G_OBJECT (data->miner),
-                                            callback,
-                                            data->user_data,
-                                            data->source_function);
+						    callback,
+						    data->user_data,
+						    data->source_function);
 	}
 
 	g_simple_async_result_complete (result);
