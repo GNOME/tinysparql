@@ -24,26 +24,66 @@
 
 G_BEGIN_DECLS
 
+/**
+ * TrackerClient:
+ * @proxy_statistics: a #DBusGProxy for the connection to Tracker's
+ * statistics D-Bus service.
+ * @proxy_resources: a #DBusGProxy for the connection to Tracker's
+ * resources D-Bus service.
+ * @pending_calls: a #GHashTable with the D-Bus calls currently
+ * pending (used for the tracker_cancel_call() API).
+ * @last_call: a #guint representing the last API call with this
+ * #TrackerClient.
+ *
+ * This structure is used by tracker_connect() and tracker_disconnect().
+ */
 typedef struct {
-	DBusGProxy	*proxy_statistics;
-	DBusGProxy	*proxy_resources;
+	DBusGProxy *proxy_statistics;
+	DBusGProxy *proxy_resources;
 
-        GHashTable      *pending_calls;
-        guint            last_call;
+        GHashTable *pending_calls;
+        guint last_call;
 } TrackerClient;
 
-typedef void (*TrackerReplyArray) (gchar    **result,
-                                   GError    *error,
-                                   gpointer   user_data);
+/**
+ * TrackerReplyArray:
+ * @result: a gchar ** with the results of the query.
+ * @error: a GError.
+ * @user_data: a gpointer for user data.
+ *
+ * This is used by the old tracker_search_* API and is deprecated.
+ */
+typedef void (*TrackerReplyArray)     (gchar    **result,
+                                       GError    *error,
+                                       gpointer   user_data);
+
+/**
+ * TrackerReplyGPtrArray:
+ * @result: a GPtrArray with the results of the query.
+ * @error: a GError.
+ * @user_data: a gpointer for user data.
+ *
+ * The returned #GPtrArray contains an array of #GStrv with the
+ * results from the query unless there is an error in the query. If
+ * there is an error the @error is populated with the details.
+ */
 typedef void (*TrackerReplyGPtrArray) (GPtrArray *result, 
                                        GError    *error, 
                                        gpointer   user_data);
+
+/**
+ * TrackerReplyVoid:
+ * @error: a GError.
+ * @user_data: a gpointer for user data.
+ *
+ * If there is an error the @error is populated with the details.
+ */
 typedef void (*TrackerReplyVoid)      (GError    *error, 
                                        gpointer   user_data);
 
 gboolean       tracker_cancel_call                         (TrackerClient          *client,
                                                             guint                   call_id);
-void           tracker_cancel_last_call                    (TrackerClient          *client);
+gboolean       tracker_cancel_last_call                    (TrackerClient          *client);
 
 gchar *        tracker_sparql_escape                       (const gchar            *str);
 

@@ -33,6 +33,18 @@
 #define TRACKER_INTERFACE_RESOURCES	"org.freedesktop.Tracker1.Resources"
 #define TRACKER_INTERFACE_STATISTICS	"org.freedesktop.Tracker1.Statistics"
 
+/**
+ * SECTION:tracker
+ * @short_description: A client library for querying and inserting
+ * data in Tracker.
+ * @include: libtracker-client/tracker.h
+ *
+ * This API is for applications which want to integrate with Tracker
+ * either by storing their data or by querying it. They are also not
+ * limited to their application's data. Other data mined by other
+ * applications is also available in some cases.
+ **/
+
 typedef struct {
         DBusGProxy     *proxy;
         DBusGProxyCall *pending_call;
@@ -101,7 +113,13 @@ tracker_void_reply (DBusGProxy *proxy,
 	g_free (s);
 }
 
-/* Copied from tracker-module-metadata.c */
+/**
+ * tracker_sparql_escape:
+ * @str: a string to escape.
+ *
+ * Returns: the newly allocated escaped string which must be freed
+ * using g_free(). 
+ **/
 gchar *
 tracker_sparql_escape (const gchar *str)
 {
@@ -216,8 +234,24 @@ pending_call_free (PendingCallData *data)
         g_slice_free (PendingCallData, data);
 }
 
+/**
+ * tracker_connect:
+ * @enable_warnings: a #gboolean to determine if warnings are issued in
+ * cases where they are found.
+ * @timeout: a #gint used for D-Bus call timeouts.
+ *
+ * Creates a connection over D-Bus to the Tracker store for doing data
+ * querying and inserting.
+ *
+ * The @timeout is only used if it is > 0. If it is, then it is used
+ * with dbus_g_proxy_set_default_timeout().
+ *
+ * Returns: the #TrackerClient which should be used with
+ * tracker_disconnect() when finished with. 
+ **/
 TrackerClient *
-tracker_connect (gboolean enable_warnings, gint timeout)
+tracker_connect (gboolean enable_warnings, 
+                 gint     timeout)
 {
 	DBusGConnection *connection;
 	GError *error = NULL;
@@ -229,7 +263,8 @@ tracker_connect (gboolean enable_warnings, gint timeout)
 
 	if (connection == NULL || error != NULL) {
 		if (enable_warnings) {
-			g_warning("Unable to connect to dbus: %s\n", error->message);
+			g_warning ("Unable to connect to dbus: %s\n", 
+                                   error->message);
 		}
 		g_error_free (error);
 		return NULL;
@@ -265,6 +300,13 @@ tracker_connect (gboolean enable_warnings, gint timeout)
 	return client;
 }
 
+/**
+ * tracker_disconnect:
+ * @client: a #TrackerClient.
+ *
+ * This will disconnect the D-Bus connections to Tracker services and
+ * free the allocated #TrackerClient by tracker_connect().
+ **/
 void
 tracker_disconnect (TrackerClient *client)
 {
@@ -283,6 +325,17 @@ tracker_disconnect (TrackerClient *client)
 	g_free (client);
 }
 
+/**
+ * tracker_cancel_call:
+ * @client: a #TrackerClient.
+ * @call_id: a #guint id for the API call you want to cancel. 
+ *
+ * The @call_id is a #guint which increments with each asynchronous
+ * API call made using libtracker-client. For synchronous API calls,
+ * see tracker_cancel_last_call() which is more useful.
+ *
+ * Returns: A @gboolean indicating if the call was cancelled or not.
+ **/
 gboolean
 tracker_cancel_call (TrackerClient *client,
                      guint          call_id)
@@ -303,16 +356,49 @@ tracker_cancel_call (TrackerClient *client,
         return TRUE;
 }
 
-void
+/**
+ * tracker_cancel_last_call:
+ * @client: a #TrackerClient.
+ *
+ * Cancels the last API call made using tracker_cancel_call(). the
+ * last API call ID is always tracked so you don't have to provide it
+ * with this API.
+ *
+ * Returns: A #gboolean indicating if the call was cancelled or not.
+ **/
+gboolean
 tracker_cancel_last_call (TrackerClient *client)
 {
         if (client->last_call != 0) {
-                tracker_cancel_call (client, client->last_call);
+                gboolean cancelled;
+                
+                cancelled = tracker_cancel_call (client, client->last_call);
                 client->last_call = 0;
+
+                return cancelled;
         }
+        
+        return TRUE;
 }
 
-/* dbus synchronous calls */
+/**
+ * tracker_statistics_get:
+ * @client: a #TrackerClient.
+ * @error: a #GError.
+ *
+ * Requests statistics about each class in the ontology (for example,
+ * nfo:Image and nmm:Photo which indicate the number of images and the
+ * number of photos).
+ *
+ * The returned #GPtrArray contains an array of #GStrv which have 2
+ * strings. The first is the class (e.g. nfo:Image), the second is the
+ * count for that class.
+ *
+ * This API call is completely synchronous so it may block.
+ *
+ * Returns: A #GPtrArray with the statistics which must be freed using
+ * g_ptr_array_free().
+ **/
 GPtrArray *
 tracker_statistics_get (TrackerClient  *client,  
                         GError        **error)
@@ -338,6 +424,67 @@ tracker_resources_load (TrackerClient  *client,
                                                 &*error);
 }
 
+/**
+ * tracker_resources_sparql_query:
+ * @client: a #TrackerClient.
+ * @query: a string representing SPARQL.
+ * @error: a #GError.
+ *
+ * Queries the database using SPARQL. For more information about
+ * SPARQL see:
+ *
+ *   http://www.w3.org/TR/rdf-sparql-query/
+ * 
+ * The ontology used in Tracker mostly follows Nepomuk:
+ *
+ *   http://nepomuk.semanticdesktop.org/
+ * 
+ * An example query would be:
+ * <example>
+ * <title>Using tracker_resource_sparql_query(<!-- -->)</title>
+ * An example of using tracker_resource_sparql_query() to list all
+ * albums by title and include their song count and song total length.
+ * <programlisting>
+ *  TrackerClient *client;
+ *  GPtrArray *array;
+ *  GError *error = NULL;
+ *  const gchar *query;
+ *
+ *  // Create D-Bus connection with no warnings and no timeout.
+ *  client = tracker_connect (FALSE, 0);
+ *  query = "SELECT" 
+ *          "  ?album"
+ *          "  ?title"
+ *          "  COUNT(?song) AS songs"
+ *          "  SUM(?length) AS totallength"
+ *          "WHERE {"
+ *          "  ?album a nmm:MusicAlbum ;"
+ *          "  nie:title ?title ."
+ *          "  ?song nmm:musicAlbum ?album ;"
+ *          "  nmm:length ?length"
+ *          "} "
+ *          "GROUP BY ?album");
+ *
+ *  array = tracker_resources_sparql_query (client, query, &error);
+ *
+ *  if (error) {
+ *          g_warning ("Could not query Tracker, %s", error->message);
+ *          g_error_free (error);
+ *          tracker_disconnect (client);
+ *          return;
+ *  }
+ * 
+ *  // Do something with the array
+ * 
+ *  g_ptr_array_free (array, TRUE);
+ * </programlisting>
+ * </example> 
+ * 
+ * This API call is completely synchronous so it may block.
+ *
+ * Returns: A #GPtrArray with the query results which must be freed
+ * using g_ptr_array_free().
+ **/
 GPtrArray *
 tracker_resources_sparql_query (TrackerClient  *client, 
                                 const gchar    *query, 
@@ -355,6 +502,20 @@ tracker_resources_sparql_query (TrackerClient  *client,
 	return table;
 }
 
+/**
+ * tracker_resources_sparql_update:
+ * @client: a #TrackerClient.
+ * @query: a string representing SPARQL.
+ * @error: a #GError.
+ *
+ * Updates the database using SPARQL.
+ * 
+ * This API behaves the same way tracker_resources_sparql_query() does
+ * but with the difference that it is intended to be used for data
+ * updates.
+ *
+ * This API call is completely synchronous so it may block.
+ **/
 void
 tracker_resources_sparql_update (TrackerClient  *client, 
                                  const gchar    *query, 
@@ -400,6 +561,18 @@ tracker_resources_batch_commit (TrackerClient  *client,
                                                         &*error);
 }
 
+/**
+ * tracker_statistics_get_async:
+ * @client: a #TrackerClient.
+ * @callback: a #TrackerReplyGPtrArray to be used when the data is
+ * available.
+ * @gpointer: user data.
+ *
+ * This behaves exactly as tracker_statistics_get() but asynchronously.
+ *
+ * Returns: A #guint for the ID of this API call. This can be
+ * cancelled with tracker_cancel_call().
+ **/
 guint
 tracker_statistics_get_async (TrackerClient         *client,  
                               TrackerReplyGPtrArray  callback, 
