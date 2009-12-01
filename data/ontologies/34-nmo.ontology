@@ -26,7 +26,8 @@ nmo:partBoundary a rdf:Property ;
 
 nmo:Message a rdfs:Class ;
 	rdfs:subClassOf nie:InformationElement ;
-	rdfs:subClassOf nfo:TextDocument .
+	rdfs:subClassOf nfo:TextDocument ;
+	tracker:notify true .
 
 # FIXME Extension requested in Nepomuk 
 nmo:Email a rdfs:Class;
