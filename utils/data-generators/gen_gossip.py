@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.5
+#!/usr/bin/env python
 import random, sys
 import barnum.gen_data as gen_data
 from internals.tools import print_property, get_random_uuid_uri, get_random_in_list

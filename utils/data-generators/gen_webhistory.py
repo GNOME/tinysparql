@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.5
+#!/usr/bin/env python
 import random, sys
 from internals.tools import print_namespaces, print_property
 from internals.tools import getPseudoRandomDate, get_random_uuid_uri
