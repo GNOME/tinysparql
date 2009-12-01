@@ -279,6 +279,14 @@ property_finalize (GObject *object)
 	g_free (priv->uri);
 	g_free (priv->name);
 
+	if (priv->domain) {
+		g_object_unref (priv->domain);
+	}
+
+	if (priv->range) {
+		g_object_unref (priv->range);
+	}
+
 	g_array_free (priv->super_properties, TRUE);
 
 	(G_OBJECT_CLASS (tracker_property_parent_class)->finalize) (object);
