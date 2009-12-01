@@ -3,6 +3,7 @@
 #include "qname.h"
 
 #define DEFAULT_COPYRIGHT "Copyright &copy; 2009 <a href=\"http://www.nokia.com/\">Nokia</a>"
+#define SIGNALS_DOC "http://live.gnome.org/Tracker/Documentation/SignalsOnChanges"
 
 typedef struct {
         Ontology *ontology;
@@ -190,6 +191,12 @@ print_ontology_class (gpointer key, gpointer value, gpointer user_data)
         g_fprintf (f,"<td class=\"rowheader\">Description</td>");
         g_fprintf (f,"<td>%s</td>\n", (def->description ? def->description : "--"));
         g_fprintf (f,"</tr>\n");
+
+        if (def->notify) {
+                g_fprintf (f,"<tr>");
+                g_fprintf (f,"<td colspan=\"2\">This class <a href=\"%s\">notifies changes</a></td>\n", SIGNALS_DOC);
+                g_fprintf (f,"</tr>\n");
+        }
 
         if (def->instances) {
                 g_fprintf (f,"<tr>");

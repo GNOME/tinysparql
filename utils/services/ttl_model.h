@@ -13,6 +13,7 @@ typedef struct {
         GList *in_range_of;
         gchar *description;
         GList *instances;
+        gboolean notify;
 } OntologyClass;
 
 typedef struct {

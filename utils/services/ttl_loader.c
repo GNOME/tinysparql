@@ -17,6 +17,8 @@
 #define NRL_MAX_CARDINALITY "http://www.semanticdesktop.org/ontologies/2007/08/15/nrl#maxCardinality"
 
 /* #define TRACKER_NAMESPACE "http://www.tracker-project.org/ontologies/tracker#Namespace" */
+#define TRACKER_NS "http://www.tracker-project.org/ontologies/tracker#"
+#define TRACKER_NOTIFY TRACKER_NS "notify"
 
 /* Ontology description */
 #define DSC_PREFIX "http://www.tracker-project.org/temp/dsc#"
@@ -87,6 +89,24 @@ load_in_memory (Ontology    *ontology,
                 if (def) {
                         def->subclasses = g_list_prepend (def->subclasses, 
                                                           g_strdup (turtle_subject));
+                }
+        } else if (!g_strcmp0 (turtle_predicate, TRACKER_NOTIFY)) {
+                /*
+                 * A tracker:notify TRUE
+                 */
+                OntologyClass *def;
+
+                def = g_hash_table_lookup (ontology->classes, turtle_subject);
+                if (!def) {
+                        g_error ("Something wrong");
+                }
+
+                if (!g_strcmp0 (turtle_object, "true")) {
+                        def->notify = TRUE;
+                } else if (!g_strcmp0 (turtle_object, "false")) {
+                        def->notify = FALSE;
+                } else {
+                        g_error ("Unable to map '%s' into boolean", turtle_object);
                 }
         } else if (!g_strcmp0 (turtle_predicate, RDFS_COMMENT)) {
                 OntologyClass *klass;

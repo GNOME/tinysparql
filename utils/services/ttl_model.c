@@ -14,6 +14,7 @@ ttl_model_class_new (const gchar *classname)
         def->in_range_of = NULL;
         def->description = NULL;
         def->instances = NULL;
+        def->notify = FALSE;
         return def;
 }
 
