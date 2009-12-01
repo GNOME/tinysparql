@@ -1491,6 +1491,8 @@ AC_CONFIG_FILES([
 	docs/design/Makefile
 	docs/manpages/Makefile
 	docs/reference/Makefile
+	docs/reference/libtracker-client/Makefile
+	docs/reference/libtracker-client/version.xml
 	docs/reference/libtracker-common/Makefile
 	docs/reference/libtracker-common/version.xml
 	docs/reference/libtracker-miner/Makefile

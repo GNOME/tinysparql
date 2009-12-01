@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN" 
+               "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd" [
+<!ENTITY tracker SYSTEM "xml/tracker.xml">
+<!ENTITY tracker-cancel SYSTEM "xml/tracker_cancel.xml">
+<!ENTITY tracker-sparql SYSTEM "xml/tracker_sparql.xml">
+<!ENTITY tracker-statistics SYSTEM "xml/tracker_statistics.xml">
+<!ENTITY tracker-resources SYSTEM "xml/tracker_resources.xml">
+<!ENTITY version SYSTEM "version.xml">
+]>
+<book id="index">
+  <bookinfo>
+    <title>Tracker Client Library Reference Manual</title>
+    <releaseinfo>for libtracker-client &version;</releaseinfo>
+  </bookinfo>
+
+  <part id="libtracker-client">
+    <title>Overview</title>
+    <partintro>
+      <para>
+        The libtracker-client library is the foundation for Tracker
+        querying and inserting into the data store. The data store
+        allows both querying and inserting using SPARQL based on the
+        Nepomuk ontology.
+      </para>
+      <para>
+      </para>
+    </partintro>
+  </part>
+
+    <chapter>
+      <title>General</title>
+      &tracker;
+      &tracker-cancel;
+      &tracker-sparql;
+    </chapter>
+    <chapter>
+      <title>Querying</title>
+      &tracker-statistics;
+      &tracker-resources;
+    </chapter>
+</book>
