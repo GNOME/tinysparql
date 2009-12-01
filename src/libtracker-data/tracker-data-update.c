@@ -2059,6 +2059,8 @@ tracker_data_update_sparql (const gchar  *update,
 		}
 
 		g_propagate_error (error, actual_error);
+
+		g_object_unref (sparql_query);
 		return;
 	}
 
@@ -2101,6 +2103,8 @@ tracker_data_update_sparql_blank (const gchar  *update,
 		}
 
 		g_propagate_error (error, actual_error);
+
+		g_object_unref (sparql_query);
 		return NULL;
 	}
 
