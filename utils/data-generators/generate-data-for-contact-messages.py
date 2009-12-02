@@ -44,7 +44,7 @@ def generateIMAccount(gen_data, str):
     f.write('<xmpp:' + xmppAddress + '> a nco:IMAccount; \n')
     f.write('\tnco:imAccountType "jabber" ;\n')
     f.write('\tnco:imNickname "' + firstName + ' ' + lastName + '" ;\n')
-    f.write('\tnco:imStatus "online" ;\n')
+    #f.write('\tnco:imStatus "online" ;\n')
     f.write('\tnco:imStatusMessage "' + str.replace(gen_data.create_paragraphs(1, 2, 2), "\n", "") + '" ;\n')
     f.write('\tnco:imID "' + xmppAddress + '".\n')
     f.write('\n')
@@ -251,7 +251,7 @@ for dummy in range (0, count):
     f.write('\tnco:nameGiven "'+firstName+'";\n')
     f.write('\tnco:nameFamily "'+lastName+'";\n')
     f.write('\tnco:birthDate "'+str(birthDay)+'";\n')
-    f.write('\tnco:title "'+jobTitle+'";\n')
+    #f.write('\tnco:title "'+jobTitle+'";\n')
     f.write('\tnco:hasEmailAddress <mailto:'+emailAddress+'>;\n')
     if hasPhoneNumber: f.write('\tnco:hasPhoneNumber <'+phoneUri+'>;\n')
     if hasIMAccount: f.write('\tnco:hasIMAccount <xmpp:'+xmppAddress+'>;\n')    	 
@@ -261,9 +261,9 @@ for dummy in range (0, count):
     f.write('\n')
 
         
-    calendarEntryID=str(random.randint(0, sys.maxint))
-    if random.randint(0, 3)>2 and count>2 and len(previousContacts):
-        generateCalendarEntry(gen_data, str, random)
+    #calendarEntryID=str(random.randint(0, sys.maxint))
+    #if random.randint(0, 3)>2 and count>2 and len(previousContacts):
+    #    generateCalendarEntry(gen_data, str, random)
     
     #20% Send emails. Those who do, send 1-30 emails. EMails have CC and BCC people     
     if random.randint(0, 10)>8 or count==1:
