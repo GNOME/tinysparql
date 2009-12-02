@@ -610,10 +610,9 @@ public class Tracker.SparqlQuery : Object {
 		}
 	}
 
-	void translate_select_expression (StringBuilder sql) throws SparqlError {
+	void translate_select_expression (StringBuilder sql, bool subquery) throws SparqlError {
 		long begin = sql.len;
 		var type = PropertyType.UNKNOWN;
-
 		if (accept (SparqlTokenType.COUNT)) {
 			sql.append ("COUNT(");
 			translate_aggregate_expression (sql);
@@ -649,7 +648,9 @@ public class Tracker.SparqlQuery : Object {
 			type = translate_expression (sql);
 		}
 
-		convert_expression_to_string (sql, type, begin);
+		if (!subquery) {
+			convert_expression_to_string (sql, type, begin);
+		}
 
 		if (accept (SparqlTokenType.AS)) {
 			string variable_name;
@@ -676,11 +677,20 @@ public class Tracker.SparqlQuery : Object {
 	DBResultSet? execute_select () throws Error {
 		// SELECT query
 
-		var pattern_sql = new StringBuilder ();
 		begin_query ();
 
 		// build SQL
 		var sql = new StringBuilder ();
+		translate_select (sql);
+
+		expect (SparqlTokenType.EOF);
+
+		return exec_sql (sql.str);
+	}
+
+	void translate_select (StringBuilder sql, bool subquery = false) throws Error {
+		var pattern_sql = new StringBuilder ();
+
 		sql.append ("SELECT ");
 
 		expect (SparqlTokenType.SELECT);
@@ -715,7 +725,12 @@ public class Tracker.SparqlQuery : Object {
 				} else {
 					first = false;
 				}
-				append_expression_as_string (sql, variable.sql_expression, variable.binding.data_type);
+				if (subquery) {
+					// don't convert to string in subqueries
+					sql.append (variable.sql_expression);
+				} else {
+					append_expression_as_string (sql, variable.sql_expression, variable.binding.data_type);
+				}
 			}
 		} else {
 			while (true) {
@@ -725,7 +740,7 @@ public class Tracker.SparqlQuery : Object {
 					first = false;
 				}
 
-				translate_select_expression (sql);
+				translate_select_expression (sql, subquery);
 
 				switch (current ()) {
 				case SparqlTokenType.FROM:
@@ -762,7 +777,7 @@ public class Tracker.SparqlQuery : Object {
 					sql.append (", ");
 				}
 				translate_expression (sql);
-			} while (current () != SparqlTokenType.ORDER && current () != SparqlTokenType.LIMIT && current () != SparqlTokenType.OFFSET && current () != SparqlTokenType.EOF);
+			} while (current () != SparqlTokenType.ORDER && current () != SparqlTokenType.LIMIT && current () != SparqlTokenType.OFFSET && current () != SparqlTokenType.CLOSE_BRACE && current () != SparqlTokenType.CLOSE_PARENS && current () != SparqlTokenType.EOF);
 		}
 
 		if (accept (SparqlTokenType.ORDER)) {
@@ -776,7 +791,7 @@ public class Tracker.SparqlQuery : Object {
 					sql.append (", ");
 				}
 				translate_order_condition (sql);
-			} while (current () != SparqlTokenType.LIMIT && current () != SparqlTokenType.OFFSET && current () != SparqlTokenType.EOF);
+			} while (current () != SparqlTokenType.LIMIT && current () != SparqlTokenType.OFFSET && current () != SparqlTokenType.CLOSE_BRACE && current () != SparqlTokenType.CLOSE_PARENS && current () != SparqlTokenType.EOF);
 		}
 
 		int limit = -1;
@@ -823,10 +838,6 @@ public class Tracker.SparqlQuery : Object {
 			binding.data_type = PropertyType.INTEGER;
 			bindings.append (binding);
 		}
-
-		expect (SparqlTokenType.EOF);
-
-		return exec_sql (sql.str);
 	}
 
 	void translate_expression_as_order_condition (StringBuilder sql) throws SparqlError {
@@ -2250,6 +2261,15 @@ public class Tracker.SparqlQuery : Object {
 
 	void translate_group_graph_pattern (StringBuilder sql) throws Error {
 		expect (SparqlTokenType.OPEN_BRACE);
+
+		if (current () == SparqlTokenType.SELECT) {
+			// FIXME ensure that inner variables are only exported if selected
+
+			translate_select (sql, true);
+
+			expect (SparqlTokenType.CLOSE_BRACE);
+			return;
+		}
 
 		SourceLocation[] filters = { };
 
