@@ -582,8 +582,8 @@ insert_uri_in_resource_table (TrackerDBInterface *iface, const gchar *uri, gint 
 }
 
 static void
-create_decomposed_metadata_property_table (TrackerDBInterface *iface, 
-					   TrackerProperty   **property, 
+create_decomposed_metadata_property_table (TrackerDBInterface *iface,
+					   TrackerProperty    *property,
 					   const gchar        *service_name,
 					   const gchar       **sql_type_for_single_value)
 {
@@ -591,15 +591,15 @@ create_decomposed_metadata_property_table (TrackerDBInterface *iface,
 	const char *sql_type;
 	gboolean    transient;
 
-	field_name = tracker_property_get_name (*property);
+	field_name = tracker_property_get_name (property);
 
 	transient = !sql_type_for_single_value;
 
 	if (!transient) {
-		transient = tracker_property_get_transient (*property);
+		transient = tracker_property_get_transient (property);
 	}
 
-	switch (tracker_property_get_data_type (*property)) {
+	switch (tracker_property_get_data_type (property)) {
 	case TRACKER_PROPERTY_TYPE_STRING:
 		sql_type = "TEXT";
 		break;
@@ -618,9 +618,9 @@ create_decomposed_metadata_property_table (TrackerDBInterface *iface,
 		break;
 	}
 
-	if (transient || tracker_property_get_multiple_values (*property)) {
+	if (transient || tracker_property_get_multiple_values (property)) {
 		/* multiple values */
-		if (tracker_property_get_indexed (*property)) {
+		if (tracker_property_get_indexed (property)) {
 			/* use different UNIQUE index for properties whose
 			 * value should be indexed to minimize index size */
 			tracker_db_interface_execute_query (iface, NULL,
@@ -668,9 +668,10 @@ create_decomposed_metadata_tables (TrackerDBInterface *iface,
 {
 	const char *service_name;
 	GString    *sql;
-	TrackerProperty	  **properties, **property;
+	TrackerProperty	  **properties, *property;
 	GSList      *class_properties, *field_it;
 	gboolean    main_class;
+	guint       i, n_props;
 
 	service_name = tracker_class_get_name (service);
 	main_class = (strcmp (service_name, "rdfs:Resource") == 0);
@@ -686,25 +687,28 @@ create_decomposed_metadata_tables (TrackerDBInterface *iface,
 		g_string_append (sql, ", Uri TEXT NOT NULL, Available INTEGER NOT NULL");
 	}
 
-	properties = tracker_ontology_get_properties ();
+	properties = tracker_ontology_get_properties (&n_props);
 	class_properties = NULL;
-	for (property = properties; *property; property++) {
-		if (tracker_property_get_domain (*property) == service) {
+
+	for (i = 0; i < n_props; i++) {
+		property = properties[i];
+
+		if (tracker_property_get_domain (property) == service) {
 			const gchar *sql_type_for_single_value = NULL;
 
-			create_decomposed_metadata_property_table (iface, property, 
-								   service_name, 
+			create_decomposed_metadata_property_table (iface, property,
+								   service_name,
 								   &sql_type_for_single_value);
 
 			if (sql_type_for_single_value) {
 				/* single value */
 
-				class_properties = g_slist_prepend (class_properties, *property);
+				class_properties = g_slist_prepend (class_properties, property);
 
-				g_string_append_printf (sql, ", \"%s\" %s", 
-							tracker_property_get_name (*property), 
+				g_string_append_printf (sql, ", \"%s\" %s",
+							tracker_property_get_name (property),
 							sql_type_for_single_value);
-				if (tracker_property_get_is_inverse_functional_property (*property)) {
+				if (tracker_property_get_is_inverse_functional_property (property)) {
 					g_string_append (sql, " UNIQUE");
 				}
 			}
@@ -752,20 +756,23 @@ static void
 create_decomposed_transient_metadata_tables (TrackerDBInterface *iface)
 {
 	TrackerProperty **properties;
-	TrackerProperty **property;
+	TrackerProperty *property;
+	guint i, n_props;
 
-	properties = tracker_ontology_get_properties ();
+	properties = tracker_ontology_get_properties (&n_props);
 
-	for (property = properties; *property; property++) {
-		if (tracker_property_get_transient (*property)) {
+	for (i = 0; i < n_props; i++) {
+		property = properties[i];
+
+		if (tracker_property_get_transient (property)) {
 
 			TrackerClass *domain;
 			const gchar *service_name;
 			const char *field_name;
 
-			field_name = tracker_property_get_name (*property);
+			field_name = tracker_property_get_name (property);
 
-			domain = tracker_property_get_domain (*property);
+			domain = tracker_property_get_domain (property);
 			service_name = tracker_class_get_name (domain);
 
 			/* create the TEMPORARY table */
@@ -818,17 +825,16 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 
 	if (is_first_time_index) {
 		TrackerClass **classes;
-		TrackerClass **cl;
 		TrackerProperty **properties;
-		TrackerProperty **property;
 		gint max_id = 0;
 		GList *sorted = NULL, *l;
 		gchar *test_schema_path;
 		const gchar *env_path;
 		GError *error = NULL;
+		guint i, n_props, n_classes;
 
 		env_path = g_getenv ("TRACKER_DB_ONTOLOGIES_DIR");
-		
+
 		if (G_LIKELY (!env_path)) {
 			ontologies_dir = g_build_filename (SHAREDIR,
 							   "tracker",
@@ -878,19 +884,20 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 			load_ontology_file_from_path (test_schema_path);
 		}
 
-		classes = tracker_ontology_get_classes ();
+		classes = tracker_ontology_get_classes (&n_classes);
 
 		tracker_data_begin_transaction ();
 
 		/* create tables */
-		for (cl = classes; *cl; cl++) {
-			create_decomposed_metadata_tables (iface, *cl, &max_id);
+		for (i = 0; i < n_classes; i++) {
+			create_decomposed_metadata_tables (iface, classes[i], &max_id);
 		}
 
 		/* insert properties into rdfs:Resource table */
-		properties = tracker_ontology_get_properties ();
-		for (property = properties; *property; property++) {
-			insert_uri_in_resource_table (iface, tracker_property_get_uri (*property),
+		properties = tracker_ontology_get_properties (&n_props);
+
+		for (i = 0; i < n_props; i++) {
+			insert_uri_in_resource_table (iface, tracker_property_get_uri (properties[i]),
 				                      &max_id);
 		}
 

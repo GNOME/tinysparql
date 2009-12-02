@@ -269,12 +269,13 @@ tracker_db_backup_save (TrackerDBBackupFinished callback,
 void
 tracker_db_backup_sync_fts (void)
 {
-	TrackerProperty   **properties, **property;
+	TrackerProperty   **properties, *property;
 	TrackerDBInterface *iface;
 	TrackerDBStatement *stmt;
 	TrackerDBCursor    *cursor;
 	TrackerClass       *prop_class;
 	gchar              *query;
+	guint               i, n_props;
 
 	iface = tracker_db_manager_get_db_interface ();
 
@@ -286,23 +287,26 @@ tracker_db_backup_sync_fts (void)
 	tracker_db_interface_execute_query (iface, NULL, "%s", query);
 	g_free (query);
 
-	properties = tracker_ontology_get_properties ();
-	for (property = properties; *property; property++) {
-		if (tracker_property_get_data_type (*property) == TRACKER_PROPERTY_TYPE_STRING &&
-		    tracker_property_get_fulltext_indexed (*property)) {
+	properties = tracker_ontology_get_properties (&n_props);
 
-			prop_class  = tracker_property_get_domain (*property);
+	for (i = 0; i < n_props; i++) {
+		property = properties[i];
 
-			if (tracker_property_get_multiple_values (*property)) {
-				query = g_strdup_printf ("SELECT ID, \"%s\" FROM \"%s_%s\"", 
-				                         tracker_property_get_name (*property), 
+		if (tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_STRING &&
+		    tracker_property_get_fulltext_indexed (property)) {
+
+			prop_class  = tracker_property_get_domain (property);
+
+			if (tracker_property_get_multiple_values (property)) {
+				query = g_strdup_printf ("SELECT ID, \"%s\" FROM \"%s_%s\"",
+				                         tracker_property_get_name (property),
 				                         tracker_class_get_name (prop_class),
-				                         tracker_property_get_name (*property));
+				                         tracker_property_get_name (property));
 			} else {
-				query = g_strdup_printf ("SELECT ID, \"%s\" FROM \"%s\" WHERE \"%s\" IS NOT NULL", 
-				                         tracker_property_get_name (*property), 
+				query = g_strdup_printf ("SELECT ID, \"%s\" FROM \"%s\" WHERE \"%s\" IS NOT NULL",
+				                         tracker_property_get_name (property),
 				                         tracker_class_get_name (prop_class),
-				                         tracker_property_get_name (*property));
+				                         tracker_property_get_name (property));
 			}
 
 			stmt = tracker_db_interface_create_statement (iface, "%s", query);

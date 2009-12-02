@@ -59,11 +59,8 @@ namespace Tracker {
 	namespace Ontology {
 		public weak Class get_class_by_uri (string class_uri);
 		public weak Property get_property_by_uri (string property_uri);
-		[CCode (array_length = false, array_null_terminated = true)]
 		public weak Namespace[] get_namespaces ();
-		[CCode (array_length = false, array_null_terminated = true)]
 		public weak Class[] get_classes ();
-		[CCode (array_length = false, array_null_terminated = true)]
 		public weak Property[] get_properties ();
 	}
 

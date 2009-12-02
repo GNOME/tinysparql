@@ -65,9 +65,9 @@ void               tracker_ontology_shutdown             (void);
 /* Service mechanics */
 void               tracker_ontology_add_class            (TrackerClass     *service);
 TrackerClass *     tracker_ontology_get_class_by_uri     (const gchar      *service_uri);
-TrackerNamespace **tracker_ontology_get_namespaces       (void);
-TrackerClass  **   tracker_ontology_get_classes          (void);
-TrackerProperty ** tracker_ontology_get_properties       (void);
+TrackerNamespace **tracker_ontology_get_namespaces       (guint *length);
+TrackerClass  **   tracker_ontology_get_classes          (guint *length);
+TrackerProperty ** tracker_ontology_get_properties       (guint *length);
 
 /* Field mechanics */
 void               tracker_ontology_add_property         (TrackerProperty  *field);

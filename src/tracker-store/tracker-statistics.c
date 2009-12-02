@@ -133,9 +133,9 @@ static GHashTable *
 cache_get_latest (void)
 {
 	GHashTable    *values;
-	TrackerClass **classes;
-	TrackerClass **cl;
+	TrackerClass **classes, *cl;
 	TrackerDBInterface *iface;
+	guint               i, n_classes;
 
 	g_message ("Requesting statistics from database for an accurate signal");
 
@@ -144,27 +144,29 @@ cache_get_latest (void)
 					g_free,
 					NULL);
 
-	classes = tracker_ontology_get_classes ();
+	classes = tracker_ontology_get_classes (&n_classes);
 
 	iface = tracker_db_manager_get_db_interface ();
 
-	for (cl = classes; *cl; cl++) {
+	for (i = 0; i < n_classes; i++) {
 		TrackerDBStatement *stmt;
 		TrackerDBResultSet *result_set;
 		gint count;
 
-		if (g_str_has_prefix (tracker_class_get_name (*cl), "xsd:")) {
+		cl = classes[i];
+
+		if (g_str_has_prefix (tracker_class_get_name (cl), "xsd:")) {
 			/* xsd classes do not derive from rdfs:Resource and do not use separate tables */
 			continue;
 		}
 
-		stmt = tracker_db_interface_create_statement (iface, "SELECT COUNT(1) FROM \"%s\"", tracker_class_get_name (*cl));
+		stmt = tracker_db_interface_create_statement (iface, "SELECT COUNT(1) FROM \"%s\"", tracker_class_get_name (cl));
 		result_set = tracker_db_statement_execute (stmt, NULL);
 
 		tracker_db_result_set_get (result_set, 0, &count, -1);
 
 		g_hash_table_insert (values, 
-				     g_strdup (tracker_class_get_name (*cl)),
+				     g_strdup (tracker_class_get_name (cl)),
 				     GINT_TO_POINTER (count));
 
 		g_object_unref (result_set);
@@ -186,9 +188,8 @@ cache_timeout (gpointer user_data)
 
 static gint
 cache_sort_func (gconstpointer a,
-		       gconstpointer b)
+		 gconstpointer b)
 {
-	
 	const GStrv *strv_a = (GStrv *) a;
 	const GStrv *strv_b = (GStrv *) b;
 
@@ -203,11 +204,11 @@ tracker_statistics_get (TrackerStatistics      *object,
 			DBusGMethodInvocation  *context,
 			GError		      **error)
 {
-	TrackerClass **classes;
-	TrackerClass **cl;
+	TrackerClass **classes, *cl;
 	TrackerStatisticsPrivate *priv;
 	guint		          request_id;
 	GPtrArray                *values;
+	guint                     i, n_classes;
 
 	request_id = tracker_dbus_get_next_request_id ();
 
@@ -218,19 +219,21 @@ tracker_statistics_get (TrackerStatistics      *object,
 
 	values = g_ptr_array_new ();
 
-	classes = tracker_ontology_get_classes ();
+	classes = tracker_ontology_get_classes (&n_classes);
 
-	for (cl = classes; *cl; cl++) {
+	for (i = 0; i < n_classes; i++) {
 		GStrv        strv;
 
-		if (tracker_class_get_count (*cl) == 0) {
+		cl = classes[i];
+
+		if (tracker_class_get_count (cl) == 0) {
 			/* skip classes without resources */
 			continue;
 		}
 
 		strv = g_new (gchar*, 3);
-		strv[0] = g_strdup (tracker_class_get_name (*cl));
-		strv[1] = g_strdup_printf ("%d", tracker_class_get_count (*cl));
+		strv[0] = g_strdup (tracker_class_get_name (cl));
+		strv[1] = g_strdup_printf ("%d", tracker_class_get_count (cl));
 		strv[2] = NULL;
 
 		g_ptr_array_add (values, strv);

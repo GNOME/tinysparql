@@ -7798,22 +7798,26 @@ gchar *
 tracker_fts_get_create_fts_table_query (void)
 {
 	GString    *sql;
-	TrackerProperty	  **properties, **property;
+	TrackerProperty	  **properties, *property;
 	gboolean first;
+        guint i, n_properties;
 
 	sql = g_string_new ("CREATE VIRTUAL TABLE fulltext.fts USING trackerfts (");
 
 	first = TRUE;
-	properties = tracker_ontology_get_properties ();
-	for (property = properties; *property; property++) {
-		if (tracker_property_get_data_type (*property) == TRACKER_PROPERTY_TYPE_STRING &&
-		    tracker_property_get_fulltext_indexed (*property)) {
+	properties = tracker_ontology_get_properties (&n_properties);
+
+        for (i = 0; i < n_properties; i++) {
+                property = properties[i];
+
+		if (tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_STRING &&
+		    tracker_property_get_fulltext_indexed (property)) {
 			if (first) {
 				first = FALSE;
 			} else {
 				g_string_append (sql, ", ");
 			}
-			g_string_append_printf (sql, "\"%s\"", tracker_property_get_name (*property));
+			g_string_append_printf (sql, "\"%s\"", tracker_property_get_name (property));
 		}
 	}
 

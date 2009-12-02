@@ -28,27 +28,22 @@
 
 #include "tracker-ontology.h"
 
-typedef struct {
-	gchar  *name;
-	GArray *subcategories;
-} CalculateSubcategoriesForEach;
-
 static gboolean    initialized;
 
 /* List of TrackerNamespace objects */
-static GArray     *namespaces;
+static GPtrArray  *namespaces;
 
 /* Namespace uris */
 static GHashTable *namespace_uris;
 
 /* List of TrackerClass objects */
-static GArray     *classes;
+static GPtrArray  *classes;
 
 /* Hash (gchar *class_uri, TrackerClass *service) */
 static GHashTable *class_uris;
 
 /* List of TrackerProperty objects */
-static GArray     *properties;
+static GPtrArray  *properties;
 
 /* Field uris */
 static GHashTable *property_uris;
@@ -66,14 +61,14 @@ tracker_ontology_init (void)
 		return;
 	}
 
-	namespaces = g_array_new (TRUE, TRUE, sizeof (TrackerNamespace *));
+	namespaces = g_ptr_array_new ();
 
 	namespace_uris = g_hash_table_new_full (g_str_hash,
 					      g_str_equal,
 					      g_free,
 					      g_object_unref);
 
-	classes = g_array_new (TRUE, TRUE, sizeof (TrackerClass *));
+	classes = g_ptr_array_new ();
 
 	class_uris = g_hash_table_new_full (g_str_hash,
 					      g_str_equal,
@@ -84,7 +79,7 @@ tracker_ontology_init (void)
 	                                      NULL,
 	                                      g_free);
 
-	properties = g_array_new (TRUE, TRUE, sizeof (TrackerProperty *));
+	properties = g_ptr_array_new ();
 
 	property_uris = g_hash_table_new_full (g_str_hash,
 					    g_str_equal,
@@ -103,24 +98,18 @@ tracker_ontology_init (void)
 void
 tracker_ontology_shutdown (void)
 {
-	gint i;
-
 	if (!initialized) {
 		return;
 	}
 
-	for (i = 0; i < namespaces->len; i++) {
-		g_object_unref (g_array_index (namespaces, TrackerNamespace *, i));
-	}
-	g_array_free (namespaces, TRUE);
+	g_ptr_array_foreach (namespaces, (GFunc) g_object_unref, NULL);
+	g_ptr_array_free (namespaces, TRUE);
 
 	g_hash_table_unref (namespace_uris);
 	namespace_uris = NULL;
 
-	for (i = 0; i < classes->len; i++) {
-		g_object_unref (g_array_index (classes, TrackerClass *, i));
-	}
-	g_array_free (classes, TRUE);
+	g_ptr_array_foreach (classes, (GFunc) g_object_unref, NULL);
+	g_ptr_array_free (classes, TRUE);
 
 	g_hash_table_unref (class_uris);
 	class_uris = NULL;
@@ -128,10 +117,8 @@ tracker_ontology_shutdown (void)
 	g_hash_table_unref (id_uri_pairs);
 	id_uri_pairs = NULL;
 
-	for (i = 0; i < properties->len; i++) {
-		g_object_unref (g_array_index (properties, TrackerProperty *, i));
-	}
-	g_array_free (properties, TRUE);
+	g_ptr_array_foreach (properties, (GFunc) g_object_unref, NULL);
+	g_ptr_array_free (properties, TRUE);
 
 	g_hash_table_unref (property_uris);
 	property_uris = NULL;
@@ -161,8 +148,7 @@ tracker_ontology_add_class (TrackerClass *service)
 	uri = tracker_class_get_uri (service);
 	name = tracker_class_get_name (service);
 
-	g_object_ref (service);
-	g_array_append_val (classes, service);
+	g_ptr_array_add (classes, g_object_ref (service));
 
 	if (uri) {
 		g_hash_table_insert (class_uris,
@@ -180,21 +166,39 @@ tracker_ontology_get_class_by_uri (const gchar *class_uri)
 }
 
 TrackerNamespace **
-tracker_ontology_get_namespaces (void)
+tracker_ontology_get_namespaces (guint *length)
 {
-	return (TrackerNamespace **) namespaces->data;
+	if (G_UNLIKELY (!namespaces)) {
+		*length = 0;
+		return NULL;
+	}
+
+	*length = namespaces->len;
+	return (TrackerNamespace **) namespaces->pdata;
 }
 
 TrackerClass **
-tracker_ontology_get_classes (void)
+tracker_ontology_get_classes (guint *length)
 {
-	return (TrackerClass **) classes->data;
+	if (G_UNLIKELY (!classes)) {
+		*length = 0;
+		return NULL;
+	}
+
+	*length = classes->len;
+	return (TrackerClass **) classes->pdata;
 }
 
 TrackerProperty **
-tracker_ontology_get_properties (void)
+tracker_ontology_get_properties (guint *length)
 {
-	return (TrackerProperty **) properties->data;
+	if (G_UNLIKELY (!properties)) {
+		*length = 0;
+		return NULL;
+	}
+
+	*length = properties->len;
+	return (TrackerProperty **) properties->pdata;
 }
 
 /* Field mechanics */
@@ -207,8 +211,7 @@ tracker_ontology_add_property (TrackerProperty *field)
 
 	uri = tracker_property_get_uri (field);
 
-	g_object_ref (field);
-	g_array_append_val (properties, field);
+	g_ptr_array_add (properties, g_object_ref (field));
 
 	g_hash_table_insert (property_uris,
 			     g_strdup (uri),
@@ -240,8 +243,7 @@ tracker_ontology_add_namespace (TrackerNamespace *namespace)
 
 	uri = tracker_namespace_get_uri (namespace);
 
-	g_object_ref (namespace);
-	g_array_append_val (namespaces, namespace);
+	g_ptr_array_add (namespaces, g_object_ref (namespace));
 
 	g_hash_table_insert (namespace_uris,
 			     g_strdup (uri),
