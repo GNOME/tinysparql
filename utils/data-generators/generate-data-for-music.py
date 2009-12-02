@@ -158,7 +158,7 @@ if __name__ == '__main__':
                           metavar="GenreCount")
         parser.add_option("-o", "--output", 
                           dest='OutputFileName', 
-                          default='songlistDirect.ttl',
+                          default='generate-data-for-music.ttl',
                           help="Specify the output ttl filename. e.g. -T 2000 -r 25 -a 20 -g 10 -o generated_songs.ttl", 
                           metavar="OutputFileName")
 
