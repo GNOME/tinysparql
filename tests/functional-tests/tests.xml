@@ -9,19 +9,19 @@
       </pre_steps>
 
       <!-- At least one case per set, name mandatory, description mandatory, other optional -->
-      <case name="test_simple_insertion" type="unit" 
+      <case name="test_simple_insertion" type="Functional" level="Feature"
             description="Insert and check results" requirement="01" subfeature="">
         <!-- dbus env variables defined here. This works. -->
         <step expected_result="0">. /tmp/session_bus_address.user; python2.5 /usr/share/tracker-tests/01-insertion.py</step>
       </case>
 
-      <case name="test_metacontact" type="unit" 
+      <case name="test_metacontact" type="Functional" level="Feature"
             description="Metacontacts in the ontology" requirement="01" subfeature="">
         <!-- dbus env variables defined here. This works. -->
         <step expected_result="0">. /tmp/session_bus_address.user; python2.5 /usr/share/tracker-tests/02-metacontacts.py</step>
       </case>
 
-      <case name="test_fts" type="unit" 
+      <case name="test_fts" type="Functional"  level="Feature"
             description="Exposed FTS functions in sparql" requirement="01" subfeature="">
         <!-- dbus env variables defined here. This works. -->
         <step expected_result="0">. /tmp/session_bus_address.user; python2.5 /usr/share/tracker-tests/03-fts-functions.py</step>
