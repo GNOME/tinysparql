@@ -105,7 +105,7 @@ def gen_mailfolder (folderuri):
     #print_property ("nmo:status", "abudabu", final=True)
 
 def gen_me ():
-    print_instance ("urn:uuid:1", "nco:PersonContact")
+    print_instance ("urn:uuid:buddy1", "nco:PersonContact")
     print_property ("nco:fullname", "Me myself")
     print_property ("nco:nameGiven", "Me")
     print_property ("nco:nameFamily", "Myself")
