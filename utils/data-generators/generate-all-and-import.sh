@@ -5,7 +5,7 @@
 
 ./generate-all.sh $1
 
-for data in *.ttl
+for data in generate-data-for-*.ttl
 do
    tracker-import $data
 done
