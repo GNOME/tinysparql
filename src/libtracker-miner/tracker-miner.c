@@ -740,7 +740,7 @@ async_call_data_update_callback (AsyncCallData *data,
 		result = g_simple_async_result_new_from_error (G_OBJECT (data->miner),
 		                                               callback,
 		                                               data->user_data,
-		                                               error);
+		                                               (GError *) error);
 	} else {
 		result = g_simple_async_result_new (G_OBJECT (data->miner),
 						    callback,
@@ -911,7 +911,7 @@ tracker_miner_stop (TrackerMiner *miner)
  * Tells the miner to mark @subjects are writeback.
  **/
 void
-tracker_miner_writeback (TrackerMiner *miner, 
+tracker_miner_writeback (TrackerMiner *miner,
 			 const GStrv   subjects)
 {
 	g_return_if_fail (TRACKER_IS_MINER (miner));

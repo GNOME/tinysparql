@@ -542,6 +542,7 @@ init_mount_points_cb (GObject      *source,
                       gpointer      user_data)
 {
 	GError *error = NULL;
+
 	tracker_miner_execute_update_finish (TRACKER_MINER (source),
 	                                     result,
 	                                     &error);
@@ -549,7 +550,7 @@ init_mount_points_cb (GObject      *source,
 	if (error) {
 		g_critical ("Could not initialize currently active mount points: %s",
 			    error->message);
-		g_error (error);
+		g_error_free (error);
 	}
 }
 
@@ -566,7 +567,7 @@ query_mount_points_cb (GObject      *source,
 	GString *accumulator;
 	gint i;
 	GError *error = NULL;
-	GPtrArray *query_results;
+	const GPtrArray *query_results;
 #ifdef HAVE_HAL
 	GSList *udis, *u;
 #endif
