@@ -271,16 +271,19 @@ tracker_dbus_query_result_columns_to_strv (TrackerDBResultSet *result_set,
 {
 	gchar    **strv = NULL;
 	gint	   i = 0;
-	gint	   columns;
+	gint	   columns = 0;
 	gint       row_counter = 0;
 	gboolean   valid = TRUE;
 
-	if (result_set) {
-		columns = tracker_db_result_set_get_n_columns (result_set);
-		if (rewind) {
-			 /* Make sure we rewind before iterating the result set */
-			tracker_db_result_set_rewind (result_set);
-		}
+	if (!result_set) {
+		return NULL;
+	}
+
+	columns = tracker_db_result_set_get_n_columns (result_set);
+
+	if (rewind) {
+		/* Make sure we rewind before iterating the result set */
+		tracker_db_result_set_rewind (result_set);
 	}
 
 	if (!result_set || offset_column > columns) {

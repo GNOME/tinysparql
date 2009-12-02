@@ -828,7 +828,7 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 		TrackerProperty **properties;
 		gint max_id = 0;
 		GList *sorted = NULL, *l;
-		gchar *test_schema_path;
+		gchar *test_schema_path = NULL;
 		const gchar *env_path;
 		GError *error = NULL;
 		guint i, n_props, n_classes;

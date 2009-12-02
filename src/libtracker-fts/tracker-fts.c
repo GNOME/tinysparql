@@ -426,7 +426,7 @@ static int fts3GetVarint(const char *p, sqlite_int64 *v){
 }
 
 static int fts3GetVarint32(const char *p, int *pi){
- sqlite_int64 i;
+ sqlite_int64 i = 0;
  int ret = fts3GetVarint(p, &i);
  *pi = (int) i;
  assert( *pi==i );
@@ -673,7 +673,7 @@ static void dlrStep(DLReader *pReader){
 
   /* If there is more data, read the next doclist element. */
   if( pReader->nData!=0 ){
-    sqlite_int64 iDocidDelta;
+    sqlite_int64 iDocidDelta = 0;
     
     int iDummy, n = fts3GetVarint(pReader->pData, &iDocidDelta);
     pReader->iDocid += iDocidDelta;
@@ -2771,7 +2771,7 @@ static int segdir_span(fulltext_vtab *v, int iLevel,
 */
 static int segdir_delete(fulltext_vtab *v, int iLevel){
   sqlite3_stmt *s;
-  sqlite_int64 iStartBlockid, iEndBlockid;
+  sqlite_int64 iStartBlockid = 0, iEndBlockid = 0;
   int rc = segdir_span(v, iLevel, &iStartBlockid, &iEndBlockid);
   if( rc!=SQLITE_ROW && rc!=SQLITE_DONE ) return rc;
 
@@ -7176,9 +7176,9 @@ static void optimizeFunc(sqlite3_context *pContext,
     sqlite3_result_error(pContext, "illegal first argument to optimize",-1);
   }else{
     fulltext_vtab *v;
-    int i, rc, iMaxLevel;
+    int i, rc, iMaxLevel = 0;
     OptLeavesReader *readers;
-    int nReaders;
+    int nReaders = 0;
     LeafWriter writer;
     sqlite3_stmt *s;
 
