@@ -97,7 +97,6 @@ enum {
 	STOPPED,
 	PAUSED,
 	RESUMED,
-	TERMINATED,
 	PROGRESS,
 	ERROR,
 	WRITEBACK,
@@ -206,14 +205,6 @@ tracker_miner_class_init (TrackerMinerClass *klass)
 			      G_OBJECT_CLASS_TYPE (object_class),
 			      G_SIGNAL_RUN_LAST,
 			      G_STRUCT_OFFSET (TrackerMinerClass, resumed),
-			      NULL, NULL,
-			      g_cclosure_marshal_VOID__VOID,
-			      G_TYPE_NONE, 0);
-	signals[TERMINATED] =
-		g_signal_new ("terminated",
-			      G_OBJECT_CLASS_TYPE (object_class),
-			      G_SIGNAL_RUN_LAST,
-			      G_STRUCT_OFFSET (TrackerMinerClass, terminated),
 			      NULL, NULL,
 			      g_cclosure_marshal_VOID__VOID,
 			      G_TYPE_NONE, 0);
