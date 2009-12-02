@@ -186,9 +186,6 @@ if __name__ == '__main__':
 	settings['GenreCount'] = int(options.GenreCount)
 	settings['OutputFileName'] = options.OutputFileName
 
-        
-	print '\n' + str(settings) + '\n'
-
 	f = open(settings['OutputFileName'], 'w' )
 	printHeader()
 	generate(settings)
