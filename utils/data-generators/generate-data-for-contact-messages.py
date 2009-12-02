@@ -8,10 +8,8 @@ from internals.tools import getPseudoRandomDate
 
 tags = ["cool", "interesting", "favourite", "boring"]
 
-def getRandomTag ():
+def getRandomTag():
     return "\"" + tags [random.randint(0, len(tags) - 1)] + "\""
-
-
 
 def generateCalendarEntry(gen_data, str, random):
     organizerId = random.randint(0, len(previousContacts) - 1)
@@ -31,7 +29,7 @@ def generateCalendarEntry(gen_data, str, random):
     sys.stdout.write('\tncal:location "Helsinki, Finland" ;\n')
     sys.stdout.write('\tncal:sequence 0 ;\n')
     sys.stdout.write('\tncal:url <http://TODO-fillmehere.com> ;\n')
-    sys.stdout.write('\tncal:organizer [ncal:involvedContact <urn:uuid:'+previousContacts[organizerId]+'>] ;\n')
+    sys.stdout.write('\tncal:organizer [ncal:involvedContact <urn:uuid:'+ previousContacts[organizerId]+'>] ;\n')
     sys.stdout.write('\tncal:priority 5 ;\n')
     if (random.randint(0, 4) > 3):
         sys.stdout.write ('\tnao:hasTag [a nao:Tag ; nao:prefLabel ' +  getRandomTag () +'];\n')
@@ -50,7 +48,6 @@ def generateIMAccount(gen_data, str):
     sys.stdout.write('\n')
     previousIMAccounts.append ('xmpp:' + xmppAddress)
 
-
 def generatePhoneNumber():
     sys.stdout.write('<' + phoneUri + '> a nco:PhoneNumber; \n')
     sys.stdout.write('\tnco:phoneNumber "' + phoneNumber + '".\n')
@@ -63,11 +60,8 @@ def generatePhoneNumber():
 ##     sys.stdout.write('\n')
 ##     return objUID
 
-
 def generatePhoneCalls (many):
-
     for i in range (0, many):
-
         callUID = str(random.randint(0, sys.maxint))
     
         duration = random.randint (0, 50)
@@ -89,9 +83,7 @@ def generatePhoneCalls (many):
         #taggableUris.append ("urn:uuid:" + callUID)
 
 def generateSMS (many):
-
     for i in range (0, many):
-
         smsUID = str(random.randint (0, sys.maxint))
 
         sys.stdout.write ('<urn:uuid:' + smsUID + '> a nmo:SMSMessage ;\n')
@@ -110,7 +102,6 @@ def generateSMS (many):
             sys.stdout.write ('\tnao:hasTag [a nao:Tag ; nao:prefLabel ' +  getRandomTag () +'];\n')
         sys.stdout.write('\tnmo:plainTextMessageContent "' + str.replace(gen_data.create_paragraphs(1, 5, 8), "\n", "") + '".\n')
         sys.stdout.write('\n')
-
 
 def generateEmailAddress():
     sys.stdout.write('<mailto:' + emailAddress + '> a nco:EmailAddress; \n')
@@ -146,7 +137,6 @@ def generateEmail(sys, gen_data, str, random):
         sys.stdout.write('\tnmo:cc <urn:uuid:' + previousContacts[ccid] + '>;\n')
         sys.stdout.write('\tnmo:messageHeader [a nmo:MessageHeader; nmo:headerName "cc"; nmo:headerValue "' + previousEmailAddresses[ccid] + '"];\n')
     
-        
     if random.randint(0, 10) > 7 and len(previousContacts) > 1:
         bccid = random.randint(0, len(previousContacts) - 1)
         sys.stdout.write('\tnmo:bcc <urn:uuid:' + previousContacts[bccid] + '>;\n')
@@ -158,28 +148,23 @@ def generateEmail(sys, gen_data, str, random):
     sys.stdout.write('\tnmo:messageSubject "' + str.replace(gen_data.create_paragraphs(1, 2, 2), "\n", "") + '";\n')
     sys.stdout.write('\tnmo:plainTextMessageContent "' + str.replace(gen_data.create_paragraphs(1, 2, 3), "\n", "") + '".\n')
 
-
-
 # BEGIN CREATING.
 if (len(sys.argv) < 2):
-    sys.stderr.write("Usage: python get_ttl.py NO_CONTACTS [--with-phone]")
+    sys.stderr.write("Usage: python get_ttl.py NUMBER_OF_CONTACTS [--with-phone]")
     sys.exit(0)
 
 try:
     count = int(sys.argv[1])
 except:
-    sys.stderr.write("Usage: python get_ttl.py NO_CONTACTS [--with-phone]")
+    sys.stderr.write("Usage: python get_ttl.py NUMBER_OF_CONTACTS [--with-phone]")
     sys.exit(0)
 
 if (len(sys.argv) > 2):
     if (sys.argv[2] == "--with-phone") :
-        sys.stderr.write("Writing %d contacts in stdout with phone information " %(count))
         withPhone = True
     else:
-        sys.stderr.write("WTF?!?!? python get_ttl.py NO_CONTACTS [--with-phone]")
+        withPhone = False
 else:
-    sys.stderr.write("Writing %d contacts in stdout without phone information\n" % (count))
-    sys.stderr.write("Add --with-phone option to include phone information\n")
     withPhone = False
 
 sys.stdout.write("@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#>.\n")
@@ -209,56 +194,55 @@ sys.stdout.write('\tnco:phoneNumber "(111) 111-1111".\n')
 sys.stdout.write('\n')
 
 #TODO need to create some email folders
-myOwnPhoneNumberURI="tel:+11111111111"
-previousContacts=[]
-previousEmailAddresses=[]
-previousIMAccounts=[]
+myOwnPhoneNumberURI = "tel:+11111111111"
+previousContacts = []
+previousEmailAddresses = []
+previousIMAccounts = []
 allchars = string.maketrans('','')
 
 for dummy in range (0, count):
-    
     firstName, lastName = gen_data.create_name()
     zip, city, state = gen_data.create_city_state_zip()
     postalAddressID=str(random.randint(0, sys.maxint))
     
-    UID=str(random.randint(0, sys.maxint))
-    phoneNumber=gen_data.create_phone()
-    phoneUri='tel:+1' + phoneNumber.translate(allchars,' -()')
-    birthDay=gen_data.create_birthday()
-    streetAddress=gen_data.create_street()
-    emailAddress=gen_data.create_email(name=(firstName, lastName))
-    xmppAddress=str(firstName+"."+lastName+"@gmail.com").lower()
-    hasIMAccount=False
-    hasPhoneNumber=False
-    jobTitle=gen_data.create_job_title()
+    UID = str(random.randint(0, sys.maxint))
+    phoneNumber = gen_data.create_phone()
+    phoneUri = 'tel:+1' + phoneNumber.translate(allchars,' -()')
+    birthDay = gen_data.create_birthday()
+    streetAddress = gen_data.create_street()
+    emailAddress = gen_data.create_email(name=(firstName, lastName))
+    xmppAddress = str(firstName+"." + lastName + "@gmail.com").lower()
+    hasIMAccount = False
+    hasPhoneNumber = False
+    jobTitle = gen_data.create_job_title()
 
     generatePostalAddress()    
     generateEmailAddress()    
         
     #Only every 3rd have Phone or IM to add variation.
-    if random.randint(0, 3)>2 or count==1: 
+    if random.randint(0, 3) > 2 or count == 1: 
         generateIMAccount(gen_data, str)
-        hasIMAccount=True
-    if random.randint(0, 3)>2 or count==1:
+        hasIMAccount = True
+    if random.randint(0, 3) > 2 or count == 1:
         generatePhoneNumber()
-        hasPhoneNumber=True
+        hasPhoneNumber = True
+
         if (withPhone): generatePhoneCalls(3)
         if (withPhone): generateSMS (4)
         
-    sys.stdout.write('<urn:uuid:'+UID+'> a nco:PersonContact; \n')    
-    sys.stdout.write('\tnco:fullname "'+firstName+ ' ' + lastName+'";\n')
-    sys.stdout.write('\tnco:nameGiven "'+firstName+'";\n')
-    sys.stdout.write('\tnco:nameFamily "'+lastName+'";\n')
-    sys.stdout.write('\tnco:birthDate "'+str(birthDay)+'";\n')
+    sys.stdout.write('<urn:uuid:' + UID + '> a nco:PersonContact; \n')    
+    sys.stdout.write('\tnco:fullname "' + firstName +  ' ' + lastName +'";\n')
+    sys.stdout.write('\tnco:nameGiven "' + firstName + '";\n')
+    sys.stdout.write('\tnco:nameFamily "' + lastName + '";\n')
+    sys.stdout.write('\tnco:birthDate "' + str(birthDay) + '";\n')
     #sys.stdout.write('\tnco:title "'+jobTitle+'";\n')
-    sys.stdout.write('\tnco:hasEmailAddress <mailto:'+emailAddress+'>;\n')
-    if hasPhoneNumber: sys.stdout.write('\tnco:hasPhoneNumber <'+phoneUri+'>;\n')
-    if hasIMAccount: sys.stdout.write('\tnco:hasIMAccount <xmpp:'+xmppAddress+'>;\n')    	 
+    sys.stdout.write('\tnco:hasEmailAddress <mailto:' + emailAddress + '>;\n')
+    if hasPhoneNumber: sys.stdout.write('\tnco:hasPhoneNumber <' + phoneUri + '>;\n')
+    if hasIMAccount: sys.stdout.write('\tnco:hasIMAccount <xmpp:' + xmppAddress + '>;\n')    	 
     if (random.randint(0, 4) > 3):
-        sys.stdout.write ('\tnao:hasTag [a nao:Tag ; nao:prefLabel ' +  getRandomTag () +'];\n')
-    sys.stdout.write('\tnco:hasPostalAddress <urn:uuid:'+postalAddressID+'>.\n')
+        sys.stdout.write ('\tnao:hasTag [a nao:Tag ; nao:prefLabel ' + getRandomTag () + '];\n')
+    sys.stdout.write('\tnco:hasPostalAddress <urn:uuid:' + postalAddressID + '>.\n')
     sys.stdout.write('\n')
-
         
     #calendarEntryID=str(random.randint(0, sys.maxint))
     #if random.randint(0, 3)>2 and count>2 and len(previousContacts):
