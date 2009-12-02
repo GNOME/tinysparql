@@ -43,7 +43,7 @@ def get_random_message_id (length=12):
 
 def gen_account (account_data, user_account, firstname):
     print_instance (user_account, "nco:IMAccount")
-    print_property ("nco:imStatus", random.randint (0, 5), t="int")
+    #print_property ("nco:imStatus", random.randint (0, 5), t="int")
     print_property ("nco:imAccountType", get_account_name (account_data[0]))
     print_property ("nco:imProtocol", account_data[2][:-1])
     print_property ("nco:imNickname", get_nickname (firstname), final=True)
@@ -100,9 +100,9 @@ def get_folder_names (address):
 def gen_mailfolder (folderuri):
     # mailfolder://a@b.com/x/y/x ----> foldername X, displayName x
     print_instance (folderuri, "nmo:MailFolder")
-    print_property ("nmo:folderName", folderuri.rpartition ('/')[2].upper ())
-    print_property ("nmo:folderDisplayName",  folderuri.rpartition ('/')[2])
-    print_property ("nmo:status", "abudabu", final=True)
+    print_property ("nmo:folderName", folderuri.rpartition ('/')[2].upper (), final=True)
+    #print_property ("nmo:folderDisplayName",  folderuri.rpartition ('/')[2])
+    #print_property ("nmo:status", "abudabu", final=True)
 
 def gen_me ():
     print_instance ("urn:uuid:1", "nco:PersonContact")
@@ -205,12 +205,12 @@ def gen_mail (amount, known_emails):
         if (random.randint (0, 5) > 3):
             print_anon_node ("nmo:cc", "nco:Contact",
                              "nco:hasEmailAddress",
-                             "mailto:" + get_random_in_list (known_emails))
+                             "mailto:" + get_random_in_list (known_emails), t="uri")
 
         if (random.randint (0, 5) > 3):
             print_anon_node ("nmo:bcc", "nco:Contact",
                              "nco:hasEmailAddress",
-                             "mailto:" + get_random_in_list (known_emails))
+                             "mailto:" + get_random_in_list (known_emails), t="uri")
 
         print_property ("nmo:messageSubject", get_random_text_short ())
         print_property ("nmo:status", "eeeeeh uuuhhhmmmmm")
@@ -219,7 +219,7 @@ def gen_mail (amount, known_emails):
         print_property ("nmo:plainTextMessageContent", get_random_text ())
         print_anon_node ("nmo:replyTo", "nco:Contact",
                          "nco:hasEmailAddress",
-                         REPLY_TO)
+                         REPLY_TO, t="uri")
         # FIXME Add message headers
         # FIXME Add inReplyTo
         print_property ("nie:contentSize", random.randint (20, 120), t="str", final=True)
