@@ -169,17 +169,17 @@ if __name__ == '__main__':
                 if not options.__dict__[m]:  
                         # Set defaults
                         if m == "TotalTracks":
-                                options.TotalTracks = 5000
+                                options.TotalTracks = 100
                         elif m == "ArtistCount":
-                                options.ArtistCount = 60
+                                options.ArtistCount = 2
                         elif m == "AlbumCount":
-                                options.AlbumCount = 60
+                                options.AlbumCount = 10
 
 	settings['TotalTracks'] = options.TotalTracks
 	if settings['TotalTracks'] < (options.ArtistCount * options.AlbumCount):
 		sys.exit('InputError: TotalTracks should be greater than or equal to  ArtistCount * AlbumCount')
 
-	settings['TitlesPerAlbum'] = settings['TotalTracks'] / (int(options.ArtistCount) * int(options.AlbumCount))
+	settings['TitlesPerAlbum'] = int(settings['TotalTracks']) / (int(options.ArtistCount) * int(options.AlbumCount))
 	#print 'settings[\'TitlesPerAlbum\'] %d' %settings['TitlesPerAlbum']
 	settings['ArtistCount'] = int(options.ArtistCount)
 	settings['AlbumCount'] = int(options.AlbumCount)
