@@ -10,13 +10,13 @@ entries=$1
 fi
 
 echo "Generating $entries entries per category"
-chmod +x gen_*
 
-for generator in `ls gen_*`
+for generator in `ls generate-data-for-*.py`
 do
-  echo "Running $generator"
-  ./$generator $entries > ${generator#gen_}.ttl
+   echo "Running $generator"
+   dest=`echo $generator | sed -s "s/\.py/\.ttl/"`
+  ./$generator $entries > $dest
 done
 
-cat contacts_messages.py.ttl
-rm contacts_messages.py.ttl
+#cat contacts.ttl
+#rm -f contacts.ttl

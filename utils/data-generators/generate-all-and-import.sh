@@ -3,5 +3,9 @@
 # takes as one parameter the number of entries that should be 
 # generated in each category
 
-./generate_all.sh $1
-./import_ttl.sh *.ttl
+./generate-all.sh $1
+
+for data in *.ttl
+do
+   tracker-import $data
+done
