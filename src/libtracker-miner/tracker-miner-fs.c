@@ -1052,6 +1052,7 @@ item_remove (TrackerMinerFS *fs,
 
 	if (!item_query_exists (fs, file)) {
 		g_debug ("  File does not exist anyway (uri:'%s')", uri);
+		g_free (uri);
 		return TRUE;
 	}
 
@@ -1311,8 +1312,8 @@ item_move (TrackerMinerFS *fs,
 	g_string_append_printf (sparql, " INSERT INTO <%s> {", uri);
 
 	escaped_filename = g_strescape (g_file_info_get_display_name (file_info), NULL);
-
 	g_string_append_printf (sparql, " <%s> nfo:fileName \"%s\" .", source_uri, escaped_filename);
+	g_free (escaped_filename);
 
 	move_data.main_loop = g_main_loop_new (NULL, FALSE);
 	move_data.level = 0;
