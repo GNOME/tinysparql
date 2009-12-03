@@ -36,8 +36,13 @@ maemo:bookmarkThumbnail a rdf:Property ;
    rdfs:domain nfo:Bookmark ;
    rdfs:range  xsd:string .
 
+maemo:webhistoryThumbnail a rdf:Property ;
+   rdfs:domain nfo:WebHistory ;
+   rdfs:range  xsd:string.
+
 # Denotes how relevant an item is for the user
 maemo:relevance a rdf:Property ;
+        nrl:maxCardinality 1 ;
 	rdfs:domain nie:InformationElement ;
 	rdfs:range xsd:double .
 
