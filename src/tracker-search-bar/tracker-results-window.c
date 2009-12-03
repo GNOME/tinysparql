@@ -37,15 +37,113 @@
 
 #define MAX_ITEMS 10
 
-#define MUSIC_QUERY    "SELECT ?urn ?title ?belongs fts:rank(?urn) WHERE { ?urn a nfo:Audio ; nfo:fileName ?title ; nfo:belongsToContainer ?belongs . ?urn fts:match \"%s*\" } ORDER BY DESC(fts:rank(?urn)) OFFSET 0 LIMIT %d"
-#define IMAGE_QUERY    "SELECT ?urn ?title ?belongs fts:rank(?urn) WHERE { ?urn a nfo:Image ; nfo:fileName ?title ; nfo:belongsToContainer ?belongs . ?urn fts:match \"%s*\" } ORDER BY DESC(fts:rank(?urn)) OFFSET 0 LIMIT %d"
-#define VIDEO_QUERY    "SELECT ?urn ?title ?belongs fts:rank(?urn) WHERE { ?urn a nmm:Video ; nfo:fileName ?title ; nfo:belongsToContainer ?belongs . ?urn fts:match \"%s*\" } ORDER BY DESC(fts:rank(?urn)) OFFSET 0 LIMIT %d"
-#define DOCUMENT_QUERY "SELECT ?urn ?title ?belongs fts:rank(?urn) WHERE { ?urn a nfo:Document ; nfo:fileName ?title ; nfo:belongsToContainer ?belongs . ?urn fts:match \"%s*\" } ORDER BY DESC(fts:rank(?urn)) OFFSET 0 LIMIT %d"
-#define FOLDER_QUERY   "SELECT ?urn ?title ?belongs fts:rank(?urn) WHERE { ?urn a nfo:Folder ; nfo:fileName ?title ; nfo:belongsToContainer ?belongs . ?urn fts:match \"%s*\" } ORDER BY DESC(fts:rank(?urn)) OFFSET 0 LIMIT %d"
-#define APP_QUERY      "SELECT ?urn ?title WHERE { ?urn a nfo:Software ; nie:title ?title . FILTER regex (?title, \"%s\", \"i\") } ORDER BY DESC(?title) OFFSET 0 LIMIT %d"
-#define TAGS_QUERY     "SELECT ?urn ?title WHERE { ?urn a nao:Tag ; nao:prefLabel ?title . FILTER regex (?title, \"%s\", \"i\") } ORDER BY DESC(?title) OFFSET 0 LIMIT %d"
-#define BOOKMARK_QUERY "SELECT ?urn ?title WHERE { ?urn a nfo:Bookmark ; nie:title ?title . FILTER regex (?title, \"%s\", \"i\") } ORDER BY DESC(?title) OFFSET 0 LIMIT %d"
-#define WEBSITE_QUERY  "SELECT ?urn ?title WHERE { ?urn a nfo:Website ; nie:title ?title . FILTER regex (?title, \"%s\", \"i\") } ORDER BY DESC(?title) OFFSET 0 LIMIT %d"
+#define MUSIC_QUERY					\
+	"SELECT"					\
+	"  ?urn ?title ?belongs fts:rank(?urn) "	\
+	"WHERE {"					\
+	"  ?urn a nfo:Audio ;"				\
+	"  nfo:fileName ?title ;"			\
+	"  nfo:belongsToContainer ?belongs ."		\
+	"  ?urn fts:match \"%s*\" "			\
+	"}"						\
+	"ORDER BY DESC(fts:rank(?urn)) "		\
+	"OFFSET 0 LIMIT %d"
+#define IMAGE_QUERY					\
+	"SELECT"					\
+	"  ?urn ?title ?belongs fts:rank(?urn) "	\
+	"WHERE {"					\
+	"  ?urn a nfo:Image ;"				\
+	"  nfo:fileName ?title ;"			\
+	"  nfo:belongsToContainer ?belongs ."		\
+	"  ?urn fts:match \"%s*\" "			\
+	"} "						\
+	"ORDER BY DESC(fts:rank(?urn)) "		\
+	"OFFSET 0 LIMIT %d"
+#define VIDEO_QUERY					\
+	"SELECT"					\
+	"  ?urn ?title ?belongs fts:rank(?urn) "	\
+	"WHERE {"					\
+	"  ?urn a nmm:Video ;"				\
+	"  nfo:fileName ?title ;"			\
+	"  nfo:belongsToContainer ?belongs ."		\
+	"  ?urn fts:match \"%s*\" "			\
+	"} "						\
+	"ORDER BY DESC(fts:rank(?urn)) "		\
+	"OFFSET 0 LIMIT %d"
+#define DOCUMENT_QUERY					\
+	"SELECT"					\
+	"  ?urn ?title ?belongs fts:rank(?urn) "	\
+	"WHERE {"					\
+	"  ?urn a nfo:Document ;"			\
+	"  nfo:fileName ?title ;"			\
+	"  nfo:belongsToContainer ?belongs ."		\
+	"  ?urn fts:match \"%s*\" "			\
+	"} "						\
+	"ORDER BY DESC(fts:rank(?urn)) "		\
+	"OFFSET 0 LIMIT %d"
+#define FOLDER_QUERY					\
+	"SELECT"					\
+	"  ?urn ?title ?belongs fts:rank(?urn) "	\
+	"WHERE {"					\
+	"  ?urn a nfo:Folder ;"				\
+	"  nfo:fileName ?title ;"			\
+	"  nfo:belongsToContainer ?belongs ."		\
+	"  ?urn fts:match \"%s*\" "			\
+	"} "						\
+	"ORDER BY DESC(fts:rank(?urn)) "		\
+	"OFFSET 0 LIMIT %d"
+#define APP_QUERY					\
+	"SELECT"					\
+	"  ?urn ?title ?belongs fts:rank(?urn) "	\
+	"WHERE {"					\
+	"  ?urn a nfo:Software ;"			\
+	"  nie:title ?title ."				\
+	"  ?urn fts:match \"%s*\" "			\
+	"} "						\
+	"ORDER BY DESC(fts:rank(?urn)) "		\
+	"OFFSET 0 LIMIT %d"
+#define TAGS_QUERY					\
+	"SELECT"					\
+	"  ?urn ?title ?belongs fts:rank(?urn)"		\
+	"WHERE {"					\
+	"  ?urn a nao:Tag ;"				\
+	"  nao:prefLabel ?title ."			\
+	"  ?urn fts:match \"%s*\" "			\
+	"} "						\
+	"ORDER BY DESC(fts:rank(?urn)) "		\
+	"OFFSET 0 LIMIT %d"
+#define BOOKMARK_QUERY					\
+	"SELECT"					\
+	"  ?urn ?title ?belongs fts:rank(?urn)"		\
+	"WHERE {"					\
+	"  ?urn a nfo:Bookmark ;"			\
+	"  nie:title ?title ;"				\
+	"  nie:links ?belongs ."			\
+	"  ?urn fts:match \"%s*\" "			\
+	"} "						\
+	"ORDER BY DESC(fts:rank(?urn)) "		\
+	"OFFSET 0 LIMIT %d"
+#define WEBSITE_QUERY					\
+	"SELECT"					\
+	"  ?urn ?title ?belongs fts:rank(?urn)"		\
+	"WHERE {"					\
+	"  ?urn a nfo:Website ;"			\
+	"  nie:title ?title ."				\
+	"  ?urn fts:match \"%s*\" "			\
+	"} "						\
+	"ORDER BY DESC(fts:rank(?urn)) "		\
+	"OFFSET 0 LIMIT %d"
+#define CONTACT_QUERY					\
+	"SELECT"					\
+	"  ?urn ?title ?belongs fts:rank(?urn)"		\
+	"WHERE {"					\
+	"  ?urn a nco:Contact ;"			\
+	"  nco:fullname ?title ;"			\
+	"  nco:hasEmailAddress ?belongs ."		\
+	"  ?urn fts:match \"%s*\" "			\
+	"} "						\
+	"ORDER BY DESC(fts:rank(?urn)) "		\
+	"OFFSET 0 LIMIT %d"
 
 #undef USE_SEPARATOR_FOR_SPACING
 
@@ -1100,6 +1198,9 @@ search_get (TrackerResultsWindow *window,
 	case CATEGORY_WEBSITE:
 		format = WEBSITE_QUERY;
 		break;
+	case CATEGORY_CONTACT:
+		format = CONTACT_QUERY;
+		break;
 	default:
 		format = NULL;
 		break;
@@ -1155,6 +1256,7 @@ search_start (TrackerResultsWindow *window)
 	search_get (window, CATEGORY_TAG);
 	search_get (window, CATEGORY_BOOKMARK);
 	search_get (window, CATEGORY_WEBSITE);
+	search_get (window, CATEGORY_CONTACT);
 }
 
 static gboolean
