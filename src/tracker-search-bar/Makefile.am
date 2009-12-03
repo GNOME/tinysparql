@@ -8,7 +8,9 @@ tracker_search_bar_SOURCES = 					\
 	tracker-aligned-window.c				\
 	tracker-aligned-window.h				\
 	tracker-results-window.c				\
-	tracker-results-window.h
+	tracker-results-window.h				\
+	tracker-utils.c						\
+	tracker-utils.h
 
 tracker_search_bar_CFLAGS = \
 	-DPKGDATADIR=\""$(pkgdatadir)"\"	 		\
