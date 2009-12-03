@@ -76,7 +76,8 @@ def get_random_uuid_uri ():
     return "urn:uuid:" + str(random.randint(0, sys.maxint))
 
 def get_random_in_list (l):
-    if (len(l) == 0):
+    if len(l) == 0:
         return None
-    return l[random.randint (0, len(l) -1)]
+
+    return l[random.randint (0, len(l) - 1)]
 
