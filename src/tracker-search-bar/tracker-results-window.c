@@ -34,77 +34,80 @@
 
 #include "tracker-results-window.h"
 #include "tracker-aligned-window.h"
+#include "tracker-utils.h"
 
 #define MAX_ITEMS 10
 
 #define MUSIC_QUERY					\
 	"SELECT"					\
-	"  ?urn ?title ?belongs fts:rank(?urn) "	\
+	"  ?urn ?title ?tooltip ?urn fts:rank(?urn) "	\
 	"WHERE {"					\
 	"  ?urn a nfo:Audio ;"				\
 	"  nfo:fileName ?title ;"			\
-	"  nfo:belongsToContainer ?belongs ."		\
+	"  nfo:belongsToContainer ?tooltip ."		\
 	"  ?urn fts:match \"%s*\" "			\
 	"}"						\
 	"ORDER BY DESC(fts:rank(?urn)) "		\
 	"OFFSET 0 LIMIT %d"
 #define IMAGE_QUERY					\
 	"SELECT"					\
-	"  ?urn ?title ?belongs fts:rank(?urn) "	\
+	"  ?urn ?title ?tooltip ?urn fts:rank(?urn) "	\
 	"WHERE {"					\
 	"  ?urn a nfo:Image ;"				\
 	"  nfo:fileName ?title ;"			\
-	"  nfo:belongsToContainer ?belongs ."		\
+	"  nfo:belongsToContainer ?tooltip ."		\
 	"  ?urn fts:match \"%s*\" "			\
 	"} "						\
 	"ORDER BY DESC(fts:rank(?urn)) "		\
 	"OFFSET 0 LIMIT %d"
 #define VIDEO_QUERY					\
 	"SELECT"					\
-	"  ?urn ?title ?belongs fts:rank(?urn) "	\
+	"  ?urn ?title ?tooltip ?urn fts:rank(?urn) "	\
 	"WHERE {"					\
 	"  ?urn a nmm:Video ;"				\
 	"  nfo:fileName ?title ;"			\
-	"  nfo:belongsToContainer ?belongs ."		\
+	"  nfo:belongsToContainer ?tooltip ."		\
 	"  ?urn fts:match \"%s*\" "			\
 	"} "						\
 	"ORDER BY DESC(fts:rank(?urn)) "		\
 	"OFFSET 0 LIMIT %d"
 #define DOCUMENT_QUERY					\
 	"SELECT"					\
-	"  ?urn ?title ?belongs fts:rank(?urn) "	\
+	"  ?urn ?title ?tooltip ?urn fts:rank(?urn) "	\
 	"WHERE {"					\
 	"  ?urn a nfo:Document ;"			\
 	"  nfo:fileName ?title ;"			\
-	"  nfo:belongsToContainer ?belongs ."		\
+	"  nfo:belongsToContainer ?tooltip ."		\
 	"  ?urn fts:match \"%s*\" "			\
 	"} "						\
 	"ORDER BY DESC(fts:rank(?urn)) "		\
 	"OFFSET 0 LIMIT %d"
 #define FOLDER_QUERY					\
 	"SELECT"					\
-	"  ?urn ?title ?belongs fts:rank(?urn) "	\
+	"  ?urn ?title ?tooltip ?urn fts:rank(?urn) "	\
 	"WHERE {"					\
 	"  ?urn a nfo:Folder ;"				\
 	"  nfo:fileName ?title ;"			\
-	"  nfo:belongsToContainer ?belongs ."		\
+	"  nfo:belongsToContainer ?tooltip ."		\
 	"  ?urn fts:match \"%s*\" "			\
 	"} "						\
 	"ORDER BY DESC(fts:rank(?urn)) "		\
 	"OFFSET 0 LIMIT %d"
 #define APP_QUERY					\
 	"SELECT"					\
-	"  ?urn ?title ?belongs fts:rank(?urn) "	\
+	"  ?urn ?title ?tooltip ?link fts:rank(?urn) "	\
 	"WHERE {"					\
 	"  ?urn a nfo:Software ;"			\
-	"  nie:title ?title ."				\
+	"  nie:title ?title ;"				\
+	"  nie:comment ?tooltip ;"			\
+	"  nfo:softwareCmdLine ?link ."			\
 	"  ?urn fts:match \"%s*\" "			\
 	"} "						\
 	"ORDER BY DESC(fts:rank(?urn)) "		\
 	"OFFSET 0 LIMIT %d"
 #define TAGS_QUERY					\
 	"SELECT"					\
-	"  ?urn ?title ?belongs fts:rank(?urn)"		\
+	"  ?urn ?title ?title ?urn fts:rank(?urn) " \
 	"WHERE {"					\
 	"  ?urn a nao:Tag ;"				\
 	"  nao:prefLabel ?title ."			\
@@ -112,34 +115,47 @@
 	"} "						\
 	"ORDER BY DESC(fts:rank(?urn)) "		\
 	"OFFSET 0 LIMIT %d"
+/* #define TAGS_QUERY					\ */
+/* 	"SELECT"					\ */
+/* 	"  ?urn ?title COUNT(?files) ?urn fts:rank(?urn) " \ */
+/* 	"WHERE {"					\ */
+/* 	"  ?urn a nao:Tag ;"				\ */
+/* 	"  nao:prefLabel ?title ."			\ */
+/* 	"  ?urn fts:match \"%s*\" ."			\ */
+/* 	"  ?files nao:hasTag ?urn "			\ */
+/* 	"} "						\ */
+/* 	"GROUP BY ?urn "				\ */
+/* 	"ORDER BY DESC(fts:rank(?urn)) "		\ */
+/* 	"OFFSET 0 LIMIT %d" */
 #define BOOKMARK_QUERY					\
 	"SELECT"					\
-	"  ?urn ?title ?belongs fts:rank(?urn)"		\
+	"  ?urn ?title ?link ?link fts:rank(?urn) "	\
 	"WHERE {"					\
 	"  ?urn a nfo:Bookmark ;"			\
 	"  nie:title ?title ;"				\
-	"  nie:links ?belongs ."			\
+	"  nie:links ?link ."				\
 	"  ?urn fts:match \"%s*\" "			\
 	"} "						\
 	"ORDER BY DESC(fts:rank(?urn)) "		\
 	"OFFSET 0 LIMIT %d"
 #define WEBSITE_QUERY					\
 	"SELECT"					\
-	"  ?urn ?title ?belongs fts:rank(?urn)"		\
+	"  ?urn ?title ?link ?link fts:rank(?urn) "	\
 	"WHERE {"					\
 	"  ?urn a nfo:Website ;"			\
-	"  nie:title ?title ."				\
+	"  nie:title ?title ;"				\
+	"  nie:links ?link ."				\
 	"  ?urn fts:match \"%s*\" "			\
 	"} "						\
 	"ORDER BY DESC(fts:rank(?urn)) "		\
 	"OFFSET 0 LIMIT %d"
 #define CONTACT_QUERY					\
 	"SELECT"					\
-	"  ?urn ?title ?belongs fts:rank(?urn)"		\
+	"  ?urn ?title ?link ?link fts:rank(?urn) "	\
 	"WHERE {"					\
 	"  ?urn a nco:Contact ;"			\
 	"  nco:fullname ?title ;"			\
-	"  nco:hasEmailAddress ?belongs ."		\
+	"  nco:hasEmailAddress ?link ."			\
 	"  ?urn fts:match \"%s*\" "			\
 	"} "						\
 	"ORDER BY DESC(fts:rank(?urn)) "		\
@@ -187,9 +203,9 @@ typedef enum {
 
 typedef struct {
 	gchar *urn;
-	gchar *type;
 	gchar *title;
-	gchar *belongs;
+	gchar *tooltip;
+	gchar *link;
 	TrackerCategory category;
 } ItemData;
 
@@ -235,7 +251,8 @@ enum {
 	COL_IMAGE_REQUESTED,
 	COL_URN,
 	COL_TITLE,
-	COL_BELONGS,
+	COL_TOOLTIP,
+	COL_LINK,
 	COL_COUNT
 };
 
@@ -273,13 +290,14 @@ tracker_results_window_class_init (TrackerResultsWindowClass *klass)
 	g_type_class_add_private (object_class, sizeof (TrackerResultsWindowPrivate));
 }
 
-static void
+static gboolean
 launch_application_for_uri (GtkWidget   *widget,
 			    const gchar *uri)
 {
 	GdkAppLaunchContext *launch_context;
 	GdkScreen *screen;
 	GError *error = NULL;
+	gboolean success;
 
 	launch_context = gdk_app_launch_context_new ();
 
@@ -294,9 +312,14 @@ launch_application_for_uri (GtkWidget   *widget,
 		g_critical ("Could not launch application for uri '%s': %s",
 			    uri, error->message);
 		g_error_free (error);
+		success = FALSE;
+	} else {
+		success = TRUE;
 	}
 
 	g_object_unref (launch_context);
+
+	return success;
 }
 
 static void
@@ -309,7 +332,8 @@ tree_view_row_activated_cb (GtkTreeView       *treeview,
 	TrackerResultsWindow *window;
 	GtkTreeModel *model;
 	GtkTreeIter iter;
-	gchar *urn;
+	gchar *link;
+	gboolean success;
 
 	window = user_data;
 	priv = TRACKER_RESULTS_WINDOW_GET_PRIVATE (window);
@@ -320,17 +344,33 @@ tree_view_row_activated_cb (GtkTreeView       *treeview,
 	}
 
 	gtk_tree_model_get (model, &iter,
-			    COL_URN, &urn,
+			    COL_LINK, &link,
 			    -1);
 
-	if (!urn) {
+	if (!link) {
 		return;
 	}
 
-	launch_application_for_uri (GTK_WIDGET (window), urn);
-	gtk_widget_hide (GTK_WIDGET (window));
+        if (tracker_regex_match (TRACKER_REGEX_ALL, link, NULL, NULL) > 0) {
+		success = launch_application_for_uri (GTK_WIDGET (window), link);
+	} else {
+		GError *error = NULL;
 
-	g_free (urn);
+		success = g_spawn_command_line_async (link, &error);
+		
+		if (error) {
+			g_critical ("Could not launch command line:'%s', %s",
+				    link,
+				    error->message);
+			g_error_free (error);
+		}
+	}
+
+	if (success) {
+		gtk_widget_hide (GTK_WIDGET (window));
+	}
+
+	g_free (link);
 }
 
 static void
@@ -543,7 +583,8 @@ results_window_screen_changed (GtkWidget *widget,
 static ItemData *
 item_data_new (const gchar     *urn,
 	       const gchar     *title,
-	       const gchar     *belongs,
+	       const gchar     *tooltip,
+	       const gchar     *link,
 	       TrackerCategory  category)
 {
 	ItemData *id;
@@ -552,7 +593,8 @@ item_data_new (const gchar     *urn,
 
 	id->urn = g_strdup (urn);
 	id->title = g_strdup (title);
-	id->belongs = g_strdup (belongs);
+	id->tooltip = g_strdup (tooltip);
+	id->link = g_strdup (link);
 	id->category = category;
 
 	return id;
@@ -563,7 +605,8 @@ item_data_free (ItemData *id)
 {
 	g_free (id->urn);
 	g_free (id->title);
-	g_free (id->belongs);
+	g_free (id->tooltip);
+	g_free (id->link);
 	
 	g_slice_free (ItemData, id);
 }
@@ -914,7 +957,8 @@ model_set_up (TrackerResultsWindow *window)
 				    G_TYPE_BOOLEAN,        /* Image requested */
 				    G_TYPE_STRING,         /* URN */
 				    G_TYPE_STRING,         /* Title */
-				    G_TYPE_STRING);        /* Belongs */
+				    G_TYPE_STRING,         /* Tooltip */
+				    G_TYPE_STRING);        /* Link */
 
 	gtk_tree_view_set_model (view, GTK_TREE_MODEL (store));
 
@@ -978,7 +1022,7 @@ model_set_up (TrackerResultsWindow *window)
 	/* 				      GTK_SORT_ASCENDING); */
 
 	/* Tooltips */
-	gtk_tree_view_set_tooltip_column (view, COL_BELONGS);
+	gtk_tree_view_set_tooltip_column (view, COL_TOOLTIP);
 
 	/* Save */
 	priv->store = G_OBJECT (store);
@@ -989,7 +1033,8 @@ model_add (TrackerResultsWindow *window,
 	   TrackerCategory       category,
 	   const gchar          *urn,
 	   const gchar          *title,
-	   const gchar          *belongs)
+	   const gchar          *tooltip,
+	   const gchar          *link)
 {
 	TrackerResultsWindowPrivate *priv;
 	GtkTreeIter iter;
@@ -1004,7 +1049,8 @@ model_add (TrackerResultsWindow *window,
 			    COL_IMAGE, pixbuf ? pixbuf : NULL,
 			    COL_URN, urn,
 			    COL_TITLE, title,
-			    COL_BELONGS, belongs,
+			    COL_TOOLTIP, tooltip,
+			    COL_LINK, link,
 			    -1);
 
 	/* path = gtk_tree_model_get_path (GTK_TREE_MODEL (window->store), &iter); */
@@ -1048,32 +1094,28 @@ search_get_foreach (gpointer value,
 	SearchQuery *sq;
 	ItemData *id;
 	gchar **metadata;
-	const gchar *urn, *title, *belongs, *rank;
+	const gchar *urn, *title, *tooltip, *link, *rank;
 
 	sq = user_data;
 	metadata = value;
 
 	urn = metadata[0];
 	title = metadata[1];
-	belongs = metadata[2];
+	tooltip = metadata[2];
+	link = metadata[3];
+	rank = metadata[4];
 
 	/* App queries don't return rank or belongs */
-	if (belongs) {
-		rank = metadata[3];
-	} else {
+	if (!rank) {
 		rank = "0.0";
 	}
 
-	if (!title) {
-		title = urn;
-	}
-
-	g_print ("urn:'%s' found\n", urn);
+	g_print ("urn:'%s' found (rank:'%s')\n", urn, rank);
 	g_print ("  title:'%s'\n", title);
-	g_print ("  belongs to:'%s'\n", belongs);
-	g_print ("  rank:'%s'\n", rank);
+	g_print ("  tooltip:'%s'\n", tooltip);
+	g_print ("  link:'%s'\n", link);
 
-	id = item_data_new (urn, title, belongs, sq->category);
+	id = item_data_new (urn, title, tooltip, link, sq->category);
 	sq->results = g_slist_append (sq->results, id);
 
 	/* category_from_string (type, &id->categories); */
@@ -1134,7 +1176,7 @@ search_get_cb (GPtrArray *results,
 
 			/* Add separator */
 			if (priv->first_category_populated) {
-				model_add (window, CATEGORY_NONE, NULL, NULL, NULL);
+				model_add (window, CATEGORY_NONE, NULL, NULL, NULL, NULL);
 			}
 
 			for (l = sq->results; l; l = l->next) {
@@ -1144,7 +1186,8 @@ search_get_cb (GPtrArray *results,
 					   sq->category,
 					   id->urn,
 					   id->title,
-					   id->belongs);
+					   id->tooltip,
+					   id->link);
 			}
 
 			priv->first_category_populated = TRUE;
