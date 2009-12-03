@@ -449,8 +449,9 @@ event_data_free (gpointer data)
 	EventData *event;
 
 	event = data;
-	
+
 	g_object_unref (event->file);
+	g_slice_free (EventData, data);
 }
 
 static guint
