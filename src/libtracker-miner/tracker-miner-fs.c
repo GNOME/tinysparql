@@ -856,7 +856,6 @@ sparql_update_cb (GObject      *object,
 	TrackerMinerFS *fs;
 	TrackerMinerFSPrivate *priv;
 	ProcessData *data;
-
 	GError *error = NULL;
 
 	tracker_miner_execute_update_finish (TRACKER_MINER (object), result, &error);
@@ -1456,7 +1455,8 @@ item_queue_handlers_cb (gpointer user_data)
 	fs = user_data;
 	queue = item_queue_get_next_file (fs, &file, &source_file);
 
-	if (file && tracker_file_is_locked (file)) {
+	if (file && queue != QUEUE_DELETED &&
+	    tracker_file_is_locked (file)) {
 		/* File is locked, ignore any updates on it */
 		g_object_unref (file);
 
