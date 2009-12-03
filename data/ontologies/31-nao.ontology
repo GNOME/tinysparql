@@ -31,6 +31,11 @@ nao:identifier a rdf:Property ;
 	rdfs:domain rdfs:Resource ;
 	rdfs:range xsd:string .
 
+nao:numericRating a rdf:Property ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain rdfs:Resource ;
+	rdfs:range xsd:double .
+
 # These are added and approval by Nepomuk-upstream is pending
 
 nao:Property a rdfs:Class ;
