@@ -115,7 +115,6 @@ def generate_accounts (amount):
         print_property ("nco:fullname", str.join(' ', [first_name, last_name]))
         print_property ("nco:nameGiven", first_name)
         print_property ("nco:nameFamily", last_name)
-        print_property ("nco:birthDate", str(birth_day))
 
         for j in range (0, random.randint(0, 4)):
             account_data = get_random_in_list (ACCOUNTS)
@@ -123,6 +122,8 @@ def generate_accounts (amount):
             print_property ("nco:hasIMAccount", user_account, t = "uri")
             accounts.append ((user_account, account_data))
             known_accounts.insert (0, user_account)
+
+        print_property ("nco:birthDate", str(birth_day), final = True)
             
     return known_accounts
 
@@ -189,11 +190,15 @@ def generate_im_messages (n_convs, n_channels, msgs_per_convs, friends_list, n_f
 
     for i in range (0, n_channels):
         channel_id = get_random_uuid_uri()
-        print_instance (channel_id, "nmo:CommunicationChannel")
+        print_instance (channel_id, "nmo:CommunicationChannel", final = True)
 
         for j in range (0, n_convs):
             conversation_id = get_random_uuid_uri()
             print_instance (conversation_id, "nmo:Conversation")
+
+            print_property ("nmo:communicationChannel", 
+                            channel_id, 
+                            t = "uri", final = True)
 
             if same_friend:
                 random_friend = same_friend
@@ -210,9 +215,6 @@ def generate_im_messages (n_convs, n_channels, msgs_per_convs, friends_list, n_f
                 print_property ("nmo:conversation", 
                                 conversation_id, 
                                 t = "uri")
-                print_property ("nmo:communicationsChannel", 
-                                channel_id, 
-                                t = "uri")
                 if k % 2 == 0:
                     print_property ("nmo:sentDate", getPseudoRandomDate ())
                 else:
@@ -223,27 +225,22 @@ def generate_im_messages (n_convs, n_channels, msgs_per_convs, friends_list, n_f
                                 get_random_text ())
 
                 print_anon_node ("nmo:from", 
-                                 "nco:Contact",
+                                 "nco:IMContact",
                                  "nco:hasIMAccount", 
                                  addresses[k % 2], 
                                  t = "uri")
                 print_anon_node ("nmo:to", 
-                                 "nco:Contact",
+                                 "nco:IMContact",
                                  "nco:hasIMAccount", 
                                  addresses[(k + 1) % 2], 
                                  t = "uri", final = True)
-            #if same_friend:
-            #    print_anon_node ("nmo:hasParticipant", 
-            #                     "nco:Contact",
-            #                     "nco:hasIMAccount", 
-            #                     addresses[k % 2], 
-            #                     t = "uri")
-
-            #print_anon_node ("nmo:hasParticipant", 
-            #                 "nco:Contact",
-            #                 "nco:hasIMAccount", 
-            #                 addresses[k % 2], 
-            #                 t = "uri")
+        if same_friend:
+            print_instance (channel_id, "nmo:CommunicationChannel")
+            print_anon_node ("nmo:hasParticipant", 
+                             "nco:IMContact",
+                             "nco:hasIMAccount", 
+                             same_friend,
+                             t = "uri", final = True)
 
 
 def generate_im_group_chats (amount, friends_list):
@@ -265,15 +262,15 @@ def generate_im_group_chats (amount, friends_list):
                 print_property ("nmo:receivedDate", getPseudoRandomDate ())
 
             print_anon_node ("nmo:from", 
-                             "nco:Contact",
+                             "nco:IMContact",
                              "nco:hasIMAccount", 
                              addresses[i % 2], 
                              t = "uri")
             print_anon_node ("nmo:to", 
-                             "nco:Contact",
+                             "nco:IMContact",
                              "nco:hasIMAccount", 
                              addresses[(i + 1) % 2], 
-                             t = "uri")
+                             t = "uri", final = True)
 
             print_property ("nie:plainTextContent", get_random_text (), t = "str", final = True)
 
