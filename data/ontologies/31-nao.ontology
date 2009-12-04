@@ -36,6 +36,12 @@ nao:numericRating a rdf:Property ;
 	rdfs:domain rdfs:Resource ;
 	rdfs:range xsd:double .
 
+nao:deprecated a rdf:Property;
+  rdfs:domain rdfs:Resource;
+  rdfs:range xsd:boolean;
+  rdfs:label "deprecated";
+  rdfs:comment "If this property is assigned, the subject class, property, or resource, is deprecated and should not be used in production systems any longer. It may be removed without further notice." .
+
 # These are added and approval by Nepomuk-upstream is pending
 
 nao:Property a rdfs:Class ;
@@ -53,4 +59,6 @@ nao:propertyValue a rdf:Property ;
 nao:hasProperty a rdf:Property ;
 	rdfs:domain nie:InformationElement ;
 	rdfs:range  nao:Property .
+
+
 
