@@ -1,3 +1,67 @@
+NEW in 0.7.10
+=============
+
+Improvements / New:
+
+  Ontology:
+  * Added nco:IMCapability* and nco:imContactCapability*.
+  * Added tracker:notify to nmo:Message.
+  * Added maemo:webhistoryThumbnail.
+  * Fixed maemo:relevance to use maxCardinality of 1, None previously.
+
+  Documentation:
+  * Fixed missing docs/ontology PNG files.
+
+  Data Generators:
+  * Fixed Python 2.5 requirement.
+  * Fixed to work with the latest ontology.
+  * Fixed to not generate duplicate self entries for nco:PersonContact
+
+  libtracker-common:
+  * Fixed memory leaks in TrackerProperty finalize.
+  * Fixed classes/props/namespaces to use GPtrArray bookkeeping.
+
+  libtracker-data:
+  * Fixed memory leak in tracker_data_update_sparql{_blank}().
+
+  libtracker-miner:
+  * Fixed memory leaks in querying code.  
+  * Fixed memory leaks when removing and moving items.
+  * Fixed memory leak in monitor code when freeing events.
+  * Fixed some build warnings.
+  * Fixed to not check for locks in non-existent files.
+  * Removed TrackerMiner::terminated signal, it was unused.
+
+  libtracker-client:
+  * Added initial documentation. About 50% is documented.
+
+  tracker-miner-fs:
+  * Fixed memory leaks in mount code.
+ 
+  tracker-tag:
+  * Now uses g_file_new_from_command_line_arg() so URIs don't have to
+    be full URIs.
+
+  tracker-writeback:
+  * Fixed missing include for locale.h
+
+  tracker-search-bar:
+  * Fixed all queries to use FTS not FILTER SPARQL.
+  * Fixed to be able to launch applications and all files too.
+  * Updated to show 10 items per category not 5 by default.
+  * Added support for tags, bookmarks, contacts and websites.
+
+Bugs:
+
+  None.
+
+Notes:
+
+  The Deskbar applet packaged with Tracker is currently out of date
+  and needs some love to get it working with the new APIs. It is in
+  the same state as it was for 0.6. As such it isn't expected to work.
+
+
 NEW in 0.7.9
 ============
 
