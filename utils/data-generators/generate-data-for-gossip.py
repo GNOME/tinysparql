@@ -123,19 +123,6 @@ def generate_accounts (amount):
             print_property ("nco:hasIMAccount", user_account, t = "uri")
             accounts.append ((user_account, account_data))
             known_accounts.insert (0, user_account)
-            #known_emails.insert (0, emailAddress)
-
-        #print_property ("nco:hasEmailAddress",
-        #                str.join ('', ["mailto:", emailAddress]),
-        #                t = "uri", final = True)
-
-        #for user_account, account_data in accounts:
-        #    generate_account (account_data, user_account, firstName)
-        #    del user_account
-        #    del account_data
-
-        #print_instance ("mailto:" + emailAddress, "nco:EmailAddress")
-        #print_property ("nco:emailAddress", emailAddress, final = True)
             
     return known_accounts
 
@@ -187,42 +174,77 @@ def generate_me ():
                             folder, t = "uri")
         print_property ("nmo:signature", get_random_text(), final = True)
 
-        for folder in get_folder_names (address):
-            generate_mailfolder (folder)
+        #for folder in get_folder_names (address):
+        #    generate_mailfolder (folder)
 
         i += 1
         #print_property ("nmo:folderStatus", "?")
         #print_property ("nmo:folderParameters", "?")
 
-def generate_im_messages (amount, friends_list):
-    for i in range (0, amount):
-        random_friend = get_random_in_list (friends_list)
-        my_account_prefix = random_friend.split(':')[0] + ":"
-        my_account = filter (lambda x: x[3].startswith (my_account_prefix), ACCOUNTS)[0]
-        addresses = [my_account[3], random_friend]
+def generate_im_messages (n_convs, n_channels, msgs_per_convs, friends_list, n_friends):
+    if n_friends < 2:
+        same_friend = get_random_in_list(friends_list)
+    else:
+        same_friend = None
 
-        for i in range (0, random.randint (0, 10)):
-            print_instance (get_random_uuid_uri(), "nmo:IMMessage")
+    for i in range (0, n_channels):
+        channel_id = get_random_uuid_uri()
+        print_instance (channel_id, "nmo:CommunicationChannel")
 
-            if i % 2 == 0:
-                print_property ("nmo:sentDate", getPseudoRandomDate ())
+        for j in range (0, n_convs):
+            conversation_id = get_random_uuid_uri()
+            print_instance (conversation_id, "nmo:Conversation")
+
+            if same_friend:
+                random_friend = same_friend
             else:
-                print_property ("nmo:sentDate", getPseudoRandomDate ())
-                print_property ("nmo:receivedDate", getPseudoRandomDate ())
+                random_friend = get_random_in_list(friends_list)
 
-            print_property ("nie:plainTextContent", 
-                            get_random_text ())
+            my_account_prefix = random_friend.split(':')[0] + ":"
+            my_account = filter (lambda x: x[3].startswith (my_account_prefix), ACCOUNTS)[0]
+            addresses = [my_account[3], random_friend]
 
-            print_anon_node ("nmo:from", 
-                             "nco:Contact",
-                             "nco:hasIMAccount", 
-                             addresses[i % 2], 
-                             t = "uri")
-            print_anon_node ("nmo:to", 
-                             "nco:Contact",
-                             "nco:hasIMAccount", 
-                             addresses[(i + 1) % 2], 
-                             t = "uri", final = True)
+            for k in range (0, random.randint(1, msgs_per_convs + 1)):
+                print_instance (get_random_uuid_uri(), "nmo:IMMessage")
+
+                print_property ("nmo:conversation", 
+                                conversation_id, 
+                                t = "uri")
+                print_property ("nmo:communicationsChannel", 
+                                channel_id, 
+                                t = "uri")
+                if k % 2 == 0:
+                    print_property ("nmo:sentDate", getPseudoRandomDate ())
+                else:
+                    print_property ("nmo:sentDate", getPseudoRandomDate ())
+                    print_property ("nmo:receivedDate", getPseudoRandomDate ())
+
+                print_property ("nie:plainTextContent", 
+                                get_random_text ())
+
+                print_anon_node ("nmo:from", 
+                                 "nco:Contact",
+                                 "nco:hasIMAccount", 
+                                 addresses[k % 2], 
+                                 t = "uri")
+                print_anon_node ("nmo:to", 
+                                 "nco:Contact",
+                                 "nco:hasIMAccount", 
+                                 addresses[(k + 1) % 2], 
+                                 t = "uri", final = True)
+            #if same_friend:
+            #    print_anon_node ("nmo:hasParticipant", 
+            #                     "nco:Contact",
+            #                     "nco:hasIMAccount", 
+            #                     addresses[k % 2], 
+            #                     t = "uri")
+
+            #print_anon_node ("nmo:hasParticipant", 
+            #                 "nco:Contact",
+            #                 "nco:hasIMAccount", 
+            #                 addresses[k % 2], 
+            #                 t = "uri")
+
 
 def generate_im_group_chats (amount, friends_list):
     for i in range (0, amount):
@@ -326,7 +348,7 @@ if __name__ == "__main__":
     
     print_namespaces ()
     generate_me ()
-    known_accounts = generate_accounts (entries)
-    generate_im_messages (entries, known_accounts)
-    generate_im_group_chats (entries, known_accounts)
+    known_accounts = generate_accounts (5)
+    generate_im_messages (25, 10, entries, known_accounts, 1)
+#    generate_im_group_chats (entries, known_accounts)
 #    generate_mail (entries, known_emails)
