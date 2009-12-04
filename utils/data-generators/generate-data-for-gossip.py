@@ -139,7 +139,7 @@ def generate_mailfolder (folderuri):
     #print_property ("nmo:status", "abudabu", final=True)
 
 def generate_me ():
-    print_instance ("urn:uuid:buddy1", "nco:PersonContact")
+    print "nco:default-contact-me a nco:PersonContact ;"
     print_property ("nco:fullname", "Me Nokia")
     print_property ("nco:nameGiven", "Me")
     print_property ("nco:nameFamily", "Nokia")
@@ -183,22 +183,26 @@ def generate_me ():
         #print_property ("nmo:folderParameters", "?")
 
 def generate_im_messages (n_convs, n_channels, msgs_per_convs, friends_list, n_friends):
-    if n_friends < 2:
-        same_friend = get_random_in_list(friends_list)
-    else:
-        same_friend = None
+    for i in range (0, len(friends_list)):
+        same_friend = friends_list[i]
 
-    for i in range (0, n_channels):
         channel_id = get_random_uuid_uri()
-        print_instance (channel_id, "nmo:CommunicationChannel", final = True)
+        print_instance (channel_id, "nmo:CommunicationChannel")
+
+        print_property ("nmo:lastMessageDate", getPseudoRandomDate ())
+
+        print "\tnmo:hasParticipant nco:default-contact-me ;";
+
+        if same_friend:
+            print_anon_node ("nmo:hasParticipant",
+                             "nco:IMContact",
+                             "nco:hasIMAccount",
+                             same_friend,
+                             t = "uri", final = True)
 
         for j in range (0, n_convs):
             conversation_id = get_random_uuid_uri()
-            print_instance (conversation_id, "nmo:Conversation")
-
-            print_property ("nmo:communicationChannel", 
-                            channel_id, 
-                            t = "uri", final = True)
+            print_instance (conversation_id, "nmo:Conversation", final = True)
 
             if same_friend:
                 random_friend = same_friend
@@ -211,6 +215,10 @@ def generate_im_messages (n_convs, n_channels, msgs_per_convs, friends_list, n_f
 
             for k in range (0, random.randint(1, msgs_per_convs + 1)):
                 print_instance (get_random_uuid_uri(), "nmo:IMMessage")
+
+                print_property ("nmo:communicationChannel",
+                                channel_id,
+                                t = "uri")
 
                 print_property ("nmo:conversation", 
                                 conversation_id, 
@@ -234,13 +242,6 @@ def generate_im_messages (n_convs, n_channels, msgs_per_convs, friends_list, n_f
                                  "nco:hasIMAccount", 
                                  addresses[(k + 1) % 2], 
                                  t = "uri", final = True)
-        if same_friend:
-            print_instance (channel_id, "nmo:CommunicationChannel")
-            print_anon_node ("nmo:hasParticipant", 
-                             "nco:IMContact",
-                             "nco:hasIMAccount", 
-                             same_friend,
-                             t = "uri", final = True)
 
 
 def generate_im_group_chats (amount, friends_list):
@@ -345,7 +346,7 @@ if __name__ == "__main__":
     
     print_namespaces ()
     generate_me ()
-    known_accounts = generate_accounts (5)
-    generate_im_messages (25, 10, entries, known_accounts, 1)
+    known_accounts = generate_accounts (100)
+    generate_im_messages (10, None, 100, known_accounts, 1)
 #    generate_im_group_chats (entries, known_accounts)
 #    generate_mail (entries, known_emails)
