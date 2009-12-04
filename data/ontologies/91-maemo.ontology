@@ -48,7 +48,6 @@ maemo:relevance a rdf:Property ;
 
 # Remote media art for media player
 maemo:remoteMediaArt a rdf:Property ;
-	nrl:maxCardinality 1 ;
 	rdfs:range nfo:Image ;
 	rdfs:domain nfo:Media .
 
