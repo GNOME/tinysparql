@@ -520,7 +520,7 @@ db_get_static_data (TrackerDBInterface *iface)
 				annotation = FALSE;
 			}
 
-			tracker_db_cursor_get_value (cursor, 8, &value);
+			tracker_db_cursor_get_value (cursor, 9, &value);
 
 			if (G_VALUE_TYPE (&value) != 0) {
 				is_inverse_functional_property = TRUE;
