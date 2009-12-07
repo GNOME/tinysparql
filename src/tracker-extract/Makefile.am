@@ -7,6 +7,7 @@ INCLUDES = 								\
 	-DLOCALEDIR=\""$(localedir)"\" 					\
 	-DMODULESDIR=\"$(modulesdir)\"					\
 	-DG_LOG_DOMAIN=\"Tracker\"					\
+	-DWVWAREBIN=\"$(WVWAREBIN)\"					\
 	-DTRACKER_COMPILATION						\
 	-I$(top_srcdir)/src 						\
 	$(WARN_CFLAGS)							\

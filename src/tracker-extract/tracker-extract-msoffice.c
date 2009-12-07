@@ -40,19 +40,60 @@
 
 #include "tracker-main.h"
 
-#define NIE_PREFIX TRACKER_NIE_PREFIX
-#define NFO_PREFIX TRACKER_NFO_PREFIX
-#define NCO_PREFIX TRACKER_NCO_PREFIX
+#define NIE_PREFIX                              TRACKER_NIE_PREFIX
+#define NFO_PREFIX                              TRACKER_NFO_PREFIX
+#define NCO_PREFIX                              TRACKER_NCO_PREFIX
 
-#define RDF_PREFIX TRACKER_RDF_PREFIX
-#define RDF_TYPE RDF_PREFIX "type"
+#define RDF_PREFIX                              TRACKER_RDF_PREFIX
+#define RDF_TYPE RDF_PREFIX                     "type"
 
-static void extract_msoffice (const gchar *uri,
-			      TrackerSparqlBuilder   *metadata);
+
+/*
+* Powerpoint files comprise of structures. Each structure contains a header. 
+* Within that header is a record type that specifies what strcture it is. It is
+* called record type.
+*
+* Here are are some record types and description of the structure (called atom)
+* they contain.
+*/
+
+/*
+* An atom record that specifies Unicode characters with no high byte of a UTF-16
+* Unicode character. High byte is always 0.
+*/
+#define TEXTBYTESATOM_RECORD_TYPE               0x0FA0
+
+/*
+* An atom record that specifies Unicode characters.
+*/
+#define TEXTCHARSATOM_RECORD_TYPE               0x0FA8
+
+/*
+* A container record that specifies information about the powerpoint document.
+*/
+#define DOCUMENTCONTAINER_RECORD_TYPE           0x1000
+
+/*
+* Variant type of record. Within Powerpoint text extraction we are interested
+* of SlideListWithTextContainer type that contains the textual content
+* of the slide(s).
+*
+*/
+
+#define SLIDELISTWITHTEXT_RECORD_TYPE           0x0FF0
+
+
+static void extract_msoffice (const gchar          *uri,
+                              TrackerSparqlBuilder *metadata);
+
+static void extract_powerpoint (const gchar          *uri,
+                                TrackerSparqlBuilder *metadata);
 
 static TrackerExtractData data[] = {
-	{ "application/msword",	  extract_msoffice },
-	{ "application/vnd.ms-*", extract_msoffice },
+	{ "application/msword",            extract_msoffice },
+	 /* Powerpoint files */
+	{ "application/vnd.ms-powerpoint", extract_powerpoint },
+	{ "application/vnd.ms-*",          extract_msoffice },
 	{ NULL, NULL }
 };
 
@@ -63,11 +104,11 @@ typedef struct {
 
 static void
 add_gvalue_in_metadata (TrackerSparqlBuilder *metadata,
-			const gchar          *uri,
-			const gchar          *key,
-			GValue const         *val,
-			const gchar          *type,
-			const gchar          *predicate)
+                        const gchar          *uri,
+                        const gchar          *key,
+                        GValue const         *val,
+                        const gchar          *type,
+                        const gchar          *predicate)
 {
 	gchar *s;
 
@@ -87,10 +128,8 @@ add_gvalue_in_metadata (TrackerSparqlBuilder *metadata,
 	if (!tracker_is_empty_string (s)) {
 		gchar *str_val;
 
-		/* Some fun: strings are always
-		 * written "str" with double quotes
-		 * around, but not numbers!
-		 */
+		/* Some fun: strings are always written "str" with double quotes
+		 * around, but not numbers! */
 		if (s[0] == '"') {
 			size_t len;
 
@@ -99,15 +138,10 @@ add_gvalue_in_metadata (TrackerSparqlBuilder *metadata,
 			if (s[len - 1] == '"') {
 				str_val = (len > 2 ? g_strndup (s + 1, len - 2) : NULL);
 			} else {
-				/* We have a string
-				 * that begins with a
-				 * double quote but
-				 * which finishes by
-				 * something different...
-				 * We copy the string
-				 * from the
-				 * beginning.
-				 */
+				/* We have a string that begins with a double 
+				 * quote but which finishes by something 
+				 * different... We copy the string from the 
+				 * beginning. */
 				str_val = g_strdup (s);
 			}
 		} else {
@@ -140,59 +174,59 @@ add_gvalue_in_metadata (TrackerSparqlBuilder *metadata,
 
 static void
 metadata_cb (gpointer key,
-	     gpointer value,
-	     gpointer user_data)
+             gpointer value,
+             gpointer user_data)
 {
-	ForeachInfo  *info = user_data;
-	gchar	     *name;
-	GsfDocProp   *property;
-	TrackerSparqlBuilder    *metadata = info->metadata;
-	GValue const *val;
-	const gchar  *uri = info->uri;
+	ForeachInfo          *info = user_data;
+	gchar                *name;
+	GsfDocProp           *property;
+	TrackerSparqlBuilder *metadata = info->metadata;
+	GValue const         *val;
+	const gchar          *uri = info->uri;
 
 	name = key;
 	property = value;
 	metadata = info->metadata;
 	val = gsf_doc_prop_get_val (property);
 
-	if (strcmp (name, "dc:title") == 0) {
+	if (g_strcmp0 (name, "dc:title") == 0) {
 		add_gvalue_in_metadata (metadata, uri, "nie:title", val, NULL, NULL);
-	} else if (strcmp (name, "dc:subject") == 0) {
+	} else if (g_strcmp0 (name, "dc:subject") == 0) {
 		add_gvalue_in_metadata (metadata, uri, "nie:subject", val, NULL, NULL);
-	} else if (strcmp (name, "dc:creator") == 0) {
+	} else if (g_strcmp0 (name, "dc:creator") == 0) {
 		add_gvalue_in_metadata (metadata, uri, "nco:creator", val, "nco:Contact", "nco:fullname");
-	} else if (strcmp (name, "dc:keywords") == 0) {
+	} else if (g_strcmp0 (name, "dc:keywords") == 0) {
 		gchar *keywords = g_strdup_value_contents (val);
-		char *lasts, *keyw;
+		char  *lasts, *keyw;
 		size_t len;
 
 		keyw = keywords;
 		keywords = strchr (keywords, '"');
 		if (keywords)
 			keywords++;
-		else 
+		else
 			keywords = keyw;
 
 		len = strlen (keywords);
 		if (keywords[len - 1] == '"')
 			keywords[len - 1] = '\0';
 
-		for (keyw = strtok_r (keywords, ",; ", &lasts); keyw; 
+		for (keyw = strtok_r (keywords, ",; ", &lasts); keyw;
 		     keyw = strtok_r (NULL, ",; ", &lasts)) {
 			tracker_sparql_builder_predicate (metadata, "nie:keyword");
 			tracker_sparql_builder_object_unvalidated (metadata, keyw);
 		}
 
 		g_free (keyw);
-	} else if (strcmp (name, "dc:description") == 0) {
+	} else if (g_strcmp0 (name, "dc:description") == 0) {
 		add_gvalue_in_metadata (metadata, uri, "nie:comment", val, NULL, NULL);
-	} else if (strcmp (name, "gsf:page-count") == 0) {
+	} else if (g_strcmp0 (name, "gsf:page-count") == 0) {
 		add_gvalue_in_metadata (metadata, uri, "nfo:pageCount", val, NULL, NULL);
-	} else if (strcmp (name, "gsf:word-count") == 0) {
+	} else if (g_strcmp0 (name, "gsf:word-count") == 0) {
 		add_gvalue_in_metadata (metadata, uri, "nfo:wordCount", val, NULL, NULL);
-	} else if (strcmp (name, "meta:creation-date") == 0) {
+	} else if (g_strcmp0 (name, "meta:creation-date") == 0) {
 		add_gvalue_in_metadata (metadata, uri, "nie:contentCreated", val, NULL, NULL);
-	} else if (strcmp (name, "meta:generator") == 0) {
+	} else if (g_strcmp0 (name, "meta:generator") == 0) {
 		add_gvalue_in_metadata (metadata, uri, "nie:generator", val, NULL, NULL);
 	}
 }
@@ -202,27 +236,33 @@ doc_metadata_cb (gpointer key,
 		 gpointer value,
 		 gpointer user_data)
 {
-	ForeachInfo  *info = user_data;
-	gchar	     *name;
-	GsfDocProp   *property;
-	TrackerSparqlBuilder    *metadata = info->metadata;
-	GValue const *val;
-	const gchar  *uri = info->uri;
+	ForeachInfo          *info = user_data;
+	gchar                *name;
+	GsfDocProp           *property;
+	TrackerSparqlBuilder *metadata = info->metadata;
+	GValue const         *val;
+	const gchar          *uri = info->uri;
 
 	name = key;
 	property = value;
 	metadata = user_data;
 	val = gsf_doc_prop_get_val (property);
 
-	if (strcmp (name, "CreativeCommons_LicenseURL") == 0) {
+	if (g_strcmp0 (name, "CreativeCommons_LicenseURL") == 0) {
 		add_gvalue_in_metadata (metadata, uri, "nie:license", val, NULL, NULL);
 	}
 }
 
 static gchar *
 extract_content (const gchar *uri,
-		 guint        n_words)
+                 guint        n_words)
 {
+#ifdef HAVE_WVWARE
+
+	/* TODO, question: can't we replace this command-calling with a function
+	 * in libwmf-dev or something? If yes and somebody wants to contribute 
+	 * replacing this with libwmf-dev, go ahead */
+
 	gchar *path, *command, *output, *text;
 	GError *error = NULL;
 
@@ -232,12 +272,13 @@ extract_content (const gchar *uri,
 		return NULL;
 	}
 
-	command = g_strdup_printf ("wvWare --charset utf-8 -1 -x wvText.xml %s", path);
+	command = g_strdup_printf (WVWAREBIN " --charset utf-8 -1 -x wvText.xml %s", path);
 
 	g_free (path);
 
 	if (!g_spawn_command_line_sync (command, &output, NULL, NULL, &error)) {
-		g_warning ("Could not extract text from '%s': %s", uri, error->message);
+		g_warning ("Could not extract text from '%s': %s", 
+		           uri, error->message);
 		g_error_free (error);
 		g_free (command);
 
@@ -250,55 +291,485 @@ extract_content (const gchar *uri,
 	g_free (output);
 
 	return text;
+#else
+	return NULL;
+#endif
+}
+
+/**
+* @brief Read 16 bit unsigned integer
+* @param buffer data to read integer from
+* @return 16 bit unsigned integer
+*/
+static gint
+read_16bit (const guint8* buffer)
+{
+	return buffer[0] + (buffer[1] << 8);
+}
+
+/**
+* @brief Read 32 bit unsigned integer
+* @param buffer data to read integer from
+* @return 32 bit unsigned integer
+*/
+static gint
+read_32bit (const guint8* buffer)
+{
+	return buffer[0] + (buffer[1] << 8) + (buffer[2] << 16) + (buffer[3] << 24);
+}
+
+/**
+* @brief Header for all powerpoint structures
+*
+* A structure at the beginning of each container record and each atom record in
+* the file. The values in the record header and the context of the record are
+* used to identify and interpret the record data that follows.
+*/
+typedef struct {
+	/**
+	* @brief An unsigned integer that specifies the version of the record
+	* data that follows the record header. A value of 0xF specifies that the
+	* record is a container record.
+	*/
+	guint recVer;
+
+	/**
+	* @brief An unsigned integer that specifies the record instance data.
+	* Interpretation of the value is dependent on the particular record
+	* type.
+	*/
+	guint recInstance;
+
+	/**
+	* @brief A RecordType enumeration that specifies the type of the record
+	* data that follows the record header.
+	*/
+	gint recType;
+
+	/**
+	* @brief An unsigned integer that specifies the length, in bytes, of the
+	* record data that follows the record header.
+	*/
+	guint recLen;
+}RecordHeader;
+
+/**
+* @brief Read header data from given stream
+* @param stream Stream to read header data
+* @param header Pointer to header where to store results
+*/
+static gboolean
+read_header (GsfInput *stream, RecordHeader *header) {
+	guint8 buffer[8] = {0};
+
+	g_return_val_if_fail(stream,FALSE);
+	g_return_val_if_fail(header,FALSE);
+	g_return_val_if_fail(!gsf_input_eof(stream),FALSE);
+
+
+	/* Header is always 8 bytes, read it */
+	g_return_val_if_fail(gsf_input_read(stream,8,buffer),FALSE);
+
+	/*
+	* Then parse individual details
+	*
+	* Record header is 8 bytes long. Data is split as follows:
+	* recVer (4 bits)
+	* recInstance (12 bits)
+	* recType (2 bytes)
+	* recLen (4 bytes)
+	*
+	* See RecordHeader for more detailed explanation of each field.
+	*
+	* Here we parse each of those fields.
+	*/
+
+	header->recType = read_16bit(&buffer[2]);
+	header->recLen = read_32bit(&buffer[4]);
+	header->recVer = (read_16bit(buffer) & 0xF000) >> 12;
+	header->recInstance = read_16bit(buffer) & 0x0FFF;
+
+	return TRUE;
+}
+
+/**
+* @brief Read powerpoint text from given stream.
+*
+* Powerpoint contains texts in either TextBytesAtom or TextCharsAtom. Below
+* are excerpt from [MS-PPT].pdf file describing the ppt file struture:
+*
+* TextCharsAtom contains an array of UTF-16 Unicode [RFC2781] characters that
+* specifies the characters of the corresponding text. The length, in bytes, of
+* the array is specified by rh.recLen. The array MUST NOT contain the NUL
+* character 0x0000.
+*
+* TextBytesAtom contains an array of bytes that specifies the characters of the
+* corresponding text. Each item represents the low byte of a UTF-16 Unicode
+* [RFC2781] character whose high byte is 0x00. The length, in bytes, of the
+* array is specified by rh.recLen. The array MUST NOT contain a 0x00 byte.
+*
+* @param stream Stream to read text bytes/chars atom
+* @return read text or NULL if no text was read. Has to be freed by the caller
+*/
+static gchar*
+read_text (GsfInput *stream)
+{
+	gint          i = 0;
+	RecordHeader  header;
+	guint8       *data = NULL;
+	gsize         written = 0;
+	gchar        *converted = 0;
+
+	g_return_val_if_fail (stream,NULL);
+
+	/*
+	* First read the header that describes the structures type
+	* (TextBytesAtom or TextCharsAtom) and it's length.
+	*/
+	g_return_val_if_fail (read_header(stream, &header),NULL);
+
+	/*
+	* We only want header with type either TEXTBYTESATOM_RECORD_TYPE
+	* (TextBytesAtom) or TEXTCHARSATOM_RECORD_TYPE (TextCharsAtom).
+	*
+	* We don't care about anything else
+	*/
+	if (header.recType != TEXTBYTESATOM_RECORD_TYPE &&
+	    header.recType != TEXTCHARSATOM_RECORD_TYPE) {
+		return NULL;
+	}
+
+	/* Then we'll allocate data for the actual texts */
+	if (header.recType == TEXTBYTESATOM_RECORD_TYPE) {
+		/*
+		* TextBytesAtom doesn't include high bytes propably in order to
+		* save space on the ppt files. We'll have to allocate double the
+		* size for it to get the high bytes
+		*/
+		data = g_try_new0 (guint8,header.recLen * 2);
+	} else {
+		data = g_try_new0 (guint8,header.recLen);
+	}
+
+	g_return_val_if_fail (data,NULL);
+
+	/* Then read the textual data from the stream */
+	if (!gsf_input_read (stream,header.recLen,data)) {
+		g_free (data);
+		return NULL;
+	}
+
+
+	/*
+	* Again if we are reading TextBytesAtom we'll need to add those utf16
+	* high bytes ourselves. They are zero as specified in [MS-PPT].pdf
+	* and this function's comments
+	*/
+	if (header.recType == TEXTBYTESATOM_RECORD_TYPE) {
+		for(i = 0; i < header.recLen; i++) {
+
+			/*
+			* We'll add an empty 0 byte between each byte in the
+			* array
+			*/
+			data[(header.recLen - i - 1) * 2] = data[header.recLen - i - 1];
+			if ((header.recLen - i - 1) % 2) {
+				data[header.recLen - i - 1] = 0;
+			}
+		}
+
+		/*
+		* Then double the recLen now that we have the high bytes added
+		* between read bytes
+		*/
+		header.recLen *= 2;
+	}
+
+	/*
+	* Then we'll convert the text from UTF-16 to UTF-8 for the tracker
+	*/
+	converted = g_convert(data,header.recLen,
+	                      "UTF-8",
+	                      "UTF-16",
+	                      NULL,
+	                      &written,
+	                      NULL);
+
+	/*
+	* And free the data
+	*/
+	g_free(data);
+
+	/* Return read text */
+	return converted;
+}
+
+/**
+* @brief Find a specific header from given stream
+* @param stream Stream to parse headers from
+* @param type1 first type of header to look for
+* @param type2 convenience parameter if we are looking for either of two
+* header types
+* @param rewind if a proper header is found should this function seek
+* to the start of the header (TRUE)
+* @return TRUE if either of specified headers was found
+*/
+static gboolean
+seek_header (GsfInput *stream,
+             gint      type1,
+             gint      type2,
+             gboolean  rewind)
+{
+	RecordHeader header;
+
+	g_return_val_if_fail(stream,FALSE);
+
+	/*
+	* Read until we reach eof
+	*/
+	while(!gsf_input_eof(stream)) {
+
+		/*
+		* Read first header
+		*/
+		g_return_val_if_fail(read_header(stream, &header),FALSE);
+
+		/*
+		* Check if it's the correct type
+		*/
+		if (header.recType == type1 || header.recType == type2) {
+
+			/*
+			* Sometimes it's needed to rewind to the start of the
+			* header
+			*/
+			if (rewind) {
+				gsf_input_seek(stream,-8,G_SEEK_CUR);
+			}
+			return TRUE;
+		}
+
+		/*
+		* If it's not the correct type, seek to the beginning of the
+		* next header
+		*/
+		g_return_val_if_fail(!gsf_input_seek(stream,
+		                                     header.recLen,
+		                                     G_SEEK_CUR),
+		                     FALSE);
+	}
+
+	return FALSE;
+}
+
+/**
+* @brief Normalize and append given text to all_texts variable
+* @param text text to append
+* @param all_texts GString to append text after normalizing it
+* @param words number of words already in all_texts
+* @param max_words maximum number of words allowed in all_texts
+* @return number of words appended to all_text
+*/
+static gint
+append_text (gchar   *text,
+             GString *all_texts,
+             gint     words,
+             gint     max_words)
+{
+	guint count = 0;
+	gchar *normalized_text;
+
+	g_return_val_if_fail(text,-1);
+	g_return_val_if_fail(all_texts,-1);
+
+	normalized_text = tracker_text_normalize(text,
+	                                         max_words - words,
+	                                         &count);
+
+	if (normalized_text) {
+		/*
+		* If the last added text didn't end in a space, we'll append a
+		* space between this text and previous text so the last word of
+		* previous text and first word of this text don't become one big
+		* word.
+		*/
+		if (all_texts->len > 0 &&
+		    all_texts->str[all_texts->len-1] != ' ') {
+
+			g_string_append_c(all_texts,' ');
+		}
+
+		g_string_append(all_texts,normalized_text);
+		g_free(normalized_text);
+	}
+
+	g_free(text);
+	return count;
 }
 
 static void
-extract_msoffice (const gchar *uri,
-		  TrackerSparqlBuilder   *metadata)
+read_powerpoint (GsfInfile            *infile,
+                 TrackerSparqlBuilder *metadata,
+                 gint                  max_words)
 {
-	GsfInput  *input;
-	GsfInfile *infile;
-	GsfInput  *stream;
-	gchar     *filename, *content;
-	TrackerFTSConfig *fts_config;
-	guint n_words;
+	/*
+	* Try to find Powerpoint Document stream
+	*/
+	gsf_off_t  lastDocumentContainer = -1;
+	GsfInput  *stream = gsf_infile_child_by_name(infile,
+	                                            "PowerPoint Document");
 
-	gsf_init ();
+	g_return_if_fail (stream);
 
-	filename = g_filename_from_uri (uri, NULL, NULL);
+	/*
+	* Powerpoint documents have a "editing history" stored within them.
+	* There is a structure that defines what changes were made each time
+	* but it is just easier to get the current/latest version just by
+	* finding the last occurrence of DocumentContainer structure
+	*/
 
-	input = gsf_input_stdio_new (filename, NULL);
+	lastDocumentContainer = -1;
 
-	if (!input) {
-		g_free (filename);
-		gsf_shutdown ();
-		return;
+	/*
+	* Read until we reach eof.
+	*/
+	while(!gsf_input_eof (stream)) {
+		RecordHeader header;
+
+		/*
+		* We only read headers of data structures
+		*/
+		if (!read_header (stream,&header)) {
+			break;
+		}
+
+		/*
+		* And we only care about headers with type 1000,
+		* DocumentContainer
+		*/
+
+		if (header.recType == DOCUMENTCONTAINER_RECORD_TYPE) {
+			lastDocumentContainer = gsf_input_tell(stream);
+		}
+
+		/*
+		* and then seek to the start of the next data structure so it is
+		* fast and we don't have to read through the whole file
+		*/
+		if (gsf_input_seek (stream, header.recLen, G_SEEK_CUR)) {
+			break;
+		}
 	}
 
-	infile = gsf_infile_msole_new (input, NULL);
-	g_object_unref (G_OBJECT (input));
+	/*
+	* If a DocumentContainer was found and we are able to seek to it.
+	*
+	* Then we'll have to find the second header with type
+	* SLIDELISTWITHTEXT_RECORD_TYPE since DocumentContainer contains
+	* MasterListWithTextContainer and SlideListWithTextContainer structures
+	* with both having the same header type. We however only want
+	* SlideListWithTextContainer which contains the textual content
+	* of the power point file.
+	*/
+	if (lastDocumentContainer >= 0 &&
+	    !gsf_input_seek(stream,lastDocumentContainer,G_SEEK_SET) &&
+	    seek_header (stream,
+	                 SLIDELISTWITHTEXT_RECORD_TYPE,
+	                 SLIDELISTWITHTEXT_RECORD_TYPE,
+	                 FALSE) &&
+	    seek_header (stream,
+	                 SLIDELISTWITHTEXT_RECORD_TYPE,
+	                 SLIDELISTWITHTEXT_RECORD_TYPE,
+	                 FALSE)) {
 
-	if (!infile) {
-		g_free (filename);
-		gsf_shutdown ();
-		return;
+		GString *all_texts = g_string_new ("");
+		int word_count = 0;
+
+		/*
+		* Read while we have either TextBytesAtom or
+		* TextCharsAtom and we have read less than max_words
+		* amount of words
+		*/
+		while(seek_header (stream,
+		                   TEXTBYTESATOM_RECORD_TYPE,
+		                   TEXTCHARSATOM_RECORD_TYPE,
+		                   TRUE) &&
+		      word_count < max_words) {
+
+			gchar *text = read_text(stream);
+
+			int count = append_text (text,
+			                         all_texts,
+			                         word_count,
+			                         max_words);
+
+			if (count < 0) {
+				break;
+			}
+
+			word_count += count;
+		}
+
+		/*
+		* If we have any text read
+		*/
+		if (all_texts->len > 0) {
+			/*
+			* Send it to tracker
+			*/
+			tracker_sparql_builder_predicate (metadata,
+			                                  "nie:plainTextContent");
+			tracker_sparql_builder_object_unvalidated (metadata,
+			                                           all_texts->str);
+		}
+
+		g_string_free (all_texts,TRUE);
+
 	}
+
+	g_object_unref (stream);
+}
+
+/**
+* @brief get maximum number of words to index
+* @return maximum number of words to index
+*/
+static gint
+max_words (void)
+{
+	TrackerFTSConfig *fts_config = tracker_main_get_fts_config ();
+	return tracker_fts_config_get_max_words_to_index (fts_config);
+}
+
+/**
+* @brief Extract summary OLE stream from specified uri
+* @param metadata where to store summary
+* @param infile file to read summary from
+* @param uri uri of the file
+*/
+static void
+extract_summary (TrackerSparqlBuilder *metadata,
+                 GsfInfile            *infile,
+                 const gchar          *uri)
+{
+	gchar    *content;
+	GsfInput *stream;
 
 	tracker_sparql_builder_subject_iri (metadata, uri);
 	tracker_sparql_builder_predicate (metadata, "a");
 	tracker_sparql_builder_object (metadata, "nfo:PaginatedTextDocument");
 
 	stream = gsf_infile_child_by_name (infile, "\05SummaryInformation");
+
 	if (stream) {
 		GsfDocMetaData *md;
-		ForeachInfo info = { metadata, uri };
+		ForeachInfo     info = { metadata, uri };
 
 		md = gsf_doc_meta_data_new ();
 
 		if (gsf_msole_metadata_read (stream, md)) {
 			g_object_unref (md);
 			g_object_unref (stream);
-			g_free (filename);
 			gsf_shutdown ();
 			return;
 		}
@@ -310,9 +781,10 @@ extract_msoffice (const gchar *uri,
 	}
 
 	stream = gsf_infile_child_by_name (infile, "\05DocumentSummaryInformation");
+
 	if (stream) {
 		GsfDocMetaData *md;
-		ForeachInfo info = { metadata, uri };
+		ForeachInfo     info = { metadata, uri };
 
 		md = gsf_doc_meta_data_new ();
 
@@ -320,7 +792,6 @@ extract_msoffice (const gchar *uri,
 			g_object_unref (md);
 			g_object_unref (stream);
 			gsf_shutdown ();
-			g_free (filename);
 			return;
 		}
 
@@ -330,19 +801,86 @@ extract_msoffice (const gchar *uri,
 		g_object_unref (stream);
 	}
 
-	fts_config = tracker_main_get_fts_config ();
-	n_words = tracker_fts_config_get_max_words_to_index (fts_config);
-	content = extract_content (uri, n_words);
+	content = extract_content (uri, max_words());
 
 	if (content) {
 		tracker_sparql_builder_predicate (metadata, "nie:plainTextContent");
 		tracker_sparql_builder_object_unvalidated (metadata, content);
 		g_free (content);
 	}
+}
+
+/**
+* @brief Open specified uri for reading and initialize gsf
+* @param uri URI of the file to open
+* @return GsfInFile of the opened file or NULL if failed to open file
+*/
+static GsfInfile *
+open_uri (const gchar *uri)
+{
+	GsfInput  *input;
+	GsfInfile *infile;
+	gchar     *filename;
+
+	gsf_init ();
+
+	filename = g_filename_from_uri (uri, NULL, NULL);
+
+	input = gsf_input_stdio_new (filename, NULL);
+
+	if (!input) {
+		g_free (filename);
+		gsf_shutdown ();
+		return NULL;
+	}
+
+	infile = gsf_infile_msole_new (input, NULL);
+	g_object_unref (G_OBJECT (input));
+
+	if (!infile) {
+		g_free (filename);
+		gsf_shutdown ();
+		return NULL;
+	}
+
+	g_free (filename);
+	return infile;
+}
+
+/**
+* @brief Extract data from generic office files
+*
+* At the moment only extracts document summary from summary OLE stream.
+* @param uri URI of the file to extract data
+* @param metadata where to store extracted data to
+*/
+static void
+extract_msoffice (const gchar          *uri,
+                  TrackerSparqlBuilder *metadata)
+{
+	GsfInfile *infile = open_uri(uri);
+	extract_summary(metadata,infile,uri);
+	g_object_unref (infile);
+	gsf_shutdown ();
+}
+
+
+/**
+* @brief Extract data from powerpoin files
+*
+* At the moment can extract textual content and summary.
+* @param uri URI of the file to extract data
+* @param metadata where to store extracted data to
+*/
+static void
+extract_powerpoint (const gchar          *uri,
+                    TrackerSparqlBuilder *metadata)
+{
+	GsfInfile *infile = open_uri(uri);
+	extract_summary(metadata,infile,uri);
+	read_powerpoint(infile,metadata,max_words());
 
 	g_object_unref (infile);
-	g_free (filename);
-
 	gsf_shutdown ();
 }
 

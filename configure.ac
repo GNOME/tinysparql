@@ -1109,6 +1109,13 @@ if test "x$enable_libgsf" != "xno" ; then
    AC_SUBST(LIBGSF_CFLAGS)
    AC_SUBST(LIBGSF_LIBS)
 
+   AC_PATH_PROG(WVWAREBIN, wvWare, no)
+   AC_SUBST(WVWAREBIN)
+    
+   if test "x$WVWAREBIN" != "xno"; then
+      AC_DEFINE(HAVE_WVWARE, [], [Define if we have wvWare])
+   fi
+
    if test "x$have_libgsf" = "xyes"; then
       AC_DEFINE(HAVE_LIBGSF, [], [Define if we have libgsf])
    fi
