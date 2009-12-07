@@ -411,7 +411,8 @@ nmm:isColorCorrected a rdf:Property ;
 nmm:RadioStation a rdfs:Class ;
 	rdfs:label "Radio station" ;
 	rdfs:comment "The Radio station in user terms: BBC3, Radio5, YLEX, ... It is linked with 1 or more carriers (different FM frenquencies, online sources in different qualities, etc.). Some RDS information is represented with nie properties, nie:identifier for PI, nie:title for PS" ;
-	rdfs:subClassOf nfo:Audio .
+	rdfs:subClassOf nfo:Audio ;
+	tracker:notify true .
 
 nmm:radioIcon a rdf:Property ;
         rdfs:label "Radio station icon" ;
