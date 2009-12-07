@@ -1284,8 +1284,11 @@ search_start (TrackerResultsWindow *window)
 	if (!priv->query || strlen (priv->query) < 1) {
 		gtk_widget_show (priv->scrolled_window);
 		gtk_widget_hide (priv->label);
+		gtk_widget_hide (GTK_WIDGET (window));
 		return;
 	}
+
+	gtk_widget_show (GTK_WIDGET (window));
 
 	priv->first_category_populated = FALSE;
 
