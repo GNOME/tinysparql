@@ -24,6 +24,8 @@
 
 #include <glib.h>
 
+G_BEGIN_DECLS
+
 #if !defined (__LIBTRACKER_COMMON_INSIDE__) && !defined (TRACKER_COMPILATION)
 #error "only <libtracker-common/tracker-common.h> must be included directly."
 #endif
@@ -60,5 +62,7 @@ G_CONST_RETURN gchar *
 					     const gchar *msgid,
 					     const gchar *msgid_plural,
 					     gulong       n);
+
+G_END_DECLS
 
 #endif /* __LIBTRACKER_COMMON_UTILS_H__ */
