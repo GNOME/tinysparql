@@ -48,6 +48,18 @@ public class Tracker.SparqlQuery : Object {
 		public PropertyType data_type;
 		public DataTable table;
 		public string sql_db_column_name;
+		public string sql_expression {
+			get {
+				if (this._sql_expression == null) {
+					this._sql_expression = "\"%s\".\"%s\"".printf (table.sql_query_tablename, sql_db_column_name);
+				}
+				return this._sql_expression;
+			}
+			set {
+				this._sql_expression = value;
+			}
+		}
+		string? _sql_expression;
 	}
 
 	// Represents a mapping of a SPARQL literal to a SQL table and column
@@ -2022,7 +2034,7 @@ public class Tracker.SparqlQuery : Object {
 			foreach (VariableBinding binding in pattern_var_map.lookup (variable).list) {
 				string name;
 				if (binding.table != null) {
-					name = "\"%s\".\"%s\"".printf (binding.table.sql_query_tablename, binding.sql_db_column_name);
+					name = binding.sql_expression;
 				} else {
 					// simple optional with inverse functional property
 					// always first in loop as variable is required to be unbound
@@ -2065,11 +2077,7 @@ public class Tracker.SparqlQuery : Object {
 				sql.append (" WHERE ");
 				first_where = false;
 			}
-			sql.append ("\"");
-			sql.append (binding.table.sql_query_tablename);
-			sql.append ("\".\"");
-			sql.append (binding.sql_db_column_name);
-			sql.append ("\"");
+			sql.append (binding.sql_expression);
 			if (binding.is_fts_match) {
 				// parameters do not work with fts MATCH
 				string escaped_literal = string.joinv ("''", binding.literal.split ("'"));
@@ -2545,10 +2553,10 @@ public class Tracker.SparqlQuery : Object {
 					// need to use table and column name for object, can't refer to variable in nested select
 					var object_binding = pattern_var_map.lookup (get_variable (object)).list.data;
 
-					sql.append_printf ("(SELECT ID FROM \"%s\" WHERE \"%s\" = \"%s\".\"%s\") AS %s, ",
+					sql.append_printf ("(SELECT ID FROM \"%s\" WHERE \"%s\" = %s) AS %s, ",
 						db_table,
 						prop.name,
-						object_binding.table.sql_query_tablename, object_binding.sql_db_column_name,
+						object_binding.sql_expression,
 						binding.variable.sql_expression);
 
 					subgraph_var_set.insert (binding.variable, VariableState.OPTIONAL);
@@ -2593,9 +2601,8 @@ public class Tracker.SparqlQuery : Object {
 				pattern_variables.append (binding.variable);
 				pattern_var_map.insert (binding.variable, binding_list);
 
-				sql.append_printf ("\"%s\".\"%s\" AS %s, ",
-					binding.table.sql_query_tablename,
-					binding.sql_db_column_name,
+				sql.append_printf ("%s AS %s, ",
+					binding.sql_expression,
 					binding.variable.sql_expression);
 
 				subgraph_var_set.insert (binding.variable, VariableState.BOUND);
@@ -2624,9 +2631,8 @@ public class Tracker.SparqlQuery : Object {
 					pattern_variables.append (binding.variable);
 					pattern_var_map.insert (binding.variable, binding_list);
 
-					sql.append_printf ("\"%s\".\"%s\" AS %s, ",
-						binding.table.sql_query_tablename,
-						binding.sql_db_column_name,
+					sql.append_printf ("%s AS %s, ",
+						binding.sql_expression,
 						binding.variable.sql_expression);
 
 					subgraph_var_set.insert (binding.variable, VariableState.BOUND);
@@ -2675,9 +2681,8 @@ public class Tracker.SparqlQuery : Object {
 					pattern_variables.append (binding.variable);
 					pattern_var_map.insert (binding.variable, binding_list);
 
-					sql.append_printf ("\"%s\".\"%s\" AS %s, ",
-						binding.table.sql_query_tablename,
-						binding.sql_db_column_name,
+					sql.append_printf ("%s AS %s, ",
+						binding.sql_expression,
 						binding.variable.sql_expression);
 
 					VariableState state;
