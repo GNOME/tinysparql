@@ -147,6 +147,7 @@ GDK_REQUIRED=1.0
 LIBVORBIS_REQUIRED=0.22
 LIBEXIF_REQUIRED=0.6
 LIBGSF_REQUIRED=1.13
+LIBWV2_REQUIRED=0.3.1
 EXEMPI_REQUIRED=2.1.0
 HILDON_THUMBNAIL_REQUIRED=3.0.10
 EVO_REQUIRED=2.25.5
@@ -1109,13 +1110,6 @@ if test "x$enable_libgsf" != "xno" ; then
    AC_SUBST(LIBGSF_CFLAGS)
    AC_SUBST(LIBGSF_LIBS)
 
-   AC_PATH_PROG(WVWAREBIN, wvWare, no)
-   AC_SUBST(WVWAREBIN)
-    
-   if test "x$WVWAREBIN" != "xno"; then
-      AC_DEFINE(HAVE_WVWARE, [], [Define if we have wvWare])
-   fi
-
    if test "x$have_libgsf" = "xyes"; then
       AC_DEFINE(HAVE_LIBGSF, [], [Define if we have libgsf])
    fi
@@ -1130,6 +1124,52 @@ if test "x$enable_libgsf" = "xyes"; then
 fi
 
 AM_CONDITIONAL(HAVE_LIBGSF, test "x$have_libgsf" = "xyes")
+
+##################################################################
+# Check for libwv2
+##################################################################
+
+# FIXME This should be package based. Unfortunately in several main
+# distros, it is not.
+
+AC_ARG_ENABLE(libwv2,
+              AS_HELP_STRING([--enable-libwv2],
+                             [enable content extractor for MS documents [[default=auto]]]),,
+                             [enable_libwv2=auto])
+
+if test "x$enable_libwv2" != "xno" ; then
+   AC_MSG_CHECKING(for wv2)
+
+   AC_LANG(C++)
+   oldflags=$LDFLAGS
+   LDFLAGS="$LDFLAGS -lwv2"
+   AC_LINK_IFELSE(
+   [AC_LANG_PROGRAM([#include <wv2/wv2version.h>],
+                    [wvWare::version()])],
+                    [TEST_LIBS="$TEST_LIBS -lwv2"] [have_libwv2=yes],
+                    [have_libwv2=no])
+
+   LIBWV2_LIBS="-lwv2"
+   AC_SUBST(LIBWV2_LIBS)
+   LDFLAGS=$oldflags
+
+   if test "x$have_libwv2" = "xyes"; then
+     AC_DEFINE(HAVE_LIBWV2, [], [Define if we have libwv2])
+     AC_MSG_RESULT(yes)
+   else
+     AC_MSG_RESULT(no)
+   fi
+else
+   have_libwv2="no (disabled)"
+fi
+
+if test "x$enable_libwv2" = "xyes"; then
+ if test "x$have_libwv2" != "xyes"; then
+ AC_MSG_ERROR([Couldn't find libwv2 >= $LIBWV2_REQUIRED.])
+ fi
+fi
+
+AM_CONDITIONAL(HAVE_LIBWV2, test "x$have_libwv2" = "xyes")
 
 ##################################################################
 # Check for libjpeg

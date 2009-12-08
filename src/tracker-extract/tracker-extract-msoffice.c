@@ -39,6 +39,7 @@
 #include <libtracker-common/tracker-ontology.h>
 
 #include "tracker-main.h"
+#include "tracker-msword.h"
 
 #define NIE_PREFIX                              TRACKER_NIE_PREFIX
 #define NFO_PREFIX                              TRACKER_NFO_PREFIX
@@ -251,49 +252,6 @@ doc_metadata_cb (gpointer key,
 	if (g_strcmp0 (name, "CreativeCommons_LicenseURL") == 0) {
 		add_gvalue_in_metadata (metadata, uri, "nie:license", val, NULL, NULL);
 	}
-}
-
-static gchar *
-extract_content (const gchar *uri,
-                 guint        n_words)
-{
-#ifdef HAVE_WVWARE
-
-	/* TODO, question: can't we replace this command-calling with a function
-	 * in libwmf-dev or something? If yes and somebody wants to contribute 
-	 * replacing this with libwmf-dev, go ahead */
-
-	gchar *path, *command, *output, *text;
-	GError *error = NULL;
-
-	path = g_filename_from_uri (uri, NULL, NULL);
-
-	if (!path) {
-		return NULL;
-	}
-
-	command = g_strdup_printf (WVWAREBIN " --charset utf-8 -1 -x wvText.xml %s", path);
-
-	g_free (path);
-
-	if (!g_spawn_command_line_sync (command, &output, NULL, NULL, &error)) {
-		g_warning ("Could not extract text from '%s': %s", 
-		           uri, error->message);
-		g_error_free (error);
-		g_free (command);
-
-		return NULL;
-	}
-
-	text = tracker_text_normalize (output, n_words, NULL);
-
-	g_free (command);
-	g_free (output);
-
-	return text;
-#else
-	return NULL;
-#endif
 }
 
 /**
@@ -752,8 +710,10 @@ extract_summary (TrackerSparqlBuilder *metadata,
                  GsfInfile            *infile,
                  const gchar          *uri)
 {
-	gchar    *content;
 	GsfInput *stream;
+#ifdef HAVE_LIBWV2
+	gchar    *content;
+#endif
 
 	tracker_sparql_builder_subject_iri (metadata, uri);
 	tracker_sparql_builder_predicate (metadata, "a");
@@ -801,13 +761,16 @@ extract_summary (TrackerSparqlBuilder *metadata,
 		g_object_unref (stream);
 	}
 
-	content = extract_content (uri, max_words());
+
+#ifdef HAVE_LIBWV2
+	content = extract_msword_content (uri, max_words ());
 
 	if (content) {
 		tracker_sparql_builder_predicate (metadata, "nie:plainTextContent");
 		tracker_sparql_builder_object_unvalidated (metadata, content);
 		g_free (content);
 	}
+#endif
 }
 
 /**
