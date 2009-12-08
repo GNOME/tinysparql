@@ -640,7 +640,14 @@ public class Tracker.SparqlQuery : Object {
 		convert_expression_to_string (sql, type, begin);
 
 		if (accept (SparqlTokenType.AS)) {
-			expect (SparqlTokenType.PN_PREFIX);
+			if (accept (SparqlTokenType.PN_PREFIX)) {
+				// deprecated but supported for backward compatibility
+				// (...) AS foo
+			} else {
+				// syntax from SPARQL 1.1 Draft
+				// (...) AS ?foo
+				expect (SparqlTokenType.VAR);
+			}
 		}
 	}
 
