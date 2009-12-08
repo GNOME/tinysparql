@@ -2488,6 +2488,25 @@ public class Tracker.SparqlQuery : Object {
 		subgraph_var_set = old_subgraph_var_set;
 	}
 
+	void add_variable_binding (StringBuilder sql, VariableBinding binding, VariableState variable_state) {
+		var binding_list = pattern_var_map.lookup (binding.variable);
+		if (binding_list == null) {
+			binding_list = new VariableBindingList ();
+			pattern_variables.append (binding.variable);
+			pattern_var_map.insert (binding.variable, binding_list);
+
+			sql.append_printf ("%s AS %s, ",
+				binding.sql_expression,
+				binding.variable.sql_expression);
+
+			subgraph_var_set.insert (binding.variable, variable_state);
+		}
+		binding_list.list.append (binding);
+		if (binding.variable.binding == null) {
+			binding.variable.binding = binding;
+		}
+	}
+
 	void parse_object (StringBuilder sql, bool in_simple_optional = false) throws SparqlError {
 		bool object_is_var;
 		string object = parse_var_or_term (sql, out object_is_var);
@@ -2609,22 +2628,8 @@ public class Tracker.SparqlQuery : Object {
 			binding.variable = get_variable (current_predicate);
 			binding.table = table;
 			binding.sql_db_column_name = "predicate";
-			var binding_list = pattern_var_map.lookup (binding.variable);
-			if (binding_list == null) {
-				binding_list = new VariableBindingList ();
-				pattern_variables.append (binding.variable);
-				pattern_var_map.insert (binding.variable, binding_list);
 
-				sql.append_printf ("%s AS %s, ",
-					binding.sql_expression,
-					binding.variable.sql_expression);
-
-				subgraph_var_set.insert (binding.variable, VariableState.BOUND);
-			}
-			binding_list.list.append (binding);
-			if (binding.variable.binding == null) {
-				binding.variable.binding = binding;
-			}
+			add_variable_binding (sql, binding, VariableState.BOUND);
 		}
 		
 		if (newtable) {
@@ -2639,22 +2644,8 @@ public class Tracker.SparqlQuery : Object {
 				} else {
 					binding.sql_db_column_name = "ID";
 				}
-				var binding_list = pattern_var_map.lookup (binding.variable);
-				if (binding_list == null) {
-					binding_list = new VariableBindingList ();
-					pattern_variables.append (binding.variable);
-					pattern_var_map.insert (binding.variable, binding_list);
 
-					sql.append_printf ("%s AS %s, ",
-						binding.sql_expression,
-						binding.variable.sql_expression);
-
-					subgraph_var_set.insert (binding.variable, VariableState.BOUND);
-				}
-				binding_list.list.append (binding);
-				if (binding.variable.binding == null) {
-					binding.variable.binding = binding;
-				}
+				add_variable_binding (sql, binding, VariableState.BOUND);
 			} else {
 				var binding = new LiteralBinding ();
 				binding.data_type = PropertyType.RESOURCE;
@@ -2689,28 +2680,14 @@ public class Tracker.SparqlQuery : Object {
 					binding.maybe_null = true;
 				}
 
-				var binding_list = pattern_var_map.lookup (binding.variable);
-				if (binding_list == null) {
-					binding_list = new VariableBindingList ();
-					pattern_variables.append (binding.variable);
-					pattern_var_map.insert (binding.variable, binding_list);
-
-					sql.append_printf ("%s AS %s, ",
-						binding.sql_expression,
-						binding.variable.sql_expression);
-
-					VariableState state;
-					if (in_simple_optional) {
-						state = VariableState.OPTIONAL;
-					} else {
-						state = VariableState.BOUND;
-					}
-					subgraph_var_set.insert (binding.variable, state);
+				VariableState state;
+				if (in_simple_optional) {
+					state = VariableState.OPTIONAL;
+				} else {
+					state = VariableState.BOUND;
 				}
-				binding_list.list.append (binding);
-				if (binding.variable.binding == null) {
-					binding.variable.binding = binding;
-				}
+
+				add_variable_binding (sql, binding, state);
 			} else if (is_fts_match) {
 				var binding = new LiteralBinding ();
 				binding.is_fts_match = true;
