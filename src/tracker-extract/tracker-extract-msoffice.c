@@ -39,7 +39,10 @@
 #include <libtracker-common/tracker-ontology.h>
 
 #include "tracker-main.h"
+
+#ifdef HAVE_LIBWV2
 #include "tracker-msword.h"
+#endif
 
 #define NIE_PREFIX                              TRACKER_NIE_PREFIX
 #define NFO_PREFIX                              TRACKER_NFO_PREFIX
