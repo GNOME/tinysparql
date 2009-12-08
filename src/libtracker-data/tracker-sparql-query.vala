@@ -555,9 +555,32 @@ public class Tracker.SparqlQuery : Object {
 		return stmt.execute ();
 	}
 
+	void skip_bracketted_expression () throws SparqlError {
+		expect (SparqlTokenType.OPEN_PARENS);
+		while (true) {
+			switch (current ()) {
+			case SparqlTokenType.OPEN_PARENS:
+				// skip nested bracketted expression
+				skip_bracketted_expression ();
+				continue;
+			case SparqlTokenType.CLOSE_PARENS:
+			case SparqlTokenType.EOF:
+				break;
+			default:
+				next ();
+				continue;
+			}
+			break;
+		}
+		expect (SparqlTokenType.CLOSE_PARENS);
+	}
+
 	void skip_select_variables () throws SparqlError {
 		while (true) {
 			switch (current ()) {
+			case SparqlTokenType.OPEN_PARENS:
+				skip_bracketted_expression ();
+				continue;
 			case SparqlTokenType.FROM:
 			case SparqlTokenType.WHERE:
 			case SparqlTokenType.OPEN_BRACE:
