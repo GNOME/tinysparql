@@ -576,41 +576,30 @@ public class Tracker.SparqlQuery : Object {
 	}
 
 	void translate_select_expression (StringBuilder sql) throws SparqlError {
+		long begin = sql.len;
+		var type = PropertyType.UNKNOWN;
+
 		if (accept (SparqlTokenType.COUNT)) {
 			sql.append ("COUNT(");
-			translate_expression_as_string (sql);
+			translate_expression (sql);
 			sql.append (")");
-			if (accept (SparqlTokenType.AS)) {
-				expect (SparqlTokenType.PN_PREFIX);
-			}
+			type = PropertyType.INTEGER;
 		} else if (accept (SparqlTokenType.SUM)) {
 			sql.append ("SUM(");
-			translate_expression_as_string (sql);
+			type = translate_expression (sql);
 			sql.append (")");
-			if (accept (SparqlTokenType.AS)) {
-				expect (SparqlTokenType.PN_PREFIX);
-			}
 		} else if (accept (SparqlTokenType.AVG)) {
 			sql.append ("AVG(");
-			translate_expression_as_string (sql);
+			type = translate_expression (sql);
 			sql.append (")");
-			if (accept (SparqlTokenType.AS)) {
-				expect (SparqlTokenType.PN_PREFIX);
-			}
 		} else if (accept (SparqlTokenType.MIN)) {
 			sql.append ("MIN(");
-			translate_expression_as_string (sql);
+			type = translate_expression (sql);
 			sql.append (")");
-			if (accept (SparqlTokenType.AS)) {
-				expect (SparqlTokenType.PN_PREFIX);
-			}
 		} else if (accept (SparqlTokenType.MAX)) {
 			sql.append ("MAX(");
-			translate_expression_as_string (sql);
+			type = translate_expression (sql);
 			sql.append (")");
-			if (accept (SparqlTokenType.AS)) {
-				expect (SparqlTokenType.PN_PREFIX);
-			}
 		} else if (accept (SparqlTokenType.GROUP_CONCAT)) {
 			sql.append ("GROUP_CONCAT(");
 			expect (SparqlTokenType.OPEN_PARENS);
@@ -620,11 +609,15 @@ public class Tracker.SparqlQuery : Object {
 			sql.append (escape_sql_string_literal (parse_string_literal ()));
 			sql.append (")");
 			expect (SparqlTokenType.CLOSE_PARENS);
-			if (accept (SparqlTokenType.AS)) {
-				expect (SparqlTokenType.PN_PREFIX);
-			}
+			type = PropertyType.STRING;
 		} else {
-			translate_expression_as_string (sql);
+			type = translate_expression (sql);
+		}
+
+		convert_expression_to_string (sql, type, begin);
+
+		if (accept (SparqlTokenType.AS)) {
+			expect (SparqlTokenType.PN_PREFIX);
 		}
 	}
 
