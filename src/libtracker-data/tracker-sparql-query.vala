@@ -268,6 +268,8 @@ public class Tracker.SparqlQuery : Object {
 	List<Variable> pattern_variables;
 	HashTable<Variable,VariableBindingList> pattern_var_map;
 
+	List<unowned HashTable<string,Variable>> outer_var_maps;
+
 	// All SPARQL variables within a subgraph pattern (used by UNION)
 	HashTable<Variable,int> subgraph_var_set;
 
@@ -733,6 +735,8 @@ public class Tracker.SparqlQuery : Object {
 				}
 			}
 		} else {
+			var old_bindings = (owned) bindings;
+
 			while (true) {
 				if (!first) {
 					sql.append (", ");
@@ -756,6 +760,11 @@ public class Tracker.SparqlQuery : Object {
 					continue;
 				}
 				break;
+			}
+
+			// literals in select expressions need to be bound before literals in the where clause
+			foreach (var binding in old_bindings) {
+				bindings.append (binding);
 			}
 		}
 
@@ -1787,6 +1796,29 @@ public class Tracker.SparqlQuery : Object {
 
 	PropertyType translate_bracketted_expression (StringBuilder sql) throws SparqlError {
 		expect (SparqlTokenType.OPEN_PARENS);
+
+		if (current () == SparqlTokenType.SELECT) {
+			// scalar subquery
+
+			outer_var_maps.prepend (var_map);
+			var outer_var_map = var_map;
+			var outer_predicate_variable_map = predicate_variable_map;
+			var outer_used_sql_identifiers = used_sql_identifiers;
+			begin_query ();
+
+			sql.append ("(");
+			translate_select (sql, true);
+			sql.append (")");
+
+			outer_var_maps.remove (var_map);
+			var_map = outer_var_map;
+			predicate_variable_map = outer_predicate_variable_map;
+			used_sql_identifiers = outer_used_sql_identifiers;
+
+			expect (SparqlTokenType.CLOSE_PARENS);
+			return PropertyType.UNKNOWN;
+		}
+
 		var optype = translate_expression (sql);
 		expect (SparqlTokenType.CLOSE_PARENS);
 		return optype;
@@ -2508,8 +2540,35 @@ public class Tracker.SparqlQuery : Object {
 		subgraph_var_set = old_subgraph_var_set;
 	}
 
+	VariableBindingList? get_variable_binding_list (Variable variable) {
+		var binding_list = pattern_var_map.lookup (variable);
+		if (binding_list == null && outer_var_maps != null) {
+			// in scalar subquery: check variables of outer queries
+			foreach (unowned HashTable<string,Variable> outer_var_map in outer_var_maps) {
+				var outer_var = outer_var_map.lookup (variable.name);
+				if (outer_var != null && outer_var.binding != null) {
+					// capture outer variable
+					var binding = new VariableBinding ();
+					binding.data_type = outer_var.binding.data_type;
+					binding.variable = get_variable (variable.name);
+					binding.type = outer_var.binding.type;
+					binding.sql_expression = outer_var.sql_expression;
+					binding_list = new VariableBindingList ();
+					pattern_variables.append (binding.variable);
+					pattern_var_map.insert (binding.variable, binding_list);
+
+					subgraph_var_set.insert (binding.variable, VariableState.BOUND);
+					binding_list.list.append (binding);
+					binding.variable.binding = binding;
+					break;
+				}
+			}
+		}
+		return binding_list;
+	}
+
 	void add_variable_binding (StringBuilder sql, VariableBinding binding, VariableState variable_state) {
-		var binding_list = pattern_var_map.lookup (binding.variable);
+		var binding_list = get_variable_binding_list (binding.variable);
 		if (binding_list == null) {
 			binding_list = new VariableBindingList ();
 			pattern_variables.append (binding.variable);
