@@ -616,24 +616,24 @@ public class Tracker.SparqlQuery : Object {
 
 		if (accept (SparqlTokenType.COUNT)) {
 			sql.append ("COUNT(");
-			translate_expression (sql);
+			translate_aggregate_expression (sql);
 			sql.append (")");
 			type = PropertyType.INTEGER;
 		} else if (accept (SparqlTokenType.SUM)) {
 			sql.append ("SUM(");
-			type = translate_expression (sql);
+			type = translate_aggregate_expression (sql);
 			sql.append (")");
 		} else if (accept (SparqlTokenType.AVG)) {
 			sql.append ("AVG(");
-			type = translate_expression (sql);
+			type = translate_aggregate_expression (sql);
 			sql.append (")");
 		} else if (accept (SparqlTokenType.MIN)) {
 			sql.append ("MIN(");
-			type = translate_expression (sql);
+			type = translate_aggregate_expression (sql);
 			sql.append (")");
 		} else if (accept (SparqlTokenType.MAX)) {
 			sql.append ("MAX(");
-			type = translate_expression (sql);
+			type = translate_aggregate_expression (sql);
 			sql.append (")");
 		} else if (accept (SparqlTokenType.GROUP_CONCAT)) {
 			sql.append ("GROUP_CONCAT(");
@@ -1776,6 +1776,16 @@ public class Tracker.SparqlQuery : Object {
 
 	PropertyType translate_bracketted_expression (StringBuilder sql) throws SparqlError {
 		expect (SparqlTokenType.OPEN_PARENS);
+		var optype = translate_expression (sql);
+		expect (SparqlTokenType.CLOSE_PARENS);
+		return optype;
+	}
+
+	PropertyType translate_aggregate_expression (StringBuilder sql) throws SparqlError {
+		expect (SparqlTokenType.OPEN_PARENS);		
+		if (accept (SparqlTokenType.DISTINCT)) {
+			sql.append ("DISTINCT ");
+		}
 		var optype = translate_expression (sql);
 		expect (SparqlTokenType.CLOSE_PARENS);
 		return optype;
