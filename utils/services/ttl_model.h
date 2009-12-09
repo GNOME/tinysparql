@@ -14,6 +14,7 @@ typedef struct {
         gchar *description;
         GList *instances;
         gboolean notify;
+        gboolean deprecated;
 } OntologyClass;
 
 typedef struct {
@@ -25,6 +26,7 @@ typedef struct {
         GList *subproperties;
         gchar *max_cardinality;
         gchar *description;
+        gboolean deprecated;
 } OntologyProperty;
 
 typedef struct {

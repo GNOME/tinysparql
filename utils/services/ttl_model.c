@@ -15,6 +15,7 @@ ttl_model_class_new (const gchar *classname)
         def->description = NULL;
         def->instances = NULL;
         def->notify = FALSE;
+        def->deprecated = FALSE;
         return def;
 }
 
@@ -53,6 +54,7 @@ ttl_model_property_new (const gchar *propname)
         prop->subproperties = NULL;
         prop->max_cardinality = NULL;
         prop->description = NULL;
+        prop->deprecated = FALSE;
 
         return prop;
 }

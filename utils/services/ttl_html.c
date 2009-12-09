@@ -65,6 +65,14 @@ print_list (FILE *f, GList *list)
 }
 
 static void
+print_deprecated_message (FILE *f)
+{
+        g_fprintf (f,"<tr>");
+        g_fprintf (f,"<td class=\"deprecated\" colspan=\"2\">This item is deprecated.</td>\n");
+        g_fprintf (f,"</tr>\n");
+}
+
+static void
 print_html_header (FILE *f, OntologyDescription *desc)
 {
         g_fprintf (f,"<html>\n");
@@ -162,10 +170,15 @@ print_ontology_class (gpointer key, gpointer value, gpointer user_data)
         g_fprintf (f,"<a name=\"%s\">\n", &anchor[1]); 
         g_free (anchor);
 
-        g_fprintf (f,"<h3>%s</h3>\n", name);
+        if (def->deprecated) {
+                g_fprintf (f,"<h3 class=\"deprecated\">%s</h3>\n", name);
+                g_fprintf (f,"<table class=\"deprecated\">\n");
+                print_deprecated_message (f);
+        } else {
+                g_fprintf (f,"<h3>%s</h3>\n", name);
+                g_fprintf (f,"<table class=\"doctable\">\n");
+        }
         g_free (name);
-
-        g_fprintf (f,"<table class=\"doctable\">\n");
 
         g_fprintf (f,"<tr>");
         g_fprintf (f,"<td class=\"rowheader\">Superclasses</td>");
@@ -226,9 +239,16 @@ print_ontology_property (gpointer key, gpointer value, gpointer user_data)
         g_fprintf (f,"<a name=\"%s\">", &anchor[1]); 
         g_free (anchor);
 
-        g_fprintf (f,"<h3>%s</h3>\n", name);
+        if (def->deprecated) {
+                g_fprintf (f,"<h3 class=\"deprecated\">%s</h3>\n", name);
+                g_fprintf (f,"<table class=\"deprecated\">\n");
+                print_deprecated_message (f);
+        } else {
+                g_fprintf (f,"<h3>%s</h3>\n", name);
+                g_fprintf (f,"<table class=\"doctable\">\n");
+        }
         g_free (name);
-        g_fprintf (f,"<table class=\"doctable\">\n");
+
 
         g_fprintf (f,"<tr>");
         g_fprintf (f,"<td class=\"rowheader\">Type</td>");

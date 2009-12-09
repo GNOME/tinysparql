@@ -20,6 +20,8 @@
 #define TRACKER_NS "http://www.tracker-project.org/ontologies/tracker#"
 #define TRACKER_NOTIFY TRACKER_NS "notify"
 
+#define NAO_DEPRECATED "http://www.semanticdesktop.org/ontologies/2007/08/15/nao#deprecated"
+
 /* Ontology description */
 #define DSC_PREFIX "http://www.tracker-project.org/temp/dsc#"
 
@@ -34,6 +36,18 @@
 #define DSC_RELPATH DSC_PREFIX "relativePath"
 #define DSC_LOCALPREFIX DSC_PREFIX "localPrefix"
 #define DSC_COPYRIGHT DSC_PREFIX "copyright"
+
+static gboolean 
+string_to_boolean (const gchar *str) {
+        if (!g_strcmp0 (str, "true")) {
+                return TRUE;
+        } else if (!g_strcmp0 (str, "false")) {
+                return FALSE;
+        } else {
+                g_error ("Unable to map '%s' into boolean", str);
+        }
+}
+
 
 static void
 load_in_memory (Ontology    *ontology,
@@ -101,13 +115,8 @@ load_in_memory (Ontology    *ontology,
                         g_error ("Something wrong");
                 }
 
-                if (!g_strcmp0 (turtle_object, "true")) {
-                        def->notify = TRUE;
-                } else if (!g_strcmp0 (turtle_object, "false")) {
-                        def->notify = FALSE;
-                } else {
-                        g_error ("Unable to map '%s' into boolean", turtle_object);
-                }
+                def->notify = string_to_boolean (turtle_object);
+
         } else if (!g_strcmp0 (turtle_predicate, RDFS_COMMENT)) {
                 OntologyClass *klass;
                 OntologyProperty *prop;
@@ -199,11 +208,30 @@ load_in_memory (Ontology    *ontology,
                                                                g_strdup (turtle_subject));
                 }
                                                          
+        } else if (!g_strcmp0 (turtle_predicate, NAO_DEPRECATED)) {
+                /*
+                 * X nao:deprecated true
+                 *
+                 * This can apply to classes OR properties!
+                 */
+                OntologyProperty *prop;
+                OntologyClass *klass;
 
-
+                prop = g_hash_table_lookup (ontology->properties, turtle_subject);
+                if (prop) {
+                        prop->deprecated = string_to_boolean (turtle_object);
+                } else {
+                        /* Try with a class */
+                        klass = g_hash_table_lookup (ontology->classes, turtle_subject);
+                        if (klass) {
+                                klass->deprecated = string_to_boolean (turtle_object);
+                        } else {
+                                g_error ("'%s' is not a class nor a property!?", turtle_subject);
+                        }
+                }
 
         } else if (!g_strcmp0 (turtle_predicate, RDFS_LABEL)) {
-                /* Intentionalyy ignored */
+                /* Intentionaly ignored */
         } else {
                 /* DEBUG 
                 g_print ("UNHANDLED %s %s %s\n", 

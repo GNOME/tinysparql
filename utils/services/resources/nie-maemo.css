@@ -45,6 +45,19 @@ TD.rowheader {
 	width: 20%;	
 }
 
+/* Deprecated class/properties */
+table.deprecated {
+        border: dotted;
+}
+
+td.deprecated {
+        color: #f88324;
+}
+
+h3.deprecated {
+        color: #f88324;
+}
+
 :visited {
 	color: #609;
 	background: transparent
