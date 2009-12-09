@@ -229,6 +229,14 @@ tracker_miner_class_init (TrackerMinerClass *klass)
 			      G_TYPE_NONE, 2,
 			      G_TYPE_STRING,
 			      G_TYPE_DOUBLE);
+	/**
+	 * TrackerMiner::error:
+	 * @miner: the #TrackerMiner
+	 * @error: the error that happened
+	 *
+	 * The ::error signal will be emitted by TrackerMiner implementations to
+	 * indicate some error in the data mining process.
+	 **/
 	signals[ERROR] =
 		g_signal_new ("error",
 			      G_OBJECT_CLASS_TYPE (object_class),

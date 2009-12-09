@@ -58,6 +58,7 @@ struct TrackerMinerFS {
  * @check_directory: Called when a directory should be checked for further processing
  * @check_directory_contents: Called when a directory should be checked for further processing, based on the directory contents.
  * @process_file: Called when the metadata associated to a file is requested.
+ * @writeback_file: Called after a writeback event happens on a file.
  * @monitor_directory: Called to check whether a directory should be modified.
  * @finished: Called when all processing has been performed.
  *

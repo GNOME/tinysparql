@@ -60,6 +60,7 @@ struct TrackerMiner {
  * @terminated: terminated.
  * @progress: progress.
  * @error: error.
+ * @writeback: Called after writeback event happens.
  *
  * Virtual methods left to implement.
  **/
@@ -72,8 +73,6 @@ typedef struct {
 
         void (* paused)     (TrackerMiner *miner);
         void (* resumed)    (TrackerMiner *miner);
-
-	void (* terminated) (TrackerMiner *miner);
 
 	void (* progress)   (TrackerMiner *miner,
 			     const gchar  *status,
