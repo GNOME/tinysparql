@@ -174,11 +174,14 @@ tracker_tags_view_query_each_tag_finished (GPtrArray *result, GError *error, gpo
 
 	if (NULL != error)
 	{
-		GtkWidget *error_dialog;
+		if (NULL != error->message)
+		{
+			GtkWidget *error_dialog;
 
-		error_dialog = gtk_message_dialog_new (NULL, GTK_DIALOG_NO_SEPARATOR, GTK_MESSAGE_ERROR, GTK_BUTTONS_OK, error->message);
-		g_signal_connect (error_dialog, "response", G_CALLBACK (gtk_widget_destroy), NULL);
-		gtk_dialog_run (GTK_DIALOG (error_dialog));
+			error_dialog = gtk_message_dialog_new (NULL, GTK_DIALOG_NO_SEPARATOR, GTK_MESSAGE_ERROR, GTK_BUTTONS_OK, "%s", error->message);
+			g_signal_connect (error_dialog, "response", G_CALLBACK (gtk_widget_destroy), NULL);
+			gtk_dialog_run (GTK_DIALOG (error_dialog));
+		}
 		g_error_free (error);
 		goto end;
 	}
@@ -240,11 +243,14 @@ tracker_tags_view_query_all_tags_finished (GPtrArray *result, GError *error, gpo
 
 	if (NULL != error)
 	{
-		GtkWidget *error_dialog;
+		if (NULL != error->message)
+		{
+			GtkWidget *error_dialog;
 
-		error_dialog = gtk_message_dialog_new (NULL, GTK_DIALOG_NO_SEPARATOR, GTK_MESSAGE_ERROR, GTK_BUTTONS_OK, error->message);
-		g_signal_connect (error_dialog, "response", G_CALLBACK (gtk_widget_destroy), NULL);
-		gtk_dialog_run (GTK_DIALOG (error_dialog));
+			error_dialog = gtk_message_dialog_new (NULL, GTK_DIALOG_NO_SEPARATOR, GTK_MESSAGE_ERROR, GTK_BUTTONS_OK, "%s", error->message);
+			g_signal_connect (error_dialog, "response", G_CALLBACK (gtk_widget_destroy), NULL);
+			gtk_dialog_run (GTK_DIALOG (error_dialog));
+		}
 		g_error_free (error);
 		return;
 	}
@@ -277,11 +283,14 @@ tracker_tags_view_update_finished (GError *error, gpointer user_data)
 {
 	if (NULL != error)
 	{
-		GtkWidget *error_dialog;
+		if (NULL != error->message)
+		{
+			GtkWidget *error_dialog;
 
-		error_dialog = gtk_message_dialog_new (NULL, GTK_DIALOG_NO_SEPARATOR, GTK_MESSAGE_ERROR, GTK_BUTTONS_OK, error->message);
-		g_signal_connect (error_dialog, "response", G_CALLBACK (gtk_widget_destroy), NULL);
-		gtk_dialog_run (GTK_DIALOG (error_dialog));
+			error_dialog = gtk_message_dialog_new (NULL, GTK_DIALOG_NO_SEPARATOR, GTK_MESSAGE_ERROR, GTK_BUTTONS_OK, "%s", error->message);
+			g_signal_connect (error_dialog, "response", G_CALLBACK (gtk_widget_destroy), NULL);
+			gtk_dialog_run (GTK_DIALOG (error_dialog));
+		}
 		g_error_free (error);
 	}
 }
