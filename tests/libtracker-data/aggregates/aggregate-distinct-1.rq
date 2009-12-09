@@ -1,0 +1,4 @@
+PREFIX : <http://example/> 
+
+SELECT AVG(?w) AVG(DISTINCT ?w) 
+{ ?_x :i2 ?w }

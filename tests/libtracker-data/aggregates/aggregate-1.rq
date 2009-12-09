@@ -1,0 +1,5 @@
+PREFIX : <http://example/> 
+
+SELECT SUM(?v) AVG(?w) MAX(?v) MIN(?v)
+{ ?_x :i1 ?v ;
+      :i2 ?w }

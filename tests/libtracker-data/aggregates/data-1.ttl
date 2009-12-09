@@ -1,0 +1,34 @@
+@prefix : <http://example/> .
+@prefix xsd:        <http://www.w3.org/2001/XMLSchema#> .
+
+:x a :A .
+:x :i1 "1"^^xsd:integer .
+:x :i2 "2"^^xsd:integer .
+:x :b :r .
+:x :b :t .
+:x :b :y .
+
+:y a :A .
+:y :i1 "3"^^xsd:integer .
+:y :i2 "6"^^xsd:integer .
+
+:z a :A .
+:z :i1 "5"^^xsd:integer .
+:z :i2 "2"^^xsd:integer .
+:z :b :u .
+
+:r a :B .
+:r :ib "1"^^xsd:integer .
+:r :sb "string r" .
+
+:t a :B .
+:t :ib "5"^^xsd:integer .
+:t :sb "string t" .
+
+:y a :B .
+:y :ib "3"^^xsd:integer .
+:y :sb "string y" .
+
+:u a :B .
+:u :ib "13"^^xsd:integer .
+:u :sb "string u" .

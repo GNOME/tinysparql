@@ -42,6 +42,9 @@ struct _TestInfo {
 };
 
 const TestInfo tests[] = {
+	{ "aggregates/aggregate-1", "aggregates/data-1", FALSE },
+	{ "aggregates/aggregate-distinct-1", "aggregates/data-1", FALSE },
+	{ "aggregates/aggregate-group-1", "aggregates/data-1", FALSE },
 	{ "algebra/two-nested-opt", "algebra/two-nested-opt", FALSE },
 	{ "algebra/two-nested-opt-alt", "algebra/two-nested-opt", FALSE },
 	{ "algebra/opt-filter-3", "algebra/opt-filter-3", FALSE },
