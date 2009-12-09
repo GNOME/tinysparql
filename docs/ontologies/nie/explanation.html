@@ -54,16 +54,17 @@ worth to comment few of them with special relevance:
 
 
 <h3>Dates and timestamps representations</h3>
-FIXME Explain the mess with dates
+<p>There are few important dates for the life-cycle of a resource. These dates are properties of the nie:InformationElement class, and inherited for its subclasses:</p>
 <dl>
-  <dt><a href="#contentLastModified">nie:contentLastModified</a><dt>
-  <dd>.</dd>
   <dt><a href="#informationElementDate">nie:informationElementDate</a><dt>
-  <dd>.</dd>
+  <dd>This is an ''abstract'' property that act as superproperty of
+  the other dates. Don't use it directly.</dd>
+  <dt><a href="#contentLastModified">nie:contentLastModified</a><dt>
+  <dd>Modification time of a resource. Usually the mtime of a local file, or information from the server for online resources.</dd>
   <dt><a href="#contentCreated">nie:contentCreated</a><dt>
-  <dd>.</dd>
+  <dd>Creation time of the content. If the contents is created by an application, the same application should set the value of this property. Note that this property can be undefined for resources in the filesystem because the creation time is not available in the most common filesystem formats.</dd>
   <dt><a href="#contentAccessed">nie:contentAccessed</a><dt>
-  <dd>.</dd>
+  <dd>For resources coming from the filesystem, this is the usual access time to the file. For other  kind of resources (online or virtual), the application accessing it should update its value.</dd>
   <dt><a href="#lastRefreshed">nie:lastRefreshed</a><dt>
   <dd>.</dd>
 </dl>
@@ -77,14 +78,10 @@ FIXME Explain the mess with dates
  <li>To link both things together, every InformationElement must have the property <a href="#isStoredAs">nie:isStoredAs</a>, that points to the location of the resource, and should be used by any program that wants to access it.</li>
 </ol>
 
- Here comes an example, for the image file /home/user/a.jpeg:</p>
+<p>Here comes an example, for the image file /home/user/a.jpeg:</p>
 
 <pre>
-&lt;file:///home/ivan/test/CC-test-big.png&gt;  a nfo:FileDataObject ;
-         # Properties as FileDataObject (physicalities)
-         nfo:fileSize 12341234 .
-
-&lt;urn:uuid:10293801928301293&gt; a nmm:Photo ;
+&lt;urn:uuid:10293801928301293&gt; a nmm:Photo, nfo:FileDataObject ;
          # Properties as nmm:Photo 
 	 nfo:width 49 ;
 	 nfo:height 36 ;
@@ -92,8 +89,11 @@ FIXME Explain the mess with dates
          nmm:whiteBalance &lt;nmm:white-balance-automatic&gt; ;
          nmm:camera "Tracknon N900" ;
 
-         # Mandatory from InformationElement
-         nie:isStoredAs &lt;file:///home/ivan/test/CC-test-big.png&gt; .
+         # Properties from nfo:FileDataObject
+         nfo:fileSize 12341234 ;
+
+         # Mandatory for any nfo:DataObject
+         nie:url &lt;file:///home/ivan/test/CC-test-big.png&gt; .
 
 </pre>
 
