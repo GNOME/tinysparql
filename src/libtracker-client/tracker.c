@@ -45,6 +45,52 @@
  * applications is also available in some cases.
  **/
 
+/**
+ * SECTION:tracker_cancel
+ * @short_description: Cancelling requests.
+ * @include: libtracker-client/tracker.h
+ *
+ * Tracker allows you to cancel any request that has not been processed
+ * yet. Aditionally, for fully synchronous requests, there is helper
+ * API to cancel the last request.
+ **/
+
+/**
+ * SECTION:tracker_resources
+ * @short_description: Doing SPARQL queries to tracker-store.
+ * @include: libtracker-client/tracker.h
+ *
+ * Tracker uses the SPARQL query language
+ * <footnote><para><ulink url="http://www.w3.org/TR/rdf-sparql-query/">SPARQL</ulink> query language for RDF (W3C)</para></footnote>
+ * to retrieve data from tracker-store, and the stored information applies to the Nepomuk
+ * ontology
+ * <footnote><para><ulink url="http://nepomuk.semanticdesktop.org/">Nepomuk</ulink> - The social semantic desktop</para></footnote>.
+ **/
+
+/**
+ * SECTION:tracker_statistics
+ * @short_description: Data statistics.
+ * @include: libtracker-client/tracker.h
+ *
+ * This API is meant to get statistics about the stored data.
+ **/
+
+/**
+ * SECTION:tracker_misc
+ * @short_description: Utility and miscellaneous functions.
+ * @include: libtracker-client/tracker.h
+ *
+ * This is miscellaneous API that may be useful to users.
+ **/
+
+/**
+ * SECTION:tracker_search
+ * @short_description: Simple search functions.
+ * @include: libtracker-client/tracker.h
+ *
+ * Simple search API.
+ **/
+
 typedef struct {
         DBusGProxy     *proxy;
         DBusGProxyCall *pending_call;
@@ -117,8 +163,11 @@ tracker_void_reply (DBusGProxy *proxy,
  * tracker_sparql_escape:
  * @str: a string to escape.
  *
+ * Escapes a string so it can be passed as a SPARQL parameter in
+ * any query/update.
+ *
  * Returns: the newly allocated escaped string which must be freed
- * using g_free(). 
+ * using g_free().
  **/
 gchar *
 tracker_sparql_escape (const gchar *str)
@@ -450,7 +499,7 @@ tracker_resources_load (TrackerClient  *client,
  *  GError *error = NULL;
  *  const gchar *query;
  *
- *  // Create D-Bus connection with no warnings and no timeout.
+ *  /&ast; Create D-Bus connection with no warnings and no timeout. &ast;/
  *  client = tracker_connect (FALSE, 0);
  *  query = "SELECT" 
  *          "  ?album"
@@ -474,7 +523,7 @@ tracker_resources_load (TrackerClient  *client,
  *          return;
  *  }
  * 
- *  // Do something with the array
+ *  /&ast; Do something with the array &ast;/
  * 
  *  g_ptr_array_free (array, TRUE);
  * </programlisting>
@@ -553,6 +602,14 @@ tracker_resources_batch_sparql_update (TrackerClient  *client,
                                                                &*error);
 }
 
+/**
+ * tracker_resources_batch_commit:
+ * @client: a #TrackerClient.
+ * @error: return location for errors.
+ *
+ * Commits a batch of already issued SPARQL updates. This API call is
+ * synchronous so it may block.
+ **/
 void
 tracker_resources_batch_commit (TrackerClient  *client, 
                                 GError        **error)
@@ -727,6 +784,16 @@ tracker_resources_batch_sparql_update_async (TrackerClient    *client,
         return id;
 }
 
+/**
+ * tracker_resources_batch_commit_async:
+ * @client: a #TrackerClient.
+ * @callback: callback to be called when the operation is finished.
+ * @user_data: user data to pass to @callback.
+ *
+ * Commits a batch of already issued SPARQL updates. 
+ *
+ * Returns: The operation ID.
+ **/
 guint
 tracker_resources_batch_commit_async (TrackerClient    *client, 
                                       TrackerReplyVoid  callback, 

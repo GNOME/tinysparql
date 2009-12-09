@@ -3,9 +3,10 @@
                "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd" [
 <!ENTITY tracker SYSTEM "xml/tracker.xml">
 <!ENTITY tracker-cancel SYSTEM "xml/tracker_cancel.xml">
-<!ENTITY tracker-sparql SYSTEM "xml/tracker_sparql.xml">
+<!ENTITY tracker-misc SYSTEM "xml/tracker_misc.xml">
 <!ENTITY tracker-statistics SYSTEM "xml/tracker_statistics.xml">
 <!ENTITY tracker-resources SYSTEM "xml/tracker_resources.xml">
+<!ENTITY tracker-search SYSTEM "xml/tracker_search.xml">
 <!ENTITY version SYSTEM "version.xml">
 ]>
 <book id="index">
@@ -32,11 +33,12 @@
       <title>General</title>
       &tracker;
       &tracker-cancel;
-      &tracker-sparql;
+      &tracker-misc;
     </chapter>
     <chapter>
       <title>Querying</title>
       &tracker-statistics;
       &tracker-resources;
+      &tracker-search;
     </chapter>
 </book>
