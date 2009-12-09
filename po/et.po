@@ -12,8 +12,8 @@ msgstr ""
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&component=general\n"
 "POT-Creation-Date: 2009-10-06 04:44+0000\n"
-"PO-Revision-Date: 2009-12-04 10:53+0200\n"
-"Last-Translator: Ivar Smolin <okul@linux.ee>\n"
+"PO-Revision-Date: 2009-12-08 20:21+0300\n"
+"Last-Translator: Mattias Põldaru <mahfiaz gmail com>\n"
 "Language-Team: Estonian <gnome-et@linux.ee>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -672,7 +672,7 @@ msgid "<b>Ignored Paths</b>"
 msgstr "<b>Eiratavad rajad</b>"
 
 msgid "<b>Index Merging</b>"
-msgstr "<b>Indeksite ühendamine</b>"
+msgstr "<b>Indeksite liitmine</b>"
 
 msgid "<b>Indexing Limits (per file)</b>"
 msgstr "<b>Indekseerimise piirangud (faili kohta)</b>"
@@ -687,7 +687,7 @@ msgid "<b>Power management</b>"
 msgstr "<b>Vooluhaldus</b>"
 
 msgid "<b>Resource Usage</b>"
-msgstr "<b>Ressursside kasutamine</b>"
+msgstr "<b>Ressursikasutus</b>"
 
 msgid "<b>Startup</b>"
 msgstr "<b>Käivitamisel</b>"
@@ -708,15 +708,13 @@ msgid "Additional paths to index and watch:"
 msgstr "Täiendavalt indekseeritavad ja jälgitavad rajad:"
 
 msgid "Additional paths to index on startup (but not watch for updates):"
-msgstr ""
-"Käivitamisel täiendavalt indekseeritavad rajad (kuid nende uuendusi ei "
-"jälgita):"
+msgstr "Käivitamisel täiendavalt indekseeritavad rajad (uuendusi ei jälgita):"
 
 msgid "Disable all Indexing when on battery"
-msgstr "Akutoitel olles keelatakse igasugune indekseerimine"
+msgstr "Akutoitel on igasugune indekseerimine keelatud"
 
 msgid "Disable initial index sweep when on battery"
-msgstr "Esialgne indekseerimise ring keelatud, kui akutoitel"
+msgstr "Akutoitel on esmaindekseerimise keelatud"
 
 msgid "Email"
 msgstr "E-post"
@@ -728,10 +726,10 @@ msgid "Enable i_ndexing"
 msgstr "I_ndekseerimine on lubatud"
 
 msgid "Faster"
-msgstr "Kiirem"
+msgstr "Kiire"
 
 msgid "File patterns to ignore during indexing:"
-msgstr "Indekseerimisest väljajäetavate failide mustrid:"
+msgstr "Indekseerimisel eiratavad failimustrid:"
 
 msgid "Files"
 msgstr "Failid"
@@ -746,7 +744,7 @@ msgid "Ignored Files"
 msgstr "Eiratavad failid"
 
 msgid "Index _delay:"
-msgstr "Indekseerimine lükatakse _edasi"
+msgstr "Indekseerimist lükatakse _edasi"
 
 msgid "Index _file contents"
 msgstr "_Failide sisu indekseeritakse"
@@ -767,7 +765,7 @@ msgid "Maximum number of unique _words to index:"
 msgstr "Suurim indekseeritavate unikaalsete _sõnade arv:"
 
 msgid "Path roots to be ignored during indexing:"
-msgstr "Indekseerimise ajal eiratavate radade juurkataloogid:"
+msgstr "Indekseerimisel täielikult eiratavad kataloogid:"
 
 msgid "Perform fast index merges (may affect system performance)"
 msgstr "Indeksid ühendatakse kiirmeetodil (võib mõjuda süsteemi jõudlusele)"
@@ -776,7 +774,7 @@ msgid "Performance"
 msgstr "Jõudlus"
 
 msgid "Slower"
-msgstr "Aegalasem"
+msgstr "Aeglane"
 
 msgid "Tracker Preferences"
 msgstr "Trackeri eelistused"
@@ -977,7 +975,7 @@ msgstr "Otsingu_tulemused: "
 
 #. Translators: this will appears as "Search results: no search performed"
 msgid "no search performed"
-msgstr "otsingut pole läbi viidud"
+msgstr "otsingut pole veel sooritatud"
 
 msgid "List View"
 msgstr ""
