@@ -479,16 +479,8 @@ tracker_resources_load (TrackerClient  *client,
  * @query: a string representing SPARQL.
  * @error: a #GError.
  *
- * Queries the database using SPARQL. For more information about
- * SPARQL see:
+ * Queries the database using SPARQL. An example query would be:
  *
- *   http://www.w3.org/TR/rdf-sparql-query/
- * 
- * The ontology used in Tracker mostly follows Nepomuk:
- *
- *   http://nepomuk.semanticdesktop.org/
- * 
- * An example query would be:
  * <example>
  * <title>Using tracker_resource_sparql_query(<!-- -->)</title>
  * An example of using tracker_resource_sparql_query() to list all
@@ -592,6 +584,17 @@ tracker_resources_sparql_update_blank (TrackerClient  *client,
 	return result;
 }
 
+/**
+ * tracker_resources_batch_sparql_update:
+ * @client: a #TrackerClient.
+ * @query: a string representing SPARQL.
+ * @error: return location for errors.
+ *
+ * Updates the database using SPARQL. Updates done this way have to be committed
+ * explicitly through tracker_resources_batch_commit() or
+ * tracker_resources_batch_commit_async(). This API call is synchronous so it may
+ * block.
+ **/
 void
 tracker_resources_batch_sparql_update (TrackerClient  *client, 
                                        const gchar    *query, 
@@ -623,7 +626,7 @@ tracker_resources_batch_commit (TrackerClient  *client,
  * @client: a #TrackerClient.
  * @callback: a #TrackerReplyGPtrArray to be used when the data is
  * available.
- * @gpointer: user data.
+ * @user_data: user data to pass to @callback.
  *
  * This behaves exactly as tracker_statistics_get() but asynchronously.
  *
@@ -680,6 +683,18 @@ tracker_resources_load_async (TrackerClient     *client,
         return id;
 }
 
+/**
+ * tracker_resources_sparql_query_async:
+ * @client: a #TrackerClient
+ * @query: a string representing SPARQL.
+ * @callback: callback function to be called when the data is ready.
+ * @user_data: user data to pass to @callback
+ *
+ * Does an asynchronous SPARQL query. See tracker_resources_sparql_query()
+ * to see how an SPARLQL query should be like.
+ *
+ * Returns: The operation ID. See tracker_cancel_call().
+ **/
 guint
 tracker_resources_sparql_query_async (TrackerClient         *client, 
                                       const gchar           *query, 
@@ -706,6 +721,17 @@ tracker_resources_sparql_query_async (TrackerClient         *client,
         return id;
 }
 
+/**
+ * tracker_resources_sparql_update_async:
+ * @client: a #TrackerClient.
+ * @query: a string representing an SPARQL update.
+ * @callback: callback function to be called when the update has been processed.
+ * @user_data: user data to pass to @callback.
+ *
+ * Does an asynchronous SPARQL update.
+ *
+ * Returns: The operation ID. See tracker_cancel_call().
+ **/
 guint
 tracker_resources_sparql_update_async (TrackerClient    *client, 
                                        const gchar      *query, 
@@ -758,6 +784,17 @@ tracker_resources_sparql_update_blank_async (TrackerClient         *client,
         return id;
 }
 
+/**
+ * tracker_resources_batch_sparql_update_async:
+ * @client: a #TrackerClient.
+ * @query: a string representing SPARQL.
+ * @callback: function to be called when the batch update has been performed.
+ * @user_data: user data to pass to @callback.
+ *
+ * Updates the database using SPARQL. see tracker_resources_batch_sparql_update().
+ *
+ * Returns: The operation ID. See tracker_cancel_call().
+ **/
 guint
 tracker_resources_batch_sparql_update_async (TrackerClient    *client, 
                                              const gchar      *query, 

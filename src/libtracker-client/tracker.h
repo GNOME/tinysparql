@@ -59,9 +59,9 @@ typedef void (*TrackerReplyArray)     (gchar    **result,
 
 /**
  * TrackerReplyGPtrArray:
- * @result: a GPtrArray with the results of the query.
- * @error: a GError.
- * @user_data: a gpointer for user data.
+ * @result: a #GPtrArray with the results of the query.
+ * @error: a #GError.
+ * @user_data: a #gpointer for user data.
  *
  * The returned #GPtrArray contains an array of #GStrv with the
  * results from the query unless there is an error in the query. If
