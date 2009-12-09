@@ -1364,7 +1364,11 @@ public class Tracker.SparqlQuery : Object {
 			}
 
 			if (prop.multiple_values) {
-				sql.append_printf ("(SELECT GROUP_CONCAT(\"%s\",',') FROM \"%s_%s\" WHERE ID = ", prop.name, prop.domain.name, prop.name);
+				sql.append ("(SELECT GROUP_CONCAT(");
+				long begin = sql.len;
+				sql.append_printf ("\"%s\"", prop.name);
+				convert_expression_to_string (sql, prop.data_type, begin);
+				sql.append_printf (",',') FROM \"%s_%s\" WHERE ID = ", prop.domain.name, prop.name);
 				translate_expression (sql);
 				sql.append (")");
 
