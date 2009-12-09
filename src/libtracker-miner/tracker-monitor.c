@@ -422,7 +422,7 @@ event_data_new (GFile   *file,
 	EventData *event;
 	GTimeVal now;
 
-	event = g_new0 (EventData, 1);
+	event = g_slice_new0 (EventData);
 	g_get_current_time (&now);
 
 	event->file = g_object_ref (file);
