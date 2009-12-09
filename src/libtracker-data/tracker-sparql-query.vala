@@ -272,6 +272,8 @@ public class Tracker.SparqlQuery : Object {
 
 	// All SPARQL variables within a subgraph pattern (used by UNION)
 	HashTable<Variable,int> subgraph_var_set;
+	// All selected SPARQL variables (used by compositional subqueries)
+	HashTable<Variable,int> select_var_set;
 
 	// Variables used as predicates
 	HashTable<Variable,PredicateVariable> predicate_variable_map;
@@ -292,6 +294,7 @@ public class Tracker.SparqlQuery : Object {
 		tokens = new TokenInfo[BUFFER_SIZE];
 		prefix_map = new HashTable<string,string>.full (str_hash, str_equal, g_free, g_free);
 		subgraph_var_set = new HashTable<Variable,int>.full (direct_hash, direct_equal, g_object_unref, null);
+		select_var_set = new HashTable<Variable,int>.full (direct_hash, direct_equal, g_object_unref, null);
 
 		base_uuid = new uchar[16];
 		uuid_generate (base_uuid);
@@ -613,6 +616,8 @@ public class Tracker.SparqlQuery : Object {
 	}
 
 	void translate_select_expression (StringBuilder sql, bool subquery) throws SparqlError {
+		string variable_name = null;
+
 		long begin = sql.len;
 		var type = PropertyType.UNKNOWN;
 		if (accept (SparqlTokenType.COUNT)) {
@@ -646,6 +651,10 @@ public class Tracker.SparqlQuery : Object {
 			sql.append (")");
 			expect (SparqlTokenType.CLOSE_PARENS);
 			type = PropertyType.STRING;
+		} else if (current () == SparqlTokenType.VAR) {
+			type = translate_expression (sql);
+			// we need variable name in case of compositional subqueries
+			variable_name = get_last_string ().substring (1);
 		} else {
 			type = translate_expression (sql);
 		}
@@ -655,7 +664,6 @@ public class Tracker.SparqlQuery : Object {
 		}
 
 		if (accept (SparqlTokenType.AS)) {
-			string variable_name;
 			if (accept (SparqlTokenType.PN_PREFIX)) {
 				// deprecated but supported for backward compatibility
 				// (...) AS foo
@@ -667,6 +675,14 @@ public class Tracker.SparqlQuery : Object {
 				variable_name = get_last_string ().substring (1);
 			}
 			sql.append_printf (" AS %s", get_variable (variable_name).sql_expression);
+		}
+
+		if (variable_name != null) {
+			int state = subgraph_var_set.lookup (get_variable (variable_name));
+			if (state == 0) {
+				state = VariableState.BOUND;
+			}
+			select_var_set.insert (get_variable (variable_name), state);
 		}
 	}
 
@@ -2295,9 +2311,11 @@ public class Tracker.SparqlQuery : Object {
 		expect (SparqlTokenType.OPEN_BRACE);
 
 		if (current () == SparqlTokenType.SELECT) {
-			// FIXME ensure that inner variables are only exported if selected
-
 			translate_select (sql, true);
+
+			// only export selected variables
+			subgraph_var_set = select_var_set;
+			select_var_set = select_var_set = new HashTable<Variable,int>.full (direct_hash, direct_equal, g_object_unref, null);
 
 			expect (SparqlTokenType.CLOSE_BRACE);
 			return;
