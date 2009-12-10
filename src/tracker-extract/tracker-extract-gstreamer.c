@@ -479,13 +479,13 @@ extract_metadata (MetadataExtractor      *extractor,
 				tracker_sparql_builder_subject_iri (metadata, canonical_uri);
 				tracker_sparql_builder_predicate (metadata, "a");
 				tracker_sparql_builder_object (metadata, "nmm:Artist");
-
+				/*
 				if (extractor->mime == EXTRACT_MIME_AUDIO) {
 					tracker_sparql_builder_object (metadata, "nmm:performer");
 				} else {
 					tracker_sparql_builder_object (metadata, "nmm:leadActor");
 				}
-
+				*/
 				tracker_sparql_builder_predicate (metadata, "nmm:artistName");
 				tracker_sparql_builder_object_unvalidated (metadata, s);
 
@@ -503,12 +503,13 @@ extract_metadata (MetadataExtractor      *extractor,
 				tracker_sparql_builder_predicate (metadata, "a");
 				tracker_sparql_builder_object (metadata, "nmm:Artist");
 
+				/*
 				if (extractor->mime == EXTRACT_MIME_AUDIO) {
 					tracker_sparql_builder_object (metadata, "nmm:composer");
 				} else {
 					tracker_sparql_builder_object (metadata, "nmm:director");
 				}
-
+				*/
 				tracker_sparql_builder_predicate (metadata, "nmm:artistName");
 				tracker_sparql_builder_object_unvalidated (metadata, s);
 
@@ -516,13 +517,6 @@ extract_metadata (MetadataExtractor      *extractor,
 				g_free (s);
 			}
 
-			s = NULL;
-			gst_tag_list_get_string (extractor->tagcache, GST_TAG_GENRE, &s);
-			if (s && strcmp (s, "Unknown") != 0) {
-				tracker_sparql_builder_predicate (metadata, "nfo:genre");
-				tracker_sparql_builder_object_unvalidated (metadata, s);
-			}
-			g_free (s);
 		}
 
 		if (extractor->mime == EXTRACT_MIME_AUDIO) {
@@ -539,6 +533,7 @@ extract_metadata (MetadataExtractor      *extractor,
 				tracker_sparql_builder_predicate (metadata, "nmm:albumTitle");
 				tracker_sparql_builder_object_unvalidated (metadata, s);
 				add_uint_gst_tag (metadata, urn, "nmm:albumTrackCount", extractor->tagcache, GST_TAG_TRACK_COUNT);
+				add_uint_gst_tag (metadata, urn, "nmm:setNumber", extractor->tagcache, GST_TAG_ALBUM_VOLUME_NUMBER);
 				*album = s;
 
 				g_free (urn);
@@ -556,6 +551,14 @@ extract_metadata (MetadataExtractor      *extractor,
 		} else {
 			tracker_sparql_builder_object (metadata, "nfo:Image");
 		}
+
+		s = NULL;
+		gst_tag_list_get_string (extractor->tagcache, GST_TAG_GENRE, &s);
+		if (s && strcmp (s, "Unknown") != 0) {
+			tracker_sparql_builder_predicate (metadata, "nfo:genre");
+			tracker_sparql_builder_object_unvalidated (metadata, s);
+		}
+		g_free (s);
 
 		add_string_gst_tag (metadata, uri, "nie:title", extractor->tagcache, GST_TAG_TITLE);
 		add_string_gst_tag (metadata, uri, "nie:copyright", extractor->tagcache, GST_TAG_COPYRIGHT);
@@ -576,7 +579,6 @@ extract_metadata (MetadataExtractor      *extractor,
 			}
 
 			add_uint_gst_tag   (metadata, uri, "nmm:trackNumber", extractor->tagcache, GST_TAG_TRACK_NUMBER);
-			add_uint_gst_tag   (metadata, uri, "nmm:setNumber", extractor->tagcache, GST_TAG_ALBUM_VOLUME_NUMBER);
 
 			add_double_gst_tag (metadata, uri, "nfo:gain", extractor->tagcache, GST_TAG_TRACK_GAIN);
 			add_double_gst_tag (metadata, uri, "nfo:peakGain", extractor->tagcache, GST_TAG_TRACK_PEAK);
