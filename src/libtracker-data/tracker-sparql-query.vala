@@ -615,8 +615,8 @@ public class Tracker.SparqlQuery : Object {
 		}
 	}
 
-	void translate_select_expression (StringBuilder sql, bool subquery) throws SparqlError {
-		string variable_name = null;
+	PropertyType translate_select_expression (StringBuilder sql, bool subquery) throws SparqlError {
+		Variable variable = null;
 
 		long begin = sql.len;
 		var type = PropertyType.UNKNOWN;
@@ -654,36 +654,50 @@ public class Tracker.SparqlQuery : Object {
 		} else if (current () == SparqlTokenType.VAR) {
 			type = translate_expression (sql);
 			// we need variable name in case of compositional subqueries
-			variable_name = get_last_string ().substring (1);
+			variable = get_variable (get_last_string ().substring (1));
 		} else {
 			type = translate_expression (sql);
 		}
 
 		if (!subquery) {
 			convert_expression_to_string (sql, type, begin);
+			type = PropertyType.STRING;
 		}
 
 		if (accept (SparqlTokenType.AS)) {
 			if (accept (SparqlTokenType.PN_PREFIX)) {
 				// deprecated but supported for backward compatibility
 				// (...) AS foo
-				variable_name = get_last_string ();
+				variable = get_variable (get_last_string ());
 			} else {
 				// syntax from SPARQL 1.1 Draft
 				// (...) AS ?foo
 				expect (SparqlTokenType.VAR);
-				variable_name = get_last_string ().substring (1);
+				variable = get_variable (get_last_string ().substring (1));
 			}
-			sql.append_printf (" AS %s", get_variable (variable_name).sql_expression);
+			sql.append_printf (" AS %s", variable.sql_expression);
+
+			if (subquery) {
+				if (variable.binding != null) {
+					throw get_error ("redefining variable `?%s'".printf (variable.name));
+				}
+
+				variable.binding = new VariableBinding ();
+				variable.binding.data_type = type;
+				variable.binding.variable = variable;
+				variable.binding.sql_expression = variable.sql_expression;
+			}
 		}
 
-		if (variable_name != null) {
-			int state = subgraph_var_set.lookup (get_variable (variable_name));
+		if (variable != null) {
+			int state = subgraph_var_set.lookup (variable);
 			if (state == 0) {
 				state = VariableState.BOUND;
 			}
-			select_var_set.insert (get_variable (variable_name), state);
+			select_var_set.insert (variable, state);
 		}
+
+		return type;
 	}
 
 	void begin_query () {
@@ -706,7 +720,9 @@ public class Tracker.SparqlQuery : Object {
 		return exec_sql (sql.str);
 	}
 
-	void translate_select (StringBuilder sql, bool subquery = false) throws Error {
+	PropertyType translate_select (StringBuilder sql, bool subquery = false) throws Error {
+		var type = PropertyType.UNKNOWN;
+
 		var pattern_sql = new StringBuilder ();
 
 		sql.append ("SELECT ");
@@ -760,7 +776,7 @@ public class Tracker.SparqlQuery : Object {
 					first = false;
 				}
 
-				translate_select_expression (sql, subquery);
+				type = translate_select_expression (sql, subquery);
 
 				switch (current ()) {
 				case SparqlTokenType.FROM:
@@ -863,6 +879,8 @@ public class Tracker.SparqlQuery : Object {
 			binding.data_type = PropertyType.INTEGER;
 			bindings.append (binding);
 		}
+
+		return type;
 	}
 
 	void translate_expression_as_order_condition (StringBuilder sql) throws SparqlError {
@@ -1823,7 +1841,7 @@ public class Tracker.SparqlQuery : Object {
 			begin_query ();
 
 			sql.append ("(");
-			translate_select (sql, true);
+			var type = translate_select (sql, true);
 			sql.append (")");
 
 			outer_var_maps.remove (var_map);
@@ -1832,7 +1850,7 @@ public class Tracker.SparqlQuery : Object {
 			used_sql_identifiers = outer_used_sql_identifiers;
 
 			expect (SparqlTokenType.CLOSE_PARENS);
-			return PropertyType.UNKNOWN;
+			return type;
 		}
 
 		var optype = translate_expression (sql);
