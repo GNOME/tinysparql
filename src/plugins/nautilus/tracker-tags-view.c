@@ -408,6 +408,7 @@ tracker_tags_view_row_activated_cb (GtkTreeView *tree_view, GtkTreePath *path, G
 	arg = files = g_new0 (gchar *, num + 1);
 	g_list_foreach (view->priv->files, tracker_tags_view_copy_uri_foreach, &arg);
 	filter = get_filter_string (files, NULL);
+	g_strfreev (files);
 
 	if (TRUE == selected)
 	{
@@ -434,7 +435,7 @@ tracker_tags_view_row_activated_cb (GtkTreeView *tree_view, GtkTreePath *path, G
 					 tag_label_escaped, filter);
 	}
 
-	g_strfreev (files);
+	g_free (filter);
 	g_free (tag_label_escaped);
 	tracker_resources_sparql_update_async (view->priv->tracker_client, query, tracker_tags_view_update_finished, NULL);
 	g_free (query);
@@ -468,6 +469,7 @@ tracker_tags_view_finalize (GObject *object)
 	TrackerTagsView *const view = TRACKER_TAGS_VIEW (object);
 
 	tracker_disconnect (view->priv->tracker_client);
+	g_list_foreach (view->priv->files, g_object_unref, NULL);
 	g_list_free (view->priv->files);
 	G_OBJECT_CLASS (tracker_tags_view_parent_class)->finalize (object);
 }
@@ -567,6 +569,7 @@ tracker_tags_view_new (GList *files)
 	TrackerTagsView *self;
 
 	self = g_object_new (TRACKER_TYPE_TAGS_VIEW, NULL);
+	g_list_foreach (files, g_object_ref, NULL);
 	self->priv->files = g_list_copy (files);
 	return GTK_WIDGET (self);
 }
