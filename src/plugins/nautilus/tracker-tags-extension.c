@@ -33,35 +33,32 @@
 #define TRACKER_IS_TAGS_EXTENSION(obj) (G_TYPE_CHECK_INSTANCE_TYPE ((obj), TRACKER_TYPE_TAGS_EXTENSION))
 #define TRACKER_IS_TAGS_EXTENSION_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), TRACKER_TYPE_TAGS_EXTENSION))
 
-typedef struct _TrackerTagsExtensionPrivate	TrackerTagsExtensionPrivate;
+typedef struct _TrackerTagsExtensionPrivate    TrackerTagsExtensionPrivate;
 
-typedef struct _TrackerTagsExtension		TrackerTagsExtension;
-typedef struct _TrackerTagsExtensionClass		TrackerTagsExtensionClass;
+typedef struct _TrackerTagsExtension           TrackerTagsExtension;
+typedef struct _TrackerTagsExtensionClass      TrackerTagsExtensionClass;
 
-struct _TrackerTagsExtension
-{
-	GObject parent;
+struct _TrackerTagsExtension {
+	GObject                     parent;
 	TrackerTagsExtensionPrivate *priv;
 };
 
-struct _TrackerTagsExtensionClass
-{
+struct _TrackerTagsExtensionClass {
 	GObjectClass parent;
 };
 
-struct _TrackerTagsExtensionPrivate
-{
-	TrackerClient	*tracker_client;
+struct _TrackerTagsExtensionPrivate {
+	TrackerClient *tracker_client;
 };
 
-static void	tracker_tags_extension_menu_provider_iface_init	(NautilusMenuProviderIface *iface);
-static void	tracker_tags_extension_property_page_provider_iface_init	(NautilusPropertyPageProviderIface *iface);
+static void tracker_tags_extension_menu_provider_iface_init (NautilusMenuProviderIface *iface);
+static void tracker_tags_extension_property_page_provider_iface_init (NautilusPropertyPageProviderIface *iface);
 
 G_DEFINE_DYNAMIC_TYPE_EXTENDED (TrackerTagsExtension, tracker_tags_extension, G_TYPE_OBJECT, 0,
-				G_IMPLEMENT_INTERFACE (NAUTILUS_TYPE_MENU_PROVIDER,
-						       tracker_tags_extension_menu_provider_iface_init)
-				G_IMPLEMENT_INTERFACE (NAUTILUS_TYPE_PROPERTY_PAGE_PROVIDER,
-						       tracker_tags_extension_property_page_provider_iface_init));
+                                G_IMPLEMENT_INTERFACE (NAUTILUS_TYPE_MENU_PROVIDER,
+                                                       tracker_tags_extension_menu_provider_iface_init)
+                                G_IMPLEMENT_INTERFACE (NAUTILUS_TYPE_PROPERTY_PAGE_PROVIDER,
+                                                       tracker_tags_extension_property_page_provider_iface_init));
 
 #define TRACKER_TAGS_EXTENSION_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE((obj), TRACKER_TYPE_TAGS_EXTENSION, TrackerTagsExtensionPrivate))
 
@@ -74,7 +71,12 @@ tracker_tags_extension_update_finished (GError *error, gpointer user_data)
 		{
 			GtkWidget *error_dialog;
 
-			error_dialog = gtk_message_dialog_new (NULL, GTK_DIALOG_NO_SEPARATOR, GTK_MESSAGE_ERROR, GTK_BUTTONS_OK, "%s", error->message);
+			error_dialog = gtk_message_dialog_new (NULL,
+                                                               GTK_DIALOG_NO_SEPARATOR,
+                                                               GTK_MESSAGE_ERROR,
+                                                               GTK_BUTTONS_OK,
+                                                               "%s",
+                                                               error->message);
 			g_signal_connect (error_dialog, "response", G_CALLBACK (gtk_widget_destroy), NULL);
 			gtk_dialog_run (GTK_DIALOG (error_dialog));
 		}
@@ -100,7 +102,10 @@ tracker_tags_extension_add_dialog_response_cb (GtkDialog *dialog, gint response_
 
 		tag_label = tracker_tags_add_dialog_get_text (TRACKER_TAGS_ADD_DIALOG (dialog));
 		query = tracker_tags_utils_add_query (tag_label);
-		tracker_resources_sparql_update_async (extension->priv->tracker_client, query, tracker_tags_extension_update_finished, NULL);
+		tracker_resources_sparql_update_async (extension->priv->tracker_client,
+                                                       query,
+                                                       tracker_tags_extension_update_finished,
+                                                       NULL);
 		g_free ((gpointer) query);
 		break;
 	}
@@ -140,7 +145,11 @@ tracker_tags_extension_manage_activate_cb (NautilusMenuItem *menu_item, gpointer
 
 	/* g_free (arg); */
 
-	manage_dialog = gtk_dialog_new_with_buttons (N_("Manage Tags"), window, GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT | GTK_DIALOG_NO_SEPARATOR, GTK_STOCK_CLOSE, NULL);
+	manage_dialog = gtk_dialog_new_with_buttons (N_("Manage Tags"),
+                                                     window,
+                                                     GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT | GTK_DIALOG_NO_SEPARATOR,
+                                                     GTK_STOCK_CLOSE,
+                                                     NULL);
 	gtk_container_set_border_width (GTK_CONTAINER (manage_dialog), 5);
 	gtk_window_set_default_size (GTK_WINDOW (manage_dialog), 250, 375);
 	gtk_window_set_resizable (GTK_WINDOW (manage_dialog), TRUE);
@@ -160,9 +169,9 @@ tracker_tags_extension_manage_activate_cb (NautilusMenuItem *menu_item, gpointer
 }
 
 static GList *
-tracker_tags_extension_get_background_items (NautilusMenuProvider	*provider,
-					  GtkWidget		*window,
-					  NautilusFileInfo	*current_folder)
+tracker_tags_extension_get_background_items (NautilusMenuProvider *provider,
+                                             GtkWidget            *window,
+                                             NautilusFileInfo     *current_folder)
 {
 	GList *menu_items = NULL;
 	NautilusMenuItem *menu_item;
@@ -171,7 +180,10 @@ tracker_tags_extension_get_background_items (NautilusMenuProvider	*provider,
 	if (NULL == current_folder)
 		return NULL;
 
-	menu_item = nautilus_menu_item_new ("tracker-tags-new", N_("Create Tag..."), N_("Create a new tag for this desktop"), NULL);
+	menu_item = nautilus_menu_item_new ("tracker-tags-new",
+                                            N_("Create Tag..."),
+                                            N_("Create a new tag for this desktop"),
+                                            NULL);
 	menu_items = g_list_append (menu_items, menu_item);
 	arg = g_new (void *, 2);
 	arg[0] = provider;
@@ -182,9 +194,9 @@ tracker_tags_extension_get_background_items (NautilusMenuProvider	*provider,
 }
 
 static GList *
-tracker_tags_extension_get_file_items (NautilusMenuProvider	*provider,
-				    GtkWidget			*window,
-				    GList			*files)
+tracker_tags_extension_get_file_items (NautilusMenuProvider *provider,
+                                       GtkWidget            *window,
+                                       GList                *files)
 {
 	GList *menu_items = NULL;
 	NautilusMenuItem *menu_item;
@@ -193,14 +205,20 @@ tracker_tags_extension_get_file_items (NautilusMenuProvider	*provider,
 	if (NULL == files)
 		return NULL;
 
-	menu_item = nautilus_menu_item_new ("tracker-tags-new", N_("Create Tag..."), N_("Create a new tag for this desktop"), NULL);
+	menu_item = nautilus_menu_item_new ("tracker-tags-new",
+                                            N_("Create Tag..."),
+                                            N_("Create a new tag for this desktop"),
+                                            NULL);
 	menu_items = g_list_append (menu_items, menu_item);
 	arg = g_new (void *, 2);
 	arg[0] = provider;
 	arg[1] = window;
 	g_signal_connect (menu_item, "activate", G_CALLBACK (tracker_tags_extension_add_activate_cb), arg);
 
-	menu_item = nautilus_menu_item_new ("tracker-tags-manage", N_("Manage Tags..."), N_("Change the tags attached to the selected objects"), NULL);
+	menu_item = nautilus_menu_item_new ("tracker-tags-manage",
+                                            N_("Manage Tags..."),
+                                            N_("Change the tags attached to the selected objects"),
+                                            NULL);
 	menu_items = g_list_append (menu_items, menu_item);
 	arg = g_new (void *, 2);
 	arg[0] = g_list_copy (files);
@@ -211,8 +229,8 @@ tracker_tags_extension_get_file_items (NautilusMenuProvider	*provider,
 }
 
 static GList *
-tracker_tags_extension_get_pages (NautilusPropertyPageProvider	*provider,
-			       GList				*files)
+tracker_tags_extension_get_pages (NautilusPropertyPageProvider *provider,
+                                  GList                        *files)
 {
 	GList *property_pages = NULL;
 	GtkWidget *label;
@@ -231,9 +249,9 @@ tracker_tags_extension_get_pages (NautilusPropertyPageProvider	*provider,
 }
 
 static GList *
-tracker_tags_extension_get_toolbar_items (NautilusMenuProvider	*provider,
-				       GtkWidget		*window,
-				       NautilusFileInfo		*current_folder)
+tracker_tags_extension_get_toolbar_items (NautilusMenuProvider *provider,
+                                          GtkWidget            *window,
+                                          NautilusFileInfo     *current_folder)
 {
 	return NULL;
 }

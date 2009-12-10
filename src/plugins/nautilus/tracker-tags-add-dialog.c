@@ -21,9 +21,8 @@
 
 #include "tracker-tags-add-dialog.h"
 
-struct _TrackerTagsAddDialogPrivate
-{
-	GtkWidget	*entry;
+struct _TrackerTagsAddDialogPrivate {
+	GtkWidget      *entry;
 };
 
 G_DEFINE_TYPE (TrackerTagsAddDialog, tracker_tags_add_dialog, GTK_TYPE_DIALOG)
@@ -113,7 +112,10 @@ tracker_tags_add_dialog_init (TrackerTagsAddDialog *add_dialog)
 
 	add_dialog->priv->entry = gtk_entry_new ();
 	gtk_box_pack_start (GTK_BOX (hbox), add_dialog->priv->entry, TRUE, TRUE, 0);
-	g_signal_connect (add_dialog->priv->entry, "changed", G_CALLBACK (tracker_tags_add_dialog_entry_changed_cb), add_dialog);
+	g_signal_connect (add_dialog->priv->entry,
+                          "changed",
+                          G_CALLBACK (tracker_tags_add_dialog_entry_changed_cb),
+                          add_dialog);
 
 	gtk_widget_show_all (vbox);
 }

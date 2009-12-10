@@ -22,7 +22,7 @@
 
 #include <glib.h>
 
-const gchar	*tracker_tags_utils_add_query	(const gchar *tag_label);
-const gchar	*tracker_tags_utils_remove_query	(const gchar *tag_label);
+const gchar     *tracker_tags_utils_add_query    (const gchar *tag_label);
+const gchar     *tracker_tags_utils_remove_query (const gchar *tag_label);
 
 #endif /* TRACKER_TAGS_UTILS_H */

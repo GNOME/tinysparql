@@ -40,13 +40,12 @@ enum
 	SELECTED_TRUE
 };
 
-struct _TrackerTagsViewPrivate
-{
-	TrackerClient	*tracker_client;
-	GList		*files;
-	GtkListStore	*list_store;
-	GtkWidget	*remove_button;
-	gchar		*selected_tag_label;
+struct _TrackerTagsViewPrivate {
+	TrackerClient   *tracker_client;
+	GList           *files;
+	GtkListStore    *list_store;
+	GtkWidget       *remove_button;
+	gchar           *selected_tag_label;
 };
 
 G_DEFINE_TYPE (TrackerTagsView, tracker_tags_view, GTK_TYPE_VBOX);
@@ -232,7 +231,10 @@ tracker_tags_view_append_foreach (gpointer data, gpointer user_data)
 	arg = g_new (void *, 2);
 	arg[0] = view;
 	arg[1] = gtk_tree_iter_copy (&iter);
-	tracker_resources_sparql_query_async (view->priv->tracker_client, query, tracker_tags_view_query_each_tag_finished, arg);
+	tracker_resources_sparql_query_async (view->priv->tracker_client,
+                                              query,
+                                              tracker_tags_view_query_each_tag_finished,
+                                              arg);
 	g_free (query);
 }
 
@@ -247,7 +249,12 @@ tracker_tags_view_query_all_tags_finished (GPtrArray *result, GError *error, gpo
 		{
 			GtkWidget *error_dialog;
 
-			error_dialog = gtk_message_dialog_new (NULL, GTK_DIALOG_NO_SEPARATOR, GTK_MESSAGE_ERROR, GTK_BUTTONS_OK, "%s", error->message);
+			error_dialog = gtk_message_dialog_new (NULL,
+                                                               GTK_DIALOG_NO_SEPARATOR,
+                                                               GTK_MESSAGE_ERROR,
+                                                               GTK_BUTTONS_OK,
+                                                               "%s",
+                                                               error->message);
 			g_signal_connect (error_dialog, "response", G_CALLBACK (gtk_widget_destroy), NULL);
 			gtk_dialog_run (GTK_DIALOG (error_dialog));
 		}
@@ -287,7 +294,12 @@ tracker_tags_view_update_finished (GError *error, gpointer user_data)
 		{
 			GtkWidget *error_dialog;
 
-			error_dialog = gtk_message_dialog_new (NULL, GTK_DIALOG_NO_SEPARATOR, GTK_MESSAGE_ERROR, GTK_BUTTONS_OK, "%s", error->message);
+			error_dialog = gtk_message_dialog_new (NULL,
+                                                               GTK_DIALOG_NO_SEPARATOR,
+                                                               GTK_MESSAGE_ERROR,
+                                                               GTK_BUTTONS_OK,
+                                                               "%s",
+                                                               error->message);
 			g_signal_connect (error_dialog, "response", G_CALLBACK (gtk_widget_destroy), NULL);
 			gtk_dialog_run (GTK_DIALOG (error_dialog));
 		}
@@ -313,7 +325,10 @@ tracker_tags_view_add_dialog_response_cb (GtkDialog *dialog, gint response_id, g
 
 		tag_label = tracker_tags_add_dialog_get_text (TRACKER_TAGS_ADD_DIALOG (dialog));
 		query = tracker_tags_utils_add_query (tag_label);
-		tracker_resources_sparql_update_async (view->priv->tracker_client, query, tracker_tags_view_update_finished, NULL);
+		tracker_resources_sparql_update_async (view->priv->tracker_client,
+                                                       query,
+                                                       tracker_tags_view_update_finished,
+                                                       NULL);
 		g_free ((gpointer) query);
 		break;
 	}
@@ -377,7 +392,13 @@ tracker_tags_view_row_activated_cb (GtkTreeView *tree_view, GtkTreePath *path, G
 	if (FALSE == gtk_tree_model_get_iter (tree_model, &iter, path))
 		return;
 
-	gtk_tree_model_get (tree_model, &iter, COLUMN_SELECTED, &selected, COLUMN_TAG_NAME, &view->priv->selected_tag_label, -1);
+	gtk_tree_model_get (tree_model,
+                            &iter,
+                            COLUMN_SELECTED,
+                            &selected,
+                            COLUMN_TAG_NAME,
+                            &view->priv->selected_tag_label,
+                            -1);
 	selected = (SELECTED_FALSE == selected) ? SELECTED_TRUE : SELECTED_FALSE;
 	gtk_list_store_set (view->priv->list_store, &iter, COLUMN_SELECTED, selected, -1);
 

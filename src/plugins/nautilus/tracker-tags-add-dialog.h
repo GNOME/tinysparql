@@ -28,26 +28,24 @@
 #define TRACKER_IS_TAGS_ADD_DIALOG(obj) (G_TYPE_CHECK_INSTANCE_TYPE ((obj), TRACKER_TYPE_TAGS_ADD_DIALOG))
 #define TRACKER_IS_TAGS_ADD_DIALOG_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), TRACKER_TYPE_TAGS_ADD_DIALOG))
 
-typedef struct _TrackerTagsAddDialogPrivate	TrackerTagsAddDialogPrivate;
+typedef struct _TrackerTagsAddDialogPrivate    TrackerTagsAddDialogPrivate;
 
-typedef struct _TrackerTagsAddDialog		TrackerTagsAddDialog;
-typedef struct _TrackerTagsAddDialogClass	TrackerTagsAddDialogClass;
+typedef struct _TrackerTagsAddDialog           TrackerTagsAddDialog;
+typedef struct _TrackerTagsAddDialogClass      TrackerTagsAddDialogClass;
 
-struct _TrackerTagsAddDialog
-{
-	GtkDialog parent;
+struct _TrackerTagsAddDialog {
+	GtkDialog                   parent;
 	TrackerTagsAddDialogPrivate *priv;
 };
 
-struct _TrackerTagsAddDialogClass
-{
+struct _TrackerTagsAddDialogClass {
 	GtkDialogClass parent;
 };
 
-GType	tracker_tags_add_dialog_get_type	(void);
-void	tracker_tags_add_dialog_register_type	(GTypeModule *module);
+GType   tracker_tags_add_dialog_get_type        (void);
+void    tracker_tags_add_dialog_register_type   (GTypeModule *module);
 
-GtkWidget	*tracker_tags_add_dialog_new		(void);
-const gchar	*tracker_tags_add_dialog_get_text	(TrackerTagsAddDialog *add_dialog);
+GtkWidget   *tracker_tags_add_dialog_new          (void);
+const gchar *tracker_tags_add_dialog_get_text     (TrackerTagsAddDialog *add_dialog);
 
 #endif /* TRACKER_TAGS_ADD_DIALOG_H */

@@ -28,25 +28,23 @@
 #define TRACKER_IS_TAGS_VIEW(obj) (G_TYPE_CHECK_INSTANCE_TYPE ((obj), TRACKER_TYPE_TAGS_VIEW))
 #define TRACKER_IS_TAGS_VIEW_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), TRACKER_TYPE_TAGS_VIEW))
 
-typedef struct _TrackerTagsViewPrivate	TrackerTagsViewPrivate;
+typedef struct _TrackerTagsViewPrivate  TrackerTagsViewPrivate;
 
-typedef struct _TrackerTagsView		TrackerTagsView;
-typedef struct _TrackerTagsViewClass	TrackerTagsViewClass;
+typedef struct _TrackerTagsView         TrackerTagsView;
+typedef struct _TrackerTagsViewClass    TrackerTagsViewClass;
 
-struct _TrackerTagsView
-{
-	GtkVBox parent;
+struct _TrackerTagsView {
+	GtkVBox                parent;
 	TrackerTagsViewPrivate *priv;
 };
 
-struct _TrackerTagsViewClass
-{
+struct _TrackerTagsViewClass {
 	GtkVBoxClass parent;
 };
 
-GType	tracker_tags_view_get_type	(void);
-void	tracker_tags_view_register_type	(GTypeModule *module);
+GType   tracker_tags_view_get_type      (void);
+void    tracker_tags_view_register_type (GTypeModule *module);
 
-GtkWidget	*tracker_tags_view_new	(GList *files);
+GtkWidget *tracker_tags_view_new        (GList *files);
 
 #endif /* TRACKER_TAGS_VIEW_H */
