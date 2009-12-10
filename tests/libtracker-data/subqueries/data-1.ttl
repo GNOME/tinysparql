@@ -1,0 +1,28 @@
+@prefix : <http://example.org/ns#> .
+
+:group1 a :Group ;
+	:lastDate "2009-12-02T00:00:00Z" .
+
+:msg1 a :Message ;
+	:date "2009-12-01T00:00:00Z" ;
+	:group :group1 .
+
+:msg2 a :Message ;
+	:date "2009-12-02T00:00:00Z" ;
+	:group :group1 .
+
+:group2 a :Group ;
+	:lastDate "2009-12-05T00:00:00Z" .
+
+:msg3 a :Message ;
+	:date "2009-12-03T00:00:00Z" ;
+	:group :group2 .
+
+:msg4 a :Message ;
+	:date "2009-12-04T00:00:00Z" ;
+	:group :group2 .
+
+:msg5 a :Message ;
+	:date "2009-12-05T00:00:00Z" ;
+	:group :group2 .
+

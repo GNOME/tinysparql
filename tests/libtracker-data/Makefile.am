@@ -11,6 +11,7 @@ SUBDIRS = 			\
 	optional		\
 	regex			\
 	sort			\
+	subqueries		\
 	error			\
 	turtle
 

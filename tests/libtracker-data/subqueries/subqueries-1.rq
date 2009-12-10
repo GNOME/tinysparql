@@ -1,0 +1,10 @@
+SELECT ?group ?last_date ?last_message
+    (SELECT COUNT(?message) AS ?message_count WHERE { ?message example:group ?group })
+WHERE {
+    SELECT ?group ?last_date
+        (SELECT ?message WHERE { ?message example:group ?group ; example:date ?date } ORDER BY DESC(?date) LIMIT 1) AS ?last_message
+    WHERE {
+        ?group example:lastDate ?last_date .
+    } ORDER BY DESC(?last_date)
+}
+
