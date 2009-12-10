@@ -761,7 +761,7 @@ public class Tracker.SparqlQuery : Object {
 				} else {
 					sql.append (", ");
 				}
-				translate_order_condition (sql);
+				translate_expression (sql);
 			} while (current () != SparqlTokenType.ORDER && current () != SparqlTokenType.LIMIT && current () != SparqlTokenType.OFFSET && current () != SparqlTokenType.EOF);
 		}
 
