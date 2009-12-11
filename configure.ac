@@ -1141,32 +1141,36 @@ if test "x$enable_libwv2" != "xno" ; then
    AC_MSG_CHECKING(for wv2)
 
    AC_LANG(C++)
-   oldflags=$LDFLAGS
-   LDFLAGS="$LDFLAGS -lwv2"
+   OLD_LDFLAGS="$LDFLAGS"
+   OLD_CFLAGS="$CFLAGS"
+   CFLAGS="$CFLAGS"
+   LDFLAGS="-lwv2 $LDFLAGS"
    AC_LINK_IFELSE(
    [AC_LANG_PROGRAM([#include <wv2/wv2version.h>],
                     [wvWare::version()])],
-                    [TEST_LIBS="$TEST_LIBS -lwv2"] [have_libwv2=yes],
+                    [have_libwv2=yes],
                     [have_libwv2=no])
 
    LIBWV2_LIBS="-lwv2"
    AC_SUBST(LIBWV2_LIBS)
-   LDFLAGS=$oldflags
+
+   CFLAGS="$OLD_CFLAGS"
+   LDFLAGS="$OLD_LDFLAGS"
 
    if test "x$have_libwv2" = "xyes"; then
-     AC_DEFINE(HAVE_LIBWV2, [], [Define if we have libwv2])
-     AC_MSG_RESULT(yes)
+      AC_DEFINE(HAVE_LIBWV2, [], [Define if we have libwv2])
+      AC_MSG_RESULT(yes)
    else
-     AC_MSG_RESULT(no)
+      AC_MSG_RESULT(no)
    fi
 else
    have_libwv2="no (disabled)"
 fi
 
 if test "x$enable_libwv2" = "xyes"; then
- if test "x$have_libwv2" != "xyes"; then
- AC_MSG_ERROR([Couldn't find libwv2 >= $LIBWV2_REQUIRED.])
- fi
+  if test "x$have_libwv2" != "xyes"; then
+     AC_MSG_ERROR([Couldn't find libwv2 >= $LIBWV2_REQUIRED.])
+  fi
 fi
 
 AM_CONDITIONAL(HAVE_LIBWV2, test "x$have_libwv2" = "xyes")
