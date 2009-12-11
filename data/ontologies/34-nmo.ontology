@@ -45,13 +45,13 @@ nmo:Attachment a rdfs:Class ;
 	rdfs:subClassOf nmo:MimePart ;
 	rdfs:subClassOf nfo:Attachment .
 
+nmo:MailAccount a rdfs:Class ;
+	rdfs:subClassOf nie:InformationElement .
+
 # FIXME Remove this one next release
 nmo:Mailbox a rdfs:Class ;
 	nao:deprecated true ;
-	rdfs:subClassOf nie:InformationElement .
-
-nmo:MailAccount a rdfs:Class ;
-	rdfs:subClassOf nie:InformationElement .
+	rdfs:subClassOf nmo:MailAccount .
 
 nmo:MailboxDataObject a rdfs:Class ;
 	rdfs:subClassOf nie:DataObject .
