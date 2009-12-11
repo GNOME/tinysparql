@@ -7,6 +7,7 @@
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix tracker: <http://www.tracker-project.org/ontologies/tracker#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix nao: <http://www.semanticdesktop.org/ontologies/2007/08/15/nao#> .
 
 nmo: a tracker:Namespace ;
 	tracker:prefix "nmo" .
@@ -44,7 +45,12 @@ nmo:Attachment a rdfs:Class ;
 	rdfs:subClassOf nmo:MimePart ;
 	rdfs:subClassOf nfo:Attachment .
 
+# FIXME Remove this one next release
 nmo:Mailbox a rdfs:Class ;
+	nao:deprecated true ;
+	rdfs:subClassOf nie:InformationElement .
+
+nmo:MailAccount a rdfs:Class ;
 	rdfs:subClassOf nie:InformationElement .
 
 nmo:MailboxDataObject a rdfs:Class ;
@@ -239,14 +245,14 @@ nmo:duration a rdf:Property ;
 # FIXME Extension to nepomuk 
 nmo:accountName a rdf:Property ;
 	nrl:maxCardinality 1 ;
-	rdfs:domain nmo:Mailbox ;
+	rdfs:domain nmo:MailAccount ;
 	rdfs:range xsd:string ;
 	tracker:weight 3 .
 
 # FIXME Extension to nepomuk 
 nmo:accountDisplayName a rdf:Property ;
 	nrl:maxCardinality 1 ;
-	rdfs:domain nmo:Mailbox ;
+	rdfs:domain nmo:MailAccount ;
 	rdfs:range xsd:string ;
 	tracker:weight 3 .
 
@@ -254,13 +260,13 @@ nmo:accountDisplayName a rdf:Property ;
 nmo:fromAddress a rdf:Property ;
 	rdfs:comment "From address of an account" ;
 	nrl:maxCardinality 1 ;
-	rdfs:domain nmo:Mailbox ;
+	rdfs:domain nmo:MailAccount ;
 	rdfs:range nco:EmailAddress .
 
 # FIXME Extension to nepomuk 
 nmo:signature a rdf:Property ;
 	nrl:maxCardinality 1 ;
-	rdfs:domain nmo:Mailbox ;
+	rdfs:domain nmo:MailAccount ;
 	rdfs:range xsd:string ;
 	tracker:weight 2 .
 
