@@ -1548,6 +1548,7 @@ AC_CONFIG_FILES([
 	po/Makefile.in
 	python/deskbar-handler/Makefile
 	python/gtk-sparql/Makefile
+	python/rss_reader/Makefile
 	python/Makefile
 	src/libinotify/Makefile
 	src/libstemmer/Makefile

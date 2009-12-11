@@ -10,7 +10,7 @@ data/tracker-store.desktop.in.in
 python/deskbar-handler/tracker-handler.py
 python/deskbar-handler/tracker-handler-static.py
 python/deskbar-handler/tracker-module.py
-python/rss_reader/rss_viewer.ui
+[type: gettext/glade]python/rss_reader/rss_viewer.ui
 src/libtracker-common/tracker-dbus.c
 src/libtracker-common/tracker-utils.c
 src/libtracker-gtk/tracker-metadata-tile.c
@@ -20,7 +20,7 @@ src/libtracker-miner/tracker-miner-fs.c
 src/plugins/evolution/org-freedesktop-Tracker-evolution-plugin.eplug.xml
 src/plugins/evolution/tracker-evolution-plugin.c
 src/plugins/evolution/tracker-miner-emails.desktop.in
-src/tracker-explorer/tracker-explorer.ui
+[type: gettext/glade]src/tracker-explorer/tracker-explorer.ui
 src/tracker-extract/tracker-extract.c
 src/tracker-extract/tracker-main.c
 src/tracker-miner-fs/tracker-main.c

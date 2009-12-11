@@ -1,12 +1,11 @@
 include $(top_srcdir)/Makefile.decl
 
 uidir = $(datadir)/tracker
-ui_DATA = gtk-sparql.ui
+ui_DATA = rss_viewer.ui
 
 EXTRA_DIST = 				\
 	$(ui_DATA)			\
-	Completion.py			\
-	gtk-sparql.py			\
-	store.py			\
-	tracker_completion.py
-
+	main.py				\
+	signaler.py			\
+	tracker_backend.py		\
+	zeitgeist_backend.py
