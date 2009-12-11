@@ -387,9 +387,16 @@ miner_applications_process_file_cb (gpointer user_data)
 		tracker_sparql_builder_object (sparql, "nfo:FileDataObject");
 		tracker_sparql_builder_object (sparql, "nie:DataObject");
 
+		/* The URL of the DataObject */
+		tracker_sparql_builder_predicate (sparql, "nie:url");
+		tracker_sparql_builder_object_iri (sparql, uri);
+
+		/* Laying the link between the IE and the DO */
 		tracker_sparql_builder_subject_iri (sparql, uri);
 		tracker_sparql_builder_predicate (sparql, "nie:isStoredAs");
 		tracker_sparql_builder_object_iri (sparql, desktop_file_uri);
+
+
 		g_free (desktop_file_uri);
 	}
 

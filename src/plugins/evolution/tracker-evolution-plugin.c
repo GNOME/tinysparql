@@ -422,8 +422,12 @@ process_fields (TrackerSparqlBuilder *sparql, const gchar *uid, guint flags,
 	tracker_sparql_builder_predicate (sparql, "tracker:available");
 	tracker_sparql_builder_object_boolean (sparql, TRUE);
 
-	/* The URI of the InformationElement should be a UUID URN */
+	/* Laying the link between the IE and the DO. We use IE = DO */
 	tracker_sparql_builder_predicate (sparql, "nie:isStoredAs");
+	tracker_sparql_builder_object_iri (sparql, uri);
+
+	/* The URL of the DataObject (because IE = DO, this is correct) */
+	tracker_sparql_builder_predicate (sparql, "nie:url");
 	tracker_sparql_builder_object_iri (sparql, uri);
 
 	tracker_sparql_builder_predicate (sparql, "nie:dataSource");

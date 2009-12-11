@@ -226,6 +226,9 @@ process_queue_cb (gpointer user_data)
 		return FALSE;
 	}
 
+	/* We use IE = DO, so we can optimize using nie:isStoredAs instead of
+	 * nie:url here. Please change this when we change that decision. */
+
 	query = g_strdup_printf ("SELECT ?url ?predicate ?object {"
 	                         "  <%s> ?predicate ?object ;"
 	                         "  nie:isStoredAs ?url ."

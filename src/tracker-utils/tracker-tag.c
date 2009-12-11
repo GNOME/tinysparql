@@ -406,6 +406,10 @@ add_tag_for_urns (TrackerClient *client,
 	 * is, then we add the urns specified to the new tag.
 	 */
 	if (filter) {
+
+		/* We use IE = DO, so we can optimize using nie:isStoredAs instead of
+	 	* nie:url here. Please change this when we change that decision. */
+
 		/* Add tag to specific urns */
 		query = g_strdup_printf ("INSERT { "
 					 "  _:tag a nao:Tag;"

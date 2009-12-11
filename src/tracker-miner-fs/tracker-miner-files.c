@@ -1349,13 +1349,18 @@ process_file_cb (GObject      *object,
 		tracker_sparql_builder_object (sparql, "nfo:Folder");
 	}
 
+	/* Laying the link between the IE and the DO. We use IE = DO */
 	tracker_sparql_builder_predicate (sparql, "nie:isStoredAs");
+	tracker_sparql_builder_object_iri (sparql, uri);
+
+	/* The URL of the DataObject (because IE = DO, this is correct) */
+	tracker_sparql_builder_predicate (sparql, "nie:url");
 	tracker_sparql_builder_object_iri (sparql, uri);
 
 	tracker_sparql_builder_predicate (sparql, "nie:mimeType");
 	tracker_sparql_builder_object_string (sparql, mime_type);
 
-        miner_files_add_to_datasource (data->miner, file, sparql);
+	miner_files_add_to_datasource (data->miner, file, sparql);
 
 	tracker_sparql_builder_insert_close (sparql);
 
