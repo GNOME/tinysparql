@@ -27,13 +27,13 @@ G_BEGIN_DECLS
 gboolean tracker_thumbnailer_init       (void);
 void     tracker_thumbnailer_shutdown   (void);
 gboolean tracker_thumbnailer_queue_add  (const gchar *uri,
-					 const gchar *mime);
+                                         const gchar *mime);
 void     tracker_thumbnailer_queue_send (void);
 gboolean tracker_thumbnailer_move       (const gchar *from_uri,
-					 const gchar *mime_type,
-					 const gchar *to_uri);
+                                         const gchar *mime_type,
+                                         const gchar *to_uri);
 gboolean tracker_thumbnailer_remove     (const gchar *uri,
-					 const gchar *mime_type);
+                                         const gchar *mime_type);
 gboolean tracker_thumbnailer_cleanup    (const gchar *uri_prefix);
 
 G_END_DECLS

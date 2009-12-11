@@ -28,11 +28,11 @@ G_BEGIN_DECLS
 gboolean tracker_albumart_init     (void);
 void     tracker_albumart_shutdown (void);
 gboolean tracker_albumart_process  (const unsigned char *buffer,
-				    size_t               len,
-				    const gchar         *mime,
-				    const gchar         *artist,
-				    const gchar         *album,
-				    const gchar         *filename);
+                                    size_t               len,
+                                    const gchar         *mime,
+                                    const gchar         *artist,
+                                    const gchar         *album,
+                                    const gchar         *filename);
 
 G_END_DECLS
 

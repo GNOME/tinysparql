@@ -49,14 +49,14 @@
 #include "tracker-miner-files.h"
 #include "tracker-thumbnailer.h"
 
-#define ABOUT								  \
+#define ABOUT	  \
 	"Tracker " PACKAGE_VERSION "\n"
 
-#define LICENSE								  \
+#define LICENSE	  \
 	"This program is free software and comes without any warranty.\n" \
-	"It is licensed under version 2 or later of the General Public "  \
-	"License which can be viewed at:\n"				  \
-	"\n"								  \
+	"It is licensed under version 2 or later of the General Public " \
+	"License which can be viewed at:\n" \
+	"\n" \
 	"  http://www.gnu.org/licenses/gpl.txt\n"
 
 static GMainLoop    *main_loop;
@@ -65,8 +65,8 @@ static GSList       *current_miner;
 static gboolean      finished_miners;
 
 static gboolean      version;
-static gint	     verbosity = -1;
-static gint	     initial_sleep = -1;
+static gint          verbosity = -1;
+static gint          initial_sleep = -1;
 
 static GOptionEntry  entries[] = {
 	{ "version", 'V', 0,
@@ -91,24 +91,24 @@ sanity_check_option_values (TrackerConfig *config)
 {
 	g_message ("General options:");
 	g_message ("  Verbosity  ............................  %d",
-		   tracker_config_get_verbosity (config));
+	           tracker_config_get_verbosity (config));
 	g_message ("  Initial Sleep  ........................  %d",
-		   tracker_config_get_initial_sleep (config));
+	           tracker_config_get_initial_sleep (config));
 
 	g_message ("Indexer options:");
 	g_message ("  Throttle level  .......................  %d",
-		   tracker_config_get_throttle (config));
+	           tracker_config_get_throttle (config));
 	g_message ("  Thumbnail indexing enabled  ...........  %s",
-		   tracker_config_get_enable_thumbnails (config) ? "yes" : "no");
+	           tracker_config_get_enable_thumbnails (config) ? "yes" : "no");
 	g_message ("  Indexing while on battery  ............  %s (first time only = %s)",
-		   tracker_config_get_index_on_battery (config) ? "yes" : "no",
-		   tracker_config_get_index_on_battery_first_time (config) ? "yes" : "no");
+	           tracker_config_get_index_on_battery (config) ? "yes" : "no",
+	           tracker_config_get_index_on_battery_first_time (config) ? "yes" : "no");
 
 	if (tracker_config_get_low_disk_space_limit (config) == -1) {
 		g_message ("  Low disk space limit  .................  Disabled");
 	} else {
 		g_message ("  Low disk space limit  .................  %d%%",
-			   tracker_config_get_low_disk_space_limit (config));
+		           tracker_config_get_low_disk_space_limit (config));
 	}
 }
 
@@ -132,8 +132,8 @@ signal_handler (int signo)
 		if (g_strsignal (signo)) {
 			g_print ("\n");
 			g_print ("Received signal:%d->'%s'\n",
-                                 signo,
-                                 g_strsignal (signo));
+			         signo,
+			         g_strsignal (signo));
 		}
 		break;
 	}
@@ -144,7 +144,7 @@ initialize_signal_handler (void)
 {
 #ifndef G_OS_WIN32
 	struct sigaction act;
-	sigset_t	 empty_mask;
+	sigset_t         empty_mask;
 
 	sigemptyset (&empty_mask);
 	act.sa_handler = signal_handler;
@@ -176,35 +176,35 @@ initialize_priority (void)
 		const gchar *str = g_strerror (errno);
 
 		g_message ("Couldn't set nice value to 19, %s",
-			   str ? str : "no error given");
+		           str ? str : "no error given");
 	}
 }
 
 static void
 miner_handle_next (void)
 {
-        if (finished_miners) {
-                return;
-        }
+	if (finished_miners) {
+		return;
+	}
 
-        if (!current_miner) {
-                current_miner = miners;
-        } else {
-                current_miner = current_miner->next;
-        }
+	if (!current_miner) {
+		current_miner = miners;
+	} else {
+		current_miner = current_miner->next;
+	}
 
-        if (!current_miner) {
-                finished_miners = TRUE;
+	if (!current_miner) {
+		finished_miners = TRUE;
 
-                g_message ("All miners are now finished");
-                tracker_thumbnailer_queue_send ();
-                return;
-        }
+		g_message ("All miners are now finished");
+		tracker_thumbnailer_queue_send ();
+		return;
+	}
 
-        if (!tracker_miner_is_started (current_miner->data)) {
-                g_message ("Starting next miner...");
-                tracker_miner_start (current_miner->data);
-        }
+	if (!tracker_miner_is_started (current_miner->data)) {
+		g_message ("Starting next miner...");
+		tracker_miner_start (current_miner->data);
+	}
 }
 
 static void
@@ -217,18 +217,18 @@ miner_finished_cb (TrackerMinerFS *fs,
                    gpointer        user_data)
 {
 	g_message ("Finished mining in seconds:%f, total directories:%d, total files:%d",
-                   seconds_elapsed,
-                   total_directories_found + total_directories_ignored,
-                   total_files_found + total_files_ignored);
+	           seconds_elapsed,
+	           total_directories_found + total_directories_ignored,
+	           total_files_found + total_files_ignored);
 
-        miner_handle_next ();
+	miner_handle_next ();
 }
 
 int
 main (gint argc, gchar *argv[])
 {
 	TrackerConfig *config;
-        TrackerMiner *miner_applications, *miner_files;
+	TrackerMiner *miner_applications, *miner_files;
 	GOptionContext *context;
 	GError *error = NULL;
 	gchar *log_filename = NULL;
@@ -257,10 +257,10 @@ main (gint argc, gchar *argv[])
 	g_option_context_parse (context, &argc, &argv, &error);
 	g_option_context_free (context);
 
-        if (version) {
-                g_print ("\n" ABOUT "\n" LICENSE "\n");
-                return EXIT_SUCCESS;
-        }
+	if (version) {
+		g_print ("\n" ABOUT "\n" LICENSE "\n");
+		return EXIT_SUCCESS;
+	}
 
 	g_print ("Initializing tracker-miner-fs...\n");
 
@@ -289,7 +289,7 @@ main (gint argc, gchar *argv[])
 	 * successfully when called upon from the daemon.
 	 */
 	tracker_log_init (tracker_config_get_verbosity (config),
-                          &log_filename);
+	                  &log_filename);
 	g_print ("Starting log:\n  File:'%s'\n", log_filename);
 	g_free (log_filename);
 
@@ -308,28 +308,28 @@ main (gint argc, gchar *argv[])
 
 		str = g_strerror (errno);
 		g_message ("Couldn't set nice value to 19, %s",
-			   str ? str : "no error given");
+		           str ? str : "no error given");
 	}
 
-        tracker_thumbnailer_init ();
+	tracker_thumbnailer_init ();
 
-        /* Create miner for applications */
-        miner_applications = tracker_miner_applications_new ();
-        miners = g_slist_append (miners, miner_applications);
+	/* Create miner for applications */
+	miner_applications = tracker_miner_applications_new ();
+	miners = g_slist_append (miners, miner_applications);
 
 	g_signal_connect (miner_applications, "finished",
-			  G_CALLBACK (miner_finished_cb),
-			  NULL);
+	                  G_CALLBACK (miner_finished_cb),
+	                  NULL);
 
-        /* Create miner for files */
-        miner_files = tracker_miner_files_new (config);
-        miners = g_slist_append (miners, miner_files);
+	/* Create miner for files */
+	miner_files = tracker_miner_files_new (config);
+	miners = g_slist_append (miners, miner_files);
 
 	g_signal_connect (miner_files, "finished",
-			  G_CALLBACK (miner_finished_cb),
-			  NULL);
+	                  G_CALLBACK (miner_finished_cb),
+	                  NULL);
 
-        miner_handle_next ();
+	miner_handle_next ();
 
 	main_loop = g_main_loop_new (NULL, FALSE);
 	g_main_loop_run (main_loop);
@@ -339,10 +339,10 @@ main (gint argc, gchar *argv[])
 	g_main_loop_unref (main_loop);
 	g_object_unref (config);
 
-        g_slist_foreach (miners, (GFunc) g_object_unref, NULL);
-        g_slist_free (miners);
+	g_slist_foreach (miners, (GFunc) g_object_unref, NULL);
+	g_slist_free (miners);
         
-        tracker_thumbnailer_shutdown ();
+	tracker_thumbnailer_shutdown ();
 	tracker_log_shutdown ();
 
 	g_print ("\nOK\n\n");

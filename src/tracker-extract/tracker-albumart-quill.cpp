@@ -40,7 +40,7 @@ G_BEGIN_DECLS
 static gboolean init = FALSE;
 
 gboolean
-tracker_albumart_file_to_jpeg (const gchar *filename, 
+tracker_albumart_file_to_jpeg (const gchar *filename,
                                const gchar *target)
 {
 	if (!init) {

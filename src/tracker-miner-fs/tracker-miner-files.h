@@ -39,12 +39,12 @@ typedef struct TrackerMinerFilesClass TrackerMinerFilesClass;
 typedef struct TrackerMinerFilesPrivate TrackerMinerFilesPrivate;
 
 struct TrackerMinerFiles {
-        TrackerMinerFS parent_instance;
+	TrackerMinerFS parent_instance;
 	TrackerMinerFilesPrivate *private;
 };
 
 struct TrackerMinerFilesClass {
-        TrackerMinerFSClass parent_class;
+	TrackerMinerFSClass parent_class;
 };
 
 GType          tracker_miner_files_get_type (void) G_GNUC_CONST;

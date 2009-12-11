@@ -152,7 +152,7 @@ public static void add_freevalue (ListStore model) {
 
 public static void add_dir (ListStore model)
 {
-	FileChooserDialog dialog = new FileChooserDialog (_("Select directory"), window, 
+	FileChooserDialog dialog = new FileChooserDialog (_("Select directory"), window,
 	                                              FileChooserAction.SELECT_FOLDER,
 	                                              STOCK_CANCEL, ResponseType.CANCEL,
 	                                              STOCK_OK, ResponseType.ACCEPT);
@@ -321,8 +321,8 @@ fill_in_model (ListStore model, SList<string> list)
 static void
 setup_standard_treeview (TreeView view, string title)
 {
-	TreeViewColumn column = new TreeViewColumn.with_attributes (title, 
-	                                                            new CellRendererText (), 
+	TreeViewColumn column = new TreeViewColumn.with_attributes (title,
+	                                                            new CellRendererText (),
 	                                                            "text", 0);
 	view.append_column (column);
 }
@@ -401,7 +401,7 @@ static int main (string[] args) {
 	} catch (Error e) {
 		stderr.printf ("Could not load UI: %s\n", e.message);
 		return 1;
-	} 
+	}
 
 	return 0;
 }

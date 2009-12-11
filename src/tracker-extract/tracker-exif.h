@@ -26,9 +26,9 @@
 
 typedef struct {
 	gchar *y_dimension, *x_dimension, *image_width, *document_name, *time, *time_original,
-	      *artist, *user_comment, *description, *make, *model, *orientation,
-	      *exposure_time, *fnumber, *flash, *focal_length, *iso_speed_ratings,
-	      *metering_mode, *white_balance, *copyright;
+		*artist, *user_comment, *description, *make, *model, *orientation,
+		*exposure_time, *fnumber, *flash, *focal_length, *iso_speed_ratings,
+		*metering_mode, *white_balance, *copyright;
 } TrackerExifData;
 
 void tracker_read_exif (const unsigned char *buffer,

@@ -33,14 +33,14 @@
 #define GET_PRIV(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_LANGUAGE, TrackerLanguagePriv))
 
 typedef struct _TrackerLanguagePriv TrackerLanguagePriv;
-typedef struct _Languages	    Languages;
+typedef struct _Languages           Languages;
 
 struct _TrackerLanguagePriv {
 	GHashTable    *stop_words;
 	gboolean       enable_stemmer;
 	gchar         *language_code;
 
-	GMutex	      *stemmer_mutex;
+	GMutex        *stemmer_mutex;
 	gpointer       stemmer;
 };
 
@@ -75,15 +75,15 @@ enum {
 	PROP_LANGUAGE_CODE,
 };
 
-static void	    language_finalize	       (GObject       *object);
-static void	    language_get_property      (GObject       *object,
-						guint	       param_id,
-						GValue	      *value,
-						GParamSpec    *pspec);
-static void	    language_set_property      (GObject       *object,
-						guint	       param_id,
-						const GValue  *value,
-						GParamSpec    *pspec);
+static void         language_finalize          (GObject       *object);
+static void         language_get_property      (GObject       *object,
+                                                guint          param_id,
+                                                GValue        *value,
+                                                GParamSpec    *pspec);
+static void         language_set_property      (GObject       *object,
+                                                guint          param_id,
+                                                const GValue  *value,
+                                                GParamSpec    *pspec);
 
 G_DEFINE_TYPE (TrackerLanguage, tracker_language, G_TYPE_OBJECT);
 
@@ -92,33 +92,33 @@ tracker_language_class_init (TrackerLanguageClass *klass)
 {
 	GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
-	object_class->finalize	   = language_finalize;
+	object_class->finalize     = language_finalize;
 	object_class->get_property = language_get_property;
 	object_class->set_property = language_set_property;
 
 	g_object_class_install_property (object_class,
-					 PROP_ENABLE_STEMMER,
-					 g_param_spec_boolean ("enable-stemmer",
-							       "Enable stemmer",
-							       "Enable stemmer",
-							       TRUE,
-							       G_PARAM_WRITABLE | G_PARAM_CONSTRUCT));
+	                                 PROP_ENABLE_STEMMER,
+	                                 g_param_spec_boolean ("enable-stemmer",
+	                                                       "Enable stemmer",
+	                                                       "Enable stemmer",
+	                                                       TRUE,
+	                                                       G_PARAM_WRITABLE | G_PARAM_CONSTRUCT));
 
 	g_object_class_install_property (object_class,
-					 PROP_STOP_WORDS,
-					 g_param_spec_boxed ("stop-words",
-							     "Stop words",
-							     "Stop words",
-							     g_hash_table_get_type (),
-							     G_PARAM_READABLE));
+	                                 PROP_STOP_WORDS,
+	                                 g_param_spec_boxed ("stop-words",
+	                                                     "Stop words",
+	                                                     "Stop words",
+	                                                     g_hash_table_get_type (),
+	                                                     G_PARAM_READABLE));
 
 	g_object_class_install_property (object_class,
-					 PROP_LANGUAGE_CODE,
-					 g_param_spec_string ("language-code",
-							      "Language code",
-							      "Language code",
-							      "en",
-							      G_PARAM_WRITABLE | G_PARAM_CONSTRUCT));
+	                                 PROP_LANGUAGE_CODE,
+	                                 g_param_spec_string ("language-code",
+	                                                      "Language code",
+	                                                      "Language code",
+	                                                      "en",
+	                                                      G_PARAM_WRITABLE | G_PARAM_CONSTRUCT));
 
 	g_type_class_add_private (object_class, sizeof (TrackerLanguagePriv));
 }
@@ -127,14 +127,14 @@ static void
 tracker_language_init (TrackerLanguage *language)
 {
 	TrackerLanguagePriv *priv;
-	const gchar	    *stem_language;
+	const gchar         *stem_language;
 
 	priv = GET_PRIV (language);
 
 	priv->stop_words = g_hash_table_new_full (g_str_hash,
-						  g_str_equal,
-						  g_free,
-						  NULL);
+	                                          g_str_equal,
+	                                          g_free,
+	                                          NULL);
 
 	priv->stemmer_mutex = g_mutex_new ();
 
@@ -167,10 +167,10 @@ language_finalize (GObject *object)
 }
 
 static void
-language_get_property (GObject	  *object,
-		       guint	   param_id,
-		       GValue	  *value,
-		       GParamSpec *pspec)
+language_get_property (GObject    *object,
+                       guint       param_id,
+                       GValue     *value,
+                       GParamSpec *pspec)
 {
 	TrackerLanguagePriv *priv;
 
@@ -194,19 +194,19 @@ language_get_property (GObject	  *object,
 }
 
 static void
-language_set_property (GObject	    *object,
-		       guint	     param_id,
-		       const GValue *value,
-		       GParamSpec   *pspec)
+language_set_property (GObject      *object,
+                       guint         param_id,
+                       const GValue *value,
+                       GParamSpec   *pspec)
 {
 	switch (param_id) {
 	case PROP_ENABLE_STEMMER:
 		tracker_language_set_enable_stemmer (TRACKER_LANGUAGE (object),
-						     g_value_get_boolean (value));
+		                                     g_value_get_boolean (value));
 		break;
 	case PROP_LANGUAGE_CODE:
 		tracker_language_set_language_code (TRACKER_LANGUAGE (object),
-						    g_value_get_string (value));
+		                                    g_value_get_string (value));
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, param_id, pspec);
@@ -222,10 +222,10 @@ language_get_stopword_filename (const gchar *language_code)
 
 	str = g_strconcat ("stopwords.", language_code, NULL);
 	filename = g_build_filename (SHAREDIR,
-				     "tracker",
-				     "languages",
-				     str,
-				     NULL);
+	                             "tracker",
+	                             "languages",
+	                             str,
+	                             NULL);
 	g_free (str);
 
 	return filename;
@@ -233,20 +233,20 @@ language_get_stopword_filename (const gchar *language_code)
 
 static void
 language_add_stopwords (TrackerLanguage *language,
-			const gchar	*filename)
+                        const gchar     *filename)
 {
 	TrackerLanguagePriv  *priv;
-	GMappedFile	     *mapped_file;
-	GError		     *error = NULL;
-	gchar		     *content;
-	gchar		    **words, **p;
+	GMappedFile          *mapped_file;
+	GError               *error = NULL;
+	gchar                *content;
+	gchar               **words, **p;
 
 	priv = GET_PRIV (language);
 
 	mapped_file = g_mapped_file_new (filename, FALSE, &error);
 	if (error) {
 		g_message ("Tracker couldn't read stopword file:'%s', %s",
-			     filename, error->message);
+		           filename, error->message);
 		g_clear_error (&error);
 		return;
 	}
@@ -259,8 +259,8 @@ language_add_stopwords (TrackerLanguage *language,
 	/* FIXME: Shouldn't clear the hash table first? */
 	for (p = words; *p; p++) {
 		g_hash_table_insert (priv->stop_words,
-				     g_strdup (g_strstrip (*p)),
-				     GINT_TO_POINTER (1));
+		                     g_strdup (g_strstrip (*p)),
+		                     GINT_TO_POINTER (1));
 	}
 
 	g_strfreev (words);
@@ -268,10 +268,10 @@ language_add_stopwords (TrackerLanguage *language,
 
 static void
 language_set_stopword_list (TrackerLanguage *language,
-			    const gchar     *language_code)
+                            const gchar     *language_code)
 {
 	TrackerLanguagePriv *priv;
-	gchar		    *stopword_filename;
+	gchar               *stopword_filename;
 	gchar               *stem_language_lower;
 	const gchar         *stem_language;
 
@@ -306,7 +306,7 @@ language_set_stopword_list (TrackerLanguage *language,
 	priv->stemmer = sb_stemmer_new (stem_language_lower, NULL);
 	if (!priv->stemmer) {
 		g_message ("No stemmer could be found for language:'%s'",
-			   stem_language_lower);
+		           stem_language_lower);
 	}
 
 	g_mutex_unlock (priv->stemmer_mutex);
@@ -328,8 +328,8 @@ tracker_language_new (const gchar *language_code)
 	TrackerLanguage *language;
 
 	language = g_object_new (TRACKER_TYPE_LANGUAGE, 
-				 "language-code", language_code,
-				 NULL);
+	                         "language-code", language_code,
+	                         NULL);
 
 	return language;
 }
@@ -405,7 +405,7 @@ tracker_language_get_language_code (TrackerLanguage *language)
  **/
 void
 tracker_language_set_enable_stemmer (TrackerLanguage *language,
-				     gboolean         value)
+                                     gboolean         value)
 {
 	TrackerLanguagePriv *priv;
 
@@ -428,7 +428,7 @@ tracker_language_set_enable_stemmer (TrackerLanguage *language,
  **/
 void
 tracker_language_set_language_code (TrackerLanguage *language,
-				    const gchar     *value)
+                                    const gchar     *value)
 {
 	TrackerLanguagePriv *priv;
 
@@ -463,11 +463,11 @@ tracker_language_set_language_code (TrackerLanguage *language,
  **/
 gchar *
 tracker_language_stem_word (TrackerLanguage *language,
-			    const gchar     *word,
-			    gint	     word_length)
+                            const gchar     *word,
+                            gint             word_length)
 {
 	TrackerLanguagePriv *priv;
-	const gchar	    *stem_word;
+	const gchar         *stem_word;
 
 	g_return_val_if_fail (TRACKER_IS_LANGUAGE (language), NULL);
 
@@ -484,8 +484,8 @@ tracker_language_stem_word (TrackerLanguage *language,
 	g_mutex_lock (priv->stemmer_mutex);
 
 	stem_word = (const gchar*) sb_stemmer_stem (priv->stemmer,
-						    (guchar*) word,
-						    word_length);
+	                                            (guchar*) word,
+	                                            word_length);
 
 	g_mutex_unlock (priv->stemmer_mutex);
 
@@ -538,7 +538,7 @@ tracker_language_get_default_code (void)
 
 	for (p = local_languages; *p; p++) {
 		const gchar *code;
-		gint	     i = 0;
+		gint         i = 0;
 
 		if (!*p || *p[0] == '\0') {
 			continue;

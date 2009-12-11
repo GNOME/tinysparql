@@ -35,21 +35,21 @@
 /* Need pango for CJK ranges which are : 0x3400 - 0x4DB5, 0x4E00 -
  * 0x9FA5, 0x20000 - <= 0x2A6D6
  */
-#define NEED_PANGO(c)		 (((c) >= 0x3400 && (c) <= 0x4DB5)  ||	\
-				  ((c) >= 0x4E00 && (c) <= 0x9FA5)  ||	\
-				  ((c) >= 0x20000 && (c) <= 0x2A6D6))
-#define IS_LATIN(c)		 (((c) <= 0x02AF) ||			\
-				  ((c) >= 0x1E00 && (c) <= 0x1EFF))
-#define IS_ASCII(c)		 ((c) <= 0x007F)
+#define NEED_PANGO(c)            (((c) >= 0x3400 && (c) <= 0x4DB5)  ||  \
+                                  ((c) >= 0x4E00 && (c) <= 0x9FA5)  ||  \
+                                  ((c) >= 0x20000 && (c) <= 0x2A6D6))
+#define IS_LATIN(c)              (((c) <= 0x02AF) ||	\
+                                  ((c) >= 0x1E00 && (c) <= 0x1EFF))
+#define IS_ASCII(c)              ((c) <= 0x007F)
 #define IS_ASCII_ALPHA_LOWER(c)  ((c) >= 0x0061 && (c) <= 0x007A)
 #define IS_ASCII_ALPHA_HIGHER(c) ((c) >= 0x0041 && (c) <= 0x005A)
-#define IS_ASCII_NUMERIC(c)	 ((c) >= 0x0030 && (c) <= 0x0039)
-#define IS_ASCII_IGNORE(c)	 ((c) <= 0x002C)
-#define IS_HYPHEN(c)		 ((c) == 0x002D)
-#define IS_UNDERSCORE(c)	 ((c) == 0x005F)
-#define IS_NEWLINE(c)		 ((c) == 0x000D)
-#define IS_O(c)			 ((c) == 0x006F)
-#define IS_R(c)			 ((c) == 0x0072)
+#define IS_ASCII_NUMERIC(c)      ((c) >= 0x0030 && (c) <= 0x0039)
+#define IS_ASCII_IGNORE(c)       ((c) <= 0x002C)
+#define IS_HYPHEN(c)             ((c) == 0x002D)
+#define IS_UNDERSCORE(c)         ((c) == 0x005F)
+#define IS_NEWLINE(c)            ((c) == 0x000D)
+#define IS_O(c)                          ((c) == 0x006F)
+#define IS_R(c)                          ((c) == 0x0072)
 
 typedef enum {
 	TRACKER_PARSER_WORD_ASCII_HIGHER,
@@ -72,29 +72,29 @@ typedef enum {
 } TrackerParserEncoding;
 
 struct TrackerParser {
-	const gchar	      *txt;
-	gint		       txt_size;
+	const gchar           *txt;
+	gint                   txt_size;
 
 	TrackerLanguage       *language;
-	gboolean	       enable_stemmer;
-	gboolean	       enable_stop_words;
-	guint		       max_words_to_index;
-	guint		       max_word_length;
-	guint		       min_word_length;
-	gboolean	       delimit_words;
-	gboolean	       parse_reserved_words;
+	gboolean               enable_stemmer;
+	gboolean               enable_stop_words;
+	guint                  max_words_to_index;
+	guint                  max_word_length;
+	guint                  min_word_length;
+	gboolean               delimit_words;
+	gboolean               parse_reserved_words;
 
 	/* Private members */
-	gchar			*word;
-	gint			word_length;
-	guint			word_position;
-	TrackerParserEncoding	encoding;
-	const gchar		*cursor;
+	gchar                   *word;
+	gint                    word_length;
+	guint                   word_position;
+	TrackerParserEncoding   encoding;
+	const gchar             *cursor;
 
 	/* Pango members for CJK text parsing */
-	PangoLogAttr	      *attrs;
-	guint		       attr_length;
-	guint		       attr_pos;
+	PangoLogAttr          *attrs;
+	guint                  attr_length;
+	guint                  attr_pos;
 };
 
 static inline TrackerParserWordType
@@ -142,8 +142,8 @@ get_word_type (gunichar c)
 
 static inline gchar *
 strip_word (const gchar *str,
-	    gint	 length,
-	    guint32	*len)
+            gint         length,
+            guint32     *len)
 {
 #ifdef HAVE_UNAC
 	gchar *s = NULL;
@@ -164,7 +164,7 @@ get_encoding (const gchar *txt)
 {
 	const gchar *p;
 	gunichar     c;
-	gint	     i = 0;
+	gint         i = 0;
 
 	/* Grab first 255 non-whitespace chars and test */
 	for (p = txt; *p && i < 255; p = g_utf8_next_char (p)) {
@@ -189,7 +189,7 @@ get_encoding (const gchar *txt)
 
 static gboolean
 is_stop_word (TrackerLanguage *language,
-	      const gchar     *word)
+              const gchar     *word)
 {
 	GHashTable *stop_words;
 
@@ -204,14 +204,14 @@ is_stop_word (TrackerLanguage *language,
 
 static gboolean
 pango_next (TrackerParser *parser,
-	    gint	  *byte_offset_start,
-	    gint	  *byte_offset_end)
+            gint          *byte_offset_start,
+            gint          *byte_offset_end)
 
 {
 	/* CJK text does not need stemming or other treatment */
-	gint	word_start = -1;
-	gint	old_word_start = -1;
-	guint	i;
+	gint    word_start = -1;
+	gint    old_word_start = -1;
+	guint   i;
 
 	for (i = parser->attr_pos; i < parser->attr_length; i++) {
 		if (parser->attrs[i].is_word_start) {
@@ -268,19 +268,19 @@ pango_next (TrackerParser *parser,
 
 static gboolean
 parser_next (TrackerParser *parser,
-	     gint	   *byte_offset_start,
-	     gint	   *byte_offset_end)
+             gint          *byte_offset_start,
+             gint          *byte_offset_end)
 {
 	TrackerParserWordType word_type;
-	gunichar	      word[64];
-	gboolean	      is_valid;
-	guint		      length;
-	gint		      char_count = 0;
-	glong		      bytes;
-	const gchar	     *p;
-	const gchar	     *start;
-	const gchar	     *end;
-	gboolean	      do_strip = FALSE;
+	gunichar              word[64];
+	gboolean              is_valid;
+	guint                 length;
+	gint                  char_count = 0;
+	glong                 bytes;
+	const gchar          *p;
+	const gchar          *start;
+	const gchar          *end;
+	gboolean              do_strip = FALSE;
 
 	*byte_offset_start = 0;
 	*byte_offset_end = 0;
@@ -301,7 +301,7 @@ parser_next (TrackerParser *parser,
 
 	for (p = parser->cursor; *p && *p != '\0'; p = g_utf8_next_char (p)) {
 		TrackerParserWordType type;
-		gunichar	      c;
+		gunichar              c;
 
 		char_count++;
 		c = g_utf8_get_char (p);
@@ -428,8 +428,8 @@ parser_next (TrackerParser *parser,
 	}
 
 	if (word_type == TRACKER_PARSER_WORD_ALPHA_NUM || word_type == TRACKER_PARSER_WORD_ALPHA) {
-		gchar	    *utf8;
-		gchar	    *processed_word;
+		gchar       *utf8;
+		gchar       *processed_word;
 
 
 
@@ -461,8 +461,8 @@ parser_next (TrackerParser *parser,
 
 TrackerParser *
 tracker_parser_new (TrackerLanguage *language,
-		    gint	     max_word_length,
-		    gint	     min_word_length)
+                    gint             max_word_length,
+                    gint             min_word_length)
 {
 	TrackerParser *parser;
 
@@ -500,12 +500,12 @@ tracker_parser_free (TrackerParser *parser)
 
 void
 tracker_parser_reset (TrackerParser *parser,
-		      const gchar   *txt,
-		      gint	     txt_size,
-		      gboolean	     delimit_words,
-		      gboolean	     enable_stemmer,
-		      gboolean	     enable_stop_words,
-		      gboolean	     parse_reserved_words)
+                      const gchar   *txt,
+                      gint           txt_size,
+                      gboolean       delimit_words,
+                      gboolean       enable_stemmer,
+                      gboolean       enable_stop_words,
+                      gboolean       parse_reserved_words)
 {
 	g_return_if_fail (parser != NULL);
 	g_return_if_fail (txt != NULL);
@@ -540,11 +540,11 @@ tracker_parser_reset (TrackerParser *parser,
 		attrs = g_new0 (PangoLogAttr, parser->attr_length);
 
 		pango_get_log_attrs (parser->txt,
-				     txt_size,
-				     0,
-				     pango_language_from_string ("C"),
-				     attrs,
-				     parser->attr_length);
+		                     txt_size,
+		                     0,
+		                     pango_language_from_string ("C"),
+		                     attrs,
+		                     parser->attr_length);
 
 		parser->attrs = attrs;
 		parser->attr_pos = 0;
@@ -553,9 +553,9 @@ tracker_parser_reset (TrackerParser *parser,
 
 gchar *
 tracker_parser_process_word (TrackerParser *parser,
-			     const char    *word,
-			     gint	    length,
-			     gboolean	    do_strip)
+                             const char    *word,
+                             gint           length,
+                             gboolean       do_strip)
 {
 	gchar *stem_word;
 	gchar *str;
@@ -583,12 +583,12 @@ tracker_parser_process_word (TrackerParser *parser,
 
 		if (!stripped_word) {
 			str = g_utf8_normalize (word,
-						bytes,
-						G_NORMALIZE_NFC);
+			                        bytes,
+			                        G_NORMALIZE_NFC);
 		} else {
 			str = g_utf8_normalize (stripped_word,
-						len,
-						G_NORMALIZE_NFC);
+			                        len,
+			                        G_NORMALIZE_NFC);
 			g_free (stripped_word);
 		}
 
@@ -612,14 +612,14 @@ tracker_parser_process_word (TrackerParser *parser,
 
 const gchar *
 tracker_parser_next (TrackerParser *parser,
-		     gint	   *position,
-		     gint	   *byte_offset_start,
-		     gint	   *byte_offset_end,
-		     gboolean	   *stop_word,
-		     gint	   *word_length)
+                     gint          *position,
+                     gint          *byte_offset_start,
+                     gint          *byte_offset_end,
+                     gboolean      *stop_word,
+                     gint          *word_length)
 {
 	const gchar  *str;
-	gint	 byte_start = 0, byte_end = 0;
+	gint     byte_start = 0, byte_end = 0;
 
 	str = NULL;
 

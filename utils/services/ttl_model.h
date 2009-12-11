@@ -6,45 +6,45 @@
 G_BEGIN_DECLS
 
 typedef struct {
-        gchar *classname;
-        GList *superclasses;
-        GList *subclasses;
-        GList *in_domain_of;
-        GList *in_range_of;
-        gchar *description;
-        GList *instances;
-        gboolean notify;
-        gboolean deprecated;
+	gchar *classname;
+	GList *superclasses;
+	GList *subclasses;
+	GList *in_domain_of;
+	GList *in_range_of;
+	gchar *description;
+	GList *instances;
+	gboolean notify;
+	gboolean deprecated;
 } OntologyClass;
 
 typedef struct {
-        gchar *propertyname;
-        GList *type;
-        GList *domain;
-        GList *range;
-        GList *superproperties;
-        GList *subproperties;
-        gchar *max_cardinality;
-        gchar *description;
-        gboolean deprecated;
+	gchar *propertyname;
+	GList *type;
+	GList *domain;
+	GList *range;
+	GList *superproperties;
+	GList *subproperties;
+	gchar *max_cardinality;
+	gchar *description;
+	gboolean deprecated;
 } OntologyProperty;
 
 typedef struct {
-        gchar *title;
-        GList *authors;
-        GList *editors;
-        GList *contributors;
-        gchar *gitlog;
-        gchar *upstream;
-        gchar *copyright;
-        gchar *baseUrl;
-        gchar *localPrefix;
-        gchar *relativePath;
+	gchar *title;
+	GList *authors;
+	GList *editors;
+	GList *contributors;
+	gchar *gitlog;
+	gchar *upstream;
+	gchar *copyright;
+	gchar *baseUrl;
+	gchar *localPrefix;
+	gchar *relativePath;
 } OntologyDescription;
 
 typedef struct {
-        GHashTable *classes;
-        GHashTable *properties;
+	GHashTable *classes;
+	GHashTable *properties;
 } Ontology;
 
 

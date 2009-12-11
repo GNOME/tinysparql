@@ -27,14 +27,14 @@
 
 G_BEGIN_DECLS
 
-#define TRACKER_TYPE_CONFIG	    (tracker_config_get_type ())
-#define TRACKER_CONFIG(o)	    (G_TYPE_CHECK_INSTANCE_CAST ((o), TRACKER_TYPE_CONFIG, TrackerConfig))
+#define TRACKER_TYPE_CONFIG         (tracker_config_get_type ())
+#define TRACKER_CONFIG(o)           (G_TYPE_CHECK_INSTANCE_CAST ((o), TRACKER_TYPE_CONFIG, TrackerConfig))
 #define TRACKER_CONFIG_CLASS(k)     (G_TYPE_CHECK_CLASS_CAST ((k), TRACKER_TYPE_CONFIG, TrackerConfigClass))
-#define TRACKER_IS_CONFIG(o)	    (G_TYPE_CHECK_INSTANCE_TYPE ((o), TRACKER_TYPE_CONFIG))
+#define TRACKER_IS_CONFIG(o)        (G_TYPE_CHECK_INSTANCE_TYPE ((o), TRACKER_TYPE_CONFIG))
 #define TRACKER_IS_CONFIG_CLASS(k)  (G_TYPE_CHECK_CLASS_TYPE ((k), TRACKER_TYPE_CONFIG))
 #define TRACKER_CONFIG_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o), TRACKER_TYPE_CONFIG, TrackerConfigClass))
 
-typedef struct TrackerConfig	  TrackerConfig;
+typedef struct TrackerConfig      TrackerConfig;
 typedef struct TrackerConfigClass TrackerConfigClass;
 
 struct TrackerConfig {
@@ -45,14 +45,14 @@ struct TrackerConfigClass {
 	TrackerConfigFileClass parent_class;
 };
 
-GType	       tracker_config_get_type      (void) G_GNUC_CONST;
+GType          tracker_config_get_type      (void) G_GNUC_CONST;
 
 TrackerConfig *tracker_config_new           (void);
 gboolean       tracker_config_save          (TrackerConfig *config);
 
 gint           tracker_config_get_verbosity (TrackerConfig *config);
 void           tracker_config_set_verbosity (TrackerConfig *config,
-					     gint           value);
+                                             gint           value);
 
 G_END_DECLS
 

@@ -32,19 +32,19 @@
 #include <libtracker-client/tracker.h>
 #include <libtracker-common/tracker-common.h>
 
-#define ABOUT                                                             \
-        "Tracker " PACKAGE_VERSION "\n"
+#define ABOUT	  \
+	"Tracker " PACKAGE_VERSION "\n"
 
-#define LICENSE                                                           \
-        "This program is free software and comes without any warranty.\n" \
-        "It is licensed under version 2 or later of the General Public "  \
-        "License which can be viewed at:\n"                               \
-        "\n"                                                              \
-        "  http://www.gnu.org/licenses/gpl.txt\n"
+#define LICENSE	  \
+	"This program is free software and comes without any warranty.\n" \
+	"It is licensed under version 2 or later of the General Public " \
+	"License which can be viewed at:\n" \
+	"\n" \
+	"  http://www.gnu.org/licenses/gpl.txt\n"
 
-static gchar	*file;
-static gchar	*query;
-static gboolean	 update;
+static gchar    *file;
+static gchar    *query;
+static gboolean          update;
 static gboolean  list_classes;
 static gboolean  list_class_prefixes;
 static gchar    *list_properties;
@@ -84,36 +84,36 @@ static GOptionEntry   entries[] = {
 
 static gchar *
 get_class_from_prefix (TrackerClient *client,
-		       const gchar   *prefix)
+                       const gchar   *prefix)
 {
 	GError *error = NULL;
 	GPtrArray *results;
 	const gchar *query;
 	gchar *found;
 	gint i;
-	
+
 	query = "SELECT ?prefix ?ns "
 		"WHERE {"
 		"  ?ns a tracker:Namespace ;"
 		"  tracker:prefix ?prefix "
 		"}";
-	
+
 	/* We have namespace prefix, get full name */
 	results = tracker_resources_sparql_query (client, query, &error);
-	
+
 	if (error) {
 		g_printerr ("%s, %s\n",
-			    _("Could not get namespace prefixes"),
-			    error->message);
+		            _("Could not get namespace prefixes"),
+		            error->message);
 		g_error_free (error);
 
 		return NULL;
 	}
-	
+
 	if (!results) {
 		g_printerr ("%s\n",
-			    _("No namespace prefixes were found"));
-		
+		            _("No namespace prefixes were found"));
+
 		return NULL;
 	}
 
@@ -138,7 +138,7 @@ get_class_from_prefix (TrackerClient *client,
 
 static void
 results_foreach (gpointer value,
-		 gpointer user_data)
+                 gpointer user_data)
 {
 	gchar **data;
 	gchar **p;
@@ -177,7 +177,7 @@ main (int argc, char **argv)
 	g_option_context_parse (context, &argc, &argv, NULL);
 
 	if (print_version) {
-                g_print ("\n" ABOUT "\n" LICENSE "\n");
+		g_print ("\n" ABOUT "\n" LICENSE "\n");
 		g_option_context_free (context);
 
 		return EXIT_SUCCESS;
@@ -188,7 +188,7 @@ main (int argc, char **argv)
 		gchar *help;
 
 		g_printerr ("%s\n\n",
-			    _("Either a file or query needs to be specified"));
+		            _("Either a file or query needs to be specified"));
 
 		help = g_option_context_get_help (context, TRUE, NULL);
 		g_option_context_free (context);
@@ -204,7 +204,7 @@ main (int argc, char **argv)
 
 	if (!client) {
 		g_printerr ("%s\n",
-			    _("Could not establish a D-Bus connection to Tracker"));
+		            _("Could not establish a D-Bus connection to Tracker"));
 		return EXIT_FAILURE;
 	}
 
@@ -217,8 +217,8 @@ main (int argc, char **argv)
 
 		if (error) {
 			g_printerr ("%s, %s\n",
-				    _("Could not list classes"),
-				    error->message);
+			            _("Could not list classes"),
+			            error->message);
 			g_error_free (error);
 			tracker_disconnect (client);
 
@@ -227,13 +227,13 @@ main (int argc, char **argv)
 
 		if (!results) {
 			g_print ("%s\n",
-				 _("No classes were found"));
+			         _("No classes were found"));
 		} else {
 			g_print (tracker_dngettext (NULL,
-						    "Class: %d", 
-						    "Classes: %d",
-						    results->len),
-				 results->len);
+			                            "Class: %d",
+			                            "Classes: %d",
+			                            results->len),
+			         results->len);
 			g_print ("\n");
 
 			g_ptr_array_foreach (results, results_foreach, NULL);
@@ -255,8 +255,8 @@ main (int argc, char **argv)
 
 		if (error) {
 			g_printerr ("%s, %s\n",
-				    _("Could not list class prefixes"),
-				    error->message);
+			            _("Could not list class prefixes"),
+			            error->message);
 			g_error_free (error);
 			tracker_disconnect (client);
 
@@ -265,13 +265,13 @@ main (int argc, char **argv)
 
 		if (!results) {
 			g_print ("%s\n",
-				 _("No class prefixes were found"));
+			         _("No class prefixes were found"));
 		} else {
 			g_print (tracker_dngettext (NULL,
-						    "Prefix: %d", 
-						    "Prefixes: %d",
-						    results->len),
-				 results->len);
+			                            "Prefix: %d",
+			                            "Prefixes: %d",
+			                            results->len),
+			         results->len);
 			g_print ("\n");
 
 			g_ptr_array_foreach (results, results_foreach, NULL);
@@ -294,11 +294,11 @@ main (int argc, char **argv)
 
 			prefix = g_strdup (list_properties);
 			p = strchr (prefix, ':');
-			
+
 			if (!p) {
-				g_printerr ("%s\n", 
-					    _("Could not find property for class prefix, "
-					      "e.g. :Resource in 'rdfs:Resource'"));
+				g_printerr ("%s\n",
+				            _("Could not find property for class prefix, "
+				              "e.g. :Resource in 'rdfs:Resource'"));
 				g_free (prefix);
 				tracker_disconnect (client);
 				return EXIT_FAILURE;
@@ -320,13 +320,13 @@ main (int argc, char **argv)
 			g_free (class_name_no_property);
 			g_free (property);
 		}
-	
+
 		query = g_strdup_printf ("SELECT ?prop "
-					 "WHERE {"
-					 "  ?prop a rdf:Property ;"
-					 "  rdfs:domain <%s>"
-					 "}",
-					 class_name);
+		                         "WHERE {"
+		                         "  ?prop a rdf:Property ;"
+		                         "  rdfs:domain <%s>"
+		                         "}",
+		                         class_name);
 
 		results = tracker_resources_sparql_query (client, query, &error);
 		g_free (query);
@@ -334,8 +334,8 @@ main (int argc, char **argv)
 
 		if (error) {
 			g_printerr ("%s, %s\n",
-				    _("Could not list properties"),
-				    error->message);
+			            _("Could not list properties"),
+			            error->message);
 			g_error_free (error);
 			tracker_disconnect (client);
 
@@ -344,13 +344,13 @@ main (int argc, char **argv)
 
 		if (!results) {
 			g_print ("%s\n",
-				 _("No properties were found"));
+			         _("No properties were found"));
 		} else {
 			g_print (tracker_dngettext (NULL,
-						    "Property: %d", 
-						    "Properties: %d",
-						    results->len),
-				 results->len);
+			                            "Property: %d",
+			                            "Properties: %d",
+			                            results->len),
+			         results->len);
 			g_print ("\n");
 
 			g_ptr_array_foreach (results, results_foreach, NULL);
@@ -366,9 +366,9 @@ main (int argc, char **argv)
 		path_in_utf8 = g_filename_to_utf8 (file, -1, NULL, NULL, &error);
 		if (error) {
 			g_printerr ("%s:'%s', %s\n",
-				    _("Could not get UTF-8 path from path"),
-				    file,
-				    error->message);
+			            _("Could not get UTF-8 path from path"),
+			            file,
+			            error->message);
 			g_error_free (error);
 			tracker_disconnect (client);
 
@@ -378,9 +378,9 @@ main (int argc, char **argv)
 		g_file_get_contents (path_in_utf8, &query, &size, &error);
 		if (error) {
 			g_printerr ("%s:'%s', %s\n",
-				    _("Could not read file"),
-				    path_in_utf8,
-				    error->message);
+			            _("Could not read file"),
+			            path_in_utf8,
+			            error->message);
 			g_error_free (error);
 			g_free (path_in_utf8);
 			tracker_disconnect (client);
@@ -397,10 +397,10 @@ main (int argc, char **argv)
 
 			if (error) {
 				g_printerr ("%s, %s\n",
-					    _("Could not run update"),
-					    error->message);
+				            _("Could not run update"),
+				            error->message);
 				g_error_free (error);
-				
+
 				return FALSE;
 			}
 
@@ -432,24 +432,24 @@ main (int argc, char **argv)
 
 			if (error) {
 				g_printerr ("%s, %s\n",
-					    _("Could not run query"),
-					    error->message);
+				            _("Could not run query"),
+				            error->message);
 				g_error_free (error);
-				
+
 				return FALSE;
 			}
-			
+
 			if (!results) {
 				g_print ("%s\n",
-					 _("No results found matching your query"));
+				         _("No results found matching your query"));
 			} else {
 				g_print (tracker_dngettext (NULL,
-							    "Result: %d", 
-							    "Results: %d",
-							    results->len),
-					 results->len);
+				                            "Result: %d",
+				                            "Results: %d",
+				                            results->len),
+				         results->len);
 				g_print ("\n");
-				
+
 				g_ptr_array_foreach (results, results_foreach, NULL);
 				g_ptr_array_foreach (results, (GFunc) g_strfreev, NULL);
 				g_ptr_array_free (results, TRUE);

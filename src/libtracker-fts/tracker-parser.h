@@ -30,27 +30,27 @@ G_BEGIN_DECLS
 
 typedef struct TrackerParser TrackerParser;
 
-TrackerParser *tracker_parser_new	      (TrackerLanguage *language,
-					       gint		max_word_length,
-					       gint		min_word_length);
-void	       tracker_parser_reset	      (TrackerParser   *parser,
-					       const gchar     *txt,
-					       gint		txt_size,
-					       gboolean		delimit_words,
-					       gboolean		enable_stemmer,
-					       gboolean		enable_stop_words,
-					       gboolean		parse_reserved_words);
-const gchar *  tracker_parser_next	      (TrackerParser   *parser,
-					       gint	       *position,
-					       gint	       *byte_offset_start,
-					       gint	       *byte_offset_end,
-					       gboolean        *stop_word,
-					       gint	       *word_length);
+TrackerParser *tracker_parser_new             (TrackerLanguage *language,
+                                               gint             max_word_length,
+                                               gint             min_word_length);
+void           tracker_parser_reset           (TrackerParser   *parser,
+                                               const gchar     *txt,
+                                               gint             txt_size,
+                                               gboolean                 delimit_words,
+                                               gboolean                 enable_stemmer,
+                                               gboolean                 enable_stop_words,
+                                               gboolean                 parse_reserved_words);
+const gchar *  tracker_parser_next            (TrackerParser   *parser,
+                                               gint            *position,
+                                               gint            *byte_offset_start,
+                                               gint            *byte_offset_end,
+                                               gboolean        *stop_word,
+                                               gint            *word_length);
 gchar *        tracker_parser_process_word    (TrackerParser   *parser,
-					       const char      *word,
-					       gint		length,
-					       gboolean		do_strip);
-void	       tracker_parser_free	      (TrackerParser   *parser);
+                                               const char      *word,
+                                               gint             length,
+                                               gboolean                 do_strip);
+void           tracker_parser_free            (TrackerParser   *parser);
 
 G_END_DECLS
 

@@ -39,7 +39,7 @@ main (int argc, char **argv) {
 	g_type_init ();
 	g_thread_init (NULL);
 	g_test_init (&argc, &argv, NULL);
- 
+
 	g_test_message ("Testing extract functionality");
 
 	path = g_build_filename (MODULESDIR, "libextract-jpeg", NULL);
@@ -47,29 +47,29 @@ main (int argc, char **argv) {
 	g_free (path);
 
 	g_test_add_data_func ("/tracker-extract/tracker-extract-jpeg/check-extract-data",
-			      data, test_tracker_extract_check_extract_data);
-	
+	                      data, test_tracker_extract_check_extract_data);
+
 #if 0
 	g_test_add_data_func ("/tracker-extract/tracker-extract-jpeg/basic_size",
-			      data, test_tracker_extract_jpeg_basic_size);
+	                      data, test_tracker_extract_jpeg_basic_size);
 
 	g_test_add_data_func ("/tracker-extract/tracker-extract-jpeg/exif_size",
-			      data, test_tracker_extract_jpeg_exif_size);
+	                      data, test_tracker_extract_jpeg_exif_size);
 
 	g_test_add_data_func ("/tracker-extract/tracker-extract-jpeg/exif_orientation",
-			      data, test_tracker_extract_jpeg_exif_orientation);
+	                      data, test_tracker_extract_jpeg_exif_orientation);
 
 	g_test_add_data_func ("/tracker-extract/tracker-extract-jpeg/exif_flash",
-			      data, test_tracker_extract_jpeg_exif_flash);
+	                      data, test_tracker_extract_jpeg_exif_flash);
 
 	g_test_add_data_func ("/tracker-extract/tracker-extract-jpeg/exif_tags",
-			      data, test_tracker_extract_jpeg_exif_tags);
+	                      data, test_tracker_extract_jpeg_exif_tags);
 
 	/*
-	if (g_test_perf()) {
-		g_test_add_data_func ("/tracker-extract/tracker-extract-jpeg/performance",
-				      data, test_tracker_extract_jpeg_performance);
-	}*/
+	  if (g_test_perf()) {
+	  g_test_add_data_func ("/tracker-extract/tracker-extract-jpeg/performance",
+	  data, test_tracker_extract_jpeg_performance);
+	  }*/
 
 #endif
 

@@ -74,7 +74,7 @@ const TestInfo tests[] = {
 	{ "sort/query-sort-5", "sort/data-sort-4", FALSE }, 
 	{ "subqueries/subqueries-1", "subqueries/data-1", FALSE },
 	/* Bracket error after WHERE */
-	{ "error/query-error-1", "error/query-error-1", TRUE }, 
+	{ "error/query-error-1", "error/query-error-1", TRUE },
 	/* Unknown property */
 	{ "error/query-error-2", "error/query-error-2", TRUE },
 
@@ -112,8 +112,8 @@ test_sparql_query (gconstpointer test_data)
 	g_free (prefix);
 
 	tracker_data_manager_init (TRACKER_DB_MANAGER_FORCE_REINDEX,
-		                   data_prefix, 
-				   NULL, NULL);
+	                           data_prefix,
+	                           NULL, NULL);
 
 	/* data_path = g_build_path (G_DIR_SEPARATOR_S, TOP_SRCDIR, "tests", "libtracker-data", NULL); */
 
@@ -242,11 +242,11 @@ main (int argc, char **argv)
 	if (!g_thread_supported ()) {
 		g_thread_init (NULL);
 	}
-	
+
 	g_test_init (&argc, &argv, NULL);
 
 	current_dir = g_get_current_dir ();
-	
+
 	g_setenv ("XDG_DATA_HOME", current_dir, TRUE);
 	g_setenv ("XDG_CACHE_HOME", current_dir, TRUE);
 	g_setenv ("TRACKER_DB_SQL_DIR", TOP_SRCDIR "/data/db/", TRUE);
@@ -257,7 +257,7 @@ main (int argc, char **argv)
 	/* add test cases */
 	for (i = 0; tests[i].test_name; i++) {
 		gchar *testpath;
-		
+
 		testpath = g_strconcat ("/libtracker-data/sparql/", tests[i].test_name, NULL);
 		g_test_add_data_func (testpath, &tests[i], test_sparql_query);
 		g_free (testpath);

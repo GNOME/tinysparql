@@ -26,17 +26,17 @@
 
 G_BEGIN_DECLS
 
-#define TRACKER_TYPE_CRAWLER		(tracker_crawler_get_type ())
-#define TRACKER_CRAWLER(object)		(G_TYPE_CHECK_INSTANCE_CAST ((object), TRACKER_TYPE_CRAWLER, TrackerCrawler))
-#define TRACKER_CRAWLER_CLASS(klass)	(G_TYPE_CHECK_CLASS_CAST ((klass), TRACKER_TYPE_CRAWLER, TrackerCrawlerClass))
-#define TRACKER_IS_CRAWLER(object)	(G_TYPE_CHECK_INSTANCE_TYPE ((object), TRACKER_TYPE_CRAWLER))
+#define TRACKER_TYPE_CRAWLER            (tracker_crawler_get_type ())
+#define TRACKER_CRAWLER(object)                 (G_TYPE_CHECK_INSTANCE_CAST ((object), TRACKER_TYPE_CRAWLER, TrackerCrawler))
+#define TRACKER_CRAWLER_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), TRACKER_TYPE_CRAWLER, TrackerCrawlerClass))
+#define TRACKER_IS_CRAWLER(object)      (G_TYPE_CHECK_INSTANCE_TYPE ((object), TRACKER_TYPE_CRAWLER))
 #define TRACKER_IS_CRAWLER_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), TRACKER_TYPE_CRAWLER))
-#define TRACKER_CRAWLER_GET_CLASS(obj)	(G_TYPE_INSTANCE_GET_CLASS ((obj), TRACKER_TYPE_CRAWLER, TrackerCrawlerClass))
+#define TRACKER_CRAWLER_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), TRACKER_TYPE_CRAWLER, TrackerCrawlerClass))
 
 /* Max timeouts time (in msec) */
 #define MAX_TIMEOUT_INTERVAL 1000
 
-typedef struct TrackerCrawler	      TrackerCrawler;
+typedef struct TrackerCrawler         TrackerCrawler;
 typedef struct TrackerCrawlerClass    TrackerCrawlerClass;
 typedef struct TrackerCrawlerPrivate  TrackerCrawlerPrivate;
 
@@ -49,32 +49,32 @@ struct TrackerCrawlerClass {
 	GObjectClass parent;
 
 	gboolean (* check_directory)     (TrackerCrawler *crawler,
-					  GFile          *file);
+	                                  GFile          *file);
 	gboolean (* check_file)          (TrackerCrawler *crawler,
-					  GFile          *file);
+	                                  GFile          *file);
 	gboolean (* check_directory_contents) (TrackerCrawler *crawler,
-					       GFile          *file,
-					       GList          *contents);
+	                                       GFile          *file,
+	                                       GList          *contents);
 	void     (* finished)            (TrackerCrawler *crawler,
-					  GQueue         *found_files,
-					  gboolean        interrupted,
-					  guint           directories_found,
-					  guint           directories_ignored,
-					  guint           files_found,
-					  guint           files_ignored);
+	                                  GQueue         *found_files,
+	                                  gboolean        interrupted,
+	                                  guint           directories_found,
+	                                  guint           directories_ignored,
+	                                  guint           files_found,
+	                                  guint           files_ignored);
 };
 
 GType           tracker_crawler_get_type (void);
 TrackerCrawler *tracker_crawler_new      (void);
 gboolean        tracker_crawler_start    (TrackerCrawler *crawler,
-					  GFile          *file,
-					  gboolean        recurse);
+                                          GFile          *file,
+                                          gboolean        recurse);
 void            tracker_crawler_stop     (TrackerCrawler *crawler);
 void            tracker_crawler_pause    (TrackerCrawler *crawler);
 void            tracker_crawler_resume   (TrackerCrawler *crawler);
 
 void            tracker_crawler_set_throttle (TrackerCrawler *crawler,
-					      gdouble         throttle);
+                                              gdouble         throttle);
 
 G_END_DECLS
 

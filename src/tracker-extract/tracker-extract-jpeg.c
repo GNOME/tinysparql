@@ -54,18 +54,18 @@
 #include "tracker-exif.h"
 
 #ifdef HAVE_LIBEXIF
-#define EXIF_NAMESPACE		"Exif"
-#define EXIF_NAMESPACE_LENGTH	4
+#define EXIF_NAMESPACE          "Exif"
+#define EXIF_NAMESPACE_LENGTH   4
 #endif /* HAVE_LIBEXIF */
 
 #ifdef HAVE_EXEMPI
-#define XMP_NAMESPACE		"http://ns.adobe.com/xap/1.0/\x00"
-#define XMP_NAMESPACE_LENGTH	29
+#define XMP_NAMESPACE           "http://ns.adobe.com/xap/1.0/\x00"
+#define XMP_NAMESPACE_LENGTH    29
 #endif /* HAVE_EXEMPI */
 
 #ifdef HAVE_LIBIPTCDATA
-#define PS3_NAMESPACE		"Photoshop 3.0\0"
-#define PS3_NAMESPACE_LENGTH	14
+#define PS3_NAMESPACE           "Photoshop 3.0\0"
+#define PS3_NAMESPACE_LENGTH    14
 #include <libiptcdata/iptc-jpeg.h>
 #endif /* HAVE_LIBIPTCDATA */
 
@@ -89,7 +89,7 @@ typedef struct {
 } MergeData;
 
 static void extract_jpeg (const gchar          *filename,
-			  TrackerSparqlBuilder *metadata);
+                          TrackerSparqlBuilder *metadata);
 
 static TrackerExtractData data[] = {
 	{ "image/jpeg", extract_jpeg },
@@ -103,7 +103,7 @@ struct tej_error_mgr {
 
 static void
 insert_keywords (TrackerSparqlBuilder *metadata,
-		 gchar                *keywords)
+                 gchar                *keywords)
 {
 	char *saveptr, *p;
 	size_t len;
@@ -148,7 +148,7 @@ extract_jpeg_error_exit (j_common_ptr cinfo)
 
 static void
 extract_jpeg (const gchar          *uri,
-	      TrackerSparqlBuilder *metadata)
+              TrackerSparqlBuilder *metadata)
 {
 	struct jpeg_decompress_struct cinfo;
 	struct tej_error_mgr tejerr;
@@ -229,18 +229,18 @@ extract_jpeg (const gchar          *uri,
 #ifdef HAVE_LIBEXIF
 				if (strncmp (EXIF_NAMESPACE, str, EXIF_NAMESPACE_LENGTH) == 0) {
 					tracker_read_exif ((unsigned char*) marker->data,
-							   len,
-							   uri,
-							   &ed);
+					                   len,
+					                   uri,
+					                   &ed);
 				}
 #endif /* HAVE_LIBEXIF */
 
 #ifdef HAVE_EXEMPI
 				if (strncmp (XMP_NAMESPACE, str, XMP_NAMESPACE_LENGTH) == 0) {
 					tracker_read_xmp (str + XMP_NAMESPACE_LENGTH,
-							  len - XMP_NAMESPACE_LENGTH,
-							  uri,
-							  &xd);
+					                  len - XMP_NAMESPACE_LENGTH,
+					                  uri,
+					                  &xd);
 				}
 #endif /* HAVE_EXEMPI */
 
@@ -254,9 +254,9 @@ extract_jpeg (const gchar          *uri,
 					offset = iptc_jpeg_ps3_find_iptc (str, len, &sublen);
 					if (offset > 0) {
 						tracker_read_iptc (str + offset,
-								   sublen,
-								   uri,
-								   &id);
+						                   sublen,
+						                   uri,
+						                   &id);
 					}
 				}
 #endif /* HAVE_LIBIPTCDATA */
@@ -513,7 +513,7 @@ extract_jpeg (const gchar          *uri,
 		}
 
 		jpeg_destroy_decompress (&cinfo);
-fail:
+	fail:
 		tracker_file_close (f, FALSE);
 	}
 

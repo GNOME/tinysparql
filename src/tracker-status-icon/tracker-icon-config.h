@@ -34,13 +34,13 @@ G_BEGIN_DECLS
 #define TRACKER_IS_ICON_CONFIG_CLASS(k)  (G_TYPE_CHECK_CLASS_TYPE ((k), TRACKER_TYPE_ICON_CONFIG))
 #define TRACKER_ICON_CONFIG_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o), TRACKER_TYPE_ICON_CONFIG, TrackerIconConfigClass))
 
-typedef struct TrackerIconConfig	  TrackerIconConfig;
+typedef struct TrackerIconConfig          TrackerIconConfig;
 typedef struct TrackerIconConfigClass TrackerIconConfigClass;
 
 typedef enum {
-        TRACKER_SHOW_NEVER,
-        TRACKER_SHOW_ACTIVE,
-        TRACKER_SHOW_ALWAYS
+	TRACKER_SHOW_NEVER,
+	TRACKER_SHOW_ACTIVE,
+	TRACKER_SHOW_ALWAYS
 } TrackerVisibility;
 
 struct TrackerIconConfig {
@@ -51,7 +51,7 @@ struct TrackerIconConfigClass {
 	TrackerConfigFileClass parent_class;
 };
 
-GType	           tracker_icon_config_get_type				   (void) G_GNUC_CONST;
+GType              tracker_icon_config_get_type                                    (void) G_GNUC_CONST;
 
 TrackerIconConfig *tracker_icon_config_new                                  (void);
 TrackerIconConfig *tracker_icon_config_new_with_domain                      (const gchar *domain);
@@ -60,7 +60,7 @@ gboolean           tracker_icon_config_save                                 (Tra
 
 TrackerVisibility  tracker_icon_config_get_visibility                       (TrackerIconConfig *config);
 void               tracker_icon_config_set_visibility                       (TrackerIconConfig *config,
-									     TrackerVisibility  value);
+                                                                             TrackerVisibility  value);
 
 G_END_DECLS
 

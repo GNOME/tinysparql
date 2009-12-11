@@ -10,6 +10,6 @@
 
       dsc:gitlog "http://git.gnome.org/cgit/tracker/log/data/ontologies/38-nmm.ontology";
 
-      dsc:localPrefix "nmm" ;      
+      dsc:localPrefix "nmm" ;
       dsc:baseUrl "http://www.tracker-project.org/temp/nmm#" ;
       dsc:relativePath "./38-nmm.ontology" .

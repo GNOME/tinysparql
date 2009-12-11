@@ -27,12 +27,12 @@
 #include <libtracker-client/tracker.h>
 
 
-#define TRACKER_TYPE_METADATA_TILE		(tracker_metadata_tile_get_type ())
-#define TRACKER_METADATA_TILE(obj)		(G_TYPE_CHECK_INSTANCE_CAST ((obj), TRACKER_TYPE_METADATA_TILE, TrackerMetadataTile))
-#define TRACKER_METADATA_TILE_CLASS(klass)	(G_TYPE_CHECK_CLASS_CAST ((klass), TRACKER_TYPE_METADATA_TILE, TrackerMetadataTileClass))
-#define TRACKER_IS_METADATA_TILE(obj)		(G_TYPE_CHECK_INSTANCE_TYPE ((obj), TRACKER_TYPE_METADATA_TILE))
-#define TRACKER_IS_METADATA_TILE_CLASS(klass)	(G_TYPE_CHECK_CLASS_TYPE ((klass), TRACKER_TYPE_METADATA_TILE))
-#define TRACKER_METADATA_TILE_GET_CLASS(obj)	(G_TYPE_INSTANCE_GET_CLASS ((obj), TRACKER_TYPE_METADATA_TILE, TrackerMetadataTileClass))
+#define TRACKER_TYPE_METADATA_TILE              (tracker_metadata_tile_get_type ())
+#define TRACKER_METADATA_TILE(obj)              (G_TYPE_CHECK_INSTANCE_CAST ((obj), TRACKER_TYPE_METADATA_TILE, TrackerMetadataTile))
+#define TRACKER_METADATA_TILE_CLASS(klass)      (G_TYPE_CHECK_CLASS_CAST ((klass), TRACKER_TYPE_METADATA_TILE, TrackerMetadataTileClass))
+#define TRACKER_IS_METADATA_TILE(obj)           (G_TYPE_CHECK_INSTANCE_TYPE ((obj), TRACKER_TYPE_METADATA_TILE))
+#define TRACKER_IS_METADATA_TILE_CLASS(klass)   (G_TYPE_CHECK_CLASS_TYPE ((klass), TRACKER_TYPE_METADATA_TILE))
+#define TRACKER_METADATA_TILE_GET_CLASS(obj)    (G_TYPE_INSTANCE_GET_CLASS ((obj), TRACKER_TYPE_METADATA_TILE, TrackerMetadataTileClass))
 
 typedef struct TrackerMetadataTilePrivate TrackerMetadataTilePrivate;
 
@@ -46,16 +46,16 @@ typedef struct {
 
 } TrackerMetadataTileClass;
 
-GType	   tracker_metadata_tile_get_type  (void);
+GType      tracker_metadata_tile_get_type  (void);
 
-GtkWidget* tracker_metadata_tile_new	   (void);
+GtkWidget* tracker_metadata_tile_new       (void);
 
 #if 0
-void	   tracker_metadata_tile_set_uri (TrackerMetadataTile		*tile,
-					  const gchar			*uri,
-					  ServiceType			service_type,
-					  const gchar			*type,
-					  GdkPixbuf			*icon);
+void       tracker_metadata_tile_set_uri (TrackerMetadataTile           *tile,
+                                          const gchar                   *uri,
+                                          ServiceType                   service_type,
+                                          const gchar                   *type,
+                                          GdkPixbuf                     *icon);
 #endif
 
 #endif /* TRACKER_METADATA_TILE_H */

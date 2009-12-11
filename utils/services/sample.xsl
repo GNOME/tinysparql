@@ -3,7 +3,7 @@
 <xsl:output method="text" />
 <xsl:template match="service">
 <xsl:for-each select="section">
-// item#<xsl:value-of select="position()"/> for <xsl:value-of select="@fullname" /> 
+// item#<xsl:value-of select="position()"/> for <xsl:value-of select="@fullname" />
 get<xsl:value-of select="@name"/>Of<xsl:value-of select="@prefix" /> {
     <xsl:for-each select="item">
   <xsl:value-of select="@name"/> {
@@ -15,4 +15,4 @@ get<xsl:value-of select="@name"/>Of<xsl:value-of select="@prefix" /> {
 }
 </xsl:for-each>
 </xsl:template>
-</xsl:stylesheet> 
+</xsl:stylesheet>

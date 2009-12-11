@@ -29,18 +29,18 @@
 #include "tracker-writeback-consumer.h"
 #include "tracker-config.h"
 
-#define ABOUT								  \
+#define ABOUT	  \
 	"Tracker " PACKAGE_VERSION "\n"
 
-#define LICENSE								  \
+#define LICENSE	  \
 	"This program is free software and comes without any warranty.\n" \
-	"It is licensed under version 2 or later of the General Public "  \
-	"License which can be viewed at:\n"				  \
-	"\n"								  \
+	"It is licensed under version 2 or later of the General Public " \
+	"License which can be viewed at:\n" \
+	"\n" \
 	"  http://www.gnu.org/licenses/gpl.txt\n"
 
 static gboolean      version;
-static gint	     verbosity = -1;
+static gint          verbosity = -1;
 
 static GOptionEntry  entries[] = {
 	{ "version", 'V', 0,
@@ -66,7 +66,7 @@ static GMainContext *dispatcher_context = NULL;
 
 static WritebackData *
 writeback_data_new (const gchar *subject,
-		    const GStrv  rdf_types)
+                    const GStrv  rdf_types)
 {
 	WritebackData *data;
 
@@ -109,12 +109,12 @@ on_writeback_cb (TrackerWritebackDispatcher *dispatcher,
 	WritebackData *data;
 
 	g_message ("Got writeback petition on thread '%p' for subject '%s'",
-		   g_thread_self (), subject);
+	           g_thread_self (), subject);
 
 	data = writeback_data_new (subject, rdf_types);
 	g_idle_add_full (G_PRIORITY_HIGH_IDLE,
-			 on_writeback_idle_cb,
-			 data, NULL);
+	                 on_writeback_idle_cb,
+	                 data, NULL);
 }
 
 static gpointer
@@ -142,7 +142,7 @@ sanity_check_option_values (TrackerConfig *config)
 {
 	g_message ("General options:");
 	g_message ("  Verbosity  ............................  %d",
-		   tracker_config_get_verbosity (config));
+	           tracker_config_get_verbosity (config));
 }
 
 int
@@ -176,10 +176,10 @@ main (int   argc,
 	g_option_context_parse (context, &argc, &argv, &error);
 	g_option_context_free (context);
 
-        if (version) {
-                g_print ("\n" ABOUT "\n" LICENSE "\n");
-                return EXIT_SUCCESS;
-        }
+	if (version) {
+		g_print ("\n" ABOUT "\n" LICENSE "\n");
+		return EXIT_SUCCESS;
+	}
 
 	/* Initialize logging */
 	config = tracker_config_new ();
@@ -189,7 +189,7 @@ main (int   argc,
 	}
 
 	tracker_log_init (tracker_config_get_verbosity (config),
-                          &log_filename);
+	                  &log_filename);
 	g_print ("Starting log:\n  File:'%s'\n", log_filename);
 	g_free (log_filename);
 

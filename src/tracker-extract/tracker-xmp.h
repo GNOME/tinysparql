@@ -25,16 +25,16 @@
 typedef struct {
 	/* NS_DC */
 	gchar *title, *rights, *creator, *description, *date, *keywords, *subject,
-	      *publisher, *contributor, *type, *format, *identifier, *source,
-	      *language, *relation, *coverage;
+		*publisher, *contributor, *type, *format, *identifier, *source,
+		*language, *relation, *coverage;
 
 	/* NS_CC */
 	gchar *license;
 
 	/* NS_EXIF */
 	gchar *Title, *DateTimeOriginal, *Artist, *Make, *Model, *Orientation,
-	      *Flash, *MeteringMode, *ExposureTime, *FNumber, *FocalLength,
-	      *ISOSpeedRatings, *WhiteBalance, *Copyright;
+		*Flash, *MeteringMode, *ExposureTime, *FNumber, *FocalLength,
+		*ISOSpeedRatings, *WhiteBalance, *Copyright;
 
 	/* TODO NS_XAP*/
 	/* TODO NS_IPTC4XMP */
@@ -43,8 +43,8 @@ typedef struct {
 } TrackerXmpData;
 
 
-void tracker_read_xmp (const gchar          *buffer, 
-                       size_t                len, 
+void tracker_read_xmp (const gchar          *buffer,
+                       size_t                len,
                        const gchar          *uri,
                        TrackerXmpData       *data);
 

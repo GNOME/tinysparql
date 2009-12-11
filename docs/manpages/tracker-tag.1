@@ -4,7 +4,7 @@
 tracker-tag \- Add, remove and list tags.
 
 .SH SYNOPSIS
-\fBtracker-tag\fR 
+\fBtracker-tag\fR
 [\fIOPTION...\fR] FILE [\fIFILE...\fR]
 
 .SH DESCRIPTION
@@ -13,7 +13,7 @@ allows the caller add tags, remove tags and list tags by URN or to
 list all tags and the files associated with them.
 
 The \fIFILE\fR argument can be either a local path or a URI. It also
-does not have to be an absolute path. 
+does not have to be an absolute path.
 
 .SH OPTIONS
 .TP
@@ -37,14 +37,14 @@ associated with each tag by using --show-files.
 .TP
 .B \-s, \-\-show-files
 Show the files associated with each tag. This option is ONLY available
-WITH the 
-.B --list 
+WITH the
+.B --list
 option.
 .TP
 .B \-a, \-\-add=TAG
-Add a tag with the name 
+Add a tag with the name
 .B TAG.
-If no 
+If no
 .B FILE
 arguments are specified, the tag is simply created (if it didn't
 already exist) and no files are associated with it. Multiple
@@ -52,11 +52,11 @@ already exist) and no files are associated with it. Multiple
 arguments can be specified.
 .TP
 .B \-d, \-\-delete=TAG
-Delete a tag with the name 
+Delete a tag with the name
 .B TAG.
-If no 
+If no
 .B FILE
-arguments are specified, the tag is deleted for ALL files. If 
+arguments are specified, the tag is deleted for ALL files. If
 .B FILE
 arguments are specified, only those files have the
 .B TAG

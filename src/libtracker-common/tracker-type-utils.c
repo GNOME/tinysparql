@@ -49,7 +49,7 @@ static const char imonths[] = {
 static gboolean
 is_int (const gchar *str)
 {
-	gint	 i, len;
+	gint     i, len;
 
 	if (!str || str[0] == '\0') {
 		return FALSE;
@@ -304,8 +304,8 @@ tracker_date_format (const gchar *date_string)
 		buf[19] = '\0';
 
 		return g_strdup (buf);
-	} else if ((len == 28) && (date_string[4] == '-') && (date_string[10] == 'T') 
-		   && (date_string[19] == '.') ) {
+	} else if ((len == 28) && (date_string[4] == '-') && (date_string[10] == 'T')
+	           && (date_string[19] == '.') ) {
 		/* The fraction of seconds ISO 8601 "YYYY-MM-DDThh:mm:ss.ff+zz:zz" */
 		buf[0] = date_string[0];
 		buf[1] = date_string[1];
@@ -342,7 +342,7 @@ tracker_date_format (const gchar *date_string)
 
 gchar *
 tracker_date_format_to_iso8601 (const gchar *date_string,
-				const gchar *format)
+                                const gchar *format)
 {
 	gchar *result;
 	struct tm date_tm = { 0 };
@@ -391,7 +391,7 @@ tracker_string_to_date (const gchar *date_string)
 	GMatchInfo *match_info;
 	gchar      *match;
 	struct tm tm;
-	time_t	  t;
+	time_t    t;
 
 	g_return_val_if_fail (date_string, -1);
 
@@ -479,9 +479,9 @@ tracker_string_to_date (const gchar *date_string)
 gchar *
 tracker_date_to_string (time_t date_time)
 {
-	gchar	  buffer[30];
+	gchar     buffer[30];
 	struct tm utc_time;
-	size_t	  count;
+	size_t    count;
 
 	memset (buffer, '\0', sizeof (buffer));
 	memset (&utc_time, 0, sizeof (struct tm));
@@ -526,10 +526,10 @@ tracker_guint32_to_string (guint32 i)
 
 gboolean
 tracker_string_to_uint (const gchar *s,
-			guint	    *value)
+                        guint       *value)
 {
 	unsigned long int  n;
-	gchar		  *end;
+	gchar             *end;
 
 	g_return_val_if_fail (s != NULL, FALSE);
 	g_return_val_if_fail (value != NULL, FALSE);
@@ -553,10 +553,10 @@ tracker_string_to_uint (const gchar *s,
 
 gint
 tracker_string_in_string_list (const gchar  *str,
-			       gchar	   **strv)
+                               gchar       **strv)
 {
 	gchar **p;
-	gint	i;
+	gint    i;
 
 	g_return_val_if_fail (str != NULL, -1);
 
@@ -575,7 +575,7 @@ tracker_string_in_string_list (const gchar  *str,
 
 gboolean
 tracker_string_in_gslist (const gchar *str,
-			  GSList      *list)
+                          GSList      *list)
 {
 	GSList *l;
 
@@ -592,11 +592,11 @@ tracker_string_in_gslist (const gchar *str,
 
 GSList *
 tracker_string_list_to_gslist (gchar **strv,
-			       gsize   size)
+                               gsize   size)
 {
 	GSList *list;
-	gsize	i;
-	gsize	size_used;
+	gsize   i;
+	gsize   size_used;
 
 	g_return_val_if_fail (strv != NULL, NULL);
 
@@ -621,12 +621,12 @@ tracker_string_list_to_gslist (gchar **strv,
 
 gchar *
 tracker_string_list_to_string (gchar **strv,
-			       gsize   size,
-			       gchar   sep)
+                               gsize   size,
+                               gchar   sep)
 {
 	GString *string;
-	gsize	 i;
-	gsize	 size_used;
+	gsize    i;
+	gsize    size_used;
 
 	g_return_val_if_fail (strv != NULL, NULL);
 
@@ -669,9 +669,9 @@ tracker_string_to_string_list (const gchar *str)
 gchar **
 tracker_gslist_to_string_list (GSList *list)
 {
-	GSList	*l;
+	GSList  *l;
 	gchar  **strv;
-	gint	 i;
+	gint     i;
 
 	strv = g_new0 (gchar*, g_slist_length (list) + 1);
 

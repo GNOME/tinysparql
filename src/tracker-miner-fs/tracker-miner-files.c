@@ -55,8 +55,8 @@ struct ProcessFileData {
 };
 
 struct TrackerMinerFilesPrivate {
-        TrackerConfig *config;
-        TrackerStorage *storage;
+	TrackerConfig *config;
+	TrackerStorage *storage;
 	TrackerPower *power;
 
 	GVolumeMonitor *volume_monitor;
@@ -75,101 +75,101 @@ enum {
 };
 
 enum {
-        PROP_0,
-        PROP_CONFIG
+	PROP_0,
+	PROP_CONFIG
 };
 
 static void     miner_files_set_property      (GObject              *object,
-					       guint                 param_id,
-					       const GValue         *value,
-					       GParamSpec           *pspec);
+                                               guint                 param_id,
+                                               const GValue         *value,
+                                               GParamSpec           *pspec);
 static void     miner_files_get_property      (GObject              *object,
-					       guint                 param_id,
-					       GValue               *value,
-					       GParamSpec           *pspec);
+                                               guint                 param_id,
+                                               GValue               *value,
+                                               GParamSpec           *pspec);
 static void     miner_files_finalize          (GObject              *object);
 static void     miner_files_constructed       (GObject              *object);
 
 static void     mount_pre_unmount_cb          (GVolumeMonitor       *volume_monitor,
-					       GMount               *mount,
-					       TrackerMinerFiles    *mf);
+                                               GMount               *mount,
+                                               TrackerMinerFiles    *mf);
 
 #ifdef HAVE_HAL
 static void     mount_point_added_cb          (TrackerStorage       *storage,
-					       const gchar          *udi,
-					       const gchar          *mount_point,
-					       gpointer              user_data);
+                                               const gchar          *udi,
+                                               const gchar          *mount_point,
+                                               gpointer              user_data);
 static void     mount_point_removed_cb        (TrackerStorage       *storage,
-					       const gchar          *udi,
-					       const gchar          *mount_point,
-					       gpointer              user_data);
+                                               const gchar          *udi,
+                                               const gchar          *mount_point,
+                                               gpointer              user_data);
 
 static void     check_battery_status          (TrackerMinerFiles    *fs);
 static void     battery_status_cb             (GObject              *object,
-					       GParamSpec           *pspec,
-					       gpointer              user_data);
+                                               GParamSpec           *pspec,
+                                               gpointer              user_data);
 #endif
 
 static void     init_mount_points             (TrackerMinerFiles *miner);
 static void     disk_space_check_start        (TrackerMinerFiles    *mf);
 static void     disk_space_check_stop         (TrackerMinerFiles    *mf);
 static void     low_disk_space_limit_cb       (GObject              *gobject,
-					       GParamSpec           *arg1,
-					       gpointer              user_data);
+                                               GParamSpec           *arg1,
+                                               gpointer              user_data);
 
 static DBusGProxy * extractor_create_proxy    (void);
 static void    extractor_queue_thumbnail_cb   (DBusGProxy           *proxy,
-					       const gchar          *filename, 
-					       const gchar          *mime_type,
-					       gpointer              user_data);
-	
+                                               const gchar          *filename,
+                                               const gchar          *mime_type,
+                                               gpointer              user_data);
+
 static gboolean miner_files_check_file        (TrackerMinerFS       *fs,
-					       GFile                *file);
+                                               GFile                *file);
 static gboolean miner_files_check_directory   (TrackerMinerFS       *fs,
-					       GFile                *file);
+                                               GFile                *file);
 static gboolean miner_files_check_directory_contents (TrackerMinerFS       *fs,
-						      GFile                *parent,
-						      GList                *children);
+                                                      GFile                *parent,
+                                                      GList                *children);
 static gboolean miner_files_process_file      (TrackerMinerFS       *fs,
-					       GFile                *file,
-					       TrackerSparqlBuilder *sparql,
-					       GCancellable         *cancellable);
+                                               GFile                *file,
+                                               TrackerSparqlBuilder *sparql,
+                                               GCancellable         *cancellable);
 static gboolean miner_files_monitor_directory (TrackerMinerFS       *fs,
-					       GFile                *file);
+                                               GFile                *file);
 static gboolean miner_files_writeback_file    (TrackerMinerFS       *fs,
-					       GFile                *file,
-					       TrackerSparqlBuilder *sparql,
-					       GCancellable         *cancellable);
+                                               GFile                *file,
+                                               TrackerSparqlBuilder *sparql,
+                                               GCancellable         *cancellable);
 
 G_DEFINE_TYPE (TrackerMinerFiles, tracker_miner_files, TRACKER_TYPE_MINER_FS)
 
 static void
 tracker_miner_files_class_init (TrackerMinerFilesClass *klass)
 {
-        GObjectClass *object_class = G_OBJECT_CLASS (klass);
-        TrackerMinerFSClass *miner_fs_class = TRACKER_MINER_FS_CLASS (klass);
+	GObjectClass *object_class = G_OBJECT_CLASS (klass);
+	TrackerMinerFSClass *miner_fs_class = TRACKER_MINER_FS_CLASS (klass);
 
-        object_class->finalize = miner_files_finalize;
-        object_class->get_property = miner_files_get_property;
-        object_class->set_property = miner_files_set_property;
-        object_class->constructed = miner_files_constructed;
+	object_class->finalize = miner_files_finalize;
+	object_class->get_property = miner_files_get_property;
+	object_class->set_property = miner_files_set_property;
+	object_class->constructed = miner_files_constructed;
 
-        miner_fs_class->check_file = miner_files_check_file;
+	miner_fs_class->check_file = miner_files_check_file;
 	miner_fs_class->check_directory = miner_files_check_directory;
 	miner_fs_class->check_directory_contents = miner_files_check_directory_contents;
 	miner_fs_class->monitor_directory = miner_files_monitor_directory;
-        miner_fs_class->process_file = miner_files_process_file;
-        miner_fs_class->writeback_file = miner_files_writeback_file;
+	miner_fs_class->process_file = miner_files_process_file;
+	miner_fs_class->writeback_file = miner_files_writeback_file;
 
-       	g_object_class_install_property (object_class,
-					 PROP_CONFIG,
-					 g_param_spec_object ("config",
-							      "Config",
-							      "Config",
-                                                              TRACKER_TYPE_CONFIG,
-							      G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY));
+	g_object_class_install_property (object_class,
+	                                 PROP_CONFIG,
+	                                 g_param_spec_object ("config",
+	                                                      "Config",
+	                                                      "Config",
+	                                                      TRACKER_TYPE_CONFIG,
+	                                                      G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY));
 
-        g_type_class_add_private (klass, sizeof (TrackerMinerFilesPrivate));
+	g_type_class_add_private (klass, sizeof (TrackerMinerFilesPrivate));
 
 	miner_files_error_quark = g_quark_from_static_string ("TrackerMinerFiles");
 }
@@ -177,95 +177,95 @@ tracker_miner_files_class_init (TrackerMinerFilesClass *klass)
 static void
 tracker_miner_files_init (TrackerMinerFiles *mf)
 {
-        TrackerMinerFilesPrivate *priv;
+	TrackerMinerFilesPrivate *priv;
 
-        priv = mf->private = TRACKER_MINER_FILES_GET_PRIVATE (mf);
+	priv = mf->private = TRACKER_MINER_FILES_GET_PRIVATE (mf);
 
 #ifdef HAVE_HAL
-        priv->storage = tracker_storage_new ();
+	priv->storage = tracker_storage_new ();
 
-        g_signal_connect (priv->storage, "mount-point-added",
-                          G_CALLBACK (mount_point_added_cb), 
-			  mf);
+	g_signal_connect (priv->storage, "mount-point-added",
+	                  G_CALLBACK (mount_point_added_cb),
+	                  mf);
 
 	g_signal_connect (priv->storage, "mount-point-removed",
-	                  G_CALLBACK (mount_point_removed_cb), 
+	                  G_CALLBACK (mount_point_removed_cb),
 	                  mf);
 
 	priv->power = tracker_power_new ();
 
 	g_signal_connect (priv->power, "notify::on-low-battery",
-			  G_CALLBACK (battery_status_cb),
-			  mf);
+	                  G_CALLBACK (battery_status_cb),
+	                  mf);
 	g_signal_connect (priv->power, "notify::on-battery",
-			  G_CALLBACK (battery_status_cb),
-			  mf);
+	                  G_CALLBACK (battery_status_cb),
+	                  mf);
 #endif /* HAVE_HAL */
 
 	priv->volume_monitor = g_volume_monitor_get ();
 	g_signal_connect (priv->volume_monitor, "mount-pre-unmount",
-			  G_CALLBACK (mount_pre_unmount_cb),
-			  mf);
+	                  G_CALLBACK (mount_pre_unmount_cb),
+	                  mf);
 
 	/* Set up extractor and signals */
 	priv->extractor_proxy = extractor_create_proxy ();
 
 	dbus_g_object_register_marshaller (tracker_marshal_VOID__STRING_STRING,
-					   G_TYPE_NONE,
-					   G_TYPE_STRING,
-					   G_TYPE_STRING,
-					   G_TYPE_INVALID);
+	                                   G_TYPE_NONE,
+	                                   G_TYPE_STRING,
+	                                   G_TYPE_STRING,
+	                                   G_TYPE_INVALID);
 
 	dbus_g_proxy_add_signal (priv->extractor_proxy, "QueueThumbnail",
-				 G_TYPE_STRING,
-				 G_TYPE_STRING, 
-				 G_TYPE_INVALID);
+	                         G_TYPE_STRING,
+	                         G_TYPE_STRING,
+	                         G_TYPE_INVALID);
 
 	dbus_g_proxy_connect_signal (priv->extractor_proxy, "QueueThumbnail",
-				     G_CALLBACK (extractor_queue_thumbnail_cb),
-				     NULL, NULL);
-	
+	                             G_CALLBACK (extractor_queue_thumbnail_cb),
+	                             NULL, NULL);
+
 	init_mount_points (mf);
 }
 
 static void
 miner_files_set_property (GObject      *object,
-			  guint         prop_id,
-			  const GValue *value,
-			  GParamSpec   *pspec)
+                          guint         prop_id,
+                          const GValue *value,
+                          GParamSpec   *pspec)
 {
-        TrackerMinerFilesPrivate *priv;
+	TrackerMinerFilesPrivate *priv;
 
-        priv = TRACKER_MINER_FILES_GET_PRIVATE (object);
+	priv = TRACKER_MINER_FILES_GET_PRIVATE (object);
 
-        switch (prop_id) {
-        case PROP_CONFIG:
-                priv->config = g_value_dup_object (value);
-                break;
-        default:
-                G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+	switch (prop_id) {
+	case PROP_CONFIG:
+		priv->config = g_value_dup_object (value);
 		break;
-        }
+	default:
+		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+		break;
+	}
 }
 
 static void
 miner_files_get_property (GObject    *object,
-			  guint       prop_id,
-			  GValue     *value,
-			  GParamSpec *pspec)
+                          guint       prop_id,
+                          GValue     *value,
+                          GParamSpec *pspec)
 {
-        TrackerMinerFilesPrivate *priv;
+	TrackerMinerFilesPrivate *priv;
 
-        priv = TRACKER_MINER_FILES_GET_PRIVATE (object);
+	priv = TRACKER_MINER_FILES_GET_PRIVATE (object);
 
-        switch (prop_id) {
-        case PROP_CONFIG:
-                g_value_set_object (value, priv->config);
-                break;
-        default:
-                G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+	switch (prop_id) {
+	case PROP_CONFIG:
+		g_value_set_object (value, priv->config);
 		break;
-        }
+	default:
+		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+		break;
+	}
 }
 
 static void
@@ -278,64 +278,64 @@ miner_files_finalize (GObject *object)
 	priv = mf->private;
 
 	dbus_g_proxy_disconnect_signal (priv->extractor_proxy, "QueueThumbnail",
-					G_CALLBACK (extractor_queue_thumbnail_cb),
-					NULL);
-	
+	                                G_CALLBACK (extractor_queue_thumbnail_cb),
+	                                NULL);
+
 	g_object_unref (priv->extractor_proxy);
 
 	g_signal_handlers_disconnect_by_func (priv->config,
-					      low_disk_space_limit_cb,
-					      NULL);
+	                                      low_disk_space_limit_cb,
+	                                      NULL);
 
 	g_object_unref (priv->config);
 
 	disk_space_check_stop (TRACKER_MINER_FILES (object));
 
 #ifdef HAVE_HAL
-        g_object_unref (priv->power);
-        g_object_unref (priv->storage);
+	g_object_unref (priv->power);
+	g_object_unref (priv->storage);
 #endif /* HAVE_HAL */
 
 	g_signal_handlers_disconnect_by_func (priv->volume_monitor,
-					      mount_pre_unmount_cb,
-					      object);
+	                                      mount_pre_unmount_cb,
+	                                      object);
 	g_object_unref (priv->volume_monitor);
 
-        G_OBJECT_CLASS (tracker_miner_files_parent_class)->finalize (object);
+	G_OBJECT_CLASS (tracker_miner_files_parent_class)->finalize (object);
 }
 
 static void
 miner_files_constructed (GObject *object)
 {
-        TrackerMinerFiles *mf;
-        TrackerMinerFS *fs;
-        GSList *dirs;
+	TrackerMinerFiles *mf;
+	TrackerMinerFS *fs;
+	GSList *dirs;
 	GSList *mounts = NULL, *m;
 
 	G_OBJECT_CLASS (tracker_miner_files_parent_class)->constructed (object);
 
-        mf = TRACKER_MINER_FILES (object);
-        fs = TRACKER_MINER_FS (object);
+	mf = TRACKER_MINER_FILES (object);
+	fs = TRACKER_MINER_FS (object);
 
-        if (!mf->private->config) {
-                g_critical ("No config. This is mandatory");
-                g_assert_not_reached ();
-        }
+	if (!mf->private->config) {
+		g_critical ("No config. This is mandatory");
+		g_assert_not_reached ();
+	}
 
 #ifdef HAVE_HAL
-        if (tracker_config_get_index_removable_devices (mf->private->config)) {
-                mounts = tracker_storage_get_removable_device_roots (mf->private->storage);
-        }
+	if (tracker_config_get_index_removable_devices (mf->private->config)) {
+		mounts = tracker_storage_get_removable_device_roots (mf->private->storage);
+	}
 
 	check_battery_status (mf);
 #endif /* HAVE_HAL */
 
 	g_message ("Setting up directories to iterate from config (IndexSingleDirectory)");
 
-        /* Fill in directories to inspect */
-        dirs = tracker_config_get_index_single_directories (mf->private->config);
+	/* Fill in directories to inspect */
+	dirs = tracker_config_get_index_single_directories (mf->private->config);
 
-        for (; dirs; dirs = dirs->next) {
+	for (; dirs; dirs = dirs->next) {
 		GFile *file;
 
 		/* Do some simple checks for silly locations */
@@ -360,22 +360,22 @@ miner_files_constructed (GObject *object)
 
 			if (found) {
 				g_message ("  Duplicate found:'%s' - same as removable device path",
-					   (gchar*) dirs->data);
+				           (gchar*) dirs->data);
 				continue;
 			}
 		}
 
 		g_message ("  Adding:'%s'", (gchar*) dirs->data);
 		file = g_file_new_for_path (dirs->data);
-                tracker_miner_fs_add_directory (fs, file, FALSE);
+		tracker_miner_fs_add_directory (fs, file, FALSE);
 		g_object_unref (file);
-        }
+	}
 
 	g_message ("Setting up directories to iterate from config (IndexRecursiveDirectory)");
 
-        dirs = tracker_config_get_index_recursive_directories (mf->private->config);
+	dirs = tracker_config_get_index_recursive_directories (mf->private->config);
 
-        for (; dirs; dirs = dirs->next) {
+	for (; dirs; dirs = dirs->next) {
 		GFile *file;
 
 		/* Do some simple checks for silly locations */
@@ -400,33 +400,33 @@ miner_files_constructed (GObject *object)
 
 			if (found) {
 				g_message ("  Duplicate found:'%s' - same as removable device path",
-					   (gchar*) dirs->data);
+				           (gchar*) dirs->data);
 				continue;
 			}
 		}
 
 		g_message ("  Adding:'%s'", (gchar*) dirs->data);
 		file = g_file_new_for_path (dirs->data);
-                tracker_miner_fs_add_directory (fs, file, TRUE);
+		tracker_miner_fs_add_directory (fs, file, TRUE);
 		g_object_unref (file);
-        }
+	}
 
 	/* Add removable media */
 	g_message ("Setting up directories to iterate which are removable devices");
 
 	for (m = mounts; m; m = m->next) {
 		GFile *file = g_file_new_for_path (m->data);
-		
+
 		g_message ("  Adding:'%s'", (gchar*) m->data);
 		tracker_miner_fs_add_directory (TRACKER_MINER_FS (mf),
-						file, 
-						TRUE);
+		                                file,
+		                                TRUE);
 		g_object_unref (file);
 	}
 
 	g_signal_connect (mf->private->config, "notify::low-disk-space-limit",
-			  G_CALLBACK (low_disk_space_limit_cb),
-			  mf);
+	                  G_CALLBACK (low_disk_space_limit_cb),
+	                  mf);
 
 	g_slist_foreach (mounts, (GFunc) g_free, NULL);
 	g_slist_free (mounts);
@@ -448,7 +448,7 @@ set_up_mount_point_cb (GObject      *source,
 
 	if (error) {
 		g_critical ("Could not set up mount point '%s': %s",
-			    removable_device_urn, error->message);
+		            removable_device_urn, error->message);
 		g_error_free (error);
 	}
 
@@ -527,10 +527,10 @@ set_up_mount_point (TrackerMinerFiles *miner,
 		g_string_append_printf (accumulator, "%s ", queries->str);
 	} else {
 		tracker_miner_execute_update (TRACKER_MINER (miner),
-					      queries->str,
-					      NULL,
-					      set_up_mount_point_cb,
-					      g_strdup (removable_device_urn));
+		                              queries->str,
+		                              NULL,
+		                              set_up_mount_point_cb,
+		                              g_strdup (removable_device_urn));
 	}
 
 	g_string_free (queries, TRUE);
@@ -549,7 +549,7 @@ init_mount_points_cb (GObject      *source,
 
 	if (error) {
 		g_critical ("Could not initialize currently active mount points: %s",
-			    error->message);
+		            error->message);
 		g_error_free (error);
 	}
 }
@@ -651,14 +651,14 @@ query_mount_points_cb (GObject      *source,
 			if (urn) {
 				if (mount_point) {
 					g_debug ("URN '%s' (mount point: %s) was not reported to be mounted, but now it is, updating state",
-						 urn, mount_point);
+					         urn, mount_point);
 				} else {
 					g_debug ("URN '%s' was not reported to be mounted, but now it is, updating state", urn);
 				}
 				set_up_mount_point (TRACKER_MINER_FILES (miner), urn, mount_point, TRUE, accumulator);
 			}
 		} else if (!(state & VOLUME_MOUNTED) &&
-			   (state & VOLUME_MOUNTED_IN_STORE)) {
+		           (state & VOLUME_MOUNTED_IN_STORE)) {
 			if (urn) {
 				g_debug ("URN '%s' was reported to be mounted, but it isn't anymore, updating state", urn);
 				set_up_mount_point (TRACKER_MINER_FILES (miner), urn, NULL, FALSE, accumulator);
@@ -668,10 +668,10 @@ query_mount_points_cb (GObject      *source,
 
 	if (accumulator->str[0] != '\0') {
 		tracker_miner_execute_update (miner,
-					      accumulator->str,
-					      NULL,
-					      init_mount_points_cb,
-					      NULL);
+		                              accumulator->str,
+		                              NULL,
+		                              init_mount_points_cb,
+		                              NULL);
 	}
 
 	g_string_free (accumulator, TRUE);
@@ -685,19 +685,19 @@ init_mount_points (TrackerMinerFiles *miner)
 
 	/* First, get all mounted volumes, according to tracker-store */
 	tracker_miner_execute_sparql (TRACKER_MINER (miner),
-				      "SELECT ?v WHERE { ?v a tracker:Volume ; tracker:isMounted true }",
-				      NULL,
-				      query_mount_points_cb,
-				      NULL);
+	                              "SELECT ?v WHERE { ?v a tracker:Volume ; tracker:isMounted true }",
+	                              NULL,
+	                              query_mount_points_cb,
+	                              NULL);
 }
 
 #ifdef HAVE_HAL
 
 static void
 mount_point_removed_cb (TrackerStorage *storage,
-			const gchar    *udi,
-			const gchar    *mount_point,
-			gpointer        user_data)
+                        const gchar    *udi,
+                        const gchar    *mount_point,
+                        gpointer        user_data)
 {
 	TrackerMinerFiles *miner = user_data;
 	gchar *urn;
@@ -719,21 +719,21 @@ mount_point_added_cb (TrackerStorage *storage,
 	TrackerMinerFiles *miner = user_data;
 	TrackerMinerFilesPrivate *priv;
 	gchar *urn;
-        gboolean index_removable_devices;
+	gboolean index_removable_devices;
 
-        priv = TRACKER_MINER_FILES_GET_PRIVATE (miner);
+	priv = TRACKER_MINER_FILES_GET_PRIVATE (miner);
 
-        index_removable_devices = tracker_config_get_index_removable_devices (priv->config);
+	index_removable_devices = tracker_config_get_index_removable_devices (priv->config);
 
-        if (index_removable_devices) {
+	if (index_removable_devices) {
 		GFile *file;
 
 		file = g_file_new_for_path (mount_point);
-                tracker_miner_fs_add_directory (TRACKER_MINER_FS (user_data),
-						file,
-						TRUE);
+		tracker_miner_fs_add_directory (TRACKER_MINER_FS (user_data),
+		                                file,
+		                                TRUE);
 		g_object_unref (file);
-        }
+	}
 
 	g_debug ("Configuring added mount point '%s'", mount_point);
 
@@ -745,7 +745,7 @@ mount_point_added_cb (TrackerStorage *storage,
 
 static void
 set_up_throttle (TrackerMinerFiles *mf,
-		 gboolean           enable)
+                 gboolean           enable)
 {
 	gdouble throttle;
 	gint config_throttle;
@@ -793,15 +793,15 @@ check_battery_status (TrackerMinerFiles *mf)
 		if (mf->private->low_battery_pause_cookie == 0) {
 			mf->private->low_battery_pause_cookie =
 				tracker_miner_pause (TRACKER_MINER (mf),
-						     _("Low battery"),
-						     NULL);
+				                     _("Low battery"),
+				                     NULL);
 		}
 	} else {
 		/* Don't try to resume again */
 		if (mf->private->low_battery_pause_cookie != 0) {
 			tracker_miner_resume (TRACKER_MINER (mf),
-					      mf->private->low_battery_pause_cookie,
-					      NULL);
+			                      mf->private->low_battery_pause_cookie,
+			                      NULL);
 			mf->private->low_battery_pause_cookie = 0;
 		}
 	}
@@ -811,8 +811,8 @@ check_battery_status (TrackerMinerFiles *mf)
 
 static void
 battery_status_cb (GObject    *object,
-		   GParamSpec *pspec,
-		   gpointer    user_data)
+                   GParamSpec *pspec,
+                   gpointer    user_data)
 {
 	TrackerMinerFiles *mf = user_data;
 
@@ -823,8 +823,8 @@ battery_status_cb (GObject    *object,
 
 static void
 mount_pre_unmount_cb (GVolumeMonitor    *volume_monitor,
-		      GMount            *mount,
-		      TrackerMinerFiles *mf)
+                      GMount            *mount,
+                      TrackerMinerFiles *mf)
 {
 	GFile *mount_root;
 
@@ -858,8 +858,8 @@ disk_space_check (TrackerMinerFiles *mf)
 
 	if (((long long) st.f_bavail * 100 / st.f_blocks) <= limit) {
 		g_message ("WARNING: Available disk space is below configured "
-			   "threshold for acceptable working (%d%%)",
-			   limit);
+		           "threshold for acceptable working (%d%%)",
+		           limit);
 		return TRUE;
 	}
 
@@ -870,21 +870,21 @@ static gboolean
 disk_space_check_cb (gpointer user_data)
 {
 	TrackerMinerFiles *mf = user_data;
-	
+
 	if (disk_space_check (mf)) {
 		/* Don't try to pause again */
 		if (mf->private->disk_space_pause_cookie == 0) {
-			mf->private->disk_space_pause_cookie = 
+			mf->private->disk_space_pause_cookie =
 				tracker_miner_pause (TRACKER_MINER (mf),
-						     _("Low disk space"),
-						     NULL);
+				                     _("Low disk space"),
+				                     NULL);
 		}
 	} else {
 		/* Don't try to resume again */
 		if (mf->private->disk_space_pause_cookie != 0) {
 			tracker_miner_resume (TRACKER_MINER (mf),
-					      mf->private->disk_space_pause_cookie,
-					      NULL);
+			                      mf->private->disk_space_pause_cookie,
+			                      NULL);
 			mf->private->disk_space_pause_cookie = 0;
 		}
 	}
@@ -905,11 +905,11 @@ disk_space_check_start (TrackerMinerFiles *mf)
 
 	if (limit != -1) {
 		g_message ("Starting disk space check for every %d seconds",
-			   DISK_SPACE_CHECK_FREQUENCY);
-		mf->private->disk_space_check_id = 
+		           DISK_SPACE_CHECK_FREQUENCY);
+		mf->private->disk_space_check_id =
 			g_timeout_add_seconds (DISK_SPACE_CHECK_FREQUENCY,
-					       disk_space_check_cb,
-					       mf);
+			                       disk_space_check_cb,
+			                       mf);
 
 		/* Call the function now too to make sure we have an
 		 * initial value too!
@@ -932,8 +932,8 @@ disk_space_check_stop (TrackerMinerFiles *mf)
 
 static void
 low_disk_space_limit_cb (GObject    *gobject,
-			 GParamSpec *arg1,
-			 gpointer    user_data)
+                         GParamSpec *arg1,
+                         gpointer    user_data)
 {
 	TrackerMinerFiles *mf = user_data;
 
@@ -942,7 +942,7 @@ low_disk_space_limit_cb (GObject    *gobject,
 
 static gboolean
 miner_files_check_file (TrackerMinerFS *fs,
-			GFile          *file)
+                        GFile          *file)
 {
 	TrackerMinerFiles *mf;
 	GFileInfo *file_info;
@@ -957,9 +957,9 @@ miner_files_check_file (TrackerMinerFS *fs,
 	path = NULL;
 
 	file_info = g_file_query_info (file,
-				       G_FILE_ATTRIBUTE_STANDARD_IS_HIDDEN,
-                                       G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
-                                       NULL, NULL);
+	                               G_FILE_ATTRIBUTE_STANDARD_IS_HIDDEN,
+	                               G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
+	                               NULL, NULL);
 
 	if (file_info && g_file_info_get_is_hidden (file_info)) {
 		/* Ignore hidden files */
@@ -978,16 +978,16 @@ miner_files_check_file (TrackerMinerFS *fs,
 	}
 
 	basename = g_file_get_basename (file);
-	
+
 	for (l = tracker_config_get_ignored_file_patterns (mf->private->config); l; l = l->next) {
 		if (g_pattern_match_string (l->data, basename)) {
 			goto done;
 		}
 	}
-	
+
 	should_process = TRUE;
 
-done:
+ done:
 	g_free (basename);
 	g_free (path);
 
@@ -1000,7 +1000,7 @@ done:
 
 static gboolean
 miner_files_check_directory (TrackerMinerFS *fs,
-			     GFile          *file)
+                             GFile          *file)
 {
 	TrackerMinerFiles *mf;
 	GFileInfo *file_info;
@@ -1014,9 +1014,9 @@ miner_files_check_directory (TrackerMinerFS *fs,
 
 	/* Most common things to ignore */
 	file_info = g_file_query_info (file,
-				       G_FILE_ATTRIBUTE_STANDARD_IS_HIDDEN,
-                                       G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
-                                       NULL, NULL);
+	                               G_FILE_ATTRIBUTE_STANDARD_IS_HIDDEN,
+	                               G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
+	                               NULL, NULL);
 
 	path = g_file_get_path (file);
 
@@ -1028,16 +1028,16 @@ miner_files_check_directory (TrackerMinerFS *fs,
 
 		/* FIXME: We need to check if the file is actually a
 		 * config specified location before blanket ignoring
-		 * all hidden files. 
+		 * all hidden files.
 		 */
-		allowed_directories = 
+		allowed_directories =
 			tracker_config_get_index_recursive_directories (mf->private->config);
 
 		if (tracker_string_in_gslist (path, allowed_directories)) {
 			should_process = TRUE;
 		}
 
-		allowed_directories = 
+		allowed_directories =
 			tracker_config_get_index_single_directories (mf->private->config);
 
 		if (tracker_string_in_gslist (path, allowed_directories)) {
@@ -1067,7 +1067,7 @@ miner_files_check_directory (TrackerMinerFS *fs,
 	/* Check module directory ignore patterns */
 	should_process = TRUE;
 
-done:
+ done:
 	g_free (basename);
 	g_free (path);
 
@@ -1080,8 +1080,8 @@ done:
 
 static gboolean
 miner_files_check_directory_contents (TrackerMinerFS *fs,
-				      GFile          *parent,
-				      GList          *children)
+                                      GFile          *parent,
+                                      GList          *children)
 {
 	TrackerMinerFiles *mf;
 	GSList *ignored_content, *l;
@@ -1104,7 +1104,7 @@ miner_files_check_directory_contents (TrackerMinerFS *fs,
 
 				parent_uri = g_file_get_uri (parent);
 				g_debug ("Directory '%s' ignored since it contains a file named '%s'",
-					 parent_uri, basename);
+				         parent_uri, basename);
 
 				g_free (parent_uri);
 				g_free (basename);
@@ -1122,7 +1122,7 @@ miner_files_check_directory_contents (TrackerMinerFS *fs,
 
 static gboolean
 miner_files_monitor_directory (TrackerMinerFS *fs,
-			       GFile          *file)
+                               GFile          *file)
 {
 	TrackerMinerFiles *mf;
 
@@ -1131,23 +1131,23 @@ miner_files_monitor_directory (TrackerMinerFS *fs,
 	if (!tracker_config_get_enable_monitors (mf->private->config)) {
 		return FALSE;
 	}
-		
+
 	/* Fallback to the check directory routine, since we don't
-	 * monitor anything we don't process. 
+	 * monitor anything we don't process.
 	 */
 	return miner_files_check_directory (fs, file);
 }
 
 static void
 miner_files_add_to_datasource (TrackerMinerFiles    *mf,
-			       GFile                *file,
-			       TrackerSparqlBuilder *sparql)
+                               GFile                *file,
+                               TrackerSparqlBuilder *sparql)
 {
-        TrackerMinerFilesPrivate *priv;
+	TrackerMinerFilesPrivate *priv;
 	const gchar *removable_device_udi;
 	gchar *removable_device_urn, *uri;
 
-        priv = TRACKER_MINER_FILES_GET_PRIVATE (mf);
+	priv = TRACKER_MINER_FILES_GET_PRIVATE (mf);
 	uri = g_file_get_uri (file);
 
 #ifdef HAVE_HAL
@@ -1158,7 +1158,7 @@ miner_files_add_to_datasource (TrackerMinerFiles    *mf,
 
 	if (removable_device_udi) {
 		removable_device_urn = g_strdup_printf (TRACKER_DATASOURCE_URN_PREFIX "%s",
-						        removable_device_udi);
+		                                        removable_device_udi);
 	} else {
 		removable_device_urn = g_strdup (TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN);
 	}
@@ -1167,11 +1167,11 @@ miner_files_add_to_datasource (TrackerMinerFiles    *mf,
 	tracker_sparql_builder_predicate (sparql, "a");
 	tracker_sparql_builder_object (sparql, "nfo:FileDataObject");
 
-        tracker_sparql_builder_predicate (sparql, "nie:dataSource");
-        tracker_sparql_builder_object_iri (sparql, removable_device_urn);
+	tracker_sparql_builder_predicate (sparql, "nie:dataSource");
+	tracker_sparql_builder_object_iri (sparql, removable_device_urn);
 
-        tracker_sparql_builder_predicate (sparql, "tracker:available");
-        tracker_sparql_builder_object_boolean (sparql, TRUE);
+	tracker_sparql_builder_predicate (sparql, "tracker:available");
+	tracker_sparql_builder_object_boolean (sparql, TRUE);
 
 	g_free (removable_device_urn);
 	g_free (uri);
@@ -1198,16 +1198,16 @@ extractor_create_proxy (void)
 
 	if (!connection) {
 		g_critical ("Could not connect to the D-Bus session bus, %s",
-			    error ? error->message : "no error given.");
+		            error ? error->message : "no error given.");
 		g_clear_error (&error);
 		return FALSE;
 	}
 
 	/* Get proxy for the extractor */
 	proxy = dbus_g_proxy_new_for_name (connection,
-					   "org.freedesktop.Tracker1.Extract",
-					   "/org/freedesktop/Tracker1/Extract",
-					   "org.freedesktop.Tracker1.Extract");
+	                                   "org.freedesktop.Tracker1.Extract",
+	                                   "/org/freedesktop/Tracker1/Extract",
+	                                   "org.freedesktop.Tracker1.Extract");
 
 	if (!proxy) {
 		g_critical ("Could not create a DBusGProxy to the extract service");
@@ -1218,18 +1218,18 @@ extractor_create_proxy (void)
 
 static void
 extractor_queue_thumbnail_cb (DBusGProxy  *proxy,
-			      const gchar *filename, 
-			      const gchar *mime_type,
-			      gpointer     user_data)
+                              const gchar *filename,
+                              const gchar *mime_type,
+                              gpointer     user_data)
 {
 	tracker_thumbnailer_queue_add (filename, mime_type);
 }
 
 static void
 extractor_get_embedded_metadata_cb (DBusGProxy *proxy,
-				    gchar      *sparql,
-				    GError     *error,
-				    gpointer    user_data)
+                                    gchar      *sparql,
+                                    GError     *error,
+                                    gpointer    user_data)
 {
 	ProcessFileData *data = user_data;
 
@@ -1253,13 +1253,13 @@ extractor_get_embedded_metadata_cb (DBusGProxy *proxy,
 
 static void
 extractor_get_embedded_metadata_cancel (GCancellable    *cancellable,
-					ProcessFileData *data)
+                                        ProcessFileData *data)
 {
 	GError *error;
 
 	/* Cancel extractor call */
 	dbus_g_proxy_cancel_call (data->miner->private->extractor_proxy,
-				  data->call);
+	                          data->call);
 
 	error = g_error_new_literal (miner_files_error_quark, 0, "Embedded metadata extraction was cancelled");
 	tracker_miner_fs_notify_file (TRACKER_MINER_FS (data->miner), data->file, error);
@@ -1270,22 +1270,22 @@ extractor_get_embedded_metadata_cancel (GCancellable    *cancellable,
 
 static void
 extractor_get_embedded_metadata (ProcessFileData *data,
-				 const gchar     *uri,
-				 const gchar     *mime_type)
+                                 const gchar     *uri,
+                                 const gchar     *mime_type)
 {
 	data->call = org_freedesktop_Tracker1_Extract_get_metadata_async (data->miner->private->extractor_proxy,
-									  uri,
-									  mime_type,
-									  extractor_get_embedded_metadata_cb,
-									  data);
+	                                                                  uri,
+	                                                                  mime_type,
+	                                                                  extractor_get_embedded_metadata_cb,
+	                                                                  data);
 	g_signal_connect (data->cancellable, "cancelled",
-			  G_CALLBACK (extractor_get_embedded_metadata_cancel), data);
+	                  G_CALLBACK (extractor_get_embedded_metadata_cancel), data);
 }
 
 static void
 process_file_cb (GObject      *object,
-		 GAsyncResult *result,
-		 gpointer      user_data)
+                 GAsyncResult *result,
+                 gpointer      user_data)
 {
 	TrackerSparqlBuilder *sparql;
 	ProcessFileData *data;
@@ -1312,9 +1312,9 @@ process_file_cb (GObject      *object,
 	uri = g_file_get_uri (file);
 	mime_type = g_file_info_get_content_type (file_info);
 
-        tracker_sparql_builder_insert_open (sparql, uri);
+	tracker_sparql_builder_insert_open (sparql, uri);
 
-        tracker_sparql_builder_subject_iri (sparql, uri);
+	tracker_sparql_builder_subject_iri (sparql, uri);
 	tracker_sparql_builder_predicate (sparql, "a");
 	tracker_sparql_builder_object (sparql, "nfo:FileDataObject");
 
@@ -1338,7 +1338,7 @@ process_file_cb (GObject      *object,
 	tracker_sparql_builder_object_date (sparql, (time_t *) &time_);
 
 	time_ = g_file_info_get_attribute_uint64 (file_info, G_FILE_ATTRIBUTE_TIME_ACCESS);
-        tracker_sparql_builder_predicate (sparql, "nfo:fileLastAccessed");
+	tracker_sparql_builder_predicate (sparql, "nfo:fileLastAccessed");
 	tracker_sparql_builder_object_date (sparql, (time_t *) &time_);
 
 	tracker_sparql_builder_subject_iri (sparql, uri); /* Change to URN */
@@ -1378,9 +1378,9 @@ process_file_cb (GObject      *object,
 
 static gboolean
 miner_files_process_file (TrackerMinerFS       *fs,
-			  GFile                *file,
-			  TrackerSparqlBuilder *sparql,
-			  GCancellable         *cancellable)
+                          GFile                *file,
+                          TrackerSparqlBuilder *sparql,
+                          GCancellable         *cancellable)
 {
 	ProcessFileData *data;
 	const gchar *attrs;
@@ -1399,12 +1399,12 @@ miner_files_process_file (TrackerMinerFS       *fs,
 		G_FILE_ATTRIBUTE_TIME_ACCESS;
 
 	g_file_query_info_async (file,
-				 attrs,
-				 G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
-				 G_PRIORITY_DEFAULT,
-				 cancellable,
-				 process_file_cb,
-				 data);
+	                         attrs,
+	                         G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
+	                         G_PRIORITY_DEFAULT,
+	                         cancellable,
+	                         process_file_cb,
+	                         data);
 
 	return TRUE;
 }
@@ -1477,9 +1477,9 @@ miner_files_writeback_file (TrackerMinerFS       *fs,
 TrackerMiner *
 tracker_miner_files_new (TrackerConfig *config)
 {
-        return g_object_new (TRACKER_TYPE_MINER_FILES,
-                             "name", "Files",
-                             "config", config,
-			     "process-pool-limit", 10,
-                             NULL);
+	return g_object_new (TRACKER_TYPE_MINER_FILES,
+	                     "name", "Files",
+	                     "config", config,
+	                     "process-pool-limit", 10,
+	                     NULL);
 }

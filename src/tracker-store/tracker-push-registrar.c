@@ -43,13 +43,13 @@ enum {
 static void   tracker_push_registrar_finalize     (GObject      *object);
 static void   tracker_push_registrar_constructed  (GObject      *object);
 static void   tracker_push_registrar_set_property (GObject      *object,
-						   guint         prop_id,
-						   const GValue *value,
-						   GParamSpec   *pspec);
+                                                   guint         prop_id,
+                                                   const GValue *value,
+                                                   GParamSpec   *pspec);
 static void   tracker_push_registrar_get_property (GObject      *object,
-						   guint         prop_id,
-						   GValue       *value,
-						   GParamSpec   *pspec);
+                                                   guint         prop_id,
+                                                   GValue       *value,
+                                                   GParamSpec   *pspec);
 
 G_DEFINE_TYPE (TrackerPushRegistrar, tracker_push_registrar, G_TYPE_OBJECT)
 
@@ -65,28 +65,28 @@ tracker_push_registrar_class_init (TrackerPushRegistrarClass *klass)
 	object_class->get_property = tracker_push_registrar_get_property;
 
 	g_object_class_install_property (object_class,
-					 PROP_MANAGER,
-					 g_param_spec_object ("manager",
-							      "Manager",
-							      "Manager ",
-							      G_TYPE_OBJECT,
-							      G_PARAM_READWRITE));
+	                                 PROP_MANAGER,
+	                                 g_param_spec_object ("manager",
+	                                                      "Manager",
+	                                                      "Manager ",
+	                                                      G_TYPE_OBJECT,
+	                                                      G_PARAM_READWRITE));
 
 	g_object_class_install_property (object_class,
-					 PROP_OBJECT,
-					 g_param_spec_object ("object",
-							      "Object",
-							      "Object ",
-							      G_TYPE_OBJECT,
-							      G_PARAM_READWRITE));
+	                                 PROP_OBJECT,
+	                                 g_param_spec_object ("object",
+	                                                      "Object",
+	                                                      "Object ",
+	                                                      G_TYPE_OBJECT,
+	                                                      G_PARAM_READWRITE));
 
 	g_object_class_install_property (object_class,
-					 PROP_MANAGER,
-					 g_param_spec_string ("service",
-							      "Service",
-							      "Service ",
-							      NULL,
-							      G_PARAM_READWRITE));
+	                                 PROP_MANAGER,
+	                                 g_param_spec_string ("service",
+	                                                      "Service",
+	                                                      "Service ",
+	                                                      NULL,
+	                                                      G_PARAM_READWRITE));
 
 	g_type_class_add_private (object_class, sizeof (TrackerPushRegistrarPrivate));
 }
@@ -122,22 +122,22 @@ tracker_push_registrar_constructed (GObject *object)
 
 static void
 tracker_push_registrar_set_property (GObject      *object,
-				     guint         prop_id,
-				     const GValue *value,
-				     GParamSpec   *pspec)
+                                     guint         prop_id,
+                                     const GValue *value,
+                                     GParamSpec   *pspec)
 {
 	switch (prop_id) {
 	case PROP_MANAGER:
 		tracker_push_registrar_set_manager (TRACKER_PUSH_REGISTRAR (object),
-						    g_value_get_object (value));
+		                                    g_value_get_object (value));
 		break;
 	case PROP_OBJECT:
 		tracker_push_registrar_set_object (TRACKER_PUSH_REGISTRAR (object),
-						   g_value_get_object (value));
+		                                   g_value_get_object (value));
 		break;
 	case PROP_SERVICE:
 		tracker_push_registrar_set_service (TRACKER_PUSH_REGISTRAR (object),
-						    g_value_get_string (value));
+		                                    g_value_get_string (value));
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -146,9 +146,9 @@ tracker_push_registrar_set_property (GObject      *object,
 
 static void
 tracker_push_registrar_get_property (GObject    *object,
-				     guint       prop_id,
-				     GValue     *value,
-				     GParamSpec *pspec)
+                                     guint       prop_id,
+                                     GValue     *value,
+                                     GParamSpec *pspec)
 {
 	TrackerPushRegistrarPrivate *priv;
 
@@ -213,7 +213,7 @@ tracker_push_registrar_get_object (TrackerPushRegistrar *registrar)
  *
  * Returns: The DBus proxy.
  **/
-DBusGProxy * 
+DBusGProxy *
 tracker_push_registrar_get_manager (TrackerPushRegistrar *registrar)
 {
 	TrackerPushRegistrarPrivate *priv;
@@ -233,7 +233,7 @@ tracker_push_registrar_get_manager (TrackerPushRegistrar *registrar)
  **/
 void
 tracker_push_registrar_set_service (TrackerPushRegistrar *registrar,
-				    const gchar *service)
+                                    const gchar *service)
 {
 	TrackerPushRegistrarPrivate *priv;
 
@@ -253,7 +253,7 @@ tracker_push_registrar_set_service (TrackerPushRegistrar *registrar,
  **/
 void
 tracker_push_registrar_set_object (TrackerPushRegistrar *registrar,
-				   GObject              *object)
+                                   GObject              *object)
 {
 	TrackerPushRegistrarPrivate *priv;
 
@@ -281,7 +281,7 @@ tracker_push_registrar_set_object (TrackerPushRegistrar *registrar,
  **/
 void
 tracker_push_registrar_set_manager (TrackerPushRegistrar *registrar,
-				    DBusGProxy           *manager)
+                                    DBusGProxy           *manager)
 {
 	TrackerPushRegistrarPrivate *priv;
 
@@ -310,15 +310,15 @@ tracker_push_registrar_set_manager (TrackerPushRegistrar *registrar,
  **/
 void
 tracker_push_registrar_enable (TrackerPushRegistrar *registrar,
-			      DBusGConnection *connection, 
-			      DBusGProxy *dbus_proxy, 
-			      GError **error)
+                               DBusGConnection *connection,
+                               DBusGProxy *dbus_proxy,
+                               GError **error)
 {
 	if (TRACKER_PUSH_REGISTRAR_GET_CLASS (registrar)->enable) {
 		TRACKER_PUSH_REGISTRAR_GET_CLASS (registrar)->enable (registrar,
-								      connection,
-								      dbus_proxy,
-								      error);
+		                                                      connection,
+		                                                      dbus_proxy,
+		                                                      error);
 	}
 }
 

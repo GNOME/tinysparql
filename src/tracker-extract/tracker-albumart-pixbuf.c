@@ -26,7 +26,7 @@
 #include "tracker-albumart-generic.h"
 
 gboolean
-tracker_albumart_file_to_jpeg (const gchar *filename, 
+tracker_albumart_file_to_jpeg (const gchar *filename,
                                const gchar *target)
 {
 	GdkPixbuf *pixbuf;
@@ -61,7 +61,7 @@ tracker_albumart_buffer_to_jpeg (const unsigned char *buffer,
 	if (g_strcmp0 (buffer_mime, "image/jpeg") == 0 ||
 	    g_strcmp0 (buffer_mime, "JPG") == 0) {
 
-		g_debug ("Saving album art using raw data as uri:'%s'", 
+		g_debug ("Saving album art using raw data as uri:'%s'",
 		         target);
 
 		g_file_set_contents (target, buffer, (gssize) len, NULL);
@@ -70,13 +70,13 @@ tracker_albumart_buffer_to_jpeg (const unsigned char *buffer,
 		GdkPixbufLoader *loader;
 		GError *error = NULL;
 
-		g_debug ("Saving album art using GdkPixbufLoader for uri:'%s'", 
-			 target);
+		g_debug ("Saving album art using GdkPixbufLoader for uri:'%s'",
+		         target);
 
 		loader = gdk_pixbuf_loader_new ();
 
 		if (!gdk_pixbuf_loader_write (loader, buffer, len, &error)) {
-			g_warning ("Could not write with GdkPixbufLoader when setting album art, %s", 
+			g_warning ("Could not write with GdkPixbufLoader when setting album art, %s",
 			           error ? error->message : "no error given");
 
 			g_clear_error (&error);
@@ -88,7 +88,7 @@ tracker_albumart_buffer_to_jpeg (const unsigned char *buffer,
 		pixbuf = gdk_pixbuf_loader_get_pixbuf (loader);
 
 		if (!gdk_pixbuf_save (pixbuf, target, "jpeg", &error, NULL)) {
-			g_warning ("Could not save GdkPixbuf when setting album art, %s", 
+			g_warning ("Could not save GdkPixbuf when setting album art, %s",
 			           error ? error->message : "no error given");
 
 			g_clear_error (&error);
@@ -101,7 +101,7 @@ tracker_albumart_buffer_to_jpeg (const unsigned char *buffer,
 		g_object_unref (pixbuf);
 
 		if (!gdk_pixbuf_loader_close (loader, &error)) {
-			g_warning ("Could not close GdkPixbufLoader when setting album art, %s", 
+			g_warning ("Could not close GdkPixbufLoader when setting album art, %s",
 			           error ? error->message : "no error given");
 			g_clear_error (&error);
 		}

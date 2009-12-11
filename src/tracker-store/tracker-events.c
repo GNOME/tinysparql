@@ -35,7 +35,7 @@ typedef struct {
 
 static GStaticPrivate private_key = G_STATIC_PRIVATE_INIT;
 
-static void 
+static void
 tracker_events_add_allow (const gchar *rdf_class)
 {
 	EventsPrivate *private;
@@ -53,11 +53,11 @@ is_allowed (EventsPrivate *private, const gchar *rdf_class)
 	return (g_hash_table_lookup (private->allowances, rdf_class) != NULL) ? TRUE : FALSE;
 }
 
-static void 
-prepare_event_for_rdf_type (EventsPrivate *private, 
-                            const gchar *rdf_class , 
-                            const gchar *uri, 
-                            TrackerDBusEventsType type, 
+static void
+prepare_event_for_rdf_type (EventsPrivate *private,
+                            const gchar *rdf_class ,
+                            const gchar *uri,
+                            TrackerDBusEventsType type,
                             const gchar *predicate)
 {
 	GValueArray *event;
@@ -95,12 +95,12 @@ prepare_event_for_rdf_type (EventsPrivate *private,
 	g_value_unset (&predicate_value);
 }
 
-void 
-tracker_events_insert (const gchar *uri, 
-		       const gchar *predicate,
-		       const gchar *object, 
-		       GPtrArray *rdf_types, 
-		       TrackerDBusEventsType type)
+void
+tracker_events_insert (const gchar *uri,
+                       const gchar *predicate,
+                       const gchar *object,
+                       GPtrArray *rdf_types,
+                       TrackerDBusEventsType type)
 {
 	EventsPrivate *private;
 
@@ -116,7 +116,7 @@ tracker_events_insert (const gchar *uri,
 			 * the value being set to the user's DBus API in tracker-store) */
 			if (is_allowed (private, rdf_types->pdata[i])) {
 
-				prepare_event_for_rdf_type (private, rdf_types->pdata[i], 
+				prepare_event_for_rdf_type (private, rdf_types->pdata[i],
 				                            uri, type, predicate);
 
 				/* Only once match is needed */
@@ -124,23 +124,23 @@ tracker_events_insert (const gchar *uri,
 			}
 		}
 	} else if (type == TRACKER_DBUS_EVENTS_TYPE_UPDATE) {
-		/* In this case we had an INSERT for a resource that didn't exist 
+		/* In this case we had an INSERT for a resource that didn't exist
 		 * yet, but it was not the rdf:type predicate being inserted */
 		if (is_allowed (private, (gpointer) TRACKER_RDFS_PREFIX "Resource")) {
-			prepare_event_for_rdf_type (private, 
-			                            (gpointer) TRACKER_RDFS_PREFIX "Resource", 
+			prepare_event_for_rdf_type (private,
+			                            (gpointer) TRACKER_RDFS_PREFIX "Resource",
 			                            uri, type, predicate);
 		}
 	} else {
 		/* In case of delete and create, object is the rdf:type */
 		if (is_allowed (private, (gpointer) object)) {
-			prepare_event_for_rdf_type (private, (gpointer) object, 
+			prepare_event_for_rdf_type (private, (gpointer) object,
 			                            uri, type, predicate);
 		}
 	}
 }
 
-void 
+void
 tracker_events_reset (void)
 {
 	EventsPrivate *private;
@@ -177,7 +177,7 @@ free_private (EventsPrivate *private)
 	g_free (private);
 }
 
-void 
+void
 tracker_events_init (TrackerNotifyClassGetter callback)
 {
 	EventsPrivate *private;
@@ -187,8 +187,8 @@ tracker_events_init (TrackerNotifyClassGetter callback)
 	private = g_new0 (EventsPrivate, 1);
 
 	g_static_private_set (&private_key,
-			      private,
-			      (GDestroyNotify) free_private);
+	                      private,
+	                      (GDestroyNotify) free_private);
 
 	private->allowances = g_hash_table_new_full (g_str_hash, g_str_equal,
 	                                             (GDestroyNotify) g_free,
@@ -213,7 +213,7 @@ tracker_events_init (TrackerNotifyClassGetter callback)
 	g_strfreev (classes_to_signal);
 }
 
-void 
+void
 tracker_events_shutdown (void)
 {
 	EventsPrivate *private;

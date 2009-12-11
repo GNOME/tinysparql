@@ -58,16 +58,16 @@
 
 #ifdef USING_UNZIPPSFILES
 static void extract_ps_gz (const gchar *uri,
-			   TrackerSparqlBuilder *metadata);
+                           TrackerSparqlBuilder *metadata);
 #endif
-static void extract_ps	  (const gchar *uri,
-			   TrackerSparqlBuilder *metadata);
+static void extract_ps    (const gchar *uri,
+                           TrackerSparqlBuilder *metadata);
 
 static TrackerExtractData data[] = {
 #ifdef USING_UNZIPPSFILES
-	{ "application/x-gzpostscript",	extract_ps_gz },
+	{ "application/x-gzpostscript",         extract_ps_gz },
 #endif /* USING_UNZIPPSFILES */
-	{ "application/postscript",	extract_ps    },
+	{ "application/postscript",     extract_ps    },
 	{ NULL, NULL }
 };
 
@@ -75,9 +75,9 @@ static TrackerExtractData data[] = {
 
 static ssize_t
 igetdelim (gchar  **linebuf,
-	   size_t  *linebufsz,
-	   gint     delimiter,
-	   FILE    *file)
+           size_t  *linebufsz,
+           gint     delimiter,
+           FILE    *file)
 {
 	gint ch;
 	gint idx;
@@ -129,8 +129,8 @@ igetdelim (gchar  **linebuf,
 
 static gint
 getline (gchar **s,
-	 guint	*lim,
-	 FILE	*stream)
+         guint  *lim,
+         FILE   *stream)
 {
 	return igetdelim (s, lim, '\n', stream);
 }
@@ -179,24 +179,24 @@ date_to_iso8601 (const gchar *date)
 	if (date && date[1] && date[2]) {
 		if (date[0] == '(') {
 			/* we have probably a date like
-			 * "(18:07 Tuesday 22 May 2007)" 
+			 * "(18:07 Tuesday 22 May 2007)"
 			 */
 			return hour_day_str_day (date);
 		} else if (g_ascii_isalpha (date[0])) {
 			/* we have probably a date like
-			 * "Tue May 22 18:07:10 2007" 
+			 * "Tue May 22 18:07:10 2007"
 			 */
 			return day_str_month_day (date);
 
 		} else if (date[1] == ' ' || date[2] == ' ') {
 			/* we have probably a date like
-			 * "22 May 1997 18:07:10 -0600" 
+			 * "22 May 1997 18:07:10 -0600"
 			 */
 			return day_month_year_date (date);
 
 		} else if (date[1] == ':' || date[2] == ':') {
 			/* we have probably a date like
-			 * "6:07 PM May 22, 2007" 
+			 * "6:07 PM May 22, 2007"
 			 */
 			return hour_month_day_date (date);
 		}
@@ -207,14 +207,14 @@ date_to_iso8601 (const gchar *date)
 
 static void
 extract_ps (const gchar          *uri,
-	    TrackerSparqlBuilder *metadata)
+            TrackerSparqlBuilder *metadata)
 {
 	FILE *f;
 	gchar *filename;
 	gchar *line;
 	gsize length;
 	gssize read_char;
-	
+
 	filename = g_filename_from_uri (uri, NULL, NULL);
 	f = tracker_file_open (filename, "r", TRUE);
 	g_free (filename);
@@ -229,7 +229,7 @@ extract_ps (const gchar          *uri,
 	tracker_sparql_builder_subject_iri (metadata, uri);
 	tracker_sparql_builder_predicate (metadata, "a");
 	tracker_sparql_builder_object (metadata, "nfo:PaginatedTextDocument");
-	
+
 	while ((read_char = getline (&line, &length, f)) != -1) {
 		gboolean pageno_atend = FALSE;
 		gboolean header_finished = FALSE;
@@ -293,7 +293,7 @@ extract_ps (const gchar          *uri,
 
 static void
 extract_ps_gz (const gchar          *uri,
-	       TrackerSparqlBuilder *metadata)
+               TrackerSparqlBuilder *metadata)
 {
 	FILE *fz, *f;
 	GError *error = NULL;
@@ -303,10 +303,10 @@ extract_ps_gz (const gchar          *uri,
 	gboolean ptat;
 	const gchar *argv[4];
 	gchar *filename;
-	
+
 	fd = g_file_open_tmp ("tracker-extract-ps-gunzipped.XXXXXX",
-			      &gunzipped,
-			      &error);
+	                      &gunzipped,
+	                      &error);
 
 	if (error) {
 		g_error_free (error);
@@ -323,16 +323,16 @@ extract_ps_gz (const gchar          *uri,
 	argv[3] = NULL;
 
 	ptat = g_spawn_async_with_pipes (g_get_tmp_dir (),
-					 (gchar **) argv,
-					 NULL,
-					 G_SPAWN_SEARCH_PATH | G_SPAWN_STDERR_TO_DEV_NULL,
-					 tracker_spawn_child_func,
-					 GINT_TO_POINTER (10),
-					 NULL,
-					 NULL,
-					 &fdz,
-					 NULL,
-					 &error);
+	                                 (gchar **) argv,
+	                                 NULL,
+	                                 G_SPAWN_SEARCH_PATH | G_SPAWN_STDERR_TO_DEV_NULL,
+	                                 tracker_spawn_child_func,
+	                                 GINT_TO_POINTER (10),
+	                                 NULL,
+	                                 NULL,
+	                                 &fdz,
+	                                 NULL,
+	                                 &error);
 
 	if (!ptat) {
 		g_free (filename);

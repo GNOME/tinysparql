@@ -41,13 +41,13 @@
 typedef struct _TrackerPropertyPriv TrackerPropertyPriv;
 
 struct _TrackerPropertyPriv {
-	gchar	      *uri;
-	gchar	      *name;
+	gchar         *uri;
+	gchar         *name;
 
 	TrackerPropertyType  data_type;
 	TrackerClass   *domain;
 	TrackerClass   *range;
-	gint	       weight;
+	gint           weight;
 	gboolean       indexed;
 	gboolean       fulltext_indexed;
 	gboolean       embedded;
@@ -61,13 +61,13 @@ struct _TrackerPropertyPriv {
 
 static void property_finalize     (GObject      *object);
 static void property_get_property (GObject      *object,
-				   guint         param_id,
-				   GValue       *value,
-				   GParamSpec   *pspec);
+                                   guint         param_id,
+                                   GValue       *value,
+                                   GParamSpec   *pspec);
 static void property_set_property (GObject      *object,
-				   guint         param_id,
-				   const GValue *value,
-				   GParamSpec   *pspec);
+                                   guint         param_id,
+                                   const GValue *value,
+                                   GParamSpec   *pspec);
 
 enum {
 	PROP_0,
@@ -151,104 +151,104 @@ tracker_property_class_init (TrackerPropertyClass *klass)
 {
 	GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
-	object_class->finalize	   = property_finalize;
+	object_class->finalize     = property_finalize;
 	object_class->get_property = property_get_property;
 	object_class->set_property = property_set_property;
 
 	g_object_class_install_property (object_class,
-					 PROP_URI,
-					 g_param_spec_string ("uri",
-							      "uri",
-							      "URI",
-							      NULL,
-							      G_PARAM_READWRITE));
+	                                 PROP_URI,
+	                                 g_param_spec_string ("uri",
+	                                                      "uri",
+	                                                      "URI",
+	                                                      NULL,
+	                                                      G_PARAM_READWRITE));
 	g_object_class_install_property (object_class,
-					 PROP_NAME,
-					 g_param_spec_string ("name",
-							      "name",
-							      "Field name",
-							      NULL,
-							      G_PARAM_READABLE));
+	                                 PROP_NAME,
+	                                 g_param_spec_string ("name",
+	                                                      "name",
+	                                                      "Field name",
+	                                                      NULL,
+	                                                      G_PARAM_READABLE));
 	g_object_class_install_property (object_class,
-					 PROP_DATA_TYPE,
-					 g_param_spec_enum ("data-type",
-							    "data-type",
-							    "Field data type",
-							    tracker_property_type_get_type (),
-							    TRACKER_PROPERTY_TYPE_STRING,
-							    G_PARAM_READWRITE));
+	                                 PROP_DATA_TYPE,
+	                                 g_param_spec_enum ("data-type",
+	                                                    "data-type",
+	                                                    "Field data type",
+	                                                    tracker_property_type_get_type (),
+	                                                    TRACKER_PROPERTY_TYPE_STRING,
+	                                                    G_PARAM_READWRITE));
 	g_object_class_install_property (object_class,
-					 PROP_DOMAIN,
-					 g_param_spec_object ("domain",
-							      "domain",
-							      "Domain of this property",
-							      TRACKER_TYPE_CLASS,
-							      G_PARAM_READWRITE));
+	                                 PROP_DOMAIN,
+	                                 g_param_spec_object ("domain",
+	                                                      "domain",
+	                                                      "Domain of this property",
+	                                                      TRACKER_TYPE_CLASS,
+	                                                      G_PARAM_READWRITE));
 	g_object_class_install_property (object_class,
-					 PROP_RANGE,
-					 g_param_spec_object ("range",
-							      "range",
-							      "Range of this property",
-							      TRACKER_TYPE_CLASS,
-							      G_PARAM_READWRITE));
+	                                 PROP_RANGE,
+	                                 g_param_spec_object ("range",
+	                                                      "range",
+	                                                      "Range of this property",
+	                                                      TRACKER_TYPE_CLASS,
+	                                                      G_PARAM_READWRITE));
 	g_object_class_install_property (object_class,
-					 PROP_WEIGHT,
-					 g_param_spec_int ("weight",
-							   "weight",
-							   "Boost to the score",
-							   0,
-							   G_MAXINT,
-							   1,
-							   G_PARAM_READWRITE));
+	                                 PROP_WEIGHT,
+	                                 g_param_spec_int ("weight",
+	                                                   "weight",
+	                                                   "Boost to the score",
+	                                                   0,
+	                                                   G_MAXINT,
+	                                                   1,
+	                                                   G_PARAM_READWRITE));
 	g_object_class_install_property (object_class,
-					 PROP_INDEXED,
-					 g_param_spec_boolean ("indexed",
-							       "indexed",
-							       "Indexed",
-							       TRUE,
-							       G_PARAM_READWRITE));
+	                                 PROP_INDEXED,
+	                                 g_param_spec_boolean ("indexed",
+	                                                       "indexed",
+	                                                       "Indexed",
+	                                                       TRUE,
+	                                                       G_PARAM_READWRITE));
 	g_object_class_install_property (object_class,
-					 PROP_FULLTEXT_INDEXED,
-					 g_param_spec_boolean ("fulltext-indexed",
-							       "fulltext-indexed",
-							       "Full-text indexed",
-							       TRUE,
-							       G_PARAM_READWRITE));
+	                                 PROP_FULLTEXT_INDEXED,
+	                                 g_param_spec_boolean ("fulltext-indexed",
+	                                                       "fulltext-indexed",
+	                                                       "Full-text indexed",
+	                                                       TRUE,
+	                                                       G_PARAM_READWRITE));
 	g_object_class_install_property (object_class,
-					 PROP_EMBEDDED,
-					 g_param_spec_boolean ("embedded",
-							       "embedded",
-							       "Embedded",
-							       TRUE,
-							       G_PARAM_READWRITE));
+	                                 PROP_EMBEDDED,
+	                                 g_param_spec_boolean ("embedded",
+	                                                       "embedded",
+	                                                       "Embedded",
+	                                                       TRUE,
+	                                                       G_PARAM_READWRITE));
 	g_object_class_install_property (object_class,
-					 PROP_MULTIPLE_VALUES,
-					 g_param_spec_boolean ("multiple-values",
-							       "multiple-values",
-							       "Multiple values",
-							       TRUE,
-							       G_PARAM_READWRITE));
+	                                 PROP_MULTIPLE_VALUES,
+	                                 g_param_spec_boolean ("multiple-values",
+	                                                       "multiple-values",
+	                                                       "Multiple values",
+	                                                       TRUE,
+	                                                       G_PARAM_READWRITE));
 	g_object_class_install_property (object_class,
-					 PROP_FILTERED,
-					 g_param_spec_boolean ("filtered",
-							       "filtered",
-							       "Filtered",
-							       TRUE,
-							       G_PARAM_READWRITE));
+	                                 PROP_FILTERED,
+	                                 g_param_spec_boolean ("filtered",
+	                                                       "filtered",
+	                                                       "Filtered",
+	                                                       TRUE,
+	                                                       G_PARAM_READWRITE));
 	g_object_class_install_property (object_class,
-					 PROP_TRANSIENT,
-					 g_param_spec_boolean ("transient",
-							       "transient",
-							       "Transient",
-							       FALSE,
-							       G_PARAM_READWRITE));
+	                                 PROP_TRANSIENT,
+	                                 g_param_spec_boolean ("transient",
+	                                                       "transient",
+	                                                       "Transient",
+	                                                       FALSE,
+	                                                       G_PARAM_READWRITE));
 	g_object_class_install_property (object_class,
-					 PROP_IS_INVERSE_FUNCTIONAL_PROPERTY,
-					 g_param_spec_boolean ("is-inverse-functional-property",
-							       "is-inverse-functional-property",
-							       "Is inverse functional property",
-							       FALSE,
-							       G_PARAM_READWRITE));
+	                                 PROP_IS_INVERSE_FUNCTIONAL_PROPERTY,
+	                                 g_param_spec_boolean ("is-inverse-functional-property",
+	                                                       "is-inverse-functional-property",
+	                                                       "Is inverse functional property",
+	                                                       FALSE,
+	                                                       G_PARAM_READWRITE));
 
 
 	g_type_class_add_private (object_class, sizeof (TrackerPropertyPriv));
@@ -294,9 +294,9 @@ property_finalize (GObject *object)
 
 static void
 property_get_property (GObject    *object,
-		       guint	   param_id,
-		       GValue     *value,
-		       GParamSpec *pspec)
+                       guint       param_id,
+                       GValue     *value,
+                       GParamSpec *pspec)
 {
 	TrackerPropertyPriv *priv;
 
@@ -349,55 +349,55 @@ property_get_property (GObject    *object,
 }
 
 static void
-property_set_property (GObject	    *object,
-		       guint	     param_id,
-		       const GValue *value,
-		       GParamSpec   *pspec)
+property_set_property (GObject      *object,
+                       guint         param_id,
+                       const GValue *value,
+                       GParamSpec   *pspec)
 {
 	switch (param_id) {
 	case PROP_URI:
 		tracker_property_set_uri (TRACKER_PROPERTY (object),
-				       g_value_get_string (value));
+		                          g_value_get_string (value));
 		break;
 	case PROP_DATA_TYPE:
 		tracker_property_set_data_type (TRACKER_PROPERTY (object),
-					     g_value_get_enum (value));
+		                                g_value_get_enum (value));
 		break;
 	case PROP_DOMAIN:
 		tracker_property_set_domain (TRACKER_PROPERTY (object),
-					   g_value_get_object (value));
+		                             g_value_get_object (value));
 		break;
 	case PROP_RANGE:
 		tracker_property_set_range (TRACKER_PROPERTY (object),
-					   g_value_get_object (value));
+		                            g_value_get_object (value));
 		break;
 	case PROP_WEIGHT:
 		tracker_property_set_weight (TRACKER_PROPERTY (object),
-					  g_value_get_int (value));
+		                             g_value_get_int (value));
 		break;
 	case PROP_INDEXED:
 		tracker_property_set_indexed (TRACKER_PROPERTY (object),
-					   g_value_get_boolean (value));
+		                              g_value_get_boolean (value));
 		break;
 	case PROP_FULLTEXT_INDEXED:
 		tracker_property_set_fulltext_indexed (TRACKER_PROPERTY (object),
-						    g_value_get_boolean (value));
+		                                       g_value_get_boolean (value));
 		break;
 	case PROP_EMBEDDED:
 		tracker_property_set_embedded (TRACKER_PROPERTY (object),
-					    g_value_get_boolean (value));
+		                               g_value_get_boolean (value));
 		break;
 	case PROP_MULTIPLE_VALUES:
 		tracker_property_set_multiple_values (TRACKER_PROPERTY (object),
-						   g_value_get_boolean (value));
+		                                      g_value_get_boolean (value));
 		break;
 	case PROP_FILTERED:
 		tracker_property_set_filtered (TRACKER_PROPERTY (object),
-					    g_value_get_boolean (value));
+		                               g_value_get_boolean (value));
 		break;
 	case PROP_TRANSIENT:
 		tracker_property_set_transient (TRACKER_PROPERTY (object),
-					    g_value_get_boolean (value));
+		                                g_value_get_boolean (value));
 		break;
 	case PROP_IS_INVERSE_FUNCTIONAL_PROPERTY:
 		tracker_property_set_is_inverse_functional_property (TRACKER_PROPERTY (object),
@@ -411,8 +411,8 @@ property_set_property (GObject	    *object,
 
 static gboolean
 field_int_validate (TrackerProperty *field,
-		    const gchar     *property,
-		    gint	     value)
+                    const gchar     *property,
+                    gint             value)
 {
 #ifdef G_DISABLE_CHECKS
 	GParamSpec *spec;
@@ -625,7 +625,7 @@ tracker_property_get_super_properties (TrackerProperty *property)
 
 void
 tracker_property_set_uri (TrackerProperty *field,
-			  const gchar     *value)
+                          const gchar     *value)
 {
 	TrackerPropertyPriv *priv;
 
@@ -668,7 +668,7 @@ tracker_property_set_uri (TrackerProperty *field,
 
 void
 tracker_property_set_transient (TrackerProperty *field,
-			        gboolean         value)
+                                gboolean         value)
 {
 	TrackerPropertyPriv *priv;
 
@@ -684,7 +684,7 @@ tracker_property_set_transient (TrackerProperty *field,
 
 void
 tracker_property_set_data_type (TrackerProperty     *field,
-				TrackerPropertyType  value)
+                                TrackerPropertyType  value)
 {
 	TrackerPropertyPriv *priv;
 
@@ -698,7 +698,7 @@ tracker_property_set_data_type (TrackerProperty     *field,
 
 void
 tracker_property_set_domain (TrackerProperty *field,
-			     TrackerClass    *value)
+                             TrackerClass    *value)
 {
 	TrackerPropertyPriv *priv;
 
@@ -720,7 +720,7 @@ tracker_property_set_domain (TrackerProperty *field,
 
 void
 tracker_property_set_range (TrackerProperty *property,
-			   TrackerClass     *value)
+                            TrackerClass     *value)
 {
 	TrackerPropertyPriv *priv;
 	const gchar *range_uri;
@@ -758,7 +758,7 @@ tracker_property_set_range (TrackerProperty *property,
 
 void
 tracker_property_set_weight (TrackerProperty *field,
-			     gint	      value)
+                             gint             value)
 {
 	TrackerPropertyPriv *priv;
 	g_return_if_fail (TRACKER_IS_PROPERTY (field));
@@ -775,7 +775,7 @@ tracker_property_set_weight (TrackerProperty *field,
 
 void
 tracker_property_set_indexed (TrackerProperty *field,
-			      gboolean         value)
+                              gboolean         value)
 {
 	TrackerPropertyPriv *priv;
 
@@ -789,7 +789,7 @@ tracker_property_set_indexed (TrackerProperty *field,
 
 void
 tracker_property_set_fulltext_indexed (TrackerProperty *field,
-				       gboolean	        value)
+                                       gboolean                 value)
 {
 	TrackerPropertyPriv *priv;
 
@@ -803,7 +803,7 @@ tracker_property_set_fulltext_indexed (TrackerProperty *field,
 
 void
 tracker_property_set_embedded (TrackerProperty *field,
-			       gboolean	        value)
+                               gboolean                 value)
 {
 	TrackerPropertyPriv *priv;
 
@@ -817,7 +817,7 @@ tracker_property_set_embedded (TrackerProperty *field,
 
 void
 tracker_property_set_multiple_values (TrackerProperty *field,
-				      gboolean         value)
+                                      gboolean         value)
 {
 	TrackerPropertyPriv *priv;
 
@@ -836,7 +836,7 @@ tracker_property_set_multiple_values (TrackerProperty *field,
 
 void
 tracker_property_set_filtered (TrackerProperty *field,
-			       gboolean	        value)
+                               gboolean                 value)
 {
 	TrackerPropertyPriv *priv;
 
@@ -864,7 +864,7 @@ tracker_property_set_is_inverse_functional_property (TrackerProperty *property,
 
 void
 tracker_property_set_super_properties (TrackerProperty  *property,
-				       TrackerProperty **value)
+                                       TrackerProperty **value)
 {
 	TrackerPropertyPriv *priv;
 	TrackerProperty **super_property;
@@ -883,7 +883,7 @@ tracker_property_set_super_properties (TrackerProperty  *property,
 
 void
 tracker_property_add_super_property (TrackerProperty *property,
-				     TrackerProperty *value)
+                                     TrackerProperty *value)
 {
 	TrackerPropertyPriv *priv;
 

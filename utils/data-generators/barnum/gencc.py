@@ -26,10 +26,10 @@ import random
 import sys
 import copy
 
-visaPrefixList = [ 	['4', '5', '3', '9'], 
-                    ['4', '5', '5', '6'], 
+visaPrefixList = [ 	['4', '5', '3', '9'],
+                    ['4', '5', '5', '6'],
                     ['4', '9', '1', '6'],
-                    ['4', '5', '3', '2'], 
+                    ['4', '5', '3', '2'],
                     ['4', '9', '2', '9'],
                     ['4', '0', '2', '4', '0', '0', '7', '1'],
                     ['4', '4', '8', '6'],
@@ -67,8 +67,8 @@ jcbPrefixList16 = [   ['3', '0', '8', '8'],
 jcbPrefixList15 = [ ['2', '1', '0', '0'],
                     ['1', '8', '0', '0'] ]
 
-voyagerPrefixList = [ ['8', '6', '9', '9'] ]                    
-                    
+voyagerPrefixList = [ ['8', '6', '9', '9'] ]
+
 
 """
 'prefix' is the start of the CC number as a string, any number of digits.
@@ -85,7 +85,7 @@ def completed_number(prefix, length):
         ccnumber.append(digit)
 
 
-    # Calculate sum 
+    # Calculate sum
 
     sum = 0
     pos = 0
@@ -113,7 +113,7 @@ def completed_number(prefix, length):
     checkdigit = ((sum / 10 + 1) * 10 - sum) % 10
 
     ccnumber.append( str(checkdigit) )
-    
+
     return ''.join(ccnumber)
 
 def credit_card_number(prefixList, length, howMany):
@@ -121,7 +121,7 @@ def credit_card_number(prefixList, length, howMany):
     result = []
 
     for i in range(howMany):
-   
+
         ccnumber = copy.copy( random.choice(prefixList) )
 
         result.append( completed_number(ccnumber, length) )

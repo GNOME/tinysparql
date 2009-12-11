@@ -77,12 +77,12 @@ check_for_volumes_to_cleanup (gpointer user_data)
 	iface = tracker_db_manager_get_db_interface ();
 
 	query = g_strdup_printf ("SELECT ?o ?m WHERE { "
-				   "?o a tracker:Volume ; "
-				   "tracker:mountPoint ?m ; "
-				   "tracker:unmountDate ?z ; "
-				   "tracker:isMounted false . "
-				 "FILTER (?z < \"%s\") }",
-				 three_days_ago_as_string);
+	                         "?o a tracker:Volume ; "
+	                         "tracker:mountPoint ?m ; "
+	                         "tracker:unmountDate ?z ; "
+	                         "tracker:isMounted false . "
+	                         "FILTER (?z < \"%s\") }",
+	                         three_days_ago_as_string);
 
 	result_set = tracker_data_query_sparql (query, NULL);
 
@@ -103,8 +103,8 @@ check_for_volumes_to_cleanup (gpointer user_data)
 			 * mount_point_uri is like <file:///media/USBStick> */
 
 			if (mount_point_uri) {
-				g_message ("  Cleaning up volumes with mount point:'%s'", 
-					   mount_point_uri);
+				g_message ("  Cleaning up volumes with mount point:'%s'",
+				           mount_point_uri);
 
 				/* Add cleanup items here */
 				tracker_thumbnailer_cleanup (mount_point_uri);
@@ -115,7 +115,7 @@ check_for_volumes_to_cleanup (gpointer user_data)
 			/* Reset volume date */
 			_tracker_db_result_set_get_value (result_set, 0, &value);
 
-			volume_uri = g_value_get_string (&value); 
+			volume_uri = g_value_get_string (&value);
 			tracker_data_update_reset_volume (volume_uri);
 
 			g_value_unset (&value);
@@ -135,7 +135,7 @@ check_for_volumes_to_cleanup (gpointer user_data)
 	return TRUE;
 }
 
-void 
+void
 tracker_volume_cleanup_init (void)
 {
 	TrackerCleanupPrivate *private;
@@ -144,8 +144,8 @@ tracker_volume_cleanup_init (void)
 	private = g_new0 (TrackerCleanupPrivate, 1);
 
 	g_static_private_set (&private_key,
-			      private,
-			      private_free);
+	                      private,
+	                      private_free);
 
 	check_for_volumes_to_cleanup (private);
 
@@ -158,12 +158,12 @@ tracker_volume_cleanup_init (void)
 	g_free (str);
 
 	private->timeout_id =
-		g_timeout_add_seconds (SECONDS_PER_DAY + 1, 
-				       check_for_volumes_to_cleanup,
-				       private);
+		g_timeout_add_seconds (SECONDS_PER_DAY + 1,
+		                       check_for_volumes_to_cleanup,
+		                       private);
 }
 
-void 
+void
 tracker_volume_cleanup_shutdown (void)
 {
 	g_static_private_set (&private_key, NULL, NULL);

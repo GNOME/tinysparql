@@ -6,7 +6,7 @@ The qtgui requires recent versions of:
 * Tracker(>= 5.2)
 * Python Qt3 (can possibly use 3.16)
 * Python Kde3 (>= 3.10)
-* Python DBus 
+* Python DBus
 
 If you use Ubuntu these can be installed via apt-get with this command:
 sudo apt-get install python-qt3 python-kde3 python-dbus

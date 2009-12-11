@@ -87,34 +87,34 @@ static void       status_icon_constructed            (GObject             *objec
 static void       status_icon_finalize               (GObject             *object);
 static void       status_icon_activate               (GtkStatusIcon       *icon);
 static void       status_icon_popup_menu             (GtkStatusIcon       *icon,
-						      guint                button,
-						      guint32              activate_time);
+                                                      guint                button,
+                                                      guint32              activate_time);
 static void       status_icon_miner_progress         (TrackerMinerManager *manager,
-						      const gchar         *miner_name,
-						      const gchar         *status,
-						      gdouble              progress,
-						      gpointer             user_data);
+                                                      const gchar         *miner_name,
+                                                      const gchar         *status,
+                                                      gdouble              progress,
+                                                      gpointer             user_data);
 static void       status_icon_miner_paused           (TrackerMinerManager *manager,
-						      const gchar         *miner_name,
-						      gpointer             user_data);
+                                                      const gchar         *miner_name,
+                                                      gpointer             user_data);
 static void       status_icon_miner_resumed          (TrackerMinerManager *manager,
-						      const gchar         *miner_name,
-						      gpointer             user_data);
+                                                      const gchar         *miner_name,
+                                                      gpointer             user_data);
 static void       status_icon_miner_activated        (TrackerMinerManager *manager,
-						      const gchar         *miner_name,
-						      gpointer             user_data);
+                                                      const gchar         *miner_name,
+                                                      gpointer             user_data);
 static void       status_icon_miner_deactivated      (TrackerMinerManager *manager,
-						      const gchar         *miner_name,
-						      gpointer             user_data);
+                                                      const gchar         *miner_name,
+                                                      gpointer             user_data);
 static void       status_icon_visibility_notify      (TrackerIconConfig   *config,
-						      GParamSpec          *pspec,
-						      gpointer             user_data);
+                                                      GParamSpec          *pspec,
+                                                      gpointer             user_data);
 static void       status_icon_initialize_miners_menu (TrackerStatusIcon   *icon);
 static GtkWidget *status_icon_create_context_menu    (TrackerStatusIcon   *icon);
 static void       status_icon_set_status             (TrackerStatusIcon   *icon,
-						      TrackerStatus        status);
+                                                      TrackerStatus        status);
 static void       launch_application_on_screen       (GdkScreen           *screen,
-						      const gchar         *command_line);
+                                                      const gchar         *command_line);
 
 G_DEFINE_TYPE (TrackerStatusIcon, tracker_status_icon, GTK_TYPE_STATUS_ICON)
 
@@ -147,7 +147,7 @@ miner_menu_entry_free (MinerMenuEntry *entry)
 
 static void
 keybinding_activated_cb (gchar    *keybinding,
-			 gpointer  user_data)
+                         gpointer  user_data)
 {
 	TrackerStatusIcon *icon = user_data;
 	GdkScreen *screen;
@@ -158,11 +158,11 @@ keybinding_activated_cb (gchar    *keybinding,
 
 static void
 set_global_keybinding (TrackerStatusIcon *icon,
-		       const gchar       *keybinding)
+                       const gchar       *keybinding)
 {
 	tomboy_keybinder_bind (keybinding,
-			       keybinding_activated_cb,
-			       icon);
+	                       keybinding_activated_cb,
+	                       icon);
 }
 
 static void
@@ -195,8 +195,8 @@ tracker_status_icon_init (TrackerStatusIcon *icon)
 	}
 
 	priv->miners = g_hash_table_new_full (g_str_hash, g_str_equal,
-					      (GDestroyNotify) g_free,
-					      (GDestroyNotify) miner_menu_entry_free);
+	                                      (GDestroyNotify) g_free,
+	                                      (GDestroyNotify) miner_menu_entry_free);
 
 	priv->miner_menu = gtk_menu_new ();
 	priv->context_menu = status_icon_create_context_menu (icon);
@@ -204,20 +204,20 @@ tracker_status_icon_init (TrackerStatusIcon *icon)
 
 	priv->manager = tracker_miner_manager_new ();
 	g_signal_connect (priv->manager, "miner-progress",
-			  G_CALLBACK (status_icon_miner_progress), icon);
+	                  G_CALLBACK (status_icon_miner_progress), icon);
 	g_signal_connect (priv->manager, "miner-paused",
-			  G_CALLBACK (status_icon_miner_paused), icon);
+	                  G_CALLBACK (status_icon_miner_paused), icon);
 	g_signal_connect (priv->manager, "miner-resumed",
-			  G_CALLBACK (status_icon_miner_resumed), icon);
+	                  G_CALLBACK (status_icon_miner_resumed), icon);
 	g_signal_connect (priv->manager, "miner-activated",
-			  G_CALLBACK (status_icon_miner_activated), icon);
+	                  G_CALLBACK (status_icon_miner_activated), icon);
 	g_signal_connect (priv->manager, "miner-deactivated",
-			  G_CALLBACK (status_icon_miner_deactivated), icon);
+	                  G_CALLBACK (status_icon_miner_deactivated), icon);
 	status_icon_initialize_miners_menu (icon);
 
 	priv->config = tracker_icon_config_new ();
 	g_signal_connect (priv->config, "notify::visibility",
-			  G_CALLBACK (status_icon_visibility_notify), icon);
+	                  G_CALLBACK (status_icon_visibility_notify), icon);
 
 	/* FIXME: Make this configurable */
 	set_global_keybinding (icon, "<Ctrl><Alt>S");
@@ -268,25 +268,25 @@ status_icon_activate (GtkStatusIcon *icon)
 	priv = TRACKER_STATUS_ICON_GET_PRIVATE (icon);
 
 	gtk_menu_popup (GTK_MENU (priv->miner_menu),
-			NULL, NULL,
-			gtk_status_icon_position_menu,
-			icon, 0,
-			gtk_get_current_event_time ());
+	                NULL, NULL,
+	                gtk_status_icon_position_menu,
+	                icon, 0,
+	                gtk_get_current_event_time ());
 }
 
 static void
 status_icon_popup_menu (GtkStatusIcon *icon,
-			guint          button,
-			guint32        activate_time)
+                        guint          button,
+                        guint32        activate_time)
 {
 	TrackerStatusIconPrivate *priv;
 
 	priv = TRACKER_STATUS_ICON_GET_PRIVATE (icon);
 
 	gtk_menu_popup (GTK_MENU (priv->context_menu),
-			NULL, NULL,
-			gtk_status_icon_position_menu,
-			icon, button, activate_time);
+	                NULL, NULL,
+	                gtk_status_icon_position_menu,
+	                icon, button, activate_time);
 }
 
 static void
@@ -384,16 +384,16 @@ status_icon_miner_progress_set (MinerMenuEntry *entry)
 	progress_str = g_strdup_printf ("%3.0f%%", entry->progress * 100);
 	gtk_label_set_text (GTK_LABEL (entry->progress_percentage), progress_str);
 	g_free (progress_str);
-	
+
 	gtk_widget_set_tooltip_text (entry->box, entry->status);
 }
 
 static void
 status_icon_miner_progress (TrackerMinerManager *manager,
-			    const gchar         *miner_name,
-			    const gchar         *status,
-			    gdouble              progress,
-			    gpointer             user_data)
+                            const gchar         *miner_name,
+                            const gchar         *status,
+                            gdouble              progress,
+                            gpointer             user_data)
 {
 	TrackerStatusIconPrivate *priv;
 	TrackerStatusIcon *icon;
@@ -418,8 +418,8 @@ status_icon_miner_progress (TrackerMinerManager *manager,
 
 static void
 status_icon_miner_paused (TrackerMinerManager *manager,
-			  const gchar         *miner_name,
-			  gpointer             user_data)
+                          const gchar         *miner_name,
+                          gpointer             user_data)
 {
 	TrackerStatusIconPrivate *priv;
 	TrackerStatusIcon *icon;
@@ -438,16 +438,16 @@ status_icon_miner_paused (TrackerMinerManager *manager,
 	status_icon_miner_progress_set (entry);
 
 	gtk_image_set_from_stock (GTK_IMAGE (entry->state),
-				  GTK_STOCK_MEDIA_PAUSE,
-				  GTK_ICON_SIZE_MENU);
+	                          GTK_STOCK_MEDIA_PAUSE,
+	                          GTK_ICON_SIZE_MENU);
 
 	update_icon_status (icon);
 }
 
 static void
 status_icon_miner_resumed (TrackerMinerManager *manager,
-			   const gchar         *miner_name,
-			   gpointer             user_data)
+                           const gchar         *miner_name,
+                           gpointer             user_data)
 {
 	TrackerStatusIconPrivate *priv;
 	TrackerStatusIcon *icon;
@@ -466,16 +466,16 @@ status_icon_miner_resumed (TrackerMinerManager *manager,
 	status_icon_miner_progress_set (entry);
 
 	gtk_image_set_from_stock (GTK_IMAGE (entry->state),
-				  GTK_STOCK_MEDIA_PLAY,
-				  GTK_ICON_SIZE_MENU);
+	                          GTK_STOCK_MEDIA_PLAY,
+	                          GTK_ICON_SIZE_MENU);
 
 	update_icon_status (icon);
 }
 
 static void
 status_icon_miner_activated (TrackerMinerManager *manager,
-			     const gchar         *miner_name,
-			     gpointer             user_data)
+                             const gchar         *miner_name,
+                             gpointer             user_data)
 {
 	TrackerStatusIconPrivate *priv;
 	TrackerStatusIcon *icon;
@@ -500,8 +500,8 @@ status_icon_miner_activated (TrackerMinerManager *manager,
 
 static void
 status_icon_miner_deactivated (TrackerMinerManager *manager,
-			       const gchar         *miner_name,
-			       gpointer             user_data)
+                               const gchar         *miner_name,
+                               gpointer             user_data)
 {
 	TrackerStatusIconPrivate *priv;
 	TrackerStatusIcon *icon;
@@ -521,7 +521,7 @@ status_icon_miner_deactivated (TrackerMinerManager *manager,
 	gtk_widget_hide (entry->progress_percentage);
 
 	status_icon_miner_progress (priv->manager, miner_name,
-				    _("Miner is not running"), 0.0, icon);
+	                            _("Miner is not running"), 0.0, icon);
 	entry->active = FALSE;
 
 	/* invalidate pause cookie */
@@ -532,8 +532,8 @@ status_icon_miner_deactivated (TrackerMinerManager *manager,
 
 static void
 status_icon_visibility_notify (TrackerIconConfig *config,
-			       GParamSpec        *pspec,
-			       gpointer           user_data)
+                               GParamSpec        *pspec,
+                               gpointer           user_data)
 {
 	TrackerStatusIcon *icon = user_data;
 
@@ -542,7 +542,7 @@ status_icon_visibility_notify (TrackerIconConfig *config,
 
 static void
 miner_menu_entry_activate_cb (GtkMenuItem *item,
-			      gpointer     user_data)
+                              gpointer     user_data)
 {
 	TrackerStatusIconPrivate *priv;
 	MinerMenuEntry *entry;
@@ -562,7 +562,7 @@ miner_menu_entry_activate_cb (GtkMenuItem *item,
 	if (entry->cookie == 0) {
 		/* Miner was not paused from here */
 		if (tracker_miner_manager_pause (priv->manager, miner,
-						 _("Paused by user"), &cookie)) {
+		                                 _("Paused by user"), &cookie)) {
 			entry->cookie = cookie;
 		}
 	} else {
@@ -575,17 +575,17 @@ miner_menu_entry_activate_cb (GtkMenuItem *item,
 
 static void
 miner_menu_entry_add (TrackerStatusIcon *icon,
-		      const gchar       *miner)
+                      const gchar       *miner)
 {
 	TrackerStatusIconPrivate *priv;
 	MinerMenuEntry *entry;
-        PangoFontDescription *fontdesc;
-        PangoFontMetrics *metrics;
-        PangoContext *context;
-        PangoLanguage *lang;
+	PangoFontDescription *fontdesc;
+	PangoFontMetrics *metrics;
+	PangoContext *context;
+	PangoLanguage *lang;
 	const gchar *name;
 	gchar *str;
-        gint ascent;
+	gint ascent;
 
 	priv = TRACKER_STATUS_ICON_GET_PRIVATE (icon);
 	name = tracker_miner_manager_get_display_name (priv->manager, miner);
@@ -595,7 +595,7 @@ miner_menu_entry_add (TrackerStatusIcon *icon,
 
 	entry->box = gtk_hbox_new (FALSE, 6);
 	entry->state = gtk_image_new_from_stock (GTK_STOCK_MEDIA_PLAY,
-						 GTK_ICON_SIZE_MENU);
+	                                         GTK_ICON_SIZE_MENU);
 	entry->name = gtk_label_new (name);
 	gtk_misc_set_alignment (GTK_MISC (entry->name), 0.0, 0.5);
 	gtk_box_pack_start (GTK_BOX (entry->box), entry->name, TRUE, TRUE, 0);
@@ -609,16 +609,16 @@ miner_menu_entry_add (TrackerStatusIcon *icon,
 	gtk_progress_bar_set_ellipsize (GTK_PROGRESS_BAR (entry->progress_bar), PANGO_ELLIPSIZE_END);
 	gtk_progress_bar_set_fraction (GTK_PROGRESS_BAR (entry->progress_bar), 1.00);
 
-        /* Get the font ascent for the current font and language */
-        context = gtk_widget_get_pango_context (entry->progress_bar);
-        fontdesc = pango_context_get_font_description (context);
-        lang = pango_context_get_language (context);
-        metrics = pango_context_get_metrics (context, fontdesc, lang);
-        ascent = pango_font_metrics_get_ascent (metrics) * 1.5 / PANGO_SCALE;
-        pango_font_metrics_unref (metrics);
+	/* Get the font ascent for the current font and language */
+	context = gtk_widget_get_pango_context (entry->progress_bar);
+	fontdesc = pango_context_get_font_description (context);
+	lang = pango_context_get_language (context);
+	metrics = pango_context_get_metrics (context, fontdesc, lang);
+	ascent = pango_font_metrics_get_ascent (metrics) * 1.5 / PANGO_SCALE;
+	pango_font_metrics_unref (metrics);
 
-        /* Size our progress bar to be five ascents long */
-        gtk_widget_set_size_request (entry->progress_bar, ascent * 5, -1);
+	/* Size our progress bar to be five ascents long */
+	gtk_widget_set_size_request (entry->progress_bar, ascent * 5, -1);
 
 	gtk_box_pack_start (GTK_BOX (entry->box), entry->progress_bar, FALSE, TRUE, 0);
 
@@ -628,7 +628,7 @@ miner_menu_entry_add (TrackerStatusIcon *icon,
 	gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (entry->menu_item), entry->state);
 	g_object_set_data (G_OBJECT (entry->menu_item), "menu-entry-miner-name", str);
 	g_signal_connect (entry->menu_item, "activate",
-			  G_CALLBACK (miner_menu_entry_activate_cb), icon);
+	                  G_CALLBACK (miner_menu_entry_activate_cb), icon);
 
 	gtk_container_add (GTK_CONTAINER (entry->menu_item), entry->box);
 	gtk_widget_show_all (entry->menu_item);
@@ -665,7 +665,7 @@ status_icon_initialize_miners_menu (TrackerStatusIcon *icon)
 
 static void
 launch_application_on_screen (GdkScreen   *screen,
-			      const gchar *command_line)
+                              const gchar *command_line)
 {
 	GError *error = NULL;
 
@@ -677,7 +677,7 @@ launch_application_on_screen (GdkScreen   *screen,
 
 static void
 context_menu_pause_cb (GtkMenuItem *item,
-		       gpointer     user_data)
+                       gpointer     user_data)
 {
 	TrackerStatusIcon *icon;
 	TrackerStatusIconPrivate *priv;
@@ -697,7 +697,7 @@ context_menu_pause_cb (GtkMenuItem *item,
 
 		if (active && entry->cookie == 0) {
 			if (tracker_miner_manager_pause (priv->manager, miner,
-							 _("Paused by user"), &cookie)) {
+			                                 _("Paused by user"), &cookie)) {
 				entry->cookie = cookie;
 			}
 		} else if (!active && entry->cookie != 0) {
@@ -712,23 +712,23 @@ context_menu_pause_cb (GtkMenuItem *item,
 
 static void
 context_menu_search_cb (GtkMenuItem *item,
-			gpointer     user_data)
+                        gpointer     user_data)
 {
 	launch_application_on_screen (gtk_widget_get_screen (GTK_WIDGET (item)),
-				      "tracker-search-tool");
+	                              "tracker-search-tool");
 }
 
 static void
 context_menu_preferences_cb (GtkMenuItem *item,
-			     gpointer     user_data)
+                             gpointer     user_data)
 {
 	launch_application_on_screen (gtk_widget_get_screen (GTK_WIDGET (item)),
-				      "tracker-preferences");
+	                              "tracker-preferences");
 }
 
 static void
 context_menu_about_cb (GtkMenuItem *item,
-		       gpointer     user_data)
+                       gpointer     user_data)
 {
 	const gchar *authors[] = {
 		"Martyn Russell <martyn at lanedo com>",
@@ -782,40 +782,40 @@ context_menu_about_cb (GtkMenuItem *item,
 		   "it under the terms of the GNU General Public License as published by "
 		   "the Free Software Foundation; either version 2 of the License, or "
 		   "(at your option) any later version."),
-		N_("Tracker is distributed in the hope that it will be useful, " 
-		   "but WITHOUT ANY WARRANTY; without even the implied warranty of " 
-		   "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the " 
+		N_("Tracker is distributed in the hope that it will be useful, "
+		   "but WITHOUT ANY WARRANTY; without even the implied warranty of "
+		   "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the "
 		   "GNU General Public License for more details."),
-		N_("You should have received a copy of the GNU General Public License " 
-		   "along with Tracker; if not, write to the Free Software Foundation, Inc., " 
+		N_("You should have received a copy of the GNU General Public License "
+		   "along with Tracker; if not, write to the Free Software Foundation, Inc., "
 		   "51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.")
 	};
 
 	gchar *license_trans;
 
 	license_trans = g_strjoin ("\n\n",
-				   _(license[0]),
-				   _(license[1]),
-				   _(license[2]),
-				   NULL);
+	                           _(license[0]),
+	                           _(license[1]),
+	                           _(license[2]),
+	                           NULL);
 
 	gtk_show_about_dialog (NULL,
-			       "version", PACKAGE_VERSION,
-			       "comments", _("A notification icon application to monitor data miners for Tracker"),
-			       "copyright", _("Copyright Tracker Authors 2005-2009"),
-			       "license", license_trans,
-			       "wrap-license", TRUE,
-			       "authors", authors,
-			       "documenters", documenters,
-			       /* Translators should localize the following string
-				* which will be displayed at the bottom of the about
-				* box to give credit to the translator(s).
-				*/
-			       "translator-credits", _("translator-credits"),
-			       "logo-icon-name", "tracker",
-			       "website", "http://www.tracker-project.org/",
-			       "website-label", "http://www.tracker-project.org/",
-			       NULL);
+	                       "version", PACKAGE_VERSION,
+	                       "comments", _("A notification icon application to monitor data miners for Tracker"),
+	                       "copyright", _("Copyright Tracker Authors 2005-2009"),
+	                       "license", license_trans,
+	                       "wrap-license", TRUE,
+	                       "authors", authors,
+	                       "documenters", documenters,
+	                       /* Translators should localize the following string
+	                        * which will be displayed at the bottom of the about
+	                        * box to give credit to the translator(s).
+	                        */
+	                       "translator-credits", _("translator-credits"),
+	                       "logo-icon-name", "tracker",
+	                       "website", "http://www.tracker-project.org/",
+	                       "website-label", "http://www.tracker-project.org/",
+	                       NULL);
 
 	g_free (license_trans);
 }
@@ -831,67 +831,67 @@ status_icon_create_context_menu (TrackerStatusIcon *icon)
 	gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (item), FALSE);
 	gtk_menu_shell_append (GTK_MENU_SHELL (menu), item);
 	g_signal_connect (G_OBJECT (item), "toggled",
-			  G_CALLBACK (context_menu_pause_cb), icon);
+	                  G_CALLBACK (context_menu_pause_cb), icon);
 
 	item = gtk_separator_menu_item_new ();
 	gtk_menu_shell_append (GTK_MENU_SHELL (menu), item);
 
 	item = gtk_image_menu_item_new_with_mnemonic (_("_Search"));
 	image = gtk_image_new_from_icon_name (GTK_STOCK_FIND,
-					      GTK_ICON_SIZE_MENU);
+	                                      GTK_ICON_SIZE_MENU);
 	gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (item), image);
 	gtk_menu_shell_append (GTK_MENU_SHELL (menu), item);
 	g_signal_connect (G_OBJECT (item), "activate",
-			  G_CALLBACK (context_menu_search_cb), icon);
+	                  G_CALLBACK (context_menu_search_cb), icon);
 
 	item = gtk_image_menu_item_new_with_mnemonic (_("_Preferences"));
 	image = gtk_image_new_from_icon_name (GTK_STOCK_PREFERENCES,
-					      GTK_ICON_SIZE_MENU);
+	                                      GTK_ICON_SIZE_MENU);
 	gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (item), image);
 	gtk_menu_shell_append (GTK_MENU_SHELL (menu), item);
 	g_signal_connect (G_OBJECT (item), "activate",
-			  G_CALLBACK (context_menu_preferences_cb),
-			  icon);
+	                  G_CALLBACK (context_menu_preferences_cb),
+	                  icon);
 
 	/*
-	item = gtk_image_menu_item_new_with_mnemonic (_("_Indexer Preferences"));
-	image = gtk_image_new_from_icon_name (GTK_STOCK_PREFERENCES,
-					      GTK_ICON_SIZE_MENU);
-	gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (item), image);
-	gtk_menu_shell_append (GTK_MENU_SHELL (menu), item);
-	g_signal_connect (G_OBJECT (item), "activate",
-			  G_CALLBACK (preferences_menu_activated), icon);
+	  item = gtk_image_menu_item_new_with_mnemonic (_("_Indexer Preferences"));
+	  image = gtk_image_new_from_icon_name (GTK_STOCK_PREFERENCES,
+	  GTK_ICON_SIZE_MENU);
+	  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (item), image);
+	  gtk_menu_shell_append (GTK_MENU_SHELL (menu), item);
+	  g_signal_connect (G_OBJECT (item), "activate",
+	  G_CALLBACK (preferences_menu_activated), icon);
 	*/
 
 	/*
-	item = gtk_image_menu_item_new_with_mnemonic (_("S_tatistics"));
-	image = gtk_image_new_from_icon_name (GTK_STOCK_INFO,
-					      GTK_ICON_SIZE_MENU);
-	gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (item), image);
-	gtk_menu_shell_append (GTK_MENU_SHELL (menu), item);
-	g_signal_connect (G_OBJECT (item), "activate",
-			  G_CALLBACK (statistics_menu_activated), icon);
+	  item = gtk_image_menu_item_new_with_mnemonic (_("S_tatistics"));
+	  image = gtk_image_new_from_icon_name (GTK_STOCK_INFO,
+	  GTK_ICON_SIZE_MENU);
+	  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (item), image);
+	  gtk_menu_shell_append (GTK_MENU_SHELL (menu), item);
+	  g_signal_connect (G_OBJECT (item), "activate",
+	  G_CALLBACK (statistics_menu_activated), icon);
 	*/
 
 	item = gtk_image_menu_item_new_with_mnemonic (_("_About"));
 	image = gtk_image_new_from_icon_name (GTK_STOCK_ABOUT,
-					      GTK_ICON_SIZE_MENU);
+	                                      GTK_ICON_SIZE_MENU);
 	gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (item), image);
 	gtk_menu_shell_append (GTK_MENU_SHELL (menu), item);
 	g_signal_connect (G_OBJECT (item), "activate",
-			  G_CALLBACK (context_menu_about_cb), icon);
+	                  G_CALLBACK (context_menu_about_cb), icon);
 
 	/*
-	item = gtk_separator_menu_item_new ();
-	gtk_menu_shell_append (GTK_MENU_SHELL (menu), item);
+	  item = gtk_separator_menu_item_new ();
+	  gtk_menu_shell_append (GTK_MENU_SHELL (menu), item);
 
-	item = gtk_image_menu_item_new_with_mnemonic (_("_Quit"));
-	image = gtk_image_new_from_icon_name (GTK_STOCK_QUIT,
-					      GTK_ICON_SIZE_MENU);
-	gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (item), image);
-	gtk_menu_shell_append (GTK_MENU_SHELL (menu), item);
-	g_signal_connect (G_OBJECT (item), "activate",
-			  G_CALLBACK (quit_menu_activated), icon);
+	  item = gtk_image_menu_item_new_with_mnemonic (_("_Quit"));
+	  image = gtk_image_new_from_icon_name (GTK_STOCK_QUIT,
+	  GTK_ICON_SIZE_MENU);
+	  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (item), image);
+	  gtk_menu_shell_append (GTK_MENU_SHELL (menu), item);
+	  g_signal_connect (G_OBJECT (item), "activate",
+	  G_CALLBACK (quit_menu_activated), icon);
 	*/
 
 	gtk_widget_show_all (menu);
@@ -921,7 +921,7 @@ animate_indexing_cb (TrackerStatusIcon *icon)
 
 static void
 animate_indexing (TrackerStatusIcon *icon,
-		  gboolean           animate)
+                  gboolean           animate)
 {
 	TrackerStatusIconPrivate *priv;
 
@@ -944,7 +944,7 @@ animate_indexing (TrackerStatusIcon *icon,
 
 static void
 status_icon_set_status (TrackerStatusIcon *icon,
-			TrackerStatus      status)
+                        TrackerStatus      status)
 {
 	TrackerStatusIconPrivate *priv;
 	TrackerVisibility visibility;
@@ -971,15 +971,15 @@ status_icon_set_status (TrackerStatusIcon *icon,
 		animate_indexing (icon, FALSE);
 
 		gtk_status_icon_set_visible (GTK_STATUS_ICON (icon),
-					     (visibility == TRACKER_SHOW_ALWAYS));
+		                             (visibility == TRACKER_SHOW_ALWAYS));
 
 		gtk_status_icon_set_from_pixbuf (GTK_STATUS_ICON (icon),
-						 priv->icons [ICON_IDLE]);
+		                                 priv->icons [ICON_IDLE]);
 		break;
 	case STATUS_PAUSED:
 		animate_indexing (icon, FALSE);
 		gtk_status_icon_set_from_pixbuf (GTK_STATUS_ICON (icon),
-						 priv->icons [ICON_PAUSED]);
+		                                 priv->icons [ICON_PAUSED]);
 		break;
 	case STATUS_INDEXING:
 		gtk_status_icon_set_visible (GTK_STATUS_ICON (icon), TRUE);

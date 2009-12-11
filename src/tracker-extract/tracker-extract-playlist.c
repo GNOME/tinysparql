@@ -39,12 +39,12 @@
 #define PLAYLIST_PROPERTY_NO_TRACKS "entryCounter"
 #define PLAYLIST_PROPERTY_DURATION  "listDuration"
 /*
- FIXME Decide what to do with this in nepomuk
-#define PLAYLIST_PROPERTY_CALCULATED "Playlist:ValidDuration"
+  FIXME Decide what to do with this in nepomuk
+  #define PLAYLIST_PROPERTY_CALCULATED "Playlist:ValidDuration"
 */
 
 #define PLAYLIST_DEFAULT_NO_TRACKS 0
-#define PLAYLIST_DEFAULT_DURATION 0 
+#define PLAYLIST_DEFAULT_DURATION 0
 
 
 #define NFO_PREFIX TRACKER_NFO_PREFIX
@@ -59,7 +59,7 @@ typedef struct {
 } PlaylistMetadata;
 
 static void extract_playlist (const gchar *uri,
-			      TrackerSparqlBuilder   *metadata);
+                              TrackerSparqlBuilder   *metadata);
 
 
 static TrackerExtractData playlist_data[] = {
@@ -68,8 +68,8 @@ static TrackerExtractData playlist_data[] = {
 	{ "audio/x-scpls", extract_playlist },
 	{ "audio/x-pn-realaudio", extract_playlist },
 	{ "application/ram", extract_playlist },
-	{ "application/vnd.ms-wpl", extract_playlist }, 
-	{ "application/smil", extract_playlist }, 
+	{ "application/vnd.ms-wpl", extract_playlist },
+	{ "application/smil", extract_playlist },
 	{ "audio/x-ms-asx", extract_playlist },
 	{ NULL, NULL }
 };
@@ -113,7 +113,7 @@ entry_parsed (TotemPlParser *parser, const gchar *to_uri, GHashTable *to_metadat
 
 static void
 extract_playlist (const gchar *uri,
-		  TrackerSparqlBuilder   *metadata)
+                  TrackerSparqlBuilder   *metadata)
 {
 	TotemPlParser       *pl;
 	TotemPlParserResult  result;
@@ -124,9 +124,9 @@ extract_playlist (const gchar *uri,
 	g_object_set (pl, "recurse", FALSE, "disable-unsafe", TRUE, NULL);
 
 	g_signal_connect (G_OBJECT (pl), "entry-parsed",
-			  G_CALLBACK (entry_parsed), &data);
+	                  G_CALLBACK (entry_parsed), &data);
 
-        tracker_sparql_builder_subject_iri (metadata, uri);
+	tracker_sparql_builder_subject_iri (metadata, uri);
 	tracker_sparql_builder_predicate (metadata, "a");
 	tracker_sparql_builder_object (metadata, "nfo:MediaList");
 

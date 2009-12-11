@@ -44,42 +44,42 @@ class TextExtractor : public TextHandler
 {
 public:
 	UString content;
-	virtual void runOfText (const UString                &text, 
+	virtual void runOfText (const UString                &text,
 	                        SharedPtr<const Word97::CHP> chp);
-}; 
+};
 
 
-void 
-TextExtractor::runOfText (const  UString               &text,  
+void
+TextExtractor::runOfText (const  UString               &text,
                           SharedPtr<const Word97::CHP> chp)
 {
 	content += text;
 }
 
 
-static gchar* 
-ustring2utf (const UString& ustr, guint n_words) 
+static gchar*
+ustring2utf (const UString& ustr, guint n_words)
 {
 	CString cstring = ustr.cstring();
-	gchar *unicode_str = g_convert (cstring.c_str (), cstring.length (), 
-	                                "UTF-8", "ISO-8859-1", 
+	gchar *unicode_str = g_convert (cstring.c_str (), cstring.length (),
+	                                "UTF-8", "ISO-8859-1",
 	                                NULL, NULL, NULL);
 
-	if(unicode_str) { 
+	if(unicode_str) {
 		gchar *normalized = tracker_text_normalize (unicode_str, n_words, NULL);
 		g_free (unicode_str);
 		return normalized;
 	}
-	
+
 	return NULL;
 }
 
-gchar* 
+gchar*
 extract_msword_content (const gchar *uri, gint max_words)
 {
 	gchar *filename = g_filename_from_uri (uri, NULL, NULL);
 	gchar *str;
-	
+
 	if(!filename) {
 		return NULL;
 	}
@@ -103,11 +103,11 @@ extract_msword_content (const gchar *uri, gint max_words)
 		delete extractor;
 		return NULL;
 	}
-	
+
 	str = ustring2utf (extractor->content, max_words);
-	
+
 	delete extractor;
 	g_free (filename);
-	
+
 	return str;
 }

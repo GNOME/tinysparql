@@ -39,23 +39,23 @@
 #define RDF_TYPE RDF_PREFIX "type"
 
 static const gchar *tags[][2] = {
-	{ "TOTEM_INFO_VIDEO_HEIGHT",		"nfo:height"	},
-	{ "TOTEM_INFO_VIDEO_WIDTH",		"nfo:width"	},
-	{ "TOTEM_INFO_FPS",			"nfo:frameRate"	},
-	{ "TOTEM_INFO_VIDEO_CODEC",		"nfo:codec"	},
-	{ "TOTEM_INFO_VIDEO_BITRATE",		"nfo:averageBitrate"	},
-	{ "TOTEM_INFO_TITLE",			"nie:title"	},
-	{ "TOTEM_INFO_ARTIST",			"nco:creator"	},
-	{ "TOTEM_INFO_ALBUM",			"nmm:musicAlbum"	},
-	{ "TOTEM_INFO_AUDIO_BITRATE",		"nmm:averageBitrate"	},
-	{ "TOTEM_INFO_AUDIO_SAMPLE_RATE",	"nfo:sampleRate"		},
-	{ "TOTEM_INFO_AUDIO_CODEC",		"nfo:codec"		},
-	{ "TOTEM_INFO_AUDIO_CHANNELS",		"nfo:channels"		},
-	{ NULL,					NULL			}
+	{ "TOTEM_INFO_VIDEO_HEIGHT",            "nfo:height"    },
+	{ "TOTEM_INFO_VIDEO_WIDTH",             "nfo:width"     },
+	{ "TOTEM_INFO_FPS",                     "nfo:frameRate"         },
+	{ "TOTEM_INFO_VIDEO_CODEC",             "nfo:codec"     },
+	{ "TOTEM_INFO_VIDEO_BITRATE",           "nfo:averageBitrate"    },
+	{ "TOTEM_INFO_TITLE",                   "nie:title"     },
+	{ "TOTEM_INFO_ARTIST",                  "nco:creator"   },
+	{ "TOTEM_INFO_ALBUM",                   "nmm:musicAlbum"        },
+	{ "TOTEM_INFO_AUDIO_BITRATE",           "nmm:averageBitrate"    },
+	{ "TOTEM_INFO_AUDIO_SAMPLE_RATE",       "nfo:sampleRate"                },
+	{ "TOTEM_INFO_AUDIO_CODEC",             "nfo:codec"             },
+	{ "TOTEM_INFO_AUDIO_CHANNELS",          "nfo:channels"          },
+	{ NULL,                                         NULL                    }
 };
 
 static void extract_totem (const gchar *uri,
-			   TrackerSparqlBuilder   *metadata);
+                           TrackerSparqlBuilder   *metadata);
 
 static TrackerExtractData data[] = {
 	{ "audio/*", extract_totem },
@@ -65,8 +65,8 @@ static TrackerExtractData data[] = {
 
 static void
 metadata_write_foreach (gpointer key,
-			gpointer value,
-			gpointer user_data)
+                        gpointer value,
+                        gpointer user_data)
 {
 	TrackerSparqlBuilder *metadata = user_data;
 
@@ -76,7 +76,7 @@ metadata_write_foreach (gpointer key,
 
 static void
 extract_totem (const gchar *uri,
-	       TrackerSparqlBuilder   *metadata)
+               TrackerSparqlBuilder   *metadata)
 {
 	gchar *argv[3];
 	gchar *totem;
@@ -88,9 +88,9 @@ extract_totem (const gchar *uri,
 	argv[2] = NULL;
 
 	tmp_metadata = g_hash_table_new_full (g_str_hash,
-					      g_str_equal,
-					      (GDestroyNotify) g_free,
-					      (GDestroyNotify) g_free);
+	                                      g_str_equal,
+	                                      (GDestroyNotify) g_free,
+	                                      (GDestroyNotify) g_free);
 
 	if (tracker_spawn (argv, 10, &totem, NULL)) {
 		gchar **lines, **line;

@@ -28,7 +28,7 @@ typedef struct {
 	gchar *testdata;
 } ExtractData;
 
-static const ExtractData data_basic_size[] = { 
+static const ExtractData data_basic_size[] = {
 	{ "/png/basic_size_1.png", "/png/basic_size_1.data" },
 	{ "/png/basic_size_2.png", "/png/basic_size_2.data" },
 	{ "/png/basic_size_3.png", "/png/basic_size_3.data" },
@@ -37,7 +37,7 @@ static const ExtractData data_basic_size[] = {
 	{ NULL, NULL }
 };
 
-static const ExtractData data_xmp_exif_orientation[] = { 
+static const ExtractData data_xmp_exif_orientation[] = {
 	{ "/png/xmp_exif_orientation_1.png", "/png/xmp_exif_orientation_1.data" },
 	{ "/png/xmp_exif_orientation_2.png", "/png/xmp_exif_orientation_2.data" },
 	{ "/png/xmp_exif_orientation_3.png", "/png/xmp_exif_orientation_3.data" },
@@ -49,31 +49,31 @@ static const ExtractData data_xmp_exif_orientation[] = {
 	{ NULL, NULL }
 };
 
-void 
+void
 test_tracker_extract_png_basic_size (gconstpointer data)
 {
 	guint i;
 
 	for (i = 0; data_basic_size[i].filename; i++) {
 		tracker_test_extract_file (data,
-					   data_basic_size[i].filename,
-					   data_basic_size[i].testdata);		
+		                           data_basic_size[i].filename,
+		                           data_basic_size[i].testdata);
 	}
 }
 
-void 
+void
 test_tracker_extract_png_xmp_exif_orientation (gconstpointer data)
 {
 	guint i;
 
 	for (i = 0; data_xmp_exif_orientation[i].filename; i++) {
 		tracker_test_extract_file (data,
-					   data_xmp_exif_orientation[i].filename,
-					   data_xmp_exif_orientation[i].testdata);		
+		                           data_xmp_exif_orientation[i].filename,
+		                           data_xmp_exif_orientation[i].testdata);
 	}
 }
 
-void 
+void
 test_tracker_extract_png_performance (gconstpointer data)
 {
 	tracker_test_extract_file_performance (data, "/png/perf_png_%d.png", 1000);

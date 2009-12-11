@@ -9,7 +9,7 @@
  *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the GNU
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.          See the GNU
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
@@ -36,19 +36,19 @@
 #include "tracker-file-utils.h"
 
 static gboolean  initialized;
-static GMutex	*mutex;
-static FILE	*fd;
-static gint	 verbosity;
-static guint	 log_handler_id;
+static GMutex   *mutex;
+static FILE     *fd;
+static gint      verbosity;
+static guint     log_handler_id;
 
 static inline void
 log_output (const gchar    *domain,
-	    GLogLevelFlags  log_level,
-	    const gchar    *message)
+            GLogLevelFlags  log_level,
+            const gchar    *message)
 {
-	time_t	      now;
-	gchar	      time_str[64];
-	gchar	     *output;
+	time_t        now;
+	gchar         time_str[64];
+	gchar        *output;
 	struct tm    *local_time;
 	GTimeVal      current_time;
 	const gchar  *log_level_str;
@@ -101,11 +101,11 @@ log_output (const gchar    *domain,
 	}
 
 	output = g_strdup_printf ("%s%s %s%s: %s",
-				  log_level_str ? "\n" : "",
-				  time_str,
-				  domain,
-				  log_level_str ? log_level_str : "",
-				  message);
+	                          log_level_str ? "\n" : "",
+	                          time_str,
+	                          domain,
+	                          log_level_str ? log_level_str : "",
+	                          message);
 
 	if (G_UNLIKELY (fd == NULL)) {
 		g_fprintf (stderr, "%s\n", output);
@@ -122,9 +122,9 @@ log_output (const gchar    *domain,
 
 static void
 tracker_log_handler (const gchar    *domain,
-		     GLogLevelFlags  log_level,
-		     const gchar    *message,
-		     gpointer	     user_data)
+                     GLogLevelFlags  log_level,
+                     const gchar    *message,
+                     gpointer        user_data)
 {
 	if (!tracker_log_should_handle (log_level, verbosity)) {
 		return;
@@ -138,7 +138,7 @@ tracker_log_handler (const gchar    *domain,
 
 gboolean
 tracker_log_init (gint    this_verbosity,
-		  gchar **used_filename)
+                  gchar **used_filename)
 {
 	gchar *filename;
 	gchar *basename;
@@ -146,12 +146,12 @@ tracker_log_init (gint    this_verbosity,
 	if (initialized) {
 		return TRUE;
 	}
-		
+
 	basename = g_strdup_printf ("%s.log", g_get_application_name ());
-	filename = g_build_filename (g_get_user_data_dir (), 
-				     "tracker", 
-				     basename, 
-				     NULL);
+	filename = g_build_filename (g_get_user_data_dir (),
+	                             "tracker",
+	                             basename,
+	                             NULL);
 	g_free (basename);
 
 	/* Remove previous log */
@@ -164,11 +164,11 @@ tracker_log_init (gint    this_verbosity,
 
 		error_string = g_strerror (errno);
 		g_fprintf (stderr,
-			   "Could not open log:'%s', %s\n",
-			   filename,
-			   error_string);
+		           "Could not open log:'%s', %s\n",
+		           filename,
+		           error_string);
 		g_fprintf (stderr,
-			   "All logging will go to stderr\n");
+		           "All logging will go to stderr\n");
 	}
 
 	verbosity = CLAMP (this_verbosity, 0, 3);
@@ -176,9 +176,9 @@ tracker_log_init (gint    this_verbosity,
 
 	/* Add log handler function */
 	log_handler_id = g_log_set_handler (NULL,
-					    G_LOG_LEVEL_MASK | G_LOG_FLAG_FATAL,
-					    tracker_log_handler,
-					    NULL);
+	                                    G_LOG_LEVEL_MASK | G_LOG_FLAG_FATAL,
+	                                    tracker_log_handler,
+	                                    NULL);
 
 	g_log_set_default_handler (tracker_log_handler, NULL);
 
@@ -214,14 +214,14 @@ tracker_log_shutdown (void)
 
 gboolean
 tracker_log_should_handle (GLogLevelFlags log_level,
-			   gint           this_verbosity)
+                           gint           this_verbosity)
 {
 	switch (this_verbosity) {
-	/* Log level 3: EVERYTHING */
+		/* Log level 3: EVERYTHING */
 	case 3:
 		break;
 
-	/* Log level 2: CRITICAL/ERROR/WARNING/INFO/MESSAGE only */
+		/* Log level 2: CRITICAL/ERROR/WARNING/INFO/MESSAGE only */
 	case 2:
 		if (!(log_level & G_LOG_LEVEL_MESSAGE) &&
 		    !(log_level & G_LOG_LEVEL_INFO) &&
@@ -233,7 +233,7 @@ tracker_log_should_handle (GLogLevelFlags log_level,
 
 		break;
 
-	/* Log level 1: CRITICAL/ERROR/WARNING/INFO only */
+		/* Log level 1: CRITICAL/ERROR/WARNING/INFO only */
 	case 1:
 		if (!(log_level & G_LOG_LEVEL_INFO) &&
 		    !(log_level & G_LOG_LEVEL_WARNING) &&
@@ -244,7 +244,7 @@ tracker_log_should_handle (GLogLevelFlags log_level,
 
 		break;
 
-	/* Log level 0: CRITICAL/ERROR/WARNING only (default) */
+		/* Log level 0: CRITICAL/ERROR/WARNING only (default) */
 	default:
 	case 0:
 		if (!(log_level & G_LOG_LEVEL_WARNING) &&

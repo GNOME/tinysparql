@@ -30,10 +30,10 @@ G_BEGIN_DECLS
 #error "only <libtracker-common/tracker-common.h> must be included directly."
 #endif
 
-#define TRACKER_TYPE_LANGUAGE	      (tracker_language_get_type ())
-#define TRACKER_LANGUAGE(o)	      (G_TYPE_CHECK_INSTANCE_CAST ((o), TRACKER_TYPE_LANGUAGE, TrackerLanguage))
+#define TRACKER_TYPE_LANGUAGE         (tracker_language_get_type ())
+#define TRACKER_LANGUAGE(o)           (G_TYPE_CHECK_INSTANCE_CAST ((o), TRACKER_TYPE_LANGUAGE, TrackerLanguage))
 #define TRACKER_LANGUAGE_CLASS(k)     (G_TYPE_CHECK_CLASS_CAST ((k), TRACKER_TYPE_LANGUAGE, TrackerLanguageClass))
-#define TRACKER_IS_LANGUAGE(o)	      (G_TYPE_CHECK_INSTANCE_TYPE ((o), TRACKER_TYPE_LANGUAGE))
+#define TRACKER_IS_LANGUAGE(o)        (G_TYPE_CHECK_INSTANCE_TYPE ((o), TRACKER_TYPE_LANGUAGE))
 #define TRACKER_IS_LANGUAGE_CLASS(k)  (G_TYPE_CHECK_CLASS_TYPE ((k), TRACKER_TYPE_LANGUAGE))
 #define TRACKER_LANGUAGE_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o), TRACKER_TYPE_LANGUAGE, TrackerLanguageClass))
 
@@ -48,7 +48,7 @@ struct _TrackerLanguageClass {
 	GObjectClass parent_class;
 };
 
-GType		 tracker_language_get_type	     (void) G_GNUC_CONST;
+GType            tracker_language_get_type           (void) G_GNUC_CONST;
 TrackerLanguage *tracker_language_new                (const gchar     *language_code);
 
 gboolean         tracker_language_get_enable_stemmer (TrackerLanguage *language);
@@ -56,13 +56,13 @@ GHashTable *     tracker_language_get_stop_words     (TrackerLanguage *language)
 const gchar *    tracker_language_get_language_code  (TrackerLanguage *language);
 
 void             tracker_language_set_enable_stemmer (TrackerLanguage *language,
-						      gboolean         value);
+                                                      gboolean         value);
 void             tracker_language_set_language_code  (TrackerLanguage *language,
-						      const gchar     *language_code);
+                                                      const gchar     *language_code);
 
 gchar *          tracker_language_stem_word          (TrackerLanguage *language,
-						      const gchar     *word,
-						      gint             word_length);
+                                                      const gchar     *word,
+                                                      gint             word_length);
 
 /* Utility functions */
 gboolean         tracker_language_check_exists       (const gchar     *language_code);

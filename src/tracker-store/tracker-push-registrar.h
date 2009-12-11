@@ -47,9 +47,9 @@ struct TrackerPushRegistrarClass {
 	GObjectClass parent_class;
 
 	void (*enable) (TrackerPushRegistrar *registrar,
-			DBusGConnection      *connection, 
-			DBusGProxy           *dbus_proxy, 
-			GError              **error);
+	                DBusGConnection      *connection,
+	                DBusGProxy           *dbus_proxy,
+	                GError              **error);
 
 	void (*disable) (TrackerPushRegistrar *registrar);
 };
@@ -61,17 +61,17 @@ GObject *               tracker_push_registrar_get_object    (TrackerPushRegistr
 DBusGProxy *            tracker_push_registrar_get_manager   (TrackerPushRegistrar *registrar);
 
 void                    tracker_push_registrar_set_service   (TrackerPushRegistrar *registrar,
-							      const gchar *service);
+                                                              const gchar *service);
 void                    tracker_push_registrar_set_object    (TrackerPushRegistrar *registrar,
-							      GObject              *object);
+                                                              GObject              *object);
 void                    tracker_push_registrar_set_manager   (TrackerPushRegistrar *registrar,
-							      DBusGProxy           *manager);
+                                                              DBusGProxy           *manager);
 
 
-void                    tracker_push_registrar_enable        (TrackerPushRegistrar *registrar, 
-							      DBusGConnection      *connection, 
-							      DBusGProxy           *dbus_proxy, 
-							      GError              **error);
+void                    tracker_push_registrar_enable        (TrackerPushRegistrar *registrar,
+                                                              DBusGConnection      *connection,
+                                                              DBusGProxy           *dbus_proxy,
+                                                              GError              **error);
 void                    tracker_push_registrar_disable       (TrackerPushRegistrar *registrar);
 
 TrackerPushRegistrar *  tracker_push_module_init             (void);

@@ -27,9 +27,9 @@ static void
 slist_to_strv (gboolean utf8)
 {
 	GSList *input = NULL;
-	gint	i;
+	gint    i;
 	gchar **input_as_strv;
-	gint	strings = 5;
+	gint    strings = 5;
 
 	for (i = 0; i < strings; i++) {
 		if (utf8) {
@@ -50,7 +50,7 @@ slist_to_strv (gboolean utf8)
 			input_as_strv = tracker_dbus_slist_to_strv (input);
 		}
 		/* Error message:
-		 *   Could not add string:'/invalid/file/\xe4\xf6\xe590808.' to GStrv, invalid UTF-8 
+		 *   Could not add string:'/invalid/file/\xe4\xf6\xe590808.' to GStrv, invalid UTF-8
 		 */
 		g_test_trap_assert_stderr ("*Could not add string:*");
 	}
@@ -96,14 +96,14 @@ async_queue_to_strv (gboolean utf8)
 
 	if (utf8) {
 		queue_as_strv = tracker_dbus_queue_str_to_strv (queue, g_queue_get_length (queue));
-		g_assert_cmpint (g_strv_length (queue_as_strv), ==, strings); 
+		g_assert_cmpint (g_strv_length (queue_as_strv), ==, strings);
 		g_strfreev (queue_as_strv);
 	} else {
 		if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDERR)) {
 			queue_as_strv = tracker_dbus_queue_str_to_strv (queue, g_queue_get_length (queue));
 		}
 		/* Error message:
-		 *   Could not add string:'/invalid/file/\xe4\xf6\xe590808.' to GStrv, invalid UTF-8 
+		 *   Could not add string:'/invalid/file/\xe4\xf6\xe590808.' to GStrv, invalid UTF-8
 		 */
 		g_test_trap_assert_stderr ("*Could not add string:*");
 	}

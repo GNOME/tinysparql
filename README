@@ -31,7 +31,7 @@
 
   All discussion related to tracker happens on the Tracker
   mailing list
-  
+
         http://mail.gnome.org/mailman/listinfo/tracker-list
 
   IRC channel #tracker on:
@@ -85,7 +85,7 @@
 
   * Very memory efficient. Unlike some other indexers, Tracker is
   designed and built to run well on mobile and desktop systems with
-  lower memory (256MB or less).  
+  lower memory (256MB or less).
 
   * Non-bloated and written in C for maximum efficiency.
 
@@ -174,7 +174,7 @@
 5.1 Usage
 
   Tracker normally starts itself when users log in. You can indexing by running:
-  
+
     $prefix/libexec/tracker-miner-fs
 
   You can configure how this works using:
@@ -182,7 +182,7 @@
     $prefix/bin/tracker-preferences
 
   You can monitor data miners using:
-  
+
     $prefix/bin/tracker-status-icon
 
   You can do simple searching using an applet:

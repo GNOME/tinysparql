@@ -135,7 +135,7 @@ tracker_backup_save (TrackerBackup          *object,
 
 	/* The sqlite3_backup API apparently doesn't much like open transactions,
 	 * this queue_commit will first call the currently open transaction
-	 * of the open batch (if any), and then in the callback we'll idd 
+	 * of the open batch (if any), and then in the callback we'll idd
 	 * continue with making the backup itself (using sqlite3_backup's API) */
 
 	tracker_store_queue_commit (on_batch_commit, NULL, info, NULL);
@@ -167,9 +167,9 @@ tracker_backup_restore (TrackerBackup          *object,
 	info->context = context;
 	info->play_journal = TRUE;
 
-	/* This call is mostly synchronous, because we want to block the 
+	/* This call is mostly synchronous, because we want to block the
 	 * mainloop during a restore procedure (you're switching the active
-	 * database here, let's not allow queries during this time) 
+	 * database here, let's not allow queries during this time)
 	 *
 	 * No need for commits or anything. Whatever is in the current db will
 	 * be eliminated in favor of the data in `backup_uri` and `journal_uri`. */

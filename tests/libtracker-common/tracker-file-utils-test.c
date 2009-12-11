@@ -154,7 +154,7 @@ test_path_evaluate_name (void)
 
 	result = tracker_path_evaluate_name (tracker_test_helpers_get_nonutf8 ());
 	tracker_test_helpers_cmpstr_equal (result,
-					   tracker_test_helpers_get_nonutf8 ());
+	                                   tracker_test_helpers_get_nonutf8 ());
 
 	g_unsetenv ("TEST_TRACKER_DIR");
 }
@@ -191,13 +191,13 @@ main (int argc, char **argv)
 
 
 	g_test_add_func ("/tracker/libtracker-common/tracker-file-utils/path_evaluate_name",
-			 test_path_evaluate_name);
+	                 test_path_evaluate_name);
 
 	g_test_add_func ("/tracker/libtracker-common/tracker-file-utils/path_list_filter_duplicates",
-			 test_path_list_filter_duplicates);
+	                 test_path_list_filter_duplicates);
 
 	g_test_add_func ("/tracker/libtracker-common/tracker-file-utils/file_get_mime_type",
-			 test_file_get_mime_type);
+	                 test_file_get_mime_type);
 
 	result = g_test_run ();
 

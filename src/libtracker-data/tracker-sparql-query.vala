@@ -1312,7 +1312,7 @@ public class Tracker.SparqlQuery : Object {
 		if (current() == SparqlTokenType.IRI_REF) {
 			new_binding.literal = "1";
 			next ();
-		} else if (translate_expression (new StringBuilder ()) == PropertyType.RESOURCE) { 
+		} else if (translate_expression (new StringBuilder ()) == PropertyType.RESOURCE) {
 			new_binding.literal = "1";
 		} else {
 			new_binding.literal = "0";
@@ -1859,7 +1859,7 @@ public class Tracker.SparqlQuery : Object {
 	}
 
 	PropertyType translate_aggregate_expression (StringBuilder sql) throws SparqlError {
-		expect (SparqlTokenType.OPEN_PARENS);		
+		expect (SparqlTokenType.OPEN_PARENS);
 		if (accept (SparqlTokenType.DISTINCT)) {
 			sql.append ("DISTINCT ");
 		}
@@ -2746,7 +2746,7 @@ public class Tracker.SparqlQuery : Object {
 
 			add_variable_binding (sql, binding, VariableState.BOUND);
 		}
-		
+
 		if (newtable) {
 			if (current_subject_is_var) {
 				var binding = new VariableBinding ();
@@ -2771,7 +2771,7 @@ public class Tracker.SparqlQuery : Object {
 				pattern_bindings.append (binding);
 			}
 		}
-		
+
 		if (!rdftype) {
 			if (object_is_var) {
 				var binding = new VariableBinding ();

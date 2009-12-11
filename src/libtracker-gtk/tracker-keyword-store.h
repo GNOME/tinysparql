@@ -39,10 +39,10 @@ typedef enum
 } TrackerKeywordStoreColumns;
 
 
-#define TRACKER_TYPE_KEYWORD_STORE	      (tracker_keyword_store_get_type ())
-#define TRACKER_KEYWORD_STORE(obj)	      (G_TYPE_CHECK_INSTANCE_CAST ((obj), TRACKER_TYPE_KEYWORD_STORE, TrackerKeywordStore))
+#define TRACKER_TYPE_KEYWORD_STORE            (tracker_keyword_store_get_type ())
+#define TRACKER_KEYWORD_STORE(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), TRACKER_TYPE_KEYWORD_STORE, TrackerKeywordStore))
 #define TRACKER_KEYWORD_STORE_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), TRACKER_TYPE_KEYWORD_STORE, TrackerKeywordStoreClass))
-#define TRACKER_IS_KEYWORD_STORE(obj)	      (G_TYPE_CHECK_INSTANCE_TYPE ((obj), TRACKER_TYPE_KEYWORD_STORE))
+#define TRACKER_IS_KEYWORD_STORE(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), TRACKER_TYPE_KEYWORD_STORE))
 #define TRACKER_IS_KEYWORD_STORE_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), TRACKER_TYPE_KEYWORD_STORE))
 #define TRACKER_KEYWORD_STORE_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), TRACKER_TYPE_KEYWORD_STORE, TrackerKeywordStoreClass))
 
@@ -64,23 +64,23 @@ struct _TrackerKeywordStoreClass
 };
 
 
-GType		tracker_keyword_store_get_type		(void) G_GNUC_CONST;
+GType           tracker_keyword_store_get_type          (void) G_GNUC_CONST;
 
-GtkListStore *	tracker_keyword_store_new		(void);
+GtkListStore *  tracker_keyword_store_new               (void);
 
 gboolean
-tracker_keyword_store_insert (GtkListStore		*store,
-			      const char		*keyword,
-			      const char		*stock_id );
+tracker_keyword_store_insert (GtkListStore              *store,
+                              const char                *keyword,
+                              const char                *stock_id );
 
 GtkTreeIter *
-tracker_keyword_store_lookup (GtkListStore		*store,
-			      const char		*keyword);
+tracker_keyword_store_lookup (GtkListStore              *store,
+                              const char                *keyword);
 
 gboolean
-tracker_keyword_store_remove (GtkListStore		*store,
-			      const char		*keyword);
+tracker_keyword_store_remove (GtkListStore              *store,
+                              const char                *keyword);
 
 G_END_DECLS
 
-#endif	/* TRACKER_KEYWORD_STORE_H */
+#endif  /* TRACKER_KEYWORD_STORE_H */

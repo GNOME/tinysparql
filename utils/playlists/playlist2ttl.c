@@ -5,70 +5,70 @@
 static gchar    **filenames = NULL;
 
 typedef struct {
-        gint   tracks ;
-        gchar *playlist;
+	gint   tracks ;
+	gchar *playlist;
 } PlaylistData;
 
 static GOptionEntry entries[] = {
 	{ G_OPTION_REMAINING, 0, G_OPTION_FLAG_FILENAME, G_OPTION_ARG_FILENAME_ARRAY, &filenames,
 	  "FILE",
 	  NULL
-        },
+	},
 	{ NULL }
 };
 
 static void
-print_header () 
+print_header ()
 {
 	g_print ("@prefix nmo: <http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#>.\n");
 	g_print ("@prefix nfo: <http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#>.\n");
 	g_print ("@prefix xsd: <http://www.w3.org/2001/XMLSchema#>.\n");
-        g_print ("\n");
+	g_print ("\n");
 }
 
 static void
 print_playlist_entry (const gchar *uri) {
-        g_print ("<%s> a nfo:MediaList .\n\n", uri);
+	g_print ("<%s> a nfo:MediaList .\n\n", uri);
 }
 
 static void
 entry_parsed (TotemPlParser *parser, const gchar *uri, GHashTable *metadata, gpointer user_data)
 {
-        PlaylistData *playlist_data = (PlaylistData *)user_data;
-        
-        playlist_data->tracks += 1;
+	PlaylistData *playlist_data = (PlaylistData *)user_data;
+
+	playlist_data->tracks += 1;
 
 	//uri = g_hash_table_lookup (metadata, TOTEM_PL_PARSER_FIELD_URI);
-        g_print ("<%s> nfo:hasMediaFileListEntry [ \n", 
-                 playlist_data->playlist);
-        g_print ("\t a nfo:MediaFileListEntry ; \n");
-        g_print ("\t nfo:listPosition %d ; \n", playlist_data->tracks);
-        g_print ("\t nfo:entryContent <%s> ] .\n\n", uri);
+	g_print ("<%s> nfo:hasMediaFileListEntry [ \n",
+	         playlist_data->playlist);
+	g_print ("\t a nfo:MediaFileListEntry ; \n");
+	g_print ("\t nfo:listPosition %d ; \n", playlist_data->tracks);
+	g_print ("\t nfo:entryContent <%s> ] .\n\n", uri);
 }
 
-gint 
-main (gint argc, gchar **argv) 
+gint
+main (gint argc, gchar **argv)
 {
-        GFile *file;
-        GOptionContext *context = NULL;
-        gchar *uri;
-        PlaylistData   playlist_data = { 0, NULL};
-        TotemPlParser *pl;
-        TotemPlParserResult result;
-        GError *error = NULL;
+	GFile *file;
+	GOptionContext *context = NULL;
+	gchar *uri;
+	PlaylistData   playlist_data = { 0, NULL};
+	TotemPlParser *pl;
+	TotemPlParserResult result;
+	GError *error = NULL;
 
-        g_type_init ();
+	g_type_init ();
 
 	context = g_option_context_new ("- Parse a playlist and show info");
 
 	g_option_context_add_main_entries (context, entries, NULL);
 	g_option_context_parse (context, &argc, &argv, NULL);
 
-        if (!g_option_context_parse (context, &argc, &argv, &error) || !filenames) {
+	if (!g_option_context_parse (context, &argc, &argv, &error) || !filenames) {
 		gchar *help;
 
 		g_printerr ("%s\n\n",
-			    "Playlist filename is mandatory");
+		            "Playlist filename is mandatory");
 
 		help = g_option_context_get_help (context, TRUE, NULL);
 		g_option_context_free (context);
@@ -76,42 +76,41 @@ main (gint argc, gchar **argv)
 		g_free (help);
 
 		return -1;
-        }
+	}
 
-        file = g_file_new_for_commandline_arg (filenames[0]);
+	file = g_file_new_for_commandline_arg (filenames[0]);
 	uri = g_file_get_uri (file);
 
-        print_header ();
-        print_playlist_entry (uri);
-        playlist_data.playlist = uri;
+	print_header ();
+	print_playlist_entry (uri);
+	playlist_data.playlist = uri;
 
-        pl = totem_pl_parser_new ();
+	pl = totem_pl_parser_new ();
 
-        g_object_set (pl, "recurse", FALSE, "disable-unsafe", TRUE, NULL);
-        g_signal_connect (G_OBJECT (pl), "entry-parsed", G_CALLBACK (entry_parsed), &playlist_data);
-        
+	g_object_set (pl, "recurse", FALSE, "disable-unsafe", TRUE, NULL);
+	g_signal_connect (G_OBJECT (pl), "entry-parsed", G_CALLBACK (entry_parsed), &playlist_data);
 
 
-        result = totem_pl_parser_parse (pl, uri, FALSE);
 
-        switch (result) {
-        case TOTEM_PL_PARSER_RESULT_SUCCESS:
-                break;
-        case TOTEM_PL_PARSER_RESULT_IGNORED:
-                g_print ("Error: Ignored (%s)\n", uri);
-                break;
-        case TOTEM_PL_PARSER_RESULT_ERROR:
-                g_print ("Error: Failed parsing (%s)\n", uri);
-                break;
-        case TOTEM_PL_PARSER_RESULT_UNHANDLED:
-                g_print ("Error: Unhandled type (%s)\n", uri);
-                break;
-        default:
-                g_print ("Undefined result!?!?!");
-        }
+	result = totem_pl_parser_parse (pl, uri, FALSE);
 
-        g_object_unref (pl);
+	switch (result) {
+	case TOTEM_PL_PARSER_RESULT_SUCCESS:
+		break;
+	case TOTEM_PL_PARSER_RESULT_IGNORED:
+		g_print ("Error: Ignored (%s)\n", uri);
+		break;
+	case TOTEM_PL_PARSER_RESULT_ERROR:
+		g_print ("Error: Failed parsing (%s)\n", uri);
+		break;
+	case TOTEM_PL_PARSER_RESULT_UNHANDLED:
+		g_print ("Error: Unhandled type (%s)\n", uri);
+		break;
+	default:
+		g_print ("Undefined result!?!?!");
+	}
 
-        return 0;
+	g_object_unref (pl);
+
+	return 0;
 }
- 

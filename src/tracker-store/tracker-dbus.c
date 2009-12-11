@@ -45,26 +45,26 @@
 
 static DBusGConnection *connection;
 static DBusGProxy      *gproxy;
-static GSList	       *objects;
+static GSList          *objects;
 
 static gboolean
 dbus_register_service (DBusGProxy  *proxy,
-		       const gchar *name)
+                       const gchar *name)
 {
 	GError *error = NULL;
-	guint	result;
+	guint   result;
 
 	g_message ("Registering D-Bus service...\n"
-		   "  Name:'%s'",
-		   name);
+	           "  Name:'%s'",
+	           name);
 
 	if (!org_freedesktop_DBus_request_name (proxy,
-						name,
-						DBUS_NAME_FLAG_DO_NOT_QUEUE,
-						&result, &error)) {
+	                                        name,
+	                                        DBUS_NAME_FLAG_DO_NOT_QUEUE,
+	                                        &result, &error)) {
 		g_critical ("Could not aquire name:'%s', %s",
-			    name,
-			    error ? error->message : "no error given");
+		            name,
+		            error ? error->message : "no error given");
 		g_error_free (error);
 
 		return FALSE;
@@ -72,8 +72,8 @@ dbus_register_service (DBusGProxy  *proxy,
 
 	if (result != DBUS_REQUEST_NAME_REPLY_PRIMARY_OWNER) {
 		g_critical ("D-Bus service name:'%s' is already taken, "
-			    "perhaps the daemon is already running?",
-			    name);
+		            "perhaps the daemon is already running?",
+		            name);
 		return FALSE;
 	}
 
@@ -81,11 +81,11 @@ dbus_register_service (DBusGProxy  *proxy,
 }
 
 static void
-dbus_register_object (DBusGConnection	    *lconnection,
-		      DBusGProxy	    *proxy,
-		      GObject		    *object,
-		      const DBusGObjectInfo *info,
-		      const gchar	    *path)
+dbus_register_object (DBusGConnection       *lconnection,
+                      DBusGProxy            *proxy,
+                      GObject               *object,
+                      const DBusGObjectInfo *info,
+                      const gchar           *path)
 {
 	g_message ("Registering D-Bus object...");
 	g_message ("  Path:'%s'", path);
@@ -114,7 +114,7 @@ dbus_register_names (void)
 
 	if (!connection) {
 		g_critical ("Could not connect to the D-Bus session bus, %s",
-			    error ? error->message : "no error given.");
+		            error ? error->message : "no error given.");
 		g_clear_error (&error);
 		return FALSE;
 	}
@@ -123,9 +123,9 @@ dbus_register_names (void)
 	 * predefined for us to just use (dbus_g_proxy_...)
 	 */
 	gproxy = dbus_g_proxy_new_for_name (connection,
-					    DBUS_SERVICE_DBUS,
-					    DBUS_PATH_DBUS,
-					    DBUS_INTERFACE_DBUS);
+	                                    DBUS_SERVICE_DBUS,
+	                                    DBUS_PATH_DBUS,
+	                                    DBUS_INTERFACE_DBUS);
 
 	/* Register the service name for org.freedesktop.Tracker */
 	if (!dbus_register_service (gproxy, TRACKER_STATISTICS_SERVICE)) {
@@ -169,10 +169,10 @@ tracker_dbus_shutdown (void)
 }
 
 static void
-name_owner_changed_cb (DBusGProxy *proxy, 
-                       gchar      *name, 
-                       gchar      *old_owner, 
-                       gchar      *new_owner, 
+name_owner_changed_cb (DBusGProxy *proxy,
+                       gchar      *name,
+                       gchar      *old_owner,
+                       gchar      *new_owner,
                        gpointer    user_data)
 {
 	if (tracker_is_empty_string (new_owner) && !tracker_is_empty_string (old_owner)) {
@@ -182,7 +182,7 @@ name_owner_changed_cb (DBusGProxy *proxy,
 }
 
 static void
-name_owner_changed_closure (gpointer  data, 
+name_owner_changed_closure (gpointer  data,
                             GClosure *closure)
 {
 }
@@ -208,10 +208,10 @@ tracker_dbus_register_objects (void)
 	}
 
 	dbus_register_object (connection,
-			      gproxy,
-			      G_OBJECT (object),
-			      &dbus_glib_tracker_statistics_object_info,
-			      TRACKER_STATISTICS_PATH);
+	                      gproxy,
+	                      G_OBJECT (object),
+	                      &dbus_glib_tracker_statistics_object_info,
+	                      TRACKER_STATISTICS_PATH);
 	objects = g_slist_prepend (objects, object);
 
 	/* Add org.freedesktop.Tracker1.Resources */
@@ -222,8 +222,8 @@ tracker_dbus_register_objects (void)
 	}
 
 	dbus_g_proxy_add_signal (gproxy, "NameOwnerChanged",
-	                         G_TYPE_STRING, 
-	                         G_TYPE_STRING, 
+	                         G_TYPE_STRING,
+	                         G_TYPE_STRING,
 	                         G_TYPE_STRING,
 	                         G_TYPE_INVALID);
 
@@ -233,10 +233,10 @@ tracker_dbus_register_objects (void)
 	                             name_owner_changed_closure);
 
 	dbus_register_object (connection,
-			      gproxy,
-			      G_OBJECT (object),
-			      &dbus_glib_tracker_resources_object_info,
-			      TRACKER_RESOURCES_PATH);
+	                      gproxy,
+	                      G_OBJECT (object),
+	                      &dbus_glib_tracker_resources_object_info,
+	                      TRACKER_RESOURCES_PATH);
 	objects = g_slist_prepend (objects, object);
 
 	/* Add org.freedesktop.Tracker1.Backup */
@@ -247,10 +247,10 @@ tracker_dbus_register_objects (void)
 	}
 
 	dbus_register_object (connection,
-			      gproxy,
-			      G_OBJECT (object),
-			      &dbus_glib_tracker_backup_object_info,
-			      TRACKER_BACKUP_PATH);
+	                      gproxy,
+	                      G_OBJECT (object),
+	                      &dbus_glib_tracker_backup_object_info,
+	                      TRACKER_BACKUP_PATH);
 	objects = g_slist_prepend (objects, object);
 
 	/* Reverse list since we added objects at the top each time */
@@ -265,18 +265,18 @@ tracker_dbus_register_objects (void)
 
 	classes = tracker_dbus_query_result_to_strv (result_set, 0, NULL);
 	g_object_unref (result_set);
-	
+
 	if (!classes) {
 		g_message ("No Nepomuk classes to register on D-Bus");
 		return TRUE;
 	}
-		
+
 	for (p = classes; *p; p++) {
 		TrackerNamespace *namespace;
 		const gchar *rdf_class;
 		gchar *namespace_uri;
 		gchar *replaced, *path, *hash;
-		
+
 		rdf_class = *p;
 		hash = strrchr (rdf_class, '#');
 
@@ -284,57 +284,57 @@ tracker_dbus_register_objects (void)
 			/* Support ontologies whose namespace
 			 * uri does not end in a hash, e.g.
 			 * dc.
-			 */ 
+			 */
 			hash = strrchr (rdf_class, '/');
 		}
-		
+
 		if (!hash) {
-			g_critical ("Unknown namespace for class:'%s'", 
-				    rdf_class);
+			g_critical ("Unknown namespace for class:'%s'",
+			            rdf_class);
 			continue;
 		}
 
 		namespace_uri = g_strndup (rdf_class, hash - rdf_class + 1);
 		namespace = tracker_ontology_get_namespace_by_uri (namespace_uri);
 		g_free (namespace_uri);
-		
+
 		if (!namespace) {
-			g_critical ("Unknown namespace:'%s' for class:'%s'", 
-				    namespace_uri, 
-				    rdf_class);
+			g_critical ("Unknown namespace:'%s' for class:'%s'",
+			            namespace_uri,
+			            rdf_class);
 			continue;
 		}
 
-		replaced = g_strdup_printf ("%s/%s", 
-					    tracker_namespace_get_prefix (namespace), 
-					    hash + 1);
+		replaced = g_strdup_printf ("%s/%s",
+		                            tracker_namespace_get_prefix (namespace),
+		                            hash + 1);
 		path = g_strdup_printf (TRACKER_RESOURCES_CLASS_PATH,
-					replaced);
+		                        replaced);
 		g_free (replaced);
-		
+
 		/* Add a org.freedesktop.Tracker1.Resources.Class */
 		object = tracker_resource_class_new (rdf_class);
 		if (!object) {
 			g_critical ("Could not create TrackerResourcesClass object to register:'%s' class",
-				rdf_class);
+			            rdf_class);
 			g_free (path);
 			return FALSE;
 		}
-		
+
 		dbus_register_object (connection,
-				      gproxy,
-				      G_OBJECT (object),
-				      &dbus_glib_tracker_resources_class_object_info,
-				      path);
+		                      gproxy,
+		                      G_OBJECT (object),
+		                      &dbus_glib_tracker_resources_class_object_info,
+		                      path);
 		g_free (path);
-		
+
 		/* TrackerResources takes over ownership and unrefs
 		 * the gobjects too.
 		 */
 		event_sources = g_slist_prepend (event_sources, g_object_ref (object));
 		objects = g_slist_prepend (objects, object);
 	}
-	
+
 	g_strfreev (classes);
 
 	tracker_resources_prepare (resources, event_sources);

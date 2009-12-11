@@ -54,14 +54,14 @@
 #include "tracker-dbus.h"
 #include "tracker-extract.h"
 
-#define ABOUT								  \
+#define ABOUT	  \
 	"Tracker " PACKAGE_VERSION "\n"
 
-#define LICENSE								  \
+#define LICENSE	  \
 	"This program is free software and comes without any warranty.\n" \
-	"It is licensed under version 2 or later of the General Public "  \
-	"License which can be viewed at:\n"				  \
-	"\n"								  \
+	"It is licensed under version 2 or later of the General Public " \
+	"License which can be viewed at:\n" \
+	"\n" \
 	"  http://www.gnu.org/licenses/gpl.txt\n"
 
 #define QUIT_TIMEOUT 30 /* 1/2 minutes worth of seconds */
@@ -113,7 +113,7 @@ static gboolean
 quit_timeout_cb (gpointer user_data)
 {
 	quit_timeout_id = 0;
-	
+
 	if (!disable_shutdown) {
 		g_main_loop_quit (main_loop);
 	} else {
@@ -130,9 +130,9 @@ tracker_main_quit_timeout_reset (void)
 		g_source_remove (quit_timeout_id);
 	}
 
-	quit_timeout_id = g_timeout_add_seconds (QUIT_TIMEOUT, 
-						 quit_timeout_cb, 
-						 NULL);
+	quit_timeout_id = g_timeout_add_seconds (QUIT_TIMEOUT,
+	                                         quit_timeout_cb,
+	                                         NULL);
 }
 
 static void
@@ -146,7 +146,7 @@ initialize_priority (void)
 	 * so complains if we do not check its returned value. But it
 	 * seems that since glibc 2.2.4, nice() can return -1 on a
 	 * successful call so we have to check value of errno too.
-	 * Stupid... 
+	 * Stupid...
 	 */
 	g_message ("Setting process priority");
 
@@ -154,7 +154,7 @@ initialize_priority (void)
 		const gchar *str = g_strerror (errno);
 
 		g_message ("Couldn't set nice value to 19, %s",
-			   str ? str : "no error given");
+		           str ? str : "no error given");
 	}
 }
 
@@ -166,11 +166,11 @@ initialize_directories (void)
 	/* NOTE: We don't create the database directories here, the
 	 * tracker-db-manager does that for us.
 	 */
-	
+
 	user_data_dir = g_build_filename (g_get_user_data_dir (),
-					  "tracker",
-					  NULL);
-	
+	                                  "tracker",
+	                                  NULL);
+
 	/* g_message ("Checking directory exists:'%s'", user_data_dir); */
 	g_mkdir_with_parents (user_data_dir, 00755);
 
@@ -201,8 +201,8 @@ signal_handler (int signo)
 		if (g_strsignal (signo)) {
 			g_print ("\n");
 			g_print ("Received signal:%d->'%s'\n",
-				 signo,
-				 g_strsignal (signo));
+			         signo,
+			         g_strsignal (signo));
 		}
 		break;
 	}
@@ -213,7 +213,7 @@ initialize_signal_handler (void)
 {
 #ifndef G_OS_WIN32
 	struct sigaction act;
-	sigset_t	 empty_mask;
+	sigset_t         empty_mask;
 
 	sigemptyset (&empty_mask);
 	act.sa_handler = signal_handler;
@@ -230,9 +230,9 @@ initialize_signal_handler (void)
 
 static void
 log_handler (const gchar    *domain,
-	     GLogLevelFlags  log_level,
-	     const gchar    *message,
-	     gpointer	     user_data)
+             GLogLevelFlags  log_level,
+             const gchar    *message,
+             gpointer        user_data)
 {
 	if (!tracker_log_should_handle (log_level, verbosity)) {
 		return;
@@ -255,7 +255,7 @@ log_handler (const gchar    *domain,
 		g_fprintf (stdout, "%s\n", message);
 		fflush (stdout);
 		break;
-	}	
+	}
 }
 
 TrackerFTSConfig *
@@ -279,9 +279,9 @@ run_standalone (void)
 
 	/* Set log handler for library messages */
 	log_handler_id = g_log_set_handler (NULL,
-					    G_LOG_LEVEL_MASK | G_LOG_FLAG_FATAL,
-					    log_handler,
-					    NULL);
+	                                    G_LOG_LEVEL_MASK | G_LOG_FLAG_FATAL,
+	                                    log_handler,
+	                                    NULL);
 
 	g_log_set_default_handler (log_handler, NULL);
 
@@ -299,7 +299,7 @@ run_standalone (void)
 	uri = g_file_get_uri (file);
 
 	object = tracker_extract_new (disable_shutdown,
-				      force_internal_extractors);
+	                              force_internal_extractors);
 
 	if (!object) {
 		g_free (uri);
@@ -323,22 +323,22 @@ run_standalone (void)
 
 	return EXIT_SUCCESS;
 }
- 
+
 int
 main (int argc, char *argv[])
 {
 	GOptionContext *context;
 	GError         *error = NULL;
 	TrackerConfig  *config;
-        TrackerExtract *object;
+	TrackerExtract *object;
 	gchar          *log_filename = NULL;
 
 	bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
 	bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
 	textdomain (GETTEXT_PACKAGE);
 
-	/* Translators: this message will appear immediately after the	*/
-	/* usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>	*/
+	/* Translators: this message will appear immediately after the  */
+	/* usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>     */
 	context = g_option_context_new (_("- Extract file meta data"));
 
 	g_option_context_add_main_entries (context, entries, NULL);
@@ -348,7 +348,7 @@ main (int argc, char *argv[])
 		gchar *help;
 
 		g_printerr ("%s\n\n",
-			    _("Filename and mime type must be provided together"));
+		            _("Filename and mime type must be provided together"));
 
 		help = g_option_context_get_help (context, TRUE, NULL);
 		g_option_context_free (context);
@@ -369,7 +369,7 @@ main (int argc, char *argv[])
 
 	if (!filename) {
 		g_print ("  Shutdown after 30 seconds of inactivitiy is %s\n",
-			 disable_shutdown ? "disabled" : "enabled");
+		         disable_shutdown ? "disabled" : "enabled");
 	}
 
 	initialize_signal_handler ();
@@ -389,7 +389,7 @@ main (int argc, char *argv[])
 	/* Set conditions when we use stand alone settings */
 	if (filename) {
 		return run_standalone ();
-	} 
+	}
 
 	/* Initialize subsystems */
 	initialize_directories ();
@@ -416,7 +416,7 @@ main (int argc, char *argv[])
 	}
 
 	object = tracker_extract_new (disable_shutdown,
-				      force_internal_extractors);
+	                              force_internal_extractors);
 
 	if (!object) {
 		g_object_unref (config);

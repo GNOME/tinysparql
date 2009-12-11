@@ -9,7 +9,7 @@
  *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the GNU
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.          See the GNU
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
@@ -47,13 +47,13 @@ static void     config_finalize     (GObject              *object);
 static void     config_load         (TrackerConfigFile *config);
 static gboolean config_save         (TrackerConfigFile *config);
 static void     config_get_property (GObject              *object,
-				     guint                 param_id,
-				     GValue               *value,
-				     GParamSpec           *pspec);
+                                     guint                 param_id,
+                                     GValue               *value,
+                                     GParamSpec           *pspec);
 static void     config_set_property (GObject              *object,
-				     guint                 param_id,
-				     const GValue         *value,
-				     GParamSpec           *pspec);
+                                     guint                 param_id,
+                                     const GValue         *value,
+                                     GParamSpec           *pspec);
 static void     config_constructed  (GObject              *object);
 
 enum {
@@ -77,7 +77,7 @@ tracker_config_file_class_init (TrackerConfigFileClass *klass)
 
 	object_class->get_property = config_get_property;
 	object_class->set_property = config_set_property;
-	object_class->finalize	   = config_finalize;
+	object_class->finalize     = config_finalize;
 	object_class->constructed  = config_constructed;
 
 	/**
@@ -89,23 +89,23 @@ tracker_config_file_class_init (TrackerConfigFileClass *klass)
 	 **/
 	signals[CHANGED] =
 		g_signal_new ("changed",
-			      G_TYPE_FROM_CLASS (klass),
-			      G_SIGNAL_RUN_LAST,
-			      G_STRUCT_OFFSET (TrackerConfigFileClass, changed),
-			      NULL,
-			      NULL,
-			      g_cclosure_marshal_VOID__VOID,
-			      G_TYPE_NONE,
-			      0,
-			      G_TYPE_NONE);
+		              G_TYPE_FROM_CLASS (klass),
+		              G_SIGNAL_RUN_LAST,
+		              G_STRUCT_OFFSET (TrackerConfigFileClass, changed),
+		              NULL,
+		              NULL,
+		              g_cclosure_marshal_VOID__VOID,
+		              G_TYPE_NONE,
+		              0,
+		              G_TYPE_NONE);
 
 	g_object_class_install_property (object_class,
-					 PROP_DOMAIN,
-					 g_param_spec_string ("domain",
-							      "Config domain",
-							      "The prefix before .cfg for the filename",
-							      g_get_application_name (),
-							      G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
+	                                 PROP_DOMAIN,
+	                                 g_param_spec_string ("domain",
+	                                                      "Config domain",
+	                                                      "The prefix before .cfg for the filename",
+	                                                      g_get_application_name (),
+	                                                      G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
 
 	g_type_class_add_private (object_class, sizeof (TrackerConfigFilePrivate));
 }
@@ -116,11 +116,11 @@ tracker_config_file_init (TrackerConfigFile *file)
 	file->key_file = g_key_file_new ();
 }
 
-static void     
+static void
 config_get_property (GObject       *object,
-		     guint          param_id,
-		     GValue        *value,
-		     GParamSpec    *pspec)
+                     guint          param_id,
+                     GValue        *value,
+                     GParamSpec    *pspec)
 {
 	TrackerConfigFilePrivate *priv;
 
@@ -138,10 +138,10 @@ config_get_property (GObject       *object,
 }
 
 static void
-config_set_property (GObject	  *object,
-		     guint	   param_id,
-		     const GValue *value,
-		     GParamSpec	  *pspec)
+config_set_property (GObject      *object,
+                     guint         param_id,
+                     const GValue *value,
+                     GParamSpec           *pspec)
 {
 	TrackerConfigFilePrivate *priv;
 	const gchar *domain;
@@ -207,8 +207,8 @@ config_dir_ensure_exists_and_return (void)
 	gchar *directory;
 
 	directory = g_build_filename (g_get_user_config_dir (),
-				      "tracker",
-				      NULL);
+	                              "tracker",
+	                              NULL);
 
 	if (!g_file_test (directory, G_FILE_TEST_EXISTS)) {
 		g_print ("Creating config directory:'%s'\n", directory);
@@ -225,13 +225,13 @@ config_dir_ensure_exists_and_return (void)
 
 static void
 config_changed_cb (GFileMonitor     *monitor,
-		   GFile	    *this_file,
-		   GFile	    *other_file,
-		   GFileMonitorEvent event_type,
-		   gpointer	     user_data)
+                   GFile            *this_file,
+                   GFile            *other_file,
+                   GFileMonitorEvent event_type,
+                   gpointer          user_data)
 {
 	TrackerConfigFile *file;
-	gchar	          *filename;
+	gchar             *filename;
 
 	file = TRACKER_CONFIG_FILE (user_data);
 
@@ -244,7 +244,7 @@ config_changed_cb (GFileMonitor     *monitor,
 
 		filename = g_file_get_path (this_file);
 		g_message ("Config file changed:'%s', reloading settings...",
-			   filename);
+		           filename);
 		g_free (filename);
 
 		config_load (file);
@@ -297,23 +297,23 @@ config_load (TrackerConfigFile *file)
 
 	if (!file->monitor) {
 		g_message ("Setting up monitor for changes to config file:'%s'",
-			   filename);
+		           filename);
 
 		file->monitor = g_file_monitor_file (file->file,
-						       G_FILE_MONITOR_NONE,
-						       NULL,
-						       NULL);
+		                                     G_FILE_MONITOR_NONE,
+		                                     NULL,
+		                                     NULL);
 
 		g_signal_connect (file->monitor, "changed",
-				  G_CALLBACK (config_changed_cb),
-				  file);
+		                  G_CALLBACK (config_changed_cb),
+		                  file);
 	}
 
 	/* Load options */
-	g_key_file_load_from_file (file->key_file, 
-				   filename, 
-				   G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS,
-				   &error);
+	g_key_file_load_from_file (file->key_file,
+	                           filename,
+	                           G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS,
+	                           &error);
 
 	/* We force an overwrite in cases of error */
 	file->file_exists = error ? FALSE : TRUE;
@@ -349,7 +349,7 @@ config_save (TrackerConfigFile *file)
 	data = g_key_file_to_data (file->key_file, &size, &error);
 	if (error) {
 		g_warning ("Could not get config data to write to file, %s",
-			   error->message);
+		           error->message);
 		g_error_free (error);
 
 		return FALSE;
@@ -362,9 +362,9 @@ config_save (TrackerConfigFile *file)
 
 	if (error) {
 		g_warning ("Could not write %" G_GSIZE_FORMAT " bytes to file '%s', %s",
-			   size,
-			   filename,
-			   error->message);
+		           size,
+		           filename,
+		           error->message);
 		g_free (filename);
 		g_error_free (error);
 
@@ -372,8 +372,8 @@ config_save (TrackerConfigFile *file)
 	}
 
 	g_message ("Wrote config to '%s' (%" G_GSIZE_FORMAT " bytes)",
-		   filename, 
-		   size);
+	           filename,
+	           size);
 
 	g_free (filename);
 

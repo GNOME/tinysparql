@@ -28,7 +28,7 @@ typedef struct {
 	gchar *testdata;
 } ExtractData;
 
-static const ExtractData data_basic_size[] = { 
+static const ExtractData data_basic_size[] = {
 	{ "/jpeg/basic_size_1.jpg", "/jpeg/basic_size_1.data" },
 	{ "/jpeg/basic_size_2.jpg", "/jpeg/basic_size_2.data" },
 	{ "/jpeg/basic_size_3.jpg", "/jpeg/basic_size_3.data" },
@@ -37,12 +37,12 @@ static const ExtractData data_basic_size[] = {
 	{ NULL, NULL }
 };
 
-static const ExtractData data_exif_size[] = { 
+static const ExtractData data_exif_size[] = {
 	{ "/jpeg/exif_size_1.jpg", "/jpeg/exif_size_1.data" },
 	{ NULL, NULL }
 };
 
-static const ExtractData data_exif_orientation[] = { 
+static const ExtractData data_exif_orientation[] = {
 	{ "/jpeg/exif_orientation_1.jpg", "/jpeg/exif_orientation_1.data" },
 	{ "/jpeg/exif_orientation_2.jpg", "/jpeg/exif_orientation_2.data" },
 	{ "/jpeg/exif_orientation_3.jpg", "/jpeg/exif_orientation_3.data" },
@@ -74,7 +74,7 @@ static const ExtractData data_exif_flash[] = {
 	{ "/jpeg/exif_flash_17.jpg", "/jpeg/exif_flash_17.data" },
 	{ "/jpeg/exif_flash_18.jpg", "/jpeg/exif_flash_18.data" },
 	{ "/jpeg/exif_flash_19.jpg", "/jpeg/exif_flash_19.data" },
-	{ "/jpeg/exif_flash_20.jpg", "/jpeg/exif_flash_20.data" },	
+	{ "/jpeg/exif_flash_20.jpg", "/jpeg/exif_flash_20.data" },
 	{ "/jpeg/exif_flash_21.jpg", "/jpeg/exif_flash_21.data" },
 	{ "/jpeg/exif_flash_22.jpg", "/jpeg/exif_flash_22.data" },
 	{ "/jpeg/exif_flash_23.jpg", "/jpeg/exif_flash_23.data" },
@@ -105,63 +105,63 @@ static const ExtractData data_xmp_dc[] = {
 	{ NULL, NULL }
 };
 
-void 
+void
 test_tracker_extract_jpeg_basic_size (gconstpointer data)
 {
 	guint i;
 
 	for (i = 0; data_basic_size[i].filename; i++) {
 		tracker_test_extract_file (data,
-					   data_basic_size[i].filename,
-					   data_basic_size[i].testdata);		
+		                           data_basic_size[i].filename,
+		                           data_basic_size[i].testdata);
 	}
 }
 
-void 
+void
 test_tracker_extract_jpeg_exif_size (gconstpointer data)
 {
 	guint i;
 
 	for (i = 0; data_exif_size[i].filename; i++) {
 		tracker_test_extract_file (data,
-					   data_exif_size[i].filename,
-					   data_exif_size[i].testdata);		
+		                           data_exif_size[i].filename,
+		                           data_exif_size[i].testdata);
 	}
 }
 
-void 
+void
 test_tracker_extract_jpeg_exif_orientation (gconstpointer data)
 {
 	guint i;
 
 	for (i = 0; data_exif_orientation[i].filename; i++) {
 		tracker_test_extract_file (data,
-					   data_exif_orientation[i].filename,
-					   data_exif_orientation[i].testdata);		
+		                           data_exif_orientation[i].filename,
+		                           data_exif_orientation[i].testdata);
 	}
 }
 
-void 
+void
 test_tracker_extract_jpeg_exif_flash (gconstpointer data)
 {
 	guint i;
 
 	for (i = 0; data_exif_flash[i].filename; i++) {
 		tracker_test_extract_file (data,
-					   data_exif_flash[i].filename,
-					   data_exif_flash[i].testdata);		
+		                           data_exif_flash[i].filename,
+		                           data_exif_flash[i].testdata);
 	}
 }
 
-void 
+void
 test_tracker_extract_jpeg_exif_tags (gconstpointer data)
 {
 	guint i;
 
 	for (i = 0; data_exif_tags[i].filename; i++) {
 		tracker_test_extract_file (data,
-					   data_exif_tags[i].filename,
-					   data_exif_tags[i].testdata);		
+		                           data_exif_tags[i].filename,
+		                           data_exif_tags[i].testdata);
 	}
 }
 

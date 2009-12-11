@@ -29,15 +29,15 @@
 #include <glib.h>
 #include <glib/gi18n.h>
 
-#define ABOUT                                                             \
-        "Tracker " PACKAGE_VERSION "\n"
+#define ABOUT	  \
+	"Tracker " PACKAGE_VERSION "\n"
 
-#define LICENSE                                                           \
-        "This program is free software and comes without any warranty.\n" \
-        "It is licensed under version 2 or later of the General Public "  \
-        "License which can be viewed at:\n"                               \
-        "\n"                                                              \
-        "  http://www.gnu.org/licenses/gpl.txt\n"
+#define LICENSE	  \
+	"This program is free software and comes without any warranty.\n" \
+	"It is licensed under version 2 or later of the General Public " \
+	"License which can be viewed at:\n" \
+	"\n" \
+	"  http://www.gnu.org/licenses/gpl.txt\n"
 
 static gboolean print_version;
 
@@ -52,7 +52,7 @@ static GOptionEntry entries[] = {
 int
 main (int argc, char *argv[])
 {
-        GtkStatusIcon *icon;
+	GtkStatusIcon *icon;
 	GOptionContext *context;
 
 	bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
@@ -69,7 +69,7 @@ main (int argc, char *argv[])
 	g_option_context_free (context);
 
 	if (print_version) {
-                g_print ("\n" ABOUT "\n" LICENSE "\n");
+		g_print ("\n" ABOUT "\n" LICENSE "\n");
 		return EXIT_SUCCESS;
 	}
 
@@ -79,15 +79,15 @@ main (int argc, char *argv[])
 		g_thread_init (NULL);
 	}
 
-        gtk_init (&argc, &argv);
+	gtk_init (&argc, &argv);
 	tomboy_keybinder_init ();
 
 	gtk_window_set_default_icon_name ("tracker");
 	g_set_application_name ("tracker-status-icon");
 
-        icon = tracker_status_icon_new ();
+	icon = tracker_status_icon_new ();
 
-        gtk_main ();
+	gtk_main ();
 
-        return EXIT_SUCCESS;
+	return EXIT_SUCCESS;
 }

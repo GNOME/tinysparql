@@ -30,15 +30,15 @@
 #include <tracker-extract/tracker-main.h>
 
 TrackerExtractData *tracker_test_extract_get_extract      (const gchar              *path,
-							   const gchar              *mime);
+                                                           const gchar              *mime);
 void                tracker_test_extract_file             (const TrackerExtractData *data,
-							   const gchar              *file,
-							   const gchar              *testdatafile);
+                                                           const gchar              *file,
+                                                           const gchar              *testdatafile);
 void                tracker_test_extract_file_performance (const TrackerExtractData *data,
-							   const gchar              *file_match,
-							   guint                     file_count);
+                                                           const gchar              *file_match,
+                                                           guint                     file_count);
 void                tracker_test_extract_file_access      (const TrackerExtractData *data,
-							   const gchar              *file_match,
-							   guint                     file_count);
+                                                           const gchar              *file_match,
+                                                           guint                     file_count);
 
 #endif

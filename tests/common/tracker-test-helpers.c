@@ -23,7 +23,7 @@ static gchar *nonutf8_str = NULL;
 
 gboolean
 tracker_test_helpers_cmpstr_equal (const gchar *obtained,
-				   const gchar *expected)
+                                   const gchar *expected)
 {
 	gboolean result;
 

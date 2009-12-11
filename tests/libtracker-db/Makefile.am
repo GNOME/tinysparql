@@ -7,7 +7,7 @@ noinst_PROGRAMS = $(TEST_PROGS)
 # 	because make distcheck fails. The reason for this is that it
 # 	depends files being installed to $prefix/share which have not
 # 	been installed at this point.
-# 
+#
 #       These tests include:
 #
 #         tracker-db-dbus
@@ -81,7 +81,7 @@ INCLUDES = 								\
 # 	-lz
 #
 # tracker_db_dbus_SOURCES = 						\
-# 	tracker-db-dbus-test.c 		
+# 	tracker-db-dbus-test.c
 #
 # tracker_db_dbus_LDADD =						\
 # 	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\

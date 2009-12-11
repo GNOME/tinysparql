@@ -28,7 +28,7 @@ typedef struct {
 	gchar *testdata;
 } ExtractData;
 
-static const ExtractData data_basic_size[] = { 
+static const ExtractData data_basic_size[] = {
 	{ "/tiff/basic_size_1.tif", "/tiff/basic_size_1.data" },
 	{ "/tiff/basic_size_2.tif", "/tiff/basic_size_2.data" },
 	{ "/tiff/basic_size_3.tif", "/tiff/basic_size_3.data" },
@@ -37,12 +37,12 @@ static const ExtractData data_basic_size[] = {
 	{ NULL, NULL }
 };
 
-static const ExtractData data_exif_size[] = { 
+static const ExtractData data_exif_size[] = {
 	{ "/tiff/exif_size_1.tif", "/tiff/exif_size_1.data" },
 	{ NULL, NULL }
 };
 
-static const ExtractData data_exif_orientation[] = { 
+static const ExtractData data_exif_orientation[] = {
 	{ "/tiff/exif_orientation_1.tif", "/tiff/exif_orientation_1.data" },
 	{ "/tiff/exif_orientation_2.tif", "/tiff/exif_orientation_2.data" },
 	{ "/tiff/exif_orientation_3.tif", "/tiff/exif_orientation_3.data" },
@@ -61,12 +61,12 @@ test_tracker_extract_tiff_basic_size (gconstpointer data)
 
 	for (i = 0; data_basic_size[i].filename; i++) {
 		tracker_test_extract_file (data,
-					   data_basic_size[i].filename,
-					   data_basic_size[i].testdata);		
+		                           data_basic_size[i].filename,
+		                           data_basic_size[i].testdata);
 	}
 }
 
-void 
+void
 test_tracker_extract_tiff_exif_size (gconstpointer data)
 {
 	guint i;
@@ -75,24 +75,24 @@ test_tracker_extract_tiff_exif_size (gconstpointer data)
 		g_debug ("Filename: %s", data_basic_size[i].filename);
 
 		tracker_test_extract_file (data,
-					   data_exif_size[i].filename,
-					   data_exif_size[i].testdata);		
+		                           data_exif_size[i].filename,
+		                           data_exif_size[i].testdata);
 	}
 }
 
-void 
+void
 test_tracker_extract_tiff_exif_orientation (gconstpointer data)
 {
 	guint i;
 
 	for (i = 0; data_exif_orientation[i].filename; i++) {
 		tracker_test_extract_file (data,
-					   data_exif_orientation[i].filename,
-					   data_exif_orientation[i].testdata);		
+		                           data_exif_orientation[i].filename,
+		                           data_exif_orientation[i].testdata);
 	}
 }
 
-void 
+void
 test_tracker_extract_tiff_performance (gconstpointer data)
 {
 	tracker_test_extract_file_performance (data, "/tiff/perf_tiff_%d.tif", 1000);

@@ -19,8 +19,8 @@ module. There is one option specific to this package
 The Makefiles in the gdk/ and gtk/ subdirs each define three targets:
 
  templates:
-  
-  Scan the headers and merge the results with the current 
+
+  Scan the headers and merge the results with the current
   template files
 
  sgml:

@@ -45,7 +45,7 @@ typedef struct {
 } PDFData;
 
 static void extract_pdf (const gchar          *uri,
-			 TrackerSparqlBuilder *metadata);
+                         TrackerSparqlBuilder *metadata);
 
 static TrackerExtractData data[] = {
 	{ "application/pdf", extract_pdf },
@@ -54,7 +54,7 @@ static TrackerExtractData data[] = {
 
 static void
 insert_keywords (TrackerSparqlBuilder *metadata,
-		 gchar                *keywords)
+                 gchar                *keywords)
 {
 	char *saveptr, *p;
 	size_t len;
@@ -91,7 +91,7 @@ insert_keywords (TrackerSparqlBuilder *metadata,
 
 static gchar *
 extract_content (PopplerDocument *document,
-		 guint            n_words)
+                 guint            n_words)
 {
 	PopplerPage *page;
 	PopplerRectangle rect;
@@ -127,7 +127,7 @@ extract_content (PopplerDocument *document,
 
 static void
 write_pdf_data (PDFData               data,
-		TrackerSparqlBuilder *metadata)
+                TrackerSparqlBuilder *metadata)
 {
 	if (!tracker_is_empty_string (data.title)) {
 		tracker_sparql_builder_predicate (metadata, "nie:title");
@@ -166,7 +166,7 @@ write_pdf_data (PDFData               data,
 
 static void
 extract_pdf (const gchar          *uri,
-	     TrackerSparqlBuilder *metadata)
+             TrackerSparqlBuilder *metadata)
 {
 	TrackerFTSConfig *fts_config;
 	GTime creation_date;
@@ -184,9 +184,9 @@ extract_pdf (const gchar          *uri,
 	document = poppler_document_new_from_file (uri, NULL, &error);
 
 	if (error) {
-		g_warning ("Couldn't create PopplerDocument from uri:'%s', %s", 
-			   uri,
-			   error->message ? error->message : "no error given");
+		g_warning ("Couldn't create PopplerDocument from uri:'%s', %s",
+		           uri,
+		           error->message ? error->message : "no error given");
 		g_error_free (error);
 
 		return;
@@ -194,8 +194,8 @@ extract_pdf (const gchar          *uri,
 
 	if (!document) {
 		g_warning ("Could not create PopplerDocument from uri:'%s', "
-			   "NULL returned without an error",
-			   uri);
+		           "NULL returned without an error",
+		           uri);
 		return;
 	}
 

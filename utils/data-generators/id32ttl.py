@@ -38,18 +38,18 @@ foldermap=[]
 depth=0
 artist_UID = {}
 class FileProcessor:
-    
+
     def __init__(self):
         self.f=open("./songlist.ttl", 'w' )
-        
+
         self.f.write("@prefix nco:   <http://www.semanticdesktop.org/ontologies/2007/03/22/nco#>.\n")
         self.f.write("@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#>.\n")
         self.f.write("@prefix nrl:   <http://www.semanticdesktop.org/ontologies/2007/08/15/nrl#>.\n")
         self.f.write("@prefix nid3:   <http://www.semanticdesktop.org/ontologies/2007/05/10/nid3#>.\n")
         self.f.write("@prefix nao:   <http://www.semanticdesktop.org/ontologies/2007/08/15/nao#>.\n")
-        self.f.write("@prefix nfo:   <http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#>.\n")    
+        self.f.write("@prefix nfo:   <http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#>.\n")
         self.f.write("@prefix xsd:   <http://www.w3.org/2001/XMLSchema#>.\n")
-    
+
     def addMp3(self, fullpath, fileName):
         global songcounter
 	global g_UID
@@ -79,50 +79,50 @@ class FileProcessor:
             modified=time.strftime("%Y-%m-%dT%H:%M:%S",time.localtime(os.path.getmtime(fullpath)))
             created=time.strftime("%Y-%m-%dT%H:%M:%S",time.localtime(os.path.getctime(fullpath)))
             size = os.path.getsize(fullpath)
-            
-            #UID=str(random.randint(0, sys.maxint))         
+
+            #UID=str(random.randint(0, sys.maxint))
             UID = ""
             if not artist_UID.has_key(artist):
-            	#print " The new  artist is "+artist
-            	UID = str(random.randint(0, sys.maxint))
-            	artist_UID[artist] = UID
-		self.f.write('<urn:uuid:'+UID+'> a nco:Contact; \n')    
-            	self.f.write('\tnco:fullname "'+artist+'".\n')            
+                #print " The new  artist is "+artist
+                UID = str(random.randint(0, sys.maxint))
+                artist_UID[artist] = UID
+                self.f.write('<urn:uuid:'+UID+'> a nco:Contact; \n')
+                self.f.write('\tnco:fullname "'+artist+'".\n')
             else :
-            	#print 'Artist exists ' + artist
-            	UID = artist_UID[artist]
-              
-            self.f.write('<file://'+urllib.pathname2url(fullpath)+'> a nid3:ID3Audio,nfo:FileDataObject;\n')            
-            if len(fileName)>0: self.f.write('\tnfo:fileName "'+fileName+'";\n')            
-            if len(modified)>0: self.f.write('\tnfo:fileLastModified "'+modified+'" ;\n')                                                
-            if len(created)>0: self.f.write('\tnfo:fileCreated "'+created+'";\n')            
+                #print 'Artist exists ' + artist
+                UID = artist_UID[artist]
+
+            self.f.write('<file://'+urllib.pathname2url(fullpath)+'> a nid3:ID3Audio,nfo:FileDataObject;\n')
+            if len(fileName)>0: self.f.write('\tnfo:fileName "'+fileName+'";\n')
+            if len(modified)>0: self.f.write('\tnfo:fileLastModified "'+modified+'" ;\n')
+            if len(created)>0: self.f.write('\tnfo:fileCreated "'+created+'";\n')
             self.f.write('\tnfo:fileSize '+str(size)+';\n')
             if len(album)>0: self.f.write('\tnid3:albumTitle "'+album+'";\n')
             if len(year)>0: self.f.write('\tnid3:recordingYear '+str(year)+';\n')
             if len(song)>0: self.f.write('\tnid3:title "'+song+'";\n')
             if len(trackstr)>0: self.f.write('\tnid3:trackNumber "'+trackstr+'";\n')
             if len(partOfSet)>0: self.f.write('\tnid3:partOfSet "'+partOfSet+'";\n')
-            
-            if len(genre)>0: self.f.write('\tnid3:contentType "'+genre+'";\n')                        
+
+            if len(genre)>0: self.f.write('\tnid3:contentType "'+genre+'";\n')
             if len(comment)>0: self.f.write('\tnid3:comments "'+comment+'";\n')
             if length>0: self.f.write('\tnid3:length '+str(length)+';\n')
             if len(UID)>0: self.f.write('\tnid3:leadArtist <urn:uuid:'+UID+'>.\n\n')
-            
-            
+
+
             songcounter+=1
-            
-            
+
+
             if songcounter==1:
                 print id3r.dump()
 
-            
-            
+
+
         except IOError, message:
             print "ID TAG ERROR: getIDTags(): IOERROR:", message
 
     def getOSDir(self,addpath, filelist, depth=0):
         try:
-            test=os.path.exists(addpath)            
+            test=os.path.exists(addpath)
             depth=depth+1
             if (test and depth<8):
                 #folderlist.append(addpath)
@@ -132,8 +132,8 @@ class FileProcessor:
                         #filelist.append(addpath+"/"+fileName)
                         if fileName.endswith(".mp3") or fileName.endswith(".MP3"):
                             self.addMp3(addpath+"/"+fileName, fileName)
-                        #foldermap.append(folderCounter)                            
-                        if os.path.isdir(addpath+"/"+fileName) and not (fileName.find('.')==0) and not (fileName.find("debian")==0) and not (fileName.find('Maps')==0) and not (fileName.find('maps')==0):                            
+                        #foldermap.append(folderCounter)
+                        if os.path.isdir(addpath+"/"+fileName) and not (fileName.find('.')==0) and not (fileName.find("debian")==0) and not (fileName.find('Maps')==0) and not (fileName.find('maps')==0):
                             self.getOSDir(addpath+"/"+fileName,filelist, depth)
                     except OSError, message:
                         print "getOSDir():OSError:", message

@@ -49,10 +49,10 @@ static GHashTable *file_locks = NULL;
 
 FILE *
 tracker_file_open (const gchar *uri,
-		   const gchar *how,
-		   gboolean	sequential)
+                   const gchar *how,
+                   gboolean     sequential)
 {
- 	FILE     *file;
+	FILE     *file;
 	gboolean  readonly;
 	int       flags;
 
@@ -64,14 +64,14 @@ tracker_file_open (const gchar *uri,
 		return NULL;
 	}
 
- 	/* Are we opening for readonly? */
+	/* Are we opening for readonly? */
 	readonly = !strstr (uri, "r+") && strchr (uri, 'r');
 
 	if (readonly) {
 		int fd;
 
 		fd = fileno (file);
-		
+
 #if defined(__linux__)
 		/* Make sure we set the NOATIME flag if we have permissions to */
 		if ((flags = fcntl (fd, F_GETFL, 0)) != -1) {
@@ -79,13 +79,13 @@ tracker_file_open (const gchar *uri,
 		}
 #endif
 	}
-	
+
 	return file;
 }
 
 void
 tracker_file_close (FILE     *file,
-		    gboolean  need_again_soon) 
+                    gboolean  need_again_soon)
 {
 	g_return_if_fail (file != NULL);
 
@@ -96,23 +96,23 @@ goffset
 tracker_file_get_size (const gchar *path)
 {
 	GFileInfo *info;
-	GFile	  *file;
-	GError	  *error = NULL;
+	GFile     *file;
+	GError    *error = NULL;
 	goffset    size;
 
 	g_return_val_if_fail (path != NULL, 0);
 
 	file = g_file_new_for_path (path);
 	info = g_file_query_info (file,
-				  G_FILE_ATTRIBUTE_STANDARD_SIZE,
-				  G_FILE_QUERY_INFO_NONE,
-				  NULL,
-				  &error);
+	                          G_FILE_ATTRIBUTE_STANDARD_SIZE,
+	                          G_FILE_QUERY_INFO_NONE,
+	                          NULL,
+	                          &error);
 
 	if (G_UNLIKELY (error)) {
 		g_message ("Could not get size for '%s', %s",
-			   path,
-			   error->message);
+		           path,
+		           error->message);
 		g_error_free (error);
 		size = 0;
 	} else {
@@ -129,23 +129,23 @@ guint64
 tracker_file_get_mtime (const gchar *path)
 {
 	GFileInfo *info;
-	GFile	  *file;
-	GError	  *error = NULL;
+	GFile     *file;
+	GError    *error = NULL;
 	guint64    mtime;
 
 	g_return_val_if_fail (path != NULL, 0);
 
 	file = g_file_new_for_path (path);
 	info = g_file_query_info (file,
-				  G_FILE_ATTRIBUTE_TIME_MODIFIED,
-				  G_FILE_QUERY_INFO_NONE,
-				  NULL,
-				  &error);
+	                          G_FILE_ATTRIBUTE_TIME_MODIFIED,
+	                          G_FILE_QUERY_INFO_NONE,
+	                          NULL,
+	                          &error);
 
 	if (G_UNLIKELY (error)) {
 		g_message ("Could not get mtime for '%s', %s",
-			   path,
-			   error->message);
+		           path,
+		           error->message);
 		g_error_free (error);
 		mtime = 0;
 	} else {
@@ -162,20 +162,20 @@ gchar *
 tracker_file_get_mime_type (GFile *file)
 {
 	GFileInfo *info;
-	GError	  *error = NULL;
-	gchar	  *content_type;
+	GError    *error = NULL;
+	gchar     *content_type;
 
 	g_return_val_if_fail (G_IS_FILE (file), NULL);
 
 	info = g_file_query_info (file,
-				  G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE,
-				  G_FILE_QUERY_INFO_NONE,
-				  NULL,
-				  &error);
+	                          G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE,
+	                          G_FILE_QUERY_INFO_NONE,
+	                          NULL,
+	                          &error);
 
 	if (G_UNLIKELY (error)) {
 		g_message ("Could not guess mimetype, %s",
-			   error->message);
+		           error->message);
 		g_error_free (error);
 		content_type = NULL;
 	} else {
@@ -188,7 +188,7 @@ tracker_file_get_mime_type (GFile *file)
 
 gboolean
 tracker_file_system_has_enough_space (const gchar *path,
-				      gulong       required_bytes)
+                                      gulong       required_bytes)
 {
 	struct statvfs st;
 	gchar *str1;
@@ -209,14 +209,14 @@ tracker_file_system_has_enough_space (const gchar *path,
 
 	if (!enough) {
 		g_critical ("Not enough disk space to create databases, "
-			    "%s remaining, %s required as a minimum",
-			    str2,
-			    str1);
+		            "%s remaining, %s required as a minimum",
+		            str2,
+		            str1);
 	} else {
 		g_message ("Checking for adequate disk space to create databases, "
-			   "%s remaining, %s required as a minimum",
-			   str2,
-			   str1);
+		           "%s remaining, %s required as a minimum",
+		           str2,
+		           str1);
 	}
 
 	g_free (str2);
@@ -274,10 +274,10 @@ tracker_path_remove (const gchar *path)
 
 gboolean
 tracker_path_is_in_path (const gchar *path,
-			 const gchar *in_path)
+                         const gchar *in_path)
 {
-	gchar	 *new_path;
-	gchar	 *new_in_path;
+	gchar    *new_path;
+	gchar    *new_in_path;
 	gboolean  is_in_path = FALSE;
 
 	g_return_val_if_fail (path != NULL, FALSE);
@@ -330,14 +330,14 @@ tracker_path_hash_table_filter_duplicates (GHashTable *roots)
 
 			if (tracker_path_is_in_path (path, in_path)) {
 				g_debug ("Removing path:'%s', it is in path:'%s'",
-					 path, in_path);
+				         path, in_path);
 
 				g_hash_table_iter_remove (&iter1);
 				g_hash_table_iter_init (&iter1, roots);
 				break;
 			} else if (tracker_path_is_in_path (in_path, path)) {
 				g_debug ("Removing path:'%s', it is in path:'%s'",
-					 in_path, path);
+				         in_path, path);
 
 				g_hash_table_iter_remove (&iter2);
 				g_hash_table_iter_init (&iter1, roots);
@@ -345,7 +345,7 @@ tracker_path_hash_table_filter_duplicates (GHashTable *roots)
 			}
 		}
 
-		/* Make sure the path doesn't have the '/' suffix. */	
+		/* Make sure the path doesn't have the '/' suffix. */
 		p = strrchr (path, G_DIR_SEPARATOR);
 
 		if (p) {
@@ -374,7 +374,7 @@ tracker_path_hash_table_filter_duplicates (GHashTable *roots)
 
 GSList *
 tracker_path_list_filter_duplicates (GSList      *roots,
-				     const gchar *basename_exception_prefix)
+                                     const gchar *basename_exception_prefix)
 {
 	GSList *l1, *l2;
 	GSList *new_list;
@@ -395,12 +395,12 @@ tracker_path_list_filter_duplicates (GSList      *roots,
 			const gchar *in_path;
 
 			in_path = l2->data;
-			
+
 			if (path == in_path) {
 				/* Do nothing */
 				l2 = l2->next;
 				continue;
-			} 
+			}
 
 			if (basename_exception_prefix) {
 				gchar *lbasename;
@@ -409,11 +409,11 @@ tracker_path_list_filter_duplicates (GSList      *roots,
 				lbasename = g_path_get_basename (path);
 				if (!g_str_has_prefix (lbasename, basename_exception_prefix)) {
 					g_free (lbasename);
-					
+
 					lbasename = g_path_get_basename (in_path);
 					if (g_str_has_prefix (lbasename, basename_exception_prefix)) {
 						has_prefix = TRUE;
-					}	
+					}
 				} else {
 					has_prefix = TRUE;
 				}
@@ -431,7 +431,7 @@ tracker_path_list_filter_duplicates (GSList      *roots,
 
 			if (tracker_path_is_in_path (path, in_path)) {
 				g_debug ("Removing path:'%s', it is in path:'%s'",
-					 path, in_path);
+				         path, in_path);
 
 				g_free (l1->data);
 				new_list = g_slist_delete_link (new_list, l1);
@@ -440,11 +440,11 @@ tracker_path_list_filter_duplicates (GSList      *roots,
 				reset = TRUE;
 
 				continue;
-			} 
+			}
 			else if (tracker_path_is_in_path (in_path, path)) {
 				g_debug ("Removing path:'%s', it is in path:'%s'",
-					 in_path, path);
-				
+				         in_path, path);
+
 				g_free (l2->data);
 				new_list = g_slist_delete_link (new_list, l2);
 				l1 = new_list;
@@ -456,8 +456,8 @@ tracker_path_list_filter_duplicates (GSList      *roots,
 
 			l2 = l2->next;
 		}
-		
-		/* Make sure the path doesn't have the '/' suffix. */	
+
+		/* Make sure the path doesn't have the '/' suffix. */
 		p = strrchr (path, G_DIR_SEPARATOR);
 
 		if (p) {
@@ -466,7 +466,7 @@ tracker_path_list_filter_duplicates (GSList      *roots,
 			}
 		}
 
-		/* Continue in list unless reset. */	
+		/* Continue in list unless reset. */
 		if (G_LIKELY (!reset)) {
 			l1 = l1->next;
 		}
@@ -490,13 +490,13 @@ tracker_path_list_filter_duplicates (GSList      *roots,
 gchar *
 tracker_path_evaluate_name (const gchar *path)
 {
-	gchar	     *final_path;
-	gchar	    **tokens;
-	gchar	    **token;
-	gchar	     *start;
-	gchar	     *end;
+	gchar        *final_path;
+	gchar       **tokens;
+	gchar       **token;
+	gchar        *start;
+	gchar        *end;
 	const gchar  *env;
-	gchar	     *expanded;
+	gchar        *expanded;
 
 	if (!path || path[0] == '\0') {
 		return NULL;
@@ -516,9 +516,9 @@ tracker_path_evaluate_name (const gchar *path)
 		}
 
 		return g_build_path (G_DIR_SEPARATOR_S,
-				     home,
-				     path + 1,
-				     NULL);
+		                     home,
+		                     path + 1,
+		                     NULL);
 	}
 
 	/* Second try to find any environment variables and expand
@@ -578,11 +578,11 @@ tracker_path_evaluate_name (const gchar *path)
 
 static gboolean
 path_has_write_access (const gchar *path,
-		       gboolean    *exists)
+                       gboolean    *exists)
 {
-	GFile	  *file;
+	GFile     *file;
 	GFileInfo *info;
-	GError	  *error = NULL;
+	GError    *error = NULL;
 	gboolean   writable;
 
 	g_return_val_if_fail (path != NULL, FALSE);
@@ -590,10 +590,10 @@ path_has_write_access (const gchar *path,
 
 	file = g_file_new_for_path (path);
 	info = g_file_query_info (file,
-				  G_FILE_ATTRIBUTE_ACCESS_CAN_WRITE,
-				  0,
-				  NULL,
-				  &error);
+	                          G_FILE_ATTRIBUTE_ACCESS_CAN_WRITE,
+	                          0,
+	                          NULL,
+	                          &error);
 	g_object_unref (file);
 
 	if (G_UNLIKELY (error)) {
@@ -603,9 +603,9 @@ path_has_write_access (const gchar *path,
 			}
 		} else {
 			g_warning ("Could not check if we have write access for "
-				   "path '%s', %s",
-				   path,
-				   error->message);
+			           "path '%s', %s",
+			           path,
+			           error->message);
 		}
 
 		g_error_free (error);
@@ -656,7 +656,7 @@ gboolean
 tracker_env_check_xdg_dirs (void)
 {
 	const gchar *user_data_dir;
-	gchar	    *new_dir;
+	gchar       *new_dir;
 	gboolean     success;
 
 	g_message ("Checking XDG_DATA_HOME is writable and exists");
@@ -702,9 +702,9 @@ tracker_file_lock (GFile *file)
 
 	if (G_UNLIKELY (!file_locks)) {
 		file_locks = g_hash_table_new_full ((GHashFunc) g_file_hash,
-						    (GEqualFunc) g_file_equal,
-						    (GDestroyNotify) g_object_unref,
-						    NULL);
+		                                    (GEqualFunc) g_file_equal,
+		                                    (GDestroyNotify) g_object_unref,
+		                                    NULL);
 	}
 
 	/* Don't try to lock twice */
@@ -725,7 +725,7 @@ tracker_file_lock (GFile *file)
 	fd = open (path, O_RDONLY);
 
 	if (fd < 0) {
- 		g_warning ("Could not open '%s'", path);
+		g_warning ("Could not open '%s'", path);
 		g_free (path);
 
 		return FALSE;
@@ -735,11 +735,11 @@ tracker_file_lock (GFile *file)
 
 	if (retval == 0) {
 		g_hash_table_insert (file_locks,
-				     g_object_ref (file),
-				     GINT_TO_POINTER (fd));
+		                     g_object_ref (file),
+		                     GINT_TO_POINTER (fd));
 	} else {
 		g_warning ("Could not lock file '%s'", path);
- 		close (fd);
+		close (fd);
 	}
 
 	g_free (path);
@@ -756,7 +756,7 @@ tracker_file_unlock (GFile *file)
 
 	if (!file_locks) {
 		return TRUE;
- 	}
+	}
 
 	fd = GPOINTER_TO_INT (g_hash_table_lookup (file_locks, file));
 

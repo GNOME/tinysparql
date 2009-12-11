@@ -11,10 +11,10 @@
 
 mto: a tracker:Namespace ;
     tracker:prefix "mto" .
- 
-mto:TransferElement a rdfs:Class ; 
-    rdfs:label "Transfer element" ;  
-    rdfs:comment "Gives information about the transfer of a single element - typically a file. The properties in this class would need to be changed if it has to handle sync elements as well" ; 
+
+mto:TransferElement a rdfs:Class ;
+    rdfs:label "Transfer element" ;
+    rdfs:comment "Gives information about the transfer of a single element - typically a file. The properties in this class would need to be changed if it has to handle sync elements as well" ;
     tracker:notify true ;
     rdfs:subClassOf nie:InformationElement .
 
@@ -53,7 +53,7 @@ mto:destination a rdf:Property ;
     rdfs:comment "The destination of the transfer. If the transfer is an download, it would be the URI for a file on the device. If the transfer is a (web) upload, it will be a URL, which will be filled once the upload is completed." ;
     nrl:maxCardinality 1 ;
     rdfs:domain mto:TransferElement ;
-    rdfs:range rdfs:Resource . 
+    rdfs:range rdfs:Resource .
 
 mto:startedTime a rdf:Property ;
     rdfs:label "Started" ;
@@ -104,7 +104,7 @@ mto:TransferMethod a rdfs:Class ;
 mto:transfer-method-bluetooth a mto:TransferMethod .
 mto:transfer-method-web a mto:TransferMethod .
 
-mto:method a rdf:Property ; 
+mto:method a rdf:Property ;
     rdfs:label "Method" ;
     rdfs:comment "The method of transfer - Bluetooth, Web upload etc" ;
     nrl:maxCardinality 1 ;
@@ -118,22 +118,22 @@ mto:created a rdf:Property ;
     rdfs:domain mto:Transfer ;
     rdfs:range xsd:dateTime .
 
-mto:transferList a rdf:Property ; 
+mto:transferList a rdf:Property ;
     rdfs:label "Transfer List" ;
     rdfs:comment "A list of transfer elements" ;
     rdfs:domain mto:Transfer ;
-    rdfs:range mto:TransferElement . 
+    rdfs:range mto:TransferElement .
 
-# unknown range - will need to be defined by the Account management guys 
+# unknown range - will need to be defined by the Account management guys
 # FIXME FIXME FIXME FIXME: At the moment xsd:string so the transfer app guys can start working.
-#  Waiting for a holistic accounts solution 
+#  Waiting for a holistic accounts solution
 #  It could also be a ContactMedium
 mto:account a rdf:Property ;
     rdfs:label "Account" ;
     rdfs:comment "A reference to the account to which the web upload is to be done. This should at least contain information about the account and the service which is being used. For instance, Google/YouTube or Google/Picassa" ;
     nrl:maxCardinality 1 ;
     rdfs:domain mto:Transfer ;
-    rdfs:range xsd:string . 
+    rdfs:range xsd:string .
 
 mto:starter a rdf:Property ;
     rdfs:label "Starter" ;
@@ -142,7 +142,7 @@ mto:starter a rdf:Property ;
     rdfs:domain mto:Transfer ;
     rdfs:range nfo:Software .
 
-mto:agent a rdf:Property ; 
+mto:agent a rdf:Property ;
     rdfs:label "Agent" ;
     rdfs:comment "The application processing the transfer - e.g. Upload Engine etc" ;
     nrl:maxCardinality 1 ;

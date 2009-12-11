@@ -27,4 +27,4 @@ EXTRA_DIST = 							\
 	$(service_in_files)					\
 	$(config_DATA)
 
-CLEANFILES = $(service_DATA)	
+CLEANFILES = $(service_DATA)

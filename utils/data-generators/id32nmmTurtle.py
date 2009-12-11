@@ -40,20 +40,20 @@ artist_UID = {}
 album_UID = {}
 
 class FileProcessor:
-    
+
     def __init__(self):
         self.f=open("./songlist.ttl", 'w' )
-        
+
         self.f.write("@prefix nco:   <http://www.semanticdesktop.org/ontologies/2007/03/22/nco#>.\n")
         self.f.write("@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#>.\n")
         self.f.write("@prefix nrl:   <http://www.semanticdesktop.org/ontologies/2007/08/15/nrl#>.\n")
         self.f.write("@prefix nid3:   <http://www.semanticdesktop.org/ontologies/2007/05/10/nid3#>.\n")
         self.f.write("@prefix nmm:   <http://www.tracker-project.org/temp/nmm#>.\n")
         self.f.write("@prefix nao:   <http://www.semanticdesktop.org/ontologies/2007/08/15/nao#>.\n")
-        self.f.write("@prefix nfo:   <http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#>.\n")    
+        self.f.write("@prefix nfo:   <http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#>.\n")
         self.f.write("@prefix nie:   <http://www.semanticdesktop.org/ontologies/2007/01/19/nie#>.\n");
         self.f.write("@prefix xsd:   <http://www.w3.org/2001/XMLSchema#>.\n")
-    
+
     def addMp3(self, fullpath, fileName):
         global songcounter
 	global g_UID
@@ -83,70 +83,70 @@ class FileProcessor:
             modified=time.strftime("%Y-%m-%dT%H:%M:%S",time.localtime(os.path.getmtime(fullpath)))
             created=time.strftime("%Y-%m-%dT%H:%M:%S",time.localtime(os.path.getctime(fullpath)))
             size = os.path.getsize(fullpath)
-            
+
 
             artistUID = ""
             albumUID = ""
-	    UID=""
+            UID=""
             if not artist_UID.has_key(artist):
-            	#print " The new  artist is "+artist
-            	UID = str(random.randint(0, sys.maxint))
-            	artist_UID[artist] = UID
-		self.f.write('<urn:uuid:'+UID+'> a nco:Contact; \n')
-		#self.f.write('<urn:artist:'+artist+'> a nco:Contact; \n')    
-            	self.f.write('\tnco:fullname "'+artist+'".\n\n')            
-            else :
-            	#print 'Artist exists ' + artist
-            	UID = artist_UID[artist]
+                 #print " The new  artist is "+artist
+                 UID = str(random.randint(0, sys.maxint))
+                 artist_UID[artist] = UID
+                 self.f.write('<urn:uuid:'+UID+'> a nco:Contact; \n')
+                 #self.f.write('<urn:artist:'+artist+'> a nco:Contact; \n')
+                 self.f.write('\tnco:fullname "'+artist+'".\n\n')
+            else:
+                #print 'Artist exists ' + artist
+                 UID = artist_UID[artist]
 
             if not album_UID.has_key(album):
-            	#print " The new  album is "+artist
+                 #print " The new  album is "+artist
 
-            	album_UID[artist] = album
-		self.f.write('<urn:album:'+album+'> a nmm:MusicAlbum; \n')
+                 album_UID[artist] = album
+                 self.f.write('<urn:album:'+album+'> a nmm:MusicAlbum; \n')
 
-	        if len(partOfSet)>0: 
-			setArray=partOfSet.split("/")
-			if len(setArray)>0: self.f.write('\tnmm:setNumber '+setArray[0]+';\n')
-			if len(setArray)>1: self.f.write('\tnmm:setCount '+setArray[1]+';\n')
-		if len(UID)>0: self.f.write('\tnmm:albumArtist <urn:uuid:'+UID+'>;\n')
-            	self.f.write('\tnie:title "'+album+'".\n\n')            
-            else :
-            	#print 'Artist exists ' + artist
-            	UID = artist_UID[artist]
-              
-            self.f.write('<file://'+urllib.pathname2url(fullpath)+'> a nmm:MusicPiece,nfo:FileDataObject;\n')            
+                 if len(partOfSet)>0:
+                      setArray=partOfSet.split("/")
+                      if len(setArray)>0: self.f.write('\tnmm:setNumber '+setArray[0]+';\n')
+                      if len(setArray)>1: self.f.write('\tnmm:setCount '+setArray[1]+';\n')
+                 if len(UID)>0: self.f.write('\tnmm:albumArtist <urn:uuid:'+UID+'>;\n')
+                 self.f.write('\tnie:title "'+album+'".\n\n')
+            else:
+                 #print 'Artist exists ' + artist
+                 UID = artist_UID[artist]
+
+            self.f.write('<file://'+urllib.pathname2url(fullpath)+'> a nmm:MusicPiece,nfo:FileDataObject;\n')
             if len(song)>0: self.f.write('\tnie:title "'+song+'";\n')
-            if len(fileName)>0: self.f.write('\tnfo:fileName "'+fileName+'";\n')            
-            if len(modified)>0: self.f.write('\tnfo:fileLastModified "'+modified+'" ;\n')                                                
-            if len(created)>0: self.f.write('\tnfo:fileCreated "'+created+'";\n')            
+            if len(fileName)>0: self.f.write('\tnfo:fileName "'+fileName+'";\n')
+            if len(modified)>0: self.f.write('\tnfo:fileLastModified "'+modified+'" ;\n')
+            if len(created)>0: self.f.write('\tnfo:fileCreated "'+created+'";\n')
             self.f.write('\tnfo:fileSize '+str(size)+';\n')
             if len(album)>0: self.f.write('\tnmm:musicAlbum <urn:album:'+album+'>;\n')
 #            if len(year)>0: self.f.write('\tnid3:recordingYear '+str(year)+';\n')
-            if len(genre)>0: self.f.write('\tnmm:genre "'+genre+'";\n')                        
-	    if len(trackstr)>0: 
-		trackArray=trackstr.split("/")
-		if len(trackArray)>0: self.f.write('\tnmm:trackNumber '+trackArray[0]+';\n')
+            if len(genre)>0: self.f.write('\tnmm:genre "'+genre+'";\n')
+            if len(trackstr)>0:
+                 trackArray=trackstr.split("/")
+                 if len(trackArray)>0: self.f.write('\tnmm:trackNumber '+trackArray[0]+';\n')
 
 
             if length>0: self.f.write('\tnmm:length '+str(length)+';\n')
             if len(UID)>0: self.f.write('\tnmm:performer <urn:uuid:'+UID+'>.\n\n')
-            
-            
+
+
             songcounter+=1
-            
-            
+
+
             if songcounter==1:
                 print id3r.dump()
 
-            
-            
+
+
         except IOError, message:
             print "ID TAG ERROR: getIDTags(): IOERROR:", message
 
     def getOSDir(self,addpath, filelist, depth=0):
         try:
-            test=os.path.exists(addpath)            
+            test=os.path.exists(addpath)
             depth=depth+1
             if (test and depth<8):
                 #folderlist.append(addpath)
@@ -156,8 +156,8 @@ class FileProcessor:
                         #filelist.append(addpath+"/"+fileName)
                         if fileName.endswith(".mp3") or fileName.endswith(".MP3"):
                             self.addMp3(addpath+"/"+fileName, fileName)
-                        #foldermap.append(folderCounter)                            
-                        if os.path.isdir(addpath+"/"+fileName) and not (fileName.find('.')==0) and not (fileName.find("debian")==0) and not (fileName.find('Maps')==0) and not (fileName.find('maps')==0):                            
+                        #foldermap.append(folderCounter)
+                        if os.path.isdir(addpath+"/"+fileName) and not (fileName.find('.')==0) and not (fileName.find("debian")==0) and not (fileName.find('Maps')==0) and not (fileName.find('maps')==0):
                             self.getOSDir(addpath+"/"+fileName,filelist, depth)
                     except OSError, message:
                         print "getOSDir():OSError:", message

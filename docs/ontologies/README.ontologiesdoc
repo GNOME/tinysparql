@@ -6,7 +6,7 @@ This directory contains verbose documentation explaining each ontology.
 Expected documents/format
 =========================
 
-1) There should be one directory per ontology prefix. 
+1) There should be one directory per ontology prefix.
 2) In that directory, there must be a file called 'explanation.html'
    This file will be copied as-it-is into the ontology webpage
 3) That file can link to any other files in the same directory
@@ -19,11 +19,11 @@ Explanation.html
 ================
 
  It must be a file in HTML format with <h2> as "biggest" elements (i.e. sections).
-It will be copied as-it-is into the ontology HTML page, so it shouldn't include all 
+It will be copied as-it-is into the ontology HTML page, so it shouldn't include all
 HTML headers (i.e. it is NOT a valid HTML document).
 
 
- The classes/properties inside the ontology can be linked using 
+ The classes/properties inside the ontology can be linked using
 
    <a href="#ClassName">
 
@@ -35,14 +35,11 @@ HTML headers (i.e. it is NOT a valid HTML document).
  Dia diagrams (x.dia) in the directory will be converted automatically
  in png, and should be linked using the png extension:
 
-    <a href="x.png"> 
+    <a href="x.png">
 
- 
+
  To include verbatim examples in SparQL or turtle format, use the
 <pre> HTML tag, and all "<" and ">" inside it must be written as
 "&lt;" and "%gt;".
 
  The file "explanation.html.template" can be used as starting point.
-
- 
- 

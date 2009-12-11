@@ -29,10 +29,10 @@ mtp:scantype-FieldInterleavedLowerFirst a mtp:ScanType ;
 	nie:description "Line interleaved frames with the Lower field on the first line." .
 mtp:scantype-FieldSingleUpperFirst a mtp:ScanType;
 	nie:description "Fields are sent as independent samples. The field is indicated (on a per sample basis)".
-mtp:scantype-FieldSingleLowerFirst a mtp:ScanType ; 
+mtp:scantype-FieldSingleLowerFirst a mtp:ScanType ;
 	nie:description "Fields are sent as independent samples. The field is indicated (on a per sample basis".
 mtp:scantype-MixedInterlace a mtp:ScanType;
-	nie:description "The content may contain a mix of interlaced modes".	
+	nie:description "The content may contain a mix of interlaced modes".
 mtp:scantype-MixedInterlaceAndProgressive a mtp:ScanType ;
 	nie:description "The content may contain a mix of interlaced and progressive modes.".
 

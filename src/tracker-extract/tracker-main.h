@@ -38,7 +38,7 @@ struct TrackerExtractData {
 	const gchar *mime;
 
 	void (* extract) (const gchar *path,
-			  TrackerSparqlBuilder *metadata);
+	                  TrackerSparqlBuilder *metadata);
 };
 
 /* This is defined in each extract */

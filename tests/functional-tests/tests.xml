@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <testdefinition version="0.1">
-  <suite name="tracker-tests" domain="tracker-store"> 
+  <suite name="tracker-tests" domain="tracker-store">
     <!-- At least one set per suite, name and description mandatory -->
-    <set name="testset1" description="Basic sparql tests" feature="sparql-insert">   
+    <set name="testset1" description="Basic sparql tests" feature="sparql-insert">
       <pre_steps>
         <!-- This doesn't seem to work -->
         <step>. /tmp/session_bus_address.user</step>
@@ -26,13 +26,13 @@
         <!-- dbus env variables defined here. This works. -->
         <step expected_result="0">. /tmp/session_bus_address.user; python2.5 /usr/share/tracker-tests/03-fts-functions.py</step>
       </case>
- 
+
       <!-- Environments optional - tells where the tests are run -->
       <environments>
         <scratchbox>true</scratchbox>
-        <hardware>true</hardware>    
+        <hardware>true</hardware>
       </environments>
- 
+
     </set>
   </suite>
 </testdefinition>

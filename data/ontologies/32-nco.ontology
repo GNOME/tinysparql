@@ -698,7 +698,7 @@ nco:imContactStatusMessage a rdf:Property ;
 	rdfs:range xsd:string .
 
 nco:PresenceStatus a rdfs:Class ;
-        rdfs:label "Presence statuses"; 
+        rdfs:label "Presence statuses";
 	rdfs:comment "Predefined set of status level instances" ;
 	rdfs:subClassOf rdfs:Resource .
 

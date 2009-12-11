@@ -36,10 +36,10 @@ const GtkTargetEntry KEYWORD_DRAG_TYPES[] = {
 };
 
 void
-tracker_render_emblem_pixbuf_cb (GtkCellLayout	 *cell_layout,
-				 GtkCellRenderer *cell,
-				 GtkTreeModel	 *tree_model,
-				 GtkTreeIter	 *iter,
-				 gpointer	 user_data);
+tracker_render_emblem_pixbuf_cb (GtkCellLayout   *cell_layout,
+                                 GtkCellRenderer *cell,
+                                 GtkTreeModel    *tree_model,
+                                 GtkTreeIter     *iter,
+                                 gpointer        user_data);
 
 #endif /* TRACKER_UI_H */

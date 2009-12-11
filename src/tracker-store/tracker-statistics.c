@@ -72,14 +72,14 @@ tracker_statistics_class_init (TrackerStatisticsClass *klass)
 
 	signals[UPDATED] =
 		g_signal_new ("updated",
-			      G_TYPE_FROM_CLASS (klass),
-			      G_SIGNAL_RUN_LAST,
-			      0,
-			      NULL, NULL,
-			      g_cclosure_marshal_VOID__POINTER,
-			      G_TYPE_NONE,
-			      1,
-			      TRACKER_TYPE_G_STRV_ARRAY);
+		              G_TYPE_FROM_CLASS (klass),
+		              G_SIGNAL_RUN_LAST,
+		              0,
+		              NULL, NULL,
+		              g_cclosure_marshal_VOID__POINTER,
+		              G_TYPE_NONE,
+		              1,
+		              TRACKER_TYPE_G_STRV_ARRAY);
 
 	g_type_class_add_private (object_class, sizeof (TrackerStatisticsPrivate));
 }
@@ -94,16 +94,16 @@ tracker_statistics_init (TrackerStatistics *object)
 	/* Do first time stats lookup */
 	priv->cache = cache_get_latest ();
 
-	priv->cache_timeout_id = 
+	priv->cache_timeout_id =
 		g_timeout_add_seconds (CACHE_LIFETIME,
-				       cache_timeout,
-				       object);
+		                       cache_timeout,
+		                       object);
 }
 
 static void
 tracker_statistics_finalize (GObject *object)
 {
-	TrackerStatistics	     *statistics;
+	TrackerStatistics            *statistics;
 	TrackerStatisticsPrivate *priv;
 
 	statistics = TRACKER_STATISTICS (object);
@@ -140,9 +140,9 @@ cache_get_latest (void)
 	g_message ("Requesting statistics from database for an accurate signal");
 
 	values = g_hash_table_new_full (g_str_hash,
-					g_str_equal,
-					g_free,
-					NULL);
+	                                g_str_equal,
+	                                g_free,
+	                                NULL);
 
 	classes = tracker_ontology_get_classes (&n_classes);
 
@@ -165,9 +165,9 @@ cache_get_latest (void)
 
 		tracker_db_result_set_get (result_set, 0, &count, -1);
 
-		g_hash_table_insert (values, 
-				     g_strdup (tracker_class_get_name (cl)),
-				     GINT_TO_POINTER (count));
+		g_hash_table_insert (values,
+		                     g_strdup (tracker_class_get_name (cl)),
+		                     GINT_TO_POINTER (count));
 
 		g_object_unref (result_set);
 		g_object_unref (stmt);
@@ -176,7 +176,7 @@ cache_get_latest (void)
 	return values;
 }
 
-static gboolean 
+static gboolean
 cache_timeout (gpointer user_data)
 {
 	g_message ("Statistics cache has expired, updating...");
@@ -188,7 +188,7 @@ cache_timeout (gpointer user_data)
 
 static gint
 cache_sort_func (gconstpointer a,
-		 gconstpointer b)
+                 gconstpointer b)
 {
 	const GStrv *strv_a = (GStrv *) a;
 	const GStrv *strv_b = (GStrv *) b;
@@ -201,12 +201,12 @@ cache_sort_func (gconstpointer a,
 
 void
 tracker_statistics_get (TrackerStatistics      *object,
-			DBusGMethodInvocation  *context,
-			GError		      **error)
+                        DBusGMethodInvocation  *context,
+                        GError                **error)
 {
 	TrackerClass **classes, *cl;
 	TrackerStatisticsPrivate *priv;
-	guint		          request_id;
+	guint                     request_id;
 	GPtrArray                *values;
 	guint                     i, n_classes;
 
@@ -254,7 +254,7 @@ tracker_statistics_get (TrackerStatistics      *object,
 void
 tracker_statistics_signal (void)
 {
-	GObject		     *statistics;
+	GObject                      *statistics;
 	TrackerStatisticsPrivate *priv;
 	GHashTable           *stats;
 	GHashTableIter        iter;
@@ -291,27 +291,27 @@ tracker_statistics_signal (void)
 		const gchar  *service_type;
 		gpointer      data;
 		gint          old_count, new_count;
-		
+
 		service_type = key;
 		new_count = GPOINTER_TO_INT (value);
-			
+
 		data = g_hash_table_lookup (priv->cache, service_type);
 		old_count = GPOINTER_TO_INT (data);
-		
+
 		if (old_count != new_count) {
 			GStrv strv;
 
-			g_message ("  Updating '%s' with new count:%d, old count:%d, diff:%d", 
-				   service_type,
-				   new_count,
-				   old_count,
-				   new_count - old_count);
-			
+			g_message ("  Updating '%s' with new count:%d, old count:%d, diff:%d",
+			           service_type,
+			           new_count,
+			           old_count,
+			           new_count - old_count);
+
 			strv = g_new (gchar*, 3);
 			strv[0] = g_strdup (service_type);
 			strv[1] = g_strdup_printf ("%d", new_count);
 			strv[2] = NULL;
-			
+
 			g_ptr_array_add (values, strv);
 		}
 	}
@@ -319,12 +319,12 @@ tracker_statistics_signal (void)
 	if (values->len > 0) {
 		/* Make sure we sort the results first */
 		g_ptr_array_sort (values, cache_sort_func);
-		
+
 		g_signal_emit (statistics, signals[UPDATED], 0, values);
 	} else {
 		g_message ("  No changes in the statistics");
 	}
-	
+
 	g_ptr_array_foreach (values, (GFunc) g_strfreev, NULL);
 	g_ptr_array_free (values, TRUE);
 

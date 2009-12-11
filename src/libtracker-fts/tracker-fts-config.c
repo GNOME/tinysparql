@@ -9,7 +9,7 @@
  *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the GNU
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.          See the GNU
  * General Public License for more details.
  *
  * You should have received a copy of the GNU General Public
@@ -33,11 +33,11 @@
 #define TRACKER_FTS_CONFIG_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_FTS_CONFIG, TrackerFTSConfigPrivate))
 
 /* GKeyFile defines */
-#define GROUP_INDEXING		   "Indexing"
+#define GROUP_INDEXING             "Indexing"
 
 /* Default values */
-#define DEFAULT_MIN_WORD_LENGTH	   3	  /* 0->30 */
-#define DEFAULT_MAX_WORD_LENGTH	   30	  /* 0->200 */
+#define DEFAULT_MIN_WORD_LENGTH            3      /* 0->30 */
+#define DEFAULT_MAX_WORD_LENGTH            30     /* 0->200 */
 #define DEFAULT_MAX_WORDS_TO_INDEX 10000
 
 typedef struct {
@@ -55,18 +55,18 @@ typedef struct {
 } ObjectToKeyFile;
 
 static void config_set_property         (GObject       *object,
-					 guint          param_id,
-					 const GValue  *value,
-					 GParamSpec    *pspec);
+                                         guint          param_id,
+                                         const GValue  *value,
+                                         GParamSpec    *pspec);
 static void config_get_property         (GObject       *object,
-					 guint          param_id,
-					 GValue        *value,
-					 GParamSpec    *pspec);
+                                         guint          param_id,
+                                         GValue        *value,
+                                         GParamSpec    *pspec);
 static void config_finalize             (GObject       *object);
 static void config_constructed          (GObject       *object);
 static void config_create_with_defaults (TrackerFTSConfig *config,
-					 GKeyFile      *key_file, 
-					 gboolean       overwrite);
+                                         GKeyFile      *key_file,
+                                         gboolean       overwrite);
 static void config_load                 (TrackerFTSConfig *config);
 
 enum {
@@ -95,37 +95,37 @@ tracker_fts_config_class_init (TrackerFTSConfigClass *klass)
 
 	object_class->set_property = config_set_property;
 	object_class->get_property = config_get_property;
-	object_class->finalize	   = config_finalize;
+	object_class->finalize     = config_finalize;
 	object_class->constructed  = config_constructed;
 
 	/* Indexing */
 	g_object_class_install_property (object_class,
-					 PROP_MIN_WORD_LENGTH,
-					 g_param_spec_int ("min-word-length",
-							   "Minimum word length",
-							   " Set the minimum length of words to index (0->30, default=3)",
-							   0,
-							   30,
-							   DEFAULT_MIN_WORD_LENGTH,
-							   G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
+	                                 PROP_MIN_WORD_LENGTH,
+	                                 g_param_spec_int ("min-word-length",
+	                                                   "Minimum word length",
+	                                                   " Set the minimum length of words to index (0->30, default=3)",
+	                                                   0,
+	                                                   30,
+	                                                   DEFAULT_MIN_WORD_LENGTH,
+	                                                   G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
 	g_object_class_install_property (object_class,
-					 PROP_MAX_WORD_LENGTH,
-					 g_param_spec_int ("max-word-length",
-							   "Maximum word length",
-							   " Set the maximum length of words to index (0->200, default=30)",
-							   0,
-							   200, /* Is this a reasonable limit? */
-							   DEFAULT_MAX_WORD_LENGTH,
-							   G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
+	                                 PROP_MAX_WORD_LENGTH,
+	                                 g_param_spec_int ("max-word-length",
+	                                                   "Maximum word length",
+	                                                   " Set the maximum length of words to index (0->200, default=30)",
+	                                                   0,
+	                                                   200, /* Is this a reasonable limit? */
+	                                                   DEFAULT_MAX_WORD_LENGTH,
+	                                                   G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
 	g_object_class_install_property (object_class,
-					 PROP_MAX_WORDS_TO_INDEX,
-					 g_param_spec_int ("max-words-to-index",
-							   "Maximum words to index",
-							   " Maximum unique words to index from a file's content (default=10000)",
-							   0,
-							   G_MAXINT,
-							   DEFAULT_MAX_WORDS_TO_INDEX,
-							   G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
+	                                 PROP_MAX_WORDS_TO_INDEX,
+	                                 g_param_spec_int ("max-words-to-index",
+	                                                   "Maximum words to index",
+	                                                   " Maximum unique words to index from a file's content (default=10000)",
+	                                                   0,
+	                                                   G_MAXINT,
+	                                                   DEFAULT_MAX_WORDS_TO_INDEX,
+	                                                   G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
 
 	g_type_class_add_private (object_class, sizeof (TrackerFTSConfigPrivate));
 }
@@ -136,24 +136,24 @@ tracker_fts_config_init (TrackerFTSConfig *object)
 }
 
 static void
-config_set_property (GObject	  *object,
-		     guint	   param_id,
-		     const GValue *value,
-		     GParamSpec	  *pspec)
+config_set_property (GObject      *object,
+                     guint         param_id,
+                     const GValue *value,
+                     GParamSpec           *pspec)
 {
 	switch (param_id) {
 		/* Indexing */
 	case PROP_MIN_WORD_LENGTH:
 		tracker_fts_config_set_min_word_length (TRACKER_FTS_CONFIG (object),
-							g_value_get_int (value));
+		                                        g_value_get_int (value));
 		break;
 	case PROP_MAX_WORD_LENGTH:
 		tracker_fts_config_set_max_word_length (TRACKER_FTS_CONFIG (object),
-							g_value_get_int (value));
+		                                        g_value_get_int (value));
 		break;
 	case PROP_MAX_WORDS_TO_INDEX:
 		tracker_fts_config_set_max_words_to_index (TRACKER_FTS_CONFIG (object),
-							   g_value_get_int (value));
+		                                           g_value_get_int (value));
 		break;
 
 	default:
@@ -163,10 +163,10 @@ config_set_property (GObject	  *object,
 }
 
 static void
-config_get_property (GObject	*object,
-		     guint	 param_id,
-		     GValue	*value,
-		     GParamSpec *pspec)
+config_get_property (GObject    *object,
+                     guint       param_id,
+                     GValue     *value,
+                     GParamSpec *pspec)
 {
 	TrackerFTSConfigPrivate *priv;
 
@@ -210,31 +210,31 @@ config_constructed (GObject *object)
 
 static void
 config_create_with_defaults (TrackerFTSConfig *config,
-			     GKeyFile      *key_file, 
-			     gboolean       overwrite)
+                             GKeyFile      *key_file,
+                             gboolean       overwrite)
 {
 	gint i;
 
 	g_message ("Loading defaults into GKeyFile...");
-	
+
 	for (i = 0; i < G_N_ELEMENTS (conversions); i++) {
 		gboolean has_key;
-		
-		has_key = g_key_file_has_key (key_file, 
-					      conversions[i].group, 
-					      conversions[i].key, 
-					      NULL);
+
+		has_key = g_key_file_has_key (key_file,
+		                              conversions[i].group,
+		                              conversions[i].key,
+		                              NULL);
 		if (!overwrite && has_key) {
 			continue;
 		}
-		
+
 		switch (conversions[i].type) {
 		case G_TYPE_INT:
-			g_key_file_set_integer (key_file, 
-						conversions[i].group, 
-						conversions[i].key, 
-						tracker_keyfile_object_default_int (config, 
-										    conversions[i].property));
+			g_key_file_set_integer (key_file,
+			                        conversions[i].group,
+			                        conversions[i].key,
+			                        tracker_keyfile_object_default_int (config,
+			                                                            conversions[i].property));
 			break;
 
 		default:
@@ -242,12 +242,12 @@ config_create_with_defaults (TrackerFTSConfig *config,
 			break;
 		}
 
-		g_key_file_set_comment (key_file, 
-					conversions[i].group, 
-					conversions[i].key, 
-					tracker_keyfile_object_blurb (config,
-								      conversions[i].property), 
-					NULL);
+		g_key_file_set_comment (key_file,
+		                        conversions[i].group,
+		                        conversions[i].key,
+		                        tracker_keyfile_object_blurb (config,
+		                                                      conversions[i].property),
+		                        NULL);
 	}
 }
 
@@ -266,19 +266,19 @@ config_load (TrackerFTSConfig *config)
 
 	for (i = 0; i < G_N_ELEMENTS (conversions); i++) {
 		gboolean has_key;
-		
-		has_key = g_key_file_has_key (file->key_file, 
-					      conversions[i].group, 
-					      conversions[i].key, 
-					      NULL);
-	
+
+		has_key = g_key_file_has_key (file->key_file,
+		                              conversions[i].group,
+		                              conversions[i].key,
+		                              NULL);
+
 		switch (conversions[i].type) {
 		case G_TYPE_INT:
-			tracker_keyfile_object_load_int (G_OBJECT (file), 
-							 conversions[i].property,
-							 file->key_file,
-							 conversions[i].group, 
-							 conversions[i].key);
+			tracker_keyfile_object_load_int (G_OBJECT (file),
+			                                 conversions[i].property,
+			                                 file->key_file,
+			                                 conversions[i].group,
+			                                 conversions[i].key);
 			break;
 
 		default:
@@ -308,10 +308,10 @@ config_save (TrackerFTSConfig *config)
 		switch (conversions[i].type) {
 		case G_TYPE_INT:
 			tracker_keyfile_object_save_int (file,
-							 conversions[i].property, 
-							 file->key_file,
-							 conversions[i].group, 
-							 conversions[i].key);
+			                                 conversions[i].property,
+			                                 file->key_file,
+			                                 conversions[i].group,
+			                                 conversions[i].key);
 			break;
 
 		default:
@@ -326,9 +326,9 @@ config_save (TrackerFTSConfig *config)
 TrackerFTSConfig *
 tracker_fts_config_new (void)
 {
-	return g_object_new (TRACKER_TYPE_FTS_CONFIG, 
-			     "domain", "tracker-fts",
-			     NULL);
+	return g_object_new (TRACKER_TYPE_FTS_CONFIG,
+	                     "domain", "tracker-fts",
+	                     NULL);
 }
 
 gboolean
@@ -377,7 +377,7 @@ tracker_fts_config_get_max_words_to_index (TrackerFTSConfig *config)
 
 void
 tracker_fts_config_set_min_word_length (TrackerFTSConfig *config,
-					gint	          value)
+                                        gint              value)
 {
 	TrackerFTSConfigPrivate *priv;
 
@@ -395,7 +395,7 @@ tracker_fts_config_set_min_word_length (TrackerFTSConfig *config,
 
 void
 tracker_fts_config_set_max_word_length (TrackerFTSConfig *config,
-					gint	          value)
+                                        gint              value)
 {
 	TrackerFTSConfigPrivate *priv;
 
@@ -413,7 +413,7 @@ tracker_fts_config_set_max_word_length (TrackerFTSConfig *config,
 
 void
 tracker_fts_config_set_max_words_to_index (TrackerFTSConfig *config,
-					   gint  	     value)
+                                           gint              value)
 {
 	TrackerFTSConfigPrivate *priv;
 

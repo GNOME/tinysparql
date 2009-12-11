@@ -19,7 +19,7 @@ Show summary of options.
 .B \-k, \-\-kill
 This uses SIGKILL to stop all Tracker processes found. This is not
 advised unless you are having problems stopping Tracker in the first
-place. This 
+place. This
 .B GUARANTEES
 death.
 .TP
@@ -29,17 +29,17 @@ recommended over \-\-kill because it gives the processes time to
 shutdown cleanly.
 .TP
 .B \-r, \-\-hard-reset
-This kills all processes in the same way that 
+This kills all processes in the same way that
 .B \-\-kill
-does but it also removes all databases. Restarting 
+does but it also removes all databases. Restarting
 .B tracker-store
 re-creates the databases.
 .TP
 .B \-e, \-\-soft-reset
-A soft reset works exactly the same way that 
-.B \-\-hard-reset 
+A soft reset works exactly the same way that
+.B \-\-hard-reset
 does, with the exception that the backup and journal are not removed.
-These are restored when 
+These are restored when
 .B tracker-store
 is restarted.
 .TP

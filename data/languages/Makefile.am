@@ -15,6 +15,6 @@ config_DATA =  		\
 	stopwords.nl 	\
 	stopwords.pt 	\
 	stopwords.ru 	\
-	stopwords.sv 	
+	stopwords.sv
 
 EXTRA_DIST = $(config_DATA)

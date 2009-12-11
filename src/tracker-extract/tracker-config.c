@@ -9,7 +9,7 @@
  *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the GNU
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.          See the GNU
  * General Public License for more details.
  *
  * You should have received a copy of the GNU General Public
@@ -27,7 +27,7 @@
 #define TRACKER_CONFIG_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_CONFIG, TrackerConfigPrivate))
 
 /* GKeyFile defines */
-#define GROUP_GENERAL	  "General"
+#define GROUP_GENERAL     "General"
 
 /* Default values */
 #define DEFAULT_VERBOSITY 0
@@ -45,20 +45,20 @@ typedef struct {
 } ObjectToKeyFile;
 
 static void     config_set_property         (GObject       *object,
-					     guint          param_id,
-					     const GValue  *value,
-					     GParamSpec    *pspec);
+                                             guint          param_id,
+                                             const GValue  *value,
+                                             GParamSpec    *pspec);
 static void     config_get_property         (GObject       *object,
-					     guint          param_id,
-					     GValue        *value,
-					     GParamSpec    *pspec);
+                                             guint          param_id,
+                                             GValue        *value,
+                                             GParamSpec    *pspec);
 static void     config_finalize             (GObject       *object);
 static void     config_constructed          (GObject       *object);
 static void     config_load                 (TrackerConfig *config);
 static gboolean config_save                 (TrackerConfig *config);
 static void     config_create_with_defaults (TrackerConfig *config,
-					     GKeyFile      *key_file,
-					     gboolean       overwrite);
+                                             GKeyFile      *key_file,
+                                             gboolean       overwrite);
 
 enum {
 	PROP_0,
@@ -80,19 +80,19 @@ tracker_config_class_init (TrackerConfigClass *klass)
 
 	object_class->set_property = config_set_property;
 	object_class->get_property = config_get_property;
-	object_class->finalize	   = config_finalize;
+	object_class->finalize     = config_finalize;
 	object_class->constructed  = config_constructed;
 
 	/* General */
 	g_object_class_install_property (object_class,
-					 PROP_VERBOSITY,
-					 g_param_spec_int ("verbosity",
-							   "Log verbosity",
-							   " Log verbosity (0=errors, 1=minimal, 2=detailed, 3=debug)",
-							   0,
-							   3,
-							   DEFAULT_VERBOSITY,
-							   G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
+	                                 PROP_VERBOSITY,
+	                                 g_param_spec_int ("verbosity",
+	                                                   "Log verbosity",
+	                                                   " Log verbosity (0=errors, 1=minimal, 2=detailed, 3=debug)",
+	                                                   0,
+	                                                   3,
+	                                                   DEFAULT_VERBOSITY,
+	                                                   G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
 
 	g_type_class_add_private (object_class, sizeof (TrackerConfigPrivate));
 }
@@ -103,16 +103,16 @@ tracker_config_init (TrackerConfig *object)
 }
 
 static void
-config_set_property (GObject	  *object,
-		     guint	   param_id,
-		     const GValue *value,
-		     GParamSpec	  *pspec)
+config_set_property (GObject      *object,
+                     guint         param_id,
+                     const GValue *value,
+                     GParamSpec           *pspec)
 {
 	switch (param_id) {
 		/* General */
 	case PROP_VERBOSITY:
 		tracker_config_set_verbosity (TRACKER_CONFIG (object),
-					      g_value_get_int (value));
+		                              g_value_get_int (value));
 		break;
 
 	default:
@@ -122,10 +122,10 @@ config_set_property (GObject	  *object,
 }
 
 static void
-config_get_property (GObject	*object,
-		     guint	 param_id,
-		     GValue	*value,
-		     GParamSpec *pspec)
+config_get_property (GObject    *object,
+                     guint       param_id,
+                     GValue     *value,
+                     GParamSpec *pspec)
 {
 	TrackerConfigPrivate *priv;
 
@@ -163,43 +163,43 @@ config_constructed (GObject *object)
 
 static void
 config_create_with_defaults (TrackerConfig *config,
-			     GKeyFile      *key_file, 
-			     gboolean       overwrite)
+                             GKeyFile      *key_file,
+                             gboolean       overwrite)
 {
 	gint i;
 
 	g_message ("Loading defaults into GKeyFile...");
-	
+
 	for (i = 0; i < G_N_ELEMENTS (conversions); i++) {
 		gboolean has_key;
-		
-		has_key = g_key_file_has_key (key_file, 
-					      conversions[i].group, 
-					      conversions[i].key, 
-					      NULL);
+
+		has_key = g_key_file_has_key (key_file,
+		                              conversions[i].group,
+		                              conversions[i].key,
+		                              NULL);
 		if (!overwrite && has_key) {
 			continue;
 		}
-		
+
 		switch (conversions[i].type) {
 		case G_TYPE_INT:
-			g_key_file_set_integer (key_file, 
-						conversions[i].group, 
-						conversions[i].key, 
-						tracker_keyfile_object_default_int (config, 
-										    conversions[i].property));
+			g_key_file_set_integer (key_file,
+			                        conversions[i].group,
+			                        conversions[i].key,
+			                        tracker_keyfile_object_default_int (config,
+			                                                            conversions[i].property));
 			break;
 
 		default:
 			g_assert_not_reached ();
 		}
 
-		g_key_file_set_comment (key_file, 
-					conversions[i].group, 
-					conversions[i].key, 
-					tracker_keyfile_object_blurb (config,
-								      conversions[i].property), 
-					NULL);
+		g_key_file_set_comment (key_file,
+		                        conversions[i].group,
+		                        conversions[i].key,
+		                        tracker_keyfile_object_blurb (config,
+		                                                      conversions[i].property),
+		                        NULL);
 	}
 }
 
@@ -218,19 +218,19 @@ config_load (TrackerConfig *config)
 
 	for (i = 0; i < G_N_ELEMENTS (conversions); i++) {
 		gboolean has_key;
-		
-		has_key = g_key_file_has_key (file->key_file, 
-					      conversions[i].group, 
-					      conversions[i].key, 
-					      NULL);
-	
+
+		has_key = g_key_file_has_key (file->key_file,
+		                              conversions[i].group,
+		                              conversions[i].key,
+		                              NULL);
+
 		switch (conversions[i].type) {
 		case G_TYPE_INT:
-			tracker_keyfile_object_load_int (G_OBJECT (file), 
-							 conversions[i].property,
-							 file->key_file,
-							 conversions[i].group, 
-							 conversions[i].key);
+			tracker_keyfile_object_load_int (G_OBJECT (file),
+			                                 conversions[i].property,
+			                                 file->key_file,
+			                                 conversions[i].group,
+			                                 conversions[i].key);
 			break;
 
 		default:
@@ -260,10 +260,10 @@ config_save (TrackerConfig *config)
 		switch (conversions[i].type) {
 		case G_TYPE_INT:
 			tracker_keyfile_object_save_int (file,
-							 conversions[i].property, 
-							 file->key_file,
-							 conversions[i].group, 
-							 conversions[i].key);
+			                                 conversions[i].property,
+			                                 file->key_file,
+			                                 conversions[i].group,
+			                                 conversions[i].key);
 			break;
 
 		default:
@@ -303,7 +303,7 @@ tracker_config_get_verbosity (TrackerConfig *config)
 
 void
 tracker_config_set_verbosity (TrackerConfig *config,
-			      gint	     value)
+                              gint           value)
 {
 	TrackerConfigPrivate *priv;
 

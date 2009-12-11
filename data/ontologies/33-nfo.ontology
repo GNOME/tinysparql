@@ -828,7 +828,7 @@ nfo:softwareCmdLine a rdf:Property ;
 	rdfs:range xsd:string ;
 	tracker:weight 3 .
 
-# Also added 
+# Also added
 
 nfo:Orientation a rdfs:Class ;
 	rdfs:label "Orientation enum" ;

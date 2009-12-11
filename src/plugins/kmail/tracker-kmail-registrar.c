@@ -45,15 +45,15 @@
 #define TRACKER_TYPE_KMAIL_PUSH_REGISTRAR    (tracker_kmail_push_registrar_get_type ())
 #define TRACKER_KMAIL_PUSH_REGISTRAR(module) (G_TYPE_CHECK_INSTANCE_CAST ((module), TRACKER_TYPE_KMAIL_PUSH_REGISTRAR, TrackerKMailPushRegistrar))
 
-#define RDF_PREFIX	TRACKER_RDF_PREFIX
-#define NMO_PREFIX	TRACKER_NMO_PREFIX
-#define NCO_PREFIX	TRACKER_NCO_PREFIX
-#define NAO_PREFIX	TRACKER_NAO_PREFIX
+#define RDF_PREFIX      TRACKER_RDF_PREFIX
+#define NMO_PREFIX      TRACKER_NMO_PREFIX
+#define NCO_PREFIX      TRACKER_NCO_PREFIX
+#define NAO_PREFIX      TRACKER_NAO_PREFIX
 
-#define NIE_DATASOURCE 			       TRACKER_NIE_PREFIX "DataSource"
-#define NIE_DATASOURCE_P 		       TRACKER_NIE_PREFIX "dataSource"
+#define NIE_DATASOURCE                                 TRACKER_NIE_PREFIX "DataSource"
+#define NIE_DATASOURCE_P                       TRACKER_NIE_PREFIX "dataSource"
 
-#define DATASOURCE_URN			       "urn:nepomuk:datasource:4a157cf0-1241-11de-8c30-0800200c9a66"
+#define DATASOURCE_URN                         "urn:nepomuk:datasource:4a157cf0-1241-11de-8c30-0800200c9a66"
 
 typedef struct TrackerKMailPushRegistrar TrackerKMailPushRegistrar;
 typedef struct TrackerKMailPushRegistrarClass TrackerKMailPushRegistrarClass;
@@ -88,9 +88,9 @@ tracker_kmail_registrar_finalize (GObject *object)
 
 static void
 tracker_kmail_registrar_set_property (GObject      *object,
-				      guint         prop_id,
-				      const GValue *value,
-				      GParamSpec   *pspec)
+                                      guint         prop_id,
+                                      const GValue *value,
+                                      GParamSpec   *pspec)
 {
 	switch (prop_id) {
 	default:
@@ -100,9 +100,9 @@ tracker_kmail_registrar_set_property (GObject      *object,
 
 static void
 tracker_kmail_registrar_get_property (GObject    *object,
-					  guint       prop_id,
-					  GValue     *value,
-					  GParamSpec *pspec)
+                                      guint       prop_id,
+                                      GValue     *value,
+                                      GParamSpec *pspec)
 {
 	switch (prop_id) {
 	default:
@@ -155,10 +155,10 @@ get_email_and_fullname (const gchar *line, gchar **email, gchar **fullname)
 }
 
 static void
-perform_set (TrackerKMailRegistrar *object, 
-	     const gchar *subject, 
-	     const GStrv predicates, 
-	     const GStrv values)
+perform_set (TrackerKMailRegistrar *object,
+             const gchar *subject,
+             const GStrv predicates,
+             const GStrv values)
 {
 	guint i = 0;
 	TrackerSparqlBuilder *sparql;
@@ -203,7 +203,7 @@ perform_set (TrackerKMailRegistrar *object,
 		 *
 		 * I don't have predicates in Tracker's ontology for these. In
 		 * Jürg's vstore branch we are working with Nepomuk as ontology-
-		 * set. Perhaps when we merge this to that branch that we can 
+		 * set. Perhaps when we merge this to that branch that we can
 		 * improve this situation. */
 
 		if (g_strcmp0 (predicates[i], TRACKER_KMAIL_PREDICATE_TAG) == 0) {
@@ -237,7 +237,7 @@ perform_set (TrackerKMailRegistrar *object,
 
 			get_email_and_fullname (values[i], &email, &fullname);
 
-			email_uri = tracker_uri_printf_escaped ("mailto:%s", email); 
+			email_uri = tracker_uri_printf_escaped ("mailto:%s", email);
 
 			tracker_sparql_builder_subject_iri (sparql, email_uri);
 			tracker_sparql_builder_predicate (sparql, "rdf:type");
@@ -276,7 +276,7 @@ perform_set (TrackerKMailRegistrar *object,
 
 			get_email_and_fullname (values[i], &email, &fullname);
 
-			email_uri = tracker_uri_printf_escaped ("mailto:%s", email); 
+			email_uri = tracker_uri_printf_escaped ("mailto:%s", email);
 
 			tracker_sparql_builder_subject_iri (sparql, email_uri);
 			tracker_sparql_builder_predicate (sparql, "rdf:type");
@@ -314,7 +314,7 @@ perform_set (TrackerKMailRegistrar *object,
 
 			get_email_and_fullname (values[i], &email, &fullname);
 
-			email_uri = tracker_uri_printf_escaped ("mailto:%s", email); 
+			email_uri = tracker_uri_printf_escaped ("mailto:%s", email);
 
 			tracker_sparql_builder_subject_iri (sparql, email_uri);
 			tracker_sparql_builder_predicate (sparql, "rdf:type");
@@ -359,11 +359,11 @@ perform_set (TrackerKMailRegistrar *object,
 	g_object_unref (sparql);
 }
 
-static void 
-perform_unset (TrackerKMailRegistrar *object, 
-	       const gchar *subject)
+static void
+perform_unset (TrackerKMailRegistrar *object,
+               const gchar *subject)
 {
-	gchar *sparql = g_strdup_printf ("DELETE FROM <%s> { <%s> a rdfs:Resource }", 
+	gchar *sparql = g_strdup_printf ("DELETE FROM <%s> { <%s> a rdfs:Resource }",
 	                                 subject, subject);
 
 	tracker_store_queue_sparql_update (sparql, NULL, NULL, NULL, NULL);
@@ -392,33 +392,33 @@ on_commit (gpointer user_data)
 }
 
 void
-tracker_kmail_registrar_set (TrackerKMailRegistrar *object, 
-				 const gchar *subject, 
-				 const GStrv predicates,
-				 const GStrv values,
-				 const guint modseq,
-				 DBusGMethodInvocation *context,
-				 GError *derror)
+tracker_kmail_registrar_set (TrackerKMailRegistrar *object,
+                             const gchar *subject,
+                             const GStrv predicates,
+                             const GStrv values,
+                             const guint modseq,
+                             DBusGMethodInvocation *context,
+                             GError *derror)
 {
 	guint request_id;
 
 	request_id = tracker_dbus_get_next_request_id ();
 
 	tracker_dbus_request_new (request_id,
-				  "D-Bus request to set one: 'KMail' ");
+	                          "D-Bus request to set one: 'KMail' ");
 
 	dbus_async_return_if_fail (subject != NULL, context);
 
 	if (predicates && values) {
 
-		dbus_async_return_if_fail (g_strv_length (predicates) == 
-					   g_strv_length (values), context);
+		dbus_async_return_if_fail (g_strv_length (predicates) ==
+		                           g_strv_length (values), context);
 
 		perform_set (object, subject, predicates, values);
 	}
 
 	tracker_store_queue_commit (on_commit, NULL,
-	                            GUINT_TO_POINTER (modseq), 
+	                            GUINT_TO_POINTER (modseq),
 	                            NULL);
 
 	dbus_g_method_return (context);
@@ -427,13 +427,13 @@ tracker_kmail_registrar_set (TrackerKMailRegistrar *object,
 }
 
 void
-tracker_kmail_registrar_set_many (TrackerKMailRegistrar *object, 
-				  const GStrv subjects, 
-				  const GPtrArray *predicates,
-				  const GPtrArray *values,
-				  const guint modseq,
-				  DBusGMethodInvocation *context,
-				  GError *derror)
+tracker_kmail_registrar_set_many (TrackerKMailRegistrar *object,
+                                  const GStrv subjects,
+                                  const GPtrArray *predicates,
+                                  const GPtrArray *values,
+                                  const guint modseq,
+                                  DBusGMethodInvocation *context,
+                                  GError *derror)
 {
 	guint request_id;
 	guint len, i = 0;
@@ -450,8 +450,8 @@ tracker_kmail_registrar_set_many (TrackerKMailRegistrar *object,
 	dbus_async_return_if_fail (len == values->len, context);
 
 	tracker_dbus_request_new (request_id,
-				  "D-Bus request to set many: 'KMail' "
-				  "'%d'", len);
+	                          "D-Bus request to set many: 'KMail' "
+	                          "'%d'", len);
 
 	while (subjects[i] != NULL) {
 		perform_set (object,
@@ -462,7 +462,7 @@ tracker_kmail_registrar_set_many (TrackerKMailRegistrar *object,
 	}
 
 	tracker_store_queue_commit (on_commit, NULL,
-	                            GUINT_TO_POINTER (modseq), 
+	                            GUINT_TO_POINTER (modseq),
 	                            NULL);
 
 	dbus_g_method_return (context);
@@ -472,11 +472,11 @@ tracker_kmail_registrar_set_many (TrackerKMailRegistrar *object,
 
 
 void
-tracker_kmail_registrar_unset_many (TrackerKMailRegistrar *object, 
-				    const GStrv subjects, 
-				    const guint modseq,
-				    DBusGMethodInvocation *context,
-				    GError *derror)
+tracker_kmail_registrar_unset_many (TrackerKMailRegistrar *object,
+                                    const GStrv subjects,
+                                    const guint modseq,
+                                    DBusGMethodInvocation *context,
+                                    GError *derror)
 {
 	guint i = 0;
 	guint request_id;
@@ -484,8 +484,8 @@ tracker_kmail_registrar_unset_many (TrackerKMailRegistrar *object,
 	request_id = tracker_dbus_get_next_request_id ();
 
 	tracker_dbus_request_new (request_id,
-				  "D-Bus request to unset many: 'KMail' "
-				  "'%d'", g_strv_length (subjects));
+	                          "D-Bus request to unset many: 'KMail' "
+	                          "'%d'", g_strv_length (subjects));
 
 	dbus_async_return_if_fail (subjects != NULL, context);
 
@@ -502,18 +502,18 @@ tracker_kmail_registrar_unset_many (TrackerKMailRegistrar *object,
 }
 
 void
-tracker_kmail_registrar_unset (TrackerKMailRegistrar *object, 
-			       const gchar *subject, 
-			       const guint modseq,
-			       DBusGMethodInvocation *context,
-			       GError *derror)
+tracker_kmail_registrar_unset (TrackerKMailRegistrar *object,
+                               const gchar *subject,
+                               const guint modseq,
+                               DBusGMethodInvocation *context,
+                               GError *derror)
 {
 	guint request_id;
 
 	request_id = tracker_dbus_get_next_request_id ();
 
 	tracker_dbus_request_new (request_id,
-				  "D-Bus request to unset one: 'KMail'");
+	                          "D-Bus request to unset one: 'KMail'");
 
 	dbus_async_return_if_fail (subject != NULL, context);
 
@@ -527,22 +527,22 @@ tracker_kmail_registrar_unset (TrackerKMailRegistrar *object,
 }
 
 void
-tracker_kmail_registrar_cleanup (TrackerKMailRegistrar *object, 
-				 const guint modseq,
-				 DBusGMethodInvocation *context,
-				 GError *derror)
+tracker_kmail_registrar_cleanup (TrackerKMailRegistrar *object,
+                                 const guint modseq,
+                                 DBusGMethodInvocation *context,
+                                 GError *derror)
 {
 	guint request_id;
 
 	request_id = tracker_dbus_get_next_request_id ();
 
 	tracker_dbus_request_new (request_id,
-				  "D-Bus request to cleanup: 'KMail'");
+	                          "D-Bus request to cleanup: 'KMail'");
 
 	perform_cleanup (object);
 
 	tracker_store_queue_commit (on_commit, NULL,
-	                            GUINT_TO_POINTER (modseq), 
+	                            GUINT_TO_POINTER (modseq),
 	                            NULL);
 
 	dbus_g_method_return (context);
@@ -558,10 +558,10 @@ on_manager_destroy (DBusGProxy *proxy, gpointer user_data)
 }
 
 static void
-tracker_kmail_push_registrar_enable (TrackerPushRegistrar *registrar, 
-				     DBusGConnection      *connection,
-				     DBusGProxy           *dbus_proxy, 
-				     GError              **error)
+tracker_kmail_push_registrar_enable (TrackerPushRegistrar *registrar,
+                                     DBusGConnection      *connection,
+                                     DBusGProxy           *dbus_proxy,
+                                     GError              **error)
 {
 	GError *nerror = NULL;
 	guint result;
@@ -572,18 +572,18 @@ tracker_kmail_push_registrar_enable (TrackerPushRegistrar *registrar,
 	tracker_push_registrar_set_manager (registrar, NULL);
 
 	manager_proxy = dbus_g_proxy_new_for_name (connection,
-						   TRACKER_KMAIL_MANAGER_SERVICE,
-						   TRACKER_KMAIL_MANAGER_PATH,
-						   TRACKER_KMAIL_MANAGER_INTERFACE);
+	                                           TRACKER_KMAIL_MANAGER_SERVICE,
+	                                           TRACKER_KMAIL_MANAGER_PATH,
+	                                           TRACKER_KMAIL_MANAGER_INTERFACE);
 
 	/* Creation of the registrar */
-	if (!org_freedesktop_DBus_request_name (dbus_proxy, 
-						TRACKER_KMAIL_REGISTRAR_SERVICE,
-						DBUS_NAME_FLAG_DO_NOT_QUEUE,
-						&result, &nerror)) {
+	if (!org_freedesktop_DBus_request_name (dbus_proxy,
+	                                        TRACKER_KMAIL_REGISTRAR_SERVICE,
+	                                        DBUS_NAME_FLAG_DO_NOT_QUEUE,
+	                                        &result, &nerror)) {
 
-		g_critical ("Could not setup D-Bus, %s in use\n", 
-			    TRACKER_KMAIL_REGISTRAR_SERVICE);
+		g_critical ("Could not setup D-Bus, %s in use\n",
+		            TRACKER_KMAIL_REGISTRAR_SERVICE);
 
 		if (nerror) {
 			g_propagate_error (error, nerror);
@@ -596,28 +596,28 @@ tracker_kmail_push_registrar_enable (TrackerPushRegistrar *registrar,
 		return;
 	}
 
-	object = g_object_new (TRACKER_TYPE_KMAIL_REGISTRAR, 
-			       "connection", connection, NULL);
+	object = g_object_new (TRACKER_TYPE_KMAIL_REGISTRAR,
+	                       "connection", connection, NULL);
 
-	dbus_g_object_type_install_info (G_OBJECT_TYPE (object), 
-					 &dbus_glib_tracker_kmail_registrar_object_info);
+	dbus_g_object_type_install_info (G_OBJECT_TYPE (object),
+	                                 &dbus_glib_tracker_kmail_registrar_object_info);
 
-	dbus_g_connection_register_g_object (connection, 
-					     TRACKER_KMAIL_REGISTRAR_PATH, 
-					     object);
+	dbus_g_connection_register_g_object (connection,
+	                                     TRACKER_KMAIL_REGISTRAR_PATH,
+	                                     object);
 
 	/* Registration of the registrar to the manager - the cast is fine and checked */
 	dbus_g_proxy_call_no_reply (manager_proxy, "Register",
-				    G_TYPE_OBJECT, object, 
-				    G_TYPE_UINT, (guint) tracker_data_manager_get_db_option_int64 ("KMailLastModseq"),
-				    G_TYPE_INVALID,
-				    G_TYPE_INVALID);
+	                            G_TYPE_OBJECT, object,
+	                            G_TYPE_UINT, (guint) tracker_data_manager_get_db_option_int64 ("KMailLastModseq"),
+	                            G_TYPE_INVALID,
+	                            G_TYPE_INVALID);
 
 	/* If while we had a proxy for the manager the manager shut itself down,
 	 * then we'll get rid of our registrar too, in on_manager_destroy */
 
 	g_signal_connect (manager_proxy, "destroy",
-			  G_CALLBACK (on_manager_destroy), registrar);
+	                  G_CALLBACK (on_manager_destroy), registrar);
 
 	tracker_push_registrar_set_object (registrar, object);
 	tracker_push_registrar_set_manager (registrar, manager_proxy);
@@ -660,7 +660,7 @@ tracker_push_module_init (void)
 	object = g_object_new (TRACKER_TYPE_KMAIL_PUSH_REGISTRAR, NULL);
 
 	tracker_push_registrar_set_service (TRACKER_PUSH_REGISTRAR (object),
-					    TRACKER_KMAIL_MANAGER_SERVICE);
+	                                    TRACKER_KMAIL_MANAGER_SERVICE);
 
 	return TRACKER_PUSH_REGISTRAR (object);
 }

@@ -63,7 +63,7 @@ def generatePhoneNumber():
 def generatePhoneCalls (many):
     for i in range (0, many):
         callUID = str(random.randint(0, sys.maxint))
-    
+
         duration = random.randint (0, 50)
         relationType = random.randint (0,100) % 2
         if (relationType == 0):
@@ -95,9 +95,9 @@ def generateSMS (many):
             #Received SMS
             sys.stdout.write('\tnmo:from [a nco:Contact; nco:hasPhoneNumber <' + phoneUri + '>];\n')
             sys.stdout.write('\tnmo:to [a nco:Contact; nco:hasPhoneNumber <' + myOwnPhoneNumberURI + '>];\n')
-            
+
         sys.stdout.write('\tnmo:sentDate "' + getPseudoRandomDate () + '";\n')
-        sys.stdout.write('\tnmo:receivedDate "' + getPseudoRandomDate () + '";\n') 
+        sys.stdout.write('\tnmo:receivedDate "' + getPseudoRandomDate () + '";\n')
         if (random.randint(0, 4) > 3):
             sys.stdout.write ('\tnao:hasTag [a nao:Tag ; nao:prefLabel ' +  getRandomTag () +'];\n')
         sys.stdout.write('\tnmo:plainTextMessageContent "' + str.replace(gen_data.create_paragraphs(1, 5, 8), "\n", "") + '".\n')
@@ -136,7 +136,7 @@ def generateEmail(sys, gen_data, str, random):
         ccid = random.randint(0, len(previousContacts) - 1)
         sys.stdout.write('\tnmo:cc <urn:uuid:' + previousContacts[ccid] + '>;\n')
         sys.stdout.write('\tnmo:messageHeader [a nmo:MessageHeader; nmo:headerName "cc"; nmo:headerValue "' + previousEmailAddresses[ccid] + '"];\n')
-    
+
     if random.randint(0, 10) > 7 and len(previousContacts) > 1:
         bccid = random.randint(0, len(previousContacts) - 1)
         sys.stdout.write('\tnmo:bcc <urn:uuid:' + previousContacts[bccid] + '>;\n')
@@ -144,7 +144,7 @@ def generateEmail(sys, gen_data, str, random):
     #TODO add some sense to the email titles. Some reply chains as well.
     if (random.randint(0, 4) > 3):
         sys.stdout.write ('\tnao:hasTag [a nao:Tag ; nao:prefLabel ' +  getRandomTag () +'];\n')
-    
+
     sys.stdout.write('\tnmo:messageSubject "' + str.replace(gen_data.create_paragraphs(1, 2, 2), "\n", "") + '";\n')
     sys.stdout.write('\tnmo:plainTextMessageContent "' + str.replace(gen_data.create_paragraphs(1, 2, 3), "\n", "") + '".\n')
 
@@ -173,7 +173,7 @@ sys.stdout.write("@prefix nid3:   <http://www.semanticdesktop.org/ontologies/200
 sys.stdout.write("@prefix nao:   <http://www.semanticdesktop.org/ontologies/2007/08/15/nao#>.\n")
 sys.stdout.write("@prefix nco:   <http://www.semanticdesktop.org/ontologies/2007/03/22/nco#>.\n")
 sys.stdout.write("@prefix nmo:   <http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#>.\n")
-sys.stdout.write("@prefix nfo:   <http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#>.\n")    
+sys.stdout.write("@prefix nfo:   <http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#>.\n")
 sys.stdout.write("@prefix nie:   <http://www.semanticdesktop.org/ontologies/2007/01/19/nie#>.\n")
 sys.stdout.write("@prefix ncal:   <http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#>.\n")
 
@@ -181,7 +181,7 @@ sys.stdout.write("@prefix xsd:   <http://www.w3.org/2001/XMLSchema#>.\n")
 sys.stdout.write('<mailto:me@me.com> a nco:EmailAddress; \n')
 sys.stdout.write('\tnco:emailAddress "me@me.com".\n')
 sys.stdout.write('\n')
-sys.stdout.write('<urn:uuid:1> a nco:PersonContact; \n')    
+sys.stdout.write('<urn:uuid:1> a nco:PersonContact; \n')
 sys.stdout.write('\tnco:fullname "Me Myself";\n')
 sys.stdout.write('\tnco:nameGiven "Me";\n')
 sys.stdout.write('\tnco:nameFamily "Myself";\n')
@@ -204,7 +204,7 @@ for dummy in range (0, count):
     firstName, lastName = gen_data.create_name()
     zip, city, state = gen_data.create_city_state_zip()
     postalAddressID=str(random.randint(0, sys.maxint))
-    
+
     UID = str(random.randint(0, sys.maxint))
     phoneNumber = gen_data.create_phone()
     phoneUri = 'tel:+1' + phoneNumber.translate(allchars,' -()')
@@ -216,11 +216,11 @@ for dummy in range (0, count):
     hasPhoneNumber = False
     jobTitle = gen_data.create_job_title()
 
-    generatePostalAddress()    
-    generateEmailAddress()    
-        
+    generatePostalAddress()
+    generateEmailAddress()
+
     #Only every 3rd have Phone or IM to add variation.
-    if random.randint(0, 3) > 2 or count == 1: 
+    if random.randint(0, 3) > 2 or count == 1:
         generateIMAccount(gen_data, str)
         hasIMAccount = True
     if random.randint(0, 3) > 2 or count == 1:
@@ -229,8 +229,8 @@ for dummy in range (0, count):
 
         if (withPhone): generatePhoneCalls(3)
         if (withPhone): generateSMS (4)
-        
-    sys.stdout.write('<urn:uuid:' + UID + '> a nco:PersonContact; \n')    
+
+    sys.stdout.write('<urn:uuid:' + UID + '> a nco:PersonContact; \n')
     sys.stdout.write('\tnco:fullname "' + firstName +  ' ' + lastName +'";\n')
     sys.stdout.write('\tnco:nameGiven "' + firstName + '";\n')
     sys.stdout.write('\tnco:nameFamily "' + lastName + '";\n')
@@ -238,26 +238,26 @@ for dummy in range (0, count):
     #sys.stdout.write('\tnco:title "'+jobTitle+'";\n')
     sys.stdout.write('\tnco:hasEmailAddress <mailto:' + emailAddress + '>;\n')
     if hasPhoneNumber: sys.stdout.write('\tnco:hasPhoneNumber <' + phoneUri + '>;\n')
-    if hasIMAccount: sys.stdout.write('\tnco:hasIMAccount <xmpp:' + xmppAddress + '>;\n')    	 
+    if hasIMAccount: sys.stdout.write('\tnco:hasIMAccount <xmpp:' + xmppAddress + '>;\n')
     if (random.randint(0, 4) > 3):
         sys.stdout.write ('\tnao:hasTag [a nao:Tag ; nao:prefLabel ' + getRandomTag () + '];\n')
     sys.stdout.write('\tnco:hasPostalAddress <urn:uuid:' + postalAddressID + '>.\n')
     sys.stdout.write('\n')
-        
+
     #calendarEntryID=str(random.randint(0, sys.maxint))
     #if random.randint(0, 3)>2 and count>2 and len(previousContacts):
     #    generateCalendarEntry(gen_data, str, random)
-    
-    #20% Send emails. Those who do, send 1-30 emails. EMails have CC and BCC people     
+
+    #20% Send emails. Those who do, send 1-30 emails. EMails have CC and BCC people
     if random.randint(0, 10)>8 or count==1:
-        emailcount=random.randint(1, 30)        
+        emailcount=random.randint(1, 30)
         for dummy in range (0, emailcount):
             generateEmail(sys, gen_data, str, random)
             sys.stdout.write('\n')
     previousContacts.append(UID)
     previousEmailAddresses.append(emailAddress)
-    
-    #TODO INSERT IM - Use just a nmo:Message for that for now. 
-    
+
+    #TODO INSERT IM - Use just a nmo:Message for that for now.
+
     #TODO: Insert bookmarks
 

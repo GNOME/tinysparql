@@ -24,20 +24,20 @@
 
 #include <glib-object.h>
 
-#define TRACKER_RESOURCES_SERVICE	 "org.freedesktop.Tracker1"
-#define TRACKER_RESOURCES_PATH		 "/org/freedesktop/Tracker1/Resources"
-#define TRACKER_RESOURCES_INTERFACE	 "org.freedesktop.Tracker1.Resources"
+#define TRACKER_RESOURCES_SERVICE        "org.freedesktop.Tracker1"
+#define TRACKER_RESOURCES_PATH           "/org/freedesktop/Tracker1/Resources"
+#define TRACKER_RESOURCES_INTERFACE      "org.freedesktop.Tracker1.Resources"
 
 G_BEGIN_DECLS
 
-#define TRACKER_TYPE_RESOURCES		 (tracker_resources_get_type ())
-#define TRACKER_RESOURCES(object)	 (G_TYPE_CHECK_INSTANCE_CAST ((object), TRACKER_TYPE_RESOURCES, TrackerResources))
-#define TRACKER_RESOURCES_CLASS(klass)	 (G_TYPE_CHECK_CLASS_CAST ((klass), TRACKER_TYPE_RESOURCES, TrackerResourcesClass))
-#define TRACKER_IS_RESOURCES(object)	 (G_TYPE_CHECK_INSTANCE_TYPE ((object), TRACKER_TYPE_RESOURCES))
+#define TRACKER_TYPE_RESOURCES           (tracker_resources_get_type ())
+#define TRACKER_RESOURCES(object)        (G_TYPE_CHECK_INSTANCE_CAST ((object), TRACKER_TYPE_RESOURCES, TrackerResources))
+#define TRACKER_RESOURCES_CLASS(klass)   (G_TYPE_CHECK_CLASS_CAST ((klass), TRACKER_TYPE_RESOURCES, TrackerResourcesClass))
+#define TRACKER_IS_RESOURCES(object)     (G_TYPE_CHECK_INSTANCE_TYPE ((object), TRACKER_TYPE_RESOURCES))
 #define TRACKER_IS_RESOURCES_CLASS(klass)(G_TYPE_CHECK_CLASS_TYPE ((klass), TRACKER_TYPE_RESOURCES))
 #define TRACKER_RESOURCES_GET_CLASS(obj) (G_TYPE_INSTANCE_GET_CLASS ((obj), TRACKER_TYPE_RESOURCES, TrackerResourcesClass))
 
-typedef struct TrackerResources	TrackerResources;
+typedef struct TrackerResources         TrackerResources;
 typedef struct TrackerResourcesClass TrackerResourcesClass;
 
 struct TrackerResources {
@@ -54,34 +54,34 @@ struct TrackerResourcesClass {
 GType             tracker_resources_get_type            (void);
 TrackerResources *tracker_resources_new                 (void);
 void              tracker_resources_prepare             (TrackerResources       *object,
-							 GSList                 *event_sources);
+                                                         GSList                 *event_sources);
 void              tracker_resources_unreg_batches       (TrackerResources       *object,
-							 const gchar            *old_owner);
+                                                         const gchar            *old_owner);
 
 /* DBus methods */
 void              tracker_resources_load                (TrackerResources       *object,
-							 const gchar            *uri,
-							 DBusGMethodInvocation  *context,
-							 GError                **error);
+                                                         const gchar            *uri,
+                                                         DBusGMethodInvocation  *context,
+                                                         GError                **error);
 void              tracker_resources_sparql_query        (TrackerResources       *object,
-							 const gchar            *query,
-							 DBusGMethodInvocation  *context,
-							 GError                **error);
+                                                         const gchar            *query,
+                                                         DBusGMethodInvocation  *context,
+                                                         GError                **error);
 void              tracker_resources_sparql_update       (TrackerResources       *object,
-							 const gchar            *update,
-							 DBusGMethodInvocation  *context,
-							 GError                **error);
+                                                         const gchar            *update,
+                                                         DBusGMethodInvocation  *context,
+                                                         GError                **error);
 void              tracker_resources_sparql_update_blank (TrackerResources       *object,
-							 const gchar            *update,
-							 DBusGMethodInvocation  *context,
-							 GError                **error);
+                                                         const gchar            *update,
+                                                         DBusGMethodInvocation  *context,
+                                                         GError                **error);
 void              tracker_resources_batch_sparql_update (TrackerResources       *object,
-							 const gchar            *update,
-							 DBusGMethodInvocation  *context,
-							 GError                **error);
+                                                         const gchar            *update,
+                                                         DBusGMethodInvocation  *context,
+                                                         GError                **error);
 void              tracker_resources_batch_commit        (TrackerResources       *object,
-							 DBusGMethodInvocation  *context,
-							 GError                **error);
+                                                         DBusGMethodInvocation  *context,
+                                                         GError                **error);
 
 G_END_DECLS
 

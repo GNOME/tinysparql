@@ -19,7 +19,7 @@ mfo:FeedElement a rdfs:Class;
 
 mfo:FeedChannel a rdfs:Class ;
 	tracker:notify true ;
-	rdfs:label "Feed channel" ;  
+	rdfs:label "Feed channel" ;
 	rdfs:comment "Represents feed channel transfer, typically a download of RSS or ATOM. It is also a communication channel of Nepomuk Messaging Ontology so that feed sources could be treated as message sources" ;
 	rdfs:subClassOf nmo:CommunicationChannel, mfo:FeedElement .
 
@@ -79,11 +79,11 @@ mfo:downloadedTime a rdf:Property ;
     rdfs:domain mfo:FeedMessage ;
     rdfs:range xsd:dateTime .
 
-mfo:enclosureList a rdf:Property ; 
+mfo:enclosureList a rdf:Property ;
     rdfs:label "Enclosure List" ;
     rdfs:comment "A list of enclosures" ;
     rdfs:domain mfo:FeedMessage ;
-    rdfs:range mfo:Enclosure . 
+    rdfs:range mfo:Enclosure .
 
 # String? Resource? RemoteDataObject?
 mfo:remoteLink a rdf:Property ;
@@ -101,9 +101,9 @@ mfo:localLink a rdf:Property ;
 	nrl:maxCardinality 1 .
 
 mfo:optional a rdf:Property ;
-	rdfs:label "Optional";	
+	rdfs:label "Optional";
 	rdfs:comment "The enclosure is mandatory to download or only optional" ;
-	rdfs:domain mfo:Enclosure; 
+	rdfs:domain mfo:Enclosure;
 	rdfs:range xsd:boolean ;
 	nrl:maxCardinality 1 .
 

@@ -45,25 +45,25 @@ typedef enum {
 } ExtractMime;
 
 typedef struct {
-	GstElement	*playbin;
+	GstElement      *playbin;
 
-	GstTagList	*tagcache;
-	GstTagList	*audiotags;
-	GstTagList	*videotags;
+	GstTagList      *tagcache;
+	GstTagList      *audiotags;
+	GstTagList      *videotags;
 
-	GstMessageType	ignore_messages_mask;
+	GstMessageType  ignore_messages_mask;
 
-	gboolean	has_audio;
-	gboolean	has_video;
+	gboolean        has_audio;
+	gboolean        has_video;
 
-	ExtractMime	mime;
+	ExtractMime     mime;
 
-	gint		video_height;
-	gint		video_width;
-	gint		video_fps_n;
-	gint		video_fps_d;
-	gint		audio_channels;
-	gint		audio_samplerate;
+	gint            video_height;
+	gint            video_width;
+	gint            video_fps_n;
+	gint            video_fps_d;
+	gint            audio_channels;
+	gint            audio_samplerate;
 
 	unsigned char  *album_art_data;
 	guint           album_art_size;
@@ -84,13 +84,13 @@ static TrackerExtractData data[] = {
 };
 
 static void
-caps_set (GObject	    *object,
-	  MetadataExtractor *extractor,
-	  const gchar	    *type)
+caps_set (GObject           *object,
+          MetadataExtractor *extractor,
+          const gchar       *type)
 {
-	GstPad	     *pad;
+	GstPad       *pad;
 	GstStructure *s;
-	GstCaps	     *caps;
+	GstCaps              *caps;
 
 	pad = GST_PAD (object);
 
@@ -127,8 +127,8 @@ caps_set (GObject	    *object,
 }
 
 static void
-caps_set_audio (GObject		  *object,
-		MetadataExtractor *extractor)
+caps_set_audio (GObject                   *object,
+                MetadataExtractor *extractor)
 {
 	g_return_if_fail (object);
 	g_return_if_fail (extractor);
@@ -137,8 +137,8 @@ caps_set_audio (GObject		  *object,
 }
 
 static void
-caps_set_video (GObject		  *object,
-		MetadataExtractor *extractor)
+caps_set_video (GObject                   *object,
+                MetadataExtractor *extractor)
 {
 	g_return_if_fail (object);
 	g_return_if_fail (extractor);
@@ -162,8 +162,8 @@ update_stream_info (MetadataExtractor *extractor)
 	g_list_foreach (streaminfo, (GFunc) g_object_ref, NULL);
 
 	for ( ; streaminfo; streaminfo = streaminfo->next) {
-		GObject	   *info;
-		gint	    type;
+		GObject            *info;
+		gint        type;
 		GParamSpec *pspec;
 		GEnumValue *val;
 
@@ -215,9 +215,9 @@ update_stream_info (MetadataExtractor *extractor)
 }
 
 static void
-gst_bus_cb (GstBus	      *bus,
-	    GstMessage	      *message,
-	    MetadataExtractor *extractor)
+gst_bus_cb (GstBus            *bus,
+            GstMessage        *message,
+            MetadataExtractor *extractor)
 {
 	GstMessageType msg_type;
 
@@ -235,7 +235,7 @@ gst_bus_cb (GstBus	      *bus,
 
 		src_name = gst_object_get_name (message->src);
 		GST_LOG ("Ignoring %s message from element %s as requested",
-			 gst_message_type_get_name (msg_type), src_name);
+		         gst_message_type_get_name (msg_type), src_name);
 		g_free (src_name);
 
 		return;
@@ -244,8 +244,8 @@ gst_bus_cb (GstBus	      *bus,
 	switch (msg_type) {
 	case GST_MESSAGE_ERROR: {
 		GstMessage *message  = NULL;
-		GError	   *gsterror = NULL;
-		gchar	   *debug    = NULL;
+		GError     *gsterror = NULL;
+		gchar      *debug    = NULL;
 
 		gst_message_parse_error (message, &gsterror, &debug);
 		g_warning ("Error: %s (%s)", gsterror->message, debug);
@@ -262,9 +262,9 @@ gst_bus_cb (GstBus	      *bus,
 		old_state = new_state = GST_STATE_NULL;
 
 		gst_message_parse_state_changed (message,
-						 &old_state,
-						 &new_state,
-						 NULL);
+		                                 &old_state,
+		                                 &new_state,
+		                                 NULL);
 
 		if (old_state == new_state) {
 			break;
@@ -306,7 +306,7 @@ gst_bus_cb (GstBus	      *bus,
 	}
 
 	case GST_MESSAGE_TAG: {
-		GstTagList	  *tag_list, *result;
+		GstTagList        *tag_list, *result;
 		GstElementFactory *f;
 
 		tag_list = NULL;
@@ -317,8 +317,8 @@ gst_bus_cb (GstBus	      *bus,
 
 		/* All tags */
 		result = gst_tag_list_merge (extractor->tagcache,
-					     tag_list,
-					     GST_TAG_MERGE_KEEP);
+		                             tag_list,
+		                             GST_TAG_MERGE_KEEP);
 
 		if (extractor->tagcache) {
 			gst_tag_list_free (extractor->tagcache);
@@ -343,8 +343,8 @@ gst_bus_cb (GstBus	      *bus,
 
 			if (cache) {
 				result = gst_tag_list_merge (*cache,
-							     tag_list,
-							     GST_TAG_MERGE_KEEP);
+				                             tag_list,
+				                             GST_TAG_MERGE_KEEP);
 				if (*cache) {
 					gst_tag_list_free (*cache);
 				}
@@ -366,30 +366,30 @@ gst_bus_cb (GstBus	      *bus,
 
 static void
 add_int64_info (TrackerSparqlBuilder *metadata,
-		const gchar *uri,
-		const gchar	   *key,
-		gint64	    info)
+                const gchar *uri,
+                const gchar        *key,
+                gint64      info)
 {
 	tracker_statement_list_insert_with_int64 (metadata, uri, key, info);
 }
 
 static void
 add_uint_info (TrackerSparqlBuilder *metadata,
-		const gchar *uri,
-	       gchar	  *key,
-	       guint	   info)
+               const gchar *uri,
+               gchar      *key,
+               guint       info)
 {
 	tracker_statement_list_insert_with_int (metadata, uri, key, info);
 }
 
 static void
-add_string_gst_tag (TrackerSparqlBuilder	*metadata,
-		const gchar *uri,
-		    const gchar *key,
-		    GstTagList	*tag_list,
-		    const gchar *tag)
+add_string_gst_tag (TrackerSparqlBuilder        *metadata,
+                    const gchar *uri,
+                    const gchar *key,
+                    GstTagList  *tag_list,
+                    const gchar *tag)
 {
-	gchar	 *s;
+	gchar    *s;
 	gboolean  ret;
 
 	s = NULL;
@@ -406,13 +406,13 @@ add_string_gst_tag (TrackerSparqlBuilder	*metadata,
 
 static void
 add_uint_gst_tag (TrackerSparqlBuilder  *metadata,
-		const gchar *uri,
-		  const gchar *key,
-		  GstTagList  *tag_list,
-		  const gchar *tag)
+                  const gchar *uri,
+                  const gchar *key,
+                  GstTagList  *tag_list,
+                  const gchar *tag)
 {
 	gboolean ret;
-	guint	 n;
+	guint    n;
 
 	ret = gst_tag_list_get_uint (tag_list, tag, &n);
 
@@ -422,14 +422,14 @@ add_uint_gst_tag (TrackerSparqlBuilder  *metadata,
 }
 
 static void
-add_double_gst_tag (TrackerSparqlBuilder	*metadata,
-		const gchar *uri,
-		    const gchar *key,
-		    GstTagList	*tag_list,
-		    const gchar *tag)
+add_double_gst_tag (TrackerSparqlBuilder        *metadata,
+                    const gchar *uri,
+                    const gchar *key,
+                    GstTagList  *tag_list,
+                    const gchar *tag)
 {
 	gboolean ret;
-	gdouble	 n;
+	gdouble          n;
 
 	ret = gst_tag_list_get_double (tag_list, tag, &n);
 
@@ -440,12 +440,12 @@ add_double_gst_tag (TrackerSparqlBuilder	*metadata,
 
 static void
 add_year_of_gdate_gst_tag (TrackerSparqlBuilder  *metadata,
-		const gchar *uri,
-			   const gchar *key,
-			   GstTagList  *tag_list,
-			   const gchar *tag)
+                           const gchar *uri,
+                           const gchar *key,
+                           GstTagList  *tag_list,
+                           const gchar *tag)
 {
-	GDate	 *date;
+	GDate    *date;
 	gboolean  ret;
 
 	date = NULL;
@@ -456,7 +456,7 @@ add_year_of_gdate_gst_tag (TrackerSparqlBuilder  *metadata,
 
 		if (g_date_strftime (buf, 10, "%Y", date)) {
 			tracker_statement_list_insert (metadata, uri,
-						  key, buf);
+			                               key, buf);
 		}
 	}
 
@@ -468,7 +468,7 @@ add_year_of_gdate_gst_tag (TrackerSparqlBuilder  *metadata,
 static gint64
 get_media_duration (MetadataExtractor *extractor)
 {
-	gint64	  duration;
+	gint64    duration;
 	GstFormat fmt;
 
 	g_return_val_if_fail (extractor, -1);
@@ -479,8 +479,8 @@ get_media_duration (MetadataExtractor *extractor)
 	duration = -1;
 
 	if (gst_element_query_duration (extractor->playbin,
-					&fmt,
-					&duration) &&
+	                                &fmt,
+	                                &duration) &&
 	    duration >= 0) {
 		return duration / GST_SECOND;
 	} else {
@@ -510,10 +510,10 @@ get_embedded_album_art(MetadataExtractor *extractor)
 			caps_struct = gst_caps_get_structure (buffer->caps, 0);
 
 			gst_structure_get_enum (caps_struct,
-						"image-type",
-						GST_TYPE_TAG_IMAGE_TYPE,
-						&type);
-			
+			                        "image-type",
+			                        GST_TYPE_TAG_IMAGE_TYPE,
+			                        &type);
+
 			if ((type == GST_TAG_IMAGE_TYPE_FRONT_COVER)||
 			    ((type == GST_TAG_IMAGE_TYPE_UNDEFINED)&&(extractor->album_art_size == 0))) {
 				extractor->album_art_data = buffer->data;
@@ -532,7 +532,7 @@ get_embedded_album_art(MetadataExtractor *extractor)
 static void
 extract_metadata (MetadataExtractor *extractor,
                   const gchar *uri,
-		  TrackerSparqlBuilder  *metadata,
+                  TrackerSparqlBuilder  *metadata,
                   gchar **artist,
                   gchar **album,
                   gchar **scount)
@@ -542,32 +542,32 @@ extract_metadata (MetadataExtractor *extractor,
 
 	if (extractor->audio_channels >= 0) {
 		add_uint_info (metadata, uri,
-			       ("Audio:Channels"),
-			       extractor->audio_channels);
+		               ("Audio:Channels"),
+		               extractor->audio_channels);
 	}
 
 	if (extractor->audio_samplerate >= 0) {
 		add_uint_info (metadata, uri,
-			       ("Audio:Samplerate"),
-			       extractor->audio_samplerate);
+		               ("Audio:Samplerate"),
+		               extractor->audio_samplerate);
 	}
 
 	if (extractor->video_height >= 0) {
 		add_uint_info (metadata, uri,
-			       ("Video:Height"),
-			       extractor->video_height);
+		               ("Video:Height"),
+		               extractor->video_height);
 	}
 
 	if (extractor->video_width >= 0) {
 		add_uint_info (metadata, uri,
-			       ("Video:Width"),
-			       extractor->video_height);
+		               ("Video:Width"),
+		               extractor->video_height);
 	}
 
 	if (extractor->video_fps_n >= 0 && extractor->video_fps_d >= 0) {
 		add_uint_info (metadata, uri,
-			       ("Video:FrameRate"),
-			       ((extractor->video_fps_n + extractor->video_fps_d / 2) / extractor->video_fps_d));
+		               ("Video:FrameRate"),
+		               ((extractor->video_fps_n + extractor->video_fps_d / 2) / extractor->video_fps_d));
 	}
 
 	if (extractor->tagcache) {
@@ -610,7 +610,7 @@ extract_metadata (MetadataExtractor *extractor,
 		duration = get_media_duration (extractor);
 
 		/* FIXME Use the has_video and has_audio rather than mime type once dsp problems are solved */
-/* 		if (extractor->has_video) { */
+		/*              if (extractor->has_video) { */
 		if (extractor->mime == EXTRACT_MIME_VIDEO) {
 			add_string_gst_tag (metadata, uri, "Video:Title", extractor->tagcache, GST_TAG_TITLE);
 			add_string_gst_tag (metadata, uri, "Video:Comments", extractor->tagcache, GST_TAG_COMMENT);
@@ -622,7 +622,7 @@ extract_metadata (MetadataExtractor *extractor,
 			if (duration >= 0) {
 				add_int64_info (metadata, uri, ("Video:Duration"), duration);
 			}
-/* 		} else if (extractor->has_audio) { */
+			/*              } else if (extractor->has_audio) { */
 		} else if (extractor->mime == EXTRACT_MIME_AUDIO) {
 			/* No video? So we assume we are treating a song */
 			add_string_gst_tag (metadata,uri,  "Audio:Title", extractor->tagcache, GST_TAG_TITLE);
@@ -653,10 +653,10 @@ extract_metadata (MetadataExtractor *extractor,
 
 static gboolean
 poll_for_state_change (MetadataExtractor *extractor,
-		       GstState		  state)
+                       GstState                   state)
 {
-	GstBus	       *bus;
-	GstMessageType	events, saved_events;
+	GstBus         *bus;
+	GstMessageType  events, saved_events;
 
 	g_return_val_if_fail (extractor, FALSE);
 	g_return_val_if_fail (extractor->playbin, FALSE);
@@ -709,7 +709,7 @@ poll_for_state_change (MetadataExtractor *extractor,
 		}
 
 		case GST_MESSAGE_ERROR: {
-			gchar  *debug	 = NULL;
+			gchar  *debug    = NULL;
 			GError *gsterror = NULL;
 
 			gst_message_parse_error (message, &gsterror, &debug);
@@ -744,34 +744,34 @@ poll_for_state_change (MetadataExtractor *extractor,
  success:
 	/* State change succeeded */
 	GST_DEBUG ("state change to %s succeeded",
-		   gst_element_state_get_name (state));
+	           gst_element_state_get_name (state));
 	extractor->ignore_messages_mask = saved_events;
 	return TRUE;
 
  timed_out:
 	/* It's taking a long time to open  */
 	GST_DEBUG ("state change to %s timed out, returning success",
-		   gst_element_state_get_name (state));
+	           gst_element_state_get_name (state));
 	extractor->ignore_messages_mask = saved_events;
 	return TRUE;
 
  error:
 	/* Already set *error */
 	GST_DEBUG ("error while waiting for state change to %s",
-		   gst_element_state_get_name (state));
+	           gst_element_state_get_name (state));
 	extractor->ignore_messages_mask = saved_events;
 	return FALSE;
 }
 
 static void
 tracker_extract_gstreamer_helix (const gchar *uri,
-				 TrackerSparqlBuilder  *metadata,
-				 ExtractMime	type)
+                                 TrackerSparqlBuilder  *metadata,
+                                 ExtractMime    type)
 {
 	MetadataExtractor *extractor;
-	GstElement	  *fakesink_video;
-	GstBus		  *bus;
-	gchar		  *artist, *album, *scount;
+	GstElement        *fakesink_video;
+	GstBus            *bus;
+	gchar             *artist, *album, *scount;
 
 	g_return_if_fail (uri);
 	g_return_if_fail (metadata);
@@ -826,11 +826,11 @@ tracker_extract_gstreamer_helix (const gchar *uri,
 	extract_metadata (extractor, uri, metadata, &artist, &album, &scount);
 
 	tracker_albumart_process (extractor->album_art_data,
-				  extractor->album_art_size,
-				  NULL,
-				  /* g_hash_table_lookup (metadata, "Audio:Artist") */ NULL,
-				  album,
-				  uri);
+	                          extractor->album_art_size,
+	                          NULL,
+	                          /* g_hash_table_lookup (metadata, "Audio:Artist") */ NULL,
+	                          album,
+	                          uri);
 
 	g_free (album);
 	g_free (artist);

@@ -73,7 +73,7 @@ def create_name(full_name=True, gender=None):
 
 def create_job_title():
     return random.choice(job_titles)
-    
+
 def create_phone(zip_code=None):
     if not zip_code:
         zip_code = random.choice(all_zips.keys())
@@ -99,7 +99,7 @@ def create_sentence(min=4, max=15):
     for word in range(1, random.randint(min, max-1)):
         sentence.append(random.choice(latin_words))
     return " ".join(sentence) + "."
-    
+
 def create_paragraphs(num=1, min_sentences=4, max_sentences=7):
     paragraphs = []
     for para in range(0, num):
@@ -122,9 +122,9 @@ def create_date(numeric=True, past=False, max_years_future=10, max_years_past=10
     else:
         start = datetime.datetime.today()
         num_days = max_years_future * 365
-        
+
     random_days = random.randint(1, num_days)
-    random_date = start + datetime.timedelta(days=random_days)    
+    random_date = start + datetime.timedelta(days=random_days)
     return(random_date)
 
 def create_birthday(age=random.randint (16, 80)):
@@ -143,7 +143,7 @@ def create_company_name(biz_type=None):
     if not biz_type:
         biz_type = random.choice(company_type)
     if biz_type == "LawFirm":
-        name.append( random.choice(last_names)+ ", " + random.choice(last_names) + " & " + 
+        name.append( random.choice(last_names)+ ", " + random.choice(last_names) + " & " +
                      random.choice(last_names))
         name.append('LLP')
     else:

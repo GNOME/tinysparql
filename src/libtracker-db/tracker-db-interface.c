@@ -52,11 +52,11 @@ static void
 tracker_db_interface_class_init (gpointer iface)
 {
 	g_object_interface_install_property (iface,
-					     g_param_spec_boolean ("in-transaction",
-								   "In transaction",
-								   "Whether the connection has a transaction opened",
-								   FALSE,
-								   G_PARAM_READWRITE));
+	                                     g_param_spec_boolean ("in-transaction",
+	                                                           "In transaction",
+	                                                           "Whether the connection has a transaction opened",
+	                                                           FALSE,
+	                                                           G_PARAM_READWRITE));
 }
 
 GType
@@ -66,10 +66,10 @@ tracker_db_interface_get_type (void)
 
 	if (G_UNLIKELY (type == 0)) {
 		type = g_type_register_static_simple (G_TYPE_INTERFACE,
-						      "TrackerDBInterface",
-						      sizeof (TrackerDBInterfaceIface),
-						      (GClassInitFunc) tracker_db_interface_class_init,
-						      0, NULL, 0);
+		                                      "TrackerDBInterface",
+		                                      sizeof (TrackerDBInterfaceIface),
+		                                      (GClassInitFunc) tracker_db_interface_class_init,
+		                                      0, NULL, 0);
 
 		g_type_interface_add_prerequisite (type, G_TYPE_OBJECT);
 	}
@@ -84,10 +84,10 @@ tracker_db_statement_get_type (void)
 
 	if (G_UNLIKELY (type == 0)) {
 		type = g_type_register_static_simple (G_TYPE_INTERFACE,
-						      "TrackerDBStatement",
-						      sizeof (TrackerDBStatementIface),
-						      NULL,
-						      0, NULL, 0);
+		                                      "TrackerDBStatement",
+		                                      sizeof (TrackerDBStatementIface),
+		                                      NULL,
+		                                      0, NULL, 0);
 
 		g_type_interface_add_prerequisite (type, G_TYPE_OBJECT);
 	}
@@ -102,10 +102,10 @@ tracker_db_cursor_get_type (void)
 
 	if (G_UNLIKELY (type == 0)) {
 		type = g_type_register_static_simple (G_TYPE_INTERFACE,
-						      "TrackerDBCursor",
-						      sizeof (TrackerDBCursorIface),
-						      NULL,
-						      0, NULL, 0);
+		                                      "TrackerDBCursor",
+		                                      sizeof (TrackerDBCursorIface),
+		                                      NULL,
+		                                      0, NULL, 0);
 
 		g_type_interface_add_prerequisite (type, G_TYPE_OBJECT);
 	}
@@ -143,8 +143,8 @@ tracker_db_blob_get_type (void)
 
 	if (G_UNLIKELY (type == 0)) {
 		type = g_boxed_type_register_static ("TrackerDBBlob",
-						     blob_copy,
-						     blob_free);
+		                                     blob_copy,
+		                                     blob_free);
 	}
 
 	return type;
@@ -152,10 +152,10 @@ tracker_db_blob_get_type (void)
 
 /* TrackerDBResultSet */
 static void
-tracker_db_result_set_set_property (GObject	  *object,
-				    guint	   prop_id,
-				    const GValue  *value,
-				    GParamSpec	  *pspec)
+tracker_db_result_set_set_property (GObject       *object,
+                                    guint          prop_id,
+                                    const GValue  *value,
+                                    GParamSpec    *pspec)
 {
 	TrackerDBResultSetPrivate *priv;
 
@@ -173,9 +173,9 @@ tracker_db_result_set_set_property (GObject	  *object,
 
 static void
 tracker_db_result_set_get_property (GObject    *object,
-				    guint	prop_id,
-				    GValue     *value,
-				    GParamSpec *pspec)
+                                    guint       prop_id,
+                                    GValue     *value,
+                                    GParamSpec *pspec)
 {
 	TrackerDBResultSetPrivate *priv;
 
@@ -192,7 +192,7 @@ tracker_db_result_set_get_property (GObject    *object,
 
 static void
 free_row (gpointer *row,
-	  gpointer  data)
+          gpointer  data)
 {
 	guint columns = GPOINTER_TO_UINT (data);
 	guint i;
@@ -216,7 +216,7 @@ tracker_db_result_set_finalize (GObject *object)
 
 	if (priv->array) {
 		g_ptr_array_foreach (priv->array, (GFunc) free_row,
-				     GUINT_TO_POINTER (priv->columns));
+		                     GUINT_TO_POINTER (priv->columns));
 		g_ptr_array_free (priv->array, TRUE);
 	}
 
@@ -235,17 +235,17 @@ tracker_db_result_set_class_init (TrackerDBResultSetClass *class)
 	object_class->finalize = tracker_db_result_set_finalize;
 
 	g_object_class_install_property (object_class,
-					 PROP_COLUMNS,
-					 g_param_spec_uint ("columns",
-							    "Columns",
-							    "Resultset columns",
-							    0, G_MAXUINT, 0,
-							    G_PARAM_READWRITE |
-							    G_PARAM_CONSTRUCT_ONLY));
+	                                 PROP_COLUMNS,
+	                                 g_param_spec_uint ("columns",
+	                                                    "Columns",
+	                                                    "Resultset columns",
+	                                                    0, G_MAXUINT, 0,
+	                                                    G_PARAM_READWRITE |
+	                                                    G_PARAM_CONSTRUCT_ONLY));
 
 
 	g_type_class_add_private (object_class,
-				  sizeof (TrackerDBResultSetPrivate));
+	                          sizeof (TrackerDBResultSetPrivate));
 }
 
 static void
@@ -272,8 +272,8 @@ ensure_result_set_state (TrackerDBResultSet *result_set)
 
 TrackerDBStatement *
 tracker_db_interface_create_statement (TrackerDBInterface  *interface,
-				       const gchar	   *query,
-				       ...)
+                                       const gchar         *query,
+                                       ...)
 {
 	TrackerDBStatement *stmt;
 	TrackerDBInterfaceIface *iface;
@@ -290,16 +290,16 @@ tracker_db_interface_create_statement (TrackerDBInterface  *interface,
 	iface = TRACKER_DB_INTERFACE_GET_IFACE (interface);
 	stmt = iface->create_statement (interface, str);
 	g_free (str);
-	
+
 	return stmt;
 }
 
 
 TrackerDBResultSet *
 tracker_db_interface_execute_vquery (TrackerDBInterface  *interface,
-				     GError		**error,
-				     const gchar	 *query,
-				     va_list		  args)
+                                     GError             **error,
+                                     const gchar         *query,
+                                     va_list              args)
 {
 	TrackerDBResultSet *result_set = NULL;
 	gchar *str;
@@ -309,15 +309,15 @@ tracker_db_interface_execute_vquery (TrackerDBInterface  *interface,
 
 	if (!TRACKER_DB_INTERFACE_GET_IFACE (interface)->execute_query) {
 		g_critical ("Database abstraction %s doesn't implement "
-			    "the method execute_vquery()",
-			    G_OBJECT_TYPE_NAME (interface));
+		            "the method execute_vquery()",
+		            G_OBJECT_TYPE_NAME (interface));
 		return NULL;
 	}
 
 	str = g_strdup_vprintf (query, args);
 	result_set = TRACKER_DB_INTERFACE_GET_IFACE (interface)->execute_query (interface,
-										error,
-										str);
+		  error,
+		  str);
 	g_free (str);
 
 	return ensure_result_set_state (result_set);
@@ -326,19 +326,19 @@ tracker_db_interface_execute_vquery (TrackerDBInterface  *interface,
 
 
 TrackerDBResultSet *
-tracker_db_interface_execute_query (TrackerDBInterface	*interface,
-				    GError	       **error,
-				    const gchar		*query,
-				    ...)
+tracker_db_interface_execute_query (TrackerDBInterface  *interface,
+                                    GError             **error,
+                                    const gchar                 *query,
+                                    ...)
 {
 	TrackerDBResultSet *result_set;
 	va_list args;
 
 	va_start (args, query);
 	result_set = tracker_db_interface_execute_vquery (interface,
-							  error,
-							  query,
-							  args);
+	                                                  error,
+	                                                  query,
+	                                                  args);
 	va_end (args);
 
 	return result_set;
@@ -350,8 +350,8 @@ tracker_db_interface_start_transaction (TrackerDBInterface *interface)
 	GError *error = NULL;
 
 	tracker_db_interface_execute_query (interface,
-					    &error,
-					    "BEGIN TRANSACTION");
+	                                    &error,
+	                                    "BEGIN TRANSACTION");
 
 	if (error) {
 		g_warning ("%s", error->message);
@@ -408,9 +408,9 @@ tracker_db_interface_reconnect (TrackerDBInterface  *interface)
 }
 
 void
-tracker_db_statement_bind_double (TrackerDBStatement	*stmt,
-				  int			 idx,
-				  double		 value)
+tracker_db_statement_bind_double (TrackerDBStatement    *stmt,
+                                  int                    idx,
+                                  double                 value)
 {
 	g_return_if_fail (TRACKER_IS_DB_STATEMENT (stmt));
 
@@ -418,9 +418,9 @@ tracker_db_statement_bind_double (TrackerDBStatement	*stmt,
 }
 
 void
-tracker_db_statement_bind_int (TrackerDBStatement	*stmt,
-			       int			 idx,
-			       int			 value)
+tracker_db_statement_bind_int (TrackerDBStatement       *stmt,
+                               int                       idx,
+                               int                       value)
 {
 	g_return_if_fail (TRACKER_IS_DB_STATEMENT (stmt));
 
@@ -429,9 +429,9 @@ tracker_db_statement_bind_int (TrackerDBStatement	*stmt,
 
 
 void
-tracker_db_statement_bind_int64 (TrackerDBStatement	*stmt,
-			         int			 idx,
-			         gint64			 value)
+tracker_db_statement_bind_int64 (TrackerDBStatement     *stmt,
+                                 int                     idx,
+                                 gint64                          value)
 {
 	g_return_if_fail (TRACKER_IS_DB_STATEMENT (stmt));
 
@@ -439,8 +439,8 @@ tracker_db_statement_bind_int64 (TrackerDBStatement	*stmt,
 }
 
 void
-tracker_db_statement_bind_null (TrackerDBStatement	*stmt,
-				int			 idx)
+tracker_db_statement_bind_null (TrackerDBStatement      *stmt,
+                                int                      idx)
 {
 	g_return_if_fail (TRACKER_IS_DB_STATEMENT (stmt));
 
@@ -448,9 +448,9 @@ tracker_db_statement_bind_null (TrackerDBStatement	*stmt,
 }
 
 void
-tracker_db_statement_bind_text (TrackerDBStatement	*stmt,
-				int			 idx,
-				const gchar		*value)
+tracker_db_statement_bind_text (TrackerDBStatement      *stmt,
+                                int                      idx,
+                                const gchar             *value)
 {
 	g_return_if_fail (TRACKER_IS_DB_STATEMENT (stmt));
 
@@ -458,8 +458,8 @@ tracker_db_statement_bind_text (TrackerDBStatement	*stmt,
 }
 
 TrackerDBResultSet *
-tracker_db_statement_execute (TrackerDBStatement	 *stmt,
-			      GError			**error)
+tracker_db_statement_execute (TrackerDBStatement         *stmt,
+                              GError                    **error)
 {
 	TrackerDBResultSet *result_set;
 
@@ -471,8 +471,8 @@ tracker_db_statement_execute (TrackerDBStatement	 *stmt,
 }
 
 TrackerDBCursor *
-tracker_db_statement_start_cursor (TrackerDBStatement	 *stmt,
-				   GError		**error)
+tracker_db_statement_start_cursor (TrackerDBStatement    *stmt,
+                                   GError               **error)
 {
 	g_return_val_if_fail (TRACKER_IS_DB_STATEMENT (stmt), NULL);
 
@@ -544,8 +544,8 @@ TrackerDBResultSet *
 _tracker_db_result_set_new (guint columns)
 {
 	return g_object_new (TRACKER_TYPE_DB_RESULT_SET,
-			     "columns", columns,
-			     NULL);
+	                     "columns", columns,
+	                     NULL);
 }
 
 void
@@ -567,8 +567,8 @@ _tracker_db_result_set_append (TrackerDBResultSet *result_set)
 
 void
 _tracker_db_result_set_set_value (TrackerDBResultSet *result_set,
-				  guint		      column,
-				  const GValue	     *value)
+                                  guint                       column,
+                                  const GValue       *value)
 {
 	TrackerDBResultSetPrivate *priv;
 	gpointer *row = NULL;
@@ -621,8 +621,8 @@ _tracker_db_result_set_set_value (TrackerDBResultSet *result_set,
 }
 
 static void
-fill_in_value (GValue	*value,
-	       gpointer  data)
+fill_in_value (GValue   *value,
+               gpointer  data)
 {
 	switch (G_VALUE_TYPE (value)) {
 	case G_TYPE_INT:
@@ -642,8 +642,8 @@ fill_in_value (GValue	*value,
 
 void
 _tracker_db_result_set_get_value (TrackerDBResultSet *result_set,
-				  guint		      column,
-				  GValue	     *value)
+                                  guint                       column,
+                                  GValue             *value)
 {
 	TrackerDBResultSetPrivate *priv;
 	gpointer *row;
@@ -664,7 +664,7 @@ _tracker_db_result_set_get_value (TrackerDBResultSet *result_set,
 /* TrackerDBResultSet API */
 void
 tracker_db_result_set_get (TrackerDBResultSet *result_set,
-			   ...)
+                           ...)
 {
 	TrackerDBResultSetPrivate *priv;
 	va_list args;
@@ -684,8 +684,8 @@ tracker_db_result_set_get (TrackerDBResultSet *result_set,
 	while ((n_col = va_arg (args, gint)) >= 0) {
 		if ((guint) n_col >= priv->columns) {
 			g_critical ("Result set has %d columns, trying to access column %d, "
-				    "maybe -1 is missing at the end of the arguments?",
-				    priv->columns, n_col);
+			            "maybe -1 is missing at the end of the arguments?",
+			            priv->columns, n_col);
 			break;
 		}
 

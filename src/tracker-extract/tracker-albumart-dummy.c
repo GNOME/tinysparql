@@ -24,7 +24,7 @@
 #include "tracker-albumart-generic.h"
 
 gboolean
-tracker_albumart_file_to_jpeg (const gchar *filename, 
+tracker_albumart_file_to_jpeg (const gchar *filename,
                                const gchar *target)
 {
 	return FALSE;

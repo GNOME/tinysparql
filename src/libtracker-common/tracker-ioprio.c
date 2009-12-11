@@ -48,35 +48,35 @@
 #ifndef __NR_ioprio_set
 
 #if defined(__i386__)
-#define __NR_ioprio_set		289
-#define __NR_ioprio_get		290
+#define __NR_ioprio_set                 289
+#define __NR_ioprio_get                 290
 #elif defined(__powerpc__) || defined(__powerpc64__)
-#define __NR_ioprio_set		273
-#define __NR_ioprio_get		274
+#define __NR_ioprio_set                 273
+#define __NR_ioprio_get                 274
 #elif defined(__x86_64__)
-#define __NR_ioprio_set		251
-#define __NR_ioprio_get		252
+#define __NR_ioprio_set                 251
+#define __NR_ioprio_get                 252
 #elif defined(__ia64__)
-#define __NR_ioprio_set		1274
-#define __NR_ioprio_get		1275
+#define __NR_ioprio_set                 1274
+#define __NR_ioprio_get                 1275
 #elif defined(__alpha__)
-#define __NR_ioprio_set		442
-#define __NR_ioprio_get		443
+#define __NR_ioprio_set                 442
+#define __NR_ioprio_get                 443
 #elif defined(__s390x__) || defined(__s390__)
-#define __NR_ioprio_set		282
-#define __NR_ioprio_get		283
+#define __NR_ioprio_set                 282
+#define __NR_ioprio_get                 283
 #elif defined(__SH4__)
-#define __NR_ioprio_set		288
-#define __NR_ioprio_get		289
+#define __NR_ioprio_set                 288
+#define __NR_ioprio_get                 289
 #elif defined(__SH5__)
-#define __NR_ioprio_set		316
-#define __NR_ioprio_get		317
+#define __NR_ioprio_set                 316
+#define __NR_ioprio_get                 317
 #elif defined(__sparc__) || defined(__sparc64__)
-#define __NR_ioprio_set		196
-#define __NR_ioprio_get		218
+#define __NR_ioprio_set                 196
+#define __NR_ioprio_get                 218
 #elif defined(__arm__)
-#define __NR_ioprio_set		314
-#define __NR_ioprio_get		315
+#define __NR_ioprio_set                 314
+#define __NR_ioprio_get                 315
 #else
 #error "Unsupported architecture!"
 #endif

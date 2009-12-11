@@ -32,22 +32,22 @@ G_BEGIN_DECLS
 #error "only <libtracker-db/tracker-db.h> must be included directly."
 #endif
 
-#define TRACKER_DB_BACKUP_META_FILENAME	"meta-backup.db"
-#define TRACKER_DB_BACKUP_ERROR	        (tracker_db_backup_error_quark ())
+#define TRACKER_DB_BACKUP_META_FILENAME         "meta-backup.db"
+#define TRACKER_DB_BACKUP_ERROR                 (tracker_db_backup_error_quark ())
 
 typedef enum {
 	TRACKER_DB_BACKUP_ERROR_UNKNOWN,
 } TrackerDBBackupError;
 
-typedef void (*TrackerDBBackupFinished) (GError   *error, 
-					 gpointer  user_data);
+typedef void (*TrackerDBBackupFinished) (GError   *error,
+                                         gpointer  user_data);
 
 GQuark tracker_db_backup_error_quark (void);
 void   tracker_db_backup_save        (TrackerDBBackupFinished   callback,
-				      gpointer                  user_data,
-				      GDestroyNotify            destroy);
+                                      gpointer                  user_data,
+                                      GDestroyNotify            destroy);
 GFile *tracker_db_backup_file        (GFile                   **parent_out,
-				      const gchar              *type);
+                                      const gchar              *type);
 void   tracker_db_backup_sync_fts    (void);
 
 G_END_DECLS

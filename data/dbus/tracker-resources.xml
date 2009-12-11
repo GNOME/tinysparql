@@ -5,14 +5,14 @@
 
     <!-- Load statements from Turtle file -->
     <method name="Load">
-      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/> 
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
       <arg type="s" name="uri" direction="in" />
     </method>
 
     <!-- SPARQL Query without updates -->
     <method name="SparqlQuery">
       <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
-      <annotation name="com.trolltech.QtDBus.QtTypeName.Out0" 
+      <annotation name="com.trolltech.QtDBus.QtTypeName.Out0"
 		  value="QVector&lt;QStringList&gt;"/>
       <arg type="s" name="query" direction="in" />
       <arg type="aas" name="result" direction="out" />

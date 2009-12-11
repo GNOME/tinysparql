@@ -9,7 +9,7 @@
  *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the GNU
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.          See the GNU
  * General Public License for more details.
  *
  * You should have received a copy of the GNU General Public
@@ -33,13 +33,13 @@
 #define TRACKER_ICON_CONFIG_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_ICON_CONFIG, TrackerIconConfigPrivate))
 
 /* GKeyFile defines */
-#define GROUP_GENERAL				 "General"
+#define GROUP_GENERAL                            "General"
 
 /* Default values */
 #define DEFAULT_VISIBILITY TRACKER_SHOW_ACTIVE
 
 typedef struct {
-        gint     visibility;
+	gint     visibility;
 } TrackerIconConfigPrivate;
 
 typedef struct {
@@ -50,29 +50,29 @@ typedef struct {
 } ObjectToKeyFile;
 
 static void     config_set_property         (GObject           *object,
-					     guint              param_id,
-					     const GValue      *value,
-					     GParamSpec        *pspec);
+                                             guint              param_id,
+                                             const GValue      *value,
+                                             GParamSpec        *pspec);
 static void     config_get_property         (GObject           *object,
-					     guint              param_id,
-					     GValue            *value,
-					     GParamSpec        *pspec);
+                                             guint              param_id,
+                                             GValue            *value,
+                                             GParamSpec        *pspec);
 static void     config_constructed          (GObject           *object);
 static void     config_changed              (TrackerConfigFile *file);
 static void     config_load                 (TrackerIconConfig *config);
 static gboolean config_save                 (TrackerIconConfig *config);
 static void     config_create_with_defaults (TrackerIconConfig *config,
-					     GKeyFile          *key_file,
-					     gboolean           overwrite);
+                                             GKeyFile          *key_file,
+                                             gboolean           overwrite);
 
 enum {
 	PROP_0,
-        PROP_VISIBILITY
+	PROP_VISIBILITY
 };
 
 static ObjectToKeyFile conversions[] = {
 	/* General */
-        { G_TYPE_INT, "visibility", GROUP_GENERAL,  "Visibility" }
+	{ G_TYPE_INT, "visibility", GROUP_GENERAL,  "Visibility" }
 };
 
 G_DEFINE_TYPE (TrackerIconConfig, tracker_icon_config, TRACKER_TYPE_CONFIG_FILE);
@@ -91,13 +91,13 @@ tracker_icon_config_class_init (TrackerIconConfigClass *klass)
 
 	/* General */
 	g_object_class_install_property (object_class,
-					 PROP_VISIBILITY,
-					 g_param_spec_int ("visibility",
-                                                           "Status icon visibility",
-                                                           "Status icon visibility (0=Never, 1=When active, 2=Always)",
-                                                           TRACKER_SHOW_NEVER, TRACKER_SHOW_ALWAYS,
-                                                           DEFAULT_VISIBILITY,
-                                                           G_PARAM_READWRITE));
+	                                 PROP_VISIBILITY,
+	                                 g_param_spec_int ("visibility",
+	                                                   "Status icon visibility",
+	                                                   "Status icon visibility (0=Never, 1=When active, 2=Always)",
+	                                                   TRACKER_SHOW_NEVER, TRACKER_SHOW_ALWAYS,
+	                                                   DEFAULT_VISIBILITY,
+	                                                   G_PARAM_READWRITE));
 
 	g_type_class_add_private (object_class, sizeof (TrackerIconConfigPrivate));
 }
@@ -108,17 +108,17 @@ tracker_icon_config_init (TrackerIconConfig *object)
 }
 
 static void
-config_set_property (GObject	  *object,
-		     guint	   param_id,
-		     const GValue *value,
-		     GParamSpec	  *pspec)
+config_set_property (GObject      *object,
+                     guint         param_id,
+                     const GValue *value,
+                     GParamSpec           *pspec)
 {
 	switch (param_id) {
 		/* General */
-        case PROP_VISIBILITY:
-                tracker_icon_config_set_visibility (TRACKER_ICON_CONFIG (object),
-						    g_value_get_int (value));
-                break;
+	case PROP_VISIBILITY:
+		tracker_icon_config_set_visibility (TRACKER_ICON_CONFIG (object),
+		                                    g_value_get_int (value));
+		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, param_id, pspec);
 		break;
@@ -126,10 +126,10 @@ config_set_property (GObject	  *object,
 }
 
 static void
-config_get_property (GObject	*object,
-		     guint	 param_id,
-		     GValue	*value,
-		     GParamSpec *pspec)
+config_get_property (GObject    *object,
+                     guint       param_id,
+                     GValue     *value,
+                     GParamSpec *pspec)
 {
 	TrackerIconConfigPrivate *priv;
 
@@ -163,8 +163,8 @@ config_changed (TrackerConfigFile *file)
 
 static void
 config_create_with_defaults (TrackerIconConfig *config,
-			     GKeyFile          *key_file,
-			     gboolean           overwrite)
+                             GKeyFile          *key_file,
+                             gboolean           overwrite)
 {
 	gint i;
 
@@ -174,9 +174,9 @@ config_create_with_defaults (TrackerIconConfig *config,
 		gboolean has_key;
 
 		has_key = g_key_file_has_key (key_file,
-					      conversions[i].group,
-					      conversions[i].key,
-					      NULL);
+		                              conversions[i].group,
+		                              conversions[i].key,
+		                              NULL);
 		if (!overwrite && has_key) {
 			continue;
 		}
@@ -184,20 +184,20 @@ config_create_with_defaults (TrackerIconConfig *config,
 		switch (conversions[i].type) {
 		case G_TYPE_INT:
 			g_key_file_set_integer (key_file,
-						conversions[i].group,
-						conversions[i].key,
-						tracker_keyfile_object_default_int (config,
-										    conversions[i].property));
+			                        conversions[i].group,
+			                        conversions[i].key,
+			                        tracker_keyfile_object_default_int (config,
+			                                                            conversions[i].property));
 			break;
 		default:
 			g_assert_not_reached ();
 		}
 
 		g_key_file_set_comment (key_file,
-					conversions[i].group,
-					conversions[i].key,
-					tracker_keyfile_object_blurb (config, conversions[i].property),
-					NULL);
+		                        conversions[i].group,
+		                        conversions[i].key,
+		                        tracker_keyfile_object_blurb (config, conversions[i].property),
+		                        NULL);
 	}
 }
 
@@ -218,17 +218,17 @@ config_load (TrackerIconConfig *config)
 		gboolean has_key;
 
 		has_key = g_key_file_has_key (file->key_file,
-					      conversions[i].group,
-					      conversions[i].key,
-					      NULL);
+		                              conversions[i].group,
+		                              conversions[i].key,
+		                              NULL);
 
 		switch (conversions[i].type) {
 		case G_TYPE_INT:
 			tracker_keyfile_object_load_int (G_OBJECT (file),
-							 conversions[i].property,
-							 file->key_file,
-							 conversions[i].group,
-							 conversions[i].key);
+			                                 conversions[i].property,
+			                                 file->key_file,
+			                                 conversions[i].group,
+			                                 conversions[i].key);
 			break;
 		}
 	}
@@ -254,10 +254,10 @@ config_save (TrackerIconConfig *config)
 		switch (conversions[i].type) {
 		case G_TYPE_INT:
 			tracker_keyfile_object_save_int (file,
-							 conversions[i].property,
-							 file->key_file,
-							 conversions[i].group,
-							 conversions[i].key);
+			                                 conversions[i].property,
+			                                 file->key_file,
+			                                 conversions[i].group,
+			                                 conversions[i].key);
 			break;
 		default:
 			g_assert_not_reached ();
@@ -302,7 +302,7 @@ tracker_icon_config_get_visibility (TrackerIconConfig *config)
 
 void
 tracker_icon_config_set_visibility (TrackerIconConfig *config,
-				    TrackerVisibility  visibility)
+                                    TrackerVisibility  visibility)
 {
 	TrackerIconConfigPrivate *priv;
 

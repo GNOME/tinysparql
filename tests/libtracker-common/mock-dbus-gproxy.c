@@ -1,6 +1,6 @@
 /*
- * To simulate a DBusGProxy in the unit tests, we need a GObject (dbus 
- * disconnection does a g_object_unref (). This is a GObject with only 
+ * To simulate a DBusGProxy in the unit tests, we need a GObject (dbus
+ * disconnection does a g_object_unref (). This is a GObject with only
  * one attribute (an integer), generated with vala.
  */
 

@@ -102,15 +102,15 @@ tracker_miner_manager_class_init (TrackerMinerManagerClass *klass)
 	 **/
 	signals [MINER_PROGRESS] =
 		g_signal_new ("miner-progress",
-			      G_OBJECT_CLASS_TYPE (object_class),
-			      G_SIGNAL_RUN_LAST,
-			      G_STRUCT_OFFSET (TrackerMinerManagerClass, miner_progress),
-			      NULL, NULL,
-			      tracker_marshal_VOID__STRING_STRING_DOUBLE,
-			      G_TYPE_NONE, 3,
-			      G_TYPE_STRING,
-			      G_TYPE_STRING,
-			      G_TYPE_DOUBLE);
+		              G_OBJECT_CLASS_TYPE (object_class),
+		              G_SIGNAL_RUN_LAST,
+		              G_STRUCT_OFFSET (TrackerMinerManagerClass, miner_progress),
+		              NULL, NULL,
+		              tracker_marshal_VOID__STRING_STRING_DOUBLE,
+		              G_TYPE_NONE, 3,
+		              G_TYPE_STRING,
+		              G_TYPE_STRING,
+		              G_TYPE_DOUBLE);
 	/**
 	 * TrackerMinerManager::miner-paused
 	 * @manager: the #TrackerMinerManager
@@ -121,13 +121,13 @@ tracker_miner_manager_class_init (TrackerMinerManagerClass *klass)
 	 **/
 	signals [MINER_PAUSED] =
 		g_signal_new ("miner-paused",
-			      G_OBJECT_CLASS_TYPE (object_class),
-			      G_SIGNAL_RUN_LAST,
-			      G_STRUCT_OFFSET (TrackerMinerManagerClass, miner_paused),
-			      NULL, NULL,
-			      g_cclosure_marshal_VOID__STRING,
-			      G_TYPE_NONE, 1,
-			      G_TYPE_STRING);
+		              G_OBJECT_CLASS_TYPE (object_class),
+		              G_SIGNAL_RUN_LAST,
+		              G_STRUCT_OFFSET (TrackerMinerManagerClass, miner_paused),
+		              NULL, NULL,
+		              g_cclosure_marshal_VOID__STRING,
+		              G_TYPE_NONE, 1,
+		              G_TYPE_STRING);
 	/**
 	 * TrackerMinerManager::miner-resumed
 	 * @manager: the #TrackerMinerManager
@@ -138,13 +138,13 @@ tracker_miner_manager_class_init (TrackerMinerManagerClass *klass)
 	 **/
 	signals [MINER_RESUMED] =
 		g_signal_new ("miner-resumed",
-			      G_OBJECT_CLASS_TYPE (object_class),
-			      G_SIGNAL_RUN_LAST,
-			      G_STRUCT_OFFSET (TrackerMinerManagerClass, miner_resumed),
-			      NULL, NULL,
-			      g_cclosure_marshal_VOID__STRING,
-			      G_TYPE_NONE, 1,
-			      G_TYPE_STRING);
+		              G_OBJECT_CLASS_TYPE (object_class),
+		              G_SIGNAL_RUN_LAST,
+		              G_STRUCT_OFFSET (TrackerMinerManagerClass, miner_resumed),
+		              NULL, NULL,
+		              g_cclosure_marshal_VOID__STRING,
+		              G_TYPE_NONE, 1,
+		              G_TYPE_STRING);
 	/**
 	 * TrackerMinerManager::miner-activated
 	 * @manager: the #TrackerMinerManager
@@ -156,13 +156,13 @@ tracker_miner_manager_class_init (TrackerMinerManagerClass *klass)
 	 **/
 	signals [MINER_ACTIVATED] =
 		g_signal_new ("miner-activated",
-			      G_OBJECT_CLASS_TYPE (object_class),
-			      G_SIGNAL_RUN_LAST,
-			      G_STRUCT_OFFSET (TrackerMinerManagerClass, miner_activated),
-			      NULL, NULL,
-			      g_cclosure_marshal_VOID__STRING,
-			      G_TYPE_NONE, 1,
-			      G_TYPE_STRING);
+		              G_OBJECT_CLASS_TYPE (object_class),
+		              G_SIGNAL_RUN_LAST,
+		              G_STRUCT_OFFSET (TrackerMinerManagerClass, miner_activated),
+		              NULL, NULL,
+		              g_cclosure_marshal_VOID__STRING,
+		              G_TYPE_NONE, 1,
+		              G_TYPE_STRING);
 	/**
 	 * TrackerMinerManager::miner-deactivated
 	 * @manager: the #TrackerMinerManager
@@ -174,20 +174,20 @@ tracker_miner_manager_class_init (TrackerMinerManagerClass *klass)
 	 **/
 	signals [MINER_DEACTIVATED] =
 		g_signal_new ("miner-deactivated",
-			      G_OBJECT_CLASS_TYPE (object_class),
-			      G_SIGNAL_RUN_LAST,
-			      G_STRUCT_OFFSET (TrackerMinerManagerClass, miner_deactivated),
-			      NULL, NULL,
-			      g_cclosure_marshal_VOID__STRING,
-			      G_TYPE_NONE, 1,
-			      G_TYPE_STRING);
+		              G_OBJECT_CLASS_TYPE (object_class),
+		              G_SIGNAL_RUN_LAST,
+		              G_STRUCT_OFFSET (TrackerMinerManagerClass, miner_deactivated),
+		              NULL, NULL,
+		              g_cclosure_marshal_VOID__STRING,
+		              G_TYPE_NONE, 1,
+		              G_TYPE_STRING);
 
 	g_type_class_add_private (object_class, sizeof (TrackerMinerManagerPrivate));
 }
 
 static DBusGProxy *
 find_miner_proxy (TrackerMinerManager *manager,
-		  const gchar         *name)
+                  const gchar         *name)
 {
 	TrackerMinerManagerPrivate *priv;
 	GHashTableIter iter;
@@ -207,10 +207,10 @@ find_miner_proxy (TrackerMinerManager *manager,
 
 static void
 name_owner_changed_cb (DBusGProxy  *proxy,
-		       const gchar *name,
-		       const gchar *old_owner,
-		       const gchar *new_owner,
-		       gpointer     user_data)
+                       const gchar *name,
+                       const gchar *old_owner,
+                       const gchar *new_owner,
+                       gpointer     user_data)
 {
 	TrackerMinerManager *manager = user_data;
 	TrackerMinerManagerPrivate *priv;
@@ -228,9 +228,9 @@ name_owner_changed_cb (DBusGProxy  *proxy,
 
 static void
 miner_progress_changed (DBusGProxy  *proxy,
-			const gchar *status,
-			gdouble      progress,
-			gpointer     user_data)
+                        const gchar *status,
+                        gdouble      progress,
+                        gpointer     user_data)
 {
 	TrackerMinerManager *manager = user_data;
 	TrackerMinerManagerPrivate *priv;
@@ -245,7 +245,7 @@ miner_progress_changed (DBusGProxy  *proxy,
 
 static void
 miner_paused (DBusGProxy *proxy,
-	      gpointer    user_data)
+              gpointer    user_data)
 {
 	TrackerMinerManager *manager = user_data;
 	TrackerMinerManagerPrivate *priv;
@@ -260,7 +260,7 @@ miner_paused (DBusGProxy *proxy,
 
 static void
 miner_resumed (DBusGProxy *proxy,
-	       gpointer    user_data)
+               gpointer    user_data)
 {
 	TrackerMinerManager *manager = user_data;
 	TrackerMinerManagerPrivate *priv;
@@ -286,40 +286,40 @@ tracker_miner_manager_init (TrackerMinerManager *manager)
 
 	if (!priv->connection) {
 		g_critical ("Could not connect to the D-Bus session bus, %s",
-			    error ? error->message : "no error given.");
+		            error ? error->message : "no error given.");
 		g_clear_error (&error);
 	}
 
 	priv->proxy = dbus_g_proxy_new_for_name (priv->connection,
-						 DBUS_SERVICE_DBUS,
-						 DBUS_PATH_DBUS,
-						 DBUS_INTERFACE_DBUS);
+	                                         DBUS_SERVICE_DBUS,
+	                                         DBUS_PATH_DBUS,
+	                                         DBUS_INTERFACE_DBUS);
 
 	if (!priv->proxy) {
 		g_critical ("Could not get proxy for D-Bus service");
 	}
 
 	priv->miner_proxies = g_hash_table_new_full (NULL, NULL,
-						     (GDestroyNotify) g_object_unref,
-						     (GDestroyNotify) g_free);
+	                                             (GDestroyNotify) g_object_unref,
+	                                             (GDestroyNotify) g_free);
 
 	dbus_g_object_register_marshaller (tracker_marshal_VOID__STRING_DOUBLE,
-					   G_TYPE_NONE,
-					   G_TYPE_STRING,
-					   G_TYPE_DOUBLE,
-					   G_TYPE_INVALID);
+	                                   G_TYPE_NONE,
+	                                   G_TYPE_STRING,
+	                                   G_TYPE_DOUBLE,
+	                                   G_TYPE_INVALID);
 
 	dbus_g_proxy_add_signal (priv->proxy,
-				 "NameOwnerChanged",
-				 G_TYPE_STRING,
-				 G_TYPE_STRING,
-				 G_TYPE_STRING,
-				 G_TYPE_INVALID);
+	                         "NameOwnerChanged",
+	                         G_TYPE_STRING,
+	                         G_TYPE_STRING,
+	                         G_TYPE_STRING,
+	                         G_TYPE_INVALID);
 
 	dbus_g_proxy_connect_signal (priv->proxy,
-				     "NameOwnerChanged",
-				     G_CALLBACK (name_owner_changed_cb),
-				     manager, NULL);
+	                             "NameOwnerChanged",
+	                             G_CALLBACK (name_owner_changed_cb),
+	                             manager, NULL);
 
 	initialize_miners_data (manager);
 
@@ -330,30 +330,30 @@ tracker_miner_manager_init (TrackerMinerManager *manager)
 		data = m->data;
 
 		proxy = dbus_g_proxy_new_for_name (priv->connection,
-						   data->dbus_name,
-						   data->dbus_path,
-						   TRACKER_MINER_DBUS_INTERFACE);
+		                                   data->dbus_name,
+		                                   data->dbus_path,
+		                                   TRACKER_MINER_DBUS_INTERFACE);
 
 		dbus_g_proxy_add_signal (proxy,
-					 "Progress",
-					 G_TYPE_STRING,
-					 G_TYPE_DOUBLE,
-					 G_TYPE_INVALID);
+		                         "Progress",
+		                         G_TYPE_STRING,
+		                         G_TYPE_DOUBLE,
+		                         G_TYPE_INVALID);
 		dbus_g_proxy_add_signal (proxy, "Paused", G_TYPE_INVALID);
 		dbus_g_proxy_add_signal (proxy, "Resumed", G_TYPE_INVALID);
 
 		dbus_g_proxy_connect_signal (proxy,
-					     "Progress",
-					     G_CALLBACK (miner_progress_changed),
-					     manager, NULL);
+		                             "Progress",
+		                             G_CALLBACK (miner_progress_changed),
+		                             manager, NULL);
 		dbus_g_proxy_connect_signal (proxy,
-					     "Paused",
-					     G_CALLBACK (miner_paused),
-					     manager, NULL);
+		                             "Paused",
+		                             G_CALLBACK (miner_paused),
+		                             manager, NULL);
 		dbus_g_proxy_connect_signal (proxy,
-					     "Resumed",
-					     G_CALLBACK (miner_resumed),
-					     manager, NULL);
+		                             "Resumed",
+		                             G_CALLBACK (miner_resumed),
+		                             manager, NULL);
 
 		g_hash_table_insert (priv->miner_proxies, proxy, g_strdup (data->dbus_name));
 	}
@@ -427,11 +427,11 @@ tracker_miner_manager_get_running (TrackerMinerManager *manager)
 	}
 
 	if (!dbus_g_proxy_call (priv->proxy, "ListNames", &error,
-				G_TYPE_INVALID,
-				G_TYPE_STRV, &result,
-				G_TYPE_INVALID)) {
+	                        G_TYPE_INVALID,
+	                        G_TYPE_STRV, &result,
+	                        G_TYPE_INVALID)) {
 		g_critical ("Could not get a list of names registered on the session bus, %s",
-			    error ? error->message : "no error given");
+		            error ? error->message : "no error given");
 		g_clear_error (&error);
 		return NULL;
 	}
@@ -453,8 +453,8 @@ tracker_miner_manager_get_running (TrackerMinerManager *manager)
 
 static gboolean
 crawler_check_file_cb (TrackerCrawler *crawler,
-		       GFile          *file,
-		       gpointer        user_data)
+                       GFile          *file,
+                       gpointer        user_data)
 {
 	TrackerMinerManager *manager;
 	TrackerMinerManagerPrivate *priv;
@@ -468,7 +468,7 @@ crawler_check_file_cb (TrackerCrawler *crawler,
 	priv = TRACKER_MINER_MANAGER_GET_PRIVATE (manager);
 
 	if (!g_str_has_suffix (path, ".desktop")) {
-	    return FALSE;
+		return FALSE;
 	}
 
 	key_file = g_key_file_new ();
@@ -513,13 +513,13 @@ crawler_check_file_cb (TrackerCrawler *crawler,
 
 static void
 crawler_finished_cb (TrackerCrawler *crawler,
-		     GQueue         *found,
-		     gboolean        was_interrupted,
-		     guint           directories_found,
-		     guint           directories_ignored,
-		     guint           files_found,
-		     guint           files_ignored,
-		     gpointer        user_data)
+                     GQueue         *found,
+                     gboolean        was_interrupted,
+                     guint           directories_found,
+                     guint           directories_ignored,
+                     guint           files_found,
+                     guint           files_ignored,
+                     gpointer        user_data)
 {
 	g_main_loop_quit (user_data);
 }
@@ -535,11 +535,11 @@ initialize_miners_data (TrackerMinerManager *manager)
 	main_loop = g_main_loop_new (NULL, FALSE);
 
 	g_signal_connect (crawler, "check-file",
-			  G_CALLBACK (crawler_check_file_cb),
-			  manager);
+	                  G_CALLBACK (crawler_check_file_cb),
+	                  manager);
 	g_signal_connect (crawler, "finished",
-			  G_CALLBACK (crawler_finished_cb),
-			  main_loop);
+	                  G_CALLBACK (crawler_finished_cb),
+	                  main_loop);
 
 	/* Go through service files */
 	file = g_file_new_for_path (TRACKER_MINERS_DIR);
@@ -593,9 +593,9 @@ tracker_miner_manager_get_available (TrackerMinerManager *manager)
  **/
 gboolean
 tracker_miner_manager_pause (TrackerMinerManager *manager,
-			     const gchar         *miner,
-			     const gchar         *reason,
-			     guint32             *cookie)
+                             const gchar         *miner,
+                             const gchar         *reason,
+                             guint32             *cookie)
 {
 	DBusGProxy *proxy;
 	const gchar *app_name;
@@ -647,8 +647,8 @@ tracker_miner_manager_pause (TrackerMinerManager *manager,
  **/
 gboolean
 tracker_miner_manager_resume (TrackerMinerManager *manager,
-			      const gchar         *miner,
-			      guint32              cookie)
+                              const gchar         *miner,
+                              guint32              cookie)
 {
 	DBusGProxy *proxy;
 	GError *error = NULL;
@@ -684,7 +684,7 @@ tracker_miner_manager_resume (TrackerMinerManager *manager,
  **/
 gboolean
 tracker_miner_manager_is_active (TrackerMinerManager *manager,
-				 const gchar         *miner)
+                                 const gchar         *miner)
 {
 	TrackerMinerManagerPrivate *priv;
 	GError *error = NULL;
@@ -696,12 +696,12 @@ tracker_miner_manager_is_active (TrackerMinerManager *manager,
 	priv = TRACKER_MINER_MANAGER_GET_PRIVATE (manager);
 
 	if (!dbus_g_proxy_call (priv->proxy, "NameHasOwner", &error,
-				G_TYPE_STRING, miner,
-				G_TYPE_INVALID,
-				G_TYPE_BOOLEAN, &active,
-				G_TYPE_INVALID)) {
+	                        G_TYPE_STRING, miner,
+	                        G_TYPE_INVALID,
+	                        G_TYPE_BOOLEAN, &active,
+	                        G_TYPE_INVALID)) {
 		g_critical ("Could not check whether miner '%s' is currently active: %s",
-			    miner, error ? error->message : "no error given");
+		            miner, error ? error->message : "no error given");
 		g_error_free (error);
 		return FALSE;
 	}
@@ -722,9 +722,9 @@ tracker_miner_manager_is_active (TrackerMinerManager *manager,
  **/
 gboolean
 tracker_miner_manager_get_status (TrackerMinerManager  *manager,
-				  const gchar          *miner,
-				  gchar               **status,
-				  gdouble              *progress)
+                                  const gchar          *miner,
+                                  gchar               **status,
+                                  gdouble              *progress)
 {
 	DBusGProxy *proxy;
 	GError *error = NULL;
@@ -745,11 +745,11 @@ tracker_miner_manager_get_status (TrackerMinerManager  *manager,
 
 	if (error) {
 		/* We handle this error as a special case, some
-		 * plugins don't have .service files. 
+		 * plugins don't have .service files.
 		 */
 		if (error->code != DBUS_GERROR_SERVICE_UNKNOWN) {
 			g_critical ("Could not get miner progress for '%s': %s", miner,
-				    error->message);
+			            error->message);
 		}
 
 		g_error_free (error);
@@ -761,7 +761,7 @@ tracker_miner_manager_get_status (TrackerMinerManager  *manager,
 
 	if (error) {
 		g_critical ("Could not get miner status for '%s': %s", miner,
-			    error->message);
+		            error->message);
 		g_error_free (error);
 
 		return FALSE;
@@ -797,9 +797,9 @@ tracker_miner_manager_get_status (TrackerMinerManager  *manager,
  **/
 gboolean
 tracker_miner_manager_is_paused (TrackerMinerManager *manager,
-				 const gchar         *miner,
-				 GStrv               *applications,
-				 GStrv               *reasons)
+                                 const gchar         *miner,
+                                 GStrv               *applications,
+                                 GStrv               *reasons)
 {
 	DBusGProxy *proxy;
 	GStrv apps, r;
@@ -828,7 +828,7 @@ tracker_miner_manager_is_paused (TrackerMinerManager *manager,
 
 	if (error) {
 		g_critical ("Could not get pause details for miner '%s': %s", miner,
-			    error->message);
+		            error->message);
 		g_error_free (error);
 
 		return TRUE;
@@ -862,7 +862,7 @@ tracker_miner_manager_is_paused (TrackerMinerManager *manager,
  **/
 const gchar *
 tracker_miner_manager_get_display_name (TrackerMinerManager *manager,
-					const gchar         *miner)
+                                        const gchar         *miner)
 {
 	TrackerMinerManagerPrivate *priv;
 	GList *m;
@@ -894,7 +894,7 @@ tracker_miner_manager_get_display_name (TrackerMinerManager *manager,
  **/
 const gchar *
 tracker_miner_manager_get_description (TrackerMinerManager *manager,
-				       const gchar         *miner)
+                                       const gchar         *miner)
 {
 	TrackerMinerManagerPrivate *priv;
 	GList *m;

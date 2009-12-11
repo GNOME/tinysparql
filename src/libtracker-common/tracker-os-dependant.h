@@ -32,17 +32,17 @@ G_BEGIN_DECLS
 #endif
 
 /* Process spawning */
-gboolean tracker_spawn			   (gchar	**argv,
-					    gint	  timeout,
-					    gchar	**tmp_stdout,
-					    gint	 *exit_status);
+gboolean tracker_spawn                     (gchar       **argv,
+                                            gint          timeout,
+                                            gchar       **tmp_stdout,
+                                            gint         *exit_status);
 gboolean tracker_spawn_async_with_channels (const gchar **argv,
-					    gint	  timeout,
-					    GPid	 *pid,
-					    GIOChannel	**stdin_channel,
-					    GIOChannel	**stdout_channel,
-					    GIOChannel	**stderr_channel);
-void	 tracker_spawn_child_func	   (gpointer	  user_data);
+                                            gint          timeout,
+                                            GPid         *pid,
+                                            GIOChannel  **stdin_channel,
+                                            GIOChannel  **stdout_channel,
+                                            GIOChannel  **stderr_channel);
+void     tracker_spawn_child_func          (gpointer      user_data);
 
 /* File permissions */
 gchar *  tracker_create_permission_string  (struct stat   finfo);

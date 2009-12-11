@@ -29,10 +29,10 @@ G_BEGIN_DECLS
 #error "only <libtracker-common/tracker-common.h> must be included directly."
 #endif
 
-#define TRACKER_TYPE_NAMESPACE	       (tracker_namespace_get_type ())
-#define TRACKER_NAMESPACE(o)	       (G_TYPE_CHECK_INSTANCE_CAST ((o), TRACKER_TYPE_NAMESPACE, TrackerNamespace))
+#define TRACKER_TYPE_NAMESPACE         (tracker_namespace_get_type ())
+#define TRACKER_NAMESPACE(o)           (G_TYPE_CHECK_INSTANCE_CAST ((o), TRACKER_TYPE_NAMESPACE, TrackerNamespace))
 #define TRACKER_NAMESPACE_CLASS(k)     (G_TYPE_CHECK_CLASS_CAST ((k), TRACKER_TYPE_NAMESPACE, TrackerNamespaceClass))
-#define TRACKER_IS_NAMESPACE(o)	       (G_TYPE_CHECK_INSTANCE_TYPE ((o), TRACKER_TYPE_NAMESPACE))
+#define TRACKER_IS_NAMESPACE(o)                (G_TYPE_CHECK_INSTANCE_TYPE ((o), TRACKER_TYPE_NAMESPACE))
 #define TRACKER_IS_NAMESPACE_CLASS(k)  (G_TYPE_CHECK_CLASS_TYPE ((k), TRACKER_TYPE_NAMESPACE))
 #define TRACKER_NAMESPACE_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o), TRACKER_TYPE_NAMESPACE, TrackerNamespaceClass))
 
@@ -47,14 +47,14 @@ struct _TrackerNamespaceClass {
 	GObjectClass parent_class;
 };
 
-GType		  tracker_namespace_get_type   (void) G_GNUC_CONST;
+GType             tracker_namespace_get_type   (void) G_GNUC_CONST;
 TrackerNamespace *tracker_namespace_new        (void);
 const gchar *     tracker_namespace_get_uri    (TrackerNamespace *namespace_);
 const gchar *     tracker_namespace_get_prefix (TrackerNamespace *namespace_);
 void              tracker_namespace_set_uri    (TrackerNamespace *namespace_,
-						const gchar      *value);
+                                                const gchar      *value);
 void              tracker_namespace_set_prefix (TrackerNamespace *namespace_,
-						const gchar      *value);
+                                                const gchar      *value);
 
 G_END_DECLS
 

@@ -18,19 +18,19 @@ class TrackerClient:
 		#Initialize dbus session and tracker interfaces
 		bus = dbus.SessionBus()
 		obj = bus.get_object('org.freedesktop.Tracker','/org/freedesktop/tracker')
-		
+
 		self.tracker_iface = dbus.Interface(obj, 'org.freedesktop.Tracker')
 		self.keywords_iface = dbus.Interface(obj, 'org.freedesktop.Tracker.Keywords')
 		self.search_iface = dbus.Interface(obj, 'org.freedesktop.Tracker.Search')
 		self.files_iface = dbus.Interface(obj, 'org.freedesktop.Tracker.Files')
-		
+
 		self.version = self.tracker_iface.GetVersion()
 		self.query_id = -1
 
 	def search(self,text,service='Files',offset=0,max_hits=-1):
 		self.resultlist = self.search_iface.Text(self.query_id, service, text, offset, max_hits)
 		self.resultlist = map(lambda x: str(x),self.resultlist)
-		
+
 	def search_by_tag(self,tag,service='Files',offset=0,max_hits=-1):
 		self.resultlist = self.keywords_iface.Search(self.query_id, service,tag,offset,max_hits)
 		self.resultlist = map(lambda x: str(x),self.resultlist)
@@ -47,7 +47,7 @@ class TrackerClient:
 	#In future will be implemented live_query support
 	def on_tracker_reply(self, results):
 		print results
-		
+
 	def on_tracker_error(self, e):
 		print "Error:"+e
 
@@ -57,10 +57,10 @@ class TrackerFs (Fuse,TrackerClient):
 	def __init__(self):
 		#Initialize tracker client
 		TrackerClient.__init__(self)
-		
+
 		#Shell inteface
 		usage = "usage: %prog mountpoint [options]"
-		
+
 		self.parser = OptionParser(usage)
 		self.parser.add_option("-a", "--auto",action="store_true",help="Mount point will be populated with the rdf query in ~/.Tracker/fs", dest="automatic", default=True)
 		self.parser.add_option("-s", "--search", dest="keys",help="Use a key to find the contents of mounted dir", metavar="key")
@@ -72,7 +72,7 @@ class TrackerFs (Fuse,TrackerClient):
 		if os.path.exists(args[0]) == False:
 			print "The mount point doesen't exist make it?"
 			#self.log.debug("Create target directory")
-			os.mkdir(args[0])		
+			os.mkdir(args[0])
 
 		#check old files
 		#save_dir = open(args[0], O_RDONLY);
@@ -86,14 +86,14 @@ class TrackerFs (Fuse,TrackerClient):
 			verbmode = logging.DEBUG
 		else:
 			verbmode = logging.WARNING
-		
+
 		#Setup logger
 		self.log = logging.getLogger("trackerfs");self.log.setLevel(verbmode)
 		fh = logging.StreamHandler();fh.setLevel(verbmode)
 		formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 		fh.setFormatter(formatter)
 		self.log.addHandler(fh)
-		
+
 		#This is the path when file will be "really" created/moved/edited
 		self.realdir = "/media/Dati/.data/"
 		self.rdfdir = os.environ["HOME"]+"/.Tracker/fs/"
@@ -158,7 +158,7 @@ class TrackerFs (Fuse,TrackerClient):
 		if S_ISREG(mode) and type == 0:
 			self.log.debug("MkFile:"+newpath)
 			res = os.open(newpath, os.O_CREAT | os.O_WRONLY,mode);
-		elif type == 1:	
+		elif type == 1:
 			self.log.debug("MkDir:"+newpath)
 			res = os.mkdir(newpath,mode)
 		else:
@@ -273,7 +273,7 @@ class TrackerFs (Fuse,TrackerClient):
 		self.log.debug("fsync: path=%s, isfsyncfile=%s" % (path, isfsyncfile))
 		return 0
 
-if __name__ == '__main__':	
+if __name__ == '__main__':
 	fs = TrackerFs()
 	fs.multithreaded = 0;
 	fs.main()

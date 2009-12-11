@@ -57,5 +57,5 @@ SuperClasses=<xsl:for-each select="rdfs:subClassOf">
 Description=<xsl:value-of select="rdfs:comment"/></xsl:if>
 </xsl:for-each>
 </xsl:template>
-</xsl:stylesheet> 
+</xsl:stylesheet>
 

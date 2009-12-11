@@ -47,11 +47,11 @@ tracker_data_query_rdf_type (guint32 id)
 	iface = tracker_db_manager_get_db_interface ();
 
 	stmt = tracker_db_interface_create_statement (iface,
-			"SELECT \"rdfs:Resource\".\"Uri\" "
-			"FROM \"rdfs:Resource_rdf:type\" "
-			"INNER JOIN \"rdfs:Resource\" "
-			"ON \"rdfs:Resource_rdf:type\".\"rdf:type\" = \"rdfs:Resource\".\"ID\" "
-			"WHERE \"rdfs:Resource_rdf:type\".\"ID\" = ?");
+	                                              "SELECT \"rdfs:Resource\".\"Uri\" "
+	                                              "FROM \"rdfs:Resource_rdf:type\" "
+	                                              "INNER JOIN \"rdfs:Resource\" "
+	                                              "ON \"rdfs:Resource_rdf:type\".\"rdf:type\" = \"rdfs:Resource\".\"ID\" "
+	                                              "WHERE \"rdfs:Resource_rdf:type\".\"ID\" = ?");
 
 	tracker_db_statement_bind_int (stmt, 0, id);
 	cursor = tracker_db_statement_start_cursor (stmt, NULL);
@@ -60,7 +60,7 @@ tracker_data_query_rdf_type (guint32 id)
 	if (cursor) {
 
 		/* Query is usually a rather small result, but let's try to
-		 * avoid reallocs in gptrarray.c as much as possible (this 
+		 * avoid reallocs in gptrarray.c as much as possible (this
 		 * function is called fairly often) */
 
 		ret = g_ptr_array_sized_new (20);
@@ -74,19 +74,19 @@ tracker_data_query_rdf_type (guint32 id)
 }
 
 guint32
-tracker_data_query_resource_id (const gchar	   *uri)
+tracker_data_query_resource_id (const gchar        *uri)
 {
 	TrackerDBCursor *cursor;
 	TrackerDBInterface *iface;
 	TrackerDBStatement *stmt;
-	guint32		    id = 0;
+	guint32                     id = 0;
 
 	g_return_val_if_fail (uri != NULL, 0);
 
 	iface = tracker_db_manager_get_db_interface ();
 
 	stmt = tracker_db_interface_create_statement (iface,
-		"SELECT ID FROM \"rdfs:Resource\" WHERE Uri = ?");
+	                                              "SELECT ID FROM \"rdfs:Resource\" WHERE Uri = ?");
 	tracker_db_statement_bind_text (stmt, 0, uri);
 	cursor = tracker_db_statement_start_cursor (stmt, NULL);
 	g_object_unref (stmt);
@@ -102,7 +102,7 @@ tracker_data_query_resource_id (const gchar	   *uri)
 
 TrackerDBResultSet *
 tracker_data_query_sparql (const gchar  *query,
-			   GError      **error)
+                           GError      **error)
 {
 	TrackerSparqlQuery *sparql_query;
 	TrackerDBResultSet *result_set;

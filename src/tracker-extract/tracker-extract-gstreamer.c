@@ -99,20 +99,20 @@ typedef struct {
 
 	GstBus         *bus;
 
-	ExtractMime	mime;
+	ExtractMime     mime;
 
 
 	/* Decodebin elements and properties*/
-	GstElement     *bin;	
+	GstElement     *bin;
 	GList          *fsinks;
 
 	gint64          duration;
-	gint		video_height;
-	gint		video_width;
-	gint		video_fps_n;
-	gint		video_fps_d;
-	gint		audio_channels;
-	gint		audio_samplerate;
+	gint            video_height;
+	gint            video_width;
+	gint            video_fps_n;
+	gint            video_fps_d;
+	gint            audio_channels;
+	gint            audio_samplerate;
 
 	/* Tags and data */
 	GstTagList     *tagcache;
@@ -146,9 +146,9 @@ const gboolean use_tagreadbin = FALSE;
 
 static void
 add_int64_info (TrackerSparqlBuilder *metadata,
-		const gchar *uri,
-		const gchar *key,
-		gint64	    info)
+                const gchar *uri,
+                const gchar *key,
+                gint64      info)
 {
 	tracker_sparql_builder_predicate (metadata, key);
 	tracker_sparql_builder_object_int64 (metadata, info);
@@ -156,9 +156,9 @@ add_int64_info (TrackerSparqlBuilder *metadata,
 
 static void
 add_uint_info (TrackerSparqlBuilder *metadata,
-	       const gchar *uri,
-	       const gchar *key,
-	       guint	   info)
+               const gchar *uri,
+               const gchar *key,
+               guint       info)
 {
 	tracker_sparql_builder_predicate (metadata, key);
 	tracker_sparql_builder_object_int64 (metadata, info);
@@ -166,12 +166,12 @@ add_uint_info (TrackerSparqlBuilder *metadata,
 
 static void
 add_string_gst_tag (TrackerSparqlBuilder *metadata,
-		    const gchar          *uri,
-		    const gchar          *key,
-		    GstTagList	         *tag_list,
-		    const gchar          *tag)
+                    const gchar          *uri,
+                    const gchar          *key,
+                    GstTagList           *tag_list,
+                    const gchar          *tag)
 {
-	gchar	 *s;
+	gchar    *s;
 	gboolean  ret;
 
 	s = NULL;
@@ -189,13 +189,13 @@ add_string_gst_tag (TrackerSparqlBuilder *metadata,
 
 static void
 add_uint_gst_tag (TrackerSparqlBuilder   *metadata,
-		  const gchar *uri,
-		  const gchar *key,
-		  GstTagList  *tag_list,
-		  const gchar *tag)
+                  const gchar *uri,
+                  const gchar *key,
+                  GstTagList  *tag_list,
+                  const gchar *tag)
 {
 	gboolean ret;
-	guint	 n;
+	guint    n;
 
 	ret = gst_tag_list_get_uint (tag_list, tag, &n);
 
@@ -207,13 +207,13 @@ add_uint_gst_tag (TrackerSparqlBuilder   *metadata,
 
 static void
 add_int_gst_tag (TrackerSparqlBuilder   *metadata,
-		 const gchar *uri,
-		 const gchar *key,
-		 GstTagList  *tag_list,
-		 const gchar *tag)
+                 const gchar *uri,
+                 const gchar *key,
+                 GstTagList  *tag_list,
+                 const gchar *tag)
 {
 	gboolean ret;
-	gint	 n;
+	gint     n;
 
 	ret = gst_tag_list_get_int (tag_list, tag, &n);
 
@@ -224,14 +224,14 @@ add_int_gst_tag (TrackerSparqlBuilder   *metadata,
 }
 
 static void
-add_double_gst_tag (TrackerSparqlBuilder	*metadata,
-		    const gchar *uri,
-		    const gchar *key,
-		    GstTagList	*tag_list,
-		    const gchar *tag)
+add_double_gst_tag (TrackerSparqlBuilder        *metadata,
+                    const gchar *uri,
+                    const gchar *key,
+                    GstTagList  *tag_list,
+                    const gchar *tag)
 {
 	gboolean ret;
-	gdouble	 n;
+	gdouble          n;
 
 	ret = gst_tag_list_get_double (tag_list, tag, &n);
 
@@ -243,13 +243,13 @@ add_double_gst_tag (TrackerSparqlBuilder	*metadata,
 
 static void
 add_fraction_gst_tag (TrackerSparqlBuilder         *metadata,
-		      const gchar       *uri,
-		      const gchar       *key,
-		      GstTagList	*tag_list,
-		      const gchar       *tag)
+                      const gchar       *uri,
+                      const gchar       *key,
+                      GstTagList        *tag_list,
+                      const gchar       *tag)
 {
 	gboolean ret;
-	GValue	 n = {0,};
+	GValue   n = {0,};
 	gfloat   f;
 
 	ret = gst_tag_list_copy_value (&n, tag_list, tag);
@@ -265,12 +265,12 @@ add_fraction_gst_tag (TrackerSparqlBuilder         *metadata,
 
 static void
 add_y_date_gst_tag (TrackerSparqlBuilder  *metadata,
-		    const gchar *uri,
-		    const gchar *key,
-		    GstTagList  *tag_list,
-		    const gchar *tag)
+                    const gchar *uri,
+                    const gchar *key,
+                    GstTagList  *tag_list,
+                    const gchar *tag)
 {
-	GDate	 *date;
+	GDate    *date;
 	gboolean  ret;
 
 	date = NULL;
@@ -292,13 +292,13 @@ add_y_date_gst_tag (TrackerSparqlBuilder  *metadata,
 
 static void
 add_time_gst_tag (TrackerSparqlBuilder   *metadata,
-		  const gchar *uri,
-		  const gchar *key,
-		  GstTagList  *tag_list,
-		  const gchar *tag)
+                  const gchar *uri,
+                  const gchar *key,
+                  GstTagList  *tag_list,
+                  const gchar *tag)
 {
 	gboolean ret;
-	guint64	 n;
+	guint64          n;
 
 	ret = gst_tag_list_get_uint64 (tag_list, tag, &n);
 
@@ -334,9 +334,9 @@ get_embedded_album_art(MetadataExtractor *extractor)
 			caps_struct = gst_caps_get_structure (buffer->caps, 0);
 
 			gst_structure_get_enum (caps_struct,
-						"image-type",
-						GST_TYPE_TAG_IMAGE_TYPE,
-						&type);
+			                        "image-type",
+			                        GST_TYPE_TAG_IMAGE_TYPE,
+			                        &type);
 
 			if ((type == GST_TAG_IMAGE_TYPE_FRONT_COVER)||
 			    ((type == GST_TAG_IMAGE_TYPE_UNDEFINED)&&(extractor->album_art_size == 0))) {
@@ -378,8 +378,8 @@ get_embedded_album_art(MetadataExtractor *extractor)
 
 static void
 extract_stream_metadata_tagreadbin (MetadataExtractor *extractor,
-				    const gchar       *uri,
-				    TrackerSparqlBuilder         *metadata)
+                                    const gchar       *uri,
+                                    TrackerSparqlBuilder         *metadata)
 {
 	if (extractor->mime != EXTRACT_MIME_IMAGE) {
 		add_uint_gst_tag (metadata, uri, "nfo:channels", extractor->tagcache, GST_TAG_CHANNEL);
@@ -397,8 +397,8 @@ extract_stream_metadata_tagreadbin (MetadataExtractor *extractor,
 
 static void
 extract_stream_metadata_decodebin (MetadataExtractor *extractor,
-				   const gchar       *uri,
-				   TrackerSparqlBuilder         *metadata)
+                                   const gchar       *uri,
+                                   TrackerSparqlBuilder         *metadata)
 {
 	if (extractor->mime != EXTRACT_MIME_IMAGE) {
 		if (extractor->audio_channels >= 0) {
@@ -425,19 +425,19 @@ extract_stream_metadata_decodebin (MetadataExtractor *extractor,
 	if (extractor->mime == EXTRACT_MIME_VIDEO) {
 		if (extractor->video_fps_n >= 0 && extractor->video_fps_d >= 0) {
 			add_uint_info (metadata,
-				       uri, "nfo:frameRate",
-				       ((extractor->video_fps_n + extractor->video_fps_d / 2) /
-					extractor->video_fps_d));
+			               uri, "nfo:frameRate",
+			               ((extractor->video_fps_n + extractor->video_fps_d / 2) /
+			                extractor->video_fps_d));
 		}
 	}
 }
 
 static void
 extract_metadata (MetadataExtractor      *extractor,
-		  const gchar            *uri,
-		  TrackerSparqlBuilder   *metadata,
-		  gchar                 **album,
-		  gchar                 **scount)
+                  const gchar            *uri,
+                  TrackerSparqlBuilder   *metadata,
+                  gchar                 **album,
+                  gchar                 **scount)
 {
 	gchar *s;
 	gboolean ret;
@@ -620,16 +620,16 @@ dbin_dpad_cb (GstElement* e, GstPad* pad, gboolean cont, gpointer data_)
 	GValue             val = {0, };
 
 	fsink = gst_element_factory_make ("fakesink", NULL);
-	
+
 	/* We increase the preroll buffer so we get duration (one frame not enough)*/
 	g_value_init (&val, G_TYPE_INT);
-	g_value_set_int (&val, 51); 
+	g_value_set_int (&val, 51);
 	g_object_set_property (G_OBJECT (fsink), "preroll-queue-len", &val);
 	g_value_unset (&val);
 
 	extractor->fsinks = g_list_append (extractor->fsinks, fsink);
 	gst_element_set_state (fsink, GST_STATE_PAUSED);
-	
+
 	gst_bin_add (GST_BIN (extractor->pipeline), fsink);
 	fsinkpad = gst_element_get_static_pad (fsink, "sink");
 	gst_pad_link (pad, fsinkpad);
@@ -639,7 +639,7 @@ dbin_dpad_cb (GstElement* e, GstPad* pad, gboolean cont, gpointer data_)
 static guint64
 get_media_duration (MetadataExtractor *extractor)
 {
-	gint64	  duration;
+	gint64    duration;
 	GstFormat fmt;
 
 	g_return_val_if_fail (extractor, -1);
@@ -648,10 +648,10 @@ get_media_duration (MetadataExtractor *extractor)
 	fmt = GST_FORMAT_TIME;
 
 	duration = -1;
-	
+
 	if (gst_element_query_duration (extractor->pipeline,
-					&fmt,
-					&duration) &&
+	                                &fmt,
+	                                &duration) &&
 	    duration >= 0) {
 		return duration / GST_SECOND;
 	} else {
@@ -666,21 +666,21 @@ add_stream_tag (void *obj, void *data_)
 	GstElement        *fsink     = (GstElement *) obj;
 
 	GstStructure      *s         = NULL;
-	GstCaps	          *caps      = NULL;
+	GstCaps                   *caps      = NULL;
 
 	if ((caps = GST_PAD_CAPS (fsink))) {
 		s = gst_caps_get_structure (caps, 0);
-		
+
 		if (s) {
 			if (g_strrstr (gst_structure_get_name (s), "audio")) {
 				if ( ( (extractor->audio_channels != -1) &&
 				       (extractor->audio_samplerate != -1) ) ||
 				     !( (gst_structure_get_int (s,
-								"channels",
-								&extractor->audio_channels) ) &&
-					(gst_structure_get_int (s,
-								"rate",
-								&extractor->audio_samplerate)) ) ) {
+				                                "channels",
+				                                &extractor->audio_channels) ) &&
+				        (gst_structure_get_int (s,
+				                                "rate",
+				                                &extractor->audio_samplerate)) ) ) {
 					return;
 				}
 			} else if (g_strrstr (gst_structure_get_name (s), "video")) {
@@ -689,11 +689,11 @@ add_stream_tag (void *obj, void *data_)
 				       (extractor->video_width != -1) &&
 				       (extractor->video_height != -1) ) ||
 				     !( (gst_structure_get_fraction (s,
-								     "framerate",
-								     &extractor->video_fps_n,
-								     &extractor->video_fps_d) ) &&
-					(gst_structure_get_int (s, "width", &extractor->video_width)) &&
-					(gst_structure_get_int (s, "height", &extractor->video_height)))) {
+				                                     "framerate",
+				                                     &extractor->video_fps_n,
+				                                     &extractor->video_fps_d) ) &&
+				        (gst_structure_get_int (s, "width", &extractor->video_width)) &&
+				        (gst_structure_get_int (s, "height", &extractor->video_height)))) {
 					return;
 				}
 			}
@@ -714,8 +714,8 @@ add_tags (GstTagList *new_tags, MetadataExtractor *extractor)
 	GstTagList   *result;
 
 	result = gst_tag_list_merge (extractor->tagcache,
-				     new_tags,
-				     GST_TAG_MERGE_KEEP);
+	                             new_tags,
+	                             GST_TAG_MERGE_KEEP);
 
 	if (extractor->tagcache) {
 		gst_tag_list_free (extractor->tagcache);
@@ -727,9 +727,9 @@ add_tags (GstTagList *new_tags, MetadataExtractor *extractor)
 
 static gboolean
 poll_for_ready (MetadataExtractor *extractor,
-		GstState state,
-		gboolean ready_with_state,
-		gboolean ready_with_eos)
+                GstState state,
+                gboolean ready_with_state,
+                gboolean ready_with_eos)
 {
 	gint64              timeout   = 5 * GST_SECOND;
 	GstBus             *bus       = extractor->bus;
@@ -740,21 +740,21 @@ poll_for_ready (MetadataExtractor *extractor,
 	while (TRUE) {
 		GstMessage *message;
 		GstElement *src;
-		
+
 		message = gst_bus_timed_pop (bus, timeout);
-		
+
 		if (!message) {
 			g_warning ("Pipeline timed out");
 			return FALSE;
 		}
-		
+
 		src = (GstElement*)GST_MESSAGE_SRC (message);
-		
+
 		switch (GST_MESSAGE_TYPE (message)) {
 		case GST_MESSAGE_STATE_CHANGED: {
 			if (ready_with_state) {
 				GstState old, new, pending;
-				
+
 				if (src == extractor->pipeline) {
 					gst_message_parse_state_changed (message, &old, &new, &pending);
 					if (new == state) {
@@ -799,12 +799,12 @@ poll_for_ready (MetadataExtractor *extractor,
 			/* Nothing to do here */
 			break;
 		}
-		
+
 		gst_message_unref (message);
 	}
-	
+
 	g_assert_not_reached ();
-	
+
 	return FALSE;
 }
 
@@ -812,7 +812,7 @@ static GstElement *
 create_decodebin_pipeline (MetadataExtractor *extractor, const gchar *uri)
 {
 	GstElement *pipeline = NULL;
-	
+
 	GstElement *filesrc  = NULL;
 	GstElement *bin      = NULL;
 
@@ -836,11 +836,11 @@ create_decodebin_pipeline (MetadataExtractor *extractor, const gchar *uri)
 		return FALSE;
 	}
 
-	id = g_signal_connect (G_OBJECT (bin), 
-			       "new-decoded-pad",
-			       G_CALLBACK (dbin_dpad_cb), 
-			       extractor);
-	
+	id = g_signal_connect (G_OBJECT (bin),
+	                       "new-decoded-pad",
+	                       G_CALLBACK (dbin_dpad_cb),
+	                       extractor);
+
 	gst_bin_add (GST_BIN (pipeline), filesrc);
 	gst_bin_add (GST_BIN (pipeline), bin);
 
@@ -874,8 +874,8 @@ create_tagreadbin_pipeline (MetadataExtractor *extractor, const gchar *uri)
 
 static void
 tracker_extract_gstreamer (const gchar *uri,
-			   TrackerSparqlBuilder  *metadata,
-			   ExtractMime	type)
+                           TrackerSparqlBuilder  *metadata,
+                           ExtractMime  type)
 {
 	MetadataExtractor *extractor;
 	gchar *album, *scount;
@@ -895,7 +895,7 @@ tracker_extract_gstreamer (const gchar *uri,
 	extractor->mime         = type;
 
 	extractor->tagcache     = NULL;
-	
+
 	extractor->album_art_data = NULL;
 	extractor->album_art_size = 0;
 	extractor->album_art_mime = NULL;
@@ -926,7 +926,7 @@ tracker_extract_gstreamer (const gchar *uri,
 		if (!poll_for_ready (extractor, GST_STATE_PLAYING, FALSE, TRUE)) {
 			g_warning ("Error running tagreadbin");
 			return;
-		}			
+		}
 	} else {
 		if (!poll_for_ready (extractor, GST_STATE_PAUSED, TRUE, FALSE)) {
 			g_warning ("Error running decodebin");
@@ -946,12 +946,12 @@ tracker_extract_gstreamer (const gchar *uri,
 
 	extract_metadata (extractor, uri, metadata, &album, &scount);
 
-	tracker_albumart_process (extractor->album_art_data, 
-				  extractor->album_art_size, 
-				  extractor->album_art_mime,
-				  /* g_hash_table_lookup (metadata, "Audio:Artist") */ NULL,
-				  album,
-				  uri);
+	tracker_albumart_process (extractor->album_art_data,
+	                          extractor->album_art_size,
+	                          extractor->album_art_mime,
+	                          /* g_hash_table_lookup (metadata, "Audio:Artist") */ NULL,
+	                          album,
+	                          uri);
 
 	g_free (scount);
 	g_free (album);

@@ -33,122 +33,122 @@ static GPtrArray *types;
 static GStrv
 initialization_callback (void)
 {
-        gchar *klasses[] = {
-                EMAIL_CLASS,
-                FEED_CLASS,
-                CONTACT_CLASS,
-                NULL};
+	gchar *klasses[] = {
+		EMAIL_CLASS,
+		FEED_CLASS,
+		CONTACT_CLASS,
+		NULL};
 
-        return g_strdupv (klasses);
+	return g_strdupv (klasses);
 }
 
 static void
 test_events_empty (void)
 {
-        GPtrArray *events = NULL;
+	GPtrArray *events = NULL;
 
-        tracker_events_init (initialization_callback);
+	tracker_events_init (initialization_callback);
 
-        events = tracker_events_get_pending ();
-        g_assert (events == NULL);
+	events = tracker_events_get_pending ();
+	g_assert (events == NULL);
 
-        tracker_events_reset ();
+	tracker_events_reset ();
 
-        tracker_events_shutdown ();
+	tracker_events_shutdown ();
 }
 
 static void
 test_events_reset (void)
 {
-        GPtrArray *events;
+	GPtrArray *events;
 
-        tracker_events_init (initialization_callback);
+	tracker_events_init (initialization_callback);
 
-        tracker_events_insert ("uri://1", EMAIL_CLASS, types,
-                               TRACKER_DBUS_EVENTS_TYPE_ADD);
+	tracker_events_insert ("uri://1", EMAIL_CLASS, types,
+	                       TRACKER_DBUS_EVENTS_TYPE_ADD);
 
-        events = tracker_events_get_pending ();
-        g_assert_cmpint (events->len, ==, 1);
+	events = tracker_events_get_pending ();
+	g_assert_cmpint (events->len, ==, 1);
 
-        /* Try again without reset to ensure the data is
-         * still there 
-         */
-        events = tracker_events_get_pending ();
-        g_assert_cmpint (events->len, ==, 1);
+	/* Try again without reset to ensure the data is
+	 * still there
+	 */
+	events = tracker_events_get_pending ();
+	g_assert_cmpint (events->len, ==, 1);
 
-        tracker_events_reset ();
-        tracker_events_shutdown ();
+	tracker_events_reset ();
+	tracker_events_shutdown ();
 }
 
 static void
 test_events_insertions (void)
 {
-        GPtrArray *events;
+	GPtrArray *events;
 
-        tracker_events_init (initialization_callback);
+	tracker_events_init (initialization_callback);
 
-        tracker_events_insert ("uri://1", EMAIL_CLASS, types,
-                               TRACKER_DBUS_EVENTS_TYPE_ADD);
+	tracker_events_insert ("uri://1", EMAIL_CLASS, types,
+	                       TRACKER_DBUS_EVENTS_TYPE_ADD);
 
-        tracker_events_insert ("uri://2", EMAIL_CLASS, types,
-                               TRACKER_DBUS_EVENTS_TYPE_UPDATE);
+	tracker_events_insert ("uri://2", EMAIL_CLASS, types,
+	                       TRACKER_DBUS_EVENTS_TYPE_UPDATE);
 
-        tracker_events_insert ("uri://3", EMAIL_CLASS, types,
-                               TRACKER_DBUS_EVENTS_TYPE_DELETE);
+	tracker_events_insert ("uri://3", EMAIL_CLASS, types,
+	                       TRACKER_DBUS_EVENTS_TYPE_DELETE);
 
-        events = tracker_events_get_pending ();
-        g_assert_cmpint (events->len, ==, 2);
+	events = tracker_events_get_pending ();
+	g_assert_cmpint (events->len, ==, 2);
 
-        /* Insert class we dont want to signal */
-        tracker_events_insert ("uri://x", NON_SIGNAL_CLASS, types,
-                               TRACKER_DBUS_EVENTS_TYPE_DELETE);
+	/* Insert class we dont want to signal */
+	tracker_events_insert ("uri://x", NON_SIGNAL_CLASS, types,
+	                       TRACKER_DBUS_EVENTS_TYPE_DELETE);
 
-        events = tracker_events_get_pending ();
-        g_assert_cmpint (events->len, ==, 2);
-        
-        tracker_events_reset ();
-        tracker_events_shutdown ();
+	events = tracker_events_get_pending ();
+	g_assert_cmpint (events->len, ==, 2);
+
+	tracker_events_reset ();
+	tracker_events_shutdown ();
 }
 
 static void
 test_events_no_allows (void)
 {
-        gint i;
+	gint i;
 
-        tracker_events_init (NULL);
-        g_assert (tracker_events_get_pending () == NULL);
-        tracker_events_reset ();
-        g_assert (tracker_events_get_pending () == NULL);
+	tracker_events_init (NULL);
+	g_assert (tracker_events_get_pending () == NULL);
+	tracker_events_reset ();
+	g_assert (tracker_events_get_pending () == NULL);
 
-        for (i = 0; i < 10; i++) {
-                tracker_events_insert (g_strdup_printf ("uri://%d", i),
-                                       EMAIL_CLASS, types,
-                                       TRACKER_DBUS_EVENTS_TYPE_ADD);
-        }
+	for (i = 0; i < 10; i++) {
+		tracker_events_insert (g_strdup_printf ("uri://%d", i),
+		                       EMAIL_CLASS, types,
+		                       TRACKER_DBUS_EVENTS_TYPE_ADD);
+	}
 
-        g_assert (tracker_events_get_pending () == NULL);
-        
-        tracker_events_shutdown ();
+	g_assert (tracker_events_get_pending () == NULL);
+
+	tracker_events_shutdown ();
 }
 
 static void
 test_events_lifecycle (void)
 {
-        /* Shutdown - no init */
- 	if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDERR)) {
-                tracker_events_shutdown ();
+	/* Shutdown - no init */
+	if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDERR)) {
+		tracker_events_shutdown ();
 	}
 	g_test_trap_assert_stderr ("*tracker_events already shutdown*");
 
-  	if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDERR)) {
-                tracker_events_get_pending ();
-        }
-        g_test_trap_assert_stderr ("*assertion `private != NULL' failed*");
+	if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDERR)) {
+		tracker_events_get_pending ();
+	}
+	g_test_trap_assert_stderr ("*assertion `private != NULL' failed*");
 
-  	if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDERR)) {
-                tracker_events_reset ();
-        }
-        g_test_trap_assert_stderr ("*assertion `private != NULL' failed*");
+	if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDERR)) {
+		tracker_events_reset ();
+	}
+	g_test_trap_assert_stderr ("*assertion `private != NULL' failed*");
 }
 
 int
@@ -158,9 +158,9 @@ main (int    argc,
 	GStrv types_s;
 	guint i;
 
-        g_type_init ();
-        g_thread_init (NULL);
-        g_test_init (&argc, &argv, NULL);
+	g_type_init ();
+	g_thread_init (NULL);
+	g_test_init (&argc, &argv, NULL);
 
 	types = g_ptr_array_new ();
 
@@ -170,16 +170,16 @@ main (int    argc,
 		g_ptr_array_add (types, types_s[i]);
 	}
 
-        g_test_add_func ("/tracker/tracker-indexer/tracker-events/empty",
-                         test_events_empty);
-        g_test_add_func ("/tracker/tracker-indexer/tracker-events/reset",
-                         test_events_reset);
-        g_test_add_func ("/tracker/tracker-indexer/tracker-events/insertions",
-                         test_events_insertions);
-        g_test_add_func ("/tracker/tracker-indexer/tracker-events/no-allows",
-                         test_events_no_allows);
-        g_test_add_func ("/tracker/tracker-indexer/tracker-events/lifecycle",
-                         test_events_lifecycle);
+	g_test_add_func ("/tracker/tracker-indexer/tracker-events/empty",
+	                 test_events_empty);
+	g_test_add_func ("/tracker/tracker-indexer/tracker-events/reset",
+	                 test_events_reset);
+	g_test_add_func ("/tracker/tracker-indexer/tracker-events/insertions",
+	                 test_events_insertions);
+	g_test_add_func ("/tracker/tracker-indexer/tracker-events/no-allows",
+	                 test_events_no_allows);
+	g_test_add_func ("/tracker/tracker-indexer/tracker-events/lifecycle",
+	                 test_events_lifecycle);
 
 	g_ptr_array_free (types, TRUE);
 

@@ -54,23 +54,23 @@ typedef struct {
 	const gchar *uri;
 } ODTParseInfo;
 
-static void start_element_handler (GMarkupParseContext	*context,
-				   const gchar		*element_name,
-				   const gchar	       **attribute_names,
-				   const gchar	       **attribute_values,
-				   gpointer		 user_data,
-				   GError	       **error);
-static void end_element_handler   (GMarkupParseContext	*context,
-				   const gchar		*element_name,
-				   gpointer		 user_data,
-				   GError	       **error);
-static void text_handler	  (GMarkupParseContext	*context,
-				   const gchar		*text,
-				   gsize		 text_len,
-				   gpointer		 user_data,
-				   GError	       **error);
-static void extract_oasis	  (const gchar		*filename,
-				   TrackerSparqlBuilder		*metadata);
+static void start_element_handler (GMarkupParseContext  *context,
+                                   const gchar          *element_name,
+                                   const gchar         **attribute_names,
+                                   const gchar         **attribute_values,
+                                   gpointer              user_data,
+                                   GError              **error);
+static void end_element_handler   (GMarkupParseContext  *context,
+                                   const gchar          *element_name,
+                                   gpointer              user_data,
+                                   GError              **error);
+static void text_handler          (GMarkupParseContext  *context,
+                                   const gchar          *text,
+                                   gsize                 text_len,
+                                   gpointer              user_data,
+                                   GError              **error);
+static void extract_oasis         (const gchar          *filename,
+                                   TrackerSparqlBuilder                 *metadata);
 
 static TrackerExtractData extract_data[] = {
 	{ "application/vnd.oasis.opendocument.*", extract_oasis },
@@ -79,7 +79,7 @@ static TrackerExtractData extract_data[] = {
 
 static gchar *
 extract_content (const gchar *path,
-		 guint        n_words)
+                 guint        n_words)
 {
 	gchar *command, *output, *text;
 	GError *error = NULL;
@@ -104,10 +104,10 @@ extract_content (const gchar *path,
 
 static void
 extract_oasis (const gchar *uri,
-	       TrackerSparqlBuilder   *metadata)
+               TrackerSparqlBuilder   *metadata)
 {
-	gchar	      *argv[5];
-	gchar	      *xml;
+	gchar         *argv[5];
+	gchar         *xml;
 	gchar *filename = g_filename_from_uri (uri, NULL, NULL);
 	gchar *content;
 	TrackerFTSConfig *fts_config;
@@ -130,7 +130,7 @@ extract_oasis (const gchar *uri,
 
 	if (tracker_spawn (argv, 10, &xml, NULL)) {
 		GMarkupParseContext *context;
-		GMarkupParser	     parser = {
+		GMarkupParser        parser = {
 			start_element_handler,
 			end_element_handler,
 			text_handler,
@@ -164,11 +164,11 @@ extract_oasis (const gchar *uri,
 
 void
 start_element_handler (GMarkupParseContext  *context,
-		       const gchar	    *element_name,
-		       const gchar	   **attribute_names,
-		       const gchar	   **attribute_values,
-		       gpointer		     user_data,
-		       GError		   **error)
+                       const gchar          *element_name,
+                       const gchar         **attribute_names,
+                       const gchar         **attribute_values,
+                       gpointer                      user_data,
+                       GError              **error)
 {
 	ODTParseInfo *data = user_data;
 
@@ -220,19 +220,19 @@ start_element_handler (GMarkupParseContext  *context,
 
 void
 end_element_handler (GMarkupParseContext  *context,
-		     const gchar	  *element_name,
-		     gpointer		   user_data,
-		     GError		 **error)
+                     const gchar          *element_name,
+                     gpointer              user_data,
+                     GError              **error)
 {
 	((ODTParseInfo*) user_data)->current = -1;
 }
 
 void
 text_handler (GMarkupParseContext  *context,
-	      const gchar	   *text,
-	      gsize		    text_len,
-	      gpointer		    user_data,
-	      GError		  **error)
+              const gchar          *text,
+              gsize                 text_len,
+              gpointer              user_data,
+              GError              **error)
 {
 	ODTParseInfo *data;
 	TrackerSparqlBuilder    *metadata;
@@ -265,7 +265,7 @@ text_handler (GMarkupParseContext  *context,
 	case READ_KEYWORDS: {
 		gchar *keywords = g_strdup (text);
 		char *lasts, *keyw;
-		for (keyw = strtok_r (keywords, ",; ", &lasts); keyw; 
+		for (keyw = strtok_r (keywords, ",; ", &lasts); keyw;
 		     keyw = strtok_r (NULL, ",; ", &lasts)) {
 			tracker_sparql_builder_predicate (metadata, "nie:keyword");
 			tracker_sparql_builder_object_unvalidated (metadata, keyw);

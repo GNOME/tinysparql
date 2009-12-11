@@ -35,8 +35,8 @@ class QueriesStore ():
             conn = sqlite3.connect (self.db_path)
             c = conn.cursor ()
             c.execute ("CREATE TABLE saved_queries ( Name Text not null, Query Text );")
-            c.execute ("INSERT INTO saved_queries VALUES ('', '%s')" % (EMPTY_QUERY)) 
-            c.execute ("INSERT INTO saved_queries VALUES ('Example', '%s')" % (DEFAULT_EXAMPLE)) 
+            c.execute ("INSERT INTO saved_queries VALUES ('', '%s')" % (EMPTY_QUERY))
+            c.execute ("INSERT INTO saved_queries VALUES ('Example', '%s')" % (DEFAULT_EXAMPLE))
             conn.commit ()
             c.close ()
 
@@ -57,7 +57,7 @@ class QueriesStore ():
         c.execute ("DELETE FROM saved_queries WHERE Name='%s';" % (name))
         conn.commit ()
         c.close ()
-        
+
 
     def get_all_queries (self):
         conn = sqlite3.connect (self.db_path)

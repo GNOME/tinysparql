@@ -9,7 +9,7 @@
  *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the GNU
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.          See the GNU
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
@@ -33,30 +33,30 @@ G_BEGIN_DECLS
  * Add support for G_LOG_LEVEL_INFO through tracker_info().
  */
 #ifdef G_HAVE_ISO_VARARGS
-#define tracker_info(...)         g_log (G_LOG_DOMAIN,		\
-					 G_LOG_LEVEL_INFO,	\
-					 __VA_ARGS__)
+#define tracker_info(...)         g_log (G_LOG_DOMAIN,	\
+                                         G_LOG_LEVEL_INFO,	\
+                                         __VA_ARGS__)
 #elif defined(G_HAVE_GNUC_VARARGS)
-#define tracker_info(format...)   g_log (G_LOG_DOMAIN,		\
-					 G_LOG_LEVEL_INFO,	\
-					 format)
+#define tracker_info(format...)   g_log (G_LOG_DOMAIN,	\
+                                         G_LOG_LEVEL_INFO,	\
+                                         format)
 #else   /* no varargs macros */
 static void
 tracker_info (const gchar *format,
-	      ...)
+              ...)
 {
-  va_list args;
-  va_start (args, format);
-  g_logv (G_LOG_DOMAIN, G_LOG_LEVEL_INFO, format, args);
-  va_end (args);
+	va_list args;
+	va_start (args, format);
+	g_logv (G_LOG_DOMAIN, G_LOG_LEVEL_INFO, format, args);
+	va_end (args);
 }
 #endif  /* !__GNUC__ */
 
 gboolean tracker_log_init          (gint             verbosity,
-				    gchar          **used_filename);
+                                    gchar          **used_filename);
 void     tracker_log_shutdown      (void);
 gboolean tracker_log_should_handle (GLogLevelFlags   log_level,
-				    gint             verbosity);
+                                    gint             verbosity);
 
 G_END_DECLS
 

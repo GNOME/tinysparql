@@ -36,11 +36,11 @@ typedef struct TrackerStatusIcon TrackerStatusIcon;
 typedef struct TrackerStatusIconClass TrackerStatusIconClass;
 
 struct TrackerStatusIcon {
-        GtkStatusIcon parent_object;
+	GtkStatusIcon parent_object;
 };
 
 struct TrackerStatusIconClass {
-        GtkStatusIconClass parent_class;
+	GtkStatusIconClass parent_class;
 };
 
 GType           tracker_status_icon_get_type (void) G_GNUC_CONST;

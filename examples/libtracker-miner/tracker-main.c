@@ -36,16 +36,16 @@ miner_finished_cb (TrackerMiner *miner,
                    guint         total_directories_ignored,
                    guint         total_files_found,
                    guint         total_files_ignored,
-		   gpointer      user_data)
+                   gpointer      user_data)
 {
-        GMainLoop *main_loop = user_data;
+	GMainLoop *main_loop = user_data;
 
 	g_message ("Finished mining in seconds:%f, total directories:%d, total files:%d",
-                   seconds_elapsed,
-                   total_directories_found + total_directories_ignored,
-                   total_files_found + total_files_ignored);
+	           seconds_elapsed,
+	           total_directories_found + total_directories_ignored,
+	           total_files_found + total_files_ignored);
 
-        g_main_loop_quit (main_loop);
+	g_main_loop_quit (main_loop);
 }
 
 static gboolean
@@ -61,8 +61,8 @@ miner_start_cb (gpointer user_data)
 
 static gboolean
 check_directory_cb (TrackerMinerFS *fs,
-		    GFile	   *file,
-		    gpointer        user_data)
+                    GFile          *file,
+                    gpointer        user_data)
 {
 	gchar *path;
 	gchar *basename;
@@ -88,18 +88,18 @@ check_directory_cb (TrackerMinerFS *fs,
 	    strcmp (path, "/sys") == 0) {
 		goto done;
 	}
-	
+
 	if (g_str_has_prefix (path, g_get_tmp_dir ())) {
 		goto done;
 	}
-	
+
 	/* Check ignored directories in config */
 	basename = g_file_get_basename (file);
 
 	if (!basename) {
 		goto done;
 	}
-	
+
 	/* If directory begins with ".", check it isn't one of
 	 * the top level directories to watch/crawl if it
 	 * isn't we ignore it. If it is, we don't.
@@ -107,11 +107,11 @@ check_directory_cb (TrackerMinerFS *fs,
 	if (basename[0] == '.') {
 		goto done;
 	}
-	
+
 	/* Check module directory ignore patterns */
 	should_process = TRUE;
 
-done:
+ done:
 	g_free (path);
 	g_free (basename);
 
@@ -120,8 +120,8 @@ done:
 
 static gboolean
 check_file_cb (TrackerMinerFS *fs,
-	       GFile	      *file,
-	       gpointer	       user_data)
+               GFile          *file,
+               gpointer                user_data)
 {
 	gchar *path;
 	gchar *basename;
@@ -149,7 +149,7 @@ check_file_cb (TrackerMinerFS *fs,
 
 	should_process = TRUE;
 
-done:
+ done:
 	g_free (path);
 	g_free (basename);
 
@@ -158,8 +158,8 @@ done:
 
 static void
 process_file_cb (TrackerMinerFS *fs,
-		 GFile	        *file,
-		 gpointer        user_data)
+                 GFile          *file,
+                 gpointer        user_data)
 {
 	gchar *path;
 
@@ -170,16 +170,16 @@ process_file_cb (TrackerMinerFS *fs,
 
 static gboolean
 monitor_directory_cb (TrackerMinerFS *fs,
-		      GFile	     *file,
-		      gpointer        user_data)
+                      GFile          *file,
+                      gpointer        user_data)
 {
 	return TRUE;
 }
 
 static void
 add_directory_path (TrackerMinerFS *fs,
-		    const gchar    *path,
-		    gboolean        recurse)
+                    const gchar    *path,
+                    gboolean        recurse)
 {
 	GFile *file;
 
@@ -191,63 +191,63 @@ add_directory_path (TrackerMinerFS *fs,
 int
 main (int argc, char *argv[])
 {
-        TrackerMiner *miner;
-        GMainLoop *main_loop;
+	TrackerMiner *miner;
+	GMainLoop *main_loop;
 
-        g_type_init ();
+	g_type_init ();
 
-        if (!g_thread_supported ()) { 
+	if (!g_thread_supported ()) {
 		g_thread_init (NULL);
 	}
 
-        main_loop = g_main_loop_new (NULL, FALSE);
+	main_loop = g_main_loop_new (NULL, FALSE);
 
-        miner = tracker_miner_test_new ("test");
+	miner = tracker_miner_test_new ("test");
 
 	g_signal_connect (TRACKER_MINER_FS (miner), "check-file",
-			  G_CALLBACK (check_file_cb),
-			  NULL);
+	                  G_CALLBACK (check_file_cb),
+	                  NULL);
 	g_signal_connect (TRACKER_MINER_FS (miner), "check-directory",
-			  G_CALLBACK (check_directory_cb),
-			  NULL);
+	                  G_CALLBACK (check_directory_cb),
+	                  NULL);
 	g_signal_connect (TRACKER_MINER_FS (miner), "process-file",
-			  G_CALLBACK (process_file_cb),
-			  NULL);
+	                  G_CALLBACK (process_file_cb),
+	                  NULL);
 	g_signal_connect (TRACKER_MINER_FS (miner), "monitor-directory",
-			  G_CALLBACK (monitor_directory_cb),
-			  NULL);
+	                  G_CALLBACK (monitor_directory_cb),
+	                  NULL);
 
 	add_directory_path (TRACKER_MINER_FS (miner),
-			    g_get_home_dir (),
-			    FALSE);
+	                    g_get_home_dir (),
+	                    FALSE);
 	add_directory_path (TRACKER_MINER_FS (miner),
-			    g_get_tmp_dir (),
-			    TRUE);
+	                    g_get_tmp_dir (),
+	                    TRUE);
 	add_directory_path (TRACKER_MINER_FS (miner),
-			    g_get_user_special_dir (G_USER_DIRECTORY_PICTURES),
-			    TRUE);
+	                    g_get_user_special_dir (G_USER_DIRECTORY_PICTURES),
+	                    TRUE);
 	add_directory_path (TRACKER_MINER_FS (miner),
-			    g_get_user_special_dir (G_USER_DIRECTORY_MUSIC),
-			    TRUE);
+	                    g_get_user_special_dir (G_USER_DIRECTORY_MUSIC),
+	                    TRUE);
 	add_directory_path (TRACKER_MINER_FS (miner),
-			    g_get_user_special_dir (G_USER_DIRECTORY_VIDEOS),
-			    TRUE);
+	                    g_get_user_special_dir (G_USER_DIRECTORY_VIDEOS),
+	                    TRUE);
 	add_directory_path (TRACKER_MINER_FS (miner),
-			    g_get_user_special_dir (G_USER_DIRECTORY_DOWNLOAD),
-			    FALSE);
+	                    g_get_user_special_dir (G_USER_DIRECTORY_DOWNLOAD),
+	                    FALSE);
 	add_directory_path (TRACKER_MINER_FS (miner),
-			    g_get_user_special_dir (G_USER_DIRECTORY_DOCUMENTS),
-			    TRUE);
+	                    g_get_user_special_dir (G_USER_DIRECTORY_DOCUMENTS),
+	                    TRUE);
 	add_directory_path (TRACKER_MINER_FS (miner),
-			    g_get_user_special_dir (G_USER_DIRECTORY_DESKTOP),
-			    TRUE);
+	                    g_get_user_special_dir (G_USER_DIRECTORY_DESKTOP),
+	                    TRUE);
 
-        g_signal_connect (miner, "finished",
-                          G_CALLBACK (miner_finished_cb), 
-			  main_loop);
+	g_signal_connect (miner, "finished",
+	                  G_CALLBACK (miner_finished_cb),
+	                  main_loop);
 	g_timeout_add_seconds (1, miner_start_cb, miner);
 
-        g_main_loop_run (main_loop);
+	g_main_loop_run (main_loop);
 
-        return EXIT_SUCCESS;
+	return EXIT_SUCCESS;
 }

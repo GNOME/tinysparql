@@ -27,20 +27,20 @@
 #include <glib-object.h>
 #include <libtracker-common/tracker-dbus.h>
 
-#define TRACKER_RESOURCES_CLASS_SERVICE	       "org.freedesktop.Tracker1"
-#define TRACKER_RESOURCES_CLASS_PATH	       "/org/freedesktop/Tracker1/Resources/Classes/%s"
+#define TRACKER_RESOURCES_CLASS_SERVICE                "org.freedesktop.Tracker1"
+#define TRACKER_RESOURCES_CLASS_PATH           "/org/freedesktop/Tracker1/Resources/Classes/%s"
 #define TRACKER_RESOURCES_CLASS_INTERFACE       "org.freedesktop.Tracker1.Resources.Class"
 
 G_BEGIN_DECLS
 
-#define TRACKER_TYPE_RESOURCE_CLASS	       (tracker_resource_class_get_type ())
-#define TRACKER_RESOURCE_CLASS(object)	       (G_TYPE_CHECK_INSTANCE_CAST ((object), TRACKER_TYPE_RESOURCE_CLASS, TrackerResourceClass))
+#define TRACKER_TYPE_RESOURCE_CLASS            (tracker_resource_class_get_type ())
+#define TRACKER_RESOURCE_CLASS(object)         (G_TYPE_CHECK_INSTANCE_CAST ((object), TRACKER_TYPE_RESOURCE_CLASS, TrackerResourceClass))
 #define TRACKER_RESOURCE_CLASS_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), TRACKER_TYPE_RESOURCE_CLASS, TrackerResourceClassClass))
 #define TRACKER_IS_RESOURCE_CLASS(object)      (G_TYPE_CHECK_INSTANCE_TYPE ((object), TRACKER_TYPE_RESOURCE_CLASS))
 #define TRACKER_IS_RESOURCE_CLASS_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), TRACKER_TYPE_RESOURCE_CLASS))
 #define TRACKER_RESOURCE_CLASS_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), TRACKER_TYPE_RESOURCE_CLASS, TrackerResourceClassClass))
 
-typedef struct TrackerResourceClass	  TrackerResourceClass;
+typedef struct TrackerResourceClass       TrackerResourceClass;
 typedef struct TrackerResourceClassClass TrackerResourceClassClass;
 
 struct TrackerResourceClass {

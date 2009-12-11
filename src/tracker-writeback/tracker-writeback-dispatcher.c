@@ -31,7 +31,7 @@
 #define TRACKER_RESOURCES_OBJECT        "/org/freedesktop/Tracker1/Resources"
 #define TRACKER_INTERFACE_RESOURCES     "org.freedesktop.Tracker1.Resources"
 
-#define DBUS_MATCH_STR \
+#define DBUS_MATCH_STR	  \
 	"type='signal', " \
 	"sender='" TRACKER_SERVICE "', " \
 	"path='" TRACKER_RESOURCES_OBJECT "', " \
@@ -158,8 +158,8 @@ handle_writeback_signal (TrackerWritebackDispatcher *dispatcher,
 
 static DBusHandlerResult
 message_filter (DBusConnection *connection,
-		DBusMessage    *message,
-		gpointer        user_data)
+                DBusMessage    *message,
+                gpointer        user_data)
 {
 	if (dbus_message_is_signal (message,
 	                            TRACKER_INTERFACE_RESOURCES,

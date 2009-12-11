@@ -38,13 +38,13 @@ struct _TrackerNamespacePriv {
 
 static void namespace_finalize     (GObject      *object);
 static void namespace_get_property (GObject      *object,
-				    guint         param_id,
-				    GValue       *value,
-				    GParamSpec   *pspec);
+                                    guint         param_id,
+                                    GValue       *value,
+                                    GParamSpec   *pspec);
 static void namespace_set_property (GObject      *object,
-				    guint         param_id,
-				    const GValue *value,
-				    GParamSpec   *pspec);
+                                    guint         param_id,
+                                    const GValue *value,
+                                    GParamSpec   *pspec);
 
 enum {
 	PROP_0,
@@ -59,24 +59,24 @@ tracker_namespace_class_init (TrackerNamespaceClass *klass)
 {
 	GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
-	object_class->finalize	   = namespace_finalize;
+	object_class->finalize     = namespace_finalize;
 	object_class->get_property = namespace_get_property;
 	object_class->set_property = namespace_set_property;
 
 	g_object_class_install_property (object_class,
-					 PROP_URI,
-					 g_param_spec_string ("uri",
-							      "uri",
-							      "URI",
-							      NULL,
-							      G_PARAM_READWRITE));
+	                                 PROP_URI,
+	                                 g_param_spec_string ("uri",
+	                                                      "uri",
+	                                                      "URI",
+	                                                      NULL,
+	                                                      G_PARAM_READWRITE));
 	g_object_class_install_property (object_class,
-					 PROP_PREFIX,
-					 g_param_spec_string ("prefix",
-							      "prefix",
-							      "Prefix",
-							      NULL,
-							      G_PARAM_READWRITE));
+	                                 PROP_PREFIX,
+	                                 g_param_spec_string ("prefix",
+	                                                      "prefix",
+	                                                      "Prefix",
+	                                                      NULL,
+	                                                      G_PARAM_READWRITE));
 
 	g_type_class_add_private (object_class, sizeof (TrackerNamespacePriv));
 }
@@ -100,10 +100,10 @@ namespace_finalize (GObject *object)
 }
 
 static void
-namespace_get_property (GObject	 *object,
-		      guint	  param_id,
-		      GValue	 *value,
-		      GParamSpec *pspec)
+namespace_get_property (GObject          *object,
+                        guint       param_id,
+                        GValue     *value,
+                        GParamSpec *pspec)
 {
 	TrackerNamespacePriv *priv;
 
@@ -123,10 +123,10 @@ namespace_get_property (GObject	 *object,
 }
 
 static void
-namespace_set_property (GObject	   *object,
-		      guint	    param_id,
-		      const GValue *value,
-		      GParamSpec   *pspec)
+namespace_set_property (GObject            *object,
+                        guint         param_id,
+                        const GValue *value,
+                        GParamSpec   *pspec)
 {
 	TrackerNamespacePriv *priv;
 
@@ -135,11 +135,11 @@ namespace_set_property (GObject	   *object,
 	switch (param_id) {
 	case PROP_URI:
 		tracker_namespace_set_uri (TRACKER_NAMESPACE (object),
-					  g_value_get_string (value));
+		                           g_value_get_string (value));
 		break;
 	case PROP_PREFIX:
 		tracker_namespace_set_prefix (TRACKER_NAMESPACE (object),
-					  g_value_get_string (value));
+		                              g_value_get_string (value));
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, param_id, pspec);
@@ -183,7 +183,7 @@ tracker_namespace_get_prefix (TrackerNamespace *namespace)
 
 void
 tracker_namespace_set_uri (TrackerNamespace *namespace,
-			  const gchar	 *value)
+                           const gchar    *value)
 {
 	TrackerNamespacePriv *priv;
 
@@ -204,7 +204,7 @@ tracker_namespace_set_uri (TrackerNamespace *namespace,
 
 void
 tracker_namespace_set_prefix (TrackerNamespace *namespace,
-			  const gchar	 *value)
+                              const gchar    *value)
 {
 	TrackerNamespacePriv *priv;
 

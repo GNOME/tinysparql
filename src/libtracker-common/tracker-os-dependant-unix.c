@@ -49,11 +49,11 @@
 
 gboolean
 tracker_spawn (gchar **argv,
-	       gint    timeout,
-	       gchar **tmp_stdout,
-	       gint   *exit_status)
+               gint    timeout,
+               gchar **tmp_stdout,
+               gint   *exit_status)
 {
-	GError	    *error = NULL;
+	GError      *error = NULL;
 	GSpawnFlags  flags;
 	gboolean     result;
 
@@ -69,20 +69,20 @@ tracker_spawn (gchar **argv,
 	}
 
 	result = g_spawn_sync (NULL,
-			       argv,
-			       NULL,
-			       flags,
-			       tracker_spawn_child_func,
-			       GINT_TO_POINTER (timeout),
-			       tmp_stdout,
-			       NULL,
-			       exit_status,
-			       &error);
+	                       argv,
+	                       NULL,
+	                       flags,
+	                       tracker_spawn_child_func,
+	                       GINT_TO_POINTER (timeout),
+	                       tmp_stdout,
+	                       NULL,
+	                       exit_status,
+	                       &error);
 
 	if (error) {
 		g_warning ("Could not spawn command:'%s', %s",
-			   argv[0],
-			   error->message);
+		           argv[0],
+		           error->message);
 		g_error_free (error);
 	}
 
@@ -91,15 +91,15 @@ tracker_spawn (gchar **argv,
 
 gboolean
 tracker_spawn_async_with_channels (const gchar **argv,
-				   gint		 timeout,
-				   GPid		*pid,
-				   GIOChannel  **stdin_channel,
-				   GIOChannel  **stdout_channel,
-				   GIOChannel  **stderr_channel)
+                                   gint                  timeout,
+                                   GPid                 *pid,
+                                   GIOChannel  **stdin_channel,
+                                   GIOChannel  **stdout_channel,
+                                   GIOChannel  **stderr_channel)
 {
-	GError	 *error = NULL;
+	GError   *error = NULL;
 	gboolean  result;
-	gint	  tmpstdin, tmpstdout, tmpstderr;
+	gint      tmpstdin, tmpstdout, tmpstderr;
 
 	g_return_val_if_fail (argv != NULL, FALSE);
 	g_return_val_if_fail (argv[0] != NULL, FALSE);
@@ -107,21 +107,21 @@ tracker_spawn_async_with_channels (const gchar **argv,
 	g_return_val_if_fail (pid != NULL, FALSE);
 
 	result = g_spawn_async_with_pipes (NULL,
-					   (gchar **) argv,
-					   NULL,
-					   G_SPAWN_SEARCH_PATH | G_SPAWN_DO_NOT_REAP_CHILD,
-					   tracker_spawn_child_func,
-					   GINT_TO_POINTER (timeout),
-					   pid,
-					   stdin_channel ? &tmpstdin : NULL,
-					   stdout_channel ? &tmpstdout : NULL,
-					   stderr_channel ? &tmpstderr : NULL,
-					   &error);
+	                                   (gchar **) argv,
+	                                   NULL,
+	                                   G_SPAWN_SEARCH_PATH | G_SPAWN_DO_NOT_REAP_CHILD,
+	                                   tracker_spawn_child_func,
+	                                   GINT_TO_POINTER (timeout),
+	                                   pid,
+	                                   stdin_channel ? &tmpstdin : NULL,
+	                                   stdout_channel ? &tmpstdout : NULL,
+	                                   stderr_channel ? &tmpstderr : NULL,
+	                                   &error);
 
 	if (error) {
 		g_warning ("Could not spawn command:'%s', %s",
-			   argv[0],
-			   error->message);
+		           argv[0],
+		           error->message);
 		g_error_free (error);
 	}
 
@@ -144,14 +144,14 @@ void
 tracker_spawn_child_func (gpointer user_data)
 {
 	struct rlimit cpu_limit;
-	gint	      timeout = GPOINTER_TO_INT (user_data);
+	gint          timeout = GPOINTER_TO_INT (user_data);
 
 	if (timeout > 0) {
 		/* set cpu limit */
 		getrlimit (RLIMIT_CPU, &cpu_limit);
 		cpu_limit.rlim_cur = timeout;
 		cpu_limit.rlim_max = timeout + 1;
-		
+
 		if (setrlimit (RLIMIT_CPU, &cpu_limit) != 0) {
 			g_critical ("Failed to set resource limit for CPU");
 		}
@@ -187,13 +187,13 @@ tracker_create_permission_string (struct stat finfo)
 	str = g_strdup ("?rwxrwxrwx");
 
 	switch (finfo.st_mode & S_IFMT) {
-		case S_IFSOCK: str[0] = 's'; break;
-		case S_IFIFO:  str[0] = 'p'; break;
-		case S_IFLNK:  str[0] = 'l'; break;
-		case S_IFCHR:  str[0] = 'c'; break;
-		case S_IFBLK:  str[0] = 'b'; break;
-		case S_IFDIR:  str[0] = 'd'; break;
-		case S_IFREG:  str[0] = '-'; break;
+	case S_IFSOCK: str[0] = 's'; break;
+	case S_IFIFO:  str[0] = 'p'; break;
+	case S_IFLNK:  str[0] = 'l'; break;
+	case S_IFCHR:  str[0] = 'c'; break;
+	case S_IFBLK:  str[0] = 'b'; break;
+	case S_IFDIR:  str[0] = 'd'; break;
+	case S_IFREG:  str[0] = '-'; break;
 	default:
 		/* By default a regular file */
 		str[0] = '-';
@@ -233,12 +233,12 @@ get_memory_total (void)
 	filename = "/proc/meminfo";
 
 	if (!g_file_get_contents (filename,
-				  &contents,
-				  NULL,
-				  &error)) {
+	                          &contents,
+	                          NULL,
+	                          &error)) {
 		g_critical ("Couldn't get memory information:'%s', %s",
-			    filename,
-			    error ? error->message : "no error given");
+		            filename,
+		            error ? error->message : "no error given");
 		g_clear_error (&error);
 	} else {
 		gchar *start, *end, *p;
@@ -289,12 +289,12 @@ tracker_memory_setrlimits (void)
 	rl.rlim_cur = limit;
 
 	if (setrlimit (RLIMIT_AS, &rl) == -1) {
-               const gchar *str = g_strerror (errno);
+		const gchar *str = g_strerror (errno);
 
-               g_critical ("Could not set virtual memory limit with setrlimit(RLIMIT_AS), %s",
-			   str ? str : "no error given");
+		g_critical ("Could not set virtual memory limit with setrlimit(RLIMIT_AS), %s",
+		            str ? str : "no error given");
 
-               return FALSE;
+		return FALSE;
 	} else {
 		getrlimit (RLIMIT_DATA, &rl);
 		rl.rlim_cur = limit;
@@ -303,7 +303,7 @@ tracker_memory_setrlimits (void)
 			const gchar *str = g_strerror (errno);
 
 			g_critical ("Could not set heap memory limit with setrlimit(RLIMIT_DATA), %s",
-				    str ? str : "no error given");
+			            str ? str : "no error given");
 
 			return FALSE;
 		} else {
@@ -313,8 +313,8 @@ tracker_memory_setrlimits (void)
 			str2 = g_format_size_for_display (limit);
 
 			g_message ("Setting memory limitations: total is %s, virtual/heap set to %s",
-				   str1,
-				   str2);
+			           str1,
+			           str2);
 
 			g_free (str2);
 			g_free (str1);

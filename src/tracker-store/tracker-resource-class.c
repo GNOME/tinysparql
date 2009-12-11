@@ -73,37 +73,37 @@ tracker_resource_class_class_init (TrackerResourceClassClass *klass)
 
 	signals[SUBJECTS_ADDED] =
 		g_signal_new ("subjects-added",
-			      G_TYPE_FROM_CLASS (klass),
-			      G_SIGNAL_RUN_LAST,
-			      0,
-			      NULL, NULL,
-			      tracker_marshal_VOID__BOXED,
-			      G_TYPE_NONE,
-			      1,
-			      G_TYPE_STRV);
+		              G_TYPE_FROM_CLASS (klass),
+		              G_SIGNAL_RUN_LAST,
+		              0,
+		              NULL, NULL,
+		              tracker_marshal_VOID__BOXED,
+		              G_TYPE_NONE,
+		              1,
+		              G_TYPE_STRV);
 
 	signals[SUBJECTS_REMOVED] =
 		g_signal_new ("subjects-removed",
-			      G_TYPE_FROM_CLASS (klass),
-			      G_SIGNAL_RUN_LAST,
-			      0,
-			      NULL, NULL,
-			      tracker_marshal_VOID__BOXED,
-			      G_TYPE_NONE,
-			      1,
-			      G_TYPE_STRV);
+		              G_TYPE_FROM_CLASS (klass),
+		              G_SIGNAL_RUN_LAST,
+		              0,
+		              NULL, NULL,
+		              tracker_marshal_VOID__BOXED,
+		              G_TYPE_NONE,
+		              1,
+		              G_TYPE_STRV);
 
 	signals[SUBJECTS_CHANGED] =
 		g_signal_new ("subjects-changed",
-			      G_TYPE_FROM_CLASS (klass),
-			      G_SIGNAL_RUN_LAST,
-			      0,
-			      NULL, NULL,
-			      tracker_marshal_VOID__BOXED_BOXED,
-			      G_TYPE_NONE,
-			      2,
-			      G_TYPE_STRV,
-			      G_TYPE_STRV);
+		              G_TYPE_FROM_CLASS (klass),
+		              G_SIGNAL_RUN_LAST,
+		              0,
+		              NULL, NULL,
+		              tracker_marshal_VOID__BOXED_BOXED,
+		              G_TYPE_NONE,
+		              2,
+		              G_TYPE_STRV,
+		              G_TYPE_STRV);
 
 	g_type_class_add_private (object_class, sizeof (TrackerResourceClassPrivate));
 }
@@ -155,7 +155,7 @@ emit_changed_strings (TrackerResourceClass *object, GPtrArray *array)
 			stringsb_to_emit[i] = item->predicate;
 		}
 
-		g_signal_emit (object, signals[SUBJECTS_CHANGED], 0, 
+		g_signal_emit (object, signals[SUBJECTS_CHANGED], 0,
 		               stringsa_to_emit, stringsb_to_emit);
 
 		/* Normal free, not a GStrv free, we free the items later */
@@ -225,7 +225,7 @@ tracker_resource_class_finalize (GObject *object)
 TrackerResourceClass *
 tracker_resource_class_new (const gchar *rdf_class)
 {
-	TrackerResourceClass	     *object;
+	TrackerResourceClass         *object;
 	TrackerResourceClassPrivate *priv;
 
 	object = g_object_new (TRACKER_TYPE_RESOURCE_CLASS, NULL);
@@ -267,31 +267,31 @@ has_already (GPtrArray *array, const gchar *uri)
 }
 
 /*
-static gboolean
-changed_has_already (GPtrArray *array, const gchar *uri, const gchar *predicate)
-{
-	guint i;
+  static gboolean
+  changed_has_already (GPtrArray *array, const gchar *uri, const gchar *predicate)
+  {
+  guint i;
 
-	if (!array) {
-		return FALSE;
-	}
+  if (!array) {
+  return FALSE;
+  }
 
-	for (i = 0; i < array->len; i++) {
-		ChangedItem *item = g_ptr_array_index (array, i);
-		if (g_strcmp0 (item->uri, uri) == 0 && g_strcmp0 (item->predicate, predicate) == 0) {
-			return TRUE;
-		}
-	}
+  for (i = 0; i < array->len; i++) {
+  ChangedItem *item = g_ptr_array_index (array, i);
+  if (g_strcmp0 (item->uri, uri) == 0 && g_strcmp0 (item->predicate, predicate) == 0) {
+  return TRUE;
+  }
+  }
 
-	return FALSE;
-}
+  return FALSE;
+  }
 */
 
-void 
+void
 tracker_resource_class_add_event (TrackerResourceClass  *object,
-				  const gchar           *uri,
-				  const gchar           *predicate,
-				  TrackerDBusEventsType type)
+                                  const gchar           *uri,
+                                  const gchar           *predicate,
+                                  TrackerDBusEventsType type)
 {
 	TrackerResourceClassPrivate *priv;
 
@@ -303,36 +303,36 @@ tracker_resource_class_add_event (TrackerResourceClass  *object,
 	}
 
 	switch (type) {
-		case TRACKER_DBUS_EVENTS_TYPE_ADD:
+	case TRACKER_DBUS_EVENTS_TYPE_ADD:
 		if (!has_already (priv->adds, uri)) {
 			if (!priv->adds)
 				priv->adds = g_ptr_array_new ();
 			g_ptr_array_add (priv->adds, g_string_chunk_insert_const (priv->changed_strings, uri));
 		}
 		break;
-		case TRACKER_DBUS_EVENTS_TYPE_UPDATE: {
+	case TRACKER_DBUS_EVENTS_TYPE_UPDATE: {
 		/* Duplicate checking slows down too much
-		 if (!changed_has_already (priv->ups, uri, predicate)) { */
-			ChangedItem *item;
+		   if (!changed_has_already (priv->ups, uri, predicate)) { */
+		ChangedItem *item;
 
-			item = g_slice_new (ChangedItem);
+		item = g_slice_new (ChangedItem);
 
-			item->uri = g_string_chunk_insert_const (priv->changed_strings, uri);
-			item->predicate = g_string_chunk_insert_const (priv->changed_strings, predicate);
+		item->uri = g_string_chunk_insert_const (priv->changed_strings, uri);
+		item->predicate = g_string_chunk_insert_const (priv->changed_strings, predicate);
 
-			if (!priv->ups)
-				priv->ups = g_ptr_array_new ();
-			g_ptr_array_add (priv->ups, item);
-		}
+		if (!priv->ups)
+			priv->ups = g_ptr_array_new ();
+		g_ptr_array_add (priv->ups, item);
+	}
 		break;
-		case TRACKER_DBUS_EVENTS_TYPE_DELETE:
+	case TRACKER_DBUS_EVENTS_TYPE_DELETE:
 		if (!has_already (priv->dels, uri)) {
 			if (!priv->dels)
 				priv->dels = g_ptr_array_new ();
 			g_ptr_array_add (priv->dels, g_string_chunk_insert_const (priv->changed_strings, uri));
 		}
 		break;
-		default:
+	default:
 		break;
 	}
 }

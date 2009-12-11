@@ -24,19 +24,19 @@
 
 static void
 test_something (void) {
-        g_assert_cmpint (1, ==, 1);
-        return;
+	g_assert_cmpint (1, ==, 1);
+	return;
 }
 
 int
 main (int    argc,
       char **argv)
 {
-        g_type_init ();
-        g_thread_init (NULL);
-        g_test_init (&argc, &argv, NULL);
+	g_type_init ();
+	g_thread_init (NULL);
+	g_test_init (&argc, &argv, NULL);
 
-        g_test_add_func ("/tracker-indexer/tracker-metadata-utils/something",
-                         test_something);
+	g_test_add_func ("/tracker-indexer/tracker-metadata-utils/something",
+	                 test_something);
 	return g_test_run ();
 }

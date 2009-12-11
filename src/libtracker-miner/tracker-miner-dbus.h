@@ -32,33 +32,33 @@ G_BEGIN_DECLS
 #define TRACKER_MINER_DBUS_PATH_PREFIX "/org/freedesktop/Tracker1/Miner/"
 
 void tracker_miner_dbus_get_name          (TrackerMiner           *miner,
-					   DBusGMethodInvocation  *context,
-					   GError                **error);
+                                           DBusGMethodInvocation  *context,
+                                           GError                **error);
 void tracker_miner_dbus_get_description   (TrackerMiner           *miner,
-					   DBusGMethodInvocation  *context,
-					   GError                **error);
+                                           DBusGMethodInvocation  *context,
+                                           GError                **error);
 void tracker_miner_dbus_get_status        (TrackerMiner           *miner,
-					   DBusGMethodInvocation  *context,
-					   GError                **error);
+                                           DBusGMethodInvocation  *context,
+                                           GError                **error);
 void tracker_miner_dbus_get_progress      (TrackerMiner           *miner,
-					   DBusGMethodInvocation  *context,
-					   GError                **error);
+                                           DBusGMethodInvocation  *context,
+                                           GError                **error);
 void tracker_miner_dbus_get_pause_details (TrackerMiner           *miner,
-					   DBusGMethodInvocation  *context,
-					   GError                **error);
+                                           DBusGMethodInvocation  *context,
+                                           GError                **error);
 void tracker_miner_dbus_pause             (TrackerMiner           *miner,
-					   const gchar            *application,
-					   const gchar            *name,
-					   DBusGMethodInvocation  *context,
-					   GError                **error);
+                                           const gchar            *application,
+                                           const gchar            *name,
+                                           DBusGMethodInvocation  *context,
+                                           GError                **error);
 void tracker_miner_dbus_resume            (TrackerMiner           *miner,
-					   gint                    cookie,
-					   DBusGMethodInvocation  *context,
-					   GError                **error);
+                                           gint                    cookie,
+                                           DBusGMethodInvocation  *context,
+                                           GError                **error);
 void tracker_miner_dbus_writeback         (TrackerMiner           *miner,
-					   const GStrv             subjects,
-					   DBusGMethodInvocation  *context,
-					   GError                **error);
+                                           const GStrv             subjects,
+                                           DBusGMethodInvocation  *context,
+                                           GError                **error);
 
 G_END_DECLS
 

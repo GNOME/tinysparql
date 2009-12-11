@@ -64,16 +64,16 @@ tracker_ontology_init (void)
 	namespaces = g_ptr_array_new ();
 
 	namespace_uris = g_hash_table_new_full (g_str_hash,
-					      g_str_equal,
-					      g_free,
-					      g_object_unref);
+	                                        g_str_equal,
+	                                        g_free,
+	                                        g_object_unref);
 
 	classes = g_ptr_array_new ();
 
 	class_uris = g_hash_table_new_full (g_str_hash,
-					      g_str_equal,
-					      g_free,
-					      g_object_unref);
+	                                    g_str_equal,
+	                                    g_free,
+	                                    g_object_unref);
 
 	id_uri_pairs = g_hash_table_new_full (g_direct_hash, g_direct_equal,
 	                                      NULL,
@@ -82,9 +82,9 @@ tracker_ontology_init (void)
 	properties = g_ptr_array_new ();
 
 	property_uris = g_hash_table_new_full (g_str_hash,
-					    g_str_equal,
-					    g_free,
-					    g_object_unref);
+	                                       g_str_equal,
+	                                       g_free,
+	                                       g_object_unref);
 
 	/* We will need the class later in order to match strings to enum values
 	 * when inserting metadata types in the DB, so the enum class needs to be
@@ -141,7 +141,7 @@ void
 tracker_ontology_add_class (TrackerClass *service)
 {
 
-	const gchar	    *uri, *name;
+	const gchar         *uri, *name;
 
 	g_return_if_fail (TRACKER_IS_CLASS (service));
 
@@ -152,8 +152,8 @@ tracker_ontology_add_class (TrackerClass *service)
 
 	if (uri) {
 		g_hash_table_insert (class_uris,
-				     g_strdup (uri),
-				     g_object_ref (service));
+		                     g_strdup (uri),
+		                     g_object_ref (service));
 	}
 }
 
@@ -214,16 +214,16 @@ tracker_ontology_add_property (TrackerProperty *field)
 	g_ptr_array_add (properties, g_object_ref (field));
 
 	g_hash_table_insert (property_uris,
-			     g_strdup (uri),
-			     g_object_ref (field));
+	                     g_strdup (uri),
+	                     g_object_ref (field));
 }
 
 void
 tracker_ontology_add_id_uri_pair (gint id, const gchar *uri)
 {
 	g_hash_table_insert (id_uri_pairs,
-			     GINT_TO_POINTER (id),
-			     g_strdup (uri));
+	                     GINT_TO_POINTER (id),
+	                     g_strdup (uri));
 }
 
 TrackerProperty *
@@ -246,8 +246,8 @@ tracker_ontology_add_namespace (TrackerNamespace *namespace)
 	g_ptr_array_add (namespaces, g_object_ref (namespace));
 
 	g_hash_table_insert (namespace_uris,
-			     g_strdup (uri),
-			     g_object_ref (namespace));
+	                     g_strdup (uri),
+	                     g_object_ref (namespace));
 }
 
 TrackerNamespace *

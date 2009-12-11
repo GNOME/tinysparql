@@ -60,13 +60,13 @@ typedef struct {
 } PngNeedsMergeData;
 
 typedef struct {
-	gchar *author, *creator, *description, *comment, *copyright, 
-	      *creation_time, *title, *disclaimer;
+	gchar *author, *creator, *description, *comment, *copyright,
+		*creation_time, *title, *disclaimer;
 } PngData;
 
-static gchar *rfc1123_to_iso8601_date (gchar	   *rfc_date);
-static void   extract_png	      (const gchar *filename,
-				       TrackerSparqlBuilder   *metadata);
+static gchar *rfc1123_to_iso8601_date (gchar       *rfc_date);
+static void   extract_png             (const gchar *filename,
+                                       TrackerSparqlBuilder   *metadata);
 
 static TrackerExtractData data[] = {
 	{ "image/png", extract_png },
@@ -93,7 +93,7 @@ insert_keywords (TrackerSparqlBuilder *metadata, const gchar *uri, gchar *keywor
 	keywords = strchr (keywords, '"');
 	if (keywords)
 		keywords++;
-	else 
+	else
 		keywords = keyw;
 
 	len = strlen (keywords);
@@ -118,7 +118,7 @@ insert_keywords (TrackerSparqlBuilder *metadata, const gchar *uri, gchar *keywor
 static void
 read_metadata (png_structp png_ptr, png_infop info_ptr, const gchar *uri, TrackerSparqlBuilder *metadata)
 {
-	gint	     num_text;
+	gint         num_text;
 	png_textp    text_ptr;
 	PngNeedsMergeData merge_data = { 0 };
 	PngData png_data = { 0 };
@@ -137,14 +137,14 @@ read_metadata (png_structp png_ptr, png_infop info_ptr, const gchar *uri, Tracke
 
 			if (g_strcmp0 ("XML:com.adobe.xmp", text_ptr[i].key) == 0) {
 
-				/* ATM tracker_read_xmp supports setting xmp_data 
+				/* ATM tracker_read_xmp supports setting xmp_data
 				 * multiple times, keep it that way as here it's
 				 * theoretically possible that the function gets
 				 * called multiple times */
 
 				tracker_read_xmp (text_ptr[i].text,
-						  text_ptr[i].itxt_length,
-						  uri, &xmp_data);
+				                  text_ptr[i].itxt_length,
+				                  uri, &xmp_data);
 
 				continue;
 			}
@@ -202,13 +202,13 @@ read_metadata (png_structp png_ptr, png_infop info_ptr, const gchar *uri, Tracke
 		                                         xmp_data.rights);
 
 		merge_data.license = tracker_coalesce (2, png_data.disclaimer,
-		                                         xmp_data.license);
+		                                       xmp_data.license);
 
 		merge_data.description = tracker_coalesce (2, png_data.description,
 		                                           xmp_data.description);
 
 		merge_data.date = tracker_coalesce (3, png_data.creation_time,
-		                                    xmp_data.date, 
+		                                    xmp_data.date,
 		                                    xmp_data.DateTimeOriginal);
 
 
@@ -402,18 +402,18 @@ read_metadata (png_structp png_ptr, png_infop info_ptr, const gchar *uri, Tracke
 
 static void
 extract_png (const gchar *uri,
-	     TrackerSparqlBuilder   *metadata)
+             TrackerSparqlBuilder   *metadata)
 {
 	goffset      size;
-	FILE	    *f;
+	FILE        *f;
 	png_structp  png_ptr;
 	png_infop    info_ptr;
 	png_infop    end_ptr;
 	png_bytepp   row_pointers;
 	guint        row;
 	png_uint_32  width, height;
-	gint	     bit_depth, color_type;
-	gint	     interlace_type, compression_type, filter_type;
+	gint         bit_depth, color_type;
+	gint         interlace_type, compression_type, filter_type;
 	gchar       *filename = g_filename_from_uri (uri, NULL, NULL);
 
 	size = tracker_file_get_size (filename);
@@ -422,13 +422,13 @@ extract_png (const gchar *uri,
 		return;
 	}
 
-	f = tracker_file_open (filename, "r", FALSE); 
+	f = tracker_file_open (filename, "r", FALSE);
 
 	if (f) {
 		png_ptr = png_create_read_struct (PNG_LIBPNG_VER_STRING,
-						  NULL,
-						  NULL,
-						  NULL);
+		                                  NULL,
+		                                  NULL,
+		                                  NULL);
 		if (!png_ptr) {
 			tracker_file_close (f, FALSE);
 			g_free (filename);
@@ -461,20 +461,20 @@ extract_png (const gchar *uri,
 		png_read_info (png_ptr, info_ptr);
 
 		if (!png_get_IHDR (png_ptr,
-				   info_ptr,
-				   &width,
-				   &height,
-				   &bit_depth,
-				   &color_type,
-				   &interlace_type,
-				   &compression_type,
-				   &filter_type)) {
+		                   info_ptr,
+		                   &width,
+		                   &height,
+		                   &bit_depth,
+		                   &color_type,
+		                   &interlace_type,
+		                   &compression_type,
+		                   &filter_type)) {
 			png_destroy_read_struct (&png_ptr, &info_ptr, &end_ptr);
 			tracker_file_close (f, FALSE);
 			g_free (filename);
 			return;
 		}
-		
+
 		/* Read the image. FIXME We should be able to skip this step and
 		 * just get the info from the end. This causes some errors atm.
 		 */
@@ -482,7 +482,7 @@ extract_png (const gchar *uri,
 
 		for (row = 0; row < height; row++) {
 			row_pointers[row] = png_malloc (png_ptr,
-							png_get_rowbytes (png_ptr,info_ptr));
+			                                png_get_rowbytes (png_ptr,info_ptr));
 		}
 
 		png_read_image (png_ptr, row_pointers);

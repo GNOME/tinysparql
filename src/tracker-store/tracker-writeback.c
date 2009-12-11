@@ -49,18 +49,18 @@ copy_rdf_types (GPtrArray *rdf_types)
 	return new_types;
 }
 
-void 
+void
 tracker_writeback_check (const gchar *graph,
-                         const gchar *subject, 
+                         const gchar *subject,
                          const gchar *predicate,
                          const gchar *object,
                          GPtrArray   *rdf_types)
 {
 	WritebackPrivate *private;
 
-	/* When graph is NULL, the graph is the default one. We only do 
+	/* When graph is NULL, the graph is the default one. We only do
 	 * writeback reporting in the default graph (update queries that
-	 * aren't coming from the miner) 
+	 * aren't coming from the miner)
 	 */
 
 	if (graph != NULL) {
@@ -78,7 +78,7 @@ tracker_writeback_check (const gchar *graph,
 			                                         (GDestroyNotify) g_strfreev);
 		}
 
-		g_hash_table_insert (private->events, 
+		g_hash_table_insert (private->events,
 		                     g_strdup (subject),
 		                     copy_rdf_types (rdf_types));
 	} else {
@@ -86,7 +86,7 @@ tracker_writeback_check (const gchar *graph,
 	}
 }
 
-void 
+void
 tracker_writeback_reset (void)
 {
 	WritebackPrivate *private;
@@ -121,7 +121,7 @@ free_private (gpointer user_data)
 	g_free (private);
 }
 
-void 
+void
 tracker_writeback_init (TrackerWritebackGetPredicatesFunc func)
 {
 	WritebackPrivate *private;
@@ -135,7 +135,7 @@ tracker_writeback_init (TrackerWritebackGetPredicatesFunc func)
 
 	g_static_private_set (&private_key, private, free_private);
 
-	private->allowances = g_hash_table_new_full (g_str_hash, 
+	private->allowances = g_hash_table_new_full (g_str_hash,
 	                                             g_str_equal,
 	                                             (GDestroyNotify) g_free,
 	                                             NULL);
@@ -157,7 +157,7 @@ tracker_writeback_init (TrackerWritebackGetPredicatesFunc func)
 	count = g_strv_length (predicates_to_signal);
 	for (i = 0; i < count; i++) {
 		g_message ("  Adding:'%s'", predicates_to_signal[i]);
-		g_hash_table_insert (private->allowances, 
+		g_hash_table_insert (private->allowances,
 		                     g_strdup (predicates_to_signal[i]),
 		                     GINT_TO_POINTER (TRUE));
 	}
@@ -165,7 +165,7 @@ tracker_writeback_init (TrackerWritebackGetPredicatesFunc func)
 	g_strfreev (predicates_to_signal);
 }
 
-void 
+void
 tracker_writeback_shutdown (void)
 {
 	WritebackPrivate *private;

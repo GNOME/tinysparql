@@ -42,7 +42,7 @@
 #define RDF_TYPE RDF_PREFIX "type"
 
 static void extract_mplayer (const gchar *uri,
-			     TrackerSparqlBuilder   *metadata);
+                             TrackerSparqlBuilder   *metadata);
 
 static TrackerExtractData extract_data[] = {
 	{ "audio/*", extract_mplayer },
@@ -51,20 +51,20 @@ static TrackerExtractData extract_data[] = {
 };
 
 static const gchar *video_tags[][2] = {
-	{ "ID_VIDEO_HEIGHT",	"nfo:height"         },
-	{ "ID_VIDEO_WIDTH",	"nfo:width"          },
-	{ "ID_VIDEO_FPS",	"nfo:frameRate"      },
-	{ "ID_VIDEO_CODEC",	"nfo:codec"          },
-	{ "ID_VIDEO_BITRATE",	"nfo:averageBitrate" },
-	{ NULL,			NULL                 }
+	{ "ID_VIDEO_HEIGHT",    "nfo:height"         },
+	{ "ID_VIDEO_WIDTH",     "nfo:width"          },
+	{ "ID_VIDEO_FPS",       "nfo:frameRate"      },
+	{ "ID_VIDEO_CODEC",     "nfo:codec"          },
+	{ "ID_VIDEO_BITRATE",   "nfo:averageBitrate" },
+	{ NULL,                         NULL                 }
 };
 
 static const gchar *audio_tags[][2] = {
-	{ "ID_AUDIO_BITRATE",	"nfo:averageBitrate" },
-	{ "ID_AUDIO_RATE",	"nfo:sampleRate"     },
-	{ "ID_AUDIO_CODEC",	"nfo:codec"          },
-	{ "ID_AUDIO_NCH",	"nfo:channels"       },
-	{ NULL,			NULL                 }
+	{ "ID_AUDIO_BITRATE",   "nfo:averageBitrate" },
+	{ "ID_AUDIO_RATE",      "nfo:sampleRate"     },
+	{ "ID_AUDIO_CODEC",     "nfo:codec"          },
+	{ "ID_AUDIO_NCH",       "nfo:channels"       },
+	{ NULL,                         NULL                 }
 };
 
 /* Some of "info_tags" tags can belong to Audio or/and video or none, so 3 cases :
@@ -74,15 +74,15 @@ static const gchar *audio_tags[][2] = {
  *    tag to Video, otherwise to Audio if it has audio.
  */
 static const gchar *info_tags[][2] = {
-	{ "Comment",		"nie:comment"        },
-	{ "Title",		"nie:title"          },
-	{ "Genre",		"nfo:genre"          },
-	{ "Track",		"nmm:trackNumber"    },
-	{ "Artist",		"nmm:performer"      },
-	{ "Album",		"nie:title"          },
-	{ "Year",		"nie:contentCreated" },
-	{ "copyright",		"nie:copyright"      },
-	{ NULL,			NULL,                }
+	{ "Comment",            "nie:comment"        },
+	{ "Title",              "nie:title"          },
+	{ "Genre",              "nfo:genre"          },
+	{ "Track",              "nmm:trackNumber"    },
+	{ "Artist",             "nmm:performer"      },
+	{ "Album",              "nie:title"          },
+	{ "Year",               "nie:contentCreated" },
+	{ "copyright",          "nie:copyright"      },
+	{ NULL,                         NULL,                }
 };
 
 typedef struct {
@@ -92,8 +92,8 @@ typedef struct {
 
 static void
 copy_hash_table_entry (gpointer key,
-		       gpointer value,
-		       gpointer user_data)
+                       gpointer value,
+                       gpointer user_data)
 {
 	ForeachCopyInfo *info = user_data;
 
@@ -117,7 +117,7 @@ copy_hash_table_entry (gpointer key,
 
 static void
 extract_mplayer (const gchar *uri,
-		 TrackerSparqlBuilder  *metadata)
+                 TrackerSparqlBuilder  *metadata)
 {
 	gchar *argv[10];
 	gchar *mplayer;
@@ -144,8 +144,8 @@ extract_mplayer (const gchar *uri,
 		GHashTable    *tmp_metadata_audio;
 		GHashTable    *tmp_metadata_video;
 		gboolean       has_audio, has_video;
-		gchar	      *duration;
-		gchar	     **lines, **line;
+		gchar         *duration;
+		gchar        **lines, **line;
 
 		pattern_ID_AUDIO_ID = g_pattern_spec_new ("ID_AUDIO_ID=*");
 		pattern_ID_VIDEO_ID = g_pattern_spec_new ("ID_VIDEO_ID=*");
@@ -179,8 +179,8 @@ extract_mplayer (const gchar *uri,
 				for (i = 0; audio_tags[i][0]; i++) {
 					if (g_str_has_prefix (*line, audio_tags[i][0])) {
 						g_hash_table_insert (tmp_metadata_audio,
-								     g_strdup (audio_tags[i][1]),
-								     g_strdup ((*line) + strlen (audio_tags[i][0]) + 1));
+						                     g_strdup (audio_tags[i][1]),
+						                     g_strdup ((*line) + strlen (audio_tags[i][0]) + 1));
 						break;
 					}
 				}
@@ -192,8 +192,8 @@ extract_mplayer (const gchar *uri,
 				for (i = 0; video_tags[i][0]; i++) {
 					if (g_str_has_prefix (*line, video_tags[i][0])) {
 						g_hash_table_insert (tmp_metadata_video,
-								     g_strdup (video_tags[i][1]),
-								     g_strdup ((*line) + strlen (video_tags[i][0]) + 1));
+						                     g_strdup (video_tags[i][1]),
+						                     g_strdup ((*line) + strlen (video_tags[i][0]) + 1));
 						break;
 					}
 				}
@@ -219,8 +219,8 @@ extract_mplayer (const gchar *uri,
 								if (data) {
 									if (data[0] != '\0') {
 										g_hash_table_insert (tmp_metadata_audio,
-												     g_strdup (info_tags[i][1]),
-												     data);
+										                     g_strdup (info_tags[i][1]),
+										                     data);
 									} else {
 										g_free (data);
 									}
@@ -259,9 +259,9 @@ extract_mplayer (const gchar *uri,
 
 			if (tmp_metadata_video) {
 				ForeachCopyInfo info = { metadata, uri };
-				g_hash_table_foreach (tmp_metadata_video, 
-						      copy_hash_table_entry, 
-						      &info);
+				g_hash_table_foreach (tmp_metadata_video,
+				                      copy_hash_table_entry,
+				                      &info);
 				g_hash_table_unref (tmp_metadata_video);
 				tmp_metadata_video = NULL;
 			}
@@ -279,9 +279,9 @@ extract_mplayer (const gchar *uri,
 
 			if (tmp_metadata_audio) {
 				ForeachCopyInfo info = { metadata, uri };
-				g_hash_table_foreach (tmp_metadata_audio, 
-						      copy_hash_table_entry, 
-						      &info);
+				g_hash_table_foreach (tmp_metadata_audio,
+				                      copy_hash_table_entry,
+				                      &info);
 				g_hash_table_unref (tmp_metadata_audio);
 				tmp_metadata_audio = NULL;
 			}

@@ -62,16 +62,16 @@ Internal:
           o widget should allow watermarking of background (use cairo) with a
             definable pixmap
           o widget should allow an optional popup preview when moused over for
-            a few seconds (kind of like knoqueror does) 
+            a few seconds (kind of like knoqueror does)
     * RDF Query widget
           o mockup: http://bugzilla.gnome.org/attachment.cgi?id=80132&action=view
-          o The Rhythmbox automatic playlist may also serve useful as inspiration 
+          o The Rhythmbox automatic playlist may also serve useful as inspiration
 
 4. Better KDE Integration
 
     * Improve basic GUI with corresponding features from the GNOME GUI
      (tags, metadata tile, thumbnails)
-    * add ability to index KContacts and KNotes 
+    * add ability to index KContacts and KNotes
 
 5. Add XMP Sidecar and IPTC support to tracker
 

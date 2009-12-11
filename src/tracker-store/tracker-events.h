@@ -33,10 +33,10 @@ typedef GStrv (*TrackerNotifyClassGetter) (void);
 void       tracker_events_init        (TrackerNotifyClassGetter  callback);
 void       tracker_events_shutdown    (void);
 void       tracker_events_insert      (const gchar              *uri,
-				       const gchar              *predicate,
-				       const gchar              *object,
-				       GPtrArray                *rdf_types,
-				       TrackerDBusEventsType     type);
+                                       const gchar              *predicate,
+                                       const gchar              *object,
+                                       GPtrArray                *rdf_types,
+                                       TrackerDBusEventsType     type);
 GPtrArray *tracker_events_get_pending (void);
 void       tracker_events_reset       (void);
 

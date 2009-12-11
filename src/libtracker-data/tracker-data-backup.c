@@ -93,8 +93,8 @@ on_journal_copied (GObject *source_object,
 		}
 		free_backup_save_info (info);
 	} else {
-		g_file_copy_async (info->file, info->destination, 
-		                   G_FILE_COPY_OVERWRITE, 
+		g_file_copy_async (info->file, info->destination,
+		                   G_FILE_COPY_OVERWRITE,
 		                   G_PRIORITY_HIGH,
 		                   NULL, NULL, NULL,
 		                   on_meta_copied,
@@ -112,15 +112,15 @@ save_copy_procedure (BackupSaveInfo *info)
 	journal_o = g_file_new_for_path (tracker_db_journal_filename ());
 
 	if (g_file_query_exists (journal_o, NULL)) {
-		g_file_copy_async (journal_o, info->journal, 
-				   G_FILE_COPY_OVERWRITE, 
-				   G_PRIORITY_HIGH,
-				   NULL, NULL, NULL,
-				   on_journal_copied,
-				   info);
+		g_file_copy_async (journal_o, info->journal,
+		                   G_FILE_COPY_OVERWRITE,
+		                   G_PRIORITY_HIGH,
+		                   NULL, NULL, NULL,
+		                   on_journal_copied,
+		                   info);
 	} else {
-		g_file_copy_async (info->file, info->destination, 
-		                   G_FILE_COPY_OVERWRITE, 
+		g_file_copy_async (info->file, info->destination,
+		                   G_FILE_COPY_OVERWRITE,
 		                   G_PRIORITY_HIGH,
 		                   NULL, NULL, NULL,
 		                   on_meta_copied,
@@ -169,7 +169,7 @@ tracker_data_backup_save (GFile *destination,
 		save_copy_procedure (info);
 	} else {
 		/* If we don't have a meta-backup.db yet, we first make one */
-		tracker_db_backup_save (on_backup_finished, 
+		tracker_db_backup_save (on_backup_finished,
 		                        info, NULL);
 	}
 }
@@ -199,8 +199,8 @@ restore_copy_procedure (BackupSaveInfo *info)
 	journal_d = g_file_new_for_path (tracker_db_journal_filename ());
 
 	if (g_file_query_exists (journal_d, NULL)) {
-		g_file_copy (info->journal, journal_d, 
-		             G_FILE_COPY_OVERWRITE, 
+		g_file_copy (info->journal, journal_d,
+		             G_FILE_COPY_OVERWRITE,
 		             NULL, NULL, NULL,
 		             &error);
 	}
@@ -212,7 +212,7 @@ restore_copy_procedure (BackupSaveInfo *info)
 	}
 
 	g_file_copy (info->destination, info->file,
-	             G_FILE_COPY_OVERWRITE, 
+	             G_FILE_COPY_OVERWRITE,
 	             NULL, NULL, NULL,
 	             &error);
 
@@ -220,7 +220,7 @@ restore_copy_procedure (BackupSaveInfo *info)
 		goto error_handle;
 	}
 
-error_handle:
+ error_handle:
 
 	info->error = error;
 }

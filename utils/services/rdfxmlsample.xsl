@@ -26,18 +26,18 @@
 <xsl:variable name="about" select="@rdf:about"/>
 
 public class <xsl:value-of select="rdfs:label" />
-<xsl:if test="count(rdfs:subClassOf) > 0">: <xsl:for-each select="rdfs:subClassOf/rdfs:Class"><xsl:if test="position() > 1">, </xsl:if><xsl:value-of select="substring-after(@rdf:about, '#')"/> </xsl:for-each> 
+<xsl:if test="count(rdfs:subClassOf) > 0">: <xsl:for-each select="rdfs:subClassOf/rdfs:Class"><xsl:if test="position() > 1">, </xsl:if><xsl:value-of select="substring-after(@rdf:about, '#')"/> </xsl:for-each>
 </xsl:if> {
-		
+
 	<xsl:for-each select="/rdf:RDF/rdf:Property/rdfs:domain[@rdf:resource=$about]">
 
 	public <xsl:value-of select="substring-after(../rdfs:range/@rdf:resource, '#')"/><xsl:text> </xsl:text><xsl:value-of select="../rdfs:label"/> {
 	}
-	
+
 	</xsl:for-each>
 
 }
 
 </xsl:for-each>
 </xsl:template>
-</xsl:stylesheet> 
+</xsl:stylesheet>

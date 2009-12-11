@@ -31,10 +31,10 @@
 G_BEGIN_DECLS
 
 typedef void (* TrackerStoreSparqlUpdateCallback) (GError          *error,
-						   gpointer         user_data);
+                                                   gpointer         user_data);
 typedef void (* TrackerStoreCommitCallback)       (gpointer         user_data);
 typedef void (* TrackerStoreTurtleCallback)       (GError          *error,
-						   gpointer         user_data);
+                                                   gpointer         user_data);
 
 void         tracker_store_init                   (gboolean load_journal);
 void         tracker_store_shutdown               (void);
@@ -56,8 +56,8 @@ void         tracker_store_sparql_update          (const gchar   *sparql,
 GPtrArray *  tracker_store_sparql_update_blank    (const gchar   *sparql,
                                                    GError       **error);
 TrackerDBResultSet*
-             tracker_store_sparql_query           (const gchar   *sparql,
-                                                   GError       **error);
+tracker_store_sparql_query           (const gchar   *sparql,
+                                      GError       **error);
 
 guint        tracker_store_get_queue_size         (void);
 

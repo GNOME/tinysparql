@@ -33,35 +33,35 @@ G_BEGIN_DECLS
 gboolean tracker_is_empty_string            (const char  *str);
 gboolean tracker_is_blank_string            (const char  *str);
 gchar *  tracker_string_replace             (const gchar *haystack,
-					     const gchar *needle,
-					     const gchar *replacement);
+                                             const gchar *needle,
+                                             const gchar *replacement);
 gchar *  tracker_string_remove              (gchar       *haystack,
-					     const gchar *needle);
+                                             const gchar *needle);
 gchar *  tracker_seconds_estimate_to_string (gdouble      seconds_elapsed,
-					     gboolean     short_string,
-					     guint        items_done,
-					     guint        items_remaining);
+                                             gboolean     short_string,
+                                             guint        items_done,
+                                             guint        items_remaining);
 gchar *  tracker_seconds_to_string          (gdouble      seconds_elapsed,
-					     gboolean     short_string);
+                                             gboolean     short_string);
 gchar*   tracker_uri_vprintf_escaped        (const gchar *format,
-					     va_list      args);
+                                             va_list      args);
 gchar*   tracker_uri_printf_escaped         (const gchar *format,
-					     ...);
+                                             ...);
 gchar *  tracker_coalesce                   (gint n_values,
-					     ...);
+                                             ...);
 gchar *  tracker_merge                      (const gchar *delim, gint n_values,
-					     ...);
+                                             ...);
 
 gchar *  tracker_text_normalize             (const gchar *text,
-					     guint        max_words,
-					     guint       *n_words);
+                                             guint        max_words,
+                                             guint       *n_words);
 
 /* Temporary: Just here until we upgrade to GLib 2.18. */
 G_CONST_RETURN gchar *
-         tracker_dngettext                  (const gchar *domain,
-					     const gchar *msgid,
-					     const gchar *msgid_plural,
-					     gulong       n);
+tracker_dngettext                  (const gchar *domain,
+                                    const gchar *msgid,
+                                    const gchar *msgid_plural,
+                                    gulong       n);
 
 G_END_DECLS
 

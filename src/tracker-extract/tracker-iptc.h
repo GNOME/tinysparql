@@ -25,8 +25,8 @@
 #include <glib.h>
 
 typedef struct {
-	gchar *keywords, *date_created, *byline, *credit, *copyright_notice, 
-	      *image_orientation;
+	gchar *keywords, *date_created, *byline, *credit, *copyright_notice,
+		*image_orientation;
 } TrackerIptcData;
 
 void tracker_read_iptc (const unsigned char *buffer,

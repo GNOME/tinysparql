@@ -15,7 +15,7 @@ Easy method:
 
   ./generate-all-and-import.sh
 
-That's it. All turtle file generators are run, and their contents 
+That's it. All turtle file generators are run, and their contents
 are imported to tracker.
 
 Detailed method:
@@ -31,10 +31,10 @@ Detailed method:
   ./id32ttl.py directory/
 
   This script will crawl "directory" extracting the id3 information of
-  the files there. 
+  the files there.
 
   * To generate information about music according to nmm
-    specification: 
+    specification:
 
   python id32nmmTurtle.py dir_of_music_files/
 
@@ -45,11 +45,11 @@ Detailed method:
   ./generate-data-for-bookmarks.py > bookmarks.ttl
 
   This script uses bookmarks.in to get the data and prints the output
-  in the stdout. 
+  in the stdout.
 
 * To generate some feeds information:
 
-  ./get-fresh-planets.sh  
+  ./get-fresh-planets.sh
 
   (This script gets the atom feeds of planet.maemo and planet.gnome.
   Be sure you have internet connection, the proxy correctly setted,
@@ -67,13 +67,13 @@ Other files
 ===========
 
 Dont touch these files, they are included in the generation scripts
-described before: 
+described before:
 
-* tools.py: 
+* tools.py:
   Some common functionality
-* bookmarks.in: 
+* bookmarks.in:
   Input information to generate bookmarks
-* songlist.ttl: 
+* songlist.ttl:
   The id3 information is harvested from mp3 files in the filesystem.
   This is a file with pre-generated information, so can be used to
   test even when you dont have a huge mp3 collection in your computer.

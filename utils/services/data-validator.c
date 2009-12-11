@@ -5,7 +5,7 @@
 
 #include <libtracker-data/tracker-sparql-query.h>
 
-static gchar	     *ontology_dir = NULL;
+static gchar         *ontology_dir = NULL;
 static gchar         *ttl_file = NULL;
 
 static GOptionEntry   entries[] = {
@@ -32,16 +32,16 @@ static GList *known_items = NULL;
 static gboolean
 exists_or_already_reported (const gchar *item)
 {
-        if (!g_list_find_custom (known_items, 
-                                 item, 
-                                 (GCompareFunc) g_strcmp0)){
-                if (!g_list_find_custom (unknown_items,
-                                         item,
-                                         (GCompareFunc) g_strcmp0)) {
-                        return FALSE;
-                }
-        }
-        return TRUE;
+	if (!g_list_find_custom (known_items,
+	                         item,
+	                         (GCompareFunc) g_strcmp0)){
+		if (!g_list_find_custom (unknown_items,
+		                         item,
+		                         (GCompareFunc) g_strcmp0)) {
+			return FALSE;
+		}
+	}
+	return TRUE;
 }
 
 static void
@@ -50,9 +50,9 @@ turtle_load_ontology (const gchar *turtle_subject,
                       const gchar *turtle_object)
 {
 
-        if (!g_strcmp0 (turtle_predicate, IS)) {
-                known_items = g_list_prepend (known_items, g_strdup (turtle_subject));
-        }
+	if (!g_strcmp0 (turtle_predicate, IS)) {
+		known_items = g_list_prepend (known_items, g_strdup (turtle_subject));
+	}
 
 }
 
@@ -62,61 +62,61 @@ turtle_statement_handler (const gchar *turtle_subject,
                           const gchar *turtle_object)
 {
 
-        /* Check that predicate exists in the ontology 
-        */
-        if (!exists_or_already_reported (turtle_predicate)){                        
-                g_print ("Unknown property %s\n", turtle_predicate);
-                unknown_items = g_list_prepend (unknown_items, g_strdup (turtle_predicate));
-                error_flag = TRUE;
-        }
+	/* Check that predicate exists in the ontology
+	 */
+	if (!exists_or_already_reported (turtle_predicate)){
+		g_print ("Unknown property %s\n", turtle_predicate);
+		unknown_items = g_list_prepend (unknown_items, g_strdup (turtle_predicate));
+		error_flag = TRUE;
+	}
 
-        /* And if it is a type... check the object is also there 
-         */
-        if (!g_strcmp0 (turtle_predicate, IS)) {
-                
-                if (!exists_or_already_reported (turtle_object)){                        
-                        g_print ("Unknown class %s\n", turtle_object);
-                        error_flag = TRUE;
-                        unknown_items = g_list_prepend (unknown_items, g_strdup (turtle_object));
-                }
-        }
+	/* And if it is a type... check the object is also there
+	 */
+	if (!g_strcmp0 (turtle_predicate, IS)) {
+
+		if (!exists_or_already_reported (turtle_object)){
+			g_print ("Unknown class %s\n", turtle_object);
+			error_flag = TRUE;
+			unknown_items = g_list_prepend (unknown_items, g_strdup (turtle_object));
+		}
+	}
 }
 
 
 static void
 load_ontology_files (const gchar *services_dir)
 {
-        GList       *files = NULL;
-        GDir        *services;
-        const gchar *conf_file;
-        GFile       *f;
-        gchar       *dir_uri, *fullpath;
-        gint         counter = 0;
-        
-        f = g_file_new_for_path (services_dir);
-        dir_uri = g_file_get_path (f);
+	GList       *files = NULL;
+	GDir        *services;
+	const gchar *conf_file;
+	GFile       *f;
+	gchar       *dir_uri, *fullpath;
+	gint         counter = 0;
 
-        services = g_dir_open (dir_uri, 0, NULL);
-        
-        conf_file = g_dir_read_name (services);
-                        
-        while (conf_file) {
+	f = g_file_new_for_path (services_dir);
+	dir_uri = g_file_get_path (f);
+
+	services = g_dir_open (dir_uri, 0, NULL);
+
+	conf_file = g_dir_read_name (services);
+
+	while (conf_file) {
 		TrackerTurtleReader *reader;
 		GError *error = NULL;
 
-                if (!g_str_has_suffix (conf_file, "ontology")) {
-                        conf_file = g_dir_read_name (services);
-                        continue;
-                }
-                
-                fullpath = g_build_filename (dir_uri, conf_file, NULL);
+		if (!g_str_has_suffix (conf_file, "ontology")) {
+			conf_file = g_dir_read_name (services);
+			continue;
+		}
+
+		fullpath = g_build_filename (dir_uri, conf_file, NULL);
 
 		reader = tracker_turtle_reader_new (fullpath, NULL);
 
 		while (error == NULL && tracker_turtle_reader_next (reader, &error)) {
 			turtle_load_ontology (tracker_turtle_reader_get_subject (reader),
-				              tracker_turtle_reader_get_predicate (reader),
-				              tracker_turtle_reader_get_object (reader));
+			                      tracker_turtle_reader_get_predicate (reader),
+			                      tracker_turtle_reader_get_object (reader));
 		}
 
 		g_object_unref (reader);
@@ -127,45 +127,45 @@ load_ontology_files (const gchar *services_dir)
 		}
 
 
-                g_free (fullpath);
-                counter += 1;
-                conf_file = g_dir_read_name (services);
-        }
+		g_free (fullpath);
+		counter += 1;
+		conf_file = g_dir_read_name (services);
+	}
 
-        g_dir_close (services);
+	g_dir_close (services);
 
-        g_list_foreach (files, (GFunc) g_free, NULL);
-        g_object_unref (f);
-        g_free (dir_uri);
-        g_debug ("Loaded %d ontologies\n", counter);
+	g_list_foreach (files, (GFunc) g_free, NULL);
+	g_object_unref (f);
+	g_free (dir_uri);
+	g_debug ("Loaded %d ontologies\n", counter);
 }
 
 
 
 gint
-main (gint argc, gchar **argv) 
+main (gint argc, gchar **argv)
 {
-        GOptionContext *context;
+	GOptionContext *context;
 	TrackerTurtleReader *reader;
 	GError *error = NULL;
 
-        g_type_init ();
+	g_type_init ();
 
 
-	/* Translators: this messagge will apper immediately after the	*/
-	/* usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>	*/
+	/* Translators: this messagge will apper immediately after the  */
+	/* usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>     */
 	context = g_option_context_new ("- Validate a turtle file against the ontology");
 
 	/* Translators: this message will appear after the usage string */
-	/* and before the list of options.				*/
+	/* and before the list of options.                              */
 	g_option_context_add_main_entries (context, entries, NULL);
 	g_option_context_parse (context, &argc, &argv, NULL);
 
-        if (!ontology_dir || !ttl_file) {
+	if (!ontology_dir || !ttl_file) {
 		gchar *help;
 
 		g_printerr ("%s\n\n",
-			    "Ontology directory and turtle file are mandatory");
+		            "Ontology directory and turtle file are mandatory");
 
 		help = g_option_context_get_help (context, TRUE, NULL);
 		g_option_context_free (context);
@@ -173,10 +173,10 @@ main (gint argc, gchar **argv)
 		g_free (help);
 
 		return -1;
-        }
+	}
 
-        //"/home/ivan/devel/codethink/tracker-ssh/data/services"
-        load_ontology_files (ontology_dir);
+	//"/home/ivan/devel/codethink/tracker-ssh/data/services"
+	load_ontology_files (ontology_dir);
 
 	reader = tracker_turtle_reader_new (ttl_file, NULL);
 
@@ -193,9 +193,9 @@ main (gint argc, gchar **argv)
 		g_error_free (error);
 	}
 
-        if (!error_flag) {
-                g_debug ("%s seems OK.", ttl_file);
-        }
+	if (!error_flag) {
+		g_debug ("%s seems OK.", ttl_file);
+	}
 
-        return 0;
+	return 0;
 }

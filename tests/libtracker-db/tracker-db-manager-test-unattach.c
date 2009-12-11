@@ -81,25 +81,25 @@ main (int argc, char **argv) {
 
 	/* Init */
 	tracker_db_manager_init (TRACKER_DB_MANAGER_FORCE_REINDEX,
-				 &first_time);
+	                         &first_time);
 
 	g_test_add_func ("/libtracker-db/tracker-db-manager/unattach/common_db_tables",
-			test_creation_common_db);
+	                 test_creation_common_db);
 
 	g_test_add_func ("/libtracker-db/tracker-db-manager/unattach/cache_db_tables",
-			test_creation_cache_db);
+	                 test_creation_cache_db);
 
 	g_test_add_func ("/libtracker-db/tracker-db-manager/unattach/file_meta_db_tables",
-			 test_creation_file_meta_db);
+	                 test_creation_file_meta_db);
 
 	g_test_add_func ("/libtracker-db/tracker-db-manager/unattach/file_contents_db_tables",
-			 test_creation_file_contents_db);
+	                 test_creation_file_contents_db);
 
 	g_test_add_func ("/libtracker-db/tracker-db-manager/unattach/email_meta_db_tables",
-			 test_creation_email_meta_db);
+	                 test_creation_email_meta_db);
 
 	g_test_add_func ("/libtracker-db/tracker-db-manager/unattach/email_contents_db_tables",
-			 test_creation_email_contents_db);
+	                 test_creation_email_contents_db);
 
 	result = g_test_run ();
 

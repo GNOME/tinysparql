@@ -9,14 +9,14 @@ tracker-store \- database indexer and query daemon
 .SH DESCRIPTION
 .B tracker-store
 provides both a powerful database daemon which allows clients to query
-or update their data using the highly descriptive 
+or update their data using the highly descriptive
 .B SPARQL
 language.
 .PP
 .B tracker-store
 does not do any file crawling or any mining of data itself, instead
 other processes do that and serves as a daemon waiting for such
-requests from application miners like 
+requests from application miners like
 .B tracker-miner-fs.
 .PP
 For help on how to configure this daemon, see the man page for
@@ -36,7 +36,7 @@ Sets the logging level, 0=errors, 1=minimal, 2=detailed, 3=debug.
 .B \-r, \-\-force-reindex
 This forces tracker-store to remove databases and to recreate fresh
 databases ready for data insertion from the miners. For more
-information about the miners, see 
+information about the miners, see
 .B tracker-miner-fs.
 .TP
 .B \-m, \-\-low-memory
@@ -48,9 +48,9 @@ connection cache sizes and page sizes for example. This may slow down
 indexing performance.
 .TP
 .B \-n, \-\-readonly-mode
-This starts 
+This starts
 .B tracker-store
-in a mode which disables writing to the database. Only 
+in a mode which disables writing to the database. Only
 .B SPARQL
 read requests can be serviced if this option is used.
 

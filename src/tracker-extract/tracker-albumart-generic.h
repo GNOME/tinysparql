@@ -26,9 +26,9 @@
 
 #include <glib.h>
 
-G_BEGIN_DECLS 
+G_BEGIN_DECLS
 
-gboolean  tracker_albumart_file_to_jpeg   (const gchar         *filename, 
+gboolean  tracker_albumart_file_to_jpeg   (const gchar         *filename,
                                            const gchar         *target);
 gboolean  tracker_albumart_buffer_to_jpeg (const unsigned char *buffer,
                                            size_t               len,

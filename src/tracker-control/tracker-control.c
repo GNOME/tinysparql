@@ -38,15 +38,15 @@
 #include <libtracker-miner/tracker-miner-manager.h>
 #include <libtracker-miner/tracker-crawler.h>
 
-#define ABOUT                                                             \
-        "Tracker " PACKAGE_VERSION "\n"
+#define ABOUT	  \
+	"Tracker " PACKAGE_VERSION "\n"
 
-#define LICENSE                                                           \
-        "This program is free software and comes without any warranty.\n" \
-        "It is licensed under version 2 or later of the General Public "  \
-        "License which can be viewed at:\n"                               \
-        "\n"                                                              \
-        "  http://www.gnu.org/licenses/gpl.txt\n"
+#define LICENSE	  \
+	"This program is free software and comes without any warranty.\n" \
+	"It is licensed under version 2 or later of the General Public " \
+	"License which can be viewed at:\n" \
+	"\n" \
+	"  http://www.gnu.org/licenses/gpl.txt\n"
 
 static gboolean     should_kill;
 static gboolean     should_terminate;
@@ -63,7 +63,7 @@ static GOptionEntry entries[] = {
 	  NULL },
 	{ "terminate", 't', 0, G_OPTION_ARG_NONE, &should_terminate,
 	  N_("Use SIGTERM to stop all tracker processes found"),
-	  NULL 
+	  NULL
 	},
 	{ "hard-reset", 'r', 0, G_OPTION_ARG_NONE, &hard_reset,
 	  N_("Kill all Tracker processes and remove all databases"),
@@ -97,17 +97,17 @@ get_pids (void)
 	dir = g_dir_open ("/proc", 0, &error);
 	if (error) {
 		g_printerr ("%s, %s\n",
-			    _("Could not open /proc"),
-			    error ? error->message : _("no error given"));
+		            _("Could not open /proc"),
+		            error ? error->message : _("no error given"));
 		g_clear_error (&error);
 		return NULL;
 	}
 
-	while ((name = g_dir_read_name (dir)) != NULL) { 
+	while ((name = g_dir_read_name (dir)) != NULL) {
 		gchar c;
 		gboolean is_pid = TRUE;
 
-		for (c = *name; c && c != ':' && is_pid; c++) {		
+		for (c = *name; c && c != ':' && is_pid; c++) {
 			is_pid &= g_ascii_isdigit (c);
 		}
 
@@ -125,9 +125,9 @@ get_pids (void)
 
 static void
 log_handler (const gchar    *domain,
-	     GLogLevelFlags  log_level,
-	     const gchar    *message,
-	     gpointer	     user_data)
+             GLogLevelFlags  log_level,
+             const gchar    *message,
+             gpointer        user_data)
 {
 	switch (log_level) {
 	case G_LOG_LEVEL_WARNING:
@@ -146,13 +146,13 @@ log_handler (const gchar    *domain,
 		g_fprintf (stdout, "%s\n", message);
 		fflush (stdout);
 		break;
-	}	
+	}
 }
 
 static gboolean
 crawler_check_file_cb (TrackerCrawler *crawler,
-		       GFile          *file,
-		       gpointer        user_data)
+                       GFile          *file,
+                       gpointer        user_data)
 {
 	const gchar **suffix;
 	gchar *path;
@@ -184,13 +184,13 @@ crawler_check_file_cb (TrackerCrawler *crawler,
 
 static void
 crawler_finished_cb (TrackerCrawler *crawler,
-		     GQueue         *found,
-		     gboolean        was_interrupted,
-		     guint           directories_found,
-		     guint           directories_ignored,
-		     guint           files_found,
-		     guint           files_ignored,
-		     gpointer        user_data)
+                     GQueue         *found,
+                     gboolean        was_interrupted,
+                     guint           directories_found,
+                     guint           directories_ignored,
+                     guint           files_found,
+                     guint           files_ignored,
+                     gpointer        user_data)
 {
 	g_main_loop_quit (user_data);
 }
@@ -211,34 +211,34 @@ main (int argc, char **argv)
 	textdomain (GETTEXT_PACKAGE);
 
 	g_type_init ();
-	
+
 	if (!g_thread_supported ()) {
 		g_thread_init (NULL);
 	}
 
-	/* Translators: this messagge will apper immediately after the	*/
-	/* usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>	*/
+	/* Translators: this messagge will apper immediately after the  */
+	/* usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>     */
 	context = g_option_context_new (_(" - Manage Tracker processes and data"));
 	g_option_context_add_main_entries (context, entries, NULL);
 	g_option_context_parse (context, &argc, &argv, NULL);
 	g_option_context_free (context);
 
 	if (print_version) {
-                g_print ("\n" ABOUT "\n" LICENSE "\n");
+		g_print ("\n" ABOUT "\n" LICENSE "\n");
 		return EXIT_SUCCESS;
 	}
 
 	if (should_kill && should_terminate) {
 		g_printerr ("%s\n",
-			    _("You can not use the --kill and --terminate arguments together"));
+		            _("You can not use the --kill and --terminate arguments together"));
 		return EXIT_FAILURE;
 	} else if ((hard_reset || soft_reset) && should_terminate) {
 		g_printerr ("%s\n",
-			    _("You can not use the --terminate with --hard-reset or --soft-reset, --kill is implied"));
+		            _("You can not use the --terminate with --hard-reset or --soft-reset, --kill is implied"));
 		return EXIT_FAILURE;
 	} else if (hard_reset && soft_reset) {
 		g_printerr ("%s\n",
-			    _("You can not use the --hard-reset and --soft-reset arguments together"));
+		            _("You can not use the --hard-reset and --soft-reset arguments together"));
 		return EXIT_FAILURE;
 	}
 
@@ -254,54 +254,54 @@ main (int argc, char **argv)
 	    (!start && !remove_config && !remove_thumbnails)) {
 		pids = get_pids ();
 		str = g_strdup_printf (tracker_dngettext (NULL,
-							  "Found %d PID…", 
-							  "Found %d PIDs…",
-							  g_slist_length (pids)),
-				       g_slist_length (pids));
+		                                          "Found %d PID…",
+		                                          "Found %d PIDs…",
+		                                          g_slist_length (pids)),
+		                       g_slist_length (pids));
 		g_print ("%s\n", str);
 		g_free (str);
-		
+
 		for (l = pids; l; l = l->next) {
 			gchar *filename;
 			gchar *contents = NULL;
 			gchar **strv;
-			
+
 			filename = g_build_filename ("/proc", l->data, "cmdline", NULL);
 			if (!g_file_get_contents (filename, &contents, NULL, &error)) {
 				str = g_strdup_printf (_("Could not open '%s'"), filename);
-				g_printerr ("%s, %s\n", 
-					    str,
-					    error ? error->message : _("no error given"));
+				g_printerr ("%s, %s\n",
+				            str,
+				            error ? error->message : _("no error given"));
 				g_free (str);
 				g_clear_error (&error);
 				g_free (contents);
 				g_free (filename);
-				
+
 				continue;
 			}
-			
+
 			strv = g_strsplit (contents, "^@", 2);
 			if (strv && strv[0]) {
 				gchar *basename;
-				
+
 				basename = g_path_get_basename (strv[0]);
 				if (g_str_has_prefix (basename, "tracker") == TRUE &&
 				    g_str_has_suffix (basename, "-control") == FALSE) {
 					pid_t pid;
-					
+
 					pid = atoi (l->data);
 					str = g_strdup_printf (_("Found process ID %d for '%s'"), pid, basename);
 					g_print ("%s\n", str);
 					g_free (str);
-					
+
 					if (should_terminate) {
 						if (kill (pid, SIGTERM) == -1) {
 							const gchar *errstr = g_strerror (errno);
-							
+
 							str = g_strdup_printf (_("Could not terminate process %d"), pid);
-							g_printerr ("  %s, %s\n", 
-								    str,
-								    errstr ? errstr : _("no error given"));
+							g_printerr ("  %s, %s\n",
+							            str,
+							            errstr ? errstr : _("no error given"));
 							g_free (str);
 						} else {
 							str = g_strdup_printf (_("Terminated process %d"), pid);
@@ -311,11 +311,11 @@ main (int argc, char **argv)
 					} else if (should_kill) {
 						if (kill (pid, SIGKILL) == -1) {
 							const gchar *errstr = g_strerror (errno);
-							
+
 							str = g_strdup_printf (_("Could not kill process %d"), pid);
-							g_printerr ("  %s, %s\n", 
-								    str,
-								    errstr ? errstr : _("no error given"));
+							g_printerr ("  %s, %s\n",
+							            str,
+							            errstr ? errstr : _("no error given"));
 							g_free (str);
 						} else {
 							str = g_strdup_printf (_("Killed process %d"), pid);
@@ -324,10 +324,10 @@ main (int argc, char **argv)
 						}
 					}
 				}
-				
+
 				g_free (basename);
 			}
-			
+
 			g_strfreev (strv);
 			g_free (contents);
 			g_free (filename);
@@ -342,10 +342,10 @@ main (int argc, char **argv)
 
 		/* Set log handler for library messages */
 		log_handler_id = g_log_set_handler (NULL,
-						    G_LOG_LEVEL_MASK | G_LOG_FLAG_FATAL,
-						    log_handler,
-						    NULL);
-		
+		                                    G_LOG_LEVEL_MASK | G_LOG_FLAG_FATAL,
+		                                    log_handler,
+		                                    NULL);
+
 		g_log_set_default_handler (log_handler, NULL);
 
 		/* Clean up */
@@ -367,16 +367,16 @@ main (int argc, char **argv)
 		const gchar *suffix = ".cfg";
 		const gchar *home_dir;
 		gchar *path;
-		
+
 		crawler = tracker_crawler_new ();
 		main_loop = g_main_loop_new (NULL, FALSE);
-		
+
 		g_signal_connect (crawler, "check-file",
-				  G_CALLBACK (crawler_check_file_cb),
-				  &suffix);
+		                  G_CALLBACK (crawler_check_file_cb),
+		                  &suffix);
 		g_signal_connect (crawler, "finished",
-				  G_CALLBACK (crawler_finished_cb),
-				  main_loop);
+		                  G_CALLBACK (crawler_finished_cb),
+		                  main_loop);
 
 		/* Go through service files */
 		home_dir = g_getenv ("HOME");
@@ -393,7 +393,7 @@ main (int argc, char **argv)
 
 		tracker_crawler_start (crawler, file, FALSE);
 		g_object_unref (file);
-		
+
 		g_main_loop_run (main_loop);
 		g_object_unref (crawler);
 	}
@@ -404,16 +404,16 @@ main (int argc, char **argv)
 		TrackerCrawler *crawler;
 		const gchar *home_dir;
 		gchar *path;
-		
+
 		crawler = tracker_crawler_new ();
 		main_loop = g_main_loop_new (NULL, FALSE);
-		
+
 		g_signal_connect (crawler, "check-file",
-				  G_CALLBACK (crawler_check_file_cb),
-				  NULL);
+		                  G_CALLBACK (crawler_check_file_cb),
+		                  NULL);
 		g_signal_connect (crawler, "finished",
-				  G_CALLBACK (crawler_finished_cb),
-				  main_loop);
+		                  G_CALLBACK (crawler_finished_cb),
+		                  main_loop);
 
 		/* Go through service files */
 		home_dir = g_getenv ("HOME");
@@ -430,7 +430,7 @@ main (int argc, char **argv)
 
 		tracker_crawler_start (crawler, file, TRUE);
 		g_object_unref (file);
-		
+
 		g_main_loop_run (main_loop);
 		g_object_unref (crawler);
 	}
@@ -441,7 +441,7 @@ main (int argc, char **argv)
 
 		manager = tracker_miner_manager_new ();
 		miners = tracker_miner_manager_get_available (manager);
-		
+
 		g_print ("%s\n", _("Starting miners…"));
 
 		/* Get the status of all miners, this will start all
@@ -455,15 +455,15 @@ main (int argc, char **argv)
 			display_name = tracker_miner_manager_get_display_name (manager, l->data);
 
 			if (!tracker_miner_manager_get_status (manager, l->data, NULL, &progress)) {
-				g_printerr ("  %s: %s (%s)\n", 
-					    _("Failed"),
-					    display_name,
-					    _("Could not get miner status"));
+				g_printerr ("  %s: %s (%s)\n",
+				            _("Failed"),
+				            display_name,
+				            _("Could not get miner status"));
 			} else {
-				g_print ("  %s: %s (%3.0f%%)\n", 
-					 _("Done"),
-					 display_name, 
-					 progress * 100);
+				g_print ("  %s: %s (%3.0f%%)\n",
+				         _("Done"),
+				         display_name,
+				         progress * 100);
 			}
 
 			g_free (l->data);

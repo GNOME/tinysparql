@@ -33,7 +33,7 @@
  */
 
 void
-tracker_statement_list_insert (TrackerSparqlBuilder *statements, 
+tracker_statement_list_insert (TrackerSparqlBuilder *statements,
                                const gchar          *subject,
                                const gchar          *predicate,
                                const gchar          *value)
@@ -61,8 +61,8 @@ tracker_sparql_builder_object_unvalidated (TrackerSparqlBuilder *sparql,
 		gchar *valid;
 
 		/* g_message ("Only inserting %ld/%ld (valid UTF8) bytes for statement list", */
-		/* 	   end - value, */
-		/* 	   strlen (value)); */
+		/*         end - value, */
+		/*         strlen (value)); */
 
 		if (value != end) {
 			valid = g_strndup (value, end - value);
@@ -80,9 +80,9 @@ tracker_sparql_builder_object_unvalidated (TrackerSparqlBuilder *sparql,
 
 void
 tracker_statement_list_insert_with_int64 (TrackerSparqlBuilder *statements,
-					  const gchar          *subject,
-					  const gchar          *predicate,
-					  gint64                value)
+                                          const gchar          *subject,
+                                          const gchar          *predicate,
+                                          gint64                value)
 {
 	gchar *value_str;
 
@@ -93,9 +93,9 @@ tracker_statement_list_insert_with_int64 (TrackerSparqlBuilder *statements,
 
 void
 tracker_statement_list_insert_with_uint (TrackerSparqlBuilder *statements,
-					 const gchar          *subject,
-					 const gchar          *predicate,
-					 guint32               value)
+                                         const gchar          *subject,
+                                         const gchar          *predicate,
+                                         guint32               value)
 {
 	gchar *value_str;
 
@@ -106,9 +106,9 @@ tracker_statement_list_insert_with_uint (TrackerSparqlBuilder *statements,
 
 void
 tracker_statement_list_insert_with_double  (TrackerSparqlBuilder *statements,
-					    const gchar          *subject,
-					    const gchar          *predicate,
-					    gdouble               value)
+                                            const gchar          *subject,
+                                            const gchar          *predicate,
+                                            gdouble               value)
 {
 	gchar *value_str;
 
@@ -119,9 +119,9 @@ tracker_statement_list_insert_with_double  (TrackerSparqlBuilder *statements,
 
 void
 tracker_statement_list_insert_with_float  (TrackerSparqlBuilder *statements,
-					   const gchar          *subject,
-					   const gchar          *predicate,
-					   gfloat                value)
+                                           const gchar          *subject,
+                                           const gchar          *predicate,
+                                           gfloat                value)
 {
 	gchar *value_str;
 
@@ -132,9 +132,9 @@ tracker_statement_list_insert_with_float  (TrackerSparqlBuilder *statements,
 
 void
 tracker_statement_list_insert_with_int (TrackerSparqlBuilder  *statements,
-					const gchar           *subject,
-					const gchar           *predicate,
-					gint                   value)
+                                        const gchar           *subject,
+                                        const gchar           *predicate,
+                                        gint                   value)
 {
 	gchar *value_str;
 

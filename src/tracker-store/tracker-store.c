@@ -38,8 +38,8 @@
 
 #include "tracker-store.h"
 
-#define TRACKER_STORE_TRANSACTION_MAX			4000		/* At commit is journal fsynced too */
-#define TRACKER_STORE_JOURNAL_TIMEOUT_BEFORE_BACKUP	(60 * 60 * 2)	/* Two hours before backup */
+#define TRACKER_STORE_TRANSACTION_MAX                   4000            /* At commit is journal fsynced too */
+#define TRACKER_STORE_JOURNAL_TIMEOUT_BEFORE_BACKUP     (60 * 60 * 2)   /* Two hours before backup */
 
 typedef struct {
 	gboolean  have_handler, have_sync_handler;
@@ -58,14 +58,14 @@ typedef enum {
 typedef struct {
 	TrackerStoreTaskType  type;
 	union {
-	  struct {
-		gchar                   *query;
-		gchar                   *client_id;
-	  } update;
-	  struct {
-		gboolean           in_progress;
-		gchar             *path;
-	  } turtle;
+		struct {
+			gchar                   *query;
+			gchar                   *client_id;
+		} update;
+		struct {
+			gboolean           in_progress;
+			gchar             *path;
+		} turtle;
 	} data;
 	gpointer                   user_data;
 	GDestroyNotify             destroy;
@@ -113,18 +113,18 @@ process_turtle_file_part (TrackerTurtleReader *reader, GError **error)
 		/* insert statement */
 		if (tracker_turtle_reader_get_object_is_uri (reader)) {
 			tracker_data_insert_statement_with_uri (
-				tracker_turtle_reader_get_graph (reader),
-				tracker_turtle_reader_get_subject (reader),
-				tracker_turtle_reader_get_predicate (reader),
-				tracker_turtle_reader_get_object (reader),
-				&new_error);
+			                                        tracker_turtle_reader_get_graph (reader),
+			                                        tracker_turtle_reader_get_subject (reader),
+			                                        tracker_turtle_reader_get_predicate (reader),
+			                                        tracker_turtle_reader_get_object (reader),
+			                                        &new_error);
 		} else {
 			tracker_data_insert_statement_with_string (
-				tracker_turtle_reader_get_graph (reader),
-				tracker_turtle_reader_get_subject (reader),
-				tracker_turtle_reader_get_predicate (reader),
-				tracker_turtle_reader_get_object (reader),
-				&new_error);
+			                                           tracker_turtle_reader_get_graph (reader),
+			                                           tracker_turtle_reader_get_subject (reader),
+			                                           tracker_turtle_reader_get_predicate (reader),
+			                                           tracker_turtle_reader_get_object (reader),
+			                                           &new_error);
 		}
 
 		i++;
@@ -161,8 +161,8 @@ end_batch (TrackerStorePrivate *private)
 		tracker_data_commit_transaction ();
 
 		/* The on_statements_committed in tracker-resources.c performs
-		 * the flush on the journal, I can only register one callback 
-		 * for this atm, so that's why it's called over there as a 
+		 * the flush on the journal, I can only register one callback
+		 * for this atm, so that's why it's called over there as a
 		 * tracker_store_flush_journal */
 
 		private->batch_mode = FALSE;
@@ -277,7 +277,7 @@ queue_idle_handler (gpointer user_data)
 		}
 	}
 
-out:
+ out:
 	g_queue_pop_head (private->queue);
 
 	if (task->destroy) {
@@ -316,7 +316,7 @@ sync_idle_destroy (gpointer user_data)
 	private->have_sync_handler = FALSE;
 }
 
-void 
+void
 tracker_store_flush_journal (void)
 {
 	TrackerStorePrivate *private;
@@ -482,9 +482,9 @@ tracker_store_queue_sparql_update (const gchar *sparql,
 
 void
 tracker_store_queue_turtle_import (GFile                      *file,
-				   TrackerStoreTurtleCallback  callback,
-				   gpointer                    user_data,
-				   GDestroyNotify              destroy)
+                                   TrackerStoreTurtleCallback  callback,
+                                   gpointer                    user_data,
+                                   GDestroyNotify              destroy)
 {
 	TrackerStorePrivate *private;
 	TrackerStoreTask    *task;

@@ -48,23 +48,23 @@ main (int argc, char **argv) {
 	g_free (path);
 
 	g_test_add_data_func ("/tracker-extract/tracker-extract-gstreamer/check-extract-data",
-			      data, test_tracker_extract_check_extract_data);
-	
+	                      data, test_tracker_extract_check_extract_data);
+
 #if 0
 	g_test_add_data_func ("/tracker-extract/tracker-extract-gstreamer/mp3/id3v1_basic",
-			      data, test_tracker_extract_mp3_id3v1_basic);
+	                      data, test_tracker_extract_mp3_id3v1_basic);
 	g_test_add_data_func ("/tracker-extract/tracker-extract-gstreamer/mp3/id3v23_basic",
-			      data, test_tracker_extract_mp3_id3v23_basic);
+	                      data, test_tracker_extract_mp3_id3v23_basic);
 	g_test_add_data_func ("/tracker-extract/tracker-extract-gstreamer/mp3/id3v23_tags",
-			      data, test_tracker_extract_mp3_id3v23_tags);
-/* 	g_test_add_data_func ("/tracker-extract/tracker-extract-gstreamer/mp3/header_bitrate", */
-/* 			      data, test_tracker_extract_mp3_header_bitrate); */
+	                      data, test_tracker_extract_mp3_id3v23_tags);
+	/*      g_test_add_data_func ("/tracker-extract/tracker-extract-gstreamer/mp3/header_bitrate", */
+	/*                            data, test_tracker_extract_mp3_header_bitrate); */
 	g_test_add_data_func ("/tracker-extract/tracker-extract-gstreamer/mp3/header_sampling",
-			      data, test_tracker_extract_mp3_header_sampling);
+	                      data, test_tracker_extract_mp3_header_sampling);
 
 	if (g_test_perf()) {
 		g_test_add_data_func ("/tracker-extract/tracker-extract-gstreamer/mp3/performance_cbr",
-				      data, test_tracker_extract_mp3_performance);	
+		                      data, test_tracker_extract_mp3_performance);
 	}
 
 	path = g_build_filename (MODULESDIR, "libextract-gstreamer", NULL);
@@ -72,7 +72,7 @@ main (int argc, char **argv) {
 	g_free (path);
 
 	g_test_add_data_func ("/tracker-extract/tracker-extract-gstreamer/avi/basic_tags",
-			      data, test_tracker_extract_avi_basic_tags);
+	                      data, test_tracker_extract_avi_basic_tags);
 
 #endif
 

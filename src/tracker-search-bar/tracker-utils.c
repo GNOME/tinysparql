@@ -116,19 +116,19 @@ tracker_regex_match (TrackerRegExType  type,
 			s = matches[0].rm_so + offset;
 			offset = matches[0].rm_eo + offset;
 
-                        if (start) {
-                                g_array_append_val (start, s);
-                        }
+			if (start) {
+				g_array_append_val (start, s);
+			}
 
-                        if (end) {
-                                g_array_append_val (end, offset);
-                        }
+			if (end) {
+				g_array_append_val (end, offset);
+			}
 		}
 	}
 
 	if (type != TRACKER_REGEX_ALL) {
 		/* g_debug ("Found %d matches for regex type:%d", */
-                /*          num_matches, type); */
+		/*          num_matches, type); */
 		return num_matches;
 	}
 
@@ -144,19 +144,19 @@ tracker_regex_match (TrackerRegExType  type,
 				s = matches[0].rm_so + offset;
 				offset = matches[0].rm_eo + offset;
 
-                                if (start) {
-                                        g_array_append_val (start, s);
-                                }
+				if (start) {
+					g_array_append_val (start, s);
+				}
 
-                                if (end) {
-                                        g_array_append_val (end, offset);
-                                }
+				if (end) {
+					g_array_append_val (end, offset);
+				}
 			}
 		}
 	}
 
 	/* g_debug ("Found %d matches for ALL regex types", */
-        /*          num_matches); */
+	/*          num_matches); */
 
 	return num_matches;
 }

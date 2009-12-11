@@ -69,12 +69,12 @@ load_modules (PushSupportPrivate *private)
 			p_module->module = g_module_open (path, G_MODULE_BIND_LOCAL);
 
 			if (!g_module_symbol (p_module->module, "tracker_push_module_shutdown",
-					      (gpointer *) &p_module->shutdown) ||
+			                      (gpointer *) &p_module->shutdown) ||
 			    !g_module_symbol (p_module->module, "tracker_push_module_init",
-					      (gpointer *) &p_module->init)) {
+			                      (gpointer *) &p_module->init)) {
 
 				g_warning ("Could not load module symbols for '%s': %s",
-					   path, g_module_error ());
+				           path, g_module_error ());
 
 				g_module_close (p_module->module);
 				g_slice_free (PushModule, p_module);
@@ -85,7 +85,7 @@ load_modules (PushSupportPrivate *private)
 				p_module->registrar = p_module->init ();
 
 				private->modules = g_list_prepend (private->modules,
-								   p_module);
+				                                   p_module);
 			}
 
 			g_free (path);
@@ -96,10 +96,10 @@ load_modules (PushSupportPrivate *private)
 }
 
 static void
-name_owner_changed_cb (DBusGProxy *proxy, 
-                       gchar *name, 
-                       gchar *old_owner, 
-                       gchar *new_owner, 
+name_owner_changed_cb (DBusGProxy *proxy,
+                       gchar *name,
+                       gchar *old_owner,
+                       gchar *new_owner,
                        gpointer user_data)
 {
 	GList *copy;
@@ -127,10 +127,10 @@ name_owner_changed_cb (DBusGProxy *proxy,
 			if (tracker_is_empty_string (old_owner) && !tracker_is_empty_string (new_owner)) {
 				GError *error  = NULL;
 
-				tracker_push_registrar_enable (registrar, 
-							       private->connection,
-							       private->dbus_proxy,
-							       &error);
+				tracker_push_registrar_enable (registrar,
+				                               private->connection,
+				                               private->dbus_proxy,
+				                               &error);
 
 				if (error) {
 					g_debug ("%s\n", error->message);
@@ -155,10 +155,10 @@ name_owner_changed_cb (DBusGProxy *proxy,
 			if (g_strcmp0 (name, service) == 0) {
 				GError *error  = NULL;
 
-				tracker_push_registrar_enable (registrar, 
-							       private->connection,
-							       private->dbus_proxy,
-							       &error);
+				tracker_push_registrar_enable (registrar,
+				                               private->connection,
+				                               private->dbus_proxy,
+				                               &error);
 
 				if (error) {
 					g_debug ("%s\n", error->message);
@@ -173,8 +173,8 @@ name_owner_changed_cb (DBusGProxy *proxy,
 
 static void
 list_names_reply_cb (DBusGProxy     *proxy,
-		     DBusGProxyCall *call,
-		     gpointer        user_data)
+                     DBusGProxyCall *call,
+                     gpointer        user_data)
 {
 	PushSupportPrivate *private;
 	GError *error = NULL;
@@ -186,14 +186,14 @@ list_names_reply_cb (DBusGProxy     *proxy,
 	g_return_if_fail (private != NULL);
 
 	dbus_g_proxy_end_call (proxy, call, &error,
-			       G_TYPE_STRV, &names,
-			       G_TYPE_INVALID);
+	                       G_TYPE_STRV, &names,
+	                       G_TYPE_INVALID);
 
 	if (error) {
 		g_warning ("%s", error->message);
 		g_error_free (error);
 		if (names)
-			g_strfreev (names); 
+			g_strfreev (names);
 		return;
 	}
 
@@ -210,10 +210,10 @@ list_names_reply_cb (DBusGProxy     *proxy,
 			if (g_strcmp0 (names[i], service) == 0) {
 				GError *lerror  = NULL;
 
-				tracker_push_registrar_enable (registrar, 
-							       private->connection,
-							       private->dbus_proxy,
-							       &lerror);
+				tracker_push_registrar_enable (registrar,
+				                               private->connection,
+				                               private->dbus_proxy,
+				                               &lerror);
 
 				if (lerror) {
 					g_debug ("%s\n", lerror->message);
@@ -227,7 +227,7 @@ list_names_reply_cb (DBusGProxy     *proxy,
 		i++;
 	}
 
-	g_strfreev (names); 
+	g_strfreev (names);
 }
 
 static void
@@ -248,8 +248,8 @@ tracker_push_init (void)
 	private = g_new0 (PushSupportPrivate, 1);
 
 	g_static_private_set (&private_key,
-			      private,
-			      (GDestroyNotify) free_private);
+	                      private,
+	                      (GDestroyNotify) free_private);
 
 	load_modules (private);
 
@@ -261,21 +261,21 @@ tracker_push_init (void)
 
 		private->connection = dbus_g_connection_ref (connection);
 
-		private->dbus_proxy = dbus_g_proxy_new_for_name (private->connection, 
-								 DBUS_SERVICE_DBUS,
-								 DBUS_PATH_DBUS,
-								 DBUS_INTERFACE_DBUS);
+		private->dbus_proxy = dbus_g_proxy_new_for_name (private->connection,
+		                                                 DBUS_SERVICE_DBUS,
+		                                                 DBUS_PATH_DBUS,
+		                                                 DBUS_INTERFACE_DBUS);
 
-		/* We listen for NameOwnerChanged to know when the manager's service 
+		/* We listen for NameOwnerChanged to know when the manager's service
 		 * comes up and to know when it goes down */
 
 		dbus_g_proxy_add_signal (private->dbus_proxy, "NameOwnerChanged",
-					 G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING,
-					 G_TYPE_INVALID);
+		                         G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING,
+		                         G_TYPE_INVALID);
 
 		dbus_g_proxy_connect_signal (private->dbus_proxy, "NameOwnerChanged",
-					     G_CALLBACK (name_owner_changed_cb),
-					     NULL, NULL);
+		                             G_CALLBACK (name_owner_changed_cb),
+		                             NULL, NULL);
 
 		dbus_error_init (&dbus_error);
 
@@ -288,14 +288,14 @@ tracker_push_init (void)
 			const gchar *service = tracker_push_registrar_get_service (registrar);
 
 			gchar *dbus_string = g_strdup_printf ("type='signal',"
-					    "sender='" DBUS_SERVICE_DBUS
-					    "',interface='" DBUS_INTERFACE_DBUS
-					    "',path='" DBUS_PATH_DBUS
-					    "',member='NameOwnerChanged',"
-					     "arg0='%s'", service);
+			                                      "sender='" DBUS_SERVICE_DBUS
+			                                      "',interface='" DBUS_INTERFACE_DBUS
+			                                      "',path='" DBUS_PATH_DBUS
+			                                      "',member='NameOwnerChanged',"
+			                                      "arg0='%s'", service);
 
 			dbus_bus_add_match ((DBusConnection *) dbus_g_connection_get_connection (private->connection),
-					    dbus_string, &dbus_error);
+			                    dbus_string, &dbus_error);
 
 			if (dbus_error_is_set (&dbus_error)) {
 				g_warning ("%s for rule=%s\n", dbus_error.message, dbus_string);
@@ -313,9 +313,9 @@ tracker_push_init (void)
 		 * NameOwnerChanged to emit that the manager's service has came up. */
 
 		dbus_g_proxy_begin_call (private->dbus_proxy, "ListNames",
-					 list_names_reply_cb, NULL, NULL,
-					 G_TYPE_INVALID,
-					 G_TYPE_INVALID);
+		                         list_names_reply_cb, NULL, NULL,
+		                         G_TYPE_INVALID,
+		                         G_TYPE_INVALID);
 
 	} else {
 		g_critical ("Could not setup D-Bus, %s\n", error->message);

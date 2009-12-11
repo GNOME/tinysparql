@@ -72,10 +72,10 @@ tracker_writeback_mp3_init (TrackerWritebackMP3 *wbm)
 static const gchar * const *
 writeback_mp3_content_types (TrackerWritebackFile *wbf)
 {
-	static const gchar *content_types[] = { 
-	        "audio/mpeg", 
-	        "audio/x-mp3",
-	        NULL 
+	static const gchar *content_types[] = {
+		"audio/mpeg",
+		"audio/x-mp3",
+		NULL
 	};
 
 	return content_types;
@@ -102,7 +102,7 @@ writeback_mp3_update_file_metadata (TrackerWritebackFile *writeback_file,
 			tag = ID3Tag_New ();
 			ID3Tag_Link (tag, path);
 
- 			frame = ID3Tag_FindFrameWithID (tag, ID3FID_TITLE);
+			frame = ID3Tag_FindFrameWithID (tag, ID3FID_TITLE);
 			if (frame) {
 				ID3Field *field;
 
@@ -119,7 +119,7 @@ writeback_mp3_update_file_metadata (TrackerWritebackFile *writeback_file,
 
 			ID3Tag_Update (tag);
 			/* Apparently this ain't needed (and crashes)
-			 * ID3Frame_Delete (frame); 
+			 * ID3Frame_Delete (frame);
 			 */
 			ID3Tag_Delete (tag);
 		}
@@ -143,9 +143,9 @@ writeback_module_create (GTypeModule *module)
 const gchar * const *
 writeback_module_get_rdf_types (void)
 {
-	static const gchar *rdftypes[] = { 
-	        TRACKER_NFO_PREFIX "Audio",
-	        NULL 
+	static const gchar *rdftypes[] = {
+		TRACKER_NFO_PREFIX "Audio",
+		NULL
 	};
 
 	return rdftypes;

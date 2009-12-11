@@ -44,8 +44,8 @@ typedef enum  {
 } TrackerDataError;
 
 typedef void (*TrackerStatementCallback) (const gchar *graph,
-                                          const gchar *subject, 
-                                          const gchar *predicate, 
+                                          const gchar *subject,
+                                          const gchar *predicate,
                                           const gchar *object,
                                           GPtrArray   *rdf_types,
                                           gpointer     user_data);
@@ -80,15 +80,15 @@ void     tracker_data_insert_statement_with_string  (const gchar               *
 void     tracker_data_begin_transaction             (void);
 void     tracker_data_commit_transaction            (void);
 void     tracker_data_update_sparql                 (const gchar               *update,
-						     GError                   **error);
+                                                     GError                   **error);
 GPtrArray *
-         tracker_data_update_sparql_blank           (const gchar               *update,
-						     GError                   **error);
+tracker_data_update_sparql_blank           (const gchar               *update,
+                                            GError                   **error);
 void     tracker_data_update_buffer_flush           (GError                   **error);
 
 /* Volume handling */
 void     tracker_data_update_enable_volume          (const gchar               *udi,
-						     const gchar               *mount_path);
+                                                     const gchar               *mount_path);
 void     tracker_data_update_disable_volume         (const gchar               *udi);
 void     tracker_data_update_disable_all_volumes    (void);
 void     tracker_data_update_reset_volume           (const gchar               *uri);

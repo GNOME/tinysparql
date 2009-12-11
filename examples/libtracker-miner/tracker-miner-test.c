@@ -37,7 +37,7 @@ tracker_miner_test_init (TrackerMinerTest *miner)
 TrackerMiner *
 tracker_miner_test_new (const gchar *name)
 {
-        return g_object_new (TRACKER_TYPE_MINER_TEST,
-			     "name", name,
-			     NULL);
+	return g_object_new (TRACKER_TYPE_MINER_TEST,
+	                     "name", name,
+	                     NULL);
 }

@@ -76,4 +76,4 @@ SuperProperties=<xsl:for-each select="rdfs:subPropertyOf">
 Description=<xsl:value-of select="rdfs:comment"/></xsl:if>
 </xsl:for-each>
 </xsl:template>
-</xsl:stylesheet> 
+</xsl:stylesheet>

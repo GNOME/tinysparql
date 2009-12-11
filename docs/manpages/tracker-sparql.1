@@ -10,10 +10,10 @@ tracker-sparql \- Use SparQL to query the Tracker databases.
 .B tracker-sparql
 allows the caller to run an RDF query on the database. This can be
 done two ways. Either by providing a \fIFILE\fR with the query or by
-providing a string with the \fIQUERY\fR string. 
+providing a string with the \fIQUERY\fR string.
 
 The \fIFILE\fR argument can be either a local path or a URI. It also
-does not have to be an absolute path. 
+does not have to be an absolute path.
 
 .SH OPTIONS
 .TP
@@ -31,7 +31,7 @@ This has to be used with \-\-query. This tells
 .B tracker-sparql
 to use the SPARQL update extensions so it knows it isn't a regular
 data lookup request. So if your query is intended to change data in
-the database, this option is needed. 
+the database, this option is needed.
 .TP
 .B \-c, \-\-list-classes
 Returns a list of classes which describe the ontology used for storing
@@ -44,7 +44,7 @@ Returns a list of classes and their related prefixes. Prefixes are
 used to make querying a lot simpler and are much like an alias. For
 example,
 .B http://www.w3.org/2000/01/rdf-schema#Resource
-has the prefix 
+has the prefix
 .B rdfs
 so queries can be cut down to:
 
@@ -90,9 +90,9 @@ List all properties for the Resources class (see \-\-list-properties)
 
 .BR
 .NF
-$ tracker-sparql -q "SELECT ?prop WHERE { 
-      ?prop a rdf:Property ; 
-      rdfs:domain <http://www.w3.org/2000/01/rdf-schema#Resource> 
+$ tracker-sparql -q "SELECT ?prop WHERE {
+      ?prop a rdf:Property ;
+      rdfs:domain <http://www.w3.org/2000/01/rdf-schema#Resource>
  }"
 .FI
 
@@ -101,9 +101,9 @@ List all class namespace prefixes
 
 .BR
 .NF
-$ tracker-sparql -q "SELECT ?prefix ?ns WHERE { 
+$ tracker-sparql -q "SELECT ?prefix ?ns WHERE {
       ?ns a tracker:Namespace ;
-      tracker:prefix ?prefix 
+      tracker:prefix ?prefix
  }"
 .FI
 
@@ -118,9 +118,9 @@ List all music albums
 
 .BR
 .NF
-$ tracker-sparql -q "SELECT ?album ?title COUNT(?song) 
-                     AS songs 
-                     SUM(?length) AS totallength 
+$ tracker-sparql -q "SELECT ?album ?title COUNT(?song)
+                     AS songs
+                     SUM(?length) AS totallength
                      WHERE {
       ?album a nmm:MusicAlbum ;
       nie:title ?title .
@@ -165,9 +165,9 @@ List all image files with a specific tag
 
 .BR
 .NF
-$ tracker-sparql -q "SELECT ?image WHERE { 
+$ tracker-sparql -q "SELECT ?image WHERE {
       ?image a nfo:Image ;
-      nao:hasTag [ nao:prefLabel 'tag' ] 
+      nao:hasTag [ nao:prefLabel 'tag' ]
  }"
 .FI
 
@@ -177,7 +177,7 @@ List all image files created on a specific month and order by date
 .BR
 .NF
 $ tracker-sparql -q "SELECT ?image ?date WHERE {
-      ?image a nfo:Image ; 
+      ?image a nfo:Image ;
       nie:contentCreated ?date .
       FILTER (?date >= '2008-07-01T00:00:00' &&
               ?date <  '2008-08-01T00:00:00')

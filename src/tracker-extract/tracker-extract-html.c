@@ -44,18 +44,18 @@ typedef struct {
 } parser_data;
 
 static void extract_html (const gchar          *filename,
-			  TrackerSparqlBuilder *metadata);
+                          TrackerSparqlBuilder *metadata);
 
 static TrackerExtractData data[] = {
-	{ "text/html",		   extract_html },
+	{ "text/html",             extract_html },
 	{ "application/xhtml+xml", extract_html },
 	{ NULL, NULL }
 };
 
 static gboolean
 has_attribute (const gchar **attrs,
-	       const gchar  *attr,
-	       const gchar  *val)
+               const gchar  *attr,
+               const gchar  *val)
 {
 	gint i;
 
@@ -76,7 +76,7 @@ has_attribute (const gchar **attrs,
 
 static const xmlChar *
 lookup_attribute (const gchar **attrs,
-		  const gchar  *attr)
+                  const gchar  *attr)
 {
 	gint i;
 
@@ -95,8 +95,8 @@ lookup_attribute (const gchar **attrs,
 
 static void
 parser_start_element (void           *data,
-		      const xmlChar  *name_,
-		      const xmlChar **attrs_)
+                      const xmlChar  *name_,
+                      const xmlChar **attrs_)
 {
 	parser_data *pd = data;
 	const gchar *name = (const gchar*) name_;
@@ -169,7 +169,7 @@ parser_start_element (void           *data,
 						tracker_sparql_builder_predicate (pd->metadata, "nie:keyword");
 						tracker_sparql_builder_object_unvalidated (pd->metadata, g_strstrip (keywords[i]));
 					}
-					
+
 					g_strfreev (keywords);
 				}
 			}
@@ -179,8 +179,8 @@ parser_start_element (void           *data,
 
 static void
 parser_characters (void          *data,
-		   const xmlChar *ch,
-		   int		  len)
+                   const xmlChar *ch,
+                   int            len)
 {
 	parser_data *pd = data;
 
@@ -198,7 +198,7 @@ parser_characters (void          *data,
 
 static void
 extract_html (const gchar          *uri,
-	      TrackerSparqlBuilder *metadata)
+              TrackerSparqlBuilder *metadata)
 {
 	htmlDocPtr doc;
 	parser_data pd;

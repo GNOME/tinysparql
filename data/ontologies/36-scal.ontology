@@ -24,7 +24,7 @@ scal:CalendarItem a rdfs:Class ;
 # FIXME Should we define the inverse property?
 scal:belongsToCalendar a rdf:Property ;
       rdfs:label "Belongs to calentar" ;
-      rdfs:comment "Relation between a calendar item and a calendar." ; 
+      rdfs:comment "Relation between a calendar item and a calendar." ;
       rdfs:subPropertyOf nie:isLogicalPartOf ;
       rdfs:domain scal:CalendarItem ;
       rdfs:range scal:Calendar .
@@ -273,7 +273,7 @@ scal:journalStatus a rdf:Property ;
 #
 # Alarms:
 #
-#   FIXME fix the hierarchy to support generic alarms 
+#   FIXME fix the hierarchy to support generic alarms
 #      (This one is always linked with an Event)
 #
 scal:CalendarAlarm a rdfs:Class ;
@@ -387,7 +387,7 @@ scal:isAllDay a rdf:Property ;
       nrl:maxCardinality 1 ;
       rdfs:domain scal:CalendarItem ;
       rdfs:range xsd:boolean .
- 
+
 
 #
 # General Calendar item properties
@@ -421,7 +421,7 @@ scal:rrule a rdf:Property ;
 
 #
 # This is going to be pretty conflictive and non-semantic... but
-#  improve a lot the performance. Study a better solution (maybe keeping the 
+#  improve a lot the performance. Study a better solution (maybe keeping the
 #  multiple properties in parallel)
 #
 scal:recurrencePattern a rdf:Property ;
@@ -463,7 +463,7 @@ scal:exceptionRDate a rdf:Property ;
 
 #
 # TODO
-# 
+#
 #  equivalent of ncal:Action, including ncal:repeat and ncal:duration
 #
 #

@@ -37,7 +37,7 @@ static FILE *journal = NULL;
 static GMappedFile *mapped = NULL;
 static gsize current_size = 0;
 
-#define TRACKER_DB_JOURNAL_LOG_FILENAME		"log.sparql.txt"
+#define TRACKER_DB_JOURNAL_LOG_FILENAME                 "log.sparql.txt"
 
 static void
 get_filename (void)

@@ -43,7 +43,7 @@
 #include "tracker-iptc.h"
 #include "tracker-exif.h"
 
-#define EXIF_DATE_FORMAT	"%Y:%m:%d %H:%M:%S"
+#define EXIF_DATE_FORMAT        "%Y:%m:%d %H:%M:%S"
 
 #define NMM_PREFIX TRACKER_NMM_PREFIX
 #define NFO_PREFIX TRACKER_NFO_PREFIX
@@ -62,15 +62,15 @@ typedef enum {
 } TagType;
 
 typedef struct {
-	gchar *camera, *title, *orientation, *copyright, *white_balance, 
-	      *fnumber, *flash, *focal_length, *artist, 
-	      *exposure_time, *iso_speed_ratings, *date, *description,
-	      *metering_mode, *creator, *x_dimension, *y_dimension;
+	gchar *camera, *title, *orientation, *copyright, *white_balance,
+		*fnumber, *flash, *focal_length, *artist,
+		*exposure_time, *iso_speed_ratings, *date, *description,
+		*metering_mode, *creator, *x_dimension, *y_dimension;
 } TiffNeedsMergeData;
 
 typedef struct {
 	gchar *artist, *copyright, *datetime, *documentname, *imagedescription,
-	      *imagewidth, *imagelength, *make, *model, *orientation;
+		*imagewidth, *imagelength, *make, *model, *orientation;
 } TiffData;
 
 static void extract_tiff (const gchar *filename,
@@ -88,24 +88,24 @@ get_flash (TIFF *image)
 
 	if (TIFFGetField (image, EXIFTAG_FLASH, &varui16)) {
 		switch (varui16) {
-			case 0x0001:
-			case 0x0009:
-			case 0x000D:
-			case 0x000F:
-			case 0x0019:
-			case 0x001D:
-			case 0x001F:
-			case 0x0041:
-			case 0x0045:
-			case 0x0047:
-			case 0x0049:
-			case 0x004D:
-			case 0x004F:
-			case 0x0059:
-			case 0x005F:
-			case 0x005D:
+		case 0x0001:
+		case 0x0009:
+		case 0x000D:
+		case 0x000F:
+		case 0x0019:
+		case 0x001D:
+		case 0x001F:
+		case 0x0041:
+		case 0x0045:
+		case 0x0047:
+		case 0x0049:
+		case 0x004D:
+		case 0x004F:
+		case 0x0059:
+		case 0x005F:
+		case 0x005D:
 			return g_strdup ("nmm:flash-on");
-			default:
+		default:
 			return g_strdup ("nmm:flash-off");
 		}
 	}
@@ -120,22 +120,22 @@ get_orientation (TIFF *image)
 
 	if (TIFFGetField (image, TIFFTAG_ORIENTATION, &varui16)) {
 		switch (varui16) {
-			default:
-			case 0:
+		default:
+		case 0:
 			return  g_strdup ("nfo:orientation-top");
-			case 1:
+		case 1:
 			return  g_strdup ("nfo:orientation-top-mirror");
-			case 2:
+		case 2:
 			return  g_strdup ("nfo:orientation-bottom");
-			case 3:
+		case 3:
 			return  g_strdup ("nfo:orientation-bottom-mirror");
-			case 4:
+		case 4:
 			return  g_strdup ("nfo:orientation-left-mirror");
-			case 5:
+		case 5:
 			return  g_strdup ("nfo:orientation-right");
-			case 6:
+		case 6:
 			return  g_strdup ("nfo:orientation-right-mirror");
-			case 7:
+		case 7:
 			return  g_strdup ("nfo:orientation-left");
 		}
 	}
@@ -151,19 +151,19 @@ get_metering_mode (TIFF *image)
 
 	if (TIFFGetField (image, EXIFTAG_METERINGMODE, &varui16)) {
 		switch (varui16) {
-			case 1:
+		case 1:
 			return g_strdup ("nmm:meteringMode-average");
-			case 2:
+		case 2:
 			return g_strdup ("nmm:meteringMode-center-weighted-average");
-			case 3:
+		case 3:
 			return g_strdup ("nmm:meteringMode-spot");
-			case 4:
+		case 4:
 			return g_strdup ("nmm:meteringMode-multispot");
-			case 5:
+		case 5:
 			return g_strdup ("nmm:meteringMode-pattern");
-			case 6:
+		case 6:
 			return g_strdup ("nmm:meteringMode-partial");
-			default:
+		default:
 			return g_strdup ("nmm:meteringMode-other");
 		}
 	}
@@ -200,33 +200,33 @@ get_value (TIFF *image, guint tag, guint type)
 	void *data = NULL;
 
 	switch (type) {
-		case TIFF_TAGTYPE_STRING:
-			if (TIFFGetField (image, tag, &text)) {
-				return g_strdup (text);
-			}
-			break;
-		case TIFF_TAGTYPE_UINT16:
-			if (TIFFGetField (image, tag, &varui16)) {
-				return g_strdup_printf ("%i", varui16);
-			}
-			break;
-		case TIFF_TAGTYPE_UINT32:
-			if (TIFFGetField (image, tag, &varui32)) {
-				return g_strdup_printf ("%i", varui32);
-			}
-			break;
-		case TIFF_TAGTYPE_DOUBLE:
-			if (TIFFGetField (image, tag, &vardouble)) {
-				return g_strdup_printf ("%f", vardouble);
-			}
-			break;
-		case TIFF_TAGTYPE_C16_UINT16:
-			if (TIFFGetField (image, tag, &count16, &data)) {
-				return g_strdup_printf ("%i", * (guint16 *) data);
-			}
-			break;
-		default:
-			break;
+	case TIFF_TAGTYPE_STRING:
+		if (TIFFGetField (image, tag, &text)) {
+			return g_strdup (text);
+		}
+		break;
+	case TIFF_TAGTYPE_UINT16:
+		if (TIFFGetField (image, tag, &varui16)) {
+			return g_strdup_printf ("%i", varui16);
+		}
+		break;
+	case TIFF_TAGTYPE_UINT32:
+		if (TIFFGetField (image, tag, &varui32)) {
+			return g_strdup_printf ("%i", varui32);
+		}
+		break;
+	case TIFF_TAGTYPE_DOUBLE:
+		if (TIFFGetField (image, tag, &vardouble)) {
+			return g_strdup_printf ("%f", vardouble);
+		}
+		break;
+	case TIFF_TAGTYPE_C16_UINT16:
+		if (TIFFGetField (image, tag, &count16, &data)) {
+			return g_strdup_printf ("%i", * (guint16 *) data);
+		}
+		break;
+	default:
+		break;
 	}
 
 	return NULL;
@@ -243,7 +243,7 @@ insert_keywords (TrackerSparqlBuilder *metadata, const gchar *uri, gchar *keywor
 	keywords = strchr (keywords, '"');
 	if (keywords)
 		keywords++;
-	else 
+	else
 		keywords = keyw;
 
 	len = strlen (keywords);
@@ -300,11 +300,11 @@ extract_tiff (const gchar *uri, TrackerSparqlBuilder *metadata)
 
 #ifdef HAVE_LIBIPTCDATA
 	if (TIFFGetField (image, TIFFTAG_RICHTIFFIPTC, &iptcSize, &iptcOffset)) {
-		if (TIFFIsByteSwapped(image) != 0) 
+		if (TIFFIsByteSwapped(image) != 0)
 			TIFFSwabArrayOfLong((uint32 *) iptcOffset,(unsigned long) iptcSize);
 		tracker_read_iptc (iptcOffset,
-				   4*iptcSize,
-				   uri, &iptc_data);
+		                   4*iptcSize,
+		                   uri, &iptc_data);
 	}
 #endif /* HAVE_LIBIPTCDATA */
 
@@ -313,9 +313,9 @@ extract_tiff (const gchar *uri, TrackerSparqlBuilder *metadata)
 #ifdef HAVE_EXEMPI
 	if (TIFFGetField (image, TIFFTAG_XMLPACKET, &size, &xmpOffset)) {
 		tracker_read_xmp (xmpOffset,
-				  size,
-				  uri,
-				  &xmp_data);
+		                  size,
+		                  uri,
+		                  &xmp_data);
 	}
 #endif /* HAVE_EXEMPI */
 
@@ -323,36 +323,36 @@ extract_tiff (const gchar *uri, TrackerSparqlBuilder *metadata)
 		tiff_data.artist = get_value (image, TIFFTAG_ARTIST, TIFF_TAGTYPE_STRING);
 	if (!tiff_data.copyright)
 		tiff_data.copyright = get_value (image, TIFFTAG_COPYRIGHT, TIFF_TAGTYPE_STRING);
-	if (!tiff_data.datetime) 
-		tiff_data.datetime = get_value (image, TIFFTAG_DATETIME, TIFF_TAGTYPE_STRING); 
-	if (!tiff_data.documentname) 
-		tiff_data.documentname = get_value (image, TIFFTAG_DOCUMENTNAME, TIFF_TAGTYPE_STRING); 
-	if (!tiff_data.imagedescription) 
-		tiff_data.imagedescription = get_value (image, TIFFTAG_IMAGEDESCRIPTION, TIFF_TAGTYPE_STRING); 
-	if (!tiff_data.make) 
-		tiff_data.make = get_value (image, TIFFTAG_MAKE, TIFF_TAGTYPE_STRING); 
-	if (!tiff_data.model) 
-		tiff_data.model = get_value (image, TIFFTAG_MODEL, TIFF_TAGTYPE_STRING); 
+	if (!tiff_data.datetime)
+		tiff_data.datetime = get_value (image, TIFFTAG_DATETIME, TIFF_TAGTYPE_STRING);
+	if (!tiff_data.documentname)
+		tiff_data.documentname = get_value (image, TIFFTAG_DOCUMENTNAME, TIFF_TAGTYPE_STRING);
+	if (!tiff_data.imagedescription)
+		tiff_data.imagedescription = get_value (image, TIFFTAG_IMAGEDESCRIPTION, TIFF_TAGTYPE_STRING);
+	if (!tiff_data.make)
+		tiff_data.make = get_value (image, TIFFTAG_MAKE, TIFF_TAGTYPE_STRING);
+	if (!tiff_data.model)
+		tiff_data.model = get_value (image, TIFFTAG_MODEL, TIFF_TAGTYPE_STRING);
 	if (!tiff_data.orientation)
-		tiff_data.orientation = get_orientation (image); 
+		tiff_data.orientation = get_orientation (image);
 
 	if (TIFFGetField (image, TIFFTAG_EXIFIFD, &exifOffset)) {
 		if (TIFFReadEXIFDirectory (image, exifOffset)) {
 			if (!exif_data.exposure_time)
-				exif_data.exposure_time = get_value (image, EXIFTAG_EXPOSURETIME, TIFF_TAGTYPE_DOUBLE); 
+				exif_data.exposure_time = get_value (image, EXIFTAG_EXPOSURETIME, TIFF_TAGTYPE_DOUBLE);
 			if (!exif_data.fnumber)
-				exif_data.fnumber = get_value (image, EXIFTAG_FNUMBER, TIFF_TAGTYPE_DOUBLE); 
+				exif_data.fnumber = get_value (image, EXIFTAG_FNUMBER, TIFF_TAGTYPE_DOUBLE);
 			if (!exif_data.iso_speed_ratings)
-				exif_data.iso_speed_ratings = get_value (image, EXIFTAG_ISOSPEEDRATINGS, TIFF_TAGTYPE_C16_UINT16); 
+				exif_data.iso_speed_ratings = get_value (image, EXIFTAG_ISOSPEEDRATINGS, TIFF_TAGTYPE_C16_UINT16);
 			if (!exif_data.time_original)
-				exif_data.time_original = get_value (image, EXIFTAG_DATETIMEORIGINAL, TIFF_TAGTYPE_STRING); 
+				exif_data.time_original = get_value (image, EXIFTAG_DATETIMEORIGINAL, TIFF_TAGTYPE_STRING);
 			if (!exif_data.metering_mode)
-				exif_data.metering_mode = get_metering_mode (image); 
+				exif_data.metering_mode = get_metering_mode (image);
 			if (!exif_data.flash)
-				exif_data.flash = get_flash (image); 
+				exif_data.flash = get_flash (image);
 			if (!exif_data.focal_length)
-				exif_data.focal_length = get_value (image, EXIFTAG_DATETIMEORIGINAL, TIFF_TAGTYPE_DOUBLE); 
-			if (!exif_data.white_balance) 
+				exif_data.focal_length = get_value (image, EXIFTAG_DATETIMEORIGINAL, TIFF_TAGTYPE_DOUBLE);
+			if (!exif_data.white_balance)
 				exif_data.white_balance = get_white_balance (image);
 		}
 	}
@@ -397,7 +397,7 @@ extract_tiff (const gchar *uri, TrackerSparqlBuilder *metadata)
 
 	merge_data.white_balance = tracker_coalesce (2, exif_data.white_balance,
 	                                             xmp_data.WhiteBalance);
-	                                             
+
 
 	merge_data.fnumber =  tracker_coalesce (2, exif_data.fnumber,
 	                                        xmp_data.FNumber);
@@ -420,7 +420,7 @@ extract_tiff (const gchar *uri, TrackerSparqlBuilder *metadata)
 	                                                  xmp_data.ISOSpeedRatings);
 
 	merge_data.date =  tracker_coalesce (6, tiff_data.datetime,
-	                                     exif_data.time, 
+	                                     exif_data.time,
 	                                     xmp_data.date,
 	                                     iptc_data.date_created,
 	                                     exif_data.time_original,

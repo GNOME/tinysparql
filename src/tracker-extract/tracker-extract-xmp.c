@@ -30,7 +30,7 @@
 #include "tracker-main.h"
 #include "tracker-xmp.h"
 
-static void extract_xmp (const gchar          *filename, 
+static void extract_xmp (const gchar          *filename,
                          TrackerSparqlBuilder *metadata);
 
 static TrackerExtractData data[] = {
@@ -38,7 +38,7 @@ static TrackerExtractData data[] = {
 	{ NULL, NULL }
 };
 
-/* This function is used to find the URI for a file.xmp file. The point here is 
+/* This function is used to find the URI for a file.xmp file. The point here is
  * that the URI for file.xmp is not file:///file.xmp but instead for example
  * file:///file.jpeg or file:///file.png. The reason is that file.xmp is a
  * sidekick, and a sidekick doesn't describe itself, it describes another file. */
@@ -57,13 +57,13 @@ find_orig_uri (const gchar *xmp_filename)
 	dir = g_file_get_parent (file);
 
 	orig_info = g_file_query_info (file, G_FILE_ATTRIBUTE_STANDARD_NAME,
-	                               G_FILE_QUERY_INFO_NONE, 
+	                               G_FILE_QUERY_INFO_NONE,
 	                               NULL, NULL);
 
 	filename_a = g_file_info_get_name (orig_info);
 
-	iter = g_file_enumerate_children (dir, G_FILE_ATTRIBUTE_STANDARD_NAME, 
-	                                  G_FILE_QUERY_INFO_NONE, 
+	iter = g_file_enumerate_children (dir, G_FILE_ATTRIBUTE_STANDARD_NAME,
+	                                  G_FILE_QUERY_INFO_NONE,
 	                                  NULL, NULL);
 
 	if (iter) {
@@ -74,7 +74,7 @@ find_orig_uri (const gchar *xmp_filename)
 			const gchar *ext_a, *ext_b;
 			gchar *casefold_a, *casefold_b;
 
-			/* OK, important: 
+			/* OK, important:
 			 * 1. Files can't be the same.
 			 * 2. File names (without extension) must match
 			 * 3. Something else? */
@@ -95,7 +95,7 @@ find_orig_uri (const gchar *xmp_filename)
 				g_object_unref (info);
 				continue;
 			}
-			
+
 			/* Check extensions are not the same (i.e. same len and ext) */
 			if (g_strcmp0 (ext_a, ext_b) == 0) {
 				g_object_unref (info);
@@ -135,7 +135,7 @@ find_orig_uri (const gchar *xmp_filename)
 }
 
 static void
-extract_xmp (const gchar          *uri, 
+extract_xmp (const gchar          *uri,
              TrackerSparqlBuilder *metadata)
 {
 	gchar *contents;
@@ -151,8 +151,8 @@ extract_xmp (const gchar          *uri,
 		 * describe itself instead, falling back to uri */
 
 		tracker_read_xmp (contents,
-		                  length, 
-		                  orig_uri ? orig_uri : uri, 
+		                  length,
+		                  orig_uri ? orig_uri : uri,
 		                  &xmp_data);
 
 		tracker_apply_xmp (metadata, uri, &xmp_data);

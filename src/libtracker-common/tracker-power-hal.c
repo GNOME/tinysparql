@@ -50,33 +50,33 @@ typedef struct {
 
 	GHashTable    *batteries;
 
-	gchar	      *ac_adapter_udi;
+	gchar         *ac_adapter_udi;
 	gboolean       on_battery;
 	gdouble        battery_percentage;
 } TrackerPowerPriv;
 
-static void	tracker_power_finalize		(GObject	 *object);
-static void	hal_get_property		(GObject	 *object,
-						 guint		  param_id,
-						 GValue		 *value,
-						 GParamSpec	 *pspec);
-static gboolean hal_setup_ac_adapters		(TrackerPower	 *power);
-static gboolean hal_setup_batteries		(TrackerPower	 *power);
+static void     tracker_power_finalize          (GObject         *object);
+static void     hal_get_property                (GObject         *object,
+                                                 guint            param_id,
+                                                 GValue                  *value,
+                                                 GParamSpec      *pspec);
+static gboolean hal_setup_ac_adapters           (TrackerPower    *power);
+static gboolean hal_setup_batteries             (TrackerPower    *power);
 
 static void     hal_battery_modify              (TrackerPower    *power,
-						 const gchar     *udi);
+                                                 const gchar     *udi);
 static void     hal_battery_remove              (TrackerPower    *power,
-						 const gchar     *udi);
+                                                 const gchar     *udi);
 
-static void	hal_device_added_cb		(LibHalContext	 *context,
-						 const gchar	 *udi);
-static void	hal_device_removed_cb		(LibHalContext	 *context,
-						 const gchar	 *udi);
-static void	hal_device_property_modified_cb (LibHalContext	 *context,
-						 const char	 *udi,
-						 const char	 *key,
-						 dbus_bool_t	  is_removed,
-						 dbus_bool_t	  is_added);
+static void     hal_device_added_cb             (LibHalContext   *context,
+                                                 const gchar     *udi);
+static void     hal_device_removed_cb           (LibHalContext   *context,
+                                                 const gchar     *udi);
+static void     hal_device_property_modified_cb (LibHalContext   *context,
+                                                 const char      *udi,
+                                                 const char      *key,
+                                                 dbus_bool_t      is_removed,
+                                                 dbus_bool_t      is_added);
 
 enum {
 	PROP_0,
@@ -94,32 +94,32 @@ tracker_power_class_init (TrackerPowerClass *klass)
 
 	object_class = G_OBJECT_CLASS (klass);
 
-	object_class->finalize	   = tracker_power_finalize;
+	object_class->finalize     = tracker_power_finalize;
 	object_class->get_property = hal_get_property;
 
 	g_object_class_install_property (object_class,
-					 PROP_ON_BATTERY,
-					 g_param_spec_boolean ("on-battery",
-							       "Battery in use",
-							       "Whether the battery is being used",
-							       FALSE,
-							       G_PARAM_READABLE));
+	                                 PROP_ON_BATTERY,
+	                                 g_param_spec_boolean ("on-battery",
+	                                                       "Battery in use",
+	                                                       "Whether the battery is being used",
+	                                                       FALSE,
+	                                                       G_PARAM_READABLE));
 	g_object_class_install_property (object_class,
-					 PROP_ON_LOW_BATTERY,
-					 g_param_spec_boolean ("on-low-battery",
-							      "Battery low",
-							      "Whether the battery is low",
-							      FALSE,
-							      G_PARAM_READABLE));
+	                                 PROP_ON_LOW_BATTERY,
+	                                 g_param_spec_boolean ("on-low-battery",
+	                                                       "Battery low",
+	                                                       "Whether the battery is low",
+	                                                       FALSE,
+	                                                       G_PARAM_READABLE));
 	g_object_class_install_property (object_class,
-					 PROP_BATTERY_PERCENTAGE,
-					 g_param_spec_double ("battery-percentage",
-							      "Battery percentage",
-							      "Current battery percentage left",
-							      0.0,
-							      1.0,
-							      0.0,
-							      G_PARAM_READABLE));
+	                                 PROP_BATTERY_PERCENTAGE,
+	                                 g_param_spec_double ("battery-percentage",
+	                                                      "Battery percentage",
+	                                                      "Current battery percentage left",
+	                                                      0.0,
+	                                                      1.0,
+	                                                      0.0,
+	                                                      G_PARAM_READABLE));
 
 	g_type_class_add_private (object_class, sizeof (TrackerPowerPriv));
 }
@@ -128,23 +128,23 @@ static void
 tracker_power_init (TrackerPower *power)
 {
 	TrackerPowerPriv *priv;
-	DBusError	error;
+	DBusError       error;
 
 	g_message ("Initializing HAL Power...");
 
 	priv = GET_PRIV (power);
 
 	priv->batteries = g_hash_table_new_full (g_str_hash,
-						 g_str_equal,
-						 (GDestroyNotify) g_free,
-						 NULL);
+	                                         g_str_equal,
+	                                         (GDestroyNotify) g_free,
+	                                         NULL);
 
 	dbus_error_init (&error);
 
 	priv->connection = dbus_bus_get (DBUS_BUS_SYSTEM, &error);
 	if (dbus_error_is_set (&error)) {
 		g_critical ("Could not get the system D-Bus connection, %s",
-			    error.message);
+		            error.message);
 		dbus_error_free (&error);
 		return;
 	}
@@ -165,11 +165,11 @@ tracker_power_init (TrackerPower *power)
 	if (!libhal_ctx_init (priv->context, &error)) {
 		if (dbus_error_is_set (&error)) {
 			g_critical ("Could not initialize the HAL context, %s",
-				    error.message);
+			            error.message);
 			dbus_error_free (&error);
 		} else {
 			g_critical ("Could not initialize the HAL context, "
-				    "no error, is hald running?");
+			            "no error, is hald running?");
 		}
 
 		libhal_ctx_free (priv->context);
@@ -223,9 +223,9 @@ tracker_power_finalize (GObject *object)
 
 static void
 hal_get_property (GObject    *object,
-		  guint       param_id,
-		  GValue     *value,
-		  GParamSpec *pspec)
+                  guint       param_id,
+                  GValue     *value,
+                  GParamSpec *pspec)
 {
 	TrackerPowerPriv *priv;
 
@@ -251,23 +251,23 @@ hal_get_property (GObject    *object,
 static gboolean
 hal_setup_ac_adapters (TrackerPower *power)
 {
-	TrackerPowerPriv	*priv;
-	DBusError	 error;
-	gchar	       **devices, **p;
-	gint		 num;
+	TrackerPowerPriv        *priv;
+	DBusError        error;
+	gchar          **devices, **p;
+	gint             num;
 
 	priv = GET_PRIV (power);
 
 	dbus_error_init (&error);
 
 	devices = libhal_find_device_by_capability (priv->context,
-						    CAPABILITY_AC_ADAPTER,
-						    &num,
-						    &error);
+	                                            CAPABILITY_AC_ADAPTER,
+	                                            &num,
+	                                            &error);
 
 	if (dbus_error_is_set (&error)) {
 		g_critical ("Could not get AC adapter capable devices, %s",
-			    error.message);
+		            error.message);
 		dbus_error_free (&error);
 		return FALSE;
 	}
@@ -300,24 +300,24 @@ hal_setup_ac_adapters (TrackerPower *power)
 
 	/* Make sure we watch changes to the battery use */
 	libhal_device_add_property_watch (priv->context,
-					  priv->ac_adapter_udi,
-					  &error);
+	                                  priv->ac_adapter_udi,
+	                                  &error);
 
 	if (dbus_error_is_set (&error)) {
 		g_critical ("Could not add device:'%s' to property watch, %s",
-			       priv->ac_adapter_udi, error.message);
+		            priv->ac_adapter_udi, error.message);
 		dbus_error_free (&error);
 		return FALSE;
 	}
 
 	/* Get current state, are we using the battery now? */
 	priv->on_battery = !libhal_device_get_property_bool (priv->context,
-								 priv->ac_adapter_udi,
-								 PROP_AC_ADAPTER_ON,
-								 NULL);
+	                                                     priv->ac_adapter_udi,
+	                                                     PROP_AC_ADAPTER_ON,
+	                                                     NULL);
 
 	g_message ("HAL reports system is currently powered by %s",
-		   priv->on_battery ? "battery" : "AC adapter");
+	           priv->on_battery ? "battery" : "AC adapter");
 
 	g_object_notify (G_OBJECT (power), "on-battery");
 
@@ -327,23 +327,23 @@ hal_setup_ac_adapters (TrackerPower *power)
 static gboolean
 hal_setup_batteries (TrackerPower *power)
 {
-	TrackerPowerPriv	*priv;
-	DBusError	 error;
-	gchar	       **devices, **p;
-	gint		 num;
+	TrackerPowerPriv        *priv;
+	DBusError        error;
+	gchar          **devices, **p;
+	gint             num;
 
 	priv = GET_PRIV (power);
 
 	dbus_error_init (&error);
 
 	devices = libhal_find_device_by_capability (priv->context,
-						    CAPABILITY_BATTERY,
-						    &num,
-						    &error);
+	                                            CAPABILITY_BATTERY,
+	                                            &num,
+	                                            &error);
 
 	if (dbus_error_is_set (&error)) {
 		g_critical ("Could not get Battery HAL info, %s",
-			    error.message);
+		            error.message);
 		dbus_error_free (&error);
 		return FALSE;
 	}
@@ -363,7 +363,7 @@ hal_setup_batteries (TrackerPower *power)
 
 		if (dbus_error_is_set (&error)) {
 			g_critical ("Could not add device:'%s' to property watch, %s",
-				    *p, error.message);
+			            *p, error.message);
 			dbus_error_free (&error);
 		}
 	}
@@ -405,38 +405,38 @@ hal_battery_notify (TrackerPower *power)
 	     old_percentage <= BATTERY_LOW_THRESHOLD) ||
 	    (priv->battery_percentage <= BATTERY_LOW_THRESHOLD &&
 	     old_percentage > BATTERY_LOW_THRESHOLD)) {
-		    g_object_notify (G_OBJECT (power), "on-low-battery");
+		g_object_notify (G_OBJECT (power), "on-low-battery");
 	}
 
 	if (old_percentage != priv->battery_percentage) {
 		g_object_notify (G_OBJECT (power), "battery-percentage");
 	}
-	
+
 	g_list_free (values);
 }
 
 static void
 hal_battery_modify (TrackerPower *power,
-		    const gchar  *udi)
+                    const gchar  *udi)
 {
 	TrackerPowerPriv *priv;
 	gint percentage;
 
 	priv = GET_PRIV (power);
 	percentage = libhal_device_get_property_int (priv->context, udi,
-						     PROP_BATT_PERCENTAGE,
-						     NULL);
+	                                             PROP_BATT_PERCENTAGE,
+	                                             NULL);
 
 	g_hash_table_insert (priv->batteries,
-			     g_strdup (udi),
-			     GINT_TO_POINTER (percentage));
+	                     g_strdup (udi),
+	                     GINT_TO_POINTER (percentage));
 
 	hal_battery_notify (power);
 }
 
 static void
 hal_battery_remove (TrackerPower *power,
-		    const gchar  *udi)
+                    const gchar  *udi)
 {
 	TrackerPowerPriv *priv;
 
@@ -448,7 +448,7 @@ hal_battery_remove (TrackerPower *power,
 
 static void
 hal_device_added_cb (LibHalContext *context,
-		     const gchar   *udi)
+                     const gchar   *udi)
 {
 	TrackerPower   *power;
 
@@ -461,7 +461,7 @@ hal_device_added_cb (LibHalContext *context,
 
 static void
 hal_device_removed_cb (LibHalContext *context,
-		       const gchar   *udi)
+                       const gchar   *udi)
 {
 	TrackerPower     *power;
 	TrackerPowerPriv *priv;
@@ -476,14 +476,14 @@ hal_device_removed_cb (LibHalContext *context,
 
 static void
 hal_device_property_modified_cb (LibHalContext *context,
-				 const char    *udi,
-				 const char    *key,
-				 dbus_bool_t	is_removed,
-				 dbus_bool_t	is_added)
+                                 const char    *udi,
+                                 const char    *key,
+                                 dbus_bool_t    is_removed,
+                                 dbus_bool_t    is_added)
 {
 	TrackerPower     *power;
 	TrackerPowerPriv *priv;
-	DBusError	error;
+	DBusError       error;
 
 	power = (TrackerPower*) libhal_ctx_get_user_data (context);
 	priv = GET_PRIV (power);
@@ -493,17 +493,17 @@ hal_device_property_modified_cb (LibHalContext *context,
 	if (priv->ac_adapter_udi && strcmp (priv->ac_adapter_udi, udi) == 0) {
 		/* Property change is on the AC adapter */
 		priv->on_battery = !libhal_device_get_property_bool (priv->context,
-									 priv->ac_adapter_udi,
-									 PROP_AC_ADAPTER_ON,
-									 &error);
+		                                                     priv->ac_adapter_udi,
+		                                                     PROP_AC_ADAPTER_ON,
+		                                                     &error);
 		g_message ("HAL reports system is now powered by %s",
-			   priv->on_battery ? "battery" : "AC adapter");
+		           priv->on_battery ? "battery" : "AC adapter");
 
 		g_object_notify (G_OBJECT (power), "on-battery");
 
 		if (dbus_error_is_set (&error)) {
 			g_critical ("Could not get device property:'%s' for udi:'%s', %s",
-				    udi, PROP_AC_ADAPTER_ON, error.message);
+			            udi, PROP_AC_ADAPTER_ON, error.message);
 			dbus_error_free (&error);
 			return;
 		}

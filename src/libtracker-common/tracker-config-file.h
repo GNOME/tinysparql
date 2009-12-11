@@ -30,10 +30,10 @@ G_BEGIN_DECLS
 #error "only <libtracker-common/tracker-common.h> must be included directly."
 #endif
 
-#define TRACKER_TYPE_CONFIG_FILE	 (tracker_config_file_get_type ())
-#define TRACKER_CONFIG_FILE(o)	         (G_TYPE_CHECK_INSTANCE_CAST ((o), TRACKER_TYPE_CONFIG_FILE, TrackerConfigFile))
+#define TRACKER_TYPE_CONFIG_FILE         (tracker_config_file_get_type ())
+#define TRACKER_CONFIG_FILE(o)           (G_TYPE_CHECK_INSTANCE_CAST ((o), TRACKER_TYPE_CONFIG_FILE, TrackerConfigFile))
 #define TRACKER_CONFIG_FILE_CLASS(k)     (G_TYPE_CHECK_CLASS_CAST ((k), TRACKER_TYPE_CONFIG_FILE, TrackerConfigFileClass))
-#define TRACKER_IS_CONFIG_FILE(o)	 (G_TYPE_CHECK_INSTANCE_TYPE ((o), TRACKER_TYPE_CONFIG_FILE))
+#define TRACKER_IS_CONFIG_FILE(o)        (G_TYPE_CHECK_INSTANCE_TYPE ((o), TRACKER_TYPE_CONFIG_FILE))
 #define TRACKER_IS_CONFIG_FILE_CLASS(k)  (G_TYPE_CHECK_CLASS_TYPE ((k), TRACKER_TYPE_CONFIG_FILE))
 #define TRACKER_CONFIG_FILE_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o), TRACKER_TYPE_CONFIG_FILE, TrackerConfigFileClass))
 
@@ -57,7 +57,7 @@ struct _TrackerConfigFileClass {
 	void (* changed) (TrackerConfigFile *file);
 };
 
-GType	           tracker_config_file_get_type (void) G_GNUC_CONST;
+GType              tracker_config_file_get_type (void) G_GNUC_CONST;
 
 gboolean           tracker_config_file_save     (TrackerConfigFile *config);
 

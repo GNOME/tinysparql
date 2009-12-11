@@ -41,9 +41,9 @@ def generate_name():
 
 def update_tag(artistid, artistname, albumid, trackid, genreid):
 	global fileid
-	
+
 	length = random.randint(5000,5000000)
-	song = 'SongTitle%03u' % fileid 
+	song = 'SongTitle%03u' % fileid
 	album = 'Album%03u' % albumid
 	genre = 'Genre%03u' % genreid
 	trackstr = str(artistid) + '/' + str(trackid)
@@ -55,7 +55,7 @@ def update_tag(artistid, artistname, albumid, trackid, genreid):
                                                 random.randint(1, 12),
                                                 random.randint(1, 28))
 	created = modified
-	
+
 	if not artist_UID.has_key(artistname):
                 #print " The new  artist is "+artist
                 UID = str(random.randint(0, sys.maxint))
@@ -68,8 +68,8 @@ def update_tag(artistid, artistname, albumid, trackid, genreid):
 	if not album_UID.has_key(album):
                 album_UID[album] = album
                 f.write('<urn:album:' + album + '> a nmm:MusicAlbum; \n')
-		
-                if len(UID)>0: 
+
+                if len(UID)>0:
                         f.write('\tnmm:albumArtist <urn:uuid:' + UID + '>;\n')
 
                 f.write('\tnie:title "' + album + '".\n\n')
@@ -77,7 +77,7 @@ def update_tag(artistid, artistname, albumid, trackid, genreid):
                 UID = artist_UID[artistname]
 
         f.write('<file://' + urllib.pathname2url(fullpath) + '> a nmm:MusicPiece,nfo:FileDataObject;\n')
-        if len(song) > 0: 
+        if len(song) > 0:
                 f.write('\tnie:title "' + song + '";\n')
 
         f.write('\tnfo:fileName \"' + artistname + '.mp3\";\n')
@@ -89,7 +89,7 @@ def update_tag(artistid, artistname, albumid, trackid, genreid):
 
         if len(trackstr) > 0:
         	trackArray = trackstr.split("/")
-                if len(trackArray) > 0: 
+                if len(trackArray) > 0:
                         f.write('\tnmm:trackNumber ' + trackArray[0] + ';\n')
 
 	f.write('\tnmm:length ' + str(length) + ';\n')
@@ -110,7 +110,7 @@ def create_track(artistid, albumid, genreid, settings):
 def generate(settings):
         ''' A total of TotalTracks files will be generated.
 	These contain the specified number of albums.'''
-        '''	
+        '''
         filepath = settings['OutputDir']
         try:
     	os.makedirs(filepath)
@@ -118,7 +118,7 @@ def generate(settings):
         print 'Directory exists'
         '''
 
-        global album_UID 
+        global album_UID
         genreid = 1
         artistid = 1
         albumid = 0
@@ -137,36 +137,36 @@ if __name__ == '__main__':
 
 	parser = OptionParser()
 
-        parser.add_option("-T", "--TotalTracks", 
+        parser.add_option("-T", "--TotalTracks",
                           dest='TotalTracks',
-                          help="Specify (mandatory) the total number of files to be generated", 
+                          help="Specify (mandatory) the total number of files to be generated",
                           metavar="TotalTracks")
-        parser.add_option("-r", "--ArtistCount", 
-                          dest='ArtistCount', 
+        parser.add_option("-r", "--ArtistCount",
+                          dest='ArtistCount',
                           default=2,
-                          help="Specify (mandatory) the total number of Artists." , 
+                          help="Specify (mandatory) the total number of Artists." ,
                           metavar="ArtistCount")
-        parser.add_option("-a", "--album-count", 
-                          dest='AlbumCount', 
+        parser.add_option("-a", "--album-count",
+                          dest='AlbumCount',
                           default=5,
-                          help="Specify (mandatory) the number of albums per artist.", 
+                          help="Specify (mandatory) the number of albums per artist.",
                           metavar="AlbumCount")
-        parser.add_option("-g", "--genre-count", 
-                          dest='GenreCount', 
+        parser.add_option("-g", "--genre-count",
+                          dest='GenreCount',
                           default=10,
-                          help="Specify the genre count" , 
+                          help="Specify the genre count" ,
                           metavar="GenreCount")
-        parser.add_option("-o", "--output", 
-                          dest='OutputFileName', 
+        parser.add_option("-o", "--output",
+                          dest='OutputFileName',
                           default='generate-data-for-music.ttl',
-                          help="Specify the output ttl filename. e.g. -T 2000 -r 25 -a 20 -g 10 -o generated_songs.ttl", 
+                          help="Specify the output ttl filename. e.g. -T 2000 -r 25 -a 20 -g 10 -o generated_songs.ttl",
                           metavar="OutputFileName")
 
 	(options, args) = parser.parse_args()
-	
-	mandatories = ['TotalTracks', 'ArtistCount', 'AlbumCount']  
-	for m in mandatories:  
-                if not options.__dict__[m]:  
+
+	mandatories = ['TotalTracks', 'ArtistCount', 'AlbumCount']
+	for m in mandatories:
+                if not options.__dict__[m]:
                         # Set defaults
                         if m == "TotalTracks":
                                 options.TotalTracks = 100

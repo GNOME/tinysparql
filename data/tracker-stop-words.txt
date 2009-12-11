@@ -3,7 +3,7 @@ accordingly across actually after afterwards
 again against ain't all allow
 allows almost alone along already
 also although always am among
-amongst an and 
+amongst an and
 anybody anyhow anyone anything anyway
 anyways anywhere apart appear appreciate
 appropriate are aren't around as
@@ -43,7 +43,7 @@ i'm i've ie if ignored
 immediate in inasmuch inc indeed
 indicate indicated indicates inner insofar
 instead int into inward is isn't
-it it'd it'll it's its 
+it it'd it'll it's its
 itself just keep keeps kept
 know knows known last lately
 later latter latterly least less
@@ -106,4 +106,4 @@ why will willing wish with
 within without won't wonder would
 would wouldn't yes yet you
 you'd you'll you're you've your
-yours yourself yourselves zero  
+yours yourself yourselves zero

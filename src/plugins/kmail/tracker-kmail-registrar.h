@@ -59,34 +59,34 @@ struct TrackerKMailRegistrarClass {
 
 GType  tracker_kmail_registrar_get_type   (void);
 
-void  tracker_kmail_registrar_set         (TrackerKMailRegistrar *object, 
-					   const gchar *subject, 
-					   const GStrv predicates,
-					   const GStrv values,
-					   const guint modseq,
-					   DBusGMethodInvocation *context,
-					   GError *derror);
-void  tracker_kmail_registrar_set_many    (TrackerKMailRegistrar *object, 
-					   const GStrv subjects, 
-					   const GPtrArray *predicates,
-					   const GPtrArray *values,
-					   const guint modseq,
-					   DBusGMethodInvocation *context,
-					   GError *derror);
-void  tracker_kmail_registrar_unset_many  (TrackerKMailRegistrar *object, 
-					   const GStrv subjects, 
-					   const guint modseq,
-					   DBusGMethodInvocation *context,
-					   GError *derror);
-void  tracker_kmail_registrar_unset       (TrackerKMailRegistrar *object, 
-					   const gchar *subject, 
-					   const guint modseq,
-					   DBusGMethodInvocation *context,
-					   GError *derror);
-void  tracker_kmail_registrar_cleanup     (TrackerKMailRegistrar *object, 
-					   const guint modseq,
-					   DBusGMethodInvocation *context,
-					   GError *derror);
+void  tracker_kmail_registrar_set         (TrackerKMailRegistrar *object,
+                                           const gchar *subject,
+                                           const GStrv predicates,
+                                           const GStrv values,
+                                           const guint modseq,
+                                           DBusGMethodInvocation *context,
+                                           GError *derror);
+void  tracker_kmail_registrar_set_many    (TrackerKMailRegistrar *object,
+                                           const GStrv subjects,
+                                           const GPtrArray *predicates,
+                                           const GPtrArray *values,
+                                           const guint modseq,
+                                           DBusGMethodInvocation *context,
+                                           GError *derror);
+void  tracker_kmail_registrar_unset_many  (TrackerKMailRegistrar *object,
+                                           const GStrv subjects,
+                                           const guint modseq,
+                                           DBusGMethodInvocation *context,
+                                           GError *derror);
+void  tracker_kmail_registrar_unset       (TrackerKMailRegistrar *object,
+                                           const gchar *subject,
+                                           const guint modseq,
+                                           DBusGMethodInvocation *context,
+                                           GError *derror);
+void  tracker_kmail_registrar_cleanup     (TrackerKMailRegistrar *object,
+                                           const guint modseq,
+                                           DBusGMethodInvocation *context,
+                                           GError *derror);
 
 
 G_END_DECLS

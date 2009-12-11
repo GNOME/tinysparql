@@ -25,13 +25,13 @@
 #include <glib-object.h>
 
 #define TRACKER_STATISTICS_SERVICE         "org.freedesktop.Tracker1"
-#define TRACKER_STATISTICS_PATH	           "/org/freedesktop/Tracker1/Statistics"
+#define TRACKER_STATISTICS_PATH                    "/org/freedesktop/Tracker1/Statistics"
 #define TRACKER_STATISTICS_INTERFACE       "org.freedesktop.Tracker1.Statistics"
 
 G_BEGIN_DECLS
 
-#define TRACKER_TYPE_STATISTICS	           (tracker_statistics_get_type ())
-#define TRACKER_STATISTICS(object)         (G_TYPE_CHECK_INSTANCE_CAST ((object), TRACKER_TYPE_STATISTICS, TrackerStatistics)) 
+#define TRACKER_TYPE_STATISTICS                    (tracker_statistics_get_type ())
+#define TRACKER_STATISTICS(object)         (G_TYPE_CHECK_INSTANCE_CAST ((object), TRACKER_TYPE_STATISTICS, TrackerStatistics))
 #define TRACKER_STATISTICS_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), TRACKER_TYPE_DBUS_STATISTICS, TrackerStatisticsClass))
 #define TRACKER_IS_STATISTICS(object)      (G_TYPE_CHECK_INSTANCE_TYPE ((object), TRACKER_TYPE_STATISTICS))
 #define TRACKER_IS_STATISTICS_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), TRACKER_TYPE_STATISTICS))
@@ -51,8 +51,8 @@ struct TrackerStatisticsClass {
 GType              tracker_statistics_get_type (void);
 TrackerStatistics *tracker_statistics_new      (void);
 void               tracker_statistics_get      (TrackerStatistics      *object,
-						DBusGMethodInvocation  *context,
-						GError                **error);
+                                                DBusGMethodInvocation  *context,
+                                                GError                **error);
 void               tracker_statistics_signal   (void);
 
 G_END_DECLS

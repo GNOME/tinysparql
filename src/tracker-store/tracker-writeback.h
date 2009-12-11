@@ -33,10 +33,10 @@ typedef GStrv (*TrackerWritebackGetPredicatesFunc) (void);
 void        tracker_writeback_init        (TrackerWritebackGetPredicatesFunc  callback);
 void        tracker_writeback_shutdown    (void);
 void        tracker_writeback_check       (const gchar                       *graph,
-					   const gchar                       *subject,
-					   const gchar                       *predicate,
-					   const gchar                       *object,
-					   GPtrArray                         *rdf_types);
+                                           const gchar                       *subject,
+                                           const gchar                       *predicate,
+                                           const gchar                       *object,
+                                           GPtrArray                         *rdf_types);
 GHashTable* tracker_writeback_get_pending (void);
 void        tracker_writeback_reset       (void);
 

@@ -1,5 +1,5 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
-/* 
+/*
  * Copyright (C) 2009, Nokia (urho.konttori@nokia.com)
  *
  * This library is free software; you can redistribute it and/or
@@ -38,127 +38,127 @@
 
 #define MAX_ITEMS 10
 
-#define MUSIC_QUERY					\
-	"SELECT"					\
-	"  ?urn ?title ?tooltip ?urn fts:rank(?urn) "	\
-	"WHERE {"					\
-	"  ?urn a nfo:Audio ;"				\
-	"  nfo:fileName ?title ;"			\
-	"  nfo:belongsToContainer ?tooltip ."		\
-	"  ?urn fts:match \"%s*\" "			\
-	"}"						\
-	"ORDER BY DESC(fts:rank(?urn)) "		\
+#define MUSIC_QUERY	  \
+	"SELECT" \
+	"  ?urn ?title ?tooltip ?urn fts:rank(?urn) " \
+	"WHERE {" \
+	"  ?urn a nfo:Audio ;" \
+	"  nfo:fileName ?title ;" \
+	"  nfo:belongsToContainer ?tooltip ." \
+	"  ?urn fts:match \"%s*\" " \
+	"}" \
+	"ORDER BY DESC(fts:rank(?urn)) " \
 	"OFFSET 0 LIMIT %d"
-#define IMAGE_QUERY					\
-	"SELECT"					\
-	"  ?urn ?title ?tooltip ?urn fts:rank(?urn) "	\
-	"WHERE {"					\
-	"  ?urn a nfo:Image ;"				\
-	"  nfo:fileName ?title ;"			\
-	"  nfo:belongsToContainer ?tooltip ."		\
-	"  ?urn fts:match \"%s*\" "			\
-	"} "						\
-	"ORDER BY DESC(fts:rank(?urn)) "		\
+#define IMAGE_QUERY	  \
+	"SELECT" \
+	"  ?urn ?title ?tooltip ?urn fts:rank(?urn) " \
+	"WHERE {" \
+	"  ?urn a nfo:Image ;" \
+	"  nfo:fileName ?title ;" \
+	"  nfo:belongsToContainer ?tooltip ." \
+	"  ?urn fts:match \"%s*\" " \
+	"} " \
+	"ORDER BY DESC(fts:rank(?urn)) " \
 	"OFFSET 0 LIMIT %d"
-#define VIDEO_QUERY					\
-	"SELECT"					\
-	"  ?urn ?title ?tooltip ?urn fts:rank(?urn) "	\
-	"WHERE {"					\
-	"  ?urn a nmm:Video ;"				\
-	"  nfo:fileName ?title ;"			\
-	"  nfo:belongsToContainer ?tooltip ."		\
-	"  ?urn fts:match \"%s*\" "			\
-	"} "						\
-	"ORDER BY DESC(fts:rank(?urn)) "		\
+#define VIDEO_QUERY	  \
+	"SELECT" \
+	"  ?urn ?title ?tooltip ?urn fts:rank(?urn) " \
+	"WHERE {" \
+	"  ?urn a nmm:Video ;" \
+	"  nfo:fileName ?title ;" \
+	"  nfo:belongsToContainer ?tooltip ." \
+	"  ?urn fts:match \"%s*\" " \
+	"} " \
+	"ORDER BY DESC(fts:rank(?urn)) " \
 	"OFFSET 0 LIMIT %d"
-#define DOCUMENT_QUERY					\
-	"SELECT"					\
-	"  ?urn ?title ?tooltip ?urn fts:rank(?urn) "	\
-	"WHERE {"					\
-	"  ?urn a nfo:Document ;"			\
-	"  nfo:fileName ?title ;"			\
-	"  nfo:belongsToContainer ?tooltip ."		\
-	"  ?urn fts:match \"%s*\" "			\
-	"} "						\
-	"ORDER BY DESC(fts:rank(?urn)) "		\
+#define DOCUMENT_QUERY	  \
+	"SELECT" \
+	"  ?urn ?title ?tooltip ?urn fts:rank(?urn) " \
+	"WHERE {" \
+	"  ?urn a nfo:Document ;" \
+	"  nfo:fileName ?title ;" \
+	"  nfo:belongsToContainer ?tooltip ." \
+	"  ?urn fts:match \"%s*\" " \
+	"} " \
+	"ORDER BY DESC(fts:rank(?urn)) " \
 	"OFFSET 0 LIMIT %d"
-#define FOLDER_QUERY					\
-	"SELECT"					\
-	"  ?urn ?title ?tooltip ?urn fts:rank(?urn) "	\
-	"WHERE {"					\
-	"  ?urn a nfo:Folder ;"				\
-	"  nfo:fileName ?title ;"			\
-	"  nfo:belongsToContainer ?tooltip ."		\
-	"  ?urn fts:match \"%s*\" "			\
-	"} "						\
-	"ORDER BY DESC(fts:rank(?urn)) "		\
+#define FOLDER_QUERY	  \
+	"SELECT" \
+	"  ?urn ?title ?tooltip ?urn fts:rank(?urn) " \
+	"WHERE {" \
+	"  ?urn a nfo:Folder ;" \
+	"  nfo:fileName ?title ;" \
+	"  nfo:belongsToContainer ?tooltip ." \
+	"  ?urn fts:match \"%s*\" " \
+	"} " \
+	"ORDER BY DESC(fts:rank(?urn)) " \
 	"OFFSET 0 LIMIT %d"
-#define APP_QUERY					\
-	"SELECT"					\
-	"  ?urn ?title ?tooltip ?link fts:rank(?urn) "	\
-	"WHERE {"					\
-	"  ?urn a nfo:Software ;"			\
-	"  nie:title ?title ;"				\
-	"  nie:comment ?tooltip ;"			\
-	"  nfo:softwareCmdLine ?link ."			\
-	"  ?urn fts:match \"%s*\" "			\
-	"} "						\
-	"ORDER BY DESC(fts:rank(?urn)) "		\
+#define APP_QUERY	  \
+	"SELECT" \
+	"  ?urn ?title ?tooltip ?link fts:rank(?urn) " \
+	"WHERE {" \
+	"  ?urn a nfo:Software ;" \
+	"  nie:title ?title ;" \
+	"  nie:comment ?tooltip ;" \
+	"  nfo:softwareCmdLine ?link ." \
+	"  ?urn fts:match \"%s*\" " \
+	"} " \
+	"ORDER BY DESC(fts:rank(?urn)) " \
 	"OFFSET 0 LIMIT %d"
-#define TAGS_QUERY					\
-	"SELECT"					\
+#define TAGS_QUERY	  \
+	"SELECT" \
 	"  ?urn ?title ?title ?urn fts:rank(?urn) " \
-	"WHERE {"					\
-	"  ?urn a nao:Tag ;"				\
-	"  nao:prefLabel ?title ."			\
-	"  ?urn fts:match \"%s*\" "			\
-	"} "						\
-	"ORDER BY DESC(fts:rank(?urn)) "		\
+	"WHERE {" \
+	"  ?urn a nao:Tag ;" \
+	"  nao:prefLabel ?title ." \
+	"  ?urn fts:match \"%s*\" " \
+	"} " \
+	"ORDER BY DESC(fts:rank(?urn)) " \
 	"OFFSET 0 LIMIT %d"
-/* #define TAGS_QUERY					\ */
-/* 	"SELECT"					\ */
-/* 	"  ?urn ?title COUNT(?files) ?urn fts:rank(?urn) " \ */
-/* 	"WHERE {"					\ */
-/* 	"  ?urn a nao:Tag ;"				\ */
-/* 	"  nao:prefLabel ?title ."			\ */
-/* 	"  ?urn fts:match \"%s*\" ."			\ */
-/* 	"  ?files nao:hasTag ?urn "			\ */
-/* 	"} "						\ */
-/* 	"GROUP BY ?urn "				\ */
-/* 	"ORDER BY DESC(fts:rank(?urn)) "		\ */
-/* 	"OFFSET 0 LIMIT %d" */
-#define BOOKMARK_QUERY					\
-	"SELECT"					\
-	"  ?urn ?title ?link ?link fts:rank(?urn) "	\
-	"WHERE {"					\
-	"  ?urn a nfo:Bookmark ;"			\
-	"  nie:title ?title ;"				\
-	"  nie:links ?link ."				\
-	"  ?urn fts:match \"%s*\" "			\
-	"} "						\
-	"ORDER BY DESC(fts:rank(?urn)) "		\
+/* #define TAGS_QUERY                                   \ */
+/*      "SELECT"                                        \ */
+/*      "  ?urn ?title COUNT(?files) ?urn fts:rank(?urn) " \ */
+/*      "WHERE {"                                       \ */
+/*      "  ?urn a nao:Tag ;"                            \ */
+/*      "  nao:prefLabel ?title ."                      \ */
+/*      "  ?urn fts:match \"%s*\" ."                    \ */
+/*      "  ?files nao:hasTag ?urn "                     \ */
+/*      "} "                                            \ */
+/*      "GROUP BY ?urn "                                \ */
+/*      "ORDER BY DESC(fts:rank(?urn)) "                \ */
+/*      "OFFSET 0 LIMIT %d" */
+#define BOOKMARK_QUERY	  \
+	"SELECT" \
+	"  ?urn ?title ?link ?link fts:rank(?urn) " \
+	"WHERE {" \
+	"  ?urn a nfo:Bookmark ;" \
+	"  nie:title ?title ;" \
+	"  nie:links ?link ." \
+	"  ?urn fts:match \"%s*\" " \
+	"} " \
+	"ORDER BY DESC(fts:rank(?urn)) " \
 	"OFFSET 0 LIMIT %d"
-#define WEBSITE_QUERY					\
-	"SELECT"					\
-	"  ?urn ?title ?link ?link fts:rank(?urn) "	\
-	"WHERE {"					\
-	"  ?urn a nfo:Website ;"			\
-	"  nie:title ?title ;"				\
-	"  nie:links ?link ."				\
-	"  ?urn fts:match \"%s*\" "			\
-	"} "						\
-	"ORDER BY DESC(fts:rank(?urn)) "		\
+#define WEBSITE_QUERY	  \
+	"SELECT" \
+	"  ?urn ?title ?link ?link fts:rank(?urn) " \
+	"WHERE {" \
+	"  ?urn a nfo:Website ;" \
+	"  nie:title ?title ;" \
+	"  nie:links ?link ." \
+	"  ?urn fts:match \"%s*\" " \
+	"} " \
+	"ORDER BY DESC(fts:rank(?urn)) " \
 	"OFFSET 0 LIMIT %d"
-#define CONTACT_QUERY					\
-	"SELECT"					\
-	"  ?urn ?title ?link ?link fts:rank(?urn) "	\
-	"WHERE {"					\
-	"  ?urn a nco:Contact ;"			\
-	"  nco:fullname ?title ;"			\
-	"  nco:hasEmailAddress ?link ."			\
-	"  ?urn fts:match \"%s*\" "			\
-	"} "						\
-	"ORDER BY DESC(fts:rank(?urn)) "		\
+#define CONTACT_QUERY	  \
+	"SELECT" \
+	"  ?urn ?title ?link ?link fts:rank(?urn) " \
+	"WHERE {" \
+	"  ?urn a nco:Contact ;" \
+	"  nco:fullname ?title ;" \
+	"  nco:hasEmailAddress ?link ." \
+	"  ?urn fts:match \"%s*\" " \
+	"} " \
+	"ORDER BY DESC(fts:rank(?urn)) " \
 	"OFFSET 0 LIMIT %d"
 
 #undef USE_SEPARATOR_FOR_SPACING
@@ -224,24 +224,24 @@ struct FindCategory {
 static void     results_window_constructed        (GObject              *object);
 static void     results_window_finalize           (GObject              *object);
 static void     results_window_set_property       (GObject              *object,
-						   guint                 prop_id,
-						   const GValue         *value,
-						   GParamSpec           *pspec);
+                                                   guint                 prop_id,
+                                                   const GValue         *value,
+                                                   GParamSpec           *pspec);
 static void     results_window_get_property       (GObject              *object,
-						   guint                 prop_id,
-						   GValue               *value,
-						   GParamSpec           *pspec);
+                                                   guint                 prop_id,
+                                                   GValue               *value,
+                                                   GParamSpec           *pspec);
 static gboolean results_window_key_press_event    (GtkWidget            *widget,
-						   GdkEventKey          *event);
+                                                   GdkEventKey          *event);
 static gboolean results_window_button_press_event (GtkWidget            *widget,
-						   GdkEventButton       *event);
+                                                   GdkEventButton       *event);
 static void     results_window_size_request       (GtkWidget            *widget,
-						   GtkRequisition       *requisition);
+                                                   GtkRequisition       *requisition);
 static void     results_window_screen_changed     (GtkWidget            *widget,
-						   GdkScreen            *prev_screen);
+                                                   GdkScreen            *prev_screen);
 static void     model_set_up                      (TrackerResultsWindow *window);
 static void     search_get                        (TrackerResultsWindow *window,
-						   TrackerCategory       category);
+                                                   TrackerCategory       category);
 static void     search_start                      (TrackerResultsWindow *window);
 static gchar *  category_to_string                (TrackerCategory       category);
 
@@ -280,19 +280,19 @@ tracker_results_window_class_init (TrackerResultsWindowClass *klass)
 	widget_class->screen_changed = results_window_screen_changed;
 
 	g_object_class_install_property (object_class,
-					 PROP_QUERY,
-					 g_param_spec_string ("query",
-							      "Query",
-							      "Query",
-							      NULL,
-							      G_PARAM_READWRITE));
+	                                 PROP_QUERY,
+	                                 g_param_spec_string ("query",
+	                                                      "Query",
+	                                                      "Query",
+	                                                      NULL,
+	                                                      G_PARAM_READWRITE));
 
 	g_type_class_add_private (object_class, sizeof (TrackerResultsWindowPrivate));
 }
 
 static gboolean
 launch_application_for_uri (GtkWidget   *widget,
-			    const gchar *uri)
+                            const gchar *uri)
 {
 	GdkAppLaunchContext *launch_context;
 	GdkScreen *screen;
@@ -305,12 +305,12 @@ launch_application_for_uri (GtkWidget   *widget,
 	gdk_app_launch_context_set_screen (launch_context, screen);
 
 	g_app_info_launch_default_for_uri (uri,
-					   G_APP_LAUNCH_CONTEXT (launch_context),
-					   &error);
+	                                   G_APP_LAUNCH_CONTEXT (launch_context),
+	                                   &error);
 
 	if (error) {
 		g_critical ("Could not launch application for uri '%s': %s",
-			    uri, error->message);
+		            uri, error->message);
 		g_error_free (error);
 		success = FALSE;
 	} else {
@@ -324,9 +324,9 @@ launch_application_for_uri (GtkWidget   *widget,
 
 static void
 tree_view_row_activated_cb (GtkTreeView       *treeview,
-			    GtkTreePath       *path,
-			    GtkTreeViewColumn *column,
-			    gpointer           user_data)
+                            GtkTreePath       *path,
+                            GtkTreeViewColumn *column,
+                            gpointer           user_data)
 {
 	TrackerResultsWindowPrivate *priv;
 	TrackerResultsWindow *window;
@@ -344,24 +344,24 @@ tree_view_row_activated_cb (GtkTreeView       *treeview,
 	}
 
 	gtk_tree_model_get (model, &iter,
-			    COL_LINK, &link,
-			    -1);
+	                    COL_LINK, &link,
+	                    -1);
 
 	if (!link) {
 		return;
 	}
 
-        if (tracker_regex_match (TRACKER_REGEX_ALL, link, NULL, NULL) > 0) {
+	if (tracker_regex_match (TRACKER_REGEX_ALL, link, NULL, NULL) > 0) {
 		success = launch_application_for_uri (GTK_WIDGET (window), link);
 	} else {
 		GError *error = NULL;
 
 		success = g_spawn_command_line_async (link, &error);
-		
+
 		if (error) {
 			g_critical ("Could not launch command line:'%s', %s",
-				    link,
-				    error->message);
+			            link,
+			            error->message);
 			g_error_free (error);
 		}
 	}
@@ -397,14 +397,14 @@ tracker_results_window_init (TrackerResultsWindow *window)
 	priv->scrolled_window = gtk_scrolled_window_new (NULL, NULL);
 	gtk_container_add (GTK_CONTAINER (vbox), priv->scrolled_window);
 	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (priv->scrolled_window),
-					GTK_POLICY_AUTOMATIC,
-					GTK_POLICY_AUTOMATIC);
+	                                GTK_POLICY_AUTOMATIC,
+	                                GTK_POLICY_AUTOMATIC);
 
 	priv->treeview = gtk_tree_view_new ();
 	gtk_container_add (GTK_CONTAINER (priv->scrolled_window), priv->treeview);
 	gtk_tree_view_set_headers_visible (GTK_TREE_VIEW (priv->treeview), FALSE);
 	g_signal_connect (priv->treeview, "row-activated",
-			  G_CALLBACK (tree_view_row_activated_cb), window);
+	                  G_CALLBACK (tree_view_row_activated_cb), window);
 
 	priv->label = gtk_label_new (NULL);
 	gtk_widget_set_sensitive (priv->label, FALSE);
@@ -445,9 +445,9 @@ results_window_finalize (GObject *object)
 
 static void
 results_window_set_property (GObject      *object,
-			     guint         prop_id,
-			     const GValue *value,
-			     GParamSpec   *pspec)
+                             guint         prop_id,
+                             const GValue *value,
+                             GParamSpec   *pspec)
 {
 	TrackerResultsWindowPrivate *priv;
 
@@ -456,23 +456,23 @@ results_window_set_property (GObject      *object,
 	switch (prop_id) {
 	case PROP_QUERY:
 		/* Don't do the search_start() call if the window was
-		 * just set up. 
+		 * just set up.
 		 */
 		g_free (priv->query);
 		priv->query = g_value_dup_string (value);
 		search_start (TRACKER_RESULTS_WINDOW (object));
 		break;
 	default:
-                G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
-                break;
+		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+		break;
 	}
 }
 
 static void
 results_window_get_property (GObject    *object,
-			     guint       prop_id,
-			     GValue     *value,
-			     GParamSpec *pspec)
+                             guint       prop_id,
+                             GValue     *value,
+                             GParamSpec *pspec)
 {
 	TrackerResultsWindowPrivate *priv;
 
@@ -483,14 +483,14 @@ results_window_get_property (GObject    *object,
 		g_value_set_string (value, priv->query);
 		break;
 	default:
-                G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
-                break;
+		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+		break;
 	}
 }
 
 static gboolean
 results_window_key_press_event (GtkWidget   *widget,
-				GdkEventKey *event)
+                                GdkEventKey *event)
 {
 	TrackerResultsWindowPrivate *priv;
 
@@ -511,7 +511,7 @@ results_window_key_press_event (GtkWidget   *widget,
 
 static gboolean
 results_window_button_press_event (GtkWidget      *widget,
-				   GdkEventButton *event)
+                                   GdkEventButton *event)
 {
 	if (event->x < 0 || event->x > widget->allocation.width ||
 	    event->y < 0 || event->y > widget->allocation.height) {
@@ -530,7 +530,7 @@ results_window_button_press_event (GtkWidget      *widget,
 
 static void
 results_window_size_request (GtkWidget      *widget,
-			     GtkRequisition *requisition)
+                             GtkRequisition *requisition)
 {
 	GtkRequisition child_req;
 	guint border_width;
@@ -559,7 +559,7 @@ results_window_size_request (GtkWidget      *widget,
 
 static void
 results_window_screen_changed (GtkWidget *widget,
-			       GdkScreen *prev_screen)
+                               GdkScreen *prev_screen)
 {
 	TrackerResultsWindowPrivate *priv;
 	GdkScreen *screen;
@@ -582,10 +582,10 @@ results_window_screen_changed (GtkWidget *widget,
 
 static ItemData *
 item_data_new (const gchar     *urn,
-	       const gchar     *title,
-	       const gchar     *tooltip,
-	       const gchar     *link,
-	       TrackerCategory  category)
+               const gchar     *title,
+               const gchar     *tooltip,
+               const gchar     *link,
+               TrackerCategory  category)
 {
 	ItemData *id;
 
@@ -607,14 +607,14 @@ item_data_free (ItemData *id)
 	g_free (id->title);
 	g_free (id->tooltip);
 	g_free (id->link);
-	
+
 	g_slice_free (ItemData, id);
 }
 
 static SearchQuery *
 search_query_new (gint                  request_id,
-		  TrackerCategory       category,
-		  TrackerResultsWindow *window)
+                  TrackerCategory       category,
+                  TrackerResultsWindow *window)
 {
 	SearchQuery *sq;
 
@@ -662,7 +662,7 @@ category_to_string (TrackerCategory category)
 
 inline static void
 category_from_string (const gchar *type,
-		      guint       *categories)
+                      guint       *categories)
 {
 	if (g_str_has_suffix (type, "nao#Tag")) {
 		*categories |= CATEGORY_TAG;
@@ -681,14 +681,14 @@ category_from_string (const gchar *type,
 		*categories |= CATEGORY_EMAIL_ADDRESS;
 	}
 
-	if (g_str_has_suffix (type, "nfo#Image") || 
+	if (g_str_has_suffix (type, "nfo#Image") ||
 	    g_str_has_suffix (type, "nfo#RosterImage") ||
 	    g_str_has_suffix (type, "nfo#VectorImage") ||
 	    g_str_has_suffix (type, "nfo#FilesystemImage")) {
 		*categories |= CATEGORY_IMAGE;
 	}
 
-	if (g_str_has_suffix (type, "nfo#Audio") || 
+	if (g_str_has_suffix (type, "nfo#Audio") ||
 	    g_str_has_suffix (type, "nmm#MusicPiece")) {
 		*categories |= CATEGORY_AUDIO;
 	}
@@ -721,14 +721,14 @@ category_from_string (const gchar *type,
 
 static GdkPixbuf *
 pixbuf_get (TrackerResultsWindow *window,
-	    const gchar          *urn,
-	    gboolean              is_image)
+            const gchar          *urn,
+            gboolean              is_image)
 {
 	TrackerResultsWindowPrivate *priv;
 	const gchar *attributes;
 	GFile *file;
 	GFileInfo *info;
-        GIcon *icon;
+	GIcon *icon;
 	GdkPixbuf *pixbuf = NULL;
 	GError *error = NULL;
 
@@ -743,9 +743,9 @@ pixbuf_get (TrackerResultsWindow *window,
 		g_free (path);
 
 		if (error) {
-			g_printerr ("Couldn't get pixbuf for urn:'%s', %s\n", 
-				    urn,
-				    error->message);
+			g_printerr ("Couldn't get pixbuf for urn:'%s', %s\n",
+			            urn,
+			            error->message);
 			g_clear_error (&error);
 		} else {
 			g_object_unref (file);
@@ -756,43 +756,43 @@ pixbuf_get (TrackerResultsWindow *window,
 	}
 
 
-	attributes = 
+	attributes =
 		G_FILE_ATTRIBUTE_STANDARD_ICON;
-	
+
 	info = g_file_query_info (file,
-				  attributes,
-				  G_FILE_QUERY_INFO_NONE,
-				  NULL,
-				  &error);
+	                          attributes,
+	                          G_FILE_QUERY_INFO_NONE,
+	                          NULL,
+	                          &error);
 
 
-        if (error) {
-		g_printerr ("Couldn't get pixbuf for urn:'%s', %s\n", 
-			    urn,
-			    error->message);
+	if (error) {
+		g_printerr ("Couldn't get pixbuf for urn:'%s', %s\n",
+		            urn,
+		            error->message);
 		g_object_unref (file);
-                g_error_free (error);
+		g_error_free (error);
 
-                return NULL;
-        }
+		return NULL;
+	}
 
-        icon = g_file_info_get_icon (info);
+	icon = g_file_info_get_icon (info);
 
-        if (icon && G_IS_THEMED_ICON (icon)) {
-                GtkIconInfo *icon_info;
+	if (icon && G_IS_THEMED_ICON (icon)) {
+		GtkIconInfo *icon_info;
 		const gchar **names;
 
 		names = (const gchar**) g_themed_icon_get_names (G_THEMED_ICON (icon));
 		icon_info = gtk_icon_theme_choose_icon (priv->icon_theme,
-                                                        names,
-                                                        24,
-							GTK_ICON_LOOKUP_USE_BUILTIN);
+		                                        names,
+		                                        24,
+		                                        GTK_ICON_LOOKUP_USE_BUILTIN);
 
-                if (icon_info) {
-                        pixbuf = gtk_icon_info_load_icon (icon_info, NULL);
-                        gtk_icon_info_free (icon_info);
-                }
-        }
+		if (icon_info) {
+			pixbuf = gtk_icon_info_load_icon (icon_info, NULL);
+			gtk_icon_info_free (icon_info);
+		}
+	}
 
 	g_object_unref (info);
 	g_object_unref (file);
@@ -802,10 +802,10 @@ pixbuf_get (TrackerResultsWindow *window,
 
 static void
 model_category_cell_data_func (GtkTreeViewColumn    *tree_column,
-			       GtkCellRenderer      *cell,
-			       GtkTreeModel         *model,
-			       GtkTreeIter          *iter,
-			       TrackerResultsWindow *window)
+                               GtkCellRenderer      *cell,
+                               GtkTreeModel         *model,
+                               GtkTreeIter          *iter,
+                               TrackerResultsWindow *window)
 {
 	GtkTreePath *path;
 	GtkTreeIter prev_iter;
@@ -824,8 +824,8 @@ model_category_cell_data_func (GtkTreeViewColumn    *tree_column,
 		print = TRUE;
 	} else if (previous_path && gtk_tree_model_get_iter (model, &prev_iter, path)) {
 		gtk_tree_model_get (model, &prev_iter,
-				    COL_CATEGORY_ID, &prev_category,
-				    -1);
+		                    COL_CATEGORY_ID, &prev_category,
+		                    -1);
 
 		if (prev_category == CATEGORY_NONE) {
 			print = TRUE;
@@ -833,19 +833,19 @@ model_category_cell_data_func (GtkTreeViewColumn    *tree_column,
 	}
 
 	g_object_set (cell,
-		      "text", print ? category_to_string (category) : "",
-		      "visible", print,
-		      NULL);
+	              "text", print ? category_to_string (category) : "",
+	              "visible", print,
+	              NULL);
 
 	gtk_tree_path_free (path);
 }
 
 static void
 model_pixbuf_cell_data_func (GtkTreeViewColumn    *tree_column,
-			     GtkCellRenderer      *cell,
-			     GtkTreeModel         *model,
-			     GtkTreeIter          *iter,
-			     TrackerResultsWindow *window)
+                             GtkCellRenderer      *cell,
+                             GtkTreeModel         *model,
+                             GtkTreeIter          *iter,
+                             TrackerResultsWindow *window)
 {
 	GdkPixbuf *pixbuf = NULL;
 	gboolean requested = FALSE;
@@ -857,9 +857,9 @@ model_pixbuf_cell_data_func (GtkTreeViewColumn    *tree_column,
 		gchar *urn;
 
 		gtk_tree_model_get (model, iter,
-				    COL_CATEGORY_ID, &category,
-				    COL_URN, &urn,
-				    -1);
+		                    COL_CATEGORY_ID, &category,
+		                    COL_URN, &urn,
+		                    -1);
 
 		if (urn) {
 			/* FIXME: Should use category */
@@ -869,21 +869,21 @@ model_pixbuf_cell_data_func (GtkTreeViewColumn    *tree_column,
 
 		/* Cache it in the store */
 		gtk_list_store_set (GTK_LIST_STORE (model), iter,
-				    COL_IMAGE, pixbuf,
-				    COL_IMAGE_REQUESTED, TRUE,
-				    -1);
+		                    COL_IMAGE, pixbuf,
+		                    COL_IMAGE_REQUESTED, TRUE,
+		                    -1);
 	} else {
 		/* We do this because there may be no image for a file
 		 * and we don't want to keep requesting the same
-		 * file's image.  
+		 * file's image.
 		 */
 		gtk_tree_model_get (model, iter, COL_IMAGE, &pixbuf, -1);
 	}
 
 	g_object_set (cell,
-		      "visible", TRUE,
-		      "pixbuf", pixbuf,
-		      NULL);
+	              "visible", TRUE,
+	              "pixbuf", pixbuf,
+	              NULL);
 
 	if (pixbuf) {
 		g_object_unref (pixbuf);
@@ -892,8 +892,8 @@ model_pixbuf_cell_data_func (GtkTreeViewColumn    *tree_column,
 
 static gboolean
 model_separator_func (GtkTreeModel *model,
-		      GtkTreeIter  *iter,
-		      gpointer      user_data)
+                      GtkTreeIter  *iter,
+                      gpointer      user_data)
 {
 #ifdef USE_SEPARATOR_FOR_SPACING
 	gchar *urn;
@@ -914,10 +914,10 @@ model_separator_func (GtkTreeModel *model,
 
 static gboolean
 model_selection_func (GtkTreeSelection *selection,
-		      GtkTreeModel     *model,
-		      GtkTreePath      *path,
-		      gboolean          path_currently_selected,
-		      gpointer          data)
+                      GtkTreeModel     *model,
+                      GtkTreePath      *path,
+                      gboolean          path_currently_selected,
+                      gpointer          data)
 {
 	GtkTreeIter iter;
 	gchar *urn;
@@ -952,28 +952,28 @@ model_set_up (TrackerResultsWindow *window)
 
 	/* Store */
 	store = gtk_list_store_new (COL_COUNT,
-				    G_TYPE_INT,            /* Category ID */
-				    GDK_TYPE_PIXBUF,       /* Image */
-				    G_TYPE_BOOLEAN,        /* Image requested */
-				    G_TYPE_STRING,         /* URN */
-				    G_TYPE_STRING,         /* Title */
-				    G_TYPE_STRING,         /* Tooltip */
-				    G_TYPE_STRING);        /* Link */
+	                            G_TYPE_INT,            /* Category ID */
+	                            GDK_TYPE_PIXBUF,       /* Image */
+	                            G_TYPE_BOOLEAN,        /* Image requested */
+	                            G_TYPE_STRING,         /* URN */
+	                            G_TYPE_STRING,         /* Title */
+	                            G_TYPE_STRING,         /* Tooltip */
+	                            G_TYPE_STRING);        /* Link */
 
 	gtk_tree_view_set_model (view, GTK_TREE_MODEL (store));
 
-	gtk_tree_view_set_row_separator_func (view, 
-					      model_separator_func,
-					      window,
-					      NULL);
+	gtk_tree_view_set_row_separator_func (view,
+	                                      model_separator_func,
+	                                      window,
+	                                      NULL);
 
-	/* Selection */ 
+	/* Selection */
 	selection = gtk_tree_view_get_selection (view);
 	gtk_tree_selection_set_mode (selection, GTK_SELECTION_SINGLE);
-        gtk_tree_selection_set_select_function (selection, 
-						model_selection_func,
-						window,
-						NULL);
+	gtk_tree_selection_set_select_function (selection,
+	                                        model_selection_func,
+	                                        window,
+	                                        NULL);
 
 	/* Column: Category */
 	column = gtk_tree_view_column_new ();
@@ -981,10 +981,10 @@ model_set_up (TrackerResultsWindow *window)
 
 	gtk_tree_view_column_pack_start (column, cell, FALSE);
 	gtk_tree_view_column_set_cell_data_func (column, cell,
-						 (GtkTreeCellDataFunc)
-						 model_category_cell_data_func,
-						 window,
-						 NULL);
+	                                         (GtkTreeCellDataFunc)
+	                                         model_category_cell_data_func,
+	                                         window,
+	                                         NULL);
 
 	gtk_tree_view_column_set_title (column, _("Category"));
 	gtk_tree_view_column_set_sizing (column, GTK_TREE_VIEW_COLUMN_GROW_ONLY);
@@ -997,16 +997,16 @@ model_set_up (TrackerResultsWindow *window)
 	cell = gtk_cell_renderer_pixbuf_new ();
 	gtk_tree_view_column_pack_start (column, cell, FALSE);
 	gtk_tree_view_column_set_cell_data_func (column, cell,
-						 (GtkTreeCellDataFunc)
-						 model_pixbuf_cell_data_func,
-						 window,
-						 NULL);
+	                                         (GtkTreeCellDataFunc)
+	                                         model_pixbuf_cell_data_func,
+	                                         window,
+	                                         NULL);
 
 	cell = gtk_cell_renderer_text_new ();
 	g_object_set (cell,
-		      "xpad", 4,
-		      "ypad", 1,
-		      NULL);
+	              "xpad", 4,
+	              "ypad", 1,
+	              NULL);
 	gtk_tree_view_column_pack_start (column, cell, TRUE);
 	gtk_tree_view_column_add_attribute (column, cell, "text", COL_TITLE);
 
@@ -1018,8 +1018,8 @@ model_set_up (TrackerResultsWindow *window)
 
 	/* Sorting */
 	/* gtk_tree_sortable_set_sort_column_id (GTK_TREE_SORTABLE (store), */
-	/* 				      COL_CATEGORY_ID, */
-	/* 				      GTK_SORT_ASCENDING); */
+	/*                                    COL_CATEGORY_ID, */
+	/*                                    GTK_SORT_ASCENDING); */
 
 	/* Tooltips */
 	gtk_tree_view_set_tooltip_column (view, COL_TOOLTIP);
@@ -1030,11 +1030,11 @@ model_set_up (TrackerResultsWindow *window)
 
 static void
 model_add (TrackerResultsWindow *window,
-	   TrackerCategory       category,
-	   const gchar          *urn,
-	   const gchar          *title,
-	   const gchar          *tooltip,
-	   const gchar          *link)
+           TrackerCategory       category,
+           const gchar          *urn,
+           const gchar          *title,
+           const gchar          *tooltip,
+           const gchar          *link)
 {
 	TrackerResultsWindowPrivate *priv;
 	GtkTreeIter iter;
@@ -1045,18 +1045,18 @@ model_add (TrackerResultsWindow *window,
 
 	gtk_list_store_append (GTK_LIST_STORE (priv->store), &iter);
 	gtk_list_store_set (GTK_LIST_STORE (priv->store), &iter,
-			    COL_CATEGORY_ID, category,
-			    COL_IMAGE, pixbuf ? pixbuf : NULL,
-			    COL_URN, urn,
-			    COL_TITLE, title,
-			    COL_TOOLTIP, tooltip,
-			    COL_LINK, link,
-			    -1);
+	                    COL_CATEGORY_ID, category,
+	                    COL_IMAGE, pixbuf ? pixbuf : NULL,
+	                    COL_URN, urn,
+	                    COL_TITLE, title,
+	                    COL_TOOLTIP, tooltip,
+	                    COL_LINK, link,
+	                    -1);
 
 	/* path = gtk_tree_model_get_path (GTK_TREE_MODEL (window->store), &iter); */
 	/* gtk_tree_view_set_tooltip_row (GTK_TREE_VIEW (window->treeview), tooltip, path); */
 	/* gtk_tree_path_free (path); */
-		
+
 	/* gtk_tree_selection_select_iter (selection, &iter); */
 }
 
@@ -1088,8 +1088,8 @@ search_window_ensure_not_blank (TrackerResultsWindow *window)
 }
 
 inline static void
-search_get_foreach (gpointer value, 
-		    gpointer user_data)
+search_get_foreach (gpointer value,
+                    gpointer user_data)
 {
 	SearchQuery *sq;
 	ItemData *id;
@@ -1124,8 +1124,8 @@ search_get_foreach (gpointer value,
 
 static void
 search_get_cb (GPtrArray *results,
-	       GError    *error,
-	       gpointer   user_data)
+               GError    *error,
+               gpointer   user_data)
 {
 	TrackerResultsWindow *window;
 	TrackerResultsWindowPrivate *priv;
@@ -1139,9 +1139,9 @@ search_get_cb (GPtrArray *results,
 
 	/* If request IDs don't match, data is no longer needed */
 	if (priv->request_id != sq->request_id) {
-		g_message ("Received data from request id:%d, now on request id:%d", 
-			   sq->request_id,
-			   priv->request_id);
+		g_message ("Received data from request id:%d, now on request id:%d",
+		           sq->request_id,
+		           priv->request_id);
 		search_query_free (sq);
 		return;
 	}
@@ -1158,18 +1158,18 @@ search_get_cb (GPtrArray *results,
 
 	if (!results) {
 		g_print ("No results were found matching the query in category:'%s'\n",
-			 category_to_string (sq->category));
+		         category_to_string (sq->category));
 	} else {
 		GSList *l;
 
-		g_print ("Results: %d for category:'%s'\n", 
-			 results->len,
-			 category_to_string (sq->category));
+		g_print ("Results: %d for category:'%s'\n",
+		         results->len,
+		         category_to_string (sq->category));
 
 		if (results->len > 0) {
 			g_ptr_array_foreach (results,
-					     search_get_foreach,
-					     sq);
+			                     search_get_foreach,
+			                     sq);
 
 			g_ptr_array_foreach (results, (GFunc) g_strfreev, NULL);
 			g_ptr_array_free (results, TRUE);
@@ -1183,11 +1183,11 @@ search_get_cb (GPtrArray *results,
 				ItemData *id = l->data;
 
 				model_add (window,
-					   sq->category,
-					   id->urn,
-					   id->title,
-					   id->tooltip,
-					   id->link);
+				           sq->category,
+				           id->urn,
+				           id->title,
+				           id->tooltip,
+				           id->link);
 			}
 
 			priv->first_category_populated = TRUE;
@@ -1204,7 +1204,7 @@ search_get_cb (GPtrArray *results,
 
 static void
 search_get (TrackerResultsWindow *window,
-	    TrackerCategory       category)
+            TrackerCategory       category)
 {
 	TrackerResultsWindowPrivate *priv;
 	SearchQuery *sq;
@@ -1270,7 +1270,7 @@ search_start (TrackerResultsWindow *window)
 	GtkListStore *store;
 
 	priv = TRACKER_RESULTS_WINDOW_GET_PRIVATE (window);
-	
+
 	/* Cancel current requests */
 	priv->request_id++;
 	g_message ("Incrementing request ID to %d", priv->request_id);
@@ -1319,10 +1319,10 @@ grab_popup_window (TrackerResultsWindow *window)
 
 	/* Grab pointer */
 	status = gdk_pointer_grab (widget->window,
-				   TRUE,
-				   GDK_POINTER_MOTION_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK,
-				   NULL, NULL,
-				   time);
+	                           TRUE,
+	                           GDK_POINTER_MOTION_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK,
+	                           NULL, NULL,
+	                           time);
 
 	if (status == GDK_GRAB_SUCCESS) {
 		status = gdk_keyboard_grab (widget->window, TRUE, time);
@@ -1342,12 +1342,12 @@ grab_popup_window (TrackerResultsWindow *window)
 
 GtkWidget *
 tracker_results_window_new (GtkWidget   *parent,
-			    const gchar *query)
+                            const gchar *query)
 {
 	return g_object_new (TRACKER_TYPE_RESULTS_WINDOW,
-			     "align-widget", parent,
-			     "query", query,
-			     NULL);
+	                     "align-widget", parent,
+	                     "query", query,
+	                     NULL);
 }
 
 void

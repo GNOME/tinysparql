@@ -42,7 +42,7 @@
 #include "tracker-db-interface.h"
 
 /* ZLib buffer settings */
-#define ZLIB_BUF_SIZE		      8192
+#define ZLIB_BUF_SIZE                 8192
 
 /* Required minimum space needed to create databases (5Mb) */
 #define TRACKER_DB_MIN_REQUIRED_SPACE 5242880
@@ -71,17 +71,17 @@ typedef enum {
 } TrackerDBVersion;
 
 typedef struct {
-	TrackerDB	    db;
+	TrackerDB           db;
 	TrackerDBLocation   location;
 	TrackerDBInterface *iface;
-	const gchar	   *file;
-	const gchar	   *name;
-	gchar		   *abs_filename;
-	gint		    cache_size;
-	gint		    page_size;
-	gboolean	    add_functions;
-	gboolean	    attached;
-	gboolean	    is_index;
+	const gchar        *file;
+	const gchar        *name;
+	gchar              *abs_filename;
+	gint                cache_size;
+	gint                page_size;
+	gboolean            add_functions;
+	gboolean            attached;
+	gboolean            is_index;
 	guint64             mtime;
 } TrackerDBDefinition;
 
@@ -101,7 +101,7 @@ static TrackerDBDefinition dbs[] = {
 	  FALSE,
 	  FALSE,
 	  FALSE,
- 	  0 },
+	  0 },
 	{ TRACKER_DB_METADATA,
 	  TRACKER_DB_LOCATION_DATA_DIR,
 	  NULL,
@@ -113,7 +113,7 @@ static TrackerDBDefinition dbs[] = {
 	  TRUE,
 	  FALSE,
 	  FALSE,
- 	  0 },
+	  0 },
 	{ TRACKER_DB_CONTENTS,
 	  TRACKER_DB_LOCATION_DATA_DIR,
 	  NULL,
@@ -125,7 +125,7 @@ static TrackerDBDefinition dbs[] = {
 	  FALSE,
 	  FALSE,
 	  FALSE,
- 	  0 },
+	  0 },
 	{ TRACKER_DB_FULLTEXT,
 	  TRACKER_DB_LOCATION_DATA_DIR,
 	  NULL,
@@ -137,22 +137,22 @@ static TrackerDBDefinition dbs[] = {
 	  TRUE,
 	  FALSE,
 	  TRUE,
- 	  0 },
+	  0 },
 };
 
-static gboolean		   db_exec_no_reply    (TrackerDBInterface *iface,
-						const gchar	   *query,
-						...);
-static TrackerDBInterface *db_interface_create (TrackerDB	    db);
+static gboolean                    db_exec_no_reply    (TrackerDBInterface *iface,
+                                                        const gchar        *query,
+                                                        ...);
+static TrackerDBInterface *db_interface_create (TrackerDB           db);
 static TrackerDBInterface *tracker_db_manager_get_db_interfaces     (gint num, ...);
 static TrackerDBInterface *tracker_db_manager_get_db_interfaces_ro  (gint num, ...);
 
-static gboolean		   initialized;
-static gchar		  *sql_dir;
-static gchar		  *data_dir;
-static gchar		  *user_data_dir;
-static gchar		  *sys_tmp_dir;
-static gpointer		   db_type_enum_class_pointer;
+static gboolean                    initialized;
+static gchar              *sql_dir;
+static gchar              *data_dir;
+static gchar              *user_data_dir;
+static gchar              *sys_tmp_dir;
+static gpointer                    db_type_enum_class_pointer;
 static TrackerDBInterface *resources_iface;
 
 static const gchar *
@@ -172,8 +172,8 @@ location_to_directory (TrackerDBLocation location)
 
 static void
 load_sql_file (TrackerDBInterface *iface,
-	       const gchar	  *file,
-	       const gchar	  *delimiter)
+               const gchar        *file,
+               const gchar        *delimiter)
 {
 	gchar *path, *content, **queries;
 	gint   count;
@@ -187,7 +187,7 @@ load_sql_file (TrackerDBInterface *iface,
 
 	if (!g_file_get_contents (path, &content, NULL, NULL)) {
 		g_critical ("Cannot read SQL file:'%s', please reinstall tracker"
-			    " or check read permissions on the file if it exists", path);
+		            " or check read permissions on the file if it exists", path);
 		g_assert_not_reached ();
 	}
 
@@ -224,11 +224,11 @@ load_sql_file (TrackerDBInterface *iface,
 
 static gboolean
 db_exec_no_reply (TrackerDBInterface *iface,
-		  const gchar	     *query,
-		  ...)
+                  const gchar        *query,
+                  ...)
 {
 	TrackerDBResultSet *result_set;
-	va_list		    args;
+	va_list                     args;
 
 	va_start (args, query);
 	result_set = tracker_db_interface_execute_vquery (iface, NULL, query, args);
@@ -244,10 +244,10 @@ db_exec_no_reply (TrackerDBInterface *iface,
 /* Converts date/time in UTC format to ISO 8160 standardised format for display */
 static GValue
 function_date_to_str (TrackerDBInterface *interface,
-		      gint		  argc,
-		      GValue		  values[])
+                      gint                argc,
+                      GValue              values[])
 {
-	GValue	result = { 0, };
+	GValue  result = { 0, };
 	gchar  *str;
 
 	str = tracker_date_to_string (g_value_get_double (&values[0]));
@@ -259,12 +259,12 @@ function_date_to_str (TrackerDBInterface *interface,
 
 static GValue
 function_regexp (TrackerDBInterface *interface,
-		 gint		     argc,
-		 GValue		     values[])
+                 gint                argc,
+                 GValue                      values[])
 {
-	GValue	result = { 0, };
-	regex_t	regex;
-	int	ret;
+	GValue  result = { 0, };
+	regex_t         regex;
+	int     ret;
 
 	if (argc != 2) {
 		g_critical ("Invalid argument count");
@@ -272,8 +272,8 @@ function_regexp (TrackerDBInterface *interface,
 	}
 
 	ret = regcomp (&regex,
-		       g_value_get_string (&values[0]),
-		       REG_EXTENDED | REG_NOSUB);
+	               g_value_get_string (&values[0]),
+	               REG_EXTENDED | REG_NOSUB);
 
 	if (ret != 0) {
 		g_critical ("Error compiling regular expression");
@@ -281,8 +281,8 @@ function_regexp (TrackerDBInterface *interface,
 	}
 
 	ret = regexec (&regex,
-		       g_value_get_string (&values[1]),
-		       0, NULL, 0);
+	               g_value_get_string (&values[1]),
+	               0, NULL, 0);
 
 	g_value_init (&result, G_TYPE_INT);
 	g_value_set_int (&result, (ret == REG_NOMATCH) ? 0 : 1);
@@ -293,9 +293,9 @@ function_regexp (TrackerDBInterface *interface,
 
 static void
 function_group_concat_step (TrackerDBInterface *interface,
-			    void               *aggregate_context,
-			    gint		argc,
-			    GValue		values[])
+                            void               *aggregate_context,
+                            gint                argc,
+                            GValue              values[])
 {
 	AggregateData *p;
 
@@ -308,7 +308,7 @@ function_group_concat_step (TrackerDBInterface *interface,
 	} else {
 		p->string = g_string_append (p->string, "|");
 	}
-	
+
 	if (G_VALUE_HOLDS_STRING (&values[0])) {
 		p->string = g_string_append (p->string, g_value_get_string (&values[0]));
 	}
@@ -316,7 +316,7 @@ function_group_concat_step (TrackerDBInterface *interface,
 
 static GValue
 function_group_concat_final (TrackerDBInterface *interface,
-			     void               *aggregate_context)
+                             void               *aggregate_context)
 {
 	GValue result = { 0, };
 	AggregateData *p;
@@ -333,11 +333,11 @@ function_group_concat_final (TrackerDBInterface *interface,
 
 static GValue
 function_sparql_regex (TrackerDBInterface *interface,
-		       gint		     argc,
-		       GValue		     values[])
+                       gint                  argc,
+                       GValue                values[])
 {
-	GValue	result = { 0, };
-	gboolean	ret;
+	GValue  result = { 0, };
+	gboolean        ret;
 	const gchar *text, *pattern, *flags;
 	GRegexCompileFlags regex_flags;
 
@@ -382,13 +382,13 @@ function_sparql_regex (TrackerDBInterface *interface,
 
 static gchar *
 function_uncompress_string (const gchar *ptr,
-			    gint	 size,
-			    gint	*uncompressed_size)
+                            gint         size,
+                            gint        *uncompressed_size)
 {
 	z_stream       zs;
-	gchar	      *buf, *swap;
+	gchar         *buf, *swap;
 	unsigned char  obuf[ZLIB_BUF_SIZE];
-	gint	       rv, asiz, bsiz, osiz;
+	gint           rv, asiz, bsiz, osiz;
 
 	zs.zalloc = Z_NULL;
 	zs.zfree = Z_NULL;
@@ -557,13 +557,13 @@ function_compress_string (const gchar *text)
 
 static GValue
 function_uncompress (TrackerDBInterface *interface,
-		     gint		 argc,
-		     GValue		 values[])
+                     gint                argc,
+                     GValue              values[])
 {
 	GByteArray *array;
-	GValue	    result = { 0, };
-	gchar	   *output;
-	gint	    len;
+	GValue      result = { 0, };
+	gchar      *output;
+	gint        len;
 
 	array = g_value_get_boxed (&values[0]);
 
@@ -572,8 +572,8 @@ function_uncompress (TrackerDBInterface *interface,
 	}
 
 	output = function_uncompress_string ((const gchar *) array->data,
-					     array->len,
-					     &len);
+	                                     array->len,
+	                                     &len);
 
 	if (!output) {
 		g_warning ("Uncompress failed");
@@ -588,8 +588,8 @@ function_uncompress (TrackerDBInterface *interface,
 
 static GValue
 function_compress (TrackerDBInterface *interface,
-		   gint		       argc,
-		   GValue	       values[])
+                   gint                        argc,
+                   GValue              values[])
 {
 	GByteArray *array;
 	GValue result = { 0, };
@@ -612,15 +612,15 @@ function_compress (TrackerDBInterface *interface,
 
 static GValue
 function_replace (TrackerDBInterface *interface,
-		  gint		      argc,
-		  GValue	      values[])
+                  gint                argc,
+                  GValue              values[])
 {
 	GValue result = { 0, };
 	gchar *str;
 
 	str = tracker_string_replace (g_value_get_string (&values[0]),
-				      g_value_get_string (&values[1]),
-				      g_value_get_string (&values[2]));
+	                              g_value_get_string (&values[1]),
+	                              g_value_get_string (&values[2]));
 
 	g_value_init (&result, G_TYPE_STRING);
 	g_value_take_string (&result, str);
@@ -630,8 +630,8 @@ function_replace (TrackerDBInterface *interface,
 
 static GValue
 function_collate_key (TrackerDBInterface *interface,
-		      gint                argc,
-		      GValue              values[])
+                      gint                argc,
+                      GValue              values[])
 {
 	GValue result = { 0 };
 	gchar *collate_key;
@@ -646,9 +646,9 @@ function_collate_key (TrackerDBInterface *interface,
 
 static void
 db_set_params (TrackerDBInterface *iface,
-	       gint		   cache_size,
-	       gint		   page_size,
-	       gboolean		   add_functions)
+               gint                cache_size,
+               gint                page_size,
+               gboolean                    add_functions)
 {
 	tracker_db_interface_execute_query (iface, NULL, "PRAGMA synchronous = OFF;");
 	tracker_db_interface_execute_query (iface, NULL, "PRAGMA count_changes = 0;");
@@ -669,42 +669,42 @@ db_set_params (TrackerDBInterface *iface,
 
 		/* Create user defined functions that can be used in sql */
 		tracker_db_interface_sqlite_create_function (iface,
-							     "FormatDate",
-							     function_date_to_str,
-							     1);
+		                                             "FormatDate",
+		                                             function_date_to_str,
+		                                             1);
 		tracker_db_interface_sqlite_create_function (iface,
-							     "REGEXP",
-							     function_regexp,
-							     2);
+		                                             "REGEXP",
+		                                             function_regexp,
+		                                             2);
 		tracker_db_interface_sqlite_create_function (iface,
-							     "SparqlRegex",
-							     function_sparql_regex,
-							     3);
+		                                             "SparqlRegex",
+		                                             function_sparql_regex,
+		                                             3);
 
 		tracker_db_interface_sqlite_create_function (iface,
-							     "uncompress",
-							     function_uncompress,
-							     1);
+		                                             "uncompress",
+		                                             function_uncompress,
+		                                             1);
 		tracker_db_interface_sqlite_create_function (iface,
-							     "compress",
-							     function_compress,
-							     1);
+		                                             "compress",
+		                                             function_compress,
+		                                             1);
 		tracker_db_interface_sqlite_create_function (iface,
-							     "replace",
-							     function_replace,
-							     3);
-		
+		                                             "replace",
+		                                             function_replace,
+		                                             3);
+
 		tracker_db_interface_sqlite_create_aggregate (iface,
-							      "group_concat",
-							      function_group_concat_step,
-							      1,
-							      function_group_concat_final,
-							      sizeof(AggregateData));
+		                                              "group_concat",
+		                                              function_group_concat_step,
+		                                              1,
+		                                              function_group_concat_final,
+		                                              sizeof(AggregateData));
 
 		tracker_db_interface_sqlite_create_function (iface,
-							     "CollateKey",
-							     function_collate_key,
-							     1);
+		                                             "CollateKey",
+		                                             function_collate_key,
+		                                             1);
 	}
 }
 
@@ -712,7 +712,7 @@ db_set_params (TrackerDBInterface *iface,
 static const gchar *
 db_type_to_string (TrackerDB db)
 {
-	GType	    type;
+	GType       type;
 	GEnumClass *enum_class;
 	GEnumValue *enum_value;
 
@@ -729,10 +729,10 @@ db_type_to_string (TrackerDB db)
 
 static TrackerDBInterface *
 db_interface_get (TrackerDB  type,
-		  gboolean  *create)
+                  gboolean  *create)
 {
 	TrackerDBInterface *iface;
-	const gchar	   *path;
+	const gchar        *path;
 
 	path = dbs[type].abs_filename;
 
@@ -743,16 +743,16 @@ db_interface_get (TrackerDB  type,
 	}
 
 	g_message ("%s database... '%s' (%s)",
-		   *create ? "Creating" : "Loading",
-		   path,
-		   db_type_to_string (type));
+	           *create ? "Creating" : "Loading",
+	           path,
+	           db_type_to_string (type));
 
 	iface = tracker_db_interface_sqlite_new (path);
 
 	db_set_params (iface,
-		       dbs[type].cache_size,
-		       dbs[type].page_size,
-		       dbs[type].add_functions);
+	               dbs[type].cache_size,
+	               dbs[type].page_size,
+	               dbs[type].add_functions);
 
 	return iface;
 }
@@ -761,7 +761,7 @@ static TrackerDBInterface *
 db_interface_get_fulltext (void)
 {
 	TrackerDBInterface *iface;
-	gboolean	    create;
+	gboolean            create;
 
 	iface = db_interface_get (TRACKER_DB_FULLTEXT, &create);
 
@@ -772,7 +772,7 @@ static TrackerDBInterface *
 db_interface_get_contents (void)
 {
 	TrackerDBInterface *iface;
-	gboolean	    create;
+	gboolean            create;
 
 	iface = db_interface_get (TRACKER_DB_CONTENTS, &create);
 
@@ -783,13 +783,13 @@ db_interface_get_contents (void)
 	}
 
 	tracker_db_interface_sqlite_create_function (iface,
-						     "uncompress",
-						     function_uncompress,
-						     1);
+	                                             "uncompress",
+	                                             function_uncompress,
+	                                             1);
 	tracker_db_interface_sqlite_create_function (iface,
-						     "compress",
-						     function_compress,
-						     1);
+	                                             "compress",
+	                                             function_compress,
+	                                             1);
 
 	return iface;
 }
@@ -800,7 +800,7 @@ static TrackerDBInterface *
 db_interface_get_metadata (void)
 {
 	TrackerDBInterface *iface;
-	gboolean	    create;
+	gboolean            create;
 
 	iface = db_interface_get (TRACKER_DB_METADATA, &create);
 
@@ -827,15 +827,15 @@ db_interface_create (TrackerDB db)
 		return db_interface_get_metadata ();
 
 	case TRACKER_DB_FULLTEXT:
-		return db_interface_get_fulltext ();	
+		return db_interface_get_fulltext ();
 
 	case TRACKER_DB_CONTENTS:
 		return db_interface_get_contents ();
 
 	default:
 		g_critical ("This TrackerDB type:%d->'%s' has no interface set up yet!!",
-			    db,
-			    db_type_to_string (db));
+		            db,
+		            db_type_to_string (db));
 		return NULL;
 	}
 }
@@ -848,7 +848,7 @@ db_manager_remove_all (gboolean rm_backup_and_log, gboolean not_meta)
 	g_message ("Removing all database files");
 
 	/* NOTE: We don't have to be initialized for this so we
-	 * calculate the absolute directories here. 
+	 * calculate the absolute directories here.
 	 */
 	for (i = 1; i < G_N_ELEMENTS (dbs); i++) {
 
@@ -857,7 +857,7 @@ db_manager_remove_all (gboolean rm_backup_and_log, gboolean not_meta)
 		}
 
 		g_message ("  Removing database:'%s'",
-			   dbs[i].abs_filename);
+		           dbs[i].abs_filename);
 		g_unlink (dbs[i].abs_filename);
 	}
 
@@ -869,13 +869,13 @@ db_manager_remove_all (gboolean rm_backup_and_log, gboolean not_meta)
 		file = tracker_db_backup_file (NULL, TRACKER_DB_BACKUP_META_FILENAME);
 		path = g_file_get_path (file);
 		g_message ("  Removing database:'%s'",
-			   path);
+		           path);
 		g_free (path);
 		g_file_delete (file, NULL, NULL);
 		g_object_unref (file);
 		cpath = tracker_db_journal_filename ();
 		g_message ("  Removing database:'%s'",
-			   cpath);
+		           cpath);
 		file = g_file_new_for_path (cpath);
 		g_file_delete (file, NULL, NULL);
 		g_object_unref (file);
@@ -901,7 +901,7 @@ db_get_version (void)
 				g_message ("  Version file content size is either 0 or bigger than expected");
 
 				version = TRACKER_DB_VERSION_UNKNOWN;
-			} 
+			}
 
 			g_free (contents);
 		} else {
@@ -935,7 +935,7 @@ db_set_version (void)
 
 	if (!g_file_set_contents (filename, str, -1, &error)) {
 		g_message ("  Could not set file contents, %s",
-			   error ? error->message : "no error given");
+		           error ? error->message : "no error given");
 		g_clear_error (&error);
 	}
 
@@ -1026,7 +1026,7 @@ check_meta_backup (gboolean *did_copy)
 
 	/* This is currently the only test for need_journal. We should add a
 	 * couple tests that test meta.db against consistenty, and if not
-	 * good, copy meta-backup.db over and set need_journal (being less 
+	 * good, copy meta-backup.db over and set need_journal (being less
 	 * conservative about using the backup, and not trusting the meta.db
 	 * as much as we do right now) */
 
@@ -1079,18 +1079,18 @@ check_meta_backup (gboolean *did_copy)
 }
 
 gboolean
-tracker_db_manager_init (TrackerDBManagerFlags	flags,
-			 gboolean	       *first_time,
-			 gboolean	        shared_cache,
-			 gboolean	       *need_journal)
+tracker_db_manager_init (TrackerDBManagerFlags  flags,
+                         gboolean              *first_time,
+                         gboolean               shared_cache,
+                         gboolean              *need_journal)
 {
-	GType		    etype;
+	GType               etype;
 	TrackerDBVersion    version;
-	gchar		   *filename;
-	const gchar	   *dir;
+	gchar              *filename;
+	const gchar        *dir;
 	const gchar        *env_path;
-	gboolean	    need_reindex, did_copy = FALSE;
-	guint		    i;
+	gboolean            need_reindex, did_copy = FALSE;
+	guint               i;
 
 	/* First set defaults for return values */
 	if (first_time) {
@@ -1127,23 +1127,23 @@ tracker_db_manager_init (TrackerDBManagerFlags	flags,
 	g_free (filename);
 
 	env_path = g_getenv ("TRACKER_DB_SQL_DIR");
-	
+
 	if (G_UNLIKELY (!env_path)) {
 		sql_dir = g_build_filename (SHAREDIR,
-					    "tracker",
-					    NULL);
+		                            "tracker",
+		                            NULL);
 	} else {
 		sql_dir = g_strdup (env_path);
 	}
-	
+
 	user_data_dir = g_build_filename (g_get_user_data_dir (),
-					  "tracker",
-					  "data",
-					  NULL);
-	
+	                                  "tracker",
+	                                  "data",
+	                                  NULL);
+
 	data_dir = g_build_filename (g_get_user_cache_dir (),
-				     "tracker",
-				     NULL);
+	                             "tracker",
+	                             NULL);
 
 	/* Make sure the directories exist */
 	g_message ("Checking database directories exist");
@@ -1162,7 +1162,7 @@ tracker_db_manager_init (TrackerDBManagerFlags	flags,
 	}
 
 	if (need_reindex) {
-		db_set_version ();	
+		db_set_version ();
 	}
 
 	g_message ("Checking database files exist");
@@ -1202,7 +1202,7 @@ tracker_db_manager_init (TrackerDBManagerFlags	flags,
 	}
 
 	/* If we are just initializing to remove the databases,
-	 * return here. 
+	 * return here.
 	 */
 	if ((flags & TRACKER_DB_MANAGER_REMOVE_ALL) != 0) {
 		initialized = TRUE;
@@ -1241,7 +1241,7 @@ tracker_db_manager_init (TrackerDBManagerFlags	flags,
 
 		/* In cases where we re-init this module, make sure
 		 * we have cleaned up the ontology before we load all
-		* new databases.
+		 * new databases.
 		 */
 		tracker_ontology_shutdown ();
 
@@ -1282,14 +1282,14 @@ tracker_db_manager_init (TrackerDBManagerFlags	flags,
 
 	if (flags & TRACKER_DB_MANAGER_READONLY) {
 		resources_iface = tracker_db_manager_get_db_interfaces_ro (3,
-								    TRACKER_DB_METADATA,
-								    TRACKER_DB_FULLTEXT,
-								    TRACKER_DB_CONTENTS);
+		                                                           TRACKER_DB_METADATA,
+		                                                           TRACKER_DB_FULLTEXT,
+		                                                           TRACKER_DB_CONTENTS);
 	} else {
 		resources_iface = tracker_db_manager_get_db_interfaces (3,
-								    TRACKER_DB_METADATA,
-								    TRACKER_DB_FULLTEXT,
-								    TRACKER_DB_CONTENTS);
+		                                                        TRACKER_DB_METADATA,
+		                                                        TRACKER_DB_FULLTEXT,
+		                                                        TRACKER_DB_CONTENTS);
 	}
 
 	if (did_copy) {
@@ -1299,48 +1299,48 @@ tracker_db_manager_init (TrackerDBManagerFlags	flags,
 	return TRUE;
 }
 
-void 
+void
 tracker_db_manager_disconnect (void)
 {
 	if (resources_iface) {
 		guint i;
 		TrackerDB attachments[2] = { TRACKER_DB_FULLTEXT,
-					     TRACKER_DB_CONTENTS };
+		                             TRACKER_DB_CONTENTS };
 
 		for (i = 0; i < 2; i++) {
 			TrackerDB db = attachments [i];
 
 			db_exec_no_reply (resources_iface,
-					  "DETACH '%s'",
-					  dbs[db].name);
+			                  "DETACH '%s'",
+			                  dbs[db].name);
 		}
 
 		tracker_db_interface_disconnect (resources_iface);
 	}
 }
 
-void 
+void
 tracker_db_manager_reconnect (void)
 {
 	if (resources_iface) {
 		guint i;
 		TrackerDB attachments[2] = { TRACKER_DB_FULLTEXT,
-					     TRACKER_DB_CONTENTS };
+		                             TRACKER_DB_CONTENTS };
 
 		tracker_db_interface_reconnect (resources_iface);
 
 		db_set_params (resources_iface,
-			       dbs[TRACKER_DB_METADATA].cache_size,
-			       dbs[TRACKER_DB_METADATA].page_size,
-			       TRUE);
+		               dbs[TRACKER_DB_METADATA].cache_size,
+		               dbs[TRACKER_DB_METADATA].page_size,
+		               TRUE);
 
 		for (i = 0; i < 2; i++) {
 			TrackerDB db = attachments [i];
 
 			db_exec_no_reply (resources_iface,
-					  "ATTACH '%s' as '%s'",
-					  dbs[db].abs_filename,
-					  dbs[db].name);
+			                  "ATTACH '%s' as '%s'",
+			                  dbs[db].abs_filename,
+			                  dbs[db].name);
 		}
 	}
 }
@@ -1399,7 +1399,7 @@ void
 tracker_db_manager_remove_all (gboolean rm_backup_and_log)
 {
 	g_return_if_fail (initialized != FALSE);
-	
+
 	db_manager_remove_all (rm_backup_and_log, FALSE);
 }
 
@@ -1419,9 +1419,9 @@ tracker_db_manager_optimize (void)
 	for (i = 1; i < G_N_ELEMENTS (dbs); i++) {
 		if (G_OBJECT (dbs[i].iface)->ref_count > 1) {
 			g_message ("  DB:'%s' is still open with %d references!",
-				   dbs[i].name,
-				   G_OBJECT (dbs[i].iface)->ref_count);
-				   
+			           dbs[i].name,
+			           G_OBJECT (dbs[i].iface)->ref_count);
+
 			dbs_are_open = TRUE;
 		}
 	}
@@ -1458,8 +1458,8 @@ tracker_db_manager_get_file (TrackerDB db)
 static TrackerDBInterface *
 tracker_db_manager_get_db_interfaces (gint num, ...)
 {
-	gint		    n_args;
-	va_list		    args;
+	gint                n_args;
+	va_list                     args;
 	TrackerDBInterface *connection = NULL;
 
 	g_return_val_if_fail (initialized != FALSE, NULL);
@@ -1472,15 +1472,15 @@ tracker_db_manager_get_db_interfaces (gint num, ...)
 			connection = tracker_db_interface_sqlite_new (dbs[db].abs_filename);
 
 			db_set_params (connection,
-				       dbs[db].cache_size,
-				       dbs[db].page_size,
-				       TRUE);
+			               dbs[db].cache_size,
+			               dbs[db].page_size,
+			               TRUE);
 
 		} else {
 			db_exec_no_reply (connection,
-					  "ATTACH '%s' as '%s'",
-					  dbs[db].abs_filename,
-					  dbs[db].name);
+			                  "ATTACH '%s' as '%s'",
+			                  dbs[db].abs_filename,
+			                  dbs[db].name);
 		}
 
 	}
@@ -1492,8 +1492,8 @@ tracker_db_manager_get_db_interfaces (gint num, ...)
 static TrackerDBInterface *
 tracker_db_manager_get_db_interfaces_ro (gint num, ...)
 {
-	gint		    n_args;
-	va_list		    args;
+	gint                n_args;
+	va_list                     args;
 	TrackerDBInterface *connection = NULL;
 
 	g_return_val_if_fail (initialized != FALSE, NULL);
@@ -1505,14 +1505,14 @@ tracker_db_manager_get_db_interfaces_ro (gint num, ...)
 		if (!connection) {
 			connection = tracker_db_interface_sqlite_new_ro (dbs[db].abs_filename);
 			db_set_params (connection,
-				       dbs[db].cache_size,
-				       dbs[db].page_size,
-				       TRUE);
+			               dbs[db].cache_size,
+			               dbs[db].page_size,
+			               TRUE);
 		} else {
 			db_exec_no_reply (connection,
-					  "ATTACH '%s' as '%s'",
-					  dbs[db].abs_filename,
-					  dbs[db].name);
+			                  "ATTACH '%s' as '%s'",
+			                  dbs[db].abs_filename,
+			                  dbs[db].name);
 		}
 
 	}

@@ -35,13 +35,13 @@ typedef struct {
 	gboolean   on_low_battery;
 } TrackerPowerPriv;
 
-static void	tracker_power_finalize		(GObject	 *object);
-static void	tracker_power_get_property	(GObject	 *object,
-						 guint		  param_id,
-						 GValue		 *value,
-						 GParamSpec	 *pspec);
-static void	tracker_power_client_changed_cb (DkpClient	 *client,
-						 TrackerPower	 *power);
+static void     tracker_power_finalize          (GObject         *object);
+static void     tracker_power_get_property      (GObject         *object,
+                                                 guint            param_id,
+                                                 GValue                  *value,
+                                                 GParamSpec      *pspec);
+static void     tracker_power_client_changed_cb (DkpClient       *client,
+                                                 TrackerPower    *power);
 
 enum {
 	PROP_0,
@@ -59,33 +59,33 @@ tracker_power_class_init (TrackerPowerClass *klass)
 
 	object_class = G_OBJECT_CLASS (klass);
 
-	object_class->finalize	   = tracker_power_finalize;
+	object_class->finalize     = tracker_power_finalize;
 	object_class->get_property = tracker_power_get_property;
 
 	g_object_class_install_property (object_class,
-					 PROP_ON_BATTERY,
-					 g_param_spec_boolean ("on-battery",
-							       "Battery in use",
-							       "Whether the battery is being used",
-							       FALSE,
-							       G_PARAM_READABLE));
+	                                 PROP_ON_BATTERY,
+	                                 g_param_spec_boolean ("on-battery",
+	                                                       "Battery in use",
+	                                                       "Whether the battery is being used",
+	                                                       FALSE,
+	                                                       G_PARAM_READABLE));
 
 	g_object_class_install_property (object_class,
-					 PROP_ON_LOW_BATTERY,
-					 g_param_spec_boolean ("on-low-battery",
-							      "Battery low",
-							      "Whether the battery is low",
-							      FALSE,
-							      G_PARAM_READABLE));
+	                                 PROP_ON_LOW_BATTERY,
+	                                 g_param_spec_boolean ("on-low-battery",
+	                                                       "Battery low",
+	                                                       "Whether the battery is low",
+	                                                       FALSE,
+	                                                       G_PARAM_READABLE));
 	g_object_class_install_property (object_class,
-					 PROP_BATTERY_PERCENTAGE,
-					 g_param_spec_double ("battery-percentage",
-							      "Battery percentage",
-							      "Current battery percentage left",
-							      0.0,
-							      1.0,
-							      0.0,
-							      G_PARAM_READABLE));
+	                                 PROP_BATTERY_PERCENTAGE,
+	                                 g_param_spec_double ("battery-percentage",
+	                                                      "Battery percentage",
+	                                                      "Current battery percentage left",
+	                                                      0.0,
+	                                                      1.0,
+	                                                      0.0,
+	                                                      G_PARAM_READABLE));
 
 	g_type_class_add_private (object_class, sizeof (TrackerPowerPriv));
 }
@@ -102,7 +102,7 @@ tracker_power_init (TrackerPower *power)
 	/* connect to a DeviceKit-power instance */
 	priv->client = dkp_client_new ();
 	g_signal_connect (priv->client, "changed",
-			  G_CALLBACK (tracker_power_client_changed_cb), power);
+	                  G_CALLBACK (tracker_power_client_changed_cb), power);
 
 	/* coldplug */
 	priv->on_battery = dkp_client_on_battery (priv->client);
@@ -123,9 +123,9 @@ tracker_power_finalize (GObject *object)
 
 static void
 tracker_power_get_property (GObject    *object,
-			    guint       param_id,
-			    GValue     *value,
-			    GParamSpec *pspec)
+                            guint       param_id,
+                            GValue     *value,
+                            GParamSpec *pspec)
 {
 	TrackerPowerPriv *priv;
 

@@ -64,9 +64,9 @@ parse_file (const gchar *filename)
 	gint fd;
 
 	testdata = g_hash_table_new_full (g_str_hash,
-					  g_str_equal,
-					  g_free,
-					  g_free);
+	                                  g_str_equal,
+	                                  g_free,
+	                                  g_free);
 
 	fd = g_open (filename, O_RDONLY);
 
@@ -83,7 +83,7 @@ parse_file (const gchar *filename)
 			gchar key[256];
 
 			strcpy (key, scanner->value.v_identifier);
-			
+
 			ttype = g_scanner_get_next_token(scanner);
 			g_assert (ttype == G_TOKEN_EQUAL_SIGN);
 
@@ -91,14 +91,14 @@ parse_file (const gchar *filename)
 
 			switch (ttype) {
 			case G_TOKEN_STRING:
-				g_hash_table_insert (testdata, 
-						     g_strdup(key), 
-						     g_strdup(scanner->value.v_string));
+				g_hash_table_insert (testdata,
+				                     g_strdup(key),
+				                     g_strdup(scanner->value.v_string));
 				break;
-				
+
 			default:
 				g_assert_not_reached();
-				
+
 			}
 		}
 	}
@@ -111,7 +111,7 @@ parse_file (const gchar *filename)
 
 static void
 dump_metadata_item (const gchar *key,
-		    const gchar *value)
+                    const gchar *value)
 {
 	gchar *value_utf8;
 
@@ -150,8 +150,8 @@ dump_metadata (GPtrArray *metadata)
 
 static void
 check_metadata (GPtrArray   *metadata,
-		const gchar *key,
-		const gchar *value)
+                const gchar *key,
+                const gchar *value)
 {
 	GValueArray *statement;
 	const gchar *subject, *predicate, *object;
@@ -208,7 +208,7 @@ tracker_test_extract_get_extract (const gchar *path, const gchar *mime)
 	} else {
 		g_error ("Could not get accesspoint to the module");
 		return;
-	}	
+	}
 
 	/* Search for exact match first */
 	data_iter = data;
@@ -231,7 +231,7 @@ tracker_test_extract_get_extract (const gchar *path, const gchar *mime)
 	return NULL;
 }
 
-static void 
+static void
 free_statements (GPtrArray *metadata)
 {
 	guint i;
@@ -246,9 +246,9 @@ free_statements (GPtrArray *metadata)
 }
 
 void
-tracker_test_extract_file (const TrackerExtractData *data, 
-			   const gchar              *file, 
-			   const gchar              *test_data_file)
+tracker_test_extract_file (const TrackerExtractData *data,
+                           const gchar              *file,
+                           const gchar              *test_data_file)
 {
 	GPtrArray  *metadata;
 	GHashTable *test_data;
@@ -290,8 +290,8 @@ tracker_test_extract_file (const TrackerExtractData *data,
 
 void
 tracker_test_extract_file_performance (const TrackerExtractData *data,
-				       const gchar              *file_match, 
-				       guint                     file_count)
+                                       const gchar              *file_match,
+                                       guint                     file_count)
 {
 	double perftime;
 	guint i;
@@ -299,7 +299,7 @@ tracker_test_extract_file_performance (const TrackerExtractData *data,
 	g_assert (data != NULL);
 	g_assert (file_match != NULL);
 	g_assert (file_count > 0);
-	
+
 	g_test_timer_start ();
 
 	for (i = 1; i <= file_count; i++) {
@@ -320,7 +320,7 @@ tracker_test_extract_file_performance (const TrackerExtractData *data,
 		uri = g_filename_to_uri (filename, NULL, NULL);
 		(*data->extract) (uri, metadata);
 		g_free (uri);
-		
+
 		g_assert (metadata->len > 0);
 
 		free_statements (metadata);
@@ -335,16 +335,16 @@ tracker_test_extract_file_performance (const TrackerExtractData *data,
 }
 
 void
-tracker_test_extract_file_access (const TrackerExtractData *data, 
-				  const gchar              *file_match, 
-				  guint                     file_count)
+tracker_test_extract_file_access (const TrackerExtractData *data,
+                                  const gchar              *file_match,
+                                  guint                     file_count)
 {
 	guint i;
 
 	g_assert (data != NULL);
 	g_assert (file_match != NULL);
 	g_assert (file_count > 0);
-	
+
 	for (i = 1; i <= file_count; i++) {
 		gchar *uri;
 		GPtrArray *metadata;

@@ -60,7 +60,7 @@ def main():
 
      print ""
 
-     for klass in service.sections():    
+     for klass in service.sections():
         splitted = klass.split (":")
         print "\t<rdfs:Class rdf:about=\"" + uri + "/" + splitted[0] + "#" + splitted[1] + "\">"
         print "\t\t<rdfs:label>" + splitted[1] + "</rdfs:label>"

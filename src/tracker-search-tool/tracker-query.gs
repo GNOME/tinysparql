@@ -21,7 +21,7 @@
 
 
 [DBus (name = "org.freedesktop.Tracker1.Resources")]
-interface Resources : GLib.Object 
+interface Resources : GLib.Object
     def abstract SparqlQuery (query : string) : array of string[,]  raises DBus.Error
     def abstract SparqlUpdate (query : string) raises DBus.Error
 
@@ -31,8 +31,8 @@ class TrackerQuery : Object
     tracker : Resources;
     _SearchTerms : string
 
-    event SearchSettingsChanged ()   
-    event ClearSearchResults () 
+    event SearchSettingsChanged ()
+    event ClearSearchResults ()
 
     prop SearchTerms : string
         get
@@ -40,59 +40,59 @@ class TrackerQuery : Object
         set
             if value is not null
                 _SearchTerms = value
-                 
+
     prop Category : string
     prop SortField : string
     prop Fields : array of string
-    
-    
+
+
     init
         Category = "All"
-    
+
          self.notify += def (t, propety)
             if propety.name is "Category" or  propety.name is "SortField" or propety.name is "Fields"
                 SearchSettingsChanged ()
-            else 
-                if propety.name is "SearchTerms" 
-                    if SearchTerms is null or SearchTerms.length < 3   
+            else
+                if propety.name is "SearchTerms"
+                    if SearchTerms is null or SearchTerms.length < 3
                         ClearSearchResults ()
-                    else 
+                    else
                         SearchSettingsChanged ()
-                        
+
 
     def Connect () : bool
-        
-        try    
+
+        try
             var conn = DBus.Bus.get (DBus.BusType.SESSION)
             tracker = conn.get_object ("org.freedesktop.Tracker1", "/org/freedesktop/Tracker1/Resources", "org.freedesktop.Tracker1.Resources") as Resources
         except e : DBus.Error
             print "Cannot connect to Session bus. Error is %s", e.message
             return false
-            
+
         return true
-       
-       
+
+
     def Search () : array of string[,]?
-    
+
         cat, query : string
-    
-        if Category is null or Category is "All"    
+
+        if Category is null or Category is "All"
             cat = "nfo:FileDataObject"
         else
             cat = Category
-            
-        query = "SELECT ?s WHERE { ?s fts:match \"%s\". ?s a %s } limit 100 ".printf (SearchTerms, cat)   
+
+        query = "SELECT ?s WHERE { ?s fts:match \"%s\". ?s a %s } limit 100 ".printf (SearchTerms, cat)
 
         // to do : add Fields, Category and SortField
         try
             return tracker.SparqlQuery (query)
         except e:DBus.Error
             print "Dbus error : %s", e.message
-            
-        return null    
+
+        return null
 
 
-        
+
     def Query (sparql : string) : array of string[,]?
         try
             return tracker.SparqlQuery (sparql)
@@ -100,9 +100,3 @@ class TrackerQuery : Object
             print "Dbus error : %s", e.message
 
         return null
-        
-        
-        
-  
-        
-            

@@ -42,8 +42,8 @@
 
 #ifndef HAVE_STRCASESTR
 static gchar *
-strcasestr (const gchar *haystack, 
-	    const gchar *needle)
+strcasestr (const gchar *haystack,
+            const gchar *needle)
 {
 	gchar *p;
 	gchar *startn = NULL;
@@ -213,23 +213,23 @@ get_orientation (ExifData *exif, ExifTag tag)
 		for (i=0; i < 8; i++) {
 			if (g_strcmp0 (buf, ostr[i]) == 0) {
 				switch (i) {
-					case 0:
+				case 0:
 					return g_strdup ("nfo:orientation-top");
-					case 1:
+				case 1:
 					return g_strdup ("nfo:orientation-top-mirror");
-					case 2:
+				case 2:
 					return g_strdup ("nfo:orientation-bottom");
-					case 3:
+				case 3:
 					return g_strdup ("nfo:orientation-bottom-mirror");
-					case 4:
+				case 4:
 					return g_strdup ("nfo:orientation-left-mirror");
-					case 5:
+				case 5:
 					return g_strdup ("nfo:orientation-right");
-					case 6:
+				case 6:
 					return g_strdup ("nfo:orientation-right-mirror");
-					case 7:
+				case 7:
 					return g_strdup ("nfo:orientation-left");
-					default:
+				default:
 					break;
 				}
 			}
@@ -326,7 +326,7 @@ get_value (ExifData *exif, ExifTag tag)
 
 void
 tracker_read_exif (const unsigned char *buffer,
-                   size_t		len,
+                   size_t               len,
                    const gchar         *uri,
                    TrackerExifData     *data)
 {
@@ -342,12 +342,12 @@ tracker_read_exif (const unsigned char *buffer,
 	exif_data_load_data (exif, (unsigned char *) buffer, len);
 
 	/* Unused in the current only user of this code (JPeg extractor)
-	if (!data->y_dimension)
-		data->y_dimension = get_value (exif, EXIF_TAG_PIXEL_Y_DIMENSION);
-	if (!data->x_dimension)
-		data->x_dimension = get_value (exif, EXIF_TAG_PIXEL_X_DIMENSION);
-	if (!data->image_width)
-		data->image_width = get_value (exif, EXIF_TAG_RELATED_IMAGE_WIDTH);
+	   if (!data->y_dimension)
+	   data->y_dimension = get_value (exif, EXIF_TAG_PIXEL_Y_DIMENSION);
+	   if (!data->x_dimension)
+	   data->x_dimension = get_value (exif, EXIF_TAG_PIXEL_X_DIMENSION);
+	   if (!data->image_width)
+	   data->image_width = get_value (exif, EXIF_TAG_RELATED_IMAGE_WIDTH);
 	*/
 
 	if (!data->document_name)

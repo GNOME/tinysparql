@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <node name="/">
-  <interface name="org.freedesktop.Tracker1.Resources.Class"> 
+  <interface name="org.freedesktop.Tracker1.Resources.Class">
 
     <!-- Signal for changed subjects -->
 

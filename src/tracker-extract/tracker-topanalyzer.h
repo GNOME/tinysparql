@@ -17,7 +17,7 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA  02110-1301, USA.
  *
-  * Authors: Philip Van Hoof <philip@codeminded.be>
+ * Authors: Philip Van Hoof <philip@codeminded.be>
  */
 
 #ifndef _TRACKER_TOPANALYZER_H_
@@ -28,8 +28,8 @@
 G_BEGIN_DECLS
 
 void tracker_topanalyzer_init     (void);
-void tracker_topanalyzer_extract  (const gchar *uri, 
-                                   TrackerSparqlBuilder *metadata, 
+void tracker_topanalyzer_extract  (const gchar *uri,
+                                   TrackerSparqlBuilder *metadata,
                                    gchar **content_type);
 void tracker_topanalyzer_shutdown (void);
 

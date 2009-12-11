@@ -35,29 +35,29 @@ G_BEGIN_DECLS
 #endif
 
 /* Core ontologies */
-#define TRACKER_RDF_PREFIX	"http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-#define TRACKER_RDFS_PREFIX	"http://www.w3.org/2000/01/rdf-schema#"
+#define TRACKER_RDF_PREFIX      "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+#define TRACKER_RDFS_PREFIX     "http://www.w3.org/2000/01/rdf-schema#"
 #define TRACKER_XSD_PREFIX      "http://www.w3.org/2001/XMLSchema#"
-#define TRACKER_TRACKER_PREFIX	"http://www.tracker-project.org/ontologies/tracker#"
-#define TRACKER_DC_PREFIX	"http://purl.org/dc/elements/1.1/"
-#define TRACKER_MAEMO_PREFIX	"http://maemo.org/ontologies/tracker#"
+#define TRACKER_TRACKER_PREFIX  "http://www.tracker-project.org/ontologies/tracker#"
+#define TRACKER_DC_PREFIX       "http://purl.org/dc/elements/1.1/"
+#define TRACKER_MAEMO_PREFIX    "http://maemo.org/ontologies/tracker#"
 
 /* Our Nepomuk selection */
-#define TRACKER_NRL_PREFIX	"http://www.semanticdesktop.org/ontologies/2007/08/15/nrl#"
-#define TRACKER_NMO_PREFIX	"http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#"
-#define TRACKER_NIE_PREFIX	"http://www.semanticdesktop.org/ontologies/2007/01/19/nie#"
-#define TRACKER_NCO_PREFIX	"http://www.semanticdesktop.org/ontologies/2007/03/22/nco#"
-#define TRACKER_NAO_PREFIX	"http://www.semanticdesktop.org/ontologies/2007/08/15/nao#"
-#define TRACKER_NID3_PREFIX	"http://www.semanticdesktop.org/ontologies/2007/05/10/nid3#"
-#define TRACKER_NFO_PREFIX	"http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#"
+#define TRACKER_NRL_PREFIX      "http://www.semanticdesktop.org/ontologies/2007/08/15/nrl#"
+#define TRACKER_NMO_PREFIX      "http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#"
+#define TRACKER_NIE_PREFIX      "http://www.semanticdesktop.org/ontologies/2007/01/19/nie#"
+#define TRACKER_NCO_PREFIX      "http://www.semanticdesktop.org/ontologies/2007/03/22/nco#"
+#define TRACKER_NAO_PREFIX      "http://www.semanticdesktop.org/ontologies/2007/08/15/nao#"
+#define TRACKER_NID3_PREFIX     "http://www.semanticdesktop.org/ontologies/2007/05/10/nid3#"
+#define TRACKER_NFO_PREFIX      "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#"
 
 /* Temporary */
-#define TRACKER_NMM_PREFIX	"http://www.tracker-project.org/temp/nmm#"
+#define TRACKER_NMM_PREFIX      "http://www.tracker-project.org/temp/nmm#"
 
-#define TRACKER_DATASOURCE_URN_PREFIX \
-	                        "urn:nepomuk:datasource:"
-#define TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN \
-	                        TRACKER_DATASOURCE_URN_PREFIX "9291a450-1d49-11de-8c30-0800200c9a66"
+#define TRACKER_DATASOURCE_URN_PREFIX	  \
+	"urn:nepomuk:datasource:"
+#define TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN	  \
+	TRACKER_DATASOURCE_URN_PREFIX "9291a450-1d49-11de-8c30-0800200c9a66"
 
 void               tracker_ontology_init                 (void);
 void               tracker_ontology_shutdown             (void);

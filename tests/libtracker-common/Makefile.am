@@ -7,7 +7,7 @@ noinst_PROGRAMS = $(TEST_PROGS)
 # 	because make distcheck fails. The reason for this is that it
 # 	depends files being installed to $prefix/share which have not
 # 	been installed at this point.
-# 
+#
 #       These tests include:
 #
 #	  tracker-field
@@ -44,7 +44,7 @@ tracker_dbus_LDADD =							\
 	$(GCOV_LIBS)
 
 tracker_type_utils_SOURCES = \
-	tracker-type-utils-test.c 
+	tracker-type-utils-test.c
 
 tracker_type_utils_LDADD =						\
 	$(top_builddir)/tests/common/libtracker-testcommon.la 		\
@@ -56,7 +56,7 @@ tracker_type_utils_LDADD =						\
 	$(GCOV_LIBS)
 
 tracker_file_utils_SOURCES = 						\
-	tracker-file-utils-test.c 
+	tracker-file-utils-test.c
 
 tracker_file_utils_LDADD =						\
 	$(top_builddir)/tests/common/libtracker-testcommon.la 		\
@@ -68,7 +68,7 @@ tracker_file_utils_LDADD =						\
 	$(GCOV_LIBS)
 
 # tracker_property_SOURCES = 						\
-# 	tracker-field-test.c 
+# 	tracker-field-test.c
 #
 # tracker_property_LDADD =							\
 # 	$(top_builddir)/tests/common/libtracker-testcommon.la 		\

@@ -38,9 +38,9 @@ test_custom_common_filemeta_filecontents ()
 	TrackerDBInterface *iface;
 
 	iface = tracker_db_manager_get_db_interfaces (3,
-						      TRACKER_DB_COMMON,
-						      TRACKER_DB_FILE_METADATA,
-						      TRACKER_DB_FILE_CONTENTS);
+	                                              TRACKER_DB_COMMON,
+	                                              TRACKER_DB_FILE_METADATA,
+	                                              TRACKER_DB_FILE_CONTENTS);
 
 	test_assert_tables_in_db (iface, "SELECT * FROM MetadataTypes");
 	test_assert_tables_in_db (iface, "SELECT * FROM ServiceMetadata");
@@ -60,10 +60,10 @@ main (int argc, char **argv) {
 
 	/* Init */
 	tracker_db_manager_init (TRACKER_DB_MANAGER_FORCE_REINDEX,
-				 &first_time);
+	                         &first_time);
 
 	g_test_add_func ("/libtracker-db/tracker-db-manager/custom/common_filemeta_filecontents",
-			test_custom_common_filemeta_filecontents);
+	                 test_custom_common_filemeta_filecontents);
 
 	result = g_test_run ();
 

@@ -35,11 +35,11 @@
  *
  **/
 void
-tracker_render_emblem_pixbuf_cb (GtkCellLayout			*cell_layout,
-				 GtkCellRenderer		*cell,
-				 GtkTreeModel			*tree_model,
-				 GtkTreeIter			*iter,
-				 gpointer			icon_theme)
+tracker_render_emblem_pixbuf_cb (GtkCellLayout                  *cell_layout,
+                                 GtkCellRenderer                *cell,
+                                 GtkTreeModel                   *tree_model,
+                                 GtkTreeIter                    *iter,
+                                 gpointer                       icon_theme)
 {
 	char *stock_id;
 	GdkPixbuf *pixbuf;

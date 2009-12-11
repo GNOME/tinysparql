@@ -65,14 +65,14 @@
 #include "mingw-compat.h"
 #endif
 
-#define ABOUT								  \
+#define ABOUT	  \
 	"Tracker " PACKAGE_VERSION "\n"
 
-#define LICENSE								  \
+#define LICENSE	  \
 	"This program is free software and comes without any warranty.\n" \
-	"It is licensed under version 2 or later of the General Public "  \
-	"License which can be viewed at:\n"				  \
-	"\n"								  \
+	"It is licensed under version 2 or later of the General Public " \
+	"License which can be viewed at:\n" \
+	"\n" \
 	"  http://www.gnu.org/licenses/gpl.txt\n"
 
 typedef struct {
@@ -143,13 +143,13 @@ sanity_check_option_values (TrackerConfig *config)
 {
 	g_message ("General options:");
 	g_message ("  Verbosity  ............................  %d",
-		   tracker_config_get_verbosity (config));
+	           tracker_config_get_verbosity (config));
 	g_message ("  Low memory mode  ......................  %s",
-		   tracker_config_get_low_memory_mode (config) ? "yes" : "no");
+	           tracker_config_get_low_memory_mode (config) ? "yes" : "no");
 
 	g_message ("Store options:");
 	g_message ("  Readonly mode  ........................  %s",
-		   readonly_mode ? "yes" : "no");
+	           readonly_mode ? "yes" : "no");
 }
 
 static void
@@ -197,8 +197,8 @@ signal_handler (int signo)
 		if (g_strsignal (signo)) {
 			g_print ("\n");
 			g_print ("Received signal:%d->'%s'",
-				 signo,
-				 g_strsignal (signo));
+			         signo,
+			         g_strsignal (signo));
 		}
 		break;
 	}
@@ -209,7 +209,7 @@ initialize_signal_handler (void)
 {
 #ifndef G_OS_WIN32
 	struct sigaction act;
-	sigset_t	 empty_mask;
+	sigset_t         empty_mask;
 
 	sigemptyset (&empty_mask);
 	act.sa_handler = signal_handler;
@@ -279,14 +279,14 @@ get_notifiable_classes (void)
 
 	result_set = tracker_data_query_sparql ("SELECT ?class WHERE { "
 	                                        "  ?class tracker:notify true "
-	                                        "}", 
+	                                        "}",
 	                                        NULL);
 
 	if (result_set) {
 		guint count = 0;
 
-		classes_to_signal = tracker_dbus_query_result_to_strv (result_set, 
-		                                                       0, 
+		classes_to_signal = tracker_dbus_query_result_to_strv (result_set,
+		                                                       0,
 		                                                       &count);
 		g_object_unref (result_set);
 	}
@@ -303,14 +303,14 @@ get_writeback_predicates (void)
 
 	result_set = tracker_data_query_sparql ("SELECT ?predicate WHERE { "
 	                                        "  ?predicate tracker:writeback true "
-	                                        "}", 
+	                                        "}",
 	                                        NULL);
 
 	if (result_set) {
 		guint count = 0;
 
-		predicates_to_signal = tracker_dbus_query_result_to_strv (result_set, 
-		                                                          0, 
+		predicates_to_signal = tracker_dbus_query_result_to_strv (result_set,
+		                                                          0,
 		                                                          &count);
 		g_object_unref (result_set);
 	}
@@ -337,8 +337,8 @@ main (gint argc, gchar *argv[])
 
 	private = g_new0 (TrackerMainPrivate, 1);
 	g_static_private_set (&private_key,
-			      private,
-			      private_free);
+	                      private,
+	                      private_free);
 
 	dbus_g_thread_init ();
 
@@ -350,7 +350,7 @@ main (gint argc, gchar *argv[])
 
 	/* Set timezone info */
 	tzset ();
-	
+
 	/* Translators: this messagge will apper immediately after the
 	 * usage string - Usage: COMMAND <THIS_MESSAGE>
 	 */
@@ -384,12 +384,12 @@ main (gint argc, gchar *argv[])
 	initialize_priority ();
 
 	/* Public locations */
-	private->ttl_backup_file = 
+	private->ttl_backup_file =
 		g_build_filename (g_get_user_data_dir (),
-				  "tracker",
-				  "data",
-				  "tracker-userdata-backup.ttl",
-				  NULL);
+		                  "tracker",
+		                  "data",
+		                  "tracker-userdata-backup.ttl",
+		                  NULL);
 
 	/* Initialize major subsystems */
 	config = tracker_config_new ();
@@ -411,7 +411,7 @@ main (gint argc, gchar *argv[])
 
 	/* Initialize other subsystems */
 	tracker_log_init (tracker_config_get_verbosity (config),
-			  &private->log_filename);
+	                  &private->log_filename);
 	g_print ("Starting log:\n  File:'%s'\n", private->log_filename);
 
 	sanity_check_option_values (config);
@@ -420,7 +420,7 @@ main (gint argc, gchar *argv[])
 
 	if (force_reindex) {
 		/* TODO port backup support
-		backup_user_metadata (config, language); */
+		   backup_user_metadata (config, language); */
 
 		flags |= TRACKER_DB_MANAGER_FORCE_REINDEX;
 	}
@@ -429,9 +429,9 @@ main (gint argc, gchar *argv[])
 		flags |= TRACKER_DB_MANAGER_LOW_MEMORY_MODE;
 	}
 
-	if (!tracker_data_manager_init (flags, 
-					NULL, 
-					&is_first_time_index, 
+	if (!tracker_data_manager_init (flags,
+	                                NULL,
+	                                &is_first_time_index,
 	                                &need_journal)) {
 		return EXIT_FAILURE;
 	}
@@ -462,7 +462,7 @@ main (gint argc, gchar *argv[])
 		g_main_loop_run (private->main_loop);
 	}
 
-shutdown:
+ shutdown:
 	/*
 	 * Shutdown the daemon
 	 */

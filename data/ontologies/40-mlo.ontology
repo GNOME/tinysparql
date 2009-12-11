@@ -90,7 +90,7 @@ mlo:routeDetails a rdf:Property ;
     rdfs:label "Pointer to a file containing route details (e.g. KML file)." ;
     rdfs:comment "FIXME Domain can be resource if we handle map-files correctly in the ontology";
     rdfs:domain mlo:Route ;
-    rdfs:range  xsd:string . 
+    rdfs:range  xsd:string .
 
 
 # FIXME Domain rdfs:Resource?? to link files and not only content?

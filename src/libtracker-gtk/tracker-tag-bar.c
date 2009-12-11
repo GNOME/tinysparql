@@ -108,9 +108,9 @@ _keywords_reply (char **array, GError *error, TrackerTagBar *bar)
 }
 
 static gboolean
-_on_tag_button_press_event (GtkWidget			*button,
-			    GdkEventButton		*event,
-			    TrackerTagBar		*bar)
+_on_tag_button_press_event (GtkWidget                   *button,
+                            GdkEventButton              *event,
+                            TrackerTagBar               *bar)
 {
 	TrackerTagBarPrivate *priv;
 	GtkWidget *label;
@@ -122,17 +122,17 @@ _on_tag_button_press_event (GtkWidget			*button,
 	tag = gtk_label_get_text (GTK_LABEL (label));
 
 	switch (event->button) {
-		case 1:
-			_tag_launch_search (tag);
-			break;
-		case 3:
-			priv->active_tag = tag;
-			gtk_menu_popup (GTK_MENU (priv->menu),
-					NULL, NULL, NULL, bar, 3, event->time);
+	case 1:
+		_tag_launch_search (tag);
+		break;
+	case 3:
+		priv->active_tag = tag;
+		gtk_menu_popup (GTK_MENU (priv->menu),
+		                NULL, NULL, NULL, bar, 3, event->time);
 
-			break;
-		default:
-			break;
+		break;
+	default:
+		break;
 
 	}
 	return FALSE;
@@ -185,7 +185,7 @@ remove_tag_activate_cb(GtkMenuItem *menu_item, TrackerTagBar *bar)
 	/* TODO: Port to SPARQL */
 #if 0
 	tracker_keywords_remove(priv->client, priv->type, priv->uri,
-				 args, &error);
+	                        args, &error);
 	if (error) {
 		g_print ("Tag Removal Error : %s", error->message);
 		return;
@@ -231,7 +231,7 @@ _on_apply_add_tag (GtkButton *but, TrackerTagBar *bar)
 		tags = g_strsplit (text, ",", 0);
 
 		tracker_keywords_add(priv->client, priv->type, priv->uri,
-				 tags, &error);
+		                     tags, &error);
 		if (error) {
 			g_print ("Tag Addition Error : %s", error->message);
 			return;
@@ -272,7 +272,7 @@ _on_add_tag_clicked (GtkButton *but, TrackerTagBar *bar)
 	gtk_box_pack_start (GTK_BOX(hbox), entry, TRUE, TRUE, 0);
 
 	g_signal_connect (G_OBJECT (entry), "activate",
-			  G_CALLBACK (_on_entry_activate), bar);
+	                  G_CALLBACK (_on_entry_activate), bar);
 
 	image = gtk_image_new_from_stock (GTK_STOCK_CLOSE, GTK_ICON_SIZE_MENU);
 
@@ -282,7 +282,7 @@ _on_add_tag_clicked (GtkButton *but, TrackerTagBar *bar)
 	gtk_button_set_relief (GTK_BUTTON (button), GTK_RELIEF_NONE);
 
 	g_signal_connect (G_OBJECT (button), "clicked",
-			  G_CALLBACK (_on_close_add_tag), bar);
+	                  G_CALLBACK (_on_close_add_tag), bar);
 
 	image = gtk_image_new_from_stock (GTK_STOCK_APPLY, GTK_ICON_SIZE_MENU);
 
@@ -293,7 +293,7 @@ _on_add_tag_clicked (GtkButton *but, TrackerTagBar *bar)
 
 
 	g_signal_connect (G_OBJECT (button), "clicked",
-			  G_CALLBACK (_on_apply_add_tag), bar);
+	                  G_CALLBACK (_on_apply_add_tag), bar);
 
 	gtk_box_pack_start (GTK_BOX (bar), hbox, TRUE, TRUE, 0);
 	gtk_widget_show_all (hbox);
@@ -325,18 +325,18 @@ _tag_bar_add_tag (TrackerTagBar *bar, GtkWidget *box, const char *tag)
 	gtk_box_pack_start (GTK_BOX(box), button, FALSE, FALSE, 0);
 
 	tracker_set_atk_relationship(button, ATK_RELATION_LABELLED_BY,
-				     label);
+	                             label);
 	tracker_set_atk_relationship(label, ATK_RELATION_LABEL_FOR,
-				     button);
+	                             button);
 
 	g_signal_connect (G_OBJECT (button), "button-press-event",
-			  G_CALLBACK (_on_tag_button_press_event), bar);
+	                  G_CALLBACK (_on_tag_button_press_event), bar);
 
 	g_free (temp);
 }
 
 /* HEADER FUNCTIONS */
-	/* TODO: Port to SPARQL */
+/* TODO: Port to SPARQL */
 void
 tracker_tag_bar_set_uri (TrackerTagBar *bar, ServiceType type, const gchar *uri)
 {
@@ -350,8 +350,8 @@ tracker_tag_bar_set_uri (TrackerTagBar *bar, ServiceType type, const gchar *uri)
 	priv->type = type;
 
 	tracker_keywords_get_async (priv->client, priv->type, uri,
-				    (TrackerArrayReply)_keywords_reply,
-				    bar);
+	                            (TrackerArrayReply)_keywords_reply,
+	                            bar);
 }
 
 #endif
@@ -403,12 +403,12 @@ tracker_tag_bar_init (TrackerTagBar *tag_bar)
 	gtk_button_set_relief (GTK_BUTTON (button), GTK_RELIEF_NONE);
 
 	tracker_set_atk_relationship(button, ATK_RELATION_LABELLED_BY,
-				     label);
+	                             label);
 	tracker_set_atk_relationship(label, ATK_RELATION_LABEL_FOR,
-				     button);
+	                             button);
 
 	g_signal_connect (G_OBJECT (button), "clicked",
-			  G_CALLBACK (_on_add_tag_clicked), tag_bar);
+	                  G_CALLBACK (_on_add_tag_clicked), tag_bar);
 
 	menu = gtk_menu_new();
 	priv->menu = menu;
@@ -419,7 +419,7 @@ tracker_tag_bar_init (TrackerTagBar *tag_bar)
 	gtk_menu_shell_append(GTK_MENU_SHELL(menu), item);
 
 	g_signal_connect(G_OBJECT(item), "activate",
-					 G_CALLBACK(search_tag_activate_cb), tag_bar);
+	                 G_CALLBACK(search_tag_activate_cb), tag_bar);
 
 	image = gtk_image_new_from_stock(GTK_STOCK_FIND, GTK_ICON_SIZE_MENU);
 	gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item), image);
@@ -431,7 +431,7 @@ tracker_tag_bar_init (TrackerTagBar *tag_bar)
 	gtk_menu_shell_append(GTK_MENU_SHELL(menu), item);
 
 	g_signal_connect(G_OBJECT(item), "activate",
-					 G_CALLBACK(remove_tag_activate_cb), tag_bar);
+	                 G_CALLBACK(remove_tag_activate_cb), tag_bar);
 
 	image = gtk_image_new_from_stock(GTK_STOCK_REMOVE, GTK_ICON_SIZE_MENU);
 	gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item), image);
@@ -446,9 +446,9 @@ tracker_tag_bar_new (void)
 	TrackerTagBarPrivate *priv;
 
 	tag_bar = g_object_new (TRACKER_TYPE_TAG_BAR,
-				"homogeneous", FALSE,
-				"spacing", 0 ,
-				NULL);
+	                        "homogeneous", FALSE,
+	                        "spacing", 0 ,
+	                        NULL);
 	priv = TRACKER_TAG_BAR_GET_PRIVATE (tag_bar);
 
 	client = tracker_connect (TRUE, -1);

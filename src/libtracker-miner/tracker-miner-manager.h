@@ -53,17 +53,17 @@ struct TrackerMinerManagerClass {
 	GObjectClass parent_class;
 
 	void (* miner_progress) (TrackerMinerManager *manager,
-				 const gchar         *miner_name,
-				 const gchar         *status,
-				 gdouble              progress);
+	                         const gchar         *miner_name,
+	                         const gchar         *status,
+	                         gdouble              progress);
 	void (* miner_paused)   (TrackerMinerManager *manager,
-				 const gchar         *miner_name);
+	                         const gchar         *miner_name);
 	void (* miner_resumed)  (TrackerMinerManager *manager,
-				 const gchar         *miner_name);
+	                         const gchar         *miner_name);
 	void (* miner_activated)   (TrackerMinerManager *manager,
-				    const gchar         *miner_name);
+	                            const gchar         *miner_name);
 	void (* miner_deactivated) (TrackerMinerManager *manager,
-				    const gchar         *miner_name);
+	                            const gchar         *miner_name);
 };
 
 GType   tracker_miner_manager_get_type (void) G_GNUC_CONST;
@@ -74,33 +74,33 @@ GSList *tracker_miner_manager_get_running   (TrackerMinerManager *manager);
 GSList *tracker_miner_manager_get_available (TrackerMinerManager *manager);
 
 gboolean tracker_miner_manager_pause  (TrackerMinerManager *manager,
-				       const gchar         *miner,
-				       const gchar         *reason,
-				       guint32             *cookie);
+                                       const gchar         *miner,
+                                       const gchar         *reason,
+                                       guint32             *cookie);
 gboolean tracker_miner_manager_resume (TrackerMinerManager *manager,
-				       const gchar         *miner,
-				       guint32              cookie);
+                                       const gchar         *miner,
+                                       guint32              cookie);
 
 gboolean tracker_miner_manager_is_active (TrackerMinerManager *manager,
-					  const gchar         *miner);
+                                          const gchar         *miner);
 
 gboolean tracker_miner_manager_is_paused (TrackerMinerManager *manager,
-					  const gchar         *miner,
-					  GStrv               *applications,
-					  GStrv               *reasons);
+                                          const gchar         *miner,
+                                          GStrv               *applications,
+                                          GStrv               *reasons);
 
 gboolean tracker_miner_manager_get_status (TrackerMinerManager  *manager,
-					   const gchar          *miner,
-					   gchar               **status,
-					   gdouble              *progress);
+                                           const gchar          *miner,
+                                           gchar               **status,
+                                           gdouble              *progress);
 gboolean tracker_miner_manager_writeback  (TrackerMinerManager *manager,
-					   const gchar         *miner,
-					   const gchar        **subjects);
+                                           const gchar         *miner,
+                                           const gchar        **subjects);
 
 const gchar * tracker_miner_manager_get_display_name (TrackerMinerManager *manager,
-						      const gchar         *miner);
+                                                      const gchar         *miner);
 const gchar * tracker_miner_manager_get_description  (TrackerMinerManager *manager,
-						      const gchar         *miner);
+                                                      const gchar         *miner);
 
 
 G_END_DECLS

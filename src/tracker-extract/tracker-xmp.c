@@ -45,16 +45,16 @@
 #include <exempi/xmpconsts.h>
 
 static void tracker_xmp_iter        (XmpPtr                xmp,
-				     XmpIteratorPtr        iter,
-				     const gchar          *uri,
-				     TrackerXmpData       *data,
-				     gboolean              append);
+                                     XmpIteratorPtr        iter,
+                                     const gchar          *uri,
+                                     TrackerXmpData       *data,
+                                     gboolean              append);
 static void tracker_xmp_iter_simple (const gchar          *uri,
-				     TrackerXmpData       *data,
-				     const gchar          *schema,
-				     const gchar          *path,
-				     const gchar          *value,
-				     gboolean              append);
+                                     TrackerXmpData       *data,
+                                     const gchar          *schema,
+                                     const gchar          *path,
+                                     const gchar          *value,
+                                     gboolean              append);
 
 static const gchar *
 fix_metering_mode (const gchar *mode)
@@ -110,14 +110,14 @@ fix_white_balance (const gchar *wb)
 
 /* We have an array, now recursively iterate over it's children.  Set
  * 'append' to true so that all values of the array are added under
- * one entry. 
+ * one entry.
  */
-static void 
+static void
 tracker_xmp_iter_array (XmpPtr                xmp,
-			const gchar          *uri,
-			TrackerXmpData       *data, 
-			const gchar          *schema, 
-			const gchar          *path)
+                        const gchar          *uri,
+                        TrackerXmpData       *data,
+                        const gchar          *schema,
+                        const gchar          *path)
 {
 	XmpIteratorPtr iter;
 
@@ -129,11 +129,11 @@ tracker_xmp_iter_array (XmpPtr                xmp,
 
 /* We have an array, now recursively iterate over it's children.  Set 'append' to false so that only one item is used. */
 static void
-tracker_xmp_iter_alt_text (XmpPtr                xmp, 
-			   const gchar          *uri,
-			   TrackerXmpData       *data, 
-			   const gchar          *schema, 
-			   const gchar          *path)
+tracker_xmp_iter_alt_text (XmpPtr                xmp,
+                           const gchar          *uri,
+                           TrackerXmpData       *data,
+                           const gchar          *schema,
+                           const gchar          *path)
 {
 	XmpIteratorPtr iter;
 
@@ -144,13 +144,13 @@ tracker_xmp_iter_alt_text (XmpPtr                xmp,
 
 /* We have a simple element, but need to iterate over the qualifiers */
 static void
-tracker_xmp_iter_simple_qual (XmpPtr                xmp, 
-			      const gchar          *uri,
-			      TrackerXmpData       *data,
-			      const gchar          *schema, 
-			      const gchar          *path, 
-			      const gchar          *value, 
-			      gboolean              append)
+tracker_xmp_iter_simple_qual (XmpPtr                xmp,
+                              const gchar          *uri,
+                              TrackerXmpData       *data,
+                              const gchar          *schema,
+                              const gchar          *path,
+                              const gchar          *value,
+                              gboolean              append)
 {
 	XmpIteratorPtr iter;
 	XmpStringPtr the_path;
@@ -182,8 +182,8 @@ tracker_xmp_iter_simple_qual (XmpPtr                xmp,
 
 		if (g_ascii_strcasecmp (qual_path, "xml:lang") == 0) {
 			/* Is this a language we should ignore? */
-			if (g_ascii_strcasecmp (qual_value, "x-default") != 0 && 
-			    g_ascii_strcasecmp (qual_value, "x-repair") != 0 && 
+			if (g_ascii_strcasecmp (qual_value, "x-default") != 0 &&
+			    g_ascii_strcasecmp (qual_value, "x-repair") != 0 &&
 			    g_ascii_strcasecmp (qual_value, locale) != 0) {
 				ignore_element = TRUE;
 				break;
@@ -220,22 +220,22 @@ fix_orientation (const gchar *orientation)
 	for (i=0; i < 8; i++) {
 		if (orientation && ostr[i] && g_ascii_strcasecmp (orientation, ostr[i]) == 0) {
 			switch (i) {
-				default:
-				case 0:
+			default:
+			case 0:
 				return  "nfo:orientation-top";
-				case 1:
+			case 1:
 				return  "nfo:orientation-top-mirror"; // not sure
-				case 2:
+			case 2:
 				return  "nfo:orientation-bottom-mirror"; // not sure
-				case 3:
+			case 3:
 				return  "nfo:orientation-bottom";
-				case 4:
+			case 4:
 				return  "nfo:orientation-left-mirror";
-				case 5:
+			case 5:
 				return  "nfo:orientation-right";
-				case 6:
+			case 6:
 				return  "nfo:orientation-right-mirror";
-				case 7:
+			case 7:
 				return  "nfo:orientation-left";
 			}
 		}
@@ -250,11 +250,11 @@ fix_orientation (const gchar *orientation)
  */
 static void
 tracker_xmp_iter_simple (const gchar          *uri,
-			 TrackerXmpData       *data,
-			 const gchar          *schema, 
-			 const gchar          *path, 
-			 const gchar          *value, 
-			 gboolean              append)
+                         TrackerXmpData       *data,
+                         const gchar          *schema,
+                         const gchar          *path,
+                         const gchar          *value,
+                         gboolean              append)
 {
 	gchar *name;
 	const gchar *index_;
@@ -284,7 +284,7 @@ tracker_xmp_iter_simple (const gchar          *uri,
 			data->date = g_strdup (value);
 		}
 		else if (g_ascii_strcasecmp (name, "keywords") == 0 && !data->keywords) {
-			 data->keywords = g_strdup (value);
+			data->keywords = g_strdup (value);
 		}
 		else if (g_ascii_strcasecmp (name, "subject") == 0 && !data->subject) {
 			data->subject = g_strdup (value);
@@ -335,10 +335,10 @@ tracker_xmp_iter_simple (const gchar          *uri,
 		else if (g_ascii_strcasecmp (name, "Artist") == 0 && !data->Artist) {
 			data->Artist = g_strdup (value);
 		}
-/*		else if (g_ascii_strcasecmp (name, "Software") == 0) {
-			tracker_statement_list_insert (metadata, uri,
-						  "Image:Software", value);
-		}*/
+		/*              else if (g_ascii_strcasecmp (name, "Software") == 0) {
+		                tracker_statement_list_insert (metadata, uri,
+		                "Image:Software", value);
+		                }*/
 		else if (g_ascii_strcasecmp (name, "Make") == 0 && !data->Make) {
 			data->Make = g_strdup (value);
 		}
@@ -355,9 +355,9 @@ tracker_xmp_iter_simple (const gchar          *uri,
 			data->MeteringMode = g_strdup (fix_metering_mode (value));
 		}
 		/*else if (g_ascii_strcasecmp (name, "ExposureProgram") == 0) {
-			tracker_statement_list_insert (metadata, uri,
-						  "Image:ExposureProgram", value);
-		}*/
+		  tracker_statement_list_insert (metadata, uri,
+		  "Image:ExposureProgram", value);
+		  }*/
 		else if (g_ascii_strcasecmp (name, "ExposureTime") == 0 && !data->ExposureTime) {
 			data->ExposureTime = g_strdup (value);
 		}
@@ -376,66 +376,66 @@ tracker_xmp_iter_simple (const gchar          *uri,
 		else if (g_ascii_strcasecmp (name, "Copyright") == 0 && !data->Copyright) {
 			data->Copyright = g_strdup (value);
 		}
-	} else 	/* PDF*/ if (g_ascii_strcasecmp (schema, NS_PDF) == 0) {
-		if (g_ascii_strcasecmp (name, "keywords") == 0 && !data->keywords) {
-			data->keywords = g_strdup (value);
-		} else if (g_ascii_strcasecmp (name, "title") == 0 && !data->title) {
-			data->title = g_strdup (value);
+	} else          /* PDF*/ if (g_ascii_strcasecmp (schema, NS_PDF) == 0) {
+			if (g_ascii_strcasecmp (name, "keywords") == 0 && !data->keywords) {
+				data->keywords = g_strdup (value);
+			} else if (g_ascii_strcasecmp (name, "title") == 0 && !data->title) {
+				data->title = g_strdup (value);
+			}
 		}
-	}
 
 	/* XAP (XMP)scheme */
 	/*else if (g_ascii_strcasecmp (schema, NS_XAP) == 0) {
-	        if (g_ascii_strcasecmp (name, "Rating") == 0) {
-		        tracker_statement_list_insert (metadata, uri,
-						  "Image:Rating", value);
-		}
-		if (g_ascii_strcasecmp (name, "MetadataDate") == 0) {
-		        tracker_statement_list_insert (metadata, uri,
-						  "Image:Date", value);
-		}
-	}*/
+	  if (g_ascii_strcasecmp (name, "Rating") == 0) {
+	  tracker_statement_list_insert (metadata, uri,
+	  "Image:Rating", value);
+	  }
+	  if (g_ascii_strcasecmp (name, "MetadataDate") == 0) {
+	  tracker_statement_list_insert (metadata, uri,
+	  "Image:Date", value);
+	  }
+	  }*/
 	/* IPTC4XMP scheme */
 
 	/*
-	 GeoClue / location stuff, TODO
-	 else if (g_ascii_strcasecmp (schema,  NS_IPTC4XMP) == 0) {
-	        if (g_ascii_strcasecmp (name, "Location") == 0) {
-		        tracker_statement_list_insert (metadata, uri,
-						  "Image:Location", value);
+	  GeoClue / location stuff, TODO
+	  else if (g_ascii_strcasecmp (schema,  NS_IPTC4XMP) == 0) {
+	  if (g_ascii_strcasecmp (name, "Location") == 0) {
+	  tracker_statement_list_insert (metadata, uri,
+	  "Image:Location", value);
 
-			/ Added to the valid keywords *
-		        tracker_statement_list_insert (metadata, uri,
-						  "Image:Keywords", value);
-		}
-		if (g_ascii_strcasecmp (name, "Sublocation") == 0) {
-		        tracker_statement_list_insert (metadata, uri,
-						  "Image:Sublocation", value);
+	  / Added to the valid keywords *
+	  tracker_statement_list_insert (metadata, uri,
+	  "Image:Keywords", value);
+	  }
+	  if (g_ascii_strcasecmp (name, "Sublocation") == 0) {
+	  tracker_statement_list_insert (metadata, uri,
+	  "Image:Sublocation", value);
 
-			/ Added to the valid keywords *
-		        tracker_statement_list_insert (metadata, uri,
-						  "Image:Keywords", value);
-		}
-	}
-	/ Photoshop scheme *
-	else if (g_ascii_strcasecmp (schema,  NS_PHOTOSHOP) == 0) {
-	        if (g_ascii_strcasecmp (name, "City") == 0) {
-		        tracker_statement_list_insert (metadata, uri,
-						  "Image:City", value);
+	  / Added to the valid keywords *
+	  tracker_statement_list_insert (metadata, uri,
+	  "Image:Keywords", value);
+	  }
+	  }
+	  / Photoshop scheme *
+	  else if (g_ascii_strcasecmp (schema,  NS_PHOTOSHOP) == 0) {
+	  if (g_ascii_strcasecmp (name, "City") == 0) {
+	  tracker_statement_list_insert (metadata, uri,
+	  "Image:City", value);
 
-			/ Added to the valid keywords *
-		        tracker_statement_list_insert (metadata, uri,
-						  "Image:Keywords", value);
-		}
-		else if (g_ascii_strcasecmp (name, "Country") == 0) {
-			tracker_statement_list_insert (metadata, uri,
-						  "Image:Country", value);
+	  / Added to the valid keywords *
+	  tracker_statement_list_insert (metadata, uri,
+	  "Image:Keywords", value);
+	  }
+	  else if (g_ascii_strcasecmp (name, "Country") == 0) {
+	  tracker_statement_list_insert (metadata, uri,
+	  "Image:Country", value);
 
-			/ Added to the valid keywords *
-		        tracker_statement_list_insert (metadata, uri,
-						  "Image:Keywords", value);
-		}
-	}
+	  / Added to the valid keywords *
+	  tracker_statement_list_insert (metadata, uri,
+	  "Image:Keywords", value);
+	  }
+	  }
 	*/
 
 	g_free (name);
@@ -446,11 +446,11 @@ tracker_xmp_iter_simple (const gchar          *uri,
  * (simple, simple w/qualifiers, or an array) handler.
  */
 void
-tracker_xmp_iter (XmpPtr                xmp, 
-		  XmpIteratorPtr        iter, 
-		  const gchar          *uri,
-		  TrackerXmpData       *data, 
-		  gboolean              append)
+tracker_xmp_iter (XmpPtr                xmp,
+                  XmpIteratorPtr        iter,
+                  const gchar          *uri,
+                  TrackerXmpData       *data,
+                  gboolean              append)
 {
 	XmpStringPtr the_schema = xmp_string_new ();
 	XmpStringPtr the_path = xmp_string_new ();
@@ -490,10 +490,10 @@ tracker_xmp_iter (XmpPtr                xmp,
 #endif /* HAVE_EXEMPI */
 
 void
-tracker_read_xmp (const gchar          *buffer, 
-		  size_t                len, 
-		  const gchar          *uri,
-		  TrackerXmpData       *data)
+tracker_read_xmp (const gchar          *buffer,
+                  size_t                len,
+                  const gchar          *uri,
+                  TrackerXmpData       *data)
 {
 #ifdef HAVE_EXEMPI
 	XmpPtr xmp;
@@ -527,7 +527,7 @@ insert_keywords (TrackerSparqlBuilder *metadata, const gchar *uri, gchar *keywor
 	keywords = strchr (keywords, '"');
 	if (keywords)
 		keywords++;
-	else 
+	else
 		keywords = keyw;
 
 	len = strlen (keywords);
@@ -624,7 +624,7 @@ tracker_apply_xmp (TrackerSparqlBuilder *metadata, const gchar *uri, TrackerXmpD
 	}
 
 	if (xmp_data->Make || xmp_data->Model) {
-		gchar *final_camera = tracker_merge (" ", 2, xmp_data->Make, xmp_data->Model); 
+		gchar *final_camera = tracker_merge (" ", 2, xmp_data->Make, xmp_data->Model);
 
 		tracker_sparql_builder_predicate (metadata, "nmm:camera");
 		tracker_sparql_builder_object_unvalidated (metadata, final_camera);
@@ -632,7 +632,7 @@ tracker_apply_xmp (TrackerSparqlBuilder *metadata, const gchar *uri, TrackerXmpD
 	}
 
 	if (xmp_data->title || xmp_data->Title) {
-		gchar *final_title = tracker_coalesce (2, xmp_data->title, xmp_data->Title); 
+		gchar *final_title = tracker_coalesce (2, xmp_data->title, xmp_data->Title);
 		tracker_sparql_builder_predicate (metadata, "nie:title");
 		tracker_sparql_builder_object_unvalidated (metadata, final_title);
 		g_free (final_title);

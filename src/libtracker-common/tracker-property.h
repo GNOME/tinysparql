@@ -47,21 +47,21 @@ typedef enum {
 	TRACKER_PROPERTY_TYPE_RESOURCE,
 } TrackerPropertyType;
 
-GType	     tracker_property_type_get_type  (void) G_GNUC_CONST;
+GType        tracker_property_type_get_type  (void) G_GNUC_CONST;
 const gchar *tracker_property_type_to_string (TrackerPropertyType fieldtype);
 
 /*
  * TrackerProperty
  */
-#define TRACKER_TYPE_PROPERTY	      (tracker_property_get_type ())
+#define TRACKER_TYPE_PROPERTY         (tracker_property_get_type ())
 #define TRACKER_TYPE_PROPERTY_TYPE    (tracker_property_type_get_type ())
-#define TRACKER_PROPERTY(o)	      (G_TYPE_CHECK_INSTANCE_CAST ((o), TRACKER_TYPE_PROPERTY, TrackerProperty))
+#define TRACKER_PROPERTY(o)           (G_TYPE_CHECK_INSTANCE_CAST ((o), TRACKER_TYPE_PROPERTY, TrackerProperty))
 #define TRACKER_PROPERTY_CLASS(k)     (G_TYPE_CHECK_CLASS_CAST ((k), TRACKER_TYPE_PROPERTY, TrackerPropertyClass))
-#define TRACKER_IS_PROPERTY(o)	      (G_TYPE_CHECK_INSTANCE_TYPE ((o), TRACKER_TYPE_PROPERTY))
+#define TRACKER_IS_PROPERTY(o)        (G_TYPE_CHECK_INSTANCE_TYPE ((o), TRACKER_TYPE_PROPERTY))
 #define TRACKER_IS_PROPERTY_CLASS(k)  (G_TYPE_CHECK_CLASS_TYPE ((k), TRACKER_TYPE_PROPERTY))
 #define TRACKER_PROPERTY_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o), TRACKER_TYPE_PROPERTY, TrackerPropertyClass))
 
-typedef struct _TrackerProperty	TrackerProperty;
+typedef struct _TrackerProperty         TrackerProperty;
 typedef struct _TrackerPropertyClass TrackerPropertyClass;
 
 struct _TrackerProperty {
@@ -72,7 +72,7 @@ struct _TrackerPropertyClass {
 	GObjectClass parent_class;
 };
 
-GType		    tracker_property_get_type		  (void) G_GNUC_CONST;
+GType               tracker_property_get_type             (void) G_GNUC_CONST;
 TrackerProperty *   tracker_property_new                  (void);
 const gchar *       tracker_property_get_uri              (TrackerProperty      *property);
 const gchar *       tracker_property_get_name             (TrackerProperty      *property);
@@ -87,37 +87,37 @@ gboolean            tracker_property_get_multiple_values  (TrackerProperty      
 gboolean            tracker_property_get_filtered         (TrackerProperty      *property);
 gboolean            tracker_property_get_transient        (TrackerProperty      *property);
 gboolean            tracker_property_get_is_inverse_functional_property
-							  (TrackerProperty      *property);
+(TrackerProperty      *property);
 TrackerProperty **  tracker_property_get_super_properties (TrackerProperty      *property);
 void                tracker_property_set_uri              (TrackerProperty      *property,
-							   const gchar          *value);
+                                                           const gchar          *value);
 void                tracker_property_set_data_type        (TrackerProperty      *property,
-							   TrackerPropertyType   value);
+                                                           TrackerPropertyType   value);
 void                tracker_property_set_domain           (TrackerProperty      *property,
-							   TrackerClass         *value);
+                                                           TrackerClass         *value);
 void                tracker_property_set_range            (TrackerProperty      *property,
-							   TrackerClass         *range);
+                                                           TrackerClass         *range);
 void                tracker_property_set_weight           (TrackerProperty      *property,
-							   gint                  value);
+                                                           gint                  value);
 void                tracker_property_set_indexed          (TrackerProperty      *property,
-							   gboolean              value);
+                                                           gboolean              value);
 void                tracker_property_set_fulltext_indexed (TrackerProperty      *property,
-							   gboolean              value);
+                                                           gboolean              value);
 void                tracker_property_set_embedded         (TrackerProperty      *property,
-							   gboolean              value);
+                                                           gboolean              value);
 void                tracker_property_set_multiple_values  (TrackerProperty      *property,
-							   gboolean              value);
+                                                           gboolean              value);
 void                tracker_property_set_filtered         (TrackerProperty      *property,
-							   gboolean              value);
+                                                           gboolean              value);
 void                tracker_property_set_transient        (TrackerProperty      *property,
-							   gboolean              value);
+                                                           gboolean              value);
 void                tracker_property_set_is_inverse_functional_property
-							  (TrackerProperty      *property,
-							   gboolean              value);
+(TrackerProperty      *property,
+ gboolean              value);
 void                tracker_property_set_super_properties (TrackerProperty      *property,
-							   TrackerProperty     **super_properties);
+                                                           TrackerProperty     **super_properties);
 void                tracker_property_add_super_property   (TrackerProperty      *property,
-							   TrackerProperty      *value);
+                                                           TrackerProperty      *value);
 
 G_END_DECLS
 

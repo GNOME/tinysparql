@@ -33,15 +33,15 @@
 #include <libtracker-client/tracker.h>
 #include <libtracker-common/tracker-common.h>
 
-#define ABOUT                                                             \
-        "Tracker " PACKAGE_VERSION "\n"
+#define ABOUT	  \
+	"Tracker " PACKAGE_VERSION "\n"
 
-#define LICENSE                                                           \
-        "This program is free software and comes without any warranty.\n" \
-        "It is licensed under version 2 or later of the General Public "  \
-        "License which can be viewed at:\n"                               \
-        "\n"                                                              \
-        "  http://www.gnu.org/licenses/gpl.txt\n"
+#define LICENSE	  \
+	"This program is free software and comes without any warranty.\n" \
+	"It is licensed under version 2 or later of the General Public " \
+	"License which can be viewed at:\n" \
+	"\n" \
+	"  http://www.gnu.org/licenses/gpl.txt\n"
 
 
 static gchar        **filenames = NULL;
@@ -61,8 +61,8 @@ static GOptionEntry   entries[] = {
 int
 main (int argc, char **argv)
 {
-	TrackerClient	*client;
-	GOptionContext	*context;
+	TrackerClient   *client;
+	GOptionContext  *context;
 	gchar          **p;
 
 	setlocale (LC_ALL, "");
@@ -71,17 +71,17 @@ main (int argc, char **argv)
 	bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
 	textdomain (GETTEXT_PACKAGE);
 
-	/* Translators: this messagge will apper immediately after the	*/
-	/* usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>	*/
+	/* Translators: this messagge will apper immediately after the  */
+	/* usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>     */
 	context = g_option_context_new (_("- Import data using Turtle files"));
 
 	/* Translators: this message will appear after the usage string */
-	/* and before the list of options.				*/
+	/* and before the list of options.                              */
 	g_option_context_add_main_entries (context, entries, NULL);
 	g_option_context_parse (context, &argc, &argv, NULL);
 
 	if (print_version) {
-                g_print ("\n" ABOUT "\n" LICENSE "\n");
+		g_print ("\n" ABOUT "\n" LICENSE "\n");
 		g_option_context_free (context);
 
 		return EXIT_SUCCESS;
@@ -91,7 +91,7 @@ main (int argc, char **argv)
 		gchar *help;
 
 		g_printerr ("%s\n\n",
-			    _("One or more files have not been specified"));
+		            _("One or more files have not been specified"));
 
 		help = g_option_context_get_help (context, TRUE, NULL);
 		g_option_context_free (context);
@@ -107,7 +107,7 @@ main (int argc, char **argv)
 
 	if (!client) {
 		g_printerr ("%s\n",
-			    _("Could not establish a D-Bus connection to Tracker"));
+		            _("Could not establish a D-Bus connection to Tracker"));
 		return EXIT_FAILURE;
 	}
 
@@ -117,22 +117,22 @@ main (int argc, char **argv)
 		gchar  *uri;
 
 		g_print ("%s:'%s'\n",
-			 _("Importing Turtle file"),
-			 *p);
+		         _("Importing Turtle file"),
+		         *p);
 
 		file = g_file_new_for_commandline_arg (*p);
 		uri = g_file_get_uri (file);
-		
+
 		tracker_resources_load (client, uri, &error);
-		
+
 		g_object_unref (file);
 		g_free (uri);
-		
+
 		if (error) {
 			g_printerr ("%s, %s\n",
-				    _("Unable to import Turtle file"),
-				    error->message);
-			
+			            _("Unable to import Turtle file"),
+			            error->message);
+
 			g_error_free (error);
 			continue;
 		}
@@ -142,6 +142,6 @@ main (int argc, char **argv)
 	}
 
 	tracker_disconnect (client);
-	
+
 	return EXIT_SUCCESS;
 }

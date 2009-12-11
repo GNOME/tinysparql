@@ -29,10 +29,10 @@ G_BEGIN_DECLS
 #error "only <libtracker-db/tracker-db.h> must be included directly."
 #endif
 
-#define TRACKER_TYPE_DB_INTERFACE_SQLITE	 (tracker_db_interface_sqlite_get_type ())
-#define TRACKER_DB_INTERFACE_SQLITE(o)		 (G_TYPE_CHECK_INSTANCE_CAST ((o), TRACKER_TYPE_DB_INTERFACE_SQLITE, TrackerDBInterfaceSqlite))
-#define TRACKER_DB_INTERFACE_SQLITE_CLASS(c)	 (G_TYPE_CHECK_CLASS_CAST ((c),    TRACKER_TYPE_DB_INTERFACE_SQLITE, TrackerDBInterfaceSqliteClass))
-#define TRACKER_IS_DB_INTERFACE_SQLITE(o)	 (G_TYPE_CHECK_INSTANCE_TYPE ((o), TRACKER_TYPE_DB_INTERFACE_SQLITE))
+#define TRACKER_TYPE_DB_INTERFACE_SQLITE         (tracker_db_interface_sqlite_get_type ())
+#define TRACKER_DB_INTERFACE_SQLITE(o)           (G_TYPE_CHECK_INSTANCE_CAST ((o), TRACKER_TYPE_DB_INTERFACE_SQLITE, TrackerDBInterfaceSqlite))
+#define TRACKER_DB_INTERFACE_SQLITE_CLASS(c)     (G_TYPE_CHECK_CLASS_CAST ((c),    TRACKER_TYPE_DB_INTERFACE_SQLITE, TrackerDBInterfaceSqliteClass))
+#define TRACKER_IS_DB_INTERFACE_SQLITE(o)        (G_TYPE_CHECK_INSTANCE_TYPE ((o), TRACKER_TYPE_DB_INTERFACE_SQLITE))
 #define TRACKER_IS_DB_INTERFACE_SQLITE_CLASS(c)  (G_TYPE_CHECK_CLASS_TYPE ((o),    TRACKER_TYPE_DB_INTERFACE_SQLITE))
 #define TRACKER_DB_INTERFACE_SQLITE_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o),  TRACKER_TYPE_DB_INTERFACE_SQLITE, TrackerDBInterfaceSqliteClass))
 
@@ -40,20 +40,20 @@ typedef struct TrackerDBInterfaceSqlite      TrackerDBInterfaceSqlite;
 typedef struct TrackerDBInterfaceSqliteClass TrackerDBInterfaceSqliteClass;
 
 typedef gint (* TrackerDBCollationFunc) (gchar *str1,
-					 gint	len1,
-					 gchar *str2,
-					 gint	len2);
+                                         gint   len1,
+                                         gchar *str2,
+                                         gint   len2);
 typedef GValue (* TrackerDBFunc) (TrackerDBInterface *interface,
-				  gint		      argc,
-				  GValue	      argv[]);
+                                  gint                argc,
+                                  GValue              argv[]);
 
 typedef void (* TrackerDBFuncStep) (TrackerDBInterface *interface,
-				    void               *aggregate_context,
-				    gint		  argc,
-				    GValue	          argv[]);
+                                    void               *aggregate_context,
+                                    gint                  argc,
+                                    GValue                argv[]);
 
 typedef GValue (* TrackerDBFuncFinal) (TrackerDBInterface *interface,
-				       void               *aggregate_context);
+                                       void               *aggregate_context);
 
 struct TrackerDBInterfaceSqlite {
 	GObject parent_instance;

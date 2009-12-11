@@ -1,6 +1,6 @@
 #!/usr/bin/env python2.5
 #
-# Demo RSS provider simulator 
+# Demo RSS provider simulator
 # Copyright (C) 2009 Nokia <urho.konttori@nokia.com>
 #
 # This library is free software; you can redistribute it and/or
@@ -61,7 +61,7 @@ class SignalerUI (gtk.Window):
                                      "org.freedesktop.Tracker1.Resources")
 
         vbox = gtk.VBox ()
-    
+
         # Post frame
         post_frame = gtk.Frame ("Post")
         post_frame_vbox = gtk.VBox ()
@@ -81,7 +81,7 @@ class SignalerUI (gtk.Window):
         hbox_uri.add (self.uri_entry)
         self.uri_entry.set_property ("sensitive", False)
         post_frame_vbox.add (hbox_uri)
-        
+
         date_label = gtk.Label ("Date")
         self.date_entry = gtk.Entry ()
         self.date_entry.set_property ("editable", False)
@@ -92,11 +92,11 @@ class SignalerUI (gtk.Window):
 
         self.post_text = gtk.TextView ()
         post_frame_vbox.add (self.post_text)
-        
+
         button_gen = gtk.Button (stock=gtk.STOCK_NEW)
         button_gen.connect ("clicked", self.gen_new_post_cb)
         post_frame_vbox.add (button_gen)
-        
+
         vbox.add (post_frame)
 
 
@@ -134,7 +134,7 @@ class SignalerUI (gtk.Window):
         if (uri == self.last_inserted):
             print "Generate a new URI!"
             return
-        
+
         sparql_insert = INSERT_SPARQL % (uri, date, text, title)
         print sparql_insert
 
@@ -147,7 +147,7 @@ class SignalerUI (gtk.Window):
             pass
         sparql_delete = DELETE_SPARQL % (uri)
         print sparql_delete
-        
+
         self.iface.SparqlUpdate (sparql_delete)
 
     def gen_new_post_cb (self, widget):
@@ -168,4 +168,3 @@ if __name__ == "__main__":
     gobject.set_application_name ("Feeds engine/signals simulator")
 
     SignalerUI ()
-    

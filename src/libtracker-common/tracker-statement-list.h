@@ -34,31 +34,31 @@ G_BEGIN_DECLS
 #define SHOULD_VALIDATE_UTF8
 
 void tracker_sparql_builder_object_unvalidated (TrackerSparqlBuilder *sparql,
-						const gchar          *value);
+                                                const gchar          *value);
 void tracker_statement_list_insert             (TrackerSparqlBuilder *statements,
-						const gchar          *subject,
-						const gchar          *predicate,
-						const gchar          *value);
+                                                const gchar          *subject,
+                                                const gchar          *predicate,
+                                                const gchar          *value);
 void tracker_statement_list_insert_with_int    (TrackerSparqlBuilder *statements,
-						const gchar          *subject,
-						const gchar          *predicate,
-						gint                  value);
+                                                const gchar          *subject,
+                                                const gchar          *predicate,
+                                                gint                  value);
 void tracker_statement_list_insert_with_int64  (TrackerSparqlBuilder *statements,
-						const gchar          *subject,
-						const gchar          *predicate,
-						gint64                value);
+                                                const gchar          *subject,
+                                                const gchar          *predicate,
+                                                gint64                value);
 void tracker_statement_list_insert_with_uint   (TrackerSparqlBuilder *statements,
-						const gchar          *subject,
-						const gchar          *predicate,
-						guint32               value);
+                                                const gchar          *subject,
+                                                const gchar          *predicate,
+                                                guint32               value);
 void tracker_statement_list_insert_with_double (TrackerSparqlBuilder *statements,
-						const gchar          *subject,
-						const gchar          *predicate,
-						gdouble               value);
+                                                const gchar          *subject,
+                                                const gchar          *predicate,
+                                                gdouble               value);
 void tracker_statement_list_insert_with_float  (TrackerSparqlBuilder *statements,
-						const gchar          *subject,
-						const gchar          *predicate,
-						gfloat                value);
+                                                const gchar          *subject,
+                                                const gchar          *predicate,
+                                                gfloat                value);
 
 G_END_DECLS
 

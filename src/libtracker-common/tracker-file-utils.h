@@ -33,21 +33,21 @@ G_BEGIN_DECLS
 #endif
 
 FILE*    tracker_file_open                         (const gchar  *uri,
-						    const gchar  *how,
-						    gboolean      sequential);
+                                                    const gchar  *how,
+                                                    gboolean      sequential);
 void     tracker_file_close                        (FILE         *file,
-						    gboolean      need_again_soon);
+                                                    gboolean      need_again_soon);
 goffset  tracker_file_get_size                     (const gchar  *uri);
 guint64  tracker_file_get_mtime                    (const gchar  *uri);
 gchar *  tracker_file_get_mime_type                (GFile        *file);
 gboolean tracker_file_system_has_enough_space      (const gchar  *path,
-						    gulong        required_bytes);
+                                                    gulong        required_bytes);
 void     tracker_path_remove                       (const gchar  *uri);
 gboolean tracker_path_is_in_path                   (const gchar  *path,
-						    const gchar  *in_path);
+                                                    const gchar  *in_path);
 void     tracker_path_hash_table_filter_duplicates (GHashTable   *roots);
 GSList * tracker_path_list_filter_duplicates       (GSList       *roots,
-						    const gchar  *basename_exception_prefix);
+                                                    const gchar  *basename_exception_prefix);
 gchar *  tracker_path_evaluate_name                (const gchar  *uri);
 
 gboolean tracker_env_check_xdg_dirs                (void);

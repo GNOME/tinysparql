@@ -79,32 +79,32 @@ tracker_get_all_keywords (TrackerClient *tracker_client)
 }
 
 /* Creates a tree model containing the keywords in List
-this simple treemodel has a single column containing the keyword name*/
+   this simple treemodel has a single column containing the keyword name*/
 GtkTreeModel *
 tracker_create_simple_keyword_liststore (const GList *list)
 {
-    GtkListStore *store;
-    const GList *tmp;
+	GtkListStore *store;
+	const GList *tmp;
 
-    store = gtk_list_store_new (1, G_TYPE_STRING);
+	store = gtk_list_store_new (1, G_TYPE_STRING);
 
-    for (tmp = list; tmp; tmp = tmp->next) {
-	    gchar *keyword = keyword = tmp->data;
+	for (tmp = list; tmp; tmp = tmp->next) {
+		gchar *keyword = keyword = tmp->data;
 
-	    gtk_list_store_insert_with_values (store,
-					       NULL,
-					       0,
-					       0,
-					       keyword,
-					       -1);
-    }
+		gtk_list_store_insert_with_values (store,
+		                                   NULL,
+		                                   0,
+		                                   0,
+		                                   keyword,
+		                                   -1);
+	}
 
-    return GTK_TREE_MODEL (store);
+	return GTK_TREE_MODEL (store);
 }
 
 void
 tracker_set_atk_relationship(GtkWidget *obj1, int relation_type,
-			     GtkWidget *obj2)
+                             GtkWidget *obj2)
 {
 	AtkObject *atk_obj1, *atk_obj2, *targets[1];
 	AtkRelationSet *atk_rel_set;

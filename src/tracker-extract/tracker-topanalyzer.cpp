@@ -67,34 +67,34 @@ namespace Tracker {
 		void initWriterData    (const Strigi::FieldRegister&);
 		void releaseWriterData (const Strigi::FieldRegister&);
 		void startAnalysis     (const AnalysisResult*);
-		void addText           (const AnalysisResult*, 
-		                        const char* text, 
+		void addText           (const AnalysisResult*,
+		                        const char* text,
 		                        int32_t length);
-		void addValue          (const AnalysisResult*, 
+		void addValue          (const AnalysisResult*,
 		                        const RegisteredField* field,
 		                        const std::string& value);
-		void addValue          (const AnalysisResult*, 
+		void addValue          (const AnalysisResult*,
 		                        const RegisteredField* field,
-		                        const unsigned char* data, 
+		                        const unsigned char* data,
 		                        uint32_t size);
-		void addValue          (const AnalysisResult*, 
+		void addValue          (const AnalysisResult*,
 		                        const RegisteredField* field,
 		                        int32_t value);
-		void addValue          (const AnalysisResult*, 
+		void addValue          (const AnalysisResult*,
 		                        const RegisteredField* field,
 		                        uint32_t value);
-		void addValue          (const AnalysisResult*, 
+		void addValue          (const AnalysisResult*,
 		                        const RegisteredField* field,
 		                        double value);
 		void addTriplet        (const std::string& subject,
-		                        const std::string& predicate, 
+		                        const std::string& predicate,
 		                        const std::string& object);
-		void addValue          (const AnalysisResult*, 
+		void addValue          (const AnalysisResult*,
 		                        const RegisteredField* field,
-		                        const std::string& name, 
+		                        const std::string& name,
 		                        const std::string& value);
 		void finishAnalysis    (const AnalysisResult*);
-		void setParams         (const gchar *uri_, 
+		void setParams         (const gchar *uri_,
 		                        TrackerSparqlBuilder *metadata_);
 
 		gchar                  *content_type;
@@ -108,8 +108,8 @@ namespace Tracker {
 		TrackerSparqlBuilder          *metadata;
 	};
 
-	Tracker::TripleCollector::TripleCollector () 
-	{ 
+	Tracker::TripleCollector::TripleCollector ()
+	{
 		content_type = NULL;
 	}
 
@@ -133,8 +133,8 @@ namespace Tracker {
 	void Tracker::TripleCollector::releaseWriterData (const Strigi::FieldRegister&) { }
 	void Tracker::TripleCollector::startAnalysis (const AnalysisResult* idx) { }
 
-	void Tracker::TripleCollector::addText (const AnalysisResult* idx, 
-	                                        const char* text, 
+	void Tracker::TripleCollector::addText (const AnalysisResult* idx,
+	                                        const char* text,
 	                                        int32_t length)
 	{
 		tracker_statement_list_insert (metadata, idx->path().c_str(),
@@ -146,7 +146,7 @@ namespace Tracker {
 	{
 		/* const gchar *original; */
 		/* gchar *str, *p; */
-		
+
 		/* original = key.c_str(); */
 
 		/* p = strrchr (original, '/'); */
@@ -169,7 +169,7 @@ namespace Tracker {
 	{
 		/* const gchar *original; */
 		/* gchar *str, *p; */
-		
+
 		/* original = field->key().c_str(); */
 
 		/* p = strrchr (original, '/'); */
@@ -214,7 +214,7 @@ namespace Tracker {
 	/* The methods below basically just convert the C++ world to the C world
 	 * of tracker_statement_list_insert. Nothing magical about it. */
 
-	void Tracker::TripleCollector::addValue (const AnalysisResult* idx, 
+	void Tracker::TripleCollector::addValue (const AnalysisResult* idx,
 	                                         const RegisteredField* field,
 	                                         const std::string& value)
 	{
@@ -229,15 +229,15 @@ namespace Tracker {
 			return;
 		}
 
-		tracker_statement_list_insert (metadata, 
-					       idx->path().c_str(), 
+		tracker_statement_list_insert (metadata,
+					       idx->path().c_str(),
 		                               predicate,
 					       value.c_str());
 	}
 
-	void Tracker::TripleCollector::addValue (const AnalysisResult* idx, 
+	void Tracker::TripleCollector::addValue (const AnalysisResult* idx,
 	                                         const RegisteredField* field,
-	                                         const unsigned char* data, 
+	                                         const unsigned char* data,
 	                                         uint32_t size )
 	{
 		const gchar *predicate = predicateMapping (field);
@@ -246,13 +246,13 @@ namespace Tracker {
 			return;
 		}
 
-		tracker_statement_list_insert (metadata, 
+		tracker_statement_list_insert (metadata,
 					       idx->path().c_str(),
 		                               predicate,
 		                               (const gchar*) data);
 	}
 
-	void Tracker::TripleCollector::addValue (const AnalysisResult* idx, 
+	void Tracker::TripleCollector::addValue (const AnalysisResult* idx,
 	                                         const RegisteredField* field,
 	                                         int32_t value)
 	{
@@ -262,31 +262,15 @@ namespace Tracker {
 			return;
 		}
 
-		tracker_statement_list_insert_with_int (metadata, 
-							idx->path().c_str(), 
-		                                        predicate,
-		                                        (gint) value);
-	}
-
-	void Tracker::TripleCollector::addValue (const AnalysisResult* idx, 
-	                                         const RegisteredField* field,
-	                                         uint32_t value ) 
-	{
-		const gchar *predicate = predicateMapping (field);
-
-		if (!predicateNeeded (predicate)) {
-			return;
-		}
-
-		tracker_statement_list_insert_with_int (metadata, 
+		tracker_statement_list_insert_with_int (metadata,
 							idx->path().c_str(),
 		                                        predicate,
 		                                        (gint) value);
 	}
 
-	void Tracker::TripleCollector::addValue (const AnalysisResult* idx, 
+	void Tracker::TripleCollector::addValue (const AnalysisResult* idx,
 	                                         const RegisteredField* field,
-	                                         double value ) 
+	                                         uint32_t value )
 	{
 		const gchar *predicate = predicateMapping (field);
 
@@ -294,15 +278,31 @@ namespace Tracker {
 			return;
 		}
 
-		tracker_statement_list_insert_with_double (metadata, 
-							   idx->path().c_str(), 
+		tracker_statement_list_insert_with_int (metadata,
+							idx->path().c_str(),
+		                                        predicate,
+		                                        (gint) value);
+	}
+
+	void Tracker::TripleCollector::addValue (const AnalysisResult* idx,
+	                                         const RegisteredField* field,
+	                                         double value )
+	{
+		const gchar *predicate = predicateMapping (field);
+
+		if (!predicateNeeded (predicate)) {
+			return;
+		}
+
+		tracker_statement_list_insert_with_double (metadata,
+							   idx->path().c_str(),
 		                                           predicate,
 		                                           (gdouble) value);
 	}
 
 	void Tracker::TripleCollector::addTriplet (const std::string& subject,
-	                                           const std::string& predicate, 
-	                                           const std::string& object ) 
+	                                           const std::string& predicate,
+	                                           const std::string& object )
 	{
 		const gchar *predicate_str = predicateMapping (predicate);
 
@@ -310,15 +310,15 @@ namespace Tracker {
 			return;
 		}
 
-		tracker_statement_list_insert (metadata, 
-					       subject.c_str(), 
+		tracker_statement_list_insert (metadata,
+					       subject.c_str(),
 		                               predicate_str,
 		                               object.c_str());
 	}
 
-	void Tracker::TripleCollector::addValue (const AnalysisResult* idx, 
+	void Tracker::TripleCollector::addValue (const AnalysisResult* idx,
 	                                         const RegisteredField* field,
-	                                         const std::string& name, 
+	                                         const std::string& name,
 	                                         const std::string& value )
 	{
 		const gchar *predicate = predicateMapping (field);
@@ -332,7 +332,7 @@ namespace Tracker {
 			return;
 		}
 
-		tracker_statement_list_insert (metadata, 
+		tracker_statement_list_insert (metadata,
 					       idx->path().c_str(),
 		                               predicate,
 		                               value.c_str());
@@ -390,8 +390,8 @@ tracker_topanalyzer_shutdown (void)
 }
 
 void
-tracker_topanalyzer_extract (const gchar           *uri, 
-			     TrackerSparqlBuilder  *metadata, 
+tracker_topanalyzer_extract (const gchar           *uri,
+			     TrackerSparqlBuilder  *metadata,
 			     gchar                **content_type)
 {
 	TrackerTopanalyzerPrivate *priv;
@@ -410,16 +410,16 @@ tracker_topanalyzer_extract (const gchar           *uri,
 		struct stat s;
 
 		/* We use our own strategy as writer. Our writer writes to the @metadata
-		 * array. I decided to call it a collector because that's what its 
+		 * array. I decided to call it a collector because that's what its
 		 * implementation does (collecting triples) */
 
 		priv->m_writer->setParams (uri, metadata);
 		stat (filename, &s);
 
-		/* The first parameter that we pass here will influence what 
+		/* The first parameter that we pass here will influence what
 		 * idx->path() will be above. StreamAnalyzer only ever appends
 		 * path chunks to this initial stringvalue. So if we pass
-		 * our://URI then idx->path will end up being: 
+		 * our://URI then idx->path will end up being:
 		 *
 		 * our://URI
 		 * our://URI/child
@@ -435,7 +435,7 @@ tracker_topanalyzer_extract (const gchar           *uri,
 		 * not really resemble the URI. Usually it will of course.
 		 */
 
-		AnalysisResult analysisresult (uri, s.st_mtime, *priv->m_writer, 
+		AnalysisResult analysisresult (uri, s.st_mtime, *priv->m_writer,
 		                               *priv->streamindexer);
 
 		/* If we want a remote stream, then we implement a Stream in C++

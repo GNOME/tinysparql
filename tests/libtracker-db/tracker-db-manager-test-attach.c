@@ -42,7 +42,7 @@ ensure_db_manager_is_reindex (gboolean must_reindex)
 	if (db_manager_status == NO_INIT) {
 		if (must_reindex) {
 			tracker_db_manager_init (TRACKER_DB_MANAGER_FORCE_REINDEX,
-						 &first);
+			                         &first);
 			db_manager_status = INIT_REINDEX;
 		} else {
 			tracker_db_manager_init (0, &first);
@@ -64,7 +64,7 @@ ensure_db_manager_is_reindex (gboolean must_reindex)
 	tracker_db_manager_shutdown ();
 	if (must_reindex) {
 		tracker_db_manager_init (TRACKER_DB_MANAGER_FORCE_REINDEX,
-					 &first);
+		                         &first);
 		db_manager_status = INIT_REINDEX;
 	} else {
 		tracker_db_manager_init (0, &first);
@@ -117,13 +117,13 @@ main (int argc, char **argv) {
 
 	// Tests with attach and no-reindex
 	g_test_add_func ("/libtracker-db/tracker-db-manager/attach/no-reindex/common_db_tables",
-			test_creation_common_db_no_reindex);
+	                 test_creation_common_db_no_reindex);
 
 	g_test_add_func ("/libtracker-db/tracker-db-manager/attach/no-reindex/file_meta_db_tables",
-			 test_creation_file_meta_db_no_reindex);
+	                 test_creation_file_meta_db_no_reindex);
 
 	g_test_add_func ("/libtracker-db/tracker-db-manager/attach/no-reindex/file_contents_db_tables",
-			 test_creation_file_contents_db_no_reindex);
+	                 test_creation_file_contents_db_no_reindex);
 
 
 	result = g_test_run ();

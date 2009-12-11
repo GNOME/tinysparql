@@ -29,26 +29,26 @@
 
 static DBusGConnection *connection;
 static DBusGProxy      *gproxy;
-static GSList	       *objects;
+static GSList          *objects;
 
 static gboolean
 dbus_register_service (DBusGProxy  *proxy,
-		       const gchar *name)
+                       const gchar *name)
 {
 	GError *error = NULL;
-	guint	result;
+	guint   result;
 
 	g_message ("Registering D-Bus service...\n"
-		   "  Name:'%s'",
-		   name);
+	           "  Name:'%s'",
+	           name);
 
 	if (!org_freedesktop_DBus_request_name (proxy,
-						name,
-						DBUS_NAME_FLAG_DO_NOT_QUEUE,
-						&result, &error)) {
+	                                        name,
+	                                        DBUS_NAME_FLAG_DO_NOT_QUEUE,
+	                                        &result, &error)) {
 		g_critical ("Could not aquire name:'%s', %s",
-			    name,
-			    error ? error->message : "no error given");
+		            name,
+		            error ? error->message : "no error given");
 		g_error_free (error);
 
 		return FALSE;
@@ -56,8 +56,8 @@ dbus_register_service (DBusGProxy  *proxy,
 
 	if (result != DBUS_REQUEST_NAME_REPLY_PRIMARY_OWNER) {
 		g_critical ("D-Bus service name:'%s' is already taken, "
-			    "perhaps the daemon is already running?",
-			    name);
+		            "perhaps the daemon is already running?",
+		            name);
 		return FALSE;
 	}
 
@@ -65,11 +65,11 @@ dbus_register_service (DBusGProxy  *proxy,
 }
 
 static void
-dbus_register_object (DBusGConnection	    *lconnection,
-		      DBusGProxy	    *proxy,
-		      GObject		    *object,
-		      const DBusGObjectInfo *info,
-		      const gchar	    *path)
+dbus_register_object (DBusGConnection       *lconnection,
+                      DBusGProxy            *proxy,
+                      GObject               *object,
+                      const DBusGObjectInfo *info,
+                      const gchar           *path)
 {
 	g_message ("Registering D-Bus object...");
 	g_message ("  Path:'%s'", path);
@@ -98,7 +98,7 @@ dbus_register_names (void)
 
 	if (!connection) {
 		g_critical ("Could not connect to the D-Bus session bus, %s",
-			    error ? error->message : "no error given.");
+		            error ? error->message : "no error given.");
 		g_clear_error (&error);
 		return FALSE;
 	}
@@ -107,9 +107,9 @@ dbus_register_names (void)
 	 * predefined for us to just use (dbus_g_proxy_...)
 	 */
 	gproxy = dbus_g_proxy_new_for_name (connection,
-					    DBUS_SERVICE_DBUS,
-					    DBUS_PATH_DBUS,
-					    DBUS_INTERFACE_DBUS);
+	                                    DBUS_SERVICE_DBUS,
+	                                    DBUS_PATH_DBUS,
+	                                    DBUS_INTERFACE_DBUS);
 
 	/* Register the service name for org.freedesktop.Tracker1.Extract */
 	if (!dbus_register_service (gproxy, TRACKER_EXTRACT_SERVICE)) {
@@ -169,10 +169,10 @@ tracker_dbus_register_objects (gpointer object)
 	}
 
 	dbus_register_object (connection,
-			      gproxy,
-			      G_OBJECT (object),
-			      &dbus_glib_tracker_extract_object_info,
-			      TRACKER_EXTRACT_PATH);
+	                      gproxy,
+	                      G_OBJECT (object),
+	                      &dbus_glib_tracker_extract_object_info,
+	                      TRACKER_EXTRACT_PATH);
 	objects = g_slist_prepend (objects, object);
 
 	return TRUE;

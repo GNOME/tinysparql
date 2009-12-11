@@ -9,4 +9,4 @@ SUBDIRS = 			\
 	tracker-miner-fs	\
 	tracker-extract		\
 	tracker-store		\
-	functional-tests	
+	functional-tests

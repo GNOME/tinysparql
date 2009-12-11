@@ -35,8 +35,8 @@ typedef struct {
 } OneElem;
 
 static inline void
-row_add (GPtrArray *row, 
-	 gchar     *value)
+row_add (GPtrArray *row,
+         gchar     *value)
 {
 	OneElem *elem;
 	GSList  *list = NULL;
@@ -50,9 +50,9 @@ row_add (GPtrArray *row,
 }
 
 static inline gboolean
-row_insert (GPtrArray *row, 
-	    gchar     *value, 
-	    guint      lindex)
+row_insert (GPtrArray *row,
+            gchar     *value,
+            guint      lindex)
 {
 	OneElem *elem;
 	GSList  *list;
@@ -89,8 +89,8 @@ row_destroy (GPtrArray *row)
 		elem = g_ptr_array_index (row, i);
 		list = elem->value;
 		g_slist_foreach (list,
-				 (GFunc) g_free,
-				 NULL);
+		                 (GFunc) g_free,
+		                 NULL);
 		g_slist_free (list);
 		g_slice_free (OneElem, elem);
 	}
@@ -100,9 +100,9 @@ row_destroy (GPtrArray *row)
 
 static inline gpointer
 rows_lookup (GPtrArray *rows,
-	     gint       key)
+             gint       key)
 {
-	guint	 i;
+	guint    i;
 	gpointer value = NULL;
 
 	for (i = 0; i < rows->len; i++) {
@@ -136,9 +136,9 @@ rows_destroy (GPtrArray *rows)
 }
 
 static inline void
-rows_add (GPtrArray *rows, 
-	  gint       key, 
-	  gpointer   value)
+rows_add (GPtrArray *rows,
+          gint       key,
+          gpointer   value)
 {
 	OneRow *row;
 
@@ -152,7 +152,7 @@ rows_add (GPtrArray *rows,
 
 static inline void
 rows_migrate (GPtrArray *rows,
-	      GPtrArray *result)
+              GPtrArray *result)
 {
 	guint i, j;
 
@@ -194,19 +194,19 @@ rows_migrate (GPtrArray *rows,
 
 static gchar **
 dbus_query_result_to_strv (TrackerDBResultSet *result_set,
-			   gint		       column,
-			   gint		      *count,
-			   gboolean	       numeric)
+                           gint                        column,
+                           gint                       *count,
+                           gboolean            numeric)
 
 {
 	gchar **strv = NULL;
-	gint	rows = 0;
-	gint	i = 0;
+	gint    rows = 0;
+	gint    i = 0;
 
 	if (result_set) {
-		gchar	 *str;
+		gchar    *str;
 		gboolean  valid = TRUE;
-		gint	  value;
+		gint      value;
 
 		/* Make sure we rewind before iterating the result set */
 		tracker_db_result_set_rewind (result_set);
@@ -249,29 +249,29 @@ dbus_query_result_to_strv (TrackerDBResultSet *result_set,
 
 gchar **
 tracker_dbus_query_result_to_strv (TrackerDBResultSet *result_set,
-				   gint		       column,
-				   gint		      *count)
+                                   gint                        column,
+                                   gint                       *count)
 {
 	return dbus_query_result_to_strv (result_set, column, count, FALSE);
 }
 
 gchar **
 tracker_dbus_query_result_numeric_to_strv (TrackerDBResultSet *result_set,
-					   gint		       column,
-					   gint		      *count)
+                                           gint                        column,
+                                           gint                       *count)
 {
 	return dbus_query_result_to_strv (result_set, column, count, TRUE);
 }
 
 gchar **
 tracker_dbus_query_result_columns_to_strv (TrackerDBResultSet *result_set,
-					   gint                offset_column,
-					   gint                until_column,
-					   gboolean            rewind)
+                                           gint                offset_column,
+                                           gint                until_column,
+                                           gboolean            rewind)
 {
 	gchar    **strv = NULL;
-	gint	   i = 0;
-	gint	   columns = 0;
+	gint       i = 0;
+	gint       columns = 0;
 	gint       row_counter = 0;
 	gboolean   valid = TRUE;
 
@@ -305,9 +305,9 @@ tracker_dbus_query_result_columns_to_strv (TrackerDBResultSet *result_set,
 		for (i = offset_column ; i < until_column; i++) {
 			GValue value = {0, };
 			GValue transform = {0, };
-			
+
 			g_value_init (&transform, G_TYPE_STRING);
-			
+
 			_tracker_db_result_set_get_value (result_set, i, &value);
 			if (G_IS_VALUE (&value) && g_value_transform (&value, &transform)) {
 				if (row_counter == 0) {
@@ -320,14 +320,14 @@ tracker_dbus_query_result_columns_to_strv (TrackerDBResultSet *result_set,
 						old_value = strv [i];
 
 						strv[i] = g_strconcat (old_value, "|", new_value, NULL);
-						
+
 						g_free (old_value);
 					}
 
 					if (new_value) {
 						g_free (new_value);
 					}
-					
+
 				}
 				g_value_unset (&value);
 			} else if (row_counter == 0) {
@@ -349,13 +349,13 @@ GHashTable *
 tracker_dbus_query_result_to_hash_table (TrackerDBResultSet *result_set)
 {
 	GHashTable *hash_table;
-	gint	    field_count;
+	gint        field_count;
 	gboolean    valid = FALSE;
 
 	hash_table = g_hash_table_new_full (g_str_hash,
-					    g_str_equal,
-					    (GDestroyNotify) g_free,
-					    (GDestroyNotify) tracker_dbus_gvalue_slice_free);
+	                                    g_str_equal,
+	                                    (GDestroyNotify) g_free,
+	                                    (GDestroyNotify) tracker_dbus_gvalue_slice_free);
 
 	if (result_set) {
 		valid = TRUE;
@@ -368,18 +368,18 @@ tracker_dbus_query_result_to_hash_table (TrackerDBResultSet *result_set)
 	}
 
 	while (valid) {
-		GValue	*values;
+		GValue  *values;
 		gchar  **p;
-		gint	 i = 0;
-		gchar	*key;
-		GSList	*list = NULL;
+		gint     i = 0;
+		gchar   *key;
+		GSList  *list = NULL;
 
 		tracker_db_result_set_get (result_set, 0, &key, -1);
 		values = tracker_dbus_gvalue_slice_new (G_TYPE_STRV);
 
 		for (i = 1; i < field_count; i++) {
 			GValue  transform = { 0, };
-			GValue	value = { 0, };
+			GValue  value = { 0, };
 			gchar  *str;
 
 			g_value_init (&transform, G_TYPE_STRING);
@@ -424,8 +424,8 @@ tracker_dbus_query_result_to_ptr_array (TrackerDBResultSet *result_set)
 {
 	GPtrArray *ptr_array;
 	gboolean   valid = FALSE;
-	gint	   columns;
-	gint	   i;
+	gint       columns;
+	gint       i;
 
 	ptr_array = g_ptr_array_new ();
 
@@ -445,8 +445,8 @@ tracker_dbus_query_result_to_ptr_array (TrackerDBResultSet *result_set)
 
 		/* Append fields to the array */
 		for (i = 0; i < columns; i++) {
-			GValue	transform = { 0, };
-			GValue	value = { 0, };
+			GValue  transform = { 0, };
+			GValue  value = { 0, };
 			gchar  *str = NULL;
 
 			g_value_init (&transform, G_TYPE_STRING);
@@ -489,7 +489,7 @@ tracker_dbus_query_result_multi_to_ptr_array (TrackerDBResultSet *result_set)
 	GPtrArray *result;
 	GPtrArray *rows;
 	gboolean   valid = FALSE;
-	gint	   columns;
+	gint       columns;
 
 	rows = g_ptr_array_new ();
 
@@ -505,15 +505,15 @@ tracker_dbus_query_result_multi_to_ptr_array (TrackerDBResultSet *result_set)
 
 	while (valid) {
 		GPtrArray *row;
-		GValue	   value_in = {0, };
-		gint	   key;		
+		GValue     value_in = {0, };
+		gint       key;
 		gint       column;
 		gboolean   add = FALSE;
 
 		/* Get the key and the matching row if exists */
 		_tracker_db_result_set_get_value (result_set, 0, &value_in);
-		key = g_value_get_int (&value_in);		
-		row = rows_lookup (rows, key);				
+		key = g_value_get_int (&value_in);
+		row = rows_lookup (rows, key);
 		if (!row) {
 			row = g_ptr_array_new ();
 			add = TRUE;
@@ -528,12 +528,12 @@ tracker_dbus_query_result_multi_to_ptr_array (TrackerDBResultSet *result_set)
 			g_value_init (&transform, G_TYPE_STRING);
 
 			_tracker_db_result_set_get_value (result_set,
-							  column,
-							  &value);
+			                                  column,
+			                                  &value);
 
 			if (g_value_transform (&value, &transform)) {
 				str = g_value_dup_string (&transform);
-				
+
 				if (!str) {
 					str = g_strdup ("");
 				} else if (!g_utf8_validate (str, -1, NULL)) {
@@ -542,17 +542,17 @@ tracker_dbus_query_result_multi_to_ptr_array (TrackerDBResultSet *result_set)
 					str = g_strdup ("");
 				}
 			} else {
-				str = g_strdup ("");				
+				str = g_strdup ("");
 			}
 
 			if (add) {
 				row_add (row, str);
-			} else {				
+			} else {
 				if (!row_insert (row, str, column-1)) {
 					/* Failed to insert */
 					g_free (str);
 				}
-			}		       
+			}
 
 			g_value_unset (&value);
 			g_value_unset (&transform);
@@ -569,6 +569,6 @@ tracker_dbus_query_result_multi_to_ptr_array (TrackerDBResultSet *result_set)
 
 	rows_migrate (rows, result);
 	rows_destroy (rows);
-	
+
 	return result;
 }

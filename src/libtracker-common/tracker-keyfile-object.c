@@ -9,7 +9,7 @@
  *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the GNU
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.          See the GNU
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
@@ -29,7 +29,7 @@ static GSList *
 directory_string_list_to_gslist (const gchar **value)
 {
 	GSList *list = NULL;
-	gint	i;
+	gint    i;
 
 	if (!value) {
 		return NULL;
@@ -37,7 +37,7 @@ directory_string_list_to_gslist (const gchar **value)
 
 	for (i = 0; value[i]; i++) {
 		const gchar *str;
-		gchar	    *validated;
+		gchar       *validated;
 
 		str = value[i];
 		if (!str || str[0] == '\0') {
@@ -58,7 +58,7 @@ directory_string_list_to_gslist (const gchar **value)
 
 const gchar *
 tracker_keyfile_object_blurb (gpointer     object,
-			      const gchar *property)
+                              const gchar *property)
 {
 	GObjectClass *klass;
 	GParamSpec *spec;
@@ -75,11 +75,11 @@ tracker_keyfile_object_blurb (gpointer     object,
 
 gboolean
 tracker_keyfile_object_default_boolean (gpointer     object,
-					const gchar *property)
+                                        const gchar *property)
 {
 	GObjectClass *klass;
 	GParamSpec *spec;
-	GParamSpecBoolean *bspec; 
+	GParamSpecBoolean *bspec;
 
 	g_return_val_if_fail (G_IS_OBJECT (object), FALSE);
 	g_return_val_if_fail (property != NULL, FALSE);
@@ -90,17 +90,17 @@ tracker_keyfile_object_default_boolean (gpointer     object,
 
 	bspec = G_PARAM_SPEC_BOOLEAN (spec);
 	g_return_val_if_fail (bspec != NULL, FALSE);
-	
+
 	return bspec->default_value;
 }
 
 gint
 tracker_keyfile_object_default_int (gpointer     object,
-				    const gchar *property)
+                                    const gchar *property)
 {
 	GObjectClass *klass;
 	GParamSpec *spec;
-	GParamSpecInt *ispec; 
+	GParamSpecInt *ispec;
 
 	g_return_val_if_fail (G_IS_OBJECT (object), 0);
 	g_return_val_if_fail (property != NULL, 0);
@@ -117,15 +117,15 @@ tracker_keyfile_object_default_int (gpointer     object,
 
 gboolean
 tracker_keyfile_object_validate_int (gpointer     object,
-				     const gchar *property,
-				     gint	  value)
+                                     const gchar *property,
+                                     gint         value)
 {
 	g_return_val_if_fail (G_IS_OBJECT (object), FALSE);
 	g_return_val_if_fail (property != NULL, FALSE);
 
 #ifdef G_DISABLE_CHECKS
 	GParamSpec *spec;
-	GValue	    value = { 0 };
+	GValue      value = { 0 };
 	gboolean    valid;
 
 	spec = g_object_class_find_property (G_OBJECT_CLASS (object), property);
@@ -144,13 +144,13 @@ tracker_keyfile_object_validate_int (gpointer     object,
 
 void
 tracker_keyfile_object_load_int (gpointer     object,
-				 const gchar *property,
-				 GKeyFile    *key_file,
-				 const gchar *group,
-				 const gchar *key)
+                                 const gchar *property,
+                                 GKeyFile    *key_file,
+                                 const gchar *group,
+                                 const gchar *key)
 {
 	GError *error = NULL;
-	gint	value;
+	gint    value;
 
 	g_return_if_fail (G_IS_OBJECT (object));
 	g_return_if_fail (property != NULL);
@@ -163,19 +163,19 @@ tracker_keyfile_object_load_int (gpointer     object,
 		g_object_set (G_OBJECT (object), property, value, NULL);
 	} else {
 		g_message ("Couldn't load object property '%s' (int) in group '%s', %s",
-			   property, group, error->message);
+		           property, group, error->message);
 		g_error_free (error);
 	}
 }
 
 void
 tracker_keyfile_object_load_boolean (gpointer     object,
-				     const gchar *property,
-				     GKeyFile	 *key_file,
-				     const gchar *group,
-				     const gchar *key)
+                                     const gchar *property,
+                                     GKeyFile    *key_file,
+                                     const gchar *group,
+                                     const gchar *key)
 {
-	GError	 *error = NULL;
+	GError   *error = NULL;
 	gboolean  value;
 
 	g_return_if_fail (G_IS_OBJECT (object));
@@ -189,17 +189,17 @@ tracker_keyfile_object_load_boolean (gpointer     object,
 		g_object_set (G_OBJECT (object), property, value, NULL);
 	} else {
 		g_message ("Couldn't load object property '%s' (bool) in group '%s', %s",
-			   property, group, error->message);
+		           property, group, error->message);
 		g_error_free (error);
 	}
 }
 
 void
 tracker_keyfile_object_load_string (gpointer     object,
-				    const gchar	*property,
-				    GKeyFile    *key_file,
-				    const gchar	*group,
-				    const gchar	*key)
+                                    const gchar         *property,
+                                    GKeyFile    *key_file,
+                                    const gchar         *group,
+                                    const gchar         *key)
 {
 	GError *error = NULL;
 	gchar  *value;
@@ -215,7 +215,7 @@ tracker_keyfile_object_load_string (gpointer     object,
 		g_object_set (G_OBJECT (object), property, value, NULL);
 	} else {
 		g_message ("Couldn't load object property '%s' (string) in group '%s', %s",
-			   property, group, error->message);
+		           property, group, error->message);
 		g_error_free (error);
 	}
 
@@ -224,11 +224,11 @@ tracker_keyfile_object_load_string (gpointer     object,
 
 void
 tracker_keyfile_object_load_string_list (gpointer     object,
-					 const gchar *property,
-					 GKeyFile    *key_file,
-					 const gchar *group,
-					 const gchar *key,
-					 gboolean     is_directory_list)
+                                         const gchar *property,
+                                         GKeyFile    *key_file,
+                                         const gchar *group,
+                                         const gchar *key,
+                                         gboolean     is_directory_list)
 {
 	GSList *l;
 	gchar **value;
@@ -245,22 +245,22 @@ tracker_keyfile_object_load_string_list (gpointer     object,
 
 		if (l) {
 			GSList *filtered;
-			
+
 			/* Should we make the basename (2nd argument) here
-			 * part of this function's API? 
+			 * part of this function's API?
 			 */
 			filtered = tracker_path_list_filter_duplicates (l, ".");
-			
+
 			g_slist_foreach (l, (GFunc) g_free, NULL);
 			g_slist_free (l);
-			
+
 			l = filtered;
 		}
 	} else {
 		l = tracker_string_list_to_gslist (value, -1);
 	}
 	g_strfreev (value);
-	
+
 	g_object_set (G_OBJECT (object), property, l, NULL);
 
 	/* List is copied internally */
@@ -270,10 +270,10 @@ tracker_keyfile_object_load_string_list (gpointer     object,
 
 void
 tracker_keyfile_object_save_int (gpointer     object,
-				 const gchar *property,
-				 GKeyFile    *key_file,
-				 const gchar *group,
-				 const gchar *key)
+                                 const gchar *property,
+                                 GKeyFile    *key_file,
+                                 const gchar *group,
+                                 const gchar *key)
 {
 	gint value;
 
@@ -289,10 +289,10 @@ tracker_keyfile_object_save_int (gpointer     object,
 
 void
 tracker_keyfile_object_save_boolean (gpointer     object,
-				     const gchar *property,
-				     GKeyFile    *key_file,
-				     const gchar *group,
-				     const gchar *key)
+                                     const gchar *property,
+                                     GKeyFile    *key_file,
+                                     const gchar *group,
+                                     const gchar *key)
 {
 	gboolean value;
 
@@ -308,10 +308,10 @@ tracker_keyfile_object_save_boolean (gpointer     object,
 
 void
 tracker_keyfile_object_save_string (gpointer     object,
-				    const gchar *property,
-				    GKeyFile	*key_file,
-				    const gchar *group,
-				    const gchar	*key)
+                                    const gchar *property,
+                                    GKeyFile    *key_file,
+                                    const gchar *group,
+                                    const gchar         *key)
 {
 	gchar *value;
 
@@ -328,10 +328,10 @@ tracker_keyfile_object_save_string (gpointer     object,
 
 void
 tracker_keyfile_object_save_string_list (gpointer     object,
-					 const gchar *property,
-					 GKeyFile    *key_file,
-					 const gchar *group,
-					 const gchar *key)
+                                         const gchar *property,
+                                         GKeyFile    *key_file,
+                                         const gchar *group,
+                                         const gchar *key)
 {
 	GSList *list;
 	gchar **value;
@@ -345,11 +345,11 @@ tracker_keyfile_object_save_string_list (gpointer     object,
 	g_object_get (G_OBJECT (object), property, &list, NULL);
 
 	value = tracker_gslist_to_string_list (list);
-	g_key_file_set_string_list (key_file, 
-				    group, 
-				    key, 
-				    (const gchar * const *) value, 
-				    (gsize) g_slist_length (list));
+	g_key_file_set_string_list (key_file,
+	                            group,
+	                            key,
+	                            (const gchar * const *) value,
+	                            (gsize) g_slist_length (list));
 	g_strfreev (value);
 }
 

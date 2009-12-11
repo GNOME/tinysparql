@@ -77,28 +77,28 @@
 
 #include "tracker-evolution-plugin.h"
 
-/* This runs in-process of evolution (in the mailer, as a EPlugin). It has 
+/* This runs in-process of evolution (in the mailer, as a EPlugin). It has
  * access to the CamelSession using the external variable 'session'. The header
  * mail/mail-session.h makes this variable public */
 
-/* Note to people who are scared about this plugin using the CamelDB directly: 
+/* Note to people who are scared about this plugin using the CamelDB directly:
  * The code uses camel_db_clone to create a new connection to the DB. We hope
  * that's sufficient for not having to lock the store instances (sqlite3 has
  * its own locks, and we only clone the db_r instance, we also only ever do
  * reads, never writes). We hope that's sufficient for not having to get our
  * code involved in Camel's cruel inneryard of having to lock the db_r ptr. */
 
-#define MAX_BEFORE_SEND			50
-#define QUEUED_SETS_PER_MAINLOOP 	100
+#define MAX_BEFORE_SEND                         50
+#define QUEUED_SETS_PER_MAINLOOP        100
 
-#define TRACKER_SERVICE			"org.freedesktop.Tracker1"
+#define TRACKER_SERVICE                         "org.freedesktop.Tracker1"
 
-#define NIE_DATASOURCE			TRACKER_NIE_PREFIX "DataSource"
-#define RDF_PREFIX			TRACKER_RDF_PREFIX
-#define NMO_PREFIX			TRACKER_NMO_PREFIX
-#define NCO_PREFIX			TRACKER_NCO_PREFIX
-#define NAO_PREFIX			TRACKER_NAO_PREFIX
-#define DATASOURCE_URN			"urn:nepomuk:datasource:1cb1eb90-1241-11de-8c30-0800200c9a66"
+#define NIE_DATASOURCE                  TRACKER_NIE_PREFIX "DataSource"
+#define RDF_PREFIX                      TRACKER_RDF_PREFIX
+#define NMO_PREFIX                      TRACKER_NMO_PREFIX
+#define NCO_PREFIX                      TRACKER_NCO_PREFIX
+#define NAO_PREFIX                      TRACKER_NAO_PREFIX
+#define DATASOURCE_URN                  "urn:nepomuk:datasource:1cb1eb90-1241-11de-8c30-0800200c9a66"
 
 G_DEFINE_TYPE (TrackerEvolutionPlugin, tracker_evolution_plugin, TRACKER_TYPE_MINER)
 
@@ -213,27 +213,27 @@ camel_stream_format_text (CamelDataWrapper *dw, CamelStream *stream)
 	CamelMimeFilterWindows *windows = NULL;
 	ssize_t bytes = -1;
 
-	if (dw->mime_type && (charset = camel_content_type_param 
-			(dw->mime_type, "charset")) && 
-		g_ascii_strncasecmp(charset, "iso-8859-", 9) == 0) 
-	{
-		CamelStream *null;
+	if (dw->mime_type && (charset = camel_content_type_param
+	                      (dw->mime_type, "charset")) &&
+	    g_ascii_strncasecmp(charset, "iso-8859-", 9) == 0)
+		{
+			CamelStream *null;
 
-		/* Since a few Windows mailers like to claim they sent
-		* out iso-8859-# encoded text when they really sent
-		* out windows-cp125#, do some simple sanity checking
-		* before we move on... */
+			/* Since a few Windows mailers like to claim they sent
+			 * out iso-8859-# encoded text when they really sent
+			 * out windows-cp125#, do some simple sanity checking
+			 * before we move on... */
 
-		null = camel_stream_null_new();
-		filter_stream = camel_stream_filter_new_with_stream(null);
-		camel_object_unref(null);
-		windows = (CamelMimeFilterWindows *)camel_mime_filter_windows_new(charset);
-		camel_stream_filter_add (filter_stream, (CamelMimeFilter *)windows);
-		camel_data_wrapper_decode_to_stream (dw, (CamelStream *)filter_stream);
-		camel_stream_flush ((CamelStream *)filter_stream);
-		camel_object_unref (filter_stream);
-		charset = camel_mime_filter_windows_real_charset (windows);
-	}
+			null = camel_stream_null_new();
+			filter_stream = camel_stream_filter_new_with_stream(null);
+			camel_object_unref(null);
+			windows = (CamelMimeFilterWindows *)camel_mime_filter_windows_new(charset);
+			camel_stream_filter_add (filter_stream, (CamelMimeFilter *)windows);
+			camel_data_wrapper_decode_to_stream (dw, (CamelStream *)filter_stream);
+			camel_stream_flush ((CamelStream *)filter_stream);
+			camel_object_unref (filter_stream);
+			charset = camel_mime_filter_windows_real_charset (windows);
+		}
 
 	filter_stream = camel_stream_filter_new_with_stream (stream);
 
@@ -291,9 +291,9 @@ folder_registry_free (FolderRegistry *registry)
 }
 
 static FolderRegistry*
-folder_registry_new (const gchar *account_uri, 
-		     CamelFolder *folder, 
-		     TrackerEvolutionPlugin *self)
+folder_registry_new (const gchar *account_uri,
+                     CamelFolder *folder,
+                     TrackerEvolutionPlugin *self)
 {
 	FolderRegistry *registry = g_slice_new (FolderRegistry);
 
@@ -309,7 +309,7 @@ folder_registry_new (const gchar *account_uri,
 
 static void
 on_replied (GError   *error,
-	    gpointer  user_data)
+            gpointer  user_data)
 {
 	if (error) {
 		g_warning ("Error updating data: %s\n", error->message);
@@ -326,9 +326,9 @@ send_sparql_update (TrackerEvolutionPlugin *self, const gchar *sparql)
 
 	if (priv->client) {
 		dbus_g_proxy_call_no_reply (priv->client->proxy_resources,
-					    "SparqlUpdate",
-					    G_TYPE_STRING, sparql,
-					    G_TYPE_INVALID);
+		                            "SparqlUpdate",
+		                            G_TYPE_STRING, sparql,
+		                            G_TYPE_INVALID);
 	}
 }
 
@@ -351,19 +351,19 @@ send_sparql_commit (TrackerEvolutionPlugin *self, gboolean update)
 			g_free (date_s);
 		}
 
-		tracker_resources_batch_commit_async (priv->client, on_replied, 
+		tracker_resources_batch_commit_async (priv->client, on_replied,
 		                                      g_object_ref (self));
 	}
 }
 
-static void 
+static void
 add_contact (TrackerSparqlBuilder *sparql, const gchar *predicate, const gchar *uri, const gchar *value)
 {
 	gchar *email_uri, *email = NULL, *fullname = NULL;
 
 	get_email_and_fullname (value, &email, &fullname);
 
-	email_uri = tracker_uri_printf_escaped ("mailto:%s", email); 
+	email_uri = tracker_uri_printf_escaped ("mailto:%s", email);
 
 	tracker_sparql_builder_subject_iri (sparql, email_uri);
 	tracker_sparql_builder_predicate (sparql, "rdf:type");
@@ -397,8 +397,8 @@ add_contact (TrackerSparqlBuilder *sparql, const gchar *predicate, const gchar *
 }
 
 static void
-process_fields (TrackerSparqlBuilder *sparql, const gchar *uid, guint flags, 
-                time_t sent, const gchar *subject, const gchar *from, const gchar *to, 
+process_fields (TrackerSparqlBuilder *sparql, const gchar *uid, guint flags,
+                time_t sent, const gchar *subject, const gchar *from, const gchar *to,
                 const gchar *cc, const gchar *size, CamelFolder *folder, const gchar *uri)
 {
 	gchar **arr;
@@ -459,14 +459,14 @@ process_fields (TrackerSparqlBuilder *sparql, const gchar *uid, guint flags,
 	tracker_sparql_builder_object_boolean (sparql, (flags & CAMEL_MESSAGE_SEEN));
 
 	/*
-	g_ptr_array_add (predicates_temp, g_strdup (TRACKER_EVOLUTION_PREDICATE_UID));
-	g_ptr_array_add (values_temp, g_strdup (uid));
+	  g_ptr_array_add (predicates_temp, g_strdup (TRACKER_EVOLUTION_PREDICATE_UID));
+	  g_ptr_array_add (values_temp, g_strdup (uid));
 
-	g_ptr_array_add (predicates_temp, g_strdup (TRACKER_EVOLUTION_PREDICATE_JUNK));
-	g_ptr_array_add (values_temp, g_strdup ((flags & CAMEL_MESSAGE_JUNK) ? "True" : "False"));
+	  g_ptr_array_add (predicates_temp, g_strdup (TRACKER_EVOLUTION_PREDICATE_JUNK));
+	  g_ptr_array_add (values_temp, g_strdup ((flags & CAMEL_MESSAGE_JUNK) ? "True" : "False"));
 
-	g_ptr_array_add (predicates_temp, g_strdup (TRACKER_EVOLUTION_PREDICATE_FORWARDED));
-	g_ptr_array_add (values_temp, g_strdup ((flags & CAMEL_MESSAGE_FORWARDED) ? "True" : "False"));
+	  g_ptr_array_add (predicates_temp, g_strdup (TRACKER_EVOLUTION_PREDICATE_FORWARDED));
+	  g_ptr_array_add (values_temp, g_strdup ((flags & CAMEL_MESSAGE_FORWARDED) ? "True" : "False"));
 	*/
 
 	if (to && (arr = g_strsplit (to, ",", -1)) != NULL) {
@@ -495,9 +495,9 @@ process_fields (TrackerSparqlBuilder *sparql, const gchar *uid, guint flags,
 	}
 
 #if 0
-	/* This massively slows down Evolution, we need to do this in a queue 
+	/* This massively slows down Evolution, we need to do this in a queue
 	 * instead. Therefore I'm disabling this code for now. The code does
-	 * a parse of each already-once-downloaded E-mail. This is obviously 
+	 * a parse of each already-once-downloaded E-mail. This is obviously
 	 * excessive and expensive for the performance of Evolution. */
 
 	if (folder) {
@@ -524,10 +524,10 @@ process_fields (TrackerSparqlBuilder *sparql, const gchar *uid, guint flags,
 
 								wrapper = camel_medium_get_content_object (CAMEL_MEDIUM (tpart));
 								if (!wrapper) {
-									wrapper = camel_data_wrapper_new (); 
+									wrapper = camel_data_wrapper_new ();
 									camel_medium_set_content_object (CAMEL_MEDIUM (tpart), wrapper);
 									camel_object_unref (wrapper);
-								} 
+								}
 
 								if (wrapper->stream) {
 									camel_stream_reset (wrapper->stream);
@@ -559,15 +559,15 @@ process_fields (TrackerSparqlBuilder *sparql, const gchar *uid, guint flags,
 }
 
 /* When new messages arrive to- or got deleted from the summary, called in
- * mainloop or by a thread (unknown, depends on Camel and Evolution code that 
+ * mainloop or by a thread (unknown, depends on Camel and Evolution code that
  * executes the reason why this signal gets emitted).
  *
  * This one is the reason why we registered all those folders during init below. */
 
 static void
-on_folder_summary_changed (CamelFolder *folder, 
-			   CamelFolderChangeInfo *changes, 
-			   gpointer user_data)
+on_folder_summary_changed (CamelFolder *folder,
+                           CamelFolderChangeInfo *changes,
+                           gpointer user_data)
 {
 	OnSummaryChangedInfo *info = user_data;
 	CamelFolderSummary *summary;
@@ -644,11 +644,11 @@ on_folder_summary_changed (CamelFolder *folder,
 			/* Camel returns a uint32, so %u */
 			size = g_strdup_printf ("%u", camel_message_info_size (linfo));
 
-			/* This is not a path but a URI, don't use the 
+			/* This is not a path but a URI, don't use the
 			 * OS's directory separator here */
 
-			uri = g_strdup_printf ("%s%s/%s", 
-			                       em_uri, 
+			uri = g_strdup_printf ("%s%s/%s",
+			                       em_uri,
 			                       camel_folder_get_full_name (folder),
 			                       uid);
 
@@ -658,7 +658,7 @@ on_folder_summary_changed (CamelFolder *folder,
 
 			tracker_sparql_builder_insert_open (sparql, uri);
 
-			process_fields (sparql, uid, flags, sent, subject, 
+			process_fields (sparql, uid, flags, sent, subject,
 			                from, to, cc, size, folder, uri);
 
 			cflags = camel_message_info_user_flags (linfo);
@@ -690,7 +690,7 @@ on_folder_summary_changed (CamelFolder *folder,
 
 				tracker_sparql_builder_predicate (sparql, "nao:propertyName");
 				tracker_sparql_builder_object_string (sparql, ctags->name);
-				
+
 				tracker_sparql_builder_predicate (sparql, "nao:propertyValue");
 				tracker_sparql_builder_object_string (sparql, ctags->value);
 
@@ -722,21 +722,21 @@ on_folder_summary_changed (CamelFolder *folder,
 
 	if (changes->uid_removed && changes->uid_removed->len > 0) {
 
-		/* The FROM uri is not exactly right here, but we just want 
+		/* The FROM uri is not exactly right here, but we just want
 		 * graph != NULL in tracker-store/tracker-writeback.c */
 
 		GString *sparql = g_string_new ("");
 
 		for (i = 0; i< changes->uid_removed->len; i++) {
 
-			/* This is not a path but a URI, don't use the OS's 
+			/* This is not a path but a URI, don't use the OS's
 			 * directory separator here */
 
-			g_string_append_printf (sparql, "DELETE FROM <%s%s/%s> { <%s%s/%s> a rdfs:Resource }\n ", 
-			                        em_uri, 
+			g_string_append_printf (sparql, "DELETE FROM <%s%s/%s> { <%s%s/%s> a rdfs:Resource }\n ",
+			                        em_uri,
 			                        camel_folder_get_full_name (folder),
 			                        (char*) changes->uid_removed->pdata[i],
-			                        em_uri, 
+			                        em_uri,
 			                        camel_folder_get_full_name (folder),
 			                        (char*) changes->uid_removed->pdata[i]);
 		}
@@ -778,7 +778,7 @@ clean_many_queue (void)
 	}
 }
 
-static gboolean 
+static gboolean
 many_idle_handler (gpointer user_data)
 {
 	TrackerEvolutionPluginPrivate *priv = TRACKER_EVOLUTION_PLUGIN_GET_PRIVATE (user_data);
@@ -791,18 +791,18 @@ many_idle_handler (gpointer user_data)
 		return FALSE;
 	}
 
-	for (queued_set  = g_queue_pop_head (many_queue), popped = 1; 
-	     queued_set != NULL && popped < QUEUED_SETS_PER_MAINLOOP; 
+	for (queued_set  = g_queue_pop_head (many_queue), popped = 1;
+	     queued_set != NULL && popped < QUEUED_SETS_PER_MAINLOOP;
 	     queued_set  = g_queue_pop_head (many_queue), popped++) {
 
-		/* During initial introduction the client-registrar might 
-		 * decide to crash, disconnect, stop listening. That 
+		/* During initial introduction the client-registrar might
+		 * decide to crash, disconnect, stop listening. That
 		 * would result in critical warnings so we start ignoring
-		 * as soon as service_gone has removed the registrar. 
+		 * as soon as service_gone has removed the registrar.
 		 *
 		 * We nonetheless need to handle these items to clean up
 		 * the queue properly, of course. */
-		
+
 		if (priv->client) {
 			const gchar *query;
 
@@ -823,10 +823,10 @@ many_idle_handler (gpointer user_data)
 
 			send_sparql_update (user_data, query);
 		} else {
-			/* Performance improvement: remove all that had 
+			/* Performance improvement: remove all that had
 			 * this disconnected registrar from the queue */
 
-			g_object_set (user_data, "progress", 
+			g_object_set (user_data, "progress",
 			              1.0, NULL);
 
 			clean_many_queue ();
@@ -837,7 +837,7 @@ many_idle_handler (gpointer user_data)
 
 	if (!queued_set) {
 		send_sparql_commit (user_data, TRUE);
-		g_object_set (user_data, "progress", 
+		g_object_set (user_data, "progress",
 		              1.0, NULL);
 	}
 
@@ -855,18 +855,18 @@ many_idle_destroy (gpointer user_data)
 static void
 start_many_handler (TrackerEvolutionPlugin *self)
 {
-	 g_idle_add_full (G_PRIORITY_LOW,
-	                  many_idle_handler,
-	                  g_object_ref (self),
-	                  many_idle_destroy);
+	g_idle_add_full (G_PRIORITY_LOW,
+	                 many_idle_handler,
+	                 g_object_ref (self),
+	                 many_idle_destroy);
 }
 
 /* Initial upload of more recent than last_checkout items, called in the mainloop */
 static void
-introduce_walk_folders_in_folder (TrackerEvolutionPlugin *self, 
-                                  CamelFolderInfo *iter, 
+introduce_walk_folders_in_folder (TrackerEvolutionPlugin *self,
+                                  CamelFolderInfo *iter,
                                   CamelStore *store, CamelDB *cdb_r,
-                                  gchar *account_uri, 
+                                  gchar *account_uri,
                                   ClientRegistry *info)
 {
 	TrackerEvolutionPluginPrivate *priv = TRACKER_EVOLUTION_PLUGIN_GET_PRIVATE (self);
@@ -882,31 +882,31 @@ introduce_walk_folders_in_folder (TrackerEvolutionPlugin *self,
 		/* This query is the culprint of the functionality: it fetches
 		 * all the metadata from the summary table where modified is
 		 * more recent than the client-registry's modseq. Note that we
-		 * pass time(NULL) to all methods, which is why comparing 
+		 * pass time(NULL) to all methods, which is why comparing
 		 * against the modified column that Evolution > 2.25.5 stores
 		 * works (otherwise this wouldn't work, of course).
 		 *
 		 * The idea is that only the changes must initially be pushed,
 		 * not everything each time (which would be unefficient). The
-		 * specification (http://live.gnome.org/Evolution/Metadata) 
+		 * specification (http://live.gnome.org/Evolution/Metadata)
 		 * allows this 'modseq' optimization (is in fact recommending
 		 * it over using Cleanup() each time) */
 
 		/* TODO: add bodystructure and then prepare a full MIME structure
-		 * using the NMO ontology, by parsing the bodystructure. 
-		 * Bodystructures can be found in %s_bodystructure when they 
+		 * using the NMO ontology, by parsing the bodystructure.
+		 * Bodystructures can be found in %s_bodystructure when they
 		 * exist (not guaranteed). In IMAP BODYSTRUCTURE format. */
 
 		query = sqlite3_mprintf ("SELECT uid, flags, read, deleted, "            /* 0  - 3  */
-					        "replied, important, junk, attachment, " /* 4  - 7  */
-					        "size, dsent, dreceived, subject, "      /* 8  - 11 */
-					        "mail_from, mail_to, mail_cc, mlist, "   /* 12 - 15 */
-					        "labels, usertags "                      /* 16 - 17 */
-					 "FROM %Q "
-					 "WHERE modified > %"G_GUINT64_FORMAT, 
+		                         "replied, important, junk, attachment, " /* 4  - 7  */
+		                         "size, dsent, dreceived, subject, "      /* 8  - 11 */
+		                         "mail_from, mail_to, mail_cc, mlist, "   /* 12 - 15 */
+		                         "labels, usertags "                      /* 16 - 17 */
+		                         "FROM %Q "
+		                         "WHERE modified > %"G_GUINT64_FORMAT,
 
-					 iter->full_name, 
-					 info->last_checkout);
+		                         iter->full_name,
+		                         info->last_checkout);
 
 
 		ret = sqlite3_prepare_v2 (cdb_r->db, query, -1, &stmt, NULL);
@@ -954,7 +954,7 @@ introduce_walk_folders_in_folder (TrackerEvolutionPlugin *self,
 
 					folder = g_hash_table_lookup (priv->cached_folders, iter->full_name);
 
-					uri =  g_strdup_printf ("%s%s/%s", em_uri, 
+					uri =  g_strdup_printf ("%s%s/%s", em_uri,
 					                        iter->full_name, uid);
 
 					if (!sparql) {
@@ -965,8 +965,8 @@ introduce_walk_folders_in_folder (TrackerEvolutionPlugin *self,
 
 					tracker_sparql_builder_insert_open (sparql, uri);
 
-					process_fields (sparql, uid, flags, sent, 
-					                subject, from, to, cc, size, 
+					process_fields (sparql, uid, flags, sent,
+					                subject, from, to, cc, size,
 					                folder, uri);
 
 					g_static_rec_mutex_unlock (priv->mutex);
@@ -1003,36 +1003,36 @@ introduce_walk_folders_in_folder (TrackerEvolutionPlugin *self,
 					/* Extract User tags */
 					p = part = g_strdup ((const gchar *) sqlite3_column_text (stmt, 17));
 					EXTRACT_FIRST_DIGIT (max)
-					for (j = 0; j < max; j++) {
-						int len;
-						char *name, *value;
-						EXTRACT_STRING (name)
-						EXTRACT_STRING (value)
-						if (name && g_utf8_validate (name, -1, NULL) &&
-						    value && g_utf8_validate (value, -1, NULL)) {
+						for (j = 0; j < max; j++) {
+							int len;
+							char *name, *value;
+							EXTRACT_STRING (name)
+								EXTRACT_STRING (value)
+								if (name && g_utf8_validate (name, -1, NULL) &&
+								    value && g_utf8_validate (value, -1, NULL)) {
 
-							if (!opened) {
-								tracker_sparql_builder_subject_iri (sparql, uri);
-								opened = TRUE;
-							}
+									if (!opened) {
+										tracker_sparql_builder_subject_iri (sparql, uri);
+										opened = TRUE;
+									}
 
-							tracker_sparql_builder_predicate (sparql, "nao:hasProperty");
-							tracker_sparql_builder_object_blank_open (sparql);
+									tracker_sparql_builder_predicate (sparql, "nao:hasProperty");
+									tracker_sparql_builder_object_blank_open (sparql);
 
-							tracker_sparql_builder_predicate (sparql, "rdf:type");
-							tracker_sparql_builder_object (sparql, "nao:Property");
+									tracker_sparql_builder_predicate (sparql, "rdf:type");
+									tracker_sparql_builder_object (sparql, "nao:Property");
 
-							tracker_sparql_builder_predicate (sparql, "nao:propertyName");
-							tracker_sparql_builder_object_string (sparql, name);
-							
-							tracker_sparql_builder_predicate (sparql, "nao:propertyValue");
-							tracker_sparql_builder_object_string (sparql, value);
+									tracker_sparql_builder_predicate (sparql, "nao:propertyName");
+									tracker_sparql_builder_object_string (sparql, name);
 
-							tracker_sparql_builder_object_blank_close (sparql);
+									tracker_sparql_builder_predicate (sparql, "nao:propertyValue");
+									tracker_sparql_builder_object_string (sparql, value);
+
+									tracker_sparql_builder_object_blank_close (sparql);
+								}
+							g_free(name);
+							g_free(value);
 						}
-						g_free(name);
-						g_free(value);
-					}
 
 					g_free (uri);
 					g_free (p);
@@ -1044,7 +1044,7 @@ introduce_walk_folders_in_folder (TrackerEvolutionPlugin *self,
 
 				if (count >= MAX_BEFORE_SEND) {
 
-					/* Yield per MAX_BEFORE_SEND. This function is 
+					/* Yield per MAX_BEFORE_SEND. This function is
 					 * called as a result of a DBus call, so it runs
 					 * in the mainloop. Therefore, yield he mainloop
 					 * sometimes, indeed */
@@ -1066,8 +1066,8 @@ introduce_walk_folders_in_folder (TrackerEvolutionPlugin *self,
 				/* The many_queue stuff:
 				 * Why is this? Ah! Good question and glad you ask.
 				 * We noticed that hammering the DBus isn't exactly
-				 * a truly good idea. This many-handler will 
-				 * slow it all down to a N items per N seconds 
+				 * a truly good idea. This many-handler will
+				 * slow it all down to a N items per N seconds
 				 * thing. */
 
 				queued_set = g_slice_new (QueuedSet);
@@ -1082,7 +1082,7 @@ introduce_walk_folders_in_folder (TrackerEvolutionPlugin *self,
 					start_handler = TRUE;
 				}
 
-				g_queue_push_tail (many_queue, 
+				g_queue_push_tail (many_queue,
 				                   queued_set);
 
 				priv->of_total++;
@@ -1110,8 +1110,8 @@ introduce_walk_folders_in_folder (TrackerEvolutionPlugin *self,
 		sqlite3_free (query);
 
 		if (iter->child) {
-			introduce_walk_folders_in_folder (self, iter->child, 
-			                                  store, cdb_r, 
+			introduce_walk_folders_in_folder (self, iter->child,
+			                                  store, cdb_r,
 			                                  account_uri, info);
 		}
 
@@ -1121,14 +1121,14 @@ introduce_walk_folders_in_folder (TrackerEvolutionPlugin *self,
 	g_free (em_uri);
 }
 
-/* Initial notify of deletes that are more recent than last_checkout, called in 
+/* Initial notify of deletes that are more recent than last_checkout, called in
  * the mainloop */
 
 static void
-introduce_store_deal_with_deleted (TrackerEvolutionPlugin *self, 
-				   CamelStore *store, 
-				   char *account_uri, 
-				   gpointer user_data)
+introduce_store_deal_with_deleted (TrackerEvolutionPlugin *self,
+                                   CamelStore *store,
+                                   char *account_uri,
+                                   gpointer user_data)
 {
 	ClientRegistry *info = user_data;
 	gboolean more = TRUE;
@@ -1140,7 +1140,7 @@ introduce_store_deal_with_deleted (TrackerEvolutionPlugin *self,
 
 	query = sqlite3_mprintf ("SELECT uid, mailbox "
 	                         "FROM Deletes "
-	                         "WHERE modified > %" G_GUINT64_FORMAT, 
+	                         "WHERE modified > %" G_GUINT64_FORMAT,
 	                         info->last_checkout);
 
 	/* This creates a thread apparently */
@@ -1175,15 +1175,15 @@ introduce_store_deal_with_deleted (TrackerEvolutionPlugin *self,
 			uid     = (const gchar *) sqlite3_column_text (stmt, 0);
 			mailbox = (const gchar *) sqlite3_column_text (stmt, 1);
 
-			/* This is not a path but a URI, don't use the OS's 
+			/* This is not a path but a URI, don't use the OS's
 			 * directory separator here */
 
-			g_ptr_array_add (subjects_a, g_strdup_printf ("%s%s/%s", em_uri, 
-								      mailbox, uid));
+			g_ptr_array_add (subjects_a, g_strdup_printf ("%s%s/%s", em_uri,
+			                                              mailbox, uid));
 
 			if (count > MAX_BEFORE_SEND) {
 
-				/* Yield per MAX_BEFORE_SEND. This function is 
+				/* Yield per MAX_BEFORE_SEND. This function is
 				 * called as a result of a DBus call, so it runs
 				 * in the mainloop. Therefore, yield he mainloop
 				 * sometimes, indeed */
@@ -1200,13 +1200,13 @@ introduce_store_deal_with_deleted (TrackerEvolutionPlugin *self,
 		}
 
 		if (count > 0) {
-			/* The FROM uri is not exactly right here, but we just want 
+			/* The FROM uri is not exactly right here, but we just want
 			 * graph != NULL in tracker-store/tracker-writeback.c */
 
 			GString *sparql = g_string_new ("");
 
 			for (i = 0; i < subjects_a->len; i++) {
-				g_string_append_printf (sparql, "DELETE FROM <%s> { <%s> a rdfs:Resource } \n", 
+				g_string_append_printf (sparql, "DELETE FROM <%s> { <%s> a rdfs:Resource } \n",
 				                        (gchar *) g_ptr_array_index (subjects_a, i),
 				                        (gchar *) g_ptr_array_index (subjects_a, i));
 			}
@@ -1328,24 +1328,24 @@ register_on_get_folder (gchar *uri, CamelFolder *folder, gpointer user_data)
 		goto not_ready;
 	}
 
-	hook_id = camel_object_hook_event (folder, "folder_changed", 
-	                                   CAMEL_CALLBACK (on_folder_summary_changed), 
+	hook_id = camel_object_hook_event (folder, "folder_changed",
+	                                   CAMEL_CALLBACK (on_folder_summary_changed),
 	                                   registry->hook_info);
 	registry->hook_info->hook_id = hook_id;
 
 	g_hash_table_replace (priv->registered_folders,
-	                      GINT_TO_POINTER (hook_id), 
+	                      GINT_TO_POINTER (hook_id),
 	                      registry);
 
-	g_hash_table_replace (priv->cached_folders, 
-	                      g_strdup (iter->full_name), 
+	g_hash_table_replace (priv->cached_folders,
+	                      g_strdup (iter->full_name),
 	                      folder);
 
-	not_ready:
+ not_ready:
 
 	g_static_rec_mutex_unlock (priv->mutex);
 
-	fail_register:
+ fail_register:
 
 	camel_folder_info_free (info->iter);
 	g_free (info->account_uri);
@@ -1356,10 +1356,10 @@ register_on_get_folder (gchar *uri, CamelFolder *folder, gpointer user_data)
 }
 
 static void
-register_walk_folders_in_folder (TrackerEvolutionPlugin *self, 
-				 CamelFolderInfo *iter, 
-				 CamelStore *store, 
-				 gchar *account_uri)
+register_walk_folders_in_folder (TrackerEvolutionPlugin *self,
+                                 CamelFolderInfo *iter,
+                                 CamelStore *store,
+                                 gchar *account_uri)
 {
 	TrackerEvolutionPluginPrivate *priv = TRACKER_EVOLUTION_PLUGIN_GET_PRIVATE (self);
 
@@ -1391,12 +1391,12 @@ register_walk_folders_in_folder (TrackerEvolutionPlugin *self,
 		/* This is asynchronous and hooked to the mail/ API, so nicely
 		 * integrated with the Evolution UI application */
 
-		mail_get_folder (iter->uri, 0, register_on_get_folder, info, 
+		mail_get_folder (iter->uri, 0, register_on_get_folder, info,
 		                 mail_msg_unordered_push);
 
 		if (iter->child) {
-			register_walk_folders_in_folder (self, iter->child, 
-			                                 store, 
+			register_walk_folders_in_folder (self, iter->child,
+			                                 store,
 			                                 account_uri);
 		}
 
@@ -1436,11 +1436,11 @@ unregister_on_get_folder (gchar *uri, CamelFolder *folder, gpointer user_data)
 		}
 	}
 
-	no_folders:
+ no_folders:
 
 	g_static_rec_mutex_unlock (priv->mutex);
 
-	fail_unregister:
+ fail_unregister:
 
 	camel_folder_info_free (info->iter);
 	g_free (info->account_uri);
@@ -1449,9 +1449,9 @@ unregister_on_get_folder (gchar *uri, CamelFolder *folder, gpointer user_data)
 }
 
 static void
-unregister_walk_folders_in_folder (TrackerEvolutionPlugin *self, 
-                                   CamelFolderInfo *titer, 
-                                   CamelStore *store, 
+unregister_walk_folders_in_folder (TrackerEvolutionPlugin *self,
+                                   CamelFolderInfo *titer,
+                                   CamelStore *store,
                                    gchar *account_uri)
 {
 	/* Recursively walks all the folders in store */
@@ -1466,12 +1466,12 @@ unregister_walk_folders_in_folder (TrackerEvolutionPlugin *self,
 		/* This is asynchronous and hooked to the mail/ API, so nicely
 		 * integrated with the Evolution UI application */
 
-		mail_get_folder (titer->uri, 0, unregister_on_get_folder, info, 
+		mail_get_folder (titer->uri, 0, unregister_on_get_folder, info,
 		                 mail_msg_unordered_push);
 
 		if (titer->child) {
 			unregister_walk_folders_in_folder (self, titer->child,
-			                                   store, 
+			                                   store,
 			                                   account_uri);
 		}
 
@@ -1504,11 +1504,11 @@ try_again (gpointer user_data)
 		TryAgainInfo *info = user_data;
 		IntroductionInfo *intro_info = info->intro_info;
 
-		introduce_walk_folders_in_folder (intro_info->self, 
+		introduce_walk_folders_in_folder (intro_info->self,
 		                                  info->iter,
-		                                  info->store, 
+		                                  info->store,
 		                                  info->cdb_r,
-		                                  intro_info->account_uri, 
+		                                  intro_info->account_uri,
 		                                  intro_info->info);
 
 		return FALSE;
@@ -1535,8 +1535,8 @@ try_again_d (gpointer user_data)
 }
 
 static gboolean
-on_got_folderinfo_introduce (CamelStore *store, 
-                             CamelFolderInfo *iter, 
+on_got_folderinfo_introduce (CamelStore *store,
+                             CamelFolderInfo *iter,
                              void *data)
 {
 	TryAgainInfo *info = g_new0 (TryAgainInfo, 1);
@@ -1553,23 +1553,23 @@ on_got_folderinfo_introduce (CamelStore *store,
 	/* If a registrar is running while Evolution is starting up, we decide
 	 * not to slow down Evolution's startup by immediately going through
 	 * all CamelFolder instances (the UI is doing the same thing, we can
-	 * better allow the UI to do this first, and cache the folders that 
-	 * way) 
+	 * better allow the UI to do this first, and cache the folders that
+	 * way)
 	 *
 	 * Regretfully doesn't Evolution's plugin interfaces give me a better
 	 * hook to detect the startup of the UI application of Evolution, else
-	 * it would of course be better to use that instead. 
+	 * it would of course be better to use that instead.
 	 *
-	 * The register_count is the amount of folders that we register, a 
+	 * The register_count is the amount of folders that we register, a
 	 * registry has been made asynchronous using the high-level API
 	 * mail_get_folder, so in the callback we decrement the number, before
 	 * the call we increment the number. If we're at zero, it means we're
-	 * fully initialized. If not, we wait ten seconds and retry until 
+	 * fully initialized. If not, we wait ten seconds and retry until
 	 * finally we're fully initialized. (it's not as magic as it looks) */
 
 	if (register_count != 0) {
 		g_timeout_add_seconds_full (G_PRIORITY_DEFAULT, 10,
-		                            try_again, info, 
+		                            try_again, info,
 		                            try_again_d);
 	} else {
 		try_again (info);
@@ -1580,8 +1580,8 @@ on_got_folderinfo_introduce (CamelStore *store,
 }
 
 static void
-introduce_account_to (TrackerEvolutionPlugin *self, 
-                      EAccount *account, 
+introduce_account_to (TrackerEvolutionPlugin *self,
+                      EAccount *account,
                       ClientRegistry *info)
 {
 	CamelProvider *provider;
@@ -1630,7 +1630,7 @@ introduce_account_to (TrackerEvolutionPlugin *self,
 
 
 static void
-introduce_account_to_all (TrackerEvolutionPlugin *self, 
+introduce_account_to_all (TrackerEvolutionPlugin *self,
                           EAccount *account)
 {
 	TrackerEvolutionPluginPrivate *priv = TRACKER_EVOLUTION_PLUGIN_GET_PRIVATE (self);
@@ -1645,7 +1645,7 @@ introduce_account_to_all (TrackerEvolutionPlugin *self,
 }
 
 static void
-introduce_accounts_to (TrackerEvolutionPlugin *self, 
+introduce_accounts_to (TrackerEvolutionPlugin *self,
                        ClientRegistry *info)
 {
 	TrackerEvolutionPluginPrivate *priv = TRACKER_EVOLUTION_PLUGIN_GET_PRIVATE (self);
@@ -1670,7 +1670,7 @@ register_client_second_half (ClientRegistry *info)
 	if (info->last_checkout < too_old) {
 
 		send_sparql_update (info->self, "DELETE FROM <"DATASOURCE_URN"> { ?s a rdfs:Resource } "
-		                                "WHERE { ?s nie:dataSource <" DATASOURCE_URN "> }");
+		                    "WHERE { ?s nie:dataSource <" DATASOURCE_URN "> }");
 		send_sparql_commit (info->self, FALSE);
 
 		info->last_checkout = 0;
@@ -1680,13 +1680,13 @@ register_client_second_half (ClientRegistry *info)
 
 	introduce_accounts_to (info->self, info);
 
-	priv->registered_clients = 
+	priv->registered_clients =
 		g_list_prepend (priv->registered_clients, info);
 }
 
 static void
-on_register_client_qry (GPtrArray *results, 
-                        GError    *error, 
+on_register_client_qry (GPtrArray *results,
+                        GError    *error,
                         gpointer   user_data)
 {
 	ClientRegistry *info = user_data;
@@ -1745,16 +1745,16 @@ register_client (TrackerEvolutionPlugin *self)
 	priv->of_total = 0;
 
 	query = "SELECT ?c "
-	        "WHERE { <" DATASOURCE_URN "> nie:contentLastModified ?c }";
+		"WHERE { <" DATASOURCE_URN "> nie:contentLastModified ?c }";
 
-	tracker_resources_sparql_query_async (priv->client, query, 
+	tracker_resources_sparql_query_async (priv->client, query,
 	                                      on_register_client_qry,
 	                                      info);
 }
 
 
 static void
-on_folder_created (CamelStore *store, void *event_data, 
+on_folder_created (CamelStore *store, void *event_data,
                    StoreRegistry *registry)
 {
 	unregister_account (registry->self, registry->account);
@@ -1763,8 +1763,8 @@ on_folder_created (CamelStore *store, void *event_data,
 }
 
 static void
-on_folder_deleted (CamelStore *store, 
-                   void *event_data, 
+on_folder_deleted (CamelStore *store,
+                   void *event_data,
                    StoreRegistry *registry)
 {
 	unregister_account (registry->self, registry->account);
@@ -1773,8 +1773,8 @@ on_folder_deleted (CamelStore *store,
 }
 
 static void
-on_folder_renamed (CamelStore *store, 
-                   CamelRenameInfo *info, 
+on_folder_renamed (CamelStore *store,
+                   CamelRenameInfo *info,
                    StoreRegistry *registry)
 {
 	unregister_account (registry->self, registry->account);
@@ -1783,8 +1783,8 @@ on_folder_renamed (CamelStore *store,
 }
 
 static StoreRegistry*
-store_registry_new (gpointer co, 
-                    EAccount *account, 
+store_registry_new (gpointer co,
+                    EAccount *account,
                     TrackerEvolutionPlugin *self)
 {
 	StoreRegistry *registry = g_slice_new (StoreRegistry);
@@ -1798,7 +1798,7 @@ store_registry_new (gpointer co,
 }
 
 static void
-store_registry_free (StoreRegistry *registry) 
+store_registry_free (StoreRegistry *registry)
 {
 	camel_object_remove_event (registry->store, registry->hook_id);
 	camel_object_unref (registry->store);
@@ -1807,8 +1807,8 @@ store_registry_free (StoreRegistry *registry)
 
 
 static gboolean
-on_got_folderinfo_register (CamelStore *store, 
-                            CamelFolderInfo *iter, 
+on_got_folderinfo_register (CamelStore *store,
+                            CamelFolderInfo *iter,
                             void *data)
 {
 	RegisterInfo *reg_info = data;
@@ -1831,30 +1831,30 @@ on_got_folderinfo_register (CamelStore *store,
 
 	/* Hook up catching folder changes in the store */
 	registry = store_registry_new (store, account, self);
-	hook_id = camel_object_hook_event (store, "folder_created", 
-	                                   CAMEL_CALLBACK (on_folder_created), 
+	hook_id = camel_object_hook_event (store, "folder_created",
+	                                   CAMEL_CALLBACK (on_folder_created),
 	                                   registry);
 	registry->hook_id = hook_id;
-	g_hash_table_replace (priv->registered_stores, 
+	g_hash_table_replace (priv->registered_stores,
 	                      GINT_TO_POINTER (hook_id),
 	                      registry);
 
 	registry = store_registry_new (store, account, self);
-	hook_id = camel_object_hook_event (store, "folder_renamed", 
-	                                   CAMEL_CALLBACK (on_folder_renamed), 
+	hook_id = camel_object_hook_event (store, "folder_renamed",
+	                                   CAMEL_CALLBACK (on_folder_renamed),
 	                                   registry);
 	registry->hook_id = hook_id;
-	g_hash_table_replace (priv->registered_stores, 
+	g_hash_table_replace (priv->registered_stores,
 	                      GINT_TO_POINTER (hook_id),
 	                      registry);
 
 	registry = store_registry_new (store, account, self);
-	hook_id = camel_object_hook_event (store, "folder_deleted", 
-	                                   CAMEL_CALLBACK (on_folder_deleted), 
+	hook_id = camel_object_hook_event (store, "folder_deleted",
+	                                   CAMEL_CALLBACK (on_folder_deleted),
 	                                   registry);
 	registry->hook_id = hook_id;
-	g_hash_table_replace (priv->registered_stores, 
-	                      GINT_TO_POINTER (hook_id), 
+	g_hash_table_replace (priv->registered_stores,
+	                      GINT_TO_POINTER (hook_id),
 	                      registry);
 
 	g_static_rec_mutex_unlock (priv->mutex);
@@ -1910,7 +1910,7 @@ register_account (TrackerEvolutionPlugin *self,
 }
 
 static gboolean
-on_got_folderinfo_unregister (CamelStore *store, 
+on_got_folderinfo_unregister (CamelStore *store,
                               CamelFolderInfo *titer,
                               void *data)
 {
@@ -1929,7 +1929,7 @@ on_got_folderinfo_unregister (CamelStore *store,
 		g_hash_table_iter_init (&iter, priv->registered_stores);
 
 		while (g_hash_table_iter_next (&iter, &key, &value)) {
-			if (value == store) 
+			if (value == store)
 				g_hash_table_iter_remove (&iter);
 		}
 	}
@@ -1981,8 +1981,8 @@ unregister_account (TrackerEvolutionPlugin *self,
 }
 
 static void
-on_account_added (EAccountList *list, 
-                  EAccount *account, 
+on_account_added (EAccountList *list,
+                  EAccount *account,
                   TrackerEvolutionPlugin *self)
 {
 	register_account (self, account);
@@ -1998,7 +1998,7 @@ on_account_removed (EAccountList *list,
 }
 
 static void
-on_account_changed (EAccountList *list, 
+on_account_changed (EAccountList *list,
                     EAccount *account,
                     TrackerEvolutionPlugin *self)
 {
@@ -2008,7 +2008,7 @@ on_account_changed (EAccountList *list,
 }
 
 static void
-disable_plugin (void) 
+disable_plugin (void)
 {
 	if (manager) {
 		g_object_unref (manager);
@@ -2034,7 +2034,7 @@ list_names_reply_cb (DBusGProxy     *proxy,
 		g_warning ("%s", error->message);
 		g_error_free (error);
 		if (names)
-			g_strfreev (names); 
+			g_strfreev (names);
 		return;
 	}
 
@@ -2046,16 +2046,16 @@ list_names_reply_cb (DBusGProxy     *proxy,
 		i++;
 	}
 
-	g_strfreev (names); 
+	g_strfreev (names);
 }
 
 
 static void
-name_owner_changed_cb (DBusGProxy *proxy, 
-		       gchar *name, 
-		       gchar *old_owner, 
-		       gchar *new_owner, 
-		       gpointer user_data)
+name_owner_changed_cb (DBusGProxy *proxy,
+                       gchar *name,
+                       gchar *old_owner,
+                       gchar *new_owner,
+                       gpointer user_data)
 {
 	TrackerEvolutionPluginPrivate *priv = TRACKER_EVOLUTION_PLUGIN_GET_PRIVATE (user_data);
 
@@ -2083,7 +2083,7 @@ enable_plugin (void)
 		g_object_unref (manager);
 	}
 
-	manager = g_object_new (TRACKER_TYPE_EVOLUTION_PLUGIN, 
+	manager = g_object_new (TRACKER_TYPE_EVOLUTION_PLUGIN,
 	                        "name", "Emails", NULL);
 
 	g_signal_emit_by_name (manager, "started");
@@ -2191,7 +2191,7 @@ tracker_evolution_plugin_init (TrackerEvolutionPlugin *plugin)
 		goto error_handler;
 	}
 
-	priv->dbus_proxy = dbus_g_proxy_new_for_name (priv->connection, 
+	priv->dbus_proxy = dbus_g_proxy_new_for_name (priv->connection,
 	                                              DBUS_SERVICE_DBUS,
 	                                              DBUS_PATH_DBUS,
 	                                              DBUS_INTERFACE_DBUS);
@@ -2208,13 +2208,13 @@ tracker_evolution_plugin_init (TrackerEvolutionPlugin *plugin)
 
 	g_object_unref (it);
 
-	g_signal_connect (priv->accounts, "account-added", 
+	g_signal_connect (priv->accounts, "account-added",
 	                  G_CALLBACK (on_account_added), plugin);
-	g_signal_connect (priv->accounts, "account-removed", 
+	g_signal_connect (priv->accounts, "account-removed",
 	                  G_CALLBACK (on_account_removed), plugin);
-	g_signal_connect (priv->accounts, "account-changed", 
+	g_signal_connect (priv->accounts, "account-changed",
 	                  G_CALLBACK (on_account_changed), plugin);
-	error_handler:
+ error_handler:
 
 	if (error) {
 		g_warning ("Could not setup DBus for Tracker plugin, %s\n", error->message);
@@ -2253,7 +2253,7 @@ miner_started (TrackerMiner *miner)
 	}
 
 	dbus_g_proxy_begin_call (priv->dbus_proxy, "ListNames",
-	                         list_names_reply_cb, 
+	                         list_names_reply_cb,
 	                         g_object_ref (miner),
 	                         listnames_fini,
 	                         G_TYPE_INVALID,
@@ -2291,7 +2291,7 @@ miner_paused (TrackerMiner *miner)
 		tracker_disconnect (priv->client);
 
 		/* By setting this to NULL, events will still be catched by our
-		 * handlers, but the send_sparql_* calls will just ignore it. 
+		 * handlers, but the send_sparql_* calls will just ignore it.
 		 * This is fine as a solution (at least for now). It allows us
 		 * to avoid having to unregister everything and risk the chance
 		 * of missing something (like a folder or account creation). */
@@ -2344,7 +2344,7 @@ miner_resumed (TrackerMiner *miner)
 	g_object_set (miner,  "progress", 0.0,  "status", _("Resuming"), NULL);
 
 	dbus_g_proxy_begin_call (priv->dbus_proxy, "ListNames",
-	                         list_names_reply_cb, 
+	                         list_names_reply_cb,
 	                         g_object_ref (miner),
 	                         resuming_fini,
 	                         G_TYPE_INVALID,

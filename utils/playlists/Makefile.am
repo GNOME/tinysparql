@@ -1,6 +1,6 @@
 include $(top_srcdir)/Makefile.decl
 
-noinst_PROGRAMS = 
+noinst_PROGRAMS =
 
 if HAVE_TOTEM_PL_PARSER
 noinst_PROGRAMS += playlist2ttl
@@ -11,7 +11,7 @@ INCLUDES = 				\
 	$(WARN_CFLAGS)			\
 	$(GLIB2_CFLAGS)			\
 	$(GIO_CFLAGS)			\
-	$(TOTEM_PL_PARSER_CFLAGS)					
+	$(TOTEM_PL_PARSER_CFLAGS)
 
 playlist2ttl_SOURCES = 			\
 	playlist2ttl.c

@@ -75,8 +75,8 @@ static GObjectClass *parent_class = NULL;
 #define GIGABYTE_FACTOR (1024.0 * 1024.0 * 1024.0)
 
 /* forward declerations */
-static void  tracker_metadata_tile_class_init	    (TrackerMetadataTileClass *class);
-static void  tracker_metadata_tile_init		    (TrackerMetadataTile      *tile);
+static void  tracker_metadata_tile_class_init       (TrackerMetadataTileClass *class);
+static void  tracker_metadata_tile_init                     (TrackerMetadataTile      *tile);
 static gboolean tracker_metadata_tile_expose_event(GtkWidget *widget, GdkEventExpose *event);
 #if 0
 static void tracker_metadata_tile_show (TrackerMetadataTile *tile);
@@ -97,15 +97,15 @@ static inline gboolean is_empty_string (const char *s);
 #if 0
 
 static const char *default_keys[] =
-{
-	"File:Name",
-	"File:Path",
-	"File:Modified",
-	"File:Size",
-	"File:Accessed",
-	"File:Mime",
-	NULL
-};
+	{
+		"File:Name",
+		"File:Path",
+		"File:Modified",
+		"File:Size",
+		"File:Accessed",
+		"File:Mime",
+		NULL
+	};
 
 #endif
 
@@ -122,16 +122,16 @@ enum {
 #if 0
 
 static const char *doc_keys[] =
-{
-	"File:Name",
-	"Doc:Subject",
-	"Doc:Author",
-	"Doc:Comments",
-	"Doc:PageCount",
-	"Doc:WordCount",
-	"Doc:Created",
-	NULL
-};
+	{
+		"File:Name",
+		"Doc:Subject",
+		"Doc:Author",
+		"Doc:Comments",
+		"Doc:PageCount",
+		"Doc:WordCount",
+		"Doc:Created",
+		NULL
+	};
 
 #endif
 
@@ -149,15 +149,15 @@ enum {
 #if 0
 
 static const char *email_keys[] =
-{
-	"Email:Sender",
-	"Email:Subject",
-	"Email:Date",
-	"Email:SentTo",
-	"Email:CC",
-	"Email:Attachments",
-	NULL
-};
+	{
+		"Email:Sender",
+		"Email:Subject",
+		"Email:Date",
+		"Email:SentTo",
+		"Email:CC",
+		"Email:Attachments",
+		NULL
+	};
 
 #endif
 
@@ -174,14 +174,14 @@ enum {
 #if 0
 
 static const char *webhistory_keys[] =
-{
-	"Doc:URL",
-	"Doc:Title",
-	"File:Size",
-	"File:Mime",
-	"Doc:Keywords",
-	NULL
-};
+	{
+		"Doc:URL",
+		"Doc:Title",
+		"File:Size",
+		"File:Mime",
+		"Doc:Keywords",
+		NULL
+	};
 
 #endif
 
@@ -197,13 +197,13 @@ enum {
 #if 0
 
 static const char *app_keys[] =
-{
-	"App:DisplayName",
-	"App:GenericName",
-	"App:Comment",
-	"App:Categories",
-	NULL
-};
+	{
+		"App:DisplayName",
+		"App:GenericName",
+		"App:Comment",
+		"App:Categories",
+		NULL
+	};
 
 #endif
 
@@ -218,18 +218,18 @@ enum {
 #if 0
 
 static const char *audio_keys[] =
-{
-	"Audio:Title",
-	"Audio:Artist",
-	"Audio:Album",
-	"Audio:Duration",
-	"Audio:Genre",
-	"Audio:Bitrate",
-	"Audio:ReleaseDate",
-	"Audio:Codec",
-	"File:Size",
-	NULL
-};
+	{
+		"Audio:Title",
+		"Audio:Artist",
+		"Audio:Album",
+		"Audio:Duration",
+		"Audio:Genre",
+		"Audio:Bitrate",
+		"Audio:ReleaseDate",
+		"Audio:Codec",
+		"File:Size",
+		NULL
+	};
 
 #endif
 
@@ -249,19 +249,19 @@ enum {
 #if 0
 
 static const char *image_keys[] =
-{
-	"File:Name",
-	"Image:Height",
-	"Image:Width",
-	"Image:Date",
-	"Image:CameraMake",
-	"Image:CameraModel",
-	"Image:Orientation",
-	"Image:Flash",
-	"Image:FocalLength",
-	"Image:ExposureTime",
-	NULL
-};
+	{
+		"File:Name",
+		"Image:Height",
+		"Image:Width",
+		"Image:Date",
+		"Image:CameraMake",
+		"Image:CameraModel",
+		"Image:Orientation",
+		"Image:Flash",
+		"Image:FocalLength",
+		"Image:ExposureTime",
+		NULL
+	};
 
 #endif
 
@@ -282,17 +282,17 @@ enum {
 #if 0
 
 static const char *video_keys[] =
-{
-	"File:Name",
-	"Video:Height",
-	"Video:Width",
-	"Video:Author",
-	"Video:FrameRate",
-	"Video:Codec",
-	"Video:Bitrate",
-	"Video:Duration",
-	NULL
-};
+	{
+		"File:Name",
+		"Video:Height",
+		"Video:Width",
+		"Video:Author",
+		"Video:FrameRate",
+		"Video:Codec",
+		"Video:Bitrate",
+		"Video:Duration",
+		NULL
+	};
 
 #endif
 
@@ -355,7 +355,7 @@ _tile_tracker_populate_default (char **array, GError *error, TrackerMetadataTile
 
 	TrackerMetadataTilePrivate *priv;
 
-	priv = TRACKER_METADATA_TILE_GET_PRIVATE (tile);	/* create title */
+	priv = TRACKER_METADATA_TILE_GET_PRIVATE (tile);        /* create title */
 
 	_property_to_label ( priv->title, array[DEFAULT_NAME] , "<span size='large'><b>%s</b></span>");
 
@@ -486,7 +486,7 @@ _tile_tracker_populate_audio (char **array, GError *error, TrackerMetadataTile *
 
 	TrackerMetadataTilePrivate *priv;
 
-	priv = TRACKER_METADATA_TILE_GET_PRIVATE (tile);	/* create title */
+	priv = TRACKER_METADATA_TILE_GET_PRIVATE (tile);        /* create title */
 
 	char *prop = NULL;
 	/* make nice looking description */
@@ -568,7 +568,7 @@ _tile_tracker_populate_image (char **array, GError *error, TrackerMetadataTile *
 
 	TrackerMetadataTilePrivate *priv;
 
-	priv = TRACKER_METADATA_TILE_GET_PRIVATE (tile);	/* create title */
+	priv = TRACKER_METADATA_TILE_GET_PRIVATE (tile);        /* create title */
 
 	/* create title */
 	_property_to_label ( priv->title, array[IMAGE_TITLE] , "<span size='large'><b>%s</b></span>");
@@ -592,14 +592,14 @@ _tile_tracker_populate_image (char **array, GError *error, TrackerMetadataTile *
 	}
 	if (camera && model) {
 		prop = g_strdup_printf (str->str, g_markup_escape_text (array[IMAGE_TITLE], -1),
-						  g_markup_escape_text (array[IMAGE_CAMERA], -1),
-						  g_markup_escape_text (array[IMAGE_MODEL], -1));
+		                        g_markup_escape_text (array[IMAGE_CAMERA], -1),
+		                        g_markup_escape_text (array[IMAGE_MODEL], -1));
 	} else if (camera) {
 		prop = g_strdup_printf (str->str, g_markup_escape_text (array[IMAGE_TITLE], -1),
-						  g_markup_escape_text (array[IMAGE_CAMERA], -1));
+		                        g_markup_escape_text (array[IMAGE_CAMERA], -1));
 	} else if (model) {
 		prop = g_strdup_printf (str->str, g_markup_escape_text (array[IMAGE_TITLE], -1),
-						  g_markup_escape_text (array[IMAGE_MODEL], -1));
+		                        g_markup_escape_text (array[IMAGE_MODEL], -1));
 	} else {
 		prop = g_strdup_printf (str->str, g_markup_escape_text (array[IMAGE_TITLE], -1));
 	}
@@ -632,7 +632,7 @@ _tile_tracker_populate_video (char **array, GError *error, TrackerMetadataTile *
 
 	TrackerMetadataTilePrivate *priv;
 
-	priv = TRACKER_METADATA_TILE_GET_PRIVATE (tile);	/* create title */
+	priv = TRACKER_METADATA_TILE_GET_PRIVATE (tile);        /* create title */
 
 	_property_to_label ( priv->title, array[VIDEO_TITLE] , "<span size='large'><b>%s</b></span>");
 
@@ -788,15 +788,15 @@ format_file_size_for_display (gulong size)
 		if (size < MEGABYTE_FACTOR) {
 			displayed_size = (gdouble) size / KILOBYTE_FACTOR;
 			return g_strdup_printf (_("%.1f KB"),
-						displayed_size);
+			                        displayed_size);
 		} else if (size < GIGABYTE_FACTOR) {
 			displayed_size = (gdouble) size / MEGABYTE_FACTOR;
 			return g_strdup_printf (_("%.1f MB"),
-						displayed_size);
+			                        displayed_size);
 		} else {
 			displayed_size = (gdouble) size / GIGABYTE_FACTOR;
 			return g_strdup_printf (_("%.1f GB"),
-						displayed_size);
+			                        displayed_size);
 		}
 	}
 }
@@ -945,9 +945,9 @@ _property_to_label (GtkWidget *label, const char *prop, const char *string)
 #if 0
 void
 tracker_metadata_tile_set_uri (TrackerMetadataTile *tile, const gchar *uri,
-							  ServiceType service_type,
-							  const gchar *type,
-							  GdkPixbuf *icon)
+                               ServiceType service_type,
+                               const gchar *type,
+                               GdkPixbuf *icon)
 {
 	TrackerMetadataTilePrivate *priv;
 
@@ -969,61 +969,61 @@ tracker_metadata_tile_set_uri (TrackerMetadataTile *tile, const gchar *uri,
 	case SERVICE_MUSIC:
 
 		tracker_metadata_get_async (priv->client, SERVICE_MUSIC,
-					    uri, audio_keys,
-					    (TrackerArrayReply)_tile_tracker_populate_audio,
-					    (gpointer)tile);
+		                            uri, audio_keys,
+		                            (TrackerArrayReply)_tile_tracker_populate_audio,
+		                            (gpointer)tile);
 
 		break;
 
 	case SERVICE_EMAILS:
 
 		tracker_metadata_get_async (priv->client, SERVICE_EMAILS,
-					    uri, email_keys,
-					    (TrackerArrayReply)_tile_tracker_populate_email,
-					    (gpointer)tile);
+		                            uri, email_keys,
+		                            (TrackerArrayReply)_tile_tracker_populate_email,
+		                            (gpointer)tile);
 		break;
 
 
 	case SERVICE_DOCUMENTS:
 
 		tracker_metadata_get_async (priv->client, SERVICE_DOCUMENTS,
-					    uri, doc_keys,
-					    (TrackerArrayReply)_tile_tracker_populate_documents,
-					    (gpointer)tile);
+		                            uri, doc_keys,
+		                            (TrackerArrayReply)_tile_tracker_populate_documents,
+		                            (gpointer)tile);
 		break;
 
 	case SERVICE_WEBHISTORY:
 
 		tracker_metadata_get_async (priv->client, SERVICE_WEBHISTORY,
-					    uri, webhistory_keys,
-					    (TrackerArrayReply)_tile_tracker_populate_webhistory,
-					    (gpointer)tile);
+		                            uri, webhistory_keys,
+		                            (TrackerArrayReply)_tile_tracker_populate_webhistory,
+		                            (gpointer)tile);
 		break;
 
 
 	case SERVICE_IMAGES:
 
 		tracker_metadata_get_async (priv->client, SERVICE_IMAGES,
-					    uri, image_keys,
-					    (TrackerArrayReply)_tile_tracker_populate_image,
-					    (gpointer)tile);
+		                            uri, image_keys,
+		                            (TrackerArrayReply)_tile_tracker_populate_image,
+		                            (gpointer)tile);
 
 		break;
 
 	case SERVICE_VIDEOS:
 		tracker_metadata_get_async (priv->client, SERVICE_VIDEOS,
-					    uri, video_keys,
-					    (TrackerArrayReply)_tile_tracker_populate_video,
-					    (gpointer)tile);
+		                            uri, video_keys,
+		                            (TrackerArrayReply)_tile_tracker_populate_video,
+		                            (gpointer)tile);
 
 		break;
 
 	case SERVICE_APPLICATIONS:
 
 		tracker_metadata_get_async (priv->client, SERVICE_APPLICATIONS,
-					    uri, app_keys,
-					    (TrackerArrayReply)_tile_tracker_populate_applications,
-					    (gpointer)tile);
+		                            uri, app_keys,
+		                            (TrackerArrayReply)_tile_tracker_populate_applications,
+		                            (gpointer)tile);
 
 		break;
 
@@ -1035,9 +1035,9 @@ tracker_metadata_tile_set_uri (TrackerMetadataTile *tile, const gchar *uri,
 		} else {
 
 			tracker_metadata_get_async (priv->client, SERVICE_FILES,
-						    uri, default_keys,
-						    (TrackerArrayReply)_tile_tracker_populate_default,
-						    (gpointer)tile);
+			                            uri, default_keys,
+			                            (TrackerArrayReply)_tile_tracker_populate_default,
+			                            (gpointer)tile);
 		}
 
 		break;
@@ -1085,13 +1085,13 @@ tracker_metadata_tile_toggle_view (GtkWidget *button, TrackerMetadataTile *tile)
 		gtk_widget_hide (priv->image);
 		gtk_widget_hide (priv->table);
 		gtk_arrow_set (GTK_ARROW (priv->arrow),
-			       GTK_ARROW_RIGHT, GTK_SHADOW_NONE);
+		               GTK_ARROW_RIGHT, GTK_SHADOW_NONE);
 		gtk_alignment_set_padding (GTK_ALIGNMENT (priv->align), 1, 1, 4, 4);
 	} else {
 		gtk_widget_show (priv->image);
 		gtk_widget_show (priv->table);
 		gtk_arrow_set (GTK_ARROW (priv->arrow),
-			       GTK_ARROW_DOWN, GTK_SHADOW_NONE);
+		               GTK_ARROW_DOWN, GTK_SHADOW_NONE);
 		gtk_alignment_set_padding (GTK_ALIGNMENT (priv->align), 6, 6, 4, 4);
 	}
 	priv->expanded = !priv->expanded;
@@ -1136,13 +1136,13 @@ draw (GtkWidget *widget, cairo_t *cr)
 	/* main gradient */
 	pat = cairo_pattern_create_linear (0.0, 0.0, 0.0, height);
 	cairo_pattern_add_color_stop_rgba (pat, 0.0, step2.red/65535.0,
-						     step2.green/65535.0,
-						     step2.blue/65535.0,
-						     0.05);
+	                                   step2.green/65535.0,
+	                                   step2.blue/65535.0,
+	                                   0.05);
 	cairo_pattern_add_color_stop_rgba ( pat, 1.0, step2.red/65535.0,
-						      step2.green/65535.0,
-						      step2.blue/65535.0,
-						      0.5);
+	                                    step2.green/65535.0,
+	                                    step2.blue/65535.0,
+	                                    0.5);
 
 	cairo_rectangle (cr, 0, 0, width, height);
 	cairo_set_source(cr, pat);
@@ -1151,9 +1151,9 @@ draw (GtkWidget *widget, cairo_t *cr)
 
 	/* border line */
 	cairo_set_source_rgba (cr, step2.red/65535.0,
-				   step2.green/65535.0,
-				   step2.blue/65535.0,
-				   0.7);
+	                       step2.green/65535.0,
+	                       step2.blue/65535.0,
+	                       0.7);
 	cairo_move_to (cr, 0, 0);
 	cairo_line_to (cr, width, 0);
 	cairo_stroke (cr);
@@ -1274,7 +1274,7 @@ tracker_metadata_tile_init (TrackerMetadataTile *tile)
 	gtk_box_pack_start (GTK_BOX (vbox), button, FALSE, FALSE, 0);
 	gtk_widget_show (button);
 	g_signal_connect (G_OBJECT (button), "clicked",
-			  G_CALLBACK (tracker_metadata_tile_toggle_view), (gpointer)tile);
+	                  G_CALLBACK (tracker_metadata_tile_toggle_view), (gpointer)tile);
 
 	hbox = gtk_hbox_new (FALSE, 4);
 	gtk_container_add (GTK_CONTAINER(button), hbox);

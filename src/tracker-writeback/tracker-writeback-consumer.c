@@ -136,8 +136,8 @@ tracker_writeback_consumer_new (void)
 }
 
 static gboolean
-sparql_rdf_types_match (const gchar * const *module_types, 
-			const gchar * const *rdf_types)
+sparql_rdf_types_match (const gchar * const *module_types,
+                        const gchar * const *rdf_types)
 {
 	guint n;
 
@@ -156,8 +156,8 @@ sparql_rdf_types_match (const gchar * const *module_types,
 
 static void
 sparql_query_cb (GPtrArray *result,
-		 GError	   *error,
-		 gpointer   user_data)
+                 GError            *error,
+                 gpointer   user_data)
 {
 	TrackerWritebackConsumerPrivate *priv;
 	TrackerWritebackConsumer *consumer;

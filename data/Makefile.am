@@ -2,7 +2,7 @@ include $(top_srcdir)/Makefile.decl
 
 SUBDIRS = db dbus languages icons ontologies miners
 
-# Should do this for *.desktop.in.in 
+# Should do this for *.desktop.in.in
 tracker-status-icon.desktop.in: tracker-status-icon.desktop.in.in
 	@sed -e "s|@bindir[@]|${bindir}|" 		\
 	     -e "s|@VERSION[@]|${VERSION}|" $< > $@

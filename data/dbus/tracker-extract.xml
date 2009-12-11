@@ -10,7 +10,7 @@
 -->
 
 <node name="/">
-  <interface name="org.freedesktop.Tracker1.Extract">  
+  <interface name="org.freedesktop.Tracker1.Extract">
     <method name="GetPid">
       <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
       <arg type="i" name="value" direction="out" />

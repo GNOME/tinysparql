@@ -31,10 +31,10 @@
 #include "tracker-main.h"
 
 /*
- * Prototype of the parsing function. 
+ * Prototype of the parsing function.
  */
 static void extract_dummy (const gchar *filename,
-			   GHashTable  *metadata);
+                           GHashTable  *metadata);
 
 /*
  * Link between mimetype and parsing function
@@ -49,18 +49,18 @@ static TrackerExtractData data[] = {
  */
 static void
 extract_function (const gchar *filename,
-		  GHashTable  *metadata)
+                  GHashTable  *metadata)
 {
 
 	/*
 	 * Open the file and do whatever you need to do with it.
 	 *
 	 * The extracted properties must be added to the metadata
-	 * hash table. 
+	 * hash table.
 	 */
 	g_hash_table_insert (metadata,
-			     g_strdup ("Dummy:DummyProp"),
-			     g_strdup ("Value"));
+	                     g_strdup ("Dummy:DummyProp"),
+	                     g_strdup ("Value"));
 }
 
 /*

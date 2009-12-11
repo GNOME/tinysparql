@@ -38,11 +38,11 @@ typedef struct TrackerMinerTest      TrackerMinerTest;
 typedef struct TrackerMinerTestClass TrackerMinerTestClass;
 
 struct TrackerMinerTest {
-        TrackerMinerFS parent_instance;
+	TrackerMinerFS parent_instance;
 };
 
 struct TrackerMinerTestClass {
-        TrackerMinerFSClass parent_class;
+	TrackerMinerFSClass parent_class;
 };
 
 GType          tracker_miner_test_get_type (void) G_GNUC_CONST;

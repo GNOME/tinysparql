@@ -45,23 +45,23 @@ main (int argc, char **argv) {
 	path = g_build_filename (MODULESDIR, "libextract-tiff", NULL);
 	data = tracker_test_extract_get_extract (path, "image/tiff");
 	g_free (path);
-	
+
 	g_test_add_data_func ("/tracker-extract/tracker-extract-tiff/check-extract-data",
-			      data, test_tracker_extract_check_extract_data);
-	
+	                      data, test_tracker_extract_check_extract_data);
+
 #if 0
 	g_test_add_data_func ("/tracker-extract/tracker-extract-tiff/basic_size",
-			      data, test_tracker_extract_tiff_basic_size);
+	                      data, test_tracker_extract_tiff_basic_size);
 
-/* 	g_test_add_data_func ("/tracker-extract/tracker-extract-tiff/exif_size", */
-/* 			      data, test_tracker_extract_tiff_exif_size); */
+	/*      g_test_add_data_func ("/tracker-extract/tracker-extract-tiff/exif_size", */
+	/*                            data, test_tracker_extract_tiff_exif_size); */
 
 	g_test_add_data_func ("/tracker-extract/tracker-extract-tiff/exif_orientation",
-			      data, test_tracker_extract_tiff_exif_orientation);
+	                      data, test_tracker_extract_tiff_exif_orientation);
 
 	if (g_test_perf()) {
 		g_test_add_data_func ("/tracker-extract/tracker-extract-tiff/performance",
-				      data, test_tracker_extract_tiff_performance);
+		                      data, test_tracker_extract_tiff_performance);
 	}
 
 #endif

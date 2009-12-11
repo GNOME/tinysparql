@@ -28,15 +28,15 @@
 
 G_BEGIN_DECLS
 
-#define TRACKER_TYPE_TAG_BAR		(tracker_tag_bar_get_type ())
-#define TRACKER_TAG_BAR(obj)		(G_TYPE_CHECK_INSTANCE_CAST ((obj), TRACKER_TYPE_TAG_BAR, TrackerTagBar))
-#define TRACKER_TAG_BAR_CLASS(obj)	(G_TYPE_CHECK_CLASS_CAST ((obj), TRACKER_TAG_BAR, TrackerTagBarClass))
-#define TRACKER_IS_TAG_BAR(obj)		(G_TYPE_CHECK_INSTANCE_TYPE ((obj), TRACKER_TYPE_TAG_BAR))
-#define TRACKER_IS_TAG_BAR_CLASS(obj)	(G_TYPE_CHECK_CLASS_TYPE ((obj), TRACKER_TYPE_TAG_BAR))
-#define TRACKER_TAG_BAR_GET_CLASS	(G_TYPE_INSTANCE_GET_CLASS ((obj), TRACKER_TYPE_TAG_BAR, TrackerTagBarClass))
+#define TRACKER_TYPE_TAG_BAR            (tracker_tag_bar_get_type ())
+#define TRACKER_TAG_BAR(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), TRACKER_TYPE_TAG_BAR, TrackerTagBar))
+#define TRACKER_TAG_BAR_CLASS(obj)      (G_TYPE_CHECK_CLASS_CAST ((obj), TRACKER_TAG_BAR, TrackerTagBarClass))
+#define TRACKER_IS_TAG_BAR(obj)                 (G_TYPE_CHECK_INSTANCE_TYPE ((obj), TRACKER_TYPE_TAG_BAR))
+#define TRACKER_IS_TAG_BAR_CLASS(obj)   (G_TYPE_CHECK_CLASS_TYPE ((obj), TRACKER_TYPE_TAG_BAR))
+#define TRACKER_TAG_BAR_GET_CLASS       (G_TYPE_INSTANCE_GET_CLASS ((obj), TRACKER_TYPE_TAG_BAR, TrackerTagBarClass))
 
-typedef struct _TrackerTagBar		TrackerTagBar;
-typedef struct _TrackerTagBarClass	TrackerTagBarClass;
+typedef struct _TrackerTagBar           TrackerTagBar;
+typedef struct _TrackerTagBarClass      TrackerTagBarClass;
 
 struct _TrackerTagBar
 {
@@ -51,14 +51,14 @@ struct _TrackerTagBarClass
 GtkWidget *tracker_tag_bar_new (void);
 
 /*
-uri has to be a local uri i.e.
-'/home/john/doe.mp3' not 'file:///home/john/doe.mp3'
+  uri has to be a local uri i.e.
+  '/home/john/doe.mp3' not 'file:///home/john/doe.mp3'
 */
 #if 0
-void	   tracker_tag_bar_set_uri (TrackerTagBar		*bar,
-				    ServiceType			type,
-				    const gchar			*uri
-				   );
+void       tracker_tag_bar_set_uri (TrackerTagBar               *bar,
+                                    ServiceType                         type,
+                                    const gchar                         *uri
+                                    );
 #endif
 
 GType tracker_tag_bar_get_type (void);

@@ -1,5 +1,5 @@
-PREFIX foo: <http://example.org/ns#> 
-PREFIX : <http://other.example.org/ns#> 
+PREFIX foo: <http://example.org/ns#>
+PREFIX : <http://other.example.org/ns#>
 
 SELECT ?foo ?bar WHERE {
   foo:bar foo: ?foo .

@@ -26,12 +26,12 @@
 
 #include "tracker-thumbnailer.h"
 
-#define THUMBNAILER_SERVICE	 "org.freedesktop.thumbnailer"
-#define THUMBNAILER_PATH	 "/org/freedesktop/thumbnailer/Generic"
-#define THUMBNAILER_INTERFACE	 "org.freedesktop.thumbnailer.Generic"
+#define THUMBNAILER_SERVICE      "org.freedesktop.thumbnailer"
+#define THUMBNAILER_PATH         "/org/freedesktop/thumbnailer/Generic"
+#define THUMBNAILER_INTERFACE    "org.freedesktop.thumbnailer.Generic"
 
-#define THUMBMAN_PATH		 "/org/freedesktop/thumbnailer/Manager"
-#define THUMBMAN_INTERFACE	 "org.freedesktop.thumbnailer.Manager"
+#define THUMBMAN_PATH            "/org/freedesktop/thumbnailer/Manager"
+#define THUMBMAN_INTERFACE       "org.freedesktop.thumbnailer.Manager"
 
 #define THUMBNAIL_REQUEST_LIMIT 50
 
@@ -73,13 +73,13 @@ private_free (gpointer data)
 
 	g_slist_foreach (private->mime_types, (GFunc) g_free, NULL);
 	g_slist_free (private->mime_types);
-	
+
 	g_free (private);
 }
 
 inline static gboolean
-should_be_thumbnailed (GStrv        list, 
-		       const gchar *mime)
+should_be_thumbnailed (GStrv        list,
+                       const gchar *mime)
 {
 	gboolean should_thumbnail;
 	guint i;
@@ -88,8 +88,8 @@ should_be_thumbnailed (GStrv        list,
 		return TRUE;
 	}
 
-	for (should_thumbnail = FALSE, i = 0; 
-	     should_thumbnail == FALSE && list[i] != NULL; 
+	for (should_thumbnail = FALSE, i = 0;
+	     should_thumbnail == FALSE && list[i] != NULL;
 	     i++) {
 		if (g_ascii_strcasecmp (list[i], mime) == 0) {
 			should_thumbnail = TRUE;
@@ -113,8 +113,8 @@ tracker_thumbnailer_init (void)
 	private->request_id = 1;
 
 	g_static_private_set (&private_key,
-			      private,
-			      private_free);
+	                      private,
+	                      private_free);
 
 	g_message ("Thumbnailer connections being set up...");
 
@@ -122,7 +122,7 @@ tracker_thumbnailer_init (void)
 
 	if (!connection) {
 		g_critical ("Could not connect to the D-Bus session bus, %s",
-			    error ? error->message : "no error given.");
+		            error ? error->message : "no error given.");
 		g_clear_error (&error);
 
 		private->service_is_available = FALSE;
@@ -130,27 +130,27 @@ tracker_thumbnailer_init (void)
 		return FALSE;
 	}
 
-	private->requester_proxy = 
+	private->requester_proxy =
 		dbus_g_proxy_new_for_name (connection,
-					   THUMBNAILER_SERVICE,
-					   THUMBNAILER_PATH,
-					   THUMBNAILER_INTERFACE);
+		                           THUMBNAILER_SERVICE,
+		                           THUMBNAILER_PATH,
+		                           THUMBNAILER_INTERFACE);
 
-	private->manager_proxy = 
+	private->manager_proxy =
 		dbus_g_proxy_new_for_name (connection,
-					   THUMBNAILER_SERVICE,
-					   THUMBMAN_PATH,
-					   THUMBMAN_INTERFACE);
-	
+		                           THUMBNAILER_SERVICE,
+		                           THUMBMAN_PATH,
+		                           THUMBMAN_INTERFACE);
+
 	dbus_g_proxy_call (private->manager_proxy,
-			   "GetSupported", &error, 
-			   G_TYPE_INVALID,
-			   G_TYPE_STRV, &mime_types, 
-			   G_TYPE_INVALID);
-	
+	                   "GetSupported", &error,
+	                   G_TYPE_INVALID,
+	                   G_TYPE_STRV, &mime_types,
+	                   G_TYPE_INVALID);
+
 	if (error) {
 		g_message ("Thumbnailer service did not return supported mime types, %s",
-			   error->message);
+		           error->message);
 
 		g_error_free (error);
 
@@ -158,7 +158,7 @@ tracker_thumbnailer_init (void)
 			g_object_unref (private->requester_proxy);
 			private->requester_proxy = NULL;
 		}
-		
+
 		if (private->manager_proxy) {
 			g_object_unref (private->manager_proxy);
 			private->manager_proxy = NULL;
@@ -166,8 +166,8 @@ tracker_thumbnailer_init (void)
 
 		return FALSE;
 	} else if (mime_types) {
-		g_message ("Thumbnailer supports %d mime types", 
-			   g_strv_length (mime_types));
+		g_message ("Thumbnailer supports %d mime types",
+		           g_strv_length (mime_types));
 
 		private->supported_mime_types = mime_types;
 		private->service_is_available = TRUE;
@@ -184,8 +184,8 @@ tracker_thumbnailer_shutdown (void)
 
 gboolean
 tracker_thumbnailer_move (const gchar *from_uri,
-			  const gchar *mime_type,
-			  const gchar *to_uri)
+                          const gchar *mime_type,
+                          const gchar *to_uri)
 {
 	TrackerThumbnailerPrivate *private;
 	gchar *to[2] = { NULL, NULL };
@@ -209,9 +209,9 @@ tracker_thumbnailer_move (const gchar *from_uri,
 	private->request_id++;
 
 	g_debug ("Thumbnailer request to move uri from:'%s' to:'%s', request_id:%d...",
-		 from_uri,
-		 to_uri,
-		 private->request_id); 
+	         from_uri,
+	         to_uri,
+	         private->request_id);
 
 	if (!strstr (to_uri, "://")) {
 		to[0] = g_filename_to_uri (to_uri, NULL, NULL);
@@ -226,11 +226,11 @@ tracker_thumbnailer_move (const gchar *from_uri,
 	}
 
 	dbus_g_proxy_call_no_reply (private->requester_proxy,
-				    "Move",
-				    G_TYPE_STRV, from,
-				    G_TYPE_STRV, to,
-				    G_TYPE_INVALID,
-				    G_TYPE_INVALID);
+	                            "Move",
+	                            G_TYPE_STRV, from,
+	                            G_TYPE_STRV, to,
+	                            G_TYPE_INVALID,
+	                            G_TYPE_INVALID);
 
 	g_free (from[0]);
 	g_free (to[0]);
@@ -239,8 +239,8 @@ tracker_thumbnailer_move (const gchar *from_uri,
 }
 
 gboolean
-tracker_thumbnailer_remove (const gchar *uri, 
-			    const gchar *mime_type)
+tracker_thumbnailer_remove (const gchar *uri,
+                            const gchar *mime_type)
 {
 	TrackerThumbnailerPrivate *private;
 	gchar *uris[2] = { NULL, NULL };
@@ -269,21 +269,21 @@ tracker_thumbnailer_remove (const gchar *uri,
 	}
 
 	g_debug ("Thumbnailer request to remove uri:'%s', request_id:%d...",
-		 uri,
-		 private->request_id); 
-	
+	         uri,
+	         private->request_id);
+
 	dbus_g_proxy_call_no_reply (private->requester_proxy,
-				    "Delete",
-				    G_TYPE_STRV, uris,
-				    G_TYPE_INVALID,
-				    G_TYPE_INVALID);
+	                            "Delete",
+	                            G_TYPE_STRV, uris,
+	                            G_TYPE_INVALID,
+	                            G_TYPE_INVALID);
 
 	g_free (uris[0]);
 
 	return TRUE;
 }
 
-gboolean 
+gboolean
 tracker_thumbnailer_cleanup (const gchar *uri_prefix)
 {
 	TrackerThumbnailerPrivate *private;
@@ -300,22 +300,22 @@ tracker_thumbnailer_cleanup (const gchar *uri_prefix)
 	private->request_id++;
 
 	g_debug ("Thumbnailer cleaning up uri:'%s', request_id:%d...",
-		 uri_prefix,
-		 private->request_id); 
+	         uri_prefix,
+	         private->request_id);
 
 	dbus_g_proxy_call_no_reply (private->requester_proxy,
-				    "Cleanup",
-				    G_TYPE_STRING, uri_prefix,
-				    G_TYPE_UINT, 0,
-				    G_TYPE_INVALID,
-				    G_TYPE_INVALID);
+	                            "Cleanup",
+	                            G_TYPE_STRING, uri_prefix,
+	                            G_TYPE_UINT, 0,
+	                            G_TYPE_INVALID,
+	                            G_TYPE_INVALID);
 
 	return TRUE;
 }
 
 gboolean
 tracker_thumbnailer_queue_add (const gchar *uri,
-			       const gchar *mime_type)
+                               const gchar *mime_type)
 {
 	TrackerThumbnailerPrivate *private;
 	gchar *used_uri;
@@ -352,8 +352,8 @@ tracker_thumbnailer_queue_add (const gchar *uri,
 	private->mime_types = g_slist_append (private->mime_types, used_mime_type);
 
 	g_debug ("Thumbnailer queue appended with uri:'%s', mime type:'%s'",
-		 used_uri,
-		 used_mime_type);
+	         used_uri,
+	         used_mime_type);
 
 	return TRUE;
 }
@@ -378,21 +378,21 @@ tracker_thumbnailer_queue_send (void)
 		return;
 	}
 
-	g_message ("Thumbnailer queue sent with %d items to thumbnailer daemon, request ID:%d...", 
-		   g_slist_length (private->uris),
-		   private->request_id++);
+	g_message ("Thumbnailer queue sent with %d items to thumbnailer daemon, request ID:%d...",
+	           g_slist_length (private->uris),
+	           private->request_id++);
 
 	uri_strv = tracker_dbus_slist_to_strv (private->uris);
 	mime_type_strv = tracker_dbus_slist_to_strv (private->mime_types);
 
 	dbus_g_proxy_call_no_reply (private->requester_proxy,
-				    "Queue",
-				    G_TYPE_STRV, uri_strv,
-				    G_TYPE_STRV, mime_type_strv,
-				    G_TYPE_UINT, 0,
-				    G_TYPE_INVALID,
-				    G_TYPE_INVALID);
-	
+	                            "Queue",
+	                            G_TYPE_STRV, uri_strv,
+	                            G_TYPE_STRV, mime_type_strv,
+	                            G_TYPE_UINT, 0,
+	                            G_TYPE_INVALID,
+	                            G_TYPE_INVALID);
+
 	/* Clean up newly created GStrv */
 	g_strfreev (uri_strv);
 	g_strfreev (mime_type_strv);

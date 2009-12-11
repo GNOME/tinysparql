@@ -36,11 +36,11 @@ typedef struct _TrackerMinerApplications TrackerMinerApplications;
 typedef struct _TrackerMinerApplicationsClass TrackerMinerApplicationsClass;
 
 struct _TrackerMinerApplications {
-        TrackerMinerFS parent_instance;
+	TrackerMinerFS parent_instance;
 };
 
 struct _TrackerMinerApplicationsClass {
-        TrackerMinerFSClass parent_class;
+	TrackerMinerFSClass parent_class;
 };
 
 GType          tracker_miner_applications_get_type (void) G_GNUC_CONST;

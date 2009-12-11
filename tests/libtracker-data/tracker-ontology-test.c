@@ -68,7 +68,7 @@ const TestInfo nmo_tests[] = {
 	{ "nmo/filter-isread-1", "nmo/data-1" },
 	{ "nmo/filter-isrecent-1", "nmo/data-1" },
 	{ "nmo/filter-messageid-1", "nmo/data-1" },
-	{ "nmo/filter-messagesubject-1", "nmo/data-1" }, 
+	{ "nmo/filter-messagesubject-1", "nmo/data-1" },
 	{ "nmo/filter-plaintextmessagecontent-1", "nmo/data-1" },
 	{ NULL }
 };
@@ -95,8 +95,8 @@ test_query (gconstpointer test_data)
 
 	/* initialization */
 	tracker_data_manager_init (TRACKER_DB_MANAGER_FORCE_REINDEX,
-		                   NULL, 
-				   NULL, NULL);
+	                           NULL,
+	                           NULL, NULL);
 
 	/* load data set */
 	data_filename = g_strconcat (data_prefix, ".ttl", NULL);
@@ -214,11 +214,11 @@ main (int argc, char **argv)
 	if (!g_thread_supported ()) {
 		g_thread_init (NULL);
 	}
-	
+
 	g_test_init (&argc, &argv, NULL);
 
 	current_dir = g_get_current_dir ();
-	
+
 	g_setenv ("XDG_DATA_HOME", current_dir, TRUE);
 	g_setenv ("XDG_CACHE_HOME", current_dir, TRUE);
 	g_setenv ("TRACKER_DB_SQL_DIR", TOP_SRCDIR "/data/db/", TRUE);
@@ -230,7 +230,7 @@ main (int argc, char **argv)
 		gchar *testpath;
 
 		g_message ("%d", i);
-		
+
 		testpath = g_strconcat ("/libtracker-data/nie/", nie_tests[i].test_name, NULL);
 		g_test_add_data_func (testpath, &nie_tests[i], test_query);
 		g_free (testpath);
@@ -240,7 +240,7 @@ main (int argc, char **argv)
 		gchar *testpath;
 
 		g_message ("%d", i);
-		
+
 		testpath = g_strconcat ("/libtracker-data/nmo/", nmo_tests[i].test_name, NULL);
 		g_test_add_data_func (testpath, &nmo_tests[i], test_query);
 		g_free (testpath);

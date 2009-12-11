@@ -41,8 +41,8 @@ static void tracker_keyword_store_populate_cb (GPtrArray *result, GError *error,
 #endif
 
 G_DEFINE_TYPE_WITH_CODE (TrackerKeywordStore, tracker_keyword_store, GTK_TYPE_LIST_STORE,
-			G_IMPLEMENT_INTERFACE (GTK_TYPE_TREE_DRAG_SOURCE,
-			tracker_keyword_store_tree_drag_source_init))
+                         G_IMPLEMENT_INTERFACE (GTK_TYPE_TREE_DRAG_SOURCE,
+                                                tracker_keyword_store_tree_drag_source_init))
 
 #define parent_class tracker_keyword_store_parent_class
 
@@ -58,11 +58,11 @@ tracker_keyword_store_init (TrackerKeywordStore *store)
 {
 	/* setup the basic class list store properties */
 	GType types[TRACKER_KEYWORD_STORE_NUM_COLUMNS];
-	types[TRACKER_KEYWORD_STORE_KEYWORD]	= G_TYPE_STRING;
-	types[TRACKER_KEYWORD_STORE_IMAGE_URI]	= G_TYPE_STRING;
+	types[TRACKER_KEYWORD_STORE_KEYWORD]    = G_TYPE_STRING;
+	types[TRACKER_KEYWORD_STORE_IMAGE_URI]  = G_TYPE_STRING;
 
 	gtk_list_store_set_column_types (GTK_LIST_STORE (store),
-					TRACKER_KEYWORD_STORE_NUM_COLUMNS, types);
+	                                 TRACKER_KEYWORD_STORE_NUM_COLUMNS, types);
 
 	//setup private members
 	store->keywords = g_hash_table_new (g_str_hash, g_str_equal);
@@ -72,24 +72,24 @@ tracker_keyword_store_init (TrackerKeywordStore *store)
 #if 0
 	//populate the liststore asyncronously
 	tracker_keywords_get_list_async (store->tracker_client,
-					SERVICE_FILES,
-					tracker_keyword_store_populate_cb,
-					store);
+	                                 SERVICE_FILES,
+	                                 tracker_keyword_store_populate_cb,
+	                                 store);
 #endif
 }
 
 static gboolean
-tracker_keyword_store_row_draggable (GtkTreeDragSource		*drag_source,
-					GtkTreePath		*path)
+tracker_keyword_store_row_draggable (GtkTreeDragSource          *drag_source,
+                                     GtkTreePath             *path)
 {
 	printf ("ROW DRAGGABLE\n");
 	return TRUE;
 }
 
 static gboolean
-tracker_keyword_store_drag_data_get (GtkTreeDragSource		*drag_source,
-				     GtkTreePath		*path,
-				     GtkSelectionData		*data)
+tracker_keyword_store_drag_data_get (GtkTreeDragSource          *drag_source,
+                                     GtkTreePath                *path,
+                                     GtkSelectionData           *data)
 {
 	gchar *keyword;
 	GtkTreeIter iter;
@@ -109,8 +109,8 @@ tracker_keyword_store_drag_data_get (GtkTreeDragSource		*drag_source,
 }
 
 static gboolean
-tracker_keyword_store_drag_data_delete (GtkTreeDragSource	*drag_source,
-					GtkTreePath		*path)
+tracker_keyword_store_drag_data_delete (GtkTreeDragSource       *drag_source,
+                                        GtkTreePath             *path)
 {
 	printf ("DRAG DATA DELETE\n");
 	return FALSE;
@@ -139,8 +139,8 @@ tracker_keyword_store_populate_cb (GPtrArray *result, GError *error, gpointer us
 			if (strlen (name) > 2) {
 				//FIXME: Modify this function when tracker stores emblem images
 				gtk_list_store_insert_with_values (list_store, &iter, 0,
-								TRACKER_KEYWORD_STORE_KEYWORD, name,
-								-1);
+				                                   TRACKER_KEYWORD_STORE_KEYWORD, name,
+				                                   -1);
 
 			}
 		}
@@ -188,10 +188,10 @@ tracker_keyword_store_new (void)
  * returns true if successful
  **/
 gboolean
-tracker_keyword_store_insert (	GtkListStore			*store,
-				const char			*keyword,
-				const char			*stock_id
-)
+tracker_keyword_store_insert (  GtkListStore                    *store,
+                                const char                      *keyword,
+                                const char                      *stock_id
+                                )
 {
 	GtkTreeIter *iter;
 	TrackerKeywordStore *self;
@@ -202,17 +202,17 @@ tracker_keyword_store_insert (	GtkListStore			*store,
 	self = TRACKER_KEYWORD_STORE (store);
 
 	if (g_hash_table_lookup (self->keywords, keyword) == NULL)
-	{
-		iter = (GtkTreeIter *)g_new0 (GtkTreeIter, 1);
-		gtk_list_store_insert_with_values (store,
-						iter, 0,
-						TRACKER_KEYWORD_STORE_KEYWORD, keyword,
-						TRACKER_KEYWORD_STORE_IMAGE_URI, stock_id,
-						-1);
-		g_hash_table_insert (self->keywords, g_strdup (keyword), iter);
-		return TRUE;
+		{
+			iter = (GtkTreeIter *)g_new0 (GtkTreeIter, 1);
+			gtk_list_store_insert_with_values (store,
+			                                   iter, 0,
+			                                   TRACKER_KEYWORD_STORE_KEYWORD, keyword,
+			                                   TRACKER_KEYWORD_STORE_IMAGE_URI, stock_id,
+			                                   -1);
+			g_hash_table_insert (self->keywords, g_strdup (keyword), iter);
+			return TRUE;
 
-	}
+		}
 	return FALSE;
 }
 
@@ -222,8 +222,8 @@ tracker_keyword_store_insert (	GtkListStore			*store,
  * NULL of it cant be found
  **/
 GtkTreeIter *
-tracker_keyword_store_lookup (	GtkListStore			*store,
-				const char			*keyword)
+tracker_keyword_store_lookup (  GtkListStore                    *store,
+                                const char                      *keyword)
 {
 	TrackerKeywordStore *self;
 
@@ -238,8 +238,8 @@ tracker_keyword_store_lookup (	GtkListStore			*store,
  * O(1) removal of items by keyword
  **/
 gboolean
-tracker_keyword_store_remove (	GtkListStore			*store,
-				const char			*keyword)
+tracker_keyword_store_remove (  GtkListStore                    *store,
+                                const char                      *keyword)
 {
 	GtkTreeIter *iter;
 	TrackerKeywordStore *self;

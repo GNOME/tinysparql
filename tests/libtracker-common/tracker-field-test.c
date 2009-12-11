@@ -36,15 +36,15 @@ test_type_to_string ()
 	result = tracker_property_type_to_string (type);
 	g_assert (tracker_test_helpers_cmpstr_equal (result, "date"));
 
-	type =	TRACKER_PROPERTY_TYPE_BLOB;
+	type =  TRACKER_PROPERTY_TYPE_BLOB;
 	result = tracker_property_type_to_string (type);
 	g_assert (tracker_test_helpers_cmpstr_equal (result, "blob"));
 
-	type =	TRACKER_PROPERTY_TYPE_STRUCT;
+	type =  TRACKER_PROPERTY_TYPE_STRUCT;
 	result = tracker_property_type_to_string (type);
 	g_assert (tracker_test_helpers_cmpstr_equal (result, "struct"));
 
-	type =	TRACKER_PROPERTY_TYPE_RESOURCE;
+	type =  TRACKER_PROPERTY_TYPE_RESOURCE;
 	result = tracker_property_type_to_string (type);
 	g_assert (tracker_test_helpers_cmpstr_equal (result, "link"));
 
@@ -65,7 +65,7 @@ main (int argc, char **argv) {
 	/* Init */
 
 	g_test_add_func ("/libtracker-common/tracker-field/type_to_string",
-			 test_type_to_string);
+	                 test_type_to_string);
 
 	result = g_test_run ();
 

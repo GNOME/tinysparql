@@ -30,55 +30,55 @@ G_BEGIN_DECLS
 #endif
 
 const gchar *tracker_keyfile_object_blurb            (gpointer     object,
-						      const gchar *property);
+                                                      const gchar *property);
 gboolean     tracker_keyfile_object_default_boolean  (gpointer     object,
-						      const gchar *property);
+                                                      const gchar *property);
 gint         tracker_keyfile_object_default_int      (gpointer     object,
-						      const gchar *property);
+                                                      const gchar *property);
 gboolean     tracker_keyfile_object_validate_int     (gpointer     object,
-						      const gchar *property,
-						      gint         value);
+                                                      const gchar *property,
+                                                      gint         value);
 void         tracker_keyfile_object_load_int         (gpointer     object,
-						      const gchar *property,
-						      GKeyFile    *key_file,
-						      const gchar *group,
-						      const gchar *key);
+                                                      const gchar *property,
+                                                      GKeyFile    *key_file,
+                                                      const gchar *group,
+                                                      const gchar *key);
 void         tracker_keyfile_object_load_boolean     (gpointer     object,
-						      const gchar *property,
-						      GKeyFile    *key_file,
-						      const gchar *group,
-						      const gchar *key);
+                                                      const gchar *property,
+                                                      GKeyFile    *key_file,
+                                                      const gchar *group,
+                                                      const gchar *key);
 void         tracker_keyfile_object_load_string      (gpointer     object,
-						      const gchar *property,
-						      GKeyFile    *key_file,
-						      const gchar *group,
-						      const gchar *key);
+                                                      const gchar *property,
+                                                      GKeyFile    *key_file,
+                                                      const gchar *group,
+                                                      const gchar *key);
 void         tracker_keyfile_object_load_string_list (gpointer     object,
-						      const gchar *property,
-						      GKeyFile    *key_file,
-						      const gchar *group,
-						      const gchar *key,
-						      gboolean     is_directory_list);
+                                                      const gchar *property,
+                                                      GKeyFile    *key_file,
+                                                      const gchar *group,
+                                                      const gchar *key,
+                                                      gboolean     is_directory_list);
 void         tracker_keyfile_object_save_int         (gpointer     object,
-						      const gchar *property,
-						      GKeyFile    *key_file,
-						      const gchar *group,
-						      const gchar *key);
+                                                      const gchar *property,
+                                                      GKeyFile    *key_file,
+                                                      const gchar *group,
+                                                      const gchar *key);
 void         tracker_keyfile_object_save_boolean     (gpointer     object,
-						      const gchar *property,
-						      GKeyFile    *key_file,
-						      const gchar *group,
-						      const gchar *key);
+                                                      const gchar *property,
+                                                      GKeyFile    *key_file,
+                                                      const gchar *group,
+                                                      const gchar *key);
 void         tracker_keyfile_object_save_string      (gpointer     object,
-						      const gchar *property,
-						      GKeyFile    *key_file,
-						      const gchar *group,
-						      const gchar *key);
+                                                      const gchar *property,
+                                                      GKeyFile    *key_file,
+                                                      const gchar *group,
+                                                      const gchar *key);
 void         tracker_keyfile_object_save_string_list (gpointer     object,
-						      const gchar *property,
-						      GKeyFile    *key_file,
-						      const gchar *group,
-						      const gchar *key);
+                                                      const gchar *property,
+                                                      GKeyFile    *key_file,
+                                                      const gchar *group,
+                                                      const gchar *key);
 
 G_END_DECLS
 

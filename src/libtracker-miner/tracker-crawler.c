@@ -26,8 +26,8 @@
 
 #define TRACKER_CRAWLER_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_CRAWLER, TrackerCrawlerPrivate))
 
-#define FILE_ATTRIBUTES				\
-	G_FILE_ATTRIBUTE_STANDARD_NAME ","	\
+#define FILE_ATTRIBUTES	  \
+	G_FILE_ATTRIBUTE_STANDARD_NAME "," \
 	G_FILE_ATTRIBUTE_STANDARD_TYPE
 
 #define FILES_QUEUE_PROCESS_INTERVAL 2000
@@ -36,35 +36,35 @@
 /* This is the number of files to be called back with from GIO at a
  * time so we don't get called back for every file.
  */
-#define FILES_GROUP_SIZE	     100
+#define FILES_GROUP_SIZE             100
 
 struct TrackerCrawlerPrivate {
 	/* Found data */
-	GQueue	       *found;
+	GQueue         *found;
 
 	/* Usable data */
-	GQueue	       *directories;
-	GQueue	       *files;
+	GQueue         *directories;
+	GQueue         *files;
 
 	GCancellable   *cancellable;
 
 	/* Idle handler for processing found data */
-	guint		idle_id;
+	guint           idle_id;
 
 	gdouble         throttle;
 
 	gboolean        recurse;
 
 	/* Statistics */
-	GTimer	       *timer;
-	guint		directories_found;
-	guint		directories_ignored;
-	guint		files_found;
-	guint		files_ignored;
+	GTimer         *timer;
+	guint           directories_found;
+	guint           directories_ignored;
+	guint           files_found;
+	guint           files_ignored;
 
 	/* Status */
-	gboolean	is_running;
-	gboolean	is_finished;
+	gboolean        is_running;
+	gboolean        is_finished;
 	gboolean        is_paused;
 	gboolean        was_started;
 };
@@ -84,20 +84,20 @@ typedef struct {
 
 typedef struct {
 	TrackerCrawler *crawler;
-	GFile	       *parent;
+	GFile          *parent;
 	GHashTable     *children;
 } EnumeratorData;
 
 static void     crawler_finalize        (GObject         *object);
 static gboolean check_defaults          (TrackerCrawler  *crawler,
-					 GFile           *file);
+                                         GFile           *file);
 static gboolean check_contents_defaults (TrackerCrawler  *crawler,
-					 GFile           *file,
-					 GList           *contents);
+                                         GFile           *file,
+                                         GList           *contents);
 static void     file_enumerate_next     (GFileEnumerator *enumerator,
-					 EnumeratorData  *ed);
+                                         EnumeratorData  *ed);
 static void     file_enumerate_children (TrackerCrawler  *crawler,
-					 GFile           *file);
+                                         GFile           *file);
 
 static guint signals[LAST_SIGNAL] = { 0, };
 
@@ -107,7 +107,7 @@ static void
 tracker_crawler_class_init (TrackerCrawlerClass *klass)
 {
 	GObjectClass *object_class = G_OBJECT_CLASS (klass);
-        TrackerCrawlerClass *crawler_class = TRACKER_CRAWLER_CLASS (klass);
+	TrackerCrawlerClass *crawler_class = TRACKER_CRAWLER_CLASS (klass);
 
 	object_class->finalize = crawler_finalize;
 
@@ -117,51 +117,51 @@ tracker_crawler_class_init (TrackerCrawlerClass *klass)
 
 	signals[CHECK_DIRECTORY] =
 		g_signal_new ("check-directory",
-			      G_TYPE_FROM_CLASS (klass),
-			      G_SIGNAL_RUN_LAST,
-			      G_STRUCT_OFFSET (TrackerCrawlerClass, check_directory),
-			      tracker_accumulator_check_file,
-			      NULL,
-			      tracker_marshal_BOOLEAN__OBJECT,
-			      G_TYPE_BOOLEAN,
-			      1,
-			      G_TYPE_FILE);
+		              G_TYPE_FROM_CLASS (klass),
+		              G_SIGNAL_RUN_LAST,
+		              G_STRUCT_OFFSET (TrackerCrawlerClass, check_directory),
+		              tracker_accumulator_check_file,
+		              NULL,
+		              tracker_marshal_BOOLEAN__OBJECT,
+		              G_TYPE_BOOLEAN,
+		              1,
+		              G_TYPE_FILE);
 	signals[CHECK_FILE] =
 		g_signal_new ("check-file",
-			      G_TYPE_FROM_CLASS (klass),
-			      G_SIGNAL_RUN_LAST,
-			      G_STRUCT_OFFSET (TrackerCrawlerClass, check_file),
-			      tracker_accumulator_check_file,
-			      NULL,
-			      tracker_marshal_BOOLEAN__OBJECT,
-			      G_TYPE_BOOLEAN,
-			      1,
-			      G_TYPE_FILE);
+		              G_TYPE_FROM_CLASS (klass),
+		              G_SIGNAL_RUN_LAST,
+		              G_STRUCT_OFFSET (TrackerCrawlerClass, check_file),
+		              tracker_accumulator_check_file,
+		              NULL,
+		              tracker_marshal_BOOLEAN__OBJECT,
+		              G_TYPE_BOOLEAN,
+		              1,
+		              G_TYPE_FILE);
 	signals[CHECK_DIRECTORY_CONTENTS] =
 		g_signal_new ("check-directory-contents",
-			      G_TYPE_FROM_CLASS (klass),
-			      G_SIGNAL_RUN_LAST,
-			      G_STRUCT_OFFSET (TrackerCrawlerClass, check_directory_contents),
-			      tracker_accumulator_check_file,
-			      NULL,
-			      tracker_marshal_BOOLEAN__OBJECT_POINTER,
-			      G_TYPE_BOOLEAN,
-			      2, G_TYPE_FILE, G_TYPE_POINTER);
+		              G_TYPE_FROM_CLASS (klass),
+		              G_SIGNAL_RUN_LAST,
+		              G_STRUCT_OFFSET (TrackerCrawlerClass, check_directory_contents),
+		              tracker_accumulator_check_file,
+		              NULL,
+		              tracker_marshal_BOOLEAN__OBJECT_POINTER,
+		              G_TYPE_BOOLEAN,
+		              2, G_TYPE_FILE, G_TYPE_POINTER);
 	signals[FINISHED] =
 		g_signal_new ("finished",
-			      G_TYPE_FROM_CLASS (klass),
-			      G_SIGNAL_RUN_LAST,
-			      G_STRUCT_OFFSET (TrackerCrawlerClass, finished),
-			      NULL, NULL,
-			      tracker_marshal_VOID__POINTER_BOOLEAN_UINT_UINT_UINT_UINT,
-			      G_TYPE_NONE,
-			      6,
-			      G_TYPE_POINTER,
-			      G_TYPE_BOOLEAN,
-			      G_TYPE_UINT,
-			      G_TYPE_UINT,
-			      G_TYPE_UINT,
-			      G_TYPE_UINT);
+		              G_TYPE_FROM_CLASS (klass),
+		              G_SIGNAL_RUN_LAST,
+		              G_STRUCT_OFFSET (TrackerCrawlerClass, finished),
+		              NULL, NULL,
+		              tracker_marshal_VOID__POINTER_BOOLEAN_UINT_UINT_UINT_UINT,
+		              G_TYPE_NONE,
+		              6,
+		              G_TYPE_POINTER,
+		              G_TYPE_BOOLEAN,
+		              G_TYPE_UINT,
+		              G_TYPE_UINT,
+		              G_TYPE_UINT,
+		              G_TYPE_UINT);
 
 	g_type_class_add_private (object_class, sizeof (TrackerCrawlerPrivate));
 }
@@ -214,15 +214,15 @@ crawler_finalize (GObject *object)
 
 static gboolean
 check_defaults (TrackerCrawler *crawler,
-		GFile          *file)
+                GFile          *file)
 {
 	return TRUE;
 }
 
 static gboolean
 check_contents_defaults (TrackerCrawler  *crawler,
-			 GFile           *file,
-			 GList           *contents)
+                         GFile           *file,
+                         GList           *contents)
 {
 	return TRUE;
 }
@@ -239,7 +239,7 @@ tracker_crawler_new (void)
 
 static void
 add_file (TrackerCrawler *crawler,
-	  GFile		 *file)
+          GFile                  *file)
 {
 	g_return_if_fail (G_IS_FILE (file));
 
@@ -248,8 +248,8 @@ add_file (TrackerCrawler *crawler,
 
 static void
 add_directory (TrackerCrawler *crawler,
-	       GFile	      *file,
-	       gboolean        override)
+               GFile          *file,
+               gboolean        override)
 {
 	g_return_if_fail (G_IS_FILE (file));
 
@@ -260,7 +260,7 @@ add_directory (TrackerCrawler *crawler,
 
 static gboolean
 check_file (TrackerCrawler *crawler,
-	    GFile          *file)
+            GFile          *file)
 {
 	gboolean use = FALSE;
 
@@ -277,7 +277,7 @@ check_file (TrackerCrawler *crawler,
 
 static gboolean
 check_directory (TrackerCrawler *crawler,
-		 GFile          *file)
+                 GFile          *file)
 {
 	gboolean use = FALSE;
 
@@ -297,9 +297,9 @@ check_directory (TrackerCrawler *crawler,
 static gboolean
 process_func (gpointer data)
 {
-	TrackerCrawler	      *crawler;
+	TrackerCrawler        *crawler;
 	TrackerCrawlerPrivate *priv;
-	GFile		      *file;
+	GFile                 *file;
 
 	crawler = TRACKER_CRAWLER (data);
 	priv = crawler->private;
@@ -380,7 +380,7 @@ process_func_stop (TrackerCrawler *crawler)
 
 static EnumeratorChildData *
 enumerator_child_data_new (GFile    *child,
-			   gboolean  is_dir)
+                           gboolean  is_dir)
 {
 	EnumeratorChildData *cd;
 
@@ -401,7 +401,7 @@ enumerator_child_data_free (EnumeratorChildData *cd)
 
 static EnumeratorData *
 enumerator_data_new (TrackerCrawler *crawler,
-		     GFile	    *parent)
+                     GFile          *parent)
 {
 	EnumeratorData *ed;
 
@@ -410,21 +410,21 @@ enumerator_data_new (TrackerCrawler *crawler,
 	ed->crawler = g_object_ref (crawler);
 	ed->parent = g_object_ref (parent);
 	ed->children = g_hash_table_new_full (g_str_hash,
-					      g_str_equal,
-					      (GDestroyNotify) g_free,
-					      (GDestroyNotify) enumerator_child_data_free);
+	                                      g_str_equal,
+	                                      (GDestroyNotify) g_free,
+	                                      (GDestroyNotify) enumerator_child_data_free);
 	return ed;
 }
 
 static void
 enumerator_data_add_child (EnumeratorData *ed,
-			   const gchar    *name,
-			   GFile          *file,
-			   gboolean        is_dir)
+                           const gchar    *name,
+                           GFile          *file,
+                           gboolean        is_dir)
 {
 	g_hash_table_insert (ed->children,
-			     g_strdup (name),
-			     enumerator_child_data_new (file, is_dir));
+	                     g_strdup (name),
+	                     enumerator_child_data_new (file, is_dir));
 }
 
 static void
@@ -478,8 +478,8 @@ enumerator_data_free (EnumeratorData *ed)
 
 static void
 file_enumerator_close_cb (GObject      *enumerator,
-			  GAsyncResult *result,
-			  gpointer	user_data)
+                          GAsyncResult *result,
+                          gpointer      user_data)
 {
 	TrackerCrawler *crawler;
 	GError *error = NULL;
@@ -487,10 +487,10 @@ file_enumerator_close_cb (GObject      *enumerator,
 	crawler = TRACKER_CRAWLER (user_data);
 
 	if (!g_file_enumerator_close_finish (G_FILE_ENUMERATOR (enumerator),
-					     result,
-					     &error)) {
+	                                     result,
+	                                     &error)) {
 		g_warning ("Couldn't close GFileEnumerator (%p): %s", enumerator,
-			   (error) ? error->message : "No reason");
+		           (error) ? error->message : "No reason");
 
 		g_clear_error (&error);
 	}
@@ -503,8 +503,8 @@ file_enumerator_close_cb (GObject      *enumerator,
 
 static void
 file_enumerate_next_cb (GObject      *object,
-			GAsyncResult *result,
-			gpointer      user_data)
+                        GAsyncResult *result,
+                        gpointer      user_data)
 {
 	TrackerCrawler *crawler;
 	EnumeratorData *ed;
@@ -523,8 +523,8 @@ file_enumerate_next_cb (GObject      *object,
 	cancelled = g_cancellable_is_cancelled (crawler->private->cancellable);
 
 	files = g_file_enumerator_next_files_finish (enumerator,
-						     result,
-						     &error);
+	                                             result,
+	                                             &error);
 
 	if (error || !files || !crawler->private->is_running) {
 		if (error && !cancelled) {
@@ -546,10 +546,10 @@ file_enumerate_next_cb (GObject      *object,
 
 		enumerator_data_free (ed);
 		g_file_enumerator_close_async (enumerator,
-					       G_PRIORITY_DEFAULT,
-					       NULL,
-					       file_enumerator_close_cb,
-					       crawler);
+		                               G_PRIORITY_DEFAULT,
+		                               NULL,
+		                               file_enumerator_close_cb,
+		                               crawler);
 		g_object_unref (enumerator);
 
 		return;
@@ -579,20 +579,20 @@ file_enumerate_next_cb (GObject      *object,
 
 static void
 file_enumerate_next (GFileEnumerator *enumerator,
-		     EnumeratorData  *ed)
+                     EnumeratorData  *ed)
 {
 	g_file_enumerator_next_files_async (enumerator,
-					    FILES_GROUP_SIZE,
-					    G_PRIORITY_DEFAULT,
-					    ed->crawler->private->cancellable,
-					    file_enumerate_next_cb,
-					    ed);
+	                                    FILES_GROUP_SIZE,
+	                                    G_PRIORITY_DEFAULT,
+	                                    ed->crawler->private->cancellable,
+	                                    file_enumerate_next_cb,
+	                                    ed);
 }
 
 static void
-file_enumerate_children_cb (GObject	 *file,
-			    GAsyncResult *result,
-			    gpointer	  user_data)
+file_enumerate_children_cb (GObject      *file,
+                            GAsyncResult *result,
+                            gpointer      user_data)
 {
 	TrackerCrawler *crawler;
 	EnumeratorData *ed;
@@ -614,7 +614,7 @@ file_enumerate_children_cb (GObject	 *file,
 			path = g_file_get_path (parent);
 
 			g_warning ("Could not open directory '%s': %s",
-				   path, error->message);
+			           path, error->message);
 
 			g_error_free (error);
 			g_free (path);
@@ -631,25 +631,25 @@ file_enumerate_children_cb (GObject	 *file,
 
 static void
 file_enumerate_children (TrackerCrawler *crawler,
-			 GFile		*file)
+                         GFile          *file)
 {
 	EnumeratorData *ed;
 
 	ed = enumerator_data_new (crawler, file);
 
 	g_file_enumerate_children_async (file,
-					 FILE_ATTRIBUTES,
-					 G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
-					 G_PRIORITY_LOW,
-					 crawler->private->cancellable,
-					 file_enumerate_children_cb,
-					 ed);
+	                                 FILE_ATTRIBUTES,
+	                                 G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
+	                                 G_PRIORITY_LOW,
+	                                 crawler->private->cancellable,
+	                                 file_enumerate_children_cb,
+	                                 ed);
 }
 
 gboolean
 tracker_crawler_start (TrackerCrawler *crawler,
-		       GFile          *file,
-		       gboolean        recurse)
+                       GFile          *file,
+                       gboolean        recurse)
 {
 	TrackerCrawlerPrivate *priv;
 
@@ -713,12 +713,12 @@ tracker_crawler_stop (TrackerCrawler *crawler)
 	}
 
 	g_signal_emit (crawler, signals[FINISHED], 0,
-		       priv->found,
-		       !priv->is_finished,
-		       priv->directories_found,
-		       priv->directories_ignored,
-		       priv->files_found,
-		       priv->files_ignored);
+	               priv->found,
+	               !priv->is_finished,
+	               priv->directories_found,
+	               priv->directories_ignored,
+	               priv->files_found,
+	               priv->files_ignored);
 
 	/* Clean up queue */
 	g_queue_foreach (priv->found, (GFunc) g_object_unref, NULL);
@@ -733,7 +733,7 @@ void
 tracker_crawler_pause (TrackerCrawler *crawler)
 {
 	g_return_if_fail (TRACKER_IS_CRAWLER (crawler));
-	
+
 	crawler->private->is_paused = TRUE;
 
 	if (crawler->private->is_running) {
@@ -741,8 +741,8 @@ tracker_crawler_pause (TrackerCrawler *crawler)
 		process_func_stop (crawler);
 	}
 
-	g_message ("Crawler is paused, %s", 
-		   crawler->private->is_running ? "currently running" : "not running");
+	g_message ("Crawler is paused, %s",
+	           crawler->private->is_running ? "currently running" : "not running");
 }
 
 void
@@ -757,13 +757,13 @@ tracker_crawler_resume (TrackerCrawler *crawler)
 		process_func_start (crawler);
 	}
 
-	g_message ("Crawler is resuming, %s", 
-		   crawler->private->is_running ? "currently running" : "not running");
+	g_message ("Crawler is resuming, %s",
+	           crawler->private->is_running ? "currently running" : "not running");
 }
 
 void
 tracker_crawler_set_throttle (TrackerCrawler *crawler,
-			      gdouble         throttle)
+                              gdouble         throttle)
 {
 	g_return_if_fail (TRACKER_IS_CRAWLER (crawler));
 

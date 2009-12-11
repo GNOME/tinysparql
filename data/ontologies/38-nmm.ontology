@@ -305,7 +305,7 @@ nmm:skipCounter a rdf:Property ;
 ## Image ontology
 
 nmm:ImageList a rdfs:Class ;
-	rdfs:subClassOf nfo:MediaList ; 
+	rdfs:subClassOf nfo:MediaList ;
 	rdfs:label "Image album" ;
 	rdfs:comment "An album of images" .
 

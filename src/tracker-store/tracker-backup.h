@@ -24,14 +24,14 @@
 
 #include <glib-object.h>
 
-#define TRACKER_BACKUP_SERVICE	       "org.freedesktop.Tracker1"
-#define TRACKER_BACKUP_PATH	       "/org/freedesktop/Tracker1/Backup"
+#define TRACKER_BACKUP_SERVICE         "org.freedesktop.Tracker1"
+#define TRACKER_BACKUP_PATH            "/org/freedesktop/Tracker1/Backup"
 #define TRACKER_BACKUP_INTERFACE       "org.freedesktop.Tracker1.Backup"
 
 G_BEGIN_DECLS
 
-#define TRACKER_TYPE_BACKUP	       (tracker_backup_get_type ())
-#define TRACKER_BACKUP(object)	       (G_TYPE_CHECK_INSTANCE_CAST ((object), TRACKER_TYPE_BACKUP, TrackerBackup))
+#define TRACKER_TYPE_BACKUP            (tracker_backup_get_type ())
+#define TRACKER_BACKUP(object)         (G_TYPE_CHECK_INSTANCE_CAST ((object), TRACKER_TYPE_BACKUP, TrackerBackup))
 #define TRACKER_BACKUP_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), TRACKER_TYPE_DBUS_BACKUP, TrackerBackupClass))
 #define TRACKER_IS_BACKUP(object)      (G_TYPE_CHECK_INSTANCE_TYPE ((object), TRACKER_TYPE_BACKUP))
 #define TRACKER_IS_BACKUP_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), TRACKER_TYPE_BACKUP))
@@ -48,19 +48,19 @@ struct TrackerBackupClass {
 	GObjectClass parent;
 };
 
-GType	       tracker_backup_get_type (void) G_GNUC_CONST;
+GType          tracker_backup_get_type (void) G_GNUC_CONST;
 
 TrackerBackup *tracker_backup_new      (void);
 void           tracker_backup_save     (TrackerBackup          *object,
-					const gchar            *destination_uri,
-					const gchar            *journal_uri,
-					DBusGMethodInvocation  *context,
-					GError                **error);
+                                        const gchar            *destination_uri,
+                                        const gchar            *journal_uri,
+                                        DBusGMethodInvocation  *context,
+                                        GError                **error);
 void           tracker_backup_restore  (TrackerBackup          *object,
-					const gchar            *backup_uri,
-					const gchar            *journal_uri,
-					DBusGMethodInvocation  *context,
-					GError                **error);
+                                        const gchar            *backup_uri,
+                                        const gchar            *journal_uri,
+                                        DBusGMethodInvocation  *context,
+                                        GError                **error);
 
 G_END_DECLS
 

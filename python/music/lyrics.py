@@ -1,4 +1,4 @@
-import os 
+import os
 import urllib
 import sys
 import re
@@ -44,7 +44,7 @@ def get_lyrics(artist, title):
 		self.callback("Unable to find lyrics for this track.")
 		xmldoc.unlink()
 		return
-	
+
 	xmldoc.unlink()
 
 	url = "http://api.leoslyrics.com/api_lyrics.php?auth=Rhythmbox&hid=%s" % (urllib.quote(hids[0].encode('utf-8')))

@@ -20,7 +20,7 @@ nmo:MimePart a rdfs:Class ;
 nmo:Multipart a rdfs:Class ;
 	rdfs:subClassOf nfo:DataContainer .
 
-# FIXME Extension requested in Nepomuk 
+# FIXME Extension requested in Nepomuk
 nmo:partBoundary a rdf:Property ;
 	rdfs:domain nmo:Multipart ;
 	rdfs:range xsd:string .
@@ -30,17 +30,17 @@ nmo:Message a rdfs:Class ;
 	rdfs:subClassOf nfo:TextDocument ;
 	tracker:notify true .
 
-# FIXME Extension requested in Nepomuk 
+# FIXME Extension requested in Nepomuk
 nmo:Email a rdfs:Class;
 	rdfs:subClassOf nmo:Message .
 
-# FIXME Extension requested in Nepomuk 
+# FIXME Extension requested in Nepomuk
 nmo:hasContent a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmo:Email ;
 	rdfs:range nmo:MimePart .
 
-# FIXME Extension requested in Nepomuk 
+# FIXME Extension requested in Nepomuk
 nmo:Attachment a rdfs:Class ;
 	rdfs:subClassOf nmo:MimePart ;
 	rdfs:subClassOf nfo:Attachment .
@@ -177,7 +177,7 @@ nmo:contentDisposition a rdf:Property ;
 	rdfs:domain nmo:MimePart ;
 	rdfs:range xsd:string .
 
-# FIXME Extension requested in Nepomuk 
+# FIXME Extension requested in Nepomuk
 nmo:mimeHeader a rdf:Property ;
 	rdfs:domain nmo:MimePart ;
 	rdfs:range rdfs:Resource .
@@ -242,48 +242,48 @@ nmo:duration a rdf:Property ;
 	rdfs:domain nmo:Call ;
 	rdfs:range xsd:integer .
 
-# FIXME Extension to nepomuk 
+# FIXME Extension to nepomuk
 nmo:accountName a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmo:MailAccount ;
 	rdfs:range xsd:string ;
 	tracker:weight 3 .
 
-# FIXME Extension to nepomuk 
+# FIXME Extension to nepomuk
 nmo:accountDisplayName a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmo:MailAccount ;
 	rdfs:range xsd:string ;
 	tracker:weight 3 .
 
-# FIXME Extension to nepomuk 
+# FIXME Extension to nepomuk
 nmo:fromAddress a rdf:Property ;
 	rdfs:comment "From address of an account" ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmo:MailAccount ;
 	rdfs:range nco:EmailAddress .
 
-# FIXME Extension to nepomuk 
+# FIXME Extension to nepomuk
 nmo:signature a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmo:MailAccount ;
 	rdfs:range xsd:string ;
 	tracker:weight 2 .
 
-# FIXME Extension to nepomuk 
+# FIXME Extension to nepomuk
 nmo:folderName a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmo:MailFolder ;
 	rdfs:range xsd:string ;
 	tracker:weight 4 .
 
-# FIXME Extension to nepomuk 
+# FIXME Extension to nepomuk
 nmo:status a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmo:Email ;
 	rdfs:range xsd:string .
 
-# FIXME Extension to nepomuk 
+# FIXME Extension to nepomuk
 nmo:responseType a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmo:Email ;
@@ -361,7 +361,7 @@ nmo:smsFolderId a rdf:Property ;
 	rdfs:domain nmo:SMSFolder ;
 	rdfs:range xsd:string ;
 	rdfs:subPropertyOf nie:identifier .
-	
+
 
 nmo:containsSMSFolder a rdf:Property ;
 	rdfs:label "contains SMS Folder";

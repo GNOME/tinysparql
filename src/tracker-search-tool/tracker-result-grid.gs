@@ -23,8 +23,8 @@
 uses
     Gtk
     TrackerUtils
-    
-    
+
+
 enum ResultColumns
     Uri
     Icon
@@ -39,14 +39,14 @@ enum ResultColumns
 
 const targets : array of TargetEntry[] = {{ "text/uri-list", 0, 1 },{ "text/plain",    0, 0 },{ "STRING",	   0, 0 }}
 
-    
+
 class TrackerResultGrid : ScrolledWindow
     store : ListStore
     iconview: IconView
     _query : TrackerQuery
-    
-    event SelectionChanged (path : TreePath?)    
-    
+
+    event SelectionChanged (path : TreePath?)
+
     prop Query : TrackerQuery
         get
             return _query
@@ -57,7 +57,7 @@ class TrackerResultGrid : ScrolledWindow
                     RefreshQuery ()
                 _query.ClearSearchResults += def ()
                     store.clear ()
-        
+
     def GetSelectedPath () : TreePath?
         l :  weak GLib.List of TreePath
 
@@ -65,42 +65,42 @@ class TrackerResultGrid : ScrolledWindow
 
         if l is not null and l.data is not null
             return l.data
-            
+
         return null
-            
-            
+
+
     def GetSelectedUri () : weak string
         iter : TreeIter
         uri : weak string
-        
+
         var path = GetSelectedPath ()
         if path is not null
             store.get_iter (out iter, path)
             store.get (iter, ResultColumns.Uri, out uri);
             return uri
-            
-        return ""    
-    
-    
+
+        return ""
+
+
     init
-    
+
         hscrollbar_policy = PolicyType.AUTOMATIC
         vscrollbar_policy = PolicyType.AUTOMATIC
         shadow_type = ShadowType.ETCHED_OUT
-           
+
         store = new ListStore (ResultColumns.NumOfCols, typeof (string), typeof (Gdk.Pixbuf), typeof (string), \
                                typeof (int), typeof (string), typeof (string), typeof (bool), typeof (string))
 
-        // to do add treeview        
-						
+        // to do add treeview
+
         iconview = new IconView.with_model (store)
         iconview.set_pixbuf_column (ResultColumns.Icon)
-        iconview.set_text_column (ResultColumns.DisplayName)	
+        iconview.set_text_column (ResultColumns.DisplayName)
         iconview.set_selection_mode (SelectionMode.BROWSE)
         iconview.enable_model_drag_source (Gdk.ModifierType.BUTTON1_MASK | Gdk.ModifierType.BUTTON2_MASK, targets, Gdk.DragAction.COPY | Gdk.DragAction.MOVE | Gdk.DragAction.ASK)
         iconview.set_item_width (150)
         iconview.set_row_spacing (10)
-        iconview.item_activated += ActivateUri 
+        iconview.item_activated += ActivateUri
 
         iconview.selection_changed += def ()
             var path = GetSelectedPath ()
@@ -112,12 +112,12 @@ class TrackerResultGrid : ScrolledWindow
             if uri is not null
                 var s = new array of string [1]
                 s[0] = uri
-                data.set_uris (s) 
+                data.set_uris (s)
 
         add (iconview)
         show_all ()
 
-                
+
     def RefreshQuery ()
         if _query is not null
             var results = _query.Search ()
@@ -125,20 +125,20 @@ class TrackerResultGrid : ScrolledWindow
             iter : TreeIter
 
             store.clear ()
-            
+
             if results is null do return
-            
+
             for uri in results
                 if uri.has_prefix ("file://")
-                
+
                     has_results = true
-                    
+
                     var file = File.new_for_uri (uri)
-                    
+
                     try
                         var info =  file.query_info ("standard::display-name,standard::icon,thumbnail::path", \
-                                                     FileQueryInfoFlags.NONE, null) 
-                                                 
+                                                     FileQueryInfoFlags.NONE, null)
+
                         var filetype =  info.get_file_type ()
                         store.append (out iter);
                         store.set (iter, ResultColumns.Uri, uri, ResultColumns.Icon, GetThumbNail (info, 64, 48, get_screen()), \
@@ -146,29 +146,23 @@ class TrackerResultGrid : ScrolledWindow
                                   (filetype is FileType.DIRECTORY) , -1);
                     except e:Error
                         print "Could not get file info for %s", uri
-                        
+
             /* select first result */
             if has_results
                 var path = new TreePath.from_string ("0:0:0")
                 if path is not null
                     iconview.select_path (path)
-            
-                    
-    
-     
+
+
+
+
     def ActivateUri (path : TreePath)
         iter : TreeIter
         is_dir : bool = false
-        
+
         store.get_iter (out iter, path)
         uri : weak string
         store.get (iter, ResultColumns.Uri, out uri);
         store.get (iter, ResultColumns.IsDirectory, out is_dir);
-        
+
         OpenUri (uri, is_dir)
-
-            
-    
-		
-
-    

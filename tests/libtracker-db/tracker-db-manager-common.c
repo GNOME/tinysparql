@@ -37,8 +37,8 @@ test_assert_query_run_on_iface (TrackerDBInterface *iface, const gchar *query)
 	GError *error = NULL;
 
 	result_set = tracker_db_interface_execute_query (iface,
-							 &error,
-							 query);
+	                                                 &error,
+	                                                 query);
 
 	if (error && error->message) {
 		g_warning ("Error loading query:'%s' - %s", query, error->message);

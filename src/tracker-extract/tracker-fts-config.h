@@ -27,14 +27,14 @@
 
 G_BEGIN_DECLS
 
-#define TRACKER_TYPE_FTS_CONFIG	        (tracker_fts_config_get_type ())
-#define TRACKER_FTS_CONFIG(o)	        (G_TYPE_CHECK_INSTANCE_CAST ((o), TRACKER_TYPE_FTS_CONFIG, TrackerFTSConfig))
+#define TRACKER_TYPE_FTS_CONFIG                 (tracker_fts_config_get_type ())
+#define TRACKER_FTS_CONFIG(o)           (G_TYPE_CHECK_INSTANCE_CAST ((o), TRACKER_TYPE_FTS_CONFIG, TrackerFTSConfig))
 #define TRACKER_FTS_CONFIG_CLASS(k)     (G_TYPE_CHECK_CLASS_CAST ((k), TRACKER_TYPE_FTS_CONFIG, TrackerFTSConfigClass))
 #define TRACKER_IS_FTS_CONFIG(o)        (G_TYPE_CHECK_INSTANCE_TYPE ((o), TRACKER_TYPE_FTS_CONFIG))
 #define TRACKER_IS_FTS_CONFIG_CLASS(k)  (G_TYPE_CHECK_CLASS_TYPE ((k), TRACKER_TYPE_FTS_CONFIG))
 #define TRACKER_FTS_CONFIG_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o), TRACKER_TYPE_FTS_CONFIG, TrackerFTSConfigClass))
 
-typedef struct TrackerFTSConfig	     TrackerFTSConfig;
+typedef struct TrackerFTSConfig              TrackerFTSConfig;
 typedef struct TrackerFTSConfigClass TrackerFTSConfigClass;
 
 struct TrackerFTSConfig {
@@ -53,11 +53,11 @@ gint              tracker_fts_config_get_min_word_length    (TrackerFTSConfig *c
 gint              tracker_fts_config_get_max_word_length    (TrackerFTSConfig *config);
 gint              tracker_fts_config_get_max_words_to_index (TrackerFTSConfig *config);
 void              tracker_fts_config_set_min_word_length    (TrackerFTSConfig *config,
-							     gint              value);
+                                                             gint              value);
 void              tracker_fts_config_set_max_word_length    (TrackerFTSConfig *config,
-							     gint              value);
+                                                             gint              value);
 void              tracker_fts_config_set_max_words_to_index (TrackerFTSConfig *config,
-							     gint              value);
+                                                             gint              value);
 
 G_END_DECLS
 

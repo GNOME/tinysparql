@@ -22,14 +22,14 @@
 
 gboolean
 tracker_accumulator_check_file (GSignalInvocationHint *hint,
-				GValue                *return_accumulator,
-				const GValue          *handler_return,
-				gpointer               accumulator_data)
+                                GValue                *return_accumulator,
+                                const GValue          *handler_return,
+                                gpointer               accumulator_data)
 {
-        gboolean use;
+	gboolean use;
 
-        use = g_value_get_boolean (handler_return);
-        g_value_set_boolean (return_accumulator, use);
+	use = g_value_get_boolean (handler_return);
+	g_value_set_boolean (return_accumulator, use);
 
-        return (use == TRUE);
+	return (use == TRUE);
 }

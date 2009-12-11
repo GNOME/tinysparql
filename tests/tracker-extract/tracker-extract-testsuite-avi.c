@@ -28,20 +28,20 @@ typedef struct {
 	gchar *testdata;
 } ExtractData;
 
-static const ExtractData data_basic_tags[] = { 
+static const ExtractData data_basic_tags[] = {
 	{ "/avi/basic_tags_1.avi", "/avi/basic_tags_1.data" },
 	{ NULL, NULL }
 };
 
-void 
+void
 test_tracker_extract_avi_basic_tags (gconstpointer data)
 {
 	guint i;
 
 	for (i = 0; data_basic_tags[i].filename; i++) {
 		tracker_test_extract_file (data,
-					   data_basic_tags[i].filename,
-					   data_basic_tags[i].testdata);		
+		                           data_basic_tags[i].filename,
+		                           data_basic_tags[i].testdata);
 	}
 }
 
