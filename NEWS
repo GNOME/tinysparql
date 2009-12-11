@@ -9,6 +9,7 @@ Improvements / New:
   Ontology:
   * Added nao:deprecated to the ontology.
   * Added support for class signals to nmm:RadioStation.
+  * Added small utils/ontology app to generate graphs.
   * Use nie:url instead of nie:isStoredAs. Discussed here:
     https://sourceforge.net/apps/trac/oscaf/ticket/46
   * Marked nie:isStoredAs as deprecated.
