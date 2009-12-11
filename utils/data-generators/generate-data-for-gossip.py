@@ -129,7 +129,7 @@ def gen_me ():
         print_instance ("mailto:" + address, "nco:EmailAddress")
         print_property ("nco:emailAddress", address, final=True)
 
-        print_instance (get_random_uuid_uri (), "nmo:Mailbox")
+        print_instance (get_random_uuid_uri (), "nmo:MailAccount")
         print_property ("nmo:accountName",
                         "Mail " + str(i))
         print_property ("nmo:accountDisplayName",

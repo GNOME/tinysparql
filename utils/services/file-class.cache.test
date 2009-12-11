@@ -704,7 +704,7 @@ nmo nmo:Message
 nmo nmo:Email
 nmo nmo:hasContent
 nmo nmo:Attachment
-nmo nmo:Mailbox
+nmo nmo:MailAccount
 nmo nmo:MailboxDataObject
 nmo nmo:MessageHeader
 nmo nmo:IMMessage
