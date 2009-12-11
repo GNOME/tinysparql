@@ -1,3 +1,64 @@
+NEW in 0.7.11
+=============
+
+Improvements / New:
+
+  General:
+  * All indentation and trailing whitespace has been fixed.
+
+  Ontology:
+  * Added nao:deprecated to the ontology.
+  * Added support for class signals to nmm:RadioStation.
+  * Use nie:url instead of nie:isStoredAs. Discussed here:
+    https://sourceforge.net/apps/trac/oscaf/ticket/46
+  * Marked nie:isStoredAs as deprecated.
+  * Marked nfo:fileURL as deprecated.
+  * nmo:Mailbox and nmo:MailAccount inheritance order swapped.
+  * mfo:FeedElement now is a subclass of nie:InformationElement.
+
+  SPARQL:
+  * Added subquery capability.
+  * Translate AS ?foo to SQL AS foo.
+  * Support GROUP BY from SPARQL 1.1 draft.
+  * Support AS ?foo from SPARQL 1.1 draft.
+  * Support bracketted expressions as select expressions.
+  * Fixed type handling in aggregate functions (improves performance).
+
+  Tests:
+  * Added for libtracker-data aggregates (distinct, group, etc).
+
+  libtracker-common:
+  * Fixed tracker-utils.h to use G_{BEING|END}_DECLS, broke c++ builds.
+
+  libtracker-data:
+  * Fixed property functions to support resource variables.
+  * Fix reading inverse functional properties from DB.
+
+  libtracker-client:
+  * Added more documentation.
+
+  libtracker-miner:
+  * Added more documentation (100% coverage now).
+
+  tracker-extract:
+  * Fixed gstreamer the way nmm:setNumber, nfo:genre are set.
+  * Refactored Microsft Word extractor to use libwv2 for FTS.
+  * Added support for Microsoft Power Point files.
+  
+  tracker-search-bar:
+  * Fixed results window to hide if text is empty, show if not.
+  
+Bugs:
+
+  GB#604152, tracker-miner-fs crashes after initial startup
+
+Notes:
+
+  The Deskbar applet packaged with Tracker is currently out of date
+  and needs some love to get it working with the new APIs. It is in
+  the same state as it was for 0.6. As such it isn't expected to work.
+
+
 NEW in 0.7.10
 =============
 
