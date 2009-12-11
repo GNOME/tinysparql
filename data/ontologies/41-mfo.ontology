@@ -15,7 +15,7 @@ mfo: a tracker:Namespace ;
 mfo:FeedElement a rdfs:Class;
 	rdfs:label "Feed element";
 	rdfs:comment "Superclass for all elements related with feeds, to provide common configuration options";
-	rdfs:subClassOf rdfs:Resource .
+	rdfs:subClassOf nie:InformationElement .
 
 mfo:FeedChannel a rdfs:Class ;
 	tracker:notify true ;
