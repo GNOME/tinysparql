@@ -1603,6 +1603,7 @@ AC_CONFIG_FILES([
 	utils/tracker-fts/Makefile
 	utils/services/Makefile
 	utils/playlists/Makefile
+	utils/ontology/Makefile
 	examples/Makefile
         examples/libtracker-miner/Makefile
 ])

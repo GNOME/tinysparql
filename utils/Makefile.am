@@ -3,4 +3,5 @@ include $(top_srcdir)/Makefile.decl
 SUBDIRS = 			\
 	services		\
 	playlists		\
-	tracker-fts
+	tracker-fts		\
+	ontology
