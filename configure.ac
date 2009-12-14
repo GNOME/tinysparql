@@ -1507,17 +1507,8 @@ AM_CONDITIONAL(HAVE_EVOLUTION_PLUGIN, test "$have_evolution_plugin" = "yes")
 
 AC_ARG_ENABLE([nautilus-extension],
               AS_HELP_STRING([--enable-nautilus-extension],
-                             [Enable the nautilus extension [[default=no]]]),
-              [enable_nautilus_extension=yes],
-              [enable_nautilus_extension=no])
-
-AM_CONDITIONAL([ENABLE_NAUTILUS_EXTENSION], [test "x$enable_nautilus_extension" != "xno"])
-
-AC_ARG_WITH([nautilus-extensions-dir],
-            AS_HELP_STRING([--with-nautilus-extensions-dir],
-                           [Path to Nautilus extensions directory]))
-
-NAUTILUS_EXTENSION_INSTALL_DIR="/dev/null"
+                             [Enable the nautilus extension [[default=auto]]]),
+              [enable_nautilus_extension=auto])
 
 if test "x$enable_nautilus_extension" != "xno"; then
    PKG_CHECK_MODULES([NAUTILUS_EXTENSION],
@@ -1525,22 +1516,41 @@ if test "x$enable_nautilus_extension" != "xno"; then
                      [have_nautilus_extension=yes],
                      [have_nautilus_extension=no])
 
+   AC_SUBST(NAUTILUS_EXTENSION_CFLAGS)
+   AC_SUBST(NAUTILUS_EXTENSION_LIBS)
+
    if test "x$have_nautilus_extension" = "xyes"; then
+      AC_ARG_WITH([nautilus-extensions-dir],
+                  AS_HELP_STRING([--with-nautilus-extensions-dir],
+                                 [Path to Nautilus extensions directory]))
+
       if test "x$with_nautilus_extensions_dir" = "x"; then
          nautilus_extensions_dir=`$PKG_CONFIG --variable=extensiondir libnautilus-extension`
       else
          nautilus_extensions_dir="$with_nautilus_extensions_dir"
       fi
-      NAUTILUS_EXTENSION_INSTALL_DIR="$nautilus_extensions_dir"
 
-      AC_DEFINE([HAVE_NAUTILUS_EXTENSION], [], [Define if we have libnautilus-extension])
+      NAUTILUS_EXTENSION_INSTALL_DIR="$nautilus_extensions_dir"
    else
-      AC_MSG_ERROR([Couldn't find Nautilus extension requirements (libnautilus-extension).])
+      NAUTILUS_EXTENSION_INSTALL_DIR="/dev/null"
+   fi
+
+   AC_SUBST([NAUTILUS_EXTENSION_INSTALL_DIR])
+
+   if test "x$have_nautilus_extension" = "xyes"; then
+      AC_DEFINE(HAVE_NAUTILUS_EXTENSION, 1, [Define if we have Nautilus extension])
+   fi
+else
+   have_nautilus_extension="no  (disabled)"
+fi
+
+if test "x$enable_nautilus_extension" = "xyes"; then
+   if test "x$have_nautilus_extension" != "xyes"; then
+      AC_MSG_ERROR([Couldn't find Nautilus extension requirements (libnautilus-extension-dev).])
    fi
 fi
 
-AC_SUBST([NAUTILUS_EXTENSION_INSTALL_DIR])
-
+AM_CONDITIONAL(HAVE_NAUTILUS_EXTENSION, test "$have_nautilus_extension" = "yes")
 
 ####################################################################
 # Include/Exclude functional tests
@@ -1751,12 +1761,9 @@ Metadata Extractors:
 	Support MP3 album art:                  $selected_for_albumart
 	Support playlists (w/ Totem):           $have_playlist
 
-Extensions:
+Plugins/Extensions:
 
-	Nautilus extension:			$enable_nautilus_extension
-
-Plugins:
-
+	Nautilus            (tagging widget)    $have_nautilus_extension
 	Evolution plugin    (data-push):	$enable_evolution_miner
 	KMail plugin        (data-push):	$enable_kmail_miner
 

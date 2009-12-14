@@ -12,6 +12,6 @@ SUBDIRS += evolution
 endif
 endif
 
-if ENABLE_NAUTILUS_EXTENSION
+if HAVE_NAUTILUS_EXTENSION
 SUBDIRS += nautilus
 endif
