@@ -24,6 +24,15 @@
 static gchar *ontology_dir = NULL;
 static gchar *output_file = NULL;
 
+static gint   indenting = 0;
+static GList *context = NULL;
+
+enum {
+        CONTEXT_GRAPH,
+        CONTEXT_SUBGRAPH,
+        CONTEXT_PROPERTY
+};
+
 static gchar *colors[] = {
         "#dd0000",
         "#00dd00",
@@ -347,6 +356,139 @@ get_prefix (const gchar *name)
 }
 
 static void
+print_string (FILE        *f,
+              const gchar *format,
+              ...)
+{
+        va_list args;
+
+        va_start (args, format);
+
+        if (indenting > 0) {
+                g_fprintf (f, "%*s", indenting, " ");
+        }
+        g_vfprintf (f, format, args);
+        g_fprintf (f, "\n");
+
+        va_end (args);
+}
+
+static void
+push_context_graph (FILE        *f,
+                    const gchar *name,
+                    gboolean     directed)
+{
+        if (directed) {
+                print_string (f, "digraph %s {", name);
+        } else {
+                print_string (f, "graph %s {", name);
+        }
+
+        indenting += 2;
+        context = g_list_prepend (context, GINT_TO_POINTER (CONTEXT_GRAPH));
+}
+
+static void
+push_context_subgraph (FILE        *f,
+                       const gchar *name)
+{
+        print_string (f, "subgraph \"%s\" {", name);
+        indenting += 2;
+        context = g_list_prepend (context, GINT_TO_POINTER (CONTEXT_SUBGRAPH));
+}
+
+static void
+pop_context (FILE *f)
+{
+        guint c;
+
+        g_assert (context != NULL);
+
+        c = GPOINTER_TO_INT (context->data);
+        context = g_list_remove (context, context);
+
+        indenting -= 2;
+        g_assert (indenting >= 0);
+
+        switch (c) {
+        case CONTEXT_GRAPH:
+        case CONTEXT_SUBGRAPH:
+                print_string (f, "}\n");
+                break;
+        case CONTEXT_PROPERTY:
+                print_string (f, "];\n");
+                break;
+        default:
+                g_assert_not_reached ();
+        }
+
+}
+
+static void
+print_properties (FILE        *f,
+                  const gchar *separator,
+                  ...)
+{
+        va_list args;
+        const gchar *prop, *value;
+
+        va_start (args, separator);
+
+        prop = va_arg (args, gchar *);
+
+        while (prop) {
+                value = va_arg (args, gchar *);
+
+                print_string (f, "%s = \"%s\"%s", prop, value, separator);
+
+                prop = va_arg (args, gchar *);
+        }
+
+        va_end (args);
+}
+
+static void
+print_element (FILE        *f,
+               const gchar *name,
+               gboolean     push_property)
+{
+        if (push_property) {
+                print_string (f, "%s [", name);
+                context = g_list_prepend (context, GINT_TO_POINTER (CONTEXT_PROPERTY));
+                indenting += 2;
+        } else {
+                print_string (f, "%s;", name);
+        }
+}
+
+static void
+print_relation (FILE        *f,
+                const gchar *from,
+                const gchar *to,
+                gboolean     directed,
+                gboolean     push_property)
+{
+        if (directed) {
+                if (push_property) {
+                        print_string (f, "%s -> %s [", from, to);
+                } else {
+                        print_string (f, "%s -> %s;", from, to);
+                }
+        } else {
+                if (push_property) {
+                        print_string (f, "%s -- %s [", from, to);
+                } else {
+                        print_string (f, "%s -- %s;", from, to);
+                }
+        }
+
+        if (push_property) {
+                context = g_list_prepend (context, GINT_TO_POINTER (CONTEXT_PROPERTY));
+                indenting += 2;
+        }
+}
+
+static void
 generate_class_info (FILE *f)
 {
         TrackerClass **classes;
@@ -362,22 +504,24 @@ generate_class_info (FILE *f)
 
         classes = tracker_ontology_get_classes (&length);
 
-        g_fprintf (f, "graph G {\n");
+        push_context_graph (f, "G", FALSE);
 
-        g_fprintf (f, "size=\"22,22\";\n"
-                   "orientation=\"portrait\";\n"
-                   "shape=\"record\";\n"
-                   "ratio=\"1.0\";\n"
-                   "concentrate=\"true\";\n"
-                   "compound=\"true\";\n"
-                   "dim=\"10\";\n"
-                   "rankdir=\"LR\";\n");
+        print_properties (f, ";",
+                          "size", "22,22",
+                          "shape", "record",
+                          "ratio", "1.0",
+                          "concentrate", "true",
+                          "compound", "true",
+                          "dim", "10",
+                          "rankdir", "LR",
+                          NULL);
 
         for (i = 0; i < length; i++) {
                 const gchar *name;
                 TrackerClass **superclasses;
                 gchar *prefix;
                 GList *subgraph_elements;
+                gchar *elem_name, *elem_label;
 
                 name = snip_name (tracker_class_get_name (classes[i]));
                 prefix = get_prefix (tracker_class_get_name (classes[i]));
@@ -387,23 +531,51 @@ generate_class_info (FILE *f)
                 subgraph_elements = g_list_prepend (subgraph_elements, (gpointer) name);
                 g_hash_table_replace (info, prefix, subgraph_elements);
 
-                g_fprintf (f, "%s_%s [ label=\"%s:%s\", style=\"filled\" ]\n", prefix, name, prefix, name);
+                elem_name = g_strdup_printf ("%s_%s", prefix, name);
+                elem_label = g_strdup_printf ("%s:%s", prefix, name);
+
+                print_element (f, elem_name, TRUE);
+
+                print_properties (f, ",",
+                                  "label", elem_label,
+                                  "style", "filled",
+                                  NULL);
+
+                pop_context (f);
+
+                g_free (elem_name);
+                g_free (elem_label);
 
                 for (j = 0; superclasses[j]; j++) {
                         const gchar *super_name;
                         gchar *super_prefix;
+                        gchar *from_name, *to_name;
 
                         super_name = snip_name (tracker_class_get_name (superclasses[j]));
                         super_prefix = get_prefix (tracker_class_get_name (superclasses[j]));
 
-                        g_fprintf (f, "%s_%s -- %s_%s [ dir=\"forward\" ", prefix, name, super_prefix, super_name);
+                        from_name = g_strdup_printf ("%s_%s", prefix, name);
+                        to_name = g_strdup_printf ("%s_%s", super_prefix, super_name);
+
+                        print_relation (f, from_name, to_name, FALSE, TRUE);
+                        print_properties (f, ",", "dir", "forward", NULL);
 
                         if (g_strcmp0 (prefix, super_prefix) != 0) {
-                                g_fprintf (f, ", ltail=cluster_%s, lhead=cluster_%s ", prefix, super_prefix);
+                                gchar *cluster_from, *cluster_to;
+
+                                cluster_from = g_strdup_printf ("cluster_%s", prefix);
+                                cluster_to = g_strdup_printf ("cluster_%s", super_prefix);
+
+                                print_properties (f, ",",
+                                                  "ltail", cluster_from,
+                                                  "lhead", cluster_to,
+                                                  NULL);
+
+                                g_free (cluster_from);
+                                g_free (cluster_to);
                         }
 
-                        g_fprintf (f, "] ;\n");
-
+                        pop_context (f);
                         g_free (super_prefix);
                 }
         }
@@ -412,16 +584,31 @@ generate_class_info (FILE *f)
 
         while (g_hash_table_iter_next (&iter, &key, &value)) {
                 gchar *prefix = key;
+                gchar *subgraph_name, *subgraph_label;
                 GList *subgraph_elements = value;
 
-                g_fprintf (f, "subgraph \"cluster_%s\" { label=\"%s ontology\"; fontsize=30 ; bgcolor=\"%s\"; ", prefix, prefix, colors[cur_color]);
+                subgraph_name = g_strdup_printf ("cluster_%s", prefix);
+                subgraph_label = g_strdup_printf ("%s ontology", prefix);
+
+                push_context_subgraph (f, subgraph_name);
+
+                print_properties (f, ";",
+                                  "label", subgraph_label,
+                                  "fontsize", "30",
+                                  "bgcolor", colors[cur_color],
+                                  NULL);
 
                 while (subgraph_elements) {
-                        g_fprintf (f, "%s_%s; ", prefix, (gchar *) subgraph_elements->data);
+                        gchar *subelement_name;
+
+                        subelement_name = g_strdup_printf ("%s_%s", prefix, (gchar *) subgraph_elements->data);
+                        print_element (f, subelement_name, FALSE);
+                        g_free (subelement_name);
+
                         subgraph_elements = subgraph_elements->next;
                 }
 
-                g_fprintf (f, "}\n");
+                pop_context (f);
 
                 cur_color++;
 
@@ -432,7 +619,7 @@ generate_class_info (FILE *f)
 
         g_hash_table_destroy (info);
 
-        g_fprintf (f, "}\n");
+        pop_context (f);
 }
 
 int
@@ -483,6 +670,8 @@ main (int argc, char *argv[])
         generate_class_info (f);
 
         tracker_ontology_shutdown ();
+
+        fclose (f);
 
         return 0;
 }
