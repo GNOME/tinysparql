@@ -17,12 +17,15 @@
  *
  */
 
+#include "config.h"
+
 #include <string.h>
+
 #include "tracker-tags-utils.h"
 
 /* Copied from src/tracker-utils/tracker-tags.c */
-static const gchar *
-get_escaped_sparql_string (const gchar *str)
+gchar *
+tracker_tags_escape_sparql_string (const gchar *str)
 {
 	GString *sparql;
 
@@ -60,13 +63,13 @@ get_escaped_sparql_string (const gchar *str)
 	return g_string_free (sparql, FALSE);
 }
 
-const gchar *
-tracker_tags_utils_add_query (const gchar *tag_label)
+gchar *
+tracker_tags_add_query (const gchar *tag_label)
 {
-	const gchar *query;
-	const gchar *tag_label_escaped;
+	gchar *query;
+	gchar *tag_label_escaped;
 
-	tag_label_escaped = get_escaped_sparql_string (tag_label);
+	tag_label_escaped = tracker_tags_escape_sparql_string (tag_label);
 	query = g_strdup_printf ("INSERT { "
 				 "  _:tag a nao:Tag ;"
 				 "  nao:prefLabel %s ."
@@ -79,18 +82,18 @@ tracker_tags_utils_add_query (const gchar *tag_label)
 				 "  FILTER (!bound(?tag)) "
 				 "}",
 				 tag_label_escaped, tag_label_escaped);
+	g_free (tag_label_escaped);
 
-	g_free ((gpointer) tag_label_escaped);
 	return query;
 }
 
-const gchar *
-tracker_tags_utils_remove_query (const gchar *tag_label)
+gchar *
+tracker_tags_remove_query (const gchar *tag_label)
 {
-	const gchar *query;
-	const gchar *tag_label_escaped;
+	gchar *query;
+	gchar *tag_label_escaped;
 
-	tag_label_escaped = get_escaped_sparql_string (tag_label);
+	tag_label_escaped = tracker_tags_escape_sparql_string (tag_label);
 	query = g_strdup_printf ("DELETE { "
 				 "  ?tag a nao:Tag "
 				 "} "
@@ -98,7 +101,7 @@ tracker_tags_utils_remove_query (const gchar *tag_label)
 				 "  ?tag nao:prefLabel %s "
 				 "}",
 				 tag_label_escaped);
+	g_free (tag_label_escaped);
 
-	g_free ((gpointer) tag_label_escaped);
 	return query;
 }

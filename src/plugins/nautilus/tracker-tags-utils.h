@@ -17,12 +17,18 @@
  *
  */
 
-#ifndef TRACKER_TAGS_UTILS_H
-#define TRACKER_TAGS_UTILS_H
+#ifndef __TRACKER_TAGS_UTILS_H__
+#define __TRACKER_TAGS_UTILS_H__
 
 #include <glib.h>
 
-const gchar     *tracker_tags_utils_add_query    (const gchar *tag_label);
-const gchar     *tracker_tags_utils_remove_query (const gchar *tag_label);
+G_BEGIN_DECLS
 
-#endif /* TRACKER_TAGS_UTILS_H */
+gchar *tracker_tags_escape_sparql_string (const gchar *str);
+
+gchar *tracker_tags_add_query            (const gchar *tag_label);
+gchar *tracker_tags_remove_query         (const gchar *tag_label);
+
+G_END_DECLS
+
+#endif /* __TRACKER_TAGS_UTILS_H__ */

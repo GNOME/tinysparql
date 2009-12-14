@@ -17,6 +17,8 @@
  *
  */
 
+#include "config.h"
+
 #include <string.h>
 
 #include <libnautilus-extension/nautilus-file-info.h>
@@ -26,71 +28,29 @@
 #include "tracker-tags-utils.h"
 #include "tracker-tags-view.h"
 
-enum
-{
+#define TRACKER_TAGS_VIEW_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE((obj), TRACKER_TYPE_TAGS_VIEW, TrackerTagsViewPrivate))
+
+struct _TrackerTagsViewPrivate {
+	TrackerClient *tracker_client;
+	GList *files;
+	GtkListStore *list_store;
+	GtkWidget *remove_button;
+	gchar *selected_tag_label;
+};
+
+enum {
 	COLUMN_SELECTED,
 	COLUMN_TAG_NAME,
 	N_COLUMNS
 };
 
-enum
-{
+enum {
 	SELECTED_INCONSISTENT = -1,
 	SELECTED_FALSE = 0,
 	SELECTED_TRUE
 };
 
-struct _TrackerTagsViewPrivate {
-	TrackerClient   *tracker_client;
-	GList           *files;
-	GtkListStore    *list_store;
-	GtkWidget       *remove_button;
-	gchar           *selected_tag_label;
-};
-
 G_DEFINE_TYPE (TrackerTagsView, tracker_tags_view, GTK_TYPE_VBOX);
-
-#define TRACKER_TAGS_VIEW_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE((obj), TRACKER_TYPE_TAGS_VIEW, TrackerTagsViewPrivate))
-
-/* Copied from src/tracker-utils/tracker-tags.c */
-static gchar *
-get_escaped_sparql_string (const gchar *str)
-{
-	GString *sparql;
-
-	sparql = g_string_new ("");
-        g_string_append_c (sparql, '"');
-
-        while (*str != '\0') {
-                gsize len = strcspn (str, "\t\n\r\"\\");
-                g_string_append_len (sparql, str, len);
-                str += len;
-                switch (*str) {
-                case '\t':
-                        g_string_append (sparql, "\\t");
-                        break;
-                case '\n':
-                        g_string_append (sparql, "\\n");
-                        break;
-                case '\r':
-                        g_string_append (sparql, "\\r");
-                        break;
-                case '"':
-                        g_string_append (sparql, "\\\"");
-                        break;
-                case '\\':
-                        g_string_append (sparql, "\\\\");
-                        break;
-                default:
-                        continue;
-                }
-                str++;
-        }
-
-        g_string_append_c (sparql, '"');
-
-	return g_string_free (sparql, FALSE);
-}
 
 /* Copied from src/tracker-utils/tracker-tags.c */
 static gchar *
@@ -136,14 +96,14 @@ get_filter_string (GStrv        files,
 }
 
 static void
-tracker_tags_view_check_foreach (gpointer data, gpointer user_data)
+tracker_tags_view_check_foreach (gpointer data, 
+                                 gpointer user_data)
 {
 	const GStrv element = data;
-	TrackerTagsView *const view = TRACKER_TAGS_VIEW (user_data);
+	TrackerTagsView *view = TRACKER_TAGS_VIEW (user_data);
 	GList *node;
 
-	for (node = view->priv->files; NULL != node; node = g_list_next (node))
-	{
+	for (node = view->private->files; node; node = g_list_next (node)) {
 		gchar *uri;
 		gint cmp;
 
@@ -151,16 +111,17 @@ tracker_tags_view_check_foreach (gpointer data, gpointer user_data)
 		cmp = g_strcmp0 (element[0], uri);
 		g_free (uri);
 
-		if (0 == cmp)
-		{
-			view->priv->files = g_list_delete_link (view->priv->files, node);
+		if (cmp == 0) {
+			view->private->files = g_list_delete_link (view->private->files, node);
 			break;
 		}
 	}
 }
 
 static void
-tracker_tags_view_query_each_tag_finished (GPtrArray *result, GError *error, gpointer user_data)
+tracker_tags_view_query_each_tag_finished (GPtrArray *result, 
+                                           GError    *error, 
+                                           gpointer   user_data)
 {
 	void **const arg = user_data;
 	TrackerTagsView *const view = TRACKER_TAGS_VIEW (arg[0]);
@@ -171,56 +132,71 @@ tracker_tags_view_query_each_tag_finished (GPtrArray *result, GError *error, gpo
 
 	g_free (arg);
 
-	if (NULL != error)
-	{
-		if (NULL != error->message)
-		{
+	if (error != NULL) {
+		if (error->message != NULL) {
 			GtkWidget *error_dialog;
 
-			error_dialog = gtk_message_dialog_new (NULL, GTK_DIALOG_NO_SEPARATOR, GTK_MESSAGE_ERROR, GTK_BUTTONS_OK, "%s", error->message);
-			g_signal_connect (error_dialog, "response", G_CALLBACK (gtk_widget_destroy), NULL);
+			error_dialog = gtk_message_dialog_new (NULL, 
+			                                       GTK_DIALOG_NO_SEPARATOR, 
+			                                       GTK_MESSAGE_ERROR, 
+			                                       GTK_BUTTONS_OK, 
+			                                       "%s", 
+			                                       error->message);
+			g_signal_connect (error_dialog, "response", 
+			                  G_CALLBACK (gtk_widget_destroy), NULL);
 			gtk_dialog_run (GTK_DIALOG (error_dialog));
 		}
 		g_error_free (error);
 		goto end;
 	}
 
-	files = g_list_copy (view->priv->files);
+	files = g_list_copy (view->private->files);
 
-	pre_num = g_list_length (view->priv->files);
+	pre_num = g_list_length (view->private->files);
 	g_ptr_array_foreach (result, tracker_tags_view_check_foreach, view);
 	g_ptr_array_foreach (result, (GFunc) g_strfreev, NULL);
 	g_ptr_array_free (result, TRUE);
-	post_num = g_list_length (view->priv->files);
+	post_num = g_list_length (view->private->files);
 
-	if (pre_num == post_num)
-		gtk_list_store_set (view->priv->list_store, iter, COLUMN_SELECTED, SELECTED_FALSE, -1);
-	else if (0 == post_num)
-		gtk_list_store_set (view->priv->list_store, iter, COLUMN_SELECTED, SELECTED_TRUE, -1);
-	else
-		gtk_list_store_set (view->priv->list_store, iter, COLUMN_SELECTED, SELECTED_INCONSISTENT, -1);
+	if (pre_num == post_num) {
+		gtk_list_store_set (view->private->list_store, iter, 
+		                    COLUMN_SELECTED, SELECTED_FALSE, 
+		                    -1);
+	} else if (post_num == 0) {
+		gtk_list_store_set (view->private->list_store, iter, 
+		                    COLUMN_SELECTED, SELECTED_TRUE, 
+		                    -1);
+	} else {
+		gtk_list_store_set (view->private->list_store, iter, 
+		                    COLUMN_SELECTED, SELECTED_INCONSISTENT, 
+		                    -1);
+	}
 
-	g_list_free (view->priv->files);
-	view->priv->files = files;
+	g_list_free (view->private->files);
+	view->private->files = files;
 
 end:
 	gtk_tree_iter_free (iter);
 }
 
 static void
-tracker_tags_view_append_foreach (gpointer data, gpointer user_data)
+tracker_tags_view_append_foreach (gpointer data, 
+                                  gpointer user_data)
 {
 	const GStrv element = data;
-	TrackerTagsView *const view = TRACKER_TAGS_VIEW (user_data);
+	TrackerTagsView *view = TRACKER_TAGS_VIEW (user_data);
 	GtkTreeIter iter;
 	gchar *query;
 	gchar *tag_escaped;
 	void **arg;
 
-	gtk_list_store_append (view->priv->list_store, &iter);
-	gtk_list_store_set (view->priv->list_store, &iter, COLUMN_SELECTED, SELECTED_FALSE, COLUMN_TAG_NAME, element[1], -1);
+	gtk_list_store_append (view->private->list_store, &iter);
+	gtk_list_store_set (view->private->list_store, &iter, 
+	                    COLUMN_SELECTED, SELECTED_FALSE, 
+	                    COLUMN_TAG_NAME, element[1], 
+	                    -1);
 
-	tag_escaped = get_escaped_sparql_string (element[0]);
+	tag_escaped = tracker_tags_escape_sparql_string (element[0]);
 	query = g_strdup_printf ("SELECT ?f "
 				 "WHERE {"
 				 "  ?f a rdfs:Resource ;"
@@ -231,7 +207,7 @@ tracker_tags_view_append_foreach (gpointer data, gpointer user_data)
 	arg = g_new (void *, 2);
 	arg[0] = view;
 	arg[1] = gtk_tree_iter_copy (&iter);
-	tracker_resources_sparql_query_async (view->priv->tracker_client,
+	tracker_resources_sparql_query_async (view->private->tracker_client,
                                               query,
                                               tracker_tags_view_query_each_tag_finished,
                                               arg);
@@ -239,14 +215,14 @@ tracker_tags_view_append_foreach (gpointer data, gpointer user_data)
 }
 
 static void
-tracker_tags_view_query_all_tags_finished (GPtrArray *result, GError *error, gpointer user_data)
+tracker_tags_view_query_all_tags_finished (GPtrArray *result, 
+                                           GError    *error, 
+                                           gpointer   user_data)
 {
-	TrackerTagsView *const view = TRACKER_TAGS_VIEW (user_data);
+	TrackerTagsView *view = TRACKER_TAGS_VIEW (user_data);
 
-	if (NULL != error)
-	{
-		if (NULL != error->message)
-		{
+	if (error != NULL) {
+		if (error->message != NULL) {
 			GtkWidget *error_dialog;
 
 			error_dialog = gtk_message_dialog_new (NULL,
@@ -255,7 +231,8 @@ tracker_tags_view_query_all_tags_finished (GPtrArray *result, GError *error, gpo
                                                                GTK_BUTTONS_OK,
                                                                "%s",
                                                                error->message);
-			g_signal_connect (error_dialog, "response", G_CALLBACK (gtk_widget_destroy), NULL);
+			g_signal_connect (error_dialog, "response", 
+			                  G_CALLBACK (gtk_widget_destroy), NULL);
 			gtk_dialog_run (GTK_DIALOG (error_dialog));
 		}
 		g_error_free (error);
@@ -268,17 +245,18 @@ tracker_tags_view_query_all_tags_finished (GPtrArray *result, GError *error, gpo
 }
 
 static void
-tracker_tags_view_toggle_cell_data_func (GtkTreeViewColumn	*column,
-					 GtkCellRenderer	*cell_renderer,
-					 GtkTreeModel		*tree_model,
-					 GtkTreeIter		*iter,
-					 gpointer		user_data)
+tracker_tags_view_toggle_cell_data_func (GtkTreeViewColumn *column,
+					 GtkCellRenderer   *cell_renderer,
+					 GtkTreeModel      *tree_model,
+					 GtkTreeIter       *iter,
+					 gpointer           user_data)
 {
 	GValue inconsistent = {0};
 	gint selected;
 
 	gtk_tree_model_get (tree_model, iter, COLUMN_SELECTED, &selected, -1);
-	gtk_cell_renderer_toggle_set_active (GTK_CELL_RENDERER_TOGGLE (cell_renderer), SELECTED_TRUE == selected);
+	gtk_cell_renderer_toggle_set_active (GTK_CELL_RENDERER_TOGGLE (cell_renderer), 
+	                                     SELECTED_TRUE == selected);
 
 	g_value_init (&inconsistent, G_TYPE_BOOLEAN);
 	g_value_set_boolean (&inconsistent, SELECTED_INCONSISTENT == selected);
@@ -286,12 +264,11 @@ tracker_tags_view_toggle_cell_data_func (GtkTreeViewColumn	*column,
 }
 
 static void
-tracker_tags_view_update_finished (GError *error, gpointer user_data)
+tracker_tags_view_update_finished (GError   *error, 
+                                   gpointer  user_data)
 {
-	if (NULL != error)
-	{
-		if (NULL != error->message)
-		{
+	if (error != NULL) {
+		if (error->message != NULL) {
 			GtkWidget *error_dialog;
 
 			error_dialog = gtk_message_dialog_new (NULL,
@@ -300,36 +277,38 @@ tracker_tags_view_update_finished (GError *error, gpointer user_data)
                                                                GTK_BUTTONS_OK,
                                                                "%s",
                                                                error->message);
-			g_signal_connect (error_dialog, "response", G_CALLBACK (gtk_widget_destroy), NULL);
+			g_signal_connect (error_dialog, "response", 
+			                  G_CALLBACK (gtk_widget_destroy), NULL);
 			gtk_dialog_run (GTK_DIALOG (error_dialog));
 		}
+
 		g_error_free (error);
 	}
 }
 
 static void
-tracker_tags_view_add_dialog_response_cb (GtkDialog *dialog, gint response_id, gpointer user_data)
+tracker_tags_view_add_dialog_response_cb (GtkDialog *dialog, 
+                                          gint       response_id, 
+                                          gpointer   user_data)
 {
-	TrackerTagsView *const view = TRACKER_TAGS_VIEW (user_data);
+	TrackerTagsView *view = TRACKER_TAGS_VIEW (user_data);
 
-	switch (response_id)
-	{
+	switch (response_id) {
 	case GTK_RESPONSE_CANCEL:
 	case GTK_RESPONSE_DELETE_EVENT:
 		break;
 
-	case GTK_RESPONSE_OK:
-	{
-		const gchar *query;
+	case GTK_RESPONSE_OK: {
+		gchar *query;
 		const gchar *tag_label;
 
 		tag_label = tracker_tags_add_dialog_get_text (TRACKER_TAGS_ADD_DIALOG (dialog));
-		query = tracker_tags_utils_add_query (tag_label);
-		tracker_resources_sparql_update_async (view->priv->tracker_client,
+		query = tracker_tags_add_query (tag_label);
+		tracker_resources_sparql_update_async (view->private->tracker_client,
                                                        query,
                                                        tracker_tags_view_update_finished,
                                                        NULL);
-		g_free ((gpointer) query);
+		g_free (query);
 		break;
 	}
 
@@ -340,21 +319,26 @@ tracker_tags_view_add_dialog_response_cb (GtkDialog *dialog, gint response_id, g
 }
 
 static void
-tracker_tags_view_add_clicked_cb (GtkButton *button, gpointer user_data)
+tracker_tags_view_add_clicked_cb (GtkButton *button, 
+                                  gpointer   user_data)
 {
-	TrackerTagsView *const view = TRACKER_TAGS_VIEW (user_data);
+	TrackerTagsView *view = TRACKER_TAGS_VIEW (user_data);
 	GtkWidget *add_dialog;
 
 	add_dialog = tracker_tags_add_dialog_new ();
-	gtk_window_set_screen (GTK_WINDOW (add_dialog), gtk_widget_get_screen (GTK_WIDGET (view)));
-	g_signal_connect (add_dialog, "response", G_CALLBACK (tracker_tags_view_add_dialog_response_cb), view);
+	gtk_window_set_screen (GTK_WINDOW (add_dialog), 
+	                       gtk_widget_get_screen (GTK_WIDGET (view)));
+	g_signal_connect (add_dialog, "response", 
+	                  G_CALLBACK (tracker_tags_view_add_dialog_response_cb), 
+	                  view);
 	gtk_widget_show_all (add_dialog);
 }
 
 static void
-tracker_tags_view_copy_uri_foreach (gpointer data, gpointer user_data)
+tracker_tags_view_copy_uri_foreach (gpointer data, 
+                                    gpointer user_data)
 {
-	NautilusFileInfo *const file_info = NAUTILUS_FILE_INFO (data);
+	NautilusFileInfo *file_info = NAUTILUS_FILE_INFO (data);
 	GStrv *const arg = user_data;
 	gchar *uri;
 
@@ -364,20 +348,26 @@ tracker_tags_view_copy_uri_foreach (gpointer data, gpointer user_data)
 }
 
 static void
-tracker_tags_view_remove_clicked_cb (GtkButton *button, gpointer user_data)
+tracker_tags_view_remove_clicked_cb (GtkButton *button, 
+                                     gpointer   user_data)
 {
-	TrackerTagsView *const view = TRACKER_TAGS_VIEW (user_data);
+	TrackerTagsView *view = TRACKER_TAGS_VIEW (user_data);
 	const gchar *query;
 
-	query = tracker_tags_utils_remove_query (view->priv->selected_tag_label);
-	tracker_resources_sparql_update_async (view->priv->tracker_client, query, tracker_tags_view_update_finished, NULL);
+	query = tracker_tags_remove_query (view->private->selected_tag_label);
+	tracker_resources_sparql_update_async (view->private->tracker_client, query, 
+	                                       tracker_tags_view_update_finished, 
+	                                       NULL);
 	g_free ((gpointer) query);
 }
 
 static void
-tracker_tags_view_row_activated_cb (GtkTreeView *tree_view, GtkTreePath *path, GtkTreeViewColumn *column, gpointer user_data)
+tracker_tags_view_row_activated_cb (GtkTreeView       *tree_view, 
+                                    GtkTreePath       *path, 
+                                    GtkTreeViewColumn *column, 
+                                    gpointer           user_data)
 {
-	TrackerTagsView *const view = TRACKER_TAGS_VIEW (user_data);
+	TrackerTagsView *view = TRACKER_TAGS_VIEW (user_data);
 	GStrv files;
 	GStrv arg;
 	GtkTreeIter iter;
@@ -389,29 +379,30 @@ tracker_tags_view_row_activated_cb (GtkTreeView *tree_view, GtkTreePath *path, G
 	guint num;
 
 	tree_model = gtk_tree_view_get_model (tree_view);
-	if (FALSE == gtk_tree_model_get_iter (tree_model, &iter, path))
+
+	if (gtk_tree_model_get_iter (tree_model, &iter, path) == FALSE) {
 		return;
+	}
 
 	gtk_tree_model_get (tree_model,
                             &iter,
                             COLUMN_SELECTED,
                             &selected,
                             COLUMN_TAG_NAME,
-                            &view->priv->selected_tag_label,
+                            &view->private->selected_tag_label,
                             -1);
-	selected = (SELECTED_FALSE == selected) ? SELECTED_TRUE : SELECTED_FALSE;
-	gtk_list_store_set (view->priv->list_store, &iter, COLUMN_SELECTED, selected, -1);
+	selected = selected == SELECTED_FALSE ? SELECTED_TRUE : SELECTED_FALSE;
+	gtk_list_store_set (view->private->list_store, &iter, COLUMN_SELECTED, selected, -1);
 
-	tag_label_escaped = get_escaped_sparql_string (view->priv->selected_tag_label);
+	tag_label_escaped = tracker_tags_escape_sparql_string (view->private->selected_tag_label);
 
-	num = g_list_length (view->priv->files);
+	num = g_list_length (view->private->files);
 	arg = files = g_new0 (gchar *, num + 1);
-	g_list_foreach (view->priv->files, tracker_tags_view_copy_uri_foreach, &arg);
+	g_list_foreach (view->private->files, tracker_tags_view_copy_uri_foreach, &arg);
 	filter = get_filter_string (files, NULL);
 	g_strfreev (files);
 
-	if (TRUE == selected)
-	{
+	if (selected == TRUE) {
 		query = g_strdup_printf ("INSERT { "
 					 "  ?urn nao:hasTag ?tag "
 					 "} "
@@ -421,9 +412,7 @@ tracker_tags_view_row_activated_cb (GtkTreeView *tree_view, GtkTreePath *path, G
 					 "  %s "
 					 "}",
 					 tag_label_escaped, filter);
-	}
-	else
-	{
+	} else {
 		query = g_strdup_printf ("DELETE { "
 					 "  ?urn nao:hasTag ?tag "
 					 "} "
@@ -437,24 +426,32 @@ tracker_tags_view_row_activated_cb (GtkTreeView *tree_view, GtkTreePath *path, G
 
 	g_free (filter);
 	g_free (tag_label_escaped);
-	tracker_resources_sparql_update_async (view->priv->tracker_client, query, tracker_tags_view_update_finished, NULL);
+	tracker_resources_sparql_update_async (view->private->tracker_client, 
+	                                       query, 
+	                                       tracker_tags_view_update_finished, 
+	                                       NULL);
 	g_free (query);
 }
 
 static void
-tracker_tags_view_selection_changed_cb (GtkTreeSelection *tree_selection, gpointer *user_data)
+tracker_tags_view_selection_changed_cb (GtkTreeSelection *tree_selection, 
+                                        gpointer         *user_data)
 {
-	TrackerTagsView *const view = TRACKER_TAGS_VIEW (user_data);
+	TrackerTagsView *view = TRACKER_TAGS_VIEW (user_data);
 	GtkTreeIter iter;
 	GtkTreeModel *tree_model;
 
-	gtk_widget_set_sensitive (GTK_WIDGET (view->priv->remove_button), FALSE);
-	view->priv->selected_tag_label = NULL;
-	if (!gtk_tree_selection_get_selected (tree_selection, &tree_model, &iter))
-		return;
+	gtk_widget_set_sensitive (GTK_WIDGET (view->private->remove_button), FALSE);
+	view->private->selected_tag_label = NULL;
 
-	gtk_tree_model_get (tree_model, &iter, COLUMN_TAG_NAME, &view->priv->selected_tag_label, -1);
-	gtk_widget_set_sensitive (GTK_WIDGET (view->priv->remove_button), TRUE);
+	if (!gtk_tree_selection_get_selected (tree_selection, &tree_model, &iter)) {
+		return;
+	}
+
+	gtk_tree_model_get (tree_model, &iter, 
+	                    COLUMN_TAG_NAME, &view->private->selected_tag_label, 
+	                    -1);
+	gtk_widget_set_sensitive (GTK_WIDGET (view->private->remove_button), TRUE);
 }
 
 void
@@ -466,18 +463,20 @@ tracker_tags_view_register_type (GTypeModule *module)
 static void
 tracker_tags_view_finalize (GObject *object)
 {
-	TrackerTagsView *const view = TRACKER_TAGS_VIEW (object);
+	TrackerTagsView *view = TRACKER_TAGS_VIEW (object);
 
-	tracker_disconnect (view->priv->tracker_client);
-	g_list_foreach (view->priv->files, g_object_unref, NULL);
-	g_list_free (view->priv->files);
+	tracker_disconnect (view->private->tracker_client);
+
+	g_list_foreach (view->private->files, (GFunc) g_object_unref, NULL);
+	g_list_free (view->private->files);
+
 	G_OBJECT_CLASS (tracker_tags_view_parent_class)->finalize (object);
 }
 
 static void
 tracker_tags_view_class_init (TrackerTagsViewClass *klass)
 {
-	GObjectClass *const gobject_class = G_OBJECT_CLASS (klass);
+	GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
 
 	gobject_class->finalize = tracker_tags_view_finalize;
 	g_type_class_add_private (gobject_class, sizeof (TrackerTagsViewPrivate));
@@ -488,7 +487,6 @@ tracker_tags_view_class_init (TrackerTagsViewClass *klass)
 static void
 tracker_tags_view_init (TrackerTagsView *view)
 {
-	TrackerTagsViewPrivate *const priv = TRACKER_TAGS_VIEW_GET_PRIVATE (view);
 	GtkCellRenderer *cell_renderer;
 	GtkTreeSelection *tree_selection;
 	GtkTreeViewColumn *column;
@@ -497,10 +495,10 @@ tracker_tags_view_init (TrackerTagsView *view)
 	GtkWidget *scrolled_window;
 	GtkWidget *tree_view;
 
-	view->priv = priv;
-	view->priv->tracker_client = tracker_connect (TRUE, G_MAXINT);
-	view->priv->files = NULL;
-	view->priv->list_store = gtk_list_store_new (N_COLUMNS, G_TYPE_INT, G_TYPE_STRING);
+	view->private = TRACKER_TAGS_VIEW_GET_PRIVATE (view);
+	view->private->tracker_client = tracker_connect (TRUE, G_MAXINT);
+	view->private->files = NULL;
+	view->private->list_store = gtk_list_store_new (N_COLUMNS, G_TYPE_INT, G_TYPE_STRING);
 
 	gtk_container_set_border_width (GTK_CONTAINER (view), 6);
 	gtk_box_set_homogeneous (GTK_BOX (view), FALSE);
@@ -528,7 +526,7 @@ tracker_tags_view_init (TrackerTagsView *view)
 	gtk_tree_view_column_add_attribute(column, cell_renderer, "text", COLUMN_TAG_NAME);
 
 	gtk_tree_view_set_headers_visible (GTK_TREE_VIEW (tree_view), FALSE);
-	gtk_tree_view_set_model (GTK_TREE_VIEW (tree_view), GTK_TREE_MODEL (view->priv->list_store));
+	gtk_tree_view_set_model (GTK_TREE_VIEW (tree_view), GTK_TREE_MODEL (view->private->list_store));
 
 	tree_selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (tree_view));
 	gtk_tree_selection_set_mode (tree_selection, GTK_SELECTION_SINGLE);
@@ -545,14 +543,14 @@ tracker_tags_view_init (TrackerTagsView *view)
         gtk_box_pack_start (GTK_BOX (button_box), button, FALSE, FALSE, 0);
 	g_signal_connect (button, "clicked", G_CALLBACK (tracker_tags_view_add_clicked_cb), view);
 
-	view->priv->remove_button = gtk_button_new_from_stock (GTK_STOCK_REMOVE);
-        gtk_box_pack_start (GTK_BOX (button_box), view->priv->remove_button, FALSE, FALSE, 0);
-	gtk_widget_set_sensitive (GTK_WIDGET (view->priv->remove_button), FALSE);
-	g_signal_connect (view->priv->remove_button, "clicked", G_CALLBACK (tracker_tags_view_remove_clicked_cb), view);
+	view->private->remove_button = gtk_button_new_from_stock (GTK_STOCK_REMOVE);
+        gtk_box_pack_start (GTK_BOX (button_box), view->private->remove_button, FALSE, FALSE, 0);
+	gtk_widget_set_sensitive (GTK_WIDGET (view->private->remove_button), FALSE);
+	g_signal_connect (view->private->remove_button, "clicked", G_CALLBACK (tracker_tags_view_remove_clicked_cb), view);
 
-	view->priv->selected_tag_label = NULL;
+	view->private->selected_tag_label = NULL;
 
-	tracker_resources_sparql_query_async (view->priv->tracker_client,
+	tracker_resources_sparql_query_async (view->private->tracker_client,
 					      "SELECT ?u ?t "
 					      "WHERE {"
 					      "  ?u a nao:Tag ;"
@@ -569,7 +567,8 @@ tracker_tags_view_new (GList *files)
 	TrackerTagsView *self;
 
 	self = g_object_new (TRACKER_TYPE_TAGS_VIEW, NULL);
-	g_list_foreach (files, g_object_ref, NULL);
-	self->priv->files = g_list_copy (files);
+	g_list_foreach (files, (GFunc) g_object_ref, NULL);
+	self->private->files = g_list_copy (files);
+
 	return GTK_WIDGET (self);
 }
