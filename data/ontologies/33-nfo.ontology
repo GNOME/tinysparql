@@ -419,20 +419,23 @@ nfo:hasMediaFileListEntry a rdf:Property ;
 	rdfs:label "hasMediaFileListEntry" ;
 	rdfs:comment "This property is intended to point to an RDF list of MediaFiles." ;
 	rdfs:domain nfo:MediaList ;
-	rdfs:range nfo:MediaFileListEntry .
+	rdfs:range nfo:MediaFileListEntry ;
+	tracker:writeback true .
 
 # Propose in nepomuk
 nfo:entryCounter a rdf:Property ;
         rdfs:label "entry Counter" ;
 	rdfs:comment "Number of entries in the list. Optimize some common queries" ;
 	rdfs:domain nfo:MediaList ;
-	rdfs:range xsd:integer .
+	rdfs:range xsd:integer ;
+	tracker:writeback true .
 
 nfo:listDuration a rdf:Property ;
 	rdfs:label "List duration" ;
 	rdfs:comment "Sum of the duration of all items in the list. Optimize some common queries. In seconds";
         rdfs:domain nfo:MediaList ;
-	rdfs:range xsd:integer .
+	rdfs:range xsd:integer ;
+	tracker:writeback true .
 
 # Propose in nepomuk
 nfo:listPosition a rdf:Property ;
@@ -440,7 +443,9 @@ nfo:listPosition a rdf:Property ;
 	rdfs:comment "Position of an entry in a list. Double, to optimize the poor insertions" ;
  	nrl:maxCardinality 1 ;
 	rdfs:domain nfo:MediaFileListEntry ;
-	rdfs:range xsd:double .
+	rdfs:range xsd:double ;
+	tracker:writeback true .
+
 
 # Propose in nepomuk
 nfo:entryContent a rdf:Property ;
@@ -448,7 +453,8 @@ nfo:entryContent a rdf:Property ;
 	rdfs:comment "URI to the element in certain position of the list" ;
         nrl:maxCardinality 1 ;
 	rdfs:domain nfo:MediaFileListEntry ;
-	rdfs:range nie:InformationElement .
+	rdfs:range nie:InformationElement ;
+	tracker:writeback true .
 
 nfo:height a rdf:Property ;
 	rdfs:label "height" ;

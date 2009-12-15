@@ -17,7 +17,8 @@ INCLUDES = 								\
 	$(GMODULE_CFLAGS) 						\
 	$(DBUS_CFLAGS)							\
 	$(ID3LIB_CFLAGS)						\
-	$(EXEMPI_CFLAGS)
+	$(EXEMPI_CFLAGS)						\
+	$(TOTEM_PL_PARSER_CFLAGS)
 
 modules_LTLIBRARIES =
 
@@ -35,6 +36,14 @@ modules_LTLIBRARIES += libwriteback-xmp.la
 libwriteback_xmp_la_SOURCES = tracker-writeback-xmp.c
 libwriteback_xmp_la_LDFLAGS = $(module_flags)
 libwriteback_xmp_la_LIBADD = $(GLIB2_LIBS) $(GCOV_LIBS) $(EXEMPI_LIBS)
+endif
+
+# Playlists
+if HAVE_TOTEM_PL_PARSER
+modules_LTLIBRARIES += libwriteback-playlist.la
+libwriteback_playlist_la_SOURCES = tracker-writeback-playlist.c
+libwriteback_playlist_la_LDFLAGS = $(module_flags)
+libwriteback_playlist_la_LIBADD = $(GLIB2_LIBS) $(GCOV_LIBS) $(TOTEM_PL_PARSER_LIBS)
 endif
 
 #
