@@ -344,15 +344,19 @@ AC_ARG_ENABLE(gcov,
               AS_HELP_STRING([--enable-gcov],
                              [enable coverage reporting support [[default=no]]]), ,
               [enable_gcov=no])
+AM_CONDITIONAL(ENABLE_GCOV, test "x$enable_gcov" != "xno")
 
 if test "x$enable_gcov" != "xno" ; then
+  GCOV_VALAFLAGS="-g"
   GCOV_CFLAGS="-ftest-coverage -fprofile-arcs"
   GCOV_LIBS="-lgcov"
 else
+  GCOV_VALAFLAGS=
   GCOV_CFLAGS=
   GCOV_LIBS=
 fi
 
+AC_SUBST(GCOV_VALAFLAGS)
 AC_SUBST(GCOV_CFLAGS)
 AC_SUBST(GCOV_LIBS)
 
