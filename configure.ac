@@ -1604,10 +1604,11 @@ AC_CONFIG_FILES([
 	tests/tracker-store/Makefile
 	utils/Makefile
 	utils/gtk-sparql/Makefile
-	utils/tracker-fts/Makefile
-	utils/services/Makefile
-	utils/playlists/Makefile
+	utils/lyrics/Makefile
 	utils/ontology/Makefile
+	utils/playlists/Makefile
+	utils/services/Makefile
+	utils/tracker-fts/Makefile
 	examples/Makefile
         examples/libtracker-miner/Makefile
 	examples/rss-reader/Makefile
