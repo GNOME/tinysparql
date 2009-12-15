@@ -1,5 +1,0 @@
-content 	tracker 	jar:chrome/tracker.jar!/content/
-overlay 	chrome://messenger/content/messenger.xul chrome://tracker/content/trackerMessenger.xul
-overlay		chrome://messenger/content/mailWindowOverlay.xul chrome://tracker/content/trackerMailWindow.xul
-locale 		tracker 	en-US 		jar:chrome/tracker.jar!/locale/en-US/
-skin 		tracker 	classic/1.0 	jar:chrome/tracker.jar!/skin/classic/
