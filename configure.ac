@@ -1550,8 +1550,6 @@ AC_CONFIG_FILES([
 	docs/reference/libtracker-miner/version.xml
 	Makefile
 	po/Makefile.in
-	python/deskbar-handler/Makefile
-	python/Makefile
 	src/libinotify/Makefile
 	src/libstemmer/Makefile
 	src/libtracker-common/Makefile
@@ -1577,6 +1575,7 @@ AC_CONFIG_FILES([
 	src/tracker-utils/Makefile
         src/tracker-writeback/Makefile
 	src/plugins/Makefile
+	src/plugins/deskbar/Makefile
 	src/plugins/evolution/Makefile
 	src/plugins/kmail/Makefile
 	tests/common/Makefile

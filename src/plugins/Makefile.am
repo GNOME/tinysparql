@@ -1,6 +1,6 @@
 include $(top_srcdir)/Makefile.decl
 
-SUBDIRS = .
+SUBDIRS = deskbar
 
 if USING_KMAIL_MINER
 SUBDIRS += kmail
