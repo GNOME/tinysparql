@@ -1,3 +1,4 @@
+#
 # GtkSparql - Gtk UI to try SparQL queries against tracker.
 # Copyright (C) 2009, Ivan Frade <ivan.frade@gmail.com>
 #

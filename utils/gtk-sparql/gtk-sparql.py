@@ -18,13 +18,12 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 
-
 import gtk
 import dbus
 import store
 import time
-import Completion
-import tracker_completion
+import completion
+import completion_engine
 
 TRACKER = 'org.freedesktop.Tracker1'
 TRACKER_OBJ = '/org/freedesktop/Tracker1/Resources'
@@ -48,7 +47,7 @@ class GtkSparql:
         self.textbuffer.set_text ("SELECT \nWHERE { \n\n}")
         ui.get_object ("query_text").set_buffer (self.textbuffer)
 
-        self.completer = Completion.Completer (tracker_completion.TrackerCompletionEngine (),
+        self.completer = completion.Completer (completion_engine.TrackerCompletionEngine (),
                                                ui.get_object ("query_text"),
                                                ui.get_object ("main_window"))
 

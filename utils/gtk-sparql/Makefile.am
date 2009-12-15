@@ -5,8 +5,9 @@ ui_DATA = gtk-sparql.ui
 
 EXTRA_DIST = 				\
 	$(ui_DATA)			\
-	Completion.py			\
+	completion.py			\
+	completion_engine.py		\
 	gtk-sparql.py			\
-	store.py			\
-	tracker_completion.py
+	store.py
 
+CLEANFILES = *.pyc

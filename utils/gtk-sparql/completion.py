@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
-
 #
 # Code taken from http://code.google.com/p/emesene-plugins/
 # Specifically http://emesene-plugins.googlecode.com/svn/trunk/Completion.py
 #
 # The original file doesn't contain License header, but
 # the project is under license GPL v2
-
+#
 # GtkSparql - Gtk UI to try SparQL queries against tracker.
 # Copyright (C) 2009, emesene-plugins project
 #

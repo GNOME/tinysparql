@@ -1551,7 +1551,6 @@ AC_CONFIG_FILES([
 	Makefile
 	po/Makefile.in
 	python/deskbar-handler/Makefile
-	python/gtk-sparql/Makefile
 	python/rss_reader/Makefile
 	python/Makefile
 	src/libinotify/Makefile
@@ -1605,6 +1604,7 @@ AC_CONFIG_FILES([
 	tests/tracker-extract/Makefile
 	tests/tracker-store/Makefile
 	utils/Makefile
+	utils/gtk-sparql/Makefile
 	utils/tracker-fts/Makefile
 	utils/services/Makefile
 	utils/playlists/Makefile
