@@ -3,6 +3,8 @@
 *.la
 *.lo
 *.o
+*.gcda
+*.gcno
 *.stamp
 *.pyc
 .deps
