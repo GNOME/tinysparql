@@ -1,4 +1,5 @@
 include $(top_srcdir)/Makefile.decl
 
 SUBDIRS = 			\
-	libtracker-miner
+	libtracker-miner	\
+	rss-reader

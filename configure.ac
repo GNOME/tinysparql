@@ -1551,7 +1551,6 @@ AC_CONFIG_FILES([
 	Makefile
 	po/Makefile.in
 	python/deskbar-handler/Makefile
-	python/rss_reader/Makefile
 	python/Makefile
 	src/libinotify/Makefile
 	src/libstemmer/Makefile
@@ -1611,6 +1610,7 @@ AC_CONFIG_FILES([
 	utils/ontology/Makefile
 	examples/Makefile
         examples/libtracker-miner/Makefile
+	examples/rss-reader/Makefile
 ])
 
 AC_OUTPUT
