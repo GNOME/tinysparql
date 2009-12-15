@@ -208,7 +208,8 @@ nco:contributor a rdf:Property ;
 	rdfs:comment "An entity responsible for making contributions to the content of the InformationElement." ;
 	rdfs:subPropertyOf dc:contributor ;
 	rdfs:domain nie:InformationElement ;
-	rdfs:range nco:Contact .
+	rdfs:range nco:Contact ;
+	tracker:writeback true .
 
 nco:creator a rdf:Property ;
 	rdfs:label "creator" ;

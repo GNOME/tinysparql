@@ -39,12 +39,12 @@ libwriteback_xmp_la_LIBADD = $(GLIB2_LIBS) $(GCOV_LIBS) $(EXEMPI_LIBS)
 endif
 
 # Playlists
-if HAVE_TOTEM_PL_PARSER
-modules_LTLIBRARIES += libwriteback-playlist.la
-libwriteback_playlist_la_SOURCES = tracker-writeback-playlist.c
-libwriteback_playlist_la_LDFLAGS = $(module_flags)
-libwriteback_playlist_la_LIBADD = $(GLIB2_LIBS) $(GCOV_LIBS) $(TOTEM_PL_PARSER_LIBS)
-endif
+#if HAVE_TOTEM_PL_PARSER
+#modules_LTLIBRARIES += libwriteback-playlist.la
+#libwriteback_playlist_la_SOURCES = tracker-writeback-playlist.c
+#libwriteback_playlist_la_LDFLAGS = $(module_flags)
+#libwriteback_playlist_la_LIBADD = $(GLIB2_LIBS) $(GCOV_LIBS) $(TOTEM_PL_PARSER_LIBS)
+#endif
 
 #
 # Binaries

@@ -137,7 +137,8 @@ nie:copyright a rdf:Property ;
 	rdfs:subPropertyOf dc:rights , nie:legal ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nie:InformationElement ;
-	rdfs:range xsd:string .
+	rdfs:range xsd:string ;
+	tracker:writeback true .
 
 nie:comment a rdf:Property ;
 	nrl:maxCardinality 1 ;

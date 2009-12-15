@@ -1709,6 +1709,7 @@ AC_CONFIG_FILES([
 	tests/tracker-miner-fs/Makefile
 	tests/tracker-extract/Makefile
 	tests/tracker-store/Makefile
+	tests/tracker-writeback/Makefile
 	utils/Makefile
 	utils/gtk-sparql/Makefile
 	utils/lyrics/Makefile

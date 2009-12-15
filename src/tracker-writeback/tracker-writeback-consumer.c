@@ -123,7 +123,10 @@ tracker_writeback_consumer_constructed (GObject *object)
 		path = modules->data;
 		module = tracker_writeback_module_get (path);
 
-		g_hash_table_insert (priv->modules, g_strdup (path), module);
+		if (module) {
+			g_hash_table_insert (priv->modules, g_strdup (path), module);
+		}
+
 		modules = modules->next;
 	}
 }

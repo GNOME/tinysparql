@@ -323,14 +323,16 @@ nmm:camera a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmm:Photo ;
 	rdfs:range xsd:string ;
-	tracker:weight 3 .
+	tracker:weight 3 ;
+	tracker:writeback true .
 
 nmm:exposureTime a rdf:Property ;
 	rdfs:label "Exposure time" ;
 	rdfs:comment "Exposure time of the photo" ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmm:Photo ;
-	rdfs:range xsd:double .
+	rdfs:range xsd:double ;
+	tracker:writeback true .
 
 nmm:Flash a rdfs:Class ;
 	rdfs:label "Flash values" ;
@@ -344,28 +346,32 @@ nmm:flash a rdf:Property ;
 	rdfs:comment "Specifies whether flash was used" ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmm:Photo ;
-	rdfs:range nmm:Flash .
+	rdfs:range nmm:Flash ;
+	tracker:writeback true .
 
 nmm:fnumber a rdf:Property ;
 	rdfs:label "F number" ;
 	rdfs:comment "The diameter of the entrance pupil in terms of the focal length of the lens" ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmm:Photo ;
-	rdfs:range xsd:double .
+	rdfs:range xsd:double ;
+	tracker:writeback true .
 
 nmm:focalLength a rdf:Property ;
 	rdfs:label "Focal length" ;
 	rdfs:comment "A measure of how strongly the lens converges light" ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmm:Photo ;
-	rdfs:range xsd:double .
+	rdfs:range xsd:double ;
+	tracker:writeback true .
 
 nmm:isoSpeed a rdf:Property ;
 	rdfs:label "ISO speed" ;
 	rdfs:comment "Measure of a photographic film's sensitivity to light as ISO value" ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmm:Photo ;
-	rdfs:range xsd:double .
+	rdfs:range xsd:double ;
+	tracker:writeback true .
 
 nmm:MeteringMode a rdfs:Class ;
 	rdfs:label "Metering mode values" ;
@@ -383,7 +389,8 @@ nmm:meteringMode a rdf:Property ;
 	rdfs:comment "Metering mode refers to the way in which a camera determines the exposure." ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmm:Photo ;
-	rdfs:range nmm:MeteringMode .
+	rdfs:range nmm:MeteringMode ;
+	tracker:writeback true .
 
 nmm:WhiteBalance a rdfs:Class ;
 	rdfs:label "White balance" ;
@@ -395,7 +402,8 @@ nmm:white-balance-manual a nmm:WhiteBalance .
 nmm:whiteBalance a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmm:Photo ;
-	rdfs:range nmm:WhiteBalance .
+	rdfs:range nmm:WhiteBalance ;
+	tracker:writeback true .
 
 nmm:isCropped a rdf:Property ;
 	nrl:maxCardinality 1 ;

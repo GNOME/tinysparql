@@ -128,8 +128,7 @@ writeback_xmp_update_file_metadata (TrackerWritebackFile *wbf,
 	xmp = xmp_files_get_new_xmp (xmp_files);
 
 	if (!xmp) {
-		g_free (path);
-		return FALSE;
+		xmp = xmp_new_empty ();
 	}
 
 #ifdef DEBUG_XMP
@@ -185,9 +184,54 @@ writeback_xmp_update_file_metadata (TrackerWritebackFile *wbf,
 			}
 		}
 
+		if (g_strcmp0 (row[1], TRACKER_NCO_PREFIX "contributor") == 0) {
+			GPtrArray *name_array;
+			GError *error = NULL;
+			gchar *query;
+
+			query = g_strdup_printf ("SELECT ?fullname { "
+			                         "  <%s> nco:fullname ?fullname "
+			                         "}", row[2]);
+
+			name_array = tracker_resources_sparql_query (client, query, &error);
+
+			g_free (query);
+
+			if (!error) {
+				if (name_array && name_array->len > 0) {
+					GStrv name_row;
+
+					name_row = g_ptr_array_index (name_array, 0);
+
+					if (name_row[0]) {
+						xmp_delete_property (xmp, NS_DC, "contributor");
+						xmp_set_property (xmp, NS_DC, "contributor", name_row[0], 0);
+					}
+				}
+
+				if (name_array) {
+					g_ptr_array_foreach (name_array, (GFunc) g_strfreev, NULL);
+					g_ptr_array_free (name_array, TRUE);
+				}
+
+			} else {
+				g_clear_error (&error);
+			}
+		}
+
 		if (g_strcmp0 (row[1], TRACKER_NIE_PREFIX "description") == 0) {
 			xmp_delete_property (xmp, NS_DC, "description");
 			xmp_set_property (xmp, NS_DC, "description", row[2], 0);
+		}
+
+		if (g_strcmp0 (row[1], TRACKER_NIE_PREFIX "copyright") == 0) {
+			xmp_delete_property (xmp, NS_EXIF, "Copyright");
+			xmp_set_property (xmp, NS_EXIF, "Copyright", row[2], 0);
+		}
+
+		if (g_strcmp0 (row[1], TRACKER_NIE_PREFIX "comment") == 0) {
+			xmp_delete_property (xmp, NS_EXIF, "UserComment");
+			xmp_set_property (xmp, NS_EXIF, "UserComment", row[2], 0);
 		}
 
 		if (g_strcmp0 (row[1], TRACKER_NIE_PREFIX "keyword") == 0) {
@@ -204,55 +248,124 @@ writeback_xmp_update_file_metadata (TrackerWritebackFile *wbf,
 		}
 
 		if (g_strcmp0 (row[1], TRACKER_NFO_PREFIX "orientation") == 0) {
-			guint i;
-
-			static const gchar *ostr[8] = {
-				/* 0 */ TRACKER_NFO_PREFIX "orientation-top",
-				/* 1 */ TRACKER_NFO_PREFIX "orientation-top-mirror",
-				/* 2 */ TRACKER_NFO_PREFIX "orientation-bottom",
-				/* 3 */ TRACKER_NFO_PREFIX "orientation-bottom-mirror",
-				/* 4 */ TRACKER_NFO_PREFIX "orientation-left-mirror",
-				/* 5 */ TRACKER_NFO_PREFIX "orientation-right",
-				/* 6 */ TRACKER_NFO_PREFIX "orientation-right-mirror",
-				/* 7 */ TRACKER_NFO_PREFIX "orientation-left"
-			};
 
 			xmp_delete_property (xmp, NS_EXIF, "Orientation");
 
-			for (i=0; i < 8; i++) {
-				if (g_strcmp0 (row[2], ostr[i]) == 0) {
-					switch (i) {
-					case 0:
-						xmp_set_property (xmp, NS_EXIF, "Orientation", "top - left", 0);
-						break;
-					case 1:
-						xmp_set_property (xmp, NS_EXIF, "Orientation", "top - right", 0);
-						break;
-					case 2:
-						xmp_set_property (xmp, NS_EXIF, "Orientation", "bottom - right", 0);
-						break;
-					case 3:
-						xmp_set_property (xmp, NS_EXIF, "Orientation", "bottom - left", 0);
-						break;
-					case 4:
-						xmp_set_property (xmp, NS_EXIF, "Orientation", "left - top", 0);
-						break;
-					case 5:
-						xmp_set_property (xmp, NS_EXIF, "Orientation", "right - top", 0);
-						break;
-					case 6:
-						xmp_set_property (xmp, NS_EXIF, "Orientation", "right - bottom", 0);
-						break;
-					case 7:
-						xmp_set_property (xmp, NS_EXIF, "Orientation", "left - bottom", 0);
-						break;
-					default:
-						break;
-					}
-				}
+			if        (g_strcmp0 (row[2], TRACKER_NFO_PREFIX "orientation-top") == 0) {
+				xmp_set_property (xmp, NS_EXIF, "Orientation", "top - left", 0);
+			} else if (g_strcmp0 (row[2], TRACKER_NFO_PREFIX "orientation-top-mirror") == 0) {
+				xmp_set_property (xmp, NS_EXIF, "Orientation", "top - right", 0);
+			} else if (g_strcmp0 (row[2], TRACKER_NFO_PREFIX "orientation-bottom") == 0) {
+				xmp_set_property (xmp, NS_EXIF, "Orientation", "bottom - right", 0);
+			} else if (g_strcmp0 (row[2], TRACKER_NFO_PREFIX "orientation-bottom-mirror") == 0) {
+				xmp_set_property (xmp, NS_EXIF, "Orientation", "bottom - left", 0);
+			} else if (g_strcmp0 (row[2], TRACKER_NFO_PREFIX "orientation-left-mirror") == 0) {
+				xmp_set_property (xmp, NS_EXIF, "Orientation", "left - top", 0);
+			} else if (g_strcmp0 (row[2], TRACKER_NFO_PREFIX "orientation-right") == 0) {
+				xmp_set_property (xmp, NS_EXIF, "Orientation", "right - top", 0);
+			} else if (g_strcmp0 (row[2], TRACKER_NFO_PREFIX "orientation-right-mirror") == 0) {
+					xmp_set_property (xmp, NS_EXIF, "Orientation", "right - bottom", 0);
+			} else if (g_strcmp0 (row[2], TRACKER_NFO_PREFIX "orientation-left") == 0) {
+				xmp_set_property (xmp, NS_EXIF, "Orientation", "left - bottom", 0);
 			}
 		}
 
+		if (g_strcmp0 (row[1], TRACKER_NMM_PREFIX "meteringMode") == 0) {
+
+			xmp_delete_property (xmp, NS_EXIF, "MeteringMode");
+
+			/* 0 = Unknown
+			   1 = Average
+			   2 = CenterWeightedAverage
+			   3 = Spot
+			   4 = MultiSpot
+			   5 = Pattern
+			   6 = Partial
+			   255 = other  */
+
+			if        (g_strcmp0 (row[2], TRACKER_NMM_PREFIX "meteringMode-center-weighted-average") == 0) {
+				xmp_set_property (xmp, NS_EXIF, "MeteringMode", "0", 0);
+			} else if (g_strcmp0 (row[2], TRACKER_NMM_PREFIX "meteringMode-average") == 0) {
+				xmp_set_property (xmp, NS_EXIF, "MeteringMode", "1", 0);
+			} else if (g_strcmp0 (row[2], TRACKER_NMM_PREFIX "meteringMode-spot") == 0) {
+				xmp_set_property (xmp, NS_EXIF, "MeteringMode", "3", 0);
+			} else if (g_strcmp0 (row[2], TRACKER_NMM_PREFIX "meteringMode-multispot") == 0) {
+				xmp_set_property (xmp, NS_EXIF, "MeteringMode", "4", 0);
+			} else if (g_strcmp0 (row[2], TRACKER_NMM_PREFIX "meteringMode-pattern") == 0) {
+				xmp_set_property (xmp, NS_EXIF, "MeteringMode", "5", 0);
+			} else if (g_strcmp0 (row[2], TRACKER_NMM_PREFIX "meteringMode-partial") == 0) {
+				xmp_set_property (xmp, NS_EXIF, "MeteringMode", "6", 0);
+			} else {
+				xmp_set_property (xmp, NS_EXIF, "MeteringMode", "255", 0);
+			}
+		}
+
+		if (g_strcmp0 (row[1], TRACKER_NMM_PREFIX "whiteBalance") == 0) {
+
+			xmp_delete_property (xmp, NS_EXIF, "WhiteBalance");
+
+			if (g_strcmp0 (row[2], TRACKER_NMM_PREFIX "whiteBalance-auto") == 0) {
+				/* 0 = Auto white balance
+				 * 1 = Manual white balance */
+				xmp_set_property (xmp, NS_EXIF, "WhiteBalance", "0", 0);
+			} else {
+				xmp_set_property (xmp, NS_EXIF, "MeteringMode", "1", 0);
+			}
+		}
+
+		if (g_strcmp0 (row[1], TRACKER_NMM_PREFIX "flash") == 0) {
+
+			xmp_delete_property (xmp, NS_EXIF, "Flash");
+
+			if (g_strcmp0 (row[2], TRACKER_NMM_PREFIX "flash-on") == 0) {
+				/* 0 = Flash did not fire
+				   1 = Flash fired */
+				xmp_set_property (xmp, NS_EXIF, "Flash", "0", 0);
+			} else {
+				xmp_set_property (xmp, NS_EXIF, "Flash", "1", 0);
+			}
+		}
+
+		if (g_strcmp0 (row[1], TRACKER_NMM_PREFIX "focalLength") == 0) {
+			xmp_delete_property (xmp, NS_EXIF, "FocalLength");
+			xmp_set_property (xmp, NS_EXIF, "FocalLength", row[2], 0);
+		}
+
+		if (g_strcmp0 (row[1], TRACKER_NMM_PREFIX "exposureTime") == 0) {
+			xmp_delete_property (xmp, NS_EXIF, "ExposureTime");
+			xmp_set_property (xmp, NS_EXIF, "ExposureTime", row[2], 0);
+		}
+
+		if (g_strcmp0 (row[1], TRACKER_NMM_PREFIX "isoSpeed") == 0) {
+			xmp_delete_property (xmp, NS_EXIF, "ISOSpeedRatings");
+			xmp_set_property (xmp, NS_EXIF, "ISOSpeedRatings", row[2], 0);
+		}
+
+		if (g_strcmp0 (row[1], TRACKER_NMM_PREFIX "fnumber") == 0) {
+			xmp_delete_property (xmp, NS_EXIF, "FNumber");
+			xmp_set_property (xmp, NS_EXIF, "FNumber", row[2], 0);
+		}
+
+		if (g_strcmp0 (row[1], TRACKER_NMM_PREFIX "camera") == 0) {
+			gchar *work_on = g_strdup (row[2]);
+			gchar *ptr = strchr (work_on, ' ');
+
+			if (ptr) {
+
+				*ptr = '\0';
+				ptr++;
+
+				xmp_delete_property (xmp, NS_EXIF, "Make");
+				xmp_set_property (xmp, NS_EXIF, "Make", work_on, 0);
+				xmp_delete_property (xmp, NS_EXIF, "Model");
+				xmp_set_property (xmp, NS_EXIF, "Model", ptr, 0);
+			} else {
+				xmp_delete_property (xmp, NS_EXIF, "Model");
+				xmp_set_property (xmp, NS_EXIF, "Model", work_on, 0);
+			}
+
+			g_free (work_on);
+		}
 
 		/*
 		  if (g_strcmp0 (row[1], PHOTO_HAS "contact") == 0) {
