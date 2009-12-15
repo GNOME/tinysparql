@@ -1,7 +1,4 @@
-/* -*- Mode: C; indent-tabs-mode: t; c-basic-offset: 8; tab-width: 8 -*-
- *
- * @file libtracker-gtk/tracker-gtk.h Main include file
- *
+/*
  * @Copyright (C) 2007 John Stowers
  *
  * This library is free software; you can redistribute it and/or

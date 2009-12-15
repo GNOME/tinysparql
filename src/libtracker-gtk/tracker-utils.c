@@ -1,8 +1,4 @@
-/* -*- Mode: C; indent-tabs-mode: t; c-basic-offset: 8; tab-width: 8 -*-
- *
- * libtracker-gtk/tracker-utils.c - Grab bag of functions for manuipulating
- * tracker results into more Gtk friedly types.
- *
+/*
  * Copyright (C) 2007 John Stowers
  *
  * This library is free software; you can redistribute it and/or

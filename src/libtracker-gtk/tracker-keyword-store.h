@@ -1,9 +1,4 @@
-/* -*- Mode: C; indent-tabs-mode: t; c-basic-offset: 8; tab-width: 8 -*-
- *
- * tracker-gtk/keyword-store.h - A derived GtkListStore that maintians a
- * DBus connection to tracker such that when a new keyword is created it
- * is automatically inserted here.
- *
+/*
  * Copyright (C) 2007 John Stowers
  *
  * This library is free software; you can redistribute it and/or

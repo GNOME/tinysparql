@@ -1,4 +1,3 @@
-/* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /* Tracker Iptc - Iptc helper functions
  * Copyright (C) 2009, Nokia
  *

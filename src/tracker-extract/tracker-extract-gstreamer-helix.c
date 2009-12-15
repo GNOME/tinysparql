@@ -1,4 +1,3 @@
-/* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*
  * Copyright (C) 2006, Laurent Aguerreche (laurent.aguerreche@free.fr)
  * Copyright (C) 2007, Mr Jamie McCracken (jamiemcc@gnome.org)

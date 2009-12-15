@@ -1,5 +1,4 @@
-/* -*- Mode: C; indent-tabs-mode: t; c-basic-offset: 8; tab-width: 8 -*-
- *
+/*
  * Copyright (C) 2007 Neil Jagdish Patel <njpatel@gmail.com>
  *
  * This library is free software; you can redistribute it and/or

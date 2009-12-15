@@ -1,4 +1,3 @@
-/* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*
  * Copyright (C) 2007,      Jason Kivlighn (jkivlighn@gmail.com)
  * Copyright (C) 2008-2009, Nokia

@@ -1,5 +1,4 @@
-/* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
-/* Tracker Exif - Exif helper functions
+/*
  * Copyright (C) 2008, Nokia
  *
  * This program is free software; you can redistribute it and/or

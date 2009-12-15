@@ -1,8 +1,4 @@
-/* -*- Mode: C; indent-tabs-mode: t; c-basic-offset: 8; tab-width: 8 -*-
- *
- * libtracker-gtk/tracker-ui.c - Functions for creating tracker centric UI
- * elemetents.
- *
+/*
  * Copyright (C) 2007 John Stowers
  *
  * This library is free software; you can redistribute it and/or
