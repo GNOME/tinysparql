@@ -1903,8 +1903,11 @@ tracker_data_begin_transaction (void)
 
 	resource_time = time (NULL);
 
-	update_buffer.resource_cache = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
-	update_buffer.resources = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, (GDestroyNotify) resource_buffer_free);
+	if (update_buffer.resource_cache == NULL) {
+		update_buffer.resource_cache = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
+		update_buffer.resources = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, (GDestroyNotify) resource_buffer_free);
+	}
+
 	resource_buffer = NULL;
 	if (blank_buffer.table == NULL) {
 		blank_buffer.table = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
@@ -1945,8 +1948,8 @@ tracker_data_commit_transaction (void)
 
 	tracker_db_interface_end_transaction (iface);
 
-	g_hash_table_unref (update_buffer.resources);
-	g_hash_table_unref (update_buffer.resource_cache);
+	g_hash_table_remove_all (update_buffer.resources);
+	g_hash_table_remove_all (update_buffer.resource_cache);
 
 	if (commit_callbacks) {
 		guint n;
