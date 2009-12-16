@@ -1,8 +1,9 @@
 include $(top_srcdir)/Makefile.decl
 
 SUBDIRS = 			\
+	gtk-sparql		\
 	lyrics			\
-	services		\
+	ontology		\
 	playlists		\
-	tracker-fts		\
-	ontology
+	services		\
+	tracker-fts
