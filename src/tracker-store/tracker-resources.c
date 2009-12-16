@@ -302,6 +302,16 @@ tracker_resources_sparql_update_blank (TrackerResources               *self,
 
 	dbus_g_method_return (context, blank_nodes);
 
+	if (blank_nodes) {
+		gint i;
+
+		for (i = 0; i < blank_nodes->len; i++) {
+			g_ptr_array_foreach (blank_nodes->pdata[i], (GFunc) g_hash_table_unref, NULL);
+			g_ptr_array_free (blank_nodes->pdata[i], TRUE);
+		}
+		g_ptr_array_free (blank_nodes, TRUE);
+	}
+
 	tracker_dbus_request_success (request_id);
 }
 
