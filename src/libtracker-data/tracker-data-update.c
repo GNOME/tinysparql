@@ -759,9 +759,9 @@ tracker_data_blank_buffer_flush (GError **error)
 		g_free (g_array_index (blank_buffer.predicates, gchar *, i));
 		g_free (g_array_index (blank_buffer.objects, gchar *, i));
 	}
-	g_array_free (blank_buffer.graphs, TRUE);
-	g_array_free (blank_buffer.predicates, TRUE);
-	g_array_free (blank_buffer.objects, TRUE);
+	g_array_remove_range (blank_buffer.graphs, 0, blank_buffer.graphs->len);
+	g_array_remove_range (blank_buffer.predicates, 0, blank_buffer.predicates->len);
+	g_array_remove_range (blank_buffer.objects, 0, blank_buffer.objects->len);
 
 	g_hash_table_insert (blank_buffer.table, subject, blank_uri);
 	g_checksum_free (checksum);
@@ -1414,9 +1414,11 @@ tracker_data_insert_statement_common (const gchar            *graph,
 
 		if (blank_buffer.subject == NULL) {
 			blank_buffer.subject = g_strdup (subject);
-			blank_buffer.graphs = g_array_sized_new (FALSE, FALSE, sizeof (char*), 4);
-			blank_buffer.predicates = g_array_sized_new (FALSE, FALSE, sizeof (char*), 4);
-			blank_buffer.objects = g_array_sized_new (FALSE, FALSE, sizeof (char*), 4);
+			if (blank_buffer.graphs == NULL) {
+				blank_buffer.graphs = g_array_sized_new (FALSE, FALSE, sizeof (char*), 4);
+				blank_buffer.predicates = g_array_sized_new (FALSE, FALSE, sizeof (char*), 4);
+				blank_buffer.objects = g_array_sized_new (FALSE, FALSE, sizeof (char*), 4);
+			}
 		}
 
 		value = g_strdup (graph);
