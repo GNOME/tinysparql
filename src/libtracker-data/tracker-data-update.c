@@ -910,11 +910,6 @@ check_property_domain (TrackerProperty *property)
 static GValueArray *
 get_property_values (TrackerProperty *property)
 {
-	TrackerDBInterface *iface;
-	TrackerDBStatement *stmt;
-	TrackerDBResultSet *result_set;
-	gchar              *table_name;
-	const gchar        *field_name;
 	gboolean            multiple_values;
 	GValueArray        *old_values;
 
@@ -923,16 +918,22 @@ get_property_values (TrackerProperty *property)
 	old_values = g_value_array_new (multiple_values ? 4 : 1);
 	g_hash_table_insert (resource_buffer->predicates, g_object_ref (property), old_values);
 
-	if (multiple_values) {
-		table_name = g_strdup_printf ("%s_%s",
-		                              tracker_class_get_name (tracker_property_get_domain (property)),
-		                              tracker_property_get_name (property));
-	} else {
-		table_name = g_strdup (tracker_class_get_name (tracker_property_get_domain (property)));
-	}
-	field_name = tracker_property_get_name (property);
-
 	if (!resource_buffer->create) {
+		TrackerDBInterface *iface;
+		TrackerDBStatement *stmt;
+		TrackerDBResultSet *result_set;
+		gchar              *table_name;
+		const gchar        *field_name;
+
+		if (multiple_values) {
+			table_name = g_strdup_printf ("%s_%s",
+				                      tracker_class_get_name (tracker_property_get_domain (property)),
+				                      tracker_property_get_name (property));
+		} else {
+			table_name = g_strdup (tracker_class_get_name (tracker_property_get_domain (property)));
+		}
+		field_name = tracker_property_get_name (property);
+
 		iface = tracker_db_manager_get_db_interface ();
 
 		stmt = tracker_db_interface_create_statement (iface, "SELECT \"%s\" FROM \"%s\" WHERE ID = ?", field_name, table_name);
@@ -960,9 +961,9 @@ get_property_values (TrackerProperty *property)
 			g_object_unref (result_set);
 		}
 		g_object_unref (stmt);
-	}
 
-	g_free (table_name);
+		g_free (table_name);
+	}
 
 	return old_values;
 }
