@@ -764,7 +764,6 @@ AC_ARG_ENABLE([kmail_miner],
 
 AM_CONDITIONAL(USING_KMAIL_MINER, test "x$enable_kmail_miner" = "xyes")
 
-
 ####################################################################
 # Deskbar Applet Handler/Module
 ####################################################################
@@ -824,6 +823,10 @@ fi
 DESKBAR_APPLET_DIR="$deskbar_applet_dir"
 AC_SUBST(DESKBAR_APPLET_DIR)
 
+####################################################################
+# Application and Vala requirements
+####################################################################
+
 APP_REQUIREMENTS="glib-2.0    >= $GLIB_REQUIRED
                   gthread-2.0 >= $GLIB_REQUIRED
                   gmodule-2.0 >= $GLIB_REQUIRED
@@ -858,7 +861,6 @@ PKG_CHECK_MODULES(TRACKER_VALA,
 AC_SUBST(TRACKER_VALA_CFLAGS)
 AC_SUBST(TRACKER_VALA_LIBS)
 
-
 ##################################################################
 # Enable building libtracker-gtk?
 ##################################################################
@@ -881,7 +883,7 @@ fi
 AM_CONDITIONAL(HAVE_LIBTRACKERGTK, test "$have_libtrackergtk" = "yes")
 
 ##################################################################
-# Enable building tracker-status-icon notification icon?
+# Enable building tracker-status-icon?
 ##################################################################
 
 AC_ARG_ENABLE([tracker-status-icon],
@@ -891,7 +893,7 @@ AC_ARG_ENABLE([tracker-status-icon],
 
 if test "x$enable_tracker_status_icon" != "xno" ; then
    if test "x$have_app_requirements" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find tracker-status-icon dependencies ($APP_REQUIREMENTS).])
+      have_tracker_status_icon="no"
    else
       have_tracker_status_icon="yes"
    fi
@@ -899,8 +901,17 @@ else
    have_tracker_status_icon="no  (disabled)"
 fi
 
+if test "x$enable_tracker_status_icon" = "xyes"; then
+   if test "x$have_tracker_status_icon" != "xyes"; then
+      AC_MSG_ERROR([Couldn't find tracker-status-icon dependencies ($APP_REQUIREMENTS).])
+   fi
+fi
+
 AM_CONDITIONAL(HAVE_TRACKER_STATUS_ICON, test "$have_tracker_status_icon" = "yes")
 
+##################################################################
+# Enable building tracker-explorer?
+##################################################################
 
 AC_ARG_ENABLE([tracker-explorer],
 	      AS_HELP_STRING([--enable-tracker-explorer],
@@ -910,7 +921,7 @@ AC_ARG_ENABLE([tracker-explorer],
 if test "x$enable_tracker_explorer" != "xno" ; then
    if test "x$have_app_requirements" != "xyes" -o \
            "x$have_vala_requirements" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find tracker-explorer dependencies ($APP_REQUIREMENTS $VALA_REQUIREMENTS).])
+      have_tracker_explorer="no"
    else
       have_tracker_explorer="yes"
    fi
@@ -918,8 +929,17 @@ else
    have_tracker_explorer="no  (disabled)"
 fi
 
+if test "x$enable_tracker_explorer" = "xyes"; then
+   if test "x$have_tracker_explorer" != "xyes"; then
+      AC_MSG_ERROR([Couldn't find tracker-explorer dependencies ($APP_REQUIREMENTS $VALA_REQUIREMENTS).])
+   fi
+fi
+
 AM_CONDITIONAL(HAVE_TRACKER_EXPLORER, test "$have_tracker_explorer" = "yes")
 
+##################################################################
+# Enable building tracker-search-bar?
+##################################################################
 
 AC_ARG_ENABLE([tracker-search-bar],
 	      AS_HELP_STRING([--enable-tracker-search-bar],
@@ -929,12 +949,18 @@ AC_ARG_ENABLE([tracker-search-bar],
 if test "x$enable_tracker_search_bar" != "xno" ; then
    if test "x$have_app_requirements" != "xyes" -o \
            "x$have_applet_requirements" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find tracker-search-bar dependencies ($APP_REQUIREMENTS $APPLET_REQUIREMENTS).])
+      have_tracker_search_bar="no"
    else
       have_tracker_search_bar="yes"
    fi
 else
    have_tracker_search_bar="no  (disabled)"
+fi
+
+if test "x$enable_tracker_search_bar" = "xyes"; then
+   if test "x$have_tracker_search_bar" != "xyes"; then
+      AC_MSG_ERROR([Couldn't find tracker-search-bar dependencies ($APP_REQUIREMENTS $APPLET_REQUIREMENTS).])   
+   fi
 fi
 
 AM_CONDITIONAL(HAVE_TRACKER_SEARCH_BAR, test "$have_tracker_search_bar" = "yes")
@@ -951,12 +977,18 @@ AC_ARG_ENABLE(tracker-search-tool,
 if test "x$enable_tracker_search_tool" != "xno"; then
    if test "x$have_app_requirements" != "xyes" -o \
            "x$have_vala_requirements" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find tracker-search-tool dependencies ($APP_REQUIREMENTS $VALA_REQUIREMENTS).])
+      have_tracker_search_tool="no"
    else
       have_tracker_search_tool="yes"
    fi
 else
    have_tracker_search_tool="no  (disabled)"
+fi
+
+if test "x$enable_tracker_search_tool" = "xyes"; then
+   if test "x$have_tracker_search_tool" != "xyes"; then
+      AC_MSG_ERROR([Couldn't find tracker-search-tool dependencies ($APP_REQUIREMENTS $VALA_REQUIREMENTS).])   
+   fi
 fi
 
 AM_CONDITIONAL(HAVE_TRACKER_SEARCH_TOOL, test "$have_tracker_search_tool" = "yes")
@@ -972,12 +1004,18 @@ AC_ARG_ENABLE([tracker-preferences],
 
 if test "x$enable_tracker_preferences" != "xno" ; then
    if test "x$have_app_requirements" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find tracker-preferences dependencies ($APP_REQUIREMENTS).])
+      have_tracker_preferences="no"
    else
       have_tracker_preferences="yes"
    fi
 else
    have_tracker_preferences="no  (disabled)"
+fi
+
+if test "x$enable_tracker_preferences" = "xyes"; then
+   if test "x$have_tracker_preferences" != "xyes"; then
+      AC_MSG_ERROR([Couldn't find tracker-preferences dependencies ($APP_REQUIREMENTS).])
+   fi
 fi
 
 AM_CONDITIONAL(HAVE_TRACKER_PREFERENCES, test "$have_tracker_preferences" = "yes")
