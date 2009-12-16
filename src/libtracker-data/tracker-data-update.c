@@ -53,6 +53,7 @@ typedef struct _TrackerStatementDelegate TrackerStatementDelegate;
 typedef struct _TrackerCommitDelegate TrackerCommitDelegate;
 
 struct _TrackerDataUpdateBuffer {
+	/* string -> integer */
 	GHashTable *resource_cache;
 	/* string -> TrackerDataUpdateBufferResource */
 	GHashTable *resources;
@@ -68,7 +69,9 @@ struct _TrackerDataUpdateBufferResource {
 	gboolean fts_updated;
 	/* TrackerProperty -> GValueArray */
 	GHashTable *predicates;
+	/* string -> TrackerDataUpdateBufferTable */
 	GHashTable *tables;
+	/* string */
 	GPtrArray *types;
 };
 
@@ -84,6 +87,7 @@ struct _TrackerDataUpdateBufferTable {
 	gboolean delete_value;
 	gboolean multiple_values;
 	TrackerClass *class;
+	/* TrackerDataUpdateBufferProperty */
 	GArray *properties;
 };
 
@@ -92,8 +96,11 @@ struct _TrackerDataUpdateBufferTable {
 struct _TrackerDataBlankBuffer {
 	GHashTable *table;
 	gchar *subject;
+	/* string */
 	GArray *predicates;
+	/* string */
 	GArray *objects;
+	/* string */
 	GArray *graphs;
 };
 
