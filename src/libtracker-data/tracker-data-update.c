@@ -374,7 +374,8 @@ query_resource_id (const gchar *uri)
 }
 
 static guint32
-ensure_resource_id (const gchar *uri)
+ensure_resource_id (const gchar *uri,
+                    gboolean    *create)
 {
 	TrackerDBInterface *iface, *common;
 	TrackerDBStatement *stmt;
@@ -382,6 +383,10 @@ ensure_resource_id (const gchar *uri)
 	guint32 id;
 
 	id = query_resource_id (uri);
+
+	if (create) {
+		*create = (id == 0);
+	}
 
 	if (id == 0) {
 		/* object resource not yet in the database */
@@ -502,7 +507,7 @@ tracker_data_resource_buffer_flush (GError **error)
 				/* remove entry from rdf:type table */
 				stmt = tracker_db_interface_create_statement (iface, "DELETE FROM \"rdfs:Resource_rdf:type\" WHERE ID = ? AND \"rdf:type\" = ?");
 				tracker_db_statement_bind_int (stmt, 0, resource_buffer->id);
-				tracker_db_statement_bind_int (stmt, 1, ensure_resource_id (tracker_class_get_uri (table->class)));
+				tracker_db_statement_bind_int (stmt, 1, ensure_resource_id (tracker_class_get_uri (table->class), NULL));
 				tracker_db_statement_execute (stmt, &actual_error);
 				g_object_unref (stmt);
 
@@ -802,7 +807,7 @@ cache_create_service_decomposed (TrackerClass *cl,
 
 	cache_insert_row (cl);
 
-	g_value_set_int (&gvalue, ensure_resource_id (tracker_class_get_uri (cl)));
+	g_value_set_int (&gvalue, ensure_resource_id (tracker_class_get_uri (cl), NULL));
 	cache_insert_value ("rdfs:Resource_rdf:type", "rdf:type", &gvalue, TRUE, FALSE);
 
 	tracker_class_set_count (cl, tracker_class_get_count (cl) + 1);
@@ -1058,7 +1063,7 @@ string_to_gvalue (const gchar         *value,
 		g_value_set_int (gvalue, tracker_string_to_date (value));
 		break;
 	case TRACKER_PROPERTY_TYPE_RESOURCE:
-		object_id = ensure_resource_id (value);
+		object_id = ensure_resource_id (value, NULL);
 		g_value_init (gvalue, G_TYPE_UINT);
 		g_value_set_uint (gvalue, object_id);
 		break;
@@ -1444,11 +1449,9 @@ tracker_data_insert_statement_common (const gchar            *graph,
 		/* subject not yet in cache, retrieve or create ID */
 		resource_buffer = g_slice_new0 (TrackerDataUpdateBufferResource);
 		resource_buffer->subject = g_strdup (subject);
-		resource_buffer->id = query_resource_id (resource_buffer->subject);
-		resource_buffer->create = (resource_buffer->id == 0);
+		resource_buffer->id = ensure_resource_id (resource_buffer->subject, &resource_buffer->create);
 		resource_buffer->fts_updated = FALSE;
 		if (resource_buffer->create) {
-			resource_buffer->id = ensure_resource_id (resource_buffer->subject);
 			resource_buffer->types = g_ptr_array_new ();
 		} else {
 			resource_buffer->types = tracker_data_query_rdf_type (resource_buffer->id);
