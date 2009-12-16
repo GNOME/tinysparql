@@ -5,5 +5,4 @@ SUBDIRS = 			\
 	lyrics			\
 	ontology		\
 	playlists		\
-	services		\
 	tracker-fts

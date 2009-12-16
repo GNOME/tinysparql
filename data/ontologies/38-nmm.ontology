@@ -131,7 +131,7 @@ nfo:isContentEncrypted a rdf:Property ;
 
 nmm:isForHearingImpaired a rdf:Property ;
 	rdfs:label "Is for hearing-impaired" ;
-	rdfs:comment "Does text stream contain helper tags for hearing-impaired such as <steps in hallway>" ;
+	rdfs:comment "Does text stream contain helper tags for hearing-impaired such as &lt;steps in hallway&gt;" ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmm:SynchronizedText ;
 	rdfs:range xsd:boolean .

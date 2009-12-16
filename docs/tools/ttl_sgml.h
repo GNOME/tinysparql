@@ -1,5 +1,5 @@
-#ifndef __TTL_HTML_H__
-#define __TTL_HTML_H__
+#ifndef __TTL_SGML_H__
+#define __TTL_SGML_H__
 
 #include <gio/gio.h>
 #include "ttl_model.h"
@@ -7,7 +7,7 @@
 
 G_BEGIN_DECLS
 
-void ttl_html_print (OntologyDescription *description,
+void ttl_sgml_print (OntologyDescription *description,
                      Ontology *ontology,
                      FILE *output,
                      const gchar *class_location,

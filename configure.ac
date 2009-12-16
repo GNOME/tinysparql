@@ -222,6 +222,10 @@ fi
 AC_PATH_PROG(VALAC, valac, valac)
 AC_SUBST(VALAC)
 
+AC_PATH_PROG(GRAPHVIZ_FDP, fdp)
+AC_SUBST(GRAPHVIZ_FDP)
+AM_CONDITIONAL(HAVE_GRAPHVIZ_FDP, test -n "$GRAPHVIZ_FDP")
+
 # Check we have the DBUS binding tool we need
 AC_PATH_PROG(DBUSBINDINGTOOL, dbus-binding-tool)
 if test -z $DBUSBINDINGTOOL; then
@@ -1590,6 +1594,9 @@ AC_CONFIG_FILES([
 	docs/reference/libtracker-common/version.xml
 	docs/reference/libtracker-miner/Makefile
 	docs/reference/libtracker-miner/version.xml
+	docs/reference/ontology/Makefile
+	docs/reference/ontology/version.xml
+        docs/tools/Makefile
 	Makefile
 	po/Makefile.in
 	src/libinotify/Makefile

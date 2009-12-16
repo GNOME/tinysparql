@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include "ttl_loader.h"
 #include "ttl_model.h"
-#include "ttl_html.h"
+#include "ttl_sgml.h"
 
 static gchar *desc_file = NULL;
 static gchar *output_file = NULL;
@@ -84,7 +84,7 @@ main (gint argc, gchar **argv)
 	g_free (ttl_file);
 	g_free (dirname);
 
-	ttl_html_print (description, ontology, f, class_location_file, explanation_file);
+	ttl_sgml_print (description, ontology, f, class_location_file, explanation_file);
 
 	ttl_loader_free_ontology (ontology);
 	ttl_loader_free_description (description);

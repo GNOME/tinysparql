@@ -1,0 +1,71 @@
+<?xml version="1.0"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN" 
+               "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd" [
+<!ENTITY % local.common.attrib "xmlns:xi  CDATA  #FIXED 'http://www.w3.org/2003/XInclude'">
+<!ENTITY version SYSTEM "version.xml">
+<!ENTITY nie-ontology SYSTEM "nie-ontology.xml">
+<!ENTITY nco-ontology SYSTEM "nco-ontology.xml">
+<!ENTITY nmo-ontology SYSTEM "nmo-ontology.xml">
+<!ENTITY nfo-ontology SYSTEM "nfo-ontology.xml">
+<!ENTITY nao-ontology SYSTEM "nao-ontology.xml">
+<!ENTITY mto-ontology SYSTEM "mto-ontology.xml">
+<!ENTITY nmm-ontology SYSTEM "nmm-ontology.xml">
+<!ENTITY mfo-ontology SYSTEM "mfo-ontology.xml">
+<!ENTITY mlo-ontology SYSTEM "mlo-ontology.xml">
+<!ENTITY tracker-ontology SYSTEM "tracker-ontology.xml">
+<!ENTITY maemo-ontology SYSTEM "maemo-ontology.xml">
+<!ENTITY ncal-ontology SYSTEM "ncal-ontology.xml">
+<!ENTITY scal-ontology SYSTEM "scal-ontology.xml">
+]>
+<book id="index">
+  <bookinfo>
+    <title>Tracker Ontology Reference Manual</title>
+    <releaseinfo>for Tracker &version;</releaseinfo>
+  </bookinfo>
+
+  <part id="ontology">
+    <title>Overview</title>
+    <partintro>
+      <para>
+        <ulink url="http://www.tracker-project.org">Tracker</ulink> is a central repository of user information, that provides two big benefits for the desktop: <emphasis>Share</emphasis> data between applications (it doesn't matter the source once it is stored in the repository) and <emphasis>Link</emphasis> information from different sources (mixing contacts with files, location, activities and whatnot).
+      </para>
+      <para>
+        This central repository can work only with a very well defined data model, that applications can rely to store and recover their information. That data model is defined using a semantic web artifact called <emphasis>ontology</emphasis>. An ontology defines the concepts (classes) and properties (attributes) that the items in the repository can be/have.
+      </para>
+      <para>
+        There is an EU-funded project called <ulink url="http://nepomuk.semanticdesktop.org/">Nepomuk</ulink>, where a core of ontologies to model the Desktop were defined. This set was a very good starting point for Tracker but new requirements and heavy development in collaboration with applications provided a very valuable feedback, in form of fixes and extensions. Some of this work is already submitted for approval in the upstream version, but the process is long and hard, so the Tracker ontologies are diverging slowly.
+      </para>
+      <para>
+        This documentation describes the Tracker flavour of Nepomuk ontologies. The big picture and basic concepts are the same as in the original Nepomuk, but "hell and heaven are in the details". All classes, properties and restrictions included in these pages should work in Tracker. Any error in this documentation can be reported in the Tracker <ulink url="http://mail.gnome.org/mailman/listinfo/tracker-list">Mailing list</ulink> or <ulink url="https://bugzilla.gnome.org/enter_bug.cgi?product=tracker">bugzilla</ulink>.
+      </para>
+      <para>
+        This is just documentation about the ontologies. For more information about Tracker technical details and implementation, please refer to the Tracker <ulink url="http://live.gnome.org/Tracker/Documentation/">Documentation wiki</ulink> page in GNOME.
+      </para>
+    </partintro>
+
+    &nie-ontology;
+    &nco-ontology;
+    &nmo-ontology;
+    &nfo-ontology;
+    &nao-ontology;
+    &mto-ontology;
+    &nmm-ontology;
+    &mfo-ontology;
+    &mlo-ontology;
+    &tracker-ontology;
+    &maemo-ontology;
+    &ncal-ontology;
+    &scal-ontology;
+  </part>
+
+  <part id="ontology-graphs">
+    <title>The big picture</title>
+    <partintro>
+      This is a graph that shows how different classes in the ontology are related:
+    </partintro>
+    <figure id="ontology-graph">
+      <title>Ontology classes and their relations</title>
+      <graphic fileref="ontology.png" format="PNG"></graphic>
+    </figure>
+  </part>
+</book>
