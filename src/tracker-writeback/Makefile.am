@@ -23,12 +23,12 @@ INCLUDES = 								\
 modules_LTLIBRARIES =
 
 # MP3
-if HAVE_ID3LIB
-modules_LTLIBRARIES += libwriteback-mp3.la
-libwriteback_mp3_la_SOURCES = tracker-writeback-mp3.c
-libwriteback_mp3_la_LDFLAGS = $(module_flags)
-libwriteback_mp3_la_LIBADD = $(GLIB2_LIBS) $(GCOV_LIBS) $(ID3LIB_LIBS)
-endif
+#if HAVE_ID3LIB
+#modules_LTLIBRARIES += libwriteback-mp3.la
+#libwriteback_mp3_la_SOURCES = tracker-writeback-mp3.c
+#libwriteback_mp3_la_LDFLAGS = $(module_flags)
+#libwriteback_mp3_la_LIBADD = $(GLIB2_LIBS) $(GCOV_LIBS) $(ID3LIB_LIBS)
+#endif
 
 # XMP
 if HAVE_EXEMPI
