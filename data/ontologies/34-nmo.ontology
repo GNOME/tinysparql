@@ -62,6 +62,9 @@ nmo:MessageHeader a rdfs:Class ;
 nmo:IMMessage a rdfs:Class ;
 	rdfs:subClassOf nmo:Message .
 
+nmo:Conversation a rdfs:Class ;
+	rdfs:subClassOf nie:InformationElement .
+
 nmo:CommunicationChannel a rdfs:Class ;
 	rdfs:subClassOf nie:InformationElement .
 
@@ -230,6 +233,11 @@ nmo:bcc a rdf:Property ;
 nmo:cc a rdf:Property ;
 	rdfs:domain nmo:Message ;
 	rdfs:range nco:Contact .
+
+nmo:conversation a rdf:Property ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmo:Message ;
+	rdfs:range nmo:Conversation .
 
 nmo:communicationChannel a rdf:Property ;
 	nrl:maxCardinality 1 ;
