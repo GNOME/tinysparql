@@ -241,6 +241,7 @@ public class Tracker.SparqlQuery : Object {
 
 	const string FN_NS = "http://www.w3.org/2005/xpath-functions#";
 	const string FTS_NS = "http://www.tracker-project.org/ontologies/fts#";
+	const string TRACKER_NS = "http://www.tracker-project.org/ontologies/tracker#";
 
 	string query_string;
 	bool update_extensions;
@@ -1405,6 +1406,19 @@ public class Tracker.SparqlQuery : Object {
 			bool is_var;
 			string v = parse_var_or_term (null, out is_var);
 			sql.append_printf ("\"%s_u_offsets\"", v);
+
+			return PropertyType.STRING;
+		} else if (uri == TRACKER_NS + "coalesce") {
+			sql.append ("COALESCE(");
+			translate_expression_as_string (sql);
+			sql.append (", ");
+			expect (SparqlTokenType.COMMA);
+			translate_expression_as_string (sql);
+			while (accept (SparqlTokenType.COMMA)) {
+			      sql.append (", ");
+			      translate_expression_as_string (sql);
+			}
+			sql.append (")");
 
 			return PropertyType.STRING;
 		} else {
