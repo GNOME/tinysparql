@@ -96,6 +96,7 @@ static void
 menu_data_free (MenuData *md)
 {
 	if (md->free_data) {
+		g_list_foreach (md->data, (GFunc) g_object_unref, NULL);
 		g_list_free (md->data);
 	}
 
@@ -103,88 +104,15 @@ menu_data_free (MenuData *md)
 }
 
 static void
-menu_data_destroy (gpointer data,
+menu_data_destroy (gpointer  data,
                    GClosure *closure)
 {
 	menu_data_free (data);
 }
 
 static void
-sparql_update_finished (GError   *error, 
-                        gpointer  user_data)
-{
-	if (error != NULL) {
-		if (error->message != NULL) {
-			GtkWidget *error_dialog;
-
-			error_dialog = gtk_message_dialog_new (NULL,
-                                                               GTK_DIALOG_NO_SEPARATOR,
-                                                               GTK_MESSAGE_ERROR,
-                                                               GTK_BUTTONS_OK,
-                                                               "%s",
-                                                               error->message);
-			g_signal_connect (error_dialog, "response", 
-			                  G_CALLBACK (gtk_widget_destroy), 
-			                  NULL);
-			gtk_dialog_run (GTK_DIALOG (error_dialog));
-		}
-
-		g_error_free (error);
-	}
-}
-
-static void
-dialog_response_cb (GtkDialog *dialog, 
-                    gint       response_id, 
-                    gpointer   user_data)
-{
-	TrackerTagsExtension *extension = TRACKER_TAGS_EXTENSION (user_data);
-
-	switch (response_id) {
-	case GTK_RESPONSE_CANCEL:
-	case GTK_RESPONSE_DELETE_EVENT:
-		break;
-
-	case GTK_RESPONSE_OK: {
-		gchar *query;
-		const gchar *tag_label;
-
-		tag_label = tracker_tags_add_dialog_get_text (TRACKER_TAGS_ADD_DIALOG (dialog));
-		query = tracker_tags_add_query (tag_label);
-		tracker_resources_sparql_update_async (extension->private->tracker_client,
-                                                       query,
-                                                       sparql_update_finished,
-                                                       NULL);
-		g_free (query);
-		break;
-	}
-
-	default:
-		g_assert_not_reached ();
-		break;
-	}
-}
-
-static void
-menu_create_tag_activate_cb (NautilusMenuItem *menu_item, 
-                             gpointer          user_data)
-{
-	MenuData *md = user_data;
-	TrackerTagsExtension *extension = TRACKER_TAGS_EXTENSION (md->data);
-	GtkWindow *window = GTK_WINDOW (md->widget);
-	GtkWidget *dialog;
-
-	dialog = tracker_tags_add_dialog_new ();
-	gtk_window_set_transient_for (GTK_WINDOW (dialog), window);
-	g_signal_connect (dialog, "response", 
-	                  G_CALLBACK (dialog_response_cb), 
-	                  extension);
-	gtk_widget_show_all (dialog);
-}
-
-static void
-menu_manage_tags_activate_cb (NautilusMenuItem *menu_item, 
-                              gpointer          user_data)
+menu_tags_activate_cb (NautilusMenuItem *menu_item, 
+                       gpointer          user_data)
 {
 	MenuData *md = user_data;
 	GList *files = md->data;
@@ -194,7 +122,7 @@ menu_manage_tags_activate_cb (NautilusMenuItem *menu_item,
 	GtkWidget *vbox;
 	GtkWidget *view;
 
-	dialog = gtk_dialog_new_with_buttons (N_("Manage Tags"),
+	dialog = gtk_dialog_new_with_buttons (N_("Tags"),
 	                                      window,
 	                                      GTK_DIALOG_MODAL | 
 	                                      GTK_DIALOG_DESTROY_WITH_PARENT | 
@@ -234,13 +162,13 @@ extension_get_background_items (NautilusMenuProvider *provider,
 	}
 
 	menu_item = nautilus_menu_item_new ("tracker-tags-new",
-                                            N_("Tag..."),
+                                            N_("Tags..."),
                                             N_("Tag one or more files"),
                                             NULL);
 	menu_items = g_list_append (menu_items, menu_item);
 
 	g_signal_connect_data (menu_item, "activate", 
-	                       G_CALLBACK (menu_create_tag_activate_cb), 
+	                       G_CALLBACK (menu_tags_activate_cb), 
 	                       menu_data_new (provider, FALSE, window),
 	                       menu_data_destroy,
 	                       G_CONNECT_AFTER);
@@ -261,26 +189,14 @@ extension_get_file_items (NautilusMenuProvider *provider,
 	}
 
 	menu_item = nautilus_menu_item_new ("tracker-tags-new",
-                                            N_("Tag..."),
+                                            N_("Tags..."),
                                             N_("Tag one or more files"),
                                             NULL);
 	menu_items = g_list_append (menu_items, menu_item);
 
 	g_signal_connect_data (menu_item, "activate", 
-	                       G_CALLBACK (menu_create_tag_activate_cb), 
-	                       menu_data_new (provider, FALSE, window),
-	                       menu_data_destroy,
-	                       G_CONNECT_AFTER);
-
-	menu_item = nautilus_menu_item_new ("tracker-tags-manage",
-                                            N_("Edit Tags..."),
-                                            N_("Manage all tags"),
-                                            NULL);
-	menu_items = g_list_append (menu_items, menu_item);
-
-	g_signal_connect_data (menu_item, "activate", 
-	                       G_CALLBACK (menu_manage_tags_activate_cb), 
-	                       menu_data_new (g_list_copy (files), TRUE, window),
+	                       G_CALLBACK (menu_tags_activate_cb), 
+	                       menu_data_new (tracker_glist_copy_with_nautilus_files (files), FALSE, window),
 	                       menu_data_destroy,
 	                       G_CONNECT_AFTER);
 
@@ -308,7 +224,7 @@ extension_get_pages (NautilusPropertyPageProvider *provider,
 		return NULL;
 	}
 
-	label = gtk_label_new ("Tags");
+	label = gtk_label_new (_("Tags"));
 	view = tracker_tags_view_new (files);
 	property_page = nautilus_property_page_new ("tracker-tags", label, view);
 	property_pages = g_list_prepend (property_pages, property_page);

@@ -21,9 +21,102 @@
 
 #include <string.h>
 
+#include <libnautilus-extension/nautilus-file-info.h>
+
 #include "tracker-tags-utils.h"
 
+/* Copied from src/libtracker-common/tracker-utils.c */
+inline gboolean
+tracker_is_empty_string (const char *str)
+{
+	return str == NULL || str[0] == '\0';
+}
+
+/* Copied from src/libtracker-common/tracker-type-utils.c */
+gchar **
+tracker_glist_to_string_list_for_nautilus_files (GList *list)
+{
+	GList  *l;
+	gchar **strv;
+	gint    i;
+
+	strv = g_new0 (gchar *, g_list_length (list) + 1);
+
+	for (l = list, i = 0; l; l = l->next) {
+		if (!l->data) {
+			continue;
+		}
+
+		strv[i++] = nautilus_file_info_get_uri (NAUTILUS_FILE_INFO (l->data));
+	}
+
+	strv[i] = NULL;
+
+	return strv;
+}
+
+GList *
+tracker_glist_copy_with_nautilus_files (GList *list)
+{
+	GList *l;
+	GList *new_list;
+
+	if (!list) {
+		return NULL;
+	}
+
+	new_list = NULL;
+
+	for (l = list; l; l = l->next) {
+		new_list = g_list_prepend (new_list, g_object_ref (l->data));
+	}
+
+	return g_list_reverse (new_list);
+}
+
 /* Copied from src/tracker-utils/tracker-tags.c */
+gchar *
+tracker_tags_get_filter_string (GStrv        files,
+                                const gchar *tag)
+{
+	GString *filter;
+	gint i, len;
+
+	if (!files) {
+		return NULL;
+	}
+
+	len = g_strv_length (files);
+
+	if (len < 1) {
+		return NULL;
+	}
+
+	filter = g_string_new ("");
+
+	g_string_append_printf (filter, "FILTER (");
+
+	if (tag) {
+		g_string_append (filter, "(");
+	}
+
+	for (i = 0; i < len; i++) {
+		g_string_append_printf (filter, "?f = <%s>", files[i]);
+
+		if (i < len - 1) {
+			g_string_append (filter, " || ");
+		}
+	}
+
+	if (tag) {
+		g_string_append_printf (filter, ") && ?t = <%s>", tag);
+	}
+
+	g_string_append (filter, ")");
+
+	return g_string_free (filter, FALSE);
+}
+
 gchar *
 tracker_tags_escape_sparql_string (const gchar *str)
 {
