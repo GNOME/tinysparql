@@ -1506,20 +1506,29 @@ public class Tracker.SparqlQuery : Object {
 		}
 	}
 
+	PropertyType translate_uri_expression (StringBuilder sql, string uri) throws SparqlError {
+		if (accept (SparqlTokenType.OPEN_PARENS)) {
+			// function
+			var result = translate_function (sql, uri);
+			expect (SparqlTokenType.CLOSE_PARENS);
+			return result;
+		} else {
+			// resource
+			sql.append ("(SELECT ID FROM \"rdfs:Resource\" WHERE Uri = ?)");
+			var binding = new LiteralBinding ();
+			binding.literal = uri;
+			bindings.append (binding);
+			return PropertyType.RESOURCE;
+		}
+	}
+
 	PropertyType translate_primary_expression (StringBuilder sql) throws SparqlError {
 		switch (current ()) {
 		case SparqlTokenType.OPEN_PARENS:
 			return translate_bracketted_expression (sql);
 		case SparqlTokenType.IRI_REF:
 			next ();
-
-			sql.append ("(SELECT ID FROM \"rdfs:Resource\" WHERE Uri = ?)");
-
-			var binding = new LiteralBinding ();
-			binding.literal = get_last_string (1);
-			bindings.append (binding);
-
-			return PropertyType.RESOURCE;
+			return translate_uri_expression (sql, get_last_string (1));
 		case SparqlTokenType.DECIMAL:
 		case SparqlTokenType.DOUBLE:
 			next ();
@@ -1637,26 +1646,11 @@ public class Tracker.SparqlQuery : Object {
 			string ns = get_last_string ();
 			expect (SparqlTokenType.COLON);
 			string uri = resolve_prefixed_name (ns, get_last_string ().substring (1));
-			if (accept (SparqlTokenType.OPEN_PARENS)) {
-				// function
-				var result = translate_function (sql, uri);
-				expect (SparqlTokenType.CLOSE_PARENS);
-				return result;
-			} else {
-				// resource
-				sql.append ("(SELECT ID FROM \"rdfs:Resource\" WHERE Uri = ?)");
-				var binding = new LiteralBinding ();
-				binding.literal = uri;
-				bindings.append (binding);
-				return PropertyType.RESOURCE;
-			}
+			return translate_uri_expression (sql, uri);
 		case SparqlTokenType.COLON:
 			next ();
-			sql.append ("(SELECT ID FROM \"rdfs:Resource\" WHERE Uri = ?)");
-			var binding = new LiteralBinding ();
-			binding.literal = resolve_prefixed_name ("", get_last_string ().substring (1));
-			bindings.append (binding);
-			return PropertyType.RESOURCE;
+			string uri = resolve_prefixed_name ("", get_last_string ().substring (1));
+			return translate_uri_expression (sql, uri);
 		default:
 			throw get_error ("expected primary expression");
 		}
