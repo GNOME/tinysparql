@@ -244,6 +244,15 @@ nmo:communicationChannel a rdf:Property ;
 	rdfs:domain nmo:Message ;
 	rdfs:range nmo:CommunicationChannel .
 
+nmo:lastMessageDate a rdf:Property ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmo:CommunicationChannel ;
+	rdfs:range xsd:dateTime .
+
+nmo:hasParticipant a rdf:Property ;
+	rdfs:domain nmo:CommunicationChannel ;
+	rdfs:range nco:Contact .
+
 nmo:duration a rdf:Property ;
         rdfs:comment "Duration of the call in seconds" ;
 	nrl:maxCardinality 1 ;
