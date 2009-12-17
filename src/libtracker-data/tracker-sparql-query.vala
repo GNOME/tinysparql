@@ -1272,9 +1272,6 @@ public class Tracker.SparqlQuery : Object {
 				long begin = sql.len;
 				var type = translate_function (sql, binding.literal);
 				expect (SparqlTokenType.CLOSE_PARENS);
-				if (accept (SparqlTokenType.AS)) {
-					expect (SparqlTokenType.PN_PREFIX);
-				}
 				convert_expression_to_string (sql, type, begin);
 			} else {
 				sql.append ("?");
