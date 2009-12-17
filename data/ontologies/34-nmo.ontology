@@ -212,12 +212,14 @@ nmo:replyTo a rdf:Property ;
 	rdfs:range nco:Contact .
 
 nmo:sender a rdf:Property ;
+	tracker:indexed true ;
 	rdfs:subPropertyOf nmo:recipient ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmo:Message ;
 	rdfs:range nco:Contact .
 
 nmo:sentDate a rdf:Property ;
+	tracker:indexed true ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmo:Message ;
 	rdfs:range xsd:dateTime .
@@ -235,21 +237,25 @@ nmo:cc a rdf:Property ;
 	rdfs:range nco:Contact .
 
 nmo:conversation a rdf:Property ;
+	tracker:indexed true ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmo:Message ;
 	rdfs:range nmo:Conversation .
 
 nmo:communicationChannel a rdf:Property ;
+	tracker:indexed true ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmo:Message ;
 	rdfs:range nmo:CommunicationChannel .
 
 nmo:lastMessageDate a rdf:Property ;
+	tracker:indexed true ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmo:CommunicationChannel ;
 	rdfs:range xsd:dateTime .
 
 nmo:hasParticipant a rdf:Property ;
+	tracker:indexed true ;
 	rdfs:domain nmo:CommunicationChannel ;
 	rdfs:range nco:Contact .
 
