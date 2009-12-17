@@ -1,0 +1,7 @@
+PREFIX ex: <http://example/>
+PREFIX ns: <http://www.w3.org/2005/xpath-functions#>
+
+SELECT ?s
+{ ?_x ex:s ?s .
+  FILTER (ns:starts-with(?s, "fi") && ns:ends-with(?s, "h")) }
+ORDER BY ?s

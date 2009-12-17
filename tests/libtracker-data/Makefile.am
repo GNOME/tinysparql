@@ -6,6 +6,7 @@ SUBDIRS = 			\
 	bnode-coreference	\
 	bound 			\
 	expr-ops		\
+	functions		\
 	nie			\
 	nmo			\
 	optional		\

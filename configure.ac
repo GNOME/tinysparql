@@ -1693,6 +1693,7 @@ AC_CONFIG_FILES([
 	tests/libtracker-data/bnode-coreference/Makefile
 	tests/libtracker-data/bound/Makefile
 	tests/libtracker-data/expr-ops/Makefile
+	tests/libtracker-data/functions/Makefile
 	tests/libtracker-data/nie/Makefile
 	tests/libtracker-data/nmo/Makefile
 	tests/libtracker-data/optional/Makefile
