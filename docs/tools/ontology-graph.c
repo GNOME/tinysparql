@@ -305,6 +305,8 @@ load_ontology_dir (GFile *dir)
                 return FALSE;
         }
 
+        files = NULL;
+
         while ((info = g_file_enumerator_next_file (enumerator, NULL, NULL)) != NULL) {
                 name = g_file_info_get_name (info);
 
