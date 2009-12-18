@@ -1502,7 +1502,7 @@ AM_CONDITIONAL(HAVE_EVOLUTION_PLUGIN, test "$have_evolution_plugin" = "yes")
 
 AC_ARG_ENABLE([nautilus-extension],
               AS_HELP_STRING([--enable-nautilus-extension],
-                             [Enable the nautilus extension [[default=auto]]]),
+                             [Enable the nautilus extension [[default=auto]]]),,
               [enable_nautilus_extension=auto])
 
 if test "x$enable_nautilus_extension" != "xno"; then
