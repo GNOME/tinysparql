@@ -1,4 +1,7 @@
 include $(top_srcdir)/Makefile.decl
 
-SUBDIRS = manpages design tools reference
-	
+SUBDIRS = manpages design
+
+if HAVE_GTK_DOC
+SUBDIRS += tools reference
+endif

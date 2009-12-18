@@ -222,10 +222,6 @@ fi
 AC_PATH_PROG(VALAC, valac, valac)
 AC_SUBST(VALAC)
 
-AC_PATH_PROG(GRAPHVIZ_FDP, fdp)
-AC_SUBST(GRAPHVIZ_FDP)
-AM_CONDITIONAL(HAVE_GRAPHVIZ_FDP, test -n "$GRAPHVIZ_FDP")
-
 # Check we have the DBUS binding tool we need
 AC_PATH_PROG(DBUSBINDINGTOOL, dbus-binding-tool)
 if test -z $DBUSBINDINGTOOL; then
@@ -363,7 +359,6 @@ fi
 AC_SUBST(GCOV_VALAFLAGS)
 AC_SUBST(GCOV_CFLAGS)
 AC_SUBST(GCOV_LIBS)
-
 
 ####################################################################
 # Should we build GLib based unit tests
@@ -1572,9 +1567,21 @@ AM_CONDITIONAL(DIST_FUNCTIONAL_TESTS, test "x$enable_functional_tests" != "xno")
 
 GTK_DOC_CHECK([1.8])
 
-AC_CHECK_PROG(DB2HTML, db2html, true, false)
-AM_CONDITIONAL(HAVE_DOCBOOK, $DB2HTML)
+if test "x$enable_gtk_doc" != "xno"; then
+   AC_DEFINE(HAVE_GTK_DOC, 1, [Define if we have gtk-doc (with gtk-doc)])
 
+   # Check for graphviz if we are building gtk_doc
+   AC_PATH_PROG(GRAPHVIZ_FDP, fdp)
+   AC_SUBST(GRAPHVIZ_FDP)
+
+   if test -z "$GRAPHVIZ_FDP"; then
+      AC_MSG_ERROR([Couldn't find Graphviz's fdp tool (graphviz).])
+   fi
+fi
+
+AM_CONDITIONAL(HAVE_GTK_DOC, test "$enable_gtk_doc" = "yes")
+AM_CONDITIONAL(HAVE_GRAPHVIZ_FDP, test -n "$GRAPHVIZ_FDP")
+  
 ##################################################################
 # Check for older tracker project files which can cause problems
 ##################################################################
@@ -1722,6 +1729,8 @@ Build Configuration:
 	Compiler Warnings:			$enable_compile_warnings
 
 	Win32:					$native_win32
+
+        Enable gtk doc (for documentation):     $enable_gtk_doc
 
 	Enable unit tests:			$have_unit_tests
 	Enable unac accent stripper:	  	$have_unac

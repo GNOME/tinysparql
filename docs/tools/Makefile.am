@@ -44,27 +44,21 @@ gen-doc.stamp: ttl2sgml
 	$(top_srcdir)/docs/tools/gen-doc.sh
 	$(AM_V_GEN) touch $@
 
-if HAVE_GRAPHVIZ_FDP
-dist-check-graphviz:
-else
-dist-check-graphviz:
-	@echo "*** Graphviz's fdp tool must be installed in order to make dist"
-	@false
-endif
-
 ontology.dot: ontology-graph
 	$(AM_V_GEN) $(top_srcdir)/docs/tools/ontology-graph -d $(top_srcdir)/data/ontologies -o ontology.dot
 
 ontology.png: ontology.dot
 	$(AM_V_GEN)$(GRAPHVIZ_FDP) -Tpng -o $(top_srcdir)/docs/reference/ontology/ontology.png ontology.dot
 
-BUILT_SOURCES = gen-doc.stamp
+BUILT_SOURCES = 							\
+	ontology.png							\
+	gen-doc.stamp
 
-EXTRA_DIST = 			\
-	gen-doc.sh		\
+EXTRA_DIST = 								\
+	gen-doc.sh							\
 	$(BUILT_SOURCES)
 
 DISTCLEANFILES = ontology.dot
 CLEANFILES = $(BUILT_SOURCES)
 
-dist-hook: dist-check-graphviz ontology.dot ontology.png
+make-hook: ontology.dot ontology.png
