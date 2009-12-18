@@ -1,3 +1,44 @@
+NEW in 0.7.12
+=============
+
+Improvements / New:
+
+  General:
+  * Removed emacs style editing style at the top of all .[ch] files.
+  * Removed extensions/ (was thunderbird/firefox legacy code).
+  * Clean up python/ (moved useful code, removed the rest):
+    * Moved gtk-sparql to utils/
+    * Moved deskbar-handler to src/plugins/deskbar/
+  * Added coverage analysis using lcov.
+  * Merged nautilus-extension branch to master (tagging support).
+
+  Ontology:
+  * Automatically generate ontology docs using gtk-doc.
+  * Added nmo:Conversation class and nmo:conversation property.
+  * Added nmo:lastMessageDate and nmo:hasParticipant properties.
+  * Add nmo indexes for important message properties.
+  * Deprecated nmo:plainTextMessageContent (for nie:plainTextContent)
+  * Documented nmo more thoroughly.
+
+  SPARQL:
+  * Support functions with non-prefixed IRI.
+  * Do not support AS outside of select expressions.
+
+Bugs:
+
+  * Fixes: GB#603054, fails to build on missing tracker-explorer
+  * Fixes: NB#150158, tracker-store memory usage grows a lot dur...
+
+Notes:
+
+  The database version up has been incremented, this will force a
+  reindex for any existing Tracker installation.
+
+  The Deskbar applet packaged with Tracker is currently out of date
+  and needs some love to get it working with the new APIs. It is in
+  the same state as it was for 0.6. As such it isn't expected to work.
+
+
 NEW in 0.7.11
 =============
 
