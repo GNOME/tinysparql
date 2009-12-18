@@ -27,7 +27,6 @@
 #include <libnautilus-extension/nautilus-file-info.h>
 #include <libtracker-client/tracker.h>
 
-#include "tracker-tags-add-dialog.h"
 #include "tracker-tags-utils.h"
 #include "tracker-tags-view.h"
 
