@@ -1705,7 +1705,6 @@ AC_CONFIG_FILES([
 	utils/gtk-sparql/Makefile
 	utils/lyrics/Makefile
 	utils/playlists/Makefile
-	utils/services/Makefile
 	utils/tracker-fts/Makefile
 	examples/Makefile
         examples/libtracker-miner/Makefile
