@@ -136,6 +136,8 @@ nmo:isRead a rdf:Property ;
 	rdfs:range xsd:boolean .
 
 nmo:plainTextMessageContent a rdf:Property ;
+	rdfs:comment "nmo:plainTextMessageContent is deprecated, use nie:plainTextContent instead" ;
+	nao:deprecated true ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmo:Message ;
 	rdfs:range xsd:string .
