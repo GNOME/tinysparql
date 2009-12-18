@@ -41,7 +41,7 @@ ttl2sgml_LDADD = 							\
 	$(GIO_LIBS)
 
 gen-doc.stamp: ttl2sgml
-	./gen-doc.sh
+	$(top_srcdir)/docs/tools/gen-doc.sh
 	$(AM_V_GEN) touch $@
 
 if HAVE_GRAPHVIZ_FDP
@@ -53,7 +53,7 @@ dist-check-graphviz:
 endif
 
 ontology.dot: ontology-graph
-	$(AM_V_GEN) ./ontology-graph -d $(top_srcdir)/data/ontologies -o ontology.dot
+	$(AM_V_GEN) $(top_srcdir)/docs/tools/ontology-graph -d $(top_srcdir)/data/ontologies -o ontology.dot
 
 ontology.png: ontology.dot
 	$(AM_V_GEN)$(GRAPHVIZ_FDP) -Tpng -o $(top_srcdir)/docs/reference/ontology/ontology.png ontology.dot
