@@ -48,15 +48,17 @@ ontology.dot: ontology-graph
 	$(AM_V_GEN) $(top_srcdir)/docs/tools/ontology-graph -d $(top_srcdir)/data/ontologies -o ontology.dot
 
 ontology.png: ontology.dot
-	$(AM_V_GEN)$(GRAPHVIZ_FDP) -Tpng -o $(top_srcdir)/docs/reference/ontology/ontology.png ontology.dot
+	$(AM_V_GEN)$(GRAPHVIZ_FDP) -Tpng -o ontology.png ontology.dot
+	cp ontology.png $(top_srcdir)/docs/reference/ontology/
 
 BUILT_SOURCES = 							\
 	ontology.png							\
 	gen-doc.stamp
 
 EXTRA_DIST = 								\
+	$(BUILT_SOURCES)						\
 	gen-doc.sh							\
-	$(BUILT_SOURCES)
+	ontology-graph
 
 DISTCLEANFILES = ontology.dot
 CLEANFILES = $(BUILT_SOURCES)
