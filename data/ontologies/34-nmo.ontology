@@ -26,6 +26,7 @@ nmo:partBoundary a rdf:Property ;
 	rdfs:range xsd:string .
 
 nmo:Message a rdfs:Class ;
+	rdfs:comment "A message. Could be an email, instant messanging message, SMS message etc." ;
 	rdfs:subClassOf nie:InformationElement ;
 	rdfs:subClassOf nfo:TextDocument ;
 	tracker:notify true .
@@ -63,9 +64,11 @@ nmo:IMMessage a rdfs:Class ;
 	rdfs:subClassOf nmo:Message .
 
 nmo:Conversation a rdfs:Class ;
+	rdfs:comment "A conversation. An exchange of one or multiple messages within a time frame or about a specific topic." ;
 	rdfs:subClassOf nie:InformationElement .
 
 nmo:CommunicationChannel a rdfs:Class ;
+	rdfs:comment "A communication channel. The container for all messages between participants of a specific group or in a persistent channel." ;
 	rdfs:subClassOf nie:InformationElement .
 
 nmo:PermanentChannel a rdfs:Class ;
@@ -89,6 +92,7 @@ nmo:recipient a rdf:Property ;
 	rdfs:range nco:Contact .
 
 nmo:from a rdf:Property ;
+	rdfs:comment "The sender of the message." ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmo:Message ;
 	rdfs:range nco:Contact .
@@ -221,6 +225,7 @@ nmo:sender a rdf:Property ;
 	rdfs:range nco:Contact .
 
 nmo:sentDate a rdf:Property ;
+	rdfs:comment "Date when this message was sent." ;
 	tracker:indexed true ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmo:Message ;
@@ -239,18 +244,21 @@ nmo:cc a rdf:Property ;
 	rdfs:range nco:Contact .
 
 nmo:conversation a rdf:Property ;
+	rdfs:comment "Connects this message to a conversation. Every message must only be part of a single conversation." ;
 	tracker:indexed true ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmo:Message ;
 	rdfs:range nmo:Conversation .
 
 nmo:communicationChannel a rdf:Property ;
+	rdfs:comment "Connects this message to a communication channel. Every message must only be in a single channel." ;
 	tracker:indexed true ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmo:Message ;
 	rdfs:range nmo:CommunicationChannel .
 
 nmo:lastMessageDate a rdf:Property ;
+	rdfs:comment "nmo:sentDate of the most recent message in this channel." ;
 	tracker:indexed true ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmo:CommunicationChannel ;
