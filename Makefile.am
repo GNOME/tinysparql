@@ -54,6 +54,7 @@ DISTCHECK_CONFIGURE_FLAGS =			\
 	--with-session-bus-services-dir="\$(datadir)"/dbus-1/services \
 	--disable-evolution-miner		\
 	--disable-deskbar-applet		\
+	--disable-nautilus-extension		\
 	--enable-gtk-doc
 
 if OLD_EXEC_REMOVE_ALL
