@@ -59,7 +59,10 @@ EXTRA_DIST = 								\
 	$(BUILT_SOURCES)						\
 	gen-doc.sh
 
-DISTCLEANFILES = ontology.dot
+DISTCLEANFILES = 							\
+	ontology.dot							\
+	$(top_builddir)/docs/reference/ontology/ontology.png
+
 CLEANFILES = $(BUILT_SOURCES)
 
 make-hook: ontology-graph ontology.dot ontology.png
