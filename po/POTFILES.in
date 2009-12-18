@@ -9,7 +9,7 @@ data/tracker-status-icon.desktop.in.in
 data/tracker-store.desktop.in.in
 [type: gettext/glade]examples/rss-reader/rss_viewer.ui
 src/plugins/nautilus/tracker-tags-view.c
-src/plugins/nautilus/tracker-tags-plugin.c
+src/plugins/nautilus/tracker-tags-extension.c
 src/libtracker-common/tracker-dbus.c
 src/libtracker-common/tracker-utils.c
 src/libtracker-gtk/tracker-metadata-tile.c

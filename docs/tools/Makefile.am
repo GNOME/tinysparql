@@ -45,11 +45,11 @@ gen-doc.stamp: ttl2sgml
 	$(AM_V_GEN) touch $@
 
 ontology.dot: ontology-graph
-	$(AM_V_GEN) $(top_srcdir)/docs/tools/ontology-graph -d $(top_srcdir)/data/ontologies -o ontology.dot
+	$(AM_V_GEN) ./ontology-graph -d $(top_srcdir)/data/ontologies -o ontology.dot
 
 ontology.png: ontology.dot
 	$(AM_V_GEN)$(GRAPHVIZ_FDP) -Tpng -o ontology.png ontology.dot
-	cp ontology.png $(top_srcdir)/docs/reference/ontology/
+	cp ontology.png $(top_builddir)/docs/reference/ontology/
 
 BUILT_SOURCES = 							\
 	ontology.png							\
@@ -57,10 +57,9 @@ BUILT_SOURCES = 							\
 
 EXTRA_DIST = 								\
 	$(BUILT_SOURCES)						\
-	gen-doc.sh							\
-	ontology-graph
+	gen-doc.sh
 
 DISTCLEANFILES = ontology.dot
 CLEANFILES = $(BUILT_SOURCES)
 
-make-hook: ontology.dot ontology.png
+make-hook: ontology-graph ontology.dot ontology.png
