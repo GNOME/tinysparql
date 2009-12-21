@@ -228,10 +228,10 @@ main (int argc, char **argv)
 			g_print ("%s\n",
 			         _("No classes were found"));
 		} else {
-			g_print (tracker_dngettext (NULL,
-			                            "Class: %d",
-			                            "Classes: %d",
-			                            results->len),
+			g_print (g_dngettext (NULL,
+			                      "Class: %d",
+			                      "Classes: %d",
+			                      results->len),
 			         results->len);
 			g_print ("\n");
 
@@ -266,10 +266,10 @@ main (int argc, char **argv)
 			g_print ("%s\n",
 			         _("No class prefixes were found"));
 		} else {
-			g_print (tracker_dngettext (NULL,
-			                            "Prefix: %d",
-			                            "Prefixes: %d",
-			                            results->len),
+			g_print (g_dngettext (NULL,
+			                      "Prefix: %d",
+			                      "Prefixes: %d",
+			                      results->len),
 			         results->len);
 			g_print ("\n");
 
@@ -345,10 +345,10 @@ main (int argc, char **argv)
 			g_print ("%s\n",
 			         _("No properties were found"));
 		} else {
-			g_print (tracker_dngettext (NULL,
-			                            "Property: %d",
-			                            "Properties: %d",
-			                            results->len),
+			g_print (g_dngettext (NULL,
+			                      "Property: %d",
+			                      "Properties: %d",
+			                      results->len),
 			         results->len);
 			g_print ("\n");
 
@@ -442,10 +442,10 @@ main (int argc, char **argv)
 				g_print ("%s\n",
 				         _("No results found matching your query"));
 			} else {
-				g_print (tracker_dngettext (NULL,
-				                            "Result: %d",
-				                            "Results: %d",
-				                            results->len),
+				g_print (g_dngettext (NULL,
+				                      "Result: %d",
+				                      "Results: %d",
+				                      results->len),
 				         results->len);
 				g_print ("\n");
 

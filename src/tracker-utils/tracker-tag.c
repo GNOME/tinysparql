@@ -259,10 +259,10 @@ get_all_tags_foreach (gpointer value,
 	g_print ("    %s\n", id);
 
 	g_print ("    ");
-	g_print (tracker_dngettext (NULL,
-	                            "%d file",
-	                            "%d files",
-	                            files),
+	g_print (g_dngettext (NULL,
+	                      "%d file",
+	                      "%d files",
+	                      files),
 	         files);
 	g_print ("\n");
 
@@ -366,10 +366,10 @@ get_all_tags (TrackerClient *client,
 		g_print ("%s\n",
 		         _("No tags were found"));
 	} else {
-		g_print (tracker_dngettext (NULL,
-		                            "Tag: %d (shown by name)",
-		                            "Tags: %d (shown by name)",
-		                            results->len),
+		g_print (g_dngettext (NULL,
+		                      "Tag: %d (shown by name)",
+		                      "Tags: %d (shown by name)",
+		                      results->len),
 		         results->len);
 		g_print ("\n");
 

@@ -181,10 +181,10 @@ main (int argc, char **argv)
 
 			length = results->len;
 
-			g_print (tracker_dngettext (NULL,
-			                            "Result: %d",
-			                            "Results: %d",
-			                            length),
+			g_print (g_dngettext (NULL,
+			                      "Result: %d",
+			                      "Results: %d",
+			                      length),
 			         length);
 			g_print ("\n");
 

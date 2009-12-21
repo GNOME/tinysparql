@@ -252,10 +252,10 @@ main (int argc, char **argv)
 	if (should_kill || should_terminate ||
 	    (!start && !remove_config && !remove_thumbnails)) {
 		pids = get_pids ();
-		str = g_strdup_printf (tracker_dngettext (NULL,
-		                                          "Found %d PID…",
-		                                          "Found %d PIDs…",
-		                                          g_slist_length (pids)),
+		str = g_strdup_printf (g_dngettext (NULL,
+		                                    "Found %d PID…",
+		                                    "Found %d PIDs…",
+		                                    g_slist_length (pids)),
 		                       g_slist_length (pids));
 		g_print ("%s\n", str);
 		g_free (str);

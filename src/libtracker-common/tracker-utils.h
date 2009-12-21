@@ -42,10 +42,6 @@ gchar *  tracker_seconds_estimate_to_string (gdouble      seconds_elapsed,
                                              guint        items_remaining);
 gchar *  tracker_seconds_to_string          (gdouble      seconds_elapsed,
                                              gboolean     short_string);
-gchar*   tracker_uri_vprintf_escaped        (const gchar *format,
-                                             va_list      args);
-gchar*   tracker_uri_printf_escaped         (const gchar *format,
-                                             ...);
 gchar *  tracker_coalesce                   (gint n_values,
                                              ...);
 gchar *  tracker_merge                      (const gchar *delim, gint n_values,
@@ -55,12 +51,13 @@ gchar *  tracker_text_normalize             (const gchar *text,
                                              guint        max_words,
                                              guint       *n_words);
 
-/* Temporary: Just here until we upgrade to GLib 2.18. */
-G_CONST_RETURN gchar *
-tracker_dngettext                  (const gchar *domain,
-                                    const gchar *msgid,
-                                    const gchar *msgid_plural,
-                                    gulong       n);
+/* Currently we define an alias here because right now we are using
+ * GLib's escape functions, however, it is likely in the future that
+ * Nepomuk's standard for URI escaping varies slightly and we want to
+ * easily be able to have our own implementation without changing the
+ * whole code base.
+ */
+#define  tracker_uri_printf_escaped         g_markup_printf_escaped
 
 G_END_DECLS
 
