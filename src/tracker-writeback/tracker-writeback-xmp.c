@@ -31,6 +31,7 @@
 #include <gio/gio.h>
 
 #include <libtracker-common/tracker-ontology.h>
+#include <libtracker-common/tracker-utils.h>
 
 #include "tracker-writeback-file.h"
 
@@ -162,26 +163,23 @@ writeback_xmp_update_file_metadata (TrackerWritebackFile *wbf,
 
 			g_free (query);
 
-			if (!error) {
-				if (name_array && name_array->len > 0) {
-					GStrv name_row;
+			if (name_array && name_array->len > 0) {
+				GStrv name_row;
 
-					name_row = g_ptr_array_index (name_array, 0);
+				name_row = g_ptr_array_index (name_array, 0);
 
-					if (name_row[0]) {
-						xmp_delete_property (xmp, NS_DC, "creator");
-						xmp_set_property (xmp, NS_DC, "creator", name_row[0], 0);
-					}
+				if (name_row[0]) {
+					xmp_delete_property (xmp, NS_DC, "creator");
+					xmp_set_property (xmp, NS_DC, "creator", name_row[0], 0);
 				}
-
-				if (name_array) {
-					g_ptr_array_foreach (name_array, (GFunc) g_strfreev, NULL);
-					g_ptr_array_free (name_array, TRUE);
-				}
-
-			} else {
-				g_clear_error (&error);
 			}
+
+			if (name_array) {
+				g_ptr_array_foreach (name_array, (GFunc) g_strfreev, NULL);
+				g_ptr_array_free (name_array, TRUE);
+			}
+
+			g_clear_error (&error);
 		}
 
 		if (g_strcmp0 (row[1], TRACKER_NCO_PREFIX "contributor") == 0) {
@@ -197,26 +195,23 @@ writeback_xmp_update_file_metadata (TrackerWritebackFile *wbf,
 
 			g_free (query);
 
-			if (!error) {
-				if (name_array && name_array->len > 0) {
-					GStrv name_row;
+			if (name_array && name_array->len > 0) {
+				GStrv name_row;
 
-					name_row = g_ptr_array_index (name_array, 0);
+				name_row = g_ptr_array_index (name_array, 0);
 
-					if (name_row[0]) {
-						xmp_delete_property (xmp, NS_DC, "contributor");
-						xmp_set_property (xmp, NS_DC, "contributor", name_row[0], 0);
-					}
+				if (name_row[0]) {
+					xmp_delete_property (xmp, NS_DC, "contributor");
+					xmp_set_property (xmp, NS_DC, "contributor", name_row[0], 0);
 				}
-
-				if (name_array) {
-					g_ptr_array_foreach (name_array, (GFunc) g_strfreev, NULL);
-					g_ptr_array_free (name_array, TRUE);
-				}
-
-			} else {
-				g_clear_error (&error);
 			}
+
+			if (name_array) {
+				g_ptr_array_foreach (name_array, (GFunc) g_strfreev, NULL);
+				g_ptr_array_free (name_array, TRUE);
+			}
+
+			g_clear_error (&error);
 		}
 
 		if (g_strcmp0 (row[1], TRACKER_NIE_PREFIX "description") == 0) {
@@ -367,23 +362,90 @@ writeback_xmp_update_file_metadata (TrackerWritebackFile *wbf,
 			g_free (work_on);
 		}
 
-		/*
-		  if (g_strcmp0 (row[1], PHOTO_HAS "contact") == 0) {
-		  Face recognition on the photos
+		if (g_strcmp0 (row[1], TRACKER_MLO_PREFIX "location") == 0 ||
+		    g_strcmp0 (row[1], TRACKER_MLO_PREFIX "city") == 0     ||
+		    g_strcmp0 (row[1], TRACKER_MLO_PREFIX "country") == 0  ||
+		    g_strcmp0 (row[1], TRACKER_MLO_PREFIX "state") == 0    ||
+		    g_strcmp0 (row[1], TRACKER_MLO_PREFIX "address") == 0) 
+		{
+			GPtrArray *array;
+			GError *error = NULL;
+			gchar *query;
+
+			query = g_strdup_printf ("SELECT ?city ?state ?address ?country "
+			                         "WHERE { <%s> mlo:location ?location . "
+			                                 "OPTIONAL { ?location mlo:address ?address } . "
+			                                 "OPTIONAL { ?location mlo:city ?city } . "
+			                                 "OPTIONAL { ?location mlo:country ?country } . "
+			                                 "OPTIONAL { ?location mlo:state ?state} "
+			                         "}", row[0]);
+
+			array = tracker_resources_sparql_query (client, query, &error);
+
+			g_free (query);
+
+			if (array && array->len > 0) {
+				GStrv qrow;
+
+				qrow = g_ptr_array_index (array, 0);
+
+				/* TODO: A lot of these location fields are pretty vague and ambigious.
+				 * We should go through them one by one and ensure that all of them are
+				 * used sanely */
+
+				if (!tracker_is_blank_string (qrow[0])) {
+					xmp_delete_property (xmp, NS_IPTC4XMP, "City");
+					xmp_set_property (xmp, NS_IPTC4XMP, "City", qrow[0], 0);
+					xmp_delete_property (xmp, NS_PHOTOSHOP, "City");
+					xmp_set_property (xmp, NS_PHOTOSHOP, "City", qrow[0], 0);
+				}
+				g_free (qrow[0]);
+
+				if (!tracker_is_blank_string (qrow[1])) {
+					xmp_delete_property (xmp, NS_IPTC4XMP, "State");
+					xmp_set_property (xmp, NS_IPTC4XMP, "State", qrow[1], 0);
+					xmp_delete_property (xmp, NS_IPTC4XMP, "Province");
+					xmp_set_property (xmp, NS_IPTC4XMP, "Province", qrow[1], 0);
+					xmp_delete_property (xmp, NS_PHOTOSHOP, "State");
+					xmp_set_property (xmp, NS_PHOTOSHOP, "State", qrow[1], 0);
+				}
+				g_free (qrow[1]);
+
+				if (!tracker_is_blank_string (qrow[2])) {
+					xmp_delete_property (xmp, NS_IPTC4XMP, "SubLocation");
+					xmp_set_property (xmp, NS_IPTC4XMP, "SubLocation", qrow[2], 0);
+					xmp_delete_property (xmp, NS_PHOTOSHOP, "Location");
+					xmp_set_property (xmp, NS_PHOTOSHOP, "Location", qrow[2], 0);
+				}
+				g_free (qrow[2]);
+
+				if (!tracker_is_blank_string (qrow[3])) {
+					xmp_delete_property (xmp, NS_PHOTOSHOP, "Country");
+					xmp_set_property (xmp, NS_PHOTOSHOP, "Country", qrow[3], 0);
+					xmp_delete_property (xmp, NS_IPTC4XMP, "Country");
+					xmp_set_property (xmp, NS_IPTC4XMP, "Country", qrow[3], 0);
+					xmp_delete_property (xmp, NS_IPTC4XMP, "PrimaryLocationName");
+					xmp_set_property (xmp, NS_IPTC4XMP, "PrimaryLocationName", qrow[3], 0);
+				}
+				g_free (qrow[3]);
+
+			}
+
+			if (array) {
+				g_ptr_array_free (array, TRUE);
+			}
+
+			g_clear_error (&error);
+		}
+
+		/* TODO: When a photo contains a known face
+		 * 
+		 * if (g_strcmp0 (row[1], PHOTO_HAS "contact") == 0) {
 		  xmp_delete_property (xmp, FACE, "contact");
 		  Fetch full name of the contact?
 		  xmp_set_array_item (xmp, FACE, "contact", 1, fetched, 0);
 		  }
-
-		  if (g_strcmp0 (row[1], LOCATION_PREFIX "country") == 0) {
-		  xmp_delete_property (xmp, NS_PHOTOSHOP, "Country");
-		  xmp_set_array_item (xmp, NS_PHOTOSHOP, "Country", 1, row[2], 0);
-		  }
-
-		  if (g_strcmp0 (row[1], LOCATION_PREFIX "city") == 0) {
-		  xmp_delete_property (xmp, NS_PHOTOSHOP, "City");
-		  xmp_set_array_item (xmp, NS_PHOTOSHOP, "City", 1, row[2], 0);
-		  } */
+		*/
 
 	}
 

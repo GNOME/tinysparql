@@ -95,6 +95,7 @@ mlo:routeDetails a rdf:Property ;
 
 # FIXME Domain rdfs:Resource?? to link files and not only content?
 mlo:location a rdf:Property ;
+    tracker:writeback true ;
     rdfs:label "Property linking something to a location" ;
     rdfs:comment "This can be subclassed to add semantics" ;
     rdfs:domain nie:InformationElement ;
@@ -102,21 +103,25 @@ mlo:location a rdf:Property ;
 
 # TODO: These are ad-hoc added by Philip to support writeback of locations
 mlo:city a rdf:Property ;
+    tracker:writeback true ;
     rdfs:label "City" ;
     rdfs:domain mlo:GeoPoint ;
     rdfs:range  xsd:string .
 
 mlo:country a rdf:Property ;
+    tracker:writeback true ;
     rdfs:label "Country" ;
     rdfs:domain mlo:GeoPoint ;
     rdfs:range  xsd:string .
 
 mlo:state a rdf:Property ;
+    tracker:writeback true ;
     rdfs:label "State" ;
     rdfs:domain mlo:GeoPoint ;
     rdfs:range  xsd:string .
 
 mlo:address a rdf:Property ;
+    tracker:writeback true ;
     rdfs:label "Address" ;
     rdfs:domain mlo:GeoPoint ;
     rdfs:range  xsd:string .

@@ -94,9 +94,9 @@ entry_parsed (TotemPlParser *parser, const gchar *to_uri, GHashTable *to_metadat
 	tracker_sparql_builder_predicate (data->metadata, "a");
 	tracker_sparql_builder_object (data->metadata, "nie:DataObject");
 	tracker_sparql_builder_predicate (data->metadata, "nie:isStoredAs");
-	tracker_sparql_builder_object_unvalidated (data->metadata, data->uri);
+	tracker_sparql_builder_object_iri (data->metadata, data->uri);
 	tracker_sparql_builder_predicate (data->metadata, "nie:url");
-	tracker_sparql_builder_object_unvalidated (data->metadata, data->uri);
+	tracker_sparql_builder_object_string (data->metadata, data->uri);
 
 	tracker_sparql_builder_predicate (data->metadata, "nfo:entryContent");
 	tracker_sparql_builder_object_unvalidated (data->metadata, to_uri);

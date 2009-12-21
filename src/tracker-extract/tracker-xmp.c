@@ -373,6 +373,10 @@ tracker_xmp_iter_simple (const gchar          *uri,
 			data->license = g_strdup (value);
 		}
 	} else
+	/* TODO: A lot of these location fields are pretty vague and ambigious.
+	 * We should go through them one by one and ensure that all of them are
+	 * used sanely */
+
 	/* Photoshop TODO: is this needed anyway? */
 	if (g_ascii_strcasecmp (schema,  NS_PHOTOSHOP) == 0) {
 		if (data->City && g_ascii_strcasecmp (name, "City") == 0) {
@@ -398,6 +402,9 @@ tracker_xmp_iter_simple (const gchar          *uri,
 		} else 
 		if (!data->Country && g_ascii_strcasecmp (name, "PrimaryLocationName") == 0) {
 			data->Country = g_strdup (value);
+		} else
+		if (!data->State && g_ascii_strcasecmp (name, "State") == 0) {
+			data->State = g_strdup (value);
 		} else 
 		if (!data->State && g_ascii_strcasecmp (name, "Province") == 0) {
 			data->State = g_strdup (value);
