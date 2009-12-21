@@ -80,8 +80,6 @@ tracker_writeback_check (const gchar *graph,
 		g_hash_table_insert (private->events,
 		                     g_strdup (subject),
 		                     copy_rdf_types (rdf_types));
-	} else {
-		g_debug ("No predicates to notify for writeback");
 	}
 }
 
