@@ -99,3 +99,24 @@ mlo:location a rdf:Property ;
     rdfs:comment "This can be subclassed to add semantics" ;
     rdfs:domain nie:InformationElement ;
     rdfs:range mlo:GeoPoint .
+
+# TODO: These are ad-hoc added by Philip to support writeback of locations
+mlo:city a rdf:Property ;
+    rdfs:label "City" ;
+    rdfs:domain mlo:GeoPoint ;
+    rdfs:range  xsd:string .
+
+mlo:country a rdf:Property ;
+    rdfs:label "Country" ;
+    rdfs:domain mlo:GeoPoint ;
+    rdfs:range  xsd:string .
+
+mlo:state a rdf:Property ;
+    rdfs:label "State" ;
+    rdfs:domain mlo:GeoPoint ;
+    rdfs:range  xsd:string .
+
+mlo:address a rdf:Property ;
+    rdfs:label "Address" ;
+    rdfs:domain mlo:GeoPoint ;
+    rdfs:range  xsd:string .

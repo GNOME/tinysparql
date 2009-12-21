@@ -372,7 +372,41 @@ tracker_xmp_iter_simple (const gchar          *uri,
 		if (!data->license && g_ascii_strcasecmp (name, "license") == 0) {
 			data->license = g_strdup (value);
 		}
-	} /* else
+	} else
+	/* Photoshop */
+	if (g_ascii_strcasecmp (schema,  NS_PHOTOSHOP) == 0) {
+		if (data->City && g_ascii_strcasecmp (name, "City") == 0) {
+			data->City = g_strdup (value);
+		} else
+		if (!data->Country && g_ascii_strcasecmp (name, "Country") == 0) {
+			data->Country = g_strdup (value);
+		} else
+		if (!data->State && g_ascii_strcasecmp (name, "State") == 0) {
+			data->State = g_strdup (value);
+		} else
+		if (!data->Address && g_ascii_strcasecmp (name, "Location") == 0) {
+			data->Address = g_strdup (value);
+		}
+	} else
+	/* IPTC4XMP scheme - GeoClue / location stuff, TODO */
+	if (g_ascii_strcasecmp (schema,  NS_IPTC4XMP) == 0) {
+		if (!data->City && g_ascii_strcasecmp (name, "City") == 0) {
+			data->City = g_strdup (value);
+		} else 
+		if (!data->Country && g_ascii_strcasecmp (name, "Country") == 0) {
+			data->Country = g_strdup (value);
+		} else 
+		if (!data->Country && g_ascii_strcasecmp (name, "PrimaryLocationName") == 0) {
+			data->Country = g_strdup (value);
+		} else 
+		if (!data->State && g_ascii_strcasecmp (name, "Province") == 0) {
+			data->State = g_strdup (value);
+		} else 
+		if (!data->Address && g_ascii_strcasecmp (name, "Sublocation") == 0) {
+			data->Address = g_strdup (value);
+		}
+	} 
+	 /* else
 	* XAP (XMP)scheme *
 	if (g_ascii_strcasecmp (schema, NS_XAP) == 0) {
 		if (g_ascii_strcasecmp (name, "Rating") == 0) {
@@ -384,29 +418,7 @@ tracker_xmp_iter_simple (const gchar          *uri,
 			                              "Image:Date", value);
 		}
 	} else
-	* IPTC4XMP scheme - GeoClue / location stuff, TODO *
-	if (g_ascii_strcasecmp (schema,  NS_IPTC4XMP) == 0) {
-		if (g_ascii_strcasecmp (name, "Location") == 0) {
-			tracker_statement_list_insert (metadata, uri,
-			                              "Image:Location", value);
-		} else 
-		if (g_ascii_strcasecmp (name, "Sublocation") == 0) {
-			tracker_statement_list_insert (metadata, uri,
-			                               "Image:Sublocation", value);
-		}
-	} else
-	if (g_ascii_strcasecmp (schema,  NS_PHOTOSHOP) == 0) {
-		if (g_ascii_strcasecmp (name, "City") == 0) {
-			tracker_statement_list_insert (metadata, uri,
-			                               "Image:City", value);
-		} else
-		if (g_ascii_strcasecmp (name, "Country") == 0) {
-			tracker_statement_list_insert (metadata, uri,
-			                               "Image:Country", value);
-		}
-	  }
 	*/
-
 	g_free (name);
 }
 
@@ -702,4 +714,39 @@ tracker_apply_xmp (TrackerSparqlBuilder *metadata, const gchar *uri, TrackerXmpD
 		tracker_sparql_builder_object_blank_close (metadata);
 		g_free (xmp_data->creator);
 	}
+
+	if (xmp_data->Address || xmp_data->Country || xmp_data->City) {
+		tracker_sparql_builder_predicate (metadata, "mlo:location");
+
+		tracker_sparql_builder_object_blank_open (metadata);
+		tracker_sparql_builder_predicate (metadata, "a");
+		tracker_sparql_builder_object (metadata, "mlo:GeoPoint");
+
+		if (xmp_data->Address) {
+			tracker_sparql_builder_predicate (metadata, "mlo:address");
+			tracker_sparql_builder_object_unvalidated (metadata, xmp_data->Address);
+			g_free (xmp_data->Address);
+		}
+
+		if (xmp_data->State) {
+			tracker_sparql_builder_predicate (metadata, "mlo:state");
+			tracker_sparql_builder_object_unvalidated (metadata, xmp_data->State);
+			g_free (xmp_data->State);
+		}
+
+		if (xmp_data->City) {
+			tracker_sparql_builder_predicate (metadata, "mlo:city");
+			tracker_sparql_builder_object_unvalidated (metadata, xmp_data->City);
+			g_free (xmp_data->City);
+		}
+
+		if (xmp_data->Country) {
+			tracker_sparql_builder_predicate (metadata, "mlo:country");
+			tracker_sparql_builder_object_unvalidated (metadata, xmp_data->Country);
+			g_free (xmp_data->Country);
+		}
+	
+		tracker_sparql_builder_object_blank_close (metadata);
+	}
+	
 }

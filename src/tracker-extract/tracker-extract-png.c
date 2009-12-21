@@ -396,6 +396,40 @@ read_metadata (png_structp png_ptr, png_infop info_ptr, const gchar *uri, Tracke
 			tracker_sparql_builder_object_unvalidated (metadata, xmp_data.MeteringMode);
 			g_free (xmp_data.MeteringMode);
 		}
+	
+		if (xmp_data.Address || xmp_data.Country || xmp_data.City) {
+			tracker_sparql_builder_predicate (metadata, "mlo:location");
+	
+			tracker_sparql_builder_object_blank_open (metadata);
+			tracker_sparql_builder_predicate (metadata, "a");
+			tracker_sparql_builder_object (metadata, "mlo:GeoPoint");
+	
+			if (xmp_data.Address) {
+				tracker_sparql_builder_predicate (metadata, "mlo:address");
+				tracker_sparql_builder_object_unvalidated (metadata, xmp_data.Address);
+				g_free (xmp_data.Address);
+			}
+	
+			if (xmp_data.State) {
+				tracker_sparql_builder_predicate (metadata, "mlo:state");
+				tracker_sparql_builder_object_unvalidated (metadata, xmp_data.State);
+				g_free (xmp_data.State);
+			}
+	
+			if (xmp_data.City) {
+				tracker_sparql_builder_predicate (metadata, "mlo:city");
+				tracker_sparql_builder_object_unvalidated (metadata, xmp_data.City);
+				g_free (xmp_data.City);
+			}
+	
+			if (xmp_data.Country) {
+				tracker_sparql_builder_predicate (metadata, "mlo:country");
+				tracker_sparql_builder_object_unvalidated (metadata, xmp_data.Country);
+				g_free (xmp_data.Country);
+			}
+		
+			tracker_sparql_builder_object_blank_close (metadata);
+		}
 	}
 }
 

@@ -397,6 +397,40 @@ extract_pdf (const gchar          *uri,
 			tracker_sparql_builder_object (metadata, xd.MeteringMode);
 			g_free (xd.MeteringMode);
 		}
+
+		if (xd.Address || xd.Country || xd.City) {
+			tracker_sparql_builder_predicate (metadata, "mlo:location");
+	
+			tracker_sparql_builder_object_blank_open (metadata);
+			tracker_sparql_builder_predicate (metadata, "a");
+			tracker_sparql_builder_object (metadata, "mlo:GeoPoint");
+	
+			if (xd.Address) {
+				tracker_sparql_builder_predicate (metadata, "mlo:address");
+				tracker_sparql_builder_object_unvalidated (metadata, xd.Address);
+				g_free (xd.Address);
+			}
+	
+			if (xd.State) {
+				tracker_sparql_builder_predicate (metadata, "mlo:state");
+				tracker_sparql_builder_object_unvalidated (metadata, xd.State);
+				g_free (xd.State);
+			}
+	
+			if (xd.City) {
+				tracker_sparql_builder_predicate (metadata, "mlo:city");
+				tracker_sparql_builder_object_unvalidated (metadata, xd.City);
+				g_free (xd.City);
+			}
+	
+			if (xd.Country) {
+				tracker_sparql_builder_predicate (metadata, "mlo:country");
+				tracker_sparql_builder_object_unvalidated (metadata, xd.Country);
+				g_free (xd.Country);
+			}
+		
+			tracker_sparql_builder_object_blank_close (metadata);
+		}
 	} else {
 		/* So if we are here we have NO XMP data and we just
 		 * write what we know from Poppler.

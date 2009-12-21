@@ -39,7 +39,7 @@ typedef struct {
 	/* TODO NS_XAP*/
 	/* TODO NS_IPTC4XMP */
 	/* TODO NS_PHOTOSHOP */
-
+	gchar *Address, *Country, *State, *City;
 } TrackerXmpData;
 
 
