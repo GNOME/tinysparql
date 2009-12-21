@@ -217,7 +217,7 @@ fix_orientation (const gchar *orientation)
 		return  "nfo:orientation-bottom";
 	} else
 	if (orientation && g_ascii_strcasecmp (orientation, "left - top") == 0) {
-		return  "nfo:orientation-bottom";
+		return  "nfo:orientation-left-mirror";
 	} else
 	if (orientation && g_ascii_strcasecmp (orientation, "right - top") == 0) {
 		return  "nfo:orientation-right";
