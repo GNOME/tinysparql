@@ -204,40 +204,29 @@ tracker_xmp_iter_simple_qual (XmpPtr                xmp,
 static const gchar *
 fix_orientation (const gchar *orientation)
 {
-	guint i;
-	static const gchar *ostr[8] = {
-		/* 0 */ "top - left",
-		/* 1 */ "top - right",
-		/* 2 */ "bottom - right",
-		/* 3 */ "bottom - left",
-		/* 4 */ "left - top",
-		/* 5 */ "right - top",
-		/* 6 */ "right - bottom",
-		/* 7 */ "left - bottom"
-	};
-
-	for (i=0; i < 8; i++) {
-		if (orientation && ostr[i] && g_ascii_strcasecmp (orientation, ostr[i]) == 0) {
-			switch (i) {
-			default:
-			case 0:
-				return  "nfo:orientation-top";
-			case 1:
-				return  "nfo:orientation-top-mirror"; // not sure
-			case 2:
-				return  "nfo:orientation-bottom-mirror"; // not sure
-			case 3:
-				return  "nfo:orientation-bottom";
-			case 4:
-				return  "nfo:orientation-left-mirror";
-			case 5:
-				return  "nfo:orientation-right";
-			case 6:
-				return  "nfo:orientation-right-mirror";
-			case 7:
-				return  "nfo:orientation-left";
-			}
-		}
+	if (orientation && g_ascii_strcasecmp (orientation, "top - left") == 0) {
+		return "nfo:orientation-top";
+	} else
+	if (orientation && g_ascii_strcasecmp (orientation, "top - right") == 0) {
+		return  "nfo:orientation-top-mirror";
+	} else
+	if (orientation && g_ascii_strcasecmp (orientation, "bottom - right") == 0) {
+		return "nfo:orientation-bottom-mirror";
+	} else
+	if (orientation && g_ascii_strcasecmp (orientation, "bottom - left") == 0) {
+		return  "nfo:orientation-bottom";
+	} else
+	if (orientation && g_ascii_strcasecmp (orientation, "left - top") == 0) {
+		return  "nfo:orientation-bottom";
+	} else
+	if (orientation && g_ascii_strcasecmp (orientation, "right - top") == 0) {
+		return  "nfo:orientation-right";
+	} else
+	if (orientation && g_ascii_strcasecmp (orientation, "right - bottom") == 0) {
+		return "nfo:orientation-right-mirror";
+	} else
+	if (orientation && g_ascii_strcasecmp (orientation, "left - bottom") == 0) {
+		return  "nfo:orientation-left";
 	}
 
 	return  "nfo:orientation-top";
@@ -265,175 +254,156 @@ tracker_xmp_iter_simple (const gchar          *uri,
 		name[index_ - name] = '\0';
 	}
 
-	/* Dublin Core */
-	if (g_ascii_strcasecmp (schema, NS_DC) == 0) {
-		if (g_ascii_strcasecmp (name, "title") == 0 && !data->title) {
-			data->title = g_strdup (value);
-		}
-		else if (g_ascii_strcasecmp (name, "rights") == 0 && !data->rights) {
-			data->rights = g_strdup (value);
-		}
-		else if (g_ascii_strcasecmp (name, "creator") == 0 && !data->creator) {
-			data->creator = g_strdup (value);
-		}
-		else if (g_ascii_strcasecmp (name, "description") == 0 && !data->description) {
-			data->description = g_strdup (value);
-		}
-		else if (g_ascii_strcasecmp (name, "date") == 0 && !data->date) {
-			data->date = g_strdup (value);
-		}
-		else if (g_ascii_strcasecmp (name, "keywords") == 0 && !data->keywords) {
-			data->keywords = g_strdup (value);
-		}
-		else if (g_ascii_strcasecmp (name, "subject") == 0 && !data->subject) {
-			data->subject = g_strdup (value);
-		}
-		else if (g_ascii_strcasecmp (name, "publisher") == 0 && !data->publisher) {
-			data->publisher = g_strdup (value);
-		}
-		else if (g_ascii_strcasecmp (name, "contributor") == 0 && !data->contributor) {
-			data->contributor = g_strdup (value);
-		}
-		else if (g_ascii_strcasecmp (name, "type") == 0 && !data->type) {
-			data->type = g_strdup (value);
-		}
-		else if (g_ascii_strcasecmp (name, "format") == 0 && !data->format) {
-			data->format = g_strdup (value);
-		}
-		else if (g_ascii_strcasecmp (name, "identifier") == 0 && !data->identifier) {
-			data->identifier = g_strdup (value);
-		}
-		else if (g_ascii_strcasecmp (name, "source") == 0 && !data->source) {
-			data->source = g_strdup (value);
-		}
-		else if (g_ascii_strcasecmp (name, "language") == 0 && !data->language) {
-			data->language = g_strdup (value);
-		}
-		else if (g_ascii_strcasecmp (name, "relation") == 0 && !data->relation) {
-			data->relation = g_strdup (value);
-		}
-		else if (g_ascii_strcasecmp (name, "coverage") == 0 && !data->coverage) {
-			data->coverage = g_strdup (value);
-		}
-
-	}
-	/* Creative Commons */
-	else if (g_ascii_strcasecmp (schema, NS_CC) == 0) {
-		if (g_ascii_strcasecmp (name, "license") == 0 && !data->license) {
-			data->license = g_strdup (value);
-		}
-	}
 	/* Exif basic scheme */
-	else if (g_ascii_strcasecmp (schema, NS_EXIF) == 0) {
-		if (g_ascii_strcasecmp (name, "Title") == 0 && !data->Title) {
+	if (g_ascii_strcasecmp (schema, NS_EXIF) == 0) {
+		if (!data->Title && g_ascii_strcasecmp (name, "Title") == 0) {
 			data->Title = g_strdup (value);
-		}
-		else if (g_ascii_strcasecmp (name, "DateTimeOriginal") == 0 && !data->DateTimeOriginal) {
+		} else
+		if (g_ascii_strcasecmp (name, "DateTimeOriginal") == 0 && !data->DateTimeOriginal) {
 			data->DateTimeOriginal = g_strdup (value);
-		}
-		else if (g_ascii_strcasecmp (name, "Artist") == 0 && !data->Artist) {
+		} else
+		if (!data->Artist && g_ascii_strcasecmp (name, "Artist") == 0) {
 			data->Artist = g_strdup (value);
-		}
-		/*              else if (g_ascii_strcasecmp (name, "Software") == 0) {
-		                tracker_statement_list_insert (metadata, uri,
-		                "Image:Software", value);
-		                }*/
-		else if (g_ascii_strcasecmp (name, "Make") == 0 && !data->Make) {
+		} else /*
+		if (g_ascii_strcasecmp (name, "Software") == 0) {
+			tracker_statement_list_insert (metadata, uri,
+			                               "Image:Software", value);
+		} else */
+		if (!data->Make && g_ascii_strcasecmp (name, "Make") == 0) {
 			data->Make = g_strdup (value);
-		}
-		else if (g_ascii_strcasecmp (name, "Model") == 0 && !data->Model) {
+		} else
+		if (!data->Model && g_ascii_strcasecmp (name, "Model") == 0) {
 			data->Model = g_strdup (value);
-		}
-		else if (g_ascii_strcasecmp (name, "Orientation") == 0 && !data->Orientation) {
+		} else
+		if (!data->Orientation && g_ascii_strcasecmp (name, "Orientation") == 0) {
 			data->Orientation = g_strdup (fix_orientation (value));
-		}
-		else if (g_ascii_strcasecmp (name, "Flash") == 0 && !data->Flash) {
+		} else
+		if (!data->Flash && g_ascii_strcasecmp (name, "Flash") == 0) {
 			data->Flash = g_strdup (fix_flash (value));
-		}
-		else if (g_ascii_strcasecmp (name, "MeteringMode") == 0 && !data->MeteringMode) {
+		} else
+		if (!data->MeteringMode && g_ascii_strcasecmp (name, "MeteringMode") == 0) {
 			data->MeteringMode = g_strdup (fix_metering_mode (value));
-		}
-		/*else if (g_ascii_strcasecmp (name, "ExposureProgram") == 0) {
-		  tracker_statement_list_insert (metadata, uri,
-		  "Image:ExposureProgram", value);
-		  }*/
-		else if (g_ascii_strcasecmp (name, "ExposureTime") == 0 && !data->ExposureTime) {
+		} else /*
+		if (g_ascii_strcasecmp (name, "ExposureProgram") == 0) {
+			tracker_statement_list_insert (metadata, uri,
+			                              "Image:ExposureProgram", value);
+		} else*/
+		if (!data->ExposureTime && g_ascii_strcasecmp (name, "ExposureTime") == 0) {
 			data->ExposureTime = g_strdup (value);
-		}
-		else if (g_ascii_strcasecmp (name, "FNumber") == 0 && !data->FNumber) {
+		} else
+		if (!data->FNumber && g_ascii_strcasecmp (name, "FNumber") == 0) {
 			data->FNumber = g_strdup (value);
-		}
-		else if (g_ascii_strcasecmp (name, "FocalLength") == 0 && !data->FocalLength) {
+		} else
+		if (!data->FocalLength && g_ascii_strcasecmp (name, "FocalLength") == 0) {
 			data->FocalLength = g_strdup (value);
-		}
-		else if (g_ascii_strcasecmp (name, "ISOSpeedRatings") == 0 && !data->ISOSpeedRatings) {
+		} else
+		if (!data->ISOSpeedRatings && g_ascii_strcasecmp (name, "ISOSpeedRatings") == 0) {
 			data->ISOSpeedRatings = g_strdup (value);
-		}
-		else if (g_ascii_strcasecmp (name, "WhiteBalance") == 0 && !data->WhiteBalance) {
+		} else
+		if (!data->WhiteBalance && g_ascii_strcasecmp (name, "WhiteBalance") == 0) {
 			data->WhiteBalance = g_strdup (fix_white_balance (value));
-		}
-		else if (g_ascii_strcasecmp (name, "Copyright") == 0 && !data->Copyright) {
+		} else
+		if (!data->Copyright && g_ascii_strcasecmp (name, "Copyright") == 0) {
 			data->Copyright = g_strdup (value);
 		}
-	} else          /* PDF*/ if (g_ascii_strcasecmp (schema, NS_PDF) == 0) {
-			if (g_ascii_strcasecmp (name, "keywords") == 0 && !data->keywords) {
-				data->keywords = g_strdup (value);
-			} else if (g_ascii_strcasecmp (name, "title") == 0 && !data->title) {
-				data->title = g_strdup (value);
-			}
+	} else
+	/* PDF*/ 
+	if (g_ascii_strcasecmp (schema, NS_PDF) == 0) {
+		if (!data->keywords && g_ascii_strcasecmp (name, "keywords") == 0) {
+			data->keywords = g_strdup (value);
+		} else
+		if (!data->title && g_ascii_strcasecmp (name, "title") == 0) {
+			data->title = g_strdup (value);
 		}
-
-	/* XAP (XMP)scheme */
-	/*else if (g_ascii_strcasecmp (schema, NS_XAP) == 0) {
-	  if (g_ascii_strcasecmp (name, "Rating") == 0) {
-	  tracker_statement_list_insert (metadata, uri,
-	  "Image:Rating", value);
-	  }
-	  if (g_ascii_strcasecmp (name, "MetadataDate") == 0) {
-	  tracker_statement_list_insert (metadata, uri,
-	  "Image:Date", value);
-	  }
-	  }*/
-	/* IPTC4XMP scheme */
-
-	/*
-	  GeoClue / location stuff, TODO
-	  else if (g_ascii_strcasecmp (schema,  NS_IPTC4XMP) == 0) {
-	  if (g_ascii_strcasecmp (name, "Location") == 0) {
-	  tracker_statement_list_insert (metadata, uri,
-	  "Image:Location", value);
-
-	  / Added to the valid keywords *
-	  tracker_statement_list_insert (metadata, uri,
-	  "Image:Keywords", value);
-	  }
-	  if (g_ascii_strcasecmp (name, "Sublocation") == 0) {
-	  tracker_statement_list_insert (metadata, uri,
-	  "Image:Sublocation", value);
-
-	  / Added to the valid keywords *
-	  tracker_statement_list_insert (metadata, uri,
-	  "Image:Keywords", value);
-	  }
-	  }
-	  / Photoshop scheme *
-	  else if (g_ascii_strcasecmp (schema,  NS_PHOTOSHOP) == 0) {
-	  if (g_ascii_strcasecmp (name, "City") == 0) {
-	  tracker_statement_list_insert (metadata, uri,
-	  "Image:City", value);
-
-	  / Added to the valid keywords *
-	  tracker_statement_list_insert (metadata, uri,
-	  "Image:Keywords", value);
-	  }
-	  else if (g_ascii_strcasecmp (name, "Country") == 0) {
-	  tracker_statement_list_insert (metadata, uri,
-	  "Image:Country", value);
-
-	  / Added to the valid keywords *
-	  tracker_statement_list_insert (metadata, uri,
-	  "Image:Keywords", value);
-	  }
+	} else
+	/* Dublin Core */
+	if (g_ascii_strcasecmp (schema, NS_DC) == 0) {
+		if (!data->title && g_ascii_strcasecmp (name, "title") == 0) {
+			data->title = g_strdup (value);
+		} else
+		if (!data->rights && g_ascii_strcasecmp (name, "rights") == 0) {
+			data->rights = g_strdup (value);
+		} else
+		if (!data->creator && g_ascii_strcasecmp (name, "creator") == 0) {
+			data->creator = g_strdup (value);
+		} else
+		if (!data->description && g_ascii_strcasecmp (name, "description") == 0) {
+			data->description = g_strdup (value);
+		} else
+		if (!data->date && g_ascii_strcasecmp (name, "date") == 0) {
+			data->date = g_strdup (value);
+		} else
+		if (!data->keywords && g_ascii_strcasecmp (name, "keywords") == 0) {
+			data->keywords = g_strdup (value);
+		} else
+		if (!data->subject && g_ascii_strcasecmp (name, "subject") == 0) {
+			data->subject = g_strdup (value);
+		} else
+		if (!data->publisher && g_ascii_strcasecmp (name, "publisher") == 0) {
+			data->publisher = g_strdup (value);
+		} else
+		if (!data->contributor && g_ascii_strcasecmp (name, "contributor") == 0) {
+			data->contributor = g_strdup (value);
+		} else
+		if (!data->type && g_ascii_strcasecmp (name, "type") == 0) {
+			data->type = g_strdup (value);
+		} else
+		if (!data->format && g_ascii_strcasecmp (name, "format") == 0) {
+			data->format = g_strdup (value);
+		} else
+		if (!data->identifier && g_ascii_strcasecmp (name, "identifier") == 0) {
+			data->identifier = g_strdup (value);
+		} else
+		if (!data->source && g_ascii_strcasecmp (name, "source") == 0) {
+			data->source = g_strdup (value);
+		} else
+		if (!data->language && g_ascii_strcasecmp (name, "language") == 0) {
+			data->language = g_strdup (value);
+		} else
+		if (!data->relation && g_ascii_strcasecmp (name, "relation") == 0) {
+			data->relation = g_strdup (value);
+		} else
+		if (!data->coverage && g_ascii_strcasecmp (name, "coverage") == 0) {
+			data->coverage = g_strdup (value);
+		}
+	} else
+	/* Creative Commons */
+	if (g_ascii_strcasecmp (schema, NS_CC) == 0) {
+		if (!data->license && g_ascii_strcasecmp (name, "license") == 0) {
+			data->license = g_strdup (value);
+		}
+	} /* else
+	* XAP (XMP)scheme *
+	if (g_ascii_strcasecmp (schema, NS_XAP) == 0) {
+		if (g_ascii_strcasecmp (name, "Rating") == 0) {
+			tracker_statement_list_insert (metadata, uri,
+			                               "Image:Rating", value);
+		}
+		if (g_ascii_strcasecmp (name, "MetadataDate") == 0) {
+			tracker_statement_list_insert (metadata, uri,
+			                              "Image:Date", value);
+		}
+	} else
+	* IPTC4XMP scheme - GeoClue / location stuff, TODO *
+	if (g_ascii_strcasecmp (schema,  NS_IPTC4XMP) == 0) {
+		if (g_ascii_strcasecmp (name, "Location") == 0) {
+			tracker_statement_list_insert (metadata, uri,
+			                              "Image:Location", value);
+		} else 
+		if (g_ascii_strcasecmp (name, "Sublocation") == 0) {
+			tracker_statement_list_insert (metadata, uri,
+			                               "Image:Sublocation", value);
+		}
+	} else
+	if (g_ascii_strcasecmp (schema,  NS_PHOTOSHOP) == 0) {
+		if (g_ascii_strcasecmp (name, "City") == 0) {
+			tracker_statement_list_insert (metadata, uri,
+			                               "Image:City", value);
+		} else
+		if (g_ascii_strcasecmp (name, "Country") == 0) {
+			tracker_statement_list_insert (metadata, uri,
+			                               "Image:Country", value);
+		}
 	  }
 	*/
 
@@ -642,11 +612,12 @@ tracker_apply_xmp (TrackerSparqlBuilder *metadata, const gchar *uri, TrackerXmpD
 		tracker_sparql_builder_object_unvalidated (metadata, xmp_data->Orientation);
 		g_free (xmp_data->Orientation);
 	}
-
-	if (xmp_data->rights) {
+	
+	if (xmp_data->rights || xmp_data->Copyright) {
+		gchar *final_rights = tracker_coalesce (2, xmp_data->Copyright, xmp_data->rights);
 		tracker_sparql_builder_predicate (metadata, "nie:copyright");
-		tracker_sparql_builder_object_unvalidated (metadata, xmp_data->rights);
-		g_free (xmp_data->rights);
+		tracker_sparql_builder_object_unvalidated (metadata, final_rights);
+		g_free (final_rights);
 	}
 
 	if (xmp_data->WhiteBalance) {
@@ -674,7 +645,7 @@ tracker_apply_xmp (TrackerSparqlBuilder *metadata, const gchar *uri, TrackerXmpD
 	}
 
 	if (xmp_data->Artist || xmp_data->contributor) {
-		gchar *final_artist =  tracker_coalesce (2, xmp_data->Artist, xmp_data->contributor);
+		gchar *final_artist = tracker_coalesce (2, xmp_data->Artist, xmp_data->contributor);
 
 		tracker_sparql_builder_predicate (metadata, "nco:contributor");
 

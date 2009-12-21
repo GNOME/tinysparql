@@ -296,7 +296,7 @@ extract_jpeg (const gchar          *uri,
 
 		md.title = tracker_coalesce (2, xd.title, xd.Title, ed.document_name);
 		md.orientation = tracker_coalesce (3, ed.orientation, xd.Orientation, id.image_orientation);
-		md.copyright = tracker_coalesce (3, ed.copyright, xd.rights, id.copyright_notice);
+		md.copyright = tracker_coalesce (3, ed.copyright, xd.Copyright, xd.rights, id.copyright_notice);
 		md.white_balance = tracker_coalesce (2, ed.white_balance, xd.WhiteBalance);
 		md.fnumber =  tracker_coalesce (2, ed.fnumber, xd.FNumber);
 		md.flash =  tracker_coalesce (2, ed.flash, xd.Flash);
