@@ -60,7 +60,7 @@ typedef void (*MenuDataFreeFunc)(gpointer data);
 
 typedef struct {
 	gpointer data;
-	gboolean free_data;
+	gboolean data_is_files;
 	GtkWidget *widget;
 } MenuData;
 
@@ -77,7 +77,7 @@ G_DEFINE_DYNAMIC_TYPE_EXTENDED (TrackerTagsExtension, tracker_tags_extension, G_
 
 static MenuData *
 menu_data_new (gpointer   data,
-               gboolean   free_data,
+               gboolean   data_is_files,
                GtkWidget *window)
 {
 	MenuData *md;
@@ -85,7 +85,7 @@ menu_data_new (gpointer   data,
 	md = g_slice_new (MenuData);
 
 	md->data = data;
-	md->free_data = free_data;
+	md->data_is_files = data_is_files;
 	md->widget = window;
 
 	return md;
@@ -94,7 +94,7 @@ menu_data_new (gpointer   data,
 static void
 menu_data_free (MenuData *md)
 {
-	if (md->free_data) {
+	if (md->data_is_files) {
 		g_list_foreach (md->data, (GFunc) g_object_unref, NULL);
 		g_list_free (md->data);
 	}
@@ -142,7 +142,13 @@ menu_tags_activate_cb (NautilusMenuItem *menu_item,
 	vbox = gtk_dialog_get_content_area (GTK_DIALOG (dialog));
 	gtk_box_set_spacing (GTK_BOX (vbox), 2);
 
-	view = tracker_tags_view_new (files);
+	/* For the background we have no files */
+	if (md->data_is_files) {
+		view = tracker_tags_view_new (files);
+	} else {
+		view = tracker_tags_view_new (NULL);
+	}
+
 	gtk_box_pack_start (GTK_BOX (vbox), view, TRUE, TRUE, 0);
 
 	gtk_widget_show_all (dialog);
@@ -195,7 +201,7 @@ extension_get_file_items (NautilusMenuProvider *provider,
 
 	g_signal_connect_data (menu_item, "activate", 
 	                       G_CALLBACK (menu_tags_activate_cb), 
-	                       menu_data_new (tracker_glist_copy_with_nautilus_files (files), FALSE, window),
+	                       menu_data_new (tracker_glist_copy_with_nautilus_files (files), TRUE, window),
 	                       menu_data_destroy,
 	                       G_CONNECT_AFTER);
 
@@ -235,8 +241,11 @@ static void
 tracker_tags_extension_menu_provider_iface_init (NautilusMenuProviderIface *iface)
 {
         iface->get_file_items = extension_get_file_items;
-        iface->get_background_items = extension_get_background_items;
         iface->get_toolbar_items = extension_get_toolbar_items;
+
+        if (0) {
+        iface->get_background_items = extension_get_background_items;
+        }
 }
 
 static void
