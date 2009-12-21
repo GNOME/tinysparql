@@ -420,10 +420,10 @@ tracker_language_set_enable_stemmer (TrackerLanguage *language,
 /**
  * tracker_language_set_language_code:
  * @language: a #TrackerLanguage
- * @value: a ISO 639-1 language code, or %NULL to reset to english
+ * @value: an ISO 639-1 language code
  *
- * Sets the language handled by @language, a %NULL value will reset
- * to "en"
+ * Sets the @language to @value, a %NULL value will reset this to
+ * "en" (English).
  **/
 void
 tracker_language_set_language_code (TrackerLanguage *language,
@@ -611,12 +611,26 @@ tracker_language_get_name_by_code (const gchar *language_code)
 
 /**
  * tracker_language_get_code_by_name:
- * @language_name: language name
+ * @language_name: a string representing the language name
  *
- * Returns the ISO 639-1 code corresponding to the language name,
- * if supported by #TrackerLanguage.
+ * Supported @language_name strings and their ISO 639-1 codes include:
  *
- * Returns: the ISO 639-1 code.
+ *  - "Danish" (da)
+ *  - "Dutch"  (nl)
+ *  - "English" (en)
+ *  - "Finnish" (fi)
+ *  - "French" (fr)
+ *  - "German" (de)
+ *  - "Hungarian" (hu)
+ *  - "Italian" (it)
+ *  - "Norwegian" (nb)
+ *  - "Portuguese" (pt)
+ *  - "Russian" (ru)
+ *  - "Spanish" (es)
+ *  - "Swedish" (sv)
+ *
+ * Returns: the ISO 639-1 code corresponding to the @language_name,
+ *          if it is supported.
  **/
 const gchar *
 tracker_language_get_code_by_name (const gchar *language_name)
