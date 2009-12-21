@@ -254,7 +254,7 @@ tags_view_tag_removed_cb (GError   *error,
 		return;
 	}
 
-	g_print ("Tag removed\n");
+	g_debug ("Tag removed\n");
 
 	gtk_list_store_remove (td->tv->private->store, td->iter);
 	tag_data_free (td);
@@ -323,7 +323,7 @@ tags_view_query_files_for_tag_id_cb (GPtrArray *result,
 	} else {
 		gchar *query;
 
-		g_print ("Removing unused tag\n");
+		g_debug ("Removing unused tag\n");
 
 		/* We automatically remove the tag */
 		query = g_strdup_printf ("DELETE { "
@@ -338,7 +338,7 @@ tags_view_query_files_for_tag_id_cb (GPtrArray *result,
 		g_free (query);
 	}
 
-	g_print ("Querying files with tag, in selection:%d, in total:%d, selected:%d\n", 
+	g_debug ("Querying files with tag, in selection:%d, in total:%d, selected:%d\n", 
 	         has_tag_in_selection, files_with_tag, files_selected);
 
 	g_ptr_array_foreach (result, (GFunc) g_strfreev, NULL);
@@ -396,7 +396,7 @@ tags_view_append_foreach (gpointer data,
 	GtkTreeIter iter;
 	GStrv strv = data;
 
-	g_print ("Adding tag id:'%s' with label:'%s' to store\n", strv[0], strv[1]);
+	g_debug ("Adding tag id:'%s' with label:'%s' to store\n", strv[0], strv[1]);
 
 	gtk_list_store_append (tv->private->store, &iter);
 	gtk_list_store_set (tv->private->store, &iter, 
@@ -416,7 +416,7 @@ tags_view_add_tags_cb (GPtrArray *result,
 {
 	TrackerTagsView *tv = user_data;
 
-	g_print ("Clearing tags in store\n");
+	g_debug ("Clearing tags in store\n");
 
 	gtk_list_store_clear (tv->private->store);
 
@@ -438,7 +438,7 @@ tags_view_add_tags_cb (GPtrArray *result,
 		
 		g_error_free (error);
 	} else {
-		g_print ("Adding all tags...\n");
+		g_debug ("Adding all tags...\n");
 		g_ptr_array_foreach (result, tags_view_append_foreach, tv);
 		g_ptr_array_foreach (result, (GFunc) g_strfreev, NULL);
 		g_ptr_array_free (result, TRUE);
@@ -452,7 +452,7 @@ tags_view_model_update_cb (GError   *error,
 	TagData *td = user_data;
 	TrackerTagsView *tv = td->tv;
 
-	g_print ("Query callback\n");
+	g_debug ("Query callback\n");
 
 	if (error) {
 		GtkWidget *dialog;
@@ -479,7 +479,7 @@ tags_view_model_update_cb (GError   *error,
 		if (!td->update) {
 			GtkTreeIter iter;
 
-			g_print ("Setting tag selection state to ON (new)\n");
+			g_debug ("Setting tag selection state to ON (new)\n");
 
 			gtk_list_store_append (tv->private->store, &iter);
 			gtk_list_store_set (tv->private->store, &iter,
@@ -489,7 +489,7 @@ tags_view_model_update_cb (GError   *error,
 			                    COL_SELECTION, SELECTION_TRUE,
 			                    -1);
 		} else if (td->selected) {
-			g_print ("Setting tag selection state to ON\n");
+			g_debug ("Setting tag selection state to ON\n");
 
 			gtk_list_store_set (tv->private->store, td->iter,
 			                    COL_SELECTION, SELECTION_TRUE,
@@ -497,7 +497,7 @@ tags_view_model_update_cb (GError   *error,
 
 			tags_view_query_files_for_tag_id (tag_data_copy (td));
 		} else {
-			g_print ("Setting tag selection state to FALSE\n");
+			g_debug ("Setting tag selection state to FALSE\n");
 
 			gtk_list_store_set (tv->private->store, td->iter,
 			                    COL_SELECTION, SELECTION_FALSE,
@@ -657,7 +657,7 @@ tags_view_model_toggle_row (TrackerTagsView *tv,
 
 	gtk_widget_set_sensitive (tv->private->entry, FALSE);
 
-	g_print ("Running query:'%s'\n", query);
+	g_debug ("Running query:'%s'\n", query);
 
 	tracker_resources_sparql_update_async (tv->private->tracker_client, 
 	                                       query, 
