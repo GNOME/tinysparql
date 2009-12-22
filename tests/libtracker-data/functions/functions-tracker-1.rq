@@ -1,0 +1,10 @@
+PREFIX ex: <http://example/>
+PREFIX ns: <http://www.w3.org/2005/xpath-functions#>
+
+SELECT tracker:coalesce(?u, ?t, ?s, "default")
+{ ?_x a ex:A .
+  OPTIONAL { ?_x ex:s ?s }
+  OPTIONAL { ?_x ex:t ?t }
+  OPTIONAL { ?_x ex:u ?u }
+}
+ORDER BY tracker:coalesce(?u, ?t, ?s, "default")

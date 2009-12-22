@@ -1,0 +1,7 @@
+PREFIX ex: <http://example/>
+PREFIX ns: <http://www.w3.org/2005/xpath-functions#>
+
+SELECT ?s
+{ ?_x ex:s ?s .
+  FILTER (ns:contains(?s, "th")) }
+ORDER BY ?s

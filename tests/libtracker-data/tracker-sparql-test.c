@@ -63,6 +63,10 @@ const TestInfo tests[] = {
 	{ "expr-ops/query-plus-1", "expr-ops/data", FALSE },
 	{ "expr-ops/query-unminus-1", "expr-ops/data", FALSE },
 	{ "expr-ops/query-unplus-1", "expr-ops/data", FALSE },
+	{ "functions/functions-property-1", "functions/data-1", FALSE },
+	{ "functions/functions-tracker-1", "functions/data-1", FALSE },
+	{ "functions/functions-xpath-1", "functions/data-1", FALSE },
+	{ "functions/functions-xpath-2", "functions/data-1", FALSE },
 	{ "optional/q-opt-complex-1", "optional/complex-data-1", FALSE },
 	{ "regex/regex-query-001", "regex/regex-data-01", FALSE },
 	{ "regex/regex-query-002", "regex/regex-data-01", FALSE },
@@ -137,6 +141,7 @@ test_sparql_query (gconstpointer test_data)
 	/* perform actual query */
 
 	result_set = tracker_data_query_sparql (query, &error);
+
 	if (test_info->expect_error) {
 		comparer = strstr_i;
 		g_assert (error != NULL);

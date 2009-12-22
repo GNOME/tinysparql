@@ -1,0 +1,46 @@
+@prefix : <http://example/> .
+@prefix xsd:        <http://www.w3.org/2001/XMLSchema#> .
+
+:x a :A .
+:x :s "first" .
+:x :t "Test" .
+:x :u "optional" .
+
+:y a :A .
+:y :s "second" .
+:y :t "Text" .
+
+:z a :A .
+:z :s "third" .
+:z :t "for" .
+:z :u "optional for third" .
+
+:q a :A .
+:q :s "fourth" .
+:q :t "testing" .
+
+:w a :A .
+:w :s "fifth" .
+:w :t "purposes" .
+
+:e a :A .
+:e :s "other" .
+
+:r a :A .
+
+:ba a :B .
+:ba :o "First group" .
+:ba :a :x .
+:ba :a :y .
+:ba :a :z .
+:ba :a :e .
+
+:bb a :B .
+:bb :o "Second group" .
+:bb :a :q .
+:bb :a :w .
+:bb :a :e .
+
+:bc a :B .
+:bc :o "Third group" .
+
