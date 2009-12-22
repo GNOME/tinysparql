@@ -93,6 +93,9 @@ entry_parsed (TotemPlParser *parser, const gchar *to_uri, GHashTable *to_metadat
 
 	tracker_sparql_builder_predicate (data->metadata, "a");
 	tracker_sparql_builder_object (data->metadata, "nie:DataObject");
+	tracker_sparql_builder_predicate (data->metadata, "a");
+	tracker_sparql_builder_object (data->metadata, "nie:InformationElement");
+
 	tracker_sparql_builder_predicate (data->metadata, "nie:isStoredAs");
 	tracker_sparql_builder_object_iri (data->metadata, data->uri);
 	tracker_sparql_builder_predicate (data->metadata, "nie:url");
@@ -138,6 +141,9 @@ extract_playlist (const gchar *uri,
 	tracker_sparql_builder_subject_iri (metadata, uri);
 	tracker_sparql_builder_predicate (metadata, "a");
 	tracker_sparql_builder_object (metadata, "nfo:MediaList");
+
+	tracker_sparql_builder_predicate (metadata, "nie:isStoredAs");
+	tracker_sparql_builder_object_iri (metadata, uri);
 
 	result = totem_pl_parser_parse (pl, uri, FALSE);
 
