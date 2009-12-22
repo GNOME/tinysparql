@@ -427,7 +427,7 @@ process_fields (TrackerSparqlBuilder *sparql, const gchar *uid, guint flags,
 
 	/* The URL of the DataObject (because IE = DO, this is correct) */
 	tracker_sparql_builder_predicate (sparql, "nie:url");
-	tracker_sparql_builder_object_iri (sparql, uri);
+	tracker_sparql_builder_object_string (sparql, uri);
 
 	tracker_sparql_builder_predicate (sparql, "nie:dataSource");
 	tracker_sparql_builder_object_iri (sparql, DATASOURCE_URN);

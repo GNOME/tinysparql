@@ -388,7 +388,7 @@ miner_applications_process_file_cb (gpointer user_data)
 
 		/* The URL of the DataObject */
 		tracker_sparql_builder_predicate (sparql, "nie:url");
-		tracker_sparql_builder_object_iri (sparql, uri);
+		tracker_sparql_builder_object_string (sparql, uri);
 
 		/* Laying the link between the IE and the DO */
 		tracker_sparql_builder_subject_iri (sparql, uri);
