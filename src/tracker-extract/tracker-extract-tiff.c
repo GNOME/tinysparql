@@ -380,9 +380,11 @@ extract_tiff (const gchar *uri, TrackerSparqlBuilder *metadata)
 		g_free (exif_data.make);
 	}
 
-	merge_data.title = tracker_coalesce (3, tiff_data.documentname,
-	                                     xmp_data.title, xmp_data.Title,
-	                                     exif_data.document_name);
+	merge_data.title = tracker_coalesce (5, tiff_data.documentname,
+	                                     xmp_data.title, 
+	                                     xmp_data.Title,
+	                                     exif_data.document_name,
+	                                     xmp_data.PDFtitle);
 
 	merge_data.orientation = tracker_coalesce (4, tiff_data.orientation,
 	                                           exif_data.orientation,
@@ -462,6 +464,11 @@ extract_tiff (const gchar *uri, TrackerSparqlBuilder *metadata)
 	if (xmp_data.keywords) {
 		insert_keywords (metadata, uri, xmp_data.keywords);
 		g_free (xmp_data.keywords);
+	}
+
+	if (xmp_data.PDFkeywords) {
+		insert_keywords (metadata, uri, xmp_data.PDFkeywords);
+		g_free (xmp_data.PDFkeywords);
 	}
 
 	if (xmp_data.subject) {

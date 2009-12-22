@@ -224,7 +224,7 @@ extract_pdf (const gchar          *uri,
 		g_free (xml);
 		xml = NULL;
 
-		md.title = tracker_coalesce (2, pd.title, xd.title, xd.Title);
+		md.title = tracker_coalesce (3, pd.title, xd.title, xd.Title, xd.PDFtitle);
 		md.subject = tracker_coalesce (2, pd.subject, xd.subject);
 		md.date = tracker_coalesce (3, pd.creation_date, xd.date, xd.DateTimeOriginal);
 		md.author = tracker_coalesce (2, pd.author, xd.creator);
@@ -234,6 +234,11 @@ extract_pdf (const gchar          *uri,
 		if (xd.keywords) {
 			insert_keywords (metadata, xd.keywords);
 			g_free (xd.keywords);
+		}
+
+		if (xd.PDFkeywords) {
+			insert_keywords (metadata, xd.PDFkeywords);
+			g_free (xd.PDFkeywords);
 		}
 
 		if (xd.publisher) {

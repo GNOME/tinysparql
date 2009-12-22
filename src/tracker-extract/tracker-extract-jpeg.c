@@ -294,7 +294,7 @@ extract_jpeg (const gchar          *uri,
 			g_free (ed.make);
 		}
 
-		md.title = tracker_coalesce (2, xd.title, xd.Title, ed.document_name);
+		md.title = tracker_coalesce (3, xd.title, xd.Title, ed.document_name, xd.PDFtitle);
 		md.orientation = tracker_coalesce (3, ed.orientation, xd.Orientation, id.image_orientation);
 		md.copyright = tracker_coalesce (3, ed.copyright, xd.Copyright, xd.rights, id.copyright_notice);
 		md.white_balance = tracker_coalesce (2, ed.white_balance, xd.WhiteBalance);
@@ -322,6 +322,11 @@ extract_jpeg (const gchar          *uri,
 		if (xd.keywords) {
 			insert_keywords (metadata, xd.keywords);
 			g_free (xd.keywords);
+		}
+
+		if (xd.PDFkeywords) {
+			insert_keywords (metadata, xd.PDFkeywords);
+			g_free (xd.PDFkeywords);
 		}
 
 		if (xd.subject) {

@@ -194,8 +194,10 @@ read_metadata (png_structp png_ptr, png_infop info_ptr, const gchar *uri, Tracke
 		                                       png_data.author,
 		                                       xmp_data.creator);
 
-		merge_data.title = tracker_coalesce (2, png_data.title,
-		                                     xmp_data.title, xmp_data.Title);
+		merge_data.title = tracker_coalesce (4, png_data.title,
+		                                     xmp_data.title, 
+		                                     xmp_data.Title,
+		                                     xmp_data.PDFtitle);
 
 		merge_data.copyright = tracker_coalesce (2, png_data.copyright,
 		                                         xmp_data.rights);
@@ -264,6 +266,11 @@ read_metadata (png_structp png_ptr, png_infop info_ptr, const gchar *uri, Tracke
 		if (xmp_data.keywords) {
 			insert_keywords (metadata, uri, xmp_data.keywords);
 			g_free (xmp_data.keywords);
+		}
+
+		if (xmp_data.PDFkeywords) {
+			insert_keywords (metadata, uri, xmp_data.PDFkeywords);
+			g_free (xmp_data.PDFkeywords);
 		}
 
 		if (xmp_data.subject) {

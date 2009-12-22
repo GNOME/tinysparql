@@ -31,6 +31,9 @@ typedef struct {
 	/* NS_CC */
 	gchar *license;
 
+	/* NS_PDF */
+	gchar *PDFtitle, *PDFkeywords;
+
 	/* NS_EXIF */
 	gchar *Title, *DateTimeOriginal, *Artist, *Make, *Model, *Orientation,
 		*Flash, *MeteringMode, *ExposureTime, *FNumber, *FocalLength,

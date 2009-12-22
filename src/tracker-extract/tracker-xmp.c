@@ -309,11 +309,11 @@ tracker_xmp_iter_simple (const gchar          *uri,
 	} else
 	/* PDF*/ 
 	if (g_ascii_strcasecmp (schema, NS_PDF) == 0) {
-		if (!data->keywords && g_ascii_strcasecmp (name, "keywords") == 0) {
-			data->keywords = g_strdup (value);
+		if (!data->PDFkeywords && g_ascii_strcasecmp (name, "keywords") == 0) {
+			data->PDFkeywords = g_strdup (value);
 		} else
-		if (!data->title && g_ascii_strcasecmp (name, "title") == 0) {
-			data->title = g_strdup (value);
+		if (!data->PDFtitle && g_ascii_strcasecmp (name, "title") == 0) {
+			data->PDFtitle = g_strdup (value);
 		}
 	} else
 	/* Dublin Core */
@@ -373,7 +373,7 @@ tracker_xmp_iter_simple (const gchar          *uri,
 			data->license = g_strdup (value);
 		}
 	} else
-	/* Photoshop */
+	/* Photoshop TODO: is this needed anyway? */
 	if (g_ascii_strcasecmp (schema,  NS_PHOTOSHOP) == 0) {
 		if (data->City && g_ascii_strcasecmp (name, "City") == 0) {
 			data->City = g_strdup (value);
@@ -543,6 +543,11 @@ tracker_apply_xmp (TrackerSparqlBuilder *metadata, const gchar *uri, TrackerXmpD
 		g_free (xmp_data->subject);
 	}
 
+	if (xmp_data->PDFkeywords) {
+		insert_keywords (metadata, uri, xmp_data->PDFkeywords);
+		g_free (xmp_data->PDFkeywords);
+	}
+
 	if (xmp_data->publisher) {
 		tracker_sparql_builder_predicate (metadata, "nco:publisher");
 
@@ -612,8 +617,10 @@ tracker_apply_xmp (TrackerSparqlBuilder *metadata, const gchar *uri, TrackerXmpD
 		g_free (final_camera);
 	}
 
-	if (xmp_data->title || xmp_data->Title) {
-		gchar *final_title = tracker_coalesce (2, xmp_data->title, xmp_data->Title);
+	if (xmp_data->title || xmp_data->Title || xmp_data->PDFtitle) {
+		gchar *final_title = tracker_coalesce (3, xmp_data->title, 
+		                                       xmp_data->Title, 
+		                                       xmp_data->PDFtitle);
 		tracker_sparql_builder_predicate (metadata, "nie:title");
 		tracker_sparql_builder_object_unvalidated (metadata, final_title);
 		g_free (final_title);
