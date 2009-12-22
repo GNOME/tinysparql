@@ -158,7 +158,7 @@ sparql_rdf_types_match (const gchar * const *module_types,
 
 static void
 sparql_query_cb (GPtrArray *result,
-                 GError            *error,
+                 GError    *error,
                  gpointer   user_data)
 {
 	TrackerWritebackConsumerPrivate *priv;
@@ -173,7 +173,6 @@ sparql_query_cb (GPtrArray *result,
 		GHashTableIter iter;
 		gpointer key, value;
 		GStrv rdf_types;
-
 
 		rdf_types = data->rdf_types;
 

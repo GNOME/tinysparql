@@ -23,8 +23,8 @@
 #include "config.h"
 
 #include <totem-pl-parser.h>
-
 #include <libtracker-common/tracker-ontology.h>
+#include <string.h>
 
 #include "tracker-writeback-file.h"
 
@@ -32,6 +32,7 @@
 
 typedef struct TrackerWritebackPlaylist TrackerWritebackPlaylist;
 typedef struct TrackerWritebackPlaylistClass TrackerWritebackPlaylistClass;
+typedef struct PlaylistMap PlaylistMap;
 
 struct TrackerWritebackPlaylist {
 	TrackerWritebackFile parent_instance;
@@ -39,6 +40,11 @@ struct TrackerWritebackPlaylist {
 
 struct TrackerWritebackPlaylistClass {
 	TrackerWritebackFileClass parent_class;
+};
+
+struct PlaylistMap {
+	const gchar *mime_type;
+	TotemPlParserType playlist_type;
 };
 
 static GType                tracker_writeback_playlist_get_type     (void) G_GNUC_CONST;
@@ -76,29 +82,80 @@ writeback_playlist_content_types (TrackerWritebackFile *wbf)
 		"audio/x-mpegurl",
 		"audio/mpegurl",
 		"audio/x-scpls",
+		"application/xspf+xml",
+		"audio/x-iriver-pla",
+#if 0
 		"audio/x-pn-realaudio",
 		"application/ram",
 		"application/vnd.ms-wpl",
 		"application/smil",
 		"audio/x-ms-asx",
+#endif
 		NULL
 	};
 
 	return content_types;
 }
 
-static void
-rewrite_playlist (TrackerClient *client, GFile *file, const gchar *subject)
+static gboolean
+get_playlist_type (GFile             *file,
+		   TotemPlParserType *type)
 {
+	GFileInfo *file_info;
+	const gchar *mime_type;
+	gint i;
+	PlaylistMap playlist_map[] = {
+		{ "audio/x-mpegurl", TOTEM_PL_PARSER_M3U },
+		{ "audio/mpegurl", TOTEM_PL_PARSER_M3U },
+		{ "audio/x-scpls", TOTEM_PL_PARSER_PLS },
+		{ "application/xspf+xml", TOTEM_PL_PARSER_XSPF },
+		{ "audio/x-iriver-pla", TOTEM_PL_PARSER_IRIVER_PLA }
+	};
+
+	file_info = g_file_query_info (file,
+	                               G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE,
+	                               G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
+	                               NULL, NULL);
+
+	if (!file_info) {
+		return FALSE;
+	}
+
+	mime_type = g_file_info_get_content_type (file_info);
+
+	if (!mime_type) {
+		return FALSE;
+	}
+
+	for (i = 0; i < G_N_ELEMENTS (playlist_map); i++) {
+		if (strcmp (mime_type, playlist_map[i].mime_type) == 0) {
+			*type = playlist_map[i].playlist_type;
+			return TRUE;
+		}
+	}
+
+	return FALSE;
+}
+
+static void
+rewrite_playlist (TrackerClient *client,
+		  GFile         *file,
+		  const gchar   *subject)
+{
+	TotemPlParserType type;
 	gchar *path;
 	GPtrArray *array;
 	GError *error = NULL;
 	gchar *query;
 
+	if (!get_playlist_type (file, &type)) {
+		return;
+	}
+
 	path = g_file_get_path (file);
 
 	query = g_strdup_printf ("SELECT ?entry { ?unknown a nfo:MediaFileListEntry ; "
-	                                                  "nie:isStoredAs <%s> ; "
+	                                                  "nie:url '%s' ; "
 	                                                  "nfo:entryContent ?entry"
 	                         "}", subject);
 
@@ -108,32 +165,36 @@ rewrite_playlist (TrackerClient *client, GFile *file, const gchar *subject)
 
 	if (!error) {
 		if (array && array->len > 0) {
-			guint i;
-#if 0
+			TotemPlParser *parser;
 			TotemPlPlaylist *playlist;
+			TotemPlPlaylistIter iter;
+			guint i;
 
+			parser = totem_pl_parser_new ();
 			playlist = totem_pl_playlist_new ();
-#endif
+
 			for (i = 0; i < array->len; i++) {
 				GStrv row;
 
 				row = g_ptr_array_index (array, i);
 
 				if (row && row[0]) {
-#if 0
-					TotemPlPlaylistIter iter;
-
 					totem_pl_playlist_append  (playlist, &iter);
-					totem_pl_playlist_set_value (playlist, &iter,
-					                             TOTEM_PL_PARSER_FIELD_URI,
-					                             row[0]);
-#endif
+					totem_pl_playlist_set (playlist, &iter,
+							       TOTEM_PL_PARSER_FIELD_URI, row[0],
+							       NULL);
 				}
 			}
-#if 0
-			/* TODO: write to path as same type as path */
+
+			totem_pl_parser_save (parser, playlist, file, NULL, type, &error);
+
+			if (error) {
+				g_critical ("Could not save playlist: %s\n", error->message);
+				g_error_free (error);
+			}
+
 			g_object_unref (playlist);
-#endif
+			g_object_unref (parser);
 		} else {
 			/* TODO: Empty the file in @path */
 		}
