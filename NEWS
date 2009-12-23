@@ -1,3 +1,55 @@
+NEW in 0.7.13
+=============
+
+Improvements / New:
+
+  General:
+  * GLib requirement is now 2.20 from 2.16.
+    * Removed all imported GLib code borrowed from >= 2.16.
+  * Merged coalesce branch to master.
+  * Merged writeback branch to master.
+
+  Ontology:
+  * Added tracker:coalesce (coalesce branch merge).
+  * Added mlo:city, mlo:country, mlo:state and mlo:address.
+
+  SPARQL:
+  * Added tests for functions.
+
+  libtracker-common:
+  * Small improvements to TrackerLanguage documentation.
+
+  tracker-miner-fs:
+  * Fixed nie:url property to be a string, not a resource.
+
+  tracker-extract:
+  * Fixed duplicate field usage in jpeg, pdf, tiff, png and xmp.
+  * Fixed to use new mlo ontology in jpeg, pdf, tiff, png and xmp.
+  * Fixed xmp left-top orientation.
+
+  evolution:
+  * Fixed nie:url property to be a string, not a resource.
+
+  nautilus:
+  * Fixed crash when showing the context menu for the background.
+
+  kmail:
+  * Fixed nie:url property to be a string, not a resource.
+
+Bugs:
+
+  * Fixes: GB#603054, fails to build on missing tracker-explorer
+
+Notes:
+
+  The database version up has been incremented, this will force a
+  reindex for any existing Tracker installation.
+
+  The Deskbar applet packaged with Tracker is currently out of date
+  and needs some love to get it working with the new APIs. It is in
+  the same state as it was for 0.6. As such it isn't expected to work.
+
+
 NEW in 0.7.12
 =============
 
