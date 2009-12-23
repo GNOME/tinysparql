@@ -179,6 +179,10 @@ exiftool -exif:WhiteBalance=0 -n exif_white_1.jpg
 convert -size 320x240   pattern:checkerboard exif_metering_1.jpg
 exiftool -exif:MeteringMode=5 -n exif_metering_1.jpg
 
+#random iptc
+convert -size 320x240   pattern:checkerboard iptc_random_1_tmp.jpg
+convert +profile 8BIM +comment -profile 8BIMTEXT:iptc_random_1.data iptc_random_1_tmp.jpg iptc_random_1.jpg
+
 #	{ EXIF_TAG_MAKE, "Image:CameraMake", NULL },
 #	{ EXIF_TAG_MODEL, "Image:CameraModel", NULL },
 #	{ EXIF_TAG_ORIENTATION, "Image:Orientation", NULL },

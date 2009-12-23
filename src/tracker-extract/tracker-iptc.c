@@ -37,12 +37,64 @@
 static const gchar *
 fix_iptc_orientation (const gchar *orientation)
 {
-	if (strcmp(orientation, "P")==0) {
+	if (g_strcmp0 (orientation, "P") == 0) {
 		return "nfo:orientation-left";
 	}
 
 	return "nfo:orientation-top"; /* We take this as default */
 }
+
+
+static void
+foreach_dataset (IptcDataSet *dataset, void *user_data)
+{
+	TrackerIptcData *data = user_data;
+	gchar mbuffer[1024];
+
+	switch (dataset->tag) {
+			case IPTC_TAG_KEYWORDS:
+			if (!data->keywords) {
+				iptc_dataset_get_as_str (dataset, mbuffer, 1024);
+				data->keywords = g_strdup (mbuffer);
+			}
+			break;
+			case IPTC_TAG_DATE_CREATED:
+			if (!data->date_created) {
+				iptc_dataset_get_as_str (dataset, mbuffer, 1024);
+				/* From: ex; date "2007:04:15 15:35:58"
+				 * To : ex. "2007-04-15T17:35:58+0200 where +0200 is localtime */
+				data->date_created = tracker_date_format_to_iso8601 (mbuffer, IPTC_DATE_FORMAT);
+			}
+			break;
+			case IPTC_TAG_BYLINE:
+			if (!data->byline) {
+				iptc_dataset_get_as_str (dataset, mbuffer, 1024);
+				data->byline = g_strdup (mbuffer);
+			}
+			break;
+
+			case IPTC_TAG_CREDIT:
+			if (!data->credit) {
+				iptc_dataset_get_as_str (dataset, mbuffer, 1024);
+				data->credit = g_strdup (mbuffer);
+			}
+			case IPTC_TAG_COPYRIGHT_NOTICE:
+			if (!data->copyright_notice) {
+				iptc_dataset_get_as_str (dataset, mbuffer, 1024);
+				data->copyright_notice = g_strdup (mbuffer);
+			}
+			case IPTC_TAG_IMAGE_ORIENTATION:
+			if (!data->image_orientation) {
+				iptc_dataset_get_as_str (dataset, mbuffer, 1024);
+				data->image_orientation = g_strdup (fix_iptc_orientation (mbuffer));
+			}
+			break;
+
+			default:
+			break;
+	}
+}
+
 
 #endif
 
@@ -54,17 +106,10 @@ tracker_read_iptc (const unsigned char *buffer,
                    TrackerIptcData     *data)
 {
 #ifdef HAVE_LIBIPTCDATA
-	guint i;
 	IptcData *iptc = NULL;
-	IptcTag   p[6] = { IPTC_TAG_KEYWORDS, 
-	                   /* 01 */  IPTC_TAG_DATE_CREATED,
-	                   /* 02 */  IPTC_TAG_BYLINE,
-	                   /* 03 */  IPTC_TAG_CREDIT,
-	                   /* 04 */  IPTC_TAG_COPYRIGHT_NOTICE,
-	                   /* 05 */  IPTC_TAG_IMAGE_ORIENTATION};
 
 	/* FIXME According to valgrind this is leaking (together with the unref).
-	 * Problem in libiptc */
+	 * Problem in libiptc (I replaced this with the _free equivalent) */
 
 	iptc = iptc_data_new ();
 
@@ -72,53 +117,13 @@ tracker_read_iptc (const unsigned char *buffer,
 		return;
 
 	if (iptc_data_load (iptc, buffer, len) < 0) {
-		iptc_data_unref (iptc);
+		iptc_data_free (iptc);
 		return;
 	}
 
-	for (i = 0; i < 6; i++) {
-		IptcDataSet *dataset = NULL;
+	iptc_data_foreach_dataset (iptc, foreach_dataset, data);
 
-		while ((dataset = iptc_data_get_next_dataset (iptc, dataset, 2, p[i]))) {
-			gchar mbuffer[1024];
-
-			iptc_dataset_get_as_str (dataset, mbuffer, 1024);
-
-			switch (p[i]) {
-			case IPTC_TAG_KEYWORDS:
-				if (!data->keywords)
-					data->keywords = g_strdup (mbuffer);
-				break;
-			case IPTC_TAG_DATE_CREATED:
-				if (!data->date_created) {
-					/* From: ex; date "2007:04:15 15:35:58"
-					 * To : ex. "2007-04-15T17:35:58+0200 where +0200 is localtime */
-					data->date_created = tracker_date_format_to_iso8601 (mbuffer, IPTC_DATE_FORMAT);
-				}
-				break;
-			case IPTC_TAG_BYLINE:
-				if (!data->byline)
-					data->byline = g_strdup (mbuffer);
-				break;
-			case IPTC_TAG_CREDIT:
-				if (!data->credit)
-					data->credit = g_strdup (mbuffer);
-				break;
-			case IPTC_TAG_COPYRIGHT_NOTICE:
-				if (!data->copyright_notice)
-					data->copyright_notice = g_strdup (mbuffer);
-				break;
-			case IPTC_TAG_IMAGE_ORIENTATION:
-				if (!data->image_orientation)
-					data->image_orientation = g_strdup (fix_iptc_orientation (mbuffer));
-				break;
-			default:
-				break;
-			}
-		}
-	}
-
-	iptc_data_unref (iptc);
+	iptc_data_free (iptc);
 
 #endif
 }
