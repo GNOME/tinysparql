@@ -26,8 +26,10 @@
 
 typedef struct {
 	gchar *keywords, *date_created, *byline, *credit, *copyright_notice,
-		*image_orientation;
+		*image_orientation, *bylinetitle, *city, *state, *sublocation,
+		*countryname, *contact;
 } TrackerIptcData;
+
 
 void tracker_read_iptc (const unsigned char *buffer,
                         size_t               len,

@@ -85,6 +85,10 @@ typedef struct {
 	gchar *metering_mode;
 	gchar *creator;
 	gchar *comment;
+	gchar *city;
+	gchar *state;
+	gchar *address;
+	gchar *country; 
 } MergeData;
 
 static void extract_jpeg (const gchar          *filename,
@@ -306,7 +310,13 @@ extract_jpeg (const gchar          *uri,
 		md.iso_speed_ratings =  tracker_coalesce (2, ed.iso_speed_ratings, xd.ISOSpeedRatings);
 		md.date =  tracker_coalesce (5, ed.time, xd.date, id.date_created, ed.time_original, xd.DateTimeOriginal);
 		md.description = tracker_coalesce (2, ed.description, xd.description);
-		md.metering_mode =  tracker_coalesce (2, ed.metering_mode, xd.MeteringMode);
+		md.metering_mode = tracker_coalesce (2, ed.metering_mode, xd.MeteringMode);
+
+		md.city = tracker_coalesce (2, id.city, xd.City);
+		md.state = tracker_coalesce (2, id.state, xd.State);
+		md.address = tracker_coalesce (2, id.sublocation, xd.Address);
+		md.country  = tracker_coalesce (2, id.countryname, xd.Country);
+
 		md.creator =  tracker_coalesce (3, id.byline, xd.creator, id.credit);
 		md.comment = tracker_coalesce (2, comment, ed.user_comment);
 
@@ -318,6 +328,28 @@ extract_jpeg (const gchar          *uri,
 		tracker_sparql_builder_predicate (metadata, "nfo:height");
 		tracker_sparql_builder_object_int64 (metadata, cinfo.image_height);
 		g_free (ed.y_dimension);
+
+		if (id.contact) {
+			tracker_sparql_builder_predicate (metadata, "nco:representative");
+			tracker_sparql_builder_object_blank_open (metadata);
+			tracker_sparql_builder_predicate (metadata, "a");
+			tracker_sparql_builder_object (metadata, "nco:Contact");
+			tracker_sparql_builder_predicate (metadata, "nco:fullname");
+			tracker_sparql_builder_object_unvalidated (metadata, id.contact);
+			tracker_sparql_builder_object_blank_close (metadata);
+			g_free (id.contact);
+		}
+
+		if (id.bylinetitle) {
+			tracker_sparql_builder_predicate (metadata, "nco:hasAffiliation");
+			tracker_sparql_builder_object_blank_open (metadata);
+			tracker_sparql_builder_predicate (metadata, "a");
+			tracker_sparql_builder_object (metadata, "nco:Affiliation");
+			tracker_sparql_builder_predicate (metadata, "nco:title");
+			tracker_sparql_builder_object_unvalidated (metadata, id.bylinetitle);
+			tracker_sparql_builder_object_blank_close (metadata);
+			g_free (id.bylinetitle);
+		}
 
 		if (xd.keywords) {
 			insert_keywords (metadata, xd.keywords);
@@ -516,35 +548,35 @@ extract_jpeg (const gchar          *uri,
 			g_free (md.comment);
 		}
 
-		if (xd.Address || xd.Country || xd.City) {
+		if (md.city || md.state || md.address || md.country) {
 			tracker_sparql_builder_predicate (metadata, "mlo:location");
-	
+
 			tracker_sparql_builder_object_blank_open (metadata);
 			tracker_sparql_builder_predicate (metadata, "a");
 			tracker_sparql_builder_object (metadata, "mlo:GeoPoint");
 	
-			if (xd.Address) {
+			if (md.address) {
 				tracker_sparql_builder_predicate (metadata, "mlo:address");
-				tracker_sparql_builder_object_unvalidated (metadata, xd.Address);
-				g_free (xd.Address);
+				tracker_sparql_builder_object_unvalidated (metadata, md.address);
+				g_free (md.address);
 			}
 	
-			if (xd.State) {
+			if (md.state) {
 				tracker_sparql_builder_predicate (metadata, "mlo:state");
-				tracker_sparql_builder_object_unvalidated (metadata, xd.State);
-				g_free (xd.State);
+				tracker_sparql_builder_object_unvalidated (metadata, md.state);
+				g_free (md.state);
 			}
 	
-			if (xd.City) {
+			if (md.city) {
 				tracker_sparql_builder_predicate (metadata, "mlo:city");
-				tracker_sparql_builder_object_unvalidated (metadata, xd.City);
-				g_free (xd.City);
+				tracker_sparql_builder_object_unvalidated (metadata, md.city);
+				g_free (md.city);
 			}
 	
-			if (xd.Country) {
+			if (md.country) {
 				tracker_sparql_builder_predicate (metadata, "mlo:country");
-				tracker_sparql_builder_object_unvalidated (metadata, xd.Country);
-				g_free (xd.Country);
+				tracker_sparql_builder_object_unvalidated (metadata, md.country);
+				g_free (md.country);
 			}
 		
 			tracker_sparql_builder_object_blank_close (metadata);

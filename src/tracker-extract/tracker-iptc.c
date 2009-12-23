@@ -58,6 +58,7 @@ foreach_dataset (IptcDataSet *dataset, void *user_data)
 				data->keywords = g_strdup (mbuffer);
 			}
 			break;
+
 			case IPTC_TAG_DATE_CREATED:
 			if (!data->date_created) {
 				iptc_dataset_get_as_str (dataset, mbuffer, 1024);
@@ -66,6 +67,7 @@ foreach_dataset (IptcDataSet *dataset, void *user_data)
 				data->date_created = tracker_date_format_to_iso8601 (mbuffer, IPTC_DATE_FORMAT);
 			}
 			break;
+
 			case IPTC_TAG_BYLINE:
 			if (!data->byline) {
 				iptc_dataset_get_as_str (dataset, mbuffer, 1024);
@@ -78,15 +80,61 @@ foreach_dataset (IptcDataSet *dataset, void *user_data)
 				iptc_dataset_get_as_str (dataset, mbuffer, 1024);
 				data->credit = g_strdup (mbuffer);
 			}
+			break;
+
 			case IPTC_TAG_COPYRIGHT_NOTICE:
 			if (!data->copyright_notice) {
 				iptc_dataset_get_as_str (dataset, mbuffer, 1024);
 				data->copyright_notice = g_strdup (mbuffer);
 			}
+			break;
+
 			case IPTC_TAG_IMAGE_ORIENTATION:
 			if (!data->image_orientation) {
 				iptc_dataset_get_as_str (dataset, mbuffer, 1024);
 				data->image_orientation = g_strdup (fix_iptc_orientation (mbuffer));
+			}
+			break;
+
+			case IPTC_TAG_BYLINE_TITLE:
+			if (!data->bylinetitle) {
+				iptc_dataset_get_as_str (dataset, mbuffer, 1024);
+				data->bylinetitle = g_strdup (mbuffer);
+			}
+			break;
+
+			case IPTC_TAG_CITY:
+			if (!data->city) {
+				iptc_dataset_get_as_str (dataset, mbuffer, 1024);
+				data->city = g_strdup (mbuffer);
+			}
+			break;
+
+			case IPTC_TAG_STATE:
+			if (!data->state) {
+				iptc_dataset_get_as_str (dataset, mbuffer, 1024);
+				data->state = g_strdup (mbuffer);
+			}
+			break;
+
+			case IPTC_TAG_SUBLOCATION:
+			if (!data->sublocation) {
+				iptc_dataset_get_as_str (dataset, mbuffer, 1024);
+				data->sublocation = g_strdup (mbuffer);
+			}
+			break;
+
+			case IPTC_TAG_COUNTRY_NAME:
+			if (!data->countryname) {
+				iptc_dataset_get_as_str (dataset, mbuffer, 1024);
+				data->countryname = g_strdup (mbuffer);
+			}
+			break;
+
+			case IPTC_TAG_CONTACT:
+			if (!data->contact) {
+				iptc_dataset_get_as_str (dataset, mbuffer, 1024);
+				data->contact = g_strdup (mbuffer);
 			}
 			break;
 

@@ -65,6 +65,10 @@ typedef struct {
 		*fnumber, *flash, *focal_length, *artist,
 		*exposure_time, *iso_speed_ratings, *date, *description,
 		*metering_mode, *creator, *x_dimension, *y_dimension;
+	gchar *city;
+	gchar *state;
+	gchar *address;
+	gchar *country; 
 } TiffNeedsMergeData;
 
 typedef struct {
@@ -434,6 +438,11 @@ extract_tiff (const gchar *uri, TrackerSparqlBuilder *metadata)
 	merge_data.metering_mode =  tracker_coalesce (2, exif_data.metering_mode,
 	                                              xmp_data.MeteringMode);
 
+	merge_data.city = tracker_coalesce (2, iptc_data.city, xmp_data.City);
+	merge_data.state = tracker_coalesce (2, iptc_data.state, xmp_data.State);
+	merge_data.address = tracker_coalesce (2, iptc_data.sublocation, xmp_data.Address);
+	merge_data.country  = tracker_coalesce (2, iptc_data.countryname, xmp_data.Country);
+
 	merge_data.creator =  tracker_coalesce (3, iptc_data.byline,
 	                                        xmp_data.creator,
 	                                        iptc_data.credit);
@@ -474,6 +483,28 @@ extract_tiff (const gchar *uri, TrackerSparqlBuilder *metadata)
 	if (xmp_data.subject) {
 		insert_keywords (metadata, uri, xmp_data.subject);
 		g_free (xmp_data.subject);
+	}
+
+	if (iptc_data.contact) {
+		tracker_sparql_builder_predicate (metadata, "nco:representative");
+		tracker_sparql_builder_object_blank_open (metadata);
+		tracker_sparql_builder_predicate (metadata, "a");
+		tracker_sparql_builder_object (metadata, "nco:Contact");
+		tracker_sparql_builder_predicate (metadata, "nco:fullname");
+		tracker_sparql_builder_object_unvalidated (metadata, iptc_data.contact);
+		tracker_sparql_builder_object_blank_close (metadata);
+		g_free (iptc_data.contact);
+	}
+
+	if (iptc_data.bylinetitle) {
+		tracker_sparql_builder_predicate (metadata, "nco:hasAffiliation");
+		tracker_sparql_builder_object_blank_open (metadata);
+		tracker_sparql_builder_predicate (metadata, "a");
+		tracker_sparql_builder_object (metadata, "nco:Affiliation");
+		tracker_sparql_builder_predicate (metadata, "nco:title");
+		tracker_sparql_builder_object_unvalidated (metadata, iptc_data.bylinetitle);
+		tracker_sparql_builder_object_blank_close (metadata);
+		g_free (iptc_data.bylinetitle);
 	}
 
 	if (xmp_data.publisher) {
@@ -537,37 +568,37 @@ extract_tiff (const gchar *uri, TrackerSparqlBuilder *metadata)
 		g_free (xmp_data.license);
 	}
 
-	if (xmp_data.Address || xmp_data.Country || xmp_data.City) {
+	if (merge_data.city || merge_data.state || merge_data.address || merge_data.country) {
 		tracker_sparql_builder_predicate (metadata, "mlo:location");
 
 		tracker_sparql_builder_object_blank_open (metadata);
 		tracker_sparql_builder_predicate (metadata, "a");
 		tracker_sparql_builder_object (metadata, "mlo:GeoPoint");
-
-		if (xmp_data.Address) {
+	
+		if (merge_data.address) {
 			tracker_sparql_builder_predicate (metadata, "mlo:address");
-			tracker_sparql_builder_object_unvalidated (metadata, xmp_data.Address);
-			g_free (xmp_data.Address);
-		}
-
-		if (xmp_data.State) {
-			tracker_sparql_builder_predicate (metadata, "mlo:state");
-			tracker_sparql_builder_object_unvalidated (metadata, xmp_data.State);
-			g_free (xmp_data.State);
-		}
-
-		if (xmp_data.City) {
-			tracker_sparql_builder_predicate (metadata, "mlo:city");
-			tracker_sparql_builder_object_unvalidated (metadata, xmp_data.City);
-			g_free (xmp_data.City);
-		}
-
-		if (xmp_data.Country) {
-			tracker_sparql_builder_predicate (metadata, "mlo:country");
-			tracker_sparql_builder_object_unvalidated (metadata, xmp_data.Country);
-			g_free (xmp_data.Country);
+			tracker_sparql_builder_object_unvalidated (metadata, merge_data.address);
+			g_free (merge_data.address);
 		}
 	
+		if (merge_data.state) {
+			tracker_sparql_builder_predicate (metadata, "mlo:state");
+			tracker_sparql_builder_object_unvalidated (metadata, merge_data.state);
+			g_free (merge_data.state);
+		}
+	
+		if (merge_data.city) {
+			tracker_sparql_builder_predicate (metadata, "mlo:city");
+			tracker_sparql_builder_object_unvalidated (metadata, merge_data.city);
+			g_free (merge_data.city);
+		}
+	
+		if (merge_data.country) {
+			tracker_sparql_builder_predicate (metadata, "mlo:country");
+			tracker_sparql_builder_object_unvalidated (metadata, merge_data.country);
+			g_free (merge_data.country);
+		}
+		
 		tracker_sparql_builder_object_blank_close (metadata);
 	}
 
