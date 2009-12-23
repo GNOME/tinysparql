@@ -5,13 +5,14 @@ Improvements / New:
 
   General:
   * GLib requirement is now 2.20 from 2.16.
-    * Removed all imported GLib code borrowed from >= 2.16.
+  * Removed all imported GLib code borrowed from >= 2.16.
   * Merged coalesce branch to master.
   * Merged writeback branch to master.
 
   Ontology:
   * Added tracker:coalesce (coalesce branch merge).
   * Added mlo:city, mlo:country, mlo:state and mlo:address.
+  * Added cardinality for nfo:entryCounter and nfo:listDuration.
 
   SPARQL:
   * Added tests for functions.
@@ -27,11 +28,14 @@ Improvements / New:
   * Fixed to use new mlo ontology in jpeg, pdf, tiff, png and xmp.
   * Fixed xmp left-top orientation.
 
-  evolution:
-  * Fixed nie:url property to be a string, not a resource.
+  tracker-writeback:
+  * Disabled MP3 module for now, reports of MP3 corruption.
 
   nautilus:
   * Fixed crash when showing the context menu for the background.
+
+  evolution:
+  * Fixed nie:url property to be a string, not a resource.
 
   kmail:
   * Fixed nie:url property to be a string, not a resource.
