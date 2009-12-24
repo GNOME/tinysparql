@@ -426,6 +426,8 @@ writeback_xmp_update_file_metadata (TrackerWritebackFile *wbf,
 					xmp_set_property (xmp, NS_IPTC4XMP, "Country", qrow[3], 0);
 					xmp_delete_property (xmp, NS_IPTC4XMP, "PrimaryLocationName");
 					xmp_set_property (xmp, NS_IPTC4XMP, "PrimaryLocationName", qrow[3], 0);
+					xmp_delete_property (xmp, NS_IPTC4XMP, "CountryName");
+					xmp_set_property (xmp, NS_IPTC4XMP, "CountryName", qrow[3], 0);
 				}
 				g_free (qrow[3]);
 
