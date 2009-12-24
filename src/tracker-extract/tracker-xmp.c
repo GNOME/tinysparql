@@ -400,6 +400,9 @@ tracker_xmp_iter_simple (const gchar          *uri,
 		if (!data->Country && g_ascii_strcasecmp (name, "Country") == 0) {
 			data->Country = g_strdup (value);
 		} else 
+		if (!data->Country && g_ascii_strcasecmp (name, "CountryName") == 0) {
+			data->Country = g_strdup (value);
+		} else 
 		if (!data->Country && g_ascii_strcasecmp (name, "PrimaryLocationName") == 0) {
 			data->Country = g_strdup (value);
 		} else
