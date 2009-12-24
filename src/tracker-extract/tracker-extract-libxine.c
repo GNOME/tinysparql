@@ -136,7 +136,7 @@ tracker_extract_xine (const gchar *uri, TrackerSparqlBuilder *metadata)
 		tracker_sparql_builder_object (metadata, "nmm:MusicPiece");
 		tracker_sparql_builder_object (metadata, "nfo:Audio");
 	} else {
-		tracker_sparql_builder_object (metadata, "nfo:FileDataObject");
+		tracker_sparql_builder_object (metadata, "nfo:Media");
 	}
 
 	if (xine_get_pos_length (stream, &pos_stream, &pos_time, &length_time)) {
@@ -213,6 +213,13 @@ tracker_extract_xine (const gchar *uri, TrackerSparqlBuilder *metadata)
 			tracker_sparql_builder_predicate (metadata, "nfo:codec");
 			tracker_sparql_builder_object_unvalidated (metadata, audio_codec);
 		}
+
+		track = xine_get_meta_info (stream, XINE_META_INFO_TRACK_NUMBER);
+		if (track) {
+			tracker_sparql_builder_predicate (metadata, "nmm:trackNumber");
+			tracker_sparql_builder_object_unvalidated (metadata, track);
+		}
+
 	}
 
 
@@ -242,17 +249,14 @@ tracker_extract_xine (const gchar *uri, TrackerSparqlBuilder *metadata)
 		tracker_sparql_builder_object_unvalidated (metadata, genre);
 	}
 
-	track = xine_get_meta_info (stream, XINE_META_INFO_TRACK_NUMBER);
-	if (track) {
-		tracker_sparql_builder_predicate (metadata, "nmm:trackNumber");
-		tracker_sparql_builder_object_unvalidated (metadata, track);
-	}
 
 #if 0
 	/* FIXME: "Video.Copyright" seems missing */
 	tracker_sparql_builder_predicate (metadata, "nie:copyright");
 	tracker_sparql_builder_object_unvalidated (metadata, NULL);
 #endif
+
+endofit:
 
 	xine_dispose (stream);
 
