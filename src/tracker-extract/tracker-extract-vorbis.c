@@ -154,6 +154,7 @@ extract_vorbis (const char *uri,
 		tracker_sparql_builder_object (metadata, "nmm:Artist");
 		tracker_sparql_builder_predicate (metadata, "nmm:artistName");
 		tracker_sparql_builder_object_unvalidated (metadata, merge_data.creator);
+		g_free (merge_data.creator);
 	}
 
 	if (vorbis_data.album) {
@@ -171,6 +172,8 @@ extract_vorbis (const char *uri,
 			tracker_sparql_builder_object_unvalidated (metadata, vorbis_data.trackcount);
 			g_free (vorbis_data.trackcount);
 		}
+
+		g_free (vorbis_data.album);
 	}
 
 	tracker_sparql_builder_subject_iri (metadata, uri);
