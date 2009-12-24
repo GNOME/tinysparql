@@ -123,6 +123,8 @@ extract_oasis (const gchar *uri,
 	argv[3] = g_strdup ("meta.xml");
 	argv[4] = NULL;
 
+	/* Question: shouldn't we g_unlink meta.xml then? */
+
 	tracker_sparql_builder_subject_iri (metadata, uri);
 	tracker_sparql_builder_predicate (metadata, "a");
 	tracker_sparql_builder_object (metadata, "nfo:PaginatedTextDocument");
