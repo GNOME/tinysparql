@@ -230,9 +230,9 @@ namespace Tracker {
 		}
 
 		tracker_statement_list_insert (metadata,
-					       idx->path().c_str(),
+		                               idx->path().c_str(),
 		                               predicate,
-					       value.c_str());
+		                               value.c_str());
 	}
 
 	void Tracker::TripleCollector::addValue (const AnalysisResult* idx,
@@ -247,7 +247,7 @@ namespace Tracker {
 		}
 
 		tracker_statement_list_insert (metadata,
-					       idx->path().c_str(),
+		                               idx->path().c_str(),
 		                               predicate,
 		                               (const gchar*) data);
 	}
@@ -263,7 +263,7 @@ namespace Tracker {
 		}
 
 		tracker_statement_list_insert_with_int (metadata,
-							idx->path().c_str(),
+		                                        idx->path().c_str(),
 		                                        predicate,
 		                                        (gint) value);
 	}
@@ -279,7 +279,7 @@ namespace Tracker {
 		}
 
 		tracker_statement_list_insert_with_int (metadata,
-							idx->path().c_str(),
+		                                        idx->path().c_str(),
 		                                        predicate,
 		                                        (gint) value);
 	}
@@ -295,7 +295,7 @@ namespace Tracker {
 		}
 
 		tracker_statement_list_insert_with_double (metadata,
-							   idx->path().c_str(),
+		                                           idx->path().c_str(),
 		                                           predicate,
 		                                           (gdouble) value);
 	}
@@ -311,7 +311,7 @@ namespace Tracker {
 		}
 
 		tracker_statement_list_insert (metadata,
-					       subject.c_str(),
+		                               subject.c_str(),
 		                               predicate_str,
 		                               object.c_str());
 	}
@@ -333,7 +333,7 @@ namespace Tracker {
 		}
 
 		tracker_statement_list_insert (metadata,
-					       idx->path().c_str(),
+		                               idx->path().c_str(),
 		                               predicate,
 		                               value.c_str());
 	}
@@ -391,8 +391,8 @@ tracker_topanalyzer_shutdown (void)
 
 void
 tracker_topanalyzer_extract (const gchar           *uri,
-			     TrackerSparqlBuilder  *metadata,
-			     gchar                **content_type)
+                             TrackerSparqlBuilder  *metadata,
+                             gchar                **content_type)
 {
 	TrackerTopanalyzerPrivate *priv;
 	gchar *filename;
