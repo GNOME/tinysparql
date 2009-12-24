@@ -192,50 +192,37 @@ static gchar *
 get_orientation (ExifData *exif, ExifTag tag)
 {
 	ExifEntry *entry = exif_data_get_entry (exif, tag);
-	guint i;
 
 	if (entry) {
 		gchar buf[1024];
-		static const gchar *ostr[8] = {
-			/* 0 */ "top - left",
-			/* 1 */ "top - right",
-			/* 2 */ "bottom - right",
-			/* 3 */ "bottom - left",
-			/* 4 */ "left - top",
-			/* 5 */ "right - top",
-			/* 6 */ "right - bottom",
-			/* 7 */ "left - bottom"
-		};
 
 		exif_entry_get_value (entry, buf, 1024);
 
-		for (i=0; i < 8; i++) {
-			if (g_strcmp0 (buf, ostr[i]) == 0) {
-				switch (i) {
-				case 0:
-					return g_strdup ("nfo:orientation-top");
-				case 1:
-					return g_strdup ("nfo:orientation-top-mirror");
-				case 2:
-					return g_strdup ("nfo:orientation-bottom");
-				case 3:
-					return g_strdup ("nfo:orientation-bottom-mirror");
-				case 4:
-					return g_strdup ("nfo:orientation-left-mirror");
-				case 5:
-					return g_strdup ("nfo:orientation-right");
-				case 6:
-					return g_strdup ("nfo:orientation-right-mirror");
-				case 7:
-					return g_strdup ("nfo:orientation-left");
-				default:
-					break;
-				}
-			}
-		}
+		if (g_ascii_strcasecmp (buf, "top - left") == 0)
+			return g_strdup ("nfo:orientation-top");
+		else
+		if (g_ascii_strcasecmp (buf, "top - right") == 0)
+			return g_strdup ("nfo:orientation-top-mirror");
+		else
+		if (g_ascii_strcasecmp (buf, "bottom - right") == 0)
+			return g_strdup ("nfo:orientation-bottom");
+		else
+		if (g_ascii_strcasecmp (buf, "bottom - left") == 0)
+			return g_strdup ("nfo:orientation-bottom-mirror");
+		else
+		if (g_ascii_strcasecmp (buf, "left - top") == 0)
+			return g_strdup ("nfo:orientation-left-mirror");
+		else
+		if (g_ascii_strcasecmp (buf, "right - top") == 0)
+			return g_strdup ("nfo:orientation-right");
+		else
+		if (g_ascii_strcasecmp (buf, "right - bottom") == 0)
+			return g_strdup ("nfo:orientation-right-mirror");
+		else
+		if (g_ascii_strcasecmp (buf, "left - bottom") == 0)
+			return g_strdup ("nfo:orientation-left");
 
 		return g_strdup ("nfo:orientation-top");
-
 	}
 
 	return NULL;
@@ -252,29 +239,24 @@ get_metering_mode (ExifData *exif, ExifTag tag)
 
 		exif_entry_get_value (entry, buf, 1024);
 
-		if (strcasestr (buf, "center")) {
+		if (strcasestr (buf, "center"))
 			return g_strdup ("nmm:meteringMode-center-weighted-average");
-		}
-
-		if (strcasestr (buf, "average")) {
+		else
+		if (strcasestr (buf, "average"))
 			return g_strdup ("nmm:meteringMode-average");
-		}
-
-		if (strcasestr (buf, "spot")) {
+		else
+		if (strcasestr (buf, "spot"))
 			return g_strdup ("nmm:meteringMode-spot");
-		}
-
-		if (strcasestr (buf, "multispot")) {
+		else
+		if (strcasestr (buf, "multispot"))
 			return g_strdup ("nmm:meteringMode-multispot");
-		}
-
-		if (strcasestr (buf, "pattern")) {
+		else
+		if (strcasestr (buf, "pattern"))
 			return g_strdup ("nmm:meteringMode-pattern");
-		}
-
-		if (strcasestr (buf, "partial")) {
+		else
+		if (strcasestr (buf, "partial"))
 			return g_strdup ("nmm:meteringMode-partial");
-		}
+		else
 
 		return g_strdup ("nmm:meteringMode-other");
 	}
@@ -290,11 +272,11 @@ get_white_balance (ExifData *exif, ExifTag tag)
 
 	if (entry) {
 		gchar buf[1024];
+
 		exif_entry_get_value (entry, buf, 1024);
 
-		if (strcasestr (buf, "auto")) {
+		if (strcasestr (buf, "auto"))
 			return g_strdup ("nmm:whiteBalance-auto");
-		}
 
 		/* Found in the field: sunny, fluorescent, incandescent, cloudy.
 		 * These will this way also yield as manual. */
