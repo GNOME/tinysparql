@@ -359,6 +359,8 @@ extract_pdf (const gchar          *uri,
 			g_free (xd.FocalLength);
 		}
 
+		/* Question: Shouldn't xd.Artist be merged with md.author instead? */
+
 		if (xd.Artist || xd.contributor) {
 			gchar *artist;
 
