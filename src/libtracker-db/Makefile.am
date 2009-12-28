@@ -19,7 +19,6 @@ libtracker_db_la_SOURCES = 						\
 	tracker-db-interface.c						\
 	tracker-db-interface-sqlite.c					\
 	tracker-db-manager.c						\
-	tracker-db-backup.c						\
 	tracker-db-journal.c						
 
 noinst_HEADERS =							\
@@ -28,7 +27,6 @@ noinst_HEADERS =							\
 	tracker-db-interface.h						\
 	tracker-db-interface-sqlite.h					\
 	tracker-db-manager.h 						\
-	tracker-db-backup.h						\
 	tracker-db-journal.h
 
 libtracker_db_la_LIBADD = 						\

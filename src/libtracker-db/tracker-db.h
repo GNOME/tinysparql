@@ -28,7 +28,6 @@ G_BEGIN_DECLS
 
 #define __LIBTRACKER_DB_INSIDE__
 
-#include "tracker-db-backup.h"
 #include "tracker-db-dbus.h"
 #include "tracker-db-interface.h"
 #include "tracker-db-interface-sqlite.h"

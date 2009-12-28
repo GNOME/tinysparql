@@ -26,7 +26,6 @@
 
 #include <libtracker-common/tracker-dbus.h>
 #include <libtracker-db/tracker-db-dbus.h>
-#include <libtracker-db/tracker-db-backup.h>
 #include <libtracker-db/tracker-db-journal.h>
 #include <libtracker-db/tracker-db-interface-sqlite.h>
 #include <libtracker-db/tracker-db-journal.h>
@@ -38,7 +37,6 @@
 #include "tracker-store.h"
 
 #define TRACKER_STORE_TRANSACTION_MAX                   4000            /* At commit is journal fsynced too */
-#define TRACKER_STORE_JOURNAL_TIMEOUT_BEFORE_BACKUP     (60 * 60 * 2)   /* Two hours before backup */
 
 typedef struct {
 	gboolean  have_handler, have_sync_handler;
@@ -170,21 +168,9 @@ end_batch (TrackerStorePrivate *private)
 }
 
 static void
-on_backup_done (GError *error, gpointer user_data)
-{
-	if (!error) {
-		tracker_db_journal_truncate ();
-	}
-}
-
-static void
 log_to_journal (TrackerStorePrivate *private, const gchar *query)
 {
 	tracker_db_journal_log (query);
-
-	if (tracker_db_journal_get_size () > TRACKER_DB_JOURNAL_MAX_SIZE) {
-		tracker_db_backup_save (on_backup_done, NULL, NULL);
-	}
 }
 
 static gboolean
@@ -288,31 +274,12 @@ queue_idle_handler (gpointer user_data)
 	return !g_queue_is_empty (private->queue);
 }
 
-static gboolean
-sync_idle_handler (gpointer user_data)
-{
-	tracker_db_backup_save (on_backup_done, NULL, NULL);
-
-	return TRUE;
-}
-
 static void
 queue_idle_destroy (gpointer user_data)
 {
 	TrackerStorePrivate *private = user_data;
 
 	private->have_handler = FALSE;
-}
-
-
-static void
-sync_idle_destroy (gpointer user_data)
-{
-	TrackerStorePrivate *private = user_data;
-
-	tracker_db_journal_close ();
-
-	private->have_sync_handler = FALSE;
 }
 
 void
@@ -379,14 +346,6 @@ tracker_store_init (gboolean load_journal)
 	}
 
 	tracker_db_journal_open ();
-
-	private->start_log = TRUE;
-
-	private->sync_handler = g_timeout_add_seconds_full (G_PRIORITY_LOW,
-	                                                    TRACKER_STORE_JOURNAL_TIMEOUT_BEFORE_BACKUP,
-	                                                    sync_idle_handler,
-	                                                    private,
-	                                                    sync_idle_destroy);
 }
 
 void

@@ -35,7 +35,6 @@
 #include <libtracker-common/tracker-utils.h>
 
 #include "tracker-db-journal.h"
-#include "tracker-db-backup.h"
 #include "tracker-db-manager.h"
 #include "tracker-db-interface-sqlite.h"
 #include "tracker-db-interface.h"
@@ -864,16 +863,8 @@ db_manager_remove_all (gboolean rm_backup_and_log, gboolean not_meta)
 
 	if (rm_backup_and_log) {
 		GFile *file;
-		gchar *path;
 		const gchar *cpath;
 
-		file = tracker_db_backup_file (NULL, TRACKER_DB_BACKUP_META_FILENAME);
-		path = g_file_get_path (file);
-		g_message ("  Removing database:'%s'",
-		           path);
-		g_free (path);
-		g_file_delete (file, NULL, NULL);
-		g_object_unref (file);
 		cpath = tracker_db_journal_filename ();
 		g_message ("  Removing database:'%s'",
 		           cpath);
@@ -1019,65 +1010,6 @@ tracker_db_manager_ensure_locale (void)
 	g_free (stored_locale);
 }
 
-static gboolean
-check_meta_backup (gboolean *did_copy)
-{
-	const gchar *meta_filename;
-	gboolean retval = FALSE;
-
-	/* This is currently the only test for need_journal. We should add a
-	 * couple tests that test meta.db against consistenty, and if not
-	 * good, copy meta-backup.db over and set need_journal (being less
-	 * conservative about using the backup, and not trusting the meta.db
-	 * as much as we do right now) */
-
-	meta_filename = dbs[TRACKER_DB_METADATA].abs_filename;
-
-	if (meta_filename) {
-		GFile *file;
-
-		file = g_file_new_for_path (meta_filename);
-
-		/* (more) Checks for a healthy meta.db should happen here */
-
-		if (!g_file_query_exists (file, NULL)) {
-			GFile *backup;
-
-			backup = tracker_db_backup_file (NULL, TRACKER_DB_BACKUP_META_FILENAME);
-
-			if (g_file_query_exists (backup, NULL)) {
-				GError *error = NULL;
-
-				/* Note that we leave meta-backup.db as is, it'll
-				 * be overwritten first-next time tracker-store.c's
-				 * sync_idle_handler will instruct this. */
-
-				g_file_copy (backup, file, G_FILE_COPY_OVERWRITE,
-				             NULL, NULL, NULL, &error);
-
-				if (!error && did_copy) {
-					*did_copy = TRUE;
-				}
-
-				g_clear_error (&error);
-			}
-
-			/* We always play the journal in case meta.db wasn't
-			 * healthy. Also if meta-backup.db didn't exist: that
-			 * just means that tracker-store.c's sync_idle_handler
-			 * didn't yet ran (meanwhile a first log-file is yet
-			 * already being made) */
-
-			retval = TRUE;
-
-			g_object_unref (backup);
-		}
-
-		g_object_unref (file);
-	}
-
-	return retval;
-}
 
 gboolean
 tracker_db_manager_init (TrackerDBManagerFlags  flags,
@@ -1195,13 +1127,6 @@ tracker_db_manager_init (TrackerDBManagerFlags  flags,
 		}
 	}
 
-	if (need_journal) {
-		/* That did_copy is used for called db_manager_remove_all, we
-		 * don't want it to also remove our freshly copied meta.db file. */
-
-		*need_journal = check_meta_backup (&did_copy);
-	}
-
 	/* If we are just initializing to remove the databases,
 	 * return here.
 	 */
@@ -1291,10 +1216,6 @@ tracker_db_manager_init (TrackerDBManagerFlags  flags,
 		                                                        TRACKER_DB_METADATA,
 		                                                        TRACKER_DB_FULLTEXT,
 		                                                        TRACKER_DB_CONTENTS);
-	}
-
-	if (did_copy) {
-		tracker_db_backup_sync_fts ();
 	}
 
 	return TRUE;
