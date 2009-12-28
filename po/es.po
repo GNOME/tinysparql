@@ -2042,7 +2042,6 @@ msgstr "Consultas guardadas"
 #~ "aquí representado, Tracker se pausará hasta que haya suficiente espacio "
 #~ "para continuar."
 
-#~| msgid "File: %d"
 #~ msgid "Title : "
 #~ msgstr "Título: "
 
@@ -2056,11 +2055,9 @@ msgstr "Consultas guardadas"
 #~ "Esto matará todos los procesos de Tracker y borrará todas las bases de "
 #~ "datos excepto el respaldo y el «journal» (reiniciarlo restaurará los datos)"
 
-#~| msgid "Could not connect to the DBus session bus"
 #~ msgid "Could not connect to the D-Bus session bus"
 #~ msgstr "No se pudo conectar con el bus de la sesión D-Bus"
 
-#~| msgid "Could not DBusGProxy for that miner: %s"
 #~ msgid "Could not create a DBusGProxy for that miner: %s"
 #~ msgstr "No se pudo crear un DBusGProxy para ese minero: %s"
 
