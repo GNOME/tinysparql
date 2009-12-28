@@ -76,12 +76,12 @@ test_sparql_query (gconstpointer test_data)
 
 	update_filename = g_strconcat (test_prefix, "-data.rq", NULL);
 	g_file_get_contents (update_filename, &update, NULL, &error);
-	g_assert (error == NULL);
+	g_assert_no_error (error);
 
 	tracker_data_begin_transaction ();
 	tracker_data_update_sparql (update, &error);
 	tracker_data_commit_transaction ();
-	g_assert (error == NULL);
+	g_assert_no_error (error);
 
 	g_free (update_filename);
 	g_free (update);
@@ -91,14 +91,14 @@ test_sparql_query (gconstpointer test_data)
 	for (i = 1; i <= test_info->number_of_queries; i++) {
 		query_filename = g_strdup_printf ("%s-%d.rq", test_prefix, i);
 		g_file_get_contents (query_filename, &query, NULL, &error);
-		g_assert (error == NULL);
+		g_assert_no_error (error);
 
 		results_filename = g_strdup_printf ("%s-%d.out", test_prefix, i);
 		g_file_get_contents (results_filename, &results, NULL, &error);
-		g_assert (error == NULL);
+		g_assert_no_error (error);
 
 		result_set = tracker_data_query_sparql (query, &error);
-		g_assert (error == NULL);
+		g_assert_no_error (error);
 
 		/* compare results with reference output */
 
@@ -158,7 +158,7 @@ test_sparql_query (gconstpointer test_data)
 			quoted_command_line = g_shell_quote (command_line);
 			shell = g_strdup_printf ("sh -c %s", quoted_command_line);
 			g_spawn_command_line_sync (shell, &diff, NULL, NULL, &error);
-			g_assert (error == NULL);
+			g_assert_no_error (error);
 
 			g_error ("%s", diff);
 

@@ -53,7 +53,7 @@ test_blank (void)
 	                                            "INSERT { _:foo a rdfs:Resource . _:bar a rdfs:Resource } ",
 	                                            &error);
 	tracker_data_commit_transaction ();
-	g_assert (error == NULL);
+	g_assert_no_error (error);
 
 	g_assert_cmpint (updates->len, ==, 2);
 

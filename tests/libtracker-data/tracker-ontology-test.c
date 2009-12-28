@@ -102,15 +102,15 @@ test_query (gconstpointer test_data)
 	tracker_data_begin_transaction ();
 	tracker_turtle_reader_load (data_filename, &error);
 	tracker_data_commit_transaction ();
-	g_assert (error == NULL);
+	g_assert_no_error (error);
 
 	query_filename = g_strconcat (test_prefix, ".rq", NULL);
 	g_file_get_contents (query_filename, &query, NULL, &error);
-	g_assert (error == NULL);
+	g_assert_no_error (error);
 
 	results_filename = g_strconcat (test_prefix, ".out", NULL);
 	g_file_get_contents (results_filename, &results, NULL, &error);
-	g_assert (error == NULL);
+	g_assert_no_error (error);
 
 	g_free (data_prefix);
 	g_free (test_prefix);
@@ -118,7 +118,7 @@ test_query (gconstpointer test_data)
 	/* perform actual query */
 
 	result_set = tracker_data_query_sparql (query, &error);
-	g_assert (error == NULL);
+	g_assert_no_error (error);
 
 	/* compare results with reference output */
 
@@ -178,7 +178,7 @@ test_query (gconstpointer test_data)
 		quoted_command_line = g_shell_quote (command_line);
 		shell = g_strdup_printf ("sh -c %s", quoted_command_line);
 		g_spawn_command_line_sync (shell, &diff, NULL, NULL, &error);
-		g_assert (error == NULL);
+		g_assert_no_error (error);
 
 		g_error ("%s", diff);
 
