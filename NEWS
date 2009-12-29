@@ -1,3 +1,30 @@
+NEW in 0.7.14
+=============
+
+Improvements / New:
+
+  libtracker-common:
+  * Fixed regression in URI escaping.
+
+  tracker-extract:
+  * Improved IPTC extractor.
+  * Fixed memory leak in Vorbis extractor.
+  * Fixed xine extractor.
+
+  tracker-writeback:
+  * Added support for CountryName in XMP writeback.
+
+Bugs:
+
+  None.
+
+Notes:
+
+  The Deskbar applet packaged with Tracker is currently out of date
+  and needs some love to get it working with the new APIs. It is in
+  the same state as it was for 0.6. As such it isn't expected to work.
+
+
 NEW in 0.7.13
 =============
 
