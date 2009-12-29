@@ -36,6 +36,7 @@
 
 #include <libtracker-db/tracker-db-interface-sqlite.h>
 #include <libtracker-db/tracker-db-manager.h>
+#include <libtracker-db/tracker-db-journal.h>
 
 #include "tracker-data-manager.h"
 #include "tracker-data-update.h"
@@ -575,6 +576,7 @@ insert_uri_in_resource_table (TrackerDBInterface *iface, const gchar *uri, gint 
 		g_clear_error (&error);
 	}
 
+	tracker_db_journal_append_resource (id, uri);
 	tracker_ontology_add_id_uri_pair (id, uri);
 	g_object_unref (stmt);
 
@@ -815,6 +817,8 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 
 	iface = tracker_db_manager_get_db_interface ();
 
+	tracker_db_journal_init (NULL);
+
 	if (is_first_time_index) {
 		TrackerClass **classes;
 		TrackerProperty **properties;
@@ -879,6 +883,7 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 		classes = tracker_ontology_get_classes (&n_classes);
 
 		tracker_data_begin_transaction ();
+		tracker_db_journal_start_transaction ();
 
 		/* create tables */
 		for (i = 0; i < n_classes; i++) {
@@ -915,6 +920,7 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 			}
 		}
 
+		tracker_db_journal_commit_transaction ();
 		tracker_data_commit_transaction ();
 
 		g_list_foreach (sorted, (GFunc) g_free, NULL);
@@ -942,6 +948,7 @@ tracker_data_manager_shutdown (void)
 {
 	g_return_if_fail (initialized == TRUE);
 
+	tracker_db_journal_shutdown ();
 	tracker_db_manager_shutdown ();
 
 	initialized = FALSE;

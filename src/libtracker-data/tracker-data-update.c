@@ -33,6 +33,7 @@
 
 #include <libtracker-db/tracker-db-manager.h>
 #include <libtracker-db/tracker-db-dbus.h>
+#include <libtracker-db/tracker-db-journal.h>
 
 #include "tracker-data-manager.h"
 #include "tracker-data-update.h"
@@ -393,6 +394,8 @@ ensure_resource_id (const gchar *uri)
 		tracker_db_statement_bind_int (stmt, 3, tracker_data_update_get_next_modseq ());
 		tracker_db_statement_execute (stmt, NULL);
 		g_object_unref (stmt);
+
+		tracker_db_journal_append_resource (id, uri);
 
 		g_hash_table_insert (update_buffer.resource_cache, g_strdup (uri), GUINT_TO_POINTER (id));
 	}
@@ -1277,6 +1280,10 @@ tracker_data_delete_statement (const gchar  *graph,
 	if (object && g_strcmp0 (predicate, RDF_PREFIX "type") == 0) {
 		class = tracker_ontology_get_class_by_uri (object);
 		if (class != NULL) {
+			tracker_db_journal_append_delete_statement_id (resource_buffer->id,
+				tracker_data_query_resource_id (predicate),
+				query_resource_id (object));
+
 			cache_delete_resource_type (class, graph);
 		} else {
 			g_set_error (error, TRACKER_DATA_ERROR, TRACKER_DATA_ERROR_UNKNOWN_CLASS,
@@ -1285,6 +1292,16 @@ tracker_data_delete_statement (const gchar  *graph,
 	} else {
 		field = tracker_ontology_get_property_by_uri (predicate);
 		if (field != NULL) {
+			if (tracker_property_get_data_type (field) == TRACKER_PROPERTY_TYPE_RESOURCE) {
+				tracker_db_journal_append_delete_statement_id (resource_buffer->id,
+					tracker_data_query_resource_id (predicate),
+					query_resource_id (object));
+			} else {
+				tracker_db_journal_append_delete_statement (resource_buffer->id,
+					tracker_data_query_resource_id (predicate),
+					object);
+			}
+
 			delete_metadata_decomposed (field, object, error);
 		} else {
 			g_set_error (error, TRACKER_DATA_ERROR, TRACKER_DATA_ERROR_UNKNOWN_PROPERTY,
@@ -1522,6 +1539,10 @@ tracker_data_insert_statement_with_uri (const gchar            *graph,
 			}
 		}
 	}
+
+	tracker_db_journal_append_insert_statement_id (resource_buffer->id,
+		tracker_data_query_resource_id (predicate),
+		query_resource_id (object));
 }
 
 void
@@ -1578,6 +1599,10 @@ tracker_data_insert_statement_with_string (const gchar            *graph,
 			                    delegate->user_data);
 		}
 	}
+
+	tracker_db_journal_append_insert_statement (resource_buffer->id,
+		tracker_data_query_resource_id (predicate),
+		object);
 }
 
 static void
@@ -2066,12 +2091,14 @@ tracker_data_update_sparql (const gchar  *update,
 	sparql_query = tracker_sparql_query_new_update (update);
 
 	tracker_db_interface_execute_query (iface, NULL, "SAVEPOINT sparql");
+	tracker_db_journal_start_transaction ();
 
 	tracker_sparql_query_execute_update (sparql_query, FALSE, &actual_error);
 
 	if (actual_error) {
 		tracker_data_update_buffer_clear ();
 		tracker_db_interface_execute_query (iface, NULL, "ROLLBACK TO sparql");
+		tracker_db_journal_rollback_transaction ();
 
 		if (rollback_callbacks) {
 			guint n;
@@ -2088,6 +2115,7 @@ tracker_data_update_sparql (const gchar  *update,
 		return;
 	}
 
+	tracker_db_journal_commit_transaction ();
 	tracker_db_interface_execute_query (iface, NULL, "RELEASE sparql");
 
 	g_object_unref (sparql_query);
@@ -2110,12 +2138,14 @@ tracker_data_update_sparql_blank (const gchar  *update,
 	sparql_query = tracker_sparql_query_new_update (update);
 
 	tracker_db_interface_execute_query (iface, NULL, "SAVEPOINT sparql");
+	tracker_db_journal_start_transaction ();
 
 	blank_nodes = tracker_sparql_query_execute_update (sparql_query, TRUE, &actual_error);
 
 	if (actual_error) {
 		tracker_data_update_buffer_clear ();
 		tracker_db_interface_execute_query (iface, NULL, "ROLLBACK TO sparql");
+		tracker_db_journal_rollback_transaction ();
 
 		if (rollback_callbacks) {
 			guint n;
@@ -2132,6 +2162,7 @@ tracker_data_update_sparql_blank (const gchar  *update,
 		return NULL;
 	}
 
+	tracker_db_journal_commit_transaction ();
 	tracker_db_interface_execute_query (iface, NULL, "RELEASE sparql");
 
 	g_object_unref (sparql_query);
