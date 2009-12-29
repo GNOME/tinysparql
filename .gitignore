@@ -28,6 +28,7 @@ ltmain.sh
 missing
 mkinstalldirs
 stamp-h1
+tmpl
 tracker-*-client.h
 tracker-*-glue.h
 tracker-marshal.[ch]
