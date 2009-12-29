@@ -18,6 +18,7 @@
  *
  * Author: Philip Van Hoof <philip@codeminded.be>
  */
+
 #include "config.h"
 
 #define _GNU_SOURCE
@@ -29,141 +30,314 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include <libtracker-common/tracker-crc32.h>
+
 #include "tracker-db-journal.h"
 
-static gchar *filename = NULL;
-static FILE *journal = NULL;
-static GMappedFile *mapped = NULL;
-static gsize current_size = 0;
+static struct {
+	gchar *filename;
+	FILE *journal;
+	gsize current_size;
+	guint cur_block_len;
+	guint cur_block_alloc;
+	gchar *cur_block;
+	guint cur_entry_amount;
+	guint cur_pos;
+} writer;
 
-#define TRACKER_DB_JOURNAL_LOG_FILENAME                 "log.sparql.txt"
-
-static void
-get_filename (void)
-{
-	if (!filename) {
-		filename = g_build_filename (g_get_user_data_dir (),
-		                             "tracker",
-		                             "data",
-		                             TRACKER_DB_JOURNAL_LOG_FILENAME,
-		                             NULL);
-	}
-}
+#define TRACKER_DB_JOURNAL_LOG_FILENAME  "tracker-store.journal"
+#define MIN_BLOCK_SIZE                   1024
 
 gsize
 tracker_db_journal_get_size (void)
 {
-	return current_size;
+	return writer.current_size;
 }
 
-const gchar*
+const gchar *
 tracker_db_journal_filename (void)
 {
-	get_filename ();
-	return (const gchar *) filename;
+	if (!writer.filename) {
+		writer.filename = g_build_filename (g_get_user_data_dir (),
+		                                    "tracker",
+		                                    "data",
+		                                    TRACKER_DB_JOURNAL_LOG_FILENAME,
+		                                    NULL);
+	}
+
+	return (const gchar *) writer.filename;
+}
+
+static void
+kill_cur_block (void)
+{
+	writer.cur_block_len = 0;
+	writer.cur_pos = 0;
+	writer.cur_entry_amount = 0;
+	writer.cur_block_alloc = 0;
+	g_free (writer.cur_block);
+	writer.cur_block = NULL;
+}
+
+static gint
+nearest_pow (gint num)
+{
+	gint n = 1;
+	while (n < num)
+		n <<= 1;
+	return n;
+}
+
+static void
+cur_block_maybe_expand (guint len)
+{
+	guint want_alloc = writer.cur_block_len + len;
+
+	if (want_alloc > writer.cur_block_alloc) {
+		want_alloc = nearest_pow (want_alloc);
+		want_alloc = MAX (want_alloc, MIN_BLOCK_SIZE);
+		writer.cur_block = g_realloc (writer.cur_block, want_alloc);
+		writer.cur_block_alloc = want_alloc;
+	}
 }
 
 void
-tracker_db_journal_open (void)
+tracker_db_journal_open (const gchar *filen)
 {
 	struct stat st;
 
-	get_filename ();
+	writer.cur_block_len = 0;
+	writer.cur_pos = 0;
+	writer.cur_entry_amount = 0;
+	writer.cur_block_alloc = 0;
+	writer.cur_block = NULL;
 
-	journal = fopen (filename, "a");
+	if (!filen) {
+		tracker_db_journal_filename ();
+	} else {
+		writer.filename = g_strdup (filen);
+	}
 
-	if (stat (filename, &st) == 0) {
-		current_size = (gsize) st.st_size;
+	writer.journal = fopen (writer.filename, "a");
+
+	if (stat (writer.filename, &st) == 0) {
+		writer.current_size = (gsize) st.st_size;
+	}
+
+	if (writer.current_size == 0) {
+		g_assert (writer.cur_block_len == 0);
+		g_assert (writer.cur_block_alloc == 0);
+		g_assert (writer.cur_block == NULL);
+		g_assert (writer.cur_block == NULL);
+
+		cur_block_maybe_expand (8);
+
+		writer.cur_block[0] = 't';
+		writer.cur_block[1] = 'r';
+		writer.cur_block[2] = 'l';
+		writer.cur_block[3] = 'o';
+		writer.cur_block[4] = 'g';
+		writer.cur_block[5] = '\0';
+		writer.cur_block[6] = '0';
+		writer.cur_block[7] = '1';
+
+		write (fileno (writer.journal), writer.cur_block, 8);
+
+		writer.current_size += 8;
+
+		kill_cur_block ();
 	}
 }
 
 void
-tracker_db_journal_log (const gchar *query)
+tracker_db_journal_start_transaction (void)
 {
-	if (journal) {
-		size_t len = strlen (query);
-		write (fileno (journal), query, len);
-		write (fileno (journal), "\n\0", 2);
-		current_size += (len + 2);
-	}
+	guint size = sizeof (guint32) * 3;
+
+	cur_block_maybe_expand (size);
+
+	/* Leave space for size, amount and crc 
+	 * Check and keep in sync the offset variable at 
+	 * tracker_db_journal_commit_transaction too */
+
+	memset (writer.cur_block, 0, size);
+
+	writer.cur_pos = writer.cur_block_len = size;
+	writer.cur_entry_amount = 0;
+}
+
+static void
+cur_setnum (gchar   *dest,
+            guint   *pos,
+            guint32  val)
+{
+	memset (dest + (*pos)++, val >> 24 & 0xff, 1);
+	memset (dest + (*pos)++, val >> 16 & 0xff, 1);
+	memset (dest + (*pos)++, val >>  8 & 0xff, 1);
+	memset (dest + (*pos)++, val >>  0 & 0xff, 1);
+}
+
+static void
+cur_setstr (gchar       *dest,
+            guint       *pos,
+            const gchar *str,
+            gsize        len)
+{
+	memcpy (dest + *pos, str, len);
+	(*pos) += len;
+	memset (dest + (*pos)++, 0 & 0xff, 1);
+}
+
+void
+tracker_db_journal_append_delete_statement (guint32      s_id,
+                                            guint32      p_id,
+                                            const gchar *object)
+{
+	gint o_len = strlen (object);
+	gchar data_format = 0x04;
+	gint size = (sizeof (guint32) * 3) + o_len + 1;
+
+	cur_block_maybe_expand (size);
+
+	cur_setnum (writer.cur_block, &writer.cur_pos, data_format);
+	cur_setnum (writer.cur_block, &writer.cur_pos, s_id);
+	cur_setnum (writer.cur_block, &writer.cur_pos, p_id);
+	cur_setstr (writer.cur_block, &writer.cur_pos, object, o_len);
+
+	writer.cur_entry_amount++;
+	writer.cur_block_len += size;
+}
+
+
+void
+tracker_db_journal_append_delete_statement_id (guint32 s_id,
+                                               guint32 p_id,
+                                               guint32 o_id)
+{
+	gchar data_format = 0x06;
+	gint size = sizeof (guint32) * 4;
+
+	cur_block_maybe_expand (size);
+
+	cur_setnum (writer.cur_block, &writer.cur_pos, data_format);
+	cur_setnum (writer.cur_block, &writer.cur_pos, s_id);
+	cur_setnum (writer.cur_block, &writer.cur_pos, p_id);
+	cur_setnum (writer.cur_block, &writer.cur_pos, o_id);
+
+	writer.cur_entry_amount++;
+	writer.cur_block_len += size;
+}
+
+void
+tracker_db_journal_append_insert_statement (guint32      s_id,
+                                            guint32      p_id,
+                                            const gchar *object)
+{
+	gint o_len = strlen (object);
+	gchar data_format = 0x00;
+	gint size = (sizeof (guint32) * 3) + o_len + 1;
+
+	cur_block_maybe_expand (size);
+
+	cur_setnum (writer.cur_block, &writer.cur_pos, data_format);
+	cur_setnum (writer.cur_block, &writer.cur_pos, s_id);
+	cur_setnum (writer.cur_block, &writer.cur_pos, p_id);
+	cur_setstr (writer.cur_block, &writer.cur_pos, object, o_len);
+
+	writer.cur_entry_amount++;
+	writer.cur_block_len += size;
+}
+
+void
+tracker_db_journal_append_insert_statement_id (guint32 s_id,
+                                               guint32 p_id,
+                                               guint32 o_id)
+{
+	gchar data_format = 0x02;
+	gint size = sizeof (guint32) * 4;
+
+	cur_block_maybe_expand (size);
+
+	cur_setnum (writer.cur_block, &writer.cur_pos, data_format);
+	cur_setnum (writer.cur_block, &writer.cur_pos, s_id);
+	cur_setnum (writer.cur_block, &writer.cur_pos, p_id);
+	cur_setnum (writer.cur_block, &writer.cur_pos, o_id);
+
+	writer.cur_entry_amount++;
+	writer.cur_block_len += size;
+}
+
+void
+tracker_db_journal_append_resource (guint32      s_id,
+                                    const gchar *uri)
+{
+	gint o_len = strlen (uri);
+	gchar data_format = 0x01;
+	gint size = (sizeof (guint32) * 2) + o_len + 1;
+
+	cur_block_maybe_expand (size);
+
+	cur_setnum (writer.cur_block, &writer.cur_pos, data_format);
+	cur_setnum (writer.cur_block, &writer.cur_pos, s_id);
+	cur_setstr (writer.cur_block, &writer.cur_pos, uri, o_len);
+
+	writer.cur_entry_amount++;
+	writer.cur_block_len += size;
+}
+
+void
+tracker_db_journal_rollback_transaction (void)
+{
+	kill_cur_block ();
+}
+
+void
+tracker_db_journal_commit_transaction (void)
+{
+	guint32 crc;
+	guint begin_pos = 0;
+	guint size = sizeof (guint32);
+	guint offset = sizeof(guint32) * 3;
+
+	g_assert (writer.journal);
+
+	cur_block_maybe_expand (size);
+
+	writer.cur_block_len += size;
+
+	cur_setnum (writer.cur_block, &begin_pos, writer.cur_block_len);
+	cur_setnum (writer.cur_block, &begin_pos, writer.cur_entry_amount);
+
+	cur_setnum (writer.cur_block, &writer.cur_pos, writer.cur_block_len);
+
+	/* CRC is calculated from entries until appended amount int */
+
+	crc = tracker_crc32 (writer.cur_block + offset, writer.cur_block_len - offset);
+	cur_setnum (writer.cur_block, &begin_pos, crc);
+
+	write (fileno (writer.journal), writer.cur_block, writer.cur_block_len);
+
+	writer.current_size += writer.cur_block_len;
+
+	kill_cur_block ();
 }
 
 void 
 tracker_db_journal_fsync (void)
 {
-	if (journal) {
-		fsync (fileno (journal));
-	}
-}
+	g_assert (writer.journal);
 
-void
-tracker_db_journal_truncate (void)
-{
-	if (journal) {
-		ftruncate(fileno (journal), 0);
-		current_size = 0;
-		fsync (fileno (journal));
-	}
+	fsync (fileno (writer.journal));
 }
 
 void
 tracker_db_journal_close (void)
 {
-	if (journal) {
-		fclose (journal);
-		journal = NULL;
-	}
+	g_assert (writer.journal);
 
-	g_free (filename);
-	filename = NULL;
-}
+	fclose (writer.journal);
+	writer.journal = NULL;
 
-TrackerJournalContents*
-tracker_db_journal_get_contents (guint transaction_size)
-{
-	GPtrArray *lines;
-	gsize max_pos, next_len;
-	gchar *cur;
-
-	get_filename ();
-
-	if (!mapped) {
-		GError *error = NULL;
-
-		mapped = g_mapped_file_new (filename, FALSE, &error);
-
-		if (error) {
-			g_clear_error (&error);
-			mapped = NULL;
-			return NULL;
-		}
-	}
-
-	lines = g_ptr_array_sized_new (transaction_size > 0 ? transaction_size : 2000);
-
-	cur = g_mapped_file_get_contents (mapped);
-	max_pos = (gsize) (cur + g_mapped_file_get_length (mapped));
-
-	while (((gsize)cur) < max_pos) {
-		next_len = strnlen (cur, max_pos - ((gsize)cur)) + 1;
-		g_ptr_array_add (lines, cur);
-		cur += next_len;
-	}
-
-	return (TrackerJournalContents *) lines;
-}
-
-void 
-tracker_db_journal_free_contents (TrackerJournalContents *contents)
-{
-	if (mapped) {
-#if GLIB_CHECK_VERSION(2,22,0)
-		g_mapped_file_unref (mapped);
-#else
-		g_mapped_file_free (mapped);
-#endif
-		mapped = NULL;
-	}
-
-	g_ptr_array_free ((GPtrArray *)contents, TRUE);
+	g_free (writer.filename);
+	writer.filename = NULL;
 }

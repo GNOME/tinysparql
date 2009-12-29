@@ -428,10 +428,6 @@ on_statements_committed (gpointer user_data)
 
 	priv = TRACKER_RESOURCES_GET_PRIVATE (resources);
 
-	/* For more information about this call, look at the function end_batch
-	 * of tracker-store.c */
-	tracker_store_flush_journal ();
-
 	/* Class signals feature */
 	events = tracker_events_get_pending ();
 

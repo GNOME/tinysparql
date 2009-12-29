@@ -458,7 +458,10 @@ main (gint argc, gchar *argv[])
 		return EXIT_FAILURE;
 	}
 
-	tracker_store_init (need_journal);
+	/* TODO binary-log: need_journal might contain whether the db was corrupt
+	 * or not Do something with that.*/
+
+	tracker_store_init ();
 
 	if (private->shutdown) {
 		goto shutdown;

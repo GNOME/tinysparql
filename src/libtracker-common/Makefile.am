@@ -73,6 +73,7 @@ libtracker_common_la_SOURCES =	 			\
 	tracker-statement-list.c			\
 	tracker-type-utils.c				\
 	tracker-utils.c					\
+	tracker-crc32.c					\
 	libtracker-common.vala.stamp			\
 	$(libtracker_common_la_VALASOURCES:.vala=.c)
 
@@ -97,7 +98,8 @@ libtracker_commoninclude_HEADERS =			\
 	tracker-sparql-builder.h			\
 	tracker-statement-list.h			\
 	tracker-type-utils.h				\
-	tracker-utils.h
+	tracker-utils.h					\
+	tracker-crc32.h
 
 libtracker-common.vala.stamp: $(libtracker_common_la_VALASOURCES) posix.vapi
 	$(AM_V_GEN)$(VALAC) $(GCOV_VALAFLAGS) -C $(VALAFLAGS) --pkg gio-2.0 -H tracker-sparql-builder.h $^

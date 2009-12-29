@@ -86,10 +86,6 @@ backup_callback (GError *error, gpointer user_data)
 		return;
 	}
 
-	if (info->play_journal) {
-		tracker_store_play_journal ();
-	}
-
 	dbus_g_method_return (info->context);
 
 	tracker_dbus_request_success (info->request_id,

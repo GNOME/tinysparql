@@ -347,6 +347,9 @@ main (int argc, char **argv)
 
 		g_log_set_default_handler (log_handler, NULL);
 
+		/* This call is needed to set the journal's filename */
+		tracker_db_journal_open (NULL);
+
 		/* Clean up */
 		if (!tracker_db_manager_init (TRACKER_DB_MANAGER_REMOVE_ALL, NULL, FALSE, NULL)) {
 			return EXIT_FAILURE;
@@ -354,6 +357,7 @@ main (int argc, char **argv)
 
 		tracker_db_manager_remove_all (hard_reset);
 		tracker_db_manager_shutdown ();
+		tracker_db_journal_close ();
 
 		/* Unset log handler */
 		g_log_remove_handler (NULL, log_handler_id);

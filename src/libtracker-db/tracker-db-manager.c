@@ -863,14 +863,16 @@ db_manager_remove_all (gboolean rm_backup_and_log, gboolean not_meta)
 
 	if (rm_backup_and_log) {
 		GFile *file;
-		const gchar *cpath;
+		gchar *cpath;
 
-		cpath = tracker_db_journal_filename ();
-		g_message ("  Removing database:'%s'",
+		cpath = g_strdup (tracker_db_journal_filename ());
+		tracker_db_journal_close ();
+		g_message ("  Removing journal:'%s'",
 		           cpath);
 		file = g_file_new_for_path (cpath);
 		g_file_delete (file, NULL, NULL);
 		g_object_unref (file);
+		g_free (cpath);
 	}
 }
 
