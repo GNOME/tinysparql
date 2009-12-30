@@ -384,6 +384,9 @@ extract_stream_metadata_tagreadbin (MetadataExtractor *extractor,
 		add_int_gst_tag (metadata, uri, "nfo:channels", extractor->tagcache, GST_TAG_CHANNEL);
 		add_int_gst_tag (metadata, uri, "nfo:sampleRate", extractor->tagcache, GST_TAG_RATE);
 		add_time_gst_tag (metadata, uri, "nfo:duration", extractor->tagcache, GST_TAG_DURATION);
+		if (extractor->mime == EXTRACT_MIME_AUDIO) {
+			add_time_gst_tag (metadata, uri, "nmm:length", extractor->tagcache, GST_TAG_DURATION);
+		}
 	}
 
 	add_int_gst_tag (metadata, uri, "nfo:height", extractor->tagcache, GST_TAG_HEIGHT);
@@ -410,6 +413,9 @@ extract_stream_metadata_decodebin (MetadataExtractor *extractor,
 
 		if (extractor->duration >= 0) {
 			add_int64_info (metadata, uri, "nfo:duration", extractor->duration);
+			if (extractor->mime == EXTRACT_MIME_AUDIO) {
+				add_int64_info (metadata, uri, "nmm:length", extractor->duration);
+			}
 		}
 	}
 
