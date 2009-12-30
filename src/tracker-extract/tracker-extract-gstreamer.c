@@ -381,8 +381,8 @@ extract_stream_metadata_tagreadbin (MetadataExtractor *extractor,
                                     TrackerSparqlBuilder         *metadata)
 {
 	if (extractor->mime != EXTRACT_MIME_IMAGE) {
-		add_uint_gst_tag (metadata, uri, "nfo:channels", extractor->tagcache, GST_TAG_CHANNEL);
-		add_uint_gst_tag (metadata, uri, "nfo:sampleRate", extractor->tagcache, GST_TAG_RATE);
+		add_int_gst_tag (metadata, uri, "nfo:channels", extractor->tagcache, GST_TAG_CHANNEL);
+		add_int_gst_tag (metadata, uri, "nfo:sampleRate", extractor->tagcache, GST_TAG_RATE);
 		add_time_gst_tag (metadata, uri, "nfo:duration", extractor->tagcache, GST_TAG_DURATION);
 	}
 
