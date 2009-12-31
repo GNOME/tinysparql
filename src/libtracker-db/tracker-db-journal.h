@@ -27,6 +27,17 @@
 
 G_BEGIN_DECLS
 
+typedef enum {
+	TRACKER_DB_JOURNAL_START,
+	TRACKER_DB_JOURNAL_START_TRANSACTION,
+	TRACKER_DB_JOURNAL_END_TRANSACTION,
+	TRACKER_DB_JOURNAL_RESOURCE,
+	TRACKER_DB_JOURNAL_INSERT_STATEMENT,
+	TRACKER_DB_JOURNAL_INSERT_STATEMENT_ID,
+	TRACKER_DB_JOURNAL_DELETE_STATEMENT,
+	TRACKER_DB_JOURNAL_DELETE_STATEMENT_ID
+} TrackerDBJournalEntryType;
+
 const gchar* tracker_db_journal_filename                     (void);
 void         tracker_db_journal_open                         (const gchar *filen);
 
@@ -52,6 +63,19 @@ void         tracker_db_journal_commit_transaction           (void);
 void         tracker_db_journal_close                        (void);
 void         tracker_db_journal_fsync                        (void);
 gsize        tracker_db_journal_get_size                     (void);
+
+void         tracker_db_journal_reader_init                  (const gchar  *filen);
+gboolean     tracker_db_journal_next                         (void);
+TrackerDBJournalEntryType
+             tracker_db_journal_get_type                     (void);
+void         tracker_db_journal_get_resource                 (guint32      *id,
+                                                              const gchar **uri);
+void         tracker_db_journal_get_statement                (guint32      *s_id,
+                                                              guint32      *p_id,
+                                                              const gchar **object);
+void         tracker_db_journal_get_statement_id             (guint32      *s_id,
+                                                              guint32      *p_id,
+                                                              guint32      *o_id);
 
 G_END_DECLS
 

@@ -35,6 +35,21 @@
 #include "tracker-db-journal.h"
 
 static struct {
+	GMappedFile *file;
+	const gchar *current;
+	const gchar *end;
+	const gchar *entry_begin;
+	const gchar *entry_end;
+	guint32 amount_of_triples;
+	TrackerDBJournalEntryType type;
+	const gchar *uri;
+	guint32 s_id;
+	guint32 p_id;
+	guint32 o_id;
+	const gchar *object;
+} journal_reader;
+
+static struct {
 	gchar *filename;
 	FILE *journal;
 	gsize current_size;
@@ -340,4 +355,229 @@ tracker_db_journal_close (void)
 
 	g_free (writer.filename);
 	writer.filename = NULL;
+}
+
+void
+tracker_db_journal_reader_init (const gchar *filen)
+{
+	if (!filen) {
+		tracker_db_journal_filename ();
+	} else {
+		writer.filename = g_strdup (filen);
+	}
+
+	/* TODO error handling */
+	journal_reader.file = g_mapped_file_new (writer.filename, FALSE, NULL);
+	journal_reader.current = g_mapped_file_get_contents (journal_reader.file);
+	journal_reader.end = journal_reader.current + g_mapped_file_get_length (journal_reader.file);
+
+	/* verify journal file header */
+	g_assert (journal_reader.end - journal_reader.current >= 8);
+	g_assert (memcmp (journal_reader.current, "trlog\001", 8) == 0);
+	journal_reader.current += 8;
+}
+
+static guint32 read_uint32 (const guint8 *data)
+{
+	return data[0] << 24 |
+	       data[1] << 16 |
+	       data[2] << 8 |
+	       data[3];
+}
+
+gboolean
+tracker_db_journal_next (void)
+{
+	if (journal_reader.type == TRACKER_DB_JOURNAL_START ||
+	    journal_reader.type == TRACKER_DB_JOURNAL_END_TRANSACTION) {
+		/* expect new transaction or end of file */
+
+		guint32 entry_size;
+		guint32 crc32;
+
+		if (journal_reader.current >= journal_reader.end) {
+			/* end of journal reached */
+			return FALSE;
+		}
+
+		if (journal_reader.end - journal_reader.current < sizeof (guint32)) {
+			/* damaged journal entry */
+			return FALSE;
+		}
+
+		journal_reader.entry_begin = journal_reader.current;
+		entry_size = read_uint32 (journal_reader.current);
+		journal_reader.entry_end = journal_reader.entry_begin + entry_size;
+		if (journal_reader.end < journal_reader.entry_end) {
+			/* damaged journal entry */
+			return FALSE;
+		}
+		journal_reader.current += 4;
+
+		/* compare with entry_size at end */
+		if (entry_size != read_uint32 (journal_reader.entry_end - 4)) {
+			/* damaged journal entry */
+			return FALSE;
+		}
+
+		journal_reader.amount_of_triples = read_uint32 (journal_reader.current);
+		journal_reader.current += 4;
+
+		crc32 = read_uint32 (journal_reader.current);
+		journal_reader.current += 4;
+
+		/* verify checksum */
+		if (crc32 != tracker_crc32 (journal_reader.entry_begin, entry_size)) {
+			/* damaged journal entry */
+			return FALSE;
+		}
+
+		journal_reader.type = TRACKER_DB_JOURNAL_START_TRANSACTION;
+		return TRUE;
+	} else if (journal_reader.amount_of_triples == 0) {
+		/* end of transaction */
+
+		journal_reader.current += 4;
+		if (journal_reader.current != journal_reader.entry_end) {
+			/* damaged journal entry */
+			return FALSE;
+		}
+
+		journal_reader.type = TRACKER_DB_JOURNAL_END_TRANSACTION;
+		return TRUE;
+	} else {
+		guint32 data_format;
+		gsize str_length;
+
+		if (journal_reader.end - journal_reader.current < sizeof (guint32)) {
+			/* damaged journal entry */
+			return FALSE;
+		}
+
+		data_format = read_uint32 (journal_reader.current);
+		journal_reader.current += 4;
+
+		if (data_format == 1) {
+			journal_reader.type = TRACKER_DB_JOURNAL_RESOURCE;
+
+			if (journal_reader.end - journal_reader.current < sizeof (guint32) + 1) {
+				/* damaged journal entry */
+				return FALSE;
+			}
+
+			journal_reader.s_id = read_uint32 (journal_reader.current);
+			journal_reader.current += 4;
+
+			str_length = strnlen (journal_reader.current, journal_reader.end - journal_reader.current);
+			if (str_length == journal_reader.end - journal_reader.current) {
+				/* damaged journal entry (no terminating '\0' character) */
+				return FALSE;
+			}
+			if (!g_utf8_validate (journal_reader.current, -1, NULL)) {
+				/* damaged journal entry (invalid UTF-8) */
+				return FALSE;
+			}
+			journal_reader.uri = journal_reader.current;
+			journal_reader.current += str_length + 1;
+		} else {
+			if (data_format & 4) {
+				if (data_format & 2) {
+					journal_reader.type = TRACKER_DB_JOURNAL_DELETE_STATEMENT_ID;
+				} else {
+					journal_reader.type = TRACKER_DB_JOURNAL_DELETE_STATEMENT;
+				}
+			} else {
+				if (data_format & 2) {
+					journal_reader.type = TRACKER_DB_JOURNAL_INSERT_STATEMENT_ID;
+				} else {
+					journal_reader.type = TRACKER_DB_JOURNAL_INSERT_STATEMENT;
+				}
+			}
+
+			if (journal_reader.end - journal_reader.current < 2 * sizeof (guint32)) {
+				/* damaged journal entry */
+				return FALSE;
+			}
+
+			journal_reader.s_id = read_uint32 (journal_reader.current);
+			journal_reader.current += 4;
+
+			journal_reader.p_id = read_uint32 (journal_reader.current);
+			journal_reader.current += 4;
+
+			if (data_format & 2) {
+				if (journal_reader.end - journal_reader.current < sizeof (guint32)) {
+					/* damaged journal entry */
+					return FALSE;
+				}
+
+				journal_reader.o_id = read_uint32 (journal_reader.current);
+				journal_reader.current += 4;
+			} else {
+				if (journal_reader.end - journal_reader.current < 1) {
+					/* damaged journal entry */
+					return FALSE;
+				}
+
+				str_length = strnlen (journal_reader.current, journal_reader.end - journal_reader.current);
+				if (str_length == journal_reader.end - journal_reader.current) {
+					/* damaged journal entry (no terminating '\0' character) */
+					return FALSE;
+				}
+				if (!g_utf8_validate (journal_reader.current, -1, NULL)) {
+					/* damaged journal entry (invalid UTF-8) */
+					return FALSE;
+				}
+				journal_reader.object = journal_reader.current;
+				journal_reader.current += str_length + 1;
+			}
+		}
+
+		journal_reader.amount_of_triples--;
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
+TrackerDBJournalEntryType
+tracker_db_journal_get_type (void)
+{
+	return journal_reader.type;
+}
+
+void
+tracker_db_journal_get_resource (guint32      *id,
+                                 const gchar **uri)
+{
+	g_return_if_fail (journal_reader.type == TRACKER_DB_JOURNAL_RESOURCE);
+
+	*id = journal_reader.s_id;
+	*uri = journal_reader.uri;
+}
+
+void
+tracker_db_journal_get_statement (guint32      *s_id,
+                                  guint32      *p_id,
+                                  const gchar **object)
+{
+	g_return_if_fail (journal_reader.type == TRACKER_DB_JOURNAL_INSERT_STATEMENT ||
+	                  journal_reader.type == TRACKER_DB_JOURNAL_DELETE_STATEMENT);
+
+	*s_id = journal_reader.s_id;
+	*p_id = journal_reader.p_id;
+	*object = journal_reader.object;
+}
+
+void
+tracker_db_journal_get_statement_id (guint32    *s_id,
+                                     guint32    *p_id,
+                                     guint32    *o_id)
+{
+	g_return_if_fail (journal_reader.type == TRACKER_DB_JOURNAL_INSERT_STATEMENT_ID ||
+	                  journal_reader.type == TRACKER_DB_JOURNAL_DELETE_STATEMENT_ID);
+
+	*s_id = journal_reader.s_id;
+	*p_id = journal_reader.p_id;
+	*o_id = journal_reader.o_id;
 }
