@@ -419,6 +419,7 @@ db_get_static_data (TrackerDBInterface *iface)
 
 			tracker_ontology_add_class (class);
 			tracker_ontology_add_id_uri_pair (id, uri);
+			tracker_class_set_id (class, id);
 
 			/* xsd classes do not derive from rdfs:Resource and do not use separate tables */
 			if (!g_str_has_prefix (tracker_class_get_name (class), "xsd:")) {
@@ -532,6 +533,7 @@ db_get_static_data (TrackerDBInterface *iface)
 
 			tracker_property_set_transient (property, transient);
 			tracker_property_set_uri (property, uri);
+			tracker_property_set_id (property, id);
 			tracker_property_set_domain (property, tracker_ontology_get_class_by_uri (domain_uri));
 			tracker_property_set_range (property, tracker_ontology_get_class_by_uri (range_uri));
 			tracker_property_set_multiple_values (property, multi_valued);
@@ -543,7 +545,7 @@ db_get_static_data (TrackerDBInterface *iface)
 
 			tracker_ontology_add_property (property);
 			tracker_ontology_add_id_uri_pair (id, uri);
-
+			
 			g_object_unref (property);
 
 		}
@@ -554,7 +556,11 @@ db_get_static_data (TrackerDBInterface *iface)
 
 
 static void
-insert_uri_in_resource_table (TrackerDBInterface *iface, const gchar *uri, gint *max_id)
+insert_uri_in_resource_table (TrackerDBInterface *iface, 
+                              const gchar *uri, 
+                              gint *max_id,
+                              TrackerClass *class,
+                              TrackerProperty *property)
 {
 	TrackerDBStatement *stmt;
 	gint id = ++(*max_id);
@@ -578,6 +584,13 @@ insert_uri_in_resource_table (TrackerDBInterface *iface, const gchar *uri, gint 
 
 	tracker_db_journal_append_resource (id, uri);
 	tracker_ontology_add_id_uri_pair (id, uri);
+
+	if (class)
+		tracker_class_set_id (class, id);
+
+	if (property)
+		tracker_property_set_id (property, id);
+
 	g_object_unref (stmt);
 
 }
@@ -893,7 +906,7 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 		/* insert classes into rdfs:Resource table */
 		for (i = 0; i < n_classes; i++) {
 			insert_uri_in_resource_table (iface, tracker_class_get_uri (classes[i]),
-				                      &max_id);
+				                      &max_id, classes[i], NULL);
 		}
 
 		/* insert properties into rdfs:Resource table */
@@ -901,7 +914,7 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 
 		for (i = 0; i < n_props; i++) {
 			insert_uri_in_resource_table (iface, tracker_property_get_uri (properties[i]),
-			                              &max_id);
+			                              &max_id, NULL, properties[i]);
 		}
 
 		create_fts_table (iface);

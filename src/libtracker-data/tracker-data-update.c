@@ -1292,13 +1292,14 @@ tracker_data_delete_statement (const gchar  *graph,
 	} else {
 		field = tracker_ontology_get_property_by_uri (predicate);
 		if (field != NULL) {
+			guint32 id = tracker_property_get_id (field);
 			if (tracker_property_get_data_type (field) == TRACKER_PROPERTY_TYPE_RESOURCE) {
 				tracker_db_journal_append_delete_statement_id (resource_buffer->id,
-					tracker_data_query_resource_id (predicate),
+					(id != 0) ? id : tracker_data_query_resource_id (predicate),
 					query_resource_id (object));
 			} else {
 				tracker_db_journal_append_delete_statement (resource_buffer->id,
-					tracker_data_query_resource_id (predicate),
+					(id != 0) ? id : tracker_data_query_resource_id (predicate),
 					object);
 			}
 
@@ -1439,6 +1440,7 @@ tracker_data_insert_statement_with_uri (const gchar            *graph,
 	GError          *actual_error = NULL;
 	TrackerClass    *class;
 	TrackerProperty *property;
+	guint32          prop_id = 0;
 
 	g_return_if_fail (subject != NULL);
 	g_return_if_fail (predicate != NULL);
@@ -1454,10 +1456,13 @@ tracker_data_insert_statement_with_uri (const gchar            *graph,
 			             "Property '%s' not found in the ontology", predicate);
 			return;
 		}
-	} else if (tracker_property_get_data_type (property) != TRACKER_PROPERTY_TYPE_RESOURCE) {
-		g_set_error (error, TRACKER_DATA_ERROR, TRACKER_DATA_ERROR_INVALID_TYPE,
-		             "Property '%s' does not accept URIs", predicate);
-		return;
+	} else {
+		if (tracker_property_get_data_type (property) != TRACKER_PROPERTY_TYPE_RESOURCE) {
+			g_set_error (error, TRACKER_DATA_ERROR, TRACKER_DATA_ERROR_INVALID_TYPE,
+			             "Property '%s' does not accept URIs", predicate);
+			return;
+		}
+		prop_id = tracker_property_get_id (property);
 	}
 
 	/* subjects and objects starting with `:' are anonymous blank nodes */
@@ -1541,7 +1546,7 @@ tracker_data_insert_statement_with_uri (const gchar            *graph,
 	}
 
 	tracker_db_journal_append_insert_statement_id (resource_buffer->id,
-		tracker_data_query_resource_id (predicate),
+		(prop_id != 0) ? prop_id : tracker_data_query_resource_id (predicate),
 		query_resource_id (object));
 }
 
@@ -1554,6 +1559,7 @@ tracker_data_insert_statement_with_string (const gchar            *graph,
 {
 	GError          *actual_error = NULL;
 	TrackerProperty *property;
+	guint32          id = 0;
 
 	g_return_if_fail (subject != NULL);
 	g_return_if_fail (predicate != NULL);
@@ -1565,10 +1571,13 @@ tracker_data_insert_statement_with_string (const gchar            *graph,
 		g_set_error (error, TRACKER_DATA_ERROR, TRACKER_DATA_ERROR_UNKNOWN_PROPERTY,
 		             "Property '%s' not found in the ontology", predicate);
 		return;
-	} else if (tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_RESOURCE) {
-		g_set_error (error, TRACKER_DATA_ERROR, TRACKER_DATA_ERROR_INVALID_TYPE,
-		             "Property '%s' only accepts URIs", predicate);
-		return;
+	} else {
+		if (tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_RESOURCE) {
+			g_set_error (error, TRACKER_DATA_ERROR, TRACKER_DATA_ERROR_INVALID_TYPE,
+			             "Property '%s' only accepts URIs", predicate);
+			return;
+		}
+		id = tracker_property_get_id (property);
 	}
 
 	if (!tracker_data_insert_statement_common (graph, subject, predicate, object, &actual_error)) {
@@ -1601,7 +1610,7 @@ tracker_data_insert_statement_with_string (const gchar            *graph,
 	}
 
 	tracker_db_journal_append_insert_statement (resource_buffer->id,
-		tracker_data_query_resource_id (predicate),
+		(id != 0) ? id : tracker_data_query_resource_id (predicate),
 		object);
 }
 
