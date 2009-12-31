@@ -47,6 +47,7 @@ struct _TrackerPropertyPriv {
 	TrackerClass   *domain;
 	TrackerClass   *range;
 	gint           weight;
+	gint           id;
 	gboolean       indexed;
 	gboolean       fulltext_indexed;
 	gboolean       embedded;
@@ -82,7 +83,8 @@ enum {
 	PROP_MULTIPLE_VALUES,
 	PROP_FILTERED,
 	PROP_TRANSIENT,
-	PROP_IS_INVERSE_FUNCTIONAL_PROPERTY
+	PROP_IS_INVERSE_FUNCTIONAL_PROPERTY,
+	PROP_ID
 };
 
 GType
@@ -200,6 +202,15 @@ tracker_property_class_init (TrackerPropertyClass *klass)
 	                                                   1,
 	                                                   G_PARAM_READWRITE));
 	g_object_class_install_property (object_class,
+	                                 PROP_ID,
+	                                 g_param_spec_int ("id",
+	                                                   "id",
+	                                                   "Id",
+	                                                   0,
+	                                                   G_MAXINT,
+	                                                   1,
+	                                                   G_PARAM_READWRITE));
+	g_object_class_install_property (object_class,
 	                                 PROP_INDEXED,
 	                                 g_param_spec_boolean ("indexed",
 	                                                       "indexed",
@@ -260,6 +271,7 @@ tracker_property_init (TrackerProperty *field)
 
 	priv = GET_PRIV (field);
 
+	priv->id = -1;
 	priv->weight = 1;
 	priv->embedded = TRUE;
 	priv->filtered = TRUE;
@@ -320,6 +332,9 @@ property_get_property (GObject    *object,
 	case PROP_WEIGHT:
 		g_value_set_int (value, priv->weight);
 		break;
+	case PROP_ID:
+		g_value_set_int (value, priv->id);
+		break;
 	case PROP_INDEXED:
 		g_value_set_boolean (value, priv->indexed);
 		break;
@@ -373,6 +388,10 @@ property_set_property (GObject      *object,
 	case PROP_WEIGHT:
 		tracker_property_set_weight (TRACKER_PROPERTY (object),
 		                             g_value_get_int (value));
+		break;
+	case PROP_ID:
+		tracker_property_set_id (TRACKER_PROPERTY (object),
+		                         g_value_get_int (value));
 		break;
 	case PROP_INDEXED:
 		tracker_property_set_indexed (TRACKER_PROPERTY (object),
@@ -534,6 +553,17 @@ tracker_property_get_weight (TrackerProperty *field)
 	return priv->weight;
 }
 
+gint
+tracker_property_get_id (TrackerProperty *field)
+{
+	TrackerPropertyPriv *priv;
+
+	g_return_val_if_fail (TRACKER_IS_PROPERTY (field), -1);
+
+	priv = GET_PRIV (field);
+
+	return priv->id;
+}
 
 gboolean
 tracker_property_get_indexed (TrackerProperty *field)
@@ -770,6 +800,19 @@ tracker_property_set_weight (TrackerProperty *field,
 
 	priv->weight = value;
 	g_object_notify (G_OBJECT (field), "weight");
+}
+
+
+void
+tracker_property_set_id (TrackerProperty *field,
+                         gint             value)
+{
+	TrackerPropertyPriv *priv;
+	g_return_if_fail (TRACKER_IS_PROPERTY (field));
+
+	priv = GET_PRIV (field);
+
+	priv->id = value;
 }
 
 void

@@ -37,6 +37,7 @@ struct _TrackerClassPriv {
 	gchar *uri;
 	gchar *name;
 	gint count;
+	gint id;
 
 	GArray *super_classes;
 };
@@ -55,7 +56,8 @@ enum {
 	PROP_0,
 	PROP_URI,
 	PROP_NAME,
-	PROP_COUNT
+	PROP_COUNT,
+	PROP_ID
 };
 
 G_DEFINE_TYPE (TrackerClass, tracker_class, G_TYPE_OBJECT);
@@ -89,6 +91,15 @@ tracker_class_class_init (TrackerClassClass *klass)
 	                                                   "count",
 	                                                   "Count",
 	                                                   0,
+	                                                   G_MAXINT,
+	                                                   0,
+	                                                   G_PARAM_READWRITE));
+	g_object_class_install_property (object_class,
+	                                 PROP_ID,
+	                                 g_param_spec_int ("id",
+	                                                   "id",
+	                                                   "Id",
+	                                                   0,
 	                                                   INT_MAX,
 	                                                   0,
 	                                                   G_PARAM_READABLE | G_PARAM_WRITABLE));
@@ -103,6 +114,7 @@ tracker_class_init (TrackerClass *service)
 
 	priv = GET_PRIV (service);
 
+	priv->id = -1;
 	priv->super_classes = g_array_new (TRUE, TRUE, sizeof (TrackerClass *));
 }
 
@@ -141,6 +153,9 @@ class_get_property (GObject    *object,
 	case PROP_COUNT:
 		g_value_set_int (value, priv->count);
 		break;
+	case PROP_ID:
+		g_value_set_int (value, priv->id);
+		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, param_id, pspec);
 		break;
@@ -161,6 +176,10 @@ class_set_property (GObject      *object,
 	case PROP_COUNT:
 		tracker_class_set_count (TRACKER_CLASS (object),
 		                         g_value_get_int (value));
+		break;
+	case PROP_ID:
+		tracker_class_set_id (TRACKER_CLASS (object),
+		                      g_value_get_int (value));
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, param_id, pspec);
@@ -212,6 +231,18 @@ tracker_class_get_count (TrackerClass *service)
 	priv = GET_PRIV (service);
 
 	return priv->count;
+}
+
+gint
+tracker_class_get_id (TrackerClass *service)
+{
+	TrackerClassPriv *priv;
+
+	g_return_val_if_fail (TRACKER_IS_CLASS (service), 0);
+
+	priv = GET_PRIV (service);
+
+	return priv->id;
 }
 
 TrackerClass **
@@ -281,6 +312,21 @@ tracker_class_set_count (TrackerClass *service,
 
 	priv->count = value;
 }
+
+
+void
+tracker_class_set_id (TrackerClass *service,
+                      gint          value)
+{
+	TrackerClassPriv *priv;
+
+	g_return_if_fail (TRACKER_IS_CLASS (service));
+
+	priv = GET_PRIV (service);
+
+	priv->id = value;
+}
+
 
 void
 tracker_class_set_super_classes (TrackerClass  *service,
