@@ -253,7 +253,11 @@ language_add_stopwords (TrackerLanguage *language,
 	content = g_mapped_file_get_contents (mapped_file);
 	words = g_strsplit_set (content, "\n" , -1);
 
+#if GLIB_CHECK_VERSION(2,22,0)
+	g_mapped_file_unref (mapped_file);
+#else
 	g_mapped_file_free (mapped_file);
+#endif
 
 	/* FIXME: Shouldn't clear the hash table first? */
 	for (p = words; *p; p++) {

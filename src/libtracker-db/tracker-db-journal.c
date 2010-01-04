@@ -157,7 +157,11 @@ void
 tracker_db_journal_free_contents (TrackerJournalContents *contents)
 {
 	if (mapped) {
+#if GLIB_CHECK_VERSION(2,22,0)
+		g_mapped_file_unref (mapped);
+#else
 		g_mapped_file_free (mapped);
+#endif
 		mapped = NULL;
 	}
 
