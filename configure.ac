@@ -250,7 +250,7 @@ AC_ARG_ENABLE(id3lib,
 
 if test "x$enable_id3lib" != "xno" ; then
    AC_CHECK_HEADER(id3.h,
-   AC_CHECK_LIB(id3, ID3Tag_New))
+   AC_CHECK_LIB([id3], [ID3Tag_New], [], [], [-lstdc++ -lz]))
 
    have_id3lib=${ac_cv_lib_id3_ID3Tag_New:-no}
 

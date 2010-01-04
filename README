@@ -122,9 +122,20 @@
 
 4 Compilation
 
-  To compile and install Tracker, use the following commands :
+  The git repository contains input to the GNU Autotools however a
+  number of commands need to be run to initialize GNU Autotools in the
+  project directory. To setup the project for compilation after
+  checking it out from the git repository, use: 
+
+        ./autogen.sh --prefix=/usr --sysconfdir=/etc --localstatedir=/var
+
+  Or if you don't have autogen.sh (i.e. you are using the released
+  tarball), you can use:
 
         ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var
+
+  To start compiling the project use:
+
         make
         sudo make install
 
