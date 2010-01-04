@@ -47,7 +47,7 @@ struct _TrackerPropertyPriv {
 	TrackerClass   *domain;
 	TrackerClass   *range;
 	gint           weight;
-	gint           id;
+	guint32        id;
 	gboolean       indexed;
 	gboolean       fulltext_indexed;
 	gboolean       embedded;
@@ -203,13 +203,13 @@ tracker_property_class_init (TrackerPropertyClass *klass)
 	                                                   G_PARAM_READWRITE));
 	g_object_class_install_property (object_class,
 	                                 PROP_ID,
-	                                 g_param_spec_int ("id",
-	                                                   "id",
-	                                                   "Id",
-	                                                   0,
-	                                                   G_MAXINT,
-	                                                   1,
-	                                                   G_PARAM_READWRITE));
+	                                 g_param_spec_uint ("id",
+	                                                    "id",
+	                                                    "Id",
+	                                                    0,
+	                                                    G_MAXUINT,
+	                                                    0,
+	                                                    G_PARAM_READWRITE));
 	g_object_class_install_property (object_class,
 	                                 PROP_INDEXED,
 	                                 g_param_spec_boolean ("indexed",
@@ -271,7 +271,7 @@ tracker_property_init (TrackerProperty *field)
 
 	priv = GET_PRIV (field);
 
-	priv->id = -1;
+	priv->id = 0;
 	priv->weight = 1;
 	priv->embedded = TRUE;
 	priv->filtered = TRUE;
@@ -333,7 +333,7 @@ property_get_property (GObject    *object,
 		g_value_set_int (value, priv->weight);
 		break;
 	case PROP_ID:
-		g_value_set_int (value, priv->id);
+		g_value_set_uint (value, priv->id);
 		break;
 	case PROP_INDEXED:
 		g_value_set_boolean (value, priv->indexed);
@@ -391,7 +391,7 @@ property_set_property (GObject      *object,
 		break;
 	case PROP_ID:
 		tracker_property_set_id (TRACKER_PROPERTY (object),
-		                         g_value_get_int (value));
+		                         g_value_get_uint (value));
 		break;
 	case PROP_INDEXED:
 		tracker_property_set_indexed (TRACKER_PROPERTY (object),
@@ -553,12 +553,12 @@ tracker_property_get_weight (TrackerProperty *field)
 	return priv->weight;
 }
 
-gint
+guint32
 tracker_property_get_id (TrackerProperty *field)
 {
 	TrackerPropertyPriv *priv;
 
-	g_return_val_if_fail (TRACKER_IS_PROPERTY (field), -1);
+	g_return_val_if_fail (TRACKER_IS_PROPERTY (field), 0);
 
 	priv = GET_PRIV (field);
 
@@ -805,7 +805,7 @@ tracker_property_set_weight (TrackerProperty *field,
 
 void
 tracker_property_set_id (TrackerProperty *field,
-                         gint             value)
+                         guint32          value)
 {
 	TrackerPropertyPriv *priv;
 	g_return_if_fail (TRACKER_IS_PROPERTY (field));

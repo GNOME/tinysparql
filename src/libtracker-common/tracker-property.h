@@ -79,7 +79,7 @@ TrackerPropertyType tracker_property_get_data_type        (TrackerProperty      
 TrackerClass *      tracker_property_get_domain           (TrackerProperty      *property);
 TrackerClass *      tracker_property_get_range            (TrackerProperty      *property);
 gint                tracker_property_get_weight           (TrackerProperty      *property);
-gint                tracker_property_get_id               (TrackerProperty      *property);
+guint32             tracker_property_get_id               (TrackerProperty      *property);
 gboolean            tracker_property_get_indexed          (TrackerProperty      *property);
 gboolean            tracker_property_get_fulltext_indexed (TrackerProperty      *property);
 gboolean            tracker_property_get_embedded         (TrackerProperty      *property);
@@ -100,7 +100,7 @@ void                tracker_property_set_range            (TrackerProperty      
 void                tracker_property_set_weight           (TrackerProperty      *property,
                                                            gint                  value);
 void                tracker_property_set_id               (TrackerProperty      *property,
-                                                           gint                  value);
+                                                           guint32               value);
 void                tracker_property_set_indexed          (TrackerProperty      *property,
                                                            gboolean              value);
 void                tracker_property_set_fulltext_indexed (TrackerProperty      *property,

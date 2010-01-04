@@ -405,12 +405,12 @@ db_get_static_data (TrackerDBInterface *iface)
 		while (tracker_db_cursor_iter_next (cursor)) {
 			TrackerClass *class;
 			const gchar  *uri;
-			gint          id;
+			guint         id;
 			gint          count;
 
 			class = tracker_class_new ();
 
-			id = tracker_db_cursor_get_int (cursor, 0);
+			id = tracker_db_cursor_get_uint (cursor, 0);
 			uri = tracker_db_cursor_get_string (cursor, 1);
 
 			tracker_class_set_uri (class, uri);
@@ -459,11 +459,11 @@ db_get_static_data (TrackerDBInterface *iface)
 			const gchar     *uri, *domain_uri, *range_uri;
 			gboolean         multi_valued, indexed, fulltext_indexed;
 			gboolean         transient, annotation, is_inverse_functional_property;
-			gint             id;
+			guint             id;
 
 			property = tracker_property_new ();
 
-			id = tracker_db_cursor_get_int (cursor, 0);
+			id = tracker_db_cursor_get_uint (cursor, 0);
 			uri = tracker_db_cursor_get_string (cursor, 1);
 			domain_uri = tracker_db_cursor_get_string (cursor, 2);
 			range_uri = tracker_db_cursor_get_string (cursor, 3);

@@ -412,6 +412,9 @@ statement_bind_gvalue (TrackerDBStatement *stmt,
 	case G_TYPE_INT:
 		tracker_db_statement_bind_int (stmt, idx, g_value_get_int (value));
 		break;
+	case G_TYPE_UINT:
+		tracker_db_statement_bind_uint (stmt, idx, g_value_get_uint (value));
+		break;
 	case G_TYPE_INT64:
 		tracker_db_statement_bind_int64 (stmt, idx, g_value_get_int64 (value));
 		break;
@@ -642,7 +645,8 @@ static void
 tracker_data_blank_buffer_flush (GError **error)
 {
 	/* end of blank node */
-	gint i, id;
+	gint i;
+	guint32 id;
 	gchar *subject;
 	gchar *blank_uri;
 	const gchar *sha1;
@@ -768,6 +772,8 @@ value_equal (GValue *value1,
 	switch (type) {
 	case G_TYPE_STRING:
 		return (strcmp (g_value_get_string (value1), g_value_get_string (value2)) == 0);
+	case G_TYPE_UINT:
+		return g_value_get_uint (value1) == g_value_get_uint (value2);
 	case G_TYPE_INT:
 		return g_value_get_int (value1) == g_value_get_int (value2);
 	case G_TYPE_DOUBLE:
@@ -963,7 +969,7 @@ string_to_gvalue (const gchar         *value,
                   TrackerPropertyType  type,
                   GValue              *gvalue)
 {
-	guint32                     object_id;
+	guint32 object_id;
 
 	switch (type) {
 	case TRACKER_PROPERTY_TYPE_STRING:
@@ -991,8 +997,8 @@ string_to_gvalue (const gchar         *value,
 		break;
 	case TRACKER_PROPERTY_TYPE_RESOURCE:
 		object_id = ensure_resource_id (value);
-		g_value_init (gvalue, G_TYPE_INT);
-		g_value_set_int (gvalue, object_id);
+		g_value_init (gvalue, G_TYPE_UINT);
+		g_value_set_uint (gvalue, object_id);
 		break;
 	default:
 		g_warn_if_reached ();
@@ -1236,7 +1242,7 @@ tracker_data_delete_statement (const gchar  *graph,
 {
 	TrackerClass       *class;
 	TrackerProperty    *field;
-	gint                subject_id;
+	guint32             subject_id;
 
 	g_return_if_fail (subject != NULL);
 	g_return_if_fail (predicate != NULL);
@@ -1878,11 +1884,11 @@ tracker_data_delete_resource_description (const gchar *graph,
 	TrackerDBStatement *stmt;
 	TrackerDBResultSet *result_set, *single_result, *multi_result;
 	TrackerClass       *class;
-	GString                    *sql;
-	TrackerProperty           **properties, *property;
+	GString            *sql;
+	TrackerProperty   **properties, *property;
 	int                 i;
 	gboolean            first, bail_out = FALSE;
-	gint                resource_id;
+	guint32             resource_id;
 	guint               p, n_props;
 
 	/* We use result_sets instead of cursors here because it's possible

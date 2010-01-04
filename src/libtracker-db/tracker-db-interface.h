@@ -89,6 +89,9 @@ struct TrackerDBStatementIface {
 	void                 (* bind_int)       (TrackerDBStatement  *stmt,
 	                                         int                  index,
 	                                         int                  value);
+	void                 (* bind_uint)      (TrackerDBStatement  *stmt,
+	                                         int                  index,
+	                                         guint                value);
 	void                 (* bind_int64)     (TrackerDBStatement  *stmt,
 	                                         int                  index,
 	                                         gint64                       value);
@@ -126,6 +129,9 @@ struct TrackerDBCursorIface {
 	                                guint            column);
 	gdouble       (*get_double)    (TrackerDBCursor *cursor,
 	                                guint            column);
+	guint         (*get_uint)       (TrackerDBCursor *cursor,
+	                                 guint            column);
+
 };
 
 GQuark              tracker_db_interface_error_quark       (void);
@@ -159,6 +165,9 @@ void                tracker_db_statement_bind_double       (TrackerDBStatement  
 void                tracker_db_statement_bind_int          (TrackerDBStatement  *stmt,
                                                             int                  index,
                                                             int                  value);
+void                tracker_db_statement_bind_uint         (TrackerDBStatement  *stmt,
+                                                            int                  index,
+                                                            guint                value);
 void                tracker_db_statement_bind_int64        (TrackerDBStatement  *stmt,
                                                             int                  index,
                                                             gint64               value);
@@ -203,6 +212,8 @@ gint                tracker_db_cursor_get_int              (TrackerDBCursor     
                                                             guint                column);
 gdouble             tracker_db_cursor_get_double           (TrackerDBCursor     *cursor,
                                                             guint                column);
+guint               tracker_db_cursor_get_uint              (TrackerDBCursor     *cursor,
+                                                             guint                column);
 
 G_END_DECLS
 

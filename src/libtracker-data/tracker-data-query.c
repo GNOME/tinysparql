@@ -73,12 +73,12 @@ tracker_data_query_rdf_type (guint32 id)
 }
 
 guint32
-tracker_data_query_resource_id (const gchar        *uri)
+tracker_data_query_resource_id (const gchar *uri)
 {
 	TrackerDBCursor *cursor;
 	TrackerDBInterface *iface;
 	TrackerDBStatement *stmt;
-	guint32                     id = 0;
+	guint32 id = 0;
 
 	g_return_val_if_fail (uri != NULL, 0);
 
@@ -92,7 +92,7 @@ tracker_data_query_resource_id (const gchar        *uri)
 
 	if (cursor) {
 		tracker_db_cursor_iter_next (cursor);
-		id = tracker_db_cursor_get_int (cursor, 0);
+		id = tracker_db_cursor_get_uint (cursor, 0);
 		g_object_unref (cursor);
 	}
 

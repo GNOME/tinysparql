@@ -997,6 +997,19 @@ tracker_db_statement_sqlite_bind_int (TrackerDBStatement         *stmt,
 	sqlite3_bind_int (priv->stmt, index + 1, value);
 }
 
+static void
+tracker_db_statement_sqlite_bind_uint (TrackerDBStatement         *stmt,
+                                      int                         index,
+                                      guint                       value)
+{
+	TrackerDBStatementSqlitePrivate *priv;
+
+	priv = TRACKER_DB_STATEMENT_SQLITE_GET_PRIVATE (stmt);
+
+	g_assert (!priv->stmt_is_sunk);
+
+	sqlite3_bind_int64 (priv->stmt, index + 1, (gint64) value);
+}
 
 
 static void
@@ -1117,6 +1130,14 @@ tracker_db_cursor_sqlite_get_int (TrackerDBCursor *cursor,  guint column)
 	return (gint) sqlite3_column_int (priv->stmt, column);
 }
 
+static guint
+tracker_db_cursor_sqlite_get_uint (TrackerDBCursor *cursor,  guint column)
+{
+	TrackerDBCursorSqlitePrivate *priv;
+	priv = TRACKER_DB_CURSOR_SQLITE_GET_PRIVATE (cursor);
+	return (guint) sqlite3_column_int64 (priv->stmt, column);
+}
+
 
 static gdouble
 tracker_db_cursor_sqlite_get_double (TrackerDBCursor *cursor,  guint column)
@@ -1188,6 +1209,7 @@ tracker_db_statement_sqlite_iface_init (TrackerDBStatementIface *iface)
 {
 	iface->bind_double = tracker_db_statement_sqlite_bind_double;
 	iface->bind_int = tracker_db_statement_sqlite_bind_int;
+	iface->bind_uint = tracker_db_statement_sqlite_bind_uint;
 	iface->bind_int64 = tracker_db_statement_sqlite_bind_int64;
 	iface->bind_null = tracker_db_statement_sqlite_bind_null;
 	iface->bind_text = tracker_db_statement_sqlite_bind_text;
@@ -1206,6 +1228,7 @@ tracker_db_cursor_sqlite_iface_init (TrackerDBCursorIface *iface)
 	iface->get_int = tracker_db_cursor_sqlite_get_int;
 	iface->get_double = tracker_db_cursor_sqlite_get_double;
 	iface->get_string = tracker_db_cursor_sqlite_get_string;
+	iface->get_uint = tracker_db_cursor_sqlite_get_uint;
 }
 
 static void
