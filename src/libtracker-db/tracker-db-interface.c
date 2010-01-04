@@ -390,21 +390,6 @@ tracker_db_interface_end_transaction (TrackerDBInterface *interface)
 	return TRUE;
 }
 
-void
-tracker_db_interface_disconnect (TrackerDBInterface  *interface)
-{
-	g_return_if_fail (TRACKER_IS_DB_INTERFACE (interface));
-
-	TRACKER_DB_INTERFACE_GET_IFACE (interface)->disconnect (interface);
-}
-
-void
-tracker_db_interface_reconnect (TrackerDBInterface  *interface)
-{
-	g_return_if_fail (TRACKER_IS_DB_INTERFACE (interface));
-
-	TRACKER_DB_INTERFACE_GET_IFACE (interface)->reconnect (interface);
-}
 
 void
 tracker_db_statement_bind_double (TrackerDBStatement    *stmt,

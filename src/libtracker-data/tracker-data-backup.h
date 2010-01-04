@@ -30,16 +30,17 @@ G_BEGIN_DECLS
 #error "only <libtracker-data/tracker-data.h> must be included directly."
 #endif
 
+#define TRACKER_DATA_BACKUP_ERROR_DOMAIN "TrackerBackup"
+#define TRACKER_DATA_BACKUP_ERROR        tracker_data_backup_error_quark()
+
 typedef void (*TrackerDataBackupFinished) (GError *error, gpointer user_data);
 
 GQuark tracker_data_backup_error_quark (void);
 void   tracker_data_backup_save        (GFile                     *destination,
-                                        GFile                     *journal,
                                         TrackerDataBackupFinished  callback,
                                         gpointer                   user_data,
                                         GDestroyNotify             destroy);
-void   tracker_data_backup_restore     (GFile                     *backup,
-                                        GFile                     *journal,
+void   tracker_data_backup_restore     (GFile                     *journal,
                                         TrackerDataBackupFinished  callback,
                                         gpointer                   user_data,
                                         GDestroyNotify             destroy);

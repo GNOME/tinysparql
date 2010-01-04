@@ -5,11 +5,9 @@
     <method name="Save">
       <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
       <arg type="s" name="destination-uri" direction="in" />
-      <arg type="s" name="journal-uri" direction="in" />
     </method>
     <method name="Restore">
       <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
-      <arg type="s" name="backup-uri" direction="in" />
       <arg type="s" name="journal-uri" direction="in" />
     </method>
   </interface>

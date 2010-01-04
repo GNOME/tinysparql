@@ -125,8 +125,6 @@ static GType tracker_db_statement_sqlite_get_type (void);
 static void tracker_db_interface_sqlite_iface_init (TrackerDBInterfaceIface *iface);
 static void tracker_db_statement_sqlite_iface_init (TrackerDBStatementIface *iface);
 static void tracker_db_cursor_sqlite_iface_init (TrackerDBCursorIface *iface);
-static void tracker_db_interface_sqlite_disconnect (TrackerDBInterface *db_interface);
-static void tracker_db_interface_sqlite_reconnect  (TrackerDBInterface *db_interface);
 
 static TrackerDBStatementSqlite * tracker_db_statement_sqlite_new (TrackerDBInterfaceSqlite     *db_interface,
                                                                    sqlite3_stmt                         *sqlite_stmt);
@@ -754,8 +752,6 @@ tracker_db_interface_sqlite_iface_init (TrackerDBInterfaceIface *iface)
 {
 	iface->create_statement = tracker_db_interface_sqlite_create_statement;
 	iface->execute_query = tracker_db_interface_sqlite_execute_query;
-	iface->disconnect  = tracker_db_interface_sqlite_disconnect;
-	iface->reconnect  = tracker_db_interface_sqlite_reconnect;
 }
 
 TrackerDBInterface *
@@ -1156,26 +1152,6 @@ tracker_db_cursor_sqlite_get_string (TrackerDBCursor *cursor,  guint column)
 	return (const gchar *) sqlite3_column_text (priv->stmt, column);
 }
 
-static void
-tracker_db_interface_sqlite_disconnect (TrackerDBInterface *db_interface)
-{
-	TrackerDBInterfaceSqlitePrivate *priv;
-
-	priv = TRACKER_DB_INTERFACE_SQLITE_GET_PRIVATE (db_interface);
-
-	close_database (priv);
-}
-
-static void
-tracker_db_interface_sqlite_reconnect (TrackerDBInterface *db_interface)
-{
-	TrackerDBInterfaceSqlitePrivate *priv;
-
-	priv = TRACKER_DB_INTERFACE_SQLITE_GET_PRIVATE (db_interface);
-
-	open_database (priv);
-	prepare_database (priv);
-}
 
 static TrackerDBResultSet *
 tracker_db_statement_sqlite_execute (TrackerDBStatement                  *stmt,

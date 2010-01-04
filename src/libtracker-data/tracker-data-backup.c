@@ -24,34 +24,152 @@
 
 #include <libtracker-db/tracker-db-manager.h>
 #include <libtracker-db/tracker-db-journal.h>
+#include <libtracker-data/tracker-data-manager.h>
 
 #include "tracker-data-backup.h"
+
+typedef struct {
+	GFile *destination, *journal;
+	TrackerDataBackupFinished callback;
+	gpointer user_data;
+	GDestroyNotify destroy;
+	GError *error;
+} BackupSaveInfo;
 
 GQuark
 tracker_data_backup_error_quark (void)
 {
-	return g_quark_from_static_string ("tracker-data-backup-error-quark");
+	return g_quark_from_static_string (TRACKER_DATA_BACKUP_ERROR_DOMAIN);
+}
+
+static void
+free_backup_save_info (BackupSaveInfo *info)
+{
+	if (info->destination) {
+		g_object_unref (info->destination);
+	}
+
+	if (info->journal) {
+		g_object_unref (info->journal);
+	}
+
+	if (info->destroy) {
+		info->destroy (info->user_data);
+	}
+
+	g_clear_error (&info->error);
+
+	g_free (info);
+}
+
+static void
+on_journal_copied (GObject *source_object,
+                   GAsyncResult *res,
+                   gpointer user_data)
+{
+	BackupSaveInfo *info = user_data;
+	GError *error = NULL;
+
+	g_file_copy_finish (info->journal, res, &error);
+
+	if (info->callback) {
+		info->callback (error, info->user_data);
+	}
+
+	free_backup_save_info (info);
+
+	g_clear_error (&error);
 }
 
 void
 tracker_data_backup_save (GFile *destination,
-                          GFile *journal,
                           TrackerDataBackupFinished callback,
                           gpointer user_data,
                           GDestroyNotify destroy)
 {
-	// TODO: Unimplemented
-	g_critical ("tracker_data_backup_save unimplemented");
+	BackupSaveInfo *info;
+
+	info = g_new0 (BackupSaveInfo, 1);
+	info->destination = g_object_ref (destination);
+	info->journal = g_file_new_for_path (tracker_db_journal_get_filename ());
+	info->callback = callback;
+	info->user_data = user_data;
+	info->destroy = destroy;
+
+	/* It's fine to copy this asynchronous: the journal replay code can or 
+	 * should cope with unfinished entries at the end of the file, while
+	 * restoring a backup made this way. */
+
+	g_file_copy_async (info->journal, info->destination,
+	                   G_FILE_COPY_OVERWRITE,
+	                   G_PRIORITY_HIGH,
+	                   NULL, NULL, NULL,
+	                   on_journal_copied,
+	                   info);
+}
+
+static gboolean
+on_restore_done (gpointer user_data)
+{
+	BackupSaveInfo *info = user_data;
+
+	if (info->callback) {
+		info->callback (info->error, info->user_data);
+	}
+
+	free_backup_save_info (info);
+
+	return FALSE;
 }
 
 void
-tracker_data_backup_restore (GFile *backup,
-                             GFile *journal,
+tracker_data_backup_restore (GFile *journal,
                              TrackerDataBackupFinished callback,
                              gpointer user_data,
                              GDestroyNotify destroy)
 {
-	// TODO: Unimplemented
-	g_critical ("tracker_data_backup_restore");
+	BackupSaveInfo *info;
+
+	info = g_new0 (BackupSaveInfo, 1);
+	info->destination = g_file_new_for_path (tracker_db_journal_get_filename ());
+	info->journal = g_object_ref (journal);
+	info->callback = callback;
+	info->user_data = user_data;
+	info->destroy = destroy;
+
+	if (g_file_query_exists (info->journal, NULL)) {
+		TrackerDBManagerFlags flags = tracker_db_manager_get_flags ();
+		gboolean is_first;
+
+		tracker_db_manager_move_to_temp ();
+		tracker_data_manager_shutdown ();
+
+		/* Synchronous: we don't want the mainloop to run while copying the
+		 * journal, as nobody should be writing anything at this point */
+
+		g_file_copy (info->journal, info->destination,
+		             G_FILE_COPY_OVERWRITE,
+		             NULL, NULL, NULL,
+		             &info->error);
+
+		tracker_db_manager_init_locations ();
+		tracker_db_journal_init (NULL);
+
+		if (info->error) {
+			tracker_db_manager_restore_from_temp ();
+		} else {
+			tracker_db_manager_remove_temp ();
+		}
+
+		tracker_db_journal_shutdown ();
+
+		tracker_data_manager_init (flags, NULL, &is_first);
+
+	} else {
+		g_set_error (&info->error, TRACKER_DATA_BACKUP_ERROR, 0, 
+		             "Backup file doesn't exist");
+	}
+
+	g_idle_add (on_restore_done, info);
 }
 

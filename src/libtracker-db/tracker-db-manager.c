@@ -146,20 +146,22 @@ static TrackerDBDefinition dbs[] = {
 	  0 },
 };
 
-static gboolean                    db_exec_no_reply    (TrackerDBInterface *iface,
-                                                        const gchar        *query,
-                                                        ...);
+static gboolean            db_exec_no_reply    (TrackerDBInterface *iface,
+                                                const gchar        *query,
+                                                ...);
 static TrackerDBInterface *db_interface_create (TrackerDB           db);
 static TrackerDBInterface *tracker_db_manager_get_db_interfaces     (gint num, ...);
 static TrackerDBInterface *tracker_db_manager_get_db_interfaces_ro  (gint num, ...);
 
-static gboolean                    initialized;
-static gchar              *sql_dir;
-static gchar              *data_dir;
-static gchar              *user_data_dir;
-static gchar              *sys_tmp_dir;
-static gpointer                    db_type_enum_class_pointer;
-static TrackerDBInterface *resources_iface;
+static gboolean              initialized;
+static gboolean              locations_initialized;
+static gchar                *sql_dir;
+static gchar                *data_dir = NULL;
+static gchar                *user_data_dir = NULL;
+static gchar                *sys_tmp_dir = NULL;
+static gpointer              db_type_enum_class_pointer;
+static TrackerDBInterface   *resources_iface;
+static TrackerDBManagerFlags old_flags = 0;
 
 static const gchar *
 location_to_directory (TrackerDBLocation location)
@@ -295,6 +297,12 @@ function_regexp (TrackerDBInterface *interface,
 	regfree (&regex);
 
 	return result;
+}
+
+TrackerDBManagerFlags
+tracker_db_manager_get_flags (void)
+{
+	return old_flags;
 }
 
 static void
@@ -847,7 +855,7 @@ db_interface_create (TrackerDB db)
 }
 
 static void
-db_manager_remove_all (gboolean rm_backup_and_log, gboolean not_meta)
+db_manager_remove_all (gboolean rm_journal)
 {
 	guint i;
 
@@ -858,16 +866,12 @@ db_manager_remove_all (gboolean rm_backup_and_log, gboolean not_meta)
 	 */
 	for (i = 1; i < G_N_ELEMENTS (dbs); i++) {
 
-		if (not_meta && i == TRACKER_DB_METADATA) {
-			continue;
-		}
-
 		g_message ("  Removing database:'%s'",
 		           dbs[i].abs_filename);
 		g_unlink (dbs[i].abs_filename);
 	}
 
-	if (rm_backup_and_log) {
+	if (rm_journal) {
 		GFile *file;
 		gchar *cpath;
 
@@ -1029,7 +1033,7 @@ db_recreate_all (void)
 	 */
 	g_message ("Cleaning up database files for reindex");
 
-	db_manager_remove_all (FALSE, FALSE);
+	db_manager_remove_all (FALSE);
 
 	/* In cases where we re-init this module, make sure
 	 * we have cleaned up the ontology before we load all
@@ -1057,6 +1061,38 @@ db_recreate_all (void)
 	}
 }
 
+void
+tracker_db_manager_init_locations (void)
+{
+	const gchar *dir;
+	guint i;
+	gchar *filename;
+
+	filename = g_strdup_printf ("tracker-%s", g_get_user_name ());
+	sys_tmp_dir = g_build_filename (g_get_tmp_dir (), filename, NULL);
+	g_free (filename);
+
+	user_data_dir = g_build_filename (g_get_user_data_dir (),
+	                                  "tracker",
+	                                  "data",
+	                                  NULL);
+
+	data_dir = g_build_filename (g_get_user_cache_dir (),
+	                             "tracker",
+	                             NULL);
+
+	for (i = 1; i < G_N_ELEMENTS (dbs); i++) {
+		dir = location_to_directory (dbs[i].location);
+		dbs[i].abs_filename = g_build_filename (dir, dbs[i].file, NULL);
+
+		if (old_flags & TRACKER_DB_MANAGER_LOW_MEMORY_MODE) {
+			dbs[i].cache_size /= 2;
+		}
+	}
+
+	locations_initialized = TRUE;
+}
+
 gboolean
 tracker_db_manager_init (TrackerDBManagerFlags  flags,
                          gboolean              *first_time,
@@ -1067,7 +1103,7 @@ tracker_db_manager_init (TrackerDBManagerFlags  flags,
 	gchar              *filename;
 	const gchar        *dir;
 	const gchar        *env_path;
-	gboolean            need_reindex, did_copy = FALSE;
+	gboolean            need_reindex;
 	guint               i;
 	gchar              *in_use_filename;
 	int                 in_use_file;
@@ -1098,7 +1134,11 @@ tracker_db_manager_init (TrackerDBManagerFlags  flags,
 	/* Set up locations */
 	g_message ("Setting database locations");
 
+	old_flags = flags;
+
 	filename = g_strdup_printf ("tracker-%s", g_get_user_name ());
+	if (sys_tmp_dir)
+		g_free (sys_tmp_dir);
 	sys_tmp_dir = g_build_filename (g_get_tmp_dir (), filename, NULL);
 	g_free (filename);
 
@@ -1112,10 +1152,16 @@ tracker_db_manager_init (TrackerDBManagerFlags  flags,
 		sql_dir = g_strdup (env_path);
 	}
 
+	if (user_data_dir)
+		g_free (user_data_dir);
+
 	user_data_dir = g_build_filename (g_get_user_data_dir (),
 	                                  "tracker",
 	                                  "data",
 	                                  NULL);
+
+	if (data_dir)
+		g_free (data_dir);
 
 	data_dir = g_build_filename (g_get_user_cache_dir (),
 	                             "tracker",
@@ -1146,6 +1192,8 @@ tracker_db_manager_init (TrackerDBManagerFlags  flags,
 	for (i = 1; i < G_N_ELEMENTS (dbs); i++) {
 		/* Fill absolute path for the database */
 		dir = location_to_directory (dbs[i].location);
+		if (dbs[i].abs_filename)
+			g_free (dbs[i].abs_filename);
 		dbs[i].abs_filename = g_build_filename (dir, dbs[i].file, NULL);
 
 		if (flags & TRACKER_DB_MANAGER_LOW_MEMORY_MODE) {
@@ -1169,6 +1217,8 @@ tracker_db_manager_init (TrackerDBManagerFlags  flags,
 			need_reindex = TRUE;
 		}
 	}
+
+	locations_initialized = TRUE;
 
 	/* If we are just initializing to remove the databases,
 	 * return here.
@@ -1320,52 +1370,6 @@ tracker_db_manager_init (TrackerDBManagerFlags  flags,
 }
 
 void
-tracker_db_manager_disconnect (void)
-{
-	if (resources_iface) {
-		guint i;
-		TrackerDB attachments[2] = { TRACKER_DB_FULLTEXT,
-		                             TRACKER_DB_CONTENTS };
-
-		for (i = 0; i < 2; i++) {
-			TrackerDB db = attachments [i];
-
-			db_exec_no_reply (resources_iface,
-			                  "DETACH '%s'",
-			                  dbs[db].name);
-		}
-
-		tracker_db_interface_disconnect (resources_iface);
-	}
-}
-
-void
-tracker_db_manager_reconnect (void)
-{
-	if (resources_iface) {
-		guint i;
-		TrackerDB attachments[2] = { TRACKER_DB_FULLTEXT,
-		                             TRACKER_DB_CONTENTS };
-
-		tracker_db_interface_reconnect (resources_iface);
-
-		db_set_params (resources_iface,
-		               dbs[TRACKER_DB_METADATA].cache_size,
-		               dbs[TRACKER_DB_METADATA].page_size,
-		               TRUE);
-
-		for (i = 0; i < 2; i++) {
-			TrackerDB db = attachments [i];
-
-			db_exec_no_reply (resources_iface,
-			                  "ATTACH '%s' as '%s'",
-			                  dbs[db].abs_filename,
-			                  dbs[db].name);
-		}
-	}
-}
-
-void
 tracker_db_manager_shutdown (void)
 {
 	guint i;
@@ -1388,8 +1392,11 @@ tracker_db_manager_shutdown (void)
 	}
 
 	g_free (data_dir);
+	data_dir = NULL;
 	g_free (user_data_dir);
+	user_data_dir = NULL;
 	g_free (sys_tmp_dir);
+	sys_tmp_dir = NULL;
 	g_free (sql_dir);
 
 	if (resources_iface) {
@@ -1414,6 +1421,7 @@ tracker_db_manager_shutdown (void)
 	tracker_ontology_shutdown ();
 
 	initialized = FALSE;
+	locations_initialized = FALSE;
 
 	in_use_filename = g_build_filename (g_get_user_data_dir (),
 	                                    "tracker",
@@ -1427,11 +1435,94 @@ tracker_db_manager_shutdown (void)
 }
 
 void
-tracker_db_manager_remove_all (gboolean rm_backup_and_log)
+tracker_db_manager_remove_all (gboolean rm_journal)
 {
 	g_return_if_fail (initialized != FALSE);
 
-	db_manager_remove_all (rm_backup_and_log, FALSE);
+	db_manager_remove_all (rm_journal);
+}
+
+
+void
+tracker_db_manager_move_to_temp (void)
+{
+	guint i;
+	gchar *cpath, *new_filename;
+
+	g_return_if_fail (initialized != FALSE);
+
+	g_message ("Moving all database files");
+
+	for (i = 1; i < G_N_ELEMENTS (dbs); i++) {
+		new_filename = g_strdup_printf ("%s.tmp", dbs[i].abs_filename);
+		g_message ("  Renaming database:'%s' -> '%s'",
+		           dbs[i].abs_filename, new_filename);
+		g_rename (dbs[i].abs_filename, new_filename);
+		g_free (new_filename);
+	}
+
+	cpath = g_strdup (tracker_db_journal_get_filename ());
+	new_filename = g_strdup_printf ("%s.tmp", cpath);
+	g_message ("  Renaming journal:'%s' -> '%s'",
+	           cpath, new_filename);
+	g_rename (cpath, new_filename);
+	g_free (cpath);
+	g_free (new_filename);
+}
+
+
+void
+tracker_db_manager_restore_from_temp (void)
+{
+	guint i;
+	gchar *cpath, *new_filename;
+
+	g_return_if_fail (locations_initialized != FALSE);
+
+	g_message ("Moving all database files");
+
+	for (i = 1; i < G_N_ELEMENTS (dbs); i++) {
+		new_filename = g_strdup_printf ("%s.tmp", dbs[i].abs_filename);
+		g_message ("  Renaming database:'%s' -> '%s'",
+		           dbs[i].abs_filename, new_filename);
+		g_rename (dbs[i].abs_filename, new_filename);
+		g_free (new_filename);
+	}
+
+	cpath = g_strdup (tracker_db_journal_get_filename ());
+	new_filename = g_strdup_printf ("%s.tmp", cpath);
+	g_message ("  Renaming journal:'%s' -> '%s'",
+	           cpath, new_filename);
+	g_rename (cpath, new_filename);
+	g_free (cpath);
+	g_free (new_filename);
+}
+
+void
+tracker_db_manager_remove_temp (void)
+{
+	guint i;
+	gchar *cpath, *new_filename;
+
+	g_return_if_fail (locations_initialized != FALSE);
+
+	g_message ("Removing all temp database files");
+
+	for (i = 1; i < G_N_ELEMENTS (dbs); i++) {
+		new_filename = g_strdup_printf ("%s.tmp", dbs[i].abs_filename);
+		g_message ("  Removing temp database:'%s'",
+		           new_filename);
+		g_unlink (new_filename);
+		g_free (new_filename);
+	}
+
+	cpath = g_strdup (tracker_db_journal_get_filename ());
+	new_filename = g_strdup_printf ("%s.tmp", cpath);
+	g_message ("  Removing temp journal:'%s'",
+	           new_filename);
+	g_unlink (new_filename);
+	g_free (cpath);
+	g_free (new_filename);
 }
 
 void

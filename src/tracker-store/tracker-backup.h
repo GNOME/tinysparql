@@ -52,11 +52,9 @@ GType          tracker_backup_get_type (void) G_GNUC_CONST;
 TrackerBackup *tracker_backup_new      (void);
 void           tracker_backup_save     (TrackerBackup          *object,
                                         const gchar            *destination_uri,
-                                        const gchar            *journal_uri,
                                         DBusGMethodInvocation  *context,
                                         GError                **error);
 void           tracker_backup_restore  (TrackerBackup          *object,
-                                        const gchar            *backup_uri,
                                         const gchar            *journal_uri,
                                         DBusGMethodInvocation  *context,
                                         GError                **error);
