@@ -1350,21 +1350,17 @@ AM_CONDITIONAL(HAVE_LIBVORBIS, test "x$have_libvorbis" = "xyes")
 AC_CACHE_CHECK([if we have ioprio],[tracker_cv_have_ioprio],
   [AC_RUN_IFELSE(
     [AC_LANG_PROGRAM([[
-	#include <stdlib.h>
-	#include <errno.h>
-	#include <sys/syscall.h>
-	#include <unistd.h>
+        #include <stdlib.h>
+        #include <errno.h>
+        #include <sys/syscall.h>
+        #include <unistd.h>
+        inline int ioprio_get (int which, int who)
+        {
+            return syscall (__NR_ioprio_get, which, who);
+        }
       ]],
       [[
-        inline int ioprio_get (int which, int who)
-	{
-	       return syscall (__NR_ioprio_get, which, who);
-	}
-
-	int main ()
-	{
-	       return ioprio_get (1, 0);
-	}
+          return !(ioprio_get (1, 0) != -1);
       ]])],
     [tracker_cv_have_ioprio=yes],
     [tracker_cv_have_ioprio=no],
