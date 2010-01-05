@@ -30,6 +30,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <errno.h>
+#include <fcntl.h>
 
 #include <glib/gstdio.h>
 
@@ -72,7 +73,7 @@ static struct {
 
 static struct {
 	gchar *journal_filename;
-	FILE *journal;
+	int journal;
 	gsize cur_size;
 	guint cur_block_len;
 	guint cur_block_alloc;
@@ -146,6 +147,39 @@ cur_setstr (gchar       *dest,
 	memset (dest + (*pos)++, 0 & 0xff, 1);
 }
 
+static gboolean
+write_all_data (int    fd, 
+                gchar *data, 
+                gsize  len)
+{
+	gssize written;
+	gboolean result;
+
+	result = FALSE;
+
+	while (len > 0) {
+		written = write (fd, data, len);
+		
+		if (written < 0) {
+			if (errno == EAGAIN) {
+				continue;
+			}
+			goto out;
+		} else if (written == 0) {
+			goto out; /* WTH? Don't loop forever*/
+		}
+		
+		len -= written;
+		data += written;
+	}
+
+	result = TRUE; /* Succeeded! */
+
+out:
+
+	return result;
+}
+
 GQuark
 tracker_db_journal_error_quark (void)
 {
@@ -156,8 +190,10 @@ gboolean
 tracker_db_journal_init (const gchar *filename)
 {
 	struct stat st;
+	int flags;
+	int mode;
 
-	g_return_val_if_fail (writer.journal == NULL, FALSE);
+	g_return_val_if_fail (writer.journal == 0, FALSE);
 
 	writer.cur_block_len = 0;
 	writer.cur_pos = 0;
@@ -176,7 +212,18 @@ tracker_db_journal_init (const gchar *filename)
 		                                            NULL);
 	}
 
-	writer.journal = g_fopen (writer.journal_filename, "a");
+	mode = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP;
+	flags = O_WRONLY | O_APPEND | O_CREAT;
+	writer.journal = g_open (writer.journal_filename, flags, mode);
+
+	if (writer.journal == -1) {
+		g_critical ("Could not open journal for writing, %s", 
+		            g_strerror (errno));
+
+		g_free (writer.journal_filename);
+		writer.journal_filename = NULL;
+		return FALSE;
+	}
 
 	if (g_stat (writer.journal_filename, &st) == 0) {
 		writer.cur_size = (gsize) st.st_size;
@@ -199,10 +246,13 @@ tracker_db_journal_init (const gchar *filename)
 		writer.cur_block[6] = '0';
 		writer.cur_block[7] = '1';
 
-		write (fileno (writer.journal), writer.cur_block, 8);
+		if (!write_all_data (writer.journal, writer.cur_block, 8)) {
+			g_free (writer.journal_filename);
+			writer.journal_filename = NULL;
+			return FALSE;
+		}
 
 		writer.cur_size += 8;
-
 		cur_block_kill ();
 	}
 
@@ -212,12 +262,17 @@ tracker_db_journal_init (const gchar *filename)
 gboolean
 tracker_db_journal_shutdown (void)
 {
-	if (writer.journal == NULL) {
+	if (writer.journal == 0) {
 		return TRUE;
 	}
 
-	fclose (writer.journal);
-	writer.journal = NULL;
+	if (close (writer.journal) != 0) {
+		g_warning ("Could not close journal, %s", 
+		           g_strerror (errno));
+		return FALSE;
+	}
+
+	writer.journal = 0;
 
 	g_free (writer.journal_filename);
 	writer.journal_filename = NULL;
@@ -228,7 +283,7 @@ tracker_db_journal_shutdown (void)
 gsize
 tracker_db_journal_get_size (void)
 {
-	g_return_val_if_fail (writer.journal != NULL, FALSE);
+	g_return_val_if_fail (writer.journal > 0, FALSE);
 
 	return writer.cur_size;
 }
@@ -236,7 +291,7 @@ tracker_db_journal_get_size (void)
 const gchar *
 tracker_db_journal_get_filename (void)
 {
-	g_return_val_if_fail (writer.journal != NULL, FALSE);
+	g_return_val_if_fail (writer.journal > 0, FALSE);
 
 	return (const gchar*) writer.journal_filename;
 }
@@ -246,7 +301,7 @@ tracker_db_journal_start_transaction (void)
 {
 	guint size;
 
-	g_return_val_if_fail (writer.journal != NULL, FALSE);
+	g_return_val_if_fail (writer.journal > 0, FALSE);
 
 	size = sizeof (guint32) * 3;
 	cur_block_maybe_expand (size);
@@ -272,7 +327,7 @@ tracker_db_journal_append_delete_statement (guint32      s_id,
 	DataFormat df;
 	gint size;
 
-	g_return_val_if_fail (writer.journal != NULL, FALSE);
+	g_return_val_if_fail (writer.journal > 0, FALSE);
 
 	o_len = strlen (object);
 	df = DATA_FORMAT_OPERATION_DELETE;
@@ -300,7 +355,7 @@ tracker_db_journal_append_delete_statement_id (guint32 s_id,
 	DataFormat df;
 	gint size;
 
-	g_return_val_if_fail (writer.journal != NULL, FALSE);
+	g_return_val_if_fail (writer.journal > 0, FALSE);
 
 	df = DATA_FORMAT_OPERATION_DELETE | DATA_FORMAT_OBJECT_ID;
 	size = sizeof (guint32) * 4;
@@ -327,7 +382,7 @@ tracker_db_journal_append_insert_statement (guint32      s_id,
 	DataFormat df;
 	gint size;
 
-	g_return_val_if_fail (writer.journal != NULL, FALSE);
+	g_return_val_if_fail (writer.journal > 0, FALSE);
 
 	o_len = strlen (object);
 	df = 0x00;
@@ -354,7 +409,7 @@ tracker_db_journal_append_insert_statement_id (guint32 s_id,
 	DataFormat df;
 	gint size;
 
-	g_return_val_if_fail (writer.journal != NULL, FALSE);
+	g_return_val_if_fail (writer.journal > 0, FALSE);
 
 	df = DATA_FORMAT_OBJECT_ID;
 	size = sizeof (guint32) * 4;
@@ -380,7 +435,7 @@ tracker_db_journal_append_resource (guint32      s_id,
 	DataFormat df;
 	gint size;
 
-	g_return_val_if_fail (writer.journal != NULL, FALSE);
+	g_return_val_if_fail (writer.journal > 0, FALSE);
 
 	o_len = strlen (uri);
 	df = DATA_FORMAT_RESOURCE_INSERT;
@@ -401,7 +456,7 @@ tracker_db_journal_append_resource (guint32      s_id,
 gboolean
 tracker_db_journal_rollback_transaction (void)
 {
-	g_return_val_if_fail (writer.journal != NULL, FALSE);
+	g_return_val_if_fail (writer.journal > 0, FALSE);
 
 	cur_block_kill ();
 
@@ -416,7 +471,7 @@ tracker_db_journal_commit_transaction (void)
 	guint size;
 	guint offset;
 
-	g_return_val_if_fail (writer.journal != NULL, FALSE);
+	g_return_val_if_fail (writer.journal > 0, FALSE);
 
 	begin_pos = 0;
 	size = sizeof (guint32);
@@ -442,8 +497,7 @@ tracker_db_journal_commit_transaction (void)
 	crc = tracker_crc32 (writer.cur_block + offset, writer.cur_block_len - offset);
 	cur_setnum (writer.cur_block, &begin_pos, crc);
 
-	/* FIXME: What if we don't write all of len, needs improving. */
-	if (write (fileno (writer.journal), writer.cur_block, writer.cur_block_len) == -1) {
+	if (!write_all_data (writer.journal, writer.cur_block, writer.cur_block_len)) {
 		g_critical ("Could not write to journal, %s", g_strerror (errno));
 		return FALSE;
 	}
@@ -460,9 +514,9 @@ tracker_db_journal_commit_transaction (void)
 gboolean
 tracker_db_journal_fsync (void)
 {
-	g_return_val_if_fail (writer.journal != NULL, FALSE);
+	g_return_val_if_fail (writer.journal > 0, FALSE);
 
-	return fsync (fileno (writer.journal)) == 0;
+	return fsync (writer.journal) == 0;
 }
 
 /*
