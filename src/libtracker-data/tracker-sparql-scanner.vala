@@ -525,11 +525,16 @@ public class Tracker.SparqlScanner : Object {
 				current++;
 				if (current < end) {
 					// check whether token is an IRI
-					while (current < end && current[0] > ' ') {
+					while (current < end && current[0] != '>') {
+						if (current[0] >= 0x00 && current[0] < 0x20) {
+							// control character, not an IRI
+							break;
+						}
 						switch (current[0]) {
 						case '<':
 						case '>':
 						case '"':
+						case ' ':
 						case '{':
 						case '}':
 						case '|':
