@@ -63,9 +63,218 @@
 
 static gchar              *ontologies_dir;
 static gboolean            initialized;
+static gboolean            in_journal_replay;
 
 static void
-load_ontology_file_from_path (const gchar        *ontology_file)
+load_ontology_statement (const gchar *ontology_file,
+                         guint32      subject_id,
+                         const gchar *subject,
+                         const gchar *predicate,
+                         const gchar *object,
+                         guint32     *max_id)
+{
+	if (g_strcmp0 (predicate, RDF_TYPE) == 0) {
+		if (g_strcmp0 (object, RDFS_CLASS) == 0) {
+			TrackerClass *class;
+
+			if (tracker_ontology_get_class_by_uri (subject) != NULL) {
+				g_critical ("%s: Duplicate definition of class %s", ontology_file, subject);
+				return;
+			}
+
+			if (max_id) {
+				subject_id = ++(*max_id);
+			}
+
+			class = tracker_class_new ();
+			tracker_class_set_uri (class, subject);
+			tracker_class_set_id (class, subject_id);
+			tracker_ontology_add_class (class);
+			tracker_ontology_add_id_uri_pair (subject_id, subject);
+			g_object_unref (class);
+		} else if (g_strcmp0 (object, RDF_PROPERTY) == 0) {
+			TrackerProperty *property;
+
+			if (tracker_ontology_get_property_by_uri (subject) != NULL) {
+				g_critical ("%s: Duplicate definition of property %s", ontology_file, subject);
+				return;
+			}
+
+			if (max_id) {
+				subject_id = ++(*max_id);
+			}
+
+			property = tracker_property_new ();
+			tracker_property_set_uri (property, subject);
+			tracker_property_set_id (property, subject_id);
+			tracker_ontology_add_property (property);
+			tracker_ontology_add_id_uri_pair (subject_id, subject);
+			g_object_unref (property);
+		} else if (g_strcmp0 (object, NRL_INVERSE_FUNCTIONAL_PROPERTY) == 0) {
+			TrackerProperty *property;
+
+			property = tracker_ontology_get_property_by_uri (subject);
+			if (property == NULL) {
+				g_critical ("%s: Unknown property %s", ontology_file, subject);
+				return;
+			}
+
+			tracker_property_set_is_inverse_functional_property (property, TRUE);
+		} else if (g_strcmp0 (object, TRACKER_PREFIX "Namespace") == 0) {
+			TrackerNamespace *namespace;
+
+			if (tracker_ontology_get_namespace_by_uri (subject) != NULL) {
+				g_critical ("%s: Duplicate definition of namespace %s", ontology_file, subject);
+				return;
+			}
+
+			namespace = tracker_namespace_new ();
+			tracker_namespace_set_uri (namespace, subject);
+			tracker_ontology_add_namespace (namespace);
+			g_object_unref (namespace);
+		}
+	} else if (g_strcmp0 (predicate, RDFS_SUB_CLASS_OF) == 0) {
+		TrackerClass *class, *super_class;
+
+		class = tracker_ontology_get_class_by_uri (subject);
+		if (class == NULL) {
+			g_critical ("%s: Unknown class %s", ontology_file, subject);
+			return;
+		}
+
+		super_class = tracker_ontology_get_class_by_uri (object);
+		if (super_class == NULL) {
+			g_critical ("%s: Unknown class %s", ontology_file, object);
+			return;
+		}
+
+		tracker_class_add_super_class (class, super_class);
+	} else if (g_strcmp0 (predicate, RDFS_SUB_PROPERTY_OF) == 0) {
+		TrackerProperty *property, *super_property;
+
+		property = tracker_ontology_get_property_by_uri (subject);
+		if (property == NULL) {
+			g_critical ("%s: Unknown property %s", ontology_file, subject);
+			return;
+		}
+
+		super_property = tracker_ontology_get_property_by_uri (object);
+		if (super_property == NULL) {
+			g_critical ("%s: Unknown property %s", ontology_file, object);
+			return;
+		}
+
+		tracker_property_add_super_property (property, super_property);
+	} else if (g_strcmp0 (predicate, RDFS_DOMAIN) == 0) {
+		TrackerProperty *property;
+		TrackerClass *domain;
+
+		property = tracker_ontology_get_property_by_uri (subject);
+		if (property == NULL) {
+			g_critical ("%s: Unknown property %s", ontology_file, subject);
+			return;
+		}
+
+		domain = tracker_ontology_get_class_by_uri (object);
+		if (domain == NULL) {
+			g_critical ("%s: Unknown class %s", ontology_file, object);
+			return;
+		}
+
+		tracker_property_set_domain (property, domain);
+	} else if (g_strcmp0 (predicate, RDFS_RANGE) == 0) {
+		TrackerProperty *property;
+		TrackerClass *range;
+
+		property = tracker_ontology_get_property_by_uri (subject);
+		if (property == NULL) {
+			g_critical ("%s: Unknown property %s", ontology_file, subject);
+			return;
+		}
+
+		range = tracker_ontology_get_class_by_uri (object);
+		if (range == NULL) {
+			g_critical ("%s: Unknown class %s", ontology_file, object);
+			return;
+		}
+
+		tracker_property_set_range (property, range);
+	} else if (g_strcmp0 (predicate, NRL_MAX_CARDINALITY) == 0) {
+		TrackerProperty *property;
+
+		property = tracker_ontology_get_property_by_uri (subject);
+		if (property == NULL) {
+			g_critical ("%s: Unknown property %s", ontology_file, subject);
+			return;
+		}
+
+		if (atoi (object) == 1) {
+			tracker_property_set_multiple_values (property, FALSE);
+		}
+	} else if (g_strcmp0 (predicate, TRACKER_PREFIX "indexed") == 0) {
+		TrackerProperty *property;
+
+		property = tracker_ontology_get_property_by_uri (subject);
+		if (property == NULL) {
+			g_critical ("%s: Unknown property %s", ontology_file, subject);
+			return;
+		}
+
+		if (strcmp (object, "true") == 0) {
+			tracker_property_set_indexed (property, TRUE);
+		}
+	} else if (g_strcmp0 (predicate, TRACKER_PREFIX "transient") == 0) {
+		TrackerProperty *property;
+
+		property = tracker_ontology_get_property_by_uri (subject);
+		if (property == NULL) {
+			g_critical ("%s: Unknown property %s", ontology_file, subject);
+			return;
+		}
+
+		if (g_strcmp0 (object, "true") == 0) {
+			tracker_property_set_transient (property, TRUE);
+		}
+	} else if (g_strcmp0 (predicate, TRACKER_PREFIX "isAnnotation") == 0) {
+		TrackerProperty *property;
+
+		property = tracker_ontology_get_property_by_uri (subject);
+		if (property == NULL) {
+			g_critical ("%s: Unknown property %s", ontology_file, subject);
+			return;
+		}
+
+		if (g_strcmp0 (object, "true") == 0) {
+			tracker_property_set_embedded (property, FALSE);
+		}
+	} else if (g_strcmp0 (predicate, TRACKER_PREFIX "fulltextIndexed") == 0) {
+		TrackerProperty *property;
+
+		property = tracker_ontology_get_property_by_uri (subject);
+		if (property == NULL) {
+			g_critical ("%s: Unknown property %s", ontology_file, subject);
+			return;
+		}
+
+		if (strcmp (object, "true") == 0) {
+			tracker_property_set_fulltext_indexed (property, TRUE);
+		}
+	} else if (g_strcmp0 (predicate, TRACKER_PREFIX "prefix") == 0) {
+		TrackerNamespace *namespace;
+
+		namespace = tracker_ontology_get_namespace_by_uri (subject);
+		if (namespace == NULL) {
+			g_critical ("%s: Unknown namespace %s", ontology_file, subject);
+			return;
+		}
+
+		tracker_namespace_set_prefix (namespace, object);
+	}
+}
+
+static void
+load_ontology_file_from_path (const gchar        *ontology_file,
+                              guint32            *max_id)
 {
 	TrackerTurtleReader *reader;
 	GError              *error = NULL;
@@ -84,191 +293,7 @@ load_ontology_file_from_path (const gchar        *ontology_file)
 		predicate = tracker_turtle_reader_get_predicate (reader);
 		object = tracker_turtle_reader_get_object (reader);
 
-		if (g_strcmp0 (predicate, RDF_TYPE) == 0) {
-			if (g_strcmp0 (object, RDFS_CLASS) == 0) {
-				TrackerClass *class;
-
-				if (tracker_ontology_get_class_by_uri (subject) != NULL) {
-					g_critical ("%s: Duplicate definition of class %s", ontology_file, subject);
-					continue;
-				}
-
-				class = tracker_class_new ();
-				tracker_class_set_uri (class, subject);
-				tracker_ontology_add_class (class);
-				g_object_unref (class);
-			} else if (g_strcmp0 (object, RDF_PROPERTY) == 0) {
-				TrackerProperty *property;
-
-				if (tracker_ontology_get_property_by_uri (subject) != NULL) {
-					g_critical ("%s: Duplicate definition of property %s", ontology_file, subject);
-					continue;
-				}
-
-				property = tracker_property_new ();
-				tracker_property_set_uri (property, subject);
-				tracker_ontology_add_property (property);
-				g_object_unref (property);
-			} else if (g_strcmp0 (object, NRL_INVERSE_FUNCTIONAL_PROPERTY) == 0) {
-				TrackerProperty *property;
-
-				property = tracker_ontology_get_property_by_uri (subject);
-				if (property == NULL) {
-					g_critical ("%s: Unknown property %s", ontology_file, subject);
-					continue;
-				}
-
-				tracker_property_set_is_inverse_functional_property (property, TRUE);
-			} else if (g_strcmp0 (object, TRACKER_PREFIX "Namespace") == 0) {
-				TrackerNamespace *namespace;
-
-				if (tracker_ontology_get_namespace_by_uri (subject) != NULL) {
-					g_critical ("%s: Duplicate definition of namespace %s", ontology_file, subject);
-					continue;
-				}
-
-				namespace = tracker_namespace_new ();
-				tracker_namespace_set_uri (namespace, subject);
-				tracker_ontology_add_namespace (namespace);
-				g_object_unref (namespace);
-			}
-		} else if (g_strcmp0 (predicate, RDFS_SUB_CLASS_OF) == 0) {
-			TrackerClass *class, *super_class;
-
-			class = tracker_ontology_get_class_by_uri (subject);
-			if (class == NULL) {
-				g_critical ("%s: Unknown class %s", ontology_file, subject);
-				continue;
-			}
-
-			super_class = tracker_ontology_get_class_by_uri (object);
-			if (super_class == NULL) {
-				g_critical ("%s: Unknown class %s", ontology_file, object);
-				continue;
-			}
-
-			tracker_class_add_super_class (class, super_class);
-		} else if (g_strcmp0 (predicate, RDFS_SUB_PROPERTY_OF) == 0) {
-			TrackerProperty *property, *super_property;
-
-			property = tracker_ontology_get_property_by_uri (subject);
-			if (property == NULL) {
-				g_critical ("%s: Unknown property %s", ontology_file, subject);
-				continue;
-			}
-
-			super_property = tracker_ontology_get_property_by_uri (object);
-			if (super_property == NULL) {
-				g_critical ("%s: Unknown property %s", ontology_file, object);
-				continue;
-			}
-
-			tracker_property_add_super_property (property, super_property);
-		} else if (g_strcmp0 (predicate, RDFS_DOMAIN) == 0) {
-			TrackerProperty *property;
-			TrackerClass *domain;
-
-			property = tracker_ontology_get_property_by_uri (subject);
-			if (property == NULL) {
-				g_critical ("%s: Unknown property %s", ontology_file, subject);
-				continue;
-			}
-
-			domain = tracker_ontology_get_class_by_uri (object);
-			if (domain == NULL) {
-				g_critical ("%s: Unknown class %s", ontology_file, object);
-				continue;
-			}
-
-			tracker_property_set_domain (property, domain);
-		} else if (g_strcmp0 (predicate, RDFS_RANGE) == 0) {
-			TrackerProperty *property;
-			TrackerClass *range;
-
-			property = tracker_ontology_get_property_by_uri (subject);
-			if (property == NULL) {
-				g_critical ("%s: Unknown property %s", ontology_file, subject);
-				continue;
-			}
-
-			range = tracker_ontology_get_class_by_uri (object);
-			if (range == NULL) {
-				g_critical ("%s: Unknown class %s", ontology_file, object);
-				continue;
-			}
-
-			tracker_property_set_range (property, range);
-		} else if (g_strcmp0 (predicate, NRL_MAX_CARDINALITY) == 0) {
-			TrackerProperty *property;
-
-			property = tracker_ontology_get_property_by_uri (subject);
-			if (property == NULL) {
-				g_critical ("%s: Unknown property %s", ontology_file, subject);
-				continue;
-			}
-
-			if (atoi (object) == 1) {
-				tracker_property_set_multiple_values (property, FALSE);
-			}
-		} else if (g_strcmp0 (predicate, TRACKER_PREFIX "indexed") == 0) {
-			TrackerProperty *property;
-
-			property = tracker_ontology_get_property_by_uri (subject);
-			if (property == NULL) {
-				g_critical ("%s: Unknown property %s", ontology_file, subject);
-				continue;
-			}
-
-			if (strcmp (object, "true") == 0) {
-				tracker_property_set_indexed (property, TRUE);
-			}
-		} else if (g_strcmp0 (predicate, TRACKER_PREFIX "transient") == 0) {
-			TrackerProperty *property;
-
-			property = tracker_ontology_get_property_by_uri (subject);
-			if (property == NULL) {
-				g_critical ("%s: Unknown property %s", ontology_file, subject);
-				continue;
-			}
-
-			if (g_strcmp0 (object, "true") == 0) {
-				tracker_property_set_transient (property, TRUE);
-			}
-		} else if (g_strcmp0 (predicate, TRACKER_PREFIX "isAnnotation") == 0) {
-			TrackerProperty *property;
-
-			property = tracker_ontology_get_property_by_uri (subject);
-			if (property == NULL) {
-				g_critical ("%s: Unknown property %s", ontology_file, subject);
-				continue;
-			}
-
-			if (g_strcmp0 (object, "true") == 0) {
-				tracker_property_set_embedded (property, FALSE);
-			}
-		} else if (g_strcmp0 (predicate, TRACKER_PREFIX "fulltextIndexed") == 0) {
-			TrackerProperty *property;
-
-			property = tracker_ontology_get_property_by_uri (subject);
-			if (property == NULL) {
-				g_critical ("%s: Unknown property %s", ontology_file, subject);
-				continue;
-			}
-
-			if (strcmp (object, "true") == 0) {
-				tracker_property_set_fulltext_indexed (property, TRUE);
-			}
-		} else if (g_strcmp0 (predicate, TRACKER_PREFIX "prefix") == 0) {
-			TrackerNamespace *namespace;
-
-			namespace = tracker_ontology_get_namespace_by_uri (subject);
-			if (namespace == NULL) {
-				g_critical ("%s: Unknown namespace %s", ontology_file, subject);
-				continue;
-			}
-
-			tracker_namespace_set_prefix (namespace, object);
-		}
+		load_ontology_statement (ontology_file, 0, subject, predicate, object, max_id);
 	}
 
 	g_object_unref (reader);
@@ -280,13 +305,59 @@ load_ontology_file_from_path (const gchar        *ontology_file)
 }
 
 static void
-load_ontology_file (const gchar               *filename)
+load_ontology_file (const gchar               *filename,
+                    guint32                   *max_id)
 {
 	gchar           *ontology_file;
 
 	ontology_file = g_build_filename (ontologies_dir, filename, NULL);
-	load_ontology_file_from_path (ontology_file);
+	load_ontology_file_from_path (ontology_file, max_id);
 	g_free (ontology_file);
+}
+
+static GHashTable *
+load_ontology_from_journal (void)
+{
+	GHashTable *id_uri_map;
+
+	id_uri_map = g_hash_table_new (g_direct_hash, g_direct_equal);
+
+	while (tracker_db_journal_reader_next (NULL)) {
+		TrackerDBJournalEntryType type;
+
+		type = tracker_db_journal_reader_get_type ();
+		if (type == TRACKER_DB_JOURNAL_RESOURCE) {
+			guint32 id;
+			const gchar *uri;
+
+			tracker_db_journal_reader_get_resource (&id, &uri);
+			g_hash_table_insert (id_uri_map, GUINT_TO_POINTER (id), (gpointer) uri);
+		} else if (type == TRACKER_DB_JOURNAL_END_TRANSACTION) {
+			/* end of initial transaction => end of ontology */
+			break;
+		} else {
+			const gchar *subject, *predicate, *object;
+			guint32 subject_id, predicate_id, object_id;
+
+			if (type == TRACKER_DB_JOURNAL_INSERT_STATEMENT) {
+				tracker_db_journal_reader_get_statement (&subject_id, &predicate_id, &object);
+			} else if (type == TRACKER_DB_JOURNAL_INSERT_STATEMENT_ID) {
+				tracker_db_journal_reader_get_statement_id (&subject_id, &predicate_id, &object_id);
+				object = g_hash_table_lookup (id_uri_map, GUINT_TO_POINTER (object_id));
+			} else {
+				continue;
+			}
+
+			subject = g_hash_table_lookup (id_uri_map, GUINT_TO_POINTER (subject_id));
+			predicate = g_hash_table_lookup (id_uri_map, GUINT_TO_POINTER (predicate_id));
+
+			load_ontology_statement ("journal", subject_id, subject, predicate, object, NULL);
+		}
+	}
+
+	g_hash_table_unref (id_uri_map);
+
+	return id_uri_map;
 }
 
 static void
@@ -303,6 +374,103 @@ import_ontology_file (const gchar             *filename)
 		g_critical ("%s", error->message);
 		g_error_free (error);
 	}
+}
+
+static gchar *
+query_resource_by_id (guint32 id)
+{
+	TrackerDBCursor *cursor;
+	TrackerDBInterface *iface;
+	TrackerDBStatement *stmt;
+	gchar *uri;
+
+	g_return_val_if_fail (id > 0, NULL);
+
+	iface = tracker_db_manager_get_db_interface ();
+
+	stmt = tracker_db_interface_create_statement (iface,
+	                                              "SELECT Uri FROM \"rdfs:Resource\" WHERE ID = ?");
+	tracker_db_statement_bind_uint (stmt, 0, id);
+	cursor = tracker_db_statement_start_cursor (stmt, NULL);
+	g_object_unref (stmt);
+
+	tracker_db_cursor_iter_next (cursor);
+	uri = g_strdup (tracker_db_cursor_get_string (cursor, 0));
+	g_object_unref (cursor);
+
+	return uri;
+}
+
+static void
+replay_journal (void)
+{
+	tracker_db_journal_reader_init (NULL);
+
+	while (tracker_db_journal_reader_next (NULL)) {
+		GError *error = NULL;
+		TrackerDBJournalEntryType type;
+		const gchar *subject, *predicate, *object;
+		guint32 subject_id, predicate_id, object_id;
+
+		type = tracker_db_journal_reader_get_type ();
+		if (type == TRACKER_DB_JOURNAL_RESOURCE) {
+			TrackerDBInterface *iface;
+			TrackerDBStatement *stmt;
+			guint32 id;
+			const gchar *uri;
+
+			tracker_db_journal_reader_get_resource (&id, &uri);
+
+			iface = tracker_db_manager_get_db_interface ();
+
+			stmt = tracker_db_interface_create_statement (iface,
+					                              "INSERT  "
+					                              "INTO \"rdfs:Resource\" "
+					                              "(ID, Uri, \"tracker:added\", "
+					                              "\"tracker:modified\", Available) "
+					                              "VALUES (?, ?, ?, 0, 1)");
+			tracker_db_statement_bind_int (stmt, 0, id);
+			tracker_db_statement_bind_text (stmt, 1, uri);
+			tracker_db_statement_bind_int64 (stmt, 2, tracker_db_journal_reader_get_time ());
+			tracker_db_statement_execute (stmt, &error);
+		} else if (type == TRACKER_DB_JOURNAL_START_TRANSACTION) {
+			tracker_data_begin_replay_transaction ();
+		} else if (type == TRACKER_DB_JOURNAL_END_TRANSACTION) {
+			tracker_data_commit_transaction ();
+		} else if (type == TRACKER_DB_JOURNAL_INSERT_STATEMENT) {
+			tracker_db_journal_reader_get_statement (&subject_id, &predicate_id, &object);
+
+			subject = query_resource_by_id (subject_id);
+			predicate = query_resource_by_id (predicate_id);
+
+			tracker_data_insert_statement_with_string (NULL, subject, predicate, object, &error);
+		} else if (type == TRACKER_DB_JOURNAL_INSERT_STATEMENT_ID) {
+			tracker_db_journal_reader_get_statement_id (&subject_id, &predicate_id, &object_id);
+
+			subject = query_resource_by_id (subject_id);
+			predicate = query_resource_by_id (predicate_id);
+			object = query_resource_by_id (object_id);
+
+			tracker_data_insert_statement_with_uri (NULL, subject, predicate, object, &error);
+		} else if (type == TRACKER_DB_JOURNAL_DELETE_STATEMENT) {
+			tracker_db_journal_reader_get_statement (&subject_id, &predicate_id, &object);
+
+			subject = query_resource_by_id (subject_id);
+			predicate = query_resource_by_id (predicate_id);
+
+			tracker_data_delete_statement (NULL, subject, predicate, object, &error);
+		} else if (type == TRACKER_DB_JOURNAL_DELETE_STATEMENT_ID) {
+			tracker_db_journal_reader_get_statement_id (&subject_id, &predicate_id, &object_id);
+
+			subject = query_resource_by_id (subject_id);
+			predicate = query_resource_by_id (predicate_id);
+			object = query_resource_by_id (object_id);
+
+			tracker_data_delete_statement (NULL, subject, predicate, object, &error);
+		}
+	}
+
+	tracker_db_journal_reader_shutdown ();
 }
 
 static void
@@ -556,14 +724,11 @@ db_get_static_data (TrackerDBInterface *iface)
 
 
 static void
-insert_uri_in_resource_table (TrackerDBInterface *iface, 
-                              const gchar *uri, 
-                              gint *max_id,
-                              TrackerClass *class,
-                              TrackerProperty *property)
+insert_uri_in_resource_table (TrackerDBInterface *iface,
+                              const gchar        *uri,
+                              guint32             id)
 {
 	TrackerDBStatement *stmt;
-	gint id = ++(*max_id);
 	GError *error = NULL;
 
 	stmt = tracker_db_interface_create_statement (iface,
@@ -582,14 +747,9 @@ insert_uri_in_resource_table (TrackerDBInterface *iface,
 		g_clear_error (&error);
 	}
 
-	tracker_db_journal_append_resource (id, uri);
-	tracker_ontology_add_id_uri_pair (id, uri);
-
-	if (class)
-		tracker_class_set_id (class, id);
-
-	if (property)
-		tracker_property_set_id (property, id);
+	if (!in_journal_replay) {
+		tracker_db_journal_append_resource (id, uri);
+	}
 
 	g_object_unref (stmt);
 
@@ -800,6 +960,40 @@ create_fts_table (TrackerDBInterface *iface)
 	g_free (query);
 }
 
+static void
+import_ontology_into_db (void)
+{
+	TrackerDBInterface *iface;
+
+	TrackerClass **classes;
+	TrackerProperty **properties;
+	guint i, n_props, n_classes;
+
+	iface = tracker_db_manager_get_db_interface ();
+
+	classes = tracker_ontology_get_classes (&n_classes);
+	properties = tracker_ontology_get_properties (&n_props);
+
+	/* create tables */
+	for (i = 0; i < n_classes; i++) {
+		create_decomposed_metadata_tables (iface, classes[i]);
+	}
+
+	create_fts_table (iface);
+
+	/* insert classes into rdfs:Resource table */
+	for (i = 0; i < n_classes; i++) {
+		insert_uri_in_resource_table (iface, tracker_class_get_uri (classes[i]),
+		                              tracker_class_get_id (classes[i]));
+	}
+
+	/* insert properties into rdfs:Resource table */
+	for (i = 0; i < n_props; i++) {
+		insert_uri_in_resource_table (iface, tracker_property_get_uri (properties[i]),
+		                              tracker_property_get_id (properties[i]));
+	}
+}
+
 gboolean
 tracker_data_manager_init (TrackerDBManagerFlags  flags,
                            const gchar           *test_schema,
@@ -807,7 +1001,7 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
                            gboolean              *need_journal)
 {
 	TrackerDBInterface *iface;
-	gboolean is_first_time_index;
+	gboolean is_first_time_index, read_journal;
 
 	/* First set defaults for return values */
 	if (first_time) {
@@ -822,6 +1016,8 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 		return TRUE;
 	}
 
+	read_journal = FALSE;
+
 	tracker_db_manager_init (flags, &is_first_time_index, FALSE, need_journal);
 
 	if (first_time != NULL) {
@@ -830,17 +1026,42 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 
 	iface = tracker_db_manager_get_db_interface ();
 
-	tracker_db_journal_init (NULL);
+	if (is_first_time_index && !test_schema) {
+		if (tracker_db_journal_reader_init (NULL)) {
+			if (tracker_db_journal_reader_next (NULL)) {
+				/* journal with at least one valid transaction
+				   is required to trigger journal replay */
+				read_journal = TRUE;
+			} else {
+				tracker_db_journal_reader_shutdown ();
+			}
+		}
+	}
 
-	if (is_first_time_index) {
-		TrackerClass **classes;
-		TrackerProperty **properties;
+	if (read_journal) {
+		in_journal_replay = TRUE;
+
+		/* load ontology from journal into memory */
+		load_ontology_from_journal ();
+
+		tracker_data_begin_replay_transaction ();
+		import_ontology_into_db ();
+		tracker_data_commit_transaction ();
+
+		tracker_db_journal_reader_shutdown ();
+
+		replay_journal ();
+
+		in_journal_replay = FALSE;
+
+		/* open journal for writing */
+		tracker_db_journal_init (NULL);
+	} else if (is_first_time_index) {
 		gint max_id = 0;
 		GList *sorted = NULL, *l;
 		gchar *test_schema_path = NULL;
 		const gchar *env_path;
 		GError *error = NULL;
-		guint i, n_props, n_classes;
 
 		env_path = g_getenv ("TRACKER_DB_ONTOLOGIES_DIR");
 
@@ -881,43 +1102,24 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 			g_dir_close (ontologies);
 		}
 
+		tracker_db_journal_init (NULL);
+
 		/* load ontology from files into memory */
 		for (l = sorted; l; l = l->next) {
 			g_debug ("Loading ontology %s", (char *) l->data);
-			load_ontology_file (l->data);
+			load_ontology_file (l->data, &max_id);
 		}
 
 		if (test_schema) {
 			g_debug ("Loading ontology:'%s' (TEST ONTOLOGY)", test_schema_path);
 
-			load_ontology_file_from_path (test_schema_path);
+			load_ontology_file_from_path (test_schema_path, &max_id);
 		}
-
-		classes = tracker_ontology_get_classes (&n_classes);
 
 		tracker_data_begin_transaction ();
 		tracker_db_journal_start_transaction ();
 
-		/* create tables */
-		for (i = 0; i < n_classes; i++) {
-			create_decomposed_metadata_tables (iface, classes[i]);
-		}
-
-		/* insert classes into rdfs:Resource table */
-		for (i = 0; i < n_classes; i++) {
-			insert_uri_in_resource_table (iface, tracker_class_get_uri (classes[i]),
-				                      &max_id, classes[i], NULL);
-		}
-
-		/* insert properties into rdfs:Resource table */
-		properties = tracker_ontology_get_properties (&n_props);
-
-		for (i = 0; i < n_props; i++) {
-			insert_uri_in_resource_table (iface, tracker_property_get_uri (properties[i]),
-			                              &max_id, NULL, properties[i]);
-		}
-
-		create_fts_table (iface);
+		import_ontology_into_db ();
 
 		/* store ontology in database */
 		for (l = sorted; l; l = l->next) {
@@ -942,6 +1144,8 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 		g_free (ontologies_dir);
 		ontologies_dir = NULL;
 	} else {
+		tracker_db_journal_init (NULL);
+
 		/* load ontology from database into memory */
 		db_get_static_data (iface);
 		create_decomposed_transient_metadata_tables (iface);
