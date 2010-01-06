@@ -652,7 +652,8 @@ tracker_db_journal_reader_next (GError **error)
 		/* Expect new transaction or end of file */
 		guint32 entry_size;
 		guint32 entry_size_check;
-		guint32 crc32;
+		guint32 crc;
+		guint32 crc_check;
 
 		/* Check the end is not before where we currently are */
 		if (reader.current >= reader.end) {
@@ -692,7 +693,7 @@ tracker_db_journal_reader_next (GError **error)
 		 */
 		reader.current += 4;
 
-		/* compare with entry_size at end */
+		/* Read entry size check at the end of the entry */
 		entry_size_check = read_uint32 (reader.entry_end - 4);
 
 		if (entry_size != entry_size_check) {
@@ -704,17 +705,24 @@ tracker_db_journal_reader_next (GError **error)
 			return FALSE;
 		}
 
+		/* Read the amount of triples */
 		reader.amount_of_triples = read_uint32 (reader.current);
 		reader.current += 4;
 
-		crc32 = read_uint32 (reader.current);
+		/* Read the crc */
+		crc_check = read_uint32 (reader.current);
 		reader.current += 4;
 
-		/* verify checksum */
-		if (crc32 != tracker_crc32 (reader.entry_begin, entry_size)) {
+		/* Calculate the crc */
+		crc = tracker_crc32 (reader.entry_begin + (sizeof (guint32) * 3), entry_size - (sizeof (guint32) * 3));
+
+		/* Verify checksum */
+		if (crc != crc_check) {
 			/* damaged journal entry */
 			g_set_error (error, TRACKER_DB_JOURNAL_ERROR, 0, 
-			             "Damaged journal entry, crc32 failed");
+			             "Damaged journal entry, 0x%.8x != 0x%.8x (crc32 failed)",
+			             crc,
+			             crc_check);
 			return FALSE;
 		}
 
