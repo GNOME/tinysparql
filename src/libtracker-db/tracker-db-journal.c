@@ -328,6 +328,9 @@ tracker_db_journal_append_delete_statement (guint32      s_id,
 	gint size;
 
 	g_return_val_if_fail (writer.journal > 0, FALSE);
+	g_return_val_if_fail (s_id > 0, FALSE);
+	g_return_val_if_fail (p_id > 0, FALSE);
+	g_return_val_if_fail (object != NULL, FALSE);
 
 	o_len = strlen (object);
 	df = DATA_FORMAT_OPERATION_DELETE;
@@ -356,6 +359,9 @@ tracker_db_journal_append_delete_statement_id (guint32 s_id,
 	gint size;
 
 	g_return_val_if_fail (writer.journal > 0, FALSE);
+	g_return_val_if_fail (s_id > 0, FALSE);
+	g_return_val_if_fail (p_id > 0, FALSE);
+	g_return_val_if_fail (o_id > 0, FALSE);
 
 	df = DATA_FORMAT_OPERATION_DELETE | DATA_FORMAT_OBJECT_ID;
 	size = sizeof (guint32) * 4;
@@ -383,6 +389,9 @@ tracker_db_journal_append_insert_statement (guint32      s_id,
 	gint size;
 
 	g_return_val_if_fail (writer.journal > 0, FALSE);
+	g_return_val_if_fail (s_id > 0, FALSE);
+	g_return_val_if_fail (p_id > 0, FALSE);
+	g_return_val_if_fail (object != NULL, FALSE);
 
 	o_len = strlen (object);
 	df = 0x00;
@@ -410,6 +419,9 @@ tracker_db_journal_append_insert_statement_id (guint32 s_id,
 	gint size;
 
 	g_return_val_if_fail (writer.journal > 0, FALSE);
+	g_return_val_if_fail (s_id > 0, FALSE);
+	g_return_val_if_fail (p_id > 0, FALSE);
+	g_return_val_if_fail (o_id > 0, FALSE);
 
 	df = DATA_FORMAT_OBJECT_ID;
 	size = sizeof (guint32) * 4;
