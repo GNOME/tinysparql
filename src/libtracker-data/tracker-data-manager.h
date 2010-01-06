@@ -39,8 +39,7 @@ G_BEGIN_DECLS
 
 gboolean tracker_data_manager_init                (TrackerDBManagerFlags  flags,
                                                    const gchar           *test_schema,
-                                                   gboolean              *first_time,
-                                                   gboolean              *need_journal);
+                                                   gboolean              *first_time);
 void     tracker_data_manager_shutdown            (void);
 gint64   tracker_data_manager_get_db_option_int64 (const gchar           *option);
 void     tracker_data_manager_set_db_option_int64 (const gchar           *option,

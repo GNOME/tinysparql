@@ -342,7 +342,6 @@ main (gint argc, gchar *argv[])
 	TrackerConfig *config;
 	TrackerDBManagerFlags flags = 0;
 	gboolean is_first_time_index;
-	gboolean need_journal;
 
 	g_type_init ();
 
@@ -453,13 +452,9 @@ main (gint argc, gchar *argv[])
 
 	if (!tracker_data_manager_init (flags,
 	                                NULL,
-	                                &is_first_time_index,
-	                                &need_journal)) {
+	                                &is_first_time_index)) {
 		return EXIT_FAILURE;
 	}
-
-	/* TODO binary-log: need_journal might contain whether the db was corrupt
-	 * or not Do something with that.*/
 
 	tracker_store_init ();
 

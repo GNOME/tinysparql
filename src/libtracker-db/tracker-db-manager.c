@@ -25,6 +25,10 @@
 #include <zlib.h>
 #include <locale.h>
 #include <time.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <stdio.h>
+#include <fcntl.h>
 
 #include <glib/gstdio.h>
 
@@ -51,6 +55,8 @@
 /* Set current database version we are working with */
 #define TRACKER_DB_VERSION_NOW        TRACKER_DB_VERSION_8
 #define TRACKER_DB_VERSION_FILE       "db-version.txt"
+
+#define IN_USE_FILENAME               ".meta.isrunning"
 
 typedef enum {
 	TRACKER_DB_LOCATION_DATA_DIR,
@@ -1012,12 +1018,49 @@ tracker_db_manager_ensure_locale (void)
 	g_free (stored_locale);
 }
 
+static void
+db_recreate_all (void)
+{
+	guint i;
+
+	/* We call an internal version of this function here
+	 * because at the time 'initialized' = FALSE and that
+	 * will cause errors and do nothing.
+	 */
+	g_message ("Cleaning up database files for reindex");
+
+	db_manager_remove_all (FALSE, FALSE);
+
+	/* In cases where we re-init this module, make sure
+	 * we have cleaned up the ontology before we load all
+	 * new databases.
+	 */
+	tracker_ontology_shutdown ();
+
+	/* Make sure we initialize all other modules we depend on */
+	tracker_ontology_init ();
+
+	/* Now create the databases and close them */
+	g_message ("Creating database files, this may take a few moments...");
+
+	for (i = 1; i < G_N_ELEMENTS (dbs); i++) {
+		dbs[i].iface = db_interface_create (i);
+	}
+
+	/* We don't close the dbs in the same loop as before
+	 * becase some databases need other databases
+	 * attached to be created correctly.
+	 */
+	for (i = 1; i < G_N_ELEMENTS (dbs); i++) {
+		g_object_unref (dbs[i].iface);
+		dbs[i].iface = NULL;
+	}
+}
 
 gboolean
 tracker_db_manager_init (TrackerDBManagerFlags  flags,
                          gboolean              *first_time,
-                         gboolean               shared_cache,
-                         gboolean              *need_journal)
+                         gboolean               shared_cache)
 {
 	GType               etype;
 	TrackerDBVersion    version;
@@ -1026,14 +1069,12 @@ tracker_db_manager_init (TrackerDBManagerFlags  flags,
 	const gchar        *env_path;
 	gboolean            need_reindex, did_copy = FALSE;
 	guint               i;
+	gchar              *in_use_filename;
+	int                 in_use_file;
 
 	/* First set defaults for return values */
 	if (first_time) {
 		*first_time = FALSE;
-	}
-
-	if (need_journal) {
-		*need_journal = FALSE;
 	}
 
 	if (initialized) {
@@ -1143,6 +1184,12 @@ tracker_db_manager_init (TrackerDBManagerFlags  flags,
 		tracker_db_interface_sqlite_enable_shared_cache ();
 	}
 
+	in_use_filename = g_build_filename (g_get_user_data_dir (),
+	                                    "tracker",
+	                                    "data",
+	                                    IN_USE_FILENAME,
+	                                    NULL);
+
 	/* Should we reindex? If so, just remove all databases files,
 	 * NOT the paths, note, that these paths are also used for
 	 * other things like the nfs lock file.
@@ -1156,53 +1203,102 @@ tracker_db_manager_init (TrackerDBManagerFlags  flags,
 			return FALSE;
 		}
 
-		/* We call an internal version of this function here
-		 * because at the time 'initialized' = FALSE and that
-		 * will cause errors and do nothing.
-		 */
-		g_message ("Cleaning up database files for reindex");
-
-		/* Remove all but the meta.db in case of did_copy, else remove
-		 * all (only in case meta-backup.db was not restored) */
-
-		db_manager_remove_all (FALSE, did_copy);
-
-		/* In cases where we re-init this module, make sure
-		 * we have cleaned up the ontology before we load all
-		 * new databases.
-		 */
-		tracker_ontology_shutdown ();
+		db_recreate_all ();
 
 		/* Make sure we initialize all other modules we depend on */
 		tracker_ontology_init ();
 
-		/* Now create the databases and close them */
-		g_message ("Creating database files, this may take a few moments...");
+		/* Load databases */
+		g_message ("Loading databases files...");
 
 		for (i = 1; i < G_N_ELEMENTS (dbs); i++) {
 			dbs[i].iface = db_interface_create (i);
+			dbs[i].mtime = tracker_file_get_mtime (dbs[i].abs_filename);
 		}
 
-		/* We don't close the dbs in the same loop as before
-		 * becase some databases need other databases
-		 * attached to be created correctly.
-		 */
-		for (i = 1; i < G_N_ELEMENTS (dbs); i++) {
-			g_object_unref (dbs[i].iface);
-			dbs[i].iface = NULL;
-		}
 	} else {
 		/* Make sure we initialize all other modules we depend on */
 		tracker_ontology_init ();
+
+		/* Load databases */
+		g_message ("Loading databases files...");
+
+		if (g_file_test (in_use_filename, G_FILE_TEST_EXISTS)) {
+			gboolean must_recreate;
+			gsize size = 0;
+
+			must_recreate = FALSE;
+
+			g_message ("Didn't shut down cleanly last time, doing integrity checks");
+
+			for (i = 1; i < G_N_ELEMENTS (dbs) && !must_recreate; i++) {
+				TrackerDBCursor *cursor;
+				TrackerDBStatement *stmt;
+				struct stat st;
+
+				if (g_stat (dbs[i].abs_filename, &st) == 0) {
+					size = st.st_size;
+				}
+
+				/* Size is 1 when using echo > file.db, none of our databases
+				 * are only one byte in size even initually. */
+
+				if (size == 0 || size == 1) {
+					must_recreate = TRUE;
+					continue;
+				}
+
+				dbs[i].iface = db_interface_create (i);
+				dbs[i].mtime = tracker_file_get_mtime (dbs[i].abs_filename);
+
+				stmt = tracker_db_interface_create_statement (dbs[i].iface,
+				                                              "PRAGMA integrity_check(1)");
+
+				cursor = tracker_db_statement_start_cursor (stmt, NULL);
+				g_object_unref (stmt);
+
+				if (cursor) {
+					if (tracker_db_cursor_iter_next (cursor)) {
+						if (g_strcmp0 (tracker_db_cursor_get_string (cursor, 0), "ok") != 0) {
+							must_recreate = TRUE;
+						}
+					}
+					g_object_unref (cursor);
+				}
+			}
+
+			if (must_recreate) {
+
+				if (first_time) {
+					*first_time = TRUE;
+				}
+
+				for (i = 1; i < G_N_ELEMENTS (dbs); i++) {
+					if (dbs[i].iface)
+						g_object_unref (dbs[i].iface);
+				}
+
+				db_recreate_all ();
+
+				for (i = 1; i < G_N_ELEMENTS (dbs); i++) {
+					dbs[i].iface = db_interface_create (i);
+					dbs[i].mtime = tracker_file_get_mtime (dbs[i].abs_filename);
+				}
+			}
+		} else {
+			for (i = 1; i < G_N_ELEMENTS (dbs); i++) {
+				dbs[i].iface = db_interface_create (i);
+				dbs[i].mtime = tracker_file_get_mtime (dbs[i].abs_filename);
+			}
+		}
 	}
 
-	/* Load databases */
-	g_message ("Loading databases files...");
-
-	for (i = 1; i < G_N_ELEMENTS (dbs); i++) {
-		dbs[i].iface = db_interface_create (i);
-		dbs[i].mtime = tracker_file_get_mtime (dbs[i].abs_filename);
-	}
+	in_use_file = g_open (in_use_filename, 
+	                      O_WRONLY | O_APPEND | O_CREAT | O_SYNC,
+	                      S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
+	fsync (in_use_file);
+	close (in_use_file);
+	g_free (in_use_filename);
 
 	tracker_db_manager_ensure_locale ();
 
@@ -1273,6 +1369,7 @@ void
 tracker_db_manager_shutdown (void)
 {
 	guint i;
+	gchar *in_use_filename;
 
 	if (!initialized) {
 		return;
@@ -1317,6 +1414,16 @@ tracker_db_manager_shutdown (void)
 	tracker_ontology_shutdown ();
 
 	initialized = FALSE;
+
+	in_use_filename = g_build_filename (g_get_user_data_dir (),
+	                                    "tracker",
+	                                    "data",
+	                                    IN_USE_FILENAME,
+	                                    NULL);
+
+	g_unlink (in_use_filename);
+
+	g_free (in_use_filename);
 }
 
 void

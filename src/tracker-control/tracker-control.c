@@ -351,7 +351,7 @@ main (int argc, char **argv)
 		tracker_db_journal_init (NULL);
 
 		/* Clean up */
-		if (!tracker_db_manager_init (TRACKER_DB_MANAGER_REMOVE_ALL, NULL, FALSE, NULL)) {
+		if (!tracker_db_manager_init (TRACKER_DB_MANAGER_REMOVE_ALL, NULL, FALSE)) {
 			return EXIT_FAILURE;
 		}
 

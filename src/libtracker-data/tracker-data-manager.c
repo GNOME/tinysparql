@@ -997,8 +997,7 @@ import_ontology_into_db (void)
 gboolean
 tracker_data_manager_init (TrackerDBManagerFlags  flags,
                            const gchar           *test_schema,
-                           gboolean              *first_time,
-                           gboolean              *need_journal)
+                           gboolean              *first_time)
 {
 	TrackerDBInterface *iface;
 	gboolean is_first_time_index, read_journal;
@@ -1008,17 +1007,13 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 		*first_time = FALSE;
 	}
 
-	if (need_journal) {
-		*need_journal = FALSE;
-	}
-
 	if (initialized) {
 		return TRUE;
 	}
 
 	read_journal = FALSE;
 
-	tracker_db_manager_init (flags, &is_first_time_index, FALSE, need_journal);
+	tracker_db_manager_init (flags, &is_first_time_index, FALSE);
 
 	if (first_time != NULL) {
 		*first_time = is_first_time_index;
