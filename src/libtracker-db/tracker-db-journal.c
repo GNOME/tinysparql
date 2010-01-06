@@ -63,6 +63,7 @@ static struct {
 	const gchar *entry_begin;
 	const gchar *entry_end;
 	guint32 amount_of_triples;
+	time_t time;
 	TrackerDBJournalEntryType type;
 	const gchar *uri;
 	guint32 s_id;
@@ -314,6 +315,11 @@ tracker_db_journal_start_transaction (void)
 
 	writer.cur_pos = writer.cur_block_len = size;
 	writer.cur_entry_amount = 0;
+
+	/* add timestamp */
+	cur_block_maybe_expand (sizeof (gint32));
+	cur_setnum (writer.cur_block, &writer.cur_pos, time (NULL));
+	writer.cur_block_len += sizeof (gint32);
 
 	return TRUE;
 }
@@ -645,6 +651,7 @@ tracker_db_journal_reader_next (GError **error)
 	 *    [size]
 	 *    [amount]
 	 *    [crc]
+	 *    [time]
 	 *    [id id id]
 	 *    [id id string]
 	 *    [id ...]
@@ -737,6 +744,10 @@ tracker_db_journal_reader_next (GError **error)
 			             crc_check);
 			return FALSE;
 		}
+
+		/* Read the timestamp */
+		reader.time = read_uint32 (reader.current);
+		reader.current += 4;
 
 		reader.type = TRACKER_DB_JOURNAL_START_TRANSACTION;
 		return TRUE;
