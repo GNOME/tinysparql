@@ -22,9 +22,11 @@
 
 #include <glib.h>
 
-#ifdef __cplusplus
-extern "C"
-#endif
-gchar* extract_msword_content (const gchar *uri, gint max_words);
+G_BEGIN_DECLS
+
+gchar* extract_msword_content (const gchar *uri, 
+                               gint         max_words);
+
+G_END_DECLS
 
 #endif /* __TRACKERD_MSWORD_H__ */

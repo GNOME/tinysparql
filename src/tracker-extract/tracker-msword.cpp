@@ -31,11 +31,7 @@
 #include <wv2/word97_generated.h>
 #include <wv2/ustring.h>
 
-
-extern "C" {
 #include <libtracker-common/tracker-utils.h>
-}
-
 
 using namespace wvWare;
 
