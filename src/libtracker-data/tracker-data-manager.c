@@ -662,8 +662,7 @@ create_decomposed_metadata_property_table (TrackerDBInterface *iface,
 
 static void
 create_decomposed_metadata_tables (TrackerDBInterface *iface,
-                                   TrackerClass       *service,
-                                   gint               *max_id)
+                                   TrackerClass       *service)
 {
 	const char *service_name;
 	GString    *sql;
@@ -739,12 +738,6 @@ create_decomposed_metadata_tables (TrackerDBInterface *iface,
 			                                    service_name,
 			                                    field_name);
 		}
-	}
-
-	/* insert class uri in rdfs:Resource table */
-	if (tracker_class_get_uri (service) != NULL) {
-		insert_uri_in_resource_table (iface, tracker_class_get_uri (service),
-		                              max_id);
 	}
 
 	g_slist_free (class_properties);
@@ -889,7 +882,13 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 
 		/* create tables */
 		for (i = 0; i < n_classes; i++) {
-			create_decomposed_metadata_tables (iface, classes[i], &max_id);
+			create_decomposed_metadata_tables (iface, classes[i]);
+		}
+
+		/* insert classes into rdfs:Resource table */
+		for (i = 0; i < n_classes; i++) {
+			insert_uri_in_resource_table (iface, tracker_class_get_uri (classes[i]),
+				                      &max_id);
 		}
 
 		/* insert properties into rdfs:Resource table */
