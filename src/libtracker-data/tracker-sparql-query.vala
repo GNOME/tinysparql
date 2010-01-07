@@ -1990,6 +1990,16 @@ public class Tracker.SparqlQuery : Object {
 			// _:foo
 			expect (SparqlTokenType.COLON);
 			result = generate_bnodeid (get_last_string ().substring (1));
+		} else if (current () == SparqlTokenType.MINUS) {
+			next ();
+			if (current () == SparqlTokenType.INTEGER ||
+			    current () == SparqlTokenType.DECIMAL ||
+			    current () == SparqlTokenType.DOUBLE) {
+				next ();
+				result = "-" + get_last_string ();
+			} else {
+				throw get_error ("expected variable or term");
+			}
 		} else if (current () == SparqlTokenType.INTEGER) {
 			next ();
 			result = get_last_string ();
