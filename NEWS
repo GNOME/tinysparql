@@ -9,6 +9,7 @@ Improvements / New:
 
   SPARQL:
   * Fixed non-ASCII IRIs.
+  * Fixed inserting negative integers without needing quotes.
 
   libtracker-fts:
   * Simplify virtual table creation.
