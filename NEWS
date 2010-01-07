@@ -1,3 +1,38 @@
+NEW in 0.7.15
+=============
+
+Improvements / New:
+
+  General:
+  * Fixed id3lib configure errors.
+  * Improved README for people building Tracker.
+
+  SPARQL:
+  * Fixed non-ASCII IRIs.
+
+  libtracker-fts:
+  * Simplify virtual table creation.
+
+  libtracker-data:
+  * Separate inserting URIs from creating DB schema.
+
+  tracker-extract:
+  * Added nmm:length for audio files from GStreamer extractor.
+  * Fixed nfo:channels and nfo:sampleRate, uint vs int error.
+
+Bugs:
+
+  * Fixes GB#572237, Remove deprecated Glib symbols
+  * Fixes GB#604655, Fix detection of ioprio
+  * Fixes NB#132761, Tracker does not extract metadata from WMA files
+
+Notes:
+
+  The Deskbar applet packaged with Tracker is currently out of date
+  and needs some love to get it working with the new APIs. It is in
+  the same state as it was for 0.6. As such it isn't expected to work.
+
+
 NEW in 0.7.14
 =============
 
