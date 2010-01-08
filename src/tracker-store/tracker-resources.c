@@ -320,6 +320,26 @@ tracker_resources_sparql_update_blank (TrackerResources       *self,
 	}
 }
 
+void
+tracker_resources_sync (TrackerResources        *self,
+                        DBusGMethodInvocation   *context,
+                        GError                 **error)
+{
+	guint request_id;
+
+	request_id = tracker_dbus_get_next_request_id ();
+
+	tracker_dbus_request_new (request_id,
+	                          context,
+	                          "%s()",
+	                          __FUNCTION__);
+
+	tracker_data_sync ();
+
+	tracker_dbus_request_success (request_id, context);
+	dbus_g_method_return (context);
+}
+
 static void
 batch_update_callback (GError *error, gpointer user_data)
 {

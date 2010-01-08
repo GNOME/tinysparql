@@ -86,6 +86,8 @@ tracker_data_update_sparql_blank           (const gchar               *update,
                                             GError                   **error);
 void     tracker_data_update_buffer_flush           (GError                   **error);
 
+void     tracker_data_sync                          (void);
+
 /* Volume handling */
 void     tracker_data_update_enable_volume          (const gchar               *udi,
                                                      const gchar               *mount_path);

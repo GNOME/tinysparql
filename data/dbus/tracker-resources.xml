@@ -32,6 +32,11 @@
       <arg type="aaa{ss}" name="result" direction="out" />
     </method>
 
+    <!-- sync data to disk -->
+    <method name="Sync">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
+    </method>
+
     <!-- SPARQL Update as part of a batch, use this method when sending a
          possibly large amount of updates to improve performance, may delay
          database commit until receiving BatchCommit -->

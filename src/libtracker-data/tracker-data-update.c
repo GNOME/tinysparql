@@ -2199,3 +2199,9 @@ tracker_data_update_sparql_blank (const gchar  *update,
 	return blank_nodes;
 }
 
+void
+tracker_data_sync (void)
+{
+	tracker_db_journal_fsync ();
+}
+
