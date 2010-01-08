@@ -63,7 +63,7 @@ static struct {
 	const gchar *entry_begin;
 	const gchar *entry_end;
 	guint32 amount_of_triples;
-	time_t time;
+	gint64 time;
 	TrackerDBJournalEntryType type;
 	const gchar *uri;
 	guint32 s_id;
@@ -889,6 +889,12 @@ tracker_db_journal_reader_next (GError **error)
 	g_set_error (error, TRACKER_DB_JOURNAL_ERROR, 0, "Unknown reason");
 
 	return FALSE;
+}
+
+gint64
+tracker_db_journal_reader_get_time (void)
+{
+	return reader.time;
 }
 
 gboolean

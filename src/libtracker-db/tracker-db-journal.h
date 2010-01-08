@@ -82,6 +82,7 @@ TrackerDBJournalEntryType
              tracker_db_journal_reader_get_type              (void);
 
 gboolean     tracker_db_journal_reader_next                  (GError      **error);
+gint64       tracker_db_journal_reader_get_time              (void);
 gboolean     tracker_db_journal_reader_get_resource          (guint32      *id,
                                                               const gchar **uri);
 gboolean     tracker_db_journal_reader_get_statement         (guint32      *s_id,
