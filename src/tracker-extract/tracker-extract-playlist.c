@@ -60,6 +60,7 @@ static TrackerExtractData data[] = {
 	{ "application/vnd.ms-wpl", extract_playlist }, 
 	{ "application/smil", extract_playlist }, 
 	{ "audio/x-ms-asx", extract_playlist },
+	{ "application/x-ms-asx", extract_playlist },
 	{ NULL, NULL }
 };
 
