@@ -400,8 +400,11 @@ batch_commit_callback (gpointer user_data)
 {
 	TrackerDBusMethodInfo *info = user_data;
 
+	tracker_data_sync ();
+
 	tracker_dbus_request_success (info->request_id,
 	                              info->context);
+
 	dbus_g_method_return (info->context);
 }
 
