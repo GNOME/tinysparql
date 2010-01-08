@@ -658,6 +658,19 @@ tracker_db_journal_reader_get_type (void)
 }
 
 gboolean
+tracker_db_journal_reader_verify_last (GError **error)
+{
+	guint32 entry_size_check;
+
+	g_return_val_if_fail (reader.file != NULL, FALSE);
+
+	entry_size_check = read_uint32 (reader.end - 4);
+	reader.current = reader.end - entry_size_check;
+
+	return tracker_db_journal_reader_next (error);
+}
+
+gboolean
 tracker_db_journal_reader_next (GError **error)
 {
 	g_return_val_if_fail (reader.file != NULL, FALSE);

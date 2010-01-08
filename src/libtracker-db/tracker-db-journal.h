@@ -72,6 +72,7 @@ gboolean     tracker_db_journal_rollback_transaction         (void);
 gboolean     tracker_db_journal_commit_transaction           (void);
 
 gboolean     tracker_db_journal_fsync                        (void);
+gboolean     tracker_db_journal_truncate                     (gsize new_size);
 
 /*
  * Reader API
@@ -92,6 +93,7 @@ gboolean     tracker_db_journal_reader_get_statement_id      (guint32      *s_id
                                                               guint32      *p_id,
                                                               guint32      *o_id);
 gsize        tracker_db_journal_reader_get_size_of_correct   (void);
+gboolean     tracker_db_journal_reader_verify_last           (GError **error);
 
 G_END_DECLS
 

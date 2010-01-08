@@ -1107,6 +1107,7 @@ tracker_db_manager_init (TrackerDBManagerFlags  flags,
 	guint               i;
 	gchar              *in_use_filename;
 	int                 in_use_file;
+	gboolean            loaded = FALSE;
 
 	/* First set defaults for return values */
 	if (first_time) {
@@ -1261,23 +1262,21 @@ tracker_db_manager_init (TrackerDBManagerFlags  flags,
 		/* Load databases */
 		g_message ("Loading databases files...");
 
-		for (i = 1; i < G_N_ELEMENTS (dbs); i++) {
-			dbs[i].iface = db_interface_create (i);
-			dbs[i].mtime = tracker_file_get_mtime (dbs[i].abs_filename);
-		}
-
 	} else {
+		gboolean must_recreate;
+
 		/* Make sure we initialize all other modules we depend on */
 		tracker_ontology_init ();
 
 		/* Load databases */
 		g_message ("Loading databases files...");
 
-		if (g_file_test (in_use_filename, G_FILE_TEST_EXISTS)) {
-			gboolean must_recreate;
-			gsize size = 0;
+		tracker_db_journal_reader_init (NULL);
+		must_recreate = !tracker_db_journal_reader_verify_last (NULL);
+		tracker_db_journal_reader_shutdown ();
 
-			must_recreate = FALSE;
+		if (!must_recreate && g_file_test (in_use_filename, G_FILE_TEST_EXISTS)) {
+			gsize size = 0;
 
 			g_message ("Didn't shut down cleanly last time, doing integrity checks");
 
@@ -1293,13 +1292,15 @@ tracker_db_manager_init (TrackerDBManagerFlags  flags,
 				/* Size is 1 when using echo > file.db, none of our databases
 				 * are only one byte in size even initually. */
 
-				if (size == 0 || size == 1) {
+				if (size <= 1) {
 					must_recreate = TRUE;
 					continue;
 				}
 
 				dbs[i].iface = db_interface_create (i);
 				dbs[i].mtime = tracker_file_get_mtime (dbs[i].abs_filename);
+
+				loaded = TRUE;
 
 				stmt = tracker_db_interface_create_statement (dbs[i].iface,
 				                                              "PRAGMA integrity_check(1)");
@@ -1316,30 +1317,31 @@ tracker_db_manager_init (TrackerDBManagerFlags  flags,
 					g_object_unref (cursor);
 				}
 			}
+		}
 
-			if (must_recreate) {
+		if (must_recreate) {
 
-				if (first_time) {
-					*first_time = TRUE;
-				}
-
-				for (i = 1; i < G_N_ELEMENTS (dbs); i++) {
-					if (dbs[i].iface)
-						g_object_unref (dbs[i].iface);
-				}
-
-				db_recreate_all ();
-
-				for (i = 1; i < G_N_ELEMENTS (dbs); i++) {
-					dbs[i].iface = db_interface_create (i);
-					dbs[i].mtime = tracker_file_get_mtime (dbs[i].abs_filename);
-				}
+			if (first_time) {
+				*first_time = TRUE;
 			}
-		} else {
+
 			for (i = 1; i < G_N_ELEMENTS (dbs); i++) {
-				dbs[i].iface = db_interface_create (i);
-				dbs[i].mtime = tracker_file_get_mtime (dbs[i].abs_filename);
+				if (dbs[i].iface) {
+					g_object_unref (dbs[i].iface);
+					dbs[i].iface = NULL;
+				}
 			}
+
+			db_recreate_all ();
+			loaded = FALSE;
+		}
+
+	}
+
+	if (!loaded) {
+		for (i = 1; i < G_N_ELEMENTS (dbs); i++) {
+			dbs[i].iface = db_interface_create (i);
+			dbs[i].mtime = tracker_file_get_mtime (dbs[i].abs_filename);
 		}
 	}
 
