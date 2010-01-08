@@ -6,6 +6,7 @@
 
 @prefix mlo: <http://www.tracker-project.org/temp/mlo#> .
 @prefix tracker: <http://www.tracker-project.org/ontologies/tracker#> .
+@prefix nao: <http://www.semanticdesktop.org/ontologies/2007/08/15/nao#> .
 
 mlo: a tracker:Namespace ;
     tracker:prefix "mlo" .
@@ -15,10 +16,16 @@ mlo:GeoPoint a rdfs:Class ;
     rdfs:comment "The inherited properties from InformationElement can be used to add details." ;
     rdfs:subClassOf nie:InformationElement .
 
-# Should this be a subclass of nao:Tag?
-mlo:PointOfInterest a rdfs:Class ;
-    rdfs:label "Annotation for a point (FIXME subclass of nao:Tag?)" ;
+
+mlo:Landmark a rdfs:Class ;
+    rdfs:label "Point with special relevance for the user" ;
     rdfs:subClassOf nie:InformationElement ;
+    rdfs:comment "Use the nie title, description, ... properties" .
+
+mlo:PointOfInterest a rdfs:Class ;
+    rdfs:label "Use mlo:Landmark instead" ;
+    rdfs:subClassOf mlo:Landmark ;
+    nao:deprecated true ;
     rdfs:comment "Use the nie title, description, ...  properties".
 
 mlo:LocationBoundingBox a rdfs:Class ;
@@ -26,7 +33,7 @@ mlo:LocationBoundingBox a rdfs:Class ;
     rdfs:subClassOf nie:InformationElement .
 
 mlo:Route a rdfs:Class ;
-    rdfs:label "Bounding box with an specific use-case" ;
+    rdfs:label "Minimum box containing all the points traversed in sequence." ;
     rdfs:subClassOf mlo:LocationBoundingBox .
 
 #Properties of GeoPoint
@@ -38,13 +45,13 @@ mlo:latitude a rdf:Property ;
 
 mlo:longitude a rdf:Property ;
     rdfs:label "Longitude" ;
-    rdfs:comment "Positive to one side of the Greenwich meridian, negative to the the other" ;
+    rdfs:comment "Positive to the East of the Greenwich meridian, negative to the West (following WGS-84)" ;
     rdfs:domain mlo:GeoPoint ;
     rdfs:range  xsd:double .
 
 mlo:altitude a rdf:Property ;
     rdfs:label "Altitude" ;
-    rdfs:comment "Altitude above mean sea level";
+    rdfs:comment "Altitude following WGS 84 reference";
     rdfs:domain mlo:GeoPoint ;
     rdfs:range  xsd:integer .
 
@@ -125,3 +132,10 @@ mlo:address a rdf:Property ;
     rdfs:label "Address" ;
     rdfs:domain mlo:GeoPoint ;
     rdfs:range  xsd:string .
+
+# Properties of PointOfInterest
+mlo:poiLocation a rdf:Property ;
+    rdfs:label "POI Location" ;
+    rdfs:comment "Coordinates of the point" ;
+    rdfs:domain mlo:Landmark ;
+    rdfs:range mlo:GeoPoint .
