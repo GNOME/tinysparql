@@ -62,6 +62,8 @@ static struct {
 	const gchar *end;
 	const gchar *entry_begin;
 	const gchar *entry_end;
+	const gchar *last_success;
+	const gchar *start;
 	guint32 amount_of_triples;
 	gint64 time;
 	TrackerDBJournalEntryType type;
@@ -482,6 +484,14 @@ tracker_db_journal_rollback_transaction (void)
 }
 
 gboolean
+tracker_db_journal_truncate (gsize new_size)
+{
+	g_return_val_if_fail (writer.journal > 0, FALSE);
+
+	return (ftruncate (writer.journal, new_size) != -1);
+}
+
+gboolean
 tracker_db_journal_commit_transaction (void)
 {
 	guint32 crc;
@@ -577,7 +587,9 @@ tracker_db_journal_reader_init (const gchar *filename)
 		return FALSE;
 	}
 
-	reader.current = g_mapped_file_get_contents (reader.file);
+	reader.last_success = reader.start = reader.current = 
+		g_mapped_file_get_contents (reader.file);
+
 	reader.end = reader.current + g_mapped_file_get_length (reader.file);
 
 	/* verify journal file header */
@@ -596,6 +608,14 @@ tracker_db_journal_reader_init (const gchar *filename)
 	return TRUE;
 }
 
+gsize
+tracker_db_journal_reader_get_size_of_correct (void)
+{
+	g_return_val_if_fail (reader.file != NULL, FALSE);
+
+	return (gsize) (reader.last_success - reader.start);
+}
+
 gboolean
 tracker_db_journal_reader_shutdown (void)
 {
@@ -612,6 +632,8 @@ tracker_db_journal_reader_shutdown (void)
 	g_free (reader.filename);
 	reader.filename = NULL;
 
+	reader.last_success = NULL;
+	reader.start = NULL;
 	reader.current = NULL;
 	reader.end = NULL;
 	reader.entry_begin = NULL;
@@ -773,6 +795,8 @@ tracker_db_journal_reader_next (GError **error)
 		}
 
 		reader.type = TRACKER_DB_JOURNAL_END_TRANSACTION;
+		reader.last_success = reader.current;
+
 		return TRUE;
 	} else {
 		DataFormat df;

@@ -404,9 +404,11 @@ query_resource_by_id (guint32 id)
 static void
 replay_journal (void)
 {
+	GError *journal_error = NULL;
+
 	tracker_db_journal_reader_init (NULL);
 
-	while (tracker_db_journal_reader_next (NULL)) {
+	while (tracker_db_journal_reader_next (&journal_error)) {
 		GError *error = NULL;
 		TrackerDBJournalEntryType type;
 		const gchar *subject, *predicate, *object;
@@ -470,7 +472,21 @@ replay_journal (void)
 		}
 	}
 
-	tracker_db_journal_reader_shutdown ();
+
+	if (journal_error) {
+		gsize size;
+
+		size = tracker_db_journal_reader_get_size_of_correct ();
+		tracker_db_journal_reader_shutdown ();
+
+		tracker_db_journal_init (NULL);
+		tracker_db_journal_truncate (size);
+		tracker_db_journal_shutdown ();
+
+		g_clear_error (&journal_error);
+	} else {
+		tracker_db_journal_reader_shutdown ();
+	}
 }
 
 static void

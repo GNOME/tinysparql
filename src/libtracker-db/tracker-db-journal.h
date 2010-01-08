@@ -91,6 +91,7 @@ gboolean     tracker_db_journal_reader_get_statement         (guint32      *s_id
 gboolean     tracker_db_journal_reader_get_statement_id      (guint32      *s_id,
                                                               guint32      *p_id,
                                                               guint32      *o_id);
+gsize        tracker_db_journal_reader_get_size_of_correct   (void);
 
 G_END_DECLS
 
