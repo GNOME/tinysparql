@@ -325,7 +325,7 @@ send_sparql_update (TrackerEvolutionPlugin *self, const gchar *sparql)
 
 	if (priv->client) {
 		dbus_g_proxy_call_no_reply (priv->client->proxy_resources,
-		                            "SparqlUpdate",
+		                            "BatchSparqlUpdate",
 		                            G_TYPE_STRING, sparql,
 		                            G_TYPE_INVALID);
 	}
@@ -854,10 +854,15 @@ many_idle_destroy (gpointer user_data)
 static void
 start_many_handler (TrackerEvolutionPlugin *self)
 {
-	g_idle_add_full (G_PRIORITY_LOW,
+	g_timeout_add_seconds_full (G_PRIORITY_LOW, 5,
+	                            many_idle_handler,
+	                            g_object_ref (self),
+	                            many_idle_destroy);
+
+/*	g_idle_add_full (G_PRIORITY_LOW,
 	                 many_idle_handler,
 	                 g_object_ref (self),
-	                 many_idle_destroy);
+	                 many_idle_destroy); */
 }
 
 /* Initial upload of more recent than last_checkout items, called in the mainloop */
