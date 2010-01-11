@@ -60,5 +60,4 @@ nao:hasProperty a rdf:Property ;
 	rdfs:domain nie:InformationElement ;
 	rdfs:range  nao:Property .
 
-
-
+nao:predefined-tag-favorite a nao:Tag .
