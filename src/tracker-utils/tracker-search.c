@@ -488,19 +488,18 @@ get_music_albums_foreach (gpointer value,
 
 	g_print ("  "); /*'%s', ", data[1]);*/
 	g_print (g_dngettext (NULL,
-	                      "%d Song",
-	                      "%d Songs",
+	                      "%d song",
+	                      "%d songs",
 	                      atoi (data[2])),
 	         atoi (data[2]));
 
 	g_print (", ");
 	g_print (g_dngettext (NULL,
-	                      "%d Second",
-	                      "%d Seconds",
+	                      "%d second",
+	                      "%d seconds",
 	                      atoi (data[3])),
 	         atoi (data[3]));
-	g_print (", ");
-	g_print (_("Album '%s'"), data[1]);
+	g_print (", '%s'", data[1]);
 	g_print ("\n");
 }
 
