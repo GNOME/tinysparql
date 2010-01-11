@@ -191,6 +191,7 @@ static GQueue *many_queue = NULL;
 static TrackerEvolutionPlugin *manager = NULL;
 static GStaticRecMutex glock = G_STATIC_REC_MUTEX_INIT;
 static guint register_count = 0;
+static GThreadPool *pool = NULL;
 
 /* Prototype declarations */
 static void register_account (TrackerEvolutionPlugin *self, EAccount *account);
@@ -306,29 +307,53 @@ folder_registry_new (const gchar *account_uri,
 	return registry;
 }
 
+typedef struct {
+	TrackerEvolutionPlugin *self;
+	gchar *sparql;
+	gboolean commit;
+} PoolItem;
+
 static void
-on_replied (GError   *error,
-            gpointer  user_data)
+exec_update (gpointer data, gpointer user_data)
 {
-	if (error) {
-		g_warning ("Error updating data: %s\n", error->message);
-		g_error_free (error);
+	PoolItem *item = data;
+	TrackerEvolutionPluginPrivate *priv = TRACKER_EVOLUTION_PLUGIN_GET_PRIVATE (item->self);
+
+	if (priv->client) {
+		GError *error = NULL;
+
+		if (item->commit) {
+			tracker_resources_batch_commit (priv->client, &error);
+		} else {
+			tracker_resources_batch_sparql_update (priv->client, item->sparql, &error);
+		}
+
+		if (error) {
+			g_warning ("Error updating data: %s\n", error->message);
+			g_error_free (error);
+		}
 	}
 
-	g_object_unref (user_data);
+	g_free (item->sparql);
+	g_object_unref (item->self);
+	g_slice_free (PoolItem, item);
 }
 
 static void
 send_sparql_update (TrackerEvolutionPlugin *self, const gchar *sparql)
 {
-	TrackerEvolutionPluginPrivate *priv = TRACKER_EVOLUTION_PLUGIN_GET_PRIVATE (self);
+	PoolItem *item = g_slice_new (PoolItem);
 
-	if (priv->client) {
-		dbus_g_proxy_call_no_reply (priv->client->proxy_resources,
-		                            "BatchSparqlUpdate",
-		                            G_TYPE_STRING, sparql,
-		                            G_TYPE_INVALID);
+	if (!pool) {
+		pool = g_thread_pool_new (exec_update, NULL, 1, FALSE, NULL);
 	}
+
+	item->commit = FALSE;
+	item->self = g_object_ref (self);
+	item->sparql = g_strdup (sparql);
+
+	g_thread_pool_push (pool, item, NULL);
+
 }
 
 static void
@@ -337,6 +362,8 @@ send_sparql_commit (TrackerEvolutionPlugin *self, gboolean update)
 	TrackerEvolutionPluginPrivate *priv = TRACKER_EVOLUTION_PLUGIN_GET_PRIVATE (self);
 
 	if (priv->client) {
+		PoolItem *item = g_slice_new (PoolItem);
+
 		if (update) {
 			gchar *date_s = tracker_date_to_string (time (NULL));
 			gchar *update = g_strdup_printf ("DELETE FROM <"DATASOURCE_URN"> { <" DATASOURCE_URN "> nie:contentLastModified ?d } "
@@ -350,8 +377,16 @@ send_sparql_commit (TrackerEvolutionPlugin *self, gboolean update)
 			g_free (date_s);
 		}
 
-		tracker_resources_batch_commit_async (priv->client, on_replied,
-		                                      g_object_ref (self));
+
+		if (!pool) {
+			pool = g_thread_pool_new (exec_update, NULL, 1, FALSE, NULL);
+		}
+
+		item->commit = TRUE;
+		item->self = g_object_ref (self);
+		item->sparql = NULL;
+
+		g_thread_pool_push (pool, item, NULL);
 	}
 }
 
@@ -854,15 +889,15 @@ many_idle_destroy (gpointer user_data)
 static void
 start_many_handler (TrackerEvolutionPlugin *self)
 {
-	g_timeout_add_seconds_full (G_PRIORITY_LOW, 5,
+/*	g_timeout_add_seconds_full (G_PRIORITY_LOW, 5,
 	                            many_idle_handler,
 	                            g_object_ref (self),
 	                            many_idle_destroy);
-
-/*	g_idle_add_full (G_PRIORITY_LOW,
+*/
+	g_idle_add_full (G_PRIORITY_LOW,
 	                 many_idle_handler,
 	                 g_object_ref (self),
-	                 many_idle_destroy); */
+	                 many_idle_destroy); 
 }
 
 /* Initial upload of more recent than last_checkout items, called in the mainloop */
@@ -2017,6 +2052,11 @@ disable_plugin (void)
 	if (manager) {
 		g_object_unref (manager);
 		manager = NULL;
+	}
+
+	if (pool) {
+		g_thread_pool_free (pool, FALSE, TRUE);
+		pool = NULL;
 	}
 }
 
