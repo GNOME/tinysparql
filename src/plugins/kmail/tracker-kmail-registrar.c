@@ -404,6 +404,7 @@ tracker_kmail_registrar_set (TrackerKMailRegistrar *object,
 	request_id = tracker_dbus_get_next_request_id ();
 
 	tracker_dbus_request_new (request_id,
+	                          context,
 	                          "D-Bus request to set one: 'KMail' ");
 
 	dbus_async_return_if_fail (subject != NULL, context);
@@ -420,9 +421,8 @@ tracker_kmail_registrar_set (TrackerKMailRegistrar *object,
 	                            GUINT_TO_POINTER (modseq),
 	                            NULL);
 
+	tracker_dbus_request_success (request_id, context);
 	dbus_g_method_return (context);
-
-	tracker_dbus_request_success (request_id);
 }
 
 void
@@ -445,12 +445,14 @@ tracker_kmail_registrar_set_many (TrackerKMailRegistrar *object,
 
 	len = g_strv_length (subjects);
 
-	dbus_async_return_if_fail (len == predicates->len, context);
-	dbus_async_return_if_fail (len == values->len, context);
+	dbus_async_return_if_fail (predicates->len == len, context);
+	dbus_async_return_if_fail (values->len == len, context);
 
 	tracker_dbus_request_new (request_id,
-	                          "D-Bus request to set many: 'KMail' "
-	                          "'%d'", len);
+	                          context,
+	                          "%s(len:%d)",
+	                          __FUNCTION__,
+	                          len);
 
 	while (subjects[i] != NULL) {
 		perform_set (object,
@@ -464,9 +466,8 @@ tracker_kmail_registrar_set_many (TrackerKMailRegistrar *object,
 	                            GUINT_TO_POINTER (modseq),
 	                            NULL);
 
+	tracker_dbus_request_success (request_id, context);
 	dbus_g_method_return (context);
-
-	tracker_dbus_request_success (request_id);
 }
 
 
@@ -482,11 +483,13 @@ tracker_kmail_registrar_unset_many (TrackerKMailRegistrar *object,
 
 	request_id = tracker_dbus_get_next_request_id ();
 
-	tracker_dbus_request_new (request_id,
-	                          "D-Bus request to unset many: 'KMail' "
-	                          "'%d'", g_strv_length (subjects));
-
 	dbus_async_return_if_fail (subjects != NULL, context);
+
+	tracker_dbus_request_new (request_id,
+	                          context,
+	                          "%s(len:%d)",
+	                          __FUNCTION__,
+	                          g_strv_length (subjects));
 
 	while (subjects[i] != NULL) {
 		perform_unset (object, subjects[i]);
@@ -495,9 +498,8 @@ tracker_kmail_registrar_unset_many (TrackerKMailRegistrar *object,
 
 	tracker_store_queue_commit (on_commit, NULL, GUINT_TO_POINTER (modseq), NULL);
 
+	tracker_dbus_request_success (request_id, context);
 	dbus_g_method_return (context);
-
-	tracker_dbus_request_success (request_id);
 }
 
 void
@@ -511,18 +513,19 @@ tracker_kmail_registrar_unset (TrackerKMailRegistrar *object,
 
 	request_id = tracker_dbus_get_next_request_id ();
 
-	tracker_dbus_request_new (request_id,
-	                          "D-Bus request to unset one: 'KMail'");
-
 	dbus_async_return_if_fail (subject != NULL, context);
+
+	tracker_dbus_request_new (request_id,
+	                          context,
+	                          "%s()",
+	                          __FUNCTION__);
 
 	perform_unset (object, subject);
 
 	tracker_store_queue_commit (on_commit, NULL, GUINT_TO_POINTER (modseq), NULL);
 
+	tracker_dbus_request_success (request_id, context);
 	dbus_g_method_return (context);
-
-	tracker_dbus_request_success (request_id);
 }
 
 void
@@ -536,7 +539,9 @@ tracker_kmail_registrar_cleanup (TrackerKMailRegistrar *object,
 	request_id = tracker_dbus_get_next_request_id ();
 
 	tracker_dbus_request_new (request_id,
-	                          "D-Bus request to cleanup: 'KMail'");
+	                          context,
+	                          "%s()",
+	                          __FUNCTION__);
 
 	perform_cleanup (object);
 
@@ -544,9 +549,8 @@ tracker_kmail_registrar_cleanup (TrackerKMailRegistrar *object,
 	                            GUINT_TO_POINTER (modseq),
 	                            NULL);
 
+	tracker_dbus_request_success (request_id, context);
 	dbus_g_method_return (context);
-
-	tracker_dbus_request_success (request_id);
 }
 
 

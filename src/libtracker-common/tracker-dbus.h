@@ -120,24 +120,32 @@ tracker_dbus_request_add_hook       (TrackerDBusRequestFunc      new,
 void             tracker_dbus_request_remove_hook    (TrackerDBusRequestHandler  *handler);
 
 void             tracker_dbus_request_new            (gint                        request_id,
+                                                      DBusGMethodInvocation      *context,
                                                       const gchar                *format,
                                                       ...);
-void             tracker_dbus_request_success        (gint                        request_id);
+void             tracker_dbus_request_success        (gint                        request_id,
+                                                      DBusGMethodInvocation      *context);
 void             tracker_dbus_request_failed         (gint                        request_id,
+                                                      DBusGMethodInvocation      *context,
                                                       GError                    **error,
                                                       const gchar                *format,
                                                       ...);
 void             tracker_dbus_request_comment        (gint                        request_id,
+                                                      DBusGMethodInvocation      *context,
                                                       const gchar                *format,
                                                       ...);
 void             tracker_dbus_request_info           (gint                        request_id,
+                                                      DBusGMethodInvocation      *context,
                                                       const gchar                *format,
                                                       ...);
 void             tracker_dbus_request_debug          (gint                        request_id,
+                                                      DBusGMethodInvocation      *context,
                                                       const gchar                *format,
                                                       ...);
 void             tracker_dbus_request_block_hooks    (void);
 void             tracker_dbus_request_unblock_hooks  (void);
+
+void             tracker_dbus_enable_client_lookup   (gboolean                    enable);
 
 G_END_DECLS
 

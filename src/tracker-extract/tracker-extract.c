@@ -225,10 +225,11 @@ tracker_extract_new (gboolean disable_shutdown,
 }
 
 static TrackerSparqlBuilder *
-get_file_metadata (TrackerExtract *extract,
-                   guint           request_id,
-                   const gchar    *uri,
-                   const gchar    *mime)
+get_file_metadata (TrackerExtract        *extract,
+                   guint                  request_id,
+                   DBusGMethodInvocation *context,
+                   const gchar           *uri,
+                   const gchar           *mime)
 {
 	TrackerExtractPrivate *priv;
 	TrackerSparqlBuilder *statements;
@@ -289,6 +290,7 @@ get_file_metadata (TrackerExtract *extract,
 
 		if (error || !info) {
 			tracker_dbus_request_comment (request_id,
+			                              context,
 			                              "  Could not create GFileInfo for file size check, %s",
 			                              error ? error->message : "no error given");
 			g_error_free (error);
@@ -305,6 +307,7 @@ get_file_metadata (TrackerExtract *extract,
 		mime_used = g_strdup (g_file_info_get_content_type (info));
 
 		tracker_dbus_request_comment (request_id,
+		                              context,
 		                              "  Guessing mime type as '%s' for uri:'%s'",
 		                              mime_used,
 		                              uri);
@@ -330,6 +333,7 @@ get_file_metadata (TrackerExtract *extract,
 				gint items;
 
 				tracker_dbus_request_comment (request_id,
+				                              context,
 				                              "  Extracting with module:'%s'",
 				                              g_module_name ((GModule*) mdata.module));
 
@@ -338,6 +342,7 @@ get_file_metadata (TrackerExtract *extract,
 				items = tracker_sparql_builder_get_length (statements);
 
 				tracker_dbus_request_comment (request_id,
+				                              context,
 				                              "  Found %d metadata items",
 				                              items);
 				if (items == 0) {
@@ -363,6 +368,7 @@ get_file_metadata (TrackerExtract *extract,
 				gint items;
 
 				tracker_dbus_request_comment (request_id,
+				                              context,
 				                              "  Extracting with module:'%s'",
 				                              g_module_name ((GModule*) mdata.module));
 
@@ -371,6 +377,7 @@ get_file_metadata (TrackerExtract *extract,
 				items = tracker_sparql_builder_get_length (statements);
 
 				tracker_dbus_request_comment (request_id,
+				                              context,
 				                              "  Found %d metadata items",
 				                              items);
 				if (items == 0) {
@@ -388,9 +395,11 @@ get_file_metadata (TrackerExtract *extract,
 		g_free (mime_used);
 
 		tracker_dbus_request_comment (request_id,
+		                              context,
 		                              "  Could not find any extractors to handle metadata type");
 	} else {
 		tracker_dbus_request_comment (request_id,
+		                              context,
 		                              "  No mime available, not extracting data");
 	}
 
@@ -404,7 +413,7 @@ tracker_extract_get_metadata_by_cmdline (TrackerExtract *object,
                                          const gchar    *uri,
                                          const gchar    *mime)
 {
-	guint       request_id;
+	guint request_id;
 	TrackerSparqlBuilder *statements = NULL;
 
 	request_id = tracker_dbus_get_next_request_id ();
@@ -412,27 +421,30 @@ tracker_extract_get_metadata_by_cmdline (TrackerExtract *object,
 	g_return_if_fail (uri != NULL);
 
 	tracker_dbus_request_new (request_id,
-	                          "Command line request to extract metadata, "
-	                          "uri:'%s', mime:%s",
+	                          NULL,
+	                          "%s(uri:'%s', mime:%s)",
+	                          __FUNCTION__,
 	                          uri,
 	                          mime);
 
 	/* NOTE: Don't reset the timeout to shutdown here */
-	statements = get_file_metadata (object, request_id, uri, mime);
+	statements = get_file_metadata (object, request_id, NULL, uri, mime);
 
 	if (statements) {
-		tracker_dbus_request_info (request_id, "%s",
+		tracker_dbus_request_info (request_id,
+		                           NULL,
+		                           "%s",
 		                           tracker_sparql_builder_get_result (statements));
 		g_object_unref (statements);
 	}
 
-	tracker_dbus_request_success (request_id);
+	tracker_dbus_request_success (request_id, NULL);
 }
 
 void
-tracker_extract_get_pid (TrackerExtract                 *object,
+tracker_extract_get_pid (TrackerExtract         *object,
                          DBusGMethodInvocation  *context,
-                         GError                        **error)
+                         GError                **error)
 {
 	guint request_id;
 	pid_t value;
@@ -440,15 +452,18 @@ tracker_extract_get_pid (TrackerExtract                 *object,
 	request_id = tracker_dbus_get_next_request_id ();
 
 	tracker_dbus_request_new (request_id,
-	                          "D-Bus request to get PID");
+	                          context,
+	                          "%s()",
+	                          __FUNCTION__);
 
 	value = getpid ();
 	tracker_dbus_request_debug (request_id,
-	                            "PID is %d", value);
+	                            context,
+	                            "PID is %d",
+	                            value);
 
+	tracker_dbus_request_success (request_id, context);
 	dbus_g_method_return (context, value);
-
-	tracker_dbus_request_success (request_id);
 }
 
 void
@@ -467,12 +482,14 @@ tracker_extract_get_metadata (TrackerExtract         *object,
 	tracker_dbus_async_return_if_fail (uri != NULL, context);
 
 	tracker_dbus_request_new (request_id,
-	                          "D-Bus request to extract metadata, "
-	                          "uri:'%s', mime:%s",
+	                          context,
+	                          "%s(uri:'%s', mime:%s)",
+	                          __FUNCTION__,
 	                          uri,
 	                          mime);
 
 	tracker_dbus_request_debug (request_id,
+	                            context,
 	                            "  Resetting shutdown timeout");
 
 	priv = TRACKER_EXTRACT_GET_PRIVATE (object);
@@ -482,9 +499,11 @@ tracker_extract_get_metadata (TrackerExtract         *object,
 		alarm (MAX_EXTRACT_TIME);
 	}
 
-	sparql = get_file_metadata (object, request_id, uri, mime);
+	sparql = get_file_metadata (object, request_id, context, uri, mime);
 
 	if (sparql) {
+		tracker_dbus_request_success (request_id, context);
+
 		if (tracker_sparql_builder_get_length (sparql) > 0) {
 			/* tracker_info ("%s", tracker_sparql_builder_get_result (sparql)); */
 			dbus_g_method_return (context, tracker_sparql_builder_get_result (sparql));
@@ -492,11 +511,11 @@ tracker_extract_get_metadata (TrackerExtract         *object,
 			dbus_g_method_return (context, "");
 		}
 		g_object_unref (sparql);
-		tracker_dbus_request_success (request_id);
 	} else {
 		GError *actual_error = NULL;
 
 		tracker_dbus_request_failed (request_id,
+		                             context,
 		                             &actual_error,
 		                             "Could not get any metadata for uri:'%s' and mime:'%s'",
 		                             uri,

@@ -317,6 +317,22 @@ get_writeback_predicates (void)
 	return predicates_to_signal;
 }
 
+static void
+config_verbosity_changed_cb (GObject    *object,
+                             GParamSpec *spec,
+                             gpointer    user_data)
+{
+	gint verbosity;
+
+	verbosity = tracker_config_get_verbosity (TRACKER_CONFIG (object));
+
+	g_message ("Log verbosity is set to %d, %s D-Bus client lookup",
+	           verbosity,
+	           verbosity > 0 ? "enabling" : "disabling");
+
+	tracker_dbus_enable_client_lookup (verbosity > 0);
+}
+
 gint
 main (gint argc, gchar *argv[])
 {
@@ -393,9 +409,16 @@ main (gint argc, gchar *argv[])
 	/* Initialize major subsystems */
 	config = tracker_config_new ();
 
+	g_signal_connect (config, "notify::verbosity",
+	                  G_CALLBACK (config_verbosity_changed_cb),
+	                  NULL);
+
 	/* Daemon command line arguments */
 	if (verbosity > -1) {
 		tracker_config_set_verbosity (config, verbosity);
+	} else {
+		/* Make sure we enable/disable the dbus client lookup */
+		config_verbosity_changed_cb (G_OBJECT (config), NULL, NULL);
 	}
 
 	if (low_memory) {
@@ -485,6 +508,7 @@ main (gint argc, gchar *argv[])
 	tracker_data_manager_shutdown ();
 	tracker_log_shutdown ();
 
+	g_signal_handlers_disconnect_by_func (config, config_verbosity_changed_cb, NULL);
 	g_object_unref (config);
 
 	g_print ("\nOK\n\n");

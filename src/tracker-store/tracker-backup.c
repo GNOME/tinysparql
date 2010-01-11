@@ -79,6 +79,7 @@ backup_callback (GError *error, gpointer user_data)
 
 	if (error) {
 		tracker_dbus_request_failed (info->request_id,
+		                             info->context,
 		                             &error,
 		                             NULL);
 		dbus_g_method_return_error (info->context, error);
@@ -91,7 +92,8 @@ backup_callback (GError *error, gpointer user_data)
 
 	dbus_g_method_return (info->context);
 
-	tracker_dbus_request_success (info->request_id);
+	tracker_dbus_request_success (info->request_id,
+	                              info->context);
 }
 
 static void
@@ -121,6 +123,7 @@ tracker_backup_save (TrackerBackup          *object,
 	request_id = tracker_dbus_get_next_request_id ();
 
 	tracker_dbus_request_new (request_id,
+	                          context,
 	                          "D-Bus request to save backup into '%s'",
 	                          destination_uri);
 
@@ -154,6 +157,7 @@ tracker_backup_restore (TrackerBackup          *object,
 	request_id = tracker_dbus_get_next_request_id ();
 
 	tracker_dbus_request_new (request_id,
+	                          context,
 	                          "D-Bus request to restore backup from '%s'",
 	                          backup_uri);
 

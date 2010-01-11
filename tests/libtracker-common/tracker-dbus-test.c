@@ -157,14 +157,14 @@ test_dbus_request_failed (void)
 
 	/* Default case: we set the error */
 	if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDERR)) {
-		tracker_dbus_request_failed (1, &error, "Test Error message");
+		tracker_dbus_request_failed (1, NULL, &error, "Test Error message");
 	}
 	g_test_trap_assert_stderr ("*Test Error message*");
 
 	/* Second common case: we have already the error and want only the log line */
 	error = g_error_new (1000, -1, "The indexer founded an error");
 	if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDERR)) {
-		tracker_dbus_request_failed (1, &error, NULL);
+		tracker_dbus_request_failed (1, NULL, &error, NULL);
 	}
 	g_test_trap_assert_stderr ("*The indexer founded an error*");
 	g_error_free (error);
@@ -173,7 +173,7 @@ test_dbus_request_failed (void)
 	/* Wrong use: error set and we add a new message */
 	error = g_error_new (1000, -1, "The indexer founded an error");
 	if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDERR)) {
-		tracker_dbus_request_failed (1, &error, "Dont do this");
+		tracker_dbus_request_failed (1, NULL, &error, "Dont do this");
 	}
 	g_test_trap_assert_stderr ("*GError set over the top of a previous GError or uninitialized memory*");
 	g_error_free (error);
@@ -181,7 +181,7 @@ test_dbus_request_failed (void)
 	error = NULL;
 	/* Wrong use: no error, no message */
 	if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDERR)) {
-		tracker_dbus_request_failed (1, &error, NULL);
+		tracker_dbus_request_failed (1, NULL, &error, NULL);
 	}
 
 	g_test_trap_assert_stderr ("*Unset error and no error message*");

@@ -143,15 +143,16 @@ turtle_import_callback (GError *error, gpointer user_data)
 
 	if (error) {
 		tracker_dbus_request_failed (info->request_id,
+		                             info->context,
 		                             &error,
 		                             NULL);
 		dbus_g_method_return_error (info->context, error);
 		return;
 	}
 
+	tracker_dbus_request_success (info->request_id,
+	                              info->context);
 	dbus_g_method_return (info->context);
-
-	tracker_dbus_request_success (info->request_id);
 }
 
 void
@@ -169,8 +170,9 @@ tracker_resources_load (TrackerResources         *object,
 	tracker_dbus_async_return_if_fail (uri != NULL, context);
 
 	tracker_dbus_request_new (request_id,
-	                          "D-Bus request to load turtle file "
-	                          "'%s'",
+	                          context,
+	                          "%s(): uri:'%s'",
+	                          __FUNCTION__,
 	                          uri);
 
 	file = g_file_new_for_uri (uri);
@@ -193,7 +195,7 @@ tracker_resources_sparql_query (TrackerResources         *self,
                                 GError                  **error)
 {
 	TrackerDBResultSet   *result_set;
-	GError                       *actual_error = NULL;
+	GError               *actual_error = NULL;
 	guint                 request_id;
 	GPtrArray            *values;
 
@@ -202,14 +204,16 @@ tracker_resources_sparql_query (TrackerResources         *self,
 	tracker_dbus_async_return_if_fail (query != NULL, context);
 
 	tracker_dbus_request_new (request_id,
-	                          "D-Bus request for SPARQL Query, "
-	                          "query:'%s'",
+	                          context,
+	                          "%s(): '%s'",
+	                          __FUNCTION__,
 	                          query);
 
 	result_set = tracker_store_sparql_query (query, &actual_error);
 
 	if (actual_error) {
 		tracker_dbus_request_failed (request_id,
+		                             context,
 		                             &actual_error,
 		                             NULL);
 		dbus_g_method_return_error (context, actual_error);
@@ -219,6 +223,7 @@ tracker_resources_sparql_query (TrackerResources         *self,
 
 	values = tracker_dbus_query_result_to_ptr_array (result_set);
 
+	tracker_dbus_request_success (request_id, context);
 	dbus_g_method_return (context, values);
 
 	tracker_dbus_results_ptr_array_free (&values);
@@ -226,15 +231,13 @@ tracker_resources_sparql_query (TrackerResources         *self,
 	if (result_set) {
 		g_object_unref (result_set);
 	}
-
-	tracker_dbus_request_success (request_id);
 }
 
 void
 tracker_resources_sparql_update (TrackerResources        *self,
                                  const gchar             *update,
                                  DBusGMethodInvocation   *context,
-                                 GError                         **error)
+                                 GError                 **error)
 {
 	TrackerResourcesPrivate *priv;
 	GError                       *actual_error = NULL;
@@ -247,14 +250,16 @@ tracker_resources_sparql_update (TrackerResources        *self,
 	tracker_dbus_async_return_if_fail (update != NULL, context);
 
 	tracker_dbus_request_new (request_id,
-	                          "D-Bus request for SPARQL Update, "
-	                          "update:'%s'",
+	                          context,
+	                          "%s(): '%s'",
+	                          __FUNCTION__,
 	                          update);
 
 	tracker_store_sparql_update (update, &actual_error);
 
 	if (actual_error) {
 		tracker_dbus_request_failed (request_id,
+		                             context,
 		                             &actual_error,
 		                             NULL);
 		dbus_g_method_return_error (context, actual_error);
@@ -262,13 +267,12 @@ tracker_resources_sparql_update (TrackerResources        *self,
 		return;
 	}
 
+	tracker_dbus_request_success (request_id, context);
 	dbus_g_method_return (context);
-
-	tracker_dbus_request_success (request_id);
 }
 
 void
-tracker_resources_sparql_update_blank (TrackerResources               *self,
+tracker_resources_sparql_update_blank (TrackerResources       *self,
                                        const gchar            *update,
                                        DBusGMethodInvocation  *context,
                                        GError                **error)
@@ -285,14 +289,16 @@ tracker_resources_sparql_update_blank (TrackerResources               *self,
 	tracker_dbus_async_return_if_fail (update != NULL, context);
 
 	tracker_dbus_request_new (request_id,
-	                          "D-Bus request for SPARQL Update, "
-	                          "update:'%s'",
+	                          context,
+	                          "%s(): '%s'",
+	                          __FUNCTION__,
 	                          update);
 
 	blank_nodes = tracker_store_sparql_update_blank (update, &actual_error);
 
 	if (actual_error) {
 		tracker_dbus_request_failed (request_id,
+		                             context,
 		                             &actual_error,
 		                             NULL);
 		dbus_g_method_return_error (context, actual_error);
@@ -300,6 +306,7 @@ tracker_resources_sparql_update_blank (TrackerResources               *self,
 		return;
 	}
 
+	tracker_dbus_request_success (request_id, context);
 	dbus_g_method_return (context, blank_nodes);
 
 	if (blank_nodes) {
@@ -311,8 +318,6 @@ tracker_resources_sparql_update_blank (TrackerResources               *self,
 		}
 		g_ptr_array_free (blank_nodes, TRUE);
 	}
-
-	tracker_dbus_request_success (request_id);
 }
 
 static void
@@ -322,15 +327,16 @@ batch_update_callback (GError *error, gpointer user_data)
 
 	if (error) {
 		tracker_dbus_request_failed (info->request_id,
+		                             info->context,
 		                             &error,
 		                             NULL);
 		dbus_g_method_return_error (info->context, error);
 		return;
 	}
 
+	tracker_dbus_request_success (info->request_id,
+	                              info->context);
 	dbus_g_method_return (info->context);
-
-	tracker_dbus_request_success (info->request_id);
 }
 
 void
@@ -351,8 +357,9 @@ tracker_resources_batch_sparql_update (TrackerResources          *self,
 	tracker_dbus_async_return_if_fail (update != NULL, context);
 
 	tracker_dbus_request_new (request_id,
-	                          "D-Bus request for batch SPARQL Update, "
-	                          "update:'%s'",
+	                          context,
+	                          "%s(): '%s'",
+	                          __FUNCTION__,
 	                          update);
 
 	info = g_slice_new (TrackerDBusMethodInfo);
@@ -373,8 +380,9 @@ batch_commit_callback (gpointer user_data)
 {
 	TrackerDBusMethodInfo *info = user_data;
 
+	tracker_dbus_request_success (info->request_id,
+	                              info->context);
 	dbus_g_method_return (info->context);
-	tracker_dbus_request_success (info->request_id);
 }
 
 void
@@ -392,7 +400,9 @@ tracker_resources_batch_commit (TrackerResources         *self,
 	request_id = tracker_dbus_get_next_request_id ();
 
 	tracker_dbus_request_new (request_id,
-	                          "D-Bus request for batch commit");
+	                          context,
+	                          "%s()",
+	                          __FUNCTION__);
 
 	info = g_slice_new (TrackerDBusMethodInfo);
 

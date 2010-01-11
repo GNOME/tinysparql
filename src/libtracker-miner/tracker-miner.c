@@ -1308,11 +1308,10 @@ tracker_miner_dbus_get_status (TrackerMiner           *miner,
 
 	tracker_dbus_async_return_if_fail (miner != NULL, context);
 
-	tracker_dbus_request_new (request_id, "%s()", __PRETTY_FUNCTION__);
+	tracker_dbus_request_new (request_id, context, "%s()", __PRETTY_FUNCTION__);
 
+	tracker_dbus_request_success (request_id, context);
 	dbus_g_method_return (context, miner->private->status);
-
-	tracker_dbus_request_success (request_id);
 }
 
 void
@@ -1326,11 +1325,11 @@ tracker_miner_dbus_get_progress (TrackerMiner           *miner,
 
 	tracker_dbus_async_return_if_fail (miner != NULL, context);
 
-	tracker_dbus_request_new (request_id, "%s()", __PRETTY_FUNCTION__);
+	tracker_dbus_request_new (request_id, context, "%s()", __PRETTY_FUNCTION__);
 
 	dbus_g_method_return (context, miner->private->progress);
 
-	tracker_dbus_request_success (request_id);
+	tracker_dbus_request_success (request_id, context);
 }
 
 void
@@ -1348,7 +1347,7 @@ tracker_miner_dbus_get_pause_details (TrackerMiner           *miner,
 
 	tracker_dbus_async_return_if_fail (miner != NULL, context);
 
-	tracker_dbus_request_new (request_id, "%s()", __PRETTY_FUNCTION__);
+	tracker_dbus_request_new (request_id, context, "%s()", __PRETTY_FUNCTION__);
 
 	applications = NULL;
 	reasons = NULL;
@@ -1367,9 +1366,8 @@ tracker_miner_dbus_get_pause_details (TrackerMiner           *miner,
 	applications_strv = tracker_gslist_to_string_list (applications);
 	reasons_strv = tracker_gslist_to_string_list (reasons);
 
+	tracker_dbus_request_success (request_id, context);
 	dbus_g_method_return (context, applications_strv, reasons_strv);
-
-	tracker_dbus_request_success (request_id);
 
 	g_strfreev (applications_strv);
 	g_strfreev (reasons_strv);
@@ -1395,7 +1393,8 @@ tracker_miner_dbus_pause (TrackerMiner           *miner,
 	tracker_dbus_async_return_if_fail (application != NULL, context);
 	tracker_dbus_async_return_if_fail (reason != NULL, context);
 
-	tracker_dbus_request_new (request_id, "%s(application:'%s', reason:'%s')",
+	tracker_dbus_request_new (request_id, context,
+	                          "%s(application:'%s', reason:'%s')",
 	                          __PRETTY_FUNCTION__,
 	                          application,
 	                          reason);
@@ -1404,19 +1403,19 @@ tracker_miner_dbus_pause (TrackerMiner           *miner,
 	if (cookie == -1) {
 		GError *actual_error = NULL;
 
+		dbus_g_method_return_error (context, actual_error);
 		tracker_dbus_request_failed (request_id,
+		                             context,
 		                             &actual_error,
 		                             local_error ? local_error->message : NULL);
-		dbus_g_method_return_error (context, actual_error);
 		g_error_free (actual_error);
 		g_error_free (local_error);
 
 		return;
 	}
 
+	tracker_dbus_request_success (request_id, context);
 	dbus_g_method_return (context, cookie);
-
-	tracker_dbus_request_success (request_id);
 }
 
 void
@@ -1432,26 +1431,28 @@ tracker_miner_dbus_resume (TrackerMiner           *miner,
 
 	tracker_dbus_async_return_if_fail (miner != NULL, context);
 
-	tracker_dbus_request_new (request_id, "%s(cookie:%d)",
+	tracker_dbus_request_new (request_id,
+	                          context,
+	                          "%s(cookie:%d)",
 	                          __PRETTY_FUNCTION__,
 	                          cookie);
 
 	if (!tracker_miner_resume (miner, cookie, &local_error)) {
 		GError *actual_error = NULL;
 
+		dbus_g_method_return_error (context, actual_error);
 		tracker_dbus_request_failed (request_id,
+		                             context,
 		                             &actual_error,
 		                             local_error ? local_error->message : NULL);
-		dbus_g_method_return_error (context, actual_error);
 		g_error_free (actual_error);
 		g_error_free (local_error);
 
 		return;
 	}
 
+	tracker_dbus_request_success (request_id, context);
 	dbus_g_method_return (context);
-
-	tracker_dbus_request_success (request_id);
 }
 
 void
@@ -1466,11 +1467,10 @@ tracker_miner_dbus_writeback (TrackerMiner           *miner,
 
 	tracker_dbus_async_return_if_fail (miner != NULL, context);
 
-	tracker_dbus_request_new (request_id, "%s()", __PRETTY_FUNCTION__);
+	tracker_dbus_request_new (request_id, context, "%s()", __PRETTY_FUNCTION__);
 
 	tracker_miner_writeback (miner, subjects);
 
+	tracker_dbus_request_success (request_id, context);
 	dbus_g_method_return (context);
-
-	tracker_dbus_request_success (request_id);
 }
