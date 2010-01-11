@@ -126,7 +126,7 @@ nmo:isDeleted a rdf:Property ;
 
 nmo:isDraft a rdf:Property ;
 	nrl:maxCardinality 1 ;
-	rdfs:domain nmo:Email ;
+	rdfs:domain nmo:Message ;
 	rdfs:range xsd:boolean .
 
 nmo:isRecent a rdf:Property ;
