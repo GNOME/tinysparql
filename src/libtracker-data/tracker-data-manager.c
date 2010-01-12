@@ -436,7 +436,7 @@ replay_journal (void)
 			tracker_db_statement_bind_int64 (stmt, 2, tracker_db_journal_reader_get_time ());
 			tracker_db_statement_execute (stmt, &error);
 		} else if (type == TRACKER_DB_JOURNAL_START_TRANSACTION) {
-			tracker_data_begin_replay_transaction ();
+			tracker_data_begin_replay_transaction (tracker_db_journal_reader_get_time ());
 		} else if (type == TRACKER_DB_JOURNAL_END_TRANSACTION) {
 			tracker_data_commit_transaction ();
 		} else if (type == TRACKER_DB_JOURNAL_INSERT_STATEMENT) {
@@ -1055,7 +1055,7 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 		/* load ontology from journal into memory */
 		load_ontology_from_journal ();
 
-		tracker_data_begin_replay_transaction ();
+		tracker_data_begin_replay_transaction (tracker_db_journal_reader_get_time ());
 		import_ontology_into_db ();
 		tracker_data_commit_transaction ();
 
@@ -1128,7 +1128,7 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 		}
 
 		tracker_data_begin_transaction ();
-		tracker_db_journal_start_transaction ();
+		tracker_db_journal_start_transaction (time (NULL));
 
 		import_ontology_into_db ();
 

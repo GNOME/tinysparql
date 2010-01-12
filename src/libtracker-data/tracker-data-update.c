@@ -121,6 +121,7 @@ static TrackerDataUpdateBuffer update_buffer;
 /* current resource */
 static TrackerDataUpdateBufferResource *resource_buffer;
 static TrackerDataBlankBuffer blank_buffer;
+static time_t resource_time = 0;
 
 static GPtrArray *insert_callbacks = NULL;
 static GPtrArray *delete_callbacks = NULL;
@@ -391,7 +392,8 @@ ensure_resource_id (const gchar *uri)
 		stmt = tracker_db_interface_create_statement (iface, "INSERT INTO \"rdfs:Resource\" (ID, Uri, \"tracker:added\", \"tracker:modified\", Available) VALUES (?, ?, ?, ?, 1)");
 		tracker_db_statement_bind_int (stmt, 0, id);
 		tracker_db_statement_bind_text (stmt, 1, uri);
-		tracker_db_statement_bind_int64 (stmt, 2, (gint64) time (NULL));
+		g_warn_if_fail  (resource_time != 0);
+		tracker_db_statement_bind_int64 (stmt, 2, (gint64) resource_time);
 		tracker_db_statement_bind_int (stmt, 3, tracker_data_update_get_next_modseq ());
 		tracker_db_statement_execute (stmt, NULL);
 		g_object_unref (stmt);
@@ -1845,6 +1847,8 @@ tracker_data_begin_transaction (void)
 
 	g_return_if_fail (!in_transaction);
 
+	resource_time = time (NULL);
+
 	update_buffer.resource_cache = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
 	update_buffer.resources = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, (GDestroyNotify) resource_buffer_free);
 	resource_buffer = NULL;
@@ -1860,10 +1864,11 @@ tracker_data_begin_transaction (void)
 }
 
 void
-tracker_data_begin_replay_transaction (void)
+tracker_data_begin_replay_transaction (time_t time)
 {
 	in_journal_replay = TRUE;
 	tracker_data_begin_transaction ();
+	resource_time = time;
 }
 
 void
@@ -2118,9 +2123,9 @@ tracker_data_update_sparql (const gchar  *update,
 	iface = tracker_db_manager_get_db_interface ();
 
 	sparql_query = tracker_sparql_query_new_update (update);
-
+	resource_time = time (NULL);
 	tracker_db_interface_execute_query (iface, NULL, "SAVEPOINT sparql");
-	tracker_db_journal_start_transaction ();
+	tracker_db_journal_start_transaction (resource_time);
 
 	tracker_sparql_query_execute_update (sparql_query, FALSE, &actual_error);
 
@@ -2145,6 +2150,7 @@ tracker_data_update_sparql (const gchar  *update,
 	}
 
 	tracker_db_journal_commit_transaction ();
+	resource_time = 0;
 	tracker_db_interface_execute_query (iface, NULL, "RELEASE sparql");
 
 	g_object_unref (sparql_query);
@@ -2166,8 +2172,9 @@ tracker_data_update_sparql_blank (const gchar  *update,
 
 	sparql_query = tracker_sparql_query_new_update (update);
 
+	resource_time = time (NULL);
 	tracker_db_interface_execute_query (iface, NULL, "SAVEPOINT sparql");
-	tracker_db_journal_start_transaction ();
+	tracker_db_journal_start_transaction (resource_time);
 
 	blank_nodes = tracker_sparql_query_execute_update (sparql_query, TRUE, &actual_error);
 
@@ -2192,6 +2199,7 @@ tracker_data_update_sparql_blank (const gchar  *update,
 	}
 
 	tracker_db_journal_commit_transaction ();
+	resource_time = 0;
 	tracker_db_interface_execute_query (iface, NULL, "RELEASE sparql");
 
 	g_object_unref (sparql_query);

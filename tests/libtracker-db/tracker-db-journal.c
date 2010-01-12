@@ -65,7 +65,7 @@ test_write_functions (void)
 
 	/* Check with rollback, nothing is added */
 	initial_size = tracker_db_journal_get_size ();
-	result = tracker_db_journal_start_transaction ();
+	result = tracker_db_journal_start_transaction (time (NULL));
 	g_assert_cmpint (result, ==, TRUE);
 	result = tracker_db_journal_append_resource (10, "http://resource");
 	g_assert_cmpint (result, ==, TRUE);
@@ -79,7 +79,7 @@ test_write_functions (void)
 	g_assert_cmpint (initial_size, ==, actual_size);
 
 	/* Check with commit, somethign is added */
-	result = tracker_db_journal_start_transaction ();
+	result = tracker_db_journal_start_transaction (time (NULL));
 	g_assert_cmpint (result, ==, TRUE);
 	result = tracker_db_journal_append_resource (12, "http://resource");
 	g_assert_cmpint (result, ==, TRUE);
@@ -95,7 +95,7 @@ test_write_functions (void)
 	g_assert_cmpint (initial_size, !=, actual_size);
 
 	/* Test insert statement */
-	result = tracker_db_journal_start_transaction ();
+	result = tracker_db_journal_start_transaction (time (NULL));
 	g_assert_cmpint (result, ==, TRUE);
 	result = tracker_db_journal_append_resource (15, "http://resource");
 	g_assert_cmpint (result, ==, TRUE);
@@ -107,7 +107,7 @@ test_write_functions (void)
 	g_assert_cmpint (result, ==, TRUE);
 
 	/* Test insert id */
-	result = tracker_db_journal_start_transaction ();
+	result = tracker_db_journal_start_transaction (time (NULL));
 	g_assert_cmpint (result, ==, TRUE);
 	result = tracker_db_journal_append_resource (17, "http://resource");
 	g_assert_cmpint (result, ==, TRUE);

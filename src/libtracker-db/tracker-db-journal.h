@@ -52,7 +52,7 @@ gboolean     tracker_db_journal_shutdown                     (void);
 const gchar* tracker_db_journal_get_filename                 (void);
 gsize        tracker_db_journal_get_size                     (void);
 
-gboolean     tracker_db_journal_start_transaction            (void);
+gboolean     tracker_db_journal_start_transaction            (time_t       time);
 gboolean     tracker_db_journal_append_delete_statement      (guint32      s_id,
                                                               guint32      p_id,
                                                               const gchar *object);

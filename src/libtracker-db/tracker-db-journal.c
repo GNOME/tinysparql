@@ -300,7 +300,7 @@ tracker_db_journal_get_filename (void)
 }
 
 gboolean
-tracker_db_journal_start_transaction (void)
+tracker_db_journal_start_transaction (time_t time)
 {
 	guint size;
 
@@ -320,7 +320,7 @@ tracker_db_journal_start_transaction (void)
 
 	/* add timestamp */
 	cur_block_maybe_expand (sizeof (gint32));
-	cur_setnum (writer.cur_block, &writer.cur_pos, time (NULL));
+	cur_setnum (writer.cur_block, &writer.cur_pos, time);
 	writer.cur_block_len += sizeof (gint32);
 
 	return TRUE;
