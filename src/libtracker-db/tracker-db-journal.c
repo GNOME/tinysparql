@@ -694,6 +694,14 @@ tracker_db_journal_reader_next (GError **error)
 		/* Read the first uint32 which contains the size */
 		entry_size = read_uint32 (reader.current);
 
+		/* Check that entry is big enough for header and footer */
+		if (entry_size < 5 * sizeof (guint32)) {
+			g_set_error (error, TRACKER_DB_JOURNAL_ERROR, 0,
+			             "Damaged journal entry, size %d < 5 * sizeof(guint32)",
+			             (gint) entry_size);
+			return FALSE;
+		}
+
 		/* Set the bounds for the entry */
 		reader.entry_begin = reader.current;
 		reader.entry_end = reader.entry_begin + entry_size;
