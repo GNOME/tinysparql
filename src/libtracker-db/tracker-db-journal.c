@@ -563,16 +563,15 @@ tracker_db_journal_reader_init (const gchar *filename)
 	reader.end = reader.current + g_mapped_file_get_length (reader.file);
 
 	/* verify journal file header */
-	g_assert (reader.end - reader.current >= 8);
+	if (reader.end - reader.current < 8) {
+		tracker_db_journal_reader_shutdown ();
+		return FALSE;
+	}
 
-	g_assert_cmpint (reader.current[0], ==, 't');
-	g_assert_cmpint (reader.current[1], ==, 'r');
-	g_assert_cmpint (reader.current[2], ==, 'l');
-	g_assert_cmpint (reader.current[3], ==, 'o');
-	g_assert_cmpint (reader.current[4], ==, 'g');
-	g_assert_cmpint (reader.current[5], ==, '\0');
-	g_assert_cmpint (reader.current[6], ==, '0');
-	g_assert_cmpint (reader.current[7], ==, '1');
+	if (memcmp (reader.current, "trlog\00001", 8)) {
+		tracker_db_journal_reader_shutdown ();
+		return FALSE;
+	}
 
 	reader.current += 8;
 
