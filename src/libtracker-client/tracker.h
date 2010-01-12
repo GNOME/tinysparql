@@ -1,5 +1,6 @@
-/* Tracker - indexer and metadata database engine
+/* 
  * Copyright (C) 2006, Mr Jamie McCracken (jamiemcc@gnome.org)
+ * Copyright (C) 2008-2010, Nokia
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -17,8 +18,8 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef TRACKER_H
-#define TRACKER_H
+#ifndef __TRACKER_CLIENT_H__
+#define __TRACKER_CLIENT_H__
 
 #include <dbus/dbus-glib-bindings.h>
 
@@ -194,4 +195,4 @@ guint tracker_search_metadata_by_text_and_mime_and_location_async (TrackerClient
 
 G_END_DECLS
 
-#endif /* TRACKER_H */
+#endif /* __TRACKER_CLIENT_H__ */
