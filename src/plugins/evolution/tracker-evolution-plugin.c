@@ -319,6 +319,8 @@ exec_update (gpointer data, gpointer user_data)
 	PoolItem *item = data;
 	TrackerEvolutionPluginPrivate *priv = TRACKER_EVOLUTION_PLUGIN_GET_PRIVATE (item->self);
 
+	g_static_rec_mutex_lock (priv->mutex);
+
 	if (priv->client) {
 		GError *error = NULL;
 
@@ -333,6 +335,7 @@ exec_update (gpointer data, gpointer user_data)
 			g_error_free (error);
 		}
 	}
+	g_static_rec_mutex_unlock (priv->mutex);
 
 	g_free (item->sparql);
 	g_object_unref (item->self);
@@ -2103,11 +2106,13 @@ name_owner_changed_cb (DBusGProxy *proxy,
 {
 	TrackerEvolutionPluginPrivate *priv = TRACKER_EVOLUTION_PLUGIN_GET_PRIVATE (user_data);
 
+	g_static_rec_mutex_lock (priv->mutex);
+
 	if (g_strcmp0 (name, TRACKER_SERVICE) == 0) {
-		if (tracker_is_empty_string (new_owner) && !tracker_is_empty_string (old_owner)) {
+		 if (tracker_is_empty_string (new_owner) && !tracker_is_empty_string (old_owner)) {
 			if (priv->client) {
-				tracker_disconnect (priv->client);
-				priv->client = NULL;
+				 tracker_disconnect (priv->client);
+				 priv->client = NULL; 
 			}
 		}
 
@@ -2118,6 +2123,8 @@ name_owner_changed_cb (DBusGProxy *proxy,
 			register_client (user_data);
 		}
 	}
+
+	g_static_rec_mutex_unlock (priv->mutex);
 }
 
 static void
@@ -2218,6 +2225,7 @@ tracker_evolution_plugin_init (TrackerEvolutionPlugin *plugin)
 
 	g_static_rec_mutex_lock (priv->mutex);
 
+	priv->client = NULL;
 	priv->last_time = 0;
 	priv->resuming = FALSE;
 	priv->paused = FALSE;
@@ -2292,9 +2300,13 @@ miner_started (TrackerMiner *miner)
 {
 	TrackerEvolutionPluginPrivate *priv = TRACKER_EVOLUTION_PLUGIN_GET_PRIVATE (miner);
 
+	g_static_rec_mutex_lock (priv->mutex);
+
 	if (!priv->client) {
 		priv->client = tracker_connect (FALSE, G_MAXINT);
 	}
+
+	g_static_rec_mutex_unlock (priv->mutex);
 
 	dbus_g_proxy_begin_call (priv->dbus_proxy, "ListNames",
 	                         list_names_reply_cb,
@@ -2331,17 +2343,19 @@ miner_paused (TrackerMiner *miner)
 
 	priv->paused = TRUE;
 
+	g_static_rec_mutex_lock (priv->mutex);
+
 	if (priv->client) {
 		tracker_disconnect (priv->client);
+		priv->client = NULL;
 
 		/* By setting this to NULL, events will still be catched by our
 		 * handlers, but the send_sparql_* calls will just ignore it.
 		 * This is fine as a solution (at least for now). It allows us
 		 * to avoid having to unregister everything and risk the chance
 		 * of missing something (like a folder or account creation). */
-
-		priv->client = NULL;
 	}
+	g_static_rec_mutex_unlock (priv->mutex);
 
 }
 
@@ -2374,6 +2388,8 @@ miner_resumed (TrackerMiner *miner)
 {
 	TrackerEvolutionPluginPrivate *priv = TRACKER_EVOLUTION_PLUGIN_GET_PRIVATE (miner);
 
+	g_static_rec_mutex_lock (priv->mutex);
+
 	/* We don't really resume, we just completely restart */
 
 	priv->resuming = TRUE;
@@ -2384,6 +2400,7 @@ miner_resumed (TrackerMiner *miner)
 	if (!priv->client) {
 		priv->client = tracker_connect (FALSE, G_MAXINT);
 	}
+	g_static_rec_mutex_unlock (priv->mutex);
 
 	g_object_set (miner,  "progress", 0.0,  "status", _("Resuming"), NULL);
 
