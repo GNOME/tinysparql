@@ -121,6 +121,7 @@ enum {
 	PROP_0 = 0,
 	PROP_TIMEOUT,
 	PROP_ENABLE_WARNINGS,
+	PROP_FORCE_SERVICE,
 };
 
 static guint pending_call_id = 0;
@@ -139,6 +140,7 @@ static gboolean start_service               (DBusConnection *connection,
 typedef struct {
 	gint timeout;
 	gboolean enable_warnings;
+	gboolean force_service;
 } TrackerClientPrivate;
 
 G_DEFINE_TYPE(TrackerClient, tracker_client, G_TYPE_OBJECT)
@@ -198,6 +200,14 @@ tracker_client_class_init (TrackerClientClass *klass)
 	                                                       TRUE,
 	                                                       G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
 
+	g_object_class_install_property (object_class,
+	                                 PROP_FORCE_SERVICE,
+	                                 g_param_spec_boolean ("force-service",
+	                                                       "Force service startup",
+	                                                       "Force service startup",
+	                                                       TRUE,
+	                                                       G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
+
 	g_type_class_add_private (object_class, sizeof (TrackerClientPrivate));
 }
 
@@ -213,7 +223,10 @@ tracker_client_set_property (GObject      *object,
 
 	switch (prop_id) {
 	case PROP_ENABLE_WARNINGS:
-			priv->enable_warnings = g_value_get_boolean (value);
+		priv->enable_warnings = g_value_get_boolean (value);
+		break;
+	case PROP_FORCE_SERVICE:
+		priv->force_service = g_value_get_boolean (value);
 		break;
 	case PROP_TIMEOUT:
 		val = g_value_get_int (value);
@@ -239,6 +252,9 @@ tracker_client_get_property (GObject      *object,
 	case PROP_ENABLE_WARNINGS:
 		g_value_set_boolean (value, priv->enable_warnings);
 		break;
+	case PROP_FORCE_SERVICE:
+		g_value_set_boolean (value, priv->force_service);
+		break;
 	case PROP_TIMEOUT:
 		g_value_set_int (value, priv->timeout);
 		break;
@@ -263,7 +279,7 @@ tracker_client_init (TrackerClient *client)
 		return;
 	}
 
-	if (!start_service (dbus_g_connection_get_connection (connection), TRACKER_SERVICE)) {
+	if (priv->force_service && !start_service (dbus_g_connection_get_connection (connection), TRACKER_SERVICE)) {
 		/* unable to start tracker-store */
 		dbus_g_connection_unref (connection);
 		return;
@@ -470,8 +486,26 @@ tracker_connect (gboolean enable_warnings,
 
 	g_type_init ();
 
-	client = g_object_new (TRACKER_TYPE_CLIENT, "timeout", timeout, 
-	                       "enable-warnings", enable_warnings, NULL);
+	client = g_object_new (TRACKER_TYPE_CLIENT, 
+	                       "timeout", timeout, 
+	                       "enable-warnings", enable_warnings,
+	                       "force-service", TRUE, NULL);
+
+	return client;
+}
+
+TrackerClient *
+tracker_connect_no_service_start (gboolean enable_warnings,
+                                  gint     timeout)
+{
+	TrackerClient *client;
+
+	g_type_init ();
+
+	client = g_object_new (TRACKER_TYPE_CLIENT,
+	                       "timeout", timeout, 
+	                       "enable-warnings", enable_warnings, 
+	                       "force-service", FALSE, NULL);
 
 	return client;
 }

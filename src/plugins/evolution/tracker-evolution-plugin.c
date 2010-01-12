@@ -119,6 +119,18 @@ G_DEFINE_TYPE (TrackerEvolutionPlugin, tracker_evolution_plugin, TRACKER_TYPE_MI
  * during registration of accounts and folders). I know this is cruel. I know. */
 
 typedef struct {
+	TrackerClient *client;
+	gchar *sparql;
+	gboolean commit;
+	gint prio;
+} PoolItem;
+
+typedef struct {
+	GThreadPool *pool;
+	gboolean can_die;
+} ThreadPool;
+
+typedef struct {
 	TrackerEvolutionPlugin *self; /* weak */
 	guint64 last_checkout;
 } ClientRegistry;
@@ -191,7 +203,7 @@ static GQueue *many_queue = NULL;
 static TrackerEvolutionPlugin *manager = NULL;
 static GStaticRecMutex glock = G_STATIC_REC_MUTEX_INIT;
 static guint register_count = 0;
-static GThreadPool *pool = NULL;
+static ThreadPool *pool = NULL;
 
 /* Prototype declarations */
 static void register_account (TrackerEvolutionPlugin *self, EAccount *account);
@@ -307,56 +319,83 @@ folder_registry_new (const gchar *account_uri,
 	return registry;
 }
 
-typedef struct {
-	TrackerEvolutionPlugin *self;
-	gchar *sparql;
-	gboolean commit;
-} PoolItem;
 
 static void
 exec_update (gpointer data, gpointer user_data)
 {
+	ThreadPool *pool = user_data;
 	PoolItem *item = data;
-	TrackerEvolutionPluginPrivate *priv = TRACKER_EVOLUTION_PLUGIN_GET_PRIVATE (item->self);
 
-	g_static_rec_mutex_lock (priv->mutex);
-
-	if (priv->client) {
+	if (!pool->can_die) {
 		GError *error = NULL;
 
 		if (item->commit) {
-			tracker_resources_batch_commit (priv->client, &error);
+			tracker_resources_batch_commit (item->client, &error);
 		} else {
-			tracker_resources_batch_sparql_update (priv->client, item->sparql, &error);
+			tracker_resources_batch_sparql_update (item->client, item->sparql, &error);
 		}
 
 		if (error) {
-			g_warning ("Error updating data: %s\n", error->message);
+			/* g_warning ("Error updating data: %s\n", error->message); */
 			g_error_free (error);
 		}
+		/* Don't hammer DBus too much, else Evolution's UI sometimes becomes slugish
+		 * due to a dbus_watch_handle call on its mainloop */
+
+		g_usleep (300);
+	} else {
+		if (g_thread_pool_unprocessed (pool->pool) == 0) {
+			g_thread_pool_free (pool->pool, TRUE, TRUE);
+			g_free (pool);
+		}
 	}
-	g_static_rec_mutex_unlock (priv->mutex);
 
 	g_free (item->sparql);
-	g_object_unref (item->self);
+	g_object_unref (item->client);
 	g_slice_free (PoolItem, item);
 }
 
-static void
-send_sparql_update (TrackerEvolutionPlugin *self, const gchar *sparql)
+static gint 
+pool_sort_func (gconstpointer a,
+                gconstpointer b,
+                gpointer user_data)
 {
-	PoolItem *item = g_slice_new (PoolItem);
+	PoolItem *item_a = (PoolItem *) a;
+	PoolItem *item_b = (PoolItem *) b;
 
-	if (!pool) {
-		pool = g_thread_pool_new (exec_update, NULL, 1, FALSE, NULL);
+	return item_a->prio - item_b->prio;
+}
+
+static ThreadPool*
+pool_new (void)
+{
+	ThreadPool *wrap = g_new0 (ThreadPool, 1);
+
+	wrap->pool = g_thread_pool_new (exec_update, wrap, 1, FALSE, NULL);
+	g_thread_pool_set_sort_function (wrap->pool, pool_sort_func, NULL);
+	wrap->can_die = FALSE;
+
+	return wrap;
+}
+
+static void
+send_sparql_update (TrackerEvolutionPlugin *self, const gchar *sparql, gint prio)
+{
+	TrackerEvolutionPluginPrivate *priv = TRACKER_EVOLUTION_PLUGIN_GET_PRIVATE (self);
+
+	if (priv->client) {
+		PoolItem *item = g_slice_new (PoolItem);
+
+		if (!pool)
+			pool = pool_new ();
+
+		item->prio = prio;
+		item->commit = FALSE;
+		item->client = g_object_ref (priv->client);
+		item->sparql = g_strdup (sparql);
+
+		g_thread_pool_push (pool->pool, item, NULL);
 	}
-
-	item->commit = FALSE;
-	item->self = g_object_ref (self);
-	item->sparql = g_strdup (sparql);
-
-	g_thread_pool_push (pool, item, NULL);
-
 }
 
 static void
@@ -374,22 +413,21 @@ send_sparql_commit (TrackerEvolutionPlugin *self, gboolean update)
 			                                 "INSERT INTO <"DATASOURCE_URN"> { <" DATASOURCE_URN "> nie:contentLastModified \"%s\" }",
 			                                 date_s);
 
-			send_sparql_update (self, update);
+			send_sparql_update (self, update, 0);
 
 			g_free (update);
 			g_free (date_s);
 		}
 
+		if (!pool)
+			pool = pool_new ();
 
-		if (!pool) {
-			pool = g_thread_pool_new (exec_update, NULL, 1, FALSE, NULL);
-		}
-
+		item->prio = 0;
 		item->commit = TRUE;
-		item->self = g_object_ref (self);
+		item->client = g_object_ref (priv->client);
 		item->sparql = NULL;
 
-		g_thread_pool_push (pool, item, NULL);
+		g_thread_pool_push (pool->pool, item, NULL);
 	}
 }
 
@@ -737,7 +775,7 @@ on_folder_summary_changed (CamelFolder *folder,
 
 			tracker_sparql_builder_insert_close (sparql);
 
-			send_sparql_update (info->self, tracker_sparql_builder_get_result (sparql));
+			send_sparql_update (info->self, tracker_sparql_builder_get_result (sparql), 100);
 
 			g_object_set (info->self, "progress",
 			              (gdouble) i / merged->len,
@@ -778,7 +816,7 @@ on_folder_summary_changed (CamelFolder *folder,
 			                        (char*) changes->uid_removed->pdata[i]);
 		}
 
-		send_sparql_update (info->self, sparql->str);
+		send_sparql_update (info->self, sparql->str, 100);
 		g_string_free (sparql, TRUE);
 	}
 
@@ -858,7 +896,7 @@ many_idle_handler (gpointer user_data)
 			              NULL);
 #endif
 
-			send_sparql_update (user_data, query);
+			send_sparql_update (user_data, query, 0);
 		} else {
 			/* Performance improvement: remove all that had
 			 * this disconnected registrar from the queue */
@@ -1085,14 +1123,6 @@ introduce_walk_folders_in_folder (TrackerEvolutionPlugin *self,
 				}
 
 				if (count >= MAX_BEFORE_SEND) {
-
-					/* Yield per MAX_BEFORE_SEND. This function is
-					 * called as a result of a DBus call, so it runs
-					 * in the mainloop. Therefore, yield he mainloop
-					 * sometimes, indeed */
-
-					g_main_context_iteration (NULL, TRUE);
-
 					more = TRUE;
 					break;
 				}
@@ -1224,14 +1254,6 @@ introduce_store_deal_with_deleted (TrackerEvolutionPlugin *self,
 			                                              mailbox, uid));
 
 			if (count > MAX_BEFORE_SEND) {
-
-				/* Yield per MAX_BEFORE_SEND. This function is
-				 * called as a result of a DBus call, so it runs
-				 * in the mainloop. Therefore, yield he mainloop
-				 * sometimes, indeed */
-
-				g_main_context_iteration (NULL, TRUE);
-
 				more = TRUE;
 				break;
 			}
@@ -1255,7 +1277,7 @@ introduce_store_deal_with_deleted (TrackerEvolutionPlugin *self,
 
 			g_string_append_c (sparql, '}');
 
-			send_sparql_update (self, sparql->str);
+			send_sparql_update (self, sparql->str, 100);
 			g_string_free (sparql, TRUE);
 
 		}
@@ -1712,7 +1734,7 @@ register_client_second_half (ClientRegistry *info)
 	if (info->last_checkout < too_old) {
 
 		send_sparql_update (info->self, "DELETE FROM <"DATASOURCE_URN"> { ?s a rdfs:Resource } "
-		                    "WHERE { ?s nie:dataSource <" DATASOURCE_URN "> }");
+		                    "WHERE { ?s nie:dataSource <" DATASOURCE_URN "> }", 0);
 		send_sparql_commit (info->self, FALSE);
 
 		info->last_checkout = 0;
@@ -2058,7 +2080,7 @@ disable_plugin (void)
 	}
 
 	if (pool) {
-		g_thread_pool_free (pool, FALSE, TRUE);
+		pool->can_die = TRUE;
 		pool = NULL;
 	}
 }
@@ -2111,14 +2133,20 @@ name_owner_changed_cb (DBusGProxy *proxy,
 	if (g_strcmp0 (name, TRACKER_SERVICE) == 0) {
 		 if (tracker_is_empty_string (new_owner) && !tracker_is_empty_string (old_owner)) {
 			if (priv->client) {
-				 tracker_disconnect (priv->client);
-				 priv->client = NULL; 
+				TrackerClient *client = priv->client;
+				priv->client = NULL; 
+
+				if (pool) {
+					pool->can_die = TRUE;
+					pool = NULL;
+				}
+				 tracker_disconnect (client);
 			}
 		}
 
 		if (tracker_is_empty_string (old_owner) && !tracker_is_empty_string (new_owner)) {
 			if (!priv->client) {
-				priv->client = tracker_connect (FALSE, G_MAXINT);
+				priv->client = tracker_connect_no_service_start (FALSE, G_MAXINT);
 			}
 			register_client (user_data);
 		}
@@ -2178,8 +2206,15 @@ tracker_evolution_plugin_finalize (GObject *plugin)
 	g_object_unref (priv->accounts);
 
 	if (priv->client) {
-		tracker_disconnect (priv->client);
+		TrackerClient *client = priv->client;
 		priv->client = NULL;
+
+		if (pool) {
+			pool->can_die = TRUE;
+			pool = NULL;
+		}
+
+		tracker_disconnect (client);
 	}
 	g_static_rec_mutex_unlock (priv->mutex);
 
@@ -2303,7 +2338,7 @@ miner_started (TrackerMiner *miner)
 	g_static_rec_mutex_lock (priv->mutex);
 
 	if (!priv->client) {
-		priv->client = tracker_connect (FALSE, G_MAXINT);
+		priv->client = tracker_connect_no_service_start (FALSE, G_MAXINT);
 	}
 
 	g_static_rec_mutex_unlock (priv->mutex);
@@ -2346,8 +2381,15 @@ miner_paused (TrackerMiner *miner)
 	g_static_rec_mutex_lock (priv->mutex);
 
 	if (priv->client) {
-		tracker_disconnect (priv->client);
+		TrackerClient *client = priv->client;
 		priv->client = NULL;
+
+		if (pool) {
+			pool->can_die = TRUE;
+			pool = NULL;
+		}
+
+		tracker_disconnect (client);
 
 		/* By setting this to NULL, events will still be catched by our
 		 * handlers, but the send_sparql_* calls will just ignore it.
@@ -2398,7 +2440,7 @@ miner_resumed (TrackerMiner *miner)
 	priv->of_total = 0;
 
 	if (!priv->client) {
-		priv->client = tracker_connect (FALSE, G_MAXINT);
+		priv->client = tracker_connect_no_service_start (FALSE, G_MAXINT);
 	}
 	g_static_rec_mutex_unlock (priv->mutex);
 

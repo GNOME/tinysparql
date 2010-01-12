@@ -105,6 +105,8 @@ gchar *        tracker_sparql_escape                       (const gchar         
 
 TrackerClient *tracker_connect                             (gboolean                enable_warnings,
                                                             gint                    timeout);
+TrackerClient *tracker_connect_no_service_start            (gboolean                enable_warnings,
+                                                            gint                    timeout);
 void           tracker_disconnect                          (TrackerClient          *client);
 
 /* Synchronous API */
