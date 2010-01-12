@@ -24,6 +24,13 @@
 
 G_BEGIN_DECLS
 
+#define TRACKER_TYPE_CLIENT         (tracker_client_get_type())
+#define TRACKER_CLIENT(o)           (G_TYPE_CHECK_INSTANCE_CAST ((o), TRACKER_TYPE_CLIENT, TrackerClient))
+#define TRACKER_CLIENT_CLASS(c)     (G_TYPE_CHECK_CLASS_CAST ((c),    TRACKER_TYPE_CLIENT, TrackerClientClass))
+#define TRACKER_IS_CLIENT(o)        (G_TYPE_CHECK_INSTANCE_TYPE ((o), TRACKER_TYPE_CLIENT))
+#define TRACKER_IS_CLIENT_CLASS(c)  (G_TYPE_CHECK_CLASS_TYPE ((c),    TRACKER_TYPE_CLIENT))
+#define TRACKER_CLIENT_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o),  TRACKER_TYPE_CLIENT, TrackerClientClass))
+
 /**
  * TrackerClient:
  * @proxy_statistics: a #DBusGProxy for the connection to Tracker's
@@ -38,12 +45,19 @@ G_BEGIN_DECLS
  * This structure is used by tracker_connect() and tracker_disconnect().
  */
 typedef struct {
+	GObject parent;
+
 	DBusGProxy *proxy_statistics;
 	DBusGProxy *proxy_resources;
 
 	GHashTable *pending_calls;
 	guint last_call;
+
 } TrackerClient;
+
+typedef struct {
+	GObjectClass parent;
+} TrackerClientClass;
 
 /**
  * TrackerReplyArray:
@@ -80,6 +94,8 @@ typedef void (*TrackerReplyGPtrArray) (GPtrArray *result,
  */
 typedef void (*TrackerReplyVoid)      (GError    *error,
                                        gpointer   user_data);
+
+GType          tracker_client_get_type                     (void) G_GNUC_CONST;
 
 gboolean       tracker_cancel_call                         (TrackerClient          *client,
                                                             guint                   call_id);
@@ -153,11 +169,11 @@ guint          tracker_search_metadata_by_text_and_mime_async (TrackerClient   *
                                                                TrackerReplyArray       callback,
                                                                gpointer                user_data);
 guint          tracker_search_metadata_by_text_and_mime_and_location_async (TrackerClient   *client,
-	      const gchar            *query,
-	      const gchar           **mimes,
-	      const gchar            *location,
-	      TrackerReplyArray       callback,
-	      gpointer                user_data);
+                                                                            const gchar            *query,
+                                                                            const gchar           **mimes,
+                                                                            const gchar            *location,
+                                                                            TrackerReplyArray       callback,
+                                                                            gpointer                user_data);
 
 G_END_DECLS
 

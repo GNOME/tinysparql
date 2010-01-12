@@ -28,7 +28,7 @@
 #include "tracker-resources-glue.h"
 #include "tracker-statistics-glue.h"
 
-#define TRACKER_SERVICE                         "org.freedesktop.Tracker1"
+#define TRACKER_SERVICE                 "org.freedesktop.Tracker1"
 #define TRACKER_OBJECT                  "/org/freedesktop/Tracker1"
 #define TRACKER_INTERFACE_RESOURCES     "org.freedesktop.Tracker1.Resources"
 #define TRACKER_INTERFACE_STATISTICS    "org.freedesktop.Tracker1.Statistics"
@@ -117,7 +117,174 @@ typedef struct {
 	guint             id;
 } CallbackVoid;
 
+enum {
+	PROP_0 = 0,
+	PROP_TIMEOUT,
+	PROP_ENABLE_WARNINGS,
+};
+
 static guint pending_call_id = 0;
+
+static void     tracker_client_set_property (GObject        *object,
+                                             guint           prop_id,
+                                             const GValue   *value,
+                                             GParamSpec     *pspec);
+static void     tracker_client_get_property (GObject        *object,
+                                             guint           prop_id,
+                                             GValue         *value,
+                                             GParamSpec     *pspec);
+static gboolean start_service               (DBusConnection *connection,
+                                             const char     *name);
+
+typedef struct {
+	gint timeout;
+	gboolean enable_warnings;
+} TrackerClientPrivate;
+
+G_DEFINE_TYPE(TrackerClient, tracker_client, G_TYPE_OBJECT)
+
+#define TRACKER_CLIENT_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_CLIENT, TrackerClientPrivate))
+
+static void
+pending_call_free (PendingCallData *data)
+{
+	g_slice_free (PendingCallData, data);
+}
+
+static void
+tracker_client_finalize (GObject *object)
+{
+	TrackerClient *client = TRACKER_CLIENT (object);
+
+	if (client->proxy_statistics) {
+		g_object_unref (client->proxy_statistics);
+	}
+
+	if (client->proxy_resources) {
+		g_object_unref (client->proxy_resources);
+	}
+
+	if (client->pending_calls) {
+		g_hash_table_unref (client->pending_calls);
+	}
+}
+
+static void
+tracker_client_class_init (TrackerClientClass *klass)
+{
+	GObjectClass *object_class;
+
+	object_class = G_OBJECT_CLASS (klass);
+
+	object_class->finalize = tracker_client_finalize;
+	object_class->set_property = tracker_client_set_property;
+	object_class->get_property = tracker_client_get_property;
+
+	g_object_class_install_property (object_class,
+	                                 PROP_TIMEOUT,
+	                                 g_param_spec_int ("timeout",
+	                                                   "Timeout",
+	                                                   "Timeout",
+	                                                   0,
+	                                                   G_MAXINT,
+	                                                   0,
+	                                                   G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
+
+	g_object_class_install_property (object_class,
+	                                 PROP_ENABLE_WARNINGS,
+	                                 g_param_spec_boolean ("enable-warnings",
+	                                                       "Enable warnings",
+	                                                       "Enable warnings",
+	                                                       TRUE,
+	                                                       G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
+
+	g_type_class_add_private (object_class, sizeof (TrackerClientPrivate));
+}
+
+static void
+tracker_client_set_property (GObject      *object,
+                             guint         prop_id,
+                             const GValue *value,
+                             GParamSpec   *pspec)
+{
+	TrackerClient *client = TRACKER_CLIENT (object);
+	TrackerClientPrivate *priv = TRACKER_CLIENT_GET_PRIVATE (object);
+	gint val;
+
+	switch (prop_id) {
+	case PROP_ENABLE_WARNINGS:
+			priv->enable_warnings = g_value_get_boolean (value);
+		break;
+	case PROP_TIMEOUT:
+		val = g_value_get_int (value);
+		if (val > 0) {
+			priv->timeout = val;
+			dbus_g_proxy_set_default_timeout (client->proxy_resources, val);
+		}
+		break;
+	default:
+		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+	}
+}
+
+static void
+tracker_client_get_property (GObject      *object,
+                             guint         prop_id,
+                             GValue       *value,
+                             GParamSpec   *pspec)
+{
+	TrackerClientPrivate *priv = TRACKER_CLIENT_GET_PRIVATE (object);
+
+	switch (prop_id) {
+	case PROP_ENABLE_WARNINGS:
+		g_value_set_boolean (value, priv->enable_warnings);
+		break;
+	case PROP_TIMEOUT:
+		g_value_set_int (value, priv->timeout);
+		break;
+	default:
+		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+	}
+}
+
+static void
+tracker_client_init (TrackerClient *client)
+{
+	TrackerClientPrivate *priv = TRACKER_CLIENT_GET_PRIVATE (client);
+	GError *error = NULL;
+	DBusGConnection *connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
+
+	if (connection == NULL || error != NULL) {
+		if (priv->enable_warnings) {
+			g_warning ("Unable to connect to dbus: %s\n",
+			           error->message);
+		}
+		g_error_free (error);
+		return;
+	}
+
+	if (!start_service (dbus_g_connection_get_connection (connection), TRACKER_SERVICE)) {
+		/* unable to start tracker-store */
+		dbus_g_connection_unref (connection);
+		return;
+	}
+
+	client->pending_calls = g_hash_table_new_full (NULL, NULL, NULL,
+	                                               (GDestroyNotify) pending_call_free);
+
+	client->proxy_statistics =
+		dbus_g_proxy_new_for_name (connection,
+		                           TRACKER_SERVICE,
+		                           TRACKER_OBJECT "/Statistics",
+		                           TRACKER_INTERFACE_STATISTICS);
+
+	client->proxy_resources =
+		dbus_g_proxy_new_for_name (connection,
+		                           TRACKER_SERVICE,
+		                           TRACKER_OBJECT "/Resources",
+		                           TRACKER_INTERFACE_RESOURCES);
+}
+
 
 static void
 tracker_GPtrArray_reply (DBusGProxy *proxy,
@@ -125,7 +292,6 @@ tracker_GPtrArray_reply (DBusGProxy *proxy,
                          GError     *error,
                          gpointer    user_data)
 {
-
 	CallbackGPtrArray *s;
 
 	s = user_data;
@@ -137,6 +303,7 @@ tracker_GPtrArray_reply (DBusGProxy *proxy,
 	                                        error,
 	                                        s->data);
 
+	g_object_unref (s->client);
 	g_free (s);
 }
 
@@ -156,6 +323,7 @@ tracker_void_reply (DBusGProxy *proxy,
 	(*(TrackerReplyVoid) s->callback) (error,
 	                                   s->data);
 
+	g_object_unref (s->client);
 	g_free (s);
 }
 
@@ -277,11 +445,7 @@ pending_call_new (TrackerClient  *client,
 	return id;
 }
 
-static void
-pending_call_free (PendingCallData *data)
-{
-	g_slice_free (PendingCallData, data);
-}
+
 
 /**
  * tracker_connect:
@@ -302,49 +466,12 @@ TrackerClient *
 tracker_connect (gboolean enable_warnings,
                  gint     timeout)
 {
-	DBusGConnection *connection;
-	GError *error = NULL;
-	TrackerClient *client = NULL;
+	TrackerClient *client;
 
 	g_type_init ();
 
-	connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
-
-	if (connection == NULL || error != NULL) {
-		if (enable_warnings) {
-			g_warning ("Unable to connect to dbus: %s\n",
-			           error->message);
-		}
-		g_error_free (error);
-		return NULL;
-	}
-
-	if (!start_service (dbus_g_connection_get_connection (connection), TRACKER_SERVICE)) {
-		/* unable to start tracker-store */
-		dbus_g_connection_unref (connection);
-		return NULL;
-	}
-
-	client = g_new0 (TrackerClient, 1);
-
-	client->pending_calls = g_hash_table_new_full (NULL, NULL, NULL,
-	                                               (GDestroyNotify) pending_call_free);
-
-	client->proxy_statistics =
-		dbus_g_proxy_new_for_name (connection,
-		                           TRACKER_SERVICE,
-		                           TRACKER_OBJECT "/Statistics",
-		                           TRACKER_INTERFACE_STATISTICS);
-
-	client->proxy_resources =
-		dbus_g_proxy_new_for_name (connection,
-		                           TRACKER_SERVICE,
-		                           TRACKER_OBJECT "/Resources",
-		                           TRACKER_INTERFACE_RESOURCES);
-
-	if (timeout > 0) {
-		dbus_g_proxy_set_default_timeout (client->proxy_resources, timeout);
-	}
+	client = g_object_new (TRACKER_TYPE_CLIENT, "timeout", timeout, 
+	                       "enable-warnings", enable_warnings, NULL);
 
 	return client;
 }
@@ -359,19 +486,7 @@ tracker_connect (gboolean enable_warnings,
 void
 tracker_disconnect (TrackerClient *client)
 {
-	if (client->proxy_statistics) {
-		g_object_unref (client->proxy_statistics);
-	}
-
-	if (client->proxy_resources) {
-		g_object_unref (client->proxy_resources);
-	}
-
-	if (client->pending_calls) {
-		g_hash_table_unref (client->pending_calls);
-	}
-
-	g_free (client);
+	g_object_unref (client);
 }
 
 /**
@@ -645,7 +760,7 @@ tracker_statistics_get_async (TrackerClient         *client,
 	s = g_new0 (CallbackGPtrArray, 1);
 	s->callback = callback;
 	s->data = user_data;
-	s->client = client;
+	s->client = g_object_ref (client);
 
 	call = org_freedesktop_Tracker1_Statistics_get_async (client->proxy_statistics,
 	                                                      tracker_GPtrArray_reply,
@@ -670,7 +785,7 @@ tracker_resources_load_async (TrackerClient     *client,
 	s = g_new0 (CallbackVoid, 1);
 	s->callback = callback;
 	s->data = user_data;
-	s->client = client;
+	s->client = g_object_ref (client);
 
 	call = org_freedesktop_Tracker1_Resources_load_async (client->proxy_resources,
 	                                                      uri,
@@ -708,7 +823,7 @@ tracker_resources_sparql_query_async (TrackerClient         *client,
 	s = g_new0 (CallbackGPtrArray, 1);
 	s->callback = callback;
 	s->data = user_data;
-	s->client = client;
+	s->client = g_object_ref (client);
 
 	call = org_freedesktop_Tracker1_Resources_sparql_query_async (client->proxy_resources,
 	                                                              query,
@@ -745,7 +860,7 @@ tracker_resources_sparql_update_async (TrackerClient    *client,
 	s = g_new0 (CallbackVoid, 1);
 	s->callback = callback;
 	s->data = user_data;
-	s->client = client;
+	s->client = g_object_ref (client);
 
 	call = org_freedesktop_Tracker1_Resources_sparql_update_async (client->proxy_resources,
 	                                                               query,
@@ -771,7 +886,7 @@ tracker_resources_sparql_update_blank_async (TrackerClient         *client,
 	s = g_new0 (CallbackGPtrArray, 1);
 	s->callback = callback;
 	s->data = user_data;
-	s->client = client;
+	s->client = g_object_ref (client);
 
 	call = org_freedesktop_Tracker1_Resources_sparql_update_blank_async (client->proxy_resources,
 	                                                                     query,
@@ -808,7 +923,7 @@ tracker_resources_batch_sparql_update_async (TrackerClient    *client,
 	s = g_new0 (CallbackVoid, 1);
 	s->callback = callback;
 	s->data = user_data;
-	s->client = client;
+	s->client = g_object_ref (client);
 
 	call = org_freedesktop_Tracker1_Resources_batch_sparql_update_async (client->proxy_resources,
 	                                                                     query,
@@ -843,7 +958,7 @@ tracker_resources_batch_commit_async (TrackerClient    *client,
 	s = g_new0 (CallbackVoid, 1);
 	s->callback = callback;
 	s->data = user_data;
-	s->client = client;
+	s->client = g_object_ref (client);
 
 	call = org_freedesktop_Tracker1_Resources_batch_commit_async (client->proxy_resources,
 	                                                              tracker_void_reply,
@@ -884,6 +999,7 @@ tracker_search_reply (DBusGProxy *proxy,
 
 	g_ptr_array_foreach (OUT_result, (GFunc) g_free, NULL);
 	g_ptr_array_free (OUT_result, TRUE);
+	g_object_unref (s->client);
 	g_free (s);
 }
 
@@ -940,7 +1056,7 @@ tracker_search_metadata_by_text_async (TrackerClient         *client,
 	s = g_new0 (CallbackArray, 1);
 	s->callback = callback;
 	s->data = user_data;
-	s->client = client;
+	s->client = g_object_ref (client);
 
 	sparql = g_string_new ("SELECT ?file WHERE { ?file a nfo:FileDataObject ; fts:match ");
 	sparql_append_string_literal (sparql, query);
@@ -979,7 +1095,7 @@ tracker_search_metadata_by_text_and_location_async (TrackerClient         *clien
 	s = g_new0 (CallbackArray, 1);
 	s->callback = callback;
 	s->data = user_data;
-	s->client = client;
+	s->client = g_object_ref (client);
 
 	sparql = g_string_new ("SELECT ?file WHERE { ?file a nfo:FileDataObject ; fts:match ");
 	sparql_append_string_literal (sparql, query);
@@ -1021,7 +1137,7 @@ tracker_search_metadata_by_text_and_mime_async (TrackerClient         *client,
 	s = g_new0 (CallbackArray, 1);
 	s->callback = callback;
 	s->data = user_data;
-	s->client = client;
+	s->client = g_object_ref (client);
 
 	sparql = g_string_new ("SELECT ?file WHERE { ?file a nfo:FileDataObject ; nie:mimeType ?mime ; fts:match ");
 	sparql_append_string_literal (sparql, query);
@@ -1071,7 +1187,7 @@ tracker_search_metadata_by_text_and_mime_and_location_async (TrackerClient      
 	s = g_new0 (CallbackArray, 1);
 	s->callback = callback;
 	s->data = user_data;
-	s->client = client;
+	s->client = g_object_ref (client);
 
 	sparql = g_string_new ("SELECT ?file WHERE { ?file a nfo:FileDataObject ; nie:mimeType ?mime ; fts:match ");
 	sparql_append_string_literal (sparql, query);
