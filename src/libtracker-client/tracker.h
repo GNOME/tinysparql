@@ -25,6 +25,11 @@
 
 G_BEGIN_DECLS
 
+#define TRACKER_DBUS_SERVICE              "org.freedesktop.Tracker1"
+#define TRACKER_DBUS_OBJECT               "/org/freedesktop/Tracker1"
+#define TRACKER_DBUS_INTERFACE_RESOURCES  "org.freedesktop.Tracker1.Resources"
+#define TRACKER_DBUS_INTERFACE_STATISTICS "org.freedesktop.Tracker1.Statistics"
+
 #define TRACKER_TYPE_CLIENT         (tracker_client_get_type())
 #define TRACKER_CLIENT(o)           (G_TYPE_CHECK_INSTANCE_CAST ((o), TRACKER_TYPE_CLIENT, TrackerClient))
 #define TRACKER_CLIENT_CLASS(c)     (G_TYPE_CHECK_CLASS_CAST ((c),    TRACKER_TYPE_CLIENT, TrackerClientClass))

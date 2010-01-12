@@ -30,11 +30,6 @@
 #include "tracker-resources-glue.h"
 #include "tracker-statistics-glue.h"
 
-#define TRACKER_SERVICE                 "org.freedesktop.Tracker1"
-#define TRACKER_OBJECT                  "/org/freedesktop/Tracker1"
-#define TRACKER_INTERFACE_RESOURCES     "org.freedesktop.Tracker1.Resources"
-#define TRACKER_INTERFACE_STATISTICS    "org.freedesktop.Tracker1.Statistics"
-
 /**
  * SECTION:tracker
  * @short_description: A client library for querying and inserting
@@ -358,7 +353,8 @@ client_constructed (GObject *object)
 		return;
 	}
 
-	if (!start_service (dbus_g_connection_get_connection (connection), TRACKER_SERVICE)) {
+	if (!start_service (dbus_g_connection_get_connection (connection), 
+	                    TRACKER_DBUS_SERVICE)) {
 		/* unable to start tracker-store */
 		dbus_g_connection_unref (connection);
 		return;
@@ -369,15 +365,15 @@ client_constructed (GObject *object)
 
 	private->proxy_statistics =
 		dbus_g_proxy_new_for_name (connection,
-		                           TRACKER_SERVICE,
-		                           TRACKER_OBJECT "/Statistics",
-		                           TRACKER_INTERFACE_STATISTICS);
+		                           TRACKER_DBUS_SERVICE,
+		                           TRACKER_DBUS_OBJECT "/Statistics",
+		                           TRACKER_DBUS_INTERFACE_STATISTICS);
 
 	private->proxy_resources =
 		dbus_g_proxy_new_for_name (connection,
-		                           TRACKER_SERVICE,
-		                           TRACKER_OBJECT "/Resources",
-		                           TRACKER_INTERFACE_RESOURCES);
+		                           TRACKER_DBUS_SERVICE,
+		                           TRACKER_DBUS_OBJECT "/Resources",
+		                           TRACKER_DBUS_INTERFACE_RESOURCES);
 }
 
 static void
