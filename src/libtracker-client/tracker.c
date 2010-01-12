@@ -352,6 +352,9 @@ tracker_void_reply (DBusGProxy *proxy,
  *
  * Returns: the newly allocated escaped string which must be freed
  * using g_free().
+ *
+ * Since: 0.8
+ *
  **/
 gchar *
 tracker_sparql_escape (const gchar *str)
@@ -406,8 +409,8 @@ tracker_sparql_escape (const gchar *str)
 }
 
 static gboolean
-start_service (DBusConnection     *connection,
-               const char         *name)
+start_service (DBusConnection *connection,
+               const char     *name)
 {
 	DBusError error;
 	DBusMessage *request, *reply;
@@ -420,7 +423,7 @@ start_service (DBusConnection     *connection,
 	request = dbus_message_new_method_call (DBUS_SERVICE_DBUS, DBUS_PATH_DBUS, DBUS_INTERFACE_DBUS, "StartServiceByName");
 	dbus_message_append_args (request, DBUS_TYPE_STRING, &name, DBUS_TYPE_UINT32, &flags, DBUS_TYPE_INVALID);
 
-	reply =         dbus_connection_send_with_reply_and_block (connection, request, -1, &error);
+	reply = dbus_connection_send_with_reply_and_block (connection, request, -1, &error);
 	dbus_message_unref (request);
 
 	if (reply == NULL) {
@@ -461,10 +464,8 @@ pending_call_new (TrackerClient  *client,
 	return id;
 }
 
-
-
 /**
- * tracker_connect:
+ * tracker_client_new:
  * @enable_warnings: a #gboolean to determine if warnings are issued in
  * cases where they are found.
  * @timeout: a #gint used for D-Bus call timeouts.
@@ -475,12 +476,12 @@ pending_call_new (TrackerClient  *client,
  * The @timeout is only used if it is > 0. If it is, then it is used
  * with dbus_g_proxy_set_default_timeout().
  *
- * Returns: the #TrackerClient which should be used with
- * tracker_disconnect() when finished with.
+ * Returns: the #TrackerClient which should be freed with
+ * g_object_unref() when finished with.
  **/
 TrackerClient *
-tracker_connect (gboolean enable_warnings,
-                 gint     timeout)
+tracker_client_new (gboolean enable_warnings,
+                    gint     timeout)
 {
 	TrackerClient *client;
 
@@ -489,7 +490,8 @@ tracker_connect (gboolean enable_warnings,
 	client = g_object_new (TRACKER_TYPE_CLIENT, 
 	                       "timeout", timeout, 
 	                       "enable-warnings", enable_warnings,
-	                       "force-service", TRUE, NULL);
+	                       "force-service", TRUE, 
+	                       NULL);
 
 	return client;
 }
@@ -505,9 +507,27 @@ tracker_connect_no_service_start (gboolean enable_warnings,
 	client = g_object_new (TRACKER_TYPE_CLIENT,
 	                       "timeout", timeout, 
 	                       "enable-warnings", enable_warnings, 
-	                       "force-service", FALSE, NULL);
+	                       "force-service", FALSE, 
+	                       NULL);
 
 	return client;
+}
+
+/**
+ * tracker_connect:
+ * @enable_warnings: a #gboolean to determine if warnings are issued in
+ * cases where they are found.
+ * @timeout: a #gint used for D-Bus call timeouts.
+ *
+ * This function calls tracker_client_new().
+ *
+ * Deprecated: 0.8: Use tracker_client_new() instead.
+ **/
+TrackerClient *
+tracker_connect (gboolean enable_warnings,
+                 gint     timeout)
+{
+      return tracker_client_new (enable_warnings, timeout);
 }
 
 /**
@@ -516,6 +536,8 @@ tracker_connect_no_service_start (gboolean enable_warnings,
  *
  * This will disconnect the D-Bus connections to Tracker services and
  * free the allocated #TrackerClient by tracker_connect().
+ *
+ * Deprecated: 0.8: Use g_object_unref() instead.
  **/
 void
 tracker_disconnect (TrackerClient *client)
@@ -596,6 +618,8 @@ tracker_cancel_last_call (TrackerClient *client)
  *
  * Returns: A #GPtrArray with the statistics which must be freed using
  * g_ptr_array_free().
+ *
+ * Since: 0.8
  **/
 GPtrArray *
 tracker_statistics_get (TrackerClient  *client,
@@ -674,6 +698,8 @@ tracker_resources_load (TrackerClient  *client,
  *
  * Returns: A #GPtrArray with the query results which must be freed
  * using g_ptr_array_free().
+ *
+ * Since: 0.8
  **/
 GPtrArray *
 tracker_resources_sparql_query (TrackerClient  *client,
@@ -705,6 +731,8 @@ tracker_resources_sparql_query (TrackerClient  *client,
  * updates.
  *
  * This API call is completely synchronous so it may block.
+ *
+ * Since: 0.8
  **/
 void
 tracker_resources_sparql_update (TrackerClient  *client,
@@ -743,6 +771,8 @@ tracker_resources_sparql_update_blank (TrackerClient  *client,
  * explicitly through tracker_resources_batch_commit() or
  * tracker_resources_batch_commit_async(). This API call is synchronous so it may
  * block.
+ *
+ * Since: 0.8
  **/
 void
 tracker_resources_batch_sparql_update (TrackerClient  *client,
@@ -761,6 +791,8 @@ tracker_resources_batch_sparql_update (TrackerClient  *client,
  *
  * Commits a batch of already issued SPARQL updates. This API call is
  * synchronous so it may block.
+ *
+ * Since: 0.8
  **/
 void
 tracker_resources_batch_commit (TrackerClient  *client,
@@ -781,6 +813,8 @@ tracker_resources_batch_commit (TrackerClient  *client,
  *
  * Returns: A #guint for the ID of this API call. This can be
  * cancelled with tracker_cancel_call().
+ *
+ * Since: 0.8
  **/
 guint
 tracker_statistics_get_async (TrackerClient         *client,
@@ -843,6 +877,8 @@ tracker_resources_load_async (TrackerClient     *client,
  * to see how an SPARLQL query should be like.
  *
  * Returns: The operation ID. See tracker_cancel_call().
+ *
+ * Since: 0.8
  **/
 guint
 tracker_resources_sparql_query_async (TrackerClient         *client,
@@ -880,6 +916,8 @@ tracker_resources_sparql_query_async (TrackerClient         *client,
  * Does an asynchronous SPARQL update.
  *
  * Returns: The operation ID. See tracker_cancel_call().
+ *
+ * Since: 0.8
  **/
 guint
 tracker_resources_sparql_update_async (TrackerClient    *client,
@@ -943,6 +981,8 @@ tracker_resources_sparql_update_blank_async (TrackerClient         *client,
  * Updates the database using SPARQL. see tracker_resources_batch_sparql_update().
  *
  * Returns: The operation ID. See tracker_cancel_call().
+ *
+ * Since: 0.8
  **/
 guint
 tracker_resources_batch_sparql_update_async (TrackerClient    *client,
@@ -979,6 +1019,8 @@ tracker_resources_batch_sparql_update_async (TrackerClient    *client,
  * Commits a batch of already issued SPARQL updates.
  *
  * Returns: The operation ID.
+ *
+ * Since: 0.8
  **/
 guint
 tracker_resources_batch_commit_async (TrackerClient    *client,
@@ -1072,11 +1114,26 @@ sparql_append_string_literal (GString     *sparql,
 	g_string_append_c (sparql, '"');
 }
 
+/**
+ * tracker_search_metadata_by_text_async:
+ * @client: a #TrackerClient.
+ * @query: a string representing what to search for.
+ * @callback: callback function to be called when the update has been processed.
+ * @user_data: user data to pass to @callback.
+ *
+ * Searches for @query in all URIs with the prefix @location.
+ *
+ * NOTE: @query is found using FTS (Full Text Search).
+ *
+ * Returns: The operation ID. See tracker_cancel_call().
+ *
+ * Deprecated: 0.8: Use tracker_resources_sparql_query() instead.
+ **/
 guint
-tracker_search_metadata_by_text_async (TrackerClient         *client,
-                                       const gchar           *query,
-                                       TrackerReplyArray      callback,
-                                       gpointer               user_data)
+tracker_search_metadata_by_text_async (TrackerClient     *client,
+                                       const gchar       *query,
+                                       TrackerReplyArray  callback,
+                                       gpointer           user_data)
 {
 	CallbackArray *s;
 	GString *sparql;
@@ -1109,12 +1166,28 @@ tracker_search_metadata_by_text_async (TrackerClient         *client,
 	return id;
 }
 
+/**
+ * tracker_search_metadata_by_text_and_location_async:
+ * @client: a #TrackerClient.
+ * @query: a string representing what to search for.
+ * @location: a string representing a path.
+ * @callback: callback function to be called when the update has been processed.
+ * @user_data: user data to pass to @callback.
+ *
+ * Searches for @query in all URIs with the prefix @location.
+ *
+ * NOTE: @query is found using FTS (Full Text Search).
+ *
+ * Returns: The operation ID. See tracker_cancel_call().
+ *
+ * Deprecated: 0.8: Use tracker_resources_sparql_query() instead.
+ **/
 guint
-tracker_search_metadata_by_text_and_location_async (TrackerClient         *client,
-                                                    const gchar           *query,
-                                                    const gchar           *location,
-                                                    TrackerReplyArray      callback,
-                                                    gpointer               user_data)
+tracker_search_metadata_by_text_and_location_async (TrackerClient     *client,
+                                                    const gchar       *query,
+                                                    const gchar       *location,
+                                                    TrackerReplyArray  callback,
+                                                    gpointer           user_data)
 {
 	CallbackArray *s;
 	GString *sparql;
@@ -1150,6 +1223,23 @@ tracker_search_metadata_by_text_and_location_async (TrackerClient         *clien
 	return id;
 }
 
+/**
+ * tracker_search_metadata_by_text_and_mime_async:
+ * @client: a #TrackerClient.
+ * @query: a string representing what to search for.
+ * @mimes: a #GStrv representing mime types.
+ * @callback: callback function to be called when the update has been processed.
+ * @user_data: user data to pass to @callback.
+ *
+ * Searches for @query in all URIs with a mime type matching any of
+ * the values in @mime.
+ *
+ * NOTE: @query is found using FTS (Full Text Search).
+ *
+ * Returns: The operation ID. See tracker_cancel_call().
+ *
+ * Deprecated: 0.8: Use tracker_resources_sparql_query() instead.
+ **/
 guint
 tracker_search_metadata_by_text_and_mime_async (TrackerClient         *client,
                                                 const gchar           *query,
@@ -1198,6 +1288,24 @@ tracker_search_metadata_by_text_and_mime_async (TrackerClient         *client,
 	return id;
 }
 
+/**
+ * tracker_search_metadata_by_text_and_mime_and_location_async:
+ * @client: a #TrackerClient.
+ * @query: a string representing what to search for.
+ * @mimes: a #GStrv representing mime types.
+ * @location: a string representing a path.
+ * @callback: callback function to be called when the update has been processed.
+ * @user_data: user data to pass to @callback.
+ *
+ * Searches for @query in all URIs with the prefix @location and with
+ * a mime type matching any of the values in @mime.
+ *
+ * NOTE: @query is found using FTS (Full Text Search).
+ *
+ * Returns: The operation ID. See tracker_cancel_call().
+ *
+ * Deprecated: 0.8: Use tracker_resources_sparql_query() instead.
+ **/
 guint
 tracker_search_metadata_by_text_and_mime_and_location_async (TrackerClient         *client,
                                                              const gchar           *query,

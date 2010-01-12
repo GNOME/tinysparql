@@ -60,18 +60,6 @@ typedef struct {
 } TrackerClientClass;
 
 /**
- * TrackerReplyArray:
- * @result: a gchar ** with the results of the query.
- * @error: a GError.
- * @user_data: a gpointer for user data.
- *
- * This is used by the old tracker_search_* API and is deprecated.
- */
-typedef void (*TrackerReplyArray)     (gchar    **result,
-                                       GError    *error,
-                                       gpointer   user_data);
-
-/**
  * TrackerReplyGPtrArray:
  * @result: a #GPtrArray with the results of the query.
  * @error: a #GError.
@@ -96,6 +84,8 @@ typedef void (*TrackerReplyVoid)      (GError    *error,
                                        gpointer   user_data);
 
 GType          tracker_client_get_type                     (void) G_GNUC_CONST;
+TrackerClient *tracker_client_new                          (gboolean                enable_warnings,
+                                                            gint                    timeout);
 
 gboolean       tracker_cancel_call                         (TrackerClient          *client,
                                                             guint                   call_id);
@@ -103,11 +93,6 @@ gboolean       tracker_cancel_last_call                    (TrackerClient       
 
 gchar *        tracker_sparql_escape                       (const gchar            *str);
 
-TrackerClient *tracker_connect                             (gboolean                enable_warnings,
-                                                            gint                    timeout);
-TrackerClient *tracker_connect_no_service_start            (gboolean                enable_warnings,
-                                                            gint                    timeout);
-void           tracker_disconnect                          (TrackerClient          *client);
 
 /* Synchronous API */
 GPtrArray *    tracker_statistics_get                      (TrackerClient          *client,
@@ -156,26 +141,56 @@ guint          tracker_resources_batch_sparql_update_async (TrackerClient       
 guint          tracker_resources_batch_commit_async        (TrackerClient          *client,
                                                             TrackerReplyVoid        callback,
                                                             gpointer                user_data);
-guint          tracker_search_metadata_by_text_async       (TrackerClient          *client,
-                                                            const gchar            *query,
-                                                            TrackerReplyArray       callback,
-                                                            gpointer                user_data);
-guint          tracker_search_metadata_by_text_and_location_async (TrackerClient   *client,
-                                                                   const gchar            *query,
-                                                                   const gchar            *location,
-                                                                   TrackerReplyArray       callback,
-                                                                   gpointer                user_data);
-guint          tracker_search_metadata_by_text_and_mime_async (TrackerClient   *client,
-                                                               const gchar            *query,
-                                                               const gchar           **mimes,
-                                                               TrackerReplyArray       callback,
-                                                               gpointer                user_data);
-guint          tracker_search_metadata_by_text_and_mime_and_location_async (TrackerClient   *client,
-                                                                            const gchar            *query,
-                                                                            const gchar           **mimes,
-                                                                            const gchar            *location,
-                                                                            TrackerReplyArray       callback,
-                                                                            gpointer                user_data);
+
+/* Deprecated APIs */
+/**
+ * TrackerReplyArray:
+ * @result: a gchar ** with the results of the query.
+ * @error: a GError.
+ * @user_data: a gpointer for user data.
+ *
+ * This is used by the 0.6 Tracker APIs:
+ *   tracker_search_metadata_by_text_async()
+ *   tracker_search_metadata_by_text_and_location_async()
+ *   tracker_search_metadata_by_text_and_mime_async()
+ *   tracker_search_metadata_by_text_and_mime_and_location_async()
+ *
+ * Deprecated: 0.8: Use #TrackerReplyVoid and #TrackerReplyGPtrArray
+ * with tracker_resources_sparql_query() instead.
+ */
+typedef void (*TrackerReplyArray)     (gchar    **result,
+                                       GError    *error,
+                                       gpointer   user_data) G_GNUC_DEPRECATED;
+
+TrackerClient *
+      tracker_connect_no_service_start                            (gboolean            enable_warnings,
+                                                                   gint                timeout)   G_GNUC_DEPRECATED;
+TrackerClient *
+      tracker_connect                                             (gboolean            enable_warnings,
+                                                                   gint                timeout)   G_GNUC_DEPRECATED;
+void  tracker_disconnect                                          (TrackerClient      *client)    G_GNUC_DEPRECATED;
+
+guint tracker_search_metadata_by_text_async                       (TrackerClient      *client,
+                                                                   const gchar        *query,
+                                                                   TrackerReplyArray   callback,
+                                                                   gpointer            user_data) G_GNUC_DEPRECATED;
+guint tracker_search_metadata_by_text_and_location_async          (TrackerClient      *client,
+                                                                   const gchar        *query,
+                                                                   const gchar        *location,
+                                                                   TrackerReplyArray   callback,
+                                                                   gpointer            user_data) G_GNUC_DEPRECATED;
+guint tracker_search_metadata_by_text_and_mime_async              (TrackerClient      *client,
+                                                                   const gchar        *query,
+                                                                   const gchar       **mimes,
+                                                                   TrackerReplyArray   callback,
+                                                                   gpointer            user_data) G_GNUC_DEPRECATED;
+guint tracker_search_metadata_by_text_and_mime_and_location_async (TrackerClient      *client,
+                                                                   const gchar        *query,
+                                                                   const gchar       **mimes,
+                                                                   const gchar        *location,
+                                                                   TrackerReplyArray   callback,
+                                                                   gpointer            user_data) G_GNUC_DEPRECATED;
+
 
 G_END_DECLS
 
