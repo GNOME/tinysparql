@@ -47,13 +47,6 @@ G_BEGIN_DECLS
  */
 typedef struct {
 	GObject parent;
-
-	DBusGProxy *proxy_statistics;
-	DBusGProxy *proxy_resources;
-
-	GHashTable *pending_calls;
-	guint last_call;
-
 } TrackerClient;
 
 typedef struct {
