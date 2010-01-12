@@ -2134,13 +2134,15 @@ name_owner_changed_cb (DBusGProxy *proxy,
 		 if (tracker_is_empty_string (new_owner) && !tracker_is_empty_string (old_owner)) {
 			if (priv->client) {
 				TrackerClient *client = priv->client;
+
 				priv->client = NULL; 
 
 				if (pool) {
 					pool->can_die = TRUE;
 					pool = NULL;
 				}
-				 tracker_disconnect (client);
+
+				g_object_unref (client);
 			}
 		}
 
@@ -2207,6 +2209,7 @@ tracker_evolution_plugin_finalize (GObject *plugin)
 
 	if (priv->client) {
 		TrackerClient *client = priv->client;
+
 		priv->client = NULL;
 
 		if (pool) {
@@ -2214,7 +2217,7 @@ tracker_evolution_plugin_finalize (GObject *plugin)
 			pool = NULL;
 		}
 
-		tracker_disconnect (client);
+		g_object_unref (client);
 	}
 	g_static_rec_mutex_unlock (priv->mutex);
 
@@ -2382,6 +2385,7 @@ miner_paused (TrackerMiner *miner)
 
 	if (priv->client) {
 		TrackerClient *client = priv->client;
+
 		priv->client = NULL;
 
 		if (pool) {
@@ -2389,7 +2393,7 @@ miner_paused (TrackerMiner *miner)
 			pool = NULL;
 		}
 
-		tracker_disconnect (client);
+		g_object_unref (client);
 
 		/* By setting this to NULL, events will still be catched by our
 		 * handlers, but the send_sparql_* calls will just ignore it.

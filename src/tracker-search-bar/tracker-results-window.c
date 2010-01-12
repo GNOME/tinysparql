@@ -380,7 +380,7 @@ tracker_results_window_init (TrackerResultsWindow *window)
 
 	priv = TRACKER_RESULTS_WINDOW_GET_PRIVATE (window);
 
-	priv->client = tracker_connect (FALSE, G_MAXINT);
+	priv->client = tracker_client_new (FALSE, G_MAXINT);
 
 	priv->frame = gtk_frame_new (NULL);
 	gtk_container_add (GTK_CONTAINER (window), priv->frame);
@@ -436,7 +436,7 @@ results_window_finalize (GObject *object)
 	g_free (priv->query);
 
 	if (priv->client) {
-		tracker_disconnect (priv->client);
+		g_object_unref (priv->client);
 	}
 
 	G_OBJECT_CLASS (tracker_results_window_parent_class)->finalize (object);

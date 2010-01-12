@@ -94,7 +94,7 @@ tracker_tags_view_init (TrackerTagsView *tv)
 {
 	tv->private = TRACKER_TAGS_VIEW_GET_PRIVATE (tv);
 
-	tv->private->tracker_client = tracker_connect (TRUE, G_MAXINT);
+	tv->private->tracker_client = tracker_client_new (TRUE, G_MAXINT);
 	tv->private->files = NULL;
 	tv->private->store = gtk_list_store_new (N_COLUMNS, 
 	                                         G_TYPE_INT,      /* Selection type */ 
@@ -109,7 +109,7 @@ tracker_tags_view_finalize (GObject *object)
 {
 	TrackerTagsView *tv = TRACKER_TAGS_VIEW (object);
 
-	tracker_disconnect (tv->private->tracker_client);
+	g_object_unref (tv->private->tracker_client);
 
 	g_list_foreach (tv->private->files, (GFunc) g_object_unref, NULL);
 	g_list_free (tv->private->files);

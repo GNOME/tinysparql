@@ -61,7 +61,7 @@ tracker_keyword_store_init (TrackerKeywordStore *store)
 
 	//setup private members
 	store->keywords = g_hash_table_new (g_str_hash, g_str_equal);
-	store->tracker_client = tracker_connect (TRUE, -1);
+	store->tracker_client = tracker_client_new (TRUE, -1);
 
 	/* TODO: Port to SPARQL */
 #if 0
@@ -156,7 +156,7 @@ tracker_keyword_store_finalize (GObject *object)
 	}
 
 	if (store->tracker_client) {
-		tracker_disconnect (store->tracker_client);
+		g_object_unref (store->tracker_client);
 	}
 
 	G_OBJECT_CLASS (parent_class)->finalize (object);

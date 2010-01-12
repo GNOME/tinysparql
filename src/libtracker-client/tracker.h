@@ -32,19 +32,6 @@ G_BEGIN_DECLS
 #define TRACKER_IS_CLIENT_CLASS(c)  (G_TYPE_CHECK_CLASS_TYPE ((c),    TRACKER_TYPE_CLIENT))
 #define TRACKER_CLIENT_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o),  TRACKER_TYPE_CLIENT, TrackerClientClass))
 
-/**
- * TrackerClient:
- * @proxy_statistics: a #DBusGProxy for the connection to Tracker's
- * statistics D-Bus service.
- * @proxy_resources: a #DBusGProxy for the connection to Tracker's
- * resources D-Bus service.
- * @pending_calls: a #GHashTable with the D-Bus calls currently
- * pending (used for the tracker_cancel_call() API).
- * @last_call: a #guint representing the last API call with this
- * #TrackerClient.
- *
- * This structure is used by tracker_connect() and tracker_disconnect().
- */
 typedef struct {
 	GObject parent;
 } TrackerClient;
@@ -59,10 +46,11 @@ typedef struct {
  * @error: a #GError.
  * @user_data: a #gpointer for user data.
  *
- * The returned #GPtrArray contains an array of #GStrv with the
- * results from the query unless there is an error in the query. If
- * there is an error the @error is populated with the details.
- */
+ * The @result is returned as a #GPtrArray containing an array of
+ * #GStrv with the results from the query unless there is an error. If
+ * there is an error the @error is populated with the details. The
+ * @user_data is provided in the callback.
+ **/
 typedef void (*TrackerReplyGPtrArray) (GPtrArray *result,
                                        GError    *error,
                                        gpointer   user_data);
@@ -72,8 +60,9 @@ typedef void (*TrackerReplyGPtrArray) (GPtrArray *result,
  * @error: a GError.
  * @user_data: a gpointer for user data.
  *
- * If there is an error the @error is populated with the details.
- */
+ * The @user_data is returned when the query has completed. If there
+ * is an error the @error is populated with the details.
+ **/
 typedef void (*TrackerReplyVoid)      (GError    *error,
                                        gpointer   user_data);
 
@@ -136,6 +125,8 @@ guint          tracker_resources_batch_commit_async        (TrackerClient       
                                                             TrackerReplyVoid        callback,
                                                             gpointer                user_data);
 
+#ifndef TRACKER_DISABLE_DEPRECATED
+
 /* Deprecated APIs */
 /**
  * TrackerReplyArray:
@@ -154,7 +145,7 @@ guint          tracker_resources_batch_commit_async        (TrackerClient       
  */
 typedef void (*TrackerReplyArray)     (gchar    **result,
                                        GError    *error,
-                                       gpointer   user_data) G_GNUC_DEPRECATED;
+                                       gpointer   user_data);
 
 TrackerClient *
       tracker_connect_no_service_start                            (gboolean            enable_warnings,
@@ -185,6 +176,7 @@ guint tracker_search_metadata_by_text_and_mime_and_location_async (TrackerClient
                                                                    TrackerReplyArray   callback,
                                                                    gpointer            user_data) G_GNUC_DEPRECATED;
 
+#endif /* TRACKER_DISABLE_DEPRECATED */
 
 G_END_DECLS
 

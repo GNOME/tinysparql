@@ -272,7 +272,7 @@ static void
 tracker_tags_extension_init (TrackerTagsExtension *self)
 {
 	self->private = TRACKER_TAGS_EXTENSION_GET_PRIVATE (self);
-	self->private->tracker_client = tracker_connect (TRUE, G_MAXINT);
+	self->private->tracker_client = tracker_client_new (TRUE, G_MAXINT);
 }
 
 static void
@@ -280,7 +280,7 @@ tracker_tags_extension_finalize (GObject *object)
 {
 	TrackerTagsExtension *extension = TRACKER_TAGS_EXTENSION (object);
 
-	tracker_disconnect (extension->private->tracker_client);
+	g_object_unref (extension->private->tracker_client);
 
 	G_OBJECT_CLASS (tracker_tags_extension_parent_class)->finalize (object);
 }

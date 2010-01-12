@@ -124,6 +124,8 @@ typedef struct {
 	guint id;
 } CallbackVoid;
 
+#ifndef TRACKER_DISABLE_DEPRECATED
+
 /* Deprecated and only used for 0.6 API */
 typedef struct {
 	TrackerReplyArray func;
@@ -131,6 +133,8 @@ typedef struct {
 	TrackerClient *client;
 	guint id;
 } CallbackArray;
+
+#endif /* TRACKER_DISABLE_DEPRECATED */
 
 static void client_finalize     (GObject      *object);
 static void client_set_property (GObject      *object,
@@ -1117,6 +1121,8 @@ sparql_append_string_literal (GString     *sparql,
 	g_string_append_c (sparql, '"');
 }
 
+#ifndef TRACKER_DISABLE_DEPRECATED
+
 /**
  * tracker_connect:
  * @enable_warnings: a #gboolean to determine if warnings are issued in
@@ -1126,6 +1132,9 @@ sparql_append_string_literal (GString     *sparql,
  * This function calls tracker_client_new().
  *
  * Deprecated: 0.8: Use tracker_client_new() instead.
+ *
+ * Returns: a #TrackerClient #GObject which must be freed with
+ * g_object_unref().
  **/
 TrackerClient *
 tracker_connect (gboolean enable_warnings,
@@ -1422,3 +1431,4 @@ tracker_search_metadata_by_text_and_mime_and_location_async (TrackerClient      
 	return cb->id;
 }
 
+#endif /* TRACKER_DISABLE_DEPRECATED */

@@ -128,7 +128,7 @@ main (int argc, char **argv)
 
 	g_option_context_free (context);
 
-	client = tracker_connect (FALSE, G_MAXINT);
+	client = tracker_client_new (FALSE, G_MAXINT);
 
 	if (!client) {
 		g_printerr ("%s\n",
@@ -196,7 +196,7 @@ main (int argc, char **argv)
 		g_print ("\n");
 	}
 
-	tracker_disconnect (client);
+	g_object_unref (client);
 
 	return EXIT_SUCCESS;
 }

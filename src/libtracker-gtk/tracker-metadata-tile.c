@@ -1346,14 +1346,13 @@ tracker_metadata_tile_init (TrackerMetadataTile *tile)
 GtkWidget *
 tracker_metadata_tile_new (void)
 {
-	TrackerClient *client;
 	GtkWidget *tile;
 	TrackerMetadataTilePrivate *priv;
 
 	tile = g_object_new (TRACKER_TYPE_METADATA_TILE, NULL);
 	priv = TRACKER_METADATA_TILE_GET_PRIVATE (tile);
 
-	client = tracker_connect (TRUE, -1);
-	priv->client = client;
+	priv->client = tracker_client_new (TRUE, -1);
+
 	return tile;
 }
