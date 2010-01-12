@@ -73,6 +73,7 @@ typedef void (*TrackerReplyVoid)      (GError    *error,
 
 GType          tracker_client_get_type                     (void) G_GNUC_CONST;
 TrackerClient *tracker_client_new                          (gboolean                enable_warnings,
+                                                            gboolean                service_start,
                                                             gint                    timeout);
 
 gboolean       tracker_cancel_call                         (TrackerClient          *client,
@@ -152,9 +153,6 @@ typedef void (*TrackerReplyArray)     (gchar    **result,
                                        GError    *error,
                                        gpointer   user_data);
 
-TrackerClient *
-      tracker_connect_no_service_start                            (gboolean            enable_warnings,
-                                                                   gint                timeout)   G_GNUC_DEPRECATED;
 TrackerClient *
       tracker_connect                                             (gboolean            enable_warnings,
                                                                    gint                timeout)   G_GNUC_DEPRECATED;

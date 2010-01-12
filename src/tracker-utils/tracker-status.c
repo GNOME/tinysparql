@@ -392,7 +392,7 @@ main (gint argc, gchar *argv[])
 		g_thread_init (NULL);
 	}
 
-	client = tracker_client_new (FALSE, G_MAXINT);
+	client = tracker_client_new (FALSE, TRUE, G_MAXINT);
 
 	if (!client) {
 		g_printerr ("%s\n",

@@ -380,7 +380,7 @@ tracker_results_window_init (TrackerResultsWindow *window)
 
 	priv = TRACKER_RESULTS_WINDOW_GET_PRIVATE (window);
 
-	priv->client = tracker_client_new (FALSE, G_MAXINT);
+	priv->client = tracker_client_new (FALSE, TRUE, G_MAXINT);
 
 	priv->frame = gtk_frame_new (NULL);
 	gtk_container_add (GTK_CONTAINER (window), priv->frame);

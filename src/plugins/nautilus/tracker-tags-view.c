@@ -94,7 +94,7 @@ tracker_tags_view_init (TrackerTagsView *tv)
 {
 	tv->private = TRACKER_TAGS_VIEW_GET_PRIVATE (tv);
 
-	tv->private->tracker_client = tracker_client_new (TRUE, G_MAXINT);
+	tv->private->tracker_client = tracker_client_new (TRUE, TRUE, G_MAXINT);
 	tv->private->files = NULL;
 	tv->private->store = gtk_list_store_new (N_COLUMNS, 
 	                                         G_TYPE_INT,      /* Selection type */ 

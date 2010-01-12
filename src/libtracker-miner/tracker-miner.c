@@ -302,7 +302,7 @@ tracker_miner_init (TrackerMiner *miner)
 	miner->private = priv = TRACKER_MINER_GET_PRIVATE (miner);
 
 	/* Set the timeout to 0 so we don't have one */
-	priv->client = tracker_client_new (TRUE, 0);
+	priv->client = tracker_client_new (TRUE, TRUE, 0);
 
 	priv->pauses = g_hash_table_new_full (g_direct_hash,
 	                                      g_direct_equal,

@@ -512,6 +512,7 @@ tracker_sparql_escape (const gchar *str)
  * tracker_client_new:
  * @enable_warnings: a #gboolean to determine if warnings are issued in
  * cases where they are found.
+ * @service_start: start the D-Bus service if not running.
  * @timeout: a #gint used for D-Bus call timeouts.
  *
  * Creates a connection over D-Bus to the Tracker store for doing data
@@ -525,19 +526,16 @@ tracker_sparql_escape (const gchar *str)
  **/
 TrackerClient *
 tracker_client_new (gboolean enable_warnings,
+                    gboolean service_start,
                     gint     timeout)
 {
-	TrackerClient *client;
-
 	g_type_init ();
 
-	client = g_object_new (TRACKER_TYPE_CLIENT, 
-	                       "timeout", timeout, 
-	                       "enable-warnings", enable_warnings,
-	                       "force-service", TRUE, 
-	                       NULL);
-
-	return client;
+	return g_object_new (TRACKER_TYPE_CLIENT, 
+	                     "enable-warnings", enable_warnings,
+	                     "force-service", service_start, 
+	                     "timeout", timeout, 
+	                     NULL);
 }
 
 /**
@@ -674,7 +672,7 @@ tracker_resources_load (TrackerClient  *client,
  *  const gchar *query;
  *
  *  /&ast; Create D-Bus connection with no warnings and no timeout. &ast;/
- *  client = tracker_connect (FALSE, 0);
+ *  client = tracker_client_new (FALSE, TRUE, 0);
  *  query = "SELECT"
  *          "  ?album"
  *          "  ?title"
@@ -693,7 +691,7 @@ tracker_resources_load (TrackerClient  *client,
  *  if (error) {
  *          g_warning ("Could not query Tracker, %s", error->message);
  *          g_error_free (error);
- *          tracker_disconnect (client);
+ *          g_object_unref (client);
  *          return;
  *  }
  *
@@ -1136,24 +1134,7 @@ TrackerClient *
 tracker_connect (gboolean enable_warnings,
                  gint     timeout)
 {
-	return tracker_client_new (enable_warnings, timeout);
-}
-
-TrackerClient *
-tracker_connect_no_service_start (gboolean enable_warnings,
-                                  gint     timeout)
-{
-	TrackerClient *client;
-
-	g_type_init ();
-
-	client = g_object_new (TRACKER_TYPE_CLIENT,
-	                       "timeout", timeout, 
-	                       "enable-warnings", enable_warnings, 
-	                       "force-service", FALSE, 
-	                       NULL);
-
-	return client;
+	return tracker_client_new (enable_warnings, TRUE, timeout);
 }
 
 /**
