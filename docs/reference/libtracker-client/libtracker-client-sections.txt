@@ -29,7 +29,6 @@ tracker_statistics_get_async
 <SECTION>
 <FILE>tracker_resources</FILE>
 <TITLE>Resources</TITLE>
-TrackerReplyArray
 TrackerReplyGPtrArray
 TrackerReplyVoid
 tracker_resources_load
@@ -49,7 +48,7 @@ tracker_resources_batch_commit_async
 <SECTION>
 <FILE>tracker_search</FILE>
 <TITLE>Search (Deprecated)</TITLE>
-TrackerReplyGPtrArray
+TrackerReplyArray
 tracker_search_metadata_by_text_async
 tracker_search_metadata_by_text_and_location_async
 tracker_search_metadata_by_text_and_mime_async
