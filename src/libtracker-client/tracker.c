@@ -211,7 +211,7 @@ tracker_client_class_init (TrackerClientClass *klass)
 	                                 g_param_spec_int ("timeout",
 	                                                   "Timeout",
 	                                                   "Timeout",
-	                                                   G_MININT,
+	                                                   -1,
 	                                                   G_MAXINT,
 	                                                   -1,
 	                                                   G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
@@ -258,14 +258,26 @@ client_set_property (GObject      *object,
 	switch (prop_id) {
 	case PROP_ENABLE_WARNINGS:
 		private->enable_warnings = g_value_get_boolean (value);
+		g_object_notify (object, "enable_warnings");
 		break;
 	case PROP_TIMEOUT:
 		private->timeout = g_value_get_int (value);
+
+		/* Sanity check timeout */
+		if (private->timeout == 0) {
+			/* Can't use 0, no D-Bus calls are ever quick
+			 * enough :) which is quite funny.
+			 */
+			private->timeout = -1;
+		}
 
 		if (private->is_constructed) {
 			dbus_g_proxy_set_default_timeout (private->proxy_resources, 
 			                                  private->timeout);
 		}
+
+		g_object_notify (object, "timeout");
+
 		break;
 	default:
 
