@@ -97,7 +97,8 @@ typedef struct {
 
 	gint timeout;
 	gboolean enable_warnings;
-	gboolean force_service;
+
+	gboolean is_constructed;
 } TrackerClientPrivate;
 
 typedef struct {
@@ -145,7 +146,6 @@ static void client_constructed  (GObject      *object);
 enum {
 	PROP_0,
 	PROP_ENABLE_WARNINGS,
-	PROP_FORCE_SERVICE,
 	PROP_TIMEOUT,
 };
 
@@ -187,39 +187,6 @@ pending_call_new (TrackerClient  *client,
 	return id;
 }
 
-static gboolean
-start_service (DBusConnection *connection,
-               const char     *name)
-{
-	DBusError error;
-	DBusMessage *request, *reply;
-	guint32 flags;
-
-	dbus_error_init (&error);
-
-	flags = 0;
-
-	request = dbus_message_new_method_call (DBUS_SERVICE_DBUS, DBUS_PATH_DBUS, DBUS_INTERFACE_DBUS, "StartServiceByName");
-	dbus_message_append_args (request, DBUS_TYPE_STRING, &name, DBUS_TYPE_UINT32, &flags, DBUS_TYPE_INVALID);
-
-	reply = dbus_connection_send_with_reply_and_block (connection, request, -1, &error);
-	dbus_message_unref (request);
-
-	if (reply == NULL) {
-		dbus_error_free (&error);
-		return FALSE;
-	}
-
-	if (dbus_set_error_from_message (&error, reply)) {
-		dbus_message_unref (reply);
-		dbus_error_free (&error);
-		return FALSE;
-	}
-
-	dbus_message_unref (reply);
-	return TRUE;
-}
-
 static void
 tracker_client_class_init (TrackerClientClass *klass)
 {
@@ -240,20 +207,13 @@ tracker_client_class_init (TrackerClientClass *klass)
 	                                                       TRUE,
 	                                                       G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
 	g_object_class_install_property (object_class,
-	                                 PROP_FORCE_SERVICE,
-	                                 g_param_spec_boolean ("force-service",
-	                                                       "Force service startup",
-	                                                       "Force service startup",
-	                                                       TRUE,
-	                                                       G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
-	g_object_class_install_property (object_class,
 	                                 PROP_TIMEOUT,
 	                                 g_param_spec_int ("timeout",
 	                                                   "Timeout",
 	                                                   "Timeout",
-	                                                   0,
+	                                                   G_MININT,
 	                                                   G_MAXINT,
-	                                                   0,
+	                                                   -1,
 	                                                   G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
 
 	g_type_class_add_private (object_class, sizeof (TrackerClientPrivate));
@@ -262,6 +222,11 @@ tracker_client_class_init (TrackerClientClass *klass)
 static void
 tracker_client_init (TrackerClient *client)
 {
+	TrackerClientPrivate *private = TRACKER_CLIENT_GET_PRIVATE (client);
+
+	private->timeout = -1;
+	private->pending_calls = g_hash_table_new_full (NULL, NULL, NULL,
+	                                               (GDestroyNotify) pending_call_free);
 }
 
 static void
@@ -289,23 +254,21 @@ client_set_property (GObject      *object,
                      GParamSpec   *pspec)
 {
 	TrackerClientPrivate *private = TRACKER_CLIENT_GET_PRIVATE (object);
-	gint val;
 
 	switch (prop_id) {
 	case PROP_ENABLE_WARNINGS:
 		private->enable_warnings = g_value_get_boolean (value);
 		break;
-	case PROP_FORCE_SERVICE:
-		private->force_service = g_value_get_boolean (value);
-		break;
 	case PROP_TIMEOUT:
-		val = g_value_get_int (value);
-		if (val > 0) {
-			private->timeout = val;
-			dbus_g_proxy_set_default_timeout (private->proxy_resources, val);
+		private->timeout = g_value_get_int (value);
+
+		if (private->is_constructed) {
+			dbus_g_proxy_set_default_timeout (private->proxy_resources, 
+			                                  private->timeout);
 		}
 		break;
 	default:
+
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
 	}
 }
@@ -316,17 +279,14 @@ client_get_property (GObject    *object,
                      GValue     *value,
                      GParamSpec *pspec)
 {
-	TrackerClientPrivate *priv = TRACKER_CLIENT_GET_PRIVATE (object);
+	TrackerClientPrivate *private = TRACKER_CLIENT_GET_PRIVATE (object);
 
 	switch (prop_id) {
 	case PROP_ENABLE_WARNINGS:
-		g_value_set_boolean (value, priv->enable_warnings);
-		break;
-	case PROP_FORCE_SERVICE:
-		g_value_set_boolean (value, priv->force_service);
+		g_value_set_boolean (value, private->enable_warnings);
 		break;
 	case PROP_TIMEOUT:
-		g_value_set_int (value, priv->timeout);
+		g_value_set_int (value, private->timeout);
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -353,17 +313,7 @@ client_constructed (GObject *object)
 		return;
 	}
 
-	if (private->force_service) {
-		if (!start_service (dbus_g_connection_get_connection (connection), 
-		                    TRACKER_DBUS_SERVICE)) {
-			/* unable to start tracker-store */
-			dbus_g_connection_unref (connection);
-			return;
-		}
-	}
-
-	private->pending_calls = g_hash_table_new_full (NULL, NULL, NULL,
-	                                               (GDestroyNotify) pending_call_free);
+	g_debug ("Got connection to service %p", connection);
 
 	private->proxy_statistics =
 		dbus_g_proxy_new_for_name (connection,
@@ -371,11 +321,24 @@ client_constructed (GObject *object)
 		                           TRACKER_DBUS_OBJECT "/Statistics",
 		                           TRACKER_DBUS_INTERFACE_STATISTICS);
 
+	g_debug ("Got proxy for stats %p", private->proxy_statistics);
+
 	private->proxy_resources =
 		dbus_g_proxy_new_for_name (connection,
 		                           TRACKER_DBUS_SERVICE,
 		                           TRACKER_DBUS_OBJECT "/Resources",
 		                           TRACKER_DBUS_INTERFACE_RESOURCES);
+
+	g_debug ("Got proxy for resources %p", private->proxy_resources);
+
+	/* NOTE: We don't need to set this for the stats proxy, the
+	 * query takes no arguments and is generally really fast.
+	 */
+	dbus_g_proxy_set_default_timeout (private->proxy_resources, 
+	                                  private->timeout);
+	g_debug ("Set timeout to %d", private->timeout);
+
+	private->is_constructed = TRUE;
 }
 
 static void
@@ -528,11 +491,14 @@ TrackerClient *
 tracker_client_new (TrackerClientFlags flags,
                     gint               timeout)
 {
+	gboolean enable_warnings;
+
 	g_type_init ();
 
+	enable_warnings = (flags & TRACKER_CLIENT_ENABLE_WARNINGS);
+
 	return g_object_new (TRACKER_TYPE_CLIENT, 
-	                     "enable-warnings", (flags & TRACKER_CLIENT_ENABLE_WARNINGS),
-	                     "force-service", !(flags & TRACKER_CLIENT_DO_NOT_START_SERVICE), 
+	                     "enable-warnings", enable_warnings,
 	                     "timeout", timeout, 
 	                     NULL);
 }
@@ -1133,7 +1099,13 @@ TrackerClient *
 tracker_connect (gboolean enable_warnings,
                  gint     timeout)
 {
-	return tracker_client_new (TRACKER_CLIENT_ENABLE_WARNINGS, timeout);
+	TrackerClientFlags flags = 0;
+
+	if (enable_warnings) {
+		flags |= TRACKER_CLIENT_ENABLE_WARNINGS;
+	}
+
+	return tracker_client_new (flags, timeout);
 }
 
 /**

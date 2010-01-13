@@ -50,13 +50,9 @@ typedef struct {
  * @TRACKER_CLIENT_ENABLE_WARNINGS: If supplied warnings will be
  * produced upon erronous situations. This is usually turned off for
  * applications that want to provide their own error reporting.
- * @TRACKER_CLIENT_DO_NOT_START_SERVICE: If supplied then creating a
- * new #TrackerClient #GObject will not attempt start the D-Bus
- * service for tracker-store pre-emptively.
  */
 typedef enum {
-	TRACKER_CLIENT_ENABLE_WARNINGS      = 1 << 1,
-	TRACKER_CLIENT_DO_NOT_START_SERVICE = 1 << 2,
+	TRACKER_CLIENT_ENABLE_WARNINGS      = 1 << 0,
 } TrackerClientFlags;
 
 /**

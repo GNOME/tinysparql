@@ -2148,8 +2148,7 @@ name_owner_changed_cb (DBusGProxy *proxy,
 
 		if (tracker_is_empty_string (old_owner) && !tracker_is_empty_string (new_owner)) {
 			if (!priv->client) {
-				priv->client = tracker_client_new (TRACKER_CLIENT_DO_NOT_START_SERVICE,
-				                                   G_MAXINT);
+				priv->client = tracker_client_new (0, G_MAXINT);
 			}
 			register_client (user_data);
 		}
@@ -2342,8 +2341,7 @@ miner_started (TrackerMiner *miner)
 	g_static_rec_mutex_lock (priv->mutex);
 
 	if (!priv->client) {
-		priv->client = tracker_client_new (TRACKER_CLIENT_DO_NOT_START_SERVICE,
-		                                   G_MAXINT);
+		priv->client = tracker_client_new (0, G_MAXINT);
 	}
 
 	g_static_rec_mutex_unlock (priv->mutex);
@@ -2446,7 +2444,7 @@ miner_resumed (TrackerMiner *miner)
 	priv->of_total = 0;
 
 	if (!priv->client) {
-		priv->client = tracker_client_new (TRACKER_CLIENT_DO_NOT_START_SERVICE, G_MAXINT);
+		priv->client = tracker_client_new (0, G_MAXINT);
 	}
 	g_static_rec_mutex_unlock (priv->mutex);
 
