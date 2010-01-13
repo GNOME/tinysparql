@@ -1421,6 +1421,12 @@ public class Tracker.SparqlQuery : Object {
 			sql.append (")");
 
 			return PropertyType.STRING;
+		} else if (uri == TRACKER_NS + "string-from-filename") {
+			sql.append ("SparqlStringFromFilename(");
+			translate_expression_as_string (sql);
+			sql.append (")");
+
+			return PropertyType.STRING;
 		} else {
 			// support properties as functions
 			var prop = Ontology.get_property_by_uri (uri);

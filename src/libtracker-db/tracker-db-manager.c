@@ -305,6 +305,45 @@ tracker_db_manager_get_flags (void)
 	return old_flags;
 }
 
+/* Create a title-type string from the filename for replacing missing ones */
+static GValue
+function_sparql_string_from_filename (TrackerDBInterface *interface,
+				      gint                argc,
+				      GValue              values[])
+{
+	GValue  result = { 0, };
+	gchar  *name = NULL;
+	gchar  *suffix = NULL;
+
+	if (argc != 1) {
+		g_critical ("Invalid argument count");
+		return result;
+	}
+
+	/* "/home/user/path/title_of_the_movie.movie" -> "title of the movie"
+	   Only for local files currently, do we need to change? */
+
+	name = g_filename_display_basename (g_value_get_string (&values[0]));
+	if (!name) {
+		return result;
+	}
+
+	suffix = g_strrstr (name, ".");
+
+	if (suffix) {
+		*suffix = '\0';
+	}
+
+	g_strdelimit (name, "._", ' ');
+
+	g_value_init (&result, G_TYPE_STRING);
+	g_value_set_string (&result, name);
+
+	g_free (name);
+
+	return result;
+}
+
 static void
 function_group_concat_step (TrackerDBInterface *interface,
                             void               *aggregate_context,
@@ -694,7 +733,10 @@ db_set_params (TrackerDBInterface *iface,
 		                                             "SparqlRegex",
 		                                             function_sparql_regex,
 		                                             3);
-
+		tracker_db_interface_sqlite_create_function (iface,
+		                                             "SparqlStringFromFilename",
+		                                             function_sparql_string_from_filename,
+		                                             1);
 		tracker_db_interface_sqlite_create_function (iface,
 		                                             "uncompress",
 		                                             function_uncompress,
