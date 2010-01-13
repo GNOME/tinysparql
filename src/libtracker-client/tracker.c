@@ -440,6 +440,8 @@ tracker_sparql_escape (const gchar *str)
 	const gchar *p;
 	gchar       *q;
 
+	g_return_val_if_fail (str != NULL, NULL);
+
 	escaped_string = g_malloc (2 * strlen (str) + 1);
 
 	p = str;
@@ -533,6 +535,9 @@ tracker_cancel_call (TrackerClient *client,
 	TrackerClientPrivate *private;
 	PendingCallData *data;
 
+	g_return_val_if_fail (TRACKER_IS_CLIENT (client), FALSE);
+	g_return_val_if_fail (call_id >= 1, FALSE);
+
 	private = TRACKER_CLIENT_GET_PRIVATE (client);
 
 	data = g_hash_table_lookup (private->pending_calls,
@@ -563,19 +568,18 @@ gboolean
 tracker_cancel_last_call (TrackerClient *client)
 {
 	TrackerClientPrivate *private;
+	gboolean cancelled;
+
+	g_return_val_if_fail (TRACKER_IS_CLIENT (client), FALSE);
 
 	private = TRACKER_CLIENT_GET_PRIVATE (client);
 
-	if (private->last_call != 0) {
-		gboolean cancelled;
+	g_return_val_if_fail (private->last_call != 0, FALSE);
 
-		cancelled = tracker_cancel_call (client, private->last_call);
-		private->last_call = 0;
-
-		return cancelled;
-	}
-
-	return TRUE;
+	cancelled = tracker_cancel_call (client, private->last_call);
+	private->last_call = 0;
+	
+	return cancelled;
 }
 
 /**
@@ -605,11 +609,13 @@ tracker_statistics_get (TrackerClient  *client,
 	TrackerClientPrivate *private;
 	GPtrArray *table;
 
+	g_return_val_if_fail (TRACKER_IS_CLIENT (client), NULL);
+
 	private = TRACKER_CLIENT_GET_PRIVATE (client);
 
 	if (!org_freedesktop_Tracker1_Statistics_get (private->proxy_statistics,
 	                                              &table,
-	                                              &*error)) {
+	                                              error)) {
 		return NULL;
 	}
 
@@ -623,11 +629,14 @@ tracker_resources_load (TrackerClient  *client,
 {
 	TrackerClientPrivate *private;
 
+	g_return_if_fail (TRACKER_IS_CLIENT (client));
+	g_return_if_fail (uri != NULL);
+
 	private = TRACKER_CLIENT_GET_PRIVATE (client);
 
 	org_freedesktop_Tracker1_Resources_load (private->proxy_resources,
 	                                         uri,
-	                                         &*error);
+	                                         error);
 }
 
 /**
@@ -693,12 +702,15 @@ tracker_resources_sparql_query (TrackerClient  *client,
 	TrackerClientPrivate *private;
 	GPtrArray *table;
 
+	g_return_val_if_fail (TRACKER_IS_CLIENT (client), FALSE);
+	g_return_val_if_fail (query != NULL, FALSE);
+
 	private = TRACKER_CLIENT_GET_PRIVATE (client);
 
 	if (!org_freedesktop_Tracker1_Resources_sparql_query (private->proxy_resources,
 	                                                      query,
 	                                                      &table,
-	                                                      &*error)) {
+	                                                      error)) {
 		return NULL;
 	}
 
@@ -728,11 +740,14 @@ tracker_resources_sparql_update (TrackerClient  *client,
 {
 	TrackerClientPrivate *private;
 
+	g_return_if_fail (TRACKER_IS_CLIENT (client));
+	g_return_if_fail (query != NULL);
+
 	private = TRACKER_CLIENT_GET_PRIVATE (client);
 
 	org_freedesktop_Tracker1_Resources_sparql_update (private->proxy_resources,
 	                                                  query,
-	                                                  &*error);
+	                                                  error);
 }
 
 GPtrArray *
@@ -743,12 +758,15 @@ tracker_resources_sparql_update_blank (TrackerClient  *client,
 	TrackerClientPrivate *private;
 	GPtrArray *result;
 
+	g_return_val_if_fail (TRACKER_IS_CLIENT (client), NULL);
+	g_return_val_if_fail (query != NULL, NULL);
+
 	private = TRACKER_CLIENT_GET_PRIVATE (client);
 
 	if (!org_freedesktop_Tracker1_Resources_sparql_update_blank (private->proxy_resources,
 	                                                             query,
 	                                                             &result,
-	                                                             &*error)) {
+	                                                             error)) {
 		return NULL;
 	}
 
@@ -775,11 +793,14 @@ tracker_resources_batch_sparql_update (TrackerClient  *client,
 {
 	TrackerClientPrivate *private;
 
+	g_return_if_fail (TRACKER_IS_CLIENT (client));
+	g_return_if_fail (query != NULL);
+
 	private = TRACKER_CLIENT_GET_PRIVATE (client);
 
 	org_freedesktop_Tracker1_Resources_batch_sparql_update (private->proxy_resources,
 	                                                        query,
-	                                                        &*error);
+	                                                        error);
 }
 
 /**
@@ -798,10 +819,12 @@ tracker_resources_batch_commit (TrackerClient  *client,
 {
 	TrackerClientPrivate *private;
 
+	g_return_if_fail (TRACKER_IS_CLIENT (client));
+
 	private = TRACKER_CLIENT_GET_PRIVATE (client);
 
 	org_freedesktop_Tracker1_Resources_batch_commit (private->proxy_resources,
-	                                                 &*error);
+	                                                 error);
 }
 
 /**
@@ -826,6 +849,9 @@ tracker_statistics_get_async (TrackerClient         *client,
 	TrackerClientPrivate *private;
 	CallbackGPtrArray *cb;
 	DBusGProxyCall *call;
+
+	g_return_val_if_fail (TRACKER_IS_CLIENT (client), -1);
+	g_return_val_if_fail (callback != NULL, -1);
 
 	private = TRACKER_CLIENT_GET_PRIVATE (client);
 
@@ -852,6 +878,10 @@ tracker_resources_load_async (TrackerClient    *client,
 	TrackerClientPrivate *private;
 	CallbackVoid *cb;
 	DBusGProxyCall *call;
+
+	g_return_val_if_fail (TRACKER_IS_CLIENT (client), -1);
+	g_return_val_if_fail (uri != NULL, -1);
+	g_return_val_if_fail (callback != NULL, -1);
 
 	private = TRACKER_CLIENT_GET_PRIVATE (client);
 
@@ -894,6 +924,10 @@ tracker_resources_sparql_query_async (TrackerClient         *client,
 	CallbackGPtrArray *cb;
 	DBusGProxyCall *call;
 
+	g_return_val_if_fail (TRACKER_IS_CLIENT (client), -1);
+	g_return_val_if_fail (query != NULL, -1);
+	g_return_val_if_fail (callback != NULL, -1);
+
 	private = TRACKER_CLIENT_GET_PRIVATE (client);
 
 	cb = g_slice_new0 (CallbackGPtrArray);
@@ -934,6 +968,10 @@ tracker_resources_sparql_update_async (TrackerClient    *client,
 	CallbackVoid *cb;
 	DBusGProxyCall *call;
 
+	g_return_val_if_fail (TRACKER_IS_CLIENT (client), -1);
+	g_return_val_if_fail (query != NULL, -1);
+	g_return_val_if_fail (callback != NULL, -1);
+
 	private = TRACKER_CLIENT_GET_PRIVATE (client);
 
 	cb = g_slice_new0 (CallbackVoid);
@@ -960,6 +998,10 @@ tracker_resources_sparql_update_blank_async (TrackerClient         *client,
 	TrackerClientPrivate *private;
 	CallbackGPtrArray *cb;
 	DBusGProxyCall *call;
+
+	g_return_val_if_fail (TRACKER_IS_CLIENT (client), -1);
+	g_return_val_if_fail (query != NULL, -1);
+	g_return_val_if_fail (callback != NULL, -1);
 
 	private = TRACKER_CLIENT_GET_PRIVATE (client);
 
@@ -1001,6 +1043,10 @@ tracker_resources_batch_sparql_update_async (TrackerClient    *client,
 	CallbackVoid *cb;
 	DBusGProxyCall *call;
 
+	g_return_val_if_fail (TRACKER_IS_CLIENT (client), -1);
+	g_return_val_if_fail (query != NULL, -1);
+	g_return_val_if_fail (callback != NULL, -1);
+
 	private = TRACKER_CLIENT_GET_PRIVATE (client);
 
 	cb = g_slice_new0 (CallbackVoid);
@@ -1038,6 +1084,9 @@ tracker_resources_batch_commit_async (TrackerClient    *client,
 	TrackerClientPrivate *private;
 	CallbackVoid *cb;
 	DBusGProxyCall *call;
+
+	g_return_val_if_fail (TRACKER_IS_CLIENT (client), -1);
+	g_return_val_if_fail (callback != NULL, -1);
 
 	private = TRACKER_CLIENT_GET_PRIVATE (client);
 
@@ -1132,6 +1181,8 @@ tracker_connect (gboolean enable_warnings,
 void
 tracker_disconnect (TrackerClient *client)
 {
+	g_return_if_fail (TRACKER_IS_CLIENT (client));
+
 	g_object_unref (client);
 }
 
@@ -1161,9 +1212,9 @@ tracker_search_metadata_by_text_async (TrackerClient     *client,
 	GString *sparql;
 	DBusGProxyCall *call;
 
-	g_return_val_if_fail (client != NULL, 0);
-	g_return_val_if_fail (query != NULL, 0);
-	g_return_val_if_fail (callback != NULL, 0);
+	g_return_val_if_fail (TRACKER_IS_CLIENT (client), -1);
+	g_return_val_if_fail (query != NULL, -1);
+	g_return_val_if_fail (callback != NULL, -1);
 
 	private = TRACKER_CLIENT_GET_PRIVATE (client);
 
@@ -1215,10 +1266,10 @@ tracker_search_metadata_by_text_and_location_async (TrackerClient     *client,
 	GString *sparql;
 	DBusGProxyCall *call;
 
-	g_return_val_if_fail (client != NULL, 0);
-	g_return_val_if_fail (query != NULL, 0);
-	g_return_val_if_fail (location != NULL, 0);
-	g_return_val_if_fail (callback != NULL, 0);
+	g_return_val_if_fail (TRACKER_IS_CLIENT (client), -1);
+	g_return_val_if_fail (query != NULL, -1);
+	g_return_val_if_fail (location != NULL, -1);
+	g_return_val_if_fail (callback != NULL, -1);
 
 	private = TRACKER_CLIENT_GET_PRIVATE (client);
 
@@ -1275,10 +1326,10 @@ tracker_search_metadata_by_text_and_mime_async (TrackerClient      *client,
 	DBusGProxyCall *call;
 	gint i;
 
-	g_return_val_if_fail (client != NULL, 0);
-	g_return_val_if_fail (query != NULL, 0);
-	g_return_val_if_fail (mimes != NULL, 0);
-	g_return_val_if_fail (callback != NULL, 0);
+	g_return_val_if_fail (TRACKER_IS_CLIENT (client), -1);
+	g_return_val_if_fail (query != NULL, -1);
+	g_return_val_if_fail (mimes != NULL, -1);
+	g_return_val_if_fail (callback != NULL, -1);
 
 	private = TRACKER_CLIENT_GET_PRIVATE (client);
 
@@ -1345,11 +1396,11 @@ tracker_search_metadata_by_text_and_mime_and_location_async (TrackerClient      
 	DBusGProxyCall *call;
 	gint i;
 
-	g_return_val_if_fail (client != NULL, 0);
-	g_return_val_if_fail (query != NULL, 0);
-	g_return_val_if_fail (mimes != NULL, 0);
-	g_return_val_if_fail (location != NULL, 0);
-	g_return_val_if_fail (callback != NULL, 0);
+	g_return_val_if_fail (TRACKER_IS_CLIENT (client), -1);
+	g_return_val_if_fail (query != NULL, -1);
+	g_return_val_if_fail (mimes != NULL, -1);
+	g_return_val_if_fail (location != NULL, -1);
+	g_return_val_if_fail (callback != NULL, -1);
 
 	private = TRACKER_CLIENT_GET_PRIVATE (client);
 
