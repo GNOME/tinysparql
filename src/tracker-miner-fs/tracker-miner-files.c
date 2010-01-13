@@ -1057,7 +1057,7 @@ miner_files_check_directory (TrackerMinerFS *fs,
 
 	basename = g_file_get_basename (file);
 
-	for (l = tracker_config_get_ignored_file_patterns (mf->private->config); l; l = l->next) {
+	for (l = tracker_config_get_ignored_directory_patterns (mf->private->config); l; l = l->next) {
 		if (g_pattern_match_string (l->data, basename)) {
 			goto done;
 		}
