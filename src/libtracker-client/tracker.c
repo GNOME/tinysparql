@@ -982,7 +982,7 @@ tracker_resources_sparql_update_async (TrackerClient    *client,
 	call = org_freedesktop_Tracker1_Resources_sparql_update_async (private->proxy_resources,
 	                                                               query,
 	                                                               callback_with_void,
-	                                                               callback);
+	                                                               cb);
 
 	cb->id = pending_call_new (client, private->proxy_resources, call);
 
@@ -1057,7 +1057,7 @@ tracker_resources_batch_sparql_update_async (TrackerClient    *client,
 	call = org_freedesktop_Tracker1_Resources_batch_sparql_update_async (private->proxy_resources,
 	                                                                     query,
 	                                                                     callback_with_void,
-	                                                                     callback);
+	                                                                     cb);
 
 	cb->id = pending_call_new (client, private->proxy_resources, call);
 
@@ -1097,7 +1097,7 @@ tracker_resources_batch_commit_async (TrackerClient    *client,
 
 	call = org_freedesktop_Tracker1_Resources_batch_commit_async (private->proxy_resources,
 	                                                              callback_with_void,
-	                                                              callback);
+	                                                              cb);
 
 	cb->id = pending_call_new (client, private->proxy_resources, call);
 
