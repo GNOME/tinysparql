@@ -5,10 +5,10 @@
 		location="+PLUGIN_INSTALL_DIR+/liborg-freedesktop-Tracker-evolution-plugin.so"
 		domain="+GETTEXT_PACKAGE+"
 		localedir="+LOCALEDIR+"
-		_name="TrackerEvolutionPlugin"
+		_name="Tracker"
 		load-on-startup="after-ui">
 
-		<_description>Support for Tracker.</_description>
+		<_description>Push data to Tracker to make it queryable.</_description>
 
 		<author name="Philip Van Hoof" email="philip@codeminded.be"/>
 	</e-plugin>
