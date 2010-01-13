@@ -272,7 +272,7 @@ static void
 tracker_tags_extension_init (TrackerTagsExtension *self)
 {
 	self->private = TRACKER_TAGS_EXTENSION_GET_PRIVATE (self);
-	self->private->tracker_client = tracker_client_new (TRUE, TRUE, G_MAXINT);
+	self->private->tracker_client = tracker_client_new (TRACKER_CLIENT_ENABLE_WARNINGS, G_MAXINT);
 }
 
 static void

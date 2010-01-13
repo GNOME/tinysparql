@@ -449,7 +449,7 @@ tracker_tag_bar_new (void)
 	                        NULL);
 	priv = TRACKER_TAG_BAR_GET_PRIVATE (tag_bar);
 
-	priv->client = tracker_client_new (TRUE, TRUE, -1);
+	priv->client = tracker_client_new (TRACKER_CLIENT_ENABLE_WARNINGS, -1);
 
 	return tag_bar;
 }

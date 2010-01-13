@@ -353,11 +353,13 @@ client_constructed (GObject *object)
 		return;
 	}
 
-	if (!start_service (dbus_g_connection_get_connection (connection), 
-	                    TRACKER_DBUS_SERVICE)) {
-		/* unable to start tracker-store */
-		dbus_g_connection_unref (connection);
-		return;
+	if (private->force_service) {
+		if (!start_service (dbus_g_connection_get_connection (connection), 
+		                    TRACKER_DBUS_SERVICE)) {
+			/* unable to start tracker-store */
+			dbus_g_connection_unref (connection);
+			return;
+		}
 	}
 
 	private->pending_calls = g_hash_table_new_full (NULL, NULL, NULL,
@@ -510,9 +512,7 @@ tracker_sparql_escape (const gchar *str)
 
 /**
  * tracker_client_new:
- * @enable_warnings: a #gboolean to determine if warnings are issued in
- * cases where they are found.
- * @service_start: start the D-Bus service if not running.
+ * @flags: This can be one or more combinations of #TrackerClientFlags
  * @timeout: a #gint used for D-Bus call timeouts.
  *
  * Creates a connection over D-Bus to the Tracker store for doing data
@@ -525,15 +525,14 @@ tracker_sparql_escape (const gchar *str)
  * g_object_unref() when finished with.
  **/
 TrackerClient *
-tracker_client_new (gboolean enable_warnings,
-                    gboolean service_start,
-                    gint     timeout)
+tracker_client_new (TrackerClientFlags flags,
+                    gint               timeout)
 {
 	g_type_init ();
 
 	return g_object_new (TRACKER_TYPE_CLIENT, 
-	                     "enable-warnings", enable_warnings,
-	                     "force-service", service_start, 
+	                     "enable-warnings", (flags & TRACKER_CLIENT_ENABLE_WARNINGS),
+	                     "force-service", !(flags & TRACKER_CLIENT_DO_NOT_START_SERVICE), 
 	                     "timeout", timeout, 
 	                     NULL);
 }
@@ -671,8 +670,8 @@ tracker_resources_load (TrackerClient  *client,
  *  GError *error = NULL;
  *  const gchar *query;
  *
- *  /&ast; Create D-Bus connection with no warnings and no timeout. &ast;/
- *  client = tracker_client_new (FALSE, TRUE, 0);
+ *  /&ast; Create D-Bus connection with no warnings and maximum timeout. &ast;/
+ *  client = tracker_client_new (0, G_MAXINT);
  *  query = "SELECT"
  *          "  ?album"
  *          "  ?title"
@@ -1134,7 +1133,7 @@ TrackerClient *
 tracker_connect (gboolean enable_warnings,
                  gint     timeout)
 {
-	return tracker_client_new (enable_warnings, TRUE, timeout);
+	return tracker_client_new (TRACKER_CLIENT_ENABLE_WARNINGS, timeout);
 }
 
 /**

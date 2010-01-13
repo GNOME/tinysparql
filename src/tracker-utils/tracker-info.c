@@ -128,7 +128,7 @@ main (int argc, char **argv)
 
 	g_option_context_free (context);
 
-	client = tracker_client_new (FALSE, TRUE, G_MAXINT);
+	client = tracker_client_new (0, G_MAXINT);
 
 	if (!client) {
 		g_printerr ("%s\n",

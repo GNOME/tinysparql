@@ -61,7 +61,7 @@ tracker_keyword_store_init (TrackerKeywordStore *store)
 
 	//setup private members
 	store->keywords = g_hash_table_new (g_str_hash, g_str_equal);
-	store->tracker_client = tracker_client_new (TRUE, TRUE, -1);
+	store->tracker_client = tracker_client_new (TRACKER_CLIENT_ENABLE_WARNINGS,  -1);
 
 	/* TODO: Port to SPARQL */
 #if 0

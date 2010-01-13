@@ -80,7 +80,7 @@ tracker_writeback_consumer_init (TrackerWritebackConsumer *consumer)
 
 	priv = TRACKER_WRITEBACK_CONSUMER_GET_PRIVATE (consumer);
 
-	priv->client = tracker_client_new (TRUE, TRUE, 0);
+	priv->client = tracker_client_new (TRACKER_CLIENT_ENABLE_WARNINGS, 0);
 	priv->modules = g_hash_table_new_full (g_str_hash,
 	                                       g_str_equal,
 	                                       (GDestroyNotify) g_free,
