@@ -1,0 +1,9 @@
+PREFIX ex: <http://example/>
+PREFIX ns: <http://www.w3.org/2005/xpath-functions#>
+
+SELECT tracker:coalesce(?title, tracker:string-from-filename(?filename), "unknown")
+{ ?_x a ex:A .
+  OPTIONAL { ?_x ex:title ?title }
+  OPTIONAL { ?_x ex:filename ?filename }
+}
+ORDER BY tracker:coalesce(?title, tracker:string-from-filename(?filename), "unknown")

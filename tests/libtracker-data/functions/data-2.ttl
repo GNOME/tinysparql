@@ -1,0 +1,12 @@
+@prefix : <http://example/> .
+@prefix xsd:        <http://www.w3.org/2001/XMLSchema#> .
+
+:x a :A .
+:x :title "Title X" .
+:x :filename "/home/user/title_x.ogg" .
+
+:y a :A .
+:y :filename "/tracker-project.org/UnitTesting.xml" .
+
+:z a :A .
+:z :filename "/home/user/title.of.a.film.theora" .

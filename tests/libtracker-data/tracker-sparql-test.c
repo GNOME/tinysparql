@@ -65,6 +65,7 @@ const TestInfo tests[] = {
 	{ "expr-ops/query-unplus-1", "expr-ops/data", FALSE },
 	{ "functions/functions-property-1", "functions/data-1", FALSE },
 	{ "functions/functions-tracker-1", "functions/data-1", FALSE },
+	{ "functions/functions-tracker-2", "functions/data-2", FALSE },
 	{ "functions/functions-xpath-1", "functions/data-1", FALSE },
 	{ "functions/functions-xpath-2", "functions/data-1", FALSE },
 	{ "optional/q-opt-complex-1", "optional/complex-data-1", FALSE },
