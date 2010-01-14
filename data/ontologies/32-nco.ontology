@@ -732,6 +732,7 @@ nco:IMCapability a rdfs:Class ;
 	rdfs:comment "Features of a certain IM connection (depends on the IMAccount implementation used by the Contact)" ;
 	rdfs:subClassOf rdfs:Resource .
 
+nco:im-capability-text-chat a nco:IMCapability .
 nco:im-capability-media-calls a nco:IMCapability .
 nco:im-capability-audio-calls a nco:IMCapability .
 nco:im-capability-video-calls a nco:IMCapability .
