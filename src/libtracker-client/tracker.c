@@ -421,6 +421,7 @@ is_service_available (void)
 	DBusGConnection *conn;
 	DBusGProxy *proxy;
 	GStrv result, p;
+	gboolean found = FALSE;
 
 	conn = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
 
@@ -459,13 +460,15 @@ is_service_available (void)
 		return FALSE;
 	}
 
-	for (p = result; *p; p++) {
+	for (p = result; *p && !found; p++) {
 		if (strcmp (*p, TRACKER_DBUS_SERVICE) == 0) {
-			return TRUE;
+			found = TRUE;
 		}
 	}
 
-	return FALSE;
+	g_strfreev (result);
+
+	return found;
 }
 
 /**
