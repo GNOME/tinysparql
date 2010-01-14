@@ -511,6 +511,60 @@ tracker_data_resource_buffer_flush (GError **error)
 					return;
 				}
 
+				if (strcmp (table_name, "rdfs:Resource") == 0) {
+					TrackerProperty **properties, *property;
+					guint n_props;
+					gboolean first;
+
+					/* never delete Uri <-> ID mapping to avoid dangling references,
+					   do remove property values, though */
+
+					sql = g_string_new ("UPDATE \"rdfs:Resource\" SET");
+					first = TRUE;
+
+					properties = tracker_ontology_get_properties (&n_props);
+					for (i = 0; i < n_props; i++) {
+						property = properties[i];
+
+						if (tracker_property_get_multiple_values (property)) {
+							continue;
+						}
+
+						if (strcmp (tracker_class_get_name (tracker_property_get_domain (property)), table_name) == 0) {
+							if (strcmp (tracker_property_get_name (property), "tracker:added") == 0 ||
+							    strcmp (tracker_property_get_name (property), "tracker:modified") == 0) {
+								/* do not touch tracker:added or tracker:modified */
+								continue;
+							}
+
+							/* set all other property columns to NULL */
+							if (first) {
+								first = FALSE;
+							} else {
+								g_string_append (sql, ",");
+							}
+							g_string_append_printf (sql, " \"%s\" = NULL",
+										tracker_property_get_name (property));
+						}
+					}
+
+					g_string_append (sql, " WHERE ID = ?");
+
+					stmt = tracker_db_interface_create_statement (iface, "%s", sql->str);
+					tracker_db_statement_bind_int (stmt, 0, resource_buffer->id);
+					tracker_db_statement_execute (stmt, &actual_error);
+					g_object_unref (stmt);
+
+					g_string_free (sql, TRUE);
+
+					if (actual_error) {
+						g_propagate_error (error, actual_error);
+						return;
+					}
+
+					continue;
+				}
+
 				/* remove row from class table */
 				stmt = tracker_db_interface_create_statement (iface, "DELETE FROM \"%s\" WHERE ID = ?", table_name);
 				tracker_db_statement_bind_int (stmt, 0, resource_buffer->id);
