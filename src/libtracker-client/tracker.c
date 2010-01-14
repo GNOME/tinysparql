@@ -132,16 +132,17 @@ typedef struct {
 
 #endif /* TRACKER_DISABLE_DEPRECATED */
 
-static void client_finalize     (GObject      *object);
-static void client_set_property (GObject      *object,
-                                 guint         prop_id,
-                                 const GValue *value,
-                                 GParamSpec   *pspec);
-static void client_get_property (GObject      *object,
-                                 guint         prop_id,
-                                 GValue       *value,
-                                 GParamSpec   *pspec);
-static void client_constructed  (GObject      *object);
+static gboolean is_service_available (void);
+static void     client_finalize      (GObject      *object);
+static void     client_set_property  (GObject      *object,
+                                      guint         prop_id,
+                                      const GValue *value,
+                                      GParamSpec   *pspec);
+static void     client_get_property  (GObject      *object,
+                                      guint         prop_id,
+                                      GValue       *value,
+                                      GParamSpec   *pspec);
+static void     client_constructed   (GObject      *object);
 
 enum {
 	PROP_0,
@@ -413,6 +414,60 @@ callback_with_array (DBusGProxy *proxy,
 	g_slice_free (CallbackArray, cb);
 }
 
+static gboolean
+is_service_available (void)
+{
+	GError *error = NULL;
+	DBusGConnection *conn;
+	DBusGProxy *proxy;
+	GStrv result, p;
+
+	conn = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
+
+	if (!conn) {
+		g_critical ("Could not connect to the D-Bus session bus, %s",
+		            error ? error->message : "no error given.");
+		g_error_free (error);
+		return FALSE;
+	}
+
+	proxy =	dbus_g_proxy_new_for_name (conn,
+		                           DBUS_SERVICE_DBUS,
+		                           DBUS_PATH_DBUS,
+		                           DBUS_INTERFACE_DBUS);
+
+	if (!proxy) {
+		g_critical ("Could not create a proxy for the Freedesktop service, %s",
+		            error ? error->message : "no error given.");
+		g_error_free (error);
+		return FALSE;
+	}
+
+	org_freedesktop_DBus_list_activatable_names (proxy, &result, &error);
+	g_object_unref (proxy);
+
+	if (error) {
+		g_critical ("Could not start Tracker service '%s', %s",
+		            TRACKER_DBUS_SERVICE,
+		            error ? error->message : "no error given");
+		g_clear_error (&error);
+
+		return FALSE;
+	}
+
+	if (!result) {
+		return FALSE;
+	}
+
+	for (p = result; *p; p++) {
+		if (strcmp (*p, TRACKER_DBUS_SERVICE) == 0) {
+			return TRUE;
+		}
+	}
+
+	return FALSE;
+}
+
 /**
  * tracker_sparql_escape:
  * @str: a string to escape.
@@ -502,11 +557,15 @@ tracker_client_new (TrackerClientFlags flags,
 
 	g_type_init ();
 
+	if (!is_service_available ()) {
+		return NULL;
+	}
+
 	enable_warnings = (flags & TRACKER_CLIENT_ENABLE_WARNINGS);
 
-	return g_object_new (TRACKER_TYPE_CLIENT, 
+	return g_object_new (TRACKER_TYPE_CLIENT,
 	                     "enable-warnings", enable_warnings,
-	                     "timeout", timeout, 
+	                     "timeout", timeout,
 	                     NULL);
 }
 

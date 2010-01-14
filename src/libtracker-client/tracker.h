@@ -52,7 +52,7 @@ typedef struct {
  * applications that want to provide their own error reporting.
  */
 typedef enum {
-	TRACKER_CLIENT_ENABLE_WARNINGS      = 1 << 0,
+	TRACKER_CLIENT_ENABLE_WARNINGS      = 1 << 0
 } TrackerClientFlags;
 
 /**
