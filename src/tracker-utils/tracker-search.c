@@ -835,7 +835,7 @@ main (int argc, char **argv)
 
 	g_option_context_free (context);
 
-	client = tracker_connect (FALSE, G_MAXINT);
+	client = tracker_client_new (0, G_MAXINT);
 
 	if (!client) {
 		g_printerr ("%s\n",
@@ -851,7 +851,7 @@ main (int argc, char **argv)
 		gboolean success;
 
 		success = get_files (client, terms, offset, limit, or_operator);
-		tracker_disconnect (client);
+		g_object_unref (client);
 
 		return success ? EXIT_SUCCESS : EXIT_FAILURE;
 	}
@@ -860,7 +860,7 @@ main (int argc, char **argv)
 		gboolean success;
 
 		success = get_folders (client, terms, offset, limit, or_operator);
-		tracker_disconnect (client);
+		g_object_unref (client);
 
 		return success ? EXIT_SUCCESS : EXIT_FAILURE;
 	}
@@ -869,7 +869,7 @@ main (int argc, char **argv)
 		gboolean success;
 
 		success = get_music_albums (client, terms, offset, limit, or_operator);
-		tracker_disconnect (client);
+		g_object_unref (client);
 
 		return success ? EXIT_SUCCESS : EXIT_FAILURE;
 	}
@@ -878,7 +878,7 @@ main (int argc, char **argv)
 		gboolean success;
 
 		success = get_music_artists (client, terms, offset, limit, or_operator);
-		tracker_disconnect (client);
+		g_object_unref (client);
 
 		return success ? EXIT_SUCCESS : EXIT_FAILURE;
 	}
@@ -887,7 +887,7 @@ main (int argc, char **argv)
 		gboolean success;
 
 		success = get_music_files (client, terms, offset, limit, or_operator);
-		tracker_disconnect (client);
+		g_object_unref (client);
 
 		return success ? EXIT_SUCCESS : EXIT_FAILURE;
 	}
@@ -896,7 +896,7 @@ main (int argc, char **argv)
 		gboolean success;
 
 		success = get_image_files (client, terms, offset, limit, or_operator);
-		tracker_disconnect (client);
+		g_object_unref (client);
 
 		return success ? EXIT_SUCCESS : EXIT_FAILURE;
 	}
@@ -905,7 +905,7 @@ main (int argc, char **argv)
 		gboolean success;
 
 		success = get_video_files (client, terms, offset, limit, or_operator);
-		tracker_disconnect (client);
+		g_object_unref (client);
 
 		return success ? EXIT_SUCCESS : EXIT_FAILURE;
 	}
@@ -914,7 +914,7 @@ main (int argc, char **argv)
 		gboolean success;
 
 		success = get_document_files (client, terms, offset, limit, or_operator);
-		tracker_disconnect (client);
+		g_object_unref (client);
 
 		return success ? EXIT_SUCCESS : EXIT_FAILURE;
 	}
@@ -923,12 +923,12 @@ main (int argc, char **argv)
 		gboolean success;
 
 		success = get_all_by_search (client, terms, offset, limit, or_operator, detailed);
-		tracker_disconnect (client);
+		g_object_unref (client);
 
 		return success ? EXIT_SUCCESS : EXIT_FAILURE;
 	}
 
-	tracker_disconnect (client);
+	g_object_unref (client);
 
 	return EXIT_SUCCESS;
 }

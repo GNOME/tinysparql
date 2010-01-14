@@ -1,5 +1,6 @@
-/* Tracker - indexer and metadata database engine
+/* 
  * Copyright (C) 2006, Mr Jamie McCracken (jamiemcc@gnome.org)
+ * Copyright (C) 2008-2010, Nokia
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -17,45 +18,42 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef TRACKER_H
-#define TRACKER_H
+#ifndef __TRACKER_CLIENT_H__
+#define __TRACKER_CLIENT_H__
 
 #include <dbus/dbus-glib-bindings.h>
 
 G_BEGIN_DECLS
 
-/**
- * TrackerClient:
- * @proxy_statistics: a #DBusGProxy for the connection to Tracker's
- * statistics D-Bus service.
- * @proxy_resources: a #DBusGProxy for the connection to Tracker's
- * resources D-Bus service.
- * @pending_calls: a #GHashTable with the D-Bus calls currently
- * pending (used for the tracker_cancel_call() API).
- * @last_call: a #guint representing the last API call with this
- * #TrackerClient.
- *
- * This structure is used by tracker_connect() and tracker_disconnect().
- */
-typedef struct {
-	DBusGProxy *proxy_statistics;
-	DBusGProxy *proxy_resources;
+#define TRACKER_DBUS_SERVICE              "org.freedesktop.Tracker1"
+#define TRACKER_DBUS_OBJECT               "/org/freedesktop/Tracker1"
+#define TRACKER_DBUS_INTERFACE_RESOURCES  "org.freedesktop.Tracker1.Resources"
+#define TRACKER_DBUS_INTERFACE_STATISTICS "org.freedesktop.Tracker1.Statistics"
 
-	GHashTable *pending_calls;
-	guint last_call;
+#define TRACKER_TYPE_CLIENT         (tracker_client_get_type())
+#define TRACKER_CLIENT(o)           (G_TYPE_CHECK_INSTANCE_CAST ((o), TRACKER_TYPE_CLIENT, TrackerClient))
+#define TRACKER_CLIENT_CLASS(c)     (G_TYPE_CHECK_CLASS_CAST ((c),    TRACKER_TYPE_CLIENT, TrackerClientClass))
+#define TRACKER_IS_CLIENT(o)        (G_TYPE_CHECK_INSTANCE_TYPE ((o), TRACKER_TYPE_CLIENT))
+#define TRACKER_IS_CLIENT_CLASS(c)  (G_TYPE_CHECK_CLASS_TYPE ((c),    TRACKER_TYPE_CLIENT))
+#define TRACKER_CLIENT_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o),  TRACKER_TYPE_CLIENT, TrackerClientClass))
+
+typedef struct {
+	GObject parent;
 } TrackerClient;
 
+typedef struct {
+	GObjectClass parent;
+} TrackerClientClass;
+
 /**
- * TrackerReplyArray:
- * @result: a gchar ** with the results of the query.
- * @error: a GError.
- * @user_data: a gpointer for user data.
- *
- * This is used by the old tracker_search_* API and is deprecated.
+ * TrackerClientFlags:
+ * @TRACKER_CLIENT_ENABLE_WARNINGS: If supplied warnings will be
+ * produced upon erronous situations. This is usually turned off for
+ * applications that want to provide their own error reporting.
  */
-typedef void (*TrackerReplyArray)     (gchar    **result,
-                                       GError    *error,
-                                       gpointer   user_data);
+typedef enum {
+	TRACKER_CLIENT_ENABLE_WARNINGS      = 1 << 0
+} TrackerClientFlags;
 
 /**
  * TrackerReplyGPtrArray:
@@ -63,10 +61,11 @@ typedef void (*TrackerReplyArray)     (gchar    **result,
  * @error: a #GError.
  * @user_data: a #gpointer for user data.
  *
- * The returned #GPtrArray contains an array of #GStrv with the
- * results from the query unless there is an error in the query. If
- * there is an error the @error is populated with the details.
- */
+ * The @result is returned as a #GPtrArray containing an array of
+ * #GStrv with the results from the query unless there is an error. If
+ * there is an error the @error is populated with the details. The
+ * @user_data is provided in the callback.
+ **/
 typedef void (*TrackerReplyGPtrArray) (GPtrArray *result,
                                        GError    *error,
                                        gpointer   user_data);
@@ -76,10 +75,15 @@ typedef void (*TrackerReplyGPtrArray) (GPtrArray *result,
  * @error: a GError.
  * @user_data: a gpointer for user data.
  *
- * If there is an error the @error is populated with the details.
- */
+ * The @user_data is returned when the query has completed. If there
+ * is an error the @error is populated with the details.
+ **/
 typedef void (*TrackerReplyVoid)      (GError    *error,
                                        gpointer   user_data);
+
+GType          tracker_client_get_type                     (void) G_GNUC_CONST;
+TrackerClient *tracker_client_new                          (TrackerClientFlags      flags,
+                                                            gint                    timeout);
 
 gboolean       tracker_cancel_call                         (TrackerClient          *client,
                                                             guint                   call_id);
@@ -87,9 +91,6 @@ gboolean       tracker_cancel_last_call                    (TrackerClient       
 
 gchar *        tracker_sparql_escape                       (const gchar            *str);
 
-TrackerClient *tracker_connect                             (gboolean                enable_warnings,
-                                                            gint                    timeout);
-void           tracker_disconnect                          (TrackerClient          *client);
 
 /* Synchronous API */
 GPtrArray *    tracker_statistics_get                      (TrackerClient          *client,
@@ -138,27 +139,57 @@ guint          tracker_resources_batch_sparql_update_async (TrackerClient       
 guint          tracker_resources_batch_commit_async        (TrackerClient          *client,
                                                             TrackerReplyVoid        callback,
                                                             gpointer                user_data);
-guint          tracker_search_metadata_by_text_async       (TrackerClient          *client,
-                                                            const gchar            *query,
-                                                            TrackerReplyArray       callback,
-                                                            gpointer                user_data);
-guint          tracker_search_metadata_by_text_and_location_async (TrackerClient   *client,
-                                                                   const gchar            *query,
-                                                                   const gchar            *location,
-                                                                   TrackerReplyArray       callback,
-                                                                   gpointer                user_data);
-guint          tracker_search_metadata_by_text_and_mime_async (TrackerClient   *client,
-                                                               const gchar            *query,
-                                                               const gchar           **mimes,
-                                                               TrackerReplyArray       callback,
-                                                               gpointer                user_data);
-guint          tracker_search_metadata_by_text_and_mime_and_location_async (TrackerClient   *client,
-	      const gchar            *query,
-	      const gchar           **mimes,
-	      const gchar            *location,
-	      TrackerReplyArray       callback,
-	      gpointer                user_data);
+
+#ifndef TRACKER_DISABLE_DEPRECATED
+
+/* Deprecated APIs */
+/**
+ * TrackerReplyArray:
+ * @result: a gchar ** with the results of the query.
+ * @error: a GError.
+ * @user_data: a gpointer for user data.
+ *
+ * This is used by the 0.6 Tracker APIs:
+ *   tracker_search_metadata_by_text_async()
+ *   tracker_search_metadata_by_text_and_location_async()
+ *   tracker_search_metadata_by_text_and_mime_async()
+ *   tracker_search_metadata_by_text_and_mime_and_location_async()
+ *
+ * Deprecated: 0.8: Use #TrackerReplyVoid and #TrackerReplyGPtrArray
+ * with tracker_resources_sparql_query() instead.
+ */
+typedef void (*TrackerReplyArray)     (gchar    **result,
+                                       GError    *error,
+                                       gpointer   user_data);
+
+TrackerClient *
+      tracker_connect                                             (gboolean            enable_warnings,
+                                                                   gint                timeout)   G_GNUC_DEPRECATED;
+void  tracker_disconnect                                          (TrackerClient      *client)    G_GNUC_DEPRECATED;
+
+guint tracker_search_metadata_by_text_async                       (TrackerClient      *client,
+                                                                   const gchar        *query,
+                                                                   TrackerReplyArray   callback,
+                                                                   gpointer            user_data) G_GNUC_DEPRECATED;
+guint tracker_search_metadata_by_text_and_location_async          (TrackerClient      *client,
+                                                                   const gchar        *query,
+                                                                   const gchar        *location,
+                                                                   TrackerReplyArray   callback,
+                                                                   gpointer            user_data) G_GNUC_DEPRECATED;
+guint tracker_search_metadata_by_text_and_mime_async              (TrackerClient      *client,
+                                                                   const gchar        *query,
+                                                                   const gchar       **mimes,
+                                                                   TrackerReplyArray   callback,
+                                                                   gpointer            user_data) G_GNUC_DEPRECATED;
+guint tracker_search_metadata_by_text_and_mime_and_location_async (TrackerClient      *client,
+                                                                   const gchar        *query,
+                                                                   const gchar       **mimes,
+                                                                   const gchar        *location,
+                                                                   TrackerReplyArray   callback,
+                                                                   gpointer            user_data) G_GNUC_DEPRECATED;
+
+#endif /* TRACKER_DISABLE_DEPRECATED */
 
 G_END_DECLS
 
-#endif /* TRACKER_H */
+#endif /* __TRACKER_CLIENT_H__ */

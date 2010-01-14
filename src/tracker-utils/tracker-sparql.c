@@ -199,7 +199,7 @@ main (int argc, char **argv)
 
 	g_option_context_free (context);
 
-	client = tracker_connect (FALSE, G_MAXINT);
+	client = tracker_client_new (0, G_MAXINT);
 
 	if (!client) {
 		g_printerr ("%s\n",
@@ -219,7 +219,7 @@ main (int argc, char **argv)
 			            _("Could not list classes"),
 			            error->message);
 			g_error_free (error);
-			tracker_disconnect (client);
+			g_object_unref (client);
 
 			return EXIT_FAILURE;
 		}
@@ -257,7 +257,7 @@ main (int argc, char **argv)
 			            _("Could not list class prefixes"),
 			            error->message);
 			g_error_free (error);
-			tracker_disconnect (client);
+			g_object_unref (client);
 
 			return EXIT_FAILURE;
 		}
@@ -299,7 +299,7 @@ main (int argc, char **argv)
 				            _("Could not find property for class prefix, "
 				              "e.g. :Resource in 'rdfs:Resource'"));
 				g_free (prefix);
-				tracker_disconnect (client);
+				g_object_unref (client);
 				return EXIT_FAILURE;
 			}
 
@@ -311,7 +311,7 @@ main (int argc, char **argv)
 
 			if (!class_name_no_property) {
 				g_free (property);
-				tracker_disconnect (client);
+				g_object_unref (client);
 				return EXIT_FAILURE;
 			}
 
@@ -336,7 +336,7 @@ main (int argc, char **argv)
 			            _("Could not list properties"),
 			            error->message);
 			g_error_free (error);
-			tracker_disconnect (client);
+			g_object_unref (client);
 
 			return EXIT_FAILURE;
 		}
@@ -369,7 +369,7 @@ main (int argc, char **argv)
 			            file,
 			            error->message);
 			g_error_free (error);
-			tracker_disconnect (client);
+			g_object_unref (client);
 
 			return EXIT_FAILURE;
 		}
@@ -382,7 +382,7 @@ main (int argc, char **argv)
 			            error->message);
 			g_error_free (error);
 			g_free (path_in_utf8);
-			tracker_disconnect (client);
+			g_object_unref (client);
 
 			return EXIT_FAILURE;
 		}
@@ -456,7 +456,7 @@ main (int argc, char **argv)
 		}
 	}
 
-	tracker_disconnect (client);
+	g_object_unref (client);
 
 	return EXIT_SUCCESS;
 }

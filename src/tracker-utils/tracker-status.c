@@ -392,7 +392,7 @@ main (gint argc, gchar *argv[])
 		g_thread_init (NULL);
 	}
 
-	client = tracker_connect (FALSE, G_MAXINT);
+	client = tracker_client_new (0, G_MAXINT);
 
 	if (!client) {
 		g_printerr ("%s\n",
@@ -459,7 +459,7 @@ main (gint argc, gchar *argv[])
 		g_slist_foreach (miners_running, (GFunc) g_free, NULL);
 		g_slist_free (miners_running);
 
-		tracker_disconnect (client);
+		g_object_unref (client);
 		return EXIT_SUCCESS;
 	}
 
@@ -587,7 +587,7 @@ main (gint argc, gchar *argv[])
 
 	if (!follow) {
 		/* Do nothing further */
-		tracker_disconnect (client);
+		g_object_unref (client);
 		return EXIT_SUCCESS;
 	}
 
@@ -618,7 +618,7 @@ main (gint argc, gchar *argv[])
 	g_hash_table_unref (miners_progress);
 	g_hash_table_unref (miners_status);
 
-	tracker_disconnect (client);
+	g_object_unref (client);
 	g_object_unref (manager);
 
 	return EXIT_SUCCESS;

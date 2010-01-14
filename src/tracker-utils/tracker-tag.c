@@ -685,7 +685,7 @@ main (int argc, char **argv)
 
 	g_option_context_free (context);
 
-	client = tracker_connect (FALSE, G_MAXINT);
+	client = tracker_client_new (0, G_MAXINT);
 
 	if (!client) {
 		g_printerr ("%s\n",
@@ -697,7 +697,7 @@ main (int argc, char **argv)
 		gboolean success;
 
 		success = get_all_tags (client, files, offset, limit, or_operator, show_files);
-		tracker_disconnect (client);
+		g_object_unref (client);
 
 		return success ? EXIT_SUCCESS : EXIT_FAILURE;
 	}
@@ -706,7 +706,7 @@ main (int argc, char **argv)
 		gboolean success;
 
 		success = add_tag_for_urns (client, files, add_tag);
-		tracker_disconnect (client);
+		g_object_unref (client);
 
 		return success ? EXIT_SUCCESS : EXIT_FAILURE;
 	}
@@ -715,7 +715,7 @@ main (int argc, char **argv)
 		gboolean success;
 
 		success = remove_tag_for_urns (client, files, remove_tag);
-		tracker_disconnect (client);
+		g_object_unref (client);
 
 		return success ? EXIT_SUCCESS : EXIT_FAILURE;
 	}
@@ -730,12 +730,12 @@ main (int argc, char **argv)
 			g_print ("\n");
 		}
 
-		tracker_disconnect (client);
+		g_object_unref (client);
 
 		return success ? EXIT_SUCCESS : EXIT_FAILURE;
 	}
 
-	tracker_disconnect (client);
+	g_object_unref (client);
 
 	/* This is a failure because we should have done something.
 	 * This code should never be reached in practise.

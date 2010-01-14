@@ -1,9 +1,21 @@
 <SECTION>
 <FILE>tracker</FILE>
-<TITLE>Connecting</TITLE>
+TRACKER_DBUS_SERVICE
+TRACKER_DBUS_OBJECT
+TRACKER_DBUS_INTERFACE_RESOURCES
+TRACKER_DBUS_INTERFACE_STATISTICS
+<TITLE>TrackerClient</TITLE>
 TrackerClient
-tracker_connect
-tracker_disconnect
+TrackerClientFlags
+tracker_client_new
+<SUBSECTION Standard>
+TRACKER_CLIENT
+TRACKER_IS_CLIENT
+TRACKER_TYPE_CLIENT
+tracker_client_get_type
+TRACKER_CLIENT_CLASS
+TRACKER_IS_CLIENT_CLASS
+TRACKER_CLIENT_GET_CLASS
 </SECTION>
 
 <SECTION>
@@ -22,6 +34,7 @@ tracker_sparql_escape
 <SECTION>
 <FILE>tracker_statistics</FILE>
 <TITLE>Statistics</TITLE>
+TrackerReplyGPtrArray
 tracker_statistics_get
 tracker_statistics_get_async
 </SECTION>
@@ -29,29 +42,31 @@ tracker_statistics_get_async
 <SECTION>
 <FILE>tracker_resources</FILE>
 <TITLE>Resources</TITLE>
-TrackerReplyArray
 TrackerReplyGPtrArray
 TrackerReplyVoid
-tracker_resources_load
 tracker_resources_sparql_query
-tracker_resources_sparql_update
-tracker_resources_sparql_update_blank
-tracker_resources_batch_sparql_update
-tracker_resources_batch_commit
-tracker_resources_load_async
 tracker_resources_sparql_query_async
+tracker_resources_sparql_update
 tracker_resources_sparql_update_async
+tracker_resources_sparql_update_blank
 tracker_resources_sparql_update_blank_async
+tracker_resources_batch_sparql_update
 tracker_resources_batch_sparql_update_async
+tracker_resources_batch_commit
 tracker_resources_batch_commit_async
+tracker_resources_load
+tracker_resources_load_async
 </SECTION>
 
 <SECTION>
 <FILE>tracker_search</FILE>
-<TITLE>Search (Deprecated)</TITLE>
-TrackerReplyGPtrArray
+<TITLE>Search</TITLE>
+TrackerReplyArray
+tracker_connect
+tracker_disconnect
 tracker_search_metadata_by_text_async
 tracker_search_metadata_by_text_and_location_async
 tracker_search_metadata_by_text_and_mime_async
 tracker_search_metadata_by_text_and_mime_and_location_async
 </SECTION>
+
