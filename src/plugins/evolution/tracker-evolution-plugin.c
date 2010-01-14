@@ -199,7 +199,7 @@ typedef struct {
 
 static TrackerEvolutionPlugin *manager = NULL;
 static GStaticRecMutex glock = G_STATIC_REC_MUTEX_INIT;
-static guint register_count = 0;
+static guint register_count = 0, walk_count = 0;
 static ThreadPool *sparql_pool = NULL, *folder_pool = NULL;
 
 /* Prototype declarations */
@@ -1832,6 +1832,8 @@ on_got_folderinfo_register (CamelStore *store,
 	g_free (reg_info->uri);
 	g_free (reg_info);
 
+	walk_count--;
+
 	return TRUE;
 }
 
@@ -1867,6 +1869,8 @@ register_account (TrackerEvolutionPlugin *self,
 	reg_info->self = g_object_ref (self);
 	reg_info->uri = g_strdup (uri);
 	reg_info->account = g_object_ref (account);
+
+	walk_count++;
 
 	/* Get the account's folder-info and register it asynchronously */
 	mail_get_folderinfo (store, NULL, on_got_folderinfo_register, reg_info);
@@ -2061,11 +2065,29 @@ name_owner_changed_cb (DBusGProxy *proxy,
 }
 
 static void
+enable_plugin_real (void)
+{
+	manager = g_object_new (TRACKER_TYPE_EVOLUTION_PLUGIN,
+		                        "name", "Emails", NULL);
+
+	g_signal_emit_by_name (manager, "started");
+}
+
+static gboolean 
+enable_plugin_try (gpointer user_data)
+{
+	if (walk_count == 0) {
+		enable_plugin_real ();
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
+static void
 enable_plugin (void)
 {
-	if (manager) {
-		g_object_unref (manager);
-	}
+	/* Deal with https://bugzilla.gnome.org/show_bug.cgi?id=606940 */
 
 	if (sparql_pool) {
 		thread_pool_destroy (sparql_pool);
@@ -2077,10 +2099,16 @@ enable_plugin (void)
 		folder_pool = NULL;
 	}
 
-	manager = g_object_new (TRACKER_TYPE_EVOLUTION_PLUGIN,
-	                        "name", "Emails", NULL);
+	if (manager) {
+		g_object_unref (manager);
+	}
 
-	g_signal_emit_by_name (manager, "started");
+	if (walk_count > 0) {
+		g_timeout_add_seconds_full (G_PRIORITY_DEFAULT, 1,
+		                            enable_plugin_try, NULL, NULL);
+	} else {
+		enable_plugin_real ();
+	}
 }
 
 
@@ -2220,21 +2248,14 @@ tracker_evolution_plugin_init (TrackerEvolutionPlugin *plugin)
 }
 
 static void
-dbus_connect_closure (gpointer data, GClosure *closure)
-{
-	g_object_unref (data);
-}
-
-
-static void
 listnames_fini (gpointer data)
 {
 	TrackerEvolutionPluginPrivate *priv = TRACKER_EVOLUTION_PLUGIN_GET_PRIVATE (data);
 
 	dbus_g_proxy_connect_signal (priv->dbus_proxy, "NameOwnerChanged",
 	                             G_CALLBACK (name_owner_changed_cb),
-	                             g_object_ref (data),
-	                             dbus_connect_closure);
+	                             data,
+	                             NULL);
 
 	g_object_unref (data);
 }
@@ -2323,8 +2344,8 @@ resuming_fini (gpointer data)
 
 	dbus_g_proxy_connect_signal (priv->dbus_proxy, "NameOwnerChanged",
 	                             G_CALLBACK (name_owner_changed_cb),
-	                             g_object_ref (data),
-	                             dbus_connect_closure);
+	                             data,
+	                             NULL);
 
 	g_object_unref (data);
 }
