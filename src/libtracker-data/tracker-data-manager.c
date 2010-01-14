@@ -67,11 +67,11 @@ static gboolean            in_journal_replay;
 
 static void
 load_ontology_statement (const gchar *ontology_file,
-                         guint32      subject_id,
+                         gint         subject_id,
                          const gchar *subject,
                          const gchar *predicate,
                          const gchar *object,
-                         guint32     *max_id)
+                         gint        *max_id)
 {
 	if (g_strcmp0 (predicate, RDF_TYPE) == 0) {
 		if (g_strcmp0 (object, RDFS_CLASS) == 0) {
@@ -274,7 +274,7 @@ load_ontology_statement (const gchar *ontology_file,
 
 static void
 load_ontology_file_from_path (const gchar        *ontology_file,
-                              guint32            *max_id)
+                              gint               *max_id)
 {
 	TrackerTurtleReader *reader;
 	GError              *error = NULL;
@@ -306,7 +306,7 @@ load_ontology_file_from_path (const gchar        *ontology_file,
 
 static void
 load_ontology_file (const gchar               *filename,
-                    guint32                   *max_id)
+                    gint                      *max_id)
 {
 	gchar           *ontology_file;
 
@@ -327,29 +327,29 @@ load_ontology_from_journal (void)
 
 		type = tracker_db_journal_reader_get_type ();
 		if (type == TRACKER_DB_JOURNAL_RESOURCE) {
-			guint32 id;
+			gint id;
 			const gchar *uri;
 
 			tracker_db_journal_reader_get_resource (&id, &uri);
-			g_hash_table_insert (id_uri_map, GUINT_TO_POINTER (id), (gpointer) uri);
+			g_hash_table_insert (id_uri_map, GINT_TO_POINTER (id), (gpointer) uri);
 		} else if (type == TRACKER_DB_JOURNAL_END_TRANSACTION) {
 			/* end of initial transaction => end of ontology */
 			break;
 		} else {
 			const gchar *subject, *predicate, *object;
-			guint32 subject_id, predicate_id, object_id;
+			gint subject_id, predicate_id, object_id;
 
 			if (type == TRACKER_DB_JOURNAL_INSERT_STATEMENT) {
 				tracker_db_journal_reader_get_statement (&subject_id, &predicate_id, &object);
 			} else if (type == TRACKER_DB_JOURNAL_INSERT_STATEMENT_ID) {
 				tracker_db_journal_reader_get_statement_id (&subject_id, &predicate_id, &object_id);
-				object = g_hash_table_lookup (id_uri_map, GUINT_TO_POINTER (object_id));
+				object = g_hash_table_lookup (id_uri_map, GINT_TO_POINTER (object_id));
 			} else {
 				continue;
 			}
 
-			subject = g_hash_table_lookup (id_uri_map, GUINT_TO_POINTER (subject_id));
-			predicate = g_hash_table_lookup (id_uri_map, GUINT_TO_POINTER (predicate_id));
+			subject = g_hash_table_lookup (id_uri_map, GINT_TO_POINTER (subject_id));
+			predicate = g_hash_table_lookup (id_uri_map, GINT_TO_POINTER (predicate_id));
 
 			load_ontology_statement ("journal", subject_id, subject, predicate, object, NULL);
 		}
@@ -377,7 +377,7 @@ import_ontology_file (const gchar             *filename)
 }
 
 static gchar *
-query_resource_by_id (guint32 id)
+query_resource_by_id (gint id)
 {
 	TrackerDBCursor *cursor;
 	TrackerDBInterface *iface;
@@ -390,7 +390,7 @@ query_resource_by_id (guint32 id)
 
 	stmt = tracker_db_interface_create_statement (iface,
 	                                              "SELECT Uri FROM \"rdfs:Resource\" WHERE ID = ?");
-	tracker_db_statement_bind_uint (stmt, 0, id);
+	tracker_db_statement_bind_int (stmt, 0, id);
 	cursor = tracker_db_statement_start_cursor (stmt, NULL);
 	g_object_unref (stmt);
 
@@ -412,13 +412,13 @@ replay_journal (void)
 		GError *error = NULL;
 		TrackerDBJournalEntryType type;
 		const gchar *subject, *predicate, *object;
-		guint32 subject_id, predicate_id, object_id;
+		gint subject_id, predicate_id, object_id;
 
 		type = tracker_db_journal_reader_get_type ();
 		if (type == TRACKER_DB_JOURNAL_RESOURCE) {
 			TrackerDBInterface *iface;
 			TrackerDBStatement *stmt;
-			guint32 id;
+			gint id;
 			const gchar *uri;
 
 			tracker_db_journal_reader_get_resource (&id, &uri);
@@ -590,12 +590,12 @@ db_get_static_data (TrackerDBInterface *iface)
 		while (tracker_db_cursor_iter_next (cursor)) {
 			TrackerClass *class;
 			const gchar  *uri;
-			guint         id;
+			gint          id;
 			gint          count;
 
 			class = tracker_class_new ();
 
-			id = tracker_db_cursor_get_uint (cursor, 0);
+			id = tracker_db_cursor_get_int (cursor, 0);
 			uri = tracker_db_cursor_get_string (cursor, 1);
 
 			tracker_class_set_uri (class, uri);
@@ -645,11 +645,11 @@ db_get_static_data (TrackerDBInterface *iface)
 			const gchar     *uri, *domain_uri, *range_uri;
 			gboolean         multi_valued, indexed, fulltext_indexed;
 			gboolean         transient, annotation, is_inverse_functional_property;
-			guint             id;
+			gint             id;
 
 			property = tracker_property_new ();
 
-			id = tracker_db_cursor_get_uint (cursor, 0);
+			id = tracker_db_cursor_get_int (cursor, 0);
 			uri = tracker_db_cursor_get_string (cursor, 1);
 			domain_uri = tracker_db_cursor_get_string (cursor, 2);
 			range_uri = tracker_db_cursor_get_string (cursor, 3);
@@ -742,7 +742,7 @@ db_get_static_data (TrackerDBInterface *iface)
 static void
 insert_uri_in_resource_table (TrackerDBInterface *iface,
                               const gchar        *uri,
-                              guint32             id)
+                              gint                id)
 {
 	TrackerDBStatement *stmt;
 	GError *error = NULL;
@@ -860,7 +860,7 @@ create_decomposed_metadata_tables (TrackerDBInterface *iface,
 	TrackerProperty           **properties, *property;
 	GSList      *class_properties, *field_it;
 	gboolean    main_class;
-	guint       i, n_props;
+	gint        i, n_props;
 
 	service_name = tracker_class_get_name (service);
 	main_class = (strcmp (service_name, "rdfs:Resource") == 0);
@@ -940,7 +940,7 @@ create_decomposed_transient_metadata_tables (TrackerDBInterface *iface)
 {
 	TrackerProperty **properties;
 	TrackerProperty *property;
-	guint i, n_props;
+	gint i, n_props;
 
 	properties = tracker_ontology_get_properties (&n_props);
 
@@ -983,7 +983,7 @@ import_ontology_into_db (void)
 
 	TrackerClass **classes;
 	TrackerProperty **properties;
-	guint i, n_props, n_classes;
+	gint i, n_props, n_classes;
 
 	iface = tracker_db_manager_get_db_interface ();
 

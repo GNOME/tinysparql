@@ -136,7 +136,7 @@ test_read_functions (void)
 	gchar *path;
 	gboolean result;
 	TrackerDBJournalEntryType type;
-	guint32 id, s_id, p_id, o_id;
+	gint id, s_id, p_id, o_id;
 	const gchar *uri, *str;
 
 	path = g_build_filename (TOP_SRCDIR, "tests", "libtracker-db", "tracker-store.journal", NULL);

@@ -65,7 +65,7 @@ struct _TrackerDataUpdateBuffer {
 struct _TrackerDataUpdateBufferResource {
 	gchar *subject;
 	gchar *new_subject;
-	guint32 id;
+	gint id;
 	gboolean create;
 	gboolean fts_updated;
 	/* TrackerProperty -> GValueArray */
@@ -196,14 +196,14 @@ GQuark tracker_data_error_quark (void) {
 	return g_quark_from_static_string ("tracker_data_error-quark");
 }
 
-static guint32
+static gint
 tracker_data_update_get_new_service_id (TrackerDBInterface *iface)
 {
 	TrackerDBCursor    *cursor;
 	TrackerDBInterface *temp_iface;
 	TrackerDBStatement *stmt;
 
-	static guint32      max = 0;
+	static gint         max = 0;
 
 	if (G_LIKELY (max != 0)) {
 		return ++max;
@@ -225,13 +225,13 @@ tracker_data_update_get_new_service_id (TrackerDBInterface *iface)
 	return ++max;
 }
 
-static guint32
+static gint
 tracker_data_update_get_next_modseq (void)
 {
 	TrackerDBCursor    *cursor;
 	TrackerDBInterface *temp_iface;
 	TrackerDBStatement *stmt;
-	static guint32      max = 0;
+	static gint         max = 0;
 
 	if (G_LIKELY (max != 0)) {
 		return ++max;
@@ -355,32 +355,32 @@ cache_delete_value (const gchar            *table_name,
 	g_array_append_val (table->properties, property);
 }
 
-static guint32
+static gint
 query_resource_id (const gchar *uri)
 {
-	guint32 id;
+	gint id;
 
-	id = GPOINTER_TO_UINT (g_hash_table_lookup (update_buffer.resource_cache, uri));
+	id = GPOINTER_TO_INT (g_hash_table_lookup (update_buffer.resource_cache, uri));
 
 	if (id == 0) {
 		id = tracker_data_query_resource_id (uri);
 
 		if (id) {
-			g_hash_table_insert (update_buffer.resource_cache, g_strdup (uri), GUINT_TO_POINTER (id));
+			g_hash_table_insert (update_buffer.resource_cache, g_strdup (uri), GINT_TO_POINTER (id));
 		}
 	}
 
 	return id;
 }
 
-static guint32
+static gint
 ensure_resource_id (const gchar *uri,
                     gboolean    *create)
 {
 	TrackerDBInterface *iface, *common;
 	TrackerDBStatement *stmt;
 
-	guint32 id;
+	gint id;
 
 	id = query_resource_id (uri);
 
@@ -407,7 +407,7 @@ ensure_resource_id (const gchar *uri,
 			tracker_db_journal_append_resource (id, uri);
 		}
 
-		g_hash_table_insert (update_buffer.resource_cache, g_strdup (uri), GUINT_TO_POINTER (id));
+		g_hash_table_insert (update_buffer.resource_cache, g_strdup (uri), GINT_TO_POINTER (id));
 	}
 
 	return id;
@@ -424,9 +424,6 @@ statement_bind_gvalue (TrackerDBStatement *stmt,
 		break;
 	case G_TYPE_INT:
 		tracker_db_statement_bind_int (stmt, idx, g_value_get_int (value));
-		break;
-	case G_TYPE_UINT:
-		tracker_db_statement_bind_uint (stmt, idx, g_value_get_uint (value));
 		break;
 	case G_TYPE_INT64:
 		tracker_db_statement_bind_int64 (stmt, idx, g_value_get_int64 (value));
@@ -713,7 +710,7 @@ tracker_data_blank_buffer_flush (GError **error)
 {
 	/* end of blank node */
 	gint i;
-	guint32 id;
+	gint id;
 	gchar *subject;
 	gchar *blank_uri;
 	const gchar *sha1;
@@ -839,8 +836,6 @@ value_equal (GValue *value1,
 	switch (type) {
 	case G_TYPE_STRING:
 		return (strcmp (g_value_get_string (value1), g_value_get_string (value2)) == 0);
-	case G_TYPE_UINT:
-		return g_value_get_uint (value1) == g_value_get_uint (value2);
 	case G_TYPE_INT:
 		return g_value_get_int (value1) == g_value_get_int (value2);
 	case G_TYPE_DOUBLE:
@@ -1037,7 +1032,7 @@ string_to_gvalue (const gchar         *value,
                   TrackerPropertyType  type,
                   GValue              *gvalue)
 {
-	guint32 object_id;
+	gint object_id;
 
 	switch (type) {
 	case TRACKER_PROPERTY_TYPE_STRING:
@@ -1065,8 +1060,8 @@ string_to_gvalue (const gchar         *value,
 		break;
 	case TRACKER_PROPERTY_TYPE_RESOURCE:
 		object_id = ensure_resource_id (value, NULL);
-		g_value_init (gvalue, G_TYPE_UINT);
-		g_value_set_uint (gvalue, object_id);
+		g_value_init (gvalue, G_TYPE_INT);
+		g_value_set_int (gvalue, object_id);
 		break;
 	default:
 		g_warn_if_reached ();
@@ -1310,7 +1305,7 @@ tracker_data_delete_statement (const gchar  *graph,
 {
 	TrackerClass       *class;
 	TrackerProperty    *field;
-	guint32             subject_id;
+	gint                subject_id;
 
 	g_return_if_fail (subject != NULL);
 	g_return_if_fail (predicate != NULL);
@@ -1359,7 +1354,7 @@ tracker_data_delete_statement (const gchar  *graph,
 	} else {
 		field = tracker_ontology_get_property_by_uri (predicate);
 		if (field != NULL) {
-			guint32 id = tracker_property_get_id (field);
+			gint id = tracker_property_get_id (field);
 			if (!in_journal_replay) {
 				if (tracker_property_get_data_type (field) == TRACKER_PROPERTY_TYPE_RESOURCE) {
 					tracker_db_journal_append_delete_statement_id (resource_buffer->id,
@@ -1509,7 +1504,7 @@ tracker_data_insert_statement_with_uri (const gchar            *graph,
 	GError          *actual_error = NULL;
 	TrackerClass    *class;
 	TrackerProperty *property;
-	guint32          prop_id = 0;
+	gint             prop_id = 0;
 
 	g_return_if_fail (subject != NULL);
 	g_return_if_fail (predicate != NULL);
@@ -1630,7 +1625,7 @@ tracker_data_insert_statement_with_string (const gchar            *graph,
 {
 	GError          *actual_error = NULL;
 	TrackerProperty *property;
-	guint32          id = 0;
+	gint             id = 0;
 
 	g_return_if_fail (subject != NULL);
 	g_return_if_fail (predicate != NULL);
@@ -2010,7 +2005,7 @@ tracker_data_delete_resource_description (const gchar *graph,
 	TrackerProperty   **properties, *property;
 	int                 i;
 	gboolean            first, bail_out = FALSE;
-	guint32             resource_id;
+	gint                resource_id;
 	guint               p, n_props;
 
 	/* We use result_sets instead of cursors here because it's possible

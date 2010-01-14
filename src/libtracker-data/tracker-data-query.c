@@ -36,7 +36,7 @@
 #include "tracker-sparql-query.h"
 
 GPtrArray*
-tracker_data_query_rdf_type (guint32 id)
+tracker_data_query_rdf_type (gint id)
 {
 	TrackerDBCursor *cursor;
 	TrackerDBInterface *iface;
@@ -72,13 +72,13 @@ tracker_data_query_rdf_type (guint32 id)
 	return ret;
 }
 
-guint32
+gint
 tracker_data_query_resource_id (const gchar *uri)
 {
 	TrackerDBCursor *cursor;
 	TrackerDBInterface *iface;
 	TrackerDBStatement *stmt;
-	guint32 id = 0;
+	gint id = 0;
 
 	g_return_val_if_fail (uri != NULL, 0);
 
@@ -92,7 +92,7 @@ tracker_data_query_resource_id (const gchar *uri)
 
 	if (cursor) {
 		tracker_db_cursor_iter_next (cursor);
-		id = tracker_db_cursor_get_uint (cursor, 0);
+		id = tracker_db_cursor_get_int (cursor, 0);
 		g_object_unref (cursor);
 	}
 

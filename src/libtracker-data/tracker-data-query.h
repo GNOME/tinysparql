@@ -37,10 +37,10 @@ G_BEGIN_DECLS
 #error "only <libtracker-data/tracker-data.h> must be included directly."
 #endif
 
-guint32              tracker_data_query_resource_id (const gchar  *uri);
+gint                 tracker_data_query_resource_id (const gchar  *uri);
 TrackerDBResultSet  *tracker_data_query_sparql      (const gchar  *query,
                                                      GError      **error);
-GPtrArray*           tracker_data_query_rdf_type    (guint32       id);
+GPtrArray*           tracker_data_query_rdf_type    (gint          id);
 
 G_END_DECLS
 

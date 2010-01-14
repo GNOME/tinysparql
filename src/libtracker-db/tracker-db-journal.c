@@ -68,9 +68,9 @@ static struct {
 	gint64 time;
 	TrackerDBJournalEntryType type;
 	const gchar *uri;
-	guint32 s_id;
-	guint32 p_id;
-	guint32 o_id;
+	gint s_id;
+	gint p_id;
+	gint o_id;
 	const gchar *object;
 } reader;
 
@@ -327,8 +327,8 @@ tracker_db_journal_start_transaction (time_t time)
 }
 
 gboolean
-tracker_db_journal_append_delete_statement (guint32      s_id,
-                                            guint32      p_id,
+tracker_db_journal_append_delete_statement (gint         s_id,
+                                            gint         p_id,
                                             const gchar *object)
 {
 	gint o_len;
@@ -359,9 +359,9 @@ tracker_db_journal_append_delete_statement (guint32      s_id,
 }
 
 gboolean
-tracker_db_journal_append_delete_statement_id (guint32 s_id,
-                                               guint32 p_id,
-                                               guint32 o_id)
+tracker_db_journal_append_delete_statement_id (gint s_id,
+                                               gint p_id,
+                                               gint o_id)
 {
 	DataFormat df;
 	gint size;
@@ -388,8 +388,8 @@ tracker_db_journal_append_delete_statement_id (guint32 s_id,
 }
 
 gboolean
-tracker_db_journal_append_insert_statement (guint32      s_id,
-                                            guint32      p_id,
+tracker_db_journal_append_insert_statement (gint         s_id,
+                                            gint         p_id,
                                             const gchar *object)
 {
 	gint o_len;
@@ -419,9 +419,9 @@ tracker_db_journal_append_insert_statement (guint32      s_id,
 }
 
 gboolean
-tracker_db_journal_append_insert_statement_id (guint32 s_id,
-                                               guint32 p_id,
-                                               guint32 o_id)
+tracker_db_journal_append_insert_statement_id (gint s_id,
+                                               gint p_id,
+                                               gint o_id)
 {
 	DataFormat df;
 	gint size;
@@ -448,7 +448,7 @@ tracker_db_journal_append_insert_statement_id (guint32 s_id,
 }
 
 gboolean
-tracker_db_journal_append_resource (guint32      s_id,
+tracker_db_journal_append_resource (gint         s_id,
                                     const gchar *uri)
 {
 	gint o_len;
@@ -943,7 +943,7 @@ tracker_db_journal_reader_get_time (void)
 }
 
 gboolean
-tracker_db_journal_reader_get_resource (guint32      *id,
+tracker_db_journal_reader_get_resource (gint         *id,
                                         const gchar **uri)
 {
 	g_return_val_if_fail (reader.file != NULL, FALSE);
@@ -956,8 +956,8 @@ tracker_db_journal_reader_get_resource (guint32      *id,
 }
 
 gboolean
-tracker_db_journal_reader_get_statement (guint32      *s_id,
-                                         guint32      *p_id,
+tracker_db_journal_reader_get_statement (gint         *s_id,
+                                         gint         *p_id,
                                          const gchar **object)
 {
 	g_return_val_if_fail (reader.file != NULL, FALSE);
@@ -973,9 +973,9 @@ tracker_db_journal_reader_get_statement (guint32      *s_id,
 }
 
 gboolean
-tracker_db_journal_reader_get_statement_id (guint32 *s_id,
-                                            guint32 *p_id,
-                                            guint32 *o_id)
+tracker_db_journal_reader_get_statement_id (gint *s_id,
+                                            gint *p_id,
+                                            gint *o_id)
 {
 	g_return_val_if_fail (reader.file != NULL, FALSE);
 	g_return_val_if_fail (reader.type == TRACKER_DB_JOURNAL_INSERT_STATEMENT_ID ||

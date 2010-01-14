@@ -411,18 +411,6 @@ tracker_db_statement_bind_int (TrackerDBStatement       *stmt,
 	TRACKER_DB_STATEMENT_GET_IFACE (stmt)->bind_int (stmt, idx, value);
 }
 
-
-void
-tracker_db_statement_bind_uint (TrackerDBStatement       *stmt,
-                               int                       idx,
-                               guint                     value)
-{
-	g_return_if_fail (TRACKER_IS_DB_STATEMENT (stmt));
-
-	TRACKER_DB_STATEMENT_GET_IFACE (stmt)->bind_uint (stmt, idx, value);
-}
-
-
 void
 tracker_db_statement_bind_int64 (TrackerDBStatement     *stmt,
                                  int                     idx,
@@ -522,14 +510,6 @@ tracker_db_cursor_get_int (TrackerDBCursor *cursor, guint            column)
 	g_return_val_if_fail (TRACKER_IS_DB_CURSOR (cursor), -1);
 
 	return TRACKER_DB_CURSOR_GET_IFACE (cursor)->get_int (cursor, column);
-}
-
-guint
-tracker_db_cursor_get_uint (TrackerDBCursor *cursor, guint            column)
-{
-	g_return_val_if_fail (TRACKER_IS_DB_CURSOR (cursor), -1);
-
-	return TRACKER_DB_CURSOR_GET_IFACE (cursor)->get_uint (cursor, column);
 }
 
 gdouble
