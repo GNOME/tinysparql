@@ -1,3 +1,82 @@
+NEW in 0.7.16
+=============
+
+Improvements / New:
+
+  Ontology:
+  * Added nmo:isSent property.
+  * Added mlo:Landmark and mlo:PointOfInterest classes.
+  * Added mlo:poiLocation property.
+  * Added nao:predefined-tag-favorite.
+  * Added nco:im-capability-text-chat.
+  * Updated the domain of nmo:isDraft from nmo:Email to nmo:Message.
+  * Updated comments for mlo:altitude, rdfs:label and rdfs:comment.
+
+  libtracker-common:
+  * Added D-Bus client lookup for logging.
+  * Added tracker_{class,property}_{get,set}_id() APIs.
+  * Fixed some uint vs int issues in TrackerClass.
+  * Fixed all resource IDs to be gints.
+
+  libtracker-db:
+  * Added binary log to journal SPARQL transactions.
+  * Added database checks for corruption.
+  * Fixed all resource IDs to be gints.
+
+  litracker-data:
+  * Never delete URI <-> ID mapping.
+  * Reuse resource_cache and resources in update buffer.
+  * Reuse blank_buffer arrays.
+  * Avoid querying for ID twice when inserting resources.
+  * Avoid string manipulation in get_property_values.
+  * Fixed all resource IDs to be gints.
+
+  libtracker-client:
+  * Updated TrackerClient to be a GObject.
+  * Updated documentation with deprecation information.
+  * Added tracker_client_new() to replace tracker_connect().
+  * Use GSlice for common allocations.
+  * Seal public members in private struct.
+  * Make D-Bus interface/service/object definitions public.
+  * Don't start D-Bus service just check Tracker is activatable.
+
+  libtracker-miner:
+  * Fixed missing D-Bus release call when cleaning up miner.
+
+  tracker-store:
+  * Added D-Bus sync method for the journal.
+  * Removed non-existant functions in tracker-dbus.h
+
+  tracker-search:
+  * Improved -a output, don't prepend "album" on each line.
+
+  tracker-extract:
+  * Set nmm:musicAlbum and nmm:performer in GStreamer plugin.
+
+  evolution:
+  * Throttle 100 emails per 5 seconds.
+  * Fixed a crash in evolution plugin when killing tracker-store.
+  * Fixed reference leak on TrackerMiner.
+  * Fixed exit() call when enabling/disabling plugin.
+
+Bugs:
+
+  * NB#151295, Tracker goes to error state with certain sparql updates
+
+Notes:
+
+  The fix for the exit() in Evolution when enabling/disabling the
+  plugin is not completely fixed. If you start with the plugin
+  disabled and enable it, it still happens (but not the other way
+  round). This part needs fixing in Evolution. See bug:
+
+    https://bugzilla.gnome.org/show_bug.cgi?id=606940
+
+  The Deskbar applet packaged with Tracker is currently out of date
+  and needs some love to get it working with the new APIs. It is in
+  the same state as it was for 0.6. As such it isn't expected to work.
+
+
 NEW in 0.7.15
 =============
 
