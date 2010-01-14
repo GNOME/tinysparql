@@ -325,15 +325,11 @@ client_constructed (GObject *object)
 		return;
 	}
 
-	g_debug ("Got connection to service %p", connection);
-
 	private->proxy_statistics =
 		dbus_g_proxy_new_for_name (connection,
 		                           TRACKER_DBUS_SERVICE,
 		                           TRACKER_DBUS_OBJECT "/Statistics",
 		                           TRACKER_DBUS_INTERFACE_STATISTICS);
-
-	g_debug ("Got proxy for stats %p", private->proxy_statistics);
 
 	private->proxy_resources =
 		dbus_g_proxy_new_for_name (connection,
@@ -341,14 +337,11 @@ client_constructed (GObject *object)
 		                           TRACKER_DBUS_OBJECT "/Resources",
 		                           TRACKER_DBUS_INTERFACE_RESOURCES);
 
-	g_debug ("Got proxy for resources %p", private->proxy_resources);
-
 	/* NOTE: We don't need to set this for the stats proxy, the
 	 * query takes no arguments and is generally really fast.
 	 */
 	dbus_g_proxy_set_default_timeout (private->proxy_resources, 
 	                                  private->timeout);
-	g_debug ("Set timeout to %d", private->timeout);
 
 	private->is_constructed = TRUE;
 }
