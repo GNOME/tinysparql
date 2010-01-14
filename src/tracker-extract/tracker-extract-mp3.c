@@ -1927,17 +1927,6 @@ extract_mp3 (const gchar          *uri,
 	audio_offset = parse_id3v2 (buffer, buffer_size, &md.id3v1, uri, metadata, &md);
 
 	md.title = tracker_coalesce (4, md.id3v24.title2, md.id3v23.title2, md.id3v22.title2, md.id3v1.title);
-	if (!md.title) {
-		gchar *p;
-
-		/* use filename */
-		md.title = g_filename_display_basename (filename);
-
-		p = strrchr (md.title, '.');
-		if (p) {
-			*p = '\0';
-		}
-	}
 
 	md.performer = tracker_coalesce (7,
 	                                 md.id3v24.performer1, md.id3v24.performer2,
