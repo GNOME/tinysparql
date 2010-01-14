@@ -888,8 +888,8 @@ tracker_resources_batch_commit (TrackerClient  *client,
  *
  * This behaves exactly as tracker_statistics_get() but asynchronously.
  *
- * Returns: A #guint for the ID of this API call. This can be
- * cancelled with tracker_cancel_call().
+ * Returns: A #guint representing the operation ID. See
+ * tracker_cancel_call(). In the event of failure, 0 is returned.
  *
  * Since: 0.8
  **/
@@ -902,8 +902,8 @@ tracker_statistics_get_async (TrackerClient         *client,
 	CallbackGPtrArray *cb;
 	DBusGProxyCall *call;
 
-	g_return_val_if_fail (TRACKER_IS_CLIENT (client), -1);
-	g_return_val_if_fail (callback != NULL, -1);
+	g_return_val_if_fail (TRACKER_IS_CLIENT (client), 0);
+	g_return_val_if_fail (callback != NULL, 0);
 
 	private = TRACKER_CLIENT_GET_PRIVATE (client);
 
@@ -931,9 +931,9 @@ tracker_resources_load_async (TrackerClient    *client,
 	CallbackVoid *cb;
 	DBusGProxyCall *call;
 
-	g_return_val_if_fail (TRACKER_IS_CLIENT (client), -1);
-	g_return_val_if_fail (uri != NULL, -1);
-	g_return_val_if_fail (callback != NULL, -1);
+	g_return_val_if_fail (TRACKER_IS_CLIENT (client), 0);
+	g_return_val_if_fail (uri != NULL, 0);
+	g_return_val_if_fail (callback != NULL, 0);
 
 	private = TRACKER_CLIENT_GET_PRIVATE (client);
 
@@ -962,7 +962,8 @@ tracker_resources_load_async (TrackerClient    *client,
  * Does an asynchronous SPARQL query. See tracker_resources_sparql_query()
  * to see how an SPARLQL query should be like.
  *
- * Returns: The operation ID. See tracker_cancel_call().
+ * Returns: A #guint representing the operation ID. See
+ * tracker_cancel_call(). In the event of failure, 0 is returned.
  *
  * Since: 0.8
  **/
@@ -976,9 +977,9 @@ tracker_resources_sparql_query_async (TrackerClient         *client,
 	CallbackGPtrArray *cb;
 	DBusGProxyCall *call;
 
-	g_return_val_if_fail (TRACKER_IS_CLIENT (client), -1);
-	g_return_val_if_fail (query != NULL, -1);
-	g_return_val_if_fail (callback != NULL, -1);
+	g_return_val_if_fail (TRACKER_IS_CLIENT (client), 0);
+	g_return_val_if_fail (query != NULL, 0);
+	g_return_val_if_fail (callback != NULL, 0);
 
 	private = TRACKER_CLIENT_GET_PRIVATE (client);
 
@@ -1006,7 +1007,8 @@ tracker_resources_sparql_query_async (TrackerClient         *client,
  *
  * Does an asynchronous SPARQL update.
  *
- * Returns: The operation ID. See tracker_cancel_call().
+ * Returns: A #guint representing the operation ID. See
+ * tracker_cancel_call(). In the event of failure, 0 is returned.
  *
  * Since: 0.8
  **/
@@ -1020,9 +1022,9 @@ tracker_resources_sparql_update_async (TrackerClient    *client,
 	CallbackVoid *cb;
 	DBusGProxyCall *call;
 
-	g_return_val_if_fail (TRACKER_IS_CLIENT (client), -1);
-	g_return_val_if_fail (query != NULL, -1);
-	g_return_val_if_fail (callback != NULL, -1);
+	g_return_val_if_fail (TRACKER_IS_CLIENT (client), 0);
+	g_return_val_if_fail (query != NULL, 0);
+	g_return_val_if_fail (callback != NULL, 0);
 
 	private = TRACKER_CLIENT_GET_PRIVATE (client);
 
@@ -1051,9 +1053,9 @@ tracker_resources_sparql_update_blank_async (TrackerClient         *client,
 	CallbackGPtrArray *cb;
 	DBusGProxyCall *call;
 
-	g_return_val_if_fail (TRACKER_IS_CLIENT (client), -1);
-	g_return_val_if_fail (query != NULL, -1);
-	g_return_val_if_fail (callback != NULL, -1);
+	g_return_val_if_fail (TRACKER_IS_CLIENT (client), 0);
+	g_return_val_if_fail (query != NULL, 0);
+	g_return_val_if_fail (callback != NULL, 0);
 
 	private = TRACKER_CLIENT_GET_PRIVATE (client);
 
@@ -1081,7 +1083,8 @@ tracker_resources_sparql_update_blank_async (TrackerClient         *client,
  *
  * Updates the database using SPARQL. see tracker_resources_batch_sparql_update().
  *
- * Returns: The operation ID. See tracker_cancel_call().
+ * Returns: A #guint representing the operation ID. See
+ * tracker_cancel_call(). In the event of failure, 0 is returned.
  *
  * Since: 0.8
  **/
@@ -1095,9 +1098,9 @@ tracker_resources_batch_sparql_update_async (TrackerClient    *client,
 	CallbackVoid *cb;
 	DBusGProxyCall *call;
 
-	g_return_val_if_fail (TRACKER_IS_CLIENT (client), -1);
-	g_return_val_if_fail (query != NULL, -1);
-	g_return_val_if_fail (callback != NULL, -1);
+	g_return_val_if_fail (TRACKER_IS_CLIENT (client), 0);
+	g_return_val_if_fail (query != NULL, 0);
+	g_return_val_if_fail (callback != NULL, 0);
 
 	private = TRACKER_CLIENT_GET_PRIVATE (client);
 
@@ -1124,7 +1127,8 @@ tracker_resources_batch_sparql_update_async (TrackerClient    *client,
  *
  * Commits a batch of already issued SPARQL updates.
  *
- * Returns: The operation ID.
+ * Returns: A #guint representing the operation ID. See
+ * tracker_cancel_call(). In the event of failure, 0 is returned.
  *
  * Since: 0.8
  **/
@@ -1137,8 +1141,8 @@ tracker_resources_batch_commit_async (TrackerClient    *client,
 	CallbackVoid *cb;
 	DBusGProxyCall *call;
 
-	g_return_val_if_fail (TRACKER_IS_CLIENT (client), -1);
-	g_return_val_if_fail (callback != NULL, -1);
+	g_return_val_if_fail (TRACKER_IS_CLIENT (client), 0);
+	g_return_val_if_fail (callback != NULL, 0);
 
 	private = TRACKER_CLIENT_GET_PRIVATE (client);
 
@@ -1249,7 +1253,8 @@ tracker_disconnect (TrackerClient *client)
  *
  * NOTE: @query is found using FTS (Full Text Search).
  *
- * Returns: The operation ID. See tracker_cancel_call().
+ * Returns: A #guint representing the operation ID. See
+ * tracker_cancel_call(). In the event of failure, 0 is returned.
  *
  * Deprecated: 0.8: Use tracker_resources_sparql_query() instead.
  **/
@@ -1264,9 +1269,9 @@ tracker_search_metadata_by_text_async (TrackerClient     *client,
 	GString *sparql;
 	DBusGProxyCall *call;
 
-	g_return_val_if_fail (TRACKER_IS_CLIENT (client), -1);
-	g_return_val_if_fail (query != NULL, -1);
-	g_return_val_if_fail (callback != NULL, -1);
+	g_return_val_if_fail (TRACKER_IS_CLIENT (client), 0);
+	g_return_val_if_fail (query != NULL, 0);
+	g_return_val_if_fail (callback != NULL, 0);
 
 	private = TRACKER_CLIENT_GET_PRIVATE (client);
 
@@ -1302,7 +1307,8 @@ tracker_search_metadata_by_text_async (TrackerClient     *client,
  *
  * NOTE: @query is found using FTS (Full Text Search).
  *
- * Returns: The operation ID. See tracker_cancel_call().
+ * Returns: A #guint representing the operation ID. See
+ * tracker_cancel_call(). In the event of failure, 0 is returned.
  *
  * Deprecated: 0.8: Use tracker_resources_sparql_query() instead.
  **/
@@ -1318,10 +1324,10 @@ tracker_search_metadata_by_text_and_location_async (TrackerClient     *client,
 	GString *sparql;
 	DBusGProxyCall *call;
 
-	g_return_val_if_fail (TRACKER_IS_CLIENT (client), -1);
-	g_return_val_if_fail (query != NULL, -1);
-	g_return_val_if_fail (location != NULL, -1);
-	g_return_val_if_fail (callback != NULL, -1);
+	g_return_val_if_fail (TRACKER_IS_CLIENT (client), 0);
+	g_return_val_if_fail (query != NULL, 0);
+	g_return_val_if_fail (location != NULL, 0);
+	g_return_val_if_fail (callback != NULL, 0);
 
 	private = TRACKER_CLIENT_GET_PRIVATE (client);
 
@@ -1361,7 +1367,8 @@ tracker_search_metadata_by_text_and_location_async (TrackerClient     *client,
  *
  * NOTE: @query is found using FTS (Full Text Search).
  *
- * Returns: The operation ID. See tracker_cancel_call().
+ * Returns: A #guint representing the operation ID. See
+ * tracker_cancel_call(). In the event of failure, 0 is returned.
  *
  * Deprecated: 0.8: Use tracker_resources_sparql_query() instead.
  **/
@@ -1378,10 +1385,10 @@ tracker_search_metadata_by_text_and_mime_async (TrackerClient      *client,
 	DBusGProxyCall *call;
 	gint i;
 
-	g_return_val_if_fail (TRACKER_IS_CLIENT (client), -1);
-	g_return_val_if_fail (query != NULL, -1);
-	g_return_val_if_fail (mimes != NULL, -1);
-	g_return_val_if_fail (callback != NULL, -1);
+	g_return_val_if_fail (TRACKER_IS_CLIENT (client), 0);
+	g_return_val_if_fail (query != NULL, 0);
+	g_return_val_if_fail (mimes != NULL, 0);
+	g_return_val_if_fail (callback != NULL, 0);
 
 	private = TRACKER_CLIENT_GET_PRIVATE (client);
 
@@ -1430,7 +1437,8 @@ tracker_search_metadata_by_text_and_mime_async (TrackerClient      *client,
  *
  * NOTE: @query is found using FTS (Full Text Search).
  *
- * Returns: The operation ID. See tracker_cancel_call().
+ * Returns: A #guint representing the operation ID. See
+ * tracker_cancel_call(). In the event of failure, 0 is returned.
  *
  * Deprecated: 0.8: Use tracker_resources_sparql_query() instead.
  **/
@@ -1448,11 +1456,11 @@ tracker_search_metadata_by_text_and_mime_and_location_async (TrackerClient      
 	DBusGProxyCall *call;
 	gint i;
 
-	g_return_val_if_fail (TRACKER_IS_CLIENT (client), -1);
-	g_return_val_if_fail (query != NULL, -1);
-	g_return_val_if_fail (mimes != NULL, -1);
-	g_return_val_if_fail (location != NULL, -1);
-	g_return_val_if_fail (callback != NULL, -1);
+	g_return_val_if_fail (TRACKER_IS_CLIENT (client), 0);
+	g_return_val_if_fail (query != NULL, 0);
+	g_return_val_if_fail (mimes != NULL, 0);
+	g_return_val_if_fail (location != NULL, 0);
+	g_return_val_if_fail (callback != NULL, 0);
 
 	private = TRACKER_CLIENT_GET_PRIVATE (client);
 
