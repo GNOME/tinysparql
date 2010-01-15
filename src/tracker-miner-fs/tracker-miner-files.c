@@ -20,8 +20,13 @@
 #include "config.h"
 
 #include <sys/statvfs.h>
+#include <fcntl.h>
+#include <sys/ioctl.h>
+#include <linux/msdos_fs.h>
+#include <unistd.h>
 
 #include <glib/gi18n.h>
+#include <glib/gstdio.h>
 
 #include <libtracker-common/tracker-ontology.h>
 #include <libtracker-common/tracker-power.h>
@@ -986,7 +991,7 @@ miner_files_check_file (TrackerMinerFS *fs,
 
 	should_process = TRUE;
 
- done:
+done:
 	g_free (basename);
 	g_free (path);
 
@@ -1007,6 +1012,7 @@ miner_files_check_directory (TrackerMinerFS *fs,
 	gchar *basename;
 	gchar *path;
 	gboolean should_process;
+	gboolean is_hidden;
 
 	should_process = FALSE;
 	basename = NULL;
@@ -1019,7 +1025,32 @@ miner_files_check_directory (TrackerMinerFS *fs,
 
 	path = g_file_get_path (file);
 
-	if (file_info && g_file_info_get_is_hidden (file_info)) {
+	/* First we check the GIO hidden check. This does a number of
+	 * things for us which is good (like checking ".foo" dirs).
+	 */
+	is_hidden = file_info && g_file_info_get_is_hidden (file_info);
+
+	/* Second we check if the file is on FAT and if the hidden
+	 * attribute is set. GIO does this but ONLY on a Windows OS,
+	 * not for Windows files under a Linux OS, so we have to check
+	 * anyway.
+	 */
+	if (!is_hidden) {
+		int fd;
+
+		fd = g_open (path, O_RDONLY, 0);
+		if (fd != -1) {
+			__u32 attrs;
+
+			if (ioctl (fd, FAT_IOCTL_GET_ATTRIBUTES, &attrs) == 0) {
+				is_hidden = attrs & ATTR_HIDDEN ? TRUE : FALSE;
+			}
+
+			close (fd);
+		}
+	}
+
+	if (is_hidden) {
 		TrackerMinerFiles *mf;
 		GSList *allowed_directories;
 
