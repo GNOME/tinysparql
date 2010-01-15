@@ -661,13 +661,23 @@ gboolean
 tracker_db_journal_reader_verify_last (GError **error)
 {
 	guint32 entry_size_check;
+	gboolean success = FALSE;
 
-	g_return_val_if_fail (reader.file != NULL, FALSE);
+	if (tracker_db_journal_reader_init (NULL)) {
+		entry_size_check = read_uint32 (reader.end - 4);
 
-	entry_size_check = read_uint32 (reader.end - 4);
-	reader.current = reader.end - entry_size_check;
+		if (reader.end - entry_size_check < reader.current) {
+			g_set_error (error, TRACKER_DB_JOURNAL_ERROR, 0, 
+			             "Damaged journal entry at end of journal");
+			return FALSE;
+		}
 
-	return tracker_db_journal_reader_next (error);
+		reader.current = reader.end - entry_size_check;
+		success = tracker_db_journal_reader_next (NULL);
+		tracker_db_journal_reader_shutdown ();
+	}
+
+	return success;
 }
 
 gboolean

@@ -1271,9 +1271,7 @@ tracker_db_manager_init (TrackerDBManagerFlags  flags,
 		/* Load databases */
 		g_message ("Loading databases files...");
 
-		tracker_db_journal_reader_init (NULL);
 		must_recreate = !tracker_db_journal_reader_verify_last (NULL);
-		tracker_db_journal_reader_shutdown ();
 
 		if (!must_recreate && g_file_test (in_use_filename, G_FILE_TEST_EXISTS)) {
 			gsize size = 0;
