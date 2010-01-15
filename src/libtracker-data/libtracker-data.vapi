@@ -35,7 +35,7 @@ namespace Tracker {
 		public void insert_statement_with_uri (string graph, string subject, string predicate, string object) throws DataError;
 		public void insert_statement_with_string (string graph, string subject, string predicate, string object) throws DataError;
 		public void delete_resource_description (string graph, string uri) throws DataError;
-		public void update_buffer_flush () throws GLib.Error;
+		public void update_buffer_flush () throws DBInterfaceError;
 	}
 }
 

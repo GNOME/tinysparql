@@ -99,7 +99,7 @@ public class Tracker.SparqlQuery : Object {
 
 		public Class? domain;
 
-		public string get_sql_query (SparqlQuery query) throws Error {
+		public string get_sql_query (SparqlQuery query) throws DBInterfaceError, SparqlError {
 			var sql = new StringBuilder ();
 
 			if (subject != null) {
@@ -463,7 +463,7 @@ public class Tracker.SparqlQuery : Object {
 		}
 	}
 
-	public DBResultSet? execute () throws Error {
+	public DBResultSet? execute () throws SparqlError {
 		assert (!update_extensions);
 
 		scanner = new SparqlScanner ((char*) query_string, (long) query_string.size ());
@@ -496,7 +496,7 @@ public class Tracker.SparqlQuery : Object {
 		}
 	}
 
-	public PtrArray? execute_update (bool blank) throws Error {
+	public PtrArray? execute_update (bool blank) throws SparqlError {
 		assert (update_extensions);
 
 		scanner = new SparqlScanner ((char*) query_string, (long) query_string.size ());
@@ -545,7 +545,7 @@ public class Tracker.SparqlQuery : Object {
 		return blank_nodes;
 	}
 
-	DBResultSet? exec_sql (string sql) throws Error {
+	DBResultSet? exec_sql (string sql) throws DBInterfaceError, SparqlError {
 		var iface = DBManager.get_db_interface ();
 		var stmt = iface.create_statement ("%s", sql);
 
@@ -707,7 +707,7 @@ public class Tracker.SparqlQuery : Object {
 		used_sql_identifiers = new HashTable<string,bool>.full (str_hash, str_equal, g_free, null);
 	}
 
-	DBResultSet? execute_select () throws Error {
+	DBResultSet? execute_select () throws DBInterfaceError, SparqlError {
 		// SELECT query
 
 		begin_query ();
@@ -721,7 +721,7 @@ public class Tracker.SparqlQuery : Object {
 		return exec_sql (sql.str);
 	}
 
-	PropertyType translate_select (StringBuilder sql, bool subquery = false) throws Error {
+	PropertyType translate_select (StringBuilder sql, bool subquery = false) throws DBInterfaceError, SparqlError {
 		var type = PropertyType.UNKNOWN;
 
 		var pattern_sql = new StringBuilder ();
@@ -905,7 +905,7 @@ public class Tracker.SparqlQuery : Object {
 		}
 	}
 
-	DBResultSet? execute_ask () throws Error {
+	DBResultSet? execute_ask () throws DBInterfaceError, SparqlError {
 		// ASK query
 
 		var pattern_sql = new StringBuilder ();
@@ -931,7 +931,7 @@ public class Tracker.SparqlQuery : Object {
 		return exec_sql (sql.str);
 	}
 
-	private void parse_from_or_into_param () throws Error {
+	private void parse_from_or_into_param () throws SparqlError {
 		if (accept (SparqlTokenType.IRI_REF)) {
 			current_graph = get_last_string (1);
 		} else if (accept (SparqlTokenType.PN_PREFIX)) {
@@ -944,7 +944,7 @@ public class Tracker.SparqlQuery : Object {
 		}
 	}
 
-	PtrArray? execute_insert (bool blank) throws Error {
+	PtrArray? execute_insert (bool blank) throws DBInterfaceError, DataError, SparqlError {
 		expect (SparqlTokenType.INSERT);
 		if (accept (SparqlTokenType.INTO)) {
 			parse_from_or_into_param ();
@@ -954,7 +954,7 @@ public class Tracker.SparqlQuery : Object {
 		return execute_insert_or_delete (false, blank);
 	}
 
-	void execute_delete () throws Error {
+	void execute_delete () throws DBInterfaceError, DataError, SparqlError {
 		expect (SparqlTokenType.DELETE);
 		if (accept (SparqlTokenType.FROM)) {
 			parse_from_or_into_param ();
@@ -964,7 +964,7 @@ public class Tracker.SparqlQuery : Object {
 		execute_insert_or_delete (true, false);
 	}
 
-	PtrArray? execute_insert_or_delete (bool delete_statements, bool blank) throws Error {
+	PtrArray? execute_insert_or_delete (bool delete_statements, bool blank) throws DBInterfaceError, DataError, SparqlError {
 		// INSERT or DELETE
 
 		var pattern_sql = new StringBuilder ();
@@ -1052,7 +1052,7 @@ public class Tracker.SparqlQuery : Object {
 		return update_blank_nodes;
 	}
 
-	void execute_drop_graph () throws Error {
+	void execute_drop_graph () throws DBInterfaceError, DataError, SparqlError {
 		expect (SparqlTokenType.DROP);
 		expect (SparqlTokenType.GRAPH);
 
@@ -1833,7 +1833,7 @@ public class Tracker.SparqlQuery : Object {
 		return translate_conditional_or_expression (sql);
 	}
 
-	PropertyType translate_bracketted_expression (StringBuilder sql) throws SparqlError {
+	PropertyType translate_bracketted_expression (StringBuilder sql) throws DBInterfaceError, SparqlError {
 		expect (SparqlTokenType.OPEN_PARENS);
 
 		if (current () == SparqlTokenType.SELECT) {
@@ -2113,7 +2113,7 @@ public class Tracker.SparqlQuery : Object {
 		sql.append ("SELECT ");
 	}
 
-	void end_triples_block (StringBuilder sql, ref bool first_where, bool in_group_graph_pattern) throws Error {
+	void end_triples_block (StringBuilder sql, ref bool first_where, bool in_group_graph_pattern) throws DBInterfaceError, SparqlError {
 		// remove last comma and space
 		sql.truncate (sql.len - 2);
 
@@ -2210,7 +2210,7 @@ public class Tracker.SparqlQuery : Object {
 		pattern_bindings = null;
 	}
 
-	void parse_triples (StringBuilder sql, long group_graph_pattern_start, ref bool in_triples_block, ref bool first_where, ref bool in_group_graph_pattern, bool found_simple_optional) throws Error {
+	void parse_triples (StringBuilder sql, long group_graph_pattern_start, ref bool in_triples_block, ref bool first_where, ref bool in_group_graph_pattern, bool found_simple_optional) throws DBInterfaceError, SparqlError {
 		while (true) {
 			if (current () != SparqlTokenType.VAR &&
 			    current () != SparqlTokenType.IRI_REF &&
@@ -2340,7 +2340,7 @@ public class Tracker.SparqlQuery : Object {
 		}
 	}
 
-	void translate_group_graph_pattern (StringBuilder sql) throws Error {
+	void translate_group_graph_pattern (StringBuilder sql) throws DBInterfaceError, SparqlError {
 		expect (SparqlTokenType.OPEN_BRACE);
 
 		if (current () == SparqlTokenType.SELECT) {
@@ -2530,7 +2530,7 @@ public class Tracker.SparqlQuery : Object {
 		}
 	}
 
-	void translate_group_or_union_graph_pattern (StringBuilder sql) throws Error {
+	void translate_group_or_union_graph_pattern (StringBuilder sql) throws DBInterfaceError, SparqlError {
 		var old_subgraph_var_set = subgraph_var_set;
 
 		Variable[] all_vars = { };

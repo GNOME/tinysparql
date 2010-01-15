@@ -27,6 +27,12 @@ namespace Tracker {
 		CONTENTS
 	}
 
+	[CCode (cprefix = "TRACKER_DB_", cheader_filename = "libtracker-db/tracker-db-interface.h")]
+	public errordomain DBInterfaceError {
+		QUERY_ERROR,
+		CORRUPT
+	}
+
 	[CCode (cheader_filename = "libtracker-db/tracker-db-interface.h")]
 	public interface DBInterface : GLib.Object {
 		[PrintfFormat]
@@ -49,7 +55,7 @@ namespace Tracker {
 		public abstract void bind_double (int index, double value);
 		public abstract void bind_int (int index, int value);
 		public abstract void bind_text (int index, string value);
-		public abstract DBResultSet execute () throws GLib.Error;
+		public abstract DBResultSet execute () throws DBInterfaceError;
 	}
 }
 
