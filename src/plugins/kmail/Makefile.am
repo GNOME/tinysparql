@@ -43,3 +43,4 @@ BUILT_SOURCES = $(dbus_sources)
 
 CLEANFILES = $(BUILT_SOURCES)
 
+EXTRA_DIST = tracker-kmail-registrar.xml
