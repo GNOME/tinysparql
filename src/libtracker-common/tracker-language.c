@@ -283,7 +283,7 @@ language_set_stopword_list (TrackerLanguage *language,
 	priv = GET_PRIV (language);
 
 	/* Set up stopwords list */
-	g_message ("Setting up stopword list for language code:'%s'", language_code);
+	/* g_message ("Setting up stopword list for language code:'%s'", language_code); */
 
 	stopword_filename = language_get_stopword_filename (language_code);
 	language_add_stopwords (language, stopword_filename);
@@ -295,7 +295,7 @@ language_set_stopword_list (TrackerLanguage *language,
 		g_free (stopword_filename);
 	}
 
-	g_message ("Setting up stemmer for language code:'%s'", language_code);
+	/* g_message ("Setting up stemmer for language code:'%s'", language_code); */
 
 	stem_language = tracker_language_get_name_by_code (language_code);
 	stem_language_lower = g_ascii_strdown (stem_language, -1);
