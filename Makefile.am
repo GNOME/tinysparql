@@ -72,3 +72,4 @@ install-data-hook:
 	rm -Rf $(DESTDIR)$(datadir)/tracker/tracker-introspect.xml
 endif	
 
+ACLOCAL_AMFLAGS = -I m4
