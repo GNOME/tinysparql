@@ -5,7 +5,8 @@ INCLUDES =											\
 	$(GCOV_CFLAGS)										\
 	$(WARN_CFLAGS)										\
 	$(NAUTILUS_EXTENSION_CFLAGS)								\
-	$(TRACKER_APPS_CFLAGS)
+	$(TRACKER_APPS_CFLAGS)									\
+	$(DBUS_CFLAGS)
 
 nautilus_extensiondir = $(NAUTILUS_EXTENSION_INSTALL_DIR)
 

@@ -9,7 +9,8 @@ INCLUDES =								\
 	$(GLIB2_CFLAGS)							\
 	$(DBUS_CFLAGS)							\
 	$(UUID_CFLAGS)							\
-	$(GCOV_CFLAGS)
+	$(GCOV_CFLAGS)							\
+	$(SQLITE3_CFLAGS)
 
 BUILT_SOURCES = libtracker-data.vala.stamp
 
