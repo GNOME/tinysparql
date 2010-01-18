@@ -19,8 +19,8 @@
  * Authors: Philip Van Hoof <philip@codeminded.be>
  */
 
-#ifndef _TRACKER_TOPANALYZER_H_
-#define _TRACKER_TOPANALYZER_H_
+#ifndef __TRACKER_EXTRACT_TOPANALYZER_H__
+#define __TRACKER_EXTRACT_TOPANALYZER_H__
 
 #include <glib.h>
 
@@ -34,4 +34,4 @@ void tracker_topanalyzer_shutdown (void);
 
 G_END_DECLS
 
-#endif
+#endif /* __TRACKER_EXTRACT_TOPANALYZER_H__ */
