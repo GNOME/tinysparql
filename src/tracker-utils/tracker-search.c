@@ -774,10 +774,6 @@ main (int argc, char **argv)
 {
 	TrackerClient *client;
 	GOptionContext *context;
-	TrackerLanguage *language;
-	GHashTable *stop_words;
-	const gchar *stop_word_found;
-	gchar **p;
 	gchar *summary;
 
 	setlocale (LC_ALL, "");
@@ -840,36 +836,44 @@ main (int argc, char **argv)
 	}
 
 	/* Check terms are not stopwords */
-	language = tracker_language_new (NULL);
-	stop_words = tracker_language_get_stop_words (language);
+	if (terms) {
+		TrackerLanguage *language;
+		GHashTable *stop_words;
+		const gchar *stop_word_found;
+		gchar **p;
 
-	for (p = terms, stop_word_found = NULL; *p && !stop_word_found; p++) {
-		gpointer data;
+		language = tracker_language_new (NULL);
+		stop_words = tracker_language_get_stop_words (language);
 
-		data = g_hash_table_lookup (stop_words, *p);
-		if (data) {
-			stop_word_found = *p;
+		for (p = terms, stop_word_found = NULL; *p && !stop_word_found; p++) {
+			gpointer data;
+
+			data = g_hash_table_lookup (stop_words, *p);
+			if (data) {
+				stop_word_found = *p;
+			}
 		}
-	}
 
-	if (stop_word_found) {
-		g_printerr (_("Search term '%s' is a stop word."),
-		            stop_word_found);
-		g_printerr ("\n\n");
-		g_printerr (_("Stop words are common words which are "
-		              "ignored during the indexing process."));
-		g_printerr ("\n");
-		g_printerr (_("This means this search term will never "
-		              "be found when matching FTS entries."));
-		g_printerr ("\n\n");
+		if (stop_word_found) {
+			g_printerr (_("Search term '%s' is a stop word."),
+			            stop_word_found);
+			g_printerr ("\n\n");
+			g_printerr (_("Stop words are common words which are "
+			              "ignored during the indexing process."));
+			g_printerr ("\n");
+			g_printerr (_("This means this search term will never "
+			              "be found when matching FTS entries."));
+			g_printerr ("\n\n");
 
-		g_option_context_free (context);
+			g_option_context_free (context);
+			g_object_unref (language);
+
+			return EXIT_FAILURE;
+		}
+
 		g_object_unref (language);
-
-		return EXIT_FAILURE;
 	}
 
-	g_object_unref (language);
 	g_option_context_free (context);
 
 	client = tracker_client_new (0, G_MAXINT);
