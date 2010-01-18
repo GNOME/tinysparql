@@ -1,5 +1,6 @@
-/* Tracker Xmp - Xmp helper functions
+/*
  * Copyright (C) 2006, Mr Jamie McCracken (jamiemcc@gnome.org)
+ * Copyright (C) 2009, Nokia
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -17,42 +18,74 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef _TRACKER_XMP_H_
-#define _TRACKER_XMP_H_
+#ifndef __TRACKER_EXTRACT_XMP_H__
+#define __TRACKER_EXTRACT_XMP_H__
 
 #include <glib.h>
 
+G_BEGIN_DECLS
+
 typedef struct {
 	/* NS_DC */
-	gchar *title, *rights, *creator, *description, *date, *keywords, *subject,
-		*publisher, *contributor, *type, *format, *identifier, *source,
-		*language, *relation, *coverage;
+	gchar *title;
+	gchar *rights;
+	gchar *creator;
+	gchar *description;
+	gchar *date;
+	gchar *keywords;
+	gchar *subject;
+
+	gchar *publisher;
+	gchar *contributor;
+	gchar *type;
+	gchar *format;
+	gchar *identifier;
+	gchar *source;
+	gchar *language;
+	gchar *relation;
+	gchar *coverage;
 
 	/* NS_CC */
 	gchar *license;
 
 	/* NS_PDF */
-	gchar *PDFtitle, *PDFkeywords;
+	gchar *pdf_title;
+	gchar *pdf_keywords;
 
 	/* NS_EXIF */
-	gchar *Title, *DateTimeOriginal, *Artist, *Make, *Model, *Orientation,
-		*Flash, *MeteringMode, *ExposureTime, *FNumber, *FocalLength,
-		*ISOSpeedRatings, *WhiteBalance, *Copyright;
+	gchar *title2;
+	gchar *time_original;
+	gchar *artist;
+	gchar *make;
+	gchar *model;
+	gchar *orientation;
+	gchar *flash;
+	gchar *metering_mode;
+	gchar *exposure_time;
+	gchar *fnumber;
+	gchar *focal_length;
+
+	gchar *iso_speed_ratings;
+	gchar *white_balance;
+	gchar *copyright;
 
 	/* TODO NS_XAP*/
 	/* TODO NS_IPTC4XMP */
 	/* TODO NS_PHOTOSHOP */
-	gchar *Address, *Country, *State, *City;
+	gchar *address;
+	gchar *country;
+	gchar *state;
+	gchar *city;
 } TrackerXmpData;
 
+gboolean tracker_xmp_read  (const gchar          *buffer,
+                            size_t                len,
+                            const gchar          *uri,
+                            TrackerXmpData       *data);
+gboolean tracker_xmp_apply (TrackerSparqlBuilder *metadata,
+                            const gchar          *uri,
+                            TrackerXmpData       *xmp_data);
 
-void tracker_read_xmp (const gchar          *buffer,
-                       size_t                len,
-                       const gchar          *uri,
-                       TrackerXmpData       *data);
+G_END_DECLS
 
-void tracker_apply_xmp (TrackerSparqlBuilder *metadata,
-                        const gchar *uri,
-                        TrackerXmpData *xmp_data);
-
-#endif /* _TRACKER_XMP_H_ */
+#endif /* __TRACKER_EXTRACT_XMP_H__ */

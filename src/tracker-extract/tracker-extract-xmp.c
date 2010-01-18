@@ -150,12 +150,12 @@ extract_xmp (const gchar          *uri,
 		/* If no orig file is found for the sidekick, we use the sidekick to
 		 * describe itself instead, falling back to uri */
 
-		tracker_read_xmp (contents,
+		tracker_xmp_read (contents,
 		                  length,
 		                  orig_uri ? orig_uri : uri,
 		                  &xmp_data);
 
-		tracker_apply_xmp (metadata, uri, &xmp_data);
+		tracker_xmp_apply (metadata, uri, &xmp_data);
 
 		g_free (orig_uri);
 	}

@@ -316,7 +316,7 @@ extract_tiff (const gchar *uri, TrackerSparqlBuilder *metadata)
 	   due to bugs in the original spec (type) */
 #ifdef HAVE_EXEMPI
 	if (TIFFGetField (image, TIFFTAG_XMLPACKET, &size, &xmpOffset)) {
-		tracker_read_xmp (xmpOffset,
+		tracker_xmp_read (xmpOffset,
 		                  size,
 		                  uri,
 		                  &xmp_data);
@@ -368,8 +368,8 @@ extract_tiff (const gchar *uri, TrackerSparqlBuilder *metadata)
 	                                   tiff_data.model);
 
 	if (!merge_data.camera) {
-		merge_data.camera = tracker_merge (" ", 2, xmp_data.Make,
-		                                   xmp_data.Model);
+		merge_data.camera = tracker_merge (" ", 2, xmp_data.make,
+		                                   xmp_data.model);
 
 		if (!merge_data.camera) {
 			merge_data.camera = tracker_merge (" ", 2, exif_data.make,
@@ -379,21 +379,21 @@ extract_tiff (const gchar *uri, TrackerSparqlBuilder *metadata)
 			g_free (exif_data.make);
 		}
 	} else {
-		g_free (xmp_data.Model);
-		g_free (xmp_data.Make);
+		g_free (xmp_data.model);
+		g_free (xmp_data.make);
 		g_free (exif_data.model);
 		g_free (exif_data.make);
 	}
 
 	merge_data.title = tracker_coalesce (5, tiff_data.documentname,
 	                                     xmp_data.title, 
-	                                     xmp_data.Title,
+	                                     xmp_data.title2,
 	                                     exif_data.document_name,
-	                                     xmp_data.PDFtitle);
+	                                     xmp_data.pdf_title);
 
 	merge_data.orientation = tracker_coalesce (4, tiff_data.orientation,
 	                                           exif_data.orientation,
-	                                           xmp_data.Orientation,
+	                                           xmp_data.orientation,
 	                                           iptc_data.image_orientation);
 
 	merge_data.copyright = tracker_coalesce (4, tiff_data.copyright,
@@ -402,47 +402,47 @@ extract_tiff (const gchar *uri, TrackerSparqlBuilder *metadata)
 	                                         iptc_data.copyright_notice);
 
 	merge_data.white_balance = tracker_coalesce (2, exif_data.white_balance,
-	                                             xmp_data.WhiteBalance);
+	                                             xmp_data.white_balance);
 
 
 	merge_data.fnumber =  tracker_coalesce (2, exif_data.fnumber,
-	                                        xmp_data.FNumber);
+	                                        xmp_data.fnumber);
 
 	merge_data.flash =  tracker_coalesce (2, exif_data.flash,
-	                                      xmp_data.Flash);
+	                                      xmp_data.flash);
 
 	merge_data.focal_length =  tracker_coalesce (2, exif_data.focal_length,
-	                                             xmp_data.FocalLength);
+	                                             xmp_data.focal_length);
 
 	merge_data.artist =  tracker_coalesce (4, tiff_data.artist,
 	                                       exif_data.artist,
-	                                       xmp_data.Artist,
+	                                       xmp_data.artist,
 	                                       xmp_data.contributor);
 
 	merge_data.exposure_time =  tracker_coalesce (2, exif_data.exposure_time,
-	                                              xmp_data.ExposureTime);
+	                                              xmp_data.exposure_time);
 
 	merge_data.iso_speed_ratings =  tracker_coalesce (2, exif_data.iso_speed_ratings,
-	                                                  xmp_data.ISOSpeedRatings);
+	                                                  xmp_data.iso_speed_ratings);
 
 	merge_data.date =  tracker_coalesce (6, tiff_data.datetime,
 	                                     exif_data.time,
 	                                     xmp_data.date,
 	                                     iptc_data.date_created,
 	                                     exif_data.time_original,
-	                                     xmp_data.DateTimeOriginal);
+	                                     xmp_data.time_original);
 
 	merge_data.description = tracker_coalesce (3, tiff_data.imagedescription,
 	                                           exif_data.description,
 	                                           xmp_data.description);
 
 	merge_data.metering_mode =  tracker_coalesce (2, exif_data.metering_mode,
-	                                              xmp_data.MeteringMode);
+	                                              xmp_data.metering_mode);
 
-	merge_data.city = tracker_coalesce (2, iptc_data.city, xmp_data.City);
-	merge_data.state = tracker_coalesce (2, iptc_data.state, xmp_data.State);
-	merge_data.address = tracker_coalesce (2, iptc_data.sublocation, xmp_data.Address);
-	merge_data.country  = tracker_coalesce (2, iptc_data.country_name, xmp_data.Country);
+	merge_data.city = tracker_coalesce (2, iptc_data.city, xmp_data.city);
+	merge_data.state = tracker_coalesce (2, iptc_data.state, xmp_data.state);
+	merge_data.address = tracker_coalesce (2, iptc_data.sublocation, xmp_data.address);
+	merge_data.country  = tracker_coalesce (2, iptc_data.country_name, xmp_data.country);
 
 	merge_data.creator =  tracker_coalesce (3, iptc_data.byline,
 	                                        xmp_data.creator,
@@ -476,9 +476,9 @@ extract_tiff (const gchar *uri, TrackerSparqlBuilder *metadata)
 		g_free (xmp_data.keywords);
 	}
 
-	if (xmp_data.PDFkeywords) {
-		insert_keywords (metadata, uri, xmp_data.PDFkeywords);
-		g_free (xmp_data.PDFkeywords);
+	if (xmp_data.pdf_keywords) {
+		insert_keywords (metadata, uri, xmp_data.pdf_keywords);
+		g_free (xmp_data.pdf_keywords);
 	}
 
 	if (xmp_data.subject) {
