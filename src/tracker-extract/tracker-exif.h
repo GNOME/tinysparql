@@ -1,5 +1,5 @@
-/* Tracker Xmp - Xmp helper functions
- * Copyright (C) 2008, Nokia
+/*
+ * Copyright (C) 2009, Nokia
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -19,22 +19,42 @@
  * Author: Philip Van Hoof <philip@codeminded.be>
  */
 
-#ifndef _TRACKER_EXIF_H_
-#define _TRACKER_EXIF_H_
+#ifndef __TRACKER_EXTRACT_EXIF_H__
+#define __TRACKER_EXTRACT_EXIF_H__
 
 #include <glib.h>
 
+G_BEGIN_DECLS
+
 typedef struct {
-	gchar *y_dimension, *x_dimension, *image_width, *document_name, *time, *time_original,
-		*artist, *user_comment, *description, *make, *model, *orientation,
-		*exposure_time, *fnumber, *flash, *focal_length, *iso_speed_ratings,
-		*metering_mode, *white_balance, *copyright;
+	gchar *y_dimension;
+	gchar *x_dimension;
+	gchar *image_width;
+	gchar *document_name;
+	gchar *time;
+	gchar *time_original;
+	gchar *artist;
+	gchar *user_comment;
+	gchar *description;
+	gchar *make;
+	gchar *model;
+	gchar *orientation;
+	gchar *exposure_time;
+	gchar *fnumber;
+	gchar *flash;
+	gchar *focal_length;
+	gchar *iso_speed_ratings;
+	gchar *metering_mode;
+	gchar *white_balance;
+	gchar *copyright;
 } TrackerExifData;
 
-void tracker_read_exif (const unsigned char *buffer,
-                        size_t               len,
-                        const gchar         *uri,
-                        TrackerExifData     *data);
+gboolean tracker_exif_read (const unsigned char *buffer,
+                            size_t               len,
+                            const gchar         *uri,
+                            TrackerExifData     *data);
 
-#endif /* _TRACKER_EXIF_H_ */
+G_END_DECLS
+
+#endif /* _TRACKER_EXTRACT_EXIF_H_ */
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008, Nokia
+ * Copyright (C) 2009, Nokia
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -26,12 +26,11 @@
 #include <ctype.h>
 #include <glib.h>
 
-#include "tracker-main.h"
-#include "tracker-exif.h"
-
 #include <libtracker-common/tracker-type-utils.h>
 #include <libtracker-common/tracker-utils.h>
 
+#include "tracker-main.h"
+#include "tracker-exif.h"
 
 #ifdef HAVE_LIBEXIF
 
@@ -40,6 +39,7 @@
 #define EXIF_DATE_FORMAT "%Y:%m:%d %H:%M:%S"
 
 #ifndef HAVE_STRCASESTR
+
 static gchar *
 strcasestr (const gchar *haystack,
             const gchar *needle)
@@ -65,10 +65,12 @@ strcasestr (const gchar *haystack,
 
 	return NULL;
 }
+
 #endif /* HAVE_STRCASESTR */
 
 static gchar *
-get_date (ExifData *exif, ExifTag tag)
+get_date (ExifData *exif, 
+          ExifTag   tag)
 {
 	ExifEntry *entry = exif_data_get_entry (exif, tag);
 
@@ -85,7 +87,8 @@ get_date (ExifData *exif, ExifTag tag)
 }
 
 static gchar *
-get_focal_length(ExifData *exif, ExifTag tag)
+get_focal_length (ExifData *exif, 
+                  ExifTag   tag)
 {
 	ExifEntry *entry = exif_data_get_entry (exif, tag);
 
@@ -105,7 +108,8 @@ get_focal_length(ExifData *exif, ExifTag tag)
 }
 
 static gchar *
-get_flash (ExifData *exif, ExifTag tag)
+get_flash (ExifData *exif, 
+           ExifTag   tag)
 {
 	ExifEntry *entry = exif_data_get_entry (exif, tag);
 
@@ -125,7 +129,8 @@ get_flash (ExifData *exif, ExifTag tag)
 }
 
 static gchar *
-get_fnumber (ExifData *exif, ExifTag tag)
+get_fnumber (ExifData *exif, 
+             ExifTag   tag)
 {
 	ExifEntry *entry = exif_data_get_entry (exif, tag);
 
@@ -154,7 +159,8 @@ get_fnumber (ExifData *exif, ExifTag tag)
 }
 
 static gchar *
-get_exposure_time (ExifData *exif, ExifTag tag)
+get_exposure_time (ExifData *exif, 
+                   ExifTag   tag)
 {
 	ExifEntry *entry = exif_data_get_entry (exif, tag);
 
@@ -189,7 +195,8 @@ get_exposure_time (ExifData *exif, ExifTag tag)
 }
 
 static gchar *
-get_orientation (ExifData *exif, ExifTag tag)
+get_orientation (ExifData *exif, 
+                 ExifTag   tag)
 {
 	ExifEntry *entry = exif_data_get_entry (exif, tag);
 
@@ -200,26 +207,19 @@ get_orientation (ExifData *exif, ExifTag tag)
 
 		if (g_ascii_strcasecmp (buf, "top - left") == 0)
 			return g_strdup ("nfo:orientation-top");
-		else
-		if (g_ascii_strcasecmp (buf, "top - right") == 0)
+		else if (g_ascii_strcasecmp (buf, "top - right") == 0)
 			return g_strdup ("nfo:orientation-top-mirror");
-		else
-		if (g_ascii_strcasecmp (buf, "bottom - right") == 0)
+		else if (g_ascii_strcasecmp (buf, "bottom - right") == 0)
 			return g_strdup ("nfo:orientation-bottom");
-		else
-		if (g_ascii_strcasecmp (buf, "bottom - left") == 0)
+		else if (g_ascii_strcasecmp (buf, "bottom - left") == 0)
 			return g_strdup ("nfo:orientation-bottom-mirror");
-		else
-		if (g_ascii_strcasecmp (buf, "left - top") == 0)
+		else if (g_ascii_strcasecmp (buf, "left - top") == 0)
 			return g_strdup ("nfo:orientation-left-mirror");
-		else
-		if (g_ascii_strcasecmp (buf, "right - top") == 0)
+		else if (g_ascii_strcasecmp (buf, "right - top") == 0)
 			return g_strdup ("nfo:orientation-right");
-		else
-		if (g_ascii_strcasecmp (buf, "right - bottom") == 0)
+		else if (g_ascii_strcasecmp (buf, "right - bottom") == 0)
 			return g_strdup ("nfo:orientation-right-mirror");
-		else
-		if (g_ascii_strcasecmp (buf, "left - bottom") == 0)
+		else if (g_ascii_strcasecmp (buf, "left - bottom") == 0)
 			return g_strdup ("nfo:orientation-left");
 
 		return g_strdup ("nfo:orientation-top");
@@ -228,9 +228,9 @@ get_orientation (ExifData *exif, ExifTag tag)
 	return NULL;
 }
 
-
 static gchar *
-get_metering_mode (ExifData *exif, ExifTag tag)
+get_metering_mode (ExifData *exif,
+                   ExifTag   tag)
 {
 	ExifEntry *entry = exif_data_get_entry (exif, tag);
 
@@ -241,32 +241,26 @@ get_metering_mode (ExifData *exif, ExifTag tag)
 
 		if (strcasestr (buf, "center"))
 			return g_strdup ("nmm:meteringMode-center-weighted-average");
-		else
-		if (strcasestr (buf, "average"))
+		else if (strcasestr (buf, "average"))
 			return g_strdup ("nmm:meteringMode-average");
-		else
-		if (strcasestr (buf, "spot"))
+		else if (strcasestr (buf, "spot"))
 			return g_strdup ("nmm:meteringMode-spot");
-		else
-		if (strcasestr (buf, "multispot"))
+		else if (strcasestr (buf, "multispot"))
 			return g_strdup ("nmm:meteringMode-multispot");
-		else
-		if (strcasestr (buf, "pattern"))
+		else if (strcasestr (buf, "pattern"))
 			return g_strdup ("nmm:meteringMode-pattern");
-		else
-		if (strcasestr (buf, "partial"))
+		else if (strcasestr (buf, "partial"))
 			return g_strdup ("nmm:meteringMode-partial");
 		else
-
-		return g_strdup ("nmm:meteringMode-other");
+			return g_strdup ("nmm:meteringMode-other");
 	}
 
 	return NULL;
 }
 
-
 static gchar *
-get_white_balance (ExifData *exif, ExifTag tag)
+get_white_balance (ExifData *exif, 
+                   ExifTag   tag)
 {
 	ExifEntry *entry = exif_data_get_entry (exif, tag);
 
@@ -288,7 +282,8 @@ get_white_balance (ExifData *exif, ExifTag tag)
 }
 
 static gchar *
-get_value (ExifData *exif, ExifTag tag)
+get_value (ExifData *exif, 
+           ExifTag   tag)
 {
 	ExifEntry *entry = exif_data_get_entry (exif, tag);
 
@@ -305,16 +300,22 @@ get_value (ExifData *exif, ExifTag tag)
 
 #endif /* HAVE_LIBEXIF */
 
-void
-tracker_read_exif (const unsigned char *buffer,
+gboolean
+tracker_exif_read (const unsigned char *buffer,
                    size_t               len,
                    const gchar         *uri,
                    TrackerExifData     *data)
 {
+	g_return_val_if_fail (buffer != NULL, FALSE);
+	g_return_val_if_fail (len < 1, FALSE);
+	g_return_val_if_fail (uri != NULL, FALSE);
+	
 #ifdef HAVE_LIBEXIF
 	ExifData *exif;
 
-	exif = exif_data_new();
+	exif = exif_data_new ();
+
+	g_return_val_if_fail (exit != NULL, FALSE);
 
 	exif_data_set_option (exif, EXIF_DATA_OPTION_IGNORE_UNKNOWN_TAGS);
 	exif_data_unset_option (exif, EXIF_DATA_OPTION_FOLLOW_SPECIFICATION);
@@ -367,7 +368,8 @@ tracker_read_exif (const unsigned char *buffer,
 		data->copyright = get_value (exif, EXIF_TAG_COPYRIGHT);
 
 	exif_data_free (exif);
-
 #endif /* HAVE_LIBEXIF */
+
+	return TRUE;
 }
 

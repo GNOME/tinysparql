@@ -231,7 +231,7 @@ extract_jpeg (const gchar          *uri,
 
 #ifdef HAVE_LIBEXIF
 				if (strncmp (EXIF_NAMESPACE, str, EXIF_NAMESPACE_LENGTH) == 0) {
-					tracker_read_exif ((unsigned char*) marker->data,
+					tracker_exif_read ((unsigned char*) marker->data,
 					                   len,
 					                   uri,
 					                   &ed);
