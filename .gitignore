@@ -25,7 +25,6 @@ intltool-merge.in
 intltool-update.in
 libtool
 ltmain.sh
-m4
 missing
 mkinstalldirs
 stamp-h1
