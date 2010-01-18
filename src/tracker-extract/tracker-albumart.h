@@ -35,4 +35,4 @@ gboolean tracker_albumart_process  (const unsigned char *buffer,
 
 G_END_DECLS
 
-#endif /* __TRACKER_MINER_EXTRACT_H__ */
+#endif /* __TRACKER_EXTRACT_EXTRACT_H__ */
