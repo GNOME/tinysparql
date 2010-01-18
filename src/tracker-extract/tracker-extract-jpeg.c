@@ -216,7 +216,7 @@ extract_jpeg (const gchar          *uri,
 			gsize len;
 #ifdef HAVE_LIBIPTCDATA
 			gsize offset;
-			gsize sublen;
+			guint sublen;
 #endif /* HAVE_LIBIPTCDATA */
 
 			switch (marker->marker) {
@@ -256,7 +256,7 @@ extract_jpeg (const gchar          *uri,
 				if (strncmp (PS3_NAMESPACE, str, PS3_NAMESPACE_LENGTH) == 0) {
 					offset = iptc_jpeg_ps3_find_iptc (str, len, &sublen);
 					if (offset > 0) {
-						tracker_read_iptc (str + offset,
+						tracker_iptc_read (str + offset,
 						                   sublen,
 						                   uri,
 						                   &id);
@@ -315,7 +315,7 @@ extract_jpeg (const gchar          *uri,
 		md.city = tracker_coalesce (2, id.city, xd.City);
 		md.state = tracker_coalesce (2, id.state, xd.State);
 		md.address = tracker_coalesce (2, id.sublocation, xd.Address);
-		md.country  = tracker_coalesce (2, id.countryname, xd.Country);
+		md.country  = tracker_coalesce (2, id.country_name, xd.Country);
 
 		md.creator =  tracker_coalesce (3, id.byline, xd.creator, id.credit);
 		md.comment = tracker_coalesce (2, comment, ed.user_comment);
@@ -340,15 +340,15 @@ extract_jpeg (const gchar          *uri,
 			g_free (id.contact);
 		}
 
-		if (id.bylinetitle) {
+		if (id.byline_title) {
 			tracker_sparql_builder_predicate (metadata, "nco:hasAffiliation");
 			tracker_sparql_builder_object_blank_open (metadata);
 			tracker_sparql_builder_predicate (metadata, "a");
 			tracker_sparql_builder_object (metadata, "nco:Affiliation");
 			tracker_sparql_builder_predicate (metadata, "nco:title");
-			tracker_sparql_builder_object_unvalidated (metadata, id.bylinetitle);
+			tracker_sparql_builder_object_unvalidated (metadata, id.byline_title);
 			tracker_sparql_builder_object_blank_close (metadata);
-			g_free (id.bylinetitle);
+			g_free (id.byline_title);
 		}
 
 		if (xd.keywords) {

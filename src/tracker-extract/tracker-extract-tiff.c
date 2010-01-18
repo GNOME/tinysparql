@@ -304,10 +304,11 @@ extract_tiff (const gchar *uri, TrackerSparqlBuilder *metadata)
 #ifdef HAVE_LIBIPTCDATA
 	if (TIFFGetField (image, TIFFTAG_RICHTIFFIPTC, &iptcSize, &iptcOffset)) {
 		if (TIFFIsByteSwapped(image) != 0)
-			TIFFSwabArrayOfLong((uint32 *) iptcOffset,(unsigned long) iptcSize);
-		tracker_read_iptc (iptcOffset,
-		                   4*iptcSize,
-		                   uri, &iptc_data);
+			TIFFSwabArrayOfLong((uint32 *) iptcOffset, (unsigned long) iptcSize);
+		tracker_iptc_read (iptcOffset,
+		                   4 * iptcSize,
+		                   uri, 
+		                   &iptc_data);
 	}
 #endif /* HAVE_LIBIPTCDATA */
 
@@ -441,7 +442,7 @@ extract_tiff (const gchar *uri, TrackerSparqlBuilder *metadata)
 	merge_data.city = tracker_coalesce (2, iptc_data.city, xmp_data.City);
 	merge_data.state = tracker_coalesce (2, iptc_data.state, xmp_data.State);
 	merge_data.address = tracker_coalesce (2, iptc_data.sublocation, xmp_data.Address);
-	merge_data.country  = tracker_coalesce (2, iptc_data.countryname, xmp_data.Country);
+	merge_data.country  = tracker_coalesce (2, iptc_data.country_name, xmp_data.Country);
 
 	merge_data.creator =  tracker_coalesce (3, iptc_data.byline,
 	                                        xmp_data.creator,
@@ -496,15 +497,15 @@ extract_tiff (const gchar *uri, TrackerSparqlBuilder *metadata)
 		g_free (iptc_data.contact);
 	}
 
-	if (iptc_data.bylinetitle) {
+	if (iptc_data.byline_title) {
 		tracker_sparql_builder_predicate (metadata, "nco:hasAffiliation");
 		tracker_sparql_builder_object_blank_open (metadata);
 		tracker_sparql_builder_predicate (metadata, "a");
 		tracker_sparql_builder_object (metadata, "nco:Affiliation");
 		tracker_sparql_builder_predicate (metadata, "nco:title");
-		tracker_sparql_builder_object_unvalidated (metadata, iptc_data.bylinetitle);
+		tracker_sparql_builder_object_unvalidated (metadata, iptc_data.byline_title);
 		tracker_sparql_builder_object_blank_close (metadata);
-		g_free (iptc_data.bylinetitle);
+		g_free (iptc_data.byline_title);
 	}
 
 	if (xmp_data.publisher) {

@@ -1,5 +1,5 @@
-/* Tracker IPTC - Iptc helper functions
- * Copyright (C) 2008, Nokia
+/*
+ * Copyright (C) 2009, Nokia
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -19,21 +19,35 @@
  * Author: Philip Van Hoof <philip@codeminded.be>
  */
 
-#ifndef _TRACKER_IPTC_H_
-#define _TRACKER_IPTC_H_
+#ifndef __TRACKER_EXTRACT_IPTC_H__
+#define __TRACKER_EXTRACT_IPTC_H__
 
 #include <glib.h>
 
+/* IPTC Information Interchange Model */
+
+G_BEGIN_DECLS
+
 typedef struct {
-	gchar *keywords, *date_created, *byline, *credit, *copyright_notice,
-		*image_orientation, *bylinetitle, *city, *state, *sublocation,
-		*countryname, *contact;
+	gchar *keywords;
+	gchar *date_created;
+	gchar *byline;
+	gchar *credit;
+	gchar *copyright_notice;
+	gchar *image_orientation;
+	gchar *byline_title;
+	gchar *city;
+	gchar *state;
+	gchar *sublocation;
+	gchar *country_name;
+	gchar *contact;
 } TrackerIptcData;
 
+gboolean tracker_iptc_read (const unsigned char *buffer,
+                            size_t               len,
+                            const gchar         *uri,
+                            TrackerIptcData     *data);
 
-void tracker_read_iptc (const unsigned char *buffer,
-                        size_t               len,
-                        const gchar         *uri,
-                        TrackerIptcData     *data);
+G_END_DECLS
 
-#endif
+#endif /* __TRACKER_EXTRACT_IPTC_H__ */
