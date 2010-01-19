@@ -98,11 +98,13 @@ tracker:weight a rdf:Property ;
 tracker:added a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain rdfs:Resource ;
-	rdfs:range xsd:dateTime .
+	rdfs:range xsd:dateTime ;
+	tracker:isAnnotation true .
 
 # implicitly updated modification time
 tracker:modified a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain rdfs:Resource ;
-	rdfs:range xsd:integer .
+	rdfs:range xsd:integer ;
+	tracker:isAnnotation true .
 
