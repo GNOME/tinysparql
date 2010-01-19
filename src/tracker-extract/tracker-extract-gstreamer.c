@@ -40,8 +40,9 @@ long long int llroundl(long double x);
 #include <libtracker-common/tracker-ontology.h>
 #include <libtracker-common/tracker-utils.h>
 
+#include <libtracker-extract/tracker-extract.h>
+
 #include "tracker-albumart.h"
-#include "tracker-main.h"
 #include "tracker-dbus.h"
 
 /* We wait this long (seconds) for NULL state before freeing */
@@ -122,10 +123,14 @@ typedef struct {
 
 } MetadataExtractor;
 
-static void extract_gstreamer_audio (const gchar *uri, TrackerSparqlBuilder *metadata);
-static void extract_gstreamer_video (const gchar *uri, TrackerSparqlBuilder *metadata);
-static void extract_gstreamer_image (const gchar *uri, TrackerSparqlBuilder *metadata);
-static void extract_gstreamer_3gpp (const gchar *uri, TrackerSparqlBuilder *metadata);
+static void extract_gstreamer_audio (const gchar          *uri,
+                                     TrackerSparqlBuilder *metadata);
+static void extract_gstreamer_video (const gchar          *uri,
+                                     TrackerSparqlBuilder *metadata);
+static void extract_gstreamer_image (const gchar          *uri,
+                                     TrackerSparqlBuilder *metadata);
+static void extract_gstreamer_3gpp  (const gchar          *uri,
+                                     TrackerSparqlBuilder *metadata);
 
 static TrackerExtractData data[] = {
 	{ "audio/*", extract_gstreamer_audio },
@@ -1008,7 +1013,7 @@ extract_gstreamer_3gpp (const gchar *uri, TrackerSparqlBuilder *metadata)
 }
 
 TrackerExtractData *
-tracker_get_extract_data (void)
+tracker_extract_get_data (void)
 {
 	return data;
 }

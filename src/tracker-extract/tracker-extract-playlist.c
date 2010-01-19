@@ -26,14 +26,16 @@
 
 #include <string.h>
 #include <stdlib.h>
+
 #include <glib.h>
 #include <glib/gstdio.h>
 #include <gio/gio.h>
 
 #include <totem-pl-parser.h>
+
 #include <libtracker-common/tracker-ontology.h>
 
-#include "tracker-main.h"
+#include <libtracker-extract/tracker-extract.h>
 
 #define PLAYLIST_PROPERTY_NO_TRACKS "entryCounter"
 #define PLAYLIST_PROPERTY_DURATION  "listDuration"
@@ -51,15 +53,14 @@
 #define RDF_TYPE RDF_PREFIX "type"
 
 typedef struct {
-	guint32     track_counter;
-	gint64      total_time;
-	TrackerSparqlBuilder   *metadata;
+	guint32 track_counter;
+	gint64 total_time;
+	TrackerSparqlBuilder *metadata;
 	const gchar *uri;
 } PlaylistMetadata;
 
-static void extract_playlist (const gchar *uri,
-                              TrackerSparqlBuilder   *metadata);
-
+static void extract_playlist (const gchar          *uri,
+                              TrackerSparqlBuilder *metadata);
 
 static TrackerExtractData playlist_data[] = {
 	{ "audio/x-mpegurl", extract_playlist },
@@ -174,7 +175,7 @@ extract_playlist (const gchar *uri,
 }
 
 TrackerExtractData *
-tracker_get_extract_data (void)
+tracker_extract_get_data (void)
 {
 	return playlist_data;
 }

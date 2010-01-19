@@ -27,6 +27,8 @@
 #include <libtracker-common/tracker-ontology.h>
 #include <libtracker-common/tracker-utils.h>
 
+#include <libtracker-extract/tracker-extract.h>
+
 #include "tracker-main.h"
 
 #define NIE_PREFIX TRACKER_NIE_PREFIX
@@ -53,23 +55,23 @@ typedef struct {
 	const gchar *uri;
 } ODTParseInfo;
 
-static void start_element_handler (GMarkupParseContext  *context,
-                                   const gchar          *element_name,
-                                   const gchar         **attribute_names,
-                                   const gchar         **attribute_values,
-                                   gpointer              user_data,
-                                   GError              **error);
-static void end_element_handler   (GMarkupParseContext  *context,
-                                   const gchar          *element_name,
-                                   gpointer              user_data,
-                                   GError              **error);
-static void text_handler          (GMarkupParseContext  *context,
-                                   const gchar          *text,
-                                   gsize                 text_len,
-                                   gpointer              user_data,
-                                   GError              **error);
-static void extract_oasis         (const gchar          *filename,
-                                   TrackerSparqlBuilder                 *metadata);
+static void start_element_handler (GMarkupParseContext   *context,
+                                   const gchar           *element_name,
+                                   const gchar          **attribute_names,
+                                   const gchar          **attribute_values,
+                                   gpointer               user_data,
+                                   GError               **error);
+static void end_element_handler   (GMarkupParseContext   *context,
+                                   const gchar           *element_name,
+                                   gpointer               user_data,
+                                   GError               **error);
+static void text_handler          (GMarkupParseContext   *context,
+                                   const gchar           *text,
+                                   gsize                  text_len,
+                                   gpointer               user_data,
+                                   GError               **error);
+static void extract_oasis         (const gchar           *filename,
+                                   TrackerSparqlBuilder  *metadata);
 
 static TrackerExtractData extract_data[] = {
 	{ "application/vnd.oasis.opendocument.*", extract_oasis },
@@ -294,7 +296,7 @@ text_handler (GMarkupParseContext  *context,
 }
 
 TrackerExtractData *
-tracker_get_extract_data (void)
+tracker_extract_get_data (void)
 {
 	return extract_data;
 }

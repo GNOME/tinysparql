@@ -28,10 +28,9 @@
 
 #include <libtracker-common/tracker-ontology.h>
 #include <libtracker-common/tracker-os-dependant.h>
-#include <libtracker-common/tracker-statement-list.h>
 
-#include "tracker-main.h"
-#include "tracker-xmp.h"
+#include <libtracker-extract/tracker-extract.h>
+#include <libtracker-extract/tracker-xmp.h>
 
 #define NMM_PREFIX TRACKER_NMM_PREFIX
 #define NFO_PREFIX TRACKER_NFO_PREFIX
@@ -131,7 +130,7 @@ extract_imagemagick (const gchar *uri,
 }
 
 TrackerExtractData *
-tracker_get_extract_data (void)
+tracker_extract_get_data (void)
 {
 	return data;
 }

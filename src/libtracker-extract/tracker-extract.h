@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2006, Mr Jamie McCracken (jamiemcc@gnome.org)
- * Copyright (C) 2008, Nokia
+ * Copyright (C) 2010, Nokia
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -18,19 +17,29 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __TRACKER_MAIN_H__
-#define __TRACKER_MAIN_H__
+#ifndef __LIBTRACKER_EXTRACT_EXTRACT_H__
+#define __LIBTRACKER_EXTRACT_EXTRACT_H__
 
-#include "tracker-fts-config.h"
+#include <glib.h>
+
+#include <libtracker-common/tracker-statement-list.h>
 
 G_BEGIN_DECLS
 
-/* This is used to not shutdown after the default of 30 seconds if we
- * get more work to do.
- */
-void              tracker_main_quit_timeout_reset (void);
-TrackerFTSConfig *tracker_main_get_fts_config     (void);
+typedef struct TrackerExtractData TrackerExtractData;
+
+typedef TrackerExtractData * (*TrackerExtractDataFunc)(void);
+
+struct TrackerExtractData {
+	const gchar *mime;
+
+	void (* extract) (const gchar *path,
+	                  TrackerSparqlBuilder *metadata);
+};
+
+/* This is defined in each extractor */
+TrackerExtractData *tracker_extract_get_data (void);
 
 G_END_DECLS
 
-#endif /* __TRACKER_MAIN_H__ */
+#endif /* __LIBTRACKER_EXTRACT_EXTRACT_H__ */

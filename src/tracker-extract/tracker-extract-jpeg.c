@@ -43,10 +43,10 @@
 
 #include <libtracker-common/tracker-file-utils.h>
 #include <libtracker-common/tracker-ontology.h>
-#include <libtracker-common/tracker-statement-list.h>
 #include <libtracker-common/tracker-type-utils.h>
 #include <libtracker-common/tracker-utils.h>
 
+#include <libtracker-extract/tracker-extract.h>
 #include <libtracker-extract/tracker-xmp.h>
 #include <libtracker-extract/tracker-iptc.h>
 #include <libtracker-extract/tracker-exif.h>
@@ -592,7 +592,7 @@ extract_jpeg (const gchar          *uri,
 }
 
 TrackerExtractData *
-tracker_get_extract_data (void)
+tracker_extract_get_data (void)
 {
 	return data;
 }

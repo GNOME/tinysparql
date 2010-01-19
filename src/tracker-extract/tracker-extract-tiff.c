@@ -37,11 +37,10 @@
 #include <libtracker-common/tracker-file-utils.h>
 #include <libtracker-common/tracker-utils.h>
 
+#include <libtracker-extract/tracker-extract.h>
 #include <libtracker-extract/tracker-xmp.h>
 #include <libtracker-extract/tracker-iptc.h>
 #include <libtracker-extract/tracker-exif.h>
-
-#include "tracker-main.h"
 
 #define EXIF_DATE_FORMAT        "%Y:%m:%d %H:%M:%S"
 
@@ -77,8 +76,8 @@ typedef struct {
 		*imagewidth, *imagelength, *make, *model, *orientation;
 } TiffData;
 
-static void extract_tiff (const gchar *filename,
-                          TrackerSparqlBuilder   *metadata);
+static void extract_tiff (const gchar          *filename,
+                          TrackerSparqlBuilder *metadata);
 
 static TrackerExtractData extract_data[] = {
 	{ "image/tiff", extract_tiff },
@@ -715,7 +714,7 @@ extract_tiff (const gchar *uri, TrackerSparqlBuilder *metadata)
 }
 
 TrackerExtractData *
-tracker_get_extract_data (void)
+tracker_extract_get_data (void)
 {
 	return extract_data;
 }

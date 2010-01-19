@@ -27,9 +27,8 @@
 #include <libtracker-common/tracker-file-utils.h>
 #include <libtracker-common/tracker-utils.h>
 
+#include <libtracker-extract/tracker-extract.h>
 #include <libtracker-extract/tracker-xmp.h>
-
-#include "tracker-main.h"
 
 static void extract_xmp (const gchar          *filename,
                          TrackerSparqlBuilder *metadata);
@@ -166,7 +165,7 @@ extract_xmp (const gchar          *uri,
 }
 
 TrackerExtractData *
-tracker_get_extract_data (void)
+tracker_extract_get_data (void)
 {
 	return data;
 }

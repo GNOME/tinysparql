@@ -20,12 +20,13 @@
 #include "config.h"
 
 #include <xine.h>
+
 #include <glib.h>
 
 #include <libtracker-common/tracker-ontology.h>
 #include <libtracker-common/tracker-utils.h>
 
-#include "tracker-main.h"
+#include <libtracker-extract/tracker-extract.h>
 
 #define NMM_PREFIX TRACKER_NMM_PREFIX
 #define NFO_PREFIX TRACKER_NFO_PREFIX
@@ -266,16 +267,14 @@ endofit:
 	xine_exit (xine_base);
 }
 
-
 TrackerExtractData data[] = {
 	{ "audio/*", tracker_extract_xine },
 	{ "video/*", tracker_extract_xine },
 	{ NULL, NULL }
 };
 
-
 TrackerExtractData *
-tracker_get_extract_data (void)
+tracker_extract_get_data (void)
 {
 	return data;
 }

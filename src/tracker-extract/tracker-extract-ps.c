@@ -36,10 +36,9 @@
 #include <libtracker-common/tracker-file-utils.h>
 #include <libtracker-common/tracker-type-utils.h>
 #include <libtracker-common/tracker-os-dependant.h>
-#include <libtracker-common/tracker-statement-list.h>
 #include <libtracker-common/tracker-ontology.h>
 
-#include "tracker-main.h"
+#include <libtracker-extract/tracker-extract.h>
 
 #ifndef HAVE_GETLINE
 
@@ -56,15 +55,15 @@
 #endif /* HAVE_GETLINE */
 
 #ifdef USING_UNZIPPSFILES
-static void extract_ps_gz (const gchar *uri,
+static void extract_ps_gz (const gchar          *uri,
                            TrackerSparqlBuilder *metadata);
 #endif
-static void extract_ps    (const gchar *uri,
+static void extract_ps    (const gchar          *uri,
                            TrackerSparqlBuilder *metadata);
 
 static TrackerExtractData data[] = {
 #ifdef USING_UNZIPPSFILES
-	{ "application/x-gzpostscript",         extract_ps_gz },
+	{ "application/x-gzpostscript", extract_ps_gz },
 #endif /* USING_UNZIPPSFILES */
 	{ "application/postscript",     extract_ps    },
 	{ NULL, NULL }
@@ -389,7 +388,7 @@ extract_ps_gz (const gchar          *uri,
 #endif /* USING_UNZIPPSFILES */
 
 TrackerExtractData *
-tracker_get_extract_data (void)
+tracker_extract_get_data (void)
 {
 	return data;
 }
