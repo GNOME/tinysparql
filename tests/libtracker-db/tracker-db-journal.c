@@ -50,7 +50,7 @@ test_write_functions (void)
 	gsize initial_size, actual_size;
 	gboolean result;
 
-	path = g_build_filename (TOP_SRCDIR, "tests", "libtracker-db", "tracker-store.journal", NULL);
+	path = g_build_filename (TOP_BUILDDIR, "tests", "libtracker-db", "tracker-store.journal", NULL);
 	g_unlink (path);
 
 	tracker_db_journal_init (path);
@@ -139,7 +139,7 @@ test_read_functions (void)
 	gint id, s_id, p_id, o_id;
 	const gchar *uri, *str;
 
-	path = g_build_filename (TOP_SRCDIR, "tests", "libtracker-db", "tracker-store.journal", NULL);
+	path = g_build_filename (TOP_BUILDDIR, "tests", "libtracker-db", "tracker-store.journal", NULL);
 
 	/* NOTE: we don't unlink here so we can use the data from the write tests */
 
@@ -340,6 +340,7 @@ test_read_functions (void)
 int
 main (int argc, char **argv) 
 {
+	gchar *path;
 	int result;
 
 	g_type_init ();
@@ -354,6 +355,11 @@ main (int argc, char **argv)
 	                 test_read_functions);
 
 	result = g_test_run ();
+
+	/* Clean up */
+	path = g_build_filename (TOP_BUILDDIR, "tests", "libtracker-db", "tracker-store.journal", NULL);
+	g_unlink (path);
+	g_free (path);
 
 	return result;
 }
