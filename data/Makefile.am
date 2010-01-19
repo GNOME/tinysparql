@@ -38,10 +38,14 @@ endif
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = 					\
-	tracker-client-$(TRACKER_API_VERSION).pc		\
+	tracker-client-$(TRACKER_API_VERSION).pc	\
+	tracker-extract-$(TRACKER_API_VERSION).pc	\
 	tracker-miner-$(TRACKER_API_VERSION).pc
 
 tracker-client-$(TRACKER_API_VERSION).pc: tracker-client.pc
+	cp $< $@
+
+tracker-extract-$(TRACKER_API_VERSION).pc: tracker-extract.pc
 	cp $< $@
 
 tracker-miner-$(TRACKER_API_VERSION).pc: tracker-miner.pc
@@ -50,7 +54,8 @@ tracker-miner-$(TRACKER_API_VERSION).pc: tracker-miner.pc
 CLEANFILES = 						\
 	$(autostart_DATA) 				\
 	$(autostart_in_files)				\
-	tracker-client-$(TRACKER_API_VERSION).pc		\
+	tracker-client-$(TRACKER_API_VERSION).pc	\
+	tracker-extract-$(TRACKER_API_VERSION).pc	\
 	tracker-miner-$(TRACKER_API_VERSION).pc
 
 if HAVE_LIBTRACKERGTK

@@ -1637,6 +1637,7 @@ AC_CONFIG_FILES([
 	data/miners/Makefile
 	data/ontologies/Makefile
 	data/tracker-client.pc
+	data/tracker-extract.pc
 	data/tracker-miner.pc
 	docs/Makefile
 	docs/design/Makefile
