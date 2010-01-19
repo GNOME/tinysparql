@@ -7,5 +7,5 @@ Name: tracker-miner
 Description: A library to develop tracker data miners
 Version: @VERSION@
 Requires: glib-2.0 pango dbus-glib-1
-Libs: -L${libdir}/tracker-@TRACKER_API_VERSION@ -ltracker-miner
+Libs: -L${libdir} -ltracker-miner-@TRACKER_API_VERSION@
 Cflags: -I${includedir}/tracker-@TRACKER_API_VERSION@

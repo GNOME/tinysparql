@@ -70,8 +70,8 @@ tracker_writeback_SOURCES = 						\
 	tracker-main.c
 
 tracker_writeback_LDADD = 						\
-	$(top_builddir)/src/libtracker-miner/libtracker-miner.la 	\
 	$(top_builddir)/src/libtracker-client/libtracker-client-@TRACKER_API_VERSION@.la \
+	$(top_builddir)/src/libtracker-miner/libtracker-miner-@TRACKER_API_VERSION@.la 	\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la	\
 	$(TRACKER_APPS_LIBS)						\
 	$(DBUS_LIBS)							\

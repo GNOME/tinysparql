@@ -19,11 +19,12 @@ INCLUDES =						\
 	$(DBUS_CFLAGS)					\
 	$(UNAC_CFLAGS)
 
+lib_LTLIBRARIES = libtracker-miner-@TRACKER_API_VERSION@.la
+
 libtracker_minerdir = $(libdir)/tracker-$(TRACKER_API_VERSION)
 libtracker_minerincludedir=$(includedir)/tracker-$(TRACKER_API_VERSION)/libtracker-miner/
-libtracker_miner_LTLIBRARIES = libtracker-miner.la
 
-libtracker_miner_la_SOURCES = 				\
+libtracker_miner_@TRACKER_API_VERSION@_la_SOURCES = 	\
 	tracker-crawler.c				\
 	tracker-crawler.h				\
 	tracker-marshal.c				\
@@ -45,10 +46,10 @@ libtracker_minerinclude_HEADERS = 			\
 	tracker-miner-dbus.h 				\
 	tracker-miner-fs.h
 
-libtracker_miner_la_LDFLAGS = \
+libtracker_miner_@TRACKER_API_VERSION@_la_LDFLAGS = 	\
 	-version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE)
 
-libtracker_miner_la_LIBADD = 				\
+libtracker_miner_@TRACKER_API_VERSION@_la_LIBADD = 	\
 	$(top_builddir)/src/libstemmer/libstemmer.la	\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la \
 	$(top_builddir)/src/libtracker-client/libtracker-client-@TRACKER_API_VERSION@.la \

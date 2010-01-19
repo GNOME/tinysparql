@@ -15,7 +15,7 @@ bin_PROGRAMS = tracker-status-icon
 
 # Note: the -lX11 is needed for XGetModifierMapping() and other X11 calls
 tracker_status_icon_LDADD = 						\
-	$(top_builddir)/src/libtracker-miner/libtracker-miner.la 	\
+	$(top_builddir)/src/libtracker-miner/libtracker-miner-@TRACKER_API_VERSION@.la 	\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
 	$(TRACKER_APPS_LIBS)						\
 	$(GCOV_LIBS)							\

@@ -29,13 +29,13 @@ tracker_miner_fs_SOURCES =						\
 	tracker-thumbnailer.h
 
 tracker_miner_fs_LDADD =						\
+	$(top_builddir)/src/libtracker-client/libtracker-client-@TRACKER_API_VERSION@.la \
+	$(top_builddir)/src/libtracker-miner/libtracker-miner-@TRACKER_API_VERSION@.la	\
 	$(top_builddir)/src/libtracker-data/libtracker-data.la		\
 	$(top_builddir)/src/libtracker-db/libtracker-db.la 		\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
-	$(top_builddir)/src/libtracker-client/libtracker-client-@TRACKER_API_VERSION@.la \
 	$(top_builddir)/src/libstemmer/libstemmer.la	 		\
 	$(top_builddir)/src/libinotify/libinotify.la			\
-	$(top_builddir)/src/libtracker-miner/libtracker-miner.la	\
 	$(tracker_store_win_libs)					\
 	$(DBUS_LIBS)							\
 	$(GMODULE_LIBS)							\

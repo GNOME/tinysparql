@@ -38,8 +38,8 @@ liborg_freedesktop_Tracker_evolution_plugin_la_SOURCES = 		\
 liborg_freedesktop_Tracker_evolution_plugin_la_LDFLAGS = -module -avoid-version
 liborg_freedesktop_Tracker_evolution_plugin_la_LIBADD = 		\
 	$(top_builddir)/src/libtracker-client/libtracker-client-@TRACKER_API_VERSION@.la \
+	$(top_builddir)/src/libtracker-miner/libtracker-miner-@TRACKER_API_VERSION@.la	\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la	\
-	$(top_builddir)/src/libtracker-miner/libtracker-miner.la	\
 	$(EVOLUTION_PLUGIN_LIBS)					\
 	$(DBUS_LIBS)							\
 	$(GCOV_LIBS)
