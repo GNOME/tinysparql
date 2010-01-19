@@ -24,12 +24,11 @@
 
 #include <glib.h>
 
-#include "tracker-main.h"
-#include "tracker-xmp.h"
-
 #include <libtracker-common/tracker-type-utils.h>
 #include <libtracker-common/tracker-utils.h>
 #include <libtracker-common/tracker-ontology.h>
+
+#include "tracker-xmp.h"
 
 #ifdef HAVE_EXEMPI
 

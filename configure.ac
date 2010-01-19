@@ -1659,6 +1659,7 @@ AC_CONFIG_FILES([
 	src/libtracker-data/Makefile
 	src/libtracker-db/Makefile
 	src/libtracker-fts/Makefile
+	src/libtracker-extract/Makefile
 	src/libtracker-gtk/Makefile
 	src/libtracker-client/Makefile
         src/libtracker-miner/Makefile

@@ -26,7 +26,6 @@
 #include <libtracker-common/tracker-type-utils.h>
 
 #include "tracker-iptc.h"
-#include "tracker-main.h"
 
 #ifdef HAVE_LIBIPTCDATA
 

@@ -23,6 +23,8 @@
 
 #include <glib.h>
 
+#include <libtracker-common/tracker-statement-list.h>
+
 G_BEGIN_DECLS
 
 typedef struct {

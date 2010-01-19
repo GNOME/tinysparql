@@ -29,7 +29,6 @@
 #include <libtracker-common/tracker-type-utils.h>
 #include <libtracker-common/tracker-utils.h>
 
-#include "tracker-main.h"
 #include "tracker-exif.h"
 
 #ifdef HAVE_LIBEXIF
@@ -316,7 +315,7 @@ tracker_exif_read (const unsigned char *buffer,
 
 	exif = exif_data_new ();
 
-	g_return_val_if_fail (exit != NULL, FALSE);
+	g_return_val_if_fail (exif != NULL, FALSE);
 
 	exif_data_set_option (exif, EXIF_DATA_OPTION_IGNORE_UNKNOWN_TAGS);
 	exif_data_unset_option (exif, EXIF_DATA_OPTION_FOLLOW_SPECIFICATION);

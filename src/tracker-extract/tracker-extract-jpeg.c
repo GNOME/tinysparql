@@ -47,10 +47,11 @@
 #include <libtracker-common/tracker-type-utils.h>
 #include <libtracker-common/tracker-utils.h>
 
+#include <libtracker-extract/tracker-xmp.h>
+#include <libtracker-extract/tracker-iptc.h>
+#include <libtracker-extract/tracker-exif.h>
+
 #include "tracker-main.h"
-#include "tracker-xmp.h"
-#include "tracker-iptc.h"
-#include "tracker-exif.h"
 
 #ifdef HAVE_LIBEXIF
 #define EXIF_NAMESPACE          "Exif"

@@ -7,6 +7,7 @@ SUBDIRS = 					\
 	libtracker-fts				\
 	libtracker-db				\
 	libtracker-data				\
+	libtracker-extract			\
 	libtracker-client			\
 	libtracker-miner			\
 	plugins					\
