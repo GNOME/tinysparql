@@ -19,8 +19,8 @@
  * Author: Philip Van Hoof <philip@codeminded.be>
  */
 
-#ifndef __TRACKER_EXTRACT_IPTC_H__
-#define __TRACKER_EXTRACT_IPTC_H__
+#ifndef __LIBTRACKER_EXTRACT_IPTC_H__
+#define __LIBTRACKER_EXTRACT_IPTC_H__
 
 #include <glib.h>
 
@@ -50,4 +50,4 @@ gboolean tracker_iptc_read (const unsigned char *buffer,
 
 G_END_DECLS
 
-#endif /* __TRACKER_EXTRACT_IPTC_H__ */
+#endif /* __LIBTRACKER_EXTRACT_IPTC_H__ */
