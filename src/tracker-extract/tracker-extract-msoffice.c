@@ -39,10 +39,6 @@
 
 #include "tracker-main.h"
 
-#ifdef HAVE_LIBWV2
-#include "tracker-msword.h"
-#endif
-
 #define NIE_PREFIX                              TRACKER_NIE_PREFIX
 #define NFO_PREFIX                              TRACKER_NFO_PREFIX
 #define NCO_PREFIX                              TRACKER_NCO_PREFIX
@@ -690,6 +686,189 @@ read_powerpoint (GsfInfile            *infile,
 	g_object_unref (stream);
 }
 
+/* This function was programmed by using ideas and algorithms from 
+ * b2xtranslator project (http://b2xtranslator.sourceforge.net/) */
+
+static gchar* 
+extract_msword_content (GsfInfile *infile, 
+                        gint       n_words,
+                        gboolean  *is_encrypted) 
+{
+	GsfInput *document_stream = NULL, *table_stream = NULL;
+	gint16 i = 0;
+	guint8 tmp_buffer[4] = {0};
+	gint fcClx, lcbClx;
+	guint8 *piece_table = NULL;
+	guint8 *clx = NULL;
+	gint lcb_piece_table;
+	gint piece_count;
+	gint piece_start;
+	gint piece_end;
+	guint8 *piece_descriptor = NULL;
+	gint piece_size;
+	gint32 fc;
+	guint32 is_ansi;
+	guint8 *text_buffer = NULL;
+	gchar *converted_text = NULL;
+	GString *content = NULL;
+	gchar *normalized = NULL;
+
+	document_stream = gsf_infile_child_by_name (infile, "WordDocument");
+	if (document_stream == NULL) {
+		return NULL;
+	}
+
+	/* abort if FIB can't be found from beginning of WordDocument stream */
+	gsf_input_seek (document_stream, 0, G_SEEK_SET);
+	gsf_input_read (document_stream, 2, tmp_buffer);
+	if (read_16bit (tmp_buffer) != 0xa5ec) {
+		g_object_unref (document_stream);
+		return NULL;
+	}
+
+	/* abort if document is encrypted */
+	gsf_input_seek (document_stream, 11, G_SEEK_SET);
+	gsf_input_read (document_stream, 1, tmp_buffer);
+	if ((tmp_buffer[0] & 0x1) == 0x1) {
+		g_object_unref (document_stream);
+		*is_encrypted = TRUE;
+		return NULL;
+	} else
+		*is_encrypted = FALSE;
+
+	/* document can have 0Table or 1Table or both. If flag 0x0200 is 
+	 * set to true in word 0x000A of the FIB then 1Table is used */
+
+	gsf_input_seek (document_stream, 0x000A, G_SEEK_SET);
+	gsf_input_read (document_stream, 2, tmp_buffer);
+	i = read_16bit (tmp_buffer);
+
+	if ((i & 0x0200) == 0x0200) {
+		table_stream = gsf_infile_child_by_name (infile, "1Table");
+	}
+	else {
+		table_stream = gsf_infile_child_by_name (infile, "0Table");
+	}
+
+	if (table_stream == NULL) {
+		g_object_unref (G_OBJECT (document_stream));
+		return NULL;
+	}
+
+	/* find out location and length of piece table from FIB */
+	gsf_input_seek (document_stream, 418, G_SEEK_SET);
+	gsf_input_read (document_stream, 4, tmp_buffer);
+	fcClx = read_32bit (tmp_buffer);
+	gsf_input_read (document_stream, 4, tmp_buffer);
+	lcbClx = read_32bit (tmp_buffer);
+
+	/* copy the structure holding the piece table into the clx array. */
+	clx = g_malloc (lcbClx);
+	gsf_input_seek (table_stream, fcClx, G_SEEK_SET);
+	gsf_input_read (table_stream, lcbClx, clx);
+
+	/* find out piece table from clx and set piece_table -pointer to it */
+	i = 0;
+	lcb_piece_table = 0;
+	while (TRUE) {
+		if (clx[i] == 2) {
+			lcb_piece_table = read_32bit (clx+(i+1));
+			piece_table = clx+i+5;
+			piece_count = (lcb_piece_table - 4) / 12;
+			break;
+		}
+		else if (clx[i] == 1) {
+			i = i + 2 + clx[i+1];
+		}
+		else {
+			break;
+		}
+	}
+
+	g_free (clx);
+
+	/* iterate over pieces and save text to the content -variable */
+	for (i = 0; i < piece_count; i++) {
+
+		/* logical position of the text piece in the document_stream */
+		piece_start = read_32bit (piece_table+(i*4));
+		piece_end = read_32bit (piece_table+((i+1)*4));
+
+		/* descriptor of single piece from piece table */
+		piece_descriptor = piece_table + ((piece_count+1)*4) + (i*8);
+
+		/* file character position */
+		fc = read_32bit (piece_descriptor+2);
+
+		/* second bit is set to 1 if text is saved in ANSI encoding */
+		is_ansi = ((fc & 0x40000000) == 0x40000000);
+
+		/* modify file character position according to text encoding */
+		if (!is_ansi) {
+			fc = (fc & 0xBFFFFFFF);
+		}
+		else {
+			fc = (fc & 0xBFFFFFFF) >> 1;
+		}
+
+		/* unicode uses twice as many bytes as CP1252 */
+		piece_size  = piece_end - piece_start;
+		if (!is_ansi) {
+			piece_size *= 2;
+		}
+
+		if (piece_size < 1) {
+			continue;
+		}
+
+		/* read single text piece from document_stream */
+		text_buffer = g_malloc (piece_size);
+		gsf_input_seek (document_stream, fc, G_SEEK_SET);
+		gsf_input_read (document_stream, piece_size, text_buffer);
+
+		/* pieces can have different encoding */
+		if(is_ansi) {
+			converted_text = g_convert (text_buffer, 
+			                            piece_size, 
+			                            "UTF-8", 
+			                            "CP1252", 
+			                            NULL, 
+			                            NULL, 
+			                            NULL);
+		}
+		else {
+			converted_text = g_convert (text_buffer, 
+			                            piece_size, 
+			                            "UTF-8", 
+			                            "UTF-16", 
+			                            NULL, 
+			                            NULL, 
+			                            NULL);
+		}
+
+		if (converted_text) {
+			if (!content)
+				content = g_string_new (converted_text);
+			else
+				g_string_append (content, converted_text);
+
+			g_free (converted_text);
+		}
+
+		g_free (text_buffer);
+	}
+
+	g_object_unref (document_stream);
+	g_object_unref (table_stream);
+
+	if (content) {
+		normalized = tracker_text_normalize (content->str, n_words, NULL);
+		g_string_free (content, TRUE);
+	}
+
+	return normalized;
+}
+
 /**
  * @brief get maximum number of words to index
  * @return maximum number of words to index
@@ -713,9 +892,8 @@ extract_summary (TrackerSparqlBuilder *metadata,
                  const gchar          *uri)
 {
 	GsfInput *stream;
-#ifdef HAVE_LIBWV2
 	gchar    *content;
-#endif
+	gboolean  is_encrypted = FALSE;
 
 	tracker_sparql_builder_subject_iri (metadata, uri);
 	tracker_sparql_builder_predicate (metadata, "a");
@@ -763,16 +941,20 @@ extract_summary (TrackerSparqlBuilder *metadata,
 		g_object_unref (stream);
 	}
 
-
-#ifdef HAVE_LIBWV2
-	content = extract_msword_content (uri, max_words ());
+	content = extract_msword_content(infile, max_words (), &is_encrypted);
 
 	if (content) {
-		tracker_sparql_builder_predicate (metadata, "nie:plainTextContent");
+		tracker_sparql_builder_predicate (metadata,
+		                                  "nie:plainTextContent");
 		tracker_sparql_builder_object_unvalidated (metadata, content);
 		g_free (content);
 	}
-#endif
+
+	if (is_encrypted) {
+		tracker_sparql_builder_predicate (metadata,
+		                                  "nfo:isContentEncrypted");
+		tracker_sparql_builder_object_boolean (metadata, TRUE);
+	}
 }
 
 /**
@@ -828,7 +1010,6 @@ extract_msoffice (const gchar          *uri,
 	g_object_unref (infile);
 	gsf_shutdown ();
 }
-
 
 /**
  * @brief Extract data from powerpoin files

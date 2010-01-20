@@ -21,7 +21,6 @@ INCLUDES = 								\
 	$(LIBEXIF_CFLAGS) 						\
 	$(LIBIPTCDATA_CFLAGS)						\
 	$(LIBGSF_CFLAGS) 						\
-	$(LIBWV2_CFLAGS) 						\
 	$(LIBXML2_CFLAGS) 						\
 	$(LIBPNG_CFLAGS) 						\
 	$(POPPLER_GLIB_CFLAGS) 						\
@@ -185,11 +184,6 @@ libextract_msoffice_la_SOURCES = tracker-extract-msoffice.c
 libextract_msoffice_la_LDFLAGS = $(module_flags)
 libextract_msoffice_la_LIBADD = $(GLIB2_LIBS) $(LIBGSF_LIBS) $(GCOV_LIBS) \
 	$(top_builddir)/src/libtracker-common/libtracker-common.la
-
-if HAVE_LIBWV2
-libextract_msoffice_la_SOURCES += tracker-msword.cpp tracker-msword.h
-libextract_msoffice_la_LIBADD += $(LIBWV2_LIBS)
-endif
 
 # PDF
 libextract_pdf_la_SOURCES = tracker-extract-pdf.c $(xmp_sources)
