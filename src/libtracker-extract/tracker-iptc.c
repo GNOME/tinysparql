@@ -34,6 +34,43 @@
 
 #define IPTC_DATE_FORMAT "%Y %m %d"
 
+/**
+ * SECTION:tracker-iptc
+ * @short_description: Information Interchange Model (IIM) /
+ * International Press Telecommunications Council (IPTC)
+ * @stability: Stable
+ * @include: libtracker-extract/tracker-iptc.h
+ *
+ * The Information Interchange Model (IIM) is a file structure and set
+ * of metadata attributes that can be applied to text, images and
+ * other media types. It was developed in the early 1990s by the
+ * International Press Telecommunications Council (IPTC) to expedite
+ * the international exchange of news among newspapers and news
+ * agencies.
+ *
+ * The full IIM specification includes a complex data structure and a
+ * set of metadata definitions.
+ * 
+ * Although IIM was intended for use with all types of news items —
+ * including simple text articles — a subset found broad worldwide
+ * acceptance as the standard embedded metadata used by news and
+ * commercial photographers. Information such as the name of the
+ * photographer, copyright information and the caption or other
+ * description can be embedded either manually or automatically.
+ *
+ * IIM metadata embedded in images are often referred to as "IPTC
+ * headers," and can be easily encoded and decoded by most popular
+ * photo editing software.
+ *
+ * The Extensible Metadata Platform (XMP) has largely superseded IIM's
+ * file structure, but the IIM image attributes are defined in the
+ * IPTC Core schema for XMP and most image manipulation programs keep
+ * the XMP and non-XMP IPTC attributes synchronized.
+ *
+ * This API is provided to remove code duplication between extractors
+ * using these standards.
+ **/
+
 static const gchar *
 fix_iptc_orientation (const gchar *orientation)
 {
@@ -145,6 +182,22 @@ foreach_dataset (IptcDataSet *dataset,
 
 #endif /* HAVE_LIBIPTCDATA */
 
+/**
+ * tracker_iptc_read:
+ * @buffer: a chunk of data with iptc data in it.
+ * @len: the size of @buffer.
+ * @uri: the URI this is related to.
+ * @data: a pointer to a TrackerIptcData struture to populate.
+ *
+ * This function takes @len bytes of @buffer and runs it through the
+ * IPTC library. The result is that @data is populated with the IPTC
+ * data found in @uri.
+ *
+ * Returns: %TRUE if the @data was populated successfully, otherwise
+ * %FALSE is returned.
+ *
+ * Since: 0.8
+ **/
 gboolean
 tracker_iptc_read (const unsigned char *buffer,
                    size_t               len,
@@ -155,6 +208,8 @@ tracker_iptc_read (const unsigned char *buffer,
 	g_return_val_if_fail (len > 0, FALSE);
 	g_return_val_if_fail (uri != NULL, FALSE);
 	g_return_val_if_fail (data != NULL, FALSE);
+
+	memset (data, 0, sizeof (TrackerIptcData));
 
 #ifdef HAVE_LIBIPTCDATA
 	IptcData *iptc;

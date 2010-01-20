@@ -338,7 +338,7 @@ get_file_metadata (TrackerExtract        *extract,
 				                              "  Extracting with module:'%s'",
 				                              g_module_name ((GModule*) mdata.module));
 
-				(*edata->extract) (uri, statements);
+				(*edata->func) (uri, statements);
 
 				items = tracker_sparql_builder_get_length (statements);
 
@@ -373,7 +373,7 @@ get_file_metadata (TrackerExtract        *extract,
 				                              "  Extracting with module:'%s'",
 				                              g_module_name ((GModule*) mdata.module));
 
-				(*edata->extract) (uri, statements);
+				(*edata->func) (uri, statements);
 
 				items = tracker_sparql_builder_get_length (statements);
 

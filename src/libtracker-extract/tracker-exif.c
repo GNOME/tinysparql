@@ -39,6 +39,22 @@
 
 #ifndef HAVE_STRCASESTR
 
+/**
+ * SECTION:tracker-exif
+ * @short_description: Exchangeable Image File Format (EXIF)
+ * @stability: Stable
+ * @include: libtracker-extract/tracker-exif.h
+ *
+ * Exchangeable Image File Format (EXIF) is a specification for the
+ * image file format used by digital cameras. The specification uses
+ * the existing JPEG, TIFF Rev. 6.0, and RIFF WAV file formats, with
+ * the addition of specific metadata tags. It is not supported in JPEG
+ * 2000, PNG, or GIF.
+ *
+ * This API is provided to remove code duplication between extractors
+ * using these standards.
+ **/
+
 static gchar *
 strcasestr (const gchar *haystack,
             const gchar *needle)
@@ -299,6 +315,22 @@ get_value (ExifData *exif,
 
 #endif /* HAVE_LIBEXIF */
 
+/**
+ * tracker_exif_read:
+ * @buffer: a chunk of data with exif data in it.
+ * @len: the size of @buffer.
+ * @uri: the URI this is related to.
+ * @data: a pointer to a TrackerExifData struture to populate.
+ *
+ * This function takes @len bytes of @buffer and runs it through the
+ * EXIF library. The result is that @data is populated with the EXIF
+ * data found in @uri.
+ *
+ * Returns: %TRUE if the @data was populated successfully, otherwise
+ * %FALSE is returned.
+ *
+ * Since: 0.8
+ **/
 gboolean
 tracker_exif_read (const unsigned char *buffer,
                    size_t               len,
@@ -310,6 +342,8 @@ tracker_exif_read (const unsigned char *buffer,
 	g_return_val_if_fail (uri != NULL, FALSE);
 	g_return_val_if_fail (data != NULL, FALSE);
 	
+	memset (data, 0, sizeof (TrackerExifData));
+
 #ifdef HAVE_LIBEXIF
 	ExifData *exif;
 
