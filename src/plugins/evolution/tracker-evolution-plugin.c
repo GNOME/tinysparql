@@ -123,6 +123,9 @@ typedef struct {
 	gchar *sparql;
 	gboolean commit;
 	gint prio;
+	GMutex *mutex;
+	GCond *cond;
+	gboolean has_happened;
 } PoolItem;
 
 typedef struct {
@@ -343,26 +346,46 @@ thread_pool_exec (gpointer data, gpointer user_data)
 	pool->freeup (data, pool->cancel);
 }
 
+
+static void 
+reply_void (GError *error, gpointer  user_data)
+{
+	PoolItem *item = user_data;
+
+	if (error) {
+		g_debug ("Tracker plugin: Error updating data: %s\n", error->message);
+	}
+
+	g_mutex_lock (item->mutex);
+	g_cond_broadcast (item->cond);
+	item->has_happened = TRUE;
+	g_mutex_unlock (item->mutex);
+}
+
 static void
 exec_update (gpointer data, gpointer user_data)
 {
 	PoolItem *item = data;
-	GError *error = NULL;
 	GCancellable *cancel = user_data;
 
 	if (g_cancellable_is_cancelled (cancel))
 		return;
 
+	item->mutex = g_mutex_new ();
+	item->cond = g_cond_new ();
+	item->has_happened = FALSE;
+
 	if (item->commit) {
-		tracker_resources_batch_commit (item->client, &error);
+		tracker_resources_batch_commit_async (item->client, reply_void, item);
 	} else {
-		tracker_resources_batch_sparql_update (item->client, item->sparql, &error);
+		tracker_resources_batch_sparql_update_async (item->client, item->sparql,
+		                                             reply_void, item);
 	}
 
-	if (error) {
-		g_debug ("Tracker plugin: Error updating data: %s\n", error->message);
-		g_error_free (error);
-	}
+	g_mutex_lock (item->mutex);
+	if (!item->has_happened)
+		g_cond_wait (item->cond, item->mutex);
+	g_mutex_unlock (item->mutex);
 
 	/* Don't hammer DBus too much, else Evolution's UI sometimes becomes slugish
 	 * due to a dbus_watch_handle call on its mainloop */
@@ -407,13 +430,10 @@ thread_pool_push (ThreadPool *pool, gpointer item, gpointer user_data)
 		g_thread_pool_push (pool->pool, item, user_data);
 }
 
-static void
-thread_pool_destroy (ThreadPool *pool)
+static gpointer
+destroyer_thread (gpointer user_data)
 {
-	g_mutex_lock (pool->mutex);
-	g_cancellable_cancel (pool->cancel);
-	pool->dying = TRUE;
-	g_mutex_unlock (pool->mutex);
+	ThreadPool *pool = user_data;
 
 	g_mutex_lock (pool->mutex);
 	g_thread_pool_free (pool->pool, TRUE, TRUE);
@@ -422,6 +442,19 @@ thread_pool_destroy (ThreadPool *pool)
 
 	g_object_unref (pool->cancel);
 	g_free (pool);
+
+	return NULL;
+}
+
+static void
+thread_pool_destroy (ThreadPool *pool)
+{
+	g_mutex_lock (pool->mutex);
+	g_cancellable_cancel (pool->cancel);
+	pool->dying = TRUE;
+	g_mutex_unlock (pool->mutex);
+
+	g_thread_create (destroyer_thread, pool, FALSE, NULL);
 }
 
 static void
@@ -1976,13 +2009,15 @@ static void
 disable_plugin (void)
 {
 	if (sparql_pool) {
-		thread_pool_destroy (sparql_pool);
+		ThreadPool *pool = sparql_pool;
 		sparql_pool = NULL;
+		thread_pool_destroy (pool);
 	}
 
 	if (folder_pool) {
-		thread_pool_destroy (folder_pool);
+		ThreadPool *pool = folder_pool;
 		folder_pool = NULL;
+		thread_pool_destroy (pool);
 	}
 
 	if (manager) {
@@ -2042,13 +2077,15 @@ name_owner_changed_cb (DBusGProxy *proxy,
 				priv->client = NULL; 
 
 				if (sparql_pool) {
-					thread_pool_destroy (sparql_pool);
+					ThreadPool *pool = sparql_pool;
 					sparql_pool = NULL;
+					thread_pool_destroy (pool);
 				}
 
 				if (folder_pool) {
-					thread_pool_destroy (folder_pool);
+					ThreadPool *pool = folder_pool;
 					folder_pool = NULL;
+					thread_pool_destroy (pool);
 				}
 
 				g_object_unref (client);
@@ -2090,13 +2127,15 @@ enable_plugin (void)
 	/* Deal with https://bugzilla.gnome.org/show_bug.cgi?id=606940 */
 
 	if (sparql_pool) {
-		thread_pool_destroy (sparql_pool);
+		ThreadPool *pool = sparql_pool;
 		sparql_pool = NULL;
+		thread_pool_destroy (pool);
 	}
 
 	if (folder_pool) {
-		thread_pool_destroy (folder_pool);
+		ThreadPool *pool = folder_pool;
 		folder_pool = NULL;
+		thread_pool_destroy (pool);
 	}
 
 	if (manager) {
@@ -2152,13 +2191,15 @@ tracker_evolution_plugin_finalize (GObject *plugin)
 		priv->client = NULL;
 
 		if (sparql_pool) {
-			thread_pool_destroy (sparql_pool);
+			ThreadPool *pool = sparql_pool;
 			sparql_pool = NULL;
+			thread_pool_destroy (pool);
 		}
 
 		if (folder_pool) {
-			thread_pool_destroy (folder_pool);
+			ThreadPool *pool = folder_pool;
 			folder_pool = NULL;
+			thread_pool_destroy (pool);
 		}
 
 		g_object_unref (client);
@@ -2307,13 +2348,15 @@ miner_paused (TrackerMiner *miner)
 		priv->client = NULL;
 
 		if (sparql_pool) {
-			thread_pool_destroy (sparql_pool);
+			ThreadPool *pool = sparql_pool;
 			sparql_pool = NULL;
+			thread_pool_destroy (pool);
 		}
 
 		if (folder_pool) {
-			thread_pool_destroy (folder_pool);
+			ThreadPool *pool = folder_pool;
 			folder_pool = NULL;
+			thread_pool_destroy (pool);
 		}
 
 		g_object_unref (client);
