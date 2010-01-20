@@ -59,7 +59,7 @@ typedef struct {
 
 typedef struct {
 	GMainLoop *main_loop;
-	gboolean value;
+	gchar *iri;
 } SparqlQueryData;
 
 typedef struct {
@@ -899,9 +899,14 @@ sparql_query_cb (GObject      *object,
 		g_error_free (error);
 	}
 
-	data->value = query_results && query_results->len == 1;
-	g_main_loop_quit (data->main_loop);
+	if (query_results && query_results->len == 1) {
+		gchar **val;
 
+		val = g_ptr_array_index (query_results, 0);
+		data->iri = g_strdup (val[0]);
+	}
+
+        g_main_loop_quit (data->main_loop);
 }
 
 static void
@@ -1005,19 +1010,18 @@ item_add_or_update (TrackerMinerFS *fs,
 }
 
 static gboolean
-item_query_exists (TrackerMinerFS *miner,
-                   GFile          *file)
+item_query_exists (TrackerMinerFS  *miner,
+                   GFile           *file,
+                   gchar          **iri)
 {
 	gboolean   result;
 	gchar     *sparql, *uri;
-	SparqlQueryData data;
+	SparqlQueryData data = { 0 };
 
 	uri = g_file_get_uri (file);
-	sparql = g_strdup_printf ("SELECT ?s WHERE { ?s a rdfs:Resource . FILTER (?s = <%s>) }",
-	                          uri);
+	sparql = g_strdup_printf ("SELECT ?s WHERE { ?s nie:url '%s' }", uri);
 
 	data.main_loop = g_main_loop_new (NULL, FALSE);
-	data.value = FALSE;
 
 	tracker_miner_execute_sparql (TRACKER_MINER (miner),
 	                              sparql,
@@ -1026,9 +1030,15 @@ item_query_exists (TrackerMinerFS *miner,
 	                              &data);
 
 	g_main_loop_run (data.main_loop);
-	result = data.value;
+	result = (data.iri != NULL);
 
 	g_main_loop_unref (data.main_loop);
+
+	if (iri) {
+		*iri = data.iri;
+	} else {
+		g_free (data.iri);
+	}
 
 	g_free (sparql);
 	g_free (uri);
@@ -1049,7 +1059,7 @@ item_remove (TrackerMinerFS *fs,
 	g_debug ("Removing item: '%s' (Deleted from filesystem)",
 	         uri);
 
-	if (!item_query_exists (fs, file)) {
+	if (!item_query_exists (fs, file, NULL)) {
 		g_debug ("  File does not exist anyway (uri:'%s')", uri);
 		g_free (uri);
 		return TRUE;
@@ -1065,14 +1075,22 @@ item_remove (TrackerMinerFS *fs,
 
 	/* Delete all children */
 	g_string_append_printf (sparql,
-	                        "DELETE FROM <%s> { ?u a rdfs:Resource } "
-	                        "WHERE { ?u nfo:belongsToContainer ?p . FILTER (fn:starts-with (?p, \"%s\")) } ",
-	                        uri, slash_uri);
+	                        "DELETE { "
+	                        "  ?child a rdfs:Resource "
+	                        "} WHERE {"
+	                        "  ?child nie:url ?u . "
+	                        "  FILTER (fn:starts-with (?u, '%s')) "
+	                        "}",
+	                        slash_uri);
 
 	/* Delete resource itself */
 	g_string_append_printf (sparql,
-	                        "DELETE FROM <%s> { <%s> a rdfs:Resource }",
-	                        uri, uri);
+	                        "DELETE { "
+	                        "  ?u a rdfs:Resource "
+	                        "} WHERE { "
+	                        "  ?u nie:url '%s' "
+	                        "}",
+	                        uri);
 
 	data = process_data_new (file, NULL, NULL);
 	fs->private->processing_pool = g_list_prepend (fs->private->processing_pool, data);
@@ -1133,7 +1151,7 @@ item_writeback (TrackerMinerFS *fs,
 
 	g_debug ("Updating item: '%s' (Writeback event)", uri);
 
-	if (!item_query_exists (fs, working_file)) {
+	if (!item_query_exists (fs, working_file, NULL)) {
 		g_debug ("  File does not exist anyway (uri:'%s')", uri);
 		return TRUE;
 	}
@@ -1152,19 +1170,19 @@ item_writeback (TrackerMinerFS *fs,
 		/* Perhaps we should move the DELETE to tracker-miner-files.c?
 		 * Or we add support for DELETE to TrackerSparqlBuilder ofcrs */
 
-		query = g_strdup_printf ("DELETE FROM <%s> { <%s> "
-		                         "nfo:fileSize ?unknown1 ;\n\t"
-		                         "nfo:fileLastModified ?unknown2 ;\n\t"
-		                         "nfo:fileLastAccessed ?unknown3 ;\n\t"
-		                         "nie:mimeType ?unknown4 \n"
-		                         "} WHERE { <%s> "
-		                         "nfo:fileSize ?unknown1 ;\n\t"
-		                         "nfo:fileLastModified ?unknown2 ;\n\t"
-		                         "nfo:fileLastAccessed ?unknown3 ;\n\t"
-		                         "nie:mimeType ?unknown4 \n"
-		                         "} \n %s",
-		                         uri, uri, uri,
-		                         tracker_sparql_builder_get_result (sparql));
+		query = g_strdup_printf ("DELETE { "
+		                         "  ?u nfo:fileSize ?unknown1 ; "
+		                         "     nfo:fileLastModified ?unknown2 ; "
+		                         "     nfo:fileLastAccessed ?unknown3 ; "
+		                         "     nie:mimeType ?unknown4 "
+		                         "} WHERE { "
+		                         "  ?u nfo:fileSize ?unknown1 ; "
+		                         "     nfo:fileLastModified ?unknown2 ; "
+		                         "     nfo:fileLastAccessed ?unknown3 ; "
+		                         "     nie:mimeType ?unknown4 ; "
+		                         "     nie:url '%s' "
+		                         "} %s",
+		                         uri, tracker_sparql_builder_get_result (sparql));
 
 		tracker_miner_execute_batch_update (TRACKER_MINER (fs),
 		                                    query,
@@ -1242,9 +1260,20 @@ item_update_uri_recursively (TrackerMinerFS    *fs,
 
 	move_data->level++;
 
-	g_string_append_printf (move_data->sparql, " <%s> tracker:uri <%s> .", source_uri, uri);
+	g_string_append_printf (move_data->sparql,
+	                        "INSERT { "
+	                        "  ?u nie:url '%s' "
+	                        "} WHERE { "
+	                        "  ?u nie:url '%s' "
+	                        "} ",
+	                        uri, source_uri);
 
-	sparql = g_strdup_printf ("SELECT ?child WHERE { ?child nfo:belongsToContainer <%s> }", source_uri);
+	sparql = g_strdup_printf ("SELECT ?child WHERE { "
+	                          "  ?child nfo:belongsToContainer ?c . "
+	                          "  ?c nie:url '%s' "
+	                          "}",
+                                  source_uri);
+
 	tracker_miner_execute_sparql (TRACKER_MINER (fs),
 	                              sparql,
 	                              NULL,
@@ -1263,12 +1292,13 @@ item_move (TrackerMinerFS *fs,
 	GString   *sparql;
 	RecursiveMoveData move_data;
 	ProcessData *data;
+	gchar *source_iri;
 
 	uri = g_file_get_uri (file);
 	source_uri = g_file_get_uri (source_file);
 
 	/* Get 'source' ID */
-	if (!item_query_exists (fs, source_file)) {
+	if (!item_query_exists (fs, source_file, &source_iri)) {
 		gboolean retval;
 
 		g_message ("Source file '%s' not found in store to move, indexing '%s' from scratch", source_uri, uri);
@@ -1305,13 +1335,25 @@ item_move (TrackerMinerFS *fs,
 	sparql = g_string_new ("");
 
 	g_string_append_printf (sparql,
-	                        "DELETE FROM <%s> { <%s> nfo:fileName ?o } WHERE { <%s> nfo:fileName ?o }",
-	                        source_uri, source_uri, source_uri);
-
-	g_string_append_printf (sparql, " INSERT INTO <%s> {", uri);
+	                        "DELETE FROM <%s> { "
+	                        "  <%s> nfo:fileName ?f ; "
+	                        "       nie:url ?u "
+	                        "} WHERE { "
+	                        "  <%s> nfo:fileName ?f ; "
+	                        "       nie:url ?u "
+	                        "} ",
+	                        source_iri, source_iri, source_iri);
 
 	escaped_filename = g_strescape (g_file_info_get_display_name (file_info), NULL);
-	g_string_append_printf (sparql, " <%s> nfo:fileName \"%s\" .", source_uri, escaped_filename);
+
+	g_string_append_printf (sparql,
+	                        "INSERT INTO <%s> {"
+	                        "  <%s> nfo:fileName '%s' ; "
+	                        "       nie:url '%s' "
+	                        "} ",
+	                        source_iri, source_iri,
+	                        escaped_filename, uri);
+
 	g_free (escaped_filename);
 
 	move_data.main_loop = g_main_loop_new (NULL, FALSE);
@@ -1326,8 +1368,6 @@ item_move (TrackerMinerFS *fs,
 
 	g_main_loop_unref (move_data.main_loop);
 
-	g_string_append (sparql, " }");
-
 	data = process_data_new (file, NULL, NULL);
 	fs->private->processing_pool = g_list_prepend (fs->private->processing_pool, data);
 
@@ -1341,6 +1381,7 @@ item_move (TrackerMinerFS *fs,
 	g_free (source_uri);
 	g_object_unref (file_info);
 	g_string_free (sparql, TRUE);
+	g_free (source_iri);
 
 	return TRUE;
 }
@@ -1591,7 +1632,7 @@ should_change_index_for_file (TrackerMinerFS *fs,
 	time_t              mtime;
 	struct tm           t;
 	gchar              *query, *uri;
-	SparqlQueryData     data;
+	SparqlQueryData     data = { 0 };
 
 	file_info = g_file_query_info (file,
 	                               G_FILE_ATTRIBUTE_TIME_MODIFIED,
@@ -1613,7 +1654,10 @@ should_change_index_for_file (TrackerMinerFS *fs,
 
 	gmtime_r (&mtime, &t);
 
-	query = g_strdup_printf ("SELECT ?file { ?file nfo:fileLastModified \"%04d-%02d-%02dT%02d:%02d:%02dZ\" . FILTER (?file = <%s>) }",
+	query = g_strdup_printf ("SELECT ?file { "
+	                         "  ?file nfo:fileLastModified \"%04d-%02d-%02dT%02d:%02d:%02dZ\" . "
+	                         "  ?file nie:url \"%s\""
+	                         "}",
 	                         t.tm_year + 1900,
 	                         t.tm_mon + 1,
 	                         t.tm_mday,
@@ -1623,7 +1667,6 @@ should_change_index_for_file (TrackerMinerFS *fs,
 	                         uri);
 
 	data.main_loop = g_main_loop_new (NULL, FALSE);
-	data.value = FALSE;
 
 	tracker_miner_execute_sparql (TRACKER_MINER (fs),
 	                              query,
@@ -1632,9 +1675,10 @@ should_change_index_for_file (TrackerMinerFS *fs,
 	                              &data);
 
 	g_main_loop_run (data.main_loop);
-	uptodate = data.value;
+	uptodate = (data.iri != NULL);
 
 	g_main_loop_unref (data.main_loop);
+	g_free (data.iri);
 	g_free (query);
 	g_free (uri);
 
@@ -1826,7 +1870,7 @@ monitor_item_moved_cb (TrackerMonitor *monitor,
 		path = g_file_get_path (file);
 		other_path = g_file_get_path (other_file);
 
-		source_stored = item_query_exists (fs, file);
+		source_stored = item_query_exists (fs, file, NULL);
 		should_process_other = should_check_file (fs, other_file, is_directory);
 
 		g_debug ("%s:'%s'->'%s':%s (%s) (move monitor event or user request)",
