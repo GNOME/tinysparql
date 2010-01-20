@@ -1,5 +1,4 @@
 /*
- * Copyright (C) 2007, Mr Jamie McCracken (jamiemcc@gnome.org)
  * Copyright (C) 2008, Nokia
  *
  * This program is free software; you can redistribute it and/or
@@ -27,13 +26,13 @@
 #include <glib.h>
 #include <glib/gstdio.h>
 
-#include "tracker-main.h"
+#include <libtracker-extract/tracker-extract.h>
 
 /*
  * Prototype of the parsing function.
  */
-static void extract_dummy (const gchar *filename,
-                           GHashTable  *metadata);
+static void extract_function (const gchar          *uri,
+                              TrackerSparqlBuilder *metadata);
 
 /*
  * Link between mimetype and parsing function
@@ -47,9 +46,10 @@ static TrackerExtractData data[] = {
  * Implementation of the parsing function
  */
 static void
-extract_function (const gchar *filename,
-                  GHashTable  *metadata)
+extract_function (const gchar          *uri,
+                  TrackerSparqlBuilder *metadata)
 {
+	gchar *name;
 
 	/*
 	 * Open the file and do whatever you need to do with it.
@@ -57,9 +57,25 @@ extract_function (const gchar *filename,
 	 * The extracted properties must be added to the metadata
 	 * hash table.
 	 */
-	g_hash_table_insert (metadata,
-	                     g_strdup ("Dummy:DummyProp"),
-	                     g_strdup ("Value"));
+
+	/* Example 1. Insert a picture with the creator */
+	name = g_strdup ("Martyn Russell");
+	
+	tracker_sparql_builder_subject_iri (metadata, uri);
+	tracker_sparql_builder_predicate (metadata, "a");
+	tracker_sparql_builder_object (metadata, "nfo:Image");
+	tracker_sparql_builder_object (metadata, "nmm:Photo");
+
+	tracker_sparql_builder_predicate (metadata, "nco:creator");
+
+	tracker_sparql_builder_object_blank_open (metadata);
+	tracker_sparql_builder_predicate (metadata, "a");
+	tracker_sparql_builder_object (metadata, "nco:Contact");
+
+	tracker_sparql_builder_predicate (metadata, "nco:fullname");
+	tracker_sparql_builder_object_unvalidated (metadata, name);
+	tracker_sparql_builder_object_blank_close (metadata);
+	g_free (name);
 }
 
 /*
@@ -67,7 +83,7 @@ extract_function (const gchar *filename,
  * It is the "public" function used to load the module.
  */
 TrackerExtractData *
-tracker_get_extract_data (void)
+tracker_extract_get_data (void)
 {
 	return data;
 }

@@ -24,17 +24,38 @@
 
 #include <glib.h>
 
-#include "tracker-main.h"
-#include "tracker-xmp.h"
-
 #include <libtracker-common/tracker-type-utils.h>
 #include <libtracker-common/tracker-utils.h>
 #include <libtracker-common/tracker-ontology.h>
+
+#include "tracker-xmp.h"
 
 #ifdef HAVE_EXEMPI
 
 #include <exempi/xmp.h>
 #include <exempi/xmpconsts.h>
+
+/**
+ * SECTION:tracker-xmp
+ * @short_description: Extensible Metadata Platform (XMP)
+ * @stability: Stable
+ * @include: libtracker-extract/tracker-xmp.h
+ *
+ * The Adobe Extensible Metadata Platform (XMP) is a standard, created
+ * by Adobe Systems Inc., for processing and storing standardized and
+ * proprietary information relating to the contents of a file.
+ *
+ * XMP standardizes the definition, creation, and processing of
+ * extensible metadata. Serialized XMP can be embedded into a
+ * significant number of popular file formats, without breaking their
+ * readability by non-XMP-aware applications. Embedding metadata ("the
+ * truth is in the file") avoids many problems that occur when
+ * metadata is stored separately. XMP is used in PDF, photography and
+ * photo editing applications.
+ *
+ * This API is provided to remove code duplication between extractors
+ * using these standards.
+ **/
 
 static void iterate        (XmpPtr                xmp,
                             XmpIteratorPtr        iter,
@@ -421,6 +442,22 @@ iterate (XmpPtr          xmp,
 
 #endif /* HAVE_EXEMPI */
 
+/**
+ * tracker_xmp_read:
+ * @buffer: a chunk of data with xmp data in it.
+ * @len: the size of @buffer.
+ * @uri: the URI this is related to.
+ * @data: a pointer to a TrackerXmpData structure to populate.
+ *
+ * This function takes @len bytes of @buffer and runs it through the
+ * XMP library. The result is that @data is populated with the XMP
+ * data found in @uri.
+ *
+ * Returns: %TRUE if the @data was populated successfully, otherwise
+ * %FALSE is returned.
+ *
+ * Since: 0.8
+ **/
 gboolean
 tracker_xmp_read (const gchar    *buffer,
                   size_t          len,
@@ -431,6 +468,8 @@ tracker_xmp_read (const gchar    *buffer,
 	g_return_val_if_fail (len > 0, FALSE);
 	g_return_val_if_fail (uri != NULL, FALSE);
 	g_return_val_if_fail (data != NULL, FALSE);
+
+	memset (data, 0, sizeof (TrackerXmpData));
 
 #ifdef HAVE_EXEMPI
 	XmpPtr xmp;
@@ -491,31 +530,44 @@ insert_keywords (TrackerSparqlBuilder *metadata,
 	}
 }
 
+/**
+ * tracker_xmp_apply:
+ * @metadata: the metadata object to apply XMP data to.
+ * @uri: the URI this is related to.
+ * @data: the data to push into @metadata.
+ *
+ * This function applies all data in @data to @metadata.
+ *
+ * Returns: %TRUE if the @data was applied to @metadata successfully,
+ * otherwise %FALSE is returned.
+ *
+ * Since: 0.8
+ **/
 gboolean
 tracker_xmp_apply (TrackerSparqlBuilder *metadata,
                    const gchar          *uri,
-                   TrackerXmpData       *xmp_data)
+                   TrackerXmpData       *data)
 {
 	g_return_val_if_fail (TRACKER_IS_SPARQL_BUILDER (metadata), FALSE);
 	g_return_val_if_fail (uri != NULL, FALSE);
-	g_return_val_if_fail (xmp_data != NULL, FALSE);
+	g_return_val_if_fail (data != NULL, FALSE);
 
-	if (xmp_data->keywords) {
-		insert_keywords (metadata, uri, xmp_data->keywords);
-		g_free (xmp_data->keywords);
+	if (data->keywords) {
+		insert_keywords (metadata, uri, data->keywords);
+		g_free (data->keywords);
 	}
 
-	if (xmp_data->subject) {
-		insert_keywords (metadata, uri, xmp_data->subject);
-		g_free (xmp_data->subject);
+	if (data->subject) {
+		insert_keywords (metadata, uri, data->subject);
+		g_free (data->subject);
 	}
 
-	if (xmp_data->pdf_keywords) {
-		insert_keywords (metadata, uri, xmp_data->pdf_keywords);
-		g_free (xmp_data->pdf_keywords);
+	if (data->pdf_keywords) {
+		insert_keywords (metadata, uri, data->pdf_keywords);
+		g_free (data->pdf_keywords);
 	}
 
-	if (xmp_data->publisher) {
+	if (data->publisher) {
 		tracker_sparql_builder_predicate (metadata, "nco:publisher");
 
 		tracker_sparql_builder_object_blank_open (metadata);
@@ -523,115 +575,115 @@ tracker_xmp_apply (TrackerSparqlBuilder *metadata,
 		tracker_sparql_builder_object (metadata, "nco:Contact");
 
 		tracker_sparql_builder_predicate (metadata, "nco:fullname");
-		tracker_sparql_builder_object_unvalidated (metadata, xmp_data->publisher);
+		tracker_sparql_builder_object_unvalidated (metadata, data->publisher);
 		tracker_sparql_builder_object_blank_close (metadata);
-		g_free (xmp_data->publisher);
+		g_free (data->publisher);
 	}
 
-	if (xmp_data->type) {
+	if (data->type) {
 		tracker_sparql_builder_predicate (metadata, "dc:type");
-		tracker_sparql_builder_object_unvalidated (metadata, xmp_data->type);
-		g_free (xmp_data->type);
+		tracker_sparql_builder_object_unvalidated (metadata, data->type);
+		g_free (data->type);
 	}
 
-	if (xmp_data->format) {
+	if (data->format) {
 		tracker_sparql_builder_predicate (metadata, "dc:format");
-		tracker_sparql_builder_object_unvalidated (metadata, xmp_data->format);
-		g_free (xmp_data->format);
+		tracker_sparql_builder_object_unvalidated (metadata, data->format);
+		g_free (data->format);
 	}
 
-	if (xmp_data->identifier) {
+	if (data->identifier) {
 		tracker_sparql_builder_predicate (metadata, "dc:identifier");
-		tracker_sparql_builder_object_unvalidated (metadata, xmp_data->identifier);
-		g_free (xmp_data->identifier);
+		tracker_sparql_builder_object_unvalidated (metadata, data->identifier);
+		g_free (data->identifier);
 	}
 
-	if (xmp_data->source) {
+	if (data->source) {
 		tracker_sparql_builder_predicate (metadata, "dc:source");
-		tracker_sparql_builder_object_unvalidated (metadata, xmp_data->source);
-		g_free (xmp_data->source);
+		tracker_sparql_builder_object_unvalidated (metadata, data->source);
+		g_free (data->source);
 	}
 
-	if (xmp_data->language) {
+	if (data->language) {
 		tracker_sparql_builder_predicate (metadata, "dc:language");
-		tracker_sparql_builder_object_unvalidated (metadata, xmp_data->language);
-		g_free (xmp_data->language);
+		tracker_sparql_builder_object_unvalidated (metadata, data->language);
+		g_free (data->language);
 	}
 
-	if (xmp_data->relation) {
+	if (data->relation) {
 		tracker_sparql_builder_predicate (metadata, "dc:relation");
-		tracker_sparql_builder_object_unvalidated (metadata, xmp_data->relation);
-		g_free (xmp_data->relation);
+		tracker_sparql_builder_object_unvalidated (metadata, data->relation);
+		g_free (data->relation);
 	}
 
-	if (xmp_data->coverage) {
+	if (data->coverage) {
 		tracker_sparql_builder_predicate (metadata, "dc:coverage");
-		tracker_sparql_builder_object_unvalidated (metadata, xmp_data->coverage);
-		g_free (xmp_data->coverage);
+		tracker_sparql_builder_object_unvalidated (metadata, data->coverage);
+		g_free (data->coverage);
 	}
 
-	if (xmp_data->license) {
+	if (data->license) {
 		tracker_sparql_builder_predicate (metadata, "dc:license");
-		tracker_sparql_builder_object_unvalidated (metadata, xmp_data->license);
-		g_free (xmp_data->license);
+		tracker_sparql_builder_object_unvalidated (metadata, data->license);
+		g_free (data->license);
 	}
 
-	if (xmp_data->make || xmp_data->model) {
-		gchar *final_camera = tracker_merge (" ", 2, xmp_data->make, xmp_data->model);
+	if (data->make || data->model) {
+		gchar *final_camera = tracker_merge (" ", 2, data->make, data->model);
 
 		tracker_sparql_builder_predicate (metadata, "nmm:camera");
 		tracker_sparql_builder_object_unvalidated (metadata, final_camera);
 		g_free (final_camera);
 	}
 
-	if (xmp_data->title || xmp_data->title2 || xmp_data->pdf_title) {
-		gchar *final_title = tracker_coalesce (3, xmp_data->title, 
-		                                       xmp_data->title2,
-		                                       xmp_data->pdf_title);
+	if (data->title || data->title2 || data->pdf_title) {
+		gchar *final_title = tracker_coalesce (3, data->title, 
+		                                       data->title2,
+		                                       data->pdf_title);
 		tracker_sparql_builder_predicate (metadata, "nie:title");
 		tracker_sparql_builder_object_unvalidated (metadata, final_title);
 		g_free (final_title);
 	}
 
-	if (xmp_data->orientation) {
+	if (data->orientation) {
 		tracker_sparql_builder_predicate (metadata, "nfo:orientation");
-		tracker_sparql_builder_object_unvalidated (metadata, xmp_data->orientation);
-		g_free (xmp_data->orientation);
+		tracker_sparql_builder_object_unvalidated (metadata, data->orientation);
+		g_free (data->orientation);
 	}
 	
-	if (xmp_data->rights || xmp_data->copyright) {
-		gchar *final_rights = tracker_coalesce (2, xmp_data->copyright, xmp_data->rights);
+	if (data->rights || data->copyright) {
+		gchar *final_rights = tracker_coalesce (2, data->copyright, data->rights);
 		tracker_sparql_builder_predicate (metadata, "nie:copyright");
 		tracker_sparql_builder_object_unvalidated (metadata, final_rights);
 		g_free (final_rights);
 	}
 
-	if (xmp_data->white_balance) {
+	if (data->white_balance) {
 		tracker_sparql_builder_predicate (metadata, "nmm:whiteBalance");
-		tracker_sparql_builder_object_unvalidated (metadata, xmp_data->white_balance);
-		g_free (xmp_data->white_balance);
+		tracker_sparql_builder_object_unvalidated (metadata, data->white_balance);
+		g_free (data->white_balance);
 	}
 
-	if (xmp_data->fnumber) {
+	if (data->fnumber) {
 		tracker_sparql_builder_predicate (metadata, "nmm:fnumber");
-		tracker_sparql_builder_object_unvalidated (metadata, xmp_data->fnumber);
-		g_free (xmp_data->fnumber);
+		tracker_sparql_builder_object_unvalidated (metadata, data->fnumber);
+		g_free (data->fnumber);
 	}
 
-	if (xmp_data->flash) {
+	if (data->flash) {
 		tracker_sparql_builder_predicate (metadata, "nmm:flash");
-		tracker_sparql_builder_object_unvalidated (metadata, xmp_data->flash);
-		g_free (xmp_data->flash);
+		tracker_sparql_builder_object_unvalidated (metadata, data->flash);
+		g_free (data->flash);
 	}
 
-	if (xmp_data->focal_length) {
+	if (data->focal_length) {
 		tracker_sparql_builder_predicate (metadata, "nmm:focalLength");
-		tracker_sparql_builder_object_unvalidated (metadata, xmp_data->focal_length);
-		g_free (xmp_data->focal_length);
+		tracker_sparql_builder_object_unvalidated (metadata, data->focal_length);
+		g_free (data->focal_length);
 	}
 
-	if (xmp_data->artist || xmp_data->contributor) {
-		gchar *final_artist = tracker_coalesce (2, xmp_data->artist, xmp_data->contributor);
+	if (data->artist || data->contributor) {
+		gchar *final_artist = tracker_coalesce (2, data->artist, data->contributor);
 
 		tracker_sparql_builder_predicate (metadata, "nco:contributor");
 
@@ -645,38 +697,38 @@ tracker_xmp_apply (TrackerSparqlBuilder *metadata,
 		g_free (final_artist);
 	}
 
-	if (xmp_data->exposure_time) {
+	if (data->exposure_time) {
 		tracker_sparql_builder_predicate (metadata, "nmm:exposureTime");
-		tracker_sparql_builder_object_unvalidated (metadata, xmp_data->exposure_time);
-		g_free (xmp_data->exposure_time);
+		tracker_sparql_builder_object_unvalidated (metadata, data->exposure_time);
+		g_free (data->exposure_time);
 	}
 
-	if (xmp_data->iso_speed_ratings) {
+	if (data->iso_speed_ratings) {
 		tracker_sparql_builder_predicate (metadata, "nmm:isoSpeed");
-		tracker_sparql_builder_object_unvalidated (metadata, xmp_data->iso_speed_ratings);
-		g_free (xmp_data->iso_speed_ratings);
+		tracker_sparql_builder_object_unvalidated (metadata, data->iso_speed_ratings);
+		g_free (data->iso_speed_ratings);
 	}
 
-	if (xmp_data->date || xmp_data->time_original) {
-		gchar *final_date = tracker_coalesce (2, xmp_data->date, xmp_data->time_original);
+	if (data->date || data->time_original) {
+		gchar *final_date = tracker_coalesce (2, data->date, data->time_original);
 		tracker_sparql_builder_predicate (metadata, "nie:contentCreated");
 		tracker_sparql_builder_object_unvalidated (metadata, final_date);
 		g_free (final_date);
 	}
 
-	if (xmp_data->description) {
+	if (data->description) {
 		tracker_sparql_builder_predicate (metadata, "nie:description");
-		tracker_sparql_builder_object_unvalidated (metadata, xmp_data->description);
-		g_free (xmp_data->description);
+		tracker_sparql_builder_object_unvalidated (metadata, data->description);
+		g_free (data->description);
 	}
 
-	if (xmp_data->metering_mode) {
+	if (data->metering_mode) {
 		tracker_sparql_builder_predicate (metadata, "nmm:meteringMode");
-		tracker_sparql_builder_object_unvalidated (metadata, xmp_data->metering_mode);
-		g_free (xmp_data->metering_mode);
+		tracker_sparql_builder_object_unvalidated (metadata, data->metering_mode);
+		g_free (data->metering_mode);
 	}
 
-	if (xmp_data->creator) {
+	if (data->creator) {
 		tracker_sparql_builder_predicate (metadata, "nco:creator");
 
 		tracker_sparql_builder_object_blank_open (metadata);
@@ -684,40 +736,40 @@ tracker_xmp_apply (TrackerSparqlBuilder *metadata,
 		tracker_sparql_builder_object (metadata, "nco:Contact");
 
 		tracker_sparql_builder_predicate (metadata, "nco:fullname");
-		tracker_sparql_builder_object_unvalidated (metadata, xmp_data->creator);
+		tracker_sparql_builder_object_unvalidated (metadata, data->creator);
 		tracker_sparql_builder_object_blank_close (metadata);
-		g_free (xmp_data->creator);
+		g_free (data->creator);
 	}
 
-	if (xmp_data->address || xmp_data->country || xmp_data->city) {
+	if (data->address || data->country || data->city) {
 		tracker_sparql_builder_predicate (metadata, "mlo:location");
 
 		tracker_sparql_builder_object_blank_open (metadata);
 		tracker_sparql_builder_predicate (metadata, "a");
 		tracker_sparql_builder_object (metadata, "mlo:GeoPoint");
 
-		if (xmp_data->address) {
+		if (data->address) {
 			tracker_sparql_builder_predicate (metadata, "mlo:address");
-			tracker_sparql_builder_object_unvalidated (metadata, xmp_data->address);
-			g_free (xmp_data->address);
+			tracker_sparql_builder_object_unvalidated (metadata, data->address);
+			g_free (data->address);
 		}
 
-		if (xmp_data->state) {
+		if (data->state) {
 			tracker_sparql_builder_predicate (metadata, "mlo:state");
-			tracker_sparql_builder_object_unvalidated (metadata, xmp_data->state);
-			g_free (xmp_data->state);
+			tracker_sparql_builder_object_unvalidated (metadata, data->state);
+			g_free (data->state);
 		}
 
-		if (xmp_data->city) {
+		if (data->city) {
 			tracker_sparql_builder_predicate (metadata, "mlo:city");
-			tracker_sparql_builder_object_unvalidated (metadata, xmp_data->city);
-			g_free (xmp_data->city);
+			tracker_sparql_builder_object_unvalidated (metadata, data->city);
+			g_free (data->city);
 		}
 
-		if (xmp_data->country) {
+		if (data->country) {
 			tracker_sparql_builder_predicate (metadata, "mlo:country");
-			tracker_sparql_builder_object_unvalidated (metadata, xmp_data->country);
-			g_free (xmp_data->country);
+			tracker_sparql_builder_object_unvalidated (metadata, data->country);
+			g_free (data->country);
 		}
 	
 		tracker_sparql_builder_object_blank_close (metadata);

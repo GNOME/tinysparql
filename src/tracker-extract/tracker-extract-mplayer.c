@@ -29,7 +29,7 @@
 #include <libtracker-common/tracker-os-dependant.h>
 #include <libtracker-common/tracker-utils.h>
 
-#include "tracker-main.h"
+#include <libtracker-extract/tracker-extract.h>
 
 #define NMM_PREFIX TRACKER_NMM_PREFIX
 #define NFO_PREFIX TRACKER_NFO_PREFIX
@@ -40,8 +40,8 @@
 #define RDF_PREFIX TRACKER_RDF_PREFIX
 #define RDF_TYPE RDF_PREFIX "type"
 
-static void extract_mplayer (const gchar *uri,
-                             TrackerSparqlBuilder   *metadata);
+static void extract_mplayer (const gchar          *uri,
+                             TrackerSparqlBuilder *metadata);
 
 static TrackerExtractData extract_data[] = {
 	{ "audio/*", extract_mplayer },
@@ -300,7 +300,7 @@ extract_mplayer (const gchar *uri,
 }
 
 TrackerExtractData *
-tracker_get_extract_data (void)
+tracker_extract_get_data (void)
 {
 	return extract_data;
 }

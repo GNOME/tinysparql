@@ -32,9 +32,8 @@
 #include <gst/gst.h>
 #include <gst/tag/tag.h>
 
-#include <libtracker-common/tracker-statement-list.h>
+#include <libtracker-extract/tracker-extract.h>
 
-#include "tracker-main.h"
 #include "tracker-albumart.h"
 
 typedef enum {
@@ -69,8 +68,10 @@ typedef struct {
 
 } MetadataExtractor;
 
-static void extract_gstreamer_helix_audio (const gchar *uri, TrackerSparqlBuilder *metadata);
-static void extract_gstreamer_helix_video (const gchar *uri, TrackerSparqlBuilder *metadata);
+static void extract_gstreamer_helix_audio (const gchar          *uri,
+                                           TrackerSparqlBuilder *metadata);
+static void extract_gstreamer_helix_video (const gchar          *uri,
+                                           TrackerSparqlBuilder *metadata);
 
 static TrackerExtractData data[] = {
 	{ "audio/vnd.rn-realaudio", extract_gstreamer_helix_audio },
@@ -856,7 +857,7 @@ extract_gstreamer_helix_video (const gchar *uri, TrackerSparqlBuilder *metadata)
 }
 
 TrackerExtractData *
-tracker_get_extract_data (void)
+tracker_extract_get_data (void)
 {
 	return data;
 }

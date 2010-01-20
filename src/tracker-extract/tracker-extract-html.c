@@ -21,14 +21,14 @@
 #include "config.h"
 
 #include <string.h>
+
 #include <glib.h>
 
 #include <libxml/HTMLparser.h>
-#include <libtracker-common/tracker-statement-list.h>
-
-#include "tracker-main.h"
 
 #include <libtracker-common/tracker-ontology.h>
+
+#include <libtracker-extract/tracker-extract.h>
 
 #define RDF_TYPE TRACKER_RDF_PREFIX "type"
 
@@ -255,7 +255,7 @@ extract_html (const gchar          *uri,
 }
 
 TrackerExtractData *
-tracker_get_extract_data (void)
+tracker_extract_get_data (void)
 {
 	return data;
 }

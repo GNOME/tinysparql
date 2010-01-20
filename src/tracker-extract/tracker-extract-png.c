@@ -41,8 +41,8 @@
 #include <libtracker-common/tracker-file-utils.h>
 #include <libtracker-common/tracker-utils.h>
 
-#include "tracker-main.h"
-#include "tracker-xmp.h"
+#include <libtracker-extract/tracker-extract.h>
+#include <libtracker-extract/tracker-xmp.h>
 
 #define RFC1123_DATE_FORMAT "%d %B %Y %H:%M:%S %z"
 
@@ -63,9 +63,9 @@ typedef struct {
 		*creation_time, *title, *disclaimer;
 } PngData;
 
-static gchar *rfc1123_to_iso8601_date (gchar       *rfc_date);
-static void   extract_png             (const gchar *filename,
-                                       TrackerSparqlBuilder   *metadata);
+static gchar *rfc1123_to_iso8601_date (gchar                *rfc_date);
+static void   extract_png             (const gchar          *filename,
+                                       TrackerSparqlBuilder *metadata);
 
 static TrackerExtractData data[] = {
 	{ "image/png", extract_png },
@@ -557,7 +557,7 @@ extract_png (const gchar *uri,
 }
 
 TrackerExtractData *
-tracker_get_extract_data (void)
+tracker_extract_get_data (void)
 {
 	return data;
 }

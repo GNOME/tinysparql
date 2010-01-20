@@ -36,8 +36,7 @@
 #include <libtracker-common/tracker-file-utils.h>
 #include <libtracker-common/tracker-ontology.h>
 
-#include "tracker-main.h"
-
+#include <libtracker-extract/tracker-extract.h>
 
 #define NIE_PREFIX TRACKER_NIE_PREFIX
 #define NFO_PREFIX TRACKER_NFO_PREFIX
@@ -46,8 +45,8 @@
 #define RDF_PREFIX TRACKER_RDF_PREFIX
 #define RDF_TYPE RDF_PREFIX "type"
 
-static void extract_abw (const gchar *uri,
-                         TrackerSparqlBuilder   *metadata);
+static void extract_abw (const gchar          *uri,
+                         TrackerSparqlBuilder *metadata);
 
 static TrackerExtractData data[] = {
 	{ "application/x-abiword", extract_abw },
@@ -55,8 +54,8 @@ static TrackerExtractData data[] = {
 };
 
 static void
-extract_abw (const gchar *uri,
-             TrackerSparqlBuilder   *metadata)
+extract_abw (const gchar          *uri,
+             TrackerSparqlBuilder *metadata)
 {
 	FILE *f;
 	gchar *filename;
@@ -121,7 +120,7 @@ extract_abw (const gchar *uri,
 }
 
 TrackerExtractData *
-tracker_get_extract_data (void)
+tracker_extract_get_data (void)
 {
 	return data;
 }

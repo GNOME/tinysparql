@@ -21,34 +21,15 @@
 #ifndef __TRACKER_MAIN_H__
 #define __TRACKER_MAIN_H__
 
-#include <glib.h>
-
-#include <libtracker-common/tracker-storage.h>
-#include <libtracker-common/tracker-statement-list.h>
 #include "tracker-fts-config.h"
 
 G_BEGIN_DECLS
 
-typedef struct TrackerExtractData TrackerExtractData;
-
-typedef TrackerExtractData * (*TrackerExtractDataFunc)(void);
-
-struct TrackerExtractData {
-	const gchar *mime;
-
-	void (* extract) (const gchar *path,
-	                  TrackerSparqlBuilder *metadata);
-};
-
-/* This is defined in each extract */
-TrackerExtractData *tracker_get_extract_data        (void);
-
 /* This is used to not shutdown after the default of 30 seconds if we
  * get more work to do.
  */
-void                tracker_main_quit_timeout_reset (void);
-
-TrackerFTSConfig   *tracker_main_get_fts_config (void);
+void              tracker_main_quit_timeout_reset (void);
+TrackerFTSConfig *tracker_main_get_fts_config     (void);
 
 G_END_DECLS
 

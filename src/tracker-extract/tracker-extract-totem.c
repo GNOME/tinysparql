@@ -26,7 +26,7 @@
 #include <libtracker-common/tracker-ontology.h>
 #include <libtracker-common/tracker-utils.h>
 
-#include "tracker-main.h"
+#include <libtracker-extract/tracker-extract.h>
 
 #define NMM_PREFIX TRACKER_NMM_PREFIX
 #define NFO_PREFIX TRACKER_NFO_PREFIX
@@ -53,8 +53,8 @@ static const gchar *tags[][2] = {
 	{ NULL,                                         NULL                    }
 };
 
-static void extract_totem (const gchar *uri,
-                           TrackerSparqlBuilder   *metadata);
+static void extract_totem (const gchar          *uri,
+                           TrackerSparqlBuilder *metadata);
 
 static TrackerExtractData data[] = {
 	{ "audio/*", extract_totem },
@@ -74,8 +74,8 @@ metadata_write_foreach (gpointer key,
 }
 
 static void
-extract_totem (const gchar *uri,
-               TrackerSparqlBuilder   *metadata)
+extract_totem (const gchar          *uri,
+               TrackerSparqlBuilder *metadata)
 {
 	gchar *argv[3];
 	gchar *totem;
@@ -183,7 +183,7 @@ extract_totem (const gchar *uri,
 }
 
 TrackerExtractData *
-tracker_get_extract_data (void)
+tracker_extract_get_data (void)
 {
 	return data;
 }

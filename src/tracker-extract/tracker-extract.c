@@ -26,8 +26,9 @@
 #include <gio/gio.h>
 
 #include <libtracker-common/tracker-dbus.h>
-#include <libtracker-common/tracker-sparql-builder.h>
 #include <libtracker-common/tracker-log.h>
+
+#include <libtracker-extract/tracker-extract.h>
 
 #include "tracker-dbus.h"
 #include "tracker-extract.h"
@@ -183,7 +184,7 @@ tracker_extract_new (gboolean disable_shutdown,
 
 		g_module_make_resident (module);
 
-		if (g_module_symbol (module, "tracker_get_extract_data", (gpointer *) &func)) {
+		if (g_module_symbol (module, "tracker_extract_get_data", (gpointer *) &func)) {
 			ModuleData mdata;
 
 			mdata.module = module;
@@ -337,7 +338,7 @@ get_file_metadata (TrackerExtract        *extract,
 				                              "  Extracting with module:'%s'",
 				                              g_module_name ((GModule*) mdata.module));
 
-				(*edata->extract) (uri, statements);
+				(*edata->func) (uri, statements);
 
 				items = tracker_sparql_builder_get_length (statements);
 
@@ -372,7 +373,7 @@ get_file_metadata (TrackerExtract        *extract,
 				                              "  Extracting with module:'%s'",
 				                              g_module_name ((GModule*) mdata.module));
 
-				(*edata->extract) (uri, statements);
+				(*edata->func) (uri, statements);
 
 				items = tracker_sparql_builder_get_length (statements);
 

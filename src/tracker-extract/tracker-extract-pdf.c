@@ -25,14 +25,15 @@
 #include <glib.h>
 #include <poppler.h>
 
-#include <libtracker-common/tracker-statement-list.h>
 #include <libtracker-common/tracker-ontology.h>
 #include <libtracker-common/tracker-type-utils.h>
 #include <libtracker-common/tracker-utils.h>
 #include <libtracker-common/tracker-type-utils.h>
 
+#include <libtracker-extract/tracker-extract.h>
+#include <libtracker-extract/tracker-xmp.h>
+
 #include "tracker-main.h"
-#include "tracker-xmp.h"
 
 typedef struct {
 	gchar *title;
@@ -462,7 +463,7 @@ extract_pdf (const gchar          *uri,
 }
 
 TrackerExtractData *
-tracker_get_extract_data (void)
+tracker_extract_get_data (void)
 {
 	return data;
 }

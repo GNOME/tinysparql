@@ -19,9 +19,7 @@
 
 #include "config.h"
 
-#include <libtracker-common/tracker-statement-list.h>
-
-#include "tracker-main.h"
+#include <libtracker-extract/tracker-extract.h>
 
 static void extract_mockup (const gchar          *uri,
                             TrackerSparqlBuilder *metadata);
@@ -90,7 +88,7 @@ extract_mockup (const gchar           *uri,
 }
 
 TrackerExtractData *
-tracker_get_extract_data (void)
+tracker_extract_get_data (void)
 {
 	return data;
 }

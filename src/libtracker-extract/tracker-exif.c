@@ -29,7 +29,6 @@
 #include <libtracker-common/tracker-type-utils.h>
 #include <libtracker-common/tracker-utils.h>
 
-#include "tracker-main.h"
 #include "tracker-exif.h"
 
 #ifdef HAVE_LIBEXIF
@@ -39,6 +38,22 @@
 #define EXIF_DATE_FORMAT "%Y:%m:%d %H:%M:%S"
 
 #ifndef HAVE_STRCASESTR
+
+/**
+ * SECTION:tracker-exif
+ * @short_description: Exchangeable Image File Format (EXIF)
+ * @stability: Stable
+ * @include: libtracker-extract/tracker-exif.h
+ *
+ * Exchangeable Image File Format (EXIF) is a specification for the
+ * image file format used by digital cameras. The specification uses
+ * the existing JPEG, TIFF Rev. 6.0, and RIFF WAV file formats, with
+ * the addition of specific metadata tags. It is not supported in JPEG
+ * 2000, PNG, or GIF.
+ *
+ * This API is provided to remove code duplication between extractors
+ * using these standards.
+ **/
 
 static gchar *
 strcasestr (const gchar *haystack,
@@ -300,6 +315,22 @@ get_value (ExifData *exif,
 
 #endif /* HAVE_LIBEXIF */
 
+/**
+ * tracker_exif_read:
+ * @buffer: a chunk of data with exif data in it.
+ * @len: the size of @buffer.
+ * @uri: the URI this is related to.
+ * @data: a pointer to a TrackerExifData struture to populate.
+ *
+ * This function takes @len bytes of @buffer and runs it through the
+ * EXIF library. The result is that @data is populated with the EXIF
+ * data found in @uri.
+ *
+ * Returns: %TRUE if the @data was populated successfully, otherwise
+ * %FALSE is returned.
+ *
+ * Since: 0.8
+ **/
 gboolean
 tracker_exif_read (const unsigned char *buffer,
                    size_t               len,
@@ -311,12 +342,14 @@ tracker_exif_read (const unsigned char *buffer,
 	g_return_val_if_fail (uri != NULL, FALSE);
 	g_return_val_if_fail (data != NULL, FALSE);
 	
+	memset (data, 0, sizeof (TrackerExifData));
+
 #ifdef HAVE_LIBEXIF
 	ExifData *exif;
 
 	exif = exif_data_new ();
 
-	g_return_val_if_fail (exit != NULL, FALSE);
+	g_return_val_if_fail (exif != NULL, FALSE);
 
 	exif_data_set_option (exif, EXIF_DATA_OPTION_IGNORE_UNKNOWN_TAGS);
 	exif_data_unset_option (exif, EXIF_DATA_OPTION_FOLLOW_SPECIFICATION);

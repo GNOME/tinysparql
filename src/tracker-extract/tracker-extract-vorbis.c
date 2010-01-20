@@ -31,7 +31,7 @@
 #include <libtracker-common/tracker-ontology.h>
 #include <libtracker-common/tracker-utils.h>
 
-#include "tracker-main.h"
+#include <libtracker-extract/tracker-extract.h>
 
 #define NIE_PREFIX TRACKER_NIE_PREFIX
 #define NFO_PREFIX TRACKER_NFO_PREFIX
@@ -358,7 +358,7 @@ extract_vorbis (const char *uri,
 }
 
 TrackerExtractData *
-tracker_get_extract_data (void)
+tracker_extract_get_data (void)
 {
 	return extract_data;
 }

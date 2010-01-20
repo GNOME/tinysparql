@@ -1586,6 +1586,7 @@ AC_CONFIG_FILES([
 	data/miners/Makefile
 	data/ontologies/Makefile
 	data/tracker-client.pc
+	data/tracker-extract.pc
 	data/tracker-miner.pc
 	docs/Makefile
 	docs/design/Makefile
@@ -1595,6 +1596,8 @@ AC_CONFIG_FILES([
 	docs/reference/libtracker-client/version.xml
 	docs/reference/libtracker-common/Makefile
 	docs/reference/libtracker-common/version.xml
+	docs/reference/libtracker-extract/Makefile
+	docs/reference/libtracker-extract/version.xml
 	docs/reference/libtracker-miner/Makefile
 	docs/reference/libtracker-miner/version.xml
 	docs/reference/ontology/Makefile
@@ -1608,6 +1611,7 @@ AC_CONFIG_FILES([
 	src/libtracker-data/Makefile
 	src/libtracker-db/Makefile
 	src/libtracker-fts/Makefile
+	src/libtracker-extract/Makefile
 	src/libtracker-gtk/Makefile
 	src/libtracker-client/Makefile
         src/libtracker-miner/Makefile

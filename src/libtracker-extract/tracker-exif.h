@@ -19,8 +19,8 @@
  * Author: Philip Van Hoof <philip@codeminded.be>
  */
 
-#ifndef __TRACKER_EXTRACT_EXIF_H__
-#define __TRACKER_EXTRACT_EXIF_H__
+#ifndef __LIBTRACKER_EXTRACT_EXIF_H__
+#define __LIBTRACKER_EXTRACT_EXIF_H__
 
 #include <glib.h>
 
@@ -56,5 +56,5 @@ gboolean tracker_exif_read (const unsigned char *buffer,
 
 G_END_DECLS
 
-#endif /* _TRACKER_EXTRACT_EXIF_H_ */
+#endif /* __LIBTRACKER_EXTRACT_EXIF_H__ */
 

@@ -18,10 +18,12 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __TRACKER_EXTRACT_XMP_H__
-#define __TRACKER_EXTRACT_XMP_H__
+#ifndef __LIBTRACKER_EXTRACT_XMP_H__
+#define __LIBTRACKER_EXTRACT_XMP_H__
 
 #include <glib.h>
+
+#include <libtracker-common/tracker-statement-list.h>
 
 G_BEGIN_DECLS
 
@@ -88,4 +90,4 @@ gboolean tracker_xmp_apply (TrackerSparqlBuilder *metadata,
 
 G_END_DECLS
 
-#endif /* __TRACKER_EXTRACT_XMP_H__ */
+#endif /* __LIBTRACKER_EXTRACT_XMP_H__ */

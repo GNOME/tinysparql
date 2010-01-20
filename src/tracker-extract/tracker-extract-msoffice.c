@@ -34,8 +34,9 @@
 #include <gsf/gsf-utils.h>
 
 #include <libtracker-common/tracker-utils.h>
-
 #include <libtracker-common/tracker-ontology.h>
+
+#include <libtracker-extract/tracker-extract.h>
 
 #include "tracker-main.h"
 
@@ -81,10 +82,8 @@
 
 #define SLIDELISTWITHTEXT_RECORD_TYPE           0x0FF0
 
-
-static void extract_msoffice (const gchar          *uri,
-                              TrackerSparqlBuilder *metadata);
-
+static void extract_msoffice   (const gchar          *uri,
+                                TrackerSparqlBuilder *metadata);
 static void extract_powerpoint (const gchar          *uri,
                                 TrackerSparqlBuilder *metadata);
 
@@ -1031,7 +1030,7 @@ extract_powerpoint (const gchar          *uri,
 }
 
 TrackerExtractData *
-tracker_get_extract_data (void)
+tracker_extract_get_data (void)
 {
 	return data;
 }
