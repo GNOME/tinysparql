@@ -306,6 +306,11 @@ tracker_resources_sparql_update_blank (TrackerResources       *self,
 		return;
 	}
 
+	if (!blank_nodes) {
+		/* Create empty GPtrArray for dbus-glib to be happy */
+		blank_nodes = g_ptr_array_new ();
+	}
+
 	tracker_dbus_request_success (request_id, context);
 	dbus_g_method_return (context, blank_nodes);
 
