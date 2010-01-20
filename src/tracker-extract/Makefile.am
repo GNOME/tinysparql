@@ -143,8 +143,8 @@ libextract_oasis_la_LIBADD = 						\
 libextract_png_la_SOURCES = tracker-extract-png.c
 libextract_png_la_LDFLAGS = $(module_flags)
 libextract_png_la_LIBADD = 						\
+	$(top_builddir)/src/libtracker-extract/libtracker-extract-@TRACKER_API_VERSION@.la \
 	$(top_builddir)/src/libtracker-common/libtracker-common.la	\
-	$(top_builddir)/src/libtracker-extract/libtracker-extract.la	\
 	$(GLIB2_LIBS) 							\
 	$(LIBPNG_LIBS) 							\
 	$(GCOV_LIBS)
@@ -169,8 +169,8 @@ libextract_totem_la_LIBADD = 						\
 libextract_xmp_la_SOURCES = tracker-extract-xmp.c
 libextract_xmp_la_LDFLAGS = $(module_flags)
 libextract_xmp_la_LIBADD = 						\
+	$(top_builddir)/src/libtracker-extract/libtracker-extract-@TRACKER_API_VERSION@.la \
 	$(top_builddir)/src/libtracker-common/libtracker-common.la	\
-	$(top_builddir)/src/libtracker-extract/libtracker-extract.la	\
 	$(GLIB2_LIBS) 							\
 	$(GCOV_LIBS)
 
@@ -196,8 +196,8 @@ libextract_msoffice_la_LIBADD = 					\
 libextract_pdf_la_SOURCES = tracker-extract-pdf.c
 libextract_pdf_la_LDFLAGS = $(module_flags)
 libextract_pdf_la_LIBADD = 						\
+	$(top_builddir)/src/libtracker-extract/libtracker-extract-@TRACKER_API_VERSION@.la \
 	$(top_builddir)/src/libtracker-common/libtracker-common.la	\
-	$(top_builddir)/src/libtracker-extract/libtracker-extract.la	\
 	$(POPPLER_GLIB_LIBS)						\
 	$(GLIB2_LIBS)							\
 	$(GCOV_LIBS)
@@ -233,8 +233,8 @@ libextract_xine_la_LIBADD = 						\
 libextract_jpeg_la_SOURCES = tracker-extract-jpeg.c
 libextract_jpeg_la_LDFLAGS = $(module_flags)
 libextract_jpeg_la_LIBADD = 						\
+	$(top_builddir)/src/libtracker-extract/libtracker-extract-@TRACKER_API_VERSION@.la \
 	$(top_builddir)/src/libtracker-common/libtracker-common.la	\
-	$(top_builddir)/src/libtracker-extract/libtracker-extract.la	\
 	$(LIBJPEG_LIBS) 						\
 	$(GLIB2_LIBS) 							\
 	$(GCOV_LIBS)
@@ -243,8 +243,8 @@ libextract_jpeg_la_LIBADD = 						\
 libextract_tiff_la_SOURCES = tracker-extract-tiff.c $(xmp_sources) $(iptc_sources)
 libextract_tiff_la_LDFLAGS = $(module_flags)
 libextract_tiff_la_LIBADD = 						\
+	$(top_builddir)/src/libtracker-extract/libtracker-extract-@TRACKER_API_VERSION@.la \
 	$(top_builddir)/src/libtracker-common/libtracker-common.la	\
-	$(top_builddir)/src/libtracker-extract/libtracker-extract.la	\
 	$(LIBTIFF_LIBS) 						\
 	$(GLIB2_LIBS) 							\
 	$(GCOV_LIBS)

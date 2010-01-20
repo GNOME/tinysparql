@@ -14,13 +14,11 @@ INCLUDES =						\
 	$(LIBEXIF_CFLAGS) 				\
 	$(EXEMPI_CFLAGS)
 
-libtracker_extractdir = $(libdir)/tracker-$(TRACKER_API_VERSION)
-libtracker_extractincludedir=$(includedir)/tracker-$(TRACKER_API_VERSION)/libtracker-extract/
-libtracker_extract_LTLIBRARIES = libtracker-extract.la
+lib_LTLIBRARIES = libtracker-extract-@TRACKER_API_VERSION@.la
 
-# $(marshal_sources)				
+libtracker_extractincdir=$(includedir)/tracker-$(TRACKER_API_VERSION)/libtracker-extract/
 
-libtracker_extract_la_SOURCES =	 			\
+libtracker_extract_@TRACKER_API_VERSION@_la_SOURCES =	\
 	tracker-extract.h				\
 	tracker-exif.c					\
 	tracker-exif.h					\
@@ -31,16 +29,16 @@ libtracker_extract_la_SOURCES =	 			\
 
 noinst_HEADERS =
 
-libtracker_extractinclude_HEADERS =			\
+libtracker_extractinc_HEADERS =				\
 	tracker-extract.h				\
 	tracker-exif.h					\
 	tracker-iptc.h					\
 	tracker-xmp.h
 
-libtracker_extract_la_LDFLAGS = 			\
+libtracker_extract_@TRACKER_API_VERSION@_la_LDFLAGS = 	\
 	-version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE)
 
-libtracker_extract_la_LIBADD = 				\
+libtracker_extract_@TRACKER_API_VERSION@_la_LIBADD = 	\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la \
 	$(GIO_LIBS)					\
 	$(GCOV_LIBS)					\
