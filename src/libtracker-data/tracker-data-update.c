@@ -1328,7 +1328,7 @@ tracker_data_delete_statement (const gchar  *graph,
 		/* subject not yet in cache, retrieve or create ID */
 		resource_buffer = g_slice_new0 (TrackerDataUpdateBufferResource);
 		resource_buffer->subject = g_strdup (subject);
-		resource_buffer->id = query_resource_id (resource_buffer->subject);
+		resource_buffer->id = subject_id;
 		resource_buffer->fts_updated = FALSE;
 		resource_buffer->types = tracker_data_query_rdf_type (resource_buffer->id);
 		resource_buffer->predicates = g_hash_table_new_full (g_direct_hash, g_direct_equal, g_object_unref, (GDestroyNotify) g_value_array_free);
