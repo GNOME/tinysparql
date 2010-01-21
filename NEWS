@@ -8,6 +8,35 @@ Improvements / New:
   * Build now uses AC_CONFIG_HEADERS.
   * Removed all thumbnail related code. It is no longer used.
 
+  Ontology:
+  * Added mlo:GeoLocation, mlo:GeoSphere, mlo:GeoBoundingBox classes.
+  * Added mlo:LocationBoundingBox, mlo:Route, classes.
+  * Added mlo:LandmarkCategory, mlo:isRemovable classes.
+  * Added mlo:belongsToCategory property.
+  * Added mlo:bbNorthWest, mlo:bbSouthEast properties.
+  * Added mlo:radius, mlo:asBoundingBox, mlo:asGeoPoint properties.
+  * Added mlo:asPostalAddress property.
+  * Added mlo:predefined-landmark-category-accommodation.
+  * Added mlo:predefined-landmark-category-business.
+  * Added mlo:predefined-landmark-category-communication.
+  * Added mlo:predefined-landmark-category-educational-institute.
+  * Added mlo:predefined-landmark-category-entertainment.
+  * Added mlo:predefined-landmark-category-food-beverage.
+  * Added mlo:predefined-landmark-category-geographical-area.
+  * Added mlo:predefined-landmark-category-outdoor-activities.
+  * Added mlo:predefined-landmark-category-people.
+  * Added mlo:predefined-landmark-category-public-service.
+  * Added mlo:predefined-landmark-category-religious-places.
+  * Added mlo:predefined-landmark-category-shopping.
+  * Added mlo:predefined-landmark-category-sightseeing.
+  * Added mlo:predefined-landmark-category-sports.
+  * Added mlo:predefined-landmark-category-transport.
+  * Changed mlo:altitude to be a double not int.
+  * Deprecated mlo:boxSouthWestCorner, mlo:boxEastLimit.
+  * Deprecated mlo:boxVerticalLimit, mlo:boxNorthLimit.
+  * Deprecated mlo:city, mlo:country mlo:state, mlo:address.
+  * Deprecated mlo:poiLocation.
+
   data-generators:
   * Add channel/conversation to IM test data.
   * Use nco ontology updates.
