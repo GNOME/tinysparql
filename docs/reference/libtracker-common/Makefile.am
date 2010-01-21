@@ -9,7 +9,7 @@ DOC_MODULE=libtracker-common
 DOC_MAIN_SGML_FILE=libtracker-common-docs.sgml
 
 # Extra options to supply to gtkdoc-scan
-# SCAN_OPTIONS=--deprecated-guards="G_GNUC_DEPRECATED"
+SCAN_OPTIONS=--deprecated-guards="TRACKER_DISABLE_DEPRECATED"
 
 # Extra options to pass to gtkdoc-scangobj
 # SCANGOBJ_OPTIONS=--type-init-func="gtk_type_init(0)" 
