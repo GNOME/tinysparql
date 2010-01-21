@@ -433,3 +433,19 @@ nmo:default-sms-folder-sent a nmo:SMSFolder ;
 nmo:default-sms-folder-myfolder a nmo:SMSFolder ;
 			     nie:title "MyFolder" ;
 			     nmo:smsFolderId "0x1008" .
+
+nmo:deliveryStatus a rdf:Property ;
+        rdfs:label "deliveryStatus" ;
+        nrl:maxCardinality 1 ;
+        rdfs:domain nmo:Message ;
+        rdfs:range nmo:DeliveryStatus .
+
+nmo:DeliveryStatus a rdfs:Class ;
+        rdfs:label "Delivery statuses" ;
+        rdfs:comment "Predefined set of delivery status instances" ;
+        rdfs:subClassOf rdfs:Resource .
+
+nmo:delivery-status-sent a nmo:DeliveryStatus .
+nmo:delivery-status-delivered a nmo:DeliveryStatus .
+nmo:delivery-status-temporarily-failed a nmo:DeliveryStatus .
+nmo:delivery-status-permanently-failed a nmo:DeliveryStatus .
