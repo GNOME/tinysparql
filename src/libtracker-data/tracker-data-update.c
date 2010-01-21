@@ -513,6 +513,10 @@ tracker_data_resource_buffer_flush (GError **error)
 					return;
 				}
 
+				if (table->class) {
+					tracker_class_set_count (table->class, tracker_class_get_count (table->class) - 1);
+				}
+
 				if (strcmp (table_name, "rdfs:Resource") == 0) {
 					TrackerProperty **properties, *property;
 					guint n_props;
@@ -1279,8 +1283,6 @@ cache_delete_resource_type (TrackerClass *class,
 	}
 
 	cache_delete_row (class);
-
-	tracker_class_set_count (class, tracker_class_get_count (class) - 1);
 
 	if (delete_callbacks) {
 		guint n;
