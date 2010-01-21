@@ -1,3 +1,73 @@
+NEW in 0.7.17
+=============
+
+Improvements / New:
+
+  General:
+  * Build now uses separate m4/ directory.
+  * Build now uses AC_CONFIG_HEADERS.
+  * Removed all thumbnail related code. It is no longer used.
+
+  data-generators:
+  * Add channel/conversation to IM test data.
+  * Use nco ontology updates.
+  * Use nmo:lastMessageDate, nmo:communicationChannel,
+    nco:default-contact-me.
+
+  libtracker-db:
+  * Fixed crash in journal if reader_init() failed.
+  * Fixed error propagation in vapi files.
+  * Fixed make distcheck failure for journal test case.
+
+  litracker-data:
+  * Fixed error propagation in vapi files.
+  * Fixed build issues with missing SQLite CFLAGS.
+
+  tracker-store:
+  * Fixed a potential crash returning NULL for sparql_update_blank().
+
+  libtracker-extract:
+  * Created this new library for 3rd parties to build extract plugins.
+
+  libtracker-miner:
+  * Use the version in the built .so filename.
+  * Don't use resource iri = uri.
+  * Stopped using tracker:uri.
+
+  tracker-miner-fs:
+  * Added hidden directory checks for FAT file systems.
+
+  tracker-extract:
+  * Cleaned up IPTC code.
+  * Added parameter checks for exif/xmp/iptc public APIs.
+  * Added full text extraction support from MSWord files for FTS.
+
+  tracker-search:
+  * Warn about using stop words for search terms.
+
+  evolution:
+  * Fixed a UI hang.
+
+  nautilus:
+  * Fixed build issues with missing D-Bus CFLAGS.
+
+  kmail:
+  * Fixed dist tarball by including the missing registrar.xml file.
+
+Bugs:
+
+  * NB#144725, Tracker doesn't add ontologies/tracker#added prop...
+  * NB#149100, nmm::MusicAlbum does not update when music album...
+  * NB#153444, tracker-stats giving incorrect results for contacts...
+  * NB#153335, tracker-search -a not returning actual album count
+
+Notes:
+
+  The Deskbar applet packaged with Tracker is currently out of date
+  and needs some love to get it working with the new APIs. It is in
+  the same state as it was for 0.6. As such it isn't expected to work.
+
+
 NEW in 0.7.16
 =============
 
