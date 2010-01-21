@@ -49,7 +49,6 @@
 #include "tracker-miner-applications.h"
 #include "tracker-miner-files.h"
 #include "tracker-miner-files-reindex.h"
-#include "tracker-thumbnailer.h"
 
 #define ABOUT	  \
 	"Tracker " PACKAGE_VERSION "\n"
@@ -100,8 +99,6 @@ sanity_check_option_values (TrackerConfig *config)
 	g_message ("Indexer options:");
 	g_message ("  Throttle level  .......................  %d",
 	           tracker_config_get_throttle (config));
-	g_message ("  Thumbnail indexing enabled  ...........  %s",
-	           tracker_config_get_enable_thumbnails (config) ? "yes" : "no");
 	g_message ("  Indexing while on battery  ............  %s (first time only = %s)",
 	           tracker_config_get_index_on_battery (config) ? "yes" : "no",
 	           tracker_config_get_index_on_battery_first_time (config) ? "yes" : "no");
@@ -199,7 +196,6 @@ miner_handle_next (void)
 		finished_miners = TRUE;
 
 		g_message ("All miners are now finished");
-		tracker_thumbnailer_queue_send ();
 		return;
 	}
 
@@ -339,8 +335,6 @@ main (gint argc, gchar *argv[])
 		return EXIT_FAILURE;
 	}
 
-	tracker_thumbnailer_init ();
-
 	/* Create miner for applications */
 	miner_applications = tracker_miner_applications_new ();
 	miners = g_slist_append (miners, miner_applications);
@@ -369,8 +363,7 @@ main (gint argc, gchar *argv[])
 
 	g_slist_foreach (miners, (GFunc) g_object_unref, NULL);
 	g_slist_free (miners);
-        
-	tracker_thumbnailer_shutdown ();
+
 	tracker_log_shutdown ();
 
 	g_print ("\nOK\n\n");

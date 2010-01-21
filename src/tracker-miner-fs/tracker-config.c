@@ -45,7 +45,6 @@
 #define DEFAULT_THROTTLE                         0        /* 0->20 */
 #define DEFAULT_SCAN_TIMEOUT                     0        /* 0->1000 */
 #define DEFAULT_CACHE_TIMEOUT                    60       /* 0->1000 */
-#define DEFAULT_ENABLE_THUMBNAILS                TRUE
 #define DEFAULT_INDEX_MOUNTED_DIRECTORIES        TRUE
 #define DEFAULT_INDEX_REMOVABLE_DEVICES                  TRUE
 #define DEFAULT_INDEX_ON_BATTERY                 FALSE
@@ -64,7 +63,6 @@ typedef struct {
 
 	/* Indexing */
 	gint      throttle;
-	gboolean  enable_thumbnails;
 	gboolean  index_on_battery;
 	gboolean  index_on_battery_first_time;
 	gboolean  index_mounted_directories;
@@ -121,7 +119,6 @@ enum {
 
 	/* Indexing */
 	PROP_THROTTLE,
-	PROP_ENABLE_THUMBNAILS,
 	PROP_INDEX_ON_BATTERY,
 	PROP_INDEX_ON_BATTERY_FIRST_TIME,
 	PROP_INDEX_MOUNTED_DIRECTORIES,
@@ -144,7 +141,6 @@ static ObjectToKeyFile conversions[] = {
 	{ G_TYPE_INT,     "cache-timeout",                    GROUP_MONITORS, "CacheTimeout"              },
 	/* Indexing */
 	{ G_TYPE_INT,     "throttle",                         GROUP_INDEXING, "Throttle"                  },
-	{ G_TYPE_BOOLEAN, "enable-thumbnails",                GROUP_INDEXING, "EnableThumbnails"          },
 	{ G_TYPE_BOOLEAN, "index-on-battery",                 GROUP_INDEXING, "IndexOnBattery"            },
 	{ G_TYPE_BOOLEAN, "index-on-battery-first-time",      GROUP_INDEXING, "IndexOnBatteryFirstTime"   },
 	{ G_TYPE_BOOLEAN, "index-mounted-directories",        GROUP_INDEXING, "IndexMountedDirectories"   },
@@ -229,14 +225,6 @@ tracker_config_class_init (TrackerConfigClass *klass)
 	                                                   20,
 	                                                   DEFAULT_THROTTLE,
 	                                                   G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
-	g_object_class_install_property (object_class,
-	                                 PROP_ENABLE_THUMBNAILS,
-	                                 g_param_spec_boolean ("enable-thumbnails",
-	                                                       "Enable thumbnails",
-	                                                       " Set to false to completely disable thumbnail generation",
-	                                                       DEFAULT_ENABLE_THUMBNAILS,
-	                                                       G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
-	;
 	g_object_class_install_property (object_class,
 	                                 PROP_INDEX_ON_BATTERY,
 	                                 g_param_spec_boolean ("index-on-battery",
@@ -362,10 +350,6 @@ config_set_property (GObject      *object,
 		tracker_config_set_throttle (TRACKER_CONFIG (object),
 		                             g_value_get_int (value));
 		break;
-	case PROP_ENABLE_THUMBNAILS:
-		tracker_config_set_enable_thumbnails (TRACKER_CONFIG (object),
-		                                      g_value_get_boolean (value));
-		break;
 	case PROP_INDEX_ON_BATTERY:
 		tracker_config_set_index_on_battery (TRACKER_CONFIG (object),
 		                                     g_value_get_boolean (value));
@@ -446,9 +430,6 @@ config_get_property (GObject    *object,
 		/* Indexing */
 	case PROP_THROTTLE:
 		g_value_set_int (value, priv->throttle);
-		break;
-	case PROP_ENABLE_THUMBNAILS:
-		g_value_set_boolean (value, priv->enable_thumbnails);
 		break;
 	case PROP_INDEX_ON_BATTERY:
 		g_value_set_boolean (value, priv->index_on_battery);
@@ -1123,18 +1104,6 @@ tracker_config_get_throttle (TrackerConfig *config)
 }
 
 gboolean
-tracker_config_get_enable_thumbnails (TrackerConfig *config)
-{
-	TrackerConfigPrivate *priv;
-
-	g_return_val_if_fail (TRACKER_IS_CONFIG (config), DEFAULT_ENABLE_THUMBNAILS);
-
-	priv = TRACKER_CONFIG_GET_PRIVATE (config);
-
-	return priv->enable_thumbnails;
-}
-
-gboolean
 tracker_config_get_index_on_battery (TrackerConfig *config)
 {
 	TrackerConfigPrivate *priv;
@@ -1356,20 +1325,6 @@ tracker_config_set_throttle (TrackerConfig *config,
 
 	priv->throttle = value;
 	g_object_notify (G_OBJECT (config), "throttle");
-}
-
-void
-tracker_config_set_enable_thumbnails (TrackerConfig *config,
-                                      gboolean       value)
-{
-	TrackerConfigPrivate *priv;
-
-	g_return_if_fail (TRACKER_IS_CONFIG (config));
-
-	priv = TRACKER_CONFIG_GET_PRIVATE (config);
-
-	priv->enable_thumbnails = value;
-	g_object_notify (G_OBJECT (config), "enable-thumbnails");
 }
 
 void

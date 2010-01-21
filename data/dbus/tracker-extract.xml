@@ -21,10 +21,5 @@
       <arg type="s" name="mime" direction="in" />
       <arg type="s" name="sparql" direction="out" />
     </method>
-
-    <signal name="QueueThumbnail">
-      <arg type="s" name="filename"/>
-      <arg type="s" name="mime"/>
-    </signal>
   </interface>
 </node>

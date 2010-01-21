@@ -34,7 +34,6 @@ public static CheckButton checkbutton_enable_index_on_battery_first_time;
 public static CheckButton checkbutton_enable_index_on_battery;
 public static SpinButton spinbutton_delay;
 public static CheckButton checkbutton_enable_monitoring;
-public static CheckButton checkbutton_enable_thumbnails;
 public static CheckButton checkbutton_index_mounted_directories;
 public static CheckButton checkbutton_index_removable_media;
 public static Scale hscale_disk_space_limit;
@@ -80,10 +79,6 @@ public static void spinbutton_delay_value_changed_cb (SpinButton source) {
 
 public static void checkbutton_enable_monitoring_toggled_cb (CheckButton source) {
 	config.enable_monitors = source.active;
-}
-
-public static void checkbutton_enable_thumbnails_toggled_cb (CheckButton source) {
-	config.enable_thumbnails = source.active;
 }
 
 public static void checkbutton_enable_index_on_battery_toggled_cb (CheckButton source) {
@@ -348,8 +343,6 @@ static int main (string[] args) {
 		spinbutton_delay.value = (double) config.initial_sleep;
 		checkbutton_enable_monitoring = builder.get_object ("checkbutton_enable_monitoring") as CheckButton;
 		checkbutton_enable_monitoring.active = config.enable_monitors;
-		checkbutton_enable_thumbnails = builder.get_object ("checkbutton_enable_thumbnails") as CheckButton;
-		checkbutton_enable_thumbnails.active = config.enable_thumbnails;
 		checkbutton_index_mounted_directories = builder.get_object ("checkbutton_index_mounted_directories") as CheckButton;
 		checkbutton_index_mounted_directories.active = config.index_mounted_directories;
 		checkbutton_index_removable_media = builder.get_object ("checkbutton_index_removable_media") as CheckButton;

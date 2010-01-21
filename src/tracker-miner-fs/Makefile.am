@@ -28,9 +28,7 @@ tracker_miner_fs_SOURCES =						\
 	tracker-miner-files.c						\
 	tracker-miner-files.h						\
 	tracker-miner-files-reindex.c					\
-	tracker-miner-files-reindex.h					\
-	tracker-thumbnailer.c						\
-	tracker-thumbnailer.h
+	tracker-miner-files-reindex.h					
 
 tracker_miner_fs_LDADD =						\
 	$(top_builddir)/src/libtracker-client/libtracker-client-@TRACKER_API_VERSION@.la \

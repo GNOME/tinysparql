@@ -56,7 +56,6 @@ static gboolean should_terminate;
 static gboolean hard_reset;
 static gboolean soft_reset;
 static gboolean remove_config;
-static gboolean remove_thumbnails;
 static gboolean start;
 static const gchar **reindex_mime_types;
 static gboolean print_version;
@@ -77,9 +76,6 @@ static GOptionEntry entries[] = {
 	  NULL },
 	{ "remove-config", 'c', 0, G_OPTION_ARG_NONE, &remove_config,
 	  N_("Remove all configuration files so they are re-generated on next start"),
-	  NULL },
-	{ "remove-thumbnails", 'i', 0, G_OPTION_ARG_NONE, &remove_thumbnails,
-	  N_("Remove all thumbnail files so they are re-generated"),
 	  NULL },
 	{ "start", 's', 0, G_OPTION_ARG_NONE, &start,
 	  N_("Starts miners (which indirectly starts tracker-store too)"),
@@ -258,7 +254,7 @@ main (int argc, char **argv)
 	 * don't iterate them.
 	 */
 	if (should_kill || should_terminate ||
-	    (!start && !remove_config && !remove_thumbnails)) {
+	    (!start && !remove_config)) {
 		pids = get_pids ();
 		str = g_strdup_printf (g_dngettext (NULL,
 		                                    "Found %d PID…",
@@ -403,43 +399,6 @@ main (int argc, char **argv)
 		g_print ("%s\n", _("Removing configuration files…"));
 
 		tracker_crawler_start (crawler, file, FALSE);
-		g_object_unref (file);
-
-		g_main_loop_run (main_loop);
-		g_object_unref (crawler);
-	}
-
-	if (remove_thumbnails) {
-		GMainLoop *main_loop;
-		GFile *file;
-		TrackerCrawler *crawler;
-		const gchar *home_dir;
-		gchar *path;
-
-		crawler = tracker_crawler_new ();
-		main_loop = g_main_loop_new (NULL, FALSE);
-
-		g_signal_connect (crawler, "check-file",
-		                  G_CALLBACK (crawler_check_file_cb),
-		                  NULL);
-		g_signal_connect (crawler, "finished",
-		                  G_CALLBACK (crawler_finished_cb),
-		                  main_loop);
-
-		/* Go through service files */
-		home_dir = g_getenv ("HOME");
-
-		if (!home_dir) {
-			home_dir = g_get_home_dir ();
-		}
-
-		path = g_build_path (G_DIR_SEPARATOR_S, home_dir, ".thumbnails", NULL);
-		file = g_file_new_for_path (path);
-		g_free (path);
-
-		g_print ("%s\n", _("Removing thumbnails files…"));
-
-		tracker_crawler_start (crawler, file, TRUE);
 		g_object_unref (file);
 
 		g_main_loop_run (main_loop);

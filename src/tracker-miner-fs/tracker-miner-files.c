@@ -39,7 +39,6 @@
 #include "tracker-miner-files.h"
 #include "tracker-config.h"
 #include "tracker-extract-client.h"
-#include "tracker-thumbnailer.h"
 #include "tracker-marshal.h"
 
 #define DISK_SPACE_CHECK_FREQUENCY 10
@@ -122,10 +121,6 @@ static void     low_disk_space_limit_cb       (GObject              *gobject,
                                                gpointer              user_data);
 
 static DBusGProxy * extractor_create_proxy    (void);
-static void    extractor_queue_thumbnail_cb   (DBusGProxy           *proxy,
-                                               const gchar          *filename,
-                                               const gchar          *mime_type,
-                                               gpointer              user_data);
 
 static gboolean miner_files_check_file        (TrackerMinerFS       *fs,
                                                GFile                *file);
@@ -214,21 +209,6 @@ tracker_miner_files_init (TrackerMinerFiles *mf)
 	/* Set up extractor and signals */
 	priv->extractor_proxy = extractor_create_proxy ();
 
-	dbus_g_object_register_marshaller (tracker_marshal_VOID__STRING_STRING,
-	                                   G_TYPE_NONE,
-	                                   G_TYPE_STRING,
-	                                   G_TYPE_STRING,
-	                                   G_TYPE_INVALID);
-
-	dbus_g_proxy_add_signal (priv->extractor_proxy, "QueueThumbnail",
-	                         G_TYPE_STRING,
-	                         G_TYPE_STRING,
-	                         G_TYPE_INVALID);
-
-	dbus_g_proxy_connect_signal (priv->extractor_proxy, "QueueThumbnail",
-	                             G_CALLBACK (extractor_queue_thumbnail_cb),
-	                             NULL, NULL);
-
 	init_mount_points (mf);
 }
 
@@ -280,10 +260,6 @@ miner_files_finalize (GObject *object)
 
 	mf = TRACKER_MINER_FILES (object);
 	priv = mf->private;
-
-	dbus_g_proxy_disconnect_signal (priv->extractor_proxy, "QueueThumbnail",
-	                                G_CALLBACK (extractor_queue_thumbnail_cb),
-	                                NULL);
 
 	g_object_unref (priv->extractor_proxy);
 
@@ -1247,15 +1223,6 @@ extractor_create_proxy (void)
 }
 
 static void
-extractor_queue_thumbnail_cb (DBusGProxy  *proxy,
-                              const gchar *filename,
-                              const gchar *mime_type,
-                              gpointer     user_data)
-{
-	tracker_thumbnailer_queue_add (filename, mime_type);
-}
-
-static void
 extractor_get_embedded_metadata_cb (DBusGProxy *proxy,
                                     gchar      *sparql,
                                     GError     *error,
@@ -1393,11 +1360,6 @@ process_file_cb (GObject      *object,
 	miner_files_add_to_datasource (data->miner, file, sparql);
 
 	tracker_sparql_builder_insert_close (sparql);
-
-	/* Send file/mime data to thumbnailer (which adds it to the
-	 * queue if the thumbnailer handles those mime types).
-	 */
-	tracker_thumbnailer_queue_add (uri, mime_type);
 
 	/* Next step, getting embedded metadata */
 	extractor_get_embedded_metadata (data, uri, mime_type);

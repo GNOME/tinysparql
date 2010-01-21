@@ -279,22 +279,6 @@
                               </packing>
                             </child>
                             <child>
-                              <object class="GtkCheckButton" id="checkbutton_enable_thumbnails">
-                                <property name="label" translatable="yes">Enable _thumbnails</property>
-                                <property name="visible">True</property>
-                                <property name="can_focus">True</property>
-                                <property name="receives_default">False</property>
-                                <property name="use_underline">True</property>
-                                <property name="active">True</property>
-                                <property name="draw_indicator">True</property>
-                                <signal name="toggled" handler="checkbutton_enable_thumbnails_toggled_cb"/>
-                              </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="position">1</property>
-                              </packing>
-                            </child>
-                            <child>
                               <object class="GtkCheckButton" id="checkbutton_enable_index_on_battery">
                                 <property name="label" translatable="yes">Enable when running on _battery</property>
                                 <property name="visible">True</property>

@@ -517,26 +517,6 @@ albumart_heuristic (const gchar *artist,
 	return retval;
 }
 
-static void
-albumart_signal_queue_thumbnail (const gchar *file,
-                                 const gchar *mime)
-{
-	GObject *object;
-
-	object = tracker_dbus_get_object (TRACKER_TYPE_EXTRACT);
-	if (!object) {
-		/* This can happen if we run tracker-extract on the
-		 * command line for one file only because we don't
-		 * register the TrackerExtract object with DBus.
-		 */
-		return;
-	}
-
-	g_message ("Album art being signaled for thumbnail queue for file:'%s', mime:'%s'",
-	           file, mime);
-	g_signal_emit_by_name (object, "queue-thumbnail", file, mime);
-}
-
 static gboolean
 albumart_set (const unsigned char *buffer,
               size_t               len,
@@ -557,7 +537,6 @@ albumart_set (const unsigned char *buffer,
 
 	retval = tracker_albumart_buffer_to_jpeg (buffer, len, mime, local_path);
 
-	albumart_signal_queue_thumbnail (local_path, mime);
 	g_free (local_path);
 
 	return retval;
@@ -715,15 +694,6 @@ albumart_queue_cb (DBusGProxy     *proxy,
 
 	if (info->hal && info->art_path &&
 	    g_file_test (info->art_path, G_FILE_TEST_EXISTS)) {
-		gchar *uri;
-
-		uri = g_filename_to_uri (info->art_path, NULL, NULL);
-
-		g_debug ("Downloaded album art using D-Bus service for uri:'%s'",
-		         uri);
-
-		albumart_signal_queue_thumbnail (uri, "image/jpeg");
-		g_free (uri);
 
 		albumart_copy_to_local (info->hal,
 		                        info->art_path,
@@ -899,9 +869,6 @@ tracker_albumart_process (const unsigned char *buffer,
 			}
 		}
 
-		if (processed) {
-			albumart_signal_queue_thumbnail (filename_uri, "image/jpeg");
-		}
 	} else {
 		g_debug ("Album art already exists for uri:'%s' as '%s'",
 		         filename_uri,

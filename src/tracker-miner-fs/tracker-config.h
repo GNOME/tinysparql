@@ -57,7 +57,6 @@ gboolean       tracker_config_get_enable_monitors                  (TrackerConfi
 gint           tracker_config_get_scan_timeout                     (TrackerConfig *config);
 gint           tracker_config_get_cache_timeout                    (TrackerConfig *config);
 gint           tracker_config_get_throttle                         (TrackerConfig *config);
-gboolean       tracker_config_get_enable_thumbnails                (TrackerConfig *config);
 gboolean       tracker_config_get_index_on_battery                 (TrackerConfig *config);
 gboolean       tracker_config_get_index_on_battery_first_time      (TrackerConfig *config);
 gboolean       tracker_config_get_index_removable_devices          (TrackerConfig *config);
@@ -81,8 +80,6 @@ void           tracker_config_set_cache_timeout                    (TrackerConfi
                                                                     gint           value);
 void           tracker_config_set_throttle                         (TrackerConfig *config,
                                                                     gint           value);
-void           tracker_config_set_enable_thumbnails                (TrackerConfig *config,
-                                                                    gboolean       value);
 void           tracker_config_set_index_on_battery                 (TrackerConfig *config,
                                                                     gboolean       value);
 void           tracker_config_set_index_on_battery_first_time      (TrackerConfig *config,
