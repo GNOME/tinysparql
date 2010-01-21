@@ -20,11 +20,15 @@ libexec_PROGRAMS = tracker-miner-fs
 tracker_miner_fs_SOURCES =						\
 	tracker-config.c						\
 	tracker-config.h						\
+	tracker-dbus.c							\
+	tracker-dbus.h							\
 	tracker-main.c							\
 	tracker-miner-applications.c					\
 	tracker-miner-applications.h					\
 	tracker-miner-files.c						\
 	tracker-miner-files.h						\
+	tracker-miner-files-reindex.c					\
+	tracker-miner-files-reindex.h					\
 	tracker-thumbnailer.c						\
 	tracker-thumbnailer.h
 
@@ -53,6 +57,7 @@ marshal_sources =							\
 
 dbus_sources = 								\
 	tracker-miner-glue.h						\
+	tracker-miner-files-reindex-glue.h				\
 	tracker-extract-client.h
 
 tracker-marshal.h: tracker-marshal.list

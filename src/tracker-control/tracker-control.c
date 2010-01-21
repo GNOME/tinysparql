@@ -33,9 +33,13 @@
 #include <glib/gstdio.h>
 
 #include <libtracker-common/tracker-common.h>
+
 #include <libtracker-db/tracker-db.h>
+
 #include <libtracker-miner/tracker-miner-manager.h>
 #include <libtracker-miner/tracker-crawler.h>
+
+#include "tracker-miner-files-reindex-client.h"
 
 #define ABOUT	  \
 	"Tracker " PACKAGE_VERSION "\n"
@@ -47,14 +51,15 @@
 	"\n" \
 	"  http://www.gnu.org/licenses/gpl.txt\n"
 
-static gboolean     should_kill;
-static gboolean     should_terminate;
-static gboolean     hard_reset;
-static gboolean     soft_reset;
-static gboolean     remove_config;
-static gboolean     remove_thumbnails;
-static gboolean     start;
-static gboolean     print_version;
+static gboolean should_kill;
+static gboolean should_terminate;
+static gboolean hard_reset;
+static gboolean soft_reset;
+static gboolean remove_config;
+static gboolean remove_thumbnails;
+static gboolean start;
+static const gchar **reindex_mime_types;
+static gboolean print_version;
 
 static GOptionEntry entries[] = {
 	{ "kill", 'k', 0, G_OPTION_ARG_NONE, &should_kill,
@@ -79,6 +84,9 @@ static GOptionEntry entries[] = {
 	{ "start", 's', 0, G_OPTION_ARG_NONE, &start,
 	  N_("Starts miners (which indirectly starts tracker-store too)"),
 	  NULL },
+	{ "reindex-mime-type", 'm', 0, G_OPTION_ARG_STRING_ARRAY, &reindex_mime_types,
+	  N_("Reindex files which match the mime type supplied (for new extractors), use -m MIME1 -m MIME2"),
+	  N_("MIME") },
 	{ "version", 'V', 0, G_OPTION_ARG_NONE, &print_version,
 	  N_("Print version"),
 	  NULL },
@@ -473,6 +481,49 @@ main (int argc, char **argv)
 		}
 
 		g_slist_free (miners);
+	}
+
+	if (reindex_mime_types) {
+		DBusGConnection *connection;
+		DBusGProxy *proxy;
+	
+		GError *error = NULL;
+
+		connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
+		
+		if (!connection) {
+			g_print ("Could not connect to the D-Bus session bus, %s",
+			         error ? error->message : "no error given.");
+			g_clear_error (&error);
+			return FALSE;
+		}
+		
+		/* The definitions below (DBUS_SERVICE_DBUS, etc) are
+		 * predefined for us to just use (dbus_g_proxy_...)
+		 */
+		proxy = dbus_g_proxy_new_for_name (connection,
+		                                   "org.freedesktop.Tracker1.Miner.Files.Reindex",
+		                                   "/org/freedesktop/Tracker1/Miner/Files/Reindex",
+		                                   "org.freedesktop.Tracker1.Miner.Files.Reindex");
+		
+		if (!proxy) {
+			g_print ("Could not create a proxy for the D-Bus service, %s",
+			         error ? error->message : "no error given.");
+			g_clear_error (&error);
+			return FALSE;
+		}
+		
+		if (!org_freedesktop_Tracker1_Miner_Files_Reindex_mime_types (proxy, 
+		                                                              reindex_mime_types, 
+		                                                              &error)) {
+			g_print ("Could not reindex mime types, %s",
+			         error ? error->message : "no error given.");
+			g_clear_error (&error);
+			g_object_unref (proxy);
+			return FALSE;
+		}
+
+		g_object_unref (proxy);
 	}
 
 	return EXIT_SUCCESS;

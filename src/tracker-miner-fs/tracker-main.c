@@ -1,4 +1,4 @@
-/* Copyright (C) 2006, Mr Jamie McCracken (jamiemcc@gnome.org)
+/*
  * Copyright (C) 2008, Nokia
 
  * This library is free software; you can redistribute it and/or
@@ -44,9 +44,11 @@
 #include <libtracker-db/tracker-db-dbus.h>
 
 #include "tracker-config.h"
+#include "tracker-dbus.h"
 #include "tracker-marshal.h"
 #include "tracker-miner-applications.h"
 #include "tracker-miner-files.h"
+#include "tracker-miner-files-reindex.h"
 #include "tracker-thumbnailer.h"
 
 #define ABOUT	  \
@@ -229,6 +231,7 @@ main (gint argc, gchar *argv[])
 {
 	TrackerConfig *config;
 	TrackerMiner *miner_applications, *miner_files;
+	TrackerMinerFilesReindex *object;
 	GOptionContext *context;
 	GError *error = NULL;
 	gchar *log_filename = NULL;
@@ -309,6 +312,31 @@ main (gint argc, gchar *argv[])
 		str = g_strerror (errno);
 		g_message ("Couldn't set nice value to 19, %s",
 		           str ? str : "no error given");
+	}
+
+	if (!tracker_dbus_init ()) {
+		g_object_unref (config);
+		tracker_log_shutdown ();
+
+		return EXIT_FAILURE;
+	}
+
+	object = tracker_miner_files_reindex_new ();
+
+	if (!object) {
+		g_object_unref (config);
+		tracker_log_shutdown ();
+
+		return EXIT_FAILURE;
+	}
+
+	/* Make Tracker available for introspection */
+	if (!tracker_dbus_register_objects (object)) {
+		g_object_unref (object);
+		g_object_unref (config);
+		tracker_log_shutdown ();
+
+		return EXIT_FAILURE;
 	}
 
 	tracker_thumbnailer_init ();
