@@ -209,15 +209,21 @@ AC_SUBST(UUID_CFLAGS)
 AC_SUBST(UUID_LIBS)
 
 # Check for enca, detects defect Russian or Cyrillic language specifics in mp3s
-PKG_CHECK_MODULES(ENCA, [enca >= 1.9], have_enca=yes, have_enca=no)
-AC_SUBST(ENCA_CFLAGS)
-AC_SUBST(ENCA_LIBS)
+AC_ARG_WITH([enca],
+            AS_HELP_STRING([--with-enca], [build with enca]),,
+            [with_enca=yes])
 
-AM_CONDITIONAL(HAVE_ENCA, test "$have_enca" = "yes")
+if test x$with_enca = xyes ; then
+   PKG_CHECK_MODULES(ENCA, [enca >= 1.9])
 
-if test x$have_enca == "xyes"; then
-  AC_DEFINE(HAVE_ENCA, 1, [Enca language detection aid])
+   AC_SUBST(ENCA_CFLAGS)
+   AC_SUBST(ENCA_LIBS)
+
+   AC_DEFINE(HAVE_ENCA, [], [Enca language detection aid])
 fi
+
+have_enca=$with_enca
+AM_CONDITIONAL(HAVE_ENCA, test "$have_enca" = "yes")
 
 AC_PATH_PROG(VALAC, valac, valac)
 AC_SUBST(VALAC)
