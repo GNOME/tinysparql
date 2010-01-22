@@ -46,11 +46,9 @@ tracker_data_query_rdf_type (gint id)
 	iface = tracker_db_manager_get_db_interface ();
 
 	stmt = tracker_db_interface_create_statement (iface,
-	                                              "SELECT \"rdfs:Resource\".\"Uri\" "
+	                                              "SELECT (SELECT Uri FROM Resource WHERE ID = \"rdf:type\") "
 	                                              "FROM \"rdfs:Resource_rdf:type\" "
-	                                              "INNER JOIN \"rdfs:Resource\" "
-	                                              "ON \"rdfs:Resource_rdf:type\".\"rdf:type\" = \"rdfs:Resource\".\"ID\" "
-	                                              "WHERE \"rdfs:Resource_rdf:type\".\"ID\" = ?");
+	                                              "WHERE ID = ?");
 
 	tracker_db_statement_bind_int (stmt, 0, id);
 	cursor = tracker_db_statement_start_cursor (stmt, NULL);
@@ -85,7 +83,7 @@ tracker_data_query_resource_id (const gchar *uri)
 	iface = tracker_db_manager_get_db_interface ();
 
 	stmt = tracker_db_interface_create_statement (iface,
-	                                              "SELECT ID FROM \"rdfs:Resource\" WHERE Uri = ?");
+	                                              "SELECT ID FROM Resource WHERE Uri = ?");
 	tracker_db_statement_bind_text (stmt, 0, uri);
 	cursor = tracker_db_statement_start_cursor (stmt, NULL);
 	g_object_unref (stmt);

@@ -109,7 +109,7 @@ public class Tracker.SparqlQuery : Object {
 				DBResultSet result_set = null;
 				if (subject_id > 0) {
 					var iface = DBManager.get_db_interface ();
-					var stmt = iface.create_statement ("SELECT (SELECT Uri FROM \"rdfs:Resource\" WHERE ID = \"rdf:type\") FROM \"rdfs:Resource_rdf:type\" WHERE ID = ?");
+					var stmt = iface.create_statement ("SELECT (SELECT Uri FROM Resource WHERE ID = \"rdf:type\") FROM \"rdfs:Resource_rdf:type\" WHERE ID = ?");
 					stmt.bind_int (0, subject_id);
 					result_set = stmt.execute ();
 				}
@@ -128,7 +128,7 @@ public class Tracker.SparqlQuery : Object {
 								} else {
 									sql.append (" UNION ALL ");
 								}
-								sql.append_printf ("SELECT ID, (SELECT ID FROM \"rdfs:Resource\" WHERE Uri = '%s') AS \"predicate\", ", prop.uri);
+								sql.append_printf ("SELECT ID, (SELECT ID FROM Resource WHERE Uri = '%s') AS \"predicate\", ", prop.uri);
 
 								append_expression_as_string (sql, "\"%s\"".printf (prop.name), prop.data_type);
 
@@ -157,7 +157,7 @@ public class Tracker.SparqlQuery : Object {
 				var object_id = Data.query_resource_id (object);
 
 				var iface = DBManager.get_db_interface ();
-				var stmt = iface.create_statement ("SELECT (SELECT Uri FROM \"rdfs:Resource\" WHERE ID = \"rdf:type\") FROM \"rdfs:Resource_rdf:type\" WHERE ID = ?");
+				var stmt = iface.create_statement ("SELECT (SELECT Uri FROM Resource WHERE ID = \"rdf:type\") FROM \"rdfs:Resource_rdf:type\" WHERE ID = ?");
 				stmt.bind_int (0, object_id);
 				var result_set = stmt.execute ();
 
@@ -175,7 +175,7 @@ public class Tracker.SparqlQuery : Object {
 								} else {
 									sql.append (" UNION ALL ");
 								}
-								sql.append_printf ("SELECT ID, (SELECT ID FROM \"rdfs:Resource\" WHERE Uri = '%s') AS \"predicate\", ", prop.uri);
+								sql.append_printf ("SELECT ID, (SELECT ID FROM Resource WHERE Uri = '%s') AS \"predicate\", ", prop.uri);
 
 								append_expression_as_string (sql, "\"%s\"".printf (prop.name), prop.data_type);
 
@@ -202,7 +202,7 @@ public class Tracker.SparqlQuery : Object {
 						} else {
 							sql.append (" UNION ALL ");
 						}
-						sql.append_printf ("SELECT ID, (SELECT ID FROM \"rdfs:Resource\" WHERE Uri = '%s') AS \"predicate\", ", prop.uri);
+						sql.append_printf ("SELECT ID, (SELECT ID FROM Resource WHERE Uri = '%s') AS \"predicate\", ", prop.uri);
 
 						append_expression_as_string (sql, "\"%s\"".printf (prop.name), prop.data_type);
 
@@ -888,7 +888,7 @@ public class Tracker.SparqlQuery : Object {
 		long begin = sql.len;
 		if (translate_expression (sql) == PropertyType.RESOURCE) {
 			// ID => Uri
-			sql.insert (begin, "(SELECT Uri FROM \"rdfs:Resource\" WHERE ID = ");
+			sql.insert (begin, "(SELECT Uri FROM Resource WHERE ID = ");
 			sql.append (")");
 		}
 	}
@@ -1238,7 +1238,7 @@ public class Tracker.SparqlQuery : Object {
 			break;
 		case PropertyType.RESOURCE:
 			// ID => Uri
-			sql.insert (begin, "(SELECT Uri FROM \"rdfs:Resource\" WHERE ID = ");
+			sql.insert (begin, "(SELECT Uri FROM Resource WHERE ID = ");
 			sql.append (")");
 			break;
 		case PropertyType.BOOLEAN:
@@ -1337,7 +1337,7 @@ public class Tracker.SparqlQuery : Object {
 				throw get_error ("Invalid FILTER");
 			}
 
-			sql.append ("(SELECT ID FROM \"rdfs:Resource\" WHERE Uri = ?)");
+			sql.append ("(SELECT ID FROM Resource WHERE Uri = ?)");
 
 			var new_binding = new LiteralBinding ();
 			new_binding.literal = variable.binding.type.uri;
@@ -1531,7 +1531,7 @@ public class Tracker.SparqlQuery : Object {
 			return result;
 		} else {
 			// resource
-			sql.append ("(SELECT ID FROM \"rdfs:Resource\" WHERE Uri = ?)");
+			sql.append ("(SELECT ID FROM Resource WHERE Uri = ?)");
 			var binding = new LiteralBinding ();
 			binding.literal = uri;
 			bindings.append (binding);
@@ -2197,7 +2197,7 @@ public class Tracker.SparqlQuery : Object {
 			} else {
 				sql.append (" = ");
 				if (binding.data_type == PropertyType.RESOURCE) {
-					sql.append ("(SELECT ID FROM \"rdfs:Resource\" WHERE Uri = ?)");
+					sql.append ("(SELECT ID FROM Resource WHERE Uri = ?)");
 				} else {
 					sql.append ("?");
 				}
