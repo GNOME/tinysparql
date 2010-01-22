@@ -367,6 +367,7 @@ exec_update (gpointer data, gpointer user_data)
 {
 	PoolItem *item = data;
 	GCancellable *cancel = user_data;
+	gboolean no_patience = TRUE;
 
 	if (g_cancellable_is_cancelled (cancel))
 		return;
@@ -383,14 +384,19 @@ exec_update (gpointer data, gpointer user_data)
 	}
 
 	g_mutex_lock (item->mutex);
-	if (!item->has_happened)
-		g_cond_wait (item->cond, item->mutex);
+	if (!item->has_happened) {
+		GTimeVal val;
+		g_get_current_time (&val);
+		g_time_val_add (&val, 5 * 1000000); /* 5 seconds worth of patience */
+		no_patience = g_cond_timed_wait (item->cond, item->mutex, &val);
+	}
 	g_mutex_unlock (item->mutex);
 
 	/* Don't hammer DBus too much, else Evolution's UI sometimes becomes slugish
 	 * due to a dbus_watch_handle call on its mainloop */
 
-	g_usleep (300);
+	if (no_patience)
+		g_usleep (300);
 }
 
 static gint 
