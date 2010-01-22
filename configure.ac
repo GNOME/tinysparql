@@ -219,7 +219,7 @@ if test x$with_enca = xyes ; then
    AC_SUBST(ENCA_CFLAGS)
    AC_SUBST(ENCA_LIBS)
 
-   if test x$have_enca == "xyes"; then
+   if test x$have_enca = "xyes"; then
      AC_DEFINE(HAVE_ENCA, [], [Enca language detection aid])
    fi
 fi
@@ -1416,7 +1416,7 @@ if test "x$enable_evolution_miner" != "xno" ; then
    AC_SUBST(EVOLUTION_PLUGIN_CFLAGS)
    AC_SUBST(EVOLUTION_PLUGIN_LIBS)
 
-   if test x$have_evolution_plugin == "xyes"; then
+   if test x$have_evolution_plugin = "xyes"; then
       dnl Evolution plugins dir
       AC_ARG_WITH([evolution_plugins_dir],
                   AS_HELP_STRING([--with-evolution-plugins-dir],
@@ -1550,10 +1550,10 @@ AC_CHECK_FILE("${DBUS_SERVICES_DIR}/tracker.service", old_data_dbus_service=yes,
 AC_CHECK_FILE("${prefix}/share/tracker/tracker-introspect.xml", old_data_dbus_xml=yes,,)
 AC_CHECK_FILE("${prefix}/share/tracker/sqlite-service-stored-procs.sql", old_data_stored_procs=yes,,)
 
-if test "x$old_exec_trackerd" == "xyes" -o \
-        "x$old_exec_tracker_indexer" == "xyes" -o \
-        "x$old_exec_tracker_extract" == "xyes" -o \
-        "x$old_exec_tracker_thumbnailer" == "xyes"; then
+if test "x$old_exec_trackerd" = "xyes" -o \
+        "x$old_exec_tracker_indexer" = "xyes" -o \
+        "x$old_exec_tracker_extract" = "xyes" -o \
+        "x$old_exec_tracker_thumbnailer" = "xyes"; then
    old_exec_message="
         Old Tracker executable files were found in your path.
         (trackerd, tracker-indexer, tracker-thumbnailer, tracker-extract)"
@@ -1561,9 +1561,9 @@ if test "x$old_exec_trackerd" == "xyes" -o \
 	** These files will be removed as part of the installation **"
 fi
 
-if test "x$old_data_dbus_service" == "xyes" -o \
-        "x$old_data_dbus_xml" == "xyes" -o \
-        "x$old_data_stored_procs" == "xyes"; then
+if test "x$old_data_dbus_service" = "xyes" -o \
+        "x$old_data_dbus_xml" = "xyes" -o \
+        "x$old_data_stored_procs" = "xyes"; then
    old_data_message="
         Old Tracker data files were found in the prefix you are installing to."
    old_file_action="
