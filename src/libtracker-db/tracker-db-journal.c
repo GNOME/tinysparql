@@ -192,6 +192,7 @@ tracker_db_journal_error_quark (void)
 gboolean
 tracker_db_journal_init (const gchar *filename)
 {
+	gchar *directory;
 	struct stat st;
 	int flags;
 	int mode;
@@ -214,6 +215,23 @@ tracker_db_journal_init (const gchar *filename)
 		                                            JOURNAL_FILENAME,
 		                                            NULL);
 	}
+
+	directory = g_path_get_dirname (writer.journal_filename);
+	if (g_strcmp0 (directory, ".")) {
+		mode = S_IRWXU | S_IRWXG | S_IRWXO;
+		if (g_mkdir_with_parents (directory, mode)) {
+			g_critical ("tracker data directory does not exist and "
+				    "could not be created: %s",
+				    g_strerror (errno));
+
+			g_free (directory);
+			g_free (writer.journal_filename);
+			writer.journal_filename = NULL;
+
+			return FALSE;
+		}
+	}
+	g_free (directory);
 
 	mode = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP;
 	flags = O_WRONLY | O_APPEND | O_CREAT;
