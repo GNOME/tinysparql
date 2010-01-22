@@ -915,17 +915,21 @@ db_manager_remove_all (gboolean rm_journal)
 	}
 
 	if (rm_journal) {
-		GFile *file;
-		gchar *cpath;
+		const gchar *opath = tracker_db_journal_get_filename ();
 
-		cpath = g_strdup (tracker_db_journal_get_filename ());
-		tracker_db_journal_shutdown ();
-		g_message ("  Removing journal:'%s'",
-		           cpath);
-		file = g_file_new_for_path (cpath);
-		g_file_delete (file, NULL, NULL);
-		g_object_unref (file);
-		g_free (cpath);
+		if (opath) {
+			GFile *file;
+			gchar *cpath;
+
+			cpath = g_strdup (opath);
+			tracker_db_journal_shutdown ();
+			g_message ("  Removing journal:'%s'",
+					   cpath);
+			file = g_file_new_for_path (cpath);
+			g_file_delete (file, NULL, NULL);
+			g_object_unref (file);
+			g_free (cpath);
+		}
 	}
 }
 

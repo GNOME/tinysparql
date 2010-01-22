@@ -294,8 +294,8 @@ tracker_db_journal_get_size (void)
 const gchar *
 tracker_db_journal_get_filename (void)
 {
-	g_return_val_if_fail (writer.journal > 0, FALSE);
-
+	/* Journal doesn't have to be open to get the filename, for example when
+	 * the file didn't exist and it was attempted opened in only read mode. */
 	return (const gchar*) writer.journal_filename;
 }
 
