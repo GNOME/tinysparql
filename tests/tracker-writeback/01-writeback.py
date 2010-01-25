@@ -63,8 +63,8 @@ class TestInsertion (unittest.TestCase):
                       nie:keyword 'test_keyword_3' ;
                       nie:contentCreated '2001-10-26T21:32:52' ;
                       nfo:orientation nfo:orientation-top-mirror ;
-                      nmm:meteringMode nmm:meteringMode-average ;
-                      nmm:whiteBalance nmm:whiteBalance-auto ;
+                      nmm:meteringMode nmm:metering-mode-average ;
+                      nmm:whiteBalance nmm:white-balance-auto ;
                       nmm:flash nmm:flash-on ;
                       nmm:focalLength '1' ;
                       nmm:exposureTime '1' ;

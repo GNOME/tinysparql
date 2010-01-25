@@ -155,19 +155,19 @@ get_metering_mode (TIFF *image)
 	if (TIFFGetField (image, EXIFTAG_METERINGMODE, &varui16)) {
 		switch (varui16) {
 		case 1:
-			return g_strdup ("nmm:meteringMode-average");
+			return g_strdup ("nmm:metering-mode-average");
 		case 2:
-			return g_strdup ("nmm:meteringMode-center-weighted-average");
+			return g_strdup ("nmm:metering-mode-center-weighted-average");
 		case 3:
-			return g_strdup ("nmm:meteringMode-spot");
+			return g_strdup ("nmm:metering-mode-spot");
 		case 4:
-			return g_strdup ("nmm:meteringMode-multispot");
+			return g_strdup ("nmm:metering-mode-multispot");
 		case 5:
-			return g_strdup ("nmm:meteringMode-pattern");
+			return g_strdup ("nmm:metering-mode-pattern");
 		case 6:
-			return g_strdup ("nmm:meteringMode-partial");
+			return g_strdup ("nmm:metering-mode-partial");
 		default:
-			return g_strdup ("nmm:meteringMode-other");
+			return g_strdup ("nmm:metering-mode-other");
 		}
 	}
 
@@ -183,9 +183,9 @@ get_white_balance (TIFF *image)
 
 	if (TIFFGetField (image, EXIFTAG_WHITEBALANCE, &varui16)) {
 		if (varui16 == 0) {
-			return g_strdup ("nmm:whiteBalance-auto");
+			return g_strdup ("nmm:white-balance-auto");
 		}
-		return g_strdup ("nmm:whiteBalance-manual");
+		return g_strdup ("nmm:white-balance-manual");
 	}
 
 	return NULL;

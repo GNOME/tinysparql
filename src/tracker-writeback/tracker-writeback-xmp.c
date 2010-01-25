@@ -278,17 +278,17 @@ writeback_xmp_update_file_metadata (TrackerWritebackFile *wbf,
 			   6 = Partial
 			   255 = other  */
 
-			if        (g_strcmp0 (row[2], TRACKER_NMM_PREFIX "meteringMode-center-weighted-average") == 0) {
+			if        (g_strcmp0 (row[2], TRACKER_NMM_PREFIX "metering-mode-center-weighted-average") == 0) {
 				xmp_set_property (xmp, NS_EXIF, "MeteringMode", "0", 0);
-			} else if (g_strcmp0 (row[2], TRACKER_NMM_PREFIX "meteringMode-average") == 0) {
+			} else if (g_strcmp0 (row[2], TRACKER_NMM_PREFIX "metering-mode-average") == 0) {
 				xmp_set_property (xmp, NS_EXIF, "MeteringMode", "1", 0);
-			} else if (g_strcmp0 (row[2], TRACKER_NMM_PREFIX "meteringMode-spot") == 0) {
+			} else if (g_strcmp0 (row[2], TRACKER_NMM_PREFIX "metering-mode-spot") == 0) {
 				xmp_set_property (xmp, NS_EXIF, "MeteringMode", "3", 0);
-			} else if (g_strcmp0 (row[2], TRACKER_NMM_PREFIX "meteringMode-multispot") == 0) {
+			} else if (g_strcmp0 (row[2], TRACKER_NMM_PREFIX "metering-mode-multispot") == 0) {
 				xmp_set_property (xmp, NS_EXIF, "MeteringMode", "4", 0);
-			} else if (g_strcmp0 (row[2], TRACKER_NMM_PREFIX "meteringMode-pattern") == 0) {
+			} else if (g_strcmp0 (row[2], TRACKER_NMM_PREFIX "metering-mode-pattern") == 0) {
 				xmp_set_property (xmp, NS_EXIF, "MeteringMode", "5", 0);
-			} else if (g_strcmp0 (row[2], TRACKER_NMM_PREFIX "meteringMode-partial") == 0) {
+			} else if (g_strcmp0 (row[2], TRACKER_NMM_PREFIX "metering-mode-partial") == 0) {
 				xmp_set_property (xmp, NS_EXIF, "MeteringMode", "6", 0);
 			} else {
 				xmp_set_property (xmp, NS_EXIF, "MeteringMode", "255", 0);
@@ -299,7 +299,7 @@ writeback_xmp_update_file_metadata (TrackerWritebackFile *wbf,
 
 			xmp_delete_property (xmp, NS_EXIF, "WhiteBalance");
 
-			if (g_strcmp0 (row[2], TRACKER_NMM_PREFIX "whiteBalance-auto") == 0) {
+			if (g_strcmp0 (row[2], TRACKER_NMM_PREFIX "white-balance-auto") == 0) {
 				/* 0 = Auto white balance
 				 * 1 = Manual white balance */
 				xmp_set_property (xmp, NS_EXIF, "WhiteBalance", "0", 0);

@@ -255,19 +255,19 @@ get_metering_mode (ExifData *exif,
 		exif_entry_get_value (entry, buf, 1024);
 
 		if (strcasestr (buf, "center"))
-			return g_strdup ("nmm:meteringMode-center-weighted-average");
+			return g_strdup ("nmm:metering-mode-center-weighted-average");
 		else if (strcasestr (buf, "average"))
-			return g_strdup ("nmm:meteringMode-average");
+			return g_strdup ("nmm:metering-mode-average");
 		else if (strcasestr (buf, "spot"))
-			return g_strdup ("nmm:meteringMode-spot");
+			return g_strdup ("nmm:metering-mode-spot");
 		else if (strcasestr (buf, "multispot"))
-			return g_strdup ("nmm:meteringMode-multispot");
+			return g_strdup ("nmm:metering-mode-multispot");
 		else if (strcasestr (buf, "pattern"))
-			return g_strdup ("nmm:meteringMode-pattern");
+			return g_strdup ("nmm:metering-mode-pattern");
 		else if (strcasestr (buf, "partial"))
-			return g_strdup ("nmm:meteringMode-partial");
+			return g_strdup ("nmm:metering-mode-partial");
 		else
-			return g_strdup ("nmm:meteringMode-other");
+			return g_strdup ("nmm:metering-mode-other");
 	}
 
 	return NULL;
@@ -285,12 +285,12 @@ get_white_balance (ExifData *exif,
 		exif_entry_get_value (entry, buf, 1024);
 
 		if (strcasestr (buf, "auto"))
-			return g_strdup ("nmm:whiteBalance-auto");
+			return g_strdup ("nmm:white-balance-auto");
 
 		/* Found in the field: sunny, fluorescent, incandescent, cloudy.
 		 * These will this way also yield as manual. */
 
-		return g_strdup ("nmm:whiteBalance-manual");
+		return g_strdup ("nmm:white-balance-manual");
 	}
 
 	return NULL;

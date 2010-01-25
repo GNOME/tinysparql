@@ -78,22 +78,22 @@ fix_metering_mode (const gchar *mode)
 	switch (value) {
 	default:
 	case 0:
-		return "nmm:meteringMode-other";
+		return "nmm:metering-mode-other";
 	case 1:
-		return "nmm:meteringMode-average";
+		return "nmm:metering-mode-average";
 	case 2:
-		return "nmm:meteringMode-center-weighted-average";
+		return "nmm:metering-mode-center-weighted-average";
 	case 3:
-		return "nmm:meteringMode-spot";
+		return "nmm:metering-mode-spot";
 	case 4:
-		return "nmm:meteringMode-multispot";
+		return "nmm:metering-mode-multispot";
 	case 5:
-		return "nmm:meteringMode-pattern";
+		return "nmm:metering-mode-pattern";
 	case 6:
-		return "nmm:meteringMode-partial";
+		return "nmm:metering-mode-partial";
 	}
 
-	return "nmm:meteringMode-other";
+	return "nmm:metering-mode-other";
 }
 
 static const gchar *
@@ -115,9 +115,9 @@ static const gchar *
 fix_white_balance (const gchar *wb)
 {
 	if (wb) {
-		return "nmm:whiteBalance-manual";
+		return "nmm:white-balance-manual";
 	} else {
-		return "nmm:whiteBalance-auto";
+		return "nmm:white-balance-auto";
 	}
 }
 
