@@ -304,7 +304,7 @@ writeback_xmp_update_file_metadata (TrackerWritebackFile *wbf,
 				 * 1 = Manual white balance */
 				xmp_set_property (xmp, NS_EXIF, "WhiteBalance", "0", 0);
 			} else {
-				xmp_set_property (xmp, NS_EXIF, "MeteringMode", "1", 0);
+				xmp_set_property (xmp, NS_EXIF, "WhiteBalance", "1", 0);
 			}
 		}
 
