@@ -497,16 +497,6 @@ extract_tiff (const gchar *uri, TrackerSparqlBuilder *metadata)
 		g_free (iptc_data.contact);
 	}
 
-	if (iptc_data.byline_title) {
-		tracker_sparql_builder_predicate (metadata, "nco:hasAffiliation");
-		tracker_sparql_builder_object_blank_open (metadata);
-		tracker_sparql_builder_predicate (metadata, "a");
-		tracker_sparql_builder_object (metadata, "nco:Affiliation");
-		tracker_sparql_builder_predicate (metadata, "nco:title");
-		tracker_sparql_builder_object_unvalidated (metadata, iptc_data.byline_title);
-		tracker_sparql_builder_object_blank_close (metadata);
-		g_free (iptc_data.byline_title);
-	}
 
 	if (xmp_data.publisher) {
 		tracker_sparql_builder_predicate (metadata, "nco:publisher");
@@ -700,17 +690,38 @@ extract_tiff (const gchar *uri, TrackerSparqlBuilder *metadata)
 	}
 
 	if (merge_data.creator) {
-		tracker_sparql_builder_predicate (metadata, "nco:creator");
 
+		if (iptc_data.byline_title) {
+			tracker_sparql_builder_subject (metadata, "_:affiliation_by_line");
+			tracker_sparql_builder_predicate (metadata, "a");
+			tracker_sparql_builder_object (metadata, "nco:Affiliation");
+
+			tracker_sparql_builder_subject (metadata, "_:affiliation_by_line");
+			tracker_sparql_builder_predicate (metadata, "nco:title");
+			tracker_sparql_builder_object_unvalidated (metadata, iptc_data.byline_title);
+
+			tracker_sparql_builder_subject_iri (metadata, uri);
+		}
+
+		tracker_sparql_builder_predicate (metadata, "nco:creator");
 		tracker_sparql_builder_object_blank_open (metadata);
 		tracker_sparql_builder_predicate (metadata, "a");
 		tracker_sparql_builder_object (metadata, "nco:Contact");
-
 		tracker_sparql_builder_predicate (metadata, "nco:fullname");
 		tracker_sparql_builder_object_unvalidated (metadata, merge_data.creator);
+
+		if (iptc_data.byline_title) {
+			tracker_sparql_builder_predicate (metadata, "a");
+			tracker_sparql_builder_object (metadata, "nco:PersonContact");
+			tracker_sparql_builder_predicate (metadata, "nco:hasAffiliation");
+			tracker_sparql_builder_object (metadata, "_:affiliation_by_line");
+		}
+
 		tracker_sparql_builder_object_blank_close (metadata);
 		g_free (merge_data.creator);
 	}
+
+	g_free (iptc_data.byline_title);
 }
 
 TrackerExtractData *

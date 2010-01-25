@@ -341,17 +341,6 @@ extract_jpeg (const gchar          *uri,
 			g_free (id.contact);
 		}
 
-		if (id.byline_title) {
-			tracker_sparql_builder_predicate (metadata, "nco:hasAffiliation");
-			tracker_sparql_builder_object_blank_open (metadata);
-			tracker_sparql_builder_predicate (metadata, "a");
-			tracker_sparql_builder_object (metadata, "nco:Affiliation");
-			tracker_sparql_builder_predicate (metadata, "nco:title");
-			tracker_sparql_builder_object_unvalidated (metadata, id.byline_title);
-			tracker_sparql_builder_object_blank_close (metadata);
-			g_free (id.byline_title);
-		}
-
 		if (xd.keywords) {
 			insert_keywords (metadata, xd.keywords);
 			g_free (xd.keywords);
@@ -533,15 +522,38 @@ extract_jpeg (const gchar          *uri,
 		}
 
 		if (md.creator) {
+
+			if (id.byline_title) {
+				tracker_sparql_builder_subject (metadata, "_:affiliation_by_line");
+				tracker_sparql_builder_predicate (metadata, "a");
+				tracker_sparql_builder_object (metadata, "nco:Affiliation");
+
+				tracker_sparql_builder_subject (metadata, "_:affiliation_by_line");
+				tracker_sparql_builder_predicate (metadata, "nco:title");
+				tracker_sparql_builder_object_unvalidated (metadata, id.byline_title);
+
+				tracker_sparql_builder_subject_iri (metadata, uri);
+			}
+
 			tracker_sparql_builder_predicate (metadata, "nco:creator");
 			tracker_sparql_builder_object_blank_open (metadata);
 			tracker_sparql_builder_predicate (metadata, "a");
 			tracker_sparql_builder_object (metadata, "nco:Contact");
 			tracker_sparql_builder_predicate (metadata, "nco:fullname");
 			tracker_sparql_builder_object_unvalidated (metadata, md.creator);
+
+			if (id.byline_title) {
+				tracker_sparql_builder_predicate (metadata, "a");
+				tracker_sparql_builder_object (metadata, "nco:PersonContact");
+				tracker_sparql_builder_predicate (metadata, "nco:hasAffiliation");
+				tracker_sparql_builder_object (metadata, "_:affiliation_by_line");
+			}
+
 			tracker_sparql_builder_object_blank_close (metadata);
 			g_free (md.creator);
 		}
+
+		g_free (id.byline_title);
 
 		if (md.comment) {
 			tracker_sparql_builder_predicate (metadata, "nie:comment");
