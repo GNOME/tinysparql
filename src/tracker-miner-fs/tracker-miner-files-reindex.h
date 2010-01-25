@@ -26,6 +26,8 @@
 #define TRACKER_MINER_FILES_REINDEX_PATH            "/org/freedesktop/Tracker1/Miner/Files/Reindex"
 #define TRACKER_MINER_FILES_REINDEX_INTERFACE       "org.freedesktop.Tracker1.Miner.Files.Reindex"
 
+#include <tracker-miner-fs/tracker-miner-files.h>
+
 G_BEGIN_DECLS
 
 #define TRACKER_TYPE_MINER_FILES_REINDEX            (tracker_miner_files_reindex_get_type ())
@@ -47,7 +49,7 @@ struct TrackerMinerFilesReindexClass {
 };
 
 GType                     tracker_miner_files_reindex_get_type   (void);
-TrackerMinerFilesReindex *tracker_miner_files_reindex_new        (void);
+TrackerMinerFilesReindex *tracker_miner_files_reindex_new        (TrackerMinerFiles         *miner_files);
 void                      tracker_miner_files_reindex_mime_types (TrackerMinerFilesReindex  *object,
                                                                   gchar                    **mime_types,
                                                                   DBusGMethodInvocation     *context,

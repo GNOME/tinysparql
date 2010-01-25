@@ -317,10 +317,14 @@ main (gint argc, gchar *argv[])
 		return EXIT_FAILURE;
 	}
 
-	object = tracker_miner_files_reindex_new ();
+	miner_files = tracker_miner_files_new (config);
+
+	object = tracker_miner_files_reindex_new (miner_files);
 
 	if (!object) {
+		g_object_unref (miner_files);
 		g_object_unref (config);
+		tracker_dbus_shutdown ();
 		tracker_log_shutdown ();
 
 		return EXIT_FAILURE;
@@ -328,8 +332,10 @@ main (gint argc, gchar *argv[])
 
 	/* Make Tracker available for introspection */
 	if (!tracker_dbus_register_objects (object)) {
+		g_object_unref (miner_files);
 		g_object_unref (object);
 		g_object_unref (config);
+		tracker_dbus_shutdown ();
 		tracker_log_shutdown ();
 
 		return EXIT_FAILURE;
@@ -344,7 +350,6 @@ main (gint argc, gchar *argv[])
 	                  NULL);
 
 	/* Create miner for files */
-	miner_files = tracker_miner_files_new (config);
 	miners = g_slist_append (miners, miner_files);
 
 	g_signal_connect (miner_files, "finished",
@@ -363,6 +368,8 @@ main (gint argc, gchar *argv[])
 
 	g_slist_foreach (miners, (GFunc) g_object_unref, NULL);
 	g_slist_free (miners);
+
+	tracker_dbus_shutdown ();
 
 	tracker_log_shutdown ();
 

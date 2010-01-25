@@ -104,6 +104,8 @@ gdouble  tracker_miner_fs_get_throttle     (TrackerMinerFS *fs);
 void     tracker_miner_fs_notify_file      (TrackerMinerFS *fs,
                                             GFile          *file,
                                             const GError   *error);
+void     tracker_miner_fs_add_file         (TrackerMinerFS *fs,
+                                            GFile          *file);
 
 G_END_DECLS
 

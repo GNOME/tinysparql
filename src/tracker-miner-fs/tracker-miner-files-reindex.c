@@ -31,7 +31,29 @@ typedef struct {
 	guint request_id;
 	DBusGMethodInvocation *context;
 	TrackerClient *client;
+	TrackerMinerFiles *miner_files;
 } MimeTypesData;
+
+typedef struct {
+	TrackerMinerFiles *files_miner;
+} TrackerMinerFilesReindexPrivate;
+
+enum {
+	PROP_0,
+	PROP_FILES_MINER
+};
+
+#define TRACKER_MINER_FILES_REINDEX_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_MINER_FILES_REINDEX, TrackerMinerFilesReindexPrivate))
+
+static void     reindex_set_property      (GObject              *object,
+                                           guint                 param_id,
+                                           const GValue         *value,
+                                           GParamSpec           *pspec);
+static void     reindex_get_property      (GObject              *object,
+                                           guint                 param_id,
+                                           GValue               *value,
+                                           GParamSpec           *pspec);
+static void     reindex_finalize          (GObject              *object);
 
 G_DEFINE_TYPE(TrackerMinerFilesReindex, tracker_miner_files_reindex, G_TYPE_OBJECT)
 
@@ -41,6 +63,68 @@ tracker_miner_files_reindex_class_init (TrackerMinerFilesReindexClass *klass)
 	GObjectClass *object_class;
 
 	object_class = G_OBJECT_CLASS (klass);
+
+	object_class->finalize = reindex_finalize;
+	object_class->set_property = reindex_set_property;
+	object_class->get_property = reindex_get_property;
+
+	g_object_class_install_property (object_class,
+	                                 PROP_FILES_MINER,
+	                                 g_param_spec_object ("files_miner",
+	                                                      "files_miner",
+	                                                      "The FS Miner",
+	                                                      TRACKER_TYPE_MINER_FILES,
+	                                                      G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY));
+
+	g_type_class_add_private (klass, sizeof (TrackerMinerFilesReindexPrivate));
+}
+
+static void
+reindex_set_property (GObject      *object,
+                      guint         param_id,
+                      const GValue *value,
+                      GParamSpec   *pspec)
+{
+	TrackerMinerFilesReindexPrivate *priv;
+
+	priv = TRACKER_MINER_FILES_REINDEX_GET_PRIVATE (object);
+
+	switch (param_id) {
+	case PROP_FILES_MINER:
+		priv->files_miner = g_value_dup_object (value);
+		break;
+	default:
+		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, param_id, pspec);
+		break;
+	}
+}
+
+
+static void
+reindex_get_property (GObject    *object,
+                      guint       param_id,
+                      GValue     *value,
+                      GParamSpec *pspec)
+{
+	TrackerMinerFilesReindexPrivate *priv;
+
+	priv = TRACKER_MINER_FILES_REINDEX_GET_PRIVATE (object);
+
+	switch (param_id) {
+	case PROP_FILES_MINER:
+		g_value_set_object (value, priv->files_miner);
+		break;
+	default:
+		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, param_id, pspec);
+		break;
+	}
+}
+
+static void
+reindex_finalize (GObject *object)
+{
+	TrackerMinerFilesReindexPrivate *priv = TRACKER_MINER_FILES_REINDEX_GET_PRIVATE (object);
+	g_object_unref (priv->files_miner);
 }
 
 static void
@@ -51,12 +135,14 @@ tracker_miner_files_reindex_init (TrackerMinerFilesReindex *object)
 static MimeTypesData *
 mime_types_data_new (guint                  request_id,
                      DBusGMethodInvocation *context,
-                     TrackerClient         *client)
+                     TrackerClient         *client,
+                     TrackerMinerFiles     *miner_files)
 {
 	MimeTypesData *mtd;
 
 	mtd = g_slice_new0 (MimeTypesData);
 
+	mtd->miner_files = g_object_ref (miner_files);
 	mtd->request_id = request_id;
 	mtd->context = context;
 	mtd->client = g_object_ref (client);
@@ -71,6 +157,7 @@ mime_types_data_destroy (gpointer data)
 
 	mtd = data;
 
+	g_object_unref (mtd->miner_files);
 	g_object_unref (mtd->client);
 
 	g_slice_free (MimeTypesData, mtd);
@@ -82,21 +169,42 @@ mime_types_cb (GPtrArray *result,
                gpointer   user_data)
 {
 	MimeTypesData *mtd = user_data;
+	guint i;
 
-	tracker_dbus_request_comment (mtd->request_id, mtd->context,
-	                              "Found %d files that will need reindexing",
-	                              result ? result->len : 0);
+	if (!error) {
+		tracker_dbus_request_comment (mtd->request_id, mtd->context,
+		                              "Found %d files that will need reindexing",
+		                              result ? result->len : 0);
 
-	tracker_dbus_request_success (mtd->request_id, mtd->context);
-	dbus_g_method_return (mtd->context);
+		for (i = 0; i < result->len; i++) {
+			GStrv *row = g_ptr_array_index (result, i);
+
+			if (row && row[0]) {
+				const gchar *url = (const gchar *) row[0];
+				GFile *file = g_file_new_for_uri (url);
+				tracker_miner_fs_add_file (TRACKER_MINER_FS (mtd->miner_files), file);
+				g_object_unref (file);
+			}
+		}
+
+		tracker_dbus_request_success (mtd->request_id, mtd->context);
+		dbus_g_method_return (mtd->context);
+
+	} else {
+		tracker_dbus_request_success (mtd->request_id, mtd->context);
+		dbus_g_method_return_error (mtd->context, error);
+	}
+
 
 	mime_types_data_destroy (user_data);
 }
 
 TrackerMinerFilesReindex *
-tracker_miner_files_reindex_new (void)
+tracker_miner_files_reindex_new (TrackerMinerFiles *miner_files)
 {
-	return g_object_new (TRACKER_TYPE_MINER_FILES_REINDEX, NULL);
+	return g_object_new (TRACKER_TYPE_MINER_FILES_REINDEX, 
+	                     "files-miner", miner_files, 
+	                     NULL);
 }
 
 void
@@ -105,6 +213,7 @@ tracker_miner_files_reindex_mime_types (TrackerMinerFilesReindex  *object,
                                         DBusGMethodInvocation     *context,
                                         GError                   **error)
 {
+	TrackerMinerFilesReindexPrivate *priv;
 	GString *query;
 	TrackerClient *client;
 	guint request_id;
@@ -153,11 +262,17 @@ tracker_miner_files_reindex_mime_types (TrackerMinerFilesReindex  *object,
 
 	g_string_append (query, ") }");
 
+	priv = TRACKER_MINER_FILES_REINDEX_GET_PRIVATE (object);
+
 	/* FIXME: save last call id */
 	tracker_resources_sparql_query_async (client, 
 	                                      query->str, 
 	                                      mime_types_cb, 
-	                                      mime_types_data_new (request_id, context, client));
+	                                      mime_types_data_new (request_id, 
+	                                                           context, 
+	                                                           client,
+	                                                           priv->files_miner));
+
 	g_string_free (query, TRUE);
 	g_object_unref (client);
 }

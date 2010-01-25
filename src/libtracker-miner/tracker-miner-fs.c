@@ -2163,6 +2163,42 @@ tracker_miner_fs_add_directory (TrackerMinerFS *fs,
 	crawl_directories_start (fs);
 }
 
+/**
+ * tracker_miner_fs_add_file:
+ * @fs: a #TrackerMinerFS
+ * @file: #GFile for the file to inspect
+ *
+ * Tells the filesystem miner to inspect a file.
+ **/
+void
+tracker_miner_fs_add_file (TrackerMinerFS *fs,
+                           GFile          *file)
+{
+	gboolean should_process;
+	gchar *path;
+
+	g_return_if_fail (TRACKER_IS_MINER_FS (fs));
+	g_return_if_fail (G_IS_FILE (file));
+
+	should_process = should_check_file (fs, file, FALSE);
+
+	path = g_file_get_path (file);
+
+	g_debug ("%s:'%s' (FILE) (requested by application)",
+	         should_process ? "Found " : "Ignored",
+	         path);
+
+	if (should_process) {
+		g_queue_push_tail (fs->private->items_updated,
+		                   g_object_ref (file));
+
+		item_queue_handlers_set_up (fs);
+	}
+
+	g_free (path);
+}
+
+
 static void
 check_files_removal (GQueue *queue,
                      GFile  *parent)
