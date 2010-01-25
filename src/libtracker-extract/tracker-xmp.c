@@ -464,6 +464,9 @@ tracker_xmp_read (const gchar    *buffer,
                   const gchar    *uri,
                   TrackerXmpData *data)
 {
+#ifdef HAVE_EXEMPI
+	XmpPtr xmp;
+#endif /* HAVE_EXEMPI */
 	g_return_val_if_fail (buffer != NULL, FALSE);
 	g_return_val_if_fail (len > 0, FALSE);
 	g_return_val_if_fail (uri != NULL, FALSE);
@@ -472,7 +475,6 @@ tracker_xmp_read (const gchar    *buffer,
 	memset (data, 0, sizeof (TrackerXmpData));
 
 #ifdef HAVE_EXEMPI
-	XmpPtr xmp;
 
 	xmp_init ();
 

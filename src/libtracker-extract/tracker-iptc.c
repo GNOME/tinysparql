@@ -204,6 +204,10 @@ tracker_iptc_read (const unsigned char *buffer,
                    const gchar         *uri,
                    TrackerIptcData     *data)
 {
+#ifdef HAVE_LIBIPTCDATA
+	IptcData *iptc;
+#endif /* HAVE_LIBIPTCDATA */
+
 	g_return_val_if_fail (buffer != NULL, FALSE);
 	g_return_val_if_fail (len > 0, FALSE);
 	g_return_val_if_fail (uri != NULL, FALSE);
@@ -212,7 +216,6 @@ tracker_iptc_read (const unsigned char *buffer,
 	memset (data, 0, sizeof (TrackerIptcData));
 
 #ifdef HAVE_LIBIPTCDATA
-	IptcData *iptc;
 
 	/* FIXME According to valgrind this is leaking (together with the unref).
 	 * Problem in libiptc (I replaced this with the _free equivalent) */
