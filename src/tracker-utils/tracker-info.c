@@ -141,6 +141,7 @@ main (int argc, char **argv)
 		GError    *error = NULL;
 		gchar     *uri;
 		gchar     *query;
+		gchar	  *urn;
 
 		g_print ("%s:'%s'\n",
 		         _("Querying information for file"),
@@ -157,7 +158,34 @@ main (int argc, char **argv)
 			g_object_unref (file);
 		}
 
-		query = g_strdup_printf ("SELECT ?predicate ?object WHERE { <%s> ?predicate ?object }", uri);
+		query = g_strdup_printf ("SELECT ?urn WHERE { ?urn nie:url \"%s\" }", uri);
+		results = tracker_resources_sparql_query (client, query, &error);
+		g_free (query);
+
+		if (error) {
+			g_printerr ("  %s, %s\n",
+			            _("Unable to retrieve URN for URI"),
+			            error->message);
+
+			g_error_free (error);
+			continue;
+		}
+
+		if (!results) {
+			g_print (" %s\n",
+			         _("No URN available for that URI"));
+			continue;
+                } else {
+			gchar **args;
+
+			args = g_ptr_array_index (results, 0);
+			urn = g_strdup (args[0]);
+
+			g_ptr_array_foreach (results, (GFunc) g_strfreev, NULL);
+			g_ptr_array_free (results, TRUE);
+		}
+
+		query = g_strdup_printf ("SELECT ?predicate ?object WHERE { <%s> ?predicate ?object }", urn);
 
 		results = tracker_resources_sparql_query (client, query, &error);
 
