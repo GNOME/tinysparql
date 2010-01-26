@@ -46,6 +46,7 @@
 #define RDF_TYPE RDF_PREFIX "type"
 
 static void extract_abw (const gchar          *uri,
+			 TrackerSparqlBuilder *preinserts,
                          TrackerSparqlBuilder *metadata);
 
 static TrackerExtractData data[] = {
@@ -55,6 +56,7 @@ static TrackerExtractData data[] = {
 
 static void
 extract_abw (const gchar          *uri,
+	     TrackerSparqlBuilder *preinserts,
              TrackerSparqlBuilder *metadata)
 {
 	FILE *f;
@@ -72,7 +74,6 @@ extract_abw (const gchar          *uri,
 		line = NULL;
 		length = 0;
 
-		tracker_sparql_builder_subject_iri (metadata, uri);
 		tracker_sparql_builder_predicate (metadata, "a");
 		tracker_sparql_builder_object (metadata, "nfo:Document");
 

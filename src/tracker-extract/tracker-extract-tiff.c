@@ -77,6 +77,7 @@ typedef struct {
 } TiffData;
 
 static void extract_tiff (const gchar          *filename,
+			  TrackerSparqlBuilder *preinserts,
                           TrackerSparqlBuilder *metadata);
 
 static TrackerExtractData extract_data[] = {
@@ -269,7 +270,9 @@ insert_keywords (TrackerSparqlBuilder *metadata, const gchar *uri, gchar *keywor
 }
 
 static void
-extract_tiff (const gchar *uri, TrackerSparqlBuilder *metadata)
+extract_tiff (const gchar          *uri,
+	      TrackerSparqlBuilder *preinserts,
+	      TrackerSparqlBuilder *metadata)
 {
 	TIFF *image;
 	glong exifOffset;
@@ -296,7 +299,6 @@ extract_tiff (const gchar *uri, TrackerSparqlBuilder *metadata)
 		return;
 	}
 
-	tracker_sparql_builder_subject_iri (metadata, uri);
 	tracker_sparql_builder_predicate (metadata, "a");
 	tracker_sparql_builder_object (metadata, "nfo:Image");
 	tracker_sparql_builder_object (metadata, "nmm:Photo");

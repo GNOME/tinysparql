@@ -93,6 +93,7 @@ typedef struct {
 } MergeData;
 
 static void extract_jpeg (const gchar          *filename,
+			  TrackerSparqlBuilder *preinserts,
                           TrackerSparqlBuilder *metadata);
 
 static TrackerExtractData data[] = {
@@ -152,6 +153,7 @@ extract_jpeg_error_exit (j_common_ptr cinfo)
 
 static void
 extract_jpeg (const gchar          *uri,
+	      TrackerSparqlBuilder *preinserts,
               TrackerSparqlBuilder *metadata)
 {
 	struct jpeg_decompress_struct cinfo;
@@ -179,7 +181,6 @@ extract_jpeg (const gchar          *uri,
 		MergeData md = { 0 };
 		gchar *comment = NULL;
 
-		tracker_sparql_builder_subject_iri (metadata, uri);
 		tracker_sparql_builder_predicate (metadata, "a");
 		tracker_sparql_builder_object (metadata, "nfo:Image");
 		tracker_sparql_builder_predicate (metadata, "a");

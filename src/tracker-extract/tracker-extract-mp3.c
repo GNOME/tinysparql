@@ -173,6 +173,7 @@ typedef struct {
 } MP3Data;
 
 static void extract_mp3 (const gchar           *uri,
+			 TrackerSparqlBuilder  *preinserts,
                          TrackerSparqlBuilder  *metadata);
 
 enum {
@@ -1853,6 +1854,7 @@ parse_id3v2 (const gchar          *data,
 
 static void
 extract_mp3 (const gchar          *uri,
+	     TrackerSparqlBuilder *preinserts,
              TrackerSparqlBuilder *metadata)
 {
 	gchar *filename;
@@ -1973,29 +1975,28 @@ extract_mp3 (const gchar          *uri,
 
 	if (md.performer) {
 		md.performer_uri = tracker_uri_printf_escaped ("urn:artist:%s", md.performer);
-		tracker_sparql_builder_subject_iri (metadata, md.performer_uri);
-		tracker_sparql_builder_predicate (metadata, "a");
-		tracker_sparql_builder_object (metadata, "nmm:Artist");
-		tracker_sparql_builder_predicate (metadata, "nmm:artistName");
-		tracker_sparql_builder_object_unvalidated (metadata, md.performer);
+		tracker_sparql_builder_subject_iri (preinserts, md.performer_uri);
+		tracker_sparql_builder_predicate (preinserts, "a");
+		tracker_sparql_builder_object (preinserts, "nmm:Artist");
+		tracker_sparql_builder_predicate (preinserts, "nmm:artistName");
+		tracker_sparql_builder_object_unvalidated (preinserts, md.performer);
 		g_free (md.performer);
 	}
 
 	if (md.album) {
 		md.album_uri = tracker_uri_printf_escaped ("urn:album:%s", md.album);
-		tracker_sparql_builder_subject_iri (metadata, md.album_uri);
-		tracker_sparql_builder_predicate (metadata, "a");
-		tracker_sparql_builder_object (metadata, "nmm:MusicAlbum");
-		tracker_sparql_builder_predicate (metadata, "nmm:albumTitle");
-		tracker_sparql_builder_object_unvalidated (metadata, md.album);
+		tracker_sparql_builder_subject_iri (preinserts, md.album_uri);
+		tracker_sparql_builder_predicate (preinserts, "a");
+		tracker_sparql_builder_object (preinserts, "nmm:MusicAlbum");
+		tracker_sparql_builder_predicate (preinserts, "nmm:albumTitle");
+		tracker_sparql_builder_object_unvalidated (preinserts, md.album);
 
 		if (md.track_count > 0) {
-			tracker_sparql_builder_predicate (metadata, "nmm:albumTrackCount");
-			tracker_sparql_builder_object_int64 (metadata, md.track_count);
+			tracker_sparql_builder_predicate (preinserts, "nmm:albumTrackCount");
+			tracker_sparql_builder_object_int64 (preinserts, md.track_count);
 		}
 	}
 
-	tracker_sparql_builder_subject_iri (metadata, uri);
 	tracker_sparql_builder_predicate (metadata, "a");
 	tracker_sparql_builder_object (metadata, "nmm:MusicPiece");
 	tracker_sparql_builder_object (metadata, "nfo:Audio");

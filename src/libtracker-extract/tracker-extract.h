@@ -57,31 +57,30 @@ G_BEGIN_DECLS
  *  };
  * 
  *  static void
- *  extract_png (const gchar         *uri,
- *              TrackerSparqlBuilder *metadata)
+ *  extract_png (const gchar          *uri,
+ *               TrackerSparqlBuilder *preinserts,
+ *               TrackerSparqlBuilder *metadata)
  *  {
- *          goffset size;
  *          gint height, width;
- *          gchar *filename = g_filename_from_uri (uri, NULL, NULL);
- * 
+ *
  *          /&ast; Do data extraction. &ast;/
  *          height = ...
  *          width = ...
  *
  *          /&ast; Insert data into TrackerSparqlBuilder object. &ast;/
- *          tracker_sparql_builder_subject_iri (metadata, uri);
  *          tracker_sparql_builder_predicate (metadata, "a");
  *          tracker_sparql_builder_object (metadata, "nfo:Image");
  *          tracker_sparql_builder_object (metadata, "nmm:Photo");
- * 
+ *
  *          tracker_sparql_builder_predicate (metadata, "nfo:width");
  *          tracker_sparql_builder_object_int64 (metadata, width);
+ *
  *          tracker_sparql_builder_predicate (metadata, "nfo:height");
  *          tracker_sparql_builder_object_int64 (metadata, height);
- * 
+ *
  *          g_free (filename);
  *  }
- * 
+ *
  *  TrackerExtractData *
  *  tracker_extract_get_data (void)
  *  {
@@ -96,14 +95,30 @@ G_BEGIN_DECLS
 /**
  * TrackerExtractMimeFunc:
  * @uri: a string representing a URI.
- * @metadata: used to populate with metadata.
+ * @preinserts: used to populate with data inserts that
+ *              are a prerequisite for the actual file
+ *              metadata insertion.
+ * @metadata: used to populate with file metadata predicate/object(s).
  *
- * The @metadata is used to populate the extracted metadata from the
- * file using the #TrackerSparqlBuilder APIs.
+ * Extracts metadata from a file, and inserts it into @metadata.
+ *
+ * The @metadata parameter is a #TrackerSparqlBuilder constructed
+ * through tracker_sparql_builder_new_embedded_insert(), The subject
+ * is already set to be the file URN, so implementations of this
+ * function should just provide predicate/object(s) pairs. the data
+ * triples contained in there at the end of the function will be
+ * merged with further file information from miners.
+ *
+ * Whenever any of the inserted triples rely on entities that
+ * should also be provided by this extractor (for example, album
+ * or artist information from a song), such insertions should be
+ * added to @preinserts, which is a #TrackerSparqlBuilder constructed.
+ * through tracker_sparql_builder_new_update().
  *
  * Since: 0.8
  **/
 typedef void (*TrackerExtractMimeFunc) (const gchar          *uri,
+					TrackerSparqlBuilder *preinsert,
                                         TrackerSparqlBuilder *metadata);
 
 /**

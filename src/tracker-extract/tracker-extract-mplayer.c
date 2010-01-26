@@ -85,6 +85,7 @@ static const gchar *info_tags[][2] = {
 };
 
 typedef struct {
+	TrackerSparqlBuilder *preinserts;
 	TrackerSparqlBuilder *metadata;
 	const gchar *uri;
 } ForeachCopyInfo;
@@ -99,14 +100,13 @@ copy_hash_table_entry (gpointer key,
 	if (g_strcmp0 (key, "nmm:performer") == 0) {
 		gchar *canonical_uri = tracker_uri_printf_escaped ("urn:artist:%s", value);
 
-		tracker_sparql_builder_subject_iri (info->metadata, canonical_uri);
-		tracker_sparql_builder_predicate (info->metadata, "a");
-		tracker_sparql_builder_object (info->metadata, "nmm:Artist");
+		tracker_sparql_builder_subject_iri (info->preinserts, canonical_uri);
+		tracker_sparql_builder_predicate (info->preinserts, "a");
+		tracker_sparql_builder_object (info->preinserts, "nmm:Artist");
 
-		tracker_sparql_builder_predicate (info->metadata, "nmm:artistName");
-		tracker_sparql_builder_object_unvalidated (info->metadata, value);
+		tracker_sparql_builder_predicate (info->preinserts, "nmm:artistName");
+		tracker_sparql_builder_object_unvalidated (info->preinserts, value);
 
-		tracker_sparql_builder_subject_iri (info->metadata, info->uri);
 		g_free (canonical_uri);
 	} else {
 		tracker_sparql_builder_predicate (info->metadata, key);
@@ -252,12 +252,11 @@ extract_mplayer (const gchar *uri,
 		g_pattern_spec_free (pattern_ID_LENGTH);
 
 		if (has_video) {
-			tracker_sparql_builder_subject_iri (metadata, uri);
 			tracker_sparql_builder_predicate (metadata, "a");
 			tracker_sparql_builder_object (metadata, "nmm:Video");
 
 			if (tmp_metadata_video) {
-				ForeachCopyInfo info = { metadata, uri };
+				ForeachCopyInfo info = { preinserts, metadata, uri };
 				g_hash_table_foreach (tmp_metadata_video,
 				                      copy_hash_table_entry,
 				                      &info);
@@ -271,13 +270,12 @@ extract_mplayer (const gchar *uri,
 				g_free (duration);
 			}
 		} else if (has_audio) {
-			tracker_sparql_builder_subject_iri (metadata, uri);
 			tracker_sparql_builder_predicate (metadata, "a");
 			tracker_sparql_builder_object (metadata, "nmm:MusicPiece");
 			tracker_sparql_builder_object (metadata, "nfo:Audio");
 
 			if (tmp_metadata_audio) {
-				ForeachCopyInfo info = { metadata, uri };
+				ForeachCopyInfo info = { preinserts, metadata, uri };
 				g_hash_table_foreach (tmp_metadata_audio,
 				                      copy_hash_table_entry,
 				                      &info);
@@ -291,7 +289,6 @@ extract_mplayer (const gchar *uri,
 				g_free (duration);
 			}
 		} else {
-			tracker_sparql_builder_subject_iri (metadata, uri);
 			tracker_sparql_builder_predicate (metadata, "a");
 			tracker_sparql_builder_object (metadata, "nfo:FileDataObject");
 		}

@@ -71,6 +71,7 @@ static void text_handler          (GMarkupParseContext   *context,
                                    gpointer               user_data,
                                    GError               **error);
 static void extract_oasis         (const gchar           *filename,
+				   TrackerSparqlBuilder  *preinserts,
                                    TrackerSparqlBuilder  *metadata);
 
 static TrackerExtractData extract_data[] = {
@@ -104,8 +105,9 @@ extract_content (const gchar *path,
 }
 
 static void
-extract_oasis (const gchar *uri,
-               TrackerSparqlBuilder   *metadata)
+extract_oasis (const gchar          *uri,
+	       TrackerSparqlBuilder *preinserts,
+               TrackerSparqlBuilder *metadata)
 {
 	gchar         *argv[5];
 	gchar         *xml;
@@ -127,7 +129,6 @@ extract_oasis (const gchar *uri,
 
 	/* Question: shouldn't we g_unlink meta.xml then? */
 
-	tracker_sparql_builder_subject_iri (metadata, uri);
 	tracker_sparql_builder_predicate (metadata, "a");
 	tracker_sparql_builder_object (metadata, "nfo:PaginatedTextDocument");
 

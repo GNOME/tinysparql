@@ -124,12 +124,16 @@ typedef struct {
 } MetadataExtractor;
 
 static void extract_gstreamer_audio (const gchar          *uri,
+				     TrackerSparqlBuilder *preinserts,
                                      TrackerSparqlBuilder *metadata);
 static void extract_gstreamer_video (const gchar          *uri,
+				     TrackerSparqlBuilder *preinserts,
                                      TrackerSparqlBuilder *metadata);
 static void extract_gstreamer_image (const gchar          *uri,
+				     TrackerSparqlBuilder *preinserts,
                                      TrackerSparqlBuilder *metadata);
 static void extract_gstreamer_3gpp  (const gchar          *uri,
+				     TrackerSparqlBuilder *preinserts,
                                      TrackerSparqlBuilder *metadata);
 
 static TrackerExtractData data[] = {
@@ -445,6 +449,7 @@ extract_stream_metadata_decodebin (MetadataExtractor *extractor,
 static void
 extract_metadata (MetadataExtractor      *extractor,
                   const gchar            *uri,
+		  TrackerSparqlBuilder   *preinserts,
                   TrackerSparqlBuilder   *metadata,
                   gchar                 **album,
                   gchar                 **scount)
@@ -490,11 +495,11 @@ extract_metadata (MetadataExtractor      *extractor,
 			if (s) {
 				performer_uri = tracker_uri_printf_escaped ("urn:artist:%s", s);
 
-				tracker_sparql_builder_subject_iri (metadata, performer_uri);
-				tracker_sparql_builder_predicate (metadata, "a");
-				tracker_sparql_builder_object (metadata, "nmm:Artist");
-				tracker_sparql_builder_predicate (metadata, "nmm:artistName");
-				tracker_sparql_builder_object_unvalidated (metadata, s);
+				tracker_sparql_builder_subject_iri (preinserts, performer_uri);
+				tracker_sparql_builder_predicate (preinserts, "a");
+				tracker_sparql_builder_object (preinserts, "nmm:Artist");
+				tracker_sparql_builder_predicate (preinserts, "nmm:artistName");
+				tracker_sparql_builder_object_unvalidated (preinserts, s);
 
 				g_free (s);
 			}
@@ -505,12 +510,12 @@ extract_metadata (MetadataExtractor      *extractor,
 			if (s) {
 				composer_uri = tracker_uri_printf_escaped ("urn:artist:%s", s);
 
-				tracker_sparql_builder_subject_iri (metadata, composer_uri);
-				tracker_sparql_builder_predicate (metadata, "a");
-				tracker_sparql_builder_object (metadata, "nmm:Artist");
+				tracker_sparql_builder_subject_iri (preinserts, composer_uri);
+				tracker_sparql_builder_predicate (preinserts, "a");
+				tracker_sparql_builder_object (preinserts, "nmm:Artist");
 
-				tracker_sparql_builder_predicate (metadata, "nmm:artistName");
-				tracker_sparql_builder_object_unvalidated (metadata, s);
+				tracker_sparql_builder_predicate (preinserts, "nmm:artistName");
+				tracker_sparql_builder_object_unvalidated (preinserts, s);
 
 				g_free (s);
 			}
@@ -523,18 +528,18 @@ extract_metadata (MetadataExtractor      *extractor,
 			gst_tag_list_get_string (extractor->tagcache, GST_TAG_ALBUM, &s);
 			if (s) {
 				album_uri = tracker_uri_printf_escaped ("urn:album:%s", s);
-				tracker_sparql_builder_subject_iri (metadata, album_uri);
-				tracker_sparql_builder_predicate (metadata, "a");
-				tracker_sparql_builder_object (metadata, "nmm:MusicAlbum");
-				tracker_sparql_builder_predicate (metadata, "nmm:albumTitle");
-				tracker_sparql_builder_object_unvalidated (metadata, s);
-				add_uint_gst_tag (metadata, album_uri, "nmm:albumTrackCount", extractor->tagcache, GST_TAG_TRACK_COUNT);
-				add_uint_gst_tag (metadata, album_uri, "nmm:setNumber", extractor->tagcache, GST_TAG_ALBUM_VOLUME_NUMBER);
+
+				tracker_sparql_builder_subject_iri (preinserts, album_uri);
+				tracker_sparql_builder_predicate (preinserts, "a");
+				tracker_sparql_builder_object (preinserts, "nmm:MusicAlbum");
+				tracker_sparql_builder_predicate (preinserts, "nmm:albumTitle");
+				tracker_sparql_builder_object_unvalidated (preinserts, s);
+				add_uint_gst_tag (preinserts, album_uri, "nmm:albumTrackCount", extractor->tagcache, GST_TAG_TRACK_COUNT);
+				add_uint_gst_tag (preinserts, album_uri, "nmm:setNumber", extractor->tagcache, GST_TAG_ALBUM_VOLUME_NUMBER);
 				*album = s;
 			}
 		}
 
-		tracker_sparql_builder_subject_iri (metadata, uri);
 		tracker_sparql_builder_predicate (metadata, "a");
 
 		if (extractor->mime == EXTRACT_MIME_AUDIO) {
@@ -897,6 +902,7 @@ create_tagreadbin_pipeline (MetadataExtractor *extractor, const gchar *uri)
 
 static void
 tracker_extract_gstreamer (const gchar *uri,
+			   TrackerSparqlBuilder  *preinserts,
                            TrackerSparqlBuilder  *metadata,
                            ExtractMime  type)
 {
@@ -967,7 +973,7 @@ tracker_extract_gstreamer (const gchar *uri,
 	album = NULL;
 	scount = NULL;
 
-	extract_metadata (extractor, uri, metadata, &album, &scount);
+	extract_metadata (extractor, uri, preinserts, metadata, &album, &scount);
 
 	tracker_albumart_process (extractor->album_art_data,
 	                          extractor->album_art_size,
@@ -993,27 +999,35 @@ tracker_extract_gstreamer (const gchar *uri,
 
 
 static void
-extract_gstreamer_audio (const gchar *uri, TrackerSparqlBuilder *metadata)
+extract_gstreamer_audio (const gchar          *uri,
+			 TrackerSparqlBuilder *preinserts,
+			 TrackerSparqlBuilder *metadata)
 {
-	tracker_extract_gstreamer (uri, metadata, EXTRACT_MIME_AUDIO);
+	tracker_extract_gstreamer (uri, preinserts, metadata, EXTRACT_MIME_AUDIO);
 }
 
 static void
-extract_gstreamer_video (const gchar *uri, TrackerSparqlBuilder *metadata)
+extract_gstreamer_video (const gchar          *uri,
+			 TrackerSparqlBuilder *preinserts,
+			 TrackerSparqlBuilder *metadata)
 {
-	tracker_extract_gstreamer (uri, metadata, EXTRACT_MIME_VIDEO);
+	tracker_extract_gstreamer (uri, preinserts, metadata, EXTRACT_MIME_VIDEO);
 }
 
 static void
-extract_gstreamer_image (const gchar *uri, TrackerSparqlBuilder *metadata)
+extract_gstreamer_image (const gchar          *uri,
+			 TrackerSparqlBuilder *preinserts,
+			 TrackerSparqlBuilder *metadata)
 {
-	tracker_extract_gstreamer (uri, metadata, EXTRACT_MIME_IMAGE);
+	tracker_extract_gstreamer (uri, preinserts, metadata, EXTRACT_MIME_IMAGE);
 }
 
 static void
-extract_gstreamer_3gpp (const gchar *uri, TrackerSparqlBuilder *metadata)
+extract_gstreamer_3gpp (const gchar          *uri,
+			TrackerSparqlBuilder *preinserts,
+			TrackerSparqlBuilder *metadata)
 {
-	tracker_extract_gstreamer (uri, metadata, EXTRACT_MIME_3GPP);
+	tracker_extract_gstreamer (uri, preinserts, metadata, EXTRACT_MIME_3GPP);
 }
 
 TrackerExtractData *
