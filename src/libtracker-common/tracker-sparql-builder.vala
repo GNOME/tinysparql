@@ -85,6 +85,28 @@ public class Tracker.SparqlBuilder : Object {
 		}
 	}
 
+	public void delete_open (string? graph)
+		requires (state == State.UPDATE)
+	{
+		states += State.DELETE;
+		if (graph != null)
+			str.append ("DELETE FROM <%s> {\n".printf (graph));
+		else
+			str.append ("DELETE {\n");
+	}
+
+	public void delete_close ()
+		requires (state == State.DELETE || state == State.OBJECT)
+	{
+		if (state == State.OBJECT) {
+			str.append (" .\n");
+			states.length -= 3;
+		}
+		states.length--;
+
+		str.append ("}\n");
+	}
+
 	public void where_open ()
 	       requires (state == State.UPDATE)
 	{
@@ -107,12 +129,16 @@ public class Tracker.SparqlBuilder : Object {
 		subject ("?%s".printf (var_name));
 	}
 
+	public void object_variable (string var_name) {
+		object ("?%s".printf (var_name));
+	}
+
 	public void subject_iri (string iri) {
 		subject ("<%s>".printf (iri));
 	}
 
 	public void subject (string s)
-		requires (state == State.INSERT || state == State.OBJECT || state == State.EMBEDDED_INSERT)
+		requires (state == State.INSERT || state == State.OBJECT || state == State.EMBEDDED_INSERT || state == State.DELETE || state == State.WHERE)
 	{
 		if (state == State.OBJECT) {
 			str.append (" .\n");
