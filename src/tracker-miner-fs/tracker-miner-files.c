@@ -457,8 +457,11 @@ set_up_mount_point (TrackerMinerFiles *miner,
 			uri = g_file_get_uri (file);
 
 			g_string_append_printf (queries,
-			                        "DROP GRAPH <%s>\n "
-			                        "INSERT INTO <%s> { <%s> a tracker:Volume; tracker:mountPoint <%s> } ",
+			                        "DROP GRAPH <%s> "
+			                        "INSERT INTO <%s> { "
+                                                "  <%s> a tracker:Volume; "
+                                                "       tracker:mountPoint [ a rdfs:Resource ; nie:url \"%s\" ] "
+                                                "} ",
 			                        removable_device_urn, removable_device_urn, removable_device_urn, uri);
 
 			g_object_unref (file);
@@ -1169,7 +1172,7 @@ miner_files_add_to_datasource (TrackerMinerFiles    *mf,
 		removable_device_urn = g_strdup (TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN);
 	}
 
-	tracker_sparql_builder_subject_iri (sparql, uri);
+	tracker_sparql_builder_subject (sparql, "_:foo");
 	tracker_sparql_builder_predicate (sparql, "a");
 	tracker_sparql_builder_object (sparql, "nfo:FileDataObject");
 
@@ -1224,6 +1227,7 @@ extractor_create_proxy (void)
 
 static void
 extractor_get_embedded_metadata_cb (DBusGProxy *proxy,
+				    gchar      *preinserts,
                                     gchar      *sparql,
                                     GError     *error,
                                     gpointer    user_data)
@@ -1238,14 +1242,23 @@ extractor_get_embedded_metadata_cb (DBusGProxy *proxy,
 		return;
 	}
 
-	if (sparql) {
+	if (sparql && *sparql) {
+		tracker_sparql_builder_append (data->sparql, "\n");
 		tracker_sparql_builder_append (data->sparql, sparql);
-		g_free (sparql);
+	}
+
+	tracker_sparql_builder_insert_close (data->sparql);
+
+	if (preinserts && *preinserts) {
+		tracker_sparql_builder_prepend (data->sparql, preinserts);
 	}
 
 	/* Notify about the success */
 	tracker_miner_fs_notify_file (TRACKER_MINER_FS (data->miner), data->file, NULL);
+
 	process_file_data_free (data);
+	g_free (preinserts);
+	g_free (sparql);
 }
 
 static void
@@ -1309,11 +1322,17 @@ process_file_cb (GObject      *object,
 	uri = g_file_get_uri (file);
 	mime_type = g_file_info_get_content_type (file_info);
 
-	tracker_sparql_builder_insert_open (sparql, uri);
+	tracker_sparql_builder_insert_open (sparql, NULL);
 
-	tracker_sparql_builder_subject_iri (sparql, uri);
+	tracker_sparql_builder_subject (sparql, "_:foo");
+
 	tracker_sparql_builder_predicate (sparql, "a");
 	tracker_sparql_builder_object (sparql, "nfo:FileDataObject");
+	tracker_sparql_builder_object (sparql, "nie:InformationElement");
+
+	if (g_file_info_get_file_type (file_info) == G_FILE_TYPE_DIRECTORY) {
+		tracker_sparql_builder_object (sparql, "nfo:Folder");
+	}
 
 	parent = g_file_get_parent (file);
 	if (parent) {
@@ -1338,14 +1357,6 @@ process_file_cb (GObject      *object,
 	tracker_sparql_builder_predicate (sparql, "nfo:fileLastAccessed");
 	tracker_sparql_builder_object_date (sparql, (time_t *) &time_);
 
-	tracker_sparql_builder_subject_iri (sparql, uri); /* Change to URN */
-	tracker_sparql_builder_predicate (sparql, "a");
-	tracker_sparql_builder_object (sparql, "nie:InformationElement");
-
-	if (g_file_info_get_file_type (file_info) == G_FILE_TYPE_DIRECTORY) {
-		tracker_sparql_builder_object (sparql, "nfo:Folder");
-	}
-
 	/* Laying the link between the IE and the DO. We use IE = DO */
 	tracker_sparql_builder_predicate (sparql, "nie:isStoredAs");
 	tracker_sparql_builder_object_iri (sparql, uri);
@@ -1358,8 +1369,6 @@ process_file_cb (GObject      *object,
 	tracker_sparql_builder_object_string (sparql, mime_type);
 
 	miner_files_add_to_datasource (data->miner, file, sparql);
-
-	tracker_sparql_builder_insert_close (sparql);
 
 	/* Next step, getting embedded metadata */
 	extractor_get_embedded_metadata (data, uri, mime_type);
@@ -1436,10 +1445,9 @@ miner_files_writeback_file (TrackerMinerFS       *fs,
 
 	/* For writeback we only write a few properties back. These properties
 	 * should NEVER be marked as tracker:writeback in the ontology ! */
+	tracker_sparql_builder_insert_open (sparql, NULL);
 
-	tracker_sparql_builder_insert_open (sparql, uri);
-
-	tracker_sparql_builder_subject_iri (sparql, uri);
+	tracker_sparql_builder_subject_variable (sparql, "urn");
 	tracker_sparql_builder_predicate (sparql, "a");
 	tracker_sparql_builder_object (sparql, "nfo:FileDataObject");
 
@@ -1457,10 +1465,20 @@ miner_files_writeback_file (TrackerMinerFS       *fs,
 	tracker_sparql_builder_predicate (sparql, "nie:mimeType");
 	tracker_sparql_builder_object_string (sparql, mime_type);
 
-	g_object_unref (file_info);
-	g_free (uri);
+	tracker_sparql_builder_insert_close (sparql);
 
 	tracker_sparql_builder_insert_close (sparql);
+
+	tracker_sparql_builder_where_open (sparql);
+
+	tracker_sparql_builder_subject_variable (sparql, "urn");
+	tracker_sparql_builder_predicate (sparql, "nie:url");
+	tracker_sparql_builder_object_string (sparql, uri);
+
+	tracker_sparql_builder_where_close (sparql);
+
+	g_object_unref (file_info);
+	g_free (uri);
 
 	return TRUE;
 }
