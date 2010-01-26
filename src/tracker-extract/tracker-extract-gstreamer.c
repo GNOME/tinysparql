@@ -533,6 +533,9 @@ extract_metadata (MetadataExtractor      *extractor,
 			s = NULL;
 			gst_tag_list_get_string (extractor->tagcache, GST_TAG_ALBUM, &s);
 			if (s) {
+				gboolean has_it;
+				guint count;
+
 				album_uri = tracker_uri_printf_escaped ("urn:album:%s", s);
 
 				tracker_sparql_builder_insert_open (preupdate, NULL);
@@ -542,8 +545,57 @@ extract_metadata (MetadataExtractor      *extractor,
 				tracker_sparql_builder_object (preupdate, "nmm:MusicAlbum");
 				tracker_sparql_builder_predicate (preupdate, "nmm:albumTitle");
 				tracker_sparql_builder_object_unvalidated (preupdate, s);
-				add_uint_gst_tag (preupdate, album_uri, "nmm:albumTrackCount", extractor->tagcache, GST_TAG_TRACK_COUNT);
-				add_uint_gst_tag (preupdate, album_uri, "nmm:setNumber", extractor->tagcache, GST_TAG_ALBUM_VOLUME_NUMBER);
+
+				has_it = gst_tag_list_get_uint (extractor->tagcache, 
+				                                GST_TAG_TRACK_COUNT, 
+				                                &count);
+
+				if (has_it) {
+					tracker_sparql_builder_insert_close (preupdate);
+
+					tracker_sparql_builder_delete_open (preupdate, NULL);
+					tracker_sparql_builder_subject_iri (preupdate, album_uri);
+					tracker_sparql_builder_predicate (preupdate, "nmm:albumTrackCount");
+					tracker_sparql_builder_object_variable (preupdate, "unknown");
+					tracker_sparql_builder_delete_close (preupdate);
+					tracker_sparql_builder_where_open (preupdate);
+					tracker_sparql_builder_subject_iri (preupdate, album_uri);
+					tracker_sparql_builder_predicate (preupdate, "nmm:albumTrackCount");
+					tracker_sparql_builder_object_variable (preupdate, "unknown");
+					tracker_sparql_builder_where_close (preupdate);
+
+					tracker_sparql_builder_insert_open (preupdate, NULL);
+					tracker_sparql_builder_subject_iri (preupdate, album_uri);
+
+					tracker_sparql_builder_predicate (metadata, "nmm:albumTrackCount");
+					tracker_sparql_builder_object_int64 (metadata, count);
+				}
+
+				has_it = gst_tag_list_get_uint (extractor->tagcache, 
+				                                GST_TAG_ALBUM_VOLUME_NUMBER, 
+				                                &count);
+
+				if (has_it) {
+					tracker_sparql_builder_insert_close (preupdate);
+
+					tracker_sparql_builder_delete_open (preupdate, NULL);
+					tracker_sparql_builder_subject_iri (preupdate, album_uri);
+					tracker_sparql_builder_predicate (preupdate, "nmm:setNumber");
+					tracker_sparql_builder_object_variable (preupdate, "unknown");
+					tracker_sparql_builder_delete_close (preupdate);
+					tracker_sparql_builder_where_open (preupdate);
+					tracker_sparql_builder_subject_iri (preupdate, album_uri);
+					tracker_sparql_builder_predicate (preupdate, "nmm:setNumber");
+					tracker_sparql_builder_object_variable (preupdate, "unknown");
+					tracker_sparql_builder_where_close (preupdate);
+
+					tracker_sparql_builder_insert_open (preupdate, NULL);
+					tracker_sparql_builder_subject_iri (preupdate, album_uri);
+
+					tracker_sparql_builder_predicate (metadata, "nmm:setNumber");
+					tracker_sparql_builder_object_int64 (metadata, count);
+				}
+
 				*album = s;
 
 				tracker_sparql_builder_insert_close (preupdate);
