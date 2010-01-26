@@ -113,6 +113,10 @@ struct TrackerMinerFSPrivate {
 	guint           directories_ignored;
 	guint           files_found;
 	guint           files_ignored;
+
+	guint           total_files_processed;
+	guint           total_files_notified;
+	guint           total_files_notified_error;
 };
 
 enum {
@@ -771,6 +775,10 @@ process_print_stats (TrackerMinerFS *fs)
 		           fs->private->total_files_ignored);
 		g_message ("Total monitors    : %d",
 		           tracker_monitor_get_count (fs->private->monitor));
+		g_message ("Total files processed : %d (%d notified, %d with error)\n",
+			   fs->private->total_files_processed,
+			   fs->private->total_files_notified,
+			   fs->private->total_files_notified_error);
 		g_message ("--------------------------------------------------\n");
 	}
 }
@@ -974,28 +982,34 @@ item_add_or_update (TrackerMinerFS *fs,
 	               &processing);
 
 	if (!processing) {
+		gchar *uri;
+
+		uri = g_file_get_uri (file);
+
 		/* Re-fetch data, since it might have been
 		 * removed in broken implementations
 		 */
 		data = process_data_find (fs, file);
 
-		if (!data) {
-			gchar *uri;
+		g_message ("%s refused to process '%s'", G_OBJECT_TYPE_NAME (fs), uri);
 
-			uri = g_file_get_uri (file);
+		if (!data) {
 			g_critical ("%s has returned FALSE in ::process-file for '%s', "
 			            "but it seems that this file has been processed through "
 			            "tracker_miner_fs_notify_file(), this is an "
 			            "implementation error", G_OBJECT_TYPE_NAME (fs), uri);
-			g_free (uri);
 		} else {
 			priv->processing_pool = g_list_remove (priv->processing_pool, data);
 			process_data_free (data);
 		}
+
+		g_free (uri);
 	} else {
 		guint length;
 
 		length = g_list_length (priv->processing_pool);
+
+		fs->private->total_files_processed++;
 
 		if (length >= priv->pool_limit) {
 			retval = FALSE;
@@ -2371,6 +2385,12 @@ tracker_miner_fs_notify_file (TrackerMinerFS *fs,
 
 	g_return_if_fail (TRACKER_IS_MINER_FS (fs));
 	g_return_if_fail (G_IS_FILE (file));
+
+	fs->private->total_files_notified++;
+
+	if (error) {
+		fs->private->total_files_notified_error++;
+	}
 
 	data = process_data_find (fs, file);
 
