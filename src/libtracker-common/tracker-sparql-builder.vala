@@ -26,6 +26,7 @@ public class Tracker.SparqlBuilder : Object {
 		PREDICATE,
 		OBJECT,
 		BLANK,
+		WHERE,
 		EMBEDDED_INSERT
 	}
 
@@ -82,6 +83,28 @@ public class Tracker.SparqlBuilder : Object {
 		if (state != State.EMBEDDED_INSERT) {
 			str.append ("}\n");
 		}
+	}
+
+	public void where_open ()
+	       requires (state == State.UPDATE)
+	{
+		states += State.WHERE;
+		str.append ("WHERE {\n");
+	}
+
+	public void where_close ()
+		requires (state == State.WHERE || state == State.OBJECT)
+	{
+		if (state == State.OBJECT) {
+			str.append (" .\n");
+			states.length -= 3;
+		}
+		states.length--;
+		str.append ("}\n");
+	}
+
+	public void subject_variable (string var_name) {
+		subject ("?%s".printf (var_name));
 	}
 
 	public void subject_iri (string iri) {
