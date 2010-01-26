@@ -1,0 +1,22 @@
+@prefix : <http://example/> .
+@prefix xsd:        <http://www.w3.org/2001/XMLSchema#> .
+
+:x a :Location .
+:x :name "Helsinki" .
+:x :latitude "60.170833" .
+:x :longitude "24.9375" .
+
+:y a :Location .
+:y :name "Tampere" .
+:y :latitude "61.498056" .
+:y :longitude "23.760833" .
+
+:z a :Location .
+:z :name "London" .
+:z :latitude "51.500278" .
+:z :longitude "-0.126111" .
+
+:c a :Location .
+:c :name "Tuvalu" .
+:c :latitude "-8.521111" .
+:c :longitude "179.198333" .

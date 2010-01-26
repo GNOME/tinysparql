@@ -1408,6 +1408,36 @@ public class Tracker.SparqlQuery : Object {
 			sql.append_printf ("\"%s_u_offsets\"", v);
 
 			return PropertyType.STRING;
+                } else if (uri == TRACKER_NS + "cartesian-distance") {
+                        sql.append ("SparqlCartesianDistance(");
+                        translate_expression (sql);
+                        sql.append (", ");
+                        expect (SparqlTokenType.COMMA);
+                        translate_expression (sql);
+                        sql.append (", ");
+                        expect (SparqlTokenType.COMMA);
+                        translate_expression (sql);
+                        sql.append (", ");
+                        expect (SparqlTokenType.COMMA);
+                        translate_expression (sql);
+                        sql.append (")");
+
+                        return PropertyType.DOUBLE;
+                } else if (uri == TRACKER_NS + "haversine-distance") {
+                        sql.append ("SparqlHaversineDistance(");
+                        translate_expression (sql);
+                        sql.append (", ");
+                        expect (SparqlTokenType.COMMA);
+                        translate_expression (sql);
+                        sql.append (", ");
+                        expect (SparqlTokenType.COMMA);
+                        translate_expression (sql);
+                        sql.append (", ");
+                        expect (SparqlTokenType.COMMA);
+                        translate_expression (sql);
+                        sql.append (")");
+
+                        return PropertyType.DOUBLE;
 		} else if (uri == TRACKER_NS + "coalesce") {
 			sql.append ("COALESCE(");
 			translate_expression_as_string (sql);

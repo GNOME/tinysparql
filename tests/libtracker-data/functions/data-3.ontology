@@ -1,0 +1,25 @@
+@prefix example: <http://example/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix tracker: <http://www.tracker-project.org/ontologies/tracker#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ns: <http://www.w3.org/2005/xpath-functions#> .
+
+example: a tracker:Namespace ;
+	tracker:prefix "example" .
+
+example:Location a rdfs:Class ;
+	rdfs:subClassOf rdfs:Resource .
+
+example:name a rdf:Property ;
+	rdfs:domain example:Location ;
+	rdfs:range xsd:string .
+
+example:latitude a rdf:Property ;
+	rdfs:domain example:Location ;
+	rdfs:range xsd:double .
+
+example:longitude a rdf:Property ;
+	rdfs:domain example:Location ;
+	rdfs:range xsd:double .
+

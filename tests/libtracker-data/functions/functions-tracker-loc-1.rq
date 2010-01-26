@@ -1,0 +1,11 @@
+PREFIX ex: <http://example/>
+PREFIX ns: <http://www.w3.org/2005/xpath-functions#>
+
+SELECT ?location tracker:cartesian-distance(?lat1,?lat2,?lon1,?lon2) tracker:haversine-distance(?lat1,?lat2,?lon1,?lon2)
+{ ?_x a ex:Location ;
+      ex:name ?location ;
+      ex:latitude ?lat1 ;
+      ex:longitude ?lon1 .
+ ex:x ex:latitude ?lat2 ;
+      ex:longitude ?lon2 .
+}

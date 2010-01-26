@@ -29,6 +29,7 @@
 #include <sys/types.h>
 #include <stdio.h>
 #include <fcntl.h>
+#include <math.h>
 
 #include <glib/gstdio.h>
 
@@ -341,6 +342,65 @@ function_sparql_string_from_filename (TrackerDBInterface *interface,
 	g_value_set_string (&result, name);
 
 	g_free (name);
+
+	return result;
+}
+
+static GValue
+function_sparql_cartesian_distance (TrackerDBInterface *interface,
+				    gint                argc,
+				    GValue              values[])
+{
+	GValue result = { 0, };
+
+	if (argc != 4) {
+		g_critical ("Invalid argument count");
+		return result;
+	}
+
+	gdouble lat1 = g_value_get_double (&values[0])*M_PI/180;
+	gdouble lat2 = g_value_get_double (&values[1])*M_PI/180;
+	gdouble lon1 = g_value_get_double (&values[2])*M_PI/180;
+	gdouble lon2 = g_value_get_double (&values[3])*M_PI/180;
+
+	gdouble R = 6371000;
+	gdouble a = M_PI/2 - lat1;
+	gdouble b = M_PI/2 - lat2;
+	gdouble c = sqrt(a*a + b*b - 2*a*b*cos(lon2 - lon1));
+	gdouble d = R*c;
+
+	g_value_init (&result, G_TYPE_DOUBLE);
+	g_value_set_double (&result, d);
+
+	return result;
+}
+
+static GValue
+function_sparql_haversine_distance (TrackerDBInterface *interface,
+				    gint                argc,
+				    GValue              values[])
+{
+	GValue result = { 0, };
+
+	if (argc != 4) {
+		g_critical ("Invalid argument count");
+		return result;
+	}
+
+	gdouble lat1 = g_value_get_double (&values[0])*M_PI/180;
+	gdouble lat2 = g_value_get_double (&values[1])*M_PI/180;
+	gdouble lon1 = g_value_get_double (&values[2])*M_PI/180;
+	gdouble lon2 = g_value_get_double (&values[3])*M_PI/180;
+
+	gdouble R = 6371000;
+	gdouble dLat = (lat2-lat1);
+	gdouble dLon = (lon2-lon1); 
+	gdouble a = sin(dLat/2) * sin(dLat/2) + cos(lat1) * cos(lat2) *  sin(dLon/2) * sin(dLon/2); 
+	gdouble c = 2 * atan2(sqrt(a), sqrt(1-a)); 
+	gdouble d = R * c;
+
+	g_value_init (&result, G_TYPE_DOUBLE);
+	g_value_set_double (&result, d);
 
 	return result;
 }
@@ -738,6 +798,14 @@ db_set_params (TrackerDBInterface *iface,
 		                                             "SparqlStringFromFilename",
 		                                             function_sparql_string_from_filename,
 		                                             1);
+		tracker_db_interface_sqlite_create_function (iface,
+		                                             "SparqlCartesianDistance",
+		                                             function_sparql_cartesian_distance,
+		                                             4);
+		tracker_db_interface_sqlite_create_function (iface,
+		                                             "SparqlHaversineDistance",
+		                                             function_sparql_haversine_distance,
+		                                             4);
 		tracker_db_interface_sqlite_create_function (iface,
 		                                             "uncompress",
 		                                             function_uncompress,
