@@ -31,7 +31,7 @@
 #include <libtracker-extract/tracker-xmp.h>
 
 static void extract_xmp (const gchar          *filename,
-			 TrackerSparqlBuilder *preinserts,
+                         TrackerSparqlBuilder *preupdate,
                          TrackerSparqlBuilder *metadata);
 
 static TrackerExtractData data[] = {
@@ -137,7 +137,7 @@ find_orig_uri (const gchar *xmp_filename)
 
 static void
 extract_xmp (const gchar          *uri,
-	     TrackerSparqlBuilder *preinserts,
+             TrackerSparqlBuilder *preupdate,
              TrackerSparqlBuilder *metadata)
 {
 	gchar *contents;

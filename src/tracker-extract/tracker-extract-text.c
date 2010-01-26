@@ -31,7 +31,7 @@
 #define TEXT_CHECK_SIZE 65535    /* bytes */
 
 static void extract_text (const gchar          *uri,
-			  TrackerSparqlBuilder *preinserts,
+                          TrackerSparqlBuilder *preupdate,
                           TrackerSparqlBuilder *metadata);
 
 static TrackerExtractData data[] = {
@@ -275,7 +275,7 @@ get_file_content (const gchar *uri)
 
 static void
 extract_text (const gchar          *uri,
-	      TrackerSparqlBuilder *preinserts,
+              TrackerSparqlBuilder *preupdate,
               TrackerSparqlBuilder *metadata)
 {
 	gchar *content;

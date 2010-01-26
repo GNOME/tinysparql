@@ -39,7 +39,7 @@
 
 static void
 tracker_extract_xine (const gchar          *uri,
-		      TrackerSparqlBuilder *preinserts,
+                      TrackerSparqlBuilder *preupdate,
 		      TrackerSparqlBuilder *metadata)
 {
 	xine_t            *xine_base;
@@ -110,9 +110,13 @@ tracker_extract_xine (const gchar          *uri,
 	if (author) {
 		gchar *canonical_uri = tracker_uri_printf_escaped ("urn:artist:%s", author);
 
-		tracker_sparql_builder_subject_iri (preinserts, canonical_uri);
-		tracker_sparql_builder_predicate (preinserts, "a");
-		tracker_sparql_builder_object (preinserts, "nmm:Artist");
+		tracker_sparql_builder_insert_open (preupdate, NULL);
+
+		tracker_sparql_builder_subject_iri (preupdate, canonical_uri);
+		tracker_sparql_builder_predicate (preupdate, "a");
+		tracker_sparql_builder_object (preupdate, "nmm:Artist");
+
+		tracker_sparql_builder_insert_close (preupdate);
 
 		g_free (canonical_uri);
 	}
@@ -121,11 +125,15 @@ tracker_extract_xine (const gchar          *uri,
 	if (album) {
 		gchar *canonical_uri = tracker_uri_printf_escaped ("urn:album:%s", album);
 
-		tracker_sparql_builder_subject_iri (preinserts, canonical_uri);
-		tracker_sparql_builder_predicate (preinserts, "a");
-		tracker_sparql_builder_object (preinserts, "nmm:MusicAlbum");
-		tracker_sparql_builder_predicate (preinserts, "nmm:albumTitle");
-		tracker_sparql_builder_object_unvalidated (preinserts, album);
+		tracker_sparql_builder_insert_open (preupdate, NULL);
+
+		tracker_sparql_builder_subject_iri (preupdate, canonical_uri);
+		tracker_sparql_builder_predicate (preupdate, "a");
+		tracker_sparql_builder_object (preupdate, "nmm:MusicAlbum");
+		tracker_sparql_builder_predicate (preupdate, "nmm:albumTitle");
+		tracker_sparql_builder_object_unvalidated (preupdate, album);
+
+		tracker_sparql_builder_insert_close (preupdate);
 
 		g_free (canonical_uri);
 	}

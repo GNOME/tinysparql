@@ -58,7 +58,7 @@ G_BEGIN_DECLS
  * 
  *  static void
  *  extract_png (const gchar          *uri,
- *               TrackerSparqlBuilder *preinserts,
+ *               TrackerSparqlBuilder *preupdate,
  *               TrackerSparqlBuilder *metadata)
  *  {
  *          gint height, width;
@@ -95,9 +95,9 @@ G_BEGIN_DECLS
 /**
  * TrackerExtractMimeFunc:
  * @uri: a string representing a URI.
- * @preinserts: used to populate with data inserts that
- *              are a prerequisite for the actual file
- *              metadata insertion.
+ * @preupdate: used to populate with data updates that
+ *             are a prerequisite for the actual file
+ *             metadata insertion.
  * @metadata: used to populate with file metadata predicate/object(s).
  *
  * Extracts metadata from a file, and inserts it into @metadata.
@@ -112,13 +112,13 @@ G_BEGIN_DECLS
  * Whenever any of the inserted triples rely on entities that
  * should also be provided by this extractor (for example, album
  * or artist information from a song), such insertions should be
- * added to @preinserts, which is a #TrackerSparqlBuilder constructed.
+ * added to @preupdate, which is a #TrackerSparqlBuilder constructed.
  * through tracker_sparql_builder_new_update().
  *
  * Since: 0.8
  **/
 typedef void (*TrackerExtractMimeFunc) (const gchar          *uri,
-					TrackerSparqlBuilder *preinsert,
+					TrackerSparqlBuilder *preupdate,
                                         TrackerSparqlBuilder *metadata);
 
 /**

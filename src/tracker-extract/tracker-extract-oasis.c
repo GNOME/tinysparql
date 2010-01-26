@@ -71,7 +71,7 @@ static void text_handler          (GMarkupParseContext   *context,
                                    gpointer               user_data,
                                    GError               **error);
 static void extract_oasis         (const gchar           *filename,
-				   TrackerSparqlBuilder  *preinserts,
+                                   TrackerSparqlBuilder  *preupdate,
                                    TrackerSparqlBuilder  *metadata);
 
 static TrackerExtractData extract_data[] = {
@@ -106,7 +106,7 @@ extract_content (const gchar *path,
 
 static void
 extract_oasis (const gchar          *uri,
-	       TrackerSparqlBuilder *preinserts,
+               TrackerSparqlBuilder *preupdate,
                TrackerSparqlBuilder *metadata)
 {
 	gchar         *argv[5];

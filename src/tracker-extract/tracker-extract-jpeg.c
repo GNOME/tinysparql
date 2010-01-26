@@ -93,7 +93,7 @@ typedef struct {
 } MergeData;
 
 static void extract_jpeg (const gchar          *filename,
-			  TrackerSparqlBuilder *preinserts,
+                          TrackerSparqlBuilder *preupdate,
                           TrackerSparqlBuilder *metadata);
 
 static TrackerExtractData data[] = {
@@ -153,7 +153,7 @@ extract_jpeg_error_exit (j_common_ptr cinfo)
 
 static void
 extract_jpeg (const gchar          *uri,
-	      TrackerSparqlBuilder *preinserts,
+              TrackerSparqlBuilder *preupdate,
               TrackerSparqlBuilder *metadata)
 {
 	struct jpeg_decompress_struct cinfo;
@@ -534,12 +534,16 @@ extract_jpeg (const gchar          *uri,
 		if (md.creator) {
 
 			if (id.byline_title) {
-				tracker_sparql_builder_subject (preinserts, "_:affiliation_by_line");
-				tracker_sparql_builder_predicate (preinserts, "a");
-				tracker_sparql_builder_object (preinserts, "nco:Affiliation");
+				tracker_sparql_builder_insert_open (preupdate, NULL);
 
-				tracker_sparql_builder_predicate (preinserts, "nco:title");
-				tracker_sparql_builder_object_unvalidated (preinserts, id.byline_title);
+				tracker_sparql_builder_subject (preupdate, "_:affiliation_by_line");
+				tracker_sparql_builder_predicate (preupdate, "a");
+				tracker_sparql_builder_object (preupdate, "nco:Affiliation");
+
+				tracker_sparql_builder_predicate (preupdate, "nco:title");
+				tracker_sparql_builder_object_unvalidated (preupdate, id.byline_title);
+
+				tracker_sparql_builder_insert_close (preupdate);
 			}
 
 			tracker_sparql_builder_predicate (metadata, "nco:creator");

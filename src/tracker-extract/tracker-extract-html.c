@@ -43,7 +43,7 @@ typedef struct {
 } parser_data;
 
 static void extract_html (const gchar          *filename,
-			  TrackerSparqlBuilder *preinserts,
+                          TrackerSparqlBuilder *preupdate,
                           TrackerSparqlBuilder *metadata);
 
 static TrackerExtractData data[] = {
@@ -198,7 +198,7 @@ parser_characters (void          *data,
 
 static void
 extract_html (const gchar          *uri,
-	      TrackerSparqlBuilder *preinserts,
+              TrackerSparqlBuilder *preupdate,
               TrackerSparqlBuilder *metadata)
 {
 	htmlDocPtr doc;

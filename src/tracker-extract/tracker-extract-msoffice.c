@@ -83,10 +83,10 @@
 #define SLIDELISTWITHTEXT_RECORD_TYPE           0x0FF0
 
 static void extract_msoffice   (const gchar          *uri,
-				TrackerSparqlBuilder *preinserts,
+                                TrackerSparqlBuilder *preupdate,
                                 TrackerSparqlBuilder *metadata);
 static void extract_powerpoint (const gchar          *uri,
-				TrackerSparqlBuilder *preinserts,
+                                TrackerSparqlBuilder *preupdate,
                                 TrackerSparqlBuilder *metadata);
 
 static TrackerExtractData data[] = {
@@ -1003,7 +1003,7 @@ open_uri (const gchar *uri)
  */
 static void
 extract_msoffice (const gchar          *uri,
-		  TrackerSparqlBuilder *preinserts,
+                  TrackerSparqlBuilder *preupdate,
                   TrackerSparqlBuilder *metadata)
 {
 	GsfInfile *infile = open_uri(uri);
@@ -1021,7 +1021,7 @@ extract_msoffice (const gchar          *uri,
  */
 static void
 extract_powerpoint (const gchar          *uri,
-		    TrackerSparqlBuilder *preinserts,
+                    TrackerSparqlBuilder *preupdate,
                     TrackerSparqlBuilder *metadata)
 {
 	GsfInfile *infile = open_uri(uri);

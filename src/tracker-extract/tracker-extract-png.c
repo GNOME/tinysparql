@@ -81,7 +81,7 @@ typedef struct {
 
 static gchar *rfc1123_to_iso8601_date (gchar                *rfc_date);
 static void   extract_png             (const gchar          *filename,
-				       TrackerSparqlBuilder *preinserts,
+                                       TrackerSparqlBuilder *preupdate,
                                        TrackerSparqlBuilder *metadata);
 
 static TrackerExtractData data[] = {
@@ -542,7 +542,7 @@ read_metadata (png_structp png_ptr, png_infop info_ptr, const gchar *uri, Tracke
 
 static void
 extract_png (const gchar          *uri,
-	     TrackerSparqlBuilder *preinserts,
+             TrackerSparqlBuilder *preupdate,
              TrackerSparqlBuilder *metadata)
 {
 	goffset      size;

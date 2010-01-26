@@ -77,7 +77,7 @@ typedef struct {
 } TiffData;
 
 static void extract_tiff (const gchar          *filename,
-			  TrackerSparqlBuilder *preinserts,
+                          TrackerSparqlBuilder *preupdate,
                           TrackerSparqlBuilder *metadata);
 
 static TrackerExtractData extract_data[] = {
@@ -271,7 +271,7 @@ insert_keywords (TrackerSparqlBuilder *metadata, const gchar *uri, gchar *keywor
 
 static void
 extract_tiff (const gchar          *uri,
-	      TrackerSparqlBuilder *preinserts,
+              TrackerSparqlBuilder *preupdate,
 	      TrackerSparqlBuilder *metadata)
 {
 	TIFF *image;
@@ -701,12 +701,16 @@ extract_tiff (const gchar          *uri,
 
 	if (merge_data.creator) {
 		if (iptc_data.byline_title) {
-			tracker_sparql_builder_subject (preinserts, "_:affiliation_by_line");
-			tracker_sparql_builder_predicate (preinserts, "a");
-			tracker_sparql_builder_object (preinserts, "nco:Affiliation");
+			tracker_sparql_builder_insert_open (preupdate, NULL);
 
-			tracker_sparql_builder_predicate (preinserts, "nco:title");
-			tracker_sparql_builder_object_unvalidated (preinserts, iptc_data.byline_title);
+			tracker_sparql_builder_subject (preupdate, "_:affiliation_by_line");
+			tracker_sparql_builder_predicate (preupdate, "a");
+			tracker_sparql_builder_object (preupdate, "nco:Affiliation");
+
+			tracker_sparql_builder_predicate (preupdate, "nco:title");
+			tracker_sparql_builder_object_unvalidated (preupdate, iptc_data.byline_title);
+
+			tracker_sparql_builder_insert_close (preupdate);
 		}
 
 		tracker_sparql_builder_predicate (metadata, "nco:creator");

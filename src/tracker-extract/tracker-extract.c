@@ -213,21 +213,20 @@ get_file_metadata (TrackerExtract         *extract,
                    DBusGMethodInvocation  *context,
                    const gchar            *uri,
                    const gchar            *mime,
-		   TrackerSparqlBuilder  **preinserts_out,
+		   TrackerSparqlBuilder  **preupdate_out,
 		   TrackerSparqlBuilder  **statements_out)
 {
 	TrackerExtractPrivate *priv;
-	TrackerSparqlBuilder *statements, *preinserts;
+	TrackerSparqlBuilder *statements, *preupdate;
 	gchar *mime_used = NULL;
 	gchar *content_type = NULL;
 
 	priv = TRACKER_EXTRACT_GET_PRIVATE (extract);
 
 	/* Create sparql builders to send back */
-	preinserts = tracker_sparql_builder_new_update ();
+	preupdate = tracker_sparql_builder_new_update ();
 	statements = tracker_sparql_builder_new_embedded_insert ();
 
-	tracker_sparql_builder_insert_open (preinserts, NULL);
 	tracker_sparql_builder_subject (statements, "_:foo");
 
 #ifdef HAVE_LIBSTREAMANALYZER
@@ -288,7 +287,7 @@ get_file_metadata (TrackerExtract         *extract,
 
 			g_object_unref (file);
 			g_object_unref (statements);
-			g_object_unref (preinserts);
+			g_object_unref (preupdate);
 
 			return FALSE;
 		}
@@ -326,7 +325,7 @@ get_file_metadata (TrackerExtract         *extract,
 				                              "  Extracting with module:'%s'",
 				                              g_module_name ((GModule*) mdata.module));
 
-				(*edata->func) (uri, preinserts, statements);
+				(*edata->func) (uri, preupdate, statements);
 
 				items = tracker_sparql_builder_get_length (statements);
 
@@ -338,12 +337,11 @@ get_file_metadata (TrackerExtract         *extract,
 					continue;
 				}
 
-				tracker_sparql_builder_insert_close (preinserts);
 				tracker_sparql_builder_insert_close (statements);
 
 				g_free (mime_used);
 
-				*preinserts_out = preinserts;
+				*preupdate_out = preupdate;
 				*statements_out = statements;
 
 				return TRUE;
@@ -365,7 +363,7 @@ get_file_metadata (TrackerExtract         *extract,
 				                              "  Extracting with module:'%s'",
 				                              g_module_name ((GModule*) mdata.module));
 
-				(*edata->func) (uri, preinserts, statements);
+				(*edata->func) (uri, preupdate, statements);
 
 				items = tracker_sparql_builder_get_length (statements);
 
@@ -377,12 +375,11 @@ get_file_metadata (TrackerExtract         *extract,
 					continue;
 				}
 
-				tracker_sparql_builder_insert_close (preinserts);
 				tracker_sparql_builder_insert_close (statements);
 
 				g_free (mime_used);
 
-				*preinserts_out = preinserts;
+				*preupdate_out = preupdate;
 				*statements_out = statements;
 
 				return TRUE;
@@ -400,13 +397,11 @@ get_file_metadata (TrackerExtract         *extract,
 		                              "  No mime available, not extracting data");
 	}
 
-	tracker_sparql_builder_insert_close (preinserts);
-
 	if (tracker_sparql_builder_get_length (statements) > 0) {
 		tracker_sparql_builder_insert_close (statements);
 	}
 
-	*preinserts_out = preinserts;
+	*preupdate_out = preupdate;
 	*statements_out = statements;
 
 	return TRUE;
@@ -418,7 +413,7 @@ tracker_extract_get_metadata_by_cmdline (TrackerExtract *object,
                                          const gchar    *mime)
 {
 	guint request_id;
-	TrackerSparqlBuilder *statements, *preinserts;
+	TrackerSparqlBuilder *statements, *preupdate;
 
 	request_id = tracker_dbus_get_next_request_id ();
 
@@ -435,9 +430,9 @@ tracker_extract_get_metadata_by_cmdline (TrackerExtract *object,
 
 	if (get_file_metadata (object, request_id,
 			       NULL, uri, mime,
-			       &preinserts, &statements)) {
+			       &preupdate, &statements)) {
 		tracker_dbus_request_info (request_id, NULL, "%s",
-					   tracker_sparql_builder_get_result (preinserts));
+					   tracker_sparql_builder_get_result (preupdate));
 		tracker_dbus_request_info (request_id, NULL, "%s",
 					   tracker_sparql_builder_get_result (statements));
 		g_object_unref (statements);
@@ -480,7 +475,7 @@ tracker_extract_get_metadata (TrackerExtract         *object,
 {
 	guint request_id;
 	TrackerExtractPrivate *priv;
-	TrackerSparqlBuilder *sparql, *preinserts;
+	TrackerSparqlBuilder *sparql, *preupdate;
 	gboolean extracted = FALSE;
 
 	request_id = tracker_dbus_get_next_request_id ();
@@ -505,21 +500,21 @@ tracker_extract_get_metadata (TrackerExtract         *object,
 		alarm (MAX_EXTRACT_TIME);
 	}
 
-	extracted = get_file_metadata (object, request_id, context, uri, mime, &preinserts, &sparql);
+	extracted = get_file_metadata (object, request_id, context, uri, mime, &preupdate, &sparql);
 
 	if (extracted) {
 		tracker_dbus_request_success (request_id, context);
 
 		if (tracker_sparql_builder_get_length (sparql) > 0) {
-			const gchar *preinserts_str = NULL;
+			const gchar *preupdate_str = NULL;
 
-			if (tracker_sparql_builder_get_length (preinserts) > 0) {
-				preinserts_str = tracker_sparql_builder_get_result (preinserts);
+			if (tracker_sparql_builder_get_length (preupdate) > 0) {
+				preupdate_str = tracker_sparql_builder_get_result (preupdate);
 			}
 
 			dbus_g_method_return (context,
-					      (preinserts_str) ? preinserts_str : "",
-					      tracker_sparql_builder_get_result (sparql));
+			                      (preupdate_str) ? preupdate_str : "",
+			                      tracker_sparql_builder_get_result (sparql));
 		} else {
 			dbus_g_method_return (context, "", "");
 		}

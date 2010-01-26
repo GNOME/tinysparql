@@ -41,6 +41,7 @@
 #define RDF_TYPE RDF_PREFIX "type"
 
 static void extract_mplayer (const gchar          *uri,
+                             TrackerSparqlBuilder *preupdate,
                              TrackerSparqlBuilder *metadata);
 
 static TrackerExtractData extract_data[] = {
@@ -85,7 +86,7 @@ static const gchar *info_tags[][2] = {
 };
 
 typedef struct {
-	TrackerSparqlBuilder *preinserts;
+	TrackerSparqlBuilder *preupdate;
 	TrackerSparqlBuilder *metadata;
 	const gchar *uri;
 } ForeachCopyInfo;
@@ -100,12 +101,16 @@ copy_hash_table_entry (gpointer key,
 	if (g_strcmp0 (key, "nmm:performer") == 0) {
 		gchar *canonical_uri = tracker_uri_printf_escaped ("urn:artist:%s", value);
 
-		tracker_sparql_builder_subject_iri (info->preinserts, canonical_uri);
-		tracker_sparql_builder_predicate (info->preinserts, "a");
-		tracker_sparql_builder_object (info->preinserts, "nmm:Artist");
+		tracker_sparql_builder_insert_open (info->preupdate, NULL);
 
-		tracker_sparql_builder_predicate (info->preinserts, "nmm:artistName");
-		tracker_sparql_builder_object_unvalidated (info->preinserts, value);
+		tracker_sparql_builder_subject_iri (info->preupdate, canonical_uri);
+		tracker_sparql_builder_predicate (info->preupdate, "a");
+		tracker_sparql_builder_object (info->preupdate, "nmm:Artist");
+
+		tracker_sparql_builder_predicate (info->preupdate, "nmm:artistName");
+		tracker_sparql_builder_object_unvalidated (info->preupdate, value);
+
+		tracker_sparql_builder_insert_close (info->preupdate);
 
 		g_free (canonical_uri);
 	} else {
@@ -115,8 +120,9 @@ copy_hash_table_entry (gpointer key,
 }
 
 static void
-extract_mplayer (const gchar *uri,
-                 TrackerSparqlBuilder  *metadata)
+extract_mplayer (const gchar          *uri,
+                 TrackerSparqlBuilder *preupdate,
+                 TrackerSparqlBuilder *metadata)
 {
 	gchar *argv[10];
 	gchar *mplayer;
@@ -256,7 +262,7 @@ extract_mplayer (const gchar *uri,
 			tracker_sparql_builder_object (metadata, "nmm:Video");
 
 			if (tmp_metadata_video) {
-				ForeachCopyInfo info = { preinserts, metadata, uri };
+				ForeachCopyInfo info = { preupdate, metadata, uri };
 				g_hash_table_foreach (tmp_metadata_video,
 				                      copy_hash_table_entry,
 				                      &info);
@@ -275,7 +281,7 @@ extract_mplayer (const gchar *uri,
 			tracker_sparql_builder_object (metadata, "nfo:Audio");
 
 			if (tmp_metadata_audio) {
-				ForeachCopyInfo info = { preinserts, metadata, uri };
+				ForeachCopyInfo info = { preupdate, metadata, uri };
 				g_hash_table_foreach (tmp_metadata_audio,
 				                      copy_hash_table_entry,
 				                      &info);

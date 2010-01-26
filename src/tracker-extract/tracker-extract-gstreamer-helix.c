@@ -69,10 +69,10 @@ typedef struct {
 } MetadataExtractor;
 
 static void extract_gstreamer_helix_audio (const gchar          *uri,
-					   TrackerSparqlBuilder *preinserts,
+                                           TrackerSparqlBuilder *preupdate,
                                            TrackerSparqlBuilder *metadata);
 static void extract_gstreamer_helix_video (const gchar          *uri,
-					   TrackerSparqlBuilder *preinserts,
+                                           TrackerSparqlBuilder *preupdate,
                                            TrackerSparqlBuilder *metadata);
 
 static TrackerExtractData data[] = {
@@ -767,7 +767,7 @@ poll_for_state_change (MetadataExtractor *extractor,
 
 static void
 tracker_extract_gstreamer_helix (const gchar *uri,
-				 TrackerSparqlBuilder *preinserts,
+                                 TrackerSparqlBuilder *preupdate,
                                  TrackerSparqlBuilder *metadata,
                                  ExtractMime    type)
 {
@@ -849,18 +849,18 @@ tracker_extract_gstreamer_helix (const gchar *uri,
 
 static void
 extract_gstreamer_helix_audio (const gchar          *uri,
-			       TrackerSparqlBuilder *preinserts,
+                               TrackerSparqlBuilder *preupdate,
 			       TrackerSparqlBuilder *metadata)
 {
-	tracker_extract_gstreamer_helix (uri, preinserts, metadata, EXTRACT_MIME_AUDIO);
+	tracker_extract_gstreamer_helix (uri, preupdate, metadata, EXTRACT_MIME_AUDIO);
 }
 
 static void
 extract_gstreamer_helix_video (const gchar          *uri,
-			       TrackerSparqlBuilder *preinserts,
+                               TrackerSparqlBuilder *preupdate,
 			       TrackerSparqlBuilder *metadata)
 {
-	tracker_extract_gstreamer_helix (uri, preinserts, metadata, EXTRACT_MIME_VIDEO);
+	tracker_extract_gstreamer_helix (uri, preupdate, metadata, EXTRACT_MIME_VIDEO);
 }
 
 TrackerExtractData *

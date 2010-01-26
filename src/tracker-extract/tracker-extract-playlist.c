@@ -60,7 +60,7 @@ typedef struct {
 } PlaylistMetadata;
 
 static void extract_playlist (const gchar          *uri,
-			      TrackerSparqlBuilder *preinserts,
+                              TrackerSparqlBuilder *preupdate,
                               TrackerSparqlBuilder *metadata);
 
 static TrackerExtractData playlist_data[] = {
@@ -127,7 +127,7 @@ entry_parsed (TotemPlParser *parser, const gchar *to_uri, GHashTable *to_metadat
 
 static void
 extract_playlist (const gchar          *uri,
-		  TrackerSparqlBuilder *preinserts,
+                  TrackerSparqlBuilder *preupdate,
                   TrackerSparqlBuilder *metadata)
 {
 	TotemPlParser       *pl;

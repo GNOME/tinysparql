@@ -173,7 +173,7 @@ typedef struct {
 } MP3Data;
 
 static void extract_mp3 (const gchar           *uri,
-			 TrackerSparqlBuilder  *preinserts,
+                         TrackerSparqlBuilder  *preupdate,
                          TrackerSparqlBuilder  *metadata);
 
 enum {
@@ -1854,7 +1854,7 @@ parse_id3v2 (const gchar          *data,
 
 static void
 extract_mp3 (const gchar          *uri,
-	     TrackerSparqlBuilder *preinserts,
+             TrackerSparqlBuilder *preupdate,
              TrackerSparqlBuilder *metadata)
 {
 	gchar *filename;
@@ -1975,26 +1975,39 @@ extract_mp3 (const gchar          *uri,
 
 	if (md.performer) {
 		md.performer_uri = tracker_uri_printf_escaped ("urn:artist:%s", md.performer);
-		tracker_sparql_builder_subject_iri (preinserts, md.performer_uri);
-		tracker_sparql_builder_predicate (preinserts, "a");
-		tracker_sparql_builder_object (preinserts, "nmm:Artist");
-		tracker_sparql_builder_predicate (preinserts, "nmm:artistName");
-		tracker_sparql_builder_object_unvalidated (preinserts, md.performer);
+
+		tracker_sparql_builder_insert_open (preupdate, NULL);
+
+		tracker_sparql_builder_subject_iri (preupdate, md.performer_uri);
+		tracker_sparql_builder_predicate (preupdate, "a");
+		tracker_sparql_builder_object (preupdate, "nmm:Artist");
+		tracker_sparql_builder_predicate (preupdate, "nmm:artistName");
+		tracker_sparql_builder_object_unvalidated (preupdate, md.performer);
+
+		tracker_sparql_builder_insert_close (preupdate);
+
 		g_free (md.performer);
 	}
 
 	if (md.album) {
 		md.album_uri = tracker_uri_printf_escaped ("urn:album:%s", md.album);
-		tracker_sparql_builder_subject_iri (preinserts, md.album_uri);
-		tracker_sparql_builder_predicate (preinserts, "a");
-		tracker_sparql_builder_object (preinserts, "nmm:MusicAlbum");
-		tracker_sparql_builder_predicate (preinserts, "nmm:albumTitle");
-		tracker_sparql_builder_object_unvalidated (preinserts, md.album);
+
+		tracker_sparql_builder_insert_open (preupdate, NULL);
+
+		tracker_sparql_builder_subject_iri (preupdate, md.album_uri);
+		tracker_sparql_builder_predicate (preupdate, "a");
+		tracker_sparql_builder_object (preupdate, "nmm:MusicAlbum");
+		tracker_sparql_builder_predicate (preupdate, "nmm:albumTitle");
+		tracker_sparql_builder_object_unvalidated (preupdate, md.album);
 
 		if (md.track_count > 0) {
-			tracker_sparql_builder_predicate (preinserts, "nmm:albumTrackCount");
-			tracker_sparql_builder_object_int64 (preinserts, md.track_count);
+			tracker_sparql_builder_predicate (preupdate, "nmm:albumTrackCount");
+			tracker_sparql_builder_object_int64 (preupdate, md.track_count);
 		}
+
+		tracker_sparql_builder_insert_close (preupdate);
+
+		g_free (md.album);
 	}
 
 	tracker_sparql_builder_predicate (metadata, "a");
