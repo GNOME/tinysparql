@@ -216,6 +216,11 @@ public class Tracker.SparqlBuilder : Object {
 		length++;
 	}
 
+	public void prepend (string raw)
+	{
+		str.prepend ("%s\n".printf (raw));
+	}
+
 	public void append (string raw)
 	{
 		if (state == State.OBJECT) {
