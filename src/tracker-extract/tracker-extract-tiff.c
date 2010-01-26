@@ -700,17 +700,13 @@ extract_tiff (const gchar          *uri,
 	}
 
 	if (merge_data.creator) {
-
 		if (iptc_data.byline_title) {
-			tracker_sparql_builder_subject (metadata, "_:affiliation_by_line");
-			tracker_sparql_builder_predicate (metadata, "a");
-			tracker_sparql_builder_object (metadata, "nco:Affiliation");
+			tracker_sparql_builder_subject (preinserts, "_:affiliation_by_line");
+			tracker_sparql_builder_predicate (preinserts, "a");
+			tracker_sparql_builder_object (preinserts, "nco:Affiliation");
 
-			tracker_sparql_builder_subject (metadata, "_:affiliation_by_line");
-			tracker_sparql_builder_predicate (metadata, "nco:title");
-			tracker_sparql_builder_object_unvalidated (metadata, iptc_data.byline_title);
-
-			tracker_sparql_builder_subject_iri (metadata, uri);
+			tracker_sparql_builder_predicate (preinserts, "nco:title");
+			tracker_sparql_builder_object_unvalidated (preinserts, iptc_data.byline_title);
 		}
 
 		tracker_sparql_builder_predicate (metadata, "nco:creator");
