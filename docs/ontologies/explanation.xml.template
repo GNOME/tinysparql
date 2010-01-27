@@ -1,0 +1,50 @@
+<!--
+ Usual ids:
+
+    xxx-ontology for the whole ontology
+    xxx-explanation 
+    xxx-classes
+    xxx-properties
+-->
+
+<section id="xxx-explanation">
+ <title>Description</title>
+ <sect2 id="xxx-introduction">
+   <title>Introduction</title>
+
+  <!-- Content -->
+
+ </sect2>
+
+
+
+ <refsect2 id="xxx-special-remarks">
+   <title>Special remarks</title>
+
+   <para>Example of raw sparQL<para>
+   <code>
+  INSERT {
+    &lt;test://1&gt; a nco:PersonContact .
+  }
+   </code>
+ </refsect2>
+
+
+
+ <refsect2 id="xxx-related-information">
+   <title>Related information</title>
+   <para>
+    <ulink url="http://mail.gnome.org/mailman/listinfo/tracker-list">External link</ulink>
+    <link linkend="xxx-class">Internal link</link>
+   </para>
+ </refsect2>
+
+
+ <refsect2 id="xxxx-graphical-overview">
+  <figure id="nmm-ontology-graph">
+  <title>Graphical Overview</title>
+    <graphic fileref="images-overview.png" format="PNG"></graphic>
+  </figure>
+  <para>Notation defined <link linkend="ontology-notation">in this page</link></para>
+ </refsect2>
+</section>

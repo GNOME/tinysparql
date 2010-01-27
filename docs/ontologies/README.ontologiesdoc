@@ -49,3 +49,27 @@ refered using just the filename:
 
  The file "explanation.xml.template" contains an example of the usual
 sections in the documentation and the most common docbook elements.
+
+How to build/rebuild the documentation
+======================================
+
+There are two steps:
+
+1) run make in docs/tools.
+   This will generate from the .ontology, .description and
+   explanation.xml files a docbook document. That generated document
+   (and all the images referenced there) will be copied into
+   docs/reference/ontology
+
+   make check the gen-doc.stamp file to decide when it needs to
+   rebuild. Remove that file after modifying any of the inputs to 
+   force a rebuild.
+
+2) run make in docs/reference/ontology
+   This will take all the XML generated in the previous step, and
+   use the gtk-doc magic to build first a docbook XML and then export
+   it as HTML, devhelp and other formats.
+
+   The HTML result is (surprise!) in the html folder.
+
+ 
