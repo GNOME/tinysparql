@@ -51,20 +51,26 @@ ontology.png: ontology.dot
 	$(AM_V_GEN)$(GRAPHVIZ_FDP) -Tpng -o ontology.png ontology.dot
 	cp ontology.png $(top_builddir)/docs/reference/ontology/
 
-notation.png: 								
-	dia -t png ../ontologies/notation.dia 				
-	cp notation.png $(top_builddir)/docs/reference/ontology/
+#
+# The origianal diagram but with .png extension
+# Horrible, i know.
+#
+ONTOLOGY_DIAGRAMS=							\
+	../ontologies/notation.png					\
+	../ontologies/mfo/feeds-overview.png				\
+	../ontologies/nmm/radio-overview.png				\
+	../ontologies/nmm/images-overview.png				\
+	../ontologies/nie/overview.png
 
-resources:
-	cp `find $(top_builddir)/docs/ontologies -name "*.dia"` /tmp
+.dia.png:
+	dia -t png $<
+	cp $(notdir $(<:.dia=.png)) $(top_builddir)/docs/reference/ontology
 
 BUILT_SOURCES = 							\
 	ontology.png							\
-	notation.png							\
 	gen-doc.stamp
 
 EXTRA_DIST = 								\
-	$(BUILT_SOURCES)						\
 	gen-doc.sh
 
 DISTCLEANFILES = 							\
@@ -72,6 +78,6 @@ DISTCLEANFILES = 							\
 	$(top_builddir)/docs/reference/ontology/notation.png		\
 	$(top_builddir)/docs/reference/ontology/ontology.png
 
-CLEANFILES = $(BUILT_SOURCES)
+CLEANFILES = $(BUILT_SOURCES) $(notdir $(ONTOLOGY_DIAGRAMS:.dia=.png))
 
-make-hook: ontology-graph ontology.dot ontology.png notation.png resources
+make-hook: ontology-graph ontology.dot ontology.png

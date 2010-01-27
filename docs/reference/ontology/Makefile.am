@@ -33,8 +33,15 @@ content_files =						\
 
 expand_content_files =
 
+ONTOLOGY_DIAGRAMS = 					\
+	notation.png					\
+	feeds-overview.png				\
+	radio-overview.png				\
+	images-overview.png				\
+	overview.png
+
 # Images to copy into HTML directory
-HTML_IMAGES = ontology.png notation.png
+HTML_IMAGES = ontology.png notation.png $(ONTOLOGY_DIAGRAMS)
 
 # Extra options to supply to gtkdoc-fixref
 FIXXREF_OPTIONS =
@@ -42,4 +49,4 @@ FIXXREF_OPTIONS =
 include $(top_srcdir)/gtk-doc.make
 
 # Other files to distribute
-EXTRA_DIST += version.xml.in ontology.png
+EXTRA_DIST += version.xml.in $(HTML_IMAGES)

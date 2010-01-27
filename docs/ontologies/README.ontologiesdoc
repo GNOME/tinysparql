@@ -7,39 +7,45 @@ Expected documents/format
 =========================
 
 1) There should be one directory per ontology prefix.
-2) In that directory, there must be a file called 'explanation.html'
-   This file will be copied as-it-is into the ontology webpage
-3) That file can link to any other files in the same directory
-   All files in the directory will be copied together in the final web
-   directory (*)
+2) In that directory, there must be a file called 'explanation.xml'
+   This file will be copied as-it-is into the documentation general XML
+3) There is a predefined id schema for the elements in ontology 
+   and the document itself, so it is easy to link them from anywhere.
+4) Images and other resources (*) linked in the documentation must be 
+   added _in two places_
+    - docs/tools/Makefile.am (ONTOLOGY_DIAGRAMS variable)
+    - docs/reference/ontology/Makefile.am (ONTOLOGY_DIAGRAMS variable)
 
 (*) .dia files will be exported as PNG.
 
-Explanation.html
+Explanation.xml
 ================
 
- It must be a file in HTML format with <h2> as "biggest" elements (i.e. sections).
-It will be copied as-it-is into the ontology HTML page, so it shouldn't include all
-HTML headers (i.e. it is NOT a valid HTML document).
+ It must be a file in docbook format (i.e. XML), with an outer element
+<section>. Inside the section all the usual docbook elements can be
+used freely.
 
+ The file will be included raw in another XML file, so it cannot
+contain the usual XML headers (i.e. it won't be a valid XML file).
+Anyway, all other XML rules (encodings and so on) are still valid.
 
- The classes/properties inside the ontology can be linked using
+ The classes/properties inside the ontology has id's with the
+following schema:
 
-   <a href="#ClassName">
+   [prefix-ontology]-[name-property-or-class]
 
- and classes/properties in other ontologies with
+ so the property "nmm:length" has the id "nmm-length" and
+the class "nmm:MusicPiece" has the id "nmm-MusicPiece".
 
-   <a href="../ontology-prefix/index.html#ClassName">
+ The ids are global and can be referenced anywhere else in the
+documentation. To avoid collisions, use the ontology prefix when
+defining a new id in the explanation document.
 
+ All images (don't forget point 4. explained above) are copied in the
+root HTML directory, so internally in the documentation must be
+refered using just the filename:
 
- Dia diagrams (x.dia) in the directory will be converted automatically
- in png, and should be linked using the png extension:
+ E.G. <graphic fileref="images-overview.png" ...
 
-    <a href="x.png">
-
-
- To include verbatim examples in SparQL or turtle format, use the
-<pre> HTML tag, and all "<" and ">" inside it must be written as
-"&lt;" and "%gt;".
-
- The file "explanation.html.template" can be used as starting point.
+ The file "explanation.xml.template" contains an example of the usual
+sections in the documentation and the most common docbook elements.
