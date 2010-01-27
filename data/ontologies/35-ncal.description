@@ -21,4 +21,4 @@
       dsc:baseUrl "http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#" ;
       dsc:relativePath "./35-ncal.ontology" ;
 
-      dsc:copyright "Copyright &copy 2007 <a href=\"http://www.dfki.de/\">DFKI</a> The ontologies are made available under the terms of NEPOMUK <a href=\"../resources/LICENSE.txt\">software license</a> (FIXME verify)".
+      dsc:copyright "Copyright &copy; 2007 <a href=\"http://www.dfki.de/\">DFKI</a> The ontologies are made available under the terms of NEPOMUK <a href=\"../resources/LICENSE.txt\">software license</a> (FIXME verify)".
