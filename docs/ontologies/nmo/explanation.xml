@@ -1,0 +1,62 @@
+<section id="nmo-explanation">
+  <title>Overview</title>
+
+  <sect2 id="nmo-introduction">
+    <title>Introduction</title>
+    <para>NEPOMUK Message Ontology extends the NEPOMUK Information Element framework into the domain of messages. This ontology has been heavily extended by Tracker team to include real support for Emails, IM Accounts, SMS and Calls relevant in environments like <ulink url="http://maemo.nokia.com">Maemo</ulink>.</para>
+  </sect2>
+
+  <sect2 id="nmo-email-domain">
+    <title>Email domain</title>
+    <para>This complex issues is explained in great details in <ulink url="http://live.gnome.org/Tracker/Documentation/EmailSparql">this wiki page</ulink></para>
+
+    <para>FIXME add a diagram of the Email classes and main properties</para>
+  </sect2>
+
+  <sect2 id="nmo-sms-domain">
+    <title>SMS domain</title>
+    <para>We have a new subclass of message to represent a SMS Message. It is worth to remark that we are talking about a <emphasis>simple</emphasis> text message. Things like MMS are more complex (more similar to an email than a simple message), and will have their own classes.
+    </para>
+
+    <para>An SMS Message comes from the network in vmessage format and contains to/from recipients in vcards. It is represented in the ontology with the following properties:
+    </para>
+    <itemizedlist>
+      <listitem>A <link linkend="nmo-SMSMessage">nmo:SMSMessage</link> instance to represent the message itself</listitem>
+      <listitem><link linkend="nmo-to">nmo:to</link> and <link linkend="nmo-from">nmo:from</link> linking the contacts (one of them "me", the other a nco:Contact or even a nco:PersonContact if the software is able to identify him).</listitem>
+      <listitem>For some implementations, is usefull to save the original vcards. For that <link linkend="nmo-fromVCard">nmo:fromVCard</link> and <link linkend="nmo-toVCard">nmo:toVCard</link> properties can be used. Those properties point to files in the file system with the vcards</listitem>
+      <listitem><link linkend="nmo-plainTextMessageContent">nmo:plainTextMessageContent</link> inherited from <link linkend="nmo-Message.">nmo:Message for the content.</link></listitem>
+      <listitem><link linkend="nmo-containsSMS">nmo:containsSMS</link> property will link the message with the relevant nmo:SMSFolder.</listitem>
+      <listitem>If needed, language and characterSet are inherited from NIE (<link linkend="nie-language">nie:language</link>, <link linkend="nie-characterSet">nie:characterSet</link>), but there is a specific <link linkend="nmo-encoding">nmo:encoding</link> property.</listitem>
+      <listitem>Note that nmo:SMSMessage is a subclass of <link linkend="nmo-Message">nmo:Message</link> and inherits all its properties, including <link linkend="nmo-isDeleted">nmo:isDeleted</link></listitem>
+    </itemizedlist>
+
+    <para>Here is an example of an SMS Message in Tracker/Nepomuk: </para>
+    <programlisting>
+
+ # There are some predefined folder for SMS, like
+ #    nmo:default-sms-folder-inbox
+ #
+ # We also know the 'to' uri from a previous query
+
+ # File containing the 'to' vcard
+ &lt;file:///home/user/.sms/vcards/123098.vcard&gt; a nfo:FileDataObject
+
+ &lt;test://1&gt; a nmo:SMSMessage ;
+        nmo:from &lt;nco:default-contact-me&gt; ;
+        nmo:to  &lt;urn:uuid:here-some-uri-of-a-contact&gt; ;
+        nmo:plainTextMessageContent "Forgot the keys. Are you at home?" ;
+        nie:characterSet "utf-8" ;
+        nmo:toVCard &lt;file:///home/user/.sms/vcards/123098.vcard&gt; ;
+        nmo:isDeleted false .
+
+ &lt;nmo:default-sms-folder-inbox&gt; nmo:containsSMS  &lt;test://1&gt;
+
+    </programlisting>
+  </sect2>
+
+  <sect2 id="nmo-call-domain">
+    <title>Call domain</title>
+    <para>FIXME Explain call and VoIP call classes</para>
+  </sect2>
+
+</section>
