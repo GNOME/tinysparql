@@ -3,6 +3,7 @@
                "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd" [
 <!ENTITY % local.common.attrib "xmlns:xi  CDATA  #FIXED 'http://www.w3.org/2003/XInclude'">
 <!ENTITY version SYSTEM "version.xml">
+<!ENTITY xsd-ontology SYSTEM "xsd-ontology.xml">
 <!ENTITY nie-ontology SYSTEM "nie-ontology.xml">
 <!ENTITY nco-ontology SYSTEM "nco-ontology.xml">
 <!ENTITY nmo-ontology SYSTEM "nmo-ontology.xml">
@@ -43,6 +44,7 @@
       </para>
     </partintro>
 
+    &xsd-ontology;
     &nie-ontology;
     &nco-ontology;
     &nmo-ontology;
