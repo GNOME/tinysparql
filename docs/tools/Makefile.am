@@ -51,8 +51,16 @@ ontology.png: ontology.dot
 	$(AM_V_GEN)$(GRAPHVIZ_FDP) -Tpng -o ontology.png ontology.dot
 	cp ontology.png $(top_builddir)/docs/reference/ontology/
 
+notation.png: 								
+	dia -t png ../ontologies/notation.dia 				
+	cp notation.png $(top_builddir)/docs/reference/ontology/
+
+resources:
+	cp `find $(top_builddir)/docs/ontologies -name "*.dia"` /tmp
+
 BUILT_SOURCES = 							\
 	ontology.png							\
+	notation.png							\
 	gen-doc.stamp
 
 EXTRA_DIST = 								\
@@ -61,8 +69,9 @@ EXTRA_DIST = 								\
 
 DISTCLEANFILES = 							\
 	ontology.dot							\
+	$(top_builddir)/docs/reference/ontology/notation.png		\
 	$(top_builddir)/docs/reference/ontology/ontology.png
 
 CLEANFILES = $(BUILT_SOURCES)
 
-make-hook: ontology-graph ontology.dot ontology.png
+make-hook: ontology-graph ontology.dot ontology.png notation.png resources

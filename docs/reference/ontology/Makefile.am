@@ -34,7 +34,7 @@ content_files =						\
 expand_content_files =
 
 # Images to copy into HTML directory
-HTML_IMAGES = ontology.png
+HTML_IMAGES = ontology.png notation.png
 
 # Extra options to supply to gtkdoc-fixref
 FIXXREF_OPTIONS =

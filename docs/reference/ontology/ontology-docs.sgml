@@ -58,6 +58,18 @@
     &scal-ontology;
   </part>
 
+  <part id="ontology-notation-description">
+    <title>Notation</title>
+    <partintro>
+      Notation used in the diagrams describing each ontology. 
+    </partintro>
+    <figure id="ontology-notation">
+      <title>Notation for ontology description</title>
+      <graphic fileref="notation.png" format="PNG"></graphic>
+    </figure>
+  </part>
+
+
   <part id="ontology-graphs">
     <title>The big picture</title>
     <partintro>
