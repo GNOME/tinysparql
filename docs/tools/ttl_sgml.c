@@ -345,7 +345,7 @@ ttl_sgml_print (OntologyDescription *description,
 	print_sgml_header (f, description);
 
         /* FIXME: make desc files sgml */
-	/* print_sgml_explanation (f, explanation_file); */
+	print_sgml_explanation (f, explanation_file);
 
         g_fprintf (f, "<section id='%s-classes'>\n", description->localPrefix);
 	g_fprintf (f, "<title>%s Ontology Classes</title>\n", upper_name);

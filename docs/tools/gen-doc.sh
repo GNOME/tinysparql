@@ -29,5 +29,5 @@ for f in `find ../../data/ontologies -name "*.description"` ; do
     echo "Generating $PREFIX documentation"
 
     ./ttl2sgml -d $f -o $BUILD_DIR/$PREFIX-ontology.xml -l file-class.cache \
-	-e ../../docs/ontologies/$PREFIX/explanation.html
+	-e ../../docs/ontologies/$PREFIX/explanation.xml
 done
