@@ -1,3 +1,56 @@
+NEW in 0.7.18
+=============
+
+Improvements / New:
+
+  General:
+  * Added configure option for enca.
+  * Fixed bashism in configure.
+  * Fixed compilation warnings.
+
+  Ontology:
+  * Include diagrams and explanations in generated documentation.
+  * Reformatted documentation to docbook.
+
+  SPARQL:
+  * Add tracker:cartesian-distance and tracker:haversine-distance
+    functions to calculate distance between two geolocations.
+  * Support constructor functions for type conversion.
+
+  libtracker-db:
+  * Create directory structure before creating journal file.
+
+  tracker-miner-fs:
+  * Support reindexing by mime type for new extractors.
+  * Improve logging of files processed/notified.
+
+  tracker-writeback:
+  * Fixed manual white-balance writeback.
+
+  tracker-search:
+  * Fix album listing.
+
+  evolution:
+  * Timed waiting on the GCond.
+
+Bugs:
+
+  * NB#153866, Removing and selecting a resource right afterwards...
+
+Translations:
+
+  * Updated es: Jorge González
+  * Updated et: Mattias Põldaru
+  * Updated hu: Gabor Kelemen
+  * Updated sl: Andrej Žnidaršič
+
+Notes:
+
+  The Deskbar applet packaged with Tracker is currently out of date
+  and needs some love to get it working with the new APIs. It is in
+  the same state as it was for 0.6. As such it isn't expected to work.
+
+
 NEW in 0.7.17
 =============
 
