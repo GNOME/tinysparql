@@ -192,11 +192,8 @@ print_ontology_class (gpointer key, gpointer value, gpointer user_data)
 	name = qname_to_shortname (def->classname);
 
         id = shortname_to_id (name);
-        if (!def->deprecated) {
-                g_fprintf (f, "<refsect2 id='%s' condition='deprecated'>\n", id);
-        } else {
-                g_fprintf (f, "<refsect2 id='%s'>\n", id);
-        }
+        g_fprintf (f, "<refsect2 id='%s'>\n", id);
+
         g_free (id);
 
         g_fprintf (f, "<title>%s</title>\n", name);
@@ -218,10 +215,15 @@ print_ontology_class (gpointer key, gpointer value, gpointer user_data)
 
         g_fprintf (f, "</variablelist>\n");
 
-        if (def->notify) {
+        if (def->notify || def->deprecated) {
                 g_fprintf (f, "<note>\n");
                 g_fprintf (f, "<title>Note:</title>\n");
-                g_fprintf (f, "<para>This class notifies about changes</para>\n");
+                if (def->notify) {
+                        g_fprintf (f, "<para>This class notifies about changes</para>\n");
+                } 
+                if (def->deprecated) {
+                        g_fprintf (f, "<para>This class is deprecated</para>\n", id);
+                }
                 g_fprintf (f, "</note>\n");
         }
 
