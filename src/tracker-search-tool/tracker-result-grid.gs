@@ -59,12 +59,8 @@ class TrackerResultGrid : ScrolledWindow
                     store.clear ()
 
     def GetSelectedPath () : TreePath?
-        l :  weak GLib.List of TreePath
-
-        l = iconview.get_selected_items ()
-
-        if l is not null and l.data is not null
-            return l.data
+        if iconview.get_selected_items () is not null
+            return (Gtk.TreePath) iconview.get_selected_items ().data
 
         return null
 
