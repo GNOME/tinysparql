@@ -49,6 +49,7 @@ GSList * tracker_path_list_filter_duplicates       (GSList       *roots,
                                                     const gchar  *basename_exception_prefix);
 gchar *  tracker_path_evaluate_name                (const gchar  *uri);
 
+gboolean tracker_path_has_write_access_or_was_created (const gchar *path);
 gboolean tracker_env_check_xdg_dirs                (void);
 
 gboolean tracker_file_lock                         (GFile *file);

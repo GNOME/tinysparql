@@ -372,7 +372,7 @@ main (int argc, char **argv)
 		GFile *file;
 		TrackerCrawler *crawler;
 		const gchar *suffix = ".cfg";
-		const gchar *home_dir;
+		const gchar *home_conf_dir;
 		gchar *path;
 
 		crawler = tracker_crawler_new ();
@@ -386,13 +386,23 @@ main (int argc, char **argv)
 		                  main_loop);
 
 		/* Go through service files */
-		home_dir = g_getenv ("HOME");
 
-		if (!home_dir) {
-			home_dir = g_get_home_dir ();
+
+		/* Check the default XDG_DATA_HOME location */
+		home_conf_dir = g_getenv ("XDG_CONFIG_HOME");
+
+		if (home_conf_dir && tracker_path_has_write_access_or_was_created (home_conf_dir)) {
+			path = g_build_path (G_DIR_SEPARATOR_S, home_conf_dir, "tracker", NULL);
+		} else {
+			home_conf_dir = g_getenv ("HOME");
+
+			if (!home_conf_dir || !tracker_path_has_write_access_or_was_created (home_conf_dir)) {
+				home_conf_dir = g_get_home_dir ();
+			}
+			path = g_build_path (G_DIR_SEPARATOR_S, home_conf_dir, ".config", "tracker", NULL);
 		}
 
-		path = g_build_path (G_DIR_SEPARATOR_S, home_dir, ".config", "tracker", NULL);
+
 		file = g_file_new_for_path (path);
 		g_free (path);
 
