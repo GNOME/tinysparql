@@ -60,6 +60,7 @@ ONTOLOGY_DIAGRAMS=							\
 	../ontologies/mfo/feeds-overview.png				\
 	../ontologies/nmm/radio-overview.png				\
 	../ontologies/nmm/images-overview.png				\
+	../ontologies/mlo/location-overview.png				\
 	../ontologies/nie/overview.png
 
 .dia.png:

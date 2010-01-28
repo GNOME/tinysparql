@@ -39,6 +39,7 @@ ONTOLOGY_DIAGRAMS = 					\
 	feeds-overview.png				\
 	radio-overview.png				\
 	images-overview.png				\
+	location-overview.png				\
 	overview.png
 
 # Images to copy into HTML directory
