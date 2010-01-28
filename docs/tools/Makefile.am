@@ -64,7 +64,8 @@ ONTOLOGY_DIAGRAMS=							\
 
 .dia.png:
 	dia -t png $<
-	cp $(notdir $(<:.dia=.png)) $(top_builddir)/docs/reference/ontology
+	cp $(notdir $(<:.dia=.png)) $@
+	cp $@ $(top_builddir)/docs/reference/ontology
 
 BUILT_SOURCES = 							\
 	$(ONTOLOGY_DIAGRAMS)						\
@@ -72,6 +73,7 @@ BUILT_SOURCES = 							\
 	gen-doc.stamp
 
 EXTRA_DIST = 								\
+	$(ONTOLOGY_DIAGRAMS)						\
 	gen-doc.sh
 
 DISTCLEANFILES = 							\
