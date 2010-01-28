@@ -20,7 +20,7 @@ mlo:GeoLocation a rdfs:Class ;
 mlo:GeoPoint a rdfs:Class ;
     rdfs:label "Point on the earth" ;
     rdfs:comment "The inherited properties from InformationElement can be used to add details." ;
-    rdfs:subClassOf mlo:GeoLocation .
+    rdfs:subClassOf nie:InformationElement .
 
 mlo:GeoSphere a rdfs:Class ;
     rdfs:label "Spherical space" ;
@@ -227,7 +227,6 @@ mlo:poiLocation a rdf:Property ;
     nao:deprecated true;
     rdfs:domain mlo:Landmark ;
     rdfs:range mlo:GeoPoint .
-
 
 ###############################################
 #  Predefined categories coming from Symbian 
