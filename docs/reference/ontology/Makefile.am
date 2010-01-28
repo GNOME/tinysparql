@@ -29,6 +29,7 @@ content_files =						\
 	maemo-ontology.xml				\
 	ncal-ontology.xml				\
 	scal-ontology.xml				\
+	xsd-ontology.xml				\
 	version.xml
 
 expand_content_files =
