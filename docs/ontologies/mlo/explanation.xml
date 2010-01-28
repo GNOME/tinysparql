@@ -1,0 +1,52 @@
+<!--
+ Usual ids:
+
+    xxx-ontology for the whole ontology
+    xxx-explanation 
+    xxx-classes
+    xxx-properties
+-->
+
+<section id="mlo-explanation">
+ <title>Overview</title>
+ <sect2 id="mlo-introduction">
+   <title>Introduction</title>
+   
+   <para>This is the proposed ontology to integrate geolocation information in the nepomuk set of ontologies. It defines a place in the space with the class <link linkend="mlo-GeoLocation">mlo:GeoLocation</link>. A place can be defined in different ways:</para>
+   <orderedlist>
+     <listitem>
+       <para>
+       As a Box (using the class <link linkend="mlo-GeoBoundingBox">mlo:GeoBoundingBox</link> and the property <link linkend="mlo-asBoundingBox">mlo:asBoundingBox</link>)
+       </para>
+     </listitem>
+     <listitem>
+       <para>
+      As a point with coordinates (using the class <link linkend="mlo-GeoPoint">mlo:GeoPoint</link> and the property <link linkend="mlo-asGeoPoint">mlo:asGeoPoint</link>) as a single point in the space with its coordinates
+       </para>
+     </listitem>
+     <listitem>
+       <para>
+       As a postal address, with the text description (using the class <link linkend="nco-PostalAddress">nco:PostalAddress</link> from <link linkend="nco-ontology">NCO ontology</link> and the property <link linkend="mlo-asPostalAddress">mlo:asPostalAddress</link>)
+       </para>
+     </listitem>
+   </orderedlist>
+   <para>These three representations are not exclusive, but is responsability of the applications to keep the data consistent.</para>
+   <para>Some places in the space has an special meaning, E.G. premises, buildings or services. This fact is represented in the ontology with the class <link linkend="mlo-Landmark">mlo:Landmark</link>. The title and description of the Landmark itself can be set using the <link linkend="nie-InformationElement">nie:InformationElement</link> properties (<link linkend="nie-title">nie:title</link>, <link linkend="nie-description">nie:description</link>, ...). A location is linked with a landmark with the property <link linkend="mlo-poiLocation">mlo:poiLocation</link> .</para>
+   <para>Landmark can be grouped in categories. For this reason, the ontology provides a property <link linkend="mlo-belongsToCategory">mlo:belongsToCategory</link> that links a Landmark with the class <link linkend="mlo-LandmarkCategory">mlo:LandmarkCategory</link> . The ontology includes also a predefined set of instances, very common an a de-facto standard in the industry.</para>
+ </sect2>
+
+ <refsect2 id="xxx-special-remarks">
+   <title>Special remarks</title>
+
+   <para>We want to put special emphasis in the point that the applications must keep the different representations of the points consistent. Basically a point in the space is very unlikely to change (the point is there or not), but it is not difficult to assume that some application can complete the information, taking the postal addresses of the points without coordinates, and set the coordinates using some web service.</para>
+ </refsect2>
+
+
+ <refsect2 id="mlo-graphical-overview">
+  <figure id="mlo-ontology-graph">
+  <title>Graphical Overview</title>
+    <graphic fileref="location-overview.png" format="PNG"></graphic>
+  </figure>
+  <para>Notation defined <link linkend="ontology-notation">in this page</link></para>
+ </refsect2>
+</section>
