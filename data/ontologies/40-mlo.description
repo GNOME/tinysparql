@@ -4,7 +4,7 @@
       dsc:title "Maemo Location Ontology (MLO)" ;
 
       dsc:author "Ivan Frade &lt;ivan.frade@nokia.com&gt;" ;
-      dsc:editor "Ivan Frade &lt;ivan.frade@nokia.com&gt" ;
+      dsc:editor "Ivan Frade &lt;ivan.frade@nokia.com&gt;" ;
 
       dsc:gitlog "http://git.gnome.org/cgit/tracker/log/data/ontologies/40-mlo.ontology";
       
