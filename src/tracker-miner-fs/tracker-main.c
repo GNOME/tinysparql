@@ -321,7 +321,7 @@ main (gint argc, gchar *argv[])
 
 	miner_files = tracker_miner_files_new (config);
 
-	object = tracker_miner_files_reindex_new (miner_files);
+	object = tracker_miner_files_reindex_new (TRACKER_MINER_FILES (miner_files));
 
 	if (!object) {
 		g_object_unref (miner_files);
