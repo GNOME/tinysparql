@@ -67,6 +67,7 @@ ONTOLOGY_DIAGRAMS=							\
 	cp $(notdir $(<:.dia=.png)) $(top_builddir)/docs/reference/ontology
 
 BUILT_SOURCES = 							\
+	$(ONTOLOGY_DIAGRAMS)						\
 	ontology.png							\
 	gen-doc.stamp
 
