@@ -582,6 +582,29 @@ libinotify_monitor_event_to_string (guint32 event_type)
 }
 
 static gboolean
+check_is_directory (TrackerMonitor *monitor,
+		    GFile          *file)
+{
+	GFileType file_type;
+
+	file_type = g_file_query_file_type (file, G_FILE_QUERY_INFO_NONE, NULL);
+
+	if (file_type == G_FILE_TYPE_DIRECTORY)
+		return TRUE;
+
+	if (file_type == G_FILE_TYPE_UNKNOWN) {
+		/* Whatever it was, it's gone. Check the monitors
+		 * hashtable to know whether it was a directory
+		 * we knew about
+		 */
+		if (g_hash_table_lookup (monitor->private->monitors, file) != NULL)
+			return TRUE;
+	}
+
+	return FALSE;
+}
+
+static gboolean
 libinotify_event_pairs_timeout_cb (gpointer data)
 {
 	TrackerMonitor *monitor;
@@ -627,8 +650,7 @@ libinotify_event_pairs_timeout_cb (gpointer data)
 		         GPOINTER_TO_UINT (key),
 		         seconds);
 
-		is_directory =
-			g_file_query_file_type (event->file, G_FILE_QUERY_INFO_NONE, NULL) == G_FILE_TYPE_DIRECTORY;
+		is_directory = check_is_directory (monitor, event->file);
 
 		switch (event->event_type) {
 		case IN_MOVED_FROM:
@@ -753,8 +775,7 @@ libinotify_cached_events_timeout_cb (gpointer data)
 		last_event_seconds = now.tv_sec - event->last_time.tv_sec;
 		start_event_seconds = now.tv_sec - event->start_time.tv_sec;
 
-		is_directory =
-			g_file_query_file_type (event->file, G_FILE_QUERY_INFO_NONE, NULL) == G_FILE_TYPE_DIRECTORY;
+		is_directory = check_is_directory (monitor, event->file);
 
 		g_debug ("Comparing now:%ld to then:%ld (start:%ld), diff:%ld (with start:%ld)",
 		         now.tv_sec,
@@ -928,8 +949,7 @@ libinotify_monitor_event_cb (INotifyHandle *handle,
 		str1 = g_file_get_path (file);
 	}
 
-	is_directory =
-		g_file_query_file_type (file, G_FILE_QUERY_INFO_NONE, NULL) == G_FILE_TYPE_DIRECTORY;
+	is_directory = check_is_directory (monitor, file);
 
 	event_type_str = libinotify_monitor_event_to_string (event_type);
 	g_message ("Received monitor event:%d->'%s' for file:'%s' (cookie:%d)",
