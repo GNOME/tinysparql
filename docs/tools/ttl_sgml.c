@@ -126,9 +126,10 @@ print_variablelist_entry_list (FILE        *f,
 static void
 print_deprecated_message (FILE *f)
 {
-	g_fprintf (f,"<tr>");
-	g_fprintf (f,"<td class=\"deprecated\" colspan=\"2\">This item is deprecated.</td>\n");
-	g_fprintf (f,"</tr>\n");
+        g_fprintf (f, "<note>\n");
+        g_fprintf (f, "<title>Note:</title>\n");
+        g_fprintf (f, "<para>This item is deprecated</para>\n");
+        g_fprintf (f, "</note>\n");
 }
 
 static void
@@ -191,7 +192,11 @@ print_ontology_class (gpointer key, gpointer value, gpointer user_data)
 	name = qname_to_shortname (def->classname);
 
         id = shortname_to_id (name);
-        g_fprintf (f, "<refsect2 id='%s'>\n", id);
+        if (!def->deprecated) {
+                g_fprintf (f, "<refsect2 id='%s' condition='deprecated'>\n", id);
+        } else {
+                g_fprintf (f, "<refsect2 id='%s'>\n", id);
+        }
         g_free (id);
 
         g_fprintf (f, "<title>%s</title>\n", name);
