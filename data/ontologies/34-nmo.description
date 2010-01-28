@@ -20,4 +20,4 @@
       dsc:baseUrl "http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#" ;
       dsc:relativePath "./34-nmo.ontology" ;
 
-      dsc:copyright "Copyright &copy; 2007 <a href=\"http://www.dfki.de/\">DFKI</a> &copy; 2009 <a href=\"http://www.nokia.com/\">Nokia</a><sup>&reg;</sup> The ontologies are made available under the terms of NEPOMUK <a href=\"../resources/LICENSE.txt\">software license</a> (FIXME verify)".
+      dsc:copyright "&copy; 2007 <ulink url=\"http://www.dfki.de/\">DFKI</ulink> &copy; 2009 <ulink url=\"http://www.nokia.com/\">Nokia</ulink>. The ontologies are made available under the terms of NEPOMUK <ulink url=\"http://www.semanticdesktop.org/ontologies/nfo/LICENSE.txt\">software license</ulink> (FIXME verify)".

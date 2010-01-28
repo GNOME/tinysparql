@@ -25,4 +25,4 @@
       dsc:baseUrl "http://www.semanticdesktop.org/ontologies/2007/08/15/nao#" ;
       dsc:relativePath "./31-nao.ontology" ;
 
-      dsc:copyright "Copyright &copy; 2007 <a href=\"http://nepomuk.semanticdesktop.org\">NEPOMUK Consortium</a>&reg;. This work is made available under the terms of NEPOMUK <a href=\"../resources/LICENSE.txt\">software license</a>" .
+      dsc:copyright "&copy; 2007 <ulink url=\"http://nepomuk.semanticdesktop.org\">NEPOMUK Consortium</ulink>&reg;. This work is made available under the terms of NEPOMUK <ulink url=\"http://www.semanticdesktop.org/ontologies/nfo/LICENSE.txt\">software license</ulink>" .
