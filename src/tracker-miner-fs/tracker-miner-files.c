@@ -1467,8 +1467,6 @@ miner_files_writeback_file (TrackerMinerFS       *fs,
 
 	tracker_sparql_builder_insert_close (sparql);
 
-	tracker_sparql_builder_insert_close (sparql);
-
 	tracker_sparql_builder_where_open (sparql);
 
 	tracker_sparql_builder_subject_variable (sparql, "urn");

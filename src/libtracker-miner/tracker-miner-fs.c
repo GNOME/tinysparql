@@ -1192,10 +1192,10 @@ item_writeback (TrackerMinerFS *fs,
 
 	g_debug ("Updating item: '%s' (Writeback event)", uri);
 
-	if (!item_query_exists (fs, working_file, NULL, NULL)) {
+	/* if (!item_query_exists (fs, working_file, NULL, NULL)) {
 		g_debug ("  File does not exist anyway (uri:'%s')", uri);
 		return TRUE;
-	}
+	} */
 
 	cancellable = g_cancellable_new ();
 	sparql = tracker_sparql_builder_new_update ();
