@@ -239,6 +239,7 @@ public class Tracker.SparqlQuery : Object {
 		public SourceLocation end;
 	}
 
+	const string XSD_NS = "http://www.w3.org/2001/XMLSchema#";
 	const string FN_NS = "http://www.w3.org/2005/xpath-functions#";
 	const string FTS_NS = "http://www.tracker-project.org/ontologies/fts#";
 	const string TRACKER_NS = "http://www.tracker-project.org/ontologies/tracker#";
@@ -1351,7 +1352,26 @@ public class Tracker.SparqlQuery : Object {
 	}
 
 	PropertyType translate_function (StringBuilder sql, string uri) throws SparqlError {
-		if (uri == FN_NS + "contains") {
+		if (uri == XSD_NS + "string") {
+			// conversion to string
+			translate_expression_as_string (sql);
+
+			return PropertyType.STRING;
+		} else if (uri == XSD_NS + "integer") {
+			// conversion to integer
+			sql.append ("CAST (");
+			translate_expression_as_string (sql);
+			sql.append (" AS INTEGER)");
+
+			return PropertyType.INTEGER;
+		} else if (uri == XSD_NS + "double") {
+			// conversion to double
+			sql.append ("CAST (");
+			translate_expression_as_string (sql);
+			sql.append (" AS REAL)");
+
+			return PropertyType.DOUBLE;
+		} else if (uri == FN_NS + "contains") {
 			// fn:contains('A','B') => 'A' GLOB '*B*'
 			sql.append ("(");
 			translate_expression_as_string (sql);
