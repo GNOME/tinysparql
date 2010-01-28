@@ -4,7 +4,8 @@
 #include "ttl_sgml.h"
 #include "qname.h"
 
-#define DEFAULT_COPYRIGHT "Copyright &copy; 2009 <a href=\"http://www.nokia.com/\">Nokia</a>"
+#define DEFAULT_COPYRIGHT "&copy; 2009, 2010 <ulink url=\"http://www.nokia.com/\">Nokia</ulink>"
+
 #define SIGNALS_DOC "http://live.gnome.org/Tracker/Documentation/SignalsOnChanges"
 
 typedef struct {
@@ -15,51 +16,50 @@ typedef struct {
 
 
 static void
-print_someone (FILE *f,
-               const gchar *role,
-               const gchar *who)
+print_itemized_list (FILE *f, GList *list)
 {
-        gchar **details;
+	GList *it;
 
-        details = g_strsplit (who, ",", 3);
+	g_fprintf (f, "<itemizedlist>\n");
+	for (it = list; it != NULL; it = it->next) {
+		g_fprintf (f, "<listitem>%s</listitem>\n", (gchar *)it->data);
+	}
+	g_fprintf (f, "</itemizedlist>\n");
+}
 
-        g_fprintf (f, "<%s>\n", role);
-        g_fprintf (f, "<firstname>%s</firstname>\n", g_strstrip (details[0]));
-
-        if (details[1] || details[2]) {
-                g_fprintf (f, "<affiliation>\n");
-
-                if (details[1]) {
-                        g_fprintf (f, "<orgname>%s</orgname>\n", g_strstrip (details[1]));
-                }
-
-                if (details[1] && details[2]) {
-                        g_fprintf (f, "<address><email>%s</email></address>\n", g_strstrip (details[2]));
-                }
-
-                g_fprintf (f, "</affiliation>\n");
+static void
+print_people_list (FILE *f,
+                   const gchar *role,
+                   GList *list) 
+{
+        if (!list) {
+                return;
         }
 
-        g_fprintf (f, "</%s>\n", role);
-        g_strfreev (details);
+        g_fprintf (f, "<varlistentry>\n");
+        g_fprintf (f, "  <term>%s</term>\n", role);
+        g_fprintf (f, "  <listitem>\n");
+        print_itemized_list (f, list);
+        g_fprintf (f, "  </listitem>\n");
+        g_fprintf (f, "</varlistentry>\n");
 }
 
 static void
-print_author (gpointer item, gpointer user_data) {
-	FILE *f = (FILE *)user_data;
-        print_someone (f, "author", (gchar *) item);
-}
-
-static void
-print_editor (gpointer item, gpointer user_data) {
-	FILE *f = (FILE *)user_data;
-        print_someone (f, "editor", (gchar *) item);
-}
-
-static void
-print_collab (gpointer item, gpointer user_data) {
-	FILE *f = (FILE *)user_data;
-        print_someone (f, "collab", (gchar *) item);
+print_link_as_varlistentry (FILE *f,
+                            const gchar *term,
+                            const gchar *link_text,
+                            const gchar *link)
+{
+        g_fprintf (f, "  <varlistentry>\n");
+        g_fprintf (f,"    <term>%s</term>\n", term);
+	if (link) {
+                g_fprintf (f, 
+                           " <listitem><para><ulink url=\"%s\">%s</ulink></para></listitem>\n",
+		           link, link_text);
+	} else {
+		g_fprintf (f, " <listitem><para>Not available</para></listitem>\n");
+	}
+        g_fprintf (f, "  </varlistentry>\n");
 }
 
 static gchar *
@@ -122,20 +122,6 @@ print_variablelist_entry_list (FILE        *f,
         g_fprintf (f, "</varlistentry>\n");
 }
 
-static void
-print_list (FILE *f, GList *list)
-{
-	GList *it;
-	gchar *shortname;
-
-	g_fprintf (f, "<td>");
-	for (it = list; it != NULL; it = it->next) {
-		shortname = qname_to_shortname ((gchar *)it->data);
-		g_fprintf (f, "%s%s", shortname, (it->next ? ", " : ""));
-		g_free (shortname);
-	}
-	g_fprintf (f, "</td>");
-}
 
 static void
 print_deprecated_message (FILE *f)
@@ -158,72 +144,19 @@ print_sgml_header (FILE *f, OntologyDescription *desc)
         g_fprintf (f, "<title>%s Ontology</title>\n", upper_name);
         g_free (upper_name);
 
-        /* FIXME: get rid of "<>" */
-#if 0
-        /* Ontology authors */
-        g_fprintf (f, "<authorgroup>\n");
-	g_list_foreach (desc->authors, print_author, f);
-	g_list_foreach (desc->editors, print_editor, f);
-        g_list_foreach (desc->contributors, print_collab, f);
-        g_fprintf (f, "</authorgroup>\n");
-#endif
+        print_people_list (f, "Authors:", desc->authors);
+        print_people_list (f, "Editors:", desc->editors);
+        print_people_list (f, "Contributors:", desc->contributors);
 
-        /* FIXME: upstream version, gitlog, copyright */
+        print_link_as_varlistentry (f, "Upstream:", "Upstream version", desc->upstream);
+        print_link_as_varlistentry (f, "ChangeLog:", "Tracker changes", desc->gitlog);
 
-#if 0
-        g_fprintf (f,"<html>\n");
-	g_fprintf (f,"<head>\n");
-	g_fprintf (f,"\t<link rel=\"stylesheet\" type=\"text/css\"");
-	g_fprintf (f," href=\"../resources/nie-maemo.css\" />\n");
-	g_fprintf (f,"<title>%s</title>\n", desc->title);
-	g_fprintf (f,"</head>\n");
-	g_fprintf (f,"<body>\n");
-	g_fprintf (f,"<div class=\"head\">\n");
-	g_fprintf (f," <div class=\"nav\">\n");
-
-	/* Three logos at the top. Tracker, maemo, nepomuk */
-	g_fprintf (f, " <a href=\"http://www.tracker-project.org\">");
-	g_fprintf (f, "<img alt=\"Tracker logo\" src=\"../resources/tracker-logo.png\" /></a> \n");
-	g_fprintf (f, " <a href=\"http://www.maemo.org\"> <img alt=\"MAEMO logo\" ");
-	g_fprintf (f, " src=\"../resources/maemo-logo.gif\" /></a>\n");
-	g_fprintf (f, " <a href=\"http://nepomuk.semanticdesktop.org\"> ");
-	g_fprintf (f, "<img alt=\"Nepomuk logo\"  src=\"../resources/nepomuk-logo.png\"/></a>\n");
-
-	g_fprintf (f,"</div>\n");
-	g_fprintf (f,"</div>\n");
-
-	g_fprintf (f,"<h1>%s</h1>\n", desc->title);
-	g_fprintf (f," <dl>\n");
-	if (desc->upstream) {
-		g_fprintf (f,"  <dt>Upstream:</dt><dd><a href=\"%s\">Upstream version</a></dd>\n",
-		           desc->upstream);
-	} else {
-		g_fprintf (f,"  <dt>Upstream:</dt><dd>Not available</dd>\n");
-	}
-	g_fprintf (f,"  <dt></dt>\n");
-	g_fprintf (f,"  <dt></dt>\n");
-	g_fprintf (f, "</dl>\n <dl>\n");
-	g_fprintf (f,"  <dt>Authors:</dt>\n");
-	g_list_foreach (desc->authors, print_author, f);
-	g_fprintf (f, "</dl>\n <dl>\n");
-	g_fprintf (f,"  <dt>Editors:</dt>\n");
-	g_list_foreach (desc->editors, print_author, f);
-	if (desc->contributors) {
-		g_fprintf (f, "</dl>\n <dl>\n");
-		g_fprintf (f,"  <dt>Contributors:</dt>\n");
-		g_list_foreach (desc->contributors, print_author, f);
-	}
-	g_fprintf (f, "</dl>\n <dl>\n");
-	g_fprintf (f,"  <dt>Changelog:</dt>\n");
-	g_fprintf (f,"  <dd><a href=\"%s\">Tracker changes</a>",
-	           (desc->gitlog ? desc->gitlog : "#"));
-	g_fprintf (f," </dl>\n");
-	g_fprintf (f,"</div>\n");
-	g_fprintf (f,"<p class=\"copyright\">%s</p>\n",
-	           (desc->copyright ? desc->copyright : DEFAULT_COPYRIGHT));
-
-	g_fprintf (f,"<hr />\n");
-#endif
+        g_fprintf (f, "<varlistentry>\n");
+        g_fprintf (f, "  <term>Copyright:</term>\n");
+        g_fprintf (f, "  <listitem>\n");
+        g_fprintf (f, "<para>%s</para>\n", (desc->copyright ? desc->copyright : DEFAULT_COPYRIGHT));
+        g_fprintf (f, "  </listitem>\n");
+        g_fprintf (f, "</varlistentry>\n");
 }
 
 static void
