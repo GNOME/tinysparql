@@ -1993,8 +1993,6 @@ extract_mp3 (const gchar          *uri,
 			tracker_sparql_builder_predicate (metadata, "nmm:albumTrackCount");
 			tracker_sparql_builder_object_int64 (metadata, md.track_count);
 		}
-
-		g_free (md.album);
 	}
 
 	tracker_sparql_builder_subject_iri (metadata, uri);
@@ -2073,9 +2071,10 @@ extract_mp3 (const gchar          *uri,
 	                          md.albumart_size,
 	                          md.albumart_mime,
 	                          NULL,
-	                          md.title,
+	                          md.album,
 	                          filename);
 
+	g_free (md.album);
 	g_free (md.title);
 	g_free (md.albumart_data);
 	g_free (md.albumart_mime);
