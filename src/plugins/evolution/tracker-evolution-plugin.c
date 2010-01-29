@@ -208,7 +208,7 @@ static ThreadPool *sparql_pool = NULL, *folder_pool = NULL;
 /* Prototype declarations */
 static void register_account (TrackerEvolutionPlugin *self, EAccount *account);
 static void unregister_account (TrackerEvolutionPlugin *self, EAccount *account);
-int e_plugin_lib_enable (EPluginLib *ep, int enable);
+int e_plugin_lib_enable (EPlugin *ep, int enable);
 static void miner_started (TrackerMiner *miner);
 static void miner_stopped (TrackerMiner *miner);
 static void miner_paused (TrackerMiner *miner);
@@ -2158,7 +2158,7 @@ enable_plugin (void)
 
 
 int
-e_plugin_lib_enable (EPluginLib *ep, int enabled)
+e_plugin_lib_enable (EPlugin *ep, int enabled)
 {
 	g_static_rec_mutex_lock (&glock);
 
