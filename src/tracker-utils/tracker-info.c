@@ -144,7 +144,7 @@ main (int argc, char **argv)
 		gchar	  *urn;
 
 		g_print ("%s:'%s'\n",
-		         _("Querying information for file"),
+		         _("Querying information for entity"),
 		         *p);
 
 		/* support both, URIs and local file paths */
@@ -158,6 +158,7 @@ main (int argc, char **argv)
 			g_object_unref (file);
 		}
 
+		/* First check whether there's some entity with nie:url like this */
 		query = g_strdup_printf ("SELECT ?urn WHERE { ?urn nie:url \"%s\" }", uri);
 		results = tracker_resources_sparql_query (client, query, &error);
 		g_free (query);
@@ -171,11 +172,10 @@ main (int argc, char **argv)
 			continue;
 		}
 
-		if (!results) {
-			g_print (" %s\n",
-			         _("No URN available for that URI"));
-			continue;
-                } else {
+		if (!results || results->len == 0) {
+			/* No URN matches, use uri as URN */
+			urn = g_strdup (uri);
+		} else {
 			gchar **args;
 
 			args = g_ptr_array_index (results, 0);
