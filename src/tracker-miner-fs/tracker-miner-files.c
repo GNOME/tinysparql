@@ -70,6 +70,8 @@ struct TrackerMinerFilesPrivate {
 	guint low_battery_pause_cookie;
 
 	DBusGProxy *extractor_proxy;
+
+	GQuark quark_mount_point_udi;
 };
 
 enum {
@@ -208,6 +210,8 @@ tracker_miner_files_init (TrackerMinerFiles *mf)
 
 	/* Set up extractor and signals */
 	priv->extractor_proxy = extractor_create_proxy ();
+
+	priv->quark_mount_point_udi = g_quark_from_static_string ("tracker-mount-point-udi");
 
 	init_mount_points (mf);
 }
@@ -396,6 +400,14 @@ miner_files_constructed (GObject *object)
 
 	for (m = mounts; m; m = m->next) {
 		GFile *file = g_file_new_for_path (m->data);
+#ifdef HAVE_HAL
+		const gchar *udi = tracker_storage_get_volume_udi_for_file (mf->private->storage, file);
+
+		g_object_set_qdata_full (G_OBJECT (file),
+					 mf->private->quark_mount_point_udi,
+					 g_strdup (udi),
+					 (GDestroyNotify) g_free);
+#endif
 
 		g_message ("  Adding:'%s'", (gchar*) m->data);
 		tracker_miner_fs_add_directory (TRACKER_MINER_FS (mf),
@@ -459,10 +471,13 @@ set_up_mount_point (TrackerMinerFiles *miner,
 			g_string_append_printf (queries,
 			                        "DROP GRAPH <%s> "
 			                        "INSERT INTO <%s> { "
-                                                "  <%s> a tracker:Volume; "
-                                                "       tracker:mountPoint [ a rdfs:Resource ; nie:url \"%s\" ] "
-                                                "} ",
-			                        removable_device_urn, removable_device_urn, removable_device_urn, uri);
+			                        "  <%s> a tracker:Volume; "
+			                        "       tracker:mountPoint ?u "
+			                        "} WHERE { "
+			                        "  ?u a nfo:FileDataObject; "
+			                        "     nie:url \"%s\" "
+			                        "}",
+						removable_device_urn, removable_device_urn, removable_device_urn, uri);
 
 			g_object_unref (file);
 			g_free (uri);
@@ -712,6 +727,11 @@ mount_point_added_cb (TrackerStorage *storage,
 		GFile *file;
 
 		file = g_file_new_for_path (mount_point);
+		g_object_set_qdata_full (G_OBJECT (file),
+		                         priv->quark_mount_point_udi,
+		                         g_strdup (udi),
+		                         (GDestroyNotify) g_free);
+
 		tracker_miner_fs_add_directory (TRACKER_MINER_FS (user_data),
 		                                file,
 		                                TRUE);
@@ -1227,12 +1247,13 @@ extractor_create_proxy (void)
 
 static void
 extractor_get_embedded_metadata_cb (DBusGProxy *proxy,
-				    gchar      *preinserts,
+                                    gchar      *preupdate,
                                     gchar      *sparql,
                                     GError     *error,
                                     gpointer    user_data)
 {
 	ProcessFileData *data = user_data;
+	const gchar *udi;
 
 	if (error) {
 		/* Something bad happened, notify about the error */
@@ -1249,15 +1270,53 @@ extractor_get_embedded_metadata_cb (DBusGProxy *proxy,
 
 	tracker_sparql_builder_insert_close (data->sparql);
 
-	if (preinserts && *preinserts) {
-		tracker_sparql_builder_prepend (data->sparql, preinserts);
+	/* Prepend preupdate queries */
+	if (preupdate && *preupdate) {
+		tracker_sparql_builder_prepend (data->sparql, preupdate);
+	}
+
+	udi = g_object_get_qdata (G_OBJECT (data->file),
+				  data->miner->private->quark_mount_point_udi);
+
+	/* File represents a mount point */
+	if (G_UNLIKELY (udi)) {
+		GString *queries;
+		gchar *removable_device_urn, *uri;
+
+		removable_device_urn = g_strdup_printf (TRACKER_DATASOURCE_URN_PREFIX "%s", udi);
+		uri = g_file_get_uri (G_FILE (data->file));
+
+		queries = g_string_new ("");
+		g_string_append_printf (queries,
+		                        "DELETE FROM <%s> { "
+		                        "  <%s> tracker:mountPoint ?unknown "
+		                        "} WHERE { "
+		                        "  <%s> a tracker:Volume; "
+		                        "       tracker:mountPoint ?unknown "
+		                        "} ",
+		                        removable_device_urn, removable_device_urn, removable_device_urn);
+
+		g_string_append_printf (queries,
+		                        "INSERT INTO <%s> { "
+		                        "  <%s> a tracker:Volume; "
+		                        "       tracker:mountPoint ?u "
+		                        "} WHERE { "
+		                        "  ?u a nfo:FileDataObject; "
+		                        "     nie:url \"%s\" "
+		                        "}",
+		                        removable_device_urn, removable_device_urn, uri);
+
+		tracker_sparql_builder_append (data->sparql, queries->str);
+		g_string_free (queries, TRUE);
+		g_free (removable_device_urn);
+		g_free (uri);
 	}
 
 	/* Notify about the success */
 	tracker_miner_fs_notify_file (TRACKER_MINER_FS (data->miner), data->file, NULL);
 
 	process_file_data_free (data);
-	g_free (preinserts);
+	g_free (preupdate);
 	g_free (sparql);
 }
 
