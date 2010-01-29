@@ -1381,7 +1381,7 @@ process_file_cb (GObject      *object,
 	uri = g_file_get_uri (file);
 	mime_type = g_file_info_get_content_type (file_info);
 
-	tracker_sparql_builder_insert_open (sparql, NULL);
+	tracker_sparql_builder_insert_open (sparql, uri);
 
 	tracker_sparql_builder_subject (sparql, "_:foo");
 
@@ -1504,7 +1504,7 @@ miner_files_writeback_file (TrackerMinerFS       *fs,
 
 	/* For writeback we only write a few properties back. These properties
 	 * should NEVER be marked as tracker:writeback in the ontology ! */
-	tracker_sparql_builder_insert_open (sparql, NULL);
+	tracker_sparql_builder_insert_open (sparql, uri);
 
 	tracker_sparql_builder_subject_variable (sparql, "urn");
 	tracker_sparql_builder_predicate (sparql, "a");
