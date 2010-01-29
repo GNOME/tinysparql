@@ -520,7 +520,7 @@ get_music_albums (TrackerClient *client,
 	if (fts) {
 		query = g_strdup_printf ("SELECT ?album nie:title (?album) COUNT(?song) "
 		                         "AS songs "
-		                         "SUM(nmm:length (?length)) AS totallength "
+		                         "SUM(nmm:length (?song)) AS totallength "
 		                         "WHERE {"
 		                         "  ?album a nmm:MusicAlbum ."
 		                         "  ?song nmm:musicAlbum ?album ."
@@ -535,7 +535,7 @@ get_music_albums (TrackerClient *client,
 	} else {
 		query = g_strdup_printf ("SELECT ?album nie:title (?album) COUNT(?song) "
 		                         "AS songs "
-		                         "SUM(nmm:length (?length)) AS totallength "
+		                         "SUM(nmm:length (?song)) AS totallength "
 		                         "WHERE {"
 		                         "  ?album a nmm:MusicAlbum ."
 		                         "  ?song nmm:musicAlbum ?album ." 
