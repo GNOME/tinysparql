@@ -39,3 +39,6 @@ if HAVE_TRACKER_EXPLORER
 SUBDIRS += tracker-explorer
 endif
 
+if USING_MINER_RSS
+SUBDIRS += tracker-miner-rss
+endif
