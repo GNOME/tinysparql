@@ -851,7 +851,8 @@ tags_view_create_ui (TrackerTagsView *tv)
 					      "WHERE {"
 					      "  ?u a nao:Tag ;"
 					      "  nao:prefLabel ?t ."
-					      "}",
+					      "}"
+	                                      "ORDER BY ?t",
 					      tags_view_add_tags_cb, tv);
 
 	gtk_widget_show_all (GTK_WIDGET (tv));
