@@ -167,7 +167,13 @@ get_files_foreach (gpointer value,
 {
 	gchar **data = value;
 
-	g_print ("  %s\n", data[0]);
+	g_print ("  %s", data[0]);
+
+	if (data[1] && *data[1]) {
+		g_print (" (URI: %s)", data[1]);
+	}
+
+	g_print ("\n");
 }
 
 static gboolean
@@ -229,10 +235,13 @@ get_document_files (TrackerClient *client,
 	fts = get_fts_string (search_terms, use_or_operator);
 
 	if (fts) {
-		query = g_strdup_printf ("SELECT ?document "
+		query = g_strdup_printf ("SELECT ?document ?uri "
 		                         "WHERE { "
 		                         "  ?document a nfo:Document ."
-		                         "  ?document fts:match \"%s\" "
+		                         "  ?document fts:match \"%s\" . "
+		                         "  OPTIONAL { "
+		                         "    ?document nie:url ?uri "
+		                         "  } "
 		                         "} "
 		                         "ORDER BY ASC(?document) "
 		                         "OFFSET %d "
@@ -241,9 +250,12 @@ get_document_files (TrackerClient *client,
 		                         search_offset,
 		                         search_limit);
 	} else {
-		query = g_strdup_printf ("SELECT ?document "
+		query = g_strdup_printf ("SELECT ?document ?uri "
 		                         "WHERE { "
-		                         "  ?document a nfo:Document "
+		                         "  ?document a nfo:Document . "
+		                         "  OPTIONAL { "
+		                         "    ?document nie:url ?uri "
+		                         "  } "
 		                         "} "
 		                         "ORDER BY ASC(?document) "
 		                         "OFFSET %d "
@@ -273,10 +285,13 @@ get_video_files (TrackerClient *client,
 	fts = get_fts_string (search_terms, use_or_operator);
 
 	if (fts) {
-		query = g_strdup_printf ("SELECT ?video "
+		query = g_strdup_printf ("SELECT ?video ?uri "
 		                         "WHERE { "
 		                         "  ?video a nfo:Video ."
-		                         "  ?video fts:match \"%s\" "
+		                         "  ?video fts:match \"%s\" . "
+		                         "  OPTIONAL { "
+		                         "    ?video nie:url ?uri "
+		                         "  } "
 		                         "} "
 		                         "ORDER BY ASC(?video) "
 		                         "OFFSET %d "
@@ -285,9 +300,12 @@ get_video_files (TrackerClient *client,
 		                         search_offset,
 		                         search_limit);
 	} else {
-		query = g_strdup_printf ("SELECT ?video "
+		query = g_strdup_printf ("SELECT ?video ?uri "
 		                         "WHERE { "
-		                         "  ?video a nfo:Video "
+		                         "  ?video a nfo:Video . "
+		                         "  OPTIONAL { "
+		                         "    ?video nie:url ?uri "
+		                         "  } "
 		                         "} "
 		                         "ORDER BY ASC(?video) "
 		                         "OFFSET %d "
@@ -317,10 +335,13 @@ get_image_files (TrackerClient *client,
 	fts = get_fts_string (search_terms, use_or_operator);
 
 	if (fts) {
-		query = g_strdup_printf ("SELECT ?image "
+		query = g_strdup_printf ("SELECT ?image ?uri "
 		                         "WHERE { "
 		                         "  ?image a nfo:Image ."
-		                         "  ?image fts:match \"%s\" "
+		                         "  ?image fts:match \"%s\" . "
+		                         "  OPTIONAL { "
+		                         "    ?image nie:url ?uri "
+		                         "  } "
 		                         "} "
 		                         "ORDER BY ASC(?image) "
 		                         "OFFSET %d "
@@ -329,9 +350,12 @@ get_image_files (TrackerClient *client,
 		                         search_offset,
 		                         search_limit);
 	} else {
-		query = g_strdup_printf ("SELECT ?image "
+		query = g_strdup_printf ("SELECT ?image ?uri "
 		                         "WHERE { "
-		                         "  ?image a nfo:Image "
+		                         "  ?image a nfo:Image . "
+		                         "  OPTIONAL { "
+		                         "    ?image nie:url ?uri "
+		                         "  } "
 		                         "} "
 		                         "ORDER BY ASC(?image) "
 		                         "OFFSET %d "
@@ -361,10 +385,13 @@ get_music_files (TrackerClient *client,
 	fts = get_fts_string (search_terms, use_or_operator);
 
 	if (fts) {
-		query = g_strdup_printf ("SELECT ?song "
+		query = g_strdup_printf ("SELECT ?song ?uri "
 		                         "WHERE { "
-		                         "  ?song a nmm:MusicPiece ."
-		                         "  ?song fts:match \"%s\" "
+		                         "  ?song a nmm:MusicPiece . "
+		                         "  ?song fts:match \"%s\" . "
+		                         "  OPTIONAL { "
+		                         "    ?song nie:url ?uri "
+		                         "  } "
 		                         "} "
 		                         "ORDER BY ASC(?song) "
 		                         "OFFSET %d "
@@ -373,9 +400,12 @@ get_music_files (TrackerClient *client,
 		                         search_offset,
 		                         search_limit);
 	} else {
-		query = g_strdup_printf ("SELECT ?song "
+		query = g_strdup_printf ("SELECT ?song ?uri "
 		                         "WHERE { "
-		                         "  ?song a nmm:MusicPiece "
+		                         "  ?song a nmm:MusicPiece . "
+		                         "  OPTIONAL { "
+		                         "    ?song nie:url ?uri "
+		                         "  } "
 		                         "} "
 		                         "ORDER BY ASC(?song) "
 		                         "OFFSET %d "
@@ -601,10 +631,13 @@ get_files (TrackerClient *client,
 	fts = get_fts_string (search_terms, use_or_operator);
 
 	if (fts) {
-		query = g_strdup_printf ("SELECT ?u "
+		query = g_strdup_printf ("SELECT ?u ?uri "
 		                         "WHERE { "
 		                         "  ?u a nie:InformationElement ."
-		                         "  ?u fts:match \"%s\" "
+		                         "  ?u fts:match \"%s\" . "
+		                         "  OPTIONAL { "
+		                         "    ?u nie:url ?uri "
+		                         "  } "
 		                         "} "
 		                         "ORDER BY ASC(?u) "
 		                         "OFFSET %d "
@@ -613,9 +646,12 @@ get_files (TrackerClient *client,
 		                         search_offset,
 		                         search_limit);
 	} else {
-		query = g_strdup_printf ("SELECT ?u "
+		query = g_strdup_printf ("SELECT ?u ?uri "
 		                         "WHERE { "
-		                         "  ?u a nie:InformationElement "
+		                         "  ?u a nie:InformationElement . "
+		                         "  OPTIONAL { "
+		                         "    ?u nie:url ?uri "
+		                         "  } "
 		                         "} "
 		                         "ORDER BY ASC(?u) "
 		                         "OFFSET %d "
@@ -645,10 +681,13 @@ get_folders (TrackerClient *client,
 	fts = get_fts_string (search_terms, use_or_operator);
 
 	if (fts) {
-		query = g_strdup_printf ("SELECT ?u "
+		query = g_strdup_printf ("SELECT ?u ?uri "
 		                         "WHERE { "
 		                         "  ?u a nfo:Folder ."
 		                         "  ?u fts:match \"%s\" "
+		                         "  OPTIONAL { "
+		                         "    ?u nie:url ?uri "
+		                         "  } "
 		                         "} "
 		                         "ORDER BY ASC(?u) "
 		                         "OFFSET %d "
@@ -657,9 +696,12 @@ get_folders (TrackerClient *client,
 		                         search_offset,
 		                         search_limit);
 	} else {
-		query = g_strdup_printf ("SELECT ?u "
+		query = g_strdup_printf ("SELECT ?u ?uri "
 		                         "WHERE { "
-		                         "  ?u a nfo:Folder "
+		                         "  ?u a nfo:Folder . "
+		                         "  OPTIONAL { "
+		                         "    ?u nie:url ?uri "
+		                         "  } "
 		                         "} "
 		                         "ORDER BY ASC(?u) "
 		                         "OFFSET %d "
