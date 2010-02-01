@@ -40,6 +40,8 @@
 #include <libtracker-common/tracker-ontology.h>
 #include <libtracker-common/tracker-file-utils.h>
 
+#include <libtracker-miner/tracker-thumbnailer.h>
+
 #include <libtracker-db/tracker-db-manager.h>
 #include <libtracker-db/tracker-db-dbus.h>
 
@@ -356,6 +358,8 @@ main (gint argc, gchar *argv[])
 	                  G_CALLBACK (miner_finished_cb),
 	                  NULL);
 
+	tracker_thumbnailer_init ();
+
 	miner_handle_next ();
 
 	main_loop = g_main_loop_new (NULL, FALSE);
@@ -365,6 +369,8 @@ main (gint argc, gchar *argv[])
 
 	g_main_loop_unref (main_loop);
 	g_object_unref (config);
+
+	tracker_thumbnailer_shutdown ();
 
 	g_slist_foreach (miners, (GFunc) g_object_unref, NULL);
 	g_slist_free (miners);

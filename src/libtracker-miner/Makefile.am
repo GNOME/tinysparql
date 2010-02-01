@@ -39,12 +39,14 @@ libtracker_miner_@TRACKER_API_VERSION@_la_SOURCES = 	\
 	tracker-monitor.c				\
 	tracker-monitor.h				\
 	tracker-utils.c					\
-	tracker-utils.h
+	tracker-utils.h					\
+	tracker-thumbnailer.c
 
 libtracker_minerinclude_HEADERS = 			\
 	tracker-miner.h 				\
 	tracker-miner-dbus.h 				\
-	tracker-miner-fs.h
+	tracker-miner-fs.h				\
+	tracker-thumbnailer.h
 
 libtracker_miner_@TRACKER_API_VERSION@_la_LDFLAGS = 	\
 	-version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE)
