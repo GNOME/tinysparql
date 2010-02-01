@@ -50,8 +50,8 @@
 static GMainLoop *main_loop;
 static GHashTable *miners_progress;
 static GHashTable *miners_status;
+static gint longest_miner_name_length = 0;
 
-static gboolean   show_key;
 static gboolean   list_miners_running;
 static gboolean   list_miners_available;
 static gboolean   pause_details;
@@ -69,10 +69,6 @@ static GOptionEntry entries[] = {
 	},
 	{ "detailed", 'd', 0, G_OPTION_ARG_NONE, &detailed,
 	  N_("Include details with state updates (only applies to --follow)"),
-	  NULL
-	},
-	{ "show-key", 'k', 0, G_OPTION_ARG_NONE, &show_key,
-	  N_("Shows the key used when listing miners and their states"),
 	  NULL
 	},
 	{ "list-miners-running", 'l', 0, G_OPTION_ARG_NONE, &list_miners_running,
@@ -165,6 +161,7 @@ miner_pause (TrackerMinerManager *manager,
 
 	if (!tracker_miner_manager_pause (manager, miner, reason, &cookie)) {
 		g_printerr (_("Could not pause miner: %s"), miner);
+		g_printerr ("\n");
 		return EXIT_FAILURE;
 	}
 
@@ -249,19 +246,28 @@ miner_print_state (TrackerMinerManager *manager,
 	name = tracker_miner_manager_get_display_name (manager, miner_name);
 
 	if (is_running) {
-		g_print ("%s  [%s] %s: %3.0f%%, %s, %s: '%s'\n",
+		const gchar *paused;
+		gint paused_len;
+
+		paused = _("PAUSED");
+		paused_len = strlen (paused);
+
+		g_print ("%s  %3.0f%%  %-*.*s %s%-*.*s%s %s %s\n",
 		         time_str,
-		         is_paused ? "P" : "R",
-		         _("Progress"),
 		         progress * 100,
+		         longest_miner_name_length,
+		         longest_miner_name_length,
 		         name,
-		         _("Status"),
-		         status ? status : _("Unknown"));
+		         is_paused ? "(" : " ",
+		         paused_len,
+		         paused_len,
+		         is_paused ? paused : " ",
+		         is_paused ? ")" : " ",
+		         status ? "-" : "",
+		         status ? status : "");
 	} else {
-		g_print ("%s  [ ] %s: %3.0f%%, %s\n",
+		g_print ("%s  ---   %s\n",
 		         time_str,
-		         _("Progress"),
-		         0.0,
 		         name);
 	}
 }
@@ -415,20 +421,6 @@ main (gint argc, gchar *argv[])
 		return EXIT_FAILURE;
 	}
 
-	if (show_key) {
-		/* Show status of all miners */
-
-		/* Translators: "Key" is in terms of a "legend". I.e.
-		 * R=Running, P=Paused, etc.
-		 */
-		g_print ("%s:\n", _("Key"));
-		g_print ("  %s\n", _("[R] = Running"));
-		g_print ("  %s\n", _("[P] = Paused"));
-		g_print ("  %s\n", _("[ ] = Not Running"));
-
-		return EXIT_SUCCESS;
-	}
-
 	manager = tracker_miner_manager_new ();
 	miners_available = tracker_miner_manager_get_available (manager);
 	miners_running = tracker_miner_manager_get_running (manager);
@@ -552,6 +544,13 @@ main (gint argc, gchar *argv[])
 	}
 
 	g_print ("%s:\n", _("Miners"));
+
+	for (l = miners_available; l; l = l->next) {
+		const gchar *name;
+
+		name = tracker_miner_manager_get_display_name (manager, l->data);
+		longest_miner_name_length = MAX (longest_miner_name_length, strlen (name));
+	}
 
 	for (l = miners_available; l; l = l->next) {
 		const gchar *name;
