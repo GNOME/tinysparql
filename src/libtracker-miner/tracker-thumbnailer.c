@@ -262,6 +262,11 @@ tracker_thumbnailer_move_add (const gchar *from_uri,
 	         used_from_uri,
 	         used_to_uri);
 
+	if ((g_slist_length (private->moves_from) + 
+	     g_slist_length (private->removes)) > 50) {
+		tracker_thumbnailer_send ();
+	}
+
 	return TRUE;
 }
 
@@ -297,6 +302,11 @@ tracker_thumbnailer_remove_add (const gchar *uri,
 	private->removes = g_slist_prepend (private->removes, used_uri);
 
 	g_debug ("Thumbnailer request to remove uri:'%s', appended to queue", uri);
+
+	if ((g_slist_length (private->moves_from) + 
+	     g_slist_length (private->removes)) > 50) {
+		tracker_thumbnailer_send ();
+	}
 
 	return TRUE;
 }

@@ -27,6 +27,7 @@
 #include "tracker-miner-fs.h"
 #include "tracker-monitor.h"
 #include "tracker-utils.h"
+#include "tracker-thumbnailer.h"
 
 /**
  * SECTION:tracker-miner-fs
@@ -1067,6 +1068,7 @@ item_remove (TrackerMinerFS *fs,
 	GString *sparql;
 	gchar *uri, *slash_uri;
 	ProcessData *data;
+	GFileInfo *file_info;
 
 	uri = g_file_get_uri (file);
 
@@ -1077,6 +1079,15 @@ item_remove (TrackerMinerFS *fs,
 		g_debug ("  File does not exist anyway (uri:'%s')", uri);
 		g_free (uri);
 		return TRUE;
+	}
+
+	file_info = g_file_query_info (file, G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE,
+	                               G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
+	                               NULL, NULL);
+
+	if (file_info) {
+		tracker_thumbnailer_remove_add (uri, g_file_info_get_content_type (file_info));
+		g_object_unref (file_info);
 	}
 
 	if (!g_str_has_suffix (uri, "/")) {
@@ -1326,7 +1337,8 @@ item_move (TrackerMinerFS *fs,
 	}
 
 	file_info = g_file_query_info (file,
-	                               G_FILE_ATTRIBUTE_STANDARD_DISPLAY_NAME,
+	                               G_FILE_ATTRIBUTE_STANDARD_DISPLAY_NAME ","
+	                               G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE,
 	                               G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
 	                               NULL, NULL);
 
@@ -1345,6 +1357,14 @@ item_move (TrackerMinerFS *fs,
 	g_debug ("Moving item from '%s' to '%s'",
 	         source_uri,
 	         uri);
+
+	/* TODO: Perhaps we should move this to item_update_uri_recursively, and 
+	 * that way support a directory being renamed too? I'm reluctant to add
+	 * a file_info lookup to each kid in a (sub)directory, though */
+
+	tracker_thumbnailer_move_add (source_uri, 
+	                              g_file_info_get_content_type (file_info),
+	                              uri);
 
 	sparql = g_string_new ("");
 
@@ -1543,6 +1563,7 @@ item_queue_handlers_cb (gpointer user_data)
 			process_stop (fs);
 		}
 
+		tracker_thumbnailer_send ();
 		/* No more files left to process */
 		keep_processing = FALSE;
 		break;
