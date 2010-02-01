@@ -217,7 +217,7 @@ get_filter_string (GStrv        files,
 		uri = g_file_get_uri (file);
 		g_object_unref (file);
 
-		g_string_append_printf (filter, "?f = <%s>", uri);
+		g_string_append_printf (filter, "?f = \"%s\"", uri);
 		g_free (uri);
 
 		if (i < len - 1) {
@@ -271,9 +271,10 @@ get_all_tags_foreach (gpointer value,
 	}
 
 	/* Get files associated */
-	query = g_strdup_printf ("SELECT ?urn WHERE {"
+	query = g_strdup_printf ("SELECT ?uri WHERE {"
 	                         "  ?urn a rdfs:Resource; "
-	                         "  nao:hasTag \"%s\" "
+				 "  nie:url ?uri ; "
+	                         "  nao:hasTag \"%s\" . "
 	                         "}",
 	                         id);
 
@@ -405,10 +406,6 @@ add_tag_for_urns (TrackerClient *client,
 	 * is, then we add the urns specified to the new tag.
 	 */
 	if (filter) {
-
-		/* We use IE = DO, so we can optimize using nie:isStoredAs instead of
-	 	* nie:url here. Please change this when we change that decision. */
-
 		/* Add tag to specific urns */
 		query = g_strdup_printf ("INSERT { "
 		                         "  _:tag a nao:Tag;"
@@ -425,7 +422,7 @@ add_tag_for_urns (TrackerClient *client,
 		                         "  ?urn nao:hasTag ?id "
 		                         "} "
 		                         "WHERE {"
-		                         "  ?urn nie:isStoredAs ?f ."
+		                         "  ?urn nie:url ?f ."
 		                         "  ?id nao:prefLabel %s "
 		                         "  %s "
 		                         "}",
@@ -521,10 +518,11 @@ remove_tag_for_urns (TrackerClient *client,
 		filter = get_filter_string (files, urn);
 
 		query = g_strdup_printf ("DELETE { "
-		                         "  ?f nao:hasTag ?t "
+		                         "  ?u nao:hasTag ?t "
 		                         "} "
 		                         "WHERE { "
-		                         "  ?f nao:hasTag ?t ."
+		                         "  ?u nao:hasTag ?t . "
+					 "  ?u nie:url ?f . "
 		                         "  %s "
 		                         "}",
 		                         filter);
