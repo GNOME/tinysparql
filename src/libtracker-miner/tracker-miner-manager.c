@@ -186,7 +186,8 @@ tracker_miner_manager_class_init (TrackerMinerManagerClass *klass)
 
 static DBusGProxy *
 find_miner_proxy (TrackerMinerManager *manager,
-                  const gchar         *name)
+                  const gchar         *name,
+                  gboolean             try_suffix)
 {
 	TrackerMinerManagerPrivate *priv;
 	GHashTableIter iter;
@@ -198,6 +199,12 @@ find_miner_proxy (TrackerMinerManager *manager,
 	while (g_hash_table_iter_next (&iter, &key, &value)) {
 		if (g_strcmp0 (name, (gchar *) value) == 0) {
 			return key;
+		}
+
+		if (try_suffix) {
+			if (g_str_has_suffix (value, name)) {
+				return key;
+			}
 		}
 	}
 
@@ -216,7 +223,7 @@ name_owner_changed_cb (DBusGProxy  *proxy,
 
 	priv = TRACKER_MINER_MANAGER_GET_PRIVATE (manager);
 
-	if (find_miner_proxy (manager, name) != NULL) {
+	if (find_miner_proxy (manager, name, FALSE) != NULL) {
 		if (new_owner && (!old_owner || !*old_owner)) {
 			g_signal_emit (manager, signals[MINER_ACTIVATED], 0, name);
 		} else if (old_owner && (!new_owner || !*new_owner)) {
@@ -613,7 +620,7 @@ tracker_miner_manager_pause (TrackerMinerManager *manager,
 	g_return_val_if_fail (miner != NULL, FALSE);
 	g_return_val_if_fail (reason != NULL, FALSE);
 
-	proxy = find_miner_proxy (manager, miner);
+	proxy = find_miner_proxy (manager, miner, TRUE);
 
 	if (!proxy) {
 		g_critical ("No D-Bus proxy found for miner '%s'", miner);
@@ -663,7 +670,7 @@ tracker_miner_manager_resume (TrackerMinerManager *manager,
 
 	g_return_val_if_fail (TRACKER_IS_MINER_MANAGER (manager), FALSE);
 	g_return_val_if_fail (miner != NULL, FALSE);
-	proxy = find_miner_proxy (manager, miner);
+	proxy = find_miner_proxy (manager, miner, TRUE);
 
 	if (!proxy) {
 		g_critical ("No D-Bus proxy found for miner '%s'", miner);
@@ -742,7 +749,7 @@ tracker_miner_manager_get_status (TrackerMinerManager  *manager,
 	g_return_val_if_fail (TRACKER_IS_MINER_MANAGER (manager), FALSE);
 	g_return_val_if_fail (miner != NULL, FALSE);
 
-	proxy = find_miner_proxy (manager, miner);
+	proxy = find_miner_proxy (manager, miner, TRUE);
 
 	if (!proxy) {
 		g_critical ("No D-Bus proxy found for miner '%s'", miner);
@@ -825,7 +832,7 @@ tracker_miner_manager_is_paused (TrackerMinerManager *manager,
 	g_return_val_if_fail (TRACKER_IS_MINER_MANAGER (manager), TRUE);
 	g_return_val_if_fail (miner != NULL, TRUE);
 
-	proxy = find_miner_proxy (manager, miner);
+	proxy = find_miner_proxy (manager, miner, TRUE);
 
 	if (!proxy) {
 		g_critical ("No D-Bus proxy found for miner '%s'", miner);
@@ -946,7 +953,7 @@ tracker_miner_manager_writeback (TrackerMinerManager *manager,
 	g_return_val_if_fail (TRACKER_IS_MINER_MANAGER (manager), FALSE);
 	g_return_val_if_fail (miner != NULL, FALSE);
 
-	proxy = find_miner_proxy (manager, miner);
+	proxy = find_miner_proxy (manager, miner, TRUE);
 
 	if (!proxy) {
 		g_warning ("No D-Bus proxy found for miner '%s'", miner);
