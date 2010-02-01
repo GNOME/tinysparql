@@ -384,6 +384,20 @@ main (gint argc, gchar *argv[])
 		return EXIT_FAILURE;
 	}
 
+	if ((!pause_reason || resume_cookie == -1) && miner_name) {
+		gchar *help;
+
+		g_printerr ("%s\n\n",
+		            _("You must provide a pause or resume command for the miner"));
+
+		help = g_option_context_get_help (context, TRUE, NULL);
+		g_option_context_free (context);
+		g_printerr ("%s", help);
+		g_free (help);
+
+		return EXIT_FAILURE;
+	}
+
 	g_option_context_free (context);
 
 	g_type_init ();
