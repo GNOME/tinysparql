@@ -720,8 +720,8 @@ category_from_string (const gchar *type,
 
 static GdkPixbuf *
 pixbuf_get (TrackerResultsWindow *window,
-            const gchar          *urn,
-            gboolean              is_image)
+            const gchar          *uri,
+            TrackerCategory       category)
 {
 	TrackerResultsWindowPrivate *priv;
 	const gchar *attributes;
@@ -732,9 +732,9 @@ pixbuf_get (TrackerResultsWindow *window,
 	GError *error = NULL;
 
 	priv = TRACKER_RESULTS_WINDOW_GET_PRIVATE (window);
-	file = g_file_new_for_uri (urn);
+	file = g_file_new_for_uri (uri);
 
-	if (is_image) {
+	if (category & CATEGORY_IMAGE) {
 		gchar *path;
 
 		path = g_file_get_path (file);
@@ -742,58 +742,64 @@ pixbuf_get (TrackerResultsWindow *window,
 		g_free (path);
 
 		if (error) {
-			g_printerr ("Couldn't get pixbuf for urn:'%s', %s\n",
-			            urn,
+			g_printerr ("Couldn't get pixbuf for uri:'%s', %s\n",
+			            uri,
 			            error->message);
 			g_clear_error (&error);
 		} else {
 			g_object_unref (file);
 			return pixbuf;
 		}
+	} else if (category &
+		   (CATEGORY_DOCUMENT |
+		    CATEGORY_IMAGE |
+		    CATEGORY_AUDIO |
+		    CATEGORY_FOLDER |
+		    CATEGORY_VIDEO |
+		    CATEGORY_ARCHIVE)) {
+		attributes =
+			G_FILE_ATTRIBUTE_STANDARD_ICON;
 
-		/* In event of failure, get generic icon */
-	}
+		info = g_file_query_info (file,
+		                          attributes,
+		                          G_FILE_QUERY_INFO_NONE,
+		                          NULL,
+		                          &error);
 
+		if (error) {
+			g_printerr ("Couldn't get pixbuf for uri:'%s', %s\n",
+			            uri,
+			            error->message);
+			g_object_unref (file);
+			g_error_free (error);
 
-	attributes =
-		G_FILE_ATTRIBUTE_STANDARD_ICON;
-
-	info = g_file_query_info (file,
-	                          attributes,
-	                          G_FILE_QUERY_INFO_NONE,
-	                          NULL,
-	                          &error);
-
-
-	if (error) {
-		g_printerr ("Couldn't get pixbuf for urn:'%s', %s\n",
-		            urn,
-		            error->message);
-		g_object_unref (file);
-		g_error_free (error);
-
-		return NULL;
-	}
-
-	icon = g_file_info_get_icon (info);
-
-	if (icon && G_IS_THEMED_ICON (icon)) {
-		GtkIconInfo *icon_info;
-		const gchar **names;
-
-		names = (const gchar**) g_themed_icon_get_names (G_THEMED_ICON (icon));
-		icon_info = gtk_icon_theme_choose_icon (priv->icon_theme,
-		                                        names,
-		                                        24,
-		                                        GTK_ICON_LOOKUP_USE_BUILTIN);
-
-		if (icon_info) {
-			pixbuf = gtk_icon_info_load_icon (icon_info, NULL);
-			gtk_icon_info_free (icon_info);
+			return NULL;
 		}
+
+		icon = g_file_info_get_icon (info);
+
+		if (icon && G_IS_THEMED_ICON (icon)) {
+			GtkIconInfo *icon_info;
+			const gchar **names;
+
+			names = (const gchar**) g_themed_icon_get_names (G_THEMED_ICON (icon));
+			icon_info = gtk_icon_theme_choose_icon (priv->icon_theme,
+			                                        names,
+			                                        24,
+			                                        GTK_ICON_LOOKUP_USE_BUILTIN);
+
+			if (icon_info) {
+				pixbuf = gtk_icon_info_load_icon (icon_info, NULL);
+				gtk_icon_info_free (icon_info);
+			}
+		}
+
+		g_object_unref (info);
+	} else {
+		g_message ("No pixbuf could be retrieved for category %s (URI: %s)\n",
+		           category_to_string (category), uri);
 	}
 
-	g_object_unref (info);
 	g_object_unref (file);
 
 	return pixbuf;
