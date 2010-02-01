@@ -390,7 +390,7 @@ main (gint argc, gchar *argv[])
 		return EXIT_FAILURE;
 	}
 
-	if ((!pause_reason || resume_cookie == -1) && miner_name) {
+	if ((!pause_reason && resume_cookie == -1) && miner_name) {
 		gchar *help;
 
 		g_printerr ("%s\n\n",
