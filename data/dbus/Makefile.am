@@ -6,11 +6,13 @@ config_DATA =							\
 	tracker-backup.xml					\
 	tracker-extract.xml					\
 	tracker-miner.xml					\
-	tracker-miner-files-reindex.xml				\
 	tracker-resources.xml					\
 	tracker-resources-class.xml				\
 	tracker-statistics.xml					\
 	tracker-writeback.xml
+
+config_noinst =
+	tracker-miner-files-reindex.xml
 
 # Services
 servicedir = $(DBUS_SERVICES_DIR)
@@ -26,6 +28,7 @@ service_DATA = $(service_in_files:.service.in=.service)
 
 EXTRA_DIST = 							\
 	$(service_in_files)					\
-	$(config_DATA)
+	$(config_DATA)						\
+	$(config_noinst)
 
 CLEANFILES = $(service_DATA)

@@ -437,9 +437,18 @@ tracker_miner_manager_get_running (TrackerMinerManager *manager)
 
 	if (result) {
 		for (p = result; *p; p++) {
-			if (g_str_has_prefix (*p, TRACKER_MINER_DBUS_NAME_PREFIX)) {
-				list = g_slist_prepend (list, g_strdup (*p));
+			if (!g_str_has_prefix (*p, TRACKER_MINER_DBUS_NAME_PREFIX)) {
+				continue;
 			}
+
+			/* Special case miner-fs which has
+			 * additional D-Bus interface.
+			 */
+			if (strcmp (*p, "org.freedesktop.Tracker1.Miner.Files.Reindex") == 0) {
+				continue;
+			}
+
+			list = g_slist_prepend (list, g_strdup (*p));
 		}
 
 		list = g_slist_reverse (list);
