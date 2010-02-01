@@ -61,6 +61,8 @@ typedef struct {
 typedef struct {
 	GMainLoop *main_loop;
 	gchar *iri;
+	gchar *mime;
+	gboolean get_mime;
 } SparqlQueryData;
 
 typedef struct {
@@ -913,9 +915,11 @@ sparql_query_cb (GObject      *object,
 
 		val = g_ptr_array_index (query_results, 0);
 		data->iri = g_strdup (val[0]);
+		if (data->get_mime)
+			data->mime = g_strdup (val[1]);
 	}
 
-        g_main_loop_quit (data->main_loop);
+	g_main_loop_quit (data->main_loop);
 }
 
 static void
@@ -1027,14 +1031,22 @@ item_add_or_update (TrackerMinerFS *fs,
 static gboolean
 item_query_exists (TrackerMinerFS  *miner,
                    GFile           *file,
-                   gchar          **iri)
+                   gchar          **iri,
+                   gchar          **mime)
 {
 	gboolean   result;
 	gchar     *sparql, *uri;
 	SparqlQueryData data = { 0 };
 
+	data.get_mime = (mime != NULL);
+
 	uri = g_file_get_uri (file);
-	sparql = g_strdup_printf ("SELECT ?s WHERE { ?s nie:url '%s' }", uri);
+
+	if (data.get_mime) {
+		sparql = g_strdup_printf ("SELECT ?s ?m WHERE { ?s nie:url '%s' . OPTIONAL { ?s nie:mimeType ?m } }", uri);
+	} else {
+		sparql = g_strdup_printf ("SELECT ?s WHERE { ?s nie:url '%s' }", uri);
+	}
 
 	data.main_loop = g_main_loop_new (NULL, FALSE);
 
@@ -1055,6 +1067,12 @@ item_query_exists (TrackerMinerFS  *miner,
 		g_free (data.iri);
 	}
 
+	if (mime) {
+		*mime = data.mime;
+	} else {
+		g_free (data.mime);
+	}
+
 	g_free (sparql);
 	g_free (uri);
 
@@ -1067,28 +1085,24 @@ item_remove (TrackerMinerFS *fs,
 {
 	GString *sparql;
 	gchar *uri, *slash_uri;
+	gchar *mime = NULL;
 	ProcessData *data;
-	GFileInfo *file_info;
 
 	uri = g_file_get_uri (file);
 
 	g_debug ("Removing item: '%s' (Deleted from filesystem)",
 	         uri);
 
-	if (!item_query_exists (fs, file, NULL)) {
+	if (!item_query_exists (fs, file, NULL, &mime)) {
 		g_debug ("  File does not exist anyway (uri:'%s')", uri);
 		g_free (uri);
+		g_free (mime);
 		return TRUE;
 	}
 
-	file_info = g_file_query_info (file, G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE,
-	                               G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
-	                               NULL, NULL);
+	tracker_thumbnailer_remove_add (uri, mime);
 
-	if (file_info) {
-		tracker_thumbnailer_remove_add (uri, g_file_info_get_content_type (file_info));
-		g_object_unref (file_info);
-	}
+	g_free (mime);
 
 	if (!g_str_has_suffix (uri, "/")) {
 		slash_uri = g_strconcat (uri, "/", NULL);
@@ -1176,7 +1190,7 @@ item_writeback (TrackerMinerFS *fs,
 
 	g_debug ("Updating item: '%s' (Writeback event)", uri);
 
-	if (!item_query_exists (fs, working_file, NULL)) {
+	if (!item_query_exists (fs, working_file, NULL, NULL)) {
 		g_debug ("  File does not exist anyway (uri:'%s')", uri);
 		return TRUE;
 	}
@@ -1323,7 +1337,7 @@ item_move (TrackerMinerFS *fs,
 	source_uri = g_file_get_uri (source_file);
 
 	/* Get 'source' ID */
-	if (!item_query_exists (fs, source_file, &source_iri)) {
+	if (!item_query_exists (fs, source_file, &source_iri, NULL)) {
 		gboolean retval;
 
 		g_message ("Source file '%s' not found in store to move, indexing '%s' from scratch", source_uri, uri);
@@ -1701,6 +1715,7 @@ should_change_index_for_file (TrackerMinerFS *fs,
 	                         t.tm_sec,
 	                         uri);
 
+	data.get_mime = FALSE;
 	data.main_loop = g_main_loop_new (NULL, FALSE);
 
 	tracker_miner_execute_sparql (TRACKER_MINER (fs),
@@ -1714,6 +1729,7 @@ should_change_index_for_file (TrackerMinerFS *fs,
 
 	g_main_loop_unref (data.main_loop);
 	g_free (data.iri);
+	g_free (data.mime);
 	g_free (query);
 	g_free (uri);
 
@@ -1905,7 +1921,7 @@ monitor_item_moved_cb (TrackerMonitor *monitor,
 		path = g_file_get_path (file);
 		other_path = g_file_get_path (other_file);
 
-		source_stored = item_query_exists (fs, file, NULL);
+		source_stored = item_query_exists (fs, file, NULL, NULL);
 		should_process_other = should_check_file (fs, other_file, is_directory);
 
 		g_debug ("%s:'%s'->'%s':%s (%s) (move monitor event or user request)",

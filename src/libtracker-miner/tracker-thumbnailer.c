@@ -202,11 +202,8 @@ tracker_thumbnailer_init (void)
 		private->service_is_available = TRUE;
 	}
 
-	if (mime_types)
-		g_strfreev (mime_types);
-
-	if (uri_schemes)
-		g_strfreev (uri_schemes);
+	g_strfreev (mime_types);
+	g_strfreev (uri_schemes);
 
 	return TRUE;
 }
@@ -224,7 +221,6 @@ tracker_thumbnailer_move_add (const gchar *from_uri,
 {
 
 	TrackerThumbnailerPrivate *private;
-	gchar *used_from_uri, *used_to_uri;
 
 	/* mime_type can be NULL */
 
@@ -242,30 +238,12 @@ tracker_thumbnailer_move_add (const gchar *from_uri,
 		return FALSE;
 	}
 
-	/* Add new URI (detect if we got passed a path) */
-	if (!strstr (from_uri, "://")) {
-		used_from_uri = g_filename_to_uri (from_uri, NULL, NULL);
-	} else {
-		used_from_uri = g_strdup (from_uri);
-	}
-
-	if (!strstr (to_uri, "://")) {
-		used_to_uri = g_filename_to_uri (to_uri, NULL, NULL);
-	} else {
-		used_to_uri = g_strdup (to_uri);
-	}
-
-	private->moves_from = g_slist_prepend (private->moves_from, used_from_uri);
-	private->moves_to = g_slist_prepend (private->moves_to, used_to_uri);
+	private->moves_from = g_slist_prepend (private->moves_from, g_strdup (from_uri));
+	private->moves_to = g_slist_prepend (private->moves_to, g_strdup (to_uri));
 
 	g_debug ("Thumbnailer request to move uri from:'%s' to:'%s' queued",
-	         used_from_uri,
-	         used_to_uri);
-
-	if ((g_slist_length (private->moves_from) + 
-	     g_slist_length (private->removes)) > 50) {
-		tracker_thumbnailer_send ();
-	}
+	         from_uri,
+	         to_uri);
 
 	return TRUE;
 }
@@ -275,7 +253,6 @@ tracker_thumbnailer_remove_add (const gchar *uri,
                                 const gchar *mime_type)
 {
 	TrackerThumbnailerPrivate *private;
-	gchar *used_uri;
 
 	/* mime_type can be NULL */
 
@@ -292,21 +269,9 @@ tracker_thumbnailer_remove_add (const gchar *uri,
 		return FALSE;
 	}
 
-	/* Add new URI (detect if we got passed a path) */
-	if (!strstr (uri, "://")) {
-		used_uri = g_filename_to_uri (uri, NULL, NULL);
-	} else {
-		used_uri = g_strdup (uri);
-	}
-
-	private->removes = g_slist_prepend (private->removes, used_uri);
+	private->removes = g_slist_prepend (private->removes, g_strdup (uri));
 
 	g_debug ("Thumbnailer request to remove uri:'%s', appended to queue", uri);
-
-	if ((g_slist_length (private->moves_from) + 
-	     g_slist_length (private->removes)) > 50) {
-		tracker_thumbnailer_send ();
-	}
 
 	return TRUE;
 }
