@@ -825,22 +825,38 @@ create_decomposed_metadata_property_table (TrackerDBInterface *iface,
 	}
 
 	if (transient || tracker_property_get_multiple_values (property)) {
+		GString *sql;
+
+		sql = g_string_new ("");
+		g_string_append_printf (sql, "CREATE %sTABLE \"%s_%s\" ("
+		                             "ID INTEGER NOT NULL, "
+		                             "\"%s\" %s NOT NULL, "
+		                             "\"%s:graph\" INTEGER",
+		                             transient ? "TEMPORARY " : "",
+		                             service_name,
+		                             field_name,
+		                             field_name,
+		                             sql_type,
+		                             field_name);
+
+		if (tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_DATETIME) {
+			/* xsd:dateTime is stored in three columns:
+			 * universal time, local date, local time of day */
+			g_string_append_printf (sql,
+			                        ", \"%s:localDate\" INTEGER NOT NULL"
+			                        ", \"%s:localTime\" INTEGER NOT NULL",
+			                        tracker_property_get_name (property),
+			                        tracker_property_get_name (property));
+		}
+
 		/* multiple values */
 		if (tracker_property_get_indexed (property)) {
 			/* use different UNIQUE index for properties whose
 			 * value should be indexed to minimize index size */
 			tracker_db_interface_execute_query (iface, NULL,
-			                                    "CREATE %sTABLE \"%s_%s\" ("
-			                                    "ID INTEGER NOT NULL, "
-			                                    "\"%s\" %s NOT NULL, "
-			                                    "\"%s:graph\" INTEGER, "
+			                                    "%s, "
 			                                    "UNIQUE (\"%s\", ID))",
-			                                    transient ? "TEMPORARY " : "",
-			                                    service_name,
-			                                    field_name,
-			                                    field_name,
-			                                    sql_type,
-			                                    field_name,
+			                                    sql->str,
 			                                    field_name);
 
 			tracker_db_interface_execute_query (iface, NULL,
@@ -853,19 +869,13 @@ create_decomposed_metadata_property_table (TrackerDBInterface *iface,
 			/* we still have to include the property value in
 			 * the unique index for proper constraints */
 			tracker_db_interface_execute_query (iface, NULL,
-			                                    "CREATE %sTABLE \"%s_%s\" ("
-			                                    "ID INTEGER NOT NULL, "
-			                                    "\"%s\" %s NOT NULL, "
-			                                    "\"%s:graph\" INTEGER, "
+			                                    "%s, "
 			                                    "UNIQUE (ID, \"%s\"))",
-			                                    transient ? "TEMPORARY " : "",
-			                                    service_name,
-			                                    field_name,
-			                                    field_name,
-			                                    sql_type,
-			                                    field_name,
+			                                    sql->str,
 			                                    field_name);
 		}
+
+		g_string_free (sql, TRUE);
 	} else if (sql_type_for_single_value) {
 		*sql_type_for_single_value = sql_type;
 	}
@@ -925,6 +935,14 @@ create_decomposed_metadata_tables (TrackerDBInterface *iface,
 
 				g_string_append_printf (sql, ", \"%s:graph\" INTEGER",
 				                        tracker_property_get_name (property));
+
+				if (tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_DATETIME) {
+					/* xsd:dateTime is stored in three columns:
+					 * universal time, local date, local time of day */
+					g_string_append_printf (sql, ", \"%s:localDate\" INTEGER, \"%s:localTime\" INTEGER",
+						                tracker_property_get_name (property),
+						                tracker_property_get_name (property));
+				}
 			}
 		}
 	}
