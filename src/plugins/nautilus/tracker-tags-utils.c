@@ -188,10 +188,11 @@ tracker_tags_remove_query (const gchar *tag_label)
 
 	tag_label_escaped = tracker_tags_escape_sparql_string (tag_label);
 	query = g_strdup_printf ("DELETE { "
-				 "  ?tag a nao:Tag "
+				 "  ?tag a rdfs:Resource "
 				 "} "
 				 "WHERE {"
-				 "  ?tag nao:prefLabel %s "
+				 "  ?tag a nao:Tag ;"
+				 "  nao:prefLabel %s "
 				 "}",
 				 tag_label_escaped);
 	g_free (tag_label_escaped);

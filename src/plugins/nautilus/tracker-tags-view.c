@@ -327,7 +327,7 @@ tags_view_query_files_for_tag_id_cb (GPtrArray *result,
 
 		/* We automatically remove the tag */
 		query = g_strdup_printf ("DELETE { "
-		                         "  <%s> a nao:Tag "
+		                         "  <%s> a rdfs:Resource "
 		                         "}",
 		                         td->tag_id);
 
