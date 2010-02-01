@@ -1446,11 +1446,12 @@ tracker_miner_dbus_pause (TrackerMiner           *miner,
 	if (cookie == -1) {
 		GError *actual_error = NULL;
 
-		dbus_g_method_return_error (context, actual_error);
 		tracker_dbus_request_failed (request_id,
 		                             context,
 		                             &actual_error,
 		                             local_error ? local_error->message : NULL);
+		dbus_g_method_return_error (context, actual_error);
+
 		g_error_free (actual_error);
 		g_error_free (local_error);
 
@@ -1483,11 +1484,12 @@ tracker_miner_dbus_resume (TrackerMiner           *miner,
 	if (!tracker_miner_resume (miner, cookie, &local_error)) {
 		GError *actual_error = NULL;
 
-		dbus_g_method_return_error (context, actual_error);
 		tracker_dbus_request_failed (request_id,
 		                             context,
 		                             &actual_error,
 		                             local_error ? local_error->message : NULL);
+		dbus_g_method_return_error (context, actual_error);
+
 		g_error_free (actual_error);
 		g_error_free (local_error);
 
