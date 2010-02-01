@@ -791,6 +791,7 @@ tracker_file_unlock (GFile *file)
 gboolean
 tracker_file_is_locked (GFile *file)
 {
+	GFileInfo *file_info;
 	gboolean retval = FALSE;
 	gchar *path;
 	gint fd;
@@ -800,6 +801,24 @@ tracker_file_is_locked (GFile *file)
 	if (!g_file_is_native (file)) {
 		return FALSE;
 	}
+
+	/* Handle regular files; skip pipes and alike */
+	file_info = g_file_query_info (file,
+	                               G_FILE_ATTRIBUTE_STANDARD_TYPE,
+	                               G_FILE_QUERY_INFO_NONE,
+	                               NULL,
+	                               NULL);
+
+	if (!file_info) {
+		return FALSE;
+	}
+
+	if (g_file_info_get_file_type (file_info) != G_FILE_TYPE_REGULAR) {
+		g_object_unref (file_info);
+		return FALSE;
+	}
+
+	g_object_unref (file_info);
 
 	path = g_file_get_path (file);
 
