@@ -39,9 +39,10 @@
 
 #define MUSIC_QUERY	  \
 	"SELECT" \
-	"  ?urn ?title ?tooltip ?urn fts:rank(?urn) " \
+	"  ?uri ?title ?tooltip ?urn fts:rank(?urn) " \
 	"WHERE {" \
 	"  ?urn a nfo:Audio ;" \
+	"  nie:url ?uri ; " \
 	"  nfo:fileName ?title ;" \
 	"  nfo:belongsToContainer ?tooltip ." \
 	"  ?urn fts:match \"%s*\" " \
@@ -50,9 +51,10 @@
 	"OFFSET 0 LIMIT %d"
 #define IMAGE_QUERY	  \
 	"SELECT" \
-	"  ?urn ?title ?tooltip ?urn fts:rank(?urn) " \
+	"  ?uri ?title ?tooltip ?urn fts:rank(?urn) " \
 	"WHERE {" \
 	"  ?urn a nfo:Image ;" \
+	"  nie:url ?uri ; " \
 	"  nfo:fileName ?title ;" \
 	"  nfo:belongsToContainer ?tooltip ." \
 	"  ?urn fts:match \"%s*\" " \
@@ -61,9 +63,10 @@
 	"OFFSET 0 LIMIT %d"
 #define VIDEO_QUERY	  \
 	"SELECT" \
-	"  ?urn ?title ?tooltip ?urn fts:rank(?urn) " \
+	"  ?uri ?title ?tooltip ?urn fts:rank(?urn) " \
 	"WHERE {" \
 	"  ?urn a nmm:Video ;" \
+	"  nie:url ?uri ; " \
 	"  nfo:fileName ?title ;" \
 	"  nfo:belongsToContainer ?tooltip ." \
 	"  ?urn fts:match \"%s*\" " \
@@ -72,9 +75,10 @@
 	"OFFSET 0 LIMIT %d"
 #define DOCUMENT_QUERY	  \
 	"SELECT" \
-	"  ?urn ?title ?tooltip ?urn fts:rank(?urn) " \
+	"  ?uri ?title ?tooltip ?urn fts:rank(?urn) " \
 	"WHERE {" \
 	"  ?urn a nfo:Document ;" \
+	"  nie:url ?uri ; " \
 	"  nfo:fileName ?title ;" \
 	"  nfo:belongsToContainer ?tooltip ." \
 	"  ?urn fts:match \"%s*\" " \
@@ -83,9 +87,10 @@
 	"OFFSET 0 LIMIT %d"
 #define FOLDER_QUERY	  \
 	"SELECT" \
-	"  ?urn ?title ?tooltip ?urn fts:rank(?urn) " \
+	"  ?uri ?title ?tooltip ?urn fts:rank(?urn) " \
 	"WHERE {" \
 	"  ?urn a nfo:Folder ;" \
+	"  nie:url ?uri ; " \
 	"  nfo:fileName ?title ;" \
 	"  nfo:belongsToContainer ?tooltip ." \
 	"  ?urn fts:match \"%s*\" " \
