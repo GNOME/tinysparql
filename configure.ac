@@ -146,6 +146,7 @@ POPPLER_GLIB_REQUIRED=0.4.5
 CAIRO_REQUIRED=1.0
 GDK_REQUIRED=1.0
 LIBVORBIS_REQUIRED=0.22
+LIBFLAC_REQUIRED=1.2.1
 LIBEXIF_REQUIRED=0.6
 LIBGSF_REQUIRED=1.13
 EXEMPI_REQUIRED=2.1.0
@@ -1301,6 +1302,38 @@ fi
 AM_CONDITIONAL(HAVE_LIBVORBIS, test "x$have_libvorbis" = "xyes")
 
 ####################################################################
+# Check for flac
+####################################################################
+
+AC_ARG_ENABLE(libflac,
+	      AS_HELP_STRING([--enable-libflac],
+			     [enable extractor for flac data [[default=auto]]]),,
+	      [enable_libflac=auto])
+
+if test "x$enable_libflac" != "xno" ; then
+   PKG_CHECK_MODULES(LIBFLAC,
+		     [flac >= $LIBFLAC_REQUIRED],
+		     [have_libflac=yes],
+		     [have_libflac=no])
+   AC_SUBST(LIBFLAC_CFLAGS)
+   AC_SUBST(LIBFLAC_LIBS)
+
+   if test "x$have_libflac" = "xyes"; then
+      AC_DEFINE(HAVE_LIBFLAC, [], [Define if we have libflac])
+   fi
+else
+   have_libflac="no  (disabled)"
+fi
+
+if test "x$enable_libflac" = "xyes"; then
+   if test "x$have_libflac" != "xyes"; then
+      AC_MSG_ERROR([Couldn't find libflac >= $LIBFLAC_REQUIRED.])
+   fi
+fi
+
+AM_CONDITIONAL(HAVE_LIBFLAC, test "x$have_libflac" = "xyes")
+
+####################################################################
 # Check ioprio support
 ####################################################################
 
@@ -1720,6 +1753,7 @@ Metadata Extractors:
 	Support JPEG:				$have_libjpeg (xmp: $have_exempi, exif: $have_libexif, iptc: $have_libiptcdata)
 	Support TIFF:				$have_libtiff (xmp: $have_exempi, exif: yes, iptc: $have_libiptcdata)
 	Support Vorbis (ogg/etc):		$have_libvorbis
+	Support Flac:                           $have_libflac
 	Support MS & Open Office:	        $have_libgsf
 	Support XML / HTML:		        $have_libxml2
 	Support embedded / sidecar XMP:		$have_exempi

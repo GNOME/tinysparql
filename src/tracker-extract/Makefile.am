@@ -45,6 +45,10 @@ if HAVE_LIBVORBIS
 modules_LTLIBRARIES += libextract-vorbis.la
 endif
 
+if HAVE_LIBFLAC
+modules_LTLIBRARIES += libextract-flac.la
+endif
+
 if HAVE_EXEMPI
 modules_LTLIBRARIES += libextract-xmp.la
 endif
@@ -121,6 +125,14 @@ libextract_vorbis_la_SOURCES = tracker-extract-vorbis.c $(escape_sources)
 libextract_vorbis_la_LDFLAGS = $(module_flags)
 libextract_vorbis_la_LIBADD = 						\
 	$(LIBVORBIS_LIBS)						\
+	$(GLIB2_LIBS)							\
+	$(GCOV_LIBS)
+
+# Flac
+libextract_flac_la_SOURCES = tracker-extract-flac.c $(escape_sources)
+libextract_flac_la_LDFLAGS = $(module_flags)
+libextract_flac_la_LIBADD =						\
+	$(LIBFLAC_LIBS)							\
 	$(GLIB2_LIBS)							\
 	$(GCOV_LIBS)
 
