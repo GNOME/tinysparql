@@ -127,6 +127,7 @@ menu_tags_activate_cb (NautilusMenuItem *menu_item,
 	                                      GTK_DIALOG_DESTROY_WITH_PARENT | 
 	                                      GTK_DIALOG_NO_SEPARATOR,
 	                                      GTK_STOCK_CLOSE,
+	                                      GTK_RESPONSE_CLOSE,
 	                                      NULL);
 	gtk_container_set_border_width (GTK_CONTAINER (dialog), 5);
 	gtk_window_set_default_size (GTK_WINDOW (dialog), 250, 375);
