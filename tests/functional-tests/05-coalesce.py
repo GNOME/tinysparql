@@ -59,7 +59,7 @@ class TestCoalesce (unittest.TestCase):
     def test_coalesce_first_fine (self):
         """
         setUp: Insert a contact with only some text properties set
-        1. TEST: run a query with coalesce with the valid value in different positions
+        1. TEST: run a query with coalesce with the valid value in first position
         tearDown: Remove the test contact inserted
         """
 
@@ -73,13 +73,14 @@ class TestCoalesce (unittest.TestCase):
         }
         """ 
         results = self.resources.SparqlQuery (query)
+        assert len (results) == 1
         assert results[0][0] == "full name"
 
 
     def test_coalesce_second_fine (self):
         """
         setUp: Insert a contact with only some text properties set
-        1. TEST: run a query with coalesce with the valid value in different positions
+        1. TEST: run a query with coalesce. First property NULL, second fine
         tearDown: Remove the test contact inserted
         """
 
@@ -93,13 +94,14 @@ class TestCoalesce (unittest.TestCase):
         }
         """ 
         results = self.resources.SparqlQuery (query)
+        assert len (results) == 1
         assert results[0][0] == "family name"
 
 
     def test_coalesce_none_fine_default (self):
         """
         setUp: Insert a contact with only some text properties set
-        1. TEST: run a query with coalesce with the valid value in different positions
+        1. TEST: run a query with coalesce. all variables NULL, return default value
         tearDown: Remove the test contact inserted
         """
 
@@ -113,6 +115,7 @@ class TestCoalesce (unittest.TestCase):
         }
         """ 
         results = self.resources.SparqlQuery (query)
+        assert len (results) == 1
         assert results[0][0] == "test_coalesce"
         
 
