@@ -1418,7 +1418,7 @@ process_file_cb (GObject      *object,
 
 	/* Laying the link between the IE and the DO. We use IE = DO */
 	tracker_sparql_builder_predicate (sparql, "nie:isStoredAs");
-	tracker_sparql_builder_object_iri (sparql, uri);
+	tracker_sparql_builder_object (sparql, "_:foo");
 
 	/* The URL of the DataObject (because IE = DO, this is correct) */
 	tracker_sparql_builder_predicate (sparql, "nie:url");
