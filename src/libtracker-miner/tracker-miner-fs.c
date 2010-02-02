@@ -1386,13 +1386,24 @@ item_move (TrackerMinerFS *fs,
 
 	sparql = g_string_new ("");
 
+	/* Delete destination item from store if any */
+	g_string_append_printf (sparql,
+				"DELETE { "
+	                        "  ?urn a rdfs:Resource "
+	                        "} WHERE {"
+	                        "  ?urn nie:url \"%s\" "
+				"}",
+				uri);
+
 	g_string_append_printf (sparql,
 	                        "DELETE FROM <%s> { "
 	                        "  <%s> nfo:fileName ?f ; "
-	                        "       nie:url ?u "
+	                        "       nie:url ?u ; "
+	                        "       nie:isStoredAs ?s "
 	                        "} WHERE { "
 	                        "  <%s> nfo:fileName ?f ; "
-	                        "       nie:url ?u "
+	                        "       nie:url ?u ; "
+	                        "       nie:isStoredAs ?s "
 	                        "} ",
 	                        source_iri, source_iri, source_iri);
 
@@ -1401,10 +1412,12 @@ item_move (TrackerMinerFS *fs,
 	g_string_append_printf (sparql,
 	                        "INSERT INTO <%s> {"
 	                        "  <%s> nfo:fileName '%s' ; "
-	                        "       nie:url '%s' "
+	                        "       nie:url '%s' ; "
+	                        "       nie:isStoredAs <%s> "
 	                        "} ",
 	                        source_iri, source_iri,
-	                        escaped_filename, uri);
+	                        escaped_filename, uri,
+	                        source_iri);
 
 	g_free (escaped_filename);
 
