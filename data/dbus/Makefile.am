@@ -11,7 +11,7 @@ config_DATA =							\
 	tracker-statistics.xml					\
 	tracker-writeback.xml
 
-config_noinst =
+config_noinst = 						\
 	tracker-miner-files-reindex.xml
 
 # Services
