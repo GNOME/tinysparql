@@ -21,6 +21,8 @@
 
 #include <libtracker-common/tracker-dbus.h>
 #include <libtracker-common/tracker-file-utils.h>
+#include <libtracker-common/tracker-log.h>
+#include <libtracker-common/tracker-utils.h>
 
 #include "tracker-crawler.h"
 #include "tracker-marshal.h"
@@ -1509,7 +1511,9 @@ item_queue_get_next_file (TrackerMinerFS  *fs,
 }
 
 static gdouble
-item_queue_get_progress (TrackerMinerFS *fs)
+item_queue_get_progress (TrackerMinerFS *fs,
+                         guint          *n_items_processed,
+                         guint          *n_items_remaining)
 {
 	guint items_to_process = 0;
 	guint items_total = 0;
@@ -1521,6 +1525,14 @@ item_queue_get_progress (TrackerMinerFS *fs)
 
 	items_total += fs->private->total_directories_found;
 	items_total += fs->private->total_files_found;
+
+	if (n_items_processed) {
+		*n_items_processed = items_total - items_to_process;
+	}
+
+	if (n_items_remaining) {
+		*n_items_remaining = items_to_process;
+	}
 
 	if (items_to_process == 0 && items_total > 0) {
 		return 0.0;
@@ -1566,8 +1578,42 @@ item_queue_handlers_cb (gpointer user_data)
 	g_get_current_time (&time_now);
 
 	if ((time_now.tv_sec - time_last.tv_sec) >= 1) {
+		guint items_processed, items_remaining;
+		gdouble progress_now;
+		static gdouble progress_last = 0.0;
+
 		time_last = time_now;
-		g_object_set (fs, "progress", item_queue_get_progress (fs), NULL);
+
+		/* Update progress */
+		progress_now = item_queue_get_progress (fs,
+		                                        &items_processed,
+		                                        &items_remaining);
+		g_object_set (fs, "progress", progress_now, NULL);
+
+		/* Only log estimated remaining time on each 1% change */
+		if ((gint) (progress_last * 100) != (gint) (progress_now * 100)) {
+			gchar *str1, *str2;
+			gdouble seconds_elapsed;
+
+			progress_last = progress_now;
+
+			/* Log estimated remaining time */
+			seconds_elapsed = g_timer_elapsed (fs->private->timer, NULL);
+			str1 = tracker_seconds_estimate_to_string (seconds_elapsed,
+			                                           TRUE,
+			                                           items_processed,
+			                                           items_remaining);
+			str2 = tracker_seconds_to_string (seconds_elapsed, TRUE);
+
+			tracker_info ("Processed %d/%d, estimated %s left, %s elapsed",
+			              items_processed,
+			              items_processed + items_remaining,
+			              str1,
+			              str2);
+
+			g_free (str2);
+			g_free (str1);
+		}
 	}
 
 	/* Handle queues */
