@@ -93,6 +93,13 @@ mfo:remoteLink a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:range nfo:RemoteDataObject .
 
+mfo:groupDefault a rdf:Property ;
+        rdfs:label "Default in group";
+        rdfs:comment "Different enclosures can represent the same resource in different formats/resolutions. This representations are grouped using the nie:identifier property and this property identify the default between them.";
+        rdfs:domain mfo:Enclosure ;
+        nrl:maxCardinality 1 ;
+        rdfs:range xsd:boolean .
+
 mfo:localLink a rdf:Property ;
 	rdfs:label "Local link" ;
 	rdfs:comment "Downloaded copy of the enclosure" ;
