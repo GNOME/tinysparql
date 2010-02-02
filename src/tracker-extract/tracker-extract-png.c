@@ -157,7 +157,7 @@ read_metadata (png_structp png_ptr, png_infop info_ptr, const gchar *uri, Tracke
 				 * multiple times, keep it that way as here it's
 				 * theoretically possible that the function gets
 				 * called multiple times */
-printf ("--\n%s\n--",text_ptr[i].text);
+
 				tracker_xmp_read (text_ptr[i].text,
 				                  text_ptr[i].itxt_length,
 				                  uri, &xmp_data);
