@@ -337,6 +337,10 @@ tracker_exif_read (const unsigned char *buffer,
                    const gchar         *uri,
                    TrackerExifData     *data)
 {
+#ifdef HAVE_LIBEXIF
+	ExifData *exif;
+#endif
+
 	g_return_val_if_fail (buffer != NULL, FALSE);
 	g_return_val_if_fail (len > 0, FALSE);
 	g_return_val_if_fail (uri != NULL, FALSE);
@@ -345,7 +349,6 @@ tracker_exif_read (const unsigned char *buffer,
 	memset (data, 0, sizeof (TrackerExifData));
 
 #ifdef HAVE_LIBEXIF
-	ExifData *exif;
 
 	exif = exif_data_new ();
 
@@ -400,6 +403,9 @@ tracker_exif_read (const unsigned char *buffer,
 		data->white_balance = get_white_balance (exif, EXIF_TAG_WHITE_BALANCE);
 	if (!data->copyright)
 		data->copyright = get_value (exif, EXIF_TAG_COPYRIGHT);
+	if (!data->software)
+		data->software = get_value (exif, EXIF_TAG_SOFTWARE);
+
 
 	exif_data_free (exif);
 #endif /* HAVE_LIBEXIF */

@@ -358,6 +358,8 @@ extract_tiff (const gchar *uri, TrackerSparqlBuilder *metadata)
 				exif_data.focal_length = get_value (image, EXIFTAG_DATETIMEORIGINAL, TIFF_TAGTYPE_DOUBLE);
 			if (!exif_data.white_balance)
 				exif_data.white_balance = get_white_balance (image);
+			/* if (!exif_data.software)
+				exif_data.software = get_value (image, EXIFTAG_SOFTWARE, TIFF_TAGTYPE_STRING); */
 		}
 	}
 
@@ -551,6 +553,12 @@ extract_tiff (const gchar *uri, TrackerSparqlBuilder *metadata)
 		tracker_sparql_builder_predicate (metadata, "dc:coverage");
 		tracker_sparql_builder_object_unvalidated (metadata, xmp_data.coverage);
 		g_free (xmp_data.coverage);
+	}
+
+	if (xmp_data.rating) {
+		tracker_sparql_builder_predicate (metadata, "nao:numericRating");
+		tracker_sparql_builder_object_unvalidated (metadata, xmp_data.rating);
+		g_free (xmp_data.rating);
 	}
 
 	if (xmp_data.license) {

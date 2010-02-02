@@ -326,6 +326,9 @@ extract_jpeg (const gchar          *uri,
 		tracker_sparql_builder_object_int64 (metadata, cinfo.image_width);
 		g_free (ed.x_dimension);
 
+		/* TODO: add ontology and store this */
+		g_free (ed.software);
+
 		tracker_sparql_builder_predicate (metadata, "nfo:height");
 		tracker_sparql_builder_object_int64 (metadata, cinfo.image_height);
 		g_free (ed.y_dimension);
@@ -371,6 +374,12 @@ extract_jpeg (const gchar          *uri,
 			tracker_sparql_builder_predicate (metadata, "dc:type");
 			tracker_sparql_builder_object_unvalidated (metadata, xd.type);
 			g_free (xd.type);
+		}
+
+		if (xd.rating) {
+			tracker_sparql_builder_predicate (metadata, "nao:numericRating");
+			tracker_sparql_builder_object_unvalidated (metadata, xd.rating);
+			g_free (xd.rating);
 		}
 
 		if (xd.format) {

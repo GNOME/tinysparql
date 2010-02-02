@@ -72,6 +72,8 @@ typedef struct {
 	gchar *copyright;
 
 	/* TODO NS_XAP*/
+	gchar *rating;
+
 	/* TODO NS_IPTC4XMP */
 	/* TODO NS_PHOTOSHOP */
 	gchar *address;

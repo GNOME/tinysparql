@@ -268,7 +268,7 @@ iterate_simple (const gchar    *uri,
 			data->time_original = g_strdup (value);
 		} else if (!data->artist && g_ascii_strcasecmp (name, "Artist") == 0) {
 			data->artist = g_strdup (value);
-			/* } else if (g_ascii_strcasecmp (name, "Software") == 0) {
+		/* } else if (g_ascii_strcasecmp (name, "Software") == 0) {
 			   tracker_statement_list_insert (metadata, uri,
 			   "Image:Software", value);*/
 		} else if (!data->make && g_ascii_strcasecmp (name, "Make") == 0) {
@@ -281,7 +281,7 @@ iterate_simple (const gchar    *uri,
 			data->flash = g_strdup (fix_flash (value));
 		} else if (!data->metering_mode && g_ascii_strcasecmp (name, "MeteringMode") == 0) {
 			data->metering_mode = g_strdup (fix_metering_mode (value));
-			/* } else if (g_ascii_strcasecmp (name, "ExposureProgram") == 0) {
+		/* } else if (g_ascii_strcasecmp (name, "ExposureProgram") == 0) {
 			   tracker_statement_list_insert (metadata, uri,
 			   "Image:ExposureProgram", value);*/
 		} else if (!data->exposure_time && g_ascii_strcasecmp (name, "ExposureTime") == 0) {
@@ -350,7 +350,7 @@ iterate_simple (const gchar    *uri,
 		 * used sanely */
 
 		/* Photoshop TODO: is this needed anyway? */
-	} else if (g_ascii_strcasecmp (schema,  NS_PHOTOSHOP) == 0) {
+	} else if (g_ascii_strcasecmp (schema, NS_PHOTOSHOP) == 0) {
 		if (!data->city && g_ascii_strcasecmp (name, "City") == 0) {
 			data->city = g_strdup (value);
 		} else if (!data->country && g_ascii_strcasecmp (name, "Country") == 0) {
@@ -361,7 +361,7 @@ iterate_simple (const gchar    *uri,
 			data->address = g_strdup (value);
 		}
 		/* IPTC4XMP scheme - GeoClue / location stuff, TODO */
-	} else if (g_ascii_strcasecmp (schema,  NS_IPTC4XMP) == 0) {
+	} else if (g_ascii_strcasecmp (schema, NS_IPTC4XMP) == 0) {
 		if (!data->city && g_ascii_strcasecmp (name, "City") == 0) {
 			data->city = g_strdup (value);
 		} else if (!data->country && g_ascii_strcasecmp (name, "Country") == 0) {
@@ -377,20 +377,12 @@ iterate_simple (const gchar    *uri,
 		} else if (!data->address && g_ascii_strcasecmp (name, "Sublocation") == 0) {
 			data->address = g_strdup (value);
 		}
-	} 
-	/* else
-	 * XAP (XMP)scheme *
-	 if (g_ascii_strcasecmp (schema, NS_XAP) == 0) {
-	 if (g_ascii_strcasecmp (name, "Rating") == 0) {
-	 tracker_statement_list_insert (metadata, uri,
-	 "Image:Rating", value);
-	 }
-	 if (g_ascii_strcasecmp (name, "MetadataDate") == 0) {
-	 tracker_statement_list_insert (metadata, uri,
-	 "Image:Date", value);
-	 }
-	 } else
-	*/
+	} else if (g_ascii_strcasecmp (schema, NS_XAP) == 0) {
+		if (!data->rating && g_ascii_strcasecmp (name, "Rating") == 0) {
+			data->rating = g_strdup (value);
+		}
+	}
+
 
 	g_free (name);
 }

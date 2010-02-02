@@ -315,6 +315,9 @@ read_metadata (png_structp png_ptr, png_infop info_ptr, const gchar *uri, Tracke
 			g_free (merge_data.license);
 		}
 
+		/* TODO: add ontology and store this */
+		g_free (exif_data.software);
+
 		g_free (exif_data.x_dimension);
 		g_free (exif_data.y_dimension);
 		g_free (exif_data.image_width);
@@ -432,6 +435,12 @@ read_metadata (png_structp png_ptr, png_infop info_ptr, const gchar *uri, Tracke
 		if (xmp_data.pdf_keywords) {
 			insert_keywords (metadata, uri, xmp_data.pdf_keywords);
 			g_free (xmp_data.pdf_keywords);
+		}
+
+		if (xmp_data.rating) {
+			tracker_sparql_builder_predicate (metadata, "nao:numericRating");
+			tracker_sparql_builder_object_unvalidated (metadata, xmp_data.rating);
+			g_free (xmp_data.rating);
 		}
 
 		if (xmp_data.subject) {

@@ -47,6 +47,7 @@ typedef struct {
 	gchar *metering_mode;
 	gchar *white_balance;
 	gchar *copyright;
+	gchar *software;
 } TrackerExifData;
 
 gboolean tracker_exif_read (const unsigned char *buffer,
