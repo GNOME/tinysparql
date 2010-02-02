@@ -458,6 +458,7 @@ extract_metadata (MetadataExtractor      *extractor,
 
 	if (extractor->tagcache) {
 		gchar *performer_uri = NULL;
+		gchar *composer_uri = NULL;
 		gchar *album_uri = NULL;
 
 		if (extractor->mime == EXTRACT_MIME_3GPP) {
@@ -502,23 +503,15 @@ extract_metadata (MetadataExtractor      *extractor,
 			gst_tag_list_get_string (extractor->tagcache, GST_TAG_COMPOSER, &s);
 
 			if (s) {
-				gchar *canonical_uri = tracker_uri_printf_escaped ("urn:artist:%s", s);
+				composer_uri = tracker_uri_printf_escaped ("urn:artist:%s", s);
 
-				tracker_sparql_builder_subject_iri (metadata, canonical_uri);
+				tracker_sparql_builder_subject_iri (metadata, composer_uri);
 				tracker_sparql_builder_predicate (metadata, "a");
 				tracker_sparql_builder_object (metadata, "nmm:Artist");
 
-				/*
-				if (extractor->mime == EXTRACT_MIME_AUDIO) {
-					tracker_sparql_builder_object (metadata, "nmm:composer");
-				} else {
-					tracker_sparql_builder_object (metadata, "nmm:director");
-				}
-				*/
 				tracker_sparql_builder_predicate (metadata, "nmm:artistName");
 				tracker_sparql_builder_object_unvalidated (metadata, s);
 
-				g_free (canonical_uri);
 				g_free (s);
 			}
 
@@ -574,7 +567,11 @@ extract_metadata (MetadataExtractor      *extractor,
 			if (performer_uri) {
 				tracker_sparql_builder_predicate (metadata, "nmm:leadActor");
 				tracker_sparql_builder_object_iri (metadata, performer_uri);
-				g_free (performer_uri);
+			}
+
+			if (composer_uri) {
+				tracker_sparql_builder_predicate (metadata, "nmm:director");
+				tracker_sparql_builder_object_iri (metadata, composer_uri);
 			}
 		}
 
@@ -595,15 +592,22 @@ extract_metadata (MetadataExtractor      *extractor,
 			if (performer_uri) {
 				tracker_sparql_builder_predicate (metadata, "nmm:performer");
 				tracker_sparql_builder_object_iri (metadata, performer_uri);
-				g_free (performer_uri);
+			}
+
+			if (composer_uri) {
+				tracker_sparql_builder_predicate (metadata, "nmm:composer");
+				tracker_sparql_builder_object_iri (metadata, composer_uri);
 			}
 
 			if (album_uri) {
 				tracker_sparql_builder_predicate (metadata, "nmm:musicAlbum");
 				tracker_sparql_builder_object_iri (metadata, album_uri);
-				g_free (album_uri);
 			}
 		}
+
+		g_free (performer_uri);
+		g_free (composer_uri);
+		g_free (album_uri);
 
 		add_string_gst_tag (metadata, uri, "nfo:codec", extractor->tagcache, GST_TAG_AUDIO_CODEC);
 	}
