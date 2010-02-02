@@ -1260,20 +1260,25 @@ item_update_uri_recursively_cb (GObject      *object,
 			gint i;
 
 			for (i = 0; i < query_results->len; i++) {
-				gchar **child_source_uri, *child_uri;
+				GStrv row;
+				gchar *child_source_uri, *child_uri, *child_mime;
 
-				child_source_uri = g_ptr_array_index (query_results, i);
+				row = g_ptr_array_index (query_results, i);
+				child_source_uri = row[0];
+				child_mime = row[1];
 
-				if (!g_str_has_prefix (*child_source_uri, data->source_uri)) {
+				if (!g_str_has_prefix (child_source_uri, data->source_uri)) {
 					g_warning ("Child URI '%s' does not start with parent URI '%s'",
-					           *child_source_uri,
+					           child_source_uri,
 					           data->source_uri);
 					continue;
 				}
 
-				child_uri = g_strdup_printf ("%s%s", data->uri, *child_source_uri + strlen (data->source_uri));
+				child_uri = g_strdup_printf ("%s%s", data->uri, child_source_uri + strlen (data->source_uri));
 
-				item_update_uri_recursively (fs, data, *child_source_uri, child_uri);
+				tracker_thumbnailer_move_add (child_source_uri, child_mime, child_uri);
+
+				item_update_uri_recursively (fs, data, child_source_uri, child_uri);
 
 				g_free (child_uri);
 			}
@@ -1307,11 +1312,12 @@ item_update_uri_recursively (TrackerMinerFS    *fs,
 	                        "} ",
 	                        uri, source_uri);
 
-	sparql = g_strdup_printf ("SELECT ?child WHERE { "
+	sparql = g_strdup_printf ("SELECT ?child ?m WHERE { "
 	                          "  ?child nfo:belongsToContainer ?c . "
-	                          "  ?c nie:url '%s' "
+	                          "  ?c nie:url '%s' . "
+	                          "  OPTIONAL { ?child nie:mimeType ?m } "
 	                          "}",
-                                  source_uri);
+	                          source_uri);
 
 	tracker_miner_execute_sparql (TRACKER_MINER (fs),
 	                              sparql,
@@ -1371,10 +1377,6 @@ item_move (TrackerMinerFS *fs,
 	g_debug ("Moving item from '%s' to '%s'",
 	         source_uri,
 	         uri);
-
-	/* TODO: Perhaps we should move this to item_update_uri_recursively, and 
-	 * that way support a directory being renamed too? I'm reluctant to add
-	 * a file_info lookup to each kid in a (sub)directory, though */
 
 	tracker_thumbnailer_move_add (source_uri, 
 	                              g_file_info_get_content_type (file_info),
