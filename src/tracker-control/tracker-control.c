@@ -422,6 +422,13 @@ main (int argc, char **argv)
 		manager = tracker_miner_manager_new ();
 		miners = tracker_miner_manager_get_available (manager);
 
+		if (hard_reset || soft_reset) {
+			g_print ("%s\n", _("Waiting one second before starting miners…"));
+
+			/* Give a second's grace to avoid race conditions */
+			g_usleep (G_USEC_PER_SEC);
+		}
+
 		g_print ("%s\n", _("Starting miners…"));
 
 		/* Get the status of all miners, this will start all
