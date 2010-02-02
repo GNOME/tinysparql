@@ -1290,7 +1290,7 @@ tracker_search_metadata_by_text_async (TrackerClient     *client,
 	call = org_freedesktop_Tracker1_Resources_sparql_query_async (private->proxy_resources,
 	                                                              sparql->str,
 	                                                              callback_with_array,
-	                                                              callback);
+	                                                              cb);
 	cb->id = pending_call_new (client, private->proxy_resources, call);
 
  	g_string_free (sparql, TRUE);
@@ -1348,7 +1348,7 @@ tracker_search_metadata_by_text_and_location_async (TrackerClient     *client,
 	call = org_freedesktop_Tracker1_Resources_sparql_query_async (private->proxy_resources,
 	                                                              sparql->str,
 	                                                              callback_with_array,
-	                                                              callback);
+	                                                              cb);
 
 	cb->id = pending_call_new (client, private->proxy_resources, call);
 
@@ -1496,7 +1496,7 @@ tracker_search_metadata_by_text_and_mime_and_location_async (TrackerClient      
 	call = org_freedesktop_Tracker1_Resources_sparql_query_async (private->proxy_resources,
 	                                                              sparql->str,
 	                                                              callback_with_array,
-	                                                              callback);
+	                                                              cb);
 
 	cb->id = pending_call_new (client, private->proxy_resources, call);
 
