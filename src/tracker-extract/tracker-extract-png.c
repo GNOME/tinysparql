@@ -168,9 +168,11 @@ read_metadata (png_structp png_ptr, png_infop info_ptr, const gchar *uri, Tracke
 
 #if defined(HAVE_LIBEXIF) && defined(PNG_iTXt_SUPPORTED)
 
-			/* TODO: I'm not certain this is the key for EXIF */
+			/* I'm not certain this is the key for EXIF. Using key according to
+			 * this document about exiftool:
+			 * http://www.sno.phy.queensu.ca/~phil/exiftool/TagNames/PNG.html#TextualData */
 
-			if (g_strcmp0 ("EXIF", text_ptr[i].key) == 0) {
+			if (g_strcmp0 ("Raw profile type exif", text_ptr[i].key) == 0) {
 				tracker_exif_read (text_ptr[i].text,
 				                   text_ptr[i].itxt_length, 
 				                   uri, &exif_data);
