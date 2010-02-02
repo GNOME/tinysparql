@@ -351,7 +351,7 @@ iterate_simple (const gchar    *uri,
 
 		/* Photoshop TODO: is this needed anyway? */
 	} else if (g_ascii_strcasecmp (schema,  NS_PHOTOSHOP) == 0) {
-		if (data->city && g_ascii_strcasecmp (name, "City") == 0) {
+		if (!data->city && g_ascii_strcasecmp (name, "City") == 0) {
 			data->city = g_strdup (value);
 		} else if (!data->country && g_ascii_strcasecmp (name, "Country") == 0) {
 			data->country = g_strdup (value);
