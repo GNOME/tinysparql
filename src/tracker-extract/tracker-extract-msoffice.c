@@ -784,11 +784,8 @@ extract_msword_content (GsfInfile *infile,
 		}
 	}
 
-	g_free (clx);
-
 	/* iterate over pieces and save text to the content -variable */
 	for (i = 0; i < piece_count; i++) {
-
 		/* logical position of the text piece in the document_stream */
 		piece_start = read_32bit (piece_table+(i*4));
 		piece_end = read_32bit (piece_table+((i+1)*4));
@@ -859,6 +856,7 @@ extract_msword_content (GsfInfile *infile,
 
 	g_object_unref (document_stream);
 	g_object_unref (table_stream);
+	g_free (clx);
 
 	if (content) {
 		normalized = tracker_text_normalize (content->str, n_words, NULL);
