@@ -93,7 +93,7 @@
                     <property name="spacing">6</property>
                     <child>
                       <object class="GtkButton" id="back">
-                        <property name="label" translatable="yes">gtk-go-back</property>
+                        <property name="label">gtk-go-back</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
@@ -109,7 +109,7 @@
                     </child>
                     <child>
                       <object class="GtkButton" id="forward">
-                        <property name="label" translatable="yes">gtk-go-forward</property>
+                        <property name="label">gtk-go-forward</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>

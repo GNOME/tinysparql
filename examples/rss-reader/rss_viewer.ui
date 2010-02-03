@@ -84,7 +84,7 @@
             <property name="visible">True</property>
             <child>
               <object class="GtkButton" id="button_toggle">
-                <property name="label" translatable="yes">gtk-refresh</property>
+                <property name="label">gtk-refresh</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
