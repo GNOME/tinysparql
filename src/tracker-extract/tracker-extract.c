@@ -239,6 +239,9 @@ get_file_metadata (TrackerExtract         *extract,
 		if (tracker_sparql_builder_get_length (statements) > 0) {
 			g_free (content_type);
 			tracker_sparql_builder_insert_close (statements);
+
+			*preupdate_out = preupdate;
+			*statements_out = statements;
 			return TRUE;
 		}
 	} else {
