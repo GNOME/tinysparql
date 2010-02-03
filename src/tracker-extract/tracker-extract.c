@@ -526,7 +526,9 @@ tracker_extract_get_metadata (TrackerExtract         *object,
 		} else {
 			dbus_g_method_return (context, "", "");
 		}
+
 		g_object_unref (sparql);
+		g_object_unref (preupdate);
 	} else {
 		GError *actual_error = NULL;
 
