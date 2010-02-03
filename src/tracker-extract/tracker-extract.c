@@ -223,6 +223,9 @@ get_file_metadata (TrackerExtract         *extract,
 
 	priv = TRACKER_EXTRACT_GET_PRIVATE (extract);
 
+	*preupdate_out = NULL;
+	*statements_out = NULL;
+
 	/* Create sparql builders to send back */
 	preupdate = tracker_sparql_builder_new_update ();
 	statements = tracker_sparql_builder_new_embedded_insert ();
