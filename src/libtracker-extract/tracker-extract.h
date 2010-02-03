@@ -103,7 +103,7 @@ G_BEGIN_DECLS
  * Extracts metadata from a file, and inserts it into @metadata.
  *
  * The @metadata parameter is a #TrackerSparqlBuilder constructed
- * through tracker_sparql_builder_new_embedded_insert(), The subject
+ * through tracker_sparql_builder_new_embedded_insert(), the subject
  * is already set to be the file URN, so implementations of this
  * function should just provide predicate/object(s) pairs. the data
  * triples contained in there at the end of the function will be
