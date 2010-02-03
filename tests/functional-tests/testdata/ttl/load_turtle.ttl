@@ -1,0 +1,609 @@
+@prefix nco:   <http://www.semanticdesktop.org/ontologies/2007/03/22/nco#>.
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#>.
+@prefix nrl:   <http://www.semanticdesktop.org/ontologies/2007/08/15/nrl#>.
+@prefix nid3:   <http://www.semanticdesktop.org/ontologies/2007/05/10/nid3#>.
+@prefix nao:   <http://www.semanticdesktop.org/ontologies/2007/08/15/nao#>.
+@prefix nfo:   <http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#>.
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#>.
+<urn:uuid:7646713> a nco:Contact; 
+	nco:fullname "Artist_1".
+<file:///media/PIKKUTIKKU/5000_songs_with_metadata_and_album_arts/Artist_1/1_Album/10_song.mp3> a nid3:ID3Audio,nfo:FileDataObject;
+	nfo:fileName "10_song.mp3";
+	nfo:fileLastModified "2008-10-23T13:47:02" ;
+	nfo:fileCreated "2008-12-16T12:41:20";
+	nfo:fileSize 17630;
+	nid3:albumTitle "1_Album";
+	nid3:title "10_song";
+	nid3:trackNumber "10";
+	nid3:contentType "Classic Rock";
+	nid3:length 219252;
+	nid3:leadArtist <urn:uuid:7646713>.
+
+<file:///media/PIKKUTIKKU/5000_songs_with_metadata_and_album_arts/Artist_1/1_Album/1_song.mp3> a nid3:ID3Audio,nfo:FileDataObject;
+	nfo:fileName "1_song.mp3";
+	nfo:fileLastModified "2008-10-23T13:47:02" ;
+	nfo:fileCreated "2008-12-16T12:41:20";
+	nfo:fileSize 17212;
+	nid3:albumTitle "1_Album";
+	nid3:title "1_song";
+	nid3:trackNumber "1";
+	nid3:contentType "Classic Rock";
+	nid3:length 1722175;
+	nid3:leadArtist <urn:uuid:7646713>.
+
+<file:///media/PIKKUTIKKU/5000_songs_with_metadata_and_album_arts/Artist_1/1_Album/2_song.mp3> a nid3:ID3Audio,nfo:FileDataObject;
+	nfo:fileName "2_song.mp3";
+	nfo:fileLastModified "2008-10-23T13:47:02" ;
+	nfo:fileCreated "2008-12-16T12:41:20";
+	nfo:fileSize 17525;
+	nid3:albumTitle "1_Album";
+	nid3:title "2_song";
+	nid3:trackNumber "2";
+	nid3:contentType "Classic Rock";
+	nid3:length 311331;
+	nid3:leadArtist <urn:uuid:7646713>.
+
+<file:///media/PIKKUTIKKU/5000_songs_with_metadata_and_album_arts/Artist_1/1_Album/3_song.mp3> a nid3:ID3Audio,nfo:FileDataObject;
+	nfo:fileName "3_song.mp3";
+	nfo:fileLastModified "2008-10-23T13:47:02" ;
+	nfo:fileCreated "2008-12-16T12:41:20";
+	nfo:fileSize 17839;
+	nid3:albumTitle "1_Album";
+	nid3:title "3_song";
+	nid3:trackNumber "3";
+	nid3:contentType "Classic Rock";
+	nid3:length 4118218;
+	nid3:leadArtist <urn:uuid:7646713>.
+
+<file:///media/PIKKUTIKKU/5000_songs_with_metadata_and_album_arts/Artist_1/1_Album/4_song.mp3> a nid3:ID3Audio,nfo:FileDataObject;
+	nfo:fileName "4_song.mp3";
+	nfo:fileLastModified "2008-10-23T13:47:02" ;
+	nfo:fileCreated "2008-12-16T12:41:20";
+	nfo:fileSize 17630;
+	nid3:albumTitle "1_Album";
+	nid3:title "4_song";
+	nid3:trackNumber "4";
+	nid3:contentType "Classic Rock";
+	nid3:length 3220891;
+	nid3:leadArtist <urn:uuid:7646713>.
+
+<file:///media/PIKKUTIKKU/5000_songs_with_metadata_and_album_arts/Artist_1/1_Album/5_song.mp3> a nid3:ID3Audio,nfo:FileDataObject;
+	nfo:fileName "5_song.mp3";
+	nfo:fileLastModified "2008-10-23T13:47:02" ;
+	nfo:fileCreated "2008-12-16T12:41:20";
+	nfo:fileSize 17839;
+	nid3:albumTitle "1_Album";
+	nid3:title "5_song";
+	nid3:trackNumber "5";
+	nid3:contentType "Classic Rock";
+	nid3:length 4990542;
+	nid3:leadArtist <urn:uuid:7646713>.
+
+<file:///media/PIKKUTIKKU/5000_songs_with_metadata_and_album_arts/Artist_1/1_Album/6_song.mp3> a nid3:ID3Audio,nfo:FileDataObject;
+	nfo:fileName "6_song.mp3";
+	nfo:fileLastModified "2008-10-23T13:47:02" ;
+	nfo:fileCreated "2008-12-16T12:41:20";
+	nfo:fileSize 18048;
+	nid3:albumTitle "1_Album";
+	nid3:title "6_song";
+	nid3:trackNumber "6";
+	nid3:contentType "Classic Rock";
+	nid3:length 2682297;
+	nid3:leadArtist <urn:uuid:7646713>.
+
+<file:///media/PIKKUTIKKU/5000_songs_with_metadata_and_album_arts/Artist_1/1_Album/7_song.mp3> a nid3:ID3Audio,nfo:FileDataObject;
+	nfo:fileName "7_song.mp3";
+	nfo:fileLastModified "2008-10-23T13:47:02" ;
+	nfo:fileCreated "2008-12-16T12:41:20";
+	nfo:fileSize 18257;
+	nid3:albumTitle "1_Album";
+	nid3:title "7_song";
+	nid3:trackNumber "7";
+	nid3:contentType "Classic Rock";
+	nid3:length 2980488;
+	nid3:leadArtist <urn:uuid:7646713>.
+
+<file:///media/PIKKUTIKKU/5000_songs_with_metadata_and_album_arts/Artist_1/1_Album/8_song.mp3> a nid3:ID3Audio,nfo:FileDataObject;
+	nfo:fileName "8_song.mp3";
+	nfo:fileLastModified "2008-10-23T13:47:02" ;
+	nfo:fileCreated "2008-12-16T12:41:20";
+	nfo:fileSize 17525;
+	nid3:albumTitle "1_Album";
+	nid3:title "8_song";
+	nid3:trackNumber "8";
+	nid3:contentType "Classic Rock";
+	nid3:length 4502197;
+	nid3:leadArtist <urn:uuid:7646713>.
+
+<file:///media/PIKKUTIKKU/5000_songs_with_metadata_and_album_arts/Artist_1/1_Album/9_song.mp3> a nid3:ID3Audio,nfo:FileDataObject;
+	nfo:fileName "9_song.mp3";
+	nfo:fileLastModified "2008-10-23T13:47:02" ;
+	nfo:fileCreated "2008-12-16T12:41:20";
+	nfo:fileSize 17630;
+	nid3:albumTitle "1_Album";
+	nid3:title "9_song";
+	nid3:trackNumber "9";
+	nid3:contentType "Classic Rock";
+	nid3:length 2824445;
+	nid3:leadArtist <urn:uuid:7646713>.
+
+<file:///media/PIKKUTIKKU/5000_songs_with_metadata_and_album_arts/Artist_1/2_Album/10_song.mp3> a nid3:ID3Audio,nfo:FileDataObject;
+	nfo:fileName "10_song.mp3";
+	nfo:fileLastModified "2008-10-23T13:47:02" ;
+	nfo:fileCreated "2008-12-16T12:41:20";
+	nfo:fileSize 17316;
+	nid3:albumTitle "2_Album";
+	nid3:title "10_song";
+	nid3:trackNumber "10";
+	nid3:contentType "Classic Rock";
+	nid3:length 2727044;
+	nid3:leadArtist <urn:uuid:7646713>.
+
+<file:///media/PIKKUTIKKU/5000_songs_with_metadata_and_album_arts/Artist_1/2_Album/1_song.mp3> a nid3:ID3Audio,nfo:FileDataObject;
+	nfo:fileName "1_song.mp3";
+	nfo:fileLastModified "2008-10-23T13:47:02" ;
+	nfo:fileCreated "2008-12-16T12:41:20";
+	nfo:fileSize 17316;
+	nid3:albumTitle "2_Album";
+	nid3:title "1_song";
+	nid3:trackNumber "1";
+	nid3:contentType "Classic Rock";
+	nid3:length 217627;
+	nid3:leadArtist <urn:uuid:7646713>.
+
+<file:///media/PIKKUTIKKU/5000_songs_with_metadata_and_album_arts/Artist_1/2_Album/2_song.mp3> a nid3:ID3Audio,nfo:FileDataObject;
+	nfo:fileName "2_song.mp3";
+	nfo:fileLastModified "2008-10-23T13:47:02" ;
+	nfo:fileCreated "2008-12-16T12:41:20";
+	nfo:fileSize 17316;
+	nid3:albumTitle "2_Album";
+	nid3:title "2_song";
+	nid3:trackNumber "2";
+	nid3:contentType "Classic Rock";
+	nid3:length 4238891;
+	nid3:leadArtist <urn:uuid:7646713>.
+
+<file:///media/PIKKUTIKKU/5000_songs_with_metadata_and_album_arts/Artist_1/2_Album/3_song.mp3> a nid3:ID3Audio,nfo:FileDataObject;
+	nfo:fileName "3_song.mp3";
+	nfo:fileLastModified "2008-10-23T13:47:02" ;
+	nfo:fileCreated "2008-12-16T12:41:20";
+	nfo:fileSize 17525;
+	nid3:albumTitle "2_Album";
+	nid3:title "3_song";
+	nid3:trackNumber "3";
+	nid3:contentType "Classic Rock";
+	nid3:length 1738829;
+	nid3:leadArtist <urn:uuid:7646713>.
+
+<file:///media/PIKKUTIKKU/5000_songs_with_metadata_and_album_arts/Artist_1/2_Album/4_song.mp3> a nid3:ID3Audio,nfo:FileDataObject;
+	nfo:fileName "4_song.mp3";
+	nfo:fileLastModified "2008-10-23T13:47:02" ;
+	nfo:fileCreated "2008-12-16T12:41:20";
+	nfo:fileSize 17525;
+	nid3:albumTitle "2_Album";
+	nid3:title "4_song";
+	nid3:trackNumber "4";
+	nid3:contentType "Classic Rock";
+	nid3:length 3555540;
+	nid3:leadArtist <urn:uuid:7646713>.
+
+<file:///media/PIKKUTIKKU/5000_songs_with_metadata_and_album_arts/Artist_1/2_Album/5_song.mp3> a nid3:ID3Audio,nfo:FileDataObject;
+	nfo:fileName "5_song.mp3";
+	nfo:fileLastModified "2008-10-23T13:47:02" ;
+	nfo:fileCreated "2008-12-16T12:41:20";
+	nfo:fileSize 17525;
+	nid3:albumTitle "2_Album";
+	nid3:title "5_song";
+	nid3:trackNumber "5";
+	nid3:contentType "Classic Rock";
+	nid3:length 2667423;
+	nid3:leadArtist <urn:uuid:7646713>.
+
+<file:///media/PIKKUTIKKU/5000_songs_with_metadata_and_album_arts/Artist_1/2_Album/6_song.mp3> a nid3:ID3Audio,nfo:FileDataObject;
+	nfo:fileName "6_song.mp3";
+	nfo:fileLastModified "2008-10-23T13:47:02" ;
+	nfo:fileCreated "2008-12-16T12:41:20";
+	nfo:fileSize 17839;
+	nid3:albumTitle "2_Album";
+	nid3:title "6_song";
+	nid3:trackNumber "6";
+	nid3:contentType "Classic Rock";
+	nid3:length 1937054;
+	nid3:leadArtist <urn:uuid:7646713>.
+
+<file:///media/PIKKUTIKKU/5000_songs_with_metadata_and_album_arts/Artist_1/2_Album/7_song.mp3> a nid3:ID3Audio,nfo:FileDataObject;
+	nfo:fileName "7_song.mp3";
+	nfo:fileLastModified "2008-10-23T13:47:02" ;
+	nfo:fileCreated "2008-12-16T12:41:20";
+	nfo:fileSize 17943;
+	nid3:albumTitle "2_Album";
+	nid3:title "7_song";
+	nid3:trackNumber "7";
+	nid3:contentType "Classic Rock";
+	nid3:length 2259447;
+	nid3:leadArtist <urn:uuid:7646713>.
+
+<file:///media/PIKKUTIKKU/5000_songs_with_metadata_and_album_arts/Artist_1/2_Album/8_song.mp3> a nid3:ID3Audio,nfo:FileDataObject;
+	nfo:fileName "8_song.mp3";
+	nfo:fileLastModified "2008-10-23T13:47:02" ;
+	nfo:fileCreated "2008-12-16T12:41:20";
+	nfo:fileSize 17421;
+	nid3:albumTitle "2_Album";
+	nid3:title "8_song";
+	nid3:trackNumber "8";
+	nid3:contentType "Classic Rock";
+	nid3:length 3140840;
+	nid3:leadArtist <urn:uuid:7646713>.
+
+<file:///media/PIKKUTIKKU/5000_songs_with_metadata_and_album_arts/Artist_1/2_Album/9_song.mp3> a nid3:ID3Audio,nfo:FileDataObject;
+	nfo:fileName "9_song.mp3";
+	nfo:fileLastModified "2008-10-23T13:47:02" ;
+	nfo:fileCreated "2008-12-16T12:41:20";
+	nfo:fileSize 17525;
+	nid3:albumTitle "2_Album";
+	nid3:title "9_song";
+	nid3:trackNumber "9";
+	nid3:contentType "Classic Rock";
+	nid3:length 2346035;
+	nid3:leadArtist <urn:uuid:7646713>.
+
+<file:///media/PIKKUTIKKU/5000_songs_with_metadata_and_album_arts/Artist_1/3_Album/10_song.mp3> a nid3:ID3Audio,nfo:FileDataObject;
+	nfo:fileName "10_song.mp3";
+	nfo:fileLastModified "2008-10-23T13:47:02" ;
+	nfo:fileCreated "2008-12-16T12:41:21";
+	nfo:fileSize 17525;
+	nid3:albumTitle "3_Album";
+	nid3:title "10_song";
+	nid3:trackNumber "10";
+	nid3:contentType "Classic Rock";
+	nid3:length 4768188;
+	nid3:leadArtist <urn:uuid:7646713>.
+
+<file:///media/PIKKUTIKKU/5000_songs_with_metadata_and_album_arts/Artist_1/3_Album/1_song.mp3> a nid3:ID3Audio,nfo:FileDataObject;
+	nfo:fileName "1_song.mp3";
+	nfo:fileLastModified "2008-10-23T13:47:04" ;
+	nfo:fileCreated "2008-12-16T12:41:21";
+	nfo:fileSize 17421;
+	nid3:albumTitle "3_Album";
+	nid3:title "1_song";
+	nid3:trackNumber "1";
+	nid3:contentType "Classic Rock";
+	nid3:length 2665305;
+	nid3:leadArtist <urn:uuid:7646713>.
+
+<file:///media/PIKKUTIKKU/5000_songs_with_metadata_and_album_arts/Artist_1/3_Album/2_song.mp3> a nid3:ID3Audio,nfo:FileDataObject;
+	nfo:fileName "2_song.mp3";
+	nfo:fileLastModified "2008-10-23T13:47:02" ;
+	nfo:fileCreated "2008-12-16T12:41:21";
+	nfo:fileSize 17525;
+	nid3:albumTitle "3_Album";
+	nid3:title "2_song";
+	nid3:trackNumber "2";
+	nid3:contentType "Classic Rock";
+	nid3:length 4325597;
+	nid3:leadArtist <urn:uuid:7646713>.
+
+<file:///media/PIKKUTIKKU/5000_songs_with_metadata_and_album_arts/Artist_1/3_Album/3_song.mp3> a nid3:ID3Audio,nfo:FileDataObject;
+	nfo:fileName "3_song.mp3";
+	nfo:fileLastModified "2008-10-23T13:47:02" ;
+	nfo:fileCreated "2008-12-16T12:41:21";
+	nfo:fileSize 17630;
+	nid3:albumTitle "3_Album";
+	nid3:title "3_song";
+	nid3:trackNumber "3";
+	nid3:contentType "Classic Rock";
+	nid3:length 1566510;
+	nid3:leadArtist <urn:uuid:7646713>.
+
+<file:///media/PIKKUTIKKU/5000_songs_with_metadata_and_album_arts/Artist_1/3_Album/4_song.mp3> a nid3:ID3Audio,nfo:FileDataObject;
+	nfo:fileName "4_song.mp3";
+	nfo:fileLastModified "2008-10-23T13:47:02" ;
+	nfo:fileCreated "2008-12-16T12:41:21";
+	nfo:fileSize 17630;
+	nid3:albumTitle "3_Album";
+	nid3:title "4_song";
+	nid3:trackNumber "4";
+	nid3:contentType "Classic Rock";
+	nid3:length 2668574;
+	nid3:leadArtist <urn:uuid:7646713>.
+
+<file:///media/PIKKUTIKKU/5000_songs_with_metadata_and_album_arts/Artist_1/3_Album/5_song.mp3> a nid3:ID3Audio,nfo:FileDataObject;
+	nfo:fileName "5_song.mp3";
+	nfo:fileLastModified "2008-10-23T13:47:02" ;
+	nfo:fileCreated "2008-12-16T12:41:21";
+	nfo:fileSize 17734;
+	nid3:albumTitle "3_Album";
+	nid3:title "5_song";
+	nid3:trackNumber "5";
+	nid3:contentType "Classic Rock";
+	nid3:length 2189685;
+	nid3:leadArtist <urn:uuid:7646713>.
+
+<file:///media/PIKKUTIKKU/5000_songs_with_metadata_and_album_arts/Artist_1/3_Album/6_song.mp3> a nid3:ID3Audio,nfo:FileDataObject;
+	nfo:fileName "6_song.mp3";
+	nfo:fileLastModified "2008-10-23T13:47:02" ;
+	nfo:fileCreated "2008-12-16T12:41:21";
+	nfo:fileSize 17943;
+	nid3:albumTitle "3_Album";
+	nid3:title "6_song";
+	nid3:trackNumber "6";
+	nid3:contentType "Classic Rock";
+	nid3:length 4872204;
+	nid3:leadArtist <urn:uuid:7646713>.
+
+<file:///media/PIKKUTIKKU/5000_songs_with_metadata_and_album_arts/Artist_1/3_Album/7_song.mp3> a nid3:ID3Audio,nfo:FileDataObject;
+	nfo:fileName "7_song.mp3";
+	nfo:fileLastModified "2008-10-23T13:47:02" ;
+	nfo:fileCreated "2008-12-16T12:41:21";
+	nfo:fileSize 18048;
+	nid3:albumTitle "3_Album";
+	nid3:title "7_song";
+	nid3:trackNumber "7";
+	nid3:contentType "Classic Rock";
+	nid3:length 2967797;
+	nid3:leadArtist <urn:uuid:7646713>.
+
+<file:///media/PIKKUTIKKU/5000_songs_with_metadata_and_album_arts/Artist_1/3_Album/8_song.mp3> a nid3:ID3Audio,nfo:FileDataObject;
+	nfo:fileName "8_song.mp3";
+	nfo:fileLastModified "2008-10-23T13:47:02" ;
+	nfo:fileCreated "2008-12-16T12:41:21";
+	nfo:fileSize 17421;
+	nid3:albumTitle "3_Album";
+	nid3:title "8_song";
+	nid3:trackNumber "8";
+	nid3:contentType "Classic Rock";
+	nid3:length 3788437;
+	nid3:leadArtist <urn:uuid:7646713>.
+
+<file:///media/PIKKUTIKKU/5000_songs_with_metadata_and_album_arts/Artist_1/3_Album/9_song.mp3> a nid3:ID3Audio,nfo:FileDataObject;
+	nfo:fileName "9_song.mp3";
+	nfo:fileLastModified "2008-10-23T13:47:02" ;
+	nfo:fileCreated "2008-12-16T12:41:21";
+	nfo:fileSize 17525;
+	nid3:albumTitle "3_Album";
+	nid3:title "9_song";
+	nid3:trackNumber "9";
+	nid3:contentType "Classic Rock";
+	nid3:length 4830360;
+	nid3:leadArtist <urn:uuid:7646713>.
+
+<file:///media/PIKKUTIKKU/5000_songs_with_metadata_and_album_arts/Artist_1/4_Album/10_song.mp3> a nid3:ID3Audio,nfo:FileDataObject;
+	nfo:fileName "10_song.mp3";
+	nfo:fileLastModified "2008-10-23T13:47:04" ;
+	nfo:fileCreated "2008-12-16T12:41:21";
+	nfo:fileSize 17525;
+	nid3:albumTitle "4_Album";
+	nid3:title "10_song";
+	nid3:trackNumber "10";
+	nid3:contentType "Classic Rock";
+	nid3:length 4815947;
+	nid3:leadArtist <urn:uuid:7646713>.
+
+<file:///media/PIKKUTIKKU/5000_songs_with_metadata_and_album_arts/Artist_1/4_Album/1_song.mp3> a nid3:ID3Audio,nfo:FileDataObject;
+	nfo:fileName "1_song.mp3";
+	nfo:fileLastModified "2008-10-23T13:47:04" ;
+	nfo:fileCreated "2008-12-16T12:41:21";
+	nfo:fileSize 17421;
+	nid3:albumTitle "4_Album";
+	nid3:title "1_song";
+	nid3:trackNumber "1";
+	nid3:contentType "Classic Rock";
+	nid3:length 2649799;
+	nid3:leadArtist <urn:uuid:7646713>.
+
+<file:///media/PIKKUTIKKU/5000_songs_with_metadata_and_album_arts/Artist_1/4_Album/2_song.mp3> a nid3:ID3Audio,nfo:FileDataObject;
+	nfo:fileName "2_song.mp3";
+	nfo:fileLastModified "2008-10-23T13:47:04" ;
+	nfo:fileCreated "2008-12-16T12:41:21";
+	nfo:fileSize 17525;
+	nid3:albumTitle "4_Album";
+	nid3:title "2_song";
+	nid3:trackNumber "2";
+	nid3:contentType "Classic Rock";
+	nid3:length 609498;
+	nid3:leadArtist <urn:uuid:7646713>.
+
+<file:///media/PIKKUTIKKU/5000_songs_with_metadata_and_album_arts/Artist_1/4_Album/3_song.mp3> a nid3:ID3Audio,nfo:FileDataObject;
+	nfo:fileName "3_song.mp3";
+	nfo:fileLastModified "2008-10-23T13:47:04" ;
+	nfo:fileCreated "2008-12-16T12:41:21";
+	nfo:fileSize 17734;
+	nid3:albumTitle "4_Album";
+	nid3:title "3_song";
+	nid3:trackNumber "3";
+	nid3:contentType "Classic Rock";
+	nid3:length 4338795;
+	nid3:leadArtist <urn:uuid:7646713>.
+
+<file:///media/PIKKUTIKKU/5000_songs_with_metadata_and_album_arts/Artist_1/4_Album/4_song.mp3> a nid3:ID3Audio,nfo:FileDataObject;
+	nfo:fileName "4_song.mp3";
+	nfo:fileLastModified "2008-10-23T13:47:04" ;
+	nfo:fileCreated "2008-12-16T12:41:21";
+	nfo:fileSize 17630;
+	nid3:albumTitle "4_Album";
+	nid3:title "4_song";
+	nid3:trackNumber "4";
+	nid3:contentType "Classic Rock";
+	nid3:length 1581971;
+	nid3:leadArtist <urn:uuid:7646713>.
+
+<file:///media/PIKKUTIKKU/5000_songs_with_metadata_and_album_arts/Artist_1/4_Album/5_song.mp3> a nid3:ID3Audio,nfo:FileDataObject;
+	nfo:fileName "5_song.mp3";
+	nfo:fileLastModified "2008-10-23T13:47:04" ;
+	nfo:fileCreated "2008-12-16T12:41:21";
+	nfo:fileSize 17734;
+	nid3:albumTitle "4_Album";
+	nid3:title "5_song";
+	nid3:trackNumber "5";
+	nid3:contentType "Classic Rock";
+	nid3:length 2261336;
+	nid3:leadArtist <urn:uuid:7646713>.
+
+<file:///media/PIKKUTIKKU/5000_songs_with_metadata_and_album_arts/Artist_1/4_Album/6_song.mp3> a nid3:ID3Audio,nfo:FileDataObject;
+	nfo:fileName "6_song.mp3";
+	nfo:fileLastModified "2008-10-23T13:47:04" ;
+	nfo:fileCreated "2008-12-16T12:41:21";
+	nfo:fileSize 18048;
+	nid3:albumTitle "4_Album";
+	nid3:title "6_song";
+	nid3:trackNumber "6";
+	nid3:contentType "Classic Rock";
+	nid3:length 1363160;
+	nid3:leadArtist <urn:uuid:7646713>.
+
+<file:///media/PIKKUTIKKU/5000_songs_with_metadata_and_album_arts/Artist_1/4_Album/7_song.mp3> a nid3:ID3Audio,nfo:FileDataObject;
+	nfo:fileName "7_song.mp3";
+	nfo:fileLastModified "2008-10-23T13:47:04" ;
+	nfo:fileCreated "2008-12-16T12:41:21";
+	nfo:fileSize 18152;
+	nid3:albumTitle "4_Album";
+	nid3:title "7_song";
+	nid3:trackNumber "7";
+	nid3:contentType "Classic Rock";
+	nid3:length 2269525;
+	nid3:leadArtist <urn:uuid:7646713>.
+
+<file:///media/PIKKUTIKKU/5000_songs_with_metadata_and_album_arts/Artist_1/4_Album/8_song.mp3> a nid3:ID3Audio,nfo:FileDataObject;
+	nfo:fileName "8_song.mp3";
+	nfo:fileLastModified "2008-10-23T13:47:04" ;
+	nfo:fileCreated "2008-12-16T12:41:21";
+	nfo:fileSize 17421;
+	nid3:albumTitle "4_Album";
+	nid3:title "8_song";
+	nid3:trackNumber "8";
+	nid3:contentType "Classic Rock";
+	nid3:length 1598393;
+	nid3:leadArtist <urn:uuid:7646713>.
+
+<file:///media/PIKKUTIKKU/5000_songs_with_metadata_and_album_arts/Artist_1/4_Album/9_song.mp3> a nid3:ID3Audio,nfo:FileDataObject;
+	nfo:fileName "9_song.mp3";
+	nfo:fileLastModified "2008-10-23T13:47:04" ;
+	nfo:fileCreated "2008-12-16T12:41:21";
+	nfo:fileSize 17630;
+	nid3:albumTitle "4_Album";
+	nid3:title "9_song";
+	nid3:trackNumber "9";
+	nid3:contentType "Classic Rock";
+	nid3:length 4093151;
+	nid3:leadArtist <urn:uuid:7646713>.
+
+<file:///media/PIKKUTIKKU/5000_songs_with_metadata_and_album_arts/Artist_1/5_Album/10_song.mp3> a nid3:ID3Audio,nfo:FileDataObject;
+	nfo:fileName "10_song.mp3";
+	nfo:fileLastModified "2008-10-23T13:47:04" ;
+	nfo:fileCreated "2008-12-16T12:41:21";
+	nfo:fileSize 17525;
+	nid3:albumTitle "5_Album";
+	nid3:title "10_song";
+	nid3:trackNumber "10";
+	nid3:contentType "Classic Rock";
+	nid3:length 4517987;
+	nid3:leadArtist <urn:uuid:7646713>.
+
+<file:///media/PIKKUTIKKU/5000_songs_with_metadata_and_album_arts/Artist_1/5_Album/1_song.mp3> a nid3:ID3Audio,nfo:FileDataObject;
+	nfo:fileName "1_song.mp3";
+	nfo:fileLastModified "2008-10-23T13:47:04" ;
+	nfo:fileCreated "2008-12-16T12:41:21";
+	nfo:fileSize 17421;
+	nid3:albumTitle "5_Album";
+	nid3:title "1_song";
+	nid3:trackNumber "1";
+	nid3:contentType "Classic Rock";
+	nid3:length 4685575;
+	nid3:leadArtist <urn:uuid:7646713>.
+
+<file:///media/PIKKUTIKKU/5000_songs_with_metadata_and_album_arts/Artist_1/5_Album/2_song.mp3> a nid3:ID3Audio,nfo:FileDataObject;
+	nfo:fileName "2_song.mp3";
+	nfo:fileLastModified "2008-10-23T13:47:04" ;
+	nfo:fileCreated "2008-12-16T12:41:21";
+	nfo:fileSize 17525;
+	nid3:albumTitle "5_Album";
+	nid3:title "2_song";
+	nid3:trackNumber "2";
+	nid3:contentType "Classic Rock";
+	nid3:length 1984015;
+	nid3:leadArtist <urn:uuid:7646713>.
+
+<file:///media/PIKKUTIKKU/5000_songs_with_metadata_and_album_arts/Artist_1/5_Album/3_song.mp3> a nid3:ID3Audio,nfo:FileDataObject;
+	nfo:fileName "3_song.mp3";
+	nfo:fileLastModified "2008-10-23T13:47:04" ;
+	nfo:fileCreated "2008-12-16T12:41:21";
+	nfo:fileSize 17734;
+	nid3:albumTitle "5_Album";
+	nid3:title "3_song";
+	nid3:trackNumber "3";
+	nid3:contentType "Classic Rock";
+	nid3:length 60951;
+	nid3:leadArtist <urn:uuid:7646713>.
+
+<file:///media/PIKKUTIKKU/5000_songs_with_metadata_and_album_arts/Artist_1/5_Album/4_song.mp3> a nid3:ID3Audio,nfo:FileDataObject;
+	nfo:fileName "4_song.mp3";
+	nfo:fileLastModified "2008-10-23T13:47:04" ;
+	nfo:fileCreated "2008-12-16T12:41:21";
+	nfo:fileSize 17630;
+	nid3:albumTitle "5_Album";
+	nid3:title "4_song";
+	nid3:trackNumber "4";
+	nid3:contentType "Classic Rock";
+	nid3:length 2341466;
+	nid3:leadArtist <urn:uuid:7646713>.
+
+<file:///media/PIKKUTIKKU/5000_songs_with_metadata_and_album_arts/Artist_1/5_Album/5_song.mp3> a nid3:ID3Audio,nfo:FileDataObject;
+	nfo:fileName "5_song.mp3";
+	nfo:fileLastModified "2008-10-23T13:47:04" ;
+	nfo:fileCreated "2008-12-16T12:41:21";
+	nfo:fileSize 17734;
+	nid3:albumTitle "5_Album";
+	nid3:title "5_song";
+	nid3:trackNumber "5";
+	nid3:contentType "Classic Rock";
+	nid3:length 3709422;
+	nid3:leadArtist <urn:uuid:7646713>.
+
+<file:///media/PIKKUTIKKU/5000_songs_with_metadata_and_album_arts/Artist_1/5_Album/6_song.mp3> a nid3:ID3Audio,nfo:FileDataObject;
+	nfo:fileName "6_song.mp3";
+	nfo:fileLastModified "2008-10-23T13:47:04" ;
+	nfo:fileCreated "2008-12-16T12:41:21";
+	nfo:fileSize 18152;
+	nid3:albumTitle "5_Album";
+	nid3:title "6_song";
+	nid3:trackNumber "6";
+	nid3:contentType "Classic Rock";
+	nid3:length 3494062;
+	nid3:leadArtist <urn:uuid:7646713>.
+
+<file:///media/PIKKUTIKKU/5000_songs_with_metadata_and_album_arts/Artist_1/5_Album/7_song.mp3> a nid3:ID3Audio,nfo:FileDataObject;
+	nfo:fileName "7_song.mp3";
+	nfo:fileLastModified "2008-10-23T13:47:04" ;
+	nfo:fileCreated "2008-12-16T12:41:21";
+	nfo:fileSize 18152;
+	nid3:albumTitle "5_Album";
+	nid3:title "7_song";
+	nid3:trackNumber "7";
+	nid3:contentType "Classic Rock";
+	nid3:length 1162886;
+	nid3:leadArtist <urn:uuid:7646713>.
+
+<file:///media/PIKKUTIKKU/5000_songs_with_metadata_and_album_arts/Artist_1/5_Album/8_song.mp3> a nid3:ID3Audio,nfo:FileDataObject;
+	nfo:fileName "8_song.mp3";
+	nfo:fileLastModified "2008-10-23T13:47:04" ;
+	nfo:fileCreated "2008-12-16T12:41:21";
+	nfo:fileSize 17525;
+	nid3:albumTitle "5_Album";
+	nid3:title "8_song";
+	nid3:trackNumber "8";
+	nid3:contentType "Classic Rock";
+	nid3:length 3619796;
+	nid3:leadArtist <urn:uuid:7646713>.
+
+<file:///media/PIKKUTIKKU/5000_songs_with_metadata_and_album_arts/Artist_1/5_Album/9_song.mp3> a nid3:ID3Audio,nfo:FileDataObject;
+	nfo:fileName "9_song.mp3";
+	nfo:fileLastModified "2008-10-23T13:47:04" ;
+	nfo:fileCreated "2008-12-16T12:41:21";
+	nfo:fileSize 17630;
+	nid3:albumTitle "5_Album";
+	nid3:title "9_song";
+	nid3:trackNumber "9";
+	nid3:contentType "Classic Rock";
+	nid3:length 2017646;
+	nid3:leadArtist <urn:uuid:7646713>.
+
