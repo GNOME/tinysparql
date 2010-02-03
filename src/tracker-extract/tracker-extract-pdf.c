@@ -461,6 +461,12 @@ extract_pdf (const gchar          *uri,
 	}
 
 	g_object_unref (document);
+
+	g_free (pd.title);
+	g_free (pd.subject);
+	g_free (pd.creation_date);
+	g_free (pd.author);
+	g_free (pd.keywords);
 }
 
 TrackerExtractData *
