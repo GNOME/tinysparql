@@ -441,6 +441,9 @@ extract_pdf (const gchar          *uri,
 		
 			tracker_sparql_builder_object_blank_close (metadata);
 		}
+
+		/* PDF keywords aren't used ATM */
+		g_free (pd.keywords);
 	} else {
 		/* So if we are here we have NO XMP data and we just
 		 * write what we know from Poppler.
@@ -462,12 +465,6 @@ extract_pdf (const gchar          *uri,
 	}
 
 	g_object_unref (document);
-
-	g_free (pd.title);
-	g_free (pd.subject);
-	g_free (pd.creation_date);
-	g_free (pd.author);
-	g_free (pd.keywords);
 }
 
 TrackerExtractData *
