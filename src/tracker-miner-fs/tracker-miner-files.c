@@ -1192,7 +1192,7 @@ miner_files_add_to_datasource (TrackerMinerFiles    *mf,
 		removable_device_urn = g_strdup (TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN);
 	}
 
-	tracker_sparql_builder_subject (sparql, "_:foo");
+	tracker_sparql_builder_subject (sparql, "_:file");
 	tracker_sparql_builder_predicate (sparql, "a");
 	tracker_sparql_builder_object (sparql, "nfo:FileDataObject");
 
@@ -1383,7 +1383,7 @@ process_file_cb (GObject      *object,
 
 	tracker_sparql_builder_insert_open (sparql, uri);
 
-	tracker_sparql_builder_subject (sparql, "_:foo");
+	tracker_sparql_builder_subject (sparql, "_:file");
 
 	tracker_sparql_builder_predicate (sparql, "a");
 	tracker_sparql_builder_object (sparql, "nfo:FileDataObject");
@@ -1418,7 +1418,7 @@ process_file_cb (GObject      *object,
 
 	/* Laying the link between the IE and the DO. We use IE = DO */
 	tracker_sparql_builder_predicate (sparql, "nie:isStoredAs");
-	tracker_sparql_builder_object (sparql, "_:foo");
+	tracker_sparql_builder_object (sparql, "_:file");
 
 	/* The URL of the DataObject (because IE = DO, this is correct) */
 	tracker_sparql_builder_predicate (sparql, "nie:url");
