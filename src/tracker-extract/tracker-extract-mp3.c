@@ -2023,8 +2023,6 @@ extract_mp3 (const gchar          *uri,
 		}
 
 		tracker_sparql_builder_insert_close (preupdate);
-
-		g_free (md.album);
 	}
 
 	tracker_sparql_builder_predicate (metadata, "a");
