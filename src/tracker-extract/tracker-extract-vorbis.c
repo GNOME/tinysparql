@@ -189,9 +189,9 @@ extract_vorbis (const char *uri,
 			tracker_sparql_builder_object_variable (preupdate, "unknown");
 			tracker_sparql_builder_where_close (preupdate);
 
-			tracker_sparql_builder_insert_open (preupdate, preupdate);
+			tracker_sparql_builder_insert_open (preupdate, NULL);
 
-			tracker_sparql_builder_subject_iri (preupdate, md.album_uri);
+			tracker_sparql_builder_subject_iri (preupdate, album_uri);
 			tracker_sparql_builder_predicate (metadata, "nmm:albumTrackCount");
 			tracker_sparql_builder_object_unvalidated (metadata, vorbis_data.trackcount);
 
