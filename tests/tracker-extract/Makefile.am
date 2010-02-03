@@ -63,6 +63,7 @@ test_tracker_extract_mp3_LDADD =					\
 	$(GMODULE_LIBS)							\
 	$(GCOV_LIBS)							\
 	$(GTHREAD_LIBS)							\
+	$(GOBJECT_LIBS)							\
 	$(GLIB2_LIBS)
 
 test_tracker_extract_gstreamer_SOURCES = 				\
@@ -74,6 +75,7 @@ test_tracker_extract_gstreamer_LDADD =					\
 	$(GMODULE_LIBS)							\
 	$(GCOV_LIBS)							\
 	$(GTHREAD_LIBS)							\
+	$(GOBJECT_LIBS)							\
 	$(GLIB2_LIBS)							\
 	$(GSTREAMER_LIBS)
 
@@ -86,6 +88,7 @@ test_tracker_extract_jpeg_LDADD =					\
 	$(GMODULE_LIBS)							\
 	$(GTHREAD_LIBS)							\
 	$(GCOV_LIBS)							\
+	$(GOBJECT_LIBS)							\
 	$(GLIB2_LIBS)							\
 	$(LIBJPEG_LIBS)							\
 	$(LIBEXIF_LIBS)							\
@@ -100,6 +103,7 @@ test_tracker_extract_tiff_LDADD =					\
 	$(GMODULE_LIBS)							\
 	$(GTHREAD_LIBS)							\
 	$(GLIB2_LIBS)							\
+	$(GOBJECT_LIBS)							\
 	$(GCOV_LIBS)							\
 	$(LIBTIFF_LIBS)							\
 	$(EXEMPI_LIBS)
@@ -113,6 +117,7 @@ test_tracker_extract_png_LDADD =					\
 	$(GMODULE_LIBS)							\
 	$(GTHREAD_LIBS)							\
 	$(GLIB2_LIBS)							\
+	$(GOBJECT_LIBS)							\
 	$(GCOV_LIBS)							\
 	$(LIBPNG_LIBS)							\
 	$(EXEMPI_LIBS)
