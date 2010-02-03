@@ -245,30 +245,30 @@ read_metadata (png_structp png_ptr, png_infop info_ptr, const gchar *uri, Tracke
 			g_free (exif_data.make);
 		}
 
-		merge_data.creator = tracker_coalesce (3, png_data.creator,
-		                                       png_data.author,
-		                                       xmp_data.creator);
+		merge_data.creator = tracker_coalesce (3, xmp_data.creator, 
+		                                       png_data.creator,
+		                                       png_data.author);
 
-		merge_data.title = tracker_coalesce (5, png_data.title,
-		                                     xmp_data.title, 
-		                                     xmp_data.title,
-		                                     xmp_data.pdf_title,
-		                                     exif_data.document_name);
+		merge_data.title = tracker_coalesce (5, xmp_data.title, 
+		                                     png_data.title,
+		                                     exif_data.document_name,
+		                                     xmp_data.title2,
+		                                     xmp_data.pdf_title);
 
-		merge_data.copyright = tracker_coalesce (3, png_data.copyright,
-		                                         xmp_data.rights,
+		merge_data.copyright = tracker_coalesce (3, xmp_data.rights, 
+		                                         png_data.copyright,
 		                                         exif_data.copyright);
 
-		merge_data.license = tracker_coalesce (2, png_data.disclaimer,
-		                                       xmp_data.license);
+		merge_data.license = tracker_coalesce (2, xmp_data.license, 
+		                                       png_data.disclaimer);
 
-		merge_data.description = tracker_coalesce (3, png_data.description,
-		                                           xmp_data.description,
+		merge_data.description = tracker_coalesce (3, xmp_data.description,
+		                                           png_data.description,
 		                                           exif_data.description);
 
-		merge_data.date = tracker_coalesce (5, png_data.creation_time,
-		                                    xmp_data.date,
+		merge_data.date = tracker_coalesce (5, xmp_data.date,
 		                                    xmp_data.time_original,
+		                                    png_data.creation_time,
 		                                    exif_data.time,
 		                                    exif_data.time_original);
 
@@ -276,32 +276,32 @@ read_metadata (png_structp png_ptr, png_infop info_ptr, const gchar *uri, Tracke
 		                                       exif_data.user_comment);
 
 		merge_data.artist = tracker_coalesce (3, xmp_data.artist,
-		                                      xmp_data.contributor,
-		                                      exif_data.artist);
+		                                      exif_data.artist,
+		                                      xmp_data.contributor);
 
-		merge_data.orientation = tracker_coalesce (2, exif_data.orientation, 
-		                                           xmp_data.orientation);
+		merge_data.orientation = tracker_coalesce (2, xmp_data.orientation, 
+		                                           exif_data.orientation);
 
-		merge_data.exposure_time = tracker_coalesce (2, exif_data.exposure_time, 
-		                                             xmp_data.exposure_time);
+		merge_data.exposure_time = tracker_coalesce (2, xmp_data.exposure_time, 
+		                                             exif_data.exposure_time);
 
-		merge_data.iso_speed_ratings = tracker_coalesce (2, exif_data.iso_speed_ratings, 
-		                                                 xmp_data.iso_speed_ratings);
+		merge_data.iso_speed_ratings = tracker_coalesce (2, xmp_data.iso_speed_ratings, 
+		                                                 exif_data.iso_speed_ratings);
 
-		merge_data.fnumber = tracker_coalesce (2, exif_data.fnumber, 
-		                                       xmp_data.fnumber);
+		merge_data.fnumber = tracker_coalesce (2, xmp_data.fnumber, 
+		                                       exif_data.fnumber);
 
-		merge_data.flash = tracker_coalesce (2, exif_data.flash, 
-		                                     xmp_data.flash);
+		merge_data.flash = tracker_coalesce (2, xmp_data.flash, 
+		                                     exif_data.flash);
 
-		merge_data.focal_length = tracker_coalesce (2, exif_data.focal_length, 
-		                                            xmp_data.focal_length);
+		merge_data.focal_length = tracker_coalesce (2, xmp_data.focal_length, 
+		                                            exif_data.focal_length);
 
-		merge_data.metering_mode = tracker_coalesce (2, exif_data.metering_mode, 
-		                                             xmp_data.metering_mode);
+		merge_data.metering_mode = tracker_coalesce (2, xmp_data.metering_mode, 
+		                                             exif_data.metering_mode);
 
-		merge_data.white_balance = tracker_coalesce (2, exif_data.white_balance, 
-		                                             xmp_data.white_balance);
+		merge_data.white_balance = tracker_coalesce (2, xmp_data.white_balance, 
+		                                             exif_data.white_balance);
 
 		if (merge_data.comment) {
 			tracker_sparql_builder_predicate (metadata, "nie:comment");

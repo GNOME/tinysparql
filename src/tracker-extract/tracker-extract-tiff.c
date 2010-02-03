@@ -366,12 +366,12 @@ extract_tiff (const gchar *uri, TrackerSparqlBuilder *metadata)
 	TIFFClose (image);
 	g_free (filename);
 
-	merge_data.camera = tracker_merge (" ", 2, tiff_data.make,
-	                                   tiff_data.model);
+	merge_data.camera = tracker_merge (" ", 2, xmp_data.make,
+	                                   xmp_data.model);
 
 	if (!merge_data.camera) {
-		merge_data.camera = tracker_merge (" ", 2, xmp_data.make,
-		                                   xmp_data.model);
+		merge_data.camera = tracker_merge (" ", 2, tiff_data.make,
+		                                   tiff_data.model);
 
 		if (!merge_data.camera) {
 			merge_data.camera = tracker_merge (" ", 2, exif_data.make,
@@ -381,73 +381,73 @@ extract_tiff (const gchar *uri, TrackerSparqlBuilder *metadata)
 			g_free (exif_data.make);
 		}
 	} else {
-		g_free (xmp_data.model);
-		g_free (xmp_data.make);
+		g_free (tiff_data.model);
+		g_free (tiff_data.make);
 		g_free (exif_data.model);
 		g_free (exif_data.make);
 	}
 
-	merge_data.title = tracker_coalesce (5, tiff_data.documentname,
-	                                     xmp_data.title, 
-	                                     xmp_data.title2,
+	merge_data.title = tracker_coalesce (5, xmp_data.title,
+	                                     xmp_data.pdf_title,
+	                                     tiff_data.documentname,
 	                                     exif_data.document_name,
-	                                     xmp_data.pdf_title);
+	                                     xmp_data.title2);
 
-	merge_data.orientation = tracker_coalesce (4, tiff_data.orientation,
+	merge_data.orientation = tracker_coalesce (4, xmp_data.orientation,
+	                                           tiff_data.orientation,
 	                                           exif_data.orientation,
-	                                           xmp_data.orientation,
 	                                           iptc_data.image_orientation);
 
-	merge_data.copyright = tracker_coalesce (4, tiff_data.copyright,
+	merge_data.copyright = tracker_coalesce (4, xmp_data.rights,
+	                                         tiff_data.copyright,
 	                                         exif_data.copyright,
-	                                         xmp_data.rights,
 	                                         iptc_data.copyright_notice);
 
-	merge_data.white_balance = tracker_coalesce (2, exif_data.white_balance,
-	                                             xmp_data.white_balance);
+	merge_data.white_balance = tracker_coalesce (2, xmp_data.white_balance,
+	                                             exif_data.white_balance);
 
 
-	merge_data.fnumber =  tracker_coalesce (2, exif_data.fnumber,
-	                                        xmp_data.fnumber);
+	merge_data.fnumber =  tracker_coalesce (2, xmp_data.fnumber,
+	                                        exif_data.fnumber);
 
-	merge_data.flash =  tracker_coalesce (2, exif_data.flash,
-	                                      xmp_data.flash);
+	merge_data.flash =  tracker_coalesce (2, xmp_data.flash,
+	                                      exif_data.flash);
 
-	merge_data.focal_length =  tracker_coalesce (2, exif_data.focal_length,
-	                                             xmp_data.focal_length);
+	merge_data.focal_length =  tracker_coalesce (2, xmp_data.focal_length,
+	                                             exif_data.focal_length);
 
-	merge_data.artist =  tracker_coalesce (4, tiff_data.artist,
+	merge_data.artist =  tracker_coalesce (4, xmp_data.artist,
+	                                       tiff_data.artist,
 	                                       exif_data.artist,
-	                                       xmp_data.artist,
 	                                       xmp_data.contributor);
 
-	merge_data.exposure_time =  tracker_coalesce (2, exif_data.exposure_time,
-	                                              xmp_data.exposure_time);
+	merge_data.exposure_time =  tracker_coalesce (2, xmp_data.exposure_time,
+	                                              exif_data.exposure_time);
 
-	merge_data.iso_speed_ratings =  tracker_coalesce (2, exif_data.iso_speed_ratings,
-	                                                  xmp_data.iso_speed_ratings);
+	merge_data.iso_speed_ratings =  tracker_coalesce (2, xmp_data.iso_speed_ratings,
+	                                                  exif_data.iso_speed_ratings);
 
-	merge_data.date =  tracker_coalesce (6, tiff_data.datetime,
+	merge_data.date =  tracker_coalesce (6, xmp_data.date,
+	                                     xmp_data.time_original,
+	                                     tiff_data.datetime,
 	                                     exif_data.time,
-	                                     xmp_data.date,
 	                                     iptc_data.date_created,
-	                                     exif_data.time_original,
-	                                     xmp_data.time_original);
+	                                     exif_data.time_original);
 
-	merge_data.description = tracker_coalesce (3, tiff_data.imagedescription,
-	                                           exif_data.description,
-	                                           xmp_data.description);
+	merge_data.description = tracker_coalesce (3, xmp_data.description,
+	                                           tiff_data.imagedescription,
+	                                           exif_data.description);
 
-	merge_data.metering_mode =  tracker_coalesce (2, exif_data.metering_mode,
-	                                              xmp_data.metering_mode);
+	merge_data.metering_mode =  tracker_coalesce (2, xmp_data.metering_mode,
+	                                              exif_data.metering_mode);
 
-	merge_data.city = tracker_coalesce (2, iptc_data.city, xmp_data.city);
-	merge_data.state = tracker_coalesce (2, iptc_data.state, xmp_data.state);
-	merge_data.address = tracker_coalesce (2, iptc_data.sublocation, xmp_data.address);
-	merge_data.country  = tracker_coalesce (2, iptc_data.country_name, xmp_data.country);
+	merge_data.city = tracker_coalesce (2, xmp_data.city, iptc_data.city);
+	merge_data.state = tracker_coalesce (2, xmp_data.state, iptc_data.state);
+	merge_data.address = tracker_coalesce (2, xmp_data.address, iptc_data.sublocation);
+	merge_data.country  = tracker_coalesce (2, xmp_data.country, iptc_data.country_name);
 
-	merge_data.creator =  tracker_coalesce (3, iptc_data.byline,
-	                                        xmp_data.creator,
+	merge_data.creator =  tracker_coalesce (3, xmp_data.creator,
+	                                        iptc_data.byline,
 	                                        iptc_data.credit);
 
 	merge_data.x_dimension =  tracker_coalesce (2, tiff_data.imagewidth,

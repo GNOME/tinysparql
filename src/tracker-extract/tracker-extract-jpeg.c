@@ -299,26 +299,26 @@ extract_jpeg (const gchar          *uri,
 			g_free (ed.make);
 		}
 
-		md.title = tracker_coalesce (3, xd.title, xd.title2, ed.document_name, xd.pdf_title);
-		md.orientation = tracker_coalesce (3, ed.orientation, xd.orientation, id.image_orientation);
-		md.copyright = tracker_coalesce (3, ed.copyright, xd.copyright, xd.rights, id.copyright_notice);
-		md.white_balance = tracker_coalesce (2, ed.white_balance, xd.white_balance);
-		md.fnumber =  tracker_coalesce (2, ed.fnumber, xd.fnumber);
-		md.flash =  tracker_coalesce (2, ed.flash, xd.flash);
-		md.focal_length =  tracker_coalesce (2, ed.focal_length, xd.focal_length);
-		md.artist =  tracker_coalesce (3, ed.artist, xd.artist, xd.contributor);
-		md.exposure_time =  tracker_coalesce (2, ed.exposure_time, xd.exposure_time);
-		md.iso_speed_ratings =  tracker_coalesce (2, ed.iso_speed_ratings, xd.iso_speed_ratings);
-		md.date =  tracker_coalesce (5, ed.time, xd.date, id.date_created, ed.time_original, xd.time_original);
-		md.description = tracker_coalesce (2, ed.description, xd.description);
-		md.metering_mode = tracker_coalesce (2, ed.metering_mode, xd.metering_mode);
+		md.title = tracker_coalesce (4, xd.title, ed.document_name, xd.title2, xd.pdf_title);
+		md.orientation = tracker_coalesce (3, xd.orientation, ed.orientation, id.image_orientation);
+		md.copyright = tracker_coalesce (4, xd.copyright, xd.rights, ed.copyright, id.copyright_notice);
+		md.white_balance = tracker_coalesce (2, xd.white_balance, ed.white_balance);
+		md.fnumber =  tracker_coalesce (2, xd.fnumber, ed.fnumber);
+		md.flash =  tracker_coalesce (2, xd.flash, ed.flash);
+		md.focal_length =  tracker_coalesce (2, xd.focal_length, ed.focal_length);
+		md.artist =  tracker_coalesce (3, xd.artist, ed.artist, xd.contributor);
+		md.exposure_time =  tracker_coalesce (2, xd.exposure_time, ed.exposure_time);
+		md.iso_speed_ratings =  tracker_coalesce (2, xd.iso_speed_ratings, ed.iso_speed_ratings);
+		md.date =  tracker_coalesce (5, xd.date, xd.time_original, ed.time, id.date_created, ed.time_original);
+		md.description = tracker_coalesce (2, xd.description, ed.description);
+		md.metering_mode = tracker_coalesce (2, xd.metering_mode, ed.metering_mode);
 
-		md.city = tracker_coalesce (2, id.city, xd.city);
-		md.state = tracker_coalesce (2, id.state, xd.state);
-		md.address = tracker_coalesce (2, id.sublocation, xd.address);
-		md.country  = tracker_coalesce (2, id.country_name, xd.country);
+		md.city = tracker_coalesce (2, xd.city, id.city);
+		md.state = tracker_coalesce (2, xd.state, id.state);
+		md.address = tracker_coalesce (2, xd.address, id.sublocation);
+		md.country  = tracker_coalesce (2, xd.country, id.country_name);
 
-		md.creator =  tracker_coalesce (3, id.byline, xd.creator, id.credit);
+		md.creator =  tracker_coalesce (3, xd.creator, id.byline, id.credit);
 		md.comment = tracker_coalesce (2, comment, ed.user_comment);
 
 		/* Prioritize on native dimention in all cases */
