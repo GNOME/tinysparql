@@ -77,6 +77,7 @@ typedef struct {
 } TiffData;
 
 static void extract_tiff (const gchar          *filename,
+                          TrackerSparqlBuilder *preupdate,
                           TrackerSparqlBuilder *metadata);
 
 static TrackerExtractData extract_data[] = {
@@ -269,7 +270,9 @@ insert_keywords (TrackerSparqlBuilder *metadata, const gchar *uri, gchar *keywor
 }
 
 static void
-extract_tiff (const gchar *uri, TrackerSparqlBuilder *metadata)
+extract_tiff (const gchar          *uri,
+              TrackerSparqlBuilder *preupdate,
+	      TrackerSparqlBuilder *metadata)
 {
 	TIFF *image;
 	glong exifOffset;
@@ -296,7 +299,6 @@ extract_tiff (const gchar *uri, TrackerSparqlBuilder *metadata)
 		return;
 	}
 
-	tracker_sparql_builder_subject_iri (metadata, uri);
 	tracker_sparql_builder_predicate (metadata, "a");
 	tracker_sparql_builder_object (metadata, "nfo:Image");
 	tracker_sparql_builder_object (metadata, "nmm:Photo");
@@ -698,17 +700,17 @@ extract_tiff (const gchar *uri, TrackerSparqlBuilder *metadata)
 	}
 
 	if (merge_data.creator) {
-
 		if (iptc_data.byline_title) {
-			tracker_sparql_builder_subject (metadata, "_:affiliation_by_line");
-			tracker_sparql_builder_predicate (metadata, "a");
-			tracker_sparql_builder_object (metadata, "nco:Affiliation");
+			tracker_sparql_builder_insert_open (preupdate, NULL);
 
-			tracker_sparql_builder_subject (metadata, "_:affiliation_by_line");
-			tracker_sparql_builder_predicate (metadata, "nco:title");
-			tracker_sparql_builder_object_unvalidated (metadata, iptc_data.byline_title);
+			tracker_sparql_builder_subject (preupdate, "_:affiliation_by_line");
+			tracker_sparql_builder_predicate (preupdate, "a");
+			tracker_sparql_builder_object (preupdate, "nco:Affiliation");
 
-			tracker_sparql_builder_subject_iri (metadata, uri);
+			tracker_sparql_builder_predicate (preupdate, "nco:title");
+			tracker_sparql_builder_object_unvalidated (preupdate, iptc_data.byline_title);
+
+			tracker_sparql_builder_insert_close (preupdate);
 		}
 
 		tracker_sparql_builder_predicate (metadata, "nco:creator");

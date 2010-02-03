@@ -207,24 +207,30 @@ tracker_extract_new (gboolean disable_shutdown,
 	return object;
 }
 
-static TrackerSparqlBuilder *
-get_file_metadata (TrackerExtract        *extract,
-                   guint                  request_id,
-                   DBusGMethodInvocation *context,
-                   const gchar           *uri,
-                   const gchar           *mime)
+static gboolean
+get_file_metadata (TrackerExtract         *extract,
+                   guint                   request_id,
+                   DBusGMethodInvocation  *context,
+                   const gchar            *uri,
+                   const gchar            *mime,
+		   TrackerSparqlBuilder  **preupdate_out,
+		   TrackerSparqlBuilder  **statements_out)
 {
 	TrackerExtractPrivate *priv;
-	TrackerSparqlBuilder *statements;
+	TrackerSparqlBuilder *statements, *preupdate;
 	gchar *mime_used = NULL;
 	gchar *content_type = NULL;
 
 	priv = TRACKER_EXTRACT_GET_PRIVATE (extract);
 
-	/* Create hash table to send back */
-	statements = tracker_sparql_builder_new_update ();
+	*preupdate_out = NULL;
+	*statements_out = NULL;
 
-	tracker_sparql_builder_insert_open (statements, uri);
+	/* Create sparql builders to send back */
+	preupdate = tracker_sparql_builder_new_update ();
+	statements = tracker_sparql_builder_new_embedded_insert ();
+
+	tracker_sparql_builder_subject (statements, "_:file");
 
 #ifdef HAVE_LIBSTREAMANALYZER
 	if (!priv->force_internal_extractors) {
@@ -236,7 +242,10 @@ get_file_metadata (TrackerExtract        *extract,
 		if (tracker_sparql_builder_get_length (statements) > 0) {
 			g_free (content_type);
 			tracker_sparql_builder_insert_close (statements);
-			return statements;
+
+			*preupdate_out = preupdate;
+			*statements_out = statements;
+			return TRUE;
 		}
 	} else {
 		tracker_dbus_request_comment (request_id,
@@ -262,7 +271,8 @@ get_file_metadata (TrackerExtract        *extract,
 			g_warning ("Could not create GFile for uri:'%s'",
 			           uri);
 			g_object_unref (statements);
-			return NULL;
+			g_object_unref (preupdate);
+			return FALSE;
 		}
 
 		info = g_file_query_info (file,
@@ -284,7 +294,9 @@ get_file_metadata (TrackerExtract        *extract,
 
 			g_object_unref (file);
 			g_object_unref (statements);
-			return NULL;
+			g_object_unref (preupdate);
+
+			return FALSE;
 		}
 
 		mime_used = g_strdup (g_file_info_get_content_type (info));
@@ -320,7 +332,7 @@ get_file_metadata (TrackerExtract        *extract,
 				                              "  Extracting with module:'%s'",
 				                              g_module_name ((GModule*) mdata.module));
 
-				(*edata->func) (uri, statements);
+				(*edata->func) (uri, preupdate, statements);
 
 				items = tracker_sparql_builder_get_length (statements);
 
@@ -336,7 +348,10 @@ get_file_metadata (TrackerExtract        *extract,
 
 				g_free (mime_used);
 
-				return statements;
+				*preupdate_out = preupdate;
+				*statements_out = statements;
+
+				return TRUE;
 			}
 		}
 
@@ -355,7 +370,7 @@ get_file_metadata (TrackerExtract        *extract,
 				                              "  Extracting with module:'%s'",
 				                              g_module_name ((GModule*) mdata.module));
 
-				(*edata->func) (uri, statements);
+				(*edata->func) (uri, preupdate, statements);
 
 				items = tracker_sparql_builder_get_length (statements);
 
@@ -371,7 +386,10 @@ get_file_metadata (TrackerExtract        *extract,
 
 				g_free (mime_used);
 
-				return statements;
+				*preupdate_out = preupdate;
+				*statements_out = statements;
+
+				return TRUE;
 			}
 		}
 
@@ -386,9 +404,14 @@ get_file_metadata (TrackerExtract        *extract,
 		                              "  No mime available, not extracting data");
 	}
 
-	tracker_sparql_builder_insert_close (statements);
+	if (tracker_sparql_builder_get_length (statements) > 0) {
+		tracker_sparql_builder_insert_close (statements);
+	}
 
-	return statements;
+	*preupdate_out = preupdate;
+	*statements_out = statements;
+
+	return TRUE;
 }
 
 void
@@ -397,7 +420,7 @@ tracker_extract_get_metadata_by_cmdline (TrackerExtract *object,
                                          const gchar    *mime)
 {
 	guint request_id;
-	TrackerSparqlBuilder *statements = NULL;
+	TrackerSparqlBuilder *statements, *preupdate;
 
 	request_id = tracker_dbus_get_next_request_id ();
 
@@ -411,14 +434,16 @@ tracker_extract_get_metadata_by_cmdline (TrackerExtract *object,
 	                          mime);
 
 	/* NOTE: Don't reset the timeout to shutdown here */
-	statements = get_file_metadata (object, request_id, NULL, uri, mime);
 
-	if (statements) {
-		tracker_dbus_request_info (request_id,
-		                           NULL,
-		                           "%s",
-		                           tracker_sparql_builder_get_result (statements));
+	if (get_file_metadata (object, request_id,
+			       NULL, uri, mime,
+			       &preupdate, &statements)) {
+		tracker_dbus_request_info (request_id, NULL, "%s",
+					   tracker_sparql_builder_get_result (preupdate));
+		tracker_dbus_request_info (request_id, NULL, "%s",
+					   tracker_sparql_builder_get_result (statements));
 		g_object_unref (statements);
+		g_object_unref (preupdate);
 	}
 
 	tracker_dbus_request_success (request_id, NULL);
@@ -458,7 +483,8 @@ tracker_extract_get_metadata (TrackerExtract         *object,
 {
 	guint request_id;
 	TrackerExtractPrivate *priv;
-	TrackerSparqlBuilder *sparql = NULL;
+	TrackerSparqlBuilder *sparql, *preupdate;
+	gboolean extracted = FALSE;
 
 	request_id = tracker_dbus_get_next_request_id ();
 
@@ -482,18 +508,27 @@ tracker_extract_get_metadata (TrackerExtract         *object,
 		alarm (MAX_EXTRACT_TIME);
 	}
 
-	sparql = get_file_metadata (object, request_id, context, uri, mime);
+	extracted = get_file_metadata (object, request_id, context, uri, mime, &preupdate, &sparql);
 
-	if (sparql) {
+	if (extracted) {
 		tracker_dbus_request_success (request_id, context);
 
 		if (tracker_sparql_builder_get_length (sparql) > 0) {
-			/* tracker_info ("%s", tracker_sparql_builder_get_result (sparql)); */
-			dbus_g_method_return (context, tracker_sparql_builder_get_result (sparql));
+			const gchar *preupdate_str = NULL;
+
+			if (tracker_sparql_builder_get_length (preupdate) > 0) {
+				preupdate_str = tracker_sparql_builder_get_result (preupdate);
+			}
+
+			dbus_g_method_return (context,
+			                      preupdate_str ? preupdate_str : "",
+			                      tracker_sparql_builder_get_result (sparql));
 		} else {
-			dbus_g_method_return (context, "");
+			dbus_g_method_return (context, "", "");
 		}
+
 		g_object_unref (sparql);
+		g_object_unref (preupdate);
 	} else {
 		GError *actual_error = NULL;
 

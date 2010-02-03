@@ -81,6 +81,7 @@ typedef struct {
 
 static gchar *rfc1123_to_iso8601_date (gchar                *rfc_date);
 static void   extract_png             (const gchar          *filename,
+                                       TrackerSparqlBuilder *preupdate,
                                        TrackerSparqlBuilder *metadata);
 
 static TrackerExtractData data[] = {
@@ -540,8 +541,9 @@ read_metadata (png_structp png_ptr, png_infop info_ptr, const gchar *uri, Tracke
 }
 
 static void
-extract_png (const gchar *uri,
-             TrackerSparqlBuilder   *metadata)
+extract_png (const gchar          *uri,
+             TrackerSparqlBuilder *preupdate,
+             TrackerSparqlBuilder *metadata)
 {
 	goffset      size;
 	FILE        *f;
@@ -634,7 +636,6 @@ extract_png (const gchar *uri,
 
 		png_read_end (png_ptr, end_ptr);
 
-		tracker_sparql_builder_subject_iri (metadata, uri);
 		tracker_sparql_builder_predicate (metadata, "a");
 		tracker_sparql_builder_object (metadata, "nfo:Image");
 		tracker_sparql_builder_object (metadata, "nmm:Photo");

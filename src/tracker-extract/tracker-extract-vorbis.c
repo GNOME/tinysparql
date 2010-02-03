@@ -40,7 +40,8 @@
 #define NMM_PREFIX TRACKER_NMM_PREFIX
 #define RDF_PREFIX TRACKER_RDF_PREFIX
 
-static void extract_vorbis (const char *uri,
+static void extract_vorbis (const char            *uri,
+                            TrackerSparqlBuilder  *preupdate,
                             TrackerSparqlBuilder  *metadata);
 
 
@@ -82,6 +83,7 @@ ogg_get_comment (vorbis_comment *vc,
 
 static void
 extract_vorbis (const char *uri,
+                TrackerSparqlBuilder *preupdate,
                 TrackerSparqlBuilder *metadata)
 {
 	FILE           *f;
@@ -149,34 +151,58 @@ extract_vorbis (const char *uri,
 	if (merge_data.creator) {
 		artist_uri = tracker_uri_printf_escaped ("urn:artist:%s", merge_data.creator);
 
-		tracker_sparql_builder_subject_iri (metadata, artist_uri);
-		tracker_sparql_builder_predicate (metadata, "a");
-		tracker_sparql_builder_object (metadata, "nmm:Artist");
-		tracker_sparql_builder_predicate (metadata, "nmm:artistName");
-		tracker_sparql_builder_object_unvalidated (metadata, merge_data.creator);
+		tracker_sparql_builder_insert_open (preupdate, NULL);
+
+		tracker_sparql_builder_subject_iri (preupdate, artist_uri);
+		tracker_sparql_builder_predicate (preupdate, "a");
+		tracker_sparql_builder_object (preupdate, "nmm:Artist");
+		tracker_sparql_builder_predicate (preupdate, "nmm:artistName");
+		tracker_sparql_builder_object_unvalidated (preupdate, merge_data.creator);
+
+		tracker_sparql_builder_insert_close (preupdate);
+
 		g_free (merge_data.creator);
 	}
 
 	if (vorbis_data.album) {
 		album_uri = tracker_uri_printf_escaped ("urn:album:%s", vorbis_data.album);
 
-		tracker_sparql_builder_subject_iri (metadata, album_uri);
-		tracker_sparql_builder_predicate (metadata, "a");
-		tracker_sparql_builder_object (metadata, "nmm:MusicAlbum");
-		tracker_sparql_builder_predicate (metadata, "nmm:albumTitle");
-		tracker_sparql_builder_object_unvalidated (metadata, vorbis_data.album);
+		tracker_sparql_builder_insert_open (preupdate, NULL);
 
+		tracker_sparql_builder_subject_iri (preupdate, album_uri);
+		tracker_sparql_builder_predicate (preupdate, "a");
+		tracker_sparql_builder_object (preupdate, "nmm:MusicAlbum");
+		tracker_sparql_builder_predicate (preupdate, "nmm:albumTitle");
+		tracker_sparql_builder_object_unvalidated (preupdate, vorbis_data.album);
+
+		tracker_sparql_builder_insert_close (preupdate);
 
 		if (vorbis_data.trackcount) {
+			tracker_sparql_builder_delete_open (preupdate, NULL);
+			tracker_sparql_builder_subject_iri (preupdate, album_uri);
+			tracker_sparql_builder_predicate (preupdate, "nmm:albumTrackCount");
+			tracker_sparql_builder_object_variable (preupdate, "unknown");
+			tracker_sparql_builder_delete_close (preupdate);
+			tracker_sparql_builder_where_open (preupdate);
+			tracker_sparql_builder_subject_iri (preupdate, album_uri);
+			tracker_sparql_builder_predicate (preupdate, "nmm:albumTrackCount");
+			tracker_sparql_builder_object_variable (preupdate, "unknown");
+			tracker_sparql_builder_where_close (preupdate);
+
+			tracker_sparql_builder_insert_open (preupdate, preupdate);
+
+			tracker_sparql_builder_subject_iri (preupdate, md.album_uri);
 			tracker_sparql_builder_predicate (metadata, "nmm:albumTrackCount");
 			tracker_sparql_builder_object_unvalidated (metadata, vorbis_data.trackcount);
+
+			tracker_sparql_builder_insert_close (preupdate);
+
 			g_free (vorbis_data.trackcount);
 		}
 
 		g_free (vorbis_data.album);
 	}
 
-	tracker_sparql_builder_subject_iri (metadata, uri);
 	tracker_sparql_builder_predicate (metadata, "a");
 	tracker_sparql_builder_object (metadata, "nmm:MusicPiece");
 	tracker_sparql_builder_object (metadata, "nfo:Audio");

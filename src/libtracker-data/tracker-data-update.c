@@ -1952,7 +1952,7 @@ format_sql_value_as_string (GString         *sql,
  */
 void
 tracker_data_delete_resource_description (const gchar *graph,
-                                          const gchar *uri,
+                                          const gchar *url,
                                           GError **error)
 {
 	TrackerDBInterface *iface;
@@ -1970,9 +1970,23 @@ tracker_data_delete_resource_description (const gchar *graph,
 	 * that otherwise the query of the outer cursor would be reused by the
 	 * cursors of the inner queries. */
 
-	resource_id = tracker_data_query_resource_id (uri);
-
 	iface = tracker_db_manager_get_db_interface ();
+
+	/* DROP GRAPH <url> - url here is nie:url */
+
+	stmt = tracker_db_interface_create_statement (iface, "SELECT ID FROM \"nie:DataObject\" WHERE \"nie:DataObject\".\"nie:url\" = ?");
+	tracker_db_statement_bind_text (stmt, 0, url);
+	result_set = tracker_db_statement_execute (stmt, NULL);
+	g_object_unref (stmt);
+
+	if (result_set) {
+		tracker_db_result_set_get (result_set, 0, &resource_id, -1);
+		g_object_unref (result_set);
+	} else {
+		/* For fallback to the old behaviour, we could do this here:
+		 * resource_id = tracker_data_query_resource_id (url); */
+		return;
+	}
 
 	properties = tracker_ontology_get_properties (&n_props);
 
@@ -2058,7 +2072,7 @@ tracker_data_delete_resource_description (const gchar *graph,
 					tracker_db_result_set_get (single_result, i++, &value, -1);
 
 					if (value) {
-						tracker_data_delete_statement (graph, uri,
+						tracker_data_delete_statement (graph, url,
 						                               tracker_property_get_uri (property),
 						                               value,
 						                               &new_error);
@@ -2093,7 +2107,7 @@ tracker_data_delete_resource_description (const gchar *graph,
 
 							tracker_db_result_set_get (multi_result, 0, &value, -1);
 
-							tracker_data_delete_statement (graph, uri,
+							tracker_data_delete_statement (graph, url,
 							                               tracker_property_get_uri (property),
 							                               value,
 							                               &new_error);

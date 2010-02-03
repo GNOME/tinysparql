@@ -221,7 +221,7 @@ writeback_playlist_update_file_metadata (TrackerWritebackFile *writeback_file,
 
 	for (n = 0; n < values->len; n++) {
 		const GStrv row = g_ptr_array_index (values, n);
-		if (g_strcmp0 (row[1], TRACKER_NFO_PREFIX "entryCounter") == 0) {
+		if (g_strcmp0 (row[2], TRACKER_NFO_PREFIX "entryCounter") == 0) {
 			rewrite_playlist (client, file, row[0]);
 			break;
 		}

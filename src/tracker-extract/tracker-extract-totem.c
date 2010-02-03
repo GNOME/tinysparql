@@ -54,6 +54,7 @@ static const gchar *tags[][2] = {
 };
 
 static void extract_totem (const gchar          *uri,
+                           TrackerSparqlBuilder *preupdate,
                            TrackerSparqlBuilder *metadata);
 
 static TrackerExtractData data[] = {
@@ -75,6 +76,7 @@ metadata_write_foreach (gpointer key,
 
 static void
 extract_totem (const gchar          *uri,
+               TrackerSparqlBuilder *preupdate,
                TrackerSparqlBuilder *metadata)
 {
 	gchar *argv[3];
@@ -124,29 +126,36 @@ extract_totem (const gchar          *uri,
 		}
 
 		if (artist) {
-			tracker_sparql_builder_subject_iri (metadata, artist_uri);
-			tracker_sparql_builder_predicate (metadata, "a");
-			tracker_sparql_builder_object (metadata, "nmm:Artist");
+			tracker_sparql_builder_insert_open (preupdate, NULL);
+
+			tracker_sparql_builder_subject_iri (preupdate, artist_uri);
+			tracker_sparql_builder_predicate (preupdate, "a");
+			tracker_sparql_builder_object (preupdate, "nmm:Artist");
 
 			if (has_video) {
-				tracker_sparql_builder_object (metadata, "nmm:director");
+				tracker_sparql_builder_object (preupdate, "nmm:director");
 			} else {
-				tracker_sparql_builder_object (metadata, "nmm:composer");
+				tracker_sparql_builder_object (preupdate, "nmm:composer");
 			}
 
-			tracker_sparql_builder_predicate (metadata, "nmm:artistName");
-			tracker_sparql_builder_object_unvalidated (metadata, artist);
+			tracker_sparql_builder_predicate (preupdate, "nmm:artistName");
+			tracker_sparql_builder_object_unvalidated (preupdate, artist);
+
+			tracker_sparql_builder_insert_close (preupdate);
 		}
 
 		if (album) {
-			tracker_sparql_builder_subject_iri (metadata, album_uri);
-			tracker_sparql_builder_predicate (metadata, "a");
-			tracker_sparql_builder_object (metadata, "nmm:MusicAlbum");
-			tracker_sparql_builder_predicate (metadata, "nmm:albumTitle");
-			tracker_sparql_builder_object_unvalidated (metadata, album);
+			tracker_sparql_builder_insert_open (preupdate, NULL);
+
+			tracker_sparql_builder_subject_iri (preupdate, album_uri);
+			tracker_sparql_builder_predicate (preupdate, "a");
+			tracker_sparql_builder_object (preupdate, "nmm:MusicAlbum");
+			tracker_sparql_builder_predicate (preupdate, "nmm:albumTitle");
+			tracker_sparql_builder_object_unvalidated (preupdate, album);
+
+			tracker_sparql_builder_insert_close (preupdate);
 		}
 
-		tracker_sparql_builder_subject_iri (metadata, uri);
 		tracker_sparql_builder_predicate (metadata, "a");
 
 		if (has_video) {

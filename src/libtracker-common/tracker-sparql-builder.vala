@@ -25,7 +25,9 @@ public class Tracker.SparqlBuilder : Object {
 		SUBJECT,
 		PREDICATE,
 		OBJECT,
-		BLANK
+		BLANK,
+		WHERE,
+		EMBEDDED_INSERT
 	}
 
 	public string result {
@@ -46,6 +48,11 @@ public class Tracker.SparqlBuilder : Object {
 
 	public SparqlBuilder.update () {
 		states += State.UPDATE;
+	}
+
+	public SparqlBuilder.embedded_insert () {
+		states += State.EMBEDDED_INSERT;
+		states += State.INSERT;
 	}
 
 	public void drop_graph (string iri)
@@ -72,7 +79,58 @@ public class Tracker.SparqlBuilder : Object {
 			states.length -= 3;
 		}
 		states.length--;
+
+		if (state != State.EMBEDDED_INSERT) {
+			str.append ("}\n");
+		}
+	}
+
+	public void delete_open (string? graph)
+		requires (state == State.UPDATE)
+	{
+		states += State.DELETE;
+		if (graph != null)
+			str.append ("DELETE FROM <%s> {\n".printf (graph));
+		else
+			str.append ("DELETE {\n");
+	}
+
+	public void delete_close ()
+		requires (state == State.DELETE || state == State.OBJECT)
+	{
+		if (state == State.OBJECT) {
+			str.append (" .\n");
+			states.length -= 3;
+		}
+		states.length--;
+
 		str.append ("}\n");
+	}
+
+	public void where_open ()
+	       requires (state == State.UPDATE)
+	{
+		states += State.WHERE;
+		str.append ("WHERE {\n");
+	}
+
+	public void where_close ()
+		requires (state == State.WHERE || state == State.OBJECT)
+	{
+		if (state == State.OBJECT) {
+			str.append (" .\n");
+			states.length -= 3;
+		}
+		states.length--;
+		str.append ("}\n");
+	}
+
+	public void subject_variable (string var_name) {
+		subject ("?%s".printf (var_name));
+	}
+
+	public void object_variable (string var_name) {
+		object ("?%s".printf (var_name));
 	}
 
 	public void subject_iri (string iri) {
@@ -80,7 +138,7 @@ public class Tracker.SparqlBuilder : Object {
 	}
 
 	public void subject (string s)
-		requires (state == State.INSERT || state == State.OBJECT)
+		requires (state == State.INSERT || state == State.OBJECT || state == State.EMBEDDED_INSERT || state == State.DELETE || state == State.WHERE)
 	{
 		if (state == State.OBJECT) {
 			str.append (" .\n");
@@ -207,9 +265,18 @@ public class Tracker.SparqlBuilder : Object {
 		length++;
 	}
 
-	public void append (string raw)
-		requires (states.length == 1)
+	public void prepend (string raw)
 	{
+		str.prepend ("%s\n".printf (raw));
+	}
+
+	public void append (string raw)
+	{
+		if (state == State.OBJECT) {
+			str.append (" .\n");
+			states.length -= 3;
+		}
+
 		str.append (raw);
 	}
 }

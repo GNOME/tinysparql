@@ -106,13 +106,13 @@ writeback_mp3_update_file_metadata (TrackerWritebackFile *writeback_file,
 				ID3Field *field;
 
 				field = ID3Frame_GetField (frame, ID3FN_TEXT);
-				ID3Field_SetASCII (field, row[2]);
+				ID3Field_SetASCII (field, row[3]);
 			} else {
 				ID3Field *field;
 
 				frame = ID3Frame_NewID (ID3FID_TITLE);
 				field = ID3Frame_GetField (frame, ID3FN_TEXT);
-				ID3Field_SetASCII (field, row[2]);
+				ID3Field_SetASCII (field, row[3]);
 				ID3Tag_AddFrame (tag, frame);
 			}
 

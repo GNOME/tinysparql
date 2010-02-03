@@ -56,9 +56,11 @@
 
 #ifdef USING_UNZIPPSFILES
 static void extract_ps_gz (const gchar          *uri,
+                           TrackerSparqlBuilder *preupdate,
                            TrackerSparqlBuilder *metadata);
 #endif
 static void extract_ps    (const gchar          *uri,
+                           TrackerSparqlBuilder *preupdate,
                            TrackerSparqlBuilder *metadata);
 
 static TrackerExtractData data[] = {
@@ -205,6 +207,7 @@ date_to_iso8601 (const gchar *date)
 
 static void
 extract_ps (const gchar          *uri,
+            TrackerSparqlBuilder *preupdate,
             TrackerSparqlBuilder *metadata)
 {
 	FILE *f;
@@ -224,7 +227,6 @@ extract_ps (const gchar          *uri,
 	line = NULL;
 	length = 0;
 
-	tracker_sparql_builder_subject_iri (metadata, uri);
 	tracker_sparql_builder_predicate (metadata, "a");
 	tracker_sparql_builder_object (metadata, "nfo:PaginatedTextDocument");
 
@@ -291,6 +293,7 @@ extract_ps (const gchar          *uri,
 
 static void
 extract_ps_gz (const gchar          *uri,
+               TrackerSparqlBuilder *preupdate,
                TrackerSparqlBuilder *metadata)
 {
 	FILE *fz, *f;
@@ -380,7 +383,7 @@ extract_ps_gz (const gchar          *uri,
 		fclose (f);
 	}
 
-	extract_ps (gunzipped, metadata);
+	extract_ps (gunzipped, preupdate, metadata);
 	g_unlink (gunzipped);
 	g_free (filename);
 }

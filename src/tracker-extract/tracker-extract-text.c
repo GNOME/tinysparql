@@ -31,6 +31,7 @@
 #define TEXT_CHECK_SIZE 65535    /* bytes */
 
 static void extract_text (const gchar          *uri,
+                          TrackerSparqlBuilder *preupdate,
                           TrackerSparqlBuilder *metadata);
 
 static TrackerExtractData data[] = {
@@ -274,6 +275,7 @@ get_file_content (const gchar *uri)
 
 static void
 extract_text (const gchar          *uri,
+              TrackerSparqlBuilder *preupdate,
               TrackerSparqlBuilder *metadata)
 {
 	gchar *content;
@@ -282,7 +284,6 @@ extract_text (const gchar          *uri,
 
 	content = get_file_content (uri);
 
-	tracker_sparql_builder_subject_iri (metadata, uri);
 	tracker_sparql_builder_predicate (metadata, "a");
 	tracker_sparql_builder_object (metadata, "nfo:PlainTextDocument");
 

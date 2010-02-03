@@ -43,6 +43,7 @@ typedef struct {
 } parser_data;
 
 static void extract_html (const gchar          *filename,
+                          TrackerSparqlBuilder *preupdate,
                           TrackerSparqlBuilder *metadata);
 
 static TrackerExtractData data[] = {
@@ -197,6 +198,7 @@ parser_characters (void          *data,
 
 static void
 extract_html (const gchar          *uri,
+              TrackerSparqlBuilder *preupdate,
               TrackerSparqlBuilder *metadata)
 {
 	htmlDocPtr doc;
@@ -237,7 +239,6 @@ extract_html (const gchar          *uri,
 		NULL  /* xmlStructuredErrorFunc */
 	};
 
-	tracker_sparql_builder_subject_iri (metadata, uri);
 	tracker_sparql_builder_predicate (metadata, "a");
 	tracker_sparql_builder_object (metadata, "nfo:Document");
 

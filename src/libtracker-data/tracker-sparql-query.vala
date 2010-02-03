@@ -1058,9 +1058,9 @@ public class Tracker.SparqlQuery : Object {
 		expect (SparqlTokenType.GRAPH);
 
 		bool is_var;
-		string uri = parse_var_or_term (null, out is_var);
+		string url = parse_var_or_term (null, out is_var);
 
-		Data.delete_resource_description (uri, uri);
+		Data.delete_resource_description (url, url);
 
 		// ensure possible WHERE clause in next part gets the correct results
 		Data.update_buffer_flush ();

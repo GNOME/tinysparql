@@ -45,6 +45,7 @@ typedef struct {
 } PDFData;
 
 static void extract_pdf (const gchar          *uri,
+                         TrackerSparqlBuilder *preupdate,
                          TrackerSparqlBuilder *metadata);
 
 static TrackerExtractData data[] = {
@@ -167,6 +168,7 @@ write_pdf_data (PDFData               data,
 
 static void
 extract_pdf (const gchar          *uri,
+             TrackerSparqlBuilder *preupdate,
              TrackerSparqlBuilder *metadata)
 {
 	TrackerFTSConfig *fts_config;
@@ -200,7 +202,6 @@ extract_pdf (const gchar          *uri,
 		return;
 	}
 
-	tracker_sparql_builder_subject_iri (metadata, uri);
 	tracker_sparql_builder_predicate (metadata, "a");
 	tracker_sparql_builder_object (metadata, "nfo:PaginatedTextDocument");
 

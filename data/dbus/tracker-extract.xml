@@ -19,7 +19,8 @@
       <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
       <arg type="s" name="uri" direction="in" />
       <arg type="s" name="mime" direction="in" />
-      <arg type="s" name="sparql" direction="out" />
+      <arg type="s" name="preupdate" direction="out" />
+      <arg type="s" name="embedded" direction="out" />
     </method>
   </interface>
 </node>

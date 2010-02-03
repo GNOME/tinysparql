@@ -1135,6 +1135,16 @@ tracker_storage_get_volume_udi_for_file (TrackerStorage *storage,
 		return NULL;
 	}
 
+	/* Normalize all paths to have a / at the end */
+	if (!g_str_has_suffix (path, G_DIR_SEPARATOR_S)) {
+		gchar *norm_path;
+
+		norm_path = g_strconcat (path, G_DIR_SEPARATOR_S, NULL);
+		g_free (path);
+		path = norm_path;
+	}
+
+
 	priv = GET_PRIV (storage);
 
 	info = find_mount_point_info (priv->mounts, path);
@@ -1146,6 +1156,8 @@ tracker_storage_get_volume_udi_for_file (TrackerStorage *storage,
 
 	g_debug ("Mount for path '%s' is '%s' (UDI:'%s')",
 	         path, info->mount_point, info->udi);
+
+	g_free (path);
 
 	return info->udi;
 }
