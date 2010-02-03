@@ -120,6 +120,7 @@ extract_content (PopplerDocument *document,
 
 		g_free (text);
 		g_free (t);
+		g_object_unref (page);
 	}
 
 	return g_string_free (string, FALSE);
