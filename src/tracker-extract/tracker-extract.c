@@ -521,7 +521,7 @@ tracker_extract_get_metadata (TrackerExtract         *object,
 			}
 
 			dbus_g_method_return (context,
-			                      (preupdate_str) ? preupdate_str : "",
+			                      preupdate_str ? preupdate_str : "",
 			                      tracker_sparql_builder_get_result (sparql));
 		} else {
 			dbus_g_method_return (context, "", "");
