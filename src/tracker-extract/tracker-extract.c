@@ -265,6 +265,7 @@ get_file_metadata (TrackerExtract         *extract,
 			g_warning ("Could not create GFile for uri:'%s'",
 			           uri);
 			g_object_unref (statements);
+			g_object_unref (preupdate);
 			return FALSE;
 		}
 
@@ -436,6 +437,7 @@ tracker_extract_get_metadata_by_cmdline (TrackerExtract *object,
 		tracker_dbus_request_info (request_id, NULL, "%s",
 					   tracker_sparql_builder_get_result (statements));
 		g_object_unref (statements);
+		g_object_unref (preupdate);
 	}
 
 	tracker_dbus_request_success (request_id, NULL);
