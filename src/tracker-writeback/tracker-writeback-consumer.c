@@ -227,18 +227,17 @@ process_queue_cb (gpointer user_data)
 		return FALSE;
 	}
 
-	/* We use IE = DO, so we can optimize using nie:isStoredAs instead of
-	 * nie:url here. Please change this when we change that decision. */
+	query = g_strdup_printf ("SELECT ?url '%s' ?predicate ?object {"
+	                         "  <%s> ?predicate ?object ; "
+	                         "       nie:url ?url ."
+	                         "  ?predicate tracker:writeback true "
+	                         "}",
+	                         data->subject, data->subject);
 
-		query = g_strdup_printf ("SELECT ?url '%s' ?predicate ?object {"
-		                         "  <%s> ?predicate ?object ; nie:url ?url ."
-		                         "  ?predicate tracker:writeback true "
-		                         "}", data->subject, data->subject);
-
-		tracker_resources_sparql_query_async (priv->client,
-		                                      query,
-		                                      sparql_query_cb,
-		                                      consumer);
+	tracker_resources_sparql_query_async (priv->client,
+	                                      query,
+	                                      sparql_query_cb,
+	                                      consumer);
 
 	g_free (query);
 
