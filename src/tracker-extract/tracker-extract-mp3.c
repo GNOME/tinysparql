@@ -2000,10 +2000,9 @@ extract_mp3 (const gchar          *uri,
 		tracker_sparql_builder_predicate (preupdate, "nmm:albumTitle");
 		tracker_sparql_builder_object_unvalidated (preupdate, md.album);
 
+		tracker_sparql_builder_insert_close (preupdate);
+
 		if (md.track_count > 0) {
-
-			tracker_sparql_builder_insert_close (preupdate);
-
 			tracker_sparql_builder_delete_open (preupdate, NULL);
 			tracker_sparql_builder_subject_iri (preupdate, md.album_uri);
 			tracker_sparql_builder_predicate (preupdate, "nmm:albumTrackCount");
@@ -2016,13 +2015,13 @@ extract_mp3 (const gchar          *uri,
 			tracker_sparql_builder_where_close (preupdate);
 
 			tracker_sparql_builder_insert_open (preupdate, NULL);
-			tracker_sparql_builder_subject_iri (preupdate, md.album_uri);
 
+			tracker_sparql_builder_subject_iri (preupdate, md.album_uri);
 			tracker_sparql_builder_predicate (preupdate, "nmm:albumTrackCount");
 			tracker_sparql_builder_object_int64 (preupdate, md.track_count);
-		}
 
-		tracker_sparql_builder_insert_close (preupdate);
+			tracker_sparql_builder_insert_close (preupdate);
+		}
 	}
 
 	tracker_sparql_builder_predicate (metadata, "a");
