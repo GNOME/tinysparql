@@ -8,8 +8,8 @@ msgstr ""
 "Project-Id-Version: tracker.HEAD\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&component=general\n"
-"POT-Creation-Date: 2010-02-01 20:54+0000\n"
-"PO-Revision-Date: 2010-02-03 07:47+0100\n"
+"POT-Creation-Date: 2010-02-03 06:54+0000\n"
+"PO-Revision-Date: 2010-02-03 08:08+0100\n"
 "Last-Translator: Jorge González <jorgegonz@svn.gnome.org>\n"
 "Language-Team: Español <gnome-es-list@gnome.org>\n"
 "MIME-Version: 1.0\n"
@@ -89,18 +89,18 @@ msgstr[1] ""
 "seleccionados:"
 
 #: ../src/plugins/nautilus/tracker-tags-extension.c:124
-#: ../src/plugins/nautilus/tracker-tags-extension.c:232
+#: ../src/plugins/nautilus/tracker-tags-extension.c:233
 #: ../src/tracker-search-bar/tracker-results-window.c:645
 msgid "Tags"
 msgstr "Etiquetas"
 
-#: ../src/plugins/nautilus/tracker-tags-extension.c:170
-#: ../src/plugins/nautilus/tracker-tags-extension.c:197
+#: ../src/plugins/nautilus/tracker-tags-extension.c:171
+#: ../src/plugins/nautilus/tracker-tags-extension.c:198
 msgid "Tags..."
 msgstr "Etiquetas…"
 
-#: ../src/plugins/nautilus/tracker-tags-extension.c:171
-#: ../src/plugins/nautilus/tracker-tags-extension.c:198
+#: ../src/plugins/nautilus/tracker-tags-extension.c:172
+#: ../src/plugins/nautilus/tracker-tags-extension.c:199
 msgid "Tag one or more files"
 msgstr "Etiquetar uno o más archivos"
 
@@ -387,27 +387,27 @@ msgstr ""
 msgid "Cookie not recognized to resume paused miner"
 msgstr "No se reconoce la «cookie» para resumir el minero pausado"
 
-#: ../src/libtracker-miner/tracker-miner-fs.c:664
+#: ../src/libtracker-miner/tracker-miner-fs.c:666
 #: ../src/plugins/evolution/tracker-evolution-plugin.c:2326
 msgid "Initializing"
 msgstr "Inicializando"
 
-#: ../src/libtracker-miner/tracker-miner-fs.c:675
-#: ../src/libtracker-miner/tracker-miner-fs.c:817
+#: ../src/libtracker-miner/tracker-miner-fs.c:677
+#: ../src/libtracker-miner/tracker-miner-fs.c:819
 msgid "Idle"
 msgstr "Ocioso"
 
-#: ../src/libtracker-miner/tracker-miner-fs.c:1660
-#: ../src/libtracker-miner/tracker-miner-fs.c:1663
+#: ../src/libtracker-miner/tracker-miner-fs.c:1708
+#: ../src/libtracker-miner/tracker-miner-fs.c:1711
 msgid "Processing files"
 msgstr "Procesando archivos"
 
-#: ../src/libtracker-miner/tracker-miner-fs.c:2120
+#: ../src/libtracker-miner/tracker-miner-fs.c:2168
 #, c-format
 msgid "Crawling recursively directory '%s'"
 msgstr "Arrastrándose recursivamente por el directorio «%s»"
 
-#: ../src/libtracker-miner/tracker-miner-fs.c:2122
+#: ../src/libtracker-miner/tracker-miner-fs.c:2170
 #, c-format
 msgid "Crawling single directory '%s'"
 msgstr "Arrastrándose sólo por el directorio «%s»"
@@ -1297,19 +1297,23 @@ msgstr "Proceso %d matado"
 msgid "Removing configuration files…"
 msgstr "Quitando archivos de configuración…"
 
-#: ../src/tracker-control/tracker-control.c:425
+#: ../src/tracker-control/tracker-control.c:426
+msgid "Waiting one second before starting miners…"
+msgstr "Esperando un segundo antes de iniciar los mineros…"
+
+#: ../src/tracker-control/tracker-control.c:432
 msgid "Starting miners…"
 msgstr "Iniciando mineros…"
 
-#: ../src/tracker-control/tracker-control.c:439
+#: ../src/tracker-control/tracker-control.c:446
 msgid "Failed"
 msgstr "Falló"
 
-#: ../src/tracker-control/tracker-control.c:441
+#: ../src/tracker-control/tracker-control.c:448
 msgid "Could not get miner status"
 msgstr "No se pudo obtener es estado del minero"
 
-#: ../src/tracker-control/tracker-control.c:444
+#: ../src/tracker-control/tracker-control.c:451
 #: ../src/tracker-utils/tracker-import.c:139
 #: ../src/tracker-utils/tracker-status.c:193
 msgid "Done"
@@ -1734,7 +1738,6 @@ msgid "You must provide the miner for pause or resume commands"
 msgstr "Debe proporcionar el minero para los comandos pausar o resumir"
 
 #: ../src/tracker-utils/tracker-status.c:397
-#| msgid "You must provide the miner for pause or resume commands"
 msgid "You must provide a pause or resume command for the miner"
 msgstr "Debe proporcionar una pausa o resumir el comando para el minero"
 
