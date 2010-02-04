@@ -117,6 +117,8 @@ typedef struct {
 	/* Tags and data */
 	GstTagList     *tagcache;
 
+	gboolean        is_content_encrypted;
+
 	unsigned char  *album_art_data;
 	guint           album_art_size;
 	const gchar    *album_art_mime;
@@ -636,6 +638,11 @@ extract_metadata (MetadataExtractor      *extractor,
 		add_y_date_gst_tag (metadata, uri, "nie:contentCreated", extractor->tagcache, GST_TAG_DATE);
 		add_string_gst_tag (metadata, uri, "nie:comment", extractor->tagcache, GST_TAG_COMMENT);
 
+		if (extractor->is_content_encrypted) {
+			tracker_sparql_builder_predicate (metadata, "nfo:isContentEncrypted");
+			tracker_sparql_builder_object_boolean (metadata, TRUE);
+		}
+
 		if (extractor->mime == EXTRACT_MIME_VIDEO) {
 			add_string_gst_tag (metadata, uri, "dc:source", extractor->tagcache, GST_TAG_CLASSIFICATION);
 
@@ -868,6 +875,22 @@ poll_for_ready (MetadataExtractor *extractor,
 			gchar  *error_message;
 
 			gst_message_parse_error (message, &lerror, &error_message);
+
+#if (GST_VERSION_MICRO >= 20)
+			if (lerror->domain == GST_STREAM_ERROR) {
+				if (lerror->code == GST_STREAM_ERROR_DECRYPT ||
+				    lerror->code == GST_STREAM_ERROR_DECRYPT_NOKEY) {
+					/* also extract metadata from encrypted streams */
+
+					extractor->is_content_encrypted = TRUE;
+
+					g_free (error_message);
+					g_error_free (lerror);
+					break;
+				}
+			}
+#endif
+
 			gst_message_unref (message);
 			g_warning ("Got error :%s", error_message);
 			g_free (error_message);
