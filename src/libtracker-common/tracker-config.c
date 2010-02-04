@@ -77,7 +77,7 @@
 #define DEFAULT_LOW_MEMORY_MODE			 FALSE
 #define DEFAULT_NFS_LOCKING			 FALSE
 #define DEFAULT_ENABLE_WATCHES			 TRUE
-#define DEFAULT_THROTTLE			 0	  /* 0->20 */
+#define DEFAULT_THROTTLE			 10	  /* 0->20 */
 #define DEFAULT_ENABLE_INDEXING			 TRUE
 #define DEFAULT_ENABLE_CONTENT_INDEXING		 TRUE
 #define DEFAULT_ENABLE_THUMBNAILS		 TRUE
@@ -757,6 +757,7 @@ config_create_with_defaults (GKeyFile *key_file,
 	gchar	     *language;
 	const gchar  *watch_directory_roots[2] = { NULL, NULL };
 	const gchar  *empty_string_list[] = { NULL };
+	const gchar * const disabled_modules[2] = { "evolution", NULL };
 
 	/* Get default values */
 	language = tracker_language_get_default_code ();
@@ -865,7 +866,7 @@ config_create_with_defaults (GKeyFile *key_file,
 
 	if (overwrite || !g_key_file_has_key (key_file, GROUP_INDEXING, KEY_DISABLED_MODULES, NULL)) {
 		g_key_file_set_string_list (key_file, GROUP_INDEXING, KEY_DISABLED_MODULES,
-					    empty_string_list, 0);
+					    disabled_modules, 2);
 		g_key_file_set_comment (key_file, GROUP_INDEXING, KEY_DISABLED_MODULES,
 					" List of disabled modules (separator=;)\n"
 					" The modules that are indexed are kept in $prefix/lib/tracker/indexer-modules",
