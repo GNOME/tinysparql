@@ -1,3 +1,136 @@
+NEW in 0.6.96:
+==============
+
+Improvements:
+  * Fixes indexer warnings closing contexts inserting with collated data
+  * Force a reindex if ontology directory mtime is more recent than db
+  * Plug potential leak when setting DB pragmas
+  * Use MEMORY the default pragma for temp_store
+  * Rework the processors device and module logic so it is clearer
+  * Monitor cache time now 1s & processor queue time now 0s for < 50 items
+  * Add a File:Added field, representing when the item as added to the DB
+  * Check space before creating DBs && disable indexer API when paused
+  * Indexer pause time now 2s not 5s
+  * Fixed critical warning calling TrackerProcessor API before created
+  * Fixed logic typo in tracker_file_system_has_enough_space()
+  * Performance improvements for album-art detection
+  * Fixed trackerd crasher when shutting down if started in readonly mode
+  * Fix iterating OVER every other device in the processor's list
+  * Add a SetProfile DBus call to the indexer to switch DB pragmas...
+  * Hook up tracker-status to profile setting in tracker-indexer...
+  * Fixed state machine so we return to previous state after PAUSED
+  * Some small fixes to the tagreadbin gstreamer implementation.
+  * Don't change the mode in indexer if same as current mode
+  * Make trackerd not wake tracker-indexer up when changing DB mode.
+  * Fix a typo in gstreamer extractor field name (Video:FrameRate)
+  * Avoid double reindexes from both trackerd and tracker-indexer
+  * Add some error logging to the GIO operations in tracker-crawler.
+  * Lower tracker-extract's OOM score to the minimum.
+  * Fixed gtk-doc warnings
+  * Set memory limit based on current process memory usage.
+  * Adapt tracker-extract to create all its resources before setting mem limits.
+  * Change File:Added to contain index time(), since some apps don't modify mtime when copying
+  * Tweaked the memory limitations for AMD64
+  * Fixed thumbnailer, when no items must be thumbnailed, don't send a request
+  * Removed unnecessary DISTINCT in GetByServiceType, improves speed.
+  * Speed up stats calculation
+  * Use libenca to check for Cyrillic encodings for ID3v1 tags
+  * Fixed a compilation error when building without libenca
+  * Fix NULL crasher in trackerd with strcasecmp
+  * Unref GstCaps with the right function.
+  * Improve error handling/logging in sqlite created functions
+  * Fixed sending the uri to the thumbnailer of deleted files
+  * Fixed core dump by double freeing a device in trackerd processor
+  * Fixed compilation error if you don't have GdkPixbuf installed
+  * Reduce stats cache timeout from 5 minutes to 2 minutes
+  * Fixed MP3 genres according to specs
+  * Fixed memory leak in imported libinotify
+  * Dont use 100% CPU if FS changes while paused
+  * Don't stat() twice when setting up NFS lock
+  * Fixed evolution plugin 64bit compiler warnings & broken for loop
+  * Check whether we are returning multivalued fields and group by ID only if we are.
+  * Do not unnecessarily use DISTINCT in queries.
+  * Use correct property names in the vorbis extractor
+  * Fix build failures with  -Wl,--as-needed
+  * Applied debian patch 10-drop-bogus-version-info.patch (sets version to 0.0.0 for internal libs).
+  * Applied debian patch 20-tracker-defaults.patch (sets throttle to 10 from 0 and disabled evolution by default)
+  * Applied debian patch 30-gmime-2.4.patch (upgrades to gmime 2.4)
+
+Bugs:
+  * Fixes: GB#584547, Hungarian stopwords files encoding is bad
+  * Fixes: GB#584809, Remove tracker-thumbnailer manpage
+  * Fixes: GB#598544, Fix build without HAL
+  * Fixes: GB#598575, error: invalid operands to binary
+  * Fixes: NB#118212, glib warnings when running trackerd
+  * Fixes: NB#114082, Tracker source returns wrong metadata for attached clip with special characters
+  * Fixes: NB#110584, Image:HasKeywords cannot be used for ImageViewer puprposes
+  * Fixes: NB#100123, Image:Date is empty for some of the images
+  * Fixes: NB#119507, Removed debugging info
+  * Fixes: NB#119123, tracker-indexer is crashing
+  * Fixes: NB#118578, Getting metadata with mafw_playlist_get_items_md fails.
+  * Fixes: NB#114880, tracker-extract crashed while extracting a video
+  * Fixes: NB#95873, duration not extracted for mp2 and aac files
+  * Fixes: NB#96142, Video library : Duration of the Video clips is not displaying.
+  * Fixes: NB#119384, duration is not extracted for the wmv file of 30secs duration
+  * Fixes: NB#119840, Music-Artists -Library view not displayed by tapping on (unknown Artist)
+  * Fixes: NB#120883, duration of playlists container is improper
+  * Fixes: NB#121542, trackerd[1460]: GLIB CRITICAL ** GLib-GIO - g_file_hash
+  * Fixes: NB#107116, Music:Duration displayed as -:- in library for some clips
+  * Fixes: NB#117593, Top most played and Never played songs not listed in alphabetical order
+  * Fixes: NB#119230, tracker-extract: memory management shall be improved
+  * Fixes: NB#119318, Russian mp3 id tag is displayed incorrectly (total garbage)
+  * Fixes: NB#123030, Attached clip cannot be opened through music>artists, childcounts shown wrongly
+  * Fixes: NB#100123, Image:Date is empty for some of the images
+  * Fixes: NB#123591, Unknown genre displayed twice for the attached clips
+  * Fixes: NB#124483, trackerd[1252]: GLIB CRITICAL ** Tracker - tracker_service_get_name: assertion `TRACKER_IS_SERVICE
+  * Fixes: NB#125050, got tracker criticals
+  * Fixes: NB#124920, Tracker sorting is incorrect
+  * Fixes: NB#121377, Tracker goes to pending state when corrupted mmc card with large data is inserted
+  * Fixes: NB#126696, Tracker extractor crashes while extracting a corrupted music file
+  * Fixes: NB#125128, junk characters are shown in artist field of some of the audio files
+  * Fixes: NB#128713, Period in media filenames
+  * Fixes: NB#126260, 01.jpg and wavelength04.jpg has no Image:Date causing image duplication in image viewer
+  * Fixes: NB#131222, Potential TIFF extractor buffer overflow
+  * Fixes: NB#132414, Tracker-extract crashes in tracker_utils_default_check_filename
+  * Fixes: NB#129415, Video and Audio Library view and also image gallery is not getting updated after we delete Audio/Video/Image file through USB mass storage
+  * Fixes: NB#125991, Image Viewer consuming more time to filter the images based on date
+  * Fixes: NB#126773, trackerd and tracker-extract spam syslog
+  * Fixes: NB#96142, Video library : Duration of the Video clips is not displaying.
+  * Fixes: NB#136770, Not able to see the pictures captured with camera application after renaming the current folder.
+  * Fixes: NB#135190, tracker-extract[2702]: GLIB CRITICAL ** GStreamer - gst_value_get_fraction_numerator: assertion `GST_VALUE_HOLDS_FRACTION (value)' failed
+  * Fixes: NB#129094, HasKeywords is wrongly set for an attached image
+  * Fixes: NB#138043, New tracker indexer crashes.
+  * Fixes: NB#131278, Random tracker-indexer-71C9-11-2408.rcore crash observed.
+  * Fixes: NB#140077, Send statistics signal only at the end of the indexing
+  * Fixes: NB#126255, Image:Date is empty for some of the images
+  * Fixes: NB#140966, tracker-indexer D-Bus interface should have a plural FilesMove
+  * Fixes: NB#142225, Album art: Windows media player filename format not supported.
+  * Fixes: NB#135368, No Track Number in itunes audio books
+  * Fixes: NB#126696, Tracker extractor crashes while extracting a corrupted music file
+  * Fixes: NB#134330, trackerd crashed in sqlite3_bind_text
+  * Fixes: NB#126185, tracker-extract[1413]: GLIB CRITICAL ** GLib-GObject - g_object_unref: assertion `G_IS_OBJECT (object)' failed
+  * Fixes: NB#126283, [AF checked]  Top level category statistics show 2x...
+  * Fixes: NB#131369, Tries to open files as directories
+  * Fixes: NB#135485, Image:Date mismatch
+  * Fixes: NB#147027, Hidden folders in PC become visible on the device after copying them
+  * Fixes: NB#147883, Not supported mime-type by totem-pl-parser
+  * Fixes: NB#137788, Try first TPE1 instead of TP2 for the Audio:Artist field
+
+Translations:
+  * Updated es: Jorge Gonzalez
+  * Updated de: Mario Blättermann
+  * Updated da: Ask H. Larsen
+  * Updated hu: Gabor Kelemen
+  * Updated sv: Daniel Nylander
+  * Updated gl: Fran Dieguez
+  * Updated fi: Timo Jyrinki
+  * Updated nb: Kjartan Maraas
+  * Updated sl: Andrej Žnidaršič
+
+Help Manual Translations:
+None
+
+
 NEW in 0.6.95:
 ==============
 
