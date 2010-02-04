@@ -1,3 +1,72 @@
+NEW in 0.7.19
+=============
+
+Improvements / New:
+
+  libtracker-common:
+  * Normalize paths so getting the UDI for the mount dir GFile works.
+  * Fixed memory leak in tracker_storage_get_volume_udi_for_file()
+
+  libinotify:
+  * Fixed move directory monitor failure from reused watch descriptors.
+
+  libtracker-miner:
+  * Get all children URIs in a single query when moving a folder.
+
+  libtracker-extract:
+  * Updated extractors to return an embedded insert together with
+    preupdate. Final insert is composed in tracker-miner-fs with file
+    data too.
+
+  tracker-miner-fs:
+  * Fixed to work with anonymous file nodes.
+  * Use nie:isStoredAs for the file's URN.
+
+  tracker-extract:
+  * Fixed to work with anonymous file nodes.
+  * Fixed page leaks in PDF extractor.
+  * Fixed 5 memory leaks in PDF extractor.
+  * Fixed compilation error with the vorbis extractor.
+  * Added FLAC extractor.
+  * Always favor XMP over IPTC, EXIF or native formats for images.
+
+  tracker-search-bar:
+  * Fixed to work with anonymous file nodes.
+
+  tracker-info:
+  * Fixed to work with anonymous file nodes.
+
+  tracker-search:
+  * Fixed to work with anonymous file nodes.
+
+  tracker-tag:
+  * Fixed to work with anonymous file nodes.
+
+  nautilus:
+  * Fixed to work with anonymous file nodes.
+
+  examples:
+  * Removed "translatable" property from UI files.
+
+Bugs:
+
+  * GB#608395, Flac extractor
+  * GB#607576, Nautilus extension: A tag might be a nie:InformationElement too
+  * GB#607699, Tracker fails to compile with evolution 2.29.x
+  * NB#155435, tracker is not extracting all the metadata details for MP4 Video files
+  * NB#152635, nfo:isContentEncrypted is not populated for DRM protected files
+
+Translations:
+
+  * Updated zh_CN: Aron Xu
+
+Notes:
+
+  The Deskbar applet packaged with Tracker is currently out of date
+  and needs some love to get it working with the new APIs. It is in
+  the same state as it was for 0.6. As such it isn't expected to work.
+
+
 NEW in 0.7.18
 =============
 
