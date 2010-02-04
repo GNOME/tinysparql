@@ -1271,9 +1271,15 @@ monitor_move (TrackerMonitor *monitor,
 	gpointer iter_file, iter_file_monitor;
 	guint items_moved = 0;
 
-	/* So this is tricky. What we have to do is, remove all
-	 * monitors recursively for the OLD directory and add new
-	 * monitors recursively for the NEW directory.
+	/* So this is tricky. What we have to do is:
+	 *
+	 * 1) Add all monitors for the new_file directory hierarchy
+	 * 2) Then remove the monitors for old_file
+	 *
+	 * This order is necessary because inotify can reuse watch
+	 * descriptors, and libinotify will remove handles
+	 * asynchronously on IN_IGNORE, so the opposite sequence
+	 * may possibly remove valid, just added, monitors.
 	 */
 	new_monitors = g_hash_table_new_full (g_file_hash,
 	                                      (GEqualFunc) g_file_equal,
@@ -1281,10 +1287,7 @@ monitor_move (TrackerMonitor *monitor,
 	                                      NULL);
 	old_prefix = g_file_get_path (old_file);
 
-	/* Remove the monitor for the top level directory */
-	tracker_monitor_remove (monitor, old_file);
-
-	/* Remove the monitor for the subdirectories */
+	/* Find out which subdirectories should have a file monitor added */
 	g_hash_table_iter_init (&iter, monitor->private->monitors);
 	while (g_hash_table_iter_next (&iter, &iter_file, &iter_file_monitor)) {
 		GFile *f;
@@ -1327,16 +1330,7 @@ monitor_move (TrackerMonitor *monitor,
 			g_object_unref (f);
 		}
 
-		g_hash_table_iter_remove (&iter);
-
-		g_debug ("Removed monitor for path:'%s', total monitors:%d",
-		         old_path,
-		         g_hash_table_size (monitor->private->monitors));
-
 		g_free (old_path);
-
-		/* We reset this because now it is possible we have limit - 1 */
-		monitor->private->monitor_limit_warned = FALSE;
 		items_moved++;
 	}
 
@@ -1349,6 +1343,9 @@ monitor_move (TrackerMonitor *monitor,
 		tracker_monitor_add (monitor, iter_file);
 		g_hash_table_iter_remove (&iter);
 	}
+
+	/* Remove the monitor for the old top level directory hierarchy */
+	tracker_monitor_remove_recursively (monitor, old_file);
 
 	g_hash_table_unref (new_monitors);
 	g_free (old_prefix);
