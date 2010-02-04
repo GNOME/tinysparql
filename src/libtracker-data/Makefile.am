@@ -41,7 +41,7 @@ noinst_HEADERS =							\
 	tracker-turtle.h						
 
 libtracker_data_la_LDFLAGS =						\
-	-version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE)
+	-version-info 0:0:0
 
 libtracker_data_la_LIBADD = 						\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la	\

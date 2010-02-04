@@ -14,7 +14,7 @@ lib_LTLIBRARIES = libtrackerclient.la
 libtrackerclient_la_SOURCES = tracker.c
 
 libtrackerclient_la_LDFLAGS = 			\
-	-version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE)
+	-version-info 0:0:0
 
 libtrackerclient_la_LIBADD = 			\
 	$(GLIB2_LIBS) 				\

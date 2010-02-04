@@ -36,7 +36,7 @@ noinst_HEADERS =							\
 	tracker-db-manager.h 
 
 libtracker_db_la_LDFLAGS =						\
-	-version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE)
+	-version-info 0:0:0
 
 libtracker_db_la_LIBADD = 						\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la	\
