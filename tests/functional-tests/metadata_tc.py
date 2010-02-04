@@ -63,9 +63,9 @@ class mydict:
     return self.nested_dict[key].keys ()
 
 
-class images(TrackerHelpers):
+#class images(TrackerHelpers):
 
-	def test_get_images_height_1(self):
+#	def test_get_images_height_1(self):
 		#dictList = self.de_pickle('pickled_Images')
 		#print dictList
 		#item = 'Image Height'
