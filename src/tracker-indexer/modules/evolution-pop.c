@@ -175,7 +175,7 @@ get_message_id (GMimeMessage *message)
 	gchar *number;
 	gint id;
 
-	header = g_mime_message_get_header (message, "X-Evolution");
+	header = g_mime_object_get_header (GMIME_OBJECT (message), "X-Evolution");
 
         if (!header) {
                 return -1;
@@ -253,8 +253,12 @@ static gchar *
 tracker_evolution_pop_file_get_text (TrackerModuleFile *file)
 {
         TrackerEvolutionPopFile *self;
-        gchar *text, *encoding, *utf8_text;
-        gboolean is_html;
+	const gchar *encoding;
+	gchar buffer[1024];
+	guint len;
+	GString *body;
+	GMimeStream *stream;
+	GMimeDataWrapper *data;
 
         self = TRACKER_EVOLUTION_POP_FILE (file);
 
@@ -263,27 +267,38 @@ tracker_evolution_pop_file_get_text (TrackerModuleFile *file)
 		return NULL;
 	}
 
-        text = g_mime_message_get_body (self->message, TRUE, &is_html);
+	data = g_mime_part_get_content_object (GMIME_PART (self->message));
 
-        if (!text) {
-                return NULL;
-        }
+	if (!data)
+		return NULL;
 
-        encoding = evolution_common_get_object_encoding (GMIME_OBJECT (self->message));
+	stream = g_mime_data_wrapper_get_stream (data);
 
-        if (!encoding) {
-                /* FIXME: could still puke on non-utf8
-                 * messages without proper content type
-                 */
-                return text;
-        }
+	if (!stream) {
+		g_object_unref (data);
+		return NULL;
+	}
 
-        utf8_text = g_convert (text, -1, "utf8", encoding, NULL, NULL, NULL);
+	body = g_string_new ("");
 
-        g_free (encoding);
-        g_free (text);
+	encoding = g_mime_object_get_content_disposition_parameter (GMIME_OBJECT (self->message), "charset");
 
-        return utf8_text;
+	while (!g_mime_stream_eos (stream)) {
+		len = g_mime_stream_read (stream, buffer, 1024);
+		if (len > 0 && g_utf8_validate (buffer, len, NULL)) {
+			if (!encoding)
+				g_string_append_len (body, buffer, (gssize) len);
+			else {
+ 				gchar *part_body = g_convert (buffer, (gssize) len, "utf8", encoding, NULL, NULL, NULL);
+				g_string_append (body, part_body);
+				g_free (part_body);
+			}
+		}
+	}
+
+	g_object_unref (stream);
+
+	return g_string_free (body, FALSE);
 }
 
 static guint
@@ -291,7 +306,7 @@ get_message_flags (GMimeMessage *message)
 {
 	const gchar *header, *pos;
 
-	header = g_mime_message_get_header (message, "X-Evolution");
+	header = g_mime_object_get_header (GMIME_OBJECT (message), "X-Evolution");
 
 	if (!header) {
 		return 0;
@@ -304,34 +319,24 @@ get_message_flags (GMimeMessage *message)
 
 static GList *
 get_message_recipients (GMimeMessage *message,
-                        const gchar  *type)
+                        GMimeRecipientType type)
 {
 	GList *list = NULL;
-	const InternetAddressList *addresses;
+	InternetAddressList *addresses;
+	guint len, i;
 
 	addresses = g_mime_message_get_recipients (message, type);
 
-	while (addresses) {
+	len = internet_address_list_length (addresses);
+	
+	while (i < len) {
 		InternetAddress *address;
-		gchar *str;
 
-		address = addresses->address;
+		address = internet_address_list_get_address (addresses, i);
 
-		if (address->name && address->value.addr) {
-			str = g_strdup_printf ("%s %s", address->name, address->value.addr);
-		} else if (address->value.addr) {
-			str = g_strdup (address->value.addr);
-		} else if (address->name) {
-			str = g_strdup (address->name);
-		} else {
-			str = NULL;
-		}
+		list = g_list_prepend (list, internet_address_to_string (address, TRUE));
 
-		if (str) {
-			list = g_list_prepend (list, str);
-		}
-
-		addresses = addresses->next;
+		i++;
 	}
 
 	return g_list_reverse (list);
@@ -427,7 +432,8 @@ tracker_evolution_pop_file_get_flags (TrackerModuleFile *file)
 }
 
 static void
-extract_mime_parts (GMimeObject *object,
+extract_mime_parts (GMimeObject *parent, 
+                    GMimeObject *object,
                     gpointer     user_data)
 {
 	GList **list = (GList **) user_data;
@@ -440,7 +446,7 @@ extract_mime_parts (GMimeObject *object,
 		message = g_mime_message_part_get_message (GMIME_MESSAGE_PART (object));
 
 		if (message) {
-			g_mime_message_foreach_part (message, extract_mime_parts, user_data);
+			g_mime_message_foreach (message, extract_mime_parts, user_data);
 			g_object_unref (message);
 		}
 
@@ -451,7 +457,7 @@ extract_mime_parts (GMimeObject *object,
 	}
 
 	part = GMIME_PART (object);
-	disposition = g_mime_part_get_content_disposition (part);
+	disposition = g_mime_object_get_disposition (GMIME_OBJECT (part));
 
 	if (!disposition ||
 	    (strcmp (disposition, GMIME_DISPOSITION_ATTACHMENT) != 0 &&
@@ -484,9 +490,9 @@ tracker_evolution_pop_file_iter_contents (TrackerModuleIteratable *iteratable)
         if (self->message) {
                 /* Iterate through mime parts, if any */
                 if (!self->mime_parts) {
-                        g_mime_message_foreach_part (self->message,
-                                                     extract_mime_parts,
-                                                     &self->mime_parts);
+                        g_mime_message_foreach (self->message,
+                                                extract_mime_parts,
+                                                &self->mime_parts);
                         self->current_mime_part = self->mime_parts;
                 } else {
                         self->current_mime_part = self->current_mime_part->next;

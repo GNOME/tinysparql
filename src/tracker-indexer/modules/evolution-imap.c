@@ -557,7 +557,7 @@ get_message_path (TrackerModuleFile *file,
 static gboolean
 get_attachment_info (const gchar            *mime_file,
                      gchar                 **name,
-                     GMimePartEncodingType  *encoding)
+                     GMimeContentEncoding   *encoding)
 {
 	GMimeContentType *mime;
 	gchar *tmp, *mime_content;
@@ -568,7 +568,7 @@ get_attachment_info (const gchar            *mime_file,
 	}
 
 	if (encoding) {
-		*encoding = GMIME_PART_ENCODING_DEFAULT;
+		*encoding = GMIME_CONTENT_ENCODING_DEFAULT;
 	}
 
 	if (!g_file_get_contents (mime_file, &tmp, NULL, NULL)) {
@@ -615,7 +615,7 @@ get_attachment_info (const gchar            *mime_file,
 			*name = g_strdup (g_mime_content_type_get_parameter (mime, "name"));
 		}
 
-		g_mime_content_type_destroy (mime);
+		g_object_unref (mime);
 	}
 
 	if (name && !*name) {
@@ -637,17 +637,17 @@ get_attachment_info (const gchar            *mime_file,
 		gchar *encoding_str = g_strndup (pos_encoding, pos_end_encoding - pos_encoding);
 
 		if (strcmp (encoding_str, "7bit") == 0) {
-			*encoding = GMIME_PART_ENCODING_7BIT;
+			*encoding = GMIME_CONTENT_ENCODING_7BIT;
 		} else if (strcmp (encoding_str, "8bit") == 0) {
-			*encoding = GMIME_PART_ENCODING_7BIT;
+			*encoding = GMIME_CONTENT_ENCODING_8BIT;
 		} else if (strcmp (encoding_str, "binary") == 0) {
-			*encoding = GMIME_PART_ENCODING_BINARY;
+			*encoding = GMIME_CONTENT_ENCODING_BINARY;
 		} else if (strcmp (encoding_str, "base64") == 0) {
-			*encoding = GMIME_PART_ENCODING_BASE64;
+			*encoding = GMIME_CONTENT_ENCODING_BASE64;
 		} else if (strcmp (encoding_str, "quoted-printable") == 0) {
-			*encoding = GMIME_PART_ENCODING_QUOTEDPRINTABLE;
+			*encoding = GMIME_CONTENT_ENCODING_QUOTEDPRINTABLE;
 		} else if (strcmp (encoding_str, "x-uuencode") == 0) {
-			*encoding = GMIME_PART_ENCODING_UUENCODE;
+			*encoding = GMIME_CONTENT_ENCODING_UUENCODE;
 		}
 
 		g_free (encoding_str);
@@ -734,14 +734,17 @@ tracker_evolution_imap_file_get_uri (TrackerModuleFile *file)
 }
 
 static void
-extract_message_text (GMimeObject *object,
+extract_message_text (GMimeObject *parent, 
+                      GMimeObject *object,
                       gpointer     user_data)
 {
         GString *body = (GString *) user_data;
-        GMimePartEncodingType part_encoding;
+        GMimeContentEncoding part_encoding;
         GMimePart *part;
-        const gchar *content, *disposition, *filename;
-        gchar *encoding, *part_body;
+	GMimeStream *stream;
+	GMimeDataWrapper *data;
+        const gchar *disposition, *filename, *encoding;
+        gchar *part_body, buffer[1024];
         gsize len;
 
         if (GMIME_IS_MESSAGE_PART (object)) {
@@ -750,7 +753,7 @@ extract_message_text (GMimeObject *object,
 		message = g_mime_message_part_get_message (GMIME_MESSAGE_PART (object));
 
 		if (message) {
-			g_mime_message_foreach_part (message, extract_message_text, user_data);
+			g_mime_message_foreach (message, extract_message_text, user_data);
 			g_object_unref (message);
 		}
 
@@ -762,12 +765,12 @@ extract_message_text (GMimeObject *object,
 
 	part = GMIME_PART (object);
         filename = g_mime_part_get_filename (part);
-	disposition = g_mime_part_get_content_disposition (part);
-        part_encoding = g_mime_part_get_encoding (part);
+	disposition = g_mime_object_get_disposition (GMIME_OBJECT (part));
+        part_encoding = g_mime_part_get_content_encoding (part);
 
-        if (part_encoding == GMIME_PART_ENCODING_BINARY ||
-            part_encoding == GMIME_PART_ENCODING_BASE64 ||
-            part_encoding == GMIME_PART_ENCODING_UUENCODE) {
+        if (part_encoding == GMIME_CONTENT_ENCODING_BINARY ||
+            part_encoding == GMIME_CONTENT_ENCODING_BASE64 ||
+            part_encoding == GMIME_CONTENT_ENCODING_UUENCODE) {
                 return;
         }
 
@@ -782,31 +785,34 @@ extract_message_text (GMimeObject *object,
                 return;
         }
 
-        content = g_mime_part_get_content (GMIME_PART (object), &len);
+	data = g_mime_part_get_content_object (GMIME_PART (object));
 
-        if (!content) {
-                return;
-        }
+	if (!data)
+		return;
 
-        if (g_utf8_validate (content, len, NULL)) {
-                g_string_append_len (body, content, (gssize) len);
-                return;
-        }
+	stream = g_mime_data_wrapper_get_stream (data);
 
-        encoding = evolution_common_get_object_encoding (object);
+	if (!stream) {
+		g_object_unref (data);
+		return;
+	}
 
-        if (!encoding) {
-                /* FIXME: This will break for non-utf8 text without
-                 * the proper content type set
-                 */
-                g_string_append_len (body, content, (gssize) len);
-        } else {
-                part_body = g_convert (content, (gssize) len, "utf8", encoding, NULL, NULL, NULL);
-                g_string_append (body, part_body);
+	encoding = g_mime_object_get_content_disposition_parameter (GMIME_OBJECT (part), "charset");
 
-                g_free (part_body);
-                g_free (encoding);
-        }
+	while (!g_mime_stream_eos (stream)) {
+		len = g_mime_stream_read (stream, buffer, 1024);
+		if (len > 0 && g_utf8_validate (buffer, len, NULL)) {
+			if (!encoding)
+				g_string_append_len (body, buffer, (gssize) len);
+			else {
+ 				part_body = g_convert (buffer, (gssize) len, "utf8", encoding, NULL, NULL, NULL);
+				g_string_append (body, part_body);
+				g_free (part_body);
+			}
+		}
+	}
+
+	g_object_unref (stream);
 }
 
 static gchar *
@@ -846,7 +852,7 @@ tracker_evolution_imap_file_get_text (TrackerModuleFile *file)
 
         if (message) {
                 body = g_string_new (NULL);
-                g_mime_message_foreach_part (message, extract_message_text, body);
+                g_mime_message_foreach (message, extract_message_text, body);
                 g_object_unref (message);
         }
 
@@ -1030,7 +1036,7 @@ get_attachment_metadata (TrackerModuleFile *file,
 	TrackerModuleMetadata *metadata;
 	GMimeStream *stream;
 	GMimeDataWrapper *wrapper;
-	GMimePartEncodingType encoding;
+	GMimeContentEncoding encoding;
 	gchar *path, *name;
 
 	if (!get_attachment_info (mime_file, &name, &encoding)) {

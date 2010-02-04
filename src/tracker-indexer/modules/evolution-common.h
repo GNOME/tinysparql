@@ -55,7 +55,6 @@ GMimeStream *           evolution_common_get_stream           (const gchar      
 							       gint              flags,
 							       off_t             start);
 TrackerModuleMetadata * evolution_common_get_wrapper_metadata (GMimeDataWrapper *wrapper);
-gchar *                 evolution_common_get_object_encoding  (GMimeObject      *object);
 
 G_END_DECLS
 
