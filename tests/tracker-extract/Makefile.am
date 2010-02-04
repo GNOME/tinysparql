@@ -60,6 +60,7 @@ test_tracker_extract_mp3_SOURCES = 					\
 
 test_tracker_extract_mp3_LDADD =					\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la	\
+	$(DBUS_LIBS)							\
 	$(GMODULE_LIBS)							\
 	$(GCOV_LIBS)							\
 	$(GTHREAD_LIBS)							\
@@ -77,6 +78,7 @@ test_tracker_extract_gstreamer_LDADD =					\
 	$(GTHREAD_LIBS)							\
 	$(GOBJECT_LIBS)							\
 	$(GLIB2_LIBS)							\
+	$(DBUS_LIBS)							\
 	$(GSTREAMER_LIBS)
 
 test_tracker_extract_jpeg_SOURCES = 					\
@@ -90,6 +92,7 @@ test_tracker_extract_jpeg_LDADD =					\
 	$(GCOV_LIBS)							\
 	$(GOBJECT_LIBS)							\
 	$(GLIB2_LIBS)							\
+	$(DBUS_LIBS)							\
 	$(LIBJPEG_LIBS)							\
 	$(LIBEXIF_LIBS)							\
 	$(EXEMPI_LIBS)
@@ -105,6 +108,7 @@ test_tracker_extract_tiff_LDADD =					\
 	$(GLIB2_LIBS)							\
 	$(GOBJECT_LIBS)							\
 	$(GCOV_LIBS)							\
+	$(DBUS_LIBS)							\
 	$(LIBTIFF_LIBS)							\
 	$(EXEMPI_LIBS)
 
@@ -119,6 +123,7 @@ test_tracker_extract_png_LDADD =					\
 	$(GLIB2_LIBS)							\
 	$(GOBJECT_LIBS)							\
 	$(GCOV_LIBS)							\
+	$(DBUS_LIBS)							\
 	$(LIBPNG_LIBS)							\
 	$(EXEMPI_LIBS)
 
