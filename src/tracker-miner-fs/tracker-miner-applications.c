@@ -101,11 +101,11 @@ miner_applications_constructed (GObject *object)
 	G_OBJECT_CLASS (tracker_miner_applications_parent_class)->constructed (object);
 
 	file = g_file_new_for_path ("/usr/share/applications/");
-	tracker_miner_fs_add_directory (TRACKER_MINER_FS (object), file, TRUE);
+	tracker_miner_fs_directory_add (TRACKER_MINER_FS (object), file, TRUE);
 	g_object_unref (file);
 
 	file = g_file_new_for_path ("/usr/share/desktop-directories/");
-	tracker_miner_fs_add_directory (TRACKER_MINER_FS (object), file, TRUE);
+	tracker_miner_fs_directory_add (TRACKER_MINER_FS (object), file, TRUE);
 	g_object_unref (file);
 
 	/* FIXME: Check XDG_DATA_DIRS and also process applications in there */
@@ -417,7 +417,7 @@ miner_applications_process_file_cb (gpointer user_data)
 	tracker_sparql_builder_insert_close (sparql);
 
 	/* Notify about success */
-	tracker_miner_fs_notify_file (data->miner, data->file, NULL);
+	tracker_miner_fs_file_notify (data->miner, data->file, NULL);
 
 	g_strfreev (cats);
 

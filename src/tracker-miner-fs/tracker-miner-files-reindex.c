@@ -182,7 +182,7 @@ mime_types_cb (GPtrArray *result,
 			if (row && row[0]) {
 				const gchar *url = (const gchar *) row[0];
 				GFile *file = g_file_new_for_uri (url);
-				tracker_miner_fs_add_file (TRACKER_MINER_FS (mtd->miner_files), file);
+				tracker_miner_fs_file_add (TRACKER_MINER_FS (mtd->miner_files), file);
 				g_object_unref (file);
 			}
 		}

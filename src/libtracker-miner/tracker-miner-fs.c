@@ -1855,7 +1855,7 @@ monitor_item_created_cb (TrackerMonitor *monitor,
 
 	if (should_process) {
 		if (is_directory) {
-			tracker_miner_fs_add_directory (fs, file, TRUE);
+			tracker_miner_fs_directory_add (fs, file, TRUE);
 		} else {
 			g_queue_push_tail (fs->private->items_created,
 			                   g_object_ref (file));
@@ -1969,7 +1969,7 @@ monitor_item_moved_cb (TrackerMonitor *monitor,
 			         path);
 
 			/* If the source is not monitored, we need to crawl it. */
-			tracker_miner_fs_add_directory (fs, other_file, TRUE);
+			tracker_miner_fs_directory_add (fs, other_file, TRUE);
 
 			g_free (path);
 		}
@@ -2010,7 +2010,7 @@ monitor_item_moved_cb (TrackerMonitor *monitor,
 				g_debug ("Not in store:'?'->'%s' (DIR) (move monitor event, source monitored)",
 				         path);
 
-				tracker_miner_fs_add_directory (fs, other_file, TRUE);
+				tracker_miner_fs_directory_add (fs, other_file, TRUE);
 			}
 		} else if (!should_process_other) {
 			/* Delete old file */
@@ -2252,7 +2252,7 @@ crawl_directories_stop (TrackerMinerFS *fs)
 }
 
 /**
- * tracker_miner_fs_add_directory:
+ * tracker_miner_fs_directory_add:
  * @fs: a #TrackerMinerFS
  * @file: #GFile for the directory to inspect
  * @recurse: whether the directory should be inspected recursively
@@ -2260,7 +2260,7 @@ crawl_directories_stop (TrackerMinerFS *fs)
  * Tells the filesystem miner to inspect a directory.
  **/
 void
-tracker_miner_fs_add_directory (TrackerMinerFS *fs,
+tracker_miner_fs_directory_add (TrackerMinerFS *fs,
                                 GFile          *file,
                                 gboolean        recurse)
 {
@@ -2273,42 +2273,6 @@ tracker_miner_fs_add_directory (TrackerMinerFS *fs,
 
 	crawl_directories_start (fs);
 }
-
-/**
- * tracker_miner_fs_add_file:
- * @fs: a #TrackerMinerFS
- * @file: #GFile for the file to inspect
- *
- * Tells the filesystem miner to inspect a file.
- **/
-void
-tracker_miner_fs_add_file (TrackerMinerFS *fs,
-                           GFile          *file)
-{
-	gboolean should_process;
-	gchar *path;
-
-	g_return_if_fail (TRACKER_IS_MINER_FS (fs));
-	g_return_if_fail (G_IS_FILE (file));
-
-	should_process = should_check_file (fs, file, FALSE);
-
-	path = g_file_get_path (file);
-
-	g_debug ("%s:'%s' (FILE) (requested by application)",
-	         should_process ? "Found " : "Ignored",
-	         path);
-
-	if (should_process) {
-		g_queue_push_tail (fs->private->items_updated,
-		                   g_object_ref (file));
-
-		item_queue_handlers_set_up (fs);
-	}
-
-	g_free (path);
-}
-
 
 static void
 check_files_removal (GQueue *queue,
@@ -2333,7 +2297,7 @@ check_files_removal (GQueue *queue,
 }
 
 /**
- * tracker_miner_fs_remove_directory:
+ * tracker_miner_fs_directory_remove:
  * @fs: a #TrackerMinerFS
  * @file: #GFile for the directory to be removed
  *
@@ -2342,7 +2306,7 @@ check_files_removal (GQueue *queue,
  * Returns: %TRUE if the directory was successfully removed.
  **/
 gboolean
-tracker_miner_fs_remove_directory (TrackerMinerFS *fs,
+tracker_miner_fs_directory_remove (TrackerMinerFS *fs,
                                    GFile          *file)
 {
 	TrackerMinerFSPrivate *priv;
@@ -2406,6 +2370,87 @@ tracker_miner_fs_remove_directory (TrackerMinerFS *fs,
 }
 
 /**
+ * tracker_miner_fs_file_add:
+ * @fs: a #TrackerMinerFS
+ * @file: #GFile for the file to inspect
+ *
+ * Tells the filesystem miner to inspect a file.
+ **/
+void
+tracker_miner_fs_file_add (TrackerMinerFS *fs,
+                           GFile          *file)
+{
+	gboolean should_process;
+	gchar *path;
+
+	g_return_if_fail (TRACKER_IS_MINER_FS (fs));
+	g_return_if_fail (G_IS_FILE (file));
+
+	should_process = should_check_file (fs, file, FALSE);
+
+	path = g_file_get_path (file);
+
+	g_debug ("%s:'%s' (FILE) (requested by application)",
+	         should_process ? "Found " : "Ignored",
+	         path);
+
+	if (should_process) {
+		g_queue_push_tail (fs->private->items_updated,
+		                   g_object_ref (file));
+
+		item_queue_handlers_set_up (fs);
+	}
+
+	g_free (path);
+}
+
+/**
+ * tracker_miner_fs_file_notify:
+ * @fs: a #TrackerMinerFS
+ * @file: a #GFile
+ * @error: a #GError with the error that happened during processing, or %NULL.
+ *
+ * Notifies @fs that all processing on @file has been finished, if any error
+ * happened during file data processing, it should be passed in @error, else
+ * that parameter will contain %NULL to reflect success.
+ **/
+void
+tracker_miner_fs_file_notify (TrackerMinerFS *fs,
+                              GFile          *file,
+                              const GError   *error)
+{
+	ProcessData *data;
+
+	g_return_if_fail (TRACKER_IS_MINER_FS (fs));
+	g_return_if_fail (G_IS_FILE (file));
+
+	fs->private->total_files_notified++;
+
+	if (error) {
+		fs->private->total_files_notified_error++;
+	}
+
+	data = process_data_find (fs, file);
+
+	if (!data) {
+		gchar *uri;
+
+		uri = g_file_get_uri (file);
+		g_critical ("%s has notified that file '%s' has been processed, "
+		            "but that file was not in the processing queue. "
+		            "This is an implementation error, please ensure that "
+		            "tracker_miner_fs_notify_file() is called on the right "
+		            "file and that the ::process-file signal didn't return "
+		            "FALSE for it", G_OBJECT_TYPE_NAME (fs), uri);
+		g_free (uri);
+
+		return;
+	}
+
+	item_add_or_update_cb (fs, data, error);
+}
+
+/**
  * tracker_miner_fs_set_throttle:
  * @fs: a #TrackerMinerFS
  * @throttle: throttle value, between 0 and 1
@@ -2464,47 +2509,18 @@ tracker_miner_fs_get_throttle (TrackerMinerFS *fs)
 }
 
 /**
- * tracker_miner_fs_notify_file:
+ * tracker_miner_fs_get_throttle:
  * @fs: a #TrackerMinerFS
- * @file: a #GFile
- * @error: a #GError with the error that happened during processing, or %NULL.
  *
- * Notifies @fs that all processing on @file has been finished, if any error
- * happened during file data processing, it should be passed in @error, else
- * that parameter will contain %NULL to reflect success.
+ * Gets the current throttle value. see tracker_miner_fs_set_throttle().
+ *
+ * Returns: current throttle value.
  **/
-void
-tracker_miner_fs_notify_file (TrackerMinerFS *fs,
-                              GFile          *file,
-                              const GError   *error)
+GList *
+tracker_miner_fs_get_directories (TrackerMinerFS *fs)
 {
-	ProcessData *data;
+	g_return_val_if_fail (TRACKER_IS_MINER_FS (fs), 0);
 
-	g_return_if_fail (TRACKER_IS_MINER_FS (fs));
-	g_return_if_fail (G_IS_FILE (file));
-
-	fs->private->total_files_notified++;
-
-	if (error) {
-		fs->private->total_files_notified_error++;
-	}
-
-	data = process_data_find (fs, file);
-
-	if (!data) {
-		gchar *uri;
-
-		uri = g_file_get_uri (file);
-		g_critical ("%s has notified that file '%s' has been processed, "
-		            "but that file was not in the processing queue. "
-		            "This is an implementation error, please ensure that "
-		            "tracker_miner_fs_notify_file() is called on the right "
-		            "file and that the ::process-file signal didn't return "
-		            "FALSE for it", G_OBJECT_TYPE_NAME (fs), uri);
-		g_free (uri);
-
-		return;
-	}
-
-	item_add_or_update_cb (fs, data, error);
+	return fs->private->directories;
 }
+

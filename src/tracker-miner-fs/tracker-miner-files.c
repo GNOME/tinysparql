@@ -351,7 +351,7 @@ miner_files_constructed (GObject *object)
 
 		g_message ("  Adding:'%s'", (gchar*) dirs->data);
 		file = g_file_new_for_path (dirs->data);
-		tracker_miner_fs_add_directory (fs, file, FALSE);
+		tracker_miner_fs_directory_add (fs, file, FALSE);
 		g_object_unref (file);
 	}
 
@@ -391,7 +391,7 @@ miner_files_constructed (GObject *object)
 
 		g_message ("  Adding:'%s'", (gchar*) dirs->data);
 		file = g_file_new_for_path (dirs->data);
-		tracker_miner_fs_add_directory (fs, file, TRUE);
+		tracker_miner_fs_directory_add (fs, file, TRUE);
 		g_object_unref (file);
 	}
 
@@ -410,7 +410,7 @@ miner_files_constructed (GObject *object)
 #endif
 
 		g_message ("  Adding:'%s'", (gchar*) m->data);
-		tracker_miner_fs_add_directory (TRACKER_MINER_FS (mf),
+		tracker_miner_fs_directory_add (TRACKER_MINER_FS (mf),
 		                                file,
 		                                TRUE);
 		g_object_unref (file);
@@ -732,7 +732,7 @@ mount_point_added_cb (TrackerStorage *storage,
 		                         g_strdup (udi),
 		                         (GDestroyNotify) g_free);
 
-		tracker_miner_fs_add_directory (TRACKER_MINER_FS (user_data),
+		tracker_miner_fs_directory_add (TRACKER_MINER_FS (user_data),
 		                                file,
 		                                TRUE);
 		g_object_unref (file);
@@ -832,7 +832,7 @@ mount_pre_unmount_cb (GVolumeMonitor    *volume_monitor,
 	GFile *mount_root;
 
 	mount_root = g_mount_get_root (mount);
-	tracker_miner_fs_remove_directory (TRACKER_MINER_FS (mf), mount_root);
+	tracker_miner_fs_directory_remove (TRACKER_MINER_FS (mf), mount_root);
 	g_object_unref (mount_root);
 }
 
@@ -1257,7 +1257,7 @@ extractor_get_embedded_metadata_cb (DBusGProxy *proxy,
 
 	if (error) {
 		/* Something bad happened, notify about the error */
-		tracker_miner_fs_notify_file (TRACKER_MINER_FS (data->miner), data->file, error);
+		tracker_miner_fs_file_notify (TRACKER_MINER_FS (data->miner), data->file, error);
 		process_file_data_free (data);
 		g_error_free (error);
 		return;
@@ -1313,7 +1313,7 @@ extractor_get_embedded_metadata_cb (DBusGProxy *proxy,
 	}
 
 	/* Notify about the success */
-	tracker_miner_fs_notify_file (TRACKER_MINER_FS (data->miner), data->file, NULL);
+	tracker_miner_fs_file_notify (TRACKER_MINER_FS (data->miner), data->file, NULL);
 
 	process_file_data_free (data);
 	g_free (preupdate);
@@ -1331,7 +1331,7 @@ extractor_get_embedded_metadata_cancel (GCancellable    *cancellable,
 	                          data->call);
 
 	error = g_error_new_literal (miner_files_error_quark, 0, "Embedded metadata extraction was cancelled");
-	tracker_miner_fs_notify_file (TRACKER_MINER_FS (data->miner), data->file, error);
+	tracker_miner_fs_file_notify (TRACKER_MINER_FS (data->miner), data->file, error);
 
 	process_file_data_free (data);
 	g_error_free (error);
@@ -1372,7 +1372,7 @@ process_file_cb (GObject      *object,
 
 	if (error) {
 		/* Something bad happened, notify about the error */
-		tracker_miner_fs_notify_file (TRACKER_MINER_FS (data->miner), file, error);
+		tracker_miner_fs_file_notify (TRACKER_MINER_FS (data->miner), file, error);
 		process_file_data_free (data);
 		g_error_free (error);
 		return;
