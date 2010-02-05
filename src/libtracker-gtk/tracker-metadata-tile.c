@@ -1352,7 +1352,7 @@ tracker_metadata_tile_new (void)
 	tile = g_object_new (TRACKER_TYPE_METADATA_TILE, NULL);
 	priv = TRACKER_METADATA_TILE_GET_PRIVATE (tile);
 
-	priv->client = tracker_client_new (TRACKER_CLIENT_ENABLE_WARNINGS, -1);
+	priv->client = tracker_client_new (TRACKER_CLIENT_ENABLE_WARNINGS, G_MAXINT);
 
 	return tile;
 }
