@@ -34,9 +34,15 @@
       </case>
 
       <case name="test_coalesce" type="Functional"  level="Feature"
-            description="Group concat function in sparql" requirement="01" subfeature="">
+            description="coalesce function in sparql" requirement="01" subfeature="">
         <!-- dbus env variables defined here. This works. -->
         <step expected_result="0">. /tmp/session_bus_address.user; python2.5 /usr/share/tracker-tests/05-coalesce.py</step>
+      </case>
+
+      <case name="test_distance" type="Functional"  level="Feature"
+            description="Distance between location points in sparql" requirement="01" subfeature="">
+        <!-- dbus env variables defined here. This works. -->
+        <step expected_result="0">. /tmp/session_bus_address.user; python2.5 /usr/share/tracker-tests/06-distance.py</step>
       </case>
 
       <!-- Environments optional - tells where the tests are run -->
