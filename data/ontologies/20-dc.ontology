@@ -86,7 +86,7 @@ dc:source a rdf:Property ;
 	rdfs:label "Source" ;
 	rdfs:comment "A related resource from which the described resource is derived." ;
 	rdfs:domain rdfs:Resource ;
-	rdfs:range xsd:string .
+	rdfs:range rdfs:Resource .
 
 dc:language a rdf:Property ;
 	rdfs:label "Language" ;
