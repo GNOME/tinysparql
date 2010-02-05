@@ -325,6 +325,10 @@ extract_tiff (const gchar          *uri,
 	}
 #endif /* HAVE_EXEMPI */
 
+	if (!tiff_data.imagewidth)
+		tiff_data.imagewidth = get_value (image, TIFFTAG_IMAGEWIDTH, TIFF_TAGTYPE_UINT32);
+	if (!tiff_data.imagelength)
+		tiff_data.imagelength = get_value (image, TIFFTAG_IMAGELENGTH, TIFF_TAGTYPE_UINT32);
 	if (!tiff_data.artist)
 		tiff_data.artist = get_value (image, TIFFTAG_ARTIST, TIFF_TAGTYPE_STRING);
 	if (!tiff_data.copyright)
