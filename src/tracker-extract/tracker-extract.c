@@ -438,12 +438,27 @@ tracker_extract_get_metadata_by_cmdline (TrackerExtract *object,
 	if (get_file_metadata (object, request_id,
 			       NULL, uri, mime,
 			       &preupdate, &statements)) {
+		gchar *preupdate_str, *statements_str;
+
+		preupdate_str = statements_str = NULL;
+
+		if (tracker_sparql_builder_get_length (statements) > 0) {
+			statements_str = tracker_sparql_builder_get_result (statements);
+		}
+
+		if (tracker_sparql_builder_get_length (preupdate) > 0) {
+			preupdate_str = tracker_sparql_builder_get_result (preupdate);
+		}
+
 		tracker_dbus_request_info (request_id, NULL, "%s",
-					   tracker_sparql_builder_get_result (preupdate));
+					   preupdate_str ? preupdate_str : "");
 		tracker_dbus_request_info (request_id, NULL, "%s",
-					   tracker_sparql_builder_get_result (statements));
+					   statements_str ? statements_str : "");
+
 		g_object_unref (statements);
 		g_object_unref (preupdate);
+		g_free (statements_str);
+		g_free (preupdate_str);
 	}
 
 	tracker_dbus_request_success (request_id, NULL);
