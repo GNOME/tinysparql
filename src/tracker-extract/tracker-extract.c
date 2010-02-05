@@ -438,7 +438,7 @@ tracker_extract_get_metadata_by_cmdline (TrackerExtract *object,
 	if (get_file_metadata (object, request_id,
 			       NULL, uri, mime,
 			       &preupdate, &statements)) {
-		gchar *preupdate_str, *statements_str;
+		const gchar *preupdate_str, *statements_str;
 
 		preupdate_str = statements_str = NULL;
 
@@ -457,8 +457,6 @@ tracker_extract_get_metadata_by_cmdline (TrackerExtract *object,
 
 		g_object_unref (statements);
 		g_object_unref (preupdate);
-		g_free (statements_str);
-		g_free (preupdate_str);
 	}
 
 	tracker_dbus_request_success (request_id, NULL);
