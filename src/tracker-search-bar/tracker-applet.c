@@ -241,6 +241,7 @@ applet_change_orient_cb (GtkWidget         *widget,
 	guint new_size;
 
 	applet = user_data;
+        new_size = applet->size;
 
 	switch (orient) {
 	case PANEL_APPLET_ORIENT_LEFT:
