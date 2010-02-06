@@ -104,7 +104,8 @@ void     tracker_miner_fs_file_notify      (TrackerMinerFS *fs,
 void     tracker_miner_fs_set_throttle     (TrackerMinerFS *fs,
                                             gdouble         throttle);
 gdouble  tracker_miner_fs_get_throttle     (TrackerMinerFS *fs);
-GList *  tracker_miner_fs_get_directories  (TrackerMinerFS *fs);
+GList *  tracker_miner_fs_get_directories  (TrackerMinerFS *fs,
+                                            gboolean        recurse);
 
 G_END_DECLS
 

@@ -84,63 +84,65 @@ enum {
 	PROP_CONFIG
 };
 
-static void     miner_files_set_property      (GObject              *object,
-                                               guint                 param_id,
-                                               const GValue         *value,
-                                               GParamSpec           *pspec);
-static void     miner_files_get_property      (GObject              *object,
-                                               guint                 param_id,
-                                               GValue               *value,
-                                               GParamSpec           *pspec);
-static void     miner_files_finalize          (GObject              *object);
-static void     miner_files_constructed       (GObject              *object);
-
-static void     mount_pre_unmount_cb          (GVolumeMonitor       *volume_monitor,
-                                               GMount               *mount,
-                                               TrackerMinerFiles    *mf);
+static void        miner_files_set_property             (GObject              *object,
+                                                         guint                 param_id,
+                                                         const GValue         *value,
+                                                         GParamSpec           *pspec);
+static void        miner_files_get_property             (GObject              *object,
+                                                         guint                 param_id,
+                                                         GValue               *value,
+                                                         GParamSpec           *pspec);
+static void        miner_files_finalize                 (GObject              *object);
+static void        miner_files_constructed              (GObject              *object);
+static void        mount_pre_unmount_cb                 (GVolumeMonitor       *volume_monitor,
+                                                         GMount               *mount,
+                                                         TrackerMinerFiles    *mf);
 
 #ifdef HAVE_HAL
-static void     mount_point_added_cb          (TrackerStorage       *storage,
-                                               const gchar          *udi,
-                                               const gchar          *mount_point,
-                                               gpointer              user_data);
-static void     mount_point_removed_cb        (TrackerStorage       *storage,
-                                               const gchar          *udi,
-                                               const gchar          *mount_point,
-                                               gpointer              user_data);
-
-static void     check_battery_status          (TrackerMinerFiles    *fs);
-static void     battery_status_cb             (GObject              *object,
-                                               GParamSpec           *pspec,
-                                               gpointer              user_data);
+static void        mount_point_added_cb                 (TrackerStorage       *storage,
+                                                         const gchar          *udi,
+                                                         const gchar          *mount_point,
+                                                         gpointer              user_data);
+static void        mount_point_removed_cb               (TrackerStorage       *storage,
+                                                         const gchar          *udi,
+                                                         const gchar          *mount_point,
+                                                         gpointer              user_data);
+static void        check_battery_status                 (TrackerMinerFiles    *fs);
+static void        battery_status_cb                    (GObject              *object,
+                                                         GParamSpec           *pspec,
+                                                         gpointer              user_data);
 #endif
 
-static void     init_mount_points             (TrackerMinerFiles *miner);
-static void     disk_space_check_start        (TrackerMinerFiles    *mf);
-static void     disk_space_check_stop         (TrackerMinerFiles    *mf);
-static void     low_disk_space_limit_cb       (GObject              *gobject,
-                                               GParamSpec           *arg1,
-                                               gpointer              user_data);
-
-static DBusGProxy * extractor_create_proxy    (void);
-
-static gboolean miner_files_check_file        (TrackerMinerFS       *fs,
-                                               GFile                *file);
-static gboolean miner_files_check_directory   (TrackerMinerFS       *fs,
-                                               GFile                *file);
-static gboolean miner_files_check_directory_contents (TrackerMinerFS       *fs,
-                                                      GFile                *parent,
-                                                      GList                *children);
-static gboolean miner_files_process_file      (TrackerMinerFS       *fs,
-                                               GFile                *file,
-                                               TrackerSparqlBuilder *sparql,
-                                               GCancellable         *cancellable);
-static gboolean miner_files_monitor_directory (TrackerMinerFS       *fs,
-                                               GFile                *file);
-static gboolean miner_files_writeback_file    (TrackerMinerFS       *fs,
-                                               GFile                *file,
-                                               TrackerSparqlBuilder *sparql,
-                                               GCancellable         *cancellable);
+static void        init_mount_points                    (TrackerMinerFiles    *miner);
+static void        disk_space_check_start               (TrackerMinerFiles    *mf);
+static void        disk_space_check_stop                (TrackerMinerFiles    *mf);
+static void        low_disk_space_limit_cb              (GObject              *gobject,
+                                                         GParamSpec           *arg1,
+                                                         gpointer              user_data);
+static void        index_recursive_directories_cb       (GObject              *gobject,
+                                                         GParamSpec           *arg1,
+                                                         gpointer              user_data);
+static void        index_single_directories_cb          (GObject              *gobject,
+                                                         GParamSpec           *arg1,
+                                                         gpointer              user_data);
+static DBusGProxy *extractor_create_proxy               (void);
+static gboolean    miner_files_check_file               (TrackerMinerFS       *fs,
+                                                         GFile                *file);
+static gboolean    miner_files_check_directory          (TrackerMinerFS       *fs,
+                                                         GFile                *file);
+static gboolean    miner_files_check_directory_contents (TrackerMinerFS       *fs,
+                                                         GFile                *parent,
+                                                         GList                *children);
+static gboolean    miner_files_process_file             (TrackerMinerFS       *fs,
+                                                         GFile                *file,
+                                                         TrackerSparqlBuilder *sparql,
+                                                         GCancellable         *cancellable);
+static gboolean    miner_files_monitor_directory        (TrackerMinerFS       *fs,
+                                                         GFile                *file);
+static gboolean    miner_files_writeback_file           (TrackerMinerFS       *fs,
+                                                         GFile                *file,
+                                                         TrackerSparqlBuilder *sparql,
+                                                         GCancellable         *cancellable);
 
 G_DEFINE_TYPE (TrackerMinerFiles, tracker_miner_files, TRACKER_TYPE_MINER_FS)
 
@@ -418,6 +420,12 @@ miner_files_constructed (GObject *object)
 
 	g_signal_connect (mf->private->config, "notify::low-disk-space-limit",
 	                  G_CALLBACK (low_disk_space_limit_cb),
+	                  mf);
+	g_signal_connect (mf->private->config, "notify::index-recursive-directories",
+	                  G_CALLBACK (index_recursive_directories_cb),
+	                  mf);
+	g_signal_connect (mf->private->config, "notify::index-single-directories",
+	                  G_CALLBACK (index_single_directories_cb),
 	                  mf);
 
 	g_slist_foreach (mounts, (GFunc) g_free, NULL);
@@ -941,6 +949,94 @@ low_disk_space_limit_cb (GObject    *gobject,
 	TrackerMinerFiles *mf = user_data;
 
 	disk_space_check_cb (mf);
+}
+
+static void
+update_directories_from_new_config (TrackerMinerFS *mf,
+                                    TrackerConfig  *config,
+                                    gboolean        recurse)
+{
+        GList *old_dirs, *l;
+        GSList *new_dirs, *sl;
+
+        old_dirs = tracker_miner_fs_get_directories (TRACKER_MINER_FS (mf), recurse);
+
+        if (recurse) {
+                new_dirs = tracker_config_get_index_recursive_directories (config);
+        } else {
+                new_dirs = tracker_config_get_index_single_directories (config);
+        }
+
+        /* First remove all directories removed from the config */
+        for (l = old_dirs; l; l = l->next) {
+                gchar *path;
+
+                path = g_file_get_path (l->data);
+
+                /* If we are not still in the list, remove the dir */
+                if (!tracker_string_in_gslist (path, new_dirs)) {
+                        tracker_miner_fs_directory_remove (TRACKER_MINER_FS (mf),
+                                                           l->data);
+                }
+
+                g_free (path);
+        }
+
+        /* Second add directories which are new */
+        for (sl = new_dirs; sl; sl = sl->next) {
+                const gchar *path;
+                gboolean found;
+
+                path = sl->data;
+                found = FALSE;
+
+                for (l = old_dirs; l && !found; l = l->next) {
+                        GFile *old_file;
+                        gchar *old_path;
+
+                        old_file = l->data;
+                        old_path = g_file_get_path (old_file);
+
+                        if (strcmp (old_path, path) == 0) {
+                                found = TRUE;
+                        }
+
+                        g_free (old_path);
+                }
+
+                if (!found) {
+                        GFile *file;
+
+                        file = g_file_new_for_path (path);
+                        tracker_miner_fs_directory_add (TRACKER_MINER_FS (mf),
+                                                        file,
+                                                        recurse);
+                        g_object_unref (file);
+                }
+        }
+
+        g_list_foreach (old_dirs, (GFunc) g_object_unref, NULL);
+        g_list_free (old_dirs);
+}
+
+static void
+index_recursive_directories_cb (GObject    *gobject,
+                                GParamSpec *arg1,
+                                gpointer    user_data)
+{
+        update_directories_from_new_config (TRACKER_MINER_FS (user_data),
+                                            TRACKER_CONFIG (gobject),
+                                            TRUE);
+}
+
+static void
+index_single_directories_cb (GObject    *gobject,
+                             GParamSpec *arg1,
+                             gpointer    user_data)
+{
+        update_directories_from_new_config (TRACKER_MINER_FS (user_data),
+                                            TRACKER_CONFIG (gobject),
+                                            FALSE);
 }
 
 static gboolean

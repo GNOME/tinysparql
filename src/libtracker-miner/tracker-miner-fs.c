@@ -2509,18 +2509,42 @@ tracker_miner_fs_get_throttle (TrackerMinerFS *fs)
 }
 
 /**
- * tracker_miner_fs_get_throttle:
+ * tracker_miner_fs_get_directories:
  * @fs: a #TrackerMinerFS
+ * @recurse: whether the directory is inspected recursively
  *
- * Gets the current throttle value. see tracker_miner_fs_set_throttle().
+ * Gets the directories which are queued to be inspected either
+ * recursively or non-recursively according to @recurse.
  *
- * Returns: current throttle value.
+ * See: tracker_miner_fs_directory_add().
+ *
+ * Returns: a new %GList pointer which must be freed with
+ * g_list_free(). The data in the list consists of referenced %GFile
+ * pointers which must be unreferenced when finished with.
  **/
 GList *
-tracker_miner_fs_get_directories (TrackerMinerFS *fs)
+tracker_miner_fs_get_directories (TrackerMinerFS *fs,
+                                  gboolean        recurse)
 {
-	g_return_val_if_fail (TRACKER_IS_MINER_FS (fs), 0);
+        GList *l, *dirs;
 
-	return fs->private->directories;
+	g_return_val_if_fail (TRACKER_IS_MINER_FS (fs), NULL);
+
+        dirs = NULL;
+
+        for (l = fs->private->directories; l; l = l->next) {
+                DirectoryData *dd = l->data;
+
+                if (!dd) {
+                        g_warning ("Expected DirectoryData to be non-NULL");
+                        continue;
+                }
+
+                if (dd->recurse == recurse) {
+                        dirs = g_list_prepend (dirs, g_object_ref (dd->file));
+                }
+        }
+	
+        return g_list_reverse (dirs);
 }
 
