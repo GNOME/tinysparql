@@ -1593,6 +1593,7 @@ item_queue_handlers_cb (gpointer user_data)
 		guint items_processed, items_remaining;
 		gdouble progress_now;
 		static gdouble progress_last = 0.0;
+                static gint info_last = 0;
 
 		time_last = time_now;
 
@@ -1602,11 +1603,12 @@ item_queue_handlers_cb (gpointer user_data)
 		                                        &items_remaining);
 		g_object_set (fs, "progress", progress_now, NULL);
 
-		/* Only log estimated remaining time on each 1% change */
-		if ((gint) (progress_last * 100) != (gint) (progress_now * 100)) {
+                if (++info_last >= 5 &&
+                    (gint) (progress_last * 100) != (gint) (progress_now * 100)) {
 			gchar *str1, *str2;
 			gdouble seconds_elapsed;
 
+                        info_last = 0;
 			progress_last = progress_now;
 
 			/* Log estimated remaining time */
@@ -2544,7 +2546,7 @@ tracker_miner_fs_get_directories (TrackerMinerFS *fs,
                         dirs = g_list_prepend (dirs, g_object_ref (dd->file));
                 }
         }
-	
+
         return g_list_reverse (dirs);
 }
 
