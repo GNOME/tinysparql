@@ -901,11 +901,14 @@ extract_summary (TrackerSparqlBuilder *metadata,
 
 	if (stream) {
 		GsfDocMetaData *md;
+		GError *err = NULL;
 		ForeachInfo     info = { metadata, uri };
 
 		md = gsf_doc_meta_data_new ();
+		err = gsf_msole_metadata_read (stream, md);
 
-		if (gsf_msole_metadata_read (stream, md)) {
+		if (err) {
+			g_error_free (err);
 			g_object_unref (md);
 			g_object_unref (stream);
 			gsf_shutdown ();
@@ -922,11 +925,14 @@ extract_summary (TrackerSparqlBuilder *metadata,
 
 	if (stream) {
 		GsfDocMetaData *md;
+		GError *err = NULL;
 		ForeachInfo     info = { metadata, uri };
 
 		md = gsf_doc_meta_data_new ();
 
-		if (gsf_msole_metadata_read (stream, md)) {
+		err = gsf_msole_metadata_read (stream, md);
+		if (err) {
+			g_error_free (err);
 			g_object_unref (md);
 			g_object_unref (stream);
 			gsf_shutdown ();
