@@ -230,20 +230,31 @@ config_changed_cb (GFileMonitor     *monitor,
                    gpointer          user_data)
 {
 	TrackerConfigFile *file;
-	gchar             *filename;
+	gchar *filename;
+	GTimeVal time_now;
+	static GTimeVal time_last = { 0 };
 
 	file = TRACKER_CONFIG_FILE (user_data);
 
 	/* Do we recreate if the file is deleted? */
 
+	/* Don't emit multiple signals for the same edit. */
+	g_get_current_time (&time_now);
+
 	switch (event_type) {
 	case G_FILE_MONITOR_EVENT_CHANGES_DONE_HINT:
 	case G_FILE_MONITOR_EVENT_CREATED:
+                if ((time_now.tv_sec - time_last.tv_sec) < 1) {
+                        return;
+                }
+
+		time_last = time_now;
+
 		file->file_exists = TRUE;
 
 		filename = g_file_get_path (this_file);
-		g_message ("Config file changed:'%s', reloading settings...",
-		           filename);
+		g_message ("Config file changed:'%s', reloading settings..., event:%d",
+		           filename, event_type);
 		g_free (filename);
 
 		config_load (file);
