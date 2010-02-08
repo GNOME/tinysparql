@@ -111,7 +111,7 @@ nmo:headerValue a rdf:Property ;
 
 nmo:isAnswered a rdf:Property ;
 	nrl:maxCardinality 1 ;
-	rdfs:domain nmo:Email ;
+	rdfs:domain nmo:Message ;
 	rdfs:range xsd:boolean .
 
 nmo:isFlagged a rdf:Property ;
