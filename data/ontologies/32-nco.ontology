@@ -48,11 +48,18 @@ nco:EmailAddress a rdfs:Class ;
 	rdfs:comment "An email address. The recommended best practice is to use mailto: uris for instances of this class." ;
 	rdfs:subClassOf nco:ContactMedium .
 
+nco:IMAddress a rdfs:Class ;
+	rdfs:label "IM Address" ;
+	rdfs:comment "An instant messaging address such as xmpp:foo@bar.com." ;
+	rdfs:subClassOf nco:ContactMedium .
+
+# switch to rdfs:subClassOf nie:InformationElement
+# after transition period
 nco:IMAccount a rdfs:Class ;
 	rdfs:label "IMAccount" ;
-	rdfs:comment "An account in an Instant Messaging system. Only user 'me' can have IM Accounts (check hasIMAccount). All other contacts in the address book can come from one (check nco:fromIMAccount). The properties in this class (id, status,...) refers only to 'me'. The specific details of contacts coming from that account are properties of IMContact." ;
+	rdfs:comment "An account in an Instant Messaging system. This refers to IM accounts of the user 'me'." ;
 	tracker:notify true ;
-	rdfs:subClassOf nco:ContactMedium .
+	rdfs:subClassOf nco:IMAddress .
 
 nco:OrganizationContact a rdfs:Class ;
 	rdfs:label "OrganizationContact" ;
@@ -69,12 +76,14 @@ nco:default-contact-me a nco:PersonContact.
 
 nco:IMContact a rdfs:Class ;
 	rdfs:label "IM Contact" ;
-	rdfs:comment "Contact coming from an IM Account" ;
+	rdfs:comment "Contact coming from an IM Account. This has been deprecated in favor of using nco:PersonContact with nco:hasIMAddress." ;
+	nao:deprecated true ;
 	rdfs:subClassOf nco:PersonContact .
 
 nco:MetaContact a rdfs:Class ;
         rdfs:label "MetaContact" ;
-	rdfs:comment "A metacontact groups PersonContacts and IMContacts coming from different sources, indicating that are the same entity in the real world." ;
+	rdfs:comment "A metacontact groups PersonContacts and IMContacts coming from different sources, indicating that are the same entity in the real world. This has been deprecated in favor of merged contacts. Linking multiple contacts to a single person without merging is the task of pimo:Person and pimo:groundingOccurrence." ;
+	nao:deprecated true ;
 	rdfs:subClassOf rdfs:Resource.
 
 nco:PhoneNumber a rdfs:Class ;
@@ -200,6 +209,7 @@ nco:metacontact a rdf:Property ;
         rdfs:label "metacontact" ;
 	rdfs:comment "Link a single contact with a metacontact" ;
 	nrl:maxCardinality 1 ;
+	nao:deprecated true ;
 	rdfs:domain nco:PersonContact ;
 	rdfs:range nco:MetaContact .
 
@@ -301,16 +311,22 @@ nco:extendedAddress a rdf:Property ;
 nco:hasIMAccount a rdf:Property ;
 	rdfs:label "hasIMAccount" ;
 	rdfs:comment "Indicates that an Instant Messaging account owned by an entity represented by this contact." ;
-	rdfs:subPropertyOf nco:hasContactMedium ;
+	nao:deprecated true ;
 	rdfs:domain nco:PersonContact ;
 	rdfs:range nco:IMAccount .
 
 nco:fromIMAccount a rdf:Property ;
 	rdfs:label "hasIMAccount" ;
-	rdfs:comment "Indicates that an Instant Messaging account owned by an entity represented by this contact." ;
-	rdfs:subPropertyOf nco:hasContactMedium ;
+	rdfs:comment "Indicates that an Instant Messaging account owned by an entity represented by this contact. This has been replaced by nco:fromIMAccount." ;
+	nao:deprecated true ;
 	rdfs:domain nco:IMContact ;
 	rdfs:range nco:IMAccount .
+
+nco:hasIMContact a rdf:Property ;
+	rdfs:label "hasIMAccount" ;
+	rdfs:comment "Indicates that this Instant Messaging account has the specified Instant Messaging address in the contact list." ;
+	rdfs:domain nco:IMAccount ;
+	rdfs:range nco:IMAddress .
 
 # FIXME Range geo:Point but we dont have that class
 nco:hasLocation a rdf:Property ;
@@ -360,10 +376,18 @@ nco:imID a rdf:Property ;
 	rdfs:comment "Identifier of the IM account. Examples of such identifier might include ICQ UINs, Jabber IDs, Skype names etc." ;
 	rdfs:subPropertyOf nao:identifier ;
 	nrl:maxCardinality 1 ;
-	rdfs:domain nco:IMAccount ;
+	rdfs:domain nco:IMAddress ;
 	rdfs:range xsd:string ;
 	tracker:fulltextIndexed true ;
 	tracker:weight 5 .
+
+nco:imAccountAddress a rdf:Property ;
+	a nrl:InverseFunctionalProperty ;
+	rdfs:label "imAccountAddress" ;
+	rdfs:comment "Instant Messaging address of this IM account. The user 'me' can send and receive messages from this IM address." ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nco:IMAccount ;
+	rdfs:range nco:IMAddress .
 
 # FIXME Range geo:Point but we dont have that class
 nco:addressLocation a rdf:Property ;
@@ -571,7 +595,7 @@ nco:imNickname a rdf:Property ;
 	rdfs:label "imNickname" ;
 	rdfs:comment "A nickname attached to a particular IM Account." ;
 	nrl:maxCardinality 1 ;
-	rdfs:domain nco:IMAccount ;
+	rdfs:domain nco:IMAddress ;
 	rdfs:range xsd:string ;
 	tracker:fulltextIndexed true ;
 	tracker:weight 5 .
@@ -620,7 +644,7 @@ nco:imProtocol a rdf:Property ;
 	rdfs:label "imProtocol" ;
 	rdfs:comment "Protocol of the account ('skype', 'gtalk', 'icq', ...)" ;
 	nrl:maxCardinality 1 ;
-	rdfs:domain nco:IMAccount ;
+	rdfs:domain nco:IMAddress ;
 	rdfs:range xsd:string .
 
 nco:pobox a rdf:Property ;
@@ -636,7 +660,7 @@ nco:imStatusMessage a rdf:Property ;
 	rdfs:label "imStatusMessage" ;
 	rdfs:comment "A feature common in most IM systems. A message left by the user for all his/her contacts to see." ;
 	nrl:maxCardinality 1 ;
-	rdfs:domain nco:IMAccount ;
+	rdfs:domain nco:IMAddress ;
 	rdfs:range xsd:string .
 
 nco:imDisplayName a rdf:Property ;
@@ -679,21 +703,24 @@ nco:hasAffiliation a rdf:Property ;
 #
 nco:imContactId a rdf:Property ;
 	rdfs:label "imContactId" ;
-	rdfs:comment "ID of the contact in the service like my.friend@xmail.com" ;
+	rdfs:comment "ID of the contact in the service like my.friend@xmail.com. This has been replaced by nco:imId." ;
+	nao:deprecated true ;
 	nrl:maxCardinality 1;
 	rdfs:domain nco:IMContact ;
 	rdfs:range xsd:string .
 
 nco:imContactNickname a rdf:Property ;
 	rdfs:label "imContactNickname" ;
-	rdfs:comment "Visible nickname of the user in a service";
+	rdfs:comment "Visible nickname of the user in a service. This has been replaced by nco:imNickname.";
+	nao:deprecated true ;
 	nrl:maxCardinality 1;
 	rdfs:domain nco:IMContact ;
 	rdfs:range xsd:string .
 
 nco:imContactStatusMessage a rdf:Property ;
 	rdfs:label "imContactStatusMessage" ;
-	rdfs:comment "Status message of the user in a service";
+	rdfs:comment "Status message of the user in a service. This has been replaced by nco:imStatusMessage.";
+	nao:deprecated true ;
 	nrl:maxCardinality 1;
 	rdfs:domain nco:IMContact ;
 	rdfs:range xsd:string .
@@ -715,7 +742,8 @@ nco:presence-status-error a nco:PresenceStatus .
 
 nco:imContactPresence a rdf:Property ;
 	rdfs:label "imContactPresence" ;
-	rdfs:comment "Online availability of the user in a service";
+	rdfs:comment "Online availability of the user in a service. This has been replaced by nco:imPresence.";
+	nao:deprecated true ;
 	nrl:maxCardinality 1;
 	rdfs:domain nco:IMContact ;
 	rdfs:range nco:PresenceStatus .
@@ -723,7 +751,7 @@ nco:imContactPresence a rdf:Property ;
 nco:imPresence a rdf:Property ;
 	rdfs:label "imPresence" ;
 	nrl:maxCardinality 1 ;
-	rdfs:domain nco:IMAccount ;
+	rdfs:domain nco:IMAddress ;
 	rdfs:range nco:PresenceStatus .
 
 
@@ -744,6 +772,19 @@ nco:im-capability-dbus-tubes a nco:IMCapability .
 
 nco:imContactCapability a rdf:Property ;
 	rdfs:label "imContact Capability";
-	rdfs:comment "Capabilities of an IM Contact, what can we interact with him";
+	rdfs:comment "Capabilities of an IM Contact, what can we interact with him. This has been replaced by nco:imCapability.";
+	nao:deprecated true ;
 	rdfs:domain nco:IMContact ;
 	rdfs:range nco:IMCapability .
+
+nco:imCapability a rdf:Property ;
+	rdfs:label "imContact Capability";
+	rdfs:comment "Capabilities of an IM Contact, what can we interact with him";
+	rdfs:domain nco:IMAddress ;
+	rdfs:range nco:IMCapability .
+
+nco:hasIMAddress a rdf:Property ;
+	rdfs:label "imAddress";
+	rdfs:comment "An address for communication using instant messages with the object specified by this contact." ;
+	rdfs:domain nco:Role ;
+	rdfs:range nco:IMAddress .
