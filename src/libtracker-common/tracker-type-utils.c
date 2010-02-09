@@ -687,6 +687,51 @@ tracker_gslist_to_string_list (GSList *list)
 	return strv;
 }
 
+gboolean
+tracker_gslist_with_string_data_equal (GSList *list1,
+                                       GSList *list2)
+{
+        GSList *sl;
+
+        if (list1 == list2) {
+                return TRUE;
+        }
+
+        if (g_slist_length (list1) != g_slist_length (list2)) {
+                return FALSE;
+        }
+
+        /* NOTE: This is probably not the most efficient way to do
+         * this, but we don't want to order the list first since that
+         * would involve creating new memory. This would make sense
+         * for large list operations I think. We don't expect to be
+         * doing much if any of that.
+         */
+        for (sl = list1; sl; sl = sl->next) {
+                const gchar *str;
+
+                str = sl->data;
+
+                /* If we are not still in the list, remove the dir */
+                if (!tracker_string_in_gslist (str, list2)) {
+                        return FALSE;
+                }
+        }
+
+        for (sl = list2; sl; sl = sl->next) {
+                const gchar *str;
+
+                str = sl->data;
+
+                /* If we are now in the list, add the dir */
+                if (!tracker_string_in_gslist (str, list1)) {
+                        return FALSE;
+                }
+        }
+
+        return TRUE;
+}
+
 GSList *
 tracker_gslist_copy_with_string_data (GSList *list)
 {
