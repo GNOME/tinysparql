@@ -195,10 +195,10 @@ tracker_keyfile_object_load_boolean (gpointer     object,
 
 void
 tracker_keyfile_object_load_string (gpointer     object,
-                                    const gchar         *property,
+                                    const gchar *property,
                                     GKeyFile    *key_file,
-                                    const gchar         *group,
-                                    const gchar         *key)
+                                    const gchar *group,
+                                    const gchar *key)
 {
 	GError *error = NULL;
 	gchar  *value;
@@ -222,12 +222,13 @@ tracker_keyfile_object_load_string (gpointer     object,
 }
 
 void
-tracker_keyfile_object_load_string_list (gpointer     object,
-                                         const gchar *property,
-                                         GKeyFile    *key_file,
-                                         const gchar *group,
-                                         const gchar *key,
-                                         gboolean     is_directory_list)
+tracker_keyfile_object_load_string_list (gpointer      object,
+                                         const gchar  *property,
+                                         GKeyFile     *key_file,
+                                         const gchar  *group,
+                                         const gchar  *key,
+                                         gboolean      is_directory_list,
+                                         GSList      **return_instead)
 {
 	GSList *l;
 	gchar **value;
@@ -260,11 +261,15 @@ tracker_keyfile_object_load_string_list (gpointer     object,
 	}
 	g_strfreev (value);
 
-	g_object_set (G_OBJECT (object), property, l, NULL);
+        if (G_LIKELY (!return_instead)) {
+                g_object_set (G_OBJECT (object), property, l, NULL);
 
-	/* List is copied internally */
-	g_slist_foreach (l, (GFunc) g_free, NULL);
-	g_slist_free (l);
+                /* List is copied internally */
+                g_slist_foreach (l, (GFunc) g_free, NULL);
+                g_slist_free (l);
+        } else {
+                *return_instead = l;
+        }
 }
 
 void

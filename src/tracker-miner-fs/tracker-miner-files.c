@@ -64,6 +64,9 @@ struct TrackerMinerFilesPrivate {
 
 	GVolumeMonitor *volume_monitor;
 
+        GSList *index_recursive_directories;
+        GSList *index_single_directories;
+
 	guint disk_space_check_id;
 	guint disk_space_pause_cookie;
 
@@ -277,6 +280,16 @@ miner_files_finalize (GObject *object)
 
 	disk_space_check_stop (TRACKER_MINER_FILES (object));
 
+        if (priv->index_recursive_directories) {
+                g_slist_foreach (priv->index_recursive_directories, (GFunc) g_free, NULL);
+                g_slist_free (priv->index_recursive_directories);
+        }
+
+        if (priv->index_single_directories) {
+                g_slist_foreach (priv->index_single_directories, (GFunc) g_free, NULL);
+                g_slist_free (priv->index_single_directories);
+        }
+
 #ifdef HAVE_HAL
 	g_object_unref (priv->power);
 	g_object_unref (priv->storage);
@@ -321,6 +334,9 @@ miner_files_constructed (GObject *object)
 	/* Fill in directories to inspect */
 	dirs = tracker_config_get_index_single_directories (mf->private->config);
 
+        /* Copy in case of config changes */
+        mf->private->index_single_directories = tracker_gslist_copy_with_string_data (dirs);
+
 	for (; dirs; dirs = dirs->next) {
 		GFile *file;
 
@@ -360,6 +376,9 @@ miner_files_constructed (GObject *object)
 	g_message ("Setting up directories to iterate from config (IndexRecursiveDirectory)");
 
 	dirs = tracker_config_get_index_recursive_directories (mf->private->config);
+
+        /* Copy in case of config changes */
+        mf->private->index_recursive_directories = tracker_gslist_copy_with_string_data (dirs);
 
 	for (; dirs; dirs = dirs->next) {
 		GFile *file;
@@ -953,70 +972,50 @@ low_disk_space_limit_cb (GObject    *gobject,
 
 static void
 update_directories_from_new_config (TrackerMinerFS *mf,
-                                    TrackerConfig  *config,
+                                    GSList         *new_dirs,
+                                    GSList         *old_dirs,
                                     gboolean        recurse)
 {
-        GList *old_dirs, *l;
-        GSList *new_dirs, *sl;
+        GSList *sl;
 
-        old_dirs = tracker_miner_fs_get_directories (TRACKER_MINER_FS (mf), recurse);
-
-        if (recurse) {
-                new_dirs = tracker_config_get_index_recursive_directories (config);
-        } else {
-                new_dirs = tracker_config_get_index_single_directories (config);
-        }
+        g_message ("Updating %s directories changed from configuration",
+                   recurse ? "recursive" : "single");
 
         /* First remove all directories removed from the config */
-        for (l = old_dirs; l; l = l->next) {
-                gchar *path;
+        for (sl = old_dirs; sl; sl = sl->next) {
+                const gchar *path;
 
-                path = g_file_get_path (l->data);
+                path = sl->data;
 
                 /* If we are not still in the list, remove the dir */
                 if (!tracker_string_in_gslist (path, new_dirs)) {
-                        tracker_miner_fs_directory_remove (TRACKER_MINER_FS (mf),
-                                                           l->data);
-                }
+                        GFile *file;
 
-                g_free (path);
+                        g_message ("  Removing directory:'%s'", path);
+
+                        file = g_file_new_for_path (path);
+                        tracker_miner_fs_directory_remove (TRACKER_MINER_FS (mf), file);
+                        g_object_unref (file);
+                }
         }
 
         /* Second add directories which are new */
         for (sl = new_dirs; sl; sl = sl->next) {
                 const gchar *path;
-                gboolean found;
 
                 path = sl->data;
-                found = FALSE;
 
-                for (l = old_dirs; l && !found; l = l->next) {
-                        GFile *old_file;
-                        gchar *old_path;
-
-                        old_file = l->data;
-                        old_path = g_file_get_path (old_file);
-
-                        if (strcmp (old_path, path) == 0) {
-                                found = TRUE;
-                        }
-
-                        g_free (old_path);
-                }
-
-                if (!found) {
+                /* If we are now in the list, add the dir */
+                if (!tracker_string_in_gslist (path, old_dirs)) {
                         GFile *file;
 
+                        g_message ("  Adding directory:'%s'", path);
+
                         file = g_file_new_for_path (path);
-                        tracker_miner_fs_directory_add (TRACKER_MINER_FS (mf),
-                                                        file,
-                                                        recurse);
+                        tracker_miner_fs_directory_add (TRACKER_MINER_FS (mf), file, recurse);
                         g_object_unref (file);
                 }
         }
-
-        g_list_foreach (old_dirs, (GFunc) g_object_unref, NULL);
-        g_list_free (old_dirs);
 }
 
 static void
@@ -1024,9 +1023,26 @@ index_recursive_directories_cb (GObject    *gobject,
                                 GParamSpec *arg1,
                                 gpointer    user_data)
 {
+        TrackerMinerFilesPrivate *private;
+        GSList *new_dirs, *old_dirs;
+
+        private = TRACKER_MINER_FILES_GET_PRIVATE (user_data);
+
+        new_dirs = tracker_config_get_index_recursive_directories (private->config);
+        old_dirs = private->index_recursive_directories;
+
         update_directories_from_new_config (TRACKER_MINER_FS (user_data),
-                                            TRACKER_CONFIG (gobject),
+                                            new_dirs,
+                                            old_dirs,
                                             TRUE);
+
+        /* Re-set the stored config in case it changes again */
+        if (private->index_recursive_directories) {
+                g_slist_foreach (private->index_recursive_directories, (GFunc) g_free, NULL);
+                g_slist_free (private->index_recursive_directories);
+        }
+
+        private->index_recursive_directories = tracker_gslist_copy_with_string_data (new_dirs);
 }
 
 static void
@@ -1034,9 +1050,26 @@ index_single_directories_cb (GObject    *gobject,
                              GParamSpec *arg1,
                              gpointer    user_data)
 {
+        TrackerMinerFilesPrivate *private;
+        GSList *new_dirs, *old_dirs;
+
+        private = TRACKER_MINER_FILES_GET_PRIVATE (user_data);
+
+        new_dirs = tracker_config_get_index_single_directories (private->config);
+        old_dirs = private->index_single_directories;
+
         update_directories_from_new_config (TRACKER_MINER_FS (user_data),
-                                            TRACKER_CONFIG (gobject),
+                                            new_dirs,
+                                            old_dirs,
                                             FALSE);
+
+        /* Re-set the stored config in case it changes again */
+        if (private->index_single_directories) {
+                g_slist_foreach (private->index_single_directories, (GFunc) g_free, NULL);
+                g_slist_free (private->index_single_directories);
+        }
+
+        private->index_single_directories = tracker_gslist_copy_with_string_data (new_dirs);
 }
 
 static gboolean

@@ -99,7 +99,8 @@ static void     config_get_property         (GObject           *object,
 static void     config_finalize             (GObject           *object);
 static void     config_constructed          (GObject           *object);
 static void     config_changed              (TrackerConfigFile *file);
-static void     config_load                 (TrackerConfig     *config);
+static void     config_load                 (TrackerConfig     *config,
+                                             gboolean           use_defaults);
 static gboolean config_save                 (TrackerConfig     *config);
 static void     config_create_with_defaults (TrackerConfig     *config,
                                              GKeyFile          *key_file,
@@ -518,14 +519,14 @@ config_constructed (GObject *object)
 {
 	(G_OBJECT_CLASS (tracker_config_parent_class)->constructed) (object);
 
-	config_load (TRACKER_CONFIG (object));
+	config_load (TRACKER_CONFIG (object), TRUE);
 }
 
 static void
 config_changed (TrackerConfigFile *file)
 {
 	/* Reload config */
-	config_load (TRACKER_CONFIG (file));
+	config_load (TRACKER_CONFIG (file), FALSE);
 }
 
 static void
@@ -805,13 +806,17 @@ config_set_ignored_directory_conveniences (TrackerConfig *config)
 }
 
 static void
-config_load (TrackerConfig *config)
+config_load (TrackerConfig *config,
+             gboolean       use_defaults)
 {
 	TrackerConfigFile *file;
 	gint i;
 
 	file = TRACKER_CONFIG_FILE (config);
-	config_create_with_defaults (config, file->key_file, FALSE);
+
+        if (use_defaults) {
+                config_create_with_defaults (config, file->key_file, FALSE);
+        }
 
 	if (!file->file_exists) {
 		tracker_config_file_save (file);
@@ -844,26 +849,34 @@ config_load (TrackerConfig *config)
 			break;
 
 		case G_TYPE_POINTER: {
-			GSList *dirs, *l;
+			GSList *new_dirs, *old_dirs, *l;
 			gboolean check_for_duplicates = FALSE;
+                        gboolean equal;
 
 			is_directory_list = TRUE;
 
-			tracker_keyfile_object_load_string_list (G_OBJECT (file),
-			                                         conversions[i].property,
-			                                         file->key_file,
-			                                         conversions[i].group,
-			                                         conversions[i].key,
-			                                         is_directory_list);
-
 			if (strcmp (conversions[i].property, "index-recursive-directories") != 0 &&
 			    strcmp (conversions[i].property, "index-single-directories") != 0) {
-				continue;
+                                tracker_keyfile_object_load_string_list (G_OBJECT (file),
+                                                                         conversions[i].property,
+                                                                         file->key_file,
+                                                                         conversions[i].group,
+                                                                         conversions[i].key,
+                                                                         is_directory_list,
+                                                                         NULL);
+                                continue;
 			}
 
-			g_object_get (config, conversions[i].property, &dirs, NULL);
+                        tracker_keyfile_object_load_string_list (G_OBJECT (file),
+                                                                 conversions[i].property,
+                                                                 file->key_file,
+                                                                 conversions[i].group,
+                                                                 conversions[i].key,
+                                                                 is_directory_list,
+                                                                 &new_dirs);
+                        g_object_get (config, conversions[i].property, &old_dirs, NULL);
 
-			for (l = dirs; l; l = l->next) {
+			for (l = new_dirs; l; l = l->next) {
 				const gchar *path_to_use;
 
 				/* Must be a special dir */
@@ -897,12 +910,21 @@ config_load (TrackerConfig *config)
 			if (check_for_duplicates) {
 				GSList *filtered;
 
-				filtered = tracker_path_list_filter_duplicates (dirs, ".");
-				g_object_set (config, conversions[i].property, filtered, NULL);
+				filtered = tracker_path_list_filter_duplicates (new_dirs, ".");
+				g_slist_foreach (new_dirs, (GFunc) g_free, NULL);
+				g_slist_free (new_dirs);
 
-				g_slist_foreach (filtered, (GFunc) g_free, NULL);
-				g_slist_free (filtered);
-			}
+                                new_dirs = filtered;
+                        }
+
+                        equal = tracker_gslist_with_string_data_equal (new_dirs, old_dirs);
+
+                        if (!equal) {
+                                g_object_set (config, conversions[i].property, new_dirs, NULL);
+                        }
+
+                        g_slist_foreach (new_dirs, (GFunc) g_free, NULL);
+                        g_slist_free (new_dirs);
 
 			break;
 		}
@@ -1407,13 +1429,16 @@ tracker_config_set_index_recursive_directories (TrackerConfig *config,
                                                 GSList        *roots)
 {
 	TrackerConfigPrivate *priv;
-	GSList               *l;
+	GSList *l;
+        gboolean equal;
 
 	g_return_if_fail (TRACKER_IS_CONFIG (config));
 
 	priv = TRACKER_CONFIG_GET_PRIVATE (config);
 
 	l = priv->index_recursive_directories;
+
+        equal = tracker_gslist_with_string_data_equal (roots, l);
 
 	if (!roots) {
 		priv->index_recursive_directories = NULL;
@@ -1425,6 +1450,10 @@ tracker_config_set_index_recursive_directories (TrackerConfig *config,
 	g_slist_foreach (l, (GFunc) g_free, NULL);
 	g_slist_free (l);
 
+        if (equal) {
+                return;
+        }
+
 	g_object_notify (G_OBJECT (config), "index-recursive-directories");
 }
 
@@ -1433,13 +1462,16 @@ tracker_config_set_index_single_directories (TrackerConfig *config,
                                              GSList        *roots)
 {
 	TrackerConfigPrivate *priv;
-	GSList               *l;
+	GSList *l;
+        gboolean equal;
 
 	g_return_if_fail (TRACKER_IS_CONFIG (config));
 
 	priv = TRACKER_CONFIG_GET_PRIVATE (config);
 
 	l = priv->index_single_directories;
+
+        equal = tracker_gslist_with_string_data_equal (roots, l);
 
 	if (!roots) {
 		priv->index_single_directories = NULL;
@@ -1451,6 +1483,10 @@ tracker_config_set_index_single_directories (TrackerConfig *config,
 	g_slist_foreach (l, (GFunc) g_free, NULL);
 	g_slist_free (l);
 
+        if (equal) {
+                return;
+        }
+
 	g_object_notify (G_OBJECT (config), "index-single-directories");
 }
 
@@ -1459,13 +1495,16 @@ tracker_config_set_ignored_directories (TrackerConfig *config,
                                         GSList        *roots)
 {
 	TrackerConfigPrivate *priv;
-	GSList               *l;
+	GSList *l;
+        gboolean equal;
 
 	g_return_if_fail (TRACKER_IS_CONFIG (config));
 
 	priv = TRACKER_CONFIG_GET_PRIVATE (config);
 
 	l = priv->ignored_directories;
+
+        equal = tracker_gslist_with_string_data_equal (roots, l);
 
 	if (!roots) {
 		priv->ignored_directories = NULL;
@@ -1476,6 +1515,10 @@ tracker_config_set_ignored_directories (TrackerConfig *config,
 
 	g_slist_foreach (l, (GFunc) g_free, NULL);
 	g_slist_free (l);
+
+        if (equal) {
+                return;
+        }
 
 	/* Re-set up the GPatternSpec list */
 	config_set_ignored_directory_conveniences (config);
@@ -1488,13 +1531,16 @@ tracker_config_set_ignored_directories_with_content (TrackerConfig *config,
                                                      GSList        *roots)
 {
 	TrackerConfigPrivate *priv;
-	GSList               *l;
+	GSList *l;
+        gboolean equal;
 
 	g_return_if_fail (TRACKER_IS_CONFIG (config));
 
 	priv = TRACKER_CONFIG_GET_PRIVATE (config);
 
 	l = priv->ignored_directories_with_content;
+
+        equal = tracker_gslist_with_string_data_equal (roots, l);
 
 	if (!roots) {
 		priv->ignored_directories_with_content = NULL;
@@ -1506,6 +1552,10 @@ tracker_config_set_ignored_directories_with_content (TrackerConfig *config,
 	g_slist_foreach (l, (GFunc) g_free, NULL);
 	g_slist_free (l);
 
+        if (equal) {
+                return;
+        }
+
 	g_object_notify (G_OBJECT (config), "ignored-directories-with-content");
 }
 
@@ -1514,13 +1564,16 @@ tracker_config_set_ignored_files (TrackerConfig *config,
                                   GSList        *files)
 {
 	TrackerConfigPrivate *priv;
-	GSList               *l;
+	GSList *l;
+        gboolean equal;
 
 	g_return_if_fail (TRACKER_IS_CONFIG (config));
 
 	priv = TRACKER_CONFIG_GET_PRIVATE (config);
 
 	l = priv->ignored_files;
+
+        equal = tracker_gslist_with_string_data_equal (files, l);
 
 	if (!files) {
 		priv->ignored_files = NULL;
@@ -1531,6 +1584,10 @@ tracker_config_set_ignored_files (TrackerConfig *config,
 
 	g_slist_foreach (l, (GFunc) g_free, NULL);
 	g_slist_free (l);
+
+        if (equal) {
+                return;
+        }
 
 	/* Re-set up the GPatternSpec list */
 	config_set_ignored_file_conveniences (config);
