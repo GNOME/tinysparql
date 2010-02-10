@@ -99,126 +99,130 @@ public class Tracker.SparqlQuery : Object {
 
 		public Class? domain;
 
-		public string get_sql_query (SparqlQuery query) throws DBInterfaceError, SparqlError {
-			var sql = new StringBuilder ();
+		public string get_sql_query (SparqlQuery query) throws SparqlError {
+			try {
+				var sql = new StringBuilder ();
 
-			if (subject != null) {
-				// single subject
-				var subject_id = Data.query_resource_id (subject);
+				if (subject != null) {
+					// single subject
+					var subject_id = Data.query_resource_id (subject);
 
-				DBResultSet result_set = null;
-				if (subject_id > 0) {
+					DBResultSet result_set = null;
+					if (subject_id > 0) {
+						var iface = DBManager.get_db_interface ();
+						var stmt = iface.create_statement ("SELECT (SELECT Uri FROM Resource WHERE ID = \"rdf:type\") FROM \"rdfs:Resource_rdf:type\" WHERE ID = ?");
+						stmt.bind_int (0, subject_id);
+						result_set = stmt.execute ();
+					}
+
+					if (result_set != null) {
+						bool first = true;
+						do {
+							Value value;
+							result_set._get_value (0, out value);
+							var domain = Ontology.get_class_by_uri (value.get_string ());
+
+							foreach (Property prop in Ontology.get_properties ()) {
+								if (prop.domain == domain) {
+									if (first) {
+										first = false;
+									} else {
+										sql.append (" UNION ALL ");
+									}
+									sql.append_printf ("SELECT ID, (SELECT ID FROM Resource WHERE Uri = '%s') AS \"predicate\", ", prop.uri);
+
+									append_expression_as_string (sql, "\"%s\"".printf (prop.name), prop.data_type);
+
+									sql.append (" AS \"object\" FROM ");
+									if (prop.multiple_values) {
+										sql.append_printf ("\"%s_%s\"", prop.domain.name, prop.name);
+									} else {
+										sql.append_printf ("\"%s\"", prop.domain.name);
+									}
+
+									sql.append (" WHERE ID = ?");
+
+									var binding = new LiteralBinding ();
+									binding.literal = subject_id.to_string ();
+									binding.data_type = PropertyType.INTEGER;
+									query.bindings.append (binding);
+								}
+							}
+						} while (result_set.iter_next ());
+					} else {
+						/* no match */
+						sql.append ("SELECT NULL AS ID, NULL AS \"predicate\", NULL AS \"object\"");
+					}
+				} else if (object != null) {
+					// single object
+					var object_id = Data.query_resource_id (object);
+
 					var iface = DBManager.get_db_interface ();
 					var stmt = iface.create_statement ("SELECT (SELECT Uri FROM Resource WHERE ID = \"rdf:type\") FROM \"rdfs:Resource_rdf:type\" WHERE ID = ?");
-					stmt.bind_int (0, subject_id);
-					result_set = stmt.execute ();
-				}
+					stmt.bind_int (0, object_id);
+					var result_set = stmt.execute ();
 
-				if (result_set != null) {
 					bool first = true;
-					do {
-						Value value;
-						result_set._get_value (0, out value);
-						var domain = Ontology.get_class_by_uri (value.get_string ());
+					if (result_set != null) {
+						do {
+							Value value;
+							result_set._get_value (0, out value);
+							var range = Ontology.get_class_by_uri (value.get_string ());
 
-						foreach (Property prop in Ontology.get_properties ()) {
-							if (prop.domain == domain) {
-								if (first) {
-									first = false;
-								} else {
-									sql.append (" UNION ALL ");
-								}
-								sql.append_printf ("SELECT ID, (SELECT ID FROM Resource WHERE Uri = '%s') AS \"predicate\", ", prop.uri);
+							foreach (Property prop in Ontology.get_properties ()) {
+								if (prop.range == range) {
+									if (first) {
+										first = false;
+									} else {
+										sql.append (" UNION ALL ");
+									}
+									sql.append_printf ("SELECT ID, (SELECT ID FROM Resource WHERE Uri = '%s') AS \"predicate\", ", prop.uri);
 
-								append_expression_as_string (sql, "\"%s\"".printf (prop.name), prop.data_type);
+									append_expression_as_string (sql, "\"%s\"".printf (prop.name), prop.data_type);
 
-								sql.append (" AS \"object\" FROM ");
-								if (prop.multiple_values) {
-									sql.append_printf ("\"%s_%s\"", prop.domain.name, prop.name);
-								} else {
-									sql.append_printf ("\"%s\"", prop.domain.name);
-								}
-
-								sql.append (" WHERE ID = ?");
-
-								var binding = new LiteralBinding ();
-								binding.literal = subject_id.to_string ();
-								binding.data_type = PropertyType.INTEGER;
-								query.bindings.append (binding);
-							}
-						}
-					} while (result_set.iter_next ());
-				} else {
-					/* no match */
-					sql.append ("SELECT NULL AS ID, NULL AS \"predicate\", NULL AS \"object\"");
-				}
-			} else if (object != null) {
-				// single object
-				var object_id = Data.query_resource_id (object);
-
-				var iface = DBManager.get_db_interface ();
-				var stmt = iface.create_statement ("SELECT (SELECT Uri FROM Resource WHERE ID = \"rdf:type\") FROM \"rdfs:Resource_rdf:type\" WHERE ID = ?");
-				stmt.bind_int (0, object_id);
-				var result_set = stmt.execute ();
-
-				bool first = true;
-				if (result_set != null) {
-					do {
-						Value value;
-						result_set._get_value (0, out value);
-						var range = Ontology.get_class_by_uri (value.get_string ());
-
-						foreach (Property prop in Ontology.get_properties ()) {
-							if (prop.range == range) {
-								if (first) {
-									first = false;
-								} else {
-									sql.append (" UNION ALL ");
-								}
-								sql.append_printf ("SELECT ID, (SELECT ID FROM Resource WHERE Uri = '%s') AS \"predicate\", ", prop.uri);
-
-								append_expression_as_string (sql, "\"%s\"".printf (prop.name), prop.data_type);
-
-								sql.append (" AS \"object\" FROM ");
-								if (prop.multiple_values) {
-									sql.append_printf ("\"%s_%s\"", prop.domain.name, prop.name);
-								} else {
-									sql.append_printf ("\"%s\"", prop.domain.name);
+									sql.append (" AS \"object\" FROM ");
+									if (prop.multiple_values) {
+										sql.append_printf ("\"%s_%s\"", prop.domain.name, prop.name);
+									} else {
+										sql.append_printf ("\"%s\"", prop.domain.name);
+									}
 								}
 							}
-						}
-					} while (result_set.iter_next ());
-				} else {
-					/* no match */
-					sql.append ("SELECT NULL AS ID, NULL AS \"predicate\", NULL AS \"object\"");
-				}
-			} else if (domain != null) {
-				// any subject, predicates limited to a specific domain
-				bool first = true;
-				foreach (Property prop in Ontology.get_properties ()) {
-					if (prop.domain == domain) {
-						if (first) {
-							first = false;
-						} else {
-							sql.append (" UNION ALL ");
-						}
-						sql.append_printf ("SELECT ID, (SELECT ID FROM Resource WHERE Uri = '%s') AS \"predicate\", ", prop.uri);
+						} while (result_set.iter_next ());
+					} else {
+						/* no match */
+						sql.append ("SELECT NULL AS ID, NULL AS \"predicate\", NULL AS \"object\"");
+					}
+				} else if (domain != null) {
+					// any subject, predicates limited to a specific domain
+					bool first = true;
+					foreach (Property prop in Ontology.get_properties ()) {
+						if (prop.domain == domain) {
+							if (first) {
+								first = false;
+							} else {
+								sql.append (" UNION ALL ");
+							}
+							sql.append_printf ("SELECT ID, (SELECT ID FROM Resource WHERE Uri = '%s') AS \"predicate\", ", prop.uri);
 
-						append_expression_as_string (sql, "\"%s\"".printf (prop.name), prop.data_type);
+							append_expression_as_string (sql, "\"%s\"".printf (prop.name), prop.data_type);
 
-						sql.append (" AS \"object\" FROM ");
-						if (prop.multiple_values) {
-							sql.append_printf ("\"%s_%s\"", prop.domain.name, prop.name);
-						} else {
-							sql.append_printf ("\"%s\"", prop.domain.name);
+							sql.append (" AS \"object\" FROM ");
+							if (prop.multiple_values) {
+								sql.append_printf ("\"%s_%s\"", prop.domain.name, prop.name);
+							} else {
+								sql.append_printf ("\"%s\"", prop.domain.name);
+							}
 						}
 					}
+				} else {
+					// UNION over all properties would exceed SQLite limits
+					throw query.get_internal_error ("Unrestricted predicate variables not supported");
 				}
-			} else {
-				// UNION over all properties would exceed SQLite limits
-				throw query.get_internal_error ("Unrestricted predicate variables not supported");
+				return sql.str;
+			} catch (DBInterfaceError e) {
+				throw new SparqlError.INTERNAL (e.message);
 			}
-			return sql.str;
 		}
 	}
 
@@ -464,7 +468,7 @@ public class Tracker.SparqlQuery : Object {
 		}
 	}
 
-	public DBResultSet? execute () throws SparqlError {
+	public DBResultSet? execute () throws DBInterfaceError, SparqlError {
 		assert (!update_extensions);
 
 		scanner = new SparqlScanner ((char*) query_string, (long) query_string.size ());
@@ -497,7 +501,7 @@ public class Tracker.SparqlQuery : Object {
 		}
 	}
 
-	public PtrArray? execute_update (bool blank) throws SparqlError {
+	public PtrArray? execute_update (bool blank) throws DataError, DBInterfaceError, SparqlError {
 		assert (update_extensions);
 
 		scanner = new SparqlScanner ((char*) query_string, (long) query_string.size ());
@@ -722,7 +726,7 @@ public class Tracker.SparqlQuery : Object {
 		return exec_sql (sql.str);
 	}
 
-	PropertyType translate_select (StringBuilder sql, bool subquery = false) throws DBInterfaceError, SparqlError {
+	PropertyType translate_select (StringBuilder sql, bool subquery = false) throws SparqlError {
 		var type = PropertyType.UNKNOWN;
 
 		var pattern_sql = new StringBuilder ();
@@ -1889,7 +1893,7 @@ public class Tracker.SparqlQuery : Object {
 		return translate_conditional_or_expression (sql);
 	}
 
-	PropertyType translate_bracketted_expression (StringBuilder sql) throws DBInterfaceError, SparqlError {
+	PropertyType translate_bracketted_expression (StringBuilder sql) throws SparqlError {
 		expect (SparqlTokenType.OPEN_PARENS);
 
 		if (current () == SparqlTokenType.SELECT) {
@@ -2169,7 +2173,7 @@ public class Tracker.SparqlQuery : Object {
 		sql.append ("SELECT ");
 	}
 
-	void end_triples_block (StringBuilder sql, ref bool first_where, bool in_group_graph_pattern) throws DBInterfaceError, SparqlError {
+	void end_triples_block (StringBuilder sql, ref bool first_where, bool in_group_graph_pattern) throws SparqlError {
 		// remove last comma and space
 		sql.truncate (sql.len - 2);
 
@@ -2266,7 +2270,7 @@ public class Tracker.SparqlQuery : Object {
 		pattern_bindings = null;
 	}
 
-	void parse_triples (StringBuilder sql, long group_graph_pattern_start, ref bool in_triples_block, ref bool first_where, ref bool in_group_graph_pattern, bool found_simple_optional) throws DBInterfaceError, SparqlError {
+	void parse_triples (StringBuilder sql, long group_graph_pattern_start, ref bool in_triples_block, ref bool first_where, ref bool in_group_graph_pattern, bool found_simple_optional) throws SparqlError {
 		while (true) {
 			if (current () != SparqlTokenType.VAR &&
 			    current () != SparqlTokenType.IRI_REF &&
@@ -2396,7 +2400,7 @@ public class Tracker.SparqlQuery : Object {
 		}
 	}
 
-	void translate_group_graph_pattern (StringBuilder sql) throws DBInterfaceError, SparqlError {
+	void translate_group_graph_pattern (StringBuilder sql) throws SparqlError {
 		expect (SparqlTokenType.OPEN_BRACE);
 
 		if (current () == SparqlTokenType.SELECT) {
@@ -2586,7 +2590,7 @@ public class Tracker.SparqlQuery : Object {
 		}
 	}
 
-	void translate_group_or_union_graph_pattern (StringBuilder sql) throws DBInterfaceError, SparqlError {
+	void translate_group_or_union_graph_pattern (StringBuilder sql) throws SparqlError {
 		var old_subgraph_var_set = subgraph_var_set;
 
 		Variable[] all_vars = { };

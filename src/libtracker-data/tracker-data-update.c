@@ -1541,6 +1541,7 @@ tracker_data_insert_statement_with_uri (const gchar            *graph,
 		} else {
 			g_set_error (error, TRACKER_DATA_ERROR, TRACKER_DATA_ERROR_UNKNOWN_CLASS,
 			             "Class '%s' not found in the ontology", object);
+			return;
 		}
 	} else if (strcmp (predicate, TRACKER_PREFIX "uri") == 0) {
 		/* internal property tracker:uri, used to change uri of existing element */
