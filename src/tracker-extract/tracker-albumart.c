@@ -443,9 +443,14 @@ albumart_heuristic (const gchar *artist,
 	for (name = g_dir_read_name (dir), count = 0, retval = FALSE;
 	     name != NULL && !retval && count < 50;
 	     name = g_dir_read_name (dir), count++) {
+            /* Accept cover, front, folder, AlbumArt_{GUID}_Large
+               reject AlbumArt_{GUID}_Small and AlbumArtSmall */
 		if ((artist_stripped && strcasestr (name, artist_stripped)) ||
 		    (album_stripped && strcasestr (name, album_stripped)) ||
-		    (strcasestr (name, "cover"))) {
+		    (strcasestr (name, "cover")) ||
+                    (strcasestr (name, "front")) ||
+                    (strcasestr (name, "folder")) ||
+                    ((strcasestr (name, "albumart") && strcasestr (name, "large")))) {
 			if (g_str_has_suffix (name, "jpeg") ||
 			    g_str_has_suffix (name, "jpg")) {
 				if (!target) {
