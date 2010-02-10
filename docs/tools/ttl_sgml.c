@@ -267,6 +267,14 @@ print_ontology_property (gpointer key, gpointer value, gpointer user_data)
         }
 
         g_fprintf (f, "</variablelist>\n");
+
+        if (def->deprecated) {
+                g_fprintf (f, "<note>\n");
+                g_fprintf (f, "<title>Note:</title>\n");
+                g_fprintf (f, "<para>This property is deprecated</para>\n", id);
+                g_fprintf (f, "</note>\n");
+        }
+
         g_fprintf (f, "</refsect2>\n\n");
 }
 
