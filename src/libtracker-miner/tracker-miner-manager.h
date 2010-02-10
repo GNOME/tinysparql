@@ -92,10 +92,9 @@ gboolean tracker_miner_manager_get_status (TrackerMinerManager  *manager,
                                            const gchar          *miner,
                                            gchar               **status,
                                            gdouble              *progress);
-gboolean tracker_miner_manager_writeback  (TrackerMinerManager *manager,
-                                           const gchar         *miner,
-                                           const gchar        **subjects);
-
+gboolean tracker_miner_manager_ignore_next_update    (TrackerMinerManager *manager,
+                                                      const gchar         *miner,
+                                                      const gchar        **urls);
 const gchar * tracker_miner_manager_get_display_name (TrackerMinerManager *manager,
                                                       const gchar         *miner);
 const gchar * tracker_miner_manager_get_description  (TrackerMinerManager *manager,

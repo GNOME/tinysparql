@@ -27,9 +27,9 @@
       <arg type="i" name="cookie" direction="in" />
     </method>
 
-    <method name="Writeback">
+    <method name="IgnoreNextUpdate">
       <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
-      <arg type="as" name="subjects" direction="in" />
+      <arg type="as" name="urls" direction="in" />
     </method>
 
     <!-- Signals -->

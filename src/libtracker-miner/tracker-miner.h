@@ -59,7 +59,7 @@ struct TrackerMiner {
  * @terminated: terminated.
  * @progress: progress.
  * @error: error.
- * @writeback: Called after writeback event happens.
+ * @ignore_next_update: Called after ignore on next update event happens.
  *
  * Virtual methods left to implement.
  **/
@@ -79,8 +79,9 @@ typedef struct {
 
 	void (* error)      (TrackerMiner *miner,
 	                     GError       *error);
-	void (* writeback)  (TrackerMiner *miner,
-	                     const GStrv   subjects);
+	void (* ignore_next_update)
+	                    (TrackerMiner *miner,
+	                     const GStrv   urls);
 } TrackerMinerClass;
 
 GType            tracker_miner_get_type                    (void) G_GNUC_CONST;
@@ -88,8 +89,8 @@ GQuark           tracker_miner_error_quark                 (void);
 
 void             tracker_miner_start                       (TrackerMiner         *miner);
 void             tracker_miner_stop                        (TrackerMiner         *miner);
-void             tracker_miner_writeback                   (TrackerMiner         *miner,
-                                                            const GStrv           subjects);
+void             tracker_miner_ignore_next_update          (TrackerMiner         *miner,
+                                                            const GStrv           urls);
 gboolean         tracker_miner_is_started                  (TrackerMiner         *miner);
 gint             tracker_miner_pause                       (TrackerMiner         *miner,
                                                             const gchar          *reason,

@@ -99,7 +99,7 @@ enum {
 	RESUMED,
 	PROGRESS,
 	ERROR,
-	WRITEBACK,
+	IGNORE_NEXT_UPDATE,
 	LAST_SIGNAL
 };
 
@@ -248,19 +248,19 @@ tracker_miner_class_init (TrackerMinerClass *klass)
 		              G_TYPE_POINTER);
 
 	/**
-	 * TrackerMiner::writeback:
+	 * TrackerMiner::ignore-next-update:
 	 * @miner: the #TrackerMiner
-	 * @subjects: the subjects to mark as writeback
+	 * @urls: the urls to mark as ignore on next update
 	 *
-	 * the ::writeback signal is emitted in the miner
-	 * right after it has been asked to mark @subjects as writeback through
-	 * tracker_miner_writeback().
+	 * the ::ignore-next-update signal is emitted in the miner
+	 * right after it has been asked to mark @urls as to ignore on next update
+	 * through tracker_miner_ignore_next_update().
 	 **/
-	signals[WRITEBACK] =
-		g_signal_new ("writeback",
+	signals[IGNORE_NEXT_UPDATE] =
+		g_signal_new ("ignore-next-update",
 		              G_OBJECT_CLASS_TYPE (object_class),
 		              G_SIGNAL_RUN_LAST,
-		              G_STRUCT_OFFSET (TrackerMinerClass, writeback),
+		              G_STRUCT_OFFSET (TrackerMinerClass, ignore_next_update),
 		              NULL, NULL,
 		              g_cclosure_marshal_VOID__BOXED,
 		              G_TYPE_NONE, 1,
@@ -954,19 +954,19 @@ tracker_miner_stop (TrackerMiner *miner)
 }
 
 /**
- * tracker_miner_writeback:
+ * tracker_miner_ignore_next_update:
  * @miner: a #TrackerMiner
- * @subjects: the subjects to mark as writeback
+ * @urls: the urls to mark as to ignore on next update
  *
- * Tells the miner to mark @subjects are writeback.
+ * Tells the miner to mark @urls are to ignore on next update.
  **/
 void
-tracker_miner_writeback (TrackerMiner *miner,
-                         const GStrv   subjects)
+tracker_miner_ignore_next_update (TrackerMiner *miner,
+                                  const GStrv   urls)
 {
 	g_return_if_fail (TRACKER_IS_MINER (miner));
 
-	g_signal_emit (miner, signals[WRITEBACK], 0, subjects);
+	g_signal_emit (miner, signals[IGNORE_NEXT_UPDATE], 0, urls);
 }
 
 /**
@@ -1501,10 +1501,10 @@ tracker_miner_dbus_resume (TrackerMiner           *miner,
 }
 
 void
-tracker_miner_dbus_writeback (TrackerMiner           *miner,
-                              const GStrv             subjects,
-                              DBusGMethodInvocation  *context,
-                              GError                **error)
+tracker_miner_dbus_ignore_next_update (TrackerMiner           *miner,
+                                       const GStrv             urls,
+                                       DBusGMethodInvocation  *context,
+                                       GError                **error)
 {
 	guint request_id;
 
@@ -1514,7 +1514,7 @@ tracker_miner_dbus_writeback (TrackerMiner           *miner,
 
 	tracker_dbus_request_new (request_id, context, "%s()", __PRETTY_FUNCTION__);
 
-	tracker_miner_writeback (miner, subjects);
+	tracker_miner_ignore_next_update (miner, urls);
 
 	tracker_dbus_request_success (request_id, context);
 	dbus_g_method_return (context);

@@ -57,7 +57,7 @@ struct TrackerMinerFS {
  * @check_directory: Called when a directory should be checked for further processing
  * @check_directory_contents: Called when a directory should be checked for further processing, based on the directory contents.
  * @process_file: Called when the metadata associated to a file is requested.
- * @writeback_file: Called after a writeback event happens on a file.
+ * @ignore_next_update_file: Called after a writeback event happens on a file.
  * @monitor_directory: Called to check whether a directory should be modified.
  * @finished: Called when all processing has been performed.
  *
@@ -79,11 +79,10 @@ typedef struct {
 	                                    GFile                *file,
 	                                    TrackerSparqlBuilder *builder,
 	                                    GCancellable         *cancellable);
-	gboolean (* writeback_file)        (TrackerMinerFS       *fs,
-	                                    GFile                *file,
-	                                    TrackerSparqlBuilder *builder,
-	                                    GCancellable         *cancellable);
-
+	gboolean (* ignore_next_update_file) (TrackerMinerFS       *fs,
+	                                      GFile                *file,
+	                                      TrackerSparqlBuilder *builder,
+	                                      GCancellable         *cancellable);
 	gboolean (* monitor_directory)     (TrackerMinerFS       *fs,
 	                                    GFile                *file);
 	void     (* finished)              (TrackerMinerFS       *fs);

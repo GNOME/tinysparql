@@ -932,19 +932,19 @@ tracker_miner_manager_get_description (TrackerMinerManager *manager,
 
 
 /**
- * tracker_miner_manager_writeback:
+ * tracker_miner_manager_ignore_next_update:
  * @manager: a #TrackerMinerManager.
  * @miner: miner reference
- * @subjects: subjects to mark as writeback
+ * @urls: subjects to mark as writeback
  *
  * Asks @miner to mark @subjects as writeback
  *
- * Returns: %TRUE if the miner was asked to writeback successfully.
+ * Returns: %TRUE if the miner was asked to ignore on next update successfully.
  **/
 gboolean
-tracker_miner_manager_writeback (TrackerMinerManager *manager,
-                                 const gchar         *miner,
-                                 const gchar        **subjects)
+tracker_miner_manager_ignore_next_update (TrackerMinerManager *manager,
+                                          const gchar         *miner,
+                                          const gchar        **urls)
 {
 	DBusGProxy *proxy;
 	const gchar *app_name;
@@ -971,10 +971,10 @@ tracker_miner_manager_writeback (TrackerMinerManager *manager,
 		app_name = "TrackerMinerManager client";
 	}
 
-	org_freedesktop_Tracker1_Miner_writeback (proxy, subjects, &error);
+	org_freedesktop_Tracker1_Miner_ignore_next_update (proxy, urls, &error);
 
 	if (error) {
-		g_warning ("Could not writeback miner '%s': %s", miner, error->message);
+		g_warning ("Could not ignore next update for miner '%s': %s", miner, error->message);
 		g_error_free (error);
 		return FALSE;
 	}

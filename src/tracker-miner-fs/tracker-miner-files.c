@@ -142,7 +142,7 @@ static gboolean    miner_files_process_file             (TrackerMinerFS       *f
                                                          GCancellable         *cancellable);
 static gboolean    miner_files_monitor_directory        (TrackerMinerFS       *fs,
                                                          GFile                *file);
-static gboolean    miner_files_writeback_file           (TrackerMinerFS       *fs,
+static gboolean    miner_files_ignore_next_update_file  (TrackerMinerFS       *fs,
                                                          GFile                *file,
                                                          TrackerSparqlBuilder *sparql,
                                                          GCancellable         *cancellable);
@@ -165,7 +165,7 @@ tracker_miner_files_class_init (TrackerMinerFilesClass *klass)
 	miner_fs_class->check_directory_contents = miner_files_check_directory_contents;
 	miner_fs_class->monitor_directory = miner_files_monitor_directory;
 	miner_fs_class->process_file = miner_files_process_file;
-	miner_fs_class->writeback_file = miner_files_writeback_file;
+	miner_fs_class->ignore_next_update_file = miner_files_ignore_next_update_file;
 
 	g_object_class_install_property (object_class,
 	                                 PROP_CONFIG,
@@ -1599,10 +1599,10 @@ miner_files_process_file (TrackerMinerFS       *fs,
 }
 
 static gboolean
-miner_files_writeback_file (TrackerMinerFS       *fs,
-                            GFile                *file,
-                            TrackerSparqlBuilder *sparql,
-                            GCancellable         *cancellable)
+miner_files_ignore_next_update_file (TrackerMinerFS       *fs,
+                                     GFile                *file,
+                                     TrackerSparqlBuilder *sparql,
+                                     GCancellable         *cancellable)
 {
 	const gchar *attrs;
 	const gchar *mime_type;
@@ -1623,7 +1623,7 @@ miner_files_writeback_file (TrackerMinerFS       *fs,
 	                               cancellable, &error);
 
 	if (error) {
-		g_warning ("Can't writeback: '%s'", error->message);
+		g_warning ("Can't ignore-next-update: '%s'", error->message);
 		g_clear_error (&error);
 		return FALSE;
 	}
@@ -1631,8 +1631,10 @@ miner_files_writeback_file (TrackerMinerFS       *fs,
 	uri = g_file_get_uri (file);
 	mime_type = g_file_info_get_content_type (file_info);
 
-	/* For writeback we only write a few properties back. These properties
-	 * should NEVER be marked as tracker:writeback in the ontology ! */
+	/* For ignore-next-update we only write a few properties back. These properties
+	 * should NEVER be marked as tracker:writeback in the ontology! (else you break
+	 * the tracker-writeback feature) */
+
 	tracker_sparql_builder_insert_open (sparql, uri);
 
 	tracker_sparql_builder_subject_variable (sparql, "urn");

@@ -68,7 +68,7 @@ tracker_writeback_file_update_metadata (TrackerWriteback *writeback,
 	gboolean retval;
 	GFile *file;
 	GFileInfo *file_info;
-	const gchar *subjects[2] = { NULL, NULL };
+	const gchar *urls[2] = { NULL, NULL };
 	GStrv row;
 	TrackerWritebackFile *self;
 	const gchar * const *content_types;
@@ -126,11 +126,11 @@ tracker_writeback_file_update_metadata (TrackerWriteback *writeback,
 
 		tracker_file_lock (file);
 
-		subjects[0] = row[0];
+		urls[0] = row[0];
 
-		tracker_miner_manager_writeback (tracker_writeback_get_miner_manager (),
-		                                 "org.freedesktop.Tracker1.Miner.Files",
-		                                 subjects);
+		tracker_miner_manager_ignore_next_update (tracker_writeback_get_miner_manager (),
+		                                          "org.freedesktop.Tracker1.Miner.Files",
+		                                          urls);
 
 		retval = (writeback_file_class->update_file_metadata) (TRACKER_WRITEBACK_FILE (writeback),
 		                                                       file, values, client);
