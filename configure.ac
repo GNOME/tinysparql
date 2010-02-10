@@ -869,27 +869,6 @@ AC_SUBST(TRACKER_VALA_CFLAGS)
 AC_SUBST(TRACKER_VALA_LIBS)
 
 ##################################################################
-# Enable building libtracker-gtk?
-##################################################################
-
-AC_ARG_ENABLE([libtrackergtk],
-              AS_HELP_STRING([--enable-libtrackergtk],
-	      		     [enable libtrackergtk [[default=auto]]]),,
-	      [enable_libtrackergtk=auto])
-
-if test "x$enable_libtrackergtk" != "xno" ; then
-   if test "x$have_app_requirements" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find libtracker_gtk dependencies ($APP_REQUIREMENTS).])
-   else
-      have_libtrackergtk="yes"
-   fi
-else
-   have_libtrackergtk="no  (disabled)"
-fi
-
-AM_CONDITIONAL(HAVE_LIBTRACKERGTK, test "$have_libtrackergtk" = "yes")
-
-##################################################################
 # Enable building tracker-status-icon?
 ##################################################################
 
@@ -1621,7 +1600,6 @@ AC_CONFIG_FILES([
 	data/icons/Makefile
 	data/icons/scalable/Makefile
 	data/languages/Makefile
-	data/tracker-gtk.pc
 	data/Makefile
 	data/miners/Makefile
 	data/ontologies/Makefile
@@ -1652,7 +1630,6 @@ AC_CONFIG_FILES([
 	src/libtracker-db/Makefile
 	src/libtracker-fts/Makefile
 	src/libtracker-extract/Makefile
-	src/libtracker-gtk/Makefile
 	src/libtracker-client/Makefile
         src/libtracker-miner/Makefile
 	src/Makefile
@@ -1742,7 +1719,6 @@ Applications:
 	Build tracker-search-tool:	        $have_tracker_search_tool
 	Build tracker-preferences:		$have_tracker_preferences
 	Build tracker-status-icon:              $have_tracker_status_icon
-	Build libtracker-gtk:			$have_libtrackergtk
 	Build tracker-explorer:                 $have_tracker_explorer
 	Build tracker-search-bar:               $have_tracker_search_bar
 

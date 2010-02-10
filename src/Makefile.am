@@ -26,10 +26,6 @@ if HAVE_TRACKER_STATUS_ICON
 SUBDIRS += tracker-status-icon
 endif
 
-if HAVE_LIBTRACKERGTK
-SUBDIRS += libtracker-gtk
-endif
-
 if HAVE_TRACKER_SEARCH_TOOL
 SUBDIRS += tracker-search-tool
 endif
