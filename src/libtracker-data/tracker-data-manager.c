@@ -813,12 +813,14 @@ create_decomposed_metadata_property_table (TrackerDBInterface *iface,
 			                                    "CREATE %sTABLE \"%s_%s\" ("
 			                                    "ID INTEGER NOT NULL, "
 			                                    "\"%s\" %s NOT NULL, "
+			                                    "\"%s:graph\" INTEGER, "
 			                                    "UNIQUE (\"%s\", ID))",
 			                                    transient ? "TEMPORARY " : "",
 			                                    service_name,
 			                                    field_name,
 			                                    field_name,
 			                                    sql_type,
+			                                    field_name,
 			                                    field_name);
 
 			tracker_db_interface_execute_query (iface, NULL,
@@ -834,12 +836,14 @@ create_decomposed_metadata_property_table (TrackerDBInterface *iface,
 			                                    "CREATE %sTABLE \"%s_%s\" ("
 			                                    "ID INTEGER NOT NULL, "
 			                                    "\"%s\" %s NOT NULL, "
+			                                    "\"%s:graph\" INTEGER, "
 			                                    "UNIQUE (ID, \"%s\"))",
 			                                    transient ? "TEMPORARY " : "",
 			                                    service_name,
 			                                    field_name,
 			                                    field_name,
 			                                    sql_type,
+			                                    field_name,
 			                                    field_name);
 		}
 	} else if (sql_type_for_single_value) {
@@ -898,6 +902,9 @@ create_decomposed_metadata_tables (TrackerDBInterface *iface,
 				if (tracker_property_get_is_inverse_functional_property (property)) {
 					g_string_append (sql, " UNIQUE");
 				}
+
+				g_string_append_printf (sql, ", \"%s:graph\" INTEGER",
+				                        tracker_property_get_name (property));
 			}
 		}
 	}
