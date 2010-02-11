@@ -21,6 +21,8 @@
 
 #include <stdlib.h>
 
+#include <dbus/dbus-glib-bindings.h>
+
 #include <libtracker-common/tracker-dbus.h>
 #include <libtracker-common/tracker-type-utils.h>
 

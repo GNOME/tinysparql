@@ -21,9 +21,9 @@
 #ifndef __TRACKER_CLIENT_H__
 #define __TRACKER_CLIENT_H__
 
-#include <dbus/dbus-glib-bindings.h>
-
 G_BEGIN_DECLS
+
+#include <glib-object.h>
 
 #define TRACKER_DBUS_SERVICE              "org.freedesktop.Tracker1"
 #define TRACKER_DBUS_OBJECT               "/org/freedesktop/Tracker1"

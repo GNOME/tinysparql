@@ -21,8 +21,12 @@
 
 #include <stdlib.h>
 #include <locale.h>
-#include <libtracker-common/tracker-log.h>
+
+#include <dbus/dbus-glib.h>
+
 #include <glib/gi18n.h>
+
+#include <libtracker-common/tracker-log.h>
 
 #include "tracker-writeback-dispatcher.h"
 #include "tracker-writeback-consumer.h"
