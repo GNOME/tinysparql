@@ -25,6 +25,7 @@ Improvements / New:
   * Port tracker_sparql_builder_object_unvalidated() to Vala
   * Fixed documentation warnings/missing chapters
   * Fixed linking using -export-symbols-regex
+  * Fixed pkg-config .pc file
 
   libtracker-data:
   * Fix error handling when using non-existing class
@@ -40,11 +41,13 @@ Improvements / New:
   * Fixed check for processing state in crawl_directories_start()
   * Fixed documentation warnings/missing chapters
   * Fixed linking using -export-symbols-regex
+  * Fixed pkg-config .pc file
 
   libtracker-extract:
   * Do not include tracker-statement-list.h
   * Fixed documentation warnings/missing chapters
   * Fixed linking using -export-symbols-regex
+  * Fixed pkg-config .pc file
 
   tracker-miner-fs:
   * Fixed nfo:belongsToContainer.
