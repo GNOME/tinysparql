@@ -536,7 +536,13 @@ process_data_find (TrackerMinerFS *fs,
 	for (l = fs->private->processing_pool; l; l = l->next) {
 		ProcessData *data = l->data;
 
-		if (g_file_equal (data->file, file)) {
+		/* Different operations for the same file URI could be
+		 * piled up here, each being a different GFile object.
+		 * Miner implementations should really notify on the
+		 * same GFile object that's being passed, so we check for
+		 * pointer equality here, rather than doing path comparisons
+		 */
+		if (data->file == file) {
 			return data;
 		}
 	}
@@ -2436,9 +2442,10 @@ tracker_miner_fs_file_notify (TrackerMinerFS *fs,
 		g_critical ("%s has notified that file '%s' has been processed, "
 		            "but that file was not in the processing queue. "
 		            "This is an implementation error, please ensure that "
-		            "tracker_miner_fs_notify_file() is called on the right "
-		            "file and that the ::process-file signal didn't return "
-		            "FALSE for it", G_OBJECT_TYPE_NAME (fs), uri);
+		            "tracker_miner_fs_notify_file() is called on the same "
+			    "GFile that is passed in ::process-file, and that this"
+			    "signal didn't return FALSE for it",
+			    G_OBJECT_TYPE_NAME (fs), uri);
 		g_free (uri);
 
 		return;
