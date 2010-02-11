@@ -75,6 +75,7 @@ struct TrackerMinerFilesPrivate {
 	DBusGProxy *extractor_proxy;
 
 	GQuark quark_mount_point_udi;
+	GQuark quark_directory_config_root;
 };
 
 enum {
@@ -217,6 +218,7 @@ tracker_miner_files_init (TrackerMinerFiles *mf)
 	priv->extractor_proxy = extractor_create_proxy ();
 
 	priv->quark_mount_point_udi = g_quark_from_static_string ("tracker-mount-point-udi");
+	priv->quark_directory_config_root = g_quark_from_static_string ("tracker-directory-config-root");
 
 	init_mount_points (mf);
 }
@@ -368,7 +370,12 @@ miner_files_constructed (GObject *object)
 		}
 
 		g_message ("  Adding:'%s'", (gchar*) dirs->data);
+
 		file = g_file_new_for_path (dirs->data);
+		g_object_set_qdata (G_OBJECT (file),
+		                    mf->private->quark_directory_config_root,
+		                    GINT_TO_POINTER (TRUE));
+
 		tracker_miner_fs_directory_add (fs, file, FALSE);
 		g_object_unref (file);
 	}
@@ -411,7 +418,12 @@ miner_files_constructed (GObject *object)
 		}
 
 		g_message ("  Adding:'%s'", (gchar*) dirs->data);
+
 		file = g_file_new_for_path (dirs->data);
+		g_object_set_qdata (G_OBJECT (file),
+		                    mf->private->quark_directory_config_root,
+		                    GINT_TO_POINTER (TRUE));
+
 		tracker_miner_fs_directory_add (fs, file, TRUE);
 		g_object_unref (file);
 	}
@@ -429,6 +441,10 @@ miner_files_constructed (GObject *object)
 					 g_strdup (udi),
 					 (GDestroyNotify) g_free);
 #endif
+
+		g_object_set_qdata (G_OBJECT (file),
+		                    mf->private->quark_directory_config_root,
+		                    GINT_TO_POINTER (TRUE));
 
 		g_message ("  Adding:'%s'", (gchar*) m->data);
 		tracker_miner_fs_directory_add (TRACKER_MINER_FS (mf),
@@ -759,6 +775,10 @@ mount_point_added_cb (TrackerStorage *storage,
 		                         g_strdup (udi),
 		                         (GDestroyNotify) g_free);
 
+		g_object_set_qdata (G_OBJECT (file),
+		                    priv->quark_directory_config_root,
+		                    GINT_TO_POINTER (TRUE));
+
 		tracker_miner_fs_directory_add (TRACKER_MINER_FS (user_data),
 		                                file,
 		                                TRUE);
@@ -976,7 +996,10 @@ update_directories_from_new_config (TrackerMinerFS *mf,
                                     GSList         *old_dirs,
                                     gboolean        recurse)
 {
+	TrackerMinerFilesPrivate *priv;
         GSList *sl;
+
+	priv = TRACKER_MINER_FILES_GET_PRIVATE (mf);
 
         g_message ("Updating %s directories changed from configuration",
                    recurse ? "recursive" : "single");
@@ -1012,7 +1035,11 @@ update_directories_from_new_config (TrackerMinerFS *mf,
                         g_message ("  Adding directory:'%s'", path);
 
                         file = g_file_new_for_path (path);
-                        tracker_miner_fs_directory_add (TRACKER_MINER_FS (mf), file, recurse);
+			g_object_set_qdata (G_OBJECT (file),
+			                    priv->quark_directory_config_root,
+			                    GINT_TO_POINTER (TRUE));
+
+			tracker_miner_fs_directory_add (TRACKER_MINER_FS (mf), file, recurse);
                         g_object_unref (file);
                 }
         }
@@ -1381,8 +1408,11 @@ extractor_get_embedded_metadata_cb (DBusGProxy *proxy,
                                     GError     *error,
                                     gpointer    user_data)
 {
+	TrackerMinerFilesPrivate *priv;
 	ProcessFileData *data = user_data;
 	const gchar *udi;
+
+	priv = TRACKER_MINER_FILES_GET_PRIVATE (data->miner);
 
 	if (error) {
 		/* Something bad happened, notify about the error */
@@ -1398,6 +1428,31 @@ extractor_get_embedded_metadata_cb (DBusGProxy *proxy,
 	}
 
 	tracker_sparql_builder_insert_close (data->sparql);
+
+	if (g_object_get_qdata (G_OBJECT (data->file),
+	                        priv->quark_directory_config_root) == NULL) {
+		GFile *parent;
+
+		parent = g_file_get_parent (data->file);
+
+		if (parent) {
+			gchar *parent_uri;
+
+			parent_uri = g_file_get_uri (parent);
+
+			/* Add where clause for the nfo:belongsToContainer */
+			tracker_sparql_builder_where_open (data->sparql);
+
+			tracker_sparql_builder_subject_variable (data->sparql, "parent");
+			tracker_sparql_builder_predicate (data->sparql, "nie:url");
+			tracker_sparql_builder_object_string (data->sparql, parent_uri);
+
+			tracker_sparql_builder_where_close (data->sparql);
+
+			g_free (parent_uri);
+			g_object_unref (parent);
+		}
+	}
 
 	/* Prepend preupdate queries */
 	if (preupdate && *preupdate) {
@@ -1485,18 +1540,20 @@ process_file_cb (GObject      *object,
                  GAsyncResult *result,
                  gpointer      user_data)
 {
+	TrackerMinerFilesPrivate *priv;
 	TrackerSparqlBuilder *sparql;
 	ProcessFileData *data;
 	const gchar *mime_type;
 	GFileInfo *file_info;
 	guint64 time_;
 	GFile *file, *parent;
-	gchar *uri, *parent_uri;
+	gchar *uri;
 	GError *error = NULL;
 
 	data = user_data;
 	file = G_FILE (object);
 	sparql = data->sparql;
+	priv = TRACKER_MINER_FILES_GET_PRIVATE (data->miner);
 	file_info = g_file_query_info_finish (file, result, &error);
 
 	if (error) {
@@ -1522,13 +1579,15 @@ process_file_cb (GObject      *object,
 		tracker_sparql_builder_object (sparql, "nfo:Folder");
 	}
 
-	parent = g_file_get_parent (file);
-	if (parent) {
-		parent_uri = g_file_get_uri (parent);
-		tracker_sparql_builder_predicate (sparql, "nfo:belongsToContainer");
-		tracker_sparql_builder_object_iri (sparql, parent_uri);
-		g_free (parent_uri);
-		g_object_unref (parent);
+	if (g_object_get_qdata (G_OBJECT (data->file),
+	                        priv->quark_directory_config_root) == NULL) {
+		parent = g_file_get_parent (file);
+
+		if (parent) {
+			tracker_sparql_builder_predicate (sparql, "nfo:belongsToContainer");
+			tracker_sparql_builder_object_variable (sparql, "parent");
+			g_object_unref (parent);
+		}
 	}
 
 	tracker_sparql_builder_predicate (sparql, "nfo:fileName");
