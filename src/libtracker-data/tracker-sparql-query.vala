@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2009, Nokia
+ * Copyright (C) 2008-2010, Nokia
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -252,6 +252,7 @@ public class Tracker.SparqlQuery : Object {
 	bool update_extensions;
 
 	string current_graph;
+	bool current_graph_is_var;
 	string current_subject;
 	bool current_subject_is_var;
 	string current_predicate;
@@ -981,7 +982,13 @@ public class Tracker.SparqlQuery : Object {
 		skip_braces ();
 
 		if (accept (SparqlTokenType.WHERE)) {
+			// graph only applies to actual insert, not to WHERE part
+			var old_graph = current_graph;
+			current_graph = null;
+
 			translate_group_graph_pattern (pattern_sql);
+
+			current_graph = old_graph;
 		}
 
 		var after_where = get_location ();
@@ -2525,6 +2532,31 @@ public class Tracker.SparqlQuery : Object {
 					sql.insert (group_graph_pattern_start, "SELECT * FROM (");
 					sql.append (")");
 				}
+			} else if (accept (SparqlTokenType.GRAPH)) {
+				var old_graph = current_graph;
+				var old_graph_is_var = current_graph_is_var;
+				current_graph = parse_var_or_term (sql, out current_graph_is_var);
+
+				if (!in_triples_block && !in_group_graph_pattern) {
+					in_group_graph_pattern = true;
+					translate_group_or_union_graph_pattern (sql);
+				} else {
+					if (in_triples_block) {
+						end_triples_block (sql, ref first_where, in_group_graph_pattern);
+						in_triples_block = false;
+					}
+					if (!in_group_graph_pattern) {
+						in_group_graph_pattern = true;
+					}
+
+					sql.insert (group_graph_pattern_start, "SELECT * FROM (");
+					sql.append (") NATURAL INNER JOIN (");
+					translate_group_or_union_graph_pattern (sql);
+					sql.append (")");
+				}
+
+				current_graph = old_graph;
+				current_graph_is_var = old_graph_is_var;
 			} else if (current () == SparqlTokenType.OPEN_BRACE) {
 				if (!in_triples_block && !in_group_graph_pattern) {
 					in_group_graph_pattern = true;
@@ -2906,6 +2938,36 @@ public class Tracker.SparqlQuery : Object {
 					binding.sql_db_column_name = "object";
 				}
 				pattern_bindings.append (binding);
+			}
+
+			if (current_graph != null && prop != null) {
+				if (current_graph_is_var) {
+					var binding = new VariableBinding ();
+					binding.variable = get_variable (current_graph);
+					binding.table = table;
+
+					binding.data_type = PropertyType.RESOURCE;
+					binding.sql_db_column_name = prop.name + ":graph";
+					binding.maybe_null = true;
+					binding.in_simple_optional = in_simple_optional;
+
+					VariableState state;
+					if (in_simple_optional) {
+						state = VariableState.OPTIONAL;
+					} else {
+						state = VariableState.BOUND;
+					}
+
+					add_variable_binding (sql, binding, state);
+				} else {
+					var binding = new LiteralBinding ();
+					binding.literal = current_graph;
+					binding.table = table;
+
+					binding.data_type = PropertyType.RESOURCE;
+					binding.sql_db_column_name = prop.name + ":graph";
+					pattern_bindings.append (binding);
+				}
 			}
 		}
 
