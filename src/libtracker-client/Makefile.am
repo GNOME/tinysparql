@@ -16,7 +16,8 @@ libtracker_clientincdir = $(includedir)/tracker-$(TRACKER_API_VERSION)/libtracke
 libtracker_client_@TRACKER_API_VERSION@_la_SOURCES = tracker.c
 
 libtracker_client_@TRACKER_API_VERSION@_la_LDFLAGS = 	\
-	-version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE)
+	-version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE) \
+	-export-symbols-regex '^tracker_.*'
 
 libtracker_client_@TRACKER_API_VERSION@_la_LIBADD =	\
 	$(GLIB2_LIBS) 					\
