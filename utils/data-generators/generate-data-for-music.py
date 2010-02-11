@@ -92,7 +92,7 @@ def update_tag(artistid, artistname, albumid, trackid, genreid):
                 if len(trackArray) > 0:
                         f.write('\tnmm:trackNumber ' + trackArray[0] + ';\n')
 
-	f.write('\tnmm:length ' + str(length) + ';\n')
+	f.write('\tnfo:duration ' + str(length) + ';\n')
         f.write('\tnmm:performer <urn:uuid:' + UID + '>.\n\n')
 
 def create_track(artistid, albumid, genreid, settings):

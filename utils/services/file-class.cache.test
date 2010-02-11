@@ -280,7 +280,6 @@ nmm nmm:musicAlbum
 nmm nmm:albumArtist
 nmm nmm:beatsPerMinute
 nmm nmm:performer
-nmm nmm:length
 nmm nmm:composer
 nmm nmm:lyricist
 nmm nmm:lyrics

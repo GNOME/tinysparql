@@ -723,7 +723,7 @@ tracker_resources_load (TrackerClient  *client,
  *          "  ?album a nmm:MusicAlbum ;"
  *          "  nie:title ?title ."
  *          "  ?song nmm:musicAlbum ?album ;"
- *          "  nmm:length ?length"
+ *          "  nfo:duration ?length"
  *          "} "
  *          "GROUP BY ?album");
  *

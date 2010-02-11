@@ -125,7 +125,7 @@ $ tracker-sparql -q "SELECT ?album ?title COUNT(?song)
       ?album a nmm:MusicAlbum ;
       nie:title ?title .
       ?song nmm:musicAlbum ?album ;
-      nmm:length ?length
+      nfo:duration ?length
  } GROUP BY ?album"
 .FI
 

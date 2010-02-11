@@ -34,7 +34,7 @@ following schema:
 
    [prefix-ontology]-[name-property-or-class]
 
- so the property "nmm:length" has the id "nmm-length" and
+ so the property "nfo:duration" has the id "nfo-duration" and
 the class "nmm:MusicPiece" has the id "nmm-MusicPiece".
 
  The ids are global and can be referenced anywhere else in the

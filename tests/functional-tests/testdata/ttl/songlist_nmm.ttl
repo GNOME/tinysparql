@@ -23,7 +23,7 @@
 	nmm:musicAlbum <urn:album:TrkAlbum [016]>;
 	nmm:genre "Other";
 	nmm:trackNumber 12;
-	nmm:length 4564624;
+	nfo:duration 4564624;
 	nmm:performer <urn:uuid:1991081358>.
 
 <urn:album:TrkAlbum [016]> a nmm:MusicAlbum; 
@@ -39,7 +39,7 @@
 	nmm:musicAlbum <urn:album:TrkAlbum [016]>;
 	nmm:genre "Rock";
 	nmm:trackNumber 17;
-	nmm:length 1965168;
+	nfo:duration 1965168;
 	nmm:performer <urn:uuid:1991081358>.
 
 <urn:album:TrkAlbum [016]> a nmm:MusicAlbum; 
@@ -55,7 +55,7 @@
 	nmm:musicAlbum <urn:album:TrkAlbum [016]>;
 	nmm:genre "R&B";
 	nmm:trackNumber 14;
-	nmm:length 3524601;
+	nfo:duration 3524601;
 	nmm:performer <urn:uuid:1991081358>.
 
 <urn:uuid:747032952> a nco:Contact; 
@@ -73,7 +73,7 @@
 	nfo:fileSize 3977200;
 	nmm:musicAlbum <urn:album:Hot Vocal Hooks>;
 	nmm:genre "Alternative-Rock";
-	nmm:length 2239336;
+	nfo:duration 2239336;
 	nmm:performer <urn:uuid:747032952>.
 
 <urn:album:TrkAlbum [019]> a nmm:MusicAlbum; 
@@ -89,7 +89,7 @@
 	nmm:musicAlbum <urn:album:TrkAlbum [019]>;
 	nmm:genre "Oldies";
 	nmm:trackNumber 11;
-	nmm:length 4037450;
+	nfo:duration 4037450;
 	nmm:performer <urn:uuid:1991081358>.
 
 <urn:album:TrkAlbum [019]> a nmm:MusicAlbum; 
@@ -105,7 +105,7 @@
 	nmm:musicAlbum <urn:album:TrkAlbum [019]>;
 	nmm:genre "R&B";
 	nmm:trackNumber 14;
-	nmm:length 370296;
+	nfo:duration 370296;
 	nmm:performer <urn:uuid:1991081358>.
 
 <urn:album:TrkAlbum [019]> a nmm:MusicAlbum; 
@@ -121,7 +121,7 @@
 	nmm:musicAlbum <urn:album:TrkAlbum [019]>;
 	nmm:genre "Techno";
 	nmm:trackNumber 18;
-	nmm:length 4407507;
+	nfo:duration 4407507;
 	nmm:performer <urn:uuid:1991081358>.
 
 <urn:album:TrkAlbum [016]> a nmm:MusicAlbum; 
@@ -137,7 +137,7 @@
 	nmm:musicAlbum <urn:album:TrkAlbum [016]>;
 	nmm:genre "Techno";
 	nmm:trackNumber 18;
-	nmm:length 4285294;
+	nfo:duration 4285294;
 	nmm:performer <urn:uuid:1991081358>.
 
 <urn:album:TrkAlbum [016]> a nmm:MusicAlbum; 
@@ -153,7 +153,7 @@
 	nmm:musicAlbum <urn:album:TrkAlbum [016]>;
 	nmm:genre "Oldies";
 	nmm:trackNumber 11;
-	nmm:length 2589077;
+	nfo:duration 2589077;
 	nmm:performer <urn:uuid:1991081358>.
 
 <urn:album:TrkAlbum [016]> a nmm:MusicAlbum; 
@@ -169,7 +169,7 @@
 	nmm:musicAlbum <urn:album:TrkAlbum [016]>;
 	nmm:genre "Reggae";
 	nmm:trackNumber 16;
-	nmm:length 1483545;
+	nfo:duration 1483545;
 	nmm:performer <urn:uuid:1991081358>.
 
 <urn:album:TrkAlbum [019]> a nmm:MusicAlbum; 
@@ -185,7 +185,7 @@
 	nmm:musicAlbum <urn:album:TrkAlbum [019]>;
 	nmm:genre "Rap";
 	nmm:trackNumber 15;
-	nmm:length 681462;
+	nfo:duration 681462;
 	nmm:performer <urn:uuid:1991081358>.
 
 <urn:album:TrkAlbum [019]> a nmm:MusicAlbum; 
@@ -201,7 +201,7 @@
 	nmm:musicAlbum <urn:album:TrkAlbum [019]>;
 	nmm:genre "Pop";
 	nmm:trackNumber 13;
-	nmm:length 3426992;
+	nfo:duration 3426992;
 	nmm:performer <urn:uuid:1991081358>.
 
 <urn:album:TrkAlbum [019]> a nmm:MusicAlbum; 
@@ -217,7 +217,7 @@
 	nmm:musicAlbum <urn:album:TrkAlbum [019]>;
 	nmm:genre "Rock";
 	nmm:trackNumber 17;
-	nmm:length 3303396;
+	nfo:duration 3303396;
 	nmm:performer <urn:uuid:1991081358>.
 
 <urn:album:TrkAlbum [019]> a nmm:MusicAlbum; 
@@ -233,7 +233,7 @@
 	nmm:musicAlbum <urn:album:TrkAlbum [019]>;
 	nmm:genre "Reggae";
 	nmm:trackNumber 16;
-	nmm:length 4916495;
+	nfo:duration 4916495;
 	nmm:performer <urn:uuid:1991081358>.
 
 <urn:album:TrkAlbum [016]> a nmm:MusicAlbum; 
@@ -249,7 +249,7 @@
 	nmm:musicAlbum <urn:album:TrkAlbum [016]>;
 	nmm:genre "Pop";
 	nmm:trackNumber 13;
-	nmm:length 939440;
+	nfo:duration 939440;
 	nmm:performer <urn:uuid:1991081358>.
 
 <urn:album:TrkAlbum [019]> a nmm:MusicAlbum; 
@@ -265,7 +265,7 @@
 	nmm:musicAlbum <urn:album:TrkAlbum [019]>;
 	nmm:genre "New Age";
 	nmm:trackNumber 10;
-	nmm:length 2635588;
+	nfo:duration 2635588;
 	nmm:performer <urn:uuid:1991081358>.
 
 <urn:album:TrkAlbum [019]> a nmm:MusicAlbum; 
@@ -281,7 +281,7 @@
 	nmm:musicAlbum <urn:album:TrkAlbum [019]>;
 	nmm:genre "Industrial";
 	nmm:trackNumber 19;
-	nmm:length 4429763;
+	nfo:duration 4429763;
 	nmm:performer <urn:uuid:1991081358>.
 
 <urn:album:TrkAlbum [016]> a nmm:MusicAlbum; 
@@ -297,7 +297,7 @@
 	nmm:musicAlbum <urn:album:TrkAlbum [016]>;
 	nmm:genre "Industrial";
 	nmm:trackNumber 19;
-	nmm:length 1353801;
+	nfo:duration 1353801;
 	nmm:performer <urn:uuid:1991081358>.
 
 <urn:album:TrkAlbum [016]> a nmm:MusicAlbum; 
@@ -313,7 +313,7 @@
 	nmm:musicAlbum <urn:album:TrkAlbum [016]>;
 	nmm:genre "Rap";
 	nmm:trackNumber 15;
-	nmm:length 463567;
+	nfo:duration 463567;
 	nmm:performer <urn:uuid:1991081358>.
 
 <urn:album:TrkAlbum [019]> a nmm:MusicAlbum; 
@@ -329,7 +329,7 @@
 	nmm:musicAlbum <urn:album:TrkAlbum [019]>;
 	nmm:genre "Other";
 	nmm:trackNumber 12;
-	nmm:length 2918054;
+	nfo:duration 2918054;
 	nmm:performer <urn:uuid:1991081358>.
 
 <urn:album:TrkAlbum [016]> a nmm:MusicAlbum; 
@@ -345,6 +345,6 @@
 	nmm:musicAlbum <urn:album:TrkAlbum [016]>;
 	nmm:genre "New Age";
 	nmm:trackNumber 10;
-	nmm:length 1116317;
+	nfo:duration 1116317;
 	nmm:performer <urn:uuid:1991081358>.
 

@@ -129,7 +129,7 @@ class FileProcessor:
                  if len(trackArray)>0: self.f.write('\tnmm:trackNumber '+trackArray[0]+';\n')
 
 
-            if length>0: self.f.write('\tnmm:length '+str(length)+';\n')
+            if length>0: self.f.write('\tnfo:duration '+str(length)+';\n')
             if len(UID)>0: self.f.write('\tnmm:performer <urn:uuid:'+UID+'>.\n\n')
 
 

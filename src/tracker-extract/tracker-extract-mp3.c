@@ -906,7 +906,7 @@ mp3_parse_header (const gchar          *data,
 			length = spfp8 * 8 * frames / (sample_rate ? sample_rate : 0xFFFFFFFF);
 		}
 
-		tracker_sparql_builder_predicate (metadata, "nmm:length");
+		tracker_sparql_builder_predicate (metadata, "nfo:duration");
 		tracker_sparql_builder_object_int64 (metadata, length);
 	}
 

@@ -90,6 +90,7 @@ nmm:length a rdf:Property ;
 	rdfs:comment "Length or duration (in seconds)" ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmm:MusicPiece ;
+	nao:deprecated true ;
 	rdfs:range xsd:integer .
 
 nmm:composer a rdf:Property ;
