@@ -2210,7 +2210,8 @@ crawl_directories_cb (gpointer user_data)
 static void
 crawl_directories_start (TrackerMinerFS *fs)
 {
-	if (fs->private->crawl_directories_id != 0) {
+	if (fs->private->crawl_directories_id != 0 ||
+	    fs->private->current_directory) {
 		/* Processing ALREADY going on */
 		return;
 	}
