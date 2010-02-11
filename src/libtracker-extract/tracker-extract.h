@@ -22,7 +22,7 @@
 
 #include <glib.h>
 
-#include <libtracker-common/tracker-statement-list.h>
+#include <libtracker-common/tracker-sparql-builder.h>
 
 G_BEGIN_DECLS
 
