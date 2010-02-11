@@ -113,6 +113,7 @@ typedef struct {
 	gint            video_fps_d;
 	gint            audio_channels;
 	gint            audio_samplerate;
+	gint            aspect_ratio;
 
 	/* Tags and data */
 	GstTagList     *tagcache;
@@ -398,6 +399,8 @@ extract_stream_metadata_tagreadbin (MetadataExtractor *extractor,
 		if (extractor->mime == EXTRACT_MIME_AUDIO) {
 			add_time_gst_tag (metadata, uri, "nmm:length", extractor->tagcache, GST_TAG_DURATION);
 		}
+	} else {
+		add_int_gst_tag (metadata, uri, "nfo:aspectRatio", extractor->tagcache, GST_TAG_PIXEL_RATIO);
 	}
 
 	add_int_gst_tag (metadata, uri, "nfo:height", extractor->tagcache, GST_TAG_HEIGHT);
@@ -414,6 +417,7 @@ extract_stream_metadata_decodebin (MetadataExtractor *extractor,
                                    TrackerSparqlBuilder         *metadata)
 {
 	if (extractor->mime != EXTRACT_MIME_IMAGE) {
+
 		if (extractor->audio_channels >= 0) {
 			add_uint_info (metadata, uri, "nfo:channels", extractor->audio_channels);
 		}
@@ -427,6 +431,10 @@ extract_stream_metadata_decodebin (MetadataExtractor *extractor,
 			if (extractor->mime == EXTRACT_MIME_AUDIO) {
 				add_int64_info (metadata, uri, "nmm:length", extractor->duration);
 			}
+		}
+	} else {
+		if (extractor->aspect_ratio >= 0) {
+			add_uint_info (metadata, uri, "nfo:aspectRatio", extractor->aspect_ratio);
 		}
 	}
 
@@ -694,6 +702,7 @@ extract_metadata (MetadataExtractor      *extractor,
 		add_string_gst_tag (metadata, uri, "nfo:codec", extractor->tagcache, GST_TAG_AUDIO_CODEC);
 	}
 
+
 	if (use_tagreadbin) {
 		extract_stream_metadata_tagreadbin (extractor, uri, metadata);
 	} else {
@@ -798,7 +807,8 @@ add_stream_tag (void *obj, void *data_)
 				                                     &extractor->video_fps_n,
 				                                     &extractor->video_fps_d) ) &&
 				        (gst_structure_get_int (s, "width", &extractor->video_width)) &&
-				        (gst_structure_get_int (s, "height", &extractor->video_height)))) {
+				        (gst_structure_get_int (s, "height", &extractor->video_height)) &&
+				        (gst_structure_get_int (s, "pixel-aspect-ratio", &extractor->aspect_ratio)))) {
 					return;
 				}
 			}
@@ -1029,6 +1039,7 @@ tracker_extract_gstreamer (const gchar *uri,
 	extractor->video_fps_n = extractor->video_fps_d = -1;
 	extractor->video_height = extractor->video_width = -1;
 	extractor->audio_channels = -1;
+	extractor->aspect_ratio = -1;
 	extractor->audio_samplerate = -1;
 
 	if (use_tagreadbin) {
