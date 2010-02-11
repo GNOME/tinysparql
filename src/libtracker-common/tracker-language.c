@@ -424,14 +424,14 @@ tracker_language_set_enable_stemmer (TrackerLanguage *language,
 /**
  * tracker_language_set_language_code:
  * @language: a #TrackerLanguage
- * @value: an ISO 639-1 language code
+ * @language_code: an ISO 639-1 language code
  *
- * Sets the @language to @value, a %NULL value will reset this to
- * "en" (English).
+ * Sets the @language to @language_code, a %NULL value will reset this
+ * to "en" (English).
  **/
 void
 tracker_language_set_language_code (TrackerLanguage *language,
-                                    const gchar     *value)
+                                    const gchar     *language_code)
 {
 	TrackerLanguagePriv *priv;
 
@@ -441,7 +441,7 @@ tracker_language_set_language_code (TrackerLanguage *language,
 
 	g_free (priv->language_code);
 
-	priv->language_code = g_strdup (value);
+	priv->language_code = g_strdup (language_code);
 
 	if (!priv->language_code) {
 		priv->language_code = g_strdup ("en");

@@ -3,6 +3,7 @@
                "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd" [
 <!ENTITY tracker-class SYSTEM "xml/tracker-class.xml">
 <!ENTITY tracker-config-file SYSTEM "xml/tracker-config-file.xml">
+<!ENTITY tracker-crc SYSTEM "xml/tracker-crc.xml">
 <!ENTITY tracker-dbus SYSTEM "xml/tracker-dbus.xml">
 <!ENTITY tracker-file-utils SYSTEM "xml/tracker-file-utils.xml">
 <!ENTITY tracker-ioprio SYSTEM "xml/tracker-ioprio.xml">
@@ -64,6 +65,7 @@
 
     <chapter>
       <title>Utilities</title>
+      &tracker-crc;
       &tracker-type-utils;
       &tracker-file-utils;
       &tracker-utils;

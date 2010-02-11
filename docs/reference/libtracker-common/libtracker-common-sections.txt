@@ -2,6 +2,7 @@
 <FILE>tracker-config-file</FILE>
 <TITLE>TrackerConfigFile</TITLE>
 TrackerConfigFile
+TrackerConfigFileClass
 tracker_config_file_save
 <SUBSECTION Standard>
 TRACKER_CONFIG_FILE
@@ -15,13 +16,16 @@ TRACKER_CONFIG_FILE_GET_CLASS
 
 <SECTION>
 <FILE>tracker-class</FILE>
-<TITLE>Tracker</TITLE>
 <TITLE>TrackerClass</TITLE>
+TrackerClass
+TrackerClassClass
 tracker_class_new
+tracker_class_get_id
 tracker_class_get_uri
 tracker_class_get_name
 tracker_class_get_count
 tracker_class_get_super_classes
+tracker_class_set_id
 tracker_class_set_uri
 tracker_class_set_count
 tracker_class_set_super_classes
@@ -40,6 +44,7 @@ TRACKER_CLASS_GET_CLASS
 <FILE>tracker-storage</FILE>
 <TITLE>TrackerStorage</TITLE>
 TrackerStorage
+TrackerStorageClass
 tracker_storage_new
 tracker_storage_get_mounted_directory_roots
 tracker_storage_get_removable_device_roots
@@ -62,6 +67,7 @@ TRACKER_STORAGE_GET_CLASS
 <FILE>tracker-power</FILE>
 <TITLE>TrackerPower</TITLE>
 TrackerPower
+TrackerPowerClass
 tracker_power_new
 tracker_power_get_on_battery
 tracker_power_get_on_low_battery
@@ -80,6 +86,7 @@ TRACKER_POWER_GET_CLASS
 <FILE>tracker-namespace</FILE>
 <TITLE>TrackerNamespace</TITLE>
 TrackerNamespace
+TrackerNamespaceClass
 tracker_namespace_new
 tracker_namespace_get_uri
 tracker_namespace_get_prefix
@@ -97,7 +104,6 @@ TRACKER_NAMESPACE_GET_CLASS
 
 <SECTION>
 <FILE>tracker-sparql-builder</FILE>
-TrackerSparqlBuilderPrivate
 TRACKER_TYPE_TURTLE_WRITER
 TRACKER_TURTLE_WRITER
 TRACKER_TURTLE_WRITER_CLASS
@@ -107,13 +113,29 @@ TRACKER_TURTLE_WRITER_GET_CLASS
 TrackerTurtleWriterPrivate
 <TITLE>TrackerSparqlBuilder</TITLE>
 TrackerSparqlBuilder
+TrackerSparqlBuilderClass
+TrackerSparqlBuilderPrivate
 <TITLE>TrackerTurtleWriter</TITLE>
 TrackerTurtleWriter
+TrackerTurtleWriterClass
+tracker_sparql_builder_new
+tracker_sparql_builder_new_embedded_insert
 tracker_sparql_builder_new_update
+tracker_sparql_builder_construct
+tracker_sparql_builder_construct_embedded_insert
 tracker_sparql_builder_construct_update
-tracker_sparql_builder_drop_graph
+tracker_sparql_builder_get_result
+tracker_sparql_builder_get_length
+tracker_sparql_builder_append
+tracker_sparql_builder_prepend
 tracker_sparql_builder_insert_open
 tracker_sparql_builder_insert_close
+tracker_sparql_builder_where_open
+tracker_sparql_builder_where_close
+tracker_sparql_builder_delete_open
+tracker_sparql_builder_delete_close
+tracker_sparql_builder_drop_graph
+tracker_sparql_builder_subject_variable
 tracker_sparql_builder_subject_iri
 tracker_sparql_builder_subject
 tracker_sparql_builder_predicate_iri
@@ -124,13 +146,10 @@ tracker_sparql_builder_object_string
 tracker_sparql_builder_object_boolean
 tracker_sparql_builder_object_int64
 tracker_sparql_builder_object_date
+tracker_sparql_builder_object_double
+tracker_sparql_builder_object_variable
 tracker_sparql_builder_object_blank_open
 tracker_sparql_builder_object_blank_close
-tracker_sparql_builder_append
-tracker_sparql_builder_new
-tracker_sparql_builder_construct
-tracker_sparql_builder_get_result
-tracker_sparql_builder_get_length
 tracker_turtle_writer_get_type
 tracker_turtle_writer_new
 tracker_turtle_writer_construct
@@ -161,6 +180,7 @@ TRACKER_SPARQL_BUILDER_GET_CLASS
 <FILE>tracker-language</FILE>
 <TITLE>TrackerLanguage</TITLE>
 TrackerLanguage
+TrackerLanguageClass
 tracker_language_new
 tracker_language_get_enable_stemmer
 tracker_language_get_stop_words
@@ -190,8 +210,11 @@ TrackerPropertyType
 tracker_property_type_to_string
 <TITLE>TrackerProperty</TITLE>
 TrackerProperty
+TrackerPropertyClass
 tracker_property_get_type
 tracker_property_new
+tracker_property_get_id
+tracker_property_get_is_inverse_functional_property
 tracker_property_get_uri
 tracker_property_get_name
 tracker_property_get_data_type
@@ -205,6 +228,8 @@ tracker_property_get_multiple_values
 tracker_property_get_filtered
 tracker_property_get_transient
 tracker_property_get_super_properties
+tracker_property_set_id
+tracker_property_set_is_inverse_functional_property
 tracker_property_set_uri
 tracker_property_set_data_type
 tracker_property_set_domain
@@ -246,8 +271,12 @@ tracker_file_get_size
 tracker_file_get_mtime
 tracker_file_get_mime_type
 tracker_file_system_has_enough_space
+tracker_file_is_locked
+tracker_file_lock
+tracker_file_unlock
 tracker_path_remove
 tracker_path_is_in_path
+tracker_path_has_write_access_or_was_created
 tracker_path_hash_table_filter_duplicates
 tracker_path_list_filter_duplicates
 tracker_path_evaluate_name
@@ -270,19 +299,22 @@ TRACKER_NAO_PREFIX
 TRACKER_NID3_PREFIX
 TRACKER_NFO_PREFIX
 TRACKER_NMM_PREFIX
+TRACKER_MLO_PREFIX
 TRACKER_DATASOURCE_URN_PREFIX
 TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN
 tracker_ontology_init
 tracker_ontology_shutdown
-tracker_ontology_add_class
-tracker_ontology_get_class_by_uri
-tracker_ontology_get_namespaces
-tracker_ontology_get_classes
-tracker_ontology_get_properties
-tracker_ontology_add_property
-tracker_ontology_get_property_by_uri
 tracker_ontology_add_namespace
+tracker_ontology_add_class
+tracker_ontology_add_property
+tracker_ontology_add_id_uri_pair
+tracker_ontology_get_namespaces
 tracker_ontology_get_namespace_by_uri
+tracker_ontology_get_classes
+tracker_ontology_get_class_by_uri
+tracker_ontology_get_properties
+tracker_ontology_get_property_by_uri
+tracker_ontology_get_uri_by_id
 </SECTION>
 
 <SECTION>
@@ -290,6 +322,7 @@ tracker_ontology_get_namespace_by_uri
 TRACKER_DBUS_ERROR_DOMAIN
 TRACKER_DBUS_ERROR
 TRACKER_TYPE_G_STRV_ARRAY
+TRACKER_TYPE_STR_STRV_MAP
 TRACKER_TYPE_EVENT_ARRAY
 tracker_dbus_async_return_if_fail
 tracker_dbus_return_val_if_fail
@@ -307,12 +340,14 @@ tracker_dbus_queue_str_to_strv
 tracker_dbus_queue_gfile_to_strv
 tracker_dbus_results_ptr_array_free
 tracker_dbus_get_next_request_id
+tracker_dbus_enable_client_lookup
 tracker_dbus_request_add_hook
 tracker_dbus_request_remove_hook
 tracker_dbus_request_new
 tracker_dbus_request_success
 tracker_dbus_request_failed
 tracker_dbus_request_comment
+tracker_dbus_request_info
 tracker_dbus_request_debug
 tracker_dbus_request_block_hooks
 tracker_dbus_request_unblock_hooks
@@ -343,6 +378,8 @@ tracker_memory_setrlimits
 <FILE>tracker-log</FILE>
 tracker_log_init
 tracker_log_shutdown
+tracker_log_should_handle
+tracker_info
 </SECTION>
 
 <SECTION>
@@ -365,6 +402,7 @@ tracker_string_list_to_string
 tracker_string_to_string_list
 tracker_gslist_to_string_list
 tracker_gslist_copy_with_string_data
+tracker_gslist_with_string_data_equal
 tracker_glist_copy_with_string_data
 tracker_string_boolean_to_string_gint
 </SECTION>
@@ -401,17 +439,11 @@ tracker_uri_vprintf_escaped
 tracker_uri_printf_escaped
 tracker_coalesce
 tracker_merge
-tracker_dngettext
+tracker_text_normalize
 </SECTION>
 
-
-TrackerClass
-TrackerClassClass
-TrackerConfigFileClass
-TrackerLanguageClass
-TrackerNamespaceClass
-TrackerPowerClass
-TrackerPropertyClass
-TrackerSparqlBuilderClass
-TrackerStorageClass
-TrackerTurtleWriterClass
+<SECTION>
+<FILE>tracker-crc</FILE>
+<TITLE>CRC</TITLE>
+tracker_crc32
+</SECTION>

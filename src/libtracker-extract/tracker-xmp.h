@@ -88,7 +88,7 @@ gboolean tracker_xmp_read  (const gchar          *buffer,
                             TrackerXmpData       *data);
 gboolean tracker_xmp_apply (TrackerSparqlBuilder *metadata,
                             const gchar          *uri,
-                            TrackerXmpData       *xmp_data);
+                            TrackerXmpData       *data);
 
 G_END_DECLS
 

@@ -6,6 +6,7 @@ TRACKER_DBUS_INTERFACE_RESOURCES
 TRACKER_DBUS_INTERFACE_STATISTICS
 <TITLE>TrackerClient</TITLE>
 TrackerClient
+TrackerClientClass
 TrackerClientFlags
 tracker_client_new
 <SUBSECTION Standard>

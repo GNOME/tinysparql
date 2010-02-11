@@ -68,7 +68,7 @@ gboolean         tracker_language_check_exists       (const gchar     *language_
 gchar *          tracker_language_get_default_code   (void);
 GSList *         tracker_language_get_all_by_code    (void);
 const gchar *    tracker_language_get_name_by_code   (const gchar     *language_code);
-const gchar *    tracker_language_get_code_by_name   (const gchar     *langauge_name);
+const gchar *    tracker_language_get_code_by_name   (const gchar     *language_name);
 
 G_END_DECLS
 
