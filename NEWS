@@ -1,3 +1,94 @@
+NEW in 0.7.20
+=============
+
+Improvements / New:
+
+  General:
+  * Updated ttl_sgml documentation tool to add notice for deprecations
+
+  Ontology:
+  * Fixed range of dc:source
+  * Changed domain of nmo:isAnswered from nmo:Email to nmo:Message
+  * Add IMAddress and adapt existing IM classes and properties for NCO
+  * Deprecated nmm:length and replaced all uses with nfo:duration
+
+  Tests:
+  * Added more functional tests for distance ontology
+
+  libtracker-common:
+  * Don't emit multiple changed signals for one edit in TrackerConfigFile
+  * Added tracker_gslist_with_string_data_equal()
+  * Fixed documentation warnings/missing chapters
+
+  libtracker-client:
+  * Moved tracker-sparql-builder here from libtracker-common
+  * Port tracker_sparql_builder_object_unvalidated() to Vala
+  * Fixed documentation warnings/missing chapters
+  * Fixed linking using -export-symbols-regex
+
+  libtracker-data:
+  * Fix error handling when using non-existing class
+
+  libtracker-miner:
+  * Use G_MAXINT for tracker D-Bus timeout
+  * Refine the list of exported symbols
+  * Make tracker-{miner-manager|crawler}.h part of the public API
+  * Renamed some APIs in TrackerMinerFS
+  * Don't print estimated time remaining message more than once/5 seconds
+  * Renamed the Writeback() D-Bus method to IgnoreNextUpdate()
+  * Fixed G_IS_OBJECT(file) crash
+  * Fixed check for processing state in crawl_directories_start()
+  * Fixed documentation warnings/missing chapters
+  * Fixed linking using -export-symbols-regex
+
+  libtracker-extract:
+  * Do not include tracker-statement-list.h
+  * Fixed documentation warnings/missing chapters
+  * Fixed linking using -export-symbols-regex
+
+  tracker-miner-fs:
+  * Fixed nfo:belongsToContainer.
+  * Add support for real time updates of the indexed directories from config
+
+  tracker-writeback:
+  * Use G_MAXINT for tracker D-Bus timeout
+
+  tracker-extract:
+  * Make sure we generate empty SPARQL statements
+  * Fixed freeing a constant
+  * Fixed memory problems with MSOffice extractor
+  * Support for nmm:lyricist in MP3 files
+
+  tracker-search-tool:
+  * Fixed to work with recent anonymous file node changes
+
+  tracker-search-bar:
+  * Use the tracker icon for the tracker-search-bar applet
+
+Bugs:
+
+  * GB#609532, Expand search for album coverart
+  * GB#609327, Remove libtracker-gtk
+  * GB#609607, Make tracker build without assuming implicit DSO linking
+  * NB#155064, Height and width are not extracted for images of GIF formats
+  * NB#156571, Aspect ratio are not extracted for video files
+
+Translations:
+
+  * Updated sv: Daniel Nylander
+  * Updated es: Jorge González
+  * Updated nb: Kjartan Maraas
+
+Notes:
+
+  The database version up has been incremented, this will force a
+  reindex for any existing Tracker installation.
+
+  The Deskbar applet packaged with Tracker is currently out of date
+  and needs some love to get it working with the new APIs. It is in
+  the same state as it was for 0.6. As such it isn't expected to work.
+
+
 NEW in 0.7.19
 =============
 
