@@ -226,6 +226,22 @@ public class Tracker.SparqlBuilder : Object {
 		length++;
 	}
 
+	public void object_unvalidated (string value) {
+		char* end;
+
+		if (!utf8_validate (value, -1, out end)) {
+			if (value != end) {
+				object_string (value.ndup (end - (char*) value));
+			} else {
+				object_string ("(invalid data)");
+			}
+
+			return;
+		}
+
+		object_string (value);
+	}
+
 	public void object_boolean (bool literal) {
 		object (literal ? "true" : "false");
 	}

@@ -101,7 +101,7 @@ libtracker_commoninclude_HEADERS =			\
 	tracker-utils.h					\
 	tracker-crc32.h
 
-libtracker-common.vala.stamp: $(libtracker_common_la_VALASOURCES) posix.vapi
+libtracker-common.vala.stamp: $(libtracker_common_la_VALASOURCES) posix.vapi glib-2.0-fixes.vapi
 	$(AM_V_GEN)$(VALAC) $(GCOV_VALAFLAGS) -C $(VALAFLAGS) --pkg gio-2.0 -H tracker-sparql-builder.h $^
 	$(AM_V_GEN)touch $@
 
@@ -148,5 +148,6 @@ EXTRA_DIST = 						\
 	$(libtracker_common_la_VALASOURCES)		\
 	libtracker-common.vala.stamp			\
 	posix.vapi					\
+	glib-2.0-fixes.vapi					\
 	libtracker-common.vapi
 

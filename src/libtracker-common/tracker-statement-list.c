@@ -48,36 +48,6 @@ tracker_statement_list_insert (TrackerSparqlBuilder *statements,
 }
 
 void
-tracker_sparql_builder_object_unvalidated (TrackerSparqlBuilder *sparql,
-                                           const gchar          *value)
-{
-	const gchar *end;
-
-	g_return_if_fail (TRACKER_IS_SPARQL_BUILDER (sparql));
-	g_return_if_fail (value != NULL);
-
-	if (!g_utf8_validate (value, -1, &end)) {
-		gchar *valid;
-
-		/* g_message ("Only inserting %ld/%ld (valid UTF8) bytes for statement list", */
-		/*         end - value, */
-		/*         strlen (value)); */
-
-		if (value != end) {
-			valid = g_strndup (value, end - value);
-			tracker_sparql_builder_object_string (sparql, valid);
-			g_free (valid);
-		} else {
-			tracker_sparql_builder_object_string (sparql, "(invalid data)");
-		}
-
-		return;
-	}
-
-	tracker_sparql_builder_object_string (sparql, value);
-}
-
-void
 tracker_statement_list_insert_with_int64 (TrackerSparqlBuilder *statements,
                                           const gchar          *subject,
                                           const gchar          *predicate,

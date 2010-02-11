@@ -32,8 +32,6 @@ G_BEGIN_DECLS
 
 #define SHOULD_VALIDATE_UTF8
 
-void tracker_sparql_builder_object_unvalidated (TrackerSparqlBuilder *sparql,
-                                                const gchar          *value);
 void tracker_statement_list_insert             (TrackerSparqlBuilder *statements,
                                                 const gchar          *subject,
                                                 const gchar          *predicate,
