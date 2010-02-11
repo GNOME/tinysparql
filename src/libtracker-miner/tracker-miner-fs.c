@@ -362,7 +362,7 @@ tracker_miner_fs_class_init (TrackerMinerFSClass *klass)
 	 * This signal allows both synchronous and asynchronous extraction,
 	 * in the synchronous case @cancellable can be safely ignored. In
 	 * either case, on successful metadata extraction, implementations
-	 * must call tracker_miner_fs_notify_file() to indicate that
+	 * must call tracker_miner_fs_file_notify() to indicate that
 	 * processing has finished on @file, so the miner can execute
 	 * the SPARQL updates and continue processing other files.
 	 *
@@ -1008,7 +1008,7 @@ item_add_or_update (TrackerMinerFS *fs,
 		if (!data) {
 			g_critical ("%s has returned FALSE in ::process-file for '%s', "
 			            "but it seems that this file has been processed through "
-			            "tracker_miner_fs_notify_file(), this is an "
+			            "tracker_miner_fs_file_notify(), this is an "
 			            "implementation error", G_OBJECT_TYPE_NAME (fs), uri);
 		} else {
 			priv->processing_pool = g_list_remove (priv->processing_pool, data);
@@ -2443,7 +2443,7 @@ tracker_miner_fs_file_notify (TrackerMinerFS *fs,
 		g_critical ("%s has notified that file '%s' has been processed, "
 		            "but that file was not in the processing queue. "
 		            "This is an implementation error, please ensure that "
-		            "tracker_miner_fs_notify_file() is called on the same "
+		            "tracker_miner_fs_file_notify() is called on the same "
 			    "GFile that is passed in ::process-file, and that this"
 			    "signal didn't return FALSE for it",
 			    G_OBJECT_TYPE_NAME (fs), uri);
