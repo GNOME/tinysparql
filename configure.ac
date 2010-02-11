@@ -1652,6 +1652,7 @@ AC_CONFIG_FILES([
 	src/plugins/evolution/Makefile
 	src/plugins/kmail/Makefile
 	src/plugins/nautilus/Makefile
+	src/vapi/Makefile
 	tests/common/Makefile
 	tests/libtracker-common/Makefile
 	tests/libtracker-data/Makefile

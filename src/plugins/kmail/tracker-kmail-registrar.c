@@ -28,6 +28,9 @@
 #include <dbus/dbus-glib-bindings.h>
 
 #include <libtracker-data/tracker-data-manager.h>
+
+#include <libtracker-client/tracker-sparql-builder.h>
+
 #include <libtracker-common/tracker-dbus.h>
 
 #include <tracker-store/tracker-push-registrar.h>

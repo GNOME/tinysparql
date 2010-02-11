@@ -16,7 +16,8 @@ SUBDIRS = 					\
 	tracker-utils				\
 	tracker-extract				\
 	tracker-miner-fs			\
-	tracker-writeback
+	tracker-writeback			\
+	vapi
 
 if HAVE_TRACKER_PREFERENCES
 SUBDIRS += tracker-preferences

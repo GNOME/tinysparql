@@ -24,14 +24,14 @@
 
 #include <dbus/dbus-glib-bindings.h>
 
-#define TRACKER_EXTRACT_SERVICE                "org.freedesktop.Tracker1.Extract"
+#define TRACKER_EXTRACT_SERVICE        "org.freedesktop.Tracker1.Extract"
 #define TRACKER_EXTRACT_PATH           "/org/freedesktop/Tracker1/Extract"
 #define TRACKER_EXTRACT_INTERFACE      "org.freedesktop.Tracker1.Extract"
 
 G_BEGIN_DECLS
 
 #define TRACKER_TYPE_EXTRACT           (tracker_extract_get_type ())
-#define TRACKER_EXTRACT(object)                (G_TYPE_CHECK_INSTANCE_CAST ((object), TRACKER_TYPE_EXTRACT, TrackerExtract))
+#define TRACKER_EXTRACT(object)        (G_TYPE_CHECK_INSTANCE_CAST ((object), TRACKER_TYPE_EXTRACT, TrackerExtract))
 #define TRACKER_EXTRACT_CLASS(klass)   (G_TYPE_CHECK_CLASS_CAST ((klass), TRACKER_TYPE_EXTRACT, TrackerExtractClass))
 #define TRACKER_IS_EXTRACT(object)     (G_TYPE_CHECK_INSTANCE_TYPE ((object), TRACKER_TYPE_EXTRACT))
 #define TRACKER_IS_EXTRACT_CLASS(klass)(G_TYPE_CHECK_CLASS_TYPE ((klass), TRACKER_TYPE_EXTRACT))

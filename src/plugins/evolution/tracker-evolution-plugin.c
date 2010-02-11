@@ -72,7 +72,8 @@
 #include <libedataserver/e-account-list.h>
 
 #include <libtracker-client/tracker.h>
-#include <libtracker-common/tracker-sparql-builder.h>
+#include <libtracker-client/tracker-sparql-builder.h>
+
 #include <libtracker-common/tracker-ontology.h>
 #include <libtracker-common/tracker-utils.h>
 #include <libtracker-common/tracker-type-utils.h>

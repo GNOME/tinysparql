@@ -22,6 +22,7 @@
 #include <string.h>
 
 #include <glib.h>
+#include <gio/gio.h>
 
 #include <libtracker-extract/tracker-extract.h>
 

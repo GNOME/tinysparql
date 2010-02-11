@@ -11,9 +11,17 @@ INCLUDES = 					\
 
 lib_LTLIBRARIES = libtracker-client-@TRACKER_API_VERSION@.la
 
-libtracker_clientincdir = $(includedir)/tracker-$(TRACKER_API_VERSION)/libtracker-client
+libtracker_clientincludedir = $(includedir)/tracker-$(TRACKER_API_VERSION)/libtracker-client
 
-libtracker_client_@TRACKER_API_VERSION@_la_SOURCES = tracker.c
+libtracker_client_@TRACKER_API_VERSION@_la_VALASOURCES = \
+	tracker-sparql-builder.vala
+
+libtracker_client_@TRACKER_API_VERSION@_la_SOURCES = 	\
+	tracker.c					\
+	tracker-sparql-builder.c			\
+	tracker-sparql-builder.h			\
+	libtracker-client.vala.stamp			\
+	$(libtracker_client_@TRACKER_API_VERSION@_la_VALASOURCES:.vala=.c)
 
 libtracker_client_@TRACKER_API_VERSION@_la_LDFLAGS = 	\
 	-version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE) \
@@ -25,8 +33,12 @@ libtracker_client_@TRACKER_API_VERSION@_la_LIBADD =	\
 	$(GCOV_LIBS)					\
 	$(GOBJECT_LIBS)
 
-libtracker_clientinc_HEADERS = 				\
-	tracker.h
+libtracker_clientinclude_HEADERS = 			\
+	tracker.h					\
+	tracker-sparql-builder.h
+
+noinst_HEADERS =					\
+	tracker-statement-list.h
 
 # Generate DBus files from XML data.
 dbus_sources = 						\
@@ -36,6 +48,26 @@ dbus_sources = 						\
 %-glue.h: $(top_srcdir)/data/dbus/%.xml
 	$(AM_V_GEN)$(DBUSBINDINGTOOL) --mode=glib-client --output=$@ --prefix=$(subst -,_,$*) $^
 
-BUILT_SOURCES = $(dbus_sources)
+vapi_sources =						\
+	$(top_srcdir)/src/vapi/posix.vapi		\
+	$(top_srcdir)/src/vapi/glib-2.0-fixes.vapi
+
+libtracker-client.vala.stamp: $(libtracker_client_@TRACKER_API_VERSION@_la_VALASOURCES) $(vapi_sources)
+	$(AM_V_GEN)$(VALAC) $(GCOV_VALAFLAGS) -C $(VALAFLAGS) --pkg gio-2.0 -H tracker-sparql-builder.h $^
+	$(AM_V_GEN)touch $@
+
+BUILT_SOURCES = 					\
+	$(dbus_sources)					\
+	libtracker-client.vala.stamp
 
 CLEANFILES = $(BUILT_SOURCES)
+
+MAINTAINERCLEANFILES =					\
+	libtracker-client.vala.stamp			\
+	$(libtracker_client_@TRACKER_API_VERSION@_la_VALASOURCES:.vala=.c) \
+	tracker-sparql-builder.h
+
+EXTRA_DIST = 						\
+	$(libtracker_client_@TRACKER_API_VERSION@_la_VALASOURCES) \
+	libtracker-client.vala.stamp
+

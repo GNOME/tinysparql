@@ -17,18 +17,14 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __LIBTRACKER_COMMON_STATEMENT_H__
-#define __LIBTRACKER_COMMON_STATEMENT_H__
+#ifndef __LIBTRACKER_CLIENT_STATEMENT_H__
+#define __LIBTRACKER_CLIENT_STATEMENT_H__
 
 #include <glib.h>
 
 #include "tracker-sparql-builder.h"
 
 G_BEGIN_DECLS
-
-#if !defined (__LIBTRACKER_COMMON_INSIDE__) && !defined (TRACKER_COMPILATION)
-#error "only <libtracker-common/tracker-common.h> must be included directly."
-#endif
 
 #define SHOULD_VALIDATE_UTF8
 

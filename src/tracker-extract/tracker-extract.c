@@ -28,6 +28,8 @@
 #include <libtracker-common/tracker-dbus.h>
 #include <libtracker-common/tracker-log.h>
 
+#include <libtracker-client/tracker-sparql-builder.h>
+
 #include <libtracker-extract/tracker-extract.h>
 
 #include "tracker-dbus.h"

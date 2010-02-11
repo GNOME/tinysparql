@@ -23,7 +23,7 @@
 #include <glib-object.h>
 #include <gio/gio.h>
 
-#include <libtracker-common/tracker-sparql-builder.h>
+#include <libtracker-client/tracker-sparql-builder.h>
 
 #include "tracker-miner.h"
 
@@ -68,24 +68,24 @@ struct TrackerMinerFS {
 typedef struct {
 	TrackerMinerClass parent;
 
-	gboolean (* check_file)            (TrackerMinerFS       *fs,
-	                                    GFile                *file);
-	gboolean (* check_directory)       (TrackerMinerFS       *fs,
-	                                    GFile                *file);
-	gboolean (* check_directory_contents) (TrackerMinerFS    *fs,
-	                                       GFile             *parent,
-	                                       GList             *children);
-	gboolean (* process_file)          (TrackerMinerFS       *fs,
-	                                    GFile                *file,
-	                                    TrackerSparqlBuilder *builder,
-	                                    GCancellable         *cancellable);
-	gboolean (* ignore_next_update_file) (TrackerMinerFS       *fs,
-	                                      GFile                *file,
-	                                      TrackerSparqlBuilder *builder,
-	                                      GCancellable         *cancellable);
-	gboolean (* monitor_directory)     (TrackerMinerFS       *fs,
-	                                    GFile                *file);
-	void     (* finished)              (TrackerMinerFS       *fs);
+	gboolean (* check_file)               (TrackerMinerFS       *fs,
+                                               GFile                *file);
+	gboolean (* check_directory)          (TrackerMinerFS       *fs,
+                                               GFile                *file);
+	gboolean (* check_directory_contents) (TrackerMinerFS       *fs,
+	                                       GFile                *parent,
+	                                       GList                *children);
+	gboolean (* process_file)             (TrackerMinerFS       *fs,
+                                               GFile                *file,
+                                               TrackerSparqlBuilder *builder,
+                                               GCancellable         *cancellable);
+	gboolean (* ignore_next_update_file)  (TrackerMinerFS       *fs,
+                                               GFile                *file,
+                                               TrackerSparqlBuilder *builder,
+                                               GCancellable         *cancellable);
+	gboolean (* monitor_directory)        (TrackerMinerFS       *fs,
+                                               GFile                *file);
+	void     (* finished)                 (TrackerMinerFS       *fs);
 } TrackerMinerFSClass;
 
 GType    tracker_miner_fs_get_type         (void) G_GNUC_CONST;

@@ -51,7 +51,6 @@ endif
 endif
 
 libtracker_common_la_VALASOURCES =			\
-	tracker-sparql-builder.vala			\
 	tracker-turtle-writer.vala
 
 libtracker_common_la_SOURCES =	 			\
@@ -70,7 +69,6 @@ libtracker_common_la_SOURCES =	 			\
 	tracker-namespace.c				\
 	tracker-ontology.c				\
 	tracker-property.c				\
-	tracker-statement-list.c			\
 	tracker-type-utils.c				\
 	tracker-utils.c					\
 	tracker-crc32.c					\
@@ -95,13 +93,15 @@ libtracker_commoninclude_HEADERS =			\
 	tracker-namespace.h				\
 	tracker-ontology.h				\
 	tracker-property.h				\
-	tracker-sparql-builder.h			\
-	tracker-statement-list.h			\
 	tracker-type-utils.h				\
 	tracker-utils.h					\
 	tracker-crc32.h
 
-libtracker-common.vala.stamp: $(libtracker_common_la_VALASOURCES) posix.vapi glib-2.0-fixes.vapi
+vapi_sources =						\
+	$(top_srcdir)/src/vapi/posix.vapi		\
+	$(top_srcdir)/src/vapi/glib-2.0-fixes.vapi
+
+libtracker-common.vala.stamp: $(libtracker_common_la_VALASOURCES) $(vapi_sources)
 	$(AM_V_GEN)$(VALAC) $(GCOV_VALAFLAGS) -C $(VALAFLAGS) --pkg gio-2.0 -H tracker-sparql-builder.h $^
 	$(AM_V_GEN)touch $@
 
@@ -139,15 +139,11 @@ CLEANFILES = $(marshal_sources)
 
 MAINTAINERCLEANFILES =					\
 	libtracker-common.vala.stamp			\
-	$(libtracker_common_la_VALASOURCES:.vala=.c)	\
-	tracker-sparql-builder.h			\
-	$(NULL)
+	$(libtracker_common_la_VALASOURCES:.vala=.c)
 
 EXTRA_DIST = 						\
 	tracker-marshal.list				\
 	$(libtracker_common_la_VALASOURCES)		\
 	libtracker-common.vala.stamp			\
-	posix.vapi					\
-	glib-2.0-fixes.vapi					\
 	libtracker-common.vapi
 

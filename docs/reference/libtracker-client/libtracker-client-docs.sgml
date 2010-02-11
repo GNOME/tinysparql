@@ -7,6 +7,8 @@
 <!ENTITY tracker-statistics SYSTEM "xml/tracker_statistics.xml">
 <!ENTITY tracker-resources SYSTEM "xml/tracker_resources.xml">
 <!ENTITY tracker-search SYSTEM "xml/tracker_search.xml">
+<!ENTITY tracker-sparql-builder SYSTEM "xml/tracker-sparql-builder.xml">
+<!ENTITY tracker-statement-list SYSTEM "xml/tracker-statement-list.xml">
 <!ENTITY version SYSTEM "version.xml">
 ]>
 <book id="index">
@@ -40,5 +42,10 @@
       &tracker-statistics;
       &tracker-resources;
       &tracker-search;
+    </chapter>
+    <chapter>
+      <title>Building Queries</title>
+      &tracker-sparql-builder;
+      &tracker-statement-list;
     </chapter>
 </book>
