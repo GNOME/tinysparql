@@ -43,9 +43,11 @@ libtracker_miner_@TRACKER_API_VERSION@_la_SOURCES = 	\
 	tracker-thumbnailer.c
 
 libtracker_minerinclude_HEADERS = 			\
+	tracker-crawler.h				\
 	tracker-miner.h 				\
 	tracker-miner-dbus.h 				\
 	tracker-miner-fs.h				\
+	tracker-miner-manager.h				\
 	tracker-thumbnailer.h
 
 libtracker_miner_@TRACKER_API_VERSION@_la_LDFLAGS = 	\
