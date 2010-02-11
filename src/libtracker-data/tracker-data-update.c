@@ -79,6 +79,7 @@ struct _TrackerDataUpdateBufferResource {
 struct _TrackerDataUpdateBufferProperty {
 	gchar *name;
 	GValue value;
+	gchar *graph;
 	gboolean fts;
 };
 
@@ -276,6 +277,7 @@ cache_table_free (TrackerDataUpdateBufferTable *table)
 		property = &g_array_index (table->properties, TrackerDataUpdateBufferProperty, i);
 		g_free (property->name);
 		g_value_unset (&property->value);
+		g_free (property->graph);
 	}
 
 	g_array_free (table->properties, TRUE);
@@ -312,6 +314,7 @@ static void
 cache_insert_value (const gchar            *table_name,
                     const gchar            *field_name,
                     GValue                 *value,
+                    const gchar            *graph,
                     gboolean                multiple_values,
                     gboolean                fts)
 {
@@ -320,6 +323,7 @@ cache_insert_value (const gchar            *table_name,
 
 	property.name = g_strdup (field_name);
 	property.value = *value;
+	property.graph = g_strdup (graph);
 	property.fts = fts;
 
 	table = cache_ensure_table (table_name, multiple_values);
@@ -348,6 +352,7 @@ cache_delete_value (const gchar            *table_name,
 
 	property.name = g_strdup (field_name);
 	property.value = *value;
+	property.graph = NULL;
 	property.fts = fts;
 
 	table = cache_ensure_table (table_name, multiple_values);
@@ -481,13 +486,21 @@ tracker_data_resource_buffer_flush (GError **error)
 					                                              property->name);
 				} else {
 					stmt = tracker_db_interface_create_statement (iface,
-					                                              "INSERT OR IGNORE INTO \"%s\" (ID, \"%s\") VALUES (?, ?)",
+					                                              "INSERT OR IGNORE INTO \"%s\" (ID, \"%s\", \"%s:graph\") VALUES (?, ?, ?)",
 					                                              table_name,
+					                                              property->name,
 					                                              property->name);
 				}
 
 				tracker_db_statement_bind_int (stmt, 0, resource_buffer->id);
 				statement_bind_gvalue (stmt, 1, &property->value);
+
+				if (property->graph) {
+					tracker_db_statement_bind_int (stmt, 2, ensure_resource_id (property->graph, NULL));
+				} else {
+					tracker_db_statement_bind_null (stmt, 2);
+				}
+
 				tracker_db_statement_execute (stmt, &actual_error);
 				g_object_unref (stmt);
 
@@ -569,22 +582,30 @@ tracker_data_resource_buffer_flush (GError **error)
 					g_string_append (sql, ", ");
 				}
 				g_string_append_printf (sql, "\"%s\" = ?", property->name);
+
+				g_string_append_printf (sql, ", \"%s:graph\" = ?", property->name);
 			}
 
 			g_string_append (sql, " WHERE ID = ?");
 
 			stmt = tracker_db_interface_create_statement (iface, "%s", sql->str);
-			tracker_db_statement_bind_int (stmt, i, resource_buffer->id);
 
 			for (i = 0; i < table->properties->len; i++) {
 				property = &g_array_index (table->properties, TrackerDataUpdateBufferProperty, i);
 				if (table->delete_value) {
 					/* just set value to NULL for single value properties */
-					tracker_db_statement_bind_null (stmt, i);
+					tracker_db_statement_bind_null (stmt, 2 * i);
 				} else {
-					statement_bind_gvalue (stmt, i, &property->value);
+					statement_bind_gvalue (stmt, 2 * i, &property->value);
+				}
+				if (property->graph) {
+					tracker_db_statement_bind_int (stmt, 2 * i + 1, ensure_resource_id (property->graph, NULL));
+				} else {
+					tracker_db_statement_bind_null (stmt, 2 * i + 1);
 				}
 			}
+
+			tracker_db_statement_bind_int (stmt, 2 * table->properties->len, resource_buffer->id);
 
 			tracker_db_statement_execute (stmt, &actual_error);
 			g_object_unref (stmt);
@@ -765,7 +786,7 @@ cache_create_service_decomposed (TrackerClass *cl,
 	cache_insert_row (cl);
 
 	g_value_set_int (&gvalue, ensure_resource_id (tracker_class_get_uri (cl), NULL));
-	cache_insert_value ("rdfs:Resource_rdf:type", "rdf:type", &gvalue, TRUE, FALSE);
+	cache_insert_value ("rdfs:Resource_rdf:type", "rdf:type", &gvalue, graph, TRUE, FALSE);
 
 	tracker_class_set_count (cl, tracker_class_get_count (cl) + 1);
 	if (insert_callbacks) {
@@ -1032,6 +1053,7 @@ string_to_gvalue (const gchar         *value,
 static void
 cache_set_metadata_decomposed (TrackerProperty  *property,
                                const gchar      *value,
+                               const gchar      *graph,
                                GError          **error)
 {
 	gboolean            multiple_values, fts;
@@ -1044,7 +1066,7 @@ cache_set_metadata_decomposed (TrackerProperty  *property,
 	/* also insert super property values */
 	super_properties = tracker_property_get_super_properties (property);
 	while (*super_properties) {
-		cache_set_metadata_decomposed (*super_properties, value, error);
+		cache_set_metadata_decomposed (*super_properties, value, graph, error);
 		if (*error) {
 			return;
 		}
@@ -1085,7 +1107,7 @@ cache_set_metadata_decomposed (TrackerProperty  *property,
 		             resource_buffer->subject,
 		             field_name);
 	} else {
-		cache_insert_value (table_name, field_name, &gvalue, multiple_values, fts);
+		cache_insert_value (table_name, field_name, &gvalue, graph, multiple_values, fts);
 	}
 
 	g_free (table_name);
@@ -1415,7 +1437,7 @@ tracker_data_insert_statement_common (const gchar            *graph,
 		                                                 g_free, (GDestroyNotify) cache_table_free);
 
 		g_value_set_int (&gvalue, tracker_data_update_get_next_modseq ());
-		cache_insert_value ("rdfs:Resource", "tracker:modified", &gvalue, FALSE, FALSE);
+		cache_insert_value ("rdfs:Resource", "tracker:modified", &gvalue, graph, FALSE, FALSE);
 
 		g_hash_table_insert (update_buffer.resources, g_strdup (subject), resource_buffer);
 	}
@@ -1548,7 +1570,7 @@ tracker_data_insert_statement_with_uri (const gchar            *graph,
 		resource_buffer->new_subject = g_strdup (object);
 	} else {
 		/* add value to metadata database */
-		cache_set_metadata_decomposed (property, object, &actual_error);
+		cache_set_metadata_decomposed (property, object, graph, &actual_error);
 		if (actual_error) {
 			tracker_data_update_buffer_clear ();
 			g_propagate_error (error, actual_error);
@@ -1615,7 +1637,7 @@ tracker_data_insert_statement_with_string (const gchar            *graph,
 	}
 
 	/* add value to metadata database */
-	cache_set_metadata_decomposed (property, object, &actual_error);
+	cache_set_metadata_decomposed (property, object, graph, &actual_error);
 	if (actual_error) {
 		tracker_data_update_buffer_clear ();
 		g_propagate_error (error, actual_error);
