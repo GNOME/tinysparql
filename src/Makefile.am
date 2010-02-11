@@ -4,11 +4,11 @@ SUBDIRS = 					\
 	libstemmer				\
 	libinotify				\
 	libtracker-common 			\
+	libtracker-client			\
 	libtracker-fts				\
 	libtracker-db				\
 	libtracker-data				\
 	libtracker-extract			\
-	libtracker-client			\
 	libtracker-miner			\
 	plugins					\
 	tracker-store				\
