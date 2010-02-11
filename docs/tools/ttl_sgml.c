@@ -164,7 +164,7 @@ static void
 print_sgml_explanation (FILE *f, const gchar *explanation_file)
 {
 	gchar *raw_content;
-	gint   length;
+	gsize length;
 
 	if (explanation_file && g_file_test (explanation_file, G_FILE_TEST_EXISTS)) {
 		if (!g_file_get_contents (explanation_file, &raw_content, &length, NULL)) {
@@ -222,7 +222,7 @@ print_ontology_class (gpointer key, gpointer value, gpointer user_data)
                         g_fprintf (f, "<para>This class notifies about changes</para>\n");
                 } 
                 if (def->deprecated) {
-                        g_fprintf (f, "<para>This class is deprecated</para>\n", id);
+                        g_fprintf (f, "<para>This class is deprecated</para>\n");
                 }
                 g_fprintf (f, "</note>\n");
         }
@@ -271,7 +271,7 @@ print_ontology_property (gpointer key, gpointer value, gpointer user_data)
         if (def->deprecated) {
                 g_fprintf (f, "<note>\n");
                 g_fprintf (f, "<title>Note:</title>\n");
-                g_fprintf (f, "<para>This property is deprecated</para>\n", id);
+                g_fprintf (f, "<para>This property is deprecated</para>\n");
                 g_fprintf (f, "</note>\n");
         }
 
