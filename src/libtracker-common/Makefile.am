@@ -93,6 +93,7 @@ libtracker_commoninclude_HEADERS =			\
 	tracker-namespace.h				\
 	tracker-ontology.h				\
 	tracker-property.h				\
+	tracker-turtle-writer.h				\
 	tracker-type-utils.h				\
 	tracker-utils.h					\
 	tracker-crc32.h
@@ -102,7 +103,7 @@ vapi_sources =						\
 	$(top_srcdir)/src/vapi/glib-2.0-fixes.vapi
 
 libtracker-common.vala.stamp: $(libtracker_common_la_VALASOURCES) $(vapi_sources)
-	$(AM_V_GEN)$(VALAC) $(GCOV_VALAFLAGS) -C $(VALAFLAGS) --pkg gio-2.0 -H tracker-sparql-builder.h $^
+	$(AM_V_GEN)$(VALAC) $(GCOV_VALAFLAGS) -C $(VALAFLAGS) --pkg gio-2.0 -H tracker-turtle-writer.h $^
 	$(AM_V_GEN)touch $@
 
 libtracker_common_la_LDFLAGS = 				\
