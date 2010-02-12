@@ -236,7 +236,7 @@ get_file_metadata (TrackerExtract         *extract,
 
 #ifdef HAVE_LIBSTREAMANALYZER
 	if (!priv->force_internal_extractors) {
-		tracker_dbus_request_comment (request_id,
+		tracker_dbus_request_comment (request_id, context,
 		                              "  Extracting with libstreamanalyzer...");
 
 		tracker_topanalyzer_extract (uri, statements, &content_type);
@@ -250,7 +250,7 @@ get_file_metadata (TrackerExtract         *extract,
 			return TRUE;
 		}
 	} else {
-		tracker_dbus_request_comment (request_id,
+		tracker_dbus_request_comment (request_id, context,
 		                              "  Extracting with internal extractors ONLY...");
 	}
 #endif /* HAVE_LIBSTREAMANALYZER */

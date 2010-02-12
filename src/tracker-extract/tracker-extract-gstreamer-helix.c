@@ -372,7 +372,9 @@ add_int64_info (TrackerSparqlBuilder *metadata,
                 const gchar        *key,
                 gint64      info)
 {
-	tracker_statement_list_insert_with_int64 (metadata, uri, key, info);
+	tracker_sparql_builder_subject_iri (metadata, uri);
+	tracker_sparql_builder_predicate_iri (metadata, key);
+	tracker_sparql_builder_object_int64 (metadata, info);
 }
 
 static void
@@ -381,7 +383,9 @@ add_uint_info (TrackerSparqlBuilder *metadata,
                gchar      *key,
                guint       info)
 {
-	tracker_statement_list_insert_with_int (metadata, uri, key, info);
+	tracker_sparql_builder_subject_iri (metadata, uri);
+	tracker_sparql_builder_predicate_iri (metadata, key);
+	tracker_sparql_builder_object_int64 (metadata, info);
 }
 
 static void
@@ -399,7 +403,9 @@ add_string_gst_tag (TrackerSparqlBuilder        *metadata,
 
 	if (s) {
 		if (ret && s[0] != '\0') {
-			tracker_statement_list_insert (metadata, uri, key, s);
+			tracker_sparql_builder_subject_iri (metadata, uri);
+			tracker_sparql_builder_predicate_iri (metadata, key);
+			tracker_sparql_builder_object_unvalidated (metadata, s);
 		}
 
 		g_free (s);
@@ -419,7 +425,9 @@ add_uint_gst_tag (TrackerSparqlBuilder  *metadata,
 	ret = gst_tag_list_get_uint (tag_list, tag, &n);
 
 	if (ret) {
-		tracker_statement_list_insert_with_int (metadata, uri, key, n);
+		tracker_sparql_builder_subject_iri (metadata, uri);
+		tracker_sparql_builder_predicate_iri (metadata, key);
+		tracker_sparql_builder_object_int64 (metadata, n);
 	}
 }
 
@@ -436,7 +444,9 @@ add_double_gst_tag (TrackerSparqlBuilder        *metadata,
 	ret = gst_tag_list_get_double (tag_list, tag, &n);
 
 	if (ret) {
-		tracker_statement_list_insert_with_double (metadata, uri, key, n);
+		tracker_sparql_builder_subject_iri (metadata, uri);
+		tracker_sparql_builder_predicate_iri (metadata, key);
+		tracker_sparql_builder_object_double (metadata, n);
 	}
 }
 
@@ -457,8 +467,9 @@ add_year_of_gdate_gst_tag (TrackerSparqlBuilder  *metadata,
 		gchar buf[10];
 
 		if (g_date_strftime (buf, 10, "%Y", date)) {
-			tracker_statement_list_insert (metadata, uri,
-			                               key, buf);
+			tracker_sparql_builder_subject_iri (metadata, uri);
+			tracker_sparql_builder_predicate_iri (metadata, key);
+			tracker_sparql_builder_object_unvalidated (metadata, buf);
 		}
 	}
 

@@ -40,8 +40,6 @@
 #include <libtracker-common/tracker-type-utils.h>
 #include <libtracker-common/tracker-os-dependant.h>
 #include <libtracker-common/tracker-sparql-builder.h>
-#include <libtracker-common/tracker-statement-list.h>
-
 #include <libtracker-common/tracker-ontology.h>
 
 #include <libtracker-extract/tracker-utils.h>
@@ -139,9 +137,10 @@ namespace Tracker {
 	                                        const char* text,
 	                                        int32_t length)
 	{
-		tracker_statement_list_insert (metadata, idx->path().c_str(),
-		                               NIE_PREFIX "plainTextContent",
-		                               text);
+
+		tracker_sparql_builder_subject_iri (metadata, idx->path().c_str());
+		tracker_sparql_builder_predicate_iri (metadata, NIE_PREFIX "plainTextContent");
+		tracker_sparql_builder_object_unvalidated (metadata, text);
 	}
 
 	const gchar* Tracker::TripleCollector::predicateMapping (const std::string &key)
@@ -214,7 +213,7 @@ namespace Tracker {
 	}
 
 	/* The methods below basically just convert the C++ world to the C world
-	 * of tracker_statement_list_insert. Nothing magical about it. */
+	 * of TrackerSparqlBuilder. Nothing magical about it. */
 
 	void Tracker::TripleCollector::addValue (const AnalysisResult* idx,
 	                                         const RegisteredField* field,
@@ -231,10 +230,9 @@ namespace Tracker {
 			return;
 		}
 
-		tracker_statement_list_insert (metadata,
-		                               idx->path().c_str(),
-		                               predicate,
-		                               value.c_str());
+		tracker_sparql_builder_subject_iri (metadata, idx->path().c_str());
+		tracker_sparql_builder_predicate_iri (metadata, predicate);
+		tracker_sparql_builder_object_unvalidated (metadata, value.c_str());
 	}
 
 	void Tracker::TripleCollector::addValue (const AnalysisResult* idx,
@@ -248,10 +246,9 @@ namespace Tracker {
 			return;
 		}
 
-		tracker_statement_list_insert (metadata,
-		                               idx->path().c_str(),
-		                               predicate,
-		                               (const gchar*) data);
+		tracker_sparql_builder_subject_iri (metadata, idx->path().c_str());
+		tracker_sparql_builder_predicate_iri (metadata, predicate);
+		tracker_sparql_builder_object_unvalidated (metadata, (const gchar*) data);
 	}
 
 	void Tracker::TripleCollector::addValue (const AnalysisResult* idx,
@@ -264,10 +261,10 @@ namespace Tracker {
 			return;
 		}
 
-		tracker_statement_list_insert_with_int (metadata,
-		                                        idx->path().c_str(),
-		                                        predicate,
-		                                        (gint) value);
+		tracker_sparql_builder_subject_iri (metadata, idx->path().c_str());
+		tracker_sparql_builder_predicate_iri (metadata, predicate);
+		tracker_sparql_builder_object_int64 (metadata, value);
+
 	}
 
 	void Tracker::TripleCollector::addValue (const AnalysisResult* idx,
@@ -280,10 +277,9 @@ namespace Tracker {
 			return;
 		}
 
-		tracker_statement_list_insert_with_int (metadata,
-		                                        idx->path().c_str(),
-		                                        predicate,
-		                                        (gint) value);
+		tracker_sparql_builder_subject_iri (metadata, idx->path().c_str());
+		tracker_sparql_builder_predicate_iri (metadata, predicate);
+		tracker_sparql_builder_object_int64 (metadata, value);
 	}
 
 	void Tracker::TripleCollector::addValue (const AnalysisResult* idx,
@@ -296,10 +292,9 @@ namespace Tracker {
 			return;
 		}
 
-		tracker_statement_list_insert_with_double (metadata,
-		                                           idx->path().c_str(),
-		                                           predicate,
-		                                           (gdouble) value);
+		tracker_sparql_builder_subject_iri (metadata, idx->path().c_str());
+		tracker_sparql_builder_predicate_iri (metadata, predicate);
+		tracker_sparql_builder_object_double (metadata, value);
 	}
 
 	void Tracker::TripleCollector::addTriplet (const std::string& subject,
@@ -312,10 +307,9 @@ namespace Tracker {
 			return;
 		}
 
-		tracker_statement_list_insert (metadata,
-		                               subject.c_str(),
-		                               predicate_str,
-		                               object.c_str());
+		tracker_sparql_builder_subject_iri (metadata, subject.c_str());
+		tracker_sparql_builder_predicate_iri (metadata, predicate_str);
+		tracker_sparql_builder_object_unvalidated (metadata, object.c_str());
 	}
 
 	void Tracker::TripleCollector::addValue (const AnalysisResult* idx,
@@ -334,10 +328,9 @@ namespace Tracker {
 			return;
 		}
 
-		tracker_statement_list_insert (metadata,
-		                               idx->path().c_str(),
-		                               predicate,
-		                               value.c_str());
+		tracker_sparql_builder_subject_iri (metadata, idx->path().c_str());
+		tracker_sparql_builder_predicate_iri (metadata, predicate);
+		tracker_sparql_builder_object_unvalidated (metadata, value.c_str());
 	}
 
 	void Tracker::TripleCollector::finishAnalysis (const AnalysisResult*) { }

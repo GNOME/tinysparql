@@ -37,9 +37,6 @@ libtracker_clientinclude_HEADERS = 			\
 	tracker.h					\
 	tracker-sparql-builder.h
 
-noinst_HEADERS =					\
-	tracker-statement-list.h
-
 # Generate DBus files from XML data.
 dbus_sources = 						\
 	tracker-resources-glue.h			\
