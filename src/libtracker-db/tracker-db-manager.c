@@ -353,22 +353,32 @@ function_sparql_cartesian_distance (TrackerDBInterface *interface,
 				    GValue              values[])
 {
 	GValue result = { 0, };
+	gdouble lat1;
+	gdouble lat2;
+	gdouble lon1;
+	gdouble lon2;
+
+	gdouble R;
+	gdouble a;
+	gdouble b;
+	gdouble c;
+	gdouble d;
 
 	if (argc != 4) {
 		g_critical ("Invalid argument count");
 		return result;
 	}
 
-	gdouble lat1 = g_value_get_double (&values[0])*M_PI/180;
-	gdouble lat2 = g_value_get_double (&values[1])*M_PI/180;
-	gdouble lon1 = g_value_get_double (&values[2])*M_PI/180;
-	gdouble lon2 = g_value_get_double (&values[3])*M_PI/180;
+	lat1 = g_value_get_double (&values[0])*M_PI/180;
+	lat2 = g_value_get_double (&values[1])*M_PI/180;
+	lon1 = g_value_get_double (&values[2])*M_PI/180;
+	lon2 = g_value_get_double (&values[3])*M_PI/180;
 
-	gdouble R = 6371000;
-	gdouble a = M_PI/2 - lat1;
-	gdouble b = M_PI/2 - lat2;
-	gdouble c = sqrt(a*a + b*b - 2*a*b*cos(lon2 - lon1));
-	gdouble d = R*c;
+	R = 6371000;
+	a = M_PI/2 - lat1;
+	b = M_PI/2 - lat2;
+	c = sqrt(a*a + b*b - 2*a*b*cos(lon2 - lon1));
+	d = R*c;
 
 	g_value_init (&result, G_TYPE_DOUBLE);
 	g_value_set_double (&result, d);
@@ -382,23 +392,34 @@ function_sparql_haversine_distance (TrackerDBInterface *interface,
 				    GValue              values[])
 {
 	GValue result = { 0, };
+	gdouble lat1;
+	gdouble lat2;
+	gdouble lon1;
+	gdouble lon2;
+
+	gdouble R;
+	gdouble dLat;
+	gdouble dLon;
+	gdouble a;
+	gdouble c;
+	gdouble d;
 
 	if (argc != 4) {
 		g_critical ("Invalid argument count");
 		return result;
 	}
 
-	gdouble lat1 = g_value_get_double (&values[0])*M_PI/180;
-	gdouble lat2 = g_value_get_double (&values[1])*M_PI/180;
-	gdouble lon1 = g_value_get_double (&values[2])*M_PI/180;
-	gdouble lon2 = g_value_get_double (&values[3])*M_PI/180;
+	lat1 = g_value_get_double (&values[0])*M_PI/180;
+	lat2 = g_value_get_double (&values[1])*M_PI/180;
+	lon1 = g_value_get_double (&values[2])*M_PI/180;
+	lon2 = g_value_get_double (&values[3])*M_PI/180;
 
-	gdouble R = 6371000;
-	gdouble dLat = (lat2-lat1);
-	gdouble dLon = (lon2-lon1); 
-	gdouble a = sin(dLat/2) * sin(dLat/2) + cos(lat1) * cos(lat2) *  sin(dLon/2) * sin(dLon/2); 
-	gdouble c = 2 * atan2(sqrt(a), sqrt(1-a)); 
-	gdouble d = R * c;
+	R = 6371000;
+	dLat = (lat2-lat1);
+	dLon = (lon2-lon1); 
+	a = sin(dLat/2) * sin(dLat/2) + cos(lat1) * cos(lat2) *  sin(dLon/2) * sin(dLon/2); 
+	c = 2 * atan2(sqrt(a), sqrt(1-a)); 
+	d = R * c;
 
 	g_value_init (&result, G_TYPE_DOUBLE);
 	g_value_set_double (&result, d);
