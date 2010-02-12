@@ -25,7 +25,8 @@ libtracker_extract_@TRACKER_API_VERSION@_la_SOURCES =	\
 	tracker-iptc.c					\
 	tracker-iptc.h					\
 	tracker-xmp.c					\
-	tracker-xmp.h
+	tracker-xmp.h					\
+	tracker-utils.c
 
 noinst_HEADERS =
 
@@ -33,7 +34,8 @@ libtracker_extractinc_HEADERS =				\
 	tracker-extract.h				\
 	tracker-exif.h					\
 	tracker-iptc.h					\
-	tracker-xmp.h
+	tracker-xmp.h					\
+	tracker-utils.h
 
 libtracker_extract_@TRACKER_API_VERSION@_la_LDFLAGS = 	\
 	-version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE) \

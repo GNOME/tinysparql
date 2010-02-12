@@ -28,6 +28,7 @@
 #include <libtracker-common/tracker-utils.h>
 
 #include <libtracker-extract/tracker-extract.h>
+#include <libtracker-extract/tracker-utils.h>
 
 #include "tracker-main.h"
 
@@ -96,7 +97,7 @@ extract_content (const gchar *path,
 		return NULL;
 	}
 
-	text = tracker_text_normalize (output, n_words, NULL);
+	text = tracker_extract_text_normalize (output, n_words, NULL);
 
 	g_free (command);
 	g_free (output);

@@ -49,6 +49,7 @@
 #include <libtracker-common/tracker-type-utils.h>
 
 #include <libtracker-extract/tracker-extract.h>
+#include <libtracker-extract/tracker-utils.h>
 
 #include "tracker-albumart.h"
 #include "tracker-dbus.h"

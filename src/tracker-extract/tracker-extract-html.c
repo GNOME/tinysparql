@@ -29,6 +29,7 @@
 #include <libtracker-common/tracker-ontology.h>
 
 #include <libtracker-extract/tracker-extract.h>
+#include <libtracker-extract/tracker-utils.h>
 
 #define RDF_TYPE TRACKER_RDF_PREFIX "type"
 

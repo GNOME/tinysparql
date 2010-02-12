@@ -44,6 +44,8 @@
 
 #include <libtracker-common/tracker-ontology.h>
 
+#include <libtracker-extract/tracker-utils.h>
+
 #define NIE_PREFIX TRACKER_NIE_PREFIX
 
 #include "tracker-main.h"

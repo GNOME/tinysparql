@@ -46,14 +46,6 @@ gchar*   tracker_uri_vprintf_escaped        (const gchar *format,
                                              va_list      args);
 gchar*   tracker_uri_printf_escaped         (const gchar *format,
                                              ...);
-gchar *  tracker_coalesce                   (gint n_values,
-                                             ...);
-gchar *  tracker_merge                      (const gchar *delim, gint n_values,
-                                             ...);
-
-gchar *  tracker_text_normalize             (const gchar *text,
-                                             guint        max_words,
-                                             guint       *n_words);
 
 G_END_DECLS
 

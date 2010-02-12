@@ -28,6 +28,8 @@
 #include <libtracker-common/tracker-utils.h>
 #include <libtracker-common/tracker-ontology.h>
 
+#include <libtracker-extract/tracker-utils.h>
+
 #include "tracker-xmp.h"
 
 #ifdef HAVE_EXEMPI
@@ -435,7 +437,7 @@ iterate (XmpPtr          xmp,
 #endif /* HAVE_EXEMPI */
 
 /**
- * tracker_xmp_read:
+ * tracker_extract_xmp_read:
  * @buffer: a chunk of data with xmp data in it.
  * @len: the size of @buffer.
  * @uri: the URI this is related to.
@@ -451,10 +453,10 @@ iterate (XmpPtr          xmp,
  * Since: 0.8
  **/
 gboolean
-tracker_xmp_read (const gchar    *buffer,
-                  size_t          len,
-                  const gchar    *uri,
-                  TrackerXmpData *data)
+tracker_extract_xmp_read (const gchar    *buffer,
+                          size_t          len,
+                          const gchar    *uri,
+                          TrackerXmpData *data)
 {
 #ifdef HAVE_EXEMPI
 	XmpPtr xmp;
@@ -525,7 +527,7 @@ insert_keywords (TrackerSparqlBuilder *metadata,
 }
 
 /**
- * tracker_xmp_apply:
+ * tracker_extract_xmp_apply:
  * @metadata: the metadata object to apply XMP data to.
  * @uri: the URI this is related to.
  * @data: the data to push into @metadata.
@@ -538,9 +540,9 @@ insert_keywords (TrackerSparqlBuilder *metadata,
  * Since: 0.8
  **/
 gboolean
-tracker_xmp_apply (TrackerSparqlBuilder *metadata,
-                   const gchar          *uri,
-                   TrackerXmpData       *data)
+tracker_extract_xmp_apply (TrackerSparqlBuilder *metadata,
+                           const gchar          *uri,
+                           TrackerXmpData       *data)
 {
 	g_return_val_if_fail (TRACKER_IS_SPARQL_BUILDER (metadata), FALSE);
 	g_return_val_if_fail (uri != NULL, FALSE);

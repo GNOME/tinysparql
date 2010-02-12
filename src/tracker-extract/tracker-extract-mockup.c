@@ -20,6 +20,7 @@
 #include "config.h"
 
 #include <libtracker-extract/tracker-extract.h>
+#include <libtracker-extract/tracker-utils.h>
 
 static void extract_mockup (const gchar          *uri,
                             TrackerSparqlBuilder *metadata);

@@ -183,7 +183,7 @@ foreach_dataset (IptcDataSet *dataset,
 #endif /* HAVE_LIBIPTCDATA */
 
 /**
- * tracker_iptc_read:
+ * tracker_extract_iptc_read:
  * @buffer: a chunk of data with iptc data in it.
  * @len: the size of @buffer.
  * @uri: the URI this is related to.
@@ -199,10 +199,10 @@ foreach_dataset (IptcDataSet *dataset,
  * Since: 0.8
  **/
 gboolean
-tracker_iptc_read (const unsigned char *buffer,
-                   size_t               len,
-                   const gchar         *uri,
-                   TrackerIptcData     *data)
+tracker_extract_iptc_read (const unsigned char *buffer,
+                           size_t               len,
+                           const gchar         *uri,
+                           TrackerIptcData     *data)
 {
 #ifdef HAVE_LIBIPTCDATA
 	IptcData *iptc;

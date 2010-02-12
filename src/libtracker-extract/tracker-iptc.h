@@ -43,10 +43,10 @@ typedef struct {
 	gchar *contact;
 } TrackerIptcData;
 
-gboolean tracker_iptc_read (const unsigned char *buffer,
-                            size_t               len,
-                            const gchar         *uri,
-                            TrackerIptcData     *data);
+gboolean tracker_extract_iptc_read (const unsigned char *buffer,
+                                    size_t               len,
+                                    const gchar         *uri,
+                                    TrackerIptcData     *data);
 
 G_END_DECLS
 

@@ -50,10 +50,10 @@ typedef struct {
 	gchar *software;
 } TrackerExifData;
 
-gboolean tracker_exif_read (const unsigned char *buffer,
-                            size_t               len,
-                            const gchar         *uri,
-                            TrackerExifData     *data);
+gboolean tracker_extract_exif_read (const unsigned char *buffer,
+                                    size_t               len,
+                                    const gchar         *uri,
+                                    TrackerExifData     *data);
 
 G_END_DECLS
 

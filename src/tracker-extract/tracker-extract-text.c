@@ -25,6 +25,7 @@
 #include <gio/gio.h>
 
 #include <libtracker-extract/tracker-extract.h>
+#include <libtracker-extract/tracker-utils.h>
 
 #undef  TRY_LOCALE_TO_UTF8_CONVERSION
 

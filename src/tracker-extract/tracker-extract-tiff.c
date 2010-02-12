@@ -41,6 +41,7 @@
 #include <libtracker-extract/tracker-xmp.h>
 #include <libtracker-extract/tracker-iptc.h>
 #include <libtracker-extract/tracker-exif.h>
+#include <libtracker-extract/tracker-utils.h>
 
 #define EXIF_DATE_FORMAT        "%Y:%m:%d %H:%M:%S"
 
@@ -307,10 +308,10 @@ extract_tiff (const gchar          *uri,
 	if (TIFFGetField (image, TIFFTAG_RICHTIFFIPTC, &iptcSize, &iptcOffset)) {
 		if (TIFFIsByteSwapped(image) != 0)
 			TIFFSwabArrayOfLong((uint32 *) iptcOffset, (unsigned long) iptcSize);
-		tracker_iptc_read (iptcOffset,
-		                   4 * iptcSize,
-		                   uri, 
-		                   &iptc_data);
+		tracker_extract_iptc_read (iptcOffset,
+		                           4 * iptcSize,
+		                           uri, 
+		                           &iptc_data);
 	}
 #endif /* HAVE_LIBIPTCDATA */
 
@@ -318,10 +319,10 @@ extract_tiff (const gchar          *uri,
 	   due to bugs in the original spec (type) */
 #ifdef HAVE_EXEMPI
 	if (TIFFGetField (image, TIFFTAG_XMLPACKET, &size, &xmpOffset)) {
-		tracker_xmp_read (xmpOffset,
-		                  size,
-		                  uri,
-		                  &xmp_data);
+		tracker_extract_xmp_read (xmpOffset,
+		                          size,
+		                          uri,
+		                          &xmp_data);
 	}
 #endif /* HAVE_EXEMPI */
 

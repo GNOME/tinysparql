@@ -41,6 +41,7 @@ long long int llroundl(long double x);
 #include <libtracker-common/tracker-utils.h>
 
 #include <libtracker-extract/tracker-extract.h>
+#include <libtracker-extract/tracker-utils.h>
 
 #include "tracker-albumart.h"
 #include "tracker-dbus.h"

@@ -37,6 +37,7 @@
 #include <libtracker-common/tracker-ontology.h>
 
 #include <libtracker-extract/tracker-extract.h>
+#include <libtracker-extract/tracker-utils.h>
 
 #include "tracker-main.h"
 
@@ -539,9 +540,9 @@ append_text (gchar   *text,
 	g_return_val_if_fail(text,-1);
 	g_return_val_if_fail(all_texts,-1);
 
-	normalized_text = tracker_text_normalize(text,
-	                                         max_words - words,
-	                                         &count);
+	normalized_text = tracker_extract_text_normalize (text,
+	                                                  max_words - words,
+	                                                  &count);
 
 	if (normalized_text) {
 		/*
@@ -861,7 +862,7 @@ extract_msword_content (GsfInfile *infile,
 	g_free (clx);
 
 	if (content) {
-		normalized = tracker_text_normalize (content->str, n_words, NULL);
+		normalized = tracker_extract_text_normalize (content->str, n_words, NULL);
 		g_string_free (content, TRUE);
 	}
 

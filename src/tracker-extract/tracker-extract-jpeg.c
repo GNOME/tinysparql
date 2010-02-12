@@ -50,6 +50,7 @@
 #include <libtracker-extract/tracker-xmp.h>
 #include <libtracker-extract/tracker-iptc.h>
 #include <libtracker-extract/tracker-exif.h>
+#include <libtracker-extract/tracker-utils.h>
 
 #include "tracker-main.h"
 
@@ -233,19 +234,19 @@ extract_jpeg (const gchar          *uri,
 
 #ifdef HAVE_LIBEXIF
 				if (strncmp (EXIF_NAMESPACE, str, EXIF_NAMESPACE_LENGTH) == 0) {
-					tracker_exif_read ((unsigned char*) marker->data,
-					                   len,
-					                   uri,
-					                   &ed);
+					tracker_extract_exif_read ((unsigned char*) marker->data,
+					                           len,
+					                           uri,
+					                           &ed);
 				}
 #endif /* HAVE_LIBEXIF */
 
 #ifdef HAVE_EXEMPI
 				if (strncmp (XMP_NAMESPACE, str, XMP_NAMESPACE_LENGTH) == 0) {
-					tracker_xmp_read (str + XMP_NAMESPACE_LENGTH,
-					                  len - XMP_NAMESPACE_LENGTH,
-					                  uri,
-					                  &xd);
+					tracker_extract_xmp_read (str + XMP_NAMESPACE_LENGTH,
+					                          len - XMP_NAMESPACE_LENGTH,
+					                          uri,
+					                          &xd);
 				}
 #endif /* HAVE_EXEMPI */
 
@@ -258,10 +259,10 @@ extract_jpeg (const gchar          *uri,
 				if (strncmp (PS3_NAMESPACE, str, PS3_NAMESPACE_LENGTH) == 0) {
 					offset = iptc_jpeg_ps3_find_iptc (str, len, &sublen);
 					if (offset > 0) {
-						tracker_iptc_read (str + offset,
-						                   sublen,
-						                   uri,
-						                   &id);
+						tracker_extract_iptc_read (str + offset,
+						                           sublen,
+						                           uri,
+						                           &id);
 					}
 				}
 #endif /* HAVE_LIBIPTCDATA */

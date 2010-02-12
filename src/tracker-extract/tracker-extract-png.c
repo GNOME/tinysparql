@@ -44,6 +44,7 @@
 #include <libtracker-extract/tracker-extract.h>
 #include <libtracker-extract/tracker-xmp.h>
 #include <libtracker-extract/tracker-exif.h>
+#include <libtracker-extract/tracker-utils.h>
 
 #define RFC1123_DATE_FORMAT "%d %B %Y %H:%M:%S %z"
 
@@ -154,14 +155,14 @@ read_metadata (png_structp png_ptr, png_infop info_ptr, const gchar *uri, Tracke
 
 			if (g_strcmp0 ("XML:com.adobe.xmp", text_ptr[i].key) == 0) {
 
-				/* ATM tracker_read_xmp supports setting xmp_data
+				/* ATM tracker_extract_xmp_read supports setting xmp_data
 				 * multiple times, keep it that way as here it's
 				 * theoretically possible that the function gets
 				 * called multiple times */
 
-				tracker_xmp_read (text_ptr[i].text,
-				                  text_ptr[i].itxt_length,
-				                  uri, &xmp_data);
+				tracker_extract_xmp_read (text_ptr[i].text,
+				                          text_ptr[i].itxt_length,
+				                          uri, &xmp_data);
 
 				continue;
 			}
@@ -174,9 +175,9 @@ read_metadata (png_structp png_ptr, png_infop info_ptr, const gchar *uri, Tracke
 			 * http://www.sno.phy.queensu.ca/~phil/exiftool/TagNames/PNG.html#TextualData */
 
 			if (g_strcmp0 ("Raw profile type exif", text_ptr[i].key) == 0) {
-				tracker_exif_read (text_ptr[i].text,
-				                   text_ptr[i].itxt_length, 
-				                   uri, &exif_data);
+				tracker_extract_exif_read (text_ptr[i].text,
+				                           text_ptr[i].itxt_length, 
+				                           uri, &exif_data);
 				continue;
 			}
 #endif /* HAVE_LIBEXIF */

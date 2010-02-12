@@ -316,7 +316,7 @@ get_value (ExifData *exif,
 #endif /* HAVE_LIBEXIF */
 
 /**
- * tracker_exif_read:
+ * tracker_extract_exif_read:
  * @buffer: a chunk of data with exif data in it.
  * @len: the size of @buffer.
  * @uri: the URI this is related to.
@@ -332,10 +332,10 @@ get_value (ExifData *exif,
  * Since: 0.8
  **/
 gboolean
-tracker_exif_read (const unsigned char *buffer,
-                   size_t               len,
-                   const gchar         *uri,
-                   TrackerExifData     *data)
+tracker_extract_exif_read (const unsigned char *buffer,
+                           size_t               len,
+                           const gchar         *uri,
+                           TrackerExifData     *data)
 {
 #ifdef HAVE_LIBEXIF
 	ExifData *exif;
