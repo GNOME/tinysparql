@@ -183,6 +183,8 @@ main (int argc, char **argv)
 
 			g_ptr_array_foreach (results, (GFunc) g_strfreev, NULL);
 			g_ptr_array_free (results, TRUE);
+
+			g_print ("  '%s'\n", urn);
 		}
 
 		query = g_strdup_printf ("SELECT ?predicate ?object WHERE { <%s> ?predicate ?object }", urn);
