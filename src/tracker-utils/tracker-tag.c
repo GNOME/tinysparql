@@ -85,7 +85,7 @@ static GOptionEntry entries[] = {
 	},
 	{ G_OPTION_REMAINING, 0,
 	  G_OPTION_FLAG_FILENAME,
-	  G_OPTION_ARG_STRING_ARRAY, &files,
+	  G_OPTION_ARG_FILENAME_ARRAY, &files,
 	  N_("FILE…"),
 	  N_("FILE [FILE…]")},
 	{ NULL }
@@ -586,7 +586,7 @@ get_tags_by_file_foreach (gpointer value,
 
 static gboolean
 get_tags_by_file (TrackerClient *client,
-                  const gchar   *file)
+                  const gchar   *uri)
 {
 	GError *error = NULL;
 	GPtrArray *results;
@@ -594,13 +594,13 @@ get_tags_by_file (TrackerClient *client,
 
 	query = g_strdup_printf ("SELECT ?tags ?labels "
 	                         "WHERE {"
-	                         "  <%s>"
-	                         "  nao:hasTag ?tags ."
+	                         "  ?urn nao:hasTag ?tags ;"
+	                         "  nie:url <%s> ."
 	                         "  ?tags a nao:Tag ;"
 	                         "  nao:prefLabel ?labels "
 	                         "} "
 	                         "ORDER BY ASC(?labels)",
-	                         file);
+	                         uri);
 
 	results = tracker_resources_sparql_query (client, query, &error);
 	g_free (query);
@@ -723,9 +723,18 @@ main (int argc, char **argv)
 		gchar **p;
 
 		for (p = files; *p; p++) {
-			g_print ("<%s>\n", *p);
-			success &= get_tags_by_file (client, *p);
+			GFile *file;
+			gchar *uri;
+			
+			file = g_file_new_for_commandline_arg (*p);
+			uri = g_file_get_uri (file);
+			g_object_unref (file);
+
+			g_print ("%s\n", uri);
+			success &= get_tags_by_file (client, uri);
 			g_print ("\n");
+
+			g_free (uri);
 		}
 
 		g_object_unref (client);
