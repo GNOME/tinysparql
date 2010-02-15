@@ -158,25 +158,16 @@ class TrackerMetadataTile : EventBox
         /* main gradient */
         var pat = new Pattern.linear (0.0, 0.0, 0.0, h)
         
-        pat.add_color_stop_rgba (0.0, step2.red/65535.0,
-	                                  step2.green/65535.0,
-	                                  step2.blue/65535.0,
-	                                  0.05)
+        pat.add_color_stop_rgba (0.0, step2.red/65535.0, step2.green/65535.0, step2.blue/65535.0, 0.05)
 	                                   
-        pat.add_color_stop_rgba (1.0, step2.red/65535.0,
-	                                  step2.green/65535.0,
-	                                  step2.blue/65535.0,
-	                                  0.5)
+        pat.add_color_stop_rgba (1.0, step2.red/65535.0, step2.green/65535.0, step2.blue/65535.0, 0.5)
 
         cr.rectangle (0, 0, w, h)
         cr.set_source (pat)
         cr.fill ()
 	
         /* border line */
-        cr.set_source_rgba (step2.red/65535.0,
-	                        step2.green/65535.0,
-	                        step2.blue/65535.0,
-	                        0.7)
+        cr.set_source_rgba (step2.red/65535.0, step2.green/65535.0, step2.blue/65535.0, 0.7)
         cr.move_to (0, 0)
         cr.line_to (w, 0)
         cr.stroke ()
