@@ -8,7 +8,7 @@
     <property name="default_width">800</property>
     <property name="default_height">600</property>
     <child>
-      <object class="GtkVBox" id="vbox1">
+      <object class="GtkVBox" id="VBox">
         <property name="visible">True</property>
         <property name="border_width">6</property>
         <property name="orientation">vertical</property>
@@ -47,59 +47,54 @@
           </packing>
         </child>
         <child>
-          <object class="GtkHPaned" id="hpaned1">
+          <object class="GtkVBox" id="MainBox">
             <property name="visible">True</property>
-            <property name="can_focus">True</property>
-            <property name="position">130</property>
-            <property name="position_set">True</property>
+            <property name="orientation">vertical</property>
             <child>
-              <object class="GtkHBox" id="CategoryBox">
-                <property name="visible">True</property>
-                <child>
-                  <placeholder/>
-                </child>
-              </object>
-              <packing>
-                <property name="resize">False</property>
-                <property name="shrink">True</property>
-              </packing>
+              <placeholder/>
             </child>
             <child>
-              <object class="GtkVBox" id="GridBox">
+              <placeholder/>
+            </child>
+            <child>
+              <object class="GtkHPaned" id="hpaned1">
                 <property name="visible">True</property>
-                <property name="orientation">vertical</property>
+                <property name="can_focus">True</property>
+                <property name="position">130</property>
+                <property name="position_set">True</property>
                 <child>
-                  <placeholder/>
+                  <object class="GtkHBox" id="CategoryBox">
+                    <property name="visible">True</property>
+                    <child>
+                      <placeholder/>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="resize">False</property>
+                    <property name="shrink">True</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkVBox" id="GridBox">
+                    <property name="visible">True</property>
+                    <property name="orientation">vertical</property>
+                    <child>
+                      <placeholder/>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="resize">True</property>
+                    <property name="shrink">True</property>
+                  </packing>
                 </child>
               </object>
               <packing>
-                <property name="resize">True</property>
-                <property name="shrink">True</property>
+                <property name="position">1</property>
               </packing>
             </child>
           </object>
           <packing>
             <property name="position">1</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkExpander" id="DetailBox">
-            <property name="visible">True</property>
-            <property name="can_focus">True</property>
-            <property name="expanded">True</property>
-            <child>
-              <placeholder/>
-            </child>
-            <child type="label">
-              <object class="GtkLabel" id="label2">
-                <property name="visible">True</property>
-                <property name="label" translatable="yes">Details</property>
-              </object>
-            </child>
-          </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="position">2</property>
           </packing>
         </child>
       </object>

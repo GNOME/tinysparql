@@ -22,10 +22,11 @@
 
 uses
     Gtk
+    Cairo
     TrackerUtils
 
 
-class TrackerMetadataTile : HBox
+class TrackerMetadataTile : EventBox
     uri : string
     category : Categories
     image : Image
@@ -75,7 +76,12 @@ class TrackerMetadataTile : HBox
 
 
     init
-        border_width = 8
+
+        set_app_paintable (true)
+        
+        expose_event += expose
+   
+        border_width = 1
 
         table = new Table (3, 7, false)
         table.set_col_spacings (6)
@@ -84,6 +90,7 @@ class TrackerMetadataTile : HBox
         add (table)
 
         image = new Image.from_icon_name ("text-x-generic", IconSize.DIALOG)
+        image.set_pixel_size (62)
         table.attach (image, 0, 1, 0, 3, AttachOptions.FILL, AttachOptions.FILL, 12, 0)
 
         name_link = new LinkButton ("")
@@ -126,8 +133,61 @@ class TrackerMetadataTile : HBox
         info_value6 = CreateLabel ("-", true)
         AttachToTable (info_value6, 6, 7, 2, 3, true)
 
-        show_all ()
+        //show_all ()
 
+    def private expose (e : Gdk.EventExpose) : bool
+    
+        var cr = Gdk.cairo_create (self.window)
+
+        var style = self.get_style ()
+        var step1 = style.base [StateType.NORMAL]
+        var step2 = style.bg [StateType.SELECTED]
+        
+        w,h : double
+        w = self.allocation.width
+        h = self.allocation.height
+
+	    /* clear window to base[NORMAL] */
+        cr.set_operator (Operator.SOURCE)
+        Gdk.cairo_set_source_color (cr, step1)
+        cr.paint ()
+        cr.move_to (0, 0)
+        cr.set_line_width (1.0)
+        cr.set_operator (Operator.OVER)
+
+        /* main gradient */
+        var pat = new Pattern.linear (0.0, 0.0, 0.0, h)
+        
+        pat.add_color_stop_rgba (0.0, step2.red/65535.0,
+	                                  step2.green/65535.0,
+	                                  step2.blue/65535.0,
+	                                  0.05)
+	                                   
+        pat.add_color_stop_rgba (1.0, step2.red/65535.0,
+	                                  step2.green/65535.0,
+	                                  step2.blue/65535.0,
+	                                  0.5)
+
+        cr.rectangle (0, 0, w, h)
+        cr.set_source (pat)
+        cr.fill ()
+	
+        /* border line */
+        cr.set_source_rgba (step2.red/65535.0,
+	                        step2.green/65535.0,
+	                        step2.blue/65535.0,
+	                        0.7)
+        cr.move_to (0, 0)
+        cr.line_to (w, 0)
+        cr.stroke ()
+
+        /* highlight line */
+        cr.set_source_rgba (1.0, 1.0, 1.0, 0.5)
+        cr.move_to (0, 1)
+        cr.line_to (w, 1)
+        cr.stroke ()
+
+        return super.expose_event (e) 
 
 
     def private AttachToTable (lab : Label, l : int, r : int, t : int, b : int, e : bool)

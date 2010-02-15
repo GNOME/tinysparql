@@ -116,6 +116,8 @@ init
 
     window = builder.get_object ("window") as Window
     window.destroy += Gtk.main_quit
+    
+    window.set_app_paintable (true)
 
     /* create tracker widgets */
 
@@ -129,7 +131,7 @@ init
         entry_box = builder.get_object ("EntryBox") as Container
         grid_box = builder.get_object ("GridBox") as Container
         category_box = builder.get_object ("CategoryBox") as Container
-        detail_box = builder.get_object ("DetailBox") as Container
+        main_box = builder.get_object ("MainBox") as VBox
 
 
     query.Connect ()
@@ -144,7 +146,12 @@ init
 
     tile.ResultGrid = grid
     tile.Query = query
-    detail_box.add (tile)
+    main_box.pack_end (tile, false, false, 0)
+   
+    var s = new Statusbar ()
+    s.has_resize_grip = true
+    window.add (s)
+    
 
     window.show_all ()
 
