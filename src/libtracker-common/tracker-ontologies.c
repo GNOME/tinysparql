@@ -35,6 +35,12 @@ static GPtrArray  *namespaces;
 /* Namespace uris */
 static GHashTable *namespace_uris;
 
+/* List of TrackerOntology objects */
+static GPtrArray  *ontologies;
+
+/* Ontology uris */
+static GHashTable *ontology_uris;
+
 /* List of TrackerClass objects */
 static GPtrArray  *classes;
 
@@ -62,10 +68,17 @@ tracker_ontologies_init (void)
 
 	namespaces = g_ptr_array_new ();
 
+	ontologies = g_ptr_array_new ();
+
 	namespace_uris = g_hash_table_new_full (g_str_hash,
 	                                        g_str_equal,
 	                                        g_free,
 	                                        g_object_unref);
+
+	ontology_uris = g_hash_table_new_full (g_str_hash,
+	                                       g_str_equal,
+	                                       g_free,
+	                                       g_object_unref);
 
 	classes = g_ptr_array_new ();
 
@@ -106,6 +119,12 @@ tracker_ontologies_shutdown (void)
 
 	g_hash_table_unref (namespace_uris);
 	namespace_uris = NULL;
+
+	g_ptr_array_foreach (ontologies, (GFunc) g_object_unref, NULL);
+	g_ptr_array_free (ontologies, TRUE);
+
+	g_hash_table_unref (ontology_uris);
+	ontology_uris = NULL;
 
 	g_ptr_array_foreach (classes, (GFunc) g_object_unref, NULL);
 	g_ptr_array_free (classes, TRUE);
@@ -174,6 +193,18 @@ tracker_ontologies_get_namespaces (guint *length)
 
 	*length = namespaces->len;
 	return (TrackerNamespace **) namespaces->pdata;
+}
+
+TrackerOntology **
+tracker_ontologies_get_ontologies (guint *length)
+{
+	if (G_UNLIKELY (!ontologies)) {
+		*length = 0;
+		return NULL;
+	}
+
+	*length = ontologies->len;
+	return (TrackerOntology **) ontologies->pdata;
 }
 
 TrackerClass **
@@ -249,6 +280,22 @@ tracker_ontologies_add_namespace (TrackerNamespace *namespace)
 	                     g_object_ref (namespace));
 }
 
+void
+tracker_ontologies_add_ontology (TrackerOntology *ontology)
+{
+	const gchar *uri;
+
+	g_return_if_fail (TRACKER_IS_ONTOLOGY (ontology));
+
+	uri = tracker_ontology_get_uri (ontology);
+
+	g_ptr_array_add (ontologies, g_object_ref (ontology));
+
+	g_hash_table_insert (ontology_uris,
+	                     g_strdup (uri),
+	                     g_object_ref (ontology));
+}
+
 TrackerNamespace *
 tracker_ontologies_get_namespace_by_uri (const gchar *uri)
 {
@@ -258,4 +305,11 @@ tracker_ontologies_get_namespace_by_uri (const gchar *uri)
 }
 
 
+TrackerOntology *
+tracker_ontologies_get_ontology_by_uri (const gchar *uri)
+{
+	g_return_val_if_fail (uri != NULL, NULL);
+
+	return g_hash_table_lookup (ontology_uris, uri);
+}
 

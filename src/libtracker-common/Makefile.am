@@ -68,6 +68,7 @@ libtracker_common_la_SOURCES =	 			\
 	tracker-language.c				\
 	tracker-log.c	 				\
 	tracker-namespace.c				\
+	tracker-ontology.c				\
 	tracker-ontologies.c				\
 	tracker-property.c				\
 	tracker-type-utils.c				\
@@ -93,6 +94,7 @@ libtracker_commoninclude_HEADERS =			\
 	tracker-keyfile-object.h			\
 	tracker-language.h				\
 	tracker-namespace.h				\
+	tracker-ontology.h				\
 	tracker-ontologies.h				\
 	tracker-property.h				\
 	tracker-turtle-writer.h				\

@@ -136,10 +136,18 @@ load_ontology_statement (const gchar *ontology_file,
 			tracker_ontologies_add_namespace (namespace);
 			g_object_unref (namespace);
 		} else if (g_strcmp0 (object, TRACKER_PREFIX "Ontology") == 0) {
-			g_print ("ONTOLOGY: %s\n", subject);
+			TrackerOntology *ontology;
+
+			if (tracker_ontologies_get_ontology_by_uri (subject) != NULL) {
+				g_critical ("%s: Duplicate definition of ontology %s", ontology_file, subject);
+				return;
+			}
+
+			ontology = tracker_ontology_new ();
+			tracker_ontology_set_uri (ontology, subject);
+			tracker_ontologies_add_ontology (ontology);
+			g_object_unref (ontology);
 		}
-	} else if (g_strcmp0 (predicate, NAO_LAST_MODIFIED) == 0) {
-		g_print ("\tNAO LAST MODIFIED: %s\n", object);
 	} else if (g_strcmp0 (predicate, RDFS_SUB_CLASS_OF) == 0) {
 		TrackerClass *class, *super_class;
 
@@ -276,7 +284,18 @@ load_ontology_statement (const gchar *ontology_file,
 		}
 
 		tracker_namespace_set_prefix (namespace, object);
+	} else if (g_strcmp0 (predicate, NAO_LAST_MODIFIED) == 0) {
+		TrackerOntology *ontology;
+
+		ontology = tracker_ontologies_get_ontology_by_uri (subject);
+		if (ontology == NULL) {
+			g_critical ("%s: Unknown ontology %s", ontology_file, subject);
+			return;
+		}
+
+		tracker_ontology_set_last_modified (ontology, object);
 	}
+
 }
 
 static void
