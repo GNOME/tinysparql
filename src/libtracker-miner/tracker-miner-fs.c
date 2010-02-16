@@ -62,6 +62,7 @@ typedef struct {
 
 typedef struct {
 	GMainLoop *main_loop;
+	const gchar *uri;
 	gchar *iri;
 	gchar *mime;
 	gboolean get_mime;
@@ -931,21 +932,28 @@ sparql_query_cb (GObject      *object,
 	miner = TRACKER_MINER (object);
 	query_results = tracker_miner_execute_sparql_finish (miner, result, &error);
 
+	g_main_loop_quit (data->main_loop);
+
 	if (error) {
 		g_critical ("Could not execute sparql query: %s", error->message);
 		g_error_free (error);
+		return;
 	}
 
-	if (query_results && query_results->len == 1) {
+	if (!query_results ||
+	    query_results->len == 0)
+		return;
+
+	if (query_results->len == 1) {
 		gchar **val;
 
 		val = g_ptr_array_index (query_results, 0);
 		data->iri = g_strdup (val[0]);
 		if (data->get_mime)
 			data->mime = g_strdup (val[1]);
+	} else {
+		g_critical ("More than one URNs (%d) have been found for uri \"%s\"", query_results->len, data->uri);
 	}
-
-	g_main_loop_quit (data->main_loop);
 }
 
 static void
@@ -1075,6 +1083,7 @@ item_query_exists (TrackerMinerFS  *miner,
 	}
 
 	data.main_loop = g_main_loop_new (NULL, FALSE);
+	data.uri = uri;
 
 	tracker_miner_execute_sparql (TRACKER_MINER (miner),
 	                              sparql,
@@ -1901,6 +1910,7 @@ should_change_index_for_file (TrackerMinerFS *fs,
 
 	data.get_mime = FALSE;
 	data.main_loop = g_main_loop_new (NULL, FALSE);
+	data.uri = uri;
 
 	tracker_miner_execute_sparql (TRACKER_MINER (fs),
 	                              query,
