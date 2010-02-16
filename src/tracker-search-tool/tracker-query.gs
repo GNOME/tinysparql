@@ -81,7 +81,7 @@ class TrackerQuery : Object
         else
             cat = Category
 
-        query = "SELECT ?s nie:url(?s) WHERE { ?s fts:match \"%s\". ?s a %s } limit 100 ".printf (SearchTerms, cat)
+        query = "SELECT ?s nie:url(?s) nie:mimeType(?s) WHERE { ?s fts:match \"%s\". ?s a %s } limit 100 ".printf (SearchTerms, cat)
 
         // to do : add Fields, Category and SortField
         try

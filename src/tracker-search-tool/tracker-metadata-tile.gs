@@ -223,12 +223,11 @@ class TrackerMetadataTile : EventBox
             return
 
         iter : TreeIter
-        uri : weak string
-        display_name : weak string
+        id, uri, mime, display_name : weak string
         icon : Gdk.Pixbuf
 
         _result_grid.store.get_iter (out iter, path)
-        _result_grid.store.get (iter, ResultColumns.Uri, out uri, ResultColumns.Icon, out icon, ResultColumns.DisplayName, out display_name)
+        _result_grid.store.get (iter, ResultColumns.Id, out id, ResultColumns.Uri, out uri, ResultColumns.Mime, out mime, ResultColumns.Icon, out icon, ResultColumns.DisplayName, out display_name)
 
         image.set_from_pixbuf (icon)
 
@@ -236,6 +235,9 @@ class TrackerMetadataTile : EventBox
         var filepath = file.get_basename ()
         name_link.uri = uri
         name_link.label = filepath
+        var val1 = "<b>%s</b>".printf (mime)
+        info_value1.set_markup (val1)
+        info_value1.xalign = 0
 
         // get metadata
         // var query = "SELECT ?mimetype ?size ?mtime WHERE {<%s> nie:byteSize ?size; nie:contentLastModified ?mtime; nie:mimeType ?mimeType.}".printf(uri)
@@ -243,17 +245,14 @@ class TrackerMetadataTile : EventBox
         if Query is not null
             var result = Query.Query (query)
 
-            if result is not null and  result [0,0] is not null
-                var val1 = "<b>%s</b>".printf (result [0,0])
-
-                info_value1.set_markup (val1)
-                info_value1.xalign = 0
+            if result is not null 
+                mime = result[0]
 
             try
                 var info =  file.query_info ("standard::size,time::modified", \
                                               FileQueryInfoFlags.NONE, null)
 
-                var val2 = "<b>%s</b>".printf (info.get_size ().to_string ())
+                var val2 = "<b>%s</b>".printf (FormatFileSize (info.get_size ()))
 
                 info_value2.set_markup (val2)
 

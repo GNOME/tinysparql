@@ -153,3 +153,26 @@ class TrackerUtils
             return icon_info.load_icon ()
         except e: Error
             return null
+            
+            
+    /* formatting methods */
+    def static FormatFileSize (size : int64) : string
+        displayed_size : double
+        
+        if size < 1024
+            return "%u bytes".printf ((uint)size)
+
+        if size < 1048576
+            displayed_size = (double) size / 1024
+            return "%.1f KB".printf (displayed_size)
+            
+        if size < 1073741824
+            displayed_size = (double) size / 1048576
+            return "%.1f MB".printf (displayed_size)
+            
+        displayed_size = (double) size / 1073741824
+        return "%.1f GB".printf (displayed_size)
+
+
+
+    

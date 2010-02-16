@@ -26,6 +26,7 @@ uses
 
 
 enum ResultColumns
+    Id
     Uri
     Icon
     DisplayName
@@ -84,8 +85,8 @@ class TrackerResultGrid : ScrolledWindow
         vscrollbar_policy = PolicyType.AUTOMATIC
         shadow_type = ShadowType.ETCHED_OUT
 
-        store = new ListStore (ResultColumns.NumOfCols, typeof (string), typeof (Gdk.Pixbuf), typeof (string), \
-                               typeof (int), typeof (string), typeof (string), typeof (bool), typeof (string))
+        store = new ListStore (ResultColumns.NumOfCols, typeof (string), typeof (string), typeof (Gdk.Pixbuf), typeof (string), \
+                               typeof (string), typeof (string), typeof (string), typeof (bool), typeof (string))
 
         // to do add treeview
 
@@ -123,8 +124,16 @@ class TrackerResultGrid : ScrolledWindow
             store.clear ()
 
             if results is null do return
-
-            for uri in results
+            
+            var i = 0
+            while results[i] is not null
+                var uri = results[i+1]
+                var id = results[i]
+                var mime = results[i+2]                     
+                i += 3
+            
+                
+            
                 if uri.has_prefix ("file://")
 
                     has_results = true
@@ -137,9 +146,10 @@ class TrackerResultGrid : ScrolledWindow
 
                         var filetype =  info.get_file_type ()
                         store.append (out iter);
-                        store.set (iter, ResultColumns.Uri, uri, ResultColumns.Icon, GetThumbNail (info, 64, 48, get_screen()), \
+                        store.set (iter, ResultColumns.Id, id, ResultColumns.Uri, uri, ResultColumns.Mime, mime, ResultColumns.Icon, GetThumbNail (info, 64, 48, get_screen()), \
                                   ResultColumns.DisplayName, info.get_display_name(), ResultColumns.IsDirectory, \
-                                  (filetype is FileType.DIRECTORY) , -1);
+                                  (filetype is FileType.DIRECTORY) , -1)
+                                  
                     except e:Error
                         print "Could not get file info for %s", uri
 
