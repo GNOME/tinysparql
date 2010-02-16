@@ -7,6 +7,9 @@
 @prefix tracker: <http://www.tracker-project.org/ontologies/tracker#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
+tracker: a tracker:Ontology ;
+	nao:lastModified "2010-02-16T11:00:00Z" .
+
 tracker:isDefaultTag a rdf:Property ;
 	rdfs:domain nao:Tag ;
 	rdfs:range xsd:boolean .

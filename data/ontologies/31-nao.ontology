@@ -1,3 +1,4 @@
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
 @prefix nao: <http://www.semanticdesktop.org/ontologies/2007/08/15/nao#> .
 @prefix nie: <http://www.semanticdesktop.org/ontologies/2007/01/19/nie#> .
 @prefix nrl: <http://www.semanticdesktop.org/ontologies/2007/08/15/nrl#> .
@@ -6,8 +7,9 @@
 @prefix tracker: <http://www.tracker-project.org/ontologies/tracker#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
-nao: a tracker:Namespace ;
-	tracker:prefix "nao" .
+nao: a tracker:Namespace, tracker:Ontology ;
+	tracker:prefix "nao" ;
+	nao:lastModified "2010-02-16T11:00:00Z" .
 
 nao:Tag a rdfs:Class ;
 	rdfs:subClassOf rdfs:Resource ;
@@ -37,10 +39,10 @@ nao:numericRating a rdf:Property ;
 	rdfs:range xsd:double .
 
 nao:deprecated a rdf:Property;
-  rdfs:domain rdfs:Resource;
-  rdfs:range xsd:boolean;
-  rdfs:label "deprecated";
-  rdfs:comment "If this property is assigned, the subject class, property, or resource, is deprecated and should not be used in production systems any longer. It may be removed without further notice." .
+	rdfs:domain rdfs:Resource;
+	rdfs:range xsd:boolean;
+	rdfs:label "deprecated";
+	rdfs:comment "If this property is assigned, the subject class, property, or resource, is deprecated and should not be used in production systems any longer. It may be removed without further notice." .
 
 # These are added and approval by Nepomuk-upstream is pending
 
@@ -61,3 +63,11 @@ nao:hasProperty a rdf:Property ;
 	rdfs:range  nao:Property .
 
 nao:predefined-tag-favorite a nao:Tag .
+
+nao:lastModified a rdf:Property ;
+	rdfs:label "lastModified" ;
+	rdfs:comment "last modification date" ;
+	rdfs:subPropertyOf dc:date ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain rdfs:Resource ;
+	rdfs:range xsd:dateTime .

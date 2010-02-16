@@ -57,6 +57,9 @@
 #define NRL_INVERSE_FUNCTIONAL_PROPERTY TRACKER_NRL_PREFIX "InverseFunctionalProperty"
 #define NRL_MAX_CARDINALITY NRL_PREFIX "maxCardinality"
 
+#define NAO_PREFIX TRACKER_NAO_PREFIX
+#define NAO_LAST_MODIFIED NAO_PREFIX "lastModified"
+
 #define TRACKER_PREFIX TRACKER_TRACKER_PREFIX
 
 #define ZLIBBUFSIZ 8192
@@ -132,7 +135,11 @@ load_ontology_statement (const gchar *ontology_file,
 			tracker_namespace_set_uri (namespace, subject);
 			tracker_ontology_add_namespace (namespace);
 			g_object_unref (namespace);
+		} else if (g_strcmp0 (object, TRACKER_PREFIX "Ontology") == 0) {
+			g_print ("ONTOLOGY: %s\n", subject);
 		}
+	} else if (g_strcmp0 (predicate, NAO_LAST_MODIFIED) == 0) {
+		g_print ("\tNAO LAST MODIFIED: %s\n", object);
 	} else if (g_strcmp0 (predicate, RDFS_SUB_CLASS_OF) == 0) {
 		TrackerClass *class, *super_class;
 

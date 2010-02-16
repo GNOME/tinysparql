@@ -3,9 +3,11 @@
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix tracker: <http://www.tracker-project.org/ontologies/tracker#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix nao: <http://www.semanticdesktop.org/ontologies/2007/08/15/nao#> .
 
-rdf: a tracker:Namespace ;
-	tracker:prefix "rdf" .
+rdf: a tracker:Namespace, tracker:Ontology ;
+	tracker:prefix "rdf" ;
+	nao:lastModified "2010-02-16T11:00:00Z" .
 
 rdfs: a tracker:Namespace ;
 	tracker:prefix "rdfs" .
@@ -63,6 +65,10 @@ tracker: a tracker:Namespace ;
 
 tracker:Namespace a rdfs:Class ;
 	rdfs:label "Namespace" ;
+	rdfs:subClassOf rdfs:Resource .
+
+tracker:Ontology a rdfs:Class ;
+	rdfs:label "Ontology" ;
 	rdfs:subClassOf rdfs:Resource .
 
 tracker:prefix a rdf:Property ;

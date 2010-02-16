@@ -9,8 +9,9 @@
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix maemo: <http://maemo.org/ontologies/tracker#> .
 
-maemo: a tracker:Namespace ;
-	tracker:prefix "maemo" .
+maemo: a tracker:Namespace, tracker:Ontology ;
+	tracker:prefix "maemo" ;
+	nao:lastModified "2010-02-16T11:00:00Z" .
 
 maemo:SoftwareWidget a rdfs:Class ;
 	rdfs:label "Widget" ;
