@@ -25,7 +25,7 @@
 
 #include <glib.h>
 
-#include "tracker-ontology.h"
+#include "tracker-ontologies.h"
 
 static gboolean    initialized;
 
@@ -54,7 +54,7 @@ static gpointer    property_type_enum_class;
 static GHashTable *id_uri_pairs;
 
 void
-tracker_ontology_init (void)
+tracker_ontologies_init (void)
 {
 	if (initialized) {
 		return;
@@ -95,7 +95,7 @@ tracker_ontology_init (void)
 }
 
 void
-tracker_ontology_shutdown (void)
+tracker_ontologies_shutdown (void)
 {
 	if (!initialized) {
 		return;
@@ -129,7 +129,7 @@ tracker_ontology_shutdown (void)
 }
 
 const gchar*
-tracker_ontology_get_uri_by_id (gint id)
+tracker_ontologies_get_uri_by_id (gint id)
 {
 	g_return_val_if_fail (id != -1, NULL);
 
@@ -137,7 +137,7 @@ tracker_ontology_get_uri_by_id (gint id)
 }
 
 void
-tracker_ontology_add_class (TrackerClass *service)
+tracker_ontologies_add_class (TrackerClass *service)
 {
 
 	const gchar         *uri, *name;
@@ -157,7 +157,7 @@ tracker_ontology_add_class (TrackerClass *service)
 }
 
 TrackerClass *
-tracker_ontology_get_class_by_uri (const gchar *class_uri)
+tracker_ontologies_get_class_by_uri (const gchar *class_uri)
 {
 	g_return_val_if_fail (class_uri != NULL, NULL);
 
@@ -165,7 +165,7 @@ tracker_ontology_get_class_by_uri (const gchar *class_uri)
 }
 
 TrackerNamespace **
-tracker_ontology_get_namespaces (guint *length)
+tracker_ontologies_get_namespaces (guint *length)
 {
 	if (G_UNLIKELY (!namespaces)) {
 		*length = 0;
@@ -177,7 +177,7 @@ tracker_ontology_get_namespaces (guint *length)
 }
 
 TrackerClass **
-tracker_ontology_get_classes (guint *length)
+tracker_ontologies_get_classes (guint *length)
 {
 	if (G_UNLIKELY (!classes)) {
 		*length = 0;
@@ -189,7 +189,7 @@ tracker_ontology_get_classes (guint *length)
 }
 
 TrackerProperty **
-tracker_ontology_get_properties (guint *length)
+tracker_ontologies_get_properties (guint *length)
 {
 	if (G_UNLIKELY (!properties)) {
 		*length = 0;
@@ -202,7 +202,7 @@ tracker_ontology_get_properties (guint *length)
 
 /* Field mechanics */
 void
-tracker_ontology_add_property (TrackerProperty *field)
+tracker_ontologies_add_property (TrackerProperty *field)
 {
 	const gchar *uri;
 
@@ -218,7 +218,7 @@ tracker_ontology_add_property (TrackerProperty *field)
 }
 
 void
-tracker_ontology_add_id_uri_pair (gint id, const gchar *uri)
+tracker_ontologies_add_id_uri_pair (gint id, const gchar *uri)
 {
 	g_hash_table_insert (id_uri_pairs,
 	                     GINT_TO_POINTER (id),
@@ -226,7 +226,7 @@ tracker_ontology_add_id_uri_pair (gint id, const gchar *uri)
 }
 
 TrackerProperty *
-tracker_ontology_get_property_by_uri (const gchar *uri)
+tracker_ontologies_get_property_by_uri (const gchar *uri)
 {
 	g_return_val_if_fail (uri != NULL, NULL);
 
@@ -234,7 +234,7 @@ tracker_ontology_get_property_by_uri (const gchar *uri)
 }
 
 void
-tracker_ontology_add_namespace (TrackerNamespace *namespace)
+tracker_ontologies_add_namespace (TrackerNamespace *namespace)
 {
 	const gchar *uri;
 
@@ -250,7 +250,7 @@ tracker_ontology_add_namespace (TrackerNamespace *namespace)
 }
 
 TrackerNamespace *
-tracker_ontology_get_namespace_by_uri (const gchar *uri)
+tracker_ontologies_get_namespace_by_uri (const gchar *uri)
 {
 	g_return_val_if_fail (uri != NULL, NULL);
 

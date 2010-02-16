@@ -37,7 +37,7 @@
 
 #include <libtracker-common/tracker-ioprio.h>
 #include <libtracker-common/tracker-log.h>
-#include <libtracker-common/tracker-ontology.h>
+#include <libtracker-common/tracker-ontologies.h>
 #include <libtracker-common/tracker-file-utils.h>
 
 #include <libtracker-miner/tracker-thumbnailer.h>

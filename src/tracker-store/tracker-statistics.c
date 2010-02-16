@@ -143,7 +143,7 @@ cache_get_latest (void)
 	                                g_free,
 	                                NULL);
 
-	classes = tracker_ontology_get_classes (&n_classes);
+	classes = tracker_ontologies_get_classes (&n_classes);
 
 	iface = tracker_db_manager_get_db_interface ();
 
@@ -218,7 +218,7 @@ tracker_statistics_get (TrackerStatistics      *object,
 
 	values = g_ptr_array_new ();
 
-	classes = tracker_ontology_get_classes (&n_classes);
+	classes = tracker_ontologies_get_classes (&n_classes);
 
 	for (i = 0; i < n_classes; i++) {
 		GStrv        strv;

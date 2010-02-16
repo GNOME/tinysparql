@@ -23,7 +23,7 @@
 #include <libtracker-common/tracker-dbus.h>
 #include <libtracker-common/tracker-log.h>
 #include <libtracker-common/tracker-utils.h>
-#include <libtracker-common/tracker-ontology.h>
+#include <libtracker-common/tracker-ontologies.h>
 
 #include <libtracker-db/tracker-db-dbus.h>
 #include <libtracker-db/tracker-db-manager.h>
@@ -294,7 +294,7 @@ tracker_dbus_register_objects (void)
 		}
 
 		namespace_uri = g_strndup (rdf_class, hash - rdf_class + 1);
-		namespace = tracker_ontology_get_namespace_by_uri (namespace_uri);
+		namespace = tracker_ontologies_get_namespace_by_uri (namespace_uri);
 		g_free (namespace_uri);
 
 		if (!namespace) {

@@ -25,7 +25,7 @@
 
 #include <glib.h>
 
-#include <libtracker-common/tracker-ontology.h>
+#include <libtracker-common/tracker-ontologies.h>
 #include <libtracker-common/tracker-os-dependant.h>
 #include <libtracker-common/tracker-utils.h>
 

@@ -129,9 +129,9 @@ public class Tracker.SparqlQuery : Object {
 						do {
 							Value value;
 							result_set._get_value (0, out value);
-							var domain = Ontology.get_class_by_uri (value.get_string ());
+							var domain = Ontologies.get_class_by_uri (value.get_string ());
 
-							foreach (Property prop in Ontology.get_properties ()) {
+							foreach (Property prop in Ontologies.get_properties ()) {
 								if (prop.domain == domain) {
 									if (first) {
 										first = false;
@@ -176,9 +176,9 @@ public class Tracker.SparqlQuery : Object {
 						do {
 							Value value;
 							result_set._get_value (0, out value);
-							var range = Ontology.get_class_by_uri (value.get_string ());
+							var range = Ontologies.get_class_by_uri (value.get_string ());
 
-							foreach (Property prop in Ontology.get_properties ()) {
+							foreach (Property prop in Ontologies.get_properties ()) {
 								if (prop.range == range) {
 									if (first) {
 										first = false;
@@ -205,7 +205,7 @@ public class Tracker.SparqlQuery : Object {
 				} else if (domain != null) {
 					// any subject, predicates limited to a specific domain
 					bool first = true;
-					foreach (Property prop in Ontology.get_properties ()) {
+					foreach (Property prop in Ontologies.get_properties ()) {
 						if (prop.domain == domain) {
 							if (first) {
 								first = false;
@@ -487,7 +487,7 @@ public class Tracker.SparqlQuery : Object {
 		// declare fn prefix for XPath functions
 		prefix_map.insert ("fn", FN_NS);
 
-		foreach (Namespace ns in Ontology.get_namespaces ()) {
+		foreach (Namespace ns in Ontologies.get_namespaces ()) {
 			prefix_map.insert (ns.prefix, ns.uri);
 		}
 
@@ -520,7 +520,7 @@ public class Tracker.SparqlQuery : Object {
 		// declare fn prefix for XPath functions
 		prefix_map.insert ("fn", FN_NS);
 
-		foreach (Namespace ns in Ontology.get_namespaces ()) {
+		foreach (Namespace ns in Ontologies.get_namespaces ()) {
 			prefix_map.insert (ns.prefix, ns.uri);
 		}
 
@@ -1604,7 +1604,7 @@ public class Tracker.SparqlQuery : Object {
 			return PropertyType.STRING;
 		} else {
 			// support properties as functions
-			var prop = Ontology.get_property_by_uri (uri);
+			var prop = Ontologies.get_property_by_uri (uri);
 			if (prop == null) {
 				throw get_error ("Unknown function");
 			}
@@ -2495,7 +2495,7 @@ public class Tracker.SparqlQuery : Object {
 			} else {
 				return false;
 			}
-			var prop = Ontology.get_property_by_uri (predicate);
+			var prop = Ontologies.get_property_by_uri (predicate);
 			if (prop == null) {
 				return false;
 			}
@@ -2890,13 +2890,13 @@ public class Tracker.SparqlQuery : Object {
 		Class subject_type = null;
 
 		if (!current_predicate_is_var) {
-			prop = Ontology.get_property_by_uri (current_predicate);
+			prop = Ontologies.get_property_by_uri (current_predicate);
 
 			if (current_predicate == "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
 			    && !object_is_var) {
 				// rdf:type query
 				rdftype = true;
-				var cl = Ontology.get_class_by_uri (object);
+				var cl = Ontologies.get_class_by_uri (object);
 				if (cl == null) {
 					throw new SparqlError.UNKNOWN_CLASS ("Unknown class `%s'".printf (object));
 				}
@@ -2916,7 +2916,7 @@ public class Tracker.SparqlQuery : Object {
 				    && current_subject_is_var
 				    && !object_is_var) {
 					// rdfs:domain
-					var domain = Ontology.get_class_by_uri (object);
+					var domain = Ontologies.get_class_by_uri (object);
 					if (domain == null) {
 						throw new SparqlError.UNKNOWN_CLASS ("Unknown class `%s'".printf (object));
 					}

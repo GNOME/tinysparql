@@ -4154,7 +4154,7 @@ static int fulltextNext(sqlite3_vtab_cursor *pCursor){
       const gchar *uri;
       int col = plrColumn (&plReader);
 
-      uri = tracker_ontology_get_uri_by_id (col);
+      uri = tracker_ontologies_get_uri_by_id (col);
       c->rank += get_metadata_weight (col);
 
       if (uri && first_pos) {

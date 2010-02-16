@@ -27,7 +27,7 @@
 #include <libtracker-common/tracker-common.h>
 #include <libtracker-common/tracker-date-time.h>
 #include <libtracker-common/tracker-file-utils.h>
-#include <libtracker-common/tracker-ontology.h>
+#include <libtracker-common/tracker-ontologies.h>
 
 #include <libtracker-fts/tracker-fts.h>
 
@@ -1010,7 +1010,7 @@ get_old_property_values (TrackerProperty  *property,
 			 */
 			tracker_fts_update_init (resource_buffer->id);
 
-			properties = tracker_ontology_get_properties (&n_props);
+			properties = tracker_ontologies_get_properties (&n_props);
 
 			for (i = 0; i < n_props; i++) {
 				prop = properties[i];
@@ -1245,7 +1245,7 @@ cache_delete_resource_type (TrackerClass *class,
 			gchar *class_uri;
 
 			tracker_db_result_set_get (result_set, 0, &class_uri, -1);
-			cache_delete_resource_type (tracker_ontology_get_class_by_uri (class_uri), graph);
+			cache_delete_resource_type (tracker_ontologies_get_class_by_uri (class_uri), graph);
 			g_free (class_uri);
 		} while (tracker_db_result_set_iter_next (result_set));
 
@@ -1254,7 +1254,7 @@ cache_delete_resource_type (TrackerClass *class,
 
 	/* delete all property values */
 
-	properties = tracker_ontology_get_properties (&n_props);
+	properties = tracker_ontologies_get_properties (&n_props);
 
 	for (p = 0; p < n_props; p++) {
 		gboolean            multiple_values, fts;
@@ -1357,7 +1357,7 @@ tracker_data_delete_statement (const gchar  *graph,
 	}
 
 	if (object && g_strcmp0 (predicate, RDF_PREFIX "type") == 0) {
-		class = tracker_ontology_get_class_by_uri (object);
+		class = tracker_ontologies_get_class_by_uri (object);
 		if (class != NULL) {
 			if (!in_journal_replay) {
 				tracker_db_journal_append_delete_statement_id (
@@ -1373,7 +1373,7 @@ tracker_data_delete_statement (const gchar  *graph,
 			             "Class '%s' not found in the ontology", object);
 		}
 	} else {
-		field = tracker_ontology_get_property_by_uri (predicate);
+		field = tracker_ontologies_get_property_by_uri (predicate);
 		if (field != NULL) {
 			gint id = tracker_property_get_id (field);
 			if (!in_journal_replay) {
@@ -1504,7 +1504,7 @@ tracker_data_insert_statement (const gchar            *graph,
 	g_return_if_fail (object != NULL);
 	g_return_if_fail (in_transaction);
 
-	property = tracker_ontology_get_property_by_uri (predicate);
+	property = tracker_ontologies_get_property_by_uri (predicate);
 	if (property != NULL) {
 		if (tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_RESOURCE) {
 			tracker_data_insert_statement_with_uri (graph, subject, predicate, object, error);
@@ -1536,7 +1536,7 @@ tracker_data_insert_statement_with_uri (const gchar            *graph,
 	g_return_if_fail (object != NULL);
 	g_return_if_fail (in_transaction);
 
-	property = tracker_ontology_get_property_by_uri (predicate);
+	property = tracker_ontologies_get_property_by_uri (predicate);
 	if (property == NULL) {
 		if (strcmp (predicate, TRACKER_PREFIX "uri") == 0) {
 			/* virtual tracker:uri property */
@@ -1602,7 +1602,7 @@ tracker_data_insert_statement_with_uri (const gchar            *graph,
 	if (strcmp (predicate, RDF_PREFIX "type") == 0) {
 		/* handle rdf:type statements specially to
 		   cope with inference and insert blank rows */
-		class = tracker_ontology_get_class_by_uri (object);
+		class = tracker_ontologies_get_class_by_uri (object);
 		if (class != NULL) {
 			cache_create_service_decomposed (class, graph);
 		} else {
@@ -1660,7 +1660,7 @@ tracker_data_insert_statement_with_string (const gchar            *graph,
 	g_return_if_fail (object != NULL);
 	g_return_if_fail (in_transaction);
 
-	property = tracker_ontology_get_property_by_uri (predicate);
+	property = tracker_ontologies_get_property_by_uri (predicate);
 	if (property == NULL) {
 		g_set_error (error, TRACKER_DATA_ERROR, TRACKER_DATA_ERROR_UNKNOWN_PROPERTY,
 		             "Property '%s' not found in the ontology", predicate);
@@ -2062,7 +2062,7 @@ tracker_data_delete_resource_description (const gchar *graph,
 		return;
 	}
 
-	properties = tracker_ontology_get_properties (&n_props);
+	properties = tracker_ontologies_get_properties (&n_props);
 
 	stmt = tracker_db_interface_create_statement (iface, "SELECT (SELECT Uri FROM Resource WHERE ID = \"rdf:type\") FROM \"rdfs:Resource_rdf:type\" WHERE ID = ?");
 	tracker_db_statement_bind_int (stmt, 0, resource_id);
@@ -2075,7 +2075,7 @@ tracker_data_delete_resource_description (const gchar *graph,
 
 			tracker_db_result_set_get (result_set, 0, &class_uri, -1);
 
-			class = tracker_ontology_get_class_by_uri (class_uri);
+			class = tracker_ontologies_get_class_by_uri (class_uri);
 
 			if (class == NULL) {
 				g_warning ("Class '%s' not found in the ontology", class_uri);

@@ -55,8 +55,8 @@ namespace Tracker {
 		RESOURCE
 	}
 
-	[CCode (cheader_filename = "libtracker-common/tracker-ontology.h")]
-	namespace Ontology {
+	[CCode (cheader_filename = "libtracker-common/tracker-ontologies.h")]
+	namespace Ontologies {
 		public weak Class get_class_by_uri (string class_uri);
 		public weak Property get_property_by_uri (string property_uri);
 		public weak Namespace[] get_namespaces ();

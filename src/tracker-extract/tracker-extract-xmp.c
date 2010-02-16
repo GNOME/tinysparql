@@ -22,7 +22,7 @@
 #include <glib.h>
 #include <gio/gio.h>
 
-#include <libtracker-common/tracker-ontology.h>
+#include <libtracker-common/tracker-ontologies.h>
 #include <libtracker-common/tracker-type-utils.h>
 #include <libtracker-common/tracker-file-utils.h>
 #include <libtracker-common/tracker-utils.h>

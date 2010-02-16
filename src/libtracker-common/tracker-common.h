@@ -48,7 +48,7 @@ G_BEGIN_DECLS
 #include "tracker-keyfile-object.h"
 #include "tracker-language.h"
 #include "tracker-namespace.h"
-#include "tracker-ontology.h"
+#include "tracker-ontologies.h"
 #include "tracker-property.h"
 #include "tracker-type-utils.h"
 #include "tracker-utils.h"

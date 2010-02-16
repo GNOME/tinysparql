@@ -37,7 +37,7 @@
 #include <libtracker-common/tracker-file-utils.h>
 #include <libtracker-common/tracker-type-utils.h>
 #include <libtracker-common/tracker-os-dependant.h>
-#include <libtracker-common/tracker-ontology.h>
+#include <libtracker-common/tracker-ontologies.h>
 
 #include <libtracker-extract/tracker-extract.h>
 #include <libtracker-extract/tracker-utils.h>

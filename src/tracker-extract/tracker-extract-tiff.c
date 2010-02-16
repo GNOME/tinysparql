@@ -32,7 +32,7 @@
 #include <tiff.h>
 #include <tiffio.h>
 
-#include <libtracker-common/tracker-ontology.h>
+#include <libtracker-common/tracker-ontologies.h>
 #include <libtracker-common/tracker-type-utils.h>
 #include <libtracker-common/tracker-file-utils.h>
 #include <libtracker-common/tracker-utils.h>

@@ -30,7 +30,7 @@
 #include <glib-object.h>
 #include <gio/gio.h>
 
-#include <libtracker-common/tracker-ontology.h>
+#include <libtracker-common/tracker-ontologies.h>
 #include <libtracker-common/tracker-utils.h>
 
 #include "tracker-writeback-file.h"

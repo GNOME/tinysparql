@@ -25,7 +25,7 @@
 #include <glib.h>
 
 #include "tracker-namespace.h"
-#include "tracker-ontology.h"
+#include "tracker-ontologies.h"
 #include "tracker-property.h"
 
 #define XSD_BOOLEAN  TRACKER_XSD_PREFIX "boolean"
@@ -682,7 +682,7 @@ tracker_property_set_uri (TrackerProperty *field,
 			g_critical ("Unknown namespace of property %s", priv->uri);
 		} else {
 			namespace_uri = g_strndup (priv->uri, hash - priv->uri + 1);
-			namespace = tracker_ontology_get_namespace_by_uri (namespace_uri);
+			namespace = tracker_ontologies_get_namespace_by_uri (namespace_uri);
 			if (namespace == NULL) {
 				g_critical ("Unknown namespace %s of property %s", namespace_uri, priv->uri);
 			} else {

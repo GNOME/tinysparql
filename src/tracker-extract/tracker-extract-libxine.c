@@ -23,7 +23,7 @@
 
 #include <glib.h>
 
-#include <libtracker-common/tracker-ontology.h>
+#include <libtracker-common/tracker-ontologies.h>
 #include <libtracker-common/tracker-utils.h>
 
 #include <libtracker-extract/tracker-extract.h>

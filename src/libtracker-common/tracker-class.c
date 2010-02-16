@@ -27,7 +27,7 @@
 
 #include "tracker-class.h"
 #include "tracker-namespace.h"
-#include "tracker-ontology.h"
+#include "tracker-ontologies.h"
 
 #define GET_PRIV(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_CLASS, TrackerClassPriv))
 
@@ -287,7 +287,7 @@ tracker_class_set_uri (TrackerClass *service,
 			g_critical ("Unknown namespace of class %s", priv->uri);
 		} else {
 			namespace_uri = g_strndup (priv->uri, hash - priv->uri + 1);
-			namespace = tracker_ontology_get_namespace_by_uri (namespace_uri);
+			namespace = tracker_ontologies_get_namespace_by_uri (namespace_uri);
 			if (namespace == NULL) {
 				g_critical ("Unknown namespace %s of class %s", namespace_uri, priv->uri);
 			} else {

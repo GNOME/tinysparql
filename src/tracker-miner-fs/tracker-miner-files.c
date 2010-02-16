@@ -29,7 +29,7 @@
 #include <glib/gstdio.h>
 
 #include <libtracker-common/tracker-date-time.h>
-#include <libtracker-common/tracker-ontology.h>
+#include <libtracker-common/tracker-ontologies.h>
 #include <libtracker-common/tracker-power.h>
 #include <libtracker-common/tracker-storage.h>
 #include <libtracker-common/tracker-type-utils.h>

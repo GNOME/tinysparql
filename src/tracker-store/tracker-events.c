@@ -22,7 +22,7 @@
 
 #include "config.h"
 
-#include <libtracker-common/tracker-ontology.h>
+#include <libtracker-common/tracker-ontologies.h>
 
 #include "tracker-events.h"
 
