@@ -34,7 +34,7 @@ typedef struct _TrackerOntologyPriv TrackerOntologyPriv;
 
 struct _TrackerOntologyPriv {
 	gchar *uri;
-	gchar *last_modified;
+	time_t last_modified;
 };
 
 static void ontology_finalize     (GObject      *object);
@@ -71,12 +71,15 @@ tracker_ontology_class_init (TrackerOntologyClass *klass)
 	                                                      "URI",
 	                                                      NULL,
 	                                                      G_PARAM_READWRITE));
+
 	g_object_class_install_property (object_class,
 	                                 PROP_LAST_MODIFIED,
-	                                 g_param_spec_string ("last-modified",
+	                                 g_param_spec_int64  ("last-modified",
 	                                                      "last-modified",
 	                                                      "Last modified",
-	                                                      NULL,
+	                                                      G_MININT64,
+	                                                      G_MAXINT64,
+	                                                      0,
 	                                                      G_PARAM_READWRITE));
 
 	g_type_class_add_private (object_class, sizeof (TrackerOntologyPriv));
@@ -95,7 +98,6 @@ ontology_finalize (GObject *object)
 	priv = GET_PRIV (object);
 
 	g_free (priv->uri);
-	g_free (priv->last_modified);
 
 	(G_OBJECT_CLASS (tracker_ontology_parent_class)->finalize) (object);
 }
@@ -115,7 +117,7 @@ ontology_get_property (GObject    *object,
 		g_value_set_string (value, priv->uri);
 		break;
 	case PROP_LAST_MODIFIED:
-		g_value_set_string (value, priv->last_modified);
+		g_value_set_int64 (value, priv->last_modified);
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, param_id, pspec);
@@ -140,7 +142,7 @@ ontology_set_property (GObject      *object,
 		break;
 	case PROP_LAST_MODIFIED:
 		tracker_ontology_set_last_modified (TRACKER_ONTOLOGY (object),
-		                                    g_value_get_string (value));
+		                                    g_value_get_int64 (value));
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, param_id, pspec);
@@ -158,22 +160,22 @@ tracker_ontology_new (void)
 	return ontology;
 }
 
-const gchar *
+time_t
 tracker_ontology_get_last_modified (TrackerOntology *ontology)
 {
 	TrackerOntologyPriv *priv;
 
-	g_return_val_if_fail (TRACKER_IS_ONTOLOGY (ontology), NULL);
+	g_return_val_if_fail (TRACKER_IS_ONTOLOGY (ontology), 0);
 
 	priv = GET_PRIV (ontology);
 
-	return priv->last_modified;
+	return (gint64) priv->last_modified;
 }
 
 
 void
 tracker_ontology_set_last_modified (TrackerOntology *ontology,
-                                    const gchar    *value)
+                                    time_t           value)
 {
 	TrackerOntologyPriv *priv;
 
@@ -181,13 +183,7 @@ tracker_ontology_set_last_modified (TrackerOntology *ontology,
 
 	priv = GET_PRIV (ontology);
 
-	g_free (priv->last_modified);
-
-	if (value) {
-		priv->last_modified = g_strdup (value);
-	} else {
-		priv->last_modified = NULL;
-	}
+	priv->last_modified = (gint64) value;
 
 	g_object_notify (G_OBJECT (ontology), "last-modified");
 }

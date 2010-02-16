@@ -50,9 +50,9 @@ struct _TrackerOntologyClass {
 
 GType             tracker_ontology_get_type          (void) G_GNUC_CONST;
 TrackerOntology  *tracker_ontology_new               (void);
-const gchar *     tracker_ontology_get_last_modified (TrackerOntology *ontology);
+time_t            tracker_ontology_get_last_modified (TrackerOntology *ontology);
 void              tracker_ontology_set_last_modified (TrackerOntology *ontology,
-                                                      const gchar      *value);
+                                                      time_t           value);
 const gchar *     tracker_ontology_get_uri           (TrackerOntology *ontology);
 void              tracker_ontology_set_uri           (TrackerOntology *ontology,
                                                       const gchar      *value);
