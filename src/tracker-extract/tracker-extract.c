@@ -237,8 +237,6 @@ get_file_metadata (TrackerExtract         *extract,
 	preupdate = tracker_sparql_builder_new_update ();
 	statements = tracker_sparql_builder_new_embedded_insert ();
 
-	tracker_sparql_builder_subject (statements, "_:file");
-
 #ifdef HAVE_LIBSTREAMANALYZER
 	if (!priv->force_internal_extractors) {
 		tracker_dbus_request_comment (request_id, context,
