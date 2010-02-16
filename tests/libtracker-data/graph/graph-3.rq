@@ -1,0 +1,7 @@
+SELECT ?g ?title ?s WHERE {
+	?g a example:Graph ;
+		example:graphTitle ?title
+	GRAPH ?g {
+		?s example:p 42
+	}
+}
