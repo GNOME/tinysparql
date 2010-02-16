@@ -432,6 +432,9 @@ internal_sqlite3_function (sqlite3_context *context,
 
 			break;
 		}
+		case SQLITE_NULL:
+			/* Unset GValues as NULLs */
+			break;
 		default:
 			g_critical ("Unknown sqlite3 database value type:%d",
 			            sqlite3_value_type (argv[i]));
@@ -466,7 +469,9 @@ internal_sqlite3_function (sqlite3_context *context,
 
 	/* Now free all this mess */
 	for (i = 0; i < argc; i++) {
-		g_value_unset (&values[i]);
+		if (G_IS_VALUE (&values[i])) {
+			g_value_unset (&values[i]);
+		}
 	}
 
 	if (! G_VALUE_HOLDS (&result, G_TYPE_INVALID)) {

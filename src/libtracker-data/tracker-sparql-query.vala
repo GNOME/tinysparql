@@ -1427,6 +1427,26 @@ public class Tracker.SparqlQuery : Object {
 			sql.append (")");
 
 			return PropertyType.BOOLEAN;
+		} else if (uri == FN_NS + "string-join") {
+			sql.append ("SparqlStringJoin(");
+			expect (SparqlTokenType.OPEN_PARENS);
+
+			translate_expression_as_string (sql);
+			sql.append (", ");
+			expect (SparqlTokenType.COMMA);
+			translate_expression_as_string (sql);
+			while (accept (SparqlTokenType.COMMA)) {
+			      sql.append (", ");
+			      translate_expression_as_string (sql);
+			}
+
+			expect (SparqlTokenType.CLOSE_PARENS);
+			sql.append (",");
+			expect (SparqlTokenType.COMMA);
+			translate_expression (sql);
+			sql.append (")");
+
+			return PropertyType.STRING;
 		} else if (uri == FTS_NS + "rank") {
 			bool is_var;
 			string v = parse_var_or_term (null, out is_var);

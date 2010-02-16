@@ -308,6 +308,45 @@ tracker_db_manager_get_flags (void)
 	return old_flags;
 }
 
+static GValue
+function_sparql_string_join (TrackerDBInterface *interface,
+			     gint                argc,
+			     GValue              values[])
+{
+	GValue result = { 0, };
+	GString *str = NULL;
+	const gchar *separator;
+	gint i;
+
+	/* fn:string-join (str1, str2, ..., separator) */
+
+	if (!G_VALUE_HOLDS_STRING (&values[argc-1])) {
+		/* Fail */
+		return result;
+	}
+
+	separator = g_value_get_string (&values[argc-1]);
+
+	for (i = 0;i < argc-1; i++) {
+		if (G_VALUE_HOLDS_STRING (&values[i])) {
+			if (!str) {
+				str = g_string_new (g_value_get_string (&values[i]));
+			} else {
+				g_string_append_printf (str, "%s%s",
+							separator,
+							g_value_get_string (&values[i]));
+			}
+		}
+	}
+
+	g_value_init (&result, G_TYPE_STRING);
+	g_value_set_string (&result, str->str);
+
+	g_string_free (str, TRUE);
+
+	return result;
+}
+
 /* Create a title-type string from the filename for replacing missing ones */
 static GValue
 function_sparql_string_from_filename (TrackerDBInterface *interface,
@@ -416,9 +455,9 @@ function_sparql_haversine_distance (TrackerDBInterface *interface,
 
 	R = 6371000;
 	dLat = (lat2-lat1);
-	dLon = (lon2-lon1); 
-	a = sin(dLat/2) * sin(dLat/2) + cos(lat1) * cos(lat2) *  sin(dLon/2) * sin(dLon/2); 
-	c = 2 * atan2(sqrt(a), sqrt(1-a)); 
+	dLon = (lon2-lon1);
+	a = sin(dLat/2) * sin(dLat/2) + cos(lat1) * cos(lat2) *  sin(dLon/2) * sin(dLon/2);
+	c = 2 * atan2(sqrt(a), sqrt(1-a));
 	d = R * c;
 
 	g_value_init (&result, G_TYPE_DOUBLE);
@@ -816,6 +855,10 @@ db_set_params (TrackerDBInterface *iface,
 		                                             "SparqlRegex",
 		                                             function_sparql_regex,
 		                                             3);
+		tracker_db_interface_sqlite_create_function (iface,
+		                                             "SparqlStringJoin",
+		                                             function_sparql_string_join,
+		                                             -1);
 		tracker_db_interface_sqlite_create_function (iface,
 		                                             "SparqlStringFromFilename",
 		                                             function_sparql_string_from_filename,
@@ -1480,7 +1523,7 @@ tracker_db_manager_init (TrackerDBManagerFlags  flags,
 		}
 	}
 
-	in_use_file = g_open (in_use_filename, 
+	in_use_file = g_open (in_use_filename,
 	                      O_WRONLY | O_APPEND | O_CREAT | O_SYNC,
 	                      S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
 	fsync (in_use_file);
