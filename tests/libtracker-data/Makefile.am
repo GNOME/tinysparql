@@ -7,6 +7,7 @@ SUBDIRS = 			\
 	bound 			\
 	expr-ops		\
 	functions		\
+	graph			\
 	nie			\
 	nmo			\
 	optional		\

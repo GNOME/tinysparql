@@ -69,6 +69,7 @@ const TestInfo tests[] = {
 	{ "functions/functions-tracker-loc-1", "functions/data-3", FALSE },
 	{ "functions/functions-xpath-1", "functions/data-1", FALSE },
 	{ "functions/functions-xpath-2", "functions/data-1", FALSE },
+	{ "graph/graph-1", "graph/data-1", FALSE },
 	{ "optional/q-opt-complex-1", "optional/complex-data-1", FALSE },
 	{ "regex/regex-query-001", "regex/regex-data-01", FALSE },
 	{ "regex/regex-query-002", "regex/regex-data-01", FALSE },
@@ -124,10 +125,28 @@ test_sparql_query (gconstpointer test_data)
 
 	/* load data set */
 	data_filename = g_strconcat (data_prefix, ".ttl", NULL);
-	tracker_data_begin_transaction ();
-	tracker_turtle_reader_load (data_filename, &error);
-	tracker_data_commit_transaction ();
-	g_assert_no_error (error);
+	if (g_file_test (data_filename, G_FILE_TEST_IS_REGULAR)) {
+		tracker_data_begin_transaction ();
+		tracker_turtle_reader_load (data_filename, &error);
+		tracker_data_commit_transaction ();
+		g_assert_no_error (error);
+	} else {
+		/* no .ttl available, assume .rq with SPARQL Update */
+		gchar *data;
+
+		g_free (data_filename);
+
+		data_filename = g_strconcat (data_prefix, ".rq", NULL);
+		g_file_get_contents (data_filename, &data, NULL, &error);
+		g_assert_no_error (error);
+
+		tracker_data_begin_transaction ();
+		tracker_data_update_sparql (data, &error);
+		tracker_data_commit_transaction ();
+		g_assert_no_error (error);
+
+		g_free (data);
+	}
 
 	query_filename = g_strconcat (test_prefix, ".rq", NULL);
 	g_file_get_contents (query_filename, &query, NULL, &error);
