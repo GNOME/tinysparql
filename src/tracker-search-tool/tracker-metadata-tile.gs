@@ -31,11 +31,15 @@ class TrackerMetadataTile : EventBox
     category : Categories
     image : Image
     name_link : LinkButton
+    path_link : LinkButton
     table : Table
     sparql : string
 
 
     /* metadata fields */
+    name_label : Label
+    path_label : Label
+    
     info_label1 : Label
     info_value1 : Label
 
@@ -84,9 +88,9 @@ class TrackerMetadataTile : EventBox
    
         border_width = 0
 
-        table = new Table (3, 7, false)
-        table.set_col_spacings (6)
-        table.set_row_spacings (6)
+        table = new Table (5, 7, false)
+        table.set_col_spacings (3)
+        table.set_row_spacings (1)
 
         
 
@@ -94,11 +98,19 @@ class TrackerMetadataTile : EventBox
 
         image = new Image.from_icon_name ("text-x-generic", IconSize.DIALOG)
         image.set_pixel_size (75)
-        table.attach (image, 0, 1, 0, 3, AttachOptions.FILL, AttachOptions.FILL, 12, 0)
+        table.attach (image, 0, 1, 0, 5, AttachOptions.FILL, AttachOptions.FILL, 12, 0)
 
         name_link = new LinkButton ("")
         name_link.xalign = 0
-        table.attach (name_link, 1, 7, 0, 1, AttachOptions.FILL, AttachOptions.FILL, 0, 0)
+        name_label = CreateLabel (N_("Name:"), false)
+        AttachToTable (name_label, 1, 2, 0, 1, false)
+        table.attach (name_link, 2, 3, 0, 1, AttachOptions.FILL, AttachOptions.FILL, 0, 0)
+        
+        path_link = new LinkButton ("")
+        path_link.xalign = 0
+        path_label = CreateLabel (N_("Folder:"), false)
+        AttachToTable (path_label, 3, 4, 0, 1, false)
+        table.attach (path_link, 4, 7, 0, 1, AttachOptions.FILL, AttachOptions.FILL, 0, 0)
 
         info_label1 = CreateLabel (N_("Type:"), false)
         AttachToTable (info_label1, 1, 2, 1, 2, false)
@@ -233,8 +245,15 @@ class TrackerMetadataTile : EventBox
 
         var file = File.new_for_uri (uri)
         var filepath = file.get_basename ()
+        var displaypath = file.get_parent ();
+        
         name_link.uri = uri
         name_link.label = filepath
+        path_link.uri = displaypath.get_uri ()
+        path_link.label = displaypath.get_path ()
+        
+        
+        
         var val1 = "<b>%s</b>".printf (mime)
         info_value1.set_markup (val1)
         info_value1.xalign = 0
