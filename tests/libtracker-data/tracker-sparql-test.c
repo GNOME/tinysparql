@@ -70,6 +70,7 @@ const TestInfo tests[] = {
 	{ "functions/functions-xpath-1", "functions/data-1", FALSE },
 	{ "functions/functions-xpath-2", "functions/data-1", FALSE },
 	{ "graph/graph-1", "graph/data-1", FALSE },
+	{ "graph/graph-2", "graph/data-2", FALSE },
 	{ "optional/q-opt-complex-1", "optional/complex-data-1", FALSE },
 	{ "regex/regex-query-001", "regex/regex-data-01", FALSE },
 	{ "regex/regex-query-002", "regex/regex-data-01", FALSE },
