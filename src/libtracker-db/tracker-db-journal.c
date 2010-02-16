@@ -44,15 +44,17 @@
 /*
  * data_format:
  * #... 0000 0000 (total size is 4 bytes)
- *            ||`- resource insert (all other bits must be 0 if 1)
- *            |`-- object type (1 = id, 0 = cstring)
- *            `--- operation type (0 = insert, 1 = delete)
+ *           |||`- resource insert (all other bits must be 0 if 1)
+ *           ||`-- object type (1 = id, 0 = cstring)
+ *           |`--- operation type (0 = insert, 1 = delete)
+ *           `---- graph (0 = default graph, 1 = named graph)
  */
 
 typedef enum {
 	DATA_FORMAT_RESOURCE_INSERT  = 1 << 0,
 	DATA_FORMAT_OBJECT_ID        = 1 << 1,
-	DATA_FORMAT_OPERATION_DELETE = 1 << 2
+	DATA_FORMAT_OPERATION_DELETE = 1 << 2,
+	DATA_FORMAT_GRAPH            = 1 << 3
 } DataFormat;
 
 static struct {
@@ -68,6 +70,7 @@ static struct {
 	gint64 time;
 	TrackerDBJournalEntryType type;
 	const gchar *uri;
+	gint g_id;
 	gint s_id;
 	gint p_id;
 	gint o_id;
@@ -345,7 +348,8 @@ tracker_db_journal_start_transaction (time_t time)
 }
 
 gboolean
-tracker_db_journal_append_delete_statement (gint         s_id,
+tracker_db_journal_append_delete_statement (gint         g_id,
+                                            gint         s_id,
                                             gint         p_id,
                                             const gchar *object)
 {
@@ -354,18 +358,26 @@ tracker_db_journal_append_delete_statement (gint         s_id,
 	gint size;
 
 	g_return_val_if_fail (writer.journal > 0, FALSE);
+	g_return_val_if_fail (g_id >= 0, FALSE);
 	g_return_val_if_fail (s_id > 0, FALSE);
 	g_return_val_if_fail (p_id > 0, FALSE);
 	g_return_val_if_fail (object != NULL, FALSE);
 
 	o_len = strlen (object);
-	df = DATA_FORMAT_OPERATION_DELETE;
-
-	size = (sizeof (guint32) * 3) + o_len + 1;
+	if (g_id == 0) {
+		df = DATA_FORMAT_OPERATION_DELETE;
+		size = (sizeof (guint32) * 3) + o_len + 1;
+	} else {
+		df = DATA_FORMAT_OPERATION_DELETE | DATA_FORMAT_GRAPH;
+		size = (sizeof (guint32) * 4) + o_len + 1;
+	}
 
 	cur_block_maybe_expand (size);
 
 	cur_setnum (writer.cur_block, &writer.cur_pos, df);
+	if (g_id > 0) {
+		cur_setnum (writer.cur_block, &writer.cur_pos, g_id);
+	}
 	cur_setnum (writer.cur_block, &writer.cur_pos, s_id);
 	cur_setnum (writer.cur_block, &writer.cur_pos, p_id);
 	cur_setstr (writer.cur_block, &writer.cur_pos, object, o_len);
@@ -377,7 +389,8 @@ tracker_db_journal_append_delete_statement (gint         s_id,
 }
 
 gboolean
-tracker_db_journal_append_delete_statement_id (gint s_id,
+tracker_db_journal_append_delete_statement_id (gint g_id,
+                                               gint s_id,
                                                gint p_id,
                                                gint o_id)
 {
@@ -385,16 +398,25 @@ tracker_db_journal_append_delete_statement_id (gint s_id,
 	gint size;
 
 	g_return_val_if_fail (writer.journal > 0, FALSE);
+	g_return_val_if_fail (g_id >= 0, FALSE);
 	g_return_val_if_fail (s_id > 0, FALSE);
 	g_return_val_if_fail (p_id > 0, FALSE);
 	g_return_val_if_fail (o_id > 0, FALSE);
 
-	df = DATA_FORMAT_OPERATION_DELETE | DATA_FORMAT_OBJECT_ID;
-	size = sizeof (guint32) * 4;
+	if (g_id == 0) {
+		df = DATA_FORMAT_OPERATION_DELETE | DATA_FORMAT_OBJECT_ID;
+		size = sizeof (guint32) * 4;
+	} else {
+		df = DATA_FORMAT_OPERATION_DELETE | DATA_FORMAT_OBJECT_ID | DATA_FORMAT_GRAPH;
+		size = sizeof (guint32) * 5;
+	}
 
 	cur_block_maybe_expand (size);
 
 	cur_setnum (writer.cur_block, &writer.cur_pos, df);
+	if (g_id > 0) {
+		cur_setnum (writer.cur_block, &writer.cur_pos, g_id);
+	}
 	cur_setnum (writer.cur_block, &writer.cur_pos, s_id);
 	cur_setnum (writer.cur_block, &writer.cur_pos, p_id);
 	cur_setnum (writer.cur_block, &writer.cur_pos, o_id);
@@ -406,7 +428,8 @@ tracker_db_journal_append_delete_statement_id (gint s_id,
 }
 
 gboolean
-tracker_db_journal_append_insert_statement (gint         s_id,
+tracker_db_journal_append_insert_statement (gint         g_id,
+                                            gint         s_id,
                                             gint         p_id,
                                             const gchar *object)
 {
@@ -415,17 +438,26 @@ tracker_db_journal_append_insert_statement (gint         s_id,
 	gint size;
 
 	g_return_val_if_fail (writer.journal > 0, FALSE);
+	g_return_val_if_fail (g_id >= 0, FALSE);
 	g_return_val_if_fail (s_id > 0, FALSE);
 	g_return_val_if_fail (p_id > 0, FALSE);
 	g_return_val_if_fail (object != NULL, FALSE);
 
 	o_len = strlen (object);
-	df = 0x00;
-	size = (sizeof (guint32) * 3) + o_len + 1;
+	if (g_id == 0) {
+		df = 0x00;
+		size = (sizeof (guint32) * 3) + o_len + 1;
+	} else {
+		df = DATA_FORMAT_GRAPH;
+		size = (sizeof (guint32) * 4) + o_len + 1;
+	}
 
 	cur_block_maybe_expand (size);
 
 	cur_setnum (writer.cur_block, &writer.cur_pos, df);
+	if (g_id > 0) {
+		cur_setnum (writer.cur_block, &writer.cur_pos, g_id);
+	}
 	cur_setnum (writer.cur_block, &writer.cur_pos, s_id);
 	cur_setnum (writer.cur_block, &writer.cur_pos, p_id);
 	cur_setstr (writer.cur_block, &writer.cur_pos, object, o_len);
@@ -437,7 +469,8 @@ tracker_db_journal_append_insert_statement (gint         s_id,
 }
 
 gboolean
-tracker_db_journal_append_insert_statement_id (gint s_id,
+tracker_db_journal_append_insert_statement_id (gint g_id,
+                                               gint s_id,
                                                gint p_id,
                                                gint o_id)
 {
@@ -445,16 +478,25 @@ tracker_db_journal_append_insert_statement_id (gint s_id,
 	gint size;
 
 	g_return_val_if_fail (writer.journal > 0, FALSE);
+	g_return_val_if_fail (g_id >= 0, FALSE);
 	g_return_val_if_fail (s_id > 0, FALSE);
 	g_return_val_if_fail (p_id > 0, FALSE);
 	g_return_val_if_fail (o_id > 0, FALSE);
 
-	df = DATA_FORMAT_OBJECT_ID;
-	size = sizeof (guint32) * 4;
+	if (g_id == 0) {
+		df = DATA_FORMAT_OBJECT_ID;
+		size = sizeof (guint32) * 4;
+	} else {
+		df = DATA_FORMAT_OBJECT_ID | DATA_FORMAT_GRAPH;
+		size = sizeof (guint32) * 5;
+	}
 
 	cur_block_maybe_expand (size);
 
 	cur_setnum (writer.cur_block, &writer.cur_pos, df);
+	if (g_id > 0) {
+		cur_setnum (writer.cur_block, &writer.cur_pos, g_id);
+	}
 	cur_setnum (writer.cur_block, &writer.cur_pos, s_id);
 	cur_setnum (writer.cur_block, &writer.cur_pos, p_id);
 	cur_setnum (writer.cur_block, &writer.cur_pos, o_id);
@@ -659,6 +701,7 @@ tracker_db_journal_reader_shutdown (void)
 	reader.amount_of_triples = 0;
 	reader.type = TRACKER_DB_JOURNAL_START;
 	reader.uri = NULL;
+	reader.g_id = 0;
 	reader.s_id = 0;
 	reader.p_id = 0;
 	reader.o_id = 0;
@@ -901,6 +944,23 @@ tracker_db_journal_reader_next (GError **error)
 				}
 			}
 
+			if (df & DATA_FORMAT_GRAPH) {
+				if (reader.end - reader.current < sizeof (guint32)) {
+					/* damaged journal entry */
+					g_set_error (error, TRACKER_DB_JOURNAL_ERROR, 0, 
+						     "Damaged journal entry, %d < sizeof(guint32)",
+						     (gint) (reader.end - reader.current));
+					return FALSE;
+				}
+
+				/* named graph */
+				reader.g_id = read_uint32 (reader.current);
+				reader.current += 4;
+			} else {
+				/* default graph */
+				reader.g_id = 0;
+			}
+
 			if (reader.end - reader.current < 2 * sizeof (guint32)) {
 				/* damaged journal entry */
 				g_set_error (error, TRACKER_DB_JOURNAL_ERROR, 0, 
@@ -984,7 +1044,8 @@ tracker_db_journal_reader_get_resource (gint         *id,
 }
 
 gboolean
-tracker_db_journal_reader_get_statement (gint         *s_id,
+tracker_db_journal_reader_get_statement (gint         *g_id,
+                                         gint         *s_id,
                                          gint         *p_id,
                                          const gchar **object)
 {
@@ -993,6 +1054,9 @@ tracker_db_journal_reader_get_statement (gint         *s_id,
 	                      reader.type == TRACKER_DB_JOURNAL_DELETE_STATEMENT,
 	                      FALSE);
 
+	if (g_id) {
+		*g_id = reader.g_id;
+	}
 	*s_id = reader.s_id;
 	*p_id = reader.p_id;
 	*object = reader.object;
@@ -1001,7 +1065,8 @@ tracker_db_journal_reader_get_statement (gint         *s_id,
 }
 
 gboolean
-tracker_db_journal_reader_get_statement_id (gint *s_id,
+tracker_db_journal_reader_get_statement_id (gint *g_id,
+                                            gint *s_id,
                                             gint *p_id,
                                             gint *o_id)
 {
@@ -1010,6 +1075,9 @@ tracker_db_journal_reader_get_statement_id (gint *s_id,
 	                      reader.type == TRACKER_DB_JOURNAL_DELETE_STATEMENT_ID,
 	                      FALSE);
 
+	if (g_id) {
+		*g_id = reader.g_id;
+	}
 	*s_id = reader.s_id;
 	*p_id = reader.p_id;
 	*o_id = reader.o_id;

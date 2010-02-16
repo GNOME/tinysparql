@@ -53,16 +53,20 @@ const gchar* tracker_db_journal_get_filename                 (void);
 gsize        tracker_db_journal_get_size                     (void);
 
 gboolean     tracker_db_journal_start_transaction            (time_t       time);
-gboolean     tracker_db_journal_append_delete_statement      (gint         s_id,
+gboolean     tracker_db_journal_append_delete_statement      (gint         g_id,
+                                                              gint         s_id,
                                                               gint         p_id,
                                                               const gchar *object);
-gboolean     tracker_db_journal_append_delete_statement_id   (gint         s_id,
+gboolean     tracker_db_journal_append_delete_statement_id   (gint         g_id,
+                                                              gint         s_id,
                                                               gint         p_id,
                                                               gint         o_id);
-gboolean     tracker_db_journal_append_insert_statement      (gint         s_id,
+gboolean     tracker_db_journal_append_insert_statement      (gint         g_id,
+                                                              gint         s_id,
                                                               gint         p_id,
                                                               const gchar *object);
-gboolean     tracker_db_journal_append_insert_statement_id   (gint         s_id,
+gboolean     tracker_db_journal_append_insert_statement_id   (gint         g_id,
+                                                              gint         s_id,
                                                               gint         p_id,
                                                               gint         o_id);
 gboolean     tracker_db_journal_append_resource              (gint         s_id,
@@ -86,10 +90,12 @@ gboolean     tracker_db_journal_reader_next                  (GError      **erro
 gint64       tracker_db_journal_reader_get_time              (void);
 gboolean     tracker_db_journal_reader_get_resource          (gint         *id,
                                                               const gchar **uri);
-gboolean     tracker_db_journal_reader_get_statement         (gint         *s_id,
+gboolean     tracker_db_journal_reader_get_statement         (gint         *g_id,
+                                                              gint         *s_id,
                                                               gint         *p_id,
                                                               const gchar **object);
-gboolean     tracker_db_journal_reader_get_statement_id      (gint         *s_id,
+gboolean     tracker_db_journal_reader_get_statement_id      (gint         *g_id,
+                                                              gint         *s_id,
                                                               gint         *p_id,
                                                               gint         *o_id);
 gsize        tracker_db_journal_reader_get_size_of_correct   (void);

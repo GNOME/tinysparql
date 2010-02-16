@@ -71,7 +71,7 @@ test_write_functions (void)
 	g_assert_cmpint (result, ==, TRUE);
 	result = tracker_db_journal_append_resource (11, "http://predicate");
 	g_assert_cmpint (result, ==, TRUE);
-	result = tracker_db_journal_append_delete_statement (10, 11, "test");
+	result = tracker_db_journal_append_delete_statement (0, 10, 11, "test");
 	g_assert_cmpint (result, ==, TRUE);
 	result = tracker_db_journal_rollback_transaction ();
 	g_assert_cmpint (result, ==, TRUE);
@@ -87,7 +87,7 @@ test_write_functions (void)
 	g_assert_cmpint (result, ==, TRUE);
 	result = tracker_db_journal_append_resource (14, "http://resource");
 	g_assert_cmpint (result, ==, TRUE);
-	result = tracker_db_journal_append_delete_statement_id (12, 13, 14);
+	result = tracker_db_journal_append_delete_statement_id (0, 12, 13, 14);
 	g_assert_cmpint (result, ==, TRUE);
 	result = tracker_db_journal_commit_transaction ();
 	g_assert_cmpint (result, ==, TRUE);
@@ -101,7 +101,7 @@ test_write_functions (void)
 	g_assert_cmpint (result, ==, TRUE);
 	result = tracker_db_journal_append_resource (16, "http://predicate");
 	g_assert_cmpint (result, ==, TRUE);
-	result = tracker_db_journal_append_insert_statement (15, 16, "test");
+	result = tracker_db_journal_append_insert_statement (0, 15, 16, "test");
 	g_assert_cmpint (result, ==, TRUE);
 	result = tracker_db_journal_commit_transaction ();
 	g_assert_cmpint (result, ==, TRUE);
@@ -115,7 +115,7 @@ test_write_functions (void)
 	g_assert_cmpint (result, ==, TRUE);
 	result = tracker_db_journal_append_resource (19, "http://resource");
 	g_assert_cmpint (result, ==, TRUE);
-	result = tracker_db_journal_append_insert_statement_id (17, 18, 19);
+	result = tracker_db_journal_append_insert_statement_id (0, 17, 18, 19);
 	g_assert_cmpint (result, ==, TRUE);
 	result = tracker_db_journal_commit_transaction ();
 	g_assert_cmpint (result, ==, TRUE);
@@ -201,7 +201,7 @@ test_read_functions (void)
 	type = tracker_db_journal_reader_get_type ();
 	g_assert_cmpint (type, ==, TRACKER_DB_JOURNAL_DELETE_STATEMENT_ID);
 
-	result = tracker_db_journal_reader_get_statement_id (&s_id, &p_id, &o_id);
+	result = tracker_db_journal_reader_get_statement_id (NULL, &s_id, &p_id, &o_id);
 	g_assert_cmpint (result, ==, TRUE);
 	g_assert_cmpint (s_id, ==, 12);
 	g_assert_cmpint (p_id, ==, 13);
@@ -253,7 +253,7 @@ test_read_functions (void)
 	type = tracker_db_journal_reader_get_type ();
 	g_assert_cmpint (type, ==, TRACKER_DB_JOURNAL_INSERT_STATEMENT);
 
-	result = tracker_db_journal_reader_get_statement (&s_id, &p_id, &str);
+	result = tracker_db_journal_reader_get_statement (NULL, &s_id, &p_id, &str);
 	g_assert_cmpint (result, ==, TRUE);
 	g_assert_cmpint (s_id, ==, 15);
 	g_assert_cmpint (p_id, ==, 16);
@@ -317,7 +317,7 @@ test_read_functions (void)
 	type = tracker_db_journal_reader_get_type ();
 	g_assert_cmpint (type, ==, TRACKER_DB_JOURNAL_INSERT_STATEMENT_ID);
 
-	result = tracker_db_journal_reader_get_statement_id (&s_id, &p_id, &o_id);
+	result = tracker_db_journal_reader_get_statement_id (NULL, &s_id, &p_id, &o_id);
 	g_assert_cmpint (result, ==, TRUE);
 	g_assert_cmpint (s_id, ==, 17);
 	g_assert_cmpint (p_id, ==, 18);

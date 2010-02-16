@@ -1321,7 +1321,9 @@ tracker_data_delete_statement (const gchar  *graph,
 		class = tracker_ontology_get_class_by_uri (object);
 		if (class != NULL) {
 			if (!in_journal_replay) {
-				tracker_db_journal_append_delete_statement_id (resource_buffer->id,
+				tracker_db_journal_append_delete_statement_id (
+					(graph != NULL ? query_resource_id (graph) : 0),
+					resource_buffer->id,
 					tracker_data_query_resource_id (predicate),
 					query_resource_id (object));
 			}
@@ -1337,11 +1339,15 @@ tracker_data_delete_statement (const gchar  *graph,
 			gint id = tracker_property_get_id (field);
 			if (!in_journal_replay) {
 				if (tracker_property_get_data_type (field) == TRACKER_PROPERTY_TYPE_RESOURCE) {
-					tracker_db_journal_append_delete_statement_id (resource_buffer->id,
+					tracker_db_journal_append_delete_statement_id (
+						(graph != NULL ? query_resource_id (graph) : 0),
+						resource_buffer->id,
 						(id != 0) ? id : tracker_data_query_resource_id (predicate),
 						query_resource_id (object));
 				} else {
-					tracker_db_journal_append_delete_statement (resource_buffer->id,
+					tracker_db_journal_append_delete_statement (
+						(graph != NULL ? query_resource_id (graph) : 0),
+						resource_buffer->id,
 						(id != 0) ? id : tracker_data_query_resource_id (predicate),
 						object);
 				}
@@ -1591,7 +1597,9 @@ tracker_data_insert_statement_with_uri (const gchar            *graph,
 	}
 
 	if (!in_journal_replay) {
-		tracker_db_journal_append_insert_statement_id (resource_buffer->id,
+		tracker_db_journal_append_insert_statement_id (
+			(graph != NULL ? query_resource_id (graph) : 0),
+			resource_buffer->id,
 			(prop_id != 0) ? prop_id : tracker_data_query_resource_id (predicate),
 			query_resource_id (object));
 	}
@@ -1657,7 +1665,9 @@ tracker_data_insert_statement_with_string (const gchar            *graph,
 	}
 
 	if (!in_journal_replay) {
-		tracker_db_journal_append_insert_statement (resource_buffer->id,
+		tracker_db_journal_append_insert_statement (
+			(graph != NULL ? query_resource_id (graph) : 0),
+			resource_buffer->id,
 			(id != 0) ? id : tracker_data_query_resource_id (predicate),
 			object);
 	}

@@ -340,9 +340,9 @@ load_ontology_from_journal (void)
 			gint subject_id, predicate_id, object_id;
 
 			if (type == TRACKER_DB_JOURNAL_INSERT_STATEMENT) {
-				tracker_db_journal_reader_get_statement (&subject_id, &predicate_id, &object);
+				tracker_db_journal_reader_get_statement (NULL, &subject_id, &predicate_id, &object);
 			} else if (type == TRACKER_DB_JOURNAL_INSERT_STATEMENT_ID) {
-				tracker_db_journal_reader_get_statement_id (&subject_id, &predicate_id, &object_id);
+				tracker_db_journal_reader_get_statement_id (NULL, &subject_id, &predicate_id, &object_id);
 				object = g_hash_table_lookup (id_uri_map, GINT_TO_POINTER (object_id));
 			} else {
 				continue;
@@ -411,8 +411,8 @@ replay_journal (void)
 	while (tracker_db_journal_reader_next (&journal_error)) {
 		GError *error = NULL;
 		TrackerDBJournalEntryType type;
-		const gchar *subject, *predicate, *object;
-		gint subject_id, predicate_id, object_id;
+		const gchar *graph, *subject, *predicate, *object;
+		gint graph_id, subject_id, predicate_id, object_id;
 
 		type = tracker_db_journal_reader_get_type ();
 		if (type == TRACKER_DB_JOURNAL_RESOURCE) {
@@ -438,35 +438,55 @@ replay_journal (void)
 		} else if (type == TRACKER_DB_JOURNAL_END_TRANSACTION) {
 			tracker_data_commit_transaction ();
 		} else if (type == TRACKER_DB_JOURNAL_INSERT_STATEMENT) {
-			tracker_db_journal_reader_get_statement (&subject_id, &predicate_id, &object);
+			tracker_db_journal_reader_get_statement (&graph_id, &subject_id, &predicate_id, &object);
 
+			if (graph_id > 0) {
+				graph = query_resource_by_id (graph_id);
+			} else {
+				graph = NULL;
+			}
 			subject = query_resource_by_id (subject_id);
 			predicate = query_resource_by_id (predicate_id);
 
-			tracker_data_insert_statement_with_string (NULL, subject, predicate, object, &error);
+			tracker_data_insert_statement_with_string (graph, subject, predicate, object, &error);
 		} else if (type == TRACKER_DB_JOURNAL_INSERT_STATEMENT_ID) {
-			tracker_db_journal_reader_get_statement_id (&subject_id, &predicate_id, &object_id);
+			tracker_db_journal_reader_get_statement_id (&graph_id, &subject_id, &predicate_id, &object_id);
 
+			if (graph_id > 0) {
+				graph = query_resource_by_id (graph_id);
+			} else {
+				graph = NULL;
+			}
 			subject = query_resource_by_id (subject_id);
 			predicate = query_resource_by_id (predicate_id);
 			object = query_resource_by_id (object_id);
 
-			tracker_data_insert_statement_with_uri (NULL, subject, predicate, object, &error);
+			tracker_data_insert_statement_with_uri (graph, subject, predicate, object, &error);
 		} else if (type == TRACKER_DB_JOURNAL_DELETE_STATEMENT) {
-			tracker_db_journal_reader_get_statement (&subject_id, &predicate_id, &object);
+			tracker_db_journal_reader_get_statement (&graph_id, &subject_id, &predicate_id, &object);
 
+			if (graph_id > 0) {
+				graph = query_resource_by_id (graph_id);
+			} else {
+				graph = NULL;
+			}
 			subject = query_resource_by_id (subject_id);
 			predicate = query_resource_by_id (predicate_id);
 
-			tracker_data_delete_statement (NULL, subject, predicate, object, &error);
+			tracker_data_delete_statement (graph, subject, predicate, object, &error);
 		} else if (type == TRACKER_DB_JOURNAL_DELETE_STATEMENT_ID) {
-			tracker_db_journal_reader_get_statement_id (&subject_id, &predicate_id, &object_id);
+			tracker_db_journal_reader_get_statement_id (&graph_id, &subject_id, &predicate_id, &object_id);
 
+			if (graph_id > 0) {
+				graph = query_resource_by_id (graph_id);
+			} else {
+				graph = NULL;
+			}
 			subject = query_resource_by_id (subject_id);
 			predicate = query_resource_by_id (predicate_id);
 			object = query_resource_by_id (object_id);
 
-			tracker_data_delete_statement (NULL, subject, predicate, object, &error);
+			tracker_data_delete_statement (graph, subject, predicate, object, &error);
 		}
 	}
 
