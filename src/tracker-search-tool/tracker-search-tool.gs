@@ -146,12 +146,10 @@ init
 
     tile.ResultGrid = grid
     tile.Query = query
-    main_box.pack_end (tile, false, false, 0)
-   
-    var s = new Statusbar ()
-    s.has_resize_grip = true
-    window.add (s)
-    
+
+    var a = new Alignment (0.5f, 0.5f, 1.0f, 0.5f)   
+    a.add (tile)
+    main_box.pack_end (a, false, false, 0)
 
     window.show_all ()
 

@@ -32,6 +32,7 @@ class TrackerMetadataTile : EventBox
     image : Image
     name_link : LinkButton
     table : Table
+    sparql : string
 
 
     /* metadata fields */
@@ -81,16 +82,18 @@ class TrackerMetadataTile : EventBox
         
         expose_event += expose
    
-        border_width = 1
+        border_width = 0
 
         table = new Table (3, 7, false)
         table.set_col_spacings (6)
         table.set_row_spacings (6)
 
+        
+
         add (table)
 
         image = new Image.from_icon_name ("text-x-generic", IconSize.DIALOG)
-        image.set_pixel_size (62)
+        image.set_pixel_size (75)
         table.attach (image, 0, 1, 0, 3, AttachOptions.FILL, AttachOptions.FILL, 12, 0)
 
         name_link = new LinkButton ("")
@@ -115,25 +118,26 @@ class TrackerMetadataTile : EventBox
         info_value3 = CreateLabel ("-", true)
         AttachToTable (info_value3, 6, 7, 1, 2, true)
 
-        info_label4 = CreateLabel (N_("Title:"), false)
+        info_label4 = CreateLabel ("", false)
         AttachToTable (info_label4, 1, 2, 2, 3, false)
 
         info_value4 = CreateLabel ("-", true)
         AttachToTable (info_value4, 2, 3, 2, 3, true)
 
-        info_label5 = CreateLabel (N_("Author/Artist:"), false)
+        info_label5 = CreateLabel ("", false)
         AttachToTable (info_label5, 3, 4, 2, 3, false)
 
         info_value5 = CreateLabel ("-", true)
         AttachToTable (info_value5, 4, 5, 2, 3, true)
 
-        info_label6 = CreateLabel ("Comments:", false)
+        info_label6 = CreateLabel ("", false)
         AttachToTable (info_label6, 5, 6, 2, 3, false)
 
         info_value6 = CreateLabel ("-", true)
         AttachToTable (info_value6, 6, 7, 2, 3, true)
+        
+        sparql = "SELECT ?mimetype WHERE {<%s> nie:mimeType ?mimetype.}"
 
-        //show_all ()
 
     def private expose (e : Gdk.EventExpose) : bool
     
@@ -235,7 +239,7 @@ class TrackerMetadataTile : EventBox
 
         // get metadata
         // var query = "SELECT ?mimetype ?size ?mtime WHERE {<%s> nie:byteSize ?size; nie:contentLastModified ?mtime; nie:mimeType ?mimeType.}".printf(uri)
-        var query = "SELECT ?mimetype WHERE {<%s> nie:mimeType ?mimetype.}".printf(uri)
+        var query = sparql.printf(uri)
         if Query is not null
             var result = Query.Query (query)
 
