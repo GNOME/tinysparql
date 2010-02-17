@@ -23,7 +23,7 @@
 
 #include <glib.h>
 
-#include <libtracker-common/tracker-type-utils.h>
+#include <libtracker-common/tracker-date-time.h>
 
 #include "tracker-iptc.h"
 

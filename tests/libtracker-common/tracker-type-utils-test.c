@@ -22,6 +22,7 @@
 
 #include <glib-object.h>
 
+#include <libtracker-common/tracker-date-time.h>
 #include <libtracker-common/tracker-type-utils.h>
 
 #include <tracker-test-helpers.h>
@@ -85,7 +86,7 @@ test_string_to_date (void)
 
 	expected = g_date_new_dmy (16, G_DATE_JUNE, 2008);
 
-	result_time_t = tracker_string_to_date (input);
+	result_time_t = tracker_string_to_date (input, NULL);
 
 	result = g_date_new ();
 	g_date_set_time_t (result, result_time_t);
@@ -100,18 +101,18 @@ test_string_to_date (void)
 	g_assert_cmpint (g_date_get_month (expected), ==, g_date_get_month (result));
 
 	if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDERR)) {
-		result_time_t = tracker_string_to_date (NULL);
+		result_time_t = tracker_string_to_date (NULL, NULL);
 	}
 	g_test_trap_assert_failed ();
 
-	result_time_t = tracker_string_to_date ("");
+	result_time_t = tracker_string_to_date ("", NULL);
 	g_assert_cmpint (result_time_t, ==, -1);
 
-	result_time_t = tracker_string_to_date ("i am not a date");
+	result_time_t = tracker_string_to_date ("i am not a date", NULL);
 	g_assert_cmpint (result_time_t, ==, -1);
 
 	/* Fails! Check the code
-	   result_time_t = tracker_string_to_date ("2008-06-32T04:23:10+0000");
+	   result_time_t = tracker_string_to_date ("2008-06-32T04:23:10+0000", NULL);
 	   g_assert_cmpint (result_time_t, ==, -1);
 	*/
 }

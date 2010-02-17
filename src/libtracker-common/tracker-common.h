@@ -43,6 +43,7 @@ G_BEGIN_DECLS
 /* Installed headers */
 #include "tracker-class.h"
 #include "tracker-config-file.h"
+#include "tracker-date-time.h"
 #include "tracker-file-utils.h"
 #include "tracker-keyfile-object.h"
 #include "tracker-language.h"

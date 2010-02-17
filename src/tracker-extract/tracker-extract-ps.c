@@ -33,6 +33,7 @@
 #include <glib.h>
 #include <glib/gstdio.h>
 
+#include <libtracker-common/tracker-date-time.h>
 #include <libtracker-common/tracker-file-utils.h>
 #include <libtracker-common/tracker-type-utils.h>
 #include <libtracker-common/tracker-os-dependant.h>

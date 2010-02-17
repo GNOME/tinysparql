@@ -74,6 +74,7 @@
 #include <libtracker-client/tracker.h>
 #include <libtracker-client/tracker-sparql-builder.h>
 
+#include <libtracker-common/tracker-date-time.h>
 #include <libtracker-common/tracker-ontology.h>
 #include <libtracker-common/tracker-utils.h>
 #include <libtracker-common/tracker-type-utils.h>
@@ -1724,7 +1725,7 @@ on_register_client_qry (GPtrArray *results,
 			} else {
 				for (i = 0; i < results->len; i++) {
 					const gchar **str = g_ptr_array_index (results, i);
-					info->last_checkout = (guint64) tracker_string_to_date (str[0]);
+					info->last_checkout = (guint64) tracker_string_to_date (str[0], NULL);
 					break;
 				}
 			}

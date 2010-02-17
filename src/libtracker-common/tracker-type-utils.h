@@ -29,12 +29,6 @@ G_BEGIN_DECLS
 #error "only <libtracker-common/tracker-common.h> must be included directly."
 #endif
 
-gchar *  tracker_date_format                   (const gchar  *date_string);
-gchar *  tracker_date_format_to_iso8601        (const gchar  *date_string,
-                                                const gchar  *format);
-gchar *  tracker_date_to_time_string           (const gchar  *date_string);
-time_t   tracker_string_to_date                        (const gchar  *date_string);
-gchar *  tracker_date_to_string                        (time_t        date_time);
 gchar *  tracker_glong_to_string               (glong         i);
 gchar *  tracker_gint_to_string                        (gint          i);
 gchar *  tracker_guint_to_string               (guint         i);

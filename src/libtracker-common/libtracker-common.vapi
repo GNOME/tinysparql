@@ -64,7 +64,7 @@ namespace Tracker {
 		public weak Property[] get_properties ();
 	}
 
-	[CCode (cheader_filename = "libtracker-common/tracker-type-utils.h")]
-	public int string_to_date (string date_string);
+	[CCode (cheader_filename = "libtracker-common/tracker-date-time.h")]
+	public int string_to_date (string date_string, out int offset);
 }
 
