@@ -373,10 +373,11 @@ tags_view_query_files_for_tag_id (TagData *td)
 {
 	gchar *query;
 
-	query = g_strdup_printf ("SELECT ?f "
+	query = g_strdup_printf ("SELECT ?url "
 				 "WHERE {"
-				 "  ?f a rdfs:Resource ;"
-				 "  nao:hasTag <%s> ."
+				 "  ?urn a rdfs:Resource ;"
+	                         "  nie:url ?url ;"
+				 "  nao:hasTag <%s> . "
 				 "}",
 				 td->tag_id);
 
@@ -532,7 +533,7 @@ tags_view_add_tag (TrackerTagsView *tv,
 
 		query = g_strdup_printf ("INSERT { "
 		                         "  _:tag a nao:Tag;"
-		                         "  nao:prefLabel %s ."
+		                         "  nao:prefLabel %s . "
 		                         "} "
 		                         "WHERE {"
 		                         "  OPTIONAL {"
@@ -542,11 +543,11 @@ tags_view_add_tag (TrackerTagsView *tv,
 		                         "  FILTER (!bound(?tag)) "
 		                         "} "
 		                         "INSERT { "
-		                         "  ?urn nao:hasTag ?id "
+		                         "  ?urn nao:hasTag ?label "
 		                         "} "
 		                         "WHERE {"
-		                         "  ?urn nie:isStoredAs ?f ."
-		                         "  ?id nao:prefLabel %s "
+		                         "  ?urn nie:url ?f ."
+		                         "  ?label nao:prefLabel %s "
 		                         "  %s "
 		                         "}",
 		                         tag_escaped,
@@ -622,11 +623,11 @@ tags_view_model_toggle_row (TrackerTagsView *tv,
 
 	if (selection) {
 		query = g_strdup_printf ("INSERT { "
-					 "  ?urn nao:hasTag ?tag "
+					 "  ?urn nao:hasTag ?label "
 					 "} "
 					 "WHERE {"
-					 "  ?urn nie:isStoredAs ?f ." /* NB: ?f is used in filter. */
-					 "  ?tag nao:prefLabel %s ."
+					 "  ?urn nie:url ?f ." /* NB: ?f is used in filter. */
+					 "  ?label nao:prefLabel %s ."
 					 "  %s "
 					 "}",
 					 tag_escaped, 
@@ -635,11 +636,11 @@ tags_view_model_toggle_row (TrackerTagsView *tv,
 		TagData *td;
 
 		query = g_strdup_printf ("DELETE { "
-					 "  ?urn nao:hasTag ?tag "
+					 "  ?urn nao:hasTag ?label "
 					 "} "
 					 "WHERE { "
-					 "  ?urn nie:isStoredAs ?f ." /* NB: ?f is used in filter. */
-					 "  ?tag nao:prefLabel %s ."
+					 "  ?urn nie:url ?f ." /* NB: ?f is used in filter. */
+					 "  ?label nao:prefLabel %s ."
 					 "  %s "
 					 "}",
 					 tag_escaped, 
@@ -847,12 +848,12 @@ tags_view_create_ui (TrackerTagsView *tv)
 	                  tv);
 
 	tracker_resources_sparql_query_async (tv->private->tracker_client,
-					      "SELECT ?u ?t "
+					      "SELECT ?urn ?label "
 					      "WHERE {"
-					      "  ?u a nao:Tag ;"
-					      "  nao:prefLabel ?t ."
-					      "}"
-	                                      "ORDER BY ?t",
+					      "  ?urn a nao:Tag ;"
+					      "  nao:prefLabel ?label . "
+					      "} "
+	                                      "ORDER BY ?label",
 					      tags_view_add_tags_cb, tv);
 
 	gtk_widget_show_all (GTK_WIDGET (tv));

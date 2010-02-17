@@ -101,7 +101,7 @@ tracker_tags_get_filter_string (GStrv        files,
 	}
 
 	for (i = 0; i < len; i++) {
-		g_string_append_printf (filter, "?f = <%s>", files[i]);
+		g_string_append_printf (filter, "?f = \"%s\"", files[i]);
 
 		if (i < len - 1) {
 			g_string_append (filter, " || ");
@@ -174,7 +174,8 @@ tracker_tags_add_query (const gchar *tag_label)
 				 "  } ."
 				 "  FILTER (!bound(?tag)) "
 				 "}",
-				 tag_label_escaped, tag_label_escaped);
+				 tag_label_escaped, 
+	                         tag_label_escaped);
 	g_free (tag_label_escaped);
 
 	return query;
