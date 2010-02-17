@@ -33,7 +33,7 @@ G_BEGIN_DECLS
  * @include: libtracker-extract/tracker-extract.h
  *
  * The libtracker-extract library is the foundation for Tracker
- * metadata extraction of embedded data in files. 
+ * metadata extraction of embedded data in files.
  *
  * Tracker comes with extractors written for the most common file
  * types (like MP3, JPEG, PNG, etc.), however, for more special cases,
@@ -44,18 +44,19 @@ G_BEGIN_DECLS
  * <example>
  * <title>Basic extractor example</title>
  * An example of how to write an extractor to retrieve PNG embedded
- * metadata. 
+ * metadata.
  * <programlisting>
  *  static void extract_png (const gchar          *filename,
+ *                           TrackerSparqlBuilder *preupdate,
  *                           TrackerSparqlBuilder *metadata);
- *  
+ *
  *  /&ast; Set functions to use to extract different mime types. &ast;/
  *  static TrackerExtractData extract_data[] = {
  *          { "image/png",  extract_png },
  *          { "sketch/png", extract_png },
  *          { NULL, NULL }
  *  };
- * 
+ *
  *  static void
  *  extract_png (const gchar          *uri,
  *               TrackerSparqlBuilder *preupdate,
@@ -118,7 +119,7 @@ G_BEGIN_DECLS
  * Since: 0.8
  **/
 typedef void (*TrackerExtractMimeFunc) (const gchar          *uri,
-					TrackerSparqlBuilder *preupdate,
+                                        TrackerSparqlBuilder *preupdate,
                                         TrackerSparqlBuilder *metadata);
 
 /**
