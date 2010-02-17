@@ -47,6 +47,7 @@ typedef struct {
 	TrackerTagsView *tv;
 	gchar *tag_id;
 	GtkTreeIter *iter;
+	gint items;
 	gboolean update;
 	gboolean selected;
 } TagData;
@@ -122,6 +123,7 @@ tag_data_new (gchar           *tag_id,
               GtkTreeIter     *iter,
               gboolean         update,
               gboolean         selected,
+              gint             items,
               TrackerTagsView *tv)
 {
 	TagData *td;
@@ -138,6 +140,7 @@ tag_data_new (gchar           *tag_id,
 		td->iter = NULL;
 	}
 
+	td->items = items;
 	td->update = update;
 	td->selected = selected;
 
@@ -173,6 +176,7 @@ tag_data_copy (TagData *td)
 		new_td->iter = NULL;
 	}
 
+	new_td->items = td->items;
 	new_td->update = td->update;
 	new_td->selected = td->selected;
 
@@ -406,7 +410,7 @@ tags_view_append_foreach (gpointer data,
 	                    COL_SELECTION, SELECTION_FALSE, 
 	                    -1);
 
-	td = tag_data_new (strv[0], &iter, FALSE, TRUE, tv);
+	td = tag_data_new (strv[0], &iter, FALSE, TRUE, 1, tv);
 	tags_view_query_files_for_tag_id (td);
 }
 
@@ -479,16 +483,20 @@ tags_view_model_update_cb (GError   *error,
 
 		if (!td->update) {
 			GtkTreeIter iter;
+			gchar *str;
 
 			g_debug ("Setting tag selection state to ON (new)\n");
 
+			str = g_strdup_printf ("%d", td->items);
 			gtk_list_store_append (tv->private->store, &iter);
 			gtk_list_store_set (tv->private->store, &iter,
 			                    COL_TAG_ID, td->tag_id,
 			                    COL_TAG_NAME, tag,
-			                    COL_TAG_COUNT, 0,
+			                    COL_TAG_COUNT, str,
+			                    COL_TAG_COUNT_VALUE, td->items,
 			                    COL_SELECTION, SELECTION_TRUE,
 			                    -1);
+			g_free (str);
 		} else if (td->selected) {
 			g_debug ("Setting tag selection state to ON\n");
 
@@ -519,10 +527,13 @@ tags_view_add_tag (TrackerTagsView *tv,
                    const gchar     *tag)
 {
 	gchar *query;
+	gint files;
 
 	gtk_widget_set_sensitive (tv->private->entry, FALSE);
 
-	if (g_list_length (tv->private->files) > 0) {
+	files = g_list_length (tv->private->files);
+
+	if (files > 0) {
 		GStrv files;
 		gchar *tag_escaped;
 		gchar *filter;
@@ -565,7 +576,7 @@ tags_view_add_tag (TrackerTagsView *tv,
 	tracker_resources_sparql_update_async (tv->private->tracker_client,
 	                                       query,
 	                                       tags_view_model_update_cb,
-	                                       tag_data_new (NULL, NULL, FALSE, TRUE, tv));
+	                                       tag_data_new (NULL, NULL, FALSE, TRUE, files, tv));
 
 	g_free (query);
 }
@@ -649,7 +660,7 @@ tags_view_model_toggle_row (TrackerTagsView *tv,
 		/* Check if there are any files left with this tag and
 		 * remove tag if not.
 		 */
-		td = tag_data_new (id, &iter, FALSE, TRUE, tv);
+		td = tag_data_new (id, &iter, FALSE, TRUE, 1, tv);
 		tags_view_query_files_for_tag_id (td);
 	}
 
@@ -663,7 +674,7 @@ tags_view_model_toggle_row (TrackerTagsView *tv,
 	tracker_resources_sparql_update_async (tv->private->tracker_client, 
 	                                       query, 
 	                                       tags_view_model_update_cb, 
-	                                       tag_data_new (id, &iter, TRUE, selection, tv));
+	                                       tag_data_new (id, &iter, TRUE, selection, 1, tv));
 
 	g_free (id);
 	g_free (query);
