@@ -41,6 +41,8 @@
 #include "tracker-topanalyzer.h"
 #endif /* HAVE_STREAMANALYZER */
 
+#define EXTRACT_FUNCTION "tracker_extract_get_data"
+
 #define MAX_EXTRACT_TIME 10
 
 #define TRACKER_EXTRACT_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_EXTRACT, TrackerExtractPrivate))
@@ -168,7 +170,7 @@ tracker_extract_new (gboolean disable_shutdown,
 
 		g_module_make_resident (module);
 
-		if (g_module_symbol (module, "tracker_extract_get_data", (gpointer *) &func)) {
+		if (g_module_symbol (module, EXTRACT_FUNCTION, (gpointer *) &func)) {
 			ModuleData mdata;
 
 			mdata.module = module;
@@ -188,6 +190,9 @@ tracker_extract_new (gboolean disable_shutdown,
 					g_array_append_val (specific_extractors, mdata);
 				}
 			}
+		} else {
+			g_warning ("Could not load module '%s': Function %s() was not found, is it exported?", 
+			           name, EXTRACT_FUNCTION);
 		}
 
 		g_free (module_path);
