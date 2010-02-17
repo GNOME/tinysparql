@@ -1,8 +1,8 @@
 INSERT {
 	example:graphA a example:Graph ;
 		example:graphTitle "Graph Foo" .
-}
-INSERT INTO example:graphA {
-	example:resource a example:A ;
-		example:p 42
+	GRAPH example:graphA {
+		example:resource a example:A ;
+			example:p 42
+	}
 }
