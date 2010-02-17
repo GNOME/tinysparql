@@ -20,4 +20,6 @@ EXTRA_DIST = 				\
 	functions-xpath-2.out		\
 	functions-xpath-2.rq		\
 	functions-xpath-3.out		\
-	functions-xpath-3.rq
+	functions-xpath-3.rq		\
+	functions-xpath-4.out		\
+	functions-xpath-4.rq
