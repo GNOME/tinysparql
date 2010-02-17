@@ -2021,11 +2021,33 @@ public class Tracker.SparqlQuery : Object {
 	void parse_construct_triples_block (HashTable<string,string> var_value_map) throws SparqlError, DataError {
 		expect (SparqlTokenType.OPEN_BRACE);
 
-		if (current () != SparqlTokenType.CLOSE_BRACE) {
-			do {
+		while (current () != SparqlTokenType.CLOSE_BRACE) {
+			if (accept (SparqlTokenType.GRAPH)) {
+				var old_graph = current_graph;
+				current_graph = parse_construct_var_or_term (var_value_map);
+
+				expect (SparqlTokenType.OPEN_BRACE);
+
+				while (current () != SparqlTokenType.CLOSE_BRACE) {
+					current_subject = parse_construct_var_or_term (var_value_map);
+					parse_construct_property_list_not_empty (var_value_map);
+					if (!accept (SparqlTokenType.DOT)) {
+						// no triples following
+						break;
+					}
+				}
+
+				expect (SparqlTokenType.CLOSE_BRACE);
+
+				current_graph = old_graph;
+			} else {
 				current_subject = parse_construct_var_or_term (var_value_map);
 				parse_construct_property_list_not_empty (var_value_map);
-			} while (accept (SparqlTokenType.DOT) && current () != SparqlTokenType.CLOSE_BRACE);
+				if (!accept (SparqlTokenType.DOT) && current () != SparqlTokenType.GRAPH) {
+					// neither GRAPH nor triples following
+					break;
+				}
+			}
 		}
 
 		expect (SparqlTokenType.CLOSE_BRACE);
