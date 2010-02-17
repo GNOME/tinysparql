@@ -38,6 +38,7 @@ struct _TrackerClassPriv {
 	gchar *name;
 	gint count;
 	gint id;
+	gboolean is_new;
 
 	GArray *super_classes;
 };
@@ -57,7 +58,8 @@ enum {
 	PROP_URI,
 	PROP_NAME,
 	PROP_COUNT,
-	PROP_ID
+	PROP_ID,
+	PROP_IS_NEW
 };
 
 G_DEFINE_TYPE (TrackerClass, tracker_class, G_TYPE_OBJECT);
@@ -103,6 +105,13 @@ tracker_class_class_init (TrackerClassClass *klass)
 	                                                   G_MAXINT,
 	                                                   0,
 	                                                   G_PARAM_READABLE | G_PARAM_WRITABLE));
+	g_object_class_install_property (object_class,
+	                                 PROP_IS_NEW,
+	                                 g_param_spec_boolean ("is-new",
+	                                                       "is-new",
+	                                                       "Is new",
+	                                                       FALSE,
+	                                                       G_PARAM_READWRITE));
 
 	g_type_class_add_private (object_class, sizeof (TrackerClassPriv));
 }
@@ -156,6 +165,9 @@ class_get_property (GObject    *object,
 	case PROP_ID:
 		g_value_set_int (value, priv->id);
 		break;
+	case PROP_IS_NEW:
+		g_value_set_boolean (value, priv->is_new);
+		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, param_id, pspec);
 		break;
@@ -180,6 +192,10 @@ class_set_property (GObject      *object,
 	case PROP_ID:
 		tracker_class_set_id (TRACKER_CLASS (object),
 		                      g_value_get_int (value));
+		break;
+	case PROP_IS_NEW:
+		tracker_class_set_is_new (TRACKER_CLASS (object),
+		                             g_value_get_boolean (value));
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, param_id, pspec);
@@ -255,6 +271,18 @@ tracker_class_get_super_classes (TrackerClass *service)
 	priv = GET_PRIV (service);
 
 	return (TrackerClass **) priv->super_classes->data;
+}
+
+gboolean
+tracker_class_get_is_new (TrackerClass *service)
+{
+	TrackerClassPriv *priv;
+
+	g_return_val_if_fail (TRACKER_IS_CLASS (service), FALSE);
+
+	priv = GET_PRIV (service);
+
+	return priv->is_new;
 }
 
 void
@@ -361,3 +389,16 @@ tracker_class_add_super_class (TrackerClass *service,
 	g_array_append_val (priv->super_classes, value);
 }
 
+void
+tracker_class_set_is_new (TrackerClass *service,
+                          gboolean         value)
+{
+	TrackerClassPriv *priv;
+
+	g_return_if_fail (TRACKER_IS_CLASS (service));
+
+	priv = GET_PRIV (service);
+
+	priv->is_new = value;
+	g_object_notify (G_OBJECT (service), "is-new");
+}

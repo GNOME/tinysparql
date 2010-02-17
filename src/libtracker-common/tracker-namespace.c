@@ -33,6 +33,7 @@ typedef struct _TrackerNamespacePriv TrackerNamespacePriv;
 struct _TrackerNamespacePriv {
 	gchar *uri;
 	gchar *prefix;
+	gboolean is_new;
 };
 
 static void namespace_finalize     (GObject      *object);
@@ -48,7 +49,8 @@ static void namespace_set_property (GObject      *object,
 enum {
 	PROP_0,
 	PROP_URI,
-	PROP_PREFIX
+	PROP_PREFIX,
+	PROP_IS_NEW
 };
 
 G_DEFINE_TYPE (TrackerNamespace, tracker_namespace, G_TYPE_OBJECT);
@@ -76,6 +78,13 @@ tracker_namespace_class_init (TrackerNamespaceClass *klass)
 	                                                      "Prefix",
 	                                                      NULL,
 	                                                      G_PARAM_READWRITE));
+	g_object_class_install_property (object_class,
+	                                 PROP_IS_NEW,
+	                                 g_param_spec_boolean ("is-new",
+	                                                       "is-new",
+	                                                       "Set to TRUE when a new class or property is to be added to the database ontology",
+	                                                       FALSE,
+	                                                       G_PARAM_READWRITE));
 
 	g_type_class_add_private (object_class, sizeof (TrackerNamespacePriv));
 }
@@ -115,6 +124,9 @@ namespace_get_property (GObject          *object,
 	case PROP_PREFIX:
 		g_value_set_string (value, priv->prefix);
 		break;
+	case PROP_IS_NEW:
+		g_value_set_boolean (value, priv->is_new);
+		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, param_id, pspec);
 		break;
@@ -139,6 +151,10 @@ namespace_set_property (GObject            *object,
 	case PROP_PREFIX:
 		tracker_namespace_set_prefix (TRACKER_NAMESPACE (object),
 		                              g_value_get_string (value));
+		break;
+	case PROP_IS_NEW:
+		tracker_namespace_set_is_new (TRACKER_NAMESPACE (object),
+		                              g_value_get_boolean (value));
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, param_id, pspec);
@@ -178,6 +194,18 @@ tracker_namespace_get_prefix (TrackerNamespace *namespace)
 	priv = GET_PRIV (namespace);
 
 	return priv->prefix;
+}
+
+gboolean
+tracker_namespace_get_is_new (TrackerNamespace *namespace)
+{
+	TrackerNamespacePriv *priv;
+
+	g_return_val_if_fail (TRACKER_IS_NAMESPACE (namespace), FALSE);
+
+	priv = GET_PRIV (namespace);
+
+	return priv->is_new;
 }
 
 void
@@ -222,3 +250,16 @@ tracker_namespace_set_prefix (TrackerNamespace *namespace,
 	g_object_notify (G_OBJECT (namespace), "prefix");
 }
 
+void
+tracker_namespace_set_is_new (TrackerNamespace *namespace,
+                              gboolean          value)
+{
+	TrackerNamespacePriv *priv;
+
+	g_return_if_fail (TRACKER_IS_NAMESPACE (namespace));
+
+	priv = GET_PRIV (namespace);
+
+	priv->is_new = value;
+	g_object_notify (G_OBJECT (namespace), "is-new");
+}

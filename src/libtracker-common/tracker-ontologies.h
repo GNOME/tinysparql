@@ -85,4 +85,3 @@ void               tracker_ontologies_add_id_uri_pair      (gint              id
 G_END_DECLS
 
 #endif /* __LIBTRACKER_COMMON_ONTOLOGY_H__ */
-

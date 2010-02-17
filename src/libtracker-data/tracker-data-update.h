@@ -51,6 +51,7 @@ typedef void (*TrackerStatementCallback) (const gchar *graph,
 typedef void (*TrackerCommitCallback)    (gpointer     user_data);
 
 GQuark   tracker_data_error_quark                   (void);
+gint     tracker_data_update_get_new_service_id     (void);
 
 /* Metadata */
 void     tracker_data_delete_resource_description   (const gchar               *graph,

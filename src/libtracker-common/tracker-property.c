@@ -55,6 +55,7 @@ struct _TrackerPropertyPriv {
 	gboolean       filtered;
 	gboolean       transient;
 	gboolean       is_inverse_functional_property;
+	gboolean       is_new;
 
 	GArray        *super_properties;
 };
@@ -84,7 +85,8 @@ enum {
 	PROP_FILTERED,
 	PROP_TRANSIENT,
 	PROP_IS_INVERSE_FUNCTIONAL_PROPERTY,
-	PROP_ID
+	PROP_ID,
+	PROP_IS_NEW
 };
 
 GType
@@ -259,6 +261,13 @@ tracker_property_class_init (TrackerPropertyClass *klass)
 	                                                       "Is inverse functional property",
 	                                                       FALSE,
 	                                                       G_PARAM_READWRITE));
+	g_object_class_install_property (object_class,
+	                                 PROP_IS_NEW,
+	                                 g_param_spec_boolean ("is-new",
+	                                                       "is-new",
+	                                                       "Set to TRUE when a new class or property is to be added to the database ontology",
+	                                                       FALSE,
+	                                                       G_PARAM_READWRITE));
 
 
 	g_type_class_add_private (object_class, sizeof (TrackerPropertyPriv));
@@ -341,6 +350,9 @@ property_get_property (GObject    *object,
 	case PROP_FULLTEXT_INDEXED:
 		g_value_set_boolean (value, priv->fulltext_indexed);
 		break;
+	case PROP_IS_NEW:
+		g_value_set_boolean (value, priv->is_new);
+		break;
 	case PROP_EMBEDDED:
 		g_value_set_boolean (value, priv->embedded);
 		break;
@@ -396,6 +408,10 @@ property_set_property (GObject      *object,
 	case PROP_INDEXED:
 		tracker_property_set_indexed (TRACKER_PROPERTY (object),
 		                              g_value_get_boolean (value));
+		break;
+	case PROP_IS_NEW:
+		tracker_property_set_is_new (TRACKER_PROPERTY (object),
+		                             g_value_get_boolean (value));
 		break;
 	case PROP_FULLTEXT_INDEXED:
 		tracker_property_set_fulltext_indexed (TRACKER_PROPERTY (object),
@@ -590,6 +606,17 @@ tracker_property_get_fulltext_indexed (TrackerProperty *field)
 	return priv->fulltext_indexed;
 }
 
+gboolean
+tracker_property_get_is_new (TrackerProperty *field)
+{
+	TrackerPropertyPriv *priv;
+
+	g_return_val_if_fail (TRACKER_IS_PROPERTY (field), FALSE);
+
+	priv = GET_PRIV (field);
+
+	return priv->is_new;
+}
 
 gboolean
 tracker_property_get_embedded (TrackerProperty *field)
@@ -827,6 +854,20 @@ tracker_property_set_indexed (TrackerProperty *field,
 
 	priv->indexed = value;
 	g_object_notify (G_OBJECT (field), "indexed");
+}
+
+void
+tracker_property_set_is_new (TrackerProperty *field,
+                             gboolean         value)
+{
+	TrackerPropertyPriv *priv;
+
+	g_return_if_fail (TRACKER_IS_PROPERTY (field));
+
+	priv = GET_PRIV (field);
+
+	priv->is_new = value;
+	g_object_notify (G_OBJECT (field), "is-new");
 }
 
 void

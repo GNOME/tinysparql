@@ -312,4 +312,3 @@ tracker_ontologies_get_ontology_by_uri (const gchar *uri)
 
 	return g_hash_table_lookup (ontology_uris, uri);
 }
-

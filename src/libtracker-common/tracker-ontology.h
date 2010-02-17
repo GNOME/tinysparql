@@ -54,8 +54,12 @@ time_t            tracker_ontology_get_last_modified (TrackerOntology *ontology)
 void              tracker_ontology_set_last_modified (TrackerOntology *ontology,
                                                       time_t           value);
 const gchar *     tracker_ontology_get_uri           (TrackerOntology *ontology);
+gboolean          tracker_ontology_get_is_new        (TrackerOntology *ontology);
+
 void              tracker_ontology_set_uri           (TrackerOntology *ontology,
                                                       const gchar      *value);
+void              tracker_ontology_set_is_new        (TrackerOntology *ontology,
+                                                      gboolean         value);
 
 G_END_DECLS
 

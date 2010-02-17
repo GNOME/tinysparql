@@ -198,11 +198,11 @@ GQuark tracker_data_error_quark (void) {
 	return g_quark_from_static_string ("tracker_data_error-quark");
 }
 
-static gint
-tracker_data_update_get_new_service_id (TrackerDBInterface *iface)
+gint
+tracker_data_update_get_new_service_id (void)
 {
 	TrackerDBCursor    *cursor;
-	TrackerDBInterface *temp_iface;
+	TrackerDBInterface *iface;
 	TrackerDBStatement *stmt;
 
 	static gint         max = 0;
@@ -211,9 +211,9 @@ tracker_data_update_get_new_service_id (TrackerDBInterface *iface)
 		return ++max;
 	}
 
-	temp_iface = tracker_db_manager_get_db_interface ();
+	iface = tracker_db_manager_get_db_interface ();
 
-	stmt = tracker_db_interface_create_statement (temp_iface,
+	stmt = tracker_db_interface_create_statement (iface,
 	                                              "SELECT MAX(ID) AS A FROM Resource");
 	cursor = tracker_db_statement_start_cursor (stmt, NULL);
 	g_object_unref (stmt);
@@ -387,7 +387,7 @@ static gint
 ensure_resource_id (const gchar *uri,
                     gboolean    *create)
 {
-	TrackerDBInterface *iface, *common;
+	TrackerDBInterface *iface;
 	TrackerDBStatement *stmt;
 
 	gint id;
@@ -399,11 +399,9 @@ ensure_resource_id (const gchar *uri,
 	}
 
 	if (id == 0) {
-		/* object resource not yet in the database */
-		common = tracker_db_manager_get_db_interface ();
 		iface = tracker_db_manager_get_db_interface ();
 
-		id = tracker_data_update_get_new_service_id (common);
+		id = tracker_data_update_get_new_service_id ();
 		stmt = tracker_db_interface_create_statement (iface, "INSERT INTO Resource (ID, Uri) VALUES (?, ?)");
 		tracker_db_statement_bind_int (stmt, 0, id);
 		tracker_db_statement_bind_text (stmt, 1, uri);

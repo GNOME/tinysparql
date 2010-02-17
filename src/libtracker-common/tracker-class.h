@@ -53,6 +53,7 @@ const gchar *   tracker_class_get_uri           (TrackerClass  *service);
 const gchar *   tracker_class_get_name          (TrackerClass  *service);
 gint            tracker_class_get_count         (TrackerClass  *service);
 gint            tracker_class_get_id            (TrackerClass  *service);
+gboolean        tracker_class_get_is_new        (TrackerClass  *service);
 
 TrackerClass  **tracker_class_get_super_classes (TrackerClass  *service);
 void            tracker_class_set_uri           (TrackerClass  *service,
@@ -65,6 +66,8 @@ void            tracker_class_add_super_class   (TrackerClass  *self,
                                                  TrackerClass  *value);
 void            tracker_class_set_id            (TrackerClass  *service,
                                                  gint           id);
+void            tracker_class_set_is_new        (TrackerClass  *service,
+                                                 gboolean       value);
 
 G_END_DECLS
 
