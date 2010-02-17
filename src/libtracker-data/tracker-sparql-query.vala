@@ -60,6 +60,9 @@ public class Tracker.SparqlQuery : Object {
 			}
 		}
 		string? _sql_expression;
+		public string get_extra_sql_expression (string suffix) {
+			return "\"%s\".\"%s:%s\"".printf (table.sql_query_tablename, sql_db_column_name, suffix);
+		}
 	}
 
 	// Represents a mapping of a SPARQL literal to a SQL table and column
@@ -85,10 +88,16 @@ public class Tracker.SparqlQuery : Object {
 		public string name { get; private set; }
 		public string sql_expression { get; private set; }
 		public VariableBinding binding;
+		string sql_identifier;
 
 		public Variable (string name, string sql_identifier) {
 			this.name = name;
+			this.sql_identifier = sql_identifier;
 			this.sql_expression = "\"%s\"".printf (sql_identifier);
+		}
+
+		public string get_extra_sql_expression (string suffix) {
+			return "\"%s:%s\"".printf (sql_identifier, suffix);
 		}
 	}
 
@@ -1458,6 +1467,80 @@ public class Tracker.SparqlQuery : Object {
 			sql.append (")");
 
 			return PropertyType.STRING;
+		} else if (uri == FN_NS + "year-from-dateTime") {
+			expect (SparqlTokenType.VAR);
+			string variable_name = get_last_string ().substring (1);
+			var variable = get_variable (variable_name);
+
+			sql.append ("strftime (\"%Y\", ");
+			sql.append (variable.get_extra_sql_expression ("localDate"));
+			sql.append (" * 24 * 3600, \"unixepoch\")");
+
+			return PropertyType.INTEGER;
+		} else if (uri == FN_NS + "month-from-dateTime") {
+			expect (SparqlTokenType.VAR);
+			string variable_name = get_last_string ().substring (1);
+			var variable = get_variable (variable_name);
+
+			sql.append ("strftime (\"%m\", ");
+			sql.append (variable.get_extra_sql_expression ("localDate"));
+			sql.append (" * 24 * 3600, \"unixepoch\")");
+
+			return PropertyType.INTEGER;
+		} else if (uri == FN_NS + "day-from-dateTime") {
+			expect (SparqlTokenType.VAR);
+			string variable_name = get_last_string ().substring (1);
+			var variable = get_variable (variable_name);
+
+			sql.append ("strftime (\"%d\", ");
+			sql.append (variable.get_extra_sql_expression ("localDate"));
+			sql.append (" * 24 * 3600, \"unixepoch\")");
+
+			return PropertyType.INTEGER;
+		} else if (uri == FN_NS + "hours-from-dateTime") {
+			expect (SparqlTokenType.VAR);
+			string variable_name = get_last_string ().substring (1);
+			var variable = get_variable (variable_name);
+
+			sql.append ("(");
+			sql.append (variable.get_extra_sql_expression ("localTime"));
+			sql.append (" / 3600)");
+
+			return PropertyType.INTEGER;
+		} else if (uri == FN_NS + "minutes-from-dateTime") {
+			expect (SparqlTokenType.VAR);
+			string variable_name = get_last_string ().substring (1);
+			var variable = get_variable (variable_name);
+
+			sql.append ("(");
+			sql.append (variable.get_extra_sql_expression ("localTime"));
+			sql.append (" / 60 % 60)");
+
+			return PropertyType.INTEGER;
+		} else if (uri == FN_NS + "seconds-from-dateTime") {
+			expect (SparqlTokenType.VAR);
+			string variable_name = get_last_string ().substring (1);
+			var variable = get_variable (variable_name);
+
+			sql.append ("(");
+			sql.append (variable.get_extra_sql_expression ("localTime"));
+			sql.append ("% 60)");
+
+			return PropertyType.INTEGER;
+		} else if (uri == FN_NS + "timezone-from-dateTime") {
+			expect (SparqlTokenType.VAR);
+			string variable_name = get_last_string ().substring (1);
+			var variable = get_variable (variable_name);
+
+			sql.append ("(");
+			sql.append (variable.get_extra_sql_expression ("localDate"));
+			sql.append (" * 24 * 3600 + ");
+			sql.append (variable.get_extra_sql_expression ("localTime"));
+			sql.append ("- ");
+			sql.append (variable.sql_expression);
+			sql.append (")");
+
+			return PropertyType.INTEGER;
 		} else if (uri == FTS_NS + "rank") {
 			bool is_var;
 			string v = parse_var_or_term (null, out is_var);
@@ -2773,6 +2856,15 @@ public class Tracker.SparqlQuery : Object {
 			sql.append_printf ("%s AS %s, ",
 				binding.sql_expression,
 				binding.variable.sql_expression);
+
+			if (binding.data_type == PropertyType.DATETIME) {
+				sql.append_printf ("%s AS %s, ",
+					binding.get_extra_sql_expression ("localDate"),
+					binding.variable.get_extra_sql_expression ("localDate"));
+				sql.append_printf ("%s AS %s, ",
+					binding.get_extra_sql_expression ("localTime"),
+					binding.variable.get_extra_sql_expression ("localTime"));
+			}
 
 			subgraph_var_set.insert (binding.variable, variable_state);
 		}
