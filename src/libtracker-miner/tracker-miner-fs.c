@@ -74,9 +74,16 @@ typedef struct {
 	const gchar *uri;
 } RecursiveMoveData;
 
+typedef struct {
+	GNode *tree;
+	GQueue *nodes;
+} CrawledDirectoryData;
+
 struct TrackerMinerFSPrivate {
 	TrackerMonitor *monitor;
 	TrackerCrawler *crawler;
+
+	GQueue         *crawled_directories;
 
 	/* File queues for indexer */
 	GQueue         *items_created;
@@ -129,7 +136,8 @@ enum {
 	QUEUE_UPDATED,
 	QUEUE_DELETED,
 	QUEUE_MOVED,
-	QUEUE_IGNORE_NEXT_UPDATE
+	QUEUE_IGNORE_NEXT_UPDATE,
+	QUEUE_WAIT
 };
 
 enum {
@@ -205,14 +213,18 @@ static gboolean       crawler_check_directory_contents_cb (TrackerCrawler *crawl
                                                            GFile          *parent,
                                                            GList          *children,
                                                            gpointer        user_data);
-static void           crawler_finished_cb          (TrackerCrawler *crawler,
-                                                    GQueue         *found,
-                                                    gboolean        was_interrupted,
-                                                    guint           directories_found,
-                                                    guint           directories_ignored,
-                                                    guint           files_found,
-                                                    guint           files_ignored,
-                                                    gpointer        user_data);
+static void           crawler_directory_crawled_cb        (TrackerCrawler *crawler,
+							   GFile          *directory,
+							   GNode          *tree,
+							   guint           directories_found,
+							   guint           directories_ignored,
+							   guint           files_found,
+							   guint           files_ignored,
+							   gpointer        user_data);
+static void           crawler_finished_cb                 (TrackerCrawler *crawler,
+							   gboolean        was_interrupted,
+							   gpointer        user_data);
+
 static void           crawl_directories_start      (TrackerMinerFS *fs);
 static void           crawl_directories_stop       (TrackerMinerFS *fs);
 
@@ -222,6 +234,9 @@ static void           item_update_children_uri    (TrackerMinerFS    *fs,
                                                    RecursiveMoveData *data,
                                                    const gchar       *source_uri,
                                                    const gchar       *uri);
+
+static void           crawled_directory_data_free (CrawledDirectoryData *data);
+
 
 static guint signals[LAST_SIGNAL] = { 0, };
 
@@ -444,9 +459,7 @@ tracker_miner_fs_init (TrackerMinerFS *object)
 
 	priv = object->private;
 
-	/* For each module we create a TrackerCrawler and keep them in
-	 * a hash table to look up.
-	 */
+	priv->crawled_directories = g_queue_new ();
 	priv->items_created = g_queue_new ();
 	priv->items_updated = g_queue_new ();
 	priv->items_deleted = g_queue_new ();
@@ -467,6 +480,9 @@ tracker_miner_fs_init (TrackerMinerFS *object)
 	g_signal_connect (priv->crawler, "check-directory-contents",
 	                  G_CALLBACK (crawler_check_directory_contents_cb),
 	                  object);
+	g_signal_connect (priv->crawler, "directory-crawled",
+			  G_CALLBACK (crawler_directory_crawled_cb),
+			  object);
 	g_signal_connect (priv->crawler, "finished",
 	                  G_CALLBACK (crawler_finished_cb),
 	                  object);
@@ -575,6 +591,9 @@ fs_finalize (GObject *object)
 		g_list_foreach (priv->directories, (GFunc) directory_data_free, NULL);
 		g_list_free (priv->directories);
 	}
+
+	g_queue_foreach (priv->crawled_directories, (GFunc) crawled_directory_data_free, NULL);
+	g_queue_free (priv->crawled_directories);
 
 	g_list_foreach (priv->processing_pool, (GFunc) process_data_free, NULL);
 	g_list_free (priv->processing_pool);
@@ -1463,6 +1482,80 @@ check_ignore_next_update (TrackerMinerFS *fs, GFile *queue_file)
 	return FALSE;
 }
 
+static void
+fill_in_queue (TrackerMinerFS       *fs,
+	       GQueue               *queue)
+{
+	CrawledDirectoryData *dir_data;
+	GList *l, *post_nodes = NULL;
+	GFile *file;
+	GNode *node;
+
+	dir_data = g_queue_peek_head (fs->private->crawled_directories);
+
+	if (g_queue_is_empty (dir_data->nodes)) {
+		/* Special case, append the root directory for the tree */
+		node = dir_data->tree;
+		file = node->data;
+
+		if (!g_object_get_qdata (G_OBJECT (file), fs->private->quark_ignore_file)) {
+			g_queue_push_tail (queue, g_object_ref (file));
+		}
+
+		g_queue_push_tail (dir_data->nodes, node);
+
+		return;
+	}
+
+	node = g_queue_pop_head (dir_data->nodes);
+
+	/* There are nodes in the middle of processing. Append
+	 * items to the queue, an add directories to post_nodes,
+	 * so they can be processed later on.
+	 */
+	while (node) {
+		GNode *children;
+		gchar *uri;
+
+		children = node->children;
+
+		uri = g_file_get_uri (node->data);
+		g_message ("Adding files from directory '%s' into the processing queue", uri);
+		g_free (uri);
+
+		while (children) {
+			file = children->data;
+
+			if (!g_object_get_qdata (G_OBJECT (file), fs->private->quark_ignore_file)) {
+				g_queue_push_tail (queue, g_object_ref (file));
+			}
+
+			if (children->children) {
+				post_nodes = g_list_prepend (post_nodes, children);
+			}
+
+			children = children->next;
+		}
+
+		node = g_queue_pop_head (dir_data->nodes);
+	}
+
+	/* Children collected in post_nodes will be
+	 * the ones processed on the next iteration
+	 */
+	for (l = post_nodes; l; l = l->next) {
+		g_queue_push_tail (dir_data->nodes, l->data);
+	}
+
+	g_list_free (post_nodes);
+
+	if (g_queue_is_empty (dir_data->nodes)) {
+		/* There's no more data to process, move on to the next one */
+		g_queue_pop_head (fs->private->crawled_directories);
+		crawled_directory_data_free (dir_data);
+	}
+}
+
 static gint
 item_queue_get_next_file (TrackerMinerFS  *fs,
                           GFile          **file,
@@ -1481,6 +1574,24 @@ item_queue_get_next_file (TrackerMinerFS  *fs,
 		}
 		*file = queue_file;
 		return QUEUE_DELETED;
+	}
+
+	if (g_queue_is_empty (fs->private->items_created) &&
+	    !g_queue_is_empty (fs->private->crawled_directories)) {
+		/* The items_created queue is empty, but there are pending
+		 * items from the crawler to be processed. We feed the queue
+		 * in this manner so it's ensured that the parent directory
+		 * info is inserted to the store before the children are
+		 * inspected.
+		 */
+		if (fs->private->processing_pool) {
+			/* Items still being processed */
+			*file = NULL;
+			*source_file = NULL;
+			return QUEUE_WAIT;
+		} else {
+			fill_in_queue (fs, fs->private->items_created);
+		}
 	}
 
 	/* Created items next */
@@ -1570,6 +1681,16 @@ item_queue_handlers_cb (gpointer user_data)
 
 	fs = user_data;
 	queue = item_queue_get_next_file (fs, &file, &source_file);
+
+	if (queue == QUEUE_WAIT) {
+		/* Items are still being processed, and there is pending
+		 * data in priv->crawled_directories, so wait until
+		 * the processing pool is cleared before starting with
+		 * the next directories batch.
+		 */
+		fs->private->item_queues_handler_id = 0;
+		return FALSE;
+	}
 
 	if (file && queue != QUEUE_DELETED &&
 	    tracker_file_is_locked (file)) {
@@ -2099,29 +2220,87 @@ crawler_check_directory_contents_cb (TrackerCrawler *crawler,
 	return process;
 }
 
-static void
-crawler_finished_cb (TrackerCrawler *crawler,
-                     GQueue         *found,
-                     gboolean        was_interrupted,
-                     guint           directories_found,
-                     guint           directories_ignored,
-                     guint           files_found,
-                     guint           files_ignored,
-                     gpointer        user_data)
+#if 0
+static gboolean
+print_file_tree (GNode    *node,
+		 gpointer  user_data)
 {
-	TrackerMinerFS *fs = user_data;
-	GList *l;
+	gchar *name;
+	gint i;
 
-	/* Add items in queue to current queues. */
-	for (l = found->head; l; l = l->next) {
-		GFile *file = l->data;
+	name = g_file_get_basename (node->data);
 
-		if (!g_object_get_qdata (G_OBJECT (file), fs->private->quark_ignore_file)) {
-			g_queue_push_tail (fs->private->items_created, g_object_ref (file));
-		}
+	/* Indentation */
+	for (i = g_node_depth (node) - 1; i > 0; i--) {
+		g_print ("  ");
 	}
 
-	fs->private->is_crawling = FALSE;
+	g_print ("%s\n", name);
+	g_free (name);
+
+	return FALSE;
+}
+#endif
+
+static CrawledDirectoryData *
+crawled_directory_data_new (GNode *tree)
+{
+	CrawledDirectoryData *data;
+
+	data = g_slice_new (CrawledDirectoryData);
+	data->tree = g_node_copy_deep (tree, (GCopyFunc) g_object_ref, NULL);
+	data->nodes = g_queue_new ();
+
+	return data;
+}
+
+static gboolean
+crawled_directory_data_free_foreach (GNode    *node,
+				     gpointer  user_data)
+{
+	g_object_unref (node->data);
+	return FALSE;
+}
+
+static void
+crawled_directory_data_free (CrawledDirectoryData *data)
+{
+	g_node_traverse (data->tree,
+			 G_PRE_ORDER,
+			 G_TRAVERSE_ALL,
+			 -1,
+			 crawled_directory_data_free_foreach,
+			 NULL);
+	g_node_destroy (data->tree);
+
+	g_slice_free (CrawledDirectoryData, data);
+}
+
+static void
+crawler_directory_crawled_cb (TrackerCrawler *crawler,
+			      GFile          *directory,
+			      GNode          *tree,
+			      guint           directories_found,
+			      guint           directories_ignored,
+			      guint           files_found,
+			      guint           files_ignored,
+			      gpointer        user_data)
+{
+	TrackerMinerFS *fs = user_data;
+	CrawledDirectoryData *dir_data;
+
+#if 0
+	/* Debug printing of the directory tree */
+	g_node_traverse (tree, G_PRE_ORDER, G_TRAVERSE_ALL, -1,
+			 print_file_tree, NULL);
+#endif
+
+	/* Add tree to the crawled directories queue, this queue
+	 * will be used to fill priv->items_created in when no
+	 * further data is left there.
+	 */
+	dir_data = crawled_directory_data_new (tree);
+	g_queue_push_tail (fs->private->crawled_directories, dir_data);
 
 	/* Update stats */
 	fs->private->directories_found += directories_found;
@@ -2134,15 +2313,26 @@ crawler_finished_cb (TrackerCrawler *crawler,
 	fs->private->total_files_found += files_found;
 	fs->private->total_files_ignored += files_ignored;
 
-	g_message ("%s crawling files after %2.2f seconds",
-	           was_interrupted ? "Stopped" : "Finished",
-	           g_timer_elapsed (fs->private->timer, NULL));
 	g_message ("  Found %d directories, ignored %d directories",
 	           directories_found,
 	           directories_ignored);
 	g_message ("  Found %d files, ignored %d files",
 	           files_found,
 	           files_ignored);
+}
+
+static void
+crawler_finished_cb (TrackerCrawler *crawler,
+                     gboolean        was_interrupted,
+		     gpointer        user_data)
+{
+	TrackerMinerFS *fs = user_data;
+
+	fs->private->is_crawling = FALSE;
+
+	g_message ("%s crawling files after %2.2f seconds",
+	           was_interrupted ? "Stopped" : "Finished",
+	           g_timer_elapsed (fs->private->timer, NULL));
 
 	directory_data_free (fs->private->current_directory);
 	fs->private->current_directory = NULL;
