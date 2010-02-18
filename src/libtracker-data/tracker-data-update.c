@@ -198,7 +198,7 @@ GQuark tracker_data_error_quark (void) {
 	return g_quark_from_static_string ("tracker_data_error-quark");
 }
 
-gint
+static gint
 tracker_data_update_get_new_service_id (void)
 {
 	TrackerDBCursor    *cursor;

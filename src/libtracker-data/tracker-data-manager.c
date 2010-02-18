@@ -1480,6 +1480,37 @@ get_ontologies (gboolean     test_schema,
 }
 
 
+static gint
+get_new_service_id (TrackerDBInterface *iface)
+{
+	TrackerDBCursor    *cursor;
+	TrackerDBStatement *stmt;
+
+	/* Don't intermix this thing with tracker_data_update_get_new_service_id,
+	 * if you use this, know what you are doing! */
+
+	static gint         max = 0;
+
+	if (G_LIKELY (max != 0)) {
+		return ++max;
+	}
+
+	iface = tracker_db_manager_get_db_interface ();
+
+	stmt = tracker_db_interface_create_statement (iface,
+	                                              "SELECT MAX(ID) AS A FROM Resource");
+	cursor = tracker_db_statement_start_cursor (stmt, NULL);
+	g_object_unref (stmt);
+
+	if (cursor) {
+		tracker_db_cursor_iter_next (cursor);
+		max = MAX (tracker_db_cursor_get_int (cursor, 0), max);
+		g_object_unref (cursor);
+	}
+
+	return ++max;
+}
+
 gboolean
 tracker_data_manager_init (TrackerDBManagerFlags  flags,
                            const gchar           *test_schema,
@@ -1679,7 +1710,7 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 
 					if (max_id == 0) {
 						/* In case of first-time, this wont start at zero */
-						max_id = tracker_data_update_get_new_service_id ();
+						max_id = get_new_service_id (iface);
 					}
 
 					load_ontology_file (ontology_file, &max_id, TRUE);
