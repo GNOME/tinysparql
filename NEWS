@@ -1,3 +1,68 @@
+NEW in 0.7.21
+=============
+
+Improvements / New:
+
+  General:
+  * Bumped GTK+ requirement to 2.18
+
+  Tests:
+  * Restructured data and added metadata extraction test
+
+  SPARQL:
+  * Support simple named graph patterns in queries
+
+  libtracker-db:
+  * Fixed compiler warnings in function_sparql_cartesian_distance()
+  * Updated journal to support named graphs
+
+  libtracker-common:
+  * Fixed header filename for TurtleWriter
+
+  libtracker-client:
+  * Refactored away tracker-statement-list API
+
+  libtracker-extract:
+  * Moved libtracker-common functions here only used in tracker-extract
+  * Fixed documentation example since preupdate was added
+
+  tracker-extract:
+  * Fixed linking so we include libtracker-extract for extractors
+  * Added missing warning if required GModule functions are not found
+
+  tracker-info:
+  * Print queried URN (since we use anonymous nodes for files now)
+
+  tracker-tag:
+  * Fixed looking up tags by filename and don't require explicit paths
+  * Removed unused code and fixed memory leak when removing tags
+
+  tracker-search-tool:
+  * Added gradient fill to metadata tile
+  * Fixed display of type and file size in metadata tile
+
+  nautilus:
+  * Don't show an empty file count when adding new tags
+
+  kmail:
+  * Fixed linking so we include libtracker-client
+
+Bugs:
+
+  * GB#610026, Nautilus Tagging Extension does not work at all.
+  * GB#610318, Bump GTK+ dep to 2.18 due to gtk_widget_set_can_default()
+
+Translations:
+
+  * Updated de: Mario Blättermann
+
+Notes:
+
+  The Deskbar applet packaged with Tracker is currently out of date
+  and needs some love to get it working with the new APIs. It is in
+  the same state as it was for 0.6. As such it isn't expected to work.
+
+
 NEW in 0.7.20
 =============
 
