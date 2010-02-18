@@ -350,7 +350,7 @@ load_ontology_statement (const gchar *ontology_file,
 			return;
 		}
 
-		tracker_ontology_set_last_modified (ontology, tracker_string_to_date (object));
+		tracker_ontology_set_last_modified (ontology, tracker_string_to_date (object, NULL));
 	}
 
 }
@@ -445,7 +445,7 @@ get_ontology_from_file (const gchar *ontology_file)
 				return NULL;
 			}
 
-			tracker_ontology_set_last_modified (ontology, tracker_string_to_date (object));
+			tracker_ontology_set_last_modified (ontology, tracker_string_to_date (object, NULL));
 			ret = g_object_ref (ontology);
 			break;
 		}
@@ -1110,7 +1110,8 @@ static void
 create_decomposed_metadata_property_table (TrackerDBInterface *iface,
                                            TrackerProperty    *property,
                                            const gchar        *service_name,
-                                           const gchar       **sql_type_for_single_value)
+                                           const gchar       **sql_type_for_single_value,
+                                           gboolean            is_new)
 {
 	const char *field_name;
 	const char *sql_type;
@@ -1143,76 +1144,87 @@ create_decomposed_metadata_property_table (TrackerDBInterface *iface,
 		break;
 	}
 
-	if (transient || tracker_property_get_multiple_values (property)) {
-		GString *sql;
+	if (!is_new || (is_new && (tracker_property_get_is_new (property)))) {
+		if (transient || tracker_property_get_multiple_values (property)) {
+			GString *sql;
 
-		sql = g_string_new ("");
-		g_string_append_printf (sql, "CREATE %sTABLE \"%s_%s\" ("
-		                             "ID INTEGER NOT NULL, "
-		                             "\"%s\" %s NOT NULL, "
-		                             "\"%s:graph\" INTEGER",
-		                             transient ? "TEMPORARY " : "",
-		                             service_name,
-		                             field_name,
-		                             field_name,
-		                             sql_type,
-		                             field_name);
+			/* multiple values */
 
-		if (tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_DATETIME) {
-			/* xsd:dateTime is stored in three columns:
-			 * universal time, local date, local time of day */
-			g_string_append_printf (sql,
-			                        ", \"%s:localDate\" INTEGER NOT NULL"
-			                        ", \"%s:localTime\" INTEGER NOT NULL",
-			                        tracker_property_get_name (property),
-			                        tracker_property_get_name (property));
+			if (is_new) {
+				g_debug ("Altering database for class '%s' property '%s': multi value",
+				         service_name, field_name);
+			}
+
+
+
+			sql = g_string_new ("");
+			g_string_append_printf (sql, "CREATE %sTABLE \"%s_%s\" ("
+			                             "ID INTEGER NOT NULL, "
+			                             "\"%s\" %s NOT NULL, "
+			                             "\"%s:graph\" INTEGER",
+			                             transient ? "TEMPORARY " : "",
+			                             service_name,
+			                             field_name,
+			                             field_name,
+			                             sql_type,
+			                             field_name);
+
+			if (tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_DATETIME) {
+				/* xsd:dateTime is stored in three columns:
+				 * universal time, local date, local time of day */
+				g_string_append_printf (sql,
+				                        ", \"%s:localDate\" INTEGER NOT NULL"
+				                        ", \"%s:localTime\" INTEGER NOT NULL",
+				                        tracker_property_get_name (property),
+				                        tracker_property_get_name (property));
+			}
+
+			/* multiple values */
+			if (tracker_property_get_indexed (property)) {
+				/* use different UNIQUE index for properties whose
+				 * value should be indexed to minimize index size */
+				tracker_db_interface_execute_query (iface, NULL,
+				                                    "%s, "
+				                                    "UNIQUE (\"%s\", ID))",
+				                                    sql->str,
+				                                    field_name);
+
+				tracker_db_interface_execute_query (iface, NULL,
+				                                    "CREATE INDEX \"%s_%s_ID\" ON \"%s_%s\" (ID)",
+				                                    service_name,
+				                                    field_name,
+				                                    service_name,
+				                                    field_name);
+			} else {
+				/* we still have to include the property value in
+				 * the unique index for proper constraints */
+				tracker_db_interface_execute_query (iface, NULL,
+				                                    "%s, "
+				                                    "UNIQUE (ID, \"%s\"))",
+				                                    sql->str,
+				                                    field_name);
+			}
+
+			g_string_free (sql, TRUE);
+
+		} else if (sql_type_for_single_value) {
+			*sql_type_for_single_value = sql_type;
 		}
-
-		/* multiple values */
-		if (tracker_property_get_indexed (property)) {
-			/* use different UNIQUE index for properties whose
-			 * value should be indexed to minimize index size */
-			tracker_db_interface_execute_query (iface, NULL,
-			                                    "%s, "
-			                                    "UNIQUE (\"%s\", ID))",
-			                                    sql->str,
-			                                    field_name);
-
-			tracker_db_interface_execute_query (iface, NULL,
-			                                    "CREATE INDEX \"%s_%s_ID\" ON \"%s_%s\" (ID)",
-			                                    service_name,
-			                                    field_name,
-			                                    service_name,
-			                                    field_name);
-		} else {
-			/* we still have to include the property value in
-			 * the unique index for proper constraints */
-			tracker_db_interface_execute_query (iface, NULL,
-			                                    "%s, "
-			                                    "UNIQUE (ID, \"%s\"))",
-			                                    sql->str,
-			                                    field_name);
-		}
-
-		g_string_free (sql, TRUE);
-	} else if (sql_type_for_single_value) {
-		*sql_type_for_single_value = sql_type;
 	}
 }
 
 static void
 create_decomposed_metadata_tables (TrackerDBInterface *iface,
-                                   TrackerClass       *service)
+                                   TrackerClass       *service,
+                                   gboolean            is_new)
 {
-	const char *service_name;
-	GString    *sql;
-	TrackerProperty           **properties, *property;
-	GSList      *class_properties, *field_it;
-	gboolean    main_class;
-	gint        i, n_props;
-
-	/* TODO: copy with tracker_property_get_is_new together with a
-	 * tracker_property_get_multiple_values (ALTER TABLE situation) */
+	const char       *service_name;
+	GString          *create_sql = NULL;
+	TrackerProperty **properties, *property;
+	GSList           *class_properties, *field_it;
+	gboolean          main_class;
+	gint              i, n_props;
+	gboolean          in_alter = is_new;
 
 	service_name = tracker_class_get_name (service);
 	main_class = (strcmp (service_name, "rdfs:Resource") == 0);
@@ -1222,12 +1234,15 @@ create_decomposed_metadata_tables (TrackerDBInterface *iface,
 		return;
 	}
 
-	sql = g_string_new ("");
-	g_string_append_printf (sql, "CREATE TABLE \"%s\" (ID INTEGER NOT NULL PRIMARY KEY", service_name);
-	if (main_class) {
-		tracker_db_interface_execute_query (iface, NULL, "CREATE TABLE Resource (ID INTEGER NOT NULL PRIMARY KEY, Uri Text NOT NULL, UNIQUE (Uri))");
 
-		g_string_append (sql, ", Available INTEGER NOT NULL");
+	if (!is_new || (is_new && tracker_class_get_is_new (service))) {
+		in_alter = FALSE;
+		create_sql = g_string_new ("");
+		g_string_append_printf (create_sql, "CREATE TABLE \"%s\" (ID INTEGER NOT NULL PRIMARY KEY", service_name);
+		if (main_class) {
+			tracker_db_interface_execute_query (iface, NULL, "CREATE TABLE Resource (ID INTEGER NOT NULL PRIMARY KEY, Uri Text NOT NULL, UNIQUE (Uri))");
+			g_string_append (create_sql, ", Available INTEGER NOT NULL");
+		}
 	}
 
 	properties = tracker_ontologies_get_properties (&n_props);
@@ -1238,41 +1253,93 @@ create_decomposed_metadata_tables (TrackerDBInterface *iface,
 
 		if (tracker_property_get_domain (property) == service) {
 			const gchar *sql_type_for_single_value = NULL;
+			const gchar *field_name;
 
 			create_decomposed_metadata_property_table (iface, property,
 			                                           service_name,
-			                                           &sql_type_for_single_value);
+			                                           &sql_type_for_single_value,
+			                                           is_new);
+
+			field_name = tracker_property_get_name (property);
 
 			if (sql_type_for_single_value) {
 				/* single value */
 
-				class_properties = g_slist_prepend (class_properties, property);
+				if (!in_alter) {
+					class_properties = g_slist_prepend (class_properties, property);
 
-				g_string_append_printf (sql, ", \"%s\" %s",
-				                        tracker_property_get_name (property),
-				                        sql_type_for_single_value);
-				if (tracker_property_get_is_inverse_functional_property (property)) {
-					g_string_append (sql, " UNIQUE");
-				}
+					g_string_append_printf (create_sql, ", \"%s\" %s",
+					                        field_name,
+					                        sql_type_for_single_value);
+					if (tracker_property_get_is_inverse_functional_property (property)) {
+						g_string_append (create_sql, " UNIQUE");
+					}
 
-				g_string_append_printf (sql, ", \"%s:graph\" INTEGER",
-				                        tracker_property_get_name (property));
+					g_string_append_printf (create_sql, ", \"%s:graph\" INTEGER",
+					                        field_name);
 
-				if (tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_DATETIME) {
-					/* xsd:dateTime is stored in three columns:
-					 * universal time, local date, local time of day */
-					g_string_append_printf (sql, ", \"%s:localDate\" INTEGER, \"%s:localTime\" INTEGER",
-						                tracker_property_get_name (property),
-						                tracker_property_get_name (property));
+					if (tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_DATETIME) {
+						/* xsd:dateTime is stored in three columns:
+						 * universal time, local date, local time of day */
+						g_string_append_printf (create_sql, ", \"%s:localDate\" INTEGER, \"%s:localTime\" INTEGER",
+							                tracker_property_get_name (property),
+							                tracker_property_get_name (property));
+					}
+
+				} else if (tracker_property_get_is_new (property)) {
+					GString *alter_sql = NULL;
+
+					if (is_new) {
+						g_debug ("Altering database for class '%s' property '%s': single value",
+						         service_name, field_name);
+					}
+
+					class_properties = g_slist_prepend (class_properties, property);
+
+					alter_sql = g_string_new ("ALTER TABLE ");
+					g_string_append_printf (alter_sql, "\"%s\" ADD COLUMN \"%s\" %s",
+					                        service_name,
+					                        field_name,
+					                        sql_type_for_single_value);
+					if (tracker_property_get_is_inverse_functional_property (property)) {
+						g_string_append (alter_sql, " UNIQUE");
+					}
+					tracker_db_interface_execute_query (iface, NULL, "%s", alter_sql->str);
+					g_string_free (alter_sql, TRUE);
+
+					alter_sql = g_string_new ("ALTER TABLE ");
+					g_string_append_printf (alter_sql, "\"%s\" ADD COLUMN \"%s:graph\" INTEGER",
+					                        service_name,
+					                        field_name);
+					tracker_db_interface_execute_query (iface, NULL, "%s", alter_sql->str);
+					g_string_free (alter_sql, TRUE);
+
+					if (tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_DATETIME) {
+						alter_sql = g_string_new ("ALTER TABLE ");
+						g_string_append_printf (alter_sql, "\"%s\" ADD COLUMN \"%s:localDate\" INTEGER",
+						                        service_name,
+						                        field_name);
+						tracker_db_interface_execute_query (iface, NULL, "%s", alter_sql->str);
+						g_string_free (alter_sql, TRUE);
+
+						alter_sql = g_string_new ("ALTER TABLE ");
+						g_string_append_printf (alter_sql, "\"%s\" ADD COLUMN \"%s:localTime\" INTEGER",
+						                        service_name,
+						                        field_name);
+						tracker_db_interface_execute_query (iface, NULL, "%s", alter_sql->str);
+						g_string_free (alter_sql, TRUE);
+
+					}
 				}
 			}
 		}
 	}
 
-	g_string_append (sql, ")");
-	tracker_db_interface_execute_query (iface, NULL, "%s", sql->str);
-
-	g_string_free (sql, TRUE);
+	if (create_sql) {
+		g_string_append (create_sql, ")");
+		tracker_db_interface_execute_query (iface, NULL, "%s", create_sql->str);
+		g_string_free (create_sql, TRUE);
+	}
 
 	/* create index for single-valued fields */
 	for (field_it = class_properties; field_it != NULL; field_it = field_it->next) {
@@ -1323,7 +1390,7 @@ create_decomposed_transient_metadata_tables (TrackerDBInterface *iface)
 			/* create the TEMPORARY table */
 			create_decomposed_metadata_property_table (iface, property,
 			                                           service_name,
-			                                           NULL);
+			                                           NULL, FALSE);
 		}
 	}
 }
@@ -1354,13 +1421,10 @@ import_ontology_into_db (gboolean is_new)
 
 	/* create tables */
 	for (i = 0; i < n_classes; i++) {
-		/* TODO: allow this always when create_dec.. is adapted */
-		if (tracker_class_get_is_new (classes[i]) == is_new) {
-			create_decomposed_metadata_tables (iface, classes[i]);
-		}
+		/* Also !is_new classes are processed, they might have new properties */
+		create_decomposed_metadata_tables (iface, classes[i], is_new);
 	}
 
-	/* Allow when create_fts_table is adapted */
 	if (!is_new)
 		create_fts_table (iface);
 
@@ -1374,7 +1438,6 @@ import_ontology_into_db (gboolean is_new)
 
 	/* insert properties into rdfs:Resource table */
 	for (i = 0; i < n_props; i++) {
-			/* TODO: allow this always when above is it's allowed */
 		if (tracker_property_get_is_new (properties[i]) == is_new) {
 			insert_uri_in_resource_table (iface, tracker_property_get_uri (properties[i]),
 			                              tracker_property_get_id (properties[i]));
