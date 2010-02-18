@@ -535,7 +535,7 @@ enumerator_data_new (TrackerCrawler          *crawler,
 {
 	EnumeratorData *ed;
 
-	ed = g_slice_new0 (EnumeratorData);
+	ed = g_slice_new (EnumeratorData);
 
 	ed->crawler = g_object_ref (crawler);
 	ed->root_info = root_info;
