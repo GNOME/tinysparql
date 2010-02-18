@@ -51,6 +51,7 @@ Bugs:
 
   * GB#610026, Nautilus Tagging Extension does not work at all.
   * GB#610318, Bump GTK+ dep to 2.18 due to gtk_widget_set_can_default()
+  * NB#157277, Not able to search for files based on a particular tag
 
 Translations:
 
