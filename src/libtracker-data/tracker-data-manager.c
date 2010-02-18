@@ -1681,6 +1681,7 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 		for (l = sorted; l; l = l->next) {
 			TrackerOntology *ontology;
 			const gchar *ontology_file = l->data;
+			const gchar *ontology_uri;
 			gboolean found;
 			gpointer value;
 
@@ -1692,8 +1693,10 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 				continue;
 			}
 
+			ontology_uri = tracker_ontology_get_uri (ontology);
+
 			found = g_hash_table_lookup_extended (ontos_table,
-			                                      tracker_ontology_get_uri (ontology),
+			                                      ontology_uri,
 			                                      NULL, &value);
 
 			if (found) {
@@ -1715,6 +1718,20 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 
 					load_ontology_file (ontology_file, &max_id, TRUE);
 					to_reload = g_list_prepend (to_reload, l->data);
+
+					stmt = tracker_db_interface_create_statement (iface,
+					        "UPDATE \"rdfs:Resource\" SET \"nao:lastModified\"= ? "
+					        "WHERE \"rdfs:Resource\".ID = "
+					        "(SELECT Resource.ID FROM Resource INNER JOIN \"rdfs:Resource\" "
+					        "ON \"rdfs:Resource\".ID = Resource.ID WHERE "
+					        "Resource.Uri = ?)");
+
+					tracker_db_statement_bind_int (stmt, 0, last_mod);
+					tracker_db_statement_bind_text (stmt, 1, ontology_uri);
+					tracker_db_statement_execute (stmt, NULL);
+
+					g_object_unref (stmt);
+
 				}
 
 			}
