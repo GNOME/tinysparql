@@ -2329,7 +2329,7 @@ static void
 crawled_directory_data_free (CrawledDirectoryData *data)
 {
 	g_node_traverse (data->tree,
-			 G_PRE_ORDER,
+			 G_POST_ORDER,
 			 G_TRAVERSE_ALL,
 			 -1,
 			 crawled_directory_data_free_foreach,
