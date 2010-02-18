@@ -1992,6 +1992,7 @@ tracker_data_delete_resource_description (const gchar *graph,
 	TrackerDBStatement *stmt;
 	TrackerDBResultSet *result_set, *single_result, *multi_result;
 	TrackerClass       *class;
+	gchar              *urn;
 	GString            *sql;
 	TrackerProperty   **properties, *property;
 	int                 i;
@@ -2007,13 +2008,14 @@ tracker_data_delete_resource_description (const gchar *graph,
 
 	/* DROP GRAPH <url> - url here is nie:url */
 
-	stmt = tracker_db_interface_create_statement (iface, "SELECT ID FROM \"nie:DataObject\" WHERE \"nie:DataObject\".\"nie:url\" = ?");
+	stmt = tracker_db_interface_create_statement (iface, "SELECT ID, (SELECT Uri FROM Resource WHERE ID = \"nie:DataObject\".ID) FROM \"nie:DataObject\" WHERE \"nie:DataObject\".\"nie:url\" = ?");
 	tracker_db_statement_bind_text (stmt, 0, url);
 	result_set = tracker_db_statement_execute (stmt, NULL);
 	g_object_unref (stmt);
 
 	if (result_set) {
 		tracker_db_result_set_get (result_set, 0, &resource_id, -1);
+		tracker_db_result_set_get (result_set, 1, &urn, -1);
 		g_object_unref (result_set);
 	} else {
 		/* For fallback to the old behaviour, we could do this here:
@@ -2105,7 +2107,7 @@ tracker_data_delete_resource_description (const gchar *graph,
 					tracker_db_result_set_get (single_result, i++, &value, -1);
 
 					if (value) {
-						tracker_data_delete_statement (graph, url,
+						tracker_data_delete_statement (graph, urn,
 						                               tracker_property_get_uri (property),
 						                               value,
 						                               &new_error);
@@ -2140,7 +2142,7 @@ tracker_data_delete_resource_description (const gchar *graph,
 
 							tracker_db_result_set_get (multi_result, 0, &value, -1);
 
-							tracker_data_delete_statement (graph, url,
+							tracker_data_delete_statement (graph, urn,
 							                               tracker_property_get_uri (property),
 							                               value,
 							                               &new_error);
@@ -2170,6 +2172,8 @@ tracker_data_delete_resource_description (const gchar *graph,
 
 		g_object_unref (result_set);
 	}
+
+	g_free (urn);
 }
 
 
