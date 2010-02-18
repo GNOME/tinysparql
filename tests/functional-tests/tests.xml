@@ -1,56 +1,136 @@
-<?xml version="1.0" encoding="ISO-8859-1"?>
 <testdefinition version="0.1">
-  <suite name="tracker-tests" domain="tracker-store">
-    <!-- At least one set per suite, name and description mandatory -->
-    <set name="testset1" description="Basic sparql tests" feature="sparql-insert">
-      <pre_steps>
-        <!-- This doesn't seem to work -->
-        <step>. /tmp/session_bus_address.user</step>
-      </pre_steps>
-
-      <!-- At least one case per set, name mandatory, description mandatory, other optional -->
-      <case name="test_simple_insertion" type="Functional" level="Feature"
-            description="Insert and check results" requirement="01" subfeature="">
-        <!-- dbus env variables defined here. This works. -->
-        <step expected_result="0">. /tmp/session_bus_address.user; python2.5 /usr/share/tracker-tests/01-insertion.py</step>
+  <suite name="tracker">
+    <description />
+    <set name="_usr_share_tracker-tests_03-fts-functions.py">
+      <description>tracker:03-fts-functions.py</description>
+      <case name="03-fts-functions.py-TestFTSFunctions.test_fts_offsets">
+        <description>tracker:03-fts-functions.py:TestFTSFunctions.test_fts_offsets</description>
+        <step>/usr/share/tracker-tests/03-fts-functions.py TestFTSFunctions.test_fts_offsets</step>
       </case>
-
-      <case name="test_metacontact" type="Functional" level="Feature"
-            description="Metacontacts in the ontology" requirement="01" subfeature="">
-        <!-- dbus env variables defined here. This works. -->
-        <step expected_result="0">. /tmp/session_bus_address.user; python2.5 /usr/share/tracker-tests/02-metacontacts.py</step>
+      <case name="03-fts-functions.py-TestFTSFunctions.test_fts_rank">
+        <description>tracker:03-fts-functions.py:TestFTSFunctions.test_fts_rank</description>
+        <step>/usr/share/tracker-tests/03-fts-functions.py TestFTSFunctions.test_fts_rank</step>
       </case>
-
-      <case name="test_fts" type="Functional"  level="Feature"
-            description="Exposed FTS functions in sparql" requirement="01" subfeature="">
-        <!-- dbus env variables defined here. This works. -->
-        <step expected_result="0">. /tmp/session_bus_address.user; python2.5 /usr/share/tracker-tests/03-fts-functions.py</step>
-      </case>
-
-      <case name="test_group_concat" type="Functional"  level="Feature"
-            description="Group concat function in sparql" requirement="01" subfeature="">
-        <!-- dbus env variables defined here. This works. -->
-        <step expected_result="0">. /tmp/session_bus_address.user; python2.5 /usr/share/tracker-tests/04-group-concat.py</step>
-      </case>
-
-      <case name="test_coalesce" type="Functional"  level="Feature"
-            description="coalesce function in sparql" requirement="01" subfeature="">
-        <!-- dbus env variables defined here. This works. -->
-        <step expected_result="0">. /tmp/session_bus_address.user; python2.5 /usr/share/tracker-tests/05-coalesce.py</step>
-      </case>
-
-      <case name="test_distance" type="Functional"  level="Feature"
-            description="Distance between location points in sparql" requirement="01" subfeature="">
-        <!-- dbus env variables defined here. This works. -->
-        <step expected_result="0">. /tmp/session_bus_address.user; python2.5 /usr/share/tracker-tests/06-distance.py</step>
-      </case>
-
-      <!-- Environments optional - tells where the tests are run -->
       <environments>
         <scratchbox>true</scratchbox>
         <hardware>true</hardware>
       </environments>
-
+    </set>
+    <set name="_usr_share_tracker-tests_01-insertion.py">
+      <description>tracker:01-insertion.py</description>
+      <case name="01-insertion.py-s_batch_update.test_batch_insert_01">
+        <description>tracker:01-insertion.py:s_batch_update.test_batch_insert_01</description>
+        <step>/usr/share/tracker-tests/01-insertion.py s_batch_update.test_batch_insert_01</step>
+      </case>
+      <case name="01-insertion.py-s_delete.test_delete_01">
+        <description>tracker:01-insertion.py:s_delete.test_delete_01</description>
+        <step>/usr/share/tracker-tests/01-insertion.py s_delete.test_delete_01</step>
+      </case>
+      <case name="01-insertion.py-s_delete.test_delete_02">
+        <description>tracker:01-insertion.py:s_delete.test_delete_02</description>
+        <step>/usr/share/tracker-tests/01-insertion.py s_delete.test_delete_02</step>
+      </case>
+      <case name="01-insertion.py-s_insert.test_insert_01">
+        <description>tracker:01-insertion.py:s_insert.test_insert_01</description>
+        <step>/usr/share/tracker-tests/01-insertion.py s_insert.test_insert_01</step>
+      </case>
+      <case name="01-insertion.py-s_insert.test_insert_02">
+        <description>tracker:01-insertion.py:s_insert.test_insert_02</description>
+        <step>/usr/share/tracker-tests/01-insertion.py s_insert.test_insert_02</step>
+      </case>
+      <case name="01-insertion.py-s_insert.test_insert_03">
+        <description>tracker:01-insertion.py:s_insert.test_insert_03</description>
+        <step>/usr/share/tracker-tests/01-insertion.py s_insert.test_insert_03</step>
+      </case>
+      <case name="01-insertion.py-s_insert.test_insert_04">
+        <description>tracker:01-insertion.py:s_insert.test_insert_04</description>
+        <step>/usr/share/tracker-tests/01-insertion.py s_insert.test_insert_04</step>
+      </case>
+      <environments>
+        <scratchbox>true</scratchbox>
+        <hardware>true</hardware>
+      </environments>
+    </set>
+    <set name="_usr_share_tracker-tests_metadata_extraction_tc.py">
+      <description>tracker:metadata_extraction_tc.py</description>
+      <case name="metadata_extraction_tc.py-music.test_get_music_title_1">
+        <description>tracker:metadata_extraction_tc.py:music.test_get_music_title_1</description>
+        <step>/usr/share/tracker-tests/metadata_extraction_tc.py music.test_get_music_title_1</step>
+      </case>
+      <case name="metadata_extraction_tc.py-music.test_get_music_composer_1">
+        <description>tracker:metadata_extraction_tc.py:music.test_get_music_composer_1</description>
+        <step>/usr/share/tracker-tests/metadata_extraction_tc.py music.test_get_music_composer_1</step>
+      </case>
+      <case name="metadata_extraction_tc.py-music.test_get_music_genre_1">
+        <description>tracker:metadata_extraction_tc.py:music.test_get_music_genre_1</description>
+        <step>/usr/share/tracker-tests/metadata_extraction_tc.py music.test_get_music_genre_1</step>
+      </case>
+      <case name="metadata_extraction_tc.py-music.test_get_music_performer_1">
+        <description>tracker:metadata_extraction_tc.py:music.test_get_music_performer_1</description>
+        <step>/usr/share/tracker-tests/metadata_extraction_tc.py music.test_get_music_performer_1</step>
+      </case>
+      <case name="metadata_extraction_tc.py-music.test_get_music_album_1">
+        <description>tracker:metadata_extraction_tc.py:music.test_get_music_album_1</description>
+        <step>/usr/share/tracker-tests/metadata_extraction_tc.py music.test_get_music_album_1</step>
+      </case>
+      <case name="metadata_extraction_tc.py-music.test_get_music_copyright_1">
+        <description>tracker:metadata_extraction_tc.py:music.test_get_music_copyright_1</description>
+        <step>/usr/share/tracker-tests/metadata_extraction_tc.py music.test_get_music_copyright_1</step>
+      </case>
+      <case name="metadata_extraction_tc.py-music.test_get_music_track_1">
+        <description>tracker:metadata_extraction_tc.py:music.test_get_music_track_1</description>
+        <step>/usr/share/tracker-tests/metadata_extraction_tc.py music.test_get_music_track_1</step>
+      </case>
+      <case name="metadata_extraction_tc.py-music.test_get_music_mime_1">
+        <description>tracker:metadata_extraction_tc.py:music.test_get_music_mime_1</description>
+        <step>/usr/share/tracker-tests/metadata_extraction_tc.py music.test_get_music_mime_1</step>
+      </case>
+      <case name="metadata_extraction_tc.py-music.test_get_music_contributor_1">
+        <description>tracker:metadata_extraction_tc.py:music.test_get_music_contributor_1</description>
+        <step>/usr/share/tracker-tests/metadata_extraction_tc.py music.test_get_music_contributor_1</step>
+      </case>
+      <case name="metadata_extraction_tc.py-music.test_get_music_duration_1">
+        <description>tracker:metadata_extraction_tc.py:music.test_get_music_duration_1</description>
+        <step>/usr/share/tracker-tests/metadata_extraction_tc.py music.test_get_music_duration_1</step>
+      </case>
+      <case name="metadata_extraction_tc.py-music.test_get_music_comment_1">
+        <description>tracker:metadata_extraction_tc.py:music.test_get_music_comment_1</description>
+        <step>/usr/share/tracker-tests/metadata_extraction_tc.py music.test_get_music_comment_1</step>
+      </case>
+      <environments>
+        <scratchbox>true</scratchbox>
+        <hardware>true</hardware>
+      </environments>
+    </set>
+    <set name="_usr_share_tracker-tests_04-group-concat.py">
+      <description>tracker:04-group-concat.py</description>
+      <case name="04-group-concat.py-TestGroupConcat.test_group_concat">
+        <description>tracker:04-group-concat.py:TestGroupConcat.test_group_concat</description>
+        <step>/usr/share/tracker-tests/04-group-concat.py TestGroupConcat.test_group_concat</step>
+      </case>
+      <environments>
+        <scratchbox>true</scratchbox>
+        <hardware>true</hardware>
+      </environments>
+    </set>
+    <set name="_usr_share_tracker-tests_05-coalesce.py">
+      <description>tracker:05-coalesce.py</description>
+      <case name="05-coalesce.py-TestCoalesce.test_coalesce_first_fine">
+        <description>tracker:05-coalesce.py:TestCoalesce.test_coalesce_first_fine</description>
+        <step>/usr/share/tracker-tests/05-coalesce.py TestCoalesce.test_coalesce_first_fine</step>
+      </case>
+      <case name="05-coalesce.py-TestCoalesce.test_coalesce_second_fine">
+        <description>tracker:05-coalesce.py:TestCoalesce.test_coalesce_second_fine</description>
+        <step>/usr/share/tracker-tests/05-coalesce.py TestCoalesce.test_coalesce_second_fine</step>
+      </case>
+      <case name="05-coalesce.py-TestCoalesce.test_coalesce_none_fine_default">
+        <description>tracker:05-coalesce.py:TestCoalesce.test_coalesce_none_fine_default</description>
+        <step>/usr/share/tracker-tests/05-coalesce.py TestCoalesce.test_coalesce_none_fine_default</step>
+      </case>
+      <environments>
+        <scratchbox>true</scratchbox>
+        <hardware>true</hardware>
+      </environments>
     </set>
   </suite>
 </testdefinition>

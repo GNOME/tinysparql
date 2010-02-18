@@ -1674,9 +1674,8 @@ AC_CONFIG_FILES([
 	tests/libtracker-db/Makefile
 	tests/libtracker-fts/Makefile
 	tests/functional-tests/Makefile
-	tests/functional-tests/testdata/Makefile
-	tests/functional-tests/testdata/ttl/Makefile
-	tests/functional-tests/testdata/Music/Makefile
+	tests/functional-tests/data/Makefile
+	tests/functional-tests/data/Music/Makefile
 	tests/Makefile
 	tests/tracker-miner-fs/Makefile
 	tests/tracker-extract/Makefile
