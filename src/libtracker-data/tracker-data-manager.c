@@ -524,7 +524,8 @@ load_ontology_from_journal (void)
 
 static void
 load_turtle_file (const gchar* path,
-                  gboolean is_new)
+                  gboolean is_new,
+                  gboolean ignore_nao_last_modified)
 {
 	GError *error = NULL;
 	TrackerTurtleReader* reader;
@@ -617,6 +618,10 @@ load_turtle_file (const gchar* path,
 			if (ontology && tracker_ontology_get_is_new (ontology) != is_new) {
 				continue;
 			}
+
+			if (ignore_nao_last_modified) {
+				continue;
+			}
 		}
 
 		if (tracker_turtle_reader_get_object_is_uri (reader)) {
@@ -648,13 +653,14 @@ load_turtle_file (const gchar* path,
 
 static void
 import_ontology_file (const gchar *filename,
-                      gboolean is_new)
+                      gboolean is_new,
+                      gboolean ignore_nao_last_modified)
 {
 	gchar           *ontology_file;
 	GError          *error = NULL;
 
 	ontology_file = g_build_filename (ontologies_dir, filename, NULL);
-	load_turtle_file (ontology_file, is_new);
+	load_turtle_file (ontology_file, is_new, ignore_nao_last_modified);
 	g_free (ontology_file);
 
 	if (error) {
@@ -1587,7 +1593,6 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 		tracker_db_journal_init (NULL);
 		check_ontology = TRUE;
 	} else if (is_first_time_index) {
-		GError *error = NULL;
 		gchar *test_schema_path = NULL;
 
 		sorted = get_ontologies (test_schema != NULL, ontologies_dir);
@@ -1602,6 +1607,8 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 		}
 
 		if (test_schema) {
+			test_schema_path = g_strconcat (test_schema, ".ontology", NULL);
+
 			g_debug ("Loading ontology:'%s' (TEST ONTOLOGY)", test_schema_path);
 
 			load_ontology_file_from_path (test_schema_path, &max_id, FALSE);
@@ -1614,16 +1621,11 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 
 		/* store ontology in database */
 		for (l = sorted; l; l = l->next) {
-			import_ontology_file (l->data, FALSE);
+			import_ontology_file (l->data, FALSE, test_schema != NULL);
 		}
 		if (test_schema) {
-			tracker_turtle_reader_load (test_schema_path, &error);
+			load_turtle_file (test_schema_path, FALSE, TRUE);
 			g_free (test_schema_path);
-
-			if (error) {
-				g_critical ("%s", error->message);
-				g_error_free (error);
-			}
 		}
 
 		tracker_db_journal_commit_transaction ();
@@ -1743,7 +1745,7 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 			import_ontology_into_db (TRUE);
 			for (l = to_reload; l; l = l->next) {
 				const gchar *ontology_file = l->data;
-				import_ontology_file (ontology_file, TRUE);
+				import_ontology_file (ontology_file, TRUE, test_schema != NULL);
 			}
 			g_list_free (to_reload);
 		}

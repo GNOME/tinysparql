@@ -21,7 +21,7 @@ config_DATA =			\
 	41-mfo.ontology		\
 	89-mtp.ontology		\
 	90-tracker.ontology	\
-	91-maemo.ontology
+	91-maemo.ontology	
 
 EXTRA_DIST = $(config_DATA)
 
