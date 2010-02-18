@@ -224,6 +224,13 @@ miner_finished_cb (TrackerMinerFS *fs,
 	miner_handle_next ();
 }
 
+static void
+finalize_miner (TrackerMiner *miner)
+{
+	g_object_run_dispose (G_OBJECT (miner));
+	g_object_unref (G_OBJECT (miner));
+}
+
 int
 main (gint argc, gchar *argv[])
 {
@@ -372,7 +379,7 @@ main (gint argc, gchar *argv[])
 
 	tracker_thumbnailer_shutdown ();
 
-	g_slist_foreach (miners, (GFunc) g_object_unref, NULL);
+	g_slist_foreach (miners, (GFunc) finalize_miner, NULL);
 	g_slist_free (miners);
 
 	tracker_dbus_shutdown ();
