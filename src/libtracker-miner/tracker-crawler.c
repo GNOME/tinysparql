@@ -418,12 +418,24 @@ process_func (gpointer data)
 	if (dir_data) {
 		/* One directory inside the tree hierarchy is being inspected */
 		if (!dir_data->was_inspected) {
-			/* Directory contents haven't been inspected yet,
-			 * stop this idle function while it's being iterated
-			 */
-			file_enumerate_children (crawler, info, dir_data);
+			gboolean iterate;
+
+			if (G_NODE_IS_ROOT (dir_data->node)) {
+				iterate = check_directory (crawler, info, dir_data->node->data);
+			} else {
+				/* Directory has been already checked in the block below */
+				iterate = TRUE;
+			}
+
 			dir_data->was_inspected = TRUE;
-			stop_idle = TRUE;
+
+			if (iterate) {
+				/* Directory contents haven't been inspected yet,
+				 * stop this idle function while it's being iterated
+				 */
+				file_enumerate_children (crawler, info, dir_data);
+				stop_idle = TRUE;
+			}
 		} else if (dir_data->was_inspected &&
 			   !dir_data->ignored_by_content &&
 			   dir_data->children != NULL) {
