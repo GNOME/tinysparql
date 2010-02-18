@@ -985,9 +985,9 @@ item_query_exists (TrackerMinerFS  *miner,
 	uri = g_file_get_uri (file);
 
 	if (data.get_mime) {
-		sparql = g_strdup_printf ("SELECT ?s ?m WHERE { ?s nie:url '%s' . OPTIONAL { ?s nie:mimeType ?m } }", uri);
+		sparql = g_strdup_printf ("SELECT ?s nie:mimeType(?s) WHERE { ?s nie:url \"%s\" }", uri);
 	} else {
-		sparql = g_strdup_printf ("SELECT ?s WHERE { ?s nie:url '%s' }", uri);
+		sparql = g_strdup_printf ("SELECT ?s WHERE { ?s nie:url \"%s\" }", uri);
 	}
 
 	data.main_loop = g_main_loop_new (NULL, FALSE);
