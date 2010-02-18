@@ -621,7 +621,6 @@ file_enumerate_next_cb (GObject      *object,
 
 	ed = user_data;
 	crawler = ed->crawler;
-	parent = ed->dir_info->node->data;
 	cancelled = g_cancellable_is_cancelled (crawler->private->cancellable);
 
 	files = g_file_enumerator_next_files_finish (enumerator,
@@ -656,6 +655,8 @@ file_enumerate_next_cb (GObject      *object,
 
 		return;
 	}
+
+	parent = ed->dir_info->node->data;
 
 	for (l = files; l; l = l->next) {
 		const gchar *child_name;
