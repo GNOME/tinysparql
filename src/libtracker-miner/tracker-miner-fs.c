@@ -2277,6 +2277,7 @@ crawler_check_directory_contents_cb (TrackerCrawler *crawler,
 	return process;
 }
 
+#if 0
 static gboolean
 print_file_tree (GNode    *node,
 		 gpointer  user_data)
@@ -2296,6 +2297,7 @@ print_file_tree (GNode    *node,
 
 	return FALSE;
 }
+#endif
 
 static CrawledDirectoryData *
 crawled_directory_data_new (GNode *tree)
@@ -2344,9 +2346,11 @@ crawler_directory_crawled_cb (TrackerCrawler *crawler,
 	TrackerMinerFS *fs = user_data;
 	CrawledDirectoryData *dir_data;
 
+#if 0
 	/* Debug printing of the directory tree */
 	g_node_traverse (tree, G_PRE_ORDER, G_TRAVERSE_ALL, -1,
 			 print_file_tree, NULL);
+#endif
 
 	/* Add tree to the crawled directories queue, this queue
 	 * will be used to fill priv->items_created in when no
