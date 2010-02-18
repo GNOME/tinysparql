@@ -90,7 +90,7 @@ class TrackerMetadataTile : EventBox
 
         table = new Table (5, 7, false)
         table.set_col_spacings (3)
-        table.set_row_spacings (1)
+        table.set_row_spacings (3)
 
         
 
@@ -221,12 +221,149 @@ class TrackerMetadataTile : EventBox
         info_value4.set_text ("")
         info_value5.set_text ("")
         info_value6.set_text ("")
+        info_label4.set_text ("")
+        info_label5.set_text ("")
+        info_label6.set_text ("")
+        
         name_link.uri = ""
         name_link.label = ""
+        path_link.uri = ""
+        path_link.label = ""
+
+     
+    def SetLabelValue (label : Label, val : string)
+        var val1 = "<b>%s</b>".printf (val)
+        label.set_markup (val1)
+        label.xalign = 0
+        
+    def SetLabelSizeValue (label : Label, size: int64)
+        var val1 = "<b>%s</b>".printf (FormatFileSize (size))
+        label.set_markup (val1)
+        label.xalign = 0
+        
+        
+    def SetLabelUrnValue (label : Label, val : string)
+        var value = val
+        
+        var values = val.split (":")
+
+        for s in values
+            value = s
+
+        var escapes = value.split ("%20")
+        value = ""
+        for s in escapes
+            value += s + " "
+
+        var val1 = "<b>%s</b>".printf (value)
+        label.set_markup (val1)
+        label.xalign = 0
+    
+        
 
 
+    def private GetCategory (uri : string) : Categories
+        var query = "select rdf:type(?s) where { ?s nie:url \"%s\" }".printf(uri)
+        var results = Query.Query (query)
+        var res = ""
+        for s in results
+            res += s
 
+        if res.contains ("nfo#Video") do return Categories.Video
+        if res.contains ("nfo#Image") do return Categories.Image
+        if res.contains ("nfo#Audio") do return Categories.Music
+        if res.contains ("nfo#Document") do return Categories.Document
+        if res.contains ("nfo#Software") do return Categories.Application       
+        if res.contains ("nfo#Folder") do return Categories.Folder        
+                         
+        return Categories.File
+        
+    
+    def private DisplayFileDetails (uri : string, mime : string)
+        var file = File.new_for_uri (uri)
+        var filepath = file.get_basename ()
+        var displaypath = file.get_parent ()
+        
+        name_link.uri = uri
+        name_link.label = filepath
+        path_link.uri = displaypath.get_uri ()
+        path_link.label = displaypath.get_path ()
+        
+        
+        SetLabelValue (info_value1, mime)
 
+        try
+            var info =  file.query_info ("standard::size,time::modified", \
+                                         FileQueryInfoFlags.NONE, null)
+
+            SetLabelSizeValue (info_value2, info.get_size())
+
+            tm : TimeVal
+            info.get_modification_time (out tm)
+
+            var val3 = "<b>%s</b>".printf (tm.to_iso8601 ())
+
+            info_value3.set_markup (val3)
+
+        except e:Error
+            print "Could not get file info for %s", uri
+
+        
+    def private DisplayImageDetails (uri : string)
+        var query = "select nfo:height(?s) nfo:width(?s) Where { ?s nie:url \"%s\" }".printf(uri)
+        var result = Query.Query (query)
+
+        info_label4.set_text (N_("Height:"))
+        info_label5.set_text (N_("Width:"))
+
+        if result is not null 
+            SetLabelValue (info_value4, result[0])  
+            SetLabelValue (info_value5, result[1])  
+                     
+
+        
+    def private DisplayMusicDetails (uri : string)
+        var query = "select nie:title(?s) nmm:performer(?s) nmm:musicAlbum(?s) Where { ?s nie:url \"%s\" }".printf(uri)
+        var result = Query.Query (query)
+
+        info_label4.set_text (N_("Title:"))
+        info_label5.set_text (N_("Artist:"))
+        info_label6.set_text (N_("Album:"))
+
+        if result is not null 
+            SetLabelValue (info_value4, result[0])  
+            SetLabelUrnValue (info_value5, result[1])  
+            SetLabelUrnValue (info_value6, result[2])  
+        
+    def private DisplayVideoDetails (uri : string)
+        var query = "select nfo:height(?s) nfo:width(?s) nfo:duration (?s) Where { ?s nie:url \"%s\" }".printf(uri)
+        var result = Query.Query (query)
+
+        info_label4.set_text (N_("Height:"))
+        info_label5.set_text (N_("Width:"))
+        info_label6.set_text (N_("Duration:"))        
+
+        if result is not null 
+            SetLabelValue (info_value4, result[0])  
+            SetLabelValue (info_value5, result[1])  
+            SetLabelValue (info_value6, result[2])  
+        
+    def private DisplayDocumentDetails (uri : string)
+        var query = "select nie:title(?s) nco:creator(?s) nfo:pageCount (?s) Where { ?s nie:url \"%s\" }".printf(uri)
+        var result = Query.Query (query)
+
+        info_label4.set_text (N_("Title:"))
+        info_label5.set_text (N_("Author:"))
+        info_label6.set_text (N_("Page count:"))        
+
+        if result is not null 
+            SetLabelValue (info_value4, result[0])  
+            SetLabelValue (info_value5, result[1])  
+            SetLabelValue (info_value6, result[2])      
+        
+    def private DisplayApplicationDetails (uri : string)
+        return   
+        
     def LoadUri (path : TreePath?)
         ClearLabels ()
 
@@ -235,52 +372,27 @@ class TrackerMetadataTile : EventBox
             return
 
         iter : TreeIter
-        id, uri, mime, display_name : weak string
+        id, uri, mime: weak string
         icon : Gdk.Pixbuf
 
         _result_grid.store.get_iter (out iter, path)
-        _result_grid.store.get (iter, ResultColumns.Id, out id, ResultColumns.Uri, out uri, ResultColumns.Mime, out mime, ResultColumns.Icon, out icon, ResultColumns.DisplayName, out display_name)
-
-        image.set_from_pixbuf (icon)
-
-        var file = File.new_for_uri (uri)
-        var filepath = file.get_basename ()
-        var displaypath = file.get_parent ();
+        _result_grid.store.get (iter, ResultColumns.Id, out id, ResultColumns.Uri, out uri, ResultColumns.Mime, out mime, ResultColumns.Icon, out icon)
+       
         
-        name_link.uri = uri
-        name_link.label = filepath
-        path_link.uri = displaypath.get_uri ()
-        path_link.label = displaypath.get_path ()
-        
-        
-        
-        var val1 = "<b>%s</b>".printf (mime)
-        info_value1.set_markup (val1)
-        info_value1.xalign = 0
+        /* determine category type */
+        var cat = GetCategory (uri)
 
-        // get metadata
-        // var query = "SELECT ?mimetype ?size ?mtime WHERE {<%s> nie:byteSize ?size; nie:contentLastModified ?mtime; nie:mimeType ?mimeType.}".printf(uri)
-        var query = sparql.printf(uri)
-        if Query is not null
-            var result = Query.Query (query)
+        if cat is not Categories.Application
+            DisplayFileDetails (uri, mime)
+            image.set_from_pixbuf (icon)
 
-            if result is not null 
-                mime = result[0]
+        case cat
+            when Categories.Application do DisplayApplicationDetails (uri)
+            when Categories.Music do DisplayMusicDetails (uri)
+            when Categories.Video do DisplayVideoDetails (uri)
+            when Categories.Image do DisplayImageDetails (uri)
+            when Categories.Document do DisplayDocumentDetails (uri)
+            default do return
 
-            try
-                var info =  file.query_info ("standard::size,time::modified", \
-                                              FileQueryInfoFlags.NONE, null)
-
-                var val2 = "<b>%s</b>".printf (FormatFileSize (info.get_size ()))
-
-                info_value2.set_markup (val2)
-
-                tm : TimeVal
-                info.get_modification_time (out tm)
-
-                var val3 = "<b>%s</b>".printf (tm.to_iso8601 ())
-
-                info_value3.set_markup (val3)
-
-            except e:Error
-                print "Could not get file info for %s", uri
+                
+       

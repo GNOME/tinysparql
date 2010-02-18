@@ -58,10 +58,6 @@ class TrackerCategoryView : ScrolledWindow
                    CategoryColumns.Name, "nfo:Document", CategoryColumns.DisplayName, N_("Office Documents") , -1);
 
         store.append (out iter);
-        store.set (iter, CategoryColumns.Icon, GetThemePixbufByName ("text-x-generic", icon_size, get_screen ()), \
-                   CategoryColumns.Name, "nfo:TextDocument", CategoryColumns.DisplayName, N_("Text Documents") , -1);
-
-        store.append (out iter);
         store.set (iter, CategoryColumns.Icon, GetThemePixbufByName ("image-x-generic", icon_size, get_screen ()), \
                    CategoryColumns.Name, "nfo:Image", CategoryColumns.DisplayName, N_("Images") , -1);
 
