@@ -104,6 +104,11 @@ void     tracker_miner_fs_set_throttle     (TrackerMinerFS *fs,
                                             gdouble         throttle);
 gdouble  tracker_miner_fs_get_throttle     (TrackerMinerFS *fs);
 
+G_CONST_RETURN gchar * tracker_miner_fs_get_urn        (TrackerMinerFS *fs,
+							GFile          *file);
+G_CONST_RETURN gchar * tracker_miner_fs_get_parent_urn (TrackerMinerFS *fs,
+							GFile          *file);
+
 G_END_DECLS
 
 #endif /* __LIBTRACKERMINER_MINER_FS_H__ */

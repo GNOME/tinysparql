@@ -56,6 +56,8 @@ typedef struct {
 
 typedef struct {
 	GFile *file;
+	gchar *urn;
+	gchar *parent_urn;
 	GCancellable *cancellable;
 	TrackerSparqlBuilder *builder;
 } ProcessData;
@@ -107,6 +109,10 @@ struct TrackerMinerFSPrivate {
 
 	GList          *processing_pool;
 	guint           pool_limit;
+
+	/* Parent folder URN cache */
+	GFile          *current_parent;
+	gchar          *current_parent_urn;
 
 	/* Status */
 	guint           been_started : 1;
@@ -509,6 +515,8 @@ tracker_miner_fs_init (TrackerMinerFS *object)
 
 static ProcessData *
 process_data_new (GFile                *file,
+		  const gchar          *urn,
+		  const gchar          *parent_urn,
                   GCancellable         *cancellable,
                   TrackerSparqlBuilder *builder)
 {
@@ -516,6 +524,8 @@ process_data_new (GFile                *file,
 
 	data = g_slice_new0 (ProcessData);
 	data->file = g_object_ref (file);
+	data->urn = g_strdup (urn);
+	data->parent_urn = g_strdup (parent_urn);
 
 	if (cancellable) {
 		data->cancellable = g_object_ref (cancellable);
@@ -532,6 +542,7 @@ static void
 process_data_free (ProcessData *data)
 {
 	g_object_unref (data->file);
+	g_free (data->urn);
 
 	if (data->cancellable) {
 		g_object_unref (data->cancellable);
@@ -587,6 +598,11 @@ fs_finalize (GObject *object)
 
 	g_object_unref (priv->crawler);
 	g_object_unref (priv->monitor);
+
+	if (priv->current_parent)
+		g_object_unref (priv->current_parent);
+
+	g_free (priv->current_parent_urn);
 
 	if (priv->directories) {
 		g_list_foreach (priv->directories, (GFunc) directory_data_free, NULL);
@@ -956,112 +972,6 @@ sparql_query_cb (GObject      *object,
 	}
 }
 
-static void
-item_add_or_update_cb (TrackerMinerFS *fs,
-                       ProcessData    *data,
-                       const GError   *error)
-{
-	gchar *uri;
-
-	uri = g_file_get_uri (data->file);
-
-	if (error) {
-		if (error->code == G_IO_ERROR_NOT_FOUND) {
-			g_message ("Could not process '%s': %s", uri, error->message);
-		} else {
-			g_critical ("Could not process '%s': %s", uri, error->message);
-		}
-
-		fs->private->processing_pool =
-			g_list_remove (fs->private->processing_pool, data);
-		process_data_free (data);
-
-		item_queue_handlers_set_up (fs);
-	} else {
-		gchar *full_sparql;
-
-		g_debug ("Adding item '%s'", uri);
-
-		full_sparql = g_strdup_printf ("DROP GRAPH <%s> %s",
-		                               uri, tracker_sparql_builder_get_result (data->builder));
-
-		tracker_miner_execute_batch_update (TRACKER_MINER (fs),
-		                                    full_sparql,
-		                                    NULL,
-		                                    sparql_update_cb,
-		                                    data);
-		g_free (full_sparql);
-	}
-
-	g_free (uri);
-}
-
-static gboolean
-item_add_or_update (TrackerMinerFS *fs,
-                    GFile          *file)
-{
-	TrackerMinerFSPrivate *priv;
-	TrackerSparqlBuilder *sparql;
-	GCancellable *cancellable;
-	gboolean processing, retval;
-	ProcessData *data;
-
-	priv = fs->private;
-	retval = TRUE;
-
-	cancellable = g_cancellable_new ();
-	sparql = tracker_sparql_builder_new_update ();
-	g_object_ref (file);
-
-	data = process_data_new (file, cancellable, sparql);
-	priv->processing_pool = g_list_prepend (priv->processing_pool, data);
-
-	g_signal_emit (fs, signals[PROCESS_FILE], 0,
-	               file, sparql, cancellable,
-	               &processing);
-
-	if (!processing) {
-		gchar *uri;
-
-		uri = g_file_get_uri (file);
-
-		/* Re-fetch data, since it might have been
-		 * removed in broken implementations
-		 */
-		data = process_data_find (fs, file);
-
-		g_message ("%s refused to process '%s'", G_OBJECT_TYPE_NAME (fs), uri);
-
-		if (!data) {
-			g_critical ("%s has returned FALSE in ::process-file for '%s', "
-			            "but it seems that this file has been processed through "
-			            "tracker_miner_fs_file_notify(), this is an "
-			            "implementation error", G_OBJECT_TYPE_NAME (fs), uri);
-		} else {
-			priv->processing_pool = g_list_remove (priv->processing_pool, data);
-			process_data_free (data);
-		}
-
-		g_free (uri);
-	} else {
-		guint length;
-
-		length = g_list_length (priv->processing_pool);
-
-		fs->private->total_files_processed++;
-
-		if (length >= priv->pool_limit) {
-			retval = FALSE;
-		}
-	}
-
-	g_object_unref (file);
-	g_object_unref (cancellable);
-	g_object_unref (sparql);
-
-	return retval;
-}
-
 static gboolean
 item_query_exists (TrackerMinerFS  *miner,
                    GFile           *file,
@@ -1112,6 +1022,145 @@ item_query_exists (TrackerMinerFS  *miner,
 	g_free (uri);
 
 	return result;
+}
+
+static void
+item_add_or_update_cb (TrackerMinerFS *fs,
+                       ProcessData    *data,
+                       const GError   *error)
+{
+	gchar *uri;
+
+	uri = g_file_get_uri (data->file);
+
+	if (error) {
+		if (error->code == G_IO_ERROR_NOT_FOUND) {
+			g_message ("Could not process '%s': %s", uri, error->message);
+		} else {
+			g_critical ("Could not process '%s': %s", uri, error->message);
+		}
+
+		fs->private->processing_pool =
+			g_list_remove (fs->private->processing_pool, data);
+		process_data_free (data);
+
+		item_queue_handlers_set_up (fs);
+	} else {
+		gchar *full_sparql;
+
+		g_debug ("Adding item '%s'", uri);
+
+		full_sparql = g_strdup_printf ("DROP GRAPH <%s> %s",
+		                               uri, tracker_sparql_builder_get_result (data->builder));
+
+		tracker_miner_execute_batch_update (TRACKER_MINER (fs),
+		                                    full_sparql,
+		                                    NULL,
+		                                    sparql_update_cb,
+		                                    data);
+		g_free (full_sparql);
+	}
+
+	g_free (uri);
+}
+
+static gboolean
+item_add_or_update (TrackerMinerFS *fs,
+                    GFile          *file)
+{
+	TrackerMinerFSPrivate *priv;
+	TrackerSparqlBuilder *sparql;
+	GCancellable *cancellable;
+	gboolean processing, retval;
+	ProcessData *data;
+	GFile *parent;
+	gchar *urn;
+	const gchar *parent_urn = NULL;
+
+	priv = fs->private;
+	retval = TRUE;
+
+	cancellable = g_cancellable_new ();
+	sparql = tracker_sparql_builder_new_update ();
+	g_object_ref (file);
+
+	item_query_exists (fs, file, &urn, NULL);
+
+	parent = g_file_get_parent (file);
+
+	if (parent) {
+		if (!fs->private->current_parent ||
+		    !g_file_equal (parent, fs->private->current_parent)) {
+			/* Cache the URN for the new current parent, processing
+			 * order guarantees that all contents for a folder are
+			 * inspected together, and that the parent folder info
+			 * is already in tracker-store. So this should only
+			 * happen on folder switch.
+			 */
+			if (fs->private->current_parent)
+				g_object_unref (fs->private->current_parent);
+
+			g_free (fs->private->current_parent_urn);
+
+			if (item_query_exists (fs, parent, &fs->private->current_parent_urn, NULL))
+				fs->private->current_parent = g_object_ref (parent);
+			else {
+				fs->private->current_parent = NULL;
+				fs->private->current_parent_urn = NULL;
+			}
+		}
+
+		parent_urn = fs->private->current_parent_urn;
+		g_object_unref (parent);
+	}
+
+	data = process_data_new (file, urn, parent_urn, cancellable, sparql);
+	priv->processing_pool = g_list_prepend (priv->processing_pool, data);
+
+	g_signal_emit (fs, signals[PROCESS_FILE], 0,
+	               file, sparql, cancellable,
+	               &processing);
+
+	if (!processing) {
+		gchar *uri;
+
+		uri = g_file_get_uri (file);
+
+		/* Re-fetch data, since it might have been
+		 * removed in broken implementations
+		 */
+		data = process_data_find (fs, file);
+
+		g_message ("%s refused to process '%s'", G_OBJECT_TYPE_NAME (fs), uri);
+
+		if (!data) {
+			g_critical ("%s has returned FALSE in ::process-file for '%s', "
+			            "but it seems that this file has been processed through "
+			            "tracker_miner_fs_file_notify(), this is an "
+			            "implementation error", G_OBJECT_TYPE_NAME (fs), uri);
+		} else {
+			priv->processing_pool = g_list_remove (priv->processing_pool, data);
+			process_data_free (data);
+		}
+
+		g_free (uri);
+	} else {
+		guint length;
+
+		length = g_list_length (priv->processing_pool);
+
+		fs->private->total_files_processed++;
+
+		if (length >= priv->pool_limit) {
+			retval = FALSE;
+		}
+	}
+
+	g_object_unref (file);
+	g_object_unref (cancellable);
+	g_object_unref (sparql);
+
+	return retval;
 }
 
 static gboolean
@@ -1166,7 +1215,7 @@ item_remove (TrackerMinerFS *fs,
 	                        "}",
 	                        uri);
 
-	data = process_data_new (file, NULL, NULL);
+	data = process_data_new (file, NULL, NULL, NULL, NULL);
 	fs->private->processing_pool = g_list_prepend (fs->private->processing_pool, data);
 
 	tracker_miner_execute_batch_update (TRACKER_MINER (fs),
@@ -1461,7 +1510,7 @@ item_move (TrackerMinerFS *fs,
 
 	g_main_loop_unref (move_data.main_loop);
 
-	data = process_data_new (file, NULL, NULL);
+	data = process_data_new (file, NULL, NULL, NULL, NULL);
 	fs->private->processing_pool = g_list_prepend (fs->private->processing_pool, data);
 
 	tracker_miner_execute_batch_update (TRACKER_MINER (fs),
@@ -2711,4 +2760,85 @@ tracker_miner_fs_get_throttle (TrackerMinerFS *fs)
 	g_return_val_if_fail (TRACKER_IS_MINER_FS (fs), 0);
 
 	return fs->private->throttle;
+}
+
+/**
+ * tracker_miner_fs_get_urn:
+ * @fs: a #TrackerMinerFS
+ * @file: a #GFile obtained in #TrackerMinerFS::process-file
+ *
+ * If the item exists in the store, this function retrieves
+ * the URN for a #GFile being currently processed.
+
+ * If @file is not being currently processed by @fs, or doesn't
+ * exist in the store yet, %NULL will be returned.
+ *
+ * Returns: The URN containing the data associated to @file,
+ *          or %NULL.
+ **/
+G_CONST_RETURN gchar *
+tracker_miner_fs_get_urn (TrackerMinerFS *fs,
+                          GFile          *file)
+{
+	ProcessData *data;
+
+	g_return_val_if_fail (TRACKER_IS_MINER_FS (fs), NULL);
+	g_return_val_if_fail (G_IS_FILE (file), NULL);
+
+	data = process_data_find (fs, file);
+
+	if (!data) {
+		gchar *uri;
+
+		uri = g_file_get_uri (file);
+
+		g_critical ("File '%s' is not being currently processed, "
+			    "so the URN cannot be retrieved.", uri);
+		g_free (uri);
+
+		return NULL;
+	}
+
+	return data->urn;
+}
+
+/**
+ * tracker_miner_fs_get_parent_urn:
+ * @fs: a #TrackerMinerFS
+ * @file: a #GFile obtained in #TrackerMinerFS::process-file
+ *
+ * If @file is currently being processed by @fs, this function
+ * will return the parent folder URN if any. This function is
+ * useful to set the nie:belongsToContainer relationship. The
+ * processing order of #TrackerMinerFS guarantees that a folder
+ * has been already fully processed for indexing before any
+ * children is processed, so most usually this function should
+ * return non-%NULL.
+ *
+ * Returns: The parent folder URN, or %NULL.
+ **/
+G_CONST_RETURN gchar *
+tracker_miner_fs_get_parent_urn (TrackerMinerFS *fs,
+                                 GFile          *file)
+{
+	ProcessData *data;
+
+	g_return_val_if_fail (TRACKER_IS_MINER_FS (fs), NULL);
+	g_return_val_if_fail (G_IS_FILE (file), NULL);
+
+	data = process_data_find (fs, file);
+
+	if (!data) {
+		gchar *uri;
+
+		uri = g_file_get_uri (file);
+
+		g_critical ("File '%s' is not being currently processed, "
+			    "so the URN cannot be retrieved.", uri);
+		g_free (uri);
+
+		return NULL;
+	}
+
+	return data->parent_urn;
 }
