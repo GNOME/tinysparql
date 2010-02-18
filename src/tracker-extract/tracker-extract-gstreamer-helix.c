@@ -842,7 +842,7 @@ tracker_extract_gstreamer_helix (const gchar *uri,
 	tracker_albumart_process (extractor->album_art_data,
 	                          extractor->album_art_size,
 	                          NULL,
-	                          /* g_hash_table_lookup (metadata, "Audio:Artist") */ NULL,
+	                          artist,
 	                          album,
 	                          uri);
 

@@ -456,6 +456,7 @@ extract_metadata (MetadataExtractor      *extractor,
                   const gchar            *uri,
                   TrackerSparqlBuilder   *preupdate,
                   TrackerSparqlBuilder   *metadata,
+                  gchar                 **artist,
                   gchar                 **album,
                   gchar                 **scount)
 {
@@ -491,12 +492,12 @@ extract_metadata (MetadataExtractor      *extractor,
 
 		/* General */
 		if (extractor->mime == EXTRACT_MIME_AUDIO || extractor->mime == EXTRACT_MIME_VIDEO) {
-			gchar *performer = NULL, *artist = NULL;
+			gchar *performer = NULL, *artist_local = NULL;
 
 			gst_tag_list_get_string (extractor->tagcache, GST_TAG_PERFORMER, &performer);
-			gst_tag_list_get_string (extractor->tagcache, GST_TAG_ARTIST, &artist);
+			gst_tag_list_get_string (extractor->tagcache, GST_TAG_ARTIST, &artist_local);
 
-			s = tracker_coalesce (2, performer, artist);
+			s = tracker_coalesce (2, performer, artist_local);
 
 			if (s) {
 				performer_uri = tracker_uri_printf_escaped ("urn:artist:%s", s);
@@ -509,7 +510,7 @@ extract_metadata (MetadataExtractor      *extractor,
 				tracker_sparql_builder_object_unvalidated (preupdate, s);
 				tracker_sparql_builder_insert_close (preupdate);
 
-				g_free (s);
+				*artist = s;
 			}
 
 			s = NULL;
@@ -1005,7 +1006,7 @@ tracker_extract_gstreamer (const gchar *uri,
                            ExtractMime  type)
 {
 	MetadataExtractor *extractor;
-	gchar *album, *scount;
+	gchar *artist, *album, *scount;
 
 	g_return_if_fail (uri);
 	g_return_if_fail (metadata);
@@ -1071,18 +1072,20 @@ tracker_extract_gstreamer (const gchar *uri,
 
 	album = NULL;
 	scount = NULL;
+	artist = NULL;
 
-	extract_metadata (extractor, uri, preupdate, metadata, &album, &scount);
+	extract_metadata (extractor, uri, preupdate, metadata, &artist, &album, &scount);
 
 	tracker_albumart_process (extractor->album_art_data,
 	                          extractor->album_art_size,
 	                          extractor->album_art_mime,
-	                          /* g_hash_table_lookup (metadata, "Audio:Artist") */ NULL,
+	                          artist,
 	                          album,
 	                          uri);
 
 	g_free (scount);
 	g_free (album);
+	g_free (artist);
 
 	gst_element_set_state (extractor->pipeline, GST_STATE_NULL);
 	gst_element_get_state (extractor->pipeline, NULL, NULL, TRACKER_EXTRACT_GUARD_TIMEOUT* GST_SECOND);
