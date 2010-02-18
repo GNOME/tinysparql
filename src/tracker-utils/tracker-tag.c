@@ -527,23 +527,9 @@ remove_tag_for_urns (TrackerClient *client,
 		                         "}",
 		                         filter);
 		g_free (filter);
-#if 0
-		filter = get_filter_string (files);
-
-		query = g_strdup_printf ("DELETE {"
-		                         "  <%s> nao:hasTag ?tag "
-		                         "} "
-		                         "WHERE {"
-		                         "  <%s> nao:hasTag ?tag"
-		                         "  FILTER (?tag = <%s>)"
-		                         "}",
-		                         files[0],
-		                         files[0],
-		                         urn);
 
 		g_ptr_array_foreach (results, (GFunc) g_strfreev, NULL);
 		g_ptr_array_free (results, TRUE);
-#endif
 	} else {
 		/* Remove tag completely */
 		query = g_strdup_printf ("DELETE { "
