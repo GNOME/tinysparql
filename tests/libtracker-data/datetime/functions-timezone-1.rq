@@ -1,0 +1,5 @@
+SELECT ?s fn:timezone-from-dateTime (?v)
+WHERE {
+	?s a example:A ;
+	   example:p ?v
+}

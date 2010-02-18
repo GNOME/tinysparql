@@ -56,6 +56,8 @@ const TestInfo tests[] = {
 	{ "algebra/var-scope-join-1", "algebra/var-scope-join-1", FALSE },
 	{ "bnode-coreference/query", "bnode-coreference/data", FALSE },
 	{ "bound/bound1", "bound/data", FALSE },
+	{ "datetime/functions-localtime-1", "datetime/data-1", FALSE },
+	{ "datetime/functions-timezone-1", "datetime/data-2", FALSE },
 	{ "expr-ops/query-ge-1", "expr-ops/data", FALSE },
 	{ "expr-ops/query-le-1", "expr-ops/data", FALSE },
 	{ "expr-ops/query-minus-1", "expr-ops/data", FALSE },

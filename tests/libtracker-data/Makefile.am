@@ -5,6 +5,7 @@ SUBDIRS = 			\
 	algebra			\
 	bnode-coreference	\
 	bound 			\
+	datetime		\
 	expr-ops		\
 	functions		\
 	graph			\
