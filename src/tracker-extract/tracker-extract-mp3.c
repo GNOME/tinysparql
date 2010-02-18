@@ -1997,8 +1997,7 @@ extract_mp3 (const gchar          *uri,
 		tracker_sparql_builder_object_unvalidated (preupdate, md.performer);
 
 		tracker_sparql_builder_insert_close (preupdate);
-
-		g_free (md.performer);
+		/* do not delete artist, needed by albumart */
 	}
 
 	if (md.lyricist) {
@@ -2124,10 +2123,11 @@ extract_mp3 (const gchar          *uri,
 	tracker_albumart_process (md.albumart_data,
 	                          md.albumart_size,
 	                          md.albumart_mime,
-	                          NULL,
+	                          md.performer,
 	                          md.album,
 	                          filename);
 
+	g_free (md.performer);
 	g_free (md.album);
 	g_free (md.title);
 	g_free (md.albumart_data);
