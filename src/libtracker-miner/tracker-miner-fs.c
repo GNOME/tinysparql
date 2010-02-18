@@ -31,6 +31,9 @@
 #include "tracker-utils.h"
 #include "tracker-thumbnailer.h"
 
+/* If defined will print the tree from GNode while running */
+#undef ENABLE_TREE_DEBUGGING
+
 /**
  * SECTION:tracker-miner-fs
  * @short_description: Abstract base class for filesystem miners
@@ -2278,7 +2281,8 @@ crawler_check_directory_contents_cb (TrackerCrawler *crawler,
 	return process;
 }
 
-#if 0
+#ifdef ENABLE_TREE_DEBUGGING
+
 static gboolean
 print_file_tree (GNode    *node,
 		 gpointer  user_data)
@@ -2298,7 +2302,8 @@ print_file_tree (GNode    *node,
 
 	return FALSE;
 }
-#endif
+
+#endif /* ENABLE_TREE_DEBUGGING */
 
 static CrawledDirectoryData *
 crawled_directory_data_new (GNode *tree)
@@ -2347,11 +2352,11 @@ crawler_directory_crawled_cb (TrackerCrawler *crawler,
 	TrackerMinerFS *fs = user_data;
 	CrawledDirectoryData *dir_data;
 
-#if 0
+#ifdef ENABLE_TREE_DEBUGGING
 	/* Debug printing of the directory tree */
 	g_node_traverse (tree, G_PRE_ORDER, G_TRAVERSE_ALL, -1,
 			 print_file_tree, NULL);
-#endif
+#endif /* ENABLE_TREE_DEBUGGING */
 
 	/* Add tree to the crawled directories queue, this queue
 	 * will be used to fill priv->items_created in when no
