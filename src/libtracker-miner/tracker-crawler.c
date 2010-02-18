@@ -48,7 +48,7 @@ struct DirectoryChildData {
 
 struct DirectoryProcessingData {
 	GNode *node;
-	GList *children;
+	GSList *children;
 	guint was_inspected : 1;
 	guint ignored_by_content : 1;
 };
@@ -327,8 +327,8 @@ directory_processing_data_new (GNode *node)
 static void
 directory_processing_data_free (DirectoryProcessingData *data)
 {
-	g_list_foreach (data->children, (GFunc) directory_child_data_free, NULL);
-	g_list_free (data->children);
+	g_slist_foreach (data->children, (GFunc) directory_child_data_free, NULL);
+	g_slist_free (data->children);
 
 	g_slice_free (DirectoryProcessingData, data);
 }
@@ -341,7 +341,7 @@ directory_processing_data_add_child (DirectoryProcessingData *data,
 	DirectoryChildData *child_data;
 
 	child_data = directory_child_data_new (child, is_dir);
-	data->children = g_list_prepend (data->children, child_data);
+	data->children = g_slist_prepend (data->children, child_data);
 }
 
 static DirectoryRootInfo *
@@ -447,7 +447,7 @@ process_func (gpointer data)
 			 * to the tree.
 			 */
 			child_data = dir_data->children->data;
-			dir_data->children = g_list_remove (dir_data->children, child_data);
+			dir_data->children = g_slist_remove (dir_data->children, child_data);
 
 			if ((child_data->is_dir &&
 			     check_directory (crawler, info, child_data->child)) ||
@@ -548,7 +548,8 @@ static void
 enumerator_data_process (EnumeratorData *ed)
 {
 	TrackerCrawler *crawler;
-	GList *l, *children = NULL;
+	GSList *l;
+	GList *children = NULL;
 	gboolean use;
 
 	crawler = ed->crawler;
