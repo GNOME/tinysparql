@@ -148,7 +148,8 @@ get_escaped_sparql_string (const gchar *str)
 static gchar *
 get_fts_string (GStrv    search_words,
                 gboolean use_or_operator,
-                gboolean for_regex)
+                gboolean for_regex,
+                gboolean use_asterisk)
 {
 	GString *fts;
 	gint i, len;
@@ -162,7 +163,10 @@ get_fts_string (GStrv    search_words,
 
 	for (i = 0; i < len; i++) {
 		g_string_append (fts, search_words[i]);
-		g_string_append_c (fts, '*');
+
+                if (use_asterisk) {
+                        g_string_append_c (fts, '*');
+                }
 
 		if (i < len - 1) {
 			if (for_regex) {
@@ -313,7 +317,7 @@ get_all_tags (TrackerClient *client,
 	gchar *fts;
 	gchar *query;
 
-	fts = get_fts_string (files, use_or_operator, TRUE);
+	fts = get_fts_string (files, use_or_operator, TRUE, FALSE);
 
 	if (fts) {
 		query = g_strdup_printf ("SELECT ?tag ?label COUNT(?urns) AS urns "
@@ -323,7 +327,7 @@ get_all_tags (TrackerClient *client,
 		                         "  OPTIONAL {"
 		                         "     ?urns nao:hasTag ?tag"
 		                         "  } ."
-		                         "  FILTER regex (?label, \"%s\")"
+		                         "  FILTER (?label = \"%s\")"
 		                         "} "
 		                         "GROUP BY ?tag "
 		                         "ORDER BY ASC(?label) "
