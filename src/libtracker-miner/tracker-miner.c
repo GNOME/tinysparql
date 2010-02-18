@@ -118,6 +118,7 @@ static void       miner_get_property           (GObject       *object,
                                                 GValue        *value,
                                                 GParamSpec    *pspec);
 static void       miner_finalize               (GObject       *object);
+static void       miner_dispose                (GObject       *object);
 static void       miner_constructed            (GObject       *object);
 static void       dbus_data_destroy            (gpointer       data);
 static DBusData * dbus_data_new                (TrackerMiner  *miner,
@@ -144,6 +145,7 @@ tracker_miner_class_init (TrackerMinerClass *klass)
 	object_class->get_property = miner_get_property;
 	object_class->finalize     = miner_finalize;
 	object_class->constructed  = miner_constructed;
+	object_class->dispose      = miner_dispose;
 
 	/**
 	 * TrackerMiner::started:
@@ -400,7 +402,17 @@ async_call_finalize_foreach (AsyncCallData *data,
                              gpointer       user_data)
 {
 	async_call_data_notify_error (data, 0, "Miner is being finalized");
-	async_call_data_destroy (data, FALSE);
+	async_call_data_destroy (data, TRUE);
+}
+
+static void
+miner_dispose (GObject *object)
+{
+	TrackerMiner *miner = TRACKER_MINER (object);
+
+	g_ptr_array_foreach (miner->private->async_calls,
+	                     (GFunc) async_call_finalize_foreach,
+	                     object);
 }
 
 static void
@@ -420,10 +432,6 @@ miner_finalize (GObject *object)
 	}
 
 	g_hash_table_unref (miner->private->pauses);
-
-	g_ptr_array_foreach (miner->private->async_calls,
-	                     (GFunc) async_call_finalize_foreach,
-	                     object);
 	g_ptr_array_free (miner->private->async_calls, TRUE);
 
 	G_OBJECT_CLASS (tracker_miner_parent_class)->finalize (object);
