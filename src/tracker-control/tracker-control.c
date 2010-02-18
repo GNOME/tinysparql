@@ -187,7 +187,8 @@ crawler_check_file_cb (TrackerCrawler *crawler,
 
 static void
 crawler_finished_cb (TrackerCrawler *crawler,
-                     gboolean        was_interrupted)
+                     gboolean        was_interrupted,
+                     gpointer        user_data)
 {
 	g_main_loop_quit (user_data);
 }
