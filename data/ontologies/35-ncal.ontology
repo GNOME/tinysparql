@@ -858,7 +858,9 @@ ncal:description a rdf:Property ;
 	rdfs:subPropertyOf nie:description ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain ncal:UnionParentClass ;
-	rdfs:range xsd:string .
+	rdfs:range xsd:string ;
+	tracker:fulltextIndexed true ;
+	tracker:weight 3 .
 
 ncal:encoding a rdf:Property ;
 	rdfs:label "encoding" ;

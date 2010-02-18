@@ -572,7 +572,9 @@ nco:emailAddress a rdf:Property ;
 	rdfs:label "emailAddress" ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nco:EmailAddress ;
-	rdfs:range xsd:string .
+	rdfs:range xsd:string ;
+	tracker:fulltextIndexed true ;
+	tracker:weight 4 .
 
 nco:locality a rdf:Property ;
 	rdfs:label "locality" ;
