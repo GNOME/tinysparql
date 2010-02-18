@@ -1558,11 +1558,9 @@ fill_in_queue (TrackerMinerFS       *fs,
 
 		if (!g_object_get_qdata (G_OBJECT (file), fs->private->quark_ignore_file)) {
 			g_queue_push_tail (queue, g_object_ref (file));
+			g_queue_push_tail (dir_data->nodes, node);
+			return;
 		}
-
-		g_queue_push_tail (dir_data->nodes, node);
-
-		return;
 	}
 
 	node = g_queue_pop_head (dir_data->nodes);
