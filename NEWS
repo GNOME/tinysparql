@@ -29,6 +29,7 @@ Improvements / New:
   tracker-extract:
   * Fixed linking so we include libtracker-extract for extractors
   * Added missing warning if required GModule functions are not found
+  * Use artist's value in filename when creating new album art
 
   tracker-info:
   * Print queried URN (since we use anonymous nodes for files now)
