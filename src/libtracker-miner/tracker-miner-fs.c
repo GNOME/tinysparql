@@ -543,6 +543,7 @@ process_data_free (ProcessData *data)
 {
 	g_object_unref (data->file);
 	g_free (data->urn);
+	g_free (data->parent_urn);
 
 	if (data->cancellable) {
 		g_object_unref (data->cancellable);
