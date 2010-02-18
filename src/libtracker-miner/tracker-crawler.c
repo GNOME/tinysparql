@@ -619,7 +619,7 @@ file_enumerate_next_cb (GObject      *object,
 
 	enumerator = G_FILE_ENUMERATOR (object);
 
-	ed = (EnumeratorData*) user_data;
+	ed = user_data;
 	crawler = ed->crawler;
 	parent = ed->dir_info->node->data;
 	cancelled = g_cancellable_is_cancelled (crawler->private->cancellable);
