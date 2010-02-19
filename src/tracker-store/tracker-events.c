@@ -117,9 +117,6 @@ tracker_events_insert (const gchar *uri,
 
 				prepare_event_for_rdf_type (private, rdf_types->pdata[i],
 				                            uri, type, predicate);
-
-				/* Only once match is needed */
-				break;
 			}
 		}
 	} else if (type == TRACKER_DBUS_EVENTS_TYPE_UPDATE) {
