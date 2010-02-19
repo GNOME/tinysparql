@@ -1310,11 +1310,28 @@ miner_files_monitor_directory (TrackerMinerFS *fs,
                                GFile          *file)
 {
 	TrackerMinerFiles *mf;
+	GSList *list;
 
 	mf = TRACKER_MINER_FILES (fs);
 
 	if (!tracker_config_get_enable_monitors (mf->private->config)) {
 		return FALSE;
+	}
+
+	/* We don't want child directories inside IndexSingleDirectories
+	 * to have a monitor added.
+	 */
+	for (list = mf->private->index_single_directories; list; list = list->next) {
+		gboolean is_child = FALSE;
+		GFile *dir;
+
+		dir = g_file_new_for_path (list->data);
+		is_child = g_file_has_prefix (file, dir);
+		g_object_unref (dir);
+
+		if (is_child) {
+			return FALSE;
+		}
 	}
 
 	/* Fallback to the check directory routine, since we don't
