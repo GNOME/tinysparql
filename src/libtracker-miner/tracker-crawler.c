@@ -37,13 +37,39 @@
  */
 #define FILES_GROUP_SIZE             100
 
-struct TrackerCrawlerPrivate {
-	/* Found data */
-	GQueue         *found;
+typedef struct DirectoryChildData DirectoryChildData;
+typedef struct DirectoryProcessingData DirectoryProcessingData;
+typedef struct DirectoryRootInfo DirectoryRootInfo;
 
-	/* Usable data */
+struct DirectoryChildData {
+	GFile          *child;
+	gboolean        is_dir;
+};
+
+struct DirectoryProcessingData {
+	GNode *node;
+	GSList *children;
+	guint was_inspected : 1;
+	guint ignored_by_content : 1;
+};
+
+struct DirectoryRootInfo {
+	GFile *directory;
+	GNode *tree;
+	guint recurse : 1;
+
+	GQueue *directory_processing_queue;
+
+	/* Directory stats */
+	guint directories_found;
+	guint directories_ignored;
+	guint files_found;
+	guint files_ignored;
+};
+
+struct TrackerCrawlerPrivate {
+	/* Directories to crawl */
 	GQueue         *directories;
-	GQueue         *files;
 
 	GCancellable   *cancellable;
 
@@ -56,10 +82,6 @@ struct TrackerCrawlerPrivate {
 
 	/* Statistics */
 	GTimer         *timer;
-	guint           directories_found;
-	guint           directories_ignored;
-	guint           files_found;
-	guint           files_ignored;
 
 	/* Status */
 	gboolean        is_running;
@@ -72,19 +94,15 @@ enum {
 	CHECK_DIRECTORY,
 	CHECK_FILE,
 	CHECK_DIRECTORY_CONTENTS,
+	DIRECTORY_CRAWLED,
 	FINISHED,
 	LAST_SIGNAL
 };
 
 typedef struct {
-	GFile          *child;
-	gboolean        is_dir;
-} EnumeratorChildData;
-
-typedef struct {
 	TrackerCrawler *crawler;
-	GFile          *parent;
-	GHashTable     *children;
+	DirectoryRootInfo  *root_info;
+	DirectoryProcessingData *dir_info;
 } EnumeratorData;
 
 static void     crawler_finalize        (GObject         *object);
@@ -95,8 +113,12 @@ static gboolean check_contents_defaults (TrackerCrawler  *crawler,
                                          GList           *contents);
 static void     file_enumerate_next     (GFileEnumerator *enumerator,
                                          EnumeratorData  *ed);
-static void     file_enumerate_children (TrackerCrawler  *crawler,
-                                         GFile           *file);
+static void     file_enumerate_children  (TrackerCrawler          *crawler,
+					  DirectoryRootInfo       *info,
+					  DirectoryProcessingData *dir_data);
+
+static void     directory_root_info_free (DirectoryRootInfo *info);
+
 
 static guint signals[LAST_SIGNAL] = { 0, };
 
@@ -146,21 +168,30 @@ tracker_crawler_class_init (TrackerCrawlerClass *klass)
 		              tracker_marshal_BOOLEAN__OBJECT_POINTER,
 		              G_TYPE_BOOLEAN,
 		              2, G_TYPE_FILE, G_TYPE_POINTER);
+	signals[DIRECTORY_CRAWLED] =
+		g_signal_new ("directory-crawled",
+		              G_TYPE_FROM_CLASS (klass),
+		              G_SIGNAL_RUN_LAST,
+		              G_STRUCT_OFFSET (TrackerCrawlerClass, directory_crawled),
+		              NULL, NULL,
+		              tracker_marshal_VOID__OBJECT_POINTER_UINT_UINT_UINT_UINT,
+		              G_TYPE_NONE,
+		              6,
+			      G_TYPE_FILE,
+		              G_TYPE_POINTER,
+		              G_TYPE_UINT,
+		              G_TYPE_UINT,
+		              G_TYPE_UINT,
+		              G_TYPE_UINT);
 	signals[FINISHED] =
 		g_signal_new ("finished",
 		              G_TYPE_FROM_CLASS (klass),
 		              G_SIGNAL_RUN_LAST,
 		              G_STRUCT_OFFSET (TrackerCrawlerClass, finished),
 		              NULL, NULL,
-		              tracker_marshal_VOID__POINTER_BOOLEAN_UINT_UINT_UINT_UINT,
+			      g_cclosure_marshal_VOID__BOOLEAN,
 		              G_TYPE_NONE,
-		              6,
-		              G_TYPE_POINTER,
-		              G_TYPE_BOOLEAN,
-		              G_TYPE_UINT,
-		              G_TYPE_UINT,
-		              G_TYPE_UINT,
-		              G_TYPE_UINT);
+		              1, G_TYPE_BOOLEAN);
 
 	g_type_class_add_private (object_class, sizeof (TrackerCrawlerPrivate));
 }
@@ -174,11 +205,7 @@ tracker_crawler_init (TrackerCrawler *object)
 
 	priv = object->private;
 
-	priv->found = g_queue_new ();
-
 	priv->directories = g_queue_new ();
-	priv->files = g_queue_new ();
-
 	priv->cancellable = g_cancellable_new ();
 }
 
@@ -199,13 +226,7 @@ crawler_finalize (GObject *object)
 
 	g_object_unref (priv->cancellable);
 
-	g_queue_foreach (priv->found, (GFunc) g_object_unref, NULL);
-	g_queue_free (priv->found);
-
-	g_queue_foreach (priv->files, (GFunc) g_object_unref, NULL);
-	g_queue_free (priv->files);
-
-	g_queue_foreach (priv->directories, (GFunc) g_object_unref, NULL);
+	g_queue_foreach (priv->directories, (GFunc) directory_root_info_free, NULL);
 	g_queue_free (priv->directories);
 
 	G_OBJECT_CLASS (tracker_crawler_parent_class)->finalize (object);
@@ -236,69 +257,147 @@ tracker_crawler_new (void)
 	return crawler;
 }
 
-static void
-add_file (TrackerCrawler *crawler,
-          GFile                  *file)
-{
-	g_return_if_fail (G_IS_FILE (file));
-
-	g_queue_push_tail (crawler->private->files, g_object_ref (file));
-}
-
-static void
-add_directory (TrackerCrawler *crawler,
-               GFile          *file,
-               gboolean        override)
-{
-	g_return_if_fail (G_IS_FILE (file));
-
-	if (crawler->private->recurse || override) {
-		g_queue_push_tail (crawler->private->directories, g_object_ref (file));
-	}
-}
-
 static gboolean
-check_file (TrackerCrawler *crawler,
-            GFile          *file)
+check_file (TrackerCrawler    *crawler,
+	    DirectoryRootInfo *info,
+            GFile             *file)
 {
 	gboolean use = FALSE;
 
 	g_signal_emit (crawler, signals[CHECK_FILE], 0, file, &use);
 
-	crawler->private->files_found++;
+	info->files_found++;
 
 	if (!use) {
-		crawler->private->files_ignored++;
+		info->files_ignored++;
 	}
 
 	return use;
 }
 
 static gboolean
-check_directory (TrackerCrawler *crawler,
-                 GFile          *file)
+check_directory (TrackerCrawler    *crawler,
+		 DirectoryRootInfo *info,
+                 GFile             *file)
 {
 	gboolean use = FALSE;
 
 	g_signal_emit (crawler, signals[CHECK_DIRECTORY], 0, file, &use);
 
-	crawler->private->directories_found++;
+	info->directories_found++;
 
-	if (use) {
-		file_enumerate_children (crawler, file);
-	} else {
-		crawler->private->directories_ignored++;
+	if (!use) {
+		info->directories_ignored++;
 	}
 
 	return use;
 }
 
+static DirectoryChildData *
+directory_child_data_new (GFile    *child,
+			  gboolean  is_dir)
+{
+	DirectoryChildData *child_data;
+
+	child_data = g_slice_new (DirectoryChildData);
+	child_data->child = g_object_ref (child);
+	child_data->is_dir = is_dir;
+
+	return child_data;
+}
+
+static void
+directory_child_data_free (DirectoryChildData *child_data)
+{
+	g_object_unref (child_data->child);
+	g_slice_free (DirectoryChildData, child_data);
+}
+
+static DirectoryProcessingData *
+directory_processing_data_new (GNode *node)
+{
+	DirectoryProcessingData *data;
+
+	data = g_slice_new0 (DirectoryProcessingData);
+	data->node = node;
+
+	return data;
+}
+
+static void
+directory_processing_data_free (DirectoryProcessingData *data)
+{
+	g_slist_foreach (data->children, (GFunc) directory_child_data_free, NULL);
+	g_slist_free (data->children);
+
+	g_slice_free (DirectoryProcessingData, data);
+}
+
+static void
+directory_processing_data_add_child (DirectoryProcessingData *data,
+				     GFile                   *child,
+				     gboolean                 is_dir)
+{
+	DirectoryChildData *child_data;
+
+	child_data = directory_child_data_new (child, is_dir);
+	data->children = g_slist_prepend (data->children, child_data);
+}
+
+static DirectoryRootInfo *
+directory_root_info_new (GFile    *file,
+			 gboolean  recurse)
+{
+	DirectoryRootInfo *info;
+	DirectoryProcessingData *dir_info;
+
+	info = g_slice_new0 (DirectoryRootInfo);
+
+	info->directory = g_object_ref (file);
+	info->recurse = recurse;
+	info->directory_processing_queue = g_queue_new ();
+
+	info->tree = g_node_new (g_object_ref (file));
+
+	/* Fill in the processing info for the root node */
+	dir_info = directory_processing_data_new (info->tree);
+	g_queue_push_tail (info->directory_processing_queue, dir_info);
+
+	return info;
+}
+
+static gboolean
+directory_tree_free_foreach (GNode    *node,
+			     gpointer  user_data)
+{
+	g_object_unref (node->data);
+	return FALSE;
+}
+
+static void
+directory_root_info_free (DirectoryRootInfo *info)
+{
+	g_object_unref (info->directory);
+
+	g_node_traverse (info->tree,
+			 G_PRE_ORDER,
+			 G_TRAVERSE_ALL,
+			 -1,
+			 directory_tree_free_foreach,
+			 NULL);
+	g_node_destroy (info->tree);
+
+	g_slice_free (DirectoryRootInfo, info);
+}
+
 static gboolean
 process_func (gpointer data)
 {
-	TrackerCrawler        *crawler;
-	TrackerCrawlerPrivate *priv;
-	GFile                 *file;
+	TrackerCrawler          *crawler;
+	TrackerCrawlerPrivate   *priv;
+	DirectoryRootInfo       *info;
+	DirectoryProcessingData *dir_data = NULL;
+	gboolean                 stop_idle = FALSE;
 
 	crawler = TRACKER_CRAWLER (data);
 	priv = crawler->private;
@@ -310,44 +409,98 @@ process_func (gpointer data)
 		return FALSE;
 	}
 
-	/* Crawler files */
-	file = g_queue_pop_head (priv->files);
+	info = g_queue_peek_head (priv->directories);
 
-	if (file) {
-		if (check_file (crawler, file)) {
-			g_queue_push_tail (priv->found, file);
-		} else {
-			g_object_unref (file);
-		}
-
-		return TRUE;
+	if (info) {
+		dir_data = g_queue_peek_head (info->directory_processing_queue);
 	}
 
-	/* Crawler directories */
-	file = g_queue_pop_head (priv->directories);
+	if (dir_data) {
+		/* One directory inside the tree hierarchy is being inspected */
+		if (!dir_data->was_inspected) {
+			gboolean iterate;
 
-	if (file) {
-		if (check_directory (crawler, file)) {
-			g_queue_push_tail (priv->found, file);
+			if (G_NODE_IS_ROOT (dir_data->node)) {
+				iterate = check_directory (crawler, info, dir_data->node->data);
+			} else {
+				/* Directory has been already checked in the block below, so
+				 * so obey the settings for the current directory root.
+				 */
+				iterate = info->recurse;
+			}
 
-			/* directory is being iterated, this idle function
-			 * will be re-enabled right after it finishes.
+			dir_data->was_inspected = TRUE;
+
+			if (iterate) {
+				/* Directory contents haven't been inspected yet,
+				 * stop this idle function while it's being iterated
+				 */
+				file_enumerate_children (crawler, info, dir_data);
+				stop_idle = TRUE;
+			}
+		} else if (dir_data->was_inspected &&
+			   !dir_data->ignored_by_content &&
+			   dir_data->children != NULL) {
+			DirectoryChildData *child_data;
+			GNode *child_node = NULL;
+
+			/* Directory has been already inspected, take children
+			 * one by one and check whether they should be incorporated
+			 * to the tree.
 			 */
-			priv->idle_id = 0;
+			child_data = dir_data->children->data;
+			dir_data->children = g_slist_remove (dir_data->children, child_data);
 
-			return FALSE;
+			if ((child_data->is_dir &&
+			     check_directory (crawler, info, child_data->child)) ||
+			    (!child_data->is_dir &&
+			     check_file (crawler, info, child_data->child))) {
+				child_node = g_node_prepend_data (dir_data->node,
+								  g_object_ref (child_data->child));
+			}
+
+			if (child_node && child_data->is_dir) {
+				DirectoryProcessingData *child_dir_data;
+
+				child_dir_data = directory_processing_data_new (child_node);
+				g_queue_push_tail (info->directory_processing_queue, child_dir_data);
+			}
+
+			directory_child_data_free (child_data);
 		} else {
-			g_object_unref (file);
-			return TRUE;
+			/* No (more) children, or directory ignored. stop processing. */
+			g_queue_pop_head (info->directory_processing_queue);
+			directory_processing_data_free (dir_data);
 		}
+	} else if (!dir_data && info) {
+		/* Current directory being crawled doesn't have anything else
+		 * to process, emit ::directory-crawled and free data.
+		 */
+		g_signal_emit (crawler, signals[DIRECTORY_CRAWLED], 0,
+			       info->directory,
+			       info->tree,
+			       info->directories_found,
+			       info->directories_ignored,
+			       info->files_found,
+			       info->files_ignored);
+
+		g_queue_pop_head (priv->directories);
+		directory_root_info_free (info);
 	}
 
-	priv->idle_id = 0;
-	priv->is_finished = TRUE;
+	if (!g_queue_peek_head (priv->directories)) {
+		/* There's nothing else to process */
+		priv->is_finished = TRUE;
+		tracker_crawler_stop (crawler);
+		stop_idle = TRUE;
+	}
 
-	tracker_crawler_stop (crawler);
+	if (stop_idle) {
+		priv->idle_id = 0;
+		return FALSE;
+	}
 
-	return FALSE;
+	return TRUE;
 }
 
 static gboolean
@@ -377,101 +530,53 @@ process_func_stop (TrackerCrawler *crawler)
 	}
 }
 
-static EnumeratorChildData *
-enumerator_child_data_new (GFile    *child,
-                           gboolean  is_dir)
-{
-	EnumeratorChildData *cd;
-
-	cd = g_slice_new (EnumeratorChildData);
-
-	cd->child = g_object_ref (child);
-	cd->is_dir = is_dir;
-
-	return cd;
-}
-
-static void
-enumerator_child_data_free (EnumeratorChildData *cd)
-{
-	g_object_unref (cd->child);
-	g_slice_free (EnumeratorChildData, cd);
-}
-
 static EnumeratorData *
-enumerator_data_new (TrackerCrawler *crawler,
-                     GFile          *parent)
+enumerator_data_new (TrackerCrawler          *crawler,
+		     DirectoryRootInfo       *root_info,
+		     DirectoryProcessingData *dir_info)
 {
 	EnumeratorData *ed;
 
-	ed = g_slice_new0 (EnumeratorData);
+	ed = g_slice_new (EnumeratorData);
 
 	ed->crawler = g_object_ref (crawler);
-	ed->parent = g_object_ref (parent);
-	ed->children = g_hash_table_new_full (g_str_hash,
-	                                      g_str_equal,
-	                                      (GDestroyNotify) g_free,
-	                                      (GDestroyNotify) enumerator_child_data_free);
-	return ed;
-}
+	ed->root_info = root_info;
+	ed->dir_info = dir_info;
 
-static void
-enumerator_data_add_child (EnumeratorData *ed,
-                           const gchar    *name,
-                           GFile          *file,
-                           gboolean        is_dir)
-{
-	g_hash_table_insert (ed->children,
-	                     g_strdup (name),
-	                     enumerator_child_data_new (file, is_dir));
+	return ed;
 }
 
 static void
 enumerator_data_process (EnumeratorData *ed)
 {
 	TrackerCrawler *crawler;
-	GHashTableIter iter;
-	EnumeratorChildData *cd;
-	GList *children;
+	GSList *l;
+	GList *children = NULL;
 	gboolean use;
 
 	crawler = ed->crawler;
 
-	g_hash_table_iter_init (&iter, ed->children);
+	for (l = ed->dir_info->children; l; l = l->next) {
+		DirectoryChildData *child_data;
 
-	children = NULL;
-	while (g_hash_table_iter_next (&iter, NULL, (gpointer *) &cd)) {
-		children = g_list_prepend (children, cd->child);
+		child_data = l->data;
+		children = g_list_prepend (children, child_data->child);
 	}
 
-	g_signal_emit (crawler, signals[CHECK_DIRECTORY_CONTENTS], 0, ed->parent, children, &use);
-
+	g_signal_emit (crawler, signals[CHECK_DIRECTORY_CONTENTS], 0, ed->dir_info->node->data, children, &use);
 	g_list_free (children);
-	children = NULL;
 
 	if (!use) {
-		/* Directory was ignored based on its content */
-		crawler->private->directories_ignored++;
+		ed->dir_info->ignored_by_content = TRUE;
+		/* FIXME: Update stats */
 		return;
-	}
-
-	g_hash_table_iter_init (&iter, ed->children);
-
-	while (g_hash_table_iter_next (&iter, NULL, (gpointer*) &cd)) {
-		if (cd->is_dir) {
-			add_directory (crawler, cd->child, FALSE);
-		} else {
-			add_file (crawler, cd->child);
-		}
 	}
 }
 
 static void
 enumerator_data_free (EnumeratorData *ed)
 {
-	g_object_unref (ed->parent);
 	g_object_unref (ed->crawler);
-	g_hash_table_unref (ed->children);
 	g_slice_free (EnumeratorData, ed);
 }
 
@@ -516,9 +621,8 @@ file_enumerate_next_cb (GObject      *object,
 
 	enumerator = G_FILE_ENUMERATOR (object);
 
-	ed = (EnumeratorData*) user_data;
+	ed = user_data;
 	crawler = ed->crawler;
-	parent = ed->parent;
 	cancelled = g_cancellable_is_cancelled (crawler->private->cancellable);
 
 	files = g_file_enumerator_next_files_finish (enumerator,
@@ -554,6 +658,8 @@ file_enumerate_next_cb (GObject      *object,
 		return;
 	}
 
+	parent = ed->dir_info->node->data;
+
 	for (l = files; l; l = l->next) {
 		const gchar *child_name;
 		gboolean is_dir;
@@ -564,7 +670,7 @@ file_enumerate_next_cb (GObject      *object,
 		child = g_file_get_child (parent, child_name);
 		is_dir = g_file_info_get_file_type (info) == G_FILE_TYPE_DIRECTORY;
 
-		enumerator_data_add_child (ed, child_name, child, is_dir);
+		directory_processing_data_add_child (ed->dir_info, child, is_dir);
 
 		g_object_unref (child);
 		g_object_unref (info);
@@ -629,12 +735,15 @@ file_enumerate_children_cb (GObject      *file,
 }
 
 static void
-file_enumerate_children (TrackerCrawler *crawler,
-                         GFile          *file)
+file_enumerate_children (TrackerCrawler          *crawler,
+			 DirectoryRootInfo       *info,
+			 DirectoryProcessingData *dir_data)
 {
 	EnumeratorData *ed;
+	GFile *file;
 
-	ed = enumerator_data_new (crawler, file);
+	file = dir_data->node->data;
+	ed = enumerator_data_new (crawler, info, dir_data);
 
 	g_file_enumerate_children_async (file,
 	                                 FILE_ATTRIBUTES,
@@ -651,6 +760,7 @@ tracker_crawler_start (TrackerCrawler *crawler,
                        gboolean        recurse)
 {
 	TrackerCrawlerPrivate *priv;
+	DirectoryRootInfo *info;
 
 	g_return_val_if_fail (TRACKER_IS_CRAWLER (crawler), FALSE);
 	g_return_val_if_fail (G_IS_FILE (file), FALSE);
@@ -679,14 +789,9 @@ tracker_crawler_start (TrackerCrawler *crawler,
 	priv->is_running = TRUE;
 	priv->is_finished = FALSE;
 
-	/* Reset stats */
-	priv->directories_found = 0;
-	priv->directories_ignored = 0;
-	priv->files_found = 0;
-	priv->files_ignored = 0;
+	info = directory_root_info_new (file, recurse);
+	g_queue_push_tail (priv->directories, info);
 
-	/* Start things off */
-	add_directory (crawler, file, TRUE);
 	process_func_start (crawler);
 
 	return TRUE;
@@ -712,16 +817,11 @@ tracker_crawler_stop (TrackerCrawler *crawler)
 	}
 
 	g_signal_emit (crawler, signals[FINISHED], 0,
-	               priv->found,
-	               !priv->is_finished,
-	               priv->directories_found,
-	               priv->directories_ignored,
-	               priv->files_found,
-	               priv->files_ignored);
+	               !priv->is_finished);
 
 	/* Clean up queue */
-	g_queue_foreach (priv->found, (GFunc) g_object_unref, NULL);
-	g_queue_clear (priv->found);
+	g_queue_foreach (priv->directories, (GFunc) directory_root_info_free, NULL);
+	g_queue_clear (priv->directories);
 
 	/* We don't free the queue in case the crawler is reused, it
 	 * is only freed in finalize.

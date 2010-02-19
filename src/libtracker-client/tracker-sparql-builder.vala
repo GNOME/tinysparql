@@ -53,6 +53,7 @@ public class Tracker.SparqlBuilder : Object {
 	public SparqlBuilder.embedded_insert () {
 		states += State.EMBEDDED_INSERT;
 		states += State.INSERT;
+		states += State.SUBJECT;
 	}
 
 	public void drop_graph (string iri)

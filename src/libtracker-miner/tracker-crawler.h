@@ -54,13 +54,15 @@ struct TrackerCrawlerClass {
 	gboolean (* check_directory_contents) (TrackerCrawler *crawler,
 	                                       GFile          *file,
 	                                       GList          *contents);
+	void     (* directory_crawled)   (TrackerCrawler *crawler,
+					  GFile          *directory,
+					  GNode          *tree,
+					  guint           directories_found,
+					  guint           directories_ignored,
+					  guint           files_found,
+					  guint           files_ignored);
 	void     (* finished)            (TrackerCrawler *crawler,
-	                                  GQueue         *found_files,
-	                                  gboolean        interrupted,
-	                                  guint           directories_found,
-	                                  guint           directories_ignored,
-	                                  guint           files_found,
-	                                  guint           files_ignored);
+	                                  gboolean        interrupted);
 };
 
 GType           tracker_crawler_get_type (void);

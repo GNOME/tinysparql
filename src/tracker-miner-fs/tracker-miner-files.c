@@ -1310,6 +1310,7 @@ miner_files_monitor_directory (TrackerMinerFS *fs,
                                GFile          *file)
 {
 	TrackerMinerFiles *mf;
+	GSList *list;
 
 	mf = TRACKER_MINER_FILES (fs);
 
@@ -1317,10 +1318,45 @@ miner_files_monitor_directory (TrackerMinerFS *fs,
 		return FALSE;
 	}
 
+	/* We don't want child directories inside IndexSingleDirectories
+	 * to have a monitor added.
+	 */
+	for (list = mf->private->index_single_directories; list; list = list->next) {
+		gboolean is_child = FALSE;
+		GFile *dir;
+
+		dir = g_file_new_for_path (list->data);
+		is_child = g_file_has_prefix (file, dir);
+		g_object_unref (dir);
+
+		if (is_child) {
+			return FALSE;
+		}
+	}
+
 	/* Fallback to the check directory routine, since we don't
 	 * monitor anything we don't process.
 	 */
 	return miner_files_check_directory (fs, file);
+}
+
+static const gchar *
+miner_files_get_file_urn (TrackerMinerFiles *miner,
+                          GFile             *file,
+			  gboolean          *is_iri)
+{
+	const gchar *urn;
+
+	urn = tracker_miner_fs_get_urn (TRACKER_MINER_FS (miner), file);
+	*is_iri = TRUE;
+
+	if (!urn) {
+		/* This is a new insertion, use anonymous URNs to store files */
+		urn = "_:file";
+		*is_iri = FALSE;
+	}
+
+	return urn;
 }
 
 static void
@@ -1331,6 +1367,8 @@ miner_files_add_to_datasource (TrackerMinerFiles    *mf,
 	TrackerMinerFilesPrivate *priv;
 	const gchar *removable_device_udi;
 	gchar *removable_device_urn, *uri;
+	const gchar *urn;
+	gboolean is_iri;
 
 	priv = TRACKER_MINER_FILES_GET_PRIVATE (mf);
 	uri = g_file_get_uri (file);
@@ -1348,7 +1386,14 @@ miner_files_add_to_datasource (TrackerMinerFiles    *mf,
 		removable_device_urn = g_strdup (TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN);
 	}
 
-	tracker_sparql_builder_subject (sparql, "_:file");
+	urn = miner_files_get_file_urn (mf, file, &is_iri);
+
+	if (is_iri) {
+		tracker_sparql_builder_subject_iri (sparql, urn);
+	} else {
+		tracker_sparql_builder_subject (sparql, urn);
+	}
+
 	tracker_sparql_builder_predicate (sparql, "a");
 	tracker_sparql_builder_object (sparql, "nfo:FileDataObject");
 
@@ -1423,36 +1468,25 @@ extractor_get_embedded_metadata_cb (DBusGProxy *proxy,
 	}
 
 	if (sparql && *sparql) {
-		tracker_sparql_builder_append (data->sparql, "\n");
+		gboolean is_iri;
+		const gchar *urn;
+
+		urn = miner_files_get_file_urn (data->miner, data->file, &is_iri);
+
+		if (is_iri) {
+			gchar *str;
+
+			str = g_strdup_printf ("<%s>", urn);
+			tracker_sparql_builder_append (data->sparql, str);
+			g_free (str);
+		} else {
+			tracker_sparql_builder_append (data->sparql, urn);
+		}
+
 		tracker_sparql_builder_append (data->sparql, sparql);
 	}
 
 	tracker_sparql_builder_insert_close (data->sparql);
-
-	if (g_object_get_qdata (G_OBJECT (data->file),
-	                        priv->quark_directory_config_root) == NULL) {
-		GFile *parent;
-
-		parent = g_file_get_parent (data->file);
-
-		if (parent) {
-			gchar *parent_uri;
-
-			parent_uri = g_file_get_uri (parent);
-
-			/* Add where clause for the nfo:belongsToContainer */
-			tracker_sparql_builder_where_open (data->sparql);
-
-			tracker_sparql_builder_subject_variable (data->sparql, "parent");
-			tracker_sparql_builder_predicate (data->sparql, "nie:url");
-			tracker_sparql_builder_object_string (data->sparql, parent_uri);
-
-			tracker_sparql_builder_where_close (data->sparql);
-
-			g_free (parent_uri);
-			g_object_unref (parent);
-		}
-	}
 
 	/* Prepend preupdate queries */
 	if (preupdate && *preupdate) {
@@ -1543,12 +1577,13 @@ process_file_cb (GObject      *object,
 	TrackerMinerFilesPrivate *priv;
 	TrackerSparqlBuilder *sparql;
 	ProcessFileData *data;
-	const gchar *mime_type;
+	const gchar *mime_type, *urn, *parent_urn;
 	GFileInfo *file_info;
 	guint64 time_;
-	GFile *file, *parent;
+	GFile *file;
 	gchar *uri;
 	GError *error = NULL;
+	gboolean is_iri;
 
 	data = user_data;
 	file = G_FILE (object);
@@ -1566,10 +1601,15 @@ process_file_cb (GObject      *object,
 
 	uri = g_file_get_uri (file);
 	mime_type = g_file_info_get_content_type (file_info);
+	urn = miner_files_get_file_urn (TRACKER_MINER_FILES (data->miner), file, &is_iri);
 
 	tracker_sparql_builder_insert_open (sparql, uri);
 
-	tracker_sparql_builder_subject (sparql, "_:file");
+	if (is_iri) {
+		tracker_sparql_builder_subject_iri (sparql, urn);
+	} else {
+		tracker_sparql_builder_subject (sparql, urn);
+	}
 
 	tracker_sparql_builder_predicate (sparql, "a");
 	tracker_sparql_builder_object (sparql, "nfo:FileDataObject");
@@ -1579,15 +1619,11 @@ process_file_cb (GObject      *object,
 		tracker_sparql_builder_object (sparql, "nfo:Folder");
 	}
 
-	if (g_object_get_qdata (G_OBJECT (data->file),
-	                        priv->quark_directory_config_root) == NULL) {
-		parent = g_file_get_parent (file);
+	parent_urn = tracker_miner_fs_get_parent_urn (TRACKER_MINER_FS (data->miner), file);
 
-		if (parent) {
-			tracker_sparql_builder_predicate (sparql, "nfo:belongsToContainer");
-			tracker_sparql_builder_object_variable (sparql, "parent");
-			g_object_unref (parent);
-		}
+	if (parent_urn) {
+		tracker_sparql_builder_predicate (sparql, "nfo:belongsToContainer");
+		tracker_sparql_builder_object_iri (sparql, parent_urn);
 	}
 
 	tracker_sparql_builder_predicate (sparql, "nfo:fileName");
@@ -1606,7 +1642,11 @@ process_file_cb (GObject      *object,
 
 	/* Laying the link between the IE and the DO. We use IE = DO */
 	tracker_sparql_builder_predicate (sparql, "nie:isStoredAs");
-	tracker_sparql_builder_object (sparql, "_:file");
+	if (is_iri) {
+		tracker_sparql_builder_object_iri (sparql, urn);
+	} else {
+		tracker_sparql_builder_object (sparql, urn);
+	}
 
 	/* The URL of the DataObject (because IE = DO, this is correct) */
 	tracker_sparql_builder_predicate (sparql, "nie:url");
