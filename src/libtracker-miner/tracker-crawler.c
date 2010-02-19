@@ -423,8 +423,10 @@ process_func (gpointer data)
 			if (G_NODE_IS_ROOT (dir_data->node)) {
 				iterate = check_directory (crawler, info, dir_data->node->data);
 			} else {
-				/* Directory has been already checked in the block below */
-				iterate = TRUE;
+				/* Directory has been already checked in the block below, so
+				 * so obey the settings for the current directory root.
+				 */
+				iterate = info->recurse;
 			}
 
 			dir_data->was_inspected = TRUE;
