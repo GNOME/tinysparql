@@ -27,7 +27,7 @@
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
 
-#include <panel-applet-gconf.h>
+#include <panel-applet.h>
 
 #include <libtracker-client/tracker.h>
 
