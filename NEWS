@@ -36,6 +36,7 @@ Improvements / New:
 
   tracker-tag:
   * Fixed looking up tags by filename and don't require explicit paths
+  * Fixed looking up tags, don't use regular expressions, use exact matching
   * Removed unused code and fixed memory leak when removing tags
 
   tracker-search-tool:
