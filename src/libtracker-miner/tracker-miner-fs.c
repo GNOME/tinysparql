@@ -821,7 +821,7 @@ process_print_stats (TrackerMinerFS *fs)
 		           fs->private->total_files_ignored);
 		g_message ("Total monitors    : %d",
 		           tracker_monitor_get_count (fs->private->monitor));
-		g_message ("Total files processed : %d (%d notified, %d with error)\n",
+		g_message ("Total processed   : %d (%d notified, %d with error)",
 			   fs->private->total_files_processed,
 			   fs->private->total_files_notified,
 			   fs->private->total_files_notified_error);
