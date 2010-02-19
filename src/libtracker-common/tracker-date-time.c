@@ -578,11 +578,11 @@ void
 tracker_date_time_set_from_string (GValue      *value,
                                    const gchar *date_time_string)
 {
-	g_return_if_fail (G_VALUE_HOLDS (value, TRACKER_TYPE_DATE_TIME));
-	g_return_if_fail (date_time_string != NULL);
-
 	gint64 time;
 	gint offset;
+
+	g_return_if_fail (G_VALUE_HOLDS (value, TRACKER_TYPE_DATE_TIME));
+	g_return_if_fail (date_time_string != NULL);
 
 	time = tracker_string_to_date (date_time_string, &offset);
 	tracker_date_time_set (value, time, offset);
@@ -609,9 +609,9 @@ tracker_date_time_get_offset (const GValue *value)
 gint
 tracker_date_time_get_local_date (const GValue *value)
 {
-	g_return_val_if_fail (G_VALUE_HOLDS (value, TRACKER_TYPE_DATE_TIME), 0);
-
 	gint64 local_timestamp;
+
+	g_return_val_if_fail (G_VALUE_HOLDS (value, TRACKER_TYPE_DATE_TIME), 0);
 
 	/* return number of days since epoch */
 	local_timestamp = tracker_date_time_get_time (value) + tracker_date_time_get_offset (value);
@@ -621,9 +621,9 @@ tracker_date_time_get_local_date (const GValue *value)
 gint
 tracker_date_time_get_local_time (const GValue *value)
 {
-	g_return_val_if_fail (G_VALUE_HOLDS (value, TRACKER_TYPE_DATE_TIME), 0);
-
 	gint64 local_timestamp;
+
+	g_return_val_if_fail (G_VALUE_HOLDS (value, TRACKER_TYPE_DATE_TIME), 0);
 
 	/* return local time of day */
 	local_timestamp = tracker_date_time_get_time (value) + tracker_date_time_get_offset (value);
