@@ -83,6 +83,8 @@ typedef struct {
 typedef struct {
 	GNode *tree;
 	GQueue *nodes;
+	guint n_items;
+	guint n_items_processed;
 } CrawledDirectoryData;
 
 struct TrackerMinerFSPrivate {
@@ -1553,6 +1555,7 @@ fill_in_queue (TrackerMinerFS       *fs,
 		/* Special case, append the root directory for the tree */
 		node = dir_data->tree;
 		file = node->data;
+		dir_data->n_items_processed++;
 
 		if (!g_object_get_qdata (G_OBJECT (file), fs->private->quark_ignore_file)) {
 			g_queue_push_tail (queue, g_object_ref (file));
@@ -1579,6 +1582,7 @@ fill_in_queue (TrackerMinerFS       *fs,
 
 		while (children) {
 			file = children->data;
+			dir_data->n_items_processed++;
 
 			if (!g_object_get_qdata (G_OBJECT (file), fs->private->quark_ignore_file)) {
 				g_queue_push_tail (queue, g_object_ref (file));
@@ -1688,6 +1692,13 @@ item_queue_get_next_file (TrackerMinerFS  *fs,
 	return QUEUE_NONE;
 }
 
+static void
+get_tree_progress_foreach (CrawledDirectoryData *data,
+			   gint                 *items_to_process)
+{
+	*items_to_process += data->n_items - data->n_items_processed;
+}
+
 static gdouble
 item_queue_get_progress (TrackerMinerFS *fs,
                          guint          *n_items_processed,
@@ -1700,6 +1711,10 @@ item_queue_get_progress (TrackerMinerFS *fs,
 	items_to_process += g_queue_get_length (fs->private->items_created);
 	items_to_process += g_queue_get_length (fs->private->items_updated);
 	items_to_process += g_queue_get_length (fs->private->items_moved);
+
+	g_queue_foreach (fs->private->crawled_directories,
+			 (GFunc) get_tree_progress_foreach,
+			 &items_to_process);
 
 	items_total += fs->private->total_directories_found;
 	items_total += fs->private->total_files_found;
@@ -2307,6 +2322,9 @@ crawled_directory_data_new (GNode *tree)
 	data = g_slice_new (CrawledDirectoryData);
 	data->tree = g_node_copy_deep (tree, (GCopyFunc) g_object_ref, NULL);
 	data->nodes = g_queue_new ();
+
+	data->n_items = g_node_n_nodes (data->tree, G_TRAVERSE_ALL);
+	data->n_items_processed = 0;
 
 	return data;
 }
