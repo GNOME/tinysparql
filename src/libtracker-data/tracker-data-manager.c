@@ -1242,6 +1242,8 @@ create_decomposed_metadata_tables (TrackerDBInterface *iface,
 
 
 	if (!is_new || (is_new && tracker_class_get_is_new (service))) {
+		if (is_new)
+			g_debug ("Altering database with new class '%s' (create)", service_name);
 		in_alter = FALSE;
 		create_sql = g_string_new ("");
 		g_string_append_printf (create_sql, "CREATE TABLE \"%s\" (ID INTEGER NOT NULL PRIMARY KEY", service_name);
@@ -1271,6 +1273,12 @@ create_decomposed_metadata_tables (TrackerDBInterface *iface,
 			if (sql_type_for_single_value) {
 				/* single value */
 
+				if (is_new) {
+					g_debug ("%sAltering database for class '%s' property '%s': single value (%s)",
+					         in_alter ? "" : "\t", service_name, field_name, 
+					         in_alter ? "alter" : "create");
+				}
+
 				if (!in_alter) {
 					class_properties = g_slist_prepend (class_properties, property);
 
@@ -1294,11 +1302,6 @@ create_decomposed_metadata_tables (TrackerDBInterface *iface,
 
 				} else if (tracker_property_get_is_new (property)) {
 					GString *alter_sql = NULL;
-
-					if (is_new) {
-						g_debug ("Altering database for class '%s' property '%s': single value",
-						         service_name, field_name);
-					}
 
 					class_properties = g_slist_prepend (class_properties, property);
 
