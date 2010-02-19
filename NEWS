@@ -11,16 +11,24 @@ Improvements / New:
 
   SPARQL:
   * Support simple named graph patterns in queries
+  * Added fn:*-from-dateTime functions.
 
   libtracker-db:
   * Fixed compiler warnings in function_sparql_cartesian_distance()
   * Updated journal to support named graphs
 
+  libtracker-data:
+  * Support retrieving localtime for stored date/time values, was UTC
+
   libtracker-common:
   * Fixed header filename for TurtleWriter
+  * Added TrackerDateTime fundamental GType for time + UTC offset
 
   libtracker-client:
   * Refactored away tracker-statement-list API
+
+  libtracker-miner:
+  * Refactored TrackerCrawler so we process parent dirs before children
 
   libtracker-extract:
   * Moved libtracker-common functions here only used in tracker-extract
@@ -53,7 +61,9 @@ Bugs:
 
   * GB#610026, Nautilus Tagging Extension does not work at all.
   * GB#610318, Bump GTK+ dep to 2.18 due to gtk_widget_set_can_default()
+  * GB#610360, Tracker adds multiple entries for files
   * NB#157277, Not able to search for files based on a particular tag
+  * NB#149503, ClassUpdateSignaler for MusicPiece doesn't signal subjectsChanged signals
 
 Translations:
 
@@ -62,6 +72,9 @@ Translations:
   * Updated es: Jorge González
 
 Notes:
+
+  The database version up has been incremented, this will force a
+  reindex for any existing Tracker installation.
 
   The Deskbar applet packaged with Tracker is currently out of date
   and needs some love to get it working with the new APIs. It is in
