@@ -683,7 +683,7 @@ config_create_with_defaults (TrackerConfig *config,
 				                            G_N_ELEMENTS (string_list));
 			} else if (g_strcmp0 (conversions[i].property, "ignored-files") == 0) {
 				const gchar *string_list[] = {
-					"*~", "*.o", "*.la", "*.lo", "*.loT", "*.in",
+					"*~", ".*.swp" ".*.swo" "*.o", "*.la", "*.lo", "*.loT", "*.in",
 					"*.csproj", "*.m4", "*.rej", "*.gmo", "*.orig",
 					"*.pc",         "*.omf", "*.aux", "*.tmp", "*.po",
 					"*.vmdk", "*.vm*", "*.nvram", "*.part",
