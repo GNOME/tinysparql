@@ -623,6 +623,11 @@ tracker_data_resource_buffer_flush (GError **error)
 				if (table->delete_value) {
 					/* just set value to NULL for single value properties */
 					tracker_db_statement_bind_null (stmt, param++);
+					if (property->date_time) {
+						/* also set localDate and localTime to NULL */
+						tracker_db_statement_bind_null (stmt, param++);
+						tracker_db_statement_bind_null (stmt, param++);
+					}
 				} else {
 					statement_bind_gvalue (stmt, &param, &property->value);
 				}
@@ -963,6 +968,15 @@ get_property_values (TrackerProperty *property)
 				GValue gvalue = { 0 };
 				_tracker_db_result_set_get_value (result_set, 0, &gvalue);
 				if (G_VALUE_TYPE (&gvalue)) {
+					if (tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_DATETIME) {
+						gint time;
+
+						time = g_value_get_int (&gvalue);
+						g_value_unset (&gvalue);
+						g_value_init (&gvalue, TRACKER_TYPE_DATE_TIME);
+						/* UTC offset is irrelevant for comparison */
+						tracker_date_time_set (&gvalue, time, 0);
+					}
 					g_value_array_append (old_values, &gvalue);
 					g_value_unset (&gvalue);
 				}
