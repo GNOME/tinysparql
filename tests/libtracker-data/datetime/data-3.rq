@@ -1,0 +1,7 @@
+INSERT {
+	example:x a example:A ;
+	   example:p "2001-02-03T10:11:12Z"
+}
+DELETE {
+	example:x example:p "2001-02-03T10:11:12Z"
+}
