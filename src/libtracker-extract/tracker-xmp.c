@@ -116,7 +116,7 @@ fix_flash (const gchar *flash)
 static const gchar *
 fix_white_balance (const gchar *wb)
 {
-	if (wb) {
+	if (g_strcmp0 (wb, "1") == 0) {
 		return "nmm:white-balance-manual";
 	} else {
 		return "nmm:white-balance-auto";

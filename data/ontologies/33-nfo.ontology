@@ -854,6 +854,7 @@ nfo:orientation-left a nfo:Orientation .
 nfo:orientation a rdf:Property ;
 	rdfs:domain nfo:Image ;
 	rdfs:range nfo:Orientation ;
+	nrl:maxCardinality 1 ;
 	tracker:writeback true .
 
 @prefix poi: <http://www.tracker-project.org/ontologies/poi#> .

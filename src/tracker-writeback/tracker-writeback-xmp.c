@@ -251,9 +251,9 @@ writeback_xmp_update_file_metadata (TrackerWritebackFile *wbf,
 			} else if (g_strcmp0 (row[3], TRACKER_NFO_PREFIX "orientation-top-mirror") == 0) {
 				xmp_set_property (xmp, NS_EXIF, "Orientation", "top - right", 0);
 			} else if (g_strcmp0 (row[3], TRACKER_NFO_PREFIX "orientation-bottom") == 0) {
-				xmp_set_property (xmp, NS_EXIF, "Orientation", "bottom - right", 0);
-			} else if (g_strcmp0 (row[3], TRACKER_NFO_PREFIX "orientation-bottom-mirror") == 0) {
 				xmp_set_property (xmp, NS_EXIF, "Orientation", "bottom - left", 0);
+			} else if (g_strcmp0 (row[3], TRACKER_NFO_PREFIX "orientation-bottom-mirror") == 0) {
+				xmp_set_property (xmp, NS_EXIF, "Orientation", "bottom - right", 0);
 			} else if (g_strcmp0 (row[3], TRACKER_NFO_PREFIX "orientation-left-mirror") == 0) {
 				xmp_set_property (xmp, NS_EXIF, "Orientation", "left - top", 0);
 			} else if (g_strcmp0 (row[3], TRACKER_NFO_PREFIX "orientation-right") == 0) {
@@ -315,9 +315,9 @@ writeback_xmp_update_file_metadata (TrackerWritebackFile *wbf,
 			if (g_strcmp0 (row[3], TRACKER_NMM_PREFIX "flash-on") == 0) {
 				/* 0 = Flash did not fire
 				   1 = Flash fired */
-				xmp_set_property (xmp, NS_EXIF, "Flash", "0", 0);
-			} else {
 				xmp_set_property (xmp, NS_EXIF, "Flash", "1", 0);
+			} else {
+				xmp_set_property (xmp, NS_EXIF, "Flash", "0", 0);
 			}
 		}
 
@@ -355,6 +355,7 @@ writeback_xmp_update_file_metadata (TrackerWritebackFile *wbf,
 				xmp_delete_property (xmp, NS_EXIF, "Model");
 				xmp_set_property (xmp, NS_EXIF, "Model", ptr, 0);
 			} else {
+				xmp_delete_property (xmp, NS_EXIF, "Make");
 				xmp_delete_property (xmp, NS_EXIF, "Model");
 				xmp_set_property (xmp, NS_EXIF, "Model", work_on, 0);
 			}
@@ -372,9 +373,9 @@ writeback_xmp_update_file_metadata (TrackerWritebackFile *wbf,
 			GError *error = NULL;
 			gchar *query;
 
-			query = g_strdup_printf ("SELECT mlo:city (?city) mlo:state (?state) "
-			                               " mlo:address (?address) "
-			                               " mlo:country (?country) "
+			query = g_strdup_printf ("SELECT mlo:city (?location) mlo:state (?location) "
+			                               " mlo:address (?location) "
+			                               " mlo:country (?location) "
 			                         "WHERE { <%s> mlo:location ?location }",
 			                         row[1]); /* The urn is at 1 */
 
