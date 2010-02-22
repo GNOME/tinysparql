@@ -1025,6 +1025,47 @@ item_query_exists (TrackerMinerFS  *miner,
 	return result;
 }
 
+static gboolean
+do_process_file (TrackerMinerFS *fs,
+		 ProcessData    *data)
+{
+	TrackerMinerFSPrivate *priv;
+	gboolean processing;
+
+	priv = fs->private;
+
+	g_signal_emit (fs, signals[PROCESS_FILE], 0,
+	               data->file, data->builder, data->cancellable,
+	               &processing);
+
+	if (!processing) {
+		gchar *uri;
+
+		uri = g_file_get_uri (data->file);
+
+		/* Re-fetch data, since it might have been
+		 * removed in broken implementations
+		 */
+		data = process_data_find (fs, data->file);
+
+		g_message ("%s refused to process '%s'", G_OBJECT_TYPE_NAME (fs), uri);
+
+		if (!data) {
+			g_critical ("%s has returned FALSE in ::process-file for '%s', "
+			            "but it seems that this file has been processed through "
+			            "tracker_miner_fs_file_notify(), this is an "
+			            "implementation error", G_OBJECT_TYPE_NAME (fs), uri);
+		} else {
+			priv->processing_pool = g_list_remove (priv->processing_pool, data);
+			process_data_free (data);
+		}
+
+		g_free (uri);
+	}
+
+	return processing;
+}
+
 static void
 item_add_or_update_cb (TrackerMinerFS *fs,
                        ProcessData    *data,
@@ -1035,17 +1076,43 @@ item_add_or_update_cb (TrackerMinerFS *fs,
 	uri = g_file_get_uri (data->file);
 
 	if (error) {
-		if (error->code == G_IO_ERROR_NOT_FOUND) {
-			g_message ("Could not process '%s': %s", uri, error->message);
+		ProcessData *first_item_data;
+		GList *last;
+
+		last = g_list_last (fs->private->processing_pool);
+		first_item_data = last->data;
+
+		/* Perhaps this is too specific to TrackerMinerFiles, if the extractor
+		 * is choking on some file, the miner will get a timeout for all files
+		 * being currently processed, but the one that is actually causing it
+		 * is the first one that was added to the processing pool, so we retry
+		 * the others.
+		 */
+		if (data != first_item_data &&
+		    (error->code == DBUS_GERROR_NO_REPLY ||
+		     error->code == DBUS_GERROR_TIMEOUT ||
+		     error->code == DBUS_GERROR_TIMED_OUT)) {
+			g_debug ("  Got DBus timeout error on '%s', but it could not be cause by it. Retrying file.", uri);
+
+			/* Reset the TrackerSparqlBuilder */
+			g_object_unref (data->builder);
+			data->builder = tracker_sparql_builder_new_update ();
+
+			do_process_file (fs, data);
 		} else {
-			g_critical ("Could not process '%s': %s", uri, error->message);
+			if (error->code == G_IO_ERROR_NOT_FOUND) {
+				g_message ("Could not process '%s': %s", uri, error->message);
+			} else {
+				g_critical ("Could not process '%s': %s", uri, error->message);
+			}
+
+			fs->private->total_files_notified_error++;
+			fs->private->processing_pool =
+				g_list_remove (fs->private->processing_pool, data);
+			process_data_free (data);
+
+			item_queue_handlers_set_up (fs);
 		}
-
-		fs->private->processing_pool =
-			g_list_remove (fs->private->processing_pool, data);
-		process_data_free (data);
-
-		item_queue_handlers_set_up (fs);
 	} else {
 		gchar *full_sparql;
 
@@ -1072,7 +1139,7 @@ item_add_or_update (TrackerMinerFS *fs,
 	TrackerMinerFSPrivate *priv;
 	TrackerSparqlBuilder *sparql;
 	GCancellable *cancellable;
-	gboolean processing, retval;
+	gboolean retval;
 	ProcessData *data;
 	GFile *parent;
 	gchar *urn;
@@ -1118,34 +1185,7 @@ item_add_or_update (TrackerMinerFS *fs,
 	data = process_data_new (file, urn, parent_urn, cancellable, sparql);
 	priv->processing_pool = g_list_prepend (priv->processing_pool, data);
 
-	g_signal_emit (fs, signals[PROCESS_FILE], 0,
-	               file, sparql, cancellable,
-	               &processing);
-
-	if (!processing) {
-		gchar *uri;
-
-		uri = g_file_get_uri (file);
-
-		/* Re-fetch data, since it might have been
-		 * removed in broken implementations
-		 */
-		data = process_data_find (fs, file);
-
-		g_message ("%s refused to process '%s'", G_OBJECT_TYPE_NAME (fs), uri);
-
-		if (!data) {
-			g_critical ("%s has returned FALSE in ::process-file for '%s', "
-			            "but it seems that this file has been processed through "
-			            "tracker_miner_fs_file_notify(), this is an "
-			            "implementation error", G_OBJECT_TYPE_NAME (fs), uri);
-		} else {
-			priv->processing_pool = g_list_remove (priv->processing_pool, data);
-			process_data_free (data);
-		}
-
-		g_free (uri);
-	} else {
+	if (do_process_file (fs, data)) {
 		guint length;
 
 		length = g_list_length (priv->processing_pool);
@@ -2703,10 +2743,6 @@ tracker_miner_fs_file_notify (TrackerMinerFS *fs,
 	g_return_if_fail (G_IS_FILE (file));
 
 	fs->private->total_files_notified++;
-
-	if (error) {
-		fs->private->total_files_notified_error++;
-	}
 
 	data = process_data_find (fs, file);
 
