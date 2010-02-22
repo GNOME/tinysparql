@@ -394,10 +394,10 @@ static TrackerOntology*
 get_ontology_from_file (const gchar *ontology_file)
 {
 	TrackerTurtleReader *reader;
-	GError              *error = NULL;
-	GHashTable          *ontology_uris;
-	TrackerOntology     *ret = NULL;
-	gchar               *ontology_path;
+	GError *error = NULL;
+	GHashTable *ontology_uris;
+	TrackerOntology *ret = NULL;
+	gchar *ontology_path;
 
 	ontology_path = g_build_filename (ontologies_dir, ontology_file, NULL);
 
@@ -429,11 +429,10 @@ get_ontology_from_file (const gchar *ontology_file)
 				ontology = tracker_ontology_new ();
 				tracker_ontology_set_uri (ontology, subject);
 
+				/* Passes ownership */
 				g_hash_table_insert (ontology_uris,
 				                     g_strdup (subject),
-				                     g_object_ref (ontology));
-
-				g_object_unref (ontology);
+				                     ontology);
 			}
 		} else if (g_strcmp0 (predicate, NAO_LAST_MODIFIED) == 0) {
 			TrackerOntology *ontology;
@@ -446,7 +445,11 @@ get_ontology_from_file (const gchar *ontology_file)
 			}
 
 			tracker_ontology_set_last_modified (ontology, tracker_string_to_date (object, NULL));
+
+			/* This one is here because lower ontology_uris is destroyed, and
+			 * else would this one's reference also be destroyed with it */
 			ret = g_object_ref (ontology);
+
 			break;
 		}
 	}
@@ -1275,7 +1278,9 @@ create_decomposed_metadata_tables (TrackerDBInterface *iface,
 
 				if (is_new) {
 					g_debug ("%sAltering database for class '%s' property '%s': single value (%s)",
-					         in_alter ? "" : "\t", service_name, field_name, 
+					         in_alter ? "" : "  ", 
+					         service_name, 
+					         field_name, 
 					         in_alter ? "alter" : "create");
 				}
 
@@ -1740,7 +1745,6 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 				}
 
 			}
-
 			g_object_unref (ontology);
 		}
 

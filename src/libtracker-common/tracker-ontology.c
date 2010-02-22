@@ -28,11 +28,11 @@
 
 #include "tracker-ontology.h"
 
-#define GET_PRIV(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_ONTOLOGY, TrackerOntologyPriv))
+#define GET_PRIV(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_ONTOLOGY, TrackerOntologyPrivate))
 
-typedef struct _TrackerOntologyPriv TrackerOntologyPriv;
+typedef struct _TrackerOntologyPrivate TrackerOntologyPrivate;
 
-struct _TrackerOntologyPriv {
+struct _TrackerOntologyPrivate {
 	gchar *uri;
 	time_t last_modified;
 	gboolean is_new;
@@ -90,7 +90,7 @@ tracker_ontology_class_init (TrackerOntologyClass *klass)
 	                                                       FALSE,
 	                                                       G_PARAM_READWRITE));
 
-	g_type_class_add_private (object_class, sizeof (TrackerOntologyPriv));
+	g_type_class_add_private (object_class, sizeof (TrackerOntologyPrivate));
 }
 
 static void
@@ -101,7 +101,7 @@ tracker_ontology_init (TrackerOntology *service)
 static void
 ontology_finalize (GObject *object)
 {
-	TrackerOntologyPriv *priv;
+	TrackerOntologyPrivate *priv;
 
 	priv = GET_PRIV (object);
 
@@ -116,7 +116,7 @@ ontology_get_property (GObject    *object,
                        GValue     *value,
                        GParamSpec *pspec)
 {
-	TrackerOntologyPriv *priv;
+	TrackerOntologyPrivate *priv;
 
 	priv = GET_PRIV (object);
 
@@ -142,7 +142,7 @@ ontology_set_property (GObject      *object,
                        const GValue *value,
                        GParamSpec   *pspec)
 {
-	TrackerOntologyPriv *priv;
+	TrackerOntologyPrivate *priv;
 
 	priv = GET_PRIV (object);
 
@@ -178,19 +178,19 @@ tracker_ontology_new (void)
 time_t
 tracker_ontology_get_last_modified (TrackerOntology *ontology)
 {
-	TrackerOntologyPriv *priv;
+	TrackerOntologyPrivate *priv;
 
 	g_return_val_if_fail (TRACKER_IS_ONTOLOGY (ontology), 0);
 
 	priv = GET_PRIV (ontology);
 
-	return (gint64) priv->last_modified;
+	return priv->last_modified;
 }
 
 gboolean
 tracker_ontology_get_is_new (TrackerOntology *ontology)
 {
-	TrackerOntologyPriv *priv;
+	TrackerOntologyPrivate *priv;
 
 	g_return_val_if_fail (TRACKER_IS_ONTOLOGY (ontology), FALSE);
 
@@ -204,13 +204,13 @@ void
 tracker_ontology_set_last_modified (TrackerOntology *ontology,
                                     time_t           value)
 {
-	TrackerOntologyPriv *priv;
+	TrackerOntologyPrivate *priv;
 
 	g_return_if_fail (TRACKER_IS_ONTOLOGY (ontology));
 
 	priv = GET_PRIV (ontology);
 
-	priv->last_modified = (gint64) value;
+	priv->last_modified = value;
 
 	g_object_notify (G_OBJECT (ontology), "last-modified");
 }
@@ -219,7 +219,7 @@ tracker_ontology_set_last_modified (TrackerOntology *ontology,
 const gchar *
 tracker_ontology_get_uri (TrackerOntology *ontology)
 {
-	TrackerOntologyPriv *priv;
+	TrackerOntologyPrivate *priv;
 
 	g_return_val_if_fail (TRACKER_IS_ONTOLOGY (ontology), NULL);
 
@@ -233,7 +233,7 @@ void
 tracker_ontology_set_uri (TrackerOntology *ontology,
                           const gchar    *value)
 {
-	TrackerOntologyPriv *priv;
+	TrackerOntologyPrivate *priv;
 
 	g_return_if_fail (TRACKER_IS_ONTOLOGY (ontology));
 
@@ -254,7 +254,7 @@ void
 tracker_ontology_set_is_new (TrackerOntology *ontology,
                              gboolean         value)
 {
-	TrackerOntologyPriv *priv;
+	TrackerOntologyPrivate *priv;
 
 	g_return_if_fail (TRACKER_IS_ONTOLOGY (ontology));
 
