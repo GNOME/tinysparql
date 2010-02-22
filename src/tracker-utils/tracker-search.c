@@ -853,11 +853,13 @@ main (int argc, char **argv)
 
 		for (p = terms, stop_word_found = NULL; *p && !stop_word_found; p++) {
 			gpointer data;
+			gchar *up = g_utf8_strdown (*p, -1);
 
-			data = g_hash_table_lookup (stop_words, *p);
+			data = g_hash_table_lookup (stop_words, up);
 			if (data) {
 				stop_word_found = *p;
 			}
+			g_free (up);
 		}
 
 		if (stop_word_found) {
