@@ -919,6 +919,7 @@ sparql_update_cb (GObject      *object,
 
 	if (error) {
 		g_critical ("Could not execute sparql: %s", error->message);
+		priv->total_files_notified_error++;
 		g_error_free (error);
 	} else {
 		if (fs->private->been_crawled) {
