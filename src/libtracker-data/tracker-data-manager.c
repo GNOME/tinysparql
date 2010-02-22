@@ -350,7 +350,7 @@ load_ontology_statement (const gchar *ontology_file,
 			return;
 		}
 
-		tracker_ontology_set_last_modified (ontology, tracker_string_to_date (object, NULL));
+		tracker_ontology_set_last_modified (ontology, tracker_string_to_date (object, NULL, NULL));
 	}
 
 }
@@ -444,7 +444,7 @@ get_ontology_from_file (const gchar *ontology_file)
 				return NULL;
 			}
 
-			tracker_ontology_set_last_modified (ontology, tracker_string_to_date (object, NULL));
+			tracker_ontology_set_last_modified (ontology, tracker_string_to_date (object, NULL, NULL));
 
 			/* This one is here because lower ontology_uris is destroyed, and
 			 * else would this one's reference also be destroyed with it */

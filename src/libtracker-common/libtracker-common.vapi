@@ -65,6 +65,12 @@ namespace Tracker {
 	}
 
 	[CCode (cheader_filename = "libtracker-common/tracker-date-time.h")]
-	public int string_to_date (string date_string, out int offset);
+	public int string_to_date (string date_string, out int offset) throws DateError;
+
+	[CCode (cheader_filename = "libtracker-common/tracker-date-time.h")]
+	public errordomain DateError {
+		OFFSET,
+		INVALID_ISO8601
+	}
 }
 

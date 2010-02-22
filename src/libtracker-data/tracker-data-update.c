@@ -1059,7 +1059,8 @@ get_old_property_values (TrackerProperty  *property,
 static void
 string_to_gvalue (const gchar         *value,
                   TrackerPropertyType  type,
-                  GValue              *gvalue)
+                  GValue              *gvalue,
+                  GError             **error)
 {
 	gint object_id;
 
@@ -1085,7 +1086,7 @@ string_to_gvalue (const gchar         *value,
 	case TRACKER_PROPERTY_TYPE_DATE:
 	case TRACKER_PROPERTY_TYPE_DATETIME:
 		g_value_init (gvalue, TRACKER_TYPE_DATE_TIME);
-		tracker_date_time_set_from_string (gvalue, value);
+		tracker_date_time_set_from_string (gvalue, value, error);
 		break;
 	case TRACKER_PROPERTY_TYPE_RESOURCE:
 		object_id = ensure_resource_id (value, NULL);
@@ -1108,14 +1109,16 @@ cache_set_metadata_decomposed (TrackerProperty  *property,
 	gchar              *table_name;
 	const gchar        *field_name;
 	TrackerProperty   **super_properties;
-	GValue gvalue = { 0 };
+	GValue              gvalue = { 0 };
 	GValueArray        *old_values;
+	GError             *new_error = NULL;
 
 	/* also insert super property values */
 	super_properties = tracker_property_get_super_properties (property);
 	while (*super_properties) {
-		cache_set_metadata_decomposed (*super_properties, value, graph, error);
-		if (*error) {
+		cache_set_metadata_decomposed (*super_properties, value, graph, &new_error);
+		if (new_error) {
+			g_propagate_error (error, new_error);
 			return;
 		}
 		super_properties++;
@@ -1134,13 +1137,19 @@ cache_set_metadata_decomposed (TrackerProperty  *property,
 	fts = tracker_property_get_fulltext_indexed (property);
 
 	/* read existing property values */
-	old_values = get_old_property_values (property, error);
-	if (*error) {
+	old_values = get_old_property_values (property, &new_error);
+	if (new_error) {
 		g_free (table_name);
+		g_propagate_error (error, new_error);
 		return;
 	}
 
-	string_to_gvalue (value, tracker_property_get_data_type (property), &gvalue);
+	string_to_gvalue (value, tracker_property_get_data_type (property), &gvalue, &new_error);
+	if (new_error) {
+		g_free (table_name);
+		g_propagate_error (error, new_error);
+		return;
+	}
 
 	if (!value_set_add_value (old_values, &gvalue)) {
 		/* value already inserted */
@@ -1195,7 +1204,13 @@ delete_metadata_decomposed (TrackerProperty  *property,
 		return;
 	}
 
-	string_to_gvalue (value, tracker_property_get_data_type (property), &gvalue);
+	string_to_gvalue (value, tracker_property_get_data_type (property), &gvalue, &new_error);
+
+	if (new_error) {
+		g_free (table_name);
+		g_propagate_error (error, new_error);
+		return;
+	}
 
 	if (!value_set_remove_value (old_values, &gvalue)) {
 		/* value not found */

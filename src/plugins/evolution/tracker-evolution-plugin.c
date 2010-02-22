@@ -1725,7 +1725,18 @@ on_register_client_qry (GPtrArray *results,
 			} else {
 				for (i = 0; i < results->len; i++) {
 					const gchar **str = g_ptr_array_index (results, i);
-					info->last_checkout = (guint64) tracker_string_to_date (str[0], NULL);
+					GError *new_error = NULL;
+
+					info->last_checkout = (guint64) tracker_string_to_date (str[0], NULL, &new_error);
+
+					if (new_error) {
+						g_warning ("%s", new_error->message);
+						g_error_free (error);
+						g_ptr_array_foreach (results, (GFunc) g_strfreev, NULL);
+						g_ptr_array_free (results, TRUE);
+						return;
+					}
+
 					break;
 				}
 			}

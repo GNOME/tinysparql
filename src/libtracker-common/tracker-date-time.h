@@ -30,7 +30,15 @@ G_BEGIN_DECLS
 #error "only <libtracker-common/tracker-common.h> must be included directly."
 #endif
 
+typedef enum  {
+	TRACKER_DATE_ERROR_OFFSET,
+	TRACKER_DATE_ERROR_INVALID_ISO8601
+} TrackerDateError;
+
 #define TRACKER_TYPE_DATE_TIME                 (tracker_date_time_get_type ())
+#define TRACKER_DATE_ERROR                     tracker_date_error_quark ()
+
+GQuark   tracker_date_error_quark              (void);
 
 GType    tracker_date_time_get_type            (void);
 
@@ -38,7 +46,8 @@ void     tracker_date_time_set                 (GValue       *value,
                                                 gint64        time,
                                                 gint          offset);
 void     tracker_date_time_set_from_string     (GValue       *value,
-                                                const gchar  *date_time_string);
+                                                const gchar  *date_time_string,
+                                                GError      **error);
 gint64   tracker_date_time_get_time            (const GValue *value);
 gint     tracker_date_time_get_offset          (const GValue *value);
 gint     tracker_date_time_get_local_date      (const GValue *value);
@@ -47,10 +56,12 @@ gint     tracker_date_time_get_local_time      (const GValue *value);
 gchar *  tracker_date_format                   (const gchar  *date_string);
 gchar *  tracker_date_format_to_iso8601        (const gchar  *date_string,
                                                 const gchar  *format);
-gchar *  tracker_date_to_time_string           (const gchar  *date_string);
+gchar *  tracker_date_to_time_string           (const gchar  *date_string,
+                                                GError      **error);
 time_t   tracker_string_to_date                (const gchar  *date_string,
-                                                gint         *offset);
-gchar *  tracker_date_to_string                        (time_t        date_time);
+                                                gint         *offset,
+                                                GError      **error);
+gchar *  tracker_date_to_string                (time_t        date_time);
 
 G_END_DECLS
 

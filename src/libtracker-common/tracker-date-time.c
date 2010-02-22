@@ -34,6 +34,10 @@
 
 #define DATE_FORMAT_ISO8601 "%Y-%m-%dT%H:%M:%S%z"
 
+GQuark tracker_date_error_quark (void) {
+	return g_quark_from_static_string ("tracker_date_error-quark");
+}
+
 static const char *months[] = {
 	"Jan", "Feb", "Mar", "Apr", "May", "Jun",
 	"Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
@@ -360,18 +364,24 @@ tracker_date_format_to_iso8601 (const gchar *date_string,
 }
 
 gchar *
-tracker_date_to_time_string (const gchar *date_string)
+tracker_date_to_time_string (const gchar *date_string, GError **error)
 {
 	gchar *str;
+	GError *new_error = NULL;
 
 	str = tracker_date_format (date_string);
 
 	if (str) {
 		time_t t;
 
-		t = tracker_string_to_date (str, NULL);
+		t = tracker_string_to_date (str, NULL, &new_error);
 
 		g_free (str);
+
+		if (new_error) {
+			g_propagate_error (error, new_error);
+			return NULL;
+		}
 
 		if (t != -1) {
 			return tracker_gint_to_string (t);
@@ -383,7 +393,8 @@ tracker_date_to_time_string (const gchar *date_string)
 
 time_t
 tracker_string_to_date (const gchar *date_string,
-                        gint        *offset_p)
+                        gint        *offset_p,
+                        GError      **error)
 {
 	/* TODO Add more checks and use GError to report invalid input
 	 * as this is potential user input.
@@ -413,6 +424,8 @@ tracker_string_to_date (const gchar *date_string,
 
 	if (!g_regex_match (regex, date_string, 0, &match_info)) {
 		g_match_info_free (match_info);
+		g_set_error (error, TRACKER_DATE_ERROR, TRACKER_DATE_ERROR_INVALID_ISO8601,
+		             "Not a ISO 8601 date string");
 		return -1;
 	}
 
@@ -472,7 +485,8 @@ tracker_string_to_date (const gchar *date_string,
 			g_free (match);
 
 			if (offset < -14 * 3600 || offset > 14 * 3600) {
-				g_warning ("UTC offset too large: %d seconds", offset);
+				g_set_error (error, TRACKER_DATE_ERROR, TRACKER_DATE_ERROR_OFFSET,
+				             "UTC offset too large: %d seconds", offset);
 			}
 
 			t -= offset;
@@ -563,9 +577,9 @@ tracker_date_time_get_type (void)
 }
 
 void
-tracker_date_time_set (GValue *value,
-                       gint64  time,
-                       gint    offset)
+tracker_date_time_set (GValue  *value,
+                       gint64   time,
+                       gint     offset)
 {
 	g_return_if_fail (G_VALUE_HOLDS (value, TRACKER_TYPE_DATE_TIME));
 	g_return_if_fail (offset >= -14 * 3600 && offset <= 14 * 3600);
@@ -576,15 +590,23 @@ tracker_date_time_set (GValue *value,
 
 void
 tracker_date_time_set_from_string (GValue      *value,
-                                   const gchar *date_time_string)
+                                   const gchar *date_time_string,
+                                   GError     **error)
 {
 	gint64 time;
 	gint offset;
+	GError *new_error = NULL;
 
 	g_return_if_fail (G_VALUE_HOLDS (value, TRACKER_TYPE_DATE_TIME));
 	g_return_if_fail (date_time_string != NULL);
 
-	time = tracker_string_to_date (date_time_string, &offset);
+	time = tracker_string_to_date (date_time_string, &offset, &new_error);
+
+	if (new_error != NULL) {
+		g_propagate_error (error, new_error);
+		return;
+	}
+
 	tracker_date_time_set (value, time, offset);
 }
 

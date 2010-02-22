@@ -511,7 +511,7 @@ public class Tracker.SparqlQuery : Object {
 		}
 	}
 
-	public PtrArray? execute_update (bool blank) throws DataError, DBInterfaceError, SparqlError {
+	public PtrArray? execute_update (bool blank) throws DataError, DBInterfaceError, SparqlError, DateError {
 		assert (update_extensions);
 
 		scanner = new SparqlScanner ((char*) query_string, (long) query_string.size ());
@@ -560,7 +560,7 @@ public class Tracker.SparqlQuery : Object {
 		return blank_nodes;
 	}
 
-	DBResultSet? exec_sql (string sql) throws DBInterfaceError, SparqlError {
+	DBResultSet? exec_sql (string sql) throws DBInterfaceError, SparqlError, DateError {
 		var iface = DBManager.get_db_interface ();
 		var stmt = iface.create_statement ("%s", sql);
 
@@ -722,7 +722,7 @@ public class Tracker.SparqlQuery : Object {
 		used_sql_identifiers = new HashTable<string,bool>.full (str_hash, str_equal, g_free, null);
 	}
 
-	DBResultSet? execute_select () throws DBInterfaceError, SparqlError {
+	DBResultSet? execute_select () throws DBInterfaceError, SparqlError, DateError {
 		// SELECT query
 
 		begin_query ();
@@ -920,7 +920,7 @@ public class Tracker.SparqlQuery : Object {
 		}
 	}
 
-	DBResultSet? execute_ask () throws DBInterfaceError, SparqlError {
+	DBResultSet? execute_ask () throws DBInterfaceError, SparqlError, DateError {
 		// ASK query
 
 		var pattern_sql = new StringBuilder ();
@@ -959,7 +959,7 @@ public class Tracker.SparqlQuery : Object {
 		}
 	}
 
-	PtrArray? execute_insert (bool blank) throws DBInterfaceError, DataError, SparqlError {
+	PtrArray? execute_insert (bool blank) throws DBInterfaceError, DataError, SparqlError, DateError {
 		expect (SparqlTokenType.INSERT);
 		if (accept (SparqlTokenType.INTO)) {
 			parse_from_or_into_param ();
@@ -969,7 +969,7 @@ public class Tracker.SparqlQuery : Object {
 		return execute_insert_or_delete (false, blank);
 	}
 
-	void execute_delete () throws DBInterfaceError, DataError, SparqlError {
+	void execute_delete () throws DBInterfaceError, DataError, SparqlError, DateError {
 		expect (SparqlTokenType.DELETE);
 		if (accept (SparqlTokenType.FROM)) {
 			parse_from_or_into_param ();
@@ -979,7 +979,7 @@ public class Tracker.SparqlQuery : Object {
 		execute_insert_or_delete (true, false);
 	}
 
-	PtrArray? execute_insert_or_delete (bool delete_statements, bool blank) throws DBInterfaceError, DataError, SparqlError {
+	PtrArray? execute_insert_or_delete (bool delete_statements, bool blank) throws DBInterfaceError, DataError, SparqlError, DateError {
 		// INSERT or DELETE
 
 		var pattern_sql = new StringBuilder ();
@@ -2132,7 +2132,7 @@ public class Tracker.SparqlQuery : Object {
 		}
 	}
 
-	void parse_construct_triples_block (HashTable<string,string> var_value_map) throws SparqlError, DataError {
+	void parse_construct_triples_block (HashTable<string,string> var_value_map) throws SparqlError, DataError, DateError {
 		expect (SparqlTokenType.OPEN_BRACE);
 
 		while (current () != SparqlTokenType.CLOSE_BRACE) {
@@ -2168,7 +2168,7 @@ public class Tracker.SparqlQuery : Object {
 	}
 
 
-	string parse_construct_var_or_term (HashTable<string,string> var_value_map) throws SparqlError, DataError {
+	string parse_construct_var_or_term (HashTable<string,string> var_value_map) throws SparqlError, DataError, DateError {
 		string result = "";
 		if (current () == SparqlTokenType.VAR) {
 			next ();
@@ -2246,7 +2246,7 @@ public class Tracker.SparqlQuery : Object {
 		return result;
 	}
 
-	void parse_construct_property_list_not_empty (HashTable<string,string> var_value_map) throws SparqlError, DataError {
+	void parse_construct_property_list_not_empty (HashTable<string,string> var_value_map) throws SparqlError, DataError, DateError {
 		while (true) {
 			var old_predicate = current_predicate;
 
@@ -2283,7 +2283,7 @@ public class Tracker.SparqlQuery : Object {
 		}
 	}
 
-	void parse_construct_object_list (HashTable<string,string> var_value_map) throws SparqlError, DataError {
+	void parse_construct_object_list (HashTable<string,string> var_value_map) throws SparqlError, DataError, DateError {
 		while (true) {
 			parse_construct_object (var_value_map);
 			if (accept (SparqlTokenType.COMMA)) {
@@ -2293,7 +2293,7 @@ public class Tracker.SparqlQuery : Object {
 		}
 	}
 
-	void parse_construct_object (HashTable<string,string> var_value_map) throws SparqlError, DataError {
+	void parse_construct_object (HashTable<string,string> var_value_map) throws SparqlError, DataError, DateError {
 		string object = parse_construct_var_or_term (var_value_map);
 		if (delete_statements) {
 			// delete triple from database
