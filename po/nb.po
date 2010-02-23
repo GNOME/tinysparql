@@ -6,9 +6,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: tracker 0.7.x\n"
-"Report-Msgid-Bugs-To:\n"
-"POT-Creation-Date: 2010-02-10 11:21+0100\n"
-"PO-Revision-Date: 2010-02-10 11:27+0100\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2010-02-23 11:09+0100\n"
+"PO-Revision-Date: 2010-02-23 11:12+0100\n"
 "Last-Translator: Kjartan Maraas <kmaraas@gnome.org>\n"
 "Language-Team: Norwegian bokmal <i18n-nb@lister.ping.uio.no>\n"
 "MIME-Version: 1.0\n"
@@ -18,7 +18,7 @@ msgstr ""
 
 #: ../data/miners/tracker-miner-applications.desktop.in.h:1
 #: ../src/tracker-search-bar/tracker-results-window.c:653
-#: ../src/tracker-search-tool/tracker-category-view.gs:78
+#: ../src/tracker-search-tool/tracker-category-view.gs:74
 msgid "Applications"
 msgstr "Programmer"
 
@@ -62,19 +62,19 @@ msgstr "Tracker søk"
 
 #: ../examples/rss-reader/rss_viewer.ui.h:1
 msgid "All posts"
-msgstr ""
+msgstr "Alle innlegg"
 
 #: ../examples/rss-reader/rss_viewer.ui.h:2
 msgid "By usage"
 msgstr "Etter bruk"
 
-#: ../src/plugins/nautilus/tracker-tags-view.c:278
-#: ../src/plugins/nautilus/tracker-tags-view.c:427
-#: ../src/plugins/nautilus/tracker-tags-view.c:461
+#: ../src/plugins/nautilus/tracker-tags-view.c:282
+#: ../src/plugins/nautilus/tracker-tags-view.c:432
+#: ../src/plugins/nautilus/tracker-tags-view.c:466
 msgid "No error was given"
 msgstr "Ingen feil ble gitt"
 
-#: ../src/plugins/nautilus/tracker-tags-view.c:747
+#: ../src/plugins/nautilus/tracker-tags-view.c:759
 #, c-format
 msgid "_Set the tags you want to associate with the %d selected item:"
 msgid_plural "_Set the tags you want to associate with the %d selected items:"
@@ -164,242 +164,39 @@ msgid_plural " %2.2d seconds"
 msgstr[0] ""
 msgstr[1] ""
 
-#. then set the remaining properties
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:362
-#, c-format
-msgid "Path : <b>%s</b>"
-msgstr "Sti : <b>%s</b>"
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:363
-#, c-format
-msgid "Modified : <b>%s</b>"
-msgstr "Endret : <b>%s</b>"
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:364
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:546
-#, c-format
-msgid "Size : <b>%s</b>"
-msgstr "Størrelse : <b>%s</b>"
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:365
-#, c-format
-msgid "Accessed : <b>%s</b>"
-msgstr "Aksessert : <b>%s</b>"
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:366
-#, c-format
-msgid "Mime : <b>%s</b>"
-msgstr ""
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:418
-#, c-format
-msgid "Sender : <b>%s</b>"
-msgstr ""
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:419
-#, c-format
-msgid "Date : <b>%s</b>"
-msgstr "Dato : <b>%s</b>"
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:458
-#, c-format
-msgid "Comment : <b>%s</b>"
-msgstr "Kommentar : <b>%s</b>"
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:459
-#, c-format
-msgid "Categories : <b>%s</b>"
-msgstr "Kategorier : <b>%s</b>"
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:542
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:641
-#, c-format
-msgid "Duration : <b>%s</b>"
-msgstr "Varighet : <b>%s</b>"
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:543
-#, c-format
-msgid "Genre : <b>%s</b>"
-msgstr "Sjanger : <b>%s</b>"
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:544
-#, c-format
-msgid "Bitrate : <b>%s Kbs</b>"
-msgstr ""
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:545
-#, c-format
-msgid "Year : <b>%s</b>"
-msgstr "År : <b>%s</b>"
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:547
-#, c-format
-msgid "Codec : <b>%s</b>"
-msgstr ""
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:585
-#, c-format
-msgid " taken with a <span size='large'><i>%s</i></span>"
-msgstr ""
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:590
-#, c-format
-msgid " <span size='large'><i>%s</i></span>"
-msgstr ""
-
-#. then set the remaining properties
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:610
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:639
-#, c-format
-msgid "Dimensions : <b>%d x %d</b>"
-msgstr ""
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:611
-#, c-format
-msgid "Date Taken : <b>%s</b>"
-msgstr ""
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:612
-#, c-format
-msgid "Orientation : <b>%s</b>"
-msgstr ""
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:613
-#, c-format
-msgid "Flash : <b>%s</b>"
-msgstr ""
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:614
-#, c-format
-msgid "Focal Length : <b>%s</b>"
-msgstr ""
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:615
-#, c-format
-msgid "Exposure Time : <b>%s</b>"
-msgstr ""
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:640
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:670
-#, c-format
-msgid "Author : <b>%s</b>"
-msgstr ""
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:642
-#, c-format
-msgid "Bitrate : <b>%s</b>"
-msgstr ""
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:643
-#, c-format
-msgid "Encoded In : <b>%s</b>"
-msgstr ""
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:644
-#, c-format
-msgid "Framerate : <b>%s</b>"
-msgstr ""
-
-#. then set the remaining properties
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:669
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:699
-#, c-format
-msgid "Subject : <b>%s</b>"
-msgstr ""
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:671
-#, c-format
-msgid "Page Count : <b>%s</b>"
-msgstr ""
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:672
-#, c-format
-msgid "Word Count : <b>%s</b>"
-msgstr ""
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:673
-#, c-format
-msgid "Created : <b>%s</b>"
-msgstr ""
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:674
-#, c-format
-msgid "Comments : <b>%s</b>"
-msgstr ""
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:789
-#, c-format
-msgid "%.1f KB"
-msgstr ""
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:793
-#, c-format
-msgid "%.1f MB"
-msgstr "%.1f MB"
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:797
-#, c-format
-msgid "%.1f GB"
-msgstr "%.1f GB"
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:836
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:876
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:899
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:921
-msgid "Unknown"
-msgstr "Ukjent"
-
-#: ../src/libtracker-gtk/tracker-tag-bar.c:269
-msgid "Type tags you want to add here, separated by commas"
-msgstr ""
-
-#: ../src/libtracker-gtk/tracker-tag-bar.c:389
-msgid "Tags :"
-msgstr ""
-
-#. Search For Tag
-#: ../src/libtracker-gtk/tracker-tag-bar.c:416
-msgid "_Search For Tag"
-msgstr "_Søk etter merkelapp"
-
-#. Remove Tag
-#: ../src/libtracker-gtk/tracker-tag-bar.c:428
-msgid "_Remove Tag"
-msgstr "Fje_rn merkelapp"
-
-#: ../src/libtracker-miner/tracker-miner.c:590
+#: ../src/libtracker-miner/tracker-miner.c:600
 msgid "Data store is not available"
 msgstr ""
 
-#: ../src/libtracker-miner/tracker-miner.c:1257
+#: ../src/libtracker-miner/tracker-miner.c:1268
 msgid "Pause application and reason match an already existing pause request"
 msgstr ""
 
-#: ../src/libtracker-miner/tracker-miner.c:1329
+#: ../src/libtracker-miner/tracker-miner.c:1340
 msgid "Cookie not recognized to resume paused miner"
 msgstr ""
 
-#: ../src/libtracker-miner/tracker-miner-fs.c:665
-#: ../src/plugins/evolution/tracker-evolution-plugin.c:2326
+#: ../src/libtracker-miner/tracker-miner-fs.c:707
+#: ../src/plugins/evolution/tracker-evolution-plugin.c:2339
 msgid "Initializing"
 msgstr ""
 
-#: ../src/libtracker-miner/tracker-miner-fs.c:676
-#: ../src/libtracker-miner/tracker-miner-fs.c:818
+#: ../src/libtracker-miner/tracker-miner-fs.c:718
+#: ../src/libtracker-miner/tracker-miner-fs.c:860
 msgid "Idle"
 msgstr ""
 
-#: ../src/libtracker-miner/tracker-miner-fs.c:1722
-#: ../src/libtracker-miner/tracker-miner-fs.c:1725
+#: ../src/libtracker-miner/tracker-miner-fs.c:1913
+#: ../src/libtracker-miner/tracker-miner-fs.c:1916
 msgid "Processing files"
 msgstr ""
 
-#: ../src/libtracker-miner/tracker-miner-fs.c:2182
+#: ../src/libtracker-miner/tracker-miner-fs.c:2448
 #, c-format
 msgid "Crawling recursively directory '%s'"
 msgstr ""
 
-#: ../src/libtracker-miner/tracker-miner-fs.c:2184
+#: ../src/libtracker-miner/tracker-miner-fs.c:2450
 #, c-format
 msgid "Crawling single directory '%s'"
 msgstr ""
@@ -514,21 +311,21 @@ msgstr "Utviklingsfiler"
 
 #: ../src/plugins/deskbar/tracker-handler.py:393
 #: ../src/plugins/deskbar/tracker-module.py:298
-#: ../src/tracker-search-tool/tracker-category-view.gs:70
+#: ../src/tracker-search-tool/tracker-category-view.gs:66
 msgid "Music"
 msgstr "Musikk"
 
 #: ../src/plugins/deskbar/tracker-handler.py:396
 #: ../src/plugins/deskbar/tracker-module.py:301
 #: ../src/tracker-search-bar/tracker-results-window.c:654
-#: ../src/tracker-search-tool/tracker-category-view.gs:66
+#: ../src/tracker-search-tool/tracker-category-view.gs:62
 msgid "Images"
 msgstr "Bilder"
 
 #: ../src/plugins/deskbar/tracker-handler.py:399
 #: ../src/plugins/deskbar/tracker-module.py:304
 #: ../src/tracker-search-bar/tracker-results-window.c:658
-#: ../src/tracker-search-tool/tracker-category-view.gs:74
+#: ../src/tracker-search-tool/tracker-category-view.gs:70
 msgid "Videos"
 msgstr "Videoer"
 
@@ -567,7 +364,7 @@ msgstr ""
 msgid "Tracker"
 msgstr "Tracker"
 
-#: ../src/plugins/evolution/tracker-evolution-plugin.c:2418
+#: ../src/plugins/evolution/tracker-evolution-plugin.c:2431
 msgid "Resuming"
 msgstr ""
 
@@ -584,7 +381,7 @@ msgid "Properties"
 msgstr ""
 
 #: ../src/tracker-explorer/tracker-explorer.ui.h:2
-#: ../src/tracker-search-tool/tst.ui.h:3
+#: ../src/tracker-search-tool/tst.ui.h:2
 msgid "_Search:"
 msgstr "_Søk:"
 
@@ -595,7 +392,7 @@ msgstr ""
 #: ../src/tracker-extract/tracker-main.c:83
 #: ../src/tracker-miner-fs/tracker-main.c:77
 #: ../src/tracker-store/tracker-main.c:102
-#: ../src/tracker-writeback/tracker-main.c:47
+#: ../src/tracker-writeback/tracker-main.c:51
 msgid "Displays version information"
 msgstr ""
 
@@ -647,7 +444,7 @@ msgid "Filename and mime type must be provided together"
 msgstr ""
 
 #: ../src/tracker-miner-fs/tracker-main.c:81
-#: ../src/tracker-writeback/tracker-main.c:51
+#: ../src/tracker-writeback/tracker-main.c:55
 msgid ""
 "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default=0)"
 msgstr ""
@@ -659,15 +456,15 @@ msgstr ""
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/tracker-miner-fs/tracker-main.c:255
+#: ../src/tracker-miner-fs/tracker-main.c:262
 msgid "- start the tracker indexer"
 msgstr ""
 
-#: ../src/tracker-miner-fs/tracker-miner-files.c:826
+#: ../src/tracker-miner-fs/tracker-miner-files.c:847
 msgid "Low battery"
 msgstr ""
 
-#: ../src/tracker-miner-fs/tracker-miner-files.c:909
+#: ../src/tracker-miner-fs/tracker-miner-files.c:930
 msgid "Low disk space"
 msgstr ""
 
@@ -966,33 +763,64 @@ msgstr "Alle filer"
 msgid "Office Documents"
 msgstr "Kontorstøttedokumenter"
 
-#: ../src/tracker-search-tool/tracker-category-view.gs:62
-msgid "Text Documents"
-msgstr "Tekstdokumenter"
-
 #: ../src/tracker-search-tool/tracker-entry.gs:39
 msgid "Clear the search text"
 msgstr "Fjern søketeksten"
 
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:93
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:105
+msgid "Name:"
+msgstr "Navn:"
+
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:111
+msgid "Folder:"
+msgstr "Mappe:"
+
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:115
 msgid "Type:"
 msgstr "Type:"
 
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:99
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:121
 msgid "Size:"
 msgstr "Størrelse:"
 
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:105
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:127
 msgid "Modified:"
 msgstr "Endret:"
 
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:111
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:316
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:342
+msgid "Height:"
+msgstr "Høyde:"
+
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:317
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:343
+msgid "Width:"
+msgstr "Bredde:"
+
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:329
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:355
 msgid "Title:"
 msgstr "Tittel:"
 
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:117
-msgid "Author/Artist:"
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:330
+msgid "Artist:"
+msgstr "Artist:"
+
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:331
+msgid "Album:"
+msgstr "Album:"
+
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:344
+msgid "Duration:"
+msgstr "Varighet:"
+
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:356
+msgid "Author:"
 msgstr ""
+
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:357
+msgid "Page count:"
+msgstr "Sideantall:"
 
 #: ../src/tracker-search-tool/tracker-search-tool.desktop.in.in.h:1
 msgid ""
@@ -1001,7 +829,7 @@ msgid ""
 msgstr ""
 
 #: ../src/tracker-search-tool/tracker-search-tool.desktop.in.in.h:2
-#: ../src/tracker-search-tool/tst.ui.h:2
+#: ../src/tracker-search-tool/tst.ui.h:1
 msgid "Tracker Search Tool"
 msgstr "Tracker søkeverktøy"
 
@@ -1011,6 +839,8 @@ msgid ""
 "Failed to load UI\n"
 "%s"
 msgstr ""
+"Klarte ikke å laste brukergrensesnitt\n"
+"%s"
 
 #: ../src/tracker-search-tool/tracker-utils.gs:97
 #, c-format
@@ -1020,15 +850,13 @@ msgid ""
 msgstr ""
 
 #: ../src/tracker-search-tool/tracker-utils.gs:111
-#, fuzzy, c-format
+#, c-format
 msgid ""
 "Could not lauch %s\n"
 "Error: %s\n"
-msgstr "Kunne ikke åpne mappe «%s»."
-
-#: ../src/tracker-search-tool/tst.ui.h:1
-msgid "Details"
-msgstr "Detaljer"
+msgstr ""
+"Kunne ikke starte %s\n"
+"Feil: %s\n"
 
 #: ../src/tracker-status-icon/tracker-main.c:46
 #: ../src/tracker-control/tracker-control.c:87
@@ -1040,7 +868,7 @@ msgstr "Detaljer"
 #: ../src/tracker-utils/tracker-status.c:99
 #: ../src/tracker-utils/tracker-tag.c:83
 msgid "Print version"
-msgstr ""
+msgstr "Vis versjon"
 
 #: ../src/tracker-status-icon/tracker-main.c:63
 msgid "- Miner status and control notification area icon"
@@ -1165,84 +993,84 @@ msgid "Could not open /proc"
 msgstr "Kunne ikke åpne /proc"
 
 #: ../src/tracker-control/tracker-control.c:104
-#: ../src/tracker-control/tracker-control.c:277
-#: ../src/tracker-control/tracker-control.c:307
-#: ../src/tracker-control/tracker-control.c:321
+#: ../src/tracker-control/tracker-control.c:272
+#: ../src/tracker-control/tracker-control.c:302
+#: ../src/tracker-control/tracker-control.c:316
 msgid "no error given"
 msgstr "ingen feil ble gitt"
 
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
-#: ../src/tracker-control/tracker-control.c:224
+#: ../src/tracker-control/tracker-control.c:219
 msgid " - Manage Tracker processes and data"
 msgstr ""
 
-#: ../src/tracker-control/tracker-control.c:236
+#: ../src/tracker-control/tracker-control.c:231
 msgid "You can not use the --kill and --terminate arguments together"
 msgstr ""
 
-#: ../src/tracker-control/tracker-control.c:240
+#: ../src/tracker-control/tracker-control.c:235
 msgid ""
 "You can not use the --terminate with --hard-reset or --soft-reset, --kill is "
 "implied"
 msgstr ""
 
-#: ../src/tracker-control/tracker-control.c:244
+#: ../src/tracker-control/tracker-control.c:239
 msgid "You can not use the --hard-reset and --soft-reset arguments together"
 msgstr ""
 
-#: ../src/tracker-control/tracker-control.c:274
+#: ../src/tracker-control/tracker-control.c:269
 #, c-format
 msgid "Could not open '%s'"
 msgstr "Kunne ikke åpne «%s»"
 
-#: ../src/tracker-control/tracker-control.c:296
+#: ../src/tracker-control/tracker-control.c:291
 #, c-format
 msgid "Found process ID %d for '%s'"
 msgstr ""
 
-#: ../src/tracker-control/tracker-control.c:304
-#, fuzzy, c-format
+#: ../src/tracker-control/tracker-control.c:299
+#, c-format
 msgid "Could not terminate process %d"
-msgstr "Kunne ikke slette «%s»."
+msgstr "Kunne ikke terminere prosess %d"
 
-#: ../src/tracker-control/tracker-control.c:310
+#: ../src/tracker-control/tracker-control.c:305
 #, c-format
 msgid "Terminated process %d"
 msgstr ""
 
-#: ../src/tracker-control/tracker-control.c:318
+#: ../src/tracker-control/tracker-control.c:313
 #, fuzzy, c-format
 msgid "Could not kill process %d"
 msgstr "Kunne ikke slette «%s»."
 
-#: ../src/tracker-control/tracker-control.c:324
+#: ../src/tracker-control/tracker-control.c:319
 #, c-format
 msgid "Killed process %d"
 msgstr ""
 
-#: ../src/tracker-control/tracker-control.c:409
+#: ../src/tracker-control/tracker-control.c:404
 msgid "Removing configuration files…"
-msgstr ""
+msgstr "Fjerner konfigurasjonsfiler..."
 
-#: ../src/tracker-control/tracker-control.c:426
+#: ../src/tracker-control/tracker-control.c:421
 msgid "Waiting one second before starting miners…"
 msgstr ""
 
-#: ../src/tracker-control/tracker-control.c:432
+#: ../src/tracker-control/tracker-control.c:427
 msgid "Starting miners…"
 msgstr ""
 
-#: ../src/tracker-control/tracker-control.c:446
+#: ../src/tracker-control/tracker-control.c:441
 msgid "Failed"
 msgstr "Feilet"
 
-#: ../src/tracker-control/tracker-control.c:448
+#: ../src/tracker-control/tracker-control.c:443
 #, fuzzy
 msgid "Could not get miner status"
 msgstr "Kunne ikke slette «%s»."
 
-#: ../src/tracker-control/tracker-control.c:451
+#: ../src/tracker-control/tracker-control.c:446
 #: ../src/tracker-utils/tracker-import.c:139
 #: ../src/tracker-utils/tracker-status.c:193
 msgid "Done"
@@ -1264,7 +1092,7 @@ msgstr ""
 #: ../src/tracker-utils/tracker-sparql.c:206
 #: ../src/tracker-utils/tracker-stats.c:106
 #: ../src/tracker-utils/tracker-status.c:419
-#: ../src/tracker-utils/tracker-tag.c:690
+#: ../src/tracker-utils/tracker-tag.c:680
 msgid "Could not establish a D-Bus connection to Tracker"
 msgstr ""
 
@@ -1290,11 +1118,11 @@ msgstr ""
 msgid "Unable to retrieve URN for URI"
 msgstr ""
 
-#: ../src/tracker-utils/tracker-info.c:197
+#: ../src/tracker-utils/tracker-info.c:199
 msgid "Unable to retrieve data for URI"
 msgstr ""
 
-#: ../src/tracker-utils/tracker-info.c:206
+#: ../src/tracker-utils/tracker-info.c:208
 msgid "No metadata available for that URI"
 msgstr ""
 
@@ -1377,9 +1205,8 @@ msgstr ""
 #: ../src/tracker-utils/tracker-search.c:456
 #: ../src/tracker-utils/tracker-search.c:563
 #: ../src/tracker-utils/tracker-search.c:745
-#, fuzzy
 msgid "Could not get search results"
-msgstr "Kunne ikke lagre dokument."
+msgstr "Kunne ikke hente søkeresultater"
 
 #: ../src/tracker-utils/tracker-search.c:200
 msgid "No files were found"
@@ -1422,24 +1249,24 @@ msgstr ""
 msgid "Search terms are missing"
 msgstr ""
 
-#: ../src/tracker-utils/tracker-search.c:864
+#: ../src/tracker-utils/tracker-search.c:866
 #, c-format
 msgid "Search term '%s' is a stop word."
 msgstr ""
 
-#: ../src/tracker-utils/tracker-search.c:867
+#: ../src/tracker-utils/tracker-search.c:869
 #, c-format
 msgid ""
 "Stop words are common words which are ignored during the indexing process."
 msgstr ""
 
-#: ../src/tracker-utils/tracker-search.c:870
+#: ../src/tracker-utils/tracker-search.c:872
 #, c-format
 msgid ""
 "This means this search term will never be found when matching FTS entries."
 msgstr ""
 
-#: ../src/tracker-utils/tracker-search.c:889
+#: ../src/tracker-utils/tracker-search.c:891
 msgid "Could not establish a DBus connection to Tracker"
 msgstr ""
 
@@ -1453,7 +1280,7 @@ msgstr ""
 
 #: ../src/tracker-utils/tracker-sparql.c:59
 msgid "SPARQL"
-msgstr ""
+msgstr "SPARQL"
 
 #: ../src/tracker-utils/tracker-sparql.c:62
 msgid "This is used with --query and for database updates only."
@@ -1557,7 +1384,7 @@ msgstr ""
 
 #: ../src/tracker-utils/tracker-stats.c:123
 msgid "No statistics available"
-msgstr ""
+msgstr "Ingen statistikk tilgjengelig"
 
 #: ../src/tracker-utils/tracker-stats.c:126
 msgid "Statistics:"
@@ -1599,7 +1426,7 @@ msgstr ""
 
 #: ../src/tracker-utils/tracker-status.c:92
 msgid "REASON"
-msgstr ""
+msgstr "ÅRSAK"
 
 #: ../src/tracker-utils/tracker-status.c:95
 msgid "Resume a miner (you must use this with --miner)"
@@ -1712,78 +1539,78 @@ msgstr ""
 
 #: ../src/tracker-utils/tracker-tag.c:89
 msgid "FILE…"
-msgstr ""
+msgstr "FIL..."
 
 #: ../src/tracker-utils/tracker-tag.c:90
 msgid "FILE [FILE…]"
-msgstr ""
+msgstr "FIL [FIL...]"
 
-#: ../src/tracker-utils/tracker-tag.c:286
+#: ../src/tracker-utils/tracker-tag.c:290
 #, fuzzy
 msgid "Could not get files related to tag"
 msgstr "Kunne ikke slette «%s»."
 
-#: ../src/tracker-utils/tracker-tag.c:359
-#: ../src/tracker-utils/tracker-tag.c:610
+#: ../src/tracker-utils/tracker-tag.c:363
+#: ../src/tracker-utils/tracker-tag.c:600
 #, fuzzy
 msgid "Could not get all tags"
 msgstr "Kunne ikke slette «%s»."
 
-#: ../src/tracker-utils/tracker-tag.c:368
-#: ../src/tracker-utils/tracker-tag.c:619
+#: ../src/tracker-utils/tracker-tag.c:372
+#: ../src/tracker-utils/tracker-tag.c:609
 msgid "No tags were found"
 msgstr ""
 
-#: ../src/tracker-utils/tracker-tag.c:458
+#: ../src/tracker-utils/tracker-tag.c:462
 #, fuzzy
 msgid "Could not add tag"
 msgstr "Kunne ikke lagre dokument."
 
-#: ../src/tracker-utils/tracker-tag.c:466
+#: ../src/tracker-utils/tracker-tag.c:470
 msgid "Tag was added successfully"
 msgstr ""
 
-#: ../src/tracker-utils/tracker-tag.c:500
+#: ../src/tracker-utils/tracker-tag.c:504
 #, fuzzy
 msgid "Could not get tag by label"
 msgstr "Kunne ikke slette «%s»."
 
-#: ../src/tracker-utils/tracker-tag.c:510
+#: ../src/tracker-utils/tracker-tag.c:514
 msgid "No tags were found by that name"
 msgstr ""
 
-#: ../src/tracker-utils/tracker-tag.c:565
+#: ../src/tracker-utils/tracker-tag.c:555
 #, fuzzy
 msgid "Could not remove tag"
 msgstr "Kunne ikke flytte «%s» til papirkurven."
 
-#: ../src/tracker-utils/tracker-tag.c:573
+#: ../src/tracker-utils/tracker-tag.c:563
 msgid "Tag was removed successfully"
 msgstr ""
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
 #.
-#: ../src/tracker-utils/tracker-tag.c:648
+#: ../src/tracker-utils/tracker-tag.c:638
 msgid "Add, remove or list tags"
 msgstr ""
 
-#: ../src/tracker-utils/tracker-tag.c:664
+#: ../src/tracker-utils/tracker-tag.c:654
 msgid "The --list option is required for --show-files"
 msgstr ""
 
-#: ../src/tracker-utils/tracker-tag.c:666
+#: ../src/tracker-utils/tracker-tag.c:656
 msgid "Add and delete actions can not be used together"
 msgstr ""
 
-#: ../src/tracker-utils/tracker-tag.c:668
+#: ../src/tracker-utils/tracker-tag.c:658
 msgid "No arguments were provided"
 msgstr ""
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/tracker-writeback/tracker-main.c:172
+#: ../src/tracker-writeback/tracker-main.c:176
 msgid "- start the tracker writeback service"
 msgstr ""
 
