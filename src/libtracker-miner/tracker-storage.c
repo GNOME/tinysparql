@@ -316,7 +316,6 @@ volume_add (TrackerStorage *storage,
             gboolean        initialization)
 {
 	TrackerStoragePrivate *priv;
-	GDrive *drive;
 	GMount *mount;
 	gchar *str;
 	gboolean is_mounted;
@@ -324,11 +323,17 @@ volume_add (TrackerStorage *storage,
 	gchar *mount_point;
 	gchar *device_file;
 
-	drive = g_volume_get_drive (volume);
-
 	if (!initialization) {
-		g_debug ("Drive:'%s' added 1 volume:",
-		         g_drive_get_name (drive));
+		GDrive *drive;
+
+		drive = g_volume_get_drive (volume);
+
+		if (drive) {
+			g_debug ("Drive:'%s' added 1 volume:",
+			         g_drive_get_name (drive));
+		} else {
+			g_debug ("No drive associated with volume being added:");
+		}
 	}
 
 	str = g_volume_get_name (volume);
@@ -435,40 +440,54 @@ mount_added_cb (GVolumeMonitor *monitor,
 	TrackerStorage *storage;
 	GVolume *volume;
 	GFile *file;
-	gchar *device_file;
-	gchar *uuid;
 	gchar *mount_point;
-	gboolean removable_device = TRUE;
+	gchar *name;
 
 	storage = user_data;
 
-	volume = g_mount_get_volume (mount);
-	device_file = g_volume_get_identifier (volume, G_VOLUME_IDENTIFIER_KIND_UNIX_DEVICE);
-	uuid = g_volume_get_identifier (volume, G_VOLUME_IDENTIFIER_KIND_UUID);
+	name = g_mount_get_name (mount);
 	file = g_mount_get_root (mount);
 	mount_point = g_file_get_path (file);
 
-	/* NOTE: We only deal with removable devices */
-	removable_device = TRUE;
-
-	g_message ("Device:'%s', UUID:'%s' now mounted on:'%s'",
-	           device_file,
-	           uuid,
+	g_message ("Mount:'%s', now mounted on:'%s'",
+	           name,
 	           mount_point);
 
-	/* We don't have a UUID for CDROMs */
-	if (uuid) {
-		g_message ("  Being added as a tracker resource to index!");
-		mount_add (storage, uuid, mount_point, removable_device);
+	volume = g_mount_get_volume (mount);
+
+	if (volume) {
+		gchar *device_file;
+		gchar *uuid;
+		gboolean removable_device = TRUE;
+
+		device_file = g_volume_get_identifier (volume, G_VOLUME_IDENTIFIER_KIND_UNIX_DEVICE);
+		uuid = g_volume_get_identifier (volume, G_VOLUME_IDENTIFIER_KIND_UUID);
+
+		/* NOTE: We only deal with removable devices */
+		removable_device = TRUE;
+
+		g_message ("  Device:'%s', UUID:'%s'",
+		           device_file,
+		           uuid);
+
+		/* We don't have a UUID for CDROMs */
+		if (uuid) {
+			g_message ("  Being added as a tracker resource to index!");
+			mount_add (storage, uuid, mount_point, removable_device);
+		} else {
+			g_message ("  Being ignored because we have no UUID");
+		}
+
+		g_free (uuid);
+		g_free (device_file);
+		g_object_unref (volume);
 	} else {
-		g_message ("  Being ignored because we have no UUID");
+		g_message ("  Being ignored because we have no GVolume");
 	}
 
 	g_free (mount_point);
 	g_object_unref (file);
-	g_free (uuid);
-	g_free (device_file);
-	g_object_unref (volume);
+	g_free (name);
 }
 
 static void
