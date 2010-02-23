@@ -28,6 +28,7 @@
 
 #include <libtracker-common/tracker-date-time.h>
 #include <libtracker-common/tracker-utils.h>
+#include <libtracker-extract/tracker-utils.h>
 
 #include "tracker-exif.h"
 
@@ -95,7 +96,7 @@ get_date (ExifData *exif,
 		exif_entry_get_value (entry, buf, 1024);
 		/* From: ex; date "2007:04:15 15:35:58"
 		 * To  : ex. "2007-04-15T17:35:58+0200 where +0200 is localtime */
-		return tracker_date_format_to_iso8601 (buf, EXIF_DATE_FORMAT);
+		return tracker_extract_date_format_to_iso8601 (buf, EXIF_DATE_FORMAT);
 	}
 
 	return NULL;

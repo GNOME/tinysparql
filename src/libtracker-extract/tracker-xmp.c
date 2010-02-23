@@ -267,7 +267,7 @@ iterate_simple (const gchar    *uri,
 		if (!data->title2 && g_ascii_strcasecmp (name, "Title") == 0) {
 			data->title2 = g_strdup (value);
 		} else if (g_ascii_strcasecmp (name, "DateTimeOriginal") == 0 && !data->time_original) {
-			data->time_original = g_strdup (value);
+			data->time_original = tracker_extract_guess_date (value);
 		} else if (!data->artist && g_ascii_strcasecmp (name, "Artist") == 0) {
 			data->artist = g_strdup (value);
 		/* } else if (g_ascii_strcasecmp (name, "Software") == 0) {
@@ -318,7 +318,7 @@ iterate_simple (const gchar    *uri,
 		} else if (!data->description && g_ascii_strcasecmp (name, "description") == 0) {
 			data->description = g_strdup (value);
 		} else if (!data->date && g_ascii_strcasecmp (name, "date") == 0) {
-			data->date = g_strdup (value);
+			data->date = tracker_extract_guess_date (value);
 		} else if (!data->keywords && g_ascii_strcasecmp (name, "keywords") == 0) {
 			data->keywords = g_strdup (value);
 		} else if (!data->subject && g_ascii_strcasecmp (name, "subject") == 0) {

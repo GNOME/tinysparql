@@ -60,7 +60,7 @@ tracker_extract_xine (const gchar          *uri,
 	const char        *title;
 	const char        *author;
 	const char        *album;
-	const char        *year;
+	gchar             *year;
 	const char        *genre;
 	const char        *track;
 
@@ -248,10 +248,11 @@ tracker_extract_xine (const gchar          *uri,
 		tracker_sparql_builder_object_unvalidated (metadata, title);
 	}
 
-	year = xine_get_meta_info (stream, XINE_META_INFO_YEAR);
+	year = tracker_extract_guess_date (xine_get_meta_info (stream, XINE_META_INFO_YEAR));
 	if (year) {
 		tracker_sparql_builder_predicate (metadata, "nie:contentCreated");
 		tracker_sparql_builder_object_unvalidated (metadata, year);
+		g_free (year);
 	}
 
 	genre = xine_get_meta_info (stream, XINE_META_INFO_GENRE);

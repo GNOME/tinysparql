@@ -53,11 +53,6 @@ gint     tracker_date_time_get_offset          (const GValue *value);
 gint     tracker_date_time_get_local_date      (const GValue *value);
 gint     tracker_date_time_get_local_time      (const GValue *value);
 
-gchar *  tracker_date_format                   (const gchar  *date_string);
-gchar *  tracker_date_format_to_iso8601        (const gchar  *date_string,
-                                                const gchar  *format);
-gchar *  tracker_date_to_time_string           (const gchar  *date_string,
-                                                GError      **error);
 time_t   tracker_string_to_date                (const gchar  *date_string,
                                                 gint         *offset,
                                                 GError      **error);

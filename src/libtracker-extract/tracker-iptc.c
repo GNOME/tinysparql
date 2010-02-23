@@ -24,6 +24,7 @@
 #include <glib.h>
 
 #include <libtracker-common/tracker-date-time.h>
+#include <libtracker-extract/tracker-utils.h>
 
 #include "tracker-iptc.h"
 
@@ -101,7 +102,7 @@ foreach_dataset (IptcDataSet *dataset,
 			iptc_dataset_get_as_str (dataset, mbuffer, 1024);
 			/* From: ex; date "2007:04:15 15:35:58"
 			 * To : ex. "2007-04-15T17:35:58+0200 where +0200 is localtime */
-			data->date_created = tracker_date_format_to_iso8601 (mbuffer, IPTC_DATE_FORMAT);
+			data->date_created = tracker_extract_date_format_to_iso8601 (mbuffer, IPTC_DATE_FORMAT);
 		}
 		break;
 

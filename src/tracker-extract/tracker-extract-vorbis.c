@@ -112,6 +112,7 @@ extract_vorbis (const char *uri,
 	}
 
 	if ((comment = ov_comment (&vf, -1)) != NULL) {
+		gchar *date;
 		vorbis_data.title = ogg_get_comment (comment, "title");
 		vorbis_data.artist = ogg_get_comment (comment, "artist");
 		vorbis_data.album = ogg_get_comment (comment, "album");
@@ -124,7 +125,9 @@ extract_vorbis (const char *uri,
 		vorbis_data.TrackPeakGain = ogg_get_comment (comment, "TrackPeakGain");
 		vorbis_data.AlbumGain = ogg_get_comment (comment, "AlbumGain");
 		vorbis_data.AlbumPeakGain = ogg_get_comment (comment, "AlbumPeakGain");
-		vorbis_data.date = ogg_get_comment (comment, "date");
+		date = ogg_get_comment (comment, "date");
+		vorbis_data.date = tracker_extract_guess_date (date);
+		g_free (date);
 		vorbis_data.comment = ogg_get_comment (comment, "comment");
 		vorbis_data.genre = ogg_get_comment (comment, "genre");
 		vorbis_data.Codec = ogg_get_comment (comment, "Codec");

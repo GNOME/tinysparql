@@ -1648,6 +1648,7 @@ AC_CONFIG_FILES([
 	src/vapi/Makefile
 	tests/common/Makefile
 	tests/libtracker-common/Makefile
+	tests/libtracker-extract/Makefile
 	tests/libtracker-data/Makefile
 	tests/libtracker-data/aggregates/Makefile
 	tests/libtracker-data/algebra/Makefile

@@ -39,6 +39,10 @@ gchar *  tracker_extract_text_normalize             (const gchar *text,
                                                      guint        max_words,
                                                      guint       *n_words);
 
+gchar *  tracker_extract_guess_date                 (const gchar  *date_string);
+gchar *  tracker_extract_date_format_to_iso8601     (const gchar  *date_string,
+                                                     const gchar  *format);
+
 G_END_DECLS
 
 #endif /*  __LIBTRACKER_EXTRACT_UTILS_H__ */

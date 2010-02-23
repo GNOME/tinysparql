@@ -27,45 +27,6 @@
 
 #include <tracker-test-helpers.h>
 
-static void
-test_date_format (void)
-{
-	gchar *result;
-
-	result = tracker_date_format ("");
-	g_assert (result == NULL);
-
-	/* Fails
-	   result = tracker_date_format ("1978"); //Audio.ReleaseDate
-	   g_assert (tracker_test_helpers_cmpstr_equal (result, "1978-01-01T00:00:00"));
-	*/
-
-	result = tracker_date_format ("2008-06-14");
-	g_assert (tracker_test_helpers_cmpstr_equal (result, "2008-06-14T00:00:00"));
-	g_free (result);
-
-	result = tracker_date_format ("20080614000000");
-	g_assert (tracker_test_helpers_cmpstr_equal (result, "2008-06-14T00:00:00"));
-	g_free (result);
-
-	result = tracker_date_format ("20080614000000Z");
-	g_assert (tracker_test_helpers_cmpstr_equal (result, "2008-06-14T00:00:00Z"));
-	g_free (result);
-
-	result = tracker_date_format ("Mon Jun 14 04:20:20 2008"); /* MS Office */
-	g_assert (tracker_test_helpers_cmpstr_equal (result, "2008-06-14T04:20:20"));
-	g_free (result);
-
-	result = tracker_date_format ("2008:06:14 04:20:20"); /* Exif style */
-	g_assert (tracker_test_helpers_cmpstr_equal (result, "2008-06-14T04:20:20"));
-	g_free (result);
-
-	if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDERR)) {
-		result = tracker_date_format (NULL);
-	}
-
-	g_test_trap_assert_failed ();
-}
 
 static void
 test_string_to_date (void)
@@ -423,8 +384,6 @@ main (int argc, char **argv)
 	                 test_int_to_string);
 	g_test_add_func ("/libtracker-common/tracker-type-utils/long_to_string",
 	                 test_long_to_string);
-	g_test_add_func ("/libtracker-common/tracker-type-utils/date_format",
-	                 test_date_format);
 	g_test_add_func ("/libtracker-common/tracker-type-utils/date_to_string",
 	                 test_date_to_string);
 	g_test_add_func ("/libtracker-common/tracker-type-utils/string_to_date",

@@ -240,8 +240,9 @@ text_handler (GMarkupParseContext  *context,
               GError              **error)
 {
 	ODTParseInfo *data;
-	TrackerSparqlBuilder    *metadata;
-	const gchar        *uri;
+	TrackerSparqlBuilder *metadata;
+	const gchar *uri;
+	gchar *date;
 
 	data = user_data;
 	metadata = data->metadata;
@@ -283,8 +284,10 @@ text_handler (GMarkupParseContext  *context,
 		tracker_sparql_builder_object_unvalidated (metadata, text);
 		break;
 	case READ_CREATED:
+		date = tracker_extract_guess_date (text);
 		tracker_sparql_builder_predicate (metadata, "nie:contentCreated");
-		tracker_sparql_builder_object_unvalidated (metadata, text);
+		tracker_sparql_builder_object_unvalidated (metadata, date);
+		g_free (date);
 		break;
 	case READ_GENERATOR:
 		tracker_sparql_builder_predicate (metadata, "nie:generator");

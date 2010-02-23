@@ -334,8 +334,11 @@ extract_tiff (const gchar          *uri,
 		tiff_data.artist = get_value (image, TIFFTAG_ARTIST, TIFF_TAGTYPE_STRING);
 	if (!tiff_data.copyright)
 		tiff_data.copyright = get_value (image, TIFFTAG_COPYRIGHT, TIFF_TAGTYPE_STRING);
-	if (!tiff_data.datetime)
-		tiff_data.datetime = get_value (image, TIFFTAG_DATETIME, TIFF_TAGTYPE_STRING);
+	if (!tiff_data.datetime) {
+		gchar *date = get_value (image, TIFFTAG_DATETIME, TIFF_TAGTYPE_STRING);
+		tiff_data.datetime = tracker_extract_guess_date (date);
+		g_free (date);
+	}
 	if (!tiff_data.documentname)
 		tiff_data.documentname = get_value (image, TIFFTAG_DOCUMENTNAME, TIFF_TAGTYPE_STRING);
 	if (!tiff_data.imagedescription)
@@ -355,8 +358,11 @@ extract_tiff (const gchar          *uri,
 				exif_data.fnumber = get_value (image, EXIFTAG_FNUMBER, TIFF_TAGTYPE_DOUBLE);
 			if (!exif_data.iso_speed_ratings)
 				exif_data.iso_speed_ratings = get_value (image, EXIFTAG_ISOSPEEDRATINGS, TIFF_TAGTYPE_C16_UINT16);
-			if (!exif_data.time_original)
-				exif_data.time_original = get_value (image, EXIFTAG_DATETIMEORIGINAL, TIFF_TAGTYPE_STRING);
+			if (!exif_data.time_original) {
+				gchar *date = get_value (image, EXIFTAG_DATETIMEORIGINAL, TIFF_TAGTYPE_STRING);
+				exif_data.time_original = tracker_extract_guess_date (date);
+				g_free (date);
+			}
 			if (!exif_data.metering_mode)
 				exif_data.metering_mode = get_metering_mode (image);
 			if (!exif_data.flash)

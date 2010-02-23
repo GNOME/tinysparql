@@ -109,7 +109,8 @@ add_gvalue_in_metadata (TrackerSparqlBuilder *metadata,
                         const gchar          *key,
                         GValue const         *val,
                         const gchar          *type,
-                        const gchar          *predicate)
+                        const gchar          *predicate,
+                        gboolean              is_date)
 {
 	gchar *s;
 
@@ -137,17 +138,32 @@ add_gvalue_in_metadata (TrackerSparqlBuilder *metadata,
 			len = strlen (s);
 
 			if (s[len - 1] == '"') {
-				str_val = (len > 2 ? g_strndup (s + 1, len - 2) : NULL);
+				if (is_date) {
+					if (len > 2) {
+						gchar *str = g_strndup (s + 1, len - 2);
+						str_val = tracker_extract_guess_date (str);
+						g_free (str);
+					} else {
+						str_val = NULL;
+					}
+				} else
+					str_val = (len > 2 ? g_strndup (s + 1, len - 2) : NULL); 
 			} else {
 				/* We have a string that begins with a double
 				 * quote but which finishes by something
 				 * different... We copy the string from the
 				 * beginning. */
-				str_val = g_strdup (s);
+				if (is_date)
+					str_val = tracker_extract_guess_date (s);
+				else
+					str_val = g_strdup (s);
 			}
 		} else {
 			/* Here, we probably have a number */
-			str_val = g_strdup (s);
+			if (is_date)
+				str_val = tracker_extract_guess_date (s);
+			else
+				str_val = g_strdup (s);
 		}
 
 		if (str_val) {
@@ -191,11 +207,11 @@ metadata_cb (gpointer key,
 	val = gsf_doc_prop_get_val (property);
 
 	if (g_strcmp0 (name, "dc:title") == 0) {
-		add_gvalue_in_metadata (metadata, uri, "nie:title", val, NULL, NULL);
+		add_gvalue_in_metadata (metadata, uri, "nie:title", val, NULL, NULL, FALSE);
 	} else if (g_strcmp0 (name, "dc:subject") == 0) {
-		add_gvalue_in_metadata (metadata, uri, "nie:subject", val, NULL, NULL);
+		add_gvalue_in_metadata (metadata, uri, "nie:subject", val, NULL, NULL, FALSE);
 	} else if (g_strcmp0 (name, "dc:creator") == 0) {
-		add_gvalue_in_metadata (metadata, uri, "nco:creator", val, "nco:Contact", "nco:fullname");
+		add_gvalue_in_metadata (metadata, uri, "nco:creator", val, "nco:Contact", "nco:fullname", FALSE);
 	} else if (g_strcmp0 (name, "dc:keywords") == 0) {
 		gchar *keywords = g_strdup_value_contents (val);
 		char  *lasts, *keyw;
@@ -220,15 +236,15 @@ metadata_cb (gpointer key,
 
 		g_free (keyw);
 	} else if (g_strcmp0 (name, "dc:description") == 0) {
-		add_gvalue_in_metadata (metadata, uri, "nie:comment", val, NULL, NULL);
+		add_gvalue_in_metadata (metadata, uri, "nie:comment", val, NULL, NULL, FALSE);
 	} else if (g_strcmp0 (name, "gsf:page-count") == 0) {
-		add_gvalue_in_metadata (metadata, uri, "nfo:pageCount", val, NULL, NULL);
+		add_gvalue_in_metadata (metadata, uri, "nfo:pageCount", val, NULL, NULL, FALSE);
 	} else if (g_strcmp0 (name, "gsf:word-count") == 0) {
-		add_gvalue_in_metadata (metadata, uri, "nfo:wordCount", val, NULL, NULL);
+		add_gvalue_in_metadata (metadata, uri, "nfo:wordCount", val, NULL, NULL, FALSE);
 	} else if (g_strcmp0 (name, "meta:creation-date") == 0) {
-		add_gvalue_in_metadata (metadata, uri, "nie:contentCreated", val, NULL, NULL);
+		add_gvalue_in_metadata (metadata, uri, "nie:contentCreated", val, NULL, NULL, TRUE);
 	} else if (g_strcmp0 (name, "meta:generator") == 0) {
-		add_gvalue_in_metadata (metadata, uri, "nie:generator", val, NULL, NULL);
+		add_gvalue_in_metadata (metadata, uri, "nie:generator", val, NULL, NULL, FALSE);
 	}
 }
 
@@ -250,7 +266,7 @@ doc_metadata_cb (gpointer key,
 	val = gsf_doc_prop_get_val (property);
 
 	if (g_strcmp0 (name, "CreativeCommons_LicenseURL") == 0) {
-		add_gvalue_in_metadata (metadata, uri, "nie:license", val, NULL, NULL);
+		add_gvalue_in_metadata (metadata, uri, "nie:license", val, NULL, NULL, FALSE);
 	}
 }
 

@@ -121,7 +121,7 @@ parse_vorbis_comments (FLAC__StreamMetadata_VorbisComment *comment,
                 } else if (g_ascii_strncasecmp (entry.entry, "albumpeakgain", 13) == 0) {
                         fd->albumpeakgain = g_strdup (entry.entry + 14);
                 } else if (g_ascii_strncasecmp (entry.entry, "date", 4) == 0) {
-                        fd->date = g_strdup (entry.entry + 5);
+                        fd->date = tracker_extract_guess_date (entry.entry + 5);
                 } else if (g_ascii_strncasecmp (entry.entry, "comment", 7) == 0) {
                         fd->comment = g_strdup (entry.entry + 8);
                 } else if (g_ascii_strncasecmp (entry.entry, "genre", 5) == 0) {
@@ -268,7 +268,7 @@ extract_flac (const gchar           *uri,
         add_tuple (metadata, "nmm:albumGain", fd.albumgain);
         add_tuple (metadata, "nmm:albumPeakGain", fd.albumpeakgain);
         add_tuple (metadata, "nie:comment", fd.comment);
-        add_tuple (metadata, "nie:contentCreated", "2003-08-22T19:52:10Z");
+        add_tuple (metadata, "nie:contentCreated", fd.date);
         add_tuple (metadata, "nfo:genre", fd.genre);
         add_tuple (metadata, "nie:plainTextContent", fd.lyrics);
         add_tuple (metadata, "nie:copyright", fd.copyright);
