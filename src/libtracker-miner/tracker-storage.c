@@ -344,7 +344,6 @@ volume_add (TrackerStorage *storage,
 	device_file = g_volume_get_identifier (volume, G_VOLUME_IDENTIFIER_KIND_UNIX_DEVICE);
 	g_debug ("    Device file  : %s", device_file);
 		
-	/* mounted, so never NULL */
 	mount = g_volume_get_mount (volume); 
 
 	if (mount) {
