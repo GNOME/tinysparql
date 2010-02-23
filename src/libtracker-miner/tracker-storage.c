@@ -415,6 +415,7 @@ drives_setup (TrackerStorage *storage)
 
 		for (lv = volumes; lv; lv = lv->next) {
 			volume_add (storage, lv->data, TRUE);
+			g_object_unref (lv->data);
 		}
 
 		g_list_free (volumes);
