@@ -619,7 +619,7 @@ tracker_storage_get_removable_device_roots (TrackerStorage *storage)
 	                      get_mount_point_by_uuid_foreach,
 	                      &gr);
 
-	return g_slist_reverse (gr.roots);
+	return gr.roots;
 }
 
 /**
@@ -662,7 +662,7 @@ tracker_storage_get_removable_device_uuids (TrackerStorage *storage)
 		}
 	}
 
-	return g_slist_reverse (uuids);
+	return uuids;
 }
 
 /**
