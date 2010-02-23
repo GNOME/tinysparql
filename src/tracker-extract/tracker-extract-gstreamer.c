@@ -672,8 +672,8 @@ extract_metadata (MetadataExtractor      *extractor,
 
 			add_double_gst_tag (metadata, uri, "nfo:gain", extractor->tagcache, GST_TAG_TRACK_GAIN);
 			add_double_gst_tag (metadata, uri, "nfo:peakGain", extractor->tagcache, GST_TAG_TRACK_PEAK);
-			add_double_gst_tag (metadata, uri, "nfo:albumGain", extractor->tagcache, GST_TAG_ALBUM_GAIN);
-			add_double_gst_tag (metadata, uri, "nfo:albumPeakGain", extractor->tagcache, GST_TAG_ALBUM_PEAK);
+			add_double_gst_tag (metadata, uri, "nmm:albumGain", extractor->tagcache, GST_TAG_ALBUM_GAIN);
+			add_double_gst_tag (metadata, uri, "nmm:albumPeakGain", extractor->tagcache, GST_TAG_ALBUM_PEAK);
 
 			if (performer_uri) {
 				tracker_sparql_builder_predicate (metadata, "nmm:performer");
