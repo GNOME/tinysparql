@@ -451,7 +451,7 @@ mount_added_cb (GVolumeMonitor *monitor,
 	/* NOTE: We only deal with removable devices */
 	removable_device = TRUE;
 
-	g_message ("Device:'%s', UUID:'%s' now mounted on:'%s', being tracked",
+	g_message ("Device:'%s', UUID:'%s' now mounted on:'%s'",
 	           device_file,
 	           uuid,
 	           mount_point);
