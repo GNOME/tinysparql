@@ -456,7 +456,13 @@ mount_added_cb (GVolumeMonitor *monitor,
 	           uuid,
 	           mount_point);
 
-	mount_add (storage, uuid, mount_point, removable_device);
+	/* We don't have a UUID for CDROMs */
+	if (uuid) {
+		g_message ("  Being added as a tracker resource to index!");
+		mount_add (storage, uuid, mount_point, removable_device);
+	} else {
+		g_message ("  Being ignored because we have no UUID");
+	}
 
 	g_free (mount_point);
 	g_object_unref (file);
