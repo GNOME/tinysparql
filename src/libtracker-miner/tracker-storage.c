@@ -492,10 +492,6 @@ mount_removed_cb (GVolumeMonitor *monitor,
 	mount_point = g_file_get_path (file);
 	name = g_mount_get_name (mount);
 
-	/* device_file = g_volume_get_identifier (volume, G_VOLUME_IDENTIFIER_KIND_UNIX_DEVICE); */
-	/* uuid = g_volume_get_identifier (volume, G_VOLUME_IDENTIFIER_KIND_UUID); */
-	/* node = g_hash_table_lookup (priv->mounts_by_uuid, uuid); */
-
 	mp = mount_point_normalize (mount_point);
 	node = mount_node_find (priv->mounts, mp);
 	g_free (mp);
@@ -521,8 +517,6 @@ mount_removed_cb (GVolumeMonitor *monitor,
 	g_free (name);
 	g_free (mount_point);
 	g_object_unref (file);
-	/* g_free (uuid); */
-	/* g_free (device_file); */
 }
 
 static void
