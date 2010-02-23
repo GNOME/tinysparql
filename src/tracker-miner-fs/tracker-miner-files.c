@@ -75,7 +75,7 @@ struct TrackerMinerFilesPrivate {
 
 	DBusGProxy *extractor_proxy;
 
-	GQuark quark_mount_point_udi;
+	GQuark quark_mount_point_uuid;
 	GQuark quark_directory_config_root;
 };
 
@@ -103,20 +103,18 @@ static void        mount_pre_unmount_cb                 (GVolumeMonitor       *v
                                                          GMount               *mount,
                                                          TrackerMinerFiles    *mf);
 
-#ifdef HAVE_HAL
 static void        mount_point_added_cb                 (TrackerStorage       *storage,
-                                                         const gchar          *udi,
+                                                         const gchar          *uuid,
                                                          const gchar          *mount_point,
                                                          gpointer              user_data);
 static void        mount_point_removed_cb               (TrackerStorage       *storage,
-                                                         const gchar          *udi,
+                                                         const gchar          *uuid,
                                                          const gchar          *mount_point,
                                                          gpointer              user_data);
 static void        check_battery_status                 (TrackerMinerFiles    *fs);
 static void        battery_status_cb                    (GObject              *object,
                                                          GParamSpec           *pspec,
                                                          gpointer              user_data);
-#endif
 
 static void        init_mount_points                    (TrackerMinerFiles    *miner);
 static void        disk_space_check_start               (TrackerMinerFiles    *mf);
@@ -189,7 +187,6 @@ tracker_miner_files_init (TrackerMinerFiles *mf)
 
 	priv = mf->private = TRACKER_MINER_FILES_GET_PRIVATE (mf);
 
-#ifdef HAVE_HAL
 	priv->storage = tracker_storage_new ();
 
 	g_signal_connect (priv->storage, "mount-point-added",
@@ -200,6 +197,7 @@ tracker_miner_files_init (TrackerMinerFiles *mf)
 	                  G_CALLBACK (mount_point_removed_cb),
 	                  mf);
 
+#ifdef HAVE_HAL
 	priv->power = tracker_power_new ();
 
 	g_signal_connect (priv->power, "notify::on-low-battery",
@@ -218,7 +216,7 @@ tracker_miner_files_init (TrackerMinerFiles *mf)
 	/* Set up extractor and signals */
 	priv->extractor_proxy = extractor_create_proxy ();
 
-	priv->quark_mount_point_udi = g_quark_from_static_string ("tracker-mount-point-udi");
+	priv->quark_mount_point_uuid = g_quark_from_static_string ("tracker-mount-point-uuid");
 	priv->quark_directory_config_root = g_quark_from_static_string ("tracker-directory-config-root");
 
 	init_mount_points (mf);
@@ -295,8 +293,9 @@ miner_files_finalize (GObject *object)
 
 #ifdef HAVE_HAL
 	g_object_unref (priv->power);
-	g_object_unref (priv->storage);
 #endif /* HAVE_HAL */
+
+	g_object_unref (priv->storage);
 
 	g_signal_handlers_disconnect_by_func (priv->volume_monitor,
 	                                      mount_pre_unmount_cb,
@@ -324,11 +323,11 @@ miner_files_constructed (GObject *object)
 		g_assert_not_reached ();
 	}
 
-#ifdef HAVE_HAL
 	if (tracker_config_get_index_removable_devices (mf->private->config)) {
 		mounts = tracker_storage_get_removable_device_roots (mf->private->storage);
 	}
 
+#ifdef HAVE_HAL
 	check_battery_status (mf);
 #endif /* HAVE_HAL */
 
@@ -434,15 +433,12 @@ miner_files_constructed (GObject *object)
 
 	for (m = mounts; m; m = m->next) {
 		GFile *file = g_file_new_for_path (m->data);
-#ifdef HAVE_HAL
-		const gchar *udi = tracker_storage_get_volume_udi_for_file (mf->private->storage, file);
+		const gchar *uuid = tracker_storage_get_uuid_for_file (mf->private->storage, file);
 
 		g_object_set_qdata_full (G_OBJECT (file),
-					 mf->private->quark_mount_point_udi,
-					 g_strdup (udi),
+					 mf->private->quark_mount_point_uuid,
+					 g_strdup (uuid),
 					 (GDestroyNotify) g_free);
-#endif
-
 		g_object_set_qdata (G_OBJECT (file),
 		                    mf->private->quark_directory_config_root,
 		                    GINT_TO_POINTER (TRUE));
@@ -610,9 +606,7 @@ query_mount_points_cb (GObject      *source,
 	gint i;
 	GError *error = NULL;
 	const GPtrArray *query_results;
-#ifdef HAVE_HAL
-	GSList *udis, *u;
-#endif
+	GSList *uuids, *u;
 
 	query_results = tracker_miner_execute_sparql_finish (miner,
 	                                                     result,
@@ -647,17 +641,16 @@ query_mount_points_cb (GObject      *source,
 	g_hash_table_replace (volumes, g_strdup (TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN),
 	                      GINT_TO_POINTER (VOLUME_MOUNTED));
 
-#ifdef HAVE_HAL
-	udis = tracker_storage_get_removable_device_udis (priv->storage);
+	uuids = tracker_storage_get_removable_device_uuids (priv->storage);
 
 	/* Then, get all currently mounted volumes, according to HAL */
-	for (u = udis; u; u = u->next) {
-		const gchar *udi;
+	for (u = uuids; u; u = u->next) {
+		const gchar *uuid;
 		gchar *removable_device_urn;
 		gint state;
 
-		udi = u->data;
-		removable_device_urn = g_strdup_printf (TRACKER_DATASOURCE_URN_PREFIX "%s", udi);
+		uuid = u->data;
+		removable_device_urn = g_strdup_printf (TRACKER_DATASOURCE_URN_PREFIX "%s", uuid);
 
 		state = GPOINTER_TO_INT (g_hash_table_lookup (volumes, removable_device_urn));
 		state |= VOLUME_MOUNTED;
@@ -665,9 +658,8 @@ query_mount_points_cb (GObject      *source,
 		g_hash_table_replace (volumes, removable_device_urn, GINT_TO_POINTER (state));
 	}
 
-	g_slist_foreach (udis, (GFunc) g_free, NULL);
-	g_slist_free (udis);
-#endif
+	g_slist_foreach (uuids, (GFunc) g_free, NULL);
+	g_slist_free (uuids);
 
 	accumulator = g_string_new (NULL);
 	g_hash_table_iter_init (&iter, volumes);
@@ -681,14 +673,12 @@ query_mount_points_cb (GObject      *source,
 		    !(state & VOLUME_MOUNTED_IN_STORE)) {
 			const gchar *mount_point = NULL;
 
-#ifdef HAVE_HAL
 			if (g_str_has_prefix (urn, TRACKER_DATASOURCE_URN_PREFIX)) {
-				const gchar *udi;
+				const gchar *uuid;
 
-				udi = urn + strlen (TRACKER_DATASOURCE_URN_PREFIX);
-				mount_point = tracker_storage_udi_get_mount_point (priv->storage, udi);
+				uuid = urn + strlen (TRACKER_DATASOURCE_URN_PREFIX);
+				mount_point = tracker_storage_get_mount_point_for_uuid (priv->storage, uuid);
 			}
-#endif
 
 			if (urn) {
 				if (mount_point) {
@@ -733,11 +723,9 @@ init_mount_points (TrackerMinerFiles *miner)
 	                              NULL);
 }
 
-#ifdef HAVE_HAL
-
 static void
 mount_point_removed_cb (TrackerStorage *storage,
-                        const gchar    *udi,
+                        const gchar    *uuid,
                         const gchar    *mount_point,
                         gpointer        user_data)
 {
@@ -746,7 +734,7 @@ mount_point_removed_cb (TrackerStorage *storage,
 
 	g_debug ("Removing mount point '%s'", mount_point);
 
-	urn = g_strdup_printf (TRACKER_DATASOURCE_URN_PREFIX "%s", udi);
+	urn = g_strdup_printf (TRACKER_DATASOURCE_URN_PREFIX "%s", uuid);
 
 	set_up_mount_point (miner, urn, mount_point, FALSE, NULL);
 	g_free (urn);
@@ -754,7 +742,7 @@ mount_point_removed_cb (TrackerStorage *storage,
 
 static void
 mount_point_added_cb (TrackerStorage *storage,
-                      const gchar    *udi,
+                      const gchar    *uuid,
                       const gchar    *mount_point,
                       gpointer        user_data)
 {
@@ -772,8 +760,8 @@ mount_point_added_cb (TrackerStorage *storage,
 
 		file = g_file_new_for_path (mount_point);
 		g_object_set_qdata_full (G_OBJECT (file),
-		                         priv->quark_mount_point_udi,
-		                         g_strdup (udi),
+		                         priv->quark_mount_point_uuid,
+		                         g_strdup (uuid),
 		                         (GDestroyNotify) g_free);
 
 		g_object_set_qdata (G_OBJECT (file),
@@ -788,11 +776,13 @@ mount_point_added_cb (TrackerStorage *storage,
 
 	g_debug ("Configuring added mount point '%s'", mount_point);
 
-	urn = g_strdup_printf (TRACKER_DATASOURCE_URN_PREFIX "%s", udi);
+	urn = g_strdup_printf (TRACKER_DATASOURCE_URN_PREFIX "%s", uuid);
 
 	set_up_mount_point (miner, urn, mount_point, TRUE, NULL);
 	g_free (urn);
 }
+
+#ifdef HAVE_HAL
 
 static void
 set_up_throttle (TrackerMinerFiles *mf,
@@ -1366,7 +1356,7 @@ miner_files_add_to_datasource (TrackerMinerFiles    *mf,
                                TrackerSparqlBuilder *sparql)
 {
 	TrackerMinerFilesPrivate *priv;
-	const gchar *removable_device_udi;
+	const gchar *removable_device_uuid;
 	gchar *removable_device_urn, *uri;
 	const gchar *urn;
 	gboolean is_iri;
@@ -1374,15 +1364,11 @@ miner_files_add_to_datasource (TrackerMinerFiles    *mf,
 	priv = TRACKER_MINER_FILES_GET_PRIVATE (mf);
 	uri = g_file_get_uri (file);
 
-#ifdef HAVE_HAL
-	removable_device_udi = tracker_storage_get_volume_udi_for_file (priv->storage, file);
-#else  /* HAVE_HAL */
-	removable_device_udi = NULL;
-#endif /* HAVE_HAL */
+	removable_device_uuid = tracker_storage_get_uuid_for_file (priv->storage, file);
 
-	if (removable_device_udi) {
+	if (removable_device_uuid) {
 		removable_device_urn = g_strdup_printf (TRACKER_DATASOURCE_URN_PREFIX "%s",
-		                                        removable_device_udi);
+		                                        removable_device_uuid);
 	} else {
 		removable_device_urn = g_strdup (TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN);
 	}
@@ -1456,7 +1442,7 @@ extractor_get_embedded_metadata_cb (DBusGProxy *proxy,
 {
 	TrackerMinerFilesPrivate *priv;
 	ProcessFileData *data = user_data;
-	const gchar *udi;
+	const gchar *uuid;
 
 	priv = TRACKER_MINER_FILES_GET_PRIVATE (data->miner);
 
@@ -1494,15 +1480,15 @@ extractor_get_embedded_metadata_cb (DBusGProxy *proxy,
 		tracker_sparql_builder_prepend (data->sparql, preupdate);
 	}
 
-	udi = g_object_get_qdata (G_OBJECT (data->file),
-				  data->miner->private->quark_mount_point_udi);
+	uuid = g_object_get_qdata (G_OBJECT (data->file),
+				  data->miner->private->quark_mount_point_uuid);
 
 	/* File represents a mount point */
-	if (G_UNLIKELY (udi)) {
+	if (G_UNLIKELY (uuid)) {
 		GString *queries;
 		gchar *removable_device_urn, *uri;
 
-		removable_device_urn = g_strdup_printf (TRACKER_DATASOURCE_URN_PREFIX "%s", udi);
+		removable_device_urn = g_strdup_printf (TRACKER_DATASOURCE_URN_PREFIX "%s", uuid);
 		uri = g_file_get_uri (G_FILE (data->file));
 
 		queries = g_string_new ("");

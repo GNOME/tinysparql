@@ -1,5 +1,4 @@
 /*
- * Copyright (C) 2006, Mr Jamie McCracken (jamiemcc@gnome.org)
  * Copyright (C) 2008, Nokia (urho.konttori@nokia.com)
  *
  * This library is free software; you can redistribute it and/or
@@ -24,36 +23,24 @@
 
 #include <gio/gio.h>
 
-#include <libhal.h>
-#include <libhal-storage.h>
-
-#include <dbus/dbus-glib-lowlevel.h>
-
 #include <libtracker-common/tracker-log.h>
 
 #include "tracker-storage.h"
 #include "tracker-utils.h"
 #include "tracker-marshal.h"
 
-#define CAPABILITY_VOLUME      "volume"
-
-#define PROP_IS_MOUNTED        "volume.is_mounted"
-
 #define TRACKER_STORAGE_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_STORAGE, TrackerStoragePrivate))
 
 typedef struct {
-	LibHalContext *context;
-	DBusConnection *connection;
-
-	GHashTable *all_devices;
+	GVolumeMonitor *volume_monitor;
 
 	GNode *mounts;
-	GHashTable *mounts_by_udi;
+	GHashTable *mounts_by_uuid;
 } TrackerStoragePrivate;
 
 typedef struct {
 	gchar *mount_point;
-	gchar *udi;
+	gchar *uuid;
 	guint removable : 1;
 } MountInfo;
 
@@ -63,33 +50,24 @@ typedef struct {
 } TraverseData;
 
 typedef struct {
-	LibHalContext *context;
 	GSList *roots;
 	gboolean only_removable;
 } GetRoots;
 
-static void     tracker_storage_finalize        (GObject         *object);
-static void     hal_get_property                (GObject         *object,
-                                                 guint            param_id,
-                                                 GValue                  *value,
-                                                 GParamSpec      *pspec);
-static gboolean hal_setup_devices               (TrackerStorage          *hal);
-
-static gboolean hal_device_add                  (TrackerStorage          *hal,
-                                                 LibHalVolume    *volume);
-static void     hal_device_added_cb             (LibHalContext   *context,
-                                                 const gchar     *udi);
-static void     hal_device_removed_cb           (LibHalContext   *context,
-                                                 const gchar     *udi);
-static void     hal_device_property_modified_cb (LibHalContext   *context,
-                                                 const char      *udi,
-                                                 const char      *key,
-                                                 dbus_bool_t      is_removed,
-                                                 dbus_bool_t      is_added);
-
-enum {
-	PROP_0,
-};
+static void     tracker_storage_finalize (GObject        *object);
+static gboolean mount_info_free          (GNode          *node,
+                                          gpointer        user_data);
+static void     mount_node_free          (GNode          *node);
+static gboolean drives_setup             (TrackerStorage *storage);
+static void     mount_added_cb           (GVolumeMonitor *monitor,
+                                          GMount         *mount,
+                                          gpointer        user_data);
+static void     mount_removed_cb         (GVolumeMonitor *monitor,
+                                          GMount         *mount,
+                                          gpointer        user_data);
+static void     volume_added_cb          (GVolumeMonitor *monitor,
+                                          GVolume        *volume,
+                                          gpointer        user_data);
 
 enum {
 	MOUNT_POINT_ADDED,
@@ -109,7 +87,6 @@ tracker_storage_class_init (TrackerStorageClass *klass)
 	object_class = G_OBJECT_CLASS (klass);
 
 	object_class->finalize     = tracker_storage_finalize;
-	object_class->get_property = hal_get_property;
 
 	signals[MOUNT_POINT_ADDED] =
 		g_signal_new ("mount-point-added",
@@ -142,105 +119,37 @@ static void
 tracker_storage_init (TrackerStorage *storage)
 {
 	TrackerStoragePrivate *priv;
-	DBusError error;
 
-	g_message ("Initializing HAL Storage...");
+	g_message ("Initializing Storage...");
 
 	priv = TRACKER_STORAGE_GET_PRIVATE (storage);
 
-	priv->all_devices = g_hash_table_new_full (g_str_hash,
-	                                           g_str_equal,
-	                                           (GDestroyNotify) g_free,
-	                                           (GDestroyNotify) g_free);
 	priv->mounts = g_node_new (NULL);
 
-	priv->mounts_by_udi = g_hash_table_new_full (g_str_hash,
-	                                             g_str_equal,
-	                                             (GDestroyNotify) g_free,
-	                                             NULL);
+	priv->mounts_by_uuid = g_hash_table_new_full (g_str_hash,
+	                                              g_str_equal,
+	                                              (GDestroyNotify) g_free,
+	                                              NULL);
 
-	dbus_error_init (&error);
-
-	priv->connection = dbus_bus_get (DBUS_BUS_SYSTEM, &error);
-	if (dbus_error_is_set (&error)) {
-		g_critical ("Could not get the system D-Bus connection, %s",
-		            error.message);
-		dbus_error_free (&error);
-		return;
-	}
-
-	dbus_connection_set_exit_on_disconnect (priv->connection, FALSE);
-	dbus_connection_setup_with_g_main (priv->connection, NULL);
-
-	priv->context = libhal_ctx_new ();
-
-	if (!priv->context) {
-		g_critical ("Could not create HAL context");
-		return;
-	}
-
-	libhal_ctx_set_user_data (priv->context, storage);
-	libhal_ctx_set_dbus_connection (priv->context, priv->connection);
-
-	if (!libhal_ctx_init (priv->context, &error)) {
-		if (dbus_error_is_set (&error)) {
-			g_critical ("Could not initialize the HAL context, %s",
-			            error.message);
-			dbus_error_free (&error);
-		} else {
-			g_critical ("Could not initialize the HAL context, "
-			            "no error, is hald running?");
-		}
-
-		libhal_ctx_free (priv->context);
-		priv->context = NULL;
-		return;
-	}
-
+	priv->volume_monitor = g_volume_monitor_get ();
 
 	/* Volume and property notification callbacks */
-	g_message ("HAL monitors set for devices added/removed/mounted/umounted...");
-	libhal_ctx_set_device_added (priv->context, hal_device_added_cb);
-	libhal_ctx_set_device_removed (priv->context, hal_device_removed_cb);
-	libhal_ctx_set_device_property_modified (priv->context, hal_device_property_modified_cb);
+	g_signal_connect_object (priv->volume_monitor, "mount_removed",
+	                         G_CALLBACK (mount_removed_cb), storage, 0);
+	g_signal_connect_object (priv->volume_monitor, "mount_pre_unmount",
+	                         G_CALLBACK (mount_removed_cb), storage, 0);
+	g_signal_connect_object (priv->volume_monitor, "mount_added",
+	                         G_CALLBACK (mount_added_cb), storage, 0);
+	g_signal_connect_object (priv->volume_monitor, "volume_added",
+	                         G_CALLBACK (volume_added_cb), storage, 0);
+
+	g_message ("Drive/Volume monitors set up for to watch for added, removed and pre-unmounts...");
 
 	/* Get all devices which are mountable and set them up */
-	if (!hal_setup_devices (storage)) {
+	if (!drives_setup (storage)) {
 		return;
 	}
 }
-
-static gboolean
-free_mount_info (GNode    *node,
-                 gpointer  user_data)
-{
-	MountInfo *info;
-
-	info = node->data;
-
-	if (info) {
-		g_free (info->mount_point);
-		g_free (info->udi);
-
-		g_slice_free (MountInfo, info);
-	}
-
-	return FALSE;
-}
-
-static void
-free_mount_node (GNode *node)
-{
-	g_node_traverse (node,
-	                 G_POST_ORDER,
-	                 G_TRAVERSE_ALL,
-	                 -1,
-	                 free_mount_info,
-	                 NULL);
-
-	g_node_destroy (node);
-}
-
 
 static void
 tracker_storage_finalize (GObject *object)
@@ -249,112 +158,37 @@ tracker_storage_finalize (GObject *object)
 
 	priv = TRACKER_STORAGE_GET_PRIVATE (object);
 
-	if (priv->mounts_by_udi) {
-		g_hash_table_unref (priv->mounts_by_udi);
-	}
-
-	if (priv->all_devices) {
-		g_hash_table_unref (priv->all_devices);
+	if (priv->mounts_by_uuid) {
+		g_hash_table_unref (priv->mounts_by_uuid);
 	}
 
 	if (priv->mounts) {
-		free_mount_node (priv->mounts);
+		mount_node_free (priv->mounts);
 	}
 
-	if (priv->context) {
-		libhal_ctx_shutdown (priv->context, NULL);
-		libhal_ctx_set_user_data (priv->context, NULL);
-		libhal_ctx_free (priv->context);
-	}
-
-	if (priv->connection) {
-		dbus_connection_unref (priv->connection);
+	if (priv->volume_monitor) {
+		g_object_unref (priv->volume_monitor);
 	}
 
 	(G_OBJECT_CLASS (tracker_storage_parent_class)->finalize) (object);
 }
 
 static void
-hal_get_property (GObject    *object,
-                  guint       param_id,
-                  GValue     *value,
-                  GParamSpec *pspec)
+mount_node_free (GNode *node)
 {
-	TrackerStoragePrivate *priv;
+	g_node_traverse (node,
+	                 G_POST_ORDER,
+	                 G_TRAVERSE_ALL,
+	                 -1,
+	                 mount_info_free,
+	                 NULL);
 
-	priv = TRACKER_STORAGE_GET_PRIVATE (object);
-
-	switch (param_id) {
-	default:
-		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, param_id, pspec);
-		break;
-	};
+	g_node_destroy (node);
 }
 
 static gboolean
-hal_setup_devices (TrackerStorage *storage)
-{
-	TrackerStoragePrivate *priv;
-	DBusError error;
-	gchar **devices, **p;
-	gint num;
-
-	priv = TRACKER_STORAGE_GET_PRIVATE (storage);
-
-	dbus_error_init (&error);
-
-	devices = libhal_find_device_by_capability (priv->context,
-	                                            CAPABILITY_VOLUME,
-	                                            &num,
-	                                            &error);
-
-	if (dbus_error_is_set (&error)) {
-		g_critical ("Could not get devices with 'volume' capability, %s",
-		            error.message);
-		dbus_error_free (&error);
-		return FALSE;
-	}
-
-	if (!devices || !devices[0]) {
-		g_message ("HAL devices not found with 'volume' capability");
-		return TRUE;
-	}
-
-	for (p = devices; *p; p++) {
-		LibHalVolume *volume;
-
-		volume = libhal_volume_from_udi (priv->context, *p);
-		if (!volume) {
-			continue;
-		}
-
-		g_debug ("HAL device:'%s' found:",
-		         libhal_volume_get_device_file (volume));
-		g_debug ("  UDI          : %s",
-		         libhal_volume_get_udi (volume));
-		g_debug ("  Mount point: %s",
-		         libhal_volume_get_mount_point (volume));
-		g_debug ("  UUID         : %s",
-		         libhal_volume_get_uuid (volume));
-		g_debug ("  Mounted    : %s",
-		         libhal_volume_is_mounted (volume) ? "yes" : "no");
-		g_debug ("  File system: %s",
-		         libhal_volume_get_fstype (volume));
-		g_debug ("  Label        : %s",
-		         libhal_volume_get_label (volume));
-
-		hal_device_add (storage, volume);
-		libhal_volume_free (volume);
-	}
-
-	libhal_free_string_array (devices);
-
-	return TRUE;
-}
-
-static gboolean
-mount_point_traverse_func (GNode *node,
-                           gpointer user_data)
+mount_node_traverse_func (GNode    *node,
+                          gpointer  user_data)
 {
 	TraverseData *data;
 	MountInfo *info;
@@ -376,8 +210,8 @@ mount_point_traverse_func (GNode *node,
 }
 
 static GNode *
-find_mount_point (GNode *root,
-                  const gchar *path)
+mount_node_find (GNode       *root,
+                 const gchar *path)
 {
 	TraverseData data = { path, NULL };
 
@@ -385,30 +219,43 @@ find_mount_point (GNode *root,
 	                 G_POST_ORDER,
 	                 G_TRAVERSE_ALL,
 	                 -1,
-	                 mount_point_traverse_func,
+	                 mount_node_traverse_func,
 	                 &data);
 
 	return data.node;
 }
 
+static gboolean
+mount_info_free (GNode    *node,
+                 gpointer  user_data)
+{
+	MountInfo *info;
+
+	info = node->data;
+
+	if (info) {
+		g_free (info->mount_point);
+		g_free (info->uuid);
+
+		g_slice_free (MountInfo, info);
+	}
+
+	return FALSE;
+}
+
 static MountInfo *
-find_mount_point_info (GNode *root,
-                       const gchar *path)
+mount_info_find (GNode       *root,
+                 const gchar *path)
 {
 	GNode *node;
 
-	node = find_mount_point (root, path);
+	node = mount_node_find (root, path);
 	return (node) ? node->data : NULL;
 }
 
-static GNode *
-mount_point_hierarchy_add (GNode *root,
-                           const gchar *mount_point,
-                           const gchar *udi,
-                           gboolean removable)
+static gchar *
+mount_point_normalize (const gchar *mount_point)
 {
-	MountInfo *info;
-	GNode *node;
 	gchar *mp;
 
 	/* Normalize all mount points to have a / at the end */
@@ -418,7 +265,21 @@ mount_point_hierarchy_add (GNode *root,
 		mp = g_strconcat (mount_point, G_DIR_SEPARATOR_S, NULL);
 	}
 
-	node = find_mount_point (root, mp);
+	return mp;
+}
+
+static GNode *
+mount_add_hierarchy (GNode       *root,
+                     const gchar *uuid,
+                     const gchar *mount_point,
+                     gboolean     removable)
+{
+	MountInfo *info;
+	GNode *node;
+	gchar *mp;
+
+	mp = mount_point_normalize (mount_point);
+	node = mount_node_find (root, mp);
 
 	if (!node) {
 		node = root;
@@ -426,402 +287,241 @@ mount_point_hierarchy_add (GNode *root,
 
 	info = g_slice_new (MountInfo);
 	info->mount_point = mp;
-	info->udi = g_strdup (udi);
+	info->uuid = g_strdup (uuid);
 	info->removable = removable;
 
 	return g_node_append_data (node, info);
 }
 
-
 static void
-hal_mount_point_add (TrackerStorage *storage,
-                     const gchar    *udi,
-                     const gchar    *mount_point,
-                     gboolean        removable_device)
+mount_add (TrackerStorage *storage,
+           const gchar    *uuid,
+           const gchar    *mount_point,
+           gboolean        removable_device)
 {
 	TrackerStoragePrivate *priv;
 	GNode *node;
 
 	priv = TRACKER_STORAGE_GET_PRIVATE (storage);
 
-	g_message ("HAL device:'%s' with mount point:'%s', removable:%s now being tracked",
-	           (const gchar*) g_hash_table_lookup (priv->all_devices, udi),
-	           mount_point,
-	           removable_device ? "yes" : "no");
+	node = mount_add_hierarchy (priv->mounts, uuid, mount_point, removable_device);
+	g_hash_table_insert (priv->mounts_by_uuid, g_strdup (uuid), node);
 
-	node = mount_point_hierarchy_add (priv->mounts, mount_point, udi, removable_device);
-	g_hash_table_insert (priv->mounts_by_udi, g_strdup (udi), node);
-
-	g_signal_emit (storage, signals[MOUNT_POINT_ADDED], 0, udi, mount_point, NULL);
+	g_signal_emit (storage, signals[MOUNT_POINT_ADDED], 0, uuid, mount_point, NULL);
 }
 
 static void
-hal_mount_point_remove (TrackerStorage *storage,
-                        const gchar    *udi)
+volume_add (TrackerStorage *storage,
+            GVolume        *volume)
 {
-	MountInfo *info;
 	TrackerStoragePrivate *priv;
-	GNode *node;
+	GDrive *drive;
+	GMount *mount;
+	gchar *str;
+	gboolean is_mounted;
+	gchar *uuid;
+	gchar *mount_point;
+	gchar *device_file;
 
-	priv = TRACKER_STORAGE_GET_PRIVATE (storage);
+	drive = g_volume_get_drive (volume);
 
-	node = g_hash_table_lookup (priv->mounts_by_udi, udi);
+	g_debug ("Drive:'%s' added 1 volume:",
+	         g_drive_get_name (drive));
 
-	if (!node) {
+	str = g_volume_get_name (volume);
+	g_debug ("  Volume:'%s' found", str);
+	g_free (str);
+		
+	if (!g_volume_should_automount (volume) ||
+	    !g_volume_can_mount (volume)) {
+		g_debug ("    Ignoring, volume can not be automatically mounted or mounted at all");
 		return;
 	}
 
-	info = node->data;
+	device_file = g_volume_get_identifier (volume, G_VOLUME_IDENTIFIER_KIND_UNIX_DEVICE);
+	g_debug ("    Device file  : %s", device_file);
+		
+	/* mounted, so never NULL */
+	mount = g_volume_get_mount (volume); 
 
-	g_message ("HAL device:'%s' with mount point:'%s' (uuid:'%s'), removable:%s NO LONGER being tracked",
-	           (const gchar*) g_hash_table_lookup (priv->all_devices, udi),
-	           info->mount_point,
-	           udi,
-	           info->removable ? "yes" : "no");
-
-	g_signal_emit (storage, signals[MOUNT_POINT_REMOVED], 0, udi, info->mount_point, NULL);
-
-	g_hash_table_remove (priv->mounts_by_udi, udi);
-	free_mount_node (node);
-}
-
-static const gchar *
-hal_drive_type_to_string (LibHalDriveType type)
-{
-	switch (type) {
-	case LIBHAL_DRIVE_TYPE_REMOVABLE_DISK:
-		return "LIBHAL_DRIVE_TYPE_REMOVABLE_DISK";
-	case LIBHAL_DRIVE_TYPE_DISK:
-		return "LIBHAL_DRIVE_TYPE_DISK";
-	case LIBHAL_DRIVE_TYPE_CDROM:
-		return "LIBHAL_DRIVE_TYPE_CDROM";
-	case LIBHAL_DRIVE_TYPE_FLOPPY:
-		return "LIBHAL_DRIVE_TYPE_FLOPPY";
-	case LIBHAL_DRIVE_TYPE_TAPE:
-		return "LIBHAL_DRIVE_TYPE_TAPE";
-	case LIBHAL_DRIVE_TYPE_COMPACT_FLASH:
-		return "LIBHAL_DRIVE_TYPE_COMPACT_FLASH";
-	case LIBHAL_DRIVE_TYPE_MEMORY_STICK:
-		return "LIBHAL_DRIVE_TYPE_MEMORY_STICK";
-	case LIBHAL_DRIVE_TYPE_SMART_MEDIA:
-		return "LIBHAL_DRIVE_TYPE_SMART_MEDIA";
-	case LIBHAL_DRIVE_TYPE_SD_MMC:
-		return "LIBHAL_DRIVE_TYPE_SD_MMC";
-	case LIBHAL_DRIVE_TYPE_CAMERA:
-		return "LIBHAL_DRIVE_TYPE_CAMERA";
-	case LIBHAL_DRIVE_TYPE_PORTABLE_AUDIO_PLAYER:
-		return "LIBHAL_DRIVE_TYPE_PORTABLE_AUDIO_PLAYER";
-	case LIBHAL_DRIVE_TYPE_ZIP:
-		return "LIBHAL_DRIVE_TYPE_ZIP";
-	case LIBHAL_DRIVE_TYPE_JAZ:
-		return "LIBHAL_DRIVE_TYPE_JAZ";
-	case LIBHAL_DRIVE_TYPE_FLASHKEY:
-		return "LIBHAL_DRIVE_TYPE_FLASHKEY";
-	case LIBHAL_DRIVE_TYPE_MO:
-		return "LIBHAL_DRIVE_TYPE_MO";
-	default:
-		return "";
-	}
-}
-
-static gboolean
-hal_device_is_user_removable (TrackerStorage *storage,
-                              const gchar    *device_file,
-                              const gchar    *mount_point)
-{
-	TrackerStoragePrivate *priv;
-	LibHalDrive *drive;
-	gboolean removable;
-
-	if (!device_file) {
-		return FALSE;
-	}
-
-	priv = TRACKER_STORAGE_GET_PRIVATE (storage);
-
-	drive = libhal_drive_from_device_file (priv->context, device_file);
-	if (!drive) {
-		return FALSE;
-	}
-
-	removable = libhal_drive_uses_removable_media (drive);
-
-	if (libhal_drive_get_type (drive) == LIBHAL_DRIVE_TYPE_SD_MMC) {
-		/* mmc block devices are not considered removable according to
-		   linux kernel as they do not contain removable media, they
-		   are simply hotpluggable
-		   consider all SD/MMC volumes mounted in /media as user removable
-		*/
-		if (g_str_has_prefix (mount_point, "/media/")) {
-			removable = TRUE;
-		}
-	}
-
-	libhal_drive_free (drive);
-
-	return removable;
-}
-
-static gboolean
-hal_device_should_be_tracked (TrackerStorage *storage,
-                              const gchar    *device_file)
-{
-	TrackerStoragePrivate *priv;
-	LibHalDrive *drive;
-	LibHalDriveType drive_type;
-	gboolean eligible;
-
-	if (!device_file) {
-		return FALSE;
-	}
-
-	priv = TRACKER_STORAGE_GET_PRIVATE (storage);
-
-	drive = libhal_drive_from_device_file (priv->context, device_file);
-	if (!drive) {
-		return FALSE;
-	}
-
-	/* From the list, the first one below seems to be the ONLY one
-	 * to ignore:
-	 *
-	 * LIBHAL_DRIVE_TYPE_REMOVABLE_DISK        = 0x00,
-	 * LIBHAL_DRIVE_TYPE_DISK                  = 0x01,
-	 * LIBHAL_DRIVE_TYPE_CDROM                 = 0x02,
-	 * LIBHAL_DRIVE_TYPE_FLOPPY                = 0x03,
-	 * LIBHAL_DRIVE_TYPE_TAPE                  = 0x04,
-	 * LIBHAL_DRIVE_TYPE_COMPACT_FLASH         = 0x05,
-	 * LIBHAL_DRIVE_TYPE_MEMORY_STICK          = 0x06,
-	 * LIBHAL_DRIVE_TYPE_SMART_MEDIA           = 0x07,
-	 * LIBHAL_DRIVE_TYPE_SD_MMC                = 0x08,
-	 * LIBHAL_DRIVE_TYPE_CAMERA                = 0x09,
-	 * LIBHAL_DRIVE_TYPE_PORTABLE_AUDIO_PLAYER = 0x0a,
-	 * LIBHAL_DRIVE_TYPE_ZIP                   = 0x0b,
-	 * LIBHAL_DRIVE_TYPE_JAZ                   = 0x0c,
-	 * LIBHAL_DRIVE_TYPE_FLASHKEY              = 0x0d,
-	 * LIBHAL_DRIVE_TYPE_MO                            = 0x0e
-	 *
-	 */
-
-	drive_type = libhal_drive_get_type (drive);
-
-	/* So here we don't track CDROM devices or the hard disks in
-	 * the machine, we simply track devices which are added or
-	 * removed in real time which we are interested in and which
-	 * are viable for tracking. CDROMs are too slow.
-	 */
-	eligible = TRUE;
-	eligible &= drive_type != LIBHAL_DRIVE_TYPE_DISK;
-	eligible &= drive_type != LIBHAL_DRIVE_TYPE_CDROM;
-
-	libhal_drive_free (drive);
-
-	if (!eligible) {
-		g_message ("HAL device:'%s' is not eligible for tracking, type is '%s'",
-		           device_file,
-		           hal_drive_type_to_string (drive_type));
+	if (mount) {
+		GFile *file;
+		
+		file = g_mount_get_root (mount);
+		
+		mount_point = g_file_get_path (file);
+		g_debug ("    Mount point  : %s", mount_point);
+		
+		g_object_unref (file);
+		g_object_unref (mount);
+		
+		is_mounted = TRUE;
 	} else {
-		g_message ("HAL device:'%s' is eligible for tracking, type is '%s'",
-		           device_file,
-		           hal_drive_type_to_string (drive_type));
+		mount_point = NULL;
+		is_mounted = FALSE;
 	}
+	
+	uuid = g_volume_get_identifier (volume, G_VOLUME_IDENTIFIER_KIND_UUID);
+	g_debug ("    UUID         : %s", uuid);
+	
+	g_debug ("    Mounted      : %s", is_mounted ? "yes" : "no");
+	
+	priv = TRACKER_STORAGE_GET_PRIVATE (storage);
 
-	return eligible;
+	if (mount_point && !g_hash_table_lookup (priv->mounts_by_uuid, uuid)) {
+		mount_add (storage, uuid, mount_point, TRUE);
+	}
+	
+	g_free (uuid);
+	g_free (mount_point);
+	g_free (device_file);
 }
 
 static gboolean
-hal_device_add (TrackerStorage *storage,
-                LibHalVolume   *volume)
+drives_setup (TrackerStorage *storage)
 {
 	TrackerStoragePrivate *priv;
-	DBusError error;
-	const gchar *udi;
-	const gchar *mount_point;
-	const gchar *device_file;
+	GList *drives, *ld;
 
 	priv = TRACKER_STORAGE_GET_PRIVATE (storage);
 
-	dbus_error_init (&error);
+	drives = g_volume_monitor_get_connected_drives (priv->volume_monitor);
 
-	udi = libhal_volume_get_udi (volume);
-	mount_point = libhal_volume_get_mount_point (volume);
-	device_file = libhal_volume_get_device_file (volume);
-
-	if (g_hash_table_lookup (priv->all_devices, udi)) {
+	if (g_list_length (drives) < 1) {
+		g_message ("No drives found to iterate");
 		return TRUE;
 	}
 
-	/* If there is no mount point, then there is nothing to track */
-	if (!hal_device_should_be_tracked (storage, device_file)) {
-		return TRUE;
+	for (ld = drives; ld; ld = ld->next) {
+		GDrive *drive;
+		GList *volumes, *lv;
+		guint n_volumes;
+
+		drive = ld->data;
+
+		if (!drive) {
+			continue;
+		}
+		
+		volumes = g_drive_get_volumes (drive);
+		n_volumes = g_list_length (volumes);
+
+		g_debug ("Drive:'%s' found with %d %s:",
+		         g_drive_get_name (drive),
+		         n_volumes,
+		         n_volumes == 1 ? "volume" : "volumes");
+
+		for (lv = volumes; lv; lv = lv->next) {
+			volume_add (storage, lv->data);
+		}
+
+		g_list_free (volumes);
+		g_object_unref (ld->data);
 	}
 
-	/* Make sure we watch changes to the mount/umount state */
-	libhal_device_add_property_watch (priv->context, udi, &error);
-
-	if (dbus_error_is_set (&error)) {
-		g_critical ("Could not add device:'%s' property watch for udi:'%s', %s",
-		            device_file,
-		            udi,
-		            error.message);
-		dbus_error_free (&error);
-		return FALSE;
-	}
-
-	g_hash_table_insert (priv->all_devices,
-	                     g_strdup (udi),
-	                     g_strdup (device_file));
-
-	if (mount_point) {
-		hal_mount_point_add (storage,
-		                     udi,
-		                     mount_point,
-		                     hal_device_is_user_removable (storage, device_file, mount_point));
-	}
+	g_list_free (drives);
 
 	return TRUE;
 }
 
 static void
-hal_device_added_cb (LibHalContext *context,
-                     const gchar   *udi)
+mount_added_cb (GVolumeMonitor *monitor,
+                GMount         *mount,
+                gpointer        user_data)
 {
 	TrackerStorage *storage;
-	LibHalVolume *volume;
+	GVolume *volume;
+	GFile *file;
+	gchar *device_file;
+	gchar *uuid;
+	gchar *mount_point;
+	gboolean removable_device = TRUE;
 
-	storage = libhal_ctx_get_user_data (context);
+	storage = user_data;
 
-	if (libhal_device_query_capability (context, udi, CAPABILITY_VOLUME, NULL)) {
-		volume = libhal_volume_from_udi (context, udi);
+	volume = g_mount_get_volume (mount);
+	device_file = g_volume_get_identifier (volume, G_VOLUME_IDENTIFIER_KIND_UNIX_DEVICE);
+	uuid = g_volume_get_identifier (volume, G_VOLUME_IDENTIFIER_KIND_UUID);
+	file = g_mount_get_root (mount);
+	mount_point = g_file_get_path (file);
 
-		if (!volume) {
-			/* Not a device with a volume */
-			return;
-		}
+	/* NOTE: We only deal with removable devices */
+	removable_device = TRUE;
 
-		g_message ("HAL device:'%s' added:",
-		           libhal_volume_get_device_file (volume));
-		g_message ("  UDI        : %s",
-		           udi);
-		g_message ("  Mount point: %s",
-		           libhal_volume_get_mount_point (volume));
-		g_message ("  UUID       : %s",
-		           libhal_volume_get_uuid (volume));
-		g_message ("  Mounted    : %s",
-		           libhal_volume_is_mounted (volume) ? "yes" : "no");
-		g_message ("  File system: %s",
-		           libhal_volume_get_fstype (volume));
-		g_message ("  Label      : %s",
-		           libhal_volume_get_label (volume));
+	g_message ("Device:'%s', UUID:'%s' now mounted on:'%s', being tracked",
+	           device_file,
+	           uuid,
+	           mount_point);
 
-		hal_device_add (storage, volume);
-		libhal_volume_free (volume);
-	}
+	mount_add (storage, uuid, mount_point, removable_device);
+
+	g_free (mount_point);
+	g_object_unref (file);
+	g_free (uuid);
+	g_free (device_file);
+	g_object_unref (volume);
 }
 
 static void
-hal_device_removed_cb (LibHalContext *context,
-                       const gchar   *udi)
+mount_removed_cb (GVolumeMonitor *monitor,
+                  GMount         *mount,
+                  gpointer        user_data)
 {
 	TrackerStorage *storage;
 	TrackerStoragePrivate *priv;
-	const gchar *device_file;
+	MountInfo *info;
+	GNode *node;
+	GFile *file;
+	gchar *name;
+	gchar *mount_point;
+	gchar *mp;
 
-	storage = libhal_ctx_get_user_data (context);
+	storage = user_data;
 	priv = TRACKER_STORAGE_GET_PRIVATE (storage);
 
-	if (g_hash_table_lookup (priv->all_devices, udi)) {
-		device_file = g_hash_table_lookup (priv->all_devices, udi);
+	file = g_mount_get_root (mount);
+	mount_point = g_file_get_path (file);
+	name = g_mount_get_name (mount);
 
-		if (!device_file) {
-			/* Don't report about unknown devices */
-			return;
-		}
+	/* device_file = g_volume_get_identifier (volume, G_VOLUME_IDENTIFIER_KIND_UNIX_DEVICE); */
+	/* uuid = g_volume_get_identifier (volume, G_VOLUME_IDENTIFIER_KIND_UUID); */
+	/* node = g_hash_table_lookup (priv->mounts_by_uuid, uuid); */
 
-		g_message ("HAL device:'%s' removed:",
-		           device_file);
-		g_message ("  UDI        : %s",
-		           udi);
+	mp = mount_point_normalize (mount_point);
+	node = mount_node_find (priv->mounts, mp);
+	g_free (mp);
 
-		g_hash_table_remove (priv->all_devices, udi);
+	if (node) {
+		info = node->data;
 
-		hal_mount_point_remove (storage, udi);
+		g_message ("Mount:'%s' with UUID:'%s' now unmounted from:'%s'",
+		           name,
+		           info->uuid,
+		           mount_point);
+
+		g_signal_emit (storage, signals[MOUNT_POINT_REMOVED], 0, info->uuid, mount_point, NULL);
+		
+		g_hash_table_remove (priv->mounts_by_uuid, info->uuid);
+		mount_node_free (node);
+	} else {
+		g_message ("Mount:'%s' now unmounted from:'%s' (was not tracked)",
+		           name,
+		           mount_point);
 	}
+
+	g_free (name);
+	g_free (mount_point);
+	g_object_unref (file);
+	/* g_free (uuid); */
+	/* g_free (device_file); */
 }
 
 static void
-hal_device_property_modified_cb (LibHalContext *context,
-                                 const char    *udi,
-                                 const char    *key,
-                                 dbus_bool_t    is_removed,
-                                 dbus_bool_t    is_added)
+volume_added_cb (GVolumeMonitor *monitor,
+                 GVolume        *volume,
+                 gpointer        user_data)
 {
-	TrackerStorage *storage;
-	TrackerStoragePrivate *priv;
-	DBusError error;
-
-	storage = libhal_ctx_get_user_data (context);
-	priv = TRACKER_STORAGE_GET_PRIVATE (storage);
-
-	dbus_error_init (&error);
-
-	if (g_hash_table_lookup (priv->all_devices, udi)) {
-		const gchar *device_file;
-		gboolean is_mounted;
-
-		device_file = g_hash_table_lookup (priv->all_devices, udi);
-
-		g_message ("HAL device:'%s' property change for udi:'%s' and key:'%s'",
-		           device_file,
-		           udi,
-		           key);
-
-		if (strcmp (key, PROP_IS_MOUNTED) != 0) {
-			return;
-		}
-
-		is_mounted = libhal_device_get_property_bool (context,
-		                                              udi,
-		                                              key,
-		                                              &error);
-
-		if (dbus_error_is_set (&error)) {
-			g_message ("Could not get device property:'%s' for udi:'%s', %s",
-			           udi, key, error.message);
-			dbus_error_free (&error);
-
-			g_message ("HAL device:'%s' with udi:'%s' is now unmounted (due to error)",
-			           device_file,
-			           udi);
-			hal_mount_point_remove (storage, udi);
-			return;
-		}
-
-		if (is_mounted) {
-			LibHalVolume *volume;
-			const gchar  *mount_point;
-
-			volume = libhal_volume_from_udi (context, udi);
-			mount_point = libhal_volume_get_mount_point (volume);
-
-			g_message ("HAL device:'%s' with udi:'%s' is now mounted",
-			           device_file,
-			           udi);
-
-			hal_mount_point_add (storage,
-			                     udi,
-			                     mount_point,
-			                     hal_device_is_user_removable (storage, device_file, mount_point));
-
-			libhal_volume_free (volume);
-		} else {
-			g_message ("HAL device:'%s' with udi:'%s' is now unmounted",
-			           device_file,
-			           udi);
-
-			hal_mount_point_remove (storage, udi);
-		}
-	}
+	volume_add (user_data, volume);
 }
 
 /**
@@ -838,17 +538,17 @@ tracker_storage_new (void)
 }
 
 static void
-hal_get_mount_point_by_udi_foreach (gpointer key,
-                                    gpointer value,
-                                    gpointer user_data)
+get_mount_point_by_uuid_foreach (gpointer key,
+                                 gpointer value,
+                                 gpointer user_data)
 {
 	GetRoots *gr;
-	const gchar *udi;
+	const gchar *uuid;
 	GNode *node;
 	MountInfo *info;
 
 	gr = user_data;
-	udi = key;
+	uuid = key;
 	node = value;
 	info = node->data;
 
@@ -890,102 +590,103 @@ tracker_storage_get_removable_device_roots (TrackerStorage *storage)
 
 	priv = TRACKER_STORAGE_GET_PRIVATE (storage);
 
-	gr.context = priv->context;
 	gr.roots = NULL;
 	gr.only_removable = TRUE;
 
-	g_hash_table_foreach (priv->mounts_by_udi,
-	                      hal_get_mount_point_by_udi_foreach,
+	g_hash_table_foreach (priv->mounts_by_uuid,
+	                      get_mount_point_by_uuid_foreach,
 	                      &gr);
 
 	return g_slist_reverse (gr.roots);
 }
 
 /**
- * tracker_storage_get_removable_device_udis:
+ * tracker_storage_get_removable_device_uuids:
  * @storage: A #TrackerStorage
  *
- * Returns a #GSList of strings containing the UDI for removable devices.
+ * Returns a #GSList of strings containing the UUID for removable devices.
  * Each element is owned by the #GHashTable internally, the list
  * itself through should be freed using g_slist_free().
  *
- * Returns: The list of UDIs.
+ * Returns: The list of UUIDs.
  **/
 GSList *
-tracker_storage_get_removable_device_udis (TrackerStorage *storage)
+tracker_storage_get_removable_device_uuids (TrackerStorage *storage)
 {
 	TrackerStoragePrivate *priv;
 	GHashTableIter iter;
 	gpointer key, value;
-	GSList *udis;
+	GSList *uuids;
 
 	g_return_val_if_fail (TRACKER_IS_STORAGE (storage), NULL);
 
 	priv = TRACKER_STORAGE_GET_PRIVATE (storage);
 
-	udis = NULL;
+	uuids = NULL;
 
-	g_hash_table_iter_init (&iter, priv->mounts_by_udi);
+	g_hash_table_iter_init (&iter, priv->mounts_by_uuid);
 
 	while (g_hash_table_iter_next (&iter, &key, &value)) {
-		const gchar *udi;
+		const gchar *uuid;
 		GNode *node;
 		MountInfo *info;
 
-		udi = key;
+		uuid = key;
 		node = value;
 		info = node->data;
 
 		if (info->removable) {
-			udis = g_slist_prepend (udis, g_strdup (udi));
+			uuids = g_slist_prepend (uuids, g_strdup (uuid));
 		}
 	}
 
-	return g_slist_reverse (udis);
+	return g_slist_reverse (uuids);
 }
 
 /**
- * tracker_storage_udi_get_mount_point:
+ * tracker_storage_get_mount_point_for_uuid:
  * @storage: A #TrackerStorage
- * @udi: A string pointer to the UDI for the device.
+ * @uuid: A string pointer to the UUID for the %GVolume.
  *
- * Returns: The mount point for @udi, this should not be freed.
+ * Returns: The mount point for @uuid, this should not be freed.
  **/
 const gchar *
-tracker_storage_udi_get_mount_point (TrackerStorage *storage,
-                                     const gchar    *udi)
+tracker_storage_get_mount_point_for_uuid (TrackerStorage *storage,
+                                          const gchar    *uuid)
 {
 	TrackerStoragePrivate *priv;
 	GNode *node;
 	MountInfo *info;
 
 	g_return_val_if_fail (TRACKER_IS_STORAGE (storage), NULL);
-	g_return_val_if_fail (udi != NULL, NULL);
+	g_return_val_if_fail (uuid != NULL, NULL);
 
 	priv = TRACKER_STORAGE_GET_PRIVATE (storage);
 
-	node = g_hash_table_lookup (priv->mounts_by_udi, udi);
+	node = g_hash_table_lookup (priv->mounts_by_uuid, uuid);
 
 	if (!node) {
 		return NULL;
 	}
 
 	info = node->data;
+
 	return info->mount_point;
 }
 
 /**
- * tracker_storage_get_volume_udi_for_file:
+ * tracker_storage_get_uuid_for_file:
  * @storage: A #TrackerStorage
  * @file: a file
  *
- * Returns the UDI of the removable device for @file
+ * Returns the UUID of the removable device for @file
  *
- * Returns: Returns the UDI of the removable device for @file
+ * Returns: Returns the UUID of the removable device for @file, this
+ * should not be freed.
  **/
 const gchar *
-tracker_storage_get_volume_udi_for_file (TrackerStorage *storage,
-                                         GFile          *file)
+tracker_storage_get_uuid_for_file (TrackerStorage *storage,
+                                   GFile          *file)
 {
 	TrackerStoragePrivate *priv;
 	gchar *path;
@@ -1010,18 +711,18 @@ tracker_storage_get_volume_udi_for_file (TrackerStorage *storage,
 
 	priv = TRACKER_STORAGE_GET_PRIVATE (storage);
 
-	info = find_mount_point_info (priv->mounts, path);
+	info = mount_info_find (priv->mounts, path);
 
 	if (!info) {
 		g_free (path);
 		return NULL;
 	}
 
-	g_debug ("Mount for path '%s' is '%s' (UDI:'%s')",
-	         path, info->mount_point, info->udi);
+	/* g_debug ("Mount for path '%s' is '%s' (UUID:'%s')", */
+	/*          path, info->mount_point, info->uuid); */
 
 	g_free (path);
 
-	return info->udi;
+	return info->uuid;
 }
 

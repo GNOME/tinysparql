@@ -562,11 +562,7 @@ albumart_request_download (TrackerStorage *storage,
 
 	info = g_slice_new (GetFileInfo);
 
-#ifdef HAVE_HAL
 	info->storage = storage ? g_object_ref (storage) : NULL;
-#else
-	info->storage = NULL;
-#endif
 
 	info->local_uri = g_strdup (local_uri);
 	info->art_path = g_strdup (art_path);
@@ -609,7 +605,6 @@ albumart_copy_to_local (TrackerStorage *storage,
 	guint flen;
 
 	/* Determining if we are on a removable device */
-#ifdef HAVE_HAL
 	if (!storage) {
 		/* This is usually because we are running on the
 		 * command line, so we don't error here with
@@ -619,10 +614,6 @@ albumart_copy_to_local (TrackerStorage *storage,
 	}
 
 	removable_roots = tracker_storage_get_removable_device_roots (storage);
-#else
-	removable_roots = g_slist_append (removable_roots, "/media");
-	removable_roots = g_slist_append (removable_roots, "/mnt");
-#endif
 
 	flen = strlen (filename);
 
@@ -637,10 +628,7 @@ albumart_copy_to_local (TrackerStorage *storage,
 		}
 	}
 
-#ifdef HAVE_HAL
 	g_slist_foreach (removable_roots, (GFunc) g_free, NULL);
-#endif
-
 	g_slist_free (removable_roots);
 
 	if (on_removable_device) {
@@ -723,11 +711,7 @@ tracker_albumart_init (void)
 
 	g_return_val_if_fail (initialized == FALSE, FALSE);
 
-#ifdef HAVE_HAL
 	albumart_storage = tracker_storage_new ();
-#else  /* HAVE_HAL */
-	albumart_storage = NULL;
-#endif /* HAVE_HAL */
 
 	/* Cache to know if we have already handled uris */
 	albumart_cache = g_hash_table_new_full (g_str_hash,
@@ -769,11 +753,9 @@ tracker_albumart_shutdown (void)
 		g_hash_table_unref (albumart_cache);
 	}
 
-#ifdef HAVE_HAL
 	if (albumart_storage) {
 		g_object_unref (albumart_storage);
 	}
-#endif /* HAVE_HAL */
 
 	initialized = FALSE;
 }
