@@ -1558,9 +1558,10 @@ fill_in_queue (TrackerMinerFS       *fs,
 		file = node->data;
 		dir_data->n_items_processed++;
 
+		g_queue_push_tail (dir_data->nodes, node);
+
 		if (!g_object_get_qdata (G_OBJECT (file), fs->private->quark_ignore_file)) {
 			g_queue_push_tail (queue, g_object_ref (file));
-			g_queue_push_tail (dir_data->nodes, node);
 			return;
 		}
 	}
@@ -1649,7 +1650,14 @@ item_queue_get_next_file (TrackerMinerFS  *fs,
 			*source_file = NULL;
 			return QUEUE_WAIT;
 		} else {
-			fill_in_queue (fs, fs->private->items_created);
+			/* Iterate through all directory hierarchies until
+			 * one of these return something for the miner to do,
+			 * or no data is left to process.
+			 */
+			while (g_queue_is_empty (fs->private->items_created) &&
+			       !g_queue_is_empty (fs->private->crawled_directories)) {
+				fill_in_queue (fs, fs->private->items_created);
+			}
 		}
 	}
 
