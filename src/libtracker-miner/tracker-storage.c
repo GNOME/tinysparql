@@ -312,7 +312,8 @@ mount_add (TrackerStorage *storage,
 
 static void
 volume_add (TrackerStorage *storage,
-            GVolume        *volume)
+            GVolume        *volume,
+            gboolean        initialization)
 {
 	TrackerStoragePrivate *priv;
 	GDrive *drive;
@@ -325,8 +326,10 @@ volume_add (TrackerStorage *storage,
 
 	drive = g_volume_get_drive (volume);
 
-	g_debug ("Drive:'%s' added 1 volume:",
-	         g_drive_get_name (drive));
+	if (!initialization) {
+		g_debug ("Drive:'%s' added 1 volume:",
+		         g_drive_get_name (drive));
+	}
 
 	str = g_volume_get_name (volume);
 	g_debug ("  Volume:'%s' found", str);
@@ -412,7 +415,7 @@ drives_setup (TrackerStorage *storage)
 		         n_volumes == 1 ? "volume" : "volumes");
 
 		for (lv = volumes; lv; lv = lv->next) {
-			volume_add (storage, lv->data);
+			volume_add (storage, lv->data, TRUE);
 		}
 
 		g_list_free (volumes);
@@ -521,7 +524,7 @@ volume_added_cb (GVolumeMonitor *monitor,
                  GVolume        *volume,
                  gpointer        user_data)
 {
-	volume_add (user_data, volume);
+	volume_add (user_data, volume, FALSE);
 }
 
 /**
