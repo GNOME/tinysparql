@@ -29,7 +29,7 @@
 
 typedef struct {
 	GHashTable *allowances;
-	GPtrArray *events;
+	GArray *events;
 } EventsPrivate;
 
 static GStaticPrivate private_key = G_STATIC_PRIVATE_INIT;
@@ -59,39 +59,18 @@ prepare_event_for_rdf_type (EventsPrivate *private,
                             TrackerDBusEventsType type,
                             const gchar *predicate)
 {
-	GValueArray *event;
-	GValue uri_value = { 0 , };
-	GValue rdfclass_value = { 0 , };
-	GValue type_value = { 0 , };
-	GValue predicate_value = { 0 , };
+	TrackerEvent event;
 
 	if (!private->events) {
-		private->events = g_ptr_array_new ();
+		private->events = g_array_new (TRUE, FALSE, sizeof (TrackerEvent));
 	}
 
-	g_value_init (&uri_value, G_TYPE_STRING);
-	g_value_init (&predicate_value, G_TYPE_STRING);
-	g_value_init (&rdfclass_value, G_TYPE_STRING);
-	g_value_init (&type_value, G_TYPE_INT);
+	event.type = type;
+	event.class = tracker_ontologies_get_class_by_uri (rdf_class);
+	event.predicate = tracker_ontologies_get_property_by_uri (predicate);
+	event.subject = g_strdup (uri);
 
-	event = g_value_array_new (4);
-
-	g_value_set_string (&uri_value, uri);
-	g_value_set_string (&predicate_value, predicate);
-	g_value_set_string (&rdfclass_value, rdf_class);
-	g_value_set_int (&type_value, type);
-
-	g_value_array_append (event, &uri_value);
-	g_value_array_append (event, &predicate_value);
-	g_value_array_append (event, &rdfclass_value);
-	g_value_array_append (event, &type_value);
-
-	g_ptr_array_add (private->events, event);
-
-	g_value_unset (&uri_value);
-	g_value_unset (&rdfclass_value);
-	g_value_unset (&type_value);
-	g_value_unset (&predicate_value);
+	g_array_append_val (private->events, event);
 }
 
 void
@@ -136,6 +115,12 @@ tracker_events_insert (const gchar *uri,
 	}
 }
 
+static void
+tracker_event_destroy (TrackerEvent *event)
+{
+	g_free (event->subject);
+}
+
 void
 tracker_events_reset (void)
 {
@@ -147,15 +132,15 @@ tracker_events_reset (void)
 
 	if (private->events) {
 		for (i = 0; i < private->events->len; i++) {
-			g_value_array_free (private->events->pdata[i]);
+			tracker_event_destroy (&g_array_index (private->events, TrackerEvent, i));
 		}
-		g_ptr_array_free (private->events, TRUE);
+		g_array_free (private->events, TRUE);
 
 		private->events = NULL;
 	}
 }
 
-GPtrArray *
+GArray *
 tracker_events_get_pending (void)
 {
 	EventsPrivate *private;

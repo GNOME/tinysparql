@@ -27,6 +27,15 @@
 
 G_BEGIN_DECLS
 
+typedef struct TrackerEvent TrackerEvent;
+
+struct TrackerEvent {
+	TrackerDBusEventsType type;
+	TrackerClass *class;
+	TrackerProperty *predicate;
+	gchar *subject;
+};
+
 typedef GStrv (*TrackerNotifyClassGetter) (void);
 
 void       tracker_events_init        (TrackerNotifyClassGetter  callback);
@@ -36,7 +45,7 @@ void       tracker_events_insert      (const gchar              *uri,
                                        const gchar              *object,
                                        GPtrArray                *rdf_types,
                                        TrackerDBusEventsType     type);
-GPtrArray *tracker_events_get_pending (void);
+GArray    *tracker_events_get_pending (void);
 void       tracker_events_reset       (void);
 
 G_END_DECLS

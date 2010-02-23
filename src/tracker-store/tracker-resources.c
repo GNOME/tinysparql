@@ -450,7 +450,7 @@ static void
 on_statements_committed (gpointer user_data)
 {
 	TrackerResources *resources = user_data;
-	GPtrArray *events;
+	GArray *events;
 	GHashTable *writebacks;
 	TrackerResourcesPrivate *priv;
 
@@ -467,16 +467,14 @@ on_statements_committed (gpointer user_data)
 		event_sources = priv->event_sources;
 
 		for (i = 0; i < events->len; i++) {
-			GValueArray *event = events->pdata[i];
-			const gchar *uri = g_value_get_string (g_value_array_get_nth (event, 0));
-			const gchar *predicate = g_value_get_string (g_value_array_get_nth (event, 1));
-			const gchar *rdf_class = g_value_get_string (g_value_array_get_nth (event, 2));
-			TrackerDBusEventsType type = g_value_get_int (g_value_array_get_nth (event, 3));
+			TrackerEvent *event;
+
+			event = &g_array_index (events, TrackerEvent, i);
 
 			for (l = event_sources; l; l = l->next) {
 				TrackerResourceClass *class_ = l->data;
-				if (g_strcmp0 (rdf_class, tracker_resource_class_get_rdf_class (class_)) == 0) {
-					tracker_resource_class_add_event (class_, uri, predicate, type);
+				if (g_strcmp0 (tracker_class_get_uri (event->class), tracker_resource_class_get_rdf_class (class_)) == 0) {
+					tracker_resource_class_add_event (class_, event->subject, tracker_property_get_uri (event->predicate), event->type);
 					if (!to_emit) {
 						to_emit = g_hash_table_new (NULL, NULL);
 					}
