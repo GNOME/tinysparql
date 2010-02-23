@@ -4,6 +4,7 @@
 <!ENTITY tracker-miner SYSTEM "xml/tracker-miner.xml">
 <!ENTITY tracker-miner-fs SYSTEM "xml/tracker-miner-fs.xml">
 <!ENTITY tracker-miner-manager SYSTEM "xml/tracker-miner-manager.xml">
+<!ENTITY tracker-storage SYSTEM "xml/tracker-storage.xml">
 <!ENTITY version SYSTEM "version.xml">
 ]>
 <book id="index">
@@ -38,5 +39,10 @@
     <chapter>
       <title>Managing miners</title>
       &tracker-miner-manager;
+    </chapter>
+
+    <chapter>
+      <title>Utilities</title>
+      &tracker-storage;
     </chapter>
 </book>

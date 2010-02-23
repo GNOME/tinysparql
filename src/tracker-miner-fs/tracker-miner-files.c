@@ -31,11 +31,11 @@
 #include <libtracker-common/tracker-date-time.h>
 #include <libtracker-common/tracker-ontologies.h>
 #include <libtracker-common/tracker-power.h>
-#include <libtracker-common/tracker-storage.h>
 #include <libtracker-common/tracker-type-utils.h>
 #include <libtracker-common/tracker-utils.h>
 
 #include <libtracker-miner/tracker-miner.h>
+#include <libtracker-miner/tracker-storage.h>
 
 #include "tracker-miner-files.h"
 #include "tracker-config.h"

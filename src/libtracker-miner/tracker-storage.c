@@ -25,12 +25,14 @@
 #include <string.h>
 
 #include <gio/gio.h>
+
 #include <libhal.h>
 #include <libhal-storage.h>
 
 #include <dbus/dbus-glib-lowlevel.h>
 
-#include "tracker-log.h"
+#include <libtracker-common/tracker-log.h>
+
 #include "tracker-storage.h"
 #include "tracker-utils.h"
 #include "tracker-marshal.h"

@@ -108,3 +108,26 @@ tracker_thumbnailer_remove_add
 tracker_thumbnailer_cleanup
 </SECTION>
 
+<SECTION>
+<FILE>tracker-storage</FILE>
+<TITLE>TrackerStorage</TITLE>
+TrackerStorage
+TrackerStorageClass
+tracker_storage_new
+tracker_storage_get_mounted_directory_roots
+tracker_storage_get_removable_device_roots
+tracker_storage_get_removable_device_udis
+tracker_storage_udi_get_mount_point
+tracker_storage_udi_get_is_mounted
+tracker_storage_uri_is_on_removable_device
+tracker_storage_get_volume_udi_for_file
+<SUBSECTION Standard>
+TRACKER_STORAGE
+TRACKER_IS_STORAGE
+TRACKER_TYPE_STORAGE
+tracker_storage_get_type
+TRACKER_STORAGE_CLASS
+TRACKER_IS_STORAGE_CLASS
+TRACKER_STORAGE_GET_CLASS
+</SECTION>
+
