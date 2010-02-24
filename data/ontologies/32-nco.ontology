@@ -225,7 +225,7 @@ nco:contributor a rdf:Property ;
 
 nco:creator a rdf:Property ;
 	rdfs:label "creator" ;
-	rdfs:comment "Creator of a data object, an entity primarily responsible for the creation of the content of the data object.]" ;
+	rdfs:comment "Creator of a data object, an entity primarily responsible for the creation of the content of the data object." ;
 	rdfs:subPropertyOf dc:creator , nco:contributor ;
 	rdfs:domain nie:InformationElement ;
 	rdfs:range nco:Contact ;
@@ -264,6 +264,7 @@ nco:nameFamily a rdf:Property ;
 	rdfs:domain nco:PersonContact ;
 	rdfs:range xsd:string ;
 	tracker:fulltextIndexed true ;
+	tracker:fulltextNoLimit true ;
 	tracker:weight 4 .
 
 nco:contactUID a rdf:Property ;
@@ -286,11 +287,12 @@ nco:publisher a rdf:Property ;
 
 nco:country a rdf:Property ;
 	rdfs:label "country" ;
-	rdfs:comment "A part of an address specyfing the country. Inspired by the seventh part of the value of the 'ADR' property as defined in RFC 2426, sec. 3.2.1" ;
+	rdfs:comment "A part of an address specifying the country. Inspired by the seventh part of the value of the 'ADR' property as defined in RFC 2426, sec. 3.2.1" ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nco:PostalAddress ;
 	rdfs:range xsd:string ;
 	tracker:fulltextIndexed true ;
+	tracker:fulltextNoLimit true ;
 	tracker:weight 3 .
 
 nco:nameHonorificPrefix a rdf:Property ;
@@ -354,6 +356,7 @@ nco:nickname a rdf:Property ;
 	rdfs:domain nco:Contact ;
 	rdfs:range xsd:string ;
 	tracker:fulltextIndexed true ;
+	tracker:fulltextNoLimit true ;
 	tracker:weight 5 .
 
 nco:containsContact a rdf:Property ;
@@ -370,6 +373,7 @@ nco:department a rdf:Property ;
 	rdfs:domain nco:Affiliation ;
 	rdfs:range xsd:string ;
 	tracker:fulltextIndexed true ;
+	tracker:fulltextNoLimit true ;
 	tracker:weight 4 .
 
 nco:imID a rdf:Property ;
@@ -424,6 +428,7 @@ nco:nameGiven a rdf:Property ;
 	rdfs:domain nco:PersonContact ;
 	rdfs:range xsd:string ;
 	tracker:fulltextIndexed true ;
+	tracker:fulltextNoLimit true ;
 	tracker:weight 5 .
 
 nco:nameAdditional a rdf:Property ;
@@ -433,6 +438,7 @@ nco:nameAdditional a rdf:Property ;
 	rdfs:domain nco:PersonContact ;
 	rdfs:range xsd:string ;
 	tracker:fulltextIndexed true ;
+	tracker:fulltextNoLimit true ;
 	tracker:weight 5 .
 
 nco:fullname a rdf:Property ;
@@ -443,6 +449,7 @@ nco:fullname a rdf:Property ;
 	rdfs:domain nco:Contact ;
 	rdfs:range xsd:string ;
 	tracker:fulltextIndexed true ;
+	tracker:fulltextNoLimit true ;
 	tracker:weight 6 .
 
 nco:streetAddress a rdf:Property ;
@@ -528,6 +535,7 @@ nco:title a rdf:Property ;
 	rdfs:domain nco:Affiliation ;
 	rdfs:range xsd:string ;
 	tracker:fulltextIndexed true ;
+	tracker:fulltextNoLimit true ;
 	tracker:weight 10 .
 
 nco:voiceMail a rdf:Property ;
@@ -551,6 +559,7 @@ nco:contactGroupName a rdf:Property ;
 	rdfs:domain nco:ContactGroup ;
 	rdfs:range xsd:string ;
 	tracker:fulltextIndexed true ;
+	tracker:fulltextNoLimit true ;
 	tracker:weight 4 .
 
 nco:contactMediumComment a rdf:Property ;
