@@ -671,6 +671,10 @@ public class Tracker.SparqlQuery : Object {
 			type = translate_expression (sql);
 			// we need variable name in case of compositional subqueries
 			variable = get_variable (get_last_string ().substring (1));
+
+			if (variable.binding == null) {
+				throw get_error ("use of undefined variable `%s'".printf (variable.name));
+			}
 		} else {
 			type = translate_expression (sql);
 		}
@@ -766,6 +770,13 @@ public class Tracker.SparqlQuery : Object {
 		// process select variables
 		var after_where = get_location ();
 		set_location (select_variables_location);
+
+		// report use of undefined variables
+		foreach (var variable in var_map.get_values ()) {
+			if (variable.binding == null) {
+				throw get_error ("use of undefined variable `%s'".printf (variable.name));
+			}
+		}
 
 		bool first = true;
 		if (accept (SparqlTokenType.STAR)) {
@@ -1012,6 +1023,9 @@ public class Tracker.SparqlQuery : Object {
 				first = false;
 			}
 
+			if (variable.binding == null) {
+				throw get_error ("use of undefined variable `%s'".printf (variable.name));
+			}
 			append_expression_as_string (sql, variable.sql_expression, variable.binding.data_type);
 		}
 
@@ -2174,7 +2188,7 @@ public class Tracker.SparqlQuery : Object {
 			next ();
 			result = var_value_map.lookup (get_last_string ().substring (1));
 			if (result == null) {
-				throw get_error ("undefined variable");
+				throw get_error ("use of undefined variable `%s'".printf (get_last_string ().substring (1)));
 			}
 		} else if (current () == SparqlTokenType.IRI_REF) {
 			next ();
