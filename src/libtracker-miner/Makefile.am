@@ -27,6 +27,8 @@ libtracker_minerincludedir=$(includedir)/tracker-$(TRACKER_API_VERSION)/libtrack
 libtracker_miner_@TRACKER_API_VERSION@_la_SOURCES = 	\
 	tracker-crawler.c				\
 	tracker-crawler.h				\
+	tracker-dbus.c					\
+	tracker-dbus.h					\
 	tracker-marshal.c				\
 	tracker-marshal.h				\
 	tracker-miner.c					\
