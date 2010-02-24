@@ -27,14 +27,6 @@ else
 os_sources = tracker-os-dependant-unix.c
 endif
 
-# For storage, we need HAL, tracker isn't yet ported to DeviceKit-disks
-if HAVE_HAL
-storage_headers =					\
-	tracker-storage.h
-storage_sources =					\
-	tracker-storage-hal.c
-endif
-
 # Prefer DeviceKit-power for the power data if it's available, else fall back to HAL
 if HAVE_DEVKIT_POWER
 power_headers =						\
@@ -57,7 +49,6 @@ libtracker_common_la_SOURCES =	 			\
 	$(marshal_sources)				\
 	$(os_sources)					\
 	$(power_sources)				\
-	$(storage_sources)				\
 	tracker-config-file.c				\
 	tracker-class.c					\
 	tracker-date-time.c				\
@@ -79,7 +70,6 @@ libtracker_common_la_SOURCES =	 			\
 
 noinst_HEADERS =					\
 	$(power_headers)				\
-	$(storage_headers)				\
 	tracker-dbus.h					\
 	tracker-ioprio.h				\
 	tracker-log.h					\

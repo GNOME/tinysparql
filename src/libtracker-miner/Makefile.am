@@ -40,6 +40,8 @@ libtracker_miner_@TRACKER_API_VERSION@_la_SOURCES = 	\
 	tracker-miner-manager.h				\
 	tracker-monitor.c				\
 	tracker-monitor.h				\
+	tracker-storage.c				\
+	tracker-storage.h				\
 	tracker-utils.c					\
 	tracker-utils.h					\
 	tracker-thumbnailer.c
@@ -50,10 +52,11 @@ libtracker_minerinclude_HEADERS = 			\
 	tracker-miner-dbus.h 				\
 	tracker-miner-fs.h				\
 	tracker-miner-manager.h				\
+	tracker-storage.h				\
 	tracker-thumbnailer.h
 
 libtracker_miner_@TRACKER_API_VERSION@_la_LDFLAGS = 	\
-	-version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE) \
+	-version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE) \m
 	-export-symbols-regex '^tracker_(miner|thumbnailer|crawler)_.*'
 
 libtracker_miner_@TRACKER_API_VERSION@_la_LIBADD = 	\

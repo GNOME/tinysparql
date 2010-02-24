@@ -15,7 +15,6 @@
 <!ENTITY tracker-os-dependant SYSTEM "xml/tracker-os-dependant.xml">
 <!ENTITY tracker-power SYSTEM "xml/tracker-power.xml">
 <!ENTITY tracker-property SYSTEM "xml/tracker-property.xml">
-<!ENTITY tracker-storage SYSTEM "xml/tracker-storage.xml">
 <!ENTITY tracker-type-utils SYSTEM "xml/tracker-type-utils.xml">
 <!ENTITY tracker-utils SYSTEM "xml/tracker-utils.xml">
 <!ENTITY version SYSTEM "version.xml">
@@ -52,7 +51,6 @@
       &tracker-config-file;
       &tracker-language;
       &tracker-power;
-      &tracker-storage;
     </chapter>
 
     <chapter>

@@ -33,7 +33,7 @@
 
 #include <dbus/dbus-glib-bindings.h>
 
-#include <libtracker-common/tracker-storage.h>
+#include <libtracker-miner/tracker-storage.h>
 
 #include "tracker-albumart.h"
 #include "tracker-dbus.h"
@@ -46,7 +46,7 @@
 #define ALBUMARTER_INTERFACE  "com.nokia.albumart.Requester"
 
 typedef struct {
-	TrackerStorage *hal;
+	TrackerStorage *storage;
 	gchar *art_path;
 	gchar *local_uri;
 } GetFileInfo;
@@ -548,7 +548,7 @@ albumart_set (const unsigned char *buffer,
 }
 
 static void
-albumart_request_download (TrackerStorage *hal,
+albumart_request_download (TrackerStorage *storage,
                            const gchar    *album,
                            const gchar    *artist,
                            const gchar    *local_uri,
@@ -562,11 +562,7 @@ albumart_request_download (TrackerStorage *hal,
 
 	info = g_slice_new (GetFileInfo);
 
-#ifdef HAVE_HAL
-	info->hal = hal ? g_object_ref (hal) : NULL;
-#else
-	info->hal = NULL;
-#endif
+	info->storage = storage ? g_object_ref (storage) : NULL;
 
 	info->local_uri = g_strdup (local_uri);
 	info->art_path = g_strdup (art_path);
@@ -600,7 +596,7 @@ albumart_request_download (TrackerStorage *hal,
 }
 
 static void
-albumart_copy_to_local (TrackerStorage *hal,
+albumart_copy_to_local (TrackerStorage *storage,
                         const gchar    *filename,
                         const gchar    *local_uri)
 {
@@ -609,8 +605,7 @@ albumart_copy_to_local (TrackerStorage *hal,
 	guint flen;
 
 	/* Determining if we are on a removable device */
-#ifdef HAVE_HAL
-	if (!hal) {
+	if (!storage) {
 		/* This is usually because we are running on the
 		 * command line, so we don't error here with
 		 * g_return_if_fail().
@@ -618,11 +613,7 @@ albumart_copy_to_local (TrackerStorage *hal,
 		return;
 	}
 
-	removable_roots = tracker_storage_get_removable_device_roots (hal);
-#else
-	removable_roots = g_slist_append (removable_roots, "/media");
-	removable_roots = g_slist_append (removable_roots, "/mnt");
-#endif
+	removable_roots = tracker_storage_get_removable_device_roots (storage);
 
 	flen = strlen (filename);
 
@@ -637,10 +628,7 @@ albumart_copy_to_local (TrackerStorage *hal,
 		}
 	}
 
-#ifdef HAVE_HAL
 	g_slist_foreach (removable_roots, (GFunc) g_free, NULL);
-#endif
-
 	g_slist_free (removable_roots);
 
 	if (on_removable_device) {
@@ -697,10 +685,10 @@ albumart_queue_cb (DBusGProxy     *proxy,
 		g_clear_error (&error);
 	}
 
-	if (info->hal && info->art_path &&
+	if (info->storage && info->art_path &&
 	    g_file_test (info->art_path, G_FILE_TEST_EXISTS)) {
 
-		albumart_copy_to_local (info->hal,
+		albumart_copy_to_local (info->storage,
 		                        info->art_path,
 		                        info->local_uri);
 	}
@@ -708,8 +696,8 @@ albumart_queue_cb (DBusGProxy     *proxy,
 	g_free (info->art_path);
 	g_free (info->local_uri);
 
-	if (info->hal) {
-		g_object_unref (info->hal);
+	if (info->storage) {
+		g_object_unref (info->storage);
 	}
 
 	g_slice_free (GetFileInfo, info);
@@ -723,11 +711,7 @@ tracker_albumart_init (void)
 
 	g_return_val_if_fail (initialized == FALSE, FALSE);
 
-#ifdef HAVE_HAL
 	albumart_storage = tracker_storage_new ();
-#else  /* HAVE_HAL */
-	albumart_storage = NULL;
-#endif /* HAVE_HAL */
 
 	/* Cache to know if we have already handled uris */
 	albumart_cache = g_hash_table_new_full (g_str_hash,
@@ -769,11 +753,9 @@ tracker_albumart_shutdown (void)
 		g_hash_table_unref (albumart_cache);
 	}
 
-#ifdef HAVE_HAL
 	if (albumart_storage) {
 		g_object_unref (albumart_storage);
 	}
-#endif /* HAVE_HAL */
 
 	initialized = FALSE;
 }

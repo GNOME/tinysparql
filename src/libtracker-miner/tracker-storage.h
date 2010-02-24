@@ -17,17 +17,13 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __LIBTRACKER_COMMON_STORAGE_H__
-#define __LIBTRACKER_COMMON_STORAGE_H__
+#ifndef __LIBTRACKER_MINER_STORAGE_H__
+#define __LIBTRACKER_MINER_STORAGE_H__
 
 #include <glib-object.h>
 #include <gio/gio.h>
 
 G_BEGIN_DECLS
-
-#if !defined (__LIBTRACKER_COMMON_INSIDE__) && !defined (TRACKER_COMPILATION)
-#error "only <libtracker-common/tracker-common.h> must be included directly."
-#endif
 
 #define TRACKER_TYPE_STORAGE         (tracker_storage_get_type ())
 #define TRACKER_STORAGE(o)           (G_TYPE_CHECK_INSTANCE_CAST ((o), TRACKER_TYPE_STORAGE, TrackerStorage))
@@ -47,26 +43,15 @@ struct _TrackerStorageClass {
 	GObjectClass parent_class;
 };
 
-#ifdef HAVE_HAL
-
-GType           tracker_storage_get_type                    (void) G_GNUC_CONST;
-TrackerStorage *tracker_storage_new                         (void);
-GSList *        tracker_storage_get_mounted_directory_roots (TrackerStorage  *storage);
-GSList *        tracker_storage_get_removable_device_roots  (TrackerStorage  *storage);
-GSList *        tracker_storage_get_removable_device_udis   (TrackerStorage  *storage);
-const gchar *   tracker_storage_udi_get_mount_point         (TrackerStorage  *storage,
-                                                             const gchar     *udi);
-gboolean        tracker_storage_udi_get_is_mounted          (TrackerStorage  *storage,
-                                                             const gchar     *udi);
-gboolean        tracker_storage_uri_is_on_removable_device  (TrackerStorage  *storage,
-                                                             const gchar     *uri,
-                                                             gchar          **mount_point,
-                                                             gboolean        *available);
-const gchar*    tracker_storage_get_volume_udi_for_file     (TrackerStorage  *storage,
-                                                             GFile           *file);
-
-#endif /* HAVE_HAL */
+GType           tracker_storage_get_type                   (void) G_GNUC_CONST;
+TrackerStorage *tracker_storage_new                        (void);
+GSList *        tracker_storage_get_removable_device_roots (TrackerStorage *storage);
+GSList *        tracker_storage_get_removable_device_uuids (TrackerStorage *storage);
+const gchar *   tracker_storage_get_mount_point_for_uuid   (TrackerStorage *storage,
+                                                            const gchar    *uuid);
+const gchar*    tracker_storage_get_uuid_for_file          (TrackerStorage *storage,
+                                                            GFile          *file);
 
 G_END_DECLS
 
-#endif /* __LIBTRACKER_COMMON_STORAGE_H__ */
+#endif /* __LIBTRACKER_MINER_STORAGE_H__ */
