@@ -134,13 +134,13 @@ tracker_storage_init (TrackerStorage *storage)
 	priv->volume_monitor = g_volume_monitor_get ();
 
 	/* Volume and property notification callbacks */
-	g_signal_connect_object (priv->volume_monitor, "mount_removed",
+	g_signal_connect_object (priv->volume_monitor, "mount-removed",
 	                         G_CALLBACK (mount_removed_cb), storage, 0);
-	g_signal_connect_object (priv->volume_monitor, "mount_pre_unmount",
+	g_signal_connect_object (priv->volume_monitor, "mount-pre_unmount",
 	                         G_CALLBACK (mount_removed_cb), storage, 0);
-	g_signal_connect_object (priv->volume_monitor, "mount_added",
+	g_signal_connect_object (priv->volume_monitor, "mount-added",
 	                         G_CALLBACK (mount_added_cb), storage, 0);
-	g_signal_connect_object (priv->volume_monitor, "volume_added",
+	g_signal_connect_object (priv->volume_monitor, "volume-added",
 	                         G_CALLBACK (volume_added_cb), storage, 0);
 
 	g_message ("Drive/Volume monitors set up for to watch for added, removed and pre-unmounts...");
@@ -402,7 +402,6 @@ drives_setup (TrackerStorage *storage)
 	for (ld = drives; ld; ld = ld->next) {
 		GDrive *drive;
 		GList *volumes, *lv;
-		guint n_volumes;
 
 		drive = ld->data;
 
@@ -411,12 +410,11 @@ drives_setup (TrackerStorage *storage)
 		}
 		
 		volumes = g_drive_get_volumes (drive);
-		n_volumes = g_list_length (volumes);
 
 		g_debug ("Drive:'%s' found with %d %s:",
 		         g_drive_get_name (drive),
-		         n_volumes,
-		         n_volumes == 1 ? "volume" : "volumes");
+		         g_list_length (volumes),
+		         g_list_length (volumes) == 1 ? "volume" : "volumes");
 
 		for (lv = volumes; lv; lv = lv->next) {
 			volume_add (storage, lv->data, TRUE);
