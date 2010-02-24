@@ -414,7 +414,7 @@ drives_setup (TrackerStorage *storage)
 		g_debug ("Drive:'%s' found with %d %s:",
 		         g_drive_get_name (drive),
 		         g_list_length (volumes),
-		         g_list_length (volumes) == 1 ? "volume" : "volumes");
+		         (volumes && !volumes->next) ? "volume" : "volumes");
 
 		for (lv = volumes; lv; lv = lv->next) {
 			volume_add (storage, lv->data, TRUE);
