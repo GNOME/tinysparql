@@ -312,6 +312,7 @@ miner_files_constructed (GObject *object)
 	TrackerMinerFS *fs;
 	GSList *dirs;
 	GSList *mounts = NULL, *m;
+	gboolean index_removable_devices;
 
 	G_OBJECT_CLASS (tracker_miner_files_parent_class)->constructed (object);
 
@@ -323,7 +324,9 @@ miner_files_constructed (GObject *object)
 		g_assert_not_reached ();
 	}
 
-	if (tracker_config_get_index_removable_devices (mf->private->config)) {
+	index_removable_devices = tracker_config_get_index_removable_devices (mf->private->config);
+
+	if (index_removable_devices) {
 		mounts = tracker_storage_get_removable_device_roots (mf->private->storage);
 	}
 
@@ -430,6 +433,9 @@ miner_files_constructed (GObject *object)
 
 	/* Add removable media */
 	g_message ("Setting up directories to iterate which are removable devices");
+	if (!index_removable_devices) {
+		g_message ("  Disabled in the config");
+	}
 
 	for (m = mounts; m; m = m->next) {
 		GFile *file = g_file_new_for_path (m->data);
@@ -496,7 +502,9 @@ set_up_mount_point (TrackerMinerFiles *miner,
 {
 	GString *queries;
 
-	g_debug ("Setting up mount point '%s'", removable_device_urn);
+	g_debug ("Setting mount point '%s' state in database (URN '%s')", 
+	         mount_point,
+	         removable_device_urn);
 
 	queries = g_string_new (NULL);
 
@@ -755,8 +763,12 @@ mount_point_added_cb (TrackerStorage *storage,
 
 	index_removable_devices = tracker_config_get_index_removable_devices (priv->config);
 
+	g_message ("Added mount point '%s'", mount_point);
+
 	if (index_removable_devices) {
 		GFile *file;
+
+		g_message ("  Adding directory to crawler's queue");
 
 		file = g_file_new_for_path (mount_point);
 		g_object_set_qdata_full (G_OBJECT (file),
@@ -772,12 +784,11 @@ mount_point_added_cb (TrackerStorage *storage,
 		                                file,
 		                                TRUE);
 		g_object_unref (file);
+	} else {
+		g_message ("  Not crawling, removable devices disabled in config");
 	}
 
-	g_debug ("Configuring added mount point '%s'", mount_point);
-
 	urn = g_strdup_printf (TRACKER_DATASOURCE_URN_PREFIX "%s", uuid);
-
 	set_up_mount_point (miner, urn, mount_point, TRUE, NULL);
 	g_free (urn);
 }
