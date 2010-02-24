@@ -120,14 +120,3 @@ TRACKER_IS_SPARQL_BUILDER_CLASS
 TRACKER_SPARQL_BUILDER_GET_CLASS
 </SECTION>
 
-<SECTION>
-<FILE>tracker-statement-list</FILE>
-SHOULD_VALIDATE_UTF8
-tracker_statement_list_insert
-tracker_statement_list_insert_with_double
-tracker_statement_list_insert_with_float
-tracker_statement_list_insert_with_int
-tracker_statement_list_insert_with_int64
-tracker_statement_list_insert_with_uint
-</SECTION>
-

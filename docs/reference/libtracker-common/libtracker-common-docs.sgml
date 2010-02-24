@@ -4,6 +4,7 @@
 <!ENTITY tracker-class SYSTEM "xml/tracker-class.xml">
 <!ENTITY tracker-config-file SYSTEM "xml/tracker-config-file.xml">
 <!ENTITY tracker-crc SYSTEM "xml/tracker-crc.xml">
+<!ENTITY tracker-date-time-utils SYSTEM "xml/tracker-date-time-utils.xml">
 <!ENTITY tracker-dbus SYSTEM "xml/tracker-dbus.xml">
 <!ENTITY tracker-file-utils SYSTEM "xml/tracker-file-utils.xml">
 <!ENTITY tracker-ioprio SYSTEM "xml/tracker-ioprio.xml">
@@ -12,6 +13,7 @@
 <!ENTITY tracker-log SYSTEM "xml/tracker-log.xml">
 <!ENTITY tracker-namespace SYSTEM "xml/tracker-namespace.xml">
 <!ENTITY tracker-ontology SYSTEM "xml/tracker-ontology.xml">
+<!ENTITY tracker-ontologies SYSTEM "xml/tracker-ontologies.xml">
 <!ENTITY tracker-os-dependant SYSTEM "xml/tracker-os-dependant.xml">
 <!ENTITY tracker-power SYSTEM "xml/tracker-power.xml">
 <!ENTITY tracker-property SYSTEM "xml/tracker-property.xml">
@@ -44,6 +46,7 @@
       &tracker-property;
       &tracker-ontology;
       &tracker-namespace;
+      &tracker-ontologies;
     </chapter>
 
     <chapter>
@@ -63,6 +66,7 @@
       <title>Utilities</title>
       &tracker-crc;
       &tracker-type-utils;
+      &tracker-date-time-utils;
       &tracker-file-utils;
       &tracker-utils;
       &tracker-keyfile-object;

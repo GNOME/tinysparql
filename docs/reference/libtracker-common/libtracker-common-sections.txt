@@ -21,11 +21,13 @@ TrackerClass
 TrackerClassClass
 tracker_class_new
 tracker_class_get_id
+tracker_class_get_is_new
 tracker_class_get_uri
 tracker_class_get_name
 tracker_class_get_count
 tracker_class_get_super_classes
 tracker_class_set_id
+tracker_class_set_is_new
 tracker_class_set_uri
 tracker_class_set_count
 tracker_class_set_super_classes
@@ -67,8 +69,10 @@ TrackerNamespaceClass
 tracker_namespace_new
 tracker_namespace_get_uri
 tracker_namespace_get_prefix
+tracker_namespace_get_is_new
 tracker_namespace_set_uri
 tracker_namespace_set_prefix
+tracker_namespace_set_is_new
 <SUBSECTION Standard>
 TRACKER_NAMESPACE
 TRACKER_IS_NAMESPACE
@@ -148,6 +152,7 @@ tracker_property_get_type
 tracker_property_new
 tracker_property_get_id
 tracker_property_get_is_inverse_functional_property
+tracker_property_get_is_new
 tracker_property_get_uri
 tracker_property_get_name
 tracker_property_get_data_type
@@ -163,6 +168,7 @@ tracker_property_get_transient
 tracker_property_get_super_properties
 tracker_property_set_id
 tracker_property_set_is_inverse_functional_property
+tracker_property_set_is_new
 tracker_property_set_uri
 tracker_property_set_data_type
 tracker_property_set_domain
@@ -218,6 +224,26 @@ tracker_env_check_xdg_dirs
 
 <SECTION>
 <FILE>tracker-ontology</FILE>
+TRACKER_IS_ONTOLOGY
+TRACKER_IS_ONTOLOGY_CLASS
+TRACKER_ONTOLOGY
+TRACKER_ONTOLOGY_CLASS
+TRACKER_ONTOLOGY_GET_CLASS
+TRACKER_TYPE_ONTOLOGY
+TrackerOntology
+TrackerOntologyClass
+tracker_ontology_get_is_new
+tracker_ontology_get_last_modified
+tracker_ontology_get_type
+tracker_ontology_get_uri
+tracker_ontology_new
+tracker_ontology_set_is_new
+tracker_ontology_set_last_modified
+tracker_ontology_set_uri
+</SECTION>
+
+<SECTION>
+<FILE>tracker-ontologies</FILE>
 TRACKER_RDF_PREFIX
 TRACKER_RDFS_PREFIX
 TRACKER_XSD_PREFIX
@@ -235,19 +261,22 @@ TRACKER_NMM_PREFIX
 TRACKER_MLO_PREFIX
 TRACKER_DATASOURCE_URN_PREFIX
 TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN
-tracker_ontology_init
-tracker_ontology_shutdown
-tracker_ontology_add_namespace
-tracker_ontology_add_class
-tracker_ontology_add_property
-tracker_ontology_add_id_uri_pair
-tracker_ontology_get_namespaces
-tracker_ontology_get_namespace_by_uri
-tracker_ontology_get_classes
-tracker_ontology_get_class_by_uri
-tracker_ontology_get_properties
-tracker_ontology_get_property_by_uri
-tracker_ontology_get_uri_by_id
+tracker_ontologies_init
+tracker_ontologies_shutdown
+tracker_ontologies_add_namespace
+tracker_ontologies_add_class
+tracker_ontologies_add_ontology
+tracker_ontologies_add_property
+tracker_ontologies_add_id_uri_pair
+tracker_ontologies_get_namespaces
+tracker_ontologies_get_namespace_by_uri
+tracker_ontologies_get_classes
+tracker_ontologies_get_class_by_uri
+tracker_ontologies_get_ontologies
+tracker_ontologies_get_ontology_by_uri
+tracker_ontologies_get_properties
+tracker_ontologies_get_property_by_uri
+tracker_ontologies_get_uri_by_id
 </SECTION>
 
 <SECTION>
@@ -305,9 +334,6 @@ tracker_info
 
 <SECTION>
 <FILE>tracker-type-utils</FILE>
-tracker_date_format
-tracker_date_format_to_iso8601
-tracker_date_to_time_string
 tracker_string_to_date
 tracker_date_to_string
 tracker_glong_to_string
@@ -329,7 +355,18 @@ tracker_string_boolean_to_string_gint
 </SECTION>
 
 <SECTION>
-<FILE>tracker-common</FILE>
+<FILE>tracker-date-time-utils</FILE>
+TRACKER_DATE_ERROR
+TRACKER_TYPE_DATE_TIME
+TrackerDateError
+tracker_date_error_quark
+tracker_date_time_get_local_date
+tracker_date_time_get_local_time
+tracker_date_time_get_offset
+tracker_date_time_get_time
+tracker_date_time_get_type
+tracker_date_time_set
+tracker_date_time_set_from_string
 </SECTION>
 
 <SECTION>
@@ -358,13 +395,9 @@ tracker_seconds_estimate_to_string
 tracker_seconds_to_string
 tracker_uri_vprintf_escaped
 tracker_uri_printf_escaped
-tracker_coalesce
-tracker_merge
-tracker_text_normalize
 </SECTION>
 
 <SECTION>
 <FILE>tracker-crc</FILE>
-<TITLE>CRC</TITLE>
 tracker_crc32
 </SECTION>

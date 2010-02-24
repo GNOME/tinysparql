@@ -67,6 +67,8 @@ TrackerMinerFSPrivate
 <TITLE>TrackerMinerFS</TITLE>
 TrackerMinerFS
 TrackerMinerFSClass
+tracker_miner_fs_get_parent_urn
+tracker_miner_fs_get_urn
 tracker_miner_fs_directory_add
 tracker_miner_fs_directory_remove
 tracker_miner_fs_file_add
@@ -88,6 +90,9 @@ TRACKER_MINER_FS_GET_CLASS
 TRACKER_MINER_DBUS_INTERFACE
 TRACKER_MINER_DBUS_NAME_PREFIX
 TRACKER_MINER_DBUS_PATH_PREFIX
+tracker_miner_dbus_init
+TrackerMinerDBusNameFunc
+tracker_miner_dbus_add_name_watch
 tracker_miner_dbus_get_name
 tracker_miner_dbus_get_description
 tracker_miner_dbus_get_status
