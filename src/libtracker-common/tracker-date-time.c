@@ -58,7 +58,7 @@ tracker_string_to_date (const gchar *date_string,
 
 	if (!regex) {
 		GError *e = NULL;
-		regex = g_regex_new ("^(-?[0-9][0-9][0-9][0-9])-([0-9][0-9])-([0-9][0-9])T([0-9][0-9]):([0-9][0-9]):([0-9][0-9])(\\.[0-9]+)?(Z|((\\+|-)[0-9][0-9]):?([0-9][0-9]))?$", 0, 0, &e);
+		regex = g_regex_new ("^(-?[0-9][0-9][0-9][0-9])-([0-9][0-9])-([0-9][0-9])T([0-9][0-9]):([0-9][0-9]):([0-9][0-9])(\\.[0-9]+)?(Z|(\\+|-)([0-9][0-9]):?([0-9][0-9]))?$", 0, 0, &e);
 		if (e) {
 			g_error ("%s", e->message);
 		}
@@ -119,12 +119,23 @@ tracker_string_to_date (const gchar *date_string,
 		match = g_match_info_fetch (match_info, 9);
 		if (match) {
 			/* non-UTC timezone */
-			offset = atoi (match) * 3600;
+
+			gboolean positive_offset;
+
+			positive_offset = (match[0] == '+');
 			g_free (match);
 
 			match = g_match_info_fetch (match_info, 10);
+			offset = atoi (match) * 3600;
+			g_free (match);
+
+			match = g_match_info_fetch (match_info, 11);
 			offset += atoi (match) * 60;
 			g_free (match);
+
+			if (!positive_offset) {
+				offset = -offset;
+			}
 
 			if (offset < -14 * 3600 || offset > 14 * 3600) {
 				g_set_error (error, TRACKER_DATE_ERROR, TRACKER_DATE_ERROR_OFFSET,
