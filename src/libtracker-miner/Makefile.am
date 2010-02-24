@@ -56,7 +56,7 @@ libtracker_minerinclude_HEADERS = 			\
 	tracker-thumbnailer.h
 
 libtracker_miner_@TRACKER_API_VERSION@_la_LDFLAGS = 	\
-	-version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE) \m
+	-version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE) \
 	-export-symbols-regex '^tracker_(miner|thumbnailer|crawler)_.*'
 
 libtracker_miner_@TRACKER_API_VERSION@_la_LIBADD = 	\
