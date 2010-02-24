@@ -309,8 +309,6 @@ public class Tracker.SparqlQuery : Object {
 	public SparqlQuery (string query) {
 		tokens = new TokenInfo[BUFFER_SIZE];
 		prefix_map = new HashTable<string,string>.full (str_hash, str_equal, g_free, g_free);
-		subgraph_var_set = new HashTable<Variable,int>.full (direct_hash, direct_equal, g_object_unref, null);
-		select_var_set = new HashTable<Variable,int>.full (direct_hash, direct_equal, g_object_unref, null);
 
 		base_uuid = new uchar[16];
 		uuid_generate (base_uuid);
@@ -721,6 +719,9 @@ public class Tracker.SparqlQuery : Object {
 	}
 
 	void begin_query () {
+		subgraph_var_set = new HashTable<Variable,int>.full (direct_hash, direct_equal, g_object_unref, null);
+		select_var_set = new HashTable<Variable,int>.full (direct_hash, direct_equal, g_object_unref, null);
+
 		var_map = new HashTable<string,Variable>.full (str_hash, str_equal, g_free, g_object_unref);
 		predicate_variable_map = new HashTable<Variable,PredicateVariable>.full (direct_hash, direct_equal, g_object_unref, g_object_unref);
 		used_sql_identifiers = new HashTable<string,bool>.full (str_hash, str_equal, g_free, null);
