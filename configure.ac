@@ -385,6 +385,19 @@ fi
 
 AM_CONDITIONAL(HAVE_UNIT_TESTS, test "x$have_unit_tests" = "xyes")
 
+
+
+####################################################################
+# Should we install Maemo specific ontologies
+####################################################################
+
+AC_ARG_ENABLE(maemo,
+	      AS_HELP_STRING([--enable-maemo],
+			     [enable maemo ontology [[default=no]]]), ,
+	      [enable_maemo=no])
+
+AM_CONDITIONAL(HAVE_MAEMO, test "x$enable_maemo" = "xyes")
+
 ####################################################################
 # Use tagreadbin in gstreamer extraction?
 ####################################################################

@@ -20,8 +20,11 @@ config_DATA =			\
 	40-mlo.ontology		\
 	41-mfo.ontology		\
 	89-mtp.ontology		\
-	90-tracker.ontology	\
-	91-maemo.ontology	
+	90-tracker.ontology
+
+if HAVE_MAEMO
+config_DATA += 91-maemo.ontology	
+endif
 
 EXTRA_DIST = $(config_DATA)
 
