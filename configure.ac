@@ -735,8 +735,8 @@ AC_SUBST(SQLITE3_LIBS)
 
 AC_ARG_ENABLE(unac,
 	      AS_HELP_STRING([--enable-unac],
-			     [enable UNAC support, required for stripping accents [[default=auto]]]),,
-	      [enable_unac=auto])
+			     [enable UNAC support, required for stripping accents [[default=no]]]),,
+	      [enable_unac=no])
 
 if test "x$enable_unac" != "xno"; then
    PKG_CHECK_MODULES(UNAC,
