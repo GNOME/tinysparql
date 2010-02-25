@@ -15,6 +15,8 @@ config_DATA =			\
 	writeback-tc.py 	\
 	04-group-concat.py	\
 	05-coalesce.py		\
+	06-distance.py		\
+	07-graph.py		\
 	virtual-files-tc.py
 
 EXTRA_DIST = $(config_DATA)
