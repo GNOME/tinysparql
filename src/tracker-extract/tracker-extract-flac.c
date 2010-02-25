@@ -245,6 +245,8 @@ extract_flac (const gchar          *uri,
 		tracker_sparql_builder_predicate (preupdate, "nmm:albumTitle");
 		tracker_sparql_builder_object_unvalidated (preupdate, fd.album);
 
+		tracker_sparql_builder_insert_close (preupdate);
+
 		if (fd.trackcount) {
 			tracker_sparql_builder_delete_open (preupdate, NULL);
 			tracker_sparql_builder_subject_iri (preupdate, album_uri);
@@ -310,8 +312,6 @@ extract_flac (const gchar          *uri,
 
 			tracker_sparql_builder_insert_close (preupdate);
 		}
-
-		tracker_sparql_builder_insert_close (preupdate);
 	}
 
 	tracker_sparql_builder_predicate (metadata, "a");
