@@ -254,6 +254,16 @@ tracker_miner_dbus_init (TrackerMiner          *miner,
 }
 
 void
+tracker_miner_dbus_terminate (TrackerMiner *miner)
+{
+	if (G_UNLIKELY (dbus_data == 0)) {
+		return;
+	}
+
+	g_object_set_qdata (G_OBJECT (miner), dbus_data, NULL);
+}
+
+void
 tracker_miner_dbus_add_name_watch (TrackerMiner             *miner,
                                    const gchar              *name,
                                    TrackerMinerDBusNameFunc  func)

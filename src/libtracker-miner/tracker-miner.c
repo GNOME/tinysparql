@@ -418,6 +418,8 @@ miner_finalize (GObject *object)
 	g_hash_table_unref (miner->private->pauses);
 	g_ptr_array_free (miner->private->async_calls, TRUE);
 
+	tracker_miner_dbus_terminate (miner);
+
 	G_OBJECT_CLASS (tracker_miner_parent_class)->finalize (object);
 }
 
