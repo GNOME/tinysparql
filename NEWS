@@ -17,6 +17,7 @@ Improvements / New:
   * Added nco:default-contact-emergency
   * Added nfo:tableOfContents
   * Added tracker:fulltextNoLimit
+  * Removed nrl:maxCardinality from nmm:director and nmm:leadActor
 
   SPARQL:
   * Fixed variable separation between multiple updates in a query
@@ -67,7 +68,6 @@ Improvements / New:
 
 Bugs:
 
-  * GB#609004, 
   * GB#610609, libtracker-client: Don't include a file between G_{BEGIN,END}_DECLS
   * GB#609075, Adding support for pdf extractor to extract the index data from the pdf files
   * GB#609004, Timeout on 1 file during extraction causes 10 to fail
