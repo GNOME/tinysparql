@@ -546,7 +546,7 @@ nfo:sampleCount a rdf:Property ;
 nfo:tableOfContents a rdf:Property ;
         rdfs:label "Table of contents";
         rdfs:comment "Section titles and figure descriptions of the document.";
-        nro:maxCardinality 1 ;
+        nrl:maxCardinality 1 ;
         rdfs:domain nfo:Document ;
         rdfs:range xsd:string ;
        	tracker:fulltextIndexed true ;
