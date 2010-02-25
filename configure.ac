@@ -411,7 +411,7 @@ AC_ARG_ENABLE(hal,
 
 if test "x$enable_hal" != "xno"; then
    PKG_CHECK_MODULES(HAL,
-                     [hal >= $HAL_REQUIRED hal-storage],
+                     [hal >= $HAL_REQUIRED],
 		     [have_hal=yes] ,
 		     [have_hal=no])
    AC_SUBST(HAL_CFLAGS)
@@ -426,7 +426,7 @@ fi
 
 if test "x$enable_hal" = "xyes"; then
    if test "x$have_hal" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find hal >= $HAL_REQUIRED and hal-storage.])
+      AC_MSG_ERROR([Couldn't find hal >= $HAL_REQUIRED.])
    fi
 fi
 
