@@ -265,7 +265,6 @@ nmm:genre a rdf:Property ;
 
 nmm:director a rdf:Property ;
 	rdfs:label "Director" ;
-	nrl:maxCardinality 1 ;
 	rdfs:domain nmm:Video ;
 	rdfs:range nmm:Artist ;
 	tracker:weight 4 .
@@ -279,7 +278,6 @@ nmm:producedBy a rdf:Property ;
 
 nmm:leadActor a rdf:Property ;
 	rdfs:label "Lead actor" ;
-	nrl:maxCardinality 1 ;
 	rdfs:domain nmm:Video ;
 	rdfs:range nmm:Artist ;
 	tracker:weight 4 .
