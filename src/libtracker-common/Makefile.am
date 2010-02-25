@@ -18,7 +18,6 @@ INCLUDES =						\
 	$(UNAC_CFLAGS)
 
 libtracker_commondir = $(libdir)/tracker-$(TRACKER_API_VERSION)
-libtracker_commonincludedir=$(includedir)/tracker-$(TRACKER_API_VERSION)/libtracker-common/
 libtracker_common_LTLIBRARIES = libtracker-common.la
 
 if OS_WIN32
@@ -73,9 +72,7 @@ noinst_HEADERS =					\
 	tracker-dbus.h					\
 	tracker-ioprio.h				\
 	tracker-log.h					\
-	tracker-os-dependant.h
-
-libtracker_commoninclude_HEADERS =			\
+	tracker-os-dependant.h				\
 	tracker-class.h					\
 	tracker-config-file.h				\
 	tracker-common.h				\
