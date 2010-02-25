@@ -1294,8 +1294,8 @@ AM_CONDITIONAL(HAVE_LIBVORBIS, test "x$have_libvorbis" = "xyes")
 
 AC_ARG_ENABLE(libflac,
 	      AS_HELP_STRING([--enable-libflac],
-			     [enable extractor for flac data [[default=auto]]]),,
-	      [enable_libflac=auto])
+			     [enable extractor for flac data [[default=no]]]),,
+	      [enable_libflac=no])
 
 if test "x$enable_libflac" != "xno" ; then
    PKG_CHECK_MODULES(LIBFLAC,
