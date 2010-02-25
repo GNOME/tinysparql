@@ -221,7 +221,7 @@ extract_mplayer (const gchar          *uri,
 								equal_char_pos = strchr (next_line, '=');
 
 								if (g_strcmp0 (info_tags[i][0], "Year") == 0)
-									date = tracker_extract_guess_date (equal_char_pos + 1);
+									data = tracker_extract_guess_date (equal_char_pos + 1);
 								else
 									data = g_strdup (equal_char_pos + 1);
 
