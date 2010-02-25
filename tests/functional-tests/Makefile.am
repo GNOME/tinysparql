@@ -12,6 +12,7 @@ config_DATA =			\
 	03-fts-functions.py	\
 	configuration.py	\
 	metadata_extraction_tc.py \
+	writeback-tc.py 	\
 	04-group-concat.py	\
 	05-coalesce.py
 
