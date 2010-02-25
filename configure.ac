@@ -951,7 +951,7 @@ fi
 
 if test "x$enable_tracker_search_bar" = "xyes"; then
    if test "x$have_tracker_search_bar" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find tracker-search-bar dependencies ($APP_REQUIREMENTS $APPLET_REQUIREMENTS).])   
+      AC_MSG_ERROR([Couldn't find tracker-search-bar dependencies ($APP_REQUIREMENTS $APPLET_REQUIREMENTS).])
    fi
 fi
 
@@ -979,7 +979,7 @@ fi
 
 if test "x$enable_tracker_search_tool" = "xyes"; then
    if test "x$have_tracker_search_tool" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find tracker-search-tool dependencies ($APP_REQUIREMENTS $VALA_REQUIREMENTS).])   
+      AC_MSG_ERROR([Couldn't find tracker-search-tool dependencies ($APP_REQUIREMENTS $VALA_REQUIREMENTS).])
    fi
 fi
 
@@ -1552,7 +1552,7 @@ fi
 
 AM_CONDITIONAL(HAVE_GTK_DOC, test "$enable_gtk_doc" = "yes")
 AM_CONDITIONAL(HAVE_GRAPHVIZ_FDP, test -n "$GRAPHVIZ_FDP")
-  
+
 ##################################################################
 # Check for older tracker project files which can cause problems
 ##################################################################
@@ -1681,6 +1681,8 @@ AC_CONFIG_FILES([
 	tests/libtracker-data/turtle/Makefile
 	tests/libtracker-db/Makefile
 	tests/libtracker-fts/Makefile
+	tests/libtracker-fts/limits/Makefile
+	tests/libtracker-fts/prefix/Makefile
 	tests/functional-tests/Makefile
 	tests/functional-tests/data/Makefile
 	tests/functional-tests/data/Music/Makefile
