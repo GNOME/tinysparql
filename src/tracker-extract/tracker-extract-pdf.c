@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2006, Mr Jamie McCracken (jamiemcc@gnome.org)
  * Copyright (C) 2008-2009, Nokia
+ * Copyright (C) 2010, Amit Aggarwal (amitcs06@gmail.com)
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -54,6 +55,135 @@ static TrackerExtractData data[] = {
 	{ "application/pdf", extract_pdf },
 	{ NULL, NULL }
 };
+
+static void
+read_toc (PopplerIndexIter  *index,
+          GString          **toc)
+{
+        if (!index) {
+	        return;
+        }
+
+        if (!*toc) {
+	        *toc = g_string_new ("");
+        }
+
+        do {
+                PopplerAction *action;
+                PopplerIndexIter *iter;
+
+                action = poppler_index_iter_get_action (index);
+
+                if (!action) {
+                        continue;
+                }
+
+                switch (action->type) {
+                case POPPLER_ACTION_GOTO_DEST: {
+                        PopplerActionGotoDest *ag = (PopplerActionGotoDest*) action;
+                        PopplerDest *agd = ag->dest;
+
+                        if (!tracker_is_empty_string (ag->title)) {
+	                        g_string_append_printf (*toc, "%s ", ag->title);
+                        }
+
+                        if (!tracker_is_empty_string (agd->named_dest)) {
+	                        g_string_append_printf (*toc, "%s ", agd->named_dest);
+                        }
+
+                        break;
+                }
+
+                case POPPLER_ACTION_LAUNCH: {
+                        PopplerActionLaunch *al = (PopplerActionLaunch*) action;
+
+                        if (!tracker_is_empty_string (al->title)) {
+	                        g_string_append_printf (*toc, "%s ", al->title);
+                        }
+
+                        if (!tracker_is_empty_string (al->file_name)) {
+	                        g_string_append_printf (*toc, "%s ", al->file_name);
+                        }
+
+                        if (!tracker_is_empty_string (al->params)) {
+	                        g_string_append_printf (*toc, "%s ", al->params);
+                        }
+
+                        break;
+                }
+
+                case POPPLER_ACTION_URI: {
+                        PopplerActionUri *au = (PopplerActionUri*) action;
+
+                        if (!tracker_is_empty_string (au->uri)) {
+	                        g_string_append_printf (*toc, "%s ", au->uri);
+                        }
+
+                        break;
+                }
+
+                case POPPLER_ACTION_NAMED: {
+                        PopplerActionNamed *an = (PopplerActionNamed*) action;
+
+                        if (!tracker_is_empty_string (an->title)) {
+	                        g_string_append_printf (*toc, "%s, ", an->title);
+                        }
+
+                        if (!tracker_is_empty_string (an->named_dest)) {
+                                g_string_append_printf (*toc, "%s ", an->named_dest);
+                        }
+
+                        break;
+                }
+
+                case POPPLER_ACTION_MOVIE: {
+                        PopplerActionNamed *am = (PopplerActionNamed*) action;
+
+                        if (!tracker_is_empty_string (am->title)) {
+	                        g_string_append_printf (*toc, "%s ", am->title);
+                        }
+
+                        break;
+                }
+
+                case POPPLER_ACTION_NONE:
+                case POPPLER_ACTION_UNKNOWN:
+                case POPPLER_ACTION_GOTO_REMOTE:
+                        /* Do nothing */
+                        break;
+                }
+
+                iter = poppler_index_iter_get_child (index);
+                read_toc (iter, toc);
+        } while (poppler_index_iter_next (index));
+
+        poppler_index_iter_free (index);
+}
+
+static void
+read_outline (PopplerDocument      *document,
+              TrackerSparqlBuilder *metadata)
+{
+        PopplerIndexIter *index;
+        GString *toc = NULL;
+
+        index = poppler_index_iter_new (document);
+
+        if (!index) {
+                return;
+        }
+
+        read_toc (index, &toc);
+
+        if (toc) {
+	        if (toc->len > 0) {
+		        tracker_sparql_builder_predicate (metadata, "nfo:tableOfContents");
+		        tracker_sparql_builder_object_unvalidated (metadata, toc->str);
+	        }
+
+	        g_string_free (toc, TRUE);
+        }
+}
 
 static void
 insert_keywords (TrackerSparqlBuilder *metadata,
@@ -465,6 +595,8 @@ extract_pdf (const gchar          *uri,
 		tracker_sparql_builder_object_unvalidated (metadata, content);
 		g_free (content);
 	}
+
+        read_outline (document, metadata);
 
 	g_object_unref (document);
 }
