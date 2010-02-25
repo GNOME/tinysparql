@@ -2323,6 +2323,7 @@ struct fulltext_vtab {
   TrackerParser *parser;	   /* tokenizer for inserts and queries */
   gboolean stop_words;
   int max_words;
+  int min_word_length;
 
   /* Precompiled statements which we keep as long as the table is
   ** open.
@@ -3358,8 +3359,8 @@ static int constructVtab(
   max_len = tracker_fts_config_get_max_word_length (config);
 
   v->max_words = tracker_fts_config_get_max_words_to_index (config);
-
-  v->parser = tracker_parser_new (language, max_len, min_len);
+  v->min_word_length = min_len;
+  v->parser = tracker_parser_new (language, max_len);
 
   /* disable stop words if TRACKER_FTS_STOP_WORDS is set to 0 - used by tests */
   v->stop_words = g_strcmp0 (g_getenv ("TRACKER_FTS_STOP_WORDS"), "0") != 0;
@@ -4332,13 +4333,18 @@ static int tokenizeSegment(
 
 
     pToken = tracker_parser_next (parser, &iPos,
-				     &iBegin,
-				     &iEnd,
-				     &stop_word,
-				     &nToken);
+				  &iBegin,
+				  &iEnd,
+				  &stop_word,
+				  &nToken);
     if (!pToken) {
       break;
      }
+
+    /* If prefix search ignore the word lenght limit */
+    if( nToken < v->min_word_length && !(iEnd<nSegment && pSegment[iEnd]=='*') ){
+      continue;
+    }
 
 //   printf("token being indexed  is %s, pos is %d, begin is %d, end is %d and length is %d\n", pToken, iPos, iBegin, iEnd, nToken);
 
@@ -4363,10 +4369,10 @@ static int tokenizeSegment(
       continue;
     }
     if( !inPhrase && pQuery->nTerms>0 && !pQuery->nextIsOr && nToken==4
-      && pToken[0]=='n'
-      && pToken[1]=='e'
-      && pToken[2]=='a'
-      && pToken[3]=='r'
+	&& pToken[0]=='n'
+	&& pToken[1]=='e'
+	&& pToken[2]=='a'
+	&& pToken[3]=='r'
     ){
       QueryTerm *pTerm = &pQuery->pTerms[pQuery->nTerms-1];
       if( (iBegin+6)<nSegment
@@ -4380,10 +4386,10 @@ static int tokenizeSegment(
 	  iEnd++;
 	}
 	pToken = tracker_parser_next (parser, &iPos,
-				     &iBegin,
-				     &iEnd,
-				     &stop_word,
-				     &nToken);
+				      &iBegin,
+				      &iEnd,
+				      &stop_word,
+				      &nToken);
 	if (!pToken) {
 	  break;
 	}
@@ -4756,7 +4762,8 @@ static int buildTerms(fulltext_vtab *v, sqlite_int64 iDocid,
 #ifdef STORE_CATEGORY
 int Catid,
 #endif
-		      const char *zText, int iColumn){
+		      const char *zText, int iColumn,
+		      gboolean limit_word_length){
 
   const char *pToken;
   int nTokenBytes;
@@ -4773,12 +4780,16 @@ int Catid,
   while( 1 ){
 
     pToken = tracker_parser_next (parser, &iPosition,
-				     &iStartOffset,
-				     &iEndOffset,
-				     &stop_word,
-				     &nTokenBytes);
+				  &iStartOffset,
+				  &iEndOffset,
+				  &stop_word,
+				  &nTokenBytes);
    if (!pToken) {
 	break;
+   }
+
+   if (limit_word_length && nTokenBytes < v->min_word_length) {
+	continue;
    }
 
   // printf("token being indexed  is %s, begin is %d, end is %d and length is %d\n", pToken, iStartOffset, iEndOffset, nTokenBytes);
@@ -4786,10 +4797,6 @@ int Catid,
    if (stop_word) {
 	continue;
    }
-
-
-
-
 
     /* Positions can't be negative; we use -1 as a terminator
      * internally.  Token can't be NULL or empty. */
@@ -4947,7 +4954,7 @@ static int index_update(fulltext_vtab *v, sqlite_int64 iRow,
 
     /* tracker - as for col id we want col 0 to be the default metadata field (file:contents or email:body) ,
     col 1 to be meatdata id 1, col 2 to be metadat id 2 etc so need to decrement i here */
-    int rc = buildTerms(v, iRow, sqlite3_value_int (pValues[0]), zText, delete ? -1 : (i-1));
+    int rc = buildTerms(v, iRow, sqlite3_value_int (pValues[0]), zText, delete ? -1 : (i-1), TRUE);
     if( rc!=SQLITE_OK ) return rc;
   }
 
@@ -4955,7 +4962,7 @@ static int index_update(fulltext_vtab *v, sqlite_int64 iRow,
 
   for(i = 0; i < v->nColumn ; ++i){
     char *zText = (char*)sqlite3_value_text(pValues[i]);
-    rc = buildTerms(v, iRow, zText, delete ? -1 : i);
+    rc = buildTerms(v, iRow, zText, delete ? -1 : i, TRUE);
     if( rc!=SQLITE_OK ) return rc;
   }
 
@@ -7775,8 +7782,10 @@ int tracker_fts_update_init(int id){
   return initPendingTerms(tracker_fts_vtab, id);
 }
 
-int tracker_fts_update_text(int id, int column_id, const char *text){
-  return buildTerms(tracker_fts_vtab, id, text, column_id);
+int tracker_fts_update_text(int id, int column_id,
+			    const char *text, gboolean limit_word_length){
+	return buildTerms(tracker_fts_vtab, id, text,
+			  column_id, limit_word_length);
 }
 
 void tracker_fts_update_commit(void){

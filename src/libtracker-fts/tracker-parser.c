@@ -79,7 +79,6 @@ struct TrackerParser {
 	gboolean               enable_stop_words;
 	guint                  max_words_to_index;
 	guint                  max_word_length;
-	guint                  min_word_length;
 	gboolean               delimit_words;
 	gboolean               parse_reserved_words;
 
@@ -323,7 +322,6 @@ parser_next (TrackerParser *parser,
 				}
 
 				if (!is_valid ||
-				    length < parser->min_word_length ||
 				    word_type == TRACKER_PARSER_WORD_NUM) {
 					word_type = TRACKER_PARSER_WORD_IGNORE;
 					is_valid = TRUE;
@@ -460,21 +458,18 @@ parser_next (TrackerParser *parser,
 
 TrackerParser *
 tracker_parser_new (TrackerLanguage *language,
-                    gint             max_word_length,
-                    gint             min_word_length)
+                    gint             max_word_length)
 {
 	TrackerParser *parser;
 
 	g_return_val_if_fail (TRACKER_IS_LANGUAGE (language), NULL);
-	g_return_val_if_fail (min_word_length > 0, NULL);
-	g_return_val_if_fail (min_word_length < max_word_length, NULL);
+	g_return_val_if_fail (max_word_length > 0, NULL);
 
 	parser = g_new0 (TrackerParser, 1);
 
 	parser->language = g_object_ref (language);
 
 	parser->max_word_length = max_word_length;
-	parser->min_word_length = min_word_length;
 	parser->word_length = 0;
 	parser->attrs = NULL;
 
