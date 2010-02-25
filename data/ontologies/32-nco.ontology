@@ -75,6 +75,7 @@ nco:PersonContact a rdfs:Class ;
 	rdfs:subClassOf nco:Contact .
 
 nco:default-contact-me a nco:PersonContact.
+nco:default-contact-emergency a nco:PersonContact.
 
 nco:IMContact a rdfs:Class ;
 	rdfs:label "IM Contact" ;
