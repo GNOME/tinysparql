@@ -1671,6 +1671,7 @@ AC_CONFIG_FILES([
 	tests/functional-tests/Makefile
 	tests/functional-tests/data/Makefile
 	tests/functional-tests/data/Music/Makefile
+	tests/functional-tests/data/Images/Makefile
 	tests/Makefile
 	tests/tracker-miner-fs/Makefile
 	tests/tracker-extract/Makefile

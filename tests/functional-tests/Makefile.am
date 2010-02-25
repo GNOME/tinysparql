@@ -14,7 +14,8 @@ config_DATA =			\
 	metadata_extraction_tc.py \
 	writeback-tc.py 	\
 	04-group-concat.py	\
-	05-coalesce.py
+	05-coalesce.py		\
+	virtual-files-tc.py
 
 EXTRA_DIST = $(config_DATA)
 endif
