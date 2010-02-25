@@ -17,6 +17,7 @@ config_DATA =			\
 	05-coalesce.py		\
 	06-distance.py		\
 	07-graph.py		\
+	08-unique-insertions.py \
 	virtual-files-tc.py
 
 EXTRA_DIST = $(config_DATA)
