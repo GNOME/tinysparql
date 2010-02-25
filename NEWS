@@ -1,3 +1,97 @@
+NEW in 0.7.22
+=============
+
+Improvements / New:
+
+  General:
+  * Removed GConf dependency, no longer used
+  * Added --enable-maemo configure option to discriminate 91-maemo.ontology
+  * Don't link against HAL for DeviceKit-power
+  * Disable flac extractor by default (has SPARQL errors, needs updating)
+  * Disable libunac by default (causes tracker-store segfaults)
+
+  Ontology:
+  * Support ontology additions by 3rd party applications
+  * Added tracker:Ontology class and nao:lastModified property
+  * Added nco:imAvatar property
+  * Added nco:default-contact-emergency
+  * Added nfo:tableOfContents
+  * Added tracker:fulltextNoLimit
+
+  SPARQL:
+  * Fixed variable separation between multiple updates in a query
+
+  Tests:
+  * Added functional tests for named graph support
+  * Added functional tests for tracker-writeback
+  * Added functional tests for virtual files
+  * Added libtracker-fts test cases
+  * Added libtracker-miner test cases
+
+  libtracker-common:
+  * Renamed tracker-ontology module to tracker-ontologies
+  * Created tracker-ontology class
+  * Fixed error reporting for TrackerDateTime class
+  * Don't install private header files for internal library
+
+  libtracker-data:
+  * Added ontology validation checking
+  * Fixed deletion of xsd:dateTime values
+
+  libtracker-miner:
+  * Moved tracker-storage here from libtracker-common
+  * Refactored tracker-storage to use GIO not HAL
+  * Don't reverse lists from hash tables in tracker-storage
+
+  libtracker-client:
+  * Fixed compilation with c++ compilers
+
+  libtracker-fts:
+  * Limit word length based on ontology (was > 3)
+
+  tracker-store:
+  * Reduced amount of memory used for events
+
+  tracker-miner-fs:
+  * Ignore VIM files by default
+  * Increment processed error count on SparQL errors
+  * Ensure the full directory hierarchy is inspected on reindex
+  * Improved logging for mount points added or removed
+
+  tracker-extract:
+  * Fixed handling of album gain properties in gstreamer module
+
+  tracker-search-bar:
+  * Fixed headers for panel applet
+  * Used correct panel_applet_ functions not panel_applet_gconf_*
+
+Bugs:
+
+  * GB#609075, Adding support for pdf extractor to extract the index data from the pdf files
+  * GB#609004, Timeout on 1 file during extraction causes 10 to fail
+  * GB#610882, Segfault with sparql queries using undefined variables
+  * NB#157813, tracker writeback is not updating nmm:camera details correctly
+  * NB#157429, tracker writeback is not updating values of all supported properties.
+  * NB#157814, nmm:flash value is not changing after tracker-writeback , value is always set to nmm:flash-off
+  * NB#157822, mlo:location , mlo:country , mlo:city , mlo:state , mlo:address values are not updated after changing the values with tracker-writeback
+  * NB#157286, tracker-search is case sensitive for stopwords
+  * NB#157899, incorrect value set for dates without TZD part or TZD with minutes
+
+Translations:
+
+  * Updated sl: Andrej Žnidaršič
+  * Updated nb: Kjartan Maraas
+
+Notes:
+
+  The database version up has been incremented, this will force a
+  reindex for any existing Tracker installation.
+
+  The Deskbar applet packaged with Tracker is currently out of date
+  and needs some love to get it working with the new APIs. It is in
+  the same state as it was for 0.6. As such it isn't expected to work.
+
+
 NEW in 0.7.21
 =============
 
