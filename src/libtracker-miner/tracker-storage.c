@@ -136,7 +136,7 @@ tracker_storage_init (TrackerStorage *storage)
 	/* Volume and property notification callbacks */
 	g_signal_connect_object (priv->volume_monitor, "mount-removed",
 	                         G_CALLBACK (mount_removed_cb), storage, 0);
-	g_signal_connect_object (priv->volume_monitor, "mount-pre_unmount",
+	g_signal_connect_object (priv->volume_monitor, "mount-pre-unmount",
 	                         G_CALLBACK (mount_removed_cb), storage, 0);
 	g_signal_connect_object (priv->volume_monitor, "mount-added",
 	                         G_CALLBACK (mount_added_cb), storage, 0);
