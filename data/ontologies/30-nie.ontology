@@ -35,6 +35,7 @@ nie:title a rdf:Property ;
 	rdfs:domain nie:InformationElement ;
 	rdfs:range xsd:string ;
 	tracker:fulltextIndexed true ;
+	tracker:fulltextNoLimit true ;
 	tracker:weight 10 ;
 	tracker:writeback true .
 

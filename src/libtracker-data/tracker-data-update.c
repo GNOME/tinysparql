@@ -666,7 +666,9 @@ tracker_data_resource_buffer_flush (GError **error)
 					g_string_append (fts, g_value_get_string (g_value_array_get_nth (values, i)));
 					g_string_append_c (fts, ' ');
 				}
-				tracker_fts_update_text (resource_buffer->id, tracker_data_query_resource_id (tracker_property_get_uri (prop)), fts->str);
+				tracker_fts_update_text (resource_buffer->id,
+							 tracker_data_query_resource_id (tracker_property_get_uri (prop)),
+							 fts->str, !tracker_property_get_fulltext_no_limit (prop));
 				g_string_free (fts, TRUE);
 			}
 		}
@@ -1036,7 +1038,8 @@ get_old_property_values (TrackerProperty  *property,
 					/* delete old fts entries */
 					for (i = 0; i < old_values->n_values; i++) {
 						tracker_fts_update_text (resource_buffer->id, -1,
-						                         g_value_get_string (g_value_array_get_nth (old_values, i)));
+						                         g_value_get_string (g_value_array_get_nth (old_values, i)),
+									 !tracker_property_get_fulltext_no_limit (prop));
 					}
 				}
 			}

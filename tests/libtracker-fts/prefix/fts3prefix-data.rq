@@ -1,0 +1,13 @@
+INSERT {
+	test:1 a test:A ; test:p "t"                            ; test:o "p" .
+	test:2 a test:A ; test:p "tr"                           ; test:o "pr" .
+	test:3 a test:A ; test:p "tra"                          ; test:o "pra" .
+	test:4 a test:A ; test:p "tracker test"                 ; test:o "pracker pest" .
+	test:5 a test:A ; test:p "tracking tester"              ; test:o "pracking pester" .
+	test:6 a test:A ; test:p "trash trash more trash"       ; test:o "prash prash more prash" .
+	test:7 a test:A ; test:p "racker ester"                 ; test:o "racker ester" .
+	test:8 a test:A ; test:p "TeStiNg TraCkEr"              ; test:o "PeStiNg PraCkEr" .
+	test:9 a test:A ; test:p "Prefix search with content"   ; test:o "Search with content" .
+	test:10 a test:A ; test:p "...and a one bit more here"  ; test:o "...and a one bit more here" .
+}
+

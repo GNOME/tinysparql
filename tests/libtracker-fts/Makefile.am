@@ -1,5 +1,9 @@
 include $(top_srcdir)/Makefile.decl
 
+SUBDIRS = 			\
+	limits			\
+	prefix
+
 noinst_PROGRAMS = $(TEST_PROGS)
 
 TEST_PROGS += 								\
