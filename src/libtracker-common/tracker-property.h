@@ -82,6 +82,7 @@ gint                tracker_property_get_weight           (TrackerProperty      
 gint                tracker_property_get_id               (TrackerProperty      *property);
 gboolean            tracker_property_get_indexed          (TrackerProperty      *property);
 gboolean            tracker_property_get_fulltext_indexed (TrackerProperty      *property);
+gboolean            tracker_property_get_fulltext_no_limit(TrackerProperty      *property);
 gboolean            tracker_property_get_embedded         (TrackerProperty      *property);
 gboolean            tracker_property_get_multiple_values  (TrackerProperty      *property);
 gboolean            tracker_property_get_filtered         (TrackerProperty      *property);
@@ -105,6 +106,8 @@ void                tracker_property_set_id               (TrackerProperty      
 void                tracker_property_set_indexed          (TrackerProperty      *property,
                                                            gboolean              value);
 void                tracker_property_set_fulltext_indexed (TrackerProperty      *property,
+                                                           gboolean              value);
+void                tracker_property_set_fulltext_no_limit(TrackerProperty      *property,
                                                            gboolean              value);
 void                tracker_property_set_embedded         (TrackerProperty      *property,
                                                            gboolean              value);

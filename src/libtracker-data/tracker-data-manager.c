@@ -323,6 +323,18 @@ load_ontology_statement (const gchar *ontology_file,
 		if (strcmp (object, "true") == 0) {
 			tracker_property_set_fulltext_indexed (property, TRUE);
 		}
+	} else if (g_strcmp0 (predicate, TRACKER_PREFIX "fulltextNoLimit") == 0) {
+		TrackerProperty *property;
+
+		property = tracker_ontologies_get_property_by_uri (subject);
+		if (property == NULL) {
+			g_critical ("%s: Unknown property %s", ontology_file, subject);
+			return;
+		}
+
+		if (strcmp (object, "true") == 0) {
+			tracker_property_set_fulltext_no_limit (property, TRUE);
+		}
 	} else if (g_strcmp0 (predicate, TRACKER_PREFIX "prefix") == 0) {
 		TrackerNamespace *namespace;
 
@@ -974,6 +986,7 @@ db_get_static_data (TrackerDBInterface *iface)
 	                                              "\"nrl:maxCardinality\", "
 	                                              "\"tracker:indexed\", "
 	                                              "\"tracker:fulltextIndexed\", "
+	                                              "\"tracker:fulltextNoLimit\", "
 	                                              "\"tracker:transient\", "
 	                                              "\"tracker:isAnnotation\", "
 	                                              "(SELECT 1 FROM \"rdfs:Resource_rdf:type\" WHERE ID = \"rdf:Property\".ID AND "
@@ -988,7 +1001,7 @@ db_get_static_data (TrackerDBInterface *iface)
 			GValue value = { 0 };
 			TrackerProperty *property;
 			const gchar     *uri, *domain_uri, *range_uri;
-			gboolean         multi_valued, indexed, fulltext_indexed;
+			gboolean         multi_valued, indexed, fulltext_indexed, fulltext_no_limit;
 			gboolean         transient, annotation, is_inverse_functional_property;
 			gint             id;
 
@@ -1033,6 +1046,16 @@ db_get_static_data (TrackerDBInterface *iface)
 			tracker_db_cursor_get_value (cursor, 7, &value);
 
 			if (G_VALUE_TYPE (&value) != 0) {
+				fulltext_no_limit = (g_value_get_int (&value) == 1);
+				g_value_unset (&value);
+			} else {
+				/* NULL */
+				fulltext_no_limit = FALSE;
+			}
+
+			tracker_db_cursor_get_value (cursor, 8, &value);
+
+			if (G_VALUE_TYPE (&value) != 0) {
 				transient = (g_value_get_int (&value) == 1);
 				g_value_unset (&value);
 			} else {
@@ -1040,7 +1063,7 @@ db_get_static_data (TrackerDBInterface *iface)
 				transient = FALSE;
 			}
 
-			tracker_db_cursor_get_value (cursor, 8, &value);
+			tracker_db_cursor_get_value (cursor, 9, &value);
 
 			if (G_VALUE_TYPE (&value) != 0) {
 				annotation = (g_value_get_int (&value) == 1);
@@ -1050,7 +1073,7 @@ db_get_static_data (TrackerDBInterface *iface)
 				annotation = FALSE;
 			}
 
-			tracker_db_cursor_get_value (cursor, 9, &value);
+			tracker_db_cursor_get_value (cursor, 10, &value);
 
 			if (G_VALUE_TYPE (&value) != 0) {
 				is_inverse_functional_property = TRUE;
@@ -1069,13 +1092,14 @@ db_get_static_data (TrackerDBInterface *iface)
 			tracker_property_set_multiple_values (property, multi_valued);
 			tracker_property_set_indexed (property, indexed);
 			tracker_property_set_fulltext_indexed (property, fulltext_indexed);
+			tracker_property_set_fulltext_no_limit (property, fulltext_no_limit);
 			tracker_property_set_embedded (property, !annotation);
 			tracker_property_set_is_inverse_functional_property (property, is_inverse_functional_property);
 			property_add_super_properties_from_db (iface, property);
 
 			tracker_ontologies_add_property (property);
 			tracker_ontologies_add_id_uri_pair (id, uri);
-			
+
 			g_object_unref (property);
 
 		}
