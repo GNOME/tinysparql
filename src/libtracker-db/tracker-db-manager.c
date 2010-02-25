@@ -54,7 +54,7 @@
 #define TRACKER_DB_PAGE_SIZE_DONT_SET -1
 
 /* Set current database version we are working with */
-#define TRACKER_DB_VERSION_NOW        TRACKER_DB_VERSION_11
+#define TRACKER_DB_VERSION_NOW        TRACKER_DB_VERSION_12
 #define TRACKER_DB_VERSION_FILE       "db-version.txt"
 
 #define IN_USE_FILENAME               ".meta.isrunning"
@@ -77,7 +77,8 @@ typedef enum {
 	TRACKER_DB_VERSION_08,      /* Version 0.7.13 (coalesce & writeback) */
 	TRACKER_DB_VERSION_09,      /* Version 0.7.17 (mlo ontology) */
 	TRACKER_DB_VERSION_10,      /* Version 0.7.20 (nco im ontology) */
-	TRACKER_DB_VERSION_11       /* Version 0.7.21 (named graphs/localtime) */
+	TRACKER_DB_VERSION_11,       /* Version 0.7.21 (named graphs/localtime) */
+	TRACKER_DB_VERSION_12       /* Version 0.7.22 (fts-limits branch) */
 } TrackerDBVersion;
 
 typedef struct {
