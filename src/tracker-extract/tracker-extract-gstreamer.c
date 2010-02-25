@@ -541,6 +541,7 @@ extract_metadata (MetadataExtractor      *extractor,
 		if (s) {
 			gboolean has_it;
 			guint count;
+			gdouble gain;
 
 			needs_audio = TRUE;
 
@@ -608,7 +609,60 @@ extract_metadata (MetadataExtractor      *extractor,
 				tracker_sparql_builder_insert_close (preupdate);
 			}
 
+			has_it = gst_tag_list_get_double (extractor->tagcache, 
+			                                  GST_TAG_ALBUM_GAIN, 
+			                                  &gain);
+
+			if (has_it) {
+				tracker_sparql_builder_delete_open (preupdate, NULL);
+				tracker_sparql_builder_subject_iri (preupdate, album_uri);
+				tracker_sparql_builder_predicate (preupdate, "nmm:albumGain");
+				tracker_sparql_builder_object_variable (preupdate, "unknown");
+				tracker_sparql_builder_delete_close (preupdate);
+
+				tracker_sparql_builder_where_open (preupdate);
+				tracker_sparql_builder_subject_iri (preupdate, album_uri);
+				tracker_sparql_builder_predicate (preupdate, "nmm:albumGain");
+				tracker_sparql_builder_object_variable (preupdate, "unknown");
+				tracker_sparql_builder_where_close (preupdate);
+
+				tracker_sparql_builder_insert_open (preupdate, NULL);
+
+				tracker_sparql_builder_subject_iri (preupdate, album_uri);
+				tracker_sparql_builder_predicate (preupdate, "nmm:albumGain");
+				tracker_sparql_builder_object_double (preupdate, gain);
+
+				tracker_sparql_builder_insert_close (preupdate);
+			}
+
+			has_it = gst_tag_list_get_double (extractor->tagcache, 
+			                                  GST_TAG_ALBUM_PEAK, 
+			                                  &gain);
+
+			if (has_it) {
+				tracker_sparql_builder_delete_open (preupdate, NULL);
+				tracker_sparql_builder_subject_iri (preupdate, album_uri);
+				tracker_sparql_builder_predicate (preupdate, "nmm:albumPeakGain");
+				tracker_sparql_builder_object_variable (preupdate, "unknown");
+				tracker_sparql_builder_delete_close (preupdate);
+
+				tracker_sparql_builder_where_open (preupdate);
+				tracker_sparql_builder_subject_iri (preupdate, album_uri);
+				tracker_sparql_builder_predicate (preupdate, "nmm:albumPeakGain");
+				tracker_sparql_builder_object_variable (preupdate, "unknown");
+				tracker_sparql_builder_where_close (preupdate);
+
+				tracker_sparql_builder_insert_open (preupdate, NULL);
+
+				tracker_sparql_builder_subject_iri (preupdate, album_uri);
+				tracker_sparql_builder_predicate (preupdate, "nmm:albumPeakGain");
+				tracker_sparql_builder_object_double (preupdate, gain);
+
+				tracker_sparql_builder_insert_close (preupdate);
+			}
+
 			*album = s;
+
 		}
 
 		if (extractor->mime == EXTRACT_MIME_AUDIO)
@@ -672,8 +726,6 @@ extract_metadata (MetadataExtractor      *extractor,
 
 			add_double_gst_tag (metadata, uri, "nfo:gain", extractor->tagcache, GST_TAG_TRACK_GAIN);
 			add_double_gst_tag (metadata, uri, "nfo:peakGain", extractor->tagcache, GST_TAG_TRACK_PEAK);
-			add_double_gst_tag (metadata, uri, "nmm:albumGain", extractor->tagcache, GST_TAG_ALBUM_GAIN);
-			add_double_gst_tag (metadata, uri, "nmm:albumPeakGain", extractor->tagcache, GST_TAG_ALBUM_PEAK);
 
 			if (performer_uri) {
 				tracker_sparql_builder_predicate (metadata, "nmm:performer");
