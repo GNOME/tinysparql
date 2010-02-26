@@ -1,3 +1,32 @@
+NEW in 0.7.23
+=============
+
+Improvements / New:
+
+  libtracker-miner:
+  * Fixed crash when starting tracker with CD/DVDs mounted
+
+  tracker-extract:
+  * Fixed mplayer extractor compilation
+  * Fixed gstreamer g_critical() while we wait for NB#158636 fix
+  * Fixed gstreamer GDate free of uninitialised pointer
+  * Fixed gstreamer GDate validity checks
+
+Bugs:
+
+  * NB#156562, execute mode not available for executables after installation
+
+Translations:
+
+  * Updated et: Mattias Põldaru
+
+Notes:
+
+  The Deskbar applet packaged with Tracker is currently out of date
+  and needs some love to get it working with the new APIs. It is in
+  the same state as it was for 0.6. As such it isn't expected to work.
+
+
 NEW in 0.7.22
 =============
 
