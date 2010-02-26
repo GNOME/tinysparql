@@ -266,12 +266,15 @@ add_fraction_gst_tag (TrackerSparqlBuilder         *metadata,
 
 	ret = gst_tag_list_copy_value (&n, tag_list, tag);
 
-	f = (gfloat)gst_value_get_fraction_numerator (&n)/
+	/* Hack to avoid criticals, remove when NB# 158636 is fixed */
+	if (GST_VALUE_HOLDS_FRACTION (&n)) {
+		f = (gfloat)gst_value_get_fraction_numerator (&n)/
 		gst_value_get_fraction_denominator (&n);
 
-	if (ret) {
-		tracker_sparql_builder_predicate (metadata, key);
-		tracker_sparql_builder_object_double (metadata, (gdouble) f);
+		if (ret) {
+			tracker_sparql_builder_predicate (metadata, key);
+			tracker_sparql_builder_object_double (metadata, (gdouble) f);
+		}
 	}
 }
 
@@ -748,6 +751,22 @@ extract_metadata (MetadataExtractor      *extractor,
 		g_free (album_uri);
 
 		add_string_gst_tag (metadata, uri, "nfo:codec", extractor->tagcache, GST_TAG_AUDIO_CODEC);
+	} else {
+		if (extractor->mime == EXTRACT_MIME_AUDIO)
+			needs_audio = TRUE;
+
+		tracker_sparql_builder_predicate (metadata, "a");
+
+		if (needs_audio) {
+			tracker_sparql_builder_object (metadata, "nmm:MusicPiece");
+			tracker_sparql_builder_object (metadata, "nfo:Audio");
+		} 
+
+		if (extractor->mime == EXTRACT_MIME_VIDEO) {
+			tracker_sparql_builder_object (metadata, "nmm:Video");
+		} else if (!needs_audio) {
+			tracker_sparql_builder_object (metadata, "nfo:Image");
+		}
 	}
 
 
