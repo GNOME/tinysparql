@@ -294,9 +294,9 @@ add_y_date_gst_tag (TrackerSparqlBuilder  *metadata,
 				ret = g_date_valid_julian (date->julian_days);
 			if (date->dmy)
 				ret = g_date_valid_dmy (date->day, date->month, date->year);
-			} else
-				ret = FALSE;
-		}
+			}
+		} else
+			ret = FALSE;
 	}
 
 	if (ret) {
