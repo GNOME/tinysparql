@@ -282,11 +282,22 @@ add_y_date_gst_tag (TrackerSparqlBuilder  *metadata,
                     GstTagList  *tag_list,
                     const gchar *tag)
 {
-	GDate    *date = NULL;
+	GDate    *date;
 	gboolean  ret;
 
 	date = NULL;
 	ret = gst_tag_list_get_date (tag_list, tag, &date);
+
+	if (ret) {
+		if (date && g_date_valid (date)) {
+			if (date->julian) {
+				ret = g_date_valid_julian (date->julian_days);
+			if (date->dmy)
+				ret = g_date_valid_dmy (date->day, date->month, date->year);
+			} else
+				ret = FALSE;
+		}
+	}
 
 	if (ret) {
 		gchar buf[25];
