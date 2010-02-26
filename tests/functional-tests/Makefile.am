@@ -5,7 +5,7 @@ SUBDIRS = data
 if DIST_FUNCTIONAL_TESTS
 configdir = $(datadir)/tracker-tests
 
-config_DATA =			\
+config_SCRIPTS =		\
 	tests.xml		\
 	01-insertion.py		\
 	02-metacontacts.py	\
@@ -20,5 +20,5 @@ config_DATA =			\
 	08-unique-insertions.py \
 	virtual-files-tc.py
 
-EXTRA_DIST = $(config_DATA)
+EXTRA_DIST = $(config_SCRIPTS)
 endif
