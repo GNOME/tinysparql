@@ -266,15 +266,12 @@ add_fraction_gst_tag (TrackerSparqlBuilder         *metadata,
 
 	ret = gst_tag_list_copy_value (&n, tag_list, tag);
 
-	/* Hack to avoid criticals, remove when NB# 158636 is fixed */
-	if (GST_VALUE_HOLDS_FRACTION (&n)) {
+	if (ret) {
 		f = (gfloat)gst_value_get_fraction_numerator (&n)/
 		gst_value_get_fraction_denominator (&n);
 
-		if (ret) {
-			tracker_sparql_builder_predicate (metadata, key);
-			tracker_sparql_builder_object_double (metadata, (gdouble) f);
-		}
+		tracker_sparql_builder_predicate (metadata, key);
+		tracker_sparql_builder_object_double (metadata, (gdouble) f);
 	}
 }
 
