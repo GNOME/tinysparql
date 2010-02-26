@@ -282,7 +282,7 @@ add_y_date_gst_tag (TrackerSparqlBuilder  *metadata,
                     GstTagList  *tag_list,
                     const gchar *tag)
 {
-	GDate    *date;
+	GDate    *date = NULL;
 	gboolean  ret;
 
 	date = NULL;
