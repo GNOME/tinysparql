@@ -346,6 +346,12 @@ volume_add (TrackerStorage *storage,
 		return;
 	}
 
+	uuid = g_volume_get_identifier (volume, G_VOLUME_IDENTIFIER_KIND_UUID);
+	if (!uuid) {
+		g_debug ("    Ignoring, volume has no UUID");
+		return;
+	}
+
 	device_file = g_volume_get_identifier (volume, G_VOLUME_IDENTIFIER_KIND_UNIX_DEVICE);
 	g_debug ("    Device file  : %s", device_file);
 		
@@ -368,17 +374,15 @@ volume_add (TrackerStorage *storage,
 		is_mounted = FALSE;
 	}
 	
-	uuid = g_volume_get_identifier (volume, G_VOLUME_IDENTIFIER_KIND_UUID);
 	g_debug ("    UUID         : %s", uuid);
-	
 	g_debug ("    Mounted      : %s", is_mounted ? "yes" : "no");
-	
+
 	priv = TRACKER_STORAGE_GET_PRIVATE (storage);
 
 	if (mount_point && !g_hash_table_lookup (priv->mounts_by_uuid, uuid)) {
 		mount_add (storage, uuid, mount_point, TRUE);
 	}
-	
+
 	g_free (uuid);
 	g_free (mount_point);
 	g_free (device_file);
