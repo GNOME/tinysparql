@@ -290,11 +290,10 @@ add_y_date_gst_tag (TrackerSparqlBuilder  *metadata,
 
 	if (ret) {
 		if (date && g_date_valid (date)) {
-			if (date->julian) {
+			if (date->julian)
 				ret = g_date_valid_julian (date->julian_days);
 			if (date->dmy)
 				ret = g_date_valid_dmy (date->day, date->month, date->year);
-			}
 		} else
 			ret = FALSE;
 	}
