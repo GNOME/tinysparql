@@ -1275,7 +1275,6 @@ Most commonly this is used to ignore directories like *~, *.o, *.la, etc</proper
     <property name="upper">20</property>
     <property name="step_increment">1</property>
     <property name="page_increment">2</property>
-    <property name="page_size">5</property>
   </object>
   <object class="GtkImage" id="image1">
     <property name="visible">True</property>
@@ -1286,7 +1285,6 @@ Most commonly this is used to ignore directories like *~, *.o, *.la, etc</proper
     <property name="upper">100</property>
     <property name="step_increment">1</property>
     <property name="page_increment">10</property>
-    <property name="page_size">10</property>
   </object>
   <object class="GtkAdjustment" id="adjustment_delay">
     <property name="value">10</property>
@@ -1295,8 +1293,8 @@ Most commonly this is used to ignore directories like *~, *.o, *.la, etc</proper
   </object>
   <object class="GtkSizeGroup" id="sizegroup_indexing">
     <widgets>
-      <widget name="label_throttle"/>
       <widget name="label_disk_space_limit"/>
+      <widget name="label_throttle"/>
     </widgets>
   </object>
 </interface>
