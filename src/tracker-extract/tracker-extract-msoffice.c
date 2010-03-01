@@ -72,7 +72,7 @@
 /*
  * A container record that specifies information about the powerpoint document.
  */
-#define DOCUMENTCONTAINER_RECORD_TYPE           0x1000
+#define DOCUMENTCONTAINER_RECORD_TYPE           0x03E8
 
 /*
  * Variant type of record. Within Powerpoint text extraction we are interested
@@ -391,8 +391,6 @@ read_text (GsfInput *stream)
 	gint          i = 0;
 	RecordHeader  header;
 	guint8       *data = NULL;
-	gsize         written = 0;
-	gchar        *converted = 0;
 
 	g_return_val_if_fail (stream,NULL);
 
@@ -459,23 +457,8 @@ read_text (GsfInput *stream)
 		header.recLen *= 2;
 	}
 
-	/*
-	 * Then we'll convert the text from UTF-16 to UTF-8 for the tracker
-	 */
-	converted = g_convert(data,header.recLen,
-	                      "UTF-8",
-	                      "UTF-16",
-	                      NULL,
-	                      &written,
-	                      NULL);
-
-	/*
-	 * And free the data
-	 */
-	g_free(data);
-
 	/* Return read text */
-	return converted;
+	return data;
 }
 
 /**
@@ -671,17 +654,16 @@ read_powerpoint (GsfInfile            *infile,
 		      word_count < max_words) {
 
 			gchar *text = read_text(stream);
-
-			int count = append_text (text,
+			if(text) {
+				int count = append_text (text,
 			                         all_texts,
 			                         word_count,
 			                         max_words);
-
-			if (count < 0) {
-				break;
+				if (count < 0) {
+					break;
+				}
+				word_count += count;
 			}
-
-			word_count += count;
 		}
 
 		/*
