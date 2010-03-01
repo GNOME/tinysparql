@@ -1537,20 +1537,23 @@ gboolean
 tracker_monitor_remove (TrackerMonitor *monitor,
                         GFile          *file)
 {
-	gchar *path;
 	gboolean removed;
 
 	g_return_val_if_fail (TRACKER_IS_MONITOR (monitor), FALSE);
 	g_return_val_if_fail (G_IS_FILE (file), FALSE);
 
 	removed = g_hash_table_remove (monitor->private->monitors, file);
-	path = g_file_get_path (file);
 
-	g_debug ("Removed monitor for path:'%s', total monitors:%d",
-	         path,
-	         g_hash_table_size (monitor->private->monitors));
+	if (removed) {
+		gchar *path;
 
-	g_free (path);
+		path = g_file_get_path (file);
+		g_debug ("Removed monitor for path:'%s', total monitors:%d",
+		         path,
+		         g_hash_table_size (monitor->private->monitors));
+
+		g_free (path);
+	}
 
 	return removed;
 }
