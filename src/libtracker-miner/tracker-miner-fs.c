@@ -102,6 +102,8 @@ struct TrackerMinerFSPrivate {
 
 	GQuark          quark_ignore_file;
 
+	GList          *config_directories;
+
 	GList          *directories;
 	DirectoryData  *current_directory;
 
@@ -605,8 +607,12 @@ fs_finalize (GObject *object)
 	g_free (priv->current_parent_urn);
 
 	if (priv->directories) {
-		g_list_foreach (priv->directories, (GFunc) directory_data_free, NULL);
 		g_list_free (priv->directories);
+	}
+
+	if (priv->config_directories) {
+		g_list_foreach (priv->config_directories, (GFunc) directory_data_free, NULL);
+		g_list_free (priv->config_directories);
 	}
 
 	g_queue_foreach (priv->crawled_directories, (GFunc) crawled_directory_data_free, NULL);
@@ -2458,7 +2464,6 @@ crawler_finished_cb (TrackerCrawler *crawler,
 	           was_interrupted ? "Stopped" : "Finished",
 	           g_timer_elapsed (fs->private->timer, NULL));
 
-	directory_data_free (fs->private->current_directory);
 	fs->private->current_directory = NULL;
 
 	/* Proceed to next thing to process */
@@ -2515,7 +2520,6 @@ crawl_directories_cb (gpointer user_data)
 	}
 
 	/* Directory couldn't be processed */
-	directory_data_free (fs->private->current_directory);
 	fs->private->current_directory = NULL;
 
 	return TRUE;
@@ -2582,12 +2586,18 @@ tracker_miner_fs_directory_add (TrackerMinerFS *fs,
                                 GFile          *file,
                                 gboolean        recurse)
 {
+	DirectoryData *dir_data;
+
 	g_return_if_fail (TRACKER_IS_MINER_FS (fs));
 	g_return_if_fail (G_IS_FILE (file));
 
+	dir_data = directory_data_new (file, recurse);
+
+	fs->private->config_directories =
+		g_list_append (fs->private->config_directories, dir_data);
+
 	fs->private->directories =
-		g_list_append (fs->private->directories,
-		               directory_data_new (file, recurse));
+		g_list_append (fs->private->directories, dir_data);
 
 	crawl_directories_start (fs);
 }
@@ -2659,11 +2669,26 @@ tracker_miner_fs_directory_remove (TrackerMinerFS *fs,
 
 		if (g_file_equal (file, data->file) ||
 		    g_file_has_prefix (file, data->file)) {
+			fs->private->directories = g_list_delete_link (fs->private->directories, link);
+			return_val = TRUE;
+		}
+	}
+
+	dirs = fs->private->config_directories;
+
+	while (dirs) {
+		DirectoryData *data = dirs->data;
+		GList *link = dirs;
+
+		dirs = dirs->next;
+
+		if (g_file_equal (file, data->file)) {
 			directory_data_free (data);
 			fs->private->directories = g_list_delete_link (fs->private->directories, link);
 			return_val = TRUE;
 		}
 	}
+
 
 	/* Remove anything contained in the removed directory
 	 * from all relevant processing queues.
