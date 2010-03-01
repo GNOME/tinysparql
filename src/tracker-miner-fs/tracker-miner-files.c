@@ -128,6 +128,9 @@ static void        index_recursive_directories_cb       (GObject              *g
 static void        index_single_directories_cb          (GObject              *gobject,
                                                          GParamSpec           *arg1,
                                                          gpointer              user_data);
+static void        ignore_directories_cb                (GObject              *gobject,
+							 GParamSpec           *arg1,
+							 gpointer              user_data);
 static DBusGProxy *extractor_create_proxy               (void);
 static gboolean    miner_files_check_file               (TrackerMinerFS       *fs,
                                                          GFile                *file);
@@ -464,6 +467,12 @@ miner_files_constructed (GObject *object)
 	                  mf);
 	g_signal_connect (mf->private->config, "notify::index-single-directories",
 	                  G_CALLBACK (index_single_directories_cb),
+	                  mf);
+	g_signal_connect (mf->private->config, "notify::ignored-directories",
+	                  G_CALLBACK (ignore_directories_cb),
+	                  mf);
+	g_signal_connect (mf->private->config, "notify::ignored-directories-with-content",
+	                  G_CALLBACK (ignore_directories_cb),
 	                  mf);
 
 	g_slist_foreach (mounts, (GFunc) g_free, NULL);
@@ -1099,6 +1108,17 @@ index_single_directories_cb (GObject    *gobject,
         }
 
         private->index_single_directories = tracker_gslist_copy_with_string_data (new_dirs);
+}
+
+static void
+ignore_directories_cb (GObject    *gobject,
+                       GParamSpec *arg1,
+                       gpointer    user_data)
+{
+	TrackerMinerFiles *miner_files = user_data;
+
+	/* Recheck all directories for compliance with the new config */
+	tracker_miner_fs_force_recheck (TRACKER_MINER_FS (miner_files));
 }
 
 static gboolean
