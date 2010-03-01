@@ -2310,6 +2310,11 @@ crawler_check_directory_cb (TrackerCrawler *crawler,
 		                    GINT_TO_POINTER (TRUE));
 	}
 
+	if (!should_check) {
+		/* Remove monitors if any */
+		tracker_monitor_remove (fs->private->monitor, file);
+	}
+
 	/* We _HAVE_ to check ALL directories because mtime updates
 	 * are not guaranteed on parents on Windows AND we on Linux
 	 * only the immediate parent directory mtime is updated, this
@@ -2328,21 +2333,22 @@ crawler_check_directory_contents_cb (TrackerCrawler *crawler,
                                      gpointer        user_data)
 {
 	TrackerMinerFS *fs = user_data;
+	gboolean add_monitor = FALSE;
 	gboolean process;
 
 	g_signal_emit (fs, signals[CHECK_DIRECTORY_CONTENTS], 0, parent, children, &process);
 
 	if (process) {
-		gboolean add_monitor;
-
 		g_signal_emit (fs, signals[MONITOR_DIRECTORY], 0, parent, &add_monitor);
+	}
 
-		/* FIXME: Should we add here or when we process the queue in
-		 * the finished sig?
-		 */
-		if (add_monitor) {
-			tracker_monitor_add (fs->private->monitor, parent);
-		}
+	/* FIXME: Should we add here or when we process the queue in
+	 * the finished sig?
+	 */
+	if (add_monitor) {
+		tracker_monitor_add (fs->private->monitor, parent);
+	} else {
+		tracker_monitor_remove (fs->private->monitor, parent);
 	}
 
 	return process;
@@ -2930,4 +2936,19 @@ tracker_miner_fs_get_parent_urn (TrackerMinerFS *fs,
 	}
 
 	return data->parent_urn;
+}
+
+void
+tracker_miner_fs_force_recheck (TrackerMinerFS *fs)
+{
+	GList *directories;
+
+	g_return_if_fail (TRACKER_IS_MINER_FS (fs));
+
+	g_message ("Forcing re-check on all index directories");
+
+	directories = g_list_copy (fs->private->config_directories);
+	fs->private->directories = g_list_concat (fs->private->directories, directories);
+
+	crawl_directories_start (fs);
 }
