@@ -2296,7 +2296,6 @@ crawler_check_directory_cb (TrackerCrawler *crawler,
 {
 	TrackerMinerFS *fs = user_data;
 	gboolean should_check, should_change_index;
-	gboolean add_monitor = TRUE;
 
 	should_check = should_check_file (fs, file, TRUE);
 	should_change_index = should_change_index_for_file (fs, file);
@@ -2309,15 +2308,6 @@ crawler_check_directory_cb (TrackerCrawler *crawler,
 		g_object_set_qdata (G_OBJECT (file),
 		                    fs->private->quark_ignore_file,
 		                    GINT_TO_POINTER (TRUE));
-	}
-
-	g_signal_emit (fs, signals[MONITOR_DIRECTORY], 0, file, &add_monitor);
-
-	/* FIXME: Should we add here or when we process the queue in
-	 * the finished sig?
-	 */
-	if (add_monitor) {
-		tracker_monitor_add (fs->private->monitor, file);
 	}
 
 	/* We _HAVE_ to check ALL directories because mtime updates
@@ -2341,6 +2331,19 @@ crawler_check_directory_contents_cb (TrackerCrawler *crawler,
 	gboolean process;
 
 	g_signal_emit (fs, signals[CHECK_DIRECTORY_CONTENTS], 0, parent, children, &process);
+
+	if (process) {
+		gboolean add_monitor;
+
+		g_signal_emit (fs, signals[MONITOR_DIRECTORY], 0, parent, &add_monitor);
+
+		/* FIXME: Should we add here or when we process the queue in
+		 * the finished sig?
+		 */
+		if (add_monitor) {
+			tracker_monitor_add (fs->private->monitor, parent);
+		}
+	}
 
 	return process;
 }
