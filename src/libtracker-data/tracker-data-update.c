@@ -1111,7 +1111,7 @@ string_to_gvalue (const gchar         *value,
 	}
 }
 
-static void
+static gboolean
 cache_set_metadata_decomposed (TrackerProperty  *property,
                                const gchar      *value,
                                const gchar      *graph,
@@ -1124,6 +1124,7 @@ cache_set_metadata_decomposed (TrackerProperty  *property,
 	GValue              gvalue = { 0 };
 	GValueArray        *old_values;
 	GError             *new_error = NULL;
+	gboolean            change = FALSE;
 
 	/* also insert super property values */
 	super_properties = tracker_property_get_super_properties (property);
@@ -1131,7 +1132,7 @@ cache_set_metadata_decomposed (TrackerProperty  *property,
 		cache_set_metadata_decomposed (*super_properties, value, graph, &new_error);
 		if (new_error) {
 			g_propagate_error (error, new_error);
-			return;
+			return FALSE;
 		}
 		super_properties++;
 	}
@@ -1153,14 +1154,14 @@ cache_set_metadata_decomposed (TrackerProperty  *property,
 	if (new_error) {
 		g_free (table_name);
 		g_propagate_error (error, new_error);
-		return;
+		return FALSE;
 	}
 
 	string_to_gvalue (value, tracker_property_get_data_type (property), &gvalue, &new_error);
 	if (new_error) {
 		g_free (table_name);
 		g_propagate_error (error, new_error);
-		return;
+		return FALSE;
 	}
 
 	if (!value_set_add_value (old_values, &gvalue)) {
@@ -1178,9 +1179,13 @@ cache_set_metadata_decomposed (TrackerProperty  *property,
 	} else {
 		cache_insert_value (table_name, field_name, &gvalue, graph, multiple_values, fts,
 		                    tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_DATETIME);
+
+		change = TRUE;
 	}
 
 	g_free (table_name);
+
+	return change;
 }
 
 static void
@@ -1569,6 +1574,7 @@ tracker_data_insert_statement_with_uri (const gchar            *graph,
 	TrackerClass    *class;
 	TrackerProperty *property;
 	gint             prop_id = 0;
+	gboolean change = FALSE;
 
 	g_return_if_fail (subject != NULL);
 	g_return_if_fail (predicate != NULL);
@@ -1649,19 +1655,23 @@ tracker_data_insert_statement_with_uri (const gchar            *graph,
 			             "Class '%s' not found in the ontology", object);
 			return;
 		}
+
+		change = TRUE;
 	} else if (strcmp (predicate, TRACKER_PREFIX "uri") == 0) {
 		/* internal property tracker:uri, used to change uri of existing element */
 		resource_buffer->new_subject = g_strdup (object);
+
+		change = TRUE;
 	} else {
 		/* add value to metadata database */
-		cache_set_metadata_decomposed (property, object, graph, &actual_error);
+		change = cache_set_metadata_decomposed (property, object, graph, &actual_error);
 		if (actual_error) {
 			tracker_data_update_buffer_clear ();
 			g_propagate_error (error, actual_error);
 			return;
 		}
 
-		if (insert_callbacks) {
+		if (insert_callbacks && change) {
 			guint n;
 			for (n = 0; n < insert_callbacks->len; n++) {
 				TrackerStatementDelegate *delegate;
@@ -1674,7 +1684,7 @@ tracker_data_insert_statement_with_uri (const gchar            *graph,
 		}
 	}
 
-	if (!in_journal_replay) {
+	if (!in_journal_replay && change) {
 		tracker_db_journal_append_insert_statement_id (
 			(graph != NULL ? query_resource_id (graph) : 0),
 			resource_buffer->id,
@@ -1693,6 +1703,8 @@ tracker_data_insert_statement_with_string (const gchar            *graph,
 	GError          *actual_error = NULL;
 	TrackerProperty *property;
 	gint             id = 0;
+	gboolean change;
+
 
 	g_return_if_fail (subject != NULL);
 	g_return_if_fail (predicate != NULL);
@@ -1723,14 +1735,14 @@ tracker_data_insert_statement_with_string (const gchar            *graph,
 	}
 
 	/* add value to metadata database */
-	cache_set_metadata_decomposed (property, object, graph, &actual_error);
+	change = cache_set_metadata_decomposed (property, object, graph, &actual_error);
 	if (actual_error) {
 		tracker_data_update_buffer_clear ();
 		g_propagate_error (error, actual_error);
 		return;
 	}
 
-	if (insert_callbacks) {
+	if (insert_callbacks && change) {
 		guint n;
 		for (n = 0; n < insert_callbacks->len; n++) {
 			TrackerStatementDelegate *delegate;
@@ -1742,7 +1754,7 @@ tracker_data_insert_statement_with_string (const gchar            *graph,
 		}
 	}
 
-	if (!in_journal_replay) {
+	if (!in_journal_replay && change) {
 		tracker_db_journal_append_insert_statement (
 			(graph != NULL ? query_resource_id (graph) : 0),
 			resource_buffer->id,
