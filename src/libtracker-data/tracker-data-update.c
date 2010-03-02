@@ -1188,7 +1188,7 @@ cache_set_metadata_decomposed (TrackerProperty  *property,
 	return change;
 }
 
-static void
+static gboolean
 delete_metadata_decomposed (TrackerProperty  *property,
                             const gchar              *value,
                             GError          **error)
@@ -1200,6 +1200,7 @@ delete_metadata_decomposed (TrackerProperty  *property,
 	GValue gvalue = { 0 };
 	GValueArray        *old_values;
 	GError             *new_error = NULL;
+	gboolean            change = FALSE;
 
 	multiple_values = tracker_property_get_multiple_values (property);
 	if (multiple_values) {
@@ -1218,7 +1219,7 @@ delete_metadata_decomposed (TrackerProperty  *property,
 	if (new_error) {
 		g_free (table_name);
 		g_propagate_error (error, new_error);
-		return;
+		return FALSE;
 	}
 
 	string_to_gvalue (value, tracker_property_get_data_type (property), &gvalue, &new_error);
@@ -1226,7 +1227,7 @@ delete_metadata_decomposed (TrackerProperty  *property,
 	if (new_error) {
 		g_free (table_name);
 		g_propagate_error (error, new_error);
-		return;
+		return FALSE;
 	}
 
 	if (!value_set_remove_value (old_values, &gvalue)) {
@@ -1235,6 +1236,8 @@ delete_metadata_decomposed (TrackerProperty  *property,
 	} else {
 		cache_delete_value (table_name, field_name, &gvalue, multiple_values, fts,
 		                    tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_DATETIME);
+
+		change = TRUE;
 	}
 
 	g_free (table_name);
@@ -1245,6 +1248,8 @@ delete_metadata_decomposed (TrackerProperty  *property,
 		delete_metadata_decomposed (*super_properties, value, error);
 		super_properties++;
 	}
+
+	return change;
 }
 
 static void
@@ -1369,6 +1374,7 @@ tracker_data_delete_statement (const gchar  *graph,
 	TrackerClass       *class;
 	TrackerProperty    *field;
 	gint                subject_id;
+	gboolean change = FALSE;
 
 	g_return_if_fail (subject != NULL);
 	g_return_if_fail (predicate != NULL);
@@ -1419,8 +1425,10 @@ tracker_data_delete_statement (const gchar  *graph,
 	} else {
 		field = tracker_ontologies_get_property_by_uri (predicate);
 		if (field != NULL) {
+			change = delete_metadata_decomposed (field, object, error);
+
 			gint id = tracker_property_get_id (field);
-			if (!in_journal_replay) {
+			if (!in_journal_replay && change) {
 				if (tracker_property_get_data_type (field) == TRACKER_PROPERTY_TYPE_RESOURCE) {
 					tracker_db_journal_append_delete_statement_id (
 						(graph != NULL ? query_resource_id (graph) : 0),
@@ -1435,14 +1443,12 @@ tracker_data_delete_statement (const gchar  *graph,
 						object);
 				}
 			}
-
-			delete_metadata_decomposed (field, object, error);
 		} else {
 			g_set_error (error, TRACKER_DATA_ERROR, TRACKER_DATA_ERROR_UNKNOWN_PROPERTY,
 			             "Property '%s' not found in the ontology", predicate);
 		}
 
-		if (delete_callbacks) {
+		if (delete_callbacks && change) {
 			guint n;
 			for (n = 0; n < delete_callbacks->len; n++) {
 				TrackerStatementDelegate *delegate;
