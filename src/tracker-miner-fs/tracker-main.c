@@ -218,8 +218,8 @@ miner_finished_cb (TrackerMinerFS *fs,
 {
 	g_message ("Finished mining in seconds:%f, total directories:%d, total files:%d",
 	           seconds_elapsed,
-	           total_directories_found + total_directories_ignored,
-	           total_files_found + total_files_ignored);
+	           total_directories_found,
+	           total_files_found);
 
 	miner_handle_next ();
 }
