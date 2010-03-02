@@ -1284,7 +1284,7 @@ tracker_search_metadata_by_text_async (TrackerClient     *client,
 	cb->data = user_data;
 	cb->client = g_object_ref (client);
 
-	sparql = g_string_new ("SELECT ?file WHERE { ?file a nfo:FileDataObject ; fts:match ");
+	sparql = g_string_new ("SELECT nie:url (?file) WHERE { ?file a nfo:FileDataObject ; fts:match ");
 	sparql_append_string_literal (sparql, query);
 	g_string_append (sparql, " }");
 
@@ -1340,9 +1340,9 @@ tracker_search_metadata_by_text_and_location_async (TrackerClient     *client,
 	cb->data = user_data;
 	cb->client = g_object_ref (client);
 
-	sparql = g_string_new ("SELECT ?file WHERE { ?file a nfo:FileDataObject ; fts:match ");
+	sparql = g_string_new ("SELECT nie:url (?file) WHERE { ?file a nfo:FileDataObject ; fts:match ");
 	sparql_append_string_literal (sparql, query);
-	g_string_append (sparql, " . FILTER (fn:starts-with(?file,");
+	g_string_append (sparql, " . FILTER (fn:starts-with(nie:url (?file),");
 	sparql_append_string_literal (sparql, location);
 	g_string_append (sparql, ")) }");
 
@@ -1401,7 +1401,7 @@ tracker_search_metadata_by_text_and_mime_async (TrackerClient      *client,
 	cb->data = user_data;
 	cb->client = g_object_ref (client);
 
-	sparql = g_string_new ("SELECT ?file WHERE { ?file a nfo:FileDataObject ; nie:mimeType ?mime ; fts:match ");
+	sparql = g_string_new ("SELECT nie:url (?file) WHERE { ?file a nfo:FileDataObject ; nie:mimeType ?mime ; fts:match ");
 	sparql_append_string_literal (sparql, query);
 	g_string_append (sparql, " . FILTER (");
 
@@ -1473,10 +1473,10 @@ tracker_search_metadata_by_text_and_mime_and_location_async (TrackerClient      
 	cb->data = user_data;
 	cb->client = g_object_ref (client);
 
-	sparql = g_string_new ("SELECT ?file WHERE { ?file a nfo:FileDataObject ; nie:mimeType ?mime ; fts:match ");
+	sparql = g_string_new ("SELECT nie:url (?file) WHERE { ?file a nfo:FileDataObject ; nie:mimeType ?mime ; fts:match ");
 	sparql_append_string_literal (sparql, query);
 
-	g_string_append (sparql, " . FILTER (fn:starts-with(?file,");
+	g_string_append (sparql, " . FILTER (fn:starts-with(nie:url (?file),");
 	sparql_append_string_literal (sparql, location);
 
 	g_string_append (sparql, ")");
