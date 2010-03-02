@@ -62,7 +62,16 @@ tracker_data_query_rdf_type (gint id)
 
 		ret = g_ptr_array_sized_new (20);
 		while (tracker_db_cursor_iter_next (cursor)) {
-			g_ptr_array_add (ret, g_strdup (tracker_db_cursor_get_string (cursor, 0)));
+			const gchar *class_uri;
+			TrackerClass *cl;
+
+			class_uri = tracker_db_cursor_get_string (cursor, 0);
+			cl = tracker_ontologies_get_class_by_uri (class_uri);
+			if (!cl) {
+				g_critical ("Unknown class %s", class_uri);
+				continue;
+			}
+			g_ptr_array_add (ret, cl);
 		}
 		g_object_unref (cursor);
 	}

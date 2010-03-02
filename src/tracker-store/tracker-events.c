@@ -38,23 +38,30 @@ static void
 tracker_events_add_allow (const gchar *rdf_class)
 {
 	EventsPrivate *private;
+	TrackerClass *cl;
 
 	private = g_static_private_get (&private_key);
 	g_return_if_fail (private != NULL);
 
-	g_hash_table_insert (private->allowances, g_strdup (rdf_class),
+	cl = tracker_ontologies_get_class_by_uri (rdf_class);
+	if (!cl) {
+		g_critical ("Unknown class %s", rdf_class);
+		return;
+	}
+
+	g_hash_table_insert (private->allowances, cl,
 	                     GINT_TO_POINTER (TRUE));
 }
 
 static gboolean
-is_allowed (EventsPrivate *private, const gchar *rdf_class)
+is_allowed (EventsPrivate *private, TrackerClass *rdf_class)
 {
 	return (g_hash_table_lookup (private->allowances, rdf_class) != NULL) ? TRUE : FALSE;
 }
 
 static void
 prepare_event_for_rdf_type (EventsPrivate *private,
-                            const gchar *rdf_class ,
+                            TrackerClass  *rdf_class ,
                             const gchar *uri,
                             TrackerDBusEventsType type,
                             const gchar *predicate)
@@ -66,7 +73,7 @@ prepare_event_for_rdf_type (EventsPrivate *private,
 	}
 
 	event.type = type;
-	event.class = tracker_ontologies_get_class_by_uri (rdf_class);
+	event.class = rdf_class;
 	event.predicate = tracker_ontologies_get_property_by_uri (predicate);
 	event.subject = g_strdup (uri);
 
@@ -101,7 +108,7 @@ tracker_events_insert (const gchar *uri,
 	} else if (type == TRACKER_DBUS_EVENTS_TYPE_UPDATE) {
 		/* In this case we had an INSERT for a resource that didn't exist
 		 * yet, but it was not the rdf:type predicate being inserted */
-		if (is_allowed (private, (gpointer) TRACKER_RDFS_PREFIX "Resource")) {
+		if (is_allowed (private, tracker_ontologies_get_class_by_uri (TRACKER_RDFS_PREFIX "Resource"))) {
 			prepare_event_for_rdf_type (private,
 			                            (gpointer) TRACKER_RDFS_PREFIX "Resource",
 			                            uri, type, predicate);
@@ -171,9 +178,7 @@ tracker_events_init (TrackerNotifyClassGetter callback)
 	                      private,
 	                      (GDestroyNotify) free_private);
 
-	private->allowances = g_hash_table_new_full (g_str_hash, g_str_equal,
-	                                             (GDestroyNotify) g_free,
-	                                             (GDestroyNotify) NULL);
+	private->allowances = g_hash_table_new (g_direct_hash, g_direct_equal);
 
 	private->events = NULL;
 

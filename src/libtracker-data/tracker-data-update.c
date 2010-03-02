@@ -72,7 +72,7 @@ struct _TrackerDataUpdateBufferResource {
 	GHashTable *predicates;
 	/* string -> TrackerDataUpdateBufferTable */
 	GHashTable *tables;
-	/* string */
+	/* TrackerClass */
 	GPtrArray *types;
 };
 
@@ -685,7 +685,6 @@ static void resource_buffer_free (TrackerDataUpdateBufferResource *resource)
 	g_free (resource->subject);
 	resource->subject = NULL;
 
-	g_ptr_array_foreach (resource->types, (GFunc) g_free, NULL);
 	g_ptr_array_free (resource->types, TRUE);
 	resource->types = NULL;
 
@@ -805,7 +804,6 @@ cache_create_service_decomposed (TrackerClass *cl,
 	TrackerClass       **super_classes;
 	GValue              gvalue = { 0 };
 	gint                i;
-	const gchar        *class_uri;
 
 	/* also create instance of all super classes */
 	super_classes = tracker_class_get_super_classes (cl);
@@ -814,16 +812,14 @@ cache_create_service_decomposed (TrackerClass *cl,
 		super_classes++;
 	}
 
-	class_uri = tracker_class_get_uri (cl);
-
 	for (i = 0; i < resource_buffer->types->len; i++) {
-		if (strcmp (g_ptr_array_index (resource_buffer->types, i), class_uri) == 0) {
+		if (g_ptr_array_index (resource_buffer->types, i) == cl) {
 			/* ignore duplicate statement */
 			return;
 		}
 	}
 
-	g_ptr_array_add (resource_buffer->types, g_strdup (class_uri));
+	g_ptr_array_add (resource_buffer->types, cl);
 
 	g_value_init (&gvalue, G_TYPE_INT);
 
@@ -835,6 +831,9 @@ cache_create_service_decomposed (TrackerClass *cl,
 	tracker_class_set_count (cl, tracker_class_get_count (cl) + 1);
 	if (insert_callbacks) {
 		guint n;
+		const gchar *class_uri;
+
+		class_uri = tracker_class_get_uri (cl);
 
 		for (n = 0; n < insert_callbacks->len; n++) {
 			TrackerStatementDelegate *delegate;
@@ -925,8 +924,7 @@ check_property_domain (TrackerProperty *property)
 	gint type_index;
 
 	for (type_index = 0; type_index < resource_buffer->types->len; type_index++) {
-		if (strcmp (tracker_class_get_uri (tracker_property_get_domain (property)),
-		            g_ptr_array_index (resource_buffer->types, type_index)) == 0) {
+		if (tracker_property_get_domain (property) == g_ptr_array_index (resource_buffer->types, type_index)) {
 			return TRUE;
 		}
 	}
@@ -1268,7 +1266,7 @@ cache_delete_resource_type (TrackerClass *class,
 
 	found = FALSE;
 	for (i = 0; i < resource_buffer->types->len; i++) {
-		if (strcmp (g_ptr_array_index (resource_buffer->types, i), tracker_class_get_uri (class)) == 0) {
+		if (g_ptr_array_index (resource_buffer->types, i) == class) {
 			found = TRUE;
 		}
 	}
