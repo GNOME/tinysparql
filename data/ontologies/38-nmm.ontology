@@ -42,6 +42,7 @@ nmm:Artist a rdfs:Class ;
 nmm:Playlist a rdfs:Class ;
 	rdfs:label "Media playlist" ;
 	rdfs:comment "Specific class to split MediaList in Albums and playlists." ;
+        tracker:notify true ;
 	rdfs:subClassOf nfo:MediaList .
 
 nmm:artistName a rdf:Property ;
