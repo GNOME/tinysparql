@@ -1574,7 +1574,9 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 
 	read_journal = FALSE;
 
-	tracker_db_manager_init (flags, &is_first_time_index, FALSE);
+	if (!tracker_db_manager_init (flags, &is_first_time_index, FALSE)) {
+		return FALSE;
+	}
 
 	if (first_time != NULL) {
 		*first_time = is_first_time_index;
