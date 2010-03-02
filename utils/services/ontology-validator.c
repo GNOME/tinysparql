@@ -21,6 +21,7 @@ static GOptionEntry   entries[] = {
 #define RDFS_SUBPROPERTYOF  "http://www.w3.org/2000/01/rdf-schema#subPropertyOf"
 #define RDFS_TYPE "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
 #define TRACKER_NS "http://www.tracker-project.org/ontologies/tracker#Namespace"
+#define TRACKER_ONTO "http://www.tracker-project.org/ontologies/tracker#Ontology"
 #define TRACKER_PREFIX "http://www.tracker-project.org/ontologies/tracker#prefix"
 #define RDFS_RANGE "http://www.w3.org/2000/01/rdf-schema#range"
 #define RDFS_DOMAIN "http://www.w3.org/2000/01/rdf-schema#domain"
@@ -67,11 +68,12 @@ turtle_load_ontology (const gchar *turtle_subject,
 		}
 
 		/* Check the nmo:Email hasn't already be defined
-		 *  (ignoring rdfs:Class and rdf:Property for bootstraping reasons)
+		 *  (ignoring rdfs:Class, rdf:Property and tracker:Ontology for bootstraping reasons)
 		 */
 		if (exists_or_already_reported (turtle_subject)
 		    && g_strcmp0 (turtle_subject, RDFS_CLASS)
-		    && g_strcmp0 (turtle_subject, RDF_PROPERTY)) {
+		    && g_strcmp0 (turtle_subject, RDF_PROPERTY)
+                    && g_strcmp0 (turtle_subject, TRACKER_ONTO)) {
 			g_error ("%s is already defined", turtle_subject);
 			return;
 		}
@@ -196,6 +198,7 @@ load_basic_classes ()
 {
 	known_items = g_list_prepend (known_items, (gpointer) RDFS_CLASS);
 	known_items = g_list_prepend (known_items, (gpointer) RDF_PROPERTY);
+        known_items = g_list_prepend (known_items, (gpointer) TRACKER_ONTO);
 }
 
 gint
