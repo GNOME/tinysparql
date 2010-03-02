@@ -606,9 +606,11 @@ fs_finalize (GObject *object)
 
 	g_free (priv->current_parent_urn);
 
-	if (priv->directories) {
-		g_list_free (priv->directories);
-	}
+	/* Not a leak, contents are actually owned
+	 * by priv->config_directories, being freed
+	 * right below.
+	 */
+	g_list_free (priv->directories);
 
 	if (priv->config_directories) {
 		g_list_foreach (priv->config_directories, (GFunc) directory_data_free, NULL);

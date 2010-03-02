@@ -1122,7 +1122,6 @@ miner_files_force_recheck_idle (gpointer user_data)
 {
 	TrackerMinerFiles *miner_files = user_data;
 
-
 	/* Recheck all directories for compliance with the new config */
 	tracker_miner_fs_force_recheck (TRACKER_MINER_FS (miner_files));
 
