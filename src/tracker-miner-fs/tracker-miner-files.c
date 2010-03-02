@@ -77,6 +77,8 @@ struct TrackerMinerFilesPrivate {
 
 	GQuark quark_mount_point_uuid;
 	GQuark quark_directory_config_root;
+
+	guint force_recheck_id;
 };
 
 enum {
@@ -304,6 +306,11 @@ miner_files_finalize (GObject *object)
 	                                      mount_pre_unmount_cb,
 	                                      object);
 	g_object_unref (priv->volume_monitor);
+
+	if (priv->force_recheck_id) {
+		g_source_remove (priv->force_recheck_id);
+		priv->force_recheck_id = 0;
+	}
 
 	G_OBJECT_CLASS (tracker_miner_files_parent_class)->finalize (object);
 }
@@ -1110,6 +1117,20 @@ index_single_directories_cb (GObject    *gobject,
         private->index_single_directories = tracker_gslist_copy_with_string_data (new_dirs);
 }
 
+static gboolean
+miner_files_force_recheck_idle (gpointer user_data)
+{
+	TrackerMinerFiles *miner_files = user_data;
+
+
+	/* Recheck all directories for compliance with the new config */
+	tracker_miner_fs_force_recheck (TRACKER_MINER_FS (miner_files));
+
+	miner_files->private->force_recheck_id = 0;
+
+	return FALSE;
+}
+
 static void
 ignore_directories_cb (GObject    *gobject,
                        GParamSpec *arg1,
@@ -1117,8 +1138,11 @@ ignore_directories_cb (GObject    *gobject,
 {
 	TrackerMinerFiles *miner_files = user_data;
 
-	/* Recheck all directories for compliance with the new config */
-	tracker_miner_fs_force_recheck (TRACKER_MINER_FS (miner_files));
+	if (miner_files->private->force_recheck_id == 0) {
+		/* Set idle so multiple changes in the config lead to one recheck */
+		miner_files->private->force_recheck_id =
+			g_idle_add (miner_files_force_recheck_idle, miner_files);
+	}
 }
 
 static gboolean
