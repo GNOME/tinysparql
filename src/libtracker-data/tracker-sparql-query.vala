@@ -1075,6 +1075,8 @@ public class Tracker.SparqlQuery : Object {
 					HashTable<string,string>* ptr = (owned) blank_nodes;
 					update_blank_nodes.add (ptr);
 				}
+
+				Data.update_buffer_might_flush ();
 			} while (result_set.iter_next ());
 		}
 

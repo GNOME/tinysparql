@@ -85,6 +85,7 @@ GPtrArray *
 tracker_data_update_sparql_blank           (const gchar               *update,
                                             GError                   **error);
 void     tracker_data_update_buffer_flush           (GError                   **error);
+void     tracker_data_update_buffer_might_flush     (GError                   **error);
 
 void     tracker_data_sync                          (void);
 

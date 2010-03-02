@@ -711,6 +711,15 @@ tracker_data_update_buffer_flush (GError **error)
 	resource_buffer = NULL;
 }
 
+void
+tracker_data_update_buffer_might_flush (GError **error)
+{
+	/* avoid high memory usage by update buffer */
+	if (g_hash_table_size (update_buffer.resources) >= 1000) {
+		tracker_data_update_buffer_flush (error);
+	}
+}
+
 static void
 tracker_data_update_buffer_clear (void)
 {
