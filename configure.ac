@@ -160,6 +160,8 @@ GEE_REQUIRED=0.3
 ID3LIB_REQUIRED=3.8.3
 GNOME_KEYRING_REQUIRED=2.26
 LIBGRSS_REQUIRED=0.3
+REST_REQUIRED=0.6
+TWITTER_GLIB_REQUIRED=0.9
 
 # Library Checks
 PKG_CHECK_MODULES(GLIB2, [glib-2.0 >= $GLIB_REQUIRED])
@@ -819,6 +821,32 @@ if test "x$enable_gnome_keyring" = "xyes"; then
 fi
 
 AM_CONDITIONAL(HAVE_GNOME_KEYRING, test "x$have_gnome_keyring" = "xyes")
+
+##################################################################
+# Twitter miner
+##################################################################
+
+AC_ARG_ENABLE(miner_twitter,
+	      AS_HELP_STRING([--enable-miner-twitter],
+			     [enable Twitter miner [[default=auto]]]),,
+	      [enable_miner_twitter=auto])
+
+if test "x$enable_miner_twitter" != "xno"; then
+	PKG_CHECK_MODULES(MINER_TWITTER,
+					  [ rest-0.6 >= $REST_REQUIRED twitter-glib-1.0 >= $TWITTER_GLIB_REQUIRED ],
+					  [have_miner_twitter_deps=yes],
+					  [have_miner_twitter_deps=no])
+	AC_SUBST(MINER_TWITTER_LIBS)
+	AC_SUBST(MINER_TWITTER_CFLAGS)
+fi
+
+if test "x$enable_miner_twitter" = "xyes"; then
+   if test "x$have_miner_twitter_deps" != "xyes"; then
+      AC_MSG_ERROR([Couldn't find the required dependencies for the Twitter miner: rest-0.6 >= $REST_REQUIRED.])
+   fi
+fi
+
+AM_CONDITIONAL(HAVE_MINER_TWITTER, test "x$have_miner_twitter_deps" = "xyes")
 
 ####################################################################
 # Mail miners
@@ -1684,6 +1712,7 @@ AC_CONFIG_FILES([
 	src/tracker-store/Makefile
 	src/tracker-control/Makefile
 	src/tracker-extract/Makefile
+	src/tracker-miner-twitter/Makefile
 	src/tracker-preferences/Makefile
 	src/tracker-preferences/tracker-preferences.desktop.in
 	src/tracker-search-bar/Makefile
@@ -1806,6 +1835,10 @@ Data Miners:
 Plugins:
 
         Nautilus: (tagging widget)              $have_nautilus_extension
+
+Extra miners:
+
+	Twitter miner				$have_miner_twitter_deps
 
 Writeback:
 
