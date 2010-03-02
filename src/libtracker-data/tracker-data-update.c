@@ -1423,9 +1423,11 @@ tracker_data_delete_statement (const gchar  *graph,
 	} else {
 		field = tracker_ontologies_get_property_by_uri (predicate);
 		if (field != NULL) {
+			gint id;
+
 			change = delete_metadata_decomposed (field, object, error);
 
-			gint id = tracker_property_get_id (field);
+			id = tracker_property_get_id (field);
 			if (!in_journal_replay && change) {
 				if (tracker_property_get_data_type (field) == TRACKER_PROPERTY_TYPE_RESOURCE) {
 					tracker_db_journal_append_delete_statement_id (
