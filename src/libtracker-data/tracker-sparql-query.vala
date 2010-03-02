@@ -1248,7 +1248,7 @@ public class Tracker.SparqlQuery : Object {
 		expect (SparqlTokenType.REGEX);
 		expect (SparqlTokenType.OPEN_PARENS);
 		sql.append ("SparqlRegex(");
-		translate_expression (sql);
+		translate_expression_as_string (sql);
 		sql.append (", ");
 		expect (SparqlTokenType.COMMA);
 		translate_expression (sql);
