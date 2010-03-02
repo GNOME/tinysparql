@@ -1512,6 +1512,10 @@ tracker_db_manager_init (TrackerDBManagerFlags  flags,
 				}
 			}
 
+			if (!tracker_file_system_has_enough_space (data_dir, TRACKER_DB_MIN_REQUIRED_SPACE)) {
+				return FALSE;
+			}
+
 			db_recreate_all ();
 			loaded = FALSE;
 		}
