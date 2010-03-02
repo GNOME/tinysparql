@@ -92,6 +92,7 @@ typedef struct {
 	guint32 length;
 	gchar *performer1;
 	gchar *performer2;
+	gchar *composer;
 	gchar *publisher;
 	gchar *recording_time;
 	gchar *release_time;
@@ -140,7 +141,8 @@ typedef enum {
 	ID3V24_TPUB,
 	ID3V24_TRCK,
 	ID3V24_TYER,
-	ID3V24_TOLY
+	ID3V24_TOLY,
+	ID3V24_TCOM,
 } id3v24frame;
 
 typedef struct {
@@ -162,7 +164,8 @@ typedef struct {
 	gchar *copyright;
 	gchar *publisher;
 	gchar *comment;
-
+	gchar *composer;
+	gchar *composer_uri;
 	gint track_number;
 	gint track_count;
 
@@ -202,6 +205,7 @@ static const struct {
 	{ "APIC", ID3V24_APIC },
 	{ "COMM", ID3V24_COMM },
 	{ "TALB", ID3V24_TALB },
+	{ "TCOM", ID3V24_TCOM },
 	{ "TCON", ID3V24_TCON },
 	{ "TCOP", ID3V24_TCOP },
 	{ "TDRC", ID3V24_TDRC },
@@ -1248,6 +1252,9 @@ get_id3v24_tags (const gchar          *data,
 			case ID3V24_TOLY:
 				tag->toly = word;
 				break;
+			case ID3V24_TCOM:
+				tag->composer = word;
+				break;
 			case ID3V24_TIT1:
 				tag->title1 = word;
 				break;
@@ -1943,6 +1950,11 @@ extract_mp3 (const gchar          *uri,
 	md.title = tracker_coalesce (4, md.id3v24.title2, md.id3v23.title2, md.id3v22.title2, md.id3v1.title);
 	md.lyricist = tracker_coalesce (2, md.id3v24.text, md.id3v23.toly);
 
+	md.composer = tracker_coalesce (3,
+	                                md.id3v24.composer,
+	                                md.id3v23.composer,
+	                                md.id3v22.composer);
+
 	md.performer = tracker_coalesce (7,
 	                                 md.id3v24.performer1, md.id3v24.performer2,
 	                                 md.id3v23.performer1, md.id3v23.performer2,
@@ -1999,6 +2011,20 @@ extract_mp3 (const gchar          *uri,
 
 		tracker_sparql_builder_insert_close (preupdate);
 		/* do not delete artist, needed by albumart */
+	}
+
+	if (md.composer) {
+		md.composer_uri = tracker_uri_printf_escaped ("urn:artist:%s", md.composer);
+
+		tracker_sparql_builder_insert_open (preupdate, NULL);
+
+		tracker_sparql_builder_subject_iri (preupdate, md.composer_uri);
+		tracker_sparql_builder_predicate (preupdate, "a");
+		tracker_sparql_builder_object (preupdate, "nmm:Artist");
+		tracker_sparql_builder_predicate (preupdate, "nmm:artistName");
+		tracker_sparql_builder_object_unvalidated (preupdate, md.composer);
+
+		tracker_sparql_builder_insert_close (preupdate);
 	}
 
 	if (md.lyricist) {
@@ -2072,6 +2098,12 @@ extract_mp3 (const gchar          *uri,
 		g_free (md.performer_uri);
 	}
 
+	if (md.composer_uri) {
+		tracker_sparql_builder_predicate (metadata, "nmm:composer");
+		tracker_sparql_builder_object_iri (metadata, md.composer_uri);
+		g_free (md.composer_uri);
+	}
+
 	if (md.album_uri) {
 		tracker_sparql_builder_predicate (metadata, "nmm:musicAlbum");
 		tracker_sparql_builder_object_iri (metadata, md.album_uri);
@@ -2129,6 +2161,7 @@ extract_mp3 (const gchar          *uri,
 	                          filename);
 
 	g_free (md.performer);
+	g_free (md.composer);
 	g_free (md.album);
 	g_free (md.title);
 	g_free (md.albumart_data);
