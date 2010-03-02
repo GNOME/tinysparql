@@ -1723,7 +1723,6 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 
 			if (!ontology) {
 				g_critical ("Can't get ontology from file: %s", ontology_file);
-				g_free (l->data);
 				continue;
 			}
 
