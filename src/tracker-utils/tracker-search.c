@@ -40,22 +40,22 @@
 	"\n" \
 	"  http://www.gnu.org/licenses/gpl.txt\n"
 
-static gint           limit = 512;
-static gint           offset;
-static gchar        **terms;
-static gboolean       or_operator;
-static gboolean       detailed;
-static gboolean       files;
-static gboolean       folders;
-static gboolean       music_albums;
-static gboolean       music_artists;
-static gboolean       music_files;
-static gboolean       image_files;
-static gboolean       video_files;
-static gboolean       document_files;
-static gboolean       print_version;
+static gint limit = 512;
+static gint offset;
+static gchar **terms;
+static gboolean or_operator;
+static gboolean detailed;
+static gboolean files;
+static gboolean folders;
+static gboolean music_albums;
+static gboolean music_artists;
+static gboolean music_files;
+static gboolean image_files;
+static gboolean video_files;
+static gboolean document_files;
+static gboolean print_version;
 
-static GOptionEntry   entries[] = {
+static GOptionEntry entries[] = {
 	{ "limit", 'l', 0, G_OPTION_ARG_INT, &limit,
 	  N_("Limit the number of results shown"),
 	  N_("512")
@@ -686,18 +686,49 @@ get_all_by_search_foreach (gpointer value,
                            gpointer user_data)
 {
 	gchar **metadata;
-	gchar **p;
 	gboolean detailed;
-	gint i;
 
 	metadata = value;
 	detailed = GPOINTER_TO_INT (user_data);
 
-	for (p = metadata, i = 0; *p; p++, i++) {
-		if (i == 0) {
-			g_print ("  %s", *p);
-		} else if (detailed) {
-			g_print (", %s", *p);
+	if (!metadata || !*metadata) {
+		return;
+	}
+
+	if (G_LIKELY (!detailed)) {
+		gchar **p;
+		gint i;
+
+		for (p = metadata, i = 0; *p; p++, i++) {
+			if (i == 0) {
+				g_print ("  %s", *p);
+			}
+		}
+	} else {
+		const gchar *urn;
+		const gchar *mime_type;
+		const gchar *class;
+
+		urn = metadata[0];
+		mime_type = metadata[1];
+		class = metadata[2];
+
+		if (mime_type && mime_type[0] == '\0') {
+			mime_type = NULL;
+		}
+		
+		if (mime_type) {
+			g_print ("  %s\n"
+			         "    %s\n"
+			         "    %s\n", 
+			         urn, 
+			         mime_type, 
+			         class);
+		} else {
+			g_print ("  %s\n"
+			         "    %s\n", 
+			         urn, 
+			         class);
 		}
 	}
 
@@ -723,13 +754,24 @@ get_all_by_search (TrackerClient *client,
 	}
 
 	if (detailed_results) {
-		query = g_strdup_printf ("SELECT ?s ?type ?mimeType WHERE { ?s fts:match \"%s\" ; rdf:type ?type . "
-		                         "OPTIONAL { ?s nie:mimeType ?mimeType } } OFFSET %d LIMIT %d",
+		query = g_strdup_printf ("SELECT tracker:coalesce (nie:url (?s), ?s) nie:mimeType (?s) ?type "
+		                         "WHERE {"
+		                         "  ?s fts:match \"%s\" ;"
+		                         "  rdf:type ?type "
+		                         "} "
+		                         "GROUP BY nie:url (?s) "
+		                         "ORDER BY nie:url (?s) "
+		                         "OFFSET %d LIMIT %d",
 		                         fts,
 		                         search_offset,
 		                         search_limit);
 	} else {
-		query = g_strdup_printf ("SELECT ?s WHERE { ?s fts:match \"%s\" } OFFSET %d LIMIT %d",
+		query = g_strdup_printf ("SELECT tracker:coalesce (nie:url (?s), ?s) "
+		                         "WHERE {"
+		                         "  ?s fts:match \"%s\" "
+		                         "} "
+		                         "ORDER BY nie:url (?s) "
+		                         "OFFSET %d LIMIT %d",
 		                         fts,
 		                         search_offset,
 		                         search_limit);
