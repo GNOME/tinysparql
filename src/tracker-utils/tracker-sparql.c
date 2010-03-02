@@ -43,11 +43,12 @@
 
 static gchar    *file;
 static gchar    *query;
-static gboolean          update;
+static gboolean  update;
 static gboolean  list_classes;
 static gboolean  list_class_prefixes;
 static gchar    *list_properties;
 static gboolean  print_version;
+static gchar    *search;
 
 static GOptionEntry   entries[] = {
 	{ "file", 'f', 0, G_OPTION_ARG_FILENAME, &file,
@@ -73,6 +74,10 @@ static GOptionEntry   entries[] = {
 	{ "list-properties", 'p', 0, G_OPTION_ARG_STRING, &list_properties,
 	  N_("Retrieve properties for a class, prefixes can be used too (e.g. rdfs:Resource)"),
 	  N_("CLASS"),
+	},
+	{ "search", 's', 0, G_OPTION_ARG_STRING, &search,
+	  N_("Search for a class or property and display more information (e.g. Document)"),
+	  N_("CLASS/PROPERTY"),
 	},
 	{ "version", 'V', 0, G_OPTION_ARG_NONE, &print_version,
 	  N_("Print version"),
@@ -182,7 +187,7 @@ main (int argc, char **argv)
 		return EXIT_SUCCESS;
 	}
 
-	if (!list_classes && !list_class_prefixes && !list_properties &&
+	if (!list_classes && !list_class_prefixes && !list_properties && !search &&
 	    ((!file && !query) || (file && query))) {
 		gchar *help;
 
@@ -210,8 +215,7 @@ main (int argc, char **argv)
 	if (list_classes) {
 		const gchar *query;
 
-		query = "SELECT ?cl WHERE { ?cl a rdfs:Class }";
-
+		query = "SELECT ?c WHERE { ?c a rdfs:Class }";
 		results = tracker_resources_sparql_query (client, query, &error);
 
 		if (error) {
@@ -279,6 +283,79 @@ main (int argc, char **argv)
 		}
 	}
 
+	if (search) {
+		gchar *query;
+
+		/* First list classes */
+		query = g_strdup_printf ("SELECT ?c "
+		                         "WHERE {"
+		                         "  ?c a rdfs:Class"
+		                         "  FILTER regex (?c, \"%s\", \"i\") "
+		                         "}",
+		                         search);
+		results = tracker_resources_sparql_query (client, query, &error);
+		g_free (query);
+
+		if (error) {
+			g_printerr ("%s, %s\n",
+			            _("Could not search classes"),
+			            error->message);
+			g_clear_error (&error);
+		} else {
+			if (!results) {
+				g_print ("%s\n",
+				         _("No classes were found to match search term"));
+			} else {
+				g_print (g_dngettext (NULL,
+				                      "Class: %d",
+				                      "Classes: %d",
+				                      results->len),
+				         results->len);
+				g_print ("\n");
+
+				g_ptr_array_foreach (results, results_foreach, NULL);
+				g_ptr_array_foreach (results, (GFunc) g_strfreev, NULL);
+				g_ptr_array_free (results, TRUE);
+			}
+		}
+
+		/* Second list properties */
+		query = g_strdup_printf ("SELECT ?p "
+		                         "WHERE {"
+		                         "  ?p a rdf:Property"
+		                         "  FILTER regex (?p, \"%s\", \"i\") "
+		                         "}",
+		                         search);
+
+		results = tracker_resources_sparql_query (client, query, &error);
+		g_free (query);
+
+		if (error) {
+			g_printerr ("  %s, %s\n",
+			            _("Could not search properties"),
+			            error->message);
+			g_clear_error (&error);
+		} else {
+			if (!results) {
+				g_print ("%s\n",
+				         _("No properties were found to match search term"));
+			} else {
+				g_print (g_dngettext (NULL,
+				                      "Property: %d",
+				                      "Properties: %d",
+				                      results->len),
+				         results->len);
+				g_print ("\n");
+
+				g_ptr_array_foreach (results, results_foreach, NULL);
+				g_ptr_array_foreach (results, (GFunc) g_strfreev, NULL);
+				g_ptr_array_free (results, TRUE);
+			}
+		}
+
+		return EXIT_SUCCESS;
+	}
+
 	if (list_properties) {
 		gchar *query;
 		gchar *class_name;
@@ -320,9 +397,9 @@ main (int argc, char **argv)
 			g_free (property);
 		}
 
-		query = g_strdup_printf ("SELECT ?prop "
+		query = g_strdup_printf ("SELECT ?p "
 		                         "WHERE {"
-		                         "  ?prop a rdf:Property ;"
+		                         "  ?p a rdf:Property ;"
 		                         "  rdfs:domain <%s>"
 		                         "}",
 		                         class_name);
