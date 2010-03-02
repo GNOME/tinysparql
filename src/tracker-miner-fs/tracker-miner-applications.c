@@ -178,6 +178,7 @@ get_desktop_key_file (GFile   *file,
 {
 	GKeyFile *key_file;
 	gchar *path;
+	gchar *str;
 
 	path = g_file_get_path (file);
 	key_file = g_key_file_new ();
@@ -196,13 +197,18 @@ get_desktop_key_file (GFile   *file,
 		return NULL;
 	}
 
-	*type = g_key_file_get_string (key_file, GROUP_DESKTOP_ENTRY, "Type", NULL);
+	str = g_key_file_get_string (key_file, GROUP_DESKTOP_ENTRY, "Type", NULL);
 
-	if (!*type) {
+	if (G_UNLIKELY (!str)) {
+		*type = NULL;
+
 		g_set_error_literal (error, miner_applications_error_quark, 0, "Desktop file doesn't contain type");
 		g_key_file_free (key_file);
 		g_free (path);
 		return NULL;
+	} else {
+		/* Sanitize type */
+		*type = g_strstrip (str);
 	}
 
 	g_free (path);
@@ -227,15 +233,26 @@ miner_applications_process_file_cb (gpointer user_data)
 	type = data->type;
 
 	path = g_file_get_path (data->file);
+
+	/* Try to get the categories with locale, then without if that fails */
 	cats = g_key_file_get_locale_string_list (key_file, GROUP_DESKTOP_ENTRY, "Categories", NULL, &cats_len, NULL);
 
 	if (!cats)
 		cats = g_key_file_get_string_list (key_file, GROUP_DESKTOP_ENTRY, "Categories", &cats_len, NULL);
 
+	/* NOTE: We sanitize categories later on when iterating them */
+
+	/* Try to get the name with locale, then without if that fails */
 	name = g_key_file_get_locale_string (key_file, GROUP_DESKTOP_ENTRY, "Name", NULL, NULL);
 
-	if (!name)
-		g_key_file_get_string (key_file, GROUP_DESKTOP_ENTRY, "Name", NULL);
+	if (!name) {
+		name = g_key_file_get_string (key_file, GROUP_DESKTOP_ENTRY, "Name", NULL);
+	}
+
+	/* Sanitize name */
+	if (name) {
+		g_strstrip (name);
+	}
 
 	if (name && g_ascii_strcasecmp (type, "Directory") == 0) {
 		gchar *canonical_uri = tracker_uri_printf_escaped (SOFTWARE_CATEGORY_URN_PREFIX "%s", path);
@@ -249,7 +266,12 @@ miner_applications_process_file_cb (gpointer user_data)
 		tracker_sparql_builder_object (sparql, "nfo:SoftwareCategory");
 
 		if (icon) {
-			gchar *icon_uri = g_strdup_printf (THEME_ICON_URN_PREFIX "%s", icon);
+			gchar *icon_uri;
+
+			/* Sanitize icon */
+			g_strstrip (icon);
+
+			icon_uri = g_strdup_printf (THEME_ICON_URN_PREFIX "%s", icon);
 
 			tracker_sparql_builder_subject_iri (sparql, icon_uri);
 			tracker_sparql_builder_predicate (sparql, "a");
@@ -330,7 +352,12 @@ miner_applications_process_file_cb (gpointer user_data)
 			icon = g_key_file_get_string (key_file, GROUP_DESKTOP_ENTRY, "Icon", NULL);
 
 			if (icon) {
-				gchar *icon_uri = g_strdup_printf (THEME_ICON_URN_PREFIX "%s", icon);
+				gchar *icon_uri;
+
+				/* Sanitize icon */
+				g_strstrip (icon);
+
+				icon_uri = g_strdup_printf (THEME_ICON_URN_PREFIX "%s", icon);
 
 				tracker_sparql_builder_subject_iri (sparql, icon_uri);
 				tracker_sparql_builder_predicate (sparql, "a");
@@ -349,7 +376,19 @@ miner_applications_process_file_cb (gpointer user_data)
 			gsize i;
 
 			for (i = 0 ; cats[i] && i < cats_len ; i++) {
-				gchar *cat_uri = tracker_uri_printf_escaped (SOFTWARE_CATEGORY_URN_PREFIX "%s", cats[i]);
+				gchar *cat_uri;
+				gchar *cat;
+
+				cat = cats[i];
+
+				if (!cat) {
+					continue;
+				}
+
+				/* Sanitize category */
+				g_strstrip (cat);
+
+				cat_uri = tracker_uri_printf_escaped (SOFTWARE_CATEGORY_URN_PREFIX "%s", cat);
 
 				/* There are also .desktop
 				 * files that describe these categories, but we can handle
@@ -361,7 +400,7 @@ miner_applications_process_file_cb (gpointer user_data)
 				tracker_sparql_builder_object (sparql, "nfo:SoftwareCategory");
 
 				tracker_sparql_builder_predicate (sparql, "nie:title");
-				tracker_sparql_builder_object_string (sparql, cats[i]);
+				tracker_sparql_builder_object_string (sparql, cat);
 
 				tracker_sparql_builder_subject_iri (sparql, uri);
 				tracker_sparql_builder_predicate (sparql, "nie:isLogicalPartOf");
