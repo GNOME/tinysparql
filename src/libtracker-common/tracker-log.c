@@ -189,6 +189,9 @@ tracker_log_init (gint    this_verbosity,
 
 	initialized = TRUE;
 
+	/* log binary name and version */
+	g_message ("%s %s", g_get_application_name (), PACKAGE_VERSION);
+
 	return TRUE;
 }
 
