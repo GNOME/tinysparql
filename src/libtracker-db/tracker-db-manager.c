@@ -1432,7 +1432,7 @@ tracker_db_manager_init (TrackerDBManagerFlags  flags,
 			*first_time = TRUE;
 		}
 
-		if (!tracker_file_system_has_enough_space (data_dir, TRACKER_DB_MIN_REQUIRED_SPACE)) {
+		if (!tracker_file_system_has_enough_space (data_dir, TRACKER_DB_MIN_REQUIRED_SPACE, TRUE)) {
 			return FALSE;
 		}
 
@@ -1512,7 +1512,7 @@ tracker_db_manager_init (TrackerDBManagerFlags  flags,
 				}
 			}
 
-			if (!tracker_file_system_has_enough_space (data_dir, TRACKER_DB_MIN_REQUIRED_SPACE)) {
+			if (!tracker_file_system_has_enough_space (data_dir, TRACKER_DB_MIN_REQUIRED_SPACE, TRUE)) {
 				return FALSE;
 			}
 
@@ -1848,3 +1848,16 @@ tracker_db_manager_get_db_interface (void)
 	return resources_iface;
 }
 
+/**
+ * tracker_db_manager_has_enough_space:
+ *
+ * Checks whether the file system, where the database files are stored,
+ * has enough free space to allow modifications.
+ *
+ * returns: TRUE if there is enough space, FALSE otherwise
+ **/
+gboolean
+tracker_db_manager_has_enough_space  (void)
+{
+	return tracker_file_system_has_enough_space (data_dir, TRACKER_DB_MIN_REQUIRED_SPACE, FALSE);
+}

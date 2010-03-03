@@ -40,7 +40,8 @@ goffset  tracker_file_get_size                     (const gchar  *uri);
 guint64  tracker_file_get_mtime                    (const gchar  *uri);
 gchar *  tracker_file_get_mime_type                (GFile        *file);
 gboolean tracker_file_system_has_enough_space      (const gchar  *path,
-                                                    gulong        required_bytes);
+                                                    gulong        required_bytes,
+                                                    gboolean      creating_db);
 void     tracker_path_remove                       (const gchar  *uri);
 gboolean tracker_path_is_in_path                   (const gchar  *path,
                                                     const gchar  *in_path);

@@ -2283,6 +2283,12 @@ tracker_data_update_sparql (const gchar  *update,
 
 	g_return_if_fail (update != NULL);
 
+	if (!tracker_db_manager_has_enough_space ()) {
+		g_set_error (error, TRACKER_DATA_ERROR, TRACKER_DATA_ERROR_NO_SPACE,
+			"There is not enough space on the file system for update operations");
+		return;
+	}
+
 	iface = tracker_db_manager_get_db_interface ();
 
 	sparql_query = tracker_sparql_query_new_update (update);
@@ -2330,6 +2336,12 @@ tracker_data_update_sparql_blank (const gchar  *update,
 	GPtrArray *blank_nodes;
 
 	g_return_val_if_fail (update != NULL, NULL);
+
+	if (!tracker_db_manager_has_enough_space ()) {
+		g_set_error (error, TRACKER_DATA_ERROR, TRACKER_DATA_ERROR_NO_SPACE,
+			"There is not enough space on the file system for update operations");
+		return NULL;
+	}
 
 	iface = tracker_db_manager_get_db_interface ();
 

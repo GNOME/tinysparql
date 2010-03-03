@@ -187,7 +187,8 @@ tracker_file_get_mime_type (GFile *file)
 
 gboolean
 tracker_file_system_has_enough_space (const gchar *path,
-                                      gulong       required_bytes)
+                                      gulong       required_bytes,
+                                      gboolean     creating_db)
 {
 	struct statvfs st;
 	gchar *str1;
@@ -201,25 +202,27 @@ tracker_file_system_has_enough_space (const gchar *path,
 		return FALSE;
 	}
 
-	str1 = g_format_size_for_display (required_bytes);
-	str2 = g_format_size_for_display (st.f_bsize * st.f_bavail);
-
 	enough = ((long long) st.f_bsize * st.f_bavail) >= required_bytes;
 
-	if (!enough) {
-		g_critical ("Not enough disk space to create databases, "
-		            "%s remaining, %s required as a minimum",
-		            str2,
-		            str1);
-	} else {
-		g_message ("Checking for adequate disk space to create databases, "
-		           "%s remaining, %s required as a minimum",
-		           str2,
-		           str1);
-	}
+	if (creating_db) {
+		str1 = g_format_size_for_display (required_bytes);
+		str2 = g_format_size_for_display (st.f_bsize * st.f_bavail);
 
-	g_free (str2);
-	g_free (str1);
+		if (!enough) {
+			g_critical ("Not enough disk space to create databases, "
+				    "%s remaining, %s required as a minimum",
+				    str2,
+				    str1);
+		} else {
+			g_message ("Checking for adequate disk space to create databases, "
+				   "%s remaining, %s required as a minimum",
+				   str2,
+				   str1);
+		}
+
+		g_free (str2);
+		g_free (str1);
+	}
 
 	return enough;
 }
