@@ -2184,6 +2184,7 @@ public class Tracker.SparqlQuery : Object {
 		expect (SparqlTokenType.CLOSE_BRACE);
 	}
 
+	bool anon_blank_node_open = false;
 
 	string parse_construct_var_or_term (HashTable<string,string> var_value_map) throws SparqlError, DataError, DateError {
 		string result = "";
@@ -2244,6 +2245,12 @@ public class Tracker.SparqlQuery : Object {
 		} else if (current () == SparqlTokenType.STRING_LITERAL_LONG2) {
 			result = parse_string_literal ();
 		} else if (current () == SparqlTokenType.OPEN_BRACKET) {
+
+			if (anon_blank_node_open) {
+				throw get_error ("no support for nested anonymous blank nodes");
+			}
+
+			anon_blank_node_open = true;
 			next ();
 
 			result = generate_bnodeid (null);
@@ -2254,6 +2261,7 @@ public class Tracker.SparqlQuery : Object {
 			current_subject = result;
 			parse_construct_property_list_not_empty (var_value_map);
 			expect (SparqlTokenType.CLOSE_BRACKET);
+			anon_blank_node_open = false;
 
 			current_subject = old_subject;
 			current_subject_is_var = old_subject_is_var;
