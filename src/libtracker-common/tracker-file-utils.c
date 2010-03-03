@@ -459,17 +459,14 @@ tracker_path_list_filter_duplicates (GSList      *roots,
 			l2 = l2->next;
 		}
 
-		/* Make sure the path doesn't have the '/' suffix. */
-		p = strrchr (path, G_DIR_SEPARATOR);
+		if (G_LIKELY (!reset)) {
+			p = strrchr (path, G_DIR_SEPARATOR);
 
-		if (p) {
-			if (*(p + 1) == '\0') {
+			/* Make sure the path doesn't have the '/' suffix. */
+			if (p && !p[1]) {
 				*p = '\0';
 			}
-		}
 
-		/* Continue in list unless reset. */
-		if (G_LIKELY (!reset)) {
 			l1 = l1->next;
 		}
 	}
