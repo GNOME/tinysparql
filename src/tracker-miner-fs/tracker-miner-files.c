@@ -1149,57 +1149,13 @@ miner_files_check_file (TrackerMinerFS *fs,
                         GFile          *file)
 {
 	TrackerMinerFiles *mf;
-	GFileInfo *file_info;
-	GSList *l;
-	gchar *basename;
-	gchar *path;
-	gboolean should_process;
-
-	file_info = NULL;
-	should_process = FALSE;
-	basename = NULL;
-	path = NULL;
-
-	file_info = g_file_query_info (file,
-	                               G_FILE_ATTRIBUTE_STANDARD_IS_HIDDEN,
-	                               G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
-	                               NULL, NULL);
-
-	if (file_info && g_file_info_get_is_hidden (file_info)) {
-		/* Ignore hidden files */
-		goto done;
-	}
 
 	/* Check module file ignore patterns */
 	mf = TRACKER_MINER_FILES (fs);
 
-	path = g_file_get_path (file);
-
-	for (l = tracker_config_get_ignored_file_paths (mf->private->config); l; l = l->next) {
-		if (strcmp (l->data, path) == 0) {
-			goto done;
-		}
-	}
-
-	basename = g_file_get_basename (file);
-
-	for (l = tracker_config_get_ignored_file_patterns (mf->private->config); l; l = l->next) {
-		if (g_pattern_match_string (l->data, basename)) {
-			goto done;
-		}
-	}
-
-	should_process = TRUE;
-
-done:
-	g_free (basename);
-	g_free (path);
-
-	if (file_info) {
-		g_object_unref (file_info);
-	}
-
-	return should_process;
+	return tracker_miner_files_check_file (file,
+	                                       tracker_config_get_ignored_file_paths (mf->private->config),
+	                                       tracker_config_get_ignored_file_patterns (mf->private->config));
 }
 
 static gboolean
@@ -1207,105 +1163,17 @@ miner_files_check_directory (TrackerMinerFS *fs,
                              GFile          *file)
 {
 	TrackerMinerFiles *mf;
-	GFileInfo *file_info;
-	GSList *l;
-	gchar *basename;
-	gchar *path;
-	gboolean should_process;
-	gboolean is_hidden;
 
-	should_process = FALSE;
-	basename = NULL;
-
-	/* Most common things to ignore */
-	file_info = g_file_query_info (file,
-	                               G_FILE_ATTRIBUTE_STANDARD_IS_HIDDEN,
-	                               G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
-	                               NULL, NULL);
-
-	path = g_file_get_path (file);
-
-	/* First we check the GIO hidden check. This does a number of
-	 * things for us which is good (like checking ".foo" dirs).
-	 */
-	is_hidden = file_info && g_file_info_get_is_hidden (file_info);
-
-	/* Second we check if the file is on FAT and if the hidden
-	 * attribute is set. GIO does this but ONLY on a Windows OS,
-	 * not for Windows files under a Linux OS, so we have to check
-	 * anyway.
-	 */
-	if (!is_hidden) {
-		int fd;
-
-		fd = g_open (path, O_RDONLY, 0);
-		if (fd != -1) {
-			__u32 attrs;
-
-			if (ioctl (fd, FAT_IOCTL_GET_ATTRIBUTES, &attrs) == 0) {
-				is_hidden = attrs & ATTR_HIDDEN ? TRUE : FALSE;
-			}
-
-			close (fd);
-		}
-	}
-
-	if (is_hidden) {
-		TrackerMinerFiles *mf;
-		GSList *allowed_directories;
-
-		mf = TRACKER_MINER_FILES (fs);
-
-		/* FIXME: We need to check if the file is actually a
-		 * config specified location before blanket ignoring
-		 * all hidden files.
-		 */
-		allowed_directories =
-			tracker_config_get_index_recursive_directories (mf->private->config);
-
-		if (tracker_string_in_gslist (path, allowed_directories)) {
-			should_process = TRUE;
-		}
-
-		allowed_directories =
-			tracker_config_get_index_single_directories (mf->private->config);
-
-		if (tracker_string_in_gslist (path, allowed_directories)) {
-			should_process = TRUE;
-		}
-
-		/* Ignore hidden dirs */
-		goto done;
-	}
-
+	/* Check module file ignore patterns */
 	mf = TRACKER_MINER_FILES (fs);
 
-	for (l = tracker_config_get_ignored_directory_paths (mf->private->config); l; l = l->next) {
-		if (strcmp (l->data, path) == 0) {
-			goto done;
-		}
-	}
+	return tracker_miner_files_check_directory (file,
+	                                            tracker_config_get_index_recursive_directories (mf->private->config),
+	                                            tracker_config_get_index_single_directories (mf->private->config),
+	                                            tracker_config_get_ignored_directory_paths (mf->private->config),
+	                                            tracker_config_get_ignored_directory_patterns (mf->private->config));
 
-	basename = g_file_get_basename (file);
 
-	for (l = tracker_config_get_ignored_directory_patterns (mf->private->config); l; l = l->next) {
-		if (g_pattern_match_string (l->data, basename)) {
-			goto done;
-		}
-	}
-
-	/* Check module directory ignore patterns */
-	should_process = TRUE;
-
- done:
-	g_free (basename);
-	g_free (path);
-
-	if (file_info) {
-		g_object_unref (file_info);
-	}
-
-	return should_process;
 }
 
 static gboolean
@@ -1314,40 +1182,12 @@ miner_files_check_directory_contents (TrackerMinerFS *fs,
                                       GList          *children)
 {
 	TrackerMinerFiles *mf;
-	GSList *ignored_content, *l;
 
 	mf = TRACKER_MINER_FILES (fs);
-	ignored_content = tracker_config_get_ignored_directories_with_content (mf->private->config);
 
-	if (!ignored_content) {
-		return TRUE;
-	}
-
-	while (children) {
-		gchar *basename;
-
-		basename = g_file_get_basename (children->data);
-
-		for (l = ignored_content; l; l = l->next) {
-			if (g_strcmp0 (basename, l->data) == 0) {
-				gchar *parent_uri;
-
-				parent_uri = g_file_get_uri (parent);
-				g_debug ("Directory '%s' ignored since it contains a file named '%s'",
-				         parent_uri, basename);
-
-				g_free (parent_uri);
-				g_free (basename);
-
-				return FALSE;
-			}
-		}
-
-		children = children->next;
-		g_free (basename);
-	}
-
-	return TRUE;
+	return tracker_miner_files_check_directory_contents (parent,
+	                                                     children,
+	                                                     tracker_config_get_ignored_directories_with_content (mf->private->config));
 }
 
 static gboolean
@@ -1358,15 +1198,9 @@ miner_files_monitor_directory (TrackerMinerFS *fs,
 
 	mf = TRACKER_MINER_FILES (fs);
 
-	if (!tracker_config_get_enable_monitors (mf->private->config)) {
-		return FALSE;
-	}
-
-	/* We'll only get this signal for the directories where check_directory()
-	 * and check_directory_contents() returned TRUE, so by default we want
-	 * these directories to be indexed.
-	 */
-	return TRUE;
+	return tracker_miner_files_monitor_directory (file,
+	                                              tracker_config_get_enable_monitors (mf->private->config),
+	                                              mf->private->index_single_directories);
 }
 
 static const gchar *
@@ -1804,4 +1638,226 @@ tracker_miner_files_new (TrackerConfig *config)
 	                     "config", config,
 	                     "process-pool-limit", 10,
 	                     NULL);
+}
+
+gboolean
+tracker_miner_files_check_file (GFile  *file,
+                                GSList *ignored_file_paths,
+                                GSList *ignored_file_patterns)
+{
+	GFileInfo *file_info;
+	GSList *l;
+	gchar *basename;
+	gchar *path;
+	gboolean should_process;
+
+	file_info = NULL;
+	should_process = FALSE;
+	basename = NULL;
+	path = NULL;
+
+	file_info = g_file_query_info (file,
+	                               G_FILE_ATTRIBUTE_STANDARD_IS_HIDDEN,
+	                               G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
+	                               NULL, NULL);
+
+	if (file_info && g_file_info_get_is_hidden (file_info)) {
+		/* Ignore hidden files */
+		goto done;
+	}
+
+
+	path = g_file_get_path (file);
+
+	for (l = ignored_file_paths; l; l = l->next) {
+		if (strcmp (l->data, path) == 0) {
+			goto done;
+		}
+	}
+
+	basename = g_file_get_basename (file);
+
+	for (l = ignored_file_patterns; l; l = l->next) {
+		if (g_pattern_match_string (l->data, basename)) {
+			goto done;
+		}
+	}
+
+	should_process = TRUE;
+
+done:
+	g_free (basename);
+	g_free (path);
+
+	if (file_info) {
+		g_object_unref (file_info);
+	}
+
+	return should_process;
+}
+
+gboolean
+tracker_miner_files_check_directory (GFile  *file,
+                                     GSList *index_recursive_directories,
+                                     GSList *index_single_directories,
+                                     GSList *ignored_directory_paths,
+                                     GSList *ignored_directory_patterns)
+{
+	GFileInfo *file_info;
+	GSList *l;
+	gchar *basename;
+	gchar *path;
+	gboolean should_process;
+	gboolean is_hidden;
+
+	should_process = FALSE;
+	basename = NULL;
+
+	/* Most common things to ignore */
+	file_info = g_file_query_info (file,
+	                               G_FILE_ATTRIBUTE_STANDARD_IS_HIDDEN,
+	                               G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
+	                               NULL, NULL);
+
+	path = g_file_get_path (file);
+
+	/* First we check the GIO hidden check. This does a number of
+	 * things for us which is good (like checking ".foo" dirs).
+	 */
+	is_hidden = file_info && g_file_info_get_is_hidden (file_info);
+
+	/* Second we check if the file is on FAT and if the hidden
+	 * attribute is set. GIO does this but ONLY on a Windows OS,
+	 * not for Windows files under a Linux OS, so we have to check
+	 * anyway.
+	 */
+	if (!is_hidden) {
+		int fd;
+
+		fd = g_open (path, O_RDONLY, 0);
+		if (fd != -1) {
+			__u32 attrs;
+
+			if (ioctl (fd, FAT_IOCTL_GET_ATTRIBUTES, &attrs) == 0) {
+				is_hidden = attrs & ATTR_HIDDEN ? TRUE : FALSE;
+			}
+
+			close (fd);
+		}
+	}
+
+	if (is_hidden) {
+		/* FIXME: We need to check if the file is actually a
+		 * config specified location before blanket ignoring
+		 * all hidden files.
+		 */
+		if (tracker_string_in_gslist (path, index_recursive_directories)) {
+			should_process = TRUE;
+		}
+
+		if (tracker_string_in_gslist (path, index_single_directories)) {
+			should_process = TRUE;
+		}
+
+		/* Ignore hidden dirs */
+		goto done;
+	}
+
+	for (l = ignored_directory_paths; l; l = l->next) {
+		if (strcmp (l->data, path) == 0) {
+			goto done;
+		}
+	}
+
+	basename = g_file_get_basename (file);
+
+	for (l = ignored_directory_patterns; l; l = l->next) {
+		if (g_pattern_match_string (l->data, basename)) {
+			goto done;
+		}
+	}
+
+	/* Check module directory ignore patterns */
+	should_process = TRUE;
+
+ done:
+	g_free (basename);
+	g_free (path);
+
+	if (file_info) {
+		g_object_unref (file_info);
+	}
+
+	return should_process;
+}
+
+gboolean
+tracker_miner_files_check_directory_contents (GFile  *parent,
+                                              GList  *children,
+                                              GSList *ignored_content)
+{
+	GSList *l;
+
+	if (!ignored_content) {
+		return TRUE;
+	}
+
+	while (children) {
+		gchar *basename;
+
+		basename = g_file_get_basename (children->data);
+
+		for (l = ignored_content; l; l = l->next) {
+			if (g_strcmp0 (basename, l->data) == 0) {
+				gchar *parent_uri;
+
+				parent_uri = g_file_get_uri (parent);
+				/* g_debug ("Directory '%s' ignored since it contains a file named '%s'", */
+				/*          parent_uri, basename); */
+
+				g_free (parent_uri);
+				g_free (basename);
+
+				return FALSE;
+			}
+		}
+
+		children = children->next;
+		g_free (basename);
+	}
+
+	return TRUE;
+}
+
+gboolean
+tracker_miner_files_monitor_directory (GFile    *file,
+                                       gboolean  enable_monitors,
+                                       GSList   *directories_to_check)
+{
+	GSList *l;
+
+	if (!enable_monitors) {
+		return FALSE;
+	}
+
+	/* We don't want child directories inside IndexSingleDirectories
+	 * to have a monitor added.
+	 */
+	for (l = directories_to_check; l; l = l->next) {
+		gboolean is_child = FALSE;
+		GFile *dir;
+
+		dir = g_file_new_for_path (l->data);
+		is_child = g_file_has_prefix (file, dir);
+		g_object_unref (dir);
+
+		if (is_child) {
+			return FALSE;
+		}
+	}
+
+	/* Fallback to the check directory routine, since we don't
+	 * monitor anything we don't process.
+	 */
+	return TRUE;
 }

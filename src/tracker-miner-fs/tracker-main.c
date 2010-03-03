@@ -62,20 +62,17 @@
 	"\n" \
 	"  http://www.gnu.org/licenses/gpl.txt\n"
 
-static GMainLoop    *main_loop;
-static GSList       *miners;
-static GSList       *current_miner;
-static gboolean      finished_miners;
+static GMainLoop *main_loop;
+static GSList *miners;
+static GSList *current_miner;
+static gboolean finished_miners;
 
-static gboolean      version;
-static gint          verbosity = -1;
-static gint          initial_sleep = -1;
+static gint verbosity = -1;
+static gint initial_sleep = -1;
+static gchar *eligible;
+static gboolean version;
 
-static GOptionEntry  entries[] = {
-	{ "version", 'V', 0,
-	  G_OPTION_ARG_NONE, &version,
-	  N_("Displays version information"),
-	  NULL },
+static GOptionEntry entries[] = {
 	{ "verbosity", 'v', 0,
 	  G_OPTION_ARG_INT, &verbosity,
 	  N_("Logging, 0 = errors only, "
@@ -85,6 +82,14 @@ static GOptionEntry  entries[] = {
 	  G_OPTION_ARG_INT, &initial_sleep,
 	  N_("Initial sleep time in seconds, "
 	     "0->1000 (default=15)"),
+	  NULL },
+	{ "eligible", 'e', 0,
+	  G_OPTION_ARG_FILENAME, &eligible,
+	  N_("Checks if FILE is eligible for being mined based on configuration"),
+	  N_("FILE") },
+	{ "version", 'V', 0,
+	  G_OPTION_ARG_NONE, &version,
+	  N_("Displays version information"),
 	  NULL },
 	{ NULL }
 };
@@ -231,6 +236,253 @@ finalize_miner (TrackerMiner *miner)
 	g_object_unref (G_OBJECT (miner));
 }
 
+static GList *
+get_dir_children_as_gfiles (const gchar *path)
+{
+	GList *children = NULL;
+	GDir *dir;
+
+	dir = g_dir_open (path, 0, NULL);
+
+	if (dir) {
+		const gchar *basename;
+
+		while ((basename = g_dir_read_name (dir)) != NULL) {
+			GFile *child;
+			gchar *str;
+
+			str = g_build_filename (path, basename, NULL);
+			child = g_file_new_for_path (str);
+			g_free (str);
+
+			children = g_list_prepend (children, child);
+		}
+
+		g_dir_close (dir);
+	}
+
+	return children;
+}
+
+static void
+dummy_log_handler (const gchar    *domain,
+                   GLogLevelFlags  log_level,
+                   const gchar    *message,
+                   gpointer        user_data)
+{
+	return;
+}
+
+static void
+check_eligible (void)
+{
+	TrackerConfig *config;
+	GFile *file;
+	GFileInfo *info;
+	GError *error = NULL;
+	const gchar *format;
+	gchar *path;
+	guint log_handler_id;
+	gboolean exists = TRUE;
+	gboolean is_dir;
+	gboolean print_dir_check;
+	gboolean print_dir_check_with_content;
+	gboolean print_file_check;
+	gboolean print_monitor_check;
+	gboolean would_index = TRUE;
+	gboolean would_notice = TRUE;
+
+	/* Set log handler for library messages */
+	log_handler_id = g_log_set_handler (NULL,
+	                                    G_LOG_LEVEL_MASK | G_LOG_FLAG_FATAL,
+	                                    dummy_log_handler,
+	                                    NULL);
+
+	g_log_set_default_handler (dummy_log_handler, NULL);
+
+	/* Start check */
+	file = g_file_new_for_commandline_arg (eligible);
+	info = g_file_query_info (file,
+	                          G_FILE_ATTRIBUTE_STANDARD_TYPE,
+	                          G_FILE_QUERY_INFO_NONE,
+	                          NULL,
+	                          &error);
+
+	if (error) {
+		if (error->code == G_IO_ERROR_NOT_FOUND) {
+			exists = FALSE;
+		}
+
+		g_error_free (error);
+	}
+
+	if (info) {
+		is_dir = g_file_info_get_file_type (info) == G_FILE_TYPE_DIRECTORY;
+		g_object_unref (info);
+	} else {
+		/* Assume not a dir */
+		is_dir = FALSE;
+	}
+
+	config = tracker_config_new ();
+	path = g_file_get_path (file);
+
+	if (exists) {
+		if (is_dir) {
+			print_dir_check = TRUE;
+			print_dir_check_with_content = TRUE;
+			print_file_check = FALSE;
+			print_monitor_check = TRUE;
+		} else {
+			print_dir_check = FALSE;
+			print_dir_check_with_content = FALSE;
+			print_file_check = TRUE;
+			print_monitor_check = TRUE;
+		}
+	} else {
+		print_dir_check = TRUE;
+		print_dir_check_with_content = FALSE;
+		print_file_check = TRUE;
+		print_monitor_check = TRUE;
+	}
+
+	format = exists ?
+		_("Data object '%s' currently exists") :
+		_("Data object '%s' currently does not exist");
+
+	g_print (format, path);
+	g_print ("\n");
+
+	if (print_dir_check) {
+		gboolean check;
+
+		check = tracker_miner_files_check_directory (file,
+		                                             tracker_config_get_index_recursive_directories (config),
+			                                     tracker_config_get_index_single_directories (config),
+			                                     tracker_config_get_ignored_directory_paths (config),
+			                                     tracker_config_get_ignored_directory_patterns (config));
+		g_print ("  %s\n",
+		         check ?
+		         _("Directory is eligible to be mined (based on rules)") :
+		         _("Directory is NOT eligible to be mined (based on rules)"));
+
+		would_index &= check;
+	}
+
+	if (print_dir_check_with_content) {
+		GList *children;
+		gboolean check;
+
+		children = get_dir_children_as_gfiles (path);
+
+		check = tracker_miner_files_check_directory_contents (file,
+			                                              children,
+			                                              tracker_config_get_ignored_directories_with_content (config));
+
+		g_list_foreach (children, (GFunc) g_object_unref, NULL);
+		g_list_free (children);
+
+		g_print ("  %s\n",
+		         check ?
+		         _("Directory is eligible to be mined (based on contents)") :
+		         _("Directory is NOT eligible to be mined (based on contents)"));
+
+		would_index &= check;
+	}
+
+	if (print_monitor_check) {
+		gboolean check = TRUE;
+
+		check &= tracker_config_get_enable_monitors (config);
+
+		if (check) {
+			GSList *dirs_to_check, *l;
+			gboolean is_covered_single;
+			gboolean is_covered_recursive;
+
+			is_covered_single = FALSE;
+			dirs_to_check = tracker_config_get_index_single_directories (config);
+
+			for (l = dirs_to_check; l && !is_covered_single; l = l->next) {
+				GFile *dir;
+				GFile *parent;
+
+				parent = g_file_get_parent (file);
+				dir = g_file_new_for_path (l->data);
+				is_covered_single = g_file_equal (parent, dir) || g_file_equal (file, dir);
+
+				g_object_unref (dir);
+				g_object_unref (parent);
+			}
+
+			is_covered_recursive = FALSE;
+			dirs_to_check = tracker_config_get_index_recursive_directories (config);
+
+			for (l = dirs_to_check; l && !is_covered_recursive; l = l->next) {
+				GFile *dir;
+
+				dir = g_file_new_for_path (l->data);
+				is_covered_recursive = g_file_has_prefix (file, dir) || g_file_equal (file, dir);
+				g_object_unref (dir);
+			}
+
+			check &= is_covered_single || is_covered_recursive;
+		}
+
+		if (exists && is_dir) {
+			g_print ("  %s\n",
+			         check ?
+			         _("Directory is eligible to be monitored (based on config)") :
+			         _("Directory is NOT eligible to be monitored (based on config)"));
+		} else if (exists && !is_dir) {
+			g_print ("  %s\n",
+			         check ?
+			         _("File is eligible to be monitored (based on config)") :
+			         _("File is NOT eligible to be monitored (based on config)"));
+		} else {
+			g_print ("  %s\n",
+			         check ?
+			         _("File or Directory is eligible to be monitored (based on config)") :
+			         _("File or Directory is NOT eligible to be monitored (based on config)"));
+		}
+
+		would_notice &= check;
+	}
+
+	if (print_file_check) {
+		gboolean check;
+
+		check = tracker_miner_files_check_file (file,
+		                                        tracker_config_get_ignored_file_paths (config),
+		                                        tracker_config_get_ignored_file_patterns (config));
+
+		g_print ("  %s\n",
+		         check ?
+		         _("File is eligible to be mined (based on rules)") :
+		         _("File is NOT eligible to be mined (based on rules)"));
+
+		would_index &= check;
+	}
+
+	g_print ("\n"
+	         "%s: %s\n"
+	         "%s: %s\n"
+	         "\n",
+	         _("Would be indexed"),
+	         would_index ? _("Yes") : _("No"),
+	         _("Would be monitored"),
+	         would_notice ? _("Yes") : _("No"));
+
+	if (log_handler_id != 0) {
+		/* Unset log handler */
+		g_log_remove_handler (NULL, log_handler_id);
+	}
+
+	g_free (path);
+	g_object_unref (config);
+	g_object_unref (file);
+}
+
 int
 main (gint argc, gchar *argv[])
 {
@@ -267,6 +519,11 @@ main (gint argc, gchar *argv[])
 
 	if (version) {
 		g_print ("\n" ABOUT "\n" LICENSE "\n");
+		return EXIT_SUCCESS;
+	}
+
+	if (eligible) {
+		check_eligible ();
 		return EXIT_SUCCESS;
 	}
 
