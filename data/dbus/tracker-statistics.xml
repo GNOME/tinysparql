@@ -28,12 +28,5 @@
 		  value="QVector&lt;QStringList&gt;"/>
       <arg type="aas" name="service_stats" direction="out" />
     </method>
-
-    <!-- Signal whenever the count of a category changed. Look at GetStats for
-	 the format of service_stats.
-      -->
-    <signal name="Updated">
-      <arg type="aas" name="statistics"/>
-    </signal>
   </interface>
 </node>

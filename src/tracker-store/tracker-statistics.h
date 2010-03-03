@@ -52,7 +52,6 @@ TrackerStatistics *tracker_statistics_new      (void);
 void               tracker_statistics_get      (TrackerStatistics      *object,
                                                 DBusGMethodInvocation  *context,
                                                 GError                **error);
-void               tracker_statistics_signal   (void);
 
 G_END_DECLS
 
