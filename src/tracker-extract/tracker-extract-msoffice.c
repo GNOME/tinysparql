@@ -35,19 +35,12 @@
 
 #include <libtracker-common/tracker-utils.h>
 #include <libtracker-common/tracker-ontologies.h>
+#include <libtracker-common/tracker-os-dependant.h>
 
 #include <libtracker-extract/tracker-extract.h>
 #include <libtracker-extract/tracker-utils.h>
 
 #include "tracker-main.h"
-
-#define NIE_PREFIX                              TRACKER_NIE_PREFIX
-#define NFO_PREFIX                              TRACKER_NFO_PREFIX
-#define NCO_PREFIX                              TRACKER_NCO_PREFIX
-
-#define RDF_PREFIX                              TRACKER_RDF_PREFIX
-#define RDF_TYPE RDF_PREFIX                     "type"
-
 
 /*
  * Powerpoint files comprise of structures. Each structure contains a header.
@@ -80,21 +73,66 @@
  * of the slide(s).
  *
  */
-
 #define SLIDELISTWITHTEXT_RECORD_TYPE           0x0FF0
 
-static void extract_msoffice   (const gchar          *uri,
-                                TrackerSparqlBuilder *preupdate,
-                                TrackerSparqlBuilder *metadata);
-static void extract_powerpoint (const gchar          *uri,
-                                TrackerSparqlBuilder *preupdate,
-                                TrackerSparqlBuilder *metadata);
+typedef enum {
+	TAG_TYPE_INVALID,
+	TAG_TYPE_TITLE,
+	TAG_TYPE_SUBJECT,
+	TAG_TYPE_AUTHOR,
+	TAG_TYPE_MODIFIED,
+	TAG_TYPE_COMMENTS,
+	TAG_TYPE_CREATED,
+	TAG_TYPE_GENERATOR,
+	TAG_TYPE_NUM_OF_PAGES,
+	TAG_TYPE_NUM_OF_CHARACTERS,
+	TAG_TYPE_NUM_OF_WORDS,
+	TAG_TYPE_NUM_OF_LINES,
+	TAG_TYPE_APPLICATION,
+	TAG_TYPE_NUM_OF_PARAGRAPHS,
+	TAG_TYPE_SLIDE_TEXT,
+	TAG_TYPE_WORD_TEXT,
+	TAG_TYPE_XLS_SHARED_TEXT,
+	TAG_TYPE_DOCUMENT_CORE_DATA,
+	TAG_TYPE_DOCUMENT_TEXT_DATA
+} TagType;
+
+typedef enum {
+	FILE_TYPE_INVALID,
+	FILE_TYPE_PPTX,
+	FILE_TYPE_DOCX,
+	FILE_TYPE_XLSX
+} FileType;
+
+typedef struct {
+	TrackerSparqlBuilder *metadata;
+	FileType file_type;
+	TagType tag_type;
+	gboolean style_element_present;
+	gboolean preserve_attribute_present;
+	const gchar *uri;
+	GString *content;
+} MsOfficeXMLParserInfo;
+
+static void extract_msoffice            (const gchar          *uri,
+                                         TrackerSparqlBuilder *preupdate,
+                                         TrackerSparqlBuilder *metadata);
+static void extract_powerpoint          (const gchar          *uri,
+                                         TrackerSparqlBuilder *preupdate,
+                                         TrackerSparqlBuilder *metadata);
+static void extract_msoffice_xml_format (const gchar          *uri,
+                                         TrackerSparqlBuilder *preupdate,
+                                         TrackerSparqlBuilder *metadata);
 
 static TrackerExtractData data[] = {
 	{ "application/msword",            extract_msoffice },
 	/* Powerpoint files */
 	{ "application/vnd.ms-powerpoint", extract_powerpoint },
 	{ "application/vnd.ms-*",          extract_msoffice },
+	/* MSoffice2007*/
+	{ "application/vnd.openxmlformats-officedocument.presentationml.presentation", extract_msoffice_xml_format },
+	{ "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",         extract_msoffice_xml_format },
+	{ "application/vnd.openxmlformats-officedocument.wordprocessingml.document",   extract_msoffice_xml_format },
 	{ NULL, NULL }
 };
 
@@ -1033,6 +1071,572 @@ extract_powerpoint (const gchar          *uri,
 
 	g_object_unref (infile);
 	gsf_shutdown ();
+}
+
+static void
+start_element_handler_text_data (GMarkupParseContext  *context,
+				 const gchar          *element_name,
+				 const gchar         **attribute_names,
+				 const gchar         **attribute_values,
+				 gpointer              user_data,
+				 GError              **error)
+{
+	MsOfficeXMLParserInfo *info = user_data;
+	const gchar **a;
+	const gchar **v;
+
+	switch (info->file_type) {
+	case FILE_TYPE_DOCX:
+		if (g_ascii_strcasecmp (element_name, "w:pStyle") == 0) {
+			for (a = attribute_names, v = attribute_values; *a; ++a, ++v) {
+				if (g_ascii_strcasecmp (*a, "w:val") != 0) {
+					continue;
+				}
+
+				if (g_ascii_strncasecmp (*v, "Heading", 7) == 0) {
+					info->style_element_present = TRUE;
+				} else if (g_ascii_strncasecmp (*v, "TOC", 3) == 0) {
+					info->style_element_present = TRUE;
+				} else if (g_ascii_strncasecmp (*v, "Section", 7) == 0) {
+					info->style_element_present = TRUE;
+				} else if (g_ascii_strncasecmp (*v, "Title", 5) == 0) {
+					info->style_element_present = TRUE;
+				} else if (g_ascii_strncasecmp (*v, "Subtitle", 8) == 0) {
+					info->style_element_present = TRUE;
+				}
+			}
+		} else if (g_ascii_strcasecmp (element_name, "w:rStyle") == 0) {
+			for (a = attribute_names, v = attribute_values; *a; ++a, ++v) {
+				if (g_ascii_strcasecmp (*a, "w:val") != 0) {
+					continue;
+				}
+
+				if (g_ascii_strncasecmp (*v, "SubtleEmphasis", 14) == 0) {
+					info->style_element_present = TRUE;
+				} else if (g_ascii_strncasecmp (*v, "SubtleReference", 15) == 0) {
+					info->style_element_present = TRUE;
+				}
+			}
+		} else if (g_ascii_strcasecmp (element_name, "w:sz") == 0) {
+			for (a = attribute_names, v = attribute_values; *a; ++a, ++v) {
+				if (g_ascii_strcasecmp (*a, "w:val") != 0) {
+					continue;
+				}
+
+				if (atoi (*v) >= 38) {
+					info->style_element_present = TRUE;
+				}
+			}
+		} else if (g_ascii_strcasecmp (element_name, "w:smartTag") == 0) {
+			info->style_element_present = TRUE;
+		} else if (g_ascii_strcasecmp (element_name, "w:sdtContent") == 0) {
+			info->style_element_present = TRUE;
+		} else if (g_ascii_strcasecmp (element_name, "w:hyperlink") == 0) {
+			info->style_element_present = TRUE;
+		} else if (g_ascii_strcasecmp (element_name, "w:t") == 0) {
+		        for (a = attribute_names, v = attribute_values; *a; ++a, ++v) {
+				if (g_ascii_strcasecmp (*a, "xml:space") != 0) {
+					continue;
+				}
+
+				if (g_ascii_strncasecmp (*v, "preserve", 8) == 0) {
+					info->preserve_attribute_present = TRUE;
+				}
+			}
+
+		        info->tag_type = TAG_TYPE_WORD_TEXT;
+		}
+		break;
+
+	case FILE_TYPE_XLSX:
+		if (g_ascii_strcasecmp (element_name, "sheet") == 0) {
+			for (a = attribute_names, v = attribute_values; *a; ++a, ++v) {
+				if (g_ascii_strcasecmp (*a, "name") == 0) {
+					info->tag_type = TAG_TYPE_XLS_SHARED_TEXT;
+				}
+			}
+
+		} else if (g_ascii_strcasecmp (element_name, "t") == 0) {
+			info->tag_type = TAG_TYPE_XLS_SHARED_TEXT;
+		}
+		break;
+
+	case FILE_TYPE_PPTX:
+		info->tag_type = TAG_TYPE_SLIDE_TEXT;
+		break;
+
+	case FILE_TYPE_INVALID:
+		g_message ("Microsoft document type:%d invalid", info->file_type);
+		break;
+	}
+}
+
+static void
+end_element_handler_document_data (GMarkupParseContext  *context,
+                                   const gchar          *element_name,
+                                   gpointer              user_data,
+                                   GError              **error)
+{
+	MsOfficeXMLParserInfo *info = user_data;
+
+	if (g_ascii_strcasecmp (element_name, "w:p") == 0) {
+		info->style_element_present = FALSE;
+		info->preserve_attribute_present = FALSE;
+	}
+
+	((MsOfficeXMLParserInfo*) user_data)->tag_type = TAG_TYPE_INVALID;
+}
+
+static void
+start_element_handler_core_data	(GMarkupParseContext  *context,
+				const gchar           *element_name,
+				const gchar          **attribute_names,
+				const gchar          **attribute_values,
+				gpointer               user_data,
+				GError               **error)
+{
+	MsOfficeXMLParserInfo *info = user_data;
+
+	if (g_ascii_strcasecmp (element_name, "dc:title") == 0) {
+		info->tag_type = TAG_TYPE_TITLE;
+	} else if (g_ascii_strcasecmp (element_name, "dc:subject") == 0) {
+		info->tag_type = TAG_TYPE_SUBJECT;
+	} else if (g_ascii_strcasecmp (element_name, "dc:creator") == 0) {
+		info->tag_type = TAG_TYPE_AUTHOR;
+	} else if (g_ascii_strcasecmp (element_name, "dc:description") == 0) {
+		info->tag_type = TAG_TYPE_COMMENTS;
+	} else if (g_ascii_strcasecmp (element_name, "dcterms:created") == 0) {
+		info->tag_type = TAG_TYPE_CREATED;
+	} else if (g_ascii_strcasecmp (element_name, "meta:generator") == 0) {
+		info->tag_type = TAG_TYPE_GENERATOR;
+	} else if (g_ascii_strcasecmp (element_name, "dcterms:modified") == 0) {
+		info->tag_type = TAG_TYPE_MODIFIED;
+	} else if (g_ascii_strcasecmp (element_name, "cp:lastModifiedBy") == 0) {
+		/* Do nothing ? */
+	} else if (g_ascii_strcasecmp (element_name, "Pages") == 0) {
+		info->tag_type = TAG_TYPE_NUM_OF_PAGES;
+	} else if (g_ascii_strcasecmp (element_name, "Slides") == 0) {
+		info->tag_type = TAG_TYPE_NUM_OF_PAGES;
+	} else if (g_ascii_strcasecmp (element_name, "Paragraphs") == 0) {
+		info->tag_type = TAG_TYPE_NUM_OF_PARAGRAPHS;
+	} else if (g_ascii_strcasecmp (element_name, "Characters") == 0) {
+		info->tag_type = TAG_TYPE_NUM_OF_CHARACTERS;
+	} else if (g_ascii_strcasecmp (element_name, "Words") == 0) {
+		info->tag_type = TAG_TYPE_NUM_OF_WORDS;
+	} else if (g_ascii_strcasecmp (element_name, "Lines") == 0) {
+		info->tag_type = TAG_TYPE_NUM_OF_LINES;
+	} else if (g_ascii_strcasecmp (element_name, "Application") == 0) {
+		info->tag_type = TAG_TYPE_APPLICATION;
+	} else {
+		info->tag_type = TAG_TYPE_INVALID;
+	}
+}
+
+static void
+text_handler_document_data (GMarkupParseContext  *context,
+                            const gchar          *text,
+                            gsize                 text_len,
+                            gpointer              user_data,
+                            GError              **error)
+{
+	MsOfficeXMLParserInfo *info = user_data;
+	static gboolean found = FALSE;
+	static gboolean added = FALSE;
+
+	switch (info->tag_type) {
+	case TAG_TYPE_WORD_TEXT:
+		if (info->style_element_present) {
+			if (atoi (text) == 0) {
+				g_string_append_printf (info->content, "%s ", text);
+			}
+		}
+
+		if (info->preserve_attribute_present) {
+			gchar *keywords = g_strdup (text);
+
+			if (found && (strlen (keywords) > 3)) {
+				g_string_append_printf (info->content, "%s ", text);
+				found = FALSE;
+			} else {
+				gchar *lasts;
+				gchar *keyw;
+
+				for (keyw = strtok_r (keywords, ",; ", &lasts);
+				     keyw;
+				     keyw = strtok_r (NULL, ",; ", &lasts)) {
+					if ((g_ascii_strncasecmp (keyw, "Table", 6) == 0) ||
+					    (g_ascii_strncasecmp (keyw, "Figure", 6) == 0) ||
+					    (g_ascii_strncasecmp (keyw, "Section", 7) == 0) ||
+					    (g_ascii_strncasecmp (keyw, "Index", 5) == 0)) {
+						found = TRUE;
+					}
+				}
+			}
+
+			g_free (keywords);
+		}
+		break;
+
+	case TAG_TYPE_SLIDE_TEXT:
+		if (strlen (text) > 3) {
+			g_string_append_printf (info->content, "%s ", text);
+		}
+		break;
+
+	case TAG_TYPE_XLS_SHARED_TEXT:
+		if ((atoi (text) == 0) && (strlen (text) > 4))  {
+			g_string_append_printf (info->content, "%s ", text);
+		}
+		break;
+
+	case TAG_TYPE_TITLE:
+		tracker_sparql_builder_predicate (info->metadata, "nie:title");
+		tracker_sparql_builder_object_unvalidated (info->metadata, text);
+		break;
+
+	case TAG_TYPE_SUBJECT:
+		tracker_sparql_builder_predicate (info->metadata, "nie:subject");
+		tracker_sparql_builder_object_unvalidated (info->metadata, text);
+		break;
+
+	case TAG_TYPE_AUTHOR:
+		tracker_sparql_builder_predicate (info->metadata, "nco:publisher");
+
+		tracker_sparql_builder_object_blank_open (info->metadata);
+		tracker_sparql_builder_predicate (info->metadata, "a");
+		tracker_sparql_builder_object (info->metadata, "nco:Contact");
+
+		tracker_sparql_builder_predicate (info->metadata, "nco:fullname");
+		tracker_sparql_builder_object_unvalidated (info->metadata, text);
+		tracker_sparql_builder_object_blank_close (info->metadata);
+		break;
+
+	case TAG_TYPE_COMMENTS:
+		tracker_sparql_builder_predicate (info->metadata, "nie:comment");
+		tracker_sparql_builder_object_unvalidated (info->metadata, text);
+		break;
+
+	case TAG_TYPE_CREATED:
+		tracker_sparql_builder_predicate (info->metadata, "nie:contentCreated");
+		tracker_sparql_builder_object_unvalidated (info->metadata, tracker_extract_guess_date (text));
+		break;
+
+	case TAG_TYPE_GENERATOR:
+		if (!added) {
+			tracker_sparql_builder_predicate (info->metadata, "nie:generator");
+			tracker_sparql_builder_object_unvalidated (info->metadata, text);
+			added = TRUE;
+		}
+		break;
+
+	case TAG_TYPE_APPLICATION:
+		/* FIXME: Same code as TAG_TYPE_GENERATOR should be
+		 * used, but nie:generator has max cardinality of 1
+		 * and this would cause errors.
+		 */
+		break;
+
+	case TAG_TYPE_MODIFIED:
+		tracker_sparql_builder_predicate (info->metadata, "nie:contentLastModified");
+		tracker_sparql_builder_object_unvalidated (info->metadata, tracker_extract_guess_date (text));
+		break;
+
+	case TAG_TYPE_NUM_OF_PAGES:
+		tracker_sparql_builder_predicate (info->metadata, "nfo:pageCount");
+		tracker_sparql_builder_object_unvalidated (info->metadata, text);
+		break;
+
+	case TAG_TYPE_NUM_OF_CHARACTERS:
+		tracker_sparql_builder_predicate (info->metadata, "nfo:characterCount");
+		tracker_sparql_builder_object_unvalidated (info->metadata, text);
+		break;
+
+	case TAG_TYPE_NUM_OF_WORDS:
+		tracker_sparql_builder_predicate (info->metadata, "nfo:wordCount");
+		tracker_sparql_builder_object_unvalidated (info->metadata, text);
+		break;
+
+	case TAG_TYPE_NUM_OF_LINES:
+		tracker_sparql_builder_predicate (info->metadata, "nfo:lineCount");
+		tracker_sparql_builder_object_unvalidated (info->metadata, text);
+		break;
+
+	case TAG_TYPE_NUM_OF_PARAGRAPHS:
+		/* TODO: There is no ontology for this. */
+		break;
+
+	case TAG_TYPE_DOCUMENT_CORE_DATA:
+	case TAG_TYPE_DOCUMENT_TEXT_DATA:
+		/* Nothing as we are using it in defining type of data */
+		break;
+
+	case TAG_TYPE_INVALID:
+		/* Here we cant use log otheriwse it will print for other non useful files */
+		break;
+	}
+}
+
+static gboolean
+read_file_xml_data (MsOfficeXMLParserInfo *parser_info,
+                    const gchar           *xml_filename,
+                    TagType	           type)
+{
+	GMarkupParseContext *context;
+	MsOfficeXMLParserInfo info;
+	gchar *xml;
+	gchar *filename;
+	const gchar *argv[5];
+	gboolean success;
+
+	filename = g_filename_from_uri (parser_info->uri, NULL, NULL);
+
+	argv[0] = "unzip";
+	argv[1] = "-p";
+	argv[2] = filename;
+	argv[3] = xml_filename;
+	argv[4] = NULL;
+
+	g_debug ("Reading XML data '%s'", argv[3]);
+
+	xml = NULL;
+
+	success = tracker_spawn ((gchar**) argv, 10, &xml, NULL);
+	g_free (filename);
+
+	if (!success) {
+		g_free (xml);
+		return FALSE;
+	}
+
+	/* FIXME: Can we use the original info here? */
+	info.metadata = parser_info->metadata;
+	info.file_type = parser_info->file_type;
+	info.tag_type = TAG_TYPE_INVALID;
+	info.style_element_present = FALSE;
+	info.preserve_attribute_present = FALSE;
+	info.uri = parser_info->uri;
+	info.content = parser_info->content;
+
+	switch (type) {
+	case TAG_TYPE_DOCUMENT_CORE_DATA: {
+		GMarkupParser parser = {
+			start_element_handler_core_data,
+			end_element_handler_document_data,
+			text_handler_document_data,
+			NULL,
+			NULL
+		};
+
+		context = g_markup_parse_context_new (&parser,
+		                                      0,
+		                                      &info,
+		                                      NULL);
+		break;
+	}
+
+	case TAG_TYPE_DOCUMENT_TEXT_DATA: {
+		GMarkupParser parser = {
+			start_element_handler_text_data,
+			end_element_handler_document_data,
+			text_handler_document_data,
+			NULL,
+			NULL
+		};
+
+		context = g_markup_parse_context_new (&parser,
+		                                      0,
+		                                      &info,
+		                                      NULL);
+		break;
+	}
+
+	default:
+		context = NULL;
+		break;
+	}
+
+	if (context) {
+		g_markup_parse_context_parse (context, xml, -1, NULL);
+		g_markup_parse_context_free (context);
+	}
+
+	g_free (xml);
+
+	return TRUE;
+}
+
+static void
+start_element_handler_content_types (GMarkupParseContext  *context,
+                                     const gchar          *element_name,
+                                     const gchar         **attribute_names,
+                                     const gchar         **attribute_values,
+                                     gpointer              user_data,
+                                     GError              **error)
+{
+	MsOfficeXMLParserInfo *info;
+	const gchar *part_name;
+	const gchar *content_type;
+	gint i;
+
+	info = user_data;
+
+	if (g_ascii_strcasecmp (element_name, "Override") != 0) {
+		info->tag_type = TAG_TYPE_INVALID;
+		return;
+	}
+
+	part_name = NULL;
+	content_type = NULL;
+
+	for (i = 0; attribute_names[i]; i++) {
+		if (g_ascii_strcasecmp (attribute_names[i], "PartName") == 0) {
+			part_name = attribute_values[i];
+		} else if (g_ascii_strcasecmp (attribute_names[i], "ContentType") == 0) {
+			content_type = attribute_values[i];
+		}
+	}
+
+	if ((g_ascii_strcasecmp (content_type, "application/vnd.openxmlformats-package.core-properties+xml") == 0) ||
+	    (g_ascii_strcasecmp (content_type, "application/vnd.openxmlformats-officedocument.extended-properties+xml") == 0)) {
+		read_file_xml_data (info, part_name + 1, TAG_TYPE_DOCUMENT_CORE_DATA);
+		return;
+	}
+
+	switch (info->file_type) {
+	case FILE_TYPE_DOCX:
+		if (g_ascii_strcasecmp (content_type, "application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml") == 0) {
+			read_file_xml_data (info, part_name + 1, TAG_TYPE_DOCUMENT_TEXT_DATA);
+		}
+		break;
+
+	case FILE_TYPE_PPTX:
+		if ((g_ascii_strcasecmp (content_type, "application/vnd.openxmlformats-officedocument.presentationml.slide+xml") == 0) ||
+		    (g_ascii_strcasecmp (content_type, "application/vnd.openxmlformats-officedocument.drawingml.diagramData+xml") == 0)) {
+			read_file_xml_data (info, part_name + 1, TAG_TYPE_DOCUMENT_TEXT_DATA);
+		}
+		break;
+
+	case FILE_TYPE_XLSX:
+		if ((g_ascii_strcasecmp (content_type, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml") == 0) ||
+		    (g_ascii_strcasecmp (content_type, "application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml") == 0)) {
+			read_file_xml_data (info, part_name + 1, TAG_TYPE_DOCUMENT_TEXT_DATA);
+		}
+		break;
+
+	case FILE_TYPE_INVALID:
+		g_message ("Invalid file type:'%d'", info->file_type);
+		break;
+	}
+}
+
+static void
+extract_msoffice_xml_format (const gchar          *uri,
+			     TrackerSparqlBuilder *preupdate,
+                             TrackerSparqlBuilder *metadata)
+{
+	MsOfficeXMLParserInfo info;
+	FileType file_type;
+	GFile *file;
+	GFileInfo *file_info;
+	GMarkupParseContext *context = NULL;
+	GMarkupParser parser = {
+		start_element_handler_content_types,
+		end_element_handler_document_data,
+		NULL,
+		NULL,
+		NULL
+	};
+	gchar *filename;
+	gchar *xml;
+	const gchar *mime_used;
+	const gchar *argv[5];
+	gboolean success;
+
+	file = g_file_new_for_uri (uri);
+
+	if (!file) {
+		g_warning ("Could not create GFile for URI:'%s'",
+		           uri);
+		return;
+	}
+
+	file_info = g_file_query_info (file,
+	                               G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE,
+	                               G_FILE_QUERY_INFO_NONE,
+	                               NULL,
+	                               NULL);
+	g_object_unref (file);
+
+	if (!file_info) {
+		g_warning ("Could not get GFileInfo for URI:'%s'",
+		           uri);
+		return;
+	}
+
+	mime_used = g_file_info_get_content_type (file_info);
+
+	if (g_ascii_strcasecmp (mime_used, "application/vnd.openxmlformats-officedocument.wordprocessingml.document") == 0) {
+		file_type = FILE_TYPE_DOCX;
+	} else if (g_ascii_strcasecmp (mime_used, "application/vnd.openxmlformats-officedocument.presentationml.presentation") == 0) {
+		file_type = FILE_TYPE_PPTX;
+	} else if (g_ascii_strcasecmp (mime_used, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet") == 0) {
+		file_type = FILE_TYPE_XLSX;
+	} else {
+		g_message ("Mime type was not recognised:'%s'", mime_used);
+		file_type = FILE_TYPE_INVALID;
+	}
+
+	g_object_unref (file_info);
+
+	filename = g_filename_from_uri (uri, NULL, NULL);
+
+	argv[0] = "unzip";
+	argv[1] = "-p";
+	argv[2] = filename;
+	argv[3] = "\\[Content_Types\\].xml";
+	argv[4] = NULL;
+
+        g_debug ("Extracting MsOffice XML format...");
+
+	tracker_sparql_builder_predicate (metadata, "a");
+	tracker_sparql_builder_object (metadata, "nfo:PaginatedTextDocument");
+
+	xml = NULL;
+
+	success = tracker_spawn ((gchar**) argv, 10, &xml, NULL);
+	g_free (filename);
+
+	if (!success) {
+		g_free (xml);
+		return;
+	}
+
+	info.metadata = metadata;
+	info.file_type = file_type;
+	info.tag_type = TAG_TYPE_INVALID;
+	info.style_element_present = FALSE;
+	info.preserve_attribute_present = FALSE;
+	info.uri = uri;
+	info.content = g_string_new ("");
+
+	context = g_markup_parse_context_new (&parser, 0, &info, NULL);
+	g_markup_parse_context_parse (context, xml, -1, NULL);
+	g_free (xml);
+
+	if (info.content) {
+		gchar *content;
+
+		content = g_string_free (info.content, FALSE);
+		info.content = NULL;
+
+		if (content) {
+			tracker_sparql_builder_predicate (metadata, "nie:plainTextContent");
+			tracker_sparql_builder_object_unvalidated (metadata, content);
+			g_free (content);
+		}
+	}
+
+	g_markup_parse_context_free (context);
 }
 
 TrackerExtractData *
