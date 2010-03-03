@@ -1208,6 +1208,7 @@ item_add_or_update (TrackerMinerFS *fs,
 	g_object_unref (file);
 	g_object_unref (cancellable);
 	g_object_unref (sparql);
+	g_free (urn);
 
 	return retval;
 }
@@ -1497,6 +1498,7 @@ item_move (TrackerMinerFS *fs,
 		/* Destination file has gone away, ignore dest file and remove source if any */
 		retval = item_remove (fs, source_file);
 
+		g_free (source_iri);
 		g_free (source_uri);
 		g_free (uri);
 
@@ -2413,6 +2415,8 @@ crawled_directory_data_free (CrawledDirectoryData *data)
 			 crawled_directory_data_free_foreach,
 			 NULL);
 	g_node_destroy (data->tree);
+
+	g_queue_free (data->nodes);
 
 	g_slice_free (CrawledDirectoryData, data);
 }

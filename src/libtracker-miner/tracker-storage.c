@@ -406,6 +406,7 @@ drives_setup (TrackerStorage *storage)
 	for (ld = drives; ld; ld = ld->next) {
 		GDrive *drive;
 		GList *volumes, *lv;
+		gchar *name;
 
 		drive = ld->data;
 
@@ -414,9 +415,10 @@ drives_setup (TrackerStorage *storage)
 		}
 		
 		volumes = g_drive_get_volumes (drive);
+		name = g_drive_get_name (drive);
 
 		g_debug ("Drive:'%s' found with %d %s:",
-		         g_drive_get_name (drive),
+		         name,
 		         g_list_length (volumes),
 		         (volumes && !volumes->next) ? "volume" : "volumes");
 
@@ -427,6 +429,7 @@ drives_setup (TrackerStorage *storage)
 
 		g_list_free (volumes);
 		g_object_unref (ld->data);
+		g_free (name);
 	}
 
 	g_list_free (drives);

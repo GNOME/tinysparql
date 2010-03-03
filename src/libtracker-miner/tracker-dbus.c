@@ -251,6 +251,8 @@ tracker_miner_dbus_init (TrackerMiner          *miner,
 				 dbus_data,
 				 data,
 				 dbus_data_destroy);
+
+	g_free (name);
 }
 
 void

@@ -387,6 +387,11 @@ directory_root_info_free (DirectoryRootInfo *info)
 			 NULL);
 	g_node_destroy (info->tree);
 
+	g_queue_foreach (info->directory_processing_queue,
+			 (GFunc) directory_processing_data_free,
+			 NULL);
+	g_queue_free (info->directory_processing_queue);
+
 	g_slice_free (DirectoryRootInfo, info);
 }
 
