@@ -39,6 +39,7 @@ struct _TrackerTagsViewPrivate {
 	GtkListStore *store;
 
 	GtkWidget *button_add;
+	GtkWidget *button_remove;
 	GtkWidget *entry;
 	GtkWidget *view;
 };
@@ -324,22 +325,6 @@ tags_view_query_files_for_tag_id_cb (GPtrArray *result,
 
 			g_free (uri);
 		}
-	} else {
-		gchar *query;
-
-		g_debug ("Removing unused tag\n");
-
-		/* We automatically remove the tag */
-		query = g_strdup_printf ("DELETE { "
-		                         "  <%s> a rdfs:Resource "
-		                         "}",
-		                         td->tag_id);
-
-		tracker_resources_sparql_update_async (tv->private->tracker_client, 
-		                                       query, 
-		                                       tags_view_tag_removed_cb,
-		                                       tag_data_copy (td));
-		g_free (query);
 	}
 
 	g_debug ("Querying files with tag, in selection:%d, in total:%d, selected:%d\n", 
@@ -373,21 +358,20 @@ tags_view_query_files_for_tag_id_cb (GPtrArray *result,
 }
 
 static void
-tags_view_query_files_for_tag_id (TagData *td)                              
+tags_view_query_files_for_tag_id (TagData *td)
 {
 	gchar *query;
 
 	query = g_strdup_printf ("SELECT ?url "
-				 "WHERE {"
-				 "  ?urn a rdfs:Resource ;"
+	                         "WHERE {"
+	                         "  ?urn a rdfs:Resource ;"
 	                         "  nie:url ?url ;"
-				 "  nao:hasTag <%s> . "
-				 "}",
-				 td->tag_id);
+	                         "  nao:hasTag <%s> . "
+	                         "}", td->tag_id);
 
 	tracker_resources_sparql_query_async (td->tv->private->tracker_client,
-                                              query,
-                                              tags_view_query_files_for_tag_id_cb,
+	                                      query,
+	                                      tags_view_query_files_for_tag_id_cb,
 	                                      td);
 	g_free (query);
 }
@@ -526,7 +510,7 @@ static void
 tags_view_add_tag (TrackerTagsView *tv,
                    const gchar     *tag)
 {
-	gchar *query;
+	GString *query;
 	gint files;
 
 	gtk_widget_set_sensitive (tv->private->entry, FALSE);
@@ -537,12 +521,29 @@ tags_view_add_tag (TrackerTagsView *tv,
 		GStrv files;
 		gchar *tag_escaped;
 		gchar *filter;
+		guint i;
+
+		query = g_string_new ("");
 
 		files = tracker_glist_to_string_list_for_nautilus_files (tv->private->files);
 		filter = tracker_tags_get_filter_string (files, NULL);
 		tag_escaped = tracker_tags_escape_sparql_string (tag);
 
-		query = g_strdup_printf ("INSERT { "
+		for (i = 0; files[i] != NULL; i++) {
+			g_string_append_printf (query, 
+			                        "INSERT { _:file a nie:DataObject ; nie:url '%s' } "
+			                        "WHERE { "
+			                        "  OPTIONAL {"
+			                        "     ?file a nie:DataObject ;"
+			                        "     nie:url '%s'"
+			                        "  } ."
+			                        "  FILTER (!bound(?file)) "
+			                        "} ",
+			                        files[i], files[i]);
+		}
+
+		g_string_append_printf (query,
+		                         "INSERT { "
 		                         "  _:tag a nao:Tag;"
 		                         "  nao:prefLabel %s . "
 		                         "} "
@@ -570,15 +571,15 @@ tags_view_add_tag (TrackerTagsView *tv,
 		g_free (filter);
 		g_strfreev (files);
 	} else {
-		query = tracker_tags_add_query (tag);
+		query = g_string_new (tracker_tags_add_query (tag));
 	}
 
 	tracker_resources_sparql_update_async (tv->private->tracker_client,
-	                                       query,
+	                                       query->str,
 	                                       tags_view_model_update_cb,
 	                                       tag_data_new (NULL, NULL, FALSE, TRUE, files, tv));
 
-	g_free (query);
+	g_string_free (query, TRUE);
 }
 
 static void
@@ -634,27 +635,27 @@ tags_view_model_toggle_row (TrackerTagsView *tv,
 
 	if (selection) {
 		query = g_strdup_printf ("INSERT { "
-					 "  ?urn nao:hasTag ?label "
-					 "} "
-					 "WHERE {"
-					 "  ?urn nie:url ?f ." /* NB: ?f is used in filter. */
-					 "  ?label nao:prefLabel %s ."
-					 "  %s "
-					 "}",
-					 tag_escaped, 
+		                         "  ?urn nao:hasTag ?label "
+		                         "} "
+		                         "WHERE {"
+		                         "  ?urn nie:url ?f ." /* NB: ?f is used in filter. */
+		                         "  ?label nao:prefLabel %s ."
+		                         "  %s "
+		                         "}", 
+		                         tag_escaped, 
 		                         filter);
 	} else {
 		TagData *td;
 
 		query = g_strdup_printf ("DELETE { "
-					 "  ?urn nao:hasTag ?label "
-					 "} "
-					 "WHERE { "
-					 "  ?urn nie:url ?f ." /* NB: ?f is used in filter. */
-					 "  ?label nao:prefLabel %s ."
-					 "  %s "
-					 "}",
-					 tag_escaped, 
+		                         "  ?urn nao:hasTag ?label "
+		                         "} "
+		                         "WHERE { "
+		                         "  ?urn nie:url ?f ." /* NB: ?f is used in filter. */
+		                         "  ?label nao:prefLabel %s ."
+		                         "  %s "
+		                         "}",
+		                         tag_escaped, 
 		                         filter);
 		
 		/* Check if there are any files left with this tag and
@@ -737,6 +738,60 @@ tags_view_add_clicked_cb (GtkButton *button,
 }
 
 static void
+tags_view_remove_tag (TrackerTagsView *tv,
+                      TagData         *td)
+{
+	gchar *query;
+
+	query = g_strdup_printf ("DELETE { "
+	                         "  <%s> a rdfs:Resource "
+	                         "}",
+	                         td->tag_id);
+
+	tracker_resources_sparql_update_async (tv->private->tracker_client, 
+	                                       query, 
+	                                       tags_view_tag_removed_cb,
+	                                       tag_data_copy (td));
+	g_free (query);
+}
+
+static void
+tags_view_remove_clicked_cb (GtkButton *button, 
+                             gpointer   user_data)
+{
+	TrackerTagsView *tv = user_data;
+	TagData *td;
+	GtkTreeIter iter;
+	GtkTreeSelection *select;
+	GtkTreeModel *model;
+	gchar *id;
+
+	select = gtk_tree_view_get_selection (GTK_TREE_VIEW (tv->private->view));
+
+	if (gtk_tree_selection_get_selected (select, &model, &iter)) {
+		gtk_tree_model_get (GTK_TREE_MODEL (tv->private->store), &iter, COL_TAG_ID, &id, -1);
+		td = tag_data_new (id, &iter, FALSE, TRUE, 1, tv);
+		tags_view_remove_tag (tv, td);
+		tag_data_free (td);
+	}
+}
+
+static void
+tags_view_model_row_selected_cb (GtkTreeSelection *selection,
+                                 gpointer         user_data)
+{
+	TrackerTagsView *tv = user_data;
+	GtkTreeIter iter;
+	GtkTreeModel *model;
+
+	if (gtk_tree_selection_get_selected (selection, &model, &iter)) {
+		gtk_widget_set_sensitive (GTK_WIDGET (tv->private->button_remove), TRUE);
+	} else {
+		gtk_widget_set_sensitive (GTK_WIDGET (tv->private->button_remove), FALSE);
+	}
+}
+
+static void
 tags_view_create_ui (TrackerTagsView *tv)
 {
 	GtkCellRenderer *cell_renderer;
@@ -794,6 +849,19 @@ tags_view_create_ui (TrackerTagsView *tv)
 	                  G_CALLBACK (tags_view_add_clicked_cb), 
 	                  tv);
 
+	tv->private->button_add = button;
+
+	button = gtk_button_new_from_stock (GTK_STOCK_REMOVE);
+	gtk_box_pack_start (GTK_BOX (hbox), button, FALSE, TRUE, 0);
+
+	gtk_widget_set_sensitive (button, FALSE);
+
+	g_signal_connect (button, "clicked", 
+	                  G_CALLBACK (tags_view_remove_clicked_cb), 
+	                  tv);
+
+	tv->private->button_remove = button;
+
 	/* List */
 	scrolled_window = gtk_scrolled_window_new (NULL, NULL);
 	gtk_box_pack_start (GTK_BOX (tv), scrolled_window, TRUE, TRUE, 0);
@@ -815,8 +883,8 @@ tags_view_create_ui (TrackerTagsView *tv)
 
 	cell_renderer = gtk_cell_renderer_toggle_new ();
 	g_signal_connect (cell_renderer, "toggled",
-			  G_CALLBACK (tags_view_model_cell_toggled_cb),
-			  tv);
+	                  G_CALLBACK (tags_view_model_cell_toggled_cb),
+	                  tv);
 
 	gtk_tree_view_column_pack_start (column, cell_renderer, TRUE);
 	gtk_tree_view_column_set_cell_data_func (column, 
@@ -858,21 +926,23 @@ tags_view_create_ui (TrackerTagsView *tv)
 	                  G_CALLBACK (tags_view_model_row_activated_cb), 
 	                  tv);
 
+	g_signal_connect (selection, "changed", 
+	                  G_CALLBACK (tags_view_model_row_selected_cb), 
+	                  tv);
+
 	tracker_resources_sparql_query_async (tv->private->tracker_client,
-					      "SELECT ?urn ?label "
-					      "WHERE {"
-					      "  ?urn a nao:Tag ;"
-					      "  nao:prefLabel ?label . "
-					      "} "
-	                                      "ORDER BY ?label",
-					      tags_view_add_tags_cb, tv);
+	                                      "SELECT ?urn ?label "
+	                                      "WHERE {"
+	                                      "  ?urn a nao:Tag ;"
+	                                      "  nao:prefLabel ?label . "
+	                                      "} ORDER BY ?label",
+	                                      tags_view_add_tags_cb, tv);
 
 	gtk_widget_show_all (GTK_WIDGET (tv));
 	gtk_widget_grab_focus (entry);
 
 	/* Save vars */
 	tv->private->entry = entry;
-	tv->private->button_add = button;
 	tv->private->view = view;
 }
 
