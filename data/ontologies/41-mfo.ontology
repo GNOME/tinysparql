@@ -31,6 +31,7 @@ mfo:FeedMessage a rdfs:Class ;
 	rdfs:subClassOf nmo:Message, mfo:FeedElement .
 
 mfo:Enclosure a rdfs:Class ;
+	tracker:notify true ;
 	rdfs:label "Message enclosure" ;
 	rdfs:comment "Represents an enclosure of a feed message" ;
 	rdfs:subClassOf mfo:FeedElement .
