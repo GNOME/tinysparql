@@ -1355,7 +1355,6 @@ miner_files_monitor_directory (TrackerMinerFS *fs,
                                GFile          *file)
 {
 	TrackerMinerFiles *mf;
-	GSList *list;
 
 	mf = TRACKER_MINER_FILES (fs);
 
@@ -1363,26 +1362,11 @@ miner_files_monitor_directory (TrackerMinerFS *fs,
 		return FALSE;
 	}
 
-	/* We don't want child directories inside IndexSingleDirectories
-	 * to have a monitor added.
+	/* We'll only get this signal for the directories where check_directory()
+	 * and check_directory_contents() returned TRUE, so by default we want
+	 * these directories to be indexed.
 	 */
-	for (list = mf->private->index_single_directories; list; list = list->next) {
-		gboolean is_child = FALSE;
-		GFile *dir;
-
-		dir = g_file_new_for_path (list->data);
-		is_child = g_file_has_prefix (file, dir);
-		g_object_unref (dir);
-
-		if (is_child) {
-			return FALSE;
-		}
-	}
-
-	/* Fallback to the check directory routine, since we don't
-	 * monitor anything we don't process.
-	 */
-	return miner_files_check_directory (fs, file);
+	return TRUE;
 }
 
 static const gchar *
