@@ -23,7 +23,7 @@
 #include "config.h"
 
 #include <totem-pl-parser.h>
-#include <libtracker-common/tracker-ontology.h>
+#include <libtracker-common/tracker-ontologies.h>
 #include <string.h>
 
 #include "tracker-writeback-file.h"
