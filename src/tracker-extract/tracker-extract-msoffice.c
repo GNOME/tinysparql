@@ -352,7 +352,7 @@ read_16bit (const guint8* buffer)
  * @return 32 bit unsigned integer
  */
 static gint
-read_32bit (const guint8* buffer)
+read_32bit (const guint8 *buffer)
 {
 	return buffer[0] + (buffer[1] << 8) + (buffer[2] << 16) + (buffer[3] << 24);
 }
@@ -363,8 +363,8 @@ read_32bit (const guint8* buffer)
  * @param header Pointer to header where to store results
  */
 static gboolean
-read_header (GsfInput               *stream,
-             PowerPointRecordHeader *header)
+ppt_read_header (GsfInput               *stream,
+                 PowerPointRecordHeader *header)
 {
 	guint8 buffer[8] = {0};
 
@@ -416,8 +416,8 @@ read_header (GsfInput               *stream,
  * @param stream Stream to read text bytes/chars atom
  * @return read text or NULL if no text was read. Has to be freed by the caller
  */
-static gchar*
-read_text (GsfInput *stream)
+static gchar *
+ppt_read_text (GsfInput *stream)
 {
 	gint i = 0;
 	PowerPointRecordHeader header;
@@ -428,7 +428,7 @@ read_text (GsfInput *stream)
 	/* First read the header that describes the structures type
 	 * (TextBytesAtom or TextCharsAtom) and it's length.
 	 */
-	g_return_val_if_fail (read_header (stream, &header),NULL);
+	g_return_val_if_fail (ppt_read_header (stream, &header), NULL);
 
 	/* We only want header with type either TEXTBYTESATOM_RECORD_TYPE
 	 * (TextBytesAtom) or TEXTCHARSATOM_RECORD_TYPE (TextCharsAtom).
@@ -496,22 +496,19 @@ read_text (GsfInput *stream)
  * @return TRUE if either of specified headers was found
  */
 static gboolean
-seek_header (GsfInput *stream,
-             gint      type1,
-             gint      type2,
-             gboolean  rewind)
+ppt_seek_header (GsfInput *stream,
+                 gint      type1,
+                 gint      type2,
+                 gboolean  rewind)
 {
 	PowerPointRecordHeader header;
 
 	g_return_val_if_fail (stream,FALSE);
 
-	/*
-	 * Read until we reach eof
-	 */
+	/* Read until we reach eof */
 	while (!gsf_input_eof (stream)) {
-
 		/* Read first header */
-		g_return_val_if_fail(read_header(stream, &header),FALSE);
+		g_return_val_if_fail (ppt_read_header (stream, &header), FALSE);
 
 		/* Check if it's the correct type */
 		if (header.recType == type1 || header.recType == type2) {
@@ -519,8 +516,9 @@ seek_header (GsfInput *stream,
 			 * header
 			 */
 			if (rewind) {
-				gsf_input_seek(stream,-8,G_SEEK_CUR);
+				gsf_input_seek (stream, -8, G_SEEK_CUR);
 			}
+
 			return TRUE;
 		}
 
@@ -607,7 +605,7 @@ ppt_read (GsfInfile            *infile,
 		/*
 		 * We only read headers of data structures
 		 */
-		if (!read_header (stream,&header)) {
+		if (!ppt_read_header (stream, &header)) {
 			break;
 		}
 
@@ -640,14 +638,14 @@ ppt_read (GsfInfile            *infile,
 	 */
 	if (last_document_container >= 0 &&
 	    !gsf_input_seek (stream, last_document_container, G_SEEK_SET) &&
-	    seek_header (stream,
-	                 SLIDELISTWITHTEXT_RECORD_TYPE,
-	                 SLIDELISTWITHTEXT_RECORD_TYPE,
-	                 FALSE) &&
-	    seek_header (stream,
-	                 SLIDELISTWITHTEXT_RECORD_TYPE,
-	                 SLIDELISTWITHTEXT_RECORD_TYPE,
-	                 FALSE)) {
+	    ppt_seek_header (stream,
+	                     SLIDELISTWITHTEXT_RECORD_TYPE,
+	                     SLIDELISTWITHTEXT_RECORD_TYPE,
+	                     FALSE) &&
+	    ppt_seek_header (stream,
+	                     SLIDELISTWITHTEXT_RECORD_TYPE,
+	                     SLIDELISTWITHTEXT_RECORD_TYPE,
+	                     FALSE)) {
 		GString *all_texts = g_string_new ("");
 		gint word_count = 0;
 
@@ -656,12 +654,12 @@ ppt_read (GsfInfile            *infile,
 		 * TextCharsAtom and we have read less than max_words
 		 * amount of words
 		 */
-		while (seek_header (stream,
-		                    TEXTBYTESATOM_RECORD_TYPE,
-		                    TEXTCHARSATOM_RECORD_TYPE,
-		                    TRUE) &&
+		while (ppt_seek_header (stream,
+		                        TEXTBYTESATOM_RECORD_TYPE,
+		                        TEXTCHARSATOM_RECORD_TYPE,
+		                        TRUE) &&
 		       word_count < max_words) {
-			gchar *text = read_text(stream);
+			gchar *text = ppt_read_text (stream);
 
 			if (text) {
 				gint count;
