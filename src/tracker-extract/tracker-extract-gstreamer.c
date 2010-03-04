@@ -272,6 +272,8 @@ add_fraction_gst_tag (TrackerSparqlBuilder         *metadata,
 
 		tracker_sparql_builder_predicate (metadata, key);
 		tracker_sparql_builder_object_double (metadata, (gdouble) f);
+
+		g_value_unset (&n);
 	}
 }
 
@@ -407,8 +409,10 @@ extract_stream_metadata_tagreadbin (MetadataExtractor *extractor,
 		add_int_gst_tag (metadata, uri, "nfo:channels", extractor->tagcache, GST_TAG_CHANNEL);
 		add_int_gst_tag (metadata, uri, "nfo:sampleRate", extractor->tagcache, GST_TAG_RATE);
 		add_time_gst_tag (metadata, uri, "nfo:duration", extractor->tagcache, GST_TAG_DURATION);
-	} else {
-		add_int_gst_tag (metadata, uri, "nfo:aspectRatio", extractor->tagcache, GST_TAG_PIXEL_RATIO);
+	}
+
+	if (extractor->mime == EXTRACT_MIME_IMAGE || extractor->mime == EXTRACT_MIME_VIDEO) {
+		add_fraction_gst_tag (metadata, uri, "nfo:aspectRatio", extractor->tagcache, GST_TAG_PIXEL_RATIO);
 	}
 
 	add_int_gst_tag (metadata, uri, "nfo:height", extractor->tagcache, GST_TAG_HEIGHT);
