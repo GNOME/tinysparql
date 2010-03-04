@@ -190,6 +190,7 @@ get_fts_string (GStrv    search_words,
 
 static gchar *
 get_filter_string (GStrv        files,
+                   gboolean     files_are_urns,
                    const gchar *tag)
 {
 	GString *filter;
@@ -214,15 +215,11 @@ get_filter_string (GStrv        files,
 	}
 
 	for (i = 0; i < len; i++) {
-		GFile *file;
-		gchar *uri;
-
-		file = g_file_new_for_commandline_arg (files[i]);
-		uri = g_file_get_uri (file);
-		g_object_unref (file);
-
-		g_string_append_printf (filter, "?f = \"%s\"", uri);
-		g_free (uri);
+		if (files_are_urns) {
+			g_string_append_printf (filter, "?urn = <%s>", files[i]);
+		} else {
+			g_string_append_printf (filter, "?f = \"%s\"", files[i]);
+		}
 
 		if (i < len - 1) {
 			g_string_append (filter, " || ");
@@ -236,6 +233,94 @@ get_filter_string (GStrv        files,
 	g_string_append (filter, ")");
 
 	return g_string_free (filter, FALSE);
+}
+
+static GStrv
+get_uris (GStrv files)
+{
+	GStrv uris;
+	gint len, i;
+
+	if (!files) {
+		return NULL;
+	}
+
+	len = g_strv_length (files);
+
+	if (len < 1) {
+		return NULL;
+	}
+
+	uris = g_new0 (gchar *, len + 1);
+
+	for (i = 0; files[i]; i++) {
+		GFile *file;
+
+		file = g_file_new_for_commandline_arg (files[i]);
+		uris[i] = g_file_get_uri (file);
+		g_object_unref (file);
+	}
+
+	return uris;
+}
+
+static GPtrArray *
+get_file_urns (TrackerClient *client,
+	       GStrv          uris,
+	       const gchar   *tag)
+{
+	GPtrArray *results;
+	gchar *query, *filter;
+	GError *error = NULL;
+
+	filter = get_filter_string (uris, FALSE, tag);
+	query = g_strdup_printf ("SELECT ?urn ?f "
+	                         "WHERE { "
+	                         "  ?urn "
+	                         "    %s "
+	                         "    nie:url ?f . "
+	                         "  %s "
+	                         "}",
+	                         tag ? "nao:hasTag ?t ; " : "",
+	                         filter);
+
+	results = tracker_resources_sparql_query (client, query, &error);
+
+	g_free (query);
+	g_free (filter);
+
+	if (error) {
+		g_print ("    %s, %s\n",
+		         _("Could not get file URNs"),
+		         error->message);
+		g_error_free (error);
+		return NULL;
+	}
+
+	return results;
+}
+
+static GStrv
+result_to_strv (GPtrArray *result,
+                gint       n_col)
+{
+	GStrv strv;
+	gint i;
+
+	if (!result || result->len == 0) {
+		return NULL;
+	}
+
+	strv = g_new0 (gchar *, result->len + 1);
+
+	for (i = 0; i < result->len; i++) {
+		gchar **row;
+
+		row = g_ptr_array_index (result, i);
+		strv[i] = g_strdup (row[n_col]);
+	}
+
+	return strv;
 }
 
 static void
@@ -393,66 +478,65 @@ get_all_tags (TrackerClient *client,
 	return TRUE;
 }
 
+static void
+print_file_report (GPtrArray   *urns,
+                   GStrv        uris,
+                   const gchar *found_msg,
+                   const gchar *not_found_msg)
+{
+	gint i, j;
+
+	if (!urns || !uris) {
+		g_print ("  No files were modified.\n");
+		return;
+	}
+
+	for (i = 0; uris[i]; i++) {
+		gboolean found = FALSE;
+
+		for (j = 0; j < urns->len; j++) {
+			gchar **row;
+
+			row = g_ptr_array_index (urns, j);
+
+			if (g_strcmp0 (row[1], uris[i]) == 0) {
+				found = TRUE;
+				break;
+			}
+		}
+
+		g_print ("  %s: %s\n",
+		         found ? found_msg : not_found_msg,
+		         uris[i]);
+	}
+}
+
 static gboolean
 add_tag_for_urns (TrackerClient *client,
                   GStrv          files,
                   const gchar   *tag)
 {
+	GPtrArray *urns = NULL;
 	GError *error = NULL;
-	gchar *filter;
+	GStrv  uris;
 	gchar *tag_escaped;
 	gchar *query;
 
 	tag_escaped = get_escaped_sparql_string (tag);
-	filter = get_filter_string (files, NULL);
 
-	/* First we check if the tag is already set and only add if it
-	 * is, then we add the urns specified to the new tag.
-	 */
-	if (filter) {
-		/* Add tag to specific urns */
-		query = g_strdup_printf ("INSERT { "
-		                         "  _:tag a nao:Tag;"
-		                         "  nao:prefLabel %s ."
-		                         "} "
-		                         "WHERE {"
-		                         "  OPTIONAL {"
-		                         "     ?tag a nao:Tag ;"
-		                         "     nao:prefLabel %s"
-		                         "  } ."
-		                         "  FILTER (!bound(?tag)) "
-		                         "} "
-		                         "INSERT { "
-		                         "  ?urn nao:hasTag ?id "
-		                         "} "
-		                         "WHERE {"
-		                         "  ?urn nie:url ?f ."
-		                         "  ?id nao:prefLabel %s "
-		                         "  %s "
-		                         "}",
-		                         tag_escaped,
-		                         tag_escaped,
-		                         tag_escaped,
-		                         filter);
-	} else {
-		/* Add tag and do not link it to urns */
-		query = g_strdup_printf ("INSERT { "
-		                         "  _:tag a nao:Tag;"
-		                         "  nao:prefLabel %s ."
-		                         "} "
-		                         "WHERE {"
-		                         "  OPTIONAL {"
-		                         "     ?tag a nao:Tag ;"
-		                         "     nao:prefLabel %s"
-		                         "  } ."
-		                         "  FILTER (!bound(?tag)) "
-		                         "}",
-		                         tag_escaped,
-		                         tag_escaped);
-	}
-
-	g_free (tag_escaped);
-	g_free (filter);
+	query = g_strdup_printf ("INSERT { "
+	                         "  _:tag a nao:Tag;"
+	                         "  nao:prefLabel %s ."
+	                         "} "
+	                         "WHERE {"
+	                         "  OPTIONAL {"
+	                         "     ?tag a nao:Tag ;"
+	                         "     nao:prefLabel %s"
+	                         "  } ."
+	                         "  FILTER (!bound(?tag)) "
+	                         "}",
+	                         tag_escaped,
+	                         tag_escaped);
 
 	tracker_resources_sparql_update (client, query, &error);
 	g_free (query);
@@ -462,12 +546,73 @@ add_tag_for_urns (TrackerClient *client,
 		            _("Could not add tag"),
 		            error->message);
 		g_error_free (error);
+		g_free (tag_escaped);
 
 		return FALSE;
 	}
 
 	g_print ("%s\n",
 	         _("Tag was added successfully"));
+
+	uris = get_uris (files);
+
+	if (!uris) {
+		/* No URIs to tag */
+		g_free (tag_escaped);
+		return TRUE;
+	}
+
+	urns = get_file_urns (client, uris, NULL);
+
+	/* First we check if the tag is already set and only add if it
+	 * is, then we add the urns specified to the new tag.
+	 */
+	if (urns && urns->len > 0) {
+		GStrv urns_strv;
+		gchar *filter;
+
+		urns_strv = result_to_strv (urns, 0);
+		filter = get_filter_string (urns_strv, TRUE, NULL);
+
+		/* Add tag to specific urns */
+		query = g_strdup_printf ("INSERT { "
+		                         "  ?urn nao:hasTag ?id "
+		                         "} "
+		                         "WHERE {"
+		                         "  ?urn nie:url ?f ."
+		                         "  ?id nao:prefLabel %s "
+		                         "  %s "
+		                         "}",
+		                         tag_escaped,
+		                         filter);
+
+		tracker_resources_sparql_update (client, query, &error);
+		g_strfreev (urns_strv);
+		g_free (filter);
+		g_free (query);
+
+		if (error) {
+			g_printerr ("%s, %s\n",
+			            _("Could not add tag to files"),
+			            error->message);
+			g_error_free (error);
+			g_free (tag_escaped);
+
+			return FALSE;
+		}
+	}
+
+	if (urns) {
+		print_file_report (urns, uris,
+		                   _("Tagged"),
+		                   _("Not tagged, file is not indexed"));
+
+		g_ptr_array_foreach (urns, (GFunc) g_strfreev, NULL);
+		g_ptr_array_free (urns, TRUE);
+	}
+
+	g_strfreev (uris);
+	g_free (tag_escaped);
 
 	return TRUE;
 }
@@ -477,16 +622,20 @@ remove_tag_for_urns (TrackerClient *client,
                      GStrv          files,
                      const gchar   *tag)
 {
+	GPtrArray *urns;
 	GError *error = NULL;
 	gchar *tag_escaped;
 	gchar *query;
+	GStrv uris;
 
 	tag_escaped = get_escaped_sparql_string (tag);
+	uris = get_uris (files);
 
-	if (files && *files) {
+	if (uris && *uris) {
 		GPtrArray *results;
 		gchar *filter;
 		const gchar *urn;
+		GStrv uris, urns_strv;
 
 		/* Get all tags urns */
 		query = g_strdup_printf ("SELECT ?tag "
@@ -519,18 +668,33 @@ remove_tag_for_urns (TrackerClient *client,
 		}
 
 		urn = * (GStrv) results->pdata[0];
-		filter = get_filter_string (files, urn);
+
+		uris = get_uris (files);
+		urns = get_file_urns (client, uris, urn);
+
+		if (!urns || urns->len == 0) {
+			g_print ("%s\n",
+			         _("None of the files had this tag set"));
+
+			g_strfreev (uris);
+			g_free (tag_escaped);
+
+			return TRUE;
+		}
+
+		urns_strv = result_to_strv (urns, 0);
+		filter = get_filter_string (urns_strv, TRUE, urn);
 
 		query = g_strdup_printf ("DELETE { "
-		                         "  ?u nao:hasTag ?t "
+		                         "  ?urn nao:hasTag ?t "
 		                         "} "
 		                         "WHERE { "
-		                         "  ?u nao:hasTag ?t . "
-					 "  ?u nie:url ?f . "
+		                         "  ?urn nao:hasTag ?t . "
 		                         "  %s "
 		                         "}",
 		                         filter);
 		g_free (filter);
+		g_strfreev (urns_strv);
 
 		g_ptr_array_foreach (results, (GFunc) g_strfreev, NULL);
 		g_ptr_array_free (results, TRUE);
@@ -561,6 +725,17 @@ remove_tag_for_urns (TrackerClient *client,
 
 	g_print ("%s\n",
 	         _("Tag was removed successfully"));
+
+	if (urns) {
+		print_file_report (urns, uris,
+		                   _("Untagged"),
+		                   _("File not indexed or already untagged"));
+
+		g_ptr_array_foreach (urns, (GFunc) g_strfreev, NULL);
+		g_ptr_array_free (urns, TRUE);
+	}
+
+	g_strfreev (uris);
 
 	return TRUE;
 }
