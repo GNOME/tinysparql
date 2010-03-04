@@ -371,6 +371,7 @@ mount_guess_content_type (GFile    *mount_root,
 			           !g_strcmp0 (guess_type[i], "x-content/blank-hddvd")) {
 				/* Blank */
 				content_type = g_strdup (guess_type[i]);
+				break;
 			} else if (!g_strcmp0 (guess_type[i], "x-content/software") ||
 			           !g_strcmp0 (guess_type[i], "x-content/unix-software") ||
 			           !g_strcmp0 (guess_type[i], "x-content/win32-software")) {
@@ -379,8 +380,10 @@ mount_guess_content_type (GFile    *mount_root,
 				 * none-optical mount points?
 				 */
 				content_type = g_strdup (guess_type[i]);
+				break;
 			} else if (!content_type) {
 				content_type = g_strdup (guess_type[i]);
+				break;
 			}
 		}
 		
