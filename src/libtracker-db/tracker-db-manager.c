@@ -341,10 +341,12 @@ function_sparql_string_join (TrackerDBInterface *interface,
 		}
 	}
 
-	g_value_init (&result, G_TYPE_STRING);
-	g_value_set_string (&result, str->str);
+	if (str) {
+		g_value_init (&result, G_TYPE_STRING);
+		g_value_set_string (&result, str->str);
 
-	g_string_free (str, TRUE);
+		g_string_free (str, TRUE);
+	}
 
 	return result;
 }
