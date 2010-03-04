@@ -1,3 +1,99 @@
+NEW in 0.7.24
+=============
+
+Improvements / New:
+
+  Ontology:
+  * Added nao:isRelated
+  * Added tracker:notify true to nmm:Playlist
+  * Added tracker:isAnnotation comments
+  * Show full text index flag in the documentation
+  * Added table with all fts-indexed properties in documentation
+
+  SPARQL:
+  * Implicitly convert REGEX text to string, previously required str()
+  * Add error reporting about nested anonymous blank nodes (see GB#611248)
+
+  ontology-validator:
+  * Re-enable compilation
+  * Fixed to handle tracker:Ontology correctly
+
+  libtracker-common:
+  * Log binary name and version at beginning of log file
+  * Avoid invalid memory accesses in tracker_path_list_filter_duplicates()
+
+  libtracker-db:
+  * Check disk space when recreating DB due to corruption
+  * Added a check for string validity in fn:string-join
+
+  libtracker-data:
+  * Limit update buffer size, was causing high memory usage due to update buffer
+  * Do not signal or journal duplicate statements
+  * Avoid unnecessary RDF type URI copies on updates
+  * Avoid double free on error condition
+  * Propagate DB initialization error in data_manager_init
+
+  tracker-store:
+  * Remove unused statistics signal
+  * Fix invalid D-Bus messages in writeback support
+
+  libtracker-miner:
+  * Added support for optical media in tracker-storage
+  * Updated ::mount-point-added to include removable and optical booleans
+
+  tracker-miner-fs:
+  * Report the correct files/dirs number on miner finished
+  * Improve efficiency of tracker:available updates
+  * Check both directory and _contents_ rules before adding a monitor
+  * Make sure we respond to IgnoreDirectories[WithContent] config changes
+  * Added --eligible command line option to
+  * Added support for optical media in tracker-storage
+
+  tracker-preferences:
+  * Added IndexOpticalDiscs option
+
+  tracker-writeback:
+  * Fixed compilation error in playlist writeback
+
+  tracker-sparql:
+  * Added --search option to find classes/properties
+
+  nautilus:
+  * Fixed the tags widget for the Nautilus integration
+
+Bugs:
+
+  * GB#611271, Preferences throttle only goes to 15/2
+  * GB#611455, PPT extractor is not working is not extracting plainText
+  * GB#611621, tracker-search should output filenames
+  * GB#610812, Tagging a none indexed file fails silently
+  * GB#611556, Need to support CD/DVD index
+  * GB#611152, Adding support for msoffice2007 extraction to extract the data from pptx, xlsx, docx files
+  * NB#158626, Add support for nmm:composer to MP3 extractor
+  * NB#158962, tracker-miner-fs emits criticals for some desktop files
+  * NB#155488, After adding a directory under "IgnoredDirectories" key...
+  * NB#158864, tracker-store crashes when the file system is full
+  * NB#158450, Tracker doesn't remove song from database when deleting song from device
+
+Translations:
+
+  * Updated pl: Piotr Drąg
+
+Notes:
+
+  There is a new config option called IndexOpticalDiscs in:
+
+    $HOME/.config/tracker/tracker-miner-fs.cfg
+
+  You will need to update your .cfg file manually OR remove the old
+  file to have a new config file generated for you. The default here
+  is FALSE and it covers the indexing of CDs, DVDs, etc.
+
+  The Deskbar applet packaged with Tracker is currently out of date
+  and needs some love to get it working with the new APIs. It is in
+  the same state as it was for 0.6. As such it isn't expected to work.
+
+
 NEW in 0.7.23
 =============
 
