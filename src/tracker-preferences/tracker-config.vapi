@@ -34,6 +34,7 @@ namespace Tracker {
 		public bool index_on_battery { get; set; }
 		public bool index_on_battery_first_time { get; set; }
 		public bool index_removable_devices { get; set; }
+		public bool index_optical_discs { get; set; }
 		public bool index_mounted_directories { get; set; }
 		public int low_disk_space_limit { get; set; }
 		public GLib.SList<string> index_recursive_directories { get; set; }

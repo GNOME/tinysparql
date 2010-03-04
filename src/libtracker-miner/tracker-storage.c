@@ -42,6 +42,7 @@ typedef struct {
 	gchar *mount_point;
 	gchar *uuid;
 	guint removable : 1;
+	guint optical : 1;
 } MountInfo;
 
 typedef struct {
@@ -51,7 +52,9 @@ typedef struct {
 
 typedef struct {
 	GSList *roots;
-	gboolean only_removable;
+	guint either_condition : 1;
+	guint removable : 1;
+	guint optical : 1;
 } GetRoots;
 
 static void     tracker_storage_finalize (GObject        *object);
@@ -94,11 +97,13 @@ tracker_storage_class_init (TrackerStorageClass *klass)
 		              G_SIGNAL_RUN_LAST,
 		              0,
 		              NULL, NULL,
-		              tracker_marshal_VOID__STRING_STRING,
+		              tracker_marshal_VOID__STRING_STRING_BOOLEAN_BOOLEAN,
 		              G_TYPE_NONE,
-		              2,
+		              4,
 		              G_TYPE_STRING,
-		              G_TYPE_STRING);
+		              G_TYPE_STRING,
+		              G_TYPE_BOOLEAN,
+		              G_TYPE_BOOLEAN);
 
 	signals[MOUNT_POINT_REMOVED] =
 		g_signal_new ("mount-point-removed",
@@ -272,7 +277,8 @@ static GNode *
 mount_add_hierarchy (GNode       *root,
                      const gchar *uuid,
                      const gchar *mount_point,
-                     gboolean     removable)
+                     gboolean     removable,
+                     gboolean     optical)
 {
 	MountInfo *info;
 	GNode *node;
@@ -289,6 +295,7 @@ mount_add_hierarchy (GNode       *root,
 	info->mount_point = mp;
 	info->uuid = g_strdup (uuid);
 	info->removable = removable;
+	info->optical = optical;
 
 	return g_node_append_data (node, info);
 }
@@ -297,17 +304,92 @@ static void
 mount_add (TrackerStorage *storage,
            const gchar    *uuid,
            const gchar    *mount_point,
-           gboolean        removable_device)
+           gboolean        removable_device,
+           gboolean        optical_disc)
 {
 	TrackerStoragePrivate *priv;
 	GNode *node;
 
 	priv = TRACKER_STORAGE_GET_PRIVATE (storage);
 
-	node = mount_add_hierarchy (priv->mounts, uuid, mount_point, removable_device);
+	node = mount_add_hierarchy (priv->mounts, uuid, mount_point, removable_device, optical_disc);
 	g_hash_table_insert (priv->mounts_by_uuid, g_strdup (uuid), node);
 
-	g_signal_emit (storage, signals[MOUNT_POINT_ADDED], 0, uuid, mount_point, NULL);
+	g_signal_emit (storage, 
+	               signals[MOUNT_POINT_ADDED], 
+	               0,
+	               uuid,
+	               mount_point,
+	               removable_device,
+	               optical_disc,
+	               NULL);
+}
+
+static gchar *
+mount_guess_content_type (GFile    *mount_root,
+                          gboolean *is_multimedia)
+{
+	gchar *content_type = NULL;
+
+	/* Set defaults */
+	*is_multimedia = FALSE;
+
+	if (g_file_has_uri_scheme (mount_root, "cdda")) {
+		*is_multimedia = TRUE;
+
+		content_type = g_strdup ("x-content/audio-cdda");
+	} else {
+		gchar **guess_type;
+		gint i;
+		
+		guess_type = g_content_type_guess_for_tree (mount_root);
+		
+		for (i = 0; guess_type && guess_type[i]; i++) {
+			if (!g_strcmp0 (guess_type[i], "x-content/image-picturecd")) {
+				/* Images */
+				content_type = g_strdup (guess_type[i]);
+				break;
+			} else if (!g_strcmp0 (guess_type[i], "x-content/video-bluray") ||
+			           !g_strcmp0 (guess_type[i], "x-content/video-dvd") ||
+			           !g_strcmp0 (guess_type[i], "x-content/video-hddvd") ||
+			           !g_strcmp0 (guess_type[i], "x-content/video-svcd") ||
+			           !g_strcmp0 (guess_type[i], "x-content/video-vcd")) {
+				/* Videos */
+				*is_multimedia = TRUE;
+				content_type = g_strdup (guess_type[i]);
+				break;
+			} else if (!g_strcmp0 (guess_type[i], "x-content/audio-cdda") ||
+			           !g_strcmp0 (guess_type[i], "x-content/audio-dvd") ||
+			           !g_strcmp0 (guess_type[i], "x-content/audio-player")) {
+				/* Audios */
+				*is_multimedia = TRUE;
+				content_type = g_strdup (guess_type[i]);
+				break;
+			} else if (!g_strcmp0 (guess_type[i], "x-content/blank-bd") ||
+			           !g_strcmp0 (guess_type[i], "x-content/blank-cd") ||
+			           !g_strcmp0 (guess_type[i], "x-content/blank-dvd") ||
+			           !g_strcmp0 (guess_type[i], "x-content/blank-hddvd")) {
+				/* Blank */
+				content_type = g_strdup (guess_type[i]);
+			} else if (!g_strcmp0 (guess_type[i], "x-content/software") ||
+			           !g_strcmp0 (guess_type[i], "x-content/unix-software") ||
+			           !g_strcmp0 (guess_type[i], "x-content/win32-software")) {
+				/* NOTE: This one is a guess, can we
+				 * have this content type on
+				 * none-optical mount points?
+				 */
+				content_type = g_strdup (guess_type[i]);
+			} else if (!content_type) {
+				content_type = g_strdup (guess_type[i]);
+			}
+		}
+		
+		if (guess_type) {
+			g_strfreev (guess_type);
+		}
+	}
+
+	return content_type;
 }
 
 static void
@@ -317,8 +399,9 @@ volume_add (TrackerStorage *storage,
 {
 	TrackerStoragePrivate *priv;
 	GMount *mount;
-	gchar *str;
+	gchar *name;
 	gboolean is_mounted;
+	gboolean is_optical;
 	gchar *uuid;
 	gchar *mount_point;
 	gchar *device_file;
@@ -336,21 +419,63 @@ volume_add (TrackerStorage *storage,
 		}
 	}
 
-	str = g_volume_get_name (volume);
-	g_debug ("  Volume:'%s' found", str);
-	g_free (str);
+	name = g_volume_get_name (volume);
+	g_debug ("  Volume:'%s' found", name);
 		
 	if (!g_volume_should_automount (volume) ||
 	    !g_volume_can_mount (volume)) {
 		g_debug ("    Ignoring, volume can not be automatically mounted or mounted at all");
+		g_free (name);
 		return;
 	}
 
 	uuid = g_volume_get_identifier (volume, G_VOLUME_IDENTIFIER_KIND_UUID);
 	if (!uuid) {
-		g_debug ("    Ignoring, volume has no UUID");
-		return;
+		GFile *file;
+		gchar *content_type;
+		gboolean is_multimedia;
+
+		mount = g_volume_get_mount (volume); 
+		
+		if (mount) {
+			file = g_mount_get_root (mount);
+			g_object_unref (mount);
+		} else {
+			g_debug ("  Being ignored because there is no mount point and no UUID");
+			g_free (name);
+			return;
+		}
+
+		content_type = mount_guess_content_type (file, &is_multimedia);
+		g_object_unref (file);
+
+		g_debug ("  No UUID, guessed content type:'%s', has music/video:%s",
+		           content_type,
+		           is_multimedia ? "yes" : "no");
+
+		if (!is_multimedia) {
+			uuid = g_strdup (name);
+			g_debug ("  Using UUID:'%s' for optical disc", uuid);
+		}
+
+		g_free (content_type);
+
+		if (!uuid) {
+			g_debug ("  Being ignored because mount is not optical media or is music/video");
+			g_free (name);
+			return;
+		}
+
+		is_optical = TRUE;
+	} else {
+		/* We assume that all devices that are non-optical
+		 * have UUIDS already. Since optical devices are the
+		 * only ones which seem to have no UUID.
+		 */
+		is_optical = FALSE;
 	}
+
+	g_free (name);
 
 	device_file = g_volume_get_identifier (volume, G_VOLUME_IDENTIFIER_KIND_UNIX_DEVICE);
 	g_debug ("    Device file  : %s", device_file);
@@ -380,7 +505,7 @@ volume_add (TrackerStorage *storage,
 	priv = TRACKER_STORAGE_GET_PRIVATE (storage);
 
 	if (mount_point && !g_hash_table_lookup (priv->mounts_by_uuid, uuid)) {
-		mount_add (storage, uuid, mount_point, TRUE);
+		mount_add (storage, uuid, mount_point, TRUE, is_optical);
 	}
 
 	g_free (uuid);
@@ -463,7 +588,7 @@ mount_added_cb (GVolumeMonitor *monitor,
 	if (volume) {
 		gchar *device_file;
 		gchar *uuid;
-		gboolean removable_device = TRUE;
+		gboolean removable_device;
 
 		device_file = g_volume_get_identifier (volume, G_VOLUME_IDENTIFIER_KIND_UNIX_DEVICE);
 		uuid = g_volume_get_identifier (volume, G_VOLUME_IDENTIFIER_KIND_UUID);
@@ -478,9 +603,27 @@ mount_added_cb (GVolumeMonitor *monitor,
 		/* We don't have a UUID for CDROMs */
 		if (uuid) {
 			g_message ("  Being added as a tracker resource to index!");
-			mount_add (storage, uuid, mount_point, removable_device);
+			mount_add (storage, uuid, mount_point, removable_device, FALSE);
 		} else {
-			g_message ("  Being ignored because we have no UUID");
+			gchar *content_type;
+			gboolean is_multimedia;
+
+			content_type = mount_guess_content_type (file, &is_multimedia);
+
+			g_message ("  No UUID, guessed content type:'%s', music/video:%s",
+			           content_type,
+			           is_multimedia ? "yes" : "no");
+
+			if (!is_multimedia) {
+				uuid = g_strdup (name);
+
+				g_message ("  Using UUID:'%s' for optical disc", uuid);
+				mount_add (storage, uuid, mount_point, removable_device, TRUE);
+			} else {
+				g_message ("  Being ignored because mount is not optical media or is music/video");
+			}
+
+			g_free (content_type);
 		}
 
 		g_free (uuid);
@@ -579,7 +722,12 @@ get_mount_point_by_uuid_foreach (gpointer key,
 	node = value;
 	info = node->data;
 
-	if (!gr->only_removable || info->removable) {
+	if ((gr->either_condition == TRUE && 
+	     (!gr->removable || info->removable) &&
+	     (!gr->optical || info->optical)) ||
+	    (gr->either_condition == FALSE &&
+	     gr->removable == info->removable &&
+	     gr->optical == info->optical)) {
 		gchar *normalized_mount_point;
 		gint len;
 
@@ -596,7 +744,7 @@ get_mount_point_by_uuid_foreach (gpointer key,
 }
 
 /**
- * tracker_storage_get_removable_device_roots:
+ * tracker_storage_get_device_roots:
  * @storage: A #TrackerStorage
  *
  * Returns a #GSList of strings containing the root directories for
@@ -608,7 +756,10 @@ get_mount_point_by_uuid_foreach (gpointer key,
  * Returns: The list of root directories.
  **/
 GSList *
-tracker_storage_get_removable_device_roots (TrackerStorage *storage)
+tracker_storage_get_device_roots (TrackerStorage *storage,
+                                  gboolean        either_condition,
+                                  gboolean        removable,
+                                  gboolean        optical)
 {
 	TrackerStoragePrivate *priv;
 	GetRoots gr;
@@ -618,7 +769,9 @@ tracker_storage_get_removable_device_roots (TrackerStorage *storage)
 	priv = TRACKER_STORAGE_GET_PRIVATE (storage);
 
 	gr.roots = NULL;
-	gr.only_removable = TRUE;
+	gr.either_condition = either_condition;
+	gr.removable = removable;
+	gr.optical = optical;
 
 	g_hash_table_foreach (priv->mounts_by_uuid,
 	                      get_mount_point_by_uuid_foreach,
@@ -628,7 +781,7 @@ tracker_storage_get_removable_device_roots (TrackerStorage *storage)
 }
 
 /**
- * tracker_storage_get_removable_device_uuids:
+ * tracker_storage_get_device_uuids:
  * @storage: A #TrackerStorage
  *
  * Returns a #GSList of strings containing the UUID for removable devices.
@@ -638,7 +791,10 @@ tracker_storage_get_removable_device_roots (TrackerStorage *storage)
  * Returns: The list of UUIDs.
  **/
 GSList *
-tracker_storage_get_removable_device_uuids (TrackerStorage *storage)
+tracker_storage_get_device_uuids (TrackerStorage *storage,
+                                  gboolean        either_condition,
+                                  gboolean        removable,
+                                  gboolean        optical)
 {
 	TrackerStoragePrivate *priv;
 	GHashTableIter iter;
@@ -662,7 +818,12 @@ tracker_storage_get_removable_device_uuids (TrackerStorage *storage)
 		node = value;
 		info = node->data;
 
-		if (info->removable) {
+		if ((either_condition == TRUE && 
+		     (!removable || info->removable) &&
+		     (!optical || info->optical)) ||
+		    (either_condition == FALSE &&
+		     removable == info->removable &&
+		     optical == info->optical)) {
 			uuids = g_slist_prepend (uuids, g_strdup (uuid));
 		}
 	}
