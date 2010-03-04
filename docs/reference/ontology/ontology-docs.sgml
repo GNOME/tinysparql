@@ -17,6 +17,7 @@
 <!ENTITY maemo-ontology SYSTEM "maemo-ontology.xml">
 <!ENTITY ncal-ontology SYSTEM "ncal-ontology.xml">
 <!ENTITY scal-ontology SYSTEM "scal-ontology.xml">
+<!ENTITY fts-properties SYSTEM "fts-properties.xml">
 ]>
 <book id="index">
   <bookinfo>
@@ -58,6 +59,8 @@
     &maemo-ontology;
     &ncal-ontology;
     &scal-ontology;
+
+    &fts-properties;
   </part>
 
   <part id="ontology-notation-description">

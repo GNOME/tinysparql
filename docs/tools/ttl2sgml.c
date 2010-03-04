@@ -8,7 +8,7 @@
 
 static gchar *desc_file = NULL;
 static gchar *output_file = NULL;
-static gchar *class_location_file = NULL;
+static gchar *fts_properties_file = NULL;
 static gchar *explanation_file = NULL;
 
 static GOptionEntry   entries[] = {
@@ -20,8 +20,8 @@ static GOptionEntry   entries[] = {
 	  "File to write the output (default stdout)",
 	  NULL
 	},
-	{ "links", 'l', 0, G_OPTION_ARG_FILENAME, &class_location_file,
-	  "File with pairs: (prefix where the class is defined, class)",
+	{ "fts", 'f', 0, G_OPTION_ARG_FILENAME, &fts_properties_file,
+	  "Output file listing the full text indexed properties",
 	  NULL
 	},
 	{ "explanation", 'e', 0, G_OPTION_ARG_FILENAME, &explanation_file,
@@ -40,6 +40,7 @@ main (gint argc, gchar **argv)
 	gchar *ttl_file = NULL;
 	gchar *dirname = NULL;
 	FILE *f = NULL;
+        FILE *fts = NULL;
 
 	g_type_init ();
 
@@ -73,6 +74,10 @@ main (gint argc, gchar **argv)
 	}
 	g_assert (f != NULL);
 
+        if (fts_properties_file) {
+		fts = fopen (fts_properties_file, "a");
+        } 
+
 	description = ttl_loader_load_description (desc_file);
 
 	dirname = g_path_get_dirname (desc_file);
@@ -84,7 +89,7 @@ main (gint argc, gchar **argv)
 	g_free (ttl_file);
 	g_free (dirname);
 
-	ttl_sgml_print (description, ontology, f, class_location_file, explanation_file);
+	ttl_sgml_print (description, ontology, f, fts, explanation_file);
 
 	ttl_loader_free_ontology (ontology);
 	ttl_loader_free_description (description);
@@ -92,6 +97,7 @@ main (gint argc, gchar **argv)
 	g_option_context_free (context);
 
 	fclose (f);
+        fclose (fts);
 
 	return 0;
 }

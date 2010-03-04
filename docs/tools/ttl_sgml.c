@@ -283,18 +283,44 @@ print_ontology_property (gpointer key, gpointer value, gpointer user_data)
         g_fprintf (f, "</refsect2>\n\n");
 }
 
+static void
+print_fts_properties (gpointer key, gpointer value, gpointer user_data)
+{
+	OntologyProperty *def = (OntologyProperty *) value;
+	gchar *name, *id;
+	FILE *fts = (FILE *) user_data;
+
+	g_return_if_fail (fts != NULL);
+        if (!def->fulltextIndexed) {
+                return;
+        }
+
+	name = qname_to_shortname (def->propertyname);
+        id = shortname_to_id (name);
+
+        g_fprintf (fts, "<tr>\n");
+        g_fprintf (fts, "  <td>\n");
+        print_reference (def->propertyname, fts);
+        g_fprintf (fts, "  </td>\n");
+        g_fprintf (fts, "  <td>%s</td>\n", (def->weight ? def->weight : "0"));
+        g_fprintf (fts, "</tr>\n");
+
+        g_free (id);
+
+}
+
 void
 ttl_sgml_print (OntologyDescription *description,
                 Ontology *ontology,
                 FILE *f,
-                const gchar *class_location_file,
+                FILE *fts,
                 const gchar *explanation_file)
 {
         gchar *upper_name;
 
         upper_name = g_ascii_strup (description->localPrefix, -1);
 
-        qname_init (description->baseUrl, description->localPrefix, class_location_file);
+        qname_init (description->baseUrl, description->localPrefix, NULL);
 	print_sgml_header (f, description);
 
         /* FIXME: make desc files sgml */
@@ -313,4 +339,8 @@ ttl_sgml_print (OntologyDescription *description,
 	print_sgml_footer (f);
 
         g_free (upper_name);
+
+        if (fts) {
+                g_hash_table_foreach (ontology->properties, print_fts_properties, fts);
+        }
 }

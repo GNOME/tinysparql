@@ -28,6 +28,7 @@ typedef struct {
 	gchar *description;
 	gboolean deprecated;
         gboolean fulltextIndexed;
+        gchar *weight;
 } OntologyProperty;
 
 typedef struct {

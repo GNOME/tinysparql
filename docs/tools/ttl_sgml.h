@@ -10,7 +10,7 @@ G_BEGIN_DECLS
 void ttl_sgml_print (OntologyDescription *description,
                      Ontology *ontology,
                      FILE *output,
-                     const gchar *class_location,
+                     FILE *class_location,
                      const gchar *explanation_file);
 
 

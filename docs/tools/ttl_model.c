@@ -56,7 +56,7 @@ ttl_model_property_new (const gchar *propname)
 	prop->description = NULL;
 	prop->deprecated = FALSE;
         prop->fulltextIndexed = FALSE ;
-
+        prop->weight = NULL;
 	return prop;
 }
 
@@ -80,6 +80,10 @@ ttl_model_property_free (OntologyProperty *def)
 	if (def->description) {
 		g_free (def->description);
 	}
+
+        if (def->weight) {
+                g_free (def->weight);
+        }
 
 	g_free (def);
 }

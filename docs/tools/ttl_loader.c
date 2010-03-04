@@ -20,6 +20,7 @@
 #define TRACKER_NS "http://www.tracker-project.org/ontologies/tracker#"
 #define TRACKER_NOTIFY TRACKER_NS "notify"
 #define TRACKER_FTS_INDEXED TRACKER_NS "fulltextIndexed"
+#define TRACKER_FTS_WEIGHT TRACKER_NS "weight"
 
 #define NAO_DEPRECATED "http://www.semanticdesktop.org/ontologies/2007/08/15/nao#deprecated"
 
@@ -130,6 +131,19 @@ load_in_memory (Ontology    *ontology,
 		}
 
 		prop->fulltextIndexed = string_to_boolean (turtle_object);
+
+	} else if (!g_strcmp0 (turtle_predicate, TRACKER_FTS_WEIGHT)) {
+		/*
+		 * A tracker:weight X
+		 */
+		OntologyProperty *prop;
+
+		prop = g_hash_table_lookup (ontology->properties, turtle_subject);
+		if (!prop) {
+			g_error ("Something wrong");
+		}
+
+		prop->weight = g_strdup (turtle_object);
 
 	} else if (!g_strcmp0 (turtle_predicate, RDFS_COMMENT)) {
 		OntologyClass *klass;

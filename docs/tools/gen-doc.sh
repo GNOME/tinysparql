@@ -6,21 +6,23 @@
 #
 BUILD_DIR="../reference/ontology/"
 
-echo "Generating list of classes-properties and files (file-class.cache)"
-if [ -e file-class.cache ]; then
-   rm -f file-class.cache ;
-fi
+echo "Preparing file full text index properties (fts-properties.xml)"
 
-for f in `find ../../data/ontologies -name "*.ontology"` ; do
-    TMPNAME=${f%.ontology}
-    PREFIX=${TMPNAME#*-}
-    grep "^[a-z]\{1,\}\:[a-zA-Z]" $f |awk -v pr=$PREFIX '{print pr " " $1}' >> file-class.cache
-done
+echo "<?xml version='1.0' encoding='UTF-8'?>
+<chapter id='fts-properties'>
+<title>Full-text indexed properties in the ontology</title>
+<table frame='all'>
+  <colspec colname='Property'/>
+  <colspec colname='Weigth'/>
 
-#echo "Converting all dia diagrams to png"
-#for image in `find ../../docs/ontologies -name "*.dia"` ; do
-#    dia -t png $image -e $BUILD_DIR/$(basename ${image/.dia/.png})
-#done
+  <thead>
+   <tr>
+     <td>Property</td>
+     <td>Weigth</td>
+   </tr>
+  </thead>
+
+<tbody>" > $BUILD_DIR/fts-properties.xml
 
 for f in `find ../../data/ontologies -name "*.description"` ; do
     # ../../data/ontologies/XX-aaa.description -> PREFIX=aaa
@@ -28,6 +30,8 @@ for f in `find ../../data/ontologies -name "*.description"` ; do
     PREFIX=${TMPNAME#*-}
     echo "Generating $PREFIX documentation"
 
-    ./ttl2sgml -d $f -o $BUILD_DIR/$PREFIX-ontology.xml -l file-class.cache \
+    ./ttl2sgml -d $f -o $BUILD_DIR/$PREFIX-ontology.xml -f $BUILD_DIR/fts-properties.xml \
 	-e ../../docs/ontologies/$PREFIX/explanation.xml
 done
+
+echo "</tbody></table></chapter>" >> $BUILD_DIR/fts-properties.xml
