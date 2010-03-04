@@ -27,6 +27,7 @@ typedef struct {
 	gchar *max_cardinality;
 	gchar *description;
 	gboolean deprecated;
+        gboolean fulltextIndexed;
 } OntologyProperty;
 
 typedef struct {

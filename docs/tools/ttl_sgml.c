@@ -266,6 +266,11 @@ print_ontology_property (gpointer key, gpointer value, gpointer user_data)
                 print_variablelist_entry (f, "Cardinality", def->max_cardinality);
         }
 
+        if (def->fulltextIndexed) {
+                print_variablelist_entry (f, "Text indexed", 
+                                          "This property is indexed, so it can provide results on text search");
+        }
+
         g_fprintf (f, "</variablelist>\n");
 
         if (def->deprecated) {

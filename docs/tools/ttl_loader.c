@@ -19,6 +19,7 @@
 /* #define TRACKER_NAMESPACE "http://www.tracker-project.org/ontologies/tracker#Namespace" */
 #define TRACKER_NS "http://www.tracker-project.org/ontologies/tracker#"
 #define TRACKER_NOTIFY TRACKER_NS "notify"
+#define TRACKER_FTS_INDEXED TRACKER_NS "fulltextIndexed"
 
 #define NAO_DEPRECATED "http://www.semanticdesktop.org/ontologies/2007/08/15/nao#deprecated"
 
@@ -116,6 +117,19 @@ load_in_memory (Ontology    *ontology,
 		}
 
 		def->notify = string_to_boolean (turtle_object);
+
+	} else if (!g_strcmp0 (turtle_predicate, TRACKER_FTS_INDEXED)) {
+		/*
+		 * A tracker:fulltextIndexed TRUE
+		 */
+		OntologyProperty *prop;
+
+		prop = g_hash_table_lookup (ontology->properties, turtle_subject);
+		if (!prop) {
+			g_error ("Something wrong");
+		}
+
+		prop->fulltextIndexed = string_to_boolean (turtle_object);
 
 	} else if (!g_strcmp0 (turtle_predicate, RDFS_COMMENT)) {
 		OntologyClass *klass;

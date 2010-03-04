@@ -55,6 +55,7 @@ ttl_model_property_new (const gchar *propname)
 	prop->max_cardinality = NULL;
 	prop->description = NULL;
 	prop->deprecated = FALSE;
+        prop->fulltextIndexed = FALSE ;
 
 	return prop;
 }
