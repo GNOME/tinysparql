@@ -6,6 +6,12 @@
 #
 BUILD_DIR="../reference/ontology/"
 
+if ! [ -e $PWD/gen-doc.sh ]; then
+	# building documentation out of tree is not supported
+	# as documentation is distributed in release tarballs
+	exit
+fi
+
 echo "Preparing file full text index properties (fts-properties.xml)"
 
 echo "<?xml version='1.0' encoding='UTF-8'?>

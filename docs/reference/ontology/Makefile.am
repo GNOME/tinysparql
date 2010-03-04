@@ -16,6 +16,7 @@ MKDB_OPTIONS = --sgml-mode --output-format=xml
 
 # Extra SGML files that are included by $(DOC_MAIN_SGML_FILE)
 content_files =						\
+	fts-properties.xml				\
 	nie-ontology.xml				\
 	nco-ontology.xml				\
 	nmo-ontology.xml				\
