@@ -29,6 +29,18 @@ Sets the logging level, 0=errors, 1=minimal, 2=detailed, 3=debug.
 .TP
 .B \-s, \-\-initial-sleep=SECONDS
 Sets the initial sleep time before crawling the file system is started.
+.TP
+.B \-e, \-\-eligible=FILE
+Checks if 
+.B FILE 
+is eligible for being mined based on the current
+configuration rules. In addition to this, it will check if 
+.B FILE
+would be monitored for changes. This works with non-existing 
+.B FILE
+arguments as well as existing 
+.B FILE
+arguments.
 
 .SH FILES
 .I $HOME/.config/tracker/tracker-miner-fs.cfg
