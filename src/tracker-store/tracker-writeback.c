@@ -42,7 +42,7 @@ copy_rdf_types (GPtrArray *rdf_types)
 	new_types = g_new0 (gchar *, rdf_types->len + 1);
 
 	for (n = 0; n < rdf_types->len; n++) {
-		new_types[n] = g_strdup (rdf_types->pdata[n]);
+		new_types[n] = g_strdup (tracker_class_get_uri (rdf_types->pdata[n]));
 	}
 
 	return new_types;
