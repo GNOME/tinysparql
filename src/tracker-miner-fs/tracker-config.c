@@ -41,12 +41,13 @@
 /* Default values */
 #define DEFAULT_VERBOSITY                        0
 #define DEFAULT_INITIAL_SLEEP                    15       /* 0->1000 */
-#define DEFAULT_ENABLE_MONITORS                          TRUE
+#define DEFAULT_ENABLE_MONITORS                  TRUE
 #define DEFAULT_THROTTLE                         0        /* 0->20 */
 #define DEFAULT_SCAN_TIMEOUT                     0        /* 0->1000 */
 #define DEFAULT_CACHE_TIMEOUT                    60       /* 0->1000 */
 #define DEFAULT_INDEX_MOUNTED_DIRECTORIES        TRUE
-#define DEFAULT_INDEX_REMOVABLE_DEVICES                  TRUE
+#define DEFAULT_INDEX_REMOVABLE_DEVICES          TRUE
+#define DEFAULT_INDEX_OPTICAL_DISCS              FALSE
 #define DEFAULT_INDEX_ON_BATTERY                 FALSE
 #define DEFAULT_INDEX_ON_BATTERY_FIRST_TIME      TRUE
 #define DEFAULT_LOW_DISK_SPACE_LIMIT             1        /* 0->100 / -1 */
@@ -67,6 +68,7 @@ typedef struct {
 	gboolean  index_on_battery_first_time;
 	gboolean  index_mounted_directories;
 	gboolean  index_removable_devices;
+	gboolean  index_optical_discs;
 	gint      low_disk_space_limit;
 	GSList   *index_recursive_directories;
 	GSList   *index_single_directories;
@@ -124,6 +126,7 @@ enum {
 	PROP_INDEX_ON_BATTERY_FIRST_TIME,
 	PROP_INDEX_MOUNTED_DIRECTORIES,
 	PROP_INDEX_REMOVABLE_DEVICES,
+	PROP_INDEX_OPTICAL_DISCS,
 	PROP_LOW_DISK_SPACE_LIMIT,
 	PROP_INDEX_RECURSIVE_DIRECTORIES,
 	PROP_INDEX_SINGLE_DIRECTORIES,
@@ -146,6 +149,7 @@ static ObjectToKeyFile conversions[] = {
 	{ G_TYPE_BOOLEAN, "index-on-battery-first-time",      GROUP_INDEXING, "IndexOnBatteryFirstTime"   },
 	{ G_TYPE_BOOLEAN, "index-mounted-directories",        GROUP_INDEXING, "IndexMountedDirectories"   },
 	{ G_TYPE_BOOLEAN, "index-removable-devices",          GROUP_INDEXING, "IndexRemovableMedia"       },
+	{ G_TYPE_BOOLEAN, "index-optical-discs",              GROUP_INDEXING, "IndexOpticalDiscs"         },
 	{ G_TYPE_INT,     "low-disk-space-limit",             GROUP_INDEXING, "LowDiskSpaceLimit"         },
 	{ G_TYPE_POINTER, "index-recursive-directories",      GROUP_INDEXING, "IndexRecursiveDirectories" },
 	{ G_TYPE_POINTER, "index-single-directories",         GROUP_INDEXING, "IndexSingleDirectories"    },
@@ -252,8 +256,17 @@ tracker_config_class_init (TrackerConfigClass *klass)
 	                                 PROP_INDEX_REMOVABLE_DEVICES,
 	                                 g_param_spec_boolean ("index-removable-devices",
 	                                                       "index removable devices",
-	                                                       " Set to true to enable traversing mounted directories for removable devices",
+	                                                       " Set to true to enable traversing mounted directories for removable devices\n"
+	                                                       " (this includes optical discs)",
 	                                                       DEFAULT_INDEX_REMOVABLE_DEVICES,
+	                                                       G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
+	g_object_class_install_property (object_class,
+	                                 PROP_INDEX_OPTICAL_DISCS,
+	                                 g_param_spec_boolean ("index-optical-discs",
+	                                                       "index optical discs",
+	                                                       " Set to true to enable traversing CDs, DVDs, and generally optical media\n"
+	                                                       " (if removable devices are not indexed, optical discs won't be either)",
+	                                                       DEFAULT_INDEX_OPTICAL_DISCS,
 	                                                       G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
 	g_object_class_install_property (object_class,
 	                                 PROP_LOW_DISK_SPACE_LIMIT,
@@ -367,6 +380,10 @@ config_set_property (GObject      *object,
 		tracker_config_set_index_removable_devices (TRACKER_CONFIG (object),
 		                                            g_value_get_boolean (value));
 		break;
+	case PROP_INDEX_OPTICAL_DISCS:
+		tracker_config_set_index_optical_discs (TRACKER_CONFIG (object),
+		                                        g_value_get_boolean (value));
+		break;
 	case PROP_LOW_DISK_SPACE_LIMIT:
 		tracker_config_set_low_disk_space_limit (TRACKER_CONFIG (object),
 		                                         g_value_get_int (value));
@@ -443,6 +460,9 @@ config_get_property (GObject    *object,
 		break;
 	case PROP_INDEX_REMOVABLE_DEVICES:
 		g_value_set_boolean (value, priv->index_removable_devices);
+		break;
+	case PROP_INDEX_OPTICAL_DISCS:
+		g_value_set_boolean (value, priv->index_optical_discs);
 		break;
 	case PROP_LOW_DISK_SPACE_LIMIT:
 		g_value_set_int (value, priv->low_disk_space_limit);
@@ -1173,6 +1193,18 @@ tracker_config_get_index_removable_devices (TrackerConfig *config)
 	return priv->index_removable_devices;
 }
 
+gboolean
+tracker_config_get_index_optical_discs (TrackerConfig *config)
+{
+	TrackerConfigPrivate *priv;
+
+	g_return_val_if_fail (TRACKER_IS_CONFIG (config), DEFAULT_INDEX_OPTICAL_DISCS);
+
+	priv = TRACKER_CONFIG_GET_PRIVATE (config);
+
+	return priv->index_optical_discs;
+}
+
 gint
 tracker_config_get_low_disk_space_limit (TrackerConfig *config)
 {
@@ -1403,6 +1435,20 @@ tracker_config_set_index_removable_devices (TrackerConfig *config,
 
 	priv->index_removable_devices = value;
 	g_object_notify (G_OBJECT (config), "index-removable-devices");
+}
+
+void
+tracker_config_set_index_optical_discs (TrackerConfig *config,
+                                        gboolean       value)
+{
+	TrackerConfigPrivate *priv;
+
+	g_return_if_fail (TRACKER_IS_CONFIG (config));
+
+	priv = TRACKER_CONFIG_GET_PRIVATE (config);
+
+	priv->index_optical_discs = value;
+	g_object_notify (G_OBJECT (config), "index-optical-discs");
 }
 
 void

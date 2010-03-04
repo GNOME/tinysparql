@@ -43,14 +43,23 @@ struct _TrackerStorageClass {
 	GObjectClass parent_class;
 };
 
-GType           tracker_storage_get_type                   (void) G_GNUC_CONST;
-TrackerStorage *tracker_storage_new                        (void);
-GSList *        tracker_storage_get_removable_device_roots (TrackerStorage *storage);
-GSList *        tracker_storage_get_removable_device_uuids (TrackerStorage *storage);
-const gchar *   tracker_storage_get_mount_point_for_uuid   (TrackerStorage *storage,
-                                                            const gchar    *uuid);
-const gchar*    tracker_storage_get_uuid_for_file          (TrackerStorage *storage,
-                                                            GFile          *file);
+typedef enum {
+	TRACKER_STORAGE_REMOVABLE = 1 << 0,
+	TRACKER_STORAGE_OPTICAL   = 1 << 1
+} TrackerStorageType;
+
+GType           tracker_storage_get_type                 (void) G_GNUC_CONST;
+TrackerStorage *tracker_storage_new                      (void);
+GSList *        tracker_storage_get_device_roots         (TrackerStorage     *storage,
+							  TrackerStorageType  type,
+							  gboolean            exact_match);
+GSList *        tracker_storage_get_device_uuids         (TrackerStorage     *storage,
+							  TrackerStorageType  type,
+							  gboolean            exact_match);
+const gchar *   tracker_storage_get_mount_point_for_uuid (TrackerStorage *storage,
+                                                          const gchar    *uuid);
+const gchar*    tracker_storage_get_uuid_for_file        (TrackerStorage *storage,
+                                                          GFile          *file);
 
 G_END_DECLS
 

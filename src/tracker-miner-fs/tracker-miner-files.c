@@ -108,6 +108,8 @@ static void        mount_pre_unmount_cb                 (GVolumeMonitor       *v
 static void        mount_point_added_cb                 (TrackerStorage       *storage,
                                                          const gchar          *uuid,
                                                          const gchar          *mount_point,
+                                                         gboolean              removable,
+                                                         gboolean              optical,
                                                          gpointer              user_data);
 static void        mount_point_removed_cb               (TrackerStorage       *storage,
                                                          const gchar          *uuid,
@@ -323,6 +325,8 @@ miner_files_constructed (GObject *object)
 	GSList *dirs;
 	GSList *mounts = NULL, *m;
 	gboolean index_removable_devices;
+	gboolean index_optical_discs;
+	TrackerStorageType type = 0;
 
 	G_OBJECT_CLASS (tracker_miner_files_parent_class)->constructed (object);
 
@@ -334,11 +338,17 @@ miner_files_constructed (GObject *object)
 		g_assert_not_reached ();
 	}
 
-	index_removable_devices = tracker_config_get_index_removable_devices (mf->private->config);
-
-	if (index_removable_devices) {
-		mounts = tracker_storage_get_removable_device_roots (mf->private->storage);
+	if (tracker_config_get_index_removable_devices (mf->private->config)) {
+		index_removable_devices = TRUE;
+		type |= TRACKER_STORAGE_REMOVABLE;
 	}
+
+	if (tracker_config_get_index_optical_discs (mf->private->config)) {
+		index_optical_discs = TRUE;
+		type |= TRACKER_STORAGE_OPTICAL;
+	}
+
+	mounts = tracker_storage_get_device_roots (mf->private->storage, type, TRUE);
 
 #if defined(HAVE_DEVKIT_POWER) || defined(HAVE_HAL)
 	check_battery_status (mf);
@@ -441,10 +451,15 @@ miner_files_constructed (GObject *object)
 		g_object_unref (file);
 	}
 
-	/* Add removable media */
-	g_message ("Setting up directories to iterate which are removable devices");
+	/* Add mounts */
+	g_message ("Setting up directories to iterate from devices/discs");
+
 	if (!index_removable_devices) {
-		g_message ("  Disabled in the config");
+		g_message ("  Removable devices are disabled in the config");
+	}
+
+	if (!index_optical_discs) {
+		g_message ("  Optical discs are disabled in the config");
 	}
 
 	for (m = mounts; m; m = m->next) {
@@ -465,6 +480,8 @@ miner_files_constructed (GObject *object)
 		                                TRUE);
 		g_object_unref (file);
 	}
+
+	/* Add optical media */
 
 	g_signal_connect (mf->private->config, "notify::low-disk-space-limit",
 	                  G_CALLBACK (low_disk_space_limit_cb),
@@ -665,9 +682,9 @@ query_mount_points_cb (GObject      *source,
 	g_hash_table_replace (volumes, g_strdup (TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN),
 	                      GINT_TO_POINTER (VOLUME_MOUNTED));
 
-	uuids = tracker_storage_get_removable_device_uuids (priv->storage);
+	uuids = tracker_storage_get_device_uuids (priv->storage, TRACKER_STORAGE_REMOVABLE, FALSE);
 
-	/* Then, get all currently mounted volumes, according to HAL */
+	/* Then, get all currently mounted volumes, according to GIO */
 	for (u = uuids; u; u = u->next) {
 		const gchar *uuid;
 		gchar *removable_device_urn;
@@ -768,22 +785,38 @@ static void
 mount_point_added_cb (TrackerStorage *storage,
                       const gchar    *uuid,
                       const gchar    *mount_point,
+                      gboolean        removable,
+                      gboolean        optical,
                       gpointer        user_data)
 {
 	TrackerMinerFiles *miner = user_data;
 	TrackerMinerFilesPrivate *priv;
+	GFile *file;
 	gchar *urn;
 	gboolean index_removable_devices;
+	gboolean index_optical_discs;
+	gboolean should_crawl;
 
 	priv = TRACKER_MINER_FILES_GET_PRIVATE (miner);
 
 	index_removable_devices = tracker_config_get_index_removable_devices (priv->config);
+	index_optical_discs = tracker_config_get_index_optical_discs (priv->config);
 
 	g_message ("Added mount point '%s'", mount_point);
 
-	if (index_removable_devices) {
-		GFile *file;
+	should_crawl = TRUE;	
 
+	if (removable && !tracker_config_get_index_removable_devices (priv->config)) {
+		g_message ("  Not crawling, removable devices disabled in config");
+		should_crawl = FALSE;
+	}
+
+	if (optical && !tracker_config_get_index_optical_discs (priv->config)) {
+		g_message ("  Not crawling, optical devices discs disabled in config");
+		should_crawl = FALSE;
+	}
+
+	if (should_crawl) {
 		g_message ("  Adding directory to crawler's queue");
 
 		file = g_file_new_for_path (mount_point);
@@ -800,8 +833,6 @@ mount_point_added_cb (TrackerStorage *storage,
 		                                file,
 		                                TRUE);
 		g_object_unref (file);
-	} else {
-		g_message ("  Not crawling, removable devices disabled in config");
 	}
 
 	urn = g_strdup_printf (TRACKER_DATASOURCE_URN_PREFIX "%s", uuid);

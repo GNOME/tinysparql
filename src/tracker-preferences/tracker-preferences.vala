@@ -36,6 +36,7 @@ public static SpinButton spinbutton_delay;
 public static CheckButton checkbutton_enable_monitoring;
 public static CheckButton checkbutton_index_mounted_directories;
 public static CheckButton checkbutton_index_removable_media;
+public static CheckButton checkbutton_index_optical_discs;
 public static Scale hscale_disk_space_limit;
 public static Scale hscale_throttle;
 public static ListStore liststore_index_recursively;
@@ -96,6 +97,11 @@ public static void checkbutton_index_mounted_directories_toggled_cb (CheckButton
 
 public static void checkbutton_index_removable_media_toggled_cb (CheckButton source) {
 	config.index_removable_devices = source.active;
+	checkbutton_index_optical_discs.set_sensitive (source.active);
+}
+
+public static void checkbutton_index_optical_discs_toggled_cb (CheckButton source) {
+	config.index_optical_discs = source.active;
 }
 
 public static string hscale_disk_space_limit_format_value_cb (Scale source, double value) {
@@ -347,6 +353,9 @@ static int main (string[] args) {
 		checkbutton_index_mounted_directories.active = config.index_mounted_directories;
 		checkbutton_index_removable_media = builder.get_object ("checkbutton_index_removable_media") as CheckButton;
 		checkbutton_index_removable_media.active = config.index_removable_devices;
+		checkbutton_index_optical_discs = builder.get_object ("checkbutton_index_optical_discs") as CheckButton;
+		checkbutton_index_optical_discs.set_sensitive (checkbutton_index_removable_media.active);
+		checkbutton_index_optical_discs.active = config.index_optical_discs;
 		hscale_disk_space_limit = builder.get_object ("hscale_disk_space_limit") as Scale;
 		hscale_disk_space_limit.set_value ((double) config.low_disk_space_limit);
 		hscale_throttle = builder.get_object ("hscale_throttle") as Scale;
