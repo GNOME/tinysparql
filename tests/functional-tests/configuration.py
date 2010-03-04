@@ -6,8 +6,27 @@
 
 import os, sys
 
-testDataDir_pre = '$prefix/share/tracker-func-ci-tests/testdata/'
-testDataDir = '$HOME/MyDocs/.sounds/'
+prefix = sys.prefix
+
+"""directory paths """
+TEST_DIR = prefix + '/share/tracker-tests/'
+TEST_DATA_DIR = prefix + '/share/tracker-tests/data/'
+TEST_DATA_MUSIC = prefix + '/share/tracker-tests/data/Music/'
+TEST_DATA_IMAGES = prefix + '/share/tracker-tests/data/Images/'
+
+"""
+dir_path = os.environ['HOME']
+"""
+MYDOCS_MUSIC = '/home/user/MyDocs/.sounds/'
+MYDOCS_IMAGES = '/home/user/MyDocs/.images/'
+WB_TEST_DIR_DEVICE = '/home/user/MyDocs/tracker-wb-test'
+WB_TEST_DIR_HOST = prefix + '/share/tracker-tests/data/tracker-wb-test'
+
+URL_PREFIX = 'file://'
+
+"""processes """
+TRACKER_WRITEBACK = prefix + '/lib/tracker/tracker-writeback'
+TRACKER_EXTRACT = prefix + '/lib/tracker/tracker-extract'
 
 def dir_path():
         return testDataDir

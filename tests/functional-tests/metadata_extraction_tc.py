@@ -34,10 +34,12 @@ RESOURCES_IFACE = "org.freedesktop.Tracker1.Resources"
 
 if target == '2':
 	"""target is device """
-	MUSIC_FILE_PATH = "file:///home/user/MyDocs/.sounds/"
+	MUSIC_FILE_PATH = configuration.URL_PREFIX + configuration.MYDOCS_MUSIC 
 else:
 	"""target is SBOX """
-	MUSIC_FILE_PATH = "file:///usr/share/tracker-tests/data/Music/"
+	MUSIC_FILE_PATH = configuration.URL_PREFIX + configuration.TEST_DATA_MUSIC 
+
+print "MUSIC_FILE_PATH is %s" %(MUSIC_FILE_PATH)
 
 class TrackerHelpers(unittest.TestCase):
 	def setUp(self):
@@ -48,7 +50,8 @@ class TrackerHelpers(unittest.TestCase):
 
 
 	def de_pickle(self,pckl_file):
-		pckl_file = '/usr/share/tracker-tests/data/'+pckl_file
+		pckl_file = configuration.TEST_DATA_DIR + pckl_file
+		print "pickle file is %s" %(pckl_file)
 		pickf=open(pckl_file, 'rb')
 		dictList=pickle.load(pickf)
 		pickf.close()
@@ -127,8 +130,9 @@ class music(TrackerHelpers):
 				print parm
                                 if parm.rstrip() == 'Title':
 					query = "SELECT ?title WHERE { \
-					<%s> a nfo:FileDataObject. \
-					<%s> nie:title ?title.}" %(file_uri,file_uri)
+					?uid a nfo:FileDataObject; \
+					nie:url <%s>; \
+					nie:title ?title.}" %(file_uri)
 					print query
 					results = self.query (query)
 					print results
@@ -169,8 +173,9 @@ class music(TrackerHelpers):
                                 if parm.rstrip() == 'Genre':
 					print parm
 					query = "SELECT ?genre WHERE { \
-					<%s> a nfo:FileDataObject. \
-					<%s> nfo:genre ?genre.}" %(file_uri,file_uri)
+					?uid a nfo:FileDataObject; \
+					nie:url <%s>; \
+					nfo:genre ?genre.}" %(file_uri)
 					print query
 					results = self.query (query)
 					print results
@@ -211,8 +216,9 @@ class music(TrackerHelpers):
                                 if parm.rstrip() == 'Composer':
 					print parm
 					query = "SELECT ?composer WHERE { \
-					<%s> a nfo:FileDataObject. \
-					<%s> nmm:composer ?composer.}" %(file_uri,file_uri)
+					?uid a nfo:FileDataObject; \
+					nie:url <%s>; \
+					nmm:composer ?composer.}" %(file_uri)
 					print query
 					results = self.query (query)
 					print results
@@ -254,8 +260,9 @@ class music(TrackerHelpers):
                                 if parm.rstrip() == 'Artist':
 					print parm
 					query = "SELECT ?artist WHERE { \
-					<%s> a nfo:FileDataObject. \
-					<%s> nmm:performer ?artist.}" %(file_uri,file_uri)
+					?uid a nfo:FileDataObject; \
+					nie:url <%s>; \
+					nmm:performer ?artist.}" %(file_uri)
 					print query
 					results = self.query (query)
 					print results
@@ -297,8 +304,9 @@ class music(TrackerHelpers):
                                 if parm.rstrip() == 'Album':
 					print parm
 					query = "SELECT ?album WHERE { \
-					<%s> a nfo:FileDataObject. \
-					<%s> nmm:musicAlbum ?album.}" %(file_uri,file_uri)
+					?uid a nfo:FileDataObject; \
+					nie:url <%s>; \
+					nmm:musicAlbum ?album.}" %(file_uri)
 					print query
 					results = self.query (query)
 					print results
@@ -340,8 +348,9 @@ class music(TrackerHelpers):
                                 if parm.rstrip() == 'Copyright':
 					print parm
 					query = "SELECT ?copyright WHERE { \
-					<%s> a nfo:FileDataObject. \
-					<%s> nie:copyright ?copyright.}" %(file_uri,file_uri)
+					?uid a nfo:FileDataObject; \
+					nie:url <%s>; \
+					nie:copyright ?copyright.}" %(file_uri)
 					print query
 					results = self.query (query)
 					print results
@@ -382,8 +391,9 @@ class music(TrackerHelpers):
                                 if parm.rstrip() == 'Track':
 					print parm
 					query = "SELECT ?track WHERE { \
-					<%s> a nfo:FileDataObject. \
-					<%s> nmm:trackNumber ?track.}" %(file_uri,file_uri)
+					?uid a nfo:FileDataObject; \
+					nie:url <%s>; \
+					nmm:trackNumber ?track.}" %(file_uri)
 					print query
 					results = self.query (query)
 					print results
@@ -424,8 +434,9 @@ class music(TrackerHelpers):
                                 if parm.rstrip() == 'File Modification Date/Time':
 					print parm
 					query = "SELECT ?date WHERE { \
-					<%s> a nfo:FileDataObject. \
-					<%s> nie:contentCreated ?date.}" %(file_uri,file_uri)
+					?uid a nfo:FileDataObject; \
+					nie:url <%s>; \
+					nie:contentCreated ?date.}" %(file_uri)
 					print query
 					results = self.query (query)
 					print results
@@ -466,8 +477,9 @@ class music(TrackerHelpers):
                                 if parm.rstrip() == 'MIME Type':
 					print parm
 					query = "SELECT ?mime WHERE { \
-					<%s> a nfo:FileDataObject. \
-					<%s> nie:mimeType ?mime.}" %(file_uri,file_uri)
+					?uid a nfo:FileDataObject; \
+					nie:url <%s>; \
+					nie:mimeType ?mime.}" %(file_uri)
 					print query
 					results = self.query (query)
 					print results
@@ -508,8 +520,9 @@ class music(TrackerHelpers):
                                 if parm.rstrip() == 'contributor':
 					print parm
 					query = "SELECT ?contributor WHERE { \
-					<%s> a nfo:FileDataObject. \
-					<%s> nco:contributor ?contributor.}" %(file_uri,file_uri)
+					?uid a nfo:FileDataObject; \
+					nie:url <%s>; \
+					nco:contributor ?contributor.}" %(file_uri)
 					print query
 					results = self.query (query)
 					print results
@@ -551,8 +564,9 @@ class music(TrackerHelpers):
                                 if parm.rstrip() == 'Duration':
 					print parm
 					query = "SELECT ?duration WHERE { \
-					<%s> a nfo:FileDataObject. \
-					<%s> nmm:length ?duration.}" %(file_uri,file_uri)
+					?uid a nfo:FileDataObject; \
+					nie:url <%s>; \
+					nfo:duration ?duration.}" %(file_uri)
 					print query
 					results = self.query (query)
 					print results
@@ -594,8 +608,9 @@ class music(TrackerHelpers):
                                 if parm.rstrip() == 'Comment':
 					print parm
 					query = "SELECT ?comment WHERE { \
-					<%s> a nfo:FileDataObject. \
-					<%s> nie:comment ?comment.}" %(file_uri,file_uri)
+					?uid a nfo:FileDataObject; \
+					nie:url <%s>; \
+					nie:comment ?comment.}" %(file_uri)
 					print query
 					results = self.query (query)
 					print results
@@ -613,4 +628,6 @@ class music(TrackerHelpers):
 				self.assert_(not k,'Get Metadata failed for following Music files %s\n\n' % (str(overallRes)) )
 
 
-unittest.main()
+if __name__ == "__main__":
+	unittest.main()
+
