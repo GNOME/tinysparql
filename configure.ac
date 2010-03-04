@@ -157,7 +157,7 @@ EDS_REQUIRED=2.25.5
 LIBSTREAMANALYZER_REQUIRED=0.7.0
 GEE_REQUIRED=0.3
 ID3LIB_REQUIRED=3.8.3
-LIBGRSS_REQUIRED=0.2
+LIBGRSS_REQUIRED=0.3
 
 # Library Checks
 PKG_CHECK_MODULES(GLIB2, [glib-2.0 >= $GLIB_REQUIRED])
@@ -808,7 +808,7 @@ if test "x$enable_miner_rss" != "xno" ; then
 
    if test "x$enable_miner_rss" = "xyes"; then
       if test "x$have_libgrss" != "xyes"; then
-         AC_MSG_ERROR([Couldn't find libgrss >= $LIBGRSS_REQUIRED. and miner rss requeste])
+         AC_MSG_ERROR([Couldn't find libgrss >= $LIBGRSS_REQUIRED. and miner rss requested])
       fi
    fi
 else

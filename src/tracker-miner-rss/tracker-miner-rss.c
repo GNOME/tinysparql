@@ -191,6 +191,8 @@ item_verify_reply_cb (GObject *source_object, GAsyncResult *res, gpointer data)
 	gchar *uri;
 	gchar *subject;
 	gchar **values;
+	gdouble latitude;
+	gdouble longitude;
 	const gchar *tmp_string;
 	const GPtrArray *response;
 	GError *error;
@@ -198,6 +200,7 @@ item_verify_reply_cb (GObject *source_object, GAsyncResult *res, gpointer data)
 	FeedItem *item;
 	FeedChannel *feed;
 	TrackerMinerRSS *miner;
+	gboolean has_geopoint;
 
 	miner = TRACKER_MINER_RSS (source_object);
 	response = tracker_miner_execute_sparql_finish (TRACKER_MINER (source_object), res, &error);
@@ -217,12 +220,35 @@ item_verify_reply_cb (GObject *source_object, GAsyncResult *res, gpointer data)
 	subject = get_message_subject (item);
 
 	sparql = tracker_sparql_builder_new_update ();
+
+	has_geopoint = feed_item_get_geo_point (item, &latitude, &longitude);
 	tracker_sparql_builder_insert_open (sparql, subject);
+
+	if (has_geopoint) {
+		tracker_sparql_builder_subject (sparql, "_:location");
+		tracker_sparql_builder_predicate (sparql, "a");
+		tracker_sparql_builder_object (sparql, "mlo:GeoLocation");
+		tracker_sparql_builder_predicate (sparql, "mlo:asGeoPoint");
+		tracker_sparql_builder_object_blank_open (sparql);
+		tracker_sparql_builder_predicate (sparql, "a");
+		tracker_sparql_builder_object (sparql, "mlo:GeoPoint");
+		tracker_sparql_builder_predicate (sparql, "mlo:latitude");
+		tracker_sparql_builder_object_double (sparql, latitude);
+		tracker_sparql_builder_predicate (sparql, "mlo:longitude");
+		tracker_sparql_builder_object_double (sparql, longitude);
+		tracker_sparql_builder_object_blank_close (sparql);
+	}
+
 	tracker_sparql_builder_subject (sparql, "_:message");
 	tracker_sparql_builder_predicate (sparql, "a");
 	tracker_sparql_builder_object (sparql, "mfo:FeedMessage");
 	tracker_sparql_builder_predicate (sparql, "a");
 	tracker_sparql_builder_object (sparql, "nfo:RemoteDataObject");
+
+	if (has_geopoint == TRUE) {
+		tracker_sparql_builder_predicate (sparql, "mlo:location");
+		tracker_sparql_builder_object (sparql, "_:location");
+	}
 
 	tmp_string = feed_item_get_title (item);
 	if (tmp_string != NULL) {
@@ -248,7 +274,6 @@ item_verify_reply_cb (GObject *source_object, GAsyncResult *res, gpointer data)
 
 	t = time (NULL);
 
-	g_print ("%s\n", feed_item_get_author (item));
 	tracker_sparql_builder_predicate (sparql, "nmo:receivedDate");
 	tracker_sparql_builder_object_date (sparql, &t);
 
@@ -350,7 +375,7 @@ feeds_retrieve_cb (GObject *source_object, GAsyncResult *res, gpointer data)
 		values = (gchar**) g_ptr_array_index (response, i);
 
 		chan = feed_channel_new ();
-		g_object_set_data_full (G_OBJECT (chan), "subject", g_strdup (values [0]), g_free);
+		g_object_set_data_full (G_OBJECT (chan), "subject", g_strdup (values [2]), g_free);
 		feed_channel_set_source (chan, values [0]);
 
 		/*
@@ -374,10 +399,10 @@ retrieve_and_schedule_feeds (TrackerMinerRSS *miner)
 {
 	gchar *sparql;
 
-	sparql = g_strdup_printf ("SELECT ?chanUrl ?interval WHERE		\
-	                           { ?chan a mfo:FeedChannel .			\
-	                             ?chan mfo:feedSettings ?settings .		\
-	                             ?chan nie:url ?chanUrl .			\
+	sparql = g_strdup_printf ("SELECT ?chanUrl ?interval ?chanUrn WHERE		\
+	                           { ?chanUrn a mfo:FeedChannel .			\
+	                             ?chanUrn mfo:feedSettings ?settings .		\
+	                             ?chanUrn nie:url ?chanUrl .			\
 	                             ?settings mfo:updateInterval ?interval }");
 
 	tracker_miner_execute_sparql (TRACKER_MINER (miner), sparql, NULL, feeds_retrieve_cb, NULL);
