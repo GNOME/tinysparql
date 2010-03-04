@@ -52,9 +52,8 @@ typedef struct {
 
 typedef struct {
 	GSList *roots;
-	guint either_condition : 1;
-	guint removable : 1;
-	guint optical : 1;
+	TrackerStorageType type;
+	gboolean exact_match;
 } GetRoots;
 
 static void     tracker_storage_finalize (GObject        *object);
@@ -256,6 +255,22 @@ mount_info_find (GNode       *root,
 
 	node = mount_node_find (root, path);
 	return (node) ? node->data : NULL;
+}
+
+static TrackerStorageType
+mount_info_get_type (MountInfo *info)
+{
+	TrackerStorageType mount_type = 0;
+
+	if (info->removable) {
+		mount_type |= TRACKER_STORAGE_REMOVABLE;
+	}
+
+	if (info->optical) {
+		mount_type |= TRACKER_STORAGE_OPTICAL;
+	}
+
+	return mount_type;
 }
 
 static gchar *
@@ -719,18 +734,17 @@ get_mount_point_by_uuid_foreach (gpointer key,
 	const gchar *uuid;
 	GNode *node;
 	MountInfo *info;
+	TrackerStorageType mount_type;
 
 	gr = user_data;
 	uuid = key;
 	node = value;
 	info = node->data;
+	mount_type = mount_info_get_type (info);
 
-	if ((gr->either_condition == TRUE && 
-	     (!gr->removable || info->removable) &&
-	     (!gr->optical || info->optical)) ||
-	    (gr->either_condition == FALSE &&
-	     gr->removable == info->removable &&
-	     gr->optical == info->optical)) {
+	/* is mount of the type we're looking for? */
+	if ((gr->exact_match && mount_type == gr->type) ||
+	    (!gr->exact_match && ((mount_type & gr->type) == gr->type))) {
 		gchar *normalized_mount_point;
 		gint len;
 
@@ -759,10 +773,9 @@ get_mount_point_by_uuid_foreach (gpointer key,
  * Returns: The list of root directories.
  **/
 GSList *
-tracker_storage_get_device_roots (TrackerStorage *storage,
-                                  gboolean        either_condition,
-                                  gboolean        removable,
-                                  gboolean        optical)
+tracker_storage_get_device_roots (TrackerStorage     *storage,
+				  TrackerStorageType  type,
+				  gboolean            exact_match)
 {
 	TrackerStoragePrivate *priv;
 	GetRoots gr;
@@ -772,9 +785,8 @@ tracker_storage_get_device_roots (TrackerStorage *storage,
 	priv = TRACKER_STORAGE_GET_PRIVATE (storage);
 
 	gr.roots = NULL;
-	gr.either_condition = either_condition;
-	gr.removable = removable;
-	gr.optical = optical;
+	gr.type = type;
+	gr.exact_match = exact_match;
 
 	g_hash_table_foreach (priv->mounts_by_uuid,
 	                      get_mount_point_by_uuid_foreach,
@@ -794,10 +806,9 @@ tracker_storage_get_device_roots (TrackerStorage *storage,
  * Returns: The list of UUIDs.
  **/
 GSList *
-tracker_storage_get_device_uuids (TrackerStorage *storage,
-                                  gboolean        either_condition,
-                                  gboolean        removable,
-                                  gboolean        optical)
+tracker_storage_get_device_uuids (TrackerStorage     *storage,
+				  TrackerStorageType  type,
+				  gboolean            exact_match)
 {
 	TrackerStoragePrivate *priv;
 	GHashTableIter iter;
@@ -816,17 +827,17 @@ tracker_storage_get_device_uuids (TrackerStorage *storage,
 		const gchar *uuid;
 		GNode *node;
 		MountInfo *info;
+		TrackerStorageType mount_type;
 
 		uuid = key;
 		node = value;
 		info = node->data;
 
-		if ((either_condition == TRUE && 
-		     (!removable || info->removable) &&
-		     (!optical || info->optical)) ||
-		    (either_condition == FALSE &&
-		     removable == info->removable &&
-		     optical == info->optical)) {
+		mount_type = mount_info_get_type (info);
+
+		/* is mount of the type we're looking for? */
+		if ((exact_match && mount_type == type) ||
+		    (!exact_match && ((mount_type & type) == type))) {
 			uuids = g_slist_prepend (uuids, g_strdup (uuid));
 		}
 	}

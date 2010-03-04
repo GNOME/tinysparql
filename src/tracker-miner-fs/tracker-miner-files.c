@@ -326,6 +326,7 @@ miner_files_constructed (GObject *object)
 	GSList *mounts = NULL, *m;
 	gboolean index_removable_devices;
 	gboolean index_optical_discs;
+	TrackerStorageType type = 0;
 
 	G_OBJECT_CLASS (tracker_miner_files_parent_class)->constructed (object);
 
@@ -337,13 +338,17 @@ miner_files_constructed (GObject *object)
 		g_assert_not_reached ();
 	}
 
-	index_removable_devices = tracker_config_get_index_removable_devices (mf->private->config);
-	index_optical_discs = tracker_config_get_index_optical_discs (mf->private->config);
+	if (tracker_config_get_index_removable_devices (mf->private->config)) {
+		index_removable_devices = TRUE;
+		type |= TRACKER_STORAGE_REMOVABLE;
+	}
 
-	mounts = tracker_storage_get_device_roots (mf->private->storage, 
-	                                           FALSE, 
-	                                           index_removable_devices, 
-	                                           index_optical_discs);
+	if (tracker_config_get_index_optical_discs (mf->private->config)) {
+		index_optical_discs = TRUE;
+		type |= TRACKER_STORAGE_OPTICAL;
+	}
+
+	mounts = tracker_storage_get_device_roots (mf->private->storage, type, TRUE);
 
 #if defined(HAVE_DEVKIT_POWER) || defined(HAVE_HAL)
 	check_battery_status (mf);
@@ -677,10 +682,7 @@ query_mount_points_cb (GObject      *source,
 	g_hash_table_replace (volumes, g_strdup (TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN),
 	                      GINT_TO_POINTER (VOLUME_MOUNTED));
 
-	uuids = tracker_storage_get_device_uuids (priv->storage, 
-	                                          TRUE, 
-	                                          TRUE,
-	                                          FALSE);
+	uuids = tracker_storage_get_device_uuids (priv->storage, TRACKER_STORAGE_REMOVABLE, FALSE);
 
 	/* Then, get all currently mounted volumes, according to GIO */
 	for (u = uuids; u; u = u->next) {

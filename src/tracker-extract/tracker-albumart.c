@@ -613,8 +613,7 @@ albumart_copy_to_local (TrackerStorage *storage,
 		return;
 	}
 
-	roots = tracker_storage_get_device_roots (storage, TRUE, TRUE, FALSE);
-
+	roots = tracker_storage_get_device_roots (storage, TRACKER_STORAGE_REMOVABLE, FALSE);
 	flen = strlen (filename);
 
 	for (l = roots; l; l = l->next) {
