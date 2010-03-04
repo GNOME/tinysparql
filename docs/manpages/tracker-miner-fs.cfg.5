@@ -55,8 +55,20 @@ systems (this excludes removable devices).
 
 .TP
 .B IndexRemovableMedia=true
-Set to true to enable traversing mounted directories for removable
-devices.
+Set to true to enable traversing
+.B ALL
+removable media such as memory cards,
+CDs, DVDS, etc. Disabling this means that
+.B IndexOpticalDiscs
+has no effect and is considered false.
+.
+
+.TP
+.B IndexOpticalDiscs=false
+Set to true to enable traversing optical discs only, this includes CDs
+DVDs, etc.
+.B IndexRemovableMedia
+must be true for this option to have any effect.
 
 .TP
 .B LowDiskSpaceLimit=1
