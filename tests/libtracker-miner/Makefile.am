@@ -10,7 +10,7 @@ INCLUDES = 									\
 	-DPKGLIBDIR=\""$(libdir)/tracker-$(TRACKER_API_VERSION)"\"		\
 	-DLIBEXEC_PATH=\""$(libexecdir)"\"					\
 	-DTRACKER_COMPILATION							\
-	-DTEST_DATA_DIR=\""$(abs_top_builddir)/tests/libtracker-miner/data"\"	\
+	-DTEST_DATA_DIR=\""$(abs_top_srcdir)/tests/libtracker-miner/data"\"	\
 	-I$(top_srcdir)/src							\
 	-I$(top_srcdir)/tests/common						\
 	-I$(top_builddir)/src/tracker-store					\
@@ -37,3 +37,14 @@ tracker_crawler_LDADD = 								\
 	$(GMODULE_LIBS)								\
 	$(GTHREAD_LIBS)								\
 	$(GLIB2_LIBS)
+
+EXTRA_DIST = \
+	data \
+	data/empty-dir \
+	data/empty-dir/.hidden \
+	data/file1 \
+	data/dir \
+	data/dir/empty-dir/ \
+	data/dir/empty-dir/.hidden \
+	data/dir/file1 \
+	data/dir/file2
