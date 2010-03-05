@@ -39,12 +39,8 @@ tracker_crawler_LDADD = 								\
 	$(GLIB2_LIBS)
 
 EXTRA_DIST = \
-	data \
-	data/empty-dir \
 	data/empty-dir/.hidden \
 	data/file1 \
-	data/dir \
-	data/dir/empty-dir/ \
 	data/dir/empty-dir/.hidden \
 	data/dir/file1 \
 	data/dir/file2
