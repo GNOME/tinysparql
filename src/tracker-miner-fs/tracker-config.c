@@ -681,7 +681,7 @@ config_create_with_defaults (TrackerConfig *config,
 				g_strfreev (string_list);
 			} else if (g_strcmp0 (conversions[i].property, "ignored-directories") == 0) {
 				const gchar *string_list[] = {
-					"po", "CVS", ".svn", ".git", "core-dumps", "lost+found",
+					"po", "CVS", "core-dumps", "lost+found",
 					NULL
 				};
 
@@ -703,12 +703,12 @@ config_create_with_defaults (TrackerConfig *config,
 				                            G_N_ELEMENTS (string_list));
 			} else if (g_strcmp0 (conversions[i].property, "ignored-files") == 0) {
 				const gchar *string_list[] = {
-					"*~", ".*.swp" ".*.swo" "*.o", "*.la", "*.lo", "*.loT", "*.in",
+					"*~", "*.o", "*.la", "*.lo", "*.loT", "*.in",
 					"*.csproj", "*.m4", "*.rej", "*.gmo", "*.orig",
-					"*.pc",         "*.omf", "*.aux", "*.tmp", "*.po",
+					"*.pc", "*.omf", "*.aux", "*.tmp", "*.po",
 					"*.vmdk", "*.vm*", "*.nvram", "*.part",
 					"*.rcore", "lzo", "autom4te", "conftest",
-					"confstat", "Makefile",         "SCCS",         "litmain.sh",
+					"confstat", "Makefile", "SCCS", "litmain.sh",
 					"libtool", "config.status", "confdefs.h",
 					NULL
 				};
