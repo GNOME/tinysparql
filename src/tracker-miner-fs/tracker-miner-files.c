@@ -1865,8 +1865,6 @@ tracker_miner_files_monitor_directory (GFile    *file,
                                        gboolean  enable_monitors,
                                        GSList   *directories_to_check)
 {
-	GSList *l;
-
 	if (!enable_monitors) {
 		return FALSE;
 	}
