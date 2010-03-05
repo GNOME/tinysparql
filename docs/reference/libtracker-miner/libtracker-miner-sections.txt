@@ -67,14 +67,15 @@ TrackerMinerFSPrivate
 <TITLE>TrackerMinerFS</TITLE>
 TrackerMinerFS
 TrackerMinerFSClass
-tracker_miner_fs_get_parent_urn
-tracker_miner_fs_get_urn
 tracker_miner_fs_directory_add
 tracker_miner_fs_directory_remove
 tracker_miner_fs_file_add
 tracker_miner_fs_file_notify
 tracker_miner_fs_set_throttle
 tracker_miner_fs_get_throttle
+tracker_miner_fs_force_recheck
+tracker_miner_fs_get_parent_urn
+tracker_miner_fs_get_urn
 <SUBSECTION Standard>
 TRACKER_MINER_FS
 TRACKER_IS_MINER_FS
@@ -91,6 +92,7 @@ TRACKER_MINER_DBUS_INTERFACE
 TRACKER_MINER_DBUS_NAME_PREFIX
 TRACKER_MINER_DBUS_PATH_PREFIX
 tracker_miner_dbus_init
+tracker_miner_dbus_terminate
 TrackerMinerDBusNameFunc
 tracker_miner_dbus_add_name_watch
 tracker_miner_dbus_get_name
@@ -118,9 +120,10 @@ tracker_thumbnailer_cleanup
 <TITLE>TrackerStorage</TITLE>
 TrackerStorage
 TrackerStorageClass
+TrackerStorageType
 tracker_storage_new
-tracker_storage_get_removable_device_roots
-tracker_storage_get_removable_device_uuids
+tracker_storage_get_device_roots
+tracker_storage_get_device_uuids
 tracker_storage_get_mount_point_for_uuid
 tracker_storage_get_uuid_for_file
 <SUBSECTION Standard>

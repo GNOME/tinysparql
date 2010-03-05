@@ -763,14 +763,12 @@ get_mount_point_by_uuid_foreach (gpointer key,
 /**
  * tracker_storage_get_device_roots:
  * @storage: A #TrackerStorage
+ * @type: A #TrackerStorageType
+ * @exact_match: if all devices should exactly match the types
  *
- * Returns a #GSList of strings containing the root directories for
- * removable devices.
- *
- * Each element must be freed using g_free() and the list itself
- * through g_slist_free().
- *
- * Returns: The list of root directories.
+ * Returns: a #GSList of strings containing the root directories for
+ * devices with @type based on @exact_match. Each element must be
+ * freed using g_free() and the list itself through g_slist_free().
  **/
 GSList *
 tracker_storage_get_device_roots (TrackerStorage     *storage,
@@ -798,12 +796,12 @@ tracker_storage_get_device_roots (TrackerStorage     *storage,
 /**
  * tracker_storage_get_device_uuids:
  * @storage: A #TrackerStorage
+ * @type: A #TrackerStorageType
+ * @exact_match: if all devices should exactly match the types
  *
- * Returns a #GSList of strings containing the UUID for removable devices.
- * Each element is owned by the #GHashTable internally, the list
- * itself through should be freed using g_slist_free().
- *
- * Returns: The list of UUIDs.
+ * Returns: a #GSList of strings containing the UUID for devices with
+ * @type based on @exact_match. Each element must be freed using
+ * g_free() and the list itself through g_slist_free(). 
  **/
 GSList *
 tracker_storage_get_device_uuids (TrackerStorage     *storage,
