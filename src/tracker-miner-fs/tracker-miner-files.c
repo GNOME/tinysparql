@@ -1871,24 +1871,9 @@ tracker_miner_files_monitor_directory (GFile    *file,
 		return FALSE;
 	}
 
-	/* We don't want child directories inside IndexSingleDirectories
-	 * to have a monitor added.
-	 */
-	for (l = directories_to_check; l; l = l->next) {
-		gboolean is_child = FALSE;
-		GFile *dir;
-
-		dir = g_file_new_for_path (l->data);
-		is_child = g_file_has_prefix (file, dir);
-		g_object_unref (dir);
-
-		if (is_child) {
-			return FALSE;
-		}
-	}
-
-	/* Fallback to the check directory routine, since we don't
-	 * monitor anything we don't process.
-	 */
+	/* We'll only get this signal for the directories where check_directory()
+	 * and check_directory_contents() returned TRUE, so by default we want
+	 * these directories to be indexed.
+         */
 	return TRUE;
 }

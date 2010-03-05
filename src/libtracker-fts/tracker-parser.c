@@ -143,6 +143,7 @@ strip_word (const gchar *str,
             gint         length,
             guint32     *len)
 {
+	g_print ("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
 #ifdef HAVE_UNAC
 	gchar *s = NULL;
 
@@ -558,6 +559,8 @@ tracker_parser_process_word (TrackerParser *parser,
 
 	g_return_val_if_fail (parser != NULL, NULL);
 	g_return_val_if_fail (word != NULL, NULL);
+
+	g_print ("process word?\n");
 
 	str = NULL;
 	stripped_word = NULL;
