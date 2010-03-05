@@ -144,11 +144,44 @@ strip_word (const gchar *str,
             guint32     *len)
 {
 #ifdef HAVE_UNAC
+	GError *error = NULL;
+	gchar *str_utf16;
+	gsize utf16_len, unaccented_len, final_len;
+	gchar *unaccented_str = NULL;
 	gchar *s = NULL;
 
-	if (unac_string ("UTF-8", str, length, &s, (size_t *) len) != 0) {
-		g_warning ("UNAC failed to strip accents");
+	*len = 0;
+
+	/* unac_string() does roughly the same than below, plus it
+	 * corrupts memory in 64bit systems, so avoid it for now.
+	 */
+	str_utf16 = g_convert (str, length, "UTF-16BE", "UTF-8", NULL, &utf16_len, &error);
+
+	if (error) {
+		g_warning ("Could not convert to UTF-16: %s", error->message);
+		g_error_free (error);
+		return NULL;
 	}
+
+	if (unac_string_utf16 (str_utf16, utf16_len,
+	                       &unaccented_str, &unaccented_len) != 0) {
+		g_warning ("UNAC failed to strip accents");
+		g_free (str_utf16);
+		return NULL;
+	}
+
+	g_free (str_utf16);
+
+	s = g_convert (unaccented_str, unaccented_len, "UTF-8", "UTF-16BE", NULL, &final_len, &error);
+	g_free (unaccented_str);
+
+	if (error) {
+		g_warning ("Could not convert back to UTF-8: %s", error->message);
+		g_error_free (error);
+		return NULL;
+	}
+
+	*len = (guint32) final_len;
 
 	return s;
 #else
