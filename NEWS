@@ -1,3 +1,40 @@
+NEW in 0.7.25 - unreleased
+==========================
+
+Improvements / New:
+
+  libtracker-common:
+  * Fixed documentation breakages
+
+  libtracker-miner:
+  * Fixed documentation breakages
+  * Added initial unit tests
+
+  libtracker-fts:
+  * Added better protection against invalid UTF-8.
+
+  tracker-miner-fs:
+  * Removed all .* file/dir ignores, this is done by default
+
+Bugs:
+
+  * NB#158450, Tracker doesn't remove song from database when deleting song from device
+
+Translations:
+
+  * Updated et: Mattias Põldaru
+
+Notes:
+
+  The default tracker-miner-fs.cfg ignore files and directories have
+  been changed to avoid duplicate checks which adds to the indexing
+  time. If you remove this file, it will be re-generated for you.
+
+  The Deskbar applet packaged with Tracker is currently out of date
+  and needs some love to get it working with the new APIs. It is in
+  the same state as it was for 0.6. As such it isn't expected to work.
+
+
 NEW in 0.7.24
 =============
 
