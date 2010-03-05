@@ -143,7 +143,6 @@ strip_word (const gchar *str,
             gint         length,
             guint32     *len)
 {
-	g_print ("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
 #ifdef HAVE_UNAC
 	gchar *s = NULL;
 
@@ -443,13 +442,14 @@ parser_next (TrackerParser *parser,
 		parser->cursor = parser->txt + *byte_offset_end;
 
 		processed_word = tracker_parser_process_word (parser, utf8, bytes, do_strip);
-
 		g_free (utf8);
 
-		parser->word_length = strlen (processed_word);
-		parser->word = processed_word;
+		if (processed_word) {
+			parser->word_length = strlen (processed_word);
+			parser->word = processed_word;
 
-		return TRUE;
+			return TRUE;
+		}
 
 	}
 
@@ -560,8 +560,6 @@ tracker_parser_process_word (TrackerParser *parser,
 	g_return_val_if_fail (parser != NULL, NULL);
 	g_return_val_if_fail (word != NULL, NULL);
 
-	g_print ("process word?\n");
-
 	str = NULL;
 	stripped_word = NULL;
 
@@ -587,6 +585,10 @@ tracker_parser_process_word (TrackerParser *parser,
 			                        len,
 			                        G_NORMALIZE_NFC);
 			g_free (stripped_word);
+		}
+
+		if (!str) {
+			return NULL;
 		}
 
 		if (!parser->enable_stemmer) {
