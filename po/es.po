@@ -8,8 +8,8 @@ msgstr ""
 "Project-Id-Version: tracker.HEAD\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&component=general\n"
-"POT-Creation-Date: 2010-03-04 18:13+0000\n"
-"PO-Revision-Date: 2010-03-07 14:10+0100\n"
+"POT-Creation-Date: 2010-03-08 14:58+0000\n"
+"PO-Revision-Date: 2010-03-08 23:56+0100\n"
 "Last-Translator: Jorge González <jorgegonz@svn.gnome.org>\n"
 "Language-Team: Español <gnome-es-list@gnome.org>\n"
 "MIME-Version: 1.0\n"
@@ -394,7 +394,7 @@ msgid "_URN:"
 msgstr "_URN:"
 
 #: ../src/tracker-extract/tracker-main.c:83
-#: ../src/tracker-miner-fs/tracker-main.c:92
+#: ../src/tracker-miner-fs/tracker-main.c:97
 #: ../src/tracker-store/tracker-main.c:102
 #: ../src/tracker-writeback/tracker-main.c:51
 msgid "Displays version information"
@@ -414,7 +414,8 @@ msgid "File to extract metadata for"
 msgstr "Archivo del que extraer los metadatos"
 
 #: ../src/tracker-extract/tracker-main.c:93
-#: ../src/tracker-miner-fs/tracker-main.c:89
+#: ../src/tracker-miner-fs/tracker-main.c:90
+#: ../src/tracker-miner-fs/tracker-main.c:94
 #: ../src/tracker-utils/tracker-import.c:55
 #: ../src/tracker-utils/tracker-import.c:56
 #: ../src/tracker-utils/tracker-info.c:53
@@ -452,7 +453,7 @@ msgstr "- Extraer los metadatos del archivo"
 msgid "Filename and mime type must be provided together"
 msgstr "Se debe proporcionar tanto el nombre como el tipo MIME"
 
-#: ../src/tracker-miner-fs/tracker-main.c:78
+#: ../src/tracker-miner-fs/tracker-main.c:79
 #: ../src/tracker-writeback/tracker-main.c:55
 msgid ""
 "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default=0)"
@@ -460,104 +461,104 @@ msgstr ""
 "Registro, 0 = sólo errores, 1 = mínimo, 2 = detallado y 3 = depuración "
 "(predeterminado = 0)"
 
-#: ../src/tracker-miner-fs/tracker-main.c:83
+#: ../src/tracker-miner-fs/tracker-main.c:84
 msgid "Initial sleep time in seconds, 0->1000 (default=15)"
 msgstr "Tiempo de reposo inicial en segundos, 0->1000 (predeterminado=15)"
 
-#: ../src/tracker-miner-fs/tracker-main.c:88
+#: ../src/tracker-miner-fs/tracker-main.c:89
 msgid "Checks if FILE is eligible for being mined based on configuration"
 msgstr ""
 "Comprueba si el ARCHIVO es elegible para ser escrutado según la configuración"
 
-#: ../src/tracker-miner-fs/tracker-main.c:350
+#: ../src/tracker-miner-fs/tracker-main.c:93
+msgid "Forces the insertion of FILE into the store"
+msgstr "Fuerza la inserción del ARCHIVO en el almacén"
+
+#: ../src/tracker-miner-fs/tracker-main.c:365
 #, c-format
 msgid "Data object '%s' currently exists"
 msgstr "El objeto de datos «%s» ya existe"
 
-#: ../src/tracker-miner-fs/tracker-main.c:351
+#: ../src/tracker-miner-fs/tracker-main.c:366
 #, c-format
-#| msgid "The document does not exist."
 msgid "Data object '%s' currently does not exist"
 msgstr "El objeto de datos «%s» no existe"
 
-#: ../src/tracker-miner-fs/tracker-main.c:366
+#: ../src/tracker-miner-fs/tracker-main.c:381
 msgid "Directory is eligible to be mined (based on rules)"
 msgstr "El directorio es elegible para ser escrutado (según las reglas)"
 
-#: ../src/tracker-miner-fs/tracker-main.c:367
+#: ../src/tracker-miner-fs/tracker-main.c:382
 msgid "Directory is NOT eligible to be mined (based on rules)"
 msgstr "El directorio NO es elegible para ser escrutado (según las reglas)"
 
-#: ../src/tracker-miner-fs/tracker-main.c:387
+#: ../src/tracker-miner-fs/tracker-main.c:402
 msgid "Directory is eligible to be mined (based on contents)"
 msgstr "El directorio es elegible para ser escrutado (según el contenido)"
 
-#: ../src/tracker-miner-fs/tracker-main.c:388
+#: ../src/tracker-miner-fs/tracker-main.c:403
 msgid "Directory is NOT eligible to be mined (based on contents)"
 msgstr "El directorio NO es elegible para ser escrutado (según el contenido)"
 
-#: ../src/tracker-miner-fs/tracker-main.c:435
+#: ../src/tracker-miner-fs/tracker-main.c:450
 msgid "Directory is eligible to be monitored (based on config)"
 msgstr "El directorio es elegible para ser escrutado (según la configuración)"
 
-#: ../src/tracker-miner-fs/tracker-main.c:436
+#: ../src/tracker-miner-fs/tracker-main.c:451
 msgid "Directory is NOT eligible to be monitored (based on config)"
 msgstr ""
 "El directorio NO es elegible para ser escrutado (según la configuración)"
 
-#: ../src/tracker-miner-fs/tracker-main.c:440
+#: ../src/tracker-miner-fs/tracker-main.c:455
 msgid "File is eligible to be monitored (based on config)"
 msgstr "El archivo es elegible para ser escrutado (según la configuración)"
 
-#: ../src/tracker-miner-fs/tracker-main.c:441
+#: ../src/tracker-miner-fs/tracker-main.c:456
 msgid "File is NOT eligible to be monitored (based on config)"
 msgstr "El archivo NO es elegible para ser escrutado (según la configuración)"
 
-#: ../src/tracker-miner-fs/tracker-main.c:445
+#: ../src/tracker-miner-fs/tracker-main.c:460
 msgid "File or Directory is eligible to be monitored (based on config)"
 msgstr ""
 "El archivo o directorio es elegible para ser monitorizado (según la "
 "configuración)"
 
-#: ../src/tracker-miner-fs/tracker-main.c:446
+#: ../src/tracker-miner-fs/tracker-main.c:461
 msgid "File or Directory is NOT eligible to be monitored (based on config)"
 msgstr ""
 "El archivo o directorio NO es elegible para ser monitorizado (según la "
 "configuración)"
 
-#: ../src/tracker-miner-fs/tracker-main.c:461
+#: ../src/tracker-miner-fs/tracker-main.c:476
 msgid "File is eligible to be mined (based on rules)"
 msgstr "El archivo es elegible para ser escrutado (según las reglas)"
 
-#: ../src/tracker-miner-fs/tracker-main.c:462
+#: ../src/tracker-miner-fs/tracker-main.c:477
 msgid "File is NOT eligible to be mined (based on rules)"
 msgstr "El archivo NO es elegible para ser escrutado (según las reglas)"
 
-#: ../src/tracker-miner-fs/tracker-main.c:471
-#| msgid "Data must be reindexed"
+#: ../src/tracker-miner-fs/tracker-main.c:486
 msgid "Would be indexed"
 msgstr "Se indexará"
 
-#: ../src/tracker-miner-fs/tracker-main.c:472
-#: ../src/tracker-miner-fs/tracker-main.c:474
-#| msgid "yes"
+#: ../src/tracker-miner-fs/tracker-main.c:487
+#: ../src/tracker-miner-fs/tracker-main.c:489
 msgid "Yes"
 msgstr "Sí"
 
-#: ../src/tracker-miner-fs/tracker-main.c:472
-#: ../src/tracker-miner-fs/tracker-main.c:474
-#| msgid "None"
+#: ../src/tracker-miner-fs/tracker-main.c:487
+#: ../src/tracker-miner-fs/tracker-main.c:489
 msgid "No"
 msgstr "No"
 
-#: ../src/tracker-miner-fs/tracker-main.c:473
+#: ../src/tracker-miner-fs/tracker-main.c:488
 msgid "Would be monitored"
 msgstr "Se monitorizará"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/tracker-miner-fs/tracker-main.c:514
+#: ../src/tracker-miner-fs/tracker-main.c:529
 msgid "- start the tracker indexer"
 msgstr "- iniciar el indexador de tracker"
 
@@ -679,7 +680,6 @@ msgid "Include mou_nted directories"
 msgstr "Incluir directorios mon_tados"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:18
-#| msgid "Include _removable media"
 msgid "Include optical di_scs"
 msgstr "Incluir di_scos ópticos"
 
@@ -1516,23 +1516,19 @@ msgid "No class prefixes were found"
 msgstr "No se encontró ningún prefijo de clases"
 
 #: ../src/tracker-utils/tracker-sparql.c:301
-#| msgid "Could not list classes"
 msgid "Could not search classes"
 msgstr "No se pudieron buscar clases"
 
 #: ../src/tracker-utils/tracker-sparql.c:307
-#| msgid "No classes were found"
 msgid "No classes were found to match search term"
 msgstr ""
 "No se encontró ninguna clase que coincidiera con el término de búsqueda"
 
 #: ../src/tracker-utils/tracker-sparql.c:335
-#| msgid "Could not list properties"
 msgid "Could not search properties"
 msgstr "No se pudieron buscar propiedades"
 
 #: ../src/tracker-utils/tracker-sparql.c:341
-#| msgid "No properties were found"
 msgid "No properties were found to match search term"
 msgstr ""
 "No se encontró ninguna propiedad que coincidiera con el término de búsqueda"
@@ -1754,7 +1750,6 @@ msgid "FILE [FILE…]"
 msgstr "ARCHIVO [ARCHIVO…]"
 
 #: ../src/tracker-utils/tracker-tag.c:294
-#| msgid "Could not read file"
 msgid "Could not get file URNs"
 msgstr "No se pudieron obtener los URN del archivo"
 
@@ -1781,12 +1776,10 @@ msgid "Tag was added successfully"
 msgstr "Etiqueta añadida correctamente"
 
 #: ../src/tracker-utils/tracker-tag.c:596
-#| msgid "Could not add tags for '%s'"
 msgid "Could not add tag to files"
 msgstr "No se pudieron añadir las etiquetas a los archivos"
 
 #: ../src/tracker-utils/tracker-tag.c:607
-#| msgid "Tags"
 msgid "Tagged"
 msgstr "Etiquetado"
 
