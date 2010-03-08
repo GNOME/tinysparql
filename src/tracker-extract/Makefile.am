@@ -94,11 +94,6 @@ if HAVE_TOTEM_PL_PARSER
 modules_LTLIBRARIES += libextract-playlist.la
 endif
 
-# A mockup extractor for testing purposes
-if HAVE_MOCKUP
-modules_LTLIBRARIES += libextract-mockup.la
-endif
-
 # ABW
 libextract_abw_la_SOURCES = tracker-extract-abw.c
 libextract_abw_la_LDFLAGS = $(module_flags)
@@ -273,17 +268,6 @@ libextract_tiff_la_LIBADD = 						\
 	$(LIBTIFF_LIBS) 						\
 	$(GLIB2_LIBS) 							\
 	$(GCOV_LIBS)
-
-# MOCKUP
-if HAVE_MOCKUP
-libextract_mockup_la_SOURCES = tracker-extract-mockup.c
-libextract_mockup_la_LDFLAGS = $(module_flags)
-libextract_mockup_la_LIBADD = 						\
-	$(top_builddir)/src/libtracker-extract/libtracker-extract-@TRACKER_API_VERSION@.la \
-	$(top_builddir)/src/libtracker-common/libtracker-common.la	\
-	$(GLIB2_LIBS)  							\
-	$(GCOV_LIBS)
-endif
 
 # Playlists using totem-pl-parser
 libextract_playlist_la_SOURCES = tracker-extract-playlist.c

@@ -1702,6 +1702,7 @@ AC_CONFIG_FILES([
 	utils/tracker-fts/Makefile
         utils/services/Makefile
 	examples/Makefile
+        examples/libtracker-extract/Makefile
         examples/libtracker-miner/Makefile
 	examples/rss-reader/Makefile
 ])

@@ -42,10 +42,6 @@ gchar *  tracker_seconds_estimate_to_string (gdouble      seconds_elapsed,
                                              guint        items_remaining);
 gchar *  tracker_seconds_to_string          (gdouble      seconds_elapsed,
                                              gboolean     short_string);
-gchar*   tracker_uri_vprintf_escaped        (const gchar *format,
-                                             va_list      args);
-gchar*   tracker_uri_printf_escaped         (const gchar *format,
-                                             ...);
 
 G_END_DECLS
 

@@ -27,11 +27,12 @@
 #include <glib-object.h>
 #include <dbus/dbus-glib-bindings.h>
 
+#include <libtracker-common/tracker-common.h>
+
 #include <libtracker-data/tracker-data-manager.h>
 
 #include <libtracker-client/tracker-sparql-builder.h>
-
-#include <libtracker-common/tracker-dbus.h>
+#include <libtracker-client/tracker.h>
 
 #include <tracker-store/tracker-push-registrar.h>
 #include <tracker-store/tracker-store.h>

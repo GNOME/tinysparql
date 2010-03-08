@@ -395,8 +395,6 @@ tracker_string_replace
 tracker_string_remove
 tracker_seconds_estimate_to_string
 tracker_seconds_to_string
-tracker_uri_vprintf_escaped
-tracker_uri_printf_escaped
 </SECTION>
 
 <SECTION>

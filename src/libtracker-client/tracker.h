@@ -89,8 +89,13 @@ gboolean       tracker_cancel_call                         (TrackerClient       
                                                             guint                   call_id);
 gboolean       tracker_cancel_last_call                    (TrackerClient          *client);
 
+/* Utilities */
 gchar *        tracker_sparql_escape                       (const gchar            *str);
 
+gchar *        tracker_uri_vprintf_escaped                 (const gchar            *format,
+                                                            va_list                 args);
+gchar *        tracker_uri_printf_escaped                  (const gchar            *format, 
+                                                            ...);
 
 /* Synchronous API */
 GPtrArray *    tracker_statistics_get                      (TrackerClient          *client,

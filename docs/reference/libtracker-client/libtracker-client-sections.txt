@@ -30,6 +30,8 @@ tracker_cancel_last_call
 <FILE>tracker_misc</FILE>
 <TITLE>Utilities</TITLE>
 tracker_sparql_escape
+tracker_uri_printf_escaped
+tracker_uri_vprintf_escaped
 </SECTION>
 
 <SECTION>

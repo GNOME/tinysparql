@@ -35,10 +35,9 @@ long long int llroundl(long double x);
 #include <gst/gst.h>
 #include <gst/tag/tag.h>
 
-#include <libtracker-common/tracker-type-utils.h>
-#include <libtracker-common/tracker-file-utils.h>
-#include <libtracker-common/tracker-ontologies.h>
-#include <libtracker-common/tracker-utils.h>
+#include <libtracker-common/tracker-common.h>
+
+#include <libtracker-client/tracker.h>
 
 #include <libtracker-extract/tracker-extract.h>
 #include <libtracker-extract/tracker-utils.h>
