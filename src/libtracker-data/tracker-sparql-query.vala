@@ -533,14 +533,13 @@ public class Tracker.SparqlQuery : Object {
 
 		while (current () != SparqlTokenType.EOF) {
 			switch (current ()) {
+			case SparqlTokenType.WITH:
 			case SparqlTokenType.INSERT:
-				PtrArray* ptr = execute_insert (blank);
+			case SparqlTokenType.DELETE:
+				PtrArray* ptr = execute_insert_or_delete (blank);
 				if (blank) {
 					blank_nodes.add (ptr);
 				}
-				break;
-			case SparqlTokenType.DELETE:
-				execute_delete ();
 				break;
 			case SparqlTokenType.DROP:
 				execute_drop_graph ();
@@ -971,28 +970,32 @@ public class Tracker.SparqlQuery : Object {
 		}
 	}
 
-	PtrArray? execute_insert (bool blank) throws DBInterfaceError, DataError, SparqlError, DateError {
-		expect (SparqlTokenType.INSERT);
-		if (accept (SparqlTokenType.INTO)) {
-			parse_from_or_into_param ();
-		} else {
-			current_graph = null;
-		}
-		return execute_insert_or_delete (false, blank);
-	}
-
-	void execute_delete () throws DBInterfaceError, DataError, SparqlError, DateError {
-		expect (SparqlTokenType.DELETE);
-		if (accept (SparqlTokenType.FROM)) {
-			parse_from_or_into_param ();
-		} else {
-			current_graph = null;
-		}
-		execute_insert_or_delete (true, false);
-	}
-
-	PtrArray? execute_insert_or_delete (bool delete_statements, bool blank) throws DBInterfaceError, DataError, SparqlError, DateError {
+	PtrArray? execute_insert_or_delete (bool blank) throws DBInterfaceError, DataError, SparqlError, DateError {
 		// INSERT or DELETE
+
+		if (accept (SparqlTokenType.WITH)) {
+			parse_from_or_into_param ();
+		} else {
+			current_graph = null;
+		}
+
+		bool delete_statements;
+
+		if (accept (SparqlTokenType.INSERT)) {
+			delete_statements = false;
+
+			if (current_graph == null && accept (SparqlTokenType.INTO)) {
+				parse_from_or_into_param ();
+			}
+		} else {
+			expect (SparqlTokenType.DELETE);
+			delete_statements = true;
+			blank = false;
+
+			if (current_graph == null && accept (SparqlTokenType.FROM)) {
+				parse_from_or_into_param ();
+			}
+		}
 
 		var pattern_sql = new StringBuilder ();
 		begin_query ();

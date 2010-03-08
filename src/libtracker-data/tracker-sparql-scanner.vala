@@ -195,7 +195,16 @@ public class Tracker.SparqlScanner : Object {
 				break;
 			case 'W':
 			case 'w':
-				if (matches (begin, "WHERE")) return SparqlTokenType.WHERE;
+				switch (begin[1]) {
+				case 'H':
+				case 'h':
+					if (matches (begin, "WHERE")) return SparqlTokenType.WHERE;
+					break;
+				case 'I':
+				case 'i':
+					if (matches (begin, "WITH")) return SparqlTokenType.WITH;
+					break;
+				}
 				break;
 			case 'F':
 			case 'f':
@@ -864,7 +873,8 @@ public enum Tracker.SparqlTokenType {
 	TRUE,
 	UNION,
 	VAR,
-	WHERE;
+	WHERE,
+	WITH;
 
 	public weak string to_string () {
 		switch (this) {
@@ -951,6 +961,7 @@ public enum Tracker.SparqlTokenType {
 		case UNION: return "`UNION'";
 		case VAR: return "variable";
 		case WHERE: return "`WHERE'";
+		case WITH: return "`WITH'";
 		default: return "unknown token";
 		}
 	}
