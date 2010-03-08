@@ -103,31 +103,44 @@ tracker_extract_finalize (GObject *object)
 	G_OBJECT_CLASS (tracker_extract_parent_class)->finalize (object);
 }
 
-TrackerExtract *
-tracker_extract_new (gboolean disable_shutdown,
-                     gboolean force_internal_extractors)
+static gboolean
+load_modules (const gchar  *force_module,
+              GArray      **specific_extractors,
+              GArray      **generic_extractors)
 {
-	TrackerExtract *object;
-	TrackerExtractPrivate *priv;
 	GDir *dir;
-	GError *error;
+	GError *error = NULL;
 	const gchar *name;
-	GArray *specific_extractors;
-	GArray *generic_extractors;
+	gchar *force_module_checked;
+	gboolean success;
 
-	if (!g_module_supported ()) {
-		g_error ("Modules are not supported for this platform");
-		return NULL;
-	}
-
-	error = NULL;
 	dir = g_dir_open (MODULESDIR, 0, &error);
 
 	if (!dir) {
 		g_error ("Error opening modules directory: %s", error->message);
 		g_error_free (error);
-		return NULL;
+		return FALSE;
 	}
+
+	if (G_UNLIKELY (force_module)) {
+		if (!g_str_has_suffix (force_module, "." G_MODULE_SUFFIX)) {
+			force_module_checked = g_strdup_printf ("%s.%s", 
+			                                        force_module, 
+			                                        G_MODULE_SUFFIX);
+		} else {
+			force_module_checked = g_strdup (force_module);
+		}
+	} else {
+		force_module_checked = NULL;
+	}
+
+	*specific_extractors = g_array_new (FALSE,
+	                                    TRUE,
+	                                    sizeof (ModuleData));
+
+	*generic_extractors = g_array_new (FALSE,
+	                                   TRUE,
+	                                   sizeof (ModuleData));
 
 #ifdef HAVE_LIBSTREAMANALYZER
 	if (!force_internal_extractors) {
@@ -139,13 +152,6 @@ tracker_extract_new (gboolean disable_shutdown,
 		g_message ("  It is available but disabled by command line");
 	}
 #endif /* HAVE_STREAMANALYZER */
-	specific_extractors = g_array_new (FALSE,
-	                                   TRUE,
-	                                   sizeof (ModuleData));
-
-	generic_extractors = g_array_new (FALSE,
-	                                  TRUE,
-	                                  sizeof (ModuleData));
 
 	while ((name = g_dir_read_name (dir)) != NULL) {
 		TrackerExtractDataFunc func;
@@ -153,6 +159,10 @@ tracker_extract_new (gboolean disable_shutdown,
 		gchar *module_path;
 
 		if (!g_str_has_suffix (name, "." G_MODULE_SUFFIX)) {
+			continue;
+		}
+
+		if (force_module_checked && strcmp (name, force_module_checked) != 0) {
 			continue;
 		}
 
@@ -183,11 +193,11 @@ tracker_extract_new (gboolean disable_shutdown,
 				if (G_UNLIKELY (strchr (mdata.edata->mime, '*') != NULL)) {
 					g_message ("  Generic  match for mime:'%s'",
 					           mdata.edata->mime);
-					g_array_append_val (generic_extractors, mdata);
+					g_array_append_val (*generic_extractors, mdata);
 				} else {
 					g_message ("  Specific match for mime:'%s'",
 					           mdata.edata->mime);
-					g_array_append_val (specific_extractors, mdata);
+					g_array_append_val (*specific_extractors, mdata);
 				}
 			}
 		} else {
@@ -198,7 +208,39 @@ tracker_extract_new (gboolean disable_shutdown,
 		g_free (module_path);
 	}
 
+	if (G_UNLIKELY (force_module) && 
+	    (!*specific_extractors || (*specific_extractors)->len < 1) && 
+	    (!*generic_extractors || (*generic_extractors)->len < 1)) {
+		g_warning ("Could not force module '%s', it was not found", force_module_checked);
+		success = FALSE;
+	} else {
+		success = TRUE;
+	}
+
+	g_free (force_module_checked);
 	g_dir_close (dir);
+
+	return success;
+}
+
+TrackerExtract *
+tracker_extract_new (gboolean     disable_shutdown,
+                     gboolean     force_internal_extractors,
+                     const gchar *force_module)
+{
+	TrackerExtract *object;
+	TrackerExtractPrivate *priv;
+	GArray *specific_extractors;
+	GArray *generic_extractors;
+
+	if (!g_module_supported ()) {
+		g_error ("Modules are not supported for this platform");
+		return NULL;
+	}
+
+	if (!load_modules (force_module, &specific_extractors, &generic_extractors)) {
+		return NULL;
+	}
 
 	/* Set extractors */
 	object = g_object_new (TRACKER_TYPE_EXTRACT, NULL);

@@ -65,23 +65,20 @@
 
 #define QUIT_TIMEOUT 30 /* 1/2 minutes worth of seconds */
 
-static GMainLoop  *main_loop;
-static guint       quit_timeout_id = 0;
+static GMainLoop *main_loop;
+static guint quit_timeout_id = 0;
 
-static gboolean    version;
-static gint        verbosity = -1;
-static gchar      *filename;
-static gchar      *mime_type;
-static gboolean    disable_shutdown;
-static gboolean    force_internal_extractors;
+static gint verbosity = -1;
+static gchar *filename;
+static gchar *mime_type;
+static gboolean disable_shutdown;
+static gboolean force_internal_extractors;
+static gboolean force_module;
+static gboolean version;
 
 static TrackerFTSConfig *fts_config;
 
-static GOptionEntry  entries[] = {
-	{ "version", 'V', 0,
-	  G_OPTION_ARG_NONE, &version,
-	  N_("Displays version information"),
-	  NULL },
+static GOptionEntry entries[] = {
 	{ "verbosity", 'v', 0,
 	  G_OPTION_ARG_INT, &verbosity,
 	  N_("Logging, 0 = errors only, "
@@ -91,7 +88,7 @@ static GOptionEntry  entries[] = {
 	  G_OPTION_ARG_FILENAME, &filename,
 	  N_("File to extract metadata for"),
 	  N_("FILE") },
-	{ "mime", 'm', 0,
+	{ "mime", 't', 0,
 	  G_OPTION_ARG_STRING, &mime_type,
 	  N_("MIME type for file (if not provided, this will be guessed)"),
 	  N_("MIME") },
@@ -104,6 +101,14 @@ static GOptionEntry  entries[] = {
 	{ "force-internal-extractors", 'i', 0,
 	  G_OPTION_ARG_NONE, &force_internal_extractors,
 	  N_("Force internal extractors over 3rd parties like libstreamanalyzer"),
+	  NULL },
+	{ "force-module", 'm', 0,
+	  G_OPTION_ARG_STRING, &force_module,
+	  N_("Force a module to be used for extraction (e.g. \"foo\" for \"foo.so\")"),
+	  N_("MODULE") },
+	{ "version", 'V', 0,
+	  G_OPTION_ARG_NONE, &version,
+	  N_("Displays version information"),
 	  NULL },
 	{ NULL }
 };
@@ -298,7 +303,8 @@ run_standalone (void)
 	uri = g_file_get_uri (file);
 
 	object = tracker_extract_new (disable_shutdown,
-	                              force_internal_extractors);
+	                              force_internal_extractors,
+	                              force_module);
 
 	if (!object) {
 		g_free (uri);
@@ -348,6 +354,20 @@ main (int argc, char *argv[])
 
 		g_printerr ("%s\n\n",
 		            _("Filename and mime type must be provided together"));
+
+		help = g_option_context_get_help (context, TRUE, NULL);
+		g_option_context_free (context);
+		g_printerr ("%s", help);
+		g_free (help);
+
+		return EXIT_FAILURE;
+	}
+
+	if (force_internal_extractors && force_module) {
+		gchar *help;
+
+		g_printerr ("%s\n\n",
+		            _("Options --force-internal-extractors and --force-module can't be used together"));
 
 		help = g_option_context_get_help (context, TRUE, NULL);
 		g_option_context_free (context);
@@ -415,7 +435,8 @@ main (int argc, char *argv[])
 	}
 
 	object = tracker_extract_new (disable_shutdown,
-	                              force_internal_extractors);
+	                              force_internal_extractors,
+	                              force_module);
 
 	if (!object) {
 		g_object_unref (config);

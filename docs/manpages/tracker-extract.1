@@ -21,9 +21,6 @@ will run for 30 seconds waiting for DBus calls before quitting.
 .B \-?, \-\-help
 Show summary of options.
 .TP
-.B \-V, \-\-version
-Show binary version.
-.TP
 .B \-v, \-\-verbosity=N
 Set verbosity to N. This overrides the config value.
 Values include 0=errors, 1=minimal, 2=detailed and 3=debug.
@@ -39,12 +36,41 @@ will be guessed automatically.
 .B \-d, \-\-debug
 Enable debug mode which will provide more information about what is
 going on during the extraction.
+.TP
+.B \-i, \-\-force-internal-extractors
+Use this option to force internal extractors over 3rd parties like
+libstreamanalyzer.
+.TP
+.B \-m, \-\-force-module=MODULE
+Force a particular module to be used. This is here as a convenience
+for developers wanting to test their \fIMODULE\fR file. Only the
+\fIMODULE\fR name has to be specified, not the full path. Typically, a
+\fIMODULE\fR is installed to /usr/lib/tracker-0.7/extract-modules/.
+This option can be used with or without the .so part of the name too,
+for example, you can use
+.B --force-module=foo
+
+Modules are shared objects which are dynamically loaded at run time. These files
+must have the .so suffix to be loaded and must contain the correct
+symbols to be authenticated by
+.B tracker-extract.
+For more information see the libtracker-extract reference documentation.
+.TP
+.B \-V, \-\-version
+Show binary version.
 
 .SH EXAMPLES
 .TP
-Using tracker-extract from command line to extract metadata from one file:
-.BR
-$ echo -e "/x/y/z.mp3\\naudio/mpeg" | tracker-extract
+Using command line to extract metadata from a file:
+
+.BR 
+$ tracker-extract -v 3 -f /path/to/some/file.mp3
+
+.TP
+Using a specific module to extract metadata from a file:
+
+.BR 
+$ tracker-extract -v 3 -f /path/to/some/file.mp3 -m mymodule
 
 .SH FILES
 .I $HOME/.config/tracker/tracker-extract.cfg
@@ -56,3 +82,5 @@ $ echo -e "/x/y/z.mp3\\naudio/mpeg" | tracker-extract
 .BR tracker-info (1).
 .TP
 .BR tracker-extract.cfg (5).
+.TP
+.BR /usr/lib/tracker-0.7/extract-modules/
