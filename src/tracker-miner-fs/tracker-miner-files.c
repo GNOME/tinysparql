@@ -333,9 +333,9 @@ miner_files_constructed (GObject *object)
 	mf = TRACKER_MINER_FILES (object);
 	fs = TRACKER_MINER_FS (object);
 
-	if (!mf->private->config) {
-		g_critical ("No config. This is mandatory");
-		g_assert_not_reached ();
+	if (G_UNLIKELY (!mf->private->config)) {
+		g_message ("No config for miner %p (%s).", object, G_OBJECT_TYPE_NAME (object));
+		return;
 	}
 
 	if (tracker_config_get_index_removable_devices (mf->private->config)) {
@@ -1184,6 +1184,10 @@ miner_files_check_file (TrackerMinerFS *fs,
 	/* Check module file ignore patterns */
 	mf = TRACKER_MINER_FILES (fs);
 
+	if (G_UNLIKELY (!mf->private->config)) {
+		return TRUE;
+	}
+
 	return tracker_miner_files_check_file (file,
 	                                       tracker_config_get_ignored_file_paths (mf->private->config),
 	                                       tracker_config_get_ignored_file_patterns (mf->private->config));
@@ -1197,6 +1201,10 @@ miner_files_check_directory (TrackerMinerFS *fs,
 
 	/* Check module file ignore patterns */
 	mf = TRACKER_MINER_FILES (fs);
+
+	if (G_UNLIKELY (!mf->private->config)) {
+		return TRUE;
+	}
 
 	return tracker_miner_files_check_directory (file,
 	                                            tracker_config_get_index_recursive_directories (mf->private->config),
@@ -1216,6 +1224,10 @@ miner_files_check_directory_contents (TrackerMinerFS *fs,
 
 	mf = TRACKER_MINER_FILES (fs);
 
+	if (G_UNLIKELY (!mf->private->config)) {
+		return TRUE;
+	}
+
 	return tracker_miner_files_check_directory_contents (parent,
 	                                                     children,
 	                                                     tracker_config_get_ignored_directories_with_content (mf->private->config));
@@ -1228,6 +1240,10 @@ miner_files_monitor_directory (TrackerMinerFS *fs,
 	TrackerMinerFiles *mf;
 
 	mf = TRACKER_MINER_FILES (fs);
+
+	if (G_UNLIKELY (!mf->private->config)) {
+		return TRUE;
+	}
 
 	return tracker_miner_files_monitor_directory (file,
 	                                              tracker_config_get_enable_monitors (mf->private->config),
