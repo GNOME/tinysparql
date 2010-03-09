@@ -89,6 +89,7 @@ tracker_events_insert (const gchar *uri,
 {
 	EventsPrivate *private;
 
+	g_return_if_fail (rdf_types || type != TRACKER_DBUS_EVENTS_TYPE_UPDATE);
 	private = g_static_private_get (&private_key);
 	g_return_if_fail (private != NULL);
 
@@ -105,18 +106,11 @@ tracker_events_insert (const gchar *uri,
 				                            uri, type, predicate);
 			}
 		}
-	} else if (type == TRACKER_DBUS_EVENTS_TYPE_UPDATE) {
-		/* In this case we had an INSERT for a resource that didn't exist
-		 * yet, but it was not the rdf:type predicate being inserted */
-		if (is_allowed (private, tracker_ontologies_get_class_by_uri (TRACKER_RDFS_PREFIX "Resource"))) {
-			prepare_event_for_rdf_type (private,
-			                            (gpointer) TRACKER_RDFS_PREFIX "Resource",
-			                            uri, type, predicate);
-		}
 	} else {
+		TrackerClass *class = tracker_ontologies_get_class_by_uri (object);
 		/* In case of delete and create, object is the rdf:type */
-		if (is_allowed (private, (gpointer) object)) {
-			prepare_event_for_rdf_type (private, (gpointer) object,
+		if (is_allowed (private, class)) {
+			prepare_event_for_rdf_type (private, class,
 			                            uri, type, predicate);
 		}
 	}
