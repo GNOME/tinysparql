@@ -23,9 +23,6 @@
 
 /* TODO: Include any 3rd party libraries here. */
 
-/* #include <libtracker-common/tracker-file-utils.h> */
-/* #include <libtracker-common/tracker-utils.h> */
-
 #include <gio/gio.h>
 
 #include <libtracker-extract/tracker-extract.h>
