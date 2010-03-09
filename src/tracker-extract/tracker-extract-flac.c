@@ -29,8 +29,8 @@
 #include <FLAC/metadata.h>
 
 #include <libtracker-common/tracker-file-utils.h>
-#include <libtracker-common/tracker-ontologies.h>
-#include <libtracker-common/tracker-utils.h>
+
+#include <libtracker-client/tracker.h>
 
 #include <libtracker-extract/tracker-extract.h>
 

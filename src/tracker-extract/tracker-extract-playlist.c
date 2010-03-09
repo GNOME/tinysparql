@@ -33,8 +33,6 @@
 
 #include <totem-pl-parser.h>
 
-#include <libtracker-common/tracker-ontologies.h>
-
 #include <libtracker-extract/tracker-extract.h>
 
 #define PLAYLIST_PROPERTY_NO_TRACKS "entryCounter"

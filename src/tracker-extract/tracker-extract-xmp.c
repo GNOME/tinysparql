@@ -19,13 +19,7 @@
 
 #include "config.h"
 
-#include <glib.h>
 #include <gio/gio.h>
-
-#include <libtracker-common/tracker-ontologies.h>
-#include <libtracker-common/tracker-type-utils.h>
-#include <libtracker-common/tracker-file-utils.h>
-#include <libtracker-common/tracker-utils.h>
 
 #include <libtracker-extract/tracker-extract.h>
 

@@ -20,26 +20,11 @@
 
 #include "config.h"
 
-#include <stdio.h>
-
-#include <ctype.h>
-#include <string.h>
-#include <fcntl.h>
-
-#include <glib.h>
 #include <glib/gstdio.h>
 
-#include <tiff.h>
 #include <tiffio.h>
 
-#include <libtracker-common/tracker-ontologies.h>
-#include <libtracker-common/tracker-type-utils.h>
-#include <libtracker-common/tracker-file-utils.h>
-#include <libtracker-common/tracker-utils.h>
-
 #include <libtracker-extract/tracker-extract.h>
-
-#define EXIF_DATE_FORMAT        "%Y:%m:%d %H:%M:%S"
 
 typedef enum {
 	TIFF_TAGTYPE_UNDEFINED = 0,

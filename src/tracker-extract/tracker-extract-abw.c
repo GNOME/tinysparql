@@ -34,7 +34,6 @@
 #include <glib/gstdio.h>
 
 #include <libtracker-common/tracker-file-utils.h>
-#include <libtracker-common/tracker-ontologies.h>
 
 #include <libtracker-extract/tracker-extract.h>
 

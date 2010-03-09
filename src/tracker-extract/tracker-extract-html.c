@@ -26,8 +26,6 @@
 
 #include <libxml/HTMLparser.h>
 
-#include <libtracker-common/tracker-ontologies.h>
-
 #include <libtracker-extract/tracker-extract.h>
 
 typedef enum {

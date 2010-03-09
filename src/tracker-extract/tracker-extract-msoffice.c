@@ -34,7 +34,6 @@
 #include <gsf/gsf-utils.h>
 
 #include <libtracker-common/tracker-utils.h>
-#include <libtracker-common/tracker-ontologies.h>
 #include <libtracker-common/tracker-os-dependant.h>
 
 #include <libtracker-extract/tracker-extract.h>
