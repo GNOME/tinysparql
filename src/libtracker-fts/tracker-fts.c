@@ -4402,7 +4402,7 @@ static int tokenizeSegment(
       continue;
     }
 
-    if (stop_word != 0) {
+    if (stop_word != 0 && !(iEnd<nSegment && pSegment[iEnd]=='*')) {
 	continue;
     }
 
