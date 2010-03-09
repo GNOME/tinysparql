@@ -33,6 +33,7 @@
 
 /**
  * SECTION:tracker-xmp
+ * @title: XMP
  * @short_description: Extensible Metadata Platform (XMP)
  * @stability: Stable
  * @include: libtracker-extract/tracker-extract.h

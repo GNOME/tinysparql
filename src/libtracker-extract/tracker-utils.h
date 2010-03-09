@@ -28,7 +28,7 @@ G_BEGIN_DECLS
 
 gchar *tracker_coalesce               (gint         n_values,
                                        ...);
-gchar *tracker_merge                  (const gchar *delim,
+gchar *tracker_merge                  (const gchar *delimiter,
                                        gint         n_values,
                                        ...);
 gchar *tracker_text_normalize         (const gchar *text,

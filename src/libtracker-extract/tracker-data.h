@@ -31,8 +31,9 @@
 G_BEGIN_DECLS
 
 /**
- * SECTION:tracker-extract
- * @short_description: How to use libtracker-extract
+ * SECTION:tracker-data
+ * @title: How to use libtracker-extract
+ * @short_description: The essentials by example
  * @stability: Stable
  * @include: libtracker-extract/tracker-extract.h
  *

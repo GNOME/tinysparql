@@ -30,6 +30,19 @@
 
 #define DATE_FORMAT_ISO8601 "%Y-%m-%dT%H:%M:%S%z"
 
+/**
+ * SECTION:tracker-utils
+ * @title: Data utilities
+ * @short_description: Functions for coalescing, merging, date
+ * handling and normalizing
+ * @stability: Stable
+ * @include: libtracker-extract/tracker-extract.h
+ *
+ * This API is provided to facilitate common more general functions
+ * which extractors may find useful. These functions are also used by
+ * the in-house extractors quite frequently.
+ **/
+
 static const char *months[] = {
 	"Jan", "Feb", "Mar", "Apr", "May", "Jun",
 	"Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
@@ -40,6 +53,24 @@ static const char imonths[] = {
 	'6', '7', '8', '9', '0', '1', '2'
 };
 
+/**
+ * tracker_coalesce:
+ * @n_values: the number of @Varargs supplied
+ * @Varargs: the string pointers to coalesce
+ *
+ * This function iterates through a series of string pointers passed
+ * using @Varargs and returns the first which is not %NULL, not empty
+ * (i.e. "") and not comprised of one or more spaces (i.e. " ").
+ *
+ * The returned value is stripped using g_strstrip(). All other values
+ * supplied are freed. It is MOST important NOT to pass constant
+ * string pointers to this function!
+ *
+ * Returns: the first string pointer from those provided which
+ * matches, otherwise %NULL.
+ *
+ * Since: 0.8
+ **/
 gchar *
 tracker_coalesce (gint n_values,
                   ...)
@@ -66,8 +97,26 @@ tracker_coalesce (gint n_values,
 	return result;
 }
 
+/**
+ * tracker_merge:
+ * @delimiter: the delimiter to use when merging
+ * @n_values: the number of @Varargs supplied
+ * @Varargs: the string pointers to merge
+ *
+ * This function iterates through a series of string pointers passed
+ * using @Varargs and returns a newly allocated string of the merged
+ * strings.
+ *
+ * The @delimiter can be %NULL. If specified, it will be used in
+ * between each merged string in the result.
+ *
+ * Returns: a newly-allocated string holding the result which should
+ * be freed with g_free() when finished with, otherwise %NULL.
+ *
+ * Since: 0.8
+ **/
 gchar *
-tracker_merge (const gchar *delim, 
+tracker_merge (const gchar *delimiter, 
                gint         n_values,
                ...)
 {
@@ -85,8 +134,8 @@ tracker_merge (const gchar *delim,
 			if (!str) {
 				str = g_string_new (value);
 			} else {
-				if (delim) {
-					g_string_append (str, delim);
+				if (delimiter) {
+					g_string_append (str, delimiter);
 				}
 				g_string_append (str, value);
 			}
@@ -103,6 +152,36 @@ tracker_merge (const gchar *delim,
 	return g_string_free (str, FALSE);
 }
 
+/**
+ * tracker_text_normalize:
+ * @text: the text to normalize
+ * @max_words: the maximum words of @text to normalize
+ * @n_words: the number of words actually normalized
+ *
+ * This function iterates through @text checking for UTF-8 validity
+ * using g_utf8_get_char_validated(). For each character found, the
+ * %GUnicodeType is checked to make sure it is one fo the following
+ * values:
+ * <itemizedlist>
+ *  <listitem><para>%G_UNICODE_LOWERCASE_LETTER</para></listitem>
+ *  <listitem><para>%G_UNICODE_MODIFIER_LETTER</para></listitem>
+ *  <listitem><para>%G_UNICODE_OTHER_LETTER</para></listitem>
+ *  <listitem><para>%G_UNICODE_TITLECASE_LETTER</para></listitem>
+ *  <listitem><para>%G_UNICODE_UPPERCASE_LETTER</para></listitem>
+ * </itemizedlist>
+ *
+ * All other symbols, punctuation, marks, numbers and separators are
+ * stripped. A regular space (i.e. " ") is used to separate the words
+ * in the returned string.
+ *
+ * The @n_words can be %NULL. If specified, it will be populated with
+ * the number of words that were normalized in the result.
+ *
+ * Returns: a newly-allocated string holding the result which should
+ * be freed with g_free() when finished with, otherwise %NULL.
+ *
+ * Since: 0.8
+ **/
 gchar *
 tracker_text_normalize (const gchar *text,
                         guint        max_words,
@@ -149,6 +228,20 @@ tracker_text_normalize (const gchar *text,
 	return g_string_free (string, FALSE);
 }
 
+/**
+ * tracker_date_format_to_iso8601:
+ * @date_string: the date in a string pointer
+ * @format: the format of the @date_string
+ *
+ * This function uses strptime() to create a time tm structure using
+ * @date_string and @format.
+ *
+ * Returns: a newly-allocated string with the time represented in
+ * ISO8601 date format which should be freed with g_free() when
+ * finished with, otherwise %NULL.
+ *
+ * Since: 0.8
+ **/
 gchar *
 tracker_date_format_to_iso8601 (const gchar *date_string,
                                 const gchar *format)
@@ -206,6 +299,31 @@ parse_month (const gchar *month)
 
 /* Determine date format and convert to ISO 8601 format */
 /* FIXME We should handle all the fractions here (see ISO 8601), as well as YYYY:DDD etc */
+
+/**
+ * tracker_date_guess:
+ * @date_string: the date in a string pointer
+ *
+ * This function uses a number of methods to try and guess the date
+ * held in @date_string. The @date_string must be at least 5
+ * characters in length or longer for any guessing to be attempted.
+ * Some of the string formats guessed include:
+ *
+ * <itemizedlist>
+ *  <listitem><para>"YYYY-MM-DD" (Simple format)</para></listitem>
+ *  <listitem><para>"20050315113224-08'00'" (PDF format)</para></listitem>
+ *  <listitem><para>"20050216111533Z" (PDF format)</para></listitem>
+ *  <listitem><para>"Mon Feb  9 10:10:00 2004" (Microsoft Office format)</para></listitem>
+ *  <listitem><para>"2005:04:29 14:56:54" (Exif format)</para></listitem>
+ *  <listitem><para>"YYYY-MM-DDThh:mm:ss.ff+zz:zz</para></listitem>
+ * </itemizedlist>
+ *
+ * Returns: a newly-allocated string with the time represented in
+ * ISO8601 date format which should be freed with g_free() when
+ * finished with, otherwise %NULL.
+ *
+ * Since: 0.8
+ **/
 gchar *
 tracker_date_guess (const gchar *date_string)
 {
@@ -265,7 +383,7 @@ tracker_date_guess (const gchar *date_string)
 			return NULL;
 		}
 	} else if (len == 10)  {
-		/* Check for date part only YYYY-MM-DD*/
+		/* Check for date part only YYYY-MM-DD */
 		buf[0] = date_string[0];
 		buf[1] = date_string[1];
 		buf[2] = date_string[2];

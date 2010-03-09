@@ -33,6 +33,7 @@
 
 /**
  * SECTION:tracker-exif
+ * @title: Exif
  * @short_description: Exchangeable Image File Format (EXIF)
  * @stability: Stable
  * @include: libtracker-extract/tracker-extract.h

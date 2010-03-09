@@ -1,7 +1,8 @@
 <?xml version="1.0"?>
 <!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN" 
                "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd" [
-<!ENTITY tracker-extract SYSTEM "xml/tracker-extract.xml">
+<!ENTITY tracker-data SYSTEM "xml/tracker-data.xml">
+<!ENTITY tracker-utils SYSTEM "xml/tracker-utils.xml">
 <!ENTITY tracker-xmp SYSTEM "xml/tracker-xmp.xml">
 <!ENTITY tracker-iptc SYSTEM "xml/tracker-iptc.xml">
 <!ENTITY tracker-exif SYSTEM "xml/tracker-exif.xml">
@@ -32,7 +33,8 @@
 
     <chapter>
       <title>Core</title>
-      &tracker-extract;
+      &tracker-data;
+      &tracker-utils;
     </chapter>
     <chapter>
       <title>Common Embedded Support</title>

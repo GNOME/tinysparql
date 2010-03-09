@@ -12,11 +12,15 @@ tracker_iptc_read
 </SECTION>
 
 <SECTION>
-<FILE>tracker-extract</FILE>
+<FILE>tracker-data</FILE>
 TrackerExtractMimeFunc
 TrackerExtractDataFunc
 TrackerExtractData
 tracker_extract_get_data
+</SECTION>
+
+<SECTION>
+<FILE>tracker-utils</FILE>
 tracker_coalesce
 tracker_merge
 tracker_text_normalize

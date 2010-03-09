@@ -33,6 +33,7 @@
 
 /**
  * SECTION:tracker-iptc
+ * @title: IPTC
  * @short_description: Information Interchange Model (IIM) /
  * International Press Telecommunications Council (IPTC)
  * @stability: Stable
