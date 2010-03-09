@@ -1,14 +1,14 @@
 <SECTION>
 <FILE>tracker-xmp</FILE>
 TrackerXmpData
-tracker_extract_xmp_read
-tracker_extract_xmp_apply
+tracker_xmp_read
+tracker_xmp_apply
 </SECTION>
 
 <SECTION>
 <FILE>tracker-iptc</FILE>
 TrackerIptcData
-tracker_extract_iptc_read
+tracker_iptc_read
 </SECTION>
 
 <SECTION>
@@ -17,18 +17,16 @@ TrackerExtractMimeFunc
 TrackerExtractDataFunc
 TrackerExtractData
 tracker_extract_get_data
-tracker_extract_coalesce
-tracker_extract_date_format_to_iso8601
-tracker_extract_guess_date
-tracker_extract_merge
-tracker_extract_text_normalize
 tracker_coalesce
 tracker_merge
+tracker_text_normalize
+tracker_date_format_to_iso8601
+tracker_date_guess
 </SECTION>
 
 <SECTION>
 <FILE>tracker-exif</FILE>
 TrackerExifData
-tracker_extract_exif_read
+tracker_exif_read
 </SECTION>
 

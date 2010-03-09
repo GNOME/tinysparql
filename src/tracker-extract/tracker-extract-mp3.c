@@ -744,7 +744,7 @@ get_id3 (const gchar *data,
 	pos += 30;
 	year = g_convert (pos, 4, "UTF-8", encoding, NULL, NULL, NULL);
 	if (atoi (year) > 0) {
-		id3->recording_time = tracker_extract_guess_date (year);
+		id3->recording_time = tracker_date_guess (year);
 	}
 	g_free (year);
 
@@ -1237,11 +1237,11 @@ get_id3v24_tags (const gchar          *data,
 				tag->copyright = word;
 				break;
 			case ID3V24_TDRC:
-				tag->recording_time = tracker_extract_guess_date (word);
+				tag->recording_time = tracker_date_guess (word);
 				g_free (word);
 				break;
 			case ID3V24_TDRL:
-				tag->release_time = tracker_extract_guess_date (word);
+				tag->release_time = tracker_date_guess (word);
 				g_free (word);
 				break;
 			case ID3V24_TEXT:
@@ -1292,7 +1292,7 @@ get_id3v24_tags (const gchar          *data,
 			}
 			case ID3V24_TYER:
 				if (atoi (word) > 0) {
-					tag->recording_time = tracker_extract_guess_date (word);
+					tag->recording_time = tracker_date_guess (word);
 				}
 				g_free (word);
 				break;
@@ -1494,7 +1494,7 @@ get_id3v23_tags (const gchar          *data,
 			}
 			case ID3V24_TYER:
 				if (atoi (word) > 0) {
-					tag->recording_time = tracker_extract_guess_date (word);
+					tag->recording_time = tracker_date_guess (word);
 				}
 				g_free (word);
 				break;
@@ -1629,7 +1629,7 @@ get_id3v20_tags (const gchar          *data,
 				break;
 			case ID3V2_TYE:
 				if (atoi (word) > 0) {
-					tag->recording_time = tracker_extract_guess_date (word);
+					tag->recording_time = tracker_date_guess (word);
 				}
 				g_free (word);
 				break;

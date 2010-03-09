@@ -34,31 +34,31 @@ test_guess_date (void)
 {
 	gchar *result;
 
-	result = tracker_extract_guess_date ("");
+	result = tracker_date_guess ("");
 	g_assert (result == NULL);
 
-	result = tracker_extract_guess_date ("2008-06-14");
+	result = tracker_date_guess ("2008-06-14");
 	g_assert (tracker_test_helpers_cmpstr_equal (result, "2008-06-14T00:00:00"));
 	g_free (result);
 
-	result = tracker_extract_guess_date ("20080614000000");
+	result = tracker_date_guess ("20080614000000");
 	g_assert (tracker_test_helpers_cmpstr_equal (result, "2008-06-14T00:00:00"));
 	g_free (result);
 
-	result = tracker_extract_guess_date ("20080614000000Z");
+	result = tracker_date_guess ("20080614000000Z");
 	g_assert (tracker_test_helpers_cmpstr_equal (result, "2008-06-14T00:00:00Z"));
 	g_free (result);
 
-	result = tracker_extract_guess_date ("Mon Jun 14 04:20:20 2008"); /* MS Office */
+	result = tracker_date_guess ("Mon Jun 14 04:20:20 2008"); /* MS Office */
 	g_assert (tracker_test_helpers_cmpstr_equal (result, "2008-06-14T04:20:20"));
 	g_free (result);
 
-	result = tracker_extract_guess_date ("2008:06:14 04:20:20"); /* Exif style */
+	result = tracker_date_guess ("2008:06:14 04:20:20"); /* Exif style */
 	g_assert (tracker_test_helpers_cmpstr_equal (result, "2008-06-14T04:20:20"));
 	g_free (result);
 
 	if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDERR)) {
-		result = tracker_extract_guess_date (NULL);
+		result = tracker_date_guess (NULL);
 	}
 
 	g_test_trap_assert_failed ();

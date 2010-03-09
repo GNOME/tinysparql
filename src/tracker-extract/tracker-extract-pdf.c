@@ -241,7 +241,7 @@ extract_content (PopplerDocument *document,
 		poppler_page_get_size (page, &rect.x2, &rect.y2);
 
 		text = poppler_page_get_text (page, POPPLER_SELECTION_WORD, &rect);
-		t = tracker_extract_text_normalize (text, n_words - words, &normalized_words);
+		t = tracker_text_normalize (text, n_words - words, &normalized_words);
 
 		words += normalized_words;
 		g_string_append (string, t);
@@ -350,7 +350,7 @@ extract_pdf (const gchar          *uri,
 	}
 
 	if (xml) {
-		tracker_extract_xmp_read (xml, strlen (xml), uri, &xd);
+		tracker_xmp_read (xml, strlen (xml), uri, &xd);
 		g_free (xml);
 		xml = NULL;
 

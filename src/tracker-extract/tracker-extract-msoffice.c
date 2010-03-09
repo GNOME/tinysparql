@@ -208,7 +208,7 @@ metadata_add_gvalue (TrackerSparqlBuilder *metadata,
 				if (is_date) {
 					if (len > 2) {
 						gchar *str = g_strndup (s + 1, len - 2);
-						str_val = tracker_extract_guess_date (str);
+						str_val = tracker_date_guess (str);
 						g_free (str);
 					} else {
 						str_val = NULL;
@@ -223,7 +223,7 @@ metadata_add_gvalue (TrackerSparqlBuilder *metadata,
 				 * beginning.
 				 */
 				if (is_date) {
-					str_val = tracker_extract_guess_date (s);
+					str_val = tracker_date_guess (s);
 				} else {
 					str_val = g_strdup (s);
 				}
@@ -231,7 +231,7 @@ metadata_add_gvalue (TrackerSparqlBuilder *metadata,
 		} else {
 			/* Here, we probably have a number */
 			if (is_date) {
-				str_val = tracker_extract_guess_date (s);
+				str_val = tracker_date_guess (s);
 			} else {
 				str_val = g_strdup (s);
 			}
@@ -552,9 +552,9 @@ ppt_append_text (gchar   *text,
 	g_return_val_if_fail (text, -1);
 	g_return_val_if_fail (all_texts, -1);
 
-	normalized_text = tracker_extract_text_normalize (text,
-	                                                  max_words - words,
-	                                                  &count);
+	normalized_text = tracker_text_normalize (text,
+	                                          max_words - words,
+	                                          &count);
 
 	if (normalized_text) {
 		/* If the last added text didn't end in a space, we'll
@@ -883,7 +883,7 @@ extract_msword_content (GsfInfile *infile,
 	g_free (clx);
 
 	if (content) {
-		normalized = tracker_extract_text_normalize (content->str, n_words, NULL);
+		normalized = tracker_text_normalize (content->str, n_words, NULL);
 		g_string_free (content, TRUE);
 	}
 
@@ -1282,7 +1282,7 @@ text_handler_document_data (GMarkupParseContext  *context,
 
 	case TAG_TYPE_CREATED:
 		tracker_sparql_builder_predicate (info->metadata, "nie:contentCreated");
-		tracker_sparql_builder_object_unvalidated (info->metadata, tracker_extract_guess_date (text));
+		tracker_sparql_builder_object_unvalidated (info->metadata, tracker_date_guess (text));
 		break;
 
 	case TAG_TYPE_GENERATOR:
@@ -1302,7 +1302,7 @@ text_handler_document_data (GMarkupParseContext  *context,
 
 	case TAG_TYPE_MODIFIED:
 		tracker_sparql_builder_predicate (info->metadata, "nie:contentLastModified");
-		tracker_sparql_builder_object_unvalidated (info->metadata, tracker_extract_guess_date (text));
+		tracker_sparql_builder_object_unvalidated (info->metadata, tracker_date_guess (text));
 		break;
 
 	case TAG_TYPE_NUM_OF_PAGES:

@@ -121,7 +121,7 @@ parse_vorbis_comments (FLAC__StreamMetadata_VorbisComment *comment,
 		} else if (g_ascii_strncasecmp (entry.entry, "albumpeakgain", 13) == 0) {
 			fd->albumpeakgain = g_strdup (entry.entry + 14);
 		} else if (g_ascii_strncasecmp (entry.entry, "date", 4) == 0) {
-			fd->date = tracker_extract_guess_date (entry.entry + 5);
+			fd->date = tracker_date_guess (entry.entry + 5);
 		} else if (g_ascii_strncasecmp (entry.entry, "comment", 7) == 0) {
 			fd->comment = g_strdup (entry.entry + 8);
 		} else if (g_ascii_strncasecmp (entry.entry, "genre", 5) == 0) {

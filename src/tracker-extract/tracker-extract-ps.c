@@ -141,7 +141,7 @@ hour_day_str_day (const gchar *date)
 	/* From: ex. date: "(18:07 Tuesday 22 May 2007)"
 	 * To  : ex. ISO8601 date: "2007-05-22T18:07:10-0600"
 	 */
-	return tracker_extract_date_format_to_iso8601 (date, "(%H:%M %A %d %B %Y)");
+	return tracker_date_format_to_iso8601 (date, "(%H:%M %A %d %B %Y)");
 }
 
 static gchar *
@@ -150,7 +150,7 @@ day_str_month_day (const gchar *date)
 	/* From: ex. date: "Tue May 22 18:07:10 2007"
 	 * To  : ex. ISO8601 date: "2007-05-22T18:07:10-0600"
 	 */
-	return tracker_extract_date_format_to_iso8601 (date, "%A %B %d %H:%M:%S %Y");
+	return tracker_date_format_to_iso8601 (date, "%A %B %d %H:%M:%S %Y");
 }
 
 static gchar *
@@ -159,7 +159,7 @@ day_month_year_date (const gchar *date)
 	/* From: ex. date: "22 May 1997 18:07:10 -0600"
 	 * To  : ex. ISO8601 date: "2007-05-22T18:07:10-0600"
 	 */
-	return tracker_extract_date_format_to_iso8601 (date, "%d %B %Y %H:%M:%S %z");
+	return tracker_date_format_to_iso8601 (date, "%d %B %Y %H:%M:%S %z");
 }
 
 static gchar *
@@ -168,7 +168,7 @@ hour_month_day_date (const gchar *date)
 	/* From: ex. date: "6:07 PM May 22, 2007"
 	 * To  : ex. ISO8601 date: "2007-05-22T18:07:10-0600"
 	 */
-	return tracker_extract_date_format_to_iso8601 (date, "%I:%M %p %B %d, %Y");
+	return tracker_date_format_to_iso8601 (date, "%I:%M %p %B %d, %Y");
 }
 
 static gchar *

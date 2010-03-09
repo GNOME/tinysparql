@@ -17,8 +17,8 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __LIBTRACKER_EXTRACT_EXTRACTOR_H__
-#define __LIBTRACKER_EXTRACT_EXTRACTOR_H__
+#ifndef __LIBTRACKER_EXTRACT_DATA_H__
+#define __LIBTRACKER_EXTRACT_DATA_H__
 
 #if !defined (__LIBTRACKER_EXTRACT_INSIDE__) && !defined (TRACKER_COMPILATION)
 #error "only <libtracker-extract/tracker-extract.h> must be included directly."
@@ -181,4 +181,4 @@ TrackerExtractData *tracker_extract_get_data (void);
 
 G_END_DECLS
 
-#endif /* __LIBTRACKER_EXTRACT_EXTRACTOR_H__ */
+#endif /* __LIBTRACKER_EXTRACT_DATA_H__ */

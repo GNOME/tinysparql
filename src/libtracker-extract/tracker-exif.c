@@ -19,16 +19,11 @@
 
 #include "config.h"
 
-#include <locale.h>
 #include <string.h>
 #include <ctype.h>
-#include <glib.h>
-
-#include <libtracker-common/tracker-date-time.h>
-#include <libtracker-common/tracker-utils.h>
-#include <libtracker-extract/tracker-utils.h>
 
 #include "tracker-exif.h"
+#include "tracker-utils.h"
 
 #ifdef HAVE_LIBEXIF
 
@@ -94,7 +89,7 @@ get_date (ExifData *exif,
 		exif_entry_get_value (entry, buf, 1024);
 		/* From: ex; date "2007:04:15 15:35:58"
 		 * To  : ex. "2007-04-15T17:35:58+0200 where +0200 is localtime */
-		return tracker_extract_date_format_to_iso8601 (buf, EXIF_DATE_FORMAT);
+		return tracker_date_format_to_iso8601 (buf, EXIF_DATE_FORMAT);
 	}
 
 	return NULL;
@@ -315,7 +310,7 @@ get_value (ExifData *exif,
 #endif /* HAVE_LIBEXIF */
 
 /**
- * tracker_extract_exif_read:
+ * tracker_exif_read:
  * @buffer: a chunk of data with exif data in it.
  * @len: the size of @buffer.
  * @uri: the URI this is related to.
@@ -331,10 +326,10 @@ get_value (ExifData *exif,
  * Since: 0.8
  **/
 gboolean
-tracker_extract_exif_read (const unsigned char *buffer,
-                           size_t               len,
-                           const gchar         *uri,
-                           TrackerExifData     *data)
+tracker_exif_read (const unsigned char *buffer,
+                   size_t               len,
+                   const gchar         *uri,
+                   TrackerExifData     *data)
 {
 #ifdef HAVE_LIBEXIF
 	ExifData *exif;

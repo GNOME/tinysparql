@@ -20,17 +20,11 @@
 #include "config.h"
 
 #include <locale.h>
-#include <string.h>
 
-#include <glib.h>
-
-#include <libtracker-common/tracker-type-utils.h>
 #include <libtracker-common/tracker-utils.h>
-#include <libtracker-common/tracker-ontologies.h>
-
-#include <libtracker-extract/tracker-utils.h>
 
 #include "tracker-xmp.h"
+#include "tracker-utils.h"
 
 #ifdef HAVE_EXEMPI
 
@@ -267,7 +261,7 @@ iterate_simple (const gchar    *uri,
 		if (!data->title2 && g_ascii_strcasecmp (name, "Title") == 0) {
 			data->title2 = g_strdup (value);
 		} else if (g_ascii_strcasecmp (name, "DateTimeOriginal") == 0 && !data->time_original) {
-			data->time_original = tracker_extract_guess_date (value);
+			data->time_original = tracker_date_guess (value);
 		} else if (!data->artist && g_ascii_strcasecmp (name, "Artist") == 0) {
 			data->artist = g_strdup (value);
 		/* } else if (g_ascii_strcasecmp (name, "Software") == 0) {
@@ -318,7 +312,7 @@ iterate_simple (const gchar    *uri,
 		} else if (!data->description && g_ascii_strcasecmp (name, "description") == 0) {
 			data->description = g_strdup (value);
 		} else if (!data->date && g_ascii_strcasecmp (name, "date") == 0) {
-			data->date = tracker_extract_guess_date (value);
+			data->date = tracker_date_guess (value);
 		} else if (!data->keywords && g_ascii_strcasecmp (name, "keywords") == 0) {
 			data->keywords = g_strdup (value);
 		} else if (!data->subject && g_ascii_strcasecmp (name, "subject") == 0) {
@@ -437,7 +431,7 @@ iterate (XmpPtr          xmp,
 #endif /* HAVE_EXEMPI */
 
 /**
- * tracker_extract_xmp_read:
+ * tracker_xmp_read:
  * @buffer: a chunk of data with xmp data in it.
  * @len: the size of @buffer.
  * @uri: the URI this is related to.
@@ -453,10 +447,10 @@ iterate (XmpPtr          xmp,
  * Since: 0.8
  **/
 gboolean
-tracker_extract_xmp_read (const gchar    *buffer,
-                          size_t          len,
-                          const gchar    *uri,
-                          TrackerXmpData *data)
+tracker_xmp_read (const gchar    *buffer,
+                  size_t          len,
+                  const gchar    *uri,
+                  TrackerXmpData *data)
 {
 #ifdef HAVE_EXEMPI
 	XmpPtr xmp;
@@ -527,7 +521,7 @@ insert_keywords (TrackerSparqlBuilder *metadata,
 }
 
 /**
- * tracker_extract_xmp_apply:
+ * tracker_xmp_apply:
  * @metadata: the metadata object to apply XMP data to.
  * @uri: the URI this is related to.
  * @data: the data to push into @metadata.
@@ -540,9 +534,9 @@ insert_keywords (TrackerSparqlBuilder *metadata,
  * Since: 0.8
  **/
 gboolean
-tracker_extract_xmp_apply (TrackerSparqlBuilder *metadata,
-                           const gchar          *uri,
-                           TrackerXmpData       *data)
+tracker_xmp_apply (TrackerSparqlBuilder *metadata,
+                   const gchar          *uri,
+                   TrackerXmpData       *data)
 {
 	g_return_val_if_fail (TRACKER_IS_SPARQL_BUILDER (metadata), FALSE);
 	g_return_val_if_fail (uri != NULL, FALSE);

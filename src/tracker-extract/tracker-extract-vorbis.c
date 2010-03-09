@@ -89,7 +89,7 @@ extract_vorbis (const char *uri,
 	gchar          *filename;
 	VorbisData      vorbis_data = { 0 };
 	VorbisNeedsMergeData merge_data = { 0 };
-	gchar *artist_uri = NULL, *album_uri = NULL, *publisher_uri = NULL;
+	gchar *artist_uri = NULL, *album_uri = NULL;
 
 	filename = g_filename_from_uri (uri, NULL, NULL);
 	f = tracker_file_open (filename, "r", FALSE);
@@ -119,7 +119,7 @@ extract_vorbis (const char *uri,
 		vorbis_data.AlbumGain = ogg_get_comment (comment, "AlbumGain");
 		vorbis_data.AlbumPeakGain = ogg_get_comment (comment, "AlbumPeakGain");
 		date = ogg_get_comment (comment, "date");
-		vorbis_data.date = tracker_extract_guess_date (date);
+		vorbis_data.date = tracker_date_guess (date);
 		g_free (date);
 		vorbis_data.comment = ogg_get_comment (comment, "comment");
 		vorbis_data.genre = ogg_get_comment (comment, "genre");

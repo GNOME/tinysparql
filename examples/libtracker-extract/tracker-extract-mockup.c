@@ -134,8 +134,8 @@ extract_mockup (const gchar          *uri,
 	fclose (f);
 
 	/* TODO: Make sure we coalesce duplicate values */
-	title = tracker_extract_coalesce (4, title_tagv1, title_tagv2, title_tagv3, title_unknown);
-	lyricist = tracker_extract_coalesce (2, lyricist_tagv2, lyricist_unknown);
+	title = tracker_coalesce (4, title_tagv1, title_tagv2, title_tagv3, title_unknown);
+	lyricist = tracker_coalesce (2, lyricist_tagv2, lyricist_unknown);
 
 	performer = g_strdup ("Stone Gods");
 	composer = NULL;

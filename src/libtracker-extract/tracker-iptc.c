@@ -21,12 +21,8 @@
 
 #include <string.h>
 
-#include <glib.h>
-
-#include <libtracker-common/tracker-date-time.h>
-#include <libtracker-extract/tracker-utils.h>
-
 #include "tracker-iptc.h"
+#include "tracker-utils.h"
 
 #ifdef HAVE_LIBIPTCDATA
 
@@ -102,7 +98,7 @@ foreach_dataset (IptcDataSet *dataset,
 			iptc_dataset_get_as_str (dataset, mbuffer, 1024);
 			/* From: ex; date "2007:04:15 15:35:58"
 			 * To : ex. "2007-04-15T17:35:58+0200 where +0200 is localtime */
-			data->date_created = tracker_extract_date_format_to_iso8601 (mbuffer, IPTC_DATE_FORMAT);
+			data->date_created = tracker_date_format_to_iso8601 (mbuffer, IPTC_DATE_FORMAT);
 		}
 		break;
 
@@ -184,7 +180,7 @@ foreach_dataset (IptcDataSet *dataset,
 #endif /* HAVE_LIBIPTCDATA */
 
 /**
- * tracker_extract_iptc_read:
+ * tracker_iptc_read:
  * @buffer: a chunk of data with iptc data in it.
  * @len: the size of @buffer.
  * @uri: the URI this is related to.
@@ -200,10 +196,10 @@ foreach_dataset (IptcDataSet *dataset,
  * Since: 0.8
  **/
 gboolean
-tracker_extract_iptc_read (const unsigned char *buffer,
-                           size_t               len,
-                           const gchar         *uri,
-                           TrackerIptcData     *data)
+tracker_iptc_read (const unsigned char *buffer,
+                   size_t               len,
+                   const gchar         *uri,
+                   TrackerIptcData     *data)
 {
 #ifdef HAVE_LIBIPTCDATA
 	IptcData *iptc;

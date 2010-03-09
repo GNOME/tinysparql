@@ -24,24 +24,19 @@
 #error "only <libtracker-extract/tracker-extract.h> must be included directly."
 #endif
 
-/* These are for convenience */
-#define tracker_coalesce tracker_extract_coalesce
-#define tracker_merge tracker_extract_merge
-
 G_BEGIN_DECLS
 
-gchar *  tracker_extract_coalesce                   (gint n_values,
-                                                     ...);
-gchar *  tracker_extract_merge                      (const gchar *delim, 
-                                                     gint n_values,
-                                                     ...);
-gchar *  tracker_extract_text_normalize             (const gchar *text,
-                                                     guint        max_words,
-                                                     guint       *n_words);
-
-gchar *  tracker_extract_guess_date                 (const gchar  *date_string);
-gchar *  tracker_extract_date_format_to_iso8601     (const gchar  *date_string,
-                                                     const gchar  *format);
+gchar *tracker_coalesce               (gint         n_values,
+                                       ...);
+gchar *tracker_merge                  (const gchar *delim,
+                                       gint         n_values,
+                                       ...);
+gchar *tracker_text_normalize         (const gchar *text,
+                                       guint        max_words,
+                                       guint       *n_words);
+gchar *tracker_date_guess             (const gchar *date_string);
+gchar *tracker_date_format_to_iso8601 (const gchar *date_string,
+                                       const gchar *format);
 
 G_END_DECLS
 

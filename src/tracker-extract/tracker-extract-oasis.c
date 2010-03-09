@@ -87,7 +87,7 @@ extract_content (const gchar *path,
 		return NULL;
 	}
 
-	text = tracker_extract_text_normalize (output, n_words, NULL);
+	text = tracker_text_normalize (output, n_words, NULL);
 
 	g_free (command);
 	g_free (output);
@@ -274,7 +274,7 @@ text_handler (GMarkupParseContext  *context,
 		tracker_sparql_builder_object_unvalidated (metadata, text);
 		break;
 	case READ_CREATED:
-		date = tracker_extract_guess_date (text);
+		date = tracker_date_guess (text);
 		tracker_sparql_builder_predicate (metadata, "nie:contentCreated");
 		tracker_sparql_builder_object_unvalidated (metadata, date);
 		g_free (date);

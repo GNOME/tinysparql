@@ -21,18 +21,12 @@
 
 #define _XOPEN_SOURCE
 #include <time.h>
-
-#include <strings.h>
 #include <string.h>
-#include <stdlib.h>
-#include <locale.h>
 
-#include <glib.h>
-#include <glib/gi18n.h>
-
-#include <libtracker-extract/tracker-utils.h>
 #include <libtracker-common/tracker-utils.h>
 #include <libtracker-common/tracker-date-time.h>
+
+#include "tracker-utils.h"
 
 #define DATE_FORMAT_ISO8601 "%Y-%m-%dT%H:%M:%S%z"
 
@@ -47,8 +41,8 @@ static const char imonths[] = {
 };
 
 gchar *
-tracker_extract_coalesce (gint n_values,
-                          ...)
+tracker_coalesce (gint n_values,
+                  ...)
 {
 	va_list args;
 	gint    i;
@@ -73,8 +67,9 @@ tracker_extract_coalesce (gint n_values,
 }
 
 gchar *
-tracker_extract_merge (const gchar *delim, gint n_values,
-                       ...)
+tracker_merge (const gchar *delim, 
+               gint         n_values,
+               ...)
 {
 	va_list args;
 	gint    i;
@@ -109,9 +104,9 @@ tracker_extract_merge (const gchar *delim, gint n_values,
 }
 
 gchar *
-tracker_extract_text_normalize (const gchar *text,
-                                guint        max_words,
-                                guint       *n_words)
+tracker_text_normalize (const gchar *text,
+                        guint        max_words,
+                        guint       *n_words)
 {
 	GString *string;
 	gboolean in_break = TRUE;
@@ -155,8 +150,8 @@ tracker_extract_text_normalize (const gchar *text,
 }
 
 gchar *
-tracker_extract_date_format_to_iso8601 (const gchar *date_string,
-                                        const gchar *format)
+tracker_date_format_to_iso8601 (const gchar *date_string,
+                                const gchar *format)
 {
 	gchar *result;
 	struct tm date_tm = { 0 };
@@ -168,18 +163,17 @@ tracker_extract_date_format_to_iso8601 (const gchar *date_string,
 		return NULL;
 	}
 
-	result = g_malloc (sizeof (char)*25);
+	result = g_malloc (sizeof (char) * 25);
 
 	strftime (result, 25, DATE_FORMAT_ISO8601 , &date_tm);
 
 	return result;
 }
 
-
 static gboolean
 is_int (const gchar *str)
 {
-	gint     i, len;
+	gint i, len;
 
 	if (!str || str[0] == '\0') {
 		return FALSE;
@@ -188,7 +182,7 @@ is_int (const gchar *str)
 	len = strlen (str);
 
 	for (i = 0; i < len; i++) {
-		if (!g_ascii_isdigit(str[i])) {
+		if (!g_ascii_isdigit (str[i])) {
 			return FALSE;
 		}
 	}
@@ -210,11 +204,10 @@ parse_month (const gchar *month)
 	return -1;
 }
 
-
 /* Determine date format and convert to ISO 8601 format */
 /* FIXME We should handle all the fractions here (see ISO 8601), as well as YYYY:DDD etc */
 gchar *
-tracker_extract_guess_date (const gchar *date_string)
+tracker_date_guess (const gchar *date_string)
 {
 	gchar buf[30];
 	gint  len;

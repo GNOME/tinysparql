@@ -282,10 +282,10 @@ extract_tiff (const gchar          *uri,
 	if (TIFFGetField (image, TIFFTAG_RICHTIFFIPTC, &iptcSize, &iptcOffset)) {
 		if (TIFFIsByteSwapped(image) != 0)
 			TIFFSwabArrayOfLong((uint32 *) iptcOffset, (unsigned long) iptcSize);
-		tracker_extract_iptc_read (iptcOffset,
-		                           4 * iptcSize,
-		                           uri, 
-		                           &iptc_data);
+		tracker_iptc_read (iptcOffset,
+		                   4 * iptcSize,
+		                   uri, 
+		                   &iptc_data);
 	}
 #endif /* HAVE_LIBIPTCDATA */
 
@@ -293,10 +293,10 @@ extract_tiff (const gchar          *uri,
 	   due to bugs in the original spec (type) */
 #ifdef HAVE_EXEMPI
 	if (TIFFGetField (image, TIFFTAG_XMLPACKET, &size, &xmpOffset)) {
-		tracker_extract_xmp_read (xmpOffset,
-		                          size,
-		                          uri,
-		                          &xmp_data);
+		tracker_xmp_read (xmpOffset,
+		                  size,
+		                  uri,
+		                  &xmp_data);
 	}
 #endif /* HAVE_EXEMPI */
 
@@ -310,7 +310,7 @@ extract_tiff (const gchar          *uri,
 		tiff_data.copyright = get_value (image, TIFFTAG_COPYRIGHT, TIFF_TAGTYPE_STRING);
 	if (!tiff_data.datetime) {
 		gchar *date = get_value (image, TIFFTAG_DATETIME, TIFF_TAGTYPE_STRING);
-		tiff_data.datetime = tracker_extract_guess_date (date);
+		tiff_data.datetime = tracker_date_guess (date);
 		g_free (date);
 	}
 	if (!tiff_data.documentname)
@@ -334,7 +334,7 @@ extract_tiff (const gchar          *uri,
 				exif_data.iso_speed_ratings = get_value (image, EXIFTAG_ISOSPEEDRATINGS, TIFF_TAGTYPE_C16_UINT16);
 			if (!exif_data.time_original) {
 				gchar *date = get_value (image, EXIFTAG_DATETIMEORIGINAL, TIFF_TAGTYPE_STRING);
-				exif_data.time_original = tracker_extract_guess_date (date);
+				exif_data.time_original = tracker_date_guess (date);
 				g_free (date);
 			}
 			if (!exif_data.metering_mode)
