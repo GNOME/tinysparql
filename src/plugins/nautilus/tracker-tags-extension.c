@@ -26,7 +26,7 @@
 #include <libnautilus-extension/nautilus-menu-provider.h>
 #include <libnautilus-extension/nautilus-property-page-provider.h>
 
-#include <libtracker-client/tracker.h>
+#include <libtracker-client/tracker-client.h>
 
 #include "tracker-tags-utils.h"
 #include "tracker-tags-view.h"

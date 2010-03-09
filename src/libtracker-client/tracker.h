@@ -21,6 +21,10 @@
 #ifndef __TRACKER_CLIENT_H__
 #define __TRACKER_CLIENT_H__
 
+#if !defined (__LIBTRACKER_CLIENT_INSIDE__) && !defined (TRACKER_COMPILATION)
+#error "only <libtracker-client/tracker-client.h> must be included directly."
+#endif
+
 #include <glib-object.h>
 
 G_BEGIN_DECLS

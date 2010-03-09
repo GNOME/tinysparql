@@ -29,7 +29,7 @@
 
 #include <panel-applet.h>
 
-#include <libtracker-client/tracker.h>
+#include <libtracker-client/tracker-client.h>
 
 #include "tracker-results-window.h"
 #include "tracker-aligned-window.h"

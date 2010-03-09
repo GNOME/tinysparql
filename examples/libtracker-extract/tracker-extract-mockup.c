@@ -29,8 +29,7 @@
 #include <gio/gio.h>
 
 #include <libtracker-extract/tracker-extract.h>
-
-#include <libtracker-client/tracker.h>
+#include <libtracker-client/tracker-client.h>
 
 static void extract_mockup (const gchar          *uri,
                             TrackerSparqlBuilder *preupdate,

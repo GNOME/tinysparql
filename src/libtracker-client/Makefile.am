@@ -3,6 +3,7 @@ include $(top_srcdir)/Makefile.decl
 INCLUDES = 					\
 	-DLOCALEDIR=\""$(localedir)"\" 		\
 	-DG_LOG_DOMAIN=\"Tracker\"		\
+	-DTRACKER_COMPILATION			\
 	-I$(top_srcdir)/src			\
 	$(WARN_CFLAGS)				\
 	$(GLIB2_CFLAGS)				\
@@ -18,6 +19,7 @@ libtracker_client_@TRACKER_API_VERSION@_la_VALASOURCES = \
 
 libtracker_client_@TRACKER_API_VERSION@_la_SOURCES = 	\
 	tracker.c					\
+	tracker-client.h				\
 	tracker-sparql-builder.c			\
 	tracker-sparql-builder.h			\
 	libtracker-client.vala.stamp			\
@@ -35,6 +37,7 @@ libtracker_client_@TRACKER_API_VERSION@_la_LIBADD =	\
 
 libtracker_clientinclude_HEADERS = 			\
 	tracker.h					\
+	tracker-client.h				\
 	tracker-sparql-builder.h
 
 # Generate DBus files from XML data.

@@ -25,7 +25,8 @@
 #include <glib/gi18n.h>
 
 #include <libnautilus-extension/nautilus-file-info.h>
-#include <libtracker-client/tracker.h>
+
+#include <libtracker-client/tracker-client.h>
 
 #include "tracker-tags-utils.h"
 #include "tracker-tags-view.h"
