@@ -35,7 +35,7 @@
  * SECTION:tracker
  * @short_description: A client library for querying and inserting
  * data in Tracker.
- * @include: libtracker-client/tracker.h
+ * @include: libtracker-client/tracker-client.h
  *
  * This API is for applications which want to integrate with Tracker
  * either by storing their data or by querying it. They are also not
@@ -46,7 +46,7 @@
 /**
  * SECTION:tracker_cancel
  * @short_description: Cancelling requests.
- * @include: libtracker-client/tracker.h
+ * @include: libtracker-client/tracker-client.h
  *
  * Tracker allows you to cancel any request that has not been processed
  * yet. Aditionally, for fully synchronous requests, there is helper
@@ -56,7 +56,7 @@
 /**
  * SECTION:tracker_resources
  * @short_description: Doing SPARQL queries to tracker-store.
- * @include: libtracker-client/tracker.h
+ * @include: libtracker-client/tracker-client.h
  *
  * Tracker uses the SPARQL query language
  * <footnote><para><ulink url="http://www.w3.org/TR/rdf-sparql-query/">SPARQL</ulink> query language for RDF (W3C)</para></footnote>
@@ -68,7 +68,7 @@
 /**
  * SECTION:tracker_statistics
  * @short_description: Data statistics.
- * @include: libtracker-client/tracker.h
+ * @include: libtracker-client/tracker-client.h
  *
  * This API is meant to get statistics about the stored data.
  **/
@@ -76,7 +76,7 @@
 /**
  * SECTION:tracker_misc
  * @short_description: Utility and miscellaneous functions.
- * @include: libtracker-client/tracker.h
+ * @include: libtracker-client/tracker-client.h
  *
  * This is miscellaneous API that may be useful to users.
  **/
@@ -84,7 +84,7 @@
 /**
  * SECTION:tracker_search
  * @short_description: Simple search functions.
- * @include: libtracker-client/tracker.h
+ * @include: libtracker-client/tracker-client.h
  *
  * Simple search API.
  **/

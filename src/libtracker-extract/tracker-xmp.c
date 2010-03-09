@@ -35,7 +35,7 @@
  * SECTION:tracker-xmp
  * @short_description: Extensible Metadata Platform (XMP)
  * @stability: Stable
- * @include: libtracker-extract/tracker-xmp.h
+ * @include: libtracker-extract/tracker-extract.h
  *
  * The Adobe Extensible Metadata Platform (XMP) is a standard, created
  * by Adobe Systems Inc., for processing and storing standardized and

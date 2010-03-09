@@ -36,7 +36,7 @@
  * @short_description: Information Interchange Model (IIM) /
  * International Press Telecommunications Council (IPTC)
  * @stability: Stable
- * @include: libtracker-extract/tracker-iptc.h
+ * @include: libtracker-extract/tracker-extract.h
  *
  * The Information Interchange Model (IIM) is a file structure and set
  * of metadata attributes that can be applied to text, images and
