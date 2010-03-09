@@ -36,13 +36,11 @@
 
 #define EXIF_DATE_FORMAT "%Y:%m:%d %H:%M:%S"
 
-#ifndef HAVE_STRCASESTR
-
 /**
  * SECTION:tracker-exif
  * @short_description: Exchangeable Image File Format (EXIF)
  * @stability: Stable
- * @include: libtracker-extract/tracker-exif.h
+ * @include: libtracker-extract/tracker-extract.h
  *
  * Exchangeable Image File Format (EXIF) is a specification for the
  * image file format used by digital cameras. The specification uses
@@ -53,6 +51,8 @@
  * This API is provided to remove code duplication between extractors
  * using these standards.
  **/
+
+#ifndef HAVE_STRCASESTR
 
 static gchar *
 strcasestr (const gchar *haystack,
