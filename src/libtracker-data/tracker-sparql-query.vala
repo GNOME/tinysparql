@@ -537,7 +537,7 @@ public class Tracker.SparqlQuery : Object {
 			case SparqlTokenType.INSERT:
 			case SparqlTokenType.DELETE:
 				PtrArray* ptr = execute_insert_or_delete (blank);
-				if (blank) {
+				if (ptr != null) {
 					blank_nodes.add (ptr);
 				}
 				break;
