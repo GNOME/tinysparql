@@ -37,7 +37,6 @@
 #include <libtracker-common/tracker-ontologies.h>
 
 #include <libtracker-extract/tracker-extract.h>
-#include <libtracker-extract/tracker-utils.h>
 
 #define NIE_PREFIX TRACKER_NIE_PREFIX
 #define NFO_PREFIX TRACKER_NFO_PREFIX

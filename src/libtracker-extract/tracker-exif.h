@@ -22,6 +22,10 @@
 #ifndef __LIBTRACKER_EXTRACT_EXIF_H__
 #define __LIBTRACKER_EXTRACT_EXIF_H__
 
+#if !defined (__LIBTRACKER_EXTRACT_INSIDE__) && !defined (TRACKER_COMPILATION)
+#error "only <libtracker-extract/tracker-extract.h> must be included directly."
+#endif
+
 #include <glib.h>
 
 G_BEGIN_DECLS
@@ -58,4 +62,3 @@ gboolean tracker_extract_exif_read (const unsigned char *buffer,
 G_END_DECLS
 
 #endif /* __LIBTRACKER_EXTRACT_EXIF_H__ */
-

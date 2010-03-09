@@ -28,8 +28,6 @@
 #include <libtracker-common/tracker-utils.h>
 
 #include <libtracker-extract/tracker-extract.h>
-#include <libtracker-extract/tracker-xmp.h>
-#include <libtracker-extract/tracker-utils.h>
 
 static void extract_xmp (const gchar          *filename,
                          TrackerSparqlBuilder *preupdate,

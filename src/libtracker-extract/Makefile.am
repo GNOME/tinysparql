@@ -19,7 +19,7 @@ lib_LTLIBRARIES = libtracker-extract-@TRACKER_API_VERSION@.la
 libtracker_extractincdir=$(includedir)/tracker-$(TRACKER_API_VERSION)/libtracker-extract/
 
 libtracker_extract_@TRACKER_API_VERSION@_la_SOURCES =	\
-	tracker-extract.h				\
+	tracker-data.h					\
 	tracker-exif.c					\
 	tracker-exif.h					\
 	tracker-iptc.c					\
@@ -31,7 +31,7 @@ libtracker_extract_@TRACKER_API_VERSION@_la_SOURCES =	\
 noinst_HEADERS =
 
 libtracker_extractinc_HEADERS =				\
-	tracker-extract.h				\
+	tracker-data.h					\
 	tracker-exif.h					\
 	tracker-iptc.h					\
 	tracker-xmp.h					\

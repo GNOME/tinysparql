@@ -22,7 +22,9 @@
 #ifndef __LIBTRACKER_EXTRACT_UTILS_H__
 #define __LIBTRACKER_EXTRACT_UTILS_H__
 
-#include <glib.h>
+#if !defined (__LIBTRACKER_EXTRACT_INSIDE__) && !defined (TRACKER_COMPILATION)
+#error "only <libtracker-extract/tracker-extract.h> must be included directly."
+#endif
 
 /* These are for convenience */
 #define tracker_coalesce tracker_extract_coalesce

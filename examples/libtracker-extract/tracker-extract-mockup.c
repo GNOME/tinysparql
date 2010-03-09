@@ -29,7 +29,6 @@
 #include <gio/gio.h>
 
 #include <libtracker-extract/tracker-extract.h>
-#include <libtracker-extract/tracker-utils.h>
 
 #include <libtracker-client/tracker.h>
 

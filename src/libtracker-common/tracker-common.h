@@ -22,12 +22,6 @@
 
 #include <glib.h>
 
-G_BEGIN_DECLS
-
-#if !defined (TRACKER_ENABLE_INTERNALS) && !defined (TRACKER_COMPILATION)
-#error "TRACKER_ENABLE_INTERNALS not defined, this must be defined to use tracker's internal functions"
-#endif
-
 #define __LIBTRACKER_COMMON_INSIDE__
 
 #include "tracker-class.h"
@@ -49,8 +43,5 @@ G_BEGIN_DECLS
 #include "tracker-utils.h"
 
 #undef __LIBTRACKER_COMMON_INSIDE__
-
-
-G_END_DECLS
 
 #endif /* __LIBTRACKER_COMMON_H__ */

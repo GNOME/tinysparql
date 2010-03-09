@@ -38,10 +38,6 @@
 #include <libtracker-common/tracker-utils.h>
 
 #include <libtracker-extract/tracker-extract.h>
-#include <libtracker-extract/tracker-xmp.h>
-#include <libtracker-extract/tracker-iptc.h>
-#include <libtracker-extract/tracker-exif.h>
-#include <libtracker-extract/tracker-utils.h>
 
 #define EXIF_DATE_FORMAT        "%Y:%m:%d %H:%M:%S"
 

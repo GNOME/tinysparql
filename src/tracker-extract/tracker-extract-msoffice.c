@@ -38,7 +38,6 @@
 #include <libtracker-common/tracker-os-dependant.h>
 
 #include <libtracker-extract/tracker-extract.h>
-#include <libtracker-extract/tracker-utils.h>
 
 #include "tracker-main.h"
 

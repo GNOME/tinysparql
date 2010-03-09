@@ -33,8 +33,6 @@
 #include <libtracker-common/tracker-type-utils.h>
 
 #include <libtracker-extract/tracker-extract.h>
-#include <libtracker-extract/tracker-xmp.h>
-#include <libtracker-extract/tracker-utils.h>
 
 #include "tracker-main.h"
 

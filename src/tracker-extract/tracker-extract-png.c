@@ -43,9 +43,6 @@
 #include <libtracker-common/tracker-utils.h>
 
 #include <libtracker-extract/tracker-extract.h>
-#include <libtracker-extract/tracker-xmp.h>
-#include <libtracker-extract/tracker-exif.h>
-#include <libtracker-extract/tracker-utils.h>
 
 #define RFC1123_DATE_FORMAT "%d %B %Y %H:%M:%S %z"
 

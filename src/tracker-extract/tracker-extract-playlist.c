@@ -36,7 +36,6 @@
 #include <libtracker-common/tracker-ontologies.h>
 
 #include <libtracker-extract/tracker-extract.h>
-#include <libtracker-extract/tracker-utils.h>
 
 #define PLAYLIST_PROPERTY_NO_TRACKS "entryCounter"
 #define PLAYLIST_PROPERTY_DURATION  "listDuration"

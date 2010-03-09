@@ -30,8 +30,6 @@
 #include <libtracker-common/tracker-os-dependant.h>
 
 #include <libtracker-extract/tracker-extract.h>
-#include <libtracker-extract/tracker-xmp.h>
-#include <libtracker-extract/tracker-utils.h>
 
 #define NMM_PREFIX TRACKER_NMM_PREFIX
 #define NFO_PREFIX TRACKER_NFO_PREFIX
