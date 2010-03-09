@@ -46,14 +46,6 @@
 
 #define RFC1123_DATE_FORMAT "%d %B %Y %H:%M:%S %z"
 
-#define NMM_PREFIX TRACKER_NMM_PREFIX
-#define NFO_PREFIX TRACKER_NFO_PREFIX
-#define NIE_PREFIX TRACKER_NIE_PREFIX
-#define DC_PREFIX TRACKER_DC_PREFIX
-#define NCO_PREFIX TRACKER_NCO_PREFIX
-
-#define RDF_PREFIX TRACKER_RDF_PREFIX
-
 typedef struct {
 	gchar *title, *copyright, *creator, *description, *date, *license;
 	gchar *artist;

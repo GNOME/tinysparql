@@ -31,15 +31,6 @@
 
 #include <libtracker-extract/tracker-extract.h>
 
-#define NMM_PREFIX TRACKER_NMM_PREFIX
-#define NFO_PREFIX TRACKER_NFO_PREFIX
-#define NIE_PREFIX TRACKER_NIE_PREFIX
-#define DC_PREFIX TRACKER_DC_PREFIX
-#define NCO_PREFIX TRACKER_NCO_PREFIX
-
-#define RDF_PREFIX TRACKER_RDF_PREFIX
-#define RDF_TYPE RDF_PREFIX "type"
-
 static void extract_mplayer (const gchar          *uri,
                              TrackerSparqlBuilder *preupdate,
                              TrackerSparqlBuilder *metadata);

@@ -32,14 +32,9 @@
 #include <libtracker-common/tracker-ontologies.h>
 #include <libtracker-common/tracker-utils.h>
 
-#include <libtracker-extract/tracker-extract.h>
+#include <libtracker-client/tracker.h>
 
-#define NIE_PREFIX TRACKER_NIE_PREFIX
-#define NFO_PREFIX TRACKER_NFO_PREFIX
-#define DC_PREFIX TRACKER_DC_PREFIX
-#define NCO_PREFIX TRACKER_NCO_PREFIX
-#define NMM_PREFIX TRACKER_NMM_PREFIX
-#define RDF_PREFIX TRACKER_RDF_PREFIX
+#include <libtracker-extract/tracker-extract.h>
 
 static void extract_vorbis (const char            *uri,
                             TrackerSparqlBuilder  *preupdate,

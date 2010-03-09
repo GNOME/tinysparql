@@ -52,14 +52,6 @@ long long int llroundl(long double x);
 #define GST_TAG_CLASSIFICATION "classification"
 #endif
 
-#define NMM_PREFIX TRACKER_NMM_PREFIX
-#define NFO_PREFIX TRACKER_NFO_PREFIX
-#define NIE_PREFIX TRACKER_NIE_PREFIX
-#define DC_PREFIX TRACKER_DC_PREFIX
-#define NCO_PREFIX TRACKER_NCO_PREFIX
-#define RDF_PREFIX TRACKER_RDF_PREFIX
-#define RDF_TYPE RDF_PREFIX "type"
-
 /* Some additional tagreadbin tags (FIXME until they are defined upstream)*/
 #ifndef GST_TAG_CHANNEL
 #define GST_TAG_CHANNEL "channels"

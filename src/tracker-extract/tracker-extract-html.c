@@ -30,8 +30,6 @@
 
 #include <libtracker-extract/tracker-extract.h>
 
-#define RDF_TYPE TRACKER_RDF_PREFIX "type"
-
 typedef enum {
 	READ_TITLE,
 } tag_type;

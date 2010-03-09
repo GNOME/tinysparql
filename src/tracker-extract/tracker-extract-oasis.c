@@ -31,13 +31,6 @@
 
 #include "tracker-main.h"
 
-#define NIE_PREFIX TRACKER_NIE_PREFIX
-#define NFO_PREFIX TRACKER_NFO_PREFIX
-#define NCO_PREFIX TRACKER_NCO_PREFIX
-
-#define RDF_PREFIX TRACKER_RDF_PREFIX
-#define RDF_TYPE RDF_PREFIX "type"
-
 typedef enum {
 	READ_TITLE,
 	READ_SUBJECT,

@@ -28,15 +28,6 @@
 
 #include <libtracker-extract/tracker-extract.h>
 
-#define NMM_PREFIX TRACKER_NMM_PREFIX
-#define NFO_PREFIX TRACKER_NFO_PREFIX
-#define NIE_PREFIX TRACKER_NIE_PREFIX
-#define NCO_PREFIX TRACKER_NCO_PREFIX
-#define DC_PREFIX TRACKER_DC_PREFIX
-
-#define RDF_PREFIX TRACKER_RDF_PREFIX
-#define RDF_TYPE RDF_PREFIX "type"
-
 static const gchar *tags[][2] = {
 	{ "TOTEM_INFO_VIDEO_HEIGHT",            "nfo:height"    },
 	{ "TOTEM_INFO_VIDEO_WIDTH",             "nfo:width"     },

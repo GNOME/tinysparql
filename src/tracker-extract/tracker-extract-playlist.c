@@ -47,11 +47,6 @@
 #define PLAYLIST_DEFAULT_NO_TRACKS 0
 #define PLAYLIST_DEFAULT_DURATION 0
 
-
-#define NFO_PREFIX TRACKER_NFO_PREFIX
-#define RDF_PREFIX TRACKER_RDF_PREFIX
-#define RDF_TYPE RDF_PREFIX "type"
-
 typedef struct {
 	guint32 track_counter;
 	gint64 total_time;
