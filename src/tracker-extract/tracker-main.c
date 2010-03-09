@@ -73,7 +73,7 @@ static gchar *filename;
 static gchar *mime_type;
 static gboolean disable_shutdown;
 static gboolean force_internal_extractors;
-static gboolean force_module;
+static gchar *force_module;
 static gboolean version;
 
 static TrackerFTSConfig *fts_config;
