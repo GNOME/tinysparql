@@ -833,7 +833,7 @@ AC_ARG_ENABLE(miner_twitter,
 
 if test "x$enable_miner_twitter" != "xno"; then
 	PKG_CHECK_MODULES(MINER_TWITTER,
-					  [ rest-0.6 >= $REST_REQUIRED twitter-glib-1.0 >= $TWITTER_GLIB_REQUIRED ],
+					  [ rest >= $REST_REQUIRED twitter-glib-1.0 >= $TWITTER_GLIB_REQUIRED ],
 					  [have_miner_twitter_deps=yes],
 					  [have_miner_twitter_deps=no])
 	AC_SUBST(MINER_TWITTER_LIBS)
@@ -842,7 +842,7 @@ fi
 
 if test "x$enable_miner_twitter" = "xyes"; then
    if test "x$have_miner_twitter_deps" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find the required dependencies for the Twitter miner: rest-0.6 >= $REST_REQUIRED.])
+      AC_MSG_ERROR([Couldn't find the required dependencies for the Twitter miner: rest >= $REST_REQUIRED.])
    fi
 fi
 
