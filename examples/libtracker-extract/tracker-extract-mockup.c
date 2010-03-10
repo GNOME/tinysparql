@@ -17,8 +17,6 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#include "config.h"
-
 #include <stdio.h>
 
 /* TODO: Include any 3rd party libraries here. */
