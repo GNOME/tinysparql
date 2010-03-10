@@ -689,137 +689,6 @@ import_ontology_file (const gchar *filename,
 	}
 }
 
-static gchar *
-query_resource_by_id (gint id)
-{
-	TrackerDBCursor *cursor;
-	TrackerDBInterface *iface;
-	TrackerDBStatement *stmt;
-	gchar *uri;
-
-	g_return_val_if_fail (id > 0, NULL);
-
-	iface = tracker_db_manager_get_db_interface ();
-
-	stmt = tracker_db_interface_create_statement (iface,
-	                                              "SELECT Uri FROM Resource WHERE ID = ?");
-	tracker_db_statement_bind_int (stmt, 0, id);
-	cursor = tracker_db_statement_start_cursor (stmt, NULL);
-	g_object_unref (stmt);
-
-	tracker_db_cursor_iter_next (cursor);
-	uri = g_strdup (tracker_db_cursor_get_string (cursor, 0));
-	g_object_unref (cursor);
-
-	return uri;
-}
-
-static void
-replay_journal (void)
-{
-	GError *journal_error = NULL;
-
-	tracker_db_journal_reader_init (NULL);
-
-	while (tracker_db_journal_reader_next (&journal_error)) {
-		GError *error = NULL;
-		TrackerDBJournalEntryType type;
-		const gchar *graph, *subject, *predicate, *object;
-		gint graph_id, subject_id, predicate_id, object_id;
-
-		type = tracker_db_journal_reader_get_type ();
-		if (type == TRACKER_DB_JOURNAL_RESOURCE) {
-			TrackerDBInterface *iface;
-			TrackerDBStatement *stmt;
-			gint id;
-			const gchar *uri;
-
-			tracker_db_journal_reader_get_resource (&id, &uri);
-
-			iface = tracker_db_manager_get_db_interface ();
-
-			stmt = tracker_db_interface_create_statement (iface,
-					                              "INSERT "
-					                              "INTO Resource "
-					                              "(ID, Uri) "
-					                              "VALUES (?, ?)");
-			tracker_db_statement_bind_int (stmt, 0, id);
-			tracker_db_statement_bind_text (stmt, 1, uri);
-			tracker_db_statement_execute (stmt, &error);
-		} else if (type == TRACKER_DB_JOURNAL_START_TRANSACTION) {
-			tracker_data_begin_replay_transaction (tracker_db_journal_reader_get_time ());
-		} else if (type == TRACKER_DB_JOURNAL_END_TRANSACTION) {
-			tracker_data_commit_transaction ();
-		} else if (type == TRACKER_DB_JOURNAL_INSERT_STATEMENT) {
-			tracker_db_journal_reader_get_statement (&graph_id, &subject_id, &predicate_id, &object);
-
-			if (graph_id > 0) {
-				graph = query_resource_by_id (graph_id);
-			} else {
-				graph = NULL;
-			}
-			subject = query_resource_by_id (subject_id);
-			predicate = query_resource_by_id (predicate_id);
-
-			tracker_data_insert_statement_with_string (graph, subject, predicate, object, &error);
-		} else if (type == TRACKER_DB_JOURNAL_INSERT_STATEMENT_ID) {
-			tracker_db_journal_reader_get_statement_id (&graph_id, &subject_id, &predicate_id, &object_id);
-
-			if (graph_id > 0) {
-				graph = query_resource_by_id (graph_id);
-			} else {
-				graph = NULL;
-			}
-			subject = query_resource_by_id (subject_id);
-			predicate = query_resource_by_id (predicate_id);
-			object = query_resource_by_id (object_id);
-
-			tracker_data_insert_statement_with_uri (graph, subject, predicate, object, &error);
-		} else if (type == TRACKER_DB_JOURNAL_DELETE_STATEMENT) {
-			tracker_db_journal_reader_get_statement (&graph_id, &subject_id, &predicate_id, &object);
-
-			if (graph_id > 0) {
-				graph = query_resource_by_id (graph_id);
-			} else {
-				graph = NULL;
-			}
-			subject = query_resource_by_id (subject_id);
-			predicate = query_resource_by_id (predicate_id);
-
-			tracker_data_delete_statement (graph, subject, predicate, object, &error);
-		} else if (type == TRACKER_DB_JOURNAL_DELETE_STATEMENT_ID) {
-			tracker_db_journal_reader_get_statement_id (&graph_id, &subject_id, &predicate_id, &object_id);
-
-			if (graph_id > 0) {
-				graph = query_resource_by_id (graph_id);
-			} else {
-				graph = NULL;
-			}
-			subject = query_resource_by_id (subject_id);
-			predicate = query_resource_by_id (predicate_id);
-			object = query_resource_by_id (object_id);
-
-			tracker_data_delete_statement (graph, subject, predicate, object, &error);
-		}
-	}
-
-
-	if (journal_error) {
-		gsize size;
-
-		size = tracker_db_journal_reader_get_size_of_correct ();
-		tracker_db_journal_reader_shutdown ();
-
-		tracker_db_journal_init (NULL);
-		tracker_db_journal_truncate (size);
-		tracker_db_journal_shutdown ();
-
-		g_clear_error (&journal_error);
-	} else {
-		tracker_db_journal_reader_shutdown ();
-	}
-}
-
 static void
 class_add_super_classes_from_db (TrackerDBInterface *iface, TrackerClass *class)
 {
@@ -1630,7 +1499,7 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 
 		tracker_db_journal_reader_shutdown ();
 
-		replay_journal ();
+		tracker_data_replay_journal ();
 
 		in_journal_replay = FALSE;
 

@@ -89,6 +89,7 @@ void     tracker_data_update_buffer_flush           (GError                   **
 void     tracker_data_update_buffer_might_flush     (GError                   **error);
 
 void     tracker_data_sync                          (void);
+void     tracker_data_replay_journal                (void);
 
 /* Volume handling */
 void     tracker_data_update_enable_volume          (const gchar               *udi,
