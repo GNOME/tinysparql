@@ -9,7 +9,7 @@ INCLUDES = 								\
 	$(GLIB2_CFLAGS)							\
 	$(GCOV_CFLAGS)
 
-modules_LTLIBRARIES = libextract-mockup.la
+noinst_LTLIBRARIES = libextract-mockup.la
 
 libextract_mockup_la_SOURCES = tracker-extract-mockup.c
 libextract_mockup_la_LDFLAGS = $(module_flags)
