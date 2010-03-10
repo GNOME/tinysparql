@@ -80,7 +80,9 @@ load_ontology_statement (const gchar *ontology_file,
                          const gchar *predicate,
                          const gchar *object,
                          gint        *max_id,
-                         gboolean    is_new)
+                         gboolean    is_new,
+                         GHashTable *classes,
+                         GHashTable *properties)
 {
 	if (g_strcmp0 (predicate, RDF_TYPE) == 0) {
 		if (g_strcmp0 (object, RDFS_CLASS) == 0) {
@@ -102,7 +104,12 @@ load_ontology_statement (const gchar *ontology_file,
 			tracker_class_set_id (class, subject_id);
 			tracker_ontologies_add_class (class);
 			tracker_ontologies_add_id_uri_pair (subject_id, subject);
-			g_object_unref (class);
+
+			if (classes) {
+				g_hash_table_insert (classes, GINT_TO_POINTER (subject_id), class);
+			} else {
+				g_object_unref (class);
+			}
 
 		} else if (g_strcmp0 (object, RDF_PROPERTY) == 0) {
 			TrackerProperty *property;
@@ -123,7 +130,12 @@ load_ontology_statement (const gchar *ontology_file,
 			tracker_property_set_id (property, subject_id);
 			tracker_ontologies_add_property (property);
 			tracker_ontologies_add_id_uri_pair (subject_id, subject);
-			g_object_unref (property);
+
+			if (properties) {
+				g_hash_table_insert (properties, GINT_TO_POINTER (subject_id), property);
+			} else {
+				g_object_unref (property);
+			}
 
 		} else if (g_strcmp0 (object, NRL_INVERSE_FUNCTIONAL_PROPERTY) == 0) {
 			TrackerProperty *property;
@@ -395,7 +407,7 @@ load_ontology_file_from_path (const gchar        *ontology_file,
 		object = tracker_turtle_reader_get_object (reader);
 
 		load_ontology_statement (ontology_file, 0, subject, predicate, object,
-		                         max_id, is_new);
+		                         max_id, is_new, NULL, NULL);
 	}
 
 	g_object_unref (reader);
@@ -496,12 +508,21 @@ load_ontology_file (const gchar               *filename,
 	g_free (ontology_file);
 }
 
-static GHashTable *
-load_ontology_from_journal (void)
+static void
+load_ontology_from_journal (GHashTable **classes_out,
+                            GHashTable **properties_out)
 {
 	GHashTable *id_uri_map;
+	GHashTable *classes, *properties;
+
+	classes = g_hash_table_new_full (g_direct_hash, g_direct_equal,
+	                                 NULL, (GDestroyNotify) g_object_unref);
+
+	properties = g_hash_table_new_full (g_direct_hash, g_direct_equal,
+	                                    NULL, (GDestroyNotify) g_object_unref);
 
 	id_uri_map = g_hash_table_new (g_direct_hash, g_direct_equal);
+
 
 	while (tracker_db_journal_reader_next (NULL)) {
 		TrackerDBJournalEntryType type;
@@ -532,13 +553,15 @@ load_ontology_from_journal (void)
 			subject = g_hash_table_lookup (id_uri_map, GINT_TO_POINTER (subject_id));
 			predicate = g_hash_table_lookup (id_uri_map, GINT_TO_POINTER (predicate_id));
 
-			load_ontology_statement ("journal", subject_id, subject, predicate, object, NULL, FALSE);
+			load_ontology_statement ("journal", subject_id, subject, predicate, 
+			                         object, NULL, FALSE, classes, properties);
 		}
 	}
 
-	g_hash_table_unref (id_uri_map);
+	*classes_out = classes;
+	*properties_out = properties;
 
-	return id_uri_map;
+	g_hash_table_unref (id_uri_map);
 }
 
 
@@ -1488,10 +1511,12 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 	}
 
 	if (read_journal) {
+		GHashTable *classes = NULL, *properties = NULL;
+
 		in_journal_replay = TRUE;
 
 		/* load ontology from journal into memory */
-		load_ontology_from_journal ();
+		load_ontology_from_journal (&classes, &properties);
 
 		tracker_data_begin_replay_transaction (tracker_db_journal_reader_get_time ());
 		import_ontology_into_db (FALSE);
@@ -1499,13 +1524,16 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 
 		tracker_db_journal_reader_shutdown ();
 
-		tracker_data_replay_journal ();
+		tracker_data_replay_journal (classes, properties);
 
 		in_journal_replay = FALSE;
 
 		/* open journal for writing */
 		tracker_db_journal_init (NULL);
 		check_ontology = TRUE;
+
+		g_hash_table_unref (classes);
+		g_hash_table_unref (properties);
 	} else if (is_first_time_index) {
 		gchar *test_schema_path = NULL;
 

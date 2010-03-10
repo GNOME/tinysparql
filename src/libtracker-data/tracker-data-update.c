@@ -2371,7 +2371,8 @@ query_resource_by_id (gint id)
 }
 
 void
-tracker_data_replay_journal (void)
+tracker_data_replay_journal (GHashTable *classes,
+                             GHashTable *properties)
 {
 	GError *journal_error = NULL;
 
