@@ -17,7 +17,7 @@ tracker-miner-fs.desktop.in: tracker-miner-fs.desktop.in.in
 
 if USING_MINER_RSS
 tracker-miner-rss.desktop.in: tracker-miner-rss.desktop.in.in
-	@sed -e "s|@libexecdir[@]|${libexecdir}|" 	\
+	@$(SED) -e "s|@libexecdir[@]|${libexecdir}|" 	\
 	     -e "s|@VERSION[@]|${VERSION}|" $< > $@
 endif
 

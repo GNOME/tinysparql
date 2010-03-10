@@ -1,6 +1,6 @@
 [Desktop Entry]
 Encoding=UTF-8
-Name=RSS
-Comment=RSS feeds fetcher
+Name=RSS/ATOM Feeds
+Comment=Fetch RSS/ATOM Feeds
 DBusName=org.freedesktop.Tracker1.Miner.RSS
 DBusPath=/org/freedesktop/Tracker1/Miner/RSS

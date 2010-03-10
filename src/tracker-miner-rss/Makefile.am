@@ -17,7 +17,7 @@ INCLUDES =								\
 libexec_PROGRAMS = tracker-miner-rss
 
 tracker_miner_rss_SOURCES =						\
-	tracker-main.c						\
+	tracker-main.c							\
 	tracker-miner-rss.h						\
 	tracker-miner-rss.c
 

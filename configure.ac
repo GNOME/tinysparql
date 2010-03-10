@@ -786,14 +786,14 @@ AM_CONDITIONAL(USING_KMAIL_MINER, test "x$enable_kmail_miner" = "xyes")
 
 AC_ARG_ENABLE([miner_rss],
               AS_HELP_STRING([--enable-miner-rss],
-		             [enable miner rss [[default=auto]]]),,
-	      [enable_miner_rss=auto])
+                             [enable miner rss [[default=auto]]]),,
+              [enable_miner_rss=auto])
 
 if test "x$enable_miner_rss" != "xno" ; then
    PKG_CHECK_MODULES(LIBGRSS,
-	             [libgrss-0 >= $LIBGRSS_REQUIRED],
-		     [have_libgrss=yes],
-		     [have_libgrss=no])
+                     [libgrss-0 >= $LIBGRSS_REQUIRED],
+                     [have_libgrss=yes],
+                     [have_libgrss=no])
 
    AC_SUBST(LIBGRSS_CFLAGS)
    AC_SUBST(LIBGRSS_LIBS)

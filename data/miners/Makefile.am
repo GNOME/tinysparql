@@ -5,7 +5,7 @@ desktop_in_files = \
 	tracker-miner-files.desktop.in
 
 if USING_MINER_RSS
-desktop_in_files +=	tracker-miner-feeds.desktop.in
+desktop_in_files +=	tracker-miner-rss.desktop.in
 endif
 
 tracker_minersdir = $(datadir)/tracker/miners
@@ -15,7 +15,7 @@ tracker_miners_DATA = \
 	tracker-miner-files.desktop
 
 if USING_MINER_RSS
-tracker_miners_DATA += 	tracker-miner-feeds.desktop
+tracker_miners_DATA += 	tracker-miner-rss.desktop
 endif
 
 @INTLTOOL_DESKTOP_RULE@
