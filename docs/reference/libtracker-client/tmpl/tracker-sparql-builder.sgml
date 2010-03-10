@@ -52,7 +52,6 @@ for the same subject, and several objects for the same predicate.
 <para>
 </para>
 
-
 <!-- ##### SECTION Stability_Level ##### -->
 
 
@@ -61,6 +60,9 @@ for the same subject, and several objects for the same predicate.
 The <structname>TrackerSparqlBuilder</structname> object represents an
 insertion/update SparQL query.
 </para>
+
+@parent_instance: 
+@priv: 
 
 <!-- ##### STRUCT TrackerSparqlBuilderClass ##### -->
 <para>
