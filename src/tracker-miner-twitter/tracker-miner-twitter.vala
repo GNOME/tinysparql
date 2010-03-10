@@ -384,6 +384,10 @@ public class MinerTwitter : Tracker.MinerWeb {
 		}
 	}
 
+	public GLib.HashTable get_association_data () throws Tracker.MinerWebError {
+		return new HashTable<string, string>(str_hash, str_equal);
+	}
+
 	private static bool in_loop = false;
 	private static void signal_handler (int signo) {
 		if (in_loop) {
