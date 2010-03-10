@@ -235,7 +235,7 @@ mlo:poiLocation a rdf:Property ;
 
 mlo:predefined-landmark-category-accommodation a mlo:LandmarkCategory ;
 	mlo:isRemovable false ;
-	nie:title "accommodation";
+	nie:title "Accommodation";
 	nie:description "Hotel, Camping site".
 
 mlo:predefined-landmark-category-business a mlo:LandmarkCategory ;
