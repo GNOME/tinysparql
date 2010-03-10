@@ -451,3 +451,11 @@ nmo:delivery-status-sent a nmo:DeliveryStatus .
 nmo:delivery-status-delivered a nmo:DeliveryStatus .
 nmo:delivery-status-temporarily-failed a nmo:DeliveryStatus .
 nmo:delivery-status-permanently-failed a nmo:DeliveryStatus .
+
+
+nmo:reportDelivery a rdf:Property ;
+         rdfs:label "Report delivery" ;
+         rdfs:comment "Report delivery has been requested for the message" ;
+         nrl:maxCardinality 1 ;
+         rdfs:domain nmo:Message ;
+         rdfs:range xsd:boolean .
