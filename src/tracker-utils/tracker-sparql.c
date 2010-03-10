@@ -193,6 +193,7 @@ main (int argc, char **argv)
 	GOptionContext *context;
 	GError *error = NULL;
 	GPtrArray *results;
+	const gchar *error_message;
 
 	setlocale (LC_ALL, "");
 
@@ -211,8 +212,6 @@ main (int argc, char **argv)
 
 		return EXIT_SUCCESS;
 	}
-
-	const gchar *error_message;
 
 	if (!list_classes && !list_class_prefixes && !list_properties && 
 	    !list_notifies && !search && !file && !query) {
