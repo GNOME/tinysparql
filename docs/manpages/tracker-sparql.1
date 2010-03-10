@@ -21,13 +21,15 @@ does not have to be an absolute path.
 Show summary of options.
 .TP
 .B \-f, \-\-file=FILE
-Use a file with SPARQL content to query.
+Use a \fIFILE\fR with SPARQL content to query or update.
 .TP
 .B \-q, \-\-query=SPARQL
-Use a SPARQL string to query the database with.
+Use a \fISPARQL\fR string to query the database with.
 .TP
 .B \-u, \-\-update
-This has to be used with \-\-query. This tells
+This has to be used with 
+.B \-\-query.
+This tells
 .B tracker-sparql
 to use the SPARQL update extensions so it knows it isn't a regular
 data lookup request. So if your query is intended to change data in
@@ -36,17 +38,14 @@ the database, this option is needed.
 .B \-c, \-\-list-classes
 Returns a list of classes which describe the ontology used for storing
 data. These classes are also used in queries. For example,
-.B http://www.w3.org/2000/01/rdf-schema#Resource
-is one of many classes which should be returned here.
+\fIhttp://www.w3.org/2000/01/rdf-schema#Resource\fR is one of many
+classes which should be returned here.
 .TP
 .B \-x, \-\-list-class-prefixes
 Returns a list of classes and their related prefixes. Prefixes are
 used to make querying a lot simpler and are much like an alias. For
-example,
-.B http://www.w3.org/2000/01/rdf-schema#Resource
-has the prefix
-.B rdfs
-so queries can be cut down to:
+example, \fIhttp://www.w3.org/2000/01/rdf-schema#Resource\fR has the
+prefix \fIrdfs\fR so queries can be cut down to:
 
 "SELECT ?u WHERE { ?u a rdfs:Resource }"
 
@@ -54,9 +53,8 @@ so queries can be cut down to:
 .B \-p, \-\-list-properties=CLASS
 Returns a list of properties which pertain to a class. You can use
 both formats here for the class, either the full name
-.B http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Video
-or the shortened prefix name
-.B nfo:Video.
+\fIhttp://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Video\fR
+or the shortened prefix name \fInfo:Video\fR.
 
 This gives the following result:
 
@@ -68,17 +66,21 @@ Properties: 2
   http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#frameCount
 .FI
 
-These properties
-.B nfo:frameRate
-and
-.B nfo:frameCount
-can be used in more complex queries (see --query).
+These properties \fInfo:frameRate\fR and \fInfo:frameCount\fR can be
+used in more complex queries (see --query).
+
+.TP
+.B \-n, \-\-list-notifies=CLASS
+Returns a list of classes which are notified over D-Bus about any
+changes that occur in the database. \fICLASS\fR does not have to be
+supplied here. This is optional and filters the results according to
+any argument supplied. With no \fICLASS\fR, all classes are listed.
 
 .TP
 .B \-s, \-\-search=TERM
 Returns a list of classes and properties which partially match
-.B TERM
-in the ontology. This is a case insensitive match, for example:
+\fITERM\fR in the ontology. This is a case insensitive match, for
+example:
 
 .NF
 $ tracker-sparql -s text

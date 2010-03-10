@@ -41,14 +41,20 @@
 	"\n" \
 	"  http://www.gnu.org/licenses/gpl.txt\n"
 
-static gchar    *file;
-static gchar    *query;
-static gboolean  update;
-static gboolean  list_classes;
-static gboolean  list_class_prefixes;
-static gchar    *list_properties;
-static gboolean  print_version;
-static gchar    *search;
+static gboolean parse_list_notifies (const gchar  *option_name,
+                                     const gchar  *value,
+                                     gpointer      data,
+                                     GError      **error);
+
+static gchar *file;
+static gchar *query;
+static gboolean update;
+static gboolean list_classes;
+static gboolean list_class_prefixes;
+static gchar *list_properties;
+static gchar *list_notifies;
+static gboolean print_version;
+static gchar *search;
 
 static GOptionEntry   entries[] = {
 	{ "file", 'f', 0, G_OPTION_ARG_FILENAME, &file,
@@ -73,6 +79,10 @@ static GOptionEntry   entries[] = {
 	},
 	{ "list-properties", 'p', 0, G_OPTION_ARG_STRING, &list_properties,
 	  N_("Retrieve properties for a class, prefixes can be used too (e.g. rdfs:Resource)"),
+	  N_("CLASS"),
+	},
+	{ "list-notifies", 'n', G_OPTION_FLAG_OPTIONAL_ARG, G_OPTION_ARG_CALLBACK, parse_list_notifies,
+	  N_("Retrieve classes which notify changes in the database (CLASS is optional)"),
 	  N_("CLASS"),
 	},
 	{ "search", 's', 0, G_OPTION_ARG_STRING, &search,
@@ -161,6 +171,21 @@ results_foreach (gpointer value,
 	g_print ("\n");
 }
 
+static gboolean
+parse_list_notifies (const gchar  *option_name,
+                     const gchar  *value,
+                     gpointer      data,
+                     GError      **error)
+{
+        if (!value) {
+	        list_notifies = g_strdup ("");
+        } else {
+	        list_notifies = g_strdup (value);
+        }
+
+        return TRUE;
+}
+
 int
 main (int argc, char **argv)
 {
@@ -187,12 +212,21 @@ main (int argc, char **argv)
 		return EXIT_SUCCESS;
 	}
 
-	if (!list_classes && !list_class_prefixes && !list_properties && !search &&
-	    ((!file && !query) || (file && query))) {
+	const gchar *error_message;
+
+	if (!list_classes && !list_class_prefixes && !list_properties && 
+	    !list_notifies && !search && !file && !query) {
+		error_message = _("An argument must be supplied");
+	} else if (file && query) {
+		error_message = _("File and query can not be used together");
+	} else {
+		error_message = NULL;
+	}
+
+	if (error_message) {
 		gchar *help;
 
-		g_printerr ("%s\n\n",
-		            _("Either a file or query needs to be specified"));
+		g_printerr ("%s\n\n", error_message);
 
 		help = g_option_context_get_help (context, TRUE, NULL);
 		g_option_context_free (context);
@@ -283,6 +317,134 @@ main (int argc, char **argv)
 		}
 	}
 
+	if (list_properties) {
+		gchar *query;
+		gchar *class_name;
+
+		if (g_str_has_prefix (list_properties, "http://")) {
+			/* We have full class name */
+			class_name = g_strdup (list_properties);
+		} else {
+			gchar *p;
+			gchar *prefix, *property;
+			gchar *class_name_no_property;
+
+			prefix = g_strdup (list_properties);
+			p = strchr (prefix, ':');
+
+			if (!p) {
+				g_printerr ("%s\n",
+				            _("Could not find property for class prefix, "
+				              "e.g. :Resource in 'rdfs:Resource'"));
+				g_free (prefix);
+				g_object_unref (client);
+
+				return EXIT_FAILURE;
+			}
+
+			property = g_strdup (p + 1);
+			*p = '\0';
+
+			class_name_no_property = get_class_from_prefix (client, prefix);
+			g_free (prefix);
+
+			if (!class_name_no_property) {
+				g_free (property);
+				g_object_unref (client);
+
+				return EXIT_FAILURE;
+			}
+
+			class_name = g_strconcat (class_name_no_property, property, NULL);
+			g_free (class_name_no_property);
+			g_free (property);
+		}
+
+		query = g_strdup_printf ("SELECT ?p "
+		                         "WHERE {"
+		                         "  ?p a rdf:Property ;"
+		                         "  rdfs:domain <%s>"
+		                         "}",
+		                         class_name);
+
+		results = tracker_resources_sparql_query (client, query, &error);
+		g_free (query);
+		g_free (class_name);
+
+		if (error) {
+			g_printerr ("%s, %s\n",
+			            _("Could not list properties"),
+			            error->message);
+			g_error_free (error);
+			g_object_unref (client);
+
+			return EXIT_FAILURE;
+		}
+
+		if (!results) {
+			g_print ("%s\n",
+			         _("No properties were found"));
+		} else {
+			g_print (g_dngettext (NULL,
+			                      "Property: %d",
+			                      "Properties: %d",
+			                      results->len),
+			         results->len);
+			g_print ("\n");
+
+			g_ptr_array_foreach (results, results_foreach, NULL);
+			g_ptr_array_foreach (results, (GFunc) g_strfreev, NULL);
+			g_ptr_array_free (results, TRUE);
+		}
+	}
+
+	if (list_notifies) {
+		gchar *query;
+
+		/* First list classes */
+		if (*list_notifies == '\0') {
+			query = g_strdup_printf ("SELECT ?c "
+			                         "WHERE {"
+			                         "  ?c a rdfs:Class ."
+			                         "  ?c tracker:notify true ."
+			                         "}");
+		} else {
+			query = g_strdup_printf ("SELECT ?c "
+			                         "WHERE {"
+			                         "  ?c a rdfs:Class ."
+			                         "  ?c tracker:notify true "
+			                         "  FILTER regex (?c, \"%s\", \"i\") "
+			                         "}",
+			                         list_notifies);
+		}
+
+		results = tracker_resources_sparql_query (client, query, &error);
+		g_free (query);
+
+		if (error) {
+			g_printerr ("%s, %s\n",
+			            _("Could not find notify classes"),
+			            error->message);
+			g_clear_error (&error);
+		} else {
+			if (!results) {
+				g_print ("%s\n",
+				         _("No notifies were found"));
+			} else {
+				g_print (g_dngettext (NULL,
+				                      "Notify: %d",
+				                      "Notifies: %d",
+				                      results->len),
+				         results->len);
+				g_print ("\n");
+
+				g_ptr_array_foreach (results, results_foreach, NULL);
+				g_ptr_array_foreach (results, (GFunc) g_strfreev, NULL);
+				g_ptr_array_free (results, TRUE);
+			}
+		}
+	}
+
 	if (search) {
 		gchar *query;
 
@@ -352,87 +514,6 @@ main (int argc, char **argv)
 				g_ptr_array_free (results, TRUE);
 			}
 		}
-
-		return EXIT_SUCCESS;
-	}
-
-	if (list_properties) {
-		gchar *query;
-		gchar *class_name;
-
-		if (g_str_has_prefix (list_properties, "http://")) {
-			/* We have full class name */
-			class_name = g_strdup (list_properties);
-		} else {
-			gchar *p;
-			gchar *prefix, *property;
-			gchar *class_name_no_property;
-
-			prefix = g_strdup (list_properties);
-			p = strchr (prefix, ':');
-
-			if (!p) {
-				g_printerr ("%s\n",
-				            _("Could not find property for class prefix, "
-				              "e.g. :Resource in 'rdfs:Resource'"));
-				g_free (prefix);
-				g_object_unref (client);
-				return EXIT_FAILURE;
-			}
-
-			property = g_strdup (p + 1);
-			*p = '\0';
-
-			class_name_no_property = get_class_from_prefix (client, prefix);
-			g_free (prefix);
-
-			if (!class_name_no_property) {
-				g_free (property);
-				g_object_unref (client);
-				return EXIT_FAILURE;
-			}
-
-			class_name = g_strconcat (class_name_no_property, property, NULL);
-			g_free (class_name_no_property);
-			g_free (property);
-		}
-
-		query = g_strdup_printf ("SELECT ?p "
-		                         "WHERE {"
-		                         "  ?p a rdf:Property ;"
-		                         "  rdfs:domain <%s>"
-		                         "}",
-		                         class_name);
-
-		results = tracker_resources_sparql_query (client, query, &error);
-		g_free (query);
-		g_free (class_name);
-
-		if (error) {
-			g_printerr ("%s, %s\n",
-			            _("Could not list properties"),
-			            error->message);
-			g_error_free (error);
-			g_object_unref (client);
-
-			return EXIT_FAILURE;
-		}
-
-		if (!results) {
-			g_print ("%s\n",
-			         _("No properties were found"));
-		} else {
-			g_print (g_dngettext (NULL,
-			                      "Property: %d",
-			                      "Properties: %d",
-			                      results->len),
-			         results->len);
-			g_print ("\n");
-
-			g_ptr_array_foreach (results, results_foreach, NULL);
-			g_ptr_array_foreach (results, (GFunc) g_strfreev, NULL);
-			g_ptr_array_free (results, TRUE);
-		}
 	}
 
 	if (file) {
@@ -477,7 +558,7 @@ main (int argc, char **argv)
 				            error->message);
 				g_error_free (error);
 
-				return FALSE;
+				return EXIT_FAILURE;
 			}
 
 			if (results) {
@@ -496,7 +577,10 @@ main (int argc, char **argv)
 						g_hash_table_iter_init (&iter, solution);
 						n = 0;
 						while (g_hash_table_iter_next (&iter, &key, &value)) {
-							g_print ("%s%s: %s", n > 0 ? ", " : "", (const gchar *) key, (const gchar *) value);
+							g_print ("%s%s: %s", 
+							         n > 0 ? ", " : "", 
+							         (const gchar *) key, 
+							         (const gchar *) value);
 							n++;
 						}
 						g_print ("\n");
@@ -512,7 +596,7 @@ main (int argc, char **argv)
 				            error->message);
 				g_error_free (error);
 
-				return FALSE;
+				return EXIT_FAILURE;
 			}
 
 			if (!results) {
