@@ -27,7 +27,7 @@ libexec_PROGRAMS = tracker-miner-twitter
 tracker_miner_twitter_VALASOURCES =					\
 	tracker-miner-twitter.vala					\
 	query-queue.vala						\
-	$(top_srcdir)/src/vapi/tracker-client-0.7.vapi
+	$(top_srcdir)/src/libtracker-client/tracker-client-0.7.vapi
 
 tracker_miner_twitter_SOURCES =						\
 	$(tracker_miner_twitter_VALASOURCES:.vala=.c)
