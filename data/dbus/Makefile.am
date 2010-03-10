@@ -29,6 +29,10 @@ service_in_files += 						\
 	org.freedesktop.Tracker1.Miner.RSS.service.in
 endif
 
+if HAVE_MINER_FLICKR
+service_in_files += org.freedesktop.Tracker1.Miner.Flickr.service.in
+endif
+
 service_DATA = $(service_in_files:.service.in=.service)
 
 %.service: %.service.in

@@ -160,6 +160,7 @@ GEE_REQUIRED=0.3
 TAGLIB_REQUIRED=1.6
 GNOME_KEYRING_REQUIRED=2.26
 LIBGRSS_REQUIRED=0.3
+REST_REQUIRED=0.6
 
 # Library Checks
 PKG_CHECK_MODULES(GLIB2, [glib-2.0 >= $GLIB_REQUIRED])
@@ -798,6 +799,32 @@ if test "x$enable_gnome_keyring" = "xyes"; then
 fi
 
 AM_CONDITIONAL(HAVE_GNOME_KEYRING, test "x$have_gnome_keyring" = "xyes")
+
+##################################################################
+# Flickr miner
+##################################################################
+
+AC_ARG_ENABLE(miner_flickr,
+              AS_HELP_STRING([--enable-miner-flickr],
+                             [enable Flickr miner [[default=auto]]]),,
+                             [enable_miner_flickr=auto])
+
+if test "x$enable_miner_flickr" != "xno"; then
+	PKG_CHECK_MODULES(MINER_FLICKR,
+	                  [rest-0.6 >= $REST_REQUIRED],
+	                  [have_miner_flickr=yes],
+	                  [have_miner_flickr=no])
+	AC_SUBST(MINER_FLICKR_LIBS)
+	AC_SUBST(MINER_FLICKR_CFLAGS)
+fi
+
+if test "x$enable_miner_flickr" = "xyes"; then
+	if test "x$have_miner_flickr" != "xyes"; then
+		AC_MSG_ERROR([Couldn't find the required dependencies for the Flickr miner: rest-0.6 >= $REST_REQUIRED.])
+	fi
+fi
+
+AM_CONDITIONAL(HAVE_MINER_FLICKR, test "x$have_miner_flickr" = "xyes")
 
 ####################################################################
 # Miner Evolution
@@ -1663,6 +1690,7 @@ AC_CONFIG_FILES([
 	src/miners/Makefile
 	src/miners/fs/Makefile
 	src/miners/rss/Makefile
+	src/miners/flickr/Makefile
 	src/tracker-status-icon/Makefile
 	src/tracker-status-icon/tracker-status-icon.desktop.in
 	src/tracker-store/Makefile
@@ -1788,6 +1816,7 @@ Data Miners:
         RSS:                                    $enable_miner_rss
         Evolution:                              $enable_evolution_miner
         KMail:                                  $enable_kmail_miner
+        Flickr:                                 $have_miner_flickr
 
 Plugins:
 
