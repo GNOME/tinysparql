@@ -4341,11 +4341,6 @@ static int tokenizeSegment(
       break;
      }
 
-    /* If prefix search ignore the word lenght limit */
-    if( nToken < v->min_word_length && !(iEnd<nSegment && pSegment[iEnd]=='*') ){
-      continue;
-    }
-
 //   printf("token being indexed  is %s, pos is %d, begin is %d, end is %d and length is %d\n", pToken, iPos, iBegin, iEnd, nToken);
 
     if( !inPhrase &&
@@ -4402,8 +4397,14 @@ static int tokenizeSegment(
       continue;
     }
 
-    if (stop_word != 0 && !(iEnd<nSegment && pSegment[iEnd]=='*')) {
-	continue;
+    /* If prefix search ignore the word length limit and stop words */
+    if (!(iEnd<nSegment && pSegment[iEnd] == '*')) {
+      if (nToken < v->min_word_length) {
+        continue;
+      }
+      if (stop_word != 0) {
+        continue;
+      }
     }
 
     queryAdd(pQuery, pToken, nToken);
