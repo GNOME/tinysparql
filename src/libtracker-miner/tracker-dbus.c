@@ -221,6 +221,9 @@ tracker_miner_dbus_init (TrackerMiner          *miner,
 	DBusData *data;
         gchar *name;
 
+	g_return_if_fail (TRACKER_IS_MINER (miner));
+	g_return_if_fail (info != NULL);
+
 	if (G_UNLIKELY (dbus_data == 0)) {
 		dbus_data = g_quark_from_static_string ("tracker-miner-dbus-data");
 	}
@@ -256,8 +259,10 @@ tracker_miner_dbus_init (TrackerMiner          *miner,
 }
 
 void
-tracker_miner_dbus_terminate (TrackerMiner *miner)
+tracker_miner_dbus_shutdown (TrackerMiner *miner)
 {
+	g_return_if_fail (TRACKER_IS_MINER (miner));
+
 	if (G_UNLIKELY (dbus_data == 0)) {
 		return;
 	}
@@ -271,6 +276,10 @@ tracker_miner_dbus_add_name_watch (TrackerMiner             *miner,
                                    TrackerMinerDBusNameFunc  func)
 {
         DBusData *data;
+
+	g_return_if_fail (TRACKER_IS_MINER (miner));
+	g_return_if_fail (name != NULL);
+	g_return_if_fail (func != NULL);
 
 	data = g_object_get_qdata (G_OBJECT (miner), dbus_data);
 

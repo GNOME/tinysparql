@@ -28,12 +28,11 @@ typedef void (* TrackerMinerDBusNameFunc) (TrackerMiner *miner,
                                            const gchar  *name,
                                            gboolean      available);
 
-void  tracker_miner_dbus_init      (TrackerMiner          *miner,
-                                    const DBusGObjectInfo *info);
-void  tracker_miner_dbus_terminate (TrackerMiner          *miner);
-
-void  tracker_miner_dbus_add_name_watch (TrackerMiner             *miner,
-                                         const gchar              *name,
-                                         TrackerMinerDBusNameFunc  func);
+void tracker_miner_dbus_init           (TrackerMiner             *miner,
+                                        const DBusGObjectInfo    *info);
+void tracker_miner_dbus_shutdown       (TrackerMiner             *miner);
+void tracker_miner_dbus_add_name_watch (TrackerMiner             *miner,
+                                        const gchar              *name,
+                                        TrackerMinerDBusNameFunc  func);
 
 #endif /* __TRACKER_MINER_DBUS_HELPER_H__ */

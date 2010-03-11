@@ -92,7 +92,7 @@ TRACKER_MINER_DBUS_INTERFACE
 TRACKER_MINER_DBUS_NAME_PREFIX
 TRACKER_MINER_DBUS_PATH_PREFIX
 tracker_miner_dbus_init
-tracker_miner_dbus_terminate
+tracker_miner_dbus_shutdown
 TrackerMinerDBusNameFunc
 tracker_miner_dbus_add_name_watch
 tracker_miner_dbus_get_name
