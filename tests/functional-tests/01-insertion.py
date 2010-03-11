@@ -254,9 +254,14 @@ class s_insert(TestUpdate):
                 INSERT { <%s> a nie:InformationElement;
 			nie:informationElementDate "204-05-06T13:14:15+0400". }
                 """ % (uri)
-                self.sparql_update (insert)
+		try : 
+			self.resources.SparqlUpdate(insert)
 
-		""" verify the inserted item """
+		except :
+			print "error in query execution"
+			self.assert_(True,'error in query execution')
+			
+		""" verify whether the item is inserted"""
 
 		query = 'SELECT ?s fn:year-from-dateTime (?v) \
 		fn:month-from-dateTime (?v) \
@@ -347,7 +352,7 @@ class s_insert(TestUpdate):
 
                 for i in range(len(result)):
 			if result[i][0] == 'tracker:test_date_04':
-				if  result[i][1] == '2004' and result[i][2] == '05' and result[i][3] == '06' and result[i][4] == '13' and result[i][5] == '14' and result[i][6] == '15' and result[i][7] == '0' :
+				if  result[i][1] == '2004' and result[i][2] == '05' and result[i][3] == '06' and result[i][4] == '13' and result[i][5] == '14' and result[i][6] == '15':
                                         self.assert_(True,'Pass')
                                 else:
                                         self.fail('Fail %s' %result)
@@ -365,29 +370,16 @@ class s_insert(TestUpdate):
                 INSERT { <%s> a nie:InformationElement;
 			nie:informationElementDate "2004-05-06". }
                 """ % (uri)
-                self.sparql_update (insert)
+		try : 
+			self.resources.SparqlUpdate(insert)
 
-		""" verify the inserted item """
+		except :
+			print "error in query execution"
+			self.assert_(True,'error in query execution')
 
-		query = 'SELECT ?s fn:year-from-dateTime (?v) \
-		fn:month-from-dateTime (?v) \
-		fn:day-from-dateTime (?v) \
-		fn:hours-from-dateTime (?v) \
-		fn:minutes-from-dateTime (?v) \
-		fn:seconds-from-dateTime (?v) \
-		fn:timezone-from-dateTime (?v) \
-		WHERE { ?s a nie:InformationElement; \
-		nie:informationElementDate ?v . \
-		}'
-                result = self.query (query)
-		print result
-
-                for i in range(len(result)):
-				if  result[i][1] == '2004' and result[i][2] == '05' and result[i][3] == '06':
-                                        self.assert_(True,'Pass')
-                                else:
-					print result[i]
-                                        self.fail('Fail %s' %result)
+		else:
+			self.fail('Query successfully executed')		
+			
 
 
 	def test_insert_date_06(self):
@@ -401,30 +393,17 @@ class s_insert(TestUpdate):
                 INSERT { <%s> a nie:InformationElement;
 			nie:informationElementDate "2004-05-06T". }
                 """ % (uri)
-                self.sparql_update (insert)
 
-		""" verify the inserted item """
+		try : 
+			self.resources.SparqlUpdate(insert)
 
-		query = 'SELECT ?s fn:year-from-dateTime (?v) \
-		fn:month-from-dateTime (?v) \
-		fn:day-from-dateTime (?v) \
-		fn:hours-from-dateTime (?v) \
-		fn:minutes-from-dateTime (?v) \
-		fn:seconds-from-dateTime (?v) \
-		fn:timezone-from-dateTime (?v) \
-		WHERE { ?s a nie:InformationElement; \
-		nie:informationElementDate ?v . \
-		}'
-                result = self.query (query)
-		print result
+		except :
+			print "error in query execution"
+			self.assert_(True,'error in query execution')
 
-                for i in range(len(result)):
-			if result[i][0] == 'tracker:test_date_06':
-				if  result[i][1] == '2004' and result[i][2] == '05' and result[i][3] == '06' :
-                                        self.assert_(True,'Pass')
-                                else:
-					print result[i]
-                                        self.fail('Fail %s' %result)
+		else:
+			self.fail('Query successfully executed')		
+			
 
 	def test_insert_date_07(self):
 
@@ -512,32 +491,17 @@ class s_insert(TestUpdate):
                 INSERT { <%s> a nie:InformationElement;
 			nie:informationElementDate "2004-05-06T1g:14:15-0200". }
                 """ % (uri)
-                self.sparql_update (insert)
 
-		""" verify the inserted item """
+		try : 
+			self.resources.SparqlUpdate(insert)
 
-		query = 'SELECT ?s fn:year-from-dateTime (?v) \
-		fn:month-from-dateTime (?v) \
-		fn:day-from-dateTime (?v) \
-		fn:hours-from-dateTime (?v) \
-		fn:minutes-from-dateTime (?v) \
-		fn:seconds-from-dateTime (?v) \
-		fn:timezone-from-dateTime (?v) \
-		WHERE { ?s a nie:InformationElement; \
-		nie:informationElementDate ?v . \
-		}'
-                result = self.query (query)
+		except :
+			print "error in query execution"
+			self.assert_(True,'error in query execution')
 
-                for i in range(len(result)):
-			if result[i][0] == 'tracker:test_date_09':
-				if  result[i][1] == '2004' and result[i][2] == '05' and result[i][3] == '06' and result[i][5] == '14' and result[i][6] == '15' and result[i][7] == '-9000':
-                                        self.assert_(True,'Pass')
-                                else:
-					print result[i]
-                                        self.fail('Fail %s' %result)
-
-
-
+		else:
+			self.fail('Query successfully executed')		
+			
 
 """ Deletion test cases """
 class s_delete(TestUpdate):
@@ -625,12 +589,12 @@ class s_delete(TestUpdate):
 
 
 		"""Delete the added  music album """
-                #self.sparql_update('DELETE { \
-                #<6_Album_delete> a nmm:MusicAlbum.}')
+                self.sparql_update('DELETE { \
+                <06_Album_delete> a nmm:MusicAlbum.}')
 
 		"""get the count of music albums"""
                 result = self.query('SELECT ?album  WHERE  { \
-                ?albuumm a nmm:MusicAlbum. \
+                ?album a nmm:MusicAlbum. \
                 } ')
 
                 count_after_del = len(result)

@@ -38,23 +38,26 @@ for pid in commands.getoutput("ps -ef| grep tracker-writeback | awk '{print $1}'
   except OSError, e:
     if not e.errno == 3 : raise e # error 3 is for noscuh process
 os.system('/usr/lib/tracker/tracker-writeback -v 3 &')
+os.system(configuration.TRACKER_WRITEBACK + ' -v 3 &')
 time.sleep(5)
+
+EXTRACT = configuration.TRACKER_EXTRACT
 
 target = configuration.check_target()
 if target == '2' :
-	dir_path = '/home/user/MyDocs/tracker-wb-test'
+	dir_path = configuration.WB_TEST_DIR_DEVICE
 	"""
 	dir_path = '/home/user/MyDocs/.images'
 	"""
 else :
-	dir_path = '/usr/share/tracker-tests/data/tracker-wb-test'
+	dir_path = configuration.WB_TEST_DIR_HOST
 print dir_path
 
 def copy_file():
 	"""
-	src = '/usr/share/tracker-tests/data/Images'
+	src = configuration.TEST_DATA_IMAGES
 	"""
-	src = '/home/user/MyDocs/.images'
+	src = configuration.MYDOCS_IMAGES
 	dest = dir_path
 	print 'Copying '+src+' to '+dest
 	commands.getoutput('cp '+src +'/*'+ ' '+dest)
@@ -133,7 +136,7 @@ class writeback(TestWriteback):
                 	self.sparql_update (insert)
 
                 	""" verify the inserted item """
-			result=commands.getoutput('/usr/lib/tracker/tracker-extract ' + '-f' +' ' + uri +' | grep nie:description')
+			result=commands.getoutput(EXTRACT + ' -f' +' ' + uri +' | grep nie:description')
 			print result
                 	value=result.split()
 			if (result.find('nie:description')!=-1)  and (value[1]=='"testdescription"') :
@@ -186,7 +189,7 @@ class writeback(TestWriteback):
                 	self.sparql_update (insert)
 
                 	""" verify the inserted item """
-			result=commands.getoutput('/usr/lib/tracker/tracker-extract ' + '-f' +' ' + uri +' | grep nie:copyright')
+			result=commands.getoutput(EXTRACT + ' -f' +' ' + uri +' | grep nie:copyright')
 			print result
                 	value=result.split()
 			if (result.find('nie:copyright')!=-1)  and (value[1]=='"testcopyright"') :
@@ -232,7 +235,7 @@ class writeback(TestWriteback):
                 	self.sparql_update (insert)
 
                 	""" verify the inserted item """
-			result=commands.getoutput('/usr/lib/tracker/tracker-extract ' + '-f' +' ' + uri +' | grep nie:title')
+			result=commands.getoutput(EXTRACT + ' -f' +' ' + uri +' | grep nie:title')
 			print result
                 	value=result.split()
 			if (result.find('nie:title')!=-1)  and (value[1]=='"testtitle"') :
@@ -278,7 +281,7 @@ class writeback(TestWriteback):
                 	self.sparql_update (insert)
 
                 	""" verify the inserted item """
-			result=commands.getoutput('/usr/lib/tracker/tracker-extract ' + '-f' +' ' + uri +' | grep nie:contentCreated')
+			result=commands.getoutput(EXTRACT + ' -f' +' ' + uri +' | grep nie:contentCreated')
 			print result
                 	value=result.split()
 			if (result.find('nie:contentCreated')!=-1)  and (value[1]=='"testcontentCreated"') :
@@ -324,7 +327,7 @@ class writeback(TestWriteback):
                 	self.sparql_update (insert)
 
                 	""" verify the inserted item """
-			result=commands.getoutput('/usr/lib/tracker/tracker-extract ' + '-f' +' ' + uri +' | grep nie:keyword')
+			result=commands.getoutput(EXTRACT + ' -f' +' ' + uri +' | grep nie:keyword')
 			print result
                 	value=result.split()
 			if (result.find('nie:keyword')!=-1)  and (value[1]=='"testkeyword"') :
@@ -370,7 +373,7 @@ class writeback(TestWriteback):
                 	self.sparql_update (insert)
 
                 	""" verify the inserted item """
-			result=commands.getoutput('/usr/lib/tracker/tracker-extract ' + '-f' +' ' + uri +' | grep nco:contributor')
+			result=commands.getoutput(EXTRACT + ' -f' +' ' + uri +' | grep nco:contributor')
 			print result
                 	value=result.split()
 			if (result.find('nco:contributor')!=-1)  and (value[1]=='"testcontributor"') :
@@ -415,7 +418,7 @@ class writeback(TestWriteback):
                 	self.sparql_update (insert)
 
                 	""" verify the inserted item """
-			result=commands.getoutput('/usr/lib/tracker/tracker-extract ' + '-f' +' ' + uri +' | grep nco:creator')
+			result=commands.getoutput(EXTRACT + ' -f' +' ' + uri +' | grep nco:creator')
 			print result
                 	value=result.split()
 			if (result.find('nco:creator')!=-1)  and (value[1]=='"testcreator"') :
@@ -460,7 +463,7 @@ class writeback(TestWriteback):
                 	self.sparql_update (insert)
 
                 	""" verify the inserted item """
-			result=commands.getoutput('/usr/lib/tracker/tracker-extract ' + '-f' +' ' + uri +' | grep nmm:camera')
+			result=commands.getoutput(EXTRACT + ' -f' +' ' + uri +' | grep nmm:camera')
 			print result
                 	value=result.split()
 			if (result.find('nmm:camera')!=-1)  and (value[1]=='"test') and (value[2]=='camera"'):
@@ -505,7 +508,7 @@ class writeback(TestWriteback):
                 	self.sparql_update (insert)
 
                 	""" verify the inserted item """
-			result=commands.getoutput('/usr/lib/tracker/tracker-extract ' + '-f' +' ' + uri +' | grep nmm:exposureTime')
+			result=commands.getoutput(EXTRACT + ' -f' +' ' + uri +' | grep nmm:exposureTime')
 			print result
                 	value=result.split()
 			if (result.find('nmm:exposureTime')!=-1)  and (value[1]=='1.44') :
@@ -550,7 +553,7 @@ class writeback(TestWriteback):
                 	self.sparql_update (insert)
 
                 	""" verify the inserted item """
-			result=commands.getoutput('/usr/lib/tracker/tracker-extract ' + '-f' +' ' + uri +' | grep nmm:fnumber')
+			result=commands.getoutput(EXTRACT + ' -f' +' ' + uri +' | grep nmm:fnumber')
 			print result
                 	value=result.split()
 			if (result.find('nmm:fnumber')!=-1)  and (value[1]=='707') :
@@ -596,7 +599,7 @@ class writeback(TestWriteback):
                 	self.sparql_update (insert)
 
                 	""" verify the inserted item """
-			result=commands.getoutput('/usr/lib/tracker/tracker-extract ' + '-f' +' ' + uri +' | grep nmm:flash')
+			result=commands.getoutput(EXTRACT + ' -f' +' ' + uri +' | grep nmm:flash')
 			print result
                 	value=result.split()
 			if (result.find('nmm:flash')!=-1)  and (value[1]=='nmm:flash-off') :
@@ -641,7 +644,7 @@ class writeback(TestWriteback):
                 	self.sparql_update (insert)
 
                 	""" verify the inserted item """
-			result=commands.getoutput('/usr/lib/tracker/tracker-extract ' + '-f' +' ' + uri +' | grep nmm:flash')
+			result=commands.getoutput(EXTRACT + ' -f' +' ' + uri +' | grep nmm:flash')
 			print result
                 	value=result.split()
 			if (result.find('nmm:flash')!=-1)  and (value[1]=='nmm:flash-on') :
@@ -687,7 +690,7 @@ class writeback(TestWriteback):
                 	self.sparql_update (insert)
 
                 	""" verify the inserted item """
-			result=commands.getoutput('/usr/lib/tracker/tracker-extract ' + '-f' +' ' + uri +' | grep nmm:focalLength')
+			result=commands.getoutput(EXTRACT + ' -f' +' ' + uri +' | grep nmm:focalLength')
 			print result
                 	value=result.split()
 			if (result.find('nmm:focalLength')!=-1)  and (value[1]=='1.44') :
@@ -732,7 +735,7 @@ class writeback(TestWriteback):
                 	self.sparql_update (insert)
 
                 	""" verify the inserted item """
-			result=commands.getoutput('/usr/lib/tracker/tracker-extract ' + '-f' +' ' + uri +' | grep nmm:isoSpeed')
+			result=commands.getoutput(EXTRACT + ' -f' +' ' + uri +' | grep nmm:isoSpeed')
 			print result
                 	value=result.split()
 			if (result.find('nmm:isoSpeed')!=-1)  and (value[1]=='1.44') :
@@ -777,7 +780,7 @@ class writeback(TestWriteback):
                 	self.sparql_update (insert)
 
                 	""" verify the inserted item """
-			result=commands.getoutput('/usr/lib/tracker/tracker-extract ' + '-f' +' ' + uri +' | grep nmm:meteringMode')
+			result=commands.getoutput(EXTRACT + ' -f' +' ' + uri +' | grep nmm:meteringMode')
 			print result
                 	value=result.split()
 			if (result.find('nmm:meteringMode')!=-1)  and (value[1]=='nmm:metering-mode-multispot') :
@@ -822,7 +825,7 @@ class writeback(TestWriteback):
                 	self.sparql_update (insert)
 
                 	""" verify the inserted item """
-			result=commands.getoutput('/usr/lib/tracker/tracker-extract ' + '-f' +' ' + uri +' | grep nmm:whiteBalance')
+			result=commands.getoutput(EXTRACT + ' -f' +' ' + uri +' | grep nmm:whiteBalance')
 			print result
                 	value=result.split()
 			if (result.find('nmm:whiteBalance')!=-1)  and (value[1]=='nmm:white-balance-auto') :
@@ -867,7 +870,7 @@ class writeback(TestWriteback):
                 	self.sparql_update (insert)
 
                 	""" verify the inserted item """
-			result=commands.getoutput('/usr/lib/tracker/tracker-extract ' + '-f' +' ' + uri +' | grep mlo:location')
+			result=commands.getoutput(EXTRACT + ' -f' +' ' + uri +' | grep mlo:location')
 			print result
                 	value=result.split()
 			if (result.find('mlo:location')!=-1)  and (value[1]=='"clevland"') :

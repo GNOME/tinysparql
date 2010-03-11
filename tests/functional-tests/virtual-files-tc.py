@@ -33,17 +33,17 @@ MINER_IFACE="org.freedesktop.Tracker1.Miner"
 
 target = configuration.check_target()
 if target == '2' :
-        dir_path = os.environ['HOME'] + '/MyDocs'
-        dir_path_parent = os.environ['HOME']
+        dir_path = '/home/user/MyDocs'
+        dir_path_parent = '/home/user'
 else :
-        dir_path = sys.prefix + '/share/tracker-tests/data'
-        dir_path_parent = sys.prefix + '/share/tracker-tests'
+        dir_path = configuration.TEST_DATA_DIR
+        dir_path_parent = configuration.TEST_DIR
 print dir_path
 
 """ copy the test data to proper location. """
 def copy_file():
 
-        src = sys.prefix + '/share/tracker-tests/data/Images/test-image-1.jpg'
+        src = configuration.TEST_DATA_IMAGES + 'test-image-1.jpg'
         dest = dir_path
         print 'Copying '+src+' to '+dest
         commands.getoutput('cp '+src+ ' '+dest)
@@ -83,7 +83,6 @@ class virtual_files(TestVirtualFiles):
                 uri='file://' + file
 		print uri
                 
-		time.sleep(10)
                 commands.getoutput('mv  ' + file + ' ' + dir_path_parent)    
                                 
                 Insert = """
