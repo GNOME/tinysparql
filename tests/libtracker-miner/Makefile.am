@@ -2,7 +2,7 @@ include $(top_srcdir)/Makefile.decl
 
 noinst_PROGRAMS = $(TEST_PROGS)
 
-TEST_PROGS += tracker-crawler
+TEST_PROGS += tracker-crawler tracker-thumbnailer-test
 
 INCLUDES = 									\
 	-DTEST									\
@@ -26,6 +26,20 @@ tracker_crawler_SOURCES = 							\
 	tracker-crawler-test.c
 
 tracker_crawler_LDADD = 							\
+	$(top_builddir)/src/libtracker-miner/libtracker-miner-0.7.la 		\
+	$(top_builddir)/src/libtracker-common/libtracker-common.la 		\
+	$(DBUS_LIBS)								\
+	$(GCOV_LIBS)								\
+	$(GMODULE_LIBS)								\
+	$(GTHREAD_LIBS)								\
+	$(GLIB2_LIBS)
+
+tracker_thumbnailer_test_SOURCES = 						\
+	tracker-thumbnailer-test.c						\
+	thumbnailer-mock.c							\
+	empty-gobject.c
+
+tracker_thumbnailer_test_LDADD = 						\
 	$(top_builddir)/src/libtracker-miner/libtracker-miner-0.7.la 		\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la 		\
 	$(DBUS_LIBS)								\
