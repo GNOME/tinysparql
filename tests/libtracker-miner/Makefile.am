@@ -23,14 +23,10 @@ INCLUDES = 									\
 	$(DBUS_CFLAGS)
 
 tracker_crawler_SOURCES = 							\
-	$(top_srcdir)/src/libtracker-miner/tracker-marshal.c			\
-	$(top_srcdir)/src/libtracker-miner/tracker-marshal.h			\
-	$(top_srcdir)/src/libtracker-miner/tracker-utils.c			\
-	$(top_srcdir)/src/libtracker-miner/tracker-utils.h			\
-	$(top_srcdir)/src/libtracker-miner/tracker-crawler.c			\
 	tracker-crawler-test.c
 
-tracker_crawler_LDADD = 								\
+tracker_crawler_LDADD = 							\
+	$(top_builddir)/src/libtracker-miner/libtracker-miner-0.7.la 		\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la 		\
 	$(DBUS_LIBS)								\
 	$(GCOV_LIBS)								\
