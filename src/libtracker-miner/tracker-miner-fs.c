@@ -1468,37 +1468,53 @@ item_move (TrackerMinerFS *fs,
 	RecursiveMoveData move_data;
 	ProcessData *data;
 	gchar *source_iri;
+	gboolean source_exists;
 
 	uri = g_file_get_uri (file);
 	source_uri = g_file_get_uri (source_file);
 
-	/* Get 'source' ID */
-	if (!item_query_exists (fs, source_file, &source_iri, NULL)) {
-		gboolean retval;
-
-		g_message ("Source file '%s' not found in store to move, indexing '%s' from scratch", source_uri, uri);
-
-		retval = item_add_or_update (fs, file);
-
-		g_free (source_uri);
-		g_free (uri);
-
-		return retval;
-	}
-
 	file_info = g_file_query_info (file,
 	                               G_FILE_ATTRIBUTE_STANDARD_DISPLAY_NAME ","
-	                               G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE,
+	                               G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE ","
+				       G_FILE_ATTRIBUTE_STANDARD_TYPE,
 	                               G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
 	                               NULL, NULL);
+
+	/* Get 'source' ID */
+	source_exists = item_query_exists (fs, source_file, &source_iri, NULL);
 
 	if (!file_info) {
 		gboolean retval;
 
-		/* Destination file has gone away, ignore dest file and remove source if any */
-		retval = item_remove (fs, source_file);
+		if (source_exists) {
+			/* Destination file has gone away, ignore dest file and remove source if any */
+			retval = item_remove (fs, source_file);
+		} else {
+			/* Destination file went away, and source wasn't indexed either */
+			retval = TRUE;
+		}
 
 		g_free (source_iri);
+		g_free (source_uri);
+		g_free (uri);
+
+		return retval;
+	} else if (file_info && !source_exists) {
+		gboolean retval;
+		GFileType file_type;
+
+		g_message ("Source file '%s' not found in store to move, indexing '%s' from scratch", source_uri, uri);
+
+		file_type = g_file_info_get_file_type (file_info);
+
+		if (file_type == G_FILE_TYPE_DIRECTORY) {
+			/* We're dealing with a directory, index recursively */
+			tracker_miner_fs_directory_add (fs, file, TRUE);
+			retval = TRUE;
+		} else {
+			retval = item_add_or_update (fs, file);
+		}
+
 		g_free (source_uri);
 		g_free (uri);
 
@@ -2505,6 +2521,10 @@ crawl_directories_cb (gpointer user_data)
 
 		fs->private->crawl_directories_id = 0;
 		return FALSE;
+	}
+
+	if (!fs->private->timer) {
+		fs->private->timer = g_timer_new ();
 	}
 
 	fs->private->current_directory = fs->private->directories->data;
