@@ -60,7 +60,6 @@ libtracker_miner_@TRACKER_API_VERSION@_la_LDFLAGS = 	\
 	-export-symbols-regex '^tracker_(miner|thumbnailer|crawler|storage)_.*'
 
 libtracker_miner_@TRACKER_API_VERSION@_la_LIBADD = 	\
-	$(top_builddir)/src/libstemmer/libstemmer.la	\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la \
 	$(top_builddir)/src/libtracker-client/libtracker-client-@TRACKER_API_VERSION@.la \
 	$(top_builddir)/src/libinotify/libinotify.la	\
