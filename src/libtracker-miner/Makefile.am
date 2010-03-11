@@ -70,7 +70,6 @@ libtracker_miner_@TRACKER_API_VERSION@_la_LDFLAGS = 	\
 libtracker_miner_@TRACKER_API_VERSION@_la_LIBADD = 	\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la \
 	$(top_builddir)/src/libtracker-client/libtracker-client-@TRACKER_API_VERSION@.la \
-	$(top_builddir)/src/libinotify/libinotify.la	\
 	$(HAL_LIBS)					\
 	$(DEVKIT_POWER_LIBS)				\
 	$(DBUS_LIBS)					\
@@ -80,6 +79,11 @@ libtracker_miner_@TRACKER_API_VERSION@_la_LIBADD = 	\
 	$(GCOV_LIBS)					\
 	$(GLIB2_LIBS)					\
 	$(GDKPIXBUF_LIBS)
+
+if HAVE_INOTIFY
+libtracker_miner_@TRACKER_API_VERSION@_la_LIBADD +=	\
+	$(top_builddir)/src/libinotify/libinotify.la
+endif
 
 if HAVE_GNOME_KEYRING
 libtracker_miner_@TRACKER_API_VERSION@_la_SOURCES += 	\

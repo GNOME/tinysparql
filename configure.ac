@@ -716,7 +716,30 @@ fi
 #  libinotify
 ####################################################################
 
-AC_CHECK_HEADERS([sys/inotify.h])
+AC_ARG_ENABLE(inotify,
+	      AS_HELP_STRING([--enable-inotify],
+			     [Enables inotify for the filesystem monitoring [[default=no]]]),,
+	      [enable_inotify=no])
+
+if test "x$enable_inotify" != "xno"; then
+  AC_CHECK_HEADERS([sys/inotify.h],[have_inotify=yes],[have_inotify=no])
+
+  AM_CONDITIONAL(HAVE_INOTIFY, test "$have_inotify" = "yes")
+
+  if test "$have_inotify" = "yes" ; then
+    AC_DEFINE(HAVE_INOTIFY, 1, [Have inotify])
+  fi
+else
+   have_inotify="no"
+fi
+
+AM_CONDITIONAL(HAVE_INOTIFY, test "$have_inotify" = "yes")
+
+if test "$have_inotify" = "yes" ; then
+  file_monitor="inotify"
+else
+  file_monitor="gio"
+fi
 
 ####################################################################
 #  SQLite check
@@ -1797,6 +1820,7 @@ Build Configuration:
 	Enable unit tests:			$have_unit_tests
 	Enable unac accent stripper:	  	$have_unac
 
+	Support for file monitoring:            $file_monitor
 	Support for ioprio:			$have_ioprio
 	Support for HAL:                    	$have_hal
 	Support for DeviceKit-power:           	$have_devkit_power
