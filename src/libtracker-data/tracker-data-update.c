@@ -80,7 +80,7 @@ struct _TrackerDataUpdateBufferResource {
 };
 
 struct _TrackerDataUpdateBufferProperty {
-	gchar *name;
+	const gchar *name;
 	GValue value;
 	gint graph;
 	gboolean fts : 1;
@@ -281,7 +281,6 @@ cache_table_free (TrackerDataUpdateBufferTable *table)
 
 	for (i = 0; i < table->properties->len; i++) {
 		property = &g_array_index (table->properties, TrackerDataUpdateBufferProperty, i);
-		g_free (property->name);
 		g_value_unset (&property->value);
 	}
 
@@ -327,7 +326,10 @@ cache_insert_value (const gchar            *table_name,
 	TrackerDataUpdateBufferTable    *table;
 	TrackerDataUpdateBufferProperty  property;
 
-	property.name = g_strdup (field_name);
+	/* No need to strdup here, the incoming string is either always static, or
+	 * long-standing as tracker_property_get_name return value. */
+	property.name = field_name;
+
 	property.value = *value;
 	property.graph = graph;
 	property.fts = fts;
