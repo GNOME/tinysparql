@@ -1353,6 +1353,46 @@ cache_delete_resource_type (TrackerClass *class,
 
 }
 
+static void
+resource_buffer_switch (const gchar *graph,
+                        const gchar *subject,
+                        gint         subject_id)
+{
+	if (resource_buffer == NULL || strcmp (resource_buffer->subject, subject) != 0) {
+		/* switch subject */
+		resource_buffer = g_hash_table_lookup (update_buffer.resources, subject);
+	}
+
+	if (resource_buffer == NULL) {
+		GValue gvalue = { 0 };
+
+		/* subject not yet in cache, retrieve or create ID */
+		resource_buffer = g_slice_new0 (TrackerDataUpdateBufferResource);
+		resource_buffer->subject = g_strdup (subject);
+		if (subject_id > 0) {
+			resource_buffer->id = subject_id;
+		} else {
+			resource_buffer->id = ensure_resource_id (resource_buffer->subject, &resource_buffer->create);
+		}
+		resource_buffer->fts_updated = FALSE;
+		if (resource_buffer->create) {
+			resource_buffer->types = g_ptr_array_new ();
+		} else {
+			resource_buffer->types = tracker_data_query_rdf_type (resource_buffer->id);
+		}
+		resource_buffer->predicates = g_hash_table_new_full (g_direct_hash, g_direct_equal, g_object_unref, (GDestroyNotify) g_value_array_free);
+		resource_buffer->tables = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, (GDestroyNotify) cache_table_free);
+
+		g_hash_table_insert (update_buffer.resources, g_strdup (subject), resource_buffer);
+
+		g_value_init (&gvalue, G_TYPE_INT);
+		g_value_set_int (&gvalue, tracker_data_update_get_next_modseq ());
+		cache_insert_value ("rdfs:Resource", "tracker:modified", &gvalue,
+		                    graph != NULL ? ensure_resource_id (graph, NULL) : 0,
+		                    FALSE, FALSE, FALSE);
+	}
+}
+
 void
 tracker_data_delete_statement (const gchar  *graph,
                                const gchar  *subject,
@@ -1377,23 +1417,7 @@ tracker_data_delete_statement (const gchar  *graph,
 		return;
 	}
 
-	if (resource_buffer == NULL || strcmp (resource_buffer->subject, subject) != 0) {
-		/* switch subject */
-		resource_buffer = g_hash_table_lookup (update_buffer.resources, subject);
-	}
-
-	if (resource_buffer == NULL) {
-		/* subject not yet in cache, retrieve or create ID */
-		resource_buffer = g_slice_new0 (TrackerDataUpdateBufferResource);
-		resource_buffer->subject = g_strdup (subject);
-		resource_buffer->id = subject_id;
-		resource_buffer->fts_updated = FALSE;
-		resource_buffer->types = tracker_data_query_rdf_type (resource_buffer->id);
-		resource_buffer->predicates = g_hash_table_new_full (g_direct_hash, g_direct_equal, g_object_unref, (GDestroyNotify) g_value_array_free);
-		resource_buffer->tables = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, (GDestroyNotify) cache_table_free);
-
-		g_hash_table_insert (update_buffer.resources, g_strdup (subject), resource_buffer);
-	}
+	resource_buffer_switch (graph, subject, subject_id);
 
 	if (object && g_strcmp0 (predicate, RDF_PREFIX "type") == 0) {
 		class = tracker_ontologies_get_class_by_uri (object);
@@ -1498,37 +1522,7 @@ tracker_data_insert_statement_common (const gchar            *graph,
 		return FALSE;
 	}
 
-	if (resource_buffer == NULL || strcmp (resource_buffer->subject, subject) != 0) {
-		/* switch subject */
-		resource_buffer = g_hash_table_lookup (update_buffer.resources, subject);
-	}
-
-	if (resource_buffer == NULL) {
-		GValue gvalue = { 0 };
-
-		g_value_init (&gvalue, G_TYPE_INT);
-
-		/* subject not yet in cache, retrieve or create ID */
-		resource_buffer = g_slice_new0 (TrackerDataUpdateBufferResource);
-		resource_buffer->subject = g_strdup (subject);
-		resource_buffer->id = ensure_resource_id (resource_buffer->subject, &resource_buffer->create);
-		resource_buffer->fts_updated = FALSE;
-		if (resource_buffer->create) {
-			resource_buffer->types = g_ptr_array_new ();
-		} else {
-			resource_buffer->types = tracker_data_query_rdf_type (resource_buffer->id);
-		}
-		resource_buffer->predicates = g_hash_table_new_full (g_direct_hash, g_direct_equal, g_object_unref, (GDestroyNotify) g_value_array_free);
-		resource_buffer->tables = g_hash_table_new_full (g_str_hash, g_str_equal,
-		                                                 g_free, (GDestroyNotify) cache_table_free);
-
-		g_value_set_int (&gvalue, tracker_data_update_get_next_modseq ());
-		cache_insert_value ("rdfs:Resource", "tracker:modified", &gvalue,
-		                    graph != NULL ? ensure_resource_id (graph, NULL) : 0,
-		                    FALSE, FALSE, FALSE);
-
-		g_hash_table_insert (update_buffer.resources, g_strdup (subject), resource_buffer);
-	}
+	resource_buffer_switch (graph, subject, 0);
 
 	return TRUE;
 }
