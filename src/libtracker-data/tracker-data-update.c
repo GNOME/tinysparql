@@ -1372,6 +1372,7 @@ cache_delete_resource_type (TrackerClass *class,
 
 static void
 resource_buffer_switch (const gchar *graph,
+                        gint         graph_id,
                         const gchar *subject,
                         gint         subject_id)
 {
@@ -1416,12 +1417,16 @@ resource_buffer_switch (const gchar *graph,
 			g_hash_table_insert (update_buffer.resources_by_id, GINT_TO_POINTER (subject_id), resource_buffer);
 		} else {
 			g_hash_table_insert (update_buffer.resources, g_strdup (subject), resource_buffer);
+
+			if (graph != NULL) {
+				graph_id = ensure_resource_id (graph, NULL);
+			}
 		}
 
 		g_value_init (&gvalue, G_TYPE_INT);
 		g_value_set_int (&gvalue, tracker_data_update_get_next_modseq ());
 		cache_insert_value ("rdfs:Resource", "tracker:modified", &gvalue,
-		                    graph != NULL ? ensure_resource_id (graph, NULL) : 0,
+		                    graph_id,
 		                    FALSE, FALSE, FALSE);
 	}
 }
@@ -1450,7 +1455,7 @@ tracker_data_delete_statement (const gchar  *graph,
 		return;
 	}
 
-	resource_buffer_switch (graph, subject, subject_id);
+	resource_buffer_switch (graph, 0, subject, subject_id);
 
 	if (object && g_strcmp0 (predicate, RDF_PREFIX "type") == 0) {
 		class = tracker_ontologies_get_class_by_uri (object);
@@ -1555,7 +1560,7 @@ tracker_data_insert_statement_common (const gchar            *graph,
 		return FALSE;
 	}
 
-	resource_buffer_switch (graph, subject, 0);
+	resource_buffer_switch (graph, 0, subject, 0);
 
 	return TRUE;
 }
