@@ -18,52 +18,6 @@
  */
 
 namespace Tracker {
-	[CCode (cheader_filename = "libtracker-common/tracker-class.h")]
-	public class Class : GLib.Object {
-		public string name { get; set; }
-		public string uri { get; set; }
-		[CCode (array_length = false, array_null_terminated = true)]
-		public unowned Class[] get_super_classes ();
-	}
-
-	[CCode (cheader_filename = "libtracker-common/tracker-namespace.h")]
-	public class Namespace : GLib.Object {
-		public string prefix { get; set; }
-		public string uri { get; set; }
-	}
-
-	[CCode (cheader_filename = "libtracker-common/tracker-property.h")]
-	public class Property : GLib.Object {
-		public string name { get; set; }
-		public string uri { get; set; }
-		public PropertyType data_type { get; set; }
-		public Class domain { get; set; }
-		public Class range { get; set; }
-		public bool multiple_values { get; set; }
-		public bool is_inverse_functional_property { get; set; }
-	}
-
-	[CCode (cheader_filename = "libtracker-common/tracker-property.h")]
-	public enum PropertyType {
-		UNKNOWN,
-		STRING,
-		BOOLEAN,
-		INTEGER,
-		DOUBLE,
-		DATE,
-		DATETIME,
-		RESOURCE
-	}
-
-	[CCode (cheader_filename = "libtracker-common/tracker-ontologies.h")]
-	namespace Ontologies {
-		public weak Class get_class_by_uri (string class_uri);
-		public weak Property get_property_by_uri (string property_uri);
-		public weak Namespace[] get_namespaces ();
-		public weak Class[] get_classes ();
-		public weak Property[] get_properties ();
-	}
-
 	[CCode (cheader_filename = "libtracker-common/tracker-date-time.h")]
 	public int string_to_date (string date_string, out int offset) throws DateError;
 

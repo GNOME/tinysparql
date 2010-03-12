@@ -23,19 +23,29 @@ libtracker_data_la_VALASOURCES = 					\
 	tracker-turtle-reader.vala
 
 libtracker_data_la_SOURCES = 						\
+	tracker-class.c							\
 	tracker-data-backup.c						\
 	tracker-data-manager.c						\
 	tracker-data-query.c						\
 	tracker-data-update.c						\
+	tracker-namespace.c						\
+	tracker-ontology.c						\
+	tracker-ontologies.c						\
+	tracker-property.c						\
 	libtracker-data.vala.stamp					\
 	$(libtracker_data_la_VALASOURCES:.vala=.c)
 
 noinst_HEADERS =							\
+	tracker-class.h							\
 	tracker-data.h							\
 	tracker-data-backup.h						\
 	tracker-data-manager.h						\
 	tracker-data-query.h						\
 	tracker-data-update.h						\
+	tracker-namespace.h						\
+	tracker-ontology.h						\
+	tracker-ontologies.h						\
+	tracker-property.h						\
 	tracker-sparql-query.h
 
 vapi_sources =								\

@@ -31,8 +31,10 @@
 #include <libtracker-db/tracker-db-interface-sqlite.h>
 #include <libtracker-db/tracker-db-manager.h>
 
+#include "tracker-class.h"
 #include "tracker-data-manager.h"
 #include "tracker-data-query.h"
+#include "tracker-ontologies.h"
 #include "tracker-sparql-query.h"
 
 GPtrArray*

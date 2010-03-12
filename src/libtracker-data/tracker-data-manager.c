@@ -38,8 +38,13 @@
 #include <libtracker-db/tracker-db-manager.h>
 #include <libtracker-db/tracker-db-journal.h>
 
+#include "tracker-class.h"
 #include "tracker-data-manager.h"
 #include "tracker-data-update.h"
+#include "tracker-namespace.h"
+#include "tracker-ontologies.h"
+#include "tracker-ontology.h"
+#include "tracker-property.h"
 #include "tracker-sparql-query.h"
 
 #define RDF_PREFIX TRACKER_RDF_PREFIX
@@ -1580,6 +1585,8 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 	if (!tracker_db_manager_init (flags, &is_first_time_index, FALSE)) {
 		return FALSE;
 	}
+
+	tracker_fts_set_map_function (tracker_ontologies_get_uri_by_id);
 
 	if (first_time != NULL) {
 		*first_time = is_first_time_index;

@@ -21,13 +21,6 @@
 #ifndef __LIBTRACKER_COMMON_ONTOLOGIES_H__
 #define __LIBTRACKER_COMMON_ONTOLOGIES_H__
 
-#include <glib-object.h>
-
-#include "tracker-class.h"
-#include "tracker-namespace.h"
-#include "tracker-ontology.h"
-#include "tracker-property.h"
-
 G_BEGIN_DECLS
 
 #if !defined (__LIBTRACKER_COMMON_INSIDE__) && !defined (TRACKER_COMPILATION)
@@ -59,28 +52,6 @@ G_BEGIN_DECLS
 	"urn:nepomuk:datasource:"
 #define TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN	  \
 	TRACKER_DATASOURCE_URN_PREFIX "9291a450-1d49-11de-8c30-0800200c9a66"
-
-void               tracker_ontologies_init                 (void);
-void               tracker_ontologies_shutdown             (void);
-
-/* Service mechanics */
-void               tracker_ontologies_add_class            (TrackerClass     *service);
-TrackerClass *     tracker_ontologies_get_class_by_uri     (const gchar      *service_uri);
-TrackerNamespace **tracker_ontologies_get_namespaces       (guint *length);
-TrackerOntology  **tracker_ontologies_get_ontologies       (guint *length);
-TrackerClass  **   tracker_ontologies_get_classes          (guint *length);
-TrackerProperty ** tracker_ontologies_get_properties       (guint *length);
-
-/* Field mechanics */
-void               tracker_ontologies_add_property         (TrackerProperty  *field);
-TrackerProperty *  tracker_ontologies_get_property_by_uri  (const gchar      *uri);
-void               tracker_ontologies_add_namespace        (TrackerNamespace *namespace_);
-void               tracker_ontologies_add_ontology         (TrackerOntology  *ontology);
-TrackerNamespace * tracker_ontologies_get_namespace_by_uri (const gchar      *namespace_uri);
-TrackerOntology  * tracker_ontologies_get_ontology_by_uri  (const gchar      *namespace_uri);
-const gchar*       tracker_ontologies_get_uri_by_id        (gint              id);
-void               tracker_ontologies_add_id_uri_pair      (gint              id,
-                                                            const gchar      *uri);
 
 G_END_DECLS
 

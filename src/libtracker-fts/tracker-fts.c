@@ -2127,6 +2127,7 @@ static int sql_prepare(sqlite3 *db, const char *zDb, const char *zName,
 typedef struct fulltext_vtab fulltext_vtab;
 
 static fulltext_vtab *tracker_fts_vtab = NULL;
+static TrackerFtsMapFunc map_function = NULL;
 
 /* A single term in a query is represented by an instances of
 ** the following structure. Each word which may match against
@@ -4155,7 +4156,7 @@ static int fulltextNext(sqlite3_vtab_cursor *pCursor){
       const gchar *uri;
       int col = plrColumn (&plReader);
 
-      uri = tracker_ontologies_get_uri_by_id (col);
+      uri = map_function (col);
       c->rank += get_metadata_weight (col);
 
       if (uri && first_pos) {
@@ -7777,6 +7778,10 @@ int tracker_fts_init(sqlite3 *db){
   assert( rc!=SQLITE_OK );
 
   return rc;
+}
+
+void tracker_fts_set_map_function(TrackerFtsMapFunc map_func){
+  map_function = map_func;
 }
 
 int tracker_fts_update_init(int id){

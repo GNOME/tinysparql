@@ -49,7 +49,6 @@ libtracker_common_la_SOURCES =	 			\
 	$(os_sources)					\
 	$(power_sources)				\
 	tracker-config-file.c				\
-	tracker-class.c					\
 	tracker-date-time.c				\
 	tracker-dbus.c	 				\
 	tracker-file-utils.c				\
@@ -57,10 +56,6 @@ libtracker_common_la_SOURCES =	 			\
 	tracker-keyfile-object.c			\
 	tracker-language.c				\
 	tracker-log.c	 				\
-	tracker-namespace.c				\
-	tracker-ontology.c				\
-	tracker-ontologies.c				\
-	tracker-property.c				\
 	tracker-type-utils.c				\
 	tracker-utils.c					\
 	tracker-crc32.c					\
@@ -73,17 +68,13 @@ noinst_HEADERS =					\
 	tracker-ioprio.h				\
 	tracker-log.h					\
 	tracker-os-dependant.h				\
-	tracker-class.h					\
 	tracker-config-file.h				\
 	tracker-common.h				\
 	tracker-date-time.h				\
 	tracker-file-utils.h				\
 	tracker-keyfile-object.h			\
 	tracker-language.h				\
-	tracker-namespace.h				\
-	tracker-ontology.h				\
 	tracker-ontologies.h				\
-	tracker-property.h				\
 	tracker-turtle-writer.h				\
 	tracker-type-utils.h				\
 	tracker-utils.h					\

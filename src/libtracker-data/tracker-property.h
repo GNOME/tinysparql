@@ -17,8 +17,8 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __LIBTRACKER_COMMON_PROPERTY_H__
-#define __LIBTRACKER_COMMON_PROPERTY_H__
+#ifndef __LIBTRACKER_DATA_PROPERTY_H__
+#define __LIBTRACKER_DATA_PROPERTY_H__
 
 #include <glib-object.h>
 
@@ -26,8 +26,8 @@
 
 G_BEGIN_DECLS
 
-#if !defined (__LIBTRACKER_COMMON_INSIDE__) && !defined (TRACKER_COMPILATION)
-#error "only <libtracker-common/tracker-common.h> must be included directly."
+#if !defined (__LIBTRACKER_DATA_INSIDE__) && !defined (TRACKER_COMPILATION)
+#error "only <libtracker-data/tracker-data.h> must be included directly."
 #endif
 
 /*
@@ -129,5 +129,5 @@ void                tracker_property_add_super_property   (TrackerProperty      
 
 G_END_DECLS
 
-#endif /* __LIBTRACKER_COMMON_PROPERTY_H__ */
+#endif /* __LIBTRACKER_DATA_PROPERTY_H__ */
 

@@ -23,7 +23,8 @@
 #ifndef __TRACKER_STORE_EVENTS_H__
 #define __TRACKER_STORE_EVENTS_H__
 
-#include <libtracker-common/tracker-dbus.h>
+#include <libtracker-common/tracker-common.h>
+#include <libtracker-data/tracker-data.h>
 
 G_BEGIN_DECLS
 

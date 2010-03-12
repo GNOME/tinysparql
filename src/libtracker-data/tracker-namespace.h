@@ -17,15 +17,15 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __LIBTRACKER_COMMON_NAMESPACE_H__
-#define __LIBTRACKER_COMMON_NAMESPACE_H__
+#ifndef __LIBTRACKER_DATA_NAMESPACE_H__
+#define __LIBTRACKER_DATA_NAMESPACE_H__
 
 #include <glib-object.h>
 
 G_BEGIN_DECLS
 
-#if !defined (__LIBTRACKER_COMMON_INSIDE__) && !defined (TRACKER_COMPILATION)
-#error "only <libtracker-common/tracker-common.h> must be included directly."
+#if !defined (__LIBTRACKER_DATA_INSIDE__) && !defined (TRACKER_COMPILATION)
+#error "only <libtracker-data/tracker-data.h> must be included directly."
 #endif
 
 #define TRACKER_TYPE_NAMESPACE         (tracker_namespace_get_type ())
@@ -61,5 +61,5 @@ void              tracker_namespace_set_is_new    (TrackerNamespace *namespace_,
 
 G_END_DECLS
 
-#endif /* __LIBTRACKER_COMMON_NAMESPACE_H__ */
+#endif /* __LIBTRACKER_DATA_NAMESPACE_H__ */
 

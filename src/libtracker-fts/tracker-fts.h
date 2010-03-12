@@ -22,7 +22,10 @@
 
 G_BEGIN_DECLS
 
+typedef const gchar *(*TrackerFtsMapFunc) (gint id);
+
 int tracker_fts_init (sqlite3 *db);
+void tracker_fts_set_map_function (TrackerFtsMapFunc map_func);
 int tracker_fts_update_init (int id);
 int tracker_fts_update_text (int id, int column_id, const char *text, gboolean limit_word_length);
 void tracker_fts_update_commit (void);

@@ -24,6 +24,8 @@
 
 #include <glib.h>
 
+#include <libtracker-common/tracker-ontologies.h>
+
 #include "tracker-namespace.h"
 #include "tracker-ontologies.h"
 #include "tracker-property.h"

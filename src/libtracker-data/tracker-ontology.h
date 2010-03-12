@@ -19,15 +19,15 @@
  * Author: Philip Van Hoof <philip@codeminded.be>
  */
 
-#ifndef __LIBTRACKER_COMMON_ONTOLOGY_H__
-#define __LIBTRACKER_COMMON_ONTOLOGY_H__
+#ifndef __LIBTRACKER_DATA_ONTOLOGY_H__
+#define __LIBTRACKER_DATA_ONTOLOGY_H__
 
 #include <glib-object.h>
 
 G_BEGIN_DECLS
 
-#if !defined (__LIBTRACKER_COMMON_INSIDE__) && !defined (TRACKER_COMPILATION)
-#error "only <libtracker-common/tracker-common.h> must be included directly."
+#if !defined (__LIBTRACKER_DATA_INSIDE__) && !defined (TRACKER_COMPILATION)
+#error "only <libtracker-data/tracker-data.h> must be included directly."
 #endif
 
 #define TRACKER_TYPE_ONTOLOGY         (tracker_ontology_get_type ())
@@ -63,5 +63,5 @@ void              tracker_ontology_set_is_new        (TrackerOntology *ontology,
 
 G_END_DECLS
 
-#endif /* __LIBTRACKER_COMMON_ONTOLOGY_H__ */
+#endif /* __LIBTRACKER_DATA_ONTOLOGY_H__ */
 

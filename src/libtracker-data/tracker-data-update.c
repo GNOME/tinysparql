@@ -35,9 +35,12 @@
 #include <libtracker-db/tracker-db-dbus.h>
 #include <libtracker-db/tracker-db-journal.h>
 
+#include "tracker-class.h"
 #include "tracker-data-manager.h"
 #include "tracker-data-update.h"
 #include "tracker-data-query.h"
+#include "tracker-ontologies.h"
+#include "tracker-property.h"
 #include "tracker-sparql-query.h"
 
 #define RDF_PREFIX TRACKER_RDF_PREFIX
