@@ -247,6 +247,11 @@ static void           item_update_children_uri            (TrackerMinerFS       
                                                            const gchar          *uri);
 static void           crawled_directory_data_free         (CrawledDirectoryData *data);
 
+static gboolean       should_recurse_for_directory            (TrackerMinerFS *fs,
+							       GFile          *file);
+static void           tracker_miner_fs_directory_add_internal (TrackerMinerFS *fs,
+							       GFile          *file);
+
 
 static guint signals[LAST_SIGNAL] = { 0, };
 
@@ -1520,9 +1525,10 @@ item_move (TrackerMinerFS *fs,
 
 		file_type = g_file_info_get_file_type (file_info);
 
-		if (file_type == G_FILE_TYPE_DIRECTORY) {
-			/* We're dealing with a directory, index recursively */
-			tracker_miner_fs_directory_add (fs, file, TRUE);
+		if (file_type == G_FILE_TYPE_DIRECTORY &&
+		    should_recurse_for_directory (fs, file)) {
+			/* We're dealing with a recursive directory */
+			tracker_miner_fs_directory_add_internal (fs, file);
 			retval = TRUE;
 		} else {
 			retval = item_add_or_update (fs, file);
@@ -2136,8 +2142,9 @@ monitor_item_created_cb (TrackerMonitor *monitor,
 	         is_directory ? "DIR" : "FILE");
 
 	if (should_process) {
-		if (is_directory) {
-			tracker_miner_fs_directory_add (fs, file, TRUE);
+		if (is_directory &&
+		    should_recurse_for_directory (fs, file)) {
+			tracker_miner_fs_directory_add_internal (fs, file);
 		} else {
 			g_queue_push_tail (fs->private->items_created,
 			                   g_object_ref (file));
@@ -2242,7 +2249,8 @@ monitor_item_moved_cb (TrackerMonitor *monitor,
 	fs = user_data;
 
 	if (!is_source_monitored) {
-		if (is_directory) {
+		if (is_directory &&
+		    should_recurse_for_directory (fs, other_file)) {
 			gchar *path;
 
 			path = g_file_get_path (other_file);
@@ -2251,7 +2259,7 @@ monitor_item_moved_cb (TrackerMonitor *monitor,
 			         path);
 
 			/* If the source is not monitored, we need to crawl it. */
-			tracker_miner_fs_directory_add (fs, other_file, TRUE);
+			tracker_miner_fs_directory_add_internal (fs, other_file);
 
 			g_free (path);
 		}
@@ -2283,7 +2291,8 @@ monitor_item_moved_cb (TrackerMonitor *monitor,
 			/* Do nothing */
 		} else if (!source_stored) {
 			/* Source file was not stored, check dest file as new */
-			if (!is_directory) {
+			if (!is_directory ||
+			    !should_recurse_for_directory (fs, other_file)) {
 				g_queue_push_tail (fs->private->items_created,
 				                   g_object_ref (other_file));
 
@@ -2292,7 +2301,7 @@ monitor_item_moved_cb (TrackerMonitor *monitor,
 				g_debug ("Not in store:'?'->'%s' (DIR) (move monitor event, source monitored)",
 				         path);
 
-				tracker_miner_fs_directory_add (fs, other_file, TRUE);
+				tracker_miner_fs_directory_add_internal (fs, other_file);
 			}
 		} else if (!should_process_other) {
 			/* Delete old file */
@@ -2621,6 +2630,50 @@ crawl_directories_stop (TrackerMinerFS *fs)
 		g_source_remove (fs->private->crawl_directories_id);
 		fs->private->crawl_directories_id = 0;
 	}
+}
+
+static gboolean
+should_recurse_for_directory (TrackerMinerFS *fs,
+			      GFile          *file)
+{
+	gboolean recurse = FALSE;
+	GList *dirs;
+
+	for (dirs = fs->private->config_directories; dirs; dirs = dirs->next) {
+		DirectoryData *data;
+
+		data = dirs->data;
+
+		if (data->recurse &&
+		    (g_file_equal (file, data->file) ||
+		     g_file_has_prefix (file, data->file))) {
+			/* File is inside a recursive dir */
+			recurse = TRUE;
+			break;
+		}
+	}
+
+	return recurse;
+}
+
+/* This function is for internal use, adds the file to the processing
+ * queue with the same directory settings than the corresponding
+ * config directory.
+ */
+static void
+tracker_miner_fs_directory_add_internal (TrackerMinerFS *fs,
+					 GFile          *file)
+{
+	DirectoryData *data;
+	gboolean recurse;
+
+	recurse = should_recurse_for_directory (fs, file);
+	data = directory_data_new (file, recurse);
+
+	fs->private->directories =
+		g_list_append (fs->private->directories, data);
+
+	crawl_directories_start (fs);
 }
 
 /**
