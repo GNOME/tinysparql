@@ -71,7 +71,7 @@ struct _TrackerDataUpdateBuffer {
 };
 
 struct _TrackerDataUpdateBufferResource {
-	gchar *subject;
+	const gchar *subject;
 	gint id;
 	gboolean create;
 	gboolean fts_updated;
@@ -689,7 +689,6 @@ static void resource_buffer_free (TrackerDataUpdateBufferResource *resource)
 {
 	g_hash_table_unref (resource->predicates);
 	g_hash_table_unref (resource->tables);
-	g_free (resource->subject);
 	resource->subject = NULL;
 
 	g_ptr_array_free (resource->types, TRUE);
@@ -1393,11 +1392,13 @@ resource_buffer_switch (const gchar *graph,
 
 	if (resource_buffer == NULL) {
 		GValue gvalue = { 0 };
+		gchar *subject_dup = NULL;
 
 		/* subject not yet in cache, retrieve or create ID */
 		resource_buffer = g_slice_new0 (TrackerDataUpdateBufferResource);
 		if (subject != NULL) {
-			resource_buffer->subject = g_strdup (subject);
+			subject_dup = g_strdup (subject);
+			resource_buffer->subject = subject_dup;
 		}
 		if (subject_id > 0) {
 			resource_buffer->id = subject_id;
@@ -1416,7 +1417,7 @@ resource_buffer_switch (const gchar *graph,
 		if (in_journal_replay) {
 			g_hash_table_insert (update_buffer.resources_by_id, GINT_TO_POINTER (subject_id), resource_buffer);
 		} else {
-			g_hash_table_insert (update_buffer.resources, g_strdup (subject), resource_buffer);
+			g_hash_table_insert (update_buffer.resources, subject_dup, resource_buffer);
 
 			if (graph != NULL) {
 				graph_id = ensure_resource_id (graph, NULL);
