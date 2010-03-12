@@ -1572,6 +1572,9 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 		return TRUE;
 	}
 
+	/* Make sure we initialize all other modules we depend on */
+	tracker_ontologies_init ();
+
 	read_journal = FALSE;
 
 	if (!tracker_db_manager_init (flags, &is_first_time_index, FALSE)) {
@@ -1803,8 +1806,10 @@ tracker_data_manager_shutdown (void)
 {
 	g_return_if_fail (initialized == TRUE);
 
+	/* Make sure we shutdown all other modules we depend on */
 	tracker_db_journal_shutdown ();
 	tracker_db_manager_shutdown ();
+	tracker_ontologies_shutdown ();
 
 	initialized = FALSE;
 }

@@ -35,8 +35,6 @@
 
 #include <libtracker-common/tracker-date-time.h>
 #include <libtracker-common/tracker-file-utils.h>
-#include <libtracker-common/tracker-ontologies.h>
-#include <libtracker-common/tracker-property.h>
 #include <libtracker-common/tracker-utils.h>
 
 #include "tracker-db-journal.h"
@@ -1219,15 +1217,6 @@ db_recreate_all (void)
 
 	db_manager_remove_all (FALSE);
 
-	/* In cases where we re-init this module, make sure
-	 * we have cleaned up the ontology before we load all
-	 * new databases.
-	 */
-	tracker_ontologies_shutdown ();
-
-	/* Make sure we initialize all other modules we depend on */
-	tracker_ontologies_init ();
-
 	/* Now create the databases and close them */
 	g_message ("Creating database files, this may take a few moments...");
 
@@ -1440,17 +1429,11 @@ tracker_db_manager_init (TrackerDBManagerFlags  flags,
 
 		db_recreate_all ();
 
-		/* Make sure we initialize all other modules we depend on */
-		tracker_ontologies_init ();
-
 		/* Load databases */
 		g_message ("Loading databases files...");
 
 	} else {
 		gboolean must_recreate;
-
-		/* Make sure we initialize all other modules we depend on */
-		tracker_ontologies_init ();
 
 		/* Load databases */
 		g_message ("Loading databases files...");
@@ -1604,9 +1587,6 @@ tracker_db_manager_shutdown (void)
 	 */
 	g_type_class_unref (db_type_enum_class_pointer);
 	db_type_enum_class_pointer = NULL;
-
-	/* Make sure we shutdown all other modules we depend on */
-	tracker_ontologies_shutdown ();
 
 	initialized = FALSE;
 	locations_initialized = FALSE;
