@@ -54,7 +54,8 @@ typedef struct {
 
 typedef struct {
 	GFile    *file;
-	gboolean  recurse;
+	guint     recurse : 1;
+	guint     ref_count : 7;
 } DirectoryData;
 
 typedef struct {
@@ -193,7 +194,8 @@ static void           miner_ignore_next_update            (TrackerMiner         
                                                            const GStrv           subjects);
 static DirectoryData *directory_data_new                  (GFile                *file,
                                                            gboolean              recurse);
-static void           directory_data_free                 (DirectoryData        *dd);
+static DirectoryData *directory_data_ref                  (DirectoryData        *dd);
+static void           directory_data_unref                (DirectoryData        *dd);
 static ItemMovedData *item_moved_data_new                 (GFile                *file,
                                                            GFile                *source_file);
 static void           item_moved_data_free                (ItemMovedData        *data);
@@ -606,14 +608,13 @@ fs_finalize (GObject *object)
 
 	g_free (priv->current_parent_urn);
 
-	/* Not a leak, contents are actually owned
-	 * by priv->config_directories, being freed
-	 * right below.
-	 */
-	g_list_free (priv->directories);
+	if (priv->directories) {
+		g_list_foreach (priv->directories, (GFunc) directory_data_unref, NULL);
+		g_list_free (priv->directories);
+	}
 
 	if (priv->config_directories) {
-		g_list_foreach (priv->config_directories, (GFunc) directory_data_free, NULL);
+		g_list_foreach (priv->config_directories, (GFunc) directory_data_unref, NULL);
 		g_list_free (priv->config_directories);
 	}
 
@@ -795,19 +796,31 @@ directory_data_new (GFile    *file,
 
 	dd->file = g_object_ref (file);
 	dd->recurse = recurse;
+	dd->ref_count = 1;
 
 	return dd;
 }
 
+static DirectoryData *
+directory_data_ref (DirectoryData *dd)
+{
+	dd->ref_count++;
+	return dd;
+}
+
 static void
-directory_data_free (DirectoryData *dd)
+directory_data_unref (DirectoryData *dd)
 {
 	if (!dd) {
 		return;
 	}
 
-	g_object_unref (dd->file);
-	g_slice_free (DirectoryData, dd);
+	dd->ref_count--;
+
+	if (dd->ref_count == 0) {
+		g_object_unref (dd->file);
+		g_slice_free (DirectoryData, dd);
+	}
 }
 
 static void
@@ -2207,7 +2220,7 @@ monitor_item_deleted_cb (TrackerMonitor *monitor,
 	 * in process_device_next()
 	 */
 	if (l && l != fs->private->current_directory) {
-		directory_data_free (l->data);
+		directory_data_unref (l->data);
 		fs->private->directories =
 			g_list_delete_link (fs->private->directories, l);
 	}
@@ -2495,6 +2508,7 @@ crawler_finished_cb (TrackerCrawler *crawler,
 	           was_interrupted ? "Stopped" : "Finished",
 	           g_timer_elapsed (fs->private->timer, NULL));
 
+	directory_data_unref (fs->private->current_directory);
 	fs->private->current_directory = NULL;
 
 	/* Proceed to next thing to process */
@@ -2555,6 +2569,7 @@ crawl_directories_cb (gpointer user_data)
 	}
 
 	/* Directory couldn't be processed */
+	directory_data_unref (fs->private->current_directory);
 	fs->private->current_directory = NULL;
 
 	return TRUE;
@@ -2632,7 +2647,8 @@ tracker_miner_fs_directory_add (TrackerMinerFS *fs,
 		g_list_append (fs->private->config_directories, dir_data);
 
 	fs->private->directories =
-		g_list_append (fs->private->directories, dir_data);
+		g_list_append (fs->private->directories,
+			       directory_data_ref (dir_data));
 
 	crawl_directories_start (fs);
 }
@@ -2704,6 +2720,7 @@ tracker_miner_fs_directory_remove (TrackerMinerFS *fs,
 
 		if (g_file_equal (file, data->file) ||
 		    g_file_has_prefix (file, data->file)) {
+			directory_data_unref (data);
 			fs->private->directories = g_list_delete_link (fs->private->directories, link);
 			return_val = TRUE;
 		}
@@ -2718,8 +2735,8 @@ tracker_miner_fs_directory_remove (TrackerMinerFS *fs,
 		dirs = dirs->next;
 
 		if (g_file_equal (file, data->file)) {
-			directory_data_free (data);
-			fs->private->directories = g_list_delete_link (fs->private->directories, link);
+			directory_data_unref (data);
+			fs->private->config_directories = g_list_delete_link (fs->private->config_directories, link);
 			return_val = TRUE;
 		}
 	}
@@ -2974,6 +2991,8 @@ tracker_miner_fs_force_recheck (TrackerMinerFS *fs)
 	g_message ("Forcing re-check on all index directories");
 
 	directories = g_list_copy (fs->private->config_directories);
+	g_list_foreach (directories, (GFunc) directory_data_ref, NULL);
+
 	fs->private->directories = g_list_concat (fs->private->directories, directories);
 
 	crawl_directories_start (fs);
