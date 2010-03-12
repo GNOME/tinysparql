@@ -20,11 +20,6 @@
 
 #include "config.h"
 
-#include <stdio.h>
-#include <string.h>
-
-#include <glib.h>
-
 #include <libtracker-common/tracker-os-dependant.h>
 
 #include <libtracker-extract/tracker-extract.h>
@@ -32,40 +27,41 @@
 #include "tracker-main.h"
 
 typedef enum {
-	READ_TITLE,
-	READ_SUBJECT,
-	READ_AUTHOR,
-	READ_KEYWORDS,
-	READ_COMMENTS,
-	READ_STATS,
-	READ_CREATED,
-	READ_GENERATOR
-} tag_type;
+	ODT_TAG_TYPE_UNKNOWN,
+	ODT_TAG_TYPE_TITLE,
+	ODT_TAG_TYPE_SUBJECT,
+	ODT_TAG_TYPE_AUTHOR,
+	ODT_TAG_TYPE_KEYWORDS,
+	ODT_TAG_TYPE_COMMENTS,
+	ODT_TAG_TYPE_STATS,
+	ODT_TAG_TYPE_CREATED,
+	ODT_TAG_TYPE_GENERATOR
+} ODTTagType;
 
 typedef struct {
 	TrackerSparqlBuilder *metadata;
-	tag_type current;
+	ODTTagType current;
 	const gchar *uri;
 } ODTParseInfo;
 
-static void start_element_handler (GMarkupParseContext   *context,
-                                   const gchar           *element_name,
-                                   const gchar          **attribute_names,
-                                   const gchar          **attribute_values,
-                                   gpointer               user_data,
-                                   GError               **error);
-static void end_element_handler   (GMarkupParseContext   *context,
-                                   const gchar           *element_name,
-                                   gpointer               user_data,
-                                   GError               **error);
-static void text_handler          (GMarkupParseContext   *context,
-                                   const gchar           *text,
-                                   gsize                  text_len,
-                                   gpointer               user_data,
-                                   GError               **error);
-static void extract_oasis         (const gchar           *filename,
-                                   TrackerSparqlBuilder  *preupdate,
-                                   TrackerSparqlBuilder  *metadata);
+static void xml_start_element_handler (GMarkupParseContext   *context,
+                                       const gchar           *element_name,
+                                       const gchar          **attribute_names,
+                                       const gchar          **attribute_values,
+                                       gpointer               user_data,
+                                       GError               **error);
+static void xml_end_element_handler   (GMarkupParseContext   *context,
+                                       const gchar           *element_name,
+                                       gpointer               user_data,
+                                       GError               **error);
+static void xml_text_handler          (GMarkupParseContext   *context,
+                                       const gchar           *text,
+                                       gsize                  text_len,
+                                       gpointer               user_data,
+                                       GError               **error);
+static void extract_oasis             (const gchar           *filename,
+                                       TrackerSparqlBuilder  *preupdate,
+                                       TrackerSparqlBuilder  *metadata);
 
 static TrackerExtractData extract_data[] = {
 	{ "application/vnd.oasis.opendocument.*", extract_oasis },
@@ -81,6 +77,7 @@ extract_content (const gchar *path,
 	GError *error = NULL;
 
 	command = g_strdup_printf ("odt2txt --encoding=utf-8 %s", path);
+	g_debug ("Executing command:'%s'", command);
 
 	if (!g_spawn_command_line_sync (command, &output, NULL, NULL, &error)) {
 		g_warning ("Could not extract text from '%s': %s", path, error->message);
@@ -90,6 +87,7 @@ extract_content (const gchar *path,
 		return NULL;
 	}
 
+	g_debug ("Normalizing output with %d max words", n_words);
 	text = tracker_text_normalize (output, n_words, NULL);
 
 	g_free (command);
@@ -106,17 +104,14 @@ extract_oasis (const gchar          *uri,
                TrackerSparqlBuilder *preupdate,
                TrackerSparqlBuilder *metadata)
 {
-	gchar         *argv[5];
-	gchar         *xml;
-	gchar *filename = g_filename_from_uri (uri, NULL, NULL);
+	gchar *argv[5];
+	gchar *xml;
+	gchar *filename;
 	gchar *content;
 	TrackerFTSConfig *fts_config;
 	guint n_words;
-	ODTParseInfo   info = {
-		metadata,
-		-1,
-		uri
-	};
+
+	filename = g_filename_from_uri (uri, NULL, NULL);
 
 	argv[0] = g_strdup ("unzip");
 	argv[1] = g_strdup ("-p");
@@ -130,14 +125,19 @@ extract_oasis (const gchar          *uri,
 	tracker_sparql_builder_object (metadata, "nfo:PaginatedTextDocument");
 
 	if (tracker_spawn (argv, 10, &xml, NULL)) {
+		ODTParseInfo info;
 		GMarkupParseContext *context;
-		GMarkupParser        parser = {
-			start_element_handler,
-			end_element_handler,
-			text_handler,
+		GMarkupParser parser = {
+			xml_start_element_handler,
+			xml_end_element_handler,
+			xml_text_handler,
 			NULL,
 			NULL
 		};
+
+		info.metadata = metadata;
+		info.current = ODT_TAG_TYPE_UNKNOWN;
+		info.uri = uri;
 
 		context = g_markup_parse_context_new (&parser, 0, &info, NULL);
 		g_markup_parse_context_parse (context, xml, -1, NULL);
@@ -163,32 +163,27 @@ extract_oasis (const gchar          *uri,
 	g_free (filename);
 }
 
-void
-start_element_handler (GMarkupParseContext  *context,
-                       const gchar          *element_name,
-                       const gchar         **attribute_names,
-                       const gchar         **attribute_values,
-                       gpointer                      user_data,
-                       GError              **error)
+static void
+xml_start_element_handler (GMarkupParseContext  *context,
+                           const gchar          *element_name,
+                           const gchar         **attribute_names,
+                           const gchar         **attribute_values,
+                           gpointer              user_data,
+                           GError              **error)
 {
 	ODTParseInfo *data = user_data;
 
-	if (strcmp (element_name, "dc:title") == 0) {
-		data->current = READ_TITLE;
-	}
-	else if (strcmp (element_name, "dc:subject") == 0) {
-		data->current = READ_SUBJECT;
-	}
-	else if (strcmp (element_name, "dc:creator") == 0) {
-		data->current = READ_AUTHOR;
-	}
-	else if (strcmp (element_name, "meta:keyword") == 0) {
-		data->current = READ_KEYWORDS;
-	}
-	else if (strcmp (element_name, "dc:description") == 0) {
-		data->current = READ_COMMENTS;
-	}
-	else if (strcmp (element_name, "meta:document-statistic") == 0) {
+	if (g_ascii_strcasecmp (element_name, "dc:title") == 0) {
+		data->current = ODT_TAG_TYPE_TITLE;
+	} else if (g_ascii_strcasecmp (element_name, "dc:subject") == 0) {
+		data->current = ODT_TAG_TYPE_SUBJECT;
+	} else if (g_ascii_strcasecmp (element_name, "dc:creator") == 0) {
+		data->current = ODT_TAG_TYPE_AUTHOR;
+	} else if (g_ascii_strcasecmp (element_name, "meta:keyword") == 0) {
+		data->current = ODT_TAG_TYPE_KEYWORDS;
+	} else if (g_ascii_strcasecmp (element_name, "dc:description") == 0) {
+		data->current = ODT_TAG_TYPE_COMMENTS;
+	} else if (g_ascii_strcasecmp (element_name, "meta:document-statistic") == 0) {
 		TrackerSparqlBuilder *metadata;
 		const gchar *uri;
 		const gchar **a, **v;
@@ -197,43 +192,40 @@ start_element_handler (GMarkupParseContext  *context,
 		uri = data->uri;
 
 		for (a = attribute_names, v = attribute_values; *a; ++a, ++v) {
-			if (strcmp (*a, "meta:word-count") == 0) {
+			if (g_ascii_strcasecmp (*a, "meta:word-count") == 0) {
 				tracker_sparql_builder_predicate (metadata, "nfo:wordCount");
 				tracker_sparql_builder_object_unvalidated (metadata, *v);
-			} else if (strcmp (*a, "meta:page-count") == 0) {
+			} else if (g_ascii_strcasecmp (*a, "meta:page-count") == 0) {
 				tracker_sparql_builder_predicate (metadata, "nfo:pageCount");
 				tracker_sparql_builder_object_unvalidated (metadata, *v);
 			}
 		}
 
-		data->current = READ_STATS;
-	}
-	else if (strcmp (element_name, "meta:creation-date") == 0) {
-		data->current = READ_CREATED;
-	}
-	else if (strcmp (element_name, "meta:generator") == 0) {
-		data->current = READ_GENERATOR;
-	}
-	else {
+		data->current = ODT_TAG_TYPE_STATS;
+	} else if (g_ascii_strcasecmp (element_name, "meta:creation-date") == 0) {
+		data->current = ODT_TAG_TYPE_CREATED;
+	} else if (g_ascii_strcasecmp (element_name, "meta:generator") == 0) {
+	 	data->current = ODT_TAG_TYPE_GENERATOR;
+	} else {
 		data->current = -1;
 	}
 }
 
-void
-end_element_handler (GMarkupParseContext  *context,
-                     const gchar          *element_name,
-                     gpointer              user_data,
-                     GError              **error)
+static void
+xml_end_element_handler (GMarkupParseContext  *context,
+                         const gchar          *element_name,
+                         gpointer              user_data,
+                         GError              **error)
 {
 	((ODTParseInfo*) user_data)->current = -1;
 }
 
-void
-text_handler (GMarkupParseContext  *context,
-              const gchar          *text,
-              gsize                 text_len,
-              gpointer              user_data,
-              GError              **error)
+static void
+xml_text_handler (GMarkupParseContext  *context,
+                  const gchar          *text,
+                  gsize                 text_len,
+                  gpointer              user_data,
+                  GError              **error)
 {
 	ODTParseInfo *data;
 	TrackerSparqlBuilder *metadata;
@@ -245,15 +237,17 @@ text_handler (GMarkupParseContext  *context,
 	uri = data->uri;
 
 	switch (data->current) {
-	case READ_TITLE:
+	case ODT_TAG_TYPE_TITLE:
 		tracker_sparql_builder_predicate (metadata, "nie:title");
 		tracker_sparql_builder_object_unvalidated (metadata, text);
 		break;
-	case READ_SUBJECT:
+
+	case ODT_TAG_TYPE_SUBJECT:
 		tracker_sparql_builder_predicate (metadata, "nie:subject");
 		tracker_sparql_builder_object_unvalidated (metadata, text);
 		break;
-	case READ_AUTHOR:
+
+	case ODT_TAG_TYPE_AUTHOR:
 		tracker_sparql_builder_predicate (metadata, "nco:publisher");
 
 		tracker_sparql_builder_object_blank_open (metadata);
@@ -264,34 +258,44 @@ text_handler (GMarkupParseContext  *context,
 		tracker_sparql_builder_object_unvalidated (metadata, text);
 		tracker_sparql_builder_object_blank_close (metadata);
 		break;
-	case READ_KEYWORDS: {
-		gchar *keywords = g_strdup (text);
-		char *lasts, *keyw;
-		for (keyw = strtok_r (keywords, ",; ", &lasts); keyw;
+
+	case ODT_TAG_TYPE_KEYWORDS: {
+		gchar *keywords;
+		gchar *lasts, *keyw;
+
+		keywords = g_strdup (text);
+
+		for (keyw = strtok_r (keywords, ",; ", &lasts); 
+		     keyw;
 		     keyw = strtok_r (NULL, ",; ", &lasts)) {
 			tracker_sparql_builder_predicate (metadata, "nie:keyword");
 			tracker_sparql_builder_object_unvalidated (metadata, keyw);
 		}
+
 		g_free (keywords);
-	}
+
 		break;
-	case READ_COMMENTS:
+	}
+
+	case ODT_TAG_TYPE_COMMENTS:
 		tracker_sparql_builder_predicate (metadata, "nie:comment");
 		tracker_sparql_builder_object_unvalidated (metadata, text);
 		break;
-	case READ_CREATED:
+
+	case ODT_TAG_TYPE_CREATED:
 		date = tracker_date_guess (text);
 		tracker_sparql_builder_predicate (metadata, "nie:contentCreated");
 		tracker_sparql_builder_object_unvalidated (metadata, date);
 		g_free (date);
 		break;
-	case READ_GENERATOR:
+
+	case ODT_TAG_TYPE_GENERATOR:
 		tracker_sparql_builder_predicate (metadata, "nie:generator");
 		tracker_sparql_builder_object_unvalidated (metadata, text);
 		break;
 
 	default:
-	case READ_STATS:
+	case ODT_TAG_TYPE_STATS:
 		break;
 	}
 }
