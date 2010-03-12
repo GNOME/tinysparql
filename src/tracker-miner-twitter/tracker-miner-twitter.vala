@@ -212,7 +212,7 @@ public class MinerTwitter : Tracker.MinerWeb {
 					return;
 
 				message ("Miner is now associated. Initiating periodic pull.");
-				Timeout.add_seconds (PULL_INTERVAL, pull_timeout_cb);
+				pull_timeout_handle = Timeout.add_seconds (PULL_INTERVAL, pull_timeout_cb);
 				Idle.add ( () => { pull_timeout_cb (); return false; });
 				break;
 			case MinerWebAssociationStatus.UNASSOCIATED:
