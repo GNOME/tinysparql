@@ -808,5 +808,6 @@ nco:imCapability a rdf:Property ;
 nco:hasIMAddress a rdf:Property ;
 	rdfs:label "imAddress";
 	rdfs:comment "An address for communication using instant messages with the object specified by this contact." ;
+	rdfs:subPropertyOf nco:hasContactMedium ;
 	rdfs:domain nco:Role ;
 	rdfs:range nco:IMAddress .
