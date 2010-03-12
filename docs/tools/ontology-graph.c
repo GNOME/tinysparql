@@ -1,7 +1,7 @@
 #include <glib-object.h>
 #include <gio/gio.h>
 #include <glib/gprintf.h>
-#include <libtracker-common/tracker-common.h>
+#include <libtracker-data/tracker-data.h>
 #include <libtracker-data/tracker-sparql-query.h>
 
 #define RDF_PREFIX TRACKER_RDF_PREFIX
