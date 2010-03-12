@@ -125,7 +125,7 @@ public class MinerTwitter : Tracker.MinerWeb {
 		builder.insert_open (status.url);
 		builder.subject ("_:author");
 		builder.predicate ("a");
-		builder.object ("nco:Contact");
+		builder.object ("nco:PersonContact");
 		builder.predicate ("nco:fullname");
 		builder.object_string (status.user.name);
 		builder.predicate ("nco:photo");
