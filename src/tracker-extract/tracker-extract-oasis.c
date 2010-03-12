@@ -18,6 +18,8 @@
  * Boston, MA  02110-1301, USA.
  */
 
+#include "config.h"
+
 #include <stdio.h>
 #include <string.h>
 
@@ -74,6 +76,7 @@ static gchar *
 extract_content (const gchar *path,
                  guint        n_words)
 {
+#ifdef HAVE_ODT2TXT
 	gchar *command, *output, *text;
 	GError *error = NULL;
 
@@ -93,6 +96,9 @@ extract_content (const gchar *path,
 	g_free (output);
 
 	return text;
+#else  /* HAVE_ODT2TXT */
+	return NULL;
+#endif /* HAVE_ODT2TXT */
 }
 
 static void

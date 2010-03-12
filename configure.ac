@@ -1027,6 +1027,16 @@ if test x$enable_unzip_psgz_files != "xno"; then
   AC_DEFINE(USING_UNZIPPSFILES, 1, [Unzip ps.gz files])
 fi
 
+####################################################################
+# Oasis odt2txt binary check
+####################################################################
+
+AC_CHECK_PROG(have_odt2txt, odt2txt, "yes", "no")
+
+if test "x$have_odt2txt" = "xyes"; then
+   AC_DEFINE(HAVE_ODT2TXT, 1, [Define if we have odt2txt binary available])
+fi
+
 ##################################################################
 # Check for poppler's glib bingings
 ##################################################################
