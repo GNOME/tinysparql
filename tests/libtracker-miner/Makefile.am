@@ -15,8 +15,9 @@ INCLUDES = 									\
 	-I$(top_srcdir)/tests/common						\
 	-I$(top_builddir)/src/tracker-store					\
 	$(WARN_CFLAGS)								\
-	$(GLIB2_CFLAGS)								\
 	$(GCOV_CFLAGS)								\
+	$(GLIB2_CFLAGS)								\
+	$(GIO_CFLAGS)								\
 	$(GMODULE_CFLAGS)							\
 	$(GTHREAD_CFLAGS)							\
 	$(PANGO_CFLAGS)								\
@@ -32,6 +33,7 @@ tracker_crawler_LDADD = 							\
 	$(GCOV_LIBS)								\
 	$(GMODULE_LIBS)								\
 	$(GTHREAD_LIBS)								\
+	$(GIO_LIBS)								\
 	$(GLIB2_LIBS)
 
 tracker_thumbnailer_test_SOURCES = 						\
