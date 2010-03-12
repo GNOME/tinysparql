@@ -122,7 +122,7 @@ public class MinerTwitter : Tracker.MinerWeb {
 
 		builder = new SparqlBuilder.update ();
 
-		builder.insert_open (DATASOURCE_URN);
+		builder.insert_open (status.url);
 		builder.subject ("_:author");
 		builder.predicate ("a");
 		builder.object ("nco:Contact");
