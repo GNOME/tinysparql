@@ -10,8 +10,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=tracker&component=general\n"
-"POT-Creation-Date: 2010-03-05 17:25+0000\n"
-"PO-Revision-Date: 2010-03-06 11:12+0100\n"
+"POT-Creation-Date: 2010-03-12 16:16+0000\n"
+"PO-Revision-Date: 2010-03-12 18:47+0100\n"
 "Last-Translator: Andrej Žnidaršič <andrej.znidarsic@gmail.com>\n"
 "Language-Team: Slovenian GNOME Translation Team <gnome-si@googlegroups.com>\n"
 "MIME-Version: 1.0\n"
@@ -72,13 +72,13 @@ msgstr "Vse objave"
 msgid "By usage"
 msgstr "Po uporabi"
 
-#: ../src/plugins/nautilus/tracker-tags-view.c:283
-#: ../src/plugins/nautilus/tracker-tags-view.c:416
-#: ../src/plugins/nautilus/tracker-tags-view.c:450
+#: ../src/plugins/nautilus/tracker-tags-view.c:284
+#: ../src/plugins/nautilus/tracker-tags-view.c:417
+#: ../src/plugins/nautilus/tracker-tags-view.c:451
 msgid "No error was given"
 msgstr "Napaka ni bila podana"
 
-#: ../src/plugins/nautilus/tracker-tags-view.c:814
+#: ../src/plugins/nautilus/tracker-tags-view.c:815
 #, c-format
 msgid "_Set the tags you want to associate with the %d selected item:"
 msgid_plural "_Set the tags you want to associate with the %d selected items:"
@@ -189,27 +189,27 @@ msgstr "Premor programa in skladanje razloga za že obstoječo zahtevo po premor
 msgid "Cookie not recognized to resume paused miner"
 msgstr "Piškotek za nadaljevanje podatkovnega kopalnika v premoru ni prepoznan"
 
-#: ../src/libtracker-miner/tracker-miner-fs.c:715
+#: ../src/libtracker-miner/tracker-miner-fs.c:721
 #: ../src/plugins/evolution/tracker-evolution-plugin.c:2339
 msgid "Initializing"
 msgstr "Zaganjanje"
 
-#: ../src/libtracker-miner/tracker-miner-fs.c:726
-#: ../src/libtracker-miner/tracker-miner-fs.c:868
+#: ../src/libtracker-miner/tracker-miner-fs.c:732
+#: ../src/libtracker-miner/tracker-miner-fs.c:886
 msgid "Idle"
 msgstr "Nedejavno"
 
-#: ../src/libtracker-miner/tracker-miner-fs.c:1972
-#: ../src/libtracker-miner/tracker-miner-fs.c:1975
+#: ../src/libtracker-miner/tracker-miner-fs.c:2007
+#: ../src/libtracker-miner/tracker-miner-fs.c:2010
 msgid "Processing files"
 msgstr "Obdelovanje datotek"
 
-#: ../src/libtracker-miner/tracker-miner-fs.c:2517
+#: ../src/libtracker-miner/tracker-miner-fs.c:2560
 #, c-format
 msgid "Crawling recursively directory '%s'"
 msgstr "Rekurzivno kopanje po mapi '%s'"
 
-#: ../src/libtracker-miner/tracker-miner-fs.c:2519
+#: ../src/libtracker-miner/tracker-miner-fs.c:2562
 #, c-format
 msgid "Crawling single directory '%s'"
 msgstr "Kopanje po eni mapi '%s'"
@@ -402,152 +402,169 @@ msgstr "_Poišči:"
 msgid "_URN:"
 msgstr "_URN:"
 
-#: ../src/tracker-extract/tracker-main.c:83
-#: ../src/tracker-miner-fs/tracker-main.c:92
+#: ../src/tracker-extract/tracker-main.c:84
+#: ../src/tracker-store/tracker-main.c:106
+msgid "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default = 0)"
+msgstr "Beleženje, 0 = samo napake, 1 = najmanjše, 2 = podrobno in 3 = razhroščevanje (privzeto = 0)"
+
+#: ../src/tracker-extract/tracker-main.c:89
+msgid "File to extract metadata for"
+msgstr "Datoteka za razširitev metapodatkov"
+
+#: ../src/tracker-extract/tracker-main.c:90
+#: ../src/tracker-miner-fs/tracker-main.c:90
+#: ../src/tracker-miner-fs/tracker-main.c:94
+#: ../src/tracker-utils/tracker-import.c:55
+#: ../src/tracker-utils/tracker-import.c:56
+#: ../src/tracker-utils/tracker-info.c:53
+#: ../src/tracker-utils/tracker-info.c:54
+#: ../src/tracker-utils/tracker-sparql.c:62
+msgid "FILE"
+msgstr "DATOTEKA"
+
+#: ../src/tracker-extract/tracker-main.c:93
+msgid "MIME type for file (if not provided, this will be guessed)"
+msgstr "MIME vrsta za datoteko (če ni navedena, bo uganjena) "
+
+#: ../src/tracker-extract/tracker-main.c:94
+#: ../src/tracker-control/tracker-control.c:85
+msgid "MIME"
+msgstr "MIME"
+
+#: ../src/tracker-extract/tracker-main.c:99
+msgid "Disable shutting down after 30 seconds of inactivity"
+msgstr "Onemogoči izklop po 30 sekundah nedejavnosti"
+
+#: ../src/tracker-extract/tracker-main.c:103
+msgid "Force internal extractors over 3rd parties like libstreamanalyzer"
+msgstr "Vsili notranje izvlečevalnike pred zunanjimi kot je libstreamanalyzer "
+
+#: ../src/tracker-extract/tracker-main.c:107
+msgid "Force a module to be used for extraction (e.g. \"foo\" for \"foo.so\")"
+msgstr "Prisili modul uporabljen za razširitev (na primer \"foo\" za \"foo.so\")"
+
+#: ../src/tracker-extract/tracker-main.c:108
+msgid "MODULE"
+msgstr "MODUL"
+
+#: ../src/tracker-extract/tracker-main.c:111
+#: ../src/tracker-miner-fs/tracker-main.c:97
 #: ../src/tracker-store/tracker-main.c:102
 #: ../src/tracker-writeback/tracker-main.c:51
 msgid "Displays version information"
 msgstr "Pokaže podrobnosti različice"
 
-#: ../src/tracker-extract/tracker-main.c:87
-#: ../src/tracker-store/tracker-main.c:106
-msgid "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default = 0)"
-msgstr "Beleženje, 0 = samo napake, 1 = najmanjše, 2 = podrobno in 3 = razhroščevanje (privzeto = 0)"
-
-#: ../src/tracker-extract/tracker-main.c:92
-msgid "File to extract metadata for"
-msgstr "Datoteka za razširitev metapodatkov"
-
-#: ../src/tracker-extract/tracker-main.c:93
-#: ../src/tracker-miner-fs/tracker-main.c:89
-#: ../src/tracker-utils/tracker-import.c:55
-#: ../src/tracker-utils/tracker-import.c:56
-#: ../src/tracker-utils/tracker-info.c:53
-#: ../src/tracker-utils/tracker-info.c:54
-#: ../src/tracker-utils/tracker-sparql.c:56
-msgid "FILE"
-msgstr "DATOTEKA"
-
-#: ../src/tracker-extract/tracker-main.c:96
-msgid "MIME type for file (if not provided, this will be guessed)"
-msgstr "MIME vrsta za datoteko (če ni navedena, bo uganjena) "
-
-#: ../src/tracker-extract/tracker-main.c:97
-#: ../src/tracker-control/tracker-control.c:85
-msgid "MIME"
-msgstr "MIME"
-
-#: ../src/tracker-extract/tracker-main.c:102
-msgid "Disable shutting down after 30 seconds of inactivity"
-msgstr "Onemogoči izklop po 30 sekundah nedejavnosti"
-
-#: ../src/tracker-extract/tracker-main.c:106
-msgid "Force internal extractors over 3rd parties like libstreamanalyzer"
-msgstr "Vsili notranje izvlečevalnike pred zunanjimi kot je libstreamanalyzer "
-
 #. Translators: this message will appear immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
-#: ../src/tracker-extract/tracker-main.c:341
+#: ../src/tracker-extract/tracker-main.c:347
 msgid "- Extract file meta data"
 msgstr "- Razširi metapodatke datoteke"
 
-#: ../src/tracker-extract/tracker-main.c:350
+#: ../src/tracker-extract/tracker-main.c:356
 msgid "Filename and mime type must be provided together"
 msgstr "Ime datoteke in mime vrsta morata biti navedeni skupaj"
 
-#: ../src/tracker-miner-fs/tracker-main.c:78
+#: ../src/tracker-extract/tracker-main.c:370
+msgid "Options --force-internal-extractors and --force-module can't be used together"
+msgstr "Možnosti --force-internal-extractors in --force-module ni mogoče uporabiti skupaj"
+
+#: ../src/tracker-miner-fs/tracker-main.c:79
 #: ../src/tracker-writeback/tracker-main.c:55
 msgid "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default=0)"
 msgstr "Beleženje, 0 = samo napake, 1 = najmanjše, 2 = podrobno in 3 = razhroščevanje (privzeto=0)"
 
-#: ../src/tracker-miner-fs/tracker-main.c:83
+#: ../src/tracker-miner-fs/tracker-main.c:84
 msgid "Initial sleep time in seconds, 0->1000 (default=15)"
 msgstr "Začetno spanje v sekundah, 0->1000 (privzeto=15)"
 
-#: ../src/tracker-miner-fs/tracker-main.c:88
+#: ../src/tracker-miner-fs/tracker-main.c:89
 msgid "Checks if FILE is eligible for being mined based on configuration"
 msgstr "Preveri, če je DATOTEKA primerna za kopiranje na osnovi nastavitev"
 
-#: ../src/tracker-miner-fs/tracker-main.c:350
+#: ../src/tracker-miner-fs/tracker-main.c:93
+msgid "Forces the insertion of FILE into the store"
+msgstr "Prisili vstavitev DATOTEKE v trgovino"
+
+#: ../src/tracker-miner-fs/tracker-main.c:365
 #, c-format
 msgid "Data object '%s' currently exists"
 msgstr "Podatkovni predmet '%s' trenutno obstaja"
 
-#: ../src/tracker-miner-fs/tracker-main.c:351
+#: ../src/tracker-miner-fs/tracker-main.c:366
 #, c-format
 msgid "Data object '%s' currently does not exist"
 msgstr "Podatkovni predmet '%s' trenutno ne obstaja"
 
-#: ../src/tracker-miner-fs/tracker-main.c:366
+#: ../src/tracker-miner-fs/tracker-main.c:381
 msgid "Directory is eligible to be mined (based on rules)"
 msgstr "Datoteka je primerna za kopanje (osnovano na pravilih)"
 
-#: ../src/tracker-miner-fs/tracker-main.c:367
+#: ../src/tracker-miner-fs/tracker-main.c:382
 msgid "Directory is NOT eligible to be mined (based on rules)"
 msgstr "Datoteka NI primerna za kopanje (osnovano na pravilih)"
 
-#: ../src/tracker-miner-fs/tracker-main.c:387
+#: ../src/tracker-miner-fs/tracker-main.c:402
 msgid "Directory is eligible to be mined (based on contents)"
 msgstr "Datoteka je primerna za kopanje (osnovano na vsebini)"
 
-#: ../src/tracker-miner-fs/tracker-main.c:388
+#: ../src/tracker-miner-fs/tracker-main.c:403
 msgid "Directory is NOT eligible to be mined (based on contents)"
 msgstr "Datoteka NI primerna za kopanje (osnovano na vsebini)"
 
-#: ../src/tracker-miner-fs/tracker-main.c:435
+#: ../src/tracker-miner-fs/tracker-main.c:450
 msgid "Directory is eligible to be monitored (based on config)"
 msgstr "Datoteka je primerna za nadziranje (osnovano na nastavitvah)"
 
-#: ../src/tracker-miner-fs/tracker-main.c:436
+#: ../src/tracker-miner-fs/tracker-main.c:451
 msgid "Directory is NOT eligible to be monitored (based on config)"
 msgstr "Datoteka NI primerna za nadziranje (osnovano na nastavitvah)"
 
-#: ../src/tracker-miner-fs/tracker-main.c:440
+#: ../src/tracker-miner-fs/tracker-main.c:455
 msgid "File is eligible to be monitored (based on config)"
 msgstr "Datoteka je primerna za nadziranje (osnovano na nastavitvah)"
 
-#: ../src/tracker-miner-fs/tracker-main.c:441
+#: ../src/tracker-miner-fs/tracker-main.c:456
 msgid "File is NOT eligible to be monitored (based on config)"
 msgstr "Datoteka NI primerna za nadziranje (osnovano na nastavitvah)"
 
-#: ../src/tracker-miner-fs/tracker-main.c:445
+#: ../src/tracker-miner-fs/tracker-main.c:460
 msgid "File or Directory is eligible to be monitored (based on config)"
 msgstr "Datoteka ali mapa je primerna za nadziranje (osnovano na nastavitvah)"
 
-#: ../src/tracker-miner-fs/tracker-main.c:446
+#: ../src/tracker-miner-fs/tracker-main.c:461
 msgid "File or Directory is NOT eligible to be monitored (based on config)"
 msgstr "Datoteka ali mapa NI primerna za nadziranje (osnovano na nastavitvah)"
 
-#: ../src/tracker-miner-fs/tracker-main.c:461
+#: ../src/tracker-miner-fs/tracker-main.c:476
 msgid "File is eligible to be mined (based on rules)"
 msgstr "Datoteka je primerna za kopanje (osnovano na pravilih)"
 
-#: ../src/tracker-miner-fs/tracker-main.c:462
+#: ../src/tracker-miner-fs/tracker-main.c:477
 msgid "File is NOT eligible to be mined (based on rules)"
 msgstr "Datoteka NI primerna za kopanje (osnovano na pravilih)"
 
-#: ../src/tracker-miner-fs/tracker-main.c:471
+#: ../src/tracker-miner-fs/tracker-main.c:486
 msgid "Would be indexed"
 msgstr "Bi bilo pripravljeno kazalo"
 
-#: ../src/tracker-miner-fs/tracker-main.c:472
-#: ../src/tracker-miner-fs/tracker-main.c:474
+#: ../src/tracker-miner-fs/tracker-main.c:487
+#: ../src/tracker-miner-fs/tracker-main.c:489
 msgid "Yes"
 msgstr "Da"
 
-#: ../src/tracker-miner-fs/tracker-main.c:472
-#: ../src/tracker-miner-fs/tracker-main.c:474
+#: ../src/tracker-miner-fs/tracker-main.c:487
+#: ../src/tracker-miner-fs/tracker-main.c:489
 msgid "No"
 msgstr "Ne"
 
-#: ../src/tracker-miner-fs/tracker-main.c:473
+#: ../src/tracker-miner-fs/tracker-main.c:488
 msgid "Would be monitored"
 msgstr "Bi bilo nadzirano"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/tracker-miner-fs/tracker-main.c:514
+#: ../src/tracker-miner-fs/tracker-main.c:529
 msgid "- start the tracker indexer"
 msgstr "- začne pripravljalnik kazala trackerja"
 
@@ -960,7 +977,7 @@ msgstr ""
 #: ../src/tracker-utils/tracker-import.c:51
 #: ../src/tracker-utils/tracker-info.c:49
 #: ../src/tracker-utils/tracker-search.c:108
-#: ../src/tracker-utils/tracker-sparql.c:83
+#: ../src/tracker-utils/tracker-sparql.c:93
 #: ../src/tracker-utils/tracker-stats.c:47
 #: ../src/tracker-utils/tracker-status.c:99
 #: ../src/tracker-utils/tracker-tag.c:83
@@ -1174,7 +1191,7 @@ msgstr "Ene ali več datotek ni bilo določenih"
 
 #: ../src/tracker-utils/tracker-import.c:109
 #: ../src/tracker-utils/tracker-info.c:135
-#: ../src/tracker-utils/tracker-sparql.c:211
+#: ../src/tracker-utils/tracker-sparql.c:244
 #: ../src/tracker-utils/tracker-stats.c:106
 #: ../src/tracker-utils/tracker-status.c:419
 #: ../src/tracker-utils/tracker-tag.c:855
@@ -1349,123 +1366,140 @@ msgstr "To pomeni, da iskalni niz med ujemanjem vnosov FTS ne bo nikoli najden."
 msgid "Could not establish a DBus connection to Tracker"
 msgstr "Ni mogoče vzpostaviti DBus povezave s Trackerjem"
 
-#: ../src/tracker-utils/tracker-sparql.c:55
+#: ../src/tracker-utils/tracker-sparql.c:61
 msgid "Path to use to run a query or update from file"
 msgstr "Pot za zagon poizvedbe ali posodobitve iz datoteke"
 
-#: ../src/tracker-utils/tracker-sparql.c:59
+#: ../src/tracker-utils/tracker-sparql.c:65
 msgid "SPARQL query"
 msgstr "poizvedba SPARQL"
 
-#: ../src/tracker-utils/tracker-sparql.c:60
+#: ../src/tracker-utils/tracker-sparql.c:66
 msgid "SPARQL"
 msgstr "SPARQL"
 
-#: ../src/tracker-utils/tracker-sparql.c:63
+#: ../src/tracker-utils/tracker-sparql.c:69
 msgid "This is used with --query and for database updates only."
 msgstr "To je uporabljeno s --query in le za posodobitve podatkovne zbirke"
 
-#: ../src/tracker-utils/tracker-sparql.c:67
+#: ../src/tracker-utils/tracker-sparql.c:73
 msgid "Retrieve classes"
 msgstr "Pridobi razrede"
 
-#: ../src/tracker-utils/tracker-sparql.c:71
+#: ../src/tracker-utils/tracker-sparql.c:77
 msgid "Retrieve class prefixes"
 msgstr "Pridobi predpone razredov"
 
-#: ../src/tracker-utils/tracker-sparql.c:75
+#: ../src/tracker-utils/tracker-sparql.c:81
 msgid "Retrieve properties for a class, prefixes can be used too (e.g. rdfs:Resource)"
 msgstr "Pridobi lastnosti za razred, lahko se uporabi tudi predpone (na primer rdfs:Resource)"
 
-#: ../src/tracker-utils/tracker-sparql.c:76
+#: ../src/tracker-utils/tracker-sparql.c:82
+#: ../src/tracker-utils/tracker-sparql.c:86
 msgid "CLASS"
 msgstr "RAZRED"
 
-#: ../src/tracker-utils/tracker-sparql.c:79
+#: ../src/tracker-utils/tracker-sparql.c:85
+msgid "Retrieve classes which notify changes in the database (CLASS is optional)"
+msgstr "Pridobi razrede, ki obveščajo o spremembah v podatkovni zbirki (RAZRED je izbiren)"
+
+#: ../src/tracker-utils/tracker-sparql.c:89
 msgid "Search for a class or property and display more information (e.g. Document)"
 msgstr "Iskanje za razred ali lastnost in prikaz več podrobnosti (na primer dokument)"
 
-#: ../src/tracker-utils/tracker-sparql.c:80
+#: ../src/tracker-utils/tracker-sparql.c:90
 msgid "CLASS/PROPERTY"
 msgstr "RAZRED/LASTNOST"
 
-#: ../src/tracker-utils/tracker-sparql.c:110
+#: ../src/tracker-utils/tracker-sparql.c:120
 msgid "Could not get namespace prefixes"
 msgstr "Predpon imenskega prostora ni mogoče dobiti"
 
-#: ../src/tracker-utils/tracker-sparql.c:119
+#: ../src/tracker-utils/tracker-sparql.c:129
 msgid "No namespace prefixes were found"
 msgstr "Predpon imenskega prostora ni mogoče najti"
 
-#: ../src/tracker-utils/tracker-sparql.c:178
+#: ../src/tracker-utils/tracker-sparql.c:204
 msgid "- Query or update using SPARQL"
 msgstr "- Poizvedba ali posodobitev s SPARQL"
 
-#: ../src/tracker-utils/tracker-sparql.c:195
-msgid "Either a file or query needs to be specified"
-msgstr "Datoteka ali poizvedba mora biti določena"
+#: ../src/tracker-utils/tracker-sparql.c:218
+msgid "An argument must be supplied"
+msgstr "Argument je potrebo zagotoviti"
 
-#: ../src/tracker-utils/tracker-sparql.c:223
+#: ../src/tracker-utils/tracker-sparql.c:220
+msgid "File and query can not be used together"
+msgstr "Datoteke in poizvedbe ni mogoče uporabiti skupaj"
+
+#: ../src/tracker-utils/tracker-sparql.c:256
 msgid "Could not list classes"
 msgstr "Razredov ni mogoče razvrstiti"
 
-#: ../src/tracker-utils/tracker-sparql.c:233
+#: ../src/tracker-utils/tracker-sparql.c:266
 msgid "No classes were found"
 msgstr "Razredov ni mogoče najti"
 
-#: ../src/tracker-utils/tracker-sparql.c:261
+#: ../src/tracker-utils/tracker-sparql.c:294
 msgid "Could not list class prefixes"
 msgstr "Razrednih predpon ni mogoče razvrstiti"
 
-#: ../src/tracker-utils/tracker-sparql.c:271
+#: ../src/tracker-utils/tracker-sparql.c:304
 msgid "No class prefixes were found"
 msgstr "Razrednih predpon ni mogoče najti"
 
-#: ../src/tracker-utils/tracker-sparql.c:301
-msgid "Could not search classes"
-msgstr "Ni mogoče iskati razredov"
-
-#: ../src/tracker-utils/tracker-sparql.c:307
-msgid "No classes were found to match search term"
-msgstr "Ni mogoče najti razredov za skladanje iskalnega niza"
-
-#: ../src/tracker-utils/tracker-sparql.c:335
-msgid "Could not search properties"
-msgstr "Ni mogoče iskati lastnosti"
-
-#: ../src/tracker-utils/tracker-sparql.c:341
-msgid "No properties were found to match search term"
-msgstr "Ni mogoče najti lastnosti za skladanje iskalnega niza"
-
-#: ../src/tracker-utils/tracker-sparql.c:376
+#: ../src/tracker-utils/tracker-sparql.c:336
 msgid "Could not find property for class prefix, e.g. :Resource in 'rdfs:Resource'"
 msgstr "Ni mogoče najti lastnosti za predpono razreda, na primer :Resource v 'rdfs:Resource'"
 
-#: ../src/tracker-utils/tracker-sparql.c:413
+#: ../src/tracker-utils/tracker-sparql.c:375
 msgid "Could not list properties"
 msgstr "Lastnosti ni mogoče razvrstiti"
 
-#: ../src/tracker-utils/tracker-sparql.c:423
+#: ../src/tracker-utils/tracker-sparql.c:385
 msgid "No properties were found"
 msgstr "Lastnosti ni mogoče najti"
 
-#: ../src/tracker-utils/tracker-sparql.c:445
+#: ../src/tracker-utils/tracker-sparql.c:425
+msgid "Could not find notify classes"
+msgstr "Ni mogoče najti razredov obvestil"
+
+#: ../src/tracker-utils/tracker-sparql.c:431
+msgid "No notifies were found"
+msgstr "Ni najdenih obvestil"
+
+#: ../src/tracker-utils/tracker-sparql.c:462
+msgid "Could not search classes"
+msgstr "Ni mogoče iskati razredov"
+
+#: ../src/tracker-utils/tracker-sparql.c:468
+msgid "No classes were found to match search term"
+msgstr "Ni mogoče najti razredov za skladanje iskalnega niza"
+
+#: ../src/tracker-utils/tracker-sparql.c:496
+msgid "Could not search properties"
+msgstr "Ni mogoče iskati lastnosti"
+
+#: ../src/tracker-utils/tracker-sparql.c:502
+msgid "No properties were found to match search term"
+msgstr "Ni mogoče najti lastnosti za skladanje iskalnega niza"
+
+#: ../src/tracker-utils/tracker-sparql.c:525
 msgid "Could not get UTF-8 path from path"
 msgstr "Iz poti ni mogoče dobiti poti UTF-8 "
 
-#: ../src/tracker-utils/tracker-sparql.c:457
+#: ../src/tracker-utils/tracker-sparql.c:537
 msgid "Could not read file"
 msgstr "Ni mogoče prebrati dokumenta"
 
-#: ../src/tracker-utils/tracker-sparql.c:476
+#: ../src/tracker-utils/tracker-sparql.c:556
 msgid "Could not run update"
 msgstr "Posodobitve ni mogoče zagnati"
 
-#: ../src/tracker-utils/tracker-sparql.c:511
+#: ../src/tracker-utils/tracker-sparql.c:594
 msgid "Could not run query"
 msgstr "Poizvedbe ni mogoče zagnati"
 
-#: ../src/tracker-utils/tracker-sparql.c:520
+#: ../src/tracker-utils/tracker-sparql.c:603
 msgid "No results found matching your query"
 msgstr "Ni zadetkov skladnih s poizvedbo"
 
@@ -1738,6 +1772,8 @@ msgstr "- zaženi program s podporo zamika zapisovanja"
 msgid "Saved queries"
 msgstr "Shranjene poizvedbe"
 
+#~ msgid "Either a file or query needs to be specified"
+#~ msgstr "Datoteka ali poizvedba mora biti določena"
 #~ msgid "Path : <b>%s</b>"
 #~ msgstr "Pot : <b>%s</b>"
 #~ msgid "Modified : <b>%s</b>"
