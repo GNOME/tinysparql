@@ -70,7 +70,6 @@ struct _TrackerDataUpdateBuffer {
 
 struct _TrackerDataUpdateBufferResource {
 	gchar *subject;
-	gchar *new_subject;
 	gint id;
 	gboolean create;
 	gboolean fts_updated;
@@ -493,24 +492,6 @@ tracker_data_resource_buffer_flush (GError **error)
 
 	iface = tracker_db_manager_get_db_interface ();
 
-	if (resource_buffer->new_subject != NULL) {
-		/* change uri of resource */
-		stmt = tracker_db_interface_create_statement (iface,
-		                                              "UPDATE Resource SET Uri = ? WHERE ID = ?");
-		tracker_db_statement_bind_text (stmt, 0, resource_buffer->new_subject);
-		tracker_db_statement_bind_int (stmt, 1, resource_buffer->id);
-		tracker_db_statement_execute (stmt, &actual_error);
-		g_object_unref (stmt);
-
-		g_free (resource_buffer->new_subject);
-		resource_buffer->new_subject = NULL;
-
-		if (actual_error) {
-			g_propagate_error (error, actual_error);
-			return;
-		}
-	}
-
 	g_hash_table_iter_init (&iter, resource_buffer->tables);
 	while (g_hash_table_iter_next (&iter, (gpointer*) &table_name, (gpointer*) &table)) {
 		if (table->multiple_values) {
@@ -704,9 +685,6 @@ tracker_data_resource_buffer_flush (GError **error)
 
 static void resource_buffer_free (TrackerDataUpdateBufferResource *resource)
 {
-	g_free (resource->new_subject);
-	resource->new_subject = NULL;
-
 	g_hash_table_unref (resource->predicates);
 	g_hash_table_unref (resource->tables);
 	g_free (resource->subject);
@@ -1604,13 +1582,9 @@ tracker_data_insert_statement_with_uri (const gchar            *graph,
 
 	property = tracker_ontologies_get_property_by_uri (predicate);
 	if (property == NULL) {
-		if (strcmp (predicate, TRACKER_PREFIX "uri") == 0) {
-			/* virtual tracker:uri property */
-		} else {
-			g_set_error (error, TRACKER_DATA_ERROR, TRACKER_DATA_ERROR_UNKNOWN_PROPERTY,
-			             "Property '%s' not found in the ontology", predicate);
-			return;
-		}
+		g_set_error (error, TRACKER_DATA_ERROR, TRACKER_DATA_ERROR_UNKNOWN_PROPERTY,
+		             "Property '%s' not found in the ontology", predicate);
+		return;
 	} else {
 		if (tracker_property_get_data_type (property) != TRACKER_PROPERTY_TYPE_RESOURCE) {
 			g_set_error (error, TRACKER_DATA_ERROR, TRACKER_DATA_ERROR_INVALID_TYPE,
@@ -1676,11 +1650,6 @@ tracker_data_insert_statement_with_uri (const gchar            *graph,
 			             "Class '%s' not found in the ontology", object);
 			return;
 		}
-
-		change = TRUE;
-	} else if (strcmp (predicate, TRACKER_PREFIX "uri") == 0) {
-		/* internal property tracker:uri, used to change uri of existing element */
-		resource_buffer->new_subject = g_strdup (object);
 
 		change = TRUE;
 	} else {
