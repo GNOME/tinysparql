@@ -44,6 +44,7 @@ typedef struct _TrackerPropertyPriv TrackerPropertyPriv;
 struct _TrackerPropertyPriv {
 	gchar         *uri;
 	gchar         *name;
+	gchar         *table_name;
 
 	TrackerPropertyType  data_type;
 	TrackerClass   *domain;
@@ -77,6 +78,7 @@ enum {
 	PROP_0,
 	PROP_URI,
 	PROP_NAME,
+	PROP_TABLE_NAME,
 	PROP_DATA_TYPE,
 	PROP_DOMAIN,
 	PROP_RANGE,
@@ -174,6 +176,13 @@ tracker_property_class_init (TrackerPropertyClass *klass)
 	                                 g_param_spec_string ("name",
 	                                                      "name",
 	                                                      "Field name",
+	                                                      NULL,
+	                                                      G_PARAM_READABLE));
+	g_object_class_install_property (object_class,
+	                                 PROP_TABLE_NAME,
+	                                 g_param_spec_string ("table-name",
+	                                                      "table-name",
+	                                                      "Table name",
 	                                                      NULL,
 	                                                      G_PARAM_READABLE));
 	g_object_class_install_property (object_class,
@@ -309,6 +318,7 @@ property_finalize (GObject *object)
 
 	g_free (priv->uri);
 	g_free (priv->name);
+	g_free (priv->table_name);
 
 	if (priv->domain) {
 		g_object_unref (priv->domain);
@@ -339,6 +349,9 @@ property_get_property (GObject    *object,
 		break;
 	case PROP_NAME:
 		g_value_set_string (value, priv->name);
+		break;
+	case PROP_TABLE_NAME:
+		g_value_set_string (value, tracker_property_get_table_name ((TrackerProperty *) object));
 		break;
 	case PROP_DATA_TYPE:
 		g_value_set_enum (value, priv->data_type);
@@ -537,6 +550,28 @@ tracker_property_get_name (TrackerProperty *field)
 	priv = GET_PRIV (field);
 
 	return priv->name;
+}
+
+const gchar *
+tracker_property_get_table_name (TrackerProperty *field)
+{
+	TrackerPropertyPriv *priv;
+
+	g_return_val_if_fail (TRACKER_IS_PROPERTY (field), NULL);
+
+	priv = GET_PRIV (field);
+
+	if (!priv->table_name) {
+		if (priv->multiple_values) {
+			priv->table_name = g_strdup_printf ("%s_%s",
+				tracker_class_get_name (priv->domain),
+				priv->name);
+		} else {
+			priv->table_name = g_strdup (tracker_class_get_name (priv->domain));
+		}
+	}
+
+	return priv->table_name;
 }
 
 TrackerPropertyType

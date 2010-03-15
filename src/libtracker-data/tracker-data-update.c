@@ -993,16 +993,10 @@ get_property_values (TrackerProperty *property)
 		TrackerDBInterface *iface;
 		TrackerDBStatement *stmt;
 		TrackerDBResultSet *result_set;
-		gchar              *table_name;
+		const gchar        *table_name;
 		const gchar        *field_name;
 
-		if (multiple_values) {
-			table_name = g_strdup_printf ("%s_%s",
-				                      tracker_class_get_name (tracker_property_get_domain (property)),
-				                      tracker_property_get_name (property));
-		} else {
-			table_name = g_strdup (tracker_class_get_name (tracker_property_get_domain (property)));
-		}
+		table_name = tracker_property_get_table_name (property);
 		field_name = tracker_property_get_name (property);
 
 		iface = tracker_db_manager_get_db_interface ();
@@ -1041,8 +1035,6 @@ get_property_values (TrackerProperty *property)
 			g_object_unref (result_set);
 		}
 		g_object_unref (stmt);
-
-		g_free (table_name);
 	}
 
 	return old_values;
@@ -1163,7 +1155,7 @@ cache_set_metadata_decomposed (TrackerProperty  *property,
                                GError          **error)
 {
 	gboolean            multiple_values, fts;
-	gchar              *table_name;
+	const gchar        *table_name;
 	const gchar        *field_name;
 	TrackerProperty   **super_properties;
 	GValue              gvalue = { 0 };
@@ -1183,13 +1175,7 @@ cache_set_metadata_decomposed (TrackerProperty  *property,
 	}
 
 	multiple_values = tracker_property_get_multiple_values (property);
-	if (multiple_values) {
-		table_name = g_strdup_printf ("%s_%s",
-		                              tracker_class_get_name (tracker_property_get_domain (property)),
-		                              tracker_property_get_name (property));
-	} else {
-		table_name = g_strdup (tracker_class_get_name (tracker_property_get_domain (property)));
-	}
+	table_name = tracker_property_get_table_name (property);
 	field_name = tracker_property_get_name (property);
 
 	fts = tracker_property_get_fulltext_indexed (property);
@@ -1230,8 +1216,6 @@ cache_set_metadata_decomposed (TrackerProperty  *property,
 		change = TRUE;
 	}
 
-	g_free (table_name);
-
 	return change;
 }
 
@@ -1241,7 +1225,7 @@ delete_metadata_decomposed (TrackerProperty  *property,
                             GError          **error)
 {
 	gboolean            multiple_values, fts;
-	gchar              *table_name;
+	const gchar        *table_name;
 	const gchar        *field_name;
 	TrackerProperty   **super_properties;
 	GValue gvalue = { 0 };
@@ -1250,13 +1234,7 @@ delete_metadata_decomposed (TrackerProperty  *property,
 	gboolean            change = FALSE;
 
 	multiple_values = tracker_property_get_multiple_values (property);
-	if (multiple_values) {
-		table_name = g_strdup_printf ("%s_%s",
-		                              tracker_class_get_name (tracker_property_get_domain (property)),
-		                              tracker_property_get_name (property));
-	} else {
-		table_name = g_strdup (tracker_class_get_name (tracker_property_get_domain (property)));
-	}
+	table_name = tracker_property_get_table_name (property);
 	field_name = tracker_property_get_name (property);
 
 	fts = tracker_property_get_fulltext_indexed (property);
@@ -1264,7 +1242,6 @@ delete_metadata_decomposed (TrackerProperty  *property,
 	/* read existing property values */
 	old_values = get_old_property_values (property, &new_error);
 	if (new_error) {
-		g_free (table_name);
 		g_propagate_error (error, new_error);
 		return FALSE;
 	}
@@ -1272,7 +1249,6 @@ delete_metadata_decomposed (TrackerProperty  *property,
 	string_to_gvalue (value, tracker_property_get_data_type (property), &gvalue, &new_error);
 
 	if (new_error) {
-		g_free (table_name);
 		g_propagate_error (error, new_error);
 		return FALSE;
 	}
@@ -1286,8 +1262,6 @@ delete_metadata_decomposed (TrackerProperty  *property,
 
 		change = TRUE;
 	}
-
-	g_free (table_name);
 
 	/* also delete super property values */
 	super_properties = tracker_property_get_super_properties (property);
@@ -1354,7 +1328,7 @@ cache_delete_resource_type (TrackerClass *class,
 
 	for (p = 0; p < n_props; p++) {
 		gboolean            multiple_values, fts;
-		gchar              *table_name;
+		const gchar        *table_name;
 		const gchar        *field_name;
 		GValueArray        *old_values;
 		gint                i;
@@ -1366,13 +1340,7 @@ cache_delete_resource_type (TrackerClass *class,
 		}
 
 		multiple_values = tracker_property_get_multiple_values (prop);
-		if (multiple_values) {
-			table_name = g_strdup_printf ("%s_%s",
-			                              tracker_class_get_name (class),
-			                              tracker_property_get_name (prop));
-		} else {
-			table_name = g_strdup (tracker_class_get_name (class));
-		}
+		table_name = tracker_property_get_table_name (prop);
 		field_name = tracker_property_get_name (prop);
 
 		fts = tracker_property_get_fulltext_indexed (prop);
@@ -1391,8 +1359,6 @@ cache_delete_resource_type (TrackerClass *class,
 			cache_delete_value (table_name, field_name, &gvalue, multiple_values, fts,
 			                    tracker_property_get_data_type (prop) == TRACKER_PROPERTY_TYPE_DATETIME);
 		}
-
-		g_free (table_name);
 	}
 
 	cache_delete_row (class);
@@ -2279,9 +2245,8 @@ tracker_data_delete_resource_description (const gchar *graph,
 					format_sql_value_as_string (sql, property);
 
 					g_string_append_printf (sql,
-					                        " FROM \"%s_%s\" WHERE ID = ?",
-					                        tracker_class_get_name (tracker_property_get_domain (property)),
-					                        tracker_property_get_name (property));
+					                        " FROM \"%s\" WHERE ID = ?",
+					                        tracker_property_get_table_name (property));
 
 					stmt = tracker_db_interface_create_statement (iface, "%s", sql->str);
 					tracker_db_statement_bind_int (stmt, 0, resource_id);

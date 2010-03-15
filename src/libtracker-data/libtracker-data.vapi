@@ -34,7 +34,8 @@ namespace Tracker {
 
 	[CCode (cheader_filename = "libtracker-data/tracker-property.h")]
 	public class Property : GLib.Object {
-		public string name { get; set; }
+		public string name { get; }
+		public string table_name { get; }
 		public string uri { get; set; }
 		public PropertyType data_type { get; set; }
 		public Class domain { get; set; }

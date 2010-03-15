@@ -143,11 +143,7 @@ public class Tracker.SparqlQuery : Object {
 									append_expression_as_string (sql, "\"%s\"".printf (prop.name), prop.data_type);
 
 									sql.append (" AS \"object\" FROM ");
-									if (prop.multiple_values) {
-										sql.append_printf ("\"%s_%s\"", prop.domain.name, prop.name);
-									} else {
-										sql.append_printf ("\"%s\"", prop.domain.name);
-									}
+									sql.append_printf ("\"%s\"", prop.table_name);
 
 									sql.append (" WHERE ID = ?");
 
@@ -190,11 +186,7 @@ public class Tracker.SparqlQuery : Object {
 									append_expression_as_string (sql, "\"%s\"".printf (prop.name), prop.data_type);
 
 									sql.append (" AS \"object\" FROM ");
-									if (prop.multiple_values) {
-										sql.append_printf ("\"%s_%s\"", prop.domain.name, prop.name);
-									} else {
-										sql.append_printf ("\"%s\"", prop.domain.name);
-									}
+									sql.append_printf ("\"%s\"", prop.table_name);
 								}
 							}
 						} while (result_set.iter_next ());
@@ -217,11 +209,7 @@ public class Tracker.SparqlQuery : Object {
 							append_expression_as_string (sql, "\"%s\"".printf (prop.name), prop.data_type);
 
 							sql.append (" AS \"object\" FROM ");
-							if (prop.multiple_values) {
-								sql.append_printf ("\"%s_%s\"", prop.domain.name, prop.name);
-							} else {
-								sql.append_printf ("\"%s\"", prop.domain.name);
-							}
+							sql.append_printf ("\"%s\"", prop.table_name);
 						}
 					}
 				} else {
@@ -1634,13 +1622,13 @@ public class Tracker.SparqlQuery : Object {
 				long begin = sql.len;
 				sql.append_printf ("\"%s\"", prop.name);
 				convert_expression_to_string (sql, prop.data_type, begin);
-				sql.append_printf (",',') FROM \"%s_%s\" WHERE ID = ", prop.domain.name, prop.name);
+				sql.append_printf (",',') FROM \"%s\" WHERE ID = ", prop.table_name);
 				translate_expression (sql);
 				sql.append (")");
 
 				return PropertyType.STRING;
 			} else {
-				sql.append_printf ("(SELECT \"%s\" FROM \"%s\" WHERE ID = ", prop.name, prop.domain.name);
+				sql.append_printf ("(SELECT \"%s\" FROM \"%s\" WHERE ID = ", prop.name, prop.table_name);
 				translate_expression (sql);
 				sql.append (")");
 
@@ -2956,13 +2944,11 @@ public class Tracker.SparqlQuery : Object {
 					pv.domain = domain;
 				}
 
+				db_table = prop.table_name;
 				if (prop.multiple_values) {
-					db_table = "%s_%s".printf (prop.domain.name, prop.name);
 					// we can never share the table with multiple triples
 					// for multi value properties as a property may consist of multiple rows
 					share_table = false;
-				} else {
-					db_table = prop.domain.name;
 				}
 				subject_type = prop.domain;
 

@@ -75,6 +75,7 @@ GType               tracker_property_get_type             (void) G_GNUC_CONST;
 TrackerProperty *   tracker_property_new                  (void);
 const gchar *       tracker_property_get_uri              (TrackerProperty      *property);
 const gchar *       tracker_property_get_name             (TrackerProperty      *property);
+const gchar *       tracker_property_get_table_name       (TrackerProperty      *property);
 TrackerPropertyType tracker_property_get_data_type        (TrackerProperty      *property);
 TrackerClass *      tracker_property_get_domain           (TrackerProperty      *property);
 TrackerClass *      tracker_property_get_range            (TrackerProperty      *property);
