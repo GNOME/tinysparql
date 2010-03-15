@@ -839,8 +839,7 @@ tracker_data_blank_buffer_flush (GError **error)
 static void
 cache_create_service_decomposed (TrackerClass *cl,
                                  const gchar  *graph,
-                                 gint          graph_id,
-                                 gboolean      do_callback)
+                                 gint          graph_id)
 {
 	TrackerClass       **super_classes;
 	GValue              gvalue = { 0 };
@@ -849,7 +848,7 @@ cache_create_service_decomposed (TrackerClass *cl,
 	/* also create instance of all super classes */
 	super_classes = tracker_class_get_super_classes (cl);
 	while (*super_classes) {
-		cache_create_service_decomposed (*super_classes, graph, graph_id, do_callback);
+		cache_create_service_decomposed (*super_classes, graph, graph_id);
 		super_classes++;
 	}
 
@@ -872,7 +871,7 @@ cache_create_service_decomposed (TrackerClass *cl,
 	                    TRUE, FALSE, FALSE);
 
 	add_class_count (cl, 1);
-	if (do_callback && insert_callbacks) {
+	if (!in_journal_replay && insert_callbacks) {
 		guint n;
 		const gchar *class_uri;
 
@@ -1689,7 +1688,7 @@ tracker_data_insert_statement_with_uri (const gchar            *graph,
 		   cope with inference and insert blank rows */
 		class = tracker_ontologies_get_class_by_uri (object);
 		if (class != NULL) {
-			cache_create_service_decomposed (class, graph, 0, TRUE);
+			cache_create_service_decomposed (class, graph, 0);
 		} else {
 			g_set_error (error, TRACKER_DATA_ERROR, TRACKER_DATA_ERROR_UNKNOWN_CLASS,
 			             "Class '%s' not found in the ontology", object);
@@ -2507,7 +2506,7 @@ tracker_data_replay_journal (GHashTable *classes,
 					resource_buffer_switch (NULL, graph_id, NULL, subject_id);
 
 					if (property == rdf_type) {
-						cache_create_service_decomposed (class, NULL, graph_id, FALSE);
+						cache_create_service_decomposed (class, NULL, graph_id);
 					} else {
 						GError *new_error = NULL;
 
