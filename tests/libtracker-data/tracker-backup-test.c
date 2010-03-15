@@ -95,7 +95,7 @@ test_backup_and_restore (void)
          */ 
 	tracker_data_manager_init (TRACKER_DB_MANAGER_FORCE_REINDEX,
 	                           data_prefix,
-	                           NULL);
+	                           NULL, FALSE);
 
 	/* load data set */
 	data_filename = g_strconcat (data_prefix, ".data", NULL);
@@ -108,6 +108,7 @@ test_backup_and_restore (void)
                 g_assert_not_reached ();
         }
         g_free (data_filename);
+
 
         /* Check everything is correct */
         check_content_in_db (3, 1);
@@ -137,10 +138,10 @@ test_backup_and_restore (void)
 
         tracker_data_manager_init (TRACKER_DB_MANAGER_FORCE_REINDEX,
                                    data_prefix,
-                                   NULL);
+                                   NULL, FALSE);
         check_content_in_db (0, 0);
 
-        tracker_data_backup_restore (backup_file, backup_finished_cb, NULL, NULL);
+        tracker_data_backup_restore (backup_file, backup_finished_cb, NULL, NULL, data_prefix);
         check_content_in_db (3, 1);
 
         g_assert_cmpint (backup_calls, ==, 2);

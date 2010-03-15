@@ -126,7 +126,8 @@ void
 tracker_data_backup_restore (GFile *journal,
                              TrackerDataBackupFinished callback,
                              gpointer user_data,
-                             GDestroyNotify destroy)
+                             GDestroyNotify destroy,
+                             const gchar *test_schema)
 {
 	BackupSaveInfo *info;
 
@@ -163,7 +164,7 @@ tracker_data_backup_restore (GFile *journal,
 
 		tracker_db_journal_shutdown ();
 
-		tracker_data_manager_init (flags, NULL, &is_first, TRUE);
+		tracker_data_manager_init (flags, test_schema, &is_first, TRUE);
 
 	} else {
 		g_set_error (&info->error, TRACKER_DATA_BACKUP_ERROR, 0, 

@@ -43,7 +43,8 @@ void   tracker_data_backup_save        (GFile                     *destination,
 void   tracker_data_backup_restore     (GFile                     *journal,
                                         TrackerDataBackupFinished  callback,
                                         gpointer                   user_data,
-                                        GDestroyNotify             destroy);
+                                        GDestroyNotify             destroy,
+                                        const gchar               *test_schema);
 
 G_END_DECLS
 

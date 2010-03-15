@@ -130,7 +130,8 @@ tracker_backup_restore (TrackerBackup          *object,
 	tracker_data_backup_restore (journal,
 	                             backup_callback,
 	                             info, 
-	                             (GDestroyNotify) g_free);
+	                             (GDestroyNotify) g_free,
+	                             NULL);
 
 	g_object_unref (journal);
 }
