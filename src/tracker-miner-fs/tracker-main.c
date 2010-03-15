@@ -295,7 +295,6 @@ check_eligible (void)
 	GFile *file;
 	GFileInfo *info;
 	GError *error = NULL;
-	const gchar *format;
 	gchar *path;
 	guint log_handler_id;
 	gboolean exists = TRUE;
@@ -361,11 +360,11 @@ check_eligible (void)
 		print_monitor_check = TRUE;
 	}
 
-	format = exists ?
-		_("Data object '%s' currently exists") :
-		_("Data object '%s' currently does not exist");
+	g_print (exists ?
+	         _("Data object '%s' currently exists") :
+	         _("Data object '%s' currently does not exist"),
+	         path);
 
-	g_print (format, path);
 	g_print ("\n");
 
 	if (print_dir_check) {
