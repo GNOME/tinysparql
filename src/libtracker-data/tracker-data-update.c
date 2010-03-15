@@ -838,7 +838,9 @@ tracker_data_blank_buffer_flush (GError **error)
 
 static void
 cache_create_service_decomposed (TrackerClass *cl,
-                                 const gchar  *graph)
+                                 const gchar  *graph,
+                                 gint          graph_id,
+                                 gboolean      do_callback)
 {
 	TrackerClass       **super_classes;
 	GValue              gvalue = { 0 };
@@ -847,7 +849,7 @@ cache_create_service_decomposed (TrackerClass *cl,
 	/* also create instance of all super classes */
 	super_classes = tracker_class_get_super_classes (cl);
 	while (*super_classes) {
-		cache_create_service_decomposed (*super_classes, graph);
+		cache_create_service_decomposed (*super_classes, graph, graph_id, do_callback);
 		super_classes++;
 	}
 
@@ -866,11 +868,11 @@ cache_create_service_decomposed (TrackerClass *cl,
 
 	g_value_set_int (&gvalue, ensure_resource_id (tracker_class_get_uri (cl), NULL));
 	cache_insert_value ("rdfs:Resource_rdf:type", "rdf:type", &gvalue,
-	                    graph != NULL ? ensure_resource_id (graph, NULL) : 0,
+	                    graph != NULL ? ensure_resource_id (graph, NULL) : graph_id,
 	                    TRUE, FALSE, FALSE);
 
 	add_class_count (cl, 1);
-	if (insert_callbacks) {
+	if (do_callback && insert_callbacks) {
 		guint n;
 		const gchar *class_uri;
 
@@ -1145,6 +1147,7 @@ string_to_gvalue (const gchar         *value,
 static gboolean
 cache_set_metadata_decomposed (TrackerProperty  *property,
                                const gchar      *value,
+                               gint              value_id,
                                const gchar      *graph,
                                gint              graph_id,
                                GError          **error)
@@ -1161,7 +1164,8 @@ cache_set_metadata_decomposed (TrackerProperty  *property,
 	/* also insert super property values */
 	super_properties = tracker_property_get_super_properties (property);
 	while (*super_properties) {
-		cache_set_metadata_decomposed (*super_properties, value, graph, graph_id, &new_error);
+		cache_set_metadata_decomposed (*super_properties, value, value_id,
+		                               graph, graph_id, &new_error);
 		if (new_error) {
 			g_propagate_error (error, new_error);
 			return FALSE;
@@ -1182,10 +1186,15 @@ cache_set_metadata_decomposed (TrackerProperty  *property,
 		return FALSE;
 	}
 
-	string_to_gvalue (value, tracker_property_get_data_type (property), &gvalue, &new_error);
-	if (new_error) {
-		g_propagate_error (error, new_error);
-		return FALSE;
+	if (value) {
+		string_to_gvalue (value, tracker_property_get_data_type (property), &gvalue, &new_error);
+		if (new_error) {
+			g_propagate_error (error, new_error);
+			return FALSE;
+		}
+	} else {
+		g_value_init (&gvalue, G_TYPE_INT);
+		g_value_set_int (&gvalue, value_id);
 	}
 
 	if (!value_set_add_value (old_values, &gvalue)) {
@@ -1681,7 +1690,7 @@ tracker_data_insert_statement_with_uri (const gchar            *graph,
 		   cope with inference and insert blank rows */
 		class = tracker_ontologies_get_class_by_uri (object);
 		if (class != NULL) {
-			cache_create_service_decomposed (class, graph);
+			cache_create_service_decomposed (class, graph, 0, TRUE);
 		} else {
 			g_set_error (error, TRACKER_DATA_ERROR, TRACKER_DATA_ERROR_UNKNOWN_CLASS,
 			             "Class '%s' not found in the ontology", object);
@@ -1691,7 +1700,7 @@ tracker_data_insert_statement_with_uri (const gchar            *graph,
 		change = TRUE;
 	} else {
 		/* add value to metadata database */
-		change = cache_set_metadata_decomposed (property, object, graph, 0, &actual_error);
+		change = cache_set_metadata_decomposed (property, object, 0, graph, 0, &actual_error);
 		if (actual_error) {
 			tracker_data_update_buffer_clear ();
 			g_propagate_error (error, actual_error);
@@ -1762,7 +1771,7 @@ tracker_data_insert_statement_with_string (const gchar            *graph,
 	}
 
 	/* add value to metadata database */
-	change = cache_set_metadata_decomposed (property, object, graph, 0, &actual_error);
+	change = cache_set_metadata_decomposed (property, object, 0, graph, 0, &actual_error);
 	if (actual_error) {
 		tracker_data_update_buffer_clear ();
 		g_propagate_error (error, actual_error);
@@ -2416,6 +2425,7 @@ tracker_data_replay_journal (GHashTable *classes,
                              GHashTable *properties)
 {
 	GError *journal_error = NULL;
+	static TrackerProperty *rdf_type = NULL;
 
 	tracker_db_journal_reader_init (NULL);
 
@@ -2502,7 +2512,6 @@ tracker_data_replay_journal (GHashTable *classes,
 
 			if (property) {
 				GError *new_error = NULL;
-				static TrackerProperty *rdf_type = NULL;
 
 				if (!rdf_type) {
 					rdf_type = tracker_ontologies_get_property_by_uri (RDF_PREFIX "type");
