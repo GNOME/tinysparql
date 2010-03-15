@@ -1222,7 +1222,8 @@ cache_set_metadata_decomposed (TrackerProperty  *property,
 
 static gboolean
 delete_metadata_decomposed (TrackerProperty  *property,
-                            const gchar              *value,
+                            const gchar      *value,
+                            gint              value_id,
                             GError          **error)
 {
 	gboolean            multiple_values, fts;
@@ -1247,11 +1248,15 @@ delete_metadata_decomposed (TrackerProperty  *property,
 		return FALSE;
 	}
 
-	string_to_gvalue (value, tracker_property_get_data_type (property), &gvalue, &new_error);
-
-	if (new_error) {
-		g_propagate_error (error, new_error);
-		return FALSE;
+	if (value) {
+		string_to_gvalue (value, tracker_property_get_data_type (property), &gvalue, &new_error);
+		if (new_error) {
+			g_propagate_error (error, new_error);
+			return FALSE;
+		}
+	} else {
+		g_value_init (&gvalue, G_TYPE_INT);
+		g_value_set_int (&gvalue, value_id);
 	}
 
 	if (!value_set_remove_value (old_values, &gvalue)) {
@@ -1267,7 +1272,7 @@ delete_metadata_decomposed (TrackerProperty  *property,
 	/* also delete super property values */
 	super_properties = tracker_property_get_super_properties (property);
 	while (*super_properties) {
-		delete_metadata_decomposed (*super_properties, value, error);
+		delete_metadata_decomposed (*super_properties, value, 0, error);
 		super_properties++;
 	}
 
@@ -1490,7 +1495,7 @@ tracker_data_delete_statement (const gchar  *graph,
 		if (field != NULL) {
 			gint id;
 
-			change = delete_metadata_decomposed (field, object, error);
+			change = delete_metadata_decomposed (field, object, 0, error);
 
 			id = tracker_property_get_id (field);
 			if (!in_journal_replay && change) {
@@ -2393,31 +2398,6 @@ tracker_data_sync (void)
 	tracker_db_journal_fsync ();
 }
 
-static gchar *
-query_resource_by_id (gint id)
-{
-	TrackerDBCursor *cursor;
-	TrackerDBInterface *iface;
-	TrackerDBStatement *stmt;
-	gchar *uri;
-
-	g_return_val_if_fail (id > 0, NULL);
-
-	iface = tracker_db_manager_get_db_interface ();
-
-	stmt = tracker_db_interface_create_statement (iface,
-	                                              "SELECT Uri FROM Resource WHERE ID = ?");
-	tracker_db_statement_bind_int (stmt, 0, id);
-	cursor = tracker_db_statement_start_cursor (stmt, NULL);
-	g_object_unref (stmt);
-
-	tracker_db_cursor_iter_next (cursor);
-	uri = g_strdup (tracker_db_cursor_get_string (cursor, 0));
-	g_object_unref (cursor);
-
-	return uri;
-}
-
 void
 tracker_data_replay_journal (GHashTable *classes,
                              GHashTable *properties)
@@ -2432,9 +2412,8 @@ tracker_data_replay_journal (GHashTable *classes,
 	tracker_db_journal_reader_init (NULL);
 
 	while (tracker_db_journal_reader_next (&journal_error)) {
-		GError *error = NULL;
 		TrackerDBJournalEntryType type;
-		const gchar *graph, *subject, *predicate, *object;
+		const gchar *object;
 		gint graph_id, subject_id, predicate_id, object_id;
 
 		type = tracker_db_journal_reader_get_type ();
@@ -2549,7 +2528,7 @@ tracker_data_replay_journal (GHashTable *classes,
 						g_warning ("Journal replay error: 'class with '%s' not found in the ontology'", object);
 					}
 				} else {
-					delete_metadata_decomposed (property, object, &new_error);
+					delete_metadata_decomposed (property, object, 0, &new_error);
 				}
 
 				if (new_error) {
@@ -2562,18 +2541,36 @@ tracker_data_replay_journal (GHashTable *classes,
 			}
 
 		} else if (type == TRACKER_DB_JOURNAL_DELETE_STATEMENT_ID) {
+			TrackerClass *class = NULL;
+			TrackerProperty *property;
+
 			tracker_db_journal_reader_get_statement_id (&graph_id, &subject_id, &predicate_id, &object_id);
 
-			if (graph_id > 0) {
-				graph = query_resource_by_id (graph_id);
-			} else {
-				graph = NULL;
-			}
-			subject = query_resource_by_id (subject_id);
-			predicate = query_resource_by_id (predicate_id);
-			object = query_resource_by_id (object_id);
+			property = g_hash_table_lookup (properties, GINT_TO_POINTER (predicate_id));
+			class = g_hash_table_lookup (classes, GINT_TO_POINTER (object_id));
 
-			tracker_data_delete_statement (graph, subject, predicate, object, &error);
+			if (property && class) {
+
+				resource_buffer_switch (NULL, graph_id, NULL, subject_id);
+
+				if (property == rdf_type) {
+					cache_delete_resource_type (class, NULL, graph_id);
+				} else {
+					GError *new_error = NULL;
+
+					delete_metadata_decomposed (property, NULL, object_id, &new_error);
+
+					if (new_error) {
+						g_warning ("Journal replay error: '%s'", new_error->message);
+						g_error_free (new_error);
+					}
+				}
+			} else {
+				if (!class)
+					g_warning ("Journal replay error: 'class with ID %d not found in the ontology'", object_id);
+				if (!property)
+					g_warning ("Journal replay error: 'property with ID %d doesn't exist'", predicate_id);
+			}
 		}
 	}
 
