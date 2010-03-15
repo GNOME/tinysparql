@@ -24,8 +24,7 @@ noinst_PROGRAMS = $(TEST_PROGS)
 TEST_PROGS += 								\
 	tracker-sparql							\
 	tracker-sparql-blank						\
-	tracker-ontology						\
-	tracker-backup
+	tracker-ontology						
 
 INCLUDES = 								\
 	-DTRACKER_COMPILATION						\
