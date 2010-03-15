@@ -73,7 +73,7 @@ extract_content (const gchar *path,
 	gchar *command, *output, *text;
 	GError *error = NULL;
 
-	command = g_strdup_printf ("odt2txt --encoding=utf-8 %s", path);
+	command = g_strdup_printf ("odt2txt --encoding=utf-8 '%s'", path);
 	g_debug ("Executing command:'%s'", command);
 
 	if (!g_spawn_command_line_sync (command, &output, NULL, NULL, &error)) {
