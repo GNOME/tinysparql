@@ -2427,6 +2427,10 @@ tracker_data_replay_journal (GHashTable *classes,
 	GError *journal_error = NULL;
 	static TrackerProperty *rdf_type = NULL;
 
+	if (!rdf_type) {
+		rdf_type = tracker_ontologies_get_property_by_uri (RDF_PREFIX "type");
+	}
+
 	tracker_db_journal_reader_init (NULL);
 
 	while (tracker_db_journal_reader_next (&journal_error)) {
@@ -2503,10 +2507,6 @@ tracker_data_replay_journal (GHashTable *classes,
 				} else {
 					resource_buffer_switch (NULL, graph_id, NULL, subject_id);
 
-					if (!rdf_type) {
-						rdf_type = tracker_ontologies_get_property_by_uri (RDF_PREFIX "type");
-					}
-
 					if (property == rdf_type) {
 						cache_create_service_decomposed (class, NULL, graph_id, FALSE);
 					} else {
@@ -2540,10 +2540,6 @@ tracker_data_replay_journal (GHashTable *classes,
 
 			if (property) {
 				GError *new_error = NULL;
-
-				if (!rdf_type) {
-					rdf_type = tracker_ontologies_get_property_by_uri (RDF_PREFIX "type");
-				}
 
 				if (object && rdf_type == property) {
 					TrackerClass *class;
